@@ -1,0 +1,10 @@
+lib_LIBRARIES = libtracy.a
+
+libtracy_a_SOURCES = tracy_lib.cc \
+                     ../../TPSA/TPSALib.f ../../TPSA/LieLib.f
+
+INCLUDES = -I../inc -I$(NUM_REC)/inc \
+	   -I/usr/include/c++/3.3.6
+
+CXXFLAGS = -g -O2 -Wall -fno-implicit-templates
+#CXXFLAGS = -g -O2 -Wall -frepo
