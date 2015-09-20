@@ -181,10 +181,12 @@ struct InsertionType {
 };
 
 struct CavityType {
-  double Pvolt;   // Vrf [V]
-  double Pfreq;   // Vrf [Hz]
-  double phi;     // RF phase
-  int    Ph;      // Harmonic number
+  double Pvolt;        // Vrf [V]
+  double Pfreq;        // Vrf [Hz]
+  double phi;          // RF phase
+  int    Ph;           // Harmonic number
+  bool   entry_focus;  // Edge focusing at entry.
+  bool   exit_focus;   // Edge focusing at exit.
 };
 
 struct CellType;

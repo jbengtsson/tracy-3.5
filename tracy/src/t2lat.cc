@@ -48,7 +48,8 @@ typedef enum
   cctsym, usesym, andsym, dspsym, kicksym, wglsym, nsym, mrksym,
   nbdsym, frgsym, latsym, mpsym, dbnsym, kssym, homsym, lmdsym, dtsym, xytsym,
   vrfsym, harnumsym, frqsym, gstsym, typsym, rollsym, idsym,
-  fnamesym1, fnamesym2, scalingsym, fmsym, harmsym, sprsym, recsym, solsym
+  fnamesym1, fnamesym2, scalingsym, fmsym, harmsym, sprsym, recsym, solsym,
+  entryfsym, exitfsym
 } Lat_symbol;   /*\*/
 // idsym fnamesym1 fnamesym2 scalingsym added for insertion
 // ring sym added
@@ -2016,6 +2017,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
   long           i;
   int            kx, kz;
   double         scaling;
+  int            entryf, exitf;
 
   V.LINK = LINK;
   V.fi = fi_; V.fo = fo_; V.cc = cc_; V.ll = ll_; V.errpos = errpos_;
@@ -2455,11 +2457,13 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     Frf = 0.0;   /* Frf */
     Vrf = 0.0;   /* Vrf */
     QPhi = 0.0;
-    harnum = 0;   /* Voff */
+    harnum = 1;   /* Voff */
     P_addset(P_expset(mysys, 0), (long)frqsym);
     P_addset(mysys, (long)vrfsym);
     P_addset(mysys, (long)phisym);
     P_addset(mysys, (long)harnumsym);
+    P_addset(mysys, (long)entryfsym);
+    P_addset(mysys, (long)exitfsym);
     P_addset(mysys, (long)dbnsym);
     do {
       test__(mysys, "illegal parameter", &V);
@@ -2481,6 +2485,14 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 
       case harnumsym:
 	harnum = (long)floor(EVAL_(&V) + 0.5);
+	break;
+
+      case entryfsym:
+	entryf = EVAL_(&V);
+	break;
+
+      case exitfsym:
+	exitf = EVAL_(&V);
 	break;
 
       case dbnsym:
@@ -2508,6 +2520,8 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       WITH3->Pfreq = Frf;   /* Frequency in Hz */
       WITH3->phi = QPhi*M_PI/180.0;
       WITH3->Ph = harnum;
+      WITH3->entry_focus = entryf == 1;
+      WITH3->exit_focus = exitf == 1;
       SetDBN(&V);
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
@@ -3608,6 +3622,8 @@ static void init_reserved_words(struct LOC_Lattice_Read *LINK)
   Reg("print          ", prnsym, &V);
   Reg("quadrupole     ", qdsym, &V);
   Reg("recombiner     ", recsym, &V);
+  Reg("rf_focus1      ", entryfsym, &V);
+  Reg("rf_focus2      ", exitfsym, &V);
   Reg("roll           ", rollsym, &V);
   Reg("scaling        ", scalingsym, &V); /* ID Laurent */
   Reg("sextupole      ", sexsym, &V);

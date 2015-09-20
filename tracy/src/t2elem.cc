@@ -2946,6 +2946,7 @@ void Cav_Alloc(elemtype *Elem)
   Elem->C = (CavityType *)malloc(sizeof(CavityType));
   C = Elem->C;
   C->Pvolt = 0.0; C->Pfreq = 0.0; C->phi = 0.0; C->Ph = 0;
+  C->entry_focus = false; C->exit_focus = false;
 }
 
 
