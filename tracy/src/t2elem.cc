@@ -716,17 +716,40 @@ void Cav_Pass(CellType &Cell, ss_vect<T> &X)
 {
   elemtype    *elemp;
   CavityType  *C;
-  T           delta;
+  double      L;
+  T           E, delta, gamma, gammap;
 
-  elemp = &Cell.Elem; C = elemp->C;
-  if (globval.Cavity_on && C->Pvolt != 0.0) {
-    delta = -C->Pvolt/(globval.Energy*1e9)
-            *sin(2.0*M_PI*C->Pfreq/c0*X[ct_]+C->phi);
-    X[delta_] += delta;
+  elemp = &Cell.Elem; C = elemp->C; L = elemp->PL;
 
-    if (globval.radiation) globval.dE -= is_double<T>::cst(delta);
+  if (globval.Cavity_on && C->Pvolt != 0e0)
+     delta =
+      -C->Pvolt/(1e9*globval.Energy)
+      *sin(2e0*M_PI*C->Pfreq*(L/2e0+X[ct_])/c0+C->phi);
+  else
+    delta = 0e0;
 
-    if (globval.pathlength) X[ct_] -= C->Ph/C->Pfreq*c0;
+  if (C->entry_focus) {
+    E = (1e0+X[delta_])*globval.Energy;
+    gammap = delta*globval.Energy/m_e;
+    gamma = E/m_e;
+
+    // X[px_] -= X[x_]*gammap/(2e0*gamma*L);
+    // X[py_] -= X[y_]*gammap/(2e0*gamma*L);
+  }
+  if (L != 0e0) Drift(L/2e0, X);
+
+  X[delta_] += delta;
+
+  if (globval.radiation) globval.dE -= is_double<T>::cst(delta);
+  if (globval.pathlength) X[ct_] -= C->Ph/C->Pfreq*c0;
+
+  if (L != 0e0) Drift(L/2e0, X);
+  if (C->exit_focus) {
+    E = (1+X[delta_])*globval.Energy;
+    gamma = E/m_e;
+
+    // X[px_] += X[x_]*gammap/(2e0*gamma*L);
+    // X[py_] += X[y_]*gammap/(2e0*gamma*L);
   }
 }
 

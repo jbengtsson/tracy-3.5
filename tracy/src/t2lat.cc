@@ -2439,9 +2439,12 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     ***************************************************************************
 
     <name>: Cavity,
+            L         = <length>, ( [m] )
             Frequency = <Frf>,   ( [Hz] )
             Voltage   = <Vrf>,   ( [V]  )
-            Phase     = <phi_rf> (degrees)
+            Phase     = <phi_rf>, (degrees)
+            rf_focus1 = <0|1>,
+            rf_focus2 = <0|1>,
             harnum    = <h>
 
     Example
@@ -2454,11 +2457,15 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     ClearHOMandDBN(&V);
     getest__(P_expset(SET, 1 << ((long)comma)), "<, > expected", &V);
     GetSym__(&V);
+    QL = 0.0;   /* L */
     Frf = 0.0;   /* Frf */
     Vrf = 0.0;   /* Vrf */
     QPhi = 0.0;
     harnum = 1;   /* Voff */
-    P_addset(P_expset(mysys, 0), (long)frqsym);
+    entryf = 0;
+    exitf = 0;
+    P_addset(P_expset(mysys, 0), (long)lsym);
+    P_addset(mysys, (long)frqsym);
     P_addset(mysys, (long)vrfsym);
     P_addset(mysys, (long)phisym);
     P_addset(mysys, (long)harnumsym);
@@ -2470,6 +2477,10 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       sym1 = *V.sym;
       getest__(P_expset(SET, 1 << ((long)eql)), "<=> expected", &V);
       switch (sym1) {
+
+      case lsym:
+	QL = EVAL_(&V);
+	break;
 
       case frqsym:
 	Frf = EVAL_(&V);
@@ -2513,6 +2524,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       WITH = &ElemFam[globval.Elem_nFam-1];
       WITH1 = &WITH->ElemF;
       memcpy(WITH1->PName, ElementName, sizeof(partsName));
+      WITH1->PL = QL;
       WITH1->Pkind = Cavity;
       Cav_Alloc(&WITH->ElemF);
       WITH3 = WITH1->C;
