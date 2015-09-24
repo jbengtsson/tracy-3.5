@@ -2458,10 +2458,11 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     getest__(P_expset(SET, 1 << ((long)comma)), "<, > expected", &V);
     GetSym__(&V);
     QL = 0.0;   /* L */
-    Frf = 0.0;   /* Frf */
-    Vrf = 0.0;   /* Vrf */
+    Frf = 0.0;  /* Frf */
+    Vrf = 0.0;  /* Vrf */
     QPhi = 0.0;
-    harnum = 1;   /* Voff */
+    harnum = 1; /* Voff */
+    k1 = 0;     /* N */
     entryf = 0;
     exitf = 0;
     P_addset(P_expset(mysys, 0), (long)lsym);
@@ -2469,6 +2470,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     P_addset(mysys, (long)vrfsym);
     P_addset(mysys, (long)phisym);
     P_addset(mysys, (long)harnumsym);
+    P_addset(mysys, (long)nsym);
     P_addset(mysys, (long)entryfsym);
     P_addset(mysys, (long)exitfsym);
     P_addset(mysys, (long)dbnsym);
@@ -2496,6 +2498,10 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 
       case harnumsym:
 	harnum = (long)floor(EVAL_(&V) + 0.5);
+	break;
+
+      case nsym:
+	k1 = (long)floor(EVAL_(&V) + 0.5);
 	break;
 
       case entryfsym:

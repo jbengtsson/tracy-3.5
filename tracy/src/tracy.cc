@@ -4,7 +4,7 @@
                  SLS, PSI      1995 - 1997
    M. Boege      SLS, PSI      1998          C translation
    L. Nadolski   SOLEIL        2002          Link to NAFF, Radia field maps
-   J. Bengtsson  NSLS-II, BNL  2004 -        
+   J. Bengtsson  NSLS-II, BNL  2004 -
 
 */
 
@@ -135,6 +135,12 @@ template void Marker_Pass(CellType &, ss_vect<double> &);
 
 template void Marker_Pass(CellType &, ss_vect<tps> &);
 
+template void Cav_Focus(const double L, const double delta,
+			ss_vect<double> &ps);
+
+template void Cav_Focus(const double L, const tps delta,
+			ss_vect<tps> &ps);
+
 template void Cav_Pass(CellType &, ss_vect<double> &);
 
 template void Cav_Pass(CellType &, ss_vect<tps> &);
@@ -144,12 +150,12 @@ template void Wiggler_pass_EF(const elemtype &elem, ss_vect<double> &x);
 template void Wiggler_pass_EF(const elemtype &elem, ss_vect<tps> &x);
 
 template void Wiggler_pass_EF2(int nstep, double L,
-			       double kxV, double kxH, double kz, 
+			       double kxV, double kxH, double kz,
 			       double BoBrhoV, double BoBrhoH, double phi,
 			       ss_vect<double> &x);
 
 template void Wiggler_pass_EF2(int nstep, double L,
-			       double kxV, double kxH, double kz, 
+			       double kxV, double kxH, double kz,
 			       double BoBrhoV, double BoBrhoH, double phi,
 			       ss_vect<tps> &x);
 

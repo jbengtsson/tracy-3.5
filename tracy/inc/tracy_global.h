@@ -182,6 +182,7 @@ struct InsertionType {
 };
 
 struct CavityType {
+  int    PN;           // Number of integration steps
   double Pvolt;        // Vrf [V]
   double Pfreq;        // Vrf [Hz]
   double phi;          // RF phase

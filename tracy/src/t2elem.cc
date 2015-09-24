@@ -165,20 +165,16 @@ void LtoG(ss_vect<T> &X, Vector2 &S, Vector2 &R,
 
 
 template<typename T>
-inline T get_p_s(const ss_vect<T> &x)
+inline T get_p_s(const ss_vect<T> &ps)
 {
-  T  p_s, p_s2;
+  T p_s, p_s2;
 
-  if (!globval.H_exact)
-    p_s = 1.0+x[delta_];
+  p_s2 = sqr(1e0+ps[delta_]) - sqr(ps[px_]) - sqr(ps[py_]);
+  if (p_s2 >= 0e0)
+    p_s = sqrt(p_s2);
   else {
-    p_s2 = sqr(1.0+x[delta_]) - sqr(x[px_]) - sqr(x[py_]);
-    if (p_s2 >= 0.0)
-      p_s = sqrt(p_s2);
-    else {
-      printf("get_p_s: *** Speed of light exceeded!\n");
-      p_s = NAN;
-    }
+    printf("get_p_s: *** Speed of light epsceeded!\n");
+    p_s = NAN;
   }
   return(p_s);
 }
@@ -187,25 +183,28 @@ inline T get_p_s(const ss_vect<T> &x)
 template <class T>
 void Drift(double L, ss_vect<T> &ps)
 {
-  T u, pz, betaz, delta1, gamma1, beta1;
+  T u, p_s, beta_s, delta1, gamma1, beta1;
 
-  if(true){
-    // Ultra relatistic approximation.
-    u = L/(1e0+ps[pt_]);
-    ps[x_] = ps[x_] + ps[px_]*u;
-    ps[y_] = ps[y_] + ps[py_]*u;
-    ps[z_] = ps[z_] - (ps[px_]*ps[px_]+ps[py_]*ps[py_])*u/2e0/(1+ps[pt_]);
+  if(false){
+    // Ultra relatistic approximation [cT, delta] -> [ct, p_t].
+    u = L/get_p_s(ps);
+    ps[x_] += ps[px_]*u;
+    ps[y_] += ps[py_]*u;
+    ps[ct_] += u*(1e0+ps[delta_]) - L;
   } else {
-    delta1 = sqrt(1e0 + 2e0*ps[pt_]/GP.beta+ps[pt_]*ps[pt_]) - 1e0;
-    gamma1  = GP.gamma + sqrt(GP.gamma*GP.gamma-1e0)*ps[pt_];
-    beta1 = sqrt(1e0-1e0/gamma1/gamma1);
+    // delta -> p_t.
+    delta1 = sqrt(1e0+2e0*ps[delta_]/globval.beta0+sqr(ps[delta_])) - 1e0;
+    gamma1 = globval.gamma0 + sqrt(sqr(globval.gamma0)-1e0)*ps[delta_];
+    beta1 = sqrt(1e0-1e0/sqr(gamma1));
 
-    pz = sqrt( (1e0+delta1)*(1e0+delta1)-ps[px_]*ps[px_]-ps[py_]*ps[py_]);
-    betaz = pz*beta1/(1e0+delta1);
-    ps[x_] += ps[px_]*L/pz;
-    ps[y_] += ps[py_]*L/pz;
-    ps[z_] -= L*(1e0/betaz-1e0/GP.beta);
+    p_s = sqrt(sqr(1e0+delta1)-sqr(ps[px_])-sqr(ps[py_]));
+    u = L/p_s;
+    beta_s = p_s*beta1/(1e0+delta1);
+    ps[x_] += ps[px_]*u;
+    ps[y_] += ps[py_]*u;
+    ps[ct_] += L*(1e0/beta_s-1e0/globval.beta0);
   }
+  if (globval.pathlength) ps[ct_] += L;
 }
 
 
@@ -737,45 +736,52 @@ void Marker_Pass(CellType &Cell, ss_vect<T> &X)
 
 
 template<typename T>
-void Cav_Pass(CellType &Cell, ss_vect<T> &X)
+void Cav_Focus(const double L, const T delta, ss_vect<T> &ps)
 {
-  elemtype    *elemp;
-  CavityType  *C;
-  double      L;
-  T           E, delta, gamma, gammap;
+  T gamma, gammap;
+
+  gamma = (1e0+ps[delta_])*globval.Energy/m_e;
+  gammap = delta*globval.gamma0;
+
+  ps[px_] -= ps[x_]*gammap/(2e0*globval.gamma0*L);
+  ps[py_] -= ps[y_]*gammap/(2e0*globval.gamma0*L);
+}
+
+
+template<typename T>
+void Cav_Pass(CellType &Cell, ss_vect<T> &ps)
+{
+  elemtype   *elemp;
+  CavityType *C;
+  int        k;
+  double     L, h;
+  T          delta, ddelta, gamma0ogamma1;
 
   elemp = &Cell.Elem; C = elemp->C; L = elemp->PL;
 
   if (globval.Cavity_on && C->Pvolt != 0e0)
-     delta =
+    delta =
       -C->Pvolt/(1e9*globval.Energy)
-      *sin(2e0*M_PI*C->Pfreq*(L/2e0+X[ct_])/c0+C->phi);
+      *sin(2e0*M_PI*C->Pfreq*(L/2e0+ps[ct_])/c0+C->phi);
   else
     delta = 0e0;
 
-  if (C->entry_focus) {
-    E = (1e0+X[delta_])*globval.Energy;
-    gammap = delta*globval.Energy/m_e;
-    gamma = E/m_e;
+  h = L/(C->PN+1e0); ddelta = delta/C->PN;
 
-    // X[px_] -= X[x_]*gammap/(2e0*gamma*L);
-    // X[py_] -= X[y_]*gammap/(2e0*gamma*L);
+  if (C->entry_focus) Cav_Focus(L, delta, ps);
+  for (k = 1; k <= C->PN; k++) {
+    Drift(h, ps);
+
+    gamma0ogamma1 =(1e0+ps[delta_])/(1e0+ps[delta_]+ddelta);
+
+    ps[px_] *= gamma0ogamma1; ps[py_] *= gamma0ogamma1;
+    ps[delta_] += ddelta;
+
+    if (globval.radiation) globval.dE -= is_double<T>::cst(delta);
+    if (globval.pathlength) ps[ct_] -= C->Ph/C->Pfreq*c0;
   }
-  if (L != 0e0) Drift(L/2e0, X);
-
-  X[delta_] += delta;
-
-  if (globval.radiation) globval.dE -= is_double<T>::cst(delta);
-  if (globval.pathlength) X[ct_] -= C->Ph/C->Pfreq*c0;
-
-  if (L != 0e0) Drift(L/2e0, X);
-  if (C->exit_focus) {
-    E = (1+X[delta_])*globval.Energy;
-    gamma = E/m_e;
-
-    // X[px_] += X[x_]*gammap/(2e0*gamma*L);
-    // X[py_] += X[y_]*gammap/(2e0*gamma*L);
-  }
+  Drift(h, ps);
+  if (C->exit_focus) Cav_Focus(L, delta, ps);
 }
 
 
