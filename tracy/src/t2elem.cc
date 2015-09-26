@@ -169,7 +169,14 @@ inline T get_p_s(const ss_vect<T> &ps)
 {
   T p_s, p_s2;
 
-  p_s2 = sqr(1e0+ps[delta_]) - sqr(ps[px_]) - sqr(ps[py_]);
+  if(false)
+    // Ultra relatistic approximation [cT, delta] -> [ct, p_t].
+    p_s2 = sqr(1e0+ps[delta_]) - sqr(ps[px_]) - sqr(ps[py_]);
+  else
+    // delta -> p_t.
+    p_s2 =
+      1e0 + 2e0*ps[delta_]/globval.beta0 + sqr(ps[delta_]) - sqr(ps[px_])
+      - sqr(ps[py_]);
   if (p_s2 >= 0e0)
     p_s = sqrt(p_s2);
   else {
@@ -193,16 +200,19 @@ void Drift(double L, ss_vect<T> &ps)
     ps[ct_] += u*(1e0+ps[delta_]) - L;
   } else {
     // delta -> p_t.
-    delta1 = sqrt(1e0+2e0*ps[delta_]/globval.beta0+sqr(ps[delta_])) - 1e0;
+    p_s = sqrt(1e0+2e0*ps[delta_]/globval.beta0+sqr(ps[delta_]));
+    delta1 = p_s - 1e0;
     gamma1 = globval.gamma0 + sqrt(sqr(globval.gamma0)-1e0)*ps[delta_];
     beta1 = sqrt(1e0-1e0/sqr(gamma1));
 
     p_s = sqrt(sqr(1e0+delta1)-sqr(ps[px_])-sqr(ps[py_]));
     u = L/p_s;
     beta_s = p_s*beta1/(1e0+delta1);
+
+    u = L/get_p_s(ps);
     ps[x_] += ps[px_]*u;
     ps[y_] += ps[py_]*u;
-    ps[ct_] += L*(1e0/beta_s-1e0/globval.beta0);
+    ps[ct_] += L*(1e0/globval.beta0+ps[delta_])/p_s;
   }
   if (globval.pathlength) ps[ct_] += L;
 }
@@ -736,52 +746,77 @@ void Marker_Pass(CellType &Cell, ss_vect<T> &X)
 
 
 template<typename T>
-void Cav_Focus(const double L, const T delta, ss_vect<T> &ps)
+void Cav_Pass1(CellType &Cell, ss_vect<T> &ps)
 {
-  T gamma, gammap;
+  // Obsolete.
+  elemtype    *elemp;
+  CavityType  *C;
+  double      L;
+  T           delta;
+
+  elemp = &Cell.Elem; C = elemp->C; L = elemp->PL;
+  Drift(L/2e0, ps);
+  if (globval.Cavity_on && C->Pvolt != 0.0) {
+    delta = -C->Pvolt/(globval.Energy*1e9)
+      *sin(2.0*M_PI*C->Pfreq*(L/2e0+ps[ct_])/c0+C->phi);
+    ps[delta_] += delta;
+
+    if (globval.radiation) globval.dE -= is_double<T>::cst(delta);
+
+    if (globval.pathlength) ps[ct_] -= C->Ph/C->Pfreq*c0;
+  }
+  Drift(L/2e0, ps);
+}
+
+
+template<typename T>
+void Cav_Focus(const double L, const T delta, const bool entrance,
+	       ss_vect<T> &ps)
+{
+  double sgn;
+  T      gamma, gammap;
+
+  sgn = (entrance)? 1e0 : -1e0;
 
   gamma = (1e0+ps[delta_])*globval.Energy/m_e;
   gammap = delta*globval.gamma0;
 
-  ps[px_] -= ps[x_]*gammap/(2e0*globval.gamma0*L);
-  ps[py_] -= ps[y_]*gammap/(2e0*globval.gamma0*L);
+  ps[px_] -= sgn*ps[x_]*gammap/(2e0*globval.gamma0*L);
+  ps[py_] -= sgn*ps[y_]*gammap/(2e0*globval.gamma0*L);
 }
 
 
 template<typename T>
 void Cav_Pass(CellType &Cell, ss_vect<T> &ps)
 {
+  /* J. Rosenzweig and L. Serafini "Transverse Particle Motion in
+     Radio-Frequency Linear Accelerators" Phys. Rev. E 49(2),
+     1599-1602 (1994)                                                         */
+
   elemtype   *elemp;
   CavityType *C;
   int        k;
-  double     L, h;
-  T          delta, ddelta, gamma0ogamma1;
+  double     L, h, s;
+  T          delta, ddelta;
 
   elemp = &Cell.Elem; C = elemp->C; L = elemp->PL;
 
-  if (globval.Cavity_on && C->Pvolt != 0e0)
-    delta =
-      -C->Pvolt/(1e9*globval.Energy)
-      *sin(2e0*M_PI*C->Pfreq*(L/2e0+ps[ct_])/c0+C->phi);
-  else
-    delta = 0e0;
+  h = L/(C->PN+1e0);
+  // globval.Energy contains p_0.
+  delta = C->Pvolt/(1e9*globval.Energy); ddelta = delta/C->PN;
 
-  h = L/(C->PN+1e0); ddelta = delta/C->PN;
-
-  if (C->entry_focus) Cav_Focus(L, delta, ps);
+  s = 0e0;
+  if (C->entry_focus) Cav_Focus(L, delta, true, ps);
   for (k = 1; k <= C->PN; k++) {
     Drift(h, ps);
-
-    gamma0ogamma1 =(1e0+ps[delta_])/(1e0+ps[delta_]+ddelta);
-
-    ps[px_] *= gamma0ogamma1; ps[py_] *= gamma0ogamma1;
-    ps[delta_] += ddelta;
+    s += h;
+    ps[delta_] -= ddelta*sin(2e0*M_PI*C->Pfreq*(s+ps[ct_])/c0+C->phi);
 
     if (globval.radiation) globval.dE -= is_double<T>::cst(delta);
     if (globval.pathlength) ps[ct_] -= C->Ph/C->Pfreq*c0;
   }
   Drift(h, ps);
-  if (C->exit_focus) Cav_Focus(L, delta, ps);
+  if (C->exit_focus) Cav_Focus(L, ddelta, false, ps);
 }
 
 

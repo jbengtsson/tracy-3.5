@@ -135,10 +135,10 @@ template void Marker_Pass(CellType &, ss_vect<double> &);
 
 template void Marker_Pass(CellType &, ss_vect<tps> &);
 
-template void Cav_Focus(const double L, const double delta,
+template void Cav_Focus(const double L, const double delta, const bool entrance,
 			ss_vect<double> &ps);
 
-template void Cav_Focus(const double L, const tps delta,
+template void Cav_Focus(const double L, const tps delta, const bool entrance,
 			ss_vect<tps> &ps);
 
 template void Cav_Pass(CellType &, ss_vect<double> &);
