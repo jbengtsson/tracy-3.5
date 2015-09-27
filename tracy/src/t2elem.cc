@@ -781,8 +781,8 @@ void Cav_Focus(const double L, const T delta, const bool entrance,
   gamma = (1e0+ps[delta_])*globval.Energy/m_e;
   gammap = delta*globval.gamma0;
 
-  ps[px_] -= sgn*ps[x_]*gammap/(2e0*globval.gamma0*L);
-  ps[py_] -= sgn*ps[y_]*gammap/(2e0*globval.gamma0*L);
+  ps[px_] += sgn*ps[x_]*gammap/(2e0*globval.gamma0*L);
+  ps[py_] += sgn*ps[y_]*gammap/(2e0*globval.gamma0*L);
 }
 
 
@@ -796,27 +796,26 @@ void Cav_Pass(CellType &Cell, ss_vect<T> &ps)
   elemtype   *elemp;
   CavityType *C;
   int        k;
-  double     L, h, s;
-  T          delta, ddelta;
+  double     L, h;
+  T          delta, ddelta, d1;
 
   elemp = &Cell.Elem; C = elemp->C; L = elemp->PL;
 
   h = L/(C->PN+1e0);
   // globval.Energy contains p_0.
   delta = C->Pvolt/(1e9*globval.Energy); ddelta = delta/C->PN;
-
-  s = 0e0;
-  if (C->entry_focus) Cav_Focus(L, delta, true, ps);
-  for (k = 1; k <= C->PN; k++) {
+  d1 = delta*sin(2e0*M_PI*C->Pfreq*ps[ct_]/c0+C->phi);
+  if (C->entry_focus) Cav_Focus(L, d1, true, ps);
+  for (k = 0; k < C->PN; k++) {
     Drift(h, ps);
-    s += h;
-    ps[delta_] -= ddelta*sin(2e0*M_PI*C->Pfreq*(s+ps[ct_])/c0+C->phi);
+
+    ps[delta_] -= ddelta*sin(2e0*M_PI*C->Pfreq*(ps[ct_]-k*h)/c0+C->phi);
 
     if (globval.radiation) globval.dE -= is_double<T>::cst(delta);
     if (globval.pathlength) ps[ct_] -= C->Ph/C->Pfreq*c0;
   }
   Drift(h, ps);
-  if (C->exit_focus) Cav_Focus(L, ddelta, false, ps);
+  if (C->exit_focus) Cav_Focus(L, d1, false, ps);
 }
 
 
