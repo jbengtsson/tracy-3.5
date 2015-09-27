@@ -746,30 +746,6 @@ void Marker_Pass(CellType &Cell, ss_vect<T> &X)
 
 
 template<typename T>
-void Cav_Pass1(CellType &Cell, ss_vect<T> &ps)
-{
-  // Obsolete.
-  elemtype    *elemp;
-  CavityType  *C;
-  double      L;
-  T           delta;
-
-  elemp = &Cell.Elem; C = elemp->C; L = elemp->PL;
-  Drift(L/2e0, ps);
-  if (globval.Cavity_on && C->Pvolt != 0.0) {
-    delta = -C->Pvolt/(globval.Energy*1e9)
-      *sin(2.0*M_PI*C->Pfreq*(L/2e0+ps[ct_])/c0+C->phi);
-    ps[delta_] += delta;
-
-    if (globval.radiation) globval.dE -= is_double<T>::cst(delta);
-
-    if (globval.pathlength) ps[ct_] -= C->Ph/C->Pfreq*c0;
-  }
-  Drift(L/2e0, ps);
-}
-
-
-template<typename T>
 void Cav_Focus(const double L, const T delta, const bool entrance,
 	       ss_vect<T> &ps)
 {
@@ -791,31 +767,43 @@ void Cav_Pass(CellType &Cell, ss_vect<T> &ps)
 {
   /* J. Rosenzweig and L. Serafini "Transverse Particle Motion in
      Radio-Frequency Linear Accelerators" Phys. Rev. E 49(2),
-     1599-1602 (1994)                                                         */
+     1599-1602 (1994).                                                        */
 
   elemtype   *elemp;
   CavityType *C;
   int        k;
-  double     L, h;
-  T          delta, ddelta, d1;
+  double     L, h, p_t1;
+  T          delta_max, ddelta, delta;
 
   elemp = &Cell.Elem; C = elemp->C; L = elemp->PL;
 
   h = L/(C->PN+1e0);
   // globval.Energy contains p_0.
-  delta = C->Pvolt/(1e9*globval.Energy); ddelta = delta/C->PN;
-  d1 = delta*sin(2e0*M_PI*C->Pfreq*ps[ct_]/c0+C->phi);
-  if (C->entry_focus) Cav_Focus(L, d1, true, ps);
+  delta_max = C->Pvolt/(1e9*globval.Energy); ddelta = delta_max/C->PN;
+  delta = delta_max*sin(2e0*M_PI*C->Pfreq*ps[ct_]/c0+C->phi);
+  if (C->entry_focus) Cav_Focus(L, delta, true, ps);
   for (k = 0; k < C->PN; k++) {
     Drift(h, ps);
 
     ps[delta_] -= ddelta*sin(2e0*M_PI*C->Pfreq*(ps[ct_]-k*h)/c0+C->phi);
 
-    if (globval.radiation) globval.dE -= is_double<T>::cst(delta);
+    if (globval.radiation) globval.dE -= is_double<T>::cst(ddelta);
     if (globval.pathlength) ps[ct_] -= C->Ph/C->Pfreq*c0;
   }
   Drift(h, ps);
-  if (C->exit_focus) Cav_Focus(L, d1, false, ps);
+  if (C->exit_focus) Cav_Focus(L, delta, false, ps);
+
+  if (true) {
+    // Update p_0.
+    p_t1 = is_double<T>::cst(ps[delta_]);
+    ps[delta_] -= p_t1;
+    // globval.Energy contains p_0.
+    globval.Energy *= sqrt(1e0+2e0*p_t1/globval.beta0+sqr(p_t1));
+    globval.gamma0 = sqrt(sqr(m_e)+sqr(1e9*globval.Energy))/m_e;
+    globval.beta0  = sqrt(1e0-1e0/sqr(globval.gamma0));
+    printf("\np0 = %12.5e, beta0 = %12.5e, gamma0 = %12.5e\n",
+	   globval.Energy, globval.beta0, globval.gamma0);
+  }
 }
 
 
