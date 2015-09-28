@@ -2445,7 +2445,8 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
             Phase     = <phi_rf>, (degrees)
             rf_focus1 = <0|1>,
             rf_focus2 = <0|1>,
-            harnum    = <h>
+            harnum    = <h>,
+            N         = <# of kicks>
 
     Example
 
@@ -2538,6 +2539,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       WITH3->Pfreq = Frf;   /* Frequency in Hz */
       WITH3->phi = QPhi*M_PI/180.0;
       WITH3->Ph = harnum;
+      WITH3->PN = k1;
       WITH3->entry_focus = entryf == 1;
       WITH3->exit_focus = exitf == 1;
       SetDBN(&V);
