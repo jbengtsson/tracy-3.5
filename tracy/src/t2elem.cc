@@ -813,7 +813,7 @@ void Cav_Pass(CellType &Cell, ss_vect<T> &ps)
   double     dgammaMax, dgamma, gamma, gamma1;
   double     f1, sf1, f2, f2s, f4, logf4;
   double     f5, sf5, f6, logf6, dpr, dct, p_t1;
-  double     p0, p0s, p_t, delta, alpha;
+  double     p0, p0s, p_t, delta, alpha, dp;
   ss_vect<T> ps0;
 
   const bool RandS = true;
@@ -824,10 +824,14 @@ void Cav_Pass(CellType &Cell, ss_vect<T> &ps)
   p_t = is_double<T>::cst(ps[delta_]);
   delta = sqrt(1e0+2e0*p_t/globval.beta0+sqr(p_t)) - 1e0;
   // globval.Energy contains p_0 [GeV].
-  p0 = (1e0+delta)*1e9*globval.Energy; p0s = sqr(p0);
-  gamma = sqrt(sqr(m_e)+sqr(p0))/m_e;
-
+  p0 = 1e9*globval.Energy/m_e; p0s = sqr(p0);
+  gamma = sqrt(1e0+sqr(p0));
   dgammaMax = C->Pvolt/m_e; dgamma = dgammaMax*sin(phi);
+  gamma1 = gamma + dgamma;
+  dp = sqrt(sqr(gamma1)-1e0) - p0;
+
+  printf("delta = %e, p0 = %e, gamma = %e, gamma1 = %e, dp = %e\n",
+	 delta, p0, gamma, gamma1, dp);
 
   if (!RandS) {
     f1 = 1e0 + p0s; sf1 = sqrt(f1);
@@ -848,7 +852,6 @@ void Cav_Pass(CellType &Cell, ss_vect<T> &ps)
       (2e0*dgammaMax*M_PI*cos(phi)*f2)/(lambda*f5)*ps[ct_]
       + p0s*f2/(sf1*f5)*ps[delta_];
   } else {
-    gamma1 = gamma + dgamma;
     if (fabs(sin(phi)) > 1e-6)
       alpha = log(gamma1/gamma)/(2e0*sqrt(2e0)*sin(phi));
     else
@@ -871,8 +874,11 @@ void Cav_Pass(CellType &Cell, ss_vect<T> &ps)
     ps[py_] =
       -dgammaMax/(2e0*sqrt(2e0)*L*gamma1)*sin(alpha)*ps0[y_]
       + gamma/gamma1*cos(alpha)*ps0[py_];
-    ps[delta_] +=
-      2e0*M_PI*C->Pfreq*dgammaMax*cos(phi)/(c0*gamma1)*ps0[ct_];
+
+   // globval.Energy contains p_0 [GeV].
+    ps[delta_] =
+      2e0*M_PI*C->Pfreq*dgammaMax*cos(phi)/(c0*gamma1)*ps0[ct_]
+      + 1e0/(1e0+dp/p0)*ps0[delta_];
 
     if (C->exit_focus) {
       ps[px_] += dgamma/(2e0*gamma1*L)*ps[x_];
