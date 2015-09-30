@@ -386,7 +386,8 @@ istream& operator>>(istream &is, tps &a)
 {
   char	  line[max_str], *token;
   int     i, n, no1, nv1;
-  int     ibuf1[bufsize], ibuf2[bufsize], jj[ss_dim];
+//  int     ibuf1[bufsize], ibuf2[bufsize];
+  int     jj[ss_dim];
   double  rbuf[bufsize];
 
   const bool  prt = false;
@@ -396,7 +397,7 @@ istream& operator>>(istream &is, tps &a)
   is.getline(line, max_str); is.getline(line, max_str);
   sscanf(line, "tpsa, NO =%d, NV =%d", &no1, &nv1);
   if (prt) cout << "no = " << no1 << ", nv = " << nv1 << endl;
-  ibuf1[0] = no_tps; ibuf2[0] = ss_dim;
+//  ibuf1[0] = no_tps; ibuf2[0] = ss_dim;
 
   if ((no1 <= no_tps) && (nv1 <= ss_dim)) {
     for (i = 1; i <= 5; i++)

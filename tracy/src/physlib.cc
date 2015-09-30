@@ -578,21 +578,15 @@ void track_(double r, struct LOC_getdynap *LINK)
 void Trac(double x, double px, double y, double py, double dp, double ctau,
           long nmax, long pos, long &lastn, long &lastpos, FILE *outf1)
 {
-  bool lostF; /* Lost particle Flag */
   Vector x1;     /* tracking coordinates */
-  Vector2  aperture;
 
   /* Compute closed orbit : usefull if insertion devices */
-
-  aperture[0] = 1e0;
-  aperture[1] = 1e0;
 
   x1[0] = x; x1[1] = px;
   x1[2] = y; x1[3] = py;
   x1[4] =dp; x1[5] = ctau;
 
   lastn = 0L;
-  lostF = true;
 
   (lastpos)=pos;
   if(trace) fprintf(outf1, "\n");

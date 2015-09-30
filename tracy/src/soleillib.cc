@@ -97,9 +97,8 @@ void InducedAmplitude(long spos)
   long          i = 0L, k = 0L, imax = 50;
   FILE *        outf;
   double        dP = 0.0, dP20 = 0.0, dpmax = 0.06;
-  Vector2       amp = {0.0, 0.0}, H = {0.0, 0.0};
+  Vector2       H = {0.0, 0.0};
   const char    nomfic[] = "amp_ind.out";
-  long          lastpos = 0;
   CellType      Celldebut, Cell;
   Vector        codvector[Cell_nLocMax];
 
@@ -109,7 +108,7 @@ void InducedAmplitude(long spos)
   /* Ouverture fichier moustache */
   if ((outf = fopen(nomfic, "w")) == NULL)
   {
-    fprintf(stdout, "Erreur à l'ouverture de %s\n",nomfic);
+    fprintf(stdout, "Erreur Ã  l'ouverture de %s\n",nomfic);
     exit_(1);
   }
 
@@ -117,9 +116,7 @@ void InducedAmplitude(long spos)
                 " Betax(0)     Betaz(0)       Betax         betaz"
 	        "       Hx          Hz            etax        etaxp\n#\n");
 
-  lastpos = 1;
-  
-  for (k = 0; k <= imax ; k++)  {
+ for (k = 0; k <= imax ; k++)  {
     dP = -dpmax + 2*dpmax*k/imax;
     /* Coordonnees initiales */
     x1[0] = 0.0; x1[1] = 0.0;
@@ -142,9 +139,6 @@ void InducedAmplitude(long spos)
     H[i] = ((1.0+Cell.Alpha[i]*Cell.Alpha[i])/Cell.Beta[i]*codvector[spos][2]*codvector[spos][2]+
             2.0*Cell.Alpha[i]*codvector[spos][2]*codvector[spos][3]+
             Cell.Beta[i]*codvector[spos][3]*codvector[spos][3])/dP20;
-
-    amp[0] = codvector[spos][0]*sqrt(Celldebut.Beta[0]/Cell.Beta[0]);
-    amp[1] = codvector[spos][1];
 
     fprintf(outf, "%+10.5e %+10.5e %+10.5e %+10.5e %+10.5e %+10.5e %+10.5e "
                   "%+10.5e %+10.5e %+10.5e %+10.5e \n",
@@ -216,7 +210,7 @@ void Hfonction(long pos, double dP,Vector2 H)
        at position pos and for a energy offset dP
 
        For a givien delta
-       H = gamma xcod² + 2*alpha*xcod*xcod' + beta*xcod'*xcod'
+       H = gamma xcodÂ² + 2*alpha*xcod*xcod' + beta*xcod'*xcod'
        
    Input:
        none
@@ -1575,7 +1569,9 @@ void Multipole(void)
   double dBoB6C = 0.0, dBoB6L = 0.0, dBoB10C = 0.0, dBoB10L = 0.0,
          dBoB14C = 0.0, dBoB14L = 0.0;
   double x0i = 0.0, x02i = 0.0, x03i = 0.0, x04i = 0.0, x05i = 0.0,
-         x06i = 0.0, x07i = 0.0, x08i = 0.0, x012i = 0.0, x010i = 0.0,
+         x06i = 0.0,
+//         x07i = 0.0,
+         x08i = 0.0, x012i = 0.0, x010i = 0.0,
          x018i = 0.0, x024i = 0.0;
   double theta = 0.0, brho = 0.0, dummyf = 0.0 ;
   char *dummy = NULL;
@@ -1651,7 +1647,7 @@ void Multipole(void)
   x04i  = x02i*x02i;
   x05i  = x04i*x0i;
   x06i  = x03i*x03i;
-  x07i  = x06i*x0i;
+//  x07i  = x06i*x0i;
 
   dBoB2 =  1.7e-4*0;  /* gradient */
   dBoB3 = -3.7e-4*0;  /* hexapole */
@@ -2535,7 +2531,7 @@ void spectrum(long Nbx, long Nbz, long Nbtour, double xmax, double zmax,
  const char zfic[] = "zspectrum.out";
  long i, j, k;
  #define nterm2  20
- double Tab[6][NTURN], fx[nterm2], fz[nterm2], fx2[nterm2], fz2[nterm2];
+ double Tab[6][NTURN], fx[nterm2], fz[nterm2];
  double x = 0.0, xp = 0.0, z = 0.0, zp = 0.0;
  double x0 = 1e-6, xp0 = 0.0, z0 = 1e-6, zp0 = 0.0;
  double xstep = 0.0, zstep = 0.0;
@@ -2588,7 +2584,6 @@ void spectrum(long Nbx, long Nbz, long Nbtour, double xmax, double zmax,
      }
      else {
       fx[0]  = 0.0; fz[0]  = 0.0;
-      fx2[0] = 0.0; fz2[0] = 0.0;
      }
 
      // printout value
@@ -2662,13 +2657,8 @@ void spectrum(long Nbx, long Nbz, long Nbtour, double xmax, double zmax,
 void TracCO(double x, double px, double y, double py, double dp, double ctau,
 	    long nmax, long pos, long &lastn, long &lastpos, FILE *outf1)
 {
-  bool lostF; /* Lost particle Flag */
   Vector x1;     /* tracking coordinates */
-  Vector2  aperture;
   CellType Cell;
-
-  aperture[0] = 1e0;
-  aperture[1] = 1e0;
 
   /* Get closed orbit */
   Ring_GetTwiss(true, 0.0);
@@ -2685,7 +2675,6 @@ void TracCO(double x, double px, double y, double py, double dp, double ctau,
 //    x1[4] = dp + Cell.BeamPos[4]; x1[5] = ctau + Cell.BeamPos[5];
 
     lastn = 0;
-    lostF = true;
 
     (lastpos) = pos;
 

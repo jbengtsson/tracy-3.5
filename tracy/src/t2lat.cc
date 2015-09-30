@@ -1688,14 +1688,12 @@ static void Lat_ProcessBlockInput(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 
 static bool Lat_CheckWiggler(FILE **fo, long i, struct LOC_Lattice_Read *LINK)
 {
-  bool         Result;
   double       a, Lambda, L, diff;
   long         NN;
   ElemFamType  *WITH;
   elemtype     *WITH1;
   WigglerType  *WITH2;
 
-  Result = false;
   WITH = &ElemFam[i-1]; WITH1 = &WITH->ElemF; WITH2 = WITH1->W;
   Lambda = WITH2->lambda;
   L = WITH1->PL; a = L/Lambda;

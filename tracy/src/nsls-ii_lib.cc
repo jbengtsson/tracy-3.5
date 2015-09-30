@@ -642,7 +642,7 @@ double get_code(CellType &Cell)
 void prt_lat(const char *fname, const int Fnum, const bool all)
 {
   long int      i = 0;
-  double        I2, I5;
+  double        I5;
   FILE          *outf;
 
   outf = file_write(fname);

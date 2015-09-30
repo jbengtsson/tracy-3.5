@@ -190,7 +190,7 @@ inline T get_p_s(const ss_vect<T> &ps)
 template <class T>
 void Drift(double L, ss_vect<T> &ps)
 {
-  T u, p_s, beta_s, delta1, gamma1, beta1;
+  T u, p_s, delta1;
 
   if(false){
     // Ultra relatistic approximation [cT, delta] -> [ct, p_t].
@@ -202,12 +202,9 @@ void Drift(double L, ss_vect<T> &ps)
     // delta -> p_t.
     p_s = sqrt(1e0+2e0*ps[delta_]/globval.beta0+sqr(ps[delta_]));
     delta1 = p_s - 1e0;
-    gamma1 = globval.gamma0 + sqrt(sqr(globval.gamma0)-1e0)*ps[delta_];
-    beta1 = sqrt(1e0-1e0/sqr(gamma1));
 
     p_s = sqrt(sqr(1e0+delta1)-sqr(ps[px_])-sqr(ps[py_]));
     u = L/p_s;
-    beta_s = p_s*beta1/(1e0+delta1);
 
     u = L/get_p_s(ps);
     ps[x_] += ps[px_]*u;
@@ -863,16 +860,21 @@ void Cav_Pass(CellType &Cell, ss_vect<T> &ps)
     }
 
     ps0 = ps;
-
+    // Matrix formalism is for [x, x', y, y'] vs. canonical variables
+    // [x, p_x, y, p_y].
     ps[x_] =
-      cos(alpha)*ps0[x_] + 2e0*sqrt(2e0)*gamma*L*sin(alpha)/dgammaMax*ps0[px_];
+      cos(alpha)*ps0[x_]
+      + 2e0*sqrt(2e0)*gamma*L*sin(alpha)
+      /(dgammaMax*(1e0+ps0[delta_]))*ps0[px_];
     ps[px_] =
-      -dgammaMax/(2e0*sqrt(2e0)*L*gamma1)*sin(alpha)*ps0[x_]
+      -dgammaMax/(2e0*sqrt(2e0)*L*gamma1)*sin(alpha)*(1e0+ps0[delta_])*ps0[x_]
       + gamma/gamma1*cos(alpha)*ps0[px_];
     ps[y_] =
-      cos(alpha)*ps0[y_] + 2e0*sqrt(2e0)*gamma*L*sin(alpha)/dgammaMax*ps0[py_]; 
+      cos(alpha)*ps0[y_]
+      + 2e0*sqrt(2e0)*gamma*L*sin(alpha)
+      /(dgammaMax*(1e0+ps0[delta_]))*ps0[py_]; 
     ps[py_] =
-      -dgammaMax/(2e0*sqrt(2e0)*L*gamma1)*sin(alpha)*ps0[y_]
+      -dgammaMax/(2e0*sqrt(2e0)*L*gamma1)*sin(alpha)*(1e0+ps0[delta_])*ps0[y_]
       + gamma/gamma1*cos(alpha)*ps0[py_];
 
    // globval.Energy contains p_0 [GeV].
@@ -3981,7 +3983,6 @@ void FieldMap_Init(int Fnum1)
   int          i;
   ElemFamType  *elemfamp;
   CellType     *cellp;
-  elemtype     *elemp;
 
   elemfamp = &ElemFam[Fnum1-1];
   for (i = 1; i <= elemfamp->nKid; i++) {
@@ -3992,7 +3993,6 @@ void FieldMap_Init(int Fnum1)
     cellp->Elem.Pkind = elemfamp->ElemF.Pkind;
     *cellp->Elem.FM = *elemfamp->ElemF.FM;
 
-    elemp = &cellp->Elem;
     cellp->dT[0] = 1.0; cellp->dT[1] = 0.0;
     cellp->dS[X_] = 0.0; cellp->dS[Y_] = 0.0;
   }
@@ -4003,10 +4003,9 @@ void Cav_Init(int Fnum1)
 {
   int          i;
   ElemFamType  *elemfamp;
-  elemtype     *elemp;
   CellType     *cellp;
 
-  elemfamp = &ElemFam[Fnum1-1]; elemp = &elemfamp->ElemF;
+  elemfamp = &ElemFam[Fnum1-1];
   for (i = 0; i < elemfamp->nKid; i++) {
     cellp = &Cell[elemfamp->KidList[i]]; cellp->Elem = elemfamp->ElemF;
   }
@@ -4017,10 +4016,9 @@ void Marker_Init(int Fnum1)
 {
   int          i;
   ElemFamType  *elemfamp;
-  elemtype     *elemp;
   CellType     *cellp;
 
-  elemfamp = &ElemFam[Fnum1-1]; elemp  = &elemfamp->ElemF;
+  elemfamp = &ElemFam[Fnum1-1];
   for (i = 0; i < elemfamp->nKid; i++) {
     cellp = &Cell[elemfamp->KidList[i]]; cellp->Elem  = elemfamp->ElemF;
     cellp->dT[0] = 1.0; cellp->dT[1] = 0.0;
@@ -4115,7 +4113,6 @@ void Solenoid_Init(int Fnum1)
   int          i;
   ElemFamType  *elemfamp;
   CellType     *cellp;
-  elemtype     *elemp;
 
   /* Pointer on element */
   elemfamp = &ElemFam[Fnum1-1];
@@ -4130,7 +4127,6 @@ void Solenoid_Init(int Fnum1)
     cellp->Elem.Pkind = elemfamp->ElemF.Pkind;
     *cellp->Elem.Sol = *elemfamp->ElemF.Sol;
 
-    elemp = &cellp->Elem;
     /* set entrance and exit angles */
     cellp->dT[0] = 1.0; cellp->dT[1] = 0.0;
 
