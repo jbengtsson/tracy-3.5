@@ -747,14 +747,11 @@ void Cav_Focus(const double L, const T delta, const bool entrance,
 	       ss_vect<T> &ps)
 {
   double sgn;
-  T      gammap;
-
+ 
   sgn = (entrance)? 1e0 : -1e0;
 
-  gammap = delta*globval.gamma0;
-
-  ps[px_] += sgn*ps[x_]*gammap/(2e0*globval.gamma0*L);
-  ps[py_] += sgn*ps[y_]*gammap/(2e0*globval.gamma0*L);
+  ps[px_] += sgn*ps[x_]*delta/(2e0*L);
+  ps[py_] += sgn*ps[y_]*delta/(2e0*L);
 }
 
 
@@ -857,6 +854,11 @@ void Cav_Pass(CellType &Cell, ss_vect<T> &ps)
     else
       alpha = dgammaMax/(gamma*2e0*sqrt(2e0));
 
+    if (C->entry_focus) {
+      ps[px_] -= dgamma/(2e0*gamma*L)*ps[x_];
+      ps[py_] -= dgamma/(2e0*gamma*L)*ps[y_];
+    }
+
     ps0 = ps;
 
     ps[x_] =
@@ -871,8 +873,13 @@ void Cav_Pass(CellType &Cell, ss_vect<T> &ps)
       + gamma/gamma1*cos(alpha)*ps0[py_];
     ps[delta_] +=
       2e0*M_PI*C->Pfreq*dgammaMax*cos(phi)/(c0*gamma1)*ps0[ct_];
+
+    if (C->exit_focus) {
+      ps[px_] += dgamma/(2e0*gamma1*L)*ps[x_];
+      ps[py_] += dgamma/(2e0*gamma1*L)*ps[y_];
+    }
   }
- 
+    
   if (false) {
     // Update p_0.
     p_t1 = is_double<T>::cst(ps[delta_]);
