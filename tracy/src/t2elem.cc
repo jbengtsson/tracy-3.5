@@ -735,9 +735,6 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &x)
 template<typename T>
 void Marker_Pass(CellType &Cell, ss_vect<T> &X)
 {
-  elemtype *elemp;
-
-  elemp = &Cell.Elem;
   /* Global -> Local */
   GtoL(X, Cell.dS, Cell.dT, 0.0, 0.0, 0.0);
   /* Local -> Global */
@@ -750,11 +747,10 @@ void Cav_Focus(const double L, const T delta, const bool entrance,
 	       ss_vect<T> &ps)
 {
   double sgn;
-  T      gamma, gammap;
+  T      gammap;
 
   sgn = (entrance)? 1e0 : -1e0;
 
-  gamma = (1e0+ps[delta_])*globval.Energy/m_e;
   gammap = delta*globval.gamma0;
 
   ps[px_] += sgn*ps[x_]*gammap/(2e0*globval.gamma0*L);
@@ -763,7 +759,7 @@ void Cav_Focus(const double L, const T delta, const bool entrance,
 
 
 template<typename T>
-void Cav_Pass(CellType &Cell, ss_vect<T> &ps)
+void Cav_Pass1(CellType &Cell, ss_vect<T> &ps)
 {
   /* J. Rosenzweig and L. Serafini "Transverse Particle Motion in
      Radio-Frequency Linear Accelerators" Phys. Rev. E 49(2),
@@ -793,13 +789,97 @@ void Cav_Pass(CellType &Cell, ss_vect<T> &ps)
   Drift(h, ps);
   if (C->exit_focus) Cav_Focus(L, delta, false, ps);
 
-  if (true) {
+  if (false) {
     // Update p_0.
     p_t1 = is_double<T>::cst(ps[delta_]);
     ps[delta_] -= p_t1;
     // globval.Energy contains p_0.
     globval.Energy *= sqrt(1e0+2e0*p_t1/globval.beta0+sqr(p_t1));
     globval.gamma0 = sqrt(sqr(m_e)+sqr(1e9*globval.Energy))/m_e;
+    globval.beta0  = sqrt(1e0-1e0/sqr(globval.gamma0));
+    printf("\np0 = %12.5e, beta0 = %12.5e, gamma0 = %12.5e\n",
+	   globval.Energy, globval.beta0, globval.gamma0);
+  }
+}
+
+
+template<typename T>
+void Cav_Pass(CellType &Cell, ss_vect<T> &ps)
+{
+  /* J. Rosenzweig and L. Serafini "Transverse Particle Motion in
+     Radio-Frequency Linear Accelerators" Phys. Rev. E 49(2),
+     1599-1602 (1994).                                                        */
+
+  elemtype   *elemp;
+  CavityType *C;
+  double     L, lambda, phi;
+  double     dgammaMax, dgamma, gamma, gamma1;
+  double     f1, sf1, f2, f2s, f4, logf4;
+  double     f5, sf5, f6, logf6, dpr, dct, p_t1;
+  double     p0, p0s, p_t, delta, alpha;
+  ss_vect<T> ps0;
+
+  const bool RandS = true;
+ 
+  elemp = &Cell.Elem; C = elemp->C; L = elemp->PL; phi = C->phi;
+  lambda = c0/C->Pfreq;
+
+  p_t = is_double<T>::cst(ps[delta_]);
+  delta = sqrt(1e0+2e0*p_t/globval.beta0+sqr(p_t)) - 1e0;
+  // globval.Energy contains p_0 [GeV].
+  p0 = (1e0+delta)*1e9*globval.Energy; p0s = sqr(p0);
+  gamma = sqrt(sqr(m_e)+sqr(p0))/m_e;
+
+  dgammaMax = C->Pvolt/m_e; dgamma = dgammaMax*sin(phi);
+
+  if (!RandS) {
+    f1 = 1e0 + p0s; sf1 = sqrt(f1);
+    f2 = sf1 + dgammaMax*sin(phi); f2s = sqr(f2);
+    f4 = p0 + sf1;  logf4 = log(f4);
+    f5 = -1e0 + f2s; sf5 = sqrt(f5);
+    f6 = f2 + sf5; logf6 = log(f6);
+
+    printf("p0 = %e, dgammaMax = %e\n", p0, dgammaMax);
+    printf("f1 = %e, f2= %e, f4 = %e, f5 = %e\n", f1, f2, f4, f5);
+
+    dct = L*p0/sin(phi)*(-logf4+logf6)/dgammaMax;
+    dpr = p0/sf5;
+
+    ps[x_] += dct*ps[px_]; ps[px_] += dpr*ps[px_];
+    ps[y_] += dct*ps[py_]; ps[py_] += dpr*ps[py_];
+    ps[delta_] +=
+      (2e0*dgammaMax*M_PI*cos(phi)*f2)/(lambda*f5)*ps[ct_]
+      + p0s*f2/(sf1*f5)*ps[delta_];
+  } else {
+    gamma1 = gamma + dgamma;
+    if (fabs(sin(phi)) > 1e-6)
+      alpha = log(gamma1/gamma)/(2e0*sqrt(2e0)*sin(phi));
+    else
+      alpha = dgammaMax/(gamma*2e0*sqrt(2e0));
+
+    ps0 = ps;
+
+    ps[x_] =
+      cos(alpha)*ps0[x_] + 2e0*sqrt(2e0)*gamma*L*sin(alpha)/dgammaMax*ps0[px_];
+    ps[px_] =
+      -dgammaMax/(2e0*sqrt(2e0)*L*gamma1)*sin(alpha)*ps0[x_]
+      + gamma/gamma1*cos(alpha)*ps0[px_];
+    ps[y_] =
+      cos(alpha)*ps0[y_] + 2e0*sqrt(2e0)*gamma*L*sin(alpha)/dgammaMax*ps0[py_]; 
+    ps[py_] =
+      -dgammaMax/(2e0*sqrt(2e0)*L*gamma1)*sin(alpha)*ps0[y_]
+      + gamma/gamma1*cos(alpha)*ps0[py_];
+    ps[delta_] +=
+      2e0*M_PI*C->Pfreq*dgammaMax*cos(phi)/(c0*gamma1)*ps0[ct_];
+  }
+ 
+  if (false) {
+    // Update p_0.
+    p_t1 = is_double<T>::cst(ps[delta_]);
+    ps[delta_] -= p_t1;
+    // globval.Energy contains p_0.
+    globval.Energy *= sqrt(1e0+2e0*p_t1/globval.beta0+sqr(p_t1));
+    globval.gamma0 = sqrt(sqr(m_e)+sqr(p0))/m_e;
     globval.beta0  = sqrt(1e0-1e0/sqr(globval.gamma0));
     printf("\np0 = %12.5e, beta0 = %12.5e, gamma0 = %12.5e\n",
 	   globval.Energy, globval.beta0, globval.gamma0);
