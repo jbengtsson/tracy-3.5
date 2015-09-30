@@ -739,13 +739,13 @@ void Marker_Pass(CellType &Cell, ss_vect<T> &X)
 }
 
 
-template<typename T>
+template<typename T, typename U>
 void Cav_Focus(const double L, const T delta, const bool entrance,
-	       ss_vect<T> &ps)
+           ss_vect<U> &ps)
 {
   double sgn;
  
-  sgn = (entrance)? 1e0 : -1e0;
+  sgn = (entrance)? -1e0 : 1e0;
 
   ps[px_] += sgn*ps[x_]*delta/(2e0*L);
   ps[py_] += sgn*ps[y_]*delta/(2e0*L);
@@ -808,12 +808,12 @@ void Cav_Pass(CellType &Cell, ss_vect<T> &ps)
   CavityType *C;
   double     L, lambda, phi;
   double     dgammaMax, dgamma, gamma, gamma1;
-  double     f1, sf1, f2, f2s, f4, logf4;
-  double     f5, sf5, f6, logf6, dpr, dct, p_t1;
-  double     p0, p0s, p_t, delta, alpha, dp;
+  double     sf1, f2, f2s;
+  double     f5, sf5, dpr, dct, p_t1;
+  double     p0, p_t, delta, alpha, dp;
   ss_vect<T> ps0;
 
-  const bool RandS = true;
+  const bool RandS = false;
  
   elemp = &Cell.Elem; C = elemp->C; L = elemp->PL; phi = C->phi;
   lambda = c0/C->Pfreq;
@@ -821,7 +821,7 @@ void Cav_Pass(CellType &Cell, ss_vect<T> &ps)
   p_t = is_double<T>::cst(ps[delta_]);
   delta = sqrt(1e0+2e0*p_t/globval.beta0+sqr(p_t)) - 1e0;
   // globval.Energy contains p_0 [GeV].
-  p0 = 1e9*globval.Energy/m_e; p0s = sqr(p0);
+  p0 = 1e9*globval.Energy/m_e;
   gamma = sqrt(1e0+sqr(p0));
   dgammaMax = C->Pvolt/m_e; dgamma = dgammaMax*sin(phi);
   gamma1 = gamma + dgamma;
@@ -830,34 +830,29 @@ void Cav_Pass(CellType &Cell, ss_vect<T> &ps)
   printf("delta = %e, p0 = %e, gamma = %e, gamma1 = %e, dp = %e\n",
 	 delta, p0, gamma, gamma1, dp);
 
+  if (C->entry_focus) Cav_Focus(L, dgamma/gamma, true, ps);
+
   if (!RandS) {
-    f1 = 1e0 + p0s; sf1 = sqrt(f1);
+    sf1 = sqrt(1e0+sqr(p0));
     f2 = sf1 + dgammaMax*sin(phi); f2s = sqr(f2);
-    f4 = p0 + sf1;  logf4 = log(f4);
-    f5 = -1e0 + f2s; sf5 = sqrt(f5);
-    f6 = f2 + sf5; logf6 = log(f6);
+    f5 = f2s - 1e0; sf5 = sqrt(f5);
 
     printf("p0 = %e, dgammaMax = %e\n", p0, dgammaMax);
-    printf("f1 = %e, f2= %e, f4 = %e, f5 = %e\n", f1, f2, f4, f5);
+    printf("f2= %e, f5 = %e\n", f2, f5);
 
-    dct = L*p0/sin(phi)*(-logf4+logf6)/dgammaMax;
+    dct = L*p0/sin(phi)*(-log(p0+sf1)+log(f2+sf5))/dgammaMax;
     dpr = p0/sf5;
 
-    ps[x_] += dct*ps[px_]; ps[px_] += dpr*ps[px_];
-    ps[y_] += dct*ps[py_]; ps[py_] += dpr*ps[py_];
-    ps[delta_] +=
+    ps[x_] += dct*ps[px_]; ps[px_] = dpr*ps[px_];
+    ps[y_] += dct*ps[py_]; ps[py_] = dpr*ps[py_];
+    ps[delta_] =
       (2e0*dgammaMax*M_PI*cos(phi)*f2)/(lambda*f5)*ps[ct_]
-      + p0s*f2/(sf1*f5)*ps[delta_];
+      + sqr(p0)*f2/(sf1*f5)*ps[delta_];
   } else {
     if (fabs(sin(phi)) > 1e-6)
       alpha = log(gamma1/gamma)/(2e0*sqrt(2e0)*sin(phi));
     else
       alpha = dgammaMax/(gamma*2e0*sqrt(2e0));
-
-    if (C->entry_focus) {
-      ps[px_] -= dgamma/(2e0*gamma*L)*ps[x_];
-      ps[py_] -= dgamma/(2e0*gamma*L)*ps[y_];
-    }
 
     ps0 = ps;
     // Matrix formalism is for [x, x', y, y'] vs. canonical variables
@@ -881,13 +876,10 @@ void Cav_Pass(CellType &Cell, ss_vect<T> &ps)
     ps[delta_] =
       2e0*M_PI*C->Pfreq*dgammaMax*cos(phi)/(c0*gamma1)*ps0[ct_]
       + 1e0/(1e0+dp/p0)*ps0[delta_];
-
-    if (C->exit_focus) {
-      ps[px_] += dgamma/(2e0*gamma1*L)*ps[x_];
-      ps[py_] += dgamma/(2e0*gamma1*L)*ps[y_];
-    }
   }
-    
+
+  if (C->exit_focus) Cav_Focus(L, dgamma/(gamma+dgamma), false, ps);
+
   if (false) {
     // Update p_0.
     p_t1 = is_double<T>::cst(ps[delta_]);
