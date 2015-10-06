@@ -4573,7 +4573,7 @@ void get_bn(const char file_name[], int n, const bool prt)
 }
 
 
-double get_dynap(const double delta)
+double get_dynap(const double delta, const bool cod)
 {
   char      str[max_str];
   int       i;
@@ -4583,7 +4583,7 @@ double get_dynap(const double delta)
   const int  prt = true;
 
   fp = file_write("dynap.out");
-  dynap(fp, 5e-3, 0.0, 0.1e-3, n_aper, n_track, x_aper, y_aper, false, prt);
+  dynap(fp, 5e-3, 0.0, 0.1e-3, n_aper, n_track, x_aper, y_aper, false, cod, prt);
   fclose(fp);
   DA = get_aper(n_aper, x_aper, y_aper);
 
@@ -4591,7 +4591,7 @@ double get_dynap(const double delta)
     sprintf(str, "dynap_dp%3.1f.out", 1e2*delta);
     fp = file_write(str);
     dynap(fp, 5e-3, delta, 0.1e-3, n_aper, n_track,
-	  x_aper, y_aper, false, prt);
+      x_aper, y_aper, false, cod, prt);
     fclose(fp);
     DA += get_aper(n_aper, x_aper, y_aper);
 
@@ -4600,7 +4600,7 @@ double get_dynap(const double delta)
     sprintf(str, "dynap_dp%3.1f.out", -1e2*delta);
     fp = file_write(str);
     dynap(fp, 5e-3, -delta, 0.1e-3, n_aper,
-	  n_track, x_aper, y_aper, false, prt);
+      n_track, x_aper, y_aper, false, cod, prt);
     fclose(fp);
     DA += get_aper(n_aper, x_aper, y_aper);
   }

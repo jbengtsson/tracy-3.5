@@ -3756,7 +3756,7 @@
 !
       parameter (nmax = 400, tiny = 1.0e-20)
       dimension a(np,np), indx(np), vv(nmax)
-      ier=0.
+      ier=0
       d=1.d0
       do i=1,n
         aamax=0.d0

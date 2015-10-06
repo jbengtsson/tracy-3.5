@@ -169,7 +169,7 @@ inline T get_p_s(const ss_vect<T> &ps)
 {
   T p_s, p_s2;
 
-  if(false)
+  if (!globval.H_exact)
     // Ultra relatistic approximation [cT, delta] -> [ct, p_t].
     p_s2 = sqr(1e0+ps[delta_]) - sqr(ps[px_]) - sqr(ps[py_]);
   else
@@ -180,19 +180,40 @@ inline T get_p_s(const ss_vect<T> &ps)
   if (p_s2 >= 0e0)
     p_s = sqrt(p_s2);
   else {
-    printf("get_p_s: *** Speed of light epsceeded!\n");
+    printf("get_p_s: *** Speed of light exceeded!\n");
     p_s = NAN;
   }
   return(p_s);
 }
 
+#if 1
+
+ template<typename T>
+ void Drift(double L, ss_vect<T> &x)
+ {
+   T u;
+
+   // [cT, delta].
+   if (!globval.H_exact) {
+     u = L/(1.0+x[delta_]);
+     x[ct_] += u*(sqr(x[px_])+sqr(x[py_]))/(2.0*(1.0+x[delta_]));
+   } else {
+     u = L/get_p_s(x);
+     x[ct_] += u*(1.0+x[delta_]) - L;
+   }
+   x[x_] += x[px_]*u; x[y_] += x[py_]*u;
+   if (globval.pathlength) x[ct_] += L;
+ }
+
+#else
 
 template <class T>
 void Drift(double L, ss_vect<T> &ps)
 {
   T u, p_s, delta1;
 
-  if(false){
+    // [ct, p_t].
+  if (false) {
     // Ultra relatistic approximation [cT, delta] -> [ct, p_t].
     u = L/get_p_s(ps);
     ps[x_] += ps[px_]*u;
@@ -214,23 +235,7 @@ void Drift(double L, ss_vect<T> &ps)
   if (globval.pathlength) ps[ct_] += L;
 }
 
-
-// template<typename T>
-// void Drift(double L, ss_vect<T> &x)
-// {
-//   T  u;
-
-//   if (!globval.H_exact) {
-//     u = L/(1.0+x[delta_]);
-//     x[ct_] += u*(sqr(x[px_])+sqr(x[py_]))/(2.0*(1.0+x[delta_]));
-//   } else {
-//     u = L/get_p_s(x);
-//     x[ct_] += u*(1.0+x[delta_]) - L;
-//   }
-//   x[x_] += x[px_]*u; x[y_] += x[py_]*u;
-//   if (globval.pathlength) x[ct_] += L;
-// }
-
+#endif
 
 template<typename T>
 void Drift_Pass(CellType &Cell, ss_vect<T> &x) { Drift(Cell.Elem.PL, x); }
@@ -751,6 +756,28 @@ void Cav_Focus(const double L, const T delta, const bool entrance,
   ps[py_] += sgn*ps[y_]*delta/(2e0*L);
 }
 
+#if 1
+
+template<typename T>
+void Cav_Pass(CellType &Cell, ss_vect<T> &X)
+{
+  elemtype    *elemp;
+  CavityType  *C;
+  T           delta;
+
+  elemp = &Cell.Elem; C = elemp->C;
+  if (globval.Cavity_on && C->Pvolt != 0.0) {
+    delta = -C->Pvolt/(globval.Energy*1e9)
+            *sin(2.0*M_PI*C->Pfreq/c0*X[ct_]+C->phi);
+    X[delta_] += delta;
+
+    if (globval.radiation) globval.dE -= is_double<T>::cst(delta);
+
+    if (globval.pathlength) X[ct_] -= C->Ph/C->Pfreq*c0;
+  }
+}
+
+#else
 
 template<typename T>
 void Cav_Pass1(CellType &Cell, ss_vect<T> &ps)
@@ -893,6 +920,7 @@ void Cav_Pass(CellType &Cell, ss_vect<T> &ps)
   }
 }
 
+#endif
 
 template<typename T>
 inline void get_Axy(const WigglerType *W, const double z,

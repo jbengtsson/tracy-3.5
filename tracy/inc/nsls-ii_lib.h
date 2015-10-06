@@ -305,7 +305,7 @@ void rm_space(char *name);
 
 void get_bn(const char file_name[], int n, const bool prt);
 
-double get_dynap(const double delta);
+double get_dynap(const double delta, const bool cod);
 
 double get_chi2(long int n, double x[], double y[], long int m, Vector b);
 

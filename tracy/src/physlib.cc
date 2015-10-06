@@ -837,7 +837,7 @@ void getcsAscr(void)
 ****************************************************************************/
 void dynap(FILE *fp, double r, const double delta,
 	   const double eps, const int npoint, const int nturn,
-	   double x[], double y[], const bool floqs, const bool print)
+       double x[], double y[], const bool floqs, const bool cod, const bool print)
 
 {
   /* Determine the dynamical aperture by tracking.
@@ -846,7 +846,7 @@ void dynap(FILE *fp, double r, const double delta,
   long int  i, lastpos;
   double    phi, x_min, x_max, y_min, y_max;
 
-  getcod(delta, lastpos);
+  if (cod) getcod(delta, lastpos);
   if (floqs) {
     Ring_GetTwiss(false, delta);
     if (print) {

@@ -15,6 +15,9 @@ unsigned short int  seq_tps = 0;       // sequence no for TPSA vector
 //const int           n_max   = 150;     // max iterations for LieExp
 const int           n_max   = 200;     // max iterations for LieExp
 
+// Fortran strings are passed from C by: [str, strlen(str)].
+const int   name_len_for = 10; // name length in FORTRAN library is 10.
+
 int  bufsize; // Note, max no of monomials is (no+nv)!/(nv!*no!)
  
 
@@ -146,7 +149,7 @@ tps::tps(void) {
 
   if (!ini_tps) TPSA_Ini();
   seq_tps++; intptr = 0; sprintf(name, "tps-%-5hu", seq_tps);
-  daall_(intptr, 1, name, no_tps, nv_tps); dacon_(intptr, 0.0);
+  daall_(intptr, 1, name, no_tps, nv_tps, name_len_for); dacon_(intptr, 0.0);
 }
 
 
@@ -156,17 +159,17 @@ tps::tps(const double r)
 
   if (!ini_tps) TPSA_Ini();
   seq_tps++; intptr = 0; sprintf(name, "tps-%-5hu", seq_tps);
-  daall_(intptr, 1, name, no_tps, nv_tps); dacon_(intptr, r);
+  daall_(intptr, 1, name, no_tps, nv_tps, name_len_for); dacon_(intptr, r);
 }
 
 
 tps::tps(const double r, const int i)
 {
-  char  name[11];
+    char  name[11];
 
   if (!ini_tps) TPSA_Ini();
   seq_tps++; intptr = 0; sprintf(name, "tps-%-5hu", seq_tps);
-  daall_(intptr, 1, name, no_tps, nv_tps);
+  daall_(intptr, 1, name, no_tps, nv_tps, name_len_for);
   if (i == 0)
     dacon_(intptr, r);
   else
@@ -176,21 +179,21 @@ tps::tps(const double r, const int i)
 
 tps::tps(const double r, const int jj[])
 {
-  char  name[11];
+    char  name[11];
 
   if (!ini_tps) TPSA_Ini();
   seq_tps++; intptr = 0; sprintf(name, "tps-%-5hu", seq_tps);
-  daall_(intptr, 1, name, no_tps, nv_tps);
+  daall_(intptr, 1, name, no_tps, nv_tps, name_len_for);
   dapok_(intptr, jj, r);
 }
 
 
 tps::tps(const tps &x) {
-  char  name[11];
+    char  name[11];
 
   if (!ini_tps) TPSA_Ini();
   seq_tps++; intptr = 0; sprintf(name, "tps-%-5hu", seq_tps);
-  daall_(intptr, 1, name, no_tps, nv_tps);
+  daall_(intptr, 1, name, no_tps, nv_tps, name_len_for);
   dacop_(x.intptr, intptr);
 }
 

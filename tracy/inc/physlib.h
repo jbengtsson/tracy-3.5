@@ -111,7 +111,7 @@ void getcsAscr(void);
 
 void dynap(FILE *fp, double r, const double delta,
 	   const double eps, const int npoint, const int nturn,
-	   double x[], double y[], const bool floqs, const bool print);
+       double x[], double y[], const bool floqs, const bool cod, const bool print);
 
 double get_aper(int n, double x[], double y[]);
 

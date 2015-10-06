@@ -6,8 +6,9 @@
 extern "C" {
   // Interface to FORTRAN TPSA-library
   void daini_(const int &, const int &, const int &);
-  void daall_(int &, const int &, const char [], 
-	      const int &, const int &);
+  // GFORTRAN: string lengths are passed after all the arguents.
+  void daall_(int &, const int &, const char [],
+          const int &, const int &, const int &);
   void dadal_(int &, const int &);
   void dacon_(int &, const double &);
   void davar_(int &, const double &, const int &);
