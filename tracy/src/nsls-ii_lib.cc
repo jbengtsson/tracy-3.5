@@ -231,16 +231,17 @@ void no_sxt(void)
 }
 
 
-void get_map(void)
+void get_map(const bool cod)
 {
   long int  lastpos;
 
-
-  getcod(0.0, lastpos);
-
-  map.identity(); map += globval.CODvect;
+  map.identity();
+  if (cod) {
+    getcod(0.0, lastpos);
+    map += globval.CODvect;
+  }
   Cell_Pass(0, globval.Cell_nLoc, map, lastpos);
-  map -= globval.CODvect;
+  if (cod) map -= globval.CODvect;
 }
 
 
