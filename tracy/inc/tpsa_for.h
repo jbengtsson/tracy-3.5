@@ -22,7 +22,7 @@ extern "C" {
   void dacmu_(const int &, const double &, int &);
   // dacdi <=> dacmu(a, 1/r, b)
   //void dadic_(const int &, const double &, int &);
-  void dafun_(const char [], const int &, int &);
+  void dafun_(const char [], const int &, int &, const int &);
   void dader_(const int &, const int &, int &);
   void danot_(const int &);
   void daeps_(const double &);
@@ -39,7 +39,7 @@ extern "C" {
   void daimp_(const double [], const int [], const int [], int &);
   void dainv_(const int [], const int &, int [], const int &);
 //  void dapin_(const int [], const int &, int [], const int &, const int []);
-  void daexp_(const int &, double [], int [], int [], char []); 
+  void daexp_(const int &, double [], int [], int [], char [], const int &); 
   void dacct_(const int [], const int &, const int [], const int &,
 	      int [], const int &);
 

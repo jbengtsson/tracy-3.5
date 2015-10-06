@@ -229,7 +229,7 @@ void tps::pook(const int jj[], const double r)
 { dapok_(intptr, jj, r); }
 
 void tps::exprt(double rbuf[], int ibuf1[], int ibuf2[], char *name) const
-{ daexp_(intptr, rbuf, ibuf1, ibuf2, name); }
+{ daexp_(intptr, rbuf, ibuf1, ibuf2, name, name_len_for); }
 
 void tps::imprt(const int n, double rbuf[],
 		const int ibuf1[], const int ibuf2[])
@@ -271,7 +271,7 @@ tps sqrt(const tps &a)
 {
   tps  b;
 
-  dafun_("SQRT", a.intptr, b.intptr);
+  dafun_("SQRT", a.intptr, b.intptr, name_len_for);
   return b;
 }
 
@@ -299,7 +299,7 @@ tps exp(const tps &a)
 {
   tps  b;
 
-  dafun_("EXP ", a.intptr, b.intptr);
+  dafun_("EXP ", a.intptr, b.intptr, name_len_for);
   return b;
 }
 
@@ -308,7 +308,7 @@ tps log(const tps &a)
 {
   tps  b;
 
-  dafun_("LOG ", a.intptr, b.intptr);
+  dafun_("LOG ", a.intptr, b.intptr, name_len_for);
   return b;
 }
 
@@ -319,7 +319,7 @@ tps sin(const tps &a)
 {
   tps  b;
 
-  dafun_("SIN ", a.intptr, b.intptr);
+  dafun_("SIN ", a.intptr, b.intptr, name_len_for);
   return b;
 }
 
@@ -327,7 +327,7 @@ tps cos(const tps &a)
 {
   tps  b;
 
-  dafun_("COS ", a.intptr, b.intptr);
+  dafun_("COS ", a.intptr, b.intptr, name_len_for);
   return b;
 }
 
@@ -335,7 +335,7 @@ tps tan(const tps &a)
 {
   tps  b;
 
-  dafun_("TAN ", a.intptr, b.intptr);
+  dafun_("TAN ", a.intptr, b.intptr, name_len_for);
   return b;
 }
 
@@ -400,7 +400,7 @@ tps asin(const tps &a)
 {
   tps  b;
 
-  dafun_("ASIN", a.intptr, b.intptr);
+  dafun_("ASIN", a.intptr, b.intptr, name_len_for);
   return b;
 }
 
@@ -409,7 +409,7 @@ tps acos(const tps &a)
 {
   tps  b;
 
-  dafun_("ACOS", a.intptr, b.intptr);
+  dafun_("ACOS", a.intptr, b.intptr, name_len_for);
   return b;
 }
 
@@ -1061,7 +1061,7 @@ ostream& operator<<(ostream &os, const tps &a)
     return os;
   }
 
-  daexp_(a.intptr, rbuf, ibuf1, ibuf2, name);
+  daexp_(a.intptr, rbuf, ibuf1, ibuf2, name, name_len_for);
   s << endl;
   
   name[10] = '\0'; i = 0;
