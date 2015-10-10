@@ -310,7 +310,7 @@ double get_dynap(const double delta, const bool cod);
 double get_chi2(long int n, double x[], double y[], long int m, Vector b);
 
 void pol_fit(int n, double x[], double y[], int order, Vector &b,
-	     double &sigma);
+	     double &sigma, const bool prt);
 
 void get_ksi2(const double d_delta);
 
