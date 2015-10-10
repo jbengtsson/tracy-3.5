@@ -237,7 +237,7 @@ void get_map(const bool cod)
 
   map.identity();
   if (cod) {
-    getcod(0.0, lastpos);
+    getcod(0e0, lastpos);
     map += globval.CODvect;
   }
   Cell_Pass(0, globval.Cell_nLoc, map, lastpos);
@@ -4636,6 +4636,7 @@ void pol_fit(int n, double x[], double y[], int order, Vector &b,
   int     i, j, k;
   Matrix  T1;
 
+  const bool   prt     = false;
   const	double sigma_k = 1.0, chi2 = 4.0;
 
   for (i = 0; i <= order; i++) {
@@ -4653,10 +4654,11 @@ void pol_fit(int n, double x[], double y[], int order, Vector &b,
 
   if (InvMat(order+1, T1)) {
     LinTrans(order+1, T1, b); sigma = get_chi2(n, x, y, order, b);
-    printf("\n");
-    printf("  n    Coeff.\n");
-    for (i = 0; i <= order; i++)
-      printf("%3d %10.3e+/-%8.2e\n", i, b[i], sigma*sqrt(chi2*T1[i][i]));
+    if (prt) {
+      printf("\n  n    Coeff.\n");
+      for (i = 0; i <= order; i++)
+	printf("%3d %10.3e+/-%8.2e\n", i, b[i], sigma*sqrt(chi2*T1[i][i]));
+    }
   } else {
     printf("pol_fit: Matrix is singular\n");
     exit_(1);
