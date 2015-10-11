@@ -163,6 +163,45 @@ void LtoG(ss_vect<T> &X, Vector2 &S, Vector2 &R,
   X[px_] += c1; X[py_] += s1;
 }
 
+#if 1
+
+template<typename T>
+inline T get_p_s(const ss_vect<T> &x)
+{
+  T  p_s, p_s2;
+
+  if (!globval.H_exact)
+    p_s = 1.0+x[delta_];
+  else {
+    p_s2 = sqr(1.0+x[delta_]) - sqr(x[px_]) - sqr(x[py_]);
+    if (p_s2 >= 0.0)
+      p_s = sqrt(p_s2);
+    else {
+      printf("get_p_s: *** Speed of light exceeded!\n");
+      p_s = NAN;
+    }
+  }
+  return(p_s);
+}
+
+template<typename T>
+void Drift(double L, ss_vect<T> &x)
+{
+  T u;
+
+  // [cT, delta].
+  if (!globval.H_exact) {
+    u = L/(1.0+x[delta_]);
+    x[ct_] += u*(sqr(x[px_])+sqr(x[py_]))/(2.0*(1.0+x[delta_]));
+  } else {
+    u = L/get_p_s(x);
+    x[ct_] += u*(1.0+x[delta_]) - L;
+  }
+  x[x_] += x[px_]*u; x[y_] += x[py_]*u;
+  if (globval.pathlength) x[ct_] += L;
+}
+
+#else
 
 template<typename T>
 inline T get_p_s(const ss_vect<T> &ps)
@@ -185,27 +224,6 @@ inline T get_p_s(const ss_vect<T> &ps)
   }
   return(p_s);
 }
-
-#if 1
-
- template<typename T>
- void Drift(double L, ss_vect<T> &x)
- {
-   T u;
-
-   // [cT, delta].
-   if (!globval.H_exact) {
-     u = L/(1.0+x[delta_]);
-     x[ct_] += u*(sqr(x[px_])+sqr(x[py_]))/(2.0*(1.0+x[delta_]));
-   } else {
-     u = L/get_p_s(x);
-     x[ct_] += u*(1.0+x[delta_]) - L;
-   }
-   x[x_] += x[px_]*u; x[y_] += x[py_]*u;
-   if (globval.pathlength) x[ct_] += L;
- }
-
-#else
 
 template <class T>
 void Drift(double L, ss_vect<T> &ps)

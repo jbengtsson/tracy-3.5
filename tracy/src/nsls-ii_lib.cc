@@ -4629,14 +4629,13 @@ double get_chi2(long int n, double x[], double y[], long int m, Vector b)
 
 
 void pol_fit(int n, double x[], double y[], int order, Vector &b,
-	     double &sigma)
+	     double &sigma, const bool prt)
 {
   /* Polynomial fit by linear chi-square */
 
   int     i, j, k;
   Matrix  T1;
 
-  const bool   prt     = false;
   const	double sigma_k = 1.0, chi2 = 4.0;
 
   for (i = 0; i <= order; i++) {
@@ -4685,10 +4684,10 @@ void get_ksi2(const double d_delta)
   }
   printf("\n");
   printf("Horizontal chromaticity:\n");
-  pol_fit(n, delta, nu[0], order, b, sigma);
+  pol_fit(n, delta, nu[0], order, b, sigma, true);
   printf("\n");
   printf("Vertical chromaticity:\n");
-  pol_fit(n, delta, nu[1], order, b, sigma);
+  pol_fit(n, delta, nu[1], order, b, sigma, true);
   printf("\n");
   fclose(fp);
 }
@@ -4953,7 +4952,7 @@ void get_alphac2(void)
     Cell_Pass(0, globval.Cell_nLoc, x, lastpos);
     alphac[n-1] = x[ct_]/Cell.S;
   }
-  pol_fit(n, delta, alphac, 3, b, sigma);
+  pol_fit(n, delta, alphac, 3, b, sigma, true);
   printf("\n");
   printf("alphac = %10.3e + %10.3e*delta + %10.3e*delta^2\n",
 	 b[1], b[2], b[3]);
