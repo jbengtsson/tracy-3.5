@@ -170,7 +170,8 @@ inline T get_p_s(const ss_vect<T> &x)
 {
   T  p_s, p_s2;
 
-  if (!globval.H_exact)
+  // if (!globval.H_exact)
+  if (false)
     p_s = 1.0+x[delta_];
   else {
     p_s2 = sqr(1.0+x[delta_]) - sqr(x[px_]) - sqr(x[py_]);
@@ -190,7 +191,8 @@ void Drift(double L, ss_vect<T> &x)
   T u;
 
   // [cT, delta].
-  if (!globval.H_exact) {
+  // if (!globval.H_exact) {
+  if (false) {
     u = L/(1.0+x[delta_]);
     x[ct_] += u*(sqr(x[px_])+sqr(x[py_]))/(2.0*(1.0+x[delta_]));
   } else {
@@ -522,7 +524,7 @@ void thin_kick(int Order, double MB[], double L, double h_bend, double h_ref,
 
   int         j;
   T           BxoBrho, ByoBrho, ByoBrho1, B[3];
-  ss_vect<T>  x0, cod;
+  ss_vect<T>  x0, cod, p_s;
 
   if ((h_bend != 0.0) || ((1 <= Order) && (Order <= HOMmax))) {
     x0 = x;
@@ -540,10 +542,17 @@ void thin_kick(int Order, double MB[], double L, double h_bend, double h_ref,
     }
 
     if (h_ref != 0.0) {
-      x[px_] -= L*(ByoBrho+(h_bend-h_ref)/2.0+h_ref*h_bend*x0[x_]
-		-h_ref*x0[delta_]);
-      x[ct_] += L*h_ref*x0[x_];
+      // Sector bend.
+      if (false) {
+	x[px_] -= L*(ByoBrho+(h_bend-h_ref)/2.0+h_ref*h_bend*x0[x_]
+		     -h_ref*x0[delta_]);
+	x[ct_] += L*h_ref*x0[x_]/p_s;
+      } else {
+	p_s = get_p_s(x0);
+	x[px_] -= L*(h_bend*(1e0+h_ref*x0[x_])-h_ref*p_s);
+	x[ct_] += L*h_ref*x0[x_];
     } else
+      // Cartesian bend.
       x[px_] -= L*(ByoBrho+h_bend);
     x[py_] += L*BxoBrho;
   }

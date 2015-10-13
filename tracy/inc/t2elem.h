@@ -43,24 +43,24 @@ template<typename T>
 void radiate(ss_vect<T> &x, const double L, const double h_ref, const T B[]);
 
 template<typename T>
-void Drift(double L, ss_vect<T> &x);
+void Drift(const double L, const double h_ref, ss_vect<T> &x);
 
 template<typename T>
-void bend_fringe(double hb, ss_vect<T> &x);
+void bend_fringe(const double hb, ss_vect<T> &x);
 
 template<typename T>
-void EdgeFocus(double irho, double phi, double gap, ss_vect<T> &x);
+void EdgeFocus(const double irho, double phi, double gap, ss_vect<T> &x);
 
 template<typename T>
-void quad_fringe(double b2, ss_vect<T> &x);
+void quad_fringe(const double b2, ss_vect<T> &x);
 
 
 template<typename T>
 void Drift_Pass(CellType &Cell, ss_vect<T> &x);
 
 template<typename T>
-void thin_kick(int Order, double MB[], double L, double h_bend, double h_ref,
-	       ss_vect<T> &x);
+void thin_kick(const int Order, const double MB[], const double L,
+	       const double h_bend, const double h_ref, ss_vect<T> &x);
 
 template<typename T>
 void Mpole_Pass(CellType &Cell, ss_vect<T> &x);

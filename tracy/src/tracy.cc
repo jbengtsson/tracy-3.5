@@ -121,11 +121,11 @@ template void Drift_Pass(CellType &, ss_vect<double> &);
 
 template void Drift_Pass(CellType &, ss_vect<tps> &);
 
-template void thin_kick(int, double [], double, double, double,
-			ss_vect<double> &);
+template void thin_kick(const int, double [], const double, const double,
+			const double, ss_vect<double> &);
 
-template void thin_kick(int, double [], double, double, double,
-			ss_vect<tps> &);
+template void thin_kick(const int, const double [], const double, const double,
+			const double, ss_vect<tps> &);
 
 template void Mpole_Pass(CellType &, ss_vect<double> &);
 
