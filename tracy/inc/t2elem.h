@@ -43,7 +43,7 @@ template<typename T>
 void radiate(ss_vect<T> &x, const double L, const double h_ref, const T B[]);
 
 template<typename T>
-void Drift(const double L, const double h_ref, ss_vect<T> &x);
+void Drift(const double L, ss_vect<T> &x);
 
 template<typename T>
 void bend_fringe(const double hb, ss_vect<T> &x);

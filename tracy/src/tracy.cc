@@ -100,28 +100,30 @@ template void radiate_ID(ss_vect<double> &, const double, const double &);
 
 template void radiate_ID(ss_vect<tps> &, const double, const tps &);
 
-template void Drift(double, ss_vect<double> &);
+template void Drift(const double, ss_vect<double> &);
 
-template void Drift(double, ss_vect<tps> &);
+template void Drift(const double, ss_vect<tps> &);
 
-template void bend_fringe(double, ss_vect<double> &);
+template void bend_fringe(const double, ss_vect<double> &);
 
-template void bend_fringe(double, ss_vect<tps> &);
+template void bend_fringe(const double, ss_vect<tps> &);
 
-template void EdgeFocus(double, double, double, ss_vect<double> &);
+template void EdgeFocus(const double, const double, const double,
+			ss_vect<double> &);
 
-template void EdgeFocus(double, double, double, ss_vect<tps> &);
+template void EdgeFocus(const double, const double, const double,
+			ss_vect<tps> &);
 
-template void quad_fringe(double, ss_vect<double> &);
+template void quad_fringe(const double, ss_vect<double> &);
 
-template void quad_fringe(double, ss_vect<tps> &);
+template void quad_fringe(const double, ss_vect<tps> &);
 
 
 template void Drift_Pass(CellType &, ss_vect<double> &);
 
 template void Drift_Pass(CellType &, ss_vect<tps> &);
 
-template void thin_kick(const int, double [], const double, const double,
+template void thin_kick(const int, const double [], const double, const double,
 			const double, ss_vect<double> &);
 
 template void thin_kick(const int, const double [], const double, const double,

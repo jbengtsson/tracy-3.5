@@ -752,18 +752,18 @@ void prt_lat(const char *fname, const int Fnum, const bool all, const int n)
 	  s += h;
 
 	  if (Cell[i].Elem.Pkind == drift)
-	    Drift(h, 0e0, A);
+	    Drift(h, A);
 	  else if (Cell[i].Elem.Pkind == Mpole) {
 	    if ((j == 1) && (Mp->Pirho != 0e0))
 	      EdgeFocus(Mp->Pirho, Mp->PTx1, Mp->Pgap, A);
 
-	    Drift(c1*h, 0e0, A);
+	    Drift(c1*h, A);
 	    thin_kick(Quad, Mp->PBpar, d1*h, Mp->Pirho, Mp->Pirho, A);
-	    Drift(c2*h, 0e0, A);
+	    Drift(c2*h, A);
 	    thin_kick(Quad, Mp->PBpar, d2*h, Mp->Pirho, Mp->Pirho, A);
-	    Drift(c2*h, 0e0, A);
+	    Drift(c2*h, A);
 	    thin_kick(Quad, Mp->PBpar, d1*h, Mp->Pirho, Mp->Pirho, A);
-	    Drift(c1*h, 0e0, A);
+	    Drift(c1*h, A);
 
 	    if ((j == n) && (Mp->Pirho != 0e0))
 	      EdgeFocus(Mp->Pirho, Mp->PTx2, Mp->Pgap, A);
