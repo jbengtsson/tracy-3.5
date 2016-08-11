@@ -176,7 +176,7 @@ inline T get_p_s(const ss_vect<T> &x)
     if (p_s2 >= 0e0)
       p_s = sqrt(p_s2);
     else {
-      printf("get_p_s: *** Speed of light exceeded!\n");
+//      printf("get_p_s: *** Speed of light exceeded!\n");
       p_s = NAN;
     }
   }
