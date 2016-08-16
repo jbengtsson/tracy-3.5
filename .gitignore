@@ -8,3 +8,4 @@ Makefile
 autom4te.cache
 stamp-h1
 config.log
+aclocal.m4
