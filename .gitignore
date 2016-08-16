@@ -7,5 +7,10 @@ Makefile.in
 Makefile
 autom4te.cache
 stamp-h1
+configure
+config.h.in
+config.h
+config.status
 config.log
 aclocal.m4
+*.Po
