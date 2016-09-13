@@ -1,7 +1,10 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT(tracy/src/t2elem.cc)
+#AC_INIT(tracy/src/t2elem.cc)
+AC_INIT(Tracy, 2.0)
 AC_CONFIG_AUX_DIR(config)
-AM_INIT_AUTOMAKE(Tracy, 2.0)
+#AM_INIT_AUTOMAKE(Tracy, 2.0)
+AC_CONFIG_SRCDIR(tracy/src/t2elem.cc)
+AM_INIT_AUTOMAKE
 AM_CONFIG_HEADER(config.h)
 # Checks for programs.
 AC_PROG_AWK
