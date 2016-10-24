@@ -4,19 +4,17 @@ prm1=${1-0}
 
 gnuplot << EOP
 
-ps = $prm1; eps = 0; phys_app = 0;
-
-ps = $prm1; eps = 0; norm = 0; mom_aper = 1; delta = "2.5"; phys_app = 0;
+ps = $prm1; eps = 0; norm = 0; mom_aper = 1; delta = "3.0"; phys_app = 0;
 
 file1 = "dynap.out";
 file2 = "dynap_dp".delta.".out";
 file3 = "dynap_dp-".delta.".out";
 
-if (!ps) set terminal x11;
-if (ps && !eps) \
-  set terminal postscript enhanced color solid lw 2 "Times-Roman" 20;
-if (ps && eps) \
-  set terminal postscript eps enhanced color solid lw 2 "Times-Roman" 20;
+if (ps == 0) set terminal x11;
+if (ps == 1) \
+  set terminal postscript enhanced color solid lw 2 "Times-Roman" 18;
+if (ps == 2) \
+  set terminal pdf enhanced color solid linewidth 2 font "Times-Roman, 18";
 
 set grid;
 
@@ -37,7 +35,8 @@ if (phys_app) \
   set arrow from  x_hat, y_hat to  x_hat,   0.0 nohead \
   lt 1 lw 1 lc rgb "black";
 
-if (ps) set output "dynap.ps";
+if (ps == 1) set output "dynap.eps";
+if (ps == 2) set output "dynap.pdf";
 
 if (!norm) \
   set title "Dynamic Aperture (bare lattice)"; \
