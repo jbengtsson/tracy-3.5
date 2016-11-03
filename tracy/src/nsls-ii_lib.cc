@@ -372,6 +372,24 @@ ss_vect<tps> get_A_CS(const int n, const ss_vect<tps> &A, double dnu[])
 }
 
 
+static void prt_lin_map(const int n_DOF, const ss_vect<tps> &map)
+{
+  int  i, j;
+
+  cout << endl;
+  for (i = 1; i <= 2*n_DOF; i++) {
+    for (j = 1; j <= 2*n_DOF; j++)
+      if (true)
+	cout << scientific << setprecision(5)
+	     << setw(13) << getmat(map, i, j);
+      else
+	cout << scientific << setprecision(16)
+	     << setw(24) << getmat(map, i, j);
+    cout << endl;
+  }
+}
+
+
 void get_twoJ(const int n_DOF, const ss_vect<double> &ps,
 	      const ss_vect<tps> &A, double twoJ[])
 {
@@ -785,8 +803,8 @@ void prt_lat(const char *fname, const int Fnum, const bool all, const int n)
 	  curly_H = sqr(eta_Fl[x_]) + sqr(eta_Fl[px_]);
 
 	  fprintf(outf, "%4ld %15s %6.2f %4.1f"
-		  " %7.3f %6.3f %6.3f %6.3f %6.3f"
-		  " %7.3f %6.3f %6.3f %6.3f %6.3f %10.3e %10.3e %10.3e\n",
+		  " %9.5f %8.5f %8.5f %8.5f %8.5f"
+		  " %9.5f %8.5f %8.5f %8.5f %8.5f %10.3e %10.3e %10.3e\n",
 		  i, Cell[i].Elem.PName, s, get_code(Cell[i]),
 		  alpha[X_], beta[X_], nu[X_]+dnu[X_], eta[X_], etap[X_],
 		  alpha[Y_], beta[Y_], nu[Y_]+dnu[Y_], eta[Y_], etap[Y_],
@@ -803,8 +821,8 @@ void prt_lat(const char *fname, const int Fnum, const bool all, const int n)
 	curly_H = sqr(eta_Fl[x_]) + sqr(eta_Fl[px_]);
 
 	fprintf(outf, "%4ld %15s %6.2f %4.1f"
-		" %7.3f %6.3f %6.3f %6.3f %6.3f"
-		" %7.3f %6.3f %6.3f %6.3f %6.3f %10.3e %10.3e %10.3e\n",
+		" %9.5f %8.5f %8.5f %8.5f %8.5f"
+		" %9.5f %8.5f %8.5f %8.5f %8.5f %10.3e %10.3e %10.3e\n",
 		i, Cell[i].Elem.PName, Cell[i].S, get_code(Cell[i]),
 		Cell[i].Alpha[X_], Cell[i].Beta[X_], Cell[i].Nu[X_],
 		Cell[i].Eta[X_], Cell[i].Etap[X_],
