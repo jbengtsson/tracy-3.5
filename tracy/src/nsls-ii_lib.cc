@@ -4172,8 +4172,8 @@ void IBS_BM(const double Qb, const double eps_SR[], double eps[])
   // M. Conte, M. Martini "Intrabeam Scattering in the CERN Antiproton
   // Accumulator" Par. Accel. 17, 1-10 (1985).
   // F. Zimmermann "Intrabeam Scattering with Non-Ultrarelatvistic Corrections
-  // and Vertical Dispersion" CERN-AB-2006-002
-  // Note, ZAP (LBL-21270)uses the Conte-Martini formalism.  However, it also
+  // and Vertical Dispersion" CERN-AB-2006-002.
+  // Note, ZAP (LBL-21270) uses the Conte-Martini formalism.  However, it also
   // averages the optics functions over an element instead of the integrand;
   // incorrect.  Hence, the IBS effect is underestimated.
 
