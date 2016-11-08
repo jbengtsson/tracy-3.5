@@ -803,7 +803,7 @@ void prt_lat(const char *fname, const int Fnum, const bool all, const int n)
 	  curly_H = sqr(eta_Fl[x_]) + sqr(eta_Fl[px_]);
 
 	  fprintf(outf, "%4ld %15s %6.2f %4.1f"
-		  " %9.5f %8.5f %8.5f %8.5f %8.5f"
+		  " %9.5f %8.5f %8.5f %11.8f %11.8f"
 		  " %9.5f %8.5f %8.5f %8.5f %8.5f %10.3e %10.3e %10.3e\n",
 		  i, Cell[i].Elem.PName, s, get_code(Cell[i]),
 		  alpha[X_], beta[X_], nu[X_]+dnu[X_], eta[X_], etap[X_],
@@ -821,7 +821,7 @@ void prt_lat(const char *fname, const int Fnum, const bool all, const int n)
 	curly_H = sqr(eta_Fl[x_]) + sqr(eta_Fl[px_]);
 
 	fprintf(outf, "%4ld %15s %6.2f %4.1f"
-		" %9.5f %8.5f %8.5f %8.5f %8.5f"
+		" %9.5f %8.5f %8.5f %11.8f %11.8f"
 		" %9.5f %8.5f %8.5f %8.5f %8.5f %10.3e %10.3e %10.3e\n",
 		i, Cell[i].Elem.PName, Cell[i].S, get_code(Cell[i]),
 		Cell[i].Alpha[X_], Cell[i].Beta[X_], Cell[i].Nu[X_],
