@@ -4009,7 +4009,8 @@ double get_int_IBS(void)
 }
 
 
-void IBS(const double Qb, const double eps_SR[], double eps[])
+void IBS(const double Qb, const double eps_SR[], double eps[],
+	 const bool prt1, const bool prt2)
 {
   /* J. Le Duff "Single and Multiple Touschek Effects" (e.g. CERN 89-01)
 
@@ -4061,21 +4062,22 @@ void IBS(const double Qb, const double eps_SR[], double eps[])
 
   sigma_s = sqrt(globval.beta_z*eps[Z_]); sigma_delta = sqrt(gamma_z*eps[Z_]);
 
-  printf("\n");
-  printf("Qb             = %4.2f nC,         Nb          = %9.3e\n",
-	 1e9*Qb, N_b);
-  printf("eps_x_SR       = %9.3e m.rad, eps_x       = %9.3e m.rad\n",
-	 eps_SR[X_], eps[X_]);
-  printf("eps_y_SR       = %9.3e m.rad, eps_y       = %9.3e m.rad\n",
-	 eps_SR[Y_], eps[Y_]);
-  printf("eps_z_SR       = %9.3e,       eps_z       = %9.3e\n",
-	 eps_SR[Z_], eps[Z_]);
-  printf("alpha_z        = %9.3e,       beta_z      = %9.3e\n",
-	 globval.alpha_z, globval.beta_z);
-  printf("sigma_s_SR     = %9.3e mm,    sigma_s     = %9.3e mm\n",
-	 1e3*sigma_s_SR, 1e3*sigma_s);
-  printf("sigma_delta_SR = %9.3e,       sigma_delta = %9.3e\n",
-	 sigma_delta_SR, sigma_delta);
+  if (prt1) {
+    printf("\nQb             = %4.2f nC,        Nb          = %9.3e\n",
+	   1e9*Qb, N_b);
+    printf("eps_x_SR       = %7.3f pm.rad, eps_x       = %7.3f pm.rad\n",
+	   1e12*eps_SR[X_], 1e12*eps[X_]);
+    printf("eps_y_SR       = %7.3f pm.rad, eps_y       = %7.3f pm.rad\n",
+	   1e12*eps_SR[Y_], 1e12*eps[Y_]);
+    printf("eps_z_SR       = %9.3e,      eps_z       = %9.3e\n",
+	   eps_SR[Z_], eps[Z_]);
+    printf("alpha_z        = %9.3e,      beta_z      = %9.3e\n",
+	   globval.alpha_z, globval.beta_z);
+    printf("sigma_s_SR     = %9.3e mm,   sigma_s     = %9.3e mm\n",
+	   1e3*sigma_s_SR, 1e3*sigma_s);
+    printf("sigma_delta_SR = %9.3e,      sigma_delta = %9.3e\n",
+	   sigma_delta_SR, sigma_delta);
+  }
 
   D_delta = 0.0; D_x = 0.0;
   for(k = 0; k <= globval.Cell_nLoc; k++) {
@@ -4122,15 +4124,16 @@ void IBS(const double Qb, const double eps_SR[], double eps[])
 
   sigma_s = sqrt(globval.beta_z*eps[Z_]);
 
-  printf("\n");
-  printf("D_x         = %9.3e\n", D_x);
-  printf("eps_x(IBS)  = %5.3f nm.rad\n", 1e9*eps_IBS[X_]);
-  printf("eps_x       = %5.3f nm.rad\n", 1e9*eps[X_]);
-  printf("eps_y       = %5.3f pm.rad\n", 1e12*eps[Y_]);
-  printf("D_delta     = %9.3e\n", D_delta);
-  printf("eps_z       = %9.3e\n", eps[Z_]);
-  printf("sigma_s     = %9.3e\n", sigma_s);
-  printf("sigma_delta = %9.3e\n", sigma_delta);
+  if (prt2) {
+    printf("\nD_x         = %9.3e\n", D_x);
+    printf("eps_x(IBS)  = %7.3f pm.rad\n", 1e12*eps_IBS[X_]);
+    printf("eps_x       = %7.3f pm.rad\n", 1e12*eps[X_]);
+    printf("eps_y       = %7.3f pm.rad\n", 1e12*eps[Y_]);
+    printf("D_delta     = %9.3e\n", D_delta);
+    printf("eps_z       = %9.3e\n", eps[Z_]);
+    printf("sigma_s     = %9.3e mm\n", 1e3*sigma_s);
+    printf("sigma_delta = %9.3e\n", sigma_delta);
+  }
 }
 
 
@@ -4166,9 +4169,11 @@ double get_int_IBS_BM(void)
 }
 
 
-void IBS_BM(const double Qb, const double eps_SR[], double eps[])
+void IBS_BM(const double Qb, const double eps_SR[], double eps[],
+	    const bool prt1, const bool prt2)
 {
-  // J. Bjorken, S. K. Mtingwa "Intrabeam Scattering" Part. Accel. 13, 115-143 (1983).
+  // J. Bjorken, S. K. Mtingwa "Intrabeam Scattering" Part. Accel. 13, 115-143
+  // (1983).
   // M. Conte, M. Martini "Intrabeam Scattering in the CERN Antiproton
   // Accumulator" Par. Accel. 17, 1-10 (1985).
   // F. Zimmermann "Intrabeam Scattering with Non-Ultrarelatvistic Corrections
@@ -4201,21 +4206,22 @@ void IBS_BM(const double Qb, const double eps_SR[], double eps[])
 
   sigma_s = sqrt(globval.beta_z*eps[Z_]); sigma_delta = sqrt(gamma_z*eps[Z_]);
 
-  printf("\n");
-  printf("Qb             = %4.2f nC,         Nb          = %9.3e\n",
-	 1e9*Qb, N_b);
-  printf("eps_x_SR       = %9.3e m.rad, eps_x       = %9.3e m.rad\n",
-	 eps_SR[X_], eps[X_]);
-  printf("eps_y_SR       = %9.3e m.rad, eps_y       = %9.3e m.rad\n",
-	 eps_SR[Y_], eps[Y_]);
-  printf("eps_z_SR       = %9.3e,       eps_z       = %9.3e\n",
-	 eps_SR[Z_], eps[Z_]);
-  printf("alpha_z        = %9.3e,       beta_z      = %9.3e\n",
-	 globval.alpha_z, globval.beta_z);
-  printf("sigma_s_SR     = %9.3e mm,    sigma_s     = %9.3e mm\n",
-	 1e3*sigma_s_SR, 1e3*sigma_s);
-  printf("sigma_delta_SR = %9.3e,       sigma_delta = %9.3e\n",
-	 sigma_delta_SR, sigma_delta);
+  if (prt1) {
+    printf("\nQb             = %4.2f nC,        Nb          = %9.3e\n",
+	   1e9*Qb, N_b);
+    printf("eps_x_SR       = %7.3f pm.rad, eps_x       = %7.3f pm.rad\n",
+	   1e12*eps_SR[X_], 1e12*eps[X_]);
+    printf("eps_y_SR       = %7.3f pm.rad, eps_y       = %7.3f pm.rad\n",
+	   1e12*eps_SR[Y_], 1e12*eps[Y_]);
+    printf("eps_z_SR       = %9.3e,      eps_z       = %9.3e\n",
+	   eps_SR[Z_], eps[Z_]);
+    printf("alpha_z        = %9.3e,      beta_z      = %9.3e\n",
+	   globval.alpha_z, globval.beta_z);
+    printf("sigma_s_SR     = %9.3e mm,   sigma_s     = %9.3e mm\n",
+	   1e3*sigma_s_SR, 1e3*sigma_s);
+    printf("sigma_delta_SR = %9.3e,      sigma_delta = %9.3e\n",
+	   sigma_delta_SR, sigma_delta);
+  }
 
   // Compute the Coulomb log
 
@@ -4451,8 +4457,8 @@ void IBS_BM(const double Qb, const double eps_SR[], double eps[])
 	  sqr(r_e)*c0*N_b*log_Coulomb
 	  /(M_PI*cube(2e0*beta_rel)*pow(gamma, 4e0));
 
-      printf("%4ld %10.3e %10.3e %10.3e %5.3f\n",
-	     k, dtau_inv[Z_], dtau_inv[X_], dtau_inv[Y_], L);
+      // printf("%4ld %10.3e %10.3e %10.3e %5.3f\n",
+      // 	     k, dtau_inv[Z_], dtau_inv[X_], dtau_inv[Y_], L);
     }
   }
 
@@ -4482,16 +4488,17 @@ void IBS_BM(const double Qb, const double eps_SR[], double eps[])
 
   sigma_s = sqrt(globval.beta_z*eps[Z_]);
 
-  printf("\n");
-  printf("Coulomb Log = %6.3f\n", log_Coulomb);
-  printf("D_x         = %9.3e\n", D_x);
-  printf("eps_x(IBS)  = %5.3f nm.rad\n", 1e9*eps_IBS[X_]);
-  printf("eps_x       = %5.3f nm.rad\n", 1e9*eps[X_]);
-  printf("eps_y       = %5.3f pm.rad\n", 1e12*eps[Y_]);
-  printf("D_delta     = %9.3e\n", D_delta);
-  printf("eps_z       = %9.3e\n", eps[Z_]);
-  printf("sigma_s     = %9.3e\n", sigma_s);
-  printf("sigma_delta = %9.3e\n", sigma_delta);
+  if (prt2) {
+    printf("\nCoulomb Log = %6.3f\n", log_Coulomb);
+    printf("D_x         = %9.3e\n", D_x);
+    printf("eps_x(IBS)  = %7.3f pm.rad\n", 1e12*eps_IBS[X_]);
+    printf("eps_x       = %7.3f pm.rad\n", 1e12*eps[X_]);
+    printf("eps_y       = %7.3f pm.rad\n", 1e12*eps[Y_]);
+    printf("D_delta     = %9.3e\n", D_delta);
+    printf("eps_z       = %9.3e\n", eps[Z_]);
+    printf("sigma_s     = %9.3e mm\n", 1e3*sigma_s);
+    printf("sigma_delta = %9.3e\n", sigma_delta);
+  }
 }
 
 

@@ -297,9 +297,11 @@ double f_IBS(const double chi_m);
 
 double get_int_IBS(void);
 
-void IBS(const double Qb, const double eps_SR[], double eps[]);
+void IBS(const double Qb, const double eps_SR[], double eps[],
+	 const bool prt1, const bool prt2);
 
-void IBS_BM(const double Qb, const double eps_SR[], double eps[]);
+void IBS_BM(const double Qb, const double eps_SR[], double eps[],
+	    const bool prt1, const bool prt2);
 
 void rm_space(char *name);
 
