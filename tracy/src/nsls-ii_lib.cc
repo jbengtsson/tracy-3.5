@@ -4799,7 +4799,7 @@ void dnu_dA(const double Ax_max, const double Ay_max, const double delta,
   Vector    ps;
   FILE      *fp;
 
-  const double  A_min  = 1e-3;
+  const double  A_min  = 0.1e-3;
 //  const double  eps0   = 0.04, eps   = 0.02;
 //  const double  eps0   = 0.025, eps   = 0.02;
 //   const double  eps0   = 0.04, eps   = 0.015;
