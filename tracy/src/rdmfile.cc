@@ -135,7 +135,7 @@ void rdmfile(const char *mfile_dat)
 
   file_rd(inf, mfile_dat);
 
-  while (inf.getline(line, max_str) != NULL) {
+  while (inf.getline(line, max_str)) {
     if (prt) printf("%s\n", line);
     sscanf(line, "%*s %*d %*d %ld", &i);
 

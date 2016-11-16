@@ -5095,7 +5095,7 @@ void set_tune(const char file_name1[], const char file_name2[], const int n)
   inf1.getline(line, max_str); inf2.getline(line, max_str);
 
   fp_lat = file_write("set_tune.lat");
-  while (inf1.getline(line, max_str) != NULL) {
+  while (inf1.getline(line, max_str)) {
     sscanf(line, "%d%lf %lf %lf %lf %lf %lf",
 	   &j, &nu[X_], &nu[Y_], &b2s[0], &b2s[1], &b2s[2], &b2s[3]);
     inf2.getline(line, max_str);
