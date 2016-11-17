@@ -503,7 +503,7 @@ void GetEmittance(const int Fnum, const bool prt)
   phi0 = fabs(asin(globval.U0/V_RF));
   globval.delta_RF =
     sqrt(-V_RF*cos(M_PI-phi0)*(2.0-(M_PI-2.0*(M_PI-phi0))
-    *tan(M_PI-phi0))/(globval.Alphac*M_PI*h_RF*1e9*globval.Energy));
+    *tan(M_PI-phi0))/(fabs(globval.Alphac)*M_PI*h_RF*1e9*globval.Energy));
 
   // Compute diffusion coeffs. for eigenvectors [sigma_xx, sigma_yy, sigma_zz]
   putlinmat(6, globval.Ascr, Ascr_map); Ascr_map += globval.CODvect;
@@ -4451,14 +4451,14 @@ void IBS_BM(const double Qb, const double eps_SR[], double eps[],
     dtau_inv[Z_] = sqr(gamma/sigma_delta)*get_int_IBS_BM()/Gamma;
     tau_inv[Z_] += dtau_inv[Z_]*L;
 
-    if (true) {
+    if (false) {
       for (i = 0; i < 3; i++)
 	dtau_inv[i] *=
 	  sqr(r_e)*c0*N_b*log_Coulomb
 	  /(M_PI*cube(2e0*beta_rel)*pow(gamma, 4e0));
 
-      // printf("%4ld %10.3e %10.3e %10.3e %5.3f\n",
-      // 	     k, dtau_inv[Z_], dtau_inv[X_], dtau_inv[Y_], L);
+      printf("%4ld %10.3e %10.3e %10.3e %5.3f\n",
+      	     k, dtau_inv[Z_], dtau_inv[X_], dtau_inv[Y_], L);
     }
   }
 
