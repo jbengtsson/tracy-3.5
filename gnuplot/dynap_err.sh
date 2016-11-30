@@ -14,9 +14,9 @@ if (ps && eps) \
 
 set grid;
 
-set style line 1 lt 1 lw 1 lc rgb "blue";
-set style line 2 lt 1 lw 1 lc rgb "green";
-set style line 3 lt 1 lw 1 lc rgb "red";
+set style line 1 lt 1 lw 1 lc rgb "blue" ps 2 pt 1;
+set style line 2 lt 1 lw 1 lc rgb "green" ps 2 pt 1;
+set style line 3 lt 1 lw 1 lc rgb "red" ps 2 pt 1;
 
 # draw projection of mechanical aperture
 Ax = 17.5; Ay = 12.5;

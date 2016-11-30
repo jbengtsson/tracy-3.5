@@ -24,7 +24,7 @@ void zero_trims(void)
   for (k = 0; k < 2; k++)
     for (j = 1; j <= n_corr_[k]; j++) {
       loc = corrs_[k][j];
-      set_bn_design_elem(Cell[loc].Fnum, Cell[loc].Knum, Dip, 0.0, 0.0);
+      set_bn_design_elem(Cell[loc].Fnum, Cell[loc].Knum, Dip, 0e0, 0e0);
     }
 }
 
@@ -128,7 +128,7 @@ void gcmat(const int plane)
   for (j = 1; j <= n_corr_[k]; j++) {
     printf("%11.3e", w_lsoc[k][j]);
     if (w_lsoc[k][j] < eps) {
-      w_lsoc[k][j] = 0.0;
+      w_lsoc[k][j] = 0e0;
       printf(" (zeroed)");
     }
     if (j % 5 == 0) printf("\n");
@@ -193,7 +193,7 @@ void gcmat(const int bpm, const int corr, const int plane)
 }
 
 
-void lsoc(const int plane)
+void lsoc(const int plane, const double scl)
 {
   int       j, k;
   long int  loc;
@@ -213,9 +213,9 @@ void lsoc(const int plane)
   for (j = 1; j <= n_corr_[k]; j++) {
     loc = corrs_[k][j];
     if (plane == 1)
-      set_dbnL_design_elem(Cell[loc].Fnum, Cell[loc].Knum, Dip, -x[j], 0.0);
+      set_dbnL_design_elem(Cell[loc].Fnum, Cell[loc].Knum, Dip, -scl*x[j], 0e0);
     else
-      set_dbnL_design_elem(Cell[loc].Fnum, Cell[loc].Knum, Dip, 0.0, x[j]);
+      set_dbnL_design_elem(Cell[loc].Fnum, Cell[loc].Knum, Dip, 0e0, scl*x[j]);
   }
 
   free_dvector(b, 1, n_bpm_[k]); free_dvector(x, 1, n_corr_[k]);
@@ -236,7 +236,7 @@ void gtcmat(const int plane)
   long int  loc_bpm, loc_corr;
   double    betai, betaj, nui, nuj;
 
-  const double  eps = 1e-10;
+  const double  eps = 1e1;
 
   k = plane - 1;
 
@@ -264,7 +264,7 @@ void gtcmat(const int plane)
   for (j = 1; j <= n_corr_[k]; j++) {
     printf("%11.3e", w_lstc[k][j]);
     if (w_lstc[k][j] < eps) {
-      w_lstc[k][j] = 0.0;
+      w_lstc[k][j] = 0e0;
       printf(" (zeroed)");
     }
     if (j % 5 == 0) printf("\n");
@@ -311,7 +311,7 @@ void gtcmat(const int n_bpm, const long int bpms[],
 }
 
 
-void lstc(const int plane, const long int lastpos)
+void lstc(const int plane, const long int lastpos, const double scl)
 {
   int       j, k;
   long int  loc;
@@ -343,14 +343,14 @@ void lstc(const int plane, const long int lastpos)
 		      << setw(12)<< -x[j] << endl;
 
       set_dbnL_design_elem(Cell[loc].Fnum, Cell[loc].Knum, Dip,
-			   -x[j], 0.0);
+			   -scl*x[j], 0e0);
     } else {
       if (trace) cout << scientific << setprecision(5)
 		      << "(a_1L)[" << setw(3) << j << "] = "
 		      << setw(12)<< x[j] << endl;
 
       set_dbnL_design_elem(Cell[loc].Fnum, Cell[loc].Knum, Dip,
-			   0.0, x[j]);
+			   0e0, scl*x[j]);
     }
   }
 

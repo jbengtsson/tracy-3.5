@@ -244,7 +244,7 @@ void SetFieldErrors(const char *name, const bool rms, const double r0,
 void LoadFieldErr(const char *FieldErrorFile, const bool Scale_it,
 		  const double Scale, const bool new_rnd);
 
-bool CorrectCOD(int n_orbit);
+bool CorrectCOD(const int n_orbit, const double scl);
 
 void Align_BPMs(const int n);
 

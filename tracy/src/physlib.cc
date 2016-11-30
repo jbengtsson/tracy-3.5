@@ -1922,13 +1922,13 @@ void codstat(double *mean, double *sigma, double *xmax, long lastpos, bool all)
   int      j;
   Vector2  sum, sum2;
 
-  for (j = 0; j <= 1; j++) {
-    sum[j] = 0.0; sum2[j] = 0.0; xmax[j] = 0.0;
+  for (j = 0; j < 2; j++) {
+    sum[j] = 0e0; sum2[j] = 0e0; xmax[j] = 0e0;
   }
 
   n = 0;
   if (all) {
-    for (i = 0; i <= lastpos; i++) {
+    for (i = 0; i < lastpos; i++) {
       n++;
       for (j = 0; j < 2; j++) {
 	sum[j] += Cell[i].BeamPos[j*2];
@@ -1952,15 +1952,15 @@ void codstat(double *mean, double *sigma, double *xmax, long lastpos, bool all)
     if (n != 0)
       mean[j] = sum[j] / n;
     else
-      mean[j] = 0.0;
+      mean[j] = -1e0;
     if (n != 0 && n != 1) {
-      sigma[j] = (n*sum2[j]-sqr(sum[j]))/(n*(n-1.0));
+      sigma[j] = (n*sum2[j]-sqr(sum[j]))/(n*(n-1e0));
     } else
-      sigma[j] = 0.0;
-    if (sigma[j] >= 0.0)
+      sigma[j] = 0e0;
+    if (sigma[j] >= 0e0)
       sigma[j] = sqrt(sigma[j]);
     else
-      sigma[j] = 0.0;
+      sigma[j] = -1e0;
   }
 }
 

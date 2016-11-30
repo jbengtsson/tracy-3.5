@@ -165,8 +165,8 @@ extern "C" {
   void airy(float x, float *ai, float *bi, float *aip, float *bip);
   void amebsa(float **p, float y[], int ndim, float pb[],	float *yb,
 	      float ftol, float (*funk)(float []), int *iter, float temptr);
-  void amoeba(float **p, float y[], int ndim, float ftol,
-	      float (*funk)(float []), int *iter);
+  void damoeba(double **p, double y[], int ndim, double ftol,
+	       double (*funk)(double []), int *iter);
   float amotry(float **p, float y[], float psum[], int ndim,
 	       float (*funk)(float []), int ihi, float fac);
   float amotsa(float **p, float y[], float psum[], int ndim, float pb[],
@@ -499,10 +499,8 @@ extern "C" {
   void polin2(float x1a[], float x2a[], float **ya, int m, int n,
 	      float x1, float x2, float *y, float *dy);
   void polint(float xa[], float ya[], int n, float x, float *y, float *dy);
-  void powell(float p[], float **xi, int n, float ftol, int *iter, float *fret,
-	      float (*func)(float []));
-  void dpowell(double p[], double **xi, int n, double ftol, int *iter, double *fret,
-	       double (*func)(double []));
+  void dpowell(double p[], double **xi, int n, double ftol, int *iter,
+	       double *fret, double (*func)(double []));
   void predic(float data[], int ndata, float d[], int m, float future[],
 	      int nfut);
   float probks(float alam);

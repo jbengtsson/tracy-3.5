@@ -187,10 +187,8 @@ FILE* file_read(const char file_name[])
   if (fp == NULL) {
     printf("File not found: %s\n", file_name);
     exit_(-1);
-  } else
-    return(fp);
-    // avoid compiler warning
-    return NULL;
+  }
+  return(fp);
 }
 
 
@@ -202,10 +200,8 @@ FILE* file_write(const char file_name[])
   if (fp == NULL) {
     printf("Could not create file: %s\n", file_name);
     exit_(-1);
-    // avoid compiler warning
-    return NULL;
-  } else
-    return(fp);
+  }
+  return(fp);
 }
 
 
@@ -2248,22 +2244,23 @@ void LoadFieldErr(const char *FieldErrorFile, const bool Scale_it,
 // control of orbit
 
 // closed orbit correction by n_orbit iterations
-bool CorrectCOD(int n_orbit)
+bool CorrectCOD(const int n_orbit, const double scl)
 {
-  bool             cod;
-  int              i;
-  long int         lastpos;
-  Vector2          mean, sigma, max;
-  ss_vect<double>  ps;
+  bool            cod;
+  int             i;
+  long int        lastpos;
+  Vector2         mean, sigma, max;
+  ss_vect<double> ps;
 
-  ps.zero(); Cell_Pass(0, globval.Cell_nLoc, ps, lastpos);
-  for (i = 1; i <= n_orbit; i++) {
-    lstc(1, lastpos); lstc(2, lastpos);
+  // ps.zero(); Cell_Pass(0, globval.Cell_nLoc, ps, lastpos);
+  // for (i = 1; i <= n_orbit; i++) {
+  //   lstc(1, lastpos); lstc(2, lastpos);
 
-    ps.zero(); Cell_Pass(0, globval.Cell_nLoc, ps, lastpos);
-  }
-
-  cod = getcod(0.0, lastpos);
+  //   ps.zero(); Cell_Pass(0, globval.Cell_nLoc, ps, lastpos);
+  // }
+  // if (false) prt_cod("cod.out", globval.bpm, true);
+ 
+  cod = getcod(0e0, lastpos);
   if (cod) {
     codstat(mean, sigma, max, globval.Cell_nLoc, true);
     printf("\n");
@@ -2275,8 +2272,8 @@ bool CorrectCOD(int n_orbit)
 	   1e3*sigma[X_], 1e3*sigma[Y_]);
 
     for (i = 1; i <= n_orbit; i++){
-      lsoc(1); lsoc(2);
-      cod = getcod(0.0, lastpos);
+      lsoc(1, scl); lsoc(2, scl);
+      cod = getcod(0e0, lastpos);
       if (!cod) break;
 
       if (cod) {
@@ -2420,7 +2417,9 @@ bool CorrectCOD_N(const char *ae_file, const int n_orbit,
       Align_BPMs(Quad);
     }
 
-    cod = CorrectCOD(n_orbit);
+    // get_traject();
+    
+    cod = CorrectCOD(n_orbit, 1e0);
 
     if (!cod) break;
 
@@ -3415,8 +3414,10 @@ void ini_COD_corr(const int n_bpm_Fam, const string bpm_names[],
   gcmat(n_bpm, bpms, n_hcorr, hcorrs, 1, svd);
   gcmat(n_bpm, bpms, n_vcorr, vcorrs, 2, svd);
 
-  gtcmat(n_bpm, bpms, n_hcorr, hcorrs, 1, svd);
-  gtcmat(n_bpm, bpms, n_vcorr, vcorrs, 2, svd);
+  if (true) {
+    gtcmat(n_bpm, bpms, n_hcorr, hcorrs, 1, svd);
+    gtcmat(n_bpm, bpms, n_vcorr, vcorrs, 2, svd);
+  }
 }
 
 
@@ -4926,7 +4927,7 @@ bool orb_corr(const int n_orbit)
       printf("\n");
       printf("RMS orbit [mm]: (%8.1e+/-%7.1e, %8.1e+/-%7.1e)\n",
 	     1e3*xmean[X_], 1e3*xsigma[X_], 1e3*xmean[Y_], 1e3*xsigma[Y_]);
-      lsoc(1); lsoc(2);
+      lsoc(1, 1e0); lsoc(2, 1e0);
       cod = getcod(0.0, lastpos);
       if (cod) {
 	codstat(xmean, xsigma, xmax, globval.Cell_nLoc, false);
@@ -4984,10 +4985,10 @@ void get_alphac2(void)
 }
 
 
-float f_bend(float b0L[])
+double f_bend(double b0L[])
 {
-  long int  lastpos;
-  Vector    ps;
+  long int lastpos;
+  Vector   ps;
 
   const int   n_prt = 10;
 
@@ -5014,13 +5015,13 @@ void bend_cal_Fam(const int Fnum)
   /* Adjusts b1L_sys to zero the orbit for a given gradient. */
   const int  n_prm = 1;
 
-  int       iter;
-  float     *b0L, **xi, fret;
-  Vector    ps;
+  int    iter;
+  double *b0L, **xi, fret;
+  Vector ps;
 
-  const float  ftol = 1e-15;
+  const double ftol = 1e-15;
 
-  b0L = vector(1, n_prm); xi = matrix(1, n_prm, 1, n_prm);
+  b0L = dvector(1, n_prm); xi = dmatrix(1, n_prm, 1, n_prm);
 
   cout << endl;
   cout << "bend_cal: " << ElemFam[Fnum-1].ElemF.PName << ":" << endl;
@@ -5029,9 +5030,9 @@ void bend_cal_Fam(const int Fnum)
 
   cout << endl;
   n_iter_Cart = 0;
-  powell(b0L, xi, n_prm, ftol, &iter, &fret, f_bend);
+  dpowell(b0L, xi, n_prm, ftol, &iter, &fret, f_bend);
 
-  free_vector(b0L, 1, n_prm); free_matrix(xi, 1, n_prm, 1, n_prm);
+  free_dvector(b0L, 1, n_prm); free_dmatrix(xi, 1, n_prm, 1, n_prm);
 }
 
 
