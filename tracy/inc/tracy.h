@@ -104,7 +104,7 @@ typedef struct statusrec{
 
 extern bool  stable;
 extern bool  ErrFlag;
-extern bool  trace, cellconcat, traceID;
+extern bool  trace, traceID;
 
 extern double  Fdrift1, Fkick1, Fdrift2, Fkick2, crad, cfluc;
 

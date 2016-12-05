@@ -60,8 +60,6 @@ void Trac_Simple(double x, double px, double y, double py, double dp,
 
   *status2 = true; /* stable */
 
-  if (globval.MatMeth) Cell_Concat(dp);
-
   if (cod) {
     printf("Trac_Simple: relative (to COD)\n");
     /* Get closed orbit */
@@ -92,10 +90,7 @@ void Trac_Simple(double x, double px, double y, double py, double dp,
     if ((lastpos == globval.Cell_nLoc) &&
         (fabs(x1[0]) < aperture[0]) && (fabs(x1[2]) < aperture[1]) && status.codflag)
     {
-      if (globval.MatMeth)
-        Cell_fPass(x1, lastpos);
-      else
-        Cell_Pass(0, globval.Cell_nLoc, x1, lastpos);
+      Cell_Pass(0, globval.Cell_nLoc, x1, lastpos);
       Tx[0][lastn] = x1[0]; Tx[1][lastn] = x1[1];
       Tx[2][lastn] = x1[2]; Tx[3][lastn] = x1[3];
       Tx[4][lastn] = x1[4]; Tx[5][lastn] = x1[5];

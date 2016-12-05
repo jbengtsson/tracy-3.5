@@ -239,90 +239,6 @@ void getprm(Matrix &Ascr, Vector2 &alpha, Vector2 &beta)
 }
 
 /****************************************************************************/
-/* void Cell_Twiss_M(long i0, long i1, Matrix &Ascr, bool chroma,
-                   bool ring, double dP)
-
-   Purpose: called by Ring_Twiss_M
-       Calculate Twiss parameters from element i0 to element i1
-       Method: extended matrix formalism
-       
-   Input:
-       i0     first element
-       i1     last element
-       ring   true if a ring
-       chroma true if compute chromaticities
-       dP     energy offset
-       
-   Output:
-       none
-
-   Return:
-       none
-
-   Global variables:
-       none
-
-   Specific functions:
-       getprm,
-       CopyMat, CopyVec
-       Elem_Pass_M, GetAngle
-       
-   Comments:
-       17/07/03 use of M_PI instead of pi
-
-****************************************************************************/
-void Cell_Twiss_M(long i0, long i1, Matrix &Ascr, bool chroma,
-		  bool ring, double dP)
-{
-  long int  i;
-  int       j, k;
-  Vector2   nu1, dnu;
-  Vector    xref;
-  Matrix    Ascr0, Ascr1;
-  CellType  *cellp;
-
-  if (dP != globval.dPparticle) Cell_SetdP(dP);
-
-  /* Init */  
-  for (j = 0; j <= 1; j++)
-    nu1[j] = 0.0;
-
-  /* get alpha beta for i0 */  
-  cellp = &Cell[i0];
-  getprm(Ascr, cellp->Alpha, cellp->Beta);
-  memcpy(cellp->Nu, nu1, sizeof(Vector2));
-  CopyMat(n+1, Ascr, Ascr0); CopyVec(n+2L, globval.CODvect, xref);
-
-  for (i = i0+1; i <= i1; i++){
-    CopyMat(n+1, Ascr0, Ascr1);
-    /* Ascr1=Elem_M*Ascr0 */
-    /* xref =Elem(xref)   */
-    Elem_Pass_M(i, xref, Ascr1); 
-
-    cellp = &Cell[i];
-    /* get alpha and beta for element i */
-    getprm(Ascr1, cellp->Alpha, cellp->Beta);
-
-    for (j = 0; j <= 1; j++) {
-      k = (j+1) * 2 - 1;
-      /* get phase advances */
-      dnu[j] = (GetAngle(Ascr1[k-1][k-1], Ascr1[k-1][k]) -
-                GetAngle(Ascr0[k-1][k-1], Ascr0[k-1][k]))/(2.0*M_PI);
-      if ((cellp->Elem.PL >= 0.0) && (dnu[j] < -1e-16))
-	dnu[j] += 1.0;
-      else if ((cellp->Elem.PL < 0.0) && (dnu[j] > 1e-16))
-	dnu[j] -= 1.0;
-      nu1[j] += dnu[j]; cellp->Nu[j] = nu1[j];
-      /* Only correct for bare lattice */
-      cellp->Eta[j] = Ascr1[k-1][4]; cellp->Etap[j] = Ascr1[k][4];
-    }
-    CopyMat(n+1, Ascr1, Ascr0);
-  }
-  if (chroma) Cell_Geteta(i0, i1, ring, dP);
-}
-#undef n
-
-/****************************************************************************/
 /* void dagetprm(ss_vect<tps> &Ascr, Vector2 &alpha, Vector2 &beta)
 
    Purpose: called by Cell_Twiss
@@ -523,100 +439,6 @@ void Ring_Getchrom(double dP)
 #undef n
 
 /****************************************************************************/
-/* static void Ring_Twiss_M(bool chroma, double dP)
-
-   Purpose:  called by Ring_GetTwiss
-       Calcule les parametres Twiss a l'energie dP
-       si chroma=true, les chromaticites sont calculees
-       Methode matricielle
-
-       M : One turn transfer matrix
-
-                                  [ cx  sx  .   . ]
-                                  [               ]
-                   -1             [-sx  cx  .   . ]
-            M  -> A   M A = R =   [               ]
-                                  [ .   .   cy  sy]
-                                  [               ]
-                                  [ .   .  -sy  cy]
-
-
-
-   Input:
-       bool true if chromaticities and dispersion to compute
-               else false
-       dP      particle energy offset  
-
-   Output:
-       none
-
-   Return:
-       none
-
-   Global variables:
-       none
-
-   Specific functions:
-       none
-
-   Comments:
-       none
-
-****************************************************************************/
-#define n 4
-void Ring_Twiss_M(bool chroma, double dP)
-{
-  long int  lastpos = 0;
-  int       j;
-  Vector2   alpha={0.0,0.0}, beta={0.0,0.0}, gamma={0.0,0.0}, nu={0.0,0.0};
-  Vector    eta0;
-  Matrix    R, C, Ascr;
-
-  /* Get closed orbit and compute oneturn matrix */
-  GetCOD(globval.CODimax, globval.CODeps, dP, lastpos);
-
-  if (!status.codflag) /* Check if stable */
-    return;
-  /* compute twiss parameter using oneturn matrix */
-  Cell_GetABGN(globval.OneTurnMat, alpha, beta, gamma, nu);
-
-   /* Get eigenvalues and eigenvectors for the one turn transfer matrix */
-  GDiag((long)n, Cell[globval.Cell_nLoc].S, globval.Ascr, globval.Ascrinv, R,
-        globval.OneTurnMat, globval.Omega, globval.Alphac);
-
-  /* Only correct for bare lattice */
-  for (j = 0; j <= n; j++)
-    eta0[j] = globval.OneTurnMat[j][n];
-
-  UnitMat((long)n, C); SubMat((long)n, globval.OneTurnMat, C);
-
-  if (!InvMat((long)n, C))
-    printf("** matrix is singular\n");
-
-  LinTrans((long)n, C, eta0);
-
-  for (j = 0; j <= n; j++) {
-    globval.Ascr[n][j] = 0.0; globval.Ascr[j][n] = eta0[j];
-  }
-
-  CopyMat(n+1, globval.Ascr, Ascr);
-  Cell_Twiss_M(0, globval.Cell_nLoc, Ascr, chroma, true, dP);
-
-  /* Copies tunes into global variable BUG !!!*/
-  memcpy(globval.TotalTune, Cell[globval.Cell_nLoc].Nu, sizeof(Vector2));
-  status.tuneflag = true;
-
-  if (chroma)
-  { /* compute chromaticities */
-    Ring_Getchrom(dP);
-    GetCOD(globval.CODimax, globval.CODeps, dP, lastpos);
-  }
-}
-
-#undef n
-
-
-/****************************************************************************/
 /* void Ring_Twiss(bool chroma, double dP)
 
    Purpose:  called by Ring_GetTwiss
@@ -712,10 +534,7 @@ void Ring_GetTwiss(bool chroma, double dP)
 {
 
   if (trace) printf("enter ring_gettwiss\n");
-  if (globval.MatMeth)  /* matrix method */
-    Ring_Twiss_M(chroma, dP);
-  else /* da method */
-    Ring_Twiss(chroma, dP);
+  Ring_Twiss(chroma, dP);
   globval.Alphac = globval.OneTurnMat[ct_][delta_]/Cell[globval.Cell_nLoc].S;
   if (trace) printf("exit ring_gettwiss\n");
 }
@@ -727,71 +546,6 @@ struct LOC_Ring_Fittune
   jmp_buf _JL999;
 };
 
-
-/****************************************************************************/
-/* void TransTrace(long i0, long i1, Vector2 &alpha, Vector2 &beta, Vector2 &eta,
-                   Vector2 &etap, double *codvect)
-
-   Purpose:  TransTwiss
-      Compute Twiss fonction for a tranfert line from element i0 to element i1
-
-   Input:
-       alpha   alpha fonctions at the line entrance
-       beta    beta fonctions at the line entrance
-       eta     disperion fonctions at the line entrance
-       etap    dipersion derivatives fonctions at the line entrance
-       codvect closed orbit fonctions at the line entrance
-
-   Output:
-       none
-
-   Return:
-       none
-
-   Global variables:
-       globval, trace
-
-   Specific functions:
-       Cell_Twiss_M, Cell_Pass_M
-
-   Comments:
-       28/10/03 phase advances added
-
-****************************************************************************/
-void TransTrace(long i0, long i1, Vector2 &alpha, Vector2 &beta, Vector2 &eta,
-                Vector2 &etap, Vector &codvect)
-{
-  long i, j, lastpos;
-  double sb;
-  Matrix Ascr;
-
-  UnitMat(6L, Ascr);
-  for (i = 1; i <= 2L; i++) {
-    sb = sqrt(beta[i-1]); j = i*2 - 1;
-    Ascr[j-1][j-1] = sb;             Ascr[j-1][j] = 0.0;
-    Ascr[j][j-1]   = -(alpha[i-1]/sb); Ascr[j][j] = 1/sb;
-  }
-  Ascr[0][4] = eta[0]; Ascr[1][4] = etap[0];
-  Ascr[2][4] = eta[1]; Ascr[3][4] = etap[1];
-
-  for (i = 0; i < ss_dim; i++) {
-    globval.CODvect[i] = codvect[i];
-  }
-
-  // get twiss parameter for each element
-  Cell_Twiss_M(i0, i1, Ascr, false, false, codvect[4]);
-  memcpy(globval.TotalTune, Cell[globval.Cell_nLoc].Nu, sizeof(Vector2));
-  status.tuneflag = true;
-
-  for (i = 0; i < ss_dim; i++) {
-    globval.CODvect[i] = codvect[i];
-  }
-
-  // compute oneturn matrix
-  UnitMat(5L, globval.OneTurnMat);
-  Cell_Pass_M(0, globval.Cell_nLoc, globval.CODvect, globval.OneTurnMat,
-              lastpos);
-}
 
 /****************************************************************************/
 /* void shiftk(long Elnum, double dk, struct LOC_Ring_Fittune *LINK)

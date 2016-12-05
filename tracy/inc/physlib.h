@@ -275,11 +275,6 @@ void findcod(double dP);
 void computeFandJ(int n, double *x, Vector *fjac, double *fvect);
 int Newton_Raphson(int n, Vector &x, int ntrial, double tolx);
 
-
-/* Transport mode routine */
-void TransTwiss(Vector2 &alpha, Vector2 &beta, Vector2 &eta, Vector2 &etap,
-		Vector &codvect);
-
 /* Vacuum chamber */
 void PrintCh(void);
 void ChamberOff(void);

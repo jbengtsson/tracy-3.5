@@ -63,7 +63,6 @@ void printglob(void)
 	 "  RFAccept [%%] = \xB1%4.2f\n",
          Cell[0].maxampl[X_][0], Cell[0].maxampl[Y_][0],
 	 globval.delta_RF*1e2);
-  printf("  MatMeth      =  %s     ", globval.MatMeth ? "TRUE " : "FALSE");
   printf(" Cavity_On    =  %s    ", globval.Cavity_on ? "TRUE " : "FALSE");
   printf("  Radiation_On = %s     \n",
 	 globval.radiation ? "TRUE " : "FALSE");
@@ -257,14 +256,10 @@ void TraceABN(long i0, long i1, const Vector2 &alpha, const Vector2 &beta,
     globval.CODvect[i] = 0.0;
   globval.CODvect[4] = dP;
 
-  if (globval.MatMeth)
-    Cell_Twiss_M(i0, i1, globval.Ascr, false, false, dP);
-  else {
-    for (i = 0; i <= 5; i++) {
-      Ascr[i] = tps(globval.CODvect[i]);
-      for (j = 0; j <= 5; j++)
-	Ascr[i] += globval.Ascr[i][j]*tps(0.0, j+1);
-    }
+  for (i = 0; i <= 5; i++) {
+    Ascr[i] = tps(globval.CODvect[i]);
+    for (j = 0; j <= 5; j++)
+      Ascr[i] += globval.Ascr[i][j]*tps(0.0, j+1);
     Cell_Twiss(i0, i1, Ascr, false, false, dP);
   }
 
@@ -449,18 +444,12 @@ void track(const char *file_name,
 	   1e2*x2[delta_], 1e3*x2[ct_]);
   }
     
-  if (globval.MatMeth) Cell_Concat(dp);
-
   do {
     (lastn)++;
     for (i = 0; i < nv_; i++)
       x1[i] = x2[i];
 
-    if (globval.MatMeth) {
-      Cell_fPass(x2, lastpos);
-    } else {
-      Cell_Pass(0, globval.Cell_nLoc, x2, lastpos);
-    }
+    Cell_Pass(0, globval.Cell_nLoc, x2, lastpos);
 
     for (i = x_; i <= py_; i++)
       xf[i] = x2[i] - globval.CODvect[i];
@@ -493,9 +482,6 @@ void track(const char *file_name,
 	      1e2*xf[4], 2.0*f_rf*180.0*xf[5]/c0);
   } while ((lastn != nmax) && (lastpos == globval.Cell_nLoc));
 
-  if (globval.MatMeth)
-    Cell_Pass(0, globval.Cell_nLoc, x1, lastpos);
-
   fclose(outf);
 }
 
@@ -525,11 +511,7 @@ void track_(double r, struct LOC_getdynap *LINK)
   lastn = 0;
   do {
     lastn++;
-    if (globval.MatMeth) {
-      Cell_fPass(x, lastpos);
-    } else {
-      Cell_Pass(0, globval.Cell_nLoc, x, lastpos);
-    }
+    Cell_Pass(0, globval.Cell_nLoc, x, lastpos);
   } while (lastn != LINK->nturn && lastpos == globval.Cell_nLoc);
   LINK->lost = (lastn != LINK->nturn);
 }
@@ -670,10 +652,7 @@ bool chk_if_lost(double x0, double y0, double delta,
   }
   do {
     lastn++;
-    if (globval.MatMeth)
-      Cell_fPass(x, lastpos);
-    else
-      Cell_Pass(0, globval.Cell_nLoc, x, lastpos);
+    Cell_Pass(0, globval.Cell_nLoc, x, lastpos);
     if (prt)
       printf("%4ld %7.3f %7.3f %7.3f %7.3f %7.3f %7.3f\n",
 	     lastn, 1e3*x[x_], 1e3*x[px_], 1e3*x[y_], 1e3*x[py_],
@@ -721,7 +700,6 @@ void getdynap(double &r, double phi, double delta, double eps,
 
   if (prt) printf("\n");
 
-  if (globval.MatMeth) Cell_Concat(delta);
   while (!chk_if_lost(rmax*cos(phi), rmax*sin(phi), delta, nturn, floqs)) {
     if (rmax < r_reset) rmax = r0;
     rmax *= 2.0;
@@ -2346,9 +2324,6 @@ void Read_Lattice(const char *fic)
     globval.CODimax     = 40;    /* maximum number of iterations for COD
 				    algo */
     globval.delta_RF = RFacceptance;/* energy acceptance for SOLEIL */
-
-    Cell_SetdP(dP);  /* added for correcting BUG if non convergence:
-                        compute on momentum linear matrices */
   } else {   
     // for transfer lines
     /* Initial settings : */
@@ -2373,7 +2348,7 @@ void Read_Lattice(const char *fic)
 
     ChamberOff();
 
-    TransTwiss(alpha, beta, eta, etap, codvect);
+    ttwiss(alpha, beta, eta, etap, dP);
   }
 }
 
@@ -2510,42 +2485,6 @@ void GetTuneTrac(long Nbtour, double emax, double *nux, double *nuz)
   *nuz = fz[0];
 }
 #undef nterm
-
-/****************************************************************************/
-/* void TransTwiss(double *alpha, double *beta, double *eta, double *etap, double *codvect)
-
-   Purpose: high level application
-          Calculate Twiss functions for a transport line
-
-   Input:
-       alpha   alpha fonctions at the line entrance
-       beta    beta fonctions at the line entrance
-       eta     disperion fonctions at the line entrance
-       etap    dipersion derivatives fonctions at the line entrance
-       codvect closed orbit fonctions at the line entrance
-
-   Output:
-       none
-
-   Return:
-       none
-
-   Global variables:
-
-
-   Specific functions:
-       TransTrace
-
-   Comments:
-       redundant with ttwiss
-
-****************************************************************************/
-void TransTwiss(Vector2 &alpha, Vector2 &beta, Vector2 &eta, Vector2 &etap,
-		Vector &codvect)
-{
-  TransTrace(0, globval.Cell_nLoc, alpha, beta, eta, etap, codvect);
-}
-
 
 /****************************************************************************/
 /* void ttwiss(double *alpha, double *beta, double *eta, double *etap, double dP)

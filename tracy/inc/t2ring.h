@@ -13,9 +13,6 @@ void GetNu(Vector2 &nu, Matrix &M);
 void Cell_Twiss(long i0, long i1, ss_vect<tps> &Ascr, bool chroma, bool ring,
 		double dP);
 
-void Cell_Twiss_M(long i0, long i1, Matrix &Ascr, bool chroma, bool ring,
-		  double dP);
-
 void Cell_GetABGN(Matrix &M,
 		  Vector2 &alpha, Vector2 &beta, Vector2 &gamma, Vector2 &nu);
 

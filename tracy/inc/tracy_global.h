@@ -28,8 +28,7 @@ typedef struct globvalrec {
                 Vr,              // real part of the eigenvectors
                 Vi;              // imaginal par of the eigenvectors
 
-  bool          MatMeth,         // matrix method
-                Cavity_on,       // if true, cavity turned on
+  bool          Cavity_on,       // if true, cavity turned on
                 radiation,       // if true, radiation turned on
                 emittance,
                 quad_fringe,     /* dipole- and quadrupole hard-edge
@@ -175,9 +174,6 @@ struct InsertionType {
 //  double PBoBrho;   // B/Brho
 //  double PKx;       // kx
 //  mpolArray PBW;
-  Matrix K55;        // Transport matrix:kick part
-  Matrix D55;        // Transport matrix:drift part
-  Matrix KD55;       // Transport matrix:concatenation of kicks and drifts
   int Porder;        // The highest order in PB
 };
 

@@ -2161,7 +2161,6 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 
       case mthsym:
 	k2 = (long)floor(EVAL_(&V) + 0.5);
-	if (k2 != Meth_Linear) globval.MatMeth = false;
 	if ((unsigned int)k2 >= 32 ||
 	    ((1 << k2) & ((1 << Meth_Linear) | (1 << Meth_Second) |
 			  (1 << Meth_Fourth))) == 0)
@@ -2269,7 +2268,6 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 
       case mthsym:
 	k2 = (long)floor(EVAL_(&V) + 0.5);
-	if (k2 != Meth_Linear) globval.MatMeth = false;
 	if ((unsigned int)k2 >= 32 ||
 	    ((1 << k2) & ((1 << Meth_Linear) | (1 << Meth_First) |
 			  (1 << Meth_Second) | (1 << Meth_Fourth))) == 0)
@@ -2373,7 +2371,6 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 
 	  case mthsym:
 	    k2 = (long)floor(EVAL_(&V) + 0.5);
-	    if (k2 != Meth_Linear) globval.MatMeth = false;
 	    if ((unsigned int)k2 >= 32 ||
 		((1 << k2) & ((1 << Meth_Linear) | (1 << Meth_Second) |
 			      (1 << Meth_Fourth))) == 0)
@@ -2602,7 +2599,6 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 
 	      case mthsym:
 		k2 = (long)floor(EVAL_(&V) + 0.5);
-		if (k2 != Meth_Linear) globval.MatMeth = false;
 		if ((unsigned int)k2 >= 32 ||
 		    ((1 << k2) & ((1 << Meth_Linear) | (1 << Meth_Second) |
 				  (1 << Meth_Fourth))) == 0)
@@ -2886,7 +2882,6 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 
       case mthsym:
 	k2 = (long)floor(EVAL_(&V) + 0.5);
-	if (k2 != Meth_Linear) globval.MatMeth = false;
 	if ((unsigned int)k2 >= 32 ||
 	    ((1 << k2) & ((1 << Meth_Linear) | (1 << Meth_Second) |
 			  (1 << Meth_Fourth))) == 0)
@@ -3021,7 +3016,6 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 
       case mthsym:
 	k2 = (long)floor(EVAL_(&V) + 0.5);
-	if (k2 != Meth_Linear) globval.MatMeth = false;
 	if ((unsigned int)k2 >= 32 ||
 	    ((1 << k2) &
 	     ((1 << Meth_Linear) | (1 << Meth_First) | (1 << Meth_Second) |
@@ -3246,7 +3240,6 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 
       case mthsym: // method for interpolation: 1 means linear 2 spline
 	k2 = (long)floor(EVAL_(&V) + 0.5);
-	if (k2 != Meth_Linear) globval.MatMeth = false;
 	break;
       default:
 	break;

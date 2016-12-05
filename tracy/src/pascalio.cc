@@ -30,13 +30,9 @@ void t2init(void)
 
 //  fprintf(stdout,"pi = %20.16e \n",pi);
 
-  cellconcat = false;
-
 //  daini((long)no_, (long)nv_, 0);
 
 //  lieini((long)no_, (long)nv_, (long)nd2_);
-
-  globval.MatMeth = false;
 }
 
 
