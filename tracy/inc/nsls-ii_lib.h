@@ -64,6 +64,8 @@ void get_dnu(const int n, const ss_vect<tps> &A, double dnu[]);
 
 ss_vect<tps> get_A_CS(const int n, const ss_vect<tps> &A, double dnu[]);
 
+void prt_lin_map(const int n_DOF, const ss_vect<tps> &map);
+
 void get_twoJ(const int n_DOF, const ss_vect<double> &ps,
 	      const ss_vect<tps> &A, double twoJ[]);
 

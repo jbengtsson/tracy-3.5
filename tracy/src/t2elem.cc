@@ -1005,10 +1005,11 @@ void Wiggler_pass_EF(const elemtype &elem, ss_vect<T> &x)
 {
   // First order symplectic integrator for wiggler using expanded Hamiltonian
 
-  int     i, nstep = 0;
-  double  h, z;
-  T       AxoBrho[4], AyoBrho[4], psi, hodp, a12, a21, a22, det;
-  T       d1, d2, a11, c11, c12, c21, c22, x2, B[3];
+  int    i, nstep = 0;
+  double h, z;
+  T      AxoBrho[4] = {0e0, 0e0, 0e0, 0e0}, AyoBrho[4] = {0e0, 0e0, 0e0, 0e0};
+  T      psi, hodp, a12, a21, a22, det;
+  T      d1, d2, a11, c11, c12, c21, c22, x2, B[3];
 
   switch (elem.Pkind) {
   case Wigl:
@@ -1566,7 +1567,7 @@ void FieldMap_pass_SI(CellType &Cell, ss_vect<T> &ps, int k)
   /* E. Chacon-Golcher, F. Neri "A Symplectic Integrator with Arbitrary
      Vector and Scalar Potentials" Phys. Lett. A 372 p. 4661-4666 (2008).    */
 
-  int           i, j;
+  int           i, j = 0;
   double        h, z;
   T             hd, AoBrho[2], dAoBrho[2], AoBrho_int, ByoBrho;
   ss_vect<T>    ps1;

@@ -9,17 +9,17 @@
 */
 
 
-static bool               first_h[] = {true, true}, first_v[] = {true, true};
-       int                n_bpm_[2], n_corr_[2];
-       long unsigned int  *bpms_[2], *corrs_[2];
-static double             *w_lsoc[2], **A_lsoc[2], **U_lsoc[2], **V_lsoc[2];
-static double             *w_lstc[2], **A_lstc[2], **U_lstc[2], **V_lstc[2];
+static bool              first_h[] = {true, true}, first_v[] = {true, true};
+       int               n_bpm_[2], n_corr_[2];
+       long unsigned int *bpms_[2], *corrs_[2];
+static double            *w_lsoc[2], **A_lsoc[2], **U_lsoc[2], **V_lsoc[2];
+static double            *w_lstc[2], **A_lstc[2], **U_lstc[2], **V_lstc[2];
 
 
 void zero_trims(void)
 {
-  int       j, k;
-  long int  loc;
+  int      j, k;
+  long int loc;
 
   for (k = 0; k < 2; k++)
     for (j = 1; j <= n_corr_[k]; j++) {
@@ -31,8 +31,8 @@ void zero_trims(void)
 
 void prt_gcmat(const int plane)
 {
-  int     i, j, k;
-  FILE    *outf = NULL;
+  int  i, j, k;
+  FILE *outf = NULL;
 
   k = plane - 1;
 
@@ -98,11 +98,11 @@ void gcmat(const int plane)
 
   */
 
-  int       i, j, k;
-  long int  loc;
-  double    nu, betai, betaj, nui, nuj, spiq;
+  int      i, j, k;
+  long int loc;
+  double   nu, betai, betaj, nui, nuj, spiq;
 
-  const double  eps = 1e-10;
+  const double eps = 1e-4;
 
   k = plane - 1;
 
@@ -143,8 +143,8 @@ void gcmat(const int n_bpm, const long int bpms[],
 	   const int n_corr, const long int corrs[], const int plane,
 	   const bool svd)
 {
-  bool  first;
-  int   i, k;
+  bool first;
+  int  i, k;
 
   k = plane - 1;
 
@@ -177,11 +177,11 @@ void gcmat(const int n_bpm, const long int bpms[],
 
 void gcmat(const int bpm, const int corr, const int plane)
 {
-  int  i, k;
+  int i, k;
 
   k = plane - 1; n_bpm_[k] = GetnKid(bpm); n_corr_[k] = GetnKid(corr);
 
-  long int  bpms[n_bpm_[k]], corrs[n_corr_[k]];
+  long int bpms[n_bpm_[k]], corrs[n_corr_[k]];
 
   for (i = 1; i <= n_bpm_[k]; i++)
     bpms[i-1] = Elem_GetPos(bpm, i);
@@ -195,9 +195,9 @@ void gcmat(const int bpm, const int corr, const int plane)
 
 void lsoc(const int plane, const double scl)
 {
-  int       j, k;
-  long int  loc;
-  double    *b, *x;
+  int      j, k;
+  long int loc;
+  double   *b, *x;
 
   k = plane - 1;
 
@@ -232,11 +232,11 @@ void gtcmat(const int plane)
 
   */
 
-  int       i, j, k;
-  long int  loc_bpm, loc_corr;
-  double    betai, betaj, nui, nuj;
+  int      i, j, k;
+  long int loc_bpm, loc_corr;
+  double   betai, betaj, nui, nuj;
 
-  const double  eps = 1e1;
+  const double eps = 1e-4;
 
   k = plane - 1;
 
@@ -260,7 +260,7 @@ void gtcmat(const int plane)
   dsvdcmp(U_lstc[k], n_bpm_[k], n_corr_[k], w_lstc[k], V_lstc[k]);
 
   printf("\n");
-  printf("gcmat singular values:\n");
+  printf("gtcmat singular values:\n");
   for (j = 1; j <= n_corr_[k]; j++) {
     printf("%11.3e", w_lstc[k][j]);
     if (w_lstc[k][j] < eps) {
@@ -279,8 +279,8 @@ void gtcmat(const int n_bpm, const long int bpms[],
 	    const int n_corr, const long int corrs[], const int plane,
 	    const bool svd)
 {
-  bool  first;
-  int   i, k;
+  bool first;
+  int  i, k;
 
   k = plane - 1;
 
@@ -313,9 +313,9 @@ void gtcmat(const int n_bpm, const long int bpms[],
 
 void lstc(const int plane, const long int lastpos, const double scl)
 {
-  int       j, k;
-  long int  loc;
-  double    *b, *x;
+  int      j, k;
+  long int loc;
+  double   *b, *x;
 
   k = plane - 1;
 
@@ -323,10 +323,7 @@ void lstc(const int plane, const long int lastpos, const double scl)
 
   for (j = 1; j <= n_bpm_[k]; j++) {
     loc = bpms_[k][j];
-    if (loc < lastpos)
-      b[j] = -Cell[loc].BeamPos[2*k] + Cell[loc].dS[k];
-    else
-      b[j] = 0e0;
+    b[j] = (loc < lastpos)? -Cell[loc].BeamPos[2*k] + Cell[loc].dS[k] : 0e0;
 
     if (trace) cout << scientific << setprecision(5)
 		    << "b[" << setw(3) << j << "] = "

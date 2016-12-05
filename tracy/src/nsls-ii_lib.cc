@@ -368,16 +368,16 @@ ss_vect<tps> get_A_CS(const int n, const ss_vect<tps> &A, double dnu[])
 }
 
 
-static void prt_lin_map(const int n_DOF, const ss_vect<tps> &map)
+void prt_lin_map(const int n_DOF, const ss_vect<tps> &map)
 {
-  int  i, j;
+  int i, j;
 
   cout << endl;
   for (i = 1; i <= 2*n_DOF; i++) {
     for (j = 1; j <= 2*n_DOF; j++)
       if (true)
-	cout << scientific << setprecision(5)
-	     << setw(13) << getmat(map, i, j);
+	cout << scientific << setprecision(6)
+	     << setw(14) << getmat(map, i, j);
       else
 	cout << scientific << setprecision(16)
 	     << setw(24) << getmat(map, i, j);
@@ -2990,7 +2990,7 @@ bool get_SQ(void)
 {
   int      j, k;
 //  Vector2  alpha3[3], beta3[3], nu3[3], eta3[3], etap3[3];
-  FILE     *outf;
+  FILE     *outf = NULL;
 
   /* Note, IDs are split for evaluation of the driving terms at the center:
        id1  1, 2
