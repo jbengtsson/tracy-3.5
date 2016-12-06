@@ -77,7 +77,7 @@
 #define insertion_ 6
 
 
-ifstream  inf;
+std::ifstream  inf;
 
 
 void get_kind(const int kind, elemtype &Elem)
@@ -114,7 +114,7 @@ void get_kind(const int kind, elemtype &Elem)
     Insertion_Alloc(&Elem);
     break;
   default:
-    cout << "get_kind: unknown type " << kind << " " << Elem.PName << endl;
+    std::cout << "get_kind: unknown type " << kind << " " << Elem.PName << std::endl;
     exit_(1);
     break;
   }
@@ -130,8 +130,8 @@ void rdmfile(const char *mfile_dat)
 
   bool  prt = false;
 
-  cout << endl;
-  cout << "reading machine file: " << mfile_dat << endl;
+  std::cout << std::endl;
+  std::cout << "reading machine file: " << mfile_dat << std::endl;
 
   file_rd(inf, mfile_dat);
 
@@ -179,7 +179,7 @@ void rdmfile(const char *mfile_dat)
 
     switch (Cell[i].Elem.Pkind) {
     case undef:
-      cout << "rdmfile: unknown type " << i << endl;
+      std::cout << "rdmfile: unknown type " << i << std::endl;
       exit_(1);
       break;
     case marker:
@@ -303,7 +303,7 @@ void rdmfile(const char *mfile_dat)
 		    Cell[i].Elem.ID->thetax, Cell[i].Elem.ID->thetaz,
 		    Cell[i].Elem.ID->long_comp, Cell[i].Elem.ID->B2);
       } else {
-	cout << "rdmfile: undef order " << n << endl;
+	std::cout << "rdmfile: undef order " << n << std::endl;
 	exit_(1);
       }
 
@@ -335,7 +335,7 @@ void rdmfile(const char *mfile_dat)
     case FieldMap:
       break;
     default:
-      cout << "rdmfile: unknown type" << endl;
+      std::cout << "rdmfile: unknown type" << std::endl;
       exit_(1);
       break;
     }
@@ -352,10 +352,10 @@ void rdmfile(const char *mfile_dat)
 
   SI_init();
 
-  cout << endl;
-  cout  << fixed << setprecision(5)
+  std::cout << std::endl;
+  std::cout  << std::fixed << std::setprecision(5)
 	<< "rdmfile: read " << globval.Cell_nLoc << " elements, C = "
-	<< Cell[globval.Cell_nLoc].S << endl;
+	<< Cell[globval.Cell_nLoc].S << std::endl;
 
   inf.close();
 }

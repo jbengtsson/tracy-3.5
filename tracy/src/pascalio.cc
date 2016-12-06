@@ -40,7 +40,7 @@ void t2init(void)
 void exit_(int exit_code)
 {
 
-  printf("fatal error, <ret> to continue "); cin.ignore(1, '\n');
+  printf("fatal error, <ret> to continue "); std::cin.ignore(1, '\n');
 
   exit(exit_code);
 }

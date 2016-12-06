@@ -725,7 +725,7 @@ double get_D(const double df_x, const double df_y)
   const double D_min = -2.0, D_max = -10.0;
 
   if ((df_x != 0.0) || (df_y != 0.0))
-    D = log(sqrt(pow(df_x, 2)+pow(df_y, 2)))/log(10.0);
+    D = log(sqrt(pow(df_x, 2.0)+pow(df_y, 2.0)))/log(10.0);
   else
     D = D_min;
 

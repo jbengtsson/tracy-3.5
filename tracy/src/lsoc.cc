@@ -325,9 +325,9 @@ void lstc(const int plane, const double scl)
     loc = bpms_[k][j];
     b[j] = -Cell[loc].BeamPos[2*k] + Cell[loc].dS[k];
 
-    if (trace) cout << scientific << setprecision(5)
-		    << "b[" << setw(3) << j << "] = "
-		    << setw(12) << b[j] << endl;
+    if (trace) std::cout << std::scientific << std::setprecision(5)
+		    << "b[" << std::setw(3) << j << "] = "
+		    << std::setw(12) << b[j] << std::endl;
   }
       
   dsvbksb(U_lstc[k], w_lstc[k], V_lstc[k], n_bpm_[k], n_corr_[k], b, x);
@@ -335,16 +335,16 @@ void lstc(const int plane, const double scl)
   for (j = 1; j <= n_corr_[k]; j++) {
     loc = corrs_[k][j];
     if (plane == 1) {
-      if (trace) cout << scientific << setprecision(5)
-		      << "(b_1L)[" << setw(3) << j << "] = "
-		      << setw(12)<< -x[j] << endl;
+      if (trace) std::cout << std::scientific << std::setprecision(5)
+		      << "(b_1L)[" << std::setw(3) << j << "] = "
+		      << std::setw(12)<< -x[j] << std::endl;
 
       set_dbnL_design_elem(Cell[loc].Fnum, Cell[loc].Knum, Dip,
 			   -scl*x[j], 0e0);
     } else {
-      if (trace) cout << scientific << setprecision(5)
-		      << "(a_1L)[" << setw(3) << j << "] = "
-		      << setw(12)<< x[j] << endl;
+      if (trace) std::cout << std::scientific << std::setprecision(5)
+		      << "(a_1L)[" << std::setw(3) << j << "] = "
+		      << std::setw(12)<< x[j] << std::endl;
 
       set_dbnL_design_elem(Cell[loc].Fnum, Cell[loc].Knum, Dip,
 			   0e0, scl*x[j]);

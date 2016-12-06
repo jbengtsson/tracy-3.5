@@ -31,6 +31,10 @@ double VDweight      = 1e3,     // weight for vertical dispersion
 
 const bool normal = true; // Normal or rectangular distribution
 
+// Parameters for orbit correction
+std::vector<std::string> bpm_Fam_names, corr_Fam_names[2];
+//std::string bpm_Fam_names[10], corr_Fam_names[2][10];
+
 // Parameters for dynamic aperture
 double  delta_DA_  = 5.0e-2;
 
@@ -155,10 +159,10 @@ void prt_trace (void)
 
 // C++
 
-void file_rd(ifstream &inf, const char file_name[])
+void file_rd(std::ifstream &inf, const char file_name[])
 {
 
-  inf.open(file_name, ios::in);
+  inf.open(file_name, std::ios::in);
   if (!inf.is_open()) {
     printf("File not found: %s\n", file_name);
     exit_(-1);
@@ -166,10 +170,10 @@ void file_rd(ifstream &inf, const char file_name[])
 }
 
 
-void file_wr(ofstream &outf, const char file_name[])
+void file_wr(std::ofstream &outf, const char file_name[])
 {
 
-  outf.open(file_name, ios::out);
+  outf.open(file_name, std::ios::out);
   if (!outf.is_open()) {
     printf("Could not create file: %s\n", file_name);
     exit_(-1);
@@ -219,8 +223,8 @@ void no_sxt(void)
 {
   int       k;
 
-  cout << endl;
-  cout << "zeroing sextupoles" << endl;
+  std::cout << std::endl;
+  std::cout << "zeroing sextupoles" << std::endl;
   for (k = 0; k <= globval.Cell_nLoc; k++)
     if ((Cell[k].Elem.Pkind == Mpole) && (Cell[k].Elem.M->Porder >= Sext))
       SetKpar(Cell[k].Fnum, Cell[k].Knum, Sext, 0.0);
@@ -372,16 +376,16 @@ void prt_lin_map(const int n_DOF, const ss_vect<tps> &map)
 {
   int i, j;
 
-  cout << endl;
+  std::cout << std::endl;
   for (i = 1; i <= 2*n_DOF; i++) {
     for (j = 1; j <= 2*n_DOF; j++)
       if (true)
-	cout << scientific << setprecision(6)
-	     << setw(14) << getmat(map, i, j);
+	std::cout << std::scientific << std::setprecision(6)
+	     << std::setw(14) << getmat(map, i, j);
       else
-	cout << scientific << setprecision(16)
-	     << setw(24) << getmat(map, i, j);
-    cout << endl;
+	std::cout << std::scientific << std::setprecision(16)
+	     << std::setw(24) << getmat(map, i, j);
+    std::cout << std::endl;
   }
 }
 
@@ -454,7 +458,7 @@ double get_eps_x(void)
 
   Cell_Pass(0, globval.Cell_nLoc, A, lastpos);
 
-  eps_x = 1470.0*pow(globval.Energy, 2)*I5/(I2-I4);
+  eps_x = 1470.0*pow(globval.Energy, 2.0)*I5/(I2-I4);
 
   printf("\n");
   printf("eps_x = %5.3f nm.rad\n", eps_x);
@@ -974,26 +978,26 @@ void CheckAlignTol(const char *OutputFile)
   char * name;
   double s;
   double PdSsys[2], PdSrms[2], PdSrnd[2], dS[2], dT[2];
-  fstream fout;
+  std::fstream fout;
 
   gs_Fnum = globval.gs;   gs_nKid = GetnKid(gs_Fnum);
   ge_Fnum = globval.ge;   ge_nKid = GetnKid(ge_Fnum);
   if (gs_nKid == ge_nKid)
     n_girders= gs_nKid;
   else {
-    cout << " The numbers of GS and GE not same. " << endl;
+    std::cout << " The numbers of GS and GE not same. " << std::endl;
     exit (1);
   }
 
-  fout.open(OutputFile,ios::out);
+  fout.open(OutputFile,std::ios::out);
   if(!fout) {
-    cout << "error in opening the file  " << endl;
+    std::cout << "error in opening the file  " << std::endl;
     exit_(0);
   }
 
-  fout << "Girders, Quads, Sexts:  " << endl;
+  fout << "Girders, Quads, Sexts:  " << std::endl;
   for (i = 1; i <= n_girders; i++){
-    fout << i << ":" << endl;
+    fout << i << ":" << std::endl;
     loc_gs = Elem_GetPos(gs_Fnum, i); loc_ge = Elem_GetPos(ge_Fnum, i);
 
     loc = loc_gs;
@@ -1012,7 +1016,7 @@ void CheckAlignTol(const char *OutputFile)
 	 << "   " << PdSrnd[X_] << "  " <<  PdSrnd[Y_]
          << "   " << Cell[loc].Elem.M->PdTrms << "  "
 	 << Cell[loc].Elem.M->PdTrnd << "   " << dS[X_]     << "  " <<  dS[Y_]
-	 << "   " << atan2( dT[1], dT[0] )  << endl;
+	 << "   " << atan2( dT[1], dT[0] )  << std::endl;
 
     for (j = loc_gs+1; j < loc_ge; j++) {
       if ((Cell[j].Elem.Pkind == Mpole) &&
@@ -1035,7 +1039,7 @@ void CheckAlignTol(const char *OutputFile)
 	     << "   " << Cell[loc].Elem.M->PdTrms << "  "
 	     << Cell[loc].Elem.M->PdTrnd
 	     << "   " << dS[X_] << "  " <<  dS[Y_]
-	     << "   " << atan2( dT[1], dT[0] )  << endl;
+	     << "   " << atan2( dT[1], dT[0] )  << std::endl;
       }
     }
 
@@ -1056,12 +1060,12 @@ void CheckAlignTol(const char *OutputFile)
          << "   " << Cell[loc].Elem.M->PdTrms
 	 << "  " << Cell[loc].Elem.M->PdTrnd
          << "   " << dS[X_]     << "  " <<  dS[Y_]
-	 << "   " << atan2( dT[1], dT[0] )  << endl;
+	 << "   " << atan2( dT[1], dT[0] )  << std::endl;
 
   }
 
-  fout << "  " << endl;
-  fout << "Dipoles:  " << endl;
+  fout << "  " << std::endl;
+  fout << "Dipoles:  " << std::endl;
   dip_Fnum = ElemIndex("B1"); dip_nKid = GetnKid(dip_Fnum);
   for (i = 1; i <= dip_nKid; i++){
     loc = Elem_GetPos(dip_Fnum, i);
@@ -1081,7 +1085,7 @@ void CheckAlignTol(const char *OutputFile)
 	 << "   " << Cell[loc].Elem.M->PdTrms
 	 << "  " << Cell[loc].Elem.M->PdTrnd
 	 << "   " << dS[X_]     << "  " <<  dS[Y_]
-	 << "   " << atan2( dT[1], dT[0] )  << endl;
+	 << "   " << atan2( dT[1], dT[0] )  << std::endl;
   }
 
   fout.close();
@@ -1202,7 +1206,7 @@ void misalign_rms_girders(const int gs, const int ge,
   if (n_gs == n_ge)
     n_girders = n_gs;
   else {
-    cout << "set_girders: no of GS != no of GE" << endl;
+    std::cout << "set_girders: no of GS != no of GE" << std::endl;
     exit (1);
   }
 
@@ -1250,7 +1254,7 @@ void misalign_sys_girders(const int gs, const int ge,
   if (n_gs == n_ge)
     n_girders = n_gs;
   else {
-    cout << "set_girders: no of GS != no of GE" << endl;
+    std::cout << "set_girders: no of GS != no of GE" << std::endl;
     exit (1);
   }
 
@@ -1562,7 +1566,7 @@ void get_bn_design_elem(const int Fnum, const int Knum,
   elemtype  elem;
 
   if (n < 1) {
-    cout << "get_bn_design_elem: n < 1 (" << n << ")" << endl;
+    std::cout << "get_bn_design_elem: n < 1 (" << n << ")" << std::endl;
     exit(1);
   }
 
@@ -1578,7 +1582,7 @@ void get_bnL_design_elem(const int Fnum, const int Knum,
   elemtype  elem;
 
   if (n < 1) {
-    cout << "get_bnL_design_elem: n < 1 (" << n << ")" << endl;
+    std::cout << "get_bnL_design_elem: n < 1 (" << n << ")" << std::endl;
     exit(1);
   }
 
@@ -1598,7 +1602,7 @@ void set_bn_design_elem(const int Fnum, const int Knum,
   elemtype  elem;
 
   if (n < 1) {
-    cout << "set_bn_design_elem: n < 1 (" << n << ")" << endl;
+    std::cout << "set_bn_design_elem: n < 1 (" << n << ")" << std::endl;
     exit(1);
   }
 
@@ -1616,7 +1620,7 @@ void set_dbn_design_elem(const int Fnum, const int Knum,
   elemtype  elem;
 
   if (n < 1) {
-    cout << "set_dbn_design_elem: n < 1 (" << n << ")" << endl;
+    std::cout << "set_dbn_design_elem: n < 1 (" << n << ")" << std::endl;
     exit(1);
   }
 
@@ -1634,7 +1638,7 @@ void set_bn_design_fam(const int Fnum,
   int k;
 
   if (n < 1) {
-    cout << "set_bn_design_fam: n < 1 (" << n << ")" << endl;
+    std::cout << "set_bn_design_fam: n < 1 (" << n << ")" << std::endl;
     exit(1);
   }
 
@@ -1649,7 +1653,7 @@ void set_dbn_design_fam(const int Fnum,
   int k;
 
   if (n < 1) {
-    cout << "set_dbn_design_fam: n < 1 (" << n << ")" << endl;
+    std::cout << "set_dbn_design_fam: n < 1 (" << n << ")" << std::endl;
     exit(1);
   }
 
@@ -1664,7 +1668,7 @@ void set_bnL_design_elem(const int Fnum, const int Knum,
   elemtype  elem;
 
   if (n < 1) {
-    cout << "set_bnL_design_elem: n < 1 (" << n << ")" << endl;
+    std::cout << "set_bnL_design_elem: n < 1 (" << n << ")" << std::endl;
     exit(1);
   }
 
@@ -1688,7 +1692,7 @@ void set_dbnL_design_elem(const int Fnum, const int Knum,
   elemtype  elem;
 
   if (n < 1) {
-    cout << "set_dbnL_design_elem: n < 1 (" << n << ")" << endl;
+    std::cout << "set_dbnL_design_elem: n < 1 (" << n << ")" << std::endl;
     exit(1);
   }
 
@@ -1712,7 +1716,7 @@ void set_dbnL_design_fam(const int Fnum,
   int k;
 
   if (n < 1) {
-    cout << "set_dbnL_design_fam: n < 1 (" << n << ")" << endl;
+    std::cout << "set_dbnL_design_fam: n < 1 (" << n << ")" << std::endl;
     exit(1);
   }
 
@@ -1727,7 +1731,7 @@ void set_bnL_design_fam(const int Fnum,
   int k;
 
   if (n < 1) {
-    cout << "set_bnL_design_fam: n < 1 (" << n << ")" << endl;
+    std::cout << "set_bnL_design_fam: n < 1 (" << n << ")" << std::endl;
     exit(1);
   }
 
@@ -1742,7 +1746,7 @@ void set_bnL_design_type(const int type,
   long int  k;
 
   if (n < 1) {
-    cout << "set_bnL_design_type: n < 1 (" << n << ")" << endl;
+    std::cout << "set_bnL_design_type: n < 1 (" << n << ")" << std::endl;
     exit(1);
   }
 
@@ -1761,7 +1765,7 @@ void set_bnL_sys_elem(const int Fnum, const int Knum,
   elemtype  elem;
 
   if (n < 1) {
-    cout << "set_bnL_sys_elem: n < 1 (" << n << ")" << endl;
+    std::cout << "set_bnL_sys_elem: n < 1 (" << n << ")" << std::endl;
     exit(1);
   }
 
@@ -1792,7 +1796,7 @@ void set_bnL_sys_fam(const int Fnum,
   int k;
 
   if (n < 1) {
-    cout << "set_bnL_sys_fam: n < 1 (" << n << ")" << endl;
+    std::cout << "set_bnL_sys_fam: n < 1 (" << n << ")" << std::endl;
     exit(1);
   }
 
@@ -1807,7 +1811,7 @@ void set_bnL_sys_type(const int type,
   long int   k;
 
   if (n < 1) {
-    cout << "set_bnL_sys_type: n < 1 (" << n << ")" << endl;
+    std::cout << "set_bnL_sys_type: n < 1 (" << n << ")" << std::endl;
     exit(1);
   }
 
@@ -1829,7 +1833,7 @@ void set_bnL_rms_elem(const int Fnum, const int Knum,
   bool  prt = false;
 
   if (n < 1) {
-    cout << "set_bnL_rms_elem: n < 1 (" << n << ")" << endl;
+    std::cout << "set_bnL_rms_elem: n < 1 (" << n << ")" << std::endl;
     exit(1);
   }
 
@@ -1869,7 +1873,7 @@ void set_bnL_rms_fam(const int Fnum,
   int k;
 
   if (n < 1) {
-    cout << "set_bnL_rms_fam: n < 1 (" << n << ")" << endl;
+    std::cout << "set_bnL_rms_fam: n < 1 (" << n << ")" << std::endl;
     exit(1);
   }
 
@@ -1885,7 +1889,7 @@ void set_bnL_rms_type(const int type,
   long int   k;
 
   if (n < 1) {
-    cout << "get_bnL_rms_type: n < 1 (" << n << ")" << endl;
+    std::cout << "get_bnL_rms_type: n < 1 (" << n << ")" << std::endl;
     exit(1);
   }
 
@@ -1906,7 +1910,7 @@ void set_bnr_sys_elem(const int Fnum, const int Knum,
   bool prt = false;
 
   if (n < 1) {
-    cout << "set_bnr_sys_elem: n < 1 (" << n << ")" << endl;
+    std::cout << "set_bnr_sys_elem: n < 1 (" << n << ")" << std::endl;
     exit(1);
   }
 
@@ -1930,7 +1934,7 @@ void set_bnr_sys_fam(const int Fnum,
   int k;
 
   if (n < 1) {
-    cout << "set_bnr_sys_fam: n < 1 (" << n << ")" << endl;
+    std::cout << "set_bnr_sys_fam: n < 1 (" << n << ")" << std::endl;
     exit(1);
   }
 
@@ -1945,7 +1949,7 @@ void set_bnr_sys_type(const int type,
   long int   k;
 
   if (n < 1) {
-    cout << "set_bnr_sys_type: n < 1 (" << n << ")" << endl;
+    std::cout << "set_bnr_sys_type: n < 1 (" << n << ")" << std::endl;
     exit(1);
   }
 
@@ -1968,7 +1972,7 @@ void set_bnr_rms_elem(const int Fnum, const int Knum,
   bool  prt = false;
 
   if (n < 1) {
-    cout << "set_bnr_rms_elem: n < 1 (" << n << ")" << endl;
+    std::cout << "set_bnr_rms_elem: n < 1 (" << n << ")" << std::endl;
     exit(1);
   }
 
@@ -2010,7 +2014,7 @@ void set_bnr_rms_fam(const int Fnum,
   int k;
 
   if (n < 1) {
-    cout << "set_bnr_rms_fam: n < 1 (" << n << ")" << endl;
+    std::cout << "set_bnr_rms_fam: n < 1 (" << n << ")" << std::endl;
     exit(1);
   }
 
@@ -2026,7 +2030,7 @@ void set_bnr_rms_type(const int type,
   long int   k;
 
   if (n < 1) {
-    cout << "set_bnr_rms_type: n < 1 (" << n << ")" << endl;
+    std::cout << "set_bnr_rms_type: n < 1 (" << n << ")" << std::endl;
     exit(1);
   }
 
@@ -2083,7 +2087,7 @@ void set_ID_scl(const int Fnum, const int Knum, const double scl)
     Cell[Elem_GetPos(Fnum, Knum)].Elem.FM->scl = scl;
     break;
   default:
-    cout << "set_ID_scl: unknown element type" << endl;
+    std::cout << "set_ID_scl: unknown element type" << std::endl;
     exit_(1);
     break;
   }
@@ -2114,7 +2118,7 @@ void SetFieldValues_fam(const int Fnum, const bool rms, const double r0,
     else
       set_bnL_sys_fam(Fnum, n, Bn, An);
   } else {
-    bnr = Bn/pow(r0, n-N); anr = An/pow(r0, n-N);
+    bnr = Bn/pow(r0, (double)(n-N)); anr = An/pow(r0, (double)(n-N));
     if(rms)
       set_bnr_rms_fam(Fnum, n, bnr, anr, new_rnd);
     else
@@ -2136,7 +2140,7 @@ void SetFieldValues_type(const int N, const bool rms, const double r0,
     else
       set_bnL_sys_type(N, n, Bn, An);
   } else {
-    bnr = Bn/pow(r0, n-N); anr = An/pow(r0, n-N);
+    bnr = Bn/pow(r0, (double)(n-N)); anr = An/pow(r0, (double)(n-N));
     if(rms)
       set_bnr_rms_type(N, n, bnr, anr, new_rnd);
     else
@@ -2175,8 +2179,8 @@ char* get_prm(char **p)
 
   prm = strtok_r(NULL, " \t\r", p);
   if (prm == NULL) {
-    cout << endl;
-    cout << "get_prm: incorrect format" << endl;
+    std::cout << std::endl;
+    std::cout << "get_prm: incorrect format" << std::endl;
     exit_(1);
   }
 
@@ -2191,12 +2195,12 @@ void LoadFieldErr(const char *FieldErrorFile, const bool Scale_it,
   char      line[max_str], name[max_str], type[max_str], *prm, *p;
   int       k, n, seed_val;
   double    Bn, An, r0;
-  ifstream  inf;
+  std::ifstream  inf;
 
   file_rd(inf, FieldErrorFile);
 
   set_rnd = false;
-  cout << endl;
+  std::cout << std::endl;
   while (!inf.getline(line, max_str).eof()) {
     if (strstr(line, "#") == NULL) {
       // New seed?
@@ -2204,7 +2208,7 @@ void LoadFieldErr(const char *FieldErrorFile, const bool Scale_it,
       if (strcmp("seed", name) == 0) {
 	set_rnd = true;
 	sscanf(line, "%*s %d", &seed_val);
-	cout << "setting random seed to " << seed_val << endl;
+	std::cout << "setting random seed to " << seed_val << std::endl;
 	iniranf(seed_val);
       } else {
 	sscanf(line, "%*s %s %lf", type, &r0);
@@ -2232,7 +2236,7 @@ void LoadFieldErr(const char *FieldErrorFile, const bool Scale_it,
 	}
       }
     } else
-    cout << line << endl;
+    std::cout << line << std::endl;
   }
 
   inf.close();
@@ -2595,7 +2599,7 @@ void ini_skew_cor(const double deta_y_max)
   int  k;
 
 
-  cout << "ini_skew_cor: out-of-date (globval.hcorr...)" << endl;
+  std::cout << "ini_skew_cor: out-of-date (globval.hcorr...)" << std::endl;
   exit(1);
 
   // No of skew quads, BPMs, and correctors
@@ -2882,7 +2886,7 @@ void set_IDs(const double scl)
       set_ID_scl(ID_Fams[k], scl);
       break;
     default:
-      cout << "set_IDs: unknown element type" << endl;
+      std::cout << "set_IDs: unknown element type" << std::endl;
       exit_(1);
       break;
     }
@@ -3365,9 +3369,9 @@ bool ID_corr(const int N_calls, const int N_steps, const bool IDs)
 /*  End ID correction functions *****/
 
 
-void ini_COD_corr(const int n_bpm_Fam, const string bpm_names[],
-		  const int n_hcorr_Fam, const string hcorr_names[],
-		  const int n_vcorr_Fam, const string vcorr_names[],
+void ini_COD_corr(const int n_bpm_Fam, const std::string bpm_names[],
+		  const int n_hcorr_Fam, const std::string hcorr_names[],
+		  const int n_vcorr_Fam, const std::string vcorr_names[],
 		  const bool svd)
 {
   int  i, j, Fnum, n_bpm, n_hcorr, n_vcorr;
@@ -3407,9 +3411,9 @@ void ini_COD_corr(const int n_bpm_Fam, const string bpm_names[],
       vcorrs[n_vcorr++] = Elem_GetPos(Fnum, j);
   }
 
-  cout << endl;
-  cout << "ini_COD_corr: n_bpm = " << n_bpm << ", n_hcorr = " << n_hcorr
-       << ", n_vcorr = " << n_vcorr << endl;
+  std::cout << std::endl;
+  std::cout << "ini_COD_corr: n_bpm = " << n_bpm << ", n_hcorr = " << n_hcorr
+       << ", n_vcorr = " << n_vcorr << std::endl;
 
   gcmat(n_bpm, bpms, n_hcorr, hcorrs, 1, svd);
   gcmat(n_bpm, bpms, n_vcorr, vcorrs, 2, svd);
@@ -3423,20 +3427,16 @@ void ini_COD_corr(const int n_bpm_Fam, const string bpm_names[],
 
 void get_param(const char *param_file)
 {
-  const int  n_Fam_max = 25;
-
   char      *s, name[max_str], line[max_str], str[max_str], *p;
   char      lat_file[max_str], flat_file[max_str];
-  string    bpm_Fam_names[n_Fam_max], corr_Fam_names[2][n_Fam_max];
-  int       n_bpm_Fam, n_corr_Fam[2];
   double    f_prm;
-  ifstream  inf;
+  std::ifstream  inf;
 
   const bool  prt = true;
 
   if (prt) {
-    cout << endl;
-    cout << "get_param: " << param_file << endl;
+    std::cout << std::endl;
+    std::cout << "get_param: " << param_file << std::endl;
   }
 
   file_rd(inf, param_file);
@@ -3444,10 +3444,10 @@ void get_param(const char *param_file)
   // read param file
   strcpy(ae_file, ""); strcpy(fe_file, ""); strcpy(ap_file, "");
 
-  if (prt) cout << endl;
+  if (prt) std::cout << std::endl;
 
   while (!inf.getline(line, max_str).eof()) {
-    if (prt) cout << line << endl;
+    if (prt) std::cout << line << std::endl;
 
     if (strstr(line, "#") == NULL) {
       sscanf(line, "%s", name);
@@ -3485,44 +3485,18 @@ void get_param(const char *param_file)
 	sscanf(line, "%*s %d", &n_orbit);
       else if (strcmp("bpm_names", name) == 0) {
 	strtok_r(line, " \r", &p); s = strtok_r(NULL, " \r", &p);
-	n_bpm_Fam = 0;
 	while (s != NULL) {
-	  n_bpm_Fam++;
-	  if (n_bpm_Fam < n_Fam_max) {
-	    bpm_Fam_names[n_bpm_Fam-1] = s; s = strtok_r(NULL, " \r", &p);
-	  } else {
-	    cout << "get_param: n_Fam_max exceeded (" << n_bpm_Fam << ")"
-		 << endl;
-	    exit(1);
-	  }
+	  bpm_Fam_names.push_back(s); s = strtok_r(NULL, " \r", &p);
 	}
       } else if (strcmp("h_corrs", name) == 0) {
 	strtok_r(line, " \r", &p); s = strtok_r(NULL, " \r", &p);
-	n_corr_Fam[X_] = 0;
 	while (s != NULL) {
-	  n_corr_Fam[X_]++;
-	  if (n_corr_Fam[X_] < n_Fam_max) {
-	    corr_Fam_names[X_][n_corr_Fam[X_]-1] = s;
-	    s = strtok_r(NULL, " \r", &p);
-	  } else {
-	    cout << "get_param: n_Fam_max exceeded (" << n_corr_Fam[X_] << ")"
-		 << endl;
-	    exit(1);
-	  }
+	    corr_Fam_names[X_].push_back(s); s = strtok_r(NULL, " \r", &p);
 	}
       } else if (strcmp("v_corrs", name) == 0) {
 	strtok_r(line, " \r", &p); s = strtok_r(NULL, " \r", &p);
-	n_corr_Fam[Y_] = 0;
 	while (s != NULL) {
-	  n_corr_Fam[Y_]++;
-	  if (n_corr_Fam[Y_] < n_Fam_max) {
-	    corr_Fam_names[Y_][n_corr_Fam[Y_]-1] = s;
-	    s = strtok_r(NULL, " \r", &p);
-	  } else {
-	    cout << "get_param: n_Fam_max exceeded (" << n_corr_Fam[Y_] << ")"
-		 << endl;
-	    exit(1);
-	  }
+	  corr_Fam_names[Y_].push_back(s); s = strtok_r(NULL, " \r", &p);
 	}
       } else if (strcmp("gs", name) == 0) {
 	sscanf(line, "%*s %s", str);
@@ -3564,13 +3538,13 @@ void get_param(const char *param_file)
 	  if (N_Fam <= N_Fam_max) {
 	    Q_Fam[N_Fam-1] = ElemIndex(s); s = strtok_r(NULL, " \r", &p);
 	  } else {
-	    cout << "get_param: N_Fam_max exceeded (" << N_Fam_max << ")"
-		 << endl;
+	    std::cout << "get_param: N_Fam_max exceeded (" << N_Fam_max << ")"
+		 << std::endl;
 	    exit(1);
 	  }
 	}
       } else {
-	cout << "bad line in " << param_file << ": " << line << endl;
+	std::cout << "bad line in " << param_file << ": " << line << std::endl;
         exit_(1);
       }
     }
@@ -3600,7 +3574,7 @@ void Orb_and_Trim_Stat(void)
 
   Vector2   Sext_max, Sext_sigma, TrimMax, orb;
 
-  cout << "ini_skew_cor: out-of-date (globval.hcorr...)" << endl;
+  std::cout << "ini_skew_cor: out-of-date (globval.hcorr...)" << std::endl;
   exit(1);
 
   Sext_max[X_] = 0.0; Sext_max[Y_] = 0.0;
@@ -3727,7 +3701,7 @@ double Touschek_loc(const long int i, const double gamma,
   double  alpha[2], beta[2], eta[2], etap[2];
 
   if ((i < 0) || (i > globval.Cell_nLoc)) {
-    cout << "Touschek_loc: undefined location " << i << endl;
+    std::cout << "Touschek_loc: undefined location " << i << std::endl;
     exit(1);
   }
 
@@ -4001,9 +3975,9 @@ double get_int_IBS(void)
   f = 0e0;
   for (k = 0; k <= n_decades; k++) {
     if (k == 0)
-      f += dqromo(f_int_IBS, chi_m, pow(base, k), dmidsql);
+      f += dqromo(f_int_IBS, chi_m, pow(base, (double)k), dmidsql);
     else
-      f += dqromb(f_int_IBS, pow(base, k-1), pow(base, k));
+      f += dqromb(f_int_IBS, pow(base, (double)(k-1)), pow(base, (double)k));
   }
 
   return f;
@@ -4161,9 +4135,10 @@ double get_int_IBS_BM(void)
   f = 0e0;
   for (k = 0; k <= n; k++) {
     if (k == 0)
-      f += dqromb(f_int_IBS_BM, 0e0, pow(decade, k));
+      f += dqromb(f_int_IBS_BM, 0e0, pow(decade, (double)k));
     else
-      f += dqromo(f_int_IBS_BM, pow(decade, k-1), pow(decade, k), dmidsql);
+      f += dqromo(f_int_IBS_BM, pow(decade, (double)(k-1)),
+		  pow(decade, (double)k), dmidsql);
   }
 
   return f;
@@ -4647,8 +4622,8 @@ double get_chi2(long int n, double x[], double y[], long int m, Vector b)
   for (i = 0; i < n; i++) {
     z = 0.0;
     for (j = 0; j <= m; j++)
-      z += b[j]*pow(x[i], j);
-    sum += pow(y[i]-z, 2);
+      z += b[j]*pow(x[i], (double)j);
+    sum += pow(y[i]-z, 2.0);
   }
   return(sum/n);
 }
@@ -4672,9 +4647,9 @@ void pol_fit(int n, double x[], double y[], int order, Vector &b,
 
   for (i = 0; i < n; i++)
     for (j = 0; j <= order; j++) {
-      b[j] += y[i]*pow(x[i], j)/pow(sigma_k, 2);
+      b[j] += y[i]*pow(x[i], (double)j)/pow(sigma_k, 2.0);
       for (k = 0; k <= order; k++)
-	T1[j][k] += pow(x[i], j+k)/pow(sigma_k, 2);
+	T1[j][k] += pow(x[i], (double)(j+k))/pow(sigma_k, 2.0);
     }
 
   if (InvMat(order+1, T1)) {
@@ -4867,8 +4842,8 @@ void dnu_dA(const double Ax_max, const double Ay_max, const double delta,
   Ax = A_min;
   for (i = 1; i <= n_ampl; i++) {
     Ay = -i*Ay_max/n_ampl;
-    Jx = pow(Ax, 2)/(2.0*Cell[globval.Cell_nLoc].Beta[X_]);
-    Jy = pow(Ay, 2)/(2.0*Cell[globval.Cell_nLoc].Beta[Y_]);
+    Jx = pow(Ax, 2.0)/(2.0*Cell[globval.Cell_nLoc].Beta[X_]);
+    Jy = pow(Ay, 2.0)/(2.0*Cell[globval.Cell_nLoc].Beta[Y_]);
     ok = get_nu(Ax, Ay, delta, eps, nu_x, nu_y);
     if (ok)
       fprintf(fp, "%10.3e %10.3e %10.3e %10.3e %7.5f %7.5f\n",
@@ -4888,8 +4863,8 @@ void dnu_dA(const double Ax_max, const double Ay_max, const double delta,
   Ax = A_min;
   for (i = 0; i <= n_ampl; i++) {
     Ay = i*Ay_max/n_ampl;
-    Jx = pow(Ax, 2)/(2.0*Cell[globval.Cell_nLoc].Beta[X_]);
-    Jy = pow(Ay, 2)/(2.0*Cell[globval.Cell_nLoc].Beta[Y_]);
+    Jx = pow(Ax, 2.0)/(2.0*Cell[globval.Cell_nLoc].Beta[X_]);
+    Jy = pow(Ay, 2.0)/(2.0*Cell[globval.Cell_nLoc].Beta[Y_]);
     ok = get_nu(Ax, Ay, delta, eps, nu_x, nu_y);
     if (ok)
       fprintf(fp, "%10.3e %10.3e %10.3e %10.3e %7.5f %7.5f\n",
@@ -4909,7 +4884,7 @@ bool orb_corr(const int n_orbit)
   long      lastpos;
   Vector2   xmean, xsigma, xmax;
 
-  cout << "ini_skew_cor: out-of-date (globval.hcorr...)" << endl;
+  std::cout << "ini_skew_cor: out-of-date (globval.hcorr...)" << std::endl;
   exit(1);
 
   printf("\n");
@@ -5001,10 +4976,10 @@ double f_bend(double b0L[])
 	    ps, lastpos);
 
   if (n_iter_Cart % n_prt == 0)
-    cout << scientific << setprecision(3)
-	 << setw(4) << n_iter_Cart
-	 << setw(11) << ps[x_] << setw(11) << ps[px_] << setw(11) << ps[ct_]
-	 << setw(11) << b0L[1] << endl;
+    std::cout << std::scientific << std::setprecision(3)
+	 << std::setw(4) << n_iter_Cart
+	 << std::setw(11) << ps[x_] << std::setw(11) << ps[px_] << std::setw(11) << ps[ct_]
+	 << std::setw(11) << b0L[1] << std::endl;
 
   return sqr(ps[x_]) + sqr(ps[px_]);
 }
@@ -5023,12 +4998,12 @@ void bend_cal_Fam(const int Fnum)
 
   b0L = dvector(1, n_prm); xi = dmatrix(1, n_prm, 1, n_prm);
 
-  cout << endl;
-  cout << "bend_cal: " << ElemFam[Fnum-1].ElemF.PName << ":" << endl;
+  std::cout << std::endl;
+  std::cout << "bend_cal: " << ElemFam[Fnum-1].ElemF.PName << ":" << std::endl;
 
   Fnum_Cart = Fnum;  b0L[1] = 0.0; xi[1][1] = 1e-3;
 
-  cout << endl;
+  std::cout << std::endl;
   n_iter_Cart = 0;
   dpowell(b0L, xi, n_prm, ftol, &iter, &fret, f_bend);
 
@@ -5068,7 +5043,7 @@ void set_tune(const char file_name1[], const char file_name2[], const int n)
   char      line[max_str], names[n_b2][max_str];
   int       j, k, Fnum;
   double    b2s[n_b2], nu[2];
-  ifstream  inf1, inf2;
+  std::ifstream  inf1, inf2;
   FILE      *fp_lat;
 
   file_rd(inf1, file_name1); file_rd(inf2, file_name2);

@@ -207,7 +207,7 @@ void get_twiss3(long int loc,
   for (k = 0; k <= 1; k++) {
     alpha[1][k] = -Ascr1[2*k][2*k]*Ascr1[2*k+1][2*k]
                   - Ascr1[2*k][2*k+1]*Ascr1[2*k+1][2*k+1];
-    beta[1][k] = pow(Ascr1[2*k][2*k], 2.0) + pow(Ascr1[2*k][2*k+1], 2);
+    beta[1][k] = pow(Ascr1[2*k][2*k], 2.0) + pow(Ascr1[2*k][2*k+1], 2.0);
     nu[1][k] = nu[0][k] + dnu[k];
     j = 2*k + 1; eta[1][k] = Ascr1[j-1][4]; etap[1][k] = Ascr1[j][4];
   }
@@ -222,7 +222,7 @@ void get_twiss3(long int loc,
   for (k = 0; k <= 1; k++) {
     alpha[2][k] = -Ascr1[2*k][2*k]*Ascr1[2*k+1][2*k]
                   - Ascr1[2*k][2*k+1]*Ascr1[2*k+1][2*k+1];
-    beta[2][k] = pow(Ascr1[2*k][2*k], 2.0) + pow(Ascr1[2*k][2*k+1], 2);
+    beta[2][k] = pow(Ascr1[2*k][2*k], 2.0) + pow(Ascr1[2*k][2*k+1], 2.0);
     nu[2][k] = nu[1][k] + dnu[k];
     j = 2*k + 1; eta[2][k] = Ascr1[j-1][4]; etap[2][k] = Ascr1[j][4];
   }
@@ -464,8 +464,8 @@ void track(const char *file_name,
       getfloqs(xf);
     else if (floqs == 2) {
       getfloqs(xf);
-      twoJx = pow(xf[x_], 2) + pow(xf[px_], 2);
-      twoJy = pow(xf[y_], 2) + pow(xf[py_], 2);
+      twoJx = pow(xf[x_], 2.0) + pow(xf[px_], 2.0);
+      twoJy = pow(xf[y_], 2.0) + pow(xf[py_], 2.0);
       phix = atan2(xf[px_], xf[x_]);
       phiy = atan2(xf[py_], xf[y_]);
       xf[x_] = twoJx; xf[px_] = phix; xf[y_] = twoJy; xf[py_] = phiy;
@@ -979,8 +979,8 @@ void Getj(long n, double *x, double *px, double *y, double *py)
   long int i;
 
   for (i = 0; i < n; i++) {
-    x[i] = (pow(x[i], 2)+pow(px[i], 2))/2.0;
-    y[i] = (pow(y[i], 2)+pow(py[i], 2))/2.0;
+    x[i] = (pow(x[i], 2.0)+pow(px[i], 2.0))/2.0;
+    y[i] = (pow(y[i], 2.0)+pow(py[i], 2.0))/2.0;
   }
 }
 
@@ -1090,7 +1090,7 @@ void sin_FFT(int n, double xr[])
   }
   dfour1(xi, (unsigned long)n, 1);
   for (i = 1; i <= n; i++)
-    xr[i-1] = sqrt(pow(xi[2*i-1], 2)+pow(xi[2*i], 2))*2.0/n;
+    xr[i-1] = sqrt(pow(xi[2*i-1], 2.0)+pow(xi[2*i], 2.0))*2.0/n;
 
   free_dvector(xi, 1, 2*n);
 }
@@ -1110,7 +1110,7 @@ void sin_FFT(int n, double xr[], double xi[])
   }
   dfour1(xri, (unsigned long)n, 1);
   for (i = 1; i <= n; i++) {
-    xr[i-1] = sqrt(pow(xri[2*i-1], 2)+pow(xri[2*i], 2))*2.0/n;
+    xr[i-1] = sqrt(pow(xri[2*i-1], 2.0)+pow(xri[2*i], 2.0))*2.0/n;
     xi[i-1] = atan2(xri[2*i], xri[2*i-1]);
   }
 
@@ -2298,11 +2298,11 @@ void Read_Lattice(const char *fic)
   status = Lattice_Read(&fi, &fo);
 
   if (status == false) {
-    cout << "Lattice_Read function has returned false" << endl;
-    cout << "See file " << fic_erreur << endl;
+    std::cout << "Lattice_Read function has returned false" << std::endl;
+    std::cout << "See file " << fic_erreur << std::endl;
     exit_(1);
   }
-  cout << "Lattice file: " << fic_maille << endl;
+  std::cout << "Lattice file: " << fic_maille << std::endl;
 
   /* initializes cell structure: construction of the RING */
   /* Creator of all the matrices for each element         */

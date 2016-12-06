@@ -38,9 +38,9 @@ void upr_case(char str[]);
 
 //void prt_trace (void);
 
-void file_rd(ifstream &inf, const char file_name[]);
+void file_rd(std::ifstream &inf, const char file_name[]);
 
-void file_wr(ofstream &outf, const char file_name[]);
+void file_wr(std::ofstream &outf, const char file_name[]);
 
 FILE* file_read(const char file_name[]);
 
@@ -272,9 +272,9 @@ void ini_ID_corr(const bool IDs);
 
 bool ID_corr(const int N_calls, const int N_steps, const bool IDs);
 
-void ini_COD_corr(const int n_bpm_Fam, const string bpm_names[],
-		  const int n_hcorr_Fam, const string hcorr_names[],
-		  const int n_vcorr_Fam, const string vcorr_names[],
+void ini_COD_corr(const int n_bpm_Fam, const std::string bpm_names[],
+		  const int n_hcorr_Fam, const std::string hcorr_names[],
+		  const int n_vcorr_Fam, const std::string vcorr_names[],
 		  const bool svd);
 
 void get_param(const char *param_file);

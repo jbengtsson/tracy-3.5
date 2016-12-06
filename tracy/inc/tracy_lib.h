@@ -28,7 +28,10 @@
 #include <iomanip>
 #include <fstream>
 #include <string>
-using namespace std;
+
+#include <vector>
+
+//using namespace std;
 
 // Tracy-3
 #include "field.h"

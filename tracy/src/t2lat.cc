@@ -160,8 +160,8 @@ long *P_addset(register long *s, register unsigned val)
     s += val;
   *s |= 1L<<bit;
   if (size+1 > (unsigned)max_set) {
-    cout << "P_addset: size+1 > max_set " << size+1
-	 << "(" << max_set << ")" << endl;
+    std::cout << "P_addset: size+1 > max_set " << size+1
+	 << "(" << max_set << ")" << std::endl;
     exit_(1);
   }
   return sbase;
@@ -3154,7 +3154,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 	RefUDItable("energy         ", &globval.Energy, LINK);
 	if (strcmp(str1, "") != 0) get_B(str1, WITH6);
       } else {
-	cout << "Fieldmap: energy not defined" << endl;
+	std::cout << "Fieldmap: energy not defined" << std::endl;
 	exit_(1);
       }
     } else {
@@ -3266,7 +3266,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 	RefUDItable("energy         ", &globval.Energy, LINK);
 // 	if (strcmp(str1, "") != 0) get_B(str1, WITH6);
       } else {
-	cout << "Insertion_Alloc: energy not defined" << endl;
+	std::cout << "Insertion_Alloc: energy not defined" << std::endl;
 	exit_(1);
       }
 
@@ -3469,7 +3469,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 	break;
 
       default:
-	cout << "Solenoid: undef. case" << endl;
+	std::cout << "Solenoid: undef. case" << std::endl;
 	exit_(1);
 	break;
       }
@@ -3575,8 +3575,8 @@ static void Reg(const char *name, Lat_symbol ks,
 {
   LINK->LINK->nkw++;  /* incrementation of the number of keywords */
   if (LINK->LINK->nkw > Lat_nkw_max) {
-    cout << "Reg: Lat_nkw_max exceeded " << LINK->LINK->nkw
-	 << "(" << Lat_nkw_max << ")" << endl;
+    std::cout << "Reg: Lat_nkw_max exceeded " << LINK->LINK->nkw
+	 << "(" << Lat_nkw_max << ")" << std::endl;
   }
   memcpy(LINK->LINK->key[LINK->LINK->nkw - 1], name, sizeof(alfa_));
   LINK->LINK->ksy[LINK->LINK->nkw - 1] = ks;
@@ -4139,10 +4139,10 @@ void PrintResult(struct LOC_Lattice_Read *LINK)
 }
 
 
-long ElemIndex(const string &name)
+long ElemIndex(const std::string &name)
 {
   long    i, j;
-  string  name1;
+  std::string  name1;
 
   name1 = name;
   j = (signed)name.length();
@@ -4152,12 +4152,12 @@ long ElemIndex(const string &name)
     name1 += ' ';
 
   if (trace) {
-    cout << endl;
-    cout << "ElemIndex: " << name << " (";
+    std::cout << std::endl;
+    std::cout << "ElemIndex: " << name << " (";
     for (i = 0; i < (signed)name1.length(); i++)
-      cout << setw(4) << (int)name1[i];
-    cout << setw(4) << (int)name1[name1.length()] << " )" << endl;
-    cout << endl;
+      std::cout << std::setw(4) << (int)name1[i];
+    std::cout << std::setw(4) << (int)name1[name1.length()] << " )" << std::endl;
+    std::cout << std::endl;
   }
 
   if (globval.Elem_nFam > Elem_nFamMax) {
@@ -4169,11 +4169,11 @@ long ElemIndex(const string &name)
   i = 1;
   while (i <= globval.Elem_nFam) {
     if (trace) {
-      cout << setw(2) << (name1 == ElemFam[i-1].ElemF.PName)
+      std::cout << std::setw(2) << (name1 == ElemFam[i-1].ElemF.PName)
 	   << " " << name1 << " " << ElemFam[i-1].ElemF.PName << " (";
       for (j = 0; j < SymbolLength; j++)
-	cout << setw(4) << (int)ElemFam[i-1].ElemF.PName[j];
-      cout  << " )" << endl;
+	std::cout << std::setw(4) << (int)ElemFam[i-1].ElemF.PName[j];
+      std::cout  << " )" << std::endl;
     }
 
     if (name1 == ElemFam[i-1].ElemF.PName) break;
@@ -4182,7 +4182,7 @@ long ElemIndex(const string &name)
   }
 
   if (name1 != ElemFam[i-1].ElemF.PName) {
-    cout << "ElemIndex: undefined element " << name << endl;
+    std::cout << "ElemIndex: undefined element " << name << std::endl;
     exit_(1);
   }
 

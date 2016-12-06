@@ -134,8 +134,8 @@ ss_vect<tps> ss_vect<tps>::identity(void)
 
 
 template<typename CharT, class Traits>
-basic_istream<CharT, Traits>&
-operator>>(basic_istream<CharT, Traits> &is, ss_vect<tps> &a)
+std::basic_istream<CharT, Traits>&
+operator>>(std::basic_istream<CharT, Traits> &is, ss_vect<tps> &a)
 {
   int  i;
   tps  b;
@@ -147,44 +147,44 @@ operator>>(basic_istream<CharT, Traits> &is, ss_vect<tps> &a)
 }
 
 // instantiate
-template basic_istream<char, std::char_traits<char> >&
-operator>>(basic_istream<char, std::char_traits<char> > &, ss_vect<tps> &);
+template std::basic_istream<char, std::char_traits<char> >&
+operator>>(std::basic_istream<char, std::char_traits<char> > &, ss_vect<tps> &);
 
 template<typename CharT, class Traits>
-basic_ostream<CharT, Traits>&
-operator<<(basic_ostream<CharT, Traits> &os, const ss_vect<double> &a)
+std::basic_ostream<CharT, Traits>&
+operator<<(std::basic_ostream<CharT, Traits> &os, const ss_vect<double> &a)
 {
   int                                 i;
-  basic_ostringstream<CharT, Traits>  s;
+  std::basic_ostringstream<CharT, Traits>  s;
 
   s.flags(os.flags()); s.imbue(os.getloc());
   for (i = 0; i < 6; i++)
-    s << setprecision(os.precision()) << setw(os.width()) << a[i];
+    s << std::setprecision(os.precision()) << std::setw(os.width()) << a[i];
 //   s << endl;
   return os << s.str();
 }
 
 // instantiate
-template basic_ostream<char, std::char_traits<char> >&
-operator<<(basic_ostream<char, std::char_traits<char> > &,
+template std::basic_ostream<char, std::char_traits<char> >&
+operator<<(std::basic_ostream<char, std::char_traits<char> > &,
 	   const ss_vect<double> &);
 
 template<typename CharT, class Traits>
-basic_ostream<CharT, Traits>&
-operator<<(basic_ostream<CharT, Traits> &os, const ss_vect<tps> &a)
+std::basic_ostream<CharT, Traits>&
+operator<<(std::basic_ostream<CharT, Traits> &os, const ss_vect<tps> &a)
 {
   int                                 i;
-  basic_ostringstream<CharT, Traits>  s;
+  std::basic_ostringstream<CharT, Traits>  s;
 
   s.flags(os.flags()); s.imbue(os.getloc());
   for (i = 0; i < 6; i++)
-    s << setprecision(os.precision()) << setw(os.width()) << a[i];
+    s << std::setprecision(os.precision()) << std::setw(os.width()) << a[i];
   return os << s.str();
 }
 
 // instantiate
-template basic_ostream<char, std::char_traits<char> >&
-operator<<(basic_ostream<char, std::char_traits<char> > &,
+template std::basic_ostream<char, std::char_traits<char> >&
+operator<<(std::basic_ostream<char, std::char_traits<char> > &,
 	   const ss_vect<tps> &);
 
 

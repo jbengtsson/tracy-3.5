@@ -76,8 +76,8 @@ class tps {
                      ss_vect<tps> &z, const int k);
 #endif
 
-  friend istream& operator>>(istream &, tps &);
-  friend ostream& operator<<(ostream &, const tps &);
+  friend std::istream& operator>>(std::istream &, tps &);
+  friend std::ostream& operator<<(std::ostream &, const tps &);
 
   friend double abs(const tps &);
   friend double abs2(const tps &);
@@ -205,12 +205,12 @@ template<typename T> class ss_vect {
   friend tps operator*(const tps &, const ss_vect<tps> &);
 
   template<typename CharT, class Traits>
-    friend basic_istream<CharT, Traits>&
-    operator>>(basic_istream<CharT, Traits> &, ss_vect<tps> &);
+    friend std::basic_istream<CharT, Traits>&
+    operator>>(std::basic_istream<CharT, Traits> &, ss_vect<tps> &);
 
   template<typename CharT, class Traits>
-    friend basic_ostream<CharT, Traits>&
-    operator<<(basic_ostream<CharT, Traits> &, const ss_vect<T> &);
+    friend std::basic_ostream<CharT, Traits>&
+    operator<<(std::basic_ostream<CharT, Traits> &, const ss_vect<T> &);
 
   ss_vect<T> zero(void);
   ss_vect<tps> identity(void);

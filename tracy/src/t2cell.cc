@@ -213,8 +213,8 @@ bool Cell_getCOD(long imax, double eps, double dP, long &lastpos)
     jj[j] = (j < n)? 1 : 0;
 
   if (trace) {
-    cout << endl;
-    cout << "Cell_getCOD:" << endl;
+    std::cout << std::endl;
+    std::cout << "Cell_getCOD:" << std::endl;
   }
   n_iter = 0; I.identity();
   do {
@@ -236,11 +236,11 @@ bool Cell_getCOD(long imax, double eps, double dP, long &lastpos)
     }
 
     if (trace) {
-      cout << scientific << setprecision(1)
-	   << setw(3) << n_iter
-	   << " err = " << setw(7) << dxabs << "/" << setw(7) << eps
-	   << setprecision(5)
-	   << "  x0 =" << setw(13) << x0 << endl;
+      std::cout << std::scientific << std::setprecision(1)
+	   << std::setw(3) << n_iter
+	   << " err = " << std::setw(7) << dxabs << "/" << std::setw(7) << eps
+	   << std::setprecision(5)
+	   << "  x0 =" << std::setw(13) << x0 << std::endl;
     }
   } while ((dxabs >= eps) && (n_iter <= imax));
 
@@ -250,13 +250,13 @@ bool Cell_getCOD(long imax, double eps, double dP, long &lastpos)
     globval.CODvect = x0; getlinmat(6, map, globval.OneTurnMat);
     Cell_Pass(0, globval.Cell_nLoc, x0, lastpos);
   } else {
-    cout << "Cell_getCOD: failed to converge after " << n_iter << " iterations"
-	  << ", dP=" << setw(13) << dP
-	 << ", particle lost at element " << lastpos << endl;
-    cout << scientific << setprecision(5)
-	 << " x0=" << setw(13) << x0 << endl;
-    cout << scientific << setprecision(5)
-	 << "  x=" << setw(13) << map.cst() << endl;
+    std::cout << "Cell_getCOD: failed to converge after " << n_iter << " iterations"
+	  << ", dP=" << std::setw(13) << dP
+	 << ", particle lost at element " << lastpos << std::endl;
+    std::cout << std::scientific << std::setprecision(5)
+	 << " x0=" << std::setw(13) << x0 << std::endl;
+    std::cout << std::scientific << std::setprecision(5)
+	 << "  x=" << std::setw(13) << map.cst() << std::endl;
   }
 
   danot_(no);

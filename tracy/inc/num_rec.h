@@ -63,12 +63,12 @@ extern "C" {
 #define SIGN(a,b) ((b) >= 0.0 ? fabs(a) : -fabs(a))
 
   void nrerror(const char error_text[]);
-  float *vector(long nl, long nh);
+//  float *vector(long nl, long nh);
   int *ivector(long nl, long nh);
   unsigned char *cvector(long nl, long nh);
   unsigned long *lvector(long nl, long nh);
   double *dvector(long nl, long nh);
-  float **matrix(long nrl, long nrh, long ncl, long nch);
+//  float **matrix(long nrl, long nrh, long ncl, long nch);
   double **dmatrix(long nrl, long nrh, long ncl, long nch);
   int **imatrix(long nrl, long nrh, long ncl, long nch);
   float **submatrix(float **a, long oldrl, long oldrh, long oldcl, long oldch,

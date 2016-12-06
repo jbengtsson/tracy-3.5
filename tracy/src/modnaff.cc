@@ -2709,7 +2709,7 @@ void naf_iniwin(double *p_pardTWIN)
            /*v0.96 M. GASTINEAU 18/12/98 : modification */
             /*TWIN[IT]=CN*pow((1.E0+cos(T*PIST)),g_NAFVariable.IW);*/
             /*remplacee par:*/
-            p_pardTWIN[IT]=CN*pow((1.E0+cos(T*PIST)),g_NAFVariable.IW);
+            p_pardTWIN[IT]=CN*pow((1.E0+cos(T*PIST)),(double)g_NAFVariable.IW);
            /*v0.96 M. GASTINEAU 18/12/98 : fin modification */
          }
       }
@@ -3093,7 +3093,7 @@ void naf_correction(double *FREQ)
           /*ZALPHA=g_NAFVariable.ZAMP[I]/g_NAFVariable.ZAMP[1]*EXP(ZI*OMEGA*TM)*/
 #endif /*NAF_USE_OPTIMIZE==0*/
 /* v0.96 M. GASTINEAU 01/12/98 : fin optimisation */
-          DELTA=FACTEUR*ZALPHA.reel/(pow(OMEGA,(2*g_NAFVariable.IW+1)))*cos(OMEGA*TL); /*DELTA=FACTEUR*DREAL(ZALPHA)/OMEGA**(2*g_NAFVariable.IW+1)*COS(OMEGA*TL)*/
+          DELTA=FACTEUR*ZALPHA.reel/(pow(OMEGA,(double)(2*g_NAFVariable.IW+1)))*cos(OMEGA*TL); /*DELTA=FACTEUR*DREAL(ZALPHA)/OMEGA**(2*g_NAFVariable.IW+1)*COS(OMEGA*TL)*/
           COR += DELTA; /*COR=COR+DELTA*/
           if (g_NAFVariable.IPRT>=2)
           {

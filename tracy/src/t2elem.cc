@@ -13,7 +13,7 @@ double        c_1, d_1, c_2, d_2, cl_rad, q_fluct;
 double        I2, I4, I5, dcurly_H, dI4, s_FM;
 ElemFamType   ElemFam[Elem_nFamMax];
 CellType      Cell[Cell_nLocMax+1];
-ofstream      outf_;
+std::ofstream      outf_;
 
 // for FieldMap
 bool  sympl             = true;
@@ -94,10 +94,10 @@ void splin2_(const double x1a[], const double x2a[], double **ya, double **y2a,
   T    ytmp[m+1], yytmp[m+1];
 
   if ((x1 < x1a[1]) || (x1 > x1a[m])) {
-    cout << fixed << setprecision(8)
+    std::cout << std::fixed << std::setprecision(8)
 	 << "splin2_: x undefined ["
 	 << is_double<T>::cst(x1) << ", " << is_double<T>::cst(x2) << "] (["
-	 << x1a[1] << ", " << x1a[m] << "])" << endl;
+	 << x1a[1] << ", " << x1a[m] << "])" << std::endl;
 
     y = NAN;
 
@@ -105,10 +105,10 @@ void splin2_(const double x1a[], const double x2a[], double **ya, double **y2a,
   }
 
   if ((x2 < x2a[1]) || (x2 > x2a[n])) {
-    cout << fixed << setprecision(8)
+    std::cout << std::fixed << std::setprecision(8)
 	 << "splin2_: y undefined ["
 	 << is_double<T>::cst(x1) << ", " << is_double<T>::cst(x2) << "] (["
-	 << x2a[1] << ", " << x2a[n] << "])" << endl;
+	 << x2a[1] << ", " << x2a[n] << "])" << std::endl;
 
     y = NAN;
 
@@ -275,7 +275,7 @@ class is_tps<double> {
 
   static inline double get_curly_H(const ss_vect<tps> &x)
     {
-      cout << "get_curly_H: operation not defined for double" << endl;
+      std::cout << "get_curly_H: operation not defined for double" << std::endl;
       exit_(1);
       return 0e0;
     }
@@ -283,7 +283,7 @@ class is_tps<double> {
   static inline double get_dI4(const double h, const double b2, const double L,
 			     const ss_vect<tps> &x)
     {
-      cout << "get_dI4: operation not defined for double" << endl;
+      std::cout << "get_dI4: operation not defined for double" << std::endl;
       exit_(1);
       return 0e0;
     }
@@ -634,7 +634,7 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &x)
     break;
 
   case Meth_Second:
-    cout << "Mpole_Pass: Meth_Second not supported" << endl;
+    std::cout << "Mpole_Pass: Meth_Second not supported" << std::endl;
     exit_(0);
     break;
 
@@ -937,14 +937,14 @@ inline void get_Axy_map(const FieldMapType *FM, const double z,
   y = is_double<T>::cst(x[y_]);
 
   if ((z < FM->s_pos[1]) || (z > FM->s_pos[FM->n_s])) {
-    cout << scientific << setprecision(3)
-	 << "get_Axy_map: s out of range " << z << endl;
+    std::cout << std::scientific << std::setprecision(3)
+	 << "get_Axy_map: s out of range " << z << std::endl;
     exit_(1);
   }
 
   if ((y < FM->y_pos[1]) || (y > FM->y_pos[FM->m_y])) {
-    cout << scientific << setprecision(3)
-	 << "get_Axy_map: y out of range " << y << endl;
+    std::cout << std::scientific << std::setprecision(3)
+	 << "get_Axy_map: y out of range " << y << std::endl;
     exit_(1);
   }
 
@@ -994,8 +994,8 @@ inline void get_Axy_map(const FieldMapType *FM, const double z,
 	   y, z-dz, &ay1);
     AyoBrho[3] = (ay2-ay1)/(2e0*dz); AyoBrho[3] *= FM->scl;
     if (false)
-      cout << fixed << setprecision(5)
-	   << setw(8) << z << setw(9) << is_double<T>::cst(AxoBrho[3]) << endl;
+      std::cout << std::fixed << std::setprecision(5)
+	   << std::setw(8) << z << std::setw(9) << is_double<T>::cst(AxoBrho[3]) << std::endl;
   }
 }
 */
@@ -1019,7 +1019,7 @@ void Wiggler_pass_EF(const elemtype &elem, ss_vect<T> &x)
     nstep = elem.FM->n_step;
     break;
   default:
-    cout << "Wiggler_pass_EF: unknown element type" << endl;
+    std::cout << "Wiggler_pass_EF: unknown element type" << std::endl;
     exit_(1);
     break;
   }
@@ -1034,7 +1034,7 @@ void Wiggler_pass_EF(const elemtype &elem, ss_vect<T> &x)
 //      get_Axy_map(elem.FM, z, x, AxoBrho, AyoBrho);
       break;
     default:
-      cout << "Wiggler_pass_EF: unknown element type" << endl;
+      std::cout << "Wiggler_pass_EF: unknown element type" << std::endl;
       exit_(1);
       break;
     }
@@ -1053,13 +1053,13 @@ void Wiggler_pass_EF(const elemtype &elem, ss_vect<T> &x)
 	      + sqr((x[py_]-AyoBrho[0])/psi))/2e0;
 
     if (false)
-      cout << scientific << setprecision(3)
-	   << setw(8) << z
-	   << setw(11) << is_double<T>::cst(x[x_])
-	   << setw(11) << is_double<T>::cst(x[px_])
-	   << setw(11) << is_double<T>::cst(x[y_])
-	   << setw(11) << is_double<T>::cst(x[py_])
-	   << endl;
+      std::cout << std::scientific << std::setprecision(3)
+	   << std::setw(8) << z
+	   << std::setw(11) << is_double<T>::cst(x[x_])
+	   << std::setw(11) << is_double<T>::cst(x[px_])
+	   << std::setw(11) << is_double<T>::cst(x[y_])
+	   << std::setw(11) << is_double<T>::cst(x[py_])
+	   << std::endl;
 
     if (globval.pathlength) x[ct_] += h;
 
@@ -1308,7 +1308,7 @@ void Wiggler_Pass(CellType &Cell, ss_vect<T> &X)
 
   case Meth_Linear:
 //    LinTrans(5L, W->W55, X);
-    cout << "Wiggler_Pass: Meth_Linear not supported" << endl;
+    std::cout << "Wiggler_Pass: Meth_Linear not supported" << std::endl;
     exit_(1);
     break;
 
@@ -1406,8 +1406,8 @@ void f_FM(const CellType &Cell, const double z, const ss_vect<T> &ps,
     }
 
   if (kz == 0) {
-    cout << fixed << setprecision(10)
-	 << "z = " << setw(12) << z << " undefined" << endl;
+    std::cout << std::fixed << std::setprecision(10)
+	 << "z = " << std::setw(12) << z << " undefined" << std::endl;
 
     for (j = 0; j < ss_dim; j++)
       Dps[j] = NAN;
@@ -1498,22 +1498,22 @@ void FieldMap_pass_RK(CellType &Cell, ss_vect<T> &ps, int k)
 
   h = n_step*FM->dx[Z_]; z = FM->x[Z_][1]; FM->Lr = 0e0;
   if (trace)
-    outf_ << scientific << setprecision(3)
-	  << setw(11) << s_FM
-	  << setw(11) << is_double<T>::cst(ps[x_])
-	  << setw(11) << is_double<T>::cst(ps[px_])
-	  << setw(11) << is_double<T>::cst(ps[y_])
-	  << setw(11) << is_double<T>::cst(ps[py_])
-	  << setw(11) << is_double<T>::cst(ps[delta_])
-	  << setw(11) << is_double<T>::cst(ps[ct_])
-	  << endl;
+    outf_ << std::scientific << std::setprecision(3)
+	  << std::setw(11) << s_FM
+	  << std::setw(11) << is_double<T>::cst(ps[x_])
+	  << std::setw(11) << is_double<T>::cst(ps[px_])
+	  << std::setw(11) << is_double<T>::cst(ps[y_])
+	  << std::setw(11) << is_double<T>::cst(ps[py_])
+	  << std::setw(11) << is_double<T>::cst(ps[delta_])
+	  << std::setw(11) << is_double<T>::cst(ps[ct_])
+	  << std::endl;
   for(i = 1+FM->cut; i < FM->n[Z_]-FM->cut; i += n_step) {
     if (i <= FM->n[Z_]-FM->cut-2) {
       f_FM(Cell, z, ps, Dps);
 
       if (Dps[x_] == NAN) {
-	cout << "FieldMap_pass_RK: particle lost" << endl;
-	cout << ps;
+	std::cout << "FieldMap_pass_RK: particle lost" << std::endl;
+	std::cout << ps;
 	return;
       }
 
@@ -1525,8 +1525,8 @@ void FieldMap_pass_RK(CellType &Cell, ss_vect<T> &ps, int k)
       f_FM(Cell, z, ps, Dps);
 
       if (Dps[x_] == NAN) {
-	cout << "FieldMap_pass_RK: particle lost" << endl;
-	cout << ps;
+	std::cout << "FieldMap_pass_RK: particle lost" << std::endl;
+	std::cout << ps;
 	return;
       }
 
@@ -1536,15 +1536,15 @@ void FieldMap_pass_RK(CellType &Cell, ss_vect<T> &ps, int k)
     }
 
     if (trace)
-      outf_ << scientific << setprecision(3)
-	    << setw(11) << s_FM
-	   << setw(11) << is_double<T>::cst(ps[x_])
-	   << setw(11) << is_double<T>::cst(ps[px_])
-	   << setw(11) << is_double<T>::cst(ps[y_])
-	   << setw(11) << is_double<T>::cst(ps[py_])
-	   << setw(11) << is_double<T>::cst(ps[delta_])
-	   << setw(11) << is_double<T>::cst(ps[ct_])
-	   << endl;
+      outf_ << std::scientific << std::setprecision(3)
+	    << std::setw(11) << s_FM
+	   << std::setw(11) << is_double<T>::cst(ps[x_])
+	   << std::setw(11) << is_double<T>::cst(ps[px_])
+	   << std::setw(11) << is_double<T>::cst(ps[y_])
+	   << std::setw(11) << is_double<T>::cst(ps[py_])
+	   << std::setw(11) << is_double<T>::cst(ps[delta_])
+	   << std::setw(11) << is_double<T>::cst(ps[ct_])
+	   << std::endl;
   }
 
   // transform back to [x, px, y, py] (A_x,y,z = 0)
@@ -1590,15 +1590,15 @@ void FieldMap_pass_SI(CellType &Cell, ss_vect<T> &ps, int k)
 
   h = n_step*FM->dx[Z_]; z = 0e0; FM->Lr = 0e0;
   if (trace)
-    outf_ << scientific << setprecision(3)
-	  << setw(11) << s_FM
-	  << setw(11) << is_double<T>::cst(ps[x_])
-	  << setw(11) << is_double<T>::cst(ps[px_])
-	  << setw(11) << is_double<T>::cst(ps[y_])
-	  << setw(11) << is_double<T>::cst(ps[py_])
-	  << setw(11) << is_double<T>::cst(ps[delta_])
-	  << setw(11) << is_double<T>::cst(ps[ct_])
-	  << endl;
+    outf_ << std::scientific << std::setprecision(3)
+	  << std::setw(11) << s_FM
+	  << std::setw(11) << is_double<T>::cst(ps[x_])
+	  << std::setw(11) << is_double<T>::cst(ps[px_])
+	  << std::setw(11) << is_double<T>::cst(ps[y_])
+	  << std::setw(11) << is_double<T>::cst(ps[py_])
+	  << std::setw(11) << is_double<T>::cst(ps[delta_])
+	  << std::setw(11) << is_double<T>::cst(ps[ct_])
+	  << std::endl;
   for (i = 1+FM->cut; i < FM->n[Z_]-FM->cut; i += n_step) {
     hd = h/(1e0+ps[delta_]);
 
@@ -1854,18 +1854,18 @@ void FieldMap_pass_SI(CellType &Cell, ss_vect<T> &ps, int k)
       splin2_(FM->x[X_], FM->x[Y_], FM->BoBrho[Y_][j], FM->BoBrho2[Y_][j],
 	      FM->n[X_], FM->n[Y_], ps[x_], ps[y_], ByoBrho);
 
-      outf_ << scientific << setprecision(3)
-	   << setw(11) << s_FM
-	   << setw(11) << is_double<T>::cst(ps[x_])
-	   << setw(11) << is_double<T>::cst(ps[px_]-AoBrho[0])
-	   << setw(11) << is_double<T>::cst(ps[y_])
-	   << setw(11) << is_double<T>::cst(ps[py_]-AoBrho[1])
-	   << setw(11) << is_double<T>::cst(ps[delta_])
-	   << setw(11) << is_double<T>::cst(ps[ct_])
-	   << setw(11) << is_double<T>::cst(AoBrho[0])
-	   << setw(11) << is_double<T>::cst(AoBrho[1])
-	   << setw(11) << is_double<T>::cst(ByoBrho)
-	   << endl;
+      outf_ << std::scientific << std::setprecision(3)
+	   << std::setw(11) << s_FM
+	   << std::setw(11) << is_double<T>::cst(ps[x_])
+	   << std::setw(11) << is_double<T>::cst(ps[px_]-AoBrho[0])
+	   << std::setw(11) << is_double<T>::cst(ps[y_])
+	   << std::setw(11) << is_double<T>::cst(ps[py_]-AoBrho[1])
+	   << std::setw(11) << is_double<T>::cst(ps[delta_])
+	   << std::setw(11) << is_double<T>::cst(ps[ct_])
+	   << std::setw(11) << is_double<T>::cst(AoBrho[0])
+	   << std::setw(11) << is_double<T>::cst(AoBrho[1])
+	   << std::setw(11) << is_double<T>::cst(ByoBrho)
+	   << std::endl;
     }
   }
 
@@ -2715,14 +2715,14 @@ void get_B_DIAMOND(const char *filename, FieldMapType *FM)
   char         line[max_str];
   int          i, j, n, ny;
   double       x0, y0, z0;
-  ifstream     inf;
-  ofstream     outf;
+  std::ifstream     inf;
+  std::ofstream     outf;
 
   const int     skip = 8;
   const double  Brho = globval.Energy*1e9/c0;
 
-  cout << endl;
-  cout << "get_B_DIAMOND: loading field map: " << filename << endl;
+  std::cout << std::endl;
+  std::cout << "get_B_DIAMOND: loading field map: " << filename << std::endl;
 
   file_rd(inf, filename);
 
@@ -2804,19 +2804,19 @@ void get_B_DIAMOND(const char *filename, FieldMapType *FM)
 
   inf.close();
 
-  cout << fixed << setprecision(5)
-       << setw(10) << x0 << setw(10) << y0 << setw(10) << z0 << endl;
-  cout << fixed << setprecision(5)
-       << setw(10) << FM->dx[X_] << setw(10) << FM->dx[Y_]
-       << setw(10) << FM->dx[Z_] << endl;
-  cout << setw(10) << FM->n[X_] << setw(10) << ny
-       << setw(10) << FM->n[Z_] << endl;
-  cout << fixed << setprecision(3)
-       << setw(10) << FM->x[X_][1] << setw(10) << FM->x[X_][FM->n[X_]]
-       << setw(10) << FM->x[Y_][1] << setw(10) << FM->x[Y_][FM->n[Y_]]
-       << setw(10) << FM->x[Z_][1] << setw(10) << FM->x[Z_][FM->n[Z_]] << endl;
-  cout << fixed << setprecision(5)
-       << "Magnet length [m]:" << setw(10) << FM->Lr << endl;
+  std::cout << std::fixed << std::setprecision(5)
+       << std::setw(10) << x0 << std::setw(10) << y0 << std::setw(10) << z0 << std::endl;
+  std::cout << std::fixed << std::setprecision(5)
+       << std::setw(10) << FM->dx[X_] << std::setw(10) << FM->dx[Y_]
+       << std::setw(10) << FM->dx[Z_] << std::endl;
+  std::cout << std::setw(10) << FM->n[X_] << std::setw(10) << ny
+       << std::setw(10) << FM->n[Z_] << std::endl;
+  std::cout << std::fixed << std::setprecision(3)
+       << std::setw(10) << FM->x[X_][1] << std::setw(10) << FM->x[X_][FM->n[X_]]
+       << std::setw(10) << FM->x[Y_][1] << std::setw(10) << FM->x[Y_][FM->n[Y_]]
+       << std::setw(10) << FM->x[Z_][1] << std::setw(10) << FM->x[Z_][FM->n[Z_]] << std::endl;
+  std::cout << std::fixed << std::setprecision(5)
+       << "Magnet length [m]:" << std::setw(10) << FM->Lr << std::endl;
 
   for (j = 1; j <= ny-1; j++) {
     FM->x[Y_][j] = -FM->x[Y_][2*ny-j];
@@ -2837,12 +2837,12 @@ void get_B_DIAMOND(const char *filename, FieldMapType *FM)
 
   if (true) {
     file_wr(outf, "field_map.dat");
-    cout << scientific << setprecision(3)
-	 << setw(11) << FM->x[X_][7] << setw(11) << FM->x[Y_][7] << endl;
+    std::cout << std::scientific << std::setprecision(3)
+	 << std::setw(11) << FM->x[X_][7] << std::setw(11) << FM->x[Y_][7] << std::endl;
     for (i = 1; i <= FM->n[X_]; i++)
-      outf << scientific << setprecision(3)
-	   << setw(11) << FM->x[X_][i] << setw(11) << FM->BoBrho[Y_][7][i][7]
-	   << endl;
+      outf << std::scientific << std::setprecision(3)
+	   << std::setw(11) << FM->x[X_][i] << std::setw(11) << FM->BoBrho[Y_][7][i][7]
+	   << std::endl;
     outf.close();
   }
 
@@ -2860,7 +2860,7 @@ void get_B_DIAMOND(const char *filename, FieldMapType *FM)
 	    FM->n[X_], FM->n[Y_], FM->AoBrho2[Y_][n]);
   }
 
-  cout << "field map loaded: " << filename << endl;
+  std::cout << "field map loaded: " << filename << std::endl;
 
 /*  free_dvector(FM->x[X_], 1, FM->n[X_]); free_dvector(FM->x[Y_], 1, FM->n[Y_]);
   free_dvector(FM->x[Z_], 1, FM->n[Z_]);
@@ -2884,12 +2884,12 @@ void get_B_NSLS_II(const char *filename, FieldMapType *FM)
   char         line[max_str];
   int          i, j, n;
   double       x_min[3], x_max[3];
-  ifstream     inf;
+  std::ifstream     inf;
 
   const double  Brho = globval.Energy*1e9/c0;
 
-  cout << endl;
-  cout << "get_B_NSLS_II: loading field map: " << filename << endl;
+  std::cout << std::endl;
+  std::cout << "get_B_NSLS_II: loading field map: " << filename << std::endl;
 
   file_rd(inf, filename);
 
@@ -2960,17 +2960,17 @@ void get_B_NSLS_II(const char *filename, FieldMapType *FM)
 
   FM->Lr = FM->dx[Z_]*(FM->n[Z_]-1);
 
-  cout << fixed << setprecision(5)
-       << setw(10) << 1e3*FM->dx[X_] << setw(10) << 1e3*FM->dx[Y_]
-       << setw(10) << 1e3*FM->dx[Z_] << endl;
-  cout << setw(10) << FM->n[X_] << setw(10) << FM->n[Y_]
-       << setw(10) << FM->n[Z_] << endl;
-  cout << fixed << setprecision(3)
-       << setw(10) << FM->x[X_][1] << setw(10) << FM->x[X_][FM->n[X_]]
-       << setw(10) << FM->x[Y_][1] << setw(10) << FM->x[Y_][FM->n[Y_]]
-       << setw(10) << FM->x[Z_][1] << setw(10) << FM->x[Z_][FM->n[Z_]] << endl;
-  cout << fixed << setprecision(5)
-       << "Magnet length [m]:" << setw(10) << FM->Lr << endl;
+  std::cout << std::fixed << std::setprecision(5)
+       << std::setw(10) << 1e3*FM->dx[X_] << std::setw(10) << 1e3*FM->dx[Y_]
+       << std::setw(10) << 1e3*FM->dx[Z_] << std::endl;
+  std::cout << std::setw(10) << FM->n[X_] << std::setw(10) << FM->n[Y_]
+       << std::setw(10) << FM->n[Z_] << std::endl;
+  std::cout << std::fixed << std::setprecision(3)
+       << std::setw(10) << FM->x[X_][1] << std::setw(10) << FM->x[X_][FM->n[X_]]
+       << std::setw(10) << FM->x[Y_][1] << std::setw(10) << FM->x[Y_][FM->n[Y_]]
+       << std::setw(10) << FM->x[Z_][1] << std::setw(10) << FM->x[Z_][FM->n[Z_]] << std::endl;
+  std::cout << std::fixed << std::setprecision(5)
+       << "Magnet length [m]:" << std::setw(10) << FM->Lr << std::endl;
 
   for (n = 1; n <= FM->n[Z_]; n++) {
     splie2_(FM->x[X_], FM->x[Y_], FM->BoBrho[X_][n],
@@ -2986,7 +2986,7 @@ void get_B_NSLS_II(const char *filename, FieldMapType *FM)
 	    FM->n[X_], FM->n[Y_], FM->AoBrho2[Y_][n]);
   }
 
-  cout << "field map loaded: " << filename << endl;
+  std::cout << "field map loaded: " << filename << std::endl;
 
 /*  free_dvector(FM->x[X_], 1, FM->n[X_]);
   free_dvector(FM->x[Y_], 1, FM->n[Y_]);
@@ -3011,12 +3011,12 @@ void get_B_Oleg1(const char *filename, FieldMapType *FM)
   char         line[max_str];
   int          i, j, n;
   double       x_min[3], x_max[3];
-  ifstream     inf;
+  std::ifstream     inf;
 
   const double  Brho = globval.Energy*1e9/c0;
 
-  cout << endl;
-  cout << "get_B_Oleg1: loading field map: " << filename << endl;
+  std::cout << std::endl;
+  std::cout << "get_B_Oleg1: loading field map: " << filename << std::endl;
 
   file_rd(inf, filename);
 
@@ -3087,17 +3087,17 @@ void get_B_Oleg1(const char *filename, FieldMapType *FM)
 
   FM->Lr = FM->dx[Z_]*(FM->n[Z_]-1);
 
-  cout << fixed << setprecision(5)
-       << setw(10) << 1e3*FM->dx[X_] << setw(10) << 1e3*FM->dx[Y_]
-       << setw(10) << 1e3*FM->dx[Z_] << endl;
-  cout << setw(10) << FM->n[X_] << setw(10) << FM->n[Y_]
-       << setw(10) << FM->n[Z_] << endl;
-  cout << fixed << setprecision(3)
-       << setw(10) << FM->x[X_][1] << setw(10) << FM->x[X_][FM->n[X_]]
-       << setw(10) << FM->x[Y_][1] << setw(10) << FM->x[Y_][FM->n[Y_]]
-       << setw(10) << FM->x[Z_][1] << setw(10) << FM->x[Z_][FM->n[Z_]] << endl;
-  cout << fixed << setprecision(5)
-       << "Magnet length [m]:" << setw(10) << FM->Lr << endl;
+  std::cout << std::fixed << std::setprecision(5)
+       << std::setw(10) << 1e3*FM->dx[X_] << std::setw(10) << 1e3*FM->dx[Y_]
+       << std::setw(10) << 1e3*FM->dx[Z_] << std::endl;
+  std::cout << std::setw(10) << FM->n[X_] << std::setw(10) << FM->n[Y_]
+       << std::setw(10) << FM->n[Z_] << std::endl;
+  std::cout << std::fixed << std::setprecision(3)
+       << std::setw(10) << FM->x[X_][1] << std::setw(10) << FM->x[X_][FM->n[X_]]
+       << std::setw(10) << FM->x[Y_][1] << std::setw(10) << FM->x[Y_][FM->n[Y_]]
+       << std::setw(10) << FM->x[Z_][1] << std::setw(10) << FM->x[Z_][FM->n[Z_]] << std::endl;
+  std::cout << std::fixed << std::setprecision(5)
+       << "Magnet length [m]:" << std::setw(10) << FM->Lr << std::endl;
 
   for (n = 1; n <= FM->n[Z_]; n++) {
     splie2_(FM->x[X_], FM->x[Y_], FM->BoBrho[X_][n],
@@ -3113,7 +3113,7 @@ void get_B_Oleg1(const char *filename, FieldMapType *FM)
 	    FM->n[X_], FM->n[Y_], FM->AoBrho2[Y_][n]);
   }
 
-  cout << "field map loaded: " << filename << endl;
+  std::cout << "field map loaded: " << filename << std::endl;
 
 /*  free_dvector(FM->x[X_], 1, FM->n[X_]);
   free_dvector(FM->x[Y_], 1, FM->n[Y_]);
@@ -3138,12 +3138,12 @@ void get_B_Oleg2(const char *filename, FieldMapType *FM)
   char         line[max_str];
   int          i, j, n;
   double       x_min[3];
-  ifstream     inf;
+  std::ifstream     inf;
 
   const double  Brho = globval.Energy*1e9/c0;
 
-  cout << endl;
-  cout << "get_B_Oleg2: loading field map: " << filename << endl;
+  std::cout << std::endl;
+  std::cout << "get_B_Oleg2: loading field map: " << filename << std::endl;
 
   file_rd(inf, filename);
 
@@ -3161,14 +3161,14 @@ void get_B_Oleg2(const char *filename, FieldMapType *FM)
   inf.getline(line, max_str); sscanf(line, "#%lf", &FM->dx[Z_]);
   inf.getline(line, max_str); sscanf(line, "#%d", &FM->n[Z_]);
 
-  cout << fixed << setprecision(5)
-       << setw(10) << 1e3*FM->dx[X_] << setw(10) << 1e3*FM->dx[Y_]
-       << setw(10) << 1e3*FM->dx[Z_] << endl;
-  cout << setw(10) << FM->n[X_] << setw(10) << FM->n[Y_]
-       << setw(10) << FM->n[Z_] << endl;
-  cout << fixed << setprecision(3)
-       << setw(10) << x_min[X_] << setw(10) << x_min[Y_]
-       << setw(10) << x_min[Z_] << endl;
+  std::cout << std::fixed << std::setprecision(5)
+       << std::setw(10) << 1e3*FM->dx[X_] << std::setw(10) << 1e3*FM->dx[Y_]
+       << std::setw(10) << 1e3*FM->dx[Z_] << std::endl;
+  std::cout << std::setw(10) << FM->n[X_] << std::setw(10) << FM->n[Y_]
+       << std::setw(10) << FM->n[Z_] << std::endl;
+  std::cout << std::fixed << std::setprecision(3)
+       << std::setw(10) << x_min[X_] << std::setw(10) << x_min[Y_]
+       << std::setw(10) << x_min[Z_] << std::endl;
 
   FM->x[X_] = dvector(1, FM->n[X_]); FM->x[Y_] = dvector(1, FM->n[Y_]);
   FM->x[Z_] = dvector(1, FM->n[Z_]);
@@ -3226,17 +3226,17 @@ void get_B_Oleg2(const char *filename, FieldMapType *FM)
 
   FM->Lr = FM->dx[Z_]*(FM->n[Z_]-1);
 
-  cout << fixed << setprecision(5)
-       << setw(10) << 1e3*FM->dx[X_] << setw(10) << 1e3*FM->dx[Y_]
-       << setw(10) << 1e3*FM->dx[Z_] << endl;
-  cout << setw(10) << FM->n[X_] << setw(10) << FM->n[Y_]
-       << setw(10) << FM->n[Z_] << endl;
-  cout << fixed << setprecision(3)
-       << setw(10) << FM->x[X_][1] << setw(10) << FM->x[X_][FM->n[X_]]
-       << setw(10) << FM->x[Y_][1] << setw(10) << FM->x[Y_][FM->n[Y_]]
-       << setw(10) << FM->x[Z_][1] << setw(10) << FM->x[Z_][FM->n[Z_]] << endl;
-  cout << fixed << setprecision(5)
-       << "Magnet length [m]:" << setw(10) << FM->Lr << endl;
+  std::cout << std::fixed << std::setprecision(5)
+       << std::setw(10) << 1e3*FM->dx[X_] << std::setw(10) << 1e3*FM->dx[Y_]
+       << std::setw(10) << 1e3*FM->dx[Z_] << std::endl;
+  std::cout << std::setw(10) << FM->n[X_] << std::setw(10) << FM->n[Y_]
+       << std::setw(10) << FM->n[Z_] << std::endl;
+  std::cout << std::fixed << std::setprecision(3)
+       << std::setw(10) << FM->x[X_][1] << std::setw(10) << FM->x[X_][FM->n[X_]]
+       << std::setw(10) << FM->x[Y_][1] << std::setw(10) << FM->x[Y_][FM->n[Y_]]
+       << std::setw(10) << FM->x[Z_][1] << std::setw(10) << FM->x[Z_][FM->n[Z_]] << std::endl;
+  std::cout << std::fixed << std::setprecision(5)
+       << "Magnet length [m]:" << std::setw(10) << FM->Lr << std::endl;
 
   for (n = 1; n <= FM->n[Z_]; n++) {
     splie2_(FM->x[X_], FM->x[Y_], FM->BoBrho[X_][n],
@@ -3247,7 +3247,7 @@ void get_B_Oleg2(const char *filename, FieldMapType *FM)
 	    FM->n[X_], FM->n[Y_], FM->BoBrho2[Z_][n]);
   }
 
-  cout << "field map loaded: " << filename << endl;
+  std::cout << "field map loaded: " << filename << std::endl;
 
 /*  free_dvector(FM->x[X_], 1, FM->n[X_]);
   free_dvector(FM->x[Y_], 1, FM->n[Y_]);
@@ -3286,7 +3286,7 @@ void get_B(const char *filename, FieldMapType *FM)
     get_B_Oleg2(filename, FM);
     break;
   default:
-    cout << "get_B: unknown FieldMap type " << FieldMap_filetype << endl;
+    std::cout << "get_B: unknown FieldMap type " << FieldMap_filetype << std::endl;
     break;
   }
 }
