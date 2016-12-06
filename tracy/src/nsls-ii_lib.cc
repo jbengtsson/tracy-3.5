@@ -33,7 +33,6 @@ const bool normal = true; // Normal or rectangular distribution
 
 // Parameters for orbit correction
 std::vector<std::string> bpm_Fam_names, corr_Fam_names[2];
-//std::string bpm_Fam_names[10], corr_Fam_names[2][10];
 
 // Parameters for dynamic aperture
 double  delta_DA_  = 5.0e-2;

@@ -20,6 +20,8 @@ extern double   x_max_FMA, y_max_FMA, delta_FMA;
 
 extern double   delta_DA_;
 
+extern std::vector<std::string> bpm_Fam_names, corr_Fam_names[2];
+
 extern char     ae_file[max_str], fe_file[max_str], ap_file[max_str];
 extern int      N_calls, N_steps;
 extern double   disp_wave_y;
