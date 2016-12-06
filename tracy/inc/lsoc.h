@@ -31,5 +31,5 @@ void gtcmat(const int n_bpm, const long int bpms[],
            const int n_corr, const long int corrs[], const int plane,
            const bool svd);
 
-void lstc(const int plane, const long int lastpos, const double scl);
+void lstc(const int plane, const double scl);
 

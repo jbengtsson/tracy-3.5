@@ -9,108 +9,108 @@
 
 // global params
 
-bool    DA_bare       = false,
-        freq_map      = false;
-int     n_aper        =  15, // no of dynamical aperture points
-        n_track       = 512, // no of turns for tracking
-        n_orbit       = 3,
-        n_scale       = 1;
+bool   DA_bare       = false,
+       freq_map      = false;
+int    n_aper        =  15, // no of dynamical aperture points
+       n_track       = 512, // no of turns for tracking
+       n_orbit       = 3,
+       n_scale       = 1;
 
-bool    bba           = false;
-int     n_lin         =  3,
-        SQ_per_scell  =  2,
-        BPM_per_scell = 12,
-        HCM_per_scell = 12,
-        VCM_per_scell = 12;
-double  kick          = 0.01e-3; // 0.01 mrad kick for trims
-int     n_stat        = 1;       // number of statistics
+bool   bba           = false;
+int    n_lin         =  3,
+       SQ_per_scell  =  2,
+       BPM_per_scell = 12,
+       HCM_per_scell = 12,
+       VCM_per_scell = 12;
+double kick          = 0.01e-3; // 0.01 mrad kick for trims
+int    n_stat        = 1;       // number of statistics
 
-double  VDweight      = 1e3,     // weight for vertical dispersion
-        HVweight      = 1e0,     // weight for coupling Htrim vertical BPM
-        VHweight      = 1e0;     // weight for coupling Vtrim horizontal BPM
+double VDweight      = 1e3,     // weight for vertical dispersion
+       HVweight      = 1e0,     // weight for coupling Htrim vertical BPM
+       VHweight      = 1e0;     // weight for coupling Vtrim horizontal BPM
 
-const bool  normal = true; // Normal or rectangular distribution
+const bool normal = true; // Normal or rectangular distribution
 
 // Parameters for dynamic aperture
 double  delta_DA_  = 5.0e-2;
 
 // Parameters for frequency map
 // Note NTURN is set to 10000 (2*NTURN for diffusion)) in "naffutils.h".
-int     n_x = 50, n_y = 30, n_dp = 25, n_tr = 2064;
-double  x_max_FMA = 20e-3, y_max_FMA = 6e-3, delta_FMA = 3e-2;
-//double  x_max_FMA = 20e-3, y_max_FMA = 3e-3, delta_FMA = 3e-2;
+int    n_x = 50, n_y = 30, n_dp = 25, n_tr = 2064;
+double x_max_FMA = 20e-3, y_max_FMA = 6e-3, delta_FMA = 3e-2;
+//double x_max_FMA = 20e-3, y_max_FMA = 3e-3, delta_FMA = 3e-2;
 
-const int  max_corr = 100;
-const int  max_bpm  = 200;
+const int max_corr = 100;
+const int max_bpm  = 200;
 
-int     h_corr[max_corr], v_corr[max_corr], bpm_loc[max_bpm];
+int h_corr[max_corr], v_corr[max_corr], bpm_loc[max_bpm];
 
-int     Fnum_Cart, n_iter_Cart;
+int Fnum_Cart, n_iter_Cart;
 
-double  u_Touschek;  // argument for Touschek D(ksi)
-double  chi_m;       // argument for IBS D(ksi)
+double u_Touschek;  // argument for Touschek D(ksi)
+double chi_m;       // argument for IBS D(ksi)
 
 // IBS (Bjorken-Mtingwa)
-double  a_IBS, b_IBS, c_IBS, a_k_IBS, b_k_IBS;
+double a_IBS, b_IBS, c_IBS, a_k_IBS, b_k_IBS;
 
-char    in_dir[max_str]          = "";
+char in_dir[max_str] = "";
 
 // Computation result files
-const char  beam_envelope_file[] = "beam_envelope.out";
+const char beam_envelope_file[] = "beam_envelope.out";
 
 // Lattice error and correction files
-const char  CodCorLatFileName[]  = "codcorlat.out";
+const char CodCorLatFileName[]  = "codcorlat.out";
 
-const char  SkewMatFileName[]    = "skewmat.out";
-const char  eta_y_FileName[]     = "eta_y.out";
-const char  deta_y_FileName[]    = "deta_y.out";
+const char SkewMatFileName[]    = "skewmat.out";
+const char eta_y_FileName[]     = "eta_y.out";
+const char deta_y_FileName[]    = "deta_y.out";
 
 
-const int  N_Fam_max = 15;
+const int N_Fam_max = 15;
 
 // Weights for ID correction
-const double  scl_nu = 1e2, scl_dbeta = 1.0, scl_dnu = 0.1, ID_step = 0.5;
+const double scl_nu = 1e2, scl_dbeta = 1.0, scl_dnu = 0.1, ID_step = 0.5;
 
-char     ae_file[max_str], fe_file[max_str], ap_file[max_str];
-char     lat_FileName[max_str];
-int      N_BPM, N_HCOR, N_VCOR, N_SKEW, N_COUPLE;
-int      N_calls, N_steps, N_Fam, Q_Fam[N_Fam_max];  // ID correction params
-int      n_sext, sexts[max_elem];
-double   betas0_[max_elem][2], nus0_[max_elem][2], nu0_[2], b2[N_Fam_max];
-double   **SkewRespMat, *VertCouple, *SkewStrengthCorr, *eta_y;
-double   *b, *w, **V, **U;
-double   disp_wave_y;
+char    ae_file[max_str], fe_file[max_str], ap_file[max_str];
+char    lat_FileName[max_str];
+int     N_BPM, N_HCOR, N_VCOR, N_SKEW, N_COUPLE;
+int     N_calls, N_steps, N_Fam, Q_Fam[N_Fam_max];  // ID correction params
+int     n_sext, sexts[max_elem];
+double  betas0_[max_elem][2], nus0_[max_elem][2], nu0_[2], b2[N_Fam_max];
+double  **SkewRespMat, *VertCouple, *SkewStrengthCorr, *eta_y;
+double  *b, *w, **V, **U;
+double  disp_wave_y;
 
 // ID_corr global variables
 
-const int  n_b2_max    = 500;  // max no of quad corrector families
-const int  n_b3_max    = 1000; // max no of sextupoles
-const int  max_ID_Fams = 25;   // max no of ID families
+const int n_b2_max    = 500;  // max no of quad corrector families
+const int n_b3_max    = 1000; // max no of sextupoles
+const int max_ID_Fams = 25;   // max no of ID families
 
-long int      S_locs[n_b3_max];
-int           Nsext, Nquad, Nconstr, NconstrO, quad_prms[n_b2_max], id_loc;
-int           n_ID_Fams, ID_Fams[max_ID_Fams];
-double        Ss[n_b3_max], Sq[n_b2_max], sb[2][n_b3_max], sNu[2][n_b3_max];
-double        qb[2][n_b2_max], qb0[2][n_b2_max], sNu0[2][n_b3_max];
-double        qNu0[2][n_b2_max], qNu[2][n_b2_max], IDb[2], IDNu[2];
-double        Nu_X, Nu_Y, Nu_X0, Nu_Y0;
-double        **A1, *Xsext, *Xsext0, *b2Ls_, *w1, **U1, **V1;
-double        *Xoct, *b4s, **Aoct;
-Vector2       dnu0, nu_0;
+long int S_locs[n_b3_max];
+int      Nsext, Nquad, Nconstr, NconstrO, quad_prms[n_b2_max], id_loc;
+int      n_ID_Fams, ID_Fams[max_ID_Fams];
+double   Ss[n_b3_max], Sq[n_b2_max], sb[2][n_b3_max], sNu[2][n_b3_max];
+double   qb[2][n_b2_max], qb0[2][n_b2_max], sNu0[2][n_b3_max];
+double   qNu0[2][n_b2_max], qNu[2][n_b2_max], IDb[2], IDNu[2];
+double   Nu_X, Nu_Y, Nu_X0, Nu_Y0;
+double   **A1, *Xsext, *Xsext0, *b2Ls_, *w1, **U1, **V1;
+double   *Xoct, *b4s, **Aoct;
+Vector2  dnu0, nu_0;
 
 // for IBS
-int     i_, j_;
-double  **C_;
+int    i_, j_;
+double **C_;
 
-ss_vect<tps>  map;
-MNF_struct    MNF;
+ss_vect<tps> map;
+MNF_struct   MNF;
 
 
 // conversion
 
 void lwr_case(char str[])
 {
-  int  k;
+  int k;
 
   for (k = 0; k < (int)strlen(str); k++)
     str[k] = tolower(str[k]);
@@ -119,7 +119,7 @@ void lwr_case(char str[])
 
 void upr_case(char str[])
 {
-  int  k;
+  int k;
 
   for (k = 0; k < (int)strlen(str); k++)
     str[k] = toupper(str[k]);

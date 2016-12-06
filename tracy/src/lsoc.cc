@@ -311,7 +311,7 @@ void gtcmat(const int n_bpm, const long int bpms[],
 }
 
 
-void lstc(const int plane, const long int lastpos, const double scl)
+void lstc(const int plane, const double scl)
 {
   int      j, k;
   long int loc;
@@ -323,7 +323,7 @@ void lstc(const int plane, const long int lastpos, const double scl)
 
   for (j = 1; j <= n_bpm_[k]; j++) {
     loc = bpms_[k][j];
-    b[j] = (loc < lastpos)? -Cell[loc].BeamPos[2*k] + Cell[loc].dS[k] : 0e0;
+    b[j] = -Cell[loc].BeamPos[2*k] + Cell[loc].dS[k];
 
     if (trace) cout << scientific << setprecision(5)
 		    << "b[" << setw(3) << j << "] = "
