@@ -3426,10 +3426,10 @@ void ini_COD_corr(const int n_bpm_Fam, const std::string bpm_names[],
 
 void get_param(const char *param_file)
 {
-  char      *s, name[max_str], line[max_str], str[max_str], *p;
-  char      lat_file[max_str], flat_file[max_str];
-  double    f_prm;
-  std::ifstream  inf;
+  char          *s, name[max_str], line[max_str], str[max_str], *p;
+  char          lat_file[max_str], flat_file[max_str];
+  double        f_prm;
+  std::ifstream inf;
 
   const bool  prt = true;
 

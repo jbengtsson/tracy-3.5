@@ -187,12 +187,12 @@ void GtoL_dP(Matrix &mat, Vector2 &dT)
 
 bool Cell_getCOD(long imax, double eps, double dP, long &lastpos)
 {
-  long             j, n, n_iter;
-  int              no;
-  double           dxabs;
-  iVector          jj;
-  ss_vect<double>  x0, x1, dx;
-  ss_vect<tps>     I, dx0, map;
+  long            j, n, n_iter;
+  int             no;
+  double          dxabs;
+  iVector         jj;
+  ss_vect<double> x0, x1, dx;
+  ss_vect<tps>    I, dx0, map;
 
   no = no_tps; danot_(1);
   
@@ -226,12 +226,6 @@ bool Cell_getCOD(long imax, double eps, double dP, long &lastpos)
       x1 = map.cst(); dx = x0 - x1; dx0 = PInv(map-I-x1, jj)*dx;
       dxabs = xabs(n, dx); x0 += dx0.cst();
     } else {
-      prt_beampos("beampos.dat");
-      prt_cod("cod.out", globval.bpm, true);
-      prtmfile("flat_file_dbg.dat");
-
-//      prt_trace();
-
       dxabs = NAN; break;
     }
 
@@ -250,13 +244,15 @@ bool Cell_getCOD(long imax, double eps, double dP, long &lastpos)
     globval.CODvect = x0; getlinmat(6, map, globval.OneTurnMat);
     Cell_Pass(0, globval.Cell_nLoc, x0, lastpos);
   } else {
-    std::cout << "Cell_getCOD: failed to converge after " << n_iter << " iterations"
-	  << ", dP=" << std::setw(13) << dP
-	 << ", particle lost at element " << lastpos << std::endl;
     std::cout << std::scientific << std::setprecision(5)
-	 << " x0=" << std::setw(13) << x0 << std::endl;
-    std::cout << std::scientific << std::setprecision(5)
-	 << "  x=" << std::setw(13) << map.cst() << std::endl;
+	      << "\nCell_getCOD: failed to converge after " << n_iter
+	      << " iterations:\n"
+	      << "  dP =" << std::setw(12) << dP
+	      << ", particle lost at element " << lastpos << "\n"
+	      << std::scientific << std::setprecision(5)
+	      << "  x0 =" << std::setw(13) << x0 << "\n"
+	      << std::scientific << std::setprecision(5)
+	      << "   x =" << std::setw(13) << map.cst() << "\n";
   }
 
   danot_(no);
