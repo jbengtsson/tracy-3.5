@@ -132,7 +132,7 @@ static void Swap(double *x, double *y)
 
 /****************************************************************************/
 /* static void geigen(int n, Matrix &fm, Matrix &Vre, Matrix &Vim,
-                   Vector &wr, Vector &wi)
+                   psVector &wr, psVector &wi)
 
    Purpose:  called by GDiag
       This routine finds the eigenvalues and eigenvectors of the full matrix fm 
@@ -171,10 +171,10 @@ static void Swap(double *x, double *y)
 
 ****************************************************************************/
 void geigen(int n, Matrix &fm, Matrix &Vre, Matrix &Vim,
-	    Vector &wr, Vector &wi)
+	    psVector &wr, psVector &wi)
 {
   int info, i, j, k, c;
-  Vector ort, cosfm, sinfm, nufm1, nufm2, nu1, nu2;
+  psVector ort, cosfm, sinfm, nufm1, nufm2, nu1, nu2;
   Matrix aa, vv;
   double TEMP;
 
@@ -395,7 +395,7 @@ static void GetAinv(struct LOC_GDiag &LINK)
 }
 
 /****************************************************************************/
-/* void GetEta(int k, Matrix &M, Vector &Eta, struct LOC_GDiag &LINK)
+/* void GetEta(int k, Matrix &M, psVector &Eta, struct LOC_GDiag &LINK)
 
    Purpose: called by GDiag
          Find dispersion and momentum compaction of the map M where
@@ -431,9 +431,9 @@ static void GetAinv(struct LOC_GDiag &LINK)
        none
 
 ****************************************************************************/
-static void GetEta(int k, Matrix &M, Vector &Eta, struct LOC_GDiag &LINK)
+static void GetEta(int k, Matrix &M, psVector &Eta, struct LOC_GDiag &LINK)
 {
-  Vector SmallM;
+  psVector SmallM;
   Matrix IMinNInv, I;
   int j;
 
@@ -456,7 +456,7 @@ static void GetEta(int k, Matrix &M, Vector &Eta, struct LOC_GDiag &LINK)
 }
 
 /****************************************************************************/
-/* void GenB(int k, Matrix &B, Matrix &BInv, Vector &Eta, struct LOC_GDiag &LINK)
+/* void GenB(int k, Matrix &B, Matrix &BInv, psVector &Eta, struct LOC_GDiag &LINK)
 
    Purpose: called by GDiag
 
@@ -479,7 +479,7 @@ static void GetEta(int k, Matrix &M, Vector &Eta, struct LOC_GDiag &LINK)
        none
 
 ****************************************************************************/
-void GenB(int k, Matrix &B, Matrix &BInv, Vector &Eta, struct LOC_GDiag &LINK)
+void GenB(int k, Matrix &B, Matrix &BInv, psVector &Eta, struct LOC_GDiag &LINK)
 {
   int j;
 
@@ -547,7 +547,7 @@ void GDiag(int n_, double C, Matrix &A, Matrix &Ainv_, Matrix &R,
   struct LOC_GDiag V;
   int j;
   double x1, x2;
-  Vector wr, wi, eta;
+  psVector wr, wi, eta;
   Matrix fm, B, Binv;
 
   V.n = n_; V.Ainv = &Ainv_; InitJJ(V);
@@ -596,7 +596,7 @@ void GDiag(int n_, double C, Matrix &A, Matrix &Ainv_, Matrix &R,
 }
 
 /****************************************************************************/
-/* Local void eswap(Matrix &t6a, Vector &lamr, Vector &lami, Matrix &r,
+/* Local void eswap(Matrix &t6a, psVector &lamr, psVector &lami, Matrix &r,
                  int i3, int j3)
 
    Purpose: called by NormEigenVec
@@ -621,7 +621,7 @@ void GDiag(int n_, double C, Matrix &A, Matrix &Ainv_, Matrix &R,
        none
 
 ****************************************************************************/
-static void eswap(Matrix &t6a, Vector &lamr, Vector &lami, Matrix &r,
+static void eswap(Matrix &t6a, psVector &lamr, psVector &lami, Matrix &r,
                   int i3, int j3)
 {
   double xx;
@@ -667,7 +667,7 @@ static void eswap(Matrix &t6a, Vector &lamr, Vector &lami, Matrix &r,
 }
 
 /*****************************************************************************/
-/* void NormEigenVec(Matrix &Vr, Matrix &Vi, Vector &wr, Vector &wi, Matrix &t6a)
+/* void NormEigenVec(Matrix &Vr, Matrix &Vi, psVector &wr, psVector &wi, Matrix &t6a)
 
    Purpose:  called by GetEmittance
        Sort and normalize complex eigenvectors (Vr, Vi)
@@ -695,7 +695,7 @@ static void eswap(Matrix &t6a, Vector &lamr, Vector &lami, Matrix &r,
        30/12/02 label 150 removed
 
 ****************************************************************************/
-void NormEigenVec(Matrix &Vr,Matrix &Vi, Vector &wr, Vector &wi, Matrix &t6a)
+void NormEigenVec(Matrix &Vr,Matrix &Vi, psVector &wr, psVector &wi, Matrix &t6a)
 {
   Matrix r;
   double rn,sqrn;

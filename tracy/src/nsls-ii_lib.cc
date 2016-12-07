@@ -3805,7 +3805,7 @@ void mom_aper(double &delta, double delta_RF, const long int k,
   int       j;
   long int  lastpos;
   double    delta_min, delta_max;
-  Vector    x;
+  psVector    x;
 
   const double  eps = 1e-4;
 
@@ -4610,7 +4610,7 @@ double get_dynap(const double delta, const bool cod)
 }
 
 
-double get_chi2(long int n, double x[], double y[], long int m, Vector b)
+double get_chi2(long int n, double x[], double y[], long int m, psVector b)
 {
   /* Compute chi2 for polynomial fit */
 
@@ -4628,7 +4628,7 @@ double get_chi2(long int n, double x[], double y[], long int m, Vector b)
 }
 
 
-void pol_fit(int n, double x[], double y[], int order, Vector &b,
+void pol_fit(int n, double x[], double y[], int order, psVector &b,
 	     double &sigma, const bool prt)
 {
   /* Polynomial fit by linear chi-square */
@@ -4671,7 +4671,7 @@ void get_ksi2(const double d_delta)
 
   int       i, n;
   double    delta[2*n_points+1], nu[2][2*n_points+1], sigma;
-  Vector    b;
+  psVector    b;
   FILE      *fp;
 
   fp = file_write("chrom2.out");
@@ -4727,7 +4727,7 @@ bool get_nu(const double Ax, const double Ay, const double delta,
   long int  lastpos, lastn, n;
   double    x[n_turn], px[n_turn], y[n_turn], py[n_turn];
   double    nu[2][n_peaks], A[2][n_peaks];
-  Vector    x0;
+  psVector    x0;
   FILE      *fp;
 
   const bool   prt = false;
@@ -4771,7 +4771,7 @@ void dnu_dA(const double Ax_max, const double Ay_max, const double delta,
   bool      ok;
   int       i;
   double    nu_x, nu_y, Ax, Ay, Jx, Jy;
-  Vector    ps;
+  psVector    ps;
   FILE      *fp;
 
   const double  A_min  = 0.1e-3;
@@ -4939,7 +4939,7 @@ void get_alphac2(void)
   int       i, j, n;
   long int  lastpos;
   double    delta[2*n_points+1], alphac[2*n_points+1], sigma;
-  Vector    x, b;
+  psVector    x, b;
   CellType  Cell;
 
   globval.pathlength = false;
@@ -4962,7 +4962,7 @@ void get_alphac2(void)
 double f_bend(double b0L[])
 {
   long int lastpos;
-  Vector   ps;
+  psVector   ps;
 
   const int   n_prt = 10;
 
@@ -4991,7 +4991,7 @@ void bend_cal_Fam(const int Fnum)
 
   int    iter;
   double *b0L, **xi, fret;
-  Vector ps;
+  psVector ps;
 
   const double ftol = 1e-15;
 

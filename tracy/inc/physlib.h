@@ -54,7 +54,7 @@ void printglob(void);
 
 void printlatt(void);
 
-void PrintMat(long n, Vector *A);
+void PrintMat(long n, psVector *A);
 
 void PrintVec(long n, double *X);
 
@@ -89,7 +89,7 @@ void FitDisp(long q, long  pos, double eta);
 
 void inibump(long coh, long cov);
 
-void getfloqs(Vector &x);
+void getfloqs(psVector &x);
 
 void track(const char* file_name,
 	   double ic1, double ic2, double ic3, double ic4, double dp,
@@ -272,8 +272,8 @@ void computeFandJS(double *x, int n, double **fjac, double *fvect);
 void Newton_RaphsonS(int ntrial, double x[], int n, double tolx);
 // double precision
 void findcod(double dP);
-void computeFandJ(int n, double *x, Vector *fjac, double *fvect);
-int Newton_Raphson(int n, Vector &x, int ntrial, double tolx);
+void computeFandJ(int n, double *x, psVector *fjac, double *fvect);
+int Newton_Raphson(int n, psVector &x, int ntrial, double tolx);
 
 /* Vacuum chamber */
 void PrintCh(void);

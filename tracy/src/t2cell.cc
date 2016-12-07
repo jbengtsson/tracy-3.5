@@ -170,7 +170,7 @@ void GtoL_dP(Matrix &mat, Vector2 &dT)
 {
   long     k = 0;
   Vector2  dS0;
-  Vector   x;
+  psVector   x;
 
   dS0[0] = 0e0; dS0[1] = 0e0;
 

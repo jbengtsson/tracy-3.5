@@ -52,7 +52,7 @@ double dsign(double x, double y)
 /* Implementation */
 
 /****************************************************************************/
-/* void ETY(int n, int low, int high, Matrix &a, Vector &ort)
+/* void ETY(int n, int low, int high, Matrix &a, psVector &ort)
 
    Purpose:
         this subroutine is a translation of the algol procedure orthes,
@@ -107,7 +107,7 @@ double dsign(double x, double y)
        none
 
 ****************************************************************************/
-void ETY(int n, int low, int high, Matrix &a, Vector &ort)
+void ETY(int n, int low, int high, Matrix &a, psVector &ort)
 {
   int    i, j, m, ii, jj, la, mp, kp1;
   double  f, g, h, scale;
@@ -190,7 +190,7 @@ void ETY(int n, int low, int high, Matrix &a, Vector &ort)
 
 
 /****************************************************************************/
-/* void ETYT(int n, int low, int high, Matrix &a, Vector &ort, Matrix &z)
+/* void ETYT(int n, int low, int high, Matrix &a, psVector &ort, Matrix &z)
 
    Purpose:
         this subroutine is a translation of the algol procedure ortrans,
@@ -250,7 +250,7 @@ void ETY(int n, int low, int high, Matrix &a, Vector &ort)
        none
 
 ****************************************************************************/
-void ETYT(int n, int low, int high, Matrix &a, Vector &ort, Matrix &z)
+void ETYT(int n, int low, int high, Matrix &a, psVector &ort, Matrix &z)
 {
   int i, j, kl, mm, mp, mp1;
   double g;
@@ -322,7 +322,7 @@ int min0(int i, int j)
 }
 
 /****************************************************************************/
-/* void etdiv(Vector &a, Vector &b, double c, double d,
+/* void etdiv(psVector &a, psVector &b, double c, double d,
                  double e, double f)
 
    Purpose:
@@ -402,8 +402,8 @@ void etdiv(double *a, double *b, double c, double d, double e, double f)
 
 
 /****************************************************************************/
-/* void ety2(int n, int low, int high, Matrix &h, Vector &wr,
-          Vector &wi, Matrix &z, int *ierr)
+/* void ety2(int n, int low, int high, Matrix &h, psVector &wr,
+          psVector &wi, Matrix &z, int *ierr)
 
    Purpose:
         this subroutine is a translation of the algol procedure hqr2,
@@ -489,8 +489,8 @@ void etdiv(double *a, double *b, double c, double d, double e, double f)
        none
 
 ****************************************************************************/
-void ety2(int n, int low, int high, Matrix &h, Vector &wr,
-          Vector &wi, Matrix &z, int &ierr)
+void ety2(int n, int low, int high, Matrix &h, psVector &wr,
+          psVector &wi, Matrix &z, int &ierr)
 {
   int i, j, k, l = 0, m = 0, en, ii, jj, ll, mm, na, nn, its, mp2, enm2;
   double p = 0.0, q = 0.0, r = 0.0, s = 0.0, t, w, x, y, ra, sa, vi, vr, zz = 0.0, norm;

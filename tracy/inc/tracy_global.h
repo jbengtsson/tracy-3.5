@@ -15,7 +15,7 @@ typedef struct globvalrec {
                 CODimax;         /* maximum number of cod search before
 				    failing */
   double        CODeps;          // precision for closed orbit finder
-  Vector        CODvect;         // closed orbit
+  psVector        CODvect;         // closed orbit
   int           bpm;             // bpm number
   int           hcorr;           // horizontal corrector number
   int           vcorr;           // vertical corrector number
@@ -48,7 +48,7 @@ typedef struct globvalrec {
   bool          IBS;             // intrabeam scattering
   double        Qb,              // bunch charge
                 D_IBS[DOF];      // diffusion matrix (Floquet space)
-  Vector        wr, wi;          // real and imaginary part of eigenvalues
+  psVector        wr, wi;          // real and imaginary part of eigenvalues
   double        eps[DOF],        // 3 motion invariants
 		epsp[DOF],       /* transverse and longitudinal projected
 				   emittances */
@@ -254,7 +254,7 @@ struct CellType {
                    Alpha,       // Alpha functions (redundant)
                    Beta,        // beta fonctions (redundant)
                    Eta, Etap;   // dispersion and its derivative (redundant)
-  Vector           BeamPos;     // Last position of the beam this cell
+  psVector           BeamPos;     // Last position of the beam this cell
   Matrix           A,           // Floquet space to phase space transformation
                    sigma;       // sigma matrix (redundant)
   Vector2          maxampl[PLANES]; /* Horizontal and vertical physical

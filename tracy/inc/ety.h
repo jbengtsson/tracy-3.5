@@ -8,12 +8,12 @@
 
 */
 
-void ETY(int n, int low, int high, Matrix &a, Vector &ort);
+void ETY(int n, int low, int high, Matrix &a, psVector &ort);
 
-void ETYT(int n, int low, int high, Matrix &a, Vector &ort,
+void ETYT(int n, int low, int high, Matrix &a, psVector &ort,
                  Matrix &z);
 
-void ety2(int n, int low, int high, Matrix &h, Vector &wr,
-	  Vector &wi, Matrix &z, int &ierr);
+void ety2(int n, int low, int high, Matrix &h, psVector &wr,
+	  psVector &wi, Matrix &z, int &ierr);
 
 

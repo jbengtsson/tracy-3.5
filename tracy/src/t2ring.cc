@@ -145,8 +145,8 @@ void Cell_Geteta(long i0, long i1, bool ring, double dP)
 {
   long int  i = 0, lastpos = 0;
   int       j = 0, k = 0;
-  Vector    xref;
-  Vector    codbuf[Cell_nLocMax+1];
+  psVector    xref;
+  psVector    codbuf[Cell_nLocMax+1];
   CellType  *cellp;
 
   /* cod for the energy dP - globval.dPcommon / 2e0 */
@@ -659,7 +659,7 @@ void Ring_Fittune(Vector2 &nu, double eps, iVector2 &nq, long qf[], long qd[],
 
   int      i, j, k;
   Vector2  nu0, nu1;
-  Vector  dkL1, dnu;
+  psVector  dkL1, dnu;
   Matrix A;
 
   if (setjmp(V._JL999)) return;
@@ -749,7 +749,7 @@ void Ring_Fitchrom(Vector2 &ksi, double eps, iVector2 &ns,
   long int  lastpos;
   int       i, j, k;
   Vector2   ksi0;
-  Vector    dkpL1, dksi;
+  psVector    dkpL1, dksi;
   Matrix    A;
 
   if (trace)

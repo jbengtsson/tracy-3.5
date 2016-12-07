@@ -9,4 +9,4 @@
 */
 
 void geigen(int n, Matrix &fm, Matrix &Vre, Matrix &Vim,
-	    Vector &wr, Vector &wi);
+	    psVector &wr, psVector &wi);

@@ -245,8 +245,8 @@ template<typename T> class ss_vect {
 };
 
 
-typedef ss_vect<double>  Vector;
-typedef Vector           Matrix[ss_dim];
+typedef ss_vect<double>  psVector;
+typedef psVector         Matrix[ss_dim];
 
 
 typedef struct MNF_struct

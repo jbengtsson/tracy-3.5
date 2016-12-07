@@ -331,7 +331,7 @@ void FitDisp(long q, long pos, double eta)
 
 #define nfloq           4
 
-void getfloqs(Vector &x)
+void getfloqs(psVector &x)
 {
   // Transform to Floquet space
   LinTrans(nfloq, globval.Ascrinv, x);
@@ -360,7 +360,7 @@ void track(const char *file_name,
   */
   long int   i;
   double     twoJx, twoJy, phix, phiy, scl_1 = 1.0, scl_2 = 1.0;
-  Vector     x0, x1, x2, xf;
+  psVector     x0, x1, x2, xf;
   FILE       *outf;
 
   bool  prt = false;
@@ -494,7 +494,7 @@ void track(const char *file_name,
 void track_(double r, struct LOC_getdynap *LINK)
 {
   long i, lastn, lastpos;
-  Vector x;
+  psVector x;
 
   x[0] = r * cos(LINK->phi);
   x[1] = px;
@@ -560,7 +560,7 @@ void track_(double r, struct LOC_getdynap *LINK)
 void Trac(double x, double px, double y, double py, double dp, double ctau,
           long nmax, long pos, long &lastn, long &lastpos, FILE *outf1)
 {
-  Vector x1;     /* tracking coordinates */
+  psVector x1;     /* tracking coordinates */
 
   /* Compute closed orbit : usefull if insertion devices */
 
@@ -630,7 +630,7 @@ bool chk_if_lost(double x0, double y0, double delta,
 		 long int nturn, bool floqs)
 {
   long int  i, lastn, lastpos;
-  Vector    x;
+  psVector    x;
 
   bool  prt = false;
 
@@ -2264,7 +2264,7 @@ void Read_Lattice(const char *fic)
   int      i;
   double   dP = 0.0;
   Vector2  beta, alpha, eta, etap;
-  Vector   codvect;
+  psVector   codvect;
 
   const double RFacceptance = 0.060001; // soleil energy acceptance
 
@@ -2549,7 +2549,7 @@ void ttwiss(const Vector2 &alpha, const Vector2 &beta,
 void findcodS(double dP)
 {
   double        *vcod;
-  Vector       x0;
+  psVector       x0;
   const int    ntrial = 40;  // maximum number of trials for closed orbit
   const double  tolx = 1e-8;  // numerical precision
   int          k;
@@ -2631,7 +2631,7 @@ void findcodS(double dP)
 ****************************************************************************/
 void findcod(double dP)
 {
-  Vector        vcod;
+  psVector        vcod;
   const int     ntrial = 40;  // maximum number of trials for closed orbit
   const double  tolx = 1e-10;  // numerical precision
   int           k, dim = 0;
@@ -2705,7 +2705,7 @@ void computeFandJS(double *x, int n, double **fjac, double *fvect)
 {
   int     i, k;
   long    lastpos = 0L;
-  Vector  x0, fx, fx1, fx2;
+  psVector  x0, fx, fx1, fx2;
 
   const double deps = 1e-8;  //stepsize for numerical differentiation
 
@@ -2776,11 +2776,11 @@ void computeFandJS(double *x, int n, double **fjac, double *fvect)
        none
 
 ****************************************************************************/
-void computeFandJ(int n, Vector &x, Matrix &fjac, Vector &fvect)
+void computeFandJ(int n, psVector &x, Matrix &fjac, psVector &fvect)
 {
   int     i, k;
   long    lastpos = 0;
-  Vector  x0, fx1, fx2;
+  psVector  x0, fx1, fx2;
 
   const double deps = 1e-8;  //stepsize for numerical differentiation
 
@@ -2955,11 +2955,11 @@ void Newton_RaphsonS(int ntrial, double x[], int n, double tolx)
        none
 
 ****************************************************************************/
-int Newton_Raphson (int n, Vector &x, int ntrial, double tolx)
+int Newton_Raphson (int n, psVector &x, int ntrial, double tolx)
 {
   int k,  i;
   double  errx;
-  Vector  bet, fvect;
+  psVector  bet, fvect;
   Matrix  alpha;
 
   errx = 0.0;

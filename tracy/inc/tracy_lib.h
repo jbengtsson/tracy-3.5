@@ -29,9 +29,10 @@
 #include <fstream>
 #include <string>
 
+//#undef max
 #include <vector>
 
-//using namespace std;
+using namespace std;
 
 // Tracy-3
 #include "field.h"

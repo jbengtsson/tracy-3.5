@@ -78,7 +78,7 @@ extern "C" {
 		    long ndl, long ndh);
   double ***df3tensor(long nrl, long nrh, long ncl, long nch, 
 		      long ndl, long ndh);
-  void free_vector(float *v, long nl, long nh);
+//  void free_vector(float *v, long nl, long nh);
   void free_ivector(int *v, long nl, long nh);
   void free_cvector(unsigned char *v, long nl, long nh);
   void free_lvector(unsigned long *v, long nl, long nh);

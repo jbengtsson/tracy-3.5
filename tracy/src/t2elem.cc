@@ -2362,10 +2362,10 @@ double Elem_GetKval(int Fnum1, int Knum1, int Order)
 
 
 #define n               4
-void LinsTrans(Matrix &A, Vector &b)
+void LinsTrans(Matrix &A, psVector &b)
 {
   int     j;
-  Vector  c;
+  psVector  c;
 
   CopyVec(n, b, c); /* c=b */
   LinTrans(n, A, c); /* c<-A*c */

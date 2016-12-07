@@ -93,14 +93,14 @@ void Get_Disp_dp(void)
 ****************************************************************************/
 void InducedAmplitude(long spos)
 {
-  Vector        x1;     /* tracking coordinates */
+  psVector        x1;     /* tracking coordinates */
   long          i = 0L, k = 0L, imax = 50;
   FILE *        outf;
   double        dP = 0.0, dP20 = 0.0, dpmax = 0.06;
   Vector2       H = {0.0, 0.0};
   const char    nomfic[] = "amp_ind.out";
   CellType      Celldebut, Cell;
-  Vector        codvector[Cell_nLocMax];
+  psVector        codvector[Cell_nLocMax];
 
   globval.Cavity_on  = false;    /* Cavity on/off */
   globval.radiation  = false;    /* radiation on/off */
@@ -521,7 +521,7 @@ void Trac_Tab(double x, double px, double y, double py, double dp,
 	      double Tx[][NTURN])
 {
   bool lostF = true; /* Lost particle Flag */
-  Vector x1;            /* tracking coordinates */
+  psVector x1;            /* tracking coordinates */
   long i;
   Vector2  aperture;
   aperture[0] = 1e0; aperture[1] = 1e0;
@@ -1224,7 +1224,7 @@ void PhasePoly(long pos, double x0,double px0, double z0, double pz0, double del
   double      x, z, px, pz, delta, ctau;
   double      ex = 1368E-9, el = 1.78E-4;
   double      betax = 9.0, /*betaz = 8.2, */betal = 45.5;
-  Vector      xsynch;
+  psVector      xsynch;
   int         nx = 1, ne = 400;
   struct tm   *newtime;
 
@@ -1411,7 +1411,7 @@ void PhasePortrait(double x0,double px0,double z0, double pz0, double delta0,
 ****************************************************************************/
 void Check_Trac(double x, double px, double y, double py, double dp)
 {
-  Vector x1;             /* Tracking coordinates */
+  psVector x1;             /* Tracking coordinates */
   long lastpos = globval.Cell_nLoc;
   FILE *outf;
   const char fic[] = "check_ampl.out";
@@ -1466,7 +1466,7 @@ void Check_Trac(double x, double px, double y, double py, double dp)
 ****************************************************************************/
 void Enveloppe(double x, double px, double y, double py, double dp, double nturn)
 {
-  Vector x1; /* Tracking coordinates */
+  psVector x1; /* Tracking coordinates */
   long lastpos = globval.Cell_nLoc;
   FILE *outf;
   const char fic[] = "enveloppe.out";
@@ -2107,14 +2107,14 @@ void MomentumAcceptance(long deb, long fin, double ep_min, double ep_max,
   long          i = 0L, j = 0L, pos = 0L;
   CellType      Cell, Clost;
   double        x = 0.0, px = 0.0, z = 0.0, pz = 0.0, ctau0 = 0.0, delta = 0.0;
-  Vector         x0;
+  psVector         x0;
   const long    nturn = 1000L;
   FILE          *outf2, *outf1;
   // Nonzero vertical amplitude
   const double  zmax = 0.3e-3; // 0.3 mm at the ring entrance (element 1)
   double        **tabz0, **tabpz0;
   struct tm     *newtime;  // for time
-  Vector        codvector[Cell_nLocMax];
+  psVector        codvector[Cell_nLocMax];
   bool          cavityflag, radiationflag;
   
   x0.zero();
@@ -2459,11 +2459,11 @@ void MomentumAcceptance(long deb, long fin, double ep_min, double ep_max,
        Does not work for a transfer line
 
 ****************************************************************************/
-void set_vectorcod(Vector  codvector[], double dP)
+void set_vectorcod(psVector  codvector[], double dP)
 {
   long      k = 0;
   CellType  Cell;
-  Vector    zerovector;
+  psVector    zerovector;
 
   zerovector.zero();
   
@@ -2657,7 +2657,7 @@ void spectrum(long Nbx, long Nbz, long Nbtour, double xmax, double zmax,
 void TracCO(double x, double px, double y, double py, double dp, double ctau,
 	    long nmax, long pos, long &lastn, long &lastpos, FILE *outf1)
 {
-  Vector x1;     /* tracking coordinates */
+  psVector x1;     /* tracking coordinates */
   CellType Cell;
 
   /* Get closed orbit */
@@ -3148,7 +3148,7 @@ void Phase3(long pos, double x,double px,double y, double py,double energy,
   const char  *fic="phase3.out";
   long        lastpos = 0,lastn = 0;
   struct tm   *newtime;
-  Vector      x1;
+  psVector      x1;
   
   /* Get time and date */
   newtime = GetTime();
@@ -3479,7 +3479,7 @@ double EnergyDrift(double *X)
 ****************************************************************************/
 void Enveloppe2(double x, double px, double y, double py, double dp, double nturn)
 {
-  Vector x1; /* Tracking coordinates */
+  psVector x1; /* Tracking coordinates */
   long lastpos = globval.Cell_nLoc;
   FILE *outf;
   const char fic[] = "enveloppe2.out";

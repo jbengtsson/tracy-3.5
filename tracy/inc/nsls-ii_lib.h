@@ -313,9 +313,9 @@ void get_bn(const char file_name[], int n, const bool prt);
 
 double get_dynap(const double delta, const bool cod);
 
-double get_chi2(long int n, double x[], double y[], long int m, Vector b);
+double get_chi2(long int n, double x[], double y[], long int m, psVector b);
 
-void pol_fit(int n, double x[], double y[], int order, Vector &b,
+void pol_fit(int n, double x[], double y[], int order, psVector &b,
 	     double &sigma, const bool prt);
 
 void get_ksi2(const double d_delta);

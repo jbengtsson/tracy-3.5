@@ -15,7 +15,7 @@ void Hfonction(long pos, double dP,Vector2 H);
 void Hcofonction(long pos, double dP,Vector2 H);
 void Get_Disp_dp(void);
 void read_corrh(void);
-void set_vectorcod(Vector codvector[], double dP);
+void set_vectorcod(psVector codvector[], double dP);
 void SetDecapole(void);
 
 /* Tracking */

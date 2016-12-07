@@ -35,17 +35,17 @@ double normranf(void);
 double dtor(const double d);
 double GetAngle(const double x, const double y);
 
-void CopyVec(const int n, const Vector &a, Vector &b);
-void AddVec(const int n, const Vector &a, Vector &b);
-void SubVec(const int n, const Vector &a, Vector &b);
-double xabs(long n, Vector &x);
+void CopyVec(const int n, const psVector &a, psVector &b);
+void AddVec(const int n, const psVector &a, psVector &b);
+void SubVec(const int n, const psVector &a, psVector &b);
+double xabs(long n, psVector &x);
 
 void UnitMat(const int n, Matrix &a);
 void ZeroMat(const int n, Matrix &a);
 void CopyMat(const int n, const Matrix &a, Matrix &b);
 void AddMat(const int n, const Matrix &a, Matrix &b);
 void SubMat(const int n, const Matrix &a, Matrix &b);
-void LinTrans(const int n, const Matrix &a, Vector &x);
+void LinTrans(const int n, const Matrix &a, psVector &x);
 void MulcMat(const int n, const double c, Matrix &A);
 void MulLMat(const int n, const Matrix &a, Matrix &b);
 void MulRMat(const int n, Matrix &a, const Matrix &b);

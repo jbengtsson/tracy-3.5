@@ -34,4 +34,4 @@ void Ring_FitDisp(long pos, double eta, double eps, long nq, long q[],
 
 
 void TransTrace(long i0, long i1, Vector2 &alpha, Vector2 &beta, Vector2 &eta,
-                Vector2 &etap, Vector &codvect);
+                Vector2 &etap, psVector &codvect);

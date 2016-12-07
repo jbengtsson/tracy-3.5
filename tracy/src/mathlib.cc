@@ -115,7 +115,7 @@ double GetAngle(const double x, const double y)
 }
 
 
-void CopyVec(const int n, const Vector &a, Vector &b)
+void CopyVec(const int n, const psVector &a, psVector &b)
 {
   int i;
 
@@ -124,7 +124,7 @@ void CopyVec(const int n, const Vector &a, Vector &b)
 }
 
 
-void AddVec(const int n, const Vector &a, Vector &b)
+void AddVec(const int n, const psVector &a, psVector &b)
 {
   int i;
   for (i = 0; i < n; i++)
@@ -132,7 +132,7 @@ void AddVec(const int n, const Vector &a, Vector &b)
 }
 
 
-void SubVec(int n, const Vector &a, Vector &b)
+void SubVec(int n, const psVector &a, psVector &b)
 {
   int i;
 
@@ -141,7 +141,7 @@ void SubVec(int n, const Vector &a, Vector &b)
 }
 
 
-double xabs(long n, Vector &x)
+double xabs(long n, psVector &x)
 {
   long    i;
   double  sum;
@@ -207,10 +207,10 @@ void SubMat(const int n, const Matrix &a, Matrix &b)
 }
 
 
-void LinTrans(const int n, const Matrix &a, Vector &x)
+void LinTrans(const int n, const Matrix &a, psVector &x)
 {
   int i, j;
-  Vector y;
+  psVector y;
 
   for (i = 0; i < n; i++) {
     y[i] = 0e0;

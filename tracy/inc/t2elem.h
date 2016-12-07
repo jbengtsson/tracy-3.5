@@ -110,7 +110,7 @@ void Wiggler_SetPB(int Fnum1, int Knum1, int Order);
 
 void MulLsMat(Matrix &A, Matrix &B);
 
-void LinsTrans(Matrix &A, Vector &b);
+void LinsTrans(Matrix &A, psVector &b);
 
 
 void Drift_Alloc(elemtype *Elem);
