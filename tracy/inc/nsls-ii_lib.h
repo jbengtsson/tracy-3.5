@@ -1,15 +1,13 @@
 // global params
 
-const int     max_elem = Cell_nLocMax;
+const int            max_elem = Cell_nLocMax;
 
-extern char   in_dir[];
-
-extern int n_aper, n_track;
+extern int           n_aper, n_track;
 
 extern ss_vect<tps>  map;
 extern MNF_struct    MNF;
 
-extern double chi_m;
+extern double        chi_m;
 
 
 const int N_Fam_max = 15, max_corr = 100, max_bpm = 200;
@@ -32,6 +30,8 @@ const int max_ID_Fams = 25;   // max no of ID families
 const double scl_nu = 1e2, scl_dbeta = 1.0, scl_dnu = 0.1, ID_step = 0.5;
 
 class param_data_type {
+ private:
+
  public:
   string ae_file, fe_file, ap_file, in_dir, lat_FileName;
 
@@ -134,7 +134,9 @@ class param_data_type {
 		    const int n_hcorr_Fam, const std::string hcorr_names[],
 		    const int n_vcorr_Fam, const std::string vcorr_names[],
 		    const bool svd);
+
   void Orb_and_Trim_Stat(void);
+
   void prt_codcor_lat(void);
 };
 
@@ -430,7 +432,8 @@ bool find_nu(const int n, const double nus[], const double eps, double &nu);
 bool get_nu(const double Ax, const double Ay, const double delta,
 	    double &nu_x, double &nu_y);
 
-void dnu_dA(const double Ax_max, const double Ay_max, const double delta, const int n_ampl);
+void dnu_dA(const double Ax_max, const double Ay_max, const double delta,
+	    const int n_ampl);
 
 bool orb_corr(const int n_orbit);
 
