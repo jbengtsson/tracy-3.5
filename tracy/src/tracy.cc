@@ -49,6 +49,9 @@
 #include "soleillib.cc"
 
 #include "nsls-ii_lib.cc"
+#include "param.cc"
+#include "orb_corr.cc"
+#include "dynap.cc"
 
 
 // Truncated Power Series Algebra (TPSA)
@@ -184,8 +187,8 @@ template void Solenoid_Pass(CellType &, ss_vect<double> &);
 
 template void Solenoid_Pass(CellType &, ss_vect<tps> &);
 
-template void LinearInterpolation2(double &, double &, double &, double &, double &,
-				   CellType &, bool &, int);
+template void LinearInterpolation2(double &, double &, double &, double &,
+				   double &, CellType &, bool &, int);
 
 template void LinearInterpolation2(tps &, tps &, tps &, tps &, tps &,
 				   CellType &, bool &, int);
