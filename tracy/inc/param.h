@@ -127,3 +127,6 @@ class param_data_type {
 
   void prt_codcor_lat(void);
 };
+
+void get_bn2(const string file_name1, const string file_name2, int n,
+	     const bool prt);
