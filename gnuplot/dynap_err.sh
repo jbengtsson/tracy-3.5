@@ -6,11 +6,11 @@ gnuplot << EOP
 
 ps = $prm1; eps = 0; phys_app = 0;
 
-if (!ps) set terminal x11;
-if (ps && !eps) \
-  set terminal postscript enhanced color solid lw 2 "Times-Roman" 20;
-if (ps && eps) \
-  set terminal postscript eps enhanced color solid lw 2 "Times-Roman" 20;
+if (ps == 0) set terminal x11;
+if (ps == 1) \
+  set terminal postscript eps enhanced color solid lw 2 "Times-Roman" 18;
+if (ps == 2) \
+  set terminal pdf enhanced color solid linewidth 2 font "Times-Roman, 18";
 
 set grid;
 
@@ -31,7 +31,8 @@ if (phys_app) \
   set arrow from  x_hat, y_hat to  x_hat,   0.0 nohead \
   lt 1 lw 1 lc rgb "black";
 
-if (ps) set output "dynap_err_1.ps"
+if (ps == 1) set output "dynap_err_1.eps"; \
+else if (ps == 2) set output "dynap_err_1.pdf"
 set title "Dynamic Aperture\n";
 set xlabel "x [mm]"; set ylabel "y [mm]";
 #set xrange [-20:20];
@@ -45,7 +46,8 @@ unset arrow;
 if (ps && !eps) \
   set terminal postscript portrait enhanced color solid lw 2 "Times-Roman" 20;
 
-if (ps) set output "dynap_err_2.ps"
+if (ps == 1) set output "dynap_err_2.eps"; \
+else if (ps == 2) set output "dynap_err_2.pdf"
 
 set multiplot;
 
@@ -68,7 +70,8 @@ plot "DA_bare.out" using 1:6 title "bare" with linespoints ls 2, \
 unset multiplot;
 if (!ps) pause mouse "click on graph to cont.\n";
 
-if (ps) set output "dynap_err_3.ps"
+if (ps == 1) set output "dynap_err_3.eps"; \
+else if (ps == 2) set output "dynap_err_3.pdf"
 
 set multiplot;
 
