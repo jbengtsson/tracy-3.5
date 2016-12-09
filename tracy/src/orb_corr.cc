@@ -11,7 +11,7 @@ std::vector<long int> get_elem(const long int i0, const long int i1,
     Fnum = ElemIndex(names[j]);
     for (k = 1; k <= GetnKid(Fnum); k++) {
       loc = Elem_GetPos(Fnum, k);
-      // if ((i0 <= loc) && (loc <= i1)) elems.push_back(loc);
+      if ((i0 <= loc) && (loc <= i1)) elems.push_back(loc);
     }
   }
 
