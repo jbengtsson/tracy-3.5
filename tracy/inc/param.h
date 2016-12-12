@@ -44,7 +44,10 @@ class param_data_type {
          VHweight      = 1e0;     // weight for coupling Vtrim horizontal BPM
 
   // Parameters for dynamic aperture
-  double  delta_DA_    = 5.0e-2;
+  int    n_track_DA    = 512,
+         n_aper_DA     = 15,
+         n_delta_DA    = 12;
+  double delta_DA      = 3e-2;
 
   // Parameters for frequency map
   // Note NTURN is set to 10000 (2*NTURN for diffusion)) in "naffutils.h".

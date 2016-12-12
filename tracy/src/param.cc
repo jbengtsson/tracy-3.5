@@ -59,7 +59,7 @@ void param_data_type::get_param(const string &param_file)
       } else if (strcmp("n_stat", name) == 0)
 	sscanf(line, "%*s %d", &n_stat);
       else if (strcmp("n_aper", name) == 0)
-	sscanf(line, "%*s %d", &n_aper);
+	sscanf(line, "%*s %d", &n_aper_DA);
       else if (strcmp("n_scale", name) == 0)
 	sscanf(line, "%*s %d", &n_scale);
       else if (strcmp("n_orbit", name) == 0)
@@ -88,9 +88,13 @@ void param_data_type::get_param(const string &param_file)
       } else if (strcmp("DA_bare", name) == 0) {
 	sscanf(line, "%*s %s", str);
 	DA_bare = (strcmp(str, "true") == 0)? true : false;
-      } else if (strcmp("delta", name) == 0) {
-	sscanf(line, "%*s %lf", &delta_DA_);
-      } else if (strcmp("freq_map", name) == 0) {
+      } else if (strcmp("n_track", name) == 0)
+	sscanf(line, "%*s %d", &n_track_DA);
+      else if (strcmp("n_delta", name) == 0)
+	sscanf(line, "%*s %d", &n_delta_DA);
+      else if (strcmp("delta", name) == 0)
+	sscanf(line, "%*s %lf", &delta_DA);
+      else if (strcmp("freq_map", name) == 0) {
 	sscanf(line, "%*s %s %d %d %d %d %lf %lf %lf",
 	       str, &n_x, &n_y, &n_dp, &n_tr,
 	       &x_max_FMA, &y_max_FMA, &delta_FMA);
