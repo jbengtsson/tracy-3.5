@@ -1532,7 +1532,41 @@ void param_data_type::ini_COD_corr(const int n_bpm_Fam,
 }
 
 
-// Finding statistics on orbit in the sextupoles and maximal trim settings
+bool param_data_type::cod_corr(const int n_cell, const double scl, const int k,
+			       orb_corr_type orb_corr[])
+{
+  bool            cod = false;
+  long int        lastpos;
+  ss_vect<double> ps;
+
+  // Load misalignments; set seed, no scaling of rms errors.
+  LoadAlignTol(false, 1e0, true, k);
+
+  if (bba) {
+    // Beam based alignment
+    Align_BPMs(Quad);
+  }
+
+  orb_corr[X_].clr_trims(); orb_corr[Y_].clr_trims();
+  
+  cod = getcod(0e0, lastpos);
+
+  if (!cod) {
+    orb_corr[X_].clr_trims(); orb_corr[Y_].clr_trims();
+    thread_beam(n_cell, "ls", bpm_Fam_names, corr_Fam_names,
+		n_orbit, scl);
+
+    // prt_cod("cod.out", globval.bpm, true);    
+  }
+
+  cod = cod_correct(n_orbit, scl, orb_corr);
+
+  prt_cod("cod.out", globval.bpm, true);    
+
+  return cod;
+}
+
+
 void param_data_type::Orb_and_Trim_Stat(void)
 {
   int     i, j, N;
@@ -1593,7 +1627,7 @@ void param_data_type::Orb_and_Trim_Stat(void)
 }
 
 
-void param_data_type::prt_codcor_lat(void)
+void param_data_type::prt_cod_corr_lat(void)
 {
   int   i;
   FILE  *CodCorLatFile;
@@ -1622,6 +1656,46 @@ void param_data_type::prt_codcor_lat(void)
             Cell[i].Nu[X_]-Cell[i].Nu[Y_]);
   }
   fclose(CodCorLatFile);
+}
+
+
+void param_data_type::err_and_corr_init(const string &param_file,
+					orb_corr_type orb_corr[])
+{
+  // Set state.
+  globval.Cavity_on   = false; globval.radiation = false;
+  globval.Aperture_on = false;
+
+  get_param(param_file);
+
+  Ring_GetTwiss(true, 0.0); printglob();
+
+  // Store optics function values at sextupoles.
+  get_bare();
+
+  globval.Cavity_on = false;
+
+  if (ae_file != "") {
+    if (bba) {
+      // Beam based alignment
+      Align_BPMs(Quad);
+    }
+
+    cod_ini(bpm_Fam_names, corr_Fam_names, orb_corr);
+  }
+
+  if (n_lin > 0) ini_skew_cor(disp_wave_y);
+}
+
+
+void param_data_type::err_and_corr_exit(orb_corr_type orb_corr[])
+{
+  int j;
+
+  if (ae_file != "") {
+    for (j = 0; j < 2; j++)
+      orb_corr[j].dealloc();
+  }
 }
 
 
@@ -1707,5 +1781,3 @@ void get_bn2(const string file_name1, const string file_name2, int n,
 
   fclose(inf); fclose(fp_lat);
 }
-
-

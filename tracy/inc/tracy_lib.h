@@ -67,8 +67,8 @@ using namespace std;
 
 #include "physlib.h"
 #include "nsls-ii_lib.h"
-#include "param.h"
 #include "orb_corr.h"
+#include "param.h"
 #include "dynap.h"
 
 #include "lsoc.h"

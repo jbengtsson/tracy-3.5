@@ -237,12 +237,9 @@ void DA_data_type::get_DA_real(param_data_type &params,
   for (j = 1; j <= params.n_stat; j++) {
     globval.Cavity_on = false;
 
-    if (params.fe_file != "")
-      params.LoadFieldErr(false, 1e0, true);
+    if (params.fe_file != "") params.LoadFieldErr(false, 1e0, true);
 
-    if (params.ae_file != "") {
-      cod = cod_correct(n_cell, params.n_orbit, scl, j, orb_corr, params);
-    }
+    if (params.ae_file != "") cod = params.cod_corr(n_cell, scl, j, orb_corr);
       
     // cod = CorrectCOD(n_orbit, 0.3);
 

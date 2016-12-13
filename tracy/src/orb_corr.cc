@@ -223,6 +223,19 @@ void codstat(double mean[], double sigma[], double xmax[], const long lastpos,
 }
 
 
+void cod_ini(const std::vector<string> &bpm_Fam_names,
+	     const std::vector<string> corr_Fam_names[],
+	     orb_corr_type orb_corr[])
+{
+  int j;
+
+  const double eps = 1e-4;
+
+  for (j = 0; j < 2; j++)
+    orb_corr[j].alloc(bpm_Fam_names, corr_Fam_names[j], j == 0, true, eps);
+}
+
+
 void thread_beam(const int n_cell, const string &Fam_name,
 		 const std::vector<string> &bpm_Fam_names,
 		 const std::vector<string> corr_Fam_names[],
@@ -286,19 +299,6 @@ void thread_beam(const int n_cell, const string &Fam_name,
 }
 
 
-void cod_ini(const std::vector<string> &bpm_Fam_names,
-	     const std::vector<string> corr_Fam_names[],
-	     orb_corr_type orb_corr[])
-{
-  int j;
-
-  const double eps = 1e-4;
-
-  for (j = 0; j < 2; j++)
-    orb_corr[j].alloc(bpm_Fam_names, corr_Fam_names[j], j == 0, true, eps);
-}
-
-
 bool cod_correct(const int n_orbit, const double scl, orb_corr_type orb_corr[])
 {
   bool     cod = false;
@@ -330,42 +330,6 @@ bool cod_correct(const int n_orbit, const double scl, orb_corr_type orb_corr[])
   codstat(mean, sigma, max, globval.Cell_nLoc, true, orb_corr[X_].bpms);
   printf("Corrected rms orbit (all):      x = %7.1e mm, y = %7.1e mm\n",
 	 1e3*sigma[X_], 1e3*sigma[Y_]);
-
-  return cod;
-}
-
-
-bool cod_correct(const int n_cell, const int n_orbit, const double scl,
-		 const int k, orb_corr_type orb_corr[],
-		 const param_data_type &params)
-{
-  bool            cod = false;
-  long int        lastpos;
-  ss_vect<double> ps;
-
-  // Load misalignments; set seed, no scaling of rms errors.
-  params.LoadAlignTol(false, 1e0, true, k);
-
-  if (params.bba) {
-    // Beam based alignment
-    params.Align_BPMs(Quad);
-  }
-
-  orb_corr[X_].clr_trims(); orb_corr[Y_].clr_trims();
-  
-  cod = getcod(0e0, lastpos);
-
-  if (!cod) {
-    orb_corr[X_].clr_trims(); orb_corr[Y_].clr_trims();
-    thread_beam(n_cell, "ls", params.bpm_Fam_names, params.corr_Fam_names,
-		n_orbit, scl);
-
-    // prt_cod("cod.out", globval.bpm, true);    
-  }
-
-  cod = cod_correct(n_orbit, scl, orb_corr);
-
-  prt_cod("cod.out", globval.bpm, true);    
 
   return cod;
 }

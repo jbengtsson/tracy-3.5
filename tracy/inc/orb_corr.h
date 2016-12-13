@@ -37,9 +37,5 @@ void cod_ini(const std::vector<string> &bpm_Fam_names,
 	     const std::vector<string> corr_Fam_names[],
 	     orb_corr_type orb_corr[]);
 
-bool cod_correct(const int n_orbit, const double scl, orb_corr_type orb_corr[]);
-
-bool cod_correct(const int n_cell, const int n_orbit, const double scl,
-		 const int k, orb_corr_type orb_corr[],
-		 const param_data_type &params);
-
+bool cod_correct(const int n_orbit, const double scl,
+		 orb_corr_type orb_corr[]);

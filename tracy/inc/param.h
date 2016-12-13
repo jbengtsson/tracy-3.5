@@ -126,9 +126,16 @@ class param_data_type {
 		    const int n_vcorr_Fam, const std::string vcorr_names[],
 		    const bool svd);
 
+  bool cod_corr(const int n_cell, const double scl, const int k,
+		orb_corr_type orb_corr[]);
+
   void Orb_and_Trim_Stat(void);
 
-  void prt_codcor_lat(void);
+  void prt_cod_corr_lat(void);
+
+  void err_and_corr_init(const string &param_file, orb_corr_type orb_corr[]);
+
+ void err_and_corr_exit(orb_corr_type orb_corr[]);
 };
 
 void get_bn2(const string file_name1, const string file_name2, int n,
