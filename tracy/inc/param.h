@@ -25,7 +25,7 @@ class param_data_type {
 
   bool   DA_bare       = false,
          freq_map      = false;
-  int    n_orbit       = 3,
+  int    n_orbit       = 5,
          n_scale       = 1;
 
   int    n_lin         =  3,
