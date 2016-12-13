@@ -1670,14 +1670,12 @@ void param_data_type::err_and_corr_init(const string &param_file,
 
   Ring_GetTwiss(true, 0.0); printglob();
 
-  // Store optics function values at sextupoles.
   get_bare();
 
   globval.Cavity_on = false;
 
   if (ae_file != "") {
     if (bba) {
-      // Beam based alignment
       Align_BPMs(Quad);
     }
 
