@@ -13,5 +13,6 @@ config.h
 config.status
 config.log
 aclocal.m4
+config/
 *.Po
 *.*~
