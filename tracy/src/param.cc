@@ -1662,7 +1662,6 @@ void param_data_type::prt_cod_corr_lat(void)
 void param_data_type::err_and_corr_init(const string &param_file,
 					orb_corr_type orb_corr[])
 {
-  // Set state.
   globval.Cavity_on   = false; globval.radiation = false;
   globval.Aperture_on = false;
 
@@ -1671,8 +1670,6 @@ void param_data_type::err_and_corr_init(const string &param_file,
   Ring_GetTwiss(true, 0.0); printglob();
 
   get_bare();
-
-  globval.Cavity_on = false;
 
   if (ae_file != "") {
     if (bba) {
