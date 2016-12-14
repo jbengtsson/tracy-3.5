@@ -131,7 +131,8 @@ i33    = floor(3.0*nu_x_min+3.0*nu_y_max) + 1;
 
 set urange [nu_x_min:nu_x_max]; set vrange [nu_y_min:nu_y_max];
 
-if (ps) set output "fmap_1.ps"
+if (ps == 1) set output "fmap_1.eps"; \
+else if (ps == 2) set output "fmap_1.pdf"
 
 set multiplot;
 
@@ -228,7 +229,8 @@ splot "fmap.out" using 1:2:((\$7 != -2.0)? \$7 : NaN) notitle lt palette z;
 unset multiplot;
 if (!ps) pause mouse "click on graph to cont.\n";
 
-if (ps) set output "fmap_2.ps"
+if (ps == 1) set output "fmap_2.eps"; \
+else if (ps == 2) set output "fmap_2.pdf"
 
 set multiplot;
 
