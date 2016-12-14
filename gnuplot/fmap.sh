@@ -2,12 +2,11 @@
 
 prm1=${1-1}
 prm2=${2-0}
-prm3=${3-1}
-prm4=${4-1}
+prm4=${3-1}
 
 gnuplot << EOP
 
-ps = $prm2; set_scl = $prm4;
+ps = $prm2;
 
 font_size = 24; line_width = 2;
 
@@ -18,25 +17,15 @@ else if (ps == 2) \
   set terminal pdf enhanced color solid linewidth 2 font "Times-Roman, 18";
 
 if ($prm1 == 1) \
-  N = 1; N_x = 33; N_y = 16; \
-else if ($prm1 == 3) \
-  N = 3; N_x = 11; N_y = 5; \
-else if ($prm1 == 15) \
-  N = 15; N_x = 2; N_y = 1
+  N = 1; N_x = 101; N_y = 27; \
+else if ($prm1 == 20) \
+  N = 20; N_x = 6; N_y = 1;
 
-#nu_x_min = 32.99; nu_x_max = 33.26; nu_y_min = 15.99; nu_y_max = 16.26;
-#nu_x_min = 32.99; nu_x_max = 33.26; nu_y_min = 16.24; nu_y_max = 16.51;
-#nu_x_min = 32.99; nu_x_max = 33.26; nu_y_min = 15.99; nu_y_max = 16.51;
-#nu_x_min = 32.99; nu_x_max = 33.31; nu_y_min = 15.99; nu_y_max = 16.51;
-nu_x_min = 32.99; nu_x_max = 33.51; nu_y_min = 15.99; nu_y_max = 16.51;
-#nu_x_min = 32.99; nu_x_max = 33.16; nu_y_min = 16.1; nu_y_max = 16.26;
+#nu_x_min = 32.99; nu_x_max = 33.51; nu_y_min = 15.99; nu_y_max = 16.51;
+nu_x_min = 101.1; nu_x_max = 101.52; nu_y_min = 27.0; nu_y_max = 27.6;
 
-if ($prm3 == 1) \
-  x_min = -25.0; x_max = 25.0; y_min = -6.0; y_max = 6.0; \
-else if ($prm3 == 2) \
-  x_min = -20.0; x_max = 20.0; y_min = -3.5; y_max = 3.5;
-
-delta_min = -3.0; delta_max = 3.0;
+x_min = -2.0; x_max = 2.0; y_min = -2.0; y_max = 2.0; \
+delta_min = -3.1; delta_max = 3.1;
 
 set grid;
 
@@ -153,8 +142,7 @@ unset colorbox;
 set size 1.0, 0.5; set origin 0.0, 0.5;
 set title "Tune Shift";
 set xlabel "{/Symbol n}_x"; set ylabel "{/Symbol n}_y";
-if (set_scl) set xrange [nu_x_min:nu_x_max]; set yrange [nu_y_min:nu_y_max]; \
-else set autoscale x; set autoscale y; 
+set xrange [nu_x_min:nu_x_max]; set yrange [nu_y_min:nu_y_max]; 
 splot "fmap.out" using \
       ((abs(\$3-int(\$3)) > 1e-6)? N*(N_x+\$3) : NaN): \
       ((abs(\$4-int(\$4)) > 1e-6)? N*(N_y+\$4) : NaN):7 \
@@ -251,8 +239,7 @@ set colorbox;
 set size 1.0, 0.5; set origin 0.0, 0.5;
 set title "Tune Shift";
 set xlabel "{/Symbol n}_x"; set ylabel "{/Symbol n}_y";
-if (set_scl) set xrange [nu_x_min:nu_x_max]; set yrange [nu_y_min:nu_y_max]; \
-else set autoscale x; set autoscale y; 
+set xrange [nu_x_min:nu_x_max]; set yrange [nu_y_min:nu_y_max];
 splot "fmapdp.out" using \
       ((abs(\$3-int(\$3)) > 1e-6)? N*(N_x+\$3) : NaN): \
       ((abs(\$4-int(\$4)) > 1e-6)? N*(N_y+\$4) : NaN):7 \
@@ -332,7 +319,7 @@ unset colorbox;
 set origin 0.0, 0.0;
 set title "Diffusion Map";
 set xlabel "{/Symbol d} [%]"; set ylabel "A_x";
-set xrange [delta_min:delta_max]; set yrange [x_min:x_max]; \
+set xrange [delta_min:delta_max]; set yrange [x_min:x_max];
 splot "fmapdp.out" using 1:2:((\$7 != -2.0)? \$7 : NaN) notitle lt palette z;
 
 unset multiplot;
