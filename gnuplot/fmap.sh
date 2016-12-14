@@ -22,7 +22,7 @@ else if ($prm1 == 20) \
   N = 20; N_x = 6; N_y = 1;
 
 #nu_x_min = 32.99; nu_x_max = 33.51; nu_y_min = 15.99; nu_y_max = 16.51;
-nu_x_min = 101.1; nu_x_max = 101.52; nu_y_min = 27.0; nu_y_max = 27.6;
+nu_x_min = 100.5; nu_x_max = 102.0; nu_y_min = 27.0; nu_y_max = 27.8;
 
 x_min = -2.0; x_max = 2.0; y_min = -2.0; y_max = 2.0; \
 delta_min = -3.1; delta_max = 3.1;
