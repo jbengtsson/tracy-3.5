@@ -6,11 +6,11 @@ gnuplot << EOP
 
 ps = $prm1; plt_nu = 1; plt_I5 = 1;
 
-if (ps == 0) set terminal x11;
-if (ps == 1) \
-  set terminal postscript eps enhanced color solid lw 2 "Times-Roman" 18;
-if (ps == 2) \
-  set terminal pdf enhanced color solid linewidth 2 font "Times-Roman, 18";
+if (ps == 0) set terminal x11; \
+else if (ps == 1) \
+  set terminal postscript eps enhanced color solid lw 2 "Times-Roman" 18; \
+else if (ps == 2) \
+  set terminal pdf enhanced color solid lw 2 font "Times-Roman, 18";
 
 set grid;
 

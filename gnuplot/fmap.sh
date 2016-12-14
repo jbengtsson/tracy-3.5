@@ -7,15 +7,15 @@ prm4=${4-1}
 
 gnuplot << EOP
 
-ps = $prm2; eps = 0; set_scl = $prm4;
+ps = $prm2; set_scl = $prm4;
 
 font_size = 24; line_width = 2;
-#font_size = 30; line_width = 2;
-if (!ps) set terminal x11;
-if (ps && eps) set terminal postscript eps enhanced color solid;
-#  lw line_width "Times-Roman" font_size;
-if (ps && !eps) set terminal postscript enhanced color solid;
-#  lw line_width "Times-Roman" font_size;
+
+if (ps == 0) set terminal x11; \
+else if (ps == 1) \
+  set terminal postscript eps enhanced color solid lw 2 "Times-Roman" 18; \
+else if (ps == 2) \
+  set terminal pdf enhanced color solid linewidth 2 font "Times-Roman, 18";
 
 if ($prm1 == 1) \
   N = 1; N_x = 33; N_y = 16; \
