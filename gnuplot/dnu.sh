@@ -5,26 +5,24 @@ prm2=${2-0}
 
 gnuplot << EOP
 
-ps = $prm2; eps = 0;
+N = $prm1; ps = $prm2;
 
-if ($prm1 == 1) \
-  N = 1; N_x = 33; N_y = 16; \
-else if ($prm1 == 12) \
-  N = 15; N_x = 3; N_y = 0; \
-else if ($prm1 == 20) \
-  N = 20; N_x = 5; N_y = 1
+if (ps == 0) \
+  set terminal x11; \
+else if (ps == 1) \
+  set terminal postscript eps enhanced color solid lw 2 "Times-Roman" 18; \
+else if (ps == 2) \
+  set terminal pdf enhanced color solid linewidth 2 font "Times-Roman, 18";
+
+if (N == 1) \
+  N_x = 101; N_y = 27; \
+else if (N == 20) \
+  N_x = 5; N_y = 1;
 
 # Range for tune footprint.
-x_min = 101.1; x_max = 101.9; y_min = 27.1; y_max = 27.6;
-
+x_min = 100.9; x_max = 102.1; y_min = 26.9; y_max = 27.9;
 font_size = 24; line_width = 2;
 #font_size = 30; line_width = 2;
-
-if (ps == 0) set terminal x11;
-if (ps == 1) \
-  set terminal postscript eps enhanced color solid lw 2 "Times-Roman" 18;
-if (ps == 2) \
-  set terminal pdf enhanced color solid linewidth 2 font "Times-Roman, 18";
 
 # left adjusted labels
 set key Left;
@@ -40,8 +38,8 @@ set clabel "%5.2f"; set key left;
 
 set palette rgbformulae 22, 13, -31 negative;
 
-if (ps == 1) set output "dnu.eps"
-if (ps == 2) set output "dnu.pdf"
+if (ps == 1) set output "dnu.eps"; \
+else if (ps == 2) set output "dnu.pdf"
 
 set multiplot;
 
@@ -175,10 +173,9 @@ i33    = floor(3.0*x_min+3.0*y_max) + 1;
 set xrange [x_min:x_max]; set yrange [y_min:y_max]; set zrange [0:1];
 set urange [x_min:x_max]; set vrange [y_min:y_max];
 
-set xtics (101.4, 101.5, 101.6, 101.7, 101.8, 101.9, 102.0, 102.1, 102.2);
-set ytics (27.3, 27.4, 27.5, 27.6, 27.7, 27.8);
-#set xtics (101.1, 101.2, 101.3, 101.4, 101.5, 101.6, 101.7, 101.8, 101.9);
-#set ytics (27.1, 27.2, 27.3, 27.4, 27.5, 27.6);
+set xtics x_ticks(100.9, 101.0, 101.1, 101.2, 101.3, 101.4, 101.5, 101.6, \
+                  101.7, 101.8, 101.9);
+set ytics (26.9, 27.0, 27.1, 27.2, 27.3, 27.4, 27.5, 27.6, 27.7, 27.8, 27.9);
 
 splot "fmapdp_est.dat" using (N*(\$3+N_x)):(N*(\$4+N_y)):5 notitle \
       with points pt 2 lc rgb "blue" ps 0.5,\
