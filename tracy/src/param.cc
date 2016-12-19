@@ -141,8 +141,8 @@ void param_data_type::get_param(const string &param_file)
 
 void param_data_type::get_bare(void)
 {
-  /* store values of the optics function at the sextupoles */
-  long int  j, k;
+  // Store optics function values at the sextupoles.
+  long int j, k;
 
   n_sext = 0;
   for (j = 0; j <= globval.Cell_nLoc; j++) {
@@ -224,16 +224,16 @@ void param_data_type::FindSQ_SVDmat(double **SkewRespMat, double **U,
 void param_data_type::FindMatrix(double **SkewRespMat, const double deta_y_max)
 {
   //  Ring_GetTwiss(true, 0.0) should be called in advance
-  int       i, j, k;
-  long int  loc;
-  double    nuX, nuY, alpha, eta_y_max;
-  double    *etaSQ;
-  double    **betaSQ, **nuSQ, **betaBPM, **nuBPM;
-  double    **betaHC, **nuHC, **betaVC, **nuVC;
-  FILE      *SkewMatFile, *fp;
+  int      i, j, k;
+  long int loc;
+  double   nuX, nuY, alpha, eta_y_max;
+  double   *etaSQ;
+  double   **betaSQ, **nuSQ, **betaBPM, **nuBPM;
+  double   **betaHC, **nuHC, **betaVC, **nuVC;
+  FILE     *SkewMatFile, *fp;
 
-  const int     Xi = 1, Yi = 2;
-  const double  pi = M_PI, twopi = 2.0*M_PI;
+  const int    Xi = 1, Yi = 2;
+  const double pi = M_PI, twopi = 2.0*M_PI;
 
 
   etaSQ = dvector(1, N_SKEW); betaSQ = dmatrix(1, N_SKEW, 1, 2);
@@ -346,8 +346,7 @@ void param_data_type::FindMatrix(double **SkewRespMat, const double deta_y_max)
 
 void param_data_type::ini_skew_cor(const double deta_y_max)
 {
-  int  k;
-
+  int k;
 
   std::cout << "ini_skew_cor: out-of-date (globval.hcorr...)" << std::endl;
   exit(1);
@@ -408,10 +407,10 @@ void param_data_type::ini_skew_cor(const double deta_y_max)
 
 void param_data_type::FindCoupVector(double *VertCouple)
 {
-  bool      cod;
-  long      i,j;
-  long      lastpos;
-  double    *orbitP, *orbitN;
+  bool   cod;
+  long   i, j;
+  long   lastpos;
+  double *orbitP, *orbitN;
 
   orbitP = dvector(1, N_BPM); orbitN = dvector(1, N_BPM);
 
@@ -473,8 +472,8 @@ void param_data_type::FindCoupVector(double *VertCouple)
 
 void param_data_type::SkewStat(double VertCouple[])
 {
-  int     i;
-  double  max, rms, sk;
+  int    i;
+  double max, rms, sk;
 
   // statistics for skew quadrupoles
   max = 0.0; rms = 0.0;
@@ -516,8 +515,8 @@ void param_data_type::SkewStat(double VertCouple[])
 
 void param_data_type::corr_eps_y(void)
 {
-  int   i, j;
-  FILE  *outf;
+  int  i, j;
+  FILE *outf;
 
   // Clear skew quad setpoints
   set_bnL_design_fam(globval.qt, Quad, 0.0, 0.0);
@@ -575,7 +574,7 @@ void param_data_type::corr_eps_y(void)
 
 void param_data_type::get_IDs(void)
 {
-  int  k;
+  int k;
 
   printf("\n");
   n_ID_Fams = 0;
@@ -611,7 +610,7 @@ void set_ID_scl(const int Fnum, const double scl);
 
 void param_data_type::set_IDs(const double scl)
 {
-  int  k;
+  int k;
 
   printf("\n");
   for (k = 0; k < n_ID_Fams; k++) {
@@ -647,7 +646,7 @@ void param_data_type::set_IDs(const double scl)
 
 void param_data_type::reset_quads(void)
 {
-  int       k;
+  int k;
 
   if (N_Fam > N_Fam_max) {
     printf("reset_quads: N_Fam > N_Fam_max: %d (%d)\n", N_Fam, N_Fam_max);
@@ -675,7 +674,7 @@ void param_data_type::SVD(const int m, const int n, double **M,
 			  double beta_nu[], double b2Ls_[], const double s_cut,
 			  const bool first)
 {
-  int     i, j;
+  int i, j;
 
   if (trace) {
     printf("\n");
@@ -712,8 +711,8 @@ void param_data_type::SVD(const int m, const int n, double **M,
 
 void param_data_type::quad_config()
 {
-  int     i, j;
-  double  an;
+  int    i, j;
+  double an;
 
   if (N_Fam > N_Fam_max) {
     printf("quad_config: N_Fam > N_Fam_max: %d (%d)\n", N_Fam, N_Fam_max);
@@ -744,9 +743,9 @@ void param_data_type::quad_config()
 
 bool param_data_type::get_SQ(void)
 {
-  int      j, k;
+  int  j, k;
 //  Vector2  alpha3[3], beta3[3], nu3[3], eta3[3], etap3[3];
-  FILE     *outf = NULL;
+  FILE *outf = NULL;
 
   /* Note, IDs are split for evaluation of the driving terms at the center:
        id1  1, 2
@@ -861,7 +860,7 @@ double param_data_type::Bet(double bq, double nus, double nuq, double NuQ)
 
 double param_data_type::Nus(double bq, double nus, double nuq, double NuQ)
 {
-  double  Nu, sgn;
+  double Nu, sgn;
 
   sgn = ((nus-nuq) <= 0)? -1: 1;
 
@@ -874,8 +873,8 @@ double param_data_type::Nus(double bq, double nus, double nuq, double NuQ)
 
 void param_data_type::A_matrix(void)
 {
-  int     k, j;
-  double  BtX, BtY, NuX, NuY;
+  int    k, j;
+  double BtX, BtY, NuX, NuY;
 
   // Defining Twiss in undisturbed quads
   for (k = 0; k < Nquad; k++)
@@ -922,7 +921,7 @@ void param_data_type::A_matrix(void)
 
 void param_data_type::X_vector(const bool first)
 {
-  int  k;
+  int k;
 
   dnu0[X_] = globval.TotalTune[X_] - Nu_X0;
   dnu0[Y_] = globval.TotalTune[Y_] - Nu_Y0;
@@ -969,7 +968,7 @@ void param_data_type::X_vector(const bool first)
 
 void param_data_type::ini_ID_corr(const bool IDs)
 {
-  int  k;
+  int k;
 
   if (IDs) {
     // store ID families
@@ -1012,8 +1011,8 @@ void param_data_type::ini_ID_corr(const bool IDs)
 
 void param_data_type::W_diag(void)
 {
-  double    bxf, byf, nxf, nyf, b2Lsum;
-  int       k;
+  double bxf, byf, nxf, nyf, b2Lsum;
+  int    k;
 
   bxf = 0.0; byf = 0.0; nxf = 0.0; nyf = 0.0;
   for (k = 1; k <= Nsext; k++) {
@@ -1043,9 +1042,9 @@ void param_data_type::W_diag(void)
 bool param_data_type::ID_corr(const int N_calls, const int N_steps,
 			      const bool IDs)
 {
-  int     i, j, k, Fnum;
-  double  b2L, a2L, L;
-  FILE    *outf;
+  int    i, j, k, Fnum;
+  double b2L, a2L, L;
+  FILE   *outf;
 
   printf("\n");
   printf("ID matching begins!\n");
@@ -1122,7 +1121,7 @@ bool param_data_type::ID_corr(const int N_calls, const int N_steps,
 
 char* get_prm(char **p)
 {
-  char  *prm;
+  char *prm;
 
   prm = strtok_r(NULL, " \t\r", p);
   if (prm == NULL) {
@@ -1138,20 +1137,17 @@ char* get_prm(char **p)
 void param_data_type::LoadAlignTol(const bool Scale_it, const double Scale,
 				   const bool new_rnd, const int seed) const
 {
-  char      line[max_str], Name[max_str],  type[max_str];
-  int       j, k, Fnum, seed_val;
-  long int  loc;
-  double    dx, dy, dr;  // x and y misalignments [m] and roll error [rad]
-  double    dr_deg;
-  bool      rms = false, set_rnd;
-  FILE      *fp;
+  char     line[max_str], Name[max_str],  type[max_str];
+  int      j, k, Fnum, seed_val;
+  long int loc;
+  double   dx, dy, dr;  // x and y misalignments [m] and roll error [rad]
+  double   dr_deg;
+  bool     rms = false, set_rnd;
+  FILE     *fp;
 
-  const bool  prt = true;
+  const bool prt = true;
 
-  if (prt) {
-    printf("\n");
-    printf("reading in %s\n", ae_file.c_str());
-  }
+  if (prt) printf("\nreading in %s\n", ae_file.c_str());
 
   fp = file_read(ae_file.c_str());
 
@@ -1274,11 +1270,11 @@ void param_data_type::LoadAlignTol(const bool Scale_it, const double Scale,
 void param_data_type::LoadFieldErr(const bool Scale_it, const double Scale,
 				   const bool new_rnd) const
 {
-  bool      rms, set_rnd;
-  char      line[max_str], name[max_str], type[max_str], *prm, *p;
-  int       k, n, seed_val;
-  double    Bn, An, r0;
-  std::ifstream  inf;
+  bool          rms, set_rnd;
+  char          line[max_str], name[max_str], type[max_str], *prm, *p;
+  int           k, n, seed_val;
+  double        Bn, An, r0;
+  std::ifstream inf;
 
   file_rd(inf, fe_file.c_str());
 
@@ -1328,12 +1324,12 @@ void param_data_type::LoadFieldErr(const bool Scale_it, const double Scale,
 
 void param_data_type::LoadApers(const double scl_x, const double scl_y) const
 {
-  char    line[max_str], Name[max_str];
-  int     Fnum;
-  double  dxmin, dxmax, dymin, dymax;  // min and max x and apertures
-  FILE    *fp;
+  char   line[max_str], Name[max_str];
+  int    Fnum;
+  double dxmin, dxmax, dymin, dymax;  // min and max x and apertures
+  FILE   *fp;
 
-  bool  prt = true;
+  bool prt = true;
 
   fp = file_read(ap_file.c_str());
 
@@ -1387,11 +1383,11 @@ void param_data_type::Align_BPMs(const int n) const
 {
   // Align BPMs to adjacent multipoles.
 
-  bool      aligned;
-  int       i, j, k;
-  long int  loc;
+  bool     aligned;
+  int      i, j, k;
+  long int loc;
 
-  const int  n_step = 5;
+  const int n_step = 5;
 
   printf("\n");
   for (i = 1; i <= GetnKid(globval.bpm); i++) {
@@ -1432,10 +1428,10 @@ void param_data_type::Align_BPMs(const int n) const
 bool param_data_type::CorrectCOD_N(const int n_orbit, const int n_scale,
 				   const int k)
 {
-  bool      cod = false;
-  int       i, j;
-  long int  loc;
-  double    m_dbeta[2], s_dbeta[2], m_dnu[2], s_dnu[2];
+  bool     cod = false;
+  int      i, j;
+  long int loc;
+  double   m_dbeta[2], s_dbeta[2], m_dnu[2], s_dnu[2];
 
   // Clear trim setpoints
   for (j = 0; j < 2; j++)
@@ -1481,7 +1477,7 @@ void param_data_type::ini_COD_corr(const int n_bpm_Fam,
 				   const std::string vcorr_names[],
 				   const bool svd)
 {
-  int  i, j, Fnum, n_bpm, n_hcorr, n_vcorr;
+  int i, j, Fnum, n_bpm, n_hcorr, n_vcorr;
 
   n_bpm = 0;
   for (i = 0; i < n_bpm_Fam; i++)
@@ -1574,8 +1570,7 @@ void param_data_type::Orb_and_Trim_Stat(void)
   int     bins[5] = { 0, 0, 0, 0, 0 };
   double  bin = 40.0e-6; // bin size for stat
   double  tr; // trim strength
-
-  Vector2   Sext_max, Sext_sigma, TrimMax, orb;
+  Vector2 Sext_max, Sext_sigma, TrimMax, orb;
 
   std::cout << "ini_skew_cor: out-of-date (globval.hcorr...)" << std::endl;
   exit(1);
@@ -1629,9 +1624,8 @@ void param_data_type::Orb_and_Trim_Stat(void)
 
 void param_data_type::prt_cod_corr_lat(void)
 {
-  int   i;
-  FILE  *CodCorLatFile;
-
+  int  i;
+  FILE *CodCorLatFile;
 
   CodCorLatFile = file_write(CodCorLatFileName);
 

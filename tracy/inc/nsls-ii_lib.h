@@ -1,13 +1,11 @@
 // global params
 
-const int            max_elem = Cell_nLocMax;
+const int           max_elem = Cell_nLocMax;
 
-extern int           n_aper, n_track;
+extern ss_vect<tps> map;
+extern MNF_struct   MNF;
 
-extern ss_vect<tps>  map;
-extern MNF_struct    MNF;
-
-extern double        chi_m;
+extern double       chi_m;
 
 
 void lwr_case(char str[]);
@@ -244,7 +242,8 @@ void rm_space(char *name);
 
 void get_bn(const char file_name[], int n, const bool prt);
 
-double get_dynap(const double delta, const bool cod);
+double get_dynap(const double delta, const int n_aper, const int n_track,
+		 const bool cod);
 
 double get_chi2(long int n, double x[], double y[], long int m, psVector b);
 

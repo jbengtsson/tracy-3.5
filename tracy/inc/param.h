@@ -135,7 +135,7 @@ class param_data_type {
 
   void err_and_corr_init(const string &param_file, orb_corr_type orb_corr[]);
 
- void err_and_corr_exit(orb_corr_type orb_corr[]);
+  void err_and_corr_exit(orb_corr_type orb_corr[]);
 };
 
 void get_bn2(const string file_name1, const string file_name2, int n,

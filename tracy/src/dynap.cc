@@ -41,7 +41,7 @@ bool DA_data_type::track(const param_data_type &params,
     os << "#" << std::endl;
   }
 
-  for (i = 1; i <= n_track; i++) {
+  for (i = 1; i <= params.n_track_DA; i++) {
     Cell_Pass(0, globval.Cell_nLoc, ps, lastpos);
     if (lastpos == globval.Cell_nLoc) {
       if (prt) {
@@ -115,11 +115,11 @@ double DA_data_type::get_dynap(param_data_type &params,
   }
 
   DA = 0.0; r1 = r;
-  for (i = 0; i < n_aper; i++) {
-    phi = i*pi/(n_aper-1);
+  for (i = 0; i < params.n_aper_DA; i++) {
+    phi = i*pi/(params.n_aper_DA-1);
     if (i == 0)
       phi = 1e-3;
-    else if (i == n_aper-1)
+    else if (i == params.n_aper_DA-1)
       phi -= 1e-3;
     get_r_stable(params, r1, phi, delta, eps);
     x2[X_] = r1*cos(phi); x2[Y_] = r1*sin(phi);
