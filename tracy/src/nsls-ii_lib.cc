@@ -2154,7 +2154,7 @@ double Touschek(const double Qb, const double delta_RF, const bool consistent,
   const bool prt = false;
 
   //  const char  file_name[] = "Touschek.out";
-  const double  eps = 1e-5, gamma = 1e9*globval.Energy/m_e, N_e = Qb/q_e;
+  const double  eps = 1e-12, gamma = 1e9*globval.Energy/m_e, N_e = Qb/q_e;
 
   cav = globval.Cavity_on; aper = globval.Aperture_on;
 
