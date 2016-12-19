@@ -2140,18 +2140,18 @@ void mom_aper(double &delta, double delta_RF, const long int k,
 }
 
 
-double Touschek(const double Qb, const double delta_RF,const bool consistent,
+double Touschek(const double Qb, const double delta_RF, const bool consistent,
 		const double eps_x, const double eps_y,
 		const double sigma_delta, double sigma_s,
 		const int n_turn, const bool aper_on,
 		double sum_delta[][2], double sum2_delta[][2])
 {
-  bool      cav, aper;
-  long int  k;
-  double    tau_inv, delta_p, delta_m, curly_H0, curly_H1, L;
-  double    sigma_x, sigma_y, sigma_xp;
+  bool     cav, aper;
+  long int k;
+  double   tau_inv, delta_p, delta_m, curly_H0, curly_H1, L;
+  double   sigma_x, sigma_y, sigma_xp;
 
-  const bool  prt = false;
+  const bool prt = false;
 
   //  const char  file_name[] = "Touschek.out";
   const double  eps = 1e-5, gamma = 1e9*globval.Energy/m_e, N_e = Qb/q_e;
@@ -2164,16 +2164,13 @@ double Touschek(const double Qb, const double delta_RF,const bool consistent,
 
   globval.Aperture_on = aper_on;
 
-  printf("\n");
-  printf("Qb = %4.2f nC, delta_RF = %4.2f%%"
+  printf("\nQb = %4.2f nC, delta_RF = %4.2f%%"
 	 ", eps_x = %9.3e m.rad, eps_y = %9.3e m.rad\n",
 	 1e9*Qb, 1e2*delta_RF, eps_x, eps_y);
   printf("sigma_delta = %8.2e, sigma_s = %4.2f mm\n",
 	 sigma_delta, 1e3*sigma_s);
 
-  printf("\n");
-  printf("Momentum aperture:");
-  printf("\n");
+  printf("\nMomentum aperture:\n");
 
   delta_p = delta_RF; mom_aper(delta_p, delta_RF, 0, n_turn, true);
   delta_m = -delta_RF; mom_aper(delta_m, delta_RF, 0, n_turn, false);
@@ -2181,7 +2178,7 @@ double Touschek(const double Qb, const double delta_RF,const bool consistent,
   sum_delta[0][0] += delta_p; sum_delta[0][1] += delta_m;
   sum2_delta[0][0] += sqr(delta_p); sum2_delta[0][1] += sqr(delta_m);
 
-  tau_inv = 0.0; curly_H0 = -1e30;
+  tau_inv = 0e0; curly_H0 = -1e30;
   for (k = 1; k <= globval.Cell_nLoc; k++) {
     L = Cell[k].Elem.PL;
 
