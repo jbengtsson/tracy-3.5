@@ -2736,7 +2736,7 @@ void IBS_BM(const double Qb, const double eps_SR[], double eps[],
       sqr(r_e)*c0*N_b*log_Coulomb
       /(M_PI*cube(2e0*beta_rel)*pow(gamma, 4e0)*Cell[globval.Cell_nLoc].S);
 
-  D_x = eps[X_]*tau_inv[X_]; D_delta = eps[delta_]*tau_inv[delta_];
+  D_x = eps[X_]*tau_inv[X_]; D_delta = eps[Z_]*tau_inv[Z_];
 
   // eps_x*D_x
   D_x *= eps[X_];
