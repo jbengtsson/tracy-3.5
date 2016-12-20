@@ -4,7 +4,7 @@ prm1=${1-0}
 
 gnuplot << EOP
 
-ps = $prm1; ps = $prm2;
+ps = $prm1;
 
 f_s = 14; l_w = 2;
 if (ps == 0) \
