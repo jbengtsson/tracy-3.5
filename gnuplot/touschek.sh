@@ -4,19 +4,24 @@ prm1=${1-0}
 
 gnuplot << EOP
 
-ps = $prm1; eps = 0;
+ps = $prm1; ps = $prm2;
 
-font_size = 24; line_width = 2;
-#font_size = 30; line_width = 2;
-if (!ps) set terminal x11;
-if (ps && eps) set terminal postscript eps enhanced color solid;
-#  lw line_width "Times-Roman" font_size;
-if (ps && !eps) set terminal postscript enhanced color solid;
-#  lw line_width "Times-Roman" font_size;
+f_s = 14; l_w = 2;
+if (ps == 0) \
+  set terminal x11; \
+else if (ps == 1) \
+  set terminal postscript enhanced color solid lw 2 "Times-Roman" f_s; \
+  ext = "ps"; \
+else if (ps == 2) \
+  set terminal postscript eps enhanced color solid lw 2 "Times-Roman" f_s; \
+  ext = "eps"; \
+else if (ps == 3) \
+  set terminal pdf enhanced color solid linewidth 2 font "Times-Roman f_s"; \
+  ext = "pdf";
 
 set grid;
 
-if (ps) set output "Touschek.ps"
+if (ps) set output "Touschek.".ext
 set title "Momentum Aperture";
 set xlabel "s [m]";
 set ylabel "{/Symbol d} [%]";
