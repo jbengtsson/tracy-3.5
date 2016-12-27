@@ -4,17 +4,27 @@ prm1=${1-0}
 
 gnuplot << EOP
 
-ps = $prm1; eps = 0; norm = 0; mom_aper = 1; delta = "3.0"; phys_app = 0;
+ps = $prm1; norm = 0; mom_aper = 1; delta = "3.0"; phys_app = 0;
 
 file1 = "dynap.out";
 file2 = "dynap_dp".delta.".out";
 file3 = "dynap_dp-".delta.".out";
 
-if (ps == 0) set terminal x11;
-if (ps == 1) \
-  set terminal postscript enhanced color solid lw 2 "Times-Roman" 18;
-if (ps == 2) \
-  set terminal pdf enhanced color solid linewidth 2 font "Times-Roman, 18";
+f_s = 14; l_w = 2;
+if (ps == 0) \
+  set terminal x11; \
+else if (ps == 1) \
+  set terminal postscript enhanced color solid lw l_w "Times-Roman" f_s; \
+  ext = "ps"; \
+else if (ps == 2) \
+  set terminal postscript eps enhanced color solid lw l_w "Times-Roman" f_s; \
+  ext = "eps"; \
+else if (ps == 3) \
+  set terminal pdf enhanced color solid lw l_w font "Times-Roman f_s"; \
+  ext = "pdf"; \
+else if (ps == 4) \
+  set term pngcairo enhanced color solid lw l_w font "Times-Roman f_s"; \
+  ext = "png";
 
 set grid;
 
@@ -35,22 +45,20 @@ if (phys_app) \
   set arrow from  x_hat, y_hat to  x_hat,   0.0 nohead \
   lt 1 lw 1 lc rgb "black";
 
-if (ps == 1) set output "dynap.eps";
-if (ps == 2) set output "dynap.pdf";
+if (ps) set output "dynap.".ext;
 
 if (!norm) \
   set title "Dynamic Aperture (bare lattice)"; \
-  set xlabel "x [mm]"; set ylabel "y [mm]";
-if (norm) \
+  set xlabel "x [mm]"; set ylabel "y [mm]"; \
+else \
   set title "Normalized Dynamic Aperture"; \
   set xlabel "x^"; set ylabel "y^"; \
   set xrange [-0.01:0.01]; set yrange[0.0:0.01];
 #  set xrange [-0.012:0.012]; set yrange[0.0:0.012];
 
 if (!mom_aper) \
-  plot file1 using 1:2 title "{/Symbol d}=0" with linespoints ls 1;
-
-if (mom_aper) \
+  plot file1 using 1:2 title "{/Symbol d}=0" with linespoints ls 1; \
+else \
   plot file1 using 1:2 title "{/Symbol d}=0.0%" with linespoints ls 1, \
        file2 using 1:2 title "{/Symbol d}=".delta."%" with linespoints ls 2, \
        file3 using 1:2 title "{/Symbol d}=-".delta."%" with linespoints  ls 3;

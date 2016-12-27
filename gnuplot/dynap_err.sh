@@ -6,16 +6,21 @@ gnuplot << EOP
 
 ps = $prm1; phys_app = 0;
 
-if (ps == 0) set term x11; \
+f_s = 14; l_w = 2;
+if (ps == 0) \
+  set terminal x11; \
 else if (ps == 1) \
-  set term postscript eps enhanced color solid lw 2 "Times-Roman" 18; \
-  out = "eps"; \
+  set terminal postscript enhanced color solid lw l_w "Times-Roman" f_s; \
+  ext = "ps"; \
 else if (ps == 2) \
-  set term pdf enhanced color solid linewidth 2 font "Times-Roman 18"; \
-  out = "pdf"; \
+  set terminal postscript eps enhanced color solid lw l_w "Times-Roman" f_s; \
+  ext = "eps"; \
 else if (ps == 3) \
-  set term pngcairo enhanced color solid linewidth 2 font "Times-Roman 18"; \
-  out = "png";
+  set terminal pdf enhanced color solid lw l_w font "Times-Roman f_s"; \
+  ext = "pdf"; \
+else if (ps == 4) \
+  set term pngcairo enhanced color solid lw l_w font "Times-Roman f_s"; \
+  ext = "png";
 
 set grid;
 
@@ -36,7 +41,7 @@ if (phys_app) \
   set arrow from  x_hat, y_hat to  x_hat,   0.0 nohead \
   lt 1 lw 1 lc rgb "black";
 
-if (ps != 0) set output "dynap_err_1.".out;
+if (ps) set output "dynap_err_1.".ext;
 set title "Dynamic Aperture\n";
 set xlabel "x [mm]"; set ylabel "y [mm]";
 #set xrange [-20:20];
@@ -47,7 +52,7 @@ if (!ps) pause mouse "click on graph to cont.\n";
 
 unset arrow;
 
-if (ps != 0) set output "dynap_err_2.".out;
+if (ps) set output "dynap_err_2.".ext;
 
 set multiplot;
 
@@ -81,7 +86,7 @@ set style line 1 lt 1 lw 1 lc rgb "blue" ps 2 pt 1;
 set style line 2 lt 1 lw 1 lc rgb "green" ps 2 pt 1;
 set style line 3 lt 1 lw 1 lc rgb "red" ps 2 pt 1;
 
-if (ps != 0) set output "dynap_err_3.".out;
+if (ps) set output "dynap_err_3.".ext;
 
 set multiplot;
 

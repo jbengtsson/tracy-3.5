@@ -10,18 +10,21 @@ f_s = 14; l_w = 2;
 if (ps == 0) \
   set terminal x11; \
 else if (ps == 1) \
-  set terminal postscript enhanced color solid lw 2 "Times-Roman" f_s; \
+  set terminal postscript enhanced color solid lw l_w "Times-Roman" f_s; \
   ext = "ps"; \
 else if (ps == 2) \
-  set terminal postscript eps enhanced color solid lw 2 "Times-Roman" f_s; \
+  set terminal postscript eps enhanced color solid lw l_w "Times-Roman" f_s; \
   ext = "eps"; \
 else if (ps == 3) \
-  set terminal pdf enhanced color solid linewidth 2 font "Times-Roman f_s"; \
-  ext = "pdf";
+  set terminal pdf enhanced color solid lw l_w font "Times-Roman f_s"; \
+  ext = "pdf"; \
+else if (ps == 4) \
+  set term pngcairo enhanced color solid lw l_w font "Times-Roman f_s"; \
+  ext = "png";
 
 set grid;
 
-if (ps) set output "Touschek.".ext
+if (ps) set output "Touschek.".ext;
 set title "Momentum Aperture";
 set xlabel "s [m]";
 set ylabel "{/Symbol d} [%]";

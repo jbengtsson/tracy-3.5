@@ -8,13 +8,21 @@ gnuplot << EOP
 
 ps = $prm2; scale = $prm3 == 1;
 
-font_size = 24; line_width = 2;
-
-if (ps == 0) set terminal x11; \
+f_s = 14; l_w = 2;
+if (ps == 0) \
+  set terminal x11; \
 else if (ps == 1) \
-  set terminal postscript eps enhanced color solid lw 2 "Times-Roman" 18; \
+  set terminal postscript enhanced color solid lw l_w "Times-Roman" f_s; \
+  ext = "ps"; \
 else if (ps == 2) \
-  set terminal pdf enhanced color solid linewidth 2 font "Times-Roman, 18";
+  set terminal postscript eps enhanced color solid lw l_w "Times-Roman" f_s; \
+  ext = "eps"; \
+else if (ps == 3) \
+  set terminal pdf enhanced color solid lw l_w font "Times-Roman f_s"; \
+  ext = "pdf"; \
+else if (ps == 4) \
+  set term pngcairo enhanced color solid lw l_w font "Times-Roman f_s"; \
+  ext = "png";
 
 if ($prm1 == 1) \
   N = 1; N_x = 101; N_y = 27; \
@@ -138,8 +146,7 @@ i33    = floor(3.0*nu_x_min+3.0*nu_y_max) + 1;
 
 set urange [nu_x_min:nu_x_max]; set vrange [nu_y_min:nu_y_max];
 
-if (ps == 1) set output "fmap_1.eps"; \
-else if (ps == 2) set output "fmap_1.pdf"
+if (ps) set output "fmap_1.".ext;
 
 set multiplot;
 
@@ -236,8 +243,7 @@ splot "fmap.out" using 1:2:((\$7 != -2.0)? \$7 : NaN) notitle lt palette z;
 unset multiplot;
 if (!ps) pause mouse "click on graph to cont.\n";
 
-if (ps == 1) set output "fmap_2.eps"; \
-else if (ps == 2) set output "fmap_2.pdf"
+if (ps) set output "fmap_2.".ext;
 
 set multiplot;
 
