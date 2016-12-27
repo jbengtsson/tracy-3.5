@@ -40,7 +40,7 @@ nu_x_min = 100.5; nu_x_max = 102.0; nu_y_min = 27.0; nu_y_max = 27.8;
 # x_min = -20.0; x_max = 20.0; y_min = -10.0; y_max = 10.0; \
 # delta_min = -6.0; delta_max = 6.0;
 x_min = -2.0; x_max = 2.0; y_min = -2.0; y_max = 2.0; \
-delta_min = -3.1; delta_max = 3.1;
+delta_min = -5.1; delta_max = 5.1;
 
 set grid;
 
