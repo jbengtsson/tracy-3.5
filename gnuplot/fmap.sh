@@ -31,7 +31,8 @@ else if ($prm1 == 20) \
 
 #nu_x_min = 32.99; nu_x_max = 33.51; nu_y_min = 15.99; nu_y_max = 16.51;
 #nu_x_min = 41.99; nu_x_max = 43.0; nu_y_min = 13.99; nu_y_max = 15.01;
-nu_x_min = 100.5; nu_x_max = 102.0; nu_y_min = 27.0; nu_y_max = 27.8;
+nu_x_min = 101.0; nu_x_max = 102.0; nu_y_min = 27.0; nu_y_max = 29.0;
+#nu_x_min = 101.0; nu_x_max = 101.5; nu_y_min = 27.0; nu_y_max = 27.5;
 
 # x_min = -20.0; x_max = 20.0; y_min = -10.0; y_max = 10.0; \
 # delta_min = -6.0; delta_max = 6.0;
@@ -40,12 +41,12 @@ delta_min = -5.1; delta_max = 5.1;
 
 set grid;
 
-set style line 1 lw line_width lc rgb "red";
-set style line 2 lw line_width lc rgb "dark-orange";
-set style line 3 lw line_width lc rgb "blue";
-set style line 4 lw line_width lc rgb "dark-green";
-set style line 5 lw line_width lc rgb "purple";
-set style line 6 lw line_width lc rgb "cyan";
+set style line 1 lw 1 lc rgb "red";
+set style line 2 lw 1 lc rgb "dark-orange";
+set style line 3 lw 1 lc rgb "blue";
+set style line 4 lw 1 lc rgb "dark-green";
+set style line 5 lw 1 lc rgb "purple";
+set style line 6 lw 1 lc rgb "cyan";
 
 file_name = "`echo $TRACY_LIB`/gnuplot/jet.dat";
 # Load 64-color palette for Jet
