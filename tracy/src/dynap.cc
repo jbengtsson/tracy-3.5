@@ -198,12 +198,13 @@ void DA_data_type::get_DA_bare(param_data_type &params)
 void DA_data_type::get_DA_real(param_data_type &params,
 			       orb_corr_type orb_corr[])
 {
-  bool   cod = false;
-  char   str[max_str];
-  int    j, k;
-  double DA, x_min[2], x_max[2], d[params.n_delta_DA+1], x_hat;
-  double DA_m[params.n_delta_DA+1], DA_s[params.n_delta_DA+1];
-  double x_hat_m[params.n_delta_DA+1][2], x_hat_s[params.n_delta_DA+1][2];
+  bool     cod = false;
+  char     str[max_str];
+  long int lastpos;
+  int      j, k;
+  double   DA, x_min[2], x_max[2], d[params.n_delta_DA+1], x_hat;
+  double   DA_m[params.n_delta_DA+1], DA_s[params.n_delta_DA+1];
+  double   x_hat_m[params.n_delta_DA+1][2], x_hat_s[params.n_delta_DA+1][2];
 
   const int    n_cell = 20;
   const double scl    = 0.5;
@@ -239,9 +240,10 @@ void DA_data_type::get_DA_real(param_data_type &params,
 
     if (params.fe_file != "") params.LoadFieldErr(false, 1e0, true);
 
-    if (params.ae_file != "") cod = params.cod_corr(n_cell, scl, j, orb_corr);
-      
-    // cod = CorrectCOD(n_orbit, 0.3);
+    if (params.ae_file != "")
+      cod = params.cod_corr(n_cell, scl, j, orb_corr);
+    else
+      cod = getcod(0e0, lastpos);
 
     printf("\n");
     if (cod) {
