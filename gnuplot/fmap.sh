@@ -240,6 +240,32 @@ splot "fmap.out" using 1:2:((\$7 != -2.0)? \$7 : NaN) notitle lt palette z;
 unset multiplot;
 if (!ps) pause mouse "click on graph to cont.\n";
 
+unset output;
+
+# Workaround bug for multiplot.
+reset;
+
+set grid;
+
+set style line 1 lw 1 lc rgb "red";
+set style line 2 lw 1 lc rgb "dark-orange";
+set style line 3 lw 1 lc rgb "blue";
+set style line 4 lw 1 lc rgb "dark-green";
+set style line 5 lw 1 lc rgb "purple";
+set style line 6 lw 1 lc rgb "cyan";
+
+file_name = "`echo $TRACY_LIB`/gnuplot/jet.dat";
+# Load 64-color palette for Jet
+set palette model RGB file file_name using (\$1/255):(\$2/255):(\$3/255);
+
+set cbrange [-10:-2];
+set noztics; unset clabel;
+set view map;
+# To set y-axis to left side and avoid compression of color box.
+unset pm3d;
+
+set parametric;
+
 if (ps) set output "fmap_2.".ext;
 
 set multiplot;
