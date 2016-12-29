@@ -29,7 +29,8 @@ else if (N == 20) \
   N_x = 5; N_y = 1;
 
 # Range for tune footprint.
-x_min = 100.99; x_max = 101.51; y_min = 26.99; y_max = 27.51;
+#x_min = 100.99; x_max = 101.51; y_min = 26.99; y_max = 27.51;
+x_min = 101.5; x_max = 102.0; y_min = 27.0; y_max = 27.5;
 
 # left adjusted labels
 set key Left;
