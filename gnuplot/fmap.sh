@@ -52,7 +52,7 @@ file_name = "`echo $TRACY_LIB`/gnuplot/jet.dat";
 # Load 64-color palette for Jet
 set palette model RGB file file_name using (\$1/255):(\$2/255):(\$3/255);
 
-set cbrange [-10:-2];
+#set cbrange [-10:-2];
 set noztics; unset clabel;
 set view map;
 # To set y-axis to left side and avoid compression of color box.
@@ -258,7 +258,7 @@ file_name = "`echo $TRACY_LIB`/gnuplot/jet.dat";
 # Load 64-color palette for Jet
 set palette model RGB file file_name using (\$1/255):(\$2/255):(\$3/255);
 
-set cbrange [-10:-2];
+#set cbrange [-10:-2];
 set noztics; unset clabel;
 set view map;
 # To set y-axis to left side and avoid compression of color box.
