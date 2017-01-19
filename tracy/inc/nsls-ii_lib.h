@@ -14,6 +14,10 @@ void upr_case(char str[]);
 
 //void prt_trace (void);
 
+void file_rd(std::ifstream &inf, const string &file_name);
+
+void file_wr(std::ofstream &outf, const string &file_name);
+
 void file_rd(std::ifstream &inf, const char file_name[]);
 
 void file_wr(std::ofstream &outf, const char file_name[]);
