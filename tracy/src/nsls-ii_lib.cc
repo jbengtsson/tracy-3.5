@@ -604,12 +604,12 @@ void prt_lat(const char *fname, const int Fnum, const bool all)
   FILE          *outf;
 
   outf = file_write(fname);
-  fprintf(outf, "#        name           s   code"
-	        "  alphax  betax   nux   etax   etapx");
-  fprintf(outf, "  alphay  betay   nuy   etay   etapy    I5\n");
-  fprintf(outf, "#                      [m]"
-	        "                 [m]           [m]");
-  fprintf(outf, "                   [m]           [m]\n");
+  fprintf(outf, "#        name             s     code"
+	        "   alphax   betax     nux      etax    etapx");
+  fprintf(outf, "     alphay   betay     nuy      etay    etapy      I5\n");
+  fprintf(outf, "#                        [m]"
+	        "                     [m]                [m]");
+  fprintf(outf, "                        [m]                [m]\n");
   fprintf(outf, "#\n");
 
   I2 = 0.0; I5 = 0.0;
@@ -681,11 +681,11 @@ void prt_lat(const char *fname, const int Fnum, const bool all, const int n)
 
   outf = file_write(fname);
   fprintf(outf, "#        name           s   code"
-	        "  alphax  betax   nux   etax   etapx");
-  fprintf(outf, "  alphay  betay   nuy   etay   etapy\n");
+	        "    alphax   betax     nux       etax       etapx");
+  fprintf(outf, "       alphay   betay     nuy      etay    etapy\n");
   fprintf(outf, "#                      [m]"
-	        "                 [m]           [m]");
-  fprintf(outf, "                   [m]           [m]\n");
+	        "                    [m]                 [m]");
+  fprintf(outf, "                             [m]                [m]\n");
   fprintf(outf, "#\n");
 
   for (i = 0; i <= globval.Cell_nLoc; i++) {
