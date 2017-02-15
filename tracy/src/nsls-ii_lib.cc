@@ -79,7 +79,7 @@ void prt_trace (void)
 void file_rd(std::ifstream &inf, const string &file_name)
 {
 
-  inf.open(file_name, std::ios::in);
+  inf.open(file_name.c_str(), std::ios::in);
   if (!inf.is_open()) {
     cout << "File not found: " << file_name << "\n";
     exit_(-1);
@@ -90,7 +90,7 @@ void file_rd(std::ifstream &inf, const string &file_name)
 void file_wr(std::ofstream &outf, const string &file_name)
 {
 
-  outf.open(file_name, std::ios::out);
+  outf.open(file_name.c_str(), std::ios::out);
   if (!outf.is_open()) {
     cout << "Could not create file: " << file_name << "\n";
     exit_(-1);
