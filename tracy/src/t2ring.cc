@@ -486,9 +486,11 @@ void Ring_Twiss(bool chroma, double dP)
   GDiag(n, Cell[globval.Cell_nLoc].S, globval.Ascr, globval.Ascrinv, R,
         globval.OneTurnMat, globval.Omega, globval.Alphac);
 
-  putlinmat(n, globval.Ascr, AScr);
+  // putlinmat(n, globval.Ascr, AScr);
+  putlinmat(6, globval.Ascr, AScr);
   if (!globval.Cavity_on) {
-    AScr[delta_] = 0.0; AScr[ct_] = 0.0;
+    // AScr[delta_] = 0.0; AScr[ct_] = 0.0;
+    AScr[delta_] = tps(0e0, delta_+1); AScr[ct_] = 0e0;
   }
 
   Cell_Twiss(0, globval.Cell_nLoc, AScr, chroma, true, dP);
