@@ -1274,8 +1274,22 @@ double get_L(const int Fnum, const int Knum)
 
 void set_L(const int Fnum, const int Knum, const double L)
 {
+  long int  loc;
+  double    phi;
+  elemtype  *elemp;
+  MpoleType *M;
 
-  Cell[Elem_GetPos(Fnum, Knum)].Elem.PL = L;
+  loc = Elem_GetPos(Fnum, Knum);
+  elemp = &Cell[loc].Elem;
+  if (elemp->Pkind == Mpole) {
+    M = elemp->M;
+    if (M->Pirho != 0e0) {
+      // Phi is constant.
+      phi = elemp->PL*M->Pirho; M->Pirho = phi/L;
+      // M->Pc0 = sin(phi/2e0);
+    }
+  }
+  elemp->PL = L;
 }
 
 

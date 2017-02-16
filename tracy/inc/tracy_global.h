@@ -91,7 +91,7 @@ struct MpoleType {
   double Pirho;          // 1/rho [1/m]
   double Pc0, Pc1, Ps1;  // corrections for roll error of bend
   Matrix AU55,           // Upstream 5x5 matrix
-    AD55;           // Downstream 5x5 matrix
+         AD55;           // Downstream 5x5 matrix
 };
 
 const int  n_harm_max = 10;
@@ -254,7 +254,7 @@ struct CellType {
                    Alpha,       // Alpha functions (redundant)
                    Beta,        // beta fonctions (redundant)
                    Eta, Etap;   // dispersion and its derivative (redundant)
-  psVector           BeamPos;     // Last position of the beam this cell
+  psVector         BeamPos;     // Last position of the beam this cell
   Matrix           A,           // Floquet space to phase space transformation
                    sigma;       // sigma matrix (redundant)
   Vector2          maxampl[PLANES]; /* Horizontal and vertical physical
