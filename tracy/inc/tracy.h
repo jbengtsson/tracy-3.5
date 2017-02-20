@@ -27,7 +27,7 @@
 // maximum number of LEGO blocks (Cell_nLoc)
 //#define Cell_nLocMax    25000
 /* #define Cell_nLocMax    5000 */
-#define Cell_nLocMax    10000
+#define Cell_nLocMax    20000
 
 // maximum number of families for Elem_NFam
 #define Elem_nFamMax    3000
