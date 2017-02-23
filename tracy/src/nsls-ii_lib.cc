@@ -3118,7 +3118,7 @@ void dnu_dA(const double Ax_max, const double Ay_max, const double delta,
   fp = file_write("dnu_dAx.out");
   fprintf(fp, "#   A_x        A_y        J_x        J_y      nu_x    nu_y\n");
   fprintf(fp, "#\n");
-  fprintf(fp, "%10.3e %10.3e %10.3e %10.3e %7.5f %7.5f\n",
+  fprintf(fp, "%10.3e %10.3e %10.3e %10.3e %8.6f %8.6f\n",
 	  0e0, 0e0, 0e0, 0e0, fract(nu_x), fract(nu_y));
 
   Ay = A_min;
@@ -3128,7 +3128,7 @@ void dnu_dA(const double Ax_max, const double Ay_max, const double delta,
     Jx = (sqr(ps[x_])+sqr(ps[px_]))/2.0; Jy = (sqr(ps[y_])+sqr(ps[py_]))/2.0;
     ok = get_nu(Ax, Ay, delta, eps, nu_x, nu_y);
     if (ok)
-      fprintf(fp, "%10.3e %10.3e %10.3e %10.3e %7.5f %7.5f\n",
+      fprintf(fp, "%10.3e %10.3e %10.3e %10.3e %8.6f %8.6f\n",
 	      1e3*Ax, 1e3*Ay, 1e6*Jx, 1e6*Jy, fract(nu_x), fract(nu_y));
     else
       fprintf(fp, "# %10.3e %10.3e particle lost\n", 1e3*Ax, 1e3*Ay);
@@ -3139,7 +3139,7 @@ void dnu_dA(const double Ax_max, const double Ay_max, const double delta,
   nu_x = fract(globval.TotalTune[X_]); nu_y = fract(globval.TotalTune[Y_]);
 
   fprintf(fp, "\n");
-  fprintf(fp, "%10.3e %10.3e %10.3e %10.3e %7.5f %7.5f\n",
+  fprintf(fp, "%10.3e %10.3e %10.3e %10.3e %8.6f %8.6f\n",
 	  0e0, 0e0, 0e0, 0e0, fract(nu_x), fract(nu_y));
 
   Ay = A_min;
@@ -3149,7 +3149,7 @@ void dnu_dA(const double Ax_max, const double Ay_max, const double delta,
     Jx = (sqr(ps[x_])+sqr(ps[px_]))/2.0; Jy = (sqr(ps[y_])+sqr(ps[py_]))/2.0;
     ok = get_nu(Ax, Ay, delta, eps, nu_x, nu_y);
     if (ok)
-      fprintf(fp, "%10.3e %10.3e %10.3e %10.3e %7.5f %7.5f\n",
+      fprintf(fp, "%10.3e %10.3e %10.3e %10.3e %8.6f %8.6f\n",
 	      1e3*Ax, 1e3*Ay, 1e6*Jx, 1e6*Jy, fract(nu_x), fract(nu_y));
     else
       fprintf(fp, "# %10.3e %10.3e particle lost\n", 1e3*Ax, 1e3*Ay);
@@ -3164,7 +3164,7 @@ void dnu_dA(const double Ax_max, const double Ay_max, const double delta,
   fp = file_write("dnu_dAy.out");
   fprintf(fp, "#   A_x        A_y      nu_x    nu_y\n");
   fprintf(fp, "#\n");
-  fprintf(fp, "%10.3e %10.3e %10.3e %10.3e %7.5f %7.5f\n",
+  fprintf(fp, "%10.3e %10.3e %10.3e %10.3e %8.6f %8.6f\n",
 	  0e0, 0e0, 0e0, 0e0, fract(nu_x), fract(nu_y));
 
   Ax = A_min;
@@ -3174,7 +3174,7 @@ void dnu_dA(const double Ax_max, const double Ay_max, const double delta,
     Jy = pow(Ay, 2.0)/(2.0*Cell[globval.Cell_nLoc].Beta[Y_]);
     ok = get_nu(Ax, Ay, delta, eps, nu_x, nu_y);
     if (ok)
-      fprintf(fp, "%10.3e %10.3e %10.3e %10.3e %7.5f %7.5f\n",
+      fprintf(fp, "%10.3e %10.3e %10.3e %10.3e %8.6f %8.6f\n",
 	      1e3*Ax, 1e3*Ay, 1e6*Jx, 1e6*Jy, fract(nu_x), fract(nu_y));
     else
       fprintf(fp, "# %10.3e %10.3e particle lost\n", 1e3*Ax, 1e3*Ay);
@@ -3185,7 +3185,7 @@ void dnu_dA(const double Ax_max, const double Ay_max, const double delta,
   nu_x = fract(globval.TotalTune[X_]); nu_y = fract(globval.TotalTune[Y_]);
 
   fprintf(fp, "\n");
-  fprintf(fp, "%10.3e %10.3e %10.3e %10.3e %7.5f %7.5f\n",
+  fprintf(fp, "%10.3e %10.3e %10.3e %10.3e %8.6f %8.6f\n",
 	  0e0, 0e0, 0e0, 0e0, fract(nu_x), fract(nu_y));
 
   Ax = A_min;
@@ -3195,7 +3195,7 @@ void dnu_dA(const double Ax_max, const double Ay_max, const double delta,
     Jy = pow(Ay, 2.0)/(2.0*Cell[globval.Cell_nLoc].Beta[Y_]);
     ok = get_nu(Ax, Ay, delta, eps, nu_x, nu_y);
     if (ok)
-      fprintf(fp, "%10.3e %10.3e %10.3e %10.3e %7.5f %7.5f\n",
+      fprintf(fp, "%10.3e %10.3e %10.3e %10.3e %8.6f %8.6f\n",
 	      1e3*Ax, 1e3*Ay, 1e6*Jx, 1e6*Jy, fract(nu_x), fract(nu_y));
     else
       fprintf(fp, "# %10.3e %10.3e particle lost\n", 1e3*Ax, 1e3*Ay);
