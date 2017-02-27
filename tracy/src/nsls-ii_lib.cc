@@ -583,6 +583,12 @@ double get_code(CellType &Cell)
       code = sgn(Cell.Elem.M->PBpar[Quad+HOMmax]);
     else if (Cell.Elem.M->PBpar[Sext+HOMmax] != 0)
       code = 1.5*sgn(Cell.Elem.M->PBpar[Sext+HOMmax]);
+    else if (Cell.Elem.M->PBpar[Oct+HOMmax] != 0)
+      code = 1.75*sgn(Cell.Elem.M->PBpar[Oct+HOMmax]);
+    else if (Cell.Elem.M->PBpar[Dec+HOMmax] != 0)
+      code = 1.75*sgn(Cell.Elem.M->PBpar[Dec+HOMmax]);
+    else if (Cell.Elem.M->PBpar[Dodec+HOMmax] != 0)
+      code = 1.75*sgn(Cell.Elem.M->PBpar[Dodec+HOMmax]);
     else if (Cell.Fnum == globval.bpm)
       code = 2.0;
     else
