@@ -27,13 +27,13 @@ else if (ps == 4) \
 if ($prm1 == 1) \
   N = 1; N_x = 101; N_y = 27; \
 else if ($prm1 == 20) \
-  N = 20; N_x = 5; N_y = 1;
+  N = 20; N_x = 5; N_y = 3;
 
 #nu_x_min = 32.99; nu_x_max = 33.51; nu_y_min = 15.99; nu_y_max = 16.51;
 #nu_x_min = 41.99; nu_x_max = 43.0; nu_y_min = 13.99; nu_y_max = 15.01;
 #nu_x_min = 101.4; nu_x_max = 102.4; nu_y_min = 25.5; nu_y_max = 29.3;
 #nu_x_min = 101.0; nu_x_max = 102.0; nu_y_min = 27.3; nu_y_max = 27.8;
-nu_x_min = 100.9; nu_x_max = 101.6; nu_y_min = 26.9; nu_y_max = 27.6;
+nu_x_min = 101.9; nu_x_max = 102.6; nu_y_min = 67.9; nu_y_max = 68.9;
 
 # x_min = -20.0; x_max = 20.0; y_min = -10.0; y_max = 10.0; \
 # delta_min = -6.0; delta_max = 6.0;
