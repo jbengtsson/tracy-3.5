@@ -57,6 +57,7 @@ class param_data_type {
 
   int                      N_BPM, N_HCOR, N_VCOR, N_SKEW, N_COUPLE;
   // Orbit control.
+  std::string              loc_Fam_name;
   std::vector<std::string> bpm_Fam_names, corr_Fam_names[2];
   bool   bba     = false;
 

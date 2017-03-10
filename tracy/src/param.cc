@@ -60,7 +60,10 @@ void param_data_type::get_param(const string &param_file)
 	sscanf(line, "%*s %d", &n_stat);
       else if (strcmp("n_aper", name) == 0)
 	sscanf(line, "%*s %d", &n_aper_DA);
-      else if (strcmp("n_scale", name) == 0)
+      else if (strcmp("loc_name", name) == 0) {
+        sscanf(line, "%*s %s", str);
+	sstr.clear(); sstr.str(""); sstr << str; loc_Fam_name = sstr.str();
+      } else if (strcmp("n_scale", name) == 0)
 	sscanf(line, "%*s %d", &n_scale);
       else if (strcmp("n_orbit", name) == 0)
 	sscanf(line, "%*s %d", &n_orbit);
@@ -1549,7 +1552,7 @@ bool param_data_type::cod_corr(const int n_cell, const double scl, const int k,
 
   if (!cod) {
     orb_corr[X_].clr_trims(); orb_corr[Y_].clr_trims();
-    thread_beam(n_cell, "ls", bpm_Fam_names, corr_Fam_names,
+    thread_beam(n_cell, loc_Fam_name, bpm_Fam_names, corr_Fam_names,
 		n_orbit, scl);
 
     // prt_cod("cod.out", globval.bpm, true);    
