@@ -35,5 +35,5 @@ then:
    mkdir git_repos
    cd git_repos
    git clone https://github.com/jbengtsson/tracy-3.5.git
-   cd tracy
+   cd tracy-3.5
    ./make_tracy.sh

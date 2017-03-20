@@ -23,43 +23,42 @@ class param_data_type {
  public:
   string ae_file, fe_file, ap_file, in_dir, lat_FileName;
 
-  bool   DA_bare       = false,
-         freq_map      = false;
-  int    n_orbit       = 5,
-         n_scale       = 1;
+  static bool DA_bare,
+              freq_map;
+  static int  n_orbit,
+              n_scale;
 
-  int    n_lin         =  3,
-         SQ_per_scell  =  2,
-         BPM_per_scell = 12,
-         HCM_per_scell = 12,
-         VCM_per_scell = 12;
+  static int n_lin,
+             SQ_per_scell,
+             BPM_per_scell,
+             HCM_per_scell,
+             VCM_per_scell;
 
-  double kick          = 0.01e-3; // 0.01 mrad kick for trims
-  int    n_stat        = 1;       // number of statistics
+  static double kick;   // 0.01 mrad kick for trims
+  static int    n_stat; // number of statistics
 
   int h_corr[max_corr], v_corr[max_corr], bpm_loc[max_bpm];
 
-  double VDweight      = 1e3,     // weight for vertical dispersion
-         HVweight      = 1e0,     // weight for coupling Htrim vertical BPM
-         VHweight      = 1e0;     // weight for coupling Vtrim horizontal BPM
+  static double VDweight, // weight for vertical dispersion
+                HVweight, // weight for coupling Htrim vertical BPM
+                VHweight; // weight for coupling Vtrim horizontal BPM
 
   // Parameters for dynamic aperture
-  int    n_track_DA    = 512,
-         n_aper_DA     = 15,
-         n_delta_DA    = 12;
-  double delta_DA      = 3e-2;
+  static int    n_track_DA,
+                n_aper_DA,
+                n_delta_DA;
+  static double delta_DA;
 
   // Parameters for frequency map
   // Note NTURN is set to 10000 (2*NTURN for diffusion)) in "naffutils.h".
-  int    n_x = 50, n_y = 30, n_dp = 25, n_tr = 2064;
-  double x_max_FMA = 20e-3, y_max_FMA = 6e-3, delta_FMA = 3e-2;
-  //double x_max_FMA = 20e-3, y_max_FMA = 3e-3, delta_FMA = 3e-2;
+   static int    n_x, n_y, n_dp, n_tr;
+   static double x_max_FMA, y_max_FMA, delta_FMA;
 
   int                      N_BPM, N_HCOR, N_VCOR, N_SKEW, N_COUPLE;
   // Orbit control.
   std::string              loc_Fam_name;
   std::vector<std::string> bpm_Fam_names, corr_Fam_names[2];
-  bool   bba     = false;
+  static bool              bba;
 
   // ID control.
   int                      N_calls, N_steps, N_Fam, Q_Fam[N_Fam_max];

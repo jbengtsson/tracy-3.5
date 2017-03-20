@@ -1,3 +1,38 @@
+
+bool param_data_type::DA_bare      = false;
+bool param_data_type::freq_map     = false;
+int param_data_type::n_orbit       = 5;
+int param_data_type::n_scale       = 1;
+
+int param_data_type::n_lin         =  3;
+int param_data_type::SQ_per_scell  =  2;
+int param_data_type::BPM_per_scell = 12;
+int param_data_type::HCM_per_scell = 12;
+int param_data_type::VCM_per_scell = 12;
+
+double param_data_type::kick       = 0.01e-3;
+int    param_data_type::n_stat     = 1;
+
+double param_data_type::VDweight   = 1e3,
+       param_data_type::HVweight   = 1e0,
+       param_data_type::VHweight   = 1e0;
+
+int    param_data_type::n_track_DA = 512,
+       param_data_type::n_aper_DA  = 15,
+       param_data_type::n_delta_DA = 12;
+double param_data_type::delta_DA   = 3e-2;
+
+int    param_data_type::n_x        = 50,
+       param_data_type::n_y        = 30,
+       param_data_type::n_dp       = 25,
+       param_data_type::n_tr       = 2064;
+double param_data_type::x_max_FMA  = 20e-3,
+       param_data_type::y_max_FMA  = 6e-3,
+       param_data_type::delta_FMA  = 3e-2;
+
+bool   param_data_type::bba        = false;
+
+
 void param_data_type::get_param(const string &param_file)
 {
   char              *s, name[max_str], line[max_str], str[max_str], *p;
