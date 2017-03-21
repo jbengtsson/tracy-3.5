@@ -64,3 +64,5 @@ else \
        file3 using 1:2 title "{/Symbol d}=-".delta."%" with linespoints  ls 3;
 
 if (!ps) pause mouse "click on graph to cont.\n";
+
+EOP
