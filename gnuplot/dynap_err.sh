@@ -41,7 +41,7 @@ if (phys_app) \
   set arrow from  x_hat, y_hat to  x_hat,   0.0 nohead \
   lt 1 lw 1 lc rgb "black";
 
-if (ps) set output "dynap_err_1.".ext;
+if (ps) set output "dynap_err_1.".(ext);
 set title "Dynamic Aperture\n";
 set xlabel "x [mm]"; set ylabel "y [mm]";
 #set xrange [-20:20];
@@ -52,7 +52,7 @@ if (!ps) pause mouse "click on graph to cont.\n";
 
 unset arrow;
 
-if (ps) set output "dynap_err_2.".ext;
+if (ps) set output "dynap_err_2.".(ext);
 
 set multiplot;
 
@@ -86,7 +86,7 @@ set style line 1 lt 1 lw 1 lc rgb "blue" ps 2 pt 1;
 set style line 2 lt 1 lw 1 lc rgb "green" ps 2 pt 1;
 set style line 3 lt 1 lw 1 lc rgb "red" ps 2 pt 1;
 
-if (ps) set output "dynap_err_3.".ext;
+if (ps) set output "dynap_err_3.".(ext);
 
 set multiplot;
 

@@ -46,7 +46,7 @@ set clabel "%5.2f"; set key left;
 
 set palette rgbformulae 22, 13, -31 negative;
 
-if (ps) set output "dnu.".ext;
+if (ps) set output "dnu.".(ext);
 
 set multiplot;
 

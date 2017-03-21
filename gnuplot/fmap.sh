@@ -144,7 +144,7 @@ i33    = floor(3.0*nu_x_min+3.0*nu_y_max) + 1;
 
 set urange [nu_x_min:nu_x_max]; set vrange [nu_y_min:nu_y_max];
 
-if (ps) set output "fmap_1.".ext;
+if (ps) set output "fmap_1.".(ext);
 
 set multiplot;
 
@@ -267,7 +267,7 @@ unset pm3d;
 
 set parametric;
 
-if (ps) set output "fmap_2.".ext;
+if (ps) set output "fmap_2.".(ext);
 
 set multiplot;
 
