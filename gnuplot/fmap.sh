@@ -6,7 +6,7 @@ prm3=${3-1}
 
 gnuplot << EOP
 
-ps = $prm2; scale = $prm3 == 1;
+N = $prm1; ps = $prm2; scale = $prm3 == 1;
 
 f_s = 14; l_w = 2;
 if (ps == 0) \
@@ -24,9 +24,9 @@ else if (ps == 4) \
   set term pngcairo enhanced color solid lw l_w font "Times-Roman f_s"; \
   ext = "png";
 
-if ($prm1 == 1) \
+if (N == 1) \
   N = 1; N_x = 101; N_y = 27; \
-else if ($prm1 == 20) \
+else if (N == 20) \
   N = 20; N_x = 5; N_y = 3;
 
 #nu_x_min = 32.99; nu_x_max = 33.51; nu_y_min = 15.99; nu_y_max = 16.51;
@@ -266,6 +266,8 @@ set view map;
 unset pm3d;
 
 set parametric;
+
+set urange [nu_x_min:nu_x_max]; set vrange [nu_y_min:nu_y_max];
 
 if (ps) set output "fmap_2.".(ext);
 
