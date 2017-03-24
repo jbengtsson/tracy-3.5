@@ -27,7 +27,7 @@ else if (ps == 4) \
 if (N == 1) \
   N = 1; N_x = 101; N_y = 27; \
 else if (N == 20) \
-  N = 20; N_x = 5; N_y = 3;
+  N = 20; N_x = 5; N_y = 3; sgn_x = 1.0; sgn_y = 1.0;
 
 #nu_x_min = 32.99; nu_x_max = 33.51; nu_y_min = 15.99; nu_y_max = 16.51;
 #nu_x_min = 41.99; nu_x_max = 43.0; nu_y_min = 13.99; nu_y_max = 15.01;
@@ -35,9 +35,9 @@ else if (N == 20) \
 #nu_x_min = 101.0; nu_x_max = 102.0; nu_y_min = 27.3; nu_y_max = 27.8;
 nu_x_min = 101.9; nu_x_max = 102.6; nu_y_min = 67.9; nu_y_max = 68.9;
 
-# x_min = -20.0; x_max = 20.0; y_min = -10.0; y_max = 10.0; \
+# x_min = -20.0; x_max = 20.0; y_min = -10.0; y_max = 10.0;
 # delta_min = -6.0; delta_max = 6.0;
-x_min = -2.0; x_max = 2.0; y_min = -2.0; y_max = 2.0; \
+x_min = -2.0; x_max = 2.0; y_min = -2.0; y_max = 2.0;
 delta_min = -5.1; delta_max = 5.1;
 
 set grid;
@@ -157,8 +157,8 @@ set title "Tune Shift";
 set xlabel "{/Symbol n}_x"; set ylabel "{/Symbol n}_y";
 if (scale) set xrange [nu_x_min:nu_x_max]; set yrange [nu_y_min:nu_y_max]; 
 splot "fmap.out" using \
-      ((abs(\$3-int(\$3)) > 1e-6)? N*(N_x+\$3) : NaN): \
-      ((abs(\$4-int(\$4)) > 1e-6)? N*(N_y+\$4) : NaN):7 \
+      ((abs(\$3-int(\$3)) > 1e-6)? N*(N_x+sgn_x*\$3) : NaN): \
+      ((abs(\$4-int(\$4)) > 1e-6)? N*(N_y+sgn_y*\$4) : NaN):7 \
       notitle w points pt 13 lt palette z, \
       i10,   v,                  1.0 notitle with lines ls 1, \
       u,     i01_1,              1.0 notitle with lines ls 1, \
@@ -282,8 +282,8 @@ set title "Tune Shift";
 set xlabel "{/Symbol n}_x"; set ylabel "{/Symbol n}_y";
 if (scale) set xrange [nu_x_min:nu_x_max]; set yrange [nu_y_min:nu_y_max];
 splot "fmapdp.out" using \
-      ((abs(\$3-int(\$3)) > 1e-6)? N*(N_x+\$3) : NaN): \
-      ((abs(\$4-int(\$4)) > 1e-6)? N*(N_y+\$4) : NaN):7 \
+      ((abs(\$3-int(\$3)) > 1e-6)? N*(N_x+sgn_x*\$3) : NaN): \
+      ((abs(\$4-int(\$4)) > 1e-6)? N*(N_y+sgn_y*\$4) : NaN):7 \
       notitle w points pt 13 lt palette z, \
       i10,   v,                  1.0 notitle with lines ls 1, \
       u,     i01_1,              1.0 notitle with lines ls 1, \
