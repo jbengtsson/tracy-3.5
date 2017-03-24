@@ -25,7 +25,7 @@ else if (ps == 4) \
   ext = "png";
 
 if (N == 1) \
-  N = 1; N_x = 101; N_y = 27; \
+  N = 1; N_x = 101; N_y = 27; sgn_x = 1.0; sgn_y = 1.0; \
 else if (N == 20) \
   N = 20; N_x = 5; N_y = 3; sgn_x = 1.0; sgn_y = 1.0;
 
