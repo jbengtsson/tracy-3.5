@@ -207,7 +207,6 @@ void DA_data_type::get_DA_real(param_data_type &params,
   double   x_hat_m[params.n_delta_DA+1][2], x_hat_s[params.n_delta_DA+1][2];
 
   const int    n_cell = 20;
-  const double scl    = 0.5;
   
   FILE *DA_real = NULL, *fp[params.n_delta_DA+1];
 
@@ -239,11 +238,11 @@ void DA_data_type::get_DA_real(param_data_type &params,
     globval.Cavity_on = false;
 
     if (params.fe_file != "") params.LoadFieldErr(false, 1e0, true);
-
     if (params.ae_file != "")
-      cod = params.cod_corr(n_cell, scl, j, orb_corr);
+      cod = params.cod_corr(n_cell, 1e0, j, orb_corr);
     else
       cod = getcod(0e0, lastpos);
+    params.Orb_and_Trim_Stat();
 
     printf("\n");
     if (cod) {

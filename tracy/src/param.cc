@@ -1,8 +1,10 @@
 
-bool param_data_type::DA_bare      = false;
-bool param_data_type::freq_map     = false;
-int param_data_type::n_orbit       = 5;
-int param_data_type::n_scale       = 1;
+bool        param_data_type::DA_bare      = false;
+bool        param_data_type::freq_map     = false;
+int         param_data_type::n_orbit      = 5;
+int         param_data_type::n_scale      = 1;
+std::string param_data_type::loc_Fam_name = "";
+int         param_data_type::n_cell       = -1;
 
 int param_data_type::n_lin         =  3;
 int param_data_type::SQ_per_scell  =  2;
@@ -98,7 +100,9 @@ void param_data_type::get_param(const string &param_file)
       else if (strcmp("loc_name", name) == 0) {
         sscanf(line, "%*s %s", str);
 	sstr.clear(); sstr.str(""); sstr << str; loc_Fam_name = sstr.str();
-      } else if (strcmp("n_scale", name) == 0)
+      } else if (strcmp("n_cell", name) == 0)
+	sscanf(line, "%*s %d", &n_cell);
+      else if (strcmp("n_scale", name) == 0)
 	sscanf(line, "%*s %d", &n_scale);
       else if (strcmp("n_orbit", name) == 0)
 	sscanf(line, "%*s %d", &n_orbit);
@@ -1463,8 +1467,7 @@ void param_data_type::Align_BPMs(const int n) const
 }
 
 
-bool param_data_type::CorrectCOD_N(const int n_orbit, const int n_scale,
-				   const int k)
+bool param_data_type::CorrectCOD_N(const int n_orbit, const int k)
 {
   bool     cod = false;
   int      i, j;
@@ -1571,15 +1574,14 @@ bool param_data_type::cod_corr(const int n_cell, const double scl, const int k,
 {
   bool            cod = false;
   long int        lastpos;
+  double          m_dbeta[2], s_dbeta[2], m_dnu[2], s_dnu[2];
   ss_vect<double> ps;
 
   // Load misalignments; set seed, no scaling of rms errors.
   LoadAlignTol(false, 1e0, true, k);
 
-  if (bba) {
-    // Beam based alignment
-    Align_BPMs(Quad);
-  }
+  // Beam based alignment.
+  if (bba) Align_BPMs(Quad);
 
   orb_corr[X_].clr_trims(); orb_corr[Y_].clr_trims();
   
@@ -1595,6 +1597,13 @@ bool param_data_type::cod_corr(const int n_cell, const double scl, const int k,
 
   cod = cod_correct(n_orbit, scl, orb_corr);
 
+  get_dbeta_dnu(m_dbeta, s_dbeta, m_dnu, s_dnu);
+  printf("\n");
+  printf("RMS dbeta_x/beta_x = %4.2f%%,   dbeta_y/beta_y = %4.2f%%\n",
+	 1e2*s_dbeta[X_], 1e2*s_dbeta[Y_]);
+  printf("RMS dnu_x          = %7.5f, dnu_y          = %7.5f\n",
+	 s_dnu[X_], s_dnu[Y_]);
+
   prt_cod("cod.out", globval.bpm, true);    
 
   return cod;
@@ -1609,9 +1618,6 @@ void param_data_type::Orb_and_Trim_Stat(void)
   double  bin = 40.0e-6; // bin size for stat
   double  tr; // trim strength
   Vector2 Sext_max, Sext_sigma, TrimMax, orb;
-
-  std::cout << "ini_skew_cor: out-of-date (globval.hcorr...)" << std::endl;
-  exit(1);
 
   Sext_max[X_] = 0.0; Sext_max[Y_] = 0.0;
   Sext_sigma[X_] = 0.0; Sext_sigma[Y_] = 0.0;

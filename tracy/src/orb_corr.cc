@@ -242,6 +242,7 @@ void thread_beam(const int n_cell, const string &Fam_name,
 		 const int n_orbit, const double scl)
 {
   // Thread beam one super period at the time.
+  // Assumes a marker at entrance, center, and exit of each super period.
 
   long int              lastpos, i0, i1, i2, j1, j2 = 0;
   int                   i, j, Fnum;
@@ -254,7 +255,7 @@ void thread_beam(const int n_cell, const string &Fam_name,
 
   Fnum = ElemIndex(Fam_name);
   i0 = Elem_GetPos(Fnum, 1); i1 = Elem_GetPos(Fnum, 2);
-  i2 = Elem_GetPos(Fnum, 4);
+  i2 = Elem_GetPos(Fnum, 3);
   for (j = 0; j < 2; j++) {
     orb_corr[j].alloc(i0, i1, i2, bpm_Fam_names, corr_Fam_names[j],
 		      j == 0, false, eps);
@@ -267,7 +268,7 @@ void thread_beam(const int n_cell, const string &Fam_name,
 
    for (i = 0; i < n_cell; i++) {
     i0 = Elem_GetPos(Fnum, 2*i+1); i1 = Elem_GetPos(Fnum, 2*i+2);
-    i2 = Elem_GetPos(Fnum, 2*i+4);
+    i2 = Elem_GetPos(Fnum, 2*i+3);
     for (j = 0; j < 2; j++) {
       orb_corr[j].corrs = get_elem(i0, i1, corr_Fam_names[j]);
       if (i != n_cell-1)

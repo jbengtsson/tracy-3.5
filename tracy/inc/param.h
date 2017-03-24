@@ -56,7 +56,8 @@ class param_data_type {
 
   int                      N_BPM, N_HCOR, N_VCOR, N_SKEW, N_COUPLE;
   // Orbit control.
-  std::string              loc_Fam_name;
+  static std::string       loc_Fam_name;
+  static int               n_cell;
   std::vector<std::string> bpm_Fam_names, corr_Fam_names[2];
   static bool              bba;
 
@@ -119,8 +120,7 @@ class param_data_type {
   void LoadApers(const double scl_x, const double scl_y) const;
 
   void Align_BPMs(const int n) const;
-  bool CorrectCOD_N(const int n_orbit,
-		    const int n_scale, const int k);
+  bool CorrectCOD_N(const int n_orbit, const int k);
   void ini_COD_corr(const int n_bpm_Fam, const std::string bpm_names[],
 		    const int n_hcorr_Fam, const std::string hcorr_names[],
 		    const int n_vcorr_Fam, const std::string vcorr_names[],
