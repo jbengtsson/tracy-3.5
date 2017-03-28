@@ -63,6 +63,8 @@ void orb_corr_type::dealloc(void)
   free_dmatrix(A, 1, m, 1, n); free_dmatrix(U, 1, m, 1, n);
   free_dvector(w, 1, n);       free_dmatrix(V, 1, n, 1, n);
   free_dvector(b, 1, m);       free_dvector(x, 1, n);
+
+  printf("\ndealloc: n_bpm = %d, n_corr = %d\n", m, n);
 }
 
 
@@ -266,7 +268,7 @@ void thread_beam(const int n_cell, const string &Fam_name,
   printf("\nInitial rms trajectory (all):   x = %7.1e mm, y = %7.1e mm\n",
 	 1e3*sigma[X_], 1e3*sigma[Y_]);
 
-   for (i = 0; i < n_cell; i++) {
+  for (i = 0; i < n_cell; i++) {
     i0 = Elem_GetPos(Fnum, 2*i+1); i1 = Elem_GetPos(Fnum, 2*i+2);
     i2 = Elem_GetPos(Fnum, 2*i+3);
     for (j = 0; j < 2; j++) {
