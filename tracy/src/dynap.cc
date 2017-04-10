@@ -238,10 +238,23 @@ void DA_data_type::get_DA_real(param_data_type &params,
     globval.Cavity_on = false;
 
     if (params.fe_file != "") params.LoadFieldErr(false, 1e0, true);
-    if (params.ae_file != "")
-      cod = params.cod_corr(n_cell, 1e0, j, orb_corr);
-    else
+    if (params.ae_file != "") {
+      // Load misalignments; set seed, no scaling of rms errors.
+      params.LoadAlignTol(false, 1e0, true, j);
+      // Beam based alignment.
+      if (params.bba) params.Align_BPMs(Quad);
+
+      cod = params.cod_corr(n_cell, 1e0, orb_corr);
+    } else
       cod = getcod(0e0, lastpos);
+
+    params.Orb_and_Trim_Stat();
+
+    if (params.N_calls > 0) {
+      params.ID_corr(params.N_calls, params.N_steps, false);
+      cod = params.cod_corr(n_cell, 1e0, orb_corr);
+    }
+
     params.Orb_and_Trim_Stat();
 
     printf("\n");
@@ -253,15 +266,15 @@ void DA_data_type::get_DA_real(param_data_type &params,
 
       GetEmittance(ElemIndex("cav"), true);
 
-      if (params.n_lin > 0) params.corr_eps_y();
-
-      if (params.ap_file != "") params.LoadApers(1.0, 1.0);
-
-      Ring_GetTwiss(true, 0.0); printglob();
-
-      GetEmittance(ElemIndex("cav"), true);
+      if (params.n_lin > 0) {
+	params.corr_eps_y();
+	Ring_GetTwiss(true, 0.0); printglob();
+	GetEmittance(ElemIndex("cav"), true);
+      }
 
       prt_beamsizes();
+
+      if (params.ap_file != "") params.LoadApers(1.0, 1.0);
 
       globval.Cavity_on = true;
       for (k = 0; k <= params.n_delta_DA; k++) {

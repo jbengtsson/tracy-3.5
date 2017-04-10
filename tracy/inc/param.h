@@ -10,8 +10,8 @@ const char SkewMatFileName[]    = "skewmat.out";
 const char eta_y_FileName[]     = "eta_y.out";
 const char deta_y_FileName[]    = "deta_y.out";
 
-const int n_b2_max    = 500;  // max no of quad corrector families
-const int n_b3_max    = 1000; // max no of sextupoles
+const int n_b2_max    = 1500;  // max no of quad corrector families
+const int n_b3_max    = 1500; // max no of sextupoles
 const int max_ID_Fams = 25;   // max no of ID families
 
 // Weights for ID correction
@@ -126,7 +126,7 @@ class param_data_type {
 		    const int n_vcorr_Fam, const std::string vcorr_names[],
 		    const bool svd);
 
-  bool cod_corr(const int n_cell, const double scl, const int k,
+  bool cod_corr(const int n_cell, const double scl,
 		orb_corr_type orb_corr[]);
 
   void Orb_and_Trim_Stat(void);

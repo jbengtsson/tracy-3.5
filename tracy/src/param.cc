@@ -165,8 +165,7 @@ void param_data_type::get_param(const string &param_file)
 	  if (N_Fam <= N_Fam_max) {
 	    Q_Fam[N_Fam-1] = ElemIndex(s); s = strtok_r(NULL, " \r", &p);
 	  } else {
-	    std::cout << "get_param: N_Fam_max exceeded (" << N_Fam_max << ")"
-		 << std::endl;
+	    printf("get_param: N_Fam_max exceeded (%d)\n", N_Fam_max);
 	    exit(1);
 	  }
 	}
@@ -1112,9 +1111,13 @@ bool param_data_type::ID_corr(const int N_calls, const int N_steps,
 	if ((i == N_steps) && (j == N_calls)) {
 	  Fnum = Cell[quad_prms[k-1]].Fnum; L = Cell[quad_prms[k-1]].Elem.PL;
 	  get_bnL_design_elem(Fnum, Cell[quad_prms[k-1]].Knum, Quad, b2L, a2L);
+	  // ElemFam not defined for flat file.
+	  // fprintf(outf, "%10s %6.2f %3d %8.5f\n",
+	  // 	  Cell[quad_prms[k-1]].Elem.PName, Cell[quad_prms[k-1]].S, k,
+	  // 	  b2L-ElemFam[Fnum-1].ElemF.M->PBpar[HOMmax+Quad]*L);
 	  fprintf(outf, "%10s %6.2f %3d %8.5f\n",
 		  Cell[quad_prms[k-1]].Elem.PName, Cell[quad_prms[k-1]].S, k,
-		  b2L-ElemFam[Fnum-1].ElemF.M->PBpar[HOMmax+Quad]*L);
+		  b2L);
 	}
       }
 
@@ -1569,19 +1572,13 @@ void param_data_type::ini_COD_corr(const int n_bpm_Fam,
 }
 
 
-bool param_data_type::cod_corr(const int n_cell, const double scl, const int k,
+bool param_data_type::cod_corr(const int n_cell, const double scl,
 			       orb_corr_type orb_corr[])
 {
   bool            cod = false;
   long int        lastpos;
   double          m_dbeta[2], s_dbeta[2], m_dnu[2], s_dnu[2];
   ss_vect<double> ps;
-
-  // Load misalignments; set seed, no scaling of rms errors.
-  LoadAlignTol(false, 1e0, true, k);
-
-  // Beam based alignment.
-  if (bba) Align_BPMs(Quad);
 
   orb_corr[X_].clr_trims(); orb_corr[Y_].clr_trims();
   
@@ -1717,6 +1714,8 @@ void param_data_type::err_and_corr_init(const string &param_file,
 
     cod_ini(bpm_Fam_names, corr_Fam_names, orb_corr);
   }
+
+  if (N_calls > 0) ini_ID_corr(false);
 
   if (n_lin > 0) ini_skew_cor(disp_wave_y);
 }
