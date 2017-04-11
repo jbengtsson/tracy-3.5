@@ -3,13 +3,14 @@
 prm1=${1-1}
 prm2=${2-0}
 prm3=${3-1}
+prm4=${4-1}
 
 gnuplot << EOP
 
-N = $prm1; ps = $prm2; scale = $prm3 == 1;
-
+N = $prm1; ps = $prm2;
 #MAX-VI: 1, SLS-2: 2.
-case = 2;
+case  = $prm3;
+scale = $prm4 == 1;
 
 f_s = 14; l_w = 2;
 if (ps == 0) \
