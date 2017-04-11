@@ -1,10 +1,13 @@
 #!/bin/sh
 
 prm1=${1-0}
+prm2=${2-3.0}
 
 gnuplot << EOP
 
-ps = $prm1; norm = 0; mom_aper = 1; delta = "3.0"; phys_app = 0;
+ps = $prm1;
+delta = sprintf("%3.1f", $prm2);
+norm = 0; mom_aper = 1; phys_app = 0;
 
 file1 = "dynap.out";
 file2 = "dynap_dp".delta.".out";
