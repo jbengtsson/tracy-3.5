@@ -7,6 +7,9 @@ gnuplot << EOP
 
 N = $prm1; ps = $prm2;
 
+# MAX-VI: 1, SLS-2: 2.
+case = 2;
+
 f_s = 14; l_w = 2;
 if (ps == 0) \
   set terminal x11; \
@@ -23,14 +26,19 @@ else if (ps == 4) \
   set term pngcairo enhanced color solid lw l_w font "Times-Roman f_s"; \
   ext = "png";
 
-if (N == 1) \
-  N_x = 101; N_y = 27; \
+if ((N == 1) && (case == 1)) \
+  N_x = 102; N_y = 68; \
+else if ((N == 1) && (case == 2)) \
+  N_x = 38; N_y = 12; \
+else if (N == 12) \
+  N_x = 3; N_y = 1; \
 else if (N == 20) \
-  N_x = 5; N_y = 1;
+  N_x = 5; N_y = 3;
 
-# Range for tune footprint.
-#x_min = 100.99; x_max = 101.51; y_min = 26.99; y_max = 27.51;
-x_min = 101.5; x_max = 102.0; y_min = 27.0; y_max = 27.5;
+if (case == 1) \
+  x_min = 102.0; x_max = 102.5; y_min = 68.0; y_max = 68.5; \
+else if (case == 2) \
+  x_min = 38.0; x_max = 38.5; y_min = 12.0; y_max = 12.5;
 
 # left adjusted labels
 set key Left;
