@@ -191,10 +191,10 @@ splot "fmap.out" using \
       u,     (u-i1m2_4)/2.0,     1.0 notitle with lines ls 1, \
                                                               \
       i40, v,                    1.0 notitle with lines ls 3, \
-      u,     i04_1,              1.0 notitle with lines ls 1, \
-      u,     i04_2,              1.0 notitle with lines ls 1, \
-      u,     i04_3,              1.0 notitle with lines ls 1, \
-      u,     i04_4,              1.0 notitle with lines ls 1, \
+#      u,     i04_1,              1.0 notitle with lines ls 1, \
+#      u,     i04_2,              1.0 notitle with lines ls 1, \
+#      u,     i04_3,              1.0 notitle with lines ls 1, \
+#      u,     i04_4,              1.0 notitle with lines ls 1, 
       u,     (i22_1-2.0*u)/2.0,  1.0 notitle with lines ls 3, \
       u,     (i22_2-2.0*u)/2.0,  1.0 notitle with lines ls 3, \
       u,     (2.0*u-i2m2_1)/2.0, 1.0 notitle with lines ls 3, \
@@ -316,10 +316,10 @@ splot "fmapdp.out" using \
       u,     (u-i1m2_4)/2.0,     1.0 notitle with lines ls 1, \
                                                               \
       i40, v,                    1.0 notitle with lines ls 3, \
-      u,     i04_1,              1.0 notitle with lines ls 1, \
-      u,     i04_2,              1.0 notitle with lines ls 1, \
-      u,     i04_3,              1.0 notitle with lines ls 1, \
-      u,     i04_4,              1.0 notitle with lines ls 1, \
+#      u,     i04_1,              1.0 notitle with lines ls 1, \
+#      u,     i04_2,              1.0 notitle with lines ls 1, \
+#      u,     i04_3,              1.0 notitle with lines ls 1, \
+#      u,     i04_4,              1.0 notitle with lines ls 1, 
       u,     (i22_1-2.0*u)/2.0,  1.0 notitle with lines ls 3, \
       u,     (i22_2-2.0*u)/2.0,  1.0 notitle with lines ls 3, \
       u,     (2.0*u-i2m2_1)/2.0, 1.0 notitle with lines ls 3, \
