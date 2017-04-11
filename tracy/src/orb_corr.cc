@@ -265,7 +265,8 @@ void thread_beam(const int n_cell, const string &Fam_name,
 
   ps.zero(); Cell_Pass(0, globval.Cell_nLoc, ps, lastpos);
   codstat(mean, sigma, max, lastpos, true, orb_corr[X_].bpms);
-  printf("\nInitial rms trajectory (all):   x = %7.1e mm, y = %7.1e mm\n",
+  printf("\nthread_beam, initial rms trajectory (all):"
+	 "   x = %7.1e mm, y = %7.1e mm\n",
 	 1e3*sigma[X_], 1e3*sigma[Y_]);
 
   for (i = 0; i < n_cell; i++) {
@@ -294,7 +295,8 @@ void thread_beam(const int n_cell, const string &Fam_name,
 
    ps.zero(); Cell_Pass(0, globval.Cell_nLoc, ps, lastpos);
    codstat(mean, sigma, max, lastpos, true, orb_corr[X_].bpms);
-   printf("Corrected rms trajectory (all): x = %7.1e mm, y = %7.1e mm\n",
+   printf("thread_beam, corrected rms trajectory (all):"
+	  " x = %7.1e mm, y = %7.1e mm\n",
 	  1e3*sigma[X_], 1e3*sigma[Y_]);
 
   for (j = 0; j < 2; j++)
@@ -314,10 +316,12 @@ bool cod_correct(const int n_orbit, const double scl, orb_corr_type orb_corr[])
     if (cod) {
       if (j == 1) {
 	codstat(mean, sigma, max, globval.Cell_nLoc, true, orb_corr[X_].bpms);
-	printf("\nInitial rms cod (all):          x = %7.1e mm, y = %7.1e mm\n",
+	printf("\ncod_correct, initial rms cod (all):"
+	       "          x = %7.1e mm, y = %7.1e mm\n",
 	       1e3*sigma[X_], 1e3*sigma[Y_]);
 	codstat(mean, sigma, max, globval.Cell_nLoc, false, orb_corr[X_].bpms);
-	printf("Initial rms cod (bpms):         x = %7.1e mm, y = %7.1e mm\n",
+	printf("cod_correct, nitial rms cod (bpms):"
+	       "         x = %7.1e mm, y = %7.1e mm\n",
 	       1e3*sigma[X_], 1e3*sigma[Y_]);
       }
 

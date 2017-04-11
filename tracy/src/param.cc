@@ -1596,10 +1596,10 @@ bool param_data_type::cod_corr(const int n_cell, const double scl,
   cod = cod_correct(n_orbit, scl, orb_corr);
 
   get_dbeta_dnu(m_dbeta, s_dbeta, m_dnu, s_dnu);
-  printf("\n");
-  printf("RMS dbeta_x/beta_x = %4.2f%%,   dbeta_y/beta_y = %4.2f%%\n",
+  printf("\ncod_corr: rms dbeta_x/beta_x = %4.2f%%"
+	 ",   dbeta_y/beta_y = %4.2f%%\n",
 	 1e2*s_dbeta[X_], 1e2*s_dbeta[Y_]);
-  printf("RMS dnu_x          = %7.5f, dnu_y          = %7.5f\n",
+  printf("          rms dnu_x          = %7.5f, dnu_y          = %7.5f\n",
 	 s_dnu[X_], s_dnu[Y_]);
 
   prt_cod("cod.out", globval.bpm, true);    
@@ -1630,7 +1630,10 @@ void param_data_type::Orb_and_Trim_Stat(void)
       if (fabs(orb[Y_]) > Sext_max[Y_]) Sext_max[Y_] = fabs(orb[Y_]);
       j = (int) (sqrt(orb[X_]*orb[X_]+orb[Y_]*orb[Y_])/bin);
       if (j > 4) j = 4;
-      bins[j]++;
+      if (j >= 0)
+	bins[j]++;
+      else
+	printf("\nOrb_and_Trim_Stat: negative bin %d\n", j);
     } // sextupole handling
 
     if (Cell[i].Fnum == globval.hcorr) {
