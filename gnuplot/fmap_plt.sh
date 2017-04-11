@@ -40,7 +40,7 @@ if (case == 1) \
   nu_x_min = 101.7; nu_x_max = 102.5; nu_y_min = 68.0; nu_y_max = 69.0; \
   x_min = -2.0; x_max = 2.0; y_min = -2.0; y_max = 2.0; \
 else if (case == 2) \
-  nu_x_min = 38.0; nu_x_max = 38.5; nu_y_min = 12.0; nu_y_max = 12.6; \
+  nu_x_min = 39.0; nu_x_max = 39.5; nu_y_min = 15.0; nu_y_max = 15.6; \
   x_min = -6.0; x_max = 6.0; y_min = -6.0; y_max = 6.0;
 
 delta_min = -5.1; delta_max = 5.1;

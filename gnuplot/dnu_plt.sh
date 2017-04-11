@@ -38,7 +38,7 @@ else if (N == 20) \
 if (case == 1) \
   x_min = 102.0; x_max = 102.5; y_min = 68.0; y_max = 68.5; \
 else if (case == 2) \
-  x_min = 38.0; x_max = 38.5; y_min = 12.0; y_max = 12.5;
+  x_min = 39.0; x_max = 39.5; y_min = 15.0; y_max = 15.5;
 
 # left adjusted labels
 set key Left;
