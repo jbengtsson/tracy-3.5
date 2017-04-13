@@ -1,25 +1,41 @@
-ps = 1; eps = 0; pert = 0;
+#!/bin/sh
 
-#N = 1; N_x = 33; N_y = 16;
-N = 3; N_x = 11; N_y = 5;
-#N = 15; N_x =  2; N_y = 1;
-#nu_x = 33.134; nu_y = 16.180;
-# MAX-IV
-#N = 20; N_x = 2; N_y = 0;
-# DIAMOND
-#N = 6; N_x = 4; N_y = 2;
-#nu_x = 27.225; nu_y = 12.422;
+prm1=${1-1}
+prm2=${2-0}
 
+gnuplot << EOP
 
-font_size = 24; line_width = 2;
-#font_size = 30; line_width = 2;
-if (!ps) set terminal x11;
-if (ps && !eps) \
-  set terminal postscript enhanced color solid
-#  lw line_width "Times-Roman" font_size;
-if (ps && eps) \
-  set terminal postscript eps enhanced color solid 
-#  lw line_width "Times-Roman" font_size;
+N = $prm1; ps = $prm2;
+
+# MAX-VI: 1, SLS-2: 2.
+case = 2;
+
+ps = 0; pert = 1;
+
+f_s = 14; l_w = 2;
+if (ps == 0) \
+  set terminal x11; \
+else if (ps == 1) \
+  set terminal postscript enhanced color solid lw l_w "Times-Roman" f_s; \
+  ext = "ps"; \
+else if (ps == 2) \
+  set terminal postscript eps enhanced color solid lw l_w "Times-Roman" f_s; \
+  ext = "eps"; \
+else if (ps == 3) \
+  set terminal pdf enhanced color solid linewidth l_w font "Times-Roman f_s"; \
+  ext = "pdf"; \
+else if (ps == 4) \
+  set term pngcairo enhanced color solid lw l_w font "Times-Roman f_s"; \
+  ext = "png";
+
+if ((N == 1) && (case == 1)) \
+  N_x = 102; N_y = 68; \
+else if ((N == 1) && (case == 2)) \
+  N_x = 39; N_y = 15; \
+else if (N == 12) \
+  N_x = 3; N_y = 1; \
+else if (N == 20) \
+  N_x = 5; N_y = 3;
 
 #set multiplot;
 
@@ -37,7 +53,7 @@ set clabel "%5.2f"; set key left;
 
 set palette rgbformulae 22, 13, -31 negative;
 
-if (ps) set output "dnu_1.ps"
+if (ps) set output "dnu_1.".(ext)
 
 set multiplot;
 
@@ -53,9 +69,9 @@ if (pert) \
        with linespoints ls 1, \
        "dnu_dAy.out" using 2:(N*(N_x+$5)) title "A_y" \
        with linespoints ls 3, \
-       "dnu_dAx_pert.out" using 1:(N*(N_x+$3)) title "A_x (pert)" \
+       "ptc/dnu_dAx_pert.out" using 1:(N*(N_x+$3)) title "A_x (pert)" \
        with linespoints ls 2, \
-       "dnu_dAy_pert.out" using 2:(N*(N_x+$3)) title "A_y (pert)" \
+       "ptc/dnu_dAy_pert.out" using 2:(N*(N_x+$3)) title "A_y (pert)" \
        with linespoints ls 4;
 
 set origin 0.0, 0.0;
@@ -71,9 +87,9 @@ if (pert) \
        with linespoints ls 1, \
        "dnu_dAy.out" using 2:(N*(N_y+$6)) title "A_y" \
        with linespoints ls 3, \
-       "dnu_dAx_pert.out" using 1:(N*(N_y+$4)) title "A_x (pert)" \
+       "ptc/dnu_dAx_pert.out" using 1:(N*(N_y+$4)) title "A_x (pert)" \
        with linespoints ls 2, \
-       "dnu_dAy_pert.out" using 2:(N*(N_y+$4)) title "A_y (pert)" \
+       "ptc/dnu_dAy_pert.out" using 2:(N*(N_y+$4)) title "A_y (pert)" \
        with linespoints ls 4;
 
 set origin 0.5, 0.5;
@@ -89,15 +105,15 @@ if (pert) \
   plot "chrom2.out" using 1:(N*$2) title "{/Symbol n}_x" with lines ls 1, \
        "chrom2.out" using 1:(N*$3) axis x1y2 title "{/Symbol n}_y" \
        with lines ls 3, \
-       "chrom2_pert.out" using 1:(N*(N_x+$2)) axis x1y1 \
+       "ptc/chrom2_pert.out" using 1:(N*(N_x+$2)) axis x1y1 \
        title "{/Symbol n}_x (pert)" with lines ls 2, \
-       "chrom2_pert.out" using 1:(N*(N_y+$3)) axis x1y2 \
+       "ptc/chrom2_pert.out" using 1:(N*(N_y+$3)) axis x1y2 \
        title "{/Symbol n}_y (pert)" with lines ls 4;
 
 unset multiplot;
-if (!ps) pause -1;
+if (!ps) pause mouse "click on graph to cont.\n";
 
-if (ps) set output "dnu_2.ps"
+if (ps) set output "dnu_2.".(ext)
 #set size 0.5, 0.5; set origin 0.0, 0.0;
 set title "Rec. Chrom.: Quadradic Deviation";
 set xlabel "{/Symbol d} [%]"; set ylabel "{/Symbol n}_x";
@@ -106,7 +122,7 @@ set ytics nomirror; set y2tics;
 plot "chrom2.out" using 1:((N*$2-nu_x)**2) title "{/Symbol n}_x" with lines ls 1, \
      "chrom2.out" using 1:((N*$3-nu_y)**2) axis x1y2 title "{/Symbol n}_y" \
      with lines ls 3;
-if (!ps) pause -1;
+if (!ps) pause mouse "click on graph to cont.\n";
 
 fract(x) = x - int(x);
 
@@ -115,7 +131,7 @@ fract(x) = x - int(x);
 set noztics; unset colorbox; set key left;
 set view 0, 0, 1, 1;
 
-if (ps) set output "dnu_3.ps"
+if (ps) set output "dnu_3.".(ext)
 set title "Distance from \"3rd\" Order Resonances";
 set xlabel "{/Symbol d} [%]"; set ylabel "{/Symbol Dn}"; unset y2label;
 set ytics nomirror; unset y2tics;
@@ -138,9 +154,9 @@ splot "chrom2.out" using 1:(fract(N*($2))):(0.0) \
       title "{/Symbol n}_x+2{/Symbol n}_y" with lines palette z, \
       "chrom2.out" using 1:(fract(N*(($2)-2*($3)))):(1.0) \
       title "{/Symbol n}_x-2{/Symbol n}_y" with lines palette z;
-if (!ps) pause -1;
+if (!ps) pause mouse "click on graph to cont.\n";
 
-if (ps) set output "dnu_4.ps"
+if (ps) set output "dnu_4.".(ext)
 set title "Distance from \"4th\" Order Sextupolar Resonances";
 set xlabel "{/Symbol d} [%]"; set ylabel "{/Symbol Dn}"; unset y2label;
 set yrange [0:1];
@@ -153,9 +169,9 @@ splot "chrom2.out" using 1:(fract(N*4*($2))):(0.0) \
       title "2{/Symbol n}_x+2{/Symbol n}_y" with lines palette z, \
       "chrom2.out" using 1:(fract(N*(2*($2)-2*($3)))):(1.0) \
       title "2{/Symbol n}_x-2{/Symbol n}_y" with lines palette z;
-if (!ps) pause -1;
+if (!ps) pause mouse "click on graph to cont.\n";
 
-if (ps) set output "dnu_5.ps"
+if (ps) set output "dnu_5.".(ext)
 set title "Distance from Resonances \"5th\" Order Sextupolar Resonances";
 set xlabel "{/Symbol d} [%]"; set ylabel "{/Symbol Dn}";
 set ytics nomirror; unset y2tics;
@@ -171,7 +187,7 @@ splot "chrom2.out" using 1:(fract(N*5*($2))):(0.0) \
       title "3{/Symbol n}_x+2{/Symbol n}_y" with lines palette z, \
       "chrom2.out" using 1:(fract(N*(3*($2)-2*($3)))):(1.0) \
       title "3{/Symbol n}_x-2{/Symbol n}_y" with lines palette z;
-if (!ps) pause -1;
+if (!ps) pause mouse "click on graph to cont.\n";
 
 set style line 1 lw line_width lc rgb "red";
 set style line 2 lw line_width lc rgb "dark-orange";
@@ -361,4 +377,6 @@ splot "fmapdp_est.dat" using (N*($3+N_x)):(N*($4+N_y)):5 notitle \
 
 #      u,     (6.0*u-i6m4)/4.0,   1.0 notitle with lines ls 5;
 
-if (!ps) pause(-1);
+if (!ps) pause mouse "click on graph to cont.\n";
+
+EOP
