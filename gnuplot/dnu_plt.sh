@@ -67,9 +67,9 @@ if (!pert) \
 else \
   plot "dnu_dAx.out" using 1:(N*(N_x+\$5)) title "A_x" with lines ls 1, \
        "dnu_dAy.out" using 2:(N*(N_x+\$5)) title "A_y" with lines ls 3, \
-       "ptc/dnu_dAx_pert.out" using 1:(N*(N_x+\$3)) title "A_x (pert)" \
+       "dnu_dAx_pert.out" using 1:(N*(N_x+\$3)) title "A_x (pert)" \
        with lines ls 2, \
-       "ptc/dnu_dAy_pert.out" using 2:(N*(N_x+\$3)) title "A_y (pert)" \
+       "dnu_dAy_pert.out" using 2:(N*(N_x+\$3)) title "A_y (pert)" \
        with lines ls 4;
 
 set origin 0.0, 0.0;
@@ -81,9 +81,9 @@ if (!pert) \
 else \
   plot "dnu_dAx.out" using 1:(N*(N_y+\$6)) title "A_x" with lines ls 1, \
        "dnu_dAy.out" using 2:(N*(N_y+\$6)) title "A_y" with lines ls 3, \
-       "ptc/dnu_dAx_pert.out" using 1:(N*(N_y+\$4)) title "A_x (pert)" \
+       "dnu_dAx_pert.out" using 1:(N*(N_y+\$4)) title "A_x (pert)" \
        with lines ls 2, \
-       "ptc/dnu_dAy_pert.out" using 2:(N*(N_y+\$4)) title "A_y (pert)" \
+       "dnu_dAy_pert.out" using 2:(N*(N_y+\$4)) title "A_y (pert)" \
        with lines ls 4;
 
 set origin 0.5, 0.5;
