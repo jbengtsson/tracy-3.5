@@ -729,21 +729,21 @@ void param_data_type::SVD(const int m, const int n, double **M,
 
     dsvdcmp(U1, m, n, w1, V1);
 
-    if (trace) {
+    if (first) {
       printf("\n");
       printf("singular values:\n");
       printf("\n");
     }
 
     for (i = 1; i <= n; i++) {
-      if (trace) printf("%11.3e", w1[i]);
+      if (first) printf("%11.3e", w1[i]);
       if (w1[i] < s_cut) {
 	w1[i] = 0.0;
-	if (trace) printf(" (zeroed)");
+	if (first) printf(" (zeroed)");
       }
-      if (trace) if (i % 8 == 0) printf("\n");
+      if (first) if (i % 8 == 0) printf("\n");
     }
-    if (trace) if (n % 8 != 0) printf("\n");
+    if (first) if (n % 8 != 0) printf("\n");
   }
 
   dsvbksb(U1, w1, V1, m, n, beta_nu, b2Ls_);
@@ -794,7 +794,7 @@ bool param_data_type::get_SQ(void)
        ...                                                                  */
 
   // Get Twiss params, no dispersion
-  Ring_GetTwiss(false, 0.0);
+  Ring_GetTwiss(false, 0e0);
 
   if (!status.codflag || !globval.stable) return false;
 
