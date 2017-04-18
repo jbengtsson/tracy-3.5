@@ -3218,16 +3218,7 @@ bool orb_corr(const int n_orbit)
   long      lastpos;
   Vector2   xmean, xsigma, xmax;
 
-  std::cout << "ini_skew_cor: out-of-date (globval.hcorr...)" << std::endl;
-  exit(1);
-
   printf("\n");
-
-//  FitTune(qf, qd, nu_x, nu_y);
-//  printf("\n");
-//  printf("  qf = %8.5f qd = %8.5f\n",
-//	   GetKpar(qf, 1, Quad), GetKpar(qd, 1, Quad));
-
   globval.CODvect.zero();
   for (i = 1; i <= n_orbit; i++) {
     cod = getcod(0.0, lastpos);
