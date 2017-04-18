@@ -317,25 +317,25 @@ bool cod_correct(const int n_orbit, const double scl, orb_corr_type orb_corr[])
       if (j == 1) {
 	codstat(mean, sigma, max, globval.Cell_nLoc, true, orb_corr[X_].bpms);
 	printf("\ncod_correct, initial rms cod (all):"
-	       "          x = %7.1e mm, y = %7.1e mm\n",
+	       "      x = %7.1e mm, y = %7.1e mm\n",
 	       1e3*sigma[X_], 1e3*sigma[Y_]);
 	codstat(mean, sigma, max, globval.Cell_nLoc, false, orb_corr[X_].bpms);
-	printf("cod_correct, nitial rms cod (bpms):"
-	       "         x = %7.1e mm, y = %7.1e mm\n",
+	printf("cod_correct, initial rms cod (bpms):"
+	       "     x = %7.1e mm, y = %7.1e mm\n",
 	       1e3*sigma[X_], 1e3*sigma[Y_]);
       }
 
       orb_corr[0].solve(scl); orb_corr[1].solve(scl);
 
       codstat(mean, sigma, max, globval.Cell_nLoc, false, orb_corr[X_].bpms);
-      printf("Corrected rms orbit (bpms):     x = %7.1e mm, y = %7.1e mm\n",
+      printf("Corrected rms orbit (bpms): x = %7.1e mm, y = %7.1e mm\n",
 	     1e3*sigma[X_], 1e3*sigma[Y_]);
     } else
       printf("\ncod_correct failed");
   }
 
   codstat(mean, sigma, max, globval.Cell_nLoc, true, orb_corr[X_].bpms);
-  printf("Corrected rms orbit (all):      x = %7.1e mm, y = %7.1e mm\n",
+  printf("Corrected rms orbit (all):  x = %7.1e mm, y = %7.1e mm\n",
 	 1e3*sigma[X_], 1e3*sigma[Y_]);
 
   return cod;
