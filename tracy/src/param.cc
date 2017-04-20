@@ -714,8 +714,7 @@ void param_data_type::reset_quads(void)
 
 
 void param_data_type::SVD(const int m, const int n, double **M,
-			  double beta_nu[], double b2Ls_[], const double s_cut,
-			  const bool first)
+			  double beta_nu[], double b2Ls_[], const bool first)
 {
   int i, j;
 
@@ -1100,7 +1099,7 @@ bool param_data_type::ID_corr(const int N_calls, const int N_steps,
     X_vector(false);                        // Fill in dX in dX=A*db2Ls_
     W_diag();                               // Get statistics
     for (j = 1; j <= N_calls; j++) {
-      SVD(Nconstr, Nquad, A1, Xsext, b2Ls_, 1e0, j == 1);
+      SVD(Nconstr, Nquad, A1, Xsext, b2Ls_, j == 1);
 
       if ((i == N_steps) && (j == N_calls)) fprintf(outf, "#b_2:\n");
 

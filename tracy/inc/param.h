@@ -102,7 +102,7 @@ class param_data_type {
   void set_IDs(const double scl);
   void reset_quads(void);
   void SVD(const int m, const int n, double **M, double beta_nu[],
-	   double b2Ls_[], const double s_cut, const bool first);
+	   double b2Ls_[], const bool first);
   void quad_config();
   bool get_SQ(void);
   double Bet(double bq, double nus, double nuq, double NuQ);
