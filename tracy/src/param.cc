@@ -732,7 +732,7 @@ void param_data_type::SVD(const int m, const int n, double **M,
 
     if (first) {
       printf("\n");
-      printf("singular values:\n");
+      printf("singular values: s_cut = %10.3e\n", s_cut);
       printf("\n");
     }
 
