@@ -169,8 +169,8 @@ void param_data_type::get_param(const string &param_file)
 	    exit(1);
 	  }
 	}
-      } else if (strcmp("s_cut", name) == 0)
-	sscanf(line, "%*s %le", &s_cut);
+      } else if (strcmp("ID_s_cut", name) == 0)
+	sscanf(line, "%*s %le", &ID_s_cut);
       else {
 	std::cout << "bad line in " << param_file << ": " << line << std::endl;
         exit_(1);
@@ -732,14 +732,14 @@ void param_data_type::SVD(const int m, const int n, double **M,
 
     if (first) {
       printf("\n");
-      printf("singular values: s_cut = %10.3e\n", s_cut);
+      printf("singular values: s_cut = %10.3e\n", ID_s_cut);
       printf("\n");
     }
 
     for (i = 1; i <= n; i++) {
       if (first) printf("%11.3e", w1[i]);
-      if (w1[i] < s_cut) {
-	w1[i] = 0.0;
+      if (w1[i] < ID_s_cut) {
+	w1[i] = 0e0;
 	if (first) printf(" (zeroed)");
       }
       if (first) if (i % 8 == 0) printf("\n");
