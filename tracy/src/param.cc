@@ -169,7 +169,9 @@ void param_data_type::get_param(const string &param_file)
 	    exit(1);
 	  }
 	}
-      } else {
+      } else if (strcmp("s_cut", name) == 0)
+	sscanf(line, "%*s %le", &s_cut);
+      else {
 	std::cout << "bad line in " << param_file << ": " << line << std::endl;
         exit_(1);
       }
