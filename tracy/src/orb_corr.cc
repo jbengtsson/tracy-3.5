@@ -235,6 +235,11 @@ void cod_ini(const std::vector<string> &bpm_Fam_names,
 
   for (j = 0; j < 2; j++)
     orb_corr[j].alloc(bpm_Fam_names, corr_Fam_names[j], j == 0, true, eps);
+
+  printf("\ncod_ini:\n");
+  printf("  no bpms %d, no of hor corr. %d, no of ver. corr. %d \n",
+	 orb_corr[0].bpms.size(), orb_corr[0].corrs.size(),
+	 orb_corr[1].corrs.size());
 }
 
 
