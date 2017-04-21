@@ -1711,13 +1711,9 @@ void param_data_type::err_and_corr_init(const string &param_file,
 
   get_bare();
 
-  if (ae_file != "") {
-    if (bba) {
-      Align_BPMs(Quad);
-    }
+  cod_ini(bpm_Fam_names, corr_Fam_names, orb_corr);
 
-    cod_ini(bpm_Fam_names, corr_Fam_names, orb_corr);
-  }
+  if ((ae_file != "") && bba) Align_BPMs(Quad);
 
   if (N_calls > 0) ini_ID_corr(false);
 
