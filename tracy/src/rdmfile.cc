@@ -50,7 +50,8 @@
                  harm no, kxV [1/m], BoBrhoV [1/m], kxH, BoBrhoH, phi
                     ...
 
-     cavity:	 cavity voltage/beam energy [eV], omega/c, beam energy [eV]
+     cavity:	 cavity voltage/beam energy [eV], omega/c, beam energy [eV],
+                 phi
 
      thin kick:	 hor., ver. displacement, roll angle (total)
 		 no of nonzero multipole coeff.
@@ -192,9 +193,9 @@ void rdmfile(const char *mfile_dat)
     case Cavity:
       inf.getline(line, max_str);
       if (prt) printf("%s\n", line);
-      sscanf(line, "%lf %lf %d %lf",
+      sscanf(line, "%lf %lf %d %lf %lf",
 	     &Cell[i].Elem.C->Pvolt, &Cell[i].Elem.C->Pfreq,
-	     &Cell[i].Elem.C->Ph, &globval.Energy);
+	     &Cell[i].Elem.C->Ph, &globval.Energy, &Cell[i].Elem.C->phi);
       globval.Energy *= 1e-9;
       Cell[i].Elem.C->Pvolt *= globval.Energy*1e9;
       Cell[i].Elem.C->Pfreq *= c0/(2.0*M_PI);

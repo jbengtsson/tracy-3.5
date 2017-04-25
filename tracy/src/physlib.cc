@@ -824,7 +824,10 @@ void dynap(FILE *fp, double r, const double delta,
   long int  i, lastpos;
   double    phi, x_min, x_max, y_min, y_max;
 
-  if (cod) getcod(delta, lastpos);
+  if (cod)
+    getcod(delta, lastpos);
+  else
+    globval.CODvect.zero();
   if (floqs) {
     Ring_GetTwiss(false, delta);
     if (print) {

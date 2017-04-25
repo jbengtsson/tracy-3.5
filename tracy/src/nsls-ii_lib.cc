@@ -508,9 +508,9 @@ void GetEmittance(const int Fnum, const bool prt)
   sigma_delta = sqrt(gamma_z*globval.eps[Z_]);
 
   if (prt) {
-    printf("\n");
-    printf("Emittance:\n");
-    printf("\n");
+    printf("\nEmittance:\n");
+    printf("\nBeam energy [GeV]:              "
+	   "Eb          = %4.2f\n", globval.Energy);
     printf("Energy loss per turn [keV]:     "
 	   "U0          = %3.1f\n",
 	   1e-3*globval.U0);

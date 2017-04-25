@@ -1,10 +1,20 @@
-ps = 0; eps = 0;
+ps = 0;
 
-if (!ps) set terminal x11;
-if (ps && !eps) \
-  set terminal postscript enhanced color solid lw 2 "Times-Roman" 20;
-if (ps && eps) \
-  set terminal postscript eps enhanced color solid lw 2 "Times-Roman" 20;
+f_s = 14; l_w = 2;
+if (ps == 0) \
+  set terminal x11; \
+else if (ps == 1) \
+  set terminal postscript enhanced color solid lw l_w "Times-Roman" f_s; \
+  ext = "ps"; \
+else if (ps == 2) \
+  set terminal postscript eps enhanced color solid lw l_w "Times-Roman" f_s; \
+  ext = "eps"; \
+else if (ps == 3) \
+  set terminal pdf enhanced color solid lw l_w font "Times-Roman f_s"; \
+  ext = "pdf"; \
+else if (ps == 4) \
+  set term pngcairo enhanced color solid lw l_w font "Times-Roman f_s"; \
+  ext = "png";
 
 set grid;
 
@@ -14,10 +24,10 @@ set nosurface; set contour base; set noztics; set key off; unset colorbox;
 set view 0, 0, 1, 1;
 set palette rgbformulae 22, 13, -31;
 
-if (ps) set output "H_long.ps"
+if (ps) set output "H_long.".(ext);
 
 set cntrparam level 20;
 set title "Longitudinal Phase Space to O({/Symbol a}_4)"
 set xlabel "{/Symbol f} [{/Symbol \260}]"; set ylabel "{/Symbol d} [%]";
 splot "H_long.dat" using 1:2:3 notitle with lines lt palette z;
-if (!ps) pause(-1);
+if (!ps) pause mouse "click on graph to cont.\n";
