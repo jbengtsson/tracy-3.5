@@ -61,7 +61,7 @@ void Trac_Simple(double x, double px, double y, double py, double dp,
   *status2 = true; /* stable */
 
   if (cod) {
-    printf("Trac_Simple: relative (to COD)\n");
+    // printf("Trac_Simple: relative (to COD)\n");
     /* Get closed orbit */
     //~ getcod(dp, lastpos);
     findcod(dp);
@@ -74,7 +74,7 @@ void Trac_Simple(double x, double px, double y, double py, double dp,
     x1[0] =  x + globval.CODvect[0]; x1[1] = px + globval.CODvect[1];
     x1[2] =  y + globval.CODvect[2]; x1[3] = py + globval.CODvect[3];
   } else {
-    printf("Trac_Simple: absolute\n");
+    // printf("Trac_Simple: absolute\n");
     x1[0] = x; x1[1] = px; x1[2] = y; x1[3] = py;
   }
 
@@ -98,20 +98,25 @@ void Trac_Simple(double x, double px, double y, double py, double dp,
     else
     {
       // printf("Trac_Simple: Particle lost \n");
-      fprintf(stdout, "%6ld plane: %1d %+10.5g %+10.5g %+10.5g %+10.5g %+10.5g %+10.5g \n", 
-         lastn, status.lossplane, x1[0], x1[1], x1[2], x1[3], x1[4], x1[5]);
+      // printf("%6ld plane:"
+      // 	     " %1d %+10.5g %+10.5g %+10.5g %+10.5g %+10.5g %+10.5g \n", 
+      // 	     lastn, status.lossplane,
+      // 	     x1[0], x1[1], x1[2], x1[3], x1[4], x1[5]);
       lostF = true;
       *status2 = false;
     }
     lastn++;
-  } while ((lastn < nmax) && (lastpos == globval.Cell_nLoc) && (lostF == false));
+  } while ((lastn < nmax) && (lastpos == globval.Cell_nLoc)
+	   && (lostF == false));
 
   if (lastpos != globval.Cell_nLoc)
   { /* Particle lost: Error message section */
     *status2 = false;
     // printf("Trac_Simple: Particle lost \n");
-    fprintf(stdout, "turn=%5ld plane= %1d %+10.5g %+10.5g %+10.5g %+10.5g %+10.5g %+10.5g \n", lastn-1,
-             status.lossplane, x1[0], x1[1], x1[2], x1[3], x1[4], x1[5]);
+    // printf("turn=%5ld plane= %1d"
+    // 	   " %+10.5g %+10.5g %+10.5g %+10.5g %+10.5g %+10.5g \n",
+    // 	   lastn-1, status.lossplane,
+    // 	   x1[0], x1[1], x1[2], x1[3], x1[4], x1[5]);
   }
 }
 
