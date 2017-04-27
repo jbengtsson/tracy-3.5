@@ -18,9 +18,10 @@ else if (ps == 4) \
 
 set grid;
 
-set style line 1 lt 1 lw 1 lc rgb "blue";
-set style line 2 lt 1 lw 1 lc rgb "green";
-set style line 3 lt 1 lw 1 lc rgb "red";
+point_size = 0.2;
+set style line 1 lt 1 lw 1 lc rgb "blue" pointsize point_size;
+set style line 2 lt 1 lw 1 lc rgb "green" pointsize point_size;
+set style line 3 lt 1 lw 1 lc rgb "red" pointsize point_size;
 
 if (ps) set output "track.".(ext)
 
