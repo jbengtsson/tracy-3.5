@@ -1,4 +1,4 @@
-ps = 0; J_phi = 0;
+ps = 0; J_phi = 0; f_rf  = 0;
 
 f_s = 14; l_w = 2;
 if (ps == 0) \
@@ -51,9 +51,12 @@ else \
 
 set origin 0.5, 0.0;
 set title "Longitudinal Phase Space";
-set xlabel "{/Symbol f} [{/Symbol \260}]";
 set ylabel "{/Symbol d} [%]";
 set yrange [*:*];
+if (f_rf) \
+  set xlabel "{/Symbol f} [{/Symbol \260}]"; \
+else \
+  set xlabel "ct [mm]";
 plot "track.out" using 7:6 notitle with points ls 2;
 
 unset multiplot;
