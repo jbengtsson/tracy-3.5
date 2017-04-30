@@ -8,7 +8,7 @@ prm4=${4-1}
 gnuplot << EOP
 
 N = $prm1; ps = $prm2;
-#MAX-VI: 1, SLS-2: 2.
+#MAX-VI: 1, SLS-2: 2, ALS-U: 3.
 case  = $prm3;
 scale = $prm4 == 1;
 
@@ -33,7 +33,10 @@ if ((N == 1) && (case == 1)) \
 else if ((N == 1) && (case == 2)) \
   N_x = 39; N_y = 15; \
 else if (N == 12) \
-  N_x = 3; N_y = 1; \
+  if (case == 2) \
+    N_x = 3; N_y = 1; \
+  else \
+    N_x = 3; N_y = 2; \
 else if (N == 20) \
   N_x = 5; N_y = 3;
 
@@ -42,7 +45,10 @@ if (case == 1) \
   x_min = -2.0; x_max = 2.0; y_min = -2.0; y_max = 2.0; \
 else if (case == 2) \
   nu_x_min = 39.0; nu_x_max = 39.5; nu_y_min = 15.0; nu_y_max = 15.6; \
-  x_min = -6.0; x_max = 6.0; y_min = -6.0; y_max = 6.0;
+  x_min = -6.0; x_max = 6.0; y_min = -6.0; y_max = 6.0; \
+else if (case == 3) \
+  nu_x_min = 41.0; nu_x_max = 41.5; nu_y_min = 26.0; nu_y_max = 26.6; \
+  x_min = -2.5; x_max = 2.5; y_min = -2.5; y_max = 2.5;
 
 delta_min = -5.1; delta_max = 5.1;
 
