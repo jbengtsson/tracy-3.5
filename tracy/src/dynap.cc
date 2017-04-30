@@ -292,7 +292,7 @@ void DA_data_type::get_DA_real(param_data_type &params,
 
       if (params.N_calls > 0) params.reset_quads();  
     } else
-      chk_cod(cod, "error_and_correction");
+      chk_cod(cod, "err_and_corr");
   }
 
   for (j = 0; j <= params.n_delta_DA; j++) {
@@ -302,9 +302,9 @@ void DA_data_type::get_DA_real(param_data_type &params,
     for (k = 0; k <= 1; k++)
       get_mean_sigma(params.n_stat, x_hat_m[j][k], x_hat_s[j][k]);
 
-    fprintf(DA_real, "  %5.2f  %6.1f \xB1 %6.1f"
-	    "   %5.1f \xB1 %5.2f    %5.1f \xB1 %5.2f"
-	    "   %4.1f \xB1 %5.2f     %4.1f \xB1 %5.2f\n", 
+    fprintf(DA_real, "  %6.3f  %7.2f \xB1 %7.2f"
+	    "   %6.2f \xB1 %6.3f    %6.2f \xB1 %6.3f"
+	    "   %5.2f \xB1 %6.3f     %5.2f \xB1 %6.3f\n", 
 	    d[j]*1e2,
 	    1e6*DA_m[j], 1e6*DA_s[j],
 	    1e6*sqr(x_hat_m[j][X_])/Cell[globval.Cell_nLoc].Beta[X_],
