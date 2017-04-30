@@ -32,11 +32,10 @@ if ((N == 1) && (case == 1)) \
   N_x = 102; N_y = 68; \
 else if ((N == 1) && (case == 2)) \
   N_x = 39; N_y = 15; \
-else if (N == 12) \
-  if (case == 2) \
-    N_x = 3; N_y = 1; \
-  else \
-    N_x = 3; N_y = 2; \
+else if ((N == 12) && (case == 2)) \
+  N_x = 3; N_y = 1; \
+else if ((N == 12) && (case == 3)) \
+  N_x = 3; N_y = 2; \
 else if (N == 20) \
   N_x = 5; N_y = 3;
 
