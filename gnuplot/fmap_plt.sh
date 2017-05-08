@@ -40,7 +40,7 @@ else if (N == 20) \
   N_x = 5; N_y = 3;
 
 if (case == 1) \
-  nu_x_min = 101.7; nu_x_max = 102.5; nu_y_min = 68.0; nu_y_max = 69.0; \
+  nu_x_min = 102.0; nu_x_max = 102.5; nu_y_min = 68.0; nu_y_max = 68.5; \
   x_min = -2.0; x_max = 2.0; y_min = -2.0; y_max = 2.0; \
 else if (case == 2) \
   nu_x_min = 39.0; nu_x_max = 39.5; nu_y_min = 15.0; nu_y_max = 15.6; \
@@ -157,17 +157,13 @@ set urange [nu_x_min:nu_x_max]; set vrange [nu_y_min:nu_y_max];
 
 if (ps) set output "fmap_1.".(ext);
 
-set multiplot;
-
-#set pm3d at b map;
-#set contour;
-unset colorbox;
+#set multiplot;
 
 unset contour;
 unset pm3d;
 set colorbox;
 
-set size 1.0, 0.5; set origin 0.0, 0.5;
+#set size 1.0, 0.5; set origin 0.0, 0.5;
 set title "Tune Shift";
 set xlabel "{/Symbol n}_x"; set ylabel "{/Symbol n}_y";
 if (scale) set xrange [nu_x_min:nu_x_max]; set yrange [nu_y_min:nu_y_max]; 
@@ -239,17 +235,19 @@ splot "fmap.out" using \
 
 #      u,     (6.0*u-i6m4)/4.0,   1.0 notitle with lines ls 5;
 
+if (!ps) pause mouse "click on graph to cont.\n";
+
 set pm3d at b map;
 #set contour;
-unset colorbox;
+#unset colorbox;
 
-set origin 0.0, 0.0;
+#set origin 0.0, 0.0;
 set title "Diffusion Map";
 set xlabel "A_x"; set ylabel "A_y";
 if (scale) set xrange [x_min:x_max]; set yrange [y_min:y_max];
 splot "fmap.out" using 1:2:((\$7 != -2.0)? \$7 : NaN) notitle lt palette z;
 
-unset multiplot;
+#unset multiplot;
 if (!ps) pause mouse "click on graph to cont.\n";
 
 unset output;
@@ -273,8 +271,6 @@ set palette model RGB file file_name using (\$1/255):(\$2/255):(\$3/255);
 #set cbrange [-10:-2];
 set noztics; unset clabel;
 set view map;
-# To set y-axis to left side and avoid compression of color box.
-unset pm3d;
 
 set parametric;
 
@@ -282,13 +278,14 @@ set urange [nu_x_min:nu_x_max]; set vrange [nu_y_min:nu_y_max];
 
 if (ps) set output "fmap_2.".(ext);
 
-set multiplot;
+#set multiplot;
 
 unset contour;
+# To set y-axis to left side and avoid compression of color box.
 unset pm3d;
 set colorbox;
 
-set size 1.0, 0.5; set origin 0.0, 0.5;
+#set size 1.0, 0.5; set origin 0.0, 0.5;
 set title "Tune Shift";
 set xlabel "{/Symbol n}_x"; set ylabel "{/Symbol n}_y";
 if (scale) set xrange [nu_x_min:nu_x_max]; set yrange [nu_y_min:nu_y_max];
@@ -360,17 +357,18 @@ splot "fmapdp.out" using \
 
 #      u,     (6.0*u-i6m4)/4.0,   1.0 notitle with lines ls 5;
 
+if (!ps) pause mouse "click on graph to cont.\n";
+
 set pm3d at b map;
-#set contour;
 unset colorbox;
 
-set origin 0.0, 0.0;
+#set origin 0.0, 0.0;
 set title "Diffusion Map";
 set xlabel "{/Symbol d} [%]"; set ylabel "A_x";
 if (scale) set xrange [delta_min:delta_max]; set yrange [x_min:x_max];
 splot "fmapdp.out" using 1:2:((\$7 != -2.0)? \$7 : NaN) notitle lt palette z;
 
-unset multiplot;
+#unset multiplot;
 if (!ps) pause mouse "click on graph to cont.\n";
 
 EOP
