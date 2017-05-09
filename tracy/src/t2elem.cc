@@ -169,7 +169,8 @@ inline T get_p_s(const ss_vect<T> &x)
 {
   T  p_s, p_s2;
 
-  if (false)
+  if (true)
+    // Small angle axproximation.
     p_s = 1e0+x[delta_];
   else {
     p_s2 = sqr(1e0+x[delta_]) - sqr(x[px_]) - sqr(x[py_]);
@@ -189,9 +190,10 @@ void Drift(const double L, ss_vect<T> &ps)
 {
   T u;
 
-  if (false) {
+  if (true) {
+    // Small angle axproximation.
     u = L/(1e0+ps[delta_]);
-    ps[x_]  += u*ps[px_]; ps[y_] += ps[py_];
+    ps[x_]  += u*ps[px_]; ps[y_] += u*ps[py_];
     ps[ct_] += u*(sqr(ps[px_])+sqr(ps[py_]))/(2e0*(1e0+ps[delta_]));
   } else {
     u = L/get_p_s(ps);
@@ -474,7 +476,7 @@ void thin_kick(const int Order, const double MB[], const double L,
 
     if (h_ref != 0e0) {
       // Sector bend.
-      if (false) {
+      if (true) {
 	x[px_] -= L*(ByoBrho+(h_bend-h_ref)/2e0+h_ref*h_bend*x0[x_]
 		     -h_ref*x0[delta_]);
 	x[ct_] += L*h_ref*x0[x_];
@@ -488,10 +490,10 @@ void thin_kick(const int Order, const double MB[], const double L,
 	x[px_] -= L*((1e0+h_ref*x0[x_])*ByoBrho-h_ref*p_s);
 	x[py_] += L*(1e0+h_ref*x0[x_])*BxoBrho;
       }
-    } else {
+    } else
       // Cartesian bend.
-      x[px_] -= L*(h_bend+ByoBrho); x[py_] += L*BxoBrho;
-    }
+      x[px_] -= L*(h_bend+ByoBrho);
+    x[py_] += L*BxoBrho;
   }
 }
 
@@ -995,7 +997,8 @@ inline void get_Axy_map(const FieldMapType *FM, const double z,
     AyoBrho[3] = (ay2-ay1)/(2e0*dz); AyoBrho[3] *= FM->scl;
     if (false)
       std::cout << std::fixed << std::setprecision(5)
-	   << std::setw(8) << z << std::setw(9) << is_double<T>::cst(AxoBrho[3]) << std::endl;
+	   << std::setw(8) << z << std::setw(9)
+	   << is_double<T>::cst(AxoBrho[3]) << std::endl;
   }
 }
 */
