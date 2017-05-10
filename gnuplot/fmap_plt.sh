@@ -237,6 +237,8 @@ splot "fmap.out" using \
 
 if (!ps) pause mouse "click on graph to cont.\n";
 
+if (ps) set output "fmap_2.".(ext);
+
 set pm3d at b map;
 #set contour;
 #unset colorbox;
@@ -276,7 +278,7 @@ set parametric;
 
 set urange [nu_x_min:nu_x_max]; set vrange [nu_y_min:nu_y_max];
 
-if (ps) set output "fmap_2.".(ext);
+if (ps) set output "fmap_3.".(ext);
 
 #set multiplot;
 
@@ -358,6 +360,8 @@ splot "fmapdp.out" using \
 #      u,     (6.0*u-i6m4)/4.0,   1.0 notitle with lines ls 5;
 
 if (!ps) pause mouse "click on graph to cont.\n";
+
+if (ps) set output "fmap_4.".(ext);
 
 set pm3d at b map;
 #unset colorbox;
