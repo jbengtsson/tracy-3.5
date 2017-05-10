@@ -360,7 +360,7 @@ splot "fmapdp.out" using \
 if (!ps) pause mouse "click on graph to cont.\n";
 
 set pm3d at b map;
-unset colorbox;
+#unset colorbox;
 
 #set origin 0.0, 0.0;
 set title "Diffusion Map";
