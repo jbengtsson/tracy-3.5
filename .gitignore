@@ -16,3 +16,16 @@ aclocal.m4
 config/
 *.Po
 *.*~
+
+# Command, data and graphics files.
+in
+max_iv
+sls-2
+python
+*.out
+*.dat
+*.eps
+*.ps
+*.pdf
+*.png
+*.gif
