@@ -1,0 +1,5 @@
+# Empty field error file
+# name  sys/rms  r0 [mm]  {n  Dbn/bN  Dan/aN}   
+#seed 4399
+#quad    rms    28.0    2   2.5e-4   0.0  3  2.8e-4  2.9e-4  4  1.9e-4  1.4e-4
+#sext    rms    28.0    3   5.0e-4   0.0  4  5.2e-4  4.9e-4  5  3.5e-4  0.0

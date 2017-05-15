@@ -1,0 +1,7 @@
+#       name   sys/rms     r0    [m]         {n          Dbn/bN  Dan/aN}
+# low dispersion multipolerrors
+quad    sys        2.50E-02    10    3.30E-04           0
+quad    sys        2.50E-02    14    3.50E-04           0
+# high dispersion multipolerrors
+QM2     sys        2.50E-02    10    0.0                0
+QM2     sys        2.50E-02    14    0.0                0

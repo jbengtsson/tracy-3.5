@@ -1,0 +1,21 @@
+# field and multipole errors
+# name  sys/rms  r0 [m]  {n  Dbn/bN  Dan/aN}
+seed 4399
+#
+### field errors from manufacturing: assume 0.05% rms variation of main component
+#   (as result of +/-20um on typical 20mm gap, see journal comment 20110426)
+#
+#   rms and sys multipole errors come from BINP measurement data for SLS magnets and have
+#   been scaled to our dimensions (see lab journal 20130227)
+#
+dip  rms 11e-3  2 9.0e-5 0.0
+quad rms 11e-3  2 5.0e-4 0.0  3 1.1e-4 1.1e-4  4 0.3e-4  0.2e-4  6 3.0e-6 0.0  10 2e-8 0.0
+sext rms 11e-3  3 5.0e-4 0.0  4 2.0e-4 2.0e-4  5 0.6e-4  0.0     9 0.3e-6 0.0
+o1  rms 11e-3  4 5.0e-4 0.0
+o2  rms 11e-3  4 5.0e-4 0.0
+o3  rms 11e-3  4 5.0e-4 0.0
+#
+quad sys 12.5e-3  6 2e-4 0.0  10 2e-4 0.0  14 2e-4 0.0
+sext sys 12.5e-3  9 3e-4 0.0  15 3e-4 0.0  21 3e-4 0.0
+#
+# r0 should be ~ good field, in reality it's the measurement coil size

@@ -1,0 +1,45 @@
+# Beam energy [GeV].
+energy       2.4
+
+# Input files.
+in_dir       /afs/psi.ch/user/b//bengtsson_j/git_repos/projects/in/
+flat_file    /afs/psi.ch/user/b//bengtsson_j/git_repos/projects/src/
+# Seed should be 2279.
+ae_file      Align_Err/AlignErr.n_ba.dat
+fe_file      Field_Err/FieldErr.n_ba.dat
+#ap_file      Aper/Apertures.dat
+
+# Flags.
+DA_bare       false
+
+# Parameters.
+s_cut         1.0    // Gaussian distribution truncated at 1 sigma.
+n_stat        20
+n_orbit       5
+
+# Beam threading.
+loc_name      b_t
+n_cell        3
+
+# Orbit correction.
+bpm_names     bpm
+h_corrs       chv
+v_corrs       chv
+
+# Girder correlations.
+#gs            gs
+#ge            ge
+
+#
+n_track       512
+n_aper        15
+n_delta       10
+delta         5e-2
+
+N_calls       5
+N_steps       1
+ID_quads      qf qm qfe qde
+# No blank line after ID_quads.
+#
+# Linear coupling and vertical dispersion.
+n_lin         0

@@ -1,0 +1,16 @@
+#------------------------------------------  
+#  rms aligment error for NSLSII
+#  name       x(m) 	 y(m)      r (rad) 
+#-----------------------------------------
+seed   2279
+girder	rms   100.0e-6	100.0e-6	0.0e-03
+quad	rms    30.0e-6	 30.0e-6	0.0e-03
+sext	rms    30.0e-6	 30.0e-6	0.0e-03
+#dipole	rms   500.0e-6	  0.0e-6	0.5e-03
+#bpm	rms     0.0e-6	  0.0e-6	0.0e-03
+
+
+
+
+
+

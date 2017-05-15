@@ -1,0 +1,82 @@
+# Relaxed baseline
+#
+# Seed is for all magnetic ranom errors.
+seed	4399
+#
+# name sys/rms     r0
+#
+# Normal aperture.
+quad	rms	25.0E-3	2	2.00E-04	0.00E-04
+quad	rms	25.0E-3	3	2.00E-04	2.00E-04
+quad	rms	25.0E-3	4	2.00E-04	1.00E-04
+quad	rms	25.0E-3	5	1.00E-04	1.00E-04
+quad	rms	25.0E-3	6	0.00E-04	1.00E-04
+quad	rms	25.0E-3	7	1.00E-04	1.00E-04
+quad	rms	25.0E-3	8	1.00E-04	1.00E-04
+quad	rms	25.0E-3	9	1.00E-04	1.00E-04
+quad	rms	25.0E-3	10	0.00E-04	1.00E-04
+quad	rms	25.0E-3	11	0.50E-04	0.50E-04
+quad	rms	25.0E-3	12	0.50E-04	0.50E-04
+quad	rms	25.0E-3	13	0.50E-04	0.50E-04
+quad	rms	25.0E-3	14	0.00E-04	1.00E-04
+quad	rms	25.0E-3	15	0.50E-04	0.50E-04
+#
+quad	sys	25.0E-3	6	3.00E-04	0.00E-04
+quad	sys	25.0E-3	10	3.00E-04	0.00E-04
+quad	sys	25.0E-3	14	3.00E-04	0.00E-04
+#
+# Large aperture.
+qm2	rms	25.0e-3	2	2.00e-04	0.00e-04
+qm2	rms	25.0e-3	3	3.00e-04	1.50e-04
+qm2	rms	25.0e-3	4	2.00e-04	1.00e-04
+qm2	rms	25.0e-3	5	0.30e-04	0.10e-04
+qm2	rms	25.0e-3	6	0.00e-04	0.10e-04
+qm2	rms	25.0e-3	7	0.10e-04	0.10e-04
+qm2	rms	25.0e-3	8	0.10e-04	0.10e-04
+qm2	rms	25.0e-3	9	0.10e-04	0.10e-04
+qm2	rms	25.0e-3	10	0.00e-04	0.10e-04
+qm2	rms	25.0e-3	11	0.10e-04	0.10e-04
+qm2	rms	25.0e-3	12	0.10e-04	0.10e-04
+qm2	rms	25.0e-3	13	0.10e-04	0.10e-04
+qm2	rms	25.0e-3	14	0.00e-04	0.10e-04
+qm2	rms	25.0e-3	15	0.10e-04	0.10e-04
+#
+qm2	sys	25.0e-3	6	0.50e-04	0.00e-04
+qm2	sys	25.0e-3	10	0.50e-04	0.00e-04
+qm2	sys	25.0e-3	14	0.10e-04	0.00e-04
+#
+# Normal aperture.
+sext	rms	25.0E-3	3	5.00E-04	0.00E-04
+sext	rms	25.0E-3	4	2.50E-04	1.00E-04
+sext	rms	25.0E-3	5	1.00E-04	1.00E-04
+sext	rms	25.0E-3	6	1.00E-04	1.00E-04
+sext	rms	25.0E-3	7	1.00E-04	1.00E-04
+sext	rms	25.0E-3	8	1.00E-04	1.00E-04
+sext	rms	25.0E-3	9	0.00E-04	1.00E-04
+sext	rms	25.0E-3	10	0.50E-04	0.50E-04
+sext	rms	25.0E-3	11	0.50E-04	0.50E-04
+sext	rms	25.0E-3	12	0.50E-04	0.50E-04
+sext	rms	25.0E-3	13	0.50E-04	0.50E-04
+sext	rms	25.0E-3	14	0.50E-04	0.50E-04
+sext	rms	25.0E-3	15	0.00E-04	0.50E-04
+#
+sext	sys	25.0E-3	9	2.00E-04	0.00E-04
+sext	sys	25.0E-3	15	1.00E-04	0.00E-04
+#
+# Large aperture.
+sm2	rms	25.0e-3	3	5.00e-04	0.00e-04
+sm2	rms	25.0e-3	4	3.00e-04	3.00e-04
+sm2	rms	25.0e-3	5	1.00e-04	1.00e-04
+sm2	rms	25.0e-3	6	1.00e-04	0.50e-04
+sm2	rms	25.0e-3	7	0.50e-04	0.50e-04
+sm2	rms	25.0e-3	8	0.50e-04	0.50e-04
+sm2	rms	25.0e-3	9	0.00e-04	0.20e-04
+sm2	rms	25.0e-3	10	0.10e-04	0.20e-04
+sm2	rms	25.0e-3	11	0.10e-04	0.20e-04
+sm2	rms	25.0e-3	12	0.10e-04	0.10e-04
+sm2	rms	25.0e-3	13	0.10e-04	0.10e-04
+sm2	rms	25.0e-3	14	0.10e-04	0.10e-04
+sm2	rms	25.0e-3	15	0.00e-04	0.10e-04
+#
+sm2	sys	25.0e-3	9	0.50e-04	0.00e-04
+sm2	sys	25.0e-3	15	0.50e-04	0.00e-04

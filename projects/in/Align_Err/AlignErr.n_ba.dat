@@ -1,0 +1,22 @@
+#---------------------------------------------- 
+#  rms aligment errors for SLS-2 
+#----------------------------------------------
+# name  type       x[m]     y[m]        r [rad] 
+seed   2279
+# girder-girder better +-50 um up to 5m (2 sigma) -> 25 um rms
+# (if we can tell them how much to move better +-10 um -> 5 um RMS !)
+#girder	rms    25.0e-6	 25.0e-6	0.2e-03
+# with measuring magnetic fields on girders and successive shimming
+quad	rms    20.0e-6	 20.0e-6	0.2e-03
+# with measuring magnetic fields on girders and successive shimming
+sext	rms    20.0e-6	 20.0e-6	0.2e-03
+o1	rms    25.0e-6	 25.0e-6	0.2e-03
+o2	rms    25.0e-6	 25.0e-6	0.2e-03
+o3	rms    25.0e-6	 25.0e-6	0.2e-03
+o4	rms    25.0e-6	 25.0e-6	0.2e-03
+# why x and y errors on correctors ?-)
+chv	rms     0.0e-6	  0.0e-6	0.2e-03
+# with bba (roll from loco or bump scan with respect to corr)
+# bpm error should be correlated with quad and/or sext errors to reflect BBA
+bpm	rms     5.0e-6	  5.0e-6	1.0e-05
+

@@ -1,0 +1,11 @@
+#----------------------------------------------  
+#  rms aligment errors for MAX IV 3 GeV ring
+#----------------------------------------------
+# name  type       x[m]     y[m]        r [rad] 
+seed   2279
+### girder = dipole (array of dipole slices)
+#girder	rms    25.0e-6	 25.0e-6	0.2e-03
+quad	rms    25.0e-6	 25.0e-6	0.2e-03
+sext	rms     3.0e-6	  3.0e-6	0.2e-03
+#chv	rms    25.0e-6	 25.0e-6	0.2e-03
+#bpm	rms     3.0e-6	  3.0e-6	0.1e-03

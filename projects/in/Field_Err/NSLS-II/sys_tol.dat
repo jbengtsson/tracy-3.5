@@ -1,0 +1,5 @@
+# sys errors from design quads and sextupoles
+# name  sys/rms  r0 [m]  {n  Dbn/bN  Dan/aN}   
+#
+quad sys 25e-3  6 1.0e-4 0.0  10 0.5e-4 0.0  14 0.1e-4 0.0
+sext sys 25e-3  9 0.5e-4 0.0  15 0.5e-4 0.0  21 0.5e-4 0.0

@@ -1,0 +1,12 @@
+# BINP measured multipole errors
+# name  sys/rms  r0 [m]  {n  Dbn/bN  Dan/aN}   
+seed 4399
+#quad rms 28.0e-3  2 2.5e-4 0.0  3 2.8e-4 2.9e-4  4 1.9e-4  1.4e-4  6 1.3e-4 0.0  10 3.0e-5 0.0
+#sext rms 28.0e-3  3 5.0e-4 0.0  4 5.2e-4 4.9e-4  5 3.5e-4  0.0     9 8.0e-5 0.0  15 5.0e-5 0.0
+#
+quad sys 25e-3  6 0.5e-4 0.0  10 0.5e-4 0.0  14 0.1e-4 0.0
+sext sys 25e-3  9 0.5e-4 0.0  15 0.5e-4 0.0  21 0.5e-4 0.0 
+#
+# dipole 3-pole wiggler interaction
+#                      n   (b_n L)  (a_n L)
+#tpw     sys     0.0    3     0.0     0.0

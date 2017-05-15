@@ -1,0 +1,43 @@
+#       name   sys/rms     r0    [m]         {n          Dbn/bN  Dan/aN}
+#       seed applies to all magnets randoms
+seed       4399
+quad    rms        2.50E-02     1    0.00E+00    1.00E-04
+quad    rms        2.50E-02     2           0    0.00E+00
+quad    rms        2.50E-02     3    3.00E-04    1.00E-04
+quad    rms        2.50E-02     4    1.00E-04    1.00E-05
+quad    rms        2.50E-02     5    1.00E-05    1.00E-05
+quad    rms        2.50E-02     6           0    1.00E-05
+quad    rms        2.50E-02     7    1.00E-05    1.00E-05
+quad    rms        2.50E-02     8    1.00E-05    1.00E-05
+quad    rms        2.50E-02     9    1.00E-05    1.00E-05
+quad    rms        2.50E-02    10    0.00E+00    1.00E-05
+quad    rms        2.50E-02    11    1.00E-05    1.00E-05
+quad    rms        2.50E-02    12    1.00E-05    1.00E-05
+quad    rms        2.50E-02    13    1.00E-05    1.00E-05
+quad    rms        2.50E-02    14    0.00E+00    1.00E-05
+quad    rms        2.50E-02    15    1.00E-05    1.00E-05
+quad    rms        2.50E-02    16    1.00E-05    1.00E-05
+quad    rms        2.50E-02    17    1.00E-05    1.00E-05
+quad    rms        2.50E-02    18    1.00E-05    1.00E-05
+quad    rms        2.50E-02    19    1.00E-05    1.00E-05
+quad    rms        2.50E-02    20    1.00E-05    1.00E-05
+sext    rms        2.50E-02     1    1.00E-03    1.00E-04
+sext    rms        2.50E-02     2           0    1.00E-04
+sext    rms        2.50E-02     3    0.00E+00    1.00E-04
+sext    rms        2.50E-02     4    1.00E-04    1.00E-04
+sext    rms        2.50E-02     5    5.00E-05    1.00E-05
+sext    rms        2.50E-02     6    5.00E-05    1.00E-05
+sext    rms        2.50E-02     7    5.00E-05    1.00E-05
+sext    rms        2.50E-02     8    1.00E-05    1.00E-05
+sext    rms        2.50E-02     9    0.00E+00    1.00E-05
+sext    rms        2.50E-02    10    2.00E-05    1.00E-05
+sext    rms        2.50E-02    11    2.00E-05    1.00E-05
+sext    rms        2.50E-02    12    2.00E-05    1.00E-05
+sext    rms        2.50E-02    13    2.00E-05    1.00E-05
+sext    rms        2.50E-02    14    2.00E-05    1.00E-05
+sext    rms        2.50E-02    15    0.00E+00    1.00E-05
+sext    rms        2.50E-02    16    1.00E-05    1.00E-05
+sext    rms        2.50E-02    17    1.00E-05    1.00E-05
+sext    rms        2.50E-02    18    1.00E-05    1.00E-05
+sext    rms        2.50E-02    19    1.00E-05    1.00E-05
+sext    rms        2.50E-02    20    1.00E-05    1.00E-05
