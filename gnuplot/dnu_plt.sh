@@ -54,11 +54,11 @@ set clabel "%5.2f"; set key left;
 
 set palette rgbformulae 22, 13, -31 negative;
 
-if (ps) set output "dnu.".(ext);
+if (ps) set output "dnu_1.".(ext);
 
-set multiplot;
+#set multiplot;
 
-set size 0.5, 0.5; set origin 0.0, 0.5;
+#set size 0.5, 0.5; set origin 0.0, 0.5;
 set title "{/Symbol n}_x vs. A_{x,y}";
 set xlabel "A_{x,y} [mm]"; set ylabel "{/Symbol n}_x";
 if (!pert) \
@@ -71,8 +71,11 @@ else \
        with lines ls 2, \
        "dnu_dAy_pert.out" using 2:(N*(N_x+\$3)) title "A_y (pert)" \
        with lines ls 4;
+if (!ps) pause mouse "click on graph to cont.\n";
 
-set origin 0.0, 0.0;
+if (ps) set output "dnu_2.".(ext);
+
+#set origin 0.0, 0.0;
 set title "{/Symbol n}_y vs. A_{x,y}";
 set xlabel "A_{x,y} [mm]"; set ylabel "{/Symbol n}_y"; \
 if (!pert) \
@@ -85,8 +88,11 @@ else \
        with lines ls 2, \
        "dnu_dAy_pert.out" using 2:(N*(N_y+\$4)) title "A_y (pert)" \
        with lines ls 4;
+if (!ps) pause mouse "click on graph to cont.\n";
 
-set origin 0.5, 0.5;
+if (ps) set output "dnu_3.".(ext);
+
+#set origin 0.5, 0.5;
 set title "Chromaticity";
 set xlabel "{/Symbol d} [%]"; set ylabel "{/Symbol n}_x";
 set y2label "{/Symbol n}_y";
@@ -94,8 +100,11 @@ set ytics nomirror; set y2tics;
 plot "chrom2.out" using 1:(N*\$2) title "{/Symbol n}_x" with lines ls 1, \
      "chrom2.out" using 1:(N*\$3) axis x1y2 title "{/Symbol n}_y" \
      with lines ls 3;
+if (!ps) pause mouse "click on graph to cont.\n";
 
-set origin 0.5, 0.0;
+if (ps) set output "dnu_4.".(ext);
+
+#set origin 0.5, 0.0;
 
 set style line 1 lw l_w lc rgb "red";
 set style line 2 lw l_w lc rgb "dark-orange";
@@ -277,7 +286,7 @@ splot "fmapdp_est.dat" using (N*(\$3+N_x)):(N*(\$4+N_y)):5 notitle \
 
 #      u,     (6.0*u-i6m4)/4.0,   1.0 notitle with lines ls 5;
 
-unset multiplot;
+#unset multiplot;
 if (!ps) pause mouse "click on graph to cont.\n";
 
 EOP
