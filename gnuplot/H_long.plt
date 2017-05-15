@@ -26,7 +26,7 @@ set palette rgbformulae 22, 13, -31;
 
 if (ps) set output "H_long.".(ext);
 
-set cntrparam level 20;
+set cntrparam level 75;
 set title "Longitudinal Phase Space to O({/Symbol a}_4)"
 set xlabel "{/Symbol f} [{/Symbol \260}]"; set ylabel "{/Symbol d} [%]";
 splot "H_long.dat" using 1:2:3 notitle with lines lt palette z;
