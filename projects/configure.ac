@@ -1,8 +1,6 @@
 # Process this file with autoconf to produce a configure script.
-#AC_INIT(src/main.cc)
 AC_INIT(Tracy, 2.0)
 AC_CONFIG_AUX_DIR(config)
-#AM_INIT_AUTOMAKE(Tracy, 2.0)
 AC_CONFIG_SRCDIR(src/main.cc)
 AM_INIT_AUTOMAKE
 AM_CONFIG_HEADER(config.h)
@@ -15,7 +13,6 @@ AC_PROG_LN_S
 AC_PROG_CPP
 AC_PROG_RANLIB
 AC_PROG_CXX
-#AC_PROG_F77(g77)
 AC_PROG_F77(gfortran)
 
 # Checks for libraries.
