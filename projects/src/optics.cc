@@ -193,10 +193,16 @@ int main(int argc, char *argv[])
     rdmfile(argv[1]);
 
   if (false) {
-    alpha[X_] =  0.1544319; alpha[Y_] = 0.01338387;
-    beta[X_]  = 18.95131;   beta[Y_]  = 0.6139210;
-    eta[X_]   =  1.024184;  eta[Y_]   = 0.0;
-    etap[X_]  =  0.0;       etap[Y_]  = 0.0;
+    // del008.lat:
+    // alpha[X_] =  0.1544319; alpha[Y_] = 0.01338387;
+    // beta[X_]  = 18.95131;   beta[Y_]  = 0.6139210;
+    // eta[X_]   =  1.024184;  eta[Y_]   = 0.0;
+    // etap[X_]  =  0.0;       etap[Y_]  = 0.0;
+    // eehg_femto:
+    alpha[X_] =  0.12059; alpha[Y_] = 0.03603;
+    beta[X_]  = 17.76565; beta[Y_]  = 0.59226;
+    eta[X_]   =  1.01710; eta[Y_]   = 0.0;
+    etap[X_]  = -0.00548; etap[Y_]  = 0.0;
     ttwiss(alpha, beta, eta, etap, 0e0);
     prt_lat("linlat1.out", globval.bpm, true);
     prt_lat("linlat.out", globval.bpm, true, 10);

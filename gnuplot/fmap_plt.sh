@@ -28,13 +28,19 @@ else if (ps == 4) \
   set term pngcairo enhanced color solid lw l_w font "Times-Roman f_s"; \
   ext = "png";
 
+sgn_x = 1; sgn_y = 1;
 if ((N == 1) && (case == 1)) \
-  N_x = 102; N_y = 68; \
+  N_x = 102; N_y = 68;\
 else if ((N == 1) && (case == 2)) \
   N_x = 39; N_y = 15; \
+else if ((N == 1) && (case == 3)) \
+  N_x = 37; N_y = 10; \
 else if ((N == 12) && (case == 2)) \
   N_x = 3; N_y = 1; \
 else if ((N == 12) && (case == 3)) \
+  N_x = 3; N_y = 1; sgn_y = -1; \
+  print N_x, N_y; \
+else if ((N == 12) && (case == 4)) \
   N_x = 3; N_y = 2; \
 else if (N == 20) \
   N_x = 5; N_y = 3;
@@ -46,6 +52,9 @@ else if (case == 2) \
   nu_x_min = 39.0; nu_x_max = 39.5; nu_y_min = 15.0; nu_y_max = 15.6; \
   x_min = -6.0; x_max = 6.0; y_min = -6.0; y_max = 6.0; \
 else if (case == 3) \
+  nu_x_min = 37.0; nu_x_max = 37.5; nu_y_min = 10.0; nu_y_max = 10.6; \
+  x_min = -6.0; x_max = 6.0; y_min = -6.0; y_max = 6.0; \
+else if (case == 4) \
   nu_x_min = 41.0; nu_x_max = 41.5; nu_y_min = 26.0; nu_y_max = 26.6; \
   x_min = -2.5; x_max = 2.5; y_min = -2.5; y_max = 2.5;
 
@@ -169,7 +178,7 @@ set xlabel "{/Symbol n}_x"; set ylabel "{/Symbol n}_y";
 if (scale) set xrange [nu_x_min:nu_x_max]; set yrange [nu_y_min:nu_y_max]; 
 splot "fmap.out" using \
       ((abs(\$3-int(\$3)) > 1e-6)? N*(N_x+\$3) : NaN): \
-      ((abs(\$4-int(\$4)) > 1e-6)? N*(N_y+\$4) : NaN):7 \
+      ((abs(\$4-int(\$4)) > 1e-6)? N*(N_y+sgn_y*\$4) : NaN):7 \
       notitle w points pt 13 lt palette z, \
       i10,   v,                  1.0 notitle with lines ls 1, \
       u,     i01_1,              1.0 notitle with lines ls 1, \
@@ -293,7 +302,7 @@ set xlabel "{/Symbol n}_x"; set ylabel "{/Symbol n}_y";
 if (scale) set xrange [nu_x_min:nu_x_max]; set yrange [nu_y_min:nu_y_max];
 splot "fmapdp.out" using \
       ((abs(\$3-int(\$3)) > 1e-6)? N*(N_x+\$3) : NaN): \
-      ((abs(\$4-int(\$4)) > 1e-6)? N*(N_y+\$4) : NaN):7 \
+      ((abs(\$4-int(\$4)) > 1e-6)? N*(N_y+sgn_y*\$4) : NaN):7 \
       notitle w points pt 13 lt palette z, \
       i10,   v,                  1.0 notitle with lines ls 1, \
       u,     i01_1,              1.0 notitle with lines ls 1, \

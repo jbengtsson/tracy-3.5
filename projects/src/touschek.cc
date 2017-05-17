@@ -26,8 +26,9 @@ void err_and_corr(const string &param_file)
 
   globval.Cavity_on = false;
 
-  if (params.fe_file != "") params.LoadFieldErr(false, 1e0, true);
+  globval.CODeps = 1e-10;
 
+  if (params.fe_file != "") params.LoadFieldErr(false, 1e0, true);
   if (params.ae_file != "") {
     // Load misalignments; set seed, no scaling of rms errors.
     params.LoadAlignTol(false, 1e0, true, 1);
@@ -44,6 +45,8 @@ void err_and_corr(const string &param_file)
     params.ID_corr(params.N_calls, params.N_steps, false);
     cod = params.cod_corr(params.n_cell, 1e0, orb_corr);
   }
+
+  prtmfile("flat_file.dat");
 
   if (cod) {
     printf("\nerr_and_corr: orbit correction completed\n");
