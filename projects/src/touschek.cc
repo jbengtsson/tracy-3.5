@@ -14,12 +14,13 @@ void err_and_corr(const string &param_file)
   orb_corr_type   orb_corr[2];
   FILE            *fp;
 
-  const double Qb = 5e-9, eps_x = 16e-12, eps_y = 16e-12,
-               sigma_s = 1e-2, sigma_delta = 1e-3;
+  // MAX-VI:
+  // const double Qb = 5e-9, eps_x = 16e-12, eps_y = 16e-12,
+  //              sigma_s = 1e-2, sigma_delta = 1e-3;
+  // SLS-2:
+  const double Qb = 0.994e-9, eps_x = 101e-12, eps_y = 10e-12,
+               sigma_s = 2.58e-3, sigma_delta = 1.0e-3;
 
-  const int    n_cell = 20;
-  const double scl    = 0.5;
-  
   const string file_name = "mom_aper.out";
 
   params.err_and_corr_init(param_file, orb_corr);
@@ -35,7 +36,7 @@ void err_and_corr(const string &param_file)
     // Beam based alignment.
     if (params.bba) params.Align_BPMs(Quad);
 
-    cod = params.cod_corr(n_cell, scl, orb_corr);
+    cod = params.cod_corr(params.n_cell, 1e0, orb_corr);
   } else
     cod = getcod(0e0, lastpos);
 
@@ -52,7 +53,7 @@ void err_and_corr(const string &param_file)
     printf("\nerr_and_corr: orbit correction completed\n");
     prt_cod("cod.out", globval.bpm, true);
  
-    globval.delta_RF = 10e-2; globval.Cavity_on = true;
+    globval.delta_RF = 5.2e-2; globval.Cavity_on = true;
 
     Touschek(Qb, globval.delta_RF, eps_x, eps_y, sigma_delta, sigma_s);
       

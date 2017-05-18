@@ -24,7 +24,7 @@ else if (ps == 4) \
 
 set grid;
 
-if (ps) set output "touschek.".ext;
+if (ps) set output "touschek.".(ext);
 set title "Momentum Aperture";
 set xlabel "s [m]";
 set ylabel "{/Symbol d} [%]";
