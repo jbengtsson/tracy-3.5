@@ -2,15 +2,15 @@
 
 prm1=${1-1}
 prm2=${2-0}
-prm3=${3-1}
+prm3=${3-3}
 prm4=${4-1}
 
 gnuplot << EOP
 
 N = $prm1; ps = $prm2;
-#MAX-VI: 1, SLS-2: 2, ALS-U: 3.
+#MAX-VI: 1, SLS-2: 2, DIAMOND-II: 3.
 case  = $prm3;
-scale = $prm4 == 1;
+scale = $prm4;
 
 f_s = 14; l_w = 2;
 if (ps == 0) \
@@ -34,16 +34,11 @@ if ((N == 1) && (case == 1)) \
 else if ((N == 1) && (case == 2)) \
   N_x = 39; N_y = 15; \
 else if ((N == 1) && (case == 3)) \
-  N_x = 37; N_y = 10; \
-else if ((N == 12) && (case == 2)) \
-  N_x = 3; N_y = 1; \
-else if ((N == 12) && (case == 3)) \
-  N_x = 3; N_y = 1; sgn_y = -1; \
-  print N_x, N_y; \
-else if ((N == 12) && (case == 4)) \
-  N_x = 3; N_y = 2; \
+  N_x = 51; N_y = 17; \
 else if (N == 20) \
-  N_x = 5; N_y = 3;
+  N_x = 5; N_y = 3; \
+else if (N == 6) \
+  N_x = 9; N_y = 3; sgn_x = -1; sgn_y = -1;
 
 if (case == 1) \
   nu_x_min = 102.0; nu_x_max = 102.5; nu_y_min = 68.0; nu_y_max = 68.5; \
@@ -52,11 +47,8 @@ else if (case == 2) \
   nu_x_min = 39.0; nu_x_max = 39.5; nu_y_min = 15.0; nu_y_max = 15.6; \
   x_min = -6.0; x_max = 6.0; y_min = -6.0; y_max = 6.0; \
 else if (case == 3) \
-  nu_x_min = 37.0; nu_x_max = 37.5; nu_y_min = 10.0; nu_y_max = 10.6; \
-  x_min = -6.0; x_max = 6.0; y_min = -6.0; y_max = 6.0; \
-else if (case == 4) \
-  nu_x_min = 41.0; nu_x_max = 41.5; nu_y_min = 26.0; nu_y_max = 26.6; \
-  x_min = -2.5; x_max = 2.5; y_min = -2.5; y_max = 2.5;
+  nu_x_min = 51.0; nu_x_max = 51.5; nu_y_min = 17.0; nu_y_max = 17.6; \
+  x_min = -6.0; x_max = 6.0; y_min = -6.0; y_max = 6.0;
 
 delta_min = -5.1; delta_max = 5.1;
 
@@ -177,7 +169,7 @@ set title "Tune Shift";
 set xlabel "{/Symbol n}_x"; set ylabel "{/Symbol n}_y";
 if (scale) set xrange [nu_x_min:nu_x_max]; set yrange [nu_y_min:nu_y_max]; 
 splot "fmap.out" using \
-      ((abs(\$3-int(\$3)) > 1e-6)? N*(N_x+\$3) : NaN): \
+      ((abs(\$3-int(\$3)) > 1e-6)? N*(N_x+sgn_x*\$3) : NaN): \
       ((abs(\$4-int(\$4)) > 1e-6)? N*(N_y+sgn_y*\$4) : NaN):7 \
       notitle w points pt 13 lt palette z, \
       i10,   v,                  1.0 notitle with lines ls 1, \
@@ -301,7 +293,7 @@ set title "Tune Shift";
 set xlabel "{/Symbol n}_x"; set ylabel "{/Symbol n}_y";
 if (scale) set xrange [nu_x_min:nu_x_max]; set yrange [nu_y_min:nu_y_max];
 splot "fmapdp.out" using \
-      ((abs(\$3-int(\$3)) > 1e-6)? N*(N_x+\$3) : NaN): \
+      ((abs(\$3-int(\$3)) > 1e-6)? N*(N_x+sgn_x*\$3) : NaN): \
       ((abs(\$4-int(\$4)) > 1e-6)? N*(N_y+sgn_y*\$4) : NaN):7 \
       notitle w points pt 13 lt palette z, \
       i10,   v,                  1.0 notitle with lines ls 1, \

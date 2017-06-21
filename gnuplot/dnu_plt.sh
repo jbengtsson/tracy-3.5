@@ -5,10 +5,10 @@ prm2=${2-0}
 
 gnuplot << EOP
 
-N = $prm1; ps = $prm2; pert = 1;
+N = $prm1; ps = $prm2; pert = 0;
 
-# MAX-VI: 1, SLS-2: 2.
-case = 2;
+# MAX-VI: 1, SLS-2: 2, DIAMOND-II: 3.
+case = 3;
 
 f_s = 14; l_w = 2;
 if (ps == 0) \
@@ -30,15 +30,21 @@ if ((N == 1) && (case == 1)) \
   N_x = 102; N_y = 68; \
 else if ((N == 1) && (case == 2)) \
   N_x = 39; N_y = 15; \
+else if ((N == 1) && (case == 3)) \
+  N_x = 51; N_y = 17; \
 else if (N == 12) \
   N_x = 3; N_y = 1; \
 else if (N == 20) \
-  N_x = 5; N_y = 3;
+  N_x = 5; N_y = 3; \
+else if (N == 6) \
+  N_x = 8; N_y = 2;
 
 if (case == 1) \
   x_min = 102.0; x_max = 102.5; y_min = 68.0; y_max = 68.5; \
 else if (case == 2) \
-  x_min = 39.0; x_max = 39.5; y_min = 15.0; y_max = 15.5;
+  x_min = 39.0; x_max = 39.5; y_min = 15.0; y_max = 15.5; \
+else if (case == 3) \
+  x_min = 51.0; x_max = 51.5; y_min = 17.0; y_max = 17.5;
 
 # left adjusted labels
 set key Left;
