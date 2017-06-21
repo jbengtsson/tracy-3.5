@@ -2,13 +2,12 @@
 
 prm1=${1-1}
 prm2=${2-0}
-
+prm3=${3-4}
 gnuplot << EOP
 
-N = $prm1; ps = $prm2; pert = 0;
+N = $prm1; ps = $prm2; case = $prm3; pert = 0;
 
-# MAX-VI: 1, SLS-2: 2, DIAMOND-II: 3.
-case = 3;
+# MAX-VI: 1, SLS-2: 2, DIAMOND-II: 4-BA 3, 6-BA 4.
 
 f_s = 14; l_w = 2;
 if (ps == 0) \
@@ -32,19 +31,25 @@ else if ((N == 1) && (case == 2)) \
   N_x = 39; N_y = 15; \
 else if ((N == 1) && (case == 3)) \
   N_x = 51; N_y = 17; \
+else if ((N == 1) && (case == 4)) \
+  N_x = 58; N_y = 21; \
 else if (N == 12) \
   N_x = 3; N_y = 1; \
 else if (N == 20) \
   N_x = 5; N_y = 3; \
-else if (N == 6) \
-  N_x = 8; N_y = 2;
+else if ((N == 6) && (case == 3)) \
+  N_x = 8; N_y = 2; \
+else if ((N == 6) && (case == 4)) \
+  N_x = 9; N_y = 3;
 
 if (case == 1) \
   x_min = 102.0; x_max = 102.5; y_min = 68.0; y_max = 68.5; \
 else if (case == 2) \
   x_min = 39.0; x_max = 39.5; y_min = 15.0; y_max = 15.5; \
 else if (case == 3) \
-  x_min = 51.0; x_max = 51.5; y_min = 17.0; y_max = 17.5;
+  x_min = 51.0; x_max = 51.5; y_min = 17.0; y_max = 17.5; \
+else if (case == 4) \
+  x_min = 58.0; x_max = 58.5; y_min = 21.0; y_max = 21.5;
 
 # left adjusted labels
 set key Left;
