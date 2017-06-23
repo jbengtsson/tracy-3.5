@@ -17,7 +17,8 @@ J. Bengtsson  NSLS-II, BNL  2004 -
 //#define UDImax       100          // max number of user defined constants
 #define UDImax       500          // max number of user defined constants
 //#define LatLLng      (132+1)
-#define LatLLng      (1000+1)
+// #define LatLLng      (1000+1)
+#define LatLLng      (2000+1)
 #define Lat_nkw_max  200          // no. of key words
 
 // tables

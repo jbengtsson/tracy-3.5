@@ -141,6 +141,7 @@ int main(int argc, char *argv[])
 {
   int  k;
 
+  // const double A_max[] = {15.0e-3, 15.0e-3}, delta_max = 2.5e-2;
   const double A_max[] = {6.0e-3, 6.0e-3}, delta_max = 5e-2;
 
   globval.H_exact    = false; globval.quad_fringe = false;
