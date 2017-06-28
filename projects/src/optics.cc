@@ -162,6 +162,30 @@ void track(const double Ax, const double Ay)
 }
 
 
+void chk_sym(const int n_Fam, const string Fam[])
+{
+  int j, k, Fnum, loc;
+
+  for (j = 0; j < n_Fam; j++) {
+    Fnum = ElemIndex(Fam[j].c_str());
+    k = 0; loc = Elem_GetPos(Fnum, 1);
+    printf("\n");
+    do {
+      printf("%c", Cell[loc].Elem.PName[k]);
+      k++;
+    } while ((Cell[loc].Elem.PName[k] != ' ') && (k < 10));
+    printf(":\n");
+    for (k = 1; k <= GetnKid(Fnum); k++) {
+      loc = Elem_GetPos(Fnum, k);
+      printf("  %5.1f %4.1f %4.1f\n",
+	     Cell[loc-1].S, Cell[loc-1].Beta[X_], Cell[loc-1].Beta[Y_]);
+      printf("  %5.1f %4.1f %4.1f\n\n",
+	     Cell[loc].S, Cell[loc].Beta[X_], Cell[loc].Beta[Y_]);
+    }
+  }
+}
+
+
 int main(int argc, char *argv[])
 {
   long int      lastn, lastpos;
@@ -182,12 +206,18 @@ int main(int argc, char *argv[])
   const std::string q_fam[] = { "qm2b", "qm3" }, s_fam[] = { "sfh",  "sd" };
 #endif
 
+  // const int n_Fam = 12;
+  // const string Fam[] = {"TS1A", "TS1Ab", "TS2A", "TS2Ab", "TS1B", "TS2B",
+  // 			"TS1C", "TS2C",	"TS1D", "TS2D", "TS1E", "TS2E"};
+  const int n_Fam = 6;
+  const string Fam[] = {"TS1A", "TS2A", "TS1B", "TS2B",	"TS1C", "TS2C"};
+
   globval.H_exact    = false; globval.quad_fringe = false;
   globval.Cavity_on  = false; globval.radiation   = false;
   globval.emittance  = false; globval.IBS         = false;
   globval.pathlength = false; globval.bpm         = 0;
 
-  if (true)
+  if (false)
     Read_Lattice(argv[1]);
   else
     rdmfile(argv[1]);
@@ -218,6 +248,8 @@ int main(int argc, char *argv[])
   if (false) no_sxt();
 
   Ring_GetTwiss(true, 0e0); printglob();
+
+  // chk_sym(n_Fam, Fam);
 
   if (false) get_alphac2();
 
