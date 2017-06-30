@@ -162,30 +162,6 @@ void track(const double Ax, const double Ay)
 }
 
 
-void chk_sym(const int n_Fam, const string Fam[])
-{
-  int j, k, Fnum, loc;
-
-  for (j = 0; j < n_Fam; j++) {
-    Fnum = ElemIndex(Fam[j].c_str());
-    k = 0; loc = Elem_GetPos(Fnum, 1);
-    printf("\n");
-    do {
-      printf("%c", Cell[loc].Elem.PName[k]);
-      k++;
-    } while ((Cell[loc].Elem.PName[k] != ' ') && (k < 10));
-    printf(":\n");
-    for (k = 1; k <= GetnKid(Fnum); k++) {
-      loc = Elem_GetPos(Fnum, k);
-      printf("  %5.1f %4.1f %4.1f\n",
-	     Cell[loc-1].S, Cell[loc-1].Beta[X_], Cell[loc-1].Beta[Y_]);
-      printf("  %5.1f %4.1f %4.1f\n\n",
-	     Cell[loc].S, Cell[loc].Beta[X_], Cell[loc].Beta[Y_]);
-    }
-  }
-}
-
-
 int main(int argc, char *argv[])
 {
   long int      lastn, lastpos;
@@ -196,7 +172,7 @@ int main(int argc, char *argv[])
 
   const long        seed    = 1121;
   const int         n_turn  = 2064;
-  const double      delta   = 2.0e-2,
+  const double      delta   = 0.5e-2,
 #if 0
                     nu[]    = { 102.18/20.0, 68.30/20.0 };
   const std::string q_fam[] = { "qfe", "qde" }, s_fam[] = { "sfh",  "sd" };
@@ -206,18 +182,12 @@ int main(int argc, char *argv[])
   const std::string q_fam[] = { "qm2b", "qm3" }, s_fam[] = { "sfh",  "sd" };
 #endif
 
-  // const int n_Fam = 12;
-  // const string Fam[] = {"TS1A", "TS1Ab", "TS2A", "TS2Ab", "TS1B", "TS2B",
-  // 			"TS1C", "TS2C",	"TS1D", "TS2D", "TS1E", "TS2E"};
-  const int n_Fam = 6;
-  const string Fam[] = {"TS1A", "TS2A", "TS1B", "TS2B",	"TS1C", "TS2C"};
-
   globval.H_exact    = false; globval.quad_fringe = false;
   globval.Cavity_on  = false; globval.radiation   = false;
   globval.emittance  = false; globval.IBS         = false;
   globval.pathlength = false; globval.bpm         = 0;
 
-  if (false)
+  if (true)
     Read_Lattice(argv[1]);
   else
     rdmfile(argv[1]);
@@ -229,10 +199,15 @@ int main(int argc, char *argv[])
     // eta[X_]   =  1.024184;  eta[Y_]   = 0.0;
     // etap[X_]  =  0.0;       etap[Y_]  = 0.0;
     // eehg_femto:
-    alpha[X_] =  0.12059; alpha[Y_] = 0.03603;
-    beta[X_]  = 17.76565; beta[Y_]  = 0.59226;
-    eta[X_]   =  1.01710; eta[Y_]   = 0.0;
-    etap[X_]  = -0.00548; etap[Y_]  = 0.0;
+    // alpha[X_] =  0.12059; alpha[Y_] = 0.03603;
+    // beta[X_]  = 17.76565; beta[Y_]  = 0.59226;
+    // eta[X_]   =  1.01710; eta[Y_]   = 0.0;
+    // etap[X_]  = -0.00548; etap[Y_]  = 0.0;
+    // k_sym:
+    alpha[X_] =  0.1244408; alpha[Y_] = 0.04044118;
+    beta[X_]  = 17.73981;   beta[Y_]  = 0.5880925;
+    eta[X_]   =  1.007674;  eta[Y_]   = 0.0;
+    etap[X_]  =  0.0;       etap[Y_]  = 0.0;
     ttwiss(alpha, beta, eta, etap, 0e0);
     prt_lat("linlat1.out", globval.bpm, true);
     prt_lat("linlat.out", globval.bpm, true, 10);
@@ -248,8 +223,6 @@ int main(int argc, char *argv[])
   if (false) no_sxt();
 
   Ring_GetTwiss(true, 0e0); printglob();
-
-  // chk_sym(n_Fam, Fam);
 
   if (false) get_alphac2();
 
