@@ -603,7 +603,8 @@ double get_code(CellType &Cell)
 }
 
 
-void prt_lat(const char *fname, const int Fnum, const bool all)
+void prt_lat(const int loc1, const int loc2, const char *fname, const int Fnum,
+	     const bool all)
 {
   long int      i = 0;
   double        I5;
@@ -619,7 +620,7 @@ void prt_lat(const char *fname, const int Fnum, const bool all)
   fprintf(outf, "#\n");
 
   I2 = 0.0; I5 = 0.0;
-  for (i = 0; i <= globval.Cell_nLoc; i++) {
+  for (i = loc1; i <= loc2; i++) {
     if (all || (Cell[i].Fnum == Fnum)) {
       fprintf(outf, "%4ld %15s %9.5f %4.1f"
 	      " %9.5f %8.5f %8.5f %8.5f %8.5f"
@@ -636,6 +637,12 @@ void prt_lat(const char *fname, const int Fnum, const bool all)
 //  fprintf(outf, "# emittance: %5.3f nm.rad\n", get_eps_x());
 
   fclose(outf);
+}
+
+
+void prt_lat(const char *fname, const int Fnum, const bool all)
+{
+  prt_lat(0, globval.Cell_nLoc, fname, Fnum, all);
 }
 
 
@@ -670,7 +677,8 @@ void Cell_Twiss(const long int i0, const long int i1) {
 }
 
 
-void prt_lat(const char *fname, const int Fnum, const bool all, const int n)
+void prt_lat(const int loc1, const int loc2, const char *fname, const int Fnum,
+	     const bool all, const int n)
 {
   long int         i = 0;
   int              j, k;
@@ -694,7 +702,7 @@ void prt_lat(const char *fname, const int Fnum, const bool all, const int n)
   fprintf(outf, "                             [m]                [m]\n");
   fprintf(outf, "#\n");
 
-  for (i = 0; i <= globval.Cell_nLoc; i++) {
+  for (i = loc1; i <= loc2; i++) {
     if (all || (Cell[i].Fnum == Fnum)) {
       if ((i != 0) &&
 	  ((Cell[i].Elem.Pkind == drift) ||
@@ -779,6 +787,12 @@ void prt_lat(const char *fname, const int Fnum, const bool all, const int n)
   }
 
   fclose(outf);
+}
+
+
+void prt_lat(const char *fname, const int Fnum, const bool all, const int n)
+{
+  prt_lat(0, globval.Cell_nLoc, fname, Fnum, all, n);
 }
 
 

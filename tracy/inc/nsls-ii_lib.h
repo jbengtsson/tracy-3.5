@@ -56,9 +56,15 @@ double get_eps_x(void);
 
 void GetEmittance(const int Fnum, const bool prt);
 
+void prt_lat(const int loc1, const int loc2, const char *fname, const int Fnum,
+	     const bool all);
+
 void prt_lat(const char *fname, const int Fnum, const bool all);
 
 void Cell_Twiss(const long int i0, const long int i1);
+
+void prt_lat(const int loc1, const int loc2, const char *fname, const int Fnum,
+	     const bool all, const int n);
 
 void prt_lat(const char *fname, const int Fnum, const bool all, const int n);
 
