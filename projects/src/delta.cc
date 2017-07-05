@@ -90,7 +90,7 @@ void param_type::prt_prm(double *bn) const
 {
   int i;
 
-  const int n_prt = 10;
+  const int n_prt = 8;
 
   for (i = 1; i <= n_prm; i++) {
     printf(" %9.5f", bn[i]);
@@ -256,7 +256,7 @@ double f_match(double *b2)
   double       chi2;
   ss_vect<tps> Ascr;
 
-  const int n_prt = 10;
+  const int n_prt = 50;
   b2_prms.set_prm(b2);
 
   Ascr = get_A(ic[0], ic[1], ic[2], ic[3]);
@@ -279,8 +279,8 @@ double f_match(double *b2)
   // Center of 2nd straight.
   chi2 += sqr(1e5*(Cell[loc[4]].Alpha[X_]));
   chi2 += sqr(1e5*(Cell[loc[4]].Alpha[Y_]));
-  chi2 += sqr(1e0*(Cell[loc[4]].Beta[X_]-5e0));
-  chi2 += sqr(1e0*(Cell[loc[4]].Beta[Y_]-10e0));
+  chi2 += sqr(5e1*(Cell[loc[4]].Beta[X_]-5e0));
+  chi2 += sqr(5e1*(Cell[loc[4]].Beta[Y_]-10e0));
 
   for (i = 1; i <= b2_prms.n_prm; i++)
     if (fabs(b2[i]) > b2_prms.bn_max[i-1]) chi2 += 1e10;
@@ -290,7 +290,7 @@ double f_match(double *b2)
 
     if (n % n_prt == 0) {
       printf("\n%3d chi2: %12.5e -> %12.5e\n", n, chi2_ref, chi2);
-      printf("b2s: ");
+      printf("b2s:\n");
       b2_prms.prt_prm(b2);
 
       // Downstream of 10 degree dipole.
@@ -414,6 +414,14 @@ int main(int argc, char *argv[])
     b2_prms.add_prm("eq05", 2, 0.0, 25.0, 1.0);
 
     b2_prms.add_prm("q01",  -2, 0.0, 0.3, 1.0);
+    b2_prms.add_prm("q02",  -2, 0.0, 0.3, 1.0);
+    b2_prms.add_prm("q03",  -2, 0.0, 0.3, 1.0);
+
+    b2_prms.add_prm("eq01",  -2, 0.0, 0.3, 1.0);
+    b2_prms.add_prm("eq02",  -2, 0.0, 0.3, 1.0);
+    b2_prms.add_prm("eq03",  -2, 0.0, 0.3, 1.0);
+    b2_prms.add_prm("eq04",  -2, 0.0, 0.3, 1.0);
+    b2_prms.add_prm("eq05",  -2, 0.0, 0.3, 1.0);
 
     b2_prms.bn_tol = 1e-6; b2_prms.step = 1.0;
 

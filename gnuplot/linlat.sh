@@ -48,8 +48,6 @@ plot "linlat.out" using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
      "linlat.out" using 3:13 title "{/Symbol h}_y" with lines ls 3;
 if (!ps) pause mouse "click on graph to cont.\n";
 
-exit;
-
 if (ps) set output "linlat_3.".(ext);
 if (plt_nu) \
   set title "Normalized Phase Advance"; \
@@ -71,6 +69,8 @@ if (plt_nu) \
        "linlat.out" using 3:5 title "{/Symbol a}_x" with lines ls 1, \
        "linlat.out" using 3:10 title "{/Symbol a}_y" with lines ls 3; \
   if (!ps) pause mouse "click on graph to cont.\n";
+
+exit;
 
 if (ps) set output "linlat_5.".(ext);
 set title "{/Symbol b}_{x,y}{/Symbol \264h}_x";
