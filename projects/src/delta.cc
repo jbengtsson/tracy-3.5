@@ -10,6 +10,11 @@ const double ic[][2] =
 
 int loc[10], n;
 
+double get_bn_s(const int Fnum, const int Knum, const int n);
+void set_bn_s(const int Fnum, const int n, const double dbn);
+void get_S(void);
+
+
 struct param_type {
 private:
 
@@ -59,14 +64,10 @@ void param_type::ini_prm(double *bn, double *bn_lim)
       // Drift.
       bn[i] = get_L(Fnum[i-1], 1);
     else if (n[i-1] == -2)
-      // Location.
-      // bn[i] = get_bn_s(-Fnum[i-1], 1, n[i-1]);
-      ;
+      // Placement.
+      bn[i] = get_bn_s(-Fnum[i-1], 1, n[i-1]);
   }
 }
-
-
-void get_S(void);
 
 
 void param_type::set_prm(double *bn) const
@@ -80,8 +81,7 @@ void param_type::set_prm(double *bn) const
     else if (n[i-1] == -1) {
       set_L(Fnum[i-1], bn[i]); get_S();
     } else if (n[i-1] == -2)
-      // set_bn_s(-Fnum[i-1], n[i-1], bn[i]);
-      ;
+      set_bn_s(-Fnum[i-1], n[i-1], bn[i]);
   }
 }
 
@@ -90,13 +90,92 @@ void param_type::prt_prm(double *bn) const
 {
   int i;
 
-  const int n_prt = 8;
+  const int n_prt = 10;
 
   for (i = 1; i <= n_prm; i++) {
     printf(" %9.5f", bn[i]);
     if (i % n_prt == 0) printf("\n");
   }
   if (n_prm % n_prt != 0) printf("\n");
+}
+
+
+double get_bn_s(const int Fnum, const int Knum, const int n)
+{
+  int    k;
+  double bn, an;
+
+  if (Fnum > 0)
+    get_bn_design_elem(Fnum, Knum, n, bn, an);
+  else {
+    k = Elem_GetPos(abs(Fnum), Knum);
+
+    switch (Cell[k-1].Elem.PName[1]) {
+    case 'u':
+      bn = Cell[k-1].Elem.PL;
+      break;
+    case 'd':
+      bn = Cell[k+1].Elem.PL;
+      break;
+    default:
+      printf("get_bn_s: configuration error %s (%d)\n",
+	     Cell[k-1].Elem.PName, k);
+      exit(1);
+      break;
+    }
+  }
+
+  return bn;
+}
+
+
+void set_bn_s(const int Fnum, const int Knum, const int n, const double bn)
+{
+  int k;
+
+  if (Fnum > 0)
+    set_bn_design_elem(Fnum, Knum, n, bn, 0e0);
+  else {
+    // point to multipole
+    k = Elem_GetPos(abs(Fnum), Knum);
+
+    switch (Cell[k-1].Elem.PName[1]) {
+    case 'u':
+      if (Cell[k+1].Elem.PName[1] == 'd') {
+	set_L(Cell[k-1].Fnum, Cell[k-1].Knum, bn);
+	set_L(Cell[k+1].Fnum, Cell[k+1].Knum, -bn);
+      } else {
+	printf("set_bn_s: configuration error %s (%d)\n",
+	       Cell[k+1].Elem.PName, k+2);
+	exit(1);
+      }
+      break;
+    case 'd':
+      if (Cell[k+1].Elem.PName[1] == 'u') {
+	set_L(Cell[k-1].Fnum, Cell[k-1].Knum, -bn);
+	set_L(Cell[k+1].Fnum, Cell[k+1].Knum, bn);
+      } else {
+	printf("set_bn_s: configuration error %s (%d)\n",
+	       Cell[k+1].Elem.PName, k+2);
+	exit(1);
+      }
+      break;
+    default:
+      printf("set_bn_s: configuration error %s (%d)\n",
+	     Cell[k-1].Elem.PName, k);
+      exit(1);
+      break;
+    }
+  }
+}
+
+
+void set_bn_s(const int Fnum, const int n, const double bn)
+{
+  int k;
+
+  for (k = 1; k <= GetnKid(abs(Fnum)); k++)
+    set_bn_s(Fnum, k, n, bn);
 }
 
 
@@ -109,6 +188,32 @@ void get_S(void)
   for (j = 0; j <= globval.Cell_nLoc; j++) {
     S += Cell[j].Elem.PL; Cell[j].S = S;
   }
+}
+
+
+void prt_match(const param_type &b2_prms, const double *b2)
+{
+  FILE   *outf;
+
+  std::string file_name = "match.out";
+
+  outf = file_write(file_name.c_str());
+
+  fprintf(outf, "l5h: drift, l = %7.5f;\n", get_L(ElemIndex("l5h"), 1));
+  fprintf(outf, "l6h: drift, l = %7.5f;\n", get_L(ElemIndex("l6h"), 1));
+  fprintf(outf, "l7:  drift, l = %7.5f;\n", get_L(ElemIndex("l7"), 1));
+  fprintf(outf, "l8:  drift, l = %7.5f;\n", get_L(ElemIndex("l8"), 1));
+
+  fprintf(outf, "\nbm:  bending, l = 0.14559, t = 0.5, k = %9.5f, t1 = 0.0"
+	  ", t2 = 0.0,\n     gap = 0.00, N = Nbend, Method = Meth;\n", b2[1]);
+  fprintf(outf, "qm:  quadrupole, l = 0.2, k = %9.5f, N = Nquad"
+	  ", Method = Meth;\n", b2[4]);
+  fprintf(outf, "qfe: quadrupole, l = 0.1, k = %9.5f, N = Nquad"
+	  ", Method = Meth;\n", b2[2]);
+  fprintf(outf, "qde: quadrupole, l = 0.1, k = %9.5f, N = Nquad"
+	  ", Method = Meth;\n", b2[3]);
+
+  fclose(outf);
 }
 
 
@@ -143,32 +248,6 @@ void prt_lin_opt(const int loc[])
 }
 
 
-void prt_match(const param_type &b2_prms, const double *b2)
-{
-  FILE   *outf;
-
-  std::string file_name = "match.out";
-
-  outf = file_write(file_name.c_str());
-
-  fprintf(outf, "l5h: drift, l = %7.5f;\n", get_L(ElemIndex("l5h"), 1));
-  fprintf(outf, "l6h: drift, l = %7.5f;\n", get_L(ElemIndex("l6h"), 1));
-  fprintf(outf, "l7:  drift, l = %7.5f;\n", get_L(ElemIndex("l7"), 1));
-  fprintf(outf, "l8:  drift, l = %7.5f;\n", get_L(ElemIndex("l8"), 1));
-
-  fprintf(outf, "\nbm:  bending, l = 0.14559, t = 0.5, k = %9.5f, t1 = 0.0"
-	  ", t2 = 0.0,\n     gap = 0.00, N = Nbend, Method = Meth;\n", b2[1]);
-  fprintf(outf, "qm:  quadrupole, l = 0.2, k = %9.5f, N = Nquad"
-	  ", Method = Meth;\n", b2[4]);
-  fprintf(outf, "qfe: quadrupole, l = 0.1, k = %9.5f, N = Nquad"
-	  ", Method = Meth;\n", b2[2]);
-  fprintf(outf, "qde: quadrupole, l = 0.1, k = %9.5f, N = Nquad"
-	  ", Method = Meth;\n", b2[3]);
-
-  fclose(outf);
-}
-
-
 double f_match(double *b2)
 {
   static double chi2_ref = 1e30;
@@ -177,8 +256,7 @@ double f_match(double *b2)
   double       chi2;
   ss_vect<tps> Ascr;
 
-  const int n_prt = 50;
-
+  const int n_prt = 10;
   b2_prms.set_prm(b2);
 
   Ascr = get_A(ic[0], ic[1], ic[2], ic[3]);
@@ -188,18 +266,19 @@ double f_match(double *b2)
   // Downstream of 10 degree dipole.
   chi2 += sqr(1e5*(Cell[loc[1]].Eta[X_]));
   chi2 += sqr(1e5*(Cell[loc[1]].Etap[X_]));
-  chi2 += sqr(5e1*(Cell[loc[1]].Beta[Y_]-25e0));
+  chi2 += sqr(5e1*(Cell[loc[1]].Beta[Y_]-20e0));
 
   // Entrance of 1st straight.
   chi2 += sqr(5e1*(Cell[loc[2]].Beta[X_]-8e0));
+  chi2 += sqr(5e1*(Cell[loc[2]].Beta[Y_]-20e0));
 
   // Exit of 1st straight.
   chi2 += sqr(5e1*(Cell[loc[3]].Beta[X_]-8e0));
   chi2 += sqr(1e-1*(Cell[loc[3]].Beta[Y_]-10e0));
 
   // Center of 2nd straight.
-  chi2 += sqr(1e4*(Cell[loc[4]].Alpha[X_]));
-  chi2 += sqr(1e4*(Cell[loc[4]].Alpha[Y_]));
+  chi2 += sqr(1e5*(Cell[loc[4]].Alpha[X_]));
+  chi2 += sqr(1e5*(Cell[loc[4]].Alpha[Y_]));
   chi2 += sqr(1e0*(Cell[loc[4]].Beta[X_]-5e0));
   chi2 += sqr(1e0*(Cell[loc[4]].Beta[Y_]-10e0));
 
@@ -215,18 +294,22 @@ double f_match(double *b2)
       b2_prms.prt_prm(b2);
 
       // Downstream of 10 degree dipole.
-      printf("\neta_x   = %8.5f etap_x  = %8.5f\n",
+      printf("\nDownstream of 10 degree dipole:\n");
+      printf("eta_x   = %8.5f etap_x  = %8.5f\n",
 	     Cell[loc[1]].Eta[X_], Cell[loc[1]].Etap[X_]);
-      printf("\nbeta_x  = %8.5f beta_y  = %8.5f\n",
+      printf("beta_x  = %8.5f beta_y  = %8.5f\n",
 	     Cell[loc[1]].Beta[X_], Cell[loc[1]].Beta[Y_]);
       // Entrance of 1st straight.
-      printf("\nbeta_x  = %8.5f beta_y  = %8.5f\n",
+      printf("\nEntrance of 1st straight:\n");
+      printf("beta_x  = %8.5f beta_y  = %8.5f\n",
 	     Cell[loc[2]].Beta[X_], Cell[loc[2]].Beta[Y_]);
       // Exit of 1st straight.
-      printf("\nbeta_x  = %8.5f beta_y  = %8.5f\n",
+      printf("\nExit of 1st straight:\n");
+      printf("beta_x  = %8.5f beta_y  = %8.5f\n",
 	     Cell[loc[3]].Beta[X_], Cell[loc[3]].Beta[Y_]);
 
       // Center of 2nd straight.
+      printf("\nCenter of 2nd straight:\n");
       printf("\nalpha_x = %8.5f alpha_y = %8.5f\n",
 	     Cell[loc[4]].Alpha[X_], Cell[loc[4]].Alpha[Y_]);
       printf("beta_x  = %8.5f beta_y  = %8.5f\n",
@@ -329,6 +412,8 @@ int main(int argc, char *argv[])
     b2_prms.add_prm("eq03", 2, 0.0, 25.0, 1.0);
     b2_prms.add_prm("eq04", 2, 0.0, 25.0, 1.0);
     b2_prms.add_prm("eq05", 2, 0.0, 25.0, 1.0);
+
+    b2_prms.add_prm("q01",  -2, 0.0, 0.3, 1.0);
 
     b2_prms.bn_tol = 1e-6; b2_prms.step = 1.0;
 
