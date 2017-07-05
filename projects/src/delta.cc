@@ -191,6 +191,24 @@ void get_S(void)
 }
 
 
+void get_dnu(const int i0, const int i1, const double alpha0[],
+	     const double beta0[], double dnu[])
+{
+  long int     lastpos;
+  int          k;
+  double       m11, m12;
+  ss_vect<tps> map;
+
+  map.identity();
+  Cell_Pass(i0+1, i1, map, lastpos);
+
+  for (k = 0; k < 2; k++) {
+    m11 = map[2*k][2*k]; m12 = map[2*k][2*k+1];
+    dnu[k] = atan(m12/(beta0[k]*m11-alpha0[k]*m12))/(2e0*M_PI);
+    // if (m12 < 0e0) dnu[k] += 1e0;
+  }
+}
+
 void prt_match(const param_type &b2_prms, const double *b2)
 {
   FILE   *outf;
@@ -332,7 +350,7 @@ double f_match(double *b2)
 void fit_match(param_type &b2_prms)
 {
   int          n_b2, i, j, iter;
-  double       *b2, *b2_lim, **xi, fret;
+  double       alpha0[2], beta0[2], dnu[2], *b2, *b2_lim, **xi, fret;
   ss_vect<tps> Ascr;
 
   n_b2 = b2_prms.n_prm;
@@ -354,12 +372,22 @@ void fit_match(param_type &b2_prms)
   loc[5] = Elem_GetPos(ElemIndex("b20"), 5);
 
   prt_lin_opt(loc);
+  printf("\n%8.5f %8.5f\n",
+	 Cell[loc[5]].Nu[X_]-Cell[loc[0]].Nu[X_],
+	 Cell[loc[5]].Nu[Y_]-Cell[loc[0]].Nu[Y_]);
 
   Ascr = get_A(ic[0], ic[1], ic[2], ic[3]);
-  Cell_Twiss(loc[0]+1, loc[3], Ascr, false, false, 0e0);
+  Cell_Twiss(loc[0]+1, loc[4], Ascr, false, false, 0e0);
 
   prt_lat(loc[0]+1, loc[5], "linlat1.out", globval.bpm, true);
   prt_lat(loc[0]+1, loc[5], "linlat.out", globval.bpm, true, 10);
+
+  for (j = 1; j <= n_b2; j++) {
+    alpha0[j] = Cell[loc[0]].Alpha[j]; beta0[j] = Cell[loc[0]].Beta[j];
+  }
+  get_dnu(loc[0], loc[5], alpha0, beta0, dnu);
+  printf("\n%8.5f %8.5f\n", dnu[X_], dnu[Y_]);
+  exit(0);
 
   b2_prms.ini_prm(b2, b2_lim);
 
