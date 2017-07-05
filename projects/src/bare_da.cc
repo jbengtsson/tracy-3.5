@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
 {
 
   const int    n_turn = 2064;
-  const double delta  = 1.0e-2;
+  const double delta  = 3.0e-2;
 
   globval.H_exact    = false; globval.quad_fringe = false;
   globval.Cavity_on  = false; globval.radiation   = false;

@@ -2,7 +2,7 @@
 
 prm1=${1-1}
 prm2=${2-0}
-prm3=${3-4}
+prm3=${3-3}
 prm4=${4-1}
 
 gnuplot << EOP
