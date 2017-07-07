@@ -22,40 +22,6 @@ void prt_name(FILE * outf, const char *name)
 }
 
 
-void prt_lat_maxlab(const char *fname, const int Fnum, const bool all)
-{
-  // Generate CSV file for the linear optics.
-  long int i = 0;
-  FILE *outf;
-
-  outf = fopen(fname, "w");
-  fprintf(outf, "#        name               s      type"
-	  "    alphax    betax      nux       etax     etapx");
-  fprintf(outf, "      alphay    betay      nuy      etay      etapy\n");
-  fprintf(outf, "#                          [m]"
-	  "                        [m]                 [m]");
-  fprintf(outf, "                            [m]                [m]\n");
-  fprintf(outf, "#\n");
-
-  for (i = 0; i <= globval.Cell_nLoc; i++) {
-    if (all || (Cell[i].Fnum == Fnum)) {
-      fprintf(outf, "%4ld, ", i);
-      prt_name(outf, Cell[i].Elem.PName);
-      fprintf(outf, " %9.5f, %4.1f,"
-           " %9.5f, %8.5f, %8.5f, %8.5f, %8.5f,"
-           " %9.5f, %8.5f, %8.5f, %8.5f, %8.5f\n",
-           Cell[i].S, get_code(Cell[i]),
-           Cell[i].Alpha[X_], Cell[i].Beta[X_], Cell[i].Nu[X_],
-           Cell[i].Eta[X_], Cell[i].Etap[X_],
-           Cell[i].Alpha[Y_], Cell[i].Beta[Y_], Cell[i].Nu[Y_],
-           Cell[i].Eta[Y_], Cell[i].Etap[Y_]);
-    }
-  }
-
-  fclose(outf);
-}
-
-
 void get_cod_rms(const double dx, const double dy,
 		 const int n_seed, const bool all)
 {
@@ -162,25 +128,57 @@ void track(const double Ax, const double Ay)
 }
 
 
+void prt_symm(const std::vector<int> &Fam)
+{
+  long int loc;
+  int      j, k;
+
+  for (j = 0; j < (int)Fam.size(); j++) {
+    printf("\n");
+    for (k = 1; k <= GetnKid(Fam[j]); k++) {
+      loc = Elem_GetPos(Fam[j], k);
+      if (k % 2 == 0) loc -= 1;
+      printf(" %4.1f %6.3f %6.3f\n",
+	     Cell[loc].S, Cell[loc].Beta[X_], Cell[loc].Beta[Y_]);
+    }
+  }
+}
+
+
+void prt_quad(const std::vector<int> &Fam)
+{
+  long int loc;
+  int      j;
+
+  printf("\n");
+  for (j = 0; j < (int)Fam.size(); j++) {
+    loc = Elem_GetPos(Fam[j], 1);
+    printf(" %4.1f %6.3f %6.3f %2d\n",
+	   Cell[loc].S, Cell[loc].Beta[X_], Cell[loc].Beta[Y_],
+	   GetnKid(Fam[j]));
+  }
+}
+
+
 int main(int argc, char *argv[])
 {
-  long int      lastn, lastpos;
-  int           b2_fam[2], b3_fam[2];
-  double        b2[2], a2, b3[2], b3L[2], a3, a3L, f_rf;
-  double        alpha[2], beta[2], eta[2], etap[2];
-  ostringstream str;
+  long int         lastn, lastpos;
+  int              b2_fam[2], b3_fam[2];
+  double           b2[2], a2, b3[2], b3L[2], a3, a3L, f_rf;
+  double           alpha[2], beta[2], eta[2], etap[2];
+  std::vector<int> Fam;
+  ostringstream    str;
 
-  const long        seed    = 1121;
-  const int         n_turn  = 2064;
-  const double      delta   = 3e-2,
-#if 0
-                    nu[]    = { 102.18/20.0, 68.30/20.0 };
-  const std::string q_fam[] = { "qfe", "qde" }, s_fam[] = { "sfh",  "sd" };
-#else
-                    nu[]    = { 39.1/12.0, 15.25/12.0 };
-                    // nu[]    = { 3.266+0.01, 1.275 };
-  const std::string q_fam[] = { "qm2b", "qm3" }, s_fam[] = { "sfh",  "sd" };
-#endif
+  const long        seed   = 1121;
+  const int         n_turn = 2064;
+  const double      delta  = 3e-2,
+  //                   nu[]    = { 102.18/20.0, 68.30/20.0 };
+  // const std::string q_fam[] = { "qfe", "qde" }, s_fam[] = { "sfh",  "sd" };
+  //                   nu[]    = { 39.1/12.0, 15.25/12.0 };
+  //                   // nu[]    = { 3.266+0.01, 1.275 };
+  // const std::string q_fam[] = { "qm2b", "qm3" }, s_fam[] = { "sfh",  "sd" };
+                    nu[]    = { 51.21/6.0, 17.35/6.0 };
+  const std::string q_fam[] = { "q1b", "q1d" }, s_fam[] = { "sfh",  "sd" };
 
   globval.H_exact    = false; globval.quad_fringe = false;
   globval.Cavity_on  = false; globval.radiation   = false;
@@ -228,7 +226,6 @@ int main(int argc, char *argv[])
 
   prtmfile("flat_file.dat");
 
-  // prt_lat_maxlab("m4-20121107-430-bare.out", globval.bpm, true);
   prt_lat("linlat1.out", globval.bpm, true);
   prt_lat("linlat.out", globval.bpm, true, 10);
   prt_lat("chromlat.out", globval.bpm, true, 10);
@@ -245,6 +242,29 @@ int main(int argc, char *argv[])
     get_cod_rms(50e-6, 50e-6, 100, true);
 
     exit(0);
+  }
+
+  if (false) {
+    Fam.push_back(ElemIndex("s1b"));
+    Fam.push_back(ElemIndex("s1d"));
+    Fam.push_back(ElemIndex("s2b"));
+    Fam.push_back(ElemIndex("s2d"));
+    Fam.push_back(ElemIndex("sx1"));
+    Fam.push_back(ElemIndex("sy1"));
+
+    prt_symm(Fam);
+  }
+
+  if (false) {
+    Fam.push_back(ElemIndex("q1_2"));
+    Fam.push_back(ElemIndex("q1_2m"));
+    Fam.push_back(ElemIndex("q1b"));
+    Fam.push_back(ElemIndex("q2b"));
+    Fam.push_back(ElemIndex("q1d"));
+    Fam.push_back(ElemIndex("q2d"));
+    Fam.push_back(ElemIndex("q3d"));
+
+    prt_quad(Fam);
   }
 
   if (true) GetEmittance(ElemIndex("cav"), true);

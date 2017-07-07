@@ -2,7 +2,7 @@
 
 prm1=${1-1}
 prm2=${2-0}
-prm3=${3-5}
+prm3=${3-3}
 gnuplot << EOP
 
 N = $prm1; ps = $prm2; case = $prm3; pert = 0;
