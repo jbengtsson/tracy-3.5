@@ -1,6 +1,8 @@
 #!/bin/sh
 
-queue="ap-medium.q"
+#queue="ap-high.q"
+#queue="ap-medium.q"
+queue="test-medium.q"
 
 t1="00:10:00"
 t2="12:00:00"
