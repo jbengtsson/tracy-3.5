@@ -228,7 +228,7 @@ int main(int argc, char *argv[])
 
   prt_lat("linlat1.out", globval.bpm, true);
   prt_lat("linlat.out", globval.bpm, true, 10);
-  prt_lat("chromlat.out", globval.bpm, true, 10);
+  prt_chrom_lat();
 
   if (false) {
     iniranf(seed); setrancut(1e0);
@@ -298,6 +298,8 @@ int main(int argc, char *argv[])
 
     Ring_GetTwiss(true, 0e0); printglob();
   }
+
+  prtmfile("flat_file.fit");
 
   if (false) {
     globval.Cavity_on = false; globval.radiation = false;

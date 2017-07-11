@@ -1,6 +1,6 @@
 // #define NO 6
 // to model tune footprint
-#define NO 8
+#define NO 6
 // #define NO 10
 // #define NO 12
 // #define NO 15
@@ -16,7 +16,8 @@ const char home_dir[] = "/home/bengtsson";
 double        nu0[2];
 ss_vect<tps>  A_inv, nus;
 
-const double  Ax = 6e-3, Ay = 4e-3, delta = 5e-2;
+// const double  Ax = 6e-3, Ay = 4e-3, delta = 5e-2;
+const double  Ax = 5e-3, Ay = 3e-3, delta = 3e-2;
 
 
 void get_map_n(const int n)
