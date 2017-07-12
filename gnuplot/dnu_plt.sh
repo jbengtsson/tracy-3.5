@@ -9,7 +9,7 @@ N = $prm1; ps = $prm2; case = $prm3; pert = 0;
 
 # MAX-VI: 1, SLS-2: 2, DIAMOND-II: 4-BA 3, 6-BA 4, DIAMOND: 5.
 
-f_s = 14; l_w = 2;
+f_s = 24; l_w = 2;
 if (ps == 0) \
   set terminal x11; \
 else if (ps == 1) \

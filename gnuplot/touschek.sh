@@ -6,7 +6,7 @@ gnuplot << EOP
 
 ps = $prm1;
 
-f_s = 14; l_w = 2;
+f_s = 24; l_w = 2;
 if (ps == 0) \
   set terminal x11; \
 else if (ps == 1) \
