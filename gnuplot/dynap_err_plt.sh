@@ -54,17 +54,20 @@ unset arrow;
 
 if (ps) set output "dynap_err_2.".(ext);
 
-set multiplot;
+#set multiplot;
 
-set size 1.0, 0.5; set origin 0.0, 0.5;
+#set size 1.0, 0.5; set origin 0.0, 0.5;
 set title "Horizontal Momentum Aperture\n";
 set xlabel "{/Symbol d} [%]"; set ylabel "x^ [mm]";
 set yrange [0:];
 plot "DA_bare.out" using 1:5 title "bare" with linespoints ls 2, \
      "DA_real.out" using 1:11:13 title "w errors" with errorbars ls 1, \
      "DA_real.out" using 1:11 notitle with lines ls 1;
+if (!ps) pause mouse "click on graph to cont.\n";
 
-set origin 0.0, 0.0;
+if (ps) set output "dynap_err_3.".(ext);
+
+#set origin 0.0, 0.0;
 set title "Vertical Momentum Aperture\n";
 set xlabel "{/Symbol d} [%]"; set ylabel "y^ [mm]";
 set yrange [0:];
@@ -72,7 +75,7 @@ plot "DA_bare.out" using 1:6 title "bare" with linespoints ls 2, \
      "DA_real.out" using 1:14:16 title "w errors" with errorbars ls 3, \
      "DA_real.out" using 1:14 notitle with lines ls 3;
 
-unset multiplot;
+#unset multiplot;
 if (!ps) pause mouse "click on graph to cont.\n";
 
 unset output;
@@ -86,19 +89,22 @@ set style line 1 lt 1 lw 1 lc rgb "blue" ps 2 pt 1;
 set style line 2 lt 1 lw 1 lc rgb "green" ps 2 pt 1;
 set style line 3 lt 1 lw 1 lc rgb "red" ps 2 pt 1;
 
-if (ps) set output "dynap_err_3.".(ext);
+if (ps) set output "dynap_err_4.".(ext);
 
-set multiplot;
+#set multiplot;
 
-set size 1.0, 0.5; set origin 0.0, 0.5;
+#set size 1.0, 0.5; set origin 0.0, 0.5;
 set title "Horizontal Momentum Acceptance\n";
 set xlabel "{/Symbol d} [%]"; set ylabel "A_x [mm{/Symbol \327}mrad]";
 set yrange [0:];
 plot "DA_bare.out" using 1:3 title "bare" with linespoints ls 2, \
      "DA_real.out" using 1:5:7 title "w errors" with errorbars ls 1, \
      "DA_real.out" using 1:5 notitle with lines ls 1;
+if (!ps) pause mouse "click on graph to cont.\n";
 
-set origin 0.0, 0.0;
+if (ps) set output "dynap_err_5.".(ext);
+
+#set origin 0.0, 0.0;
 set title "Vertical Momentum Acceptance\n";
 set xlabel "{/Symbol d} [%]"; set ylabel "A_y [mm{/Symbol \327}mrad]";
 set yrange [0:];
@@ -106,7 +112,7 @@ plot "DA_bare.out" using 1:4 title "bare" with linespoints ls 2, \
      "DA_real.out" using 1:8:10 title "w errors" with errorbars ls 3, \
      "DA_real.out" using 1:8 notitle with lines ls 3;
 
-unset multiplot;
+#unset multiplot;
 if (!ps) pause mouse "click on graph to cont.\n";
 
 EOP
