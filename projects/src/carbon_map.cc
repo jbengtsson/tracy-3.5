@@ -5,14 +5,14 @@
 int no_tps = NO;
 
 
-const bool  NSLS_II = false;
+const bool NSLS_II = false;
 
 
 ss_vect<tps> get_fix_point(const int Fnum)
 {
-  long int      lastpos, loc;
-  int           j;
-  FieldMapType  *FM;
+  long int     lastpos, loc;
+  int          j;
+  FieldMapType *FM;
   
   const int  n_iter = 3;
 
@@ -67,9 +67,9 @@ ss_vect<tps> get_fix_point(const int Fnum)
 
 int main(int argc, char *argv[])
 {
-  long int         lastpos;
-  Matrix           M;
-  ss_vect<tps>     map;
+  long int     lastpos;
+  Matrix       M;
+  ss_vect<tps> map;
 
     
   globval.H_exact    = false; globval.quad_fringe = false;
@@ -87,7 +87,8 @@ int main(int argc, char *argv[])
 //  Ring_GetTwiss(true, 0.0); printglob();
 
   if (true) {
-    map.identity();
+    trace = true;
+    map.identity(); map[x_] += -30e-3;
     Cell_Pass(Elem_GetPos(ElemIndex("bb"), 1),
 	      Elem_GetPos(ElemIndex("bb"), 1), map, lastpos);
     prt_lin_map(3, map);
@@ -105,6 +106,7 @@ int main(int argc, char *argv[])
     cout << endl;
     cout << scientific << setprecision(3)
 	 << "1-Det: " << setw(9) << 1-DetMat(6, M) << endl;
+    exit(0);
   }
 
   if (true) {

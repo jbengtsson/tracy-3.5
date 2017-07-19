@@ -2811,18 +2811,22 @@ void get_B_DIAMOND(const char *filename, FieldMapType *FM)
   inf.close();
 
   std::cout << std::fixed << std::setprecision(5)
-       << std::setw(10) << x0 << std::setw(10) << y0 << std::setw(10) << z0 << std::endl;
+	    << std::setw(10) << x0 << std::setw(10) << y0
+	    << std::setw(10) << z0 << std::endl;
   std::cout << std::fixed << std::setprecision(5)
-       << std::setw(10) << FM->dx[X_] << std::setw(10) << FM->dx[Y_]
-       << std::setw(10) << FM->dx[Z_] << std::endl;
+	    << std::setw(10) << FM->dx[X_] << std::setw(10) << FM->dx[Y_]
+	    << std::setw(10) << FM->dx[Z_] << std::endl;
   std::cout << std::setw(10) << FM->n[X_] << std::setw(10) << ny
-       << std::setw(10) << FM->n[Z_] << std::endl;
+	    << std::setw(10) << FM->n[Z_] << std::endl;
   std::cout << std::fixed << std::setprecision(3)
-       << std::setw(10) << FM->x[X_][1] << std::setw(10) << FM->x[X_][FM->n[X_]]
-       << std::setw(10) << FM->x[Y_][1] << std::setw(10) << FM->x[Y_][FM->n[Y_]]
-       << std::setw(10) << FM->x[Z_][1] << std::setw(10) << FM->x[Z_][FM->n[Z_]] << std::endl;
+	    << std::setw(10) << FM->x[X_][1]
+	    << std::setw(10) << FM->x[X_][FM->n[X_]]
+	    << std::setw(10) << FM->x[Y_][1]
+	    << std::setw(10) << FM->x[Y_][FM->n[Y_]]
+	    << std::setw(10) << FM->x[Z_][1]
+	    << std::setw(10) << FM->x[Z_][FM->n[Z_]] << std::endl;
   std::cout << std::fixed << std::setprecision(5)
-       << "Magnet length [m]:" << std::setw(10) << FM->Lr << std::endl;
+	    << "Magnet length [m]:" << std::setw(10) << FM->Lr << std::endl;
 
   for (j = 1; j <= ny-1; j++) {
     FM->x[Y_][j] = -FM->x[Y_][2*ny-j];
@@ -2844,11 +2848,12 @@ void get_B_DIAMOND(const char *filename, FieldMapType *FM)
   if (true) {
     file_wr(outf, "field_map.dat");
     std::cout << std::scientific << std::setprecision(3)
-	 << std::setw(11) << FM->x[X_][7] << std::setw(11) << FM->x[Y_][7] << std::endl;
+	      << std::setw(11) << FM->x[X_][7] << std::setw(11) << FM->x[Y_][7]
+	      << std::endl;
     for (i = 1; i <= FM->n[X_]; i++)
       outf << std::scientific << std::setprecision(3)
-	   << std::setw(11) << FM->x[X_][i] << std::setw(11) << FM->BoBrho[Y_][7][i][7]
-	   << std::endl;
+	   << std::setw(11) << FM->x[X_][i]
+	   << std::setw(11) << FM->BoBrho[Y_][7][i][7] << std::endl;
     outf.close();
   }
 
@@ -2967,16 +2972,20 @@ void get_B_NSLS_II(const char *filename, FieldMapType *FM)
   FM->Lr = FM->dx[Z_]*(FM->n[Z_]-1);
 
   std::cout << std::fixed << std::setprecision(5)
-       << std::setw(10) << 1e3*FM->dx[X_] << std::setw(10) << 1e3*FM->dx[Y_]
-       << std::setw(10) << 1e3*FM->dx[Z_] << std::endl;
+	    << std::setw(10) << 1e3*FM->dx[X_]
+	    << std::setw(10) << 1e3*FM->dx[Y_]
+	    << std::setw(10) << 1e3*FM->dx[Z_] << std::endl;
   std::cout << std::setw(10) << FM->n[X_] << std::setw(10) << FM->n[Y_]
-       << std::setw(10) << FM->n[Z_] << std::endl;
+	    << std::setw(10) << FM->n[Z_] << std::endl;
   std::cout << std::fixed << std::setprecision(3)
-       << std::setw(10) << FM->x[X_][1] << std::setw(10) << FM->x[X_][FM->n[X_]]
-       << std::setw(10) << FM->x[Y_][1] << std::setw(10) << FM->x[Y_][FM->n[Y_]]
-       << std::setw(10) << FM->x[Z_][1] << std::setw(10) << FM->x[Z_][FM->n[Z_]] << std::endl;
+	    << std::setw(10) << FM->x[X_][1]
+	    << std::setw(10) << FM->x[X_][FM->n[X_]]
+	    << std::setw(10) << FM->x[Y_][1]
+	    << std::setw(10) << FM->x[Y_][FM->n[Y_]]
+	    << std::setw(10) << FM->x[Z_][1]
+	    << std::setw(10) << FM->x[Z_][FM->n[Z_]] << std::endl;
   std::cout << std::fixed << std::setprecision(5)
-       << "Magnet length [m]:" << std::setw(10) << FM->Lr << std::endl;
+	    << "Magnet length [m]:" << std::setw(10) << FM->Lr << std::endl;
 
   for (n = 1; n <= FM->n[Z_]; n++) {
     splie2_(FM->x[X_], FM->x[Y_], FM->BoBrho[X_][n],
@@ -3094,16 +3103,20 @@ void get_B_Oleg1(const char *filename, FieldMapType *FM)
   FM->Lr = FM->dx[Z_]*(FM->n[Z_]-1);
 
   std::cout << std::fixed << std::setprecision(5)
-       << std::setw(10) << 1e3*FM->dx[X_] << std::setw(10) << 1e3*FM->dx[Y_]
-       << std::setw(10) << 1e3*FM->dx[Z_] << std::endl;
+	    << std::setw(10) << 1e3*FM->dx[X_]
+	    << std::setw(10) << 1e3*FM->dx[Y_]
+	    << std::setw(10) << 1e3*FM->dx[Z_] << std::endl;
   std::cout << std::setw(10) << FM->n[X_] << std::setw(10) << FM->n[Y_]
-       << std::setw(10) << FM->n[Z_] << std::endl;
+	    << std::setw(10) << FM->n[Z_] << std::endl;
   std::cout << std::fixed << std::setprecision(3)
-       << std::setw(10) << FM->x[X_][1] << std::setw(10) << FM->x[X_][FM->n[X_]]
-       << std::setw(10) << FM->x[Y_][1] << std::setw(10) << FM->x[Y_][FM->n[Y_]]
-       << std::setw(10) << FM->x[Z_][1] << std::setw(10) << FM->x[Z_][FM->n[Z_]] << std::endl;
+	    << std::setw(10) << FM->x[X_][1]
+	    << std::setw(10) << FM->x[X_][FM->n[X_]]
+	    << std::setw(10) << FM->x[Y_][1]
+	    << std::setw(10) << FM->x[Y_][FM->n[Y_]]
+	    << std::setw(10) << FM->x[Z_][1]
+	    << std::setw(10) << FM->x[Z_][FM->n[Z_]] << std::endl;
   std::cout << std::fixed << std::setprecision(5)
-       << "Magnet length [m]:" << std::setw(10) << FM->Lr << std::endl;
+	    << "Magnet length [m]:" << std::setw(10) << FM->Lr << std::endl;
 
   for (n = 1; n <= FM->n[Z_]; n++) {
     splie2_(FM->x[X_], FM->x[Y_], FM->BoBrho[X_][n],
@@ -3168,13 +3181,14 @@ void get_B_Oleg2(const char *filename, FieldMapType *FM)
   inf.getline(line, max_str); sscanf(line, "#%d", &FM->n[Z_]);
 
   std::cout << std::fixed << std::setprecision(5)
-       << std::setw(10) << 1e3*FM->dx[X_] << std::setw(10) << 1e3*FM->dx[Y_]
-       << std::setw(10) << 1e3*FM->dx[Z_] << std::endl;
+	    << std::setw(10) << 1e3*FM->dx[X_]
+	    << std::setw(10) << 1e3*FM->dx[Y_]
+	    << std::setw(10) << 1e3*FM->dx[Z_] << std::endl;
   std::cout << std::setw(10) << FM->n[X_] << std::setw(10) << FM->n[Y_]
-       << std::setw(10) << FM->n[Z_] << std::endl;
+	    << std::setw(10) << FM->n[Z_] << std::endl;
   std::cout << std::fixed << std::setprecision(3)
-       << std::setw(10) << x_min[X_] << std::setw(10) << x_min[Y_]
-       << std::setw(10) << x_min[Z_] << std::endl;
+	    << std::setw(10) << x_min[X_] << std::setw(10) << x_min[Y_]
+	    << std::setw(10) << x_min[Z_] << std::endl;
 
   FM->x[X_] = dvector(1, FM->n[X_]); FM->x[Y_] = dvector(1, FM->n[Y_]);
   FM->x[Z_] = dvector(1, FM->n[Z_]);
@@ -3233,16 +3247,20 @@ void get_B_Oleg2(const char *filename, FieldMapType *FM)
   FM->Lr = FM->dx[Z_]*(FM->n[Z_]-1);
 
   std::cout << std::fixed << std::setprecision(5)
-       << std::setw(10) << 1e3*FM->dx[X_] << std::setw(10) << 1e3*FM->dx[Y_]
-       << std::setw(10) << 1e3*FM->dx[Z_] << std::endl;
+	    << std::setw(10) << 1e3*FM->dx[X_]
+	    << std::setw(10) << 1e3*FM->dx[Y_]
+	    << std::setw(10) << 1e3*FM->dx[Z_] << std::endl;
   std::cout << std::setw(10) << FM->n[X_] << std::setw(10) << FM->n[Y_]
-       << std::setw(10) << FM->n[Z_] << std::endl;
+	    << std::setw(10) << FM->n[Z_] << std::endl;
   std::cout << std::fixed << std::setprecision(3)
-       << std::setw(10) << FM->x[X_][1] << std::setw(10) << FM->x[X_][FM->n[X_]]
-       << std::setw(10) << FM->x[Y_][1] << std::setw(10) << FM->x[Y_][FM->n[Y_]]
-       << std::setw(10) << FM->x[Z_][1] << std::setw(10) << FM->x[Z_][FM->n[Z_]] << std::endl;
+	    << std::setw(10) << FM->x[X_][1]
+	    << std::setw(10) << FM->x[X_][FM->n[X_]]
+	    << std::setw(10) << FM->x[Y_][1]
+	    << std::setw(10) << FM->x[Y_][FM->n[Y_]]
+	    << std::setw(10) << FM->x[Z_][1]
+	    << std::setw(10) << FM->x[Z_][FM->n[Z_]] << std::endl;
   std::cout << std::fixed << std::setprecision(5)
-       << "Magnet length [m]:" << std::setw(10) << FM->Lr << std::endl;
+	    << "Magnet length [m]:" << std::setw(10) << FM->Lr << std::endl;
 
   for (n = 1; n <= FM->n[Z_]; n++) {
     splie2_(FM->x[X_], FM->x[Y_], FM->BoBrho[X_][n],
@@ -3292,7 +3310,8 @@ void get_B(const char *filename, FieldMapType *FM)
     get_B_Oleg2(filename, FM);
     break;
   default:
-    std::cout << "get_B: unknown FieldMap type " << FieldMap_filetype << std::endl;
+    std::cout << "get_B: unknown FieldMap type " << FieldMap_filetype
+	      << std::endl;
     break;
   }
 }
