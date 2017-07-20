@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
   globval.pathlength = false; globval.bpm         = 0;
 
   // 1: DIAMOND, 3: Oleg I, 4: Oleg II.
-  FieldMap_filetype = 1; sympl = false;
+  FieldMap_filetype = 1; sympl = true;
 
   Read_Lattice(argv[1]);
 
@@ -87,13 +87,20 @@ int main(int argc, char *argv[])
 //  Ring_GetTwiss(true, 0.0); printglob();
 
   if (true) {
-    trace = true;
-    map.identity(); map[x_] += -30e-3;
-    Cell_Pass(Elem_GetPos(ElemIndex("bb"), 1),
-	      Elem_GetPos(ElemIndex("bb"), 1), map, lastpos);
+    trace = false;
+    map.identity();
+    if (false)
+      Cell_Pass(Elem_GetPos(ElemIndex("bb"), 1),
+		Elem_GetPos(ElemIndex("bb"), 1), map, lastpos);
+    else
+      Cell_Pass(Elem_GetPos(ElemIndex("bb_dh"), 1),
+		Elem_GetPos(ElemIndex("bb_dh"), 2), map, lastpos);
+    getlinmat(6, map, M);
     prt_lin_map(3, map);
     cout << "\n" << scientific << setprecision(3)
 	 << setw(11) << map.cst() << "\n";
+    cout << scientific << setprecision(3)
+	  << endl << "1-Det: " << setw(9) << 1-DetMat(6, M) << endl;
     exit(0);
   }
 

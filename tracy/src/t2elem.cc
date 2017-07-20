@@ -1950,7 +1950,8 @@ void FieldMap_Pass(CellType &Cell, ss_vect<T> &ps)
 
   Drift(FM->L1/2e0, ps);
 
-  p_rot(FM->phi/2e0*180e0/M_PI, ps);
+  ps[px_] += FM->phi/2e0;
+  // p_rot(FM->phi/2e0*180e0/M_PI, ps);
 
   for (k = 1; k <= FM->n_step; k++) {
     if (sympl)
@@ -1961,7 +1962,8 @@ void FieldMap_Pass(CellType &Cell, ss_vect<T> &ps)
 
   Drift(FM->Ld, ps);
 
-  p_rot(FM->phi/2e0*180e0/M_PI, ps);
+  ps[px_] += FM->phi/2e0;
+  // p_rot(FM->phi/2e0*180e0/M_PI, ps);
 
   Drift(FM->L1/2e0, ps);
 
@@ -2743,7 +2745,7 @@ void get_B_DIAMOND(const char *filename, FieldMapType *FM)
   inf.getline(line, max_str);
   sscanf(line, "Number of points   : %d %d %d", &FM->n[X_], &ny, &FM->n[Z_]);
 
-  // convert from cm to m
+  // Convert from [cm] to [m].
   x0 *= 1e-2; y0 *= 1e-2; z0 *= 1e-2;
   FM->dx[X_] *= 1e-2; FM->dx[Y_] *= 1e-2; FM->dx[Z_] *= 1e-2;
   FM->Lr = FM->dx[Z_]*(FM->n[Z_]-1);
@@ -2778,14 +2780,18 @@ void get_B_DIAMOND(const char *filename, FieldMapType *FM)
 	       &FM->BoBrho[Y_][n][i][ny-1+j],
 	       &FM->BoBrho[Z_][n][i][ny-1+j]);
 
-	// convert from cm to m
+	// Convert from [cm] to [m].
 	FM->x[X_][i] *= 1e-2; FM->x[Y_][ny-1+j] *= 1e-2; FM->x[Z_][n] *= 1e-2;
-	// convert from Gauss to Tesla
+	// Convert from [Gauss] to [Tesla].
 	FM->BoBrho[X_][n][i][ny-1+j] /= 1e+4*Brho;
 	FM->BoBrho[Y_][n][i][ny-1+j] /= 1e+4*Brho;
 	FM->BoBrho[Z_][n][i][ny-1+j] /= 1e+4*Brho;
+	// Scale.
+	FM->BoBrho[X_][n][i][ny-1+j] *= FM->scl;
+	FM->BoBrho[Y_][n][i][ny-1+j] *= FM->scl;
+	FM->BoBrho[Z_][n][i][ny-1+j] *= FM->scl;
 
-	// Compute vector potential (axial gauge) by extended trapezodial rule
+	// Compute vector potential (axial gauge) by extended trapezodial rule.
 	if (n == 1) {
 	  FM->AoBrho[X_][n][i][ny-1+j] =
 	    -FM->BoBrho[Y_][n][i][ny-1+j]*FM->dx[Z_]/2e0;
