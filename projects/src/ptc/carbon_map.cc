@@ -1,8 +1,9 @@
-#define NO 1
+#define NO 2
 
 #include "tracy_lib.h"
 
-int no_tps = NO;
+int no_tps   = NO,
+    ndpt_tps = 5;
 
 
 const bool NSLS_II = false;
@@ -71,8 +72,8 @@ int main(int argc, char *argv[])
   double       dx;
   Matrix       M;
   ss_vect<tps> map;
+  ofstream     outf;
 
-    
   globval.H_exact    = false; globval.quad_fringe = false;
   globval.Cavity_on  = false; globval.radiation   = false;
   globval.emittance  = false; globval.IBS         = false;
@@ -88,7 +89,9 @@ int main(int argc, char *argv[])
 //  Ring_GetTwiss(true, 0.0); printglob();
 
   if (true) {
-    trace = true;
+    trace = false;
+
+    // globval.H_exact = true;
 
     map.identity();
     // Tweak to remain within field map range at entrance.
@@ -105,6 +108,11 @@ int main(int argc, char *argv[])
 	 << setw(11) << map.cst() << "\n";
     cout << scientific << setprecision(3)
 	  << endl << "1-Det: " << setw(9) << 1-DetMat(6, M) << endl;
+
+    file_wr(outf, "map.dat");
+    outf << scientific << setprecision(3)
+	 << setw(11) << map << "\n";
+    outf.close();
     exit(0);
   }
 

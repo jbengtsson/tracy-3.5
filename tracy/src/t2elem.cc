@@ -1544,13 +1544,13 @@ void FieldMap_pass_RK(CellType &Cell, ss_vect<T> &ps, int k)
     if (trace)
       outf_ << std::scientific << std::setprecision(3)
 	    << std::setw(11) << s_FM
-	   << std::setw(11) << is_double<T>::cst(ps[x_])
-	   << std::setw(11) << is_double<T>::cst(ps[px_])
-	   << std::setw(11) << is_double<T>::cst(ps[y_])
-	   << std::setw(11) << is_double<T>::cst(ps[py_])
-	   << std::setw(11) << is_double<T>::cst(ps[delta_])
-	   << std::setw(11) << is_double<T>::cst(ps[ct_])
-	   << std::endl;
+	    << std::setw(11) << is_double<T>::cst(ps[x_])
+	    << std::setw(11) << is_double<T>::cst(ps[px_])
+	    << std::setw(11) << is_double<T>::cst(ps[y_])
+	    << std::setw(11) << is_double<T>::cst(ps[py_])
+	    << std::setw(11) << is_double<T>::cst(ps[delta_])
+	    << std::setw(11) << is_double<T>::cst(ps[ct_])
+	    << std::endl;
   }
 
   // transform back to [x, px, y, py] (A_x,y,z = 0)
@@ -1932,9 +1932,9 @@ template void FieldMap_pass_SI(CellType &, ss_vect<tps> &, int k);
 template<typename T>
 void FieldMap_Pass(CellType &Cell, ss_vect<T> &ps)
 {
-  int           k;
-  FieldMapType  *FM;
-
+  int          k;
+  double       Ld, dp_x;
+  FieldMapType *FM;
 
   if (trace & first_FM) {
     file_wr(outf_, "FieldMap_pass.dat");
@@ -1946,12 +1946,8 @@ void FieldMap_Pass(CellType &Cell, ss_vect<T> &ps)
 
 //  GtoL(ps, Cell.dS, Cell.dT, 0e0, 0e0, 0e0);
 
-  ps[x_] += FM->x0;
-
-  Drift(FM->L1/2e0, ps);
-
-  ps[px_] += FM->phi/2e0;
-  // p_rot(FM->phi/2e0*180e0/M_PI, ps);
+  Ld = (FM->Lr-Cell.Elem.PL)/2e0; dp_x = FM->phi/2e0;
+  ps[px_] += dp_x; Drift(-Ld, ps);
 
   for (k = 1; k <= FM->n_step; k++) {
     if (sympl)
@@ -1960,14 +1956,7 @@ void FieldMap_Pass(CellType &Cell, ss_vect<T> &ps)
       FieldMap_pass_RK(Cell, ps, k);
   }
 
-  Drift(FM->Ld, ps);
-
-  ps[px_] += FM->phi/2e0;
-  // p_rot(FM->phi/2e0*180e0/M_PI, ps);
-
-  Drift(FM->L1/2e0, ps);
-
-  ps[x_] -= FM->x0;
+  Drift(-Ld, ps); ps[px_] += dp_x;
 
 //  LtoG(ps, Cell.dS, Cell.dT, 0e0, 0e0, 0e0);
 
