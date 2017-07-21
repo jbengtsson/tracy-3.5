@@ -71,6 +71,7 @@ int main(int argc, char *argv[])
   long int     lastpos;
   double       dx;
   Matrix       M;
+  tps          h;
   ss_vect<tps> map;
   ofstream     outf;
 
@@ -81,6 +82,9 @@ int main(int argc, char *argv[])
 
   // 1: DIAMOND, 3: Oleg I, 4: Oleg II.
   FieldMap_filetype = 1; sympl = true;
+
+  // disable from TPSALib and LieLib log messages
+  idprset(-1);
 
   Read_Lattice(argv[1]);
 
@@ -102,16 +106,19 @@ int main(int argc, char *argv[])
     // Tweak to remain within field map range at entrance.
     map[x_] -= dx;
 
+    h = LieFact(map);
+
     getlinmat(6, map, M);
     prt_lin_map(3, map);
+
     cout << "\n" << scientific << setprecision(3)
 	 << setw(11) << map.cst() << "\n";
     cout << scientific << setprecision(3)
 	  << endl << "1-Det: " << setw(9) << 1-DetMat(6, M) << endl;
 
-    file_wr(outf, "map.dat");
+    file_wr(outf, "h.dat");
     outf << scientific << setprecision(3)
-	 << setw(11) << map << "\n";
+	 << setw(11) << h << "\n";
     outf.close();
     exit(0);
   }

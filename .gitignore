@@ -19,6 +19,8 @@ config/
 
 # Command, data and graphics files.
 in
+out
+bin
 max_iv
 sls-2
 python
