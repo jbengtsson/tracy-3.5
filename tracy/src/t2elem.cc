@@ -1947,7 +1947,9 @@ void FieldMap_Pass(CellType &Cell, ss_vect<T> &ps)
 //  GtoL(ps, Cell.dS, Cell.dT, 0e0, 0e0, 0e0);
 
   Ld = (FM->Lr-Cell.Elem.PL)/2e0; dp_x = FM->phi/2e0;
-  ps[px_] += dp_x; Drift(-Ld, ps);
+  // ps[px_] += dp_x;
+  p_rot(FM->phi/2.0*180.0/M_PI, ps);
+  Drift(-Ld, ps);
 
   for (k = 1; k <= FM->n_step; k++) {
     if (sympl)
@@ -1956,7 +1958,9 @@ void FieldMap_Pass(CellType &Cell, ss_vect<T> &ps)
       FieldMap_pass_RK(Cell, ps, k);
   }
 
-  Drift(-Ld, ps); ps[px_] += dp_x;
+  Drift(-Ld, ps);
+  // ps[px_] += dp_x;
+  p_rot(FM->phi/2.0*180.0/M_PI, ps);
 
 //  LtoG(ps, Cell.dS, Cell.dT, 0e0, 0e0, 0e0);
 

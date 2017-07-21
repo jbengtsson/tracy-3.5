@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
   globval.pathlength = false; globval.bpm         = 0;
 
   // 1: DIAMOND, 3: Oleg I, 4: Oleg II.
-  FieldMap_filetype = 1; sympl = true;
+  FieldMap_filetype = 1; sympl = false;
 
   Read_Lattice(argv[1]);
 
@@ -105,6 +105,7 @@ int main(int argc, char *argv[])
 	 << setw(11) << map.cst() << "\n";
     cout << scientific << setprecision(3)
 	  << endl << "1-Det: " << setw(9) << 1-DetMat(6, M) << endl;
+
     exit(0);
   }
 
