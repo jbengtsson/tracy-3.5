@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
   globval.pathlength = false; globval.bpm         = 0;
 
   // 1: DIAMOND, 3: Oleg I, 4: Oleg II.
-  FieldMap_filetype = 1; sympl = false;
+  FieldMap_filetype = 1; sympl = true;
 
   Read_Lattice(argv[1]);
 
@@ -88,11 +88,11 @@ int main(int argc, char *argv[])
 //  Ring_GetTwiss(true, 0.0); printglob();
 
   if (true) {
-    trace = true;
+    trace = false;
 
     map.identity();
     // Tweak to remain within field map range at entrance.
-    dx = -1.3e-3;
+    dx = -1.4e-3;
     map[x_] += dx;
       Cell_Pass(Elem_GetPos(ElemIndex("bb"), 1),
 		Elem_GetPos(ElemIndex("bb"), 1), map, lastpos);
