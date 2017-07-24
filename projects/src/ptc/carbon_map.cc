@@ -174,6 +174,27 @@ void bend_fringe(const double L, const double phi, const double e1,
 }
 
 
+tps get_e1_h(const double L, const double phi, const double e1,
+	     const bool entrance)
+{
+  double       h, sgn;
+  ss_vect<tps> Id;
+
+  Id.identity();
+
+  h = phi*M_PI/(L*180e0);
+
+  sgn = (entrance)? 1e0 : -1e0;
+
+  return
+    sgn*(-sqr(h)*cube(tan(e1*M_PI/180e0))/6e0*cube(Id[x_])
+	 + h*sqr(tan(e1*M_PI/180e0))/2e0*sqr(Id[x_])*Id[px_]
+	 + sqr(h)*cube(tan(e1*M_PI/180e0))/2e0*Id[x_]*sqr(Id[y_])
+	 - h*sqr(tan(e1*M_PI/180e0))*Id[x_]*Id[y_]*Id[py_]
+	 - h/(2e0*sqr(cos(e1*M_PI/180e0)))*Id[px_]*sqr(Id[y_]));
+}
+
+
 ss_vect<tps> get_sbend(const double L, const double phi)
 {
   double       rho;
@@ -196,42 +217,6 @@ ss_vect<tps> get_sbend(const double L, const double phi)
 }
 
 
-tps get_e1_h(const double L, const double phi, const double e1)
-{
-  double       h;
-  ss_vect<tps> Id;
-
-  Id.identity();
-
-  h = phi*M_PI/(L*180e0);
-
-  return
-    -sqr(h)*cube(tan(e1*M_PI/180e0))/6e0*cube(Id[x_])
-    + h*sqr(tan(e1*M_PI/180e0))/2e0*sqr(Id[x_])*Id[px_]
-    + sqr(h)*cube(tan(e1*M_PI/180e0))/2e0*Id[x_]*sqr(Id[y_])
-    - h*sqr(tan(e1*M_PI/180e0))*Id[x_]*Id[y_]*Id[py_]
-    - h/(2e0*sqr(cos(e1*M_PI/180e0)))*Id[px_]*sqr(Id[y_]);
-}
-
-
-tps get_e2_h(const double L, const double phi, const double e2)
-{
-  double       h;
-  ss_vect<tps> Id;
-
-  Id.identity();
-
-  h = phi*M_PI/(L*180e0);
-
-  return
-    sqr(h)*cube(tan(e2*M_PI/180e0))/6e0*cube(Id[x_])
-    - h*sqr(tan(e2*M_PI/180e0))/2e0*sqr(Id[x_])*Id[px_]
-    - sqr(h)*cube(tan(e2*M_PI/180e0))/2e0*Id[x_]*sqr(Id[y_])
-    + h*sqr(tan(e2*M_PI/180e0))*Id[x_]*Id[y_]*Id[py_]
-    + h/(2e0*sqr(cos(e2*M_PI/180e0)))*Id[px_]*sqr(Id[y_]);
-}
-
-
 ss_vect<tps> get_map(const double T[5][5][5])
 {
   int          i, j, k;
@@ -249,10 +234,11 @@ ss_vect<tps> get_map(const double T[5][5][5])
 }
 
 
-ss_vect<tps> get_e1_map(const double L, const double phi, const double e1)
+ss_vect<tps> get_e1_map(const double L, const double phi, const double e1,
+			const bool entrance)
 {
   int    i, j, k;
-  double rho, T[5][5][5];
+  double rho, sgn, T[5][5][5];
 
   for (i = 1; i <= 4; i++)
     for (j = 1; j <= 4; j++)
@@ -261,43 +247,18 @@ ss_vect<tps> get_e1_map(const double L, const double phi, const double e1)
 
   rho = L*180e0/(phi*M_PI);
 
-  T[1][1][1] = -sqr(tan(e1*M_PI/180e0))/(2e0*rho);
-  T[1][3][3] = 1/(sqr(cos(e1*M_PI/180e0))*2e0*rho);
-  T[2][1][1] = -cube(tan(e1*M_PI/180e0))/(2e0*sqr(rho));
+  sgn = (entrance)? 1e0 : -1e0;
+
+  T[1][1][1] = -sgn*sqr(tan(e1*M_PI/180e0))/(2e0*rho);
+  T[1][3][3] = sgn*1e0/(sqr(cos(e1*M_PI/180e0))*2e0*rho);
+  T[2][1][1] = -sgn*cube(tan(e1*M_PI/180e0))/(2e0*sqr(rho));
   T[2][1][2] = -T[1][1][1];
   T[2][3][3] = -T[2][1][1];
   T[2][3][4] = T[1][1][1];
   T[3][1][3] = -T[1][1][1];
-  T[4][1][3] = cube(tan(e1*M_PI/180e0))/(2e0*sqr(rho));
+  T[4][1][3] = sgn*cube(tan(e1*M_PI/180e0))/(2e0*sqr(rho));
   T[4][1][4] = T[1][1][1];
-  T[4][2][3] = -1/(sqr(cos(e1*M_PI/180e0))*2e0*rho);
-
-  return get_map(T);
-}
-
-
-ss_vect<tps> get_e2_map(const double L, const double phi, const double e2)
-{
-  int    i, j, k;
-  double rho, T[5][5][5];
-
-  for (i = 1; i <= 4; i++)
-    for (j = 1; j <= 4; j++)
-      for (k = 1; k <= 4; k++)
-	T[i][j][k] = 0e0;
-
-  rho = L*180e0/(phi*M_PI);
-
-  T[1][1][1] = sqr(tan(e2*M_PI/180e0))/(2e0*rho);
-  T[1][3][3] = -1/(sqr(cos(e2*M_PI/180e0))*2e0*rho);
-  T[2][1][1] = cube(tan(e2*M_PI/180e0))/(2e0*sqr(rho));
-  T[2][1][2] = -T[1][1][1];
-  T[2][3][3] = -T[2][1][1];
-  T[2][3][4] = T[1][1][1];
-  T[3][1][3] = -T[1][1][1];
-  T[4][1][3] = -cube(tan(e2*M_PI/180e0))/(2e0*sqr(rho));
-  T[4][1][4] = T[1][1][1];
-  T[4][2][3] = 1/(sqr(cos(e2*M_PI/180e0))*2e0*rho);
+  T[4][2][3] = -sgn*1/(sqr(cos(e1*M_PI/180e0))*2e0*rho);
 
   return get_map(T);
 }
@@ -310,8 +271,10 @@ ss_vect<tps> dip_Brown_Helm(const double L, const double phi,
   ss_vect<tps> map, map_e1, map_e2, R;
 
   map = get_sbend(L, phi);
-  map_e1 = get_e1_map(L, phi, phi/2e0); h_e1 = get_e1_h(L, phi, phi/2e0);
-  map_e2 = get_e2_map(L, phi, phi/2e0); h_e2 = get_e2_h(L, phi, phi/2e0);
+  map_e1 = get_e1_map(L, phi, phi/2e0, true);
+  map_e2 = get_e1_map(L, phi, phi/2e0, false);
+  h_e1 = get_e1_h(L, phi, phi/2e0, true);
+  h_e2 = get_e1_h(L, phi, phi/2e0, false);
 
   prt_lin_map(3, map);
 
