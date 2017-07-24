@@ -196,23 +196,6 @@ ss_vect<tps> get_sbend(const double L, const double phi)
 }
 
 
-ss_vect<tps> get_map(const double T[5][5][5])
-{
-  int          i, j, k;
-  ss_vect<tps> Id, map;
-
-  Id.identity(); map.identity();
-  for (i = 1; i <= 4; i++)
-    for (j = 1; j <= 4; j++)
-      for (k = 1; k <= 4; k++) {
-	map[i-1] += T[i][j][k]*Id[j-1]*Id[k-1];
-	if (j != k) map[i-1] += T[i][j][k]*Id[k-1]*Id[j-1];
-      }
-
-  return map;
-}
-
-
 tps get_e1_h(const double L, const double phi, const double e1)
 {
   double       h;
@@ -246,6 +229,23 @@ tps get_e2_h(const double L, const double phi, const double e2)
     - sqr(h)*cube(tan(e2*M_PI/180e0))/2e0*Id[x_]*sqr(Id[y_])
     + h*sqr(tan(e2*M_PI/180e0))*Id[x_]*Id[y_]*Id[py_]
     + h/(2e0*sqr(cos(e2*M_PI/180e0)))*Id[px_]*sqr(Id[y_]);
+}
+
+
+ss_vect<tps> get_map(const double T[5][5][5])
+{
+  int          i, j, k;
+  ss_vect<tps> Id, map;
+
+  Id.identity(); map.identity();
+  for (i = 1; i <= 4; i++)
+    for (j = 1; j <= 4; j++)
+      for (k = 1; k <= 4; k++) {
+	map[i-1] += T[i][j][k]*Id[j-1]*Id[k-1];
+	if (j != k) map[i-1] += T[i][j][k]*Id[k-1]*Id[j-1];
+      }
+
+  return map;
 }
 
 
