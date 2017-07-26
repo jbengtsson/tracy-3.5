@@ -167,11 +167,11 @@ void LtoG(ss_vect<T> &X, Vector2 &S, Vector2 &R,
 template<typename T>
 inline T get_p_s(const ss_vect<T> &x)
 {
-  T  p_s, p_s2;
+  T p_s, p_s2;
 
-  if (true)
+  if (!globval.H_exact)
     // Small angle axproximation.
-    p_s = 1e0+x[delta_];
+    p_s = 1e0 + x[delta_];
   else {
     p_s2 = sqr(1e0+x[delta_]) - sqr(x[px_]) - sqr(x[py_]);
     if (p_s2 >= 0e0)
@@ -190,7 +190,7 @@ void Drift(const double L, ss_vect<T> &ps)
 {
   T u;
 
-  if (true) {
+  if (!globval.H_exact) {
     // Small angle axproximation.
     u = L/(1e0+ps[delta_]);
     ps[x_]  += u*ps[px_]; ps[y_] += u*ps[py_];
@@ -516,41 +516,47 @@ static void EdgeFocus(const double irho, const double phi, const double gap,
 
 
 template<typename T>
-void p_rot(double phi, ss_vect<T> &x)
+void p_rot(double phi, ss_vect<T> &ps)
 {
-  T           c, s, ps, p;
-  ss_vect<T>  x1;
+  T          c, s, t, pz, p, val;
+  ss_vect<T> ps1;
 
-  c = cos(dtor(phi)); s = sin(dtor(phi)); ps = get_p_s(x);
+  c = cos(dtor(phi)); s = sin(dtor(phi)); t = tan(dtor(phi)); pz = get_p_s(ps);
 
   if (!globval.H_exact) {
-     x[px_] = s*ps + c*x[px_];
+     ps[px_] = s*pz + c*ps[px_];
   } else {
-    x1 = x; p = c*ps - s*x1[px_];
-    x[x_] = x1[x_]*ps/p; x[px_] = s*ps + c*x1[px_];
-    x[y_] += x1[x_]*x1[py_]*s/p;
-    x[ct_] += (1e0+x1[delta_])*x1[x_]*s/p;
+    // ps1 = ps; p = c*pz - s*ps1[px_];
+    // px[x_]   = ps1[x_]*pz/p; px[px_] = s*pz + c*ps1[px_];
+    // px[y_]  += ps1[x_]*ps1[py_]*s/p;
+    // px[ct_] += (1e0+ps1[delta_])*ps1[x_]*s/p;
+
+    ps1 = ps; val = 1e0 - ps1[px_]*t/pz;
+    ps[x_]  = ps1[x_]/(c*val);
+    ps[px_] = ps1[px_]*c + s*pz;
+    ps[y_]  = ps1[y_] + t*ps1[x_]*ps1[py_]/(pz*val);
+    ps[ct_] = ps1[ct_] + ps1[x_]*(1e0+ps1[delta_])*t/(pz*val);
   }
 }
 
 
 template<typename T>
-void bend_fringe(const double hb, ss_vect<T> &x)
+void bend_fringe(const double hb, ss_vect<T> &ps)
 {
-  T           coeff, u, ps, ps2, ps3;
-  ss_vect<T>  x1;
+  T           coeff, u, pz, pz2, pz3;
+  ss_vect<T>  ps1;
 
-  coeff = -hb/2e0; x1 = x; ps = get_p_s(x); ps2 = sqr(ps); ps3 = ps*ps2;
-  u = 1e0 + 4e0*coeff*x1[px_]*x1[y_]*x1[py_]/ps3;
+  coeff = -hb/2e0; ps1 = ps; pz = get_p_s(ps); pz2 = sqr(pz); pz3 = pz*pz2;
+  u = 1e0 + 4e0*coeff*ps1[px_]*ps1[y_]*ps1[py_]/pz3;
   if (u >= 0e0) {
-    x[y_] = 2e0*x1[y_]/(1e0+sqrt(u));
-    x[x_] = x1[x_] - coeff*sqr(x[y_])*(ps2+sqr(x1[px_]))/ps3;
-    x[py_] = x1[py_] + 2e0*coeff*x1[px_]*x[y_]/ps;
-    x[ct_] = x1[ct_] - coeff*x1[px_]*sqr(x[y_])*(1e0+x1[delta_])/ps3;
+    ps[y_]  = 2e0*ps1[y_]/(1e0+sqrt(u));
+    ps[x_]  = ps1[x_] - coeff*sqr(ps[y_])*(pz2+sqr(ps1[px_]))/pz3;
+    ps[py_] = ps1[py_] + 2e0*coeff*ps1[px_]*ps[y_]/pz;
+    ps[ct_] = ps1[ct_] - coeff*ps1[px_]*sqr(ps[y_])*(1e0+ps1[delta_])/pz3;
   } else {
     printf("bend_fringe: *** Speed of light exceeded!\n");
-    x[x_] = NAN; x[px_] = NAN; x[y_] = NAN; x[py_] = NAN;
-    x[delta_] = NAN; x[ct_] = NAN;
+    ps[x_] = NAN; ps[px_] = NAN; ps[y_] = NAN; ps[py_] = NAN;
+    ps[delta_] = NAN; ps[ct_] = NAN;
   }
 }
 
@@ -596,7 +602,6 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &x)
     if (!globval.H_exact) {
       if (M->Pirho != 0e0) EdgeFocus(M->Pirho, M->PTx1, M->Pgap, x);
     } else {
-//      p_rot(elemp->PL*M->Pirho/2e0*180e0/M_PI, x);
       p_rot(M->PTx1, x); bend_fringe(M->Pirho, x);
     }
   }
@@ -693,7 +698,6 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &x)
       if (M->Pirho != 0e0) EdgeFocus(M->Pirho, M->PTx2, M->Pgap, x);
     } else {
       bend_fringe(-M->Pirho, x); p_rot(M->PTx2, x);
-//      p_rot(elemp->PL*M->Pirho/2e0*180e0/M_PI, x);
     }
     if (globval.quad_fringe && (M->PB[Quad+HOMmax] != 0e0))
       quad_fringe(-M->PB[Quad+HOMmax], x);

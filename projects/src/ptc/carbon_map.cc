@@ -174,27 +174,6 @@ void bend_fringe(const double L, const double phi, const double e1,
 }
 
 
-tps get_e1_h(const double L, const double phi, const double e1,
-	     const bool entrance)
-{
-  double       h, sgn;
-  ss_vect<tps> Id;
-
-  Id.identity();
-
-  h = phi*M_PI/(L*180e0);
-
-  sgn = (entrance)? 1e0 : -1e0;
-
-  return
-    sgn*(-sqr(h)*cube(tan(e1*M_PI/180e0))/6e0*cube(Id[x_])
-	 + h*sqr(tan(e1*M_PI/180e0))/2e0*sqr(Id[x_])*Id[px_]
-	 + sqr(h)*cube(tan(e1*M_PI/180e0))/2e0*Id[x_]*sqr(Id[y_])
-	 - h*sqr(tan(e1*M_PI/180e0))*Id[x_]*Id[y_]*Id[py_]
-	 - h/(2e0*sqr(cos(e1*M_PI/180e0)))*Id[px_]*sqr(Id[y_]));
-}
-
-
 ss_vect<tps> get_sbend(const double L, const double phi)
 {
   double       rho;
@@ -264,6 +243,27 @@ ss_vect<tps> get_e1_map(const double L, const double phi, const double e1,
 }
 
 
+tps get_e1_h(const double L, const double phi, const double e1,
+	     const bool entrance)
+{
+  double       h, sgn;
+  ss_vect<tps> Id;
+
+  Id.identity();
+
+  h = phi*M_PI/(L*180e0);
+
+  sgn = (entrance)? 1e0 : -1e0;
+
+  return
+    sgn*(-sqr(h)*cube(tan(e1*M_PI/180e0))/6e0*cube(Id[x_])
+	 + h*sqr(tan(e1*M_PI/180e0))/2e0*sqr(Id[x_])*Id[px_]
+	 + sqr(h)*cube(tan(e1*M_PI/180e0))/2e0*Id[x_]*sqr(Id[y_])
+	 - h*sqr(tan(e1*M_PI/180e0))*Id[x_]*Id[y_]*Id[py_]
+	 - h/(2e0*sqr(cos(e1*M_PI/180e0)))*Id[px_]*sqr(Id[y_]));
+}
+
+
 ss_vect<tps> dip_Brown_Helm(const double L, const double phi,
 			    const double e1, const double e2)
 {
@@ -299,7 +299,7 @@ int main(int argc, char *argv[])
   double       dx;
   Matrix       M;
   tps          h;
-  ss_vect<tps> map, R;
+  ss_vect<tps> map, R, Id;
   ofstream     outf;
 
   globval.H_exact    = false; globval.quad_fringe = false;
@@ -319,7 +319,7 @@ int main(int argc, char *argv[])
 
 //  Ring_GetTwiss(true, 0.0); printglob();
 
-  if (false) {
+  if (true) {
     trace = false;
 
     globval.H_exact = true;
@@ -343,12 +343,14 @@ int main(int argc, char *argv[])
     cout << scientific << setprecision(3)
 	  << endl << "1-Det: " << setw(9) << 1-DetMat(6, M) << endl;
 
+    Id.identity(); Id[delta_] = 0e0; Id[ct_] = 0e0;
+
     // file_wr(outf, "h.dat");
     // Remove numeric noise.
-    daeps_(1e-10); R = 1e0*R; h = 1e0*h;
+    daeps_(1e-10); R = 1e0*R; h = 1e0*h; map = 1e0*map;
     prt_lin_map(3, R);
     cout << scientific << setprecision(3)
-	 << setw(11) << h << "\n";
+	 << setw(11) << h*Id << "\n";
     // outf.close();
     exit(0);
   }
