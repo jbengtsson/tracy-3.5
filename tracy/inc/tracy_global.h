@@ -31,8 +31,8 @@ typedef struct globvalrec {
   bool          Cavity_on,       // if true, cavity turned on
                 radiation,       // if true, radiation turned on
                 emittance,
-                quad_fringe,     /* dipole- and quadrupole hard-edge
-				    fringe fields. */
+                dip_fringe,      // dipole hard-edge fringe field.
+                quad_fringe,     // quadrupole hard-edge fringe field.
                 H_exact,         // "small ring" Hamiltonian.
                 pathlength,      // absolute path length
                 stable,

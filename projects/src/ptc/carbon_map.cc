@@ -295,6 +295,7 @@ ss_vect<tps> dip_Brown_Helm(const double L, const double phi,
 
 int main(int argc, char *argv[])
 {
+  bool         tweak;
   long int     lastpos;
   double       dx;
   Matrix       M;
@@ -322,16 +323,18 @@ int main(int argc, char *argv[])
   if (true) {
     trace = false;
 
-    globval.H_exact = true;
+    globval.H_exact    = true;
+    globval.dip_fringe = true;
 
     map.identity();
     // Tweak to remain within field map range at entrance.
-    dx = -1.3e-3;
-    map[x_] += dx;
-      Cell_Pass(Elem_GetPos(ElemIndex("bb"), 1),
-		Elem_GetPos(ElemIndex("bb"), 1), map, lastpos);
-    // Tweak to remain within field map range at entrance.
-    map[x_] -= dx;
+    tweak = true;
+    if (tweak) {
+      dx = -1.3e-3; map[x_] += dx;
+    }
+    Cell_Pass(Elem_GetPos(ElemIndex("bb"), 1),
+	      Elem_GetPos(ElemIndex("bb"), 1), map, lastpos);
+    if (tweak) map[x_] -= dx;
 
     h = LieFact_DF(map, R);
 

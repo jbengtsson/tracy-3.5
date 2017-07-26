@@ -592,32 +592,31 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &x)
 
   elemp = &Cell.Elem; M = elemp->M;
 
-  /* Global -> Local */
+  // Global -> Local.
   GtoL(x, Cell.dS, Cell.dT, M->Pc0, M->Pc1, M->Ps1);
 
   if ((M->Pmethod == Meth_Second) || (M->Pmethod == Meth_Fourth)) {
-    /* fringe fields */
+    // Fringe fields.
     if (globval.quad_fringe && (M->PB[Quad+HOMmax] != 0e0))
       quad_fringe(M->PB[Quad+HOMmax], x);
     if (!globval.H_exact) {
       if (M->Pirho != 0e0) EdgeFocus(M->Pirho, M->PTx1, M->Pgap, x);
     } else {
-      p_rot(M->PTx1, x); bend_fringe(M->Pirho, x);
+      p_rot(M->PTx1, x);
+      if (globval.dip_fringe) bend_fringe(M->Pirho, x);
     }
   }
 
   if (M->Pthick == thick) {
-//    if (!globval.H_exact || ((M->PTx1 == 0e0) && (M->PTx2 == 0e0))) {
     if (!globval.H_exact) {
-      // polar coordinates
+      // Polar coordinates.
       h_ref = M->Pirho; dL = elemp->PL/M->PN;
     } else {
-      // Cartesian coordinates
+      // Cartesian coordinates.
       h_ref = 0e0;
       if (M->Pirho == 0e0)
 	dL = elemp->PL/M->PN;
       else
-//	dL = 1e0/M->Pirho*(sin(dtor(M->PTx1))+sin(dtor(M->PTx2)))/M->PN;
 	dL = 2e0/M->Pirho*sin(elemp->PL*M->Pirho/2e0)/M->PN;
     }
   }
@@ -693,17 +692,18 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &x)
   }
 
   if ((M->Pmethod == Meth_Second) || (M->Pmethod == Meth_Fourth)) {
-    /* fringe fields */
+    // Fringe fields.
     if (!globval.H_exact) {
       if (M->Pirho != 0e0) EdgeFocus(M->Pirho, M->PTx2, M->Pgap, x);
     } else {
-      bend_fringe(-M->Pirho, x); p_rot(M->PTx2, x);
+      if (globval.dip_fringe) bend_fringe(-M->Pirho, x);
+      p_rot(M->PTx2, x);
     }
     if (globval.quad_fringe && (M->PB[Quad+HOMmax] != 0e0))
       quad_fringe(-M->PB[Quad+HOMmax], x);
   }
 
-  /* Local -> Global */
+  // Local -> Global.
   LtoG(x, Cell.dS, Cell.dT, M->Pc0, M->Pc1, M->Ps1);
 }
 
@@ -1951,8 +1951,8 @@ void FieldMap_Pass(CellType &Cell, ss_vect<T> &ps)
 //  GtoL(ps, Cell.dS, Cell.dT, 0e0, 0e0, 0e0);
 
   Ld = (FM->Lr-Cell.Elem.PL)/2e0; dp_x = FM->phi/2e0;
-  // ps[px_] += dp_x;
   p_rot(FM->phi/2.0*180.0/M_PI, ps);
+  printf("\nFieldMap_Pass: entrance negative drift [m] %12.5e", Ld);
   Drift(-Ld, ps);
 
   for (k = 1; k <= FM->n_step; k++) {
@@ -1962,8 +1962,8 @@ void FieldMap_Pass(CellType &Cell, ss_vect<T> &ps)
       FieldMap_pass_RK(Cell, ps, k);
   }
 
+  printf("\nFieldMap_Pass: exit negative drift [m]     %12.5e", Ld);
   Drift(-Ld, ps);
-  // ps[px_] += dp_x;
   p_rot(FM->phi/2.0*180.0/M_PI, ps);
 
 //  LtoG(ps, Cell.dS, Cell.dT, 0e0, 0e0, 0e0);
@@ -2813,23 +2813,14 @@ void get_B_DIAMOND(const char *filename, FieldMapType *FM)
 
   inf.close();
 
-  std::cout << std::fixed << std::setprecision(5)
-	    << std::setw(10) << x0 << std::setw(10) << y0
-	    << std::setw(10) << z0 << std::endl;
-  std::cout << std::fixed << std::setprecision(5)
-	    << std::setw(10) << FM->dx[X_] << std::setw(10) << FM->dx[Y_]
-	    << std::setw(10) << FM->dx[Z_] << std::endl;
-  std::cout << std::setw(10) << FM->n[X_] << std::setw(10) << ny
-	    << std::setw(10) << FM->n[Z_] << std::endl;
-  std::cout << std::fixed << std::setprecision(3)
-	    << std::setw(10) << FM->x[X_][1]
-	    << std::setw(10) << FM->x[X_][FM->n[X_]]
-	    << std::setw(10) << FM->x[Y_][1]
-	    << std::setw(10) << FM->x[Y_][FM->n[Y_]]
-	    << std::setw(10) << FM->x[Z_][1]
-	    << std::setw(10) << FM->x[Z_][FM->n[Z_]] << std::endl;
-  std::cout << std::fixed << std::setprecision(5)
-	    << "Magnet length [m]:" << std::setw(10) << FM->Lr << std::endl;
+  printf("\n%10.5f %10.5f %10.5f\n", x0, y0, z0);
+  printf("%10.5f %10.5f %10.5f\n", FM->dx[X_], FM->dx[Y_], FM->dx[Z_]);
+  printf("%10d %10d %10d\n", FM->n[X_], FM->n[Y_], FM->n[Z_]);
+  printf("%10.3f \-\> %10.3f %10.3f \-\> %10.3f %10.3f \-\> %10.3f\n",
+	 FM->x[X_][1], FM->x[X_][FM->n[X_]],
+	 FM->x[Y_][1], FM->x[Y_][FM->n[Y_]],
+	 FM->x[Z_][1], FM->x[Z_][FM->n[Z_]]);
+  printf("Magnet length [m]: %10.5f\n", FM->Lr);
 
   for (j = 1; j <= ny-1; j++) {
     FM->x[Y_][j] = -FM->x[Y_][2*ny-j];
