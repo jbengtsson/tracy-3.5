@@ -8,12 +8,12 @@
 
    Element propagators.                                                      */
 
-bool          first_FM = true;
-double        c_1, d_1, c_2, d_2, cl_rad, q_fluct;
-double        I2, I4, I5, dcurly_H, dI4, s_FM;
-ElemFamType   ElemFam[Elem_nFamMax];
-CellType      Cell[Cell_nLocMax+1];
-std::ofstream      outf_;
+bool           first_FM = true;
+double         c_1, d_1, c_2, d_2, cl_rad, q_fluct;
+double         I2, I4, I5, dcurly_H, dI4, s_FM;
+ElemFamType    ElemFam[Elem_nFamMax];
+CellType       Cell[Cell_nLocMax+1];
+std::ofstream  outf_;
 
 // for FieldMap
 bool  sympl             = true;
@@ -1599,7 +1599,7 @@ void FieldMap_pass_SI(CellType &Cell, ss_vect<T> &ps, int k)
   }
 
   h = n_step*FM->dx[Z_]; z = 0e0; FM->Lr = 0e0;
-  if (trace)
+  if (false)
     outf_ << std::scientific << std::setprecision(3)
 	  << std::setw(11) << s_FM
 	  << std::setw(11) << is_double<T>::cst(ps[x_])
@@ -1865,17 +1865,17 @@ void FieldMap_pass_SI(CellType &Cell, ss_vect<T> &ps, int k)
 	      FM->n[X_], FM->n[Y_], ps[x_], ps[y_], ByoBrho);
 
       outf_ << std::scientific << std::setprecision(3)
-	   << std::setw(11) << s_FM
-	   << std::setw(11) << is_double<T>::cst(ps[x_])
-	   << std::setw(11) << is_double<T>::cst(ps[px_]-AoBrho[0])
-	   << std::setw(11) << is_double<T>::cst(ps[y_])
-	   << std::setw(11) << is_double<T>::cst(ps[py_]-AoBrho[1])
-	   << std::setw(11) << is_double<T>::cst(ps[delta_])
-	   << std::setw(11) << is_double<T>::cst(ps[ct_])
-	   << std::setw(11) << is_double<T>::cst(AoBrho[0])
-	   << std::setw(11) << is_double<T>::cst(AoBrho[1])
-	   << std::setw(11) << is_double<T>::cst(ByoBrho)
-	   << std::endl;
+	    << std::setw(11) << s_FM
+	    << std::setw(11) << is_double<T>::cst(ps[x_])
+	    << std::setw(11) << is_double<T>::cst(ps[px_]-AoBrho[0])
+	    << std::setw(11) << is_double<T>::cst(ps[y_])
+	    << std::setw(11) << is_double<T>::cst(ps[py_]-AoBrho[1])
+	    << std::setw(11) << is_double<T>::cst(ps[delta_])
+	    << std::setw(11) << is_double<T>::cst(ps[ct_])
+	    << std::setw(11) << is_double<T>::cst(AoBrho[0])
+	    << std::setw(11) << is_double<T>::cst(AoBrho[1])
+	    << std::setw(11) << is_double<T>::cst(ByoBrho)
+	    << std::endl;
     }
   }
 
@@ -2717,11 +2717,11 @@ template void splin2_(const double [], const double [], double **, double **,
 
 void get_B_DIAMOND(const char *filename, FieldMapType *FM)
 {
-  char         line[max_str];
-  int          i, j, n, ny;
-  double       x0, y0, z0;
-  std::ifstream     inf;
-  std::ofstream     outf;
+  char          line[max_str];
+  int           i, j, n, ny;
+  double        x0, y0, z0;
+  std::ifstream inf;
+  std::ofstream outf;
 
   const int     skip = 8;
   const double  Brho = globval.Energy*1e9/c0;
@@ -2816,7 +2816,7 @@ void get_B_DIAMOND(const char *filename, FieldMapType *FM)
   printf("\n%10.5f %10.5f %10.5f\n", x0, y0, z0);
   printf("%10.5f %10.5f %10.5f\n", FM->dx[X_], FM->dx[Y_], FM->dx[Z_]);
   printf("%10d %10d %10d\n", FM->n[X_], FM->n[Y_], FM->n[Z_]);
-  printf("%10.3f \-\> %10.3f %10.3f \-\> %10.3f %10.3f \-\> %10.3f\n",
+  printf("%10.3f -> %10.3f %10.3f -> %10.3f %10.3f -> %10.3f\n",
 	 FM->x[X_][1], FM->x[X_][FM->n[X_]],
 	 FM->x[Y_][1], FM->x[Y_][FM->n[Y_]],
 	 FM->x[Z_][1], FM->x[Z_][FM->n[Z_]]);

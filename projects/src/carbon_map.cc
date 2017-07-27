@@ -67,6 +67,7 @@ ss_vect<tps> get_fix_point(const int Fnum)
 
 int main(int argc, char *argv[])
 {
+  bool         tweak;
   long int     lastpos;
   double       dx;
   Matrix       M;
@@ -79,7 +80,7 @@ int main(int argc, char *argv[])
   globval.pathlength = false; globval.bpm         = 0;
 
   // 1: DIAMOND, 3: Oleg I, 4: Oleg II.
-  FieldMap_filetype = 1; sympl = true;
+  FieldMap_filetype = 1; sympl = false;
 
   Read_Lattice(argv[1]);
 
@@ -90,14 +91,18 @@ int main(int argc, char *argv[])
   if (true) {
     trace = false;
 
+    globval.H_exact    = true;
+    globval.dip_fringe = true;
+
     map.identity();
     // Tweak to remain within field map range at entrance.
-    dx = -1.4e-3;
-    map[x_] += dx;
-      Cell_Pass(Elem_GetPos(ElemIndex("bb"), 1),
-		Elem_GetPos(ElemIndex("bb"), 1), map, lastpos);
-    // Tweak to remain within field map range at entrance.
-    map[x_] -= dx;
+    tweak = true;
+    if (tweak) {
+      dx = -1.4e-3; map[x_] += dx;
+    }
+    Cell_Pass(Elem_GetPos(ElemIndex("bb"), 1),
+	      Elem_GetPos(ElemIndex("bb"), 1), map, lastpos);
+    if (tweak) map[x_] -= dx;
 
     getlinmat(6, map, M);
     prt_lin_map(3, map);

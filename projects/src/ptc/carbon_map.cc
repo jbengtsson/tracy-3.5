@@ -330,7 +330,7 @@ int main(int argc, char *argv[])
     // Tweak to remain within field map range at entrance.
     tweak = true;
     if (tweak) {
-      dx = -1.3e-3; map[x_] += dx;
+      dx = -1.4e-3; map[x_] += dx;
     }
     Cell_Pass(Elem_GetPos(ElemIndex("bb"), 1),
 	      Elem_GetPos(ElemIndex("bb"), 1), map, lastpos);
