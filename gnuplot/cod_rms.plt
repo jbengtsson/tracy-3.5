@@ -26,7 +26,7 @@ if (ps) set output "cod_rms_1.".(ext)
 set title "Horizontal RMS Orbit \n \
 ({/Symbol D}x_{rms}=50 {/Symbol m}m, {/Symbol D}y_{rms}=50 {/Symbol m}m)";
 set xlabel "s [m]"; set ylabel "[mm]";
-set yrange [-0.004:*];
+#set yrange [-0.004:*];
 set y2range [-1.5:20];
 plot "cod_rms.out" using 1:2 axis x1y2 notitle with fsteps lt 1 lw 1 \
      lc rgb "black", \
@@ -37,7 +37,7 @@ if (ps) set output "cod_rms_2.".(ext)
 set title "Vertical RMS Orbit \n \
 ({/Symbol D}x_{rms}=50 {/Symbol m}m, {/Symbol D}y_{rms}=50 {/Symbol m}m)";
 set xlabel "s [m]"; set ylabel "[mm]";
-set yrange [-0.015:*];
+#set yrange [-0.015:*];
 set y2range [-1.5:20];
 plot "cod_rms.out" using 1:2 axis x1y2 notitle with fsteps lt 1 lw 1 \
      lc rgb "black", \

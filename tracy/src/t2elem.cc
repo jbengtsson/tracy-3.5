@@ -8,12 +8,12 @@
 
    Element propagators.                                                      */
 
-bool           first_FM = true;
-double         c_1, d_1, c_2, d_2, cl_rad, q_fluct;
-double         I2, I4, I5, dcurly_H, dI4, s_FM;
-ElemFamType    ElemFam[Elem_nFamMax];
-CellType       Cell[Cell_nLocMax+1];
-std::ofstream  outf_;
+bool          first_FM = true;
+double        c_1, d_1, c_2, d_2, cl_rad, q_fluct;
+double        I2, I4, I5, dcurly_H, dI4, s_FM;
+ElemFamType   ElemFam[Elem_nFamMax];
+CellType      Cell[Cell_nLocMax+1];
+std::ofstream outf_;
 
 // for FieldMap
 bool  sympl             = true;

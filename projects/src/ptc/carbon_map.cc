@@ -324,11 +324,11 @@ int main(int argc, char *argv[])
     trace = false;
 
     globval.H_exact    = true;
-    globval.dip_fringe = true;
+    globval.dip_fringe = false;
 
     map.identity();
     // Tweak to remain within field map range at entrance.
-    tweak = true;
+    tweak = false;
     if (tweak) {
       dx = -1.4e-3; map[x_] += dx;
     }
@@ -353,7 +353,7 @@ int main(int argc, char *argv[])
     daeps_(1e-10); R = 1e0*R; h = 1e0*h; map = 1e0*map;
     prt_lin_map(3, R);
     cout << scientific << setprecision(3)
-	 << setw(11) << h*Id << "\n";
+	 << setw(11) << h << "\n";
     // outf.close();
     exit(0);
   }

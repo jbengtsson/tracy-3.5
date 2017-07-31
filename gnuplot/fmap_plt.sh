@@ -2,7 +2,7 @@
 
 prm1=${1-1}
 prm2=${2-0}
-prm3=${3-3}
+prm3=${3-4}
 prm4=${4-1}
 
 gnuplot << EOP
@@ -63,7 +63,7 @@ else if (case == 4) \
   x_min = -6.0; x_max = 6.0; y_min = -6.0; y_max = 6.0; \
   delta_min = -5.1; delta_max = 5.1; \
 else if (case == 5) \
-  nu_x_min = 21.0; nu_x_max = 21.5; nu_y_min = 13.0; nu_y_max = 13.6; \
+  nu_x_min = 21.1; nu_x_max = 21.25; nu_y_min = 13.2; nu_y_max = 13.35; \
   x_min = -15.0; x_max = 15.0; y_min = -10.0; y_max = 10.0; \
   delta_min = -2.6; delta_max = 2.6;
 
