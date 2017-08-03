@@ -138,8 +138,9 @@ void prt_symm(const std::vector<int> &Fam)
     for (k = 1; k <= GetnKid(Fam[j]); k++) {
       loc = Elem_GetPos(Fam[j], k);
       if (k % 2 == 0) loc -= 1;
-      printf(" %4.1f %6.3f %6.3f\n",
-	     Cell[loc].S, Cell[loc].Beta[X_], Cell[loc].Beta[Y_]);
+      printf(" %5.1f %6.3f %6.3f %6.3f\n",
+	     Cell[loc].S, Cell[loc].Beta[X_], Cell[loc].Beta[Y_],
+	     Cell[loc].Eta[X_]);
     }
   }
 }
@@ -171,7 +172,7 @@ int main(int argc, char *argv[])
 
   const long        seed   = 1121;
   const int         n_turn = 2064;
-  const double      delta  = 3e-2,
+  const double      delta  = 1.5e-2,
   //                   nu[]    = { 102.18/20.0, 68.30/20.0 };
   // const std::string q_fam[] = { "qfe", "qde" }, s_fam[] = { "sfh",  "sd" };
   //                   nu[]    = { 39.1/12.0, 15.25/12.0 };
@@ -224,13 +225,49 @@ int main(int argc, char *argv[])
     exit(0);
   }
 
-  if (false) {
-    Fam.push_back(ElemIndex("s1b"));
-    Fam.push_back(ElemIndex("s1d"));
-    Fam.push_back(ElemIndex("s2b"));
-    Fam.push_back(ElemIndex("s2d"));
-    Fam.push_back(ElemIndex("sx1"));
-    Fam.push_back(ElemIndex("sy1"));
+  if (true) {
+    // Fam.push_back(ElemIndex("s1b"));
+    // Fam.push_back(ElemIndex("s1d"));
+    // Fam.push_back(ElemIndex("s2b"));
+    // Fam.push_back(ElemIndex("s2d"));
+    // Fam.push_back(ElemIndex("sx1"));
+    // Fam.push_back(ElemIndex("sy1"));
+
+  switch (2) {
+  case 1:
+    // DIAMOND.
+    Fam.push_back(ElemIndex("ts1a"));
+    Fam.push_back(ElemIndex("ts1ab"));
+    Fam.push_back(ElemIndex("ts2a"));
+    Fam.push_back(ElemIndex("ts2ab"));
+    Fam.push_back(ElemIndex("ts1b"));
+    Fam.push_back(ElemIndex("ts2b"));
+    Fam.push_back(ElemIndex("ts1c"));
+    Fam.push_back(ElemIndex("ts2c"));
+    Fam.push_back(ElemIndex("ts1d"));
+    Fam.push_back(ElemIndex("ts2d"));
+    Fam.push_back(ElemIndex("ts1e"));
+    Fam.push_back(ElemIndex("ts2e"));
+
+    Fam.push_back(ElemIndex("s1"));
+    Fam.push_back(ElemIndex("s2"));
+    Fam.push_back(ElemIndex("s3"));
+    Fam.push_back(ElemIndex("s4"));
+    Fam.push_back(ElemIndex("s5"));
+    break;
+  case 2:
+    // DIAMOND-II, 6-BA.
+    Fam.push_back(ElemIndex("sd1"));
+    Fam.push_back(ElemIndex("sd2"));
+    Fam.push_back(ElemIndex("sd3"));
+    // Fam.push_back(ElemIndex("sd4"));
+    Fam.push_back(ElemIndex("sf21"));
+    Fam.push_back(ElemIndex("sd31"));
+    // Fam.push_back(ElemIndex("sd41"));
+    Fam.push_back(ElemIndex("sf1"));
+    // Fam.push_back(ElemIndex("sf2"));
+    break;
+  }
 
     prt_symm(Fam);
   }
