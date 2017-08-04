@@ -34,7 +34,7 @@ else if ((N == 1) && (case == 3)) \
 else if ((N == 1) && (case == 4)) \
   N_x = 58; N_y = 21; \
 else if ((N == 1) && (case == 5)) \
-  N_x = 22; N_y = 11; \
+  N_x = 28; N_y = 13; \
 else if (N == 12) \
   N_x = 3; N_y = 1; \
 else if (N == 20) \
@@ -53,7 +53,7 @@ else if (case == 3) \
 else if (case == 4) \
   x_min = 58.0; x_max = 58.5; y_min = 21.0; y_max = 21.5; \
 else if (case == 5) \
-  x_min = 22.5; x_max = 23.0; y_min = 11.0; y_max = 11.5;
+  x_min = 28.0; x_max = 28.5; y_min = 13.0; y_max = 13.5;
 
 # left adjusted labels
 set key Left;

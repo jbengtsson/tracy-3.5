@@ -186,7 +186,7 @@ int main(int argc, char *argv[])
   globval.emittance  = false; globval.IBS         = false;
   globval.pathlength = false; globval.bpm         = 0;
 
-  if (true) {
+  if (false) {
     Read_Lattice(argv[1]);
     globval.bpm = ElemIndex("bpm");
   } else
@@ -225,7 +225,7 @@ int main(int argc, char *argv[])
     exit(0);
   }
 
-  if (true) {
+  if (false) {
     // Fam.push_back(ElemIndex("s1b"));
     // Fam.push_back(ElemIndex("s1d"));
     // Fam.push_back(ElemIndex("s2b"));
