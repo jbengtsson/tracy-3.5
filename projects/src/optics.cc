@@ -186,9 +186,8 @@ int main(int argc, char *argv[])
   globval.emittance  = false; globval.IBS         = false;
   globval.pathlength = false; globval.bpm         = 0;
 
-  if (false) {
+  if (true) {
     Read_Lattice(argv[1]);
-    globval.bpm = ElemIndex("bpm");
   } else
     rdmfile(argv[1]);
 
@@ -206,7 +205,7 @@ int main(int argc, char *argv[])
 
   prtmfile("flat_file.dat");
 
-  globval.bpm = ElemIndex("bpm");
+  // globval.bpm = ElemIndex("bpm");
   prt_lat("linlat1.out", globval.bpm, true);
   prt_lat("linlat.out", globval.bpm, true, 10);
   prt_chrom_lat();
@@ -266,6 +265,8 @@ int main(int argc, char *argv[])
     // Fam.push_back(ElemIndex("sd41"));
     Fam.push_back(ElemIndex("sf1"));
     // Fam.push_back(ElemIndex("sf2"));
+    Fam.push_back(ElemIndex("sh1a"));
+    Fam.push_back(ElemIndex("sh1e"));
     break;
   }
 

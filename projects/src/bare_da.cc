@@ -4,6 +4,14 @@
 
 int no_tps = NO;
 
+// MAX-IV           1,
+// SLS-2            2,
+// DIAMOND          3,
+// DIAMOND-II 4-BA  4,
+// DIAMOND-II 6-BA  5.
+const int lat_case = 5;
+
+const double delta_max[] = {3.0e-2, 3.0e-2, 1.5e-2, 3e-2, 3e-2};
 
 int main(int argc, char *argv[])
 {
@@ -30,7 +38,7 @@ int main(int argc, char *argv[])
 
   if (true) {
     globval.Cavity_on = true;
-    get_dynap(delta, 25, n_turn, false);
+    get_dynap(delta_max[lat_case-1], 25, n_turn, false);
   }
 
 }
