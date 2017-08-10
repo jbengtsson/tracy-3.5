@@ -365,10 +365,10 @@ void track(const char *file_name,
 
   bool  prt = false;
 
-  if ((floqs == 0)) {
+  if (floqs == 0) {
     scl_1 = 1e3; scl_2 = 1e3;
     x0[x_] = ic1; x0[px_] = ic2; x0[y_] = ic3; x0[py_] = ic4;
-  } else if ((floqs == 1)) {
+  } else if (floqs == 1) {
     scl_1 = 1.0; scl_2 = 1.0;
     x0[x_] = ic1; x0[px_] = ic2; x0[y_] = ic3; x0[py_] = ic4;
     LinTrans(4, globval.Ascr, x0);
