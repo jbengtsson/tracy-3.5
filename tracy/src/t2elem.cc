@@ -499,7 +499,7 @@ void thin_kick(const int Order, const double MB[], const double L,
 
 
 template<typename T>
-static void EdgeFocus(const double irho, const double phi, const double gap,
+void EdgeFocus(const double irho, const double phi, const double gap,
 		      ss_vect<T> &x)
 {
   x[px_] += irho*tan(dtor(phi))*x[x_];
