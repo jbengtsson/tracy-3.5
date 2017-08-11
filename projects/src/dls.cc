@@ -197,7 +197,7 @@ int main(int argc, char *argv[])
     exit(0);
   }
 
-  if (true) no_sxt();
+  if (false) no_sxt();
 
   Ring_GetTwiss(true, 0e0); printglob();
 
