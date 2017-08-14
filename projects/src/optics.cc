@@ -161,6 +161,22 @@ void prt_quad(const std::vector<int> &Fam)
 }
 
 
+void chk_optics(const double alpha_x, const double alpha_y,
+		const double beta_x, const double beta_y,
+		const double eta_x, const double etap_x,
+		const double eta_y, const double etap_y)
+{
+  Vector2 alpha, beta, eta, etap;
+
+  alpha[X_] = alpha_x; alpha[Y_] = alpha_y;
+  beta[X_]  = beta_x;  beta[Y_]  = beta_y;
+  eta[X_]   = eta_x;   eta[Y_]   = eta_y;
+  etap[X_]  = etap_x;  etap[Y_]  = etap_y;
+
+  ttwiss(alpha, beta, eta, etap, 0e0);
+}
+
+
 int main(int argc, char *argv[])
 {
   long int         lastn, lastpos;
@@ -190,6 +206,13 @@ int main(int argc, char *argv[])
     Read_Lattice(argv[1]);
   } else
     rdmfile(argv[1]);
+
+  if (false) {
+    chk_optics(0.0, 0.0, 13.04171, 8.795924, 1.397388e-03, 0.0, 0.0, 0.0);
+    prt_lat("linlat1.out", globval.bpm, true);
+    prt_lat("linlat.out", globval.bpm, true, 10);
+    exit(0);
+  }
 
   if (false) {
     globval.Cavity_on = true;

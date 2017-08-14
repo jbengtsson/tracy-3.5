@@ -13,9 +13,13 @@ template<typename T>
 void spline(const double x[], const T y[], int const n,
 	    double const yp1, const double ypn, T y2[])
 {
-  int     i, k;
-  double  sig;
-  T       p, u[n], qn, un;
+  int    i, k;
+  double sig;
+  // Variable length arrays for user defined data types is not supported by
+  // ANSI C++.
+  // T      p, u[n], qn, un;
+  T      p, qn, un;
+  T      *u = new T[n];
 
   if (yp1 > 0.99e30)
     y2[1] = u[1] = 0.0;
@@ -36,6 +40,8 @@ void spline(const double x[], const T y[], int const n,
   y2[n] = (un-qn*u[n-1])/(qn*y2[n-1]+1.0);
   for (k = n-1; k >= 1; k--)
     y2[k] = y2[k]*y2[k+1]+u[k];
+
+  delete [] u;
 }
 
 
@@ -67,13 +73,18 @@ void splin2(const double x1a[], const double x2a[],
 	    double **ya, double **y2a, const int m, const int n,
 	    const T &x1, const T &x2, T &y)
 {
-  int  j;
-  T    ytmp[m+1], yytmp[m+1];
+  int j;
+  // Variable length arrays for user defined data types is not supported by
+  // ANSI C++.
+  // T   ytmp[m+1], yytmp[m+1];
+  T   *ytmp = new T[m+1], *yytmp = new T[m+1];
   
   for (j = 1; j <= m; j++)
     splint(x2a, ya[j], y2a[j], n, x2, yytmp[j]);
   spline(x1a, yytmp, m, 1.0e30, 1.0e30, ytmp);
   splint(x1a, yytmp, ytmp, m, x1, y);
+
+  delete [] ytmp; delete [] yytmp;
 }
 
 
