@@ -177,6 +177,29 @@ void chk_optics(const double alpha_x, const double alpha_y,
 }
 
 
+void chk_mini_beta(const std::vector<int> &Fam)
+{
+  int    j, k, loc;
+  double nu0[2];
+
+  for (j = 0; j < (int)Fam.size(); j++) {
+    printf("\n");
+    for (k = 1; k <= GetnKid(Fam[j]); k++) {
+      loc = Elem_GetPos(Fam[j], k);
+      if (k % 2 == 1) {
+	nu0[X_] = Cell[loc].Nu[X_]; nu0[Y_] = Cell[loc].Nu[Y_];
+      } else {
+	loc -= 1;
+	printf(" %5.1f %6.3f %6.3f %6.3f %8.5f %8.5f\n",
+	       Cell[loc].S, Cell[loc].Beta[X_], Cell[loc].Beta[Y_],
+	       Cell[loc].Eta[X_],
+	       Cell[loc].Nu[X_]-nu0[X_], Cell[loc].Nu[Y_]-nu0[Y_]);
+      }
+    }
+  }
+}
+
+
 int main(int argc, char *argv[])
 {
   long int         lastn, lastpos;
@@ -220,7 +243,7 @@ int main(int argc, char *argv[])
     exit(0);
   }
 
-  if (true) no_sxt();
+  if (false) no_sxt();
 
   Ring_GetTwiss(true, 0e0); printglob();
 
@@ -244,6 +267,13 @@ int main(int argc, char *argv[])
 
     get_cod_rms(50e-6, 50e-6, 100, true);
 
+    exit(0);
+  }
+
+  if (false) {
+    Fam.push_back(ElemIndex("ts1b"));
+    // Fam.push_back(ElemIndex("ts1d"));
+    chk_mini_beta(Fam);
     exit(0);
   }
 
