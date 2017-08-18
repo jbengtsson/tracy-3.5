@@ -139,21 +139,22 @@ struct FieldMapType {
 #define IDZMAX 100
 
 struct InsertionType {
-  int Pmethod;      // Integration Method
-  int PN;           // number of integration steps
-  char fname1[100]; // Filename for insertion description: first ordre
-  char fname2[100]; // Filename for insertion description: second ordre
-  int nx;           // Horizontal point number
-  int nz;           // Vertical point number
-  double scaling;   // static scaling factor as in BETA ESRF
-  bool linear;      // if true linear interpolation else spline
-  bool firstorder;  // true if first order kick map loaded
-  bool secondorder; // true if second order kick map loaded
+  int    Pmethod;      // Integration Method
+  int    PN;           // number of integration steps
+  char   fname1[100];  // Filename for insertion description: first ordre
+  char   fname2[100];  // Filename for insertion description: second ordre
+  int    nx;           // Horizontal point number
+  int    nz;           // Vertical point number
+  double scaling;      // static scaling factor as in BETA ESRF
+  bool   linear;       // if true linear interpolation else spline
+  bool   firstorder;   // true if first order kick map loaded
+  bool   secondorder;  // true if second order kick map loaded
+  double phi;          // Bend angle.
   double tabx[IDXMAX]; // spacing in H-plane
   double tabz[IDZMAX]; // spacing in V-plane
   double thetax[IDZMAX][IDXMAX], thetax1[IDZMAX][IDXMAX]; // 1 for first order
   double thetaz[IDZMAX][IDXMAX], thetaz1[IDZMAX][IDXMAX];
-  bool   long_comp; // flag for longitudinal comp
+  bool   long_comp;    // flag for longitudinal comp
   double B2[IDZMAX][IDXMAX]; // B^2_perp
   double **tx, **tz, **f2x, **f2z;
   double **tx1, **tz1, **f2x1, **f2z1; // a voir

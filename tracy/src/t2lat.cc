@@ -3197,6 +3197,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     dt  = 0e0;
     scaling = 1.0; // scaling factor
     P_addset(P_expset(mysys, 0), (long)nsym);
+    P_addset(mysys, (long)tsym);
     P_addset(mysys, (long)scalingsym);
     P_addset(mysys, (long)fnamesym1);
     P_addset(mysys, (long)fnamesym2);
@@ -3212,8 +3213,12 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 	GetSym__(&V);
 	break;
 
+      case tsym:
+	t = EVAL_(&V);
+	break;
+
       case scalingsym: /* read scaling factor for debugging purpose*/
-	scaling = abs((long)floor(EVAL_(&V)));
+	scaling = EVAL_(&V);
 	break;
 
       case fnamesym1: /* Read filename for insertion device first order kicks*/
@@ -3259,6 +3264,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       WITH1->Pkind = Insertion;
       Insertion_Alloc(&WITH->ElemF);
       WITH5 = WITH1->ID;
+      WITH5->phi = t*M_PI/180.0;
       WITH5->Pmethod = k2;
       WITH5->PN = k1;
       WITH5->scaling = scaling;

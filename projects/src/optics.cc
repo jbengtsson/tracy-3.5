@@ -202,10 +202,12 @@ void chk_mini_beta(const std::vector<int> &Fam)
 
 int main(int argc, char *argv[])
 {
-  long int         lastn, lastpos;
+  bool             tweak;
+  long int         lastn, lastpos, loc;
   int              b2_fam[2], b3_fam[2];
   double           b2[2], a2, b3[2], b3L[2], a3, a3L, f_rf;
-  double           alpha[2], beta[2], eta[2], etap[2];
+  double           alpha[2], beta[2], eta[2], etap[2], dx;
+  Matrix           M;
   std::vector<int> Fam;
   ostringstream    str;
 
@@ -225,10 +227,29 @@ int main(int argc, char *argv[])
   globval.emittance  = false; globval.IBS         = false;
   globval.pathlength = false; globval.bpm         = 0;
 
-  if (true) {
+  // 1: DIAMOND, 3: Oleg I, 4: Oleg II.
+  FieldMap_filetype = 1; sympl = false;
+
+  if (true)
     Read_Lattice(argv[1]);
-  } else
+  else
     rdmfile(argv[1]);
+
+  if (false) {
+    loc = Elem_GetPos(ElemIndex("bb"), 1);
+    map.identity();
+    // Tweak to remain within field map range at entrance.
+    tweak = true;
+    if (tweak) {
+      dx = -1.4e-3; map[x_] += dx;
+    }
+    Cell_Pass(loc, loc, map, lastpos);
+    if (tweak) map[x_] -= dx;
+    prt_lin_map(3, map);
+    getlinmat(6, map, M);
+    printf("\n1-Det: %9.3e\n", 1e0-DetMat(6, M));
+    exit(0);
+  }
 
   if (false) {
     chk_optics(0.0, 0.0, 13.04171, 8.795924, 1.397388e-03, 0.0, 0.0, 0.0);

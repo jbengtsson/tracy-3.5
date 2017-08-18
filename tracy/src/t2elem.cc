@@ -1948,7 +1948,7 @@ template<typename T>
 void FieldMap_Pass(CellType &Cell, ss_vect<T> &ps)
 {
   int          k;
-  double       Ld, dp_x;
+  double       Ld;
   FieldMapType *FM;
 
   if (trace & first_FM) {
@@ -1961,8 +1961,8 @@ void FieldMap_Pass(CellType &Cell, ss_vect<T> &ps)
 
 //  GtoL(ps, Cell.dS, Cell.dT, 0e0, 0e0, 0e0);
 
-  Ld = (FM->Lr-Cell.Elem.PL)/2e0; dp_x = FM->phi/2e0;
-  p_rot(FM->phi/2.0*180.0/M_PI, ps);
+  Ld = (FM->Lr-Cell.Elem.PL)/2e0;
+  p_rot(FM->phi/2e0*180e0/M_PI, ps);
   printf("\nFieldMap_Pass: entrance negative drift [m] %12.5e", Ld);
   Drift(-Ld, ps);
 
@@ -1975,7 +1975,7 @@ void FieldMap_Pass(CellType &Cell, ss_vect<T> &ps)
 
   printf("\nFieldMap_Pass: exit negative drift [m]     %12.5e", Ld);
   Drift(-Ld, ps);
-  p_rot(FM->phi/2.0*180.0/M_PI, ps);
+  p_rot(FM->phi/2e0*180e0/M_PI, ps);
 
 //  LtoG(ps, Cell.dS, Cell.dT, 0e0, 0e0, 0e0);
 
@@ -2027,12 +2027,15 @@ void Insertion_Pass(CellType &Cell, ss_vect<T> &x)
   elemp  = &Cell.Elem; Nslice = elemp->ID->PN;
 
   if (elemp->ID->linear) {
-    alpha0 = c0/globval.Energy*1E-9*elemp->ID->scaling; alpha02 = alpha0*alpha0;
+    alpha0 = c0/globval.Energy*1E-9*elemp->ID->scaling;
+    alpha02 = sgn(elemp->ID->scaling)*alpha0*alpha0;
   } else
     alpha02 = 1e-6*elemp->ID->scaling;
 
 //  /* Global -> Local */
 //  GtoL(X, Cell->dS, Cell->dT, 0e0, 0e0, 0e0);
+
+  p_rot(elemp->ID->phi/2e0*180e0/M_PI, x);
 
   // (Nslice+1) drifts, nslice kicks
   // LN = elemp->PL/(Nslice+1);
@@ -2042,6 +2045,11 @@ void Insertion_Pass(CellType &Cell, ss_vect<T> &x)
   Drift(LN/2e0, x);
 
   for (i = 1; i <= Nslice; i++) {
+    printf("%3d %2d %2d %5.3f %11.3e %11.3e %11.3e %11.3e %11.3e %11.3e\n",
+	   i, elemp->ID->linear, elemp->ID->secondorder, elemp->ID->scaling,
+	   is_double<T>::cst(x[x_]), is_double<T>::cst(x[px_]),
+	   is_double<T>::cst(x[y_]), is_double<T>::cst(x[py_]),
+	   is_double<T>::cst(x[delta_]), is_double<T>::cst(x[ct_]));
     // Second order kick
     if (elemp->ID->secondorder){
       // if (!elemp->ID->linear)
@@ -2067,6 +2075,8 @@ void Insertion_Pass(CellType &Cell, ss_vect<T> &x)
   }
 
   Drift(LN/2e0, x);
+
+  p_rot(elemp->ID->phi/2e0*180e0/M_PI, x);
 
 //  CopyVec(6L, x, Cell->BeamPos);
 
