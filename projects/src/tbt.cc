@@ -293,7 +293,8 @@ void est_lin_opt_type::zero(const int n)
 void DFT(double *x, const int n, const int sgn)
 {
     int j, k;
-    complex < double >X[n];
+    // complex < double >X[n];
+    complex<double> *X = new complex<double>[n];
 
     const complex < double >I = complex < double >(0e0, 1e0);
 
@@ -308,6 +309,8 @@ void DFT(double *x, const int n, const int sgn)
 	x[2 * j + 1] = real(X[j]);
 	x[2 * (j + 1)] = imag(X[j]);
     }
+
+  delete [] X;
 }
 
 
@@ -557,7 +560,8 @@ get_nu(const int n, const double x[], double &nu, double &A_nu,
 {
     int k;
     double A[n], phi[n];
-    complex < double >X[n];
+    // complex < double >X[n];
+    complex<double> *X = new complex<double>[n];
 
     FFT(n, x, A, phi, window);
 
@@ -569,6 +573,8 @@ get_nu(const int n, const double x[], double &nu, double &A_nu,
     // Rectangular window.
     FFT(n, x, X, 1);
     get_alpha(n, X, nu, k, delta, alpha);
+
+    delete [] X;
 }
 
 
