@@ -219,8 +219,8 @@ int main(int argc, char *argv[])
   //                   nu[]    = { 39.1/12.0, 15.25/12.0 };
   //                   // nu[]    = { 3.266+0.01, 1.275 };
   // const std::string q_fam[] = { "qm2b", "qm3" }, s_fam[] = { "sfh",  "sd" };
-                    nu[]    = { 51.21/6.0, 17.35/6.0 };
-  const std::string q_fam[] = { "q1b", "q1d" }, s_fam[] = { "sfh",  "sd" };
+                    nu[]    = { 9.2, 3.64 };
+  const std::string q_fam[] = { "qf03", "qd04" }, s_fam[] = { "sfh",  "sd" };
 
   globval.H_exact    = false; globval.quad_fringe = false;
   globval.Cavity_on  = false; globval.radiation   = false;
