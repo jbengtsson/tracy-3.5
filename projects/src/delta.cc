@@ -443,16 +443,16 @@ void fit_match(param_type &b2_prms)
   // Downstream of 20 degree dipole.
   loc[4] = Elem_GetPos(ElemIndex("b20"), 5);
 
-  prt_lin_opt(loc);
-  printf("\n%8.5f %8.5f\n",
-	 Cell[loc[5]].Nu[X_]-Cell[loc[0]].Nu[X_],
-	 Cell[loc[5]].Nu[Y_]-Cell[loc[0]].Nu[Y_]);
-
   Ascr = get_A(ic[0], ic[1], ic[2], ic[3]);
   Cell_Twiss(loc[0], loc[4], Ascr, false, false, 0e0);
 
   prt_lat(loc[0], loc[4], "linlat1.out", globval.bpm, true);
   prt_lat(loc[0], loc[4], "linlat.out", globval.bpm, true, 10);
+
+  prt_lin_opt(loc);
+  printf("\n%8.5f %8.5f\n",
+	 Cell[loc[5]].Nu[X_]-Cell[loc[0]].Nu[X_],
+	 Cell[loc[5]].Nu[Y_]-Cell[loc[0]].Nu[Y_]);
 
   b2_prms.ini_prm(b2, b2_lim);
 
@@ -497,7 +497,6 @@ int main(int argc, char *argv[])
   prtmfile("flat_file.dat");
   prt_lat("linlat1.out", globval.bpm, true);
   prt_lat("linlat.out", globval.bpm, true, 10);
-  exit(0);
 
   if (true) {
     b2_prms.add_prm("q01",  2, -4.2, 4.2, 1.0);
