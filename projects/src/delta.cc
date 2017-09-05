@@ -27,7 +27,7 @@ double bn_internal(const double bn_bounded,
 		   const double bn_min, const double bn_max);
 double bn_bounded(const double bn_internal,
 		  const double bn_min, const double bn_max);
-double get_bn_s(const int Fnum, const int Knum, const int n);
+double get_bn_s(const int Fnum, const int Knum);
 void set_bn_s(const int Fnum, const double dbn);
 void get_S(void);
 
@@ -81,7 +81,7 @@ void param_type::ini_prm(double *bn)
       bn[i] = get_L(Fnum[i-1], 1);
     else if (n[i-1] == -2)
       // Placement.
-      bn[i] = get_bn_s(Fnum[i-1], 1, n[i-1]);
+      bn[i] = get_bn_s(Fnum[i-1], 1);
     // Bounded.
     bn[i] = bn_internal(bn[i], bn_min[i-1], bn_max[i-1]);
   }
@@ -101,7 +101,7 @@ void param_type::set_prm(double *bn) const
     else if (n[i-1] == -1) {
       set_L(Fnum[i-1], bn_ext); get_S();
     } else if (n[i-1] == -2)
-      set_bn_s(-Fnum[i-1], bn_ext);
+      set_bn_s(Fnum[i-1], bn_ext);
   }
 }
 
@@ -137,69 +137,85 @@ double bn_bounded(const double bn_internal,
 }
 
 
-double get_bn_s(const int Fnum, const int Knum, const int n)
+void get_s_loc(const int Fnum, const int Knum, int loc[])
 {
-  int    k;
-  double bn, an;
-
-  k = Elem_GetPos(abs(Fnum), Knum);
-
-  switch (Cell[k-1].Elem.PName[1]) {
-  case 'u':
-    bn = Cell[k-1].Elem.PL;
-    break;
-  case 'd':
-    bn = -Cell[k-1].Elem.PL;
-    break;
-  default:
-    printf("get_bn_s: configuration error %s (%d)\n",
-	   Cell[k-1].Elem.PName, k);
-    exit(1);
-    break;
-  }
-
-  return bn;
-}
-
-
-void set_bn_s(const int Fnum, const int Knum, const double bn)
-{
-  int       loc, loc_d;
   partsName name;
 
-  // Point to multipole.
-  loc = Elem_GetPos(abs(Fnum), Knum);
+  const bool prt = false;
 
-  if (Cell[loc-1].Elem.PName[1] == 'u') {
-    strcpy(name, Cell[loc-1].Elem.PName); name[1] = 'd';
-    loc_d = Elem_GetPos(ElemIndex(name), Knum);
-    set_L(Cell[loc-1].Fnum, Knum, bn);
-    set_L(Cell[loc_d].Fnum, Knum, -bn);
-  } else if (Cell[loc-1].Elem.PName[1] == 'd') {
-    strcpy(name, Cell[loc-1].Elem.PName); name[1] = 'u';
-    loc_d = Elem_GetPos(ElemIndex(name), Knum);
-    set_L(Cell[loc-1].Fnum, Knum, -bn);
-    set_L(Cell[loc_d].Fnum, Knum, bn);
-  } else if (Cell[loc+1].Elem.PName[1] == 'd') {
-    strcpy(name, Cell[loc+1].Elem.PName); name[1] = 'u';
-    loc_d = Elem_GetPos(ElemIndex(name), Knum);
-    set_L(Cell[loc+1].Fnum, Knum, -bn);
-    set_L(Cell[loc_d].Fnum, Knum, bn);
-  } else if (Cell[loc+1].Elem.PName[1] == 'u') {
-    strcpy(name, Cell[loc+1].Elem.PName); name[1] = 'd';
-    loc_d = Elem_GetPos(ElemIndex(name), Knum);
-    set_L(Cell[loc+1].Fnum, Knum, bn);
-    set_L(Cell[loc_d].Fnum, Knum, -bn);
+  // Point to multipole.
+  loc[1] = Elem_GetPos(Fnum, Knum);
+  if (Cell[loc[1]-1].Elem.PName[1] == 'u') {
+    loc[0] = loc[1] - 1;
+    strcpy(name, Cell[loc[1]-1].Elem.PName); name[1] = 'd';
+    loc[2] = Elem_GetPos(ElemIndex(name), Knum);
+  } else if (Cell[loc[1]-1].Elem.PName[1] == 'd') {
+    loc[2] = loc[1] - 1;
+    strcpy(name, Cell[loc[1]-1].Elem.PName); name[1] = 'u';
+    loc[0] = Elem_GetPos(ElemIndex(name), Knum);
+  } else if (Cell[loc[1]+1].Elem.PName[1] == 'd') {
+    loc[2] = loc[1] + 1;
+    strcpy(name, Cell[loc[1]+1].Elem.PName); name[1] = 'u';
+    loc[0] = Elem_GetPos(ElemIndex(name), Knum);
+  } else if (Cell[loc[1]+1].Elem.PName[1] == 'u') {
+    loc[0] = loc[1] + 1;
+    strcpy(name, Cell[loc[1]+1].Elem.PName); name[1] = 'd';
+    loc[2] = Elem_GetPos(ElemIndex(name), Knum);
+  } else {
+    printf("\nget_s_loc: configuration error %s (%d)\n",
+	   Cell[loc[1]].Elem.PName, loc[1]);
+    exit(1);
   }
+
+  if (prt)
+    printf("\nget_s_loc: %s %s %s\n",
+	   Cell[loc[0]].Elem.PName, Cell[loc[1]].Elem.PName,
+	   Cell[loc[2]].Elem.PName);
 }
 
 
-void set_bn_s(const int Fnum, const double bn)
+double get_bn_s(const int Fnum, const int Knum)
+{
+  int    loc[3];
+  double ds;
+
+  const bool prt = false;
+
+  get_s_loc(Fnum, Knum, loc);
+  ds = Cell[loc[0]].Elem.PL;
+
+  if (prt)
+    printf("\nget_bn_s:  %s %s(%d) %s %10.3e %10.3e\n",
+	   Cell[loc[0]].Elem.PName, Cell[loc[1]].Elem.PName, Knum,
+	   Cell[loc[2]].Elem.PName, Cell[loc[0]].Elem.PL, Cell[loc[2]].Elem.PL);
+
+  return ds;
+}
+
+
+void set_bn_s(const int Fnum, const int Knum, const double ds)
+{
+  int loc[3];
+
+  const bool prt = false;
+
+  get_s_loc(Fnum, Knum, loc);
+  set_L(Cell[loc[0]].Fnum, Knum, ds);
+  set_L(Cell[loc[2]].Fnum, Knum, -ds);
+
+  if (prt)
+    printf("\nset_bn_s:  %s %s(%d) %s %10.3e %10.3e\n",
+	   Cell[loc[0]].Elem.PName, Cell[loc[1]].Elem.PName, Knum,
+	   Cell[loc[2]].Elem.PName, ds, -ds);
+}
+
+
+void set_bn_s(const int Fnum, const double ds)
 {
   int k;
 
-  for (k = 1; k <= GetnKid(abs(Fnum)); k++)
-    set_bn_s(Fnum, k, bn);
+  for (k = 1; k <= GetnKid(Fnum); k++)
+    set_bn_s(Fnum, k, ds);
 }
 
 
@@ -260,52 +276,52 @@ void prt_b2(const param_type &b2_prms, const double *b2)
 
   outf = file_write(file_name.c_str());
 
-  // k = 1;
-  // fprintf(outf, "QF031: quadrupole, l = 0.217, k = %8.5f, N = Nquad"
+  k = 1;
+  fprintf(outf, "QF031: quadrupole, l = 0.217, k = %8.5f, N = Nquad"
+  	  ", Method = Meth;\n",
+  	  bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
+  // k++;
+  // fprintf(outf, "QD041: quadrupole, l = 0.117, k = %8.5f, N = Nquad"
   // 	  ", Method = Meth;\n",
   // 	  bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
-  k++;
-  fprintf(outf, "QD041: quadrupole, l = 0.117, k = %8.5f, N = Nquad"
-	  ", Method = Meth;\n",
-	  bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
 
   k++;
-  fprintf(outf, "\nQ01:   quadrupole, l = 0.234, k = %8.5f, N = Nquad"
-	  ", Method = Meth;\n",
-	  bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
-  k++;
-  fprintf(outf, "Q03:   quadrupole, l = 0.434, k = %8.5f, N = Nquad"
-	  ", Method = Meth;\n",
-	  bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
-
-  k++;
-  fprintf(outf, "\nEQ01:  quadrupole, l = 0.234, k = %8.5f, N = Nquad"
-	  ", Method = Meth;\n",
-	  bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
-  k++;
-  fprintf(outf, "EQ02:  quadrupole, l = 0.234, k = %8.5f, N = Nquad"
-	  ", Method = Meth;\n",
-	  bn_bounded(b2[k],
-		     b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
+  fprintf(outf, "\nQ01:  quadrupole, l = 0.234, k = %8.5f, N = Nquad"
+  	  ", Method = Meth;\n",
+  	  bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
   // k++;
   // fprintf(outf, "Q02:  quadrupole, l = 0.234, k = %8.5f, N = Nquad"
   // 	  ", Method = Meth;\n",
   // 	  bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
+  k++;
+  fprintf(outf, "Q03:  quadrupole, l = 0.434, k = %8.5f, N = Nquad"
+  	  ", Method = Meth;\n",
+  	  bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
+
+  k++;
+  fprintf(outf, "\nEQ01: quadrupole, l = 0.234, k = %8.5f, N = Nquad"
+  	  ", Method = Meth;\n",
+  	  bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
+  k++;
+  fprintf(outf, "EQ02: quadrupole, l = 0.234, k = %8.5f, N = Nquad"
+  	  ", Method = Meth;\n",
+  	  bn_bounded(b2[k],
+  		     b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
 
   // k++;
-  // fprintf(outf, "EQ04:  quadrupole, l = 0.234, k = %8.5f, N = Nquad"
-  // 	  ", Method = Meth;\n",
-  // 	  bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
-  // k++;
-  // fprintf(outf, "EQ05:  quadrupole, l = 0.234, k = %8.5f, N = Nquad"
-  // 	  ", Method = Meth;\n",
-  // 	  bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
-  // k++;
-  // fprintf(outf, "EQ06:  quadrupole, l = 0.234, k = %8.5f, N = Nquad"
-  // 	  ", Method = Meth;\n",
-  // 	  bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
+  fprintf(outf, "EQ03: quadrupole, l = 0.234, k = %8.5f, N = Nquad"
+  	  ", Method = Meth;\n",
+  	  bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
+  k++;
+  fprintf(outf, "EQ04: quadrupole, l = 0.234, k = %8.5f, N = Nquad"
+  	  ", Method = Meth;\n",
+  	  bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
+  k++;
+  fprintf(outf, "EQ05: quadrupole, l = 0.234, k = %8.5f, N = Nquad"
+  	  ", Method = Meth;\n",
+  	  bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
 
-  if (true) {
+  if (false) {
     k++;
     fprintf(outf, "\nD_Q01_L  = %8.5f;\n",
 	    bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
@@ -398,7 +414,7 @@ double f_match(double *b2)
   // Downstream of 10 degree dipole.
   chi2 += 1e6*sqr(Cell[loc[1]].Eta[X_]);
   chi2 += 1e6*sqr(Cell[loc[1]].Etap[X_]);
-  // chi2 += 1e5*sqr(Cell[loc[1]].Beta[Y_]);
+  chi2 += 1e-10*sqr(Cell[loc[1]].Beta[Y_]);
 
   // Center of 1st straight.
   chi2 += 1e4*sqr(Cell[loc[2]].Alpha[X_]);
@@ -413,13 +429,13 @@ double f_match(double *b2)
   for (i = 1; i <= b2_prms.n_prm; i++) {
     loc1 = Elem_GetPos(b2_prms.Fnum[i-1], 1);
     L = Cell[loc1].Elem.PL;
-    if (i == 5) {
+    if (i == 4) {
       // Upstream of the quadrupole.
-      chi2 += 1e-10*sqr(b2[i]*L*Cell[loc1-1].Beta[X_]);
+      chi2 += 1e0*sqr(b2[i]*L*Cell[loc1-1].Beta[X_]);
       chi2 += 1e1*sqr(b2[i]*L*Cell[loc1-1].Beta[Y_]);
     } else if (i <= 9) {
-      chi2 += 1e-10*sqr(b2[i]*L*Cell[loc1].Beta[X_]);
-      chi2 += 1e-10*sqr(b2[i]*L*Cell[loc1].Beta[Y_]);
+      chi2 += 1e0*sqr(b2[i]*L*Cell[loc1].Beta[X_]);
+      chi2 += 1e0*sqr(b2[i]*L*Cell[loc1].Beta[Y_]);
      } else if (i > 9) {
       chi2 += 1e-10*sqr(b2[i]);
       chi2 += 1e-10*sqr(b2[i]);
@@ -498,17 +514,20 @@ void fit_match(param_type &b2_prms)
   // loc[0] = Elem_GetPos(ElemIndex("qd041"), 1);
   // Upstream of 20 degree dipole.
   // loc[0] = Elem_GetPos(ElemIndex("sb"), 7);
+
   // Downstream of 10 degree dipole.
   loc[1] = Elem_GetPos(ElemIndex("b10"), 1);
   // Center of 1st straight.
   loc[2] = Elem_GetPos(ElemIndex("ef2"), 4);
   // Center of 2nd straight.
   loc[3] = Elem_GetPos(ElemIndex("ef2"), 16);
+
+  // Upstream of EQ01.
+  // loc[4] = Elem_GetPos(ElemIndex("eq01"), 1);
   // End of 1st straight.
-  // loc[4] = Elem_GetPos(ElemIndex("ef2"), 8);
-  loc[4] = Elem_GetPos(ElemIndex("eq05"), 1);
+  // loc[4] = Elem_GetPos(ElemIndex("eq05"), 1);
   // Downstream of 20 degree dipole.
-  // loc[4] = Elem_GetPos(ElemIndex("b20"), 5);
+  loc[4] = Elem_GetPos(ElemIndex("b20"), 5);
 
   Ascr = get_A(ic[0], ic[1], ic[2], ic[3]);
   Cell_Twiss(loc[0], loc[4], Ascr, false, false, 0e0);
@@ -517,9 +536,6 @@ void fit_match(param_type &b2_prms)
   prt_lat(loc[0]+1, loc[4], "linlat.out", globval.bpm, true, 10);
 
   prt_lin_opt(loc);
-  printf("\n%8.5f %8.5f\n",
-	 Cell[loc[5]].Nu[X_]-Cell[loc[0]].Nu[X_],
-	 Cell[loc[5]].Nu[Y_]-Cell[loc[0]].Nu[Y_]);
 
   b2_prms.ini_prm(b2);
 
@@ -580,10 +596,11 @@ int main(int argc, char *argv[])
     exit(0);
   }
 
-  loc0 = Elem_GetPos(ElemIndex("qf03"), 3);
-  // loc0 = Elem_GetPos(ElemIndex("qf031"), 1);
+  // loc0 = Elem_GetPos(ElemIndex("qf03"), 3);
+  loc0 = Elem_GetPos(ElemIndex("qf031"), 1);
   // loc0 = Elem_GetPos(ElemIndex("qd04"), 7);
   // loc0 = Elem_GetPos(ElemIndex("qd041"), 1);
+  // loc1 = Elem_GetPos(ElemIndex("eq05"), 1);
   loc1 = Elem_GetPos(ElemIndex("b20"), 5);
   Ascr = get_A(ic[0], ic[1], ic[2], ic[3]);
   Cell_Twiss(loc0, loc1, Ascr, false, false, 0e0);
@@ -591,34 +608,35 @@ int main(int argc, char *argv[])
   prtmfile("flat_file.dat");
   prt_lat(loc0, loc1, "linlat1.out", globval.bpm, true);
   prt_lat(loc0+1, loc1, "linlat.out", globval.bpm, true, 10);
+  // exit(0);
 
-  // b2_prms.add_prm("qf031", 2, -4.8, 4.8, 1.0);
-  b2_prms.add_prm("qd041", 2, -4.8, 4.8, 1.0);
+  b2_prms.add_prm("qf031", 2, -5.0, 5.0, 1.0);
+  // b2_prms.add_prm("qd041", 2, -5.0, 5.0, 1.0);
 
-  b2_prms.add_prm("q01",   2, -4.8, 4.8, 1.0);
-  b2_prms.add_prm("q03",   2, -4.8, 4.8, 1.0);
+  b2_prms.add_prm("q01",   2, -5.0, 5.0, 1.0);
+  b2_prms.add_prm("q02",   2, -5.0, 5.0, 1.0);
+  // b2_prms.add_prm("q03",   2, -5.0, 5.0, 1.0);
 
-  b2_prms.add_prm("eq01",  2, -4.8, 4.8, 1.0);
-  b2_prms.add_prm("eq02",  2, -4.8, 4.8, 1.0);
-  // b2_prms.add_prm("q02",   2, -4.8, 4.8, 1.0);
+  b2_prms.add_prm("eq01",  2, -5.0, 5.0, 1.0);
+  b2_prms.add_prm("eq02",  2, -5.0, 5.0, 1.0);
 
-  // b2_prms.add_prm("eq04",  2, -4.8, 4.8, 1.0);
-  // b2_prms.add_prm("eq05",  2, -4.8, 4.8, 1.0);
-  // b2_prms.add_prm("eq06",  2, -4.8, 4.8, 1.0);
+  b2_prms.add_prm("eq03",  2, -5.0, 5.0, 1.0);
+  b2_prms.add_prm("eq04",  2, -5.0, 5.0, 1.0);
+  b2_prms.add_prm("eq05",  2, -5.0, 5.0, 1.0);
 
   if (true) {
     b2_prms.add_prm("q01",  -2,  0.0,   0.05, 1.0);
-    b2_prms.add_prm("q03",  -2,  0.0,   0.05, 1.0);
+    b2_prms.add_prm("q02",  -2,  0.0,   0.05, 1.0);
+    // b2_prms.add_prm("q03",  -2,  0.0,   0.05, 1.0);
 
     b2_prms.add_prm("eq01", -2,  0.0,   0.05, 1.0);
     b2_prms.add_prm("eq02", -2,  0.0,   0.05, 1.0);
-    // b2_prms.add_prm("q02",  -2,  0.0,   0.05, 1.0);
 
-    // b2_prms.add_prm("eq04", -2, -0.05,  0.05, 1.0);
-    // b2_prms.add_prm("eq05", -2,  0.0,   0.05, 1.0);
-    // b2_prms.add_prm("eq06", -2,  0.0,   0.05, 1.0);
+    b2_prms.add_prm("eq03", -2, -0.05,  0.05, 1.0);
+    b2_prms.add_prm("eq04", -2,  0.0,   0.05, 1.0);
+    b2_prms.add_prm("eq05", -2,  0.0,   0.05, 1.0);
 
-    b2_prms.add_prm("b10",  -2, -0.01,  0.01, 1.0);
+    // b2_prms.add_prm("b10",  -2, -0.01,  0.01, 1.0);
   }
 
   // U561 + U562: 2.14.
