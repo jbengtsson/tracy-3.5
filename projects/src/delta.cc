@@ -28,7 +28,7 @@ double bn_internal(const double bn_bounded,
 double bn_bounded(const double bn_internal,
 		  const double bn_min, const double bn_max);
 double get_bn_s(const int Fnum, const int Knum, const int n);
-void set_bn_s(const int Fnum, const int n, const double dbn);
+void set_bn_s(const int Fnum, const double dbn);
 void get_S(void);
 
 
@@ -101,7 +101,7 @@ void param_type::set_prm(double *bn) const
     else if (n[i-1] == -1) {
       set_L(Fnum[i-1], bn_ext); get_S();
     } else if (n[i-1] == -2)
-      set_bn_s(-Fnum[i-1], n[i-1], bn_ext);
+      set_bn_s(-Fnum[i-1], bn_ext);
   }
 }
 
@@ -162,7 +162,7 @@ double get_bn_s(const int Fnum, const int Knum, const int n)
 }
 
 
-void set_bn_s(const int Fnum, const int Knum, const int n, const double bn)
+void set_bn_s(const int Fnum, const int Knum, const double bn)
 {
   int       loc, loc_d;
   partsName name;
@@ -194,12 +194,12 @@ void set_bn_s(const int Fnum, const int Knum, const int n, const double bn)
 }
 
 
-void set_bn_s(const int Fnum, const int n, const double bn)
+void set_bn_s(const int Fnum, const double bn)
 {
   int k;
 
   for (k = 1; k <= GetnKid(abs(Fnum)); k++)
-    set_bn_s(Fnum, k, n, bn);
+    set_bn_s(Fnum, k, bn);
 }
 
 
@@ -251,7 +251,7 @@ void get_dnu_dp(const int i0, const int i1, const double alpha0[],
 }
 
 
-void prt_match(const param_type &b2_prms, const double *b2)
+void prt_b2(const param_type &b2_prms, const double *b2)
 {
   int  k;
   FILE *outf;
@@ -260,10 +260,10 @@ void prt_match(const param_type &b2_prms, const double *b2)
 
   outf = file_write(file_name.c_str());
 
-  k = 1;
-  fprintf(outf, "QF031: quadrupole, l = 0.217, k = %8.5f, N = Nquad"
-	  ", Method = Meth;\n",
-	  bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
+  // k = 1;
+  // fprintf(outf, "QF031: quadrupole, l = 0.217, k = %8.5f, N = Nquad"
+  // 	  ", Method = Meth;\n",
+  // 	  bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
   k++;
   fprintf(outf, "QD041: quadrupole, l = 0.117, k = %8.5f, N = Nquad"
 	  ", Method = Meth;\n",
@@ -292,18 +292,18 @@ void prt_match(const param_type &b2_prms, const double *b2)
   // 	  ", Method = Meth;\n",
   // 	  bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
 
-  k++;
-  fprintf(outf, "EQ04:  quadrupole, l = 0.234, k = %8.5f, N = Nquad"
-	  ", Method = Meth;\n",
-	  bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
-  k++;
-  fprintf(outf, "EQ05:  quadrupole, l = 0.234, k = %8.5f, N = Nquad"
-	  ", Method = Meth;\n",
-	  bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
-  k++;
-  fprintf(outf, "EQ06:  quadrupole, l = 0.234, k = %8.5f, N = Nquad"
-	  ", Method = Meth;\n",
-	  bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
+  // k++;
+  // fprintf(outf, "EQ04:  quadrupole, l = 0.234, k = %8.5f, N = Nquad"
+  // 	  ", Method = Meth;\n",
+  // 	  bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
+  // k++;
+  // fprintf(outf, "EQ05:  quadrupole, l = 0.234, k = %8.5f, N = Nquad"
+  // 	  ", Method = Meth;\n",
+  // 	  bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
+  // k++;
+  // fprintf(outf, "EQ06:  quadrupole, l = 0.234, k = %8.5f, N = Nquad"
+  // 	  ", Method = Meth;\n",
+  // 	  bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
 
   if (true) {
     k++;
@@ -323,15 +323,15 @@ void prt_match(const param_type &b2_prms, const double *b2)
     // fprintf(outf, "D_Q02_L  = %8.5f;\n",
     // 	    bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
 
-    k++;
-    fprintf(outf, "\nD_EQ04_L = %8.5f;\n",
-	    bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
-    k++;
-    fprintf(outf, "D_EQ05_L = %8.5f;\n",
-	    bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
-    k++;
-    fprintf(outf, "D_EQ06_L = %8.5f;\n",
-	    bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
+    // k++;
+    // fprintf(outf, "\nD_EQ04_L = %8.5f;\n",
+    // 	    bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
+    // k++;
+    // fprintf(outf, "D_EQ05_L = %8.5f;\n",
+    // 	    bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
+    // k++;
+    // fprintf(outf, "D_EQ06_L = %8.5f;\n",
+    // 	    bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
 
     // k++;
     // fprintf(outf, "\nD_B10_L  = %8.5f;\n",
@@ -415,14 +415,14 @@ double f_match(double *b2)
     L = Cell[loc1].Elem.PL;
     if (i == 5) {
       // Upstream of the quadrupole.
-      chi2 += 1e-1*sqr(b2[i]*L*Cell[loc1-1].Beta[X_]);
+      chi2 += 1e-10*sqr(b2[i]*L*Cell[loc1-1].Beta[X_]);
       chi2 += 1e1*sqr(b2[i]*L*Cell[loc1-1].Beta[Y_]);
     } else if (i <= 9) {
-      chi2 += 1e-1*sqr(b2[i]*L*Cell[loc1].Beta[X_]);
-      chi2 += 1e-1*sqr(b2[i]*L*Cell[loc1].Beta[Y_]);
+      chi2 += 1e-10*sqr(b2[i]*L*Cell[loc1].Beta[X_]);
+      chi2 += 1e-10*sqr(b2[i]*L*Cell[loc1].Beta[Y_]);
      } else if (i > 9) {
-      chi2 += 1e0*sqr(b2[i]);
-      chi2 += 1e0*sqr(b2[i]);
+      chi2 += 1e-10*sqr(b2[i]);
+      chi2 += 1e-10*sqr(b2[i]);
    }
   }
 
@@ -466,11 +466,11 @@ double f_match(double *b2)
       loc2 = Elem_GetPos(ElemIndex("s_s_3"), 2);
       printf("Length of 3rd straight: %6.3f m\n", Cell[loc2].S-Cell[loc1].S);
 
-      prt_match(b2_prms, b2);
+      prt_b2(b2_prms, b2);
 
       prtmfile("flat_file.fit");
       prt_lat(loc[0], loc[4], "linlat1.out", globval.bpm, true);
-      prt_lat(loc[0], loc[4], "linlat.out", globval.bpm, true, 10);
+      prt_lat(loc[0]+1, loc[4], "linlat.out", globval.bpm, true, 10);
 
       chi2_prt = min(chi2, chi2_prt);
     }
@@ -506,14 +506,15 @@ void fit_match(param_type &b2_prms)
   loc[3] = Elem_GetPos(ElemIndex("ef2"), 16);
   // End of 1st straight.
   // loc[4] = Elem_GetPos(ElemIndex("ef2"), 8);
+  loc[4] = Elem_GetPos(ElemIndex("eq05"), 1);
   // Downstream of 20 degree dipole.
-  loc[4] = Elem_GetPos(ElemIndex("b20"), 5);
+  // loc[4] = Elem_GetPos(ElemIndex("b20"), 5);
 
   Ascr = get_A(ic[0], ic[1], ic[2], ic[3]);
   Cell_Twiss(loc[0], loc[4], Ascr, false, false, 0e0);
 
   prt_lat(loc[0], loc[4], "linlat1.out", globval.bpm, true);
-  prt_lat(loc[0], loc[4], "linlat.out", globval.bpm, true, 10);
+  prt_lat(loc[0]+1, loc[4], "linlat.out", globval.bpm, true, 10);
 
   prt_lin_opt(loc);
   printf("\n%8.5f %8.5f\n",
@@ -535,9 +536,25 @@ void fit_match(param_type &b2_prms)
   Cell_Twiss(loc[0], loc[4], Ascr, false, false, 0e0);
 
   prt_lat(loc[0], loc[4], "linlat1.out", globval.bpm, true);
-  prt_lat(loc[0], loc[4], "linlat.out", globval.bpm, true, 10);
+  prt_lat(loc[0]+1, loc[4], "linlat.out", globval.bpm, true, 10);
 
   free_dvector(b2, 1, n_b2); free_dmatrix(xi, 1, n_b2, 1, n_b2);
+}
+
+
+void chk_straights()
+{
+  int loc1, loc2;
+  
+  loc1 = Elem_GetPos(ElemIndex("s_s_1"), 1);
+  loc2 = Elem_GetPos(ElemIndex("s_s_1"), 2);
+  printf("\nLength of 1st straight: %6.3f m\n", Cell[loc2].S-Cell[loc1].S);
+  loc1 = Elem_GetPos(ElemIndex("s_s_2"), 1);
+  loc2 = Elem_GetPos(ElemIndex("s_s_2"), 2);
+  printf("Length of 2nd straight: %6.3f m\n", Cell[loc2].S-Cell[loc1].S);
+  loc1 = Elem_GetPos(ElemIndex("s_s_3"), 1);
+  loc2 = Elem_GetPos(ElemIndex("s_s_3"), 2);
+  printf("Length of 3rd straight: %6.3f m\n", Cell[loc2].S-Cell[loc1].S);
 }
 
 
@@ -558,6 +575,11 @@ int main(int argc, char *argv[])
 
   no_sxt();
 
+  if (false) {
+    chk_straights();
+    exit(0);
+  }
+
   loc0 = Elem_GetPos(ElemIndex("qf03"), 3);
   // loc0 = Elem_GetPos(ElemIndex("qf031"), 1);
   // loc0 = Elem_GetPos(ElemIndex("qd04"), 7);
@@ -568,10 +590,9 @@ int main(int argc, char *argv[])
 
   prtmfile("flat_file.dat");
   prt_lat(loc0, loc1, "linlat1.out", globval.bpm, true);
-  prt_lat(loc0, loc1, "linlat.out", globval.bpm, true, 10);
-  // exit(0);
+  prt_lat(loc0+1, loc1, "linlat.out", globval.bpm, true, 10);
 
-  b2_prms.add_prm("qf031", 2, -4.8, 4.8, 1.0);
+  // b2_prms.add_prm("qf031", 2, -4.8, 4.8, 1.0);
   b2_prms.add_prm("qd041", 2, -4.8, 4.8, 1.0);
 
   b2_prms.add_prm("q01",   2, -4.8, 4.8, 1.0);
@@ -581,22 +602,24 @@ int main(int argc, char *argv[])
   b2_prms.add_prm("eq02",  2, -4.8, 4.8, 1.0);
   // b2_prms.add_prm("q02",   2, -4.8, 4.8, 1.0);
 
-  b2_prms.add_prm("eq04",  2, -4.8, 4.8, 1.0);
-  b2_prms.add_prm("eq05",  2, -4.8, 4.8, 1.0);
-  b2_prms.add_prm("eq06",  2, -4.8, 4.8, 1.0);
+  // b2_prms.add_prm("eq04",  2, -4.8, 4.8, 1.0);
+  // b2_prms.add_prm("eq05",  2, -4.8, 4.8, 1.0);
+  // b2_prms.add_prm("eq06",  2, -4.8, 4.8, 1.0);
 
-  b2_prms.add_prm("q01",  -2,  0.0,   0.05, 1.0);
-  b2_prms.add_prm("q03",  -2,  0.0,   0.05, 1.0);
+  if (true) {
+    b2_prms.add_prm("q01",  -2,  0.0,   0.05, 1.0);
+    b2_prms.add_prm("q03",  -2,  0.0,   0.05, 1.0);
 
-  b2_prms.add_prm("eq01", -2,  0.0,   0.05, 1.0);
-  b2_prms.add_prm("eq02", -2,  0.0,   0.05, 1.0);
-  // b2_prms.add_prm("q02",  -2,  0.0,   0.05, 1.0);
+    b2_prms.add_prm("eq01", -2,  0.0,   0.05, 1.0);
+    b2_prms.add_prm("eq02", -2,  0.0,   0.05, 1.0);
+    // b2_prms.add_prm("q02",  -2,  0.0,   0.05, 1.0);
 
-  b2_prms.add_prm("eq04", -2, -0.05,  0.05, 1.0);
-  b2_prms.add_prm("eq05", -2,  0.0,   0.05, 1.0);
-  b2_prms.add_prm("eq06", -2,  0.0,   0.05, 1.0);
+    // b2_prms.add_prm("eq04", -2, -0.05,  0.05, 1.0);
+    // b2_prms.add_prm("eq05", -2,  0.0,   0.05, 1.0);
+    // b2_prms.add_prm("eq06", -2,  0.0,   0.05, 1.0);
 
-  // b2_prms.add_prm("b10",  -2, -0.01,  0.01, 1.0);
+    b2_prms.add_prm("b10",  -2, -0.01,  0.01, 1.0);
+  }
 
   // U561 + U562: 2.14.
   // b2_prms.add_prm("u561", -1, 2.14, 2.14, 1.0);
