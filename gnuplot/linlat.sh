@@ -64,9 +64,9 @@ set xlabel "s [m]"; set ylabel "{/Symbol g}";
 set y2range [-1.5:20];
 plot "linlat.out" using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
      lc rgb "black", \
-     "linlat.out" using 3:((1.0+\$5**2)/\$6) title "{/Symbol n}_x" \
+     "linlat.out" using 3:((1.0+\$5**2)/\$6) title "{/Symbol g}_x" \
      with lines ls 1, \
-     "linlat.out" using 3:((1.0+\$10**2)/\$11) title "{/Symbol n}_y" \
+     "linlat.out" using 3:((1.0+\$10**2)/\$11) title "{/Symbol g}_y" \
      with lines ls 3;
 if (!ps) pause mouse "click on graph to cont.\n";
 
