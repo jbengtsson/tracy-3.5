@@ -21,7 +21,7 @@ int no_tps = NO;
 const double ic[][2] =
   {{-5.66627, 2.37465}, {7.07181, 2.86889}, {0.19967, 0.0}, {0.17750, 0.0}};
 
-int loc[10], n;
+int loc[10], n, n_strength;
 
 double bn_internal(const double bn_bounded,
 		   const double bn_min, const double bn_max);
@@ -429,7 +429,7 @@ double f_match(double *b2)
   for (i = 1; i <= b2_prms.n_prm; i++) {
     loc1 = Elem_GetPos(b2_prms.Fnum[i-1], 1);
     L = Cell[loc1].Elem.PL;
-    if (i <= 10) {
+    if (i <= n_strength) {
       chi2 += 1e1*sqr(b2[i]*L);
       chi2 += 1e1*sqr(b2[i]*L);
      } else {
@@ -623,6 +623,8 @@ int main(int argc, char *argv[])
   b2_prms.add_prm("eq03",  2, -4.2, 4.2, 1.0);
   b2_prms.add_prm("eq04",  2, -4.2, 4.2, 1.0);
   b2_prms.add_prm("eq05",  2, -4.2, 4.2, 1.0);
+
+  n_strength = 9;
 
   if (false) {
     b2_prms.add_prm("q01",  -2,  0.0,   0.05, 1.0);
