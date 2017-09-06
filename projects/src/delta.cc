@@ -414,24 +414,24 @@ double f_match(double *b2)
   // Downstream of 10 degree dipole.
   chi2 += 1e7*sqr(Cell[loc[1]].Eta[X_]);
   chi2 += 1e7*sqr(Cell[loc[1]].Etap[X_]);
-  chi2 += 1e0*sqr(Cell[loc[1]].Beta[Y_]);
+  // chi2 += 1e0*sqr(Cell[loc[1]].Beta[Y_]);
 
   // Center of 1st straight.
   chi2 += 1e5*sqr(Cell[loc[2]].Alpha[X_]);
-  chi2 += 1e5*sqr(Cell[loc[2]].Alpha[Y_]);
+  // chi2 += 1e5*sqr(Cell[loc[2]].Alpha[Y_]);
   chi2 += 1e3*sqr(Cell[loc[2]].Beta[X_]-9.58);
 
   // Center of 2nd straight.
-  chi2 += 1e4*sqr(Cell[loc[3]].Alpha[X_]);
-  chi2 += 1e4*sqr(Cell[loc[3]].Alpha[Y_]);
+  chi2 += 1e5*sqr(Cell[loc[3]].Alpha[X_]);
+  chi2 += 1e5*sqr(Cell[loc[3]].Alpha[Y_]);
   chi2 += 1e3*sqr(Cell[loc[3]].Beta[X_]-8.0); 
 
   for (i = 1; i <= b2_prms.n_prm; i++) {
     loc1 = Elem_GetPos(b2_prms.Fnum[i-1], 1);
     L = Cell[loc1].Elem.PL;
     if (i <= n_strength) {
-      chi2 += 1e1*sqr(b2[i]*L);
-      chi2 += 1e1*sqr(b2[i]*L);
+      chi2 += 1e1*sqr(b2[i]*L*Cell[loc1].Beta[X_]);
+      chi2 += 1e1*sqr(b2[i]*L*Cell[loc1].Beta[Y_]);
      } else {
       chi2 += 1e1*sqr(b2[i]);
       chi2 += 1e1*sqr(b2[i]);
@@ -614,7 +614,7 @@ int main(int argc, char *argv[])
   b2_prms.add_prm("qd041", 2, -4.2, 4.2, 1.0);
 
   b2_prms.add_prm("q01",   2, -4.2, 4.2, 1.0);
-  // b2_prms.add_prm("q02",   2, -4.2, 4.2, 1.0);
+  b2_prms.add_prm("q02",   2, -4.2, 4.2, 1.0);
   b2_prms.add_prm("q03",   2, -4.2, 4.2, 1.0);
 
   b2_prms.add_prm("eq01",  2, -4.2, 4.2, 1.0);
