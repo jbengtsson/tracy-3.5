@@ -280,23 +280,23 @@ void prt_b2(const param_type &b2_prms, const double *b2)
   fprintf(outf, "QF031: quadrupole, l = 0.217, k = %8.5f, N = Nquad"
   	  ", Method = Meth;\n",
   	  bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
-  // k++;
-  // fprintf(outf, "QD041: quadrupole, l = 0.117, k = %8.5f, N = Nquad"
-  // 	  ", Method = Meth;\n",
-  // 	  bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
+  k++;
+  fprintf(outf, "QD041: quadrupole, l = 0.117, k = %8.5f, N = Nquad"
+  	  ", Method = Meth;\n",
+  	  bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
 
   k++;
-  fprintf(outf, "\nQ01:  quadrupole, l = 0.234, k = %8.5f, N = Nquad"
+  fprintf(outf, "\nQ01:  quadrupole, l = 0.434, k = %8.5f, N = Nquad"
+  	  ", Method = Meth;\n",
+  	  bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
+  k++;
+  fprintf(outf, "Q02:  quadrupole, l = 0.234, k = %8.5f, N = Nquad"
   	  ", Method = Meth;\n",
   	  bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
   // k++;
-  // fprintf(outf, "Q02:  quadrupole, l = 0.234, k = %8.5f, N = Nquad"
+  // fprintf(outf, "Q03:  quadrupole, l = 0.234, k = %8.5f, N = Nquad"
   // 	  ", Method = Meth;\n",
   // 	  bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
-  k++;
-  fprintf(outf, "Q03:  quadrupole, l = 0.434, k = %8.5f, N = Nquad"
-  	  ", Method = Meth;\n",
-  	  bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
 
   k++;
   fprintf(outf, "\nEQ01: quadrupole, l = 0.234, k = %8.5f, N = Nquad"
@@ -308,8 +308,8 @@ void prt_b2(const param_type &b2_prms, const double *b2)
   	  bn_bounded(b2[k],
   		     b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
 
-  // k++;
-  fprintf(outf, "EQ03: quadrupole, l = 0.234, k = %8.5f, N = Nquad"
+  k++;
+  fprintf(outf, "\nEQ03: quadrupole, l = 0.234, k = %8.5f, N = Nquad"
   	  ", Method = Meth;\n",
   	  bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
   k++;
@@ -321,13 +321,16 @@ void prt_b2(const param_type &b2_prms, const double *b2)
   	  ", Method = Meth;\n",
   	  bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
 
-  if (false) {
+  if (true) {
     k++;
     fprintf(outf, "\nD_Q01_L  = %8.5f;\n",
 	    bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
     k++;
-    fprintf(outf, "D_Q03_L  = %8.5f;\n",
-	    bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
+    fprintf(outf, "D_Q02_L  = %8.5f;\n",
+    	    bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
+    // k++;
+    // fprintf(outf, "D_Q03_L  = %8.5f;\n",
+    // 	    bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
 
     k++;
     fprintf(outf, "\nD_EQ01_L = %8.5f;\n",
@@ -335,19 +338,16 @@ void prt_b2(const param_type &b2_prms, const double *b2)
     k++;
     fprintf(outf, "D_EQ02_L = %8.5f;\n",
 	    bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
-    // k++;
-    // fprintf(outf, "D_Q02_L  = %8.5f;\n",
-    // 	    bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
 
-    // k++;
-    // fprintf(outf, "\nD_EQ04_L = %8.5f;\n",
-    // 	    bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
-    // k++;
-    // fprintf(outf, "D_EQ05_L = %8.5f;\n",
-    // 	    bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
-    // k++;
-    // fprintf(outf, "D_EQ06_L = %8.5f;\n",
-    // 	    bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
+    k++;
+    fprintf(outf, "\nD_EQ03_L = %8.5f;\n",
+    	    bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
+    k++;
+    fprintf(outf, "D_EQ04_L = %8.5f;\n",
+    	    bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
+    k++;
+    fprintf(outf, "D_EQ05_L = %8.5f;\n",
+    	    bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
 
     // k++;
     // fprintf(outf, "\nD_B10_L  = %8.5f;\n",
@@ -419,23 +419,23 @@ double f_match(double *b2)
   // Center of 1st straight.
   chi2 += 1e4*sqr(Cell[loc[2]].Alpha[X_]);
   chi2 += 1e4*sqr(Cell[loc[2]].Alpha[Y_]);
-  chi2 += 1e0*sqr(Cell[loc[2]].Beta[X_]-9.58);
+  chi2 += 1e1*sqr(Cell[loc[2]].Beta[X_]-9.58);
 
   // Center of 2nd straight.
   chi2 += 1e4*sqr(Cell[loc[3]].Alpha[X_]);
   chi2 += 1e4*sqr(Cell[loc[3]].Alpha[Y_]);
-  chi2 += 1e0*sqr(Cell[loc[3]].Beta[X_]-8.0); 
+  chi2 += 1e1*sqr(Cell[loc[3]].Beta[X_]-8.0); 
 
   for (i = 1; i <= b2_prms.n_prm; i++) {
     loc1 = Elem_GetPos(b2_prms.Fnum[i-1], 1);
     L = Cell[loc1].Elem.PL;
     if (i == 4) {
       // Upstream of the quadrupole.
-      chi2 += 1e0*sqr(b2[i]*L*Cell[loc1-1].Beta[X_]);
-      chi2 += 1e1*sqr(b2[i]*L*Cell[loc1-1].Beta[Y_]);
+      chi2 += 1e1*sqr(b2[i]*L*Cell[loc1-1].Beta[X_]);
+      chi2 += 1e2*sqr(b2[i]*L*Cell[loc1-1].Beta[Y_]);
     } else if (i <= 9) {
-      chi2 += 1e0*sqr(b2[i]*L*Cell[loc1].Beta[X_]);
-      chi2 += 1e0*sqr(b2[i]*L*Cell[loc1].Beta[Y_]);
+      chi2 += 1e1*sqr(b2[i]*L*Cell[loc1].Beta[X_]);
+      chi2 += 1e1*sqr(b2[i]*L*Cell[loc1].Beta[Y_]);
      } else if (i > 9) {
       chi2 += 1e-10*sqr(b2[i]);
       chi2 += 1e-10*sqr(b2[i]);
@@ -611,7 +611,7 @@ int main(int argc, char *argv[])
   // exit(0);
 
   b2_prms.add_prm("qf031", 2, -5.0, 5.0, 1.0);
-  // b2_prms.add_prm("qd041", 2, -5.0, 5.0, 1.0);
+  b2_prms.add_prm("qd041", 2, -5.0, 5.0, 1.0);
 
   b2_prms.add_prm("q01",   2, -5.0, 5.0, 1.0);
   b2_prms.add_prm("q02",   2, -5.0, 5.0, 1.0);
@@ -625,16 +625,16 @@ int main(int argc, char *argv[])
   b2_prms.add_prm("eq05",  2, -5.0, 5.0, 1.0);
 
   if (true) {
-    b2_prms.add_prm("q01",  -2,  0.0,   0.05, 1.0);
-    b2_prms.add_prm("q02",  -2,  0.0,   0.05, 1.0);
-    // b2_prms.add_prm("q03",  -2,  0.0,   0.05, 1.0);
+    b2_prms.add_prm("q01",  -2,  0.0,   0.10, 1.0);
+    b2_prms.add_prm("q02",  -2,  0.0,   0.10, 1.0);
+    // b2_prms.add_prm("q03",  -2,  0.0,   0.10, 1.0);
 
-    b2_prms.add_prm("eq01", -2,  0.0,   0.05, 1.0);
-    b2_prms.add_prm("eq02", -2,  0.0,   0.05, 1.0);
+    b2_prms.add_prm("eq01", -2,  0.0,   0.10, 1.0);
+    b2_prms.add_prm("eq02", -2,  0.0,   0.10, 1.0);
 
-    b2_prms.add_prm("eq03", -2, -0.05,  0.05, 1.0);
-    b2_prms.add_prm("eq04", -2,  0.0,   0.05, 1.0);
-    b2_prms.add_prm("eq05", -2,  0.0,   0.05, 1.0);
+    b2_prms.add_prm("eq03", -2, -0.10,  0.10, 1.0);
+    b2_prms.add_prm("eq04", -2,  0.0,   0.10, 1.0);
+    b2_prms.add_prm("eq05", -2,  0.0,   0.10, 1.0);
 
     // b2_prms.add_prm("b10",  -2, -0.01,  0.01, 1.0);
   }
