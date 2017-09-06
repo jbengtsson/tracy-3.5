@@ -19,7 +19,7 @@ int no_tps = NO;
 // Upstream of QF03.
 // Periodic.
 const double ic[][2] =
-  {{-6.00257, 2.31594}, {7.43795, 2.74922}, {0.18750, 0.0}, {0.16825, 0.0}};
+  {{-5.66627, 2.37465}, {7.07181, 2.86889}, {0.19967, 0.0}, {0.17750, 0.0}};
 
 int loc[10], n;
 
@@ -286,17 +286,17 @@ void prt_b2(const param_type &b2_prms, const double *b2)
   	  bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
 
   k++;
-  fprintf(outf, "\nQ01:  quadrupole, l = 0.434, k = %8.5f, N = Nquad"
-  	  ", Method = Meth;\n",
-  	  bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
-  k++;
-  fprintf(outf, "Q02:  quadrupole, l = 0.234, k = %8.5f, N = Nquad"
+  fprintf(outf, "\nQ01:  quadrupole, l = 0.234, k = %8.5f, N = Nquad"
   	  ", Method = Meth;\n",
   	  bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
   // k++;
-  // fprintf(outf, "Q03:  quadrupole, l = 0.234, k = %8.5f, N = Nquad"
+  // fprintf(outf, "Q02:  quadrupole, l = 0.234, k = %8.5f, N = Nquad"
   // 	  ", Method = Meth;\n",
   // 	  bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
+  k++;
+  fprintf(outf, "Q03:  quadrupole, l = 0.434, k = %8.5f, N = Nquad"
+  	  ", Method = Meth;\n",
+  	  bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
 
   k++;
   fprintf(outf, "\nEQ01: quadrupole, l = 0.234, k = %8.5f, N = Nquad"
@@ -328,9 +328,9 @@ void prt_b2(const param_type &b2_prms, const double *b2)
     k++;
     fprintf(outf, "D_Q02_L  = %8.5f;\n",
     	    bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
-    // k++;
-    // fprintf(outf, "D_Q03_L  = %8.5f;\n",
-    // 	    bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
+    k++;
+    fprintf(outf, "D_Q03_L  = %8.5f;\n",
+    	    bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
 
     k++;
     fprintf(outf, "\nD_EQ01_L = %8.5f;\n",
@@ -412,33 +412,29 @@ double f_match(double *b2)
 
   chi2 = 0e0;
   // Downstream of 10 degree dipole.
-  chi2 += 1e6*sqr(Cell[loc[1]].Eta[X_]);
-  chi2 += 1e6*sqr(Cell[loc[1]].Etap[X_]);
-  chi2 += 1e-10*sqr(Cell[loc[1]].Beta[Y_]);
+  chi2 += 1e7*sqr(Cell[loc[1]].Eta[X_]);
+  chi2 += 1e7*sqr(Cell[loc[1]].Etap[X_]);
+  chi2 += 1e0*sqr(Cell[loc[1]].Beta[Y_]);
 
   // Center of 1st straight.
-  chi2 += 1e4*sqr(Cell[loc[2]].Alpha[X_]);
-  chi2 += 1e4*sqr(Cell[loc[2]].Alpha[Y_]);
-  chi2 += 1e1*sqr(Cell[loc[2]].Beta[X_]-9.58);
+  chi2 += 1e5*sqr(Cell[loc[2]].Alpha[X_]);
+  chi2 += 1e5*sqr(Cell[loc[2]].Alpha[Y_]);
+  chi2 += 1e3*sqr(Cell[loc[2]].Beta[X_]-9.58);
 
   // Center of 2nd straight.
   chi2 += 1e4*sqr(Cell[loc[3]].Alpha[X_]);
   chi2 += 1e4*sqr(Cell[loc[3]].Alpha[Y_]);
-  chi2 += 1e1*sqr(Cell[loc[3]].Beta[X_]-8.0); 
+  chi2 += 1e3*sqr(Cell[loc[3]].Beta[X_]-8.0); 
 
   for (i = 1; i <= b2_prms.n_prm; i++) {
     loc1 = Elem_GetPos(b2_prms.Fnum[i-1], 1);
     L = Cell[loc1].Elem.PL;
-    if (i == 4) {
-      // Upstream of the quadrupole.
-      chi2 += 1e1*sqr(b2[i]*L*Cell[loc1-1].Beta[X_]);
-      chi2 += 1e2*sqr(b2[i]*L*Cell[loc1-1].Beta[Y_]);
-    } else if (i <= 9) {
-      chi2 += 1e1*sqr(b2[i]*L*Cell[loc1].Beta[X_]);
-      chi2 += 1e1*sqr(b2[i]*L*Cell[loc1].Beta[Y_]);
-     } else if (i > 9) {
-      chi2 += 1e-10*sqr(b2[i]);
-      chi2 += 1e-10*sqr(b2[i]);
+    if (i <= 10) {
+      chi2 += 1e1*sqr(b2[i]*L);
+      chi2 += 1e1*sqr(b2[i]*L);
+     } else {
+      chi2 += 1e1*sqr(b2[i]);
+      chi2 += 1e1*sqr(b2[i]);
    }
   }
 
@@ -486,7 +482,7 @@ double f_match(double *b2)
 
       prtmfile("flat_file.fit");
       prt_lat(loc[0], loc[4], "linlat1.out", globval.bpm, true);
-      prt_lat(loc[0]+1, loc[4], "linlat.out", globval.bpm, true, 10);
+      prt_lat(loc[0]+1, loc[4]-1, "linlat.out", globval.bpm, true, 10);
 
       chi2_prt = min(chi2, chi2_prt);
     }
@@ -509,6 +505,7 @@ void fit_match(param_type &b2_prms)
   b2 = dvector(1, n_b2); xi = dmatrix(1, n_b2, 1, n_b2);
 
   // Upstream of QF03.
+  // loc[0] = Elem_GetPos(ElemIndex("qf03"), 3);
   loc[0] = Elem_GetPos(ElemIndex("qf031"), 1);
   // Upstream of QD04.
   // loc[0] = Elem_GetPos(ElemIndex("qd041"), 1);
@@ -527,13 +524,16 @@ void fit_match(param_type &b2_prms)
   // End of 1st straight.
   // loc[4] = Elem_GetPos(ElemIndex("eq05"), 1);
   // Downstream of 20 degree dipole.
-  loc[4] = Elem_GetPos(ElemIndex("b20"), 5);
+  // loc[4] = Elem_GetPos(ElemIndex("b20"), 5);
+  // Downstream of QF03.
+  // loc[4] = Elem_GetPos(ElemIndex("qf03"), 6);
+  loc[4] = Elem_GetPos(ElemIndex("qf031"), 4);
 
   Ascr = get_A(ic[0], ic[1], ic[2], ic[3]);
   Cell_Twiss(loc[0], loc[4], Ascr, false, false, 0e0);
 
   prt_lat(loc[0], loc[4], "linlat1.out", globval.bpm, true);
-  prt_lat(loc[0]+1, loc[4], "linlat.out", globval.bpm, true, 10);
+  prt_lat(loc[0]+1, loc[4]-1, "linlat.out", globval.bpm, true, 10);
 
   prt_lin_opt(loc);
 
@@ -552,7 +552,7 @@ void fit_match(param_type &b2_prms)
   Cell_Twiss(loc[0], loc[4], Ascr, false, false, 0e0);
 
   prt_lat(loc[0], loc[4], "linlat1.out", globval.bpm, true);
-  prt_lat(loc[0]+1, loc[4], "linlat.out", globval.bpm, true, 10);
+  prt_lat(loc[0]+1, loc[4]-1, "linlat.out", globval.bpm, true, 10);
 
   free_dvector(b2, 1, n_b2); free_dmatrix(xi, 1, n_b2, 1, n_b2);
 }
@@ -607,36 +607,36 @@ int main(int argc, char *argv[])
 
   prtmfile("flat_file.dat");
   prt_lat(loc0, loc1, "linlat1.out", globval.bpm, true);
-  prt_lat(loc0+1, loc1, "linlat.out", globval.bpm, true, 10);
+  prt_lat(loc0+1, loc1-1, "linlat.out", globval.bpm, true, 10);
   // exit(0);
 
-  b2_prms.add_prm("qf031", 2, -5.0, 5.0, 1.0);
-  b2_prms.add_prm("qd041", 2, -5.0, 5.0, 1.0);
+  b2_prms.add_prm("qf031", 2, -4.2, 4.2, 1.0);
+  b2_prms.add_prm("qd041", 2, -4.2, 4.2, 1.0);
 
-  b2_prms.add_prm("q01",   2, -5.0, 5.0, 1.0);
-  b2_prms.add_prm("q02",   2, -5.0, 5.0, 1.0);
-  // b2_prms.add_prm("q03",   2, -5.0, 5.0, 1.0);
+  b2_prms.add_prm("q01",   2, -4.2, 4.2, 1.0);
+  // b2_prms.add_prm("q02",   2, -4.2, 4.2, 1.0);
+  b2_prms.add_prm("q03",   2, -4.2, 4.2, 1.0);
 
-  b2_prms.add_prm("eq01",  2, -5.0, 5.0, 1.0);
-  b2_prms.add_prm("eq02",  2, -5.0, 5.0, 1.0);
+  b2_prms.add_prm("eq01",  2, -4.2, 4.2, 1.0);
+  b2_prms.add_prm("eq02",  2, -4.2, 4.2, 1.0);
 
-  b2_prms.add_prm("eq03",  2, -5.0, 5.0, 1.0);
-  b2_prms.add_prm("eq04",  2, -5.0, 5.0, 1.0);
-  b2_prms.add_prm("eq05",  2, -5.0, 5.0, 1.0);
+  b2_prms.add_prm("eq03",  2, -4.2, 4.2, 1.0);
+  b2_prms.add_prm("eq04",  2, -4.2, 4.2, 1.0);
+  b2_prms.add_prm("eq05",  2, -4.2, 4.2, 1.0);
 
-  if (true) {
-    b2_prms.add_prm("q01",  -2,  0.0,   0.10, 1.0);
-    b2_prms.add_prm("q02",  -2,  0.0,   0.10, 1.0);
-    // b2_prms.add_prm("q03",  -2,  0.0,   0.10, 1.0);
+  if (false) {
+    b2_prms.add_prm("q01",  -2,  0.0,   0.05, 1.0);
+    b2_prms.add_prm("q02",  -2,  0.0,   0.05, 1.0);
+    b2_prms.add_prm("q03",  -2,  0.0,   0.05, 1.0);
 
-    b2_prms.add_prm("eq01", -2,  0.0,   0.10, 1.0);
-    b2_prms.add_prm("eq02", -2,  0.0,   0.10, 1.0);
+    b2_prms.add_prm("eq01", -2,  0.0,   0.05, 1.0);
+    b2_prms.add_prm("eq02", -2,  0.0,   0.05, 1.0);
 
-    b2_prms.add_prm("eq03", -2, -0.10,  0.10, 1.0);
-    b2_prms.add_prm("eq04", -2,  0.0,   0.10, 1.0);
-    b2_prms.add_prm("eq05", -2,  0.0,   0.10, 1.0);
+    b2_prms.add_prm("eq03", -2, -0.05,  0.05, 1.0);
+    b2_prms.add_prm("eq04", -2,  0.0,   0.05, 1.0);
+    b2_prms.add_prm("eq05", -2,  0.0,   0.05, 1.0);
 
-    // b2_prms.add_prm("b10",  -2, -0.01,  0.01, 1.0);
+    // b2_prms.add_prm("b10",  -2, -0.02,  0.02, 1.0);
   }
 
   // U561 + U562: 2.14.
