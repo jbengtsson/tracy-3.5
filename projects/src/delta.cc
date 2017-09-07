@@ -17,9 +17,13 @@ int no_tps = NO;
 // const double ic[][2] =
 //   {{4.10172, -2.96036}, {2.69522, 4.71532}, {0.12263, 0.0}, {-0.16484, 0.0}};
 // Upstream of QF03.
-// Periodic.
+// const double ic[][2] =
+//   {{-4.61254, 2.87434}, {5.06784, 3.37353}, {0.41375, 0.0}, {0.36428, 0.0}};
+// Downstream of QF03.
 const double ic[][2] =
   {{-5.66627, 2.37465}, {7.07181, 2.86889}, {0.19967, 0.0}, {0.17750, 0.0}};
+
+const bool qf031 = false;
 
 int loc[10], n, n_strength;
 
@@ -433,8 +437,8 @@ double f_match(double *b2)
     L = Cell[loc1].Elem.PL;
     // Need to use internal variable for convergence.
     if (i <= n_strength) {
-      chi2 += 1e2*sqr(b2[i]*L*Cell[loc1].Beta[X_]);
-      chi2 += 1e2*sqr(b2[i]*L*Cell[loc1].Beta[Y_]);
+      chi2 += 1e1*sqr(b2[i]*L*Cell[loc1].Beta[X_]);
+      chi2 += 1e1*sqr(b2[i]*L*Cell[loc1].Beta[Y_]);
      } else {
       chi2 += 1e1*sqr(b2[i]);
       chi2 += 1e1*sqr(b2[i]);
@@ -599,8 +603,10 @@ int main(int argc, char *argv[])
     exit(0);
   }
 
-  // loc0 = Elem_GetPos(ElemIndex("qf03"), 3);
-  loc0 = Elem_GetPos(ElemIndex("qf031"), 1);
+  if (!qf031)
+    loc0 = Elem_GetPos(ElemIndex("qf03"), 3);
+  else
+    loc0 = Elem_GetPos(ElemIndex("qf031"), 1);
   // loc0 = Elem_GetPos(ElemIndex("qd04"), 7);
   // loc0 = Elem_GetPos(ElemIndex("qd041"), 1);
   // loc1 = Elem_GetPos(ElemIndex("eq05"), 1);
