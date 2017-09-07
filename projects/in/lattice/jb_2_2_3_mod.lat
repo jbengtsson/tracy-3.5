@@ -56,8 +56,8 @@ QD03: quadrupole, L = 0.117, K = -2.32178, N = Nquad, Method = Meth;
 QD04: quadrupole, L = 0.117, K = -2.43748, N = Nquad, Method = Meth;
 {QD041: quadrupole, L = 0.117, K = -2.43748, N = Nquad, Method = Meth;}
 
-QF031: quadrupole, l = 0.217, k =  3.40802, N = Nquad, Method = Meth;
-QD041: quadrupole, l = 0.117, k = -2.18590, N = Nquad, Method = Meth;
+QF031: quadrupole, l = 0.217, k =  3.59030, N = Nquad, Method = Meth;
+QD041: quadrupole, l = 0.117, k = -3.09395, N = Nquad, Method = Meth;
 
 SS1: sextupole, L = 0.0, K =  0.0,    N = 1, Method = Meth;
 
@@ -388,15 +388,15 @@ B10: bending, L = 0.5707241094555955, T = 10.0, T1 = 5.0, T2 = 5.0,
 EQ06: drift, l = 0.0;
 Q02:  drift, l = 0.234;
 
-Q01:  quadrupole, l = 0.234, k = -3.36658, N = Nquad, Method = Meth;
-Q03:  quadrupole, l = 0.434, k =  3.11867, N = Nquad, Method = Meth;
+Q01:  quadrupole, l = 0.234, k = -1.75898, N = Nquad, Method = Meth;
+Q03:  quadrupole, l = 0.434, k =  2.73606, N = Nquad, Method = Meth;
 
-EQ01: quadrupole, l = 0.234, k = -3.44922, N = Nquad, Method = Meth;
-EQ02: quadrupole, l = 0.234, k =  3.45139, N = Nquad, Method = Meth;
+EQ01: quadrupole, l = 0.234, k = -3.62100, N = Nquad, Method = Meth;
+EQ02: quadrupole, l = 0.234, k =  3.59053, N = Nquad, Method = Meth;
 
-EQ03: quadrupole, l = 0.234, k =  1.59828, N = Nquad, Method = Meth;
-EQ04: quadrupole, l = 0.234, k = -3.32534, N = Nquad, Method = Meth;
-EQ05: quadrupole, l = 0.234, k =  1.76531, N = Nquad, Method = Meth;
+EQ03: quadrupole, l = 0.234, k = -1.36625, N = Nquad, Method = Meth;
+EQ04: quadrupole, l = 0.234, k =  2.56966, N = Nquad, Method = Meth;
+EQ05: quadrupole, l = 0.234, k = -1.10080, N = Nquad, Method = Meth;
 
 D_Q01_L  =  0.0;
 D_Q02_L  =  0.0;
@@ -448,15 +448,15 @@ EEQ05: DU_EQ05, EQ05, DD_EQ05, DD_EQ04, DD_EQ03;
 U561: drift, L = 1.07;
 U562: drift, L = 1.07;
 
-F01:  drift, L = 0.1500001947745855;
+F01:  drift, L = 0.1500001947745855 + 0.1;
 F02:  drift, L = 0.1998347228625822;
 F03:  drift, L = 0.1760875326528089;
-F04:  drift, L = 0.2638153189336666;
+F04:  drift, L = 0.2638153189336666 - 0.1;
 F05:  drift, L = 0.2065099007760627;
 {U562: drift, L = 1.07;}
-E01:  drift, L = 0.1522164008292093;
+E01:  drift, L = 0.1522164008292093 + 0.05;
 E02:  drift, L = 0.1848722162647881;
-E03:  drift, L = 0.1512694548262472;
+E03:  drift, L = 0.1512694548262472 - 0.05;
 E04:  drift, L = 0.152910793324165;
 E05:  drift, L = 0.1633312373793755;
 E06:  drift, L = 0.1743659766930873;

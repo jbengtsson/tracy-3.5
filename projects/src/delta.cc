@@ -23,7 +23,7 @@ const double ic[][2] =
   {{-6.57117, 2.40476}, {8.00696, 2.78072}, {0.08540, 0.0}, {0.08387, 0.0}};
 
 
-const bool qf031 = false;
+const bool qf031 = true;
 
 int loc[10], n, n_strength;
 
@@ -325,7 +325,7 @@ void prt_b2(const param_type &b2_prms, const double *b2)
   	  ", Method = Meth;\n",
   	  bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
 
-  if (true) {
+  if (false) {
     k++;
     fprintf(outf, "\nD_Q01_L  = %8.5f;\n",
 	    bn_bounded(b2[k], b2_prms.bn_min[k-1], b2_prms.bn_max[k-1]));
@@ -418,8 +418,8 @@ double f_match(double *b2)
   chi2 = 0e0;
   
   // Downstream of 10 degree dipole.
-  chi2 += 1e7*sqr(Cell[loc[1]].Eta[X_]);
-  chi2 += 1e7*sqr(Cell[loc[1]].Etap[X_]);
+  chi2 += 1e8*sqr(Cell[loc[1]].Eta[X_]);
+  chi2 += 1e8*sqr(Cell[loc[1]].Etap[X_]);
   // chi2 += 1e0*sqr(Cell[loc[1]].Beta[Y_]);
 
   // Center of 1st straight.
@@ -440,8 +440,8 @@ double f_match(double *b2)
       chi2 += 1e1*sqr(b2[i]*L*Cell[loc1].Beta[X_]);
       chi2 += 1e1*sqr(b2[i]*L*Cell[loc1].Beta[Y_]);
      } else {
-      chi2 += 1e1*sqr(b2[i]);
-      chi2 += 1e1*sqr(b2[i]);
+      chi2 += 1e-10*sqr(b2[i]);
+      chi2 += 1e-10*sqr(b2[i]);
    }
   }
 
@@ -452,8 +452,6 @@ double f_match(double *b2)
       printf("\n%3d chi2: %12.5e -> %12.5e\n", n, chi2_prt, chi2);
       printf("b2s:\n");
       b2_prms.prt_prm(b2);
-
-      printf("\ndksi: %8.5f %8.5f\n", dksi[X_], dksi[Y_]);
 
       // Downstream of 10 degree dipole.
       printf("\nDownstream of 10 degree dipole:\n");
@@ -622,9 +620,9 @@ int main(int argc, char *argv[])
   b2_prms.add_prm("qf031", 2, -4.2, 4.2, 1.0);
   b2_prms.add_prm("qd041", 2, -4.2, 4.2, 1.0);
 
-  b2_prms.add_prm("q01",   2, -4.2, 4.2, 1.0);
+  b2_prms.add_prm("q01",   2, -6.0, 6.0, 1.0);
   // b2_prms.add_prm("q02",   2, -4.2, 4.2, 1.0);
-  b2_prms.add_prm("q03",   2, -4.2, 4.2, 1.0);
+  b2_prms.add_prm("q03",   2, -6.0, 6.0, 1.0);
 
   b2_prms.add_prm("eq01",  2, -4.2, 4.2, 1.0);
   b2_prms.add_prm("eq02",  2, -4.2, 4.2, 1.0);
@@ -636,16 +634,16 @@ int main(int argc, char *argv[])
   n_strength = 9;
 
   if (false) {
-    b2_prms.add_prm("q01",  -2,  0.0,   0.05, 1.0);
-    b2_prms.add_prm("q02",  -2,  0.0,   0.05, 1.0);
-    b2_prms.add_prm("q03",  -2,  0.0,   0.05, 1.0);
+    // b2_prms.add_prm("q01",  -2,  0.0,   0.05, 1.0);
+    // b2_prms.add_prm("q02",  -2,  0.0,   0.05, 1.0);
+    // b2_prms.add_prm("q03",  -2,  0.0,   0.05, 1.0);
 
-    b2_prms.add_prm("eq01", -2,  0.0,   0.05, 1.0);
-    b2_prms.add_prm("eq02", -2,  0.0,   0.05, 1.0);
+    // b2_prms.add_prm("eq01", -2,  0.0,   0.05, 1.0);
+    // b2_prms.add_prm("eq02", -2,  0.0,   0.05, 1.0);
 
-    b2_prms.add_prm("eq03", -2, -0.05,  0.05, 1.0);
-    b2_prms.add_prm("eq04", -2,  0.0,   0.05, 1.0);
-    b2_prms.add_prm("eq05", -2,  0.0,   0.05, 1.0);
+    // b2_prms.add_prm("eq03", -2, -0.05,  0.05, 1.0);
+    // b2_prms.add_prm("eq04", -2,  0.0,   0.05, 1.0);
+    // b2_prms.add_prm("eq05", -2,  0.0,   0.05, 1.0);
 
     // b2_prms.add_prm("b10",  -2, -0.02,  0.02, 1.0);
   }
