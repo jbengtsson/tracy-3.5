@@ -232,14 +232,14 @@ void get_S(void)
 
 
 void get_dnu(const int i0, const int i1, const double alpha0[],
-	     const double beta0[], const double dp, double dnu[])
+	     const double beta0[], const double delta, double dnu[])
 {
   long int     lastpos;
   int          k;
   double       m11, m12;
   ss_vect<tps> map;
 
-  map.identity(); map[delta_] += dp;
+  map.identity(); map[delta_] += delta;
   Cell_Pass(i0+1, i1, map, lastpos);
 
   for (k = 0; k < 2; k++) {
@@ -251,19 +251,19 @@ void get_dnu(const int i0, const int i1, const double alpha0[],
 }
 
 
-void get_dnu_dp(const int i0, const int i1, const double alpha0[],
-		const double beta0[], const double dp, double dksi[])
+void get_dnu_delta(const int i0, const int i1, const double alpha0[],
+		const double beta0[], const double delta, double dksi[])
 {
   // To evaluate linear chromaticity the linear dispersion for the periodic
   // solution must be known.
   int    k;
   double dnu1[2], dnu0[2];
 
-  get_dnu(loc[0], loc[1], alpha0, beta0, dp, dnu1);
-  get_dnu(loc[0], loc[1], alpha0, beta0, -dp, dnu0);
+  get_dnu(loc[0], loc[1], alpha0, beta0, delta, dnu1);
+  get_dnu(loc[0], loc[1], alpha0, beta0, -delta, dnu0);
 
   for (k = 0; k < 2; k++)
-    dksi[k] = (dnu1[k]-dnu0[k])/(2e0*dp);
+    dksi[k] = (dnu1[k]-dnu0[k])/(2e0*delta);
 }
 
 
@@ -401,16 +401,18 @@ double f_match(double *b2)
   double       chi2, dksi[2], L;
   ss_vect<tps> Ascr;
 
-  const int n_prt = 50;
+  const int    n_prt     = 50;
+  const double eps_delta = 1e-5;
 
   b2_prms.set_prm(b2);
 
   Ascr = get_A(ic[0], ic[1], ic[2], ic[3]);
   Cell_Twiss(loc[0], loc[4], Ascr, false, false, 0e0);
 
-  // get_dnu_dp(loc[0], loc[5], ic[0], ic[1], 1e-5, dksi);
+  // get_dnu_delta(loc[0], loc[5], ic[0], ic[1], eps_delta, dksi);
 
   chi2 = 0e0;
+  
   // Downstream of 10 degree dipole.
   chi2 += 1e7*sqr(Cell[loc[1]].Eta[X_]);
   chi2 += 1e7*sqr(Cell[loc[1]].Etap[X_]);
@@ -429,9 +431,10 @@ double f_match(double *b2)
   for (i = 1; i <= b2_prms.n_prm; i++) {
     loc1 = Elem_GetPos(b2_prms.Fnum[i-1], 1);
     L = Cell[loc1].Elem.PL;
+    // Need to use internal variable for convergence.
     if (i <= n_strength) {
-      chi2 += 1e1*sqr(b2[i]*L*Cell[loc1].Beta[X_]);
-      chi2 += 1e1*sqr(b2[i]*L*Cell[loc1].Beta[Y_]);
+      chi2 += 1e2*sqr(b2[i]*L*Cell[loc1].Beta[X_]);
+      chi2 += 1e2*sqr(b2[i]*L*Cell[loc1].Beta[Y_]);
      } else {
       chi2 += 1e1*sqr(b2[i]);
       chi2 += 1e1*sqr(b2[i]);
@@ -446,7 +449,7 @@ double f_match(double *b2)
       printf("b2s:\n");
       b2_prms.prt_prm(b2);
 
-      // printf("\ndksi: %8.5f %8.5f\n", dksi[X_], dksi[Y_]);
+      printf("\ndksi: %8.5f %8.5f\n", dksi[X_], dksi[Y_]);
 
       // Downstream of 10 degree dipole.
       printf("\nDownstream of 10 degree dipole:\n");
@@ -614,7 +617,7 @@ int main(int argc, char *argv[])
   b2_prms.add_prm("qd041", 2, -4.2, 4.2, 1.0);
 
   b2_prms.add_prm("q01",   2, -4.2, 4.2, 1.0);
-  b2_prms.add_prm("q02",   2, -4.2, 4.2, 1.0);
+  // b2_prms.add_prm("q02",   2, -4.2, 4.2, 1.0);
   b2_prms.add_prm("q03",   2, -4.2, 4.2, 1.0);
 
   b2_prms.add_prm("eq01",  2, -4.2, 4.2, 1.0);
