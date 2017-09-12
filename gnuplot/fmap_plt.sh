@@ -42,7 +42,9 @@ else if (N == 20) \
 else if ((N == 6) && (case == 3)) \
   N_x = 9; N_y = 3; sgn_x = -1; sgn_y = -1; \
 else if ((N == 6) && (case == 4)) \
-  N_x = 10; N_y = 4; sgn_x = -1; sgn_y = -1;
+  N_x = 10; N_y = 4; sgn_x = -1; sgn_y = -1; \
+else if ((N == 24) && (case == 4)) \
+  N_x = 2; N_y = 0; sgn_x = 1; sgn_y = -1;
 
 if (case == 1) \
   nu_x_min = 102.0; nu_x_max = 102.5; nu_y_min = 68.0; nu_y_max = 68.5; \

@@ -10,12 +10,12 @@ int  no_tps = NO;
 // DIAMOND          3,
 // DIAMOND-II 4-BA  4,
 // DIAMOND-II 6-BA  5.
-const int lat_case = 3;
+const int lat_case = 5;
 
 const double
   A_max[][2] =
     {{1.5e-3, 1.5e-3}, {7.0e-3, 5.0e-3}, {15.0e-3, 8e-3}, {5.0e-3, 3.0e-3},
-     {6.0e-3, 4.0e-3}},
+     {7.0e-3, 4.0e-3}},
   delta_max[] = {3.0e-2, 3.0e-2, 1.5e-2, 3e-2, 3e-2};
 
 

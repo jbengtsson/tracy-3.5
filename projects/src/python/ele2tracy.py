@@ -26,6 +26,12 @@ def marker_watch(line, tokens, decls):
 def marker_ematrix(line, tokens, decls):
     return marker(line, tokens, decls) + ' { ematrix }'
 
+def marker_malign(line, tokens, decls):
+    return marker(line, tokens, decls) + ' { malign }'
+
+def bpm(line, tokens, decls):
+    return  '%s: Beam Position Monitor;' % (tokens[0])
+
 def drift(line, tokens, decls):
     loc_l = tokens.index('l')
     return '%s: Drift, L = %s;' % (tokens[0], get_arg(tokens[loc_l+1], decls))
@@ -78,23 +84,34 @@ def sext(line, tokens, decls):
          get_arg(tokens[loc_k+1], decls))
     return str
 
+def oct1(line, tokens, decls):
+    loc_l = tokens.index('l')
+    loc_k = tokens.index('k3')
+    # The field expansion is a power series for Tracy-2,3 vs. a Taylor expansion
+    # for Elegant; i.e., like in MAD-8.
+    str = '%s: Multipole, L = %s, HOM = (4, %s, 0.0), N = Nsext, Method = 4;' \
+        % \
+        (tokens[0], get_arg(tokens[loc_l+1], decls),
+         get_arg(tokens[loc_k+1], decls))
+    return str
+
 def cavity(line, tokens, decls):
     loc_l = tokens.index('l')
     loc_f = tokens.index('freq')
     loc_v = tokens.index('volt')
     loc_phi = tokens.index('phase')
-    loc_entryf = tokens.index('end1_focus')
-    loc_exitf = tokens.index('end2_focus')
+    # loc_entryf = tokens.index('end1_focus')
+    # loc_exitf = tokens.index('end2_focus')
     str = '%s: Cavity, L = %s, Frequency = %s, Voltage = %s' % \
           (tokens[0], get_arg(tokens[loc_l+1], decls),
            get_arg(tokens[loc_f+1], decls),
            get_arg(tokens[loc_v+1], decls))
     if loc_phi: str += ', phi = %s' % \
        (get_arg(tokens[loc_phi+1], decls))
-    if loc_entryf: str += ', rf_focus1 = %s' % \
-       (get_arg(tokens[loc_entryf+1], decls))
-    if loc_exitf: str += ', rf_focus2 = %s' % \
-       (get_arg(tokens[loc_exitf+1], decls))
+    # if loc_entryf: str += ', rf_focus1 = %s' % \
+    #    (get_arg(tokens[loc_entryf+1], decls))
+    # if loc_exitf: str += ', rf_focus2 = %s' % \
+    #    (get_arg(tokens[loc_exitf+1], decls))
     str +=', n = 1;'
     return str
 
@@ -127,16 +144,21 @@ ele2tracy = {
     'watch'     : marker_watch,
     'ematrix'   : marker_ematrix,
     'twiss'     : marker_twiss,
+    'malign'    : marker_malign,
+    'moni'      : bpm,
     'drif'      : drift,
     'drift'     : drift,
+    'edrift'    : drift,
     'csrdrif'   : drift,
     'rcol'      : drift,
+    'kicker'    : drift,
     'csbend'    : bend,
     'csrcsbend' : bend,
     'quad'      : quad,
     'kquad'     : quad,
     'sext'      : sext,
     'ksext'     : sext,
+    'koct'      : oct1,
     'rfca'      : cavity,
     'line'      : line
     }
@@ -234,6 +256,7 @@ def transl_file(file_name, decls):
     while line:
         line = line.strip('\r\n')
         while line.endswith('&'):
+            # print line
             # Line
             line = line.strip('&')
             line += (inf.readline()).strip('\r\n')
