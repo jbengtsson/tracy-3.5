@@ -241,7 +241,7 @@ def parse_line(line, outf, decls):
 
 def prt_decl(outf):
     outf.write('define lattice; ringtype = 1;\n')
-    outf.write('\nEnergy = 10e-3; { Beam momentum [GeV]. }\n')
+    outf.write('\nEnergy = 3.0; { Beam momentum [GeV]. }\n')
     outf.write('\ndP = 1e-8; CODeps = 1e-14;\n')
     outf.write('\nMeth = 4; Nbend = 100; Nquad = 100; Nsext = 2;\n')
     outf.write('\npi = 4.0*arctan(1.0); c0 = 2.99792458e8;\n\n')
