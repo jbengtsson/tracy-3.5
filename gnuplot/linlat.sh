@@ -31,7 +31,7 @@ set style line 3 lt 1 lw 1 lc rgb "red";
 if (ps) set output "linlat_1.".(ext);
 set title "Beta Functions";
 set xlabel "s [m]"; set ylabel "{/Symbol b} [m]";
-set y2range [-1.5:20];
+set y2range [-2.0:20];
 plot "linlat.out" using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
      lc rgb "black", \
      "linlat.out" using 3:6 title "{/Symbol b}_x" with lines ls 1, \
@@ -41,7 +41,7 @@ if (!ps) pause mouse "click on graph to cont.\n";
 if (ps) set output "linlat_2.".(ext);
 set title "Dispersion";
 set xlabel "s [m]"; set ylabel "{/Symbol h} [m]";
-set y2range [-1.5:20];
+set y2range [-2.0:20];
 plot "linlat.out" using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
      lc rgb "black", \
      "linlat.out" using 3:8 title "{/Symbol h}_x" with lines ls 1, \
@@ -51,7 +51,7 @@ if (!ps) pause mouse "click on graph to cont.\n";
 if (ps) set output "linlat_3.".(ext);
 set title "Normalized Phase Advance";
 set xlabel "s [m]"; set ylabel "{/Symbol n}";
-set y2range [-1.5:20];
+set y2range [-2.0:20];
 plot "linlat.out" using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
      lc rgb "black", \
      "linlat.out" using 3:7 title "{/Symbol n}_x" with lines ls 1, \
@@ -61,7 +61,7 @@ if (!ps) pause mouse "click on graph to cont.\n";
 if (ps) set output "linlat_4.".(ext);
 set title "{/Symbol g}";
 set xlabel "s [m]"; set ylabel "{/Symbol g}";
-set y2range [-1.5:20];
+set y2range [-2.0:20];
 plot "linlat.out" using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
      lc rgb "black", \
      "linlat.out" using 3:((1.0+\$5**2)/\$6) title "{/Symbol g}_x" \
@@ -75,7 +75,7 @@ exit;
 if (ps) set output "linlat_5.".(ext);
  set title "{/Symbol a}"; \
 set xlabel "s [m]"; set ylabel "{/Symbol a}"; \
-set y2range [-1.5:20]; \
+set y2range [-2.0:20]; \
 plot "linlat.out" using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
      lc rgb "black", \
      "linlat.out" using 3:5 title "{/Symbol a}_x" with lines ls 1, \
@@ -85,7 +85,7 @@ if (!ps) pause mouse "click on graph to cont.\n";
 if (ps) set output "linlat_6.".(ext);
 set title "{/Symbol b}_{x,y}{/Symbol \264h}_x";
 set xlabel "s [m]"; set ylabel "";
-set y2range [-1.5:20];
+set y2range [-2.0:20];
 plot "linlat.out" using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
      lc rgb "black", \
      "linlat.out" using 3:(\$6*\$8) title "{/Symbol b}_x{/Symbol \264h}_x" \
@@ -98,7 +98,7 @@ file_name = "`echo \$TRACY_LIB`/gnuplot/jet.dat";
 # Load 64-color palette for Jet
 set palette model RGB file file_name using (\$1/255):(\$2/255):(\$3/255);
 unset colorbox;
-#set cbrange [-1.5:1.5];
+#set cbrange [-2.0:1.5];
 
 if (ps) set output "linlat_7.".(ext);
 set title "Floquet Space";

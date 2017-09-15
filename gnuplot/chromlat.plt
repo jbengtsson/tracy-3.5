@@ -1,4 +1,4 @@
-ps = 0; eps = 0;
+ps = 0; eps = 1;
 
 if (!ps) set terminal x11;
 if (ps && eps) \
