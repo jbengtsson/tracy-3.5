@@ -200,13 +200,76 @@ void chk_mini_beta(const std::vector<int> &Fam)
 }
 
 
+void chk_high_oord_achr(void )
+{
+  int loc[4];
+
+  Ring_GetTwiss(true, 0e0);
+ 
+  loc[0] = Elem_GetPos(ElemIndex("idmarker_end"), 1);
+  loc[1] = Elem_GetPos(ElemIndex("ss1"), 1);
+  loc[2] = Elem_GetPos(ElemIndex("idmarker"), 2);
+  loc[3] = globval.Cell_nLoc;
+
+  printf("\nCell phase advance:\n");
+  printf("Ideal:  [%7.5f, %7.5f]\n", 19.0/8.0, 15.0/16.0);
+  printf("\n        [%7.5f, %7.5f]\n",
+	 Cell[loc[0]].Nu[X_], Cell[loc[0]].Nu[Y_]);
+  printf("        [%7.5f, %7.5f]\n",
+	 Cell[loc[1]].Nu[X_]-Cell[loc[0]].Nu[X_], 
+	 Cell[loc[1]].Nu[Y_]-Cell[loc[0]].Nu[Y_]);
+  printf("        [%7.5f, %7.5f]\n",
+	 Cell[loc[2]].Nu[X_]-Cell[loc[1]].Nu[X_], 
+	 Cell[loc[2]].Nu[Y_]-Cell[loc[1]].Nu[Y_]);
+  printf("        [%7.5f, %7.5f]\n",
+	 Cell[loc[3]].Nu[X_]-Cell[loc[2]].Nu[X_], 
+	 Cell[loc[3]].Nu[Y_]-Cell[loc[2]].Nu[Y_]);
+}
+
+
+void chk_b3_Fam(const int Fnum, const bool exit)
+{
+  int k, loc;
+
+  printf("\n");
+  for (k = 1; k <= GetnKid(Fnum); k++) {
+    loc = Elem_GetPos(Fnum, k);
+    if (!exit && ((k-1) % 2 == 1)) loc -= 1;
+    printf("%8s %7.5f %7.5f\n",
+	   Cell[loc].Elem.PName, Cell[loc].Beta[X_], Cell[loc].Beta[Y_]);
+  }
+}
+
+
+void chk_b3(void )
+{
+  int k;
+
+  const int n_b3 = 9,
+    Fnum[] =
+      {ElemIndex("sfa"), ElemIndex("sfb"),
+       ElemIndex("sda"), ElemIndex("sdb"),
+       ElemIndex("s1"),
+       ElemIndex("s2a"), ElemIndex("s2b"),
+       ElemIndex("s3"),  ElemIndex("s4"), ElemIndex("s5"), ElemIndex("s6")};
+
+  Ring_GetTwiss(true, 0e0);
+ 
+  printf("\nSextupole Scheme:\n");
+  for (k = 0; k < n_b3; k++)
+    if (k == 2)
+      chk_b3_Fam(Fnum[k], false);
+    else
+      chk_b3_Fam(Fnum[k], true);
+}
+
+
 int main(int argc, char *argv[])
 {
   bool             tweak;
   long int         lastn, lastpos, loc;
   int              b2_fam[2], b3_fam[2];
-  double           b2[2], a2, b3[2], b3L[2], a3, a3L, f_rf;
-  double           alpha[2], beta[2], eta[2], etap[2], dx;
+  double           b2[2], a2, b3[2], b3L[2], a3, a3L, f_rf, dx;
   Matrix           M;
   std::vector<int> Fam;
   ostringstream    str;
@@ -249,6 +312,16 @@ int main(int argc, char *argv[])
     getlinmat(6, map, M);
     printf("\n1-Det: %9.3e\n", 1e0-DetMat(6, M));
     exit(0);
+  }
+
+  if (false) {
+    chk_high_oord_achr();
+    exit(0);
+  }
+
+  if (true) {
+    chk_b3();
+    // exit(0);
   }
 
   if (false) {
