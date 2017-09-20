@@ -319,9 +319,9 @@ int main(int argc, char *argv[])
     exit(0);
   }
 
-  if (true) {
+  if (false) {
     chk_b3();
-    // exit(0);
+    exit(0);
   }
 
   if (false) {
@@ -337,7 +337,7 @@ int main(int argc, char *argv[])
     exit(0);
   }
 
-  if (false) no_sxt();
+  if (true) no_sxt();
 
   Ring_GetTwiss(true, 0e0); printglob();
 

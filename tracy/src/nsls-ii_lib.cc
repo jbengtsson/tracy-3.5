@@ -578,7 +578,7 @@ double get_code(CellType &Cell)
     break;
   case Mpole:
     if (Cell.Elem.M->Pirho != 0.0)
-      code = 0.5;
+      code = sgn(Cell.Elem.M->Pirho)*0.5;
     else if (Cell.Elem.M->PBpar[Quad+HOMmax] != 0)
       code = sgn(Cell.Elem.M->PBpar[Quad+HOMmax]);
     else if (Cell.Elem.M->PBpar[Sext+HOMmax] != 0)

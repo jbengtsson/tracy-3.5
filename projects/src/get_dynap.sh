@@ -1,7 +1,7 @@
 #!/bin/sh
 
-#queue="ap-medium.q"
-queue="test-medium.q"
+queue="ap-medium.q"
+#queue="test-medium.q"
 
 t1="96:00:00"
 t2="96:00:00"
