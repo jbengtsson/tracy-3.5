@@ -206,22 +206,28 @@ void chk_high_oord_achr(void )
 
   Ring_GetTwiss(true, 0e0);
  
-  loc[0] = Elem_GetPos(ElemIndex("idmarker_end"), 1);
-  loc[1] = Elem_GetPos(ElemIndex("ss1"), 1);
-  loc[2] = Elem_GetPos(ElemIndex("idmarker"), 2);
+  // loc[0] = Elem_GetPos(ElemIndex("idmarker_end"), 1);
+  loc[0] = Elem_GetPos(ElemIndex("ss1"), 1);
+  loc[1] = Elem_GetPos(ElemIndex("ss1"), 3);
+  loc[2] = Elem_GetPos(ElemIndex("ss1"), 5);
+  // loc[2] = Elem_GetPos(ElemIndex("idmarker"), 2);
   loc[3] = globval.Cell_nLoc;
 
   printf("\nCell phase advance:\n");
-  printf("Ideal:  [%7.5f, %7.5f]\n", 19.0/8.0, 15.0/16.0);
-  printf("\n        [%7.5f, %7.5f]\n",
+  printf("Ideal:    [%7.5f, %7.5f]\n", 19.0/8.0, 15.0/16.0);
+  printf("\n %7.5f [%7.5f, %7.5f]\n",
+	 Cell[loc[0]].S, 
 	 Cell[loc[0]].Nu[X_], Cell[loc[0]].Nu[Y_]);
-  printf("        [%7.5f, %7.5f]\n",
+  printf(" %7.5f [%7.5f, %7.5f]\n",
+	 Cell[loc[1]].S-Cell[loc[0]].S, 
 	 Cell[loc[1]].Nu[X_]-Cell[loc[0]].Nu[X_], 
 	 Cell[loc[1]].Nu[Y_]-Cell[loc[0]].Nu[Y_]);
-  printf("        [%7.5f, %7.5f]\n",
+  printf(" %7.5f [%7.5f, %7.5f]\n",
+	 Cell[loc[2]].S-Cell[loc[1]].S, 
 	 Cell[loc[2]].Nu[X_]-Cell[loc[1]].Nu[X_], 
 	 Cell[loc[2]].Nu[Y_]-Cell[loc[1]].Nu[Y_]);
-  printf("        [%7.5f, %7.5f]\n",
+  printf(" %7.5f [%7.5f, %7.5f]\n",
+	 Cell[loc[3]].S-Cell[loc[2]].S, 
 	 Cell[loc[3]].Nu[X_]-Cell[loc[2]].Nu[X_], 
 	 Cell[loc[3]].Nu[Y_]-Cell[loc[2]].Nu[Y_]);
 }
@@ -241,23 +247,28 @@ void chk_b3_Fam(const int Fnum, const bool exit)
 }
 
 
-void chk_b3(void )
+void chk_b3(void)
 {
   int k;
 
-  const int n_b3 = 9,
+  const int
+    // Fnum[] =
+    //   {ElemIndex("sfa"), ElemIndex("sfb"),
+    //    ElemIndex("sda"), ElemIndex("sdb"),
+    //    ElemIndex("s1"),
+    //    ElemIndex("s2a"), ElemIndex("s2b"),
+    //    ElemIndex("s3"),  ElemIndex("s4"), ElemIndex("s5"), ElemIndex("s6")},
     Fnum[] =
-      {ElemIndex("sfa"), ElemIndex("sfb"),
-       ElemIndex("sda"), ElemIndex("sdb"),
-       ElemIndex("s1"),
-       ElemIndex("s2a"), ElemIndex("s2b"),
-       ElemIndex("s3"),  ElemIndex("s4"), ElemIndex("s5"), ElemIndex("s6")};
+      {ElemIndex("sf"), ElemIndex("sd"),
+       ElemIndex("s1"), ElemIndex("s2"), ElemIndex("s3"),  ElemIndex("s4"),
+       ElemIndex("s5"), ElemIndex("s6")},
+    n_b3 = sizeof(Fnum)/sizeof(*Fnum);
 
   Ring_GetTwiss(true, 0e0);
  
   printf("\nSextupole Scheme:\n");
   for (k = 0; k < n_b3; k++)
-    if (k == 2)
+    if (k < 4)
       chk_b3_Fam(Fnum[k], false);
     else
       chk_b3_Fam(Fnum[k], true);
