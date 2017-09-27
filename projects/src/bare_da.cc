@@ -9,9 +9,10 @@ int no_tps = NO;
 // DIAMOND          3,
 // DIAMOND-II 4-BA  4,
 // DIAMOND-II 6-BA  5.
-const int lat_case = 5;
+// DIAMOND-II 8-BA  6.
+const int lat_case = 6;
 
-const double delta_max[] = {3.0e-2, 3.0e-2, 1.5e-2, 3e-2, 3e-2};
+const double delta_max[] = {3.0e-2, 3.0e-2, 1.5e-2, 3e-2, 3e-2, 3e-2};
 
 int main(int argc, char *argv[])
 {

@@ -281,10 +281,10 @@ void chk_dip(void)
   double L, phi, L_sum, phi_sum;
 
   const int
-    // Fnum[] =
-    //   {ElemIndex("bn00"), ElemIndex("bn01"), ElemIndex("bn02"),
-    //    ElemIndex("bn03"), ElemIndex("bn04"), ElemIndex("bn05"),
-    //    ElemIndex("bn06")},
+    Fnum[] =
+      {ElemIndex("bn00"), ElemIndex("bn01"), ElemIndex("bn02"),
+       ElemIndex("bn03"), ElemIndex("bn04"), ElemIndex("bn05"),
+       ElemIndex("bn06")},
     // Fnum[] =
     //   {ElemIndex("i_bn00"), ElemIndex("i_bn01"), ElemIndex("i_bn02"),
     //    ElemIndex("i_bn03"), ElemIndex("i_bn04"), ElemIndex("i_bn05"),
@@ -292,9 +292,9 @@ void chk_dip(void)
     // Fnum[] =
     //   {ElemIndex("bn00"), ElemIndex("bn03"),
     //    ElemIndex("bn06")},
-    Fnum[] =
-      {ElemIndex("i_bn00"), ElemIndex("i_bn03"),
-       ElemIndex("i_bn06")},
+    // Fnum[] =
+    //   {ElemIndex("i_bn00"), ElemIndex("i_bn03"),
+    //    ElemIndex("i_bn06")},
     n_dip = sizeof(Fnum)/sizeof(*Fnum);
 
   Ring_GetTwiss(true, 0e0);
