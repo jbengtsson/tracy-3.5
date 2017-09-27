@@ -275,6 +275,45 @@ void chk_b3(void)
 }
 
 
+void chk_dip(void)
+{
+  int    k, loc;
+  double L, phi, L_sum, phi_sum;
+
+  const int
+    // Fnum[] =
+    //   {ElemIndex("bn00"), ElemIndex("bn01"), ElemIndex("bn02"),
+    //    ElemIndex("bn03"), ElemIndex("bn04"), ElemIndex("bn05"),
+    //    ElemIndex("bn06")},
+    // Fnum[] =
+    //   {ElemIndex("i_bn00"), ElemIndex("i_bn01"), ElemIndex("i_bn02"),
+    //    ElemIndex("i_bn03"), ElemIndex("i_bn04"), ElemIndex("i_bn05"),
+    //    ElemIndex("i_bn06")},
+    // Fnum[] =
+    //   {ElemIndex("bn00"), ElemIndex("bn03"),
+    //    ElemIndex("bn06")},
+    Fnum[] =
+      {ElemIndex("i_bn00"), ElemIndex("i_bn03"),
+       ElemIndex("i_bn06")},
+    n_dip = sizeof(Fnum)/sizeof(*Fnum);
+
+  Ring_GetTwiss(true, 0e0);
+ 
+  printf("\nLong grad dipole:\n");
+  L_sum = 0e0; phi_sum = 0e0;
+  for (k = 0; k < n_dip; k++) {
+    loc = Elem_GetPos(Fnum[k], 1);
+    L = Cell[loc].Elem.PL;
+    phi = L*Cell[loc].Elem.M->Pirho*180e0/M_PI;
+    L_sum += L; phi_sum += phi;
+    printf(" %6s %4.3f %6.3f %9.6f %9.6f %9.6f %9.6f %9.6f\n",
+	   Cell[loc].Elem.PName, L, 1e0/Cell[loc].Elem.M->Pirho,
+	   phi, Cell[loc].Elem.M->PTx1, Cell[loc].Elem.M->PTx2,
+	   L_sum, phi_sum);
+  }
+}
+
+
 int main(int argc, char *argv[])
 {
   bool             tweak;
@@ -336,6 +375,11 @@ int main(int argc, char *argv[])
   }
 
   if (false) {
+    chk_dip();
+    exit(0);
+  }
+
+  if (false) {
     chk_optics(0.0, 0.0, 13.04171, 8.795924, 1.397388e-03, 0.0, 0.0, 0.0);
     prt_lat("linlat1.out", globval.bpm, true);
     prt_lat("linlat.out", globval.bpm, true, 10);
@@ -348,7 +392,7 @@ int main(int argc, char *argv[])
     exit(0);
   }
 
-  if (true) no_sxt();
+  if (false) no_sxt();
 
   Ring_GetTwiss(true, 0e0); printglob();
 
