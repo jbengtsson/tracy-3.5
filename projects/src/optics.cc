@@ -406,7 +406,6 @@ int main(int argc, char *argv[])
   prt_lat("linlat1.out", globval.bpm, true);
   prt_lat("linlat.out", globval.bpm, true, 10);
   prt_chrom_lat();
-  exit(0);
 
   if (false) {
     iniranf(seed); setrancut(1e0);
