@@ -1490,12 +1490,17 @@ static void Doinverse(struct LOC_GetBlock *LINK)
     // If odd number of elements.
     LINK->LINK->LINK->Reverse_stack[b2-k1-1] =
       !LINK->LINK->LINK->Reverse_stack[b2-k1-1];
-    if (debug_lat)
+    if (debug_lat) {
+      block_no =
+	CheckBLOCKStable(
+	  LINK->LINK->LINK->BlockS[LINK->LINK->LINK->NoB-1].Bname,
+	  LINK->LINK->LINK);
       printf("  Doinverse (odd): |%s| 2%ld %2ld %2ld %1d\n",
 	     LINK->LINK->LINK->BlockS[LINK->LINK->LINK->NoB-1].Bname,
 	     block_no, LINK->LINK->LINK->NoB,
 	     LINK->LINK->LINK->Bstack[b2-k1-1],
 	     LINK->LINK->LINK->Reverse_stack[b2-k1-1]);
+    }
   }
   test_(P_expset(SET, 1 << ((long)rparent)), "<)> expected", LINK->LINK);
   getest_(P_expset(SET, (1 << ((long)comma)) | (1 << ((long)semicolon)) |
