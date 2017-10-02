@@ -1440,7 +1440,7 @@ static void InsideParent(long k4, struct LOC_GetBlock *LINK)
 static void Doinverse(struct LOC_GetBlock *LINK)
 {
   bool    rev;
-  long    b, b1, b2, b3, k1, k4, block_no;
+  long    b, b1, b2, b3, k1, k4, block_no, n;
   symset  SET;
   long    FORLIM;
 
@@ -1486,7 +1486,8 @@ static void Doinverse(struct LOC_GetBlock *LINK)
       k1++;
     }
   }
-  if ((b2-b1+1) % 2 == 1) {
+  n = b2 - b1 + 1;
+  if (n % 2 == 1) {
     // If odd number of elements.
     LINK->LINK->LINK->Reverse_stack[b2-k1-1] =
       !LINK->LINK->LINK->Reverse_stack[b2-k1-1];
