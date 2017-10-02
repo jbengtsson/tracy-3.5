@@ -102,7 +102,8 @@ double DA_data_type::get_dynap(param_data_type &params,
      Assumes mid-plane symmetry.                                              */
 
   int    i, j;
-  double r1, phi, x0[2] = {0e0, 0e0}, x1[2], x2[2], DA;
+  double r1, phi, x0[2] = {0e0, 0e0}, x1[2] = {0e0, 0e0}, x2[2] = {0e0, 0e0};
+  double DA;
 
   fprintf(fp, "\n");
   fprintf(fp, "# Dynamic Aperture:\n");

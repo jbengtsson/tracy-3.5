@@ -55,6 +55,8 @@ typedef struct globvalrec {
                 alpha_z, beta_z, // longitudinal alpha and beta
                 beta0, gamma0;   // Relativistic factors.
   int           RingType;        // 1 if a ring (0 if transfer line)
+  bool          reverse;         /* Beam Dynamics or Software Engineering
+                                    reverse. */
 } globvalrec;
 
 
@@ -217,26 +219,27 @@ struct SolenoidType {
 };
 
 struct elemtype {
-  partsName PName;   // Element name
-  double PL;         // Length[m]
-  PartsKind Pkind;   // Enumeration  for magnet types
+  partsName PName;       // Element name.
+  double    PL;          // Length[m].
+  bool      Reverse;     // Reverse element.
+  PartsKind Pkind;       // Enumeration for magnet types.
   union
   {
-    DriftType      *D;   // Drift
-    MpoleType      *M;   // Multipole
-    WigglerType    *W;   // Wiggler
-    FieldMapType   *FM;  // Field Map
-    InsertionType  *ID;  // Insertion
-    CavityType     *C;   // Cavity
-    SpreaderType   *Spr; // Spreader
-    RecombinerType *Rec; // Recombiner
-    SolenoidType   *Sol; // Solenoid
+    DriftType      *D;   // Drift.
+    MpoleType      *M;   // Multipole.
+    WigglerType    *W;   // Wiggler.
+    FieldMapType   *FM;  // Field Map.
+    InsertionType  *ID;  // Insertion.
+    CavityType     *C;   // Cavity.
+    SpreaderType   *Spr; // Spreader.
+    RecombinerType *Rec; // Recombiner.
+    SolenoidType   *Sol; // Solenoid.
   };
 };
 
 struct ElemFamType {
-  elemtype    ElemF;    // Structure (name, type)
-  int         nKid;         // Kid number
+  elemtype    ElemF;                // Structure (name, type)
+  int         nKid;                 // Kid number
   int         KidList[nKidMax];
   int         NoDBN;
   DBNameType  DBNlist[nKidMax];

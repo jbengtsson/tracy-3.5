@@ -106,6 +106,7 @@ struct LOC_Lattice_Read
 
   long  Bstack[NoBEmax];
   long  Bpointer;
+  bool  Reverse_stack[NoBEmax]; // Reverse element.
 
   long  UDIC;       /* Number of user defined constants */
   _REC_UDItable UDItable[UDImax];
@@ -130,6 +131,8 @@ struct LOC_Lattice_Read
   bool         skipflag, rsvwd;
 };
 
+
+const bool debug_lat = true;
 
 // Set operations
 
@@ -237,7 +240,7 @@ static long CheckBLOCKStable(const char *name, struct LOC_Lattice_Read *LINK)
 
   FORLIM = LINK->NoB;
   for (i = 1; i <= FORLIM; i++) {
-    if (!strncmp(LINK->BlockS[i - 1].Bname, name, sizeof(partsName)))
+    if (!strncmp(LINK->BlockS[i-1].Bname, name, sizeof(partsName)))
       j = i;
   }
   return j;
@@ -279,7 +282,7 @@ static void EnterUDItable(const char *name, double X, struct LOC_Lattice_Read *L
     exit_(1);
     return;
   }
-  WITH = &LINK->UDItable[LINK->UDIC - 1];
+  WITH = &LINK->UDItable[LINK->UDIC-1];
   memcpy(WITH->Uname, name, sizeof(partsName));
   WITH->Uvalue = X;
 }
@@ -289,7 +292,7 @@ static void ModUDItable(long N, double X, struct LOC_Lattice_Read *LINK)
 {
   _REC_UDItable *WITH;
 
-  WITH = &LINK->UDItable[N - 1];
+  WITH = &LINK->UDItable[N-1];
   WITH->Uvalue = X;
 }
 
@@ -299,7 +302,7 @@ static void RefUDItable(const char *name, double *X, struct LOC_Lattice_Read *LI
   long k;
 
   k = CheckUDItable(name, LINK);
-  *X = LINK->UDItable[k - 1].Uvalue;
+  *X = LINK->UDItable[k-1].Uvalue;
 }
 
 
@@ -425,13 +428,13 @@ static void Lat_Nextch(FILE **fi, FILE **fo, long *cc, long *ll, long *errpos,
       if (*chin == '\n')
 	*chin = ' ';
       putc(*chin, *fo);
-      line[*ll - 1] = *chin;
+      line[*ll-1] = *chin;
     }
     (*ll)++;
     fscanf(*fi, "%*[^\n]");
 
     getc(*fi);
-    line[*ll - 1] = ' ';
+    line[*ll-1] = ' ';
     /*read(fi, line[ll]);*/
     putc('\n', *fo);
   }
@@ -440,7 +443,7 @@ static void Lat_Nextch(FILE **fi, FILE **fo, long *cc, long *ll, long *errpos,
     printf("Lat_Nextch: LatLLng exceeded %ld (%d)\n", (*cc), LatLLng);
     exit_(1);
   }
-  *chin = line[*cc - 1];
+  *chin = line[*cc-1];
   /* upper case to lower case */
   if (isupper(*chin))
     *chin = _tolower(*chin);
@@ -621,7 +624,7 @@ static void Lat_GetSym(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       if (*V.chin == '"')
 	parsename = !parsename;
       if (V.k < NameLength) {
-	V.k++; id[V.k - 1] = *V.chin;
+	V.k++; id[V.k-1] = *V.chin;
       } else {
 	printf("In Lat_GetSym, symbol: %s too long, max value is %d\n",
 		id, NameLength);
@@ -637,16 +640,16 @@ static void Lat_GetSym(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     j = *nkw;   /*binary search*/
     do {
       V.k = (i + j) / 2;
-      if (strncmp(id, key[V.k - 1], sizeof(alfa_)) <= 0)
+      if (strncmp(id, key[V.k-1], sizeof(alfa_)) <= 0)
 	j = V.k - 1;
-      if (strncmp(id, key[V.k - 1], sizeof(alfa_)) >= 0)
+      if (strncmp(id, key[V.k-1], sizeof(alfa_)) >= 0)
 	i = V.k + 1;
       /*  writeln(fo, '  bunary: id=', id, '  key[', k:3, ']=', key[k],
 	  'i=', i:4, ' j=', j:4, ' k=', k:4, ' i-1-j=', (i-1-j):4);*/
     }
     while (i <= j);
     if (i - 1 > j) {
-      *sym = ksy[V.k - 1]; *rsvwd = true;
+      *sym = ksy[V.k-1]; *rsvwd = true;
       /*  writeln(fo, 'GetSym detected reserved word: id=', id,
 	  '  k=', k:4, '  key[', k:4, ']=', key[k]);*/
     } else {
@@ -954,10 +957,10 @@ static double BlockLength(long ii, struct LOC_Lat_EVAL *LINK)
   S = 0.0;
   if (ii == 0)
     return S;
-  k2 = LINK->LINK->BlockS[ii - 1].BSTART;
-  k3 = LINK->LINK->BlockS[ii - 1].BOWARI;
+  k2 = LINK->LINK->BlockS[ii-1].BSTART;
+  k3 = LINK->LINK->BlockS[ii-1].BOWARI;
   for (k1 = k2 - 1; k1 < k3; k1++)
-    S += ElemFam[LINK->LINK->Bstack[k1] - 1].ElemF.PL;
+    S += ElemFam[LINK->LINK->Bstack[k1]-1].ElemF.PL;
   return S;
 }
 
@@ -1023,7 +1026,7 @@ static void Factor(struct LOC_Term *LINK)
   if (*LINK->LINK->LINK->sym == ident) {  /*1:  of ident */
     V.i = CheckUDItable(LINK->LINK->LINK->id, LINK->LINK->LINK->LINK);
     if (V.i != 0) {   /* UDI */
-      x = LINK->LINK->LINK->LINK->UDItable[V.i - 1].Uvalue;
+      x = LINK->LINK->LINK->LINK->UDItable[V.i-1].Uvalue;
       PUSH(x, LINK->LINK->LINK);
       GetSym(LINK->LINK->LINK);
     } else {
@@ -1036,7 +1039,7 @@ static void Factor(struct LOC_Term *LINK)
 	memcpy(fname, LINK->LINK->LINK->id, sizeof(alfa_));
 	memset(fname + sizeof(alfa_), ' ',
 	       sizeof(partsName) - sizeof(alfa_));
-	WITH = &ElemFam[V.i - 1].ElemF;
+	WITH = &ElemFam[V.i-1].ElemF;
 	WITH1 = WITH->M;
 	if (!strncmp(fname, "l              ", sizeof(partsName)))
 	  x = WITH->PL;
@@ -1183,12 +1186,12 @@ static void Term(struct LOC_Expression *LINK)
     GetSym(LINK->LINK);
     Factor(&V);
     if (mulop == times) {
-      LINK->LINK->S[LINK->LINK->t - 1] *= LINK->LINK->S[LINK->LINK->t];
+      LINK->LINK->S[LINK->LINK->t-1] *= LINK->LINK->S[LINK->LINK->t];
       LINK->LINK->t--;
       writes(LINK->LINK);
     } else {
       if (mulop == rdiv) {
-	LINK->LINK->S[LINK->LINK->t - 1] /= LINK->LINK->S[LINK->LINK->t];
+	LINK->LINK->S[LINK->LINK->t-1] /= LINK->LINK->S[LINK->LINK->t];
 	LINK->LINK->t--;
 	writes(LINK->LINK);
       }
@@ -1222,12 +1225,12 @@ static void Expression(struct LOC_Lat_EVAL *LINK)
     GetSym(LINK);
     Term(&V);
     if (addop == plus_) {
-      LINK->S[LINK->t - 1] += LINK->S[LINK->t];
+      LINK->S[LINK->t-1] += LINK->S[LINK->t];
       LINK->t--;
       writes(LINK);
     } else {
       if (addop == minus_) {
-	LINK->S[LINK->t - 1] -= LINK->S[LINK->t];
+	LINK->S[LINK->t-1] -= LINK->S[LINK->t];
 	LINK->t--;
 	writes(LINK);
       }
@@ -1372,8 +1375,8 @@ static void DeBlock(long ii, long k4, struct LOC_Lat_ProcessBlockInput *LINK)
 {
   long  k1, k2, k3, k5;
 
-  k2 = LINK->LINK->BlockS[ii - 1].BSTART;
-  k3 = LINK->LINK->BlockS[ii - 1].BOWARI;
+  k2 = LINK->LINK->BlockS[ii-1].BSTART;
+  k3 = LINK->LINK->BlockS[ii-1].BOWARI;
   for (k5 = 1; k5 <= k4; k5++) {
     for (k1 = k2 - 1; k1 < k3; k1++) {  /*11*/
       LINK->LINK->Bpointer++;
@@ -1382,7 +1385,9 @@ static void DeBlock(long ii, long k4, struct LOC_Lat_ProcessBlockInput *LINK)
 	       LINK->LINK->Bpointer, NoBEmax);
 	exit(1);
       }
-      LINK->LINK->Bstack[LINK->LINK->Bpointer - 1] = LINK->LINK->Bstack[k1];
+      LINK->LINK->Bstack[LINK->LINK->Bpointer-1] = LINK->LINK->Bstack[k1];
+      LINK->LINK->Reverse_stack[LINK->LINK->Bpointer-1] =
+	LINK->LINK->Reverse_stack[k1];
     }  /*11*/
   }
   GetSym_(LINK);
@@ -1415,8 +1420,10 @@ static void InsideParent(long k4, struct LOC_GetBlock *LINK)
 		 LINK->LINK->LINK->Bpointer, NoBEmax);
 	  exit(1);
 	}
-	LINK->LINK->LINK->Bstack[LINK->LINK->LINK->Bpointer - 1] = LINK->
-	  LINK->LINK->Bstack[b];
+	LINK->LINK->LINK->Bstack[LINK->LINK->LINK->Bpointer-1] =
+	  LINK->LINK->LINK->Bstack[b];
+	LINK->LINK->LINK->Reverse_stack[LINK->LINK->LINK->Bpointer-1] =
+	  LINK->LINK->LINK->Reverse_stack[b];
       }
     }
   }
@@ -1432,7 +1439,7 @@ static void InsideParent(long k4, struct LOC_GetBlock *LINK)
 
 static void Doinverse(struct LOC_GetBlock *LINK)
 {
-  long    b, b1, b2, b3, k1, k4;
+  long    b, b1, b2, b3, k1, k4, block_no;
   symset  SET;
   long    FORLIM;
 
@@ -1449,12 +1456,41 @@ static void Doinverse(struct LOC_GetBlock *LINK)
     k4 /= 2; b3 = b1 + k4; k1 = 0;
     FORLIM = b3;
   /* Bug fix: INV(A, B, ...) for 2 elements
-    for (b = b1 - 1; b < FORLIM; b++) { */
-    for (b = b1 - 1; b < FORLIM-1; b++) {
+    for (b = b1-1; b < FORLIM; b++) { */
+    for (b = b1-1; b < FORLIM-1; b++) {
+      LINK->LINK->LINK->Reverse_stack[b] =
+	!LINK->LINK->LINK->Reverse_stack[b];
+      LINK->LINK->LINK->Reverse_stack[b2-k1-1] =
+	!LINK->LINK->LINK->Reverse_stack[b2-k1-1];
+      block_no =
+	CheckBLOCKStable(
+	   LINK->LINK->LINK->BlockS[LINK->LINK->LINK->NoB-1].Bname,
+	   LINK->LINK->LINK);
+      if (debug_lat)
+	printf("  Doinverse:       |%s| 2%ld %2ld %2ld %1d %2ld %1d\n",
+	       LINK->LINK->LINK->BlockS[LINK->LINK->LINK->NoB-1].Bname,
+	       block_no, LINK->LINK->LINK->NoB,
+	       LINK->LINK->LINK->Bstack[b],
+	       LINK->LINK->LINK->Reverse_stack[b],
+	       LINK->LINK->LINK->Bstack[b2-k1-1],
+	       LINK->LINK->LINK->Reverse_stack[b2-k1-1]);
+
       b3 = LINK->LINK->LINK->Bstack[b];
       LINK->LINK->LINK->Bstack[b] = LINK->LINK->LINK->Bstack[b2-k1-1];
       LINK->LINK->LINK->Bstack[b2-k1-1] = b3;
+
       k1++;
+    }
+    if ((b3-b1) % 2 == 0) {
+      // If odd number of elements.
+      LINK->LINK->LINK->Reverse_stack[b2-k1-1] =
+	!LINK->LINK->LINK->Reverse_stack[b2-k1-1];
+      if (debug_lat)
+	printf("  Doinverse (odd): |%s| 2%ld %2ld %2ld %1d\n",
+	       LINK->LINK->LINK->BlockS[LINK->LINK->LINK->NoB-1].Bname,
+	       block_no, LINK->LINK->LINK->NoB,
+	       LINK->LINK->LINK->Bstack[b2-k1-1],
+	       LINK->LINK->LINK->Reverse_stack[b2-k1-1]);
     }
   }
   test_(P_expset(SET, 1 << ((long)rparent)), "<)> expected", LINK->LINK);
@@ -1495,7 +1531,8 @@ static void GetBlock(struct LOC_Lat_ProcessBlockInput *LINK)
 		     LINK->LINK->Bpointer, NoBEmax);
 	      exit(1);
 	    }
-	    LINK->LINK->Bstack[LINK->LINK->Bpointer - 1] = i;
+	    LINK->LINK->Bstack[LINK->LINK->Bpointer-1] = i;
+	    LINK->LINK->Reverse_stack[LINK->LINK->Bpointer-1] = false;
 	    GetSym_(LINK);
 	    if (*LINK->sym == comma)
 	      GetSym_(LINK);
@@ -1506,7 +1543,7 @@ static void GetBlock(struct LOC_Lat_ProcessBlockInput *LINK)
 	    } else {  /*10*/
 	      ii = CheckUDItable(LINK->id, LINK->LINK);
 	      if (ii != 0) {  /*11*/
-		k4 = (long)floor(LINK->LINK->UDItable[ii - 1].Uvalue + 0.5);
+		k4 = (long)floor(LINK->LINK->UDItable[ii-1].Uvalue + 0.5);
 		GetSym_(LINK);
 	      } else
 		test_(P_expset(SET1, 0), "invalid identifier",
@@ -1536,7 +1573,9 @@ static void GetBlock(struct LOC_Lat_ProcessBlockInput *LINK)
 				   LINK->LINK->Bpointer, NoBEmax);
 			    exit(1);
 			  }
-			  LINK->LINK->Bstack[LINK->LINK->Bpointer - 1] = i;
+			  LINK->LINK->Bstack[LINK->LINK->Bpointer-1] = i;
+			  LINK->LINK->Reverse_stack[LINK->LINK->Bpointer-1] =
+			    false;
 			}  /*14*/
 			GetSym_(LINK);
 			if (*LINK->sym == comma)
@@ -1583,7 +1622,9 @@ static void GetBlock(struct LOC_Lat_ProcessBlockInput *LINK)
 				 LINK->LINK->Bpointer, NoBEmax);
 			  exit(1);
 			}
-			LINK->LINK->Bstack[LINK->LINK->Bpointer - 1] = i;
+			LINK->LINK->Bstack[LINK->LINK->Bpointer-1] = i;
+			LINK->LINK->Reverse_stack[LINK->LINK->Bpointer-1] =
+			  false;
 		      }  /*12*/
 		      GetSym_(LINK);
 		      if (*LINK->sym == comma)
@@ -1610,7 +1651,8 @@ static void GetBlock(struct LOC_Lat_ProcessBlockInput *LINK)
 			 LINK->LINK->Bpointer, NoBEmax);
 		  exit(1);
 		}
-		LINK->LINK->Bstack[LINK->LINK->Bpointer - 1] = -i;
+		LINK->LINK->Bstack[LINK->LINK->Bpointer-1] = -i;
+		LINK->LINK->Reverse_stack[LINK->LINK->Bpointer-1] = false;
 		GetSym_(LINK);
 		if (*LINK->sym == comma)
 		  GetSym_(LINK);
@@ -1677,7 +1719,7 @@ static void Lat_ProcessBlockInput(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     printf("** NoBmax exhausted: %ld(%d)\n", LINK->NoB, NoBmax);
     return;
   }
-  WITH = &LINK->BlockS[LINK->NoB - 1];
+  WITH = &LINK->BlockS[LINK->NoB-1];
   memcpy(WITH->Bname, BlockName, sizeof(partsName));
   WITH->BSTART = LINK->Bpointer + 1;
   GetBlock(&V);
@@ -1905,11 +1947,11 @@ static void GetDBN_(struct LOC_Lat_DealElement *LINK)
 	     "<'> expected:GetDBN", LINK);
     LINK->DBNsavemax++;
     for (i = 0; i < DBNameLen; i++)
-      LINK->DBNsave[LINK->DBNsavemax - 1][i] = ' ';
+      LINK->DBNsave[LINK->DBNsavemax-1][i] = ' ';
     i = 0;
     while (*LINK->chin != '\'' && i < DBNameLen) {
       i++;
-      LINK->DBNsave[LINK->DBNsavemax - 1][i - 1] = *LINK->chin;
+      LINK->DBNsave[LINK->DBNsavemax-1][i-1] = *LINK->chin;
       Lat_Nextch(LINK->fi, LINK->fo, LINK->cc, LINK->ll, LINK->errpos,
 		 LINK->lc, LINK->chin, LINK->skipflag, LINK->line,
 		 LINK->LINK);
@@ -1941,8 +1983,8 @@ static void adjdbname(char *DBname1, char *DBname2)
     return;
   do {
     j++;
-    DBname2[j + offset - 1] = DBname1[j - 1];
-    if (first && DBname1[j - 1] == ' ') {
+    DBname2[j + offset-1] = DBname1[j-1];
+    if (first && DBname1[j-1] == ' ') {
       first = false;
       k = -1;
       do {
@@ -1990,7 +2032,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 {
   struct LOC_Lat_DealElement V;
   bool           Result = false;
-  double         t, t1, t2, gap, QL = 0.0, QK;
+  double         t = 0e0, t1, t2, gap, QL = 0.0, QK;
   double         QKV, QKH, QKxV, QKxH, QPhi, QKS;
   double         dt, Frf, Vrf;
   long           k1, k2, harnum;
@@ -3585,8 +3627,8 @@ static void Reg(const char *name, Lat_symbol ks,
     std::cout << "Reg: Lat_nkw_max exceeded " << LINK->LINK->nkw
 	 << "(" << Lat_nkw_max << ")" << std::endl;
   }
-  memcpy(LINK->LINK->key[LINK->LINK->nkw - 1], name, sizeof(alfa_));
-  LINK->LINK->ksy[LINK->LINK->nkw - 1] = ks;
+  memcpy(LINK->LINK->key[LINK->LINK->nkw-1], name, sizeof(alfa_));
+  LINK->LINK->ksy[LINK->LINK->nkw-1] = ks;
 }
 
 
@@ -3883,7 +3925,7 @@ static void DealWithDefns(struct LOC_Lattice_Read *LINK)
 		  "<Block name> expected", LINK);
 	k = 0;
 	if (i != 0) {  /*4*/
-	  WITH = &LINK->BlockS[i - 1];
+	  WITH = &LINK->BlockS[i-1];
 	  FORLIM = WITH->BOWARI;
 	  for (j = WITH->BSTART - 1; j < FORLIM; j++) {  /*6*/
 	    k++;
@@ -3894,9 +3936,12 @@ static void DealWithDefns(struct LOC_Lattice_Read *LINK)
 		     j+1, NoBEmax);
 	      exit(1);
 	    }
-	    if (k <= Cell_nLocMax)
-	      Cell[k].Fnum = k1;
-	    else {
+	    if (k <= Cell_nLocMax) {
+	      Cell[k].Fnum = k1; Cell[k].Elem.Reverse = LINK->Reverse_stack[j];
+	      if (debug_lat)
+		printf("  Cell definition: |%s| %2ld %3ld %2d %1d\n",
+		       WITH->Bname, i, k, Cell[k].Fnum, Cell[k].Elem.Reverse);
+	    } else {
 	      printf("** Cell_nLocMax exhausted: %ld(%ld)\n",
 		     k, (long)Cell_nLocMax);
 	      exit_(1);
@@ -4068,7 +4113,7 @@ static double Circumference(struct LOC_Lattice_Read *LINK)
   S = 0.0;
   FORLIM = globval.Cell_nLoc;
   for (i = 1; i <= FORLIM; i++)
-    S += ElemFam[Cell[i].Fnum - 1].ElemF.PL;
+    S += ElemFam[Cell[i].Fnum-1].ElemF.PL;
   return S;
 }
 
@@ -4078,10 +4123,15 @@ static void RegisterKids(struct LOC_Lattice_Read *LINK)
   long i, FORLIM;
   ElemFamType *WITH;
 
+  if (debug_lat) printf("\nRegisterKids:\n");
+
   if (globval.Elem_nFam <= Elem_nFamMax) {
     FORLIM = globval.Elem_nFam;
-    for (i = 0; i < FORLIM; i++)
+    for (i = 0; i < FORLIM; i++) {
       ElemFam[i].nKid = 0;
+      if (debug_lat)
+	printf("  RegisterKids: %2ld %8s\n", i+1, ElemFam[i].ElemF.PName);
+    }
   } else {
     printf("Elem_nFamMax exceeded: %ld(%d)\n",
 	   globval.Elem_nFam, Elem_nFamMax);
@@ -4090,10 +4140,10 @@ static void RegisterKids(struct LOC_Lattice_Read *LINK)
 
   FORLIM = globval.Cell_nLoc;
   for (i = 1; i <= FORLIM; i++) {
-    WITH = &ElemFam[Cell[i].Fnum - 1];
+    WITH = &ElemFam[Cell[i].Fnum-1];
     WITH->nKid++;
     if (WITH->nKid <= nKidMax) {
-      WITH->KidList[WITH->nKid - 1] = i;
+      WITH->KidList[WITH->nKid-1] = i;
       Cell[i].Knum = WITH->nKid;
     } else
       printf("nKidMax exceeded: %d(%d)\n", WITH->nKid, nKidMax);
@@ -4163,7 +4213,8 @@ long ElemIndex(const std::string &name)
     std::cout << "ElemIndex: " << name << " (";
     for (i = 0; i < (signed)name1.length(); i++)
       std::cout << std::setw(4) << (int)name1[i];
-    std::cout << std::setw(4) << (int)name1[name1.length()] << " )" << std::endl;
+    std::cout << std::setw(4) << (int)name1[name1.length()] << " )"
+	      << std::endl;
     std::cout << std::endl;
   }
 
