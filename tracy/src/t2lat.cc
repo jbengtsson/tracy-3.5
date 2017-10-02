@@ -132,7 +132,7 @@ struct LOC_Lattice_Read
 };
 
 
-const bool debug_lat = true;
+const bool debug_lat = false;
 
 // Set operations
 
@@ -1439,6 +1439,7 @@ static void InsideParent(long k4, struct LOC_GetBlock *LINK)
 
 static void Doinverse(struct LOC_GetBlock *LINK)
 {
+  bool    rev;
   long    b, b1, b2, b3, k1, k4, block_no;
   symset  SET;
   long    FORLIM;
@@ -1449,7 +1450,8 @@ static void Doinverse(struct LOC_GetBlock *LINK)
   GetSym_(LINK->LINK);
   GetBlock(LINK->LINK);
   b2 = LINK->LINK->LINK->Bpointer;
-  /* Bug fix: INV(A, B, ...) for 2 elements
+  if (debug_lat) printf("\n  Doinverse: b2-b1+1 = %ld\n", b2-b1+1);
+   /* Bug fix: INV(A, B, ...) for 2 elements
   k4 = b2 - b1 */
   k4 = b2 - b1 + 1;
   if (k4 >= 2) {
@@ -1458,15 +1460,20 @@ static void Doinverse(struct LOC_GetBlock *LINK)
   /* Bug fix: INV(A, B, ...) for 2 elements
     for (b = b1-1; b < FORLIM; b++) { */
     for (b = b1-1; b < FORLIM-1; b++) {
+      b3 = LINK->LINK->LINK->Bstack[b];
+      LINK->LINK->LINK->Bstack[b] = LINK->LINK->LINK->Bstack[b2-k1-1];
+      LINK->LINK->LINK->Bstack[b2-k1-1] = b3;
+
+      rev = LINK->LINK->LINK->Reverse_stack[b];
       LINK->LINK->LINK->Reverse_stack[b] =
-	!LINK->LINK->LINK->Reverse_stack[b];
-      LINK->LINK->LINK->Reverse_stack[b2-k1-1] =
 	!LINK->LINK->LINK->Reverse_stack[b2-k1-1];
-      block_no =
-	CheckBLOCKStable(
-	   LINK->LINK->LINK->BlockS[LINK->LINK->LINK->NoB-1].Bname,
-	   LINK->LINK->LINK);
-      if (debug_lat)
+      LINK->LINK->LINK->Reverse_stack[b2-k1-1] = !rev;
+
+      if (debug_lat) {
+	block_no =
+	  CheckBLOCKStable(
+	    LINK->LINK->LINK->BlockS[LINK->LINK->LINK->NoB-1].Bname,
+	    LINK->LINK->LINK);
 	printf("  Doinverse:       |%s| 2%ld %2ld %2ld %1d %2ld %1d\n",
 	       LINK->LINK->LINK->BlockS[LINK->LINK->LINK->NoB-1].Bname,
 	       block_no, LINK->LINK->LINK->NoB,
@@ -1474,24 +1481,21 @@ static void Doinverse(struct LOC_GetBlock *LINK)
 	       LINK->LINK->LINK->Reverse_stack[b],
 	       LINK->LINK->LINK->Bstack[b2-k1-1],
 	       LINK->LINK->LINK->Reverse_stack[b2-k1-1]);
-
-      b3 = LINK->LINK->LINK->Bstack[b];
-      LINK->LINK->LINK->Bstack[b] = LINK->LINK->LINK->Bstack[b2-k1-1];
-      LINK->LINK->LINK->Bstack[b2-k1-1] = b3;
+      }
 
       k1++;
     }
-    if ((b3-b1) % 2 == 0) {
-      // If odd number of elements.
-      LINK->LINK->LINK->Reverse_stack[b2-k1-1] =
-	!LINK->LINK->LINK->Reverse_stack[b2-k1-1];
-      if (debug_lat)
-	printf("  Doinverse (odd): |%s| 2%ld %2ld %2ld %1d\n",
-	       LINK->LINK->LINK->BlockS[LINK->LINK->LINK->NoB-1].Bname,
-	       block_no, LINK->LINK->LINK->NoB,
-	       LINK->LINK->LINK->Bstack[b2-k1-1],
-	       LINK->LINK->LINK->Reverse_stack[b2-k1-1]);
-    }
+  }
+  if ((b2-b1+1) % 2 == 1) {
+    // If odd number of elements.
+    LINK->LINK->LINK->Reverse_stack[b2-k1-1] =
+      !LINK->LINK->LINK->Reverse_stack[b2-k1-1];
+    if (debug_lat)
+      printf("  Doinverse (odd): |%s| 2%ld %2ld %2ld %1d\n",
+	     LINK->LINK->LINK->BlockS[LINK->LINK->LINK->NoB-1].Bname,
+	     block_no, LINK->LINK->LINK->NoB,
+	     LINK->LINK->LINK->Bstack[b2-k1-1],
+	     LINK->LINK->LINK->Reverse_stack[b2-k1-1]);
   }
   test_(P_expset(SET, 1 << ((long)rparent)), "<)> expected", LINK->LINK);
   getest_(P_expset(SET, (1 << ((long)comma)) | (1 << ((long)semicolon)) |
