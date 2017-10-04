@@ -120,6 +120,7 @@ extern FILE  *fi,       /* lattice input  file  */
 
 extern statusrec status;
 
+extern bool reverse_elem;
 
 extern int P_eof(FILE *f);
 

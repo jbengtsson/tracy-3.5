@@ -134,6 +134,8 @@ struct LOC_Lattice_Read
 
 const bool debug_lat = false;
 
+bool reverse_elem = false; // Beam Dynamics or Software Engineering reverse.
+
 // Set operations
 
 // val IN s
@@ -1440,9 +1442,8 @@ static void InsideParent(long k4, struct LOC_GetBlock *LINK)
 static void Doinverse(struct LOC_GetBlock *LINK)
 {
   bool    rev;
-  long    b, b1, b2, b3, k1 = 0, k4, block_no, n_elem, tmp;
+  long    b, b1, b2, k1 = 0, block_no, n_elem, tmp;
   symset  SET;
-  long    FORLIM;
 
   getest_(P_expset(SET, 1 << ((long)lparent)), "<(> expected after INV",
 	  LINK->LINK);
@@ -1451,16 +1452,13 @@ static void Doinverse(struct LOC_GetBlock *LINK)
   GetBlock(LINK->LINK);
   b2 = LINK->LINK->LINK->Bpointer;
   if (debug_lat) printf("\n  Doinverse: b2-b1+1 = %ld\n", b2-b1+1);
-   /* Bug fix: INV(A, B, ...) for 2 elements
+  /* Bug fix: INV(A, B, ...) for 2 elements
   n_elem = b2 - b1 */
   n_elem = b2 - b1 + 1;
-  n_elem = b2 - b1 + 1;
   if (n_elem >= 2) {
-    k4 = n_elem / 2; b3 = b1 + k4; k1 = 0;
-    FORLIM = b3;
-  /* Bug fix: INV(A, B, ...) for 2 elements
-    for (b = b1-1; b < FORLIM; b++) { */
-    for (b = b1-1; b < FORLIM-1; b++) {
+    /* Bug fix: INV(A, B, ...) for 2 elements
+    for (b = b1-1; b < b1+n_elem/2; b++) { */
+    for (b = b1-1; b < b1+n_elem/2-1; b++) {
       tmp = LINK->LINK->LINK->Bstack[b];
       LINK->LINK->LINK->Bstack[b] = LINK->LINK->LINK->Bstack[b2-k1-1];
       LINK->LINK->LINK->Bstack[b2-k1-1] = tmp;

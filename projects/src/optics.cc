@@ -343,7 +343,7 @@ int main(int argc, char *argv[])
   globval.emittance  = false; globval.IBS         = false;
   globval.pathlength = false; globval.bpm         = 0;
 
-  globval.reverse = true;
+  reverse_elem = true;
 
   // 1: DIAMOND, 3: Oleg I, 4: Oleg II.
   FieldMap_filetype = 1; sympl = false;
