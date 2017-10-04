@@ -2659,7 +2659,7 @@ void Mpole_Init(int Fnum1)
     elemp->Pkind = elemfamp->ElemF.Pkind;
     *elemp->M = *elemfamp->ElemF.M;
 
-    if (globval.pathlength && (elemp->Reverse == true)) {
+    if (globval.reverse && (elemp->Reverse == true)) {
       // Swap entrance and exit angles.
       printf("Swapping entrance and exit angles for %8s %2d\n",
 	     elemp->PName, i);

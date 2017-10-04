@@ -2271,9 +2271,6 @@ void Read_Lattice(const char *fic)
 
   const double RFacceptance = 0.060001; // soleil energy acceptance
 
-  // Beam Dynamics vs. Software Engineering reverse.
-  globval.reverse = false;
-
   strcpy(fic_maille, fic); strcpy(fic_erreur, fic);
 
   /* generation automatique du nom du fichier maille et erreur */
