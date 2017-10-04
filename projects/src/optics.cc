@@ -200,18 +200,21 @@ void chk_mini_beta(const std::vector<int> &Fam)
 }
 
 
-void chk_high_oord_achr(void )
+void chk_high_oord_achr(void)
 {
   int loc[4];
 
   Ring_GetTwiss(true, 0e0);
  
-  // loc[0] = Elem_GetPos(ElemIndex("idmarker_end"), 1);
   loc[0] = Elem_GetPos(ElemIndex("ss1"), 1);
   loc[1] = Elem_GetPos(ElemIndex("ss1"), 3);
   loc[2] = Elem_GetPos(ElemIndex("ss1"), 5);
-  // loc[2] = Elem_GetPos(ElemIndex("idmarker"), 2);
   loc[3] = globval.Cell_nLoc;
+
+  // loc[0] = Elem_GetPos(ElemIndex("idmarker_end"), 1);
+  // loc[1] = Elem_GetPos(ElemIndex("idmarker_end"), 3);
+  // loc[2] = Elem_GetPos(ElemIndex("idmarker_end"), 5);
+  // loc[3] = globval.Cell_nLoc;
 
   printf("\nCell phase advance:\n");
   printf("Ideal:    [%7.5f, %7.5f]\n", 19.0/8.0, 15.0/16.0);
