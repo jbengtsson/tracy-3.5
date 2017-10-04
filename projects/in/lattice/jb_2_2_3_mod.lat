@@ -56,8 +56,8 @@ QD03: quadrupole, L = 0.117, K = -2.32178, N = Nquad, Method = Meth;
 QD04: quadrupole, L = 0.117, K = -2.43748, N = Nquad, Method = Meth;
 {QD041: quadrupole, L = 0.117, K = -2.43748, N = Nquad, Method = Meth;}
 
-QF031: quadrupole, l = 0.217, k =  3.59030, N = Nquad, Method = Meth;
-QD041: quadrupole, l = 0.117, k = -3.09395, N = Nquad, Method = Meth;
+QF031: quadrupole, l = 0.217, k =  3.39473, N = Nquad, Method = Meth;
+QD041: quadrupole, l = 0.117, k = -2.05847, N = Nquad, Method = Meth;
 
 SS1: sextupole, L = 0.0, K =  0.0,    N = 1, Method = Meth;
 
@@ -386,17 +386,17 @@ B10: bending, L = 0.5707241094555955, T = 10.0, T1 = 5.0, T2 = 5.0,
      N = Nbend, Method = Meth;
 
 EQ06: drift, l = 0.0;
-Q02:  drift, l = 0.234;
 
-Q01:  quadrupole, l = 0.234, k = -1.75898, N = Nquad, Method = Meth;
-Q03:  quadrupole, l = 0.434, k =  2.73606, N = Nquad, Method = Meth;
+Q01:  quadrupole, l = 0.234, k = -3.06938, N = Nquad, Method = Meth;
+Q02:  quadrupole, l = 0.234, k = -0.70545, N = Nquad, Method = Meth;
+Q03:  quadrupole, l = 0.434, k =  3.02565, N = Nquad, Method = Meth;
 
-EQ01: quadrupole, l = 0.234, k = -3.62100, N = Nquad, Method = Meth;
-EQ02: quadrupole, l = 0.234, k =  3.59053, N = Nquad, Method = Meth;
+EQ01: quadrupole, l = 0.234, k = -2.67426, N = Nquad, Method = Meth;
+EQ02: quadrupole, l = 0.234, k =  3.15007, N = Nquad, Method = Meth;
 
-EQ03: quadrupole, l = 0.234, k = -1.36625, N = Nquad, Method = Meth;
-EQ04: quadrupole, l = 0.234, k =  2.56966, N = Nquad, Method = Meth;
-EQ05: quadrupole, l = 0.234, k = -1.10080, N = Nquad, Method = Meth;
+EQ03: quadrupole, l = 0.234, k = -1.86341, N = Nquad, Method = Meth;
+EQ04: quadrupole, l = 0.234, k =  3.36380, N = Nquad, Method = Meth;
+EQ05: quadrupole, l = 0.234, k = -1.58707, N = Nquad, Method = Meth;
 
 D_Q01_L  =  0.0;
 D_Q02_L  =  0.0;
