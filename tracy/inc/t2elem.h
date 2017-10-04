@@ -24,12 +24,12 @@ long Elem_GetPos(const int Fnum1, const int Knum1);
 
 
 template<typename T>
-void GtoL(ss_vect<T> &X, Vector2 &S, Vector2 &R,
+void GtoL(ss_vect<T> &X, const Vector2 &S, const Vector2 &R,
 	  const double c0, const double c1, const double s1);
 
 template<typename T>
-void LtoG(ss_vect<T> &X, Vector2 &S, Vector2 &R,
-	  double c0, double c1, double s1);
+void LtoG(ss_vect<T> &X, const Vector2 &S, const Vector2 &R,
+	  const double c0, const double c1, const double s1);
 
 template<typename T>
 void p_rot(double phi, ss_vect<T> &x);

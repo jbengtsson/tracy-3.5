@@ -58,12 +58,18 @@ typedef struct globvalrec {
 } globvalrec;
 
 
+class CellType;
+
+
 class DriftType {
  private:
  public:
   Matrix D55; // Linear matrix
 
   friend void Drift_Init(int Fnum1);
+
+  template<typename T>
+  friend void Drift_Pass(CellType &Cell, ss_vect<T> &x);
 };
 
 
@@ -100,6 +106,9 @@ class MpoleType {
              AD55;          // Downstream 5x5 matrix
 
   friend void Mpole_Init(int Fnum1);
+
+  template<typename T>
+  friend void Mpole_Pass(CellType &Cell, ss_vect<T> &x);
 };
 
 const int  n_harm_max = 10;
@@ -131,6 +140,9 @@ class WigglerType {
   int       Porder;              // The highest order in PB
 
   friend void Wiggler_Init(int Fnum1);
+
+  template<typename T>
+  friend void Wiggler_Pass(CellType &Cell, ss_vect<T> &X);
 };
 
 
@@ -147,6 +159,9 @@ class FieldMapType {
 					   spline info */
 
   friend void FieldMap_Init(int Fnum1);
+
+  template<typename T>
+  friend void FieldMap_Pass(CellType &Cell, ss_vect<T> &ps);
 };
 
 
@@ -196,6 +211,9 @@ class InsertionType {
   int Porder;        // The highest order in PB
 
   friend void Insertion_Init(int Fnum1);
+
+  template<typename T>
+  friend void Insertion_Pass(CellType &Cell, ss_vect<T> &x);
 };
 
 class CavityType {
@@ -210,6 +228,9 @@ class CavityType {
   bool   exit_focus;   // Edge focusing at exit.
 
   friend void Cav_Init(int Fnum1);
+
+  template<typename T>
+  friend void Cav_Pass(CellType &Cell, ss_vect<T> &X);
 };
 
 class CellType;
@@ -250,6 +271,9 @@ class SolenoidType {
   double BoBrho;    // normalized field strength
 
   friend void Solenoid_Init(int Fnum1);
+
+  template<typename T>
+  friend void Solenoid_Pass(CellType &Cell, ss_vect<T> &ps);
 };
 
 class elemtype {
@@ -315,28 +339,7 @@ class CellType {
   template<typename T>
   friend void LtoG(ss_vect<T> &X, const Vector2 &S, const Vector2 &R,
 		   const double c0, const double c1, const double s1);
-
-  template<typename T>
-  friend void Drift_Pass(CellType &Cell, ss_vect<T> &x);
-
-  template<typename T>
-  friend void Mpole_Pass(CellType &Cell, ss_vect<T> &x);
     
   template<typename T>
   friend void Marker_Pass(CellType &Cell, ss_vect<T> &X);
-
-  template<typename T>
-  friend void Cav_Pass(CellType &Cell, ss_vect<T> &X);
-
-  template<typename T>
-  friend void Wiggler_Pass(CellType &Cell, ss_vect<T> &X);
-
-  template<typename T>
-  friend void Solenoid_Pass(CellType &Cell, ss_vect<T> &ps);
-
-  template<typename T>
-  friend void FieldMap_Pass(CellType &Cell, ss_vect<T> &ps);
-
-  template<typename T>
-  friend void Insertion_Pass(CellType &Cell, ss_vect<T> &x);
 };

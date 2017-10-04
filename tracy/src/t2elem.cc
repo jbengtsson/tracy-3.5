@@ -134,7 +134,7 @@ void splin2_(const double x1a[], const double x2a[], double **ya, double **y2a,
 
 
 template<typename T>
-void GtoL(ss_vect<T> &X, Vector2 &S, Vector2 &R,
+void GtoL(ss_vect<T> &X, const Vector2 &S, const Vector2 &R,
 	  const double c0, const double c1, const double s1)
 {
   ss_vect<T>  x1;
@@ -155,7 +155,7 @@ void GtoL(ss_vect<T> &X, Vector2 &S, Vector2 &R,
 
 
 template<typename T>
-void LtoG(ss_vect<T> &X, Vector2 &S, Vector2 &R,
+void LtoG(ss_vect<T> &X, const Vector2 &S, const Vector2 &R,
 	  const double c0, const double c1, const double s1)
 {
   ss_vect<T>  x1;
