@@ -164,26 +164,6 @@ void Cell_Pass(const long i0, const long i1, tps &sigma, long &lastpos)
 }
 
 
-#define n 4
-
-void GtoL_dP(Matrix &mat, Vector2 &dT)
-{
-  long     k = 0;
-  Vector2  dS0;
-  psVector   x;
-
-  dS0[0] = 0e0; dS0[1] = 0e0;
-
-  for (k = 0; k < n; k++)
-    x[k] = mat[k][n];
-
-  GtoL(x, dS0, dT, 0e0, 0e0, 0e0);
-
-  for (k = 0; k < n; k++)
-    mat[k][n] = x[k];
-}
-
-#undef n
 
 bool Cell_getCOD(long imax, double eps, double dP, long &lastpos)
 {

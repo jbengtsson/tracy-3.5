@@ -460,8 +460,8 @@ double f_match(double *b2)
   chi2 += 1e7*sqr(Cell[loc[3]].Alpha[Y_]);
   chi2 += 1e6*sqr(Cell[loc[3]].Beta[X_]-8.0); 
 
-  add_b2L(1e3, n_quads, quads, chi2);
-  add_quad(1e0, 5e0, n_quads, quads, chi2);
+  add_b2L(5e2, n_quads, quads, chi2);
+  add_quad(1e0, 1e0, n_quads, quads, chi2);
 
   // for (i = 1; i <= b2_prms.n_prm; i++) {
   //   loc1 = Elem_GetPos(b2_prms.Fnum[i-1], 1);

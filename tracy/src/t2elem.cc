@@ -156,7 +156,7 @@ void GtoL(ss_vect<T> &X, Vector2 &S, Vector2 &R,
 
 template<typename T>
 void LtoG(ss_vect<T> &X, Vector2 &S, Vector2 &R,
-	  double c0, double c1, double s1)
+	  const double c0, const double c1, const double s1)
 {
   ss_vect<T>  x1;
 
@@ -221,56 +221,6 @@ void Drift_Pass(CellType &Cell, ss_vect<T> &x)
   Drift(Cell.Elem.PL, x);
 }
 
-
-void zero_mat(const int n, double** A)
-{
-  int  i, j;
-
-  for (i = 1; i <= n; i++)
-    for (j = 1; j <= n; j++)
-      A[i][j] = 0e0;
-}
-
-
-void identity_mat(const int n, double** A)
-{
-  int  i, j;
-
-  for (i = 1; i <= n; i++)
-    for (j = 1; j <= n; j++)
-      A[i][j] = (i == j)? 1e0 : 0e0;
-}
-
-
-double det_mat(const int n, double **A)
-{
-  int     i, *indx;
-  double  **U, d;
-
-  indx = ivector(1, n); U = dmatrix(1, n, 1, n);
-
-  dmcopy(A, n, n, U); dludcmp(U, n, indx, &d);
-
-  for (i = 1; i <= n; i++)
-    d *= U[i][i];
-
-  free_dmatrix(U, 1, n, 1, n); free_ivector(indx, 1, n);
-
-  return d;
-}
-
-
-double trace_mat(const int n, double **A)
-{
-  int     i;
-  double  d;
-
-  d = 0e0;
-  for (i = 1; i <= n; i++)
-    d += A[i][i];
-
-  return d;
-}
 
 // partial template-class specialization
 // primary version

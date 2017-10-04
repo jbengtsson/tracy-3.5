@@ -13,12 +13,12 @@
 #include "field.cc"
 
 #if NO == 1
-  // linear TPSA
-  #include "tpsa_lin.cc"
-  #include "tpsa_lin_pm.cc"
+// linear TPSA
+#include "tpsa_lin.cc"
+#include "tpsa_lin_pm.cc"
 #else
-  // interface to M. Berz' TPSA
-  #include "tpsa_for_pm.cc"
+// interface to M. Berz' TPSA
+#include "tpsa_for_pm.cc"
 #endif
 
 #include "mathlib.cc"
@@ -56,9 +56,9 @@
 
 // Truncated Power Series Algebra (TPSA)
 const int     nv_tps   = ss_dim, // no of variables
-              nd_tps   = 3,      // no of degrees of freedom
-              iref_tps = 0;      /* file with resonances to be excluded from
-				    the map normal form: fort.7 */
+  nd_tps   = 3,      // no of degrees of freedom
+  iref_tps = 0;      /* file with resonances to be excluded from
+			the map normal form: fort.7 */
 
 double        eps_tps  = 1e-25;  // floating point truncation
 
@@ -141,13 +141,13 @@ template void Marker_Pass(CellType &, ss_vect<double> &);
 template void Marker_Pass(CellType &, ss_vect<tps> &);
 
 template void Cav_Focus(const double L, const double delta, const bool entrance,
-            ss_vect<double> &ps);
+			ss_vect<double> &ps);
 
 template void Cav_Focus(const double L, const double delta, const bool entrance,
-            ss_vect<tps> &ps);
+			ss_vect<tps> &ps);
 
 template void Cav_Focus(const double L, const tps delta, const bool entrance,
-            ss_vect<tps> &ps);
+			ss_vect<tps> &ps);
 
 template void Cav_Pass(CellType &, ss_vect<double> &);
 
