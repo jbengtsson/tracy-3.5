@@ -68,6 +68,8 @@ class DriftType {
 
   friend void Drift_Init(int Fnum1);
 
+  static void Drift_Print(FILE *f, int Fnum1);
+
   template<typename T>
   friend void Drift_Pass(CellType &Cell, ss_vect<T> &x);
 };
@@ -107,6 +109,8 @@ class MpoleType {
 
   friend void Mpole_Init(int Fnum1);
 
+  static void Mpole_Print(FILE *f, int Fnum1);
+
   template<typename T>
   friend void Mpole_Pass(CellType &Cell, ss_vect<T> &x);
 };
@@ -140,6 +144,8 @@ class WigglerType {
   int       Porder;              // The highest order in PB
 
   friend void Wiggler_Init(int Fnum1);
+
+  static void Wiggler_Print(FILE *f, int Fnum1);
 
   template<typename T>
   friend void Wiggler_Pass(CellType &Cell, ss_vect<T> &X);
@@ -211,6 +217,8 @@ class InsertionType {
   int Porder;        // The highest order in PB
 
   friend void Insertion_Init(int Fnum1);
+  
+  static void Insertion_Print(FILE *f, int Fnum1);
 
   template<typename T>
   friend void Insertion_Pass(CellType &Cell, ss_vect<T> &x);
@@ -332,6 +340,8 @@ class CellType {
 
   friend void Cell_Init(void);
 
+  void Elem_Print(FILE *f, int Fnum1);
+
   template<typename T>
   friend void GtoL(ss_vect<T> &X, const Vector2 &S, const Vector2 &R,
 		   const double c0, const double c1, const double s1);
@@ -342,4 +352,18 @@ class CellType {
     
   template<typename T>
   friend void Marker_Pass(CellType &Cell, ss_vect<T> &X);
+
+  template<typename T>
+  friend void Elem_Pass(const long i, ss_vect<T> &x);
+
+  template<typename T>
+  friend void Cell_Pass(const long i0, const long i1, ss_vect<T> &x,
+			long &lastpos);
+
+  friend void Cell_Pass(const long i0, const long i1, tps &sigma,
+			long &lastpos);
+
+  bool Cell_getCOD(long imax, double eps, double dP, long &lastpos);
+
+  bool GetCOD(long imax, double eps, double dP, long &lastpos);
 };
