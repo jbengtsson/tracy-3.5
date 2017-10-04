@@ -78,34 +78,34 @@ class DriftType {
 class MpoleType {
  private:
  public:
-  int        Pmethod;   // Integration Method
-  int        PN;        // Number of integration steps
+  int        Pmethod;       // Integration Method.
+  int        PN;            // Number of integration steps.
   // Displacement Errors
-  Vector2    PdSsys;    // systematic [m]
-  Vector2    PdSrms;    // rms [m]
-  Vector2    PdSrnd;    // random number
+  Vector2    PdSsys;        // systematic [m].
+  Vector2    PdSrms;        // rms [m].
+  Vector2    PdSrnd;        // random number.
   // Roll angle
-  double     PdTpar;    // design [deg]
-  double     PdTsys;    // systematic [deg]
-  double     PdTrms;    // rms [deg]
-  double     PdTrnd;    // random number
+  double     PdTpar;        // design [deg].
+  double     PdTsys;        // systematic [deg].
+  double     PdTrms;        // rms [deg].
+  double     PdTrnd;        // random number.
   // Multipole strengths
-  mpolArray  PBpar;     // design
-  mpolArray  PBsys;     // systematic
-  mpolArray  PBrms;     // rms
-  mpolArray  PBrnd;     // random number
-  mpolArray  PB;        // total
-  int        Porder;    // The highest order in PB
-  int        n_design;  // multipole order (design)
+  mpolArray  PBpar;         // design.
+  mpolArray  PBsys;         // systematic.
+  mpolArray  PBrms;         // rms.
+  mpolArray  PBrnd;         // random number.
+  mpolArray  PB;            // total.
+  int        Porder;        // The highest order in PB.
+  int        n_design;      // multipole order (design).
   pthicktype Pthick;
   // Bending Angles
-  double     PTx1;          // horizontal entrance angle [deg]
-  double     PTx2;          // horizontal exit angle [deg]
-  double     Pgap;          // total magnet gap [m]
-  double     Pirho;         // 1/rho [1/m]
-  double     Pc0, Pc1, Ps1; // corrections for roll error of bend
-  Matrix     AU55,          // Upstream 5x5 matrix
-             AD55;          // Downstream 5x5 matrix
+  double     PTx1;          // horizontal entrance angle [deg].
+  double     PTx2;          // horizontal exit angle [deg].
+  double     Pgap;          // total magnet gap [m].
+  double     Pirho;         // 1/rho [1/m].
+  double     Pc0, Pc1, Ps1; // corrections for roll error of bend.
+  Matrix     AU55,          // Upstream 5x5 matrix.
+             AD55;          // Downstream 5x5 matrix.
 
   friend void Mpole_Init(int Fnum1);
 
@@ -120,28 +120,28 @@ const int  n_harm_max = 10;
 class WigglerType {
  private:
  public:
-  int       Pmethod;             // Integration Method
-  int       PN;                  // number of integration steps
+  int       Pmethod;             // Integration Method.
+  int       PN;                  // number of integration steps.
   // Displacement Error
-  Vector2   PdSsys;              // systematic [m]
-  Vector2   PdSrms;              // rms [m]
-  Vector2   PdSrnd;              // random number
+  Vector2   PdSsys;              // systematic [m].
+  Vector2   PdSrms;              // rms [m].
+  Vector2   PdSrnd;              // random number.
   // Roll angle
-  double    PdTpar;              // design [deg]
-  double    PdTsys;              // systematic [deg]
-  double    PdTrms;              // rms [deg]
-  double    PdTrnd;              // random number
-  double    lambda;              // lambda
-  int       n_harm;              // no of harmonics
-  int       harm[n_harm_max];    // harmonic number
-  double    BoBrhoV[n_harm_max]; // B/Brho vertical
-  double    BoBrhoH[n_harm_max]; // B/Brho horizontal
-  double    kxV[n_harm_max];     // kx
-  double    kxH[n_harm_max];     // kx
-  double    phi[n_harm_max];     // phi
+  double    PdTpar;              // design [deg].
+  double    PdTsys;              // systematic [deg].
+  double    PdTrms;              // rms [deg].
+  double    PdTrnd;              // random number.
+  double    lambda;              // lambda.
+  int       n_harm;              // no of harmonics.
+  int       harm[n_harm_max];    // harmonic number.
+  double    BoBrhoV[n_harm_max]; // B/Brho vertical.
+  double    BoBrhoH[n_harm_max]; // B/Brho horizontal.
+  double    kxV[n_harm_max];     // kx.
+  double    kxH[n_harm_max];     // kx.
+  double    phi[n_harm_max];     // phi.
   mpolArray PBW;
-  Matrix    W55;                 // Transport matrix
-  int       Porder;              // The highest order in PB
+  Matrix    W55;                 // Transport matrix.
+  int       Porder;              // The highest order in PB.
 
   friend void Wiggler_Init(int Fnum1);
 
@@ -155,14 +155,14 @@ class WigglerType {
 class FieldMapType {
  private:
  public:
-  int    n_step;                       // number of integration steps
-  int    n[3];                         // no of steps
-  int    cut;                          // cut in z direction
+  int    n_step;                       // number of integration steps.
+  int    n[3];                         // no of steps.
+  int    cut;                          // cut in z direction.
   double scl, phi, x0, Lr, Lm, Ld, L1;
-  double dx[3], *x[3];                 // [dx, dy, dz], [x, y, z]
-  double ***BoBrho[3], ***BoBrho2[3];  // [B_x, B_y, B_z]
+  double dx[3], *x[3];                 // [dx, dy, dz], [x, y, z].
+  double ***BoBrho[3], ***BoBrho2[3];  // [B_x, B_y, B_z].
   double ***AoBrho[2], ***AoBrho2[2];  /* [Ax(x, y, z), Ay(x, y, z)],
-					   spline info */
+					  spline info. */
 
   friend void FieldMap_Init(int Fnum1);
 
@@ -178,43 +178,43 @@ class FieldMapType {
 class InsertionType {
  private:
  public:
-  int    Pmethod;      // Integration Method
-  int    PN;           // number of integration steps
-  char   fname1[100];  // Filename for insertion description: first ordre
-  char   fname2[100];  // Filename for insertion description: second ordre
-  int    nx;           // Horizontal point number
-  int    nz;           // Vertical point number
-  double scaling;      // static scaling factor as in BETA ESRF
-  bool   linear;       // if true linear interpolation else spline
-  bool   firstorder;   // true if first order kick map loaded
-  bool   secondorder;  // true if second order kick map loaded
+  int    Pmethod;      // Integration Method.
+  int    PN;           // number of integration steps.
+  char   fname1[100];        // Filename for insertion description: first ordre.
+  char   fname2[100];       // Filename for insertion description: second ordre.
+  int    nx;           // Horizontal point number.
+  int    nz;           // Vertical point number.
+  double scaling;      // static scaling factor as in BETA ESRF.
+  bool   linear;       // if true linear interpolation else spline.
+  bool   firstorder;   // true if first order kick map loaded.
+  bool   secondorder;  // true if second order kick map loaded.
   double phi;          // Bend angle.
-  double tabx[IDXMAX]; // spacing in H-plane
-  double tabz[IDZMAX]; // spacing in V-plane
-  double thetax[IDZMAX][IDXMAX], thetax1[IDZMAX][IDXMAX]; // 1 for first order
+  double tabx[IDXMAX]; // spacing in H-plane.
+  double tabz[IDZMAX]; // spacing in V-plane.
+  double thetax[IDZMAX][IDXMAX], thetax1[IDZMAX][IDXMAX]; // 1 for first order.
   double thetaz[IDZMAX][IDXMAX], thetaz1[IDZMAX][IDXMAX];
-  bool   long_comp;    // flag for longitudinal comp
-  double B2[IDZMAX][IDXMAX]; // B^2_perp
+  bool   long_comp;          // flag for longitudinal comp.
+  double B2[IDZMAX][IDXMAX]; // B^2_perp.
   double **tx, **tz, **f2x, **f2z;
-  double **tx1, **tz1, **f2x1, **f2z1; // a voir
-  double *tab1, *tab2; // tab of x and z meshes from Radia code
+  double **tx1, **tz1, **f2x1, **f2z1; // a voir.
+  double *tab1, *tab2;       // tab of x and z meshes from Radia code.
 
   // Displacement Error
   Vector2 PdSsys;   // systematic [m]
   Vector2 PdSrms;   // rms [m]
   Vector2 PdSrnd;   // random number
   // Roll angle
-  double  PdTpar;    // design [deg]
-  double  PdTsys;    // systematic [deg]
-  double  PdTrms;    // rms [deg]
-  double  PdTrnd;    // random number
+  double  PdTpar;   // design [deg]
+  double  PdTsys;   // systematic [deg]
+  double  PdTrms;   // rms [deg]
+  double  PdTrnd;   // random number
   // Strength
 //  double Plperiod;  // Length Period [m]
-//  int Pnperiod;    // Number of periods
+//  int Pnperiod;     // Number of periods
 //  double PBoBrho;   // B/Brho
 //  double PKx;       // kx
 //  mpolArray PBW;
-  int Porder;        // The highest order in PB
+  int Porder;       // The highest order in PB
 
   friend void Insertion_Init(int Fnum1);
   
@@ -227,13 +227,13 @@ class InsertionType {
 class CavityType {
  private:
  public:
-  int    PN;           // Number of integration steps
-  double Pvolt;        // Vrf [V]
-  double Pfreq;        // Vrf [Hz]
-  double phi;          // RF phase
-  int    Ph;           // Harmonic number
-  bool   entry_focus;  // Edge focusing at entry.
-  bool   exit_focus;   // Edge focusing at exit.
+  int    PN;          // Number of integration steps
+  double Pvolt;       // Vrf [V]
+  double Pfreq;       // Vrf [Hz]
+  double phi;         // RF phase
+  int    Ph;          // Harmonic number
+  bool   entry_focus; // Edge focusing at entry.
+  bool   exit_focus;  // Edge focusing at exit.
 
   friend void Cav_Init(int Fnum1);
 
@@ -266,17 +266,17 @@ class RecombinerType {
 class SolenoidType {
  private:
  public:
-  int     N;         // Number of integration steps
+  int     N;      // Number of integration steps
   // Displacement Errors
-  Vector2 PdSsys;    // systematic [m]
-  Vector2 PdSrms;    // rms [m]
-  Vector2 PdSrnd;    // random number
+  Vector2 PdSsys; // systematic [m]
+  Vector2 PdSrms; // rms [m]
+  Vector2 PdSrnd; // random number
   // Roll angle
-  double  dTpar;     // design [deg]
-  double  dTsys;     // systematic [deg]
-  double dTrms;     // rms [deg]
-  double dTrnd;     // random number
-  double BoBrho;    // normalized field strength
+  double  dTpar;  // design [deg]
+  double  dTsys;  // systematic [deg]
+  double  dTrms;  // rms [deg]
+  double  dTrnd;  // random number
+  double  BoBrho; // normalized field strength
 
   friend void Solenoid_Init(int Fnum1);
 
@@ -308,11 +308,11 @@ class elemtype {
 class ElemFamType {
  private:
  public:
-  elemtype    ElemF;         // Structure (name, type).
-  int         nKid;             // Kid number.
-  int         KidList[nKidMax];
-  int         NoDBN;
-  DBNameType  DBNlist[nKidMax];
+  elemtype   ElemF;            // Structure (name, type).
+  int        nKid;             // Kid number.
+  int        KidList[nKidMax];
+  int        NoDBN;
+  DBNameType DBNlist[nKidMax];
 };
 
 // LEGO block structure for each element of the lattice
