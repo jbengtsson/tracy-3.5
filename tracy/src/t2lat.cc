@@ -4204,58 +4204,6 @@ void PrintResult(struct LOC_Lattice_Read *LINK)
 }
 
 
-long ElemIndex(const std::string &name)
-{
-  long    i, j;
-  std::string  name1;
-
-  name1 = name;
-  j = (signed)name.length();
-  for (i = 0; i < j; i++)
-    name1[i] = tolower(name1[i]);
-  for (i = j; i < SymbolLength; i++)
-    name1 += ' ';
-
-  if (trace) {
-    std::cout << std::endl;
-    std::cout << "ElemIndex: " << name << " (";
-    for (i = 0; i < (signed)name1.length(); i++)
-      std::cout << std::setw(4) << (int)name1[i];
-    std::cout << std::setw(4) << (int)name1[name1.length()] << " )"
-	      << std::endl;
-    std::cout << std::endl;
-  }
-
-  if (globval.Elem_nFam > Elem_nFamMax) {
-    printf("ElemIndex: Elem_nFamMax exceeded: %ld(%d)\n",
-           globval.Elem_nFam, Elem_nFamMax);
-    exit_(1);
-  }
-
-  i = 1;
-  while (i <= globval.Elem_nFam) {
-    if (trace) {
-      std::cout << std::setw(2) << (name1 == Lattice.ElemFam[i-1].ElemF.PName)
-	   << " " << name1 << " " << Lattice.ElemFam[i-1].ElemF.PName << " (";
-      for (j = 0; j < SymbolLength; j++)
-	std::cout << std::setw(4) << (int)Lattice.ElemFam[i-1].ElemF.PName[j];
-      std::cout  << " )" << std::endl;
-    }
-
-    if (name1 == Lattice.ElemFam[i-1].ElemF.PName) break;
-
-    i++;
-  }
-
-  if (name1 != Lattice.ElemFam[i-1].ElemF.PName) {
-    std::cout << "ElemIndex: undefined element " << name << std::endl;
-    exit_(1);
-  }
-
-  return i;
-}
-
-
 bool Lattice_Type::Lattice_Read(FILE **fi_, FILE **fo_)
 {
   struct LOC_Lattice_Read V;
@@ -4314,7 +4262,7 @@ bool Lattice_Type::Lattice_Read(FILE **fi_, FILE **fo_)
 #undef tmax
 
 
-void Read_Lattice(const char *fic)
+void Lattice_Type::Read_Lattice(const char *fic)
 {
   bool     status;
   char     fic_maille[S_SIZE+4] = "", fic_erreur[S_SIZE+4] = "";
@@ -4407,4 +4355,56 @@ void Read_Lattice(const char *fic)
 
     ttwiss(alpha, beta, eta, etap, dP);
   }
+}
+
+
+long Lattice_Type::Elem_Index(const std::string &name)
+{
+  long    i, j;
+  std::string  name1;
+
+  name1 = name;
+  j = (signed)name.length();
+  for (i = 0; i < j; i++)
+    name1[i] = tolower(name1[i]);
+  for (i = j; i < SymbolLength; i++)
+    name1 += ' ';
+
+  if (trace) {
+    std::cout << std::endl;
+    std::cout << "ElemIndex: " << name << " (";
+    for (i = 0; i < (signed)name1.length(); i++)
+      std::cout << std::setw(4) << (int)name1[i];
+    std::cout << std::setw(4) << (int)name1[name1.length()] << " )"
+	      << std::endl;
+    std::cout << std::endl;
+  }
+
+  if (globval.Elem_nFam > Elem_nFamMax) {
+    printf("ElemIndex: Elem_nFamMax exceeded: %ld(%d)\n",
+           globval.Elem_nFam, Elem_nFamMax);
+    exit_(1);
+  }
+
+  i = 1;
+  while (i <= globval.Elem_nFam) {
+    if (trace) {
+      std::cout << std::setw(2) << (name1 == Lattice.ElemFam[i-1].ElemF.PName)
+	   << " " << name1 << " " << Lattice.ElemFam[i-1].ElemF.PName << " (";
+      for (j = 0; j < SymbolLength; j++)
+	std::cout << std::setw(4) << (int)Lattice.ElemFam[i-1].ElemF.PName[j];
+      std::cout  << " )" << std::endl;
+    }
+
+    if (name1 == Lattice.ElemFam[i-1].ElemF.PName) break;
+
+    i++;
+  }
+
+  if (name1 != Lattice.ElemFam[i-1].ElemF.PName) {
+    std::cout << "ElemIndex: undefined element " << name << std::endl;
+    exit_(1);
+  }
+
+  return i;
 }

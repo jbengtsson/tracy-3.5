@@ -80,9 +80,6 @@ using namespace std;
 
 #include "soleillib.h"
 
-#include "rdmfile.h"
-#include "prtmfile.h"
-
 
 extern Lattice_Type Lattice;
 

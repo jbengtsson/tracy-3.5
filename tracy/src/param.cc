@@ -84,12 +84,12 @@ void param_data_type::get_param(const string &param_file)
         sscanf(line, "%*s %s", str);
         sstr.clear(); sstr.str("");
 	sstr << in_dir << str; lat_FileName = sstr.str();
-        Read_Lattice(lat_FileName.c_str());
+        Lattice.Read_Lattice(lat_FileName.c_str());
       } else if (strcmp("flat_file", name) == 0) {
 	sscanf(line, "%*s %s", str);
 	sstr.clear(); sstr.str("");
 	sstr << str << "flat_file.dat"; flat_file = sstr.str();
-	rdmfile(flat_file.c_str());
+	Lattice.rdmfile(flat_file.c_str());
       } else if (strcmp("s_cut", name) == 0) {
 	sscanf(line, "%*s %lf", &f_prm);
 	setrancut(f_prm);
@@ -123,10 +123,10 @@ void param_data_type::get_param(const string &param_file)
 	}
       } else if (strcmp("gs", name) == 0) {
 	sscanf(line, "%*s %s", str);
-	globval.gs = ElemIndex(str);
+	globval.gs = Lattice.Elem_Index(str);
       } else if (strcmp("ge", name) == 0) {
 	sscanf(line, "%*s %s", str);
-	globval.ge = ElemIndex(str);
+	globval.ge = Lattice.Elem_Index(str);
       } else if (strcmp("DA_bare", name) == 0) {
 	sscanf(line, "%*s %s", str);
 	DA_bare = (strcmp(str, "true") == 0)? true : false;
@@ -143,7 +143,7 @@ void param_data_type::get_param(const string &param_file)
 	freq_map = (strcmp(str, "true") == 0)? true : false;
       } else if (strcmp("qt", name) == 0) {
 	sscanf(line, "%*s %s", str);
-	globval.qt = ElemIndex(str);
+	globval.qt = Lattice.Elem_Index(str);
       } else if (strcmp("disp_wave_y", name) == 0)
 	sscanf(line, "%*s %lf", &disp_wave_y);
       else if (strcmp("n_lin", name) == 0)
@@ -163,7 +163,7 @@ void param_data_type::get_param(const string &param_file)
 	while (s != NULL) {
 	  N_Fam++;
 	  if (N_Fam <= N_Fam_max) {
-	    Q_Fam[N_Fam-1] = ElemIndex(s); s = strtok_r(NULL, " \r", &p);
+	    Q_Fam[N_Fam-1] = Lattice.Elem_Index(s); s = strtok_r(NULL, " \r", &p);
 	  } else {
 	    printf("get_param: N_Fam_max exceeded (%d)\n", N_Fam_max);
 	    exit(1);
@@ -209,7 +209,7 @@ void param_data_type::get_dbeta_dnu(double m_dbeta[], double s_dbeta[],
   long int  j, ind;
   double    dbeta, dnu;
 
-  Ring_GetTwiss(false, 0.0);
+  Lattice.Ring_GetTwiss(false, 0.0);
 
   for (k = 0; k <= 1; k++) {
     m_dbeta[k] = 0.0; s_dbeta[k] = 0.0; m_dnu[k] = 0.0; s_dnu[k] = 0.0;
@@ -437,7 +437,7 @@ void param_data_type::ini_skew_cor(const double deta_y_max)
   printf("Number of elements in skew vector: %6d\n", N_COUPLE);
 
   // find matrix
-  Ring_GetTwiss(true, 0.0);
+  Lattice.Ring_GetTwiss(true, 0.0);
 
   printf("\n");
   printf("Looking for response matrix\n");
@@ -458,7 +458,7 @@ void param_data_type::FindCoupVector(double *VertCouple)
   orbitP = dvector(1, N_BPM); orbitN = dvector(1, N_BPM);
 
   // Find vertical dispersion
-  Cell_Geteta(0, globval.Cell_nLoc, true, 0e0);
+  Lattice.Cell_Geteta(0, globval.Cell_nLoc, true, 0e0);
 
   for (i = 1; i <= N_BPM; i++)
     VertCouple[i] = VDweight*Lattice.Cell[bpm_loc[i-1]].Eta[Y_];
@@ -467,19 +467,22 @@ void param_data_type::FindCoupVector(double *VertCouple)
   // Find off diagonal terms for horizontal trims
   for (j = 1; j <= N_HCOR; j++) {
     // positive kick: "+Dip" for horizontal
-    SetdKLpar(Lattice.Cell[h_corr[j-1]].Fnum, Lattice.Cell[h_corr[j-1]].Knum, +Dip, kick);
-    cod = getcod(0.0, lastpos); chk_cod(cod, "FindCoupVector");
+    SetdKLpar(Lattice.Cell[h_corr[j-1]].Fnum, Lattice.Cell[h_corr[j-1]].Knum,
+	      +Dip, kick);
+    cod = Lattice.getcod(0.0, lastpos); chk_cod(cod, "FindCoupVector");
     for (i = 1; i <= N_BPM; i++)
       orbitP[i] = Lattice.Cell[bpm_loc[i-1]].BeamPos[y_];
 
     //negative kick: "+Dip" for horizontal
-    SetdKLpar(Lattice.Cell[h_corr[j-1]].Fnum, Lattice.Cell[h_corr[j-1]].Knum, +Dip, -2*kick);
-    cod = getcod(0.0, lastpos); chk_cod(cod, "FindCoupVector");
+    SetdKLpar(Lattice.Cell[h_corr[j-1]].Fnum, Lattice.Cell[h_corr[j-1]].Knum,
+	      +Dip, -2*kick);
+    cod = Lattice.getcod(0.0, lastpos); chk_cod(cod, "FindCoupVector");
     for (i = 1; i <= N_BPM; i++)
       orbitN[i] = Lattice.Cell[bpm_loc[i-1]].BeamPos[y_];
 
     // restore trim valueL: "+Dip" for horizontal
-    SetdKLpar(Lattice.Cell[h_corr[j-1]].Fnum, Lattice.Cell[h_corr[j-1]].Knum, +Dip, kick);
+    SetdKLpar(Lattice.Cell[h_corr[j-1]].Fnum, Lattice.Cell[h_corr[j-1]].Knum,
+	      +Dip, kick);
 
     for (i = 1; i <= N_BPM; i++)
       VertCouple[N_BPM+(j-1)*N_HCOR+i] =
@@ -490,19 +493,22 @@ void param_data_type::FindCoupVector(double *VertCouple)
   // Find off diagonal terms for vertical trims
   for (j = 1; j <= N_VCOR; j++){
     // positive kick: "-Dip" for vertical
-    SetdKLpar(Lattice.Cell[v_corr[j-1]].Fnum, Lattice.Cell[v_corr[j-1]].Knum, -Dip, kick);
-    cod = getcod(0.0, lastpos); chk_cod(cod, "FindCoupVector");
+    SetdKLpar(Lattice.Cell[v_corr[j-1]].Fnum, Lattice.Cell[v_corr[j-1]].Knum,
+	      -Dip, kick);
+    cod = Lattice.getcod(0.0, lastpos); chk_cod(cod, "FindCoupVector");
     for (i = 1;  i <= N_BPM; i++)
       orbitP[i] = Lattice.Cell[bpm_loc[i-1]].BeamPos[x_];
 
     // negative kick: "-Dip" for vertical
-    SetdKLpar(Lattice.Cell[v_corr[j-1]].Fnum, Lattice.Cell[v_corr[j-1]].Knum, -Dip, -2*kick);
-    cod = getcod(0.0, lastpos); chk_cod(cod, "FindCoupVector");
+    SetdKLpar(Lattice.Cell[v_corr[j-1]].Fnum, Lattice.Cell[v_corr[j-1]].Knum,
+	      -Dip, -2*kick);
+    cod = Lattice.getcod(0.0, lastpos); chk_cod(cod, "FindCoupVector");
     for (i = 1; i <= N_BPM; i++)
       orbitN[i] = Lattice.Cell[bpm_loc[i-1]].BeamPos[x_];
 
     // restore corrector: "-Dip" for vertical
-    SetdKLpar(Lattice.Cell[v_corr[j-1]].Fnum, Lattice.Cell[v_corr[j-1]].Knum, -Dip, kick);
+    SetdKLpar(Lattice.Cell[v_corr[j-1]].Fnum, Lattice.Cell[v_corr[j-1]].Knum,
+	      -Dip, kick);
 
     for (i = 1; i <= N_BPM; i++)
       VertCouple[N_BPM+N_BPM*N_HCOR+(j-1)*N_VCOR+i] =
@@ -795,7 +801,7 @@ bool param_data_type::get_SQ(void)
        ...                                                                  */
 
   // Get Twiss params, no dispersion
-  Ring_GetTwiss(false, 0e0);
+  Lattice.Ring_GetTwiss(false, 0e0);
 
   if (!status.codflag || !globval.stable) return false;
 
@@ -1296,7 +1302,7 @@ void param_data_type::LoadAlignTol(const bool Scale_it, const double Scale,
 				  dx, dy, dr_deg);
 	    }
 	} else {
-	  Fnum = ElemIndex(Name);
+	  Fnum = Lattice.Elem_Index(Name);
 	  if(Fnum > 0) {
 	    printf("misaligning all %s:  dx = %e, dy = %e, dr = %e\n",
 		   Name, dx, dy, dr);
@@ -1410,7 +1416,7 @@ void param_data_type::LoadApers(const double scl_x, const double scl_y) const
 		 dxmin, dxmax, dymin, dymax);
 	set_aper_type(Sext, dxmin, dxmax, dymin, dymax);
       } else {
-	Fnum = ElemIndex(Name);
+	Fnum = Lattice.Elem_Index(Name);
 	if(Fnum > 0) {
 	  if(prt)
 	    printf("setting apertures at all %s to"
@@ -1529,35 +1535,35 @@ void param_data_type::ini_COD_corr(const int n_bpm_Fam,
 
   n_bpm = 0;
   for (i = 0; i < n_bpm_Fam; i++)
-    n_bpm += GetnKid(ElemIndex(bpm_names[i]));
+    n_bpm += GetnKid(Lattice.Elem_Index(bpm_names[i]));
 
   n_hcorr = 0;
   for (i = 0; i < n_hcorr_Fam; i++)
-    n_hcorr += GetnKid(ElemIndex(hcorr_names[i]));
+    n_hcorr += GetnKid(Lattice.Elem_Index(hcorr_names[i]));
 
   n_vcorr = 0;
   for (i = 0; i < n_vcorr_Fam; i++)
-    n_vcorr += GetnKid(ElemIndex(vcorr_names[i]));
+    n_vcorr += GetnKid(Lattice.Elem_Index(vcorr_names[i]));
 
   long int  bpms[n_bpm], hcorrs[n_hcorr], vcorrs[n_vcorr];
 
   n_bpm = 0;
   for (i = 0; i < n_bpm_Fam; i++) {
-    Fnum = ElemIndex(bpm_names[i]);
+    Fnum = Lattice.Elem_Index(bpm_names[i]);
     for (j = 1; j <= GetnKid(Fnum); j++)
       bpms[n_bpm++] = Elem_GetPos(Fnum, j);
   }
 
   n_hcorr = 0;
   for (i = 0; i < n_hcorr_Fam; i++) {
-    Fnum = ElemIndex(hcorr_names[i]);
+    Fnum = Lattice.Elem_Index(hcorr_names[i]);
     for (j = 1; j <= GetnKid(Fnum); j++)
       hcorrs[n_hcorr++] = Elem_GetPos(Fnum, j);
   }
 
   n_vcorr = 0;
   for (i = 0; i < n_vcorr_Fam; i++) {
-    Fnum = ElemIndex(vcorr_names[i]);
+    Fnum = Lattice.Elem_Index(vcorr_names[i]);
     for (j = 1; j <= GetnKid(Fnum); j++)
       vcorrs[n_vcorr++] = Elem_GetPos(Fnum, j);
   }
@@ -1586,7 +1592,7 @@ bool param_data_type::cod_corr(const int n_cell, const double scl,
 
   orb_corr[X_].clr_trims(); orb_corr[Y_].clr_trims();
   
-  cod = getcod(0e0, lastpos);
+  cod = Lattice.getcod(0e0, lastpos);
 
   if (!cod) {
     printf("\ncould not find closed orbit; threading beam\n");
@@ -1710,7 +1716,7 @@ void param_data_type::err_and_corr_init(const string &param_file,
 
   get_param(param_file);
 
-  Ring_GetTwiss(true, 0.0); printglob();
+  Lattice.Ring_GetTwiss(true, 0.0); printglob();
 
   get_bare();
 
@@ -1771,7 +1777,7 @@ void get_bn2(const string file_name1, const string file_name2, int n,
     n_prm++;
     name = strtok_r(line, "(", &p);
     rm_space(name);
-    strcpy(str, name); Fnum = ElemIndex(str);
+    strcpy(str, name); Fnum = Lattice.Elem_Index(str);
     strcpy(str1, name); upr_case(str1);
     token = strtok_r(NULL, ")", &p); sscanf(token, "%d", &Knum);
     strtok_r(NULL, "=", &p); token = strtok_r(NULL, "\n", &p);

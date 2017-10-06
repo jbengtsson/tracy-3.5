@@ -88,7 +88,8 @@ void get_cod_rms(const double dx, const double dy,
 	      1e3*x_mean[x_][n-1], 1e3*x_sigma[x_][n-1],
 	      1e3*x_mean[y_][n-1], 1e3*x_sigma[y_][n-1]);
     } else
-      fprintf(fp, "%8.3f %6.2f\n", Lattice.Cell[j].S, get_code(Lattice.Cell[j]));
+      fprintf(fp, "%8.3f %6.2f\n",
+	      Lattice.Cell[j].S, get_code(Lattice.Cell[j]));
   
   fclose(fp);
 }
@@ -101,7 +102,7 @@ void track(const double Ax, const double Ay)
   ss_vect<double> xt, xs;
   FILE            *fd;
 
-  getcod(0e0, lastpos);
+  Lattice.getcod(0e0, lastpos);
 
   fd = fopen("trackdat_oneturn.dat","w");
   fprintf(fd, "orbit %22.14e %22.14e %22.14e %22.14e %22.14e %22.14e\n",
@@ -139,7 +140,8 @@ void prt_symm(const std::vector<int> &Fam)
       loc = Elem_GetPos(Fam[j], k);
       if (k % 2 == 0) loc -= 1;
       printf(" %5.1f %6.3f %6.3f %6.3f\n",
-	     Lattice.Cell[loc].S, Lattice.Cell[loc].Beta[X_], Lattice.Cell[loc].Beta[Y_],
+	     Lattice.Cell[loc].S, Lattice.Cell[loc].Beta[X_],
+	     Lattice.Cell[loc].Beta[Y_],
 	     Lattice.Cell[loc].Eta[X_]);
     }
   }
@@ -155,7 +157,8 @@ void prt_quad(const std::vector<int> &Fam)
   for (j = 0; j < (int)Fam.size(); j++) {
     loc = Elem_GetPos(Fam[j], 1);
     printf(" %4.1f %6.3f %6.3f %2d\n",
-	   Lattice.Cell[loc].S, Lattice.Cell[loc].Beta[X_], Lattice.Cell[loc].Beta[Y_],
+	   Lattice.Cell[loc].S,
+	   Lattice.Cell[loc].Beta[X_], Lattice.Cell[loc].Beta[Y_],
 	   GetnKid(Fam[j]));
   }
 }
@@ -173,7 +176,7 @@ void chk_optics(const double alpha_x, const double alpha_y,
   eta[X_]   = eta_x;   eta[Y_]   = eta_y;
   etap[X_]  = etap_x;  etap[Y_]  = etap_y;
 
-  ttwiss(alpha, beta, eta, etap, 0e0);
+  Lattice.ttwiss(alpha, beta, eta, etap, 0e0);
 }
 
 
@@ -191,9 +194,11 @@ void chk_mini_beta(const std::vector<int> &Fam)
       } else {
 	loc -= 1;
 	printf(" %5.1f %6.3f %6.3f %6.3f %8.5f %8.5f\n",
-	       Lattice.Cell[loc].S, Lattice.Cell[loc].Beta[X_], Lattice.Cell[loc].Beta[Y_],
+	       Lattice.Cell[loc].S,
+	       Lattice.Cell[loc].Beta[X_], Lattice.Cell[loc].Beta[Y_],
 	       Lattice.Cell[loc].Eta[X_],
-	       Lattice.Cell[loc].Nu[X_]-nu0[X_], Lattice.Cell[loc].Nu[Y_]-nu0[Y_]);
+	       Lattice.Cell[loc].Nu[X_]-nu0[X_],
+	       Lattice.Cell[loc].Nu[Y_]-nu0[Y_]);
       }
     }
   }
@@ -204,16 +209,16 @@ void chk_high_oord_achr(void)
 {
   int loc[4];
 
-  Ring_GetTwiss(true, 0e0);
+  Lattice.Ring_GetTwiss(true, 0e0);
  
-  loc[0] = Elem_GetPos(ElemIndex("ss1"), 1);
-  loc[1] = Elem_GetPos(ElemIndex("ss1"), 3);
-  loc[2] = Elem_GetPos(ElemIndex("ss1"), 5);
+  loc[0] = Elem_GetPos(Lattice.Elem_Index("ss1"), 1);
+  loc[1] = Elem_GetPos(Lattice.Elem_Index("ss1"), 3);
+  loc[2] = Elem_GetPos(Lattice.Elem_Index("ss1"), 5);
   loc[3] = globval.Cell_nLoc;
 
-  // loc[0] = Elem_GetPos(ElemIndex("idmarker_end"), 1);
-  // loc[1] = Elem_GetPos(ElemIndex("idmarker_end"), 3);
-  // loc[2] = Elem_GetPos(ElemIndex("idmarker_end"), 5);
+  // loc[0] = Elem_GetPos(Lattice.Elem_Index("idmarker_end"), 1);
+  // loc[1] = Elem_GetPos(Lattice.Elem_Index("idmarker_end"), 3);
+  // loc[2] = Elem_GetPos(Lattice.Elem_Index("idmarker_end"), 5);
   // loc[3] = globval.Cell_nLoc;
 
   printf("\nCell phase advance:\n");
@@ -245,7 +250,8 @@ void chk_b3_Fam(const int Fnum, const bool exit)
     loc = Elem_GetPos(Fnum, k);
     if (!exit && ((k-1) % 2 == 1)) loc -= 1;
     printf("%8s %7.5f %7.5f\n",
-	   Lattice.Cell[loc].Elem.PName, Lattice.Cell[loc].Beta[X_], Lattice.Cell[loc].Beta[Y_]);
+	   Lattice.Cell[loc].Elem.PName,
+	   Lattice.Cell[loc].Beta[X_], Lattice.Cell[loc].Beta[Y_]);
   }
 }
 
@@ -256,18 +262,20 @@ void chk_b3(void)
 
   const int
     // Fnum[] =
-    //   {ElemIndex("sfa"), ElemIndex("sfb"),
-    //    ElemIndex("sda"), ElemIndex("sdb"),
-    //    ElemIndex("s1"),
-    //    ElemIndex("s2a"), ElemIndex("s2b"),
-    //    ElemIndex("s3"),  ElemIndex("s4"), ElemIndex("s5"), ElemIndex("s6")},
+    //   {Lattice.Elem_Index("sfa"), Lattice.Elem_Index("sfb"),
+    //    Lattice.Elem_Index("sda"), Lattice.Elem_Index("sdb"),
+    //    Lattice.Elem_Index("s1"),
+    //    Lattice.Elem_Index("s2a"), Lattice.Elem_Index("s2b"),
+    //    Lattice.Elem_Index("s3"),  Lattice.Elem_Index("s4"),
+    //    Lattice.Elem_Index("s5"), Lattice.Elem_Index("s6")},
     Fnum[] =
-      {ElemIndex("sf"), ElemIndex("sd"),
-       ElemIndex("s1"), ElemIndex("s2"), ElemIndex("s3"),  ElemIndex("s4"),
-       ElemIndex("s5"), ElemIndex("s6")},
+      {Lattice.Elem_Index("sf"), Lattice.Elem_Index("sd"),
+       Lattice.Elem_Index("s1"), Lattice.Elem_Index("s2"),
+       Lattice.Elem_Index("s3"),  Lattice.Elem_Index("s4"),
+       Lattice.Elem_Index("s5"), Lattice.Elem_Index("s6")},
     n_b3 = sizeof(Fnum)/sizeof(*Fnum);
 
-  Ring_GetTwiss(true, 0e0);
+  Lattice.Ring_GetTwiss(true, 0e0);
  
   printf("\nSextupole Scheme:\n");
   for (k = 0; k < n_b3; k++)
@@ -285,22 +293,24 @@ void chk_dip(void)
 
   const int
     Fnum[] =
-      {ElemIndex("bn00"), ElemIndex("bn01"), ElemIndex("bn02"),
-       ElemIndex("bn03"), ElemIndex("bn04"), ElemIndex("bn05"),
-       ElemIndex("bn06")},
+      {Lattice.Elem_Index("bn00"), Lattice.Elem_Index("bn01"),
+       Lattice.Elem_Index("bn02"), Lattice.Elem_Index("bn03"),
+       Lattice.Elem_Index("bn04"), Lattice.Elem_Index("bn05"),
+       Lattice.Elem_Index("bn06")},
     // Fnum[] =
-    //   {ElemIndex("i_bn00"), ElemIndex("i_bn01"), ElemIndex("i_bn02"),
-    //    ElemIndex("i_bn03"), ElemIndex("i_bn04"), ElemIndex("i_bn05"),
-    //    ElemIndex("i_bn06")},
+    //   {Lattice.Elem_Index("i_bn00"), Lattice.Elem_Index("i_bn01"),
+    //    Lattice.Elem_Index("i_bn02"), Lattice.Elem_Index("i_bn03"),
+    //    Lattice.Elem_Index("i_bn04"), Lattice.Elem_Index("i_bn05"),
+    //    Lattice.Elem_Index("i_bn06")},
     // Fnum[] =
-    //   {ElemIndex("bn00"), ElemIndex("bn03"),
-    //    ElemIndex("bn06")},
+    //   {Lattice.Elem_Index("bn00"), Lattice.Elem_Index("bn03"),
+    //    Lattice.Elem_Index("bn06")},
     // Fnum[] =
-    //   {ElemIndex("i_bn00"), ElemIndex("i_bn03"),
-    //    ElemIndex("i_bn06")},
+    //   {Lattice.Elem_Index("i_bn00"), Lattice.Elem_Index("i_bn03"),
+    //    Lattice.Elem_Index("i_bn06")},
     n_dip = sizeof(Fnum)/sizeof(*Fnum);
 
-  Ring_GetTwiss(true, 0e0);
+  Lattice.Ring_GetTwiss(true, 0e0);
  
   printf("\nLong grad dipole:\n");
   L_sum = 0e0; phi_sum = 0e0;
@@ -349,12 +359,12 @@ int main(int argc, char *argv[])
   FieldMap_filetype = 1; sympl = false;
 
   if (true)
-    Read_Lattice(argv[1]);
+    Lattice.Read_Lattice(argv[1]);
   else
-    rdmfile(argv[1]);
+    Lattice.rdmfile(argv[1]);
 
   if (false) {
-    loc = Elem_GetPos(ElemIndex("bb"), 1);
+    loc = Elem_GetPos(Lattice.Elem_Index("bb"), 1);
     map.identity();
     // Tweak to remain within field map range at entrance.
     tweak = true;
@@ -399,22 +409,23 @@ int main(int argc, char *argv[])
 
   if (false) no_sxt();
 
-  Ring_GetTwiss(true, 0e0); printglob();
+  Lattice.Ring_GetTwiss(true, 0e0); printglob();
 
   if (false) get_alphac2();
 
-  prtmfile("flat_file.dat");
+  Lattice.prtmfile("flat_file.dat");
 
-  // globval.bpm = ElemIndex("bpm");
+  // globval.bpm = Lattice.Elem_Index("bpm");
   prt_lat("linlat1.out", globval.bpm, true);
   prt_lat("linlat.out", globval.bpm, true, 10);
   prt_chrom_lat();
 
   if (false) {
     iniranf(seed); setrancut(1e0);
-    // globval.bpm = ElemIndex("mon");
-    globval.bpm = ElemIndex("bpm");
-    globval.hcorr = ElemIndex("ch"); globval.vcorr = ElemIndex("cv");
+    // globval.bpm = Lattice.Elem_Index("mon");
+    globval.bpm = Lattice.Elem_Index("bpm");
+    globval.hcorr = Lattice.Elem_Index("ch");
+    globval.vcorr = Lattice.Elem_Index("cv");
 
     gcmat(globval.bpm, globval.hcorr, 1);
     gcmat(globval.bpm, globval.vcorr, 2);
@@ -425,55 +436,55 @@ int main(int argc, char *argv[])
   }
 
   if (false) {
-    Fam.push_back(ElemIndex("ts1b"));
-    // Fam.push_back(ElemIndex("ts1d"));
+    Fam.push_back(Lattice.Elem_Index("ts1b"));
+    // Fam.push_back(Lattice.Elem_Index("ts1d"));
     chk_mini_beta(Fam);
     exit(0);
   }
 
   if (false) {
-    // Fam.push_back(ElemIndex("s1b"));
-    // Fam.push_back(ElemIndex("s1d"));
-    // Fam.push_back(ElemIndex("s2b"));
-    // Fam.push_back(ElemIndex("s2d"));
-    // Fam.push_back(ElemIndex("sx1"));
-    // Fam.push_back(ElemIndex("sy1"));
+    // Fam.push_back(Lattice.Elem_Index("s1b"));
+    // Fam.push_back(Lattice.Elem_Index("s1d"));
+    // Fam.push_back(Lattice.Elem_Index("s2b"));
+    // Fam.push_back(Lattice.Elem_Index("s2d"));
+    // Fam.push_back(Lattice.Elem_Index("sx1"));
+    // Fam.push_back(Lattice.Elem_Index("sy1"));
 
   switch (2) {
   case 1:
     // DIAMOND.
-    Fam.push_back(ElemIndex("ts1a"));
-    Fam.push_back(ElemIndex("ts1ab"));
-    Fam.push_back(ElemIndex("ts2a"));
-    Fam.push_back(ElemIndex("ts2ab"));
-    Fam.push_back(ElemIndex("ts1b"));
-    Fam.push_back(ElemIndex("ts2b"));
-    Fam.push_back(ElemIndex("ts1c"));
-    Fam.push_back(ElemIndex("ts2c"));
-    Fam.push_back(ElemIndex("ts1d"));
-    Fam.push_back(ElemIndex("ts2d"));
-    Fam.push_back(ElemIndex("ts1e"));
-    Fam.push_back(ElemIndex("ts2e"));
+    Fam.push_back(Lattice.Elem_Index("ts1a"));
+    Fam.push_back(Lattice.Elem_Index("ts1ab"));
+    Fam.push_back(Lattice.Elem_Index("ts2a"));
+    Fam.push_back(Lattice.Elem_Index("ts2ab"));
+    Fam.push_back(Lattice.Elem_Index("ts1b"));
+    Fam.push_back(Lattice.Elem_Index("ts2b"));
+    Fam.push_back(Lattice.Elem_Index("ts1c"));
+    Fam.push_back(Lattice.Elem_Index("ts2c"));
+    Fam.push_back(Lattice.Elem_Index("ts1d"));
+    Fam.push_back(Lattice.Elem_Index("ts2d"));
+    Fam.push_back(Lattice.Elem_Index("ts1e"));
+    Fam.push_back(Lattice.Elem_Index("ts2e"));
 
-    Fam.push_back(ElemIndex("s1"));
-    Fam.push_back(ElemIndex("s2"));
-    Fam.push_back(ElemIndex("s3"));
-    Fam.push_back(ElemIndex("s4"));
-    Fam.push_back(ElemIndex("s5"));
+    Fam.push_back(Lattice.Elem_Index("s1"));
+    Fam.push_back(Lattice.Elem_Index("s2"));
+    Fam.push_back(Lattice.Elem_Index("s3"));
+    Fam.push_back(Lattice.Elem_Index("s4"));
+    Fam.push_back(Lattice.Elem_Index("s5"));
     break;
   case 2:
     // DIAMOND-II, 6-BA.
-    Fam.push_back(ElemIndex("sd1"));
-    Fam.push_back(ElemIndex("sd2"));
-    Fam.push_back(ElemIndex("sd3"));
-    // Fam.push_back(ElemIndex("sd4"));
-    Fam.push_back(ElemIndex("sf21"));
-    Fam.push_back(ElemIndex("sd31"));
-    // Fam.push_back(ElemIndex("sd41"));
-    Fam.push_back(ElemIndex("sf1"));
-    // Fam.push_back(ElemIndex("sf2"));
-    Fam.push_back(ElemIndex("sh1a"));
-    Fam.push_back(ElemIndex("sh1e"));
+    Fam.push_back(Lattice.Elem_Index("sd1"));
+    Fam.push_back(Lattice.Elem_Index("sd2"));
+    Fam.push_back(Lattice.Elem_Index("sd3"));
+    // Fam.push_back(Lattice.Elem_Index("sd4"));
+    Fam.push_back(Lattice.Elem_Index("sf21"));
+    Fam.push_back(Lattice.Elem_Index("sd31"));
+    // Fam.push_back(Lattice.Elem_Index("sd41"));
+    Fam.push_back(Lattice.Elem_Index("sf1"));
+    // Fam.push_back(Lattice.Elem_Index("sf2"));
+    Fam.push_back(Lattice.Elem_Index("sh1a"));
+    Fam.push_back(Lattice.Elem_Index("sh1e"));
     break;
   }
 
@@ -481,23 +492,23 @@ int main(int argc, char *argv[])
   }
 
   if (false) {
-    Fam.push_back(ElemIndex("q1_2"));
-    Fam.push_back(ElemIndex("q1_2m"));
-    Fam.push_back(ElemIndex("q1b"));
-    Fam.push_back(ElemIndex("q2b"));
-    Fam.push_back(ElemIndex("q1d"));
-    Fam.push_back(ElemIndex("q2d"));
-    Fam.push_back(ElemIndex("q3d"));
+    Fam.push_back(Lattice.Elem_Index("q1_2"));
+    Fam.push_back(Lattice.Elem_Index("q1_2m"));
+    Fam.push_back(Lattice.Elem_Index("q1b"));
+    Fam.push_back(Lattice.Elem_Index("q2b"));
+    Fam.push_back(Lattice.Elem_Index("q1d"));
+    Fam.push_back(Lattice.Elem_Index("q2d"));
+    Fam.push_back(Lattice.Elem_Index("q3d"));
 
     prt_quad(Fam);
   }
 
-  if (true) GetEmittance(ElemIndex("cav"), true);
+  if (true) GetEmittance(Lattice.Elem_Index("cav"), true);
 
   if (false) {
-    b2_fam[0] = ElemIndex(q_fam[0].c_str());
-    b2_fam[1] = ElemIndex(q_fam[1].c_str());
-    FitTune(b2_fam[0], b2_fam[1], nu[X_], nu[Y_]);
+    b2_fam[0] = Lattice.Elem_Index(q_fam[0].c_str());
+    b2_fam[1] = Lattice.Elem_Index(q_fam[1].c_str());
+    Lattice.FitTune(b2_fam[0], b2_fam[1], nu[X_], nu[Y_]);
     get_bn_design_elem(b2_fam[0], 1, Quad, b2[0], a2);
     get_bn_design_elem(b2_fam[1], 1, Quad, b2[1], a2);
 
@@ -506,13 +517,13 @@ int main(int argc, char *argv[])
     printf("  %s = %8.5f  %s = %8.5f\n",
 	   q_fam[0].c_str(), b2[0], q_fam[1].c_str(), b2[1]);
 
-    Ring_GetTwiss(true, 0e0); printglob();
+    Lattice.Ring_GetTwiss(true, 0e0); printglob();
   }
 
   if (false) {
-    b3_fam[0] = ElemIndex(s_fam[0].c_str());
-    b3_fam[1] = ElemIndex(s_fam[1].c_str());
-    FitChrom(b3[0], b3[1], 0e0, 0e0);
+    b3_fam[0] = Lattice.Elem_Index(s_fam[0].c_str());
+    b3_fam[1] = Lattice.Elem_Index(s_fam[1].c_str());
+    Lattice.FitChrom(b3[0], b3[1], 0e0, 0e0);
     get_bn_design_elem(b3_fam[0], 1, Sext, b3[0], a3);
     get_bn_design_elem(b3_fam[1], 1, Sext, b3[1], a3);
     get_bnL_design_elem(b3_fam[0], 1, Sext, b3L[0], a3L);
@@ -521,15 +532,16 @@ int main(int argc, char *argv[])
     printf("\n%s = %10.5f (%10.5f), %s = %10.5f (%10.5f)\n",
 	   s_fam[0].c_str(), b3[0], b3L[0], s_fam[1].c_str(), b3[1], b3L[1]);
 
-    Ring_GetTwiss(true, 0e0); printglob();
+    Lattice.Ring_GetTwiss(true, 0e0); printglob();
   }
 
-  prtmfile("flat_file.fit");
+  Lattice.prtmfile("flat_file.fit");
 
   if (false) {
     globval.Cavity_on = false; globval.radiation = false;
 
-    f_rf = Lattice.Cell[Elem_GetPos(ElemIndex("cav"), 1)].Elem.C->Pfreq;
+    f_rf =
+      Lattice.Cell[Elem_GetPos(Lattice.Elem_Index("cav"), 1)].Elem.C->Pfreq;
     printf("\nf_rf = %10.3e\n", f_rf);
 
     globval.Cavity_on = true;
@@ -543,8 +555,8 @@ int main(int argc, char *argv[])
     // 	  0, f_rf);
 
     // lattice/101pm_s7o7_a_tracy.lat.
-    track("track.out", 5.5e-3, 0e0, 1e-6, 0e0, 0e0, n_turn, lastn, lastpos,
-    	  0, 0*f_rf);
+    Lattice.track("track.out", 5.5e-3, 0e0, 1e-6, 0e0, 0e0, n_turn,
+		  lastn, lastpos, 0, 0*f_rf);
   }
 
   if (true) {

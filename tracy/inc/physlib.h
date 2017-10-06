@@ -46,13 +46,9 @@
 typedef long ipeakbuf[npeakmax];
 typedef double peakbuf[npeakmax];
 
-double int_curly_H(long int n);
-
 void rm_mean(long int n, double x[]);
 
 void printglob(void);
-
-void printlatt(void);
 
 void PrintMat(long n, psVector *A);
 
@@ -64,54 +60,13 @@ double Circumference(void);
 
 void GetMean(long n, double *x);
 
-bool getcod(double dP, long &lastpos);
-
-void get_twiss3(long int loc,
-                       Vector2 alpha[], Vector2 beta[], Vector2 nu[],
-                       Vector2 eta[], Vector2 etap[]);
-
-void getabn(double *alpha, double *beta, double *nu);
-
-void TraceABN(long i0, long i1, const Vector2 &alpha, const Vector2 &beta,
-	      const Vector2 &eta, const Vector2 &etap, const double dP);
-
-void ttwiss(const Vector2 &alpha, const Vector2 &beta,
-                   const Vector2 &eta, const Vector2 &etap, const double dP);
-
 void prt_sigma(void);
-
-/* 2 parameter fitting routines */
-void FitTune(long qf, long qd, double nux, double nuy);
-
-void FitChrom(long sf, long sd, double ksix, double ksiy);
-
-void FitDisp(long q, long  pos, double eta);
-
-void inibump(long coh, long cov);
-
-void getfloqs(psVector &x);
-
-void track(const char* file_name,
-	   double ic1, double ic2, double ic3, double ic4, double dp,
-	   long int nmax, long int &lastn, long int &lastpos, int floqs,
-	   double f_rf);
 
 struct LOC_getdynap {
   double phi, delta;
   long nturn;
   bool floqs, lost;
 } ;
-
-void track_(double r, struct LOC_getdynap *LINK);
-
-void getdynap(double &r, double phi, double delta, double eps,
-	      int nturn, bool floqs);
-
-void getcsAscr(void);
-
-void dynap(FILE *fp, double r, const double delta,
-	   const double eps, const int npoint, const int nturn,
-       double x[], double y[], const bool floqs, const bool cod, const bool print);
 
 double get_aper(int n, double x[], double y[]);
 

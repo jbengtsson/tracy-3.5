@@ -14,7 +14,7 @@
 #define n  4
 
 
-void GetNu(Vector2 &nu, Matrix &M)
+void Lattice_Type::GetNu(Vector2 &nu, Matrix &M)
 {
   int     i;
   double  sgn, detp, detm, b, c, th, tv, b2mc, x_arg, y_arg;
@@ -116,8 +116,8 @@ void GetNu(Vector2 &nu, Matrix &M)
        none
 
 ****************************************************************************/
-void Cell_GetABGN(Matrix &M,
-		  Vector2 &alpha, Vector2 &beta, Vector2 &gamma, Vector2 &nu)
+void Lattice_Type::Cell_GetABGN(Matrix &M, Vector2 &alpha, Vector2 &beta,
+				Vector2 &gamma, Vector2 &nu)
 {
   int     i = 0, j = 0;
   double  c = 0.0, s = 0.0;
@@ -141,7 +141,7 @@ void Cell_GetABGN(Matrix &M,
 
 
 #define n  4
-void Cell_Geteta(long i0, long i1, bool ring, double dP)
+void Lattice_Type::Cell_Geteta(long i0, long i1, bool ring, double dP)
 {
   long int  i = 0, lastpos = 0;
   int       j = 0, k = 0;
@@ -297,8 +297,8 @@ void dagetprm(ss_vect<tps> &Ascr, Vector2 &alpha, Vector2 &beta)
 }
 
 
-void Cell_Twiss(long i0, long i1, ss_vect<tps> &Ascr, bool chroma, bool ring,
-		double dP)
+void Lattice_Type::Cell_Twiss(long i0, long i1, ss_vect<tps> &Ascr, bool chroma,
+			      bool ring, double dP)
 {
   long int      i = 0;
   int           j = 0, k = 0;
@@ -389,7 +389,7 @@ void Cell_Twiss(long i0, long i1, ss_vect<tps> &Ascr, bool chroma, bool ring,
        16/10/03 Modified convergence test: now done for both planes
 ****************************************************************************/
 #define n               4
-void Ring_Getchrom(double dP)
+void Lattice_Type::Ring_Getchrom(double dP)
 {
   long int  lastpos = 0;
   int       j;
@@ -465,7 +465,7 @@ void Ring_Getchrom(double dP)
        11/05/03 in Cell_Twiss start from 1
 
 ****************************************************************************/
-void Ring_Twiss(bool chroma, double dP)
+void Lattice_Type::Ring_Twiss(bool chroma, double dP)
 {
   long int      lastpos = 0;
   int           n = 0;
@@ -495,7 +495,8 @@ void Ring_Twiss(bool chroma, double dP)
 
   Cell_Twiss(0, globval.Cell_nLoc, AScr, chroma, true, dP);
 
-  memcpy(globval.TotalTune, Lattice.Cell[globval.Cell_nLoc].Nu, sizeof(Vector2));
+  memcpy(globval.TotalTune, Lattice.Cell[globval.Cell_nLoc].Nu,
+	 sizeof(Vector2));
   status.tuneflag = true;
 
   if (chroma && !globval.Cavity_on) {
@@ -532,7 +533,7 @@ void Ring_Twiss(bool chroma, double dP)
        none
 
 ****************************************************************************/
-void Ring_GetTwiss(bool chroma, double dP)
+void Lattice_Type::Ring_GetTwiss(bool chroma, double dP)
 {
 
   if (trace) printf("enter ring_gettwiss\n");
@@ -654,8 +655,8 @@ void checkifstable(struct LOC_Ring_Fittune *LINK)
        17 mars 2004: removed labels
 
 ****************************************************************************/
-void Ring_Fittune(Vector2 &nu, double eps, iVector2 &nq, long qf[], long qd[],
-                  double dkL, long imax)
+void Lattice_Type::Ring_Fittune(Vector2 &nu, double eps, iVector2 &nq,
+				long qf[], long qd[], double dkL, long imax)
 {
   struct LOC_Ring_Fittune V;
 
@@ -744,8 +745,8 @@ void shiftkp(long Elnum, double dkp)
 }
 
 
-void Ring_Fitchrom(Vector2 &ksi, double eps, iVector2 &ns,
-		   long sf[], long sd[], double dkpL, long imax)
+void Lattice_Type::Ring_Fitchrom(Vector2 &ksi, double eps, iVector2 &ns,
+				 long sf[], long sd[], double dkpL, long imax)
 {
   bool      rad;
   long int  lastpos;
@@ -851,8 +852,8 @@ void checkifstable_(struct LOC_Ring_FitDisp *LINK)
 }
 
 
-void Ring_FitDisp(long pos, double eta, double eps, long nq, long q[],
-                  double dkL, long imax)
+void Lattice_Type::Ring_FitDisp(long pos, double eta, double eps, long nq,
+				long q[], double dkL, long imax)
 {
   /*pos : integer; eta, eps : double;
                          nq : integer; var q : fitvect;

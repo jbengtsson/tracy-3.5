@@ -55,7 +55,7 @@ void Get_Disp_dp(void)
     dP = -0.003 + 1e-6 + i*0.0006;
     //~ getcod(dP, lastpos);
     findcod(dP);
-    Ring_GetTwiss(true, dP);  /* Compute and get Twiss parameters */
+    Lattice.Ring_GetTwiss(true, dP);  /* Compute and get Twiss parameters */
     getelem(0, &Cell);
     fprintf(outf,"%+e %+e %+e\n", dP, Cell.BeamPos[0], Cell.Eta[0]);
   }
@@ -125,7 +125,7 @@ void InducedAmplitude(long spos)
 
     /* Computes closed orbit and store it in a vector */
     set_vectorcod(codvector, dP) ;
-    Ring_GetTwiss(false, dP);  /* Compute and get Twiss parameters */
+    Lattice.Ring_GetTwiss(false, dP);  /* Compute and get Twiss parameters */
     getelem(1L, &Celldebut);
     getelem(spos, &Cell);
 
@@ -176,7 +176,7 @@ void InducedAmplitude(long spos)
        none
 
    specific functions:
-       Ring_GetTwiss
+       Lattice.Ring_GetTwiss
        getelem
 
    Comments:
@@ -189,7 +189,7 @@ void Hfonction(long pos, double dP,Vector2 H)
   CellType Cell;
   long i;
 
-  Ring_GetTwiss(pos, dP); /* Compute and get Twiss parameters */
+  Lattice.Ring_GetTwiss(pos, dP); /* Compute and get Twiss parameters */
   getelem(pos, &Cell);    /* Position sur l'element pos */
 
   i = 0; /* Horizontal */
@@ -226,7 +226,7 @@ void Hfonction(long pos, double dP,Vector2 H)
 
    specific functions:
        getcod
-       Ring_GetTwiss
+       Lattice.Ring_GetTwiss
        getelem
 
    Comments:
@@ -243,7 +243,7 @@ void Hcofonction(long pos, double dP,Vector2 H)
   findcod(dP);
   if (lastpos != globval.Cell_nLoc) printf("Ring unstable for dp=%+e @ pos=%ld\n", dP, lastpos);
 
-  Ring_GetTwiss(pos, dP); /* Compute and get Twiss parameters */
+  Lattice.Ring_GetTwiss(pos, dP); /* Compute and get Twiss parameters */
   getelem(pos, &Cell);    /* Position sur l'element pos */
 
   i = 0; /* Horizontal */
@@ -2661,8 +2661,8 @@ void TracCO(double x, double px, double y, double py, double dp, double ctau,
   CellType Cell;
 
   /* Get closed orbit */
-  Ring_GetTwiss(true, 0.0);
-  getcod(dp, lastpos);
+  Lattice.Ring_GetTwiss(true, 0.0);
+  Lattice.getcod(dp, lastpos);
   getelem(pos-1,&Cell);
 
   if (!trace) printf("dp= % .5e %% xcod= % .5e mm zcod= % .5e mm \n",
@@ -2747,17 +2747,19 @@ void getA4antidamping()
       {
         qlist[nquad] = i;
         nquad++;
-        if (!trace) printf("%s % f\n",Cell.Elem.PName, Cell.Elem.M->PBpar[2L + HOMmax]);
+        if (!trace) printf("%s % f\n",
+			   Cell.Elem.PName, Cell.Elem.M->PBpar[2L + HOMmax]);
       }
     }
   }
   fprintf(stdout,"Nombre de quadrupoles %d\n", nquad);
 
-  Ring_GetTwiss(true, 0.0);
+  Lattice.Ring_GetTwiss(true, 0.0);
   for (i = 0; i < nquad; i++)
   {
     getelem(qlist[i],&Cell);
-    fprintf(stdout,"%d Name = %s L=%g A= %g etax=%g \n", i, Cell.Elem.PName, Cell.Elem.PL, A,Cell.Eta[0]);
+    fprintf(stdout,"%d Name = %s L=%g A= %g etax=%g \n",
+	    i, Cell.Elem.PName, Cell.Elem.PL, A,Cell.Eta[0]);
     A += Cell.Elem.PL*2.0*(Cell.Elem.M->PBpar[2L + HOMmax]*Cell.Eta[0])*
                        (Cell.Elem.M->PBpar[2L + HOMmax]*Cell.Eta[0]);
     i++;
@@ -3491,7 +3493,7 @@ void Enveloppe2(double x, double px, double y, double py, double dp, double ntur
 
 
   /* Get cod the delta = energy*/
-  getcod(dp, lastpos);
+  Lattice.getcod(dp, lastpos);
 //  /* initialization to chromatic closed orbit */
 //  for (i = 0; i<= globval.Cell_nLoc; i++)
 //  {

@@ -89,7 +89,7 @@ void printglob(void)
 }
 
 
-double int_curly_H1(long int n)
+double Lattice_Type::int_curly_H1(long int n)
 {
   /* Integration with Simpson's Rule */
 
@@ -166,15 +166,15 @@ void recalc_S(void)
 }
 
 
-bool getcod(double dP, long &lastpos)
+bool Lattice_Type::getcod(double dP, long &lastpos)
 {
   return GetCOD(globval.CODimax, globval.CODeps, dP, lastpos);
 }
 
 
-void get_twiss3(long int loc,
-		Vector2 alpha[], Vector2 beta[], Vector2 nu[],
-		Vector2 eta[], Vector2 etap[])
+void Lattice_Type::get_twiss3(long int loc,
+			      Vector2 alpha[], Vector2 beta[], Vector2 nu[],
+			      Vector2 eta[], Vector2 etap[])
 {
   /* Get Twiss functions at magnet entrance-, center-, and exit. */
 
@@ -184,14 +184,17 @@ void get_twiss3(long int loc,
 
   // Lattice functions at the magnet entrance
   for (k = 0; k <= 1; k++) {
-    alpha[0][k] = Lattice.Cell[loc-1].Alpha[k]; beta[0][k] = Lattice.Cell[loc-1].Beta[k];
+    alpha[0][k] = Lattice.Cell[loc-1].Alpha[k];
+    beta[0][k] = Lattice.Cell[loc-1].Beta[k];
     nu[0][k] = Lattice.Cell[loc-1].Nu[k];
-    eta[0][k] = Lattice.Cell[loc-1].Eta[k]; etap[0][k] = Lattice.Cell[loc-1].Etap[k];
+    eta[0][k] = Lattice.Cell[loc-1].Eta[k];
+    etap[0][k] = Lattice.Cell[loc-1].Etap[k];
   }
 
   UnitMat(5, Ascr0);
   for (k = 0; k <= 1; k++) {
-    Ascr0[2*k][2*k] = sqrt(Lattice.Cell[loc-1].Beta[k]); Ascr0[2*k][2*k+1] = 0.0;
+    Ascr0[2*k][2*k] = sqrt(Lattice.Cell[loc-1].Beta[k]);
+    Ascr0[2*k][2*k+1] = 0.0;
     Ascr0[2*k+1][2*k] = -Lattice.Cell[loc-1].Alpha[k]/Ascr0[2*k][2*k];
     Ascr0[2*k+1][2*k+1] = 1/Ascr0[2*k][2*k];
   }
@@ -229,15 +232,16 @@ void get_twiss3(long int loc,
 }
 
 
-void getabn(Vector2 &alpha, Vector2 &beta, Vector2 &nu)
+void Lattice_Type::getabn(Vector2 &alpha, Vector2 &beta, Vector2 &nu)
 {
   Vector2 gamma;
   Cell_GetABGN(globval.OneTurnMat, alpha, beta, gamma, nu);
 }
 
 
-void TraceABN(long i0, long i1, const Vector2 &alpha, const Vector2 &beta,
-              const Vector2 &eta, const Vector2 &etap, const double dP)
+void Lattice_Type::TraceABN(long i0, long i1, const Vector2 &alpha,
+			    const Vector2 &beta, const Vector2 &eta,
+			    const Vector2 &etap, const double dP)
 {
   long          i, j;
   double        sb;
@@ -266,7 +270,7 @@ void TraceABN(long i0, long i1, const Vector2 &alpha, const Vector2 &beta,
 }
 
 
-void FitTune(long qf, long qd, double nux, double nuy)
+void Lattice_Type::FitTune(long qf, long qd, double nux, double nuy)
 {
   long      i;
   iVector2  nq = {0,0};
@@ -290,7 +294,7 @@ void FitTune(long qf, long qd, double nux, double nuy)
 }
 
 
-void FitChrom(long sf, long sd, double ksix, double ksiy)
+void Lattice_Type::FitChrom(long sf, long sd, double ksix, double ksiy)
 {
   long      i;
   iVector2  ns = {0,0};
@@ -315,7 +319,7 @@ void FitChrom(long sf, long sd, double ksix, double ksiy)
 }
 
 
-void FitDisp(long q, long pos, double eta)
+void Lattice_Type::FitDisp(long q, long pos, double eta)
 {
   long     i, nq;
   fitvect  qbuf;
@@ -331,7 +335,7 @@ void FitDisp(long q, long pos, double eta)
 
 #define nfloq           4
 
-void getfloqs(psVector &x)
+void Lattice_Type::getfloqs(psVector &x)
 {
   // Transform to Floquet space
   LinTrans(nfloq, globval.Ascrinv, x);
@@ -344,10 +348,10 @@ void getfloqs(psVector &x)
 
 // 4D tracking in normal or Floquet space over nmax turns
 
-void track(const char *file_name,
-	   double ic1, double ic2, double ic3, double ic4, double dp,
-	   long int nmax, long int &lastn, long int &lastpos, int floqs,
-	   double f_rf)
+void Lattice_Type::track(const char *file_name,
+			 double ic1, double ic2, double ic3, double ic4,
+			 double dp, long int nmax, long int &lastn,
+			 long int &lastpos, int floqs, double f_rf)
 {
   /* Single particle tracking around closed orbit:
 
@@ -491,7 +495,7 @@ void track(const char *file_name,
 #define step            0.1
 #define px              0.0
 #define py              0.0
-void track_(double r, struct LOC_getdynap *LINK)
+void Lattice_Type::track_(double r, struct LOC_getdynap *LINK)
 {
   long i, lastn, lastpos;
   psVector x;
@@ -572,8 +576,9 @@ void Trac(double x, double px, double y, double py, double dp, double ctau,
 
   (lastpos)=pos;
   if(trace) fprintf(outf1, "\n");
-  fprintf(outf1, "%6ld %+10.5e %+10.5e %+10.5e %+10.5e %+10.5e %+10.5e \n", lastn,
-                 x1[0], x1[1], x1[2], x1[3], x1[4], x1[5]);
+  fprintf(outf1, "%6ld %+10.5e %+10.5e %+10.5e %+10.5e %+10.5e %+10.5e \n",
+	  lastn,
+	  x1[0], x1[1], x1[2], x1[3], x1[4], x1[5]);
   Cell_Pass(pos -1L, globval.Cell_nLoc, x1, lastpos);
 
   if (lastpos == globval.Cell_nLoc)
@@ -689,8 +694,8 @@ bool chk_if_lost(double x0, double y0, double delta,
        none
 
 ****************************************************************************/
-void getdynap(double &r, double phi, double delta, double eps,
-	      int nturn, bool floqs)
+void Lattice_Type::getdynap(double &r, double phi, double delta, double eps,
+			    int nturn, bool floqs)
 {
   /* Determine dynamical aperture by binary search. */
   double  rmin = 0.0, rmax = r;
@@ -749,7 +754,7 @@ void getdynap(double &r, double phi, double delta, double eps,
        none
 
 ****************************************************************************/
-void getcsAscr(void)
+void Lattice_Type::getcsAscr(void)
 {
   long i, j;
   double phi;
@@ -813,9 +818,10 @@ void getcsAscr(void)
        none
 
 ****************************************************************************/
-void dynap(FILE *fp, double r, const double delta,
-	   const double eps, const int npoint, const int nturn,
-       double x[], double y[], const bool floqs, const bool cod, const bool print)
+void Lattice_Type::dynap(FILE *fp, double r, const double delta,
+			 const double eps, const int npoint, const int nturn,
+			 double x[], double y[], const bool floqs,
+			 const bool cod, const bool print)
 
 {
   /* Determine the dynamical aperture by tracking.
@@ -1572,7 +1578,7 @@ void LoadApertures(const char *ChamberFileName)
 
   do {
     sscanf(line,"%s %lf %lf %lf %lf", FamName,&Xmin, &Xmax, &Ymin,&Ymax);
-      Fnum = ElemIndex(FamName);
+      Fnum = Lattice.Elem_Index(FamName);
       if (Fnum > 0) set_aper(Fnum, Xmin, Xmax, Ymin, Ymax);
   } while (fgets(line, 128, ChamberFile ) != NULL);
 
@@ -1597,7 +1603,7 @@ void LoadTolerances(const char *TolFileName)
   do {
     if (strstr(line, "#") == NULL) {
       sscanf(line,"%s %lf %lf %lf", FamName, &dx, &dy, &dr);
-      Fnum = ElemIndex(FamName);
+      Fnum = Lattice.Elem_Index(FamName);
       if (Fnum > 0) {
 	SetTol(Fnum, dx, dy, dr);
       } else {
@@ -1628,7 +1634,7 @@ void ScaleTolerances(const char *TolFileName, const double scl)
   do {
     if (strstr(line, "#") == NULL) {
       sscanf(line,"%s %lf %lf %lf", FamName, &dx, &dy, &dr);
-      Fnum = ElemIndex(FamName);
+      Fnum = Lattice.Elem_Index(FamName);
       if (Fnum > 0) {
 	Scale_Tol(Fnum, scl*dx, scl*dy, scl*dr);
       } else {
@@ -2418,8 +2424,9 @@ void GetTuneTrac(long Nbtour, double emax, double *nux, double *nuz)
        redundant with TransTwiss
 
 ****************************************************************************/
-void ttwiss(const Vector2 &alpha, const Vector2 &beta,
-            const Vector2 &eta, const Vector2 &etap, const double dP)
+void Lattice_Type::ttwiss(const Vector2 &alpha, const Vector2 &beta,
+			  const Vector2 &eta, const Vector2 &etap,
+			  const double dP)
 {
   TraceABN(0, globval.Cell_nLoc, alpha, beta, eta, etap, dP);
 }

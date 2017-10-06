@@ -247,7 +247,7 @@ void DA_data_type::get_DA_real(param_data_type &params,
 
       cod = params.cod_corr(n_cell, 1e0, orb_corr);
     } else
-      cod = getcod(0e0, lastpos);
+      cod = Lattice.getcod(0e0, lastpos);
 
     params.Orb_and_Trim_Stat();
 
@@ -263,14 +263,14 @@ void DA_data_type::get_DA_real(param_data_type &params,
       printf("err_and_corr: orbit correction completed\n");
       if (j == 1) prt_cod("cod.out", globval.bpm, true);
  
-      Ring_GetTwiss(true, 0.0); printglob();
+      Lattice.Ring_GetTwiss(true, 0.0); printglob();
 
-      GetEmittance(ElemIndex("cav"), true);
+      GetEmittance(Lattice.Elem_Index("cav"), true);
 
       if (params.n_lin > 0) {
 	params.corr_eps_y();
-	Ring_GetTwiss(true, 0.0); printglob();
-	GetEmittance(ElemIndex("cav"), true);
+	Lattice.Ring_GetTwiss(true, 0.0); printglob();
+	GetEmittance(Lattice.Elem_Index("cav"), true);
       }
 
       prt_beamsizes();

@@ -176,7 +176,7 @@ void get_map(const bool cod)
 
   map.identity();
   if (cod) {
-    getcod(0e0, lastpos);
+    Lattice.getcod(0e0, lastpos);
     map += globval.CODvect;
   }
   Cell_Pass(0, globval.Cell_nLoc, map, lastpos);
@@ -389,7 +389,7 @@ double get_eps_x(void)
 
   globval.Cavity_on = false; globval.emittance = false;
 
-  Ring_GetTwiss(false, 0.0);
+  Lattice.Ring_GetTwiss(false, 0.0);
 
   putlinmat(6, globval.Ascr, A); A += globval.CODvect;
 
@@ -432,7 +432,7 @@ void GetEmittance(const int Fnum, const bool prt)
   globval.radiation = true; globval.emittance  = true;
   globval.Cavity_on = true; globval.pathlength = false;
 
-  Ring_GetTwiss(false, 0.0);
+  Lattice.Ring_GetTwiss(false, 0.0);
 
   // radiation loss is computed in Cav_Pass
 
@@ -474,7 +474,7 @@ void GetEmittance(const int Fnum, const bool prt)
   // undamped system
   globval.radiation = false; globval.emittance = false;
 
-  Ring_GetTwiss(false, 0.0);
+  Lattice.Ring_GetTwiss(false, 0.0);
 
   // Compute sigmas arround the lattice:
   //   Sigma = A diag[J_1, J_1, J_2, J_2, J_3, J_3] A^T
@@ -805,14 +805,14 @@ void prt_chrom_lat(void)
 
   printf("\n");
   printf("prt_chrom_lat: calling Ring_GetTwiss with delta != 0\n");
-  Ring_GetTwiss(true, globval.dPcommon);
+  Lattice.Ring_GetTwiss(true, globval.dPcommon);
   for (i = 0; i <= globval.Cell_nLoc; i++) {
     dbeta_ddelta[i][X_] = Lattice.Cell[i].Beta[X_];
     dbeta_ddelta[i][Y_] = Lattice.Cell[i].Beta[Y_];
     detax_ddelta[i] = Lattice.Cell[i].Eta[X_];
   }
   printf("prt_chrom_lat: calling Ring_GetTwiss with delta != 0\n");
-  Ring_GetTwiss(true, -globval.dPcommon);
+  Lattice.Ring_GetTwiss(true, -globval.dPcommon);
   ksi[0][X_] = 0.0; ksi[0][Y_] = 0.0;
   for (i = 0; i <= globval.Cell_nLoc; i++) {
     dbeta_ddelta[i][X_] -= Lattice.Cell[i].Beta[X_];
@@ -1025,7 +1025,7 @@ void CheckAlignTol(const char *OutputFile)
 
   fout << "  " << std::endl;
   fout << "Dipoles:  " << std::endl;
-  dip_Fnum = ElemIndex("B1"); dip_nKid = GetnKid(dip_Fnum);
+  dip_Fnum = Lattice.Elem_Index("B1"); dip_nKid = GetnKid(dip_Fnum);
   for (i = 1; i <= dip_nKid; i++){
     loc = Elem_GetPos(dip_Fnum, i);
     PdSsys[X_] = Lattice.Cell[loc].Elem.M->PdSsys[X_];
@@ -1944,7 +1944,7 @@ void SetFieldErrors(const char *name, const bool rms, const double r0,
   } else if (strcmp("sext", name) == 0) {
     SetFieldValues_type(Sext, rms, r0, n, Bn, An, new_rnd);
   } else {
-    Fnum = ElemIndex(name);
+    Fnum = Lattice.Elem_Index(name);
     if(Fnum > 0)
       SetFieldValues_fam(Fnum, rms, r0, n, Bn, An, new_rnd);
     else
@@ -1970,7 +1970,7 @@ bool CorrectCOD(const int n_orbit, const double scl)
   // }
   // if (false) prt_cod("cod.out", globval.bpm, true);
  
-  cod = getcod(0e0, lastpos);
+  cod = Lattice.getcod(0e0, lastpos);
   if (cod) {
     codstat(mean, sigma, max, globval.Cell_nLoc, true);
     printf("\n");
@@ -1983,7 +1983,7 @@ bool CorrectCOD(const int n_orbit, const double scl)
 
     for (i = 1; i <= n_orbit; i++){
       lsoc(1, scl); lsoc(2, scl);
-      cod = getcod(0e0, lastpos);
+      cod = Lattice.getcod(0e0, lastpos);
       if (!cod) break;
 
       if (cod) {
@@ -2213,7 +2213,7 @@ double Touschek(const double Qb, const double delta_RF, const bool consistent,
 
   globval.Cavity_on = true;
 
-  Ring_GetTwiss(true, 0.0);
+  Lattice.Ring_GetTwiss(true, 0.0);
 
   globval.Aperture_on = aper_on;
 
@@ -2874,7 +2874,7 @@ void get_bn(const char file_name[], int n, const bool prt)
     n_prm++;
     name = strtok_r(line, "(", &p);
     rm_space(name);
-    strcpy(str, name); Fnum = ElemIndex(str);
+    strcpy(str, name); Fnum = Lattice.Elem_Index(str);
     strcpy(str1, name); upr_case(str1);
     token = strtok_r(NULL, ")", &p); sscanf(token, "%d", &Knum);
     strtok_r(NULL, "=", &p); token = strtok_r(NULL, "\n", &p);
@@ -2932,16 +2932,16 @@ double get_dynap(const double delta, const int n_aper, const int n_track,
   const int  prt = true;
 
   fp = file_write("dynap.out");
-  dynap(fp, 5e-3, 0.0, 0.1e-3, n_aper, n_track, x_aper, y_aper, false, cod,
-	prt);
+  Lattice.dynap(fp, 5e-3, 0.0, 0.1e-3, n_aper, n_track, x_aper, y_aper, false,
+		cod, prt);
   fclose(fp);
   DA = get_aper(n_aper, x_aper, y_aper);
 
   if (true) {
     sprintf(str, "dynap_dp%3.1f.out", 1e2*delta);
     fp = file_write(str);
-    dynap(fp, 5e-3, delta, 0.1e-3, n_aper, n_track,
-      x_aper, y_aper, false, cod, prt);
+    Lattice.dynap(fp, 5e-3, delta, 0.1e-3, n_aper, n_track,
+		  x_aper, y_aper, false, cod, prt);
     fclose(fp);
     DA += get_aper(n_aper, x_aper, y_aper);
 
@@ -2949,8 +2949,8 @@ double get_dynap(const double delta, const int n_aper, const int n_track,
       globval.CODvect[i] = 0.0;
     sprintf(str, "dynap_dp%3.1f.out", -1e2*delta);
     fp = file_write(str);
-    dynap(fp, 5e-3, -delta, 0.1e-3, n_aper,
-      n_track, x_aper, y_aper, false, cod, prt);
+    Lattice.dynap(fp, 5e-3, -delta, 0.1e-3, n_aper,
+		  n_track, x_aper, y_aper, false, cod, prt);
     fclose(fp);
     DA += get_aper(n_aper, x_aper, y_aper);
   }
@@ -3027,7 +3027,7 @@ void get_ksi2(const double d_delta)
   n = 0;
   for (i = -n_points; i <= n_points; i++) {
     n++; delta[n-1] = i*(double)d_delta/(double)n_points;
-    Ring_GetTwiss(false, delta[n-1]);
+    Lattice.Ring_GetTwiss(false, delta[n-1]);
     nu[0][n-1] = globval.TotalTune[X_]; nu[1][n-1] = globval.TotalTune[Y_];
     fprintf(fp, "%5.2f %8.5f %8.5f\n", 1e2*delta[n-1], nu[0][n-1], nu[1][n-1]);
   }
@@ -3085,8 +3085,8 @@ bool get_nu(const double Ax, const double Ay, const double delta,
   // complex FFT in Floquet space
   x0[x_] = Ax; x0[px_] = 0.0; x0[y_] = Ay; x0[py_] = 0.0;
   LinTrans(4, globval.Ascrinv, x0);
-  track(file_name, x0[x_], x0[px_], x0[y_], x0[py_], delta,
-	n_turn, lastn, lastpos, 1, 0.0);
+  Lattice.track(file_name, x0[x_], x0[px_], x0[y_], x0[py_], delta,
+		n_turn, lastn, lastpos, 1, 0.0);
   if (lastn == n_turn) {
     GetTrack(file_name, &n, x, px, y, py);
     sin_FFT((int)n, x, px); sin_FFT((int)n, y, py);
@@ -3129,7 +3129,7 @@ void dnu_dA(const double Ax_max, const double Ay_max, const double delta,
 //   const double  eps0   = 0.04, eps   = 0.015;
   const double  eps = 0.01;
 
-  Ring_GetTwiss(false, 0.0);
+  Lattice.Ring_GetTwiss(false, 0.0);
 
   if (trace) printf("dnu_dAx\n");
 
@@ -3144,7 +3144,8 @@ void dnu_dA(const double Ax_max, const double Ay_max, const double delta,
   Ay = A_min;
   for (i = 1; i <= n_ampl; i++) {
     Ax = -i*Ax_max/n_ampl;
-    ps[x_] = Ax; ps[px_] = 0e0; ps[y_] = Ay; ps[py_] = 0e0; getfloqs(ps);
+    ps[x_] = Ax; ps[px_] = 0e0; ps[y_] = Ay; ps[py_] = 0e0;
+    Lattice.getfloqs(ps);
     Jx = (sqr(ps[x_])+sqr(ps[px_]))/2.0; Jy = (sqr(ps[y_])+sqr(ps[py_]))/2.0;
     ok = get_nu(Ax, Ay, delta, eps, nu_x, nu_y);
     if (ok)
@@ -3165,7 +3166,8 @@ void dnu_dA(const double Ax_max, const double Ay_max, const double delta,
   Ay = A_min;
   for (i = 0; i <= n_ampl; i++) {
     Ax = i*Ax_max/n_ampl;
-    ps[x_] = Ax; ps[px_] = 0e0; ps[y_] = Ay; ps[py_] = 0e0; getfloqs(ps);
+    ps[x_] = Ax; ps[px_] = 0e0; ps[y_] = Ay; ps[py_] = 0e0;
+    Lattice.getfloqs(ps);
     Jx = (sqr(ps[x_])+sqr(ps[px_]))/2.0; Jy = (sqr(ps[y_])+sqr(ps[py_]))/2.0;
     ok = get_nu(Ax, Ay, delta, eps, nu_x, nu_y);
     if (ok)
@@ -3235,14 +3237,14 @@ bool orb_corr(const int n_orbit)
   printf("\n");
   globval.CODvect.zero();
   for (i = 1; i <= n_orbit; i++) {
-    cod = getcod(0.0, lastpos);
+    cod = Lattice.getcod(0.0, lastpos);
     if (cod) {
       codstat(xmean, xsigma, xmax, globval.Cell_nLoc, false);
       printf("\n");
       printf("RMS orbit [mm]: (%8.1e+/-%7.1e, %8.1e+/-%7.1e)\n",
 	     1e3*xmean[X_], 1e3*xsigma[X_], 1e3*xmean[Y_], 1e3*xsigma[Y_]);
       lsoc(1, 1e0); lsoc(2, 1e0);
-      cod = getcod(0.0, lastpos);
+      cod = Lattice.getcod(0.0, lastpos);
       if (cod) {
 	codstat(xmean, xsigma, xmax, globval.Cell_nLoc, false);
 	printf("RMS orbit [mm]: (%8.1e+/-%7.1e, %8.1e+/-%7.1e)\n",
@@ -3424,7 +3426,7 @@ void set_tune(const char file_name1[], const char file_name2[], const int n)
 	     b2s[0], b2s[1], b2s[2], b2s[3], b2s[4], b2s[5], b2s[6], b2s[7]);
 
       for (k = 0; k <  n_b2; k++) {
-	Fnum = ElemIndex(names[k]);
+	Fnum = Lattice.Elem_Index(names[k]);
 	set_bn_design_fam(Fnum, Quad, b2s[k], 0.0);
 
 	fprintf(fp_lat, "%s: Quadrupole, L = %8.6f, K = %10.6f, N = Nquad"

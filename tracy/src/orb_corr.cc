@@ -8,7 +8,7 @@ std::vector<long int> get_elem(const long int i0, const long int i1,
   std::vector<long int> elems;
 
   for (j = 0; j < (int)names.size(); j++) {
-    Fnum = ElemIndex(names[j]);
+    Fnum = Lattice.Elem_Index(names[j]);
     for (k = 1; k <= GetnKid(Fnum); k++) {
       loc = Elem_GetPos(Fnum, k);
       if ((i0 <= loc) && (loc <= i1)) elems.push_back(loc);
@@ -260,7 +260,7 @@ void thread_beam(const int n_cell, const string &Fam_name,
 
   const double eps = 1e-4;
 
-  Fnum = ElemIndex(Fam_name);
+  Fnum = Lattice.Elem_Index(Fam_name);
   i0 = Elem_GetPos(Fnum, 1); i1 = Elem_GetPos(Fnum, 2);
   i2 = Elem_GetPos(Fnum, 3);
   for (j = 0; j < 2; j++) {
@@ -317,7 +317,7 @@ bool cod_correct(const int n_orbit, const double scl, orb_corr_type orb_corr[])
   Vector2  mean, sigma, max;
 
   for (j = 1; j <= n_orbit; j++) {
-    cod = getcod(0e0, lastpos);
+    cod = Lattice.getcod(0e0, lastpos);
     if (cod) {
       if (j == 1) {
 	codstat(mean, sigma, max, globval.Cell_nLoc, true, orb_corr[X_].bpms);

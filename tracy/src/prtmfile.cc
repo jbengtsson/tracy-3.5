@@ -79,7 +79,8 @@ void prtName(FILE *fp, const int i,
 	     const int type, const int method, const int N)
 {
   fprintf(fp, "%-15s %4d %4d %4d\n",
-	  Lattice.Cell[i].Elem.PName, Lattice.Cell[i].Fnum, Lattice.Cell[i].Knum, i);
+	  Lattice.Cell[i].Elem.PName,
+	  Lattice.Cell[i].Fnum, Lattice.Cell[i].Knum, i);
   fprintf(fp, " %3d %3d %3d\n", type, method, N);
   fprintf(fp, " %23.16e %23.16e %23.16e %23.16e\n",
 	  Lattice.Cell[i].maxampl[X_][0], Lattice.Cell[i].maxampl[X_][1],
@@ -102,7 +103,7 @@ void prtHOM(FILE *fp, const int n_design, const mpolArray PB, const int Order)
 }
 
 
-void prtmfile(const char mfile_dat[])
+void Lattice_Type::prtmfile(const char mfile_dat[])
 {
   int     i, j;
   FILE    *mfile;
@@ -116,7 +117,8 @@ void prtmfile(const char mfile_dat[])
       break;
     case Mpole:
       if (Lattice.Cell[i].Elem.PL != 0.0) {
-	prtName(mfile, i, mpole_, Lattice.Cell[i].Elem.M->Pmethod, Lattice.Cell[i].Elem.M->PN);
+	prtName(mfile, i, mpole_, Lattice.Cell[i].Elem.M->Pmethod,
+		Lattice.Cell[i].Elem.M->PN);
 	fprintf(mfile, " %23.16e %23.16e %23.16e %23.16e\n",
 		Lattice.Cell[i].dS[X_], Lattice.Cell[i].dS[Y_],
 		Lattice.Cell[i].Elem.M->PdTpar,
