@@ -310,12 +310,12 @@ int main(int argc, char *argv[])
 
   CtoR(MNF.K, K_re, K_im); CtoR(MNF.g, g_re, g_im);
 
-//  Jx = sqr(20e-3)/(2.0*Cell[globval.Cell_nLoc].Beta[X_]);
-//  Jy = sqr(10e-3)/(2.0*Cell[globval.Cell_nLoc].Beta[Y_]);
+//  Jx = sqr(20e-3)/(2.0*Lattice.Cell[globval.Cell_nLoc].Beta[X_]);
+//  Jy = sqr(10e-3)/(2.0*Lattice.Cell[globval.Cell_nLoc].Beta[Y_]);
 //  delta = 3e-2;
 
-  Jx = sqr(15e-3)/(2.0*Cell[globval.Cell_nLoc].Beta[X_]);
-  Jy = sqr(6.5e-3)/(2.0*Cell[globval.Cell_nLoc].Beta[Y_]);
+  Jx = sqr(15e-3)/(2.0*Lattice.Cell[globval.Cell_nLoc].Beta[X_]);
+  Jy = sqr(6.5e-3)/(2.0*Lattice.Cell[globval.Cell_nLoc].Beta[Y_]);
   delta = 2.5e-2;
 
   Id.identity();

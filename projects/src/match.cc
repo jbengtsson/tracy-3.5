@@ -110,16 +110,16 @@ double get_bn_s(const int Fnum, const int Knum, const int n)
   else {
     k = Elem_GetPos(abs(Fnum), Knum);
 
-    switch (Cell[k-1].Elem.PName[1]) {
+    switch (Lattice.Cell[k-1].Elem.PName[1]) {
     case 'u':
-      bn = Cell[k-1].Elem.PL;
+      bn = Lattice.Cell[k-1].Elem.PL;
       break;
     case 'd':
-      bn = Cell[k+1].Elem.PL;
+      bn = Lattice.Cell[k+1].Elem.PL;
       break;
     default:
       printf("get_bn_s: configuration error %s (%d)\n",
-	     Cell[k-1].Elem.PName, k);
+	     Lattice.Cell[k-1].Elem.PName, k);
       exit(1);
       break;
     }
@@ -139,30 +139,30 @@ void set_bn_s(const int Fnum, const int Knum, const int n, const double bn)
     // point to multipole
     k = Elem_GetPos(abs(Fnum), Knum);
 
-    switch (Cell[k-1].Elem.PName[1]) {
+    switch (Lattice.Cell[k-1].Elem.PName[1]) {
     case 'u':
-      if (Cell[k+1].Elem.PName[1] == 'd') {
-	set_L(Cell[k-1].Fnum, Cell[k-1].Knum, bn);
-	set_L(Cell[k+1].Fnum, Cell[k+1].Knum, -bn);
+      if (Lattice.Cell[k+1].Elem.PName[1] == 'd') {
+	set_L(Lattice.Cell[k-1].Fnum, Lattice.Cell[k-1].Knum, bn);
+	set_L(Lattice.Cell[k+1].Fnum, Lattice.Cell[k+1].Knum, -bn);
       } else {
 	printf("set_bn_s: configuration error %s (%d)\n",
-	       Cell[k+1].Elem.PName, k+2);
+	       Lattice.Cell[k+1].Elem.PName, k+2);
 	exit(1);
       }
       break;
     case 'd':
-      if (Cell[k+1].Elem.PName[1] == 'u') {
-	set_L(Cell[k-1].Fnum, Cell[k-1].Knum, -bn);
-	set_L(Cell[k+1].Fnum, Cell[k+1].Knum, bn);
+      if (Lattice.Cell[k+1].Elem.PName[1] == 'u') {
+	set_L(Lattice.Cell[k-1].Fnum, Lattice.Cell[k-1].Knum, -bn);
+	set_L(Lattice.Cell[k+1].Fnum, Lattice.Cell[k+1].Knum, bn);
       } else {
 	printf("set_bn_s: configuration error %s (%d)\n",
-	       Cell[k+1].Elem.PName, k+2);
+	       Lattice.Cell[k+1].Elem.PName, k+2);
 	exit(1);
       }
       break;
     default:
       printf("set_bn_s: configuration error %s (%d)\n",
-	     Cell[k-1].Elem.PName, k);
+	     Lattice.Cell[k-1].Elem.PName, k);
       exit(1);
       break;
     }
@@ -186,7 +186,7 @@ void get_S(void)
 
   S = 0e0;
   for (j = 0; j <= globval.Cell_nLoc; j++) {
-    S += Cell[j].Elem.PL; Cell[j].S = S;
+    S += Lattice.Cell[j].Elem.PL; Lattice.Cell[j].S = S;
   }
 }
 
@@ -277,9 +277,9 @@ double f_match(double *b2)
   Cell_Twiss(loc[0]+1, loc[4], Ascr, false, false, 0e0);
 
   chi2 = 0e0;
-  // chi2 += sqr(1e5*(Cell[loc[1]].Eta[X_]));
-  // chi2 += sqr(1e5*(Cell[loc[1]].Etap[X_]));
-  // chi2 += sqr(5e1*(Cell[loc[1]].Beta[Y_]-20e0));
+  // chi2 += sqr(1e5*(Lattice.Cell[loc[1]].Eta[X_]));
+  // chi2 += sqr(1e5*(Lattice.Cell[loc[1]].Etap[X_]));
+  // chi2 += sqr(5e1*(Lattice.Cell[loc[1]].Beta[Y_]-20e0));
 
   for (i = 1; i <= b2_prms.n_prm; i++)
     if (fabs(b2[i]) > b2_prms.bn_max[i-1]) chi2 += 1e10;
@@ -327,7 +327,8 @@ void fit_match(param_type &b2_prms)
   prt_lat(loc[0], loc[1], "linlat.out", globval.bpm, true, 10);
 
   for (j = 0; j < 2; j++) {
-    alpha0[j] = Cell[loc[0]].Alpha[j]; beta0[j] = Cell[loc[0]].Beta[j];
+    alpha0[j] = Lattice.Cell[loc[0]].Alpha[j];
+    beta0[j] = Lattice.Cell[loc[0]].Beta[j];
   }
   get_dnu_dp(loc[0], loc[1], alpha0, beta0, 1e-5, dnu);
   exit(0);

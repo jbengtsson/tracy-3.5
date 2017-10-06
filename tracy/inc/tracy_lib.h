@@ -84,6 +84,8 @@ using namespace std;
 #include "prtmfile.h"
 
 
+extern Lattice_Type Lattice;
+
 // Truncated Power Series Algebra (TPSA)
 extern const int  nv_tps, nd_tps, iref_tps;
 extern int        no_tps, ndpt_tps;

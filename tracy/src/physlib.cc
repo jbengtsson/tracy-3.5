@@ -61,7 +61,7 @@ void printglob(void)
          globval.dPcommon, globval.dPparticle, globval.Energy);
   printf("  MaxAmplx [m] = %9.3e  MaxAmply [m] = %9.3e"
 	 "  RFAccept [%%] = \xB1%4.2f\n",
-         Cell[0].maxampl[X_][0], Cell[0].maxampl[Y_][0],
+         Lattice.Cell[0].maxampl[X_][0], Lattice.Cell[0].maxampl[Y_][0],
 	 globval.delta_RF*1e2);
   printf(" Cavity_On    =  %s    ", globval.Cavity_on ? "TRUE " : "FALSE");
   printf("  Radiation_On = %s     \n",
@@ -122,18 +122,18 @@ void prt_sigma(void)
   fprintf(outf, "#\n");
 
   for (i = 0; i <= globval.Cell_nLoc; i++) {
-    switch (Cell[i].Elem.Pkind) {
+    switch (Lattice.Cell[i].Elem.Pkind) {
     case drift:
       code = 0.0;
       break;
     case Mpole:
-      if (Cell[i].Elem.M->Pirho != 0)
+      if (Lattice.Cell[i].Elem.M->Pirho != 0)
 	code = 0.5;
-      else if (Cell[i].Elem.M->PBpar[Quad+HOMmax] != 0)
-	code = sgn(Cell[i].Elem.M->PBpar[Quad+HOMmax]);
-      else if (Cell[i].Elem.M->PBpar[Sext+HOMmax] != 0)
-	code = 1.5*sgn(Cell[i].Elem.M->PBpar[Sext+HOMmax]);
-      else if (Cell[i].Fnum == globval.bpm)
+      else if (Lattice.Cell[i].Elem.M->PBpar[Quad+HOMmax] != 0)
+	code = sgn(Lattice.Cell[i].Elem.M->PBpar[Quad+HOMmax]);
+      else if (Lattice.Cell[i].Elem.M->PBpar[Sext+HOMmax] != 0)
+	code = 1.5*sgn(Lattice.Cell[i].Elem.M->PBpar[Sext+HOMmax]);
+      else if (Lattice.Cell[i].Fnum == globval.bpm)
 	code = 2.0;
       else
 	code = 0.0;
@@ -143,11 +143,11 @@ void prt_sigma(void)
       break;
     }
     fprintf(outf, "%4ld %.*s %6.2f %4.1f %9.3e %9.3e %9.3e %9.3e\n",
-            i, SymbolLength, Cell[i].Elem.PName, Cell[i].S, code,
-            1e3*sqrt(Cell[i].sigma[x_][x_]),
-	    1e3*sqrt(fabs(Cell[i].sigma[x_][px_])),
-	    1e3*sqrt(Cell[i].sigma[y_][y_]),
-	    1e3*sqrt(fabs(Cell[i].sigma[y_][py_])));
+            i, SymbolLength, Lattice.Cell[i].Elem.PName, Lattice.Cell[i].S, code,
+            1e3*sqrt(Lattice.Cell[i].sigma[x_][x_]),
+	    1e3*sqrt(fabs(Lattice.Cell[i].sigma[x_][px_])),
+	    1e3*sqrt(Lattice.Cell[i].sigma[y_][y_]),
+	    1e3*sqrt(fabs(Lattice.Cell[i].sigma[y_][py_])));
   }
 
   fclose(outf);
@@ -161,7 +161,7 @@ void recalc_S(void)
 
   S_tot = 0.0;
   for (k = 0; k <= globval.Cell_nLoc; k++) {
-    S_tot += Cell[k].Elem.PL; Cell[k].S = S_tot;
+    S_tot += Lattice.Cell[k].Elem.PL; Lattice.Cell[k].S = S_tot;
   }
 }
 
@@ -184,20 +184,20 @@ void get_twiss3(long int loc,
 
   // Lattice functions at the magnet entrance
   for (k = 0; k <= 1; k++) {
-    alpha[0][k] = Cell[loc-1].Alpha[k]; beta[0][k] = Cell[loc-1].Beta[k];
-    nu[0][k] = Cell[loc-1].Nu[k];
-    eta[0][k] = Cell[loc-1].Eta[k]; etap[0][k] = Cell[loc-1].Etap[k];
+    alpha[0][k] = Lattice.Cell[loc-1].Alpha[k]; beta[0][k] = Lattice.Cell[loc-1].Beta[k];
+    nu[0][k] = Lattice.Cell[loc-1].Nu[k];
+    eta[0][k] = Lattice.Cell[loc-1].Eta[k]; etap[0][k] = Lattice.Cell[loc-1].Etap[k];
   }
 
   UnitMat(5, Ascr0);
   for (k = 0; k <= 1; k++) {
-    Ascr0[2*k][2*k] = sqrt(Cell[loc-1].Beta[k]); Ascr0[2*k][2*k+1] = 0.0;
-    Ascr0[2*k+1][2*k] = -Cell[loc-1].Alpha[k]/Ascr0[2*k][2*k];
+    Ascr0[2*k][2*k] = sqrt(Lattice.Cell[loc-1].Beta[k]); Ascr0[2*k][2*k+1] = 0.0;
+    Ascr0[2*k+1][2*k] = -Lattice.Cell[loc-1].Alpha[k]/Ascr0[2*k][2*k];
     Ascr0[2*k+1][2*k+1] = 1/Ascr0[2*k][2*k];
   }
   Ascr0[0][4] = eta[0][X_]; Ascr0[1][4] = etap[0][X_];
   Ascr0[2][4] = eta[1][Y_]; Ascr0[3][4] = etap[1][Y_];
-  CopyMat(5, Ascr0, Ascr1); MulLMat(5, Cell[loc].Elem.M->AU55, Ascr1);
+  CopyMat(5, Ascr0, Ascr1); MulLMat(5, Lattice.Cell[loc].Elem.M->AU55, Ascr1);
   dnu[0] = (atan(Ascr1[0][1]/Ascr1[0][0])-atan(Ascr0[0][1]/Ascr0[0][0]))
            /(2.0*M_PI);
   dnu[1] = (atan(Ascr1[2][3]/Ascr1[2][2])-atan(Ascr0[2][3]/Ascr0[2][2]))
@@ -212,7 +212,7 @@ void get_twiss3(long int loc,
     j = 2*k + 1; eta[1][k] = Ascr1[j-1][4]; etap[1][k] = Ascr1[j][4];
   }
 
-  CopyMat(5, Ascr1, Ascr0); MulLMat(5, Cell[loc].Elem.M->AD55, Ascr1);
+  CopyMat(5, Ascr1, Ascr0); MulLMat(5, Lattice.Cell[loc].Elem.M->AD55, Ascr1);
   dnu[0] = (atan(Ascr1[0][1]/Ascr1[0][0])-atan(Ascr0[0][1]/Ascr0[0][0]))
            /(2.0*M_PI);
   dnu[1] = (atan(Ascr1[2][3]/Ascr1[2][2])-atan(Ascr0[2][3]/Ascr0[2][2]))
@@ -1470,12 +1470,12 @@ void SetTol(int Fnum, double dxrms, double dyrms, double drrms)
 
   for (i = 1; i <= GetnKid(Fnum); i++) {
     k = Elem_GetPos(Fnum, i);
-    Cell[k].Elem.M->PdSrms[X_] = dxrms;
-    Cell[k].Elem.M->PdSrnd[X_] = normranf();
-    Cell[k].Elem.M->PdSrms[Y_] = dyrms;
-    Cell[k].Elem.M->PdSrnd[Y_] = normranf();
-    Cell[k].Elem.M->PdTrms = drrms;
-    Cell[k].Elem.M->PdTrnd = normranf();
+    Lattice.Cell[k].Elem.M->PdSrms[X_] = dxrms;
+    Lattice.Cell[k].Elem.M->PdSrnd[X_] = normranf();
+    Lattice.Cell[k].Elem.M->PdSrms[Y_] = dyrms;
+    Lattice.Cell[k].Elem.M->PdSrnd[Y_] = normranf();
+    Lattice.Cell[k].Elem.M->PdTrms = drrms;
+    Lattice.Cell[k].Elem.M->PdTrnd = normranf();
     Mpole_SetdS(Fnum, i); Mpole_SetdT(Fnum, i);
   }
 }
@@ -1488,8 +1488,8 @@ void Scale_Tol(int Fnum, double dxrms, double dyrms, double drrms)
 
   for (Knum = 1; Knum <= GetnKid(Fnum); Knum++) {
     loc = Elem_GetPos(Fnum, Knum);
-    Cell[loc].Elem.M->PdSrms[X_] = dxrms; Cell[loc].Elem.M->PdSrms[Y_] = dyrms;
-    Cell[loc].Elem.M->PdTrms    = drrms;
+    Lattice.Cell[loc].Elem.M->PdSrms[X_] = dxrms; Lattice.Cell[loc].Elem.M->PdSrms[Y_] = dyrms;
+    Lattice.Cell[loc].Elem.M->PdTrms    = drrms;
     Mpole_SetdS(Fnum, Knum); Mpole_SetdT(Fnum, Knum);
   }
 }
@@ -1525,9 +1525,9 @@ void SetaTol(int Fnum, int Knum, double dx, double dy, double dr)
   long int  loc;
 
   loc = Elem_GetPos(Fnum, Knum);
-  Cell[loc].Elem.M->PdSrms[0] = dx; Cell[loc].Elem.M->PdSrnd[0] = 1e0;
-  Cell[loc].Elem.M->PdSrms[1] = dy; Cell[loc].Elem.M->PdSrnd[1] = 1e0;
-  Cell[loc].Elem.M->PdTrms    = dr; Cell[loc].Elem.M->PdTrnd    = 1e0;
+  Lattice.Cell[loc].Elem.M->PdSrms[0] = dx; Lattice.Cell[loc].Elem.M->PdSrnd[0] = 1e0;
+  Lattice.Cell[loc].Elem.M->PdSrms[1] = dy; Lattice.Cell[loc].Elem.M->PdSrnd[1] = 1e0;
+  Lattice.Cell[loc].Elem.M->PdTrms    = dr; Lattice.Cell[loc].Elem.M->PdTrnd    = 1e0;
   Mpole_SetdS(Fnum, Knum); Mpole_SetdT(Fnum, Knum);
 }
 
@@ -1538,8 +1538,8 @@ void ini_aper(const double Dxmin, const double Dxmax,
   int  k; 
  
   for (k = 0; k <= globval.Cell_nLoc; k++) { 
-    Cell[k].maxampl[X_][0] = Dxmin; Cell[k].maxampl[X_][1] = Dxmax; 
-    Cell[k].maxampl[Y_][0] = Dymin; Cell[k].maxampl[Y_][1] = Dymax; 
+    Lattice.Cell[k].maxampl[X_][0] = Dxmin; Lattice.Cell[k].maxampl[X_][1] = Dxmax; 
+    Lattice.Cell[k].maxampl[Y_][0] = Dymin; Lattice.Cell[k].maxampl[Y_][1] = Dymax; 
   } 
 } 
  
@@ -1551,8 +1551,8 @@ void set_aper(const int Fnum, const double Dxmin, const double Dxmax,
 
   for (i = 1; i <= GetnKid(Fnum); i++) {
     loc = Elem_GetPos(Fnum, i);
-    Cell[loc].maxampl[X_][0] = Dxmin; Cell[loc].maxampl[X_][1] = Dxmax;
-    Cell[loc].maxampl[Y_][0] = Dymin; Cell[loc].maxampl[Y_][1] = Dymax;
+    Lattice.Cell[loc].maxampl[X_][0] = Dxmin; Lattice.Cell[loc].maxampl[X_][1] = Dxmax;
+    Lattice.Cell[loc].maxampl[Y_][0] = Dymin; Lattice.Cell[loc].maxampl[Y_][1] = Dymax;
   }
 }
 
@@ -1644,7 +1644,7 @@ void ScaleTolerances(const char *TolFileName, const double scl)
 void SetKpar(int Fnum, int Knum, int Order, double k)
 {
 
-  Cell[Elem_GetPos(Fnum, Knum)].Elem.M->PBpar[Order+HOMmax] = k;
+  Lattice.Cell[Elem_GetPos(Fnum, Knum)].Elem.M->PBpar[Order+HOMmax] = k;
   Mpole_SetPB(Fnum, Knum, Order);
 }
 
@@ -1652,7 +1652,7 @@ void SetKpar(int Fnum, int Knum, int Order, double k)
 void SetL(int Fnum, int Knum, double L)
 {
 
-  Cell[Elem_GetPos(Fnum, Knum)].Elem.PL = L;
+  Lattice.Cell[Elem_GetPos(Fnum, Knum)].Elem.PL = L;
 }
 
 
@@ -1661,14 +1661,14 @@ void SetL(int Fnum, double L)
   int  i;
 
   for (i = 1; i <= GetnKid(Fnum); i++)
-    Cell[Elem_GetPos(Fnum, i)].Elem.PL = L;
+    Lattice.Cell[Elem_GetPos(Fnum, i)].Elem.PL = L;
 }
 
 
 void SetdKpar(int Fnum, int Knum, int Order, double dk)
 {
 
-  Cell[Elem_GetPos(Fnum, Knum)].Elem.M->PBpar[Order+HOMmax] += dk;
+  Lattice.Cell[Elem_GetPos(Fnum, Knum)].Elem.M->PBpar[Order+HOMmax] += dk;
   Mpole_SetPB(Fnum, Knum, Order);
 }
 
@@ -1678,10 +1678,10 @@ void SetKLpar(int Fnum, int Knum, int Order, double kL)
   long int  loc;
 
   loc = Elem_GetPos(Fnum, Knum);
-  if (Cell[loc].Elem.PL != 0e0)
-    Cell[loc].Elem.M->PBpar[Order+HOMmax] = kL/Cell[loc].Elem.PL;
+  if (Lattice.Cell[loc].Elem.PL != 0e0)
+    Lattice.Cell[loc].Elem.M->PBpar[Order+HOMmax] = kL/Lattice.Cell[loc].Elem.PL;
   else
-    Cell[loc].Elem.M->PBpar[Order+HOMmax] = kL;
+    Lattice.Cell[loc].Elem.M->PBpar[Order+HOMmax] = kL;
   Mpole_SetPB(Fnum, Knum, Order);
 }
 
@@ -1691,10 +1691,10 @@ void SetdKLpar(int Fnum, int Knum, int Order, double dkL)
   long int  loc;
 
   loc = Elem_GetPos(Fnum, Knum);
-  if (Cell[loc].Elem.PL != 0e0)
-    Cell[loc].Elem.M->PBpar[Order + HOMmax] += dkL/Cell[loc].Elem.PL;
+  if (Lattice.Cell[loc].Elem.PL != 0e0)
+    Lattice.Cell[loc].Elem.M->PBpar[Order + HOMmax] += dkL/Lattice.Cell[loc].Elem.PL;
   else
-    Cell[loc].Elem.M->PBpar[Order + HOMmax] += dkL;
+    Lattice.Cell[loc].Elem.M->PBpar[Order + HOMmax] += dkL;
   Mpole_SetPB(Fnum, Knum, Order);
 }
 
@@ -1704,11 +1704,11 @@ void SetdKrpar(int Fnum, int Knum, int Order, double dkrel)
   long int  loc;
 
   loc = Elem_GetPos(Fnum, Knum);
-  if (Order == Dip && Cell[loc].Elem.M->Pthick == thick)
-    Cell[loc].Elem.M->PBpar[Dip+HOMmax] += dkrel*Cell[loc].Elem.M->Pirho;
+  if (Order == Dip && Lattice.Cell[loc].Elem.M->Pthick == thick)
+    Lattice.Cell[loc].Elem.M->PBpar[Dip+HOMmax] += dkrel*Lattice.Cell[loc].Elem.M->Pirho;
   else
-    Cell[loc].Elem.M->PBpar[Order+HOMmax]
-      += dkrel*Cell[loc].Elem.M->PBpar[Order+HOMmax];
+    Lattice.Cell[loc].Elem.M->PBpar[Order+HOMmax]
+      += dkrel*Lattice.Cell[loc].Elem.M->PBpar[Order+HOMmax];
   Mpole_SetPB(Fnum, Knum, Order);
 }
 
@@ -1766,10 +1766,10 @@ void SetbnL_sys(int Fnum, int Order, double bnL_sys)
 
   for (Knum = 1; Knum <= GetnKid(Fnum); Knum++) {
     loc = Elem_GetPos(Fnum, Knum);
-    if (Cell[loc].Elem.PL != 0.0)
-      Cell[loc].Elem.M->PBsys[Order+HOMmax] = bnL_sys/Cell[loc].Elem.PL;
+    if (Lattice.Cell[loc].Elem.PL != 0.0)
+      Lattice.Cell[loc].Elem.M->PBsys[Order+HOMmax] = bnL_sys/Lattice.Cell[loc].Elem.PL;
     else
-      Cell[loc].Elem.M->PBsys[Order+HOMmax] = bnL_sys;
+      Lattice.Cell[loc].Elem.M->PBsys[Order+HOMmax] = bnL_sys;
     Mpole_SetPB(Fnum, Knum, Order);
   }
 }
@@ -1784,25 +1784,25 @@ void set_dbn_rel(const int type, const int n, const double dbn_rel)
   printf("Setting Db_%d/b_%d = %6.1e for:\n", n, type, dbn_rel);
   printf("\n");
   for (j = 0; j <= globval.Cell_nLoc; j++)
-    if ((Cell[j].Elem.Pkind == Mpole) && (Cell[j].Elem.M->n_design == type)) {
-      printf("%s\n", Cell[j].Elem.PName);
-      dbn = dbn_rel*Cell[j].Elem.M->PBpar[type+HOMmax];
-      Cell[j].Elem.M->PBrms[n+HOMmax] = dbn;
-      Cell[j].Elem.M->PBrnd[n+HOMmax] = normranf();
-      Mpole_SetPB(Cell[j].Fnum, Cell[j].Knum, n);
+    if ((Lattice.Cell[j].Elem.Pkind == Mpole) && (Lattice.Cell[j].Elem.M->n_design == type)) {
+      printf("%s\n", Lattice.Cell[j].Elem.PName);
+      dbn = dbn_rel*Lattice.Cell[j].Elem.M->PBpar[type+HOMmax];
+      Lattice.Cell[j].Elem.M->PBrms[n+HOMmax] = dbn;
+      Lattice.Cell[j].Elem.M->PBrnd[n+HOMmax] = normranf();
+      Mpole_SetPB(Lattice.Cell[j].Fnum, Lattice.Cell[j].Knum, n);
     }
 }
 
 
 double GetKpar(int Fnum, int Knum, int Order)
 {
-  return (Cell[Elem_GetPos(Fnum, Knum)].Elem.M->PBpar[Order+HOMmax]);
+  return (Lattice.Cell[Elem_GetPos(Fnum, Knum)].Elem.M->PBpar[Order+HOMmax]);
 }
 
 
 double GetL(int Fnum, int Knum)
 {
-  return (Cell[Elem_GetPos(Fnum, Knum)].Elem.PL);
+  return (Lattice.Cell[Elem_GetPos(Fnum, Knum)].Elem.PL);
 }
 
 
@@ -1811,10 +1811,10 @@ double GetKLpar(int Fnum, int Knum, int Order)
   long int  loc;
 
   loc = Elem_GetPos(Fnum, Knum);
-  if (Cell[loc].Elem.PL != 0e0)
-    return (Cell[loc].Elem.M->PBpar[Order+HOMmax]*Cell[loc].Elem.PL);
+  if (Lattice.Cell[loc].Elem.PL != 0e0)
+    return (Lattice.Cell[loc].Elem.M->PBpar[Order+HOMmax]*Lattice.Cell[loc].Elem.PL);
   else
-    return (Cell[loc].Elem.M->PBpar[Order+HOMmax]);
+    return (Lattice.Cell[loc].Elem.M->PBpar[Order+HOMmax]);
 }
 
 
@@ -1824,11 +1824,11 @@ void SetdKLrms(int Fnum, int Order, double dkLrms)
 
   for (Knum = 1; Knum <= GetnKid(Fnum); Knum++) {
     loc = Elem_GetPos(Fnum, Knum);
-    if (Cell[loc].Elem.PL != 0e0)
-      Cell[loc].Elem.M->PBrms[Order+HOMmax] = dkLrms/Cell[loc].Elem.PL;
+    if (Lattice.Cell[loc].Elem.PL != 0e0)
+      Lattice.Cell[loc].Elem.M->PBrms[Order+HOMmax] = dkLrms/Lattice.Cell[loc].Elem.PL;
     else
-      Cell[loc].Elem.M->PBrms[Order+HOMmax] = dkLrms;
-    Cell[loc].Elem.M->PBrnd[Order+HOMmax] = normranf();
+      Lattice.Cell[loc].Elem.M->PBrms[Order+HOMmax] = dkLrms;
+    Lattice.Cell[loc].Elem.M->PBrnd[Order+HOMmax] = normranf();
     Mpole_SetPB(Fnum, Knum, Order);
   }
 }
@@ -1840,12 +1840,12 @@ void Setdkrrms(int Fnum, int Order, double dkrrms)
 
   for (Knum = 1; Knum <= GetnKid(Fnum); Knum++) {
     loc = Elem_GetPos(Fnum, Knum);
-    if (Order == Dip && Cell[loc].Elem.M->Pthick == thick)
-      Cell[loc].Elem.M->PBrms[Dip+HOMmax] = dkrrms*Cell[loc].Elem.M->Pirho;
+    if (Order == Dip && Lattice.Cell[loc].Elem.M->Pthick == thick)
+      Lattice.Cell[loc].Elem.M->PBrms[Dip+HOMmax] = dkrrms*Lattice.Cell[loc].Elem.M->Pirho;
     else
-      Cell[loc].Elem.M->PBrms[Order+HOMmax]
-	= dkrrms*Cell[loc].Elem.M->PBpar[Order+HOMmax];
-    Cell[loc].Elem.M->PBrnd[Order+HOMmax] = normranf();
+      Lattice.Cell[loc].Elem.M->PBrms[Order+HOMmax]
+	= dkrrms*Lattice.Cell[loc].Elem.M->PBpar[Order+HOMmax];
+    Lattice.Cell[loc].Elem.M->PBrnd[Order+HOMmax] = normranf();
     Mpole_SetPB(Fnum, Knum, Order);
   }
 }
@@ -1869,13 +1869,13 @@ void set_dx(const int type, const double sigma_x, const double sigma_y)
 	 sigma_x, sigma_y, type);
   printf("\n");
   for (j = 0; j <= globval.Cell_nLoc; j++)
-    if ((Cell[j].Elem.Pkind == Mpole) && (Cell[j].Elem.M->n_design == type)) {
-      printf("%s\n", Cell[j].Elem.PName);
-      Cell[j].Elem.M->PdSrms[X_] = sigma_x;
-      Cell[j].Elem.M->PdSrms[Y_] = sigma_y;
-      Cell[j].Elem.M->PdSrnd[X_] = normranf();
-      Cell[j].Elem.M->PdSrnd[Y_] = normranf();
-      Mpole_SetdS(Cell[j].Fnum, Cell[j].Knum);
+    if ((Lattice.Cell[j].Elem.Pkind == Mpole) && (Lattice.Cell[j].Elem.M->n_design == type)) {
+      printf("%s\n", Lattice.Cell[j].Elem.PName);
+      Lattice.Cell[j].Elem.M->PdSrms[X_] = sigma_x;
+      Lattice.Cell[j].Elem.M->PdSrms[Y_] = sigma_y;
+      Lattice.Cell[j].Elem.M->PdSrnd[X_] = normranf();
+      Lattice.Cell[j].Elem.M->PdSrnd[Y_] = normranf();
+      Mpole_SetdS(Lattice.Cell[j].Fnum, Lattice.Cell[j].Knum);
     }
 }
 
@@ -1886,7 +1886,7 @@ void SetBpmdS(int Fnum, double dxrms, double dyrms)
 
   for (Knum = 1; Knum <= GetnKid(Fnum); Knum++) {
     loc = Elem_GetPos(Fnum, Knum);
-    Cell[loc].dS[X_] = normranf()*dxrms; Cell[loc].dS[Y_] = normranf()*dyrms;
+    Lattice.Cell[loc].dS[X_] = normranf()*dxrms; Lattice.Cell[loc].dS[Y_] = normranf()*dyrms;
   }
 }
 
@@ -1912,9 +1912,9 @@ void codstat(double *mean, double *sigma, double *xmax, long lastpos, bool all)
     for (i = 0; i < lastpos; i++) {
       n++;
       for (j = 0; j < 2; j++) {
-	sum[j] += Cell[i].BeamPos[j*2];
-	sum2[j] += sqr(Cell[i].BeamPos[j*2]);
-	xmax[j] = max(xmax[j], fabs(Cell[i].BeamPos[j*2]));
+	sum[j] += Lattice.Cell[i].BeamPos[j*2];
+	sum2[j] += sqr(Lattice.Cell[i].BeamPos[j*2]);
+	xmax[j] = max(xmax[j], fabs(Lattice.Cell[i].BeamPos[j*2]));
       }
     }
   } else {
@@ -1922,9 +1922,9 @@ void codstat(double *mean, double *sigma, double *xmax, long lastpos, bool all)
       n++;
       for (j = 0; j < 2; j++) {
 	loc = bpms_[j][i];
-	sum[j] += Cell[loc].BeamPos[j*2];
-	sum2[j] += sqr(Cell[loc].BeamPos[j*2]);
-	xmax[j] = max(xmax[j], fabs(Cell[loc].BeamPos[j*2]));
+	sum[j] += Lattice.Cell[loc].BeamPos[j*2];
+	sum2[j] += sqr(Lattice.Cell[loc].BeamPos[j*2]);
+	xmax[j] = max(xmax[j], fabs(Lattice.Cell[loc].BeamPos[j*2]));
       }
     }
   }
@@ -1984,13 +1984,13 @@ void CodStatBpm(double *mean, double *sigma, double *xmax, long lastpos,
   }
 
   for (i = 0; i <= lastpos; i++) {
-    if (Cell[i].Fnum == globval.bpm) {
+    if (Lattice.Cell[i].Fnum == globval.bpm) {
       if (! bpmdis[m]) {
 	for (j = 1; j <= 2; j++) {
-	  sum[j - 1] += Cell[i].BeamPos[j * 2 - 2];
-	  TEMP = Cell[i].BeamPos[j * 2 - 2];
+	  sum[j - 1] += Lattice.Cell[i].BeamPos[j * 2 - 2];
+	  TEMP = Lattice.Cell[i].BeamPos[j * 2 - 2];
 	  sum2[j - 1] += TEMP * TEMP;
-	  xmax[j - 1] = max(xmax[j - 1], fabs(Cell[i].BeamPos[j * 2 - 2]));
+	  xmax[j - 1] = max(xmax[j - 1], fabs(Lattice.Cell[i].BeamPos[j * 2 - 2]));
 	}
         n++;
       }
@@ -2225,8 +2225,8 @@ void ChamberOff(void)
   int i;
 
   for (i = 0; i <= globval.Cell_nLoc; i++) {
-    Cell[i].maxampl[X_][0] = -max_ampl; Cell[i].maxampl[X_][1] = max_ampl;
-    Cell[i].maxampl[Y_][0] = -max_ampl; Cell[i].maxampl[Y_][1] = max_ampl;
+    Lattice.Cell[i].maxampl[X_][0] = -max_ampl; Lattice.Cell[i].maxampl[X_][1] = max_ampl;
+    Lattice.Cell[i].maxampl[Y_][0] = -max_ampl; Lattice.Cell[i].maxampl[Y_][1] = max_ampl;
   }
   status.chambre = false;
 }
@@ -2250,111 +2250,15 @@ void PrintCh(void)
 
   for (i = 0; i <= globval.Cell_nLoc; i++)
     fprintf(f, "%4ld %15s  %6.2f  %7.3f  %7.3f  %7.3f\n",
-	    i, Cell[i].Elem.PName, Cell[i].S,
-	    Cell[i].maxampl[X_][0]*1E3, Cell[i].maxampl[X_][1]*1E3,
-	    Cell[i].maxampl[Y_][1]*1E3);
+	    i, Lattice.Cell[i].Elem.PName, Lattice.Cell[i].S,
+	    Lattice.Cell[i].maxampl[X_][0]*1E3, Lattice.Cell[i].maxampl[X_][1]*1E3,
+	    Lattice.Cell[i].maxampl[Y_][1]*1E3);
 
   fclose(f);
 }
 
 
 /** function from soleilcommon.c **/
-
-void Read_Lattice(const char *fic)
-{
-  bool     status;
-  char     fic_maille[S_SIZE+4] = "", fic_erreur[S_SIZE+4] = "";
-  int      i;
-  double   dP = 0.0;
-  Vector2  beta, alpha, eta, etap;
-  psVector   codvect;
-
-  const double RFacceptance = 0.060001; // soleil energy acceptance
-
-  strcpy(fic_maille, fic); strcpy(fic_erreur, fic);
-
-  /* generation automatique du nom du fichier maille et erreur */
-  strcat(fic_maille, ".lat"); strcat(fic_erreur, ".lax");
-
-  /* Initialisation de Tracy */
-
-  t2init();
-
-  /* open the lattice Input file  */
-
-  if ((fi = fopen(fic_maille, "r")) == NULL) {
-    fprintf(stdout, "ReadLattice: Error while opening file %s \n", fic_maille);
-    fprintf(stdout, "The lattice file has to end by .lat \n");
-    exit_(1);
-  }
-
-  /* opens the lattice Output file */
-  if ((fo = fopen(fic_erreur, "w")) == NULL) {
-    fprintf(stdout, "ReadLattice: Error while opening file %s \n", fic_erreur);
-    exit_(1);
-  }
-
-  /* Reads lattice and set principle parameters
-   * Energy CODeps and energy offset
-   * print statistics
-   */
-  status = Lattice_Read(&fi, &fo);
-
-  if (status == false) {
-    std::cout << "Lattice_Read function has returned false" << std::endl;
-    std::cout << "See file " << fic_erreur << std::endl;
-    exit_(1);
-  }
-  std::cout << "Lattice file: " << fic_maille << std::endl;
-
-  /* initializes cell structure: construction of the RING */
-  /* Creator of all the matrices for each element         */
-  Cell_Init();
-
-  if (globval.RingType == 1) { // for a ring
-    /* define x/y physical aperture  */
-    ChamberOff();
-
-    /* Defines global variables for Tracy code */
-    globval.H_exact     = false; // Small Ring Hamiltonian
-    globval.quad_fringe = false; // quadrupole fringe fields on/off
-    globval.EPU         = false; // Elliptically Polarizing Undulator
-    globval.Cavity_on   = false; /* Cavity on/off */
-    globval.radiation   = false; /* radiation on/off */
-    globval.IBS         = false; /* diffusion on/off */
-    globval.emittance   = false; /* emittance  on/off */
-    globval.pathlength  = false; /* Path lengthening computation */
-    globval.CODimax     = 40;    /* maximum number of iterations for COD
-				    algo */
-    globval.delta_RF = RFacceptance;/* energy acceptance for SOLEIL */
-  } else {   
-    // for transfer lines
-    /* Initial settings : */
-    beta[X_] = 8.1; alpha[X_] = 0.0; beta[Y_] = 8.1; alpha[Y_] = 0.0;
-    eta[X_] = 0.0; etap[X_] = 0.0; eta[Y_] = 0.0; etap[Y_] = 0.0;
-
-    for (i = 0; i < ss_dim; i++) {
-      codvect[i] = 0.0; globval.CODvect[i] = codvect[i];
-    }
-    dP = codvect[delta_];
-
-    /* Defines global variables for Tracy code */
-    globval.Cavity_on    = false; /* Cavity on/off */
-    globval.radiation    = false; /* radiation on/off */
-    globval.emittance    = false; /* emittance  on/off */
-    globval.pathlength   = false; /* Path lengthening computation */
-    globval.CODimax      = 10;    /* maximum number of iterations for COD
-				     algo */
-    globval.delta_RF = RFacceptance; /* 6% + epsilon energy acceptance
-                                            for SOLEIL */
-    globval.dPparticle = dP;
-
-    ChamberOff();
-
-    ttwiss(alpha, beta, eta, etap, dP);
-  }
-}
-
 
 /****************************************************************************/
 /* void GetChromTrac(long Nb, long Nbtour, double emax,
@@ -2574,8 +2478,8 @@ void findcodS(double dP)
   }
     else{
       dim = 4; /* 4D tracking */
-      vcod[1] = Cell[0].Eta[0]*dP; vcod[2] = Cell[0].Etap[0]*dP;
-      vcod[3] = Cell[0].Eta[1]*dP; vcod[4] = Cell[0].Etap[1]*dP;
+      vcod[1] = Lattice.Cell[0].Eta[0]*dP; vcod[2] = Lattice.Cell[0].Etap[0]*dP;
+      vcod[3] = Lattice.Cell[0].Eta[1]*dP; vcod[4] = Lattice.Cell[0].Etap[1]*dP;
   }
   
   Newton_RaphsonS(ntrial, vcod, dim, tolx);
@@ -2649,8 +2553,8 @@ void findcod(double dP)
     dim = 6;
   } else{ // starting point linear closed orbit
     dim = 4;
-    vcod[0] = Cell[0].Eta[0]*dP; vcod[1] = Cell[0].Etap[0]*dP;
-    vcod[2] = Cell[0].Eta[1]*dP; vcod[3] = Cell[0].Etap[1]*dP;
+    vcod[0] = Lattice.Cell[0].Eta[0]*dP; vcod[1] = Lattice.Cell[0].Etap[0]*dP;
+    vcod[2] = Lattice.Cell[0].Eta[1]*dP; vcod[3] = Lattice.Cell[0].Etap[1]*dP;
     vcod[4] = dP;  // energy offset 
   }
   

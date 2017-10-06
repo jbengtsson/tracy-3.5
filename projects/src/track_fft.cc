@@ -119,10 +119,10 @@ void LoadAlignTol(const char *AlignFile, const bool Scale_it,
 	    for (j = 1; j <= n_bpm_[k]; j++) {
 	      loc = bpms_[k][j];
 	      if (rms)
-		misalign_rms_elem(Cell[loc].Fnum, Cell[loc].Knum,
+		misalign_rms_elem(Lattice.Cell[loc].Fnum, Lattice.Cell[loc].Knum,
 				  dx, dy, dr_deg, new_rnd);
 	      else
-		misalign_sys_elem(Cell[loc].Fnum, Cell[loc].Knum,
+		misalign_sys_elem(Lattice.Cell[loc].Fnum, Lattice.Cell[loc].Knum,
 				  dx, dy, dr_deg);
 	    }
 	} else {
@@ -323,7 +323,7 @@ void track_fft(const int n_turn,
 
   track(file_name, twoJx[0], phix[0], twoJy[0], phiy[0], delta,
 	n_turn, lastn, lastpos,
-	2, Cell[Elem_GetPos(ElemIndex("cav"), 1)].Elem.C->Pfreq);
+	2, Lattice.Cell[Elem_GetPos(ElemIndex("cav"), 1)].Elem.C->Pfreq);
 
   if (lastn == n_turn) {
     GetTrack(file_name, &n, twoJx, phix, twoJy, phiy);
@@ -437,7 +437,7 @@ int main(int argc, char *argv[])
 
   delta0    = -0.5e-2;
   n_turn    = 1000;
-  f_rf      = Cell[Elem_GetPos(ElemIndex("cav"), 1)].Elem.C->Pfreq;
+  f_rf      = Lattice.Cell[Elem_GetPos(ElemIndex("cav"), 1)].Elem.C->Pfreq;
   
   
   
@@ -494,16 +494,20 @@ int main(int argc, char *argv[])
     
     fprintf(fp,"# TRACY III v.3.5 -- %s -- %s \n",
 	    "track_ExE.out", asctime2(newtime));
-    fprintf(fp,"#         s   name              code  x          xp         y          yp         delta      ctau\n");
-    fprintf(fp,"#        [m]                          [mm]       [mrad]     [mm]       [mrad]     [%%]        [?]\n");
+    fprintf(fp, "#         s   name              code  x          xp         "
+	    "y          yp         delta      ctau\n");
+    fprintf(fp,"#        [m]                          [mm]       [mrad]     "
+	    "[mm]       [mrad]     [%%]        [?]\n");
     fprintf(fp, "#\n");
     
     for (j = 0; j <= globval.Cell_nLoc; j++){
-      fprintf(fp, "%4li %8.3f %s %6.2f %10.3e %10.3e %10.3e %10.3e %10.3e %10.3e\n",
-	      j, Cell[j].S, Cell[j].Elem.PName, get_code(Cell[j]),
-	      Cell[j].BeamPos[0]*1e3, Cell[j].BeamPos[1]*1e3,
-	      Cell[j].BeamPos[2]*1e3, Cell[j].BeamPos[3]*1e3,
-	      Cell[j].BeamPos[4]*100, Cell[j].BeamPos[5]);
+      fprintf(fp, "%4li %8.3f %s %6.2f %10.3e %10.3e %10.3e %10.3e %10.3e "
+	      "%10.3e\n",
+	      j, Lattice.Cell[j].S, Lattice.Cell[j].Elem.PName,
+	      get_code(Lattice.Cell[j]),
+	      Lattice.Cell[j].BeamPos[0]*1e3, Lattice.Cell[j].BeamPos[1]*1e3,
+	      Lattice.Cell[j].BeamPos[2]*1e3, Lattice.Cell[j].BeamPos[3]*1e3,
+	      Lattice.Cell[j].BeamPos[4]*100, Lattice.Cell[j].BeamPos[5]);
 	}
     
     fclose(fp);

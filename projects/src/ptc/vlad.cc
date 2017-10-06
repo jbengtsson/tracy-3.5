@@ -24,9 +24,9 @@ void chk_bend()
 
   phi = 0e0;
   for (k = 0; k <= globval.Cell_nLoc; k++) {
-    if ((Cell[k].Elem.Pkind == Mpole) &&
-	(Cell[k].Elem.M->n_design == Dip)) {
-      phi += Cell[k].Elem.PL*Cell[k].Elem.M->Pirho;
+    if ((Lattice.Cell[k].Elem.Pkind == Mpole) &&
+	(Lattice.Cell[k].Elem.M->n_design == Dip)) {
+      phi += Lattice.Cell[k].Elem.PL*Lattice.Cell[k].Elem.M->Pirho;
     }
   }
   phi = 180e0*phi/M_PI;
@@ -49,10 +49,10 @@ void prt_x0(const double delta)
   Cell_Pass(0, globval.Cell_nLoc, ps, lastpos);
   for (k = 0; k < lastpos; k++) {
     fprintf(outf, "%4d %15s %9.5f %4.1f %9.5f %9.5f %9.5f %9.5f %9.5f %9.5f\n",
-	   k, Cell[k].Elem.PName, Cell[k].S, get_code(Cell[k]),
-	   Cell[k].BeamPos[x_], Cell[k].BeamPos[px_],
-	   Cell[k].BeamPos[py_], Cell[k].BeamPos[py_],
-	   Cell[k].BeamPos[delta_], Cell[k].BeamPos[ct_]);
+	   k, Lattice.Cell[k].Elem.PName, Lattice.Cell[k].S, get_code(Lattice.Cell[k]),
+	   Lattice.Cell[k].BeamPos[x_], Lattice.Cell[k].BeamPos[px_],
+	   Lattice.Cell[k].BeamPos[py_], Lattice.Cell[k].BeamPos[py_],
+	   Lattice.Cell[k].BeamPos[delta_], Lattice.Cell[k].BeamPos[ct_]);
   }
   fclose(outf);
 }
@@ -268,20 +268,20 @@ void get_optics()
   ttwiss(alpha, beta, eta, etap, 0e0);
 
   printf("\nalpha = [%13.6e, %13.6e]\n",
-	 Cell[globval.Cell_nLoc].Alpha[X_],
-	 Cell[globval.Cell_nLoc].Alpha[Y_]);
+	 Lattice.Cell[globval.Cell_nLoc].Alpha[X_],
+	 Lattice.Cell[globval.Cell_nLoc].Alpha[Y_]);
   printf("beta  = [%13.6e, %13.6e]\n",
-	 Cell[globval.Cell_nLoc].Beta[X_],
-	 Cell[globval.Cell_nLoc].Beta[Y_]);
+	 Lattice.Cell[globval.Cell_nLoc].Beta[X_],
+	 Lattice.Cell[globval.Cell_nLoc].Beta[Y_]);
   printf("nu    = [%13.6e, %13.6e]\n",
-	 Cell[globval.Cell_nLoc].Nu[X_],
-	 Cell[globval.Cell_nLoc].Nu[Y_]);
+	 Lattice.Cell[globval.Cell_nLoc].Nu[X_],
+	 Lattice.Cell[globval.Cell_nLoc].Nu[Y_]);
   printf("eta   = [%13.6e, %13.6e]\n",
-	 Cell[globval.Cell_nLoc].Eta[X_],
-	 Cell[globval.Cell_nLoc].Eta[Y_]);
+	 Lattice.Cell[globval.Cell_nLoc].Eta[X_],
+	 Lattice.Cell[globval.Cell_nLoc].Eta[Y_]);
   printf("etap  = [%13.6e, %13.6e]\n",
-	 Cell[globval.Cell_nLoc].Etap[X_],
-	 Cell[globval.Cell_nLoc].Etap[Y_]);
+	 Lattice.Cell[globval.Cell_nLoc].Etap[X_],
+	 Lattice.Cell[globval.Cell_nLoc].Etap[Y_]);
 
   prt_lat("linlat1.out", globval.bpm, true);
   prt_lat("linlat.out", globval.bpm, true, 10);

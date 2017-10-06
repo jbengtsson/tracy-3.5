@@ -237,6 +237,8 @@ template void Cell_Pass(const long, const long, ss_vect<double> &, long &);
 template void Cell_Pass(const long, const long, ss_vect<tps> &, long &);
 
 
+Lattice_Type Lattice;
+
 /* Global variable used through the code */
 globvalrec globval;
 

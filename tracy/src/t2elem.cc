@@ -11,8 +11,6 @@
 bool          first_FM = true;
 double        c_1, d_1, c_2, d_2, cl_rad, q_fluct;
 double        I2, I4, I5, dcurly_H, dI4, s_FM;
-ElemFamType   ElemFam[Elem_nFamMax];
-CellType      Cell[Cell_nLocMax+1];
 std::ofstream outf_;
 
 // for FieldMap
@@ -2122,24 +2120,24 @@ void Solenoid_Pass(CellType &Cell, ss_vect<T> &ps)
 }
 
 
-void getelem(long i, CellType *cellrec) { *cellrec = Cell[i]; }
+void getelem(long i, CellType *cellrec) { *cellrec = Lattice.Cell[i]; }
 
-void putelem(long i, CellType *cellrec) { Cell[i] = *cellrec; }
+void putelem(long i, CellType *cellrec) { Lattice.Cell[i] = *cellrec; }
 
 
-int GetnKid(const int Fnum1) { return (ElemFam[Fnum1-1].nKid); }
+int GetnKid(const int Fnum1) { return (Lattice.ElemFam[Fnum1-1].nKid); }
 
 
 long Elem_GetPos(const int Fnum1, const int Knum1)
 {
   long int  loc;
 
-  if (ElemFam[Fnum1-1].nKid != 0)
-    loc = ElemFam[Fnum1-1].KidList[Knum1-1];
+  if (Lattice.ElemFam[Fnum1-1].nKid != 0)
+    loc = Lattice.ElemFam[Fnum1-1].KidList[Knum1-1];
   else {
     loc = -1;
     printf("Elem_GetPos: there are no kids in family %d (%s)\n",
-	   Fnum1, ElemFam[Fnum1-1].ElemF.PName);
+	   Fnum1, Lattice.ElemFam[Fnum1-1].ElemF.PName);
     exit_(0);
   }
 
@@ -2195,7 +2193,7 @@ static void Mpole_Print(FILE *f, int Fnum1)
   elemtype  *elemp;
   MpoleType *M;
 
-  elemp  = &ElemFam[Fnum1-1].ElemF; M = elemp->M;
+  elemp  = &Lattice.ElemFam[Fnum1-1].ElemF; M = elemp->M;
   fprintf(f, "Element[%3d ] \n", Fnum1);
   fprintf(f, "   Name: %.*s,  Kind:   mpole,  L=% .8E\n",
           SymbolLength, elemp->PName, elemp->PL);
@@ -2208,7 +2206,7 @@ static void Drift_Print(FILE *f, int Fnum1)
   ElemFamType *elemfamp;
   elemtype    *elemp;
 
-  elemfamp = &ElemFam[Fnum1-1]; elemp = &elemfamp->ElemF;
+  elemfamp = &Lattice.ElemFam[Fnum1-1]; elemp = &elemfamp->ElemF;
   fprintf(f, "Element[%3d ] \n", Fnum1);
   fprintf(f, "   Name: %.*s,  Kind:   drift,  L=% .8E\n",
           SymbolLength, elemp->PName, elemp->PL);
@@ -2220,7 +2218,7 @@ static void Wiggler_Print(FILE *f, int Fnum1)
 {
   elemtype *elemp;
 
-  elemp = &ElemFam[Fnum1-1].ElemF;
+  elemp = &Lattice.ElemFam[Fnum1-1].ElemF;
   fprintf(f, "Element[%3d ] \n", Fnum1);
   fprintf(f, "   Name: %.*s,  Kind:   wiggler,  L=% .8E\n\n",
           NameLength, elemp->PName, elemp->PL);
@@ -2231,7 +2229,7 @@ static void Insertion_Print(FILE *f, int Fnum1)
 {
   elemtype *elemp;
 
-  elemp = &ElemFam[Fnum1-1].ElemF;
+  elemp = &Lattice.ElemFam[Fnum1-1].ElemF;
   fprintf(f, "Element[%3d ] \n", Fnum1);
   fprintf(f, "   Name: %.*s,  Kind:   wiggler,  L=% .8E\n\n",
           SymbolLength, elemp->PName, elemp->PL);
@@ -2249,7 +2247,7 @@ void Elem_Print(FILE *f, int Fnum1)
     return;
   }
 
-  switch (ElemFam[Fnum1-1].ElemF.Pkind) {
+  switch (Lattice.ElemFam[Fnum1-1].ElemF.Pkind) {
   case drift:
     Drift_Print(f, Fnum1);
     break;
@@ -2290,7 +2288,7 @@ double Elem_GetKval(int Fnum1, int Knum1, int Order)
   elemtype  *elemp;
 
   if (Fnum1 > 0) {
-    elemp = &Cell[ElemFam[Fnum1-1].KidList[Knum1-1]].Elem;
+    elemp = &Lattice.Cell[Lattice.ElemFam[Fnum1-1].KidList[Knum1-1]].Elem;
     switch (elemp->Pkind) {
     case drift:
       Result = 0e0;
@@ -2310,7 +2308,7 @@ double Elem_GetKval(int Fnum1, int Knum1, int Order)
     case Wigl:
       Result =
 	elemp->PL*sqrt(2e0
-	*Cell[ElemFam[Fnum1-1].KidList[Knum1-1]].Elem.W->PBW[Order+HOMmax]);
+	*Lattice.Cell[Lattice.ElemFam[Fnum1-1].KidList[Knum1-1]].Elem.W->PBW[Order+HOMmax]);
       break;
     case FieldMap:
       Result = 0e0;
@@ -2546,10 +2544,10 @@ void Drift_Init(int Fnum1)
   CellType     *cellp;
   elemtype     *elemp;
 
-  elemfamp = &ElemFam[Fnum1-1];
+  elemfamp = &Lattice.ElemFam[Fnum1-1];
   for (i = 1; i <= elemfamp->nKid; i++) {
     /* Get in Cell kid # i from Family Fnum1 */
-    cellp = &Cell[elemfamp->KidList[i-1]]; elemp = &cellp->Elem;
+    cellp = &Lattice.Cell[elemfamp->KidList[i-1]]; elemp = &cellp->Elem;
     /* Dynamic memory allocation for element */
     Drift_Alloc(elemp);
     /* copy low level routine */
@@ -2594,12 +2592,12 @@ void Mpole_Init(int Fnum1)
   elemtype     *elemp;
 
   /* Pointer on element */
-  elemfamp = &ElemFam[Fnum1-1];
+  elemfamp = &Lattice.ElemFam[Fnum1-1];
   memcpy(elemfamp->ElemF.M->PB, elemfamp->ElemF.M->PBpar, sizeof(mpolArray));
   /* Update the right multipole order */
   elemfamp->ElemF.M->Porder = UpdatePorder(elemfamp->ElemF);
   for (i = 1; i <= elemfamp->nKid; i++) {
-    cellp = &Cell[elemfamp->KidList[i-1]]; elemp = &cellp->Elem;
+    cellp = &Lattice.Cell[elemfamp->KidList[i-1]]; elemp = &cellp->Elem;
     /* Memory allocation and set everything to zero */
     Mpole_Alloc(elemp);
     memcpy(elemp->PName, elemfamp->ElemF.PName, sizeof(partsName));
@@ -2647,11 +2645,11 @@ void Wiggler_Init(int Fnum1)
   CellType     *cellp;
   elemtype     *elemp;
 
-  elemfamp = &ElemFam[Fnum1-1];
+  elemfamp = &Lattice.ElemFam[Fnum1-1];
   /* ElemF.M^.PB := ElemF.M^.PBpar; */
   elemfamp->ElemF.W->Porder = order;
   for (i = 1; i <= elemfamp->nKid; i++) {
-    cellp = &Cell[elemfamp->KidList[i-1]]; elemp = &cellp->Elem;
+    cellp = &Lattice.Cell[elemfamp->KidList[i-1]]; elemp = &cellp->Elem;
     Wiggler_Alloc(elemp);
     memcpy(elemp->PName, elemfamp->ElemF.PName, sizeof(partsName));
     elemp->PL = elemfamp->ElemF.PL;
@@ -3297,9 +3295,9 @@ void FieldMap_Init(int Fnum1)
   CellType     *cellp;
   elemtype     *elemp;
 
-  elemfamp = &ElemFam[Fnum1-1];
+  elemfamp = &Lattice.ElemFam[Fnum1-1];
   for (i = 1; i <= elemfamp->nKid; i++) {
-    cellp = &Cell[elemfamp->KidList[i-1]]; elemp = &cellp->Elem;
+    cellp = &Lattice.Cell[elemfamp->KidList[i-1]]; elemp = &cellp->Elem;
     FieldMap_Alloc(elemp);
     memcpy(elemp->PName, elemfamp->ElemF.PName, sizeof(partsName));
     elemp->PL = elemfamp->ElemF.PL;
@@ -3319,9 +3317,9 @@ void Cav_Init(int Fnum1)
   CellType     *cellp;
   elemtype     *elemp;
 
-  elemfamp = &ElemFam[Fnum1-1];
+  elemfamp = &Lattice.ElemFam[Fnum1-1];
   for (i = 0; i < elemfamp->nKid; i++) {
-    cellp = &Cell[elemfamp->KidList[i]]; elemp = &cellp->Elem;
+    cellp = &Lattice.Cell[elemfamp->KidList[i]]; elemp = &cellp->Elem;
     cellp->Elem = elemfamp->ElemF;
   }
 }
@@ -3334,9 +3332,9 @@ void Marker_Init(int Fnum1)
   CellType     *cellp;
   elemtype     *elemp;
 
-  elemfamp = &ElemFam[Fnum1-1];
+  elemfamp = &Lattice.ElemFam[Fnum1-1];
   for (i = 0; i < elemfamp->nKid; i++) {
-    cellp = &Cell[elemfamp->KidList[i]]; elemp = &cellp->Elem;
+    cellp = &Lattice.Cell[elemfamp->KidList[i]]; elemp = &cellp->Elem;
     cellp->Elem  = elemfamp->ElemF;
     cellp->dT[0] = 1e0; cellp->dT[1] = 0e0;
     cellp->dS[0] = 0e0; cellp->dS[1] = 0e0;
@@ -3351,11 +3349,11 @@ void Insertion_Init(int Fnum1)
   CellType     *cellp;
   elemtype     *elemp;
 
-  elemfamp = &ElemFam[Fnum1-1];
+  elemfamp = &Lattice.ElemFam[Fnum1-1];
 //  elemfamp->ElemF.ID->Porder = order;
 //  x = elemfamp->ElemF.ID->PBW[Quad + HOMmax];
   for (i = 1; i <= elemfamp->nKid; i++) {
-    cellp = &Cell[elemfamp->KidList[i-1]]; elemp = &cellp->Elem;
+    cellp = &Lattice.Cell[elemfamp->KidList[i-1]]; elemp = &cellp->Elem;
     Insertion_Alloc(elemp);
     memcpy(elemp->PName, elemfamp->ElemF.PName, sizeof(partsName));
     elemp->PL = elemfamp->ElemF.PL;
@@ -3376,10 +3374,10 @@ void Spreader_Init(int Fnum1)
   CellType     *cellp;
   elemtype     *elemp;
 
-  elemfamp = &ElemFam[Fnum1-1];
+  elemfamp = &Lattice.ElemFam[Fnum1-1];
   for (i = 1; i <= elemfamp->nKid; i++) {
     /* Get in Cell kid # i from Family Fnum1 */
-    cellp = &Cell[elemfamp->KidList[i-1]]; elemp = &cellp->Elem;
+    cellp = &Lattice.Cell[elemfamp->KidList[i-1]]; elemp = &cellp->Elem;
     /* Dynamic memory allocation for element */
     Spreader_Alloc(elemp);
     /* copy low level routine */
@@ -3403,10 +3401,10 @@ void Recombiner_Init(int Fnum1)
   CellType     *cellp;
   elemtype     *elemp;
 
-  elemfamp = &ElemFam[Fnum1-1];
+  elemfamp = &Lattice.ElemFam[Fnum1-1];
   for (i = 1; i <= elemfamp->nKid; i++) {
     /* Get in Cell kid # i from Family Fnum1 */
-    cellp = &Cell[elemfamp->KidList[i-1]]; elemp = &cellp->Elem;
+    cellp = &Lattice.Cell[elemfamp->KidList[i-1]]; elemp = &cellp->Elem;
     /* Dynamic memory allocation for element */
     Spreader_Alloc(elemp);
     /* copy low level routine */
@@ -3431,9 +3429,9 @@ void Solenoid_Init(int Fnum1)
   elemtype     *elemp;
 
   /* Pointer on element */
-  elemfamp = &ElemFam[Fnum1-1];
+  elemfamp = &Lattice.ElemFam[Fnum1-1];
   for (i = 1; i <= elemfamp->nKid; i++) {
-    cellp = &Cell[elemfamp->KidList[i-1]]; elemp = &cellp->Elem;
+    cellp = &Lattice.Cell[elemfamp->KidList[i-1]]; elemp = &cellp->Elem;
     /* Memory allocation and set everything to zero */
     Solenoid_Alloc(elemp);
     memcpy(elemp->PName, elemfamp->ElemF.PName, sizeof(partsName));
@@ -3463,7 +3461,7 @@ void Mpole_SetPB(int Fnum1, int Knum1, int Order)
   elemtype *elemp; /* pointer on the Elemetype */
   MpoleType *M;/* Pointer on the Multipole */
 
-  cellp  = &Cell[ElemFam[Fnum1-1].KidList[Knum1-1]]; elemp = &cellp->Elem;
+  cellp  = &Lattice.Cell[Lattice.ElemFam[Fnum1-1].KidList[Knum1-1]]; elemp = &cellp->Elem;
   M = elemp->M;
   M->PB[Order+HOMmax] =
     M->PBpar[Order+HOMmax] + M->PBsys[Order+HOMmax] +
@@ -3482,7 +3480,7 @@ double Mpole_GetPB(int Fnum1, int Knum1, int Order)
 
   MpoleType *M; /* Pointer on the multipole */
 
-  M = Cell[ElemFam[Fnum1-1].KidList[Knum1-1]].Elem.M;
+  M = Lattice.Cell[Lattice.ElemFam[Fnum1-1].KidList[Knum1-1]].Elem.M;
   return (M->PB[Order+HOMmax]);
 }
 
@@ -3492,7 +3490,7 @@ void Mpole_DefPBpar(int Fnum1, int Knum1, int Order, double PBpar)
   elemtype   *elemp;
   MpoleType  *M;
 
-  elemp = &Cell[ElemFam[Fnum1-1].KidList[Knum1-1]].Elem; M = elemp->M;
+  elemp = &Lattice.Cell[Lattice.ElemFam[Fnum1-1].KidList[Knum1-1]].Elem; M = elemp->M;
 
   M->PBpar[Order+HOMmax]=PBpar;
 }
@@ -3504,7 +3502,7 @@ void Mpole_DefPBsys(int Fnum1, int Knum1, int Order, double PBsys)
   elemtype *elemp;
   MpoleType *M;
 
-  elemp = &Cell[ElemFam[Fnum1-1].KidList[Knum1-1]].Elem; M = elemp->M;
+  elemp = &Lattice.Cell[Lattice.ElemFam[Fnum1-1].KidList[Knum1-1]].Elem; M = elemp->M;
 
   M->PBsys[Order+HOMmax]=PBsys;
 }
@@ -3517,7 +3515,7 @@ void Mpole_SetdS(int Fnum1, int Knum1)
   elemtype  *elemp;
   MpoleType *M;
 
-  cellp = &Cell[ElemFam[Fnum1-1].KidList[Knum1-1]]; elemp = &cellp->Elem;
+  cellp = &Lattice.Cell[Lattice.ElemFam[Fnum1-1].KidList[Knum1-1]]; elemp = &cellp->Elem;
   M = elemp->M;
   for (j = 0; j <= 1; j++)
     cellp->dS[j] = M->PdSsys[j] + M->PdSrms[j]*M->PdSrnd[j];
@@ -3529,7 +3527,7 @@ void Mpole_SetdT(int Fnum1, int Knum1)
   elemtype  *elemp;
   MpoleType *M;
 
-  cellp = &Cell[ElemFam[Fnum1-1].KidList[Knum1-1]]; elemp = &cellp->Elem;
+  cellp = &Lattice.Cell[Lattice.ElemFam[Fnum1-1].KidList[Knum1-1]]; elemp = &cellp->Elem;
   M = elemp->M;
   cellp->dT[0] =
     cos(dtor(M->PdTpar + M->PdTsys + M->PdTrms*M->PdTrnd));
@@ -3547,7 +3545,7 @@ double Mpole_GetdT(int Fnum1, int Knum1)
   elemtype  *elemp;
   MpoleType *M;
 
-  elemp = &Cell[ElemFam[Fnum1-1].KidList[Knum1-1]].Elem; M = elemp->M;
+  elemp = &Lattice.Cell[Lattice.ElemFam[Fnum1-1].KidList[Knum1-1]].Elem; M = elemp->M;
 
   return(M->PdTpar + M->PdTsys + M->PdTrms*M->PdTrnd);
 }
@@ -3558,7 +3556,7 @@ void Mpole_DefdTpar(int Fnum1, int Knum1, double PdTpar)
   elemtype  *elemp;
   MpoleType *M;
 
-  elemp = &Cell[ElemFam[Fnum1-1].KidList[Knum1-1]].Elem; M = elemp->M;
+  elemp = &Lattice.Cell[Lattice.ElemFam[Fnum1-1].KidList[Knum1-1]].Elem; M = elemp->M;
 
   M->PdTpar = PdTpar;
 }
@@ -3569,7 +3567,7 @@ void Mpole_DefdTsys(int Fnum1, int Knum1, double PdTsys)
   elemtype  *elemp;
   MpoleType *M;
 
-  elemp = &Cell[ElemFam[Fnum1-1].KidList[Knum1-1]].Elem; M = elemp->M;
+  elemp = &Lattice.Cell[Lattice.ElemFam[Fnum1-1].KidList[Knum1-1]].Elem; M = elemp->M;
 
   M->PdTsys=PdTsys;
 }
@@ -3581,7 +3579,7 @@ void Wiggler_SetPB(int Fnum1, int Knum1, int Order)
   elemtype     *elemp;
   WigglerType  *W;
 
-  cellp = &Cell[ElemFam[Fnum1-1].KidList[Knum1-1]]; elemp = &cellp->Elem;
+  cellp = &Lattice.Cell[Lattice.ElemFam[Fnum1-1].KidList[Knum1-1]]; elemp = &cellp->Elem;
   W = elemp->W;
   if (abs(Order) > W->Porder)
     W->Porder = abs(Order);
@@ -3595,7 +3593,7 @@ void Wiggler_SetdS(int Fnum1, int Knum1)
   elemtype    *elemp;
   WigglerType *W;
 
-  cellp = &Cell[ElemFam[Fnum1-1].KidList[Knum1-1]]; elemp = &cellp->Elem;
+  cellp = &Lattice.Cell[Lattice.ElemFam[Fnum1-1].KidList[Knum1-1]]; elemp = &cellp->Elem;
   W = elemp->W;
   for (j = 0; j <= 1; j++)
     cellp->dS[j] = W->PdSsys[j] + W->PdSrms[j]*W->PdSrnd[j];
@@ -3607,7 +3605,8 @@ void Wiggler_SetdT(int Fnum1, int Knum1)
   elemtype    *elemp;
   WigglerType *W;
 
-  cellp = &Cell[ElemFam[Fnum1-1].KidList[Knum1-1]]; elemp = &cellp->Elem;
+  cellp = &Lattice.Cell[Lattice.ElemFam[Fnum1-1].KidList[Knum1-1]];
+  elemp = &cellp->Elem;
   W = elemp->W;
   cellp->dT[0] = cos(dtor(W->PdTpar+W->PdTsys+W->PdTrms*W->PdTrnd));
   cellp->dT[1] = sin(dtor(W->PdTpar+W->PdTsys+W->PdTrms*W->PdTrnd));

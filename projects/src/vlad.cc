@@ -23,9 +23,9 @@ void chk_bend()
 
   phi = 0e0;
   for (k = 0; k <= globval.Cell_nLoc; k++) {
-    if ((Cell[k].Elem.Pkind == Mpole) &&
-	(Cell[k].Elem.M->n_design == Dip)) {
-      phi += Cell[k].Elem.PL*Cell[k].Elem.M->Pirho;
+    if ((Lattice.Cell[k].Elem.Pkind == Mpole) &&
+	(Lattice.Cell[k].Elem.M->n_design == Dip)) {
+      phi += Lattice.Cell[k].Elem.PL*Lattice.Cell[k].Elem.M->Pirho;
     }
   }
   phi = 180e0*phi/M_PI;
@@ -165,7 +165,7 @@ void get_nu(const double delta, double nu[])
   long int     lastpos;
   ss_vect<tps> A;
 
-  A.zero(); putlinmat(4, Cell[0].A, A); A[delta_] += delta;
+  A.zero(); putlinmat(4, Lattice.Cell[0].A, A); A[delta_] += delta;
   Cell_Pass(0, globval.Cell_nLoc, A, lastpos);
   A = get_A_CS(2, A, nu);
 }
@@ -274,7 +274,7 @@ double get_disp(const double eta_x0)
     k++;
     beta[X_] = 1e0; beta[Y_] = 1e0; eta[X_] = eta_x;
     ttwiss(alpha, beta, eta, etap, 0e0);
-    d = Cell[globval.Cell_nLoc].Eta[X_] - eta_x; eta_x += d/2e0;
+    d = Lattice.Cell[globval.Cell_nLoc].Eta[X_] - eta_x; eta_x += d/2e0;
     cout << fixed << setprecision(5)
 	 << setw(3) << k << setw(9) << eta_x << endl;
   } while((fabs(d) > eps) && (k < max_iter));
@@ -292,7 +292,7 @@ void get_twoJ_phi(long int k, const ss_vect<double> &ps,
 
   const int n = 4;
 
-  A.identity(); putlinmat(n, Cell[k].A, A); ps_Fl = (Inv(A)*ps).cst();
+  A.identity(); putlinmat(n, Lattice.Cell[k].A, A); ps_Fl = (Inv(A)*ps).cst();
   for (j = 0; j < 2; j++) {
     twoJ[j] = sqr(ps_Fl[2*j]) + sqr(ps_Fl[2*j+1]);
     phi[j] = -atan2(ps_Fl[2*j+1], ps_Fl[2*j]);
@@ -322,14 +322,14 @@ void prt_twoJ(const int n, const double A[][2])
       cout << endl << "Particle lost at: " << lastpos
 	   << "(" << globval.Cell_nLoc << ")" << endl;
     for (k = 0; k <= globval.Cell_nLoc; k++)
-      get_twoJ_phi(k, Cell[k].BeamPos, twoJ[j][k], phi);
+      get_twoJ_phi(k, Lattice.Cell[k].BeamPos, twoJ[j][k], phi);
   }
 
   file_wr(outf, file_name.c_str());
   for (k = 0; k <= globval.Cell_nLoc; k++) {
-    outf << setw(4) << k << " " << setw(10) << Cell[k].Elem.PName
-	 << fixed << setprecision(5) << setw(9) << Cell[k].S
-	 << setprecision(1) << setw(5) << get_code(Cell[k]);
+    outf << setw(4) << k << " " << setw(10) << Lattice.Cell[k].Elem.PName
+	 << fixed << setprecision(5) << setw(9) << Lattice.Cell[k].S
+	 << setprecision(1) << setw(5) << get_code(Lattice.Cell[k]);
    for (j = 0; j < n; j++)
       outf << scientific << setprecision(5)
 	   << setw(13) << twoJ[j][k][X_] << setw(13) << twoJ[j][k][Y_];
@@ -355,14 +355,14 @@ void prt_curly_H(const int n, const double delta[])
     ps.zero(); ps[delta_] = delta[j];
     Cell_Pass(0, globval.Cell_nLoc, ps, lastpos);
     for (k = 0; k <= globval.Cell_nLoc; k++)
-      get_twoJ_phi(k, Cell[k].BeamPos, curly_H[j][k], phi);
+      get_twoJ_phi(k, Lattice.Cell[k].BeamPos, curly_H[j][k], phi);
   }
 
   file_wr(outf, file_name.c_str());
   for (k = 0; k <= globval.Cell_nLoc; k++) {
-    outf << setw(4) << k << " " << setw(10) << Cell[k].Elem.PName
-	 << fixed << setprecision(5) << setw(9) << Cell[k].S
-	 << setprecision(1) << setw(5) << get_code(Cell[k]);
+    outf << setw(4) << k << " " << setw(10) << Lattice.Cell[k].Elem.PName
+	 << fixed << setprecision(5) << setw(9) << Lattice.Cell[k].S
+	 << setprecision(1) << setw(5) << get_code(Lattice.Cell[k]);
    for (j = 0; j < n; j++)
       outf << scientific << setprecision(5) << setw(13) << curly_H[j][k][X_];
     outf << endl;
@@ -392,15 +392,15 @@ void prt_eta(const int n, const double delta[])
 	   << "(" << globval.Cell_nLoc << ")" << endl;
 
     for (k = 0; k <= globval.Cell_nLoc; k++) {
-      eta[j][k] = Cell[k].BeamPos[x_]; etap[j][k] = Cell[k].BeamPos[px_];
+      eta[j][k] = Lattice.Cell[k].BeamPos[x_]; etap[j][k] = Lattice.Cell[k].BeamPos[px_];
     }
   }
 
   file_wr(outf, file_name.c_str());
   for (k = 0; k <= globval.Cell_nLoc; k++) {
-    outf << setw(4) << k << " " << setw(10) << Cell[k].Elem.PName
-	 << fixed << setprecision(5) << setw(9) << Cell[k].S
-	 << setprecision(1) << setw(5) << get_code(Cell[k]);
+    outf << setw(4) << k << " " << setw(10) << Lattice.Cell[k].Elem.PName
+	 << fixed << setprecision(5) << setw(9) << Lattice.Cell[k].S
+	 << setprecision(1) << setw(5) << get_code(Lattice.Cell[k]);
    for (j = 0; j < n; j++)
       outf << scientific << setprecision(5)
 	   << setw(13) << eta[j][k] << setw(13) << etap[j][k];
@@ -419,26 +419,26 @@ void prt_dnu(const int n, const double delta[])
 
   const string file_name = "dnu.out";
 
-  ttwiss(Cell[0].Alpha, Cell[0].Beta, Cell[0].Eta, Cell[0].Etap, 0e0);
+  ttwiss(Lattice.Cell[0].Alpha, Lattice.Cell[0].Beta, Lattice.Cell[0].Eta, Lattice.Cell[0].Etap, 0e0);
 
   for (k = 0; k <= globval.Cell_nLoc; k++)
     for (l = 0; l < 2; l++)
-      dnu0[k][l] = Cell[k].Nu[l];
+      dnu0[k][l] = Lattice.Cell[k].Nu[l];
 
   cout << endl;
   for (j = 0; j < n; j++) {
     cout << scientific << setprecision(3) << setw(11) << 1e2*delta[j] << endl;
-    ttwiss(Cell[0].Alpha, Cell[0].Beta, Cell[0].Eta, Cell[0].Etap, delta[j]);
+    ttwiss(Lattice.Cell[0].Alpha, Lattice.Cell[0].Beta, Lattice.Cell[0].Eta, Lattice.Cell[0].Etap, delta[j]);
     for (k = 0; k <= globval.Cell_nLoc; k++)
       for (l = 0; l < 2; l++)
-	dnu[j][k][l] = Cell[k].Nu[l] - dnu0[k][l];
+	dnu[j][k][l] = Lattice.Cell[k].Nu[l] - dnu0[k][l];
   }
 
   file_wr(outf, file_name.c_str());
   for (k = 0; k <= globval.Cell_nLoc; k++) {
-    outf << setw(4) << k << " " << setw(10) << Cell[k].Elem.PName
-	 << fixed << setprecision(5) << setw(9) << Cell[k].S
-	 << setprecision(1) << setw(5) << get_code(Cell[k]);
+    outf << setw(4) << k << " " << setw(10) << Lattice.Cell[k].Elem.PName
+	 << fixed << setprecision(5) << setw(9) << Lattice.Cell[k].S
+	 << setprecision(1) << setw(5) << get_code(Lattice.Cell[k]);
    for (j = 0; j < n; j++)
       outf << scientific << setprecision(5)
 	   << setw(13) << dnu[j][k][X_] << setw(13) << dnu[j][k][Y_];
@@ -466,11 +466,11 @@ void prt_trsvrs(const int n, const double A[][2])
 
   file_wr(outf, file_name.c_str());
 
-  cout << endl << setw(4) << loc << " " << setw(10) << Cell[loc].Elem.PName
-       << fixed << setprecision(5) << setw(9) << Cell[loc].S << endl;
+  cout << endl << setw(4) << loc << " " << setw(10) << Lattice.Cell[loc].Elem.PName
+       << fixed << setprecision(5) << setw(9) << Lattice.Cell[loc].S << endl;
 
   cout << endl;
-  n1 = 0; A0.identity(); putlinmat(4, Cell[0].A, A0);
+  n1 = 0; A0.identity(); putlinmat(4, Lattice.Cell[0].A, A0);
   for (j = 0; j < n; j++) {
     cout << scientific << setprecision(3)
 	 << "[" << setw(11) << A[j][X_] << ", " << setw(11) << A[j][Y_] << "]"
@@ -489,7 +489,7 @@ void prt_trsvrs(const int n, const double A[][2])
 	cout << endl << "Particle lost at: " << lastpos
 	     << "(" << globval.Cell_nLoc << ")" << endl;
       outf << scientific << setprecision(5)
-      	   << setw(4) << n1 << setw(13) << Cell[loc].BeamPos << endl;
+      	   << setw(4) << n1 << setw(13) << Lattice.Cell[loc].BeamPos << endl;
     }
     outf << endl;
   }
@@ -513,11 +513,11 @@ void prt_long(const int n, const double A[][2])
 
   file_wr(outf, file_name.c_str());
 
-  cout << endl << setw(4) << loc << " " << setw(10) << Cell[loc].Elem.PName
-       << fixed << setprecision(5) << setw(9) << Cell[loc].S << endl;
+  cout << endl << setw(4) << loc << " " << setw(10) << Lattice.Cell[loc].Elem.PName
+       << fixed << setprecision(5) << setw(9) << Lattice.Cell[loc].S << endl;
 
   cout << endl;
-  n1 = 0; A0.identity(); putlinmat(4, Cell[0].A, A0);
+  n1 = 0; A0.identity(); putlinmat(4, Lattice.Cell[0].A, A0);
   for (j = 0; j < n; j++) {
     cout << scientific << setprecision(3)
 	 << "[" << setw(11) << A[j][X_] << ", " << setw(11) << A[j][Y_] << "]"
@@ -534,7 +534,7 @@ void prt_long(const int n, const double A[][2])
       ps = (A0*ps_Fl).cst();
       Cell_Pass(0, globval.Cell_nLoc, ps, lastpos);
       outf << scientific << setprecision(5)
-      	   << setw(4) << n1 << setw(13) << Cell[loc].BeamPos << endl;
+      	   << setw(4) << n1 << setw(13) << Lattice.Cell[loc].BeamPos << endl;
     }
     outf << endl;
   }
@@ -559,15 +559,15 @@ void prt_ct(const int n, const double delta[])
     ps.zero(); ps[delta_] = delta[j];
     Cell_Pass(0, globval.Cell_nLoc, ps, lastpos);
     for (k = 0; k <= globval.Cell_nLoc; k++) {
-      ct[j][k] = Cell[k].BeamPos[ct_];
+      ct[j][k] = Lattice.Cell[k].BeamPos[ct_];
     }
   }
 
   file_wr(outf, file_name.c_str());
   for (k = 0; k <= globval.Cell_nLoc; k++) {
-    outf << setw(4) << k << " " << setw(10) << Cell[k].Elem.PName
-	 << fixed << setprecision(5) << setw(9) << Cell[k].S
-	 << setprecision(1) << setw(5) << get_code(Cell[k]);
+    outf << setw(4) << k << " " << setw(10) << Lattice.Cell[k].Elem.PName
+	 << fixed << setprecision(5) << setw(9) << Lattice.Cell[k].S
+	 << setprecision(1) << setw(5) << get_code(Lattice.Cell[k]);
    for (j = 0; j < n; j++)
       outf << scientific << setprecision(5)
 	   << setw(13) << ct[j][k];

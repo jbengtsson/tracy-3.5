@@ -1,5 +1,10 @@
 #define PLANES 2
 
+
+// maximum number of kids */
+#define nKidMax 5000
+
+
 typedef struct globvalrec {
   double   dPcommon,        // dp for numerical differentiation.
            dPparticle;      // energy deviation.

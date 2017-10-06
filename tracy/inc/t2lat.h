@@ -9,6 +9,21 @@
 */
 
 
-long ElemIndex(const std::string &name1);
+// maximum number of LEGO blocks (Cell_nLoc)
+#define Cell_nLocMax 20000
 
-bool Lattice_Read(FILE **fi_, FILE **fo_);
+// maximum number of families for Elem_NFam
+#define Elem_nFamMax 3000
+
+
+class Lattice_Type {
+ private:
+ public:
+  ElemFamType ElemFam[Elem_nFamMax];
+  CellType    Cell[Cell_nLocMax+1];
+
+  bool Lattice_Read(FILE **fi_, FILE **fo_);
+};
+
+long ElemIndex(const std::string &name1);
+void Read_Lattice(const char *fic);

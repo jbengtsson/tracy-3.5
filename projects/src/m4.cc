@@ -158,10 +158,10 @@ void LoadAlignTol(const char *AlignFile, const bool Scale_it,
 	    for (j = 1; j <= n_bpm_[k]; j++) {
 	      loc = bpms_[k][j];
 	      if (rms)
-		misalign_rms_elem(Cell[loc].Fnum, Cell[loc].Knum,
+		misalign_rms_elem(Lattice.Cell[loc].Fnum, Lattice.Cell[loc].Knum,
 				  dx, dy, dr_deg, new_rnd);
 	      else
-		misalign_sys_elem(Cell[loc].Fnum, Cell[loc].Knum,
+		misalign_sys_elem(Lattice.Cell[loc].Fnum, Lattice.Cell[loc].Knum,
 				  dx, dy, dr_deg);
 	    }
 	} else {
@@ -302,19 +302,19 @@ void get_cod_rms_data(const int n_seed, const int nfam, const int fnums[], const
       
       for (j = 0; j <= globval.Cell_nLoc; j++){ // read back beam pos at bpm
 
-	if ( (Cell[j].Elem.Pkind == Mpole) || (Cell[j].Elem.Pkind == drift) ) {
+	if ( (Lattice.Cell[j].Elem.Pkind == Mpole) || (Lattice.Cell[j].Elem.Pkind == drift) ) {
 	  for (k = 0; k < 6; k++) {
-	    x1[j][k] += Cell[j].BeamPos[k];
-	    x2[j][k] += sqr(Cell[j].BeamPos[k]);
+	    x1[j][k] += Lattice.Cell[j].BeamPos[k];
+	    x2[j][k] += sqr(Lattice.Cell[j].BeamPos[k]);
 	  }
 	  
-	  if ( (Cell[j].Fnum == ElemIndex("corr_h")) || (Cell[j].Fnum == ElemIndex("corr_v")) ){ // read back corr strength at corr
-	    get_bnL_design_elem(Cell[j].Fnum, Cell[j].Knum, Dip, b1L, a1L);
-	    if ( Cell[j].Fnum == ElemIndex("corr_h") ){
+	  if ( (Lattice.Cell[j].Fnum == ElemIndex("corr_h")) || (Lattice.Cell[j].Fnum == ElemIndex("corr_v")) ){ // read back corr strength at corr
+	    get_bnL_design_elem(Lattice.Cell[j].Fnum, Lattice.Cell[j].Knum, Dip, b1L, a1L);
+	    if ( Lattice.Cell[j].Fnum == ElemIndex("corr_h") ){
 	      ncorr[X_]++;
 	      theta1[ncorr[X_]-1][X_] += b1L;
 	      theta2[ncorr[X_]-1][X_] += sqr(b1L);
-	    } else if ( Cell[j].Fnum == ElemIndex("corr_v") ){
+	    } else if ( Lattice.Cell[j].Fnum == ElemIndex("corr_v") ){
 	      ncorr[Y_]++;
 	      theta1[ncorr[Y_]-1][Y_] += a1L;
 	      theta2[ncorr[Y_]-1][Y_] += sqr(a1L);
@@ -332,20 +332,20 @@ void get_cod_rms_data(const int n_seed, const int nfam, const int fnums[], const
   
   for (j = 0; j <= globval.Cell_nLoc; j++){
         
-    if ( (Cell[j].Elem.Pkind == Mpole) || (Cell[j].Elem.Pkind == drift) ) {
+    if ( (Lattice.Cell[j].Elem.Pkind == Mpole) || (Lattice.Cell[j].Elem.Pkind == drift) ) {
       for (k = 0; k < 6; k++) {
 	x_mean[j][k] = x1[j][k]/n_seed;
 	x_sigma[j][k] = sqrt((n_seed*x2[j][k]-sqr(x1[j][k]))
 			     /(n_seed*(n_seed-1.0)));
       }
       
-      if ( Cell[j].Fnum == ElemIndex("corr_h") ){
+      if ( Lattice.Cell[j].Fnum == ElemIndex("corr_h") ){
 	ncorr[X_]++;
 	theta_mean[ncorr[X_]-1][X_] = theta1[ncorr[X_]-1][X_]/n_seed;
 	theta_sigma[ncorr[X_]-1][X_] = sqrt((n_seed*theta2[ncorr[X_]-1][X_]-sqr(theta1[ncorr[X_]-1][X_]))
 					    /(n_seed*(n_seed-1.0)));
 	
-      } else if ( Cell[j].Fnum == ElemIndex("corr_v") ){
+      } else if ( Lattice.Cell[j].Fnum == ElemIndex("corr_v") ){
 	ncorr[Y_]++;
 	theta_mean[ncorr[Y_]-1][Y_] = theta1[ncorr[Y_]-1][Y_]/n_seed;
 	theta_sigma[ncorr[Y_]-1][Y_] = sqrt((n_seed*theta2[ncorr[Y_]-1][Y_]-sqr(theta1[ncorr[Y_]-1][Y_]))
@@ -385,16 +385,16 @@ void prt_cod_rms_data(const char name[], double x_mean[][6], double x_sigma[][6]
   for (j = 0; j <= globval.Cell_nLoc; j++){
    
     fprintf(fp, "%4li %8.3f %s %6.2f %10.3e +/- %10.3e %10.3e +/- %10.3e",
-	    j, Cell[j].S, Cell[j].Elem.PName, get_code(Cell[j]),
+	    j, Lattice.Cell[j].S, Lattice.Cell[j].Elem.PName, get_code(Lattice.Cell[j]),
 	    1e3*x_mean[j][x_], 1e3*x_sigma[j][x_],
 	    1e3*x_mean[j][y_], 1e3*x_sigma[j][y_]);
    
-    if ( Cell[j].Fnum == ElemIndex("corr_h") ){
+    if ( Lattice.Cell[j].Fnum == ElemIndex("corr_h") ){
       ncorr[X_]++;
       fprintf(fp, " %10.3e +/- %10.3e %10.3e +/- %10.3e\n",
 	      1e3*theta_mean[ncorr[X_]-1][X_], 1e3*theta_sigma[ncorr[X_]-1][X_], 0.0, 0.0);
 
-    } else if ( Cell[j].Fnum == ElemIndex("corr_v") ){
+    } else if ( Lattice.Cell[j].Fnum == ElemIndex("corr_v") ){
       ncorr[Y_]++;
       fprintf(fp, " %10.3e +/- %10.3e %10.3e +/- %10.3e\n",
 	      0.0, 0.0, 1e3*theta_mean[ncorr[Y_]-1][Y_], 1e3*theta_sigma[ncorr[Y_]-1][Y_]);
@@ -594,18 +594,18 @@ void get_cod_rms_scl_new(const int n_seed)
     if (true) {
       // acquire data for each seed -> sum of seed values, sum of squares of seed values, max values
       for (k = 0; k <= globval.Cell_nLoc; k++) {
-	sumyoverx[k] += sqrt(Cell[k].sigma[y_][y_])/sqrt(Cell[k].sigma[x_][x_]); // yoverx = sigma_y/sigma_x = kappa(s)
-	sumtwist[k] += atan2(2e0*Cell[k].sigma[x_][y_],
-			 Cell[k].sigma[x_][x_]-Cell[k].sigma[y_][y_])/2e0*180.0/M_PI;
-	sumyoverxsq[k] += Cell[k].sigma[y_][y_]/Cell[k].sigma[x_][x_];
-	sumtwistsq[k] += sqr(atan2(2e0*Cell[k].sigma[x_][y_],
-			 Cell[k].sigma[x_][x_]-Cell[k].sigma[y_][y_])/2e0*180.0/M_PI);
-	if ( (sqrt(Cell[k].sigma[y_][y_])/sqrt(Cell[k].sigma[x_][x_])) > maxyoverx[k] )
-	  maxyoverx[k] = sqrt(Cell[k].sigma[y_][y_])/sqrt(Cell[k].sigma[x_][x_]);
-	if ( abs(atan2(2e0*Cell[k].sigma[x_][y_],
-			Cell[k].sigma[x_][x_]-Cell[k].sigma[y_][y_])/2e0*180.0/M_PI) > abs(maxtwist[k]) )
-	  maxtwist[k] = abs(atan2(2e0*Cell[k].sigma[x_][y_],
-			      Cell[k].sigma[x_][x_]-Cell[k].sigma[y_][y_])/2e0*180.0/M_PI);
+	sumyoverx[k] += sqrt(Lattice.Cell[k].sigma[y_][y_])/sqrt(Lattice.Cell[k].sigma[x_][x_]); // yoverx = sigma_y/sigma_x = kappa(s)
+	sumtwist[k] += atan2(2e0*Lattice.Cell[k].sigma[x_][y_],
+			 Lattice.Cell[k].sigma[x_][x_]-Lattice.Cell[k].sigma[y_][y_])/2e0*180.0/M_PI;
+	sumyoverxsq[k] += Lattice.Cell[k].sigma[y_][y_]/Lattice.Cell[k].sigma[x_][x_];
+	sumtwistsq[k] += sqr(atan2(2e0*Lattice.Cell[k].sigma[x_][y_],
+			 Lattice.Cell[k].sigma[x_][x_]-Lattice.Cell[k].sigma[y_][y_])/2e0*180.0/M_PI);
+	if ( (sqrt(Lattice.Cell[k].sigma[y_][y_])/sqrt(Lattice.Cell[k].sigma[x_][x_])) > maxyoverx[k] )
+	  maxyoverx[k] = sqrt(Lattice.Cell[k].sigma[y_][y_])/sqrt(Lattice.Cell[k].sigma[x_][x_]);
+	if ( abs(atan2(2e0*Lattice.Cell[k].sigma[x_][y_],
+			Lattice.Cell[k].sigma[x_][x_]-Lattice.Cell[k].sigma[y_][y_])/2e0*180.0/M_PI) > abs(maxtwist[k]) )
+	  maxtwist[k] = abs(atan2(2e0*Lattice.Cell[k].sigma[x_][y_],
+			      Lattice.Cell[k].sigma[x_][x_]-Lattice.Cell[k].sigma[y_][y_])/2e0*180.0/M_PI);
       }    
       // then (after final seed) calculate statistics
       if ( i == (n_seed-1) ) {
@@ -626,7 +626,7 @@ void get_cod_rms_scl_new(const int n_seed)
 	fprintf(fp,"#\n");
 	for(k = 0; k <= globval.Cell_nLoc; k++){
 	  fprintf(fp,"%4d %10s %6.3f %e %e %e %e %e %e\n",
-		  k, Cell[k].Elem.PName, Cell[k].S,
+		  k, Lattice.Cell[k].Elem.PName, Lattice.Cell[k].S,
 		  avgyoverx[k], sigyoverx[k], maxyoverx[k],
 		  avgtwist[k], sigtwist[k], maxtwist[k]);
 	}
@@ -643,19 +643,19 @@ void get_cod_rms_scl_new(const int n_seed)
       
       for (j = 0; j <= globval.Cell_nLoc; j++){ // read back beam pos at bpm
 	
-	if ( (Cell[j].Elem.Pkind == Mpole) || (Cell[j].Elem.Pkind == drift) ) {
+	if ( (Lattice.Cell[j].Elem.Pkind == Mpole) || (Lattice.Cell[j].Elem.Pkind == drift) ) {
 	  for (k = 0; k < 6; k++) {
-	    x1[j][k] += Cell[j].BeamPos[k];
-	    x2[j][k] += sqr(Cell[j].BeamPos[k]);
+	    x1[j][k] += Lattice.Cell[j].BeamPos[k];
+	    x2[j][k] += sqr(Lattice.Cell[j].BeamPos[k]);
 	  }
 	  
-	  if ( (Cell[j].Fnum == ElemIndex("corr_h") ) || (Cell[j].Fnum == ElemIndex("corr_v")) ){ // read back corr strength at corr
-	    get_bnL_design_elem(Cell[j].Fnum, Cell[j].Knum, Dip, b1L, a1L);
-	    if ( Cell[j].Fnum == ElemIndex("corr_h") ){
+	  if ( (Lattice.Cell[j].Fnum == ElemIndex("corr_h") ) || (Lattice.Cell[j].Fnum == ElemIndex("corr_v")) ){ // read back corr strength at corr
+	    get_bnL_design_elem(Lattice.Cell[j].Fnum, Lattice.Cell[j].Knum, Dip, b1L, a1L);
+	    if ( Lattice.Cell[j].Fnum == ElemIndex("corr_h") ){
 	      ncorr[X_]++;
 	      theta1[ncorr[X_]-1][X_] += b1L;
 	      theta2[ncorr[X_]-1][X_] += sqr(b1L);
-	    } else if ( Cell[j].Fnum == ElemIndex("corr_v") ){
+	    } else if ( Lattice.Cell[j].Fnum == ElemIndex("corr_v") ){
 	      ncorr[Y_]++;
 	      theta1[ncorr[Y_]-1][Y_] += a1L;
 	      theta2[ncorr[Y_]-1][Y_] += sqr(a1L);
@@ -673,20 +673,20 @@ void get_cod_rms_scl_new(const int n_seed)
   
   for (j = 0; j <= globval.Cell_nLoc; j++){
     
-    if ( (Cell[j].Elem.Pkind == Mpole) || (Cell[j].Elem.Pkind == drift) ) {
+    if ( (Lattice.Cell[j].Elem.Pkind == Mpole) || (Lattice.Cell[j].Elem.Pkind == drift) ) {
       for (k = 0; k < 6; k++) {
 	x_mean[j][k] = x1[j][k]/n_seed;
 	x_sigma[j][k] = sqrt((n_seed*x2[j][k]-sqr(x1[j][k]))
 			     /(n_seed*(n_seed-1.0)));
       }
       
-      if ( Cell[j].Fnum == ElemIndex("corr_h") ){
+      if ( Lattice.Cell[j].Fnum == ElemIndex("corr_h") ){
 	ncorr[X_]++;
 	theta_mean[ncorr[X_]-1][X_] = theta1[ncorr[X_]-1][X_]/n_seed;
 	theta_sigma[ncorr[X_]-1][X_] = sqrt((n_seed*theta2[ncorr[X_]-1][X_]-sqr(theta1[ncorr[X_]-1][X_]))
 					    /(n_seed*(n_seed-1.0)));
 	
-      } else if ( Cell[j].Fnum == ElemIndex("corr_v") ){
+      } else if ( Lattice.Cell[j].Fnum == ElemIndex("corr_v") ){
 	ncorr[Y_]++;
 	theta_mean[ncorr[Y_]-1][Y_] = theta1[ncorr[Y_]-1][Y_]/n_seed;
 	theta_sigma[ncorr[Y_]-1][Y_] = sqrt((n_seed*theta2[ncorr[Y_]-1][Y_]-sqr(theta1[ncorr[Y_]-1][Y_]))
@@ -786,14 +786,14 @@ void prt_ZAP()
 
   outf = file_write("ZAPLAT.DAT");
 
-  fprintf(outf, "%ld %7.5f\n", globval.Cell_nLoc+1, Cell[globval.Cell_nLoc].S);
+  fprintf(outf, "%ld %7.5f\n", globval.Cell_nLoc+1, Lattice.Cell[globval.Cell_nLoc].S);
   fprintf(outf, "One super period\n");
   for (k = 0; k <= globval.Cell_nLoc; k++) {
     fprintf(outf, "%10.5f %6.3f %7.3f %6.3f %7.3f %6.3f %6.3f %5.3f\n",
-	    Cell[k].S,
-	    Cell[k].Beta[X_], Cell[k].Alpha[X_],
-	    Cell[k].Beta[Y_], Cell[k].Alpha[Y_],
-	    Cell[k].Eta[X_], Cell[k].Etap[X_], Cell[k].maxampl[X_][1]);
+	    Lattice.Cell[k].S,
+	    Lattice.Cell[k].Beta[X_], Lattice.Cell[k].Alpha[X_],
+	    Lattice.Cell[k].Beta[Y_], Lattice.Cell[k].Alpha[Y_],
+	    Lattice.Cell[k].Eta[X_], Lattice.Cell[k].Etap[X_], Lattice.Cell[k].maxampl[X_][1]);
   }
 
   fprintf(outf, "0\n");
@@ -1048,7 +1048,7 @@ int main(int argc, char *argv[])
       outf = file_write("mom_aper.out");
       for(k = 0; k <= globval.Cell_nLoc; k++)
 	fprintf(outf, "%4d %7.2f %5.3f %6.3f\n",
-		k, Cell[k].S, 1e2*sum_delta[k][0], 1e2*sum_delta[k][1]);
+		k, Lattice.Cell[k].S, 1e2*sum_delta[k][0], 1e2*sum_delta[k][1]);
       fclose(outf);
     }
   

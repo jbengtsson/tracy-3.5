@@ -252,7 +252,6 @@ void Dis_In(long *bpmdis, long *vcorrdis, long *hcorrdis,
 
 
 /* high level functions for reading lattice file*/  
-void Read_Lattice(const char *fic);
 long get_bpm_number(void);
 long get_hcorr_number(void);
 long get_vcorr_number(void);

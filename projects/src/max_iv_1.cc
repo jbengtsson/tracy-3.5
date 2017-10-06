@@ -45,15 +45,15 @@ void prt_ZAP(const int n)
   outf = file_write("ZAPLAT.DAT");
 
   fprintf(outf, "%ld %7.5f\n",
-	  globval.Cell_nLoc+1, n*Cell[globval.Cell_nLoc].S);
+	  globval.Cell_nLoc+1, n*Lattice.Cell[globval.Cell_nLoc].S);
   fprintf(outf, "One super period\n");
 
   for (k = 0; k <= globval.Cell_nLoc; k++)
     fprintf(outf, "%10.5f %8.5f %9.6f %8.5f %7.3f %8.5f %8.5f %7.5f\n",
-	    Cell[k].S,
-	    Cell[k].Beta[X_], Cell[k].Alpha[X_],
-	    Cell[k].Beta[Y_], Cell[k].Alpha[Y_],
-	    Cell[k].Eta[X_], Cell[k].Etap[X_], Cell[k].maxampl[X_][1]);
+	    Lattice.Cell[k].S,
+	    Lattice.Cell[k].Beta[X_], Lattice.Cell[k].Alpha[X_],
+	    Lattice.Cell[k].Beta[Y_], Lattice.Cell[k].Alpha[Y_],
+	    Lattice.Cell[k].Eta[X_], Lattice.Cell[k].Etap[X_], Lattice.Cell[k].maxampl[X_][1]);
 
   fprintf(outf, "0\n");
 
@@ -99,7 +99,7 @@ void get_Touschek(void)
       fp = file_write("mom_aper.out");
       for(k = 0; k <= globval.Cell_nLoc; k++)
 	fprintf(fp, "%4ld %7.2f %5.3f %6.3f\n",
-		k, Cell[k].S, 1e2*sum_delta[k][0], 1e2*sum_delta[k][1]);
+		k, Lattice.Cell[k].S, 1e2*sum_delta[k][0], 1e2*sum_delta[k][1]);
     }
   }
 }

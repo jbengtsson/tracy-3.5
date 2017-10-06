@@ -17,7 +17,7 @@ ss_vect<tps> get_fix_point(const int Fnum)
   const int  n_iter = 3;
 
   
-  loc = Elem_GetPos(Fnum, 1); FM = Cell[loc].Elem.FM;
+  loc = Elem_GetPos(Fnum, 1); FM = Lattice.Cell[loc].Elem.FM;
 
   FM->Ld = 0.0; FM->L1 = 0.0;
   if (!NSLS_II) {
@@ -35,7 +35,7 @@ ss_vect<tps> get_fix_point(const int Fnum)
     FM->phi -= map[px_].cst();
     FM->Lm = map[ct_].cst();
     FM->Ld += 2.0*map[x_].cst()/FM->phi;
-    FM->L1 += Cell[loc].Elem.PL - FM->Lm;
+    FM->L1 += Lattice.Cell[loc].Elem.PL - FM->Lm;
   }
 
   map.identity(); Cell_Pass(loc, loc, map, lastpos);
@@ -45,7 +45,7 @@ ss_vect<tps> get_fix_point(const int Fnum)
        << "get_fix_pont:" << setw(11) << map.cst();
   cout << fixed << setprecision(5)
        << "phi [deg] = " << setw(7) << FM->phi*180.0/M_PI
-       << ", L [m] = " << setw(7) << Cell[loc].Elem.PL << endl;
+       << ", L [m] = " << setw(7) << Lattice.Cell[loc].Elem.PL << endl;
   cout << fixed << setprecision(5)
        << "Lr [m] = " << setw(7) << FM->Lr
        << ", Lm [m] = " << setw(7) << FM->Lm
@@ -54,11 +54,13 @@ ss_vect<tps> get_fix_point(const int Fnum)
 
   for (j = 1; j <= GetnKid(Fnum); j++) {
     loc = Elem_GetPos(Fnum, j);
-    Cell[loc].Elem.FM->cut = FM->cut;
-    Cell[loc].Elem.FM->x0 = FM->x0;
-    Cell[loc].Elem.FM->phi = FM->phi;
-    Cell[loc].Elem.FM->Lr = FM->Lr; Cell[loc].Elem.FM->Lm = FM->Lm;
-    Cell[loc].Elem.FM->Ld = FM->Ld; Cell[loc].Elem.FM->L1 = FM->L1;
+    Lattice.Cell[loc].Elem.FM->cut = FM->cut;
+    Lattice.Cell[loc].Elem.FM->x0 = FM->x0;
+    Lattice.Cell[loc].Elem.FM->phi = FM->phi;
+    Lattice.Cell[loc].Elem.FM->Lr = FM->Lr;
+    Lattice.Cell[loc].Elem.FM->Lm = FM->Lm;
+    Lattice.Cell[loc].Elem.FM->Ld = FM->Ld;
+    Lattice.Cell[loc].Elem.FM->L1 = FM->L1;
   }
 
   return map;

@@ -102,7 +102,7 @@ void get_S(void)
 
   S = 0e0;
   for (j = 0; j <= globval.Cell_nLoc; j++) {
-    S += Cell[j].Elem.PL; Cell[j].S = S;
+    S += Lattice.Cell[j].Elem.PL; Lattice.Cell[j].S = S;
   }
 }
 
@@ -250,7 +250,7 @@ double f_emit(double *b2)
   chi2 += sqr(scl_eps*(eps1_x-eps_x));
   chi2 += sqr(globval.TotalTune[X_]-nu_uc[X_]);
   chi2 += sqr(globval.TotalTune[Y_]-nu_uc[Y_]);
-  chi2 += sqr(scl_L*(Cell[globval.Cell_nLoc].S-L_uc));
+  chi2 += sqr(scl_L*(Lattice.Cell[globval.Cell_nLoc].S-L_uc));
   chi2 += sqr(scl_ksi*b3L[0]);
   chi2 += sqr(scl_ksi*b3L[1]);
 
@@ -266,7 +266,7 @@ double f_emit(double *b2)
     printf("b:    %10.3e %10.5f %10.5f %10.5f %10.5f %10.5f\n",
 	   eps1_x,
 	   globval.TotalTune[X_], globval.TotalTune[Y_],
-	   Cell[globval.Cell_nLoc].S,
+	   Lattice.Cell[globval.Cell_nLoc].S,
 	   b3L[0], b3L[1]);
 	   // globval.Chrom[X_], globval.Chrom[Y_]);
     printf("b2s: ");
@@ -365,13 +365,13 @@ double f_hcell(double *b2)
   Cell_Twiss(0, globval.Cell_nLoc, A, false, false, 0e0);
 
   chi2 = 0e0;
-  chi2 += sqr(scl_eta*Cell[loc1].Eta[X_]);
-  chi2 += sqr(scl_eta*Cell[loc1].Etap[X_]);
-  chi2 += sqr(scl_alpha*Cell[loc2].Alpha[X_]);
-  chi2 += sqr(scl_alpha*Cell[loc2].Alpha[Y_]);
-  chi2 += sqr(scl_beta*(Cell[loc2].Beta[X_]-beta_cs[X_]));
-  chi2 += sqr(scl_beta*(Cell[loc2].Beta[Y_]-beta_cs[Y_]));
-  chi2 += sqr(scl_L*(Cell[globval.Cell_nLoc].S-L_ss));
+  chi2 += sqr(scl_eta*Lattice.Cell[loc1].Eta[X_]);
+  chi2 += sqr(scl_eta*Lattice.Cell[loc1].Etap[X_]);
+  chi2 += sqr(scl_alpha*Lattice.Cell[loc2].Alpha[X_]);
+  chi2 += sqr(scl_alpha*Lattice.Cell[loc2].Alpha[Y_]);
+  chi2 += sqr(scl_beta*(Lattice.Cell[loc2].Beta[X_]-beta_cs[X_]));
+  chi2 += sqr(scl_beta*(Lattice.Cell[loc2].Beta[Y_]-beta_cs[Y_]));
+  chi2 += sqr(scl_L*(Lattice.Cell[globval.Cell_nLoc].S-L_ss));
 
   if ((fabs(tr[X_]) > 2e0) || (fabs(tr[Y_]) > 2e0)) chi2 += 1e10;
   for (i = 1; i <= b2_prms.n_prm; i++) {
@@ -383,10 +383,10 @@ double f_hcell(double *b2)
   if (chi2 < chi2_ref) {
     printf("\nchi2: %12.5e, %12.5e\n", chi2, chi2_ref);
     printf("b: %10.3e %10.3e %10.3e %10.3e %10.5f %10.5f %10.5f\n",
-	   Cell[loc1].Eta[X_],  Cell[loc1].Etap[X_],
-	   Cell[loc2].Alpha[X_], Cell[loc2].Alpha[Y_],
-	   Cell[loc2].Beta[X_],  Cell[loc2].Beta[Y_],
-	   Cell[globval.Cell_nLoc].S);
+	   Lattice.Cell[loc1].Eta[X_],  Lattice.Cell[loc1].Etap[X_],
+	   Lattice.Cell[loc2].Alpha[X_], Lattice.Cell[loc2].Alpha[Y_],
+	   Lattice.Cell[loc2].Beta[X_],  Lattice.Cell[loc2].Beta[Y_],
+	   Lattice.Cell[globval.Cell_nLoc].S);
     printf("b2s: ");
     for (i = 1; i <= b2_prms.n_prm; i++)
       printf(" %9.5f", b2[i]);
@@ -461,17 +461,17 @@ double f_match(double *b2)
   // printf("trace: %6.3f %6.3f\n", tr[X_], tr[Y_]);
 
   chi2 = 0e0;
-  chi2 += sqr(scl_eta*(Cell[loc1].Eta[X_]-eta_cuc[X_]));
-  chi2 += sqr(scl_eta*Cell[loc1].Etap[X_]);
-  chi2 += sqr(scl_alpha*(Cell[loc1].Alpha[X_]-alpha_cuc[X_]));
-  chi2 += sqr(scl_alpha*(Cell[loc1].Alpha[Y_]-alpha_cuc[Y_]));
-  chi2 += sqr(scl_beta*(Cell[loc1].Beta[X_]-beta_cuc[X_]));
-  chi2 += sqr(scl_beta*(Cell[loc1].Beta[Y_]-beta_cuc[Y_]));
-  chi2 += sqr(scl_eta*Cell[loc2].Eta[X_]);
-  chi2 += sqr(scl_eta*Cell[loc2].Etap[X_]);
-  chi2 += sqr(scl_beta*(Cell[loc3].Beta[X_]-beta_cs[X_]));
-  chi2 += sqr(scl_beta*(Cell[loc3].Beta[Y_]-beta_cs[Y_]));
-  chi2 += sqr(scl_L*(Cell[globval.Cell_nLoc].S-L_ss));
+  chi2 += sqr(scl_eta*(Lattice.Cell[loc1].Eta[X_]-eta_cuc[X_]));
+  chi2 += sqr(scl_eta*Lattice.Cell[loc1].Etap[X_]);
+  chi2 += sqr(scl_alpha*(Lattice.Cell[loc1].Alpha[X_]-alpha_cuc[X_]));
+  chi2 += sqr(scl_alpha*(Lattice.Cell[loc1].Alpha[Y_]-alpha_cuc[Y_]));
+  chi2 += sqr(scl_beta*(Lattice.Cell[loc1].Beta[X_]-beta_cuc[X_]));
+  chi2 += sqr(scl_beta*(Lattice.Cell[loc1].Beta[Y_]-beta_cuc[Y_]));
+  chi2 += sqr(scl_eta*Lattice.Cell[loc2].Eta[X_]);
+  chi2 += sqr(scl_eta*Lattice.Cell[loc2].Etap[X_]);
+  chi2 += sqr(scl_beta*(Lattice.Cell[loc3].Beta[X_]-beta_cs[X_]));
+  chi2 += sqr(scl_beta*(Lattice.Cell[loc3].Beta[Y_]-beta_cs[Y_]));
+  chi2 += sqr(scl_L*(Lattice.Cell[globval.Cell_nLoc].S-L_ss));
   chi2 += sqr(scl_ksi*globval.Chrom[X_]);
   chi2 += sqr(scl_ksi*globval.Chrom[Y_]);
   chi2 += sqr(scl_nu*(globval.TotalTune[X_]-nu_sc[X_]));
@@ -488,12 +488,13 @@ double f_match(double *b2)
     printf("\nchi2: %12.5e, %12.5e\n", chi2, chi2_ref);
     printf("b: %10.3e %10.3e %10.3e %10.3e %10.3e %10.3e %10.3e %10.3e"
 	   " %10.5f %10.5f\n %10.5f %10.5f %10.5f %10.5f %10.5f\n",
-	   Cell[loc1].Etap[X_],  Cell[loc1].Etap[X_],
-	   Cell[loc1].Alpha[X_], Cell[loc1].Alpha[Y_],
-	   Cell[loc1].Beta[X_]-beta_cuc[X_], Cell[loc1].Beta[Y_]-beta_cuc[Y_],
-	   Cell[loc2].Eta[X_], Cell[loc2].Etap[X_],
-	   Cell[loc3].Beta[X_], Cell[loc3].Beta[Y_],
-	   Cell[globval.Cell_nLoc].S,
+	   Lattice.Cell[loc1].Etap[X_],  Lattice.Cell[loc1].Etap[X_],
+	   Lattice.Cell[loc1].Alpha[X_], Lattice.Cell[loc1].Alpha[Y_],
+	   Lattice.Cell[loc1].Beta[X_]-beta_cuc[X_],
+	   Lattice.Cell[loc1].Beta[Y_]-beta_cuc[Y_],
+	   Lattice.Cell[loc2].Eta[X_], Lattice.Cell[loc2].Etap[X_],
+	   Lattice.Cell[loc3].Beta[X_], Lattice.Cell[loc3].Beta[Y_],
+	   Lattice.Cell[globval.Cell_nLoc].S,
 	   globval.Chrom[X_], globval.Chrom[Y_],
 	   globval.TotalTune[X_], globval.TotalTune[Y_]);
     printf("b2s: ");

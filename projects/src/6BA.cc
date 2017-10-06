@@ -149,32 +149,32 @@ void get_s_loc(const int Fnum, const int Knum, int loc[])
 
   // Point to multipole.
   loc[1] = Elem_GetPos(Fnum, Knum);
-  if (Cell[loc[1]-1].Elem.PName[1] == 'u') {
+  if (Lattice.Cell[loc[1]-1].Elem.PName[1] == 'u') {
     loc[0] = loc[1] - 1;
-    strcpy(name, Cell[loc[1]-1].Elem.PName); name[1] = 'd';
+    strcpy(name, Lattice.Cell[loc[1]-1].Elem.PName); name[1] = 'd';
     loc[2] = Elem_GetPos(ElemIndex(name), Knum);
-  } else if (Cell[loc[1]-1].Elem.PName[1] == 'd') {
+  } else if (Lattice.Cell[loc[1]-1].Elem.PName[1] == 'd') {
     loc[2] = loc[1] - 1;
-    strcpy(name, Cell[loc[1]-1].Elem.PName); name[1] = 'u';
+    strcpy(name, Lattice.Cell[loc[1]-1].Elem.PName); name[1] = 'u';
     loc[0] = Elem_GetPos(ElemIndex(name), Knum);
-  } else if (Cell[loc[1]+1].Elem.PName[1] == 'd') {
+  } else if (Lattice.Cell[loc[1]+1].Elem.PName[1] == 'd') {
     loc[2] = loc[1] + 1;
-    strcpy(name, Cell[loc[1]+1].Elem.PName); name[1] = 'u';
+    strcpy(name, Lattice.Cell[loc[1]+1].Elem.PName); name[1] = 'u';
     loc[0] = Elem_GetPos(ElemIndex(name), Knum);
-  } else if (Cell[loc[1]+1].Elem.PName[1] == 'u') {
+  } else if (Lattice.Cell[loc[1]+1].Elem.PName[1] == 'u') {
     loc[0] = loc[1] + 1;
-    strcpy(name, Cell[loc[1]+1].Elem.PName); name[1] = 'd';
+    strcpy(name, Lattice.Cell[loc[1]+1].Elem.PName); name[1] = 'd';
     loc[2] = Elem_GetPos(ElemIndex(name), Knum);
   } else {
     printf("\nget_s_loc: configuration error %s (%d)\n",
-	   Cell[loc[1]].Elem.PName, loc[1]);
+	   Lattice.Cell[loc[1]].Elem.PName, loc[1]);
     exit(1);
   }
 
   if (prt)
     printf("\nget_s_loc: %s %s %s\n",
-	   Cell[loc[0]].Elem.PName, Cell[loc[1]].Elem.PName,
-	   Cell[loc[2]].Elem.PName);
+	   Lattice.Cell[loc[0]].Elem.PName, Lattice.Cell[loc[1]].Elem.PName,
+	   Lattice.Cell[loc[2]].Elem.PName);
 }
 
 
@@ -186,12 +186,12 @@ double get_bn_s(const int Fnum, const int Knum)
   const bool prt = false;
 
   get_s_loc(Fnum, Knum, loc);
-  ds = Cell[loc[0]].Elem.PL;
+  ds = Lattice.Cell[loc[0]].Elem.PL;
 
   if (prt)
     printf("\nget_bn_s:  %s %s(%d) %s %10.3e %10.3e\n",
-	   Cell[loc[0]].Elem.PName, Cell[loc[1]].Elem.PName, Knum,
-	   Cell[loc[2]].Elem.PName, Cell[loc[0]].Elem.PL, Cell[loc[2]].Elem.PL);
+	   Lattice.Cell[loc[0]].Elem.PName, Lattice.Cell[loc[1]].Elem.PName, Knum,
+	   Lattice.Cell[loc[2]].Elem.PName, Lattice.Cell[loc[0]].Elem.PL, Lattice.Cell[loc[2]].Elem.PL);
 
   return ds;
 }
@@ -204,13 +204,13 @@ void set_bn_s(const int Fnum, const int Knum, const double ds)
   const bool prt = false;
 
   get_s_loc(Fnum, Knum, loc);
-  set_L(Cell[loc[0]].Fnum, Knum, ds);
-  set_L(Cell[loc[2]].Fnum, Knum, -ds);
+  set_L(Lattice.Cell[loc[0]].Fnum, Knum, ds);
+  set_L(Lattice.Cell[loc[2]].Fnum, Knum, -ds);
 
   if (prt)
     printf("\nset_bn_s:  %s %s(%d) %s %10.3e %10.3e\n",
-	   Cell[loc[0]].Elem.PName, Cell[loc[1]].Elem.PName, Knum,
-	   Cell[loc[2]].Elem.PName, ds, -ds);
+	   Lattice.Cell[loc[0]].Elem.PName, Lattice.Cell[loc[1]].Elem.PName, Knum,
+	   Lattice.Cell[loc[2]].Elem.PName, ds, -ds);
 }
 
 
@@ -230,7 +230,7 @@ void get_S(void)
 
   S = 0e0;
   for (j = 0; j <= globval.Cell_nLoc; j++) {
-    S += Cell[j].Elem.PL; Cell[j].S = S;
+    S += Lattice.Cell[j].Elem.PL; Lattice.Cell[j].S = S;
   }
 }
 
@@ -370,30 +370,30 @@ void prt_lin_opt(const int loc[])
 {
   printf("\n      s    alpha_x  beta_x  eta_x  etap_x  alpha_y  beta_y\n");
   printf("  %7.3f %7.3f %7.3f %7.3f %7.3f %7.3f %7.3f\n",
-	 Cell[loc[0]].S,
-	 Cell[loc[0]].Alpha[X_], Cell[loc[0]].Beta[X_],
-	 Cell[loc[0]].Eta[X_], Cell[loc[0]].Etap[X_],
-	 Cell[loc[0]].Alpha[Y_], Cell[loc[0]].Beta[Y_]);
+	 Lattice.Cell[loc[0]].S,
+	 Lattice.Cell[loc[0]].Alpha[X_], Lattice.Cell[loc[0]].Beta[X_],
+	 Lattice.Cell[loc[0]].Eta[X_], Lattice.Cell[loc[0]].Etap[X_],
+	 Lattice.Cell[loc[0]].Alpha[Y_], Lattice.Cell[loc[0]].Beta[Y_]);
   printf("  %7.3f %7.3f %7.3f %7.3f %7.3f %7.3f %7.3f\n",
-	 Cell[loc[1]].S,
-	 Cell[loc[1]].Alpha[X_], Cell[loc[1]].Beta[X_],
-	 Cell[loc[1]].Eta[X_], Cell[loc[1]].Etap[X_],
-	 Cell[loc[1]].Alpha[Y_], Cell[loc[1]].Beta[Y_]);
+	 Lattice.Cell[loc[1]].S,
+	 Lattice.Cell[loc[1]].Alpha[X_], Lattice.Cell[loc[1]].Beta[X_],
+	 Lattice.Cell[loc[1]].Eta[X_], Lattice.Cell[loc[1]].Etap[X_],
+	 Lattice.Cell[loc[1]].Alpha[Y_], Lattice.Cell[loc[1]].Beta[Y_]);
   printf("  %7.3f %7.3f %7.3f %7.3f %7.3f %7.3f %7.3f\n",
-	 Cell[loc[2]].S,
-	 Cell[loc[2]].Alpha[X_], Cell[loc[2]].Beta[X_],
-	 Cell[loc[2]].Eta[X_], Cell[loc[2]].Etap[X_],
-	 Cell[loc[2]].Alpha[Y_], Cell[loc[2]].Beta[Y_]);
+	 Lattice.Cell[loc[2]].S,
+	 Lattice.Cell[loc[2]].Alpha[X_], Lattice.Cell[loc[2]].Beta[X_],
+	 Lattice.Cell[loc[2]].Eta[X_], Lattice.Cell[loc[2]].Etap[X_],
+	 Lattice.Cell[loc[2]].Alpha[Y_], Lattice.Cell[loc[2]].Beta[Y_]);
   printf("  %7.3f %7.3f %7.3f %7.3f %7.3f %7.3f %7.3f\n",
-	 Cell[loc[3]].S,
-	 Cell[loc[3]].Alpha[X_], Cell[loc[3]].Beta[X_],
-	 Cell[loc[3]].Eta[X_], Cell[loc[3]].Etap[X_],
-	 Cell[loc[3]].Alpha[Y_], Cell[loc[3]].Beta[Y_]);
+	 Lattice.Cell[loc[3]].S,
+	 Lattice.Cell[loc[3]].Alpha[X_], Lattice.Cell[loc[3]].Beta[X_],
+	 Lattice.Cell[loc[3]].Eta[X_], Lattice.Cell[loc[3]].Etap[X_],
+	 Lattice.Cell[loc[3]].Alpha[Y_], Lattice.Cell[loc[3]].Beta[Y_]);
   printf("  %7.3f %7.3f %7.3f %7.3f %7.3f %7.3f %7.3f\n",
-	 Cell[loc[4]].S,
-	 Cell[loc[4]].Alpha[X_], Cell[loc[4]].Beta[X_],
-	 Cell[loc[4]].Eta[X_], Cell[loc[4]].Etap[X_],
-	 Cell[loc[4]].Alpha[Y_], Cell[loc[4]].Beta[Y_]);
+	 Lattice.Cell[loc[4]].S,
+	 Lattice.Cell[loc[4]].Alpha[X_], Lattice.Cell[loc[4]].Beta[X_],
+	 Lattice.Cell[loc[4]].Eta[X_], Lattice.Cell[loc[4]].Etap[X_],
+	 Lattice.Cell[loc[4]].Alpha[Y_], Lattice.Cell[loc[4]].Beta[Y_]);
 }
 
 
@@ -418,27 +418,27 @@ double f_match(double *b2)
   chi2 = 0e0;
   
   // Downstream of 10 degree dipole.
-  chi2 += 1e8*sqr(Cell[loc[1]].Eta[X_]);
-  chi2 += 1e8*sqr(Cell[loc[1]].Etap[X_]);
-  // chi2 += 1e0*sqr(Cell[loc[1]].Beta[Y_]);
+  chi2 += 1e8*sqr(Lattice.Cell[loc[1]].Eta[X_]);
+  chi2 += 1e8*sqr(Lattice.Cell[loc[1]].Etap[X_]);
+  // chi2 += 1e0*sqr(Lattice.Cell[loc[1]].Beta[Y_]);
 
   // Center of 1st straight.
-  chi2 += 1e5*sqr(Cell[loc[2]].Alpha[X_]);
-  // chi2 += 1e5*sqr(Cell[loc[2]].Alpha[Y_]);
-  chi2 += 1e3*sqr(Cell[loc[2]].Beta[X_]-9.58);
+  chi2 += 1e5*sqr(Lattice.Cell[loc[2]].Alpha[X_]);
+  // chi2 += 1e5*sqr(Lattice.Cell[loc[2]].Alpha[Y_]);
+  chi2 += 1e3*sqr(Lattice.Cell[loc[2]].Beta[X_]-9.58);
 
   // Center of 2nd straight.
-  chi2 += 1e5*sqr(Cell[loc[3]].Alpha[X_]);
-  chi2 += 1e5*sqr(Cell[loc[3]].Alpha[Y_]);
-  chi2 += 1e3*sqr(Cell[loc[3]].Beta[X_]-8.0); 
+  chi2 += 1e5*sqr(Lattice.Cell[loc[3]].Alpha[X_]);
+  chi2 += 1e5*sqr(Lattice.Cell[loc[3]].Alpha[Y_]);
+  chi2 += 1e3*sqr(Lattice.Cell[loc[3]].Beta[X_]-8.0); 
 
   for (i = 1; i <= b2_prms.n_prm; i++) {
     loc1 = Elem_GetPos(b2_prms.Fnum[i-1], 1);
-    L = Cell[loc1].Elem.PL;
+    L = Lattice.Cell[loc1].Elem.PL;
     // Need to use internal variable for convergence.
     if (i <= n_strength) {
-      chi2 += 1e1*sqr(b2[i]*L*Cell[loc1].Beta[X_]);
-      chi2 += 1e1*sqr(b2[i]*L*Cell[loc1].Beta[Y_]);
+      chi2 += 1e1*sqr(b2[i]*L*Lattice.Cell[loc1].Beta[X_]);
+      chi2 += 1e1*sqr(b2[i]*L*Lattice.Cell[loc1].Beta[Y_]);
      } else {
       chi2 += 1e-10*sqr(b2[i]);
       chi2 += 1e-10*sqr(b2[i]);
@@ -456,32 +456,32 @@ double f_match(double *b2)
       // Downstream of 10 degree dipole.
       printf("\nDownstream of 10 degree dipole:\n");
       printf("eta_x   = %8.5f etap_x  = %8.5f\n",
-	     Cell[loc[1]].Eta[X_], Cell[loc[1]].Etap[X_]);
+	     Lattice.Cell[loc[1]].Eta[X_], Lattice.Cell[loc[1]].Etap[X_]);
       printf("beta_x  = %8.5f beta_y  = %8.5f\n",
-	     Cell[loc[1]].Beta[X_], Cell[loc[1]].Beta[Y_]);
+	     Lattice.Cell[loc[1]].Beta[X_], Lattice.Cell[loc[1]].Beta[Y_]);
       // Center of 1st straight.
       printf("\nCenter of 1st straight:\n");
       printf("alpha_x = %8.5f alpha_y = %8.5f\n",
-	     Cell[loc[2]].Alpha[X_], Cell[loc[2]].Alpha[Y_]);
+	     Lattice.Cell[loc[2]].Alpha[X_], Lattice.Cell[loc[2]].Alpha[Y_]);
       printf("beta_x  = %8.5f beta_y  = %8.5f\n",
-	     Cell[loc[2]].Beta[X_], Cell[loc[2]].Beta[Y_]);
+	     Lattice.Cell[loc[2]].Beta[X_], Lattice.Cell[loc[2]].Beta[Y_]);
 
       // Center of 2nd straight.
       printf("\nCenter of 2nd straight:\n");
       printf("\nalpha_x = %8.5f alpha_y = %8.5f\n",
-	     Cell[loc[3]].Alpha[X_], Cell[loc[3]].Alpha[Y_]);
+	     Lattice.Cell[loc[3]].Alpha[X_], Lattice.Cell[loc[3]].Alpha[Y_]);
       printf("beta_x  = %8.5f beta_y  = %8.5f\n",
-	     Cell[loc[3]].Beta[X_], Cell[loc[3]].Beta[Y_]);
+	     Lattice.Cell[loc[3]].Beta[X_], Lattice.Cell[loc[3]].Beta[Y_]);
 
       loc1 = Elem_GetPos(ElemIndex("s_s_1"), 1);
       loc2 = Elem_GetPos(ElemIndex("s_s_1"), 2);
-      printf("\nLength of 1st straight: %6.3f m\n", Cell[loc2].S-Cell[loc1].S);
+      printf("\nLength of 1st straight: %6.3f m\n", Lattice.Cell[loc2].S-Lattice.Cell[loc1].S);
       loc1 = Elem_GetPos(ElemIndex("s_s_2"), 1);
       loc2 = Elem_GetPos(ElemIndex("s_s_2"), 2);
-      printf("Length of 2nd straight: %6.3f m\n", Cell[loc2].S-Cell[loc1].S);
+      printf("Length of 2nd straight: %6.3f m\n", Lattice.Cell[loc2].S-Lattice.Cell[loc1].S);
       loc1 = Elem_GetPos(ElemIndex("s_s_3"), 1);
       loc2 = Elem_GetPos(ElemIndex("s_s_3"), 2);
-      printf("Length of 3rd straight: %6.3f m\n", Cell[loc2].S-Cell[loc1].S);
+      printf("Length of 3rd straight: %6.3f m\n", Lattice.Cell[loc2].S-Lattice.Cell[loc1].S);
 
       prt_b2(b2_prms, b2);
 
@@ -569,13 +569,16 @@ void chk_straights()
   
   loc1 = Elem_GetPos(ElemIndex("s_s_1"), 1);
   loc2 = Elem_GetPos(ElemIndex("s_s_1"), 2);
-  printf("\nLength of 1st straight: %6.3f m\n", Cell[loc2].S-Cell[loc1].S);
+  printf("\nLength of 1st straight: %6.3f m\n",
+	 Lattice.Cell[loc2].S-Lattice.Cell[loc1].S);
   loc1 = Elem_GetPos(ElemIndex("s_s_2"), 1);
   loc2 = Elem_GetPos(ElemIndex("s_s_2"), 2);
-  printf("Length of 2nd straight: %6.3f m\n", Cell[loc2].S-Cell[loc1].S);
+  printf("Length of 2nd straight: %6.3f m\n",
+	 Lattice.Cell[loc2].S-Lattice.Cell[loc1].S);
   loc1 = Elem_GetPos(ElemIndex("s_s_3"), 1);
   loc2 = Elem_GetPos(ElemIndex("s_s_3"), 2);
-  printf("Length of 3rd straight: %6.3f m\n", Cell[loc2].S-Cell[loc1].S);
+  printf("Length of 3rd straight: %6.3f m\n",
+	 Lattice.Cell[loc2].S-Lattice.Cell[loc1].S);
 }
 
 

@@ -20,25 +20,25 @@ inline bool CheckAmpl(const ss_vect<T> &x, const long int loc)
   bool  not_lost;
 
   if (globval.Aperture_on)
-    not_lost = is_double<T>::cst(x[x_]) > Cell[loc].maxampl[X_][0] &&
-               is_double<T>::cst(x[x_]) < Cell[loc].maxampl[X_][1] && 
-               fabs(is_double<T>::cst(x[y_])) < Cell[loc].maxampl[Y_][1];
+    not_lost = is_double<T>::cst(x[x_]) > Lattice.Cell[loc].maxampl[X_][0] &&
+               is_double<T>::cst(x[x_]) < Lattice.Cell[loc].maxampl[X_][1] && 
+               fabs(is_double<T>::cst(x[y_])) < Lattice.Cell[loc].maxampl[Y_][1];
   else
     not_lost = is_double<T>::cst(x[x_]) > -max_ampl &&
                is_double<T>::cst(x[x_]) < max_ampl &&
                fabs(is_double<T>::cst(x[y_])) < max_ampl;
 
   if (!not_lost) {
-    if (is_double<T>::cst(x[x_]) < Cell[loc].maxampl[X_][0] ||
-        is_double<T>::cst(x[x_]) > Cell[loc].maxampl[X_][1])
+    if (is_double<T>::cst(x[x_]) < Lattice.Cell[loc].maxampl[X_][0] ||
+        is_double<T>::cst(x[x_]) > Lattice.Cell[loc].maxampl[X_][1])
       status.lossplane = 1;
-    else if (fabs(is_double<T>::cst(x[y_])) > Cell[loc].maxampl[Y_][1])
+    else if (fabs(is_double<T>::cst(x[y_])) > Lattice.Cell[loc].maxampl[Y_][1])
       status.lossplane = 2;
 	    
     if (trace)
       printf("CheckAmpl: Particle lost in plane %d at element:"
 	     " %5ld s = %10.5f, x = %12.5e, z= %12.5e\n",
-	     status.lossplane, loc, Cell[loc].S,
+	     status.lossplane, loc, Lattice.Cell[loc].S,
 	     is_double<T>::cst(x[x_]), is_double<T>::cst(x[y_]));
   }
 
@@ -50,41 +50,41 @@ template<typename T>
 void Elem_Pass(const long i, ss_vect<T> &x)
 {
 
-  switch (Cell[i].Elem.Pkind) {
+  switch (Lattice.Cell[i].Elem.Pkind) {
     case drift:
-      Drift_Pass(Cell[i], x);
+      Drift_Pass(Lattice.Cell[i], x);
       break;
     case Mpole:
-      Mpole_Pass(Cell[i], x);
+      Mpole_Pass(Lattice.Cell[i], x);
       break;
     case Wigl:
-      Wiggler_Pass(Cell[i], x);
+      Wiggler_Pass(Lattice.Cell[i], x);
       break;
     case FieldMap:
-      FieldMap_Pass(Cell[i], x);
+      FieldMap_Pass(Lattice.Cell[i], x);
       break;
     case Insertion:
-      Insertion_Pass(Cell[i], x);
+      Insertion_Pass(Lattice.Cell[i], x);
       break;
     case Cavity:
-      Cav_Pass(Cell[i], x);
+      Cav_Pass(Lattice.Cell[i], x);
       break;
     case marker:
-      Marker_Pass(Cell[i], x);
+      Marker_Pass(Lattice.Cell[i], x);
       break;
     case Spreader:
       break;
     case Recombiner:
       break;
     case Solenoid:
-      Solenoid_Pass(Cell[i], x);
+      Solenoid_Pass(Lattice.Cell[i], x);
       break;
     default:
       printf("Elem_Pass ** undefined type\n");
       break;
   }
 
-  is_tps<T>::get_ps(x, Cell[i]);
+  is_tps<T>::get_ps(x, Lattice.Cell[i]);
 }
 
 
@@ -184,8 +184,8 @@ bool Cell_getCOD(long imax, double eps, double dP, long &lastpos)
     x0[delta_] = 0e0; x0[ct_] = 0e0;
   } else {
     // or eta*dP for 2 1/2 D.O.F.
-    x0[x_] = Cell[0].Eta[X_]*dP; x0[px_] = Cell[0].Etap[X_]*dP;
-    x0[y_] = Cell[0].Eta[Y_]*dP; x0[py_] = Cell[0].Etap[Y_]*dP;
+    x0[x_] = Lattice.Cell[0].Eta[X_]*dP; x0[px_] = Lattice.Cell[0].Etap[X_]*dP;
+    x0[y_] = Lattice.Cell[0].Eta[Y_]*dP; x0[py_] = Lattice.Cell[0].Etap[Y_]*dP;
     x0[delta_] = dP; x0[ct_] = 0e0;
   }
 
@@ -265,11 +265,11 @@ void Cell_Init(void)
 
   SI_init();  /* Initializes the constants for symplectic integrator */
 
-  memcpy(Cell[0].Elem.PName, first_name, sizeof(first_name));
+  memcpy(Lattice.Cell[0].Elem.PName, first_name, sizeof(first_name));
 
   for (i = 1; i <= globval.Elem_nFam; i++) {
-    elemfamp  = &ElemFam[i-1]; /* Get 1 of all elements stored in ElemFam
-				  array */
+    elemfamp  = &Lattice.ElemFam[i-1]; /* Get 1 of all elements stored in
+					  ElemFam array */
     elemp = &elemfamp->ElemF; // For switch structure: choice on element type
     if (debug)
       printf("Cell_Init, i:=%3ld: %*s\n", i, SymbolLength, elemp->PName);
@@ -323,6 +323,6 @@ void Cell_Init(void)
   /* Computes s-location of each element in the structure */
   Stotal = 0e0;
   for (i = 0; i <= globval.Cell_nLoc; i++) {
-    Stotal += Cell[i].Elem.PL; Cell[i].S = Stotal;
+    Stotal += Lattice.Cell[i].Elem.PL; Lattice.Cell[i].S = Stotal;
   }
 }

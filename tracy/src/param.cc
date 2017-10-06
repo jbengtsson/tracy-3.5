@@ -189,11 +189,11 @@ void param_data_type::get_bare(void)
 
   n_sext = 0;
   for (j = 0; j <= globval.Cell_nLoc; j++) {
-    if ((Cell[j].Elem.Pkind == Mpole) && (Cell[j].Elem.M->n_design >= Sext)) {
+    if ((Lattice.Cell[j].Elem.Pkind == Mpole) && (Lattice.Cell[j].Elem.M->n_design >= Sext)) {
       n_sext++; sexts[n_sext-1] = j;
       for (k = 0; k < 2; k++) {
-	betas0_[n_sext-1][k] = Cell[j].Beta[k];
-	nus0_[n_sext-1][k] = Cell[j].Nu[k];
+	betas0_[n_sext-1][k] = Lattice.Cell[j].Beta[k];
+	nus0_[n_sext-1][k] = Lattice.Cell[j].Nu[k];
       }
     }
   }
@@ -218,9 +218,9 @@ void param_data_type::get_dbeta_dnu(double m_dbeta[], double s_dbeta[],
   for (j = 0; j < n_sext; j++) {
     ind = sexts[j];
     for (k = 0; k <= 1; k++) {
-      dbeta = (Cell[ind].Beta[k]-betas0_[j][k])/betas0_[j][k];
+      dbeta = (Lattice.Cell[ind].Beta[k]-betas0_[j][k])/betas0_[j][k];
       m_dbeta[k] += dbeta; s_dbeta[k] += sqr(dbeta);
-      dnu = Cell[ind].Nu[k] - nus0_[j][k];
+      dnu = Lattice.Cell[ind].Nu[k] - nus0_[j][k];
       m_dnu[k] += dnu; s_dnu[k] += sqr(dnu);
     }
   }
@@ -289,30 +289,30 @@ void param_data_type::FindMatrix(double **SkewRespMat, const double deta_y_max)
 
   for (i = 1; i <= N_SKEW; i++) {
     loc = Elem_GetPos(globval.qt, i);
-    etaSQ[i] = Cell[loc].Eta[X_];
-    betaSQ[i][Xi] = Cell[loc].Beta[X_]; betaSQ[i][Yi] = Cell[loc].Beta[Y_];
-    nuSQ[i][Xi] = Cell[loc].Nu[X_]; nuSQ[i][Yi] = Cell[loc].Nu[Y_];
+    etaSQ[i] = Lattice.Cell[loc].Eta[X_];
+    betaSQ[i][Xi] = Lattice.Cell[loc].Beta[X_]; betaSQ[i][Yi] = Lattice.Cell[loc].Beta[Y_];
+    nuSQ[i][Xi] = Lattice.Cell[loc].Nu[X_]; nuSQ[i][Yi] = Lattice.Cell[loc].Nu[Y_];
   } // for i=1..N_SKEW
 
   for (i = 1; i <= N_BPM; i++) {
-    betaBPM[i][Xi] = Cell[bpm_loc[i-1]].Beta[X_];
-    betaBPM[i][Yi] = Cell[bpm_loc[i-1]].Beta[Y_];
-    nuBPM[i][Xi] = Cell[bpm_loc[i-1]].Nu[X_];
-    nuBPM[i][Yi] = Cell[bpm_loc[i-1]].Nu[Y_];
+    betaBPM[i][Xi] = Lattice.Cell[bpm_loc[i-1]].Beta[X_];
+    betaBPM[i][Yi] = Lattice.Cell[bpm_loc[i-1]].Beta[Y_];
+    nuBPM[i][Xi] = Lattice.Cell[bpm_loc[i-1]].Nu[X_];
+    nuBPM[i][Yi] = Lattice.Cell[bpm_loc[i-1]].Nu[Y_];
   } // for i=1..N_BPM
 
   for (i = 1; i <= N_HCOR; i++) {
-    betaHC[i][Xi] = Cell[h_corr[i-1]].Beta[X_];
-    betaHC[i][Yi] = Cell[h_corr[i-1]].Beta[Y_];
-    nuHC[i][Xi] = Cell[h_corr[i-1]].Nu[X_];
-    nuHC[i][Yi] = Cell[h_corr[i-1]].Nu[Y_];
+    betaHC[i][Xi] = Lattice.Cell[h_corr[i-1]].Beta[X_];
+    betaHC[i][Yi] = Lattice.Cell[h_corr[i-1]].Beta[Y_];
+    nuHC[i][Xi] = Lattice.Cell[h_corr[i-1]].Nu[X_];
+    nuHC[i][Yi] = Lattice.Cell[h_corr[i-1]].Nu[Y_];
   } // for i=1..N_HCOR
 
   for (i = 1; i <= N_VCOR; i++) {
-    betaVC[i][Xi] = Cell[v_corr[i-1]].Beta[X_];
-    betaVC[i][Yi] = Cell[v_corr[i-1]].Beta[Y_];
-    nuVC[i][Xi] = Cell[v_corr[i-1]].Nu[X_];
-    nuVC[i][Yi] = Cell[v_corr[i-1]].Nu[Y_];
+    betaVC[i][Xi] = Lattice.Cell[v_corr[i-1]].Beta[X_];
+    betaVC[i][Yi] = Lattice.Cell[v_corr[i-1]].Beta[Y_];
+    nuVC[i][Xi] = Lattice.Cell[v_corr[i-1]].Nu[X_];
+    nuVC[i][Yi] = Lattice.Cell[v_corr[i-1]].Nu[Y_];
   } // for i=1..N_VCOR
 
 
@@ -375,7 +375,7 @@ void param_data_type::FindMatrix(double **SkewRespMat, const double deta_y_max)
 
   for (j = 1; j <= N_BPM; j++) {
     eta_y[j] *= deta_y_max;
-    fprintf(fp, "%6.3f %10.3e\n", Cell[bpm_loc[j-1]].S, 1e3*eta_y[j]);
+    fprintf(fp, "%6.3f %10.3e\n", Lattice.Cell[bpm_loc[j-1]].S, 1e3*eta_y[j]);
   }
   fclose(fp);
 
@@ -461,25 +461,25 @@ void param_data_type::FindCoupVector(double *VertCouple)
   Cell_Geteta(0, globval.Cell_nLoc, true, 0e0);
 
   for (i = 1; i <= N_BPM; i++)
-    VertCouple[i] = VDweight*Cell[bpm_loc[i-1]].Eta[Y_];
+    VertCouple[i] = VDweight*Lattice.Cell[bpm_loc[i-1]].Eta[Y_];
   // Finished finding vertical dispersion
 
   // Find off diagonal terms for horizontal trims
   for (j = 1; j <= N_HCOR; j++) {
     // positive kick: "+Dip" for horizontal
-    SetdKLpar(Cell[h_corr[j-1]].Fnum, Cell[h_corr[j-1]].Knum, +Dip, kick);
+    SetdKLpar(Lattice.Cell[h_corr[j-1]].Fnum, Lattice.Cell[h_corr[j-1]].Knum, +Dip, kick);
     cod = getcod(0.0, lastpos); chk_cod(cod, "FindCoupVector");
     for (i = 1; i <= N_BPM; i++)
-      orbitP[i] = Cell[bpm_loc[i-1]].BeamPos[y_];
+      orbitP[i] = Lattice.Cell[bpm_loc[i-1]].BeamPos[y_];
 
     //negative kick: "+Dip" for horizontal
-    SetdKLpar(Cell[h_corr[j-1]].Fnum, Cell[h_corr[j-1]].Knum, +Dip, -2*kick);
+    SetdKLpar(Lattice.Cell[h_corr[j-1]].Fnum, Lattice.Cell[h_corr[j-1]].Knum, +Dip, -2*kick);
     cod = getcod(0.0, lastpos); chk_cod(cod, "FindCoupVector");
     for (i = 1; i <= N_BPM; i++)
-      orbitN[i] = Cell[bpm_loc[i-1]].BeamPos[y_];
+      orbitN[i] = Lattice.Cell[bpm_loc[i-1]].BeamPos[y_];
 
     // restore trim valueL: "+Dip" for horizontal
-    SetdKLpar(Cell[h_corr[j-1]].Fnum, Cell[h_corr[j-1]].Knum, +Dip, kick);
+    SetdKLpar(Lattice.Cell[h_corr[j-1]].Fnum, Lattice.Cell[h_corr[j-1]].Knum, +Dip, kick);
 
     for (i = 1; i <= N_BPM; i++)
       VertCouple[N_BPM+(j-1)*N_HCOR+i] =
@@ -490,19 +490,19 @@ void param_data_type::FindCoupVector(double *VertCouple)
   // Find off diagonal terms for vertical trims
   for (j = 1; j <= N_VCOR; j++){
     // positive kick: "-Dip" for vertical
-    SetdKLpar(Cell[v_corr[j-1]].Fnum, Cell[v_corr[j-1]].Knum, -Dip, kick);
+    SetdKLpar(Lattice.Cell[v_corr[j-1]].Fnum, Lattice.Cell[v_corr[j-1]].Knum, -Dip, kick);
     cod = getcod(0.0, lastpos); chk_cod(cod, "FindCoupVector");
     for (i = 1;  i <= N_BPM; i++)
-      orbitP[i] = Cell[bpm_loc[i-1]].BeamPos[x_];
+      orbitP[i] = Lattice.Cell[bpm_loc[i-1]].BeamPos[x_];
 
     // negative kick: "-Dip" for vertical
-    SetdKLpar(Cell[v_corr[j-1]].Fnum, Cell[v_corr[j-1]].Knum, -Dip, -2*kick);
+    SetdKLpar(Lattice.Cell[v_corr[j-1]].Fnum, Lattice.Cell[v_corr[j-1]].Knum, -Dip, -2*kick);
     cod = getcod(0.0, lastpos); chk_cod(cod, "FindCoupVector");
     for (i = 1; i <= N_BPM; i++)
-      orbitN[i] = Cell[bpm_loc[i-1]].BeamPos[x_];
+      orbitN[i] = Lattice.Cell[bpm_loc[i-1]].BeamPos[x_];
 
     // restore corrector: "-Dip" for vertical
-    SetdKLpar(Cell[v_corr[j-1]].Fnum, Cell[v_corr[j-1]].Knum, -Dip, kick);
+    SetdKLpar(Lattice.Cell[v_corr[j-1]].Fnum, Lattice.Cell[v_corr[j-1]].Knum, -Dip, kick);
 
     for (i = 1; i <= N_BPM; i++)
       VertCouple[N_BPM+N_BPM*N_HCOR+(j-1)*N_VCOR+i] =
@@ -607,8 +607,8 @@ void param_data_type::corr_eps_y(void)
   outf = file_write(eta_y_FileName);
   for (i = 0; i <= globval.Cell_nLoc; i++)
     fprintf(outf, "%4d %7.3f %s %6.3f %10.3e %10.3e\n",
-	    i, Cell[i].S, Cell[i].Elem.PName,
-	    Cell[i].Nu[Y_], 1e3*Cell[i].Eta[Y_], 1e3*Cell[i].Etap[Y_]);
+	    i, Lattice.Cell[i].S, Lattice.Cell[i].Elem.PName,
+	    Lattice.Cell[i].Nu[Y_], 1e3*Lattice.Cell[i].Eta[Y_], 1e3*Lattice.Cell[i].Etap[Y_]);
   fclose(outf);
 
   FindCoupVector(VertCouple);
@@ -622,16 +622,16 @@ void param_data_type::get_IDs(void)
   printf("\n");
   n_ID_Fams = 0;
   for (k = 0; k < globval.Elem_nFam; k++)
-    switch (ElemFam[k].ElemF.Pkind) {
+    switch (Lattice.ElemFam[k].ElemF.Pkind) {
     case Wigl:
       printf("found ID family:   %s %12.5e\n",
-	     ElemFam[k].ElemF.PName, ElemFam[k].ElemF.W->BoBrhoV[0]);
+	     Lattice.ElemFam[k].ElemF.PName, Lattice.ElemFam[k].ElemF.W->BoBrhoV[0]);
       n_ID_Fams++; ID_Fams[n_ID_Fams-1] = k + 1;
       break;
     case Insertion:
       printf("found ID family:   %s %12.5e",
-	     ElemFam[k].ElemF.PName, ElemFam[k].ElemF.ID->scaling);
-      if (ElemFam[k].ElemF.ID->scaling != 0e0) {
+	     Lattice.ElemFam[k].ElemF.PName, Lattice.ElemFam[k].ElemF.ID->scaling);
+      if (Lattice.ElemFam[k].ElemF.ID->scaling != 0e0) {
 	printf("\n");
 	n_ID_Fams++; ID_Fams[n_ID_Fams-1] = k + 1;
       } else
@@ -639,7 +639,7 @@ void param_data_type::get_IDs(void)
       break;
     case FieldMap:
       printf("found ID family:   %s %12.5e\n",
-	     ElemFam[k].ElemF.PName, ElemFam[k].ElemF.FM->scl);
+	     Lattice.ElemFam[k].ElemF.PName, Lattice.ElemFam[k].ElemF.FM->scl);
       n_ID_Fams++; ID_Fams[n_ID_Fams-1] = k + 1;
       break;
     default:
@@ -657,24 +657,24 @@ void param_data_type::set_IDs(const double scl)
 
   printf("\n");
   for (k = 0; k < n_ID_Fams; k++) {
-    switch (ElemFam[ID_Fams[k]-1].ElemF.Pkind) {
+    switch (Lattice.ElemFam[ID_Fams[k]-1].ElemF.Pkind) {
     case Wigl:
       printf("setting ID family: %s %12.5e\n",
-	     ElemFam[ID_Fams[k]-1].ElemF.PName,
-	     scl*ElemFam[ID_Fams[k]-1].ElemF.W->BoBrhoV[0]);
+	     Lattice.ElemFam[ID_Fams[k]-1].ElemF.PName,
+	     scl*Lattice.ElemFam[ID_Fams[k]-1].ElemF.W->BoBrhoV[0]);
 
       set_Wiggler_BoBrho(ID_Fams[k],
-			 scl*ElemFam[ID_Fams[k]-1].ElemF.W->BoBrhoV[0]);
+			 scl*Lattice.ElemFam[ID_Fams[k]-1].ElemF.W->BoBrhoV[0]);
       break;
     case Insertion:
       printf("setting ID family: %s %12.5e\n",
-	     ElemFam[ID_Fams[k]-1].ElemF.PName, scl);
+	     Lattice.ElemFam[ID_Fams[k]-1].ElemF.PName, scl);
 
       set_ID_scl(ID_Fams[k], scl);
       break;
     case FieldMap:
       printf("setting ID family: %s %12.5e\n",
-	     ElemFam[ID_Fams[k]-1].ElemF.PName, scl);
+	     Lattice.ElemFam[ID_Fams[k]-1].ElemF.PName, scl);
 
       set_ID_scl(ID_Fams[k], scl);
       break;
@@ -699,14 +699,14 @@ void param_data_type::reset_quads(void)
   for (k = 0; k < N_Fam; k++) {
     // Note, actual values can differ from the original values
 /*    printf("setting quad family: %s %12.5e\n",
-	   ElemFam[Q_Fam[k]-1].ElemF.PName,
-	   ElemFam[Q_Fam[k]-1].ElemF.M->PBpar[HOMmax+Quad]);
+	   Lattice.ElemFam[Q_Fam[k]-1].ElemF.PName,
+	   Lattice.ElemFam[Q_Fam[k]-1].ElemF.M->PBpar[HOMmax+Quad]);
 
     set_bn_design_fam(Q_Fam[k], Quad,
-		       ElemFam[Q_Fam[k]-1].ElemF.M->PBpar[HOMmax+Quad], 0.0);*/
+		       Lattice.ElemFam[Q_Fam[k]-1].ElemF.M->PBpar[HOMmax+Quad], 0.0);*/
 
     printf("setting quad family: %s %12.5e\n",
-	   ElemFam[Q_Fam[k]-1].ElemF.PName, b2[k]);
+	   Lattice.ElemFam[Q_Fam[k]-1].ElemF.PName, b2[k]);
 
     set_bn_design_fam(Q_Fam[k], Quad, b2[k], 0.0);
   }
@@ -817,7 +817,7 @@ bool param_data_type::get_SQ(void)
 
   Nsext = 0;
   for (k = 0; k < globval.Cell_nLoc; k++) {
-    if ((Cell[k].Elem.Pkind == Mpole) && (Cell[k].Elem.M->n_design == Sext)) {
+    if ((Lattice.Cell[k].Elem.Pkind == Mpole) && (Lattice.Cell[k].Elem.M->n_design == Sext)) {
       Nsext++;
 
       if (Nsext > n_b3_max) {
@@ -826,20 +826,20 @@ bool param_data_type::get_SQ(void)
         exit_(1);
       }
 
-      Ss[Nsext-1] = Cell[k].S; S_locs[Nsext-1] = k;
+      Ss[Nsext-1] = Lattice.Cell[k].S; S_locs[Nsext-1] = k;
 
       for (j = 0; j <= 1; j++) {
-	sb[j][Nsext-1] = Cell[k].Beta[j];
-	sNu[j][Nsext-1] = Cell[k].Nu[j] - nu_0[j];
+	sb[j][Nsext-1] = Lattice.Cell[k].Beta[j];
+	sNu[j][Nsext-1] = Lattice.Cell[k].Nu[j] - nu_0[j];
       }
 
       if (trace) {
 	printf("%-8s %7.3f %8.5f %8.5f %8.5f %8.5f\n",
-	       Cell[k].Elem.PName, Ss[Nsext-1],
+	       Lattice.Cell[k].Elem.PName, Ss[Nsext-1],
 	       sb[X_][Nsext-1], sNu[X_][Nsext-1]-nu_0[X_],
 	       sb[Y_][Nsext-1], sNu[Y_][Nsext-1]-nu_0[Y_]);
 	fprintf(outf, "%-8s %7.3f %8.5f %8.5f %8.5f %8.5f\n",
-		Cell[k].Elem.PName, Ss[Nsext-1],
+		Lattice.Cell[k].Elem.PName, Ss[Nsext-1],
 		sb[X_][Nsext-1], sNu[X_][Nsext-1]-nu_0[X_],
 		sb[Y_][Nsext-1], sNu[Y_][Nsext-1]-nu_0[Y_]);
       }
@@ -862,25 +862,25 @@ bool param_data_type::get_SQ(void)
   }
 
   for (k = 0; k < Nquad; k++) {
-    Sq[k] = Cell[quad_prms[k]].S;
+    Sq[k] = Lattice.Cell[quad_prms[k]].S;
     for (j = 0; j <= 1; j++) {
       // does not work for machine file (get_twiss_3)...
-//       if (Cell[quad_prms[k]].Elem.M->Pthick == thick) {
+//       if (Lattice.Cell[quad_prms[k]].Elem.M->Pthick == thick) {
 // 	get_twiss3(quad_prms[k], alpha3, beta3, nu3, eta3, etap3);
 // 	qb[j][k] = beta3[Y_][j]; qNu[j][k] = nu3[Y_][j] - nu_0[j];
 //       } else {
-	qb[j][k] = Cell[quad_prms[k]].Beta[j];
-	qNu[j][k] = Cell[quad_prms[k]].Nu[j] - nu_0[j];
+	qb[j][k] = Lattice.Cell[quad_prms[k]].Beta[j];
+	qNu[j][k] = Lattice.Cell[quad_prms[k]].Nu[j] - nu_0[j];
 //       }
     }
 
     if (trace) {
       printf("%-8s %7.3f %8.5f %8.5f %8.5f %8.5f\n",
-	     Cell[quad_prms[k]].Elem.PName, Sq[k], qb[X_][k],
+	     Lattice.Cell[quad_prms[k]].Elem.PName, Sq[k], qb[X_][k],
 	     qNu[X_][k], qb[Y_][k], qNu[Y_][k]);
 
       fprintf(outf, "%-8s %7.3f %8.5f %8.5f %8.5f %8.5f\n",
-	      Cell[quad_prms[k]].Elem.PName, Sq[k], qb[X_][k],
+	      Lattice.Cell[quad_prms[k]].Elem.PName, Sq[k], qb[X_][k],
 	      qNu[X_][k], qb[Y_][k], qNu[Y_][k]);
     }
   }
@@ -1037,7 +1037,7 @@ void param_data_type::ini_ID_corr(const bool IDs)
     b2Ls_[k] = 0.0;
 
   // shift zero point to center of ID
-//  nu_0[X_] = Cell[id_loc].Nu[X_]; nu_0[Y_] = Cell[id_loc].Nu[Y_];
+//  nu_0[X_] = Lattice.Cell[id_loc].Nu[X_]; nu_0[Y_] = Lattice.Cell[id_loc].Nu[Y_];
   nu_0[X_] = 0.0; nu_0[Y_] = 0.0;
 
   // Defining undisturbed tunes
@@ -1105,20 +1105,23 @@ bool param_data_type::ID_corr(const int N_calls, const int N_steps,
 
       // add quad strengths (db2Ls_)
       for (k = 1; k <= Nquad; k++) {
-	set_dbnL_design_elem(Cell[quad_prms[k-1]].Fnum,
-			     Cell[quad_prms[k-1]].Knum, Quad,
+	set_dbnL_design_elem(Lattice.Cell[quad_prms[k-1]].Fnum,
+			     Lattice.Cell[quad_prms[k-1]].Knum, Quad,
 			     -ID_step*b2Ls_[k], 0.0);
 
 	if ((i == N_steps) && (j == N_calls)) {
-	  Fnum = Cell[quad_prms[k-1]].Fnum; L = Cell[quad_prms[k-1]].Elem.PL;
-	  get_bnL_design_elem(Fnum, Cell[quad_prms[k-1]].Knum, Quad, b2L, a2L);
+	  Fnum = Lattice.Cell[quad_prms[k-1]].Fnum;
+	  L = Lattice.Cell[quad_prms[k-1]].Elem.PL;
+	  get_bnL_design_elem(Fnum, Lattice.Cell[quad_prms[k-1]].Knum, Quad,
+			      b2L, a2L);
 	  // ElemFam not defined for flat file.
 	  // fprintf(outf, "%10s %6.2f %3d %8.5f\n",
-	  // 	  Cell[quad_prms[k-1]].Elem.PName, Cell[quad_prms[k-1]].S, k,
-	  // 	  b2L-ElemFam[Fnum-1].ElemF.M->PBpar[HOMmax+Quad]*L);
+	  // 	  Lattice.Cell[quad_prms[k-1]].Elem.PName,
+	  //      Lattice.Cell[quad_prms[k-1]].S, k,
+	  // 	  b2L-Lattice.ElemFam[Fnum-1].ElemF.M->PBpar[HOMmax+Quad]*L);
 	  fprintf(outf, "%10s %6.2f %3d %8.5f\n",
-		  Cell[quad_prms[k-1]].Elem.PName, Cell[quad_prms[k-1]].S, k,
-		  b2L);
+		  Lattice.Cell[quad_prms[k-1]].Elem.PName,
+		  Lattice.Cell[quad_prms[k-1]].S, k, b2L);
 	}
       }
 
@@ -1286,10 +1289,10 @@ void param_data_type::LoadAlignTol(const bool Scale_it, const double Scale,
 	    for (j = 1; j <= n_bpm_[k]; j++) {
 	      loc = bpms_[k][j];
 	      if (rms)
-		misalign_rms_elem(Cell[loc].Fnum, Cell[loc].Knum,
+		misalign_rms_elem(Lattice.Cell[loc].Fnum, Lattice.Cell[loc].Knum,
 				  dx, dy, dr_deg, new_rnd);
 	      else
-		misalign_sys_elem(Cell[loc].Fnum, Cell[loc].Knum,
+		misalign_sys_elem(Lattice.Cell[loc].Fnum, Lattice.Cell[loc].Knum,
 				  dx, dy, dr_deg);
 	    }
 	} else {
@@ -1446,17 +1449,17 @@ void param_data_type::Align_BPMs(const int n) const
 
     j = 1; aligned = false;
     do {
-      if ((Cell[loc-j].Elem.Pkind == Mpole) &&
-	  (Cell[loc-j].Elem.M->n_design == n)) {
+      if ((Lattice.Cell[loc-j].Elem.Pkind == Mpole) &&
+	  (Lattice.Cell[loc-j].Elem.M->n_design == n)) {
 	for (k = 0; k <= 1; k++)
-	  Cell[loc].Elem.M->PdSsys[k] = Cell[loc-j].dS[k];
-	printf("aligned BPM no %1d to %s\n", i, Cell[loc-j].Elem.PName);
+	  Lattice.Cell[loc].Elem.M->PdSsys[k] = Lattice.Cell[loc-j].dS[k];
+	printf("aligned BPM no %1d to %s\n", i, Lattice.Cell[loc-j].Elem.PName);
 	aligned = true; break;
-      } else if ((Cell[loc+j].Elem.Pkind == Mpole) &&
-		 (Cell[loc+j].Elem.M->n_design == n)) {
+      } else if ((Lattice.Cell[loc+j].Elem.Pkind == Mpole) &&
+		 (Lattice.Cell[loc+j].Elem.M->n_design == n)) {
 	for (k = 0; k <= 1; k++)
-	  Cell[loc].Elem.M->PdSsys[k] = Cell[loc+j].dS[k];
-	printf("aligned BPM no %1d to %s\n", i, Cell[loc+j].Elem.PName);
+	  Lattice.Cell[loc].Elem.M->PdSsys[k] = Lattice.Cell[loc+j].dS[k];
+	printf("aligned BPM no %1d to %s\n", i, Lattice.Cell[loc+j].Elem.PName);
 	aligned = true; break;
       }
 
@@ -1482,7 +1485,7 @@ bool param_data_type::CorrectCOD_N(const int n_orbit, const int k)
   for (j = 0; j < 2; j++)
     for (i = 1; i <= n_corr_[j]; i++) {
       loc = corrs_[j][i];
-      set_bnL_design_elem(Cell[loc].Fnum, Cell[loc].Knum, Dip, 0.0, 0.0);
+      set_bnL_design_elem(Lattice.Cell[loc].Fnum, Lattice.Cell[loc].Knum, Dip, 0.0, 0.0);
     }
 
   // load misalignments
@@ -1623,9 +1626,9 @@ void param_data_type::Orb_and_Trim_Stat(void)
   TrimMax[X_] = 0.0; TrimMax[Y_] = 0.0;
   N = globval.Cell_nLoc; SextCounter = 0;
   for (i = 0; i <= N; i++) {
-    if ((Cell[i].Elem.Pkind == Mpole) && (Cell[i].Elem.M->n_design == Sext)) {
+    if ((Lattice.Cell[i].Elem.Pkind == Mpole) && (Lattice.Cell[i].Elem.M->n_design == Sext)) {
       SextCounter++;
-      orb[X_] = Cell[i].BeamPos[x_]; orb[Y_] = Cell[i].BeamPos[y_];
+      orb[X_] = Lattice.Cell[i].BeamPos[x_]; orb[Y_] = Lattice.Cell[i].BeamPos[y_];
       Sext_sigma[X_] += orb[X_]*orb[X_]; Sext_sigma[Y_] += orb[Y_]*orb[Y_];
       if (fabs(orb[X_]) > Sext_max[X_]) Sext_max[X_] = fabs(orb[X_]);
       if (fabs(orb[Y_]) > Sext_max[Y_]) Sext_max[Y_] = fabs(orb[Y_]);
@@ -1637,12 +1640,12 @@ void param_data_type::Orb_and_Trim_Stat(void)
 	printf("\nOrb_and_Trim_Stat: negative bin %d\n", j);
     } // sextupole handling
 
-    if (Cell[i].Fnum == globval.hcorr) {
-      tr = Cell[i].Elem.M->PBpar[HOMmax+Dip];
+    if (Lattice.Cell[i].Fnum == globval.hcorr) {
+      tr = Lattice.Cell[i].Elem.M->PBpar[HOMmax+Dip];
       if (fabs(tr) > TrimMax[X_]) TrimMax[X_] = fabs(tr);
     } // horizontal trim handling
-    if (Cell[i].Fnum == globval.vcorr) {
-      tr = Cell[i].Elem.M->PBpar[HOMmax-Dip];
+    if (Lattice.Cell[i].Fnum == globval.vcorr) {
+      tr = Lattice.Cell[i].Elem.M->PBpar[HOMmax-Dip];
       if (fabs(tr) > TrimMax[Y_]) TrimMax[Y_] = fabs(tr);
     } // vertical trim handling
   } // looking throught the cells
@@ -1686,14 +1689,14 @@ void param_data_type::prt_cod_corr_lat(void)
     if (i == 0)
       fprintf(CodCorLatFile, "%.*s", 6, "begin ");
     else
-      fprintf(CodCorLatFile, "%.*s", 6, Cell[i].Elem.PName);
+      fprintf(CodCorLatFile, "%.*s", 6, Lattice.Cell[i].Elem.PName);
 
     fprintf(CodCorLatFile, "%7.3f  %5.2f    %5.2f  %7.4f  %5.2f  %7.4f"
 	    "  %6.3f  %6.3f  %6.3f\n",
-	    Cell[i].S, sqrt(Cell[i].Beta[X_]*Cell[i].Beta[Y_]),
-            Cell[i].Beta[X_], Cell[i].Nu[X_], Cell[i].Beta[Y_], Cell[i].Nu[Y_],
-	    Cell[i].Eta[X_], Cell[i].Eta[X_]*Cell[i].Beta[Y_],
-            Cell[i].Nu[X_]-Cell[i].Nu[Y_]);
+	    Lattice.Cell[i].S, sqrt(Lattice.Cell[i].Beta[X_]*Lattice.Cell[i].Beta[Y_]),
+            Lattice.Cell[i].Beta[X_], Lattice.Cell[i].Nu[X_], Lattice.Cell[i].Beta[Y_], Lattice.Cell[i].Nu[Y_],
+	    Lattice.Cell[i].Eta[X_], Lattice.Cell[i].Eta[X_]*Lattice.Cell[i].Beta[Y_],
+            Lattice.Cell[i].Nu[X_]-Lattice.Cell[i].Nu[Y_]);
   }
   fclose(CodCorLatFile);
 }
@@ -1808,9 +1811,10 @@ void get_bn2(const string file_name1, const string file_name2, int n,
   }
   if (prt) printf("\n");
 
-  C = Cell[globval.Cell_nLoc].S; recalc_S();
+  C = Lattice.Cell[globval.Cell_nLoc].S; recalc_S();
   if (prt)
-    printf("New Cell Length: %5.3f (%5.3f)\n", Cell[globval.Cell_nLoc].S, C);
+    printf("New Cell Length: %5.3f (%5.3f)\n",
+	   Lattice.Cell[globval.Cell_nLoc].S, C);
 
   fclose(inf); fclose(fp_lat);
 }

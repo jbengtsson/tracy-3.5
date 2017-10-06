@@ -74,7 +74,7 @@ void err_and_corr(const string &param_file)
     fp = file_write((file_name).c_str()); 
     for(j = 0; j <= globval.Cell_nLoc; j++)
       fprintf(fp, "%4d %7.2f %5.3f %6.3f\n",
-	      j, Cell[j].S, 1e2*sum_delta[j][X_], 1e2*sum_delta[j][Y_]);
+	      j, Lattice.Cell[j].S, 1e2*sum_delta[j][X_], 1e2*sum_delta[j][Y_]);
     fclose(fp);
   } else
     chk_cod(cod, "error_and_correction");

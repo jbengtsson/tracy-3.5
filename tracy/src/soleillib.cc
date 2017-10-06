@@ -378,40 +378,40 @@ void DefineCh(void)
 
   /* Look for indices for defining the vaccum pipe*/
   for (i = 0; i <= globval.Cell_nLoc; i++) {
-    if (Cell[i].Elem.Pkind == marker){
-      if (strncmp(Cell[i].Elem.PName,"ssep",4) == 0){
+    if (Lattice.Cell[i].Elem.Pkind == marker){
+      if (strncmp(Lattice.Cell[i].Elem.PName,"ssep",4) == 0){
         if (trace) fprintf(stdout,"trouve %s Element numero %ld \n",
-			   Cell[i].Elem.PName,i);
+			   Lattice.Cell[i].Elem.PName,i);
         isep1 = i;
       }
-      if (strncmp(Cell[i].Elem.PName,"esep",4) == 0) {
+      if (strncmp(Lattice.Cell[i].Elem.PName,"esep",4) == 0) {
         if (trace) fprintf(stdout,"trouve %s Element numero %ld \n",
-			   Cell[i].Elem.PName,i-1);
+			   Lattice.Cell[i].Elem.PName,i-1);
         isep2 = i-1;
       }
-      if (strncmp(Cell[i].Elem.PName,"ehu600",6) == 0) {
+      if (strncmp(Lattice.Cell[i].Elem.PName,"ehu600",6) == 0) {
         if (trace) fprintf(stdout,"trouve %s Element numero %ld \n",
-			   Cell[i].Elem.PName,i-1);
+			   Lattice.Cell[i].Elem.PName,i-1);
         hu600 = i-1;
       }
-      if (strncmp(Cell[i].Elem.PName,"ssdm",4) == 0) {
+      if (strncmp(Lattice.Cell[i].Elem.PName,"ssdm",4) == 0) {
          if (trace) fprintf(stdout,"trouve %s Element numero %ld \n",
-			    Cell[i].Elem.PName,i);
+			    Lattice.Cell[i].Elem.PName,i);
          isdm1 = i;
       }
-      if (strncmp(Cell[i].Elem.PName,"esdm",4) == 0) {
+      if (strncmp(Lattice.Cell[i].Elem.PName,"esdm",4) == 0) {
         if (trace) fprintf(stdout,"trouve %s Element numero %ld \n",
-			   Cell[i].Elem.PName,i);
+			   Lattice.Cell[i].Elem.PName,i);
         isdm2 = i;
       }
-      if (strncmp(Cell[i].Elem.PName,"ssdac",5) == 0) {
+      if (strncmp(Lattice.Cell[i].Elem.PName,"ssdac",5) == 0) {
         if (trace) fprintf(stdout,"trouve %s Element numero %ld \n",
-			   Cell[i].Elem.PName,i);
+			   Lattice.Cell[i].Elem.PName,i);
         isdac1 = i;
       }
-      if (strncmp(Cell[i].Elem.PName,"esdac",5) == 0) {
+      if (strncmp(Lattice.Cell[i].Elem.PName,"esdac",5) == 0) {
         if (trace) fprintf(stdout,"trouve %s Element numero %ld \n",
-			   Cell[i].Elem.PName,i-1);
+			   Lattice.Cell[i].Elem.PName,i-1);
         isdac2 = i-1;
       }
     }
@@ -424,28 +424,28 @@ void DefineCh(void)
     if  ((i < isep1) || ((i > isep2) && (i < isdm1)) ||
     ((i > isdm2) && (i < isdac1)) || (i > isdac2)) {
       /* ch normale */
-      Cell[i].maxampl[X_][0] = -35.e-3;
-      Cell[i].maxampl[X_][1] =  35.e-3;
-      Cell[i].maxampl[Y_][1] =  12.5e-3;
+      Lattice.Cell[i].maxampl[X_][0] = -35.e-3;
+      Lattice.Cell[i].maxampl[X_][1] =  35.e-3;
+      Lattice.Cell[i].maxampl[Y_][1] =  12.5e-3;
     } else if ((i >= isdm1) && (i <= isdm2)) {
       /* SD13 */
-      Cell[i].maxampl[X_][0] = -21e-3;
-      Cell[i].maxampl[X_][1] =  21e-3;
-      Cell[i].maxampl[Y_][1] =   5e-3;
+      Lattice.Cell[i].maxampl[X_][0] = -21e-3;
+      Lattice.Cell[i].maxampl[X_][1] =  21e-3;
+      Lattice.Cell[i].maxampl[Y_][1] =   5e-3;
     } else if ((i >= isep1) && (i <= isep2)) {
       /* septum */
-      Cell[i].maxampl[X_][0] = -25e-3;
-      Cell[i].maxampl[X_][1] =  25e-3;
-      Cell[i].maxampl[Y_][1] =  12.5e-3;
+      Lattice.Cell[i].maxampl[X_][0] = -25e-3;
+      Lattice.Cell[i].maxampl[X_][1] =  25e-3;
+      Lattice.Cell[i].maxampl[Y_][1] =  12.5e-3;
     } else if ((i >= isdac1) && (i <= isdac2)) {
       /*  minigap */
-      Cell[i].maxampl[X_][0] = -35e-3;
-      Cell[i].maxampl[X_][1] =  35e-3;
-      Cell[i].maxampl[Y_][1] =  2.5e-3;
+      Lattice.Cell[i].maxampl[X_][0] = -35e-3;
+      Lattice.Cell[i].maxampl[X_][1] =  35e-3;
+      Lattice.Cell[i].maxampl[Y_][1] =  2.5e-3;
     }
     if  (i <= hu600) {
       /* HU640 */
-      Cell[i].maxampl[Y_][1] =  7.0e-3;
+      Lattice.Cell[i].maxampl[Y_][1] =  7.0e-3;
     }
   }
 
