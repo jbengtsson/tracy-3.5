@@ -541,7 +541,8 @@ int main(int argc, char *argv[])
     globval.Cavity_on = false; globval.radiation = false;
 
     f_rf =
-      Lattice.Cell[Lattice.Elem_GetPos(Lattice.Elem_Index("cav"), 1)].Elem.C->Pfreq;
+      Lattice.Cell[Lattice.Elem_GetPos(Lattice.Elem_Index("cav"), 1)]
+      .Elem.C->Pfreq;
     printf("\nf_rf = %10.3e\n", f_rf);
 
     globval.Cavity_on = true;
