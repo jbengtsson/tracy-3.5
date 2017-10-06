@@ -292,7 +292,8 @@ void rdmfile(const char *mfile_dat)
 		    Cell[i].Elem.ID->nx, Cell[i].Elem.ID->nz,
 		    Cell[i].Elem.ID->tabx, Cell[i].Elem.ID->tabz,
 		    Cell[i].Elem.ID->thetax1, Cell[i].Elem.ID->thetaz1,
-		    Cell[i].Elem.ID->long_comp, Cell[i].Elem.ID->B2);
+		    Cell[i].Elem.ID->long_comp, Cell[i].Elem.ID->B2,
+		    Cell[i].Elem.ID->linear);
       } else if (n == 2) {
 	Cell[i].Elem.ID->firstorder = false;
 	Cell[i].Elem.ID->secondorder = true;
@@ -302,7 +303,8 @@ void rdmfile(const char *mfile_dat)
 		    Cell[i].Elem.ID->nx, Cell[i].Elem.ID->nz,
 		    Cell[i].Elem.ID->tabx, Cell[i].Elem.ID->tabz,
 		    Cell[i].Elem.ID->thetax, Cell[i].Elem.ID->thetaz,
-		    Cell[i].Elem.ID->long_comp, Cell[i].Elem.ID->B2);
+		    Cell[i].Elem.ID->long_comp, Cell[i].Elem.ID->B2,
+		    Cell[i].Elem.ID->linear);
       } else {
 	std::cout << "rdmfile: undef order " << n << std::endl;
 	exit_(1);

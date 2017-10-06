@@ -103,7 +103,7 @@ void splie2(double x1a[], double x2a[], double **ya,
 void Read_IDfile(char *fic_radia, double &L, int &nx, int &nz,
                  double tabx[IDXMAX],  double tabz[IDZMAX],
                  double thetax[IDZMAX][IDXMAX], double thetaz[IDZMAX][IDXMAX],
-		 bool &long_comp, double B2[IDZMAX][IDXMAX])
+		 bool &long_comp, double B2[IDZMAX][IDXMAX], int linear)
 {
   FILE *fi;
   char dummy[5000];
@@ -123,7 +123,8 @@ void Read_IDfile(char *fic_radia, double &L, int &nx, int &nz,
   printf("Reading ID filename %s \n", fic_radia);
   printf("E      = %6.3f GeV\n", globval.Energy);
   printf("(Brho) = %6.3f\n", Brho);
-  
+  printf("linear = %1d\n", linear);
+ 
   /* first line */
   fscanf(fi, "%[^\n]\n", dummy); /* Read a full line */
   printf("%s\n", dummy);

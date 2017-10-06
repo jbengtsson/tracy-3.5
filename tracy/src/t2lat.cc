@@ -3336,7 +3336,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 	WITH5->firstorder = true;
 	Read_IDfile(WITH5->fname1, WITH1->PL, WITH5->nx, WITH5->nz,
 		    WITH5->tabx, WITH5->tabz, WITH5->thetax1, WITH5->thetaz1,
-		    WITH5->long_comp, WITH5->B2);
+		    WITH5->long_comp, WITH5->B2, WITH5->linear);
 	// scale factor from Radia: Tmm to get Tm.
 	for (kx = 0; kx < WITH5->nx; kx++) {
 	  for (kz = 0; kz < WITH5->nz; kz++) {
@@ -3357,7 +3357,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 	// Read Id file for second order kicks
 	Read_IDfile(WITH5->fname2, WITH1->PL, WITH5->nx, WITH5->nz,
 		    WITH5->tabx, WITH5->tabz, WITH5->thetax, WITH5->thetaz,
-		    WITH5->long_comp, WITH5->B2);
+		    WITH5->long_comp, WITH5->B2, WITH5->linear);
       } else {
 	strcpy(WITH5->fname2,"/*No_Filename2_Given*/");
       }
