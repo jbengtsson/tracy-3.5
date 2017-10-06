@@ -3945,10 +3945,12 @@ static void DealWithDefns(struct LOC_Lattice_Read *LINK)
 	      exit(1);
 	    }
 	    if (k <= Cell_nLocMax) {
-	      Lattice.Cell[k].Fnum = k1; Lattice.Cell[k].Elem.Reverse = LINK->Reverse_stack[j];
+	      Lattice.Cell[k].Fnum = k1;
+	      Lattice.Cell[k].Elem.Reverse = LINK->Reverse_stack[j];
 	      if (debug_lat)
 		printf("  Cell definition: |%s| %2ld %3ld %2d %1d\n",
-		       WITH->Bname, i, k, Lattice.Cell[k].Fnum, Lattice.Cell[k].Elem.Reverse);
+		       WITH->Bname, i, k,
+		       Lattice.Cell[k].Fnum, Lattice.Cell[k].Elem.Reverse);
 	    } else {
 	      printf("** Cell_nLocMax exhausted: %ld(%ld)\n",
 		     k, (long)Cell_nLocMax);
@@ -4138,7 +4140,8 @@ static void RegisterKids(struct LOC_Lattice_Read *LINK)
     for (i = 0; i < FORLIM; i++) {
       Lattice.ElemFam[i].nKid = 0;
       if (debug_lat)
-	printf("  RegisterKids: %2ld %8s\n", i+1, Lattice.ElemFam[i].ElemF.PName);
+	printf("  RegisterKids: %2ld %8s\n", i+1,
+	       Lattice.ElemFam[i].ElemF.PName);
     }
   } else {
     printf("Elem_nFamMax exceeded: %ld(%d)\n",
