@@ -84,7 +84,7 @@ void param_type::set_prm(double *bn) const
 
   for (i = 1; i <= n_prm; i++) {
     if (n[i-1] > 0)
-      for (j = 1; j <= GetnKid(Fnum[i-1]); j++)
+      for (j = 1; j <= Lattice.GetnKid(Fnum[i-1]); j++)
 	set_bn_design_elem(Fnum[i-1], j, n[i-1], bn[i], 0e0);
     else if (n[i-1] == -1) {
       set_L(Fnum[i-1], bn[i]); get_S();
@@ -361,7 +361,7 @@ double f_hcell(double *b2)
   b2_prms.set_prm(b2);
 
   // End of bm.
-  loc1 = Elem_GetPos(Lattice.Elem_Index("bm"), 1);
+  loc1 = Lattice.Elem_GetPos(Lattice.Elem_Index("bm"), 1);
   // Center of straight.
   loc2 = globval.Cell_nLoc;
 
@@ -452,9 +452,9 @@ double f_match(double *b2)
   b2_prms.set_prm(b2);
 
   // Center of unit cell.
-  loc1 = Elem_GetPos(Lattice.Elem_Index("sfh"), 1);
+  loc1 = Lattice.Elem_GetPos(Lattice.Elem_Index("sfh"), 1);
   // End of 2nd bm.
-  loc2 = Elem_GetPos(Lattice.Elem_Index("bm"), 2);
+  loc2 = Lattice.Elem_GetPos(Lattice.Elem_Index("bm"), 2);
   // Center of straight.
   loc3 = globval.Cell_nLoc;
 

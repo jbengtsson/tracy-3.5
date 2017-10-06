@@ -288,7 +288,7 @@ void param_data_type::FindMatrix(double **SkewRespMat, const double deta_y_max)
   nuX = globval.TotalTune[X_]; nuY = globval.TotalTune[Y_];
 
   for (i = 1; i <= N_SKEW; i++) {
-    loc = Elem_GetPos(globval.qt, i);
+    loc = Lattice.Elem_GetPos(globval.qt, i);
     etaSQ[i] = Lattice.Cell[loc].Eta[X_];
     betaSQ[i][Xi] = Lattice.Cell[loc].Beta[X_]; betaSQ[i][Yi] = Lattice.Cell[loc].Beta[Y_];
     nuSQ[i][Xi] = Lattice.Cell[loc].Nu[X_]; nuSQ[i][Yi] = Lattice.Cell[loc].Nu[Y_];
@@ -395,10 +395,10 @@ void param_data_type::ini_skew_cor(const double deta_y_max)
   exit(1);
 
   // No of skew quads, BPMs, and correctors
-  N_SKEW = GetnKid(globval.qt);
+  N_SKEW = Lattice.GetnKid(globval.qt);
 
   N_BPM = 0;
-  for (k = 1; k <= GetnKid(globval.bpm); k++) {
+  for (k = 1; k <= Lattice.GetnKid(globval.bpm); k++) {
     N_BPM++;
 
     if (N_BPM > max_bpm) {
@@ -407,18 +407,18 @@ void param_data_type::ini_skew_cor(const double deta_y_max)
       exit_(1);
     }
 
-    bpm_loc[N_BPM-1] = Elem_GetPos(globval.bpm, k);
+    bpm_loc[N_BPM-1] = Lattice.Elem_GetPos(globval.bpm, k);
   }
 
   N_HCOR = 0;
-  h_corr[N_HCOR++] = Elem_GetPos(globval.hcorr, 1);
-  h_corr[N_HCOR++] = Elem_GetPos(globval.hcorr, GetnKid(globval.hcorr)/3);
-  h_corr[N_HCOR++] = Elem_GetPos(globval.hcorr, 2*GetnKid(globval.hcorr)/3);
+  h_corr[N_HCOR++] = Lattice.Elem_GetPos(globval.hcorr, 1);
+  h_corr[N_HCOR++] = Lattice.Elem_GetPos(globval.hcorr, Lattice.GetnKid(globval.hcorr)/3);
+  h_corr[N_HCOR++] = Lattice.Elem_GetPos(globval.hcorr, 2*Lattice.GetnKid(globval.hcorr)/3);
 
   N_VCOR = 0;
-  v_corr[N_VCOR++] = Elem_GetPos(globval.vcorr, 1);
-  v_corr[N_VCOR++] = Elem_GetPos(globval.vcorr, GetnKid(globval.vcorr)/3);
-  v_corr[N_VCOR++] = Elem_GetPos(globval.vcorr, 2*GetnKid(globval.vcorr)/3);
+  v_corr[N_VCOR++] = Lattice.Elem_GetPos(globval.vcorr, 1);
+  v_corr[N_VCOR++] = Lattice.Elem_GetPos(globval.vcorr, Lattice.GetnKid(globval.vcorr)/3);
+  v_corr[N_VCOR++] = Lattice.Elem_GetPos(globval.vcorr, 2*Lattice.GetnKid(globval.vcorr)/3);
 
   N_COUPLE = N_BPM*(1+N_HCOR+N_VCOR);
 
@@ -769,7 +769,7 @@ void param_data_type::quad_config()
 
   Nquad = 0;
   for (i = 0; i < N_Fam; i++) {
-    for (j = 1; j <= GetnKid(Q_Fam[i]); j++) {
+    for (j = 1; j <= Lattice.GetnKid(Q_Fam[i]); j++) {
       Nquad++;
 
       if (Nquad > n_b2_max) {
@@ -778,7 +778,7 @@ void param_data_type::quad_config()
         exit_(1);
       }
 
-      quad_prms[Nquad-1] = Elem_GetPos(Q_Fam[i], j);
+      quad_prms[Nquad-1] = Lattice.Elem_GetPos(Q_Fam[i], j);
 
       if (j == 1) get_bn_design_elem(Q_Fam[i], j, Quad, b2[i], an);
     }
@@ -1445,8 +1445,8 @@ void param_data_type::Align_BPMs(const int n) const
   const int n_step = 5;
 
   printf("\n");
-  for (i = 1; i <= GetnKid(globval.bpm); i++) {
-    loc = Elem_GetPos(globval.bpm, i);
+  for (i = 1; i <= Lattice.GetnKid(globval.bpm); i++) {
+    loc = Lattice.Elem_GetPos(globval.bpm, i);
 
     if ((loc == 1) || (loc == globval.Cell_nLoc)) {
       printf("Align_BPMs: BPM at entrance or exit of lattice: %ld\n", loc);
@@ -1536,37 +1536,37 @@ void param_data_type::ini_COD_corr(const int n_bpm_Fam,
 
   n_bpm = 0;
   for (i = 0; i < n_bpm_Fam; i++)
-    n_bpm += GetnKid(Lattice.Elem_Index(bpm_names[i]));
+    n_bpm += Lattice.GetnKid(Lattice.Elem_Index(bpm_names[i]));
 
   n_hcorr = 0;
   for (i = 0; i < n_hcorr_Fam; i++)
-    n_hcorr += GetnKid(Lattice.Elem_Index(hcorr_names[i]));
+    n_hcorr += Lattice.GetnKid(Lattice.Elem_Index(hcorr_names[i]));
 
   n_vcorr = 0;
   for (i = 0; i < n_vcorr_Fam; i++)
-    n_vcorr += GetnKid(Lattice.Elem_Index(vcorr_names[i]));
+    n_vcorr += Lattice.GetnKid(Lattice.Elem_Index(vcorr_names[i]));
 
   long int  bpms[n_bpm], hcorrs[n_hcorr], vcorrs[n_vcorr];
 
   n_bpm = 0;
   for (i = 0; i < n_bpm_Fam; i++) {
     Fnum = Lattice.Elem_Index(bpm_names[i]);
-    for (j = 1; j <= GetnKid(Fnum); j++)
-      bpms[n_bpm++] = Elem_GetPos(Fnum, j);
+    for (j = 1; j <= Lattice.GetnKid(Fnum); j++)
+      bpms[n_bpm++] = Lattice.Elem_GetPos(Fnum, j);
   }
 
   n_hcorr = 0;
   for (i = 0; i < n_hcorr_Fam; i++) {
     Fnum = Lattice.Elem_Index(hcorr_names[i]);
-    for (j = 1; j <= GetnKid(Fnum); j++)
-      hcorrs[n_hcorr++] = Elem_GetPos(Fnum, j);
+    for (j = 1; j <= Lattice.GetnKid(Fnum); j++)
+      hcorrs[n_hcorr++] = Lattice.Elem_GetPos(Fnum, j);
   }
 
   n_vcorr = 0;
   for (i = 0; i < n_vcorr_Fam; i++) {
     Fnum = Lattice.Elem_Index(vcorr_names[i]);
-    for (j = 1; j <= GetnKid(Fnum); j++)
-      vcorrs[n_vcorr++] = Elem_GetPos(Fnum, j);
+    for (j = 1; j <= Lattice.GetnKid(Fnum); j++)
+      vcorrs[n_vcorr++] = Lattice.Elem_GetPos(Fnum, j);
   }
 
   std::cout << std::endl;

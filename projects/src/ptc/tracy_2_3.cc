@@ -14,7 +14,8 @@ void get_alphac(double alphac[])
   int i;
 
   for (i = 0; i < n_alphac; i++)
-    alphac[i] = h_ijklm(map[ct_], 0, 0, 0, 0, i+1)/Lattice.Cell[globval.Cell_nLoc].S;
+    alphac[i] = h_ijklm(map[ct_], 0, 0, 0, 0, i+1)
+      /Lattice.Cell[globval.Cell_nLoc].S;
 }
 
 
@@ -43,7 +44,7 @@ void prt_H_long(const int n, const double phi_max, const double delta_max,
 
   get_alphac(alphac);
 
-  loc = Elem_GetPos(Lattice.Elem_Index(cav_name.c_str()), 1);
+  loc = Lattice.Elem_GetPos(Lattice.Elem_Index(cav_name.c_str()), 1);
   h_rf = Lattice.Cell[loc].Elem.C->Ph;
   V_rf = Lattice.Cell[loc].Elem.C->Pvolt;
 

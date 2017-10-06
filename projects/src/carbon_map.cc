@@ -17,7 +17,7 @@ ss_vect<tps> get_fix_point(const int Fnum)
   const int  n_iter = 3;
 
   
-  loc = Elem_GetPos(Fnum, 1); FM = Lattice.Cell[loc].Elem.FM;
+  loc = Lattice.Elem_GetPos(Fnum, 1); FM = Lattice.Cell[loc].Elem.FM;
 
   FM->Ld = 0.0; FM->L1 = 0.0;
   if (!NSLS_II) {
@@ -52,8 +52,8 @@ ss_vect<tps> get_fix_point(const int Fnum)
        << ", Ld [m] = " << setw(7) << FM->Ld
        << ", L1 [m] = " << setw(7) << FM->L1 << endl;
 
-  for (j = 1; j <= GetnKid(Fnum); j++) {
-    loc = Elem_GetPos(Fnum, j);
+  for (j = 1; j <= Lattice.GetnKid(Fnum); j++) {
+    loc = Lattice.Elem_GetPos(Fnum, j);
     Lattice.Cell[loc].Elem.FM->cut = FM->cut;
     Lattice.Cell[loc].Elem.FM->x0 = FM->x0;
     Lattice.Cell[loc].Elem.FM->phi = FM->phi;
@@ -102,8 +102,8 @@ int main(int argc, char *argv[])
     if (tweak) {
       dx = -1.4e-3; map[x_] += dx;
     }
-    Cell_Pass(Elem_GetPos(Lattice.Elem_Index("bb"), 1),
-	      Elem_GetPos(Lattice.Elem_Index("bb"), 1), map, lastpos);
+    Cell_Pass(Lattice.Elem_GetPos(Lattice.Elem_Index("bb"), 1),
+	      Lattice.Elem_GetPos(Lattice.Elem_Index("bb"), 1), map, lastpos);
     if (tweak) map[x_] -= dx;
 
     getlinmat(6, map, M);

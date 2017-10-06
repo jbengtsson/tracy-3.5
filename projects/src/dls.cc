@@ -136,8 +136,8 @@ void prt_symm(const std::vector<int> &Fam)
 
   for (j = 0; j < (int)Fam.size(); j++) {
     printf("\n");
-    for (k = 1; k <= GetnKid(Fam[j]); k++) {
-      loc = Elem_GetPos(Fam[j], k);
+    for (k = 1; k <= Lattice.GetnKid(Fam[j]); k++) {
+      loc = Lattice.Elem_GetPos(Fam[j], k);
       if (k % 2 == 0) loc -= 1;
       printf(" %5.1f %6.3f %6.3f %6.3f\n",
 	     Lattice.Cell[loc].S, Lattice.Cell[loc].Beta[X_],
@@ -155,11 +155,11 @@ void prt_quad(const std::vector<int> &Fam)
 
   printf("\n");
   for (j = 0; j < (int)Fam.size(); j++) {
-    loc = Elem_GetPos(Fam[j], 1);
+    loc = Lattice.Elem_GetPos(Fam[j], 1);
     printf(" %4.1f %6.3f %6.3f %2d\n",
 	   Lattice.Cell[loc].S, Lattice.Cell[loc].Beta[X_],
 	   Lattice.Cell[loc].Beta[Y_],
-	   GetnKid(Fam[j]));
+	   Lattice.GetnKid(Fam[j]));
   }
 }
 
@@ -327,7 +327,8 @@ int main(int argc, char *argv[])
     globval.Cavity_on = false; globval.radiation = false;
 
     f_rf =
-      Lattice.Cell[Elem_GetPos(Lattice.Elem_Index("cav"), 1)].Elem.C->Pfreq;
+      Lattice.Cell[Lattice.Elem_GetPos(Lattice.Elem_Index("cav"), 1)]
+      .Elem.C->Pfreq;
     printf("\nf_rf = %10.3e\n", f_rf);
 
     globval.Cavity_on = true;

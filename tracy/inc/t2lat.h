@@ -29,6 +29,10 @@ class Lattice_Type {
 
   long Elem_Index(const std::string &name1);
 
+  int GetnKid(const int Fnum1);
+
+  long Elem_GetPos(const int Fnum1, const int Knum1);
+
   // From t2ring.cc.
 
   void GetNu(Vector2 &nu, Matrix &M);

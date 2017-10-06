@@ -76,7 +76,7 @@ void param_type::set_prm(double *bn) const
 
   for (i = 1; i <= n_prm; i++) {
     if (n[i-1] > 0)
-      for (j = 1; j <= GetnKid(Fnum[i-1]); j++)
+      for (j = 1; j <= Lattice.GetnKid(Fnum[i-1]); j++)
 	set_bn_design_elem(Fnum[i-1], j, n[i-1], bn[i], 0e0);
     else if (n[i-1] == -1) {
       set_L(Fnum[i-1], bn[i]); get_S();
@@ -108,7 +108,7 @@ double get_bn_s(const int Fnum, const int Knum, const int n)
   if (Fnum > 0)
     get_bn_design_elem(Fnum, Knum, n, bn, an);
   else {
-    k = Elem_GetPos(abs(Fnum), Knum);
+    k =Lattice. Elem_GetPos(abs(Fnum), Knum);
 
     switch (Lattice.Cell[k-1].Elem.PName[1]) {
     case 'u':
@@ -137,7 +137,7 @@ void set_bn_s(const int Fnum, const int Knum, const int n, const double bn)
     set_bn_design_elem(Fnum, Knum, n, bn, 0e0);
   else {
     // point to multipole
-    k = Elem_GetPos(abs(Fnum), Knum);
+    k = Lattice.Elem_GetPos(abs(Fnum), Knum);
 
     switch (Lattice.Cell[k-1].Elem.PName[1]) {
     case 'u':
@@ -174,7 +174,7 @@ void set_bn_s(const int Fnum, const int n, const double bn)
 {
   int k;
 
-  for (k = 1; k <= GetnKid(abs(Fnum)); k++)
+  for (k = 1; k <= Lattice.GetnKid(abs(Fnum)); k++)
     set_bn_s(Fnum, k, n, bn);
 }
 

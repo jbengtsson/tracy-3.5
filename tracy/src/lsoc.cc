@@ -179,15 +179,16 @@ void gcmat(const int bpm, const int corr, const int plane)
 {
   int i, k;
 
-  k = plane - 1; n_bpm_[k] = GetnKid(bpm); n_corr_[k] = GetnKid(corr);
+  k = plane - 1; n_bpm_[k] = Lattice.GetnKid(bpm);
+  n_corr_[k] = Lattice.GetnKid(corr);
 
   long int bpms[n_bpm_[k]], corrs[n_corr_[k]];
 
   for (i = 1; i <= n_bpm_[k]; i++)
-    bpms[i-1] = Elem_GetPos(bpm, i);
+    bpms[i-1] = Lattice.Elem_GetPos(bpm, i);
 
   for (i = 1; i <= n_corr_[k]; i++)
-    corrs[i-1] = Elem_GetPos(corr, i);
+    corrs[i-1] = Lattice.Elem_GetPos(corr, i);
 
   gcmat(n_bpm_[k], bpms, n_corr_[k], corrs, plane, true);
 }

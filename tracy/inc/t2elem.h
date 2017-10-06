@@ -18,11 +18,6 @@ void getelem(long i, CellType *cellrec);
 void putelem(long i, CellType *cellrec);
 
 
-int GetnKid(const int Fnum1);
-
-long Elem_GetPos(const int Fnum1, const int Knum1);
-
-
 template<typename T>
 void GtoL(ss_vect<T> &X, const Vector2 &S, const Vector2 &R,
 	  const double c0, const double c1, const double s1);

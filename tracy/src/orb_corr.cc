@@ -9,8 +9,8 @@ std::vector<long int> get_elem(const long int i0, const long int i1,
 
   for (j = 0; j < (int)names.size(); j++) {
     Fnum = Lattice.Elem_Index(names[j]);
-    for (k = 1; k <= GetnKid(Fnum); k++) {
-      loc = Elem_GetPos(Fnum, k);
+    for (k = 1; k <= Lattice.GetnKid(Fnum); k++) {
+      loc = Lattice.Elem_GetPos(Fnum, k);
       if ((i0 <= loc) && (loc <= i1)) elems.push_back(loc);
     }
   }
@@ -261,8 +261,8 @@ void thread_beam(const int n_cell, const string &Fam_name,
   const double eps = 1e-4;
 
   Fnum = Lattice.Elem_Index(Fam_name);
-  i0 = Elem_GetPos(Fnum, 1); i1 = Elem_GetPos(Fnum, 2);
-  i2 = Elem_GetPos(Fnum, 3);
+  i0 = Lattice.Elem_GetPos(Fnum, 1); i1 = Lattice.Elem_GetPos(Fnum, 2);
+  i2 = Lattice.Elem_GetPos(Fnum, 3);
   for (j = 0; j < 2; j++) {
     orb_corr[j].alloc(i0, i1, i2, bpm_Fam_names, corr_Fam_names[j],
 		      j == 0, false, eps);
@@ -275,15 +275,16 @@ void thread_beam(const int n_cell, const string &Fam_name,
 	 1e3*sigma[X_], 1e3*sigma[Y_]);
 
   for (i = 0; i < n_cell; i++) {
-    i0 = Elem_GetPos(Fnum, 2*i+1); i1 = Elem_GetPos(Fnum, 2*i+2);
-    i2 = Elem_GetPos(Fnum, 2*i+3);
+    i0 = Lattice.Elem_GetPos(Fnum, 2*i+1);
+    i1 = Lattice.Elem_GetPos(Fnum, 2*i+2);
+    i2 = Lattice.Elem_GetPos(Fnum, 2*i+3);
     for (j = 0; j < 2; j++) {
       orb_corr[j].corrs = get_elem(i0, i1, corr_Fam_names[j]);
       if (i != n_cell-1)
 	orb_corr[j].bpms = get_elem(i0, i2, bpm_Fam_names);
       else {
 	orb_corr[j].bpms = get_elem(i0, i1, bpm_Fam_names);
-	j1 = Elem_GetPos(Fnum, 1); j2 = Elem_GetPos(Fnum, 2);
+	j1 = Lattice.Elem_GetPos(Fnum, 1); j2 = Lattice.Elem_GetPos(Fnum, 2);
 	bpms = get_elem(j1, j2,	bpm_Fam_names);
 	orb_corr[j].bpms.insert(orb_corr[j].bpms.end(),
 				bpms.begin(), bpms.end());

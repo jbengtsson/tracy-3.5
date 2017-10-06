@@ -437,8 +437,8 @@ void Lattice_Type::GetEmittance(const int Fnum, const bool prt)
   // radiation loss is computed in Cav_Pass
 
   globval.U0 = globval.dE*1e9*globval.Energy;
-  V_RF = Lattice.Cell[Elem_GetPos(Fnum, 1)].Elem.C->Pvolt;
-  h_RF = Lattice.Cell[Elem_GetPos(Fnum, 1)].Elem.C->Ph;
+  V_RF = Lattice.Cell[Lattice.Elem_GetPos(Fnum, 1)].Elem.C->Pvolt;
+  h_RF = Lattice.Cell[Lattice.Elem_GetPos(Fnum, 1)].Elem.C->Ph;
   phi0 = fabs(asin(globval.U0/V_RF));
   globval.delta_RF =
     sqrt(-V_RF*cos(M_PI-phi0)*(2.0-(M_PI-2.0*(M_PI-phi0))
@@ -963,8 +963,8 @@ void Lattice_Type::CheckAlignTol(const char *OutputFile)
   double PdSsys[2], PdSrms[2], PdSrnd[2], dS[2], dT[2];
   std::fstream fout;
 
-  gs_Fnum = globval.gs;   gs_nKid = GetnKid(gs_Fnum);
-  ge_Fnum = globval.ge;   ge_nKid = GetnKid(ge_Fnum);
+  gs_Fnum = globval.gs;   gs_nKid = Lattice.GetnKid(gs_Fnum);
+  ge_Fnum = globval.ge;   ge_nKid = Lattice.GetnKid(ge_Fnum);
   if (gs_nKid == ge_nKid)
     n_girders= gs_nKid;
   else {
@@ -981,7 +981,7 @@ void Lattice_Type::CheckAlignTol(const char *OutputFile)
   fout << "Girders, Quads, Sexts:  " << std::endl;
   for (i = 1; i <= n_girders; i++){
     fout << i << ":" << std::endl;
-    loc_gs = Elem_GetPos(gs_Fnum, i); loc_ge = Elem_GetPos(ge_Fnum, i);
+    loc_gs = Lattice.Elem_GetPos(gs_Fnum, i); loc_ge = Lattice.Elem_GetPos(ge_Fnum, i);
 
     loc = loc_gs;
     PdSsys[X_] = Lattice.Cell[loc].Elem.M->PdSsys[X_];
@@ -1049,9 +1049,9 @@ void Lattice_Type::CheckAlignTol(const char *OutputFile)
 
   fout << "  " << std::endl;
   fout << "Dipoles:  " << std::endl;
-  dip_Fnum = Lattice.Elem_Index("B1"); dip_nKid = GetnKid(dip_Fnum);
+  dip_Fnum = Lattice.Elem_Index("B1"); dip_nKid = Lattice.GetnKid(dip_Fnum);
   for (i = 1; i <= dip_nKid; i++){
-    loc = Elem_GetPos(dip_Fnum, i);
+    loc = Lattice.Elem_GetPos(dip_Fnum, i);
     PdSsys[X_] = Lattice.Cell[loc].Elem.M->PdSsys[X_];
     PdSsys[Y_] = Lattice.Cell[loc].Elem.M->PdSsys[Y_];
     PdSrms[X_] = Lattice.Cell[loc].Elem.M->PdSrms[X_];
@@ -1082,7 +1082,7 @@ void misalign_rms_elem(const int Fnum, const int Knum,
   long int   loc;
   MpoleType  *mp;
 
-  loc = Elem_GetPos(Fnum, Knum); mp = Lattice.Cell[loc].Elem.M;
+  loc = Lattice.Elem_GetPos(Fnum, Knum); mp = Lattice.Cell[loc].Elem.M;
 
   mp->PdSrms[X_] = dx_rms; mp->PdSrms[Y_] = dy_rms; mp->PdTrms = dr_rms;
   if (new_rnd) {
@@ -1105,7 +1105,7 @@ void misalign_sys_elem(const int Fnum, const int Knum,
   long int   loc;
   MpoleType  *mp;
 
-  loc = Elem_GetPos(Fnum, Knum); mp = Lattice.Cell[loc].Elem.M;
+  loc = Lattice.Elem_GetPos(Fnum, Knum); mp = Lattice.Cell[loc].Elem.M;
 
   mp->PdSsys[X_] = dx_sys; mp->PdSsys[Y_] = dy_sys; mp->PdTsys = dr_sys;
 
@@ -1118,7 +1118,7 @@ void misalign_rms_fam(const int Fnum,
 {
   int  i;
 
-  for (i = 1; i <= GetnKid(Fnum); i++)
+  for (i = 1; i <= Lattice.GetnKid(Fnum); i++)
     misalign_rms_elem(Fnum, i, dx_rms, dy_rms, dr_rms, new_rnd);
 }
 
@@ -1128,7 +1128,7 @@ void misalign_sys_fam(const int Fnum,
 {
   int  i;
 
-  for (i = 1; i <= GetnKid(Fnum); i++)
+  for (i = 1; i <= Lattice.GetnKid(Fnum); i++)
     misalign_sys_elem(Fnum, i, dx_sys, dy_sys, dr_sys);
 }
 
@@ -1184,7 +1184,7 @@ void misalign_rms_girders(const int gs, const int ge,
   long int  loc_gs, loc_ge, j;
   double    s_gs, s_ge, dx_gs[2], dx_ge[2], s;
 
-  n_gs = GetnKid(gs); n_ge = GetnKid(ge);
+  n_gs = Lattice.GetnKid(gs); n_ge = Lattice.GetnKid(ge);
 
   if (n_gs == n_ge)
     n_girders = n_gs;
@@ -1197,7 +1197,7 @@ void misalign_rms_girders(const int gs, const int ge,
   misalign_rms_fam(ge, dx_rms, dy_rms, dr_rms, new_rnd);
 
   for (i = 1; i <= n_girders; i++) {
-    loc_gs = Elem_GetPos(gs, i); loc_ge = Elem_GetPos(ge, i);
+    loc_gs = Lattice.Elem_GetPos(gs, i); loc_ge = Lattice.Elem_GetPos(ge, i);
     s_gs = Lattice.Cell[loc_gs].S; s_ge = Lattice.Cell[loc_ge].S;
 
     // roll for a rigid boby
@@ -1232,7 +1232,7 @@ void misalign_sys_girders(const int gs, const int ge,
   long int  loc_gs, loc_ge, j;
   double    s_gs, s_ge, dx_gs[2], dx_ge[2], s;
 
-  n_gs = GetnKid(gs); n_ge = GetnKid(ge);
+  n_gs = Lattice.GetnKid(gs); n_ge = Lattice.GetnKid(ge);
 
   if (n_gs == n_ge)
     n_girders = n_gs;
@@ -1245,7 +1245,7 @@ void misalign_sys_girders(const int gs, const int ge,
   misalign_sys_fam(ge, dx_sys, dy_sys, dr_sys);
 
   for (i = 1; i <= n_girders; i++) {
-    loc_gs = Elem_GetPos(gs, i); loc_ge = Elem_GetPos(ge, i);
+    loc_gs = Lattice.Elem_GetPos(gs, i); loc_ge = Lattice.Elem_GetPos(ge, i);
     s_gs = Lattice.Cell[loc_gs].S; s_ge = Lattice.Cell[loc_ge].S;
 
     // roll for a rigid boby
@@ -1283,7 +1283,7 @@ void set_aper_elem(const int Fnum, const int Knum,
 {
   int  k;
 
-    k = Elem_GetPos(Fnum, Knum);
+    k = Lattice.Elem_GetPos(Fnum, Knum);
     Lattice.Cell[k].maxampl[X_][0] = Dxmin;
     Lattice.Cell[k].maxampl[X_][1] = Dxmax;
     Lattice.Cell[k].maxampl[Y_][0] = Dymin;
@@ -1296,7 +1296,7 @@ void set_aper_fam(const int Fnum,
 {
   int k;
 
-  for (k = 1; k <= GetnKid(Fnum); k++)
+  for (k = 1; k <= Lattice.GetnKid(Fnum); k++)
     set_aper_elem(Fnum, k, Dxmin, Dxmax, Dymin, Dymax);
 }
 
@@ -1318,7 +1318,7 @@ void set_aper_type(const int type, const double Dxmin, const double Dxmax,
 
 double get_L(const int Fnum, const int Knum)
 {
-  return Lattice.Cell[Elem_GetPos(Fnum, Knum)].Elem.PL;
+  return Lattice.Cell[Lattice.Elem_GetPos(Fnum, Knum)].Elem.PL;
 }
 
 
@@ -1329,7 +1329,7 @@ void set_L(const int Fnum, const int Knum, const double L)
   elemtype  *elemp;
   MpoleType *M;
 
-  loc = Elem_GetPos(Fnum, Knum);
+  loc = Lattice.Elem_GetPos(Fnum, Knum);
   elemp = &Lattice.Cell[loc].Elem;
   if (elemp->Pkind == Mpole) {
     M = elemp->M;
@@ -1347,7 +1347,7 @@ void set_L(const int Fnum, const double L)
 {
   int  k;
 
-  for (k = 1; k <= GetnKid(Fnum); k++)
+  for (k = 1; k <= Lattice.GetnKid(Fnum); k++)
     set_L(Fnum, k, L);
 }
 
@@ -1355,7 +1355,7 @@ void set_L(const int Fnum, const double L)
 void set_dL(const int Fnum, const int Knum, const double dL)
 {
 
-  Lattice.Cell[Elem_GetPos(Fnum, Knum)].Elem.PL += dL;
+  Lattice.Cell[Lattice.Elem_GetPos(Fnum, Knum)].Elem.PL += dL;
 }
 
 
@@ -1363,8 +1363,8 @@ void set_dL(const int Fnum, const double dL)
 {
   int  k;
 
-  for (k = 1; k <= GetnKid(Fnum); k++)
-    Lattice.Cell[Elem_GetPos(Fnum, k)].Elem.PL += dL;
+  for (k = 1; k <= Lattice.GetnKid(Fnum); k++)
+    Lattice.Cell[Lattice.Elem_GetPos(Fnum, k)].Elem.PL += dL;
 }
 
 
@@ -1380,7 +1380,7 @@ void get_bn_design_elem(const int Fnum, const int Knum,
     exit(1);
   }
 
-  elem = Lattice.Cell[Elem_GetPos(Fnum, Knum)].Elem;
+  elem = Lattice.Cell[Lattice.Elem_GetPos(Fnum, Knum)].Elem;
 
   bn = elem.M->PBpar[HOMmax+n]; an = elem.M->PBpar[HOMmax-n];
 }
@@ -1396,7 +1396,7 @@ void get_bnL_design_elem(const int Fnum, const int Knum,
     exit(1);
   }
 
-  elem = Lattice.Cell[Elem_GetPos(Fnum, Knum)].Elem;
+  elem = Lattice.Cell[Lattice.Elem_GetPos(Fnum, Knum)].Elem;
 
   bnL = elem.M->PBpar[HOMmax+n]; anL = elem.M->PBpar[HOMmax-n];
 
@@ -1416,7 +1416,7 @@ void set_bn_design_elem(const int Fnum, const int Knum,
     exit(1);
   }
 
-  elem = Lattice.Cell[Elem_GetPos(Fnum, Knum)].Elem;
+  elem = Lattice.Cell[Lattice.Elem_GetPos(Fnum, Knum)].Elem;
 
   elem.M->PBpar[HOMmax+n] = bn; elem.M->PBpar[HOMmax-n] = an;
 
@@ -1434,7 +1434,7 @@ void set_dbn_design_elem(const int Fnum, const int Knum,
     exit(1);
   }
 
-  elem = Lattice.Cell[Elem_GetPos(Fnum, Knum)].Elem;
+  elem = Lattice.Cell[Lattice.Elem_GetPos(Fnum, Knum)].Elem;
 
   elem.M->PBpar[HOMmax+n] += dbn; elem.M->PBpar[HOMmax-n] += dan;
 
@@ -1452,7 +1452,7 @@ void set_bn_design_fam(const int Fnum,
     exit(1);
   }
 
-  for (k = 1; k <= GetnKid(Fnum); k++)
+  for (k = 1; k <= Lattice.GetnKid(Fnum); k++)
     set_bn_design_elem(Fnum, k, n, bn, an);
 }
 
@@ -1467,7 +1467,7 @@ void set_dbn_design_fam(const int Fnum,
     exit(1);
   }
 
-  for (k = 1; k <= GetnKid(Fnum); k++)
+  for (k = 1; k <= Lattice.GetnKid(Fnum); k++)
     set_dbn_design_elem(Fnum, k, n, dbn, dan);
 }
 
@@ -1482,7 +1482,7 @@ void set_bnL_design_elem(const int Fnum, const int Knum,
     exit(1);
   }
 
-  elem = Lattice.Cell[Elem_GetPos(Fnum, Knum)].Elem;
+  elem = Lattice.Cell[Lattice.Elem_GetPos(Fnum, Knum)].Elem;
 
   if (elem.PL != 0.0) {
     elem.M->PBpar[HOMmax+n] = bnL/elem.PL;
@@ -1506,7 +1506,7 @@ void set_dbnL_design_elem(const int Fnum, const int Knum,
     exit(1);
   }
 
-  elem = Lattice.Cell[Elem_GetPos(Fnum, Knum)].Elem;
+  elem = Lattice.Cell[Lattice.Elem_GetPos(Fnum, Knum)].Elem;
 
   if (elem.PL != 0.0) {
     elem.M->PBpar[HOMmax+n] += dbnL/elem.PL;
@@ -1530,7 +1530,7 @@ void set_dbnL_design_fam(const int Fnum,
     exit(1);
   }
 
-  for (k = 1; k <= GetnKid(Fnum); k++)
+  for (k = 1; k <= Lattice.GetnKid(Fnum); k++)
     set_bnL_design_elem(Fnum, k, n, dbnL, danL);
 }
 
@@ -1545,7 +1545,7 @@ void set_bnL_design_fam(const int Fnum,
     exit(1);
   }
 
-  for (k = 1; k <= GetnKid(Fnum); k++)
+  for (k = 1; k <= Lattice.GetnKid(Fnum); k++)
     set_bnL_design_elem(Fnum, k, n, bnL, anL);
 }
 
@@ -1579,7 +1579,7 @@ void set_bnL_sys_elem(const int Fnum, const int Knum,
     exit(1);
   }
 
-  elem = Lattice.Cell[Elem_GetPos(Fnum, Knum)].Elem;
+  elem = Lattice.Cell[Lattice.Elem_GetPos(Fnum, Knum)].Elem;
 
   if (elem.PL != 0.0) {
     elem.M->PBsys[HOMmax+n] = bnL/elem.PL;
@@ -1610,7 +1610,7 @@ void set_bnL_sys_fam(const int Fnum,
     exit(1);
   }
 
-  for (k = 1; k <= GetnKid(Fnum); k++)
+  for (k = 1; k <= Lattice.GetnKid(Fnum); k++)
     set_bnL_sys_elem(Fnum, k, n, bnL, anL);
 }
 
@@ -1649,7 +1649,7 @@ void set_bnL_rms_elem(const int Fnum, const int Knum,
     exit(1);
   }
 
-  elem = Lattice.Cell[Elem_GetPos(Fnum, Knum)].Elem;
+  elem = Lattice.Cell[Lattice.Elem_GetPos(Fnum, Knum)].Elem;
 
   if (elem.PL != 0.0) {
     elem.M->PBrms[HOMmax+n] = bnL/elem.PL;
@@ -1689,7 +1689,7 @@ void set_bnL_rms_fam(const int Fnum,
     exit(1);
   }
 
-  for (k = 1; k <= GetnKid(Fnum); k++)
+  for (k = 1; k <= Lattice.GetnKid(Fnum); k++)
     set_bnL_rms_elem(Fnum, k, n, bnL, anL, new_rnd);
 }
 
@@ -1728,7 +1728,7 @@ void set_bnr_sys_elem(const int Fnum, const int Knum,
     exit(1);
   }
 
-  mp = Lattice.Cell[Elem_GetPos(Fnum, Knum)].Elem.M; nd = mp->n_design;
+  mp = Lattice.Cell[Lattice.Elem_GetPos(Fnum, Knum)].Elem.M; nd = mp->n_design;
   // errors are relative to design values for (Dip, Quad, Sext, ...)
   mp->PBsys[HOMmax+n] = bnr*mp->PBpar[HOMmax+nd];
   mp->PBsys[HOMmax-n] = anr*mp->PBpar[HOMmax+nd];
@@ -1737,7 +1737,7 @@ void set_bnr_sys_elem(const int Fnum, const int Knum,
 
   if (prt)
     printf("set the n=%d component of %s to %e %e %e\n",
-	   n, Lattice.Cell[Elem_GetPos(Fnum, Knum)].Elem.PName,
+	   n, Lattice.Cell[Lattice.Elem_GetPos(Fnum, Knum)].Elem.PName,
 	   bnr, mp->PBpar[HOMmax+nd], mp->PBsys[HOMmax+n]);
 }
 
@@ -1752,7 +1752,7 @@ void set_bnr_sys_fam(const int Fnum,
     exit(1);
   }
 
-  for (k = 1; k <= GetnKid(Fnum); k++)
+  for (k = 1; k <= Lattice.GetnKid(Fnum); k++)
     set_bnr_sys_elem(Fnum, k, n, bnr, anr);
 }
 
@@ -1792,7 +1792,7 @@ void set_bnr_rms_elem(const int Fnum, const int Knum,
     exit(1);
   }
 
-  mp = Lattice.Cell[Elem_GetPos(Fnum, Knum)].Elem.M; nd = mp->n_design;
+  mp = Lattice.Cell[Lattice.Elem_GetPos(Fnum, Knum)].Elem.M; nd = mp->n_design;
   // errors are relative to design values for (Dip, Quad, Sext, ...)
   if (nd == Dip) {
     mp->PBrms[HOMmax+n] = bnr*mp->Pirho; mp->PBrms[HOMmax-n] = anr*mp->Pirho;
@@ -1834,7 +1834,7 @@ void set_bnr_rms_fam(const int Fnum,
     exit(1);
   }
 
-  for (k = 1; k <= GetnKid(Fnum); k++)
+  for (k = 1; k <= Lattice.GetnKid(Fnum); k++)
     set_bnr_rms_elem(Fnum, k, n, bnr, anr, new_rnd);
 }
 
@@ -1863,14 +1863,14 @@ void set_bnr_rms_type(const int type,
 
 double get_Wiggler_BoBrho(const int Fnum, const int Knum)
 {
-  return Lattice.Cell[Elem_GetPos(Fnum, Knum)].Elem.W->BoBrhoV[0];
+  return Lattice.Cell[Lattice.Elem_GetPos(Fnum, Knum)].Elem.W->BoBrhoV[0];
 }
 
 
 void set_Wiggler_BoBrho(const int Fnum, const int Knum, const double BoBrhoV)
 {
-  Lattice.Cell[Elem_GetPos(Fnum, Knum)].Elem.W->BoBrhoV[0] = BoBrhoV;
-  Lattice.Cell[Elem_GetPos(Fnum, Knum)].Elem.W->PBW[HOMmax+Quad]
+  Lattice.Cell[Lattice.Elem_GetPos(Fnum, Knum)].Elem.W->BoBrhoV[0] = BoBrhoV;
+  Lattice.Cell[Lattice.Elem_GetPos(Fnum, Knum)].Elem.W->PBW[HOMmax+Quad]
     = -sqr(BoBrhoV)/2.0;
   Wiggler_SetPB(Fnum, Knum, Quad);
 }
@@ -1880,7 +1880,7 @@ void set_Wiggler_BoBrho(const int Fnum, const double BoBrhoV)
 {
   int  k;
 
-  for (k = 1; k <= GetnKid(Fnum); k++)
+  for (k = 1; k <= Lattice.GetnKid(Fnum); k++)
     set_Wiggler_BoBrho(Fnum, k, BoBrhoV);
 }
 
@@ -1890,20 +1890,20 @@ void set_ID_scl(const int Fnum, const int Knum, const double scl)
   int           k;
   WigglerType*  W;
 
-  switch (Lattice.Cell[Elem_GetPos(Fnum, Knum)].Elem.Pkind) {
+  switch (Lattice.Cell[Lattice.Elem_GetPos(Fnum, Knum)].Elem.Pkind) {
   case Wigl:
     // scale the ID field
-    W = Lattice.Cell[Elem_GetPos(Fnum, Knum)].Elem.W;
+    W = Lattice.Cell[Lattice.Elem_GetPos(Fnum, Knum)].Elem.W;
     for (k = 0; k < W->n_harm; k++) {
       W->BoBrhoH[k] = scl*Lattice.ElemFam[Fnum-1].ElemF.W->BoBrhoH[k];
       W->BoBrhoV[k] = scl*Lattice.ElemFam[Fnum-1].ElemF.W->BoBrhoV[k];
     }
     break;
   case Insertion:
-    Lattice.Cell[Elem_GetPos(Fnum, Knum)].Elem.ID->scaling = scl;
+    Lattice.Cell[Lattice.Elem_GetPos(Fnum, Knum)].Elem.ID->scaling = scl;
     break;
   case FieldMap:
-    Lattice.Cell[Elem_GetPos(Fnum, Knum)].Elem.FM->scl = scl;
+    Lattice.Cell[Lattice.Elem_GetPos(Fnum, Knum)].Elem.FM->scl = scl;
     break;
   default:
     std::cout << "set_ID_scl: unknown element type" << std::endl;
@@ -1917,7 +1917,7 @@ void set_ID_scl(const int Fnum, const double scl)
 {
   int  k;
 
-  for (k = 1; k <= GetnKid(Fnum); k++)
+  for (k = 1; k <= Lattice.GetnKid(Fnum); k++)
     set_ID_scl(Fnum, k, scl);
 }
 
@@ -1929,7 +1929,7 @@ void SetFieldValues_fam(const int Fnum, const bool rms, const double r0,
   int     N;
   double  bnr, anr;
 
-  N = Lattice.Cell[Elem_GetPos(Fnum, 1)].Elem.M->n_design;
+  N = Lattice.Cell[Lattice.Elem_GetPos(Fnum, 1)].Elem.M->n_design;
   if (r0 == 0.0) {
     // input is: (b_n L), (a_n L)
     if(rms)
@@ -3360,7 +3360,7 @@ double f_bend(double b0L[])
   SetbnL_sys(Fnum_Cart, Dip, b0L[1]);
 
   ps.zero();
-  Cell_Pass(Elem_GetPos(Fnum_Cart, 1)-1, Elem_GetPos(Fnum_Cart, 1),
+  Cell_Pass(Lattice.Elem_GetPos(Fnum_Cart, 1)-1, Lattice.Elem_GetPos(Fnum_Cart, 1),
 	    ps, lastpos);
 
   if (n_iter_Cart % n_prt == 0)

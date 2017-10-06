@@ -136,8 +136,8 @@ void prt_symm(const std::vector<int> &Fam)
 
   for (j = 0; j < (int)Fam.size(); j++) {
     printf("\n");
-    for (k = 1; k <= GetnKid(Fam[j]); k++) {
-      loc = Elem_GetPos(Fam[j], k);
+    for (k = 1; k <= Lattice.GetnKid(Fam[j]); k++) {
+      loc = Lattice.Elem_GetPos(Fam[j], k);
       if (k % 2 == 0) loc -= 1;
       printf(" %5.1f %6.3f %6.3f %6.3f\n",
 	     Lattice.Cell[loc].S, Lattice.Cell[loc].Beta[X_],
@@ -155,11 +155,11 @@ void prt_quad(const std::vector<int> &Fam)
 
   printf("\n");
   for (j = 0; j < (int)Fam.size(); j++) {
-    loc = Elem_GetPos(Fam[j], 1);
+    loc = Lattice.Elem_GetPos(Fam[j], 1);
     printf(" %4.1f %6.3f %6.3f %2d\n",
 	   Lattice.Cell[loc].S,
 	   Lattice.Cell[loc].Beta[X_], Lattice.Cell[loc].Beta[Y_],
-	   GetnKid(Fam[j]));
+	   Lattice.GetnKid(Fam[j]));
   }
 }
 
@@ -187,8 +187,8 @@ void chk_mini_beta(const std::vector<int> &Fam)
 
   for (j = 0; j < (int)Fam.size(); j++) {
     printf("\n");
-    for (k = 1; k <= GetnKid(Fam[j]); k++) {
-      loc = Elem_GetPos(Fam[j], k);
+    for (k = 1; k <= Lattice.GetnKid(Fam[j]); k++) {
+      loc = Lattice.Elem_GetPos(Fam[j], k);
       if (k % 2 == 1) {
 	nu0[X_] = Lattice.Cell[loc].Nu[X_]; nu0[Y_] = Lattice.Cell[loc].Nu[Y_];
       } else {
@@ -211,14 +211,14 @@ void chk_high_oord_achr(void)
 
   Lattice.Ring_GetTwiss(true, 0e0);
  
-  loc[0] = Elem_GetPos(Lattice.Elem_Index("ss1"), 1);
-  loc[1] = Elem_GetPos(Lattice.Elem_Index("ss1"), 3);
-  loc[2] = Elem_GetPos(Lattice.Elem_Index("ss1"), 5);
+  loc[0] = Lattice.Elem_GetPos(Lattice.Elem_Index("ss1"), 1);
+  loc[1] = Lattice.Elem_GetPos(Lattice.Elem_Index("ss1"), 3);
+  loc[2] = Lattice.Elem_GetPos(Lattice.Elem_Index("ss1"), 5);
   loc[3] = globval.Cell_nLoc;
 
-  // loc[0] = Elem_GetPos(Lattice.Elem_Index("idmarker_end"), 1);
-  // loc[1] = Elem_GetPos(Lattice.Elem_Index("idmarker_end"), 3);
-  // loc[2] = Elem_GetPos(Lattice.Elem_Index("idmarker_end"), 5);
+  // loc[0] = Lattice.Elem_GetPos(Lattice.Elem_Index("idmarker_end"), 1);
+  // loc[1] = Lattice.Elem_GetPos(Lattice.Elem_Index("idmarker_end"), 3);
+  // loc[2] = Lattice.Elem_GetPos(Lattice.Elem_Index("idmarker_end"), 5);
   // loc[3] = globval.Cell_nLoc;
 
   printf("\nCell phase advance:\n");
@@ -246,8 +246,8 @@ void chk_b3_Fam(const int Fnum, const bool exit)
   int k, loc;
 
   printf("\n");
-  for (k = 1; k <= GetnKid(Fnum); k++) {
-    loc = Elem_GetPos(Fnum, k);
+  for (k = 1; k <= Lattice.GetnKid(Fnum); k++) {
+    loc = Lattice.Elem_GetPos(Fnum, k);
     if (!exit && ((k-1) % 2 == 1)) loc -= 1;
     printf("%8s %7.5f %7.5f\n",
 	   Lattice.Cell[loc].Elem.PName,
@@ -315,7 +315,7 @@ void chk_dip(void)
   printf("\nLong grad dipole:\n");
   L_sum = 0e0; phi_sum = 0e0;
   for (k = 0; k < n_dip; k++) {
-    loc = Elem_GetPos(Fnum[k], 1);
+    loc = Lattice.Elem_GetPos(Fnum[k], 1);
     L = Lattice.Cell[loc].Elem.PL;
     phi = L*Lattice.Cell[loc].Elem.M->Pirho*180e0/M_PI;
     L_sum += L; phi_sum += phi;
@@ -364,7 +364,7 @@ int main(int argc, char *argv[])
     Lattice.rdmfile(argv[1]);
 
   if (false) {
-    loc = Elem_GetPos(Lattice.Elem_Index("bb"), 1);
+    loc = Lattice.Elem_GetPos(Lattice.Elem_Index("bb"), 1);
     map.identity();
     // Tweak to remain within field map range at entrance.
     tweak = true;
@@ -541,7 +541,7 @@ int main(int argc, char *argv[])
     globval.Cavity_on = false; globval.radiation = false;
 
     f_rf =
-      Lattice.Cell[Elem_GetPos(Lattice.Elem_Index("cav"), 1)].Elem.C->Pfreq;
+      Lattice.Cell[Lattice.Elem_GetPos(Lattice.Elem_Index("cav"), 1)].Elem.C->Pfreq;
     printf("\nf_rf = %10.3e\n", f_rf);
 
     globval.Cavity_on = true;
