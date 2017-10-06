@@ -165,7 +165,7 @@ void LoadAlignTol(const char *AlignFile, const bool Scale_it,
 				  dx, dy, dr_deg);
 	    }
 	} else {
-	  Fnum = ElemIndex(Name);
+	  Fnum = Lattice.Elem_Index(Name);
 	  if(Fnum > 0) {
 	    printf("misaligning all %s:  dx = %e, dy = %e, dr = %e\n",
 		   Name, dx, dy, dr);
@@ -293,7 +293,7 @@ void get_cod_rms_data(const int n_seed, const int nfam, const int fnums[], const
     for (j = 0; j < nfam; j++)
       misalign_rms_fam(fnums[j], dx, dy, dr, true);
     
-    cod = orb_corr(3);
+    cod = Lattice.orb_corr(3);
     
     if (cod) {
       
@@ -308,13 +308,13 @@ void get_cod_rms_data(const int n_seed, const int nfam, const int fnums[], const
 	    x2[j][k] += sqr(Lattice.Cell[j].BeamPos[k]);
 	  }
 	  
-	  if ( (Lattice.Cell[j].Fnum == ElemIndex("corr_h")) || (Lattice.Cell[j].Fnum == ElemIndex("corr_v")) ){ // read back corr strength at corr
+	  if ( (Lattice.Cell[j].Fnum == Lattice.Elem_Index("corr_h")) || (Lattice.Cell[j].Fnum == Lattice.Elem_Index("corr_v")) ){ // read back corr strength at corr
 	    get_bnL_design_elem(Lattice.Cell[j].Fnum, Lattice.Cell[j].Knum, Dip, b1L, a1L);
-	    if ( Lattice.Cell[j].Fnum == ElemIndex("corr_h") ){
+	    if ( Lattice.Cell[j].Fnum == Lattice.Elem_Index("corr_h") ){
 	      ncorr[X_]++;
 	      theta1[ncorr[X_]-1][X_] += b1L;
 	      theta2[ncorr[X_]-1][X_] += sqr(b1L);
-	    } else if ( Lattice.Cell[j].Fnum == ElemIndex("corr_v") ){
+	    } else if ( Lattice.Cell[j].Fnum == Lattice.Elem_Index("corr_v") ){
 	      ncorr[Y_]++;
 	      theta1[ncorr[Y_]-1][Y_] += a1L;
 	      theta2[ncorr[Y_]-1][Y_] += sqr(a1L);
@@ -339,13 +339,13 @@ void get_cod_rms_data(const int n_seed, const int nfam, const int fnums[], const
 			     /(n_seed*(n_seed-1.0)));
       }
       
-      if ( Lattice.Cell[j].Fnum == ElemIndex("corr_h") ){
+      if ( Lattice.Cell[j].Fnum == Lattice.Elem_Index("corr_h") ){
 	ncorr[X_]++;
 	theta_mean[ncorr[X_]-1][X_] = theta1[ncorr[X_]-1][X_]/n_seed;
 	theta_sigma[ncorr[X_]-1][X_] = sqrt((n_seed*theta2[ncorr[X_]-1][X_]-sqr(theta1[ncorr[X_]-1][X_]))
 					    /(n_seed*(n_seed-1.0)));
 	
-      } else if ( Lattice.Cell[j].Fnum == ElemIndex("corr_v") ){
+      } else if ( Lattice.Cell[j].Fnum == Lattice.Elem_Index("corr_v") ){
 	ncorr[Y_]++;
 	theta_mean[ncorr[Y_]-1][Y_] = theta1[ncorr[Y_]-1][Y_]/n_seed;
 	theta_sigma[ncorr[Y_]-1][Y_] = sqrt((n_seed*theta2[ncorr[Y_]-1][Y_]-sqr(theta1[ncorr[Y_]-1][Y_]))
@@ -389,12 +389,12 @@ void prt_cod_rms_data(const char name[], double x_mean[][6], double x_sigma[][6]
 	    1e3*x_mean[j][x_], 1e3*x_sigma[j][x_],
 	    1e3*x_mean[j][y_], 1e3*x_sigma[j][y_]);
    
-    if ( Lattice.Cell[j].Fnum == ElemIndex("corr_h") ){
+    if ( Lattice.Cell[j].Fnum == Lattice.Elem_Index("corr_h") ){
       ncorr[X_]++;
       fprintf(fp, " %10.3e +/- %10.3e %10.3e +/- %10.3e\n",
 	      1e3*theta_mean[ncorr[X_]-1][X_], 1e3*theta_sigma[ncorr[X_]-1][X_], 0.0, 0.0);
 
-    } else if ( Lattice.Cell[j].Fnum == ElemIndex("corr_v") ){
+    } else if ( Lattice.Cell[j].Fnum == Lattice.Elem_Index("corr_v") ){
       ncorr[Y_]++;
       fprintf(fp, " %10.3e +/- %10.3e %10.3e +/- %10.3e\n",
 	      0.0, 0.0, 1e3*theta_mean[ncorr[Y_]-1][Y_], 1e3*theta_sigma[ncorr[Y_]-1][Y_]);
@@ -410,7 +410,7 @@ void prt_cod_rms_data(const char name[], double x_mean[][6], double x_sigma[][6]
 void add_family( const char *name, int &nfam, int fnums[] )
 {
   int fnum;
-  fnum = ElemIndex(name); // if the family doesn't exist code bails here
+  fnum = Lattice.Elem_Index(name); // if the family doesn't exist code bails here
   if (fnum != 0)
     fnums[nfam++] = fnum;
   else {                  // hence this is useless
@@ -482,7 +482,7 @@ bool orb_corr_scl(const int n_orbit)
   
   globval.CODvect.zero();
   for (i = 1; i <= n_orbit2; i++) {
-    cod = getcod(0.0, lastpos);
+    cod = Lattice.getcod(0.0, lastpos);
     if (cod) {
       codstat(xmean, xsigma, xmax, globval.Cell_nLoc, false); //false = take values only at BPM positions
       printf("\n");
@@ -491,13 +491,13 @@ bool orb_corr_scl(const int n_orbit)
       if (n_orbit != 0) {
 	// J.B. 08/24/17 ->
 	// The call to:
-	//   gcmat(ElemIndex("bpm_m"), ElemIndex("corr_h"), 1); gcmat(ElemIndex("bpm_m"), ElemIndex("corr_v"), 2);
+	//   gcmat(Lattice.Elem_Index("bpm_m"), Lattice.Elem_Index("corr_h"), 1); gcmat(Lattice.Elem_Index("bpm_m"), Lattice.Elem_Index("corr_v"), 2);
    	// configures the bpm system.
-	// lsoc(1, ElemIndex("bpm_m"), ElemIndex("corr_h"), 1);  //updated from older T3 version
-	// lsoc(1, ElemIndex("bpm_m"), ElemIndex("corr_v"), 2);  //updated from older T3 version
+	// lsoc(1, Lattice.Elem_Index("bpm_m"), Lattice.Elem_Index("corr_h"), 1);  //updated from older T3 version
+	// lsoc(1, Lattice.Elem_Index("bpm_m"), Lattice.Elem_Index("corr_v"), 2);  //updated from older T3 version
 	lsoc(1, scl); lsoc(2, scl);
 	// -> J.B. 08/24/17:
-	cod = getcod(0.0, lastpos);
+	cod = Lattice.getcod(0.0, lastpos);
 	if (cod) {
 	  codstat(xmean, xsigma, xmax, globval.Cell_nLoc, false); //false = take values only at BPM positions
 	  printf("RMS orbit [mm]: %8.1e +/- %7.1e, %8.1e +/- %7.1e\n", 
@@ -509,7 +509,7 @@ bool orb_corr_scl(const int n_orbit)
       printf("orb_corr: failed\n");
   }
   
-  prt_cod("orb_corr.out", ElemIndex("bpm_m"), true);  //updated from older T3 version
+  Lattice.prt_cod("orb_corr.out", Lattice.Elem_Index("bpm_m"), true);  //updated from older T3 version
 
   return cod;
 }
@@ -584,8 +584,8 @@ void get_cod_rms_scl_new(const int n_seed)
       cod = orb_corr_scl(3);  // use orb_corr_scl(0) to show orbit deviations BEFORE correction -> ampl. factor
                               // use orb_corr_scl(3) to correct orbit in 3 iterations
     // get coupling, ver. disp., etc. BEFORE/after correction
-    GetEmittance(ElemIndex("cav"), true);
-    prt_beamsizes(); // writes beam_envelope.out; contains sigmamatrix(s), theta(s)
+    Lattice.GetEmittance(Lattice.Elem_Index("cav"), true);
+    Lattice.prt_beamsizes(); // writes beam_envelope.out; contains sigmamatrix(s), theta(s)
 
 
     /////////////////////////////////////////////////////////////////////
@@ -649,13 +649,13 @@ void get_cod_rms_scl_new(const int n_seed)
 	    x2[j][k] += sqr(Lattice.Cell[j].BeamPos[k]);
 	  }
 	  
-	  if ( (Lattice.Cell[j].Fnum == ElemIndex("corr_h") ) || (Lattice.Cell[j].Fnum == ElemIndex("corr_v")) ){ // read back corr strength at corr
+	  if ( (Lattice.Cell[j].Fnum == Lattice.Elem_Index("corr_h") ) || (Lattice.Cell[j].Fnum == Lattice.Elem_Index("corr_v")) ){ // read back corr strength at corr
 	    get_bnL_design_elem(Lattice.Cell[j].Fnum, Lattice.Cell[j].Knum, Dip, b1L, a1L);
-	    if ( Lattice.Cell[j].Fnum == ElemIndex("corr_h") ){
+	    if ( Lattice.Cell[j].Fnum == Lattice.Elem_Index("corr_h") ){
 	      ncorr[X_]++;
 	      theta1[ncorr[X_]-1][X_] += b1L;
 	      theta2[ncorr[X_]-1][X_] += sqr(b1L);
-	    } else if ( Lattice.Cell[j].Fnum == ElemIndex("corr_v") ){
+	    } else if ( Lattice.Cell[j].Fnum == Lattice.Elem_Index("corr_v") ){
 	      ncorr[Y_]++;
 	      theta1[ncorr[Y_]-1][Y_] += a1L;
 	      theta2[ncorr[Y_]-1][Y_] += sqr(a1L);
@@ -680,13 +680,13 @@ void get_cod_rms_scl_new(const int n_seed)
 			     /(n_seed*(n_seed-1.0)));
       }
       
-      if ( Lattice.Cell[j].Fnum == ElemIndex("corr_h") ){
+      if ( Lattice.Cell[j].Fnum == Lattice.Elem_Index("corr_h") ){
 	ncorr[X_]++;
 	theta_mean[ncorr[X_]-1][X_] = theta1[ncorr[X_]-1][X_]/n_seed;
 	theta_sigma[ncorr[X_]-1][X_] = sqrt((n_seed*theta2[ncorr[X_]-1][X_]-sqr(theta1[ncorr[X_]-1][X_]))
 					    /(n_seed*(n_seed-1.0)));
 	
-      } else if ( Lattice.Cell[j].Fnum == ElemIndex("corr_v") ){
+      } else if ( Lattice.Cell[j].Fnum == Lattice.Elem_Index("corr_v") ){
 	ncorr[Y_]++;
 	theta_mean[ncorr[Y_]-1][Y_] = theta1[ncorr[Y_]-1][Y_]/n_seed;
 	theta_sigma[ncorr[Y_]-1][Y_] = sqrt((n_seed*theta2[ncorr[Y_]-1][Y_]-sqr(theta1[ncorr[Y_]-1][Y_]))
@@ -719,8 +719,8 @@ double get_dynap_scl(const double delta, const int n_track2)
 
   fp = file_write("dynap.out");
   // J.B. 08/24/17: added cod. //cod used to be hard-coded as on, now it's an option; set to true to behave as before
-  dynap(fp, 5e-3, 0.0, 0.1e-3, n_aper, n_track2, x_aper, y_aper, false, cod,
-	prt);
+  Lattice.dynap(fp, 5e-3, 0.0, 0.1e-3, n_aper, n_track2, x_aper, y_aper, false,
+		cod, prt);
 
   fclose(fp);
   DA = get_aper(n_aper, x_aper, y_aper);
@@ -729,8 +729,8 @@ double get_dynap_scl(const double delta, const int n_track2)
     sprintf(str, "dynap_dp%3.1f.out", 1e2*delta);
     fp = file_write(str);
     // J.B. 08/24/17: added cod.
-    dynap(fp, 5e-3, delta, 0.1e-3, n_aper, n_track2,
-	  x_aper, y_aper, false, cod, prt);
+    Lattice.dynap(fp, 5e-3, delta, 0.1e-3, n_aper, n_track2,
+		  x_aper, y_aper, false, cod, prt);
     fclose(fp);
     DA += get_aper(n_aper, x_aper, y_aper);
 
@@ -739,8 +739,8 @@ double get_dynap_scl(const double delta, const int n_track2)
     sprintf(str, "dynap_dp%3.1f.out", -1e2*delta);
     fp = file_write(str);
     // J.B. 08/24/17: added cod.
-    dynap(fp, 5e-3, -delta, 0.1e-3, n_aper,
-	  n_track2, x_aper, y_aper, false, cod, prt);
+    Lattice.dynap(fp, 5e-3, -delta, 0.1e-3, n_aper,
+		  n_track2, x_aper, y_aper, false, cod, prt);
     fclose(fp);
     DA += get_aper(n_aper, x_aper, y_aper);
   }
@@ -867,22 +867,22 @@ int main(int argc, char *argv[])
 
 
   if (true)
-    Read_Lattice(argv[1]); //sets some globval params
+    Lattice.Read_Lattice(argv[1]); //sets some globval params
   else
-    rdmfile("flat_file.dat"); //instead of reading lattice file, get data from flat file
+    Lattice.rdmfile("flat_file.dat"); //instead of reading lattice file, get data from flat file
 
   //no_sxt(); //turns off sextupoles
 
-  Ring_GetTwiss(true, 0e-2); printglob(); //gettwiss computes one-turn matrix arg=(w or w/o chromat, dp/p)
-  // prt_lat("linlat.out", ElemIndex("bpm_m"), true);  //updated from older T3 version
+  Lattice.Ring_GetTwiss(true, 0e-2); printglob(); //gettwiss computes one-turn matrix arg=(w or w/o chromat, dp/p)
+  // prt_lat("linlat.out", Lattice.Elem_Index("bpm_m"), true);  //updated from older T3 version
   // Print linear optics at end of each element.
-  prt_lat("linlat1.out", globval.bpm, true);
+  Lattice.prt_lat("linlat1.out", globval.bpm, true);
   // Pretty print of linear optics functions through elements.
-  prt_lat("linlat.out", globval.bpm, true, 10);
+  Lattice.prt_lat("linlat.out", globval.bpm, true, 10);
 
   get_matching_params_scl();
   get_alphac2_scl();
-  GetEmittance(ElemIndex("cav"), true);
+  Lattice.GetEmittance(Lattice.Elem_Index("cav"), true);
   //prt_beamsizes(); // writes beam_envelope.out; contains sigmamatrix(s), theta(s)
 
  //prtmfile("flat_file.dat"); // writes flat file
@@ -894,21 +894,21 @@ int main(int argc, char *argv[])
 
   // to check that there are no extra kicks anywhere (ID models!)
   //getcod(0.0, lastpos);
-  //prt_cod("cod.out", ElemIndex("bpm_m"), true);  //updated from older T3 version
+  //prt_cod("cod.out", Lattice.Elem_Index("bpm_m"), true);  //updated from older T3 version
 
 
   if (false) {
-    //globval.bpm = ElemIndex("bpm_m");  // broken in new T3 version
-    //globval.hcorr = ElemIndex("corr_h"); globval.vcorr = ElemIndex("corr_v");  // broken in new T3 version
-    globval.gs = ElemIndex("GS"); globval.ge = ElemIndex("GE");
+    //globval.bpm = Lattice.Elem_Index("bpm_m");  // broken in new T3 version
+    //globval.hcorr = Lattice.Elem_Index("corr_h"); globval.vcorr = Lattice.Elem_Index("corr_v");  // broken in new T3 version
+    globval.gs = Lattice.Elem_Index("GS"); globval.ge = Lattice.Elem_Index("GE");
 
     //prints a specific closed orbit with corrector strengths
     //getcod(0.0, lastpos);
-    //prt_cod("cod.out", ElemIndex("bpm_m"), true);  //updated from older T3 version
+    //prt_cod("cod.out", Lattice.Elem_Index("bpm_m"), true);  //updated from older T3 version
    
 
     // compute response matrix (needed for OCO)
-    gcmat(ElemIndex("bpm_m"), ElemIndex("corr_h"), 1); gcmat(ElemIndex("bpm_m"), ElemIndex("corr_v"), 2);
+    gcmat(Lattice.Elem_Index("bpm_m"), Lattice.Elem_Index("corr_h"), 1); gcmat(Lattice.Elem_Index("bpm_m"), Lattice.Elem_Index("corr_v"), 2);
     // print response matrix (routine in lsoc.cc)
     prt_gcmat(1);  prt_gcmat(2);
     // gets response matrix, does svd, evaluates correction for N seed orbits
@@ -925,7 +925,7 @@ int main(int argc, char *argv[])
     //LoadAlignTol("/Users/simon/Documents/Work/Codes/Tracy/tracy-3.5-master/projects/in/lattice/AlignErr.m4.20140130.dat", true, 1.0, true, 1);
     //finds a specific closed orbit with corrector strengths and prints all to file
     //getcod(0.0, lastpos);
-    //prt_cod("cod_err.out", ElemIndex("bpm_m"), true);  //updated from older T3 version
+    //prt_cod("cod_err.out", Lattice.Elem_Index("bpm_m"), true);  //updated from older T3 version
      
     // load alignment errors and field errors, correct orbit, repeat N times, and get statistics
     get_cod_rms_scl_new(5); //trim coils aren't reset when finished
@@ -939,8 +939,8 @@ int main(int argc, char *argv[])
   if (false) {
     cout << endl;
     cout << "computing tune shifts" << endl;
-    dnu_dA(12e-3, 5e-3, 0.0, 25);  // the final argument 25 defines the number of amplitude steps
-    get_ksi2(delta); // this gets the chromas and writes them into chrom2.out
+    Lattice.dnu_dA(12e-3, 5e-3, 0.0, 25);  // the final argument 25 defines the number of amplitude steps
+    Lattice.get_ksi2(delta); // this gets the chromas and writes them into chrom2.out
   }
   
   if (false) {
@@ -968,7 +968,7 @@ int main(int argc, char *argv[])
     double  sum_delta[globval.Cell_nLoc+1][2];
     double  sum2_delta[globval.Cell_nLoc+1][2];
     
-    GetEmittance(ElemIndex("cav"), true);
+    Lattice.GetEmittance(Lattice.Elem_Index("cav"), true);
     
     // initialize momentum aperture arrays
     for(k = 0; k <= globval.Cell_nLoc; k++){
@@ -1004,8 +1004,8 @@ int main(int argc, char *argv[])
     
     globval.delta_RF = 7.062e-2; //globval.delta_RF given by cav voltage in lattice file
 
-    Touschek(Qb, globval.delta_RF, globval.eps[X_], globval.eps[Y_],
-    	     sigma_delta, sigma_s);
+    Lattice.Touschek(Qb, globval.delta_RF, globval.eps[X_], globval.eps[Y_],
+		     sigma_delta, sigma_s);
           
 
     // IBS
@@ -1015,7 +1015,7 @@ int main(int argc, char *argv[])
 	eps[k] = globval.eps[k];
       for(k = 0; k < 10; k++){ //prototype (looping because IBS routine doesn't check convergence)
 	cout << endl << "*** IBS iteration step " << k << " ***";
-	IBS_BM(Qb, globval.eps, eps, true, true);  // use IBS_BM instead of old IBS // 20170814: results likely cannot be trusted
+	Lattice.IBS_BM(Qb, globval.eps, eps, true, true);  // use IBS_BM instead of old IBS // 20170814: results likely cannot be trusted
       }
     }
     
@@ -1027,8 +1027,8 @@ int main(int argc, char *argv[])
       //sigma_delta     = 0.8504e-3;
       //sigma_s         = 54.51e-3;
 
-      Touschek(Qb, globval.delta_RF, globval.eps[X_], globval.eps[Y_],
-	       sigma_delta, sigma_s);
+      Lattice.Touschek(Qb, globval.delta_RF, globval.eps[X_], globval.eps[Y_],
+		       sigma_delta, sigma_s);
       
       n_turns = 446; // track for one synchr.osc. -> 1/nu_s (M4 bare @ 1.8MV -> 446, 20130515)
                      //                                     (M5 bare @ 560 kV -> 419)
@@ -1038,10 +1038,10 @@ int main(int argc, char *argv[])
       
       //globval.delta_RF = 15e-2; //set globval.delta_RF very high to get lattice MA only
       
-      tau = Touschek(Qb, globval.delta_RF, false,
-		     globval.eps[X_], globval.eps[Y_],
-		     sigma_delta, sigma_s,
-		     n_turns, true, sum_delta, sum2_delta); //the TRUE flag requires apertures loaded
+      tau = Lattice.Touschek(Qb, globval.delta_RF, false,
+			     globval.eps[X_], globval.eps[Y_],
+			     sigma_delta, sigma_s,
+			     n_turns, true, sum_delta, sum2_delta); //the TRUE flag requires apertures loaded
       
       printf("Touschek lifetime = %10.3e hrs\n", tau/3600.0);
       

@@ -98,5 +98,65 @@ class Lattice_Type {
 
   void ttwiss(const Vector2 &alpha, const Vector2 &beta,
 	      const Vector2 &eta, const Vector2 &etap, const double dP);
+
+  // From nsls-ii_lib.cc.
+
+  double get_eps_x(void);
+
+  void GetEmittance(const int Fnum, const bool prt);
+
+  void prt_lat(const int loc1, const int loc2, const char *fname,
+	       const int Fnum, const bool all);
+
+  void prt_lat(const char *fname, const int Fnum, const bool all);
+
+  void Cell_Twiss(const long int i0, const long int i1);
+
+  void prt_lat(const int loc1, const int loc2, const char *fname,
+	       const int Fnum, const bool all, const int n);
+
+  void prt_lat(const char *fname, const int Fnum, const bool all, const int n);
+
+  void prt_chrom_lat(void);
+
+  void prt_cod(const char *file_name, const int Fnum, const bool all);
+
+  void prt_beampos(const char *file_name);
+
+  void CheckAlignTol(const char *OutputFile);
+
+  bool CorrectCOD(const int n_orbit, const double scl);
+
+  void prt_beamsizes();
+
+  double Touschek(const double Qb, const double delta_RF,
+		  const double eps_x, const double eps_y,
+		  const double sigma_delta, const double sigma_s);
+
+  double Touschek(const double Qb, const double delta_RF,const bool consistent,
+		  const double eps_x, const double eps_y,
+		  const double sigma_delta, double sigma_s,
+		  const int n_turn, const bool aper_on,
+		  double sum_delta[][2], double sum2_delta[][2]);
+
+  void IBS(const double Qb, const double eps_SR[], double eps[],
+	   const bool prt1, const bool prt2);
+
+  void IBS_BM(const double Qb, const double eps_SR[], double eps[],
+	      const bool prt1, const bool prt2);
+
+  double get_dynap(const double delta, const int n_aper, const int n_track,
+		   const bool cod);
+
+  void get_ksi2(const double d_delta);
+
+  void dnu_dA(const double Ax_max, const double Ay_max, const double delta,
+	      const int n_ampl);
+
+  bool orb_corr(const int n_orbit);
+
+  void get_alphac(void);
+
+  void get_alphac2(void);
 };
 

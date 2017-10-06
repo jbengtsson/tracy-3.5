@@ -106,7 +106,7 @@ double f_opt(double prms[])
   f = scl_T566*sqr(T566-T566_ref) + sqr(x2d_intgrl) + sqr(px2d_intgrl);
 
   if (f < f_ref) {
-    prtmfile("flat_file.dat");
+    Lattice.prtmfile("flat_file.dat");
     pol_fit(n, deltas, ct_delta, n_pol, b, sigma, true);
     scan_delta(n, delta);
     cout << endl << scientific << setprecision(3)
@@ -135,8 +135,10 @@ void opt_nl_disp(void)
   prms = dvector(1, n_prm); xi = dmatrix(1, n_prm, 1, n_prm);
 
   i = 0;
-  Fnums[i++] = ElemIndex("a3s1"); Fnums[i++] = ElemIndex("a3s2");
-  Fnums[i++] = ElemIndex("a3s3"); Fnums[i++] = ElemIndex("a3s4");
+  Fnums[i++] = Lattice.Elem_Index("a3s1");
+  Fnums[i++] = Lattice.Elem_Index("a3s2");
+  Fnums[i++] = Lattice.Elem_Index("a3s3");
+  Fnums[i++] = Lattice.Elem_Index("a3s4");
 
   for (i = 0; i < n_prm; i++) {
     get_bn_design_elem(Fnums[i], 1, Sext, prms[i+1], an);
@@ -244,7 +246,7 @@ void get_optics(const string &line)
     beta[X_] = 1.2413; beta[Y_] = 1.4246;
   }
  
-  ttwiss(alpha, beta, eta, etap, 0e0);
+  Lattice.ttwiss(alpha, beta, eta, etap, 0e0);
 
   get_nu(0e0, nu); get_ksi(ksi);
   cout << fixed << setprecision(5)
@@ -273,7 +275,7 @@ double get_disp(const double eta_x0)
   do {
     k++;
     beta[X_] = 1e0; beta[Y_] = 1e0; eta[X_] = eta_x;
-    ttwiss(alpha, beta, eta, etap, 0e0);
+    Lattice.ttwiss(alpha, beta, eta, etap, 0e0);
     d = Lattice.Cell[globval.Cell_nLoc].Eta[X_] - eta_x; eta_x += d/2e0;
     cout << fixed << setprecision(5)
 	 << setw(3) << k << setw(9) << eta_x << endl;
@@ -419,7 +421,8 @@ void prt_dnu(const int n, const double delta[])
 
   const string file_name = "dnu.out";
 
-  ttwiss(Lattice.Cell[0].Alpha, Lattice.Cell[0].Beta, Lattice.Cell[0].Eta, Lattice.Cell[0].Etap, 0e0);
+  Lattice.ttwiss(Lattice.Cell[0].Alpha, Lattice.Cell[0].Beta,
+		 Lattice.Cell[0].Eta, Lattice.Cell[0].Etap, 0e0);
 
   for (k = 0; k <= globval.Cell_nLoc; k++)
     for (l = 0; l < 2; l++)
@@ -428,7 +431,8 @@ void prt_dnu(const int n, const double delta[])
   cout << endl;
   for (j = 0; j < n; j++) {
     cout << scientific << setprecision(3) << setw(11) << 1e2*delta[j] << endl;
-    ttwiss(Lattice.Cell[0].Alpha, Lattice.Cell[0].Beta, Lattice.Cell[0].Eta, Lattice.Cell[0].Etap, delta[j]);
+    Lattice.ttwiss(Lattice.Cell[0].Alpha, Lattice.Cell[0].Beta,
+		   Lattice.Cell[0].Eta, Lattice.Cell[0].Etap, delta[j]);
     for (k = 0; k <= globval.Cell_nLoc; k++)
       for (l = 0; l < 2; l++)
 	dnu[j][k][l] = Lattice.Cell[k].Nu[l] - dnu0[k][l];
@@ -662,9 +666,9 @@ int main(int argc, char *argv[])
   }
 
   if (argv[2][0] == 'y')
-    rdmfile(argv[1]);
+    Lattice.rdmfile(argv[1]);
   else {
-    Read_Lattice((home_dir + argv[1]).c_str());
+    Lattice.Read_Lattice((home_dir+argv[1]).c_str());
     if (false) no_sxt();
   }
 
@@ -672,7 +676,7 @@ int main(int argc, char *argv[])
 
   get_lin_map(beta);
 
-  prtmfile("flat_file.dat");
+  Lattice.prtmfile("flat_file.dat");
 
   if (false) opt_nl_disp();
 
@@ -701,11 +705,11 @@ int main(int argc, char *argv[])
   if (false) get_disp(0.6);
 
   if (false) {
-    Ring_GetTwiss(true, 0.0); printglob();
+    Lattice.Ring_GetTwiss(true, 0.0); printglob();
   }
 
-  prt_lat("linlat1.out", globval.bpm, true);
-  prt_lat("linlat.out", globval.bpm, true, 10);
+  Lattice.prt_lat("linlat1.out", globval.bpm, true);
+  Lattice.prt_lat("linlat.out", globval.bpm, true, 10);
 
   if (true) {
     prt_twoJ(4, A);

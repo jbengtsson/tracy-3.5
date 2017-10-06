@@ -26,20 +26,20 @@ int main(int argc, char *argv[])
   globval.pathlength = false; globval.bpm         = 0;
 
   if (false)
-    Read_Lattice(argv[1]);
+    Lattice.Read_Lattice(argv[1]);
   else
-    rdmfile(argv[1]);
+    Lattice.rdmfile(argv[1]);
 
-  Ring_GetTwiss(true, 0e0); printglob();
+  Lattice.Ring_GetTwiss(true, 0e0); printglob();
 
-  prt_lat("linlat1.out", globval.bpm, true);
-  prt_lat("linlat.out", globval.bpm, true, 10);
+  Lattice.prt_lat("linlat1.out", globval.bpm, true);
+  Lattice.prt_lat("linlat.out", globval.bpm, true, 10);
 
-  if (true) GetEmittance(ElemIndex("cav"), true);
+  if (true) Lattice.GetEmittance(Lattice.Elem_Index("cav"), true);
 
   if (true) {
     globval.Cavity_on = true;
-    get_dynap(delta_max[lat_case-1], 25, n_turn, false);
+    Lattice.get_dynap(delta_max[lat_case-1], 25, n_turn, false);
   }
 
 }

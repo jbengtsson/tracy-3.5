@@ -316,7 +316,7 @@ int main(int argc, char *argv[])
   // disable from TPSALib and LieLib log messages
   idprset(-1);
 
-  Read_Lattice(argv[1]);
+  Lattice.Read_Lattice(argv[1]);
 
   // no_sxt();
 
@@ -334,8 +334,8 @@ int main(int argc, char *argv[])
     if (tweak) {
       dx = -1.4e-3; map[x_] += dx;
     }
-    Cell_Pass(Elem_GetPos(ElemIndex("bb"), 1),
-	      Elem_GetPos(ElemIndex("bb"), 1), map, lastpos);
+    Cell_Pass(Elem_GetPos(Lattice.Elem_Index("bb"), 1),
+	      Elem_GetPos(Lattice.Elem_Index("bb"), 1), map, lastpos);
     if (tweak) map[x_] -= dx;
 
     h = LieFact_DF(map, R);
@@ -372,7 +372,7 @@ int main(int argc, char *argv[])
   }
 
   if (false) {
-    map = get_fix_point(ElemIndex("bb"));
+    map = get_fix_point(Lattice.Elem_Index("bb"));
 
     prt_lin_map(3, map);
 
@@ -413,8 +413,8 @@ int main(int argc, char *argv[])
   if (true) {
     trace = true;
 
-    Ring_GetTwiss(true, 0.0); printglob();
+    Lattice.Ring_GetTwiss(true, 0.0); printglob();
 
-    prt_lat("linlat.out", globval.bpm, true);  
+    Lattice.prt_lat("linlat.out", globval.bpm, true);  
   }
 }

@@ -1491,7 +1491,8 @@ bool param_data_type::CorrectCOD_N(const int n_orbit, const int k)
   for (j = 0; j < 2; j++)
     for (i = 1; i <= n_corr_[j]; i++) {
       loc = corrs_[j][i];
-      set_bnL_design_elem(Lattice.Cell[loc].Fnum, Lattice.Cell[loc].Knum, Dip, 0.0, 0.0);
+      set_bnL_design_elem(Lattice.Cell[loc].Fnum, Lattice.Cell[loc].Knum,
+			  Dip, 0.0, 0.0);
     }
 
   // load misalignments
@@ -1507,7 +1508,7 @@ bool param_data_type::CorrectCOD_N(const int n_orbit, const int k)
 
     // get_traject();
     
-    cod = CorrectCOD(n_orbit, 1e0);
+    cod = Lattice.CorrectCOD(n_orbit, 1e0);
 
     if (!cod) break;
 
@@ -1612,7 +1613,7 @@ bool param_data_type::cod_corr(const int n_cell, const double scl,
   printf("          rms dnu_x          = %7.5f, dnu_y          = %7.5f\n",
 	 s_dnu[X_], s_dnu[Y_]);
 
-  prt_cod("cod.out", globval.bpm, true);    
+  Lattice.prt_cod("cod.out", globval.bpm, true);    
 
   return cod;
 }

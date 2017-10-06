@@ -287,9 +287,9 @@ int main(int argc, char *argv[])
   idprset_(-1);
 
   if (false)
-    Read_Lattice(argv[1]);
+    Lattice.Read_Lattice(argv[1]);
   else {
-    rdmfile(argv[1]);
+    Lattice.rdmfile(argv[1]);
   }
 
   globval.EPU = true;
@@ -298,7 +298,7 @@ int main(int argc, char *argv[])
 
 //  Ring_GetTwiss(true, 0.0); printglob();
 
-  prt_lat("linlat.out", globval.bpm, true);
+  Lattice.prt_lat("linlat.out", globval.bpm, true);
 
   danot_(no_tps-1);
 

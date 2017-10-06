@@ -52,30 +52,6 @@ void get_twoJ(const int n_DOF, const ss_vect<double> &ps,
 double get_curly_H(const double alpha_x, const double beta_x,
 		   const double eta_x, const double etap_x);
 
-double get_eps_x(void);
-
-void GetEmittance(const int Fnum, const bool prt);
-
-void prt_lat(const int loc1, const int loc2, const char *fname, const int Fnum,
-	     const bool all);
-
-void prt_lat(const char *fname, const int Fnum, const bool all);
-
-void Cell_Twiss(const long int i0, const long int i1);
-
-void prt_lat(const int loc1, const int loc2, const char *fname, const int Fnum,
-	     const bool all, const int n);
-
-void prt_lat(const char *fname, const int Fnum, const bool all, const int n);
-
-void prt_chrom_lat(void);
-
-void prt_cod(const char *file_name, const int Fnum, const bool all);
-
-void prt_beampos(const char *file_name);
-
-void CheckAlignTol(const char *OutputFile);
-
 void misalign_rms_elem(const int Fnum, const int Knum,
 		       const double dx_rms, const double dy_rms,
 		       const double dr_rms, const bool new_rnd);
@@ -224,59 +200,25 @@ void SetFieldErrors(const char *name, const bool rms, const double r0,
 		    const int n, const double Bn, const double An,
 		    const bool new_rnd);
 
-bool CorrectCOD(const int n_orbit, const double scl);
-
-void prt_beamsizes();
-
-double Touschek(const double Qb, const double delta_RF,
-		const double eps_x, const double eps_y,
-		const double sigma_delta, const double sigma_s);
-
-double Touschek(const double Qb, const double delta_RF,const bool consistent,
-		const double eps_x, const double eps_y,
-		const double sigma_delta, double sigma_s,
-		const int n_turn, const bool aper_on,
-		double sum_delta[][2], double sum2_delta[][2]);
-
 double f_IBS(const double chi_m);
 
 double get_int_IBS(void);
 
-void IBS(const double Qb, const double eps_SR[], double eps[],
-	 const bool prt1, const bool prt2);
-
-void IBS_BM(const double Qb, const double eps_SR[], double eps[],
-	    const bool prt1, const bool prt2);
-
 void rm_space(char *name);
 
 void get_bn(const char file_name[], int n, const bool prt);
-
-double get_dynap(const double delta, const int n_aper, const int n_track,
-		 const bool cod);
 
 double get_chi2(long int n, double x[], double y[], long int m, psVector b);
 
 void pol_fit(int n, double x[], double y[], int order, psVector &b,
 	     double &sigma, const bool prt);
 
-void get_ksi2(const double d_delta);
-
 bool find_nu(const int n, const double nus[], const double eps, double &nu);
 
 bool get_nu(const double Ax, const double Ay, const double delta,
 	    double &nu_x, double &nu_y);
 
-void dnu_dA(const double Ax_max, const double Ay_max, const double delta,
-	    const int n_ampl);
-
-bool orb_corr(const int n_orbit);
-
 double get_code(CellType &Cell);
-
-void get_alphac(void);
-
-void get_alphac2(void);
 
 void bend_cal_Fam(const int Fnum);
 
@@ -288,12 +230,8 @@ double h_ijklm(const tps &h, const int i, const int j, const int k,
 ss_vect<tps> get_A(const double alpha[], const double beta[],
 		   const double eta[], const double etap[]);
 
-
 void get_ab(const ss_vect<tps> &A,
 	    double alpha[], double beta[], double nu[],
 	    double eta[], double etap[]);
 
 void set_tune(const char file_name1[], const char file_name2[], const int n);
-
-void prt_H_long(const int n, const double phi_max, const double delta_max,
-		const double U0);

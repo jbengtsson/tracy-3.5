@@ -43,7 +43,7 @@ void prt_H_long(const int n, const double phi_max, const double delta_max,
 
   get_alphac(alphac);
 
-  loc = Elem_GetPos(ElemIndex(cav_name.c_str()), 1);
+  loc = Elem_GetPos(Lattice.Elem_Index(cav_name.c_str()), 1);
   h_rf = Lattice.Cell[loc].Elem.C->Ph;
   V_rf = Lattice.Cell[loc].Elem.C->Pvolt;
 
@@ -130,13 +130,13 @@ int main(int argc, char *argv[])
   idprset_(-1);
 
   if (true)
-    Read_Lattice(argv[1]);
+    Lattice.Read_Lattice(argv[1]);
   else {
-    rdmfile(argv[1]);
+    Lattice.rdmfile(argv[1]);
   }
 
   danot_(1);
-  Ring_GetTwiss(true, 0e0); printglob();
+  Lattice.Ring_GetTwiss(true, 0e0); printglob();
 
   danot_(no_tps-1);
   get_map(false);

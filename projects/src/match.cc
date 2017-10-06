@@ -40,7 +40,7 @@ void param_type::add_prm(const std::string Fname, const int n,
 			 const double bn_min, const double bn_max,
 			 const double bn_scl)
 {
-  Fnum.push_back(ElemIndex(Fname.c_str()));
+  Fnum.push_back(Lattice.Elem_Index(Fname.c_str()));
   this->n.push_back(n);
   this->bn_min.push_back(bn_min);
   this->bn_max.push_back(bn_max);
@@ -229,9 +229,9 @@ void get_dnu_dp(const int i0, const int i1, const double alpha0[],
 
   printf("\n%10.8f %10.8f\n", dksi[X_], dksi[Y_]);
 
-  Ring_GetTwiss(true, dp);
+  Lattice.Ring_GetTwiss(true, dp);
   printf("\n%10.8f %10.8f\n", globval.TotalTune[X_], globval.TotalTune[Y_]);
-  Ring_GetTwiss(true, -dp);
+  Lattice.Ring_GetTwiss(true, -dp);
   printf("%10.8f %10.8f\n", globval.TotalTune[X_], globval.TotalTune[Y_]);
 }
 
@@ -244,10 +244,14 @@ void prt_match(const param_type &b2_prms, const double *b2)
 
   outf = file_write(file_name.c_str());
 
-  fprintf(outf, "l5h: drift, l = %7.5f;\n", get_L(ElemIndex("l5h"), 1));
-  fprintf(outf, "l6h: drift, l = %7.5f;\n", get_L(ElemIndex("l6h"), 1));
-  fprintf(outf, "l7:  drift, l = %7.5f;\n", get_L(ElemIndex("l7"), 1));
-  fprintf(outf, "l8:  drift, l = %7.5f;\n", get_L(ElemIndex("l8"), 1));
+  fprintf(outf, "l5h: drift, l = %7.5f;\n",
+	  get_L(Lattice.Elem_Index("l5h"), 1));
+  fprintf(outf, "l6h: drift, l = %7.5f;\n",
+	  get_L(Lattice.Elem_Index("l6h"), 1));
+  fprintf(outf, "l7:  drift, l = %7.5f;\n",
+	  get_L(Lattice.Elem_Index("l7"), 1));
+  fprintf(outf, "l8:  drift, l = %7.5f;\n",
+	  get_L(Lattice.Elem_Index("l8"), 1));
 
   fprintf(outf, "\nbm:  bending, l = 0.14559, t = 0.5, k = %9.5f, t1 = 0.0"
 	  ", t2 = 0.0,\n     gap = 0.00, N = Nbend, Method = Meth;\n", b2[1]);
@@ -274,7 +278,7 @@ double f_match(double *b2)
   b2_prms.set_prm(b2);
 
   Ascr = get_A(ic[0], ic[1], ic[2], ic[3]);
-  Cell_Twiss(loc[0]+1, loc[4], Ascr, false, false, 0e0);
+  Lattice.Cell_Twiss(loc[0]+1, loc[4], Ascr, false, false, 0e0);
 
   chi2 = 0e0;
   // chi2 += sqr(1e5*(Lattice.Cell[loc[1]].Eta[X_]));
@@ -294,9 +298,9 @@ double f_match(double *b2)
 
      // prt_match(b2_prms, b2);
 
-      prtmfile("flat_file.fit");
-      prt_lat(loc[0]+1, loc[4], "linlat1.out", globval.bpm, true);
-      prt_lat(loc[0]+1, loc[4], "linlat.out", globval.bpm, true, 10);
+      Lattice.prtmfile("flat_file.fit");
+      Lattice.prt_lat(loc[0]+1, loc[4], "linlat1.out", globval.bpm, true);
+      Lattice.prt_lat(loc[0]+1, loc[4], "linlat.out", globval.bpm, true, 10);
     }
   }
 
@@ -321,10 +325,10 @@ void fit_match(param_type &b2_prms)
   loc[1] = globval.Cell_nLoc;
 
   Ascr = get_A(ic[0], ic[1], ic[2], ic[3]);
-  Cell_Twiss(loc[0]+1, loc[1], Ascr, false, false, 0e0);
+  Lattice.Cell_Twiss(loc[0]+1, loc[1], Ascr, false, false, 0e0);
 
-  prt_lat(loc[0], loc[1], "linlat1.out", globval.bpm, true);
-  prt_lat(loc[0], loc[1], "linlat.out", globval.bpm, true, 10);
+  Lattice.prt_lat(loc[0], loc[1], "linlat1.out", globval.bpm, true);
+  Lattice.prt_lat(loc[0], loc[1], "linlat.out", globval.bpm, true, 10);
 
   for (j = 0; j < 2; j++) {
     alpha0[j] = Lattice.Cell[loc[0]].Alpha[j];
@@ -344,10 +348,10 @@ void fit_match(param_type &b2_prms)
   dpowell(b2, xi, n_b2, 1e-16, &iter, &fret, f_match);
 
   Ascr = get_A(ic[0], ic[1], ic[2], ic[3]);
-  Cell_Twiss(loc[0]+1, loc[3], Ascr, false, false, 0e0);
+  Lattice.Cell_Twiss(loc[0]+1, loc[3], Ascr, false, false, 0e0);
 
-  prt_lat(loc[0]+1, loc[5], "linlat1.out", globval.bpm, true);
-  prt_lat(loc[0]+1, loc[5], "linlat.out", globval.bpm, true, 10);
+  Lattice.prt_lat(loc[0]+1, loc[5], "linlat1.out", globval.bpm, true);
+  Lattice.prt_lat(loc[0]+1, loc[5], "linlat.out", globval.bpm, true, 10);
 
   free_dvector(b2, 1, n_b2);  free_dvector(b2_lim, 1, n_b2);
   free_dmatrix(xi, 1, n_b2, 1, n_b2);
@@ -364,13 +368,13 @@ int main(int argc, char *argv[])
   globval.pathlength = false; globval.bpm         = 0;
 
   if (true)
-    Read_Lattice(argv[1]);
+    Lattice.Read_Lattice(argv[1]);
   else
-    rdmfile(argv[1]);
+    Lattice.rdmfile(argv[1]);
 
   no_sxt();
 
-  Ring_GetTwiss(true, 0e0); printglob();
+  Lattice.Ring_GetTwiss(true, 0e0); printglob();
 
   // prt_lat("linlat1.out", globval.bpm, true);
   // prt_lat("linlat.out", globval.bpm, true, 10);

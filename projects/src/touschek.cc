@@ -38,7 +38,7 @@ void err_and_corr(const string &param_file)
 
     cod = params.cod_corr(params.n_cell, 1e0, orb_corr);
   } else
-    cod = getcod(0e0, lastpos);
+    cod = Lattice.getcod(0e0, lastpos);
 
   params.Orb_and_Trim_Stat();
 
@@ -47,15 +47,15 @@ void err_and_corr(const string &param_file)
     cod = params.cod_corr(params.n_cell, 1e0, orb_corr);
   }
 
-  prtmfile("flat_file.dat");
+  Lattice.prtmfile("flat_file.dat");
 
   if (cod) {
     printf("\nerr_and_corr: orbit correction completed\n");
-    prt_cod("cod.out", globval.bpm, true);
+    Lattice.prt_cod("cod.out", globval.bpm, true);
  
     globval.delta_RF = 5.2e-2; globval.Cavity_on = true;
 
-    Touschek(Qb, globval.delta_RF, eps_x, eps_y, sigma_delta, sigma_s);
+    Lattice.Touschek(Qb, globval.delta_RF, eps_x, eps_y, sigma_delta, sigma_s);
       
     double  sum_delta[globval.Cell_nLoc+1][2];
     double  sum2_delta[globval.Cell_nLoc+1][2];
@@ -67,9 +67,9 @@ void err_and_corr(const string &param_file)
       sum2_delta[j][X_] = 0e0; sum2_delta[j][Y_] = 0e0;
     }
  
-    Touschek(Qb, globval.delta_RF, false,
-	     eps_x, eps_y, sigma_delta, sigma_s,
-	     params.n_track_DA, false, sum_delta, sum2_delta);
+    Lattice.Touschek(Qb, globval.delta_RF, false,
+		     eps_x, eps_y, sigma_delta, sigma_s,
+		     params.n_track_DA, false, sum_delta, sum2_delta);
 
     fp = file_write((file_name).c_str()); 
     for(j = 0; j <= globval.Cell_nLoc; j++)

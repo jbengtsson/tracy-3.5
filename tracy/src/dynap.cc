@@ -261,19 +261,19 @@ void DA_data_type::get_DA_real(param_data_type &params,
     printf("\n");
     if (cod) {
       printf("err_and_corr: orbit correction completed\n");
-      if (j == 1) prt_cod("cod.out", globval.bpm, true);
+      if (j == 1) Lattice.prt_cod("cod.out", globval.bpm, true);
  
       Lattice.Ring_GetTwiss(true, 0.0); printglob();
 
-      GetEmittance(Lattice.Elem_Index("cav"), true);
+      Lattice.GetEmittance(Lattice.Elem_Index("cav"), true);
 
       if (params.n_lin > 0) {
 	params.corr_eps_y();
 	Lattice.Ring_GetTwiss(true, 0.0); printglob();
-	GetEmittance(Lattice.Elem_Index("cav"), true);
+	Lattice.GetEmittance(Lattice.Elem_Index("cav"), true);
       }
 
-      prt_beamsizes();
+      Lattice.prt_beamsizes();
 
       if (params.ap_file != "") params.LoadApers(1.0, 1.0);
 

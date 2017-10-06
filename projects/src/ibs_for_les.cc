@@ -47,12 +47,12 @@ void get_IBS(const double Qb, const double eps[])
   for (j = 1; j <= n_iter; j++) {
     if (j == 1) {
       printf("\nIBS %d:\n", j);
-      IBS_BM(Qb, eps, eps1, true, true);
+      Lattice.IBS_BM(Qb, eps, eps1, true, true);
     } else if ((j == n_iter-1) || (j == n_iter)) {
       printf("\nIBS %d:\n", j);
-      IBS_BM(Qb, eps, eps1, false, true);
+      Lattice.IBS_BM(Qb, eps, eps1, false, true);
     } else
-      IBS_BM(Qb, eps, eps1, false, false);
+      Lattice.IBS_BM(Qb, eps, eps1, false, false);
   }
 
   sigma_s = sqrt(globval.beta_z*eps1[Z_]);
@@ -75,17 +75,17 @@ int main(int argc, char *argv[])
   const double Qb = 5e-9, eps_y = 0.008e-9;
 
   if (true)
-    Read_Lattice(argv[1]);
+    Lattice.Read_Lattice(argv[1]);
   else {
     globval.Energy = 3e0;
-    rdmfile(argv[1]);
+    Lattice.rdmfile(argv[1]);
   }
 
-  Ring_GetTwiss(true, 0.0); printglob();
+  Lattice.Ring_GetTwiss(true, 0.0); printglob();
 
   if (true) prt_ZAP(20);
 
-  GetEmittance(ElemIndex("cav"), true);
+  Lattice.GetEmittance(Lattice.Elem_Index("cav"), true);
 
   gamma_z = (1e0+sqr(globval.alpha_z))/globval.beta_z;
 

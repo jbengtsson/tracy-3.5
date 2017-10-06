@@ -44,7 +44,7 @@ void param_type::add_prm(const std::string Fname, const int n,
 			 const double bn_min, const double bn_max,
 			 const double bn_scl)
 {
-  Fnum.push_back(ElemIndex(Fname.c_str()));
+  Fnum.push_back(Lattice.Elem_Index(Fname.c_str()));
   this->n.push_back(n);
   this->bn_min.push_back(bn_min);
   this->bn_max.push_back(bn_max);
@@ -121,7 +121,7 @@ double get_eps_x1(void)
 
   globval.Cavity_on = false; globval.emittance = false;
 
-  Ring_GetTwiss(false, 0e0);
+  Lattice.Ring_GetTwiss(false, 0e0);
 
   putlinmat(6, globval.Ascr, A);
 
@@ -156,7 +156,7 @@ void quad_scan(const int n,
 
   outf = fopen(file_name, "w");
 
-  qf_num = ElemIndex(qf); qd_num = ElemIndex(qd);
+  qf_num = Lattice.Elem_Index(qf); qd_num = Lattice.Elem_Index(qd);
   get_bn_design_elem(qf_num, 1, Quad, k_qf, a2);
   get_bn_design_elem(qd_num, 1, Quad, k_qd, a2);
   k_qf_step = dk_qf/n; k_qf -= dk_qf;
@@ -166,7 +166,7 @@ void quad_scan(const int n,
     k_qd -= (2*n+1)*k_qd_step;
     for (j = -n; j <= n; j++) {
       set_bn_design_fam(qd_num, Quad, k_qd, a2);
-      Ring_GetTwiss(true, 0e0);
+      Lattice.Ring_GetTwiss(true, 0e0);
       if (globval.stable)
 	eps_x = get_eps_x1();
       else {
@@ -195,8 +195,8 @@ void prt_emit(const param_type &b2_prms, const double *b2)
 
   std::string file_name = "emit.out";
 
-  sf_sd[0] = ElemIndex(sf_sd_name[0].c_str());
-  sf_sd[1] = ElemIndex(sf_sd_name[1].c_str());
+  sf_sd[0] = Lattice.Elem_Index(sf_sd_name[0].c_str());
+  sf_sd[1] = Lattice.Elem_Index(sf_sd_name[1].c_str());
   get_bn_design_elem(sf_sd[0], 1, Sext, b3[0], a3);
   get_bn_design_elem(sf_sd[1], 1, Sext, b3[1], a3);
 
@@ -234,15 +234,15 @@ double f_emit(double *b2)
 
   b2_prms.set_prm(b2);
 
-  Ring_GetTwiss(false, 0e0); eps1_x = get_eps_x1();
+  Lattice.Ring_GetTwiss(false, 0e0); eps1_x = get_eps_x1();
 
   tr[X_] = globval.OneTurnMat[x_][x_] + globval.OneTurnMat[px_][px_];
   tr[Y_] = globval.OneTurnMat[y_][y_] + globval.OneTurnMat[py_][py_];
   // printf("trace: %6.3f %6.3f\n", tr[X_], tr[Y_]);
 
-  sf_sd[0] = ElemIndex(sf_sd_name[0].c_str());
-  sf_sd[1] = ElemIndex(sf_sd_name[1].c_str());
-  FitChrom(sf_sd[0], sf_sd[1], 0e0, 0e0);
+  sf_sd[0] = Lattice.Elem_Index(sf_sd_name[0].c_str());
+  sf_sd[1] = Lattice.Elem_Index(sf_sd_name[1].c_str());
+ Lattice. FitChrom(sf_sd[0], sf_sd[1], 0e0, 0e0);
   get_bnL_design_elem(sf_sd[0], 1, Sext, b3L[0], a3L);
   get_bnL_design_elem(sf_sd[1], 1, Sext, b3L[1], a3L);
 
@@ -274,12 +274,12 @@ double f_emit(double *b2)
       printf("%9.5f", b2[i]);
     printf("\n");
 
-    prtmfile("flat_file.fit");
+    Lattice.prtmfile("flat_file.fit");
     prt_emit(b2_prms, b2);
 
     get_S();
-    prt_lat("linlat1.out", globval.bpm, true);
-    prt_lat("linlat.out", globval.bpm, true, 10);
+    Lattice.prt_lat("linlat1.out", globval.bpm, true);
+    Lattice.prt_lat("linlat.out", globval.bpm, true, 10);
   }
 
   chi2_ref = min(chi2, chi2_ref);
@@ -323,10 +323,14 @@ void prt_match(const param_type &b2_prms, const double *b2)
 
   outf = file_write(file_name.c_str());
 
-  fprintf(outf, "l5h: drift, l = %7.5f;\n", get_L(ElemIndex("l5h"), 1));
-  fprintf(outf, "l6h: drift, l = %7.5f;\n", get_L(ElemIndex("l6h"), 1));
-  fprintf(outf, "l7:  drift, l = %7.5f;\n", get_L(ElemIndex("l7"), 1));
-  fprintf(outf, "l8:  drift, l = %7.5f;\n", get_L(ElemIndex("l8"), 1));
+  fprintf(outf, "l5h: drift, l = %7.5f;\n",
+	  get_L(Lattice.Elem_Index("l5h"), 1));
+  fprintf(outf, "l6h: drift, l = %7.5f;\n",
+	  get_L(Lattice.Elem_Index("l6h"), 1));
+  fprintf(outf, "l7:  drift, l = %7.5f;\n",
+	  get_L(Lattice.Elem_Index("l7"), 1));
+  fprintf(outf, "l8:  drift, l = %7.5f;\n",
+	  get_L(Lattice.Elem_Index("l8"), 1));
 
   fprintf(outf, "\nbm:  bending, l = 0.14559, t = 0.5, k = %9.5f, t1 = 0.0"
 	  ", t2 = 0.0,\n     gap = 0.00, N = Nbend, Method = Meth;\n", b2[1]);
@@ -357,12 +361,12 @@ double f_hcell(double *b2)
   b2_prms.set_prm(b2);
 
   // End of bm.
-  loc1 = Elem_GetPos(ElemIndex("bm"), 1);
+  loc1 = Elem_GetPos(Lattice.Elem_Index("bm"), 1);
   // Center of straight.
   loc2 = globval.Cell_nLoc;
 
   A = get_A(alpha_cuc, beta_cuc, eta_cuc, etap_cuc);
-  Cell_Twiss(0, globval.Cell_nLoc, A, false, false, 0e0);
+  Lattice.Cell_Twiss(0, globval.Cell_nLoc, A, false, false, 0e0);
 
   chi2 = 0e0;
   chi2 += sqr(scl_eta*Lattice.Cell[loc1].Eta[X_]);
@@ -392,11 +396,11 @@ double f_hcell(double *b2)
       printf(" %9.5f", b2[i]);
     printf("\n");
 
-    prtmfile("flat_file.fit");
+    Lattice.prtmfile("flat_file.fit");
     prt_match(b2_prms, b2);
 
-    prt_lat("linlat1.out", globval.bpm, true);
-    prt_lat("linlat.out", globval.bpm, true, 10);
+    Lattice.prt_lat("linlat1.out", globval.bpm, true);
+    Lattice.prt_lat("linlat.out", globval.bpm, true, 10);
   }
 
   chi2_ref = min(chi2, chi2_ref);
@@ -448,13 +452,13 @@ double f_match(double *b2)
   b2_prms.set_prm(b2);
 
   // Center of unit cell.
-  loc1 = Elem_GetPos(ElemIndex("sfh"), 1);
+  loc1 = Elem_GetPos(Lattice.Elem_Index("sfh"), 1);
   // End of 2nd bm.
-  loc2 = Elem_GetPos(ElemIndex("bm"), 2);
+  loc2 = Elem_GetPos(Lattice.Elem_Index("bm"), 2);
   // Center of straight.
   loc3 = globval.Cell_nLoc;
 
-  Ring_GetTwiss(true, 0e0);
+  Lattice.Ring_GetTwiss(true, 0e0);
 
   tr[X_] = globval.OneTurnMat[x_][x_] + globval.OneTurnMat[px_][px_];
   tr[Y_] = globval.OneTurnMat[y_][y_] + globval.OneTurnMat[py_][py_];
@@ -502,11 +506,11 @@ double f_match(double *b2)
       printf(" %9.5f", b2[i]);
     printf("\n");
 
-    prtmfile("flat_file.fit");
+    Lattice.prtmfile("flat_file.fit");
     prt_match(b2_prms, b2);
 
-    prt_lat("linlat1.out", globval.bpm, true);
-    prt_lat("linlat.out", globval.bpm, true, 10);
+    Lattice.prt_lat("linlat1.out", globval.bpm, true);
+    Lattice.prt_lat("linlat.out", globval.bpm, true, 10);
   }
 
   chi2_ref = min(chi2, chi2_ref);
@@ -551,15 +555,15 @@ int main(int argc, char *argv[])
   globval.pathlength = false; globval.bpm         = 0;
 
   if (false)
-    Read_Lattice(argv[1]);
+    Lattice.Read_Lattice(argv[1]);
   else
-    rdmfile(argv[1]);
+    Lattice.rdmfile(argv[1]);
 
-  Ring_GetTwiss(true, 0e0); printglob();
+  Lattice.Ring_GetTwiss(true, 0e0); printglob();
 
   if (false) {
     get_eps_x1();
-    GetEmittance(ElemIndex("cav"), true);
+    Lattice.GetEmittance(Lattice.Elem_Index("cav"), true);
   }
 
   if (false) quad_scan(10, "qf", 3e0, "bh", 2e0);

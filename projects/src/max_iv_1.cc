@@ -16,7 +16,7 @@ double get_eps_x1(void)
 
   globval.Cavity_on = false; globval.emittance = false;
 
-  Ring_GetTwiss(false, 0e0);
+  Lattice.Ring_GetTwiss(false, 0e0);
 
   putlinmat(6, globval.Ascr, A);
 
@@ -83,7 +83,7 @@ void get_Touschek(void)
     gamma_z = (1.0+sqr(globval.alpha_z))/globval.beta_z;
 //     Touschek(Qb, globval.delta_RF, eps[X_], eps[Y_],
 // 	     sqrt(gamma_z*eps[Z_]), sqrt(globval.beta_z*eps[Z_]));
-    Touschek(Qb, 3.03e-2, 2.446e-9, 9.595e-12, 0.580e-3, 3.33e-3);
+    Lattice.Touschek(Qb, 3.03e-2, 2.446e-9, 9.595e-12, 0.580e-3, 3.33e-3);
 
     if (false) {
       // initialize momentum aperture arrays
@@ -92,9 +92,9 @@ void get_Touschek(void)
 	sum2_delta[k][0] = 0.0; sum2_delta[k][1] = 0.0;
       }
 
-      Touschek(1.3e-9, globval.delta_RF, false,
-	       0.85e-9, 0.008e-9, 0.84e-3, 4.4e-3,
-	       512, true, sum_delta, sum2_delta);
+      Lattice.Touschek(1.3e-9, globval.delta_RF, false,
+		       0.85e-9, 0.008e-9, 0.84e-3, 4.4e-3,
+		       512, true, sum_delta, sum2_delta);
 
       fp = file_write("mom_aper.out");
       for(k = 0; k <= globval.Cell_nLoc; k++)
@@ -133,12 +133,12 @@ void get_IBS(const int n, const double ds, const double Qb, const double eps[])
     for (j = 1; j <= n_iter; j++) {
       if (j == 1) {
 	printf("\nIBS %d:\n", j);
-	IBS_BM(Qb, eps, eps1, true, true);
+	Lattice.IBS_BM(Qb, eps, eps1, true, true);
       } else if ((j == n_iter-1) || (j == n_iter)) {
 	printf("\nIBS %d:\n", j);
-	IBS_BM(Qb, eps0, eps1, false, true);
+	Lattice.IBS_BM(Qb, eps0, eps1, false, true);
       } else
-	IBS_BM(Qb, eps0, eps1, false, false);
+	Lattice.IBS_BM(Qb, eps0, eps1, false, false);
     }
 
     sigma_s = sqrt(globval.beta_z*eps1[Z_]);
@@ -173,19 +173,19 @@ int main(int argc, char *argv[])
   const double nu[]  = {101.9/20.0, 27.6/20.0};
 
   if (true)
-    Read_Lattice(argv[1]);
+    Lattice.Read_Lattice(argv[1]);
   else {
     globval.Energy = 3e0;
-    rdmfile(argv[1]);
+    Lattice.rdmfile(argv[1]);
   }
 
   if (false) no_sxt();
 
-  Ring_GetTwiss(true, 0e0); printglob();
+  Lattice.Ring_GetTwiss(true, 0e0); printglob();
 
   if (false) {
-    qf = ElemIndex("qf"); qd = ElemIndex("bh");
-    FitTune(qf, qd, nu[X_], nu[Y_]);
+    qf = Lattice.Elem_Index("qf"); qd = Lattice.Elem_Index("bh");
+    Lattice.FitTune(qf, qd, nu[X_], nu[Y_]);
     get_bn_design_elem(qf, 1, Quad, b2[0], a2);
     get_bn_design_elem(qd, 1, Quad, b2[1], a2);
 
@@ -193,30 +193,30 @@ int main(int argc, char *argv[])
 	   globval.TotalTune[X_], globval.TotalTune[Y_]);
     printf("  qf = %8.5f   qd = %8.5f\n", b2[0], b2[1]);
 
-    Ring_GetTwiss(true, 0.0); printglob();
+    Lattice.Ring_GetTwiss(true, 0.0); printglob();
   }
 
   if (false) {
-    sf = ElemIndex("sfh"); sd = ElemIndex("sd");
-    FitChrom(sf, sd, 0e0, 0e0);
+    sf = Lattice.Elem_Index("sfh"); sd = Lattice.Elem_Index("sd");
+    Lattice.FitChrom(sf, sd, 0e0, 0e0);
     get_bn_design_elem(sf, 1, Sext, b3[0], a3);
     get_bn_design_elem(sd, 1, Sext, b3[1], a3);
 
     printf("\nsf = %10.5f, sd = %10.5f", b3[0], b3[1]);
 
-    Ring_GetTwiss(true, 0.0); printglob();
+    Lattice.Ring_GetTwiss(true, 0.0); printglob();
   }
 
-  prt_lat("linlat1.out", globval.bpm, true);
-  prt_lat("linlat.out", globval.bpm, true, 10);
-  prt_chrom_lat();
+  Lattice.prt_lat("linlat1.out", globval.bpm, true);
+  Lattice.prt_lat("linlat.out", globval.bpm, true, 10);
+  Lattice.prt_chrom_lat();
 
-  prtmfile("flat_file.dat");
+  Lattice.prtmfile("flat_file.dat");
 
   if (false) prt_ZAP(20);
 
   get_eps_x1();
-  GetEmittance(ElemIndex("cav"), true);
+  Lattice.GetEmittance(Lattice.Elem_Index("cav"), true);
 
   if (false) {
     printf("\nalpha_z = %11.3e, beta_z = %10.3e\n",
@@ -238,6 +238,6 @@ int main(int argc, char *argv[])
 
   if (false) {
     globval.Cavity_on = true;
-    get_dynap(delta, 25, 512, true);
+    Lattice.get_dynap(delta, 25, 512, true);
   }
 }

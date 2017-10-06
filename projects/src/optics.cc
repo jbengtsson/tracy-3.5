@@ -48,7 +48,7 @@ void get_cod_rms(const double dx, const double dy,
     misalign_rms_type(Dip,  dx, dy, 0e0, true);
     misalign_rms_type(Quad, dx, dy, 0e0, true);
     
-    cod = orb_corr(n_cod_corr);
+    cod = Lattice.orb_corr(n_cod_corr);
 
     if (cod) {
       n_cod++;
@@ -396,8 +396,8 @@ int main(int argc, char *argv[])
 
   if (false) {
     chk_optics(0.0, 0.0, 13.04171, 8.795924, 1.397388e-03, 0.0, 0.0, 0.0);
-    prt_lat("linlat1.out", globval.bpm, true);
-    prt_lat("linlat.out", globval.bpm, true, 10);
+    Lattice.prt_lat("linlat1.out", globval.bpm, true);
+    Lattice.prt_lat("linlat.out", globval.bpm, true, 10);
     exit(0);
   }
 
@@ -411,14 +411,14 @@ int main(int argc, char *argv[])
 
   Lattice.Ring_GetTwiss(true, 0e0); printglob();
 
-  if (false) get_alphac2();
+  if (false) Lattice.get_alphac2();
 
   Lattice.prtmfile("flat_file.dat");
 
   // globval.bpm = Lattice.Elem_Index("bpm");
-  prt_lat("linlat1.out", globval.bpm, true);
-  prt_lat("linlat.out", globval.bpm, true, 10);
-  prt_chrom_lat();
+  Lattice.prt_lat("linlat1.out", globval.bpm, true);
+  Lattice.prt_lat("linlat.out", globval.bpm, true, 10);
+  Lattice.prt_chrom_lat();
 
   if (false) {
     iniranf(seed); setrancut(1e0);
@@ -503,7 +503,7 @@ int main(int argc, char *argv[])
     prt_quad(Fam);
   }
 
-  if (true) GetEmittance(Lattice.Elem_Index("cav"), true);
+  if (true) Lattice.GetEmittance(Lattice.Elem_Index("cav"), true);
 
   if (false) {
     b2_fam[0] = Lattice.Elem_Index(q_fam[0].c_str());
@@ -561,7 +561,7 @@ int main(int argc, char *argv[])
 
   if (true) {
     globval.Cavity_on = true;
-    get_dynap(delta, 25, n_turn, false);
+    Lattice.get_dynap(delta, 25, n_turn, false);
   }
 
 }

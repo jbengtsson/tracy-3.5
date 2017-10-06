@@ -131,14 +131,15 @@ double f_opt(double prms[])
   f = scl_T566*sqr(T566-T566_ref) + sqr(x2d_intgrl) + sqr(px2d_intgrl);
 
   if (f < f_ref) {
-    prtmfile("flat_file.dat");
+    Lattice.prtmfile("flat_file.dat");
     pol_fit(n, deltas, ct_delta, n_pol, b, sigma, true);
     scan_delta(n, delta);
     std::cout << std::endl << std::scientific << std::setprecision(3)
 	 << std::setw(5) << n_iter << std::setw(11) << f << " T566 = " << T566
 	 << " x_max = " << x_max << " px_max = " << px_max<< std::endl;
     for (k = 1; k <= n_prm; k++)
-      std::cout << std::scientific << std::setprecision(5) << std::setw(13) << prms[k];
+      std::cout << std::scientific << std::setprecision(5)
+		<< std::setw(13) << prms[k];
     std::cout << std::endl;
 
     f_ref = f;
@@ -160,8 +161,10 @@ void opt_nl_disp(void)
   prms = dvector(1, n_prm); xi = dmatrix(1, n_prm, 1, n_prm);
 
   i = 0;
-  Fnums[i++] = ElemIndex("a3s1"); Fnums[i++] = ElemIndex("a3s2");
-  Fnums[i++] = ElemIndex("a3s3"); Fnums[i++] = ElemIndex("a3s4");
+  Fnums[i++] = Lattice.Elem_Index("a3s1");
+  Fnums[i++] = Lattice.Elem_Index("a3s2");
+  Fnums[i++] = Lattice.Elem_Index("a3s3");
+  Fnums[i++] = Lattice.Elem_Index("a3s4");
 
   for (i = 0; i < n_prm; i++) {
     get_bn_design_elem(Fnums[i], 1, Sext, prms[i+1], an);
@@ -265,7 +268,7 @@ void get_optics()
   // ARC3.
   // beta[X_] = 5.9942; beta[Y_] = 1.8373;
  
-  ttwiss(alpha, beta, eta, etap, 0e0);
+  Lattice.ttwiss(alpha, beta, eta, etap, 0e0);
 
   printf("\nalpha = [%13.6e, %13.6e]\n",
 	 Lattice.Cell[globval.Cell_nLoc].Alpha[X_],
@@ -283,8 +286,8 @@ void get_optics()
 	 Lattice.Cell[globval.Cell_nLoc].Etap[X_],
 	 Lattice.Cell[globval.Cell_nLoc].Etap[Y_]);
 
-  prt_lat("linlat1.out", globval.bpm, true);
-  prt_lat("linlat.out", globval.bpm, true, 10);
+  Lattice.prt_lat("linlat1.out", globval.bpm, true);
+  Lattice.prt_lat("linlat.out", globval.bpm, true, 10);
 }
 
 
@@ -346,9 +349,9 @@ int main(int argc, char *argv[])
   std::string home_dir = "";
 
   if (false)
-    Read_Lattice((home_dir + argv[1]).c_str());
+    Lattice.Read_Lattice((home_dir + argv[1]).c_str());
   else
-    rdmfile(argv[1]);
+    Lattice.rdmfile(argv[1]);
 
   if (false) chk_bend();
 
@@ -359,5 +362,5 @@ int main(int argc, char *argv[])
 
   analyze_nl_dyn(5e-2);
 
-  prtmfile("flat_file.dat");
+  Lattice.prtmfile("flat_file.dat");
 }

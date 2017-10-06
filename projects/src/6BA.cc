@@ -61,7 +61,7 @@ void param_type::add_prm(const std::string Fname, const int n,
 			 const double bn_min, const double bn_max,
 			 const double bn_scl)
 {
-  Fnum.push_back(ElemIndex(Fname.c_str()));
+  Fnum.push_back(Lattice.Elem_Index(Fname.c_str()));
   this->n.push_back(n);
   this->bn_min.push_back(bn_min);
   this->bn_max.push_back(bn_max);
@@ -152,19 +152,19 @@ void get_s_loc(const int Fnum, const int Knum, int loc[])
   if (Lattice.Cell[loc[1]-1].Elem.PName[1] == 'u') {
     loc[0] = loc[1] - 1;
     strcpy(name, Lattice.Cell[loc[1]-1].Elem.PName); name[1] = 'd';
-    loc[2] = Elem_GetPos(ElemIndex(name), Knum);
+    loc[2] = Elem_GetPos(Lattice.Elem_Index(name), Knum);
   } else if (Lattice.Cell[loc[1]-1].Elem.PName[1] == 'd') {
     loc[2] = loc[1] - 1;
     strcpy(name, Lattice.Cell[loc[1]-1].Elem.PName); name[1] = 'u';
-    loc[0] = Elem_GetPos(ElemIndex(name), Knum);
+    loc[0] = Elem_GetPos(Lattice.Elem_Index(name), Knum);
   } else if (Lattice.Cell[loc[1]+1].Elem.PName[1] == 'd') {
     loc[2] = loc[1] + 1;
     strcpy(name, Lattice.Cell[loc[1]+1].Elem.PName); name[1] = 'u';
-    loc[0] = Elem_GetPos(ElemIndex(name), Knum);
+    loc[0] = Elem_GetPos(Lattice.Elem_Index(name), Knum);
   } else if (Lattice.Cell[loc[1]+1].Elem.PName[1] == 'u') {
     loc[0] = loc[1] + 1;
     strcpy(name, Lattice.Cell[loc[1]+1].Elem.PName); name[1] = 'd';
-    loc[2] = Elem_GetPos(ElemIndex(name), Knum);
+    loc[2] = Elem_GetPos(Lattice.Elem_Index(name), Knum);
   } else {
     printf("\nget_s_loc: configuration error %s (%d)\n",
 	   Lattice.Cell[loc[1]].Elem.PName, loc[1]);
@@ -411,7 +411,7 @@ double f_match(double *b2)
   b2_prms.set_prm(b2);
 
   Ascr = get_A(ic[0], ic[1], ic[2], ic[3]);
-  Cell_Twiss(loc[0], loc[4], Ascr, false, false, 0e0);
+  Lattice.Cell_Twiss(loc[0], loc[4], Ascr, false, false, 0e0);
 
   // get_dnu_delta(loc[0], loc[5], ic[0], ic[1], eps_delta, dksi);
 
@@ -473,21 +473,24 @@ double f_match(double *b2)
       printf("beta_x  = %8.5f beta_y  = %8.5f\n",
 	     Lattice.Cell[loc[3]].Beta[X_], Lattice.Cell[loc[3]].Beta[Y_]);
 
-      loc1 = Elem_GetPos(ElemIndex("s_s_1"), 1);
-      loc2 = Elem_GetPos(ElemIndex("s_s_1"), 2);
-      printf("\nLength of 1st straight: %6.3f m\n", Lattice.Cell[loc2].S-Lattice.Cell[loc1].S);
-      loc1 = Elem_GetPos(ElemIndex("s_s_2"), 1);
-      loc2 = Elem_GetPos(ElemIndex("s_s_2"), 2);
-      printf("Length of 2nd straight: %6.3f m\n", Lattice.Cell[loc2].S-Lattice.Cell[loc1].S);
-      loc1 = Elem_GetPos(ElemIndex("s_s_3"), 1);
-      loc2 = Elem_GetPos(ElemIndex("s_s_3"), 2);
-      printf("Length of 3rd straight: %6.3f m\n", Lattice.Cell[loc2].S-Lattice.Cell[loc1].S);
+      loc1 = Elem_GetPos(Lattice.Elem_Index("s_s_1"), 1);
+      loc2 = Elem_GetPos(Lattice.Elem_Index("s_s_1"), 2);
+      printf("\nLength of 1st straight: %6.3f m\n",
+	     Lattice.Cell[loc2].S-Lattice.Cell[loc1].S);
+      loc1 = Elem_GetPos(Lattice.Elem_Index("s_s_2"), 1);
+      loc2 = Elem_GetPos(Lattice.Elem_Index("s_s_2"), 2);
+      printf("Length of 2nd straight: %6.3f m\n",
+	     Lattice.Cell[loc2].S-Lattice.Cell[loc1].S);
+      loc1 = Elem_GetPos(Lattice.Elem_Index("s_s_3"), 1);
+      loc2 = Elem_GetPos(Lattice.Elem_Index("s_s_3"), 2);
+      printf("Length of 3rd straight: %6.3f m\n",
+	     Lattice.Cell[loc2].S-Lattice.Cell[loc1].S);
 
       prt_b2(b2_prms, b2);
 
-      prtmfile("flat_file.fit");
-      prt_lat(loc[0], loc[4], "linlat1.out", globval.bpm, true);
-      prt_lat(loc[0]+1, loc[4]-1, "linlat.out", globval.bpm, true, 10);
+      Lattice.prtmfile("flat_file.fit");
+      Lattice.prt_lat(loc[0], loc[4], "linlat1.out", globval.bpm, true);
+      Lattice.prt_lat(loc[0]+1, loc[4]-1, "linlat.out", globval.bpm, true, 10);
 
       chi2_prt = min(chi2, chi2_prt);
     }
@@ -510,35 +513,35 @@ void fit_match(param_type &b2_prms)
   b2 = dvector(1, n_b2); xi = dmatrix(1, n_b2, 1, n_b2);
 
   // Upstream of QF03.
-  // loc[0] = Elem_GetPos(ElemIndex("qf03"), 3);
-  loc[0] = Elem_GetPos(ElemIndex("qf031"), 1);
+  // loc[0] = Elem_GetPos(Lattice.Elem_Index("qf03"), 3);
+  loc[0] = Elem_GetPos(Lattice.Elem_Index("qf031"), 1);
   // Upstream of QD04.
-  // loc[0] = Elem_GetPos(ElemIndex("qd041"), 1);
+  // loc[0] = Elem_GetPos(Lattice.Elem_Index("qd041"), 1);
   // Upstream of 20 degree dipole.
-  // loc[0] = Elem_GetPos(ElemIndex("sb"), 7);
+  // loc[0] = Elem_GetPos(Lattice.Elem_Index("sb"), 7);
 
   // Downstream of 10 degree dipole.
-  loc[1] = Elem_GetPos(ElemIndex("b10"), 1);
+  loc[1] = Elem_GetPos(Lattice.Elem_Index("b10"), 1);
   // Center of 1st straight.
-  loc[2] = Elem_GetPos(ElemIndex("ef2"), 4);
+  loc[2] = Elem_GetPos(Lattice.Elem_Index("ef2"), 4);
   // Center of 2nd straight.
-  loc[3] = Elem_GetPos(ElemIndex("ef2"), 16);
+  loc[3] = Elem_GetPos(Lattice.Elem_Index("ef2"), 16);
 
   // Upstream of EQ01.
-  // loc[4] = Elem_GetPos(ElemIndex("eq01"), 1);
+  // loc[4] = Elem_GetPos(Lattice.Elem_Index("eq01"), 1);
   // End of 1st straight.
-  // loc[4] = Elem_GetPos(ElemIndex("eq05"), 1);
+  // loc[4] = Elem_GetPos(Lattice.Elem_Index("eq05"), 1);
   // Downstream of 20 degree dipole.
-  // loc[4] = Elem_GetPos(ElemIndex("b20"), 5);
+  // loc[4] = Elem_GetPos(Lattice.Elem_Index("b20"), 5);
   // Downstream of QF03.
-  // loc[4] = Elem_GetPos(ElemIndex("qf03"), 6);
-  loc[4] = Elem_GetPos(ElemIndex("qf031"), 4);
+  // loc[4] = Elem_GetPos(Lattice.Elem_Index("qf03"), 6);
+  loc[4] = Elem_GetPos(Lattice.Elem_Index("qf031"), 4);
 
   Ascr = get_A(ic[0], ic[1], ic[2], ic[3]);
-  Cell_Twiss(loc[0], loc[4], Ascr, false, false, 0e0);
+  Lattice.Cell_Twiss(loc[0], loc[4], Ascr, false, false, 0e0);
 
-  prt_lat(loc[0], loc[4], "linlat1.out", globval.bpm, true);
-  prt_lat(loc[0]+1, loc[4]-1, "linlat.out", globval.bpm, true, 10);
+  Lattice.prt_lat(loc[0], loc[4], "linlat1.out", globval.bpm, true);
+  Lattice.prt_lat(loc[0]+1, loc[4]-1, "linlat.out", globval.bpm, true, 10);
 
   prt_lin_opt(loc);
 
@@ -554,10 +557,10 @@ void fit_match(param_type &b2_prms)
 
   b2_prms.set_prm(b2);
   Ascr = get_A(ic[0], ic[1], ic[2], ic[3]);
-  Cell_Twiss(loc[0], loc[4], Ascr, false, false, 0e0);
+  Lattice.Cell_Twiss(loc[0], loc[4], Ascr, false, false, 0e0);
 
-  prt_lat(loc[0], loc[4], "linlat1.out", globval.bpm, true);
-  prt_lat(loc[0]+1, loc[4]-1, "linlat.out", globval.bpm, true, 10);
+  Lattice.prt_lat(loc[0], loc[4], "linlat1.out", globval.bpm, true);
+  Lattice.prt_lat(loc[0]+1, loc[4]-1, "linlat.out", globval.bpm, true, 10);
 
   free_dvector(b2, 1, n_b2); free_dmatrix(xi, 1, n_b2, 1, n_b2);
 }
@@ -567,16 +570,16 @@ void chk_straights()
 {
   int loc1, loc2;
   
-  loc1 = Elem_GetPos(ElemIndex("s_s_1"), 1);
-  loc2 = Elem_GetPos(ElemIndex("s_s_1"), 2);
+  loc1 = Elem_GetPos(Lattice.Elem_Index("s_s_1"), 1);
+  loc2 = Elem_GetPos(Lattice.Elem_Index("s_s_1"), 2);
   printf("\nLength of 1st straight: %6.3f m\n",
 	 Lattice.Cell[loc2].S-Lattice.Cell[loc1].S);
-  loc1 = Elem_GetPos(ElemIndex("s_s_2"), 1);
-  loc2 = Elem_GetPos(ElemIndex("s_s_2"), 2);
+  loc1 = Elem_GetPos(Lattice.Elem_Index("s_s_2"), 1);
+  loc2 = Elem_GetPos(Lattice.Elem_Index("s_s_2"), 2);
   printf("Length of 2nd straight: %6.3f m\n",
 	 Lattice.Cell[loc2].S-Lattice.Cell[loc1].S);
-  loc1 = Elem_GetPos(ElemIndex("s_s_3"), 1);
-  loc2 = Elem_GetPos(ElemIndex("s_s_3"), 2);
+  loc1 = Elem_GetPos(Lattice.Elem_Index("s_s_3"), 1);
+  loc2 = Elem_GetPos(Lattice.Elem_Index("s_s_3"), 2);
   printf("Length of 3rd straight: %6.3f m\n",
 	 Lattice.Cell[loc2].S-Lattice.Cell[loc1].S);
 }
@@ -593,9 +596,9 @@ int main(int argc, char *argv[])
   globval.pathlength = false; globval.bpm         = 0;
 
   if (true)
-    Read_Lattice(argv[1]);
+    Lattice.Read_Lattice(argv[1]);
   else
-    rdmfile(argv[1]);
+    Lattice.rdmfile(argv[1]);
 
   no_sxt();
 
@@ -605,19 +608,19 @@ int main(int argc, char *argv[])
   }
 
   if (!qf031)
-    loc0 = Elem_GetPos(ElemIndex("qf03"), 3);
+    loc0 = Elem_GetPos(Lattice.Elem_Index("qf03"), 3);
   else
-    loc0 = Elem_GetPos(ElemIndex("qf031"), 1);
-  // loc0 = Elem_GetPos(ElemIndex("qd04"), 7);
-  // loc0 = Elem_GetPos(ElemIndex("qd041"), 1);
-  // loc1 = Elem_GetPos(ElemIndex("eq05"), 1);
-  loc1 = Elem_GetPos(ElemIndex("b20"), 5);
+    loc0 = Elem_GetPos(Lattice.Elem_Index("qf031"), 1);
+  // loc0 = Elem_GetPos(Lattice.Elem_Index("qd04"), 7);
+  // loc0 = Elem_GetPos(Lattice.Elem_Index("qd041"), 1);
+  // loc1 = Elem_GetPos(Lattice.Elem_Index("eq05"), 1);
+  loc1 = Elem_GetPos(Lattice.Elem_Index("b20"), 5);
   Ascr = get_A(ic[0], ic[1], ic[2], ic[3]);
-  Cell_Twiss(loc0, loc1, Ascr, false, false, 0e0);
+  Lattice.Cell_Twiss(loc0, loc1, Ascr, false, false, 0e0);
 
-  prtmfile("flat_file.dat");
-  prt_lat(loc0, loc1, "linlat1.out", globval.bpm, true);
-  prt_lat(loc0+1, loc1-1, "linlat.out", globval.bpm, true, 10);
+  Lattice.prtmfile("flat_file.dat");
+  Lattice.prt_lat(loc0, loc1, "linlat1.out", globval.bpm, true);
+  Lattice.prt_lat(loc0+1, loc1-1, "linlat.out", globval.bpm, true, 10);
   // exit(0);
 
   b2_prms.add_prm("qf031", 2, -4.2, 4.2, 1.0);

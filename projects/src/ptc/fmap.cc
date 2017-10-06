@@ -154,17 +154,17 @@ int main(int argc, char *argv[])
   idprset_(-1);
 
   if (false)
-    Read_Lattice(argv[1]);
+    Lattice.Read_Lattice(argv[1]);
   else
-    rdmfile(argv[1]);
+    Lattice.rdmfile(argv[1]);
 
   globval.EPU = true;
 
   danot_(1);
 
-  Ring_GetTwiss(true, 0.0); printglob();
+  Lattice.Ring_GetTwiss(true, 0.0); printglob();
 
-  prt_lat("linlat.out", globval.bpm, true);
+  Lattice.prt_lat("linlat.out", globval.bpm, true);
 
   k = atoi(argv[2]);
   if (k == 1) {
