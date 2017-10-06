@@ -325,7 +325,7 @@ void track_fft(const int n_turn,
   Lattice.track(file_name, twoJx[0], phix[0], twoJy[0], phiy[0], delta,
 		n_turn, lastn, lastpos,
 		2,
-		Lattice.Cell[Elem_GetPos(Lattice.Elem_Index("cav"), 1)]
+		Lattice.Cell[Lattice.Elem_GetPos(Lattice.Elem_Index("cav"), 1)]
 		.Elem.C->Pfreq);
 
   if (lastn == n_turn) {
@@ -441,7 +441,8 @@ int main(int argc, char *argv[])
   delta0    = -0.5e-2;
   n_turn    = 1000;
   f_rf      =
-    Lattice.Cell[Elem_GetPos(Lattice.Elem_Index("cav"), 1)].Elem.C->Pfreq;
+    Lattice.Cell[Lattice.Elem_GetPos(Lattice.Elem_Index("cav"), 1)]
+    .Elem.C->Pfreq;
   
   
   
