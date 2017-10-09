@@ -13,11 +13,6 @@ double det_mat(const int n, double **A);
 template<typename T>
 T get_p_s(const ss_vect<T> &);
 
-void getelem(long i, CellType *cellrec);
-
-void putelem(long i, CellType *cellrec);
-
-
 template<typename T>
 void GtoL(ss_vect<T> &X, const Vector2 &S, const Vector2 &R,
 	  const double c0, const double c1, const double s1);
@@ -93,19 +88,30 @@ template<typename T>
 void Solenoid_Pass(CellType &Cell, ss_vect<T> &x);
 
 
+void getelem(long i, CellType *cellrec);
+
+void putelem(long i, CellType *cellrec);
+
+ 
+void Mpole_Print(FILE *f, int Fnum1);
+
+void Drift_Print(FILE *f, int Fnum1);
+
+void Wiggler_Print(FILE *f, int Fnum1);
+
+void Insertion_Print(FILE *f, int Fnum1);
+
+void Elem_Print(FILE *f, int Fnum1);
+
+
 void Drift_SetMatrix(int Fnum1, int Knum1);
 
 void Insertion_SetMatrix(int Fnum1, int Knum1);
 
 
-void Mpole_SetPB(int Fnum1, int Knum1, int Order);
-
-void Wiggler_SetPB(int Fnum1, int Knum1, int Order);
-
+void LinsTrans(Matrix &A, psVector &b);
 
 void MulLsMat(Matrix &A, Matrix &B);
-
-void LinsTrans(Matrix &A, psVector &b);
 
 
 void Drift_Alloc(elemtype *Elem);
@@ -135,6 +141,8 @@ void Mpole_Init(int Fnum1);
 
 void Wiggler_Init(int Fnum1);
 
+void get_B(const char *file_name, FieldMapType *FM);
+
 void FieldMap_Init(int Fnum1);
 
 void Cav_Init(int Fnum1);
@@ -150,10 +158,28 @@ void Recombiner_Init(int Fnum1);
 void Solenoid_Init(int Fnum1);
 
 
-void get_B(const char *file_name, FieldMapType *FM);
-
 double Elem_GetKval(int Fnum1, int Knum1, int Order);
+
+void Mpole_SetPB(int Fnum1, int Knum1, int Order);
+
+double Mpole_GetPB(int Fnum1, int Knum1, int Order);
+
+  void Mpole_DefPBpar(int Fnum1, int Knum1, int Order, double PBpar);
+
+void Mpole_DefPBsys(int Fnum1, int Knum1, int Order, double PBsys);
 
 void Mpole_SetdS(int Fnum1, int Knum1);
 
 void Mpole_SetdT(int Fnum1, int Knum1);
+
+double Mpole_GetdT(int Fnum1, int Knum1);
+
+void Mpole_DefdTpar(int Fnum1, int Knum1, double PdTpar);
+
+void Mpole_DefdTsys(int Fnum1, int Knum1, double PdTsys);
+
+void Wiggler_SetPB(int Fnum1, int Knum1, int Order);
+
+void Wiggler_SetdS(int Fnum1, int Knum1);
+
+void Wiggler_SetdT(int Fnum1, int Knum1);
