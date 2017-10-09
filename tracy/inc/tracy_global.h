@@ -29,7 +29,7 @@ const int n_harm_max   = 10;
 const int Spreader_max = 10;
 
 
-// LEGO block structure for each element of the lattice
+// LEGO Element pieces for Lattice.
 
 class DriftType;
 class MpoleType;
@@ -90,11 +90,11 @@ class CellType {
 
   template<typename T>
   void GtoL(ss_vect<T> &X, const Vector2 &S, const Vector2 &R,
-		   const double c0, const double c1, const double s1);
+	    const double c0, const double c1, const double s1);
 
   template<typename T>
   void LtoG(ss_vect<T> &X, const Vector2 &S, const Vector2 &R,
-		   const double c0, const double c1, const double s1);
+	    const double c0, const double c1, const double s1);
     
   template<typename T>
   void Marker_Pass(CellType &Cell, ss_vect<T> &X);
@@ -103,11 +103,9 @@ class CellType {
   void Elem_Pass(const long i, ss_vect<T> &x);
 
   template<typename T>
-  void Cell_Pass(const long i0, const long i1, ss_vect<T> &x,
-			long &lastpos);
+  void Cell_Pass(const long i0, const long i1, ss_vect<T> &x, long &lastpos);
 
-  void Cell_Pass(const long i0, const long i1, tps &sigma,
-			long &lastpos);
+  void Cell_Pass(const long i0, const long i1, tps &sigma, long &lastpos);
 
   bool Cell_getCOD(long imax, double eps, double dP, long &lastpos);
 

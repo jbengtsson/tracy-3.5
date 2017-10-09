@@ -390,7 +390,7 @@ struct LOC_getdynap {
   double phi, delta;
   long   nturn;
   bool   floqs, lost;
-} ;
+};
 
 double get_aper(int n, double x[], double y[]);
 
