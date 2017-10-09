@@ -91,9 +91,6 @@ extern ElemFamType ElemFam[];
 
 extern CellType Cell[];
 
-extern globvalrec globval;
-
-
 // From nsls-ii_lib.h.
 
 // Global parameters.

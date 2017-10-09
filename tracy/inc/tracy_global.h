@@ -340,7 +340,7 @@ class ElemFamType {
 };
 
 
-typedef struct globvalrec {
+struct Lattice_Param {
   double   dPcommon,        // dp for numerical differentiation.
            dPparticle;      // energy deviation.
   double   delta_RF;        // RF acceptance.
@@ -394,4 +394,4 @@ typedef struct globvalrec {
            alpha_z, beta_z, // longitudinal alpha and beta.
            beta0, gamma0;   // Relativistic factors.
   int      RingType;        // 1 if a ring (0 if transfer line).
-} globvalrec;
+};

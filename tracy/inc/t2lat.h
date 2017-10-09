@@ -3,9 +3,9 @@
 class Lattice_Type {
  private:
  public:
-  globvalrec  param;
-  ElemFamType ElemFam[Elem_nFamMax];
-  CellType    Cell[Cell_nLocMax+1];
+  Lattice_Param param;
+  ElemFamType   ElemFam[Elem_nFamMax];
+  CellType      Cell[Cell_nLocMax+1];
 
   bool Lattice_Read(FILE **fi_, FILE **fo_);
   void Read_Lattice(const char *fic);
