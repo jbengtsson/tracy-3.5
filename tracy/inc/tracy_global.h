@@ -107,9 +107,11 @@ class CellType {
 
   void Cell_Pass(const long i0, const long i1, tps &sigma, long &lastpos);
 
-  bool Cell_getCOD(long imax, double eps, double dP, long &lastpos);
+  bool Cell_getCOD(const long imax, const double eps, const double dP,
+		   long &lastpos);
 
-  bool GetCOD(long imax, double eps, double dP, long &lastpos);
+  bool GetCOD(const long imax, const double eps, const double dP,
+	      long &lastpos);
 };
 
 
