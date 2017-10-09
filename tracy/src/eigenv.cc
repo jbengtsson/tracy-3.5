@@ -212,7 +212,7 @@ void geigen(int n, Matrix &fm, Matrix &Vre, Matrix &Vim,
     if (fabs(cosfm[i]) > (double)1.0)
     {
 //      printf("geigen: cosfm[%d]=% .13E > 1.0!\n", i + 1, cosfm[i]);
-      globval.stable = false;
+      Lattice.param.stable = false;
 //      goto _L999;
       return;
     }
@@ -555,20 +555,20 @@ void GDiag(int n_, double C, Matrix &A, Matrix &Ainv_, Matrix &R,
   TpMat(V.n, fm);  /* fm <- transpose(fm) */
   /* look for eigenvalues and eigenvectors of fm */
   geigen(V.n, fm, V.Vre, V.Vim, wr, wi);
-  if (globval.radiation)
+  if (Lattice.param.radiation)
     for (j = 1; j <=  V.n/2; j++) {
       x1 = sqrt(sqr(wr[j*2-2])+sqr(wi[j*2-2]));
       x2 = sqrt(sqr(wr[j*2-1])+sqr(wi[j*2-1]));
-      globval.alpha_rad[j-1] = log(sqrt(x1*x2));
+      Lattice.param.alpha_rad[j-1] = log(sqrt(x1*x2));
     }
 
   CopyMat(V.n, M, fm);
-  geigen(V.n, fm, globval.Vr, globval.Vi, globval.wr, globval.wi);
+  geigen(V.n, fm, Lattice.param.Vr, Lattice.param.Vi, Lattice.param.wr, Lattice.param.wi);
 
-  /*  CopyVec(6,wr,globval.wr);
-  CopyVec(6,wi,globval.wi);
-  CopyMat(6,V.Vre,globval.Vr);
-  CopyMat(6,V.Vim,globval.Vi); */
+  /*  CopyVec(6,wr,Lattice.param.wr);
+  CopyVec(6,wi,Lattice.param.wi);
+  CopyMat(6,V.Vre,Lattice.param.Vr);
+  CopyMat(6,V.Vim,Lattice.param.Vi); */
 
   UnitMat(6, *V.Ainv);
   GetAinv(V);
@@ -587,7 +587,7 @@ void GDiag(int n_, double C, Matrix &A, Matrix &Ainv_, Matrix &R,
   }
   if (V.n != 6)
     return;
-  if (globval.Cavity_on) {
+  if (Lattice.param.Cavity_on) {
     Omega = GetAngle(R[4][4], R[4][5])/(2.0 * M_PI);
     alphac = 0.0;
   } else {

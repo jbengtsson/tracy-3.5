@@ -15,7 +15,7 @@ void err_and_corr(const string &param_file, const int mode)
 
   params.err_and_corr_init(param_file, orb_corr);
 
-  globval.CODeps = 1e-10;
+  Lattice.param.CODeps = 1e-10;
 
   if (params.fe_file != "") params.LoadFieldErr(false, 1e0, true);
   if (params.ae_file != "") {
@@ -61,10 +61,10 @@ void err_and_corr(const string &param_file, const int mode)
 
 int main(int argc, char *argv[])
 {
-  globval.H_exact    = false; globval.quad_fringe = false;
-  globval.Cavity_on  = false; globval.radiation   = false;
-  globval.emittance  = false; globval.IBS         = false;
-  globval.pathlength = false; globval.Aperture_on = false;
+  Lattice.param.H_exact    = false; Lattice.param.quad_fringe = false;
+  Lattice.param.Cavity_on  = false; Lattice.param.radiation   = false;
+  Lattice.param.emittance  = false; Lattice.param.IBS         = false;
+  Lattice.param.pathlength = false; Lattice.param.Aperture_on = false;
 
   if (argc < 2) {
     printf("*** bad command line\n");

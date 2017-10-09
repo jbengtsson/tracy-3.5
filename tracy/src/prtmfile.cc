@@ -109,7 +109,7 @@ void Lattice_Type::prtmfile(const char mfile_dat[])
   FILE    *mfile;
 
   mfile = file_write(mfile_dat);
-  for (i = 0; i <= globval.Cell_nLoc; i++) {
+  for (i = 0; i <= Lattice.param.Cell_nLoc; i++) {
     switch (Lattice.Cell[i].Elem.Kind) {
     case drift:
       prtName(mfile, i, drift_, 0, 0);
@@ -160,10 +160,10 @@ void Lattice_Type::prtmfile(const char mfile_dat[])
     case Cavity:
       prtName(mfile, i, cavity_, 0, 0);
       fprintf(mfile, " %23.16e %23.16e %d %23.16e %23.16e\n",
-	      Lattice.Cell[i].Elem.C->volt/(1e9*globval.Energy),
+	      Lattice.Cell[i].Elem.C->volt/(1e9*Lattice.param.Energy),
 	      2.0*M_PI*Lattice.Cell[i].Elem.C->freq/c0,
 	      Lattice.Cell[i].Elem.C->h,
-	      1e9*globval.Energy, Lattice.Cell[i].Elem.C->phi);
+	      1e9*Lattice.param.Energy, Lattice.Cell[i].Elem.C->phi);
       break;
     case marker:
       prtName(mfile, i, marker_, 0, 0);

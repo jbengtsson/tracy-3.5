@@ -45,8 +45,7 @@ void Get_Disp_dp(void)
 
   if (trace) fprintf(stdout,"Entering Get_Disp_dp function ...\n");
 
-  if ((outf = fopen(nomfic, "w")) == NULL)
-  {
+  if ((outf = fopen(nomfic, "w")) == NULL) {
     fprintf(stdout, "Get_Disp_dp: Error while opening file %s\n",nomfic);
     exit_(1);
   }
@@ -102,12 +101,11 @@ void InducedAmplitude(long spos)
   CellType      Celldebut, Cell;
   psVector        codvector[Cell_nLocMax];
 
-  globval.Cavity_on  = false;    /* Cavity on/off */
-  globval.radiation  = false;    /* radiation on/off */
+  Lattice.param.Cavity_on  = false;    /* Cavity on/off */
+  Lattice.param.radiation  = false;    /* radiation on/off */
 
   /* Ouverture fichier moustache */
-  if ((outf = fopen(nomfic, "w")) == NULL)
-  {
+  if ((outf = fopen(nomfic, "w")) == NULL) {
     fprintf(stdout, "Erreur à l'ouverture de %s\n",nomfic);
     exit_(1);
   }
@@ -132,17 +130,22 @@ void InducedAmplitude(long spos)
     /* compute H at s =spos */
     dP20 = ((dP == 0) ? 1.0 : dP*dP);
     i = 0; /* Horizontal */
-    H[i] = ((1.0+Cell.Alpha[i]*Cell.Alpha[i])/Cell.Beta[i]*codvector[spos][0]*codvector[spos][0]+
-            2.0*Cell.Alpha[i]*codvector[spos][0]*codvector[spos][1]+
-            Cell.Beta[i]*codvector[spos][1]*codvector[spos][1])/dP20;
+    H[i] = ((1.0+Cell.Alpha[i]*Cell.Alpha[i])
+	    /Cell.Beta[i]*codvector[spos][0]*codvector[spos][0]
+	    +2.0*Cell.Alpha[i]*codvector[spos][0]*codvector[spos][1]
+	    +Cell.Beta[i]*codvector[spos][1]*codvector[spos][1])/dP20;
     i = 1; /* Vertical */
-    H[i] = ((1.0+Cell.Alpha[i]*Cell.Alpha[i])/Cell.Beta[i]*codvector[spos][2]*codvector[spos][2]+
-            2.0*Cell.Alpha[i]*codvector[spos][2]*codvector[spos][3]+
-            Cell.Beta[i]*codvector[spos][3]*codvector[spos][3])/dP20;
+    H[i] =
+      ((1.0+Cell.Alpha[i]*Cell.Alpha[i])/Cell.Beta[i]*codvector[spos][2]
+       *codvector[spos][2]
+       +2.0*Cell.Alpha[i]*codvector[spos][2]*codvector[spos][3]
+       +Cell.Beta[i]*codvector[spos][3]*codvector[spos][3])/dP20;
 
     fprintf(outf, "%+10.5e %+10.5e %+10.5e %+10.5e %+10.5e %+10.5e %+10.5e "
                   "%+10.5e %+10.5e %+10.5e %+10.5e \n",
-                  dP, codvector[spos][0], codvector[spos][1], Celldebut.Beta[0], Celldebut.Beta[1], Cell.Beta[0], Cell.Beta[1], H[0], H[1], Cell.Eta[0], Cell.Etap[0]);
+	    dP, codvector[spos][0], codvector[spos][1], Celldebut.Beta[0],
+	    Celldebut.Beta[1], Cell.Beta[0], Cell.Beta[1], H[0], H[1],
+	    Cell.Eta[0], Cell.Etap[0]);
   }
   fclose(outf);
 }
@@ -241,7 +244,7 @@ void Hcofonction(long pos, double dP,Vector2 H)
 
   //~ getcod(dP, lastpos);   /* determine closed orbit */
   findcod(dP);
-  if (lastpos != globval.Cell_nLoc) printf("Ring unstable for dp=%+e @ pos=%ld\n", dP, lastpos);
+  if (lastpos != Lattice.param.Cell_nLoc) printf("Ring unstable for dp=%+e @ pos=%ld\n", dP, lastpos);
 
   Lattice.Ring_GetTwiss(pos, dP); /* Compute and get Twiss parameters */
   getelem(pos, &Cell);    /* Position sur l'element pos */
@@ -276,7 +279,7 @@ void Hcofonction(long pos, double dP,Vector2 H)
        none
 
    Global variables:
-       globval
+       Lattice.param
        HOMmax
 
    specific functions:
@@ -316,7 +319,7 @@ void SetErr(void)
   setrancut(normcut=2L);
 //  iniranf(seed=0L);
 
-  for (i = 1L; i <= globval.Cell_nLoc; i++)
+  for (i = 1L; i <= Lattice.param.Cell_nLoc; i++)
   {
     getelem(i, &Cell);
     if (Cell.Elem.Kind == 2L)
@@ -359,7 +362,7 @@ void SetErr(void)
        none
 
    Global variables:
-       globval
+       Lattice.param
 
    specific functions:
        none
@@ -381,7 +384,7 @@ void DefineCh(void)
 */
 
   /* Look for indices for defining the vaccum pipe*/
-  for (i = 0; i <= globval.Cell_nLoc; i++) {
+  for (i = 0; i <= Lattice.param.Cell_nLoc; i++) {
     if (Lattice.Cell[i].Elem.Kind == marker){
       if (strncmp(Lattice.Cell[i].Elem.Name,"ssep",4) == 0){
         if (trace) fprintf(stdout,"trouve %s Element numero %ld \n",
@@ -424,7 +427,7 @@ void DefineCh(void)
 
   /* Set the vacuum chamber */
 
-  for (i = 0; i <= globval.Cell_nLoc; i++) {
+  for (i = 0; i <= Lattice.param.Cell_nLoc; i++) {
     if  ((i < isep1) || ((i > isep2) && (i < isdm1)) ||
     ((i > isdm2) && (i < isdac1)) || (i > isdac2)) {
       /* ch normale */
@@ -511,7 +514,7 @@ void ChamberOn(void)
 
    Global variables:
        NTURN number of turn for tracking
-       globval
+       Lattice.param
 
    specific functions:
        Cell_Pass
@@ -537,17 +540,17 @@ void Trac_Tab(double x, double px, double y, double py, double dp,
   lastn = 0;
   (lastpos)=pos;
 
-  Cell_Pass(pos -1, globval.Cell_nLoc, x1, lastpos);
+  Cell_Pass(pos -1, Lattice.param.Cell_nLoc, x1, lastpos);
 
   if(trace) fprintf(outf1, "\n");
 
   do {
     (lastn)++;
-    if ((lastpos == globval.Cell_nLoc) &&
+    if ((lastpos == Lattice.param.Cell_nLoc) &&
         (fabs(x1[0]) < aperture[0]) && (fabs(x1[2]) < aperture[1]))
      /* tracking entre debut anneau et element */
     {
-     Cell_Pass(0,globval.Cell_nLoc, x1, lastpos);
+     Cell_Pass(0,Lattice.param.Cell_nLoc, x1, lastpos);
      if(trace) fprintf(outf1, "%6ld %+10.5e %+10.5e %+10.5e %+10.5e"
 		       " %+10.5e %+10.5e \n",
 		       lastn, x1[0], x1[1], x1[2], x1[3], x1[4], x1[5]);
@@ -565,7 +568,7 @@ void Trac_Tab(double x, double px, double y, double py, double dp,
       lostF = false;
     }
    }
-   while (((lastn) < nmax) && ((lastpos) == globval.Cell_nLoc) && (lostF == true));
+   while (((lastn) < nmax) && ((lastpos) == Lattice.param.Cell_nLoc) && (lostF == true));
 
 
    for (i = 1; i < nmax; i++) {
@@ -941,7 +944,7 @@ void fmapdp(long Nbx, long Nbe, long Nbtour, double xmax, double emax,
  time(&aclock);                 /* Get time in seconds */
  newtime = localtime(&aclock);  /* Convert time to struct */
 
- if (diffusion && globval.Cavity_on == false) nturn = 2*Nbtour;
+ if (diffusion && Lattice.param.Cavity_on == false) nturn = 2*Nbtour;
 
  if (trace) printf("Entering fmap ... results in %s\n\n",fic);
 
@@ -972,7 +975,7 @@ void fmapdp(long Nbx, long Nbe, long Nbtour, double xmax, double emax,
    for (j = -Nbx; j<= Nbx; j++) {
 
      // IF 6D Tracking diffusion turn off and x negative for dp negative
-     if ((globval.Cavity_on == true) && (dp < 0.0)){
+     if ((Lattice.param.Cavity_on == true) && (dp < 0.0)){
        x  = x0 - sgn(j)*sqrt((double)abs(j))*xstep;
         diffusion = false;
      }   
@@ -1103,11 +1106,11 @@ void NuDp(long Nb, long Nbtour, double emax)
     findcod(dp);
 
     fprintf(outf,"%14.6e %14.6e %14.6e %14.6e %14.6e %14.6e %14.6e\n",
-            dp, nux1,nuz1, globval.CODvect[0], globval.CODvect[1],
-            globval.CODvect[2], globval.CODvect[3]);
+            dp, nux1,nuz1, Lattice.param.CODvect[0], Lattice.param.CODvect[1],
+            Lattice.param.CODvect[2], Lattice.param.CODvect[3]);
     fprintf(stdout,"%14.6e %14.6e %14.6e %14.6e %14.6e %14.6e %14.6e\n",
-            dp, nux1,nuz1, globval.CODvect[0], globval.CODvect[1],
-            globval.CODvect[2], globval.CODvect[3]);
+            dp, nux1,nuz1, Lattice.param.CODvect[0], Lattice.param.CODvect[1],
+            Lattice.param.CODvect[2], Lattice.param.CODvect[3]);
   }
 
   fclose(outf);
@@ -1238,16 +1241,16 @@ void PhasePoly(long pos, double x0,double px0, double z0, double pz0, double del
   fprintf(stdout,"Closed orbit:\n");
   fprintf(stdout,"      x            px           z           pz        delta       ctau\n");
   fprintf(stdout,"% 12.8f % 12.8f % 12.8f % 12.8f % 12.8f % 12.8f\n",
-          globval.CODvect[0], globval.CODvect[1], globval.CODvect[2],
-          globval.CODvect[3], globval.CODvect[4], globval.CODvect[5]);
+          Lattice.param.CODvect[0], Lattice.param.CODvect[1], Lattice.param.CODvect[2],
+          Lattice.param.CODvect[3], Lattice.param.CODvect[4], Lattice.param.CODvect[5]);
   lastpos = pos;
-  globval.CODvect = xsynch;
-//  xsynch[0] = globval.CODvect[0];
-//  xsynch[1] = globval.CODvect[1];
-//  xsynch[2] = globval.CODvect[2];
-//  xsynch[3] = globval.CODvect[3];
-//  xsynch[4] = globval.CODvect[4];
-//  xsynch[5] = globval.CODvect[5];
+  Lattice.param.CODvect = xsynch;
+//  xsynch[0] = Lattice.param.CODvect[0];
+//  xsynch[1] = Lattice.param.CODvect[1];
+//  xsynch[2] = Lattice.param.CODvect[2];
+//  xsynch[3] = Lattice.param.CODvect[3];
+//  xsynch[4] = Lattice.param.CODvect[4];
+//  xsynch[5] = Lattice.param.CODvect[5];
   
   if ((outf = fopen(fic, "w")) == NULL)  {
     fprintf(stdout, "Phase: error while opening file %s\n", fic);
@@ -1416,7 +1419,7 @@ void PhasePortrait(double x0,double px0,double z0, double pz0, double delta0,
 void Check_Trac(double x, double px, double y, double py, double dp)
 {
   psVector x1;             /* Tracking coordinates */
-  long lastpos = globval.Cell_nLoc;
+  long lastpos = Lattice.param.Cell_nLoc;
   FILE *outf;
   const char fic[] = "check_ampl.out";
   int i;
@@ -1433,7 +1436,7 @@ void Check_Trac(double x, double px, double y, double py, double dp)
 
   fprintf(outf,"# i    x   xp  z   zp   delta cT \n");
 
-  for (i = 1; i<= globval.Cell_nLoc; i++)
+  for (i = 1; i<= Lattice.param.Cell_nLoc; i++)
   {
     Cell_Pass(i,i+1, x1, lastpos);
     fprintf(outf,"%4d % .5e % .5e % .5e % .5e % .5e % .5e\n",
@@ -1471,7 +1474,7 @@ void Check_Trac(double x, double px, double y, double py, double dp)
 void Enveloppe(double x, double px, double y, double py, double dp, double nturn)
 {
   psVector x1; /* Tracking coordinates */
-  long lastpos = globval.Cell_nLoc;
+  long lastpos = Lattice.param.Cell_nLoc;
   FILE *outf;
   const char fic[] = "enveloppe.out";
   int i,j ;
@@ -1481,7 +1484,7 @@ void Enveloppe(double x, double px, double y, double py, double dp, double nturn
   //~ getcod(dp, lastpos);
   findcod(dp);
 
-  printf("xcod=%.5e mm zcod=% .5e mm \n", globval.CODvect[0]*1e3, globval.CODvect[2]*1e3);
+  printf("xcod=%.5e mm zcod=% .5e mm \n", Lattice.param.CODvect[0]*1e3, Lattice.param.CODvect[2]*1e3);
 
   if ((outf = fopen(fic, "w")) == NULL)
   {
@@ -1489,15 +1492,15 @@ void Enveloppe(double x, double px, double y, double py, double dp, double nturn
     exit_(1);
   }
 
-  x1[0] =  x + globval.CODvect[0]; x1[1] = px + globval.CODvect[1];
-  x1[2] =  y + globval.CODvect[2]; x1[3] = py + globval.CODvect[3];
+  x1[0] =  x + Lattice.param.CODvect[0]; x1[1] = px + Lattice.param.CODvect[1];
+  x1[2] =  y + Lattice.param.CODvect[2]; x1[3] = py + Lattice.param.CODvect[3];
   x1[4] = dp; x1[5] = 0e0;
 
   fprintf(outf,"# i    x   xp  z   zp   delta cT \n");
 
   for (j = 1; j <= nturn; j++)
   {
-    for (i = 0; i< globval.Cell_nLoc; i++)
+    for (i = 0; i< Lattice.param.Cell_nLoc; i++)
     {/* loop over full ring */
 
       getelem(i, &Cell);
@@ -1589,7 +1592,7 @@ void Multipole(void)
   printf("Enter multipole ... \n");
 
 /* Make lists of dipoles, quadrupoles and  sextupoles */
-  for (i = 0; i <= globval.Cell_nLoc; i++)
+  for (i = 0; i <= Lattice.param.Cell_nLoc; i++)
   {
     getelem(i, &Cell); /* get element */
 
@@ -2001,7 +2004,7 @@ void SetSkewQuad(void)
   int qlist[500];  /* Quadrupole list */
 
   /* make quadrupole list */
-  for (i = 0; i <= globval.Cell_nLoc; i++)
+  for (i = 0; i <= Lattice.param.Cell_nLoc; i++)
   {
     getelem(i, &Cell); /* get element */
 
@@ -2148,10 +2151,10 @@ void MomentumAcceptance(long deb, long fin, double ep_min, double ep_max,
   /***************************************************************/
 
   // cod search has to be done in 4D since in 6D it is zero
-  cavityflag = globval.Cavity_on;
-  radiationflag = globval.radiation;  
-  globval.Cavity_on = false;  /* Cavity on/off */
-  globval.radiation = false;  /* radiation on/off */  
+  cavityflag = Lattice.param.Cavity_on;
+  radiationflag = Lattice.param.radiation;  
+  Lattice.param.Cavity_on = false;  /* Cavity on/off */
+  Lattice.param.radiation = false;  /* radiation on/off */  
 
    // Allocation of an array of pointer array
   tabz0  = (double **)malloc((nstepp)*sizeof(double*));
@@ -2223,8 +2226,8 @@ void MomentumAcceptance(long deb, long fin, double ep_min, double ep_max,
     }
   }
 
-  globval.Cavity_on = cavityflag;
-  globval.radiation = radiationflag;
+  Lattice.param.Cavity_on = cavityflag;
+  Lattice.param.radiation = radiationflag;
 
   /***************************************************************/
   fprintf(stdout,"Computing positive momentum acceptance ... \n");
@@ -2298,10 +2301,10 @@ void MomentumAcceptance(long deb, long fin, double ep_min, double ep_max,
   /***************************************************************/
 
   // cod search has to be done in 4D since in 6D it is zero
-  cavityflag        = globval.Cavity_on;
-  radiationflag     = globval.radiation;
-  globval.Cavity_on = false;  /* Cavity on/off */
-  globval.radiation = false;  /* radiation on/off */  
+  cavityflag        = Lattice.param.Cavity_on;
+  radiationflag     = Lattice.param.radiation;
+  Lattice.param.Cavity_on = false;  /* Cavity on/off */
+  Lattice.param.radiation = false;  /* radiation on/off */  
   
    // Allocation of an array of pointer array
   tabz0  = (double **)malloc((nstepm)*sizeof(double*));
@@ -2371,8 +2374,8 @@ void MomentumAcceptance(long deb, long fin, double ep_min, double ep_max,
     }
   }
 
-  globval.Cavity_on = cavityflag;  
-  globval.radiation = radiationflag;
+  Lattice.param.Cavity_on = cavityflag;  
+  Lattice.param.radiation = radiationflag;
 
   /***************************************************************/
   fprintf(stdout,"Computing negative momentum acceptance ... \n");
@@ -2475,7 +2478,7 @@ void set_vectorcod(psVector  codvector[], double dP)
   findcod(dP);
   
   if (status.codflag == 1) { /* cod exists */
-    for (k = 1L; k <= globval.Cell_nLoc; k++){
+    for (k = 1L; k <= Lattice.param.Cell_nLoc; k++){
       getelem(k,&Cell);
       codvector[k] = Cell.BeamPos;
     }
@@ -2483,7 +2486,7 @@ void set_vectorcod(psVector  codvector[], double dP)
     CopyVec(6L, Cell.BeamPos, codvector[0]);
   }
   else { /* nostable cod */
-    for (k = 1L; k <= globval.Cell_nLoc; k++)
+    for (k = 1L; k <= Lattice.param.Cell_nLoc; k++)
       codvector[k] = zerovector;
   }
 }
@@ -2648,7 +2651,7 @@ void spectrum(long Nbx, long Nbz, long Nbtour, double xmax, double zmax,
        none
 
    Global variables:
-       globval
+       Lattice.param
 
    specific functions:
        Cell_Pass
@@ -2693,7 +2696,7 @@ void TracCO(double x, double px, double y, double py, double dp, double ctau,
 		lastn, x1[0], x1[1], x1[2], x1[3], x1[4], x1[5]);
       }
 
-      Cell_Pass(pos-1L, globval.Cell_nLoc, x1, lastpos);
+      Cell_Pass(pos-1L, Lattice.param.Cell_nLoc, x1, lastpos);
       Cell_Pass(0,pos-1L, x1, lastpos);
     }
     while (((lastn) < nmax) && ((lastpos) == pos-1L));
@@ -2741,7 +2744,7 @@ void getA4antidamping()
   int nquad=0, i;
   double A = 0.0;
 
-  for (i = 0; i <= globval.Cell_nLoc; i++)
+  for (i = 0; i <= Lattice.param.Cell_nLoc; i++)
   {
     getelem(i, &Cell); /* get element */
 
@@ -3487,7 +3490,7 @@ double EnergyDrift(double *X)
 void Enveloppe2(double x, double px, double y, double py, double dp, double nturn)
 {
   psVector x1; /* Tracking coordinates */
-  long lastpos = globval.Cell_nLoc;
+  long lastpos = Lattice.param.Cell_nLoc;
   FILE *outf;
   const char fic[] = "enveloppe2.out";
   int i,j ;
@@ -3500,7 +3503,7 @@ void Enveloppe2(double x, double px, double y, double py, double dp, double ntur
   /* Get cod the delta = energy*/
   Lattice.getcod(dp, lastpos);
 //  /* initialization to chromatic closed orbit */
-//  for (i = 0; i<= globval.Cell_nLoc; i++)
+//  for (i = 0; i<= Lattice.param.Cell_nLoc; i++)
 //  {
 //   getelem(i, &Cell);
 //   Envxm[i] = Cell.BeamPos[0];   Envxp[i] = Cell.BeamPos[0];
@@ -3508,26 +3511,26 @@ void Enveloppe2(double x, double px, double y, double py, double dp, double ntur
 //  }
 
   printf("xcod=%.5e mm zcod=% .5e mm \n",
-	 globval.CODvect[0]*1e3, globval.CODvect[2]*1e3);
+	 Lattice.param.CODvect[0]*1e3, Lattice.param.CODvect[2]*1e3);
 
   if ((outf = fopen(fic, "w")) == NULL) {
     fprintf(stdout, "Enveloppe: error while opening file %s\n", fic);
     exit_(1);
   }
 
-  x1[0] =  x + globval.CODvect[0]; x1[1] = px + globval.CODvect[1];
-  x1[2] =  y + globval.CODvect[2]; x1[3] = py + globval.CODvect[3];
+  x1[0] =  x + Lattice.param.CODvect[0]; x1[1] = px + Lattice.param.CODvect[1];
+  x1[2] =  y + Lattice.param.CODvect[2]; x1[3] = py + Lattice.param.CODvect[3];
   x1[4] = dp; x1[5] = 0e0;
 
-  fprintf(outf,"# s       envx(+)       envx(-)       envz(+)       envz(-)     delta \n");
+  fprintf(outf,"# s       envx(+)       envx(-)       envz(+)       envz(-)"
+	  "     delta \n");
 
-  for (i = 0; i< globval.Cell_nLoc; i++)
-  {/* loop over full ring: one turn for intialization */
+  for (i = 0; i < Lattice.param.Cell_nLoc; i++) {
+    /* loop over full ring: one turn for intialization */
 
     getelem(i,&Cell);
     Cell_Pass(i,i+1, x1, lastpos);
-    if (lastpos != i+1)
-    {
+    if (lastpos != i+1) {
      printf("Unstable motion ...\n"); exit_(1);
     }
 
@@ -3536,13 +3539,12 @@ void Enveloppe2(double x, double px, double y, double py, double dp, double ntur
 
   for (j = 1; j < nturn; j++) {
     /* loop over full ring */
-   for (i = 0; i<= globval.Cell_nLoc; i++) {
+   for (i = 0; i<= Lattice.param.Cell_nLoc; i++) {
  
       getelem(i, &Cell);
       Cell_Pass(i, i+1, x1, lastpos);
-      if (lastpos != i+1)
-      {
-       printf("Unstable motion ...\n"); exit_(1);
+      if (lastpos != i+1) {
+	printf("Unstable motion ...\n"); exit_(1);
       }
       if (x1[0] >= Envxp[i]) Envxp[i] = x1[0];
       if (x1[0] <= Envxm[i]) Envxm[i] = x1[0];
@@ -3551,9 +3553,8 @@ void Enveloppe2(double x, double px, double y, double py, double dp, double ntur
       }
   }
 
-  for (i = 0; i<= globval.Cell_nLoc; i++)
-  {
-    getelem(i,&Cell);
+  for (i = 0; i <= Lattice.param.Cell_nLoc; i++) {
+    getelem(i, &Cell);
     fprintf(outf,"%6.2f % .5e % .5e % .5e % .5e % .5e\n",
             Cell.S, Envxp[i],Envxm[i],Envzp[i],Envzm[i],dp);
   }

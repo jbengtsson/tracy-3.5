@@ -23,7 +23,7 @@ void chk_bend()
   double phi;
 
   phi = 0e0;
-  for (k = 0; k <= globval.Cell_nLoc; k++) {
+  for (k = 0; k <= Lattice.param.Cell_nLoc; k++) {
     if ((Lattice.Cell[k].Elem.Kind == Mpole) &&
 	(Lattice.Cell[k].Elem.M->n_design == Dip)) {
       phi += Lattice.Cell[k].Elem.L*Lattice.Cell[k].Elem.M->irho;
@@ -46,7 +46,7 @@ void prt_x0(const double delta)
   outf = file_write(file_name.c_str());
 
   ps.zero(); ps[delta_] = delta;
-  Cell_Pass(0, globval.Cell_nLoc, ps, lastpos);
+  Cell_Pass(0, Lattice.param.Cell_nLoc, ps, lastpos);
   for (k = 0; k < lastpos; k++) {
     fprintf(outf, "%4d %15s %9.5f %4.1f %9.5f %9.5f %9.5f %9.5f %9.5f %9.5f\n",
 	    k, Lattice.Cell[k].Elem.Name, Lattice.Cell[k].S,
@@ -73,7 +73,7 @@ void scan_delta(const int n, const double delta)
 
   for (k = 0; k < n; k++) {
     d = (double)k/double(n-1)*delta;
-    ps.zero(); ps[delta_] = d; Cell_Pass(0, globval.Cell_nLoc, ps, lastpos);
+    ps.zero(); ps[delta_] = d; Cell_Pass(0, Lattice.param.Cell_nLoc, ps, lastpos);
     outf << std::scientific << std::setprecision(6)
 	 << std::setw(14) << d << std::setw(14) << ps << std::endl;
   }
@@ -120,7 +120,7 @@ double f_opt(double prms[])
   for (k = 0; k < n; k++) {
     deltas[k] = k*h;
     ps.zero(); ps[delta_] = deltas[k];
-    Cell_Pass(0, globval.Cell_nLoc, ps, lastpos);
+    Cell_Pass(0, Lattice.param.Cell_nLoc, ps, lastpos);
     x_delta[k] = sqr(ps[x_]); px_delta[k] = sqr(ps[px_]); ct_delta[k] = ps[ct_];
     x_max = max(fabs(ps[x_]), x_max); px_max = max(fabs(ps[px_]), px_max);
   }
@@ -272,23 +272,23 @@ void get_optics()
   Lattice.ttwiss(alpha, beta, eta, etap, 0e0);
 
   printf("\nalpha = [%13.6e, %13.6e]\n",
-	 Lattice.Cell[globval.Cell_nLoc].Alpha[X_],
-	 Lattice.Cell[globval.Cell_nLoc].Alpha[Y_]);
+	 Lattice.Cell[Lattice.param.Cell_nLoc].Alpha[X_],
+	 Lattice.Cell[Lattice.param.Cell_nLoc].Alpha[Y_]);
   printf("beta  = [%13.6e, %13.6e]\n",
-	 Lattice.Cell[globval.Cell_nLoc].Beta[X_],
-	 Lattice.Cell[globval.Cell_nLoc].Beta[Y_]);
+	 Lattice.Cell[Lattice.param.Cell_nLoc].Beta[X_],
+	 Lattice.Cell[Lattice.param.Cell_nLoc].Beta[Y_]);
   printf("nu    = [%13.6e, %13.6e]\n",
-	 Lattice.Cell[globval.Cell_nLoc].Nu[X_],
-	 Lattice.Cell[globval.Cell_nLoc].Nu[Y_]);
+	 Lattice.Cell[Lattice.param.Cell_nLoc].Nu[X_],
+	 Lattice.Cell[Lattice.param.Cell_nLoc].Nu[Y_]);
   printf("eta   = [%13.6e, %13.6e]\n",
-	 Lattice.Cell[globval.Cell_nLoc].Eta[X_],
-	 Lattice.Cell[globval.Cell_nLoc].Eta[Y_]);
+	 Lattice.Cell[Lattice.param.Cell_nLoc].Eta[X_],
+	 Lattice.Cell[Lattice.param.Cell_nLoc].Eta[Y_]);
   printf("etap  = [%13.6e, %13.6e]\n",
-	 Lattice.Cell[globval.Cell_nLoc].Etap[X_],
-	 Lattice.Cell[globval.Cell_nLoc].Etap[Y_]);
+	 Lattice.Cell[Lattice.param.Cell_nLoc].Etap[X_],
+	 Lattice.Cell[Lattice.param.Cell_nLoc].Etap[Y_]);
 
-  Lattice.prt_lat("linlat1.out", globval.bpm, true);
-  Lattice.prt_lat("linlat.out", globval.bpm, true, 10);
+  Lattice.prt_lat("linlat1.out", Lattice.param.bpm, true);
+  Lattice.prt_lat("linlat.out", Lattice.param.bpm, true, 10);
 }
 
 
@@ -302,27 +302,27 @@ void check_cav_model()
   // ARC3.
   const double p0 = 750e6;
 
-  globval.Cavity_on = true;
+  Lattice.param.Cavity_on = true;
 
-  // globval.Energy contains p_0 [GeV/c].
-  globval.Energy = 1e-9*p0;
-  globval.gamma0 = sqrt(sqr(m_e)+sqr(1e9*globval.Energy))/m_e;
-  globval.beta0  = sqrt(1e0-1e0/sqr(globval.gamma0));
+  // Lattice.param.Energy contains p_0 [GeV/c].
+  Lattice.param.Energy = 1e-9*p0;
+  Lattice.param.gamma0 = sqrt(sqr(m_e)+sqr(1e9*Lattice.param.Energy))/m_e;
+  Lattice.param.beta0  = sqrt(1e0-1e0/sqr(Lattice.param.gamma0));
   printf("\np0 = %12.5e, 1-beta0 = %12.5e, gamma0 = %12.5e\n",
-	 1e9*globval.Energy, 1e0-globval.beta0, globval.gamma0);
+	 1e9*Lattice.param.Energy, 1e0-Lattice.param.beta0, Lattice.param.gamma0);
 
   if (false) no_sxt();
 
   map.identity();
-  Cell_Pass(0, globval.Cell_nLoc, map, lastpos);
+  Cell_Pass(0, Lattice.param.Cell_nLoc, map, lastpos);
   prt_lin_map(3, map);
 
   if (true)
     p_s =
-      sqrt(1e0+2e0*map[delta_]/globval.beta0+sqr(map[delta_])-sqr(map[px_])
+      sqrt(1e0+2e0*map[delta_]/Lattice.param.beta0+sqr(map[delta_])-sqr(map[px_])
 	   -sqr(map[py_]));
   else
-    p_s = sqrt(sqr(1e9*globval.Energy/p0)-sqr(map[px_]) -sqr(map[py_]));
+    p_s = sqrt(sqr(1e9*Lattice.param.Energy/p0)-sqr(map[px_]) -sqr(map[py_]));
 
   Id.identity();
   Id[px_] /= p_s; Id[py_] /= p_s;
@@ -330,7 +330,7 @@ void check_cav_model()
   // map = map*Id;
 
   // Transform from ct to s.
-  // map[ct_] *= globval.beta0*p_s;
+  // map[ct_] *= Lattice.param.beta0*p_s;
 
   // prt_lin_map(3, map);
 }
@@ -339,10 +339,10 @@ void check_cav_model()
 int main(int argc, char *argv[])
 {
 
-  globval.H_exact    = false; globval.quad_fringe = false;
-  globval.Cavity_on  = false; globval.radiation   = false;
-  globval.emittance  = false; globval.IBS         = false;
-  globval.pathlength = false;  globval.bpm         = 0;
+  Lattice.param.H_exact    = false; Lattice.param.quad_fringe = false;
+  Lattice.param.Cavity_on  = false; Lattice.param.radiation   = false;
+  Lattice.param.emittance  = false; Lattice.param.IBS         = false;
+  Lattice.param.pathlength = false;  Lattice.param.bpm         = 0;
 
   // disable from TPSALib and LieLib log messages
   idprset(-1);

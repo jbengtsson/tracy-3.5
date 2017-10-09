@@ -19,7 +19,7 @@ inline bool CheckAmpl(const ss_vect<T> &x, const long int loc)
 {
   bool  not_lost;
 
-  if (globval.Aperture_on)
+  if (Lattice.param.Aperture_on)
     not_lost =
       is_double<T>::cst(x[x_]) > Lattice.Cell[loc].maxampl[X_][0] &&
       is_double<T>::cst(x[x_]) < Lattice.Cell[loc].maxampl[X_][1] && 
@@ -95,13 +95,13 @@ void Cell_Pass(const long i0, const long i1, ss_vect<T> &x, long &lastpos)
 {
   long int  i = 0;
 
-  if (globval.radiation) globval.dE = 0e0;
+  if (Lattice.param.radiation) Lattice.param.dE = 0e0;
 
-  if (globval.emittance) {
+  if (Lattice.param.emittance) {
     I2 = 0e0; I4 = 0e0; I5 = 0e0;
 
     for (i = 0; i < DOF; i++)
-      globval.D_rad[i] = 0e0;
+      Lattice.param.D_rad[i] = 0e0;
   }
 
   if (!CheckAmpl(x, i0))
@@ -128,7 +128,7 @@ void Cell_Pass(const long i0, const long i1, tps &sigma, long &lastpos)
 
   Id.identity();
 
-  map = Id + globval.CODvect; Cell_Pass(0, i0, map, lastpos);
+  map = Id + Lattice.param.CODvect; Cell_Pass(0, i0, map, lastpos);
 
   if (lastpos == i0) {
     map = Id + map.cst(); Cell_Pass(i0, i1, map, lastpos);
@@ -139,7 +139,7 @@ void Cell_Pass(const long i0, const long i1, tps &sigma, long &lastpos)
       // deterministic part
       sigma = sigma*Inv(map-map.cst());
 
-      if (globval.emittance) {
+      if (Lattice.param.emittance) {
 	// stochastic part
 
 	for (i = 0; i < n; i++)
@@ -150,12 +150,12 @@ void Cell_Pass(const long i0, const long i1, tps &sigma, long &lastpos)
 	jj[3][y_]  = 2; jj[4][y_]  = 1; jj[4][py_]    = 1; jj[5][py_]    = 2;
 	jj[6][ct_] = 2; jj[7][ct_] = 1; jj[7][delta_] = 1; jj[8][delta_] = 2;
 
-	putlinmat(6, globval.Ascr, A); sigma = sigma*A;
+	putlinmat(6, Lattice.param.Ascr, A); sigma = sigma*A;
 
 	for (i = 0; i < 3; i++) {
-	  if (globval.eps[i] > deps) {
-	    sigma.pook(jj[3*i], sigma[jj[3*i]]-globval.D_rad[i]/2.0);
-	    sigma.pook(jj[3*i+2], sigma[jj[3*i+2]]-globval.D_rad[i]/2.0);
+	  if (Lattice.param.eps[i] > deps) {
+	    sigma.pook(jj[3*i], sigma[jj[3*i]]-Lattice.param.D_rad[i]/2.0);
+	    sigma.pook(jj[3*i+2], sigma[jj[3*i+2]]-Lattice.param.D_rad[i]/2.0);
 	  }
 	}
 
@@ -178,7 +178,7 @@ bool Cell_getCOD(long imax, double eps, double dP, long &lastpos)
 
   no = no_tps; danot_(1);
   
-  n = (globval.Cavity_on)? 6 : 4; globval.dPparticle = dP;
+  n = (Lattice.param.Cavity_on)? 6 : 4; Lattice.param.dPparticle = dP;
 
   if (n == 6) {
     // initial guess is zero for 3 D.O.F.
@@ -202,9 +202,9 @@ bool Cell_getCOD(long imax, double eps, double dP, long &lastpos)
   do {
     n_iter++; map.identity(); map += x0;
 
-    Cell_Pass(0, globval.Cell_nLoc, map, lastpos); 
+    Cell_Pass(0, Lattice.param.Cell_nLoc, map, lastpos); 
 
-    if (lastpos == globval.Cell_nLoc) {
+    if (lastpos == Lattice.param.Cell_nLoc) {
       x1 = map.cst(); dx = x0 - x1; dx0 = PInv(map-I-x1, jj)*dx;
       dxabs = xabs(n, dx); x0 += dx0.cst();
     } else {
@@ -223,8 +223,8 @@ bool Cell_getCOD(long imax, double eps, double dP, long &lastpos)
   status.codflag = dxabs < eps;
 
   if (status.codflag) {
-    globval.CODvect = x0; getlinmat(6, map, globval.OneTurnMat);
-    Cell_Pass(0, globval.Cell_nLoc, x0, lastpos);
+    Lattice.param.CODvect = x0; getlinmat(6, map, Lattice.param.OneTurnMat);
+    Cell_Pass(0, Lattice.param.Cell_nLoc, x0, lastpos);
   } else {
     std::cout << std::scientific << std::setprecision(5)
 	      << "\nCell_getCOD: failed to converge after " << n_iter
@@ -269,7 +269,7 @@ void Cell_Init(void)
 
   memcpy(Lattice.Cell[0].Elem.Name, first_name, sizeof(first_name));
 
-  for (i = 1; i <= globval.Elem_nFam; i++) {
+  for (i = 1; i <= Lattice.param.Elem_nFam; i++) {
     elemfamp  = &Lattice.ElemFam[i-1]; /* Get 1 of all elements stored in
 					  ElemFam array */
     elemp = &elemfamp->ElemF; // For switch structure: choice on element type
@@ -324,7 +324,7 @@ void Cell_Init(void)
 
   /* Computes s-location of each element in the structure */
   Stotal = 0e0;
-  for (i = 0; i <= globval.Cell_nLoc; i++) {
+  for (i = 0; i <= Lattice.param.Cell_nLoc; i++) {
     Stotal += Lattice.Cell[i].Elem.L; Lattice.Cell[i].S = Stotal;
   }
 }

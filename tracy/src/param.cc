@@ -64,7 +64,7 @@ void param_data_type::get_param(const string &param_file)
       sscanf(line, "%s", name);
 
       if (strcmp("energy", name) == 0) {
-	sscanf(line, "%*s %lf", &globval.Energy);
+	sscanf(line, "%*s %lf", &Lattice.param.Energy);
       } else if (strcmp("in_dir", name) == 0){
         sscanf(line, "%*s %s", str);
 	in_dir = str;
@@ -123,10 +123,10 @@ void param_data_type::get_param(const string &param_file)
 	}
       } else if (strcmp("gs", name) == 0) {
 	sscanf(line, "%*s %s", str);
-	globval.gs = Lattice.Elem_Index(str);
+	Lattice.param.gs = Lattice.Elem_Index(str);
       } else if (strcmp("ge", name) == 0) {
 	sscanf(line, "%*s %s", str);
-	globval.ge = Lattice.Elem_Index(str);
+	Lattice.param.ge = Lattice.Elem_Index(str);
       } else if (strcmp("DA_bare", name) == 0) {
 	sscanf(line, "%*s %s", str);
 	DA_bare = (strcmp(str, "true") == 0)? true : false;
@@ -143,7 +143,7 @@ void param_data_type::get_param(const string &param_file)
 	freq_map = (strcmp(str, "true") == 0)? true : false;
       } else if (strcmp("qt", name) == 0) {
 	sscanf(line, "%*s %s", str);
-	globval.qt = Lattice.Elem_Index(str);
+	Lattice.param.qt = Lattice.Elem_Index(str);
       } else if (strcmp("disp_wave_y", name) == 0)
 	sscanf(line, "%*s %lf", &disp_wave_y);
       else if (strcmp("n_lin", name) == 0)
@@ -188,7 +188,7 @@ void param_data_type::get_bare(void)
   long int j, k;
 
   n_sext = 0;
-  for (j = 0; j <= globval.Cell_nLoc; j++) {
+  for (j = 0; j <= Lattice.param.Cell_nLoc; j++) {
     if ((Lattice.Cell[j].Elem.Kind == Mpole) && (Lattice.Cell[j].Elem.M->n_design >= Sext)) {
       n_sext++; sexts[n_sext-1] = j;
       for (k = 0; k < 2; k++) {
@@ -198,7 +198,7 @@ void param_data_type::get_bare(void)
     }
   }
 
-  nu0_[X_] = globval.TotalTune[X_]; nu0_[Y_] = globval.TotalTune[Y_];
+  nu0_[X_] = Lattice.param.TotalTune[X_]; nu0_[Y_] = Lattice.param.TotalTune[Y_];
 }
 
 
@@ -285,10 +285,10 @@ void param_data_type::FindMatrix(double **SkewRespMat, const double deta_y_max)
   betaHC = dmatrix(1, N_HCOR, 1, 2); nuHC = dmatrix(1, N_HCOR, 1, 2);
   betaVC = dmatrix(1, N_VCOR, 1, 2); nuVC = dmatrix(1, N_VCOR, 1, 2);
 
-  nuX = globval.TotalTune[X_]; nuY = globval.TotalTune[Y_];
+  nuX = Lattice.param.TotalTune[X_]; nuY = Lattice.param.TotalTune[Y_];
 
   for (i = 1; i <= N_SKEW; i++) {
-    loc = Lattice.Elem_GetPos(globval.qt, i);
+    loc = Lattice.Elem_GetPos(Lattice.param.qt, i);
     etaSQ[i] = Lattice.Cell[loc].Eta[X_];
     betaSQ[i][Xi] = Lattice.Cell[loc].Beta[X_]; betaSQ[i][Yi] = Lattice.Cell[loc].Beta[Y_];
     nuSQ[i][Xi] = Lattice.Cell[loc].Nu[X_]; nuSQ[i][Yi] = Lattice.Cell[loc].Nu[Y_];
@@ -391,14 +391,14 @@ void param_data_type::ini_skew_cor(const double deta_y_max)
 {
   int k;
 
-  std::cout << "ini_skew_cor: out-of-date (globval.hcorr...)" << std::endl;
+  std::cout << "ini_skew_cor: out-of-date (Lattice.param.hcorr...)" << std::endl;
   exit(1);
 
   // No of skew quads, BPMs, and correctors
-  N_SKEW = Lattice.GetnKid(globval.qt);
+  N_SKEW = Lattice.GetnKid(Lattice.param.qt);
 
   N_BPM = 0;
-  for (k = 1; k <= Lattice.GetnKid(globval.bpm); k++) {
+  for (k = 1; k <= Lattice.GetnKid(Lattice.param.bpm); k++) {
     N_BPM++;
 
     if (N_BPM > max_bpm) {
@@ -407,18 +407,18 @@ void param_data_type::ini_skew_cor(const double deta_y_max)
       exit_(1);
     }
 
-    bpm_loc[N_BPM-1] = Lattice.Elem_GetPos(globval.bpm, k);
+    bpm_loc[N_BPM-1] = Lattice.Elem_GetPos(Lattice.param.bpm, k);
   }
 
   N_HCOR = 0;
-  h_corr[N_HCOR++] = Lattice.Elem_GetPos(globval.hcorr, 1);
-  h_corr[N_HCOR++] = Lattice.Elem_GetPos(globval.hcorr, Lattice.GetnKid(globval.hcorr)/3);
-  h_corr[N_HCOR++] = Lattice.Elem_GetPos(globval.hcorr, 2*Lattice.GetnKid(globval.hcorr)/3);
+  h_corr[N_HCOR++] = Lattice.Elem_GetPos(Lattice.param.hcorr, 1);
+  h_corr[N_HCOR++] = Lattice.Elem_GetPos(Lattice.param.hcorr, Lattice.GetnKid(Lattice.param.hcorr)/3);
+  h_corr[N_HCOR++] = Lattice.Elem_GetPos(Lattice.param.hcorr, 2*Lattice.GetnKid(Lattice.param.hcorr)/3);
 
   N_VCOR = 0;
-  v_corr[N_VCOR++] = Lattice.Elem_GetPos(globval.vcorr, 1);
-  v_corr[N_VCOR++] = Lattice.Elem_GetPos(globval.vcorr, Lattice.GetnKid(globval.vcorr)/3);
-  v_corr[N_VCOR++] = Lattice.Elem_GetPos(globval.vcorr, 2*Lattice.GetnKid(globval.vcorr)/3);
+  v_corr[N_VCOR++] = Lattice.Elem_GetPos(Lattice.param.vcorr, 1);
+  v_corr[N_VCOR++] = Lattice.Elem_GetPos(Lattice.param.vcorr, Lattice.GetnKid(Lattice.param.vcorr)/3);
+  v_corr[N_VCOR++] = Lattice.Elem_GetPos(Lattice.param.vcorr, 2*Lattice.GetnKid(Lattice.param.vcorr)/3);
 
   N_COUPLE = N_BPM*(1+N_HCOR+N_VCOR);
 
@@ -458,7 +458,7 @@ void param_data_type::FindCoupVector(double *VertCouple)
   orbitP = dvector(1, N_BPM); orbitN = dvector(1, N_BPM);
 
   // Find vertical dispersion
-  Lattice.Cell_Geteta(0, globval.Cell_nLoc, true, 0e0);
+  Lattice.Cell_Geteta(0, Lattice.param.Cell_nLoc, true, 0e0);
 
   for (i = 1; i <= N_BPM; i++)
     VertCouple[i] = VDweight*Lattice.Cell[bpm_loc[i-1]].Eta[Y_];
@@ -527,7 +527,7 @@ void param_data_type::SkewStat(double VertCouple[])
   // statistics for skew quadrupoles
   max = 0.0; rms = 0.0;
   for(i = 1; i <= N_SKEW; i++) {
-    sk = GetKLpar(globval.qt, i, -Quad);
+    sk = GetKLpar(Lattice.param.qt, i, -Quad);
     if (fabs(sk) > max) max = fabs(sk);
     rms += sqr(sk);
   }
@@ -568,7 +568,7 @@ void param_data_type::corr_eps_y(void)
   FILE *outf;
 
   // Clear skew quad setpoints
-  set_bnL_design_fam(globval.qt, Quad, 0.0, 0.0);
+  set_bnL_design_fam(Lattice.param.qt, Quad, 0.0, 0.0);
 
   // Find coupling vector
   printf("\n");
@@ -597,7 +597,7 @@ void param_data_type::corr_eps_y(void)
     printf("Applying correction\n");
     // Add correction
     for (j = 1; j <= N_SKEW; j++)
-      SetdKLpar(globval.qt, j, -Quad, SkewStrengthCorr[j]);
+      SetdKLpar(Lattice.param.qt, j, -Quad, SkewStrengthCorr[j]);
 
     printf("\n");
     printf("Looking for coupling error\n");
@@ -611,7 +611,7 @@ void param_data_type::corr_eps_y(void)
   } // End of coupling Correction
 
   outf = file_write(eta_y_FileName);
-  for (i = 0; i <= globval.Cell_nLoc; i++)
+  for (i = 0; i <= Lattice.param.Cell_nLoc; i++)
     fprintf(outf, "%4d %7.3f %s %6.3f %10.3e %10.3e\n",
 	    i, Lattice.Cell[i].S, Lattice.Cell[i].Elem.Name,
 	    Lattice.Cell[i].Nu[Y_], 1e3*Lattice.Cell[i].Eta[Y_], 1e3*Lattice.Cell[i].Etap[Y_]);
@@ -627,7 +627,7 @@ void param_data_type::get_IDs(void)
 
   printf("\n");
   n_ID_Fams = 0;
-  for (k = 0; k < globval.Elem_nFam; k++)
+  for (k = 0; k < Lattice.param.Elem_nFam; k++)
     switch (Lattice.ElemFam[k].ElemF.Kind) {
     case Wigl:
       printf("found ID family:   %s %12.5e\n",
@@ -803,10 +803,10 @@ bool param_data_type::get_SQ(void)
   // Get Twiss params, no dispersion
   Lattice.Ring_GetTwiss(false, 0e0);
 
-  if (!status.codflag || !globval.stable) return false;
+  if (!status.codflag || !Lattice.param.stable) return false;
 
   // Get global tunes
-  Nu_X = globval.TotalTune[X_]; Nu_Y = globval.TotalTune[Y_];
+  Nu_X = Lattice.param.TotalTune[X_]; Nu_Y = Lattice.param.TotalTune[Y_];
 
   if (trace) {
     printf("\n");
@@ -822,7 +822,7 @@ bool param_data_type::get_SQ(void)
   }
 
   Nsext = 0;
-  for (k = 0; k < globval.Cell_nLoc; k++) {
+  for (k = 0; k < Lattice.param.Cell_nLoc; k++) {
     if ((Lattice.Cell[k].Elem.Kind == Mpole) && (Lattice.Cell[k].Elem.M->n_design == Sext)) {
       Nsext++;
 
@@ -971,8 +971,8 @@ void param_data_type::X_vector(const bool first)
 {
   int k;
 
-  dnu0[X_] = globval.TotalTune[X_] - Nu_X0;
-  dnu0[Y_] = globval.TotalTune[Y_] - Nu_Y0;
+  dnu0[X_] = Lattice.param.TotalTune[X_] - Nu_X0;
+  dnu0[Y_] = Lattice.param.TotalTune[Y_] - Nu_Y0;
 
   if (first) {
     // Initial fill of X
@@ -989,8 +989,8 @@ void param_data_type::X_vector(const bool first)
       Xsext[k+2*Nsext] = scl_dnu*(Xsext0[k+2*Nsext]-sNu[X_][k-1]+dnu0[X_]/2.0);
       Xsext[k+3*Nsext] = scl_dnu*(Xsext0[k+3*Nsext]-sNu[Y_][k-1]+dnu0[Y_]/2.0);
     }
-    Xsext[4*Nsext+1] = scl_nu*(Nu_X0-globval.TotalTune[X_]);
-    Xsext[4*Nsext+2] = scl_nu*(Nu_Y0-globval.TotalTune[Y_]);
+    Xsext[4*Nsext+1] = scl_nu*(Nu_X0-Lattice.param.TotalTune[X_]);
+    Xsext[4*Nsext+2] = scl_nu*(Nu_Y0-Lattice.param.TotalTune[Y_]);
   }
 
   if (trace) {
@@ -1047,7 +1047,7 @@ void param_data_type::ini_ID_corr(const bool IDs)
   nu_0[X_] = 0.0; nu_0[Y_] = 0.0;
 
   // Defining undisturbed tunes
-  Nu_X0 = globval.TotalTune[X_]; Nu_Y0 = globval.TotalTune[Y_];
+  Nu_X0 = Lattice.param.TotalTune[X_]; Nu_Y0 = Lattice.param.TotalTune[Y_];
 
   // Set-up matrix A in X=A*b2Ls_
   A_matrix();
@@ -1070,8 +1070,8 @@ void param_data_type::W_diag(void)
     nyf += sqr(Xsext[k+3*Nsext]);
   }
 
-  dnu0[X_] = globval.TotalTune[X_] - Nu_X0;
-  dnu0[Y_] = globval.TotalTune[Y_] - Nu_Y0;
+  dnu0[X_] = Lattice.param.TotalTune[X_] - Nu_X0;
+  dnu0[Y_] = Lattice.param.TotalTune[Y_] - Nu_Y0;
 
   b2Lsum = 0.0;
   for (k = 1; k <= Nquad; k++)
@@ -1263,10 +1263,10 @@ void param_data_type::LoadAlignTol(const bool Scale_it, const double Scale,
 	  printf("misaligning girders:     dx = %e, dy = %e, dr = %e\n",
 		 dx, dy, dr);
 	  if (rms)
-	    misalign_rms_girders(globval.gs, globval.ge, dx, dy, dr_deg,
+	    misalign_rms_girders(Lattice.param.gs, Lattice.param.ge, dx, dy, dr_deg,
 				 new_rnd);
 	  else
-	    misalign_sys_girders(globval.gs, globval.ge, dx, dy, dr_deg);
+	    misalign_sys_girders(Lattice.param.gs, Lattice.param.ge, dx, dy, dr_deg);
 	} else if (strcmp("dipole", Name) == 0) {
 	  printf("misaligning dipoles:     dx = %e, dy = %e, dr = %e\n",
 		 dx, dy, dr);
@@ -1445,10 +1445,10 @@ void param_data_type::Align_BPMs(const int n) const
   const int n_step = 5;
 
   printf("\n");
-  for (i = 1; i <= Lattice.GetnKid(globval.bpm); i++) {
-    loc = Lattice.Elem_GetPos(globval.bpm, i);
+  for (i = 1; i <= Lattice.GetnKid(Lattice.param.bpm); i++) {
+    loc = Lattice.Elem_GetPos(Lattice.param.bpm, i);
 
-    if ((loc == 1) || (loc == globval.Cell_nLoc)) {
+    if ((loc == 1) || (loc == Lattice.param.Cell_nLoc)) {
       printf("Align_BPMs: BPM at entrance or exit of lattice: %ld\n", loc);
       exit_(1);
     }
@@ -1473,7 +1473,7 @@ void param_data_type::Align_BPMs(const int n) const
     } while (j <= n_step);
 
     if (aligned)
-      Mpole_SetdS(globval.bpm, i);
+      Mpole_SetdS(Lattice.param.bpm, i);
     else
       printf("Align_BPMs: no multipole adjacent to BPM no %d\n", i);
   }
@@ -1601,7 +1601,7 @@ bool param_data_type::cod_corr(const int n_cell, const double scl,
     thread_beam(n_cell, loc_Fam_name, bpm_Fam_names, corr_Fam_names,
 		n_orbit, scl);
 
-    // prt_cod("cod.out", globval.bpm, true);    
+    // prt_cod("cod.out", Lattice.param.bpm, true);    
   }
 
   cod = cod_correct(n_orbit, scl, orb_corr);
@@ -1613,7 +1613,7 @@ bool param_data_type::cod_corr(const int n_cell, const double scl,
   printf("          rms dnu_x          = %7.5f, dnu_y          = %7.5f\n",
 	 s_dnu[X_], s_dnu[Y_]);
 
-  Lattice.prt_cod("cod.out", globval.bpm, true);    
+  Lattice.prt_cod("cod.out", Lattice.param.bpm, true);    
 
   return cod;
 }
@@ -1631,7 +1631,7 @@ void param_data_type::Orb_and_Trim_Stat(void)
   Sext_max[X_] = 0.0; Sext_max[Y_] = 0.0;
   Sext_sigma[X_] = 0.0; Sext_sigma[Y_] = 0.0;
   TrimMax[X_] = 0.0; TrimMax[Y_] = 0.0;
-  N = globval.Cell_nLoc; SextCounter = 0;
+  N = Lattice.param.Cell_nLoc; SextCounter = 0;
   for (i = 0; i <= N; i++) {
     if ((Lattice.Cell[i].Elem.Kind == Mpole) &&
 	(Lattice.Cell[i].Elem.M->n_design == Sext)) {
@@ -1649,11 +1649,11 @@ void param_data_type::Orb_and_Trim_Stat(void)
 	printf("\nOrb_and_Trim_Stat: negative bin %d\n", j);
     } // sextupole handling
 
-    if (Lattice.Cell[i].Fnum == globval.hcorr) {
+    if (Lattice.Cell[i].Fnum == Lattice.param.hcorr) {
       tr = Lattice.Cell[i].Elem.M->Bpar[HOMmax+Dip];
       if (fabs(tr) > TrimMax[X_]) TrimMax[X_] = fabs(tr);
     } // horizontal trim handling
-    if (Lattice.Cell[i].Fnum == globval.vcorr) {
+    if (Lattice.Cell[i].Fnum == Lattice.param.vcorr) {
       tr = Lattice.Cell[i].Elem.M->Bpar[HOMmax-Dip];
       if (fabs(tr) > TrimMax[Y_]) TrimMax[Y_] = fabs(tr);
     } // vertical trim handling
@@ -1692,7 +1692,7 @@ void param_data_type::prt_cod_corr_lat(void)
   fprintf(CodCorLatFile, "#            [m]     [m]      [m]             [m]"
 	  "              [m]     [m*m] \n");
 
-  for (i = 0; i <= globval.Cell_nLoc; i++){
+  for (i = 0; i <= Lattice.param.Cell_nLoc; i++){
     fprintf(CodCorLatFile, "%4d:", i);
 
     if (i == 0)
@@ -1717,8 +1717,8 @@ void param_data_type::prt_cod_corr_lat(void)
 void param_data_type::err_and_corr_init(const string &param_file,
 					orb_corr_type orb_corr[])
 {
-  globval.Cavity_on   = false; globval.radiation = false;
-  globval.Aperture_on = false;
+  Lattice.param.Cavity_on   = false; Lattice.param.radiation = false;
+  Lattice.param.Aperture_on = false;
 
   get_param(param_file);
 
@@ -1823,10 +1823,10 @@ void get_bn2(const string file_name1, const string file_name2, int n,
   }
   if (prt) printf("\n");
 
-  C = Lattice.Cell[globval.Cell_nLoc].S; recalc_S();
+  C = Lattice.Cell[Lattice.param.Cell_nLoc].S; recalc_S();
   if (prt)
     printf("New Cell Length: %5.3f (%5.3f)\n",
-	   Lattice.Cell[globval.Cell_nLoc].S, C);
+	   Lattice.Cell[Lattice.param.Cell_nLoc].S, C);
 
   fclose(inf); fclose(fp_lat);
 }

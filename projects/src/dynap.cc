@@ -13,9 +13,9 @@ void err_and_corr(const string &param_file)
 
   params.err_and_corr_init(param_file, orb_corr);
 
-  globval.CODeps = 1e-10;
+  Lattice.param.CODeps = 1e-10;
 
-  globval.Cavity_on = true;
+  Lattice.param.Cavity_on = true;
 
   if (params.DA_bare) DA.get_DA_bare(params);
 
@@ -27,10 +27,10 @@ void err_and_corr(const string &param_file)
 
 int main(int argc, char *argv[])
 {
-  globval.H_exact    = false; globval.quad_fringe = false;
-  globval.Cavity_on  = false; globval.radiation   = false;
-  globval.emittance  = false; globval.IBS         = false;
-  globval.pathlength = false; globval.Aperture_on = false;
+  Lattice.param.H_exact    = false; Lattice.param.quad_fringe = false;
+  Lattice.param.Cavity_on  = false; Lattice.param.radiation   = false;
+  Lattice.param.emittance  = false; Lattice.param.IBS         = false;
+  Lattice.param.pathlength = false; Lattice.param.Aperture_on = false;
 
   if (argc < 1) {
     printf("*** bad command line\n");

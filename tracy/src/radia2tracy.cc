@@ -111,7 +111,7 @@ void Read_IDfile(char *fic_radia, double &L, int &nx, int &nz,
 
   traceID = false;
 
-  const double  Brho = globval.Energy*1e9/c0;
+  const double  Brho = Lattice.param.Energy*1e9/c0;
 
   /* open radia text file */
   if ((fi = fopen(fic_radia,"r")) == NULL) {
@@ -121,7 +121,7 @@ void Read_IDfile(char *fic_radia, double &L, int &nx, int &nz,
   
   printf("\n");
   printf("Reading ID filename %s \n", fic_radia);
-  printf("E      = %6.3f GeV\n", globval.Energy);
+  printf("E      = %6.3f GeV\n", Lattice.param.Energy);
   printf("(Brho) = %6.3f\n", Brho);
   printf("linear = %1d\n", linear);
  

@@ -3,6 +3,7 @@
 class Lattice_Type {
  private:
  public:
+  globvalrec  param;
   ElemFamType ElemFam[Elem_nFamMax];
   CellType    Cell[Cell_nLocMax+1];
 

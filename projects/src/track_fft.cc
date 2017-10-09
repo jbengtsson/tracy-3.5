@@ -88,10 +88,10 @@ void LoadAlignTol(const char *AlignFile, const bool Scale_it,
 	  printf("misaligning girders:     dx = %e, dy = %e, dr = %e\n",
 		 dx, dy, dr);
 	  if (rms)
-	    misalign_rms_girders(globval.gs, globval.ge, dx, dy, dr_deg,
+	    misalign_rms_girders(Lattice.param.gs, Lattice.param.ge, dx, dy, dr_deg,
 				 new_rnd);
 	  else
-	    misalign_sys_girders(globval.gs, globval.ge, dx, dy, dr_deg);
+	    misalign_sys_girders(Lattice.param.gs, Lattice.param.ge, dx, dy, dr_deg);
 	} else if (strcmp("dipole", Name) == 0) {
 	  printf("misaligning dipoles:     dx = %e, dy = %e, dr = %e\n",
 		 dx, dy, dr);
@@ -259,11 +259,11 @@ bool orb_corr_scl(const int n_orbit)
   } else
     n_orbit2 = n_orbit;
   
-  globval.CODvect.zero();
+  Lattice.param.CODvect.zero();
   for (i = 1; i <= n_orbit2; i++) {
     cod = Lattice.getcod(0.0, lastpos);
     if (cod) {
-      codstat(xmean, xsigma, xmax, globval.Cell_nLoc, false); //false = take values only at BPM positions
+      codstat(xmean, xsigma, xmax, Lattice.param.Cell_nLoc, false); //false = take values only at BPM positions
       printf("\n");
       printf("RMS orbit [mm]: %8.1e +/- %7.1e, %8.1e +/- %7.1e\n", 
 	     1e3*xmean[X_], 1e3*xsigma[X_], 1e3*xmean[Y_], 1e3*xsigma[Y_]);
@@ -278,7 +278,7 @@ bool orb_corr_scl(const int n_orbit)
 	// -> J.B. 08/24/17:
 	cod = Lattice.getcod(0.0, lastpos);
 	if (cod) {
-	  codstat(xmean, xsigma, xmax, globval.Cell_nLoc, false); //false = take values only at BPM positions
+	  codstat(xmean, xsigma, xmax, Lattice.param.Cell_nLoc, false); //false = take values only at BPM positions
 	  printf("RMS orbit [mm]: %8.1e +/- %7.1e, %8.1e +/- %7.1e\n", 
 		 1e3*xmean[X_], 1e3*xsigma[X_], 1e3*xmean[Y_], 1e3*xsigma[Y_]);
 	} else
@@ -409,10 +409,10 @@ void track_fft(const int n_turn,
 int main(int argc, char *argv[])
 {
   
-  globval.H_exact    = false; globval.quad_fringe = false;
-  globval.Cavity_on  = false; globval.radiation   = false;
-  globval.emittance  = false;
-  globval.pathlength = false; globval.bpm         = 0;
+  Lattice.param.H_exact    = false; Lattice.param.quad_fringe = false;
+  Lattice.param.Cavity_on  = false; Lattice.param.radiation   = false;
+  Lattice.param.emittance  = false;
+  Lattice.param.pathlength = false; Lattice.param.bpm         = 0;
 
   Lattice.Read_Lattice(argv[1]);
 
@@ -450,8 +450,8 @@ int main(int argc, char *argv[])
     const long  seed = 1121;
     iniranf(seed); setrancut(2.0);
     Lattice.Ring_GetTwiss(true, 0e-2); printglob(); //gettwiss computes one-turn matrix arg=(w or w/o chromat, dp/p)
-    globval.gs = Lattice.Elem_Index("GS");
-    globval.ge = Lattice.Elem_Index("GE");
+    Lattice.param.gs = Lattice.Elem_Index("GS");
+    Lattice.param.ge = Lattice.Elem_Index("GE");
     // compute response matrix (needed for OCO)
     gcmat(Lattice.Elem_Index("bpm_m"), Lattice.Elem_Index("corr_h"), 1);
     gcmat(Lattice.Elem_Index("bpm_m"), Lattice.Elem_Index("corr_v"), 2);
@@ -478,7 +478,7 @@ int main(int argc, char *argv[])
   // FOR TxT TRACKING AND PLOTTING VS TURN NO.
   if (!true) {
     long int lastn, lastpos;
-    globval.Cavity_on  = true; globval.radiation   = true;
+    Lattice.param.Cavity_on  = true; Lattice.param.radiation   = true;
     Lattice.track("track_fft.out", x0, px0, y0, py0, delta0, n_turn,
 		  lastn, lastpos, 0, f_rf);  //track is in physlib.cc
     //                                                                       ^ floqs
@@ -495,7 +495,7 @@ int main(int argc, char *argv[])
     struct    tm *newtime;
     FILE      *fp;
     
-    globval.Cavity_on  = true; globval.radiation   = true;
+    Lattice.param.Cavity_on  = true; Lattice.param.radiation   = true;
     Lattice.track("track_fft.out", x0, px0, y0, py0, delta0, 1,
 		  lastn, lastpos, 0, f_rf); // track_fft.out makes no sense here
     
@@ -511,7 +511,7 @@ int main(int argc, char *argv[])
 	    "[mm]       [mrad]     [%%]        [?]\n");
     fprintf(fp, "#\n");
     
-    for (j = 0; j <= globval.Cell_nLoc; j++){
+    for (j = 0; j <= Lattice.param.Cell_nLoc; j++){
       fprintf(fp, "%4li %8.3f %s %6.2f %10.3e %10.3e %10.3e %10.3e %10.3e "
 	      "%10.3e\n",
 	      j, Lattice.Cell[j].S, Lattice.Cell[j].Elem.Name,

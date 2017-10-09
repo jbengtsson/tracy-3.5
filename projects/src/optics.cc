@@ -32,9 +32,9 @@ void get_cod_rms(const double dx, const double dy,
 
   const int n_cod_corr = 5;
 
-  globval.Cavity_on = false;
+  Lattice.param.Cavity_on = false;
 
-  for (j = 0; j <= globval.Cell_nLoc; j++)
+  for (j = 0; j <= Lattice.param.Cell_nLoc; j++)
     for (k = 0; k < 6; k++) {
       x1[k].push_back(0e0); x2[k].push_back(0e0);
     }
@@ -54,7 +54,7 @@ void get_cod_rms(const double dx, const double dy,
       n_cod++;
 
       n = 0;
-      for (j = 0; j <= globval.Cell_nLoc; j++)
+      for (j = 0; j <= Lattice.param.Cell_nLoc; j++)
 	if (all || ((Lattice.Cell[j].Elem.Kind == Mpole) &&
 		    (Lattice.Cell[j].Elem.M->n_design == Sext))) {
 	  n++;
@@ -67,14 +67,14 @@ void get_cod_rms(const double dx, const double dy,
       printf("orb_corr: failed\n");
 
     // Reset orbit trims.
-    set_bn_design_fam(globval.hcorr, Dip, 0e0, 0e0);
-    set_bn_design_fam(globval.vcorr, Dip, 0e0, 0e0);
+    set_bn_design_fam(Lattice.param.hcorr, Dip, 0e0, 0e0);
+    set_bn_design_fam(Lattice.param.vcorr, Dip, 0e0, 0e0);
   }
 
   printf("\nget_cod_rms: no of seeds %d, no of cods %d\n", n_seed, n_cod);
 
   n = 0;
-  for (j = 0; j <= globval.Cell_nLoc; j++)
+  for (j = 0; j <= Lattice.param.Cell_nLoc; j++)
     if (all || ((Lattice.Cell[j].Elem.Kind == Mpole) &&
 		(Lattice.Cell[j].Elem.M->n_design == Sext))) {
       n++;
@@ -110,16 +110,16 @@ void track(const double Ax, const double Ay)
 	  Lattice.Cell[0].BeamPos[2], Lattice.Cell[0].BeamPos[3],
 	  Lattice.Cell[0].BeamPos[4], Lattice.Cell[0].BeamPos[5] );
   fprintf(fd, "orbit %22.14e %22.14e %22.14e %22.14e %22.14e %22.14e\n",
-	  globval.CODvect[0], globval.CODvect[1],
-	  globval.CODvect[2], globval.CODvect[3],
-	  globval.CODvect[4], globval.CODvect[5]);
+	  Lattice.param.CODvect[0], Lattice.param.CODvect[1],
+	  Lattice.param.CODvect[2], Lattice.param.CODvect[3],
+	  Lattice.param.CODvect[4], Lattice.param.CODvect[5]);
 
   xt.zero(); xt[x_] = Ax; xt[y_] = Ay; 
 
   fprintf(fd, "start %22.14e %22.14e %22.14e %22.14e %22.14e %22.14e\n",
 	  xt[0], xt[1], xt[2], xt[3], xt[4], xt[5] );
 
-  for (i = 0; i <= globval.Cell_nLoc; i++) {
+  for (i = 0; i <= Lattice.param.Cell_nLoc; i++) {
     Cell_Pass(i, i, xt, lastpos);
     fprintf(fd, "%5d %22.14e %22.14e %22.14e %22.14e %22.14e %22.14e \n",
 	    i, xt[0], xt[1], xt[2], xt[3], xt[4], xt[5]);
@@ -214,12 +214,12 @@ void chk_high_oord_achr(void)
   loc[0] = Lattice.Elem_GetPos(Lattice.Elem_Index("ss1"), 1);
   loc[1] = Lattice.Elem_GetPos(Lattice.Elem_Index("ss1"), 3);
   loc[2] = Lattice.Elem_GetPos(Lattice.Elem_Index("ss1"), 5);
-  loc[3] = globval.Cell_nLoc;
+  loc[3] = Lattice.param.Cell_nLoc;
 
   // loc[0] = Lattice.Elem_GetPos(Lattice.Elem_Index("idmarker_end"), 1);
   // loc[1] = Lattice.Elem_GetPos(Lattice.Elem_Index("idmarker_end"), 3);
   // loc[2] = Lattice.Elem_GetPos(Lattice.Elem_Index("idmarker_end"), 5);
-  // loc[3] = globval.Cell_nLoc;
+  // loc[3] = Lattice.param.Cell_nLoc;
 
   printf("\nCell phase advance:\n");
   printf("Ideal:    [%7.5f, %7.5f]\n", 19.0/8.0, 15.0/16.0);
@@ -348,10 +348,10 @@ int main(int argc, char *argv[])
                     nu[]    = { 9.2, 3.64 };
   const std::string q_fam[] = { "qf03", "qd04" }, s_fam[] = { "sfh",  "sd" };
 
-  globval.H_exact    = false; globval.quad_fringe = false;
-  globval.Cavity_on  = false; globval.radiation   = false;
-  globval.emittance  = false; globval.IBS         = false;
-  globval.pathlength = false; globval.bpm         = 0;
+  Lattice.param.H_exact    = false; Lattice.param.quad_fringe = false;
+  Lattice.param.Cavity_on  = false; Lattice.param.radiation   = false;
+  Lattice.param.emittance  = false; Lattice.param.IBS         = false;
+  Lattice.param.pathlength = false; Lattice.param.bpm         = 0;
 
   reverse_elem = true;
 
@@ -396,13 +396,13 @@ int main(int argc, char *argv[])
 
   if (false) {
     chk_optics(0.0, 0.0, 13.04171, 8.795924, 1.397388e-03, 0.0, 0.0, 0.0);
-    Lattice.prt_lat("linlat1.out", globval.bpm, true);
-    Lattice.prt_lat("linlat.out", globval.bpm, true, 10);
+    Lattice.prt_lat("linlat1.out", Lattice.param.bpm, true);
+    Lattice.prt_lat("linlat.out", Lattice.param.bpm, true, 10);
     exit(0);
   }
 
   if (false) {
-    globval.Cavity_on = true;
+    Lattice.param.Cavity_on = true;
     track(6e-3, 0.1e-3);
     exit(0);
   }
@@ -415,20 +415,20 @@ int main(int argc, char *argv[])
 
   Lattice.prtmfile("flat_file.dat");
 
-  // globval.bpm = Lattice.Elem_Index("bpm");
-  Lattice.prt_lat("linlat1.out", globval.bpm, true);
-  Lattice.prt_lat("linlat.out", globval.bpm, true, 10);
+  // Lattice.param.bpm = Lattice.Elem_Index("bpm");
+  Lattice.prt_lat("linlat1.out", Lattice.param.bpm, true);
+  Lattice.prt_lat("linlat.out", Lattice.param.bpm, true, 10);
   Lattice.prt_chrom_lat();
 
   if (false) {
     iniranf(seed); setrancut(1e0);
-    // globval.bpm = Lattice.Elem_Index("mon");
-    globval.bpm = Lattice.Elem_Index("bpm");
-    globval.hcorr = Lattice.Elem_Index("ch");
-    globval.vcorr = Lattice.Elem_Index("cv");
+    // Lattice.param.bpm = Lattice.Elem_Index("mon");
+    Lattice.param.bpm = Lattice.Elem_Index("bpm");
+    Lattice.param.hcorr = Lattice.Elem_Index("ch");
+    Lattice.param.vcorr = Lattice.Elem_Index("cv");
 
-    gcmat(globval.bpm, globval.hcorr, 1);
-    gcmat(globval.bpm, globval.vcorr, 2);
+    gcmat(Lattice.param.bpm, Lattice.param.hcorr, 1);
+    gcmat(Lattice.param.bpm, Lattice.param.vcorr, 2);
 
     get_cod_rms(50e-6, 50e-6, 100, true);
 
@@ -513,7 +513,7 @@ int main(int argc, char *argv[])
     get_bn_design_elem(b2_fam[1], 1, Quad, b2[1], a2);
 
     printf("\nnu_x = %8.5f nu_y = %8.5f\n",
-	   globval.TotalTune[X_], globval.TotalTune[Y_]);
+	   Lattice.param.TotalTune[X_], Lattice.param.TotalTune[Y_]);
     printf("  %s = %8.5f  %s = %8.5f\n",
 	   q_fam[0].c_str(), b2[0], q_fam[1].c_str(), b2[1]);
 
@@ -538,14 +538,14 @@ int main(int argc, char *argv[])
   Lattice.prtmfile("flat_file.fit");
 
   if (false) {
-    globval.Cavity_on = false; globval.radiation = false;
+    Lattice.param.Cavity_on = false; Lattice.param.radiation = false;
 
     f_rf =
       Lattice.Cell[Lattice.Elem_GetPos(Lattice.Elem_Index("cav"), 1)]
       .Elem.C->freq;
     printf("\nf_rf = %10.3e\n", f_rf);
 
-    globval.Cavity_on = true;
+    Lattice.param.Cavity_on = true;
     // Synchro-betatron resonance for "101pm_above_coupres_tracy.lat".
     // track("track.out", 2.6e-3, 0e0, 1e-6, 0e0, 0e0, n_turn, lastn, lastpos,
     // 	  0, 0*f_rf);
@@ -561,7 +561,7 @@ int main(int argc, char *argv[])
   }
 
   if (true) {
-    globval.Cavity_on = true;
+    Lattice.param.Cavity_on = true;
     Lattice.get_dynap(delta, 25, n_turn, false);
   }
 

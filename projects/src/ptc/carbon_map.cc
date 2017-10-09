@@ -305,10 +305,10 @@ int main(int argc, char *argv[])
   ss_vect<tps> map, R, Id;
   ofstream     outf;
 
-  globval.H_exact    = false; globval.quad_fringe = false;
-  globval.Cavity_on  = false; globval.radiation   = false;
-  globval.emittance  = false; globval.IBS         = false;
-  globval.pathlength = false; globval.bpm         = 0;
+  Lattice.param.H_exact    = false; Lattice.param.quad_fringe = false;
+  Lattice.param.Cavity_on  = false; Lattice.param.radiation   = false;
+  Lattice.param.emittance  = false; Lattice.param.IBS         = false;
+  Lattice.param.pathlength = false; Lattice.param.bpm         = 0;
 
   // 1: DIAMOND, 3: Oleg I, 4: Oleg II.
   FieldMap_filetype = 1; sympl = false;
@@ -325,8 +325,8 @@ int main(int argc, char *argv[])
   if (true) {
     trace = false;
 
-    globval.H_exact    = true;
-    globval.dip_fringe = false;
+    Lattice.param.H_exact    = true;
+    Lattice.param.dip_fringe = false;
 
     map.identity();
     // Tweak to remain within field map range at entrance.
@@ -415,6 +415,6 @@ int main(int argc, char *argv[])
 
     Lattice.Ring_GetTwiss(true, 0.0); printglob();
 
-    Lattice.prt_lat("linlat.out", globval.bpm, true);  
+    Lattice.prt_lat("linlat.out", Lattice.param.bpm, true);  
   }
 }

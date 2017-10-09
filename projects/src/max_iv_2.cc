@@ -101,7 +101,7 @@ void get_S(void)
   double S;
 
   S = 0e0;
-  for (j = 0; j <= globval.Cell_nLoc; j++) {
+  for (j = 0; j <= Lattice.param.Cell_nLoc; j++) {
     S += Lattice.Cell[j].Elem.L; Lattice.Cell[j].S = S;
   }
 }
@@ -117,27 +117,27 @@ double get_eps_x1(void)
 
   const bool prt = false;
 
-  cav = globval.Cavity_on; emit = globval.emittance;
+  cav = Lattice.param.Cavity_on; emit = Lattice.param.emittance;
 
-  globval.Cavity_on = false; globval.emittance = false;
+  Lattice.param.Cavity_on = false; Lattice.param.emittance = false;
 
   Lattice.Ring_GetTwiss(false, 0e0);
 
-  putlinmat(6, globval.Ascr, A);
+  putlinmat(6, Lattice.param.Ascr, A);
 
   // prt_lin_map(3, A);
 
-  globval.emittance = true;
+  Lattice.param.emittance = true;
 
-  Cell_Pass(0, globval.Cell_nLoc, A, lastpos);
+  Cell_Pass(0, Lattice.param.Cell_nLoc, A, lastpos);
 
-  eps_x = 1470e0*pow(globval.Energy, 2)*I5/(I2-I4);
+  eps_x = 1470e0*pow(Lattice.param.Energy, 2)*I5/(I2-I4);
 
   if (prt)
     printf("eps_x = %5.3f pm.rad, J_x = %5.3f, J_z = %5.3f \n",
 	   1e3*eps_x, 1e0-I4/I2, 2e0+I4/I2);
 
-  globval.Cavity_on = cav; globval.emittance = emit;
+  Lattice.param.Cavity_on = cav; Lattice.param.emittance = emit;
 
   return eps_x;
 }
@@ -167,16 +167,16 @@ void quad_scan(const int n,
     for (j = -n; j <= n; j++) {
       set_bn_design_fam(qd_num, Quad, k_qd, a2);
       Lattice.Ring_GetTwiss(true, 0e0);
-      if (globval.stable)
+      if (Lattice.param.stable)
 	eps_x = get_eps_x1();
       else {
-	globval.TotalTune[X_] = NAN; globval.TotalTune[Y_] = NAN;
-	globval.Chrom[X_] = NAN; globval.Chrom[Y_] = NAN; eps_x = NAN;
+	Lattice.param.TotalTune[X_] = NAN; Lattice.param.TotalTune[Y_] = NAN;
+	Lattice.param.Chrom[X_] = NAN; Lattice.param.Chrom[Y_] = NAN; eps_x = NAN;
       }
       fprintf(outf, "%9.5f %9.5f %9.5f %9.5f %9.5f %9.5f %9.5f\n",
 	      k_qf, k_qd,
-	      globval.TotalTune[X_], globval.TotalTune[Y_],
-	      globval.Chrom[X_], globval.Chrom[Y_], 1e3*eps_x);
+	      Lattice.param.TotalTune[X_], Lattice.param.TotalTune[Y_],
+	      Lattice.param.Chrom[X_], Lattice.param.Chrom[Y_], 1e3*eps_x);
       k_qd += k_qd_step;
     }
     fprintf(outf, "\n");
@@ -236,8 +236,8 @@ double f_emit(double *b2)
 
   Lattice.Ring_GetTwiss(false, 0e0); eps1_x = get_eps_x1();
 
-  tr[X_] = globval.OneTurnMat[x_][x_] + globval.OneTurnMat[px_][px_];
-  tr[Y_] = globval.OneTurnMat[y_][y_] + globval.OneTurnMat[py_][py_];
+  tr[X_] = Lattice.param.OneTurnMat[x_][x_] + Lattice.param.OneTurnMat[px_][px_];
+  tr[Y_] = Lattice.param.OneTurnMat[y_][y_] + Lattice.param.OneTurnMat[py_][py_];
   // printf("trace: %6.3f %6.3f\n", tr[X_], tr[Y_]);
 
   sf_sd[0] = Lattice.Elem_Index(sf_sd_name[0].c_str());
@@ -248,9 +248,9 @@ double f_emit(double *b2)
 
   chi2 = 0e0;
   chi2 += sqr(scl_eps*(eps1_x-eps_x));
-  chi2 += sqr(globval.TotalTune[X_]-nu_uc[X_]);
-  chi2 += sqr(globval.TotalTune[Y_]-nu_uc[Y_]);
-  chi2 += sqr(scl_L*(Lattice.Cell[globval.Cell_nLoc].S-L_uc));
+  chi2 += sqr(Lattice.param.TotalTune[X_]-nu_uc[X_]);
+  chi2 += sqr(Lattice.param.TotalTune[Y_]-nu_uc[Y_]);
+  chi2 += sqr(scl_L*(Lattice.Cell[Lattice.param.Cell_nLoc].S-L_uc));
   chi2 += sqr(scl_ksi*b3L[0]);
   chi2 += sqr(scl_ksi*b3L[1]);
 
@@ -265,10 +265,10 @@ double f_emit(double *b2)
     printf("\nchi2: %12.5e, %12.5e\n", chi2, chi2_ref);
     printf("b:    %10.3e %10.5f %10.5f %10.5f %10.5f %10.5f\n",
 	   eps1_x,
-	   globval.TotalTune[X_], globval.TotalTune[Y_],
-	   Lattice.Cell[globval.Cell_nLoc].S,
+	   Lattice.param.TotalTune[X_], Lattice.param.TotalTune[Y_],
+	   Lattice.Cell[Lattice.param.Cell_nLoc].S,
 	   b3L[0], b3L[1]);
-	   // globval.Chrom[X_], globval.Chrom[Y_]);
+	   // Lattice.param.Chrom[X_], Lattice.param.Chrom[Y_]);
     printf("b2s: ");
     for (i = 1; i <= b2_prms.n_prm; i++)
       printf("%9.5f", b2[i]);
@@ -278,8 +278,8 @@ double f_emit(double *b2)
     prt_emit(b2_prms, b2);
 
     get_S();
-    Lattice.prt_lat("linlat1.out", globval.bpm, true);
-    Lattice.prt_lat("linlat.out", globval.bpm, true, 10);
+    Lattice.prt_lat("linlat1.out", Lattice.param.bpm, true);
+    Lattice.prt_lat("linlat.out", Lattice.param.bpm, true, 10);
   }
 
   chi2_ref = min(chi2, chi2_ref);
@@ -363,10 +363,10 @@ double f_hcell(double *b2)
   // End of bm.
   loc1 = Lattice.Elem_GetPos(Lattice.Elem_Index("bm"), 1);
   // Center of straight.
-  loc2 = globval.Cell_nLoc;
+  loc2 = Lattice.param.Cell_nLoc;
 
   A = get_A(alpha_cuc, beta_cuc, eta_cuc, etap_cuc);
-  Lattice.Cell_Twiss(0, globval.Cell_nLoc, A, false, false, 0e0);
+  Lattice.Cell_Twiss(0, Lattice.param.Cell_nLoc, A, false, false, 0e0);
 
   chi2 = 0e0;
   chi2 += sqr(scl_eta*Lattice.Cell[loc1].Eta[X_]);
@@ -375,7 +375,7 @@ double f_hcell(double *b2)
   chi2 += sqr(scl_alpha*Lattice.Cell[loc2].Alpha[Y_]);
   chi2 += sqr(scl_beta*(Lattice.Cell[loc2].Beta[X_]-beta_cs[X_]));
   chi2 += sqr(scl_beta*(Lattice.Cell[loc2].Beta[Y_]-beta_cs[Y_]));
-  chi2 += sqr(scl_L*(Lattice.Cell[globval.Cell_nLoc].S-L_ss));
+  chi2 += sqr(scl_L*(Lattice.Cell[Lattice.param.Cell_nLoc].S-L_ss));
 
   if ((fabs(tr[X_]) > 2e0) || (fabs(tr[Y_]) > 2e0)) chi2 += 1e10;
   for (i = 1; i <= b2_prms.n_prm; i++) {
@@ -390,7 +390,7 @@ double f_hcell(double *b2)
 	   Lattice.Cell[loc1].Eta[X_],  Lattice.Cell[loc1].Etap[X_],
 	   Lattice.Cell[loc2].Alpha[X_], Lattice.Cell[loc2].Alpha[Y_],
 	   Lattice.Cell[loc2].Beta[X_],  Lattice.Cell[loc2].Beta[Y_],
-	   Lattice.Cell[globval.Cell_nLoc].S);
+	   Lattice.Cell[Lattice.param.Cell_nLoc].S);
     printf("b2s: ");
     for (i = 1; i <= b2_prms.n_prm; i++)
       printf(" %9.5f", b2[i]);
@@ -399,8 +399,8 @@ double f_hcell(double *b2)
     Lattice.prtmfile("flat_file.fit");
     prt_match(b2_prms, b2);
 
-    Lattice.prt_lat("linlat1.out", globval.bpm, true);
-    Lattice.prt_lat("linlat.out", globval.bpm, true, 10);
+    Lattice.prt_lat("linlat1.out", Lattice.param.bpm, true);
+    Lattice.prt_lat("linlat.out", Lattice.param.bpm, true, 10);
   }
 
   chi2_ref = min(chi2, chi2_ref);
@@ -456,12 +456,12 @@ double f_match(double *b2)
   // End of 2nd bm.
   loc2 = Lattice.Elem_GetPos(Lattice.Elem_Index("bm"), 2);
   // Center of straight.
-  loc3 = globval.Cell_nLoc;
+  loc3 = Lattice.param.Cell_nLoc;
 
   Lattice.Ring_GetTwiss(true, 0e0);
 
-  tr[X_] = globval.OneTurnMat[x_][x_] + globval.OneTurnMat[px_][px_];
-  tr[Y_] = globval.OneTurnMat[y_][y_] + globval.OneTurnMat[py_][py_];
+  tr[X_] = Lattice.param.OneTurnMat[x_][x_] + Lattice.param.OneTurnMat[px_][px_];
+  tr[Y_] = Lattice.param.OneTurnMat[y_][y_] + Lattice.param.OneTurnMat[py_][py_];
   // printf("trace: %6.3f %6.3f\n", tr[X_], tr[Y_]);
 
   chi2 = 0e0;
@@ -475,11 +475,11 @@ double f_match(double *b2)
   chi2 += sqr(scl_eta*Lattice.Cell[loc2].Etap[X_]);
   chi2 += sqr(scl_beta*(Lattice.Cell[loc3].Beta[X_]-beta_cs[X_]));
   chi2 += sqr(scl_beta*(Lattice.Cell[loc3].Beta[Y_]-beta_cs[Y_]));
-  chi2 += sqr(scl_L*(Lattice.Cell[globval.Cell_nLoc].S-L_ss));
-  chi2 += sqr(scl_ksi*globval.Chrom[X_]);
-  chi2 += sqr(scl_ksi*globval.Chrom[Y_]);
-  chi2 += sqr(scl_nu*(globval.TotalTune[X_]-nu_sc[X_]));
-  chi2 += sqr(scl_nu*(globval.TotalTune[Y_]-nu_sc[Y_]));
+  chi2 += sqr(scl_L*(Lattice.Cell[Lattice.param.Cell_nLoc].S-L_ss));
+  chi2 += sqr(scl_ksi*Lattice.param.Chrom[X_]);
+  chi2 += sqr(scl_ksi*Lattice.param.Chrom[Y_]);
+  chi2 += sqr(scl_nu*(Lattice.param.TotalTune[X_]-nu_sc[X_]));
+  chi2 += sqr(scl_nu*(Lattice.param.TotalTune[Y_]-nu_sc[Y_]));
 
   if ((fabs(tr[X_]) > 2e0) || (fabs(tr[Y_]) > 2e0)) chi2 += 1e10;
   for (i = 1; i <= b2_prms.n_prm; i++) {
@@ -498,9 +498,9 @@ double f_match(double *b2)
 	   Lattice.Cell[loc1].Beta[Y_]-beta_cuc[Y_],
 	   Lattice.Cell[loc2].Eta[X_], Lattice.Cell[loc2].Etap[X_],
 	   Lattice.Cell[loc3].Beta[X_], Lattice.Cell[loc3].Beta[Y_],
-	   Lattice.Cell[globval.Cell_nLoc].S,
-	   globval.Chrom[X_], globval.Chrom[Y_],
-	   globval.TotalTune[X_], globval.TotalTune[Y_]);
+	   Lattice.Cell[Lattice.param.Cell_nLoc].S,
+	   Lattice.param.Chrom[X_], Lattice.param.Chrom[Y_],
+	   Lattice.param.TotalTune[X_], Lattice.param.TotalTune[Y_]);
     printf("b2s: ");
     for (i = 1; i <= b2_prms.n_prm; i++)
       printf(" %9.5f", b2[i]);
@@ -509,8 +509,8 @@ double f_match(double *b2)
     Lattice.prtmfile("flat_file.fit");
     prt_match(b2_prms, b2);
 
-    Lattice.prt_lat("linlat1.out", globval.bpm, true);
-    Lattice.prt_lat("linlat.out", globval.bpm, true, 10);
+    Lattice.prt_lat("linlat1.out", Lattice.param.bpm, true);
+    Lattice.prt_lat("linlat.out", Lattice.param.bpm, true, 10);
   }
 
   chi2_ref = min(chi2, chi2_ref);
@@ -549,10 +549,10 @@ void fit_match(param_type &b2_prms)
 int main(int argc, char *argv[])
 {
 
-  globval.H_exact    = false; globval.quad_fringe = false;
-  globval.Cavity_on  = false; globval.radiation   = false;
-  globval.emittance  = false; globval.IBS         = false;
-  globval.pathlength = false; globval.bpm         = 0;
+  Lattice.param.H_exact    = false; Lattice.param.quad_fringe = false;
+  Lattice.param.Cavity_on  = false; Lattice.param.radiation   = false;
+  Lattice.param.emittance  = false; Lattice.param.IBS         = false;
+  Lattice.param.pathlength = false; Lattice.param.bpm         = 0;
 
   if (false)
     Lattice.Read_Lattice(argv[1]);

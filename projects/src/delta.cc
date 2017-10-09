@@ -229,7 +229,7 @@ void get_S(void)
   double S;
 
   S = 0e0;
-  for (j = 0; j <= globval.Cell_nLoc; j++) {
+  for (j = 0; j <= Lattice.param.Cell_nLoc; j++) {
     S += Lattice.Cell[j].Elem.L; Lattice.Cell[j].S = S;
   }
 }
@@ -520,8 +520,8 @@ double f_match(double *b2)
       prt_b2(b2_prms, b2);
 
       Lattice.prtmfile("flat_file.fit");
-      Lattice.prt_lat(loc[0], loc[4], "linlat1.out", globval.bpm, true);
-      Lattice.prt_lat(loc[0]+1, loc[4]-1, "linlat.out", globval.bpm, true, 10);
+      Lattice.prt_lat(loc[0], loc[4], "linlat1.out", Lattice.param.bpm, true);
+      Lattice.prt_lat(loc[0]+1, loc[4]-1, "linlat.out", Lattice.param.bpm, true, 10);
 
       chi2_prt = min(chi2, chi2_prt);
     }
@@ -571,8 +571,8 @@ void fit_match(param_type &b2_prms)
   Ascr = get_A(ic[0], ic[1], ic[2], ic[3]);
   Lattice.Cell_Twiss(loc[0], loc[4], Ascr, false, false, 0e0);
 
-  Lattice.prt_lat(loc[0], loc[4], "linlat1.out", globval.bpm, true);
-  Lattice.prt_lat(loc[0]+1, loc[4]-1, "linlat.out", globval.bpm, true, 10);
+  Lattice.prt_lat(loc[0], loc[4], "linlat1.out", Lattice.param.bpm, true);
+  Lattice.prt_lat(loc[0]+1, loc[4]-1, "linlat.out", Lattice.param.bpm, true, 10);
 
   prt_lin_opt(loc);
 
@@ -590,8 +590,8 @@ void fit_match(param_type &b2_prms)
   Ascr = get_A(ic[0], ic[1], ic[2], ic[3]);
   Lattice.Cell_Twiss(loc[0], loc[4], Ascr, false, false, 0e0);
 
-  Lattice.prt_lat(loc[0], loc[4], "linlat1.out", globval.bpm, true);
-  Lattice.prt_lat(loc[0]+1, loc[4]-1, "linlat.out", globval.bpm, true, 10);
+  Lattice.prt_lat(loc[0], loc[4], "linlat1.out", Lattice.param.bpm, true);
+  Lattice.prt_lat(loc[0]+1, loc[4]-1, "linlat.out", Lattice.param.bpm, true, 10);
 
   free_dvector(b2, 1, n_b2); free_dmatrix(xi, 1, n_b2, 1, n_b2);
 }
@@ -621,10 +621,10 @@ int main(int argc, char *argv[])
   int          loc0, loc1;
   ss_vect<tps> Ascr;
 
-  globval.H_exact    = false; globval.quad_fringe = false;
-  globval.Cavity_on  = false; globval.radiation   = false;
-  globval.emittance  = false; globval.IBS         = false;
-  globval.pathlength = false; globval.bpm         = 0;
+  Lattice.param.H_exact    = false; Lattice.param.quad_fringe = false;
+  Lattice.param.Cavity_on  = false; Lattice.param.radiation   = false;
+  Lattice.param.emittance  = false; Lattice.param.IBS         = false;
+  Lattice.param.pathlength = false; Lattice.param.bpm         = 0;
 
   if (true)
     Lattice.Read_Lattice(argv[1]);
@@ -650,8 +650,8 @@ int main(int argc, char *argv[])
   Lattice.Cell_Twiss(loc0, loc1, Ascr, false, false, 0e0);
 
   Lattice.prtmfile("flat_file.dat");
-  Lattice.prt_lat(loc0, loc1, "linlat1.out", globval.bpm, true);
-  Lattice.prt_lat(loc0+1, loc1-1, "linlat.out", globval.bpm, true, 10);
+  Lattice.prt_lat(loc0, loc1, "linlat1.out", Lattice.param.bpm, true);
+  Lattice.prt_lat(loc0+1, loc1-1, "linlat.out", Lattice.param.bpm, true, 10);
   // exit(0);
 
   b2_prms.add_prm("qf031", 2, -4.0, 4.0, 1.0);

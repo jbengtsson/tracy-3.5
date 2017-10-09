@@ -60,7 +60,7 @@ const int     nv_tps   = ss_dim, // no of variables
   iref_tps = 0;      /* file with resonances to be excluded from
 			the map normal form: fort.7 */
 
-double        eps_tps  = 1e-25;  // floating point truncation
+double eps_tps  = 1e-25;  // floating point truncation
 
 
 // instantiate templates
@@ -239,15 +239,12 @@ template void Cell_Pass(const long, const long, ss_vect<tps> &, long &);
 
 Lattice_Type Lattice;
 
-/* Global variable used through the code */
-globvalrec globval;
-
 statusrec status;
-bool trace, traceID;
-bool cellconcat;
+bool      trace, traceID;
+bool      cellconcat;
 
-/* Random stuff */
-long rseed0, rseed;
+// Random stuff.
+long   rseed0, rseed;
 double normcut_;
 
 double d_sign(double a, double b)

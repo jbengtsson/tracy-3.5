@@ -20,10 +20,10 @@ int main(int argc, char *argv[])
   const int    n_turn = 2064;
   const double delta  = 1.5e-2;
 
-  globval.H_exact    = false; globval.quad_fringe = false;
-  globval.Cavity_on  = false; globval.radiation   = false;
-  globval.emittance  = false; globval.IBS         = false;
-  globval.pathlength = false; globval.bpm         = 0;
+  Lattice.param.H_exact    = false; Lattice.param.quad_fringe = false;
+  Lattice.param.Cavity_on  = false; Lattice.param.radiation   = false;
+  Lattice.param.emittance  = false; Lattice.param.IBS         = false;
+  Lattice.param.pathlength = false; Lattice.param.bpm         = 0;
 
   if (false)
     Lattice.Read_Lattice(argv[1]);
@@ -32,13 +32,13 @@ int main(int argc, char *argv[])
 
   Lattice.Ring_GetTwiss(true, 0e0); printglob();
 
-  Lattice.prt_lat("linlat1.out", globval.bpm, true);
-  Lattice.prt_lat("linlat.out", globval.bpm, true, 10);
+  Lattice.prt_lat("linlat1.out", Lattice.param.bpm, true);
+  Lattice.prt_lat("linlat.out", Lattice.param.bpm, true, 10);
 
   if (true) Lattice.GetEmittance(Lattice.Elem_Index("cav"), true);
 
   if (true) {
-    globval.Cavity_on = true;
+    Lattice.param.Cavity_on = true;
     Lattice.get_dynap(delta_max[lat_case-1], 25, n_turn, false);
   }
 

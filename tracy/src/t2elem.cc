@@ -178,7 +178,7 @@ inline T get_p_s(const ss_vect<T> &x)
 {
   T p_s, p_s2;
 
-  if (!globval.H_exact)
+  if (!Lattice.param.H_exact)
     // Small angle axproximation.
     p_s = 1e0 + x[delta_];
   else {
@@ -199,7 +199,7 @@ void Drift(const double L, ss_vect<T> &ps)
 {
   T u;
 
-  if (!globval.H_exact) {
+  if (!Lattice.param.H_exact) {
     // Small angle axproximation.
     u = L/(1e0+ps[delta_]);
     ps[x_]  += u*ps[px_]; ps[y_] += u*ps[py_];
@@ -209,7 +209,7 @@ void Drift(const double L, ss_vect<T> &ps)
     ps[x_]  += u*ps[px_]; ps[y_] += u*ps[py_];
     ps[ct_] += u*(1e0+ps[delta_]) - L;
   }
-  if (globval.pathlength) ps[ct_] += L;
+  if (Lattice.param.pathlength) ps[ct_] += L;
 }
 
 
@@ -302,7 +302,7 @@ class is_tps<tps> {
       // D_11 = D_22 = curly_H_x,y * B_66 / 2,
       // curly_H_x,y = eta_Fl^2 + etap_Fl^2
       for (j = 0; j < 3; j++)
-	globval.D_rad[j] +=
+	Lattice.param.D_rad[j] +=
 	  (sqr(A_inv[j*2][delta_])+sqr(A_inv[j*2+1][delta_]))*B_66/2e0;
     }
   }
@@ -347,12 +347,12 @@ void radiate(ss_vect<T> &x, const double L, const double h_ref, const T B[])
   ds = (1e0+xp[x_]*h_ref+(sqr(xp[px_])+sqr(xp[py_]))/2e0)*L;
   get_B2(h_ref, B, xp, B2_perp, B2_par);
 
-  if (globval.radiation) {
+  if (Lattice.param.radiation) {
     x[delta_] -= cl_rad*sqr(ps0)*B2_perp*ds;
     ps1 = get_p_s(x); x[px_] = xp[px_]*ps1; x[py_] = xp[py_]*ps1;
   }
 
-  if (globval.emittance) is_tps<T>::emittance(B2_perp, ds, ps0, xp);
+  if (Lattice.param.emittance) is_tps<T>::emittance(B2_perp, ds, ps0, xp);
 }
 
 
@@ -368,12 +368,12 @@ void radiate_ID(ss_vect<T> &x, const double L, const T &B2_perp)
   // H = -p_s => ds = H*L
   ds = (1e0+(sqr(xp[px_])+sqr(xp[py_]))/2e0)*L;
 
-  if (globval.radiation) {
+  if (Lattice.param.radiation) {
     x[delta_] -= cl_rad*sqr(ps0)*B2_perp*ds;
     ps1 = get_p_s(x); x[px_] = xp[px_]*ps1; x[py_] = xp[py_]*ps1;
   }
 
-  if (globval.emittance) is_tps<T>::emittance(B2_perp, ds, ps0, xp);
+  if (Lattice.param.emittance) is_tps<T>::emittance(B2_perp, ds, ps0, xp);
 }
 
 
@@ -428,7 +428,7 @@ void thin_kick(const int Order, const double MB[], const double L,
       ByoBrho  = ByoBrho1;
     }
 
-    if (globval.radiation || globval.emittance) {
+    if (Lattice.param.radiation || Lattice.param.emittance) {
       B[X_] = BxoBrho; B[Y_] = ByoBrho + h_bend; B[Z_] = 0e0;
       radiate(x, L, h_ref, B);
     }
@@ -482,7 +482,7 @@ void p_rot(double phi, ss_vect<T> &ps)
 
   c = cos(dtor(phi)); s = sin(dtor(phi)); t = tan(dtor(phi)); pz = get_p_s(ps);
 
-  if (!globval.H_exact) {
+  if (!Lattice.param.H_exact) {
      ps[px_] = s*pz + c*ps[px_];
   } else {
     // ps1 = ps; p = c*pz - s*ps1[px_];
@@ -527,16 +527,16 @@ void quad_fringe(const double b2, ss_vect<T> &x)
 
   u = b2/(12e0*(1e0+x[delta_])); ps = u/(1e0+x[delta_]);
   x[py_] /= 1e0 - 3e0*u*sqr(x[y_]); x[y_] -= u*cube(x[y_]);
-  if (globval.Cavity_on) x[ct_] -= ps*cube(x[y_])*x[py_];
+  if (Lattice.param.Cavity_on) x[ct_] -= ps*cube(x[y_])*x[py_];
   x[px_] /= 1e0 + 3e0*u*sqr(x[x_]);
-  if (globval.Cavity_on) x[ct_] += ps*cube(x[x_])*x[px_];
+  if (Lattice.param.Cavity_on) x[ct_] += ps*cube(x[x_])*x[px_];
   x[x_] += u*cube(x[x_]); u = u*3e0; ps = ps*3e0;
   x[y_] = exp(-u*sqr(x[x_]))*x[y_]; x[py_] = exp(u*sqr(x[x_]))*x[py_];
   x[px_] += 2e0*u*x[x_]*x[y_]*x[py_];
-  if (globval.Cavity_on) x[ct_] -= ps*sqr(x[x_])*x[y_]*x[py_];
+  if (Lattice.param.Cavity_on) x[ct_] -= ps*sqr(x[x_])*x[y_]*x[py_];
   x[x_] = exp(u*sqr(x[y_]))*x[x_]; x[px_] = exp(-u*sqr(x[y_]))*x[px_];
   x[py_] -= 2e0*u*x[y_]*x[x_]*x[px_];
-  if (globval.Cavity_on) x[ct_] += ps*sqr(x[y_])*x[x_]*x[px_];
+  if (Lattice.param.Cavity_on) x[ct_] += ps*sqr(x[y_])*x[x_]*x[px_];
 }
 
 
@@ -556,18 +556,18 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &x)
 
   if ((M->method == Meth_Second) || (M->method == Meth_Fourth)) {
     // Fringe fields.
-    if (globval.quad_fringe && (M->B[Quad+HOMmax] != 0e0))
+    if (Lattice.param.quad_fringe && (M->B[Quad+HOMmax] != 0e0))
       quad_fringe(M->B[Quad+HOMmax], x);
-    if (!globval.H_exact) {
+    if (!Lattice.param.H_exact) {
       if (M->irho != 0e0) EdgeFocus(M->irho, M->Tx1, M->gap, x);
     } else {
       p_rot(M->Tx1, x);
-      if (globval.dip_fringe) bend_fringe(M->irho, x);
+      if (Lattice.param.dip_fringe) bend_fringe(M->irho, x);
     }
   }
 
   if (M->thick == thick) {
-    if (!globval.H_exact) {
+    if (!Lattice.param.H_exact) {
       // Polar coordinates.
       h_ref = M->irho; dL = elemp->L/M->N;
     } else {
@@ -612,7 +612,7 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &x)
 
       dcurly_H = 0e0; dI4 = 0e0;
       for (seg = 1; seg <= M->N; seg++) {
-	if (globval.emittance && (!globval.Cavity_on) && (M->irho != 0e0)) {
+	if (Lattice.param.emittance && (!Lattice.param.Cavity_on) && (M->irho != 0e0)) {
 	  dcurly_H += is_tps<tps>::get_curly_H(x);
 	  dI4 += is_tps<tps>::get_dI4(x);
 	}
@@ -622,7 +622,7 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &x)
 	Drift(dL2, x);
         thin_kick(M->order, M->B, dkL2, M->irho, h_ref, x);
 
-	if (globval.emittance && (!globval.Cavity_on) && (M->irho != 0e0)) {
+	if (Lattice.param.emittance && (!Lattice.param.Cavity_on) && (M->irho != 0e0)) {
 	  dcurly_H += 4e0*is_tps<tps>::get_curly_H(x);
 	  dI4 += 4e0*is_tps<tps>::get_dI4(x);
 	}
@@ -631,13 +631,13 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &x)
         thin_kick(M->order, M->B, dkL1, M->irho, h_ref, x);
 	Drift(dL1, x);
 
-	if (globval.emittance && (!globval.Cavity_on) && (M->irho != 0e0)) {
+	if (Lattice.param.emittance && (!Lattice.param.Cavity_on) && (M->irho != 0e0)) {
 	  dcurly_H += is_tps<tps>::get_curly_H(x);
 	  dI4 += is_tps<tps>::get_dI4(x);
 	}
       }
 
-      if (globval.emittance && (!globval.Cavity_on) && (M->irho != 0)) {
+      if (Lattice.param.emittance && (!Lattice.param.Cavity_on) && (M->irho != 0)) {
 	dcurly_H /= 6e0*M->N;
 	dI4 *= M->irho*(sqr(M->irho)+2e0*M->Bpar[Quad+HOMmax])/(6e0*M->N);
 
@@ -652,13 +652,13 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &x)
 
   if ((M->method == Meth_Second) || (M->method == Meth_Fourth)) {
     // Fringe fields.
-    if (!globval.H_exact) {
+    if (!Lattice.param.H_exact) {
       if (M->irho != 0e0) EdgeFocus(M->irho, M->Tx2, M->gap, x);
     } else {
-      if (globval.dip_fringe) bend_fringe(-M->irho, x);
+      if (Lattice.param.dip_fringe) bend_fringe(-M->irho, x);
       p_rot(M->Tx2, x);
     }
-    if (globval.quad_fringe && (M->B[Quad+HOMmax] != 0e0))
+    if (Lattice.param.quad_fringe && (M->B[Quad+HOMmax] != 0e0))
       quad_fringe(-M->B[Quad+HOMmax], x);
   }
 
@@ -699,14 +699,14 @@ void Cav_Pass(CellType &Cell, ss_vect<T> &X)
   T           delta;
 
   elemp = &Cell.Elem; C = elemp->C;
-  if (globval.Cavity_on && C->volt != 0e0) {
-    delta = -C->volt/(globval.Energy*1e9)
+  if (Lattice.param.Cavity_on && C->volt != 0e0) {
+    delta = -C->volt/(Lattice.param.Energy*1e9)
             *sin(2e0*M_PI*C->freq/c0*X[ct_]+C->phi);
     X[delta_] += delta;
 
-    if (globval.radiation) globval.dE -= is_double<T>::cst(delta);
+    if (Lattice.param.radiation) Lattice.param.dE -= is_double<T>::cst(delta);
 
-    if (globval.pathlength) X[ct_] -= C->h/C->freq*c0;
+    if (Lattice.param.pathlength) X[ct_] -= C->h/C->freq*c0;
   }
 }
 
@@ -728,8 +728,8 @@ void Cav_Pass1(CellType &Cell, ss_vect<T> &ps)
   elemp = &Cell.Elem; C = elemp->C; L = elemp->L;
 
   h = L/(C->N+1e0);
-  // globval.Energy contains p_0.
-  delta_max = C->volt/(1e9*globval.Energy); ddelta = delta_max/C->N;
+  // Lattice.param.Energy contains p_0.
+  delta_max = C->volt/(1e9*Lattice.param.Energy); ddelta = delta_max/C->N;
   delta = delta_max*sin(2e0*M_PI*C->freq*ps[ct_]/c0+C->phi);
   if (C->entry_focus) Cav_Focus(L, delta, true, ps);
   for (k = 0; k < C->N; k++) {
@@ -737,8 +737,8 @@ void Cav_Pass1(CellType &Cell, ss_vect<T> &ps)
 
     ps[delta_] -= ddelta*sin(2e0*M_PI*C->freq*(ps[ct_]-k*h)/c0+C->phi);
 
-    if (globval.radiation) globval.dE -= is_double<T>::cst(ddelta);
-    if (globval.pathlength) ps[ct_] -= C->h/C->freq*c0;
+    if (Lattice.param.radiation) Lattice.param.dE -= is_double<T>::cst(ddelta);
+    if (Lattice.param.pathlength) ps[ct_] -= C->h/C->freq*c0;
   }
   Drift(h, ps);
   if (C->exit_focus) Cav_Focus(L, delta, false, ps);
@@ -747,12 +747,12 @@ void Cav_Pass1(CellType &Cell, ss_vect<T> &ps)
     // Update p_0.
     p_t1 = is_double<T>::cst(ps[delta_]);
     ps[delta_] -= p_t1;
-    // globval.Energy contains p_0.
-    globval.Energy *= sqrt(1e0+2e0*p_t1/globval.beta0+sqr(p_t1));
-    globval.gamma0 = sqrt(sqr(m_e)+sqr(1e9*globval.Energy))/m_e;
-    globval.beta0  = sqrt(1e0-1e0/sqr(globval.gamma0));
+    // Lattice.param.Energy contains p_0.
+    Lattice.param.Energy *= sqrt(1e0+2e0*p_t1/Lattice.param.beta0+sqr(p_t1));
+    Lattice.param.gamma0 = sqrt(sqr(m_e)+sqr(1e9*Lattice.param.Energy))/m_e;
+    Lattice.param.beta0  = sqrt(1e0-1e0/sqr(Lattice.param.gamma0));
     printf("\np0 = %12.5e, beta0 = %12.5e, gamma0 = %12.5e\n",
-	   globval.Energy, globval.beta0, globval.gamma0);
+	   Lattice.param.Energy, Lattice.param.beta0, Lattice.param.gamma0);
   }
 }
 
@@ -779,9 +779,9 @@ void Cav_Pass(CellType &Cell, ss_vect<T> &ps)
   lambda = c0/C->freq;
 
   p_t = is_double<T>::cst(ps[delta_]);
-  delta = sqrt(1e0+2e0*p_t/globval.beta0+sqr(p_t)) - 1e0;
-  // globval.Energy contains p_0 [GeV].
-  p0 = 1e9*globval.Energy/m_e;
+  delta = sqrt(1e0+2e0*p_t/Lattice.param.beta0+sqr(p_t)) - 1e0;
+  // Lattice.param.Energy contains p_0 [GeV].
+  p0 = 1e9*Lattice.param.Energy/m_e;
   gamma = sqrt(1e0+sqr(p0));
   dgammaMax = C->volt/m_e; dgamma = dgammaMax*sin(phi);
   gamma1 = gamma + dgamma;
@@ -832,7 +832,7 @@ void Cav_Pass(CellType &Cell, ss_vect<T> &ps)
       -dgammaMax/(2e0*sqrt(2e0)*L*gamma1)*sin(alpha)*(1e0+ps0[delta_])*ps0[y_]
       + gamma/gamma1*cos(alpha)*ps0[py_];
 
-   // globval.Energy contains p_0 [GeV].
+   // Lattice.param.Energy contains p_0 [GeV].
     ps[delta_] =
       2e0*M_PI*C->freq*dgammaMax*cos(phi)/(c0*gamma1)*ps0[ct_]
       + 1e0/(1e0+dp/p0)*ps0[delta_];
@@ -844,12 +844,12 @@ void Cav_Pass(CellType &Cell, ss_vect<T> &ps)
     // Update p_0.
     p_t1 = is_double<T>::cst(ps[delta_]);
     ps[delta_] -= p_t1;
-    // globval.Energy contains p_0.
-    globval.Energy *= sqrt(1e0+2e0*p_t1/globval.beta0+sqr(p_t1));
-    globval.gamma0 = sqrt(sqr(m_e)+sqr(p0))/m_e;
-    globval.beta0  = sqrt(1e0-1e0/sqr(globval.gamma0));
+    // Lattice.param.Energy contains p_0.
+    Lattice.param.Energy *= sqrt(1e0+2e0*p_t1/Lattice.param.beta0+sqr(p_t1));
+    Lattice.param.gamma0 = sqrt(sqr(m_e)+sqr(p0))/m_e;
+    Lattice.param.beta0  = sqrt(1e0-1e0/sqr(Lattice.param.gamma0));
     printf("\np0 = %12.5e, beta0 = %12.5e, gamma0 = %12.5e\n",
-	   globval.Energy, globval.beta0, globval.gamma0);
+	   Lattice.param.Energy, Lattice.param.beta0, Lattice.param.gamma0);
   }
 }
 
@@ -884,7 +884,7 @@ inline void get_Axy(const WigglerType *W, const double z,
     AxoBrho[2] += W->BoBrhoV[i]*ky/kz_n*cx*shy*sz;
     AyoBrho[2] += W->BoBrhoV[i]*W->kxV[i]/kz_n*sx*chy*sz;
 
-    if (globval.radiation) {
+    if (Lattice.param.radiation) {
       cz = cos(kz_n*z);
       // derivatives with respect to z
       AxoBrho[3] += W->BoBrhoV[i]*cx*chy*cz;
@@ -948,7 +948,7 @@ inline void get_Axy_map(const FieldMapType *FM, const double z,
     (ay2-ay1)/(2e0*dy) + (ay2+ay1-2e0*ay0)/sqr(dy)*is_tps<T>::set_prm(y_+1);
   AyoBrho[2] *= FM->scl;
 
-  if (globval.radiation) {
+  if (Lattice.param.radiation) {
     // derivatives with respect to z
     splin2(FM->y_pos, FM->s_pos, FM->AxoBrho, FM->AxoBrho2, FM->m_y, FM->n_s,
 	   y, z+dz, &ax2);
@@ -1030,9 +1030,9 @@ void Wiggler_pass_EF(const elemtype &elem, ss_vect<T> &x)
 	   << std::setw(11) << is_double<T>::cst(x[py_])
 	   << std::endl;
 
-    if (globval.pathlength) x[ct_] += h;
+    if (Lattice.param.pathlength) x[ct_] += h;
 
-    if (globval.radiation || globval.emittance) {
+    if (Lattice.param.radiation || Lattice.param.emittance) {
       B[X_] = -AyoBrho[3]; B[Y_] = AxoBrho[3]; B[Z_] = AyoBrho[1] - AxoBrho[2];
       radiate(x, h, 0e0, B);
     }
@@ -1080,7 +1080,7 @@ inline void get_Axy2(const double z,
   AyoBrho[2] += BoBrhoV*kxV/kz*sx*chy*sz1;
   AyoBrho[2] += BoBrhoH*kxH/kz*chx*sy*sz2;
 
-  if (globval.radiation) {
+  if (Lattice.param.radiation) {
     cz1 = cos(kz*z); cz2=cos(kz*z+phi);
     /* derivatives with respect to z */
     AxoBrho[3] += BoBrhoV*cx*chy*cz1;
@@ -1125,9 +1125,9 @@ void Wiggler_pass_EF2(int nstep, double L, double kxV, double kxH, double kz,
     x[x_] += hodp*(px-AxoBrho[0]); x[y_] += hodp*(py-AyoBrho[0]);
     x[ct_] += h*(sqr((px-AxoBrho[0])/psi) + sqr((py-AyoBrho[0])/psi))/2e0;
 
-    if (globval.pathlength) x[ct_] += h;
+    if (Lattice.param.pathlength) x[ct_] += h;
 
-    if (globval.radiation || globval.emittance) {
+    if (Lattice.param.radiation || Lattice.param.emittance) {
       B[X_] = -AyoBrho[3]; B[Y_] = AxoBrho[3]; B[Z_] = AyoBrho[1] - AxoBrho[2];
       radiate(x, h, 0e0, B);
     }
@@ -1163,7 +1163,7 @@ inline void get_Axy_EF3(const WigglerType *W, const double z,
       // A_x/Brho
       AoBrho += W->BoBrhoV[i]/kz_n*cx*chy*sz;
 
-      if (globval.radiation) {
+      if (Lattice.param.radiation) {
 	cz = cos(kz_n*z);
 	dAoBrho[X_] -= W->BoBrhoV[i]*W->kxV[i]/kz_n*sx*chy*sz;
 	dAoBrho[Y_] += W->BoBrhoV[i]*ky/kz_n*cx*shy*sz;
@@ -1179,7 +1179,7 @@ inline void get_Axy_EF3(const WigglerType *W, const double z,
       // A_y/Brho
       AoBrho += W->BoBrhoV[i]*W->kxV[i]/(ky*kz_n)*sx*shy*sz;
 
-      if (globval.radiation) {
+      if (Lattice.param.radiation) {
 	cz = cos(kz_n*z);
 	dAoBrho[X_] += W->BoBrhoV[i]*sqr(W->kxV[i])/(ky*kz_n)*cx*shy*sz;
 	dAoBrho[Y_] += W->BoBrhoV[i]*W->kxV[i]/kz_n*sx*chy*sz;
@@ -1230,7 +1230,7 @@ void Wiggler_pass_EF3(const elemtype &elem, ss_vect<T> &x)
     x[px_] -= AxoBrho; x[py_] -= dpy; x[x_] += hd*x[px_];
     x[ct_] += 0.5*hd*sqr(x[px_])/(1e0+x[delta_]);
 
-    if (globval.pathlength) x[ct_] += h;
+    if (Lattice.param.pathlength) x[ct_] += h;
 
     get_Axy_EF3(elem.W, z, x, AxoBrho, dAxoBrho, dpy, true);
 
@@ -1250,7 +1250,7 @@ void Wiggler_pass_EF3(const elemtype &elem, ss_vect<T> &x)
     // 5: half step in z
     z += 0.5*h;
 
-    if (globval.radiation || globval.emittance) {
+    if (Lattice.param.radiation || Lattice.param.emittance) {
       get_Axy_EF3(elem.W, z, x, AyoBrho, dAyoBrho, dpx, false);
       get_Axy_EF3(elem.W, z, x, AxoBrho, dAxoBrho, dpy, true);
       B[X_] = -dAyoBrho[Z_]; B[Y_] = dAxoBrho[Z_];
@@ -1283,7 +1283,7 @@ void Wiggler_Pass(CellType &Cell, ss_vect<T> &X)
 
   case Meth_First:
     if ((W->BoBrhoV[0] != 0e0) || (W->BoBrhoH[0] != 0e0)) {
-      if (!globval.EPU)
+      if (!Lattice.param.EPU)
 	Wiggler_pass_EF(Cell.Elem, X);
       else {
 	Wiggler_pass_EF2(W->N, elemp->L, W->kxV[0], W->kxH[0],
@@ -1425,7 +1425,7 @@ void f_FM(const CellType &Cell, const double z, const ss_vect<T> &ps,
 
   Dps[ct_] = (1e0+ps[delta_])/p_s - 1e0;
 
-  if (globval.pathlength) Dps[ct_] += 1e0;
+  if (Lattice.param.pathlength) Dps[ct_] += 1e0;
 
   Dps[delta_] = 0e0;
 }
@@ -1805,11 +1805,11 @@ void FieldMap_pass_SI(CellType &Cell, ss_vect<T> &ps, int k)
     // 5. Half step in z.
     z += 0.5*h; j = i + 2; s_FM += 0.5*h;
 
-    if (globval.pathlength) ps[ct_] += h;
+    if (Lattice.param.pathlength) ps[ct_] += h;
 
     FM->Lr += h;
 
-    if (globval.radiation || globval.emittance) {
+    if (Lattice.param.radiation || Lattice.param.emittance) {
 //      B[X_] = -AoBrhoy[3]; B[Y_] = AoBrho[X_][3];
 //      B[Z_] = AoBrhoy[1] - AoBrho[X_][2];
 //      radiate(ps, h, 0e0, B);
@@ -1975,7 +1975,7 @@ void Insertion_Pass(CellType &Cell, ss_vect<T> &x)
   elemp  = &Cell.Elem; Nslice = elemp->ID->N;
 
   if (elemp->ID->linear) {
-    alpha0 = c0/globval.Energy*1E-9*elemp->ID->scaling;
+    alpha0 = c0/Lattice.param.Energy*1E-9*elemp->ID->scaling;
     alpha02 = sgn(elemp->ID->scaling)*alpha0*alpha0;
   } else
     alpha02 = 1e-6*elemp->ID->scaling;
@@ -2008,7 +2008,7 @@ void Insertion_Pass(CellType &Cell, ss_vect<T> &x)
 
 	// Scale locally with (Brho) (as above) instead of when the file
 	// is read; since the beam energy might not be known at that time.
-	if (globval.radiation || globval.emittance)
+	if (Lattice.param.radiation || Lattice.param.emittance)
 	  radiate_ID(x, LN, elemp->ID->scaling*B2_perp);
       // }
 
@@ -2068,7 +2068,7 @@ void sol_pass(const elemtype &elem, ss_vect<T> &x)
     x[px_] -= AxoBrho; x[py_] -= dpy; x[x_] += hd*x[px_];
     x[ct_] += 0.5*hd*sqr(x[px_])/(1e0+x[delta_]);
 
-    if (globval.pathlength) x[ct_] += h;
+    if (Lattice.param.pathlength) x[ct_] += h;
 
     AxoBrho = -elem.Sol->BoBrho*x[y_]/2e0; dpy = -elem.Sol->BoBrho*x[x_]/2e0;
 //    get_Axy_EF3(elem.W, z, x, AxoBrho, dAxoBrho, dpy, true);
@@ -2091,7 +2091,7 @@ void sol_pass(const elemtype &elem, ss_vect<T> &x)
     // 5: half step in z
     z += 0.5*h;
 
-    if (globval.radiation || globval.emittance) {
+    if (Lattice.param.radiation || Lattice.param.emittance) {
       dAxoBrho[X_] = 0e0;
       dAxoBrho[Y_] = -elem.Sol->BoBrho/2e0;
       dAxoBrho[Z_] = 0e0;
@@ -2165,7 +2165,7 @@ static double thirdroot(double a)
 void SI_init(void)
 {
   // SI units are used internally
-  // apart from globval.energy [GeV]
+  // apart from Lattice.param.energy [GeV]
   /*  c_1 = 1/(2*(2-2^(1/3))),    c_2 = (1-2^(1/3))/(2*(2-2^(1/3)))
       d_1 = 1/(2-2^(1/3)),        d_2 = -2^(1/3)/(2-2^(1/3))                 */
 
@@ -2179,7 +2179,7 @@ void SI_init(void)
   C_gamma = 4e0*M_PI*r_e/(3e0*cube(1e-9*m_e));
   // P_gamma = e^2*c^3/(2*pi)*C_gamma*(E [GeV])^2*(B [T])^2
   // p_s = P_s/P, E = P*c, B/(Brho) = p/e
-  cl_rad = C_gamma*cube(globval.Energy)/(2e0*M_PI);
+  cl_rad = C_gamma*cube(Lattice.param.Energy)/(2e0*M_PI);
 
   // eletron rest mass [GeV]: slightly off???
 //  m_e_ = 0.5110034e-03;
@@ -2187,7 +2187,7 @@ void SI_init(void)
   C_u = 55e0/(24e0*sqrt(3e0));
   q_fluct =
     3e0*C_u*C_gamma*1e-9*h_bar*c0/(4e0*M_PI*cube(1e-9*m_e))
-    *pow(globval.Energy, 5e0);
+    *pow(Lattice.param.Energy, 5e0);
 }
 
 
@@ -2245,7 +2245,7 @@ void Elem_Print(FILE *f, int Fnum1)
 
   if (Fnum1 == 0) {
     // print all elements
-    for (i = 1; i <= globval.Elem_nFam; i++)
+    for (i = 1; i <= Lattice.param.Elem_nFam; i++)
       Elem_Print(f, i);
     return;
   }
@@ -2648,7 +2648,7 @@ void get_B_DIAMOND(const char *filename, FieldMapType *FM)
   std::ofstream outf;
 
   const int     skip = 8;
-  const double  Brho = globval.Energy*1e9/c0;
+  const double  Brho = Lattice.param.Energy*1e9/c0;
 
   std::cout << std::endl;
   std::cout << "get_B_DIAMOND: loading field map: " << filename << std::endl;
@@ -2815,7 +2815,7 @@ void get_B_NSLS_II(const char *filename, FieldMapType *FM)
   double       x_min[3], x_max[3];
   std::ifstream     inf;
 
-  const double  Brho = globval.Energy*1e9/c0;
+  const double  Brho = Lattice.param.Energy*1e9/c0;
 
   std::cout << std::endl;
   std::cout << "get_B_NSLS_II: loading field map: " << filename << std::endl;
@@ -2946,7 +2946,7 @@ void get_B_Oleg1(const char *filename, FieldMapType *FM)
   double       x_min[3], x_max[3];
   std::ifstream     inf;
 
-  const double  Brho = globval.Energy*1e9/c0;
+  const double  Brho = Lattice.param.Energy*1e9/c0;
 
   std::cout << std::endl;
   std::cout << "get_B_Oleg1: loading field map: " << filename << std::endl;
@@ -3077,7 +3077,7 @@ void get_B_Oleg2(const char *filename, FieldMapType *FM)
   double       x_min[3];
   std::ifstream     inf;
 
-  const double  Brho = globval.Energy*1e9/c0;
+  const double  Brho = Lattice.param.Energy*1e9/c0;
 
   std::cout << std::endl;
   std::cout << "get_B_Oleg2: loading field map: " << filename << std::endl;

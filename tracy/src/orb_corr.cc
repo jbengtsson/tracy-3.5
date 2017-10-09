@@ -53,8 +53,8 @@ void orb_corr_type::alloc(const std::vector<string> &bpm_Fam_names,
 			  const bool hor, const bool periodic,
 			  const double eps)
 {
-  alloc(0, globval.Cell_nLoc, globval.Cell_nLoc, bpm_Fam_names, corr_Fam_names,
-	hor, periodic, eps);
+  alloc(0, Lattice.param.Cell_nLoc, Lattice.param.Cell_nLoc, bpm_Fam_names,
+	corr_Fam_names,	hor, periodic, eps);
 }
 
 
@@ -78,10 +78,12 @@ void orb_corr_type::get_trm_mat(void)
 
   for (i = 0; i < m; i++) {
     loc_bpm = bpms[i];
-    betai = Lattice.Cell[loc_bpm].Beta[plane]; nui = Lattice.Cell[loc_bpm].Nu[plane];
+    betai = Lattice.Cell[loc_bpm].Beta[plane];
+    nui = Lattice.Cell[loc_bpm].Nu[plane];
     for (j = 0; j < n; j++) {
       loc_corr = corrs[j];
-      betaj = Lattice.Cell[loc_corr].Beta[plane]; nuj = Lattice.Cell[loc_corr].Nu[plane];
+      betaj = Lattice.Cell[loc_corr].Beta[plane];
+      nuj = Lattice.Cell[loc_corr].Nu[plane];
       A[i+1][j+1] = (loc_bpm > loc_corr)?
 	sqrt(betai*betaj)*sin(2.0*M_PI*(nui-nuj)) : 0e0;
     }
@@ -97,14 +99,16 @@ void orb_corr_type::get_orm_mat(void)
 
   plane = (hor)? 0 : 1;
 
-  nu = globval.TotalTune[plane]; spiq = sin(M_PI*nu);
+  nu = Lattice.param.TotalTune[plane]; spiq = sin(M_PI*nu);
 
   for (i = 0; i < m; i++) {
     loc_bpm = bpms[i];
-    betai = Lattice.Cell[loc_bpm].Beta[plane]; nui = Lattice.Cell[loc_bpm].Nu[plane];
+    betai = Lattice.Cell[loc_bpm].Beta[plane];
+    nui = Lattice.Cell[loc_bpm].Nu[plane];
     for (j = 0; j < n; j++) {
       loc_corr = corrs[j];
-      betaj = Lattice.Cell[loc_corr].Beta[plane]; nuj = Lattice.Cell[loc_corr].Nu[plane];
+      betaj = Lattice.Cell[loc_corr].Beta[plane];
+      nuj = Lattice.Cell[loc_corr].Nu[plane];
       A[i+1][j+1] = 
 	sqrt(betai*betaj)/(2.0*spiq)*cos(nu*M_PI-fabs(2.0*M_PI*(nui-nuj)));
     }
@@ -170,7 +174,8 @@ void orb_corr_type::clr_trims(void)
 
   for (j = 0; j < n; j++) {
     loc = corrs[j];
-    set_bnL_design_elem(Lattice.Cell[loc].Fnum, Lattice.Cell[loc].Knum, Dip, 0e0, 0e0);
+    set_bnL_design_elem(Lattice.Cell[loc].Fnum, Lattice.Cell[loc].Knum, Dip,
+			0e0, 0e0);
   }
 }
 
@@ -268,7 +273,7 @@ void thread_beam(const int n_cell, const string &Fam_name,
 		      j == 0, false, eps);
   }
 
-  ps.zero(); Cell_Pass(0, globval.Cell_nLoc, ps, lastpos);
+  ps.zero(); Cell_Pass(0, Lattice.param.Cell_nLoc, ps, lastpos);
   codstat(mean, sigma, max, lastpos, true, orb_corr[X_].bpms);
   printf("\nthread_beam, initial rms trajectory (all):"
 	 "   x = %7.1e mm, y = %7.1e mm\n",
@@ -293,13 +298,13 @@ void thread_beam(const int n_cell, const string &Fam_name,
 
     for (j = 1; j <= n_orbit; j++) {
       ps.zero();
-      Cell_Pass(0, globval.Cell_nLoc, ps, lastpos);
+      Cell_Pass(0, Lattice.param.Cell_nLoc, ps, lastpos);
       if (i != n_cell-1) Cell_Pass(0, j2, ps, lastpos);
       orb_corr[0].solve(scl); orb_corr[1].solve(scl);
     }
   }
 
-   ps.zero(); Cell_Pass(0, globval.Cell_nLoc, ps, lastpos);
+   ps.zero(); Cell_Pass(0, Lattice.param.Cell_nLoc, ps, lastpos);
    codstat(mean, sigma, max, lastpos, true, orb_corr[X_].bpms);
    printf("thread_beam, corrected rms trajectory (all):"
 	  " x = %7.1e mm, y = %7.1e mm\n",
@@ -321,11 +326,13 @@ bool cod_correct(const int n_orbit, const double scl, orb_corr_type orb_corr[])
     cod = Lattice.getcod(0e0, lastpos);
     if (cod) {
       if (j == 1) {
-	codstat(mean, sigma, max, globval.Cell_nLoc, true, orb_corr[X_].bpms);
+	codstat(mean, sigma, max, Lattice.param.Cell_nLoc, true,
+		orb_corr[X_].bpms);
 	printf("\ncod_correct, initial rms cod (all):"
 	       "      x = %7.1e mm, y = %7.1e mm\n",
 	       1e3*sigma[X_], 1e3*sigma[Y_]);
-	codstat(mean, sigma, max, globval.Cell_nLoc, false, orb_corr[X_].bpms);
+	codstat(mean, sigma, max, Lattice.param.Cell_nLoc, false,
+		orb_corr[X_].bpms);
 	printf("cod_correct, initial rms cod (bpms):"
 	       "     x = %7.1e mm, y = %7.1e mm\n",
 	       1e3*sigma[X_], 1e3*sigma[Y_]);
@@ -333,14 +340,15 @@ bool cod_correct(const int n_orbit, const double scl, orb_corr_type orb_corr[])
 
       orb_corr[0].solve(scl); orb_corr[1].solve(scl);
 
-      codstat(mean, sigma, max, globval.Cell_nLoc, false, orb_corr[X_].bpms);
+      codstat(mean, sigma, max, Lattice.param.Cell_nLoc, false,
+	      orb_corr[X_].bpms);
       printf("Corrected rms orbit (bpms): x = %7.1e mm, y = %7.1e mm\n",
 	     1e3*sigma[X_], 1e3*sigma[Y_]);
     } else
       printf("\ncod_correct failed");
   }
 
-  codstat(mean, sigma, max, globval.Cell_nLoc, true, orb_corr[X_].bpms);
+  codstat(mean, sigma, max, Lattice.param.Cell_nLoc, true, orb_corr[X_].bpms);
   printf("Corrected rms orbit (all):  x = %7.1e mm, y = %7.1e mm\n",
 	 1e3*sigma[X_], 1e3*sigma[Y_]);
 

@@ -15,7 +15,7 @@ void get_alphac(double alphac[])
 
   for (i = 0; i < n_alphac; i++)
     alphac[i] = h_ijklm(map[ct_], 0, 0, 0, 0, i+1)
-      /Lattice.Cell[globval.Cell_nLoc].S;
+      /Lattice.Cell[Lattice.param.Cell_nLoc].S;
 }
 
 
@@ -26,7 +26,7 @@ double H_long(const double phi, const double delta,
   int    i;
   double H;
 
-  H = V_rf/(globval.Energy*1e9)*(cos(phi+phi0)+phi*sin(phi0));
+  H = V_rf/(Lattice.param.Energy*1e9)*(cos(phi+phi0)+phi*sin(phi0));
   for (i = 2; i <= n_alphac+1; i++)
     H += 2.0*pi*h_rf*alphac[i-2]*pow(delta, (double)i)/i;
   return H;
@@ -52,7 +52,7 @@ void prt_H_long(const int n, const double phi_max, const double delta_max,
   if (neg_alphac) phi0 += pi;
 
   delta_rf = sqrt(-V_rf*cos(pi+phi0)*(2e0-(pi-2e0*(pi+phi0))*tan(pi+phi0))
-	     /(alphac[0]*pi*h_rf*globval.Energy*1e9));
+	     /(alphac[0]*pi*h_rf*Lattice.param.Energy*1e9));
   std::cout << std::endl << std::fixed << std::setprecision(1)
 	    << "U0     = " << 1e-3*U0 << " keV" << std::endl;
   if (!neg_alphac) 
@@ -122,10 +122,10 @@ int main(int argc, char *argv[])
   const double beta[]  = {3.4, 1.9},
                A_max[] = {6e-3, 4e-3}, delta = 5e-2;
 
-  globval.H_exact    = false; globval.quad_fringe = false;
-  globval.Cavity_on  = false; globval.radiation   = false;
-  globval.emittance  = false; globval.IBS         = false;
-  globval.pathlength = false; globval.bpm         = 0;
+  Lattice.param.H_exact    = false; Lattice.param.quad_fringe = false;
+  Lattice.param.Cavity_on  = false; Lattice.param.radiation   = false;
+  Lattice.param.emittance  = false; Lattice.param.IBS         = false;
+  Lattice.param.pathlength = false; Lattice.param.bpm         = 0;
 
   // disable from TPSALib- and LieLib log messages
   idprset_(-1);
@@ -144,7 +144,7 @@ int main(int argc, char *argv[])
   prt_h_K(sqr(A_max[X_])/beta[X_], sqr(A_max[Y_])/beta[Y_], delta);
 
   danot_(no_tps-1);
-  globval.Cavity_on = true; globval.radiation = true;
+  Lattice.param.Cavity_on = true; Lattice.param.radiation = true;
   get_map(false);
   prt_H_long(10, M_PI, 10e-2, "cav", -544.7e3, true);
   prt_alphac();

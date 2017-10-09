@@ -157,7 +157,7 @@ void Lattice_Type::rdmfile(const char *mfile_dat)
     if (Lattice.Cell[i].Knum == 1) {
       strcpy(Lattice.ElemFam[Lattice.Cell[i].Fnum-1].ElemF.Name,
 	     Lattice.Cell[i].Elem.Name);
-      globval.Elem_nFam = max(Lattice.Cell[i].Fnum, globval.Elem_nFam);
+      Lattice.param.Elem_nFam = max(Lattice.Cell[i].Fnum, Lattice.param.Elem_nFam);
     }
 
     if (i > 0) {
@@ -200,10 +200,10 @@ void Lattice_Type::rdmfile(const char *mfile_dat)
       if (prt) printf("%s\n", line);
       sscanf(line, "%lf %lf %d %lf %lf",
 	     &Lattice.Cell[i].Elem.C->volt, &Lattice.Cell[i].Elem.C->freq,
-	     &Lattice.Cell[i].Elem.C->h, &globval.Energy,
+	     &Lattice.Cell[i].Elem.C->h, &Lattice.param.Energy,
 	     &Lattice.Cell[i].Elem.C->phi);
-      globval.Energy *= 1e-9;
-      Lattice.Cell[i].Elem.C->volt *= globval.Energy*1e9;
+      Lattice.param.Energy *= 1e-9;
+      Lattice.Cell[i].Elem.C->volt *= Lattice.param.Energy*1e9;
       Lattice.Cell[i].Elem.C->freq *= c0/(2.0*M_PI);
      break;
     case Mpole:
@@ -378,16 +378,18 @@ void Lattice_Type::rdmfile(const char *mfile_dat)
       Lattice.Cell[i].S = Lattice.Cell[i-1].S + Lattice.Cell[i].Elem.L;
   }
   
-  globval.Cell_nLoc = i;
+  Lattice.param.Cell_nLoc = i;
  
-  globval.dPcommon = 1e-8; globval.CODeps = 1e-14; globval.CODimax = 40;
+  Lattice.param.dPcommon = 1e-8;
+  Lattice.param.CODeps = 1e-14;
+  Lattice.param.CODimax = 40;
 
   SI_init();
 
   std::cout << std::endl;
   std::cout  << std::fixed << std::setprecision(5)
-	<< "rdmfile: read " << globval.Cell_nLoc << " elements, C = "
-	<< Lattice.Cell[globval.Cell_nLoc].S << std::endl;
+	<< "rdmfile: read " << Lattice.param.Cell_nLoc << " elements, C = "
+	<< Lattice.Cell[Lattice.param.Cell_nLoc].S << std::endl;
 
   inf.close();
 }

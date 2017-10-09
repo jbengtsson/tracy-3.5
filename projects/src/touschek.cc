@@ -25,9 +25,9 @@ void err_and_corr(const string &param_file)
 
   params.err_and_corr_init(param_file, orb_corr);
 
-  globval.Cavity_on = false;
+  Lattice.param.Cavity_on = false;
 
-  globval.CODeps = 1e-10;
+  Lattice.param.CODeps = 1e-10;
 
   if (params.fe_file != "") params.LoadFieldErr(false, 1e0, true);
   if (params.ae_file != "") {
@@ -51,28 +51,28 @@ void err_and_corr(const string &param_file)
 
   if (cod) {
     printf("\nerr_and_corr: orbit correction completed\n");
-    Lattice.prt_cod("cod.out", globval.bpm, true);
+    Lattice.prt_cod("cod.out", Lattice.param.bpm, true);
  
-    globval.delta_RF = 5.2e-2; globval.Cavity_on = true;
+    Lattice.param.delta_RF = 5.2e-2; Lattice.param.Cavity_on = true;
 
-    Lattice.Touschek(Qb, globval.delta_RF, eps_x, eps_y, sigma_delta, sigma_s);
+    Lattice.Touschek(Qb, Lattice.param.delta_RF, eps_x, eps_y, sigma_delta, sigma_s);
       
-    double  sum_delta[globval.Cell_nLoc+1][2];
-    double  sum2_delta[globval.Cell_nLoc+1][2];
-//    double  mean_delta_s[globval.Cell_nLoc+1][2];
-//    double  sigma_delta_s[globval.Cell_nLoc+1][2];
+    double  sum_delta[Lattice.param.Cell_nLoc+1][2];
+    double  sum2_delta[Lattice.param.Cell_nLoc+1][2];
+//    double  mean_delta_s[Lattice.param.Cell_nLoc+1][2];
+//    double  sigma_delta_s[Lattice.param.Cell_nLoc+1][2];
 
-    for(j = 0; j <= globval.Cell_nLoc; j++){
+    for(j = 0; j <= Lattice.param.Cell_nLoc; j++){
       sum_delta[j][X_] = 0e0; sum_delta[j][Y_] = 0e0;
       sum2_delta[j][X_] = 0e0; sum2_delta[j][Y_] = 0e0;
     }
  
-    Lattice.Touschek(Qb, globval.delta_RF, false,
+    Lattice.Touschek(Qb, Lattice.param.delta_RF, false,
 		     eps_x, eps_y, sigma_delta, sigma_s,
 		     params.n_track_DA, false, sum_delta, sum2_delta);
 
     fp = file_write((file_name).c_str()); 
-    for(j = 0; j <= globval.Cell_nLoc; j++)
+    for(j = 0; j <= Lattice.param.Cell_nLoc; j++)
       fprintf(fp, "%4d %7.2f %5.3f %6.3f\n",
 	      j, Lattice.Cell[j].S, 1e2*sum_delta[j][X_], 1e2*sum_delta[j][Y_]);
     fclose(fp);
@@ -85,10 +85,10 @@ void err_and_corr(const string &param_file)
 
 int main(int argc, char *argv[])
 {
-  globval.H_exact    = false; globval.quad_fringe = false;
-  globval.Cavity_on  = false; globval.radiation   = false;
-  globval.emittance  = false; globval.IBS         = false;
-  globval.pathlength = false; globval.Aperture_on = false;
+  Lattice.param.H_exact    = false; Lattice.param.quad_fringe = false;
+  Lattice.param.Cavity_on  = false; Lattice.param.radiation   = false;
+  Lattice.param.emittance  = false; Lattice.param.IBS         = false;
+  Lattice.param.pathlength = false; Lattice.param.Aperture_on = false;
 
   if (argc < 1) {
     printf("*** bad command line\n");

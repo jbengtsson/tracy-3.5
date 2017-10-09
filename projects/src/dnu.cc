@@ -23,17 +23,17 @@ const double
 int main(int argc, char *argv[])
 {
   
-  globval.H_exact    = false; globval.quad_fringe = false;
-  globval.Cavity_on  = false; globval.radiation   = false;
-  globval.emittance  = false; globval.IBS         = false;
-  globval.pathlength = false; globval.bpm         = 0;
+  Lattice.param.H_exact    = false; Lattice.param.quad_fringe = false;
+  Lattice.param.Cavity_on  = false; Lattice.param.radiation   = false;
+  Lattice.param.emittance  = false; Lattice.param.IBS         = false;
+  Lattice.param.pathlength = false; Lattice.param.bpm         = 0;
 
   if (false)
     Lattice.Read_Lattice(argv[1]);
   else
     Lattice.rdmfile(argv[1]);
 
-  globval.EPU = false;
+  Lattice.param.EPU = false;
 
   Lattice.dnu_dA(A_max[lat_case-1][X_], A_max[lat_case-1][Y_], 0e0, 25);
   Lattice.get_ksi2(delta_max[lat_case-1]);
