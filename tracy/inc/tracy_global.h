@@ -1,12 +1,30 @@
+/* Tracy-2:
+
+   J. Bengtsson, CBP, LBL      1990 - 1994   Pascal version,
+                 SLS, PSI      1995 - 1997,
+   M. Boege      SLS, PSI      1998          Pascal to C translation,
+   L. Nadolski   SOLEIL        2002          Link to NAFF and Radia field maps,
+   J. Bengtsson  NSLS-II, BNL  2004 - 2015,
+   J. Bengtsson                2017          C to C++ re-factoring.           */
+
+
 #define PLANES 2
 
 
-// maximum number of kids */
+// Max number of LEGO blocks (Cell_nLoc).
+#define Cell_nLocMax 20000
+
+// Max number of families for Elem_NFam.
+#define Elem_nFamMax 3000
+
+// Max number of kids.
 #define nKidMax 5000
 
 // ID Laurent.
 #define IDXMAX 200
 #define IDZMAX 100
+
+const int  max_elem = Cell_nLocMax;
 
 const int  n_harm_max = 10;
 
@@ -341,8 +359,7 @@ typedef struct globvalrec {
   double   Energy;          // ring energy.
   long     Cell_nLoc,       // number of elements.
            Elem_nFam,       // number of families.
-           CODimax;         /* maximum number of cod search before
-				    failing */
+           CODimax;         // Max number of cod search before failing.
   double   CODeps;          // precision for closed orbit finder.
   psVector CODvect;         // closed orbit.
   int      bpm;             // bpm number.

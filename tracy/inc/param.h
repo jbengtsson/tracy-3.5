@@ -63,8 +63,9 @@ class param_data_type {
 
   // ID control.
   int                      N_calls, N_steps, N_Fam, Q_Fam[N_Fam_max];
-  int                      n_sext, sexts[max_elem];
-  double                   betas0_[max_elem][2], nus0_[max_elem][2], nu0_[2];
+  int                      n_sext, sexts[Cell_nLocMax];
+  double                   betas0_[Cell_nLocMax][2], nus0_[Cell_nLocMax][2],
+                           nu0_[2];
   double                   b2[N_Fam_max], ID_s_cut;
   double                   **SkewRespMat, *VertCouple, *SkewStrengthCorr;
   double                   *eta_y;

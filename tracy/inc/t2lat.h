@@ -1,18 +1,3 @@
-/* Tracy-2:
-
-   J. Bengtsson, CBP, LBL      1990 - 1994   Pascal version,
-                 SLS, PSI      1995 - 1997,
-   M. Boege      SLS, PSI      1998          Pascal to C translation,
-   L. Nadolski   SOLEIL        2002          Link to NAFF and Radia field maps,
-   J. Bengtsson  NSLS-II, BNL  2004 - 2015,
-   J. Bengtsson                2017          C to C++ re-factoring.           */
-
-
-// maximum number of LEGO blocks (Cell_nLoc)
-#define Cell_nLocMax 20000
-
-// maximum number of families for Elem_NFam
-#define Elem_nFamMax 3000
 
 
 class Lattice_Type {
