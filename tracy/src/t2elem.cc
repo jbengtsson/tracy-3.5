@@ -216,7 +216,7 @@ void Drift(const double L, ss_vect<T> &ps)
 template<typename T>
 void Drift_Pass(CellType &Cell, ss_vect<T> &x)
 {
-  Drift(Cell.Elem.PL, x);
+  Drift(Cell.Elem.L, x);
 }
 
 
@@ -288,7 +288,7 @@ class is_tps<tps> {
 
   static inline void emittance(const tps &B2_perp, const tps &ds, const tps &ps0,
 			       const ss_vect<tps> &A) {
-    // M. Sands "The Physics of Electron Storage Rings" SLAC-121, p. 118.
+    // M. Sands "The hysics of Electron Storage Rings" SLAC-121, p. 118.
     // d<delta^2>/ds = 3*C_U*C_gamma*h_bar*c*E_0^5*(1+delta)^4*(B_perp/(Brho))^3
     //                 /(4*pi*m_e^3)
     // A contains the eigenvectors.
@@ -335,7 +335,7 @@ void get_B2(const double h_ref, const T B[], const ss_vect<T> &xp,
 template<typename T>
 void radiate(ss_vect<T> &x, const double L, const double h_ref, const T B[])
 {
-  // M. Sands "The Physics of Electron Storage Rings" SLAC-121, p. 98.
+  // M. Sands "The hysics of Electron Storage Rings" SLAC-121, p. 98.
   // ddelta/d(ds) = -C_gamma*E_0^3*(1+delta)^2*(B_perp/(Brho))^2/(2*pi)
   T           ps0, ps1, ds, B2_perp = 0e0, B2_par = 0e0;
   ss_vect<T>  xp;
@@ -552,53 +552,53 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &x)
   elemp = &Cell.Elem; M = elemp->M;
 
   // Global -> Local.
-  GtoL(x, Cell.dS, Cell.dT, M->Pc0, M->Pc1, M->Ps1);
+  GtoL(x, Cell.dS, Cell.dT, M->c0, M->c1, M->s1);
 
-  if ((M->Pmethod == Meth_Second) || (M->Pmethod == Meth_Fourth)) {
+  if ((M->method == Meth_Second) || (M->method == Meth_Fourth)) {
     // Fringe fields.
-    if (globval.quad_fringe && (M->PB[Quad+HOMmax] != 0e0))
-      quad_fringe(M->PB[Quad+HOMmax], x);
+    if (globval.quad_fringe && (M->B[Quad+HOMmax] != 0e0))
+      quad_fringe(M->B[Quad+HOMmax], x);
     if (!globval.H_exact) {
-      if (M->Pirho != 0e0) EdgeFocus(M->Pirho, M->PTx1, M->Pgap, x);
+      if (M->irho != 0e0) EdgeFocus(M->irho, M->Tx1, M->gap, x);
     } else {
-      p_rot(M->PTx1, x);
-      if (globval.dip_fringe) bend_fringe(M->Pirho, x);
+      p_rot(M->Tx1, x);
+      if (globval.dip_fringe) bend_fringe(M->irho, x);
     }
   }
 
-  if (M->Pthick == thick) {
+  if (M->thick == thick) {
     if (!globval.H_exact) {
       // Polar coordinates.
-      h_ref = M->Pirho; dL = elemp->PL/M->PN;
+      h_ref = M->irho; dL = elemp->L/M->N;
     } else {
       // Cartesian coordinates.
       h_ref = 0e0;
-      if (M->Pirho == 0e0)
-	dL = elemp->PL/M->PN;
+      if (M->irho == 0e0)
+	dL = elemp->L/M->N;
       else
-	dL = 2e0/M->Pirho*sin(elemp->PL*M->Pirho/2e0)/M->PN;
+	dL = 2e0/M->irho*sin(elemp->L*M->irho/2e0)/M->N;
     }
   }
 
-  switch (M->Pmethod) {
+  switch (M->method) {
 
   case Meth_Linear:
 
   case Meth_First:
-    if (M->Pthick == thick) {
+    if (M->thick == thick) {
       /* First Linear  */
 //      LinTrans(5L, M->AU55, x);
-      k = M->PB[Quad+HOMmax];
+      k = M->B[Quad+HOMmax];
       /* retrieve normal quad component already in AU55 */
-      M->PB[Quad+HOMmax] = 0e0;
+      M->B[Quad+HOMmax] = 0e0;
       /* Kick w/o quad component */
-      thin_kick(M->Porder, M->PB, elemp->PL, 0e0, 0e0, x);
+      thin_kick(M->order, M->B, elemp->L, 0e0, 0e0, x);
       /* restore quad component */
-      M->PB[Quad+HOMmax] = k;
+      M->B[Quad+HOMmax] = k;
       /* Second Linear */
 //      LinTrans(5L, M->AD55, x);
     } else /* thin kick */
-      thin_kick(M->Porder, M->PB, 1e0, 0e0, 0e0, x);
+      thin_kick(M->order, M->B, 1e0, 0e0, 0e0, x);
     break;
 
   case Meth_Second:
@@ -607,63 +607,63 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &x)
     break;
 
   case Meth_Fourth:
-    if (M->Pthick == thick) {
+    if (M->thick == thick) {
       dL1 = c_1*dL; dL2 = c_2*dL; dkL1 = d_1*dL; dkL2 = d_2*dL;
 
       dcurly_H = 0e0; dI4 = 0e0;
-      for (seg = 1; seg <= M->PN; seg++) {
-	if (globval.emittance && (!globval.Cavity_on) && (M->Pirho != 0e0)) {
+      for (seg = 1; seg <= M->N; seg++) {
+	if (globval.emittance && (!globval.Cavity_on) && (M->irho != 0e0)) {
 	  dcurly_H += is_tps<tps>::get_curly_H(x);
 	  dI4 += is_tps<tps>::get_dI4(x);
 	}
 
 	Drift(dL1, x);
-        thin_kick(M->Porder, M->PB, dkL1, M->Pirho, h_ref, x);
+        thin_kick(M->order, M->B, dkL1, M->irho, h_ref, x);
 	Drift(dL2, x);
-        thin_kick(M->Porder, M->PB, dkL2, M->Pirho, h_ref, x);
+        thin_kick(M->order, M->B, dkL2, M->irho, h_ref, x);
 
-	if (globval.emittance && (!globval.Cavity_on) && (M->Pirho != 0e0)) {
+	if (globval.emittance && (!globval.Cavity_on) && (M->irho != 0e0)) {
 	  dcurly_H += 4e0*is_tps<tps>::get_curly_H(x);
 	  dI4 += 4e0*is_tps<tps>::get_dI4(x);
 	}
 
 	Drift(dL2, x);
-        thin_kick(M->Porder, M->PB, dkL1, M->Pirho, h_ref, x);
+        thin_kick(M->order, M->B, dkL1, M->irho, h_ref, x);
 	Drift(dL1, x);
 
-	if (globval.emittance && (!globval.Cavity_on) && (M->Pirho != 0e0)) {
+	if (globval.emittance && (!globval.Cavity_on) && (M->irho != 0e0)) {
 	  dcurly_H += is_tps<tps>::get_curly_H(x);
 	  dI4 += is_tps<tps>::get_dI4(x);
 	}
       }
 
-      if (globval.emittance && (!globval.Cavity_on) && (M->Pirho != 0)) {
-	dcurly_H /= 6e0*M->PN;
-	dI4 *= M->Pirho*(sqr(M->Pirho)+2e0*M->PBpar[Quad+HOMmax])/(6e0*M->PN);
+      if (globval.emittance && (!globval.Cavity_on) && (M->irho != 0)) {
+	dcurly_H /= 6e0*M->N;
+	dI4 *= M->irho*(sqr(M->irho)+2e0*M->Bpar[Quad+HOMmax])/(6e0*M->N);
 
-	I2 += elemp->PL*sqr(M->Pirho); I4 += elemp->PL*dI4;
-	I5 += elemp->PL*fabs(cube(M->Pirho))*dcurly_H;
+	I2 += elemp->L*sqr(M->irho); I4 += elemp->L*dI4;
+	I5 += elemp->L*fabs(cube(M->irho))*dcurly_H;
       }
     } else
-      thin_kick(M->Porder, M->PB, 1e0, 0e0, 0e0, x);
+      thin_kick(M->order, M->B, 1e0, 0e0, 0e0, x);
 
     break;
   }
 
-  if ((M->Pmethod == Meth_Second) || (M->Pmethod == Meth_Fourth)) {
+  if ((M->method == Meth_Second) || (M->method == Meth_Fourth)) {
     // Fringe fields.
     if (!globval.H_exact) {
-      if (M->Pirho != 0e0) EdgeFocus(M->Pirho, M->PTx2, M->Pgap, x);
+      if (M->irho != 0e0) EdgeFocus(M->irho, M->Tx2, M->gap, x);
     } else {
-      if (globval.dip_fringe) bend_fringe(-M->Pirho, x);
-      p_rot(M->PTx2, x);
+      if (globval.dip_fringe) bend_fringe(-M->irho, x);
+      p_rot(M->Tx2, x);
     }
-    if (globval.quad_fringe && (M->PB[Quad+HOMmax] != 0e0))
-      quad_fringe(-M->PB[Quad+HOMmax], x);
+    if (globval.quad_fringe && (M->B[Quad+HOMmax] != 0e0))
+      quad_fringe(-M->B[Quad+HOMmax], x);
   }
 
   // Local -> Global.
-  LtoG(x, Cell.dS, Cell.dT, M->Pc0, M->Pc1, M->Ps1);
+  LtoG(x, Cell.dS, Cell.dT, M->c0, M->c1, M->s1);
 }
 
 
@@ -699,14 +699,14 @@ void Cav_Pass(CellType &Cell, ss_vect<T> &X)
   T           delta;
 
   elemp = &Cell.Elem; C = elemp->C;
-  if (globval.Cavity_on && C->Pvolt != 0e0) {
-    delta = -C->Pvolt/(globval.Energy*1e9)
-            *sin(2e0*M_PI*C->Pfreq/c0*X[ct_]+C->phi);
+  if (globval.Cavity_on && C->volt != 0e0) {
+    delta = -C->volt/(globval.Energy*1e9)
+            *sin(2e0*M_PI*C->freq/c0*X[ct_]+C->phi);
     X[delta_] += delta;
 
     if (globval.radiation) globval.dE -= is_double<T>::cst(delta);
 
-    if (globval.pathlength) X[ct_] -= C->Ph/C->Pfreq*c0;
+    if (globval.pathlength) X[ct_] -= C->h/C->freq*c0;
   }
 }
 
@@ -716,7 +716,7 @@ template<typename T>
 void Cav_Pass1(CellType &Cell, ss_vect<T> &ps)
 {
   /* J. Rosenzweig and L. Serafini "Transverse Particle Motion in
-     Radio-Frequency Linear Accelerators" Phys. Rev. E 49(2),
+     Radio-Frequency Linear Accelerators" hys. Rev. E 49(2),
      1599-1602 (1994).                                                        */
 
   elemtype   *elemp;
@@ -725,20 +725,20 @@ void Cav_Pass1(CellType &Cell, ss_vect<T> &ps)
   double     L, h, p_t1;
   T          delta_max, ddelta, delta;
 
-  elemp = &Cell.Elem; C = elemp->C; L = elemp->PL;
+  elemp = &Cell.Elem; C = elemp->C; L = elemp->L;
 
-  h = L/(C->PN+1e0);
+  h = L/(C->N+1e0);
   // globval.Energy contains p_0.
-  delta_max = C->Pvolt/(1e9*globval.Energy); ddelta = delta_max/C->PN;
-  delta = delta_max*sin(2e0*M_PI*C->Pfreq*ps[ct_]/c0+C->phi);
+  delta_max = C->volt/(1e9*globval.Energy); ddelta = delta_max/C->N;
+  delta = delta_max*sin(2e0*M_PI*C->freq*ps[ct_]/c0+C->phi);
   if (C->entry_focus) Cav_Focus(L, delta, true, ps);
-  for (k = 0; k < C->PN; k++) {
+  for (k = 0; k < C->N; k++) {
     Drift(h, ps);
 
-    ps[delta_] -= ddelta*sin(2e0*M_PI*C->Pfreq*(ps[ct_]-k*h)/c0+C->phi);
+    ps[delta_] -= ddelta*sin(2e0*M_PI*C->freq*(ps[ct_]-k*h)/c0+C->phi);
 
     if (globval.radiation) globval.dE -= is_double<T>::cst(ddelta);
-    if (globval.pathlength) ps[ct_] -= C->Ph/C->Pfreq*c0;
+    if (globval.pathlength) ps[ct_] -= C->h/C->freq*c0;
   }
   Drift(h, ps);
   if (C->exit_focus) Cav_Focus(L, delta, false, ps);
@@ -761,7 +761,7 @@ template<typename T>
 void Cav_Pass(CellType &Cell, ss_vect<T> &ps)
 {
   /* J. Rosenzweig and L. Serafini "Transverse Particle Motion in
-     Radio-Frequency Linear Accelerators" Phys. Rev. E 49(2),
+     Radio-Frequency Linear Accelerators" hys. Rev. E 49(2),
      1599-1602 (1994).                                                        */
 
   elemtype   *elemp;
@@ -775,15 +775,15 @@ void Cav_Pass(CellType &Cell, ss_vect<T> &ps)
 
   const bool RandS = false;
  
-  elemp = &Cell.Elem; C = elemp->C; L = elemp->PL; phi = C->phi;
-  lambda = c0/C->Pfreq;
+  elemp = &Cell.Elem; C = elemp->C; L = elemp->L; phi = C->phi;
+  lambda = c0/C->freq;
 
   p_t = is_double<T>::cst(ps[delta_]);
   delta = sqrt(1e0+2e0*p_t/globval.beta0+sqr(p_t)) - 1e0;
   // globval.Energy contains p_0 [GeV].
   p0 = 1e9*globval.Energy/m_e;
   gamma = sqrt(1e0+sqr(p0));
-  dgammaMax = C->Pvolt/m_e; dgamma = dgammaMax*sin(phi);
+  dgammaMax = C->volt/m_e; dgamma = dgammaMax*sin(phi);
   gamma1 = gamma + dgamma;
   dp = sqrt(sqr(gamma1)-1e0) - p0;
 
@@ -834,7 +834,7 @@ void Cav_Pass(CellType &Cell, ss_vect<T> &ps)
 
    // globval.Energy contains p_0 [GeV].
     ps[delta_] =
-      2e0*M_PI*C->Pfreq*dgammaMax*cos(phi)/(c0*gamma1)*ps0[ct_]
+      2e0*M_PI*C->freq*dgammaMax*cos(phi)/(c0*gamma1)*ps0[ct_]
       + 1e0/(1e0+dp/p0)*ps0[delta_];
   }
 
@@ -980,9 +980,9 @@ void Wiggler_pass_EF(const elemtype &elem, ss_vect<T> &x)
   T      psi, hodp, a12, a21, a22, det;
   T      d1, d2, a11, c11, c12, c21, c22, x2, B[3];
 
-  switch (elem.Pkind) {
+  switch (elem.Kind) {
   case Wigl:
-    nstep = elem.W->PN;
+    nstep = elem.W->N;
     break;
   case FieldMap:
     nstep = elem.FM->n_step;
@@ -993,9 +993,9 @@ void Wiggler_pass_EF(const elemtype &elem, ss_vect<T> &x)
     break;
   }
 
-  h = elem.PL/nstep; z = 0e0;
+  h = elem.L/nstep; z = 0e0;
   for (i = 1; i <= nstep; ++i) {
-    switch (elem.Pkind) {
+    switch (elem.Kind) {
     case Wigl:
       get_Axy(elem.W, z, x, AxoBrho, AyoBrho);
       break;
@@ -1205,9 +1205,9 @@ void Wiggler_pass_EF3(const elemtype &elem, ss_vect<T> &x)
   double  h, z;
   T       hd, AxoBrho, AyoBrho, dAxoBrho[3], dAyoBrho[3], dpy, dpx, B[3];
 
-  h = elem.PL/elem.W->PN; z = 0e0;
+  h = elem.L/elem.W->N; z = 0e0;
 
-  for (i = 1; i <= elem.W->PN; i++) {
+  for (i = 1; i <= elem.W->N; i++) {
     hd = h/(1e0+x[delta_]);
 
     // 1: half step in z
@@ -1273,7 +1273,7 @@ void Wiggler_Pass(CellType &Cell, ss_vect<T> &X)
   elemp = &Cell.Elem; W = elemp->W;
   // Global -> Local
   GtoL(X, Cell.dS, Cell.dT, 0e0, 0e0, 0e0);
-  switch (W->Pmethod) {
+  switch (W->method) {
 
   case Meth_Linear:
 //    LinTrans(5L, W->W55, X);
@@ -1286,13 +1286,13 @@ void Wiggler_Pass(CellType &Cell, ss_vect<T> &X)
       if (!globval.EPU)
 	Wiggler_pass_EF(Cell.Elem, X);
       else {
-	Wiggler_pass_EF2(W->PN, elemp->PL, W->kxV[0], W->kxH[0],
+	Wiggler_pass_EF2(W->N, elemp->L, W->kxV[0], W->kxH[0],
 		2e0*M_PI/W->lambda, W->BoBrhoV[0], W->BoBrhoH[0],
 		W->phi[0], X);
       }
     } else
       // drift if field = 0
-      Drift(elemp->PL, X);
+      Drift(elemp->L, X);
     break;
 
   case Meth_Second:
@@ -1300,19 +1300,19 @@ void Wiggler_Pass(CellType &Cell, ss_vect<T> &X)
       Wiggler_pass_EF3(Cell.Elem, X);
     } else
       // drift if field = 0
-      Drift(elemp->PL, X);
+      Drift(elemp->L, X);
     break;
 
   case Meth_Fourth:  /* 4-th order integrator */
-    L = elemp->PL/W->PN;
+    L = elemp->L/W->N;
     L1 = c_1*L; L2 = c_2*L; K1 = d_1*L; K2 = d_2*L;
-    for (seg = 1; seg <= W->PN; seg++) {
+    for (seg = 1; seg <= W->N; seg++) {
       Drift(L1, X); X1 = X;
-      thin_kick(W->Porder, W->PBW, K1, 0e0, 0e0, X1);
+      thin_kick(W->order, W->BW, K1, 0e0, 0e0, X1);
       X[py_] = X1[py_]; Drift(L2, X); X1 = X;
-      thin_kick(W->Porder, W->PBW, K2, 0e0, 0e0, X1);
+      thin_kick(W->order, W->BW, K2, 0e0, 0e0, X1);
       X[py_] = X1[py_]; Drift(L2, X); X1 = X;
-      thin_kick(W->Porder, W->PBW, K1, 0e0, 0e0, X1);
+      thin_kick(W->order, W->BW, K1, 0e0, 0e0, X1);
       X[py_] = X1[py_]; Drift(L1, X);
     }
     break;
@@ -1534,7 +1534,7 @@ template<typename T>
 void FieldMap_pass_SI(CellType &Cell, ss_vect<T> &ps, int k)
 {
   /* E. Chacon-Golcher, F. Neri "A Symplectic Integrator with Arbitrary
-     Vector and Scalar Potentials" Phys. Lett. A 372 p. 4661-4666 (2008).    */
+     Vector and Scalar Potentials" hys. Lett. A 372 p. 4661-4666 (2008).    */
 
   int           i, j = 0;
   double        h, z;
@@ -1909,7 +1909,7 @@ void FieldMap_Pass(CellType &Cell, ss_vect<T> &ps)
 
 //  GtoL(ps, Cell.dS, Cell.dT, 0e0, 0e0, 0e0);
 
-  Ld = (FM->Lr-Cell.Elem.PL)/2e0;
+  Ld = (FM->Lr-Cell.Elem.L)/2e0;
   p_rot(FM->phi/2e0*180e0/M_PI, ps);
   printf("\nFieldMap_Pass: entrance negative drift [m] %12.5e", Ld);
   Drift(-Ld, ps);
@@ -1972,7 +1972,7 @@ void Insertion_Pass(CellType &Cell, ss_vect<T> &x)
   int       i = 0;
   bool      outoftable = false;
 
-  elemp  = &Cell.Elem; Nslice = elemp->ID->PN;
+  elemp  = &Cell.Elem; Nslice = elemp->ID->N;
 
   if (elemp->ID->linear) {
     alpha0 = c0/globval.Energy*1E-9*elemp->ID->scaling;
@@ -1986,10 +1986,10 @@ void Insertion_Pass(CellType &Cell, ss_vect<T> &x)
   p_rot(elemp->ID->phi/2e0*180e0/M_PI, x);
 
   // (Nslice+1) drifts, nslice kicks
-  // LN = elemp->PL/(Nslice+1);
+  // LN = elemp->L/(Nslice+1);
 
   // Nslice drifts and kicks.
-  LN = elemp->PL/Nslice;
+  LN = elemp->L/Nslice;
   Drift(LN/2e0, x);
 
   for (i = 1; i <= Nslice; i++) {
@@ -2040,7 +2040,7 @@ void sol_pass(const elemtype &elem, ss_vect<T> &x)
   double  h, z;
   T       hd, AxoBrho, AyoBrho, dAxoBrho[3], dAyoBrho[3], dpy, dpx, B[3];
 
-  h = elem.PL/elem.Sol->N; z = 0e0;
+  h = elem.L/elem.Sol->N; z = 0e0;
 
   for (i = 1; i <= elem.Sol->N; i++) {
     hd = h/(1e0+x[delta_]);
@@ -2140,7 +2140,7 @@ long Lattice_Type::Elem_GetPos(const int Fnum1, const int Knum1)
   else {
     loc = -1;
     printf("Elem_GetPos: there are no kids in family %d (%s)\n",
-	   Fnum1, Lattice.ElemFam[Fnum1-1].ElemF.PName);
+	   Fnum1, Lattice.ElemFam[Fnum1-1].ElemF.Name);
     exit_(0);
   }
 
@@ -2199,8 +2199,8 @@ void Mpole_Print(FILE *f, int Fnum1)
   elemp  = &Lattice.ElemFam[Fnum1-1].ElemF; M = elemp->M;
   fprintf(f, "Element[%3d ] \n", Fnum1);
   fprintf(f, "   Name: %.*s,  Kind:   mpole,  L=% .8E\n",
-          SymbolLength, elemp->PName, elemp->PL);
-  fprintf(f, "   Method: %d, N=%4d\n", M->Pmethod, M->PN);
+          SymbolLength, elemp->Name, elemp->L);
+  fprintf(f, "   Method: %d, N=%4d\n", M->method, M->N);
 }
 
 
@@ -2212,7 +2212,7 @@ void Drift_Print(FILE *f, int Fnum1)
   elemfamp = &Lattice.ElemFam[Fnum1-1]; elemp = &elemfamp->ElemF;
   fprintf(f, "Element[%3d ] \n", Fnum1);
   fprintf(f, "   Name: %.*s,  Kind:   drift,  L=% .8E\n",
-          SymbolLength, elemp->PName, elemp->PL);
+          SymbolLength, elemp->Name, elemp->L);
   fprintf(f, "   nKid:%3d\n\n", elemfamp->nKid);
 }
 
@@ -2224,7 +2224,7 @@ void Wiggler_Print(FILE *f, int Fnum1)
   elemp = &Lattice.ElemFam[Fnum1-1].ElemF;
   fprintf(f, "Element[%3d ] \n", Fnum1);
   fprintf(f, "   Name: %.*s,  Kind:   wiggler,  L=% .8E\n\n",
-          NameLength, elemp->PName, elemp->PL);
+          NameLength, elemp->Name, elemp->L);
 }
 
 
@@ -2235,7 +2235,7 @@ void Insertion_Print(FILE *f, int Fnum1)
   elemp = &Lattice.ElemFam[Fnum1-1].ElemF;
   fprintf(f, "Element[%3d ] \n", Fnum1);
   fprintf(f, "   Name: %.*s,  Kind:   wiggler,  L=% .8E\n\n",
-          SymbolLength, elemp->PName, elemp->PL);
+          SymbolLength, elemp->Name, elemp->L);
 }
 
 
@@ -2250,7 +2250,7 @@ void Elem_Print(FILE *f, int Fnum1)
     return;
   }
 
-  switch (Lattice.ElemFam[Fnum1-1].ElemF.Pkind) {
+  switch (Lattice.ElemFam[Fnum1-1].ElemF.Kind) {
   case drift:
     Drift_Print(f, Fnum1);
     break;
@@ -2331,28 +2331,28 @@ void Mpole_Alloc(elemtype *Elem)
 
   /* Memory allocation */
   Elem->M = (MpoleType *)malloc(sizeof(MpoleType));
-  M = Elem->M; M->Pmethod = Meth_Fourth; M->PN = 0;
+  M = Elem->M; M->method = Meth_Fourth; M->N = 0;
   /* Displacement errors */
   for (j = 0; j <= 1; j++) {
-    M->PdSsys[j] = 0e0; M->PdSrms[j] = 0e0; M->PdSrnd[j] = 0e0;
+    M->dSsys[j] = 0e0; M->dSrms[j] = 0e0; M->dSrnd[j] = 0e0;
   }
-  M->PdTpar = 0e0; /* Roll angle */
-  M->PdTsys = 0e0; /* systematic Roll errors */
-  M->PdTrms = 0e0; /* random Roll errors */
-  M->PdTrnd = 0e0; /* random seed */
+  M->dTpar = 0e0; /* Roll angle */
+  M->dTsys = 0e0; /* systematic Roll errors */
+  M->dTrms = 0e0; /* random Roll errors */
+  M->dTrnd = 0e0; /* random seed */
   for (j = -HOMmax; j <= HOMmax; j++) {
     /* Initializes multipoles strengths to zero */
-    M->PB[j+HOMmax]    = 0e0; M->PBpar[j+HOMmax] = 0e0;
-    M->PBsys[j+HOMmax] = 0e0; M->PBrms[j+HOMmax] = 0e0;
-    M->PBrnd[j+HOMmax] = 0e0;
+    M->B[j+HOMmax]    = 0e0; M->Bpar[j+HOMmax] = 0e0;
+    M->Bsys[j+HOMmax] = 0e0; M->Brms[j+HOMmax] = 0e0;
+    M->Brnd[j+HOMmax] = 0e0;
   }
-  M->Porder = 0; M->n_design = 0;
-  M->Pirho  = 0e0; /* inverse of curvature radius */
-  M->PTx1   = 0e0; /* Entrance angle */
-  M->PTx2   = 0e0; /* Exit angle */
-  M->Pgap   = 0e0; /* Gap for fringe field ??? */
+  M->order = 0; M->n_design = 0;
+  M->irho  = 0e0; /* inverse of curvature radius */
+  M->Tx1   = 0e0; /* Entrance angle */
+  M->Tx2   = 0e0; /* Exit angle */
+  M->gap   = 0e0; /* Gap for fringe field ??? */
 
-  M->Pc0 = 0e0; M->Pc1 = 0e0; M->Ps1 = 0e0;
+  M->c0 = 0e0; M->c1 = 0e0; M->s1 = 0e0;
 }
 
 
@@ -2362,7 +2362,7 @@ void Cav_Alloc(elemtype *Elem)
 
   Elem->C = (CavityType *)malloc(sizeof(CavityType));
   C = Elem->C;
-  C->Pvolt = 0e0; C->Pfreq = 0e0; C->phi = 0e0; C->Ph = 0;
+  C->volt = 0e0; C->freq = 0e0; C->phi = 0e0; C->h = 0;
   C->entry_focus = false; C->exit_focus = false;
 }
 
@@ -2373,11 +2373,11 @@ void Wiggler_Alloc(elemtype *Elem)
   WigglerType  *W;
 
   Elem->W = (WigglerType *)malloc(sizeof(WigglerType)); W = Elem->W;
-  W->Pmethod = Meth_Linear; W->PN = 0;
+  W->method = Meth_Linear; W->N = 0;
   for (j = 0; j <= 1; j++) {
-    W->PdSsys[j] = 0e0; W->PdSrnd[j] = 0e0;
+    W->dSsys[j] = 0e0; W->dSrnd[j] = 0e0;
   }
-  W->PdTpar = 0e0; W->PdTsys = 0e0; W->PdTrnd = 0e0;
+  W->dTpar = 0e0; W->dTsys = 0e0; W->dTrnd = 0e0;
   W->n_harm = 0;
   // 2/21/12 J.B. & J.C.
   W->lambda = 0e0;
@@ -2386,8 +2386,8 @@ void Wiggler_Alloc(elemtype *Elem)
     W->phi[j] = 0e0;
   }
   for (j = 0; j <= HOMmax; j++)
-    W->PBW[j+HOMmax] = 0e0;
-  W->Porder = 0;
+    W->BW[j+HOMmax] = 0e0;
+  W->order = 0;
 }
 
 
@@ -2409,7 +2409,7 @@ void Insertion_Alloc(elemtype *Elem)
   Elem->ID = (InsertionType *)malloc(sizeof(InsertionType));
   ID = Elem->ID;
 
-  ID->Pmethod = Meth_Linear; ID->PN = 0;
+  ID->method = Meth_Linear; ID->N = 0;
   ID->nx = 0; ID->nz = 0;
 
   /* Initialisation thetax and thetaz to 0*/
@@ -2444,12 +2444,12 @@ void Insertion_Alloc(elemtype *Elem)
 
 //  ID->kx = 0e0;
   for (j = 0; j <= 1; j++) {
-    ID->PdSsys[j] = 0e0; ID->PdSrnd[j] = 0e0;
+    ID->dSsys[j] = 0e0; ID->dSrnd[j] = 0e0;
   }
-  ID->PdTpar = 0e0; ID->PdTsys = 0e0; ID->PdTrnd = 0e0;
+  ID->dTpar = 0e0; ID->dTsys = 0e0; ID->dTrnd = 0e0;
 //  for (j = 0; j <= HOMmax; j++)
-//    ID->PBW[j+HOMmax] = 0e0;
-  ID->Porder = 0;
+//    ID->BW[j+HOMmax] = 0e0;
+  ID->order = 0;
 }
 
 
@@ -2478,7 +2478,7 @@ void Solenoid_Alloc(elemtype *Elem)
   Elem->Sol = (SolenoidType *)malloc(sizeof(SolenoidType));
   Sol = Elem->Sol; Sol->N = 0;
   for (j = 0; j <= 1; j++) {
-    Sol->PdSsys[j] = 0e0; Sol->PdSrms[j] = 0e0; Sol->PdSrnd[j] = 0e0;
+    Sol->dSsys[j] = 0e0; Sol->dSrms[j] = 0e0; Sol->dSrnd[j] = 0e0;
   }
   Sol->dTpar = 0e0; Sol->dTsys = 0e0; Sol->dTrnd = 0e0;
 }
@@ -2498,11 +2498,11 @@ void Drift_Init(int Fnum1)
     /* Dynamic memory allocation for element */
     Drift_Alloc(elemp);
     /* copy low level routine */
-    memcpy(elemp->PName, elemfamp->ElemF.PName, sizeof(partsName));
+    memcpy(elemp->Name, elemfamp->ElemF.Name, sizeof(partsName));
     /* Set the drift length */
-    elemp->PL = elemfamp->ElemF.PL;
+    elemp->L = elemfamp->ElemF.L;
     /* set the kind of element */
-    elemp->Pkind = elemfamp->ElemF.Pkind;
+    elemp->Kind = elemfamp->ElemF.Kind;
     /* set pointer for the D dynamic space */
     *elemp->D = *elemfamp->ElemF.D;
     cellp->dT[0] = 1e0; /* cos = 1 */
@@ -2513,18 +2513,18 @@ void Drift_Init(int Fnum1)
 }
 
 
-int UpdatePorder(elemtype &Elem)
+int Updateorder(elemtype &Elem)
 {
   int        i, order;
   MpoleType  *M;
 
   M = Elem.M;
-  if (M->Pirho != 0e0) /* non zero curvature => bend */
+  if (M->irho != 0e0) /* non zero curvature => bend */
     order = 1;
   else /* mutipole */
     order = 0;
   for (i = -HOMmax; i <= HOMmax; i++)
-    if (M->PB[i+HOMmax] != 0e0 && abs(i) > order) order = abs(i);
+    if (M->B[i+HOMmax] != 0e0 && abs(i) > order) order = abs(i);
 
   return order;
 }
@@ -2540,79 +2540,79 @@ void Mpole_Init(int Fnum1)
 
   /* Pointer on element */
   elemfamp = &Lattice.ElemFam[Fnum1-1];
-  memcpy(elemfamp->ElemF.M->PB, elemfamp->ElemF.M->PBpar, sizeof(mpolArray));
+  memcpy(elemfamp->ElemF.M->B, elemfamp->ElemF.M->Bpar, sizeof(mpolArray));
   /* Update the right multipole order */
-  elemfamp->ElemF.M->Porder = UpdatePorder(elemfamp->ElemF);
+  elemfamp->ElemF.M->order = Updateorder(elemfamp->ElemF);
   for (i = 1; i <= elemfamp->nKid; i++) {
     cellp = &Lattice.Cell[elemfamp->KidList[i-1]]; elemp = &cellp->Elem;
     /* Memory allocation and set everything to zero */
     Mpole_Alloc(elemp);
-    memcpy(elemp->PName, elemfamp->ElemF.PName, sizeof(partsName));
+    memcpy(elemp->Name, elemfamp->ElemF.Name, sizeof(partsName));
     /* set length */
-    elemp->PL = elemfamp->ElemF.PL;
+    elemp->L = elemfamp->ElemF.L;
     /* set element kind (Mpole) */
-    elemp->Pkind = elemfamp->ElemF.Pkind;
+    elemp->Kind = elemfamp->ElemF.Kind;
     *elemp->M = *elemfamp->ElemF.M;
 
     if (reverse_elem && (elemp->Reverse == true)) {
       // Swap entrance and exit angles.
       printf("Swapping entrance and exit angles for %8s %2d\n",
-	     elemp->PName, i);
-      phi = elemp->M->PTx1;
-      elemp->M->PTx1 = elemp->M->PTx2; elemp->M->PTx2 = phi; 
+	     elemp->Name, i);
+      phi = elemp->M->Tx1;
+      elemp->M->Tx1 = elemp->M->Tx2; elemp->M->Tx2 = phi; 
     }
 
     /* set entrance and exit angles */
-    cellp->dT[0] = cos(dtor(elemp->M->PdTpar));
-    cellp->dT[1] = sin(dtor(elemp->M->PdTpar));
+    cellp->dT[0] = cos(dtor(elemp->M->dTpar));
+    cellp->dT[1] = sin(dtor(elemp->M->dTpar));
 
     /* set displacement to zero */
     cellp->dS[0] = 0e0; cellp->dS[1] = 0e0;
 
-    if (elemp->PL != 0e0 || elemp->M->Pirho != 0e0) {
+    if (elemp->L != 0e0 || elemp->M->irho != 0e0) {
       /* Thick element or radius non zero element */
-      elemp->M->Pthick = pthicktype(thick);
+      elemp->M->thick = pthicktype(thick);
       /* sin(L*irho/2) =sin(theta/2) half the angle */
-      elemp->M->Pc0 = sin(elemp->PL*elemp->M->Pirho/2e0);
+      elemp->M->c0 = sin(elemp->L*elemp->M->irho/2e0);
       /* cos roll: sin(theta/2)*cos(dT) */
-      elemp->M->Pc1 = cellp->dT[0]*elemp->M->Pc0;
+      elemp->M->c1 = cellp->dT[0]*elemp->M->c0;
       /* sin roll: sin(theta/2)*cos(dT) */
-      elemp->M->Ps1 = cellp->dT[1]*elemp->M->Pc0;
+      elemp->M->s1 = cellp->dT[1]*elemp->M->c0;
     } else /* element as thin lens */
-      elemp->M->Pthick = pthicktype(thin);
+      elemp->M->thick = pthicktype(thin);
   }
 }
 
 
-#define order           2
+#define ORDER 2
 void Wiggler_Init(int Fnum1)
 {
-  int          i;
-  ElemFamType  *elemfamp;
-  CellType     *cellp;
-  elemtype     *elemp;
+  int         i;
+  ElemFamType *elemfamp;
+  CellType    *cellp;
+  elemtype    *elemp;
 
   elemfamp = &Lattice.ElemFam[Fnum1-1];
-  /* ElemF.M^.PB := ElemF.M^.PBpar; */
-  elemfamp->ElemF.W->Porder = order;
+  /* ElemF.M^.B := ElemF.M^.Bpar; */
+  elemfamp->ElemF.W->order = ORDER;
   for (i = 1; i <= elemfamp->nKid; i++) {
     cellp = &Lattice.Cell[elemfamp->KidList[i-1]]; elemp = &cellp->Elem;
     Wiggler_Alloc(elemp);
-    memcpy(elemp->PName, elemfamp->ElemF.PName, sizeof(partsName));
-    elemp->PL = elemfamp->ElemF.PL;
-    elemp->Pkind = elemfamp->ElemF.Pkind;
+    memcpy(elemp->Name, elemfamp->ElemF.Name, sizeof(partsName));
+    elemp->L = elemfamp->ElemF.L;
+    elemp->Kind = elemfamp->ElemF.Kind;
     *elemp->W = *elemfamp->ElemF.W;
 
     // 2/21/12 JB & JC
-//     cellp->dT[0] = cos(dtor(elemp->M->PdTpar));
-//     cellp->dT[1] = sin(dtor(elemp->M->PdTpar));
-    cellp->dT[0] = cos(dtor(elemp->W->PdTpar));
-    cellp->dT[1] = sin(dtor(elemp->W->PdTpar));
+//     cellp->dT[0] = cos(dtor(elemp->M->dTpar));
+//     cellp->dT[1] = sin(dtor(elemp->M->dTpar));
+    cellp->dT[0] = cos(dtor(elemp->W->dTpar));
+    cellp->dT[1] = sin(dtor(elemp->W->dTpar));
 
     cellp->dS[0] = 0e0; cellp->dS[1] = 0e0;
  }
 }
-#undef order
+#undef ORDER
 
 
 // instantiate
@@ -3246,9 +3246,9 @@ void FieldMap_Init(int Fnum1)
   for (i = 1; i <= elemfamp->nKid; i++) {
     cellp = &Lattice.Cell[elemfamp->KidList[i-1]]; elemp = &cellp->Elem;
     FieldMap_Alloc(elemp);
-    memcpy(elemp->PName, elemfamp->ElemF.PName, sizeof(partsName));
-    elemp->PL = elemfamp->ElemF.PL;
-    elemp->Pkind = elemfamp->ElemF.Pkind;
+    memcpy(elemp->Name, elemfamp->ElemF.Name, sizeof(partsName));
+    elemp->L = elemfamp->ElemF.L;
+    elemp->Kind = elemfamp->ElemF.Kind;
     *elemp->FM = *elemfamp->ElemF.FM;
 
     cellp->dT[0] = 1e0; cellp->dT[1] = 0e0;
@@ -3297,18 +3297,18 @@ void Insertion_Init(int Fnum1)
   elemtype     *elemp;
 
   elemfamp = &Lattice.ElemFam[Fnum1-1];
-//  elemfamp->ElemF.ID->Porder = order;
-//  x = elemfamp->ElemF.ID->PBW[Quad + HOMmax];
+//  elemfamp->ElemF.ID->order = order;
+//  x = elemfamp->ElemF.ID->BW[Quad + HOMmax];
   for (i = 1; i <= elemfamp->nKid; i++) {
     cellp = &Lattice.Cell[elemfamp->KidList[i-1]]; elemp = &cellp->Elem;
     Insertion_Alloc(elemp);
-    memcpy(elemp->PName, elemfamp->ElemF.PName, sizeof(partsName));
-    elemp->PL = elemfamp->ElemF.PL;
-    elemp->Pkind = elemfamp->ElemF.Pkind;
+    memcpy(elemp->Name, elemfamp->ElemF.Name, sizeof(partsName));
+    elemp->L = elemfamp->ElemF.L;
+    elemp->Kind = elemfamp->ElemF.Kind;
     *elemp->ID = *elemfamp->ElemF.ID;
 
-    cellp->dT[0] = cos(dtor(elemp->ID->PdTpar));
-    cellp->dT[1] = sin(dtor(elemp->ID->PdTpar));
+    cellp->dT[0] = cos(dtor(elemp->ID->dTpar));
+    cellp->dT[1] = sin(dtor(elemp->ID->dTpar));
     cellp->dS[0] = 0e0; cellp->dS[1] = 0e0;
   }
 }
@@ -3328,9 +3328,9 @@ void Spreader_Init(int Fnum1)
     /* Dynamic memory allocation for element */
     Spreader_Alloc(elemp);
     /* copy low level routine */
-    memcpy(elemp->PName, elemfamp->ElemF.PName, sizeof(partsName));
+    memcpy(elemp->Name, elemfamp->ElemF.Name, sizeof(partsName));
     /* set the kind of element */
-    elemp->Pkind = elemfamp->ElemF.Pkind;
+    elemp->Kind = elemfamp->ElemF.Kind;
     /* set pointer for the dynamic space */
     *elemp->Spr = *elemfamp->ElemF.Spr;
     cellp->dT[0] = 1e0; /* cos = 1 */
@@ -3355,9 +3355,9 @@ void Recombiner_Init(int Fnum1)
     /* Dynamic memory allocation for element */
     Spreader_Alloc(elemp);
     /* copy low level routine */
-    memcpy(elemp->PName, elemfamp->ElemF.PName, sizeof(partsName));
+    memcpy(elemp->Name, elemfamp->ElemF.Name, sizeof(partsName));
     /* set the kind of element */
-    elemp->Pkind = elemfamp->ElemF.Pkind;
+    elemp->Kind = elemfamp->ElemF.Kind;
     /* set pointer for the dynamic space */
     *elemp->Rec = *elemfamp->ElemF.Rec;
     cellp->dT[0] = 1e0; /* cos = 1 */
@@ -3381,11 +3381,11 @@ void Solenoid_Init(int Fnum1)
     cellp = &Lattice.Cell[elemfamp->KidList[i-1]]; elemp = &cellp->Elem;
     /* Memory allocation and set everything to zero */
     Solenoid_Alloc(elemp);
-    memcpy(elemp->PName, elemfamp->ElemF.PName, sizeof(partsName));
+    memcpy(elemp->Name, elemfamp->ElemF.Name, sizeof(partsName));
     /* set length */
-    elemp->PL = elemfamp->ElemF.PL;
+    elemp->L = elemfamp->ElemF.L;
     /* set element kind */
-    elemp->Pkind = elemfamp->ElemF.Pkind;
+    elemp->Kind = elemfamp->ElemF.Kind;
     *elemp->Sol = *elemfamp->ElemF.Sol;
 
     /* set entrance and exit angles */
@@ -3396,7 +3396,7 @@ void Solenoid_Init(int Fnum1)
 }
 
 
-double Mpole_GetPB(int Fnum1, int Knum1, int Order);
+double Mpole_GetB(int Fnum1, int Knum1, int Order);
 
 
 double Elem_GetKval(int Fnum1, int Knum1, int Order)
@@ -3406,7 +3406,7 @@ double Elem_GetKval(int Fnum1, int Knum1, int Order)
 
   if (Fnum1 > 0) {
     elemp = &Lattice.Cell[Lattice.ElemFam[Fnum1-1].KidList[Knum1-1]].Elem;
-    switch (elemp->Pkind) {
+    switch (elemp->Kind) {
     case drift:
       Result = 0e0;
       break;
@@ -3417,16 +3417,16 @@ double Elem_GetKval(int Fnum1, int Knum1, int Order)
       Result = 0e0;
       break;
     case Mpole: /* KL*/
-      if (elemp->M->Pthick == thick)
-	Result = elemp->PL*Mpole_GetPB(Fnum1, Knum1, Order);
+      if (elemp->M->thick == thick)
+	Result = elemp->L*Mpole_GetB(Fnum1, Knum1, Order);
       else
-	Result = Mpole_GetPB(Fnum1, Knum1, Order);
+	Result = Mpole_GetB(Fnum1, Knum1, Order);
       break;
     case Wigl:
       Result =
-	elemp->PL*sqrt(2e0
+	elemp->L*sqrt(2e0
 	*Lattice.Cell[Lattice.ElemFam[Fnum1-1].KidList[Knum1-1]]
-		       .Elem.W->PBW[Order+HOMmax]);
+		       .Elem.W->BW[Order+HOMmax]);
       break;
     case FieldMap:
       Result = 0e0;
@@ -3453,7 +3453,7 @@ double Elem_GetKval(int Fnum1, int Knum1, int Order)
 }
 
 
-void Mpole_SetPB(int Fnum1, int Knum1, int Order)
+void Mpole_SetB(int Fnum1, int Knum1, int Order)
 {
   /*  called by Cell_SetdP
        Compute full multipole composent as sum of design, systematic
@@ -3467,15 +3467,15 @@ void Mpole_SetPB(int Fnum1, int Knum1, int Order)
 
   cellp  = &Lattice.Cell[Lattice.ElemFam[Fnum1-1].KidList[Knum1-1]];
   elemp = &cellp->Elem; M = elemp->M;
-  M->PB[Order+HOMmax] =
-    M->PBpar[Order+HOMmax] + M->PBsys[Order+HOMmax]
-    + M->PBrms[Order+HOMmax]*M->PBrnd[Order+HOMmax];
-  if (abs(Order) > M->Porder && M->PB[Order+HOMmax] != 0e0)
-    M->Porder = abs(Order);
+  M->B[Order+HOMmax] =
+    M->Bpar[Order+HOMmax] + M->Bsys[Order+HOMmax]
+    + M->Brms[Order+HOMmax]*M->Brnd[Order+HOMmax];
+  if (abs(Order) > M->order && M->B[Order+HOMmax] != 0e0)
+    M->order = abs(Order);
 }
 
 
-double Mpole_GetPB(int Fnum1, int Knum1, int Order)
+double Mpole_GetB(int Fnum1, int Knum1, int Order)
 {
   /*  Return multipole strength (of order Order) for Knum1 element of
       family Fnum1
@@ -3485,11 +3485,11 @@ double Mpole_GetPB(int Fnum1, int Knum1, int Order)
   MpoleType *M; /* Pointer on the multipole */
 
   M = Lattice.Cell[Lattice.ElemFam[Fnum1-1].KidList[Knum1-1]].Elem.M;
-  return (M->PB[Order+HOMmax]);
+  return (M->B[Order+HOMmax]);
 }
 
 
-void Mpole_DefPBpar(int Fnum1, int Knum1, int Order, double PBpar)
+void Mpole_DefBpar(int Fnum1, int Knum1, int Order, double Bpar)
 {
   elemtype   *elemp;
   MpoleType  *M;
@@ -3497,11 +3497,11 @@ void Mpole_DefPBpar(int Fnum1, int Knum1, int Order, double PBpar)
   elemp = &Lattice.Cell[Lattice.ElemFam[Fnum1-1].KidList[Knum1-1]].Elem;
   M = elemp->M;
 
-  M->PBpar[Order+HOMmax] = PBpar;
+  M->Bpar[Order+HOMmax] = Bpar;
 }
 
 
-void Mpole_DefPBsys(int Fnum1, int Knum1, int Order, double PBsys)
+void Mpole_DefBsys(int Fnum1, int Knum1, int Order, double Bsys)
 {
   /*Fnum1, Knum1, Order : integer*/
   elemtype *elemp;
@@ -3510,7 +3510,7 @@ void Mpole_DefPBsys(int Fnum1, int Knum1, int Order, double PBsys)
   elemp = &Lattice.Cell[Lattice.ElemFam[Fnum1-1].KidList[Knum1-1]].Elem;
   M = elemp->M;
 
-  M->PBsys[Order+HOMmax] = PBsys;
+  M->Bsys[Order+HOMmax] = Bsys;
 }
 
 
@@ -3524,7 +3524,7 @@ void Mpole_SetdS(int Fnum1, int Knum1)
   cellp = &Lattice.Cell[Lattice.ElemFam[Fnum1-1].KidList[Knum1-1]];
   elemp = &cellp->Elem; M = elemp->M;
   for (j = 0; j <= 1; j++)
-    cellp->dS[j] = M->PdSsys[j] + M->PdSrms[j]*M->PdSrnd[j];
+    cellp->dS[j] = M->dSsys[j] + M->dSrms[j]*M->dSrnd[j];
 }
 
 void Mpole_SetdT(int Fnum1, int Knum1)
@@ -3535,11 +3535,11 @@ void Mpole_SetdT(int Fnum1, int Knum1)
 
   cellp = &Lattice.Cell[Lattice.ElemFam[Fnum1-1].KidList[Knum1-1]];
   elemp = &cellp->Elem; M = elemp->M;
-  cellp->dT[0] = cos(dtor(M->PdTpar + M->PdTsys + M->PdTrms*M->PdTrnd));
-  cellp->dT[1] = sin(dtor(M->PdTpar + M->PdTsys + M->PdTrms*M->PdTrnd));
+  cellp->dT[0] = cos(dtor(M->dTpar + M->dTsys + M->dTrms*M->dTrnd));
+  cellp->dT[1] = sin(dtor(M->dTpar + M->dTsys + M->dTrms*M->dTrnd));
   /* Calculate simplified p_rots */
-  M->Pc0 = sin(elemp->PL*M->Pirho/2e0); M->Pc1 = cos(dtor(M->PdTpar))*M->Pc0;
-  M->Ps1 = sin(dtor(M->PdTpar))*M->Pc0;
+  M->c0 = sin(elemp->L*M->irho/2e0); M->c1 = cos(dtor(M->dTpar))*M->c0;
+  M->s1 = sin(dtor(M->dTpar))*M->c0;
 }
 
 
@@ -3551,11 +3551,11 @@ double Mpole_GetdT(int Fnum1, int Knum1)
   elemp = &Lattice.Cell[Lattice.ElemFam[Fnum1-1].KidList[Knum1-1]].Elem;
   M = elemp->M;
 
-  return(M->PdTpar + M->PdTsys + M->PdTrms*M->PdTrnd);
+  return(M->dTpar + M->dTsys + M->dTrms*M->dTrnd);
 }
 
 
-void Mpole_DefdTpar(int Fnum1, int Knum1, double PdTpar)
+void Mpole_DefdTpar(int Fnum1, int Knum1, double dTpar)
 {
   elemtype  *elemp;
   MpoleType *M;
@@ -3563,11 +3563,11 @@ void Mpole_DefdTpar(int Fnum1, int Knum1, double PdTpar)
   elemp = &Lattice.Cell[Lattice.ElemFam[Fnum1-1].KidList[Knum1-1]].Elem;
   M = elemp->M;
 
-  M->PdTpar = PdTpar;
+  M->dTpar = dTpar;
 }
 
 
-void Mpole_DefdTsys(int Fnum1, int Knum1, double PdTsys)
+void Mpole_DefdTsys(int Fnum1, int Knum1, double dTsys)
 {
   elemtype  *elemp;
   MpoleType *M;
@@ -3575,11 +3575,11 @@ void Mpole_DefdTsys(int Fnum1, int Knum1, double PdTsys)
   elemp = &Lattice.Cell[Lattice.ElemFam[Fnum1-1].KidList[Knum1-1]].Elem;
   M = elemp->M;
 
-  M->PdTsys = PdTsys;
+  M->dTsys = dTsys;
 }
 
 
-void Wiggler_SetPB(int Fnum1, int Knum1, int Order)
+void Wiggler_SetB(int Fnum1, int Knum1, int Order)
 {
   CellType     *cellp;
   elemtype     *elemp;
@@ -3587,8 +3587,8 @@ void Wiggler_SetPB(int Fnum1, int Knum1, int Order)
 
   cellp = &Lattice.Cell[Lattice.ElemFam[Fnum1-1].KidList[Knum1-1]];
   elemp = &cellp->Elem; W = elemp->W;
-  if (abs(Order) > W->Porder)
-    W->Porder = abs(Order);
+  if (abs(Order) > W->order)
+    W->order = abs(Order);
 }
 
 
@@ -3602,7 +3602,7 @@ void Wiggler_SetdS(int Fnum1, int Knum1)
   cellp = &Lattice.Cell[Lattice.ElemFam[Fnum1-1].KidList[Knum1-1]];
   elemp = &cellp->Elem; W = elemp->W;
   for (j = 0; j <= 1; j++)
-    cellp->dS[j] = W->PdSsys[j] + W->PdSrms[j]*W->PdSrnd[j];
+    cellp->dS[j] = W->dSsys[j] + W->dSrms[j]*W->dSrnd[j];
 }
 
 void Wiggler_SetdT(int Fnum1, int Knum1)
@@ -3613,6 +3613,6 @@ void Wiggler_SetdT(int Fnum1, int Knum1)
 
   cellp = &Lattice.Cell[Lattice.ElemFam[Fnum1-1].KidList[Knum1-1]];
   elemp = &cellp->Elem; W = elemp->W;
-  cellp->dT[0] = cos(dtor(W->PdTpar+W->PdTsys+W->PdTrms*W->PdTrnd));
-  cellp->dT[1] = sin(dtor(W->PdTpar+W->PdTsys+W->PdTrms*W->PdTrnd));
+  cellp->dT[0] = cos(dtor(W->dTpar+W->dTsys+W->dTrms*W->dTrnd));
+  cellp->dT[1] = sin(dtor(W->dTpar+W->dTsys+W->dTrms*W->dTrnd));
 }

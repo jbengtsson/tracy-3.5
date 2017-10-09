@@ -55,7 +55,7 @@ void get_cod_rms(const double dx, const double dy,
 
       n = 0;
       for (j = 0; j <= globval.Cell_nLoc; j++)
-	if (all || ((Lattice.Cell[j].Elem.Pkind == Mpole) &&
+	if (all || ((Lattice.Cell[j].Elem.Kind == Mpole) &&
 		    (Lattice.Cell[j].Elem.M->n_design == Sext))) {
 	  n++;
 	  for (k = 0; k < 6; k++) {
@@ -75,7 +75,7 @@ void get_cod_rms(const double dx, const double dy,
 
   n = 0;
   for (j = 0; j <= globval.Cell_nLoc; j++)
-    if (all || ((Lattice.Cell[j].Elem.Pkind == Mpole) &&
+    if (all || ((Lattice.Cell[j].Elem.Kind == Mpole) &&
 		(Lattice.Cell[j].Elem.M->n_design == Sext))) {
       n++;
       for (k = 0; k < 6; k++) {
@@ -328,7 +328,7 @@ int main(int argc, char *argv[])
 
     f_rf =
       Lattice.Cell[Lattice.Elem_GetPos(Lattice.Elem_Index("cav"), 1)]
-      .Elem.C->Pfreq;
+      .Elem.C->freq;
     printf("\nf_rf = %10.3e\n", f_rf);
 
     globval.Cavity_on = true;

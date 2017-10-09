@@ -24,11 +24,9 @@
 #define IDXMAX 200
 #define IDZMAX 100
 
-const int  max_elem = Cell_nLocMax;
-
-const int  n_harm_max = 10;
-
-const int  Spreader_max = 10;
+const int max_elem     = Cell_nLocMax;
+const int n_harm_max   = 10;
+const int Spreader_max = 10;
 
 
 // LEGO block structure for each element of the lattice
@@ -46,10 +44,10 @@ class SolenoidType;
 class elemtype {
  private:
  public:
-  partsName PName;       // Element name.
-  double    PL;          // Length[m].
+  partsName Name;        // Element name.
+  double    L;           // Length[m].
   bool      Reverse;     // Reverse element.
-  PartsKind Pkind;       // Enumeration for magnet types.
+  PartsKind Kind;        // Enumeration for magnet types.
   union
   {
     DriftType      *D;   // Drift.
@@ -86,29 +84,29 @@ class CellType {
 				  maxampl[X_][0] < x < maxampl[X_][1]
 				  maxampl[Y_][0] < y < maxampl[Y_][1]. */
 
-  friend void Cell_Init(void);
+  void Cell_Init(void);
 
   void Elem_Print(FILE *f, int Fnum1);
 
   template<typename T>
-  friend void GtoL(ss_vect<T> &X, const Vector2 &S, const Vector2 &R,
+  void GtoL(ss_vect<T> &X, const Vector2 &S, const Vector2 &R,
 		   const double c0, const double c1, const double s1);
 
   template<typename T>
-  friend void LtoG(ss_vect<T> &X, const Vector2 &S, const Vector2 &R,
+  void LtoG(ss_vect<T> &X, const Vector2 &S, const Vector2 &R,
 		   const double c0, const double c1, const double s1);
     
   template<typename T>
-  friend void Marker_Pass(CellType &Cell, ss_vect<T> &X);
+  void Marker_Pass(CellType &Cell, ss_vect<T> &X);
 
   template<typename T>
-  friend void Elem_Pass(const long i, ss_vect<T> &x);
+  void Elem_Pass(const long i, ss_vect<T> &x);
 
   template<typename T>
-  friend void Cell_Pass(const long i0, const long i1, ss_vect<T> &x,
+  void Cell_Pass(const long i0, const long i1, ss_vect<T> &x,
 			long &lastpos);
 
-  friend void Cell_Pass(const long i0, const long i1, tps &sigma,
+  void Cell_Pass(const long i0, const long i1, tps &sigma,
 			long &lastpos);
 
   bool Cell_getCOD(long imax, double eps, double dP, long &lastpos);
@@ -120,72 +118,68 @@ class CellType {
 class DriftType {
  private:
  public:
-  Matrix D55; // Linear matrix
+  void Drift_Init(int Fnum1);
 
-  friend void Drift_Init(int Fnum1);
-
-  static void Drift_Print(FILE *f, int Fnum1);
+  void Drift_Print(FILE *f, int Fnum1);
 
   template<typename T>
-  friend void Drift_Pass(CellType &Cell, ss_vect<T> &x);
+  void Drift_Pass(CellType &Cell, ss_vect<T> &x);
 };
 
 
 class MpoleType {
  private:
  public:
-  int        Pmethod;       // Integration Method.
-  int        PN;            // Number of integration steps.
+  int        method;     // Integration Method.
+  int        N;          // Number of integration steps.
   // Displacement Errors
-  Vector2    PdSsys;        // systematic [m].
-  Vector2    PdSrms;        // rms [m].
-  Vector2    PdSrnd;        // random number.
+  Vector2    dSsys;      // systematic [m].
+  Vector2    dSrms;      // rms [m].
+  Vector2    dSrnd;      // random number.
   // Roll angle
-  double     PdTpar;        // design [deg].
-  double     PdTsys;        // systematic [deg].
-  double     PdTrms;        // rms [deg].
-  double     PdTrnd;        // random number.
+  double     dTpar;      // design [deg].
+  double     dTsys;      // systematic [deg].
+  double     dTrms;      // rms [deg].
+  double     dTrnd;      // random number.
   // Multipole strengths
-  mpolArray  PBpar;         // design.
-  mpolArray  PBsys;         // systematic.
-  mpolArray  PBrms;         // rms.
-  mpolArray  PBrnd;         // random number.
-  mpolArray  PB;            // total.
-  int        Porder;        // The highest order in PB.
-  int        n_design;      // multipole order (design).
-  pthicktype Pthick;
+  mpolArray  Bpar;       // design.
+  mpolArray  Bsys;       // systematic.
+  mpolArray  Brms;       // rms.
+  mpolArray  Brnd;       // random number.
+  mpolArray  B;          // total.
+  int        order;      // The highest order in PB.
+  int        n_design;   // multipole order (design).
+  pthicktype thick;
   // Bending Angles
-  double     PTx1;          // horizontal entrance angle [deg].
-  double     PTx2;          // horizontal exit angle [deg].
-  double     Pgap;          // total magnet gap [m].
-  double     Pirho;         // 1/rho [1/m].
-  double     Pc0, Pc1, Ps1; // corrections for roll error of bend.
-  Matrix     AU55,          // Upstream 5x5 matrix.
-             AD55;          // Downstream 5x5 matrix.
+  double     Tx1;        // horizontal entrance angle [deg].
+  double     Tx2;        // horizontal exit angle [deg].
+  double     gap;        // total magnet gap [m].
+  double     irho;       // 1/rho [1/m].
+  double     c0, c1, s1; // corrections for roll error of bend.
 
-  friend void Mpole_Init(int Fnum1);
+  void Mpole_Init(int Fnum1);
 
-  static void Mpole_Print(FILE *f, int Fnum1);
+  void Mpole_Print(FILE *f, int Fnum1);
 
   template<typename T>
-  friend void Mpole_Pass(CellType &Cell, ss_vect<T> &x);
+  void Mpole_Pass(CellType &Cell, ss_vect<T> &x);
 };
 
 
 class WigglerType {
  private:
  public:
-  int       Pmethod;             // Integration Method.
-  int       PN;                  // number of integration steps.
+  int       method;              // Integration Method.
+  int       N;                   // number of integration steps.
   // Displacement Error
-  Vector2   PdSsys;              // systematic [m].
-  Vector2   PdSrms;              // rms [m].
-  Vector2   PdSrnd;              // random number.
+  Vector2   dSsys;               // systematic [m].
+  Vector2   dSrms;               // rms [m].
+  Vector2   dSrnd;               // random number.
   // Roll angle
-  double    PdTpar;              // design [deg].
-  double    PdTsys;              // systematic [deg].
-  double    PdTrms;              // rms [deg].
-  double    PdTrnd;              // random number.
+  double    dTpar;               // design [deg].
+  double    dTsys;               // systematic [deg].
+  double    dTrms;               // rms [deg].
+  double    dTrnd;               // random number.
   double    lambda;              // lambda.
   int       n_harm;              // no of harmonics.
   int       harm[n_harm_max];    // harmonic number.
@@ -194,26 +188,25 @@ class WigglerType {
   double    kxV[n_harm_max];     // kx.
   double    kxH[n_harm_max];     // kx.
   double    phi[n_harm_max];     // phi.
-  mpolArray PBW;
-  Matrix    W55;                 // Transport matrix.
-  int       Porder;              // The highest order in PB.
+  mpolArray BW;
+  int       order;               // The highest order in PB.
 
-  friend void Wiggler_Init(int Fnum1);
+  void Wiggler_Init(int Fnum1);
 
-  static void Wiggler_Print(FILE *f, int Fnum1);
+  void Wiggler_Print(FILE *f, int Fnum1);
 
   template<typename T>
-  friend void Wiggler_Pass(CellType &Cell, ss_vect<T> &X);
+  void Wiggler_Pass(CellType &Cell, ss_vect<T> &X);
 };
 
 
 class InsertionType {
  private:
  public:
-  int    Pmethod;      // Integration Method.
-  int    PN;           // number of integration steps.
-  char   fname1[100];        // Filename for insertion description: first ordre.
-  char   fname2[100];       // Filename for insertion description: second ordre.
+  int    method;       // Integration Method.
+  int    N;            // number of integration steps.
+  char   fname1[100];  // Filename for insertion description: first ordre.
+  char   fname2[100];  // Filename for insertion description: second ordre.
   int    nx;           // Horizontal point number.
   int    nz;           // Vertical point number.
   double scaling;      // static scaling factor as in BETA ESRF.
@@ -232,28 +225,28 @@ class InsertionType {
   double *tab1, *tab2;       // tab of x and z meshes from Radia code.
 
   // Displacement Error
-  Vector2 PdSsys;   // systematic [m]
-  Vector2 PdSrms;   // rms [m]
-  Vector2 PdSrnd;   // random number
+  Vector2 dSsys;   // systematic [m]
+  Vector2 dSrms;   // rms [m]
+  Vector2 dSrnd;   // random number
   // Roll angle
-  double  PdTpar;   // design [deg]
-  double  PdTsys;   // systematic [deg]
-  double  PdTrms;   // rms [deg]
-  double  PdTrnd;   // random number
+  double  dTpar;   // design [deg]
+  double  dTsys;   // systematic [deg]
+  double  dTrms;   // rms [deg]
+  double  dTrnd;   // random number
   // Strength
-//  double Plperiod;  // Length Period [m]
-//  int Pnperiod;     // Number of periods
-//  double PBoBrho;   // B/Brho
-//  double PKx;       // kx
-//  mpolArray PBW;
-  int Porder;       // The highest order in PB
+//  double lperiod;  // Length Period [m]
+//  int nperiod;     // Number of periods
+//  double BoBrho;   // B/Brho
+//  double Kx;       // kx
+//  mpolArray BW;
+  int order;        // The highest order in PB
 
-  friend void Insertion_Init(int Fnum1);
+  void Insertion_Init(int Fnum1);
   
-  static void Insertion_Print(FILE *f, int Fnum1);
+  void Insertion_Print(FILE *f, int Fnum1);
 
   template<typename T>
-  friend void Insertion_Pass(CellType &Cell, ss_vect<T> &x);
+  void Insertion_Pass(CellType &Cell, ss_vect<T> &x);
 };
 
 
@@ -269,10 +262,10 @@ class FieldMapType {
   double ***AoBrho[2], ***AoBrho2[2];  /* [Ax(x, y, z), Ay(x, y, z)],
 					  spline info. */
 
-  friend void FieldMap_Init(int Fnum1);
+  void FieldMap_Init(int Fnum1);
 
   template<typename T>
-  friend void FieldMap_Pass(CellType &Cell, ss_vect<T> &ps);
+  void FieldMap_Pass(CellType &Cell, ss_vect<T> &ps);
 };
 
 
@@ -281,9 +274,9 @@ class SolenoidType {
  public:
   int     N;      // Number of integration steps
   // Displacement Errors
-  Vector2 PdSsys; // systematic [m]
-  Vector2 PdSrms; // rms [m]
-  Vector2 PdSrnd; // random number
+  Vector2 dSsys; // systematic [m]
+  Vector2 dSrms; // rms [m]
+  Vector2 dSrnd; // random number
   // Roll angle
   double  dTpar;  // design [deg]
   double  dTsys;  // systematic [deg]
@@ -291,28 +284,28 @@ class SolenoidType {
   double  dTrnd;  // random number
   double  BoBrho; // normalized field strength
 
-  friend void Solenoid_Init(int Fnum1);
+  void Solenoid_Init(int Fnum1);
 
   template<typename T>
-  friend void Solenoid_Pass(CellType &Cell, ss_vect<T> &ps);
+  void Solenoid_Pass(CellType &Cell, ss_vect<T> &ps);
 };
 
 
 class CavityType {
  private:
  public:
-  int    PN;          // Number of integration steps
-  double Pvolt;       // Vrf [V]
-  double Pfreq;       // Vrf [Hz]
-  double phi;         // RF phase
-  int    Ph;          // Harmonic number
+  int    N;           // Number of integration steps.
+  double volt;        // Vrf [V].
+  double freq;        // Vrf [Hz].
+  double phi;         // RF phase.
+  int    h;           // Harmonic number.
   bool   entry_focus; // Edge focusing at entry.
   bool   exit_focus;  // Edge focusing at exit.
 
-  friend void Cav_Init(int Fnum1);
+  void Cav_Init(int Fnum1);
 
   template<typename T>
-  friend void Cav_Pass(CellType &Cell, ss_vect<T> &X);
+  void Cav_Pass(CellType &Cell, ss_vect<T> &X);
 };
 
 
@@ -322,17 +315,17 @@ class SpreaderType {
   double   E_max[Spreader_max];      // energy levels in increasing order
   CellType *Cell_ptrs[Spreader_max];
 
-  friend void Spreader_Init(int Fnum1);
+  void Spreader_Init(int Fnum1);
 };
 
 
 class RecombinerType {
  private:
  public:
-  double    E_min;
-  double    E_max;
+  double E_min;
+  double E_max;
 
-  friend void Recombiner_Init(int Fnum1);
+  void Recombiner_Init(int Fnum1);
 };
 
 

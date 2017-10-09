@@ -326,7 +326,7 @@ void track_fft(const int n_turn,
 		n_turn, lastn, lastpos,
 		2,
 		Lattice.Cell[Lattice.Elem_GetPos(Lattice.Elem_Index("cav"), 1)]
-		.Elem.C->Pfreq);
+		.Elem.C->freq);
 
   if (lastn == n_turn) {
     GetTrack(file_name, &n, twoJx, phix, twoJy, phiy);
@@ -442,7 +442,7 @@ int main(int argc, char *argv[])
   n_turn    = 1000;
   f_rf      =
     Lattice.Cell[Lattice.Elem_GetPos(Lattice.Elem_Index("cav"), 1)]
-    .Elem.C->Pfreq;
+    .Elem.C->freq;
   
   
   
@@ -514,7 +514,7 @@ int main(int argc, char *argv[])
     for (j = 0; j <= globval.Cell_nLoc; j++){
       fprintf(fp, "%4li %8.3f %s %6.2f %10.3e %10.3e %10.3e %10.3e %10.3e "
 	      "%10.3e\n",
-	      j, Lattice.Cell[j].S, Lattice.Cell[j].Elem.PName,
+	      j, Lattice.Cell[j].S, Lattice.Cell[j].Elem.Name,
 	      get_code(Lattice.Cell[j]),
 	      Lattice.Cell[j].BeamPos[0]*1e3, Lattice.Cell[j].BeamPos[1]*1e3,
 	      Lattice.Cell[j].BeamPos[2]*1e3, Lattice.Cell[j].BeamPos[3]*1e3,

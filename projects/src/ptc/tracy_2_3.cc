@@ -45,8 +45,8 @@ void prt_H_long(const int n, const double phi_max, const double delta_max,
   get_alphac(alphac);
 
   loc = Lattice.Elem_GetPos(Lattice.Elem_Index(cav_name.c_str()), 1);
-  h_rf = Lattice.Cell[loc].Elem.C->Ph;
-  V_rf = Lattice.Cell[loc].Elem.C->Pvolt;
+  h_rf = Lattice.Cell[loc].Elem.C->h;
+  V_rf = Lattice.Cell[loc].Elem.C->volt;
 
   phi0 = - fabs(asin(U0/V_rf));
   if (neg_alphac) phi0 += pi;

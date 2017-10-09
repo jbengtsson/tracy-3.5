@@ -149,32 +149,32 @@ void get_s_loc(const int Fnum, const int Knum, int loc[])
 
   // Point to multipole.
   loc[1] = Lattice.Elem_GetPos(Fnum, Knum);
-  if (Lattice.Cell[loc[1]-1].Elem.PName[1] == 'u') {
+  if (Lattice.Cell[loc[1]-1].Elem.Name[1] == 'u') {
     loc[0] = loc[1] - 1;
-    strcpy(name, Lattice.Cell[loc[1]-1].Elem.PName); name[1] = 'd';
+    strcpy(name, Lattice.Cell[loc[1]-1].Elem.Name); name[1] = 'd';
     loc[2] = Lattice.Elem_GetPos(Lattice.Elem_Index(name), Knum);
-  } else if (Lattice.Cell[loc[1]-1].Elem.PName[1] == 'd') {
+  } else if (Lattice.Cell[loc[1]-1].Elem.Name[1] == 'd') {
     loc[2] = loc[1] - 1;
-    strcpy(name, Lattice.Cell[loc[1]-1].Elem.PName); name[1] = 'u';
+    strcpy(name, Lattice.Cell[loc[1]-1].Elem.Name); name[1] = 'u';
     loc[0] = Lattice.Elem_GetPos(Lattice.Elem_Index(name), Knum);
-  } else if (Lattice.Cell[loc[1]+1].Elem.PName[1] == 'd') {
+  } else if (Lattice.Cell[loc[1]+1].Elem.Name[1] == 'd') {
     loc[2] = loc[1] + 1;
-    strcpy(name, Lattice.Cell[loc[1]+1].Elem.PName); name[1] = 'u';
+    strcpy(name, Lattice.Cell[loc[1]+1].Elem.Name); name[1] = 'u';
     loc[0] = Lattice.Elem_GetPos(Lattice.Elem_Index(name), Knum);
-  } else if (Lattice.Cell[loc[1]+1].Elem.PName[1] == 'u') {
+  } else if (Lattice.Cell[loc[1]+1].Elem.Name[1] == 'u') {
     loc[0] = loc[1] + 1;
-    strcpy(name, Lattice.Cell[loc[1]+1].Elem.PName); name[1] = 'd';
+    strcpy(name, Lattice.Cell[loc[1]+1].Elem.Name); name[1] = 'd';
     loc[2] = Lattice.Elem_GetPos(Lattice.Elem_Index(name), Knum);
   } else {
     printf("\nget_s_loc: configuration error %s (%d)\n",
-	   Lattice.Cell[loc[1]].Elem.PName, loc[1]);
+	   Lattice.Cell[loc[1]].Elem.Name, loc[1]);
     exit(1);
   }
 
   if (prt)
     printf("\nget_s_loc: %s %s %s\n",
-	   Lattice.Cell[loc[0]].Elem.PName, Lattice.Cell[loc[1]].Elem.PName,
-	   Lattice.Cell[loc[2]].Elem.PName);
+	   Lattice.Cell[loc[0]].Elem.Name, Lattice.Cell[loc[1]].Elem.Name,
+	   Lattice.Cell[loc[2]].Elem.Name);
 }
 
 
@@ -186,12 +186,12 @@ double get_bn_s(const int Fnum, const int Knum)
   const bool prt = false;
 
   get_s_loc(Fnum, Knum, loc);
-  ds = Lattice.Cell[loc[0]].Elem.PL;
+  ds = Lattice.Cell[loc[0]].Elem.L;
 
   if (prt)
     printf("\nget_bn_s:  %s %s(%d) %s %10.3e %10.3e\n",
-	   Lattice.Cell[loc[0]].Elem.PName, Lattice.Cell[loc[1]].Elem.PName, Knum,
-	   Lattice.Cell[loc[2]].Elem.PName, Lattice.Cell[loc[0]].Elem.PL, Lattice.Cell[loc[2]].Elem.PL);
+	   Lattice.Cell[loc[0]].Elem.Name, Lattice.Cell[loc[1]].Elem.Name, Knum,
+	   Lattice.Cell[loc[2]].Elem.Name, Lattice.Cell[loc[0]].Elem.L, Lattice.Cell[loc[2]].Elem.L);
 
   return ds;
 }
@@ -209,8 +209,8 @@ void set_bn_s(const int Fnum, const int Knum, const double ds)
 
   if (prt)
     printf("\nset_bn_s:  %s %s(%d) %s %10.3e %10.3e\n",
-	   Lattice.Cell[loc[0]].Elem.PName, Lattice.Cell[loc[1]].Elem.PName,
-	   Knum, Lattice.Cell[loc[2]].Elem.PName, ds, -ds);
+	   Lattice.Cell[loc[0]].Elem.Name, Lattice.Cell[loc[1]].Elem.Name,
+	   Knum, Lattice.Cell[loc[2]].Elem.Name, ds, -ds);
 }
 
 
@@ -230,7 +230,7 @@ void get_S(void)
 
   S = 0e0;
   for (j = 0; j <= globval.Cell_nLoc; j++) {
-    S += Lattice.Cell[j].Elem.PL; Lattice.Cell[j].S = S;
+    S += Lattice.Cell[j].Elem.L; Lattice.Cell[j].S = S;
   }
 }
 
@@ -406,7 +406,7 @@ void add_b2L(const double scl, const int n, const string quads[],
   for (k = 0; k < n; k++) {
     loc = Lattice.Elem_GetPos(Lattice.Elem_Index(quads[k].c_str()), 1);
     get_bn_design_elem(Lattice.Cell[loc].Fnum, 1, Quad, b2, a2);
-    chi2 += scl*sqr(b2*Lattice.Cell[loc].Elem.PL);
+    chi2 += scl*sqr(b2*Lattice.Cell[loc].Elem.L);
   }
 }
 
@@ -419,8 +419,8 @@ void add_quad(const double scl_x, const double scl_y,
   for (k = 0; k < n; k++) {
     loc = Lattice.Elem_GetPos(Lattice.Elem_Index(quads[k].c_str()), 1);
     get_bn_design_elem(Lattice.Cell[loc].Fnum, 1, Quad, b2, a2);
-    chi2 += scl_x*sqr(b2*Lattice.Cell[loc].Elem.PL*Lattice.Cell[loc].Beta[X_]);
-    chi2 += scl_y*sqr(b2*Lattice.Cell[loc].Elem.PL*Lattice.Cell[loc].Beta[Y_]);
+    chi2 += scl_x*sqr(b2*Lattice.Cell[loc].Elem.L*Lattice.Cell[loc].Beta[X_]);
+    chi2 += scl_y*sqr(b2*Lattice.Cell[loc].Elem.L*Lattice.Cell[loc].Beta[Y_]);
   }
 }
 
@@ -465,7 +465,7 @@ double f_match(double *b2)
 
   // for (i = 1; i <= b2_prms.n_prm; i++) {
   //   loc1 = Elem_GetPos(b2_prms.Fnum[i-1], 1);
-  //   L = Lattice.Cell[loc1].Elem.PL;
+  //   L = Lattice.Cell[loc1].Elem.L;
   //   // Need to use internal variable for convergence.
   //   if (i <= n_strength) {
   //     chi2 += 1e1*sqr(b2[i]*L*Lattice.Cell[loc1].Beta[X_]);

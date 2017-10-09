@@ -110,16 +110,16 @@ double get_bn_s(const int Fnum, const int Knum, const int n)
   else {
     k =Lattice. Elem_GetPos(abs(Fnum), Knum);
 
-    switch (Lattice.Cell[k-1].Elem.PName[1]) {
+    switch (Lattice.Cell[k-1].Elem.Name[1]) {
     case 'u':
-      bn = Lattice.Cell[k-1].Elem.PL;
+      bn = Lattice.Cell[k-1].Elem.L;
       break;
     case 'd':
-      bn = Lattice.Cell[k+1].Elem.PL;
+      bn = Lattice.Cell[k+1].Elem.L;
       break;
     default:
       printf("get_bn_s: configuration error %s (%d)\n",
-	     Lattice.Cell[k-1].Elem.PName, k);
+	     Lattice.Cell[k-1].Elem.Name, k);
       exit(1);
       break;
     }
@@ -139,30 +139,30 @@ void set_bn_s(const int Fnum, const int Knum, const int n, const double bn)
     // point to multipole
     k = Lattice.Elem_GetPos(abs(Fnum), Knum);
 
-    switch (Lattice.Cell[k-1].Elem.PName[1]) {
+    switch (Lattice.Cell[k-1].Elem.Name[1]) {
     case 'u':
-      if (Lattice.Cell[k+1].Elem.PName[1] == 'd') {
+      if (Lattice.Cell[k+1].Elem.Name[1] == 'd') {
 	set_L(Lattice.Cell[k-1].Fnum, Lattice.Cell[k-1].Knum, bn);
 	set_L(Lattice.Cell[k+1].Fnum, Lattice.Cell[k+1].Knum, -bn);
       } else {
 	printf("set_bn_s: configuration error %s (%d)\n",
-	       Lattice.Cell[k+1].Elem.PName, k+2);
+	       Lattice.Cell[k+1].Elem.Name, k+2);
 	exit(1);
       }
       break;
     case 'd':
-      if (Lattice.Cell[k+1].Elem.PName[1] == 'u') {
+      if (Lattice.Cell[k+1].Elem.Name[1] == 'u') {
 	set_L(Lattice.Cell[k-1].Fnum, Lattice.Cell[k-1].Knum, -bn);
 	set_L(Lattice.Cell[k+1].Fnum, Lattice.Cell[k+1].Knum, bn);
       } else {
 	printf("set_bn_s: configuration error %s (%d)\n",
-	       Lattice.Cell[k+1].Elem.PName, k+2);
+	       Lattice.Cell[k+1].Elem.Name, k+2);
 	exit(1);
       }
       break;
     default:
       printf("set_bn_s: configuration error %s (%d)\n",
-	     Lattice.Cell[k-1].Elem.PName, k);
+	     Lattice.Cell[k-1].Elem.Name, k);
       exit(1);
       break;
     }
@@ -186,7 +186,7 @@ void get_S(void)
 
   S = 0e0;
   for (j = 0; j <= globval.Cell_nLoc; j++) {
-    S += Lattice.Cell[j].Elem.PL; Lattice.Cell[j].S = S;
+    S += Lattice.Cell[j].Elem.L; Lattice.Cell[j].S = S;
   }
 }
 

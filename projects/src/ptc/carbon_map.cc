@@ -36,7 +36,7 @@ ss_vect<tps> get_fix_point(const int Fnum)
     FM->phi -= map[px_].cst();
     FM->Lm = map[ct_].cst();
     FM->Ld += 2.0*map[x_].cst()/FM->phi;
-    FM->L1 += Lattice.Cell[loc].Elem.PL - FM->Lm;
+    FM->L1 += Lattice.Cell[loc].Elem.L - FM->Lm;
   }
 
   map.identity(); Cell_Pass(loc, loc, map, lastpos);
@@ -46,7 +46,7 @@ ss_vect<tps> get_fix_point(const int Fnum)
        << "get_fix_pont:" << setw(11) << map.cst();
   cout << fixed << setprecision(5)
        << "phi [deg] = " << setw(7) << FM->phi*180.0/M_PI
-       << ", L [m] = " << setw(7) << Lattice.Cell[loc].Elem.PL << endl;
+       << ", L [m] = " << setw(7) << Lattice.Cell[loc].Elem.L << endl;
   cout << fixed << setprecision(5)
        << "Lr [m] = " << setw(7) << FM->Lr
        << ", Lm [m] = " << setw(7) << FM->Lm

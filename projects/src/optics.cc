@@ -55,7 +55,7 @@ void get_cod_rms(const double dx, const double dy,
 
       n = 0;
       for (j = 0; j <= globval.Cell_nLoc; j++)
-	if (all || ((Lattice.Cell[j].Elem.Pkind == Mpole) &&
+	if (all || ((Lattice.Cell[j].Elem.Kind == Mpole) &&
 		    (Lattice.Cell[j].Elem.M->n_design == Sext))) {
 	  n++;
 	  for (k = 0; k < 6; k++) {
@@ -75,7 +75,7 @@ void get_cod_rms(const double dx, const double dy,
 
   n = 0;
   for (j = 0; j <= globval.Cell_nLoc; j++)
-    if (all || ((Lattice.Cell[j].Elem.Pkind == Mpole) &&
+    if (all || ((Lattice.Cell[j].Elem.Kind == Mpole) &&
 		(Lattice.Cell[j].Elem.M->n_design == Sext))) {
       n++;
       for (k = 0; k < 6; k++) {
@@ -250,7 +250,7 @@ void chk_b3_Fam(const int Fnum, const bool exit)
     loc = Lattice.Elem_GetPos(Fnum, k);
     if (!exit && ((k-1) % 2 == 1)) loc -= 1;
     printf("%8s %7.5f %7.5f\n",
-	   Lattice.Cell[loc].Elem.PName,
+	   Lattice.Cell[loc].Elem.Name,
 	   Lattice.Cell[loc].Beta[X_], Lattice.Cell[loc].Beta[Y_]);
   }
 }
@@ -316,12 +316,12 @@ void chk_dip(void)
   L_sum = 0e0; phi_sum = 0e0;
   for (k = 0; k < n_dip; k++) {
     loc = Lattice.Elem_GetPos(Fnum[k], 1);
-    L = Lattice.Cell[loc].Elem.PL;
-    phi = L*Lattice.Cell[loc].Elem.M->Pirho*180e0/M_PI;
+    L = Lattice.Cell[loc].Elem.L;
+    phi = L*Lattice.Cell[loc].Elem.M->irho*180e0/M_PI;
     L_sum += L; phi_sum += phi;
     printf(" %6s %4.3f %6.3f %9.6f %9.6f %9.6f %9.6f %9.6f\n",
-	   Lattice.Cell[loc].Elem.PName, L, 1e0/Lattice.Cell[loc].Elem.M->Pirho,
-	   phi, Lattice.Cell[loc].Elem.M->PTx1, Lattice.Cell[loc].Elem.M->PTx2,
+	   Lattice.Cell[loc].Elem.Name, L, 1e0/Lattice.Cell[loc].Elem.M->irho,
+	   phi, Lattice.Cell[loc].Elem.M->Tx1, Lattice.Cell[loc].Elem.M->Tx2,
 	   L_sum, phi_sum);
   }
 }
@@ -542,7 +542,7 @@ int main(int argc, char *argv[])
 
     f_rf =
       Lattice.Cell[Lattice.Elem_GetPos(Lattice.Elem_Index("cav"), 1)]
-      .Elem.C->Pfreq;
+      .Elem.C->freq;
     printf("\nf_rf = %10.3e\n", f_rf);
 
     globval.Cavity_on = true;

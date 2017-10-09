@@ -431,7 +431,7 @@ void SplineInterpolation2(T &X, T &Z, T &thetax, T &thetaz,
     if (X < WITH->tabx[0] || X > WITH->tabx[nx-1] ||
 	Z > WITH->tabz[0] || Z < WITH->tabz[nz-1]) {
         printf("SplineInterpDeriv2: out of borders in element s= %4.2f %*s\n",
-	       Cell.S, 5, Cell.Elem.PName);
+	       Cell.S, 5, Cell.Elem.Name);
         printf("X = % lf but tabx[0] = % lf and tabx[nx-1] = % lf\n",
 	       is_double<T>::cst(X), WITH->tabx[0], WITH->tabx[nx-1]);
         printf("Z = % lf but tabz[0] = % lf and tabz[nz-1] = % lf\n",

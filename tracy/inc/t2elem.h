@@ -160,13 +160,13 @@ void Solenoid_Init(int Fnum1);
 
 double Elem_GetKval(int Fnum1, int Knum1, int Order);
 
-void Mpole_SetPB(int Fnum1, int Knum1, int Order);
+void Mpole_SetB(int Fnum1, int Knum1, int Order);
 
-double Mpole_GetPB(int Fnum1, int Knum1, int Order);
+double Mpole_GetB(int Fnum1, int Knum1, int Order);
 
-  void Mpole_DefPBpar(int Fnum1, int Knum1, int Order, double PBpar);
+  void Mpole_DefBpar(int Fnum1, int Knum1, int Order, double Bpar);
 
-void Mpole_DefPBsys(int Fnum1, int Knum1, int Order, double PBsys);
+void Mpole_DefBsys(int Fnum1, int Knum1, int Order, double Bsys);
 
 void Mpole_SetdS(int Fnum1, int Knum1);
 
@@ -178,7 +178,7 @@ void Mpole_DefdTpar(int Fnum1, int Knum1, double PdTpar);
 
 void Mpole_DefdTsys(int Fnum1, int Knum1, double PdTsys);
 
-void Wiggler_SetPB(int Fnum1, int Knum1, int Order);
+void Wiggler_SetB(int Fnum1, int Knum1, int Order);
 
 void Wiggler_SetdS(int Fnum1, int Knum1);
 

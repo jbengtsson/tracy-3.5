@@ -49,12 +49,6 @@ class Lattice_Type {
 
   bool getcod(double dP, long &lastpos);
 
-  void get_twiss3(long int loc,
-		  Vector2 alpha[], Vector2 beta[], Vector2 nu[],
-		  Vector2 eta[], Vector2 etap[]);
-
-  double int_curly_H1(long int n);
-
   void getabn(Vector2 &alpha, Vector2 &beta, Vector2 &nu);
 
   void TraceABN(long i0, long i1, const Vector2 &alpha, const Vector2 &beta,

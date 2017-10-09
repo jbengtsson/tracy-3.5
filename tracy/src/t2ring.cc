@@ -11,7 +11,7 @@
 */
 
 
-#define n  4
+#define n 4
 
 
 void Lattice_Type::GetNu(Vector2 &nu, Matrix &M)
@@ -140,7 +140,7 @@ void Lattice_Type::Cell_GetABGN(Matrix &M, Vector2 &alpha, Vector2 &beta,
 }
 
 
-#define n  4
+#define n 4
 void Lattice_Type::Cell_Geteta(long i0, long i1, bool ring, double dP)
 {
   long int  i = 0, lastpos = 0;
@@ -331,9 +331,9 @@ void Lattice_Type::Cell_Twiss(long i0, long i1, ss_vect<tps> &Ascr, bool chroma,
 	(GetAngle(getmat(Ascr1, k, k), getmat(Ascr1, k, k+1)) -
 	 GetAngle(getmat(Ascr0, k, k), getmat(Ascr0, k, k+1)))/(2.0*M_PI);
 
-      if ((cellp->Elem.PL >= 0.0) && (dnu[j] < -1e-16))
+      if ((cellp->Elem.L >= 0.0) && (dnu[j] < -1e-16))
 	dnu[j] += 1.0;
-      else if ((cellp->Elem.PL < 0.0) && (dnu[j] > 1e-16))
+      else if ((cellp->Elem.L < 0.0) && (dnu[j] > 1e-16))
 	dnu[j] -= 1.0;
 
       nu1[j] += dnu[j];
@@ -388,7 +388,7 @@ void Lattice_Type::Cell_Twiss(long i0, long i1, ss_vect<tps> &Ascr, bool chroma,
                    but the local slope of the curve xi=f(dP)                   
        16/10/03 Modified convergence test: now done for both planes
 ****************************************************************************/
-#define n               4
+#define n 4
 void Lattice_Type::Ring_Getchrom(double dP)
 {
   long int  lastpos = 0;
@@ -538,7 +538,8 @@ void Lattice_Type::Ring_GetTwiss(bool chroma, double dP)
 
   if (trace) printf("enter ring_gettwiss\n");
   Ring_Twiss(chroma, dP);
-  globval.Alphac = globval.OneTurnMat[ct_][delta_]/Lattice.Cell[globval.Cell_nLoc].S;
+  globval.Alphac =
+    globval.OneTurnMat[ct_][delta_]/Lattice.Cell[globval.Cell_nLoc].S;
   if (trace) printf("exit ring_gettwiss\n");
 }
 
@@ -575,7 +576,7 @@ struct LOC_Ring_Fittune
        none
 
 ****************************************************************************/
-#define dP              0.0
+#define dP 0.0
 void shiftk(long Elnum, double dk, struct LOC_Ring_Fittune *LINK)
 {
   CellType   *cellp;
@@ -583,8 +584,8 @@ void shiftk(long Elnum, double dk, struct LOC_Ring_Fittune *LINK)
   MpoleType  *M;
 
   cellp = &Lattice.Cell[Elnum]; elemp = &cellp->Elem; M = elemp->M;
-  M->PBpar[Quad+HOMmax] += dk;
-  Mpole_SetPB(cellp->Fnum, cellp->Knum, (long)Quad);
+  M->Bpar[Quad+HOMmax] += dk;
+  Mpole_SetB(cellp->Fnum, cellp->Knum, (long)Quad);
 }
 
 
@@ -732,7 +733,7 @@ void Lattice_Type::Ring_Fittune(Vector2 &nu, double eps, iVector2 &nq,
 #undef dP
 
 
-#define dP  0.0
+#define dP 0.0
 void shiftkp(long Elnum, double dkp)
 {
   CellType  *cellp;
@@ -740,8 +741,8 @@ void shiftkp(long Elnum, double dkp)
   MpoleType *M;
 
   cellp = &Lattice.Cell[Elnum]; elemp = &cellp->Elem; M = elemp->M;
-  M->PBpar[Sext+HOMmax] += dkp;
-  Mpole_SetPB(cellp->Fnum, cellp->Knum, (long)Sext);
+  M->Bpar[Sext+HOMmax] += dkp;
+  Mpole_SetB(cellp->Fnum, cellp->Knum, (long)Sext);
 }
 
 
@@ -808,7 +809,8 @@ void Lattice_Type::Ring_Fitchrom(Vector2 &ksi, double eps, iVector2 &ns,
       ksi0[j] = globval.Chrom[j];
     if (trace)
       printf("  ksix =%10.6f, ksiy =%10.6f, SF = % .5E, SD = % .5E @%3d\n",
-	     ksi0[0], ksi0[1], Elem_GetKval(Lattice.Cell[sf[0]].Fnum, 1, (long)Sext),
+	     ksi0[0], ksi0[1],
+	     Elem_GetKval(Lattice.Cell[sf[0]].Fnum, 1, (long)Sext),
 	     Elem_GetKval(Lattice.Cell[sd[0]].Fnum, 1, (long)Sext), i);
   } while (sqrt(sqr(ksi[0]-ksi0[0])+sqr(ksi[1]-ksi0[1])) >= eps && i != imax);
 _L999:
@@ -838,8 +840,8 @@ static void shiftk_(long Elnum, double dk, struct LOC_Ring_FitDisp *LINK)
   cellp = &Lattice.Cell[Elnum];
   elemp = &cellp->Elem;
   M = elemp->M;
-  M->PBpar[Quad+HOMmax] += dk;
-  Mpole_SetPB(cellp->Fnum, cellp->Knum, (long)Quad);
+  M->Bpar[Quad+HOMmax] += dk;
+  Mpole_SetB(cellp->Fnum, cellp->Knum, (long)Quad);
 }
 
 

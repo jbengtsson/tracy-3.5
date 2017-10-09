@@ -24,9 +24,9 @@ void chk_bend()
 
   phi = 0e0;
   for (k = 0; k <= globval.Cell_nLoc; k++) {
-    if ((Lattice.Cell[k].Elem.Pkind == Mpole) &&
+    if ((Lattice.Cell[k].Elem.Kind == Mpole) &&
 	(Lattice.Cell[k].Elem.M->n_design == Dip)) {
-      phi += Lattice.Cell[k].Elem.PL*Lattice.Cell[k].Elem.M->Pirho;
+      phi += Lattice.Cell[k].Elem.L*Lattice.Cell[k].Elem.M->irho;
     }
   }
   phi = 180e0*phi/M_PI;
@@ -49,10 +49,11 @@ void prt_x0(const double delta)
   Cell_Pass(0, globval.Cell_nLoc, ps, lastpos);
   for (k = 0; k < lastpos; k++) {
     fprintf(outf, "%4d %15s %9.5f %4.1f %9.5f %9.5f %9.5f %9.5f %9.5f %9.5f\n",
-	   k, Lattice.Cell[k].Elem.PName, Lattice.Cell[k].S, get_code(Lattice.Cell[k]),
-	   Lattice.Cell[k].BeamPos[x_], Lattice.Cell[k].BeamPos[px_],
-	   Lattice.Cell[k].BeamPos[py_], Lattice.Cell[k].BeamPos[py_],
-	   Lattice.Cell[k].BeamPos[delta_], Lattice.Cell[k].BeamPos[ct_]);
+	    k, Lattice.Cell[k].Elem.Name, Lattice.Cell[k].S,
+	    get_code(Lattice.Cell[k]),
+	    Lattice.Cell[k].BeamPos[x_], Lattice.Cell[k].BeamPos[px_],
+	    Lattice.Cell[k].BeamPos[py_], Lattice.Cell[k].BeamPos[py_],
+	    Lattice.Cell[k].BeamPos[delta_], Lattice.Cell[k].BeamPos[ct_]);
   }
   fclose(outf);
 }

@@ -20,13 +20,15 @@ inline bool CheckAmpl(const ss_vect<T> &x, const long int loc)
   bool  not_lost;
 
   if (globval.Aperture_on)
-    not_lost = is_double<T>::cst(x[x_]) > Lattice.Cell[loc].maxampl[X_][0] &&
-               is_double<T>::cst(x[x_]) < Lattice.Cell[loc].maxampl[X_][1] && 
-               fabs(is_double<T>::cst(x[y_])) < Lattice.Cell[loc].maxampl[Y_][1];
+    not_lost =
+      is_double<T>::cst(x[x_]) > Lattice.Cell[loc].maxampl[X_][0] &&
+      is_double<T>::cst(x[x_]) < Lattice.Cell[loc].maxampl[X_][1] && 
+      fabs(is_double<T>::cst(x[y_])) < Lattice.Cell[loc].maxampl[Y_][1];
   else
-    not_lost = is_double<T>::cst(x[x_]) > -max_ampl &&
-               is_double<T>::cst(x[x_]) < max_ampl &&
-               fabs(is_double<T>::cst(x[y_])) < max_ampl;
+    not_lost =
+      is_double<T>::cst(x[x_]) > -max_ampl &&
+      is_double<T>::cst(x[x_]) < max_ampl &&
+      fabs(is_double<T>::cst(x[y_])) < max_ampl;
 
   if (!not_lost) {
     if (is_double<T>::cst(x[x_]) < Lattice.Cell[loc].maxampl[X_][0] ||
@@ -50,7 +52,7 @@ template<typename T>
 void Elem_Pass(const long i, ss_vect<T> &x)
 {
 
-  switch (Lattice.Cell[i].Elem.Pkind) {
+  switch (Lattice.Cell[i].Elem.Kind) {
     case drift:
       Drift_Pass(Lattice.Cell[i], x);
       break;
@@ -265,15 +267,15 @@ void Cell_Init(void)
 
   SI_init();  /* Initializes the constants for symplectic integrator */
 
-  memcpy(Lattice.Cell[0].Elem.PName, first_name, sizeof(first_name));
+  memcpy(Lattice.Cell[0].Elem.Name, first_name, sizeof(first_name));
 
   for (i = 1; i <= globval.Elem_nFam; i++) {
     elemfamp  = &Lattice.ElemFam[i-1]; /* Get 1 of all elements stored in
 					  ElemFam array */
     elemp = &elemfamp->ElemF; // For switch structure: choice on element type
     if (debug)
-      printf("Cell_Init, i:=%3ld: %*s\n", i, SymbolLength, elemp->PName);
-    switch (elemp->Pkind) {
+      printf("Cell_Init, i:=%3ld: %*s\n", i, SymbolLength, elemp->Name);
+    switch (elemp->Kind) {
     case drift:
       Drift_Init(i);
       break;
@@ -323,6 +325,6 @@ void Cell_Init(void)
   /* Computes s-location of each element in the structure */
   Stotal = 0e0;
   for (i = 0; i <= globval.Cell_nLoc; i++) {
-    Stotal += Lattice.Cell[i].Elem.PL; Lattice.Cell[i].S = Stotal;
+    Stotal += Lattice.Cell[i].Elem.L; Lattice.Cell[i].S = Stotal;
   }
 }
