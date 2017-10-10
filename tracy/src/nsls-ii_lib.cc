@@ -1369,7 +1369,26 @@ void set_dL(const int Fnum, const double dL)
 }
 
 
-// multipole components
+// Multipole components.
+
+void set_bn(const string type, const int Fnum, const int Knum,
+	    const int n, const double bn, const double an)
+{
+  elemtype elem;
+
+  if (n < 1) {
+    std::cout << "set_bn: n < 1 (" << n << ")" << std::endl;
+    exit(1);
+  }
+
+  // elem = Lattice.Cell[Lattice.Elem_GetPos(Fnum, Knum)].Elem;
+  // if (string == "design") {
+  //   elem.M->Bpar[HOMmax+n] = bn; elem.M->Bpar[HOMmax-n] = an;
+  // } else if (string == "rms") {
+
+  // } else if (string == "sys") {
+  // }
+}
 
 void get_bn_design_elem(const int Fnum, const int Knum,
 			const int n, double &bn, double &an)
