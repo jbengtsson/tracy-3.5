@@ -218,7 +218,7 @@ void LoadFieldErr_scl(const char *FieldErrorFile, const bool Scale_it,
 	  if (prt)
 	    printf(" %2d %9.1e %9.1e\n", n, Bn, An);
 	  // convert to normalized multipole components
-	  SetFieldErrors(name, rms, r0, n, Bn, An, true);
+	  Lattice.SetFieldErrors(name, rms, r0, n, Bn, An, true);
 	}
       }
     } else
@@ -263,7 +263,7 @@ bool orb_corr_scl(const int n_orbit)
   for (i = 1; i <= n_orbit2; i++) {
     cod = Lattice.getcod(0.0, lastpos);
     if (cod) {
-      codstat(xmean, xsigma, xmax, Lattice.param.Cell_nLoc, false); //false = take values only at BPM positions
+      Lattice.codstat(xmean, xsigma, xmax, Lattice.param.Cell_nLoc, false); //false = take values only at BPM positions
       printf("\n");
       printf("RMS orbit [mm]: %8.1e +/- %7.1e, %8.1e +/- %7.1e\n", 
 	     1e3*xmean[X_], 1e3*xsigma[X_], 1e3*xmean[Y_], 1e3*xsigma[Y_]);
@@ -278,7 +278,7 @@ bool orb_corr_scl(const int n_orbit)
 	// -> J.B. 08/24/17:
 	cod = Lattice.getcod(0.0, lastpos);
 	if (cod) {
-	  codstat(xmean, xsigma, xmax, Lattice.param.Cell_nLoc, false); //false = take values only at BPM positions
+	  Lattice.codstat(xmean, xsigma, xmax, Lattice.param.Cell_nLoc, false); //false = take values only at BPM positions
 	  printf("RMS orbit [mm]: %8.1e +/- %7.1e, %8.1e +/- %7.1e\n", 
 		 1e3*xmean[X_], 1e3*xsigma[X_], 1e3*xmean[Y_], 1e3*xsigma[Y_]);
 	} else

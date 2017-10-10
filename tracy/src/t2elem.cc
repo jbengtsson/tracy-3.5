@@ -235,26 +235,25 @@ class is_tps<double> {
   static inline double set_prm(const int k) { return 1e0; }
 
   static inline double get_curly_H(const ss_vect<tps> &x)
-    {
-      std::cout << "get_curly_H: operation not defined for double" << std::endl;
-      exit_(1);
-      return 0e0;
-    }
+  {
+    std::cout << "get_curly_H: operation not defined for double" << std::endl;
+    exit_(1);
+    return 0e0;
+  }
 
   static inline double get_dI4(const double h, const double b2, const double L,
 			     const ss_vect<tps> &x)
-    {
-      std::cout << "get_dI4: operation not defined for double" << std::endl;
-      exit_(1);
-      return 0e0;
-    }
+  {
+    std::cout << "get_dI4: operation not defined for double" << std::endl;
+    exit_(1);
+    return 0e0;
+  }
 
   static inline void emittance(const double B2, const double u,
 			       const double ps0, const ss_vect<double> &xp) { }
 
   static inline void diff_mat(const double B2, const double u,
 			      const double ps0, const ss_vect<double> &xp) { }
-
 };
 
 
@@ -286,8 +285,9 @@ class is_tps<tps> {
 
   static inline double get_dI4(const ss_vect<tps> &A) { return A[x_][delta_]; }
 
-  static inline void emittance(const tps &B2_perp, const tps &ds, const tps &ps0,
-			       const ss_vect<tps> &A) {
+  static inline void emittance(const tps &B2_perp, const tps &ds,
+			       const tps &ps0, const ss_vect<tps> &A)
+  {
     // M. Sands "The hysics of Electron Storage Rings" SLAC-121, p. 118.
     // d<delta^2>/ds = 3*C_U*C_gamma*h_bar*c*E_0^5*(1+delta)^4*(B_perp/(Brho))^3
     //                 /(4*pi*m_e^3)
@@ -309,7 +309,6 @@ class is_tps<tps> {
 
   static inline void diff_mat(const tps &B2_perp, const tps &ds, const tps &ps0,
 			      ss_vect<tps> &x) { }
-
 };
 
 
@@ -2120,9 +2119,15 @@ void Solenoid_Pass(CellType &Cell, ss_vect<T> &ps)
 }
 
 
-void getelem(long i, CellType *cellrec) { *cellrec = Lattice.Cell[i]; }
+void  LatticeType::getelem(long i, CellType *cellrec)
+{
+  *cellrec = Lattice.Cell[i];
+ }
 
-void putelem(long i, CellType *cellrec) { Lattice.Cell[i] = *cellrec; }
+void  LatticeType::putelem(long i, CellType *cellrec)
+{
+  Lattice.Cell[i] = *cellrec;
+}
 
 
 int LatticeType::GetnKid(const int Fnum1)
@@ -3396,10 +3401,7 @@ void Solenoid_Init(int Fnum1)
 }
 
 
-double Mpole_GetB(int Fnum1, int Knum1, int Order);
-
-
-double Elem_GetKval(int Fnum1, int Knum1, int Order)
+double LatticeType::Elem_GetKval(int Fnum1, int Knum1, int Order)
 {
   double    Result = 0e0;
   elemtype  *elemp;
@@ -3418,9 +3420,9 @@ double Elem_GetKval(int Fnum1, int Knum1, int Order)
       break;
     case Mpole: /* KL*/
       if (elemp->M->thick == thick)
-	Result = elemp->L*Mpole_GetB(Fnum1, Knum1, Order);
+	Result = elemp->L*Lattice.Mpole_GetB(Fnum1, Knum1, Order);
       else
-	Result = Mpole_GetB(Fnum1, Knum1, Order);
+	Result = Lattice.Mpole_GetB(Fnum1, Knum1, Order);
       break;
     case Wigl:
       Result =
@@ -3475,7 +3477,7 @@ void Mpole_SetB(int Fnum1, int Knum1, int Order)
 }
 
 
-double Mpole_GetB(int Fnum1, int Knum1, int Order)
+double LatticeType::Mpole_GetB(int Fnum1, int Knum1, int Order)
 {
   /*  Return multipole strength (of order Order) for Knum1 element of
       family Fnum1

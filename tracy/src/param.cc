@@ -163,7 +163,8 @@ void param_data_type::get_param(const string &param_file)
 	while (s != NULL) {
 	  N_Fam++;
 	  if (N_Fam <= N_Fam_max) {
-	    Q_Fam[N_Fam-1] = Lattice.Elem_Index(s); s = strtok_r(NULL, " \r", &p);
+	    Q_Fam[N_Fam-1] = Lattice.Elem_Index(s);
+	    s = strtok_r(NULL, " \r", &p);
 	  } else {
 	    printf("get_param: N_Fam_max exceeded (%d)\n", N_Fam_max);
 	    exit(1);
@@ -189,7 +190,8 @@ void param_data_type::get_bare(void)
 
   n_sext = 0;
   for (j = 0; j <= Lattice.param.Cell_nLoc; j++) {
-    if ((Lattice.Cell[j].Elem.Kind == Mpole) && (Lattice.Cell[j].Elem.M->n_design >= Sext)) {
+    if ((Lattice.Cell[j].Elem.Kind == Mpole) &&
+	(Lattice.Cell[j].Elem.M->n_design >= Sext)) {
       n_sext++; sexts[n_sext-1] = j;
       for (k = 0; k < 2; k++) {
 	betas0_[n_sext-1][k] = Lattice.Cell[j].Beta[k];
@@ -198,7 +200,8 @@ void param_data_type::get_bare(void)
     }
   }
 
-  nu0_[X_] = Lattice.param.TotalTune[X_]; nu0_[Y_] = Lattice.param.TotalTune[Y_];
+  nu0_[X_] = Lattice.param.TotalTune[X_];
+  nu0_[Y_] = Lattice.param.TotalTune[Y_];
 }
 
 
@@ -290,8 +293,10 @@ void param_data_type::FindMatrix(double **SkewRespMat, const double deta_y_max)
   for (i = 1; i <= N_SKEW; i++) {
     loc = Lattice.Elem_GetPos(Lattice.param.qt, i);
     etaSQ[i] = Lattice.Cell[loc].Eta[X_];
-    betaSQ[i][Xi] = Lattice.Cell[loc].Beta[X_]; betaSQ[i][Yi] = Lattice.Cell[loc].Beta[Y_];
-    nuSQ[i][Xi] = Lattice.Cell[loc].Nu[X_]; nuSQ[i][Yi] = Lattice.Cell[loc].Nu[Y_];
+    betaSQ[i][Xi] = Lattice.Cell[loc].Beta[X_];
+    betaSQ[i][Yi] = Lattice.Cell[loc].Beta[Y_];
+    nuSQ[i][Xi] = Lattice.Cell[loc].Nu[X_];
+    nuSQ[i][Yi] = Lattice.Cell[loc].Nu[Y_];
   } // for i=1..N_SKEW
 
   for (i = 1; i <= N_BPM; i++) {
@@ -412,13 +417,21 @@ void param_data_type::ini_skew_cor(const double deta_y_max)
 
   N_HCOR = 0;
   h_corr[N_HCOR++] = Lattice.Elem_GetPos(Lattice.param.hcorr, 1);
-  h_corr[N_HCOR++] = Lattice.Elem_GetPos(Lattice.param.hcorr, Lattice.GetnKid(Lattice.param.hcorr)/3);
-  h_corr[N_HCOR++] = Lattice.Elem_GetPos(Lattice.param.hcorr, 2*Lattice.GetnKid(Lattice.param.hcorr)/3);
+  h_corr[N_HCOR++] =
+    Lattice.Elem_GetPos(Lattice.param.hcorr,
+			Lattice.GetnKid(Lattice.param.hcorr)/3);
+  h_corr[N_HCOR++] =
+    Lattice.Elem_GetPos(Lattice.param.hcorr,
+			2*Lattice.GetnKid(Lattice.param.hcorr)/3);
 
   N_VCOR = 0;
   v_corr[N_VCOR++] = Lattice.Elem_GetPos(Lattice.param.vcorr, 1);
-  v_corr[N_VCOR++] = Lattice.Elem_GetPos(Lattice.param.vcorr, Lattice.GetnKid(Lattice.param.vcorr)/3);
-  v_corr[N_VCOR++] = Lattice.Elem_GetPos(Lattice.param.vcorr, 2*Lattice.GetnKid(Lattice.param.vcorr)/3);
+  v_corr[N_VCOR++] =
+    Lattice.Elem_GetPos(Lattice.param.vcorr,
+			Lattice.GetnKid(Lattice.param.vcorr)/3);
+  v_corr[N_VCOR++] =
+    Lattice.Elem_GetPos(Lattice.param.vcorr,
+			2*Lattice.GetnKid(Lattice.param.vcorr)/3);
 
   N_COUPLE = N_BPM*(1+N_HCOR+N_VCOR);
 
@@ -614,7 +627,8 @@ void param_data_type::corr_eps_y(void)
   for (i = 0; i <= Lattice.param.Cell_nLoc; i++)
     fprintf(outf, "%4d %7.3f %s %6.3f %10.3e %10.3e\n",
 	    i, Lattice.Cell[i].S, Lattice.Cell[i].Elem.Name,
-	    Lattice.Cell[i].Nu[Y_], 1e3*Lattice.Cell[i].Eta[Y_], 1e3*Lattice.Cell[i].Etap[Y_]);
+	    Lattice.Cell[i].Nu[Y_], 1e3*Lattice.Cell[i].Eta[Y_],
+	    1e3*Lattice.Cell[i].Etap[Y_]);
   fclose(outf);
 
   FindCoupVector(VertCouple);
@@ -631,12 +645,14 @@ void param_data_type::get_IDs(void)
     switch (Lattice.ElemFam[k].ElemF.Kind) {
     case Wigl:
       printf("found ID family:   %s %12.5e\n",
-	     Lattice.ElemFam[k].ElemF.Name, Lattice.ElemFam[k].ElemF.W->BoBrhoV[0]);
+	     Lattice.ElemFam[k].ElemF.Name,
+	     Lattice.ElemFam[k].ElemF.W->BoBrhoV[0]);
       n_ID_Fams++; ID_Fams[n_ID_Fams-1] = k + 1;
       break;
     case Insertion:
       printf("found ID family:   %s %12.5e",
-	     Lattice.ElemFam[k].ElemF.Name, Lattice.ElemFam[k].ElemF.ID->scaling);
+	     Lattice.ElemFam[k].ElemF.Name,
+	     Lattice.ElemFam[k].ElemF.ID->scaling);
       if (Lattice.ElemFam[k].ElemF.ID->scaling != 0e0) {
 	printf("\n");
 	n_ID_Fams++; ID_Fams[n_ID_Fams-1] = k + 1;
@@ -645,7 +661,8 @@ void param_data_type::get_IDs(void)
       break;
     case FieldMap:
       printf("found ID family:   %s %12.5e\n",
-	     Lattice.ElemFam[k].ElemF.Name, Lattice.ElemFam[k].ElemF.FM->scl);
+	     Lattice.ElemFam[k].ElemF.Name,
+	     Lattice.ElemFam[k].ElemF.FM->scl);
       n_ID_Fams++; ID_Fams[n_ID_Fams-1] = k + 1;
       break;
     default:
@@ -823,7 +840,8 @@ bool param_data_type::get_SQ(void)
 
   Nsext = 0;
   for (k = 0; k < Lattice.param.Cell_nLoc; k++) {
-    if ((Lattice.Cell[k].Elem.Kind == Mpole) && (Lattice.Cell[k].Elem.M->n_design == Sext)) {
+    if ((Lattice.Cell[k].Elem.Kind == Mpole) &&
+	(Lattice.Cell[k].Elem.M->n_design == Sext)) {
       Nsext++;
 
       if (Nsext > n_b3_max) {
@@ -1263,10 +1281,12 @@ void param_data_type::LoadAlignTol(const bool Scale_it, const double Scale,
 	  printf("misaligning girders:     dx = %e, dy = %e, dr = %e\n",
 		 dx, dy, dr);
 	  if (rms)
-	    misalign_rms_girders(Lattice.param.gs, Lattice.param.ge, dx, dy, dr_deg,
+	    misalign_rms_girders(Lattice.param.gs,
+				 Lattice.param.ge, dx, dy, dr_deg,
 				 new_rnd);
 	  else
-	    misalign_sys_girders(Lattice.param.gs, Lattice.param.ge, dx, dy, dr_deg);
+	    misalign_sys_girders(Lattice.param.gs,
+				 Lattice.param.ge, dx, dy, dr_deg);
 	} else if (strcmp("dipole", Name) == 0) {
 	  printf("misaligning dipoles:     dx = %e, dy = %e, dr = %e\n",
 		 dx, dy, dr);
@@ -1295,10 +1315,12 @@ void param_data_type::LoadAlignTol(const bool Scale_it, const double Scale,
 	    for (j = 1; j <= n_bpm_[k]; j++) {
 	      loc = bpms_[k][j];
 	      if (rms)
-		misalign_rms_elem(Lattice.Cell[loc].Fnum, Lattice.Cell[loc].Knum,
+		misalign_rms_elem(Lattice.Cell[loc].Fnum,
+				  Lattice.Cell[loc].Knum,
 				  dx, dy, dr_deg, new_rnd);
 	      else
-		misalign_sys_elem(Lattice.Cell[loc].Fnum, Lattice.Cell[loc].Knum,
+		misalign_sys_elem(Lattice.Cell[loc].Fnum,
+				  Lattice.Cell[loc].Knum,
 				  dx, dy, dr_deg);
 	    }
 	} else {
@@ -1366,7 +1388,7 @@ void param_data_type::LoadFieldErr(const bool Scale_it, const double Scale,
 	  }
 	  printf(" %2d %9.1e %9.1e\n", n, Bn, An);
 	  // convert to normalized multipole components
-	  SetFieldErrors(name, rms, r0, n, Bn, An, true);
+	  Lattice.SetFieldErrors(name, rms, r0, n, Bn, An, true);
 	}
       }
     } else

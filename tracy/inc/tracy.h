@@ -111,22 +111,75 @@ extern statusrec status;
 
 extern bool reverse_elem;
 
+// Truncated Power Series Algebra (TPSA).
+extern const int nv_tps, nd_tps, iref_tps;
+extern int       no_tps, ndpt_tps;
+extern double    eps_tps;
+
+extern ss_vect<tps> map;
+extern MNF_struct   MNF;
+
+extern double chi_m;
+
+
+// For tune fitting.
+#define nueps    1e-6 // Precision.
+#define nudkL    0.01 // Step.
+#define nuimax   10   // Maximum number of iterations.
+
+// For chromaticity fitting.
+#define ksieps   1e-5
+#define ksidkpL  0.01
+#define ksiimax  10
+
+//* For dispersion fitting.
+#define dispeps  1e-10
+#define dispdkL  0.001
+#define dispimax 10
+#define npeakmax 10
+
+// Dynamical aperture.
+#define px_0     0.0
+#define py_0     0.0
+
+// 80% sigma coupling.
+#define sigma_eps sqrt((25.0/16.0-1.0)/(25.0/16.0+1.0))
+
+#define writetrack      true   /*protocol from tracking*/
+
+// getfloq.
+#define nfloq    4
+
+// inibump.
+#define dnux     0.02
+#define dnuy     0.01
+
+// TraceABN.
+#define ntrace   4
+
+typedef long ipeakbuf[npeakmax];
+typedef double peakbuf[npeakmax];
+
+struct LOC_getdynap {
+  double phi, delta;
+  long   nturn;
+  bool   floqs, lost;
+};
+
+
+extern double  FindRes_eps;
+
+struct LOC_findres {
+  int n;
+  double nux, nuy, f;
+  int *nx, *ny;
+  double eps;
+  bool found;
+} ;
+
 extern int P_eof(FILE *f);
 
 extern int P_eoln(FILE *f);
-
-extern void GDiag(int n, double C, Matrix &A, Matrix &Ainv, Matrix &R,
-		  Matrix &M, double &Omega, double &Yalphac);
-extern void NormEigenVec(Matrix &Vr, Matrix &Vi, double *wr, double *wi,
-			 Matrix &t6a);
-
-extern void t2init(void);
-
-extern void prt_gcmat(int bpm, int corr, int plane);
-
-extern void gcmat(int bpm, int corr, int plane);
-
-extern void lsoc(int niter, int bpm, int corr, int plane);
 
 /**** same as asctime in C without the \n at the end****/
 char *asctime2(const struct tm *timeptr);

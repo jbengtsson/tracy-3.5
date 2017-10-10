@@ -55,7 +55,7 @@ void Get_Disp_dp(void)
     //~ getcod(dP, lastpos);
     findcod(dP);
     Lattice.Ring_GetTwiss(true, dP);  /* Compute and get Twiss parameters */
-    getelem(0, &Cell);
+    Lattice.getelem(0, &Cell);
     fprintf(outf,"%+e %+e %+e\n", dP, Cell.BeamPos[0], Cell.Eta[0]);
   }
 
@@ -124,8 +124,8 @@ void InducedAmplitude(long spos)
     /* Computes closed orbit and store it in a vector */
     set_vectorcod(codvector, dP) ;
     Lattice.Ring_GetTwiss(false, dP);  /* Compute and get Twiss parameters */
-    getelem(1L, &Celldebut);
-    getelem(spos, &Cell);
+    Lattice.getelem(1L, &Celldebut);
+    Lattice.getelem(spos, &Cell);
 
     /* compute H at s =spos */
     dP20 = ((dP == 0) ? 1.0 : dP*dP);
@@ -193,7 +193,7 @@ void Hfonction(long pos, double dP,Vector2 H)
   long i;
 
   Lattice.Ring_GetTwiss(pos, dP); /* Compute and get Twiss parameters */
-  getelem(pos, &Cell);    /* Position sur l'element pos */
+  Lattice.getelem(pos, &Cell);    /* Position sur l'element pos */
 
   i = 0; /* Horizontal */
   H[i] = (1+Cell.Alpha[i]*Cell.Alpha[i])/Cell.Beta[i]*Cell.Eta[i]*Cell.Eta[i]+
@@ -247,7 +247,7 @@ void Hcofonction(long pos, double dP,Vector2 H)
   if (lastpos != Lattice.param.Cell_nLoc) printf("Ring unstable for dp=%+e @ pos=%ld\n", dP, lastpos);
 
   Lattice.Ring_GetTwiss(pos, dP); /* Compute and get Twiss parameters */
-  getelem(pos, &Cell);    /* Position sur l'element pos */
+  Lattice.getelem(pos, &Cell);    /* Position sur l'element pos */
 
   i = 0; /* Horizontal */
   H[i] = (1+Cell.Alpha[i]*Cell.Alpha[i])/Cell.Beta[i]*Cell.BeamPos[i]*Cell.BeamPos[i]+
@@ -321,7 +321,7 @@ void SetErr(void)
 
   for (i = 1L; i <= Lattice.param.Cell_nLoc; i++)
   {
-    getelem(i, &Cell);
+    Lattice.getelem(i, &Cell);
     if (Cell.Elem.Kind == 2L)
     {
       if (Cell.Elem.M->order == 2L && Cell.dT[1] == 0)
@@ -337,7 +337,7 @@ void SetErr(void)
 		 Cell.Elem.Name, Cell.Elem.M->Bpar[HOMmax-2L],
 		 Cell.Elem.M->Bpar[HOMmax+2L], theta);
 
-        putelem(i, &Cell);
+        Lattice.putelem(i, &Cell);
         Mpole_SetB(Cell.Fnum, Cell.Knum, -2L);
         Mpole_SetB(Cell.Fnum, Cell.Knum, 2L);
       }
@@ -1503,7 +1503,7 @@ void Enveloppe(double x, double px, double y, double py, double dp, double nturn
     for (i = 0; i< Lattice.param.Cell_nLoc; i++)
     {/* loop over full ring */
 
-      getelem(i, &Cell);
+      Lattice.getelem(i, &Cell);
       Cell_Pass(i,i+1, x1, lastpos);
       if (lastpos != i+1)
       {
@@ -1594,7 +1594,7 @@ void Multipole(void)
 /* Make lists of dipoles, quadrupoles and  sextupoles */
   for (i = 0; i <= Lattice.param.Cell_nLoc; i++)
   {
-    getelem(i, &Cell); /* get element */
+    Lattice.getelem(i, &Cell); /* get element */
 
     if (Cell.Elem.Kind == Mpole)
     {
@@ -1665,7 +1665,7 @@ void Multipole(void)
 
  for (i = 0; i < ndip; i++)
  {
-   getelem(dlist[i], &Cell);
+   Lattice.getelem(dlist[i], &Cell);
    theta = Cell.Elem.L*Cell.Elem.M->irho;
 
    /* gradient error */
@@ -1720,7 +1720,7 @@ void Multipole(void)
 
  for (i = 0; i < nquad; i++)
  {
-   getelem(qlist[i], &Cell);
+   Lattice.getelem(qlist[i], &Cell);
    b2 = Cell.Elem.L*GetKpar(Cell.Fnum, Cell.Knum, 2L);
 
    /* 12-pole multipole error */
@@ -1775,7 +1775,7 @@ void Multipole(void)
 
  for (i = 0; i < nsext; i++)
  {
-   getelem(slist[i], &Cell);
+   Lattice.getelem(slist[i], &Cell);
    b3 = GetKpar(Cell.Fnum, Cell.Knum, 3L);
 
    /* 18-pole multipole error */
@@ -1839,7 +1839,7 @@ void Multipole(void)
 
  for (i = 0; i < nhcorr; i++)
  {
-   getelem(hcorrlist[i], &Cell);
+   Lattice.getelem(hcorrlist[i], &Cell);
    corr_strength = hcorr[i]/brho;
 
    /* gradient error */
@@ -1900,7 +1900,7 @@ void Multipole(void)
 
  for (i = 0; i < nvcorr; i++)
  {
-   getelem(vcorrlist[i], &Cell);
+   Lattice.getelem(vcorrlist[i], &Cell);
    corr_strength = vcorr[i]/brho;
 
    /* skew decapole error */
@@ -1953,7 +1953,7 @@ void Multipole(void)
 
  for (i = 0; i < nqcorr; i++)
  {
-   getelem(qcorrlist[i], &Cell);
+   Lattice.getelem(qcorrlist[i], &Cell);
 
    /* skew octupole */
    mKL = dBoB4*qcorr[i]*x02i;
@@ -2006,7 +2006,7 @@ void SetSkewQuad(void)
   /* make quadrupole list */
   for (i = 0; i <= Lattice.param.Cell_nLoc; i++)
   {
-    getelem(i, &Cell); /* get element */
+    Lattice.getelem(i, &Cell); /* get element */
 
     if (Cell.Elem.Kind == Mpole)
     {
@@ -2041,7 +2041,7 @@ void SetSkewQuad(void)
   {
     if (trace) fprintf(stdout,"%le \n", theta[i]);
 
-    getelem(qlist[i], &Cell);
+    Lattice.getelem(qlist[i], &Cell);
 
     /* Get KL for a quadrupole */
     b2 = Cell.Elem.L*GetKpar(Cell.Fnum, Cell.Knum, 2L);
@@ -2237,7 +2237,7 @@ void MomentumAcceptance(long deb, long fin, double ep_min, double ep_max,
   {
     //~ getcod(dP=0.0, lastpos);       /* determine closed orbit */
     findcod(dP=0.0);
-  getelem(pos,&Cell);
+  Lattice.getelem(pos,&Cell);
     // coordinates around closed orbit which is non zero for 6D tracking
     x     = Cell.BeamPos[0];
     px    = Cell.BeamPos[1];
@@ -2269,8 +2269,8 @@ void MomentumAcceptance(long deb, long fin, double ep_min, double ep_max,
     
     if ((lastn) == nturn) dp1 = dp2;
 
-    getelem(lastpos,&Clost);
-    getelem(pos,&Cell);
+    Lattice.getelem(lastpos,&Clost);
+    Lattice.getelem(pos,&Cell);
     fprintf(stdout,"pos=%4ld z0 =% 10.5f  pz0 =% 10.5f  \n", pos, tabz0[i-1L][pos-1L], tabpz0[i-1L][pos-1L]);
     fprintf(stdout,"%4ld %10.5f %10.5f %10.5f %*s\n", pos,Cell.S,dp1,Clost.S,5,Clost.Elem.Name);
     fprintf(outf2,"%4ld %10.5f %10.5f %10.5f %*s\n", pos,Cell.S,dp1,Clost.S,5,Clost.Elem.Name);
@@ -2384,7 +2384,7 @@ void MomentumAcceptance(long deb, long fin, double ep_min, double ep_max,
   do {
     //~ getcod(dP=0.0, lastpos);       /* determine closed orbit */
     findcod(dP=0.0);
-  getelem(pos,&Cell);
+  Lattice.getelem(pos,&Cell);
     // coordinates around closed orbit which is non zero for 6D tracking
     x     = Cell.BeamPos[0];
     px    = Cell.BeamPos[1];
@@ -2418,8 +2418,8 @@ void MomentumAcceptance(long deb, long fin, double ep_min, double ep_max,
 
     if ((lastn) == nturn) dp1 = dp2;
 
-    getelem(lastpos,&Clost);
-    getelem(pos,&Cell);
+    Lattice.getelem(lastpos,&Clost);
+    Lattice.getelem(pos,&Cell);
     if (!trace)  printf("i=%4ld pos=%4ld dp=%6.4g\n",i,pos,dp2);
     fprintf(stdout,"pos=%4ld z0 =% 10.5f  pz0 =% 10.5f  \n", pos, tabz0[i-1L][pos-1L], tabpz0[i-1L][pos-1L]);
     fprintf(stdout,"%4ld %10.5f %10.5f %10.5f %*s\n", pos,Cell.S,dp1,Clost.S, 5, Clost.Elem.Name);
@@ -2479,7 +2479,7 @@ void set_vectorcod(psVector  codvector[], double dP)
   
   if (status.codflag == 1) { /* cod exists */
     for (k = 1L; k <= Lattice.param.Cell_nLoc; k++){
-      getelem(k,&Cell);
+      Lattice.getelem(k,&Cell);
       codvector[k] = Cell.BeamPos;
     }
     // cod at entrance of the ring is the one at the exit (1-periodicity)
@@ -2670,7 +2670,7 @@ void TracCO(double x, double px, double y, double py, double dp, double ctau,
   /* Get closed orbit */
   Lattice.Ring_GetTwiss(true, 0.0);
   Lattice.getcod(dp, lastpos);
-  getelem(pos-1,&Cell);
+  Lattice.getelem(pos-1,&Cell);
 
   if (!trace) printf("dp= % .5e %% xcod= % .5e mm zcod= % .5e mm \n",
              dp*1e2, Cell.BeamPos[0]*1e3, Cell.BeamPos[2]*1e3);
@@ -2746,7 +2746,7 @@ void getA4antidamping()
 
   for (i = 0; i <= Lattice.param.Cell_nLoc; i++)
   {
-    getelem(i, &Cell); /* get element */
+    Lattice.getelem(i, &Cell); /* get element */
 
     if (Cell.Elem.Kind == Mpole)
     {
@@ -2764,7 +2764,7 @@ void getA4antidamping()
   Lattice.Ring_GetTwiss(true, 0.0);
   for (i = 0; i < nquad; i++)
   {
-    getelem(qlist[i],&Cell);
+    Lattice.getelem(qlist[i],&Cell);
     fprintf(stdout,"%d Name = %s L=%g A= %g etax=%g \n",
 	    i, Cell.Elem.Name, Cell.Elem.L, A,Cell.Eta[0]);
     A +=
@@ -3528,7 +3528,7 @@ void Enveloppe2(double x, double px, double y, double py, double dp, double ntur
   for (i = 0; i < Lattice.param.Cell_nLoc; i++) {
     /* loop over full ring: one turn for intialization */
 
-    getelem(i,&Cell);
+    Lattice.getelem(i,&Cell);
     Cell_Pass(i,i+1, x1, lastpos);
     if (lastpos != i+1) {
      printf("Unstable motion ...\n"); exit_(1);
@@ -3541,7 +3541,7 @@ void Enveloppe2(double x, double px, double y, double py, double dp, double ntur
     /* loop over full ring */
    for (i = 0; i<= Lattice.param.Cell_nLoc; i++) {
  
-      getelem(i, &Cell);
+      Lattice.getelem(i, &Cell);
       Cell_Pass(i, i+1, x1, lastpos);
       if (lastpos != i+1) {
 	printf("Unstable motion ...\n"); exit_(1);
@@ -3554,7 +3554,7 @@ void Enveloppe2(double x, double px, double y, double py, double dp, double ntur
   }
 
   for (i = 0; i <= Lattice.param.Cell_nLoc; i++) {
-    getelem(i, &Cell);
+    Lattice.getelem(i, &Cell);
     fprintf(outf,"%6.2f % .5e % .5e % .5e % .5e % .5e\n",
             Cell.S, Envxp[i],Envxm[i],Envzp[i],Envzm[i],dp);
   }

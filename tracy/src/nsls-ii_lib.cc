@@ -916,10 +916,10 @@ void LatticeType::prt_cod(const char *file_name, const int Fnum,
 	      Lattice.Cell[i].Beta[Y_], Lattice.Cell[i].Nu[Y_],
 	      1e3*Lattice.Cell[i].BeamPos[x_], 1e3*Lattice.Cell[i].BeamPos[y_],
 	      1e3*Lattice.Cell[i].dS[X_], 1e3*Lattice.Cell[i].dS[Y_],
-	      -1e3*Elem_GetKval(Lattice.Cell[i].Fnum, Lattice.Cell[i].Knum,
-				Dip),
-	      1e3*Elem_GetKval(Lattice.Cell[i].Fnum, Lattice.Cell[i].Knum,
-			       -Dip));
+	      -1e3*Lattice.Elem_GetKval(Lattice.Cell[i].Fnum,
+					Lattice.Cell[i].Knum,Dip),
+	      1e3*Lattice.Elem_GetKval(Lattice.Cell[i].Fnum,
+				       Lattice.Cell[i].Knum, -Dip));
     }
   }
   fclose(outf);
@@ -1923,9 +1923,10 @@ void set_ID_scl(const int Fnum, const double scl)
 }
 
 
-void SetFieldValues_fam(const int Fnum, const bool rms, const double r0,
-			const int n, const double Bn, const double An,
-			const bool new_rnd)
+void LatticeType::SetFieldValues_fam(const int Fnum, const bool rms,
+				     const double r0, const int n,
+				     const double Bn, const double An,
+				     const bool new_rnd)
 {
   int     N;
   double  bnr, anr;
@@ -1947,9 +1948,10 @@ void SetFieldValues_fam(const int Fnum, const bool rms, const double r0,
 }
 
 
-void SetFieldValues_type(const int N, const bool rms, const double r0,
-			 const int n, const double Bn, const double An,
-			 const bool new_rnd)
+void LatticeType::SetFieldValues_type(const int N, const bool rms,
+				      const double r0, const int n,
+				      const double Bn, const double An,
+				      const bool new_rnd)
 {
   double  bnr, anr;
 
@@ -1969,9 +1971,10 @@ void SetFieldValues_type(const int N, const bool rms, const double r0,
 }
 
 
-void SetFieldErrors(const char *name, const bool rms, const double r0,
-		    const int n, const double Bn, const double An,
-		    const bool new_rnd)
+void LatticeType::SetFieldErrors(const char *name, const bool rms,
+				 const double r0,
+				 const int n, const double Bn, const double An,
+				 const bool new_rnd)
 {
   int     Fnum;
 
@@ -2334,7 +2337,7 @@ double LatticeType::Touschek(const double Qb, const double delta_RF,
 }
 
 
-double f_IBS(const double chi_m)
+double LatticeType::f_IBS(const double chi_m)
 {
   // Interpolated integral (V. Litvinenko).
 
@@ -3181,7 +3184,8 @@ void LatticeType::dnu_dA(const double Ax_max, const double Ay_max,
 
   if (trace) printf("dnu_dAx\n");
 
-  nu_x = fract(Lattice.param.TotalTune[X_]); nu_y = fract(Lattice.param.TotalTune[Y_]);
+  nu_x = fract(Lattice.param.TotalTune[X_]);
+  nu_y = fract(Lattice.param.TotalTune[Y_]);
 
   fp = file_write("dnu_dAx.out");
   fprintf(fp, "#   A_x        A_y        J_x        J_y      nu_x    nu_y\n");
@@ -3205,7 +3209,8 @@ void LatticeType::dnu_dA(const double Ax_max, const double Ay_max,
 
   if (trace) printf("\n");
 
-  nu_x = fract(Lattice.param.TotalTune[X_]); nu_y = fract(Lattice.param.TotalTune[Y_]);
+  nu_x = fract(Lattice.param.TotalTune[X_]);
+  nu_y = fract(Lattice.param.TotalTune[Y_]);
 
   fprintf(fp, "\n");
   fprintf(fp, "%10.3e %10.3e %10.3e %10.3e %8.6f %8.6f\n",
@@ -3229,7 +3234,8 @@ void LatticeType::dnu_dA(const double Ax_max, const double Ay_max,
 
   if (trace) printf("dnu_dAy\n");
 
-  nu_x = fract(Lattice.param.TotalTune[X_]); nu_y = fract(Lattice.param.TotalTune[Y_]);
+  nu_x = fract(Lattice.param.TotalTune[X_]);
+  nu_y = fract(Lattice.param.TotalTune[Y_]);
 
   fp = file_write("dnu_dAy.out");
   fprintf(fp, "#   A_x        A_y      nu_x    nu_y\n");
@@ -3252,7 +3258,8 @@ void LatticeType::dnu_dA(const double Ax_max, const double Ay_max,
 
   if (trace) printf("\n");
 
-  nu_x = fract(Lattice.param.TotalTune[X_]); nu_y = fract(Lattice.param.TotalTune[Y_]);
+  nu_x = fract(Lattice.param.TotalTune[X_]);
+  nu_y = fract(Lattice.param.TotalTune[Y_]);
 
   fprintf(fp, "\n");
   fprintf(fp, "%10.3e %10.3e %10.3e %10.3e %8.6f %8.6f\n",
@@ -3313,7 +3320,7 @@ void LatticeType::get_alphac(void)
 {
   CellType  Cell;
 
-  getelem(Lattice.param.Cell_nLoc, &Cell);
+  Lattice.getelem(Lattice.param.Cell_nLoc, &Cell);
   Lattice.param.Alphac = Lattice.param.OneTurnMat[ct_][delta_]/Cell.S;
 }
 
@@ -3333,7 +3340,7 @@ void LatticeType::get_alphac2(void)
   CellType  Cell;
 
   Lattice.param.pathlength = false;
-  getelem(Lattice.param.Cell_nLoc, &Cell); n = 0;
+  Lattice.getelem(Lattice.param.Cell_nLoc, &Cell); n = 0;
   for (i = -n_points; i <= n_points; i++) {
     n++; delta[n-1] = i*(double)d_delta/(double)n_points;
     for (j = 0; j < nv_; j++)

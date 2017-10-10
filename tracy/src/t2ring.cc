@@ -726,8 +726,8 @@ void LatticeType::Ring_Fittune(Vector2 &nu, double eps, iVector2 &nq,
       printf("  Nux = %10.6f%10.6f, Nuy = %10.6f%10.6f,"
 	     " QF*L = % .5E, QD*L = % .5E @%3d\n",
 	     nu0[0], nu1[0], nu0[1], nu1[1],
-	     Elem_GetKval(Lattice.Cell[qf[0]].Fnum, 1, (long)Quad),
-	     Elem_GetKval(Lattice.Cell[qd[0]].Fnum, 1, (long)Quad), i);
+	     Lattice.Elem_GetKval(Lattice.Cell[qf[0]].Fnum, 1, (long)Quad),
+	     Lattice.Elem_GetKval(Lattice.Cell[qd[0]].Fnum, 1, (long)Quad), i);
   } while (sqrt(sqr(nu[0]-nu0[0])+sqr(nu[1]-nu0[1])) >= eps && i != imax);
 }
 #undef dP

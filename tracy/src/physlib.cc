@@ -1842,11 +1842,12 @@ void SetBpmdS(int Fnum, double dxrms, double dyrms)
 
 
 /****************************************************************************/
-void codstat(double *mean, double *sigma, double *xmax, long lastpos, bool all)
+void LatticeType::codstat(double *mean, double *sigma, double *xmax,
+			  long lastpos, bool all)
 {
-  long i, n, loc;
-  int      j;
-  Vector2  sum, sum2;
+  long    i, n, loc;
+  int     j;
+  Vector2 sum, sum2;
 
   for (j = 0; j < 2; j++) {
     sum[j] = 0e0; sum2[j] = 0e0; xmax[j] = 0e0;
@@ -2168,7 +2169,7 @@ double Sgn (double x)
 }
 
 
-void ChamberOff(void)
+void LatticeType::ChamberOff(void)
 {
   int i;
 
