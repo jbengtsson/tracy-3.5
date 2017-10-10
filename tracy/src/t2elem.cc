@@ -2125,13 +2125,13 @@ void getelem(long i, CellType *cellrec) { *cellrec = Lattice.Cell[i]; }
 void putelem(long i, CellType *cellrec) { Lattice.Cell[i] = *cellrec; }
 
 
-int Lattice_Type::GetnKid(const int Fnum1)
+int LatticeType::GetnKid(const int Fnum1)
 {
   return (Lattice.ElemFam[Fnum1-1].nKid);
 }
 
 
-long Lattice_Type::Elem_GetPos(const int Fnum1, const int Knum1)
+long LatticeType::Elem_GetPos(const int Fnum1, const int Knum1)
 {
   long int  loc;
 

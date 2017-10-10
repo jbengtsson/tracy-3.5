@@ -35,7 +35,6 @@ using namespace std;
 
 // Tracy-3
 #include "field.h"
-#include "mathlib.h"
 
 #if NO == 1
   // linear TPSA.
@@ -49,6 +48,8 @@ using namespace std;
 
 #include "tracy.h"
 #include "tracy_global.h"
+
+#include "mathlib.h"
 #include "ety.h"
 #include "eigenv.h"
 
@@ -59,13 +60,10 @@ using namespace std;
 
 #include "t2elem.h"
 #include "t2cell.h"
-#include "t2lat.h"
 #include "t2ring.h"
 
 #include "fft.h"
 
-//#include "physlib.h"
-//#include "nsls-ii_lib.h"
 #include "orb_corr.h"
 #include "param.h"
 #include "dynap.h"
@@ -77,23 +75,13 @@ using namespace std;
 #include "naffutils.h"
 #include "complexeheader_naff.h"
 
-//#include "soleillib.h"
-
-
-extern Lattice_Type Lattice;
 
 // Truncated Power Series Algebra (TPSA).
 extern const int  nv_tps, nd_tps, iref_tps;
 extern int        no_tps, ndpt_tps;
 extern double     eps_tps;
 
-extern ElemFamType ElemFam[];
-
-extern CellType Cell[];
-
-// From nsls-ii_lib.h.
-
-// Global parameters.
+extern LatticeType Lattice;
 
 extern ss_vect<tps> map;
 extern MNF_struct   MNF;

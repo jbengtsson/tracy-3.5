@@ -228,16 +228,6 @@ template void Cell_Pass(const long, const long, ss_vect<double> &, long &);
 template void Cell_Pass(const long, const long, ss_vect<tps> &, long &);
 
 
-Lattice_Type Lattice;
-
-statusrec status;
-bool      trace, traceID;
-bool      cellconcat;
-
-// Random stuff.
-long   rseed0, rseed;
-double normcut_;
-
 double d_sign(double a, double b)
 {
   double x;

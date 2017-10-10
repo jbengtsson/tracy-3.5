@@ -146,20 +146,20 @@ void recalc_S(void)
 }
 
 
-bool Lattice_Type::getcod(double dP, long &lastpos)
+bool LatticeType::getcod(double dP, long &lastpos)
 {
   return GetCOD(Lattice.param.CODimax, Lattice.param.CODeps, dP, lastpos);
 }
 
 
-void Lattice_Type::getabn(Vector2 &alpha, Vector2 &beta, Vector2 &nu)
+void LatticeType::getabn(Vector2 &alpha, Vector2 &beta, Vector2 &nu)
 {
   Vector2 gamma;
   Cell_GetABGN(Lattice.param.OneTurnMat, alpha, beta, gamma, nu);
 }
 
 
-void Lattice_Type::TraceABN(long i0, long i1, const Vector2 &alpha,
+void LatticeType::TraceABN(long i0, long i1, const Vector2 &alpha,
 			    const Vector2 &beta, const Vector2 &eta,
 			    const Vector2 &etap, const double dP)
 {
@@ -190,7 +190,7 @@ void Lattice_Type::TraceABN(long i0, long i1, const Vector2 &alpha,
 }
 
 
-void Lattice_Type::FitTune(long qf, long qd, double nux, double nuy)
+void LatticeType::FitTune(long qf, long qd, double nux, double nuy)
 {
   long      i;
   iVector2  nq = {0,0};
@@ -214,7 +214,7 @@ void Lattice_Type::FitTune(long qf, long qd, double nux, double nuy)
 }
 
 
-void Lattice_Type::FitChrom(long sf, long sd, double ksix, double ksiy)
+void LatticeType::FitChrom(long sf, long sd, double ksix, double ksiy)
 {
   long      i;
   iVector2  ns = {0,0};
@@ -239,7 +239,7 @@ void Lattice_Type::FitChrom(long sf, long sd, double ksix, double ksiy)
 }
 
 
-void Lattice_Type::FitDisp(long q, long pos, double eta)
+void LatticeType::FitDisp(long q, long pos, double eta)
 {
   long     i, nq;
   fitvect  qbuf;
@@ -255,7 +255,7 @@ void Lattice_Type::FitDisp(long q, long pos, double eta)
 
 #define nfloq           4
 
-void Lattice_Type::getfloqs(psVector &x)
+void LatticeType::getfloqs(psVector &x)
 {
   // Transform to Floquet space
   LinTrans(nfloq, Lattice.param.Ascrinv, x);
@@ -268,7 +268,7 @@ void Lattice_Type::getfloqs(psVector &x)
 
 // 4D tracking in normal or Floquet space over nmax turns
 
-void Lattice_Type::track(const char *file_name,
+void LatticeType::track(const char *file_name,
 			 double ic1, double ic2, double ic3, double ic4,
 			 double dp, long int nmax, long int &lastn,
 			 long int &lastpos, int floqs, double f_rf)
@@ -415,7 +415,7 @@ void Lattice_Type::track(const char *file_name,
 #define step            0.1
 #define px              0.0
 #define py              0.0
-void Lattice_Type::track_(double r, struct LOC_getdynap *LINK)
+void LatticeType::track_(double r, struct LOC_getdynap *LINK)
 {
   long i, lastn, lastpos;
   psVector x;
@@ -614,7 +614,7 @@ bool chk_if_lost(double x0, double y0, double delta,
        none
 
 ****************************************************************************/
-void Lattice_Type::getdynap(double &r, double phi, double delta, double eps,
+void LatticeType::getdynap(double &r, double phi, double delta, double eps,
 			    int nturn, bool floqs)
 {
   /* Determine dynamical aperture by binary search. */
@@ -674,7 +674,7 @@ void Lattice_Type::getdynap(double &r, double phi, double delta, double eps,
        none
 
 ****************************************************************************/
-void Lattice_Type::getcsAscr(void)
+void LatticeType::getcsAscr(void)
 {
   long i, j;
   double phi;
@@ -738,7 +738,7 @@ void Lattice_Type::getcsAscr(void)
        none
 
 ****************************************************************************/
-void Lattice_Type::dynap(FILE *fp, double r, const double delta,
+void LatticeType::dynap(FILE *fp, double r, const double delta,
 			 const double eps, const int npoint, const int nturn,
 			 double x[], double y[], const bool floqs,
 			 const bool cod, const bool print)
@@ -2369,7 +2369,7 @@ void GetTuneTrac(long Nbtour, double emax, double *nux, double *nuz)
        redundant with TransTwiss
 
 ****************************************************************************/
-void Lattice_Type::ttwiss(const Vector2 &alpha, const Vector2 &beta,
+void LatticeType::ttwiss(const Vector2 &alpha, const Vector2 &beta,
 			  const Vector2 &eta, const Vector2 &etap,
 			  const double dP)
 {

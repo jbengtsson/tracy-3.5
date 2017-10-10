@@ -132,6 +132,11 @@ struct LOC_Lattice_Read
 };
 
 
+LatticeType Lattice;
+// Should be moved to LatticeType.
+statusrec   status;
+bool        trace, traceID;
+
 const bool debug_lat = false;
 
 bool reverse_elem = false; // Beam Dynamics or Software Engineering reverse.
@@ -205,7 +210,7 @@ long *P_setunion(register long *d, register long *s1, register long *s2)
 }
 
 
-static long CheckElementtable(const char *name, struct LOC_Lattice_Read *LINK)
+long CheckElementtable(const char *name, struct LOC_Lattice_Read *LINK)
 {
   /* Lattice.param.Elem_nFam = Number of parts in a Element */
   long  i, j, FORLIM;
@@ -4208,7 +4213,7 @@ void PrintResult(struct LOC_Lattice_Read *LINK)
 }
 
 
-bool Lattice_Type::Lattice_Read(FILE **fi_, FILE **fo_)
+bool LatticeType::Lattice_Read(FILE **fi_, FILE **fo_)
 {
   struct LOC_Lattice_Read V;
 
@@ -4266,7 +4271,7 @@ bool Lattice_Type::Lattice_Read(FILE **fi_, FILE **fo_)
 #undef tmax
 
 
-void Lattice_Type::Read_Lattice(const char *fic)
+void LatticeType::Read_Lattice(const char *fic)
 {
   bool     status;
   char     fic_maille[S_SIZE+4] = "", fic_erreur[S_SIZE+4] = "";
@@ -4362,7 +4367,7 @@ void Lattice_Type::Read_Lattice(const char *fic)
 }
 
 
-long Lattice_Type::Elem_Index(const std::string &name)
+long LatticeType::Elem_Index(const std::string &name)
 {
   long    i, j;
   std::string  name1;

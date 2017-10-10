@@ -123,7 +123,7 @@ void get_kind(const int kind, elemtype &Elem)
 }
 
 
-void Lattice_Type::rdmfile(const char *mfile_dat)
+void LatticeType::rdmfile(const char *mfile_dat)
 {
   char      line[max_str], file_name[max_str];
   int       j, k, nmpole, kind, method, n;

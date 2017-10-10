@@ -88,11 +88,6 @@ template<typename T>
 void Solenoid_Pass(CellType &Cell, ss_vect<T> &x);
 
 
-void getelem(long i, CellType *cellrec);
-
-void putelem(long i, CellType *cellrec);
-
- 
 void Mpole_Print(FILE *f, int Fnum1);
 
 void Drift_Print(FILE *f, int Fnum1);
@@ -156,30 +151,3 @@ void Spreader_Init(int Fnum1);
 void Recombiner_Init(int Fnum1);
 
 void Solenoid_Init(int Fnum1);
-
-
-double Elem_GetKval(int Fnum1, int Knum1, int Order);
-
-void Mpole_SetB(int Fnum1, int Knum1, int Order);
-
-double Mpole_GetB(int Fnum1, int Knum1, int Order);
-
-  void Mpole_DefBpar(int Fnum1, int Knum1, int Order, double Bpar);
-
-void Mpole_DefBsys(int Fnum1, int Knum1, int Order, double Bsys);
-
-void Mpole_SetdS(int Fnum1, int Knum1);
-
-void Mpole_SetdT(int Fnum1, int Knum1);
-
-double Mpole_GetdT(int Fnum1, int Knum1);
-
-void Mpole_DefdTpar(int Fnum1, int Knum1, double PdTpar);
-
-void Mpole_DefdTsys(int Fnum1, int Knum1, double PdTsys);
-
-void Wiggler_SetB(int Fnum1, int Knum1, int Order);
-
-void Wiggler_SetdS(int Fnum1, int Knum1);
-
-void Wiggler_SetdT(int Fnum1, int Knum1);

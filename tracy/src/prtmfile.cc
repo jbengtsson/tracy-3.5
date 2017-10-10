@@ -103,7 +103,7 @@ void prtHOM(FILE *fp, const int n_design, const mpolArray B, const int Order)
 }
 
 
-void Lattice_Type::prtmfile(const char mfile_dat[])
+void LatticeType::prtmfile(const char mfile_dat[])
 {
   int     i, j;
   FILE    *mfile;

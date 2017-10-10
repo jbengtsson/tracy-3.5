@@ -11,6 +11,9 @@
 // missing in lstdc++
 //template double std::__cmath_power<double>(double, unsigned);
 
+long int rseed0, rseed;
+double   normcut_;
+
 double log(const int k) { return log((double)k); }
 
 
@@ -32,7 +35,7 @@ struct LOC_InvMat
   Matrix  *a;
   long    row, column;
   double  determ;
-} ;
+};
 
 void iniranf(const long i)
 {

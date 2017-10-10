@@ -360,7 +360,7 @@ double get_curly_H(const double alpha_x, const double beta_x,
 }
 
 
-double Lattice_Type::get_eps_x(void)
+double LatticeType::get_eps_x(void)
 {
   bool         cav, emit;
   long int     lastpos;
@@ -410,7 +410,7 @@ double Lattice_Type::get_eps_x(void)
 }
 
 
-void Lattice_Type::GetEmittance(const int Fnum, const bool prt)
+void LatticeType::GetEmittance(const int Fnum, const bool prt)
 {
   // A. Chao "Evaluation of Beam Distribution Parameters in an Electron
   // Storage Ring" J. Appl. Phys 50 (2), 595-598.
@@ -607,7 +607,7 @@ double get_code(CellType &Cell)
 }
 
 
-void Lattice_Type::prt_lat(const int loc1, const int loc2, const char *fname,
+void LatticeType::prt_lat(const int loc1, const int loc2, const char *fname,
 			   const int Fnum, const bool all)
 {
   long int i = 0;
@@ -647,13 +647,13 @@ void Lattice_Type::prt_lat(const int loc1, const int loc2, const char *fname,
 }
 
 
-void Lattice_Type::prt_lat(const char *fname, const int Fnum, const bool all)
+void LatticeType::prt_lat(const char *fname, const int Fnum, const bool all)
 {
   prt_lat(0, Lattice.param.Cell_nLoc, fname, Fnum, all);
 }
 
 
-void Lattice_Type::Cell_Twiss(const long int i0, const long int i1) {
+void LatticeType::Cell_Twiss(const long int i0, const long int i1) {
   long int     i;
   int          k, nu_int[2];
   double       alpha[2], beta[2], dnu[2], eta[2], etap[2];
@@ -685,7 +685,7 @@ void Lattice_Type::Cell_Twiss(const long int i0, const long int i1) {
 }
 
 
-void Lattice_Type::prt_lat(const int loc1, const int loc2, const char *fname,
+void LatticeType::prt_lat(const int loc1, const int loc2, const char *fname,
 			   const int Fnum, const bool all, const int n)
 {
   long int        i = 0;
@@ -807,14 +807,14 @@ void Lattice_Type::prt_lat(const int loc1, const int loc2, const char *fname,
 }
 
 
-void Lattice_Type::prt_lat(const char *fname, const int Fnum, const bool all,
+void LatticeType::prt_lat(const char *fname, const int Fnum, const bool all,
 			   const int n)
 {
   prt_lat(0, Lattice.param.Cell_nLoc, fname, Fnum, all, n);
 }
 
 
-void Lattice_Type::prt_chrom_lat(void)
+void LatticeType::prt_chrom_lat(void)
 {
   long int i;
   double   dbeta_ddelta[Cell_nLocMax][2], detax_ddelta[Cell_nLocMax];
@@ -882,7 +882,7 @@ void Lattice_Type::prt_chrom_lat(void)
 }
 
 
-void Lattice_Type::prt_cod(const char *file_name, const int Fnum,
+void LatticeType::prt_cod(const char *file_name, const int Fnum,
 			   const bool all)
 {
   long   i;
@@ -926,7 +926,7 @@ void Lattice_Type::prt_cod(const char *file_name, const int Fnum,
 }
 
 
-void Lattice_Type::prt_beampos(const char *file_name)
+void LatticeType::prt_beampos(const char *file_name)
 {
   long int k;
   FILE     *outf;
@@ -949,7 +949,7 @@ void Lattice_Type::prt_beampos(const char *file_name)
 
 // misalignments
 
-void Lattice_Type::CheckAlignTol(const char *OutputFile)
+void LatticeType::CheckAlignTol(const char *OutputFile)
   // check aligment errors of individual magnets on giders
   // the dT and roll angle are all printed out
 {
@@ -1994,7 +1994,7 @@ void SetFieldErrors(const char *name, const bool rms, const double r0,
 
 
 // closed orbit correction by n_orbit iterations
-bool Lattice_Type::CorrectCOD(const int n_orbit, const double scl)
+bool LatticeType::CorrectCOD(const int n_orbit, const double scl)
 {
   bool            cod;
   int             i;
@@ -2044,7 +2044,7 @@ bool Lattice_Type::CorrectCOD(const int n_orbit, const double scl)
 }
 
 
-void Lattice_Type::prt_beamsizes()
+void LatticeType::prt_beamsizes()
 {
   int   k;
   FILE  *fp;
@@ -2134,7 +2134,7 @@ double Touschek_loc(const long int i, const double gamma,
 }
 
 
-double Lattice_Type::Touschek(const double Qb, const double delta_RF,
+double LatticeType::Touschek(const double Qb, const double delta_RF,
 			      const double eps_x, const double eps_y,
 			      const double sigma_delta, const double sigma_s)
 {
@@ -2236,7 +2236,7 @@ void mom_aper(double &delta, double delta_RF, const long int k,
 }
 
 
-double Lattice_Type::Touschek(const double Qb, const double delta_RF,
+double LatticeType::Touschek(const double Qb, const double delta_RF,
 			      const bool consistent,
 			      const double eps_x, const double eps_y,
 			      const double sigma_delta, double sigma_s,
@@ -2376,7 +2376,7 @@ double get_int_IBS(void)
 }
 
 
-void Lattice_Type::IBS(const double Qb, const double eps_SR[], double eps[],
+void LatticeType::IBS(const double Qb, const double eps_SR[], double eps[],
 		       const bool prt1, const bool prt2)
 {
   /* J. Le Duff "Single and Multiple Touschek Effects" (e.g. CERN 89-01)
@@ -2538,7 +2538,7 @@ double get_int_IBS_BM(void)
 }
 
 
-void Lattice_Type::IBS_BM(const double Qb, const double eps_SR[], double eps[],
+void LatticeType::IBS_BM(const double Qb, const double eps_SR[], double eps[],
 			  const bool prt1, const bool prt2)
 {
   // J. Bjorken, S. K. Mtingwa "Intrabeam Scattering" Part. Accel. 13, 115-143
@@ -2969,7 +2969,7 @@ void get_bn(const char file_name[], int n, const bool prt)
 }
 
 
-double Lattice_Type::get_dynap(const double delta, const int n_aper,
+double LatticeType::get_dynap(const double delta, const int n_aper,
 			       const int n_track, const bool cod)
 {
   char      str[max_str];
@@ -3062,7 +3062,7 @@ void pol_fit(int n, double x[], double y[], int order, psVector &b,
 }
 
 
-void Lattice_Type::get_ksi2(const double d_delta)
+void LatticeType::get_ksi2(const double d_delta)
 {
   const int     n_points = 20, order = 5;
 
@@ -3162,7 +3162,7 @@ bool get_nu(const double Ax, const double Ay, const double delta,
 }
 
 
-void Lattice_Type::dnu_dA(const double Ax_max, const double Ay_max,
+void LatticeType::dnu_dA(const double Ax_max, const double Ay_max,
 			  const double delta, const int n_ampl)
 {
   bool      ok;
@@ -3275,7 +3275,7 @@ void Lattice_Type::dnu_dA(const double Ax_max, const double Ay_max,
 }
 
 
-bool Lattice_Type::orb_corr(const int n_orbit)
+bool LatticeType::orb_corr(const int n_orbit)
 {
   bool      cod = false;
   int       i;
@@ -3309,7 +3309,7 @@ bool Lattice_Type::orb_corr(const int n_orbit)
 }
 
 
-void Lattice_Type::get_alphac(void)
+void LatticeType::get_alphac(void)
 {
   CellType  Cell;
 
@@ -3318,7 +3318,7 @@ void Lattice_Type::get_alphac(void)
 }
 
 
-void Lattice_Type::get_alphac2(void)
+void LatticeType::get_alphac2(void)
 {
   /* Note, do not extract from M[5][4], i.e. around delta
      dependent fixed point.                                */

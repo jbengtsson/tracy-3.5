@@ -2,8 +2,8 @@
 
 #include "tracy_lib.h"
 
-int  no_tps   = NO,
-     ndpt_tps = 5;
+int no_tps   = NO,
+    ndpt_tps = 5;
 
 
 const int n_alphac = 3;
