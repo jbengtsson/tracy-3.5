@@ -8,17 +8,9 @@
    J. Bengtsson                2017          C to C++ re-factoring.           */
 
 
-#define PLANES 2
-
-
-// Max number of LEGO blocks (Cell_nLoc).
-#define Cell_nLocMax 20000
-
-// Max number of families for Elem_NFam.
-#define Elem_nFamMax 3000
-
-// Max number of kids.
-#define nKidMax 5000
+#define Cell_nLocMax 20000 // Max number of LEGO blocks (Cell_nLoc).
+#define Elem_nFamMax 3000  // Max number of families for Elem_NFam.
+#define nKidMax      5000  // Max number of kids.
 
 // ID Laurent.
 #define IDXMAX 200
@@ -76,16 +68,16 @@ class CellType {
   double    S;               // Position in the ring.
   CellType* next_ptr;        // pointer to next cell (for tracking).
   Vector2   dS,              // Transverse displacement.
-    dT;              // dT = (cos(dT), sin(dT)).
+            dT;              // dT = (cos(dT), sin(dT)).
   elemtype  Elem;            // Structure (name, type).
   Vector2   Nu,              // Phase advances.
-    Alpha,           // Alpha functions (redundant).
-    Beta,            // beta fonctions (redundant).
-    Eta, Etap;       // dispersion and its derivative (redundant).
+            Alpha,           // Alpha functions (redundant).
+            Beta,            // beta fonctions (redundant).
+            Eta, Etap;       // dispersion and its derivative (redundant).
   psVector  BeamPos;         // Last position of the beam this cell.
   Matrix    A,               // Floquet space to phase space transformation.
-    sigma;           // sigma matrix (redundant).
-  Vector2   maxampl[PLANES]; /* Horizontal and vertical physical apertures:
+            sigma;           // sigma matrix (redundant).
+  Vector2   maxampl[2];      /* Horizontal and vertical physical apertures:
 				maxampl[X_][0] < x < maxampl[X_][1]
 				maxampl[Y_][0] < y < maxampl[Y_][1]. */
 
