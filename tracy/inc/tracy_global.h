@@ -743,3 +743,9 @@ class LatticeType {
 
   void set_tune(const char file_name1[], const char file_name2[], const int n);
 };
+
+
+void t2init(void);
+
+template<typename T>
+void p_rot(double phi, ss_vect<T> &x);

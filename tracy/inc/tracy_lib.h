@@ -58,7 +58,6 @@ using namespace std;
 #include "radia2tracy.h"
 #include "pascalio.h"
 
-#include "t2elem.h"
 #include "t2cell.h"
 #include "t2ring.h"
 
@@ -81,12 +80,6 @@ extern LatticeType Lattice;
 extern bool   sympl;
 extern int    FieldMap_filetype;
 extern double cl_rad, q_fluct, I2, I4, I5;
-
-
-// From t2elem.h.
-
-template<typename T>
-void p_rot(double phi, ss_vect<T> &x);
 
 
 // From physlib.h.
@@ -141,7 +134,6 @@ void Dis_In(long *bpmdis, long *vcorrdis, long *hcorrdis,
 	    long *wvdis, long *whdis);
 
 int Newton_Raphson(int n, psVector &x, int ntrial, double tolx);
-
 void Newton_RaphsonS(int ntrial, double x[], int n, double tolx);
 
 
@@ -416,8 +408,6 @@ void GDiag(int n, double C, Matrix &A, Matrix &Ainv, Matrix &R, Matrix &M,
 	   double &Omega, double &Yalphac);
 void NormEigenVec(Matrix &Vr, Matrix &Vi, double *wr, double *wi, Matrix &t6a);
 
-
-void t2init(void);
 
 void prt_gcmat(int bpm, int corr, int plane);
 
