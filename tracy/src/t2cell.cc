@@ -278,27 +278,27 @@ void Cell_Init(void)
       printf("Cell_Init, i:=%3ld: %*s\n", i, SymbolLength, elemp->Name);
     switch (elemp->Kind) {
     case drift:
-      Drift_Init(i);
+      elemp->D->Drift_Init(i);
       break;
       
     case Mpole:
-      Mpole_Init(i);
+      elemp->M->Mpole_Init(i);
       break;
       
     case Wigl:
-      Wiggler_Init(i);
+      elemp->W->Wiggler_Init(i);
       break;
       
     case FieldMap:
-      FieldMap_Init(i);
+      elemp->FM->FieldMap_Init(i);
       break;
       
     case Insertion:
-      Insertion_Init(i);
+      elemp->ID->Insertion_Init(i);
       break;
 
     case Cavity:
-      Cav_Init(i);
+      elemp->C->Cav_Init(i);
       break;
 
     case marker:
@@ -306,15 +306,15 @@ void Cell_Init(void)
       break;
 
     case Spreader:
-      Spreader_Init(i);
+      elemp->Spr->Spreader_Init(i);
       break;
 
     case Recombiner:
-      Recombiner_Init(i);
+      elemp->Rec->Recombiner_Init(i);
       break;
 
     case Solenoid:
-      Solenoid_Init(i);
+      elemp->Sol->Solenoid_Init(i);
       break;
 
     default:

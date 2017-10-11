@@ -2287,49 +2287,13 @@ void Elem_Print(FILE *f, int Fnum1)
 }
 
 
-#define n 4
-void LinsTrans(Matrix &A, psVector &b)
-{
-  int     j;
-  psVector  c;
-
-  CopyVec(n, b, c); /* c=b */
-  LinTrans(n, A, c); /* c<-A*c */
-  for (j = 0; j < n; j++)
-    c[j] += A[j][n]*b[n] + A[n][j];
-  CopyVec(n, c, b); /* b=c */
-}
-#undef n
-
-
-#define n 4
-void MulLsMat(Matrix &A, Matrix &B)
-{
-  int     i, k;
-  Matrix  C;
-
-  CopyMat(n, B, C); /* C<-B */
-  MulLMat(n, A, C); /* C<-A*C */
-  for (i = 0; i < n; i++) {
-    C[i][n] = A[i][n]; C[n][i] = 0e0;
-    for (k = 0; k < n; k++) {
-      C[i][n] += A[i][k]*B[k][n];
-      C[n][i] += A[i][k]*B[n][k];
-    }
-  }
-  C[n][n] = 1e0;
-  CopyMat(n+1, C, B); /* B<-C */
-}
-#undef n
-
-
-void Drift_Alloc(elemtype *Elem)
+void DriftType::Drift_Alloc(elemtype *Elem)
 {
   Elem->D = (DriftType *)malloc(sizeof(DriftType));
 }
 
 
-void Mpole_Alloc(elemtype *Elem)
+void MpoleType::Mpole_Alloc(elemtype *Elem)
 {
   int        j;
   MpoleType  *M;
@@ -2361,7 +2325,7 @@ void Mpole_Alloc(elemtype *Elem)
 }
 
 
-void Cav_Alloc(elemtype *Elem)
+void CavityType::Cav_Alloc(elemtype *Elem)
 {
   CavityType *C;
 
@@ -2372,7 +2336,7 @@ void Cav_Alloc(elemtype *Elem)
 }
 
 
-void Wiggler_Alloc(elemtype *Elem)
+void WigglerType::Wiggler_Alloc(elemtype *Elem)
 {
   int          j;
   WigglerType  *W;
@@ -2396,7 +2360,7 @@ void Wiggler_Alloc(elemtype *Elem)
 }
 
 
-void FieldMap_Alloc(elemtype *Elem)
+void FieldMapType::FieldMap_Alloc(elemtype *Elem)
 {
   FieldMapType  *FM;
 
@@ -2406,7 +2370,7 @@ void FieldMap_Alloc(elemtype *Elem)
 }
 
 
-void Insertion_Alloc(elemtype *Elem)
+void InsertionType::Insertion_Alloc(elemtype *Elem)
 {
   int            i = 0, j = 0;
   InsertionType  *ID;
@@ -2458,7 +2422,7 @@ void Insertion_Alloc(elemtype *Elem)
 }
 
 
-void Spreader_Alloc(elemtype *Elem)
+void SpreaderType::Spreader_Alloc(elemtype *Elem)
 {
   int  k;
 
@@ -2469,13 +2433,13 @@ void Spreader_Alloc(elemtype *Elem)
 }
 
 
-void Recombiner_Alloc(elemtype *Elem)
+void RecombinerType::Recombiner_Alloc(elemtype *Elem)
 {
   Elem->Rec = (RecombinerType *)malloc(sizeof(RecombinerType));
 }
 
 
-void Solenoid_Alloc(elemtype *Elem)
+void SolenoidType::Solenoid_Alloc(elemtype *Elem)
 {
   int           j;
   SolenoidType  *Sol;
@@ -2489,7 +2453,7 @@ void Solenoid_Alloc(elemtype *Elem)
 }
 
 
-void Drift_Init(int Fnum1)
+void DriftType::Drift_Init(int Fnum1)
 {
   int          i;
   ElemFamType  *elemfamp;
@@ -2535,7 +2499,7 @@ int Updateorder(elemtype &Elem)
 }
 
 
-void Mpole_Init(int Fnum1)
+void MpoleType::Mpole_Init(int Fnum1)
 {
   int          i;
   double       phi;
@@ -2590,7 +2554,7 @@ void Mpole_Init(int Fnum1)
 
 
 #define ORDER 2
-void Wiggler_Init(int Fnum1)
+void WigglerType::Wiggler_Init(int Fnum1)
 {
   int         i;
   ElemFamType *elemfamp;
@@ -3214,7 +3178,7 @@ void get_B_Oleg2(const char *filename, FieldMapType *FM)
 }
 
 
-void get_B(const char *filename, FieldMapType *FM)
+void FieldMapType::get_B(const char *filename, FieldMapType *FM)
 {
   // Do not scale fieldmaps only Hamiltonians, i.e., the kick.  Note that RADIA
   // (2nd order) kick maps are quadratic in the field, and 1st order linear.
@@ -3240,7 +3204,7 @@ void get_B(const char *filename, FieldMapType *FM)
 }
 
 
-void FieldMap_Init(int Fnum1)
+void FieldMapType::FieldMap_Init(int Fnum1)
 {
   int          i;
   ElemFamType  *elemfamp;
@@ -3262,7 +3226,7 @@ void FieldMap_Init(int Fnum1)
 }
 
 
-void Cav_Init(int Fnum1)
+void CavityType::Cav_Init(int Fnum1)
 {
   int          i;
   ElemFamType  *elemfamp;
@@ -3294,7 +3258,7 @@ void Marker_Init(int Fnum1)
 }
 
 
-void Insertion_Init(int Fnum1)
+void InsertionType::Insertion_Init(int Fnum1)
 {
   int          i;
   ElemFamType  *elemfamp;
@@ -3319,7 +3283,7 @@ void Insertion_Init(int Fnum1)
 }
 
 
-void Spreader_Init(int Fnum1)
+void SpreaderType::Spreader_Init(int Fnum1)
 {
   int          i;
   ElemFamType  *elemfamp;
@@ -3346,7 +3310,7 @@ void Spreader_Init(int Fnum1)
 }
 
 
-void Recombiner_Init(int Fnum1)
+void RecombinerType::Recombiner_Init(int Fnum1)
 {
   int          i;
   ElemFamType  *elemfamp;
@@ -3358,7 +3322,7 @@ void Recombiner_Init(int Fnum1)
     /* Get in Cell kid # i from Family Fnum1 */
     cellp = &Lattice.Cell[elemfamp->KidList[i-1]]; elemp = &cellp->Elem;
     /* Dynamic memory allocation for element */
-    Spreader_Alloc(elemp);
+    Recombiner_Alloc(elemp);
     /* copy low level routine */
     memcpy(elemp->Name, elemfamp->ElemF.Name, sizeof(partsName));
     /* set the kind of element */
@@ -3373,7 +3337,7 @@ void Recombiner_Init(int Fnum1)
 }
 
 
-void Solenoid_Init(int Fnum1)
+void SolenoidType::Solenoid_Init(int Fnum1)
 {
   int          i;
   ElemFamType  *elemfamp;

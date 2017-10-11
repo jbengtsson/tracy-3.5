@@ -90,29 +90,29 @@ void get_kind(const int kind, elemtype &Elem)
     break;
   case drift_:
     Elem.Kind = PartsKind(drift);
-    Drift_Alloc(&Elem);
+    Elem.D->Drift_Alloc(&Elem);
     break;
   case mpole_:
     Elem.Kind = PartsKind(Mpole);
-    Mpole_Alloc(&Elem);
+    Elem.M->Mpole_Alloc(&Elem);
     Elem.M->thick = pthicktype(thick);
     break;
   case cavity_:
     Elem.Kind = PartsKind(Cavity);
-    Cav_Alloc(&Elem);
+    Elem.C->Cav_Alloc(&Elem);
     break;
   case thinkick_:
     Elem.Kind = PartsKind(Mpole);
-    Mpole_Alloc(&Elem);
+    Elem.M->Mpole_Alloc(&Elem);
     Elem.M->thick = pthicktype(thin);
     break;
   case wiggler_:
     Elem.Kind = PartsKind(Wigl);
-    Wiggler_Alloc(&Elem);
+    Elem.W->Wiggler_Alloc(&Elem);
     break;
   case insertion_:
     Elem.Kind = PartsKind(Insertion);
-    Insertion_Alloc(&Elem);
+    Elem.ID->Insertion_Alloc(&Elem);
     break;
   default:
     std::cout << "get_kind: unknown type " << kind << " "
@@ -280,7 +280,8 @@ void LatticeType::rdmfile(const char *mfile_dat)
       sscanf(line, "%d", &Lattice.Cell[i].Elem.W->n_harm);
 
       if (Lattice.Cell[i].Knum == 1)
-	Wiggler_Alloc(&Lattice.ElemFam[Lattice.Cell[i].Fnum-1].ElemF);
+	Lattice.Cell[i].Elem.W->Wiggler_Alloc
+	  (&Lattice.ElemFam[Lattice.Cell[i].Fnum-1].ElemF);
       for (j = 0; j < Lattice.Cell[i].Elem.W->n_harm; j++) {
 	inf.getline(line, max_str);
 	if (prt) printf("%s\n", line);

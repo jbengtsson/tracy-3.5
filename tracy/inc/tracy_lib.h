@@ -78,6 +78,16 @@ using namespace std;
 
 extern LatticeType Lattice;
 
+extern bool   sympl;
+extern int    FieldMap_filetype;
+extern double cl_rad, q_fluct, I2, I4, I5;
+
+
+// From t2elem.h.
+
+template<typename T>
+void p_rot(double phi, ss_vect<T> &x);
+
 
 // From physlib.h.
 
@@ -87,9 +97,8 @@ void GetMean(long n, double *x);
 
 void printglob(void);
 
-void PrintMat(long n, psVector *A);
-
 void PrintVec(long n, double *X);
+void PrintMat(long n, psVector *A);
 
 double get_aper(int n, double x[], double y[]);
 
@@ -103,35 +112,20 @@ double Fract(double x);
 double GetArg(double x, double px, double nu);
 
 void GetPhi(long n, double *x, double *px, double *y, double *py);
-
 void Sinfft(int n, double *xr);
-
 void sin_FFT(int n, double xr[]);
-
 void sin_FFT(int n, double xr[], double xi[]);
-
 void GetInd(int n, int k, int *ind1, int *ind3);
-
 void GetInd1(int n, int k, int *ind1, int *ind3);
-
 void GetPeak(int n, double *x, int *k);
-
 void GetPeak1(int n, double *x, int *k);
-
 double Int2snu(int n, double *x, int k);
-
 double Sinc(double omega);
-
 double intsampl(int n, double *x, double nu, int k);
-
 double linint(int n, int k, double nu, double *x);
-
 void FndRes(struct LOC_findres *LINK);
-
 void FindRes(int n_, double nux_, double nuy_, double f_, int *nx_, int *ny_);
-
 void GetPeaks(int n, double *x, int nf, double *nu, double *A);
-
 void GetPeaks1(int n, double *x, int nf, double *nu, double *A);
 
 double Sgn (double x);
@@ -154,19 +148,14 @@ void Newton_RaphsonS(int ntrial, double x[], int n, double tolx);
 // From nsls-ii_lib.h.
 
 void file_rd(std::ifstream &inf, const string &file_name);
-
 void file_wr(std::ofstream &outf, const string &file_name);
-
 void file_rd(std::ifstream &inf, const char file_name[]);
-
 void file_wr(std::ofstream &outf, const char file_name[]);
 
 FILE* file_read(const char file_name[]);
-
 FILE* file_write(const char file_name[]);
 
 void lwr_case(char str[]);
-
 void upr_case(char str[]);
 
 //void prt_trace (void);
@@ -220,23 +209,18 @@ bool get_nu(const double Ax, const double Ay, const double delta,
 void misalign_rms_elem(const int Fnum, const int Knum,
 		       const double dx_rms, const double dy_rms,
 		       const double dr_rms, const bool new_rnd);
-
 void misalign_sys_elem(const int Fnum, const int Knum,
 		       const double dx_sys, const double dy_sys,
 		       const double dr_sys);
-
 void misalign_rms_fam(const int Fnum,
 		      const double dx_rms, const double dy_rms,
 		      const double dr_rms, const bool new_rnd);
-
 void misalign_sys_fam(const int Fnum,
 		      const double dx_sys, const double dy_sys,
 		      const double dr_sys);
-
 void misalign_rms_type(const int type,
 		       const double dx_rms, const double dy_rms,
 		       const double dr_rms, const bool new_rnd);
-
 void misalign_sys_type(const int type,
 		       const double dx_sys, const double dy_sys,
 		       const double dr_sys);
@@ -244,7 +228,6 @@ void misalign_sys_type(const int type,
 void misalign_rms_girders(const int gs, const int ge,
 			  const double dx_rms, const double dy_rms,
 			  const double dr_rms, const bool new_rnd);
-
 void misalign_sys_girders(const int gs, const int ge,
 			  const double dx_sys, const double dy_sys,
 			  const double dr_sys);
@@ -252,96 +235,68 @@ void misalign_sys_girders(const int gs, const int ge,
 void set_aper_elem(const int Fnum, const int Knum,
 		   const double Dxmin, const double Dxmax,
 		   const double Dymin, const double Dymax);
-
 void set_aper_fam(const int Fnum,
 		  const double Dxmin, const double Dxmax,
 		  const double Dymin, const double Dymax);
-
 void set_aper_type(const int type,
 		   const double Dxmin, const double Dxmax,
 		   const double Dymin, const double Dymax);
 
 double get_L(const int Fnum, const int Knum);
-
 void set_L(const int Fnum, const int Knum, const double L);
-
 void set_L(const int Fnum, const double L);
-
 void set_dL(const int Fnum, const int Knum, const double dL);
-
 void set_dL(const int Fnum, const double dL);
 
 void get_bn_design_elem(const int Fnum, const int Knum,
 			const int n, double &bn, double &an);
-
 void get_bnL_design_elem(const int Fnum, const int Knum,
 			 const int n, double &bnL, double &anL);
-
 void set_bn_design_elem(const int Fnum, const int Knum,
 			const int n, const double bn, const double an);
-
 void set_dbn_design_elem(const int Fnum, const int Knum,
 			 const int n, const double dbn, const double dan);
-
 void set_bn_design_fam(const int Fnum,
 		       const int n, const double bn, const double an);
-
 void set_dbn_design_fam(const int Fnum,
 			const int n, const double dbn, const double dan);
-
 void set_bnL_design_elem(const int Fnum, const int Knum,
 			 const int n, const double bnL, const double anL);
-
 void set_dbnL_design_elem(const int Fnum, const int Knum,
 			  const int n, const double dbnL, const double danL);
-
 void set_bnL_design_fam(const int Fnum,
 			const int n, const double bnL, const double anL);
-
 void set_dbnL_design_fam(const int Fnum,
 			 const int n, const double dbnL, const double danL);
-
 void set_bnL_design_type(const int type,
 			 const int n, const double bnL, const double anL);
-
 void set_bnL_sys_elem(const int Fnum, const int Knum,
 		      const int n, const double bnL, const double anL);
-
 void set_bnL_sys_fam(const int Fnum,
 		     const int n, const double bnL, const double anL);
-
 void set_bnL_sys_type(const int type,
 		      const int n, const double bnL, const double anL);
-
 void set_bnL_rms_elem(const int Fnum, const int Knum,
 		      const int n, const double bnL, const double anL,
 		      const bool new_rnd);
-
 void set_bnL_rms_fam(const int Fnum,
 		     const int n, const double bnL, const double anL,
 		     const bool new_rnd);
-
 void set_bnL_rms_type(const int type,
 		      const int n, const double bnL, const double anL,
 		      const bool new_rnd);
-
 void set_bnr_sys_elem(const int Fnum, const int Knum,
 		      const int n, const double bnr, const double anr);
-
 void set_bnr_sys_fam(const int Fnum,
 		     const int n, const double bnr, const double anr);
-
 void set_bnr_sys_type(const int type,
 		      const int n, const double bnr, const double anr);
-
 void set_bnr_rms_elem(const int Fnum, const int Knum,
 		      const int n, const double bnr, const double anr,
 		      const bool new_rnd);
-
 void set_bnr_rms_fam(const int Fnum,
 		     const int n, const double bnr, const double anr,
 		     const bool new_rnd);
-
 void set_bnr_rms_type(const int type,
 		      const int n, const double bnr, const double anr,
 		      const bool new_rnd);
@@ -382,7 +337,6 @@ void Check_Trac(double x, double px, double y, double py, double dp);
 void PhasePortrait(double x0, double px0, double z0, double pz0,
 		   double delta0, double ctau, double end, long Nb,
 		   long Nbtour, int num);
-
 void PhasePortrait2(long pos, double x0, double px0, double z0, double pz0,
 		    double delta0, double ctau, double end, long Nb,
 		    long Nbtour, int num);
@@ -434,7 +388,6 @@ void ChamberOn(void);
 void PhaseLongitudinalHamiltonien(void);
 
 void PassA(double *phi, double delta0, double step);
-
 void PassB(double phi0, double *delta, double step);
 
 double Hsynchrotron(double phi, double delta);

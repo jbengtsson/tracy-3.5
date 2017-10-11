@@ -5,7 +5,7 @@
    M. Boege      SLS, PSI      1998          Pascal to C translation,
    L. Nadolski   SOLEIL        2002          Link to NAFF and Radia field maps,
    J. Bengtsson  NSLS-II, BNL  2004 - 2015,
-   J. Bengtsson                2017          C to C++ re-factoring.           */
+   J. Bengtsson                2017          Re-factored from C to C++.       */
 
 
 #define Cell_nLocMax 20000 // Max number of LEGO blocks (Cell_nLoc).
@@ -81,9 +81,14 @@ class CellType {
 				maxampl[X_][0] < x < maxampl[X_][1]
 				maxampl[Y_][0] < y < maxampl[Y_][1]. */
 
+  void Marker_Init(int Fnum1);
+
   void Cell_Init(void);
 
   void Elem_Print(FILE *f, int Fnum1);
+
+  template<typename T>
+    T get_p_s(const ss_vect<T> &);
 
   template<typename T>
     void GtoL(ss_vect<T> &X, const Vector2 &S, const Vector2 &R,
@@ -115,10 +120,13 @@ class CellType {
 class DriftType {
  private:
  public:
-  void Drift_Init(int Fnum1);
 
+  void Drift_Alloc(elemtype *Elem);
+  void Drift_Init(int Fnum1);
   void Drift_Print(FILE *f, int Fnum1);
 
+  template<typename T>
+    void Drift(const double L, ss_vect<T> &x);
   template<typename T>
     void Drift_Pass(CellType &Cell, ss_vect<T> &x);
 };
@@ -154,9 +162,27 @@ class MpoleType {
   double     irho;       // 1/rho [1/m].
   double     c0, c1, s1; // corrections for roll error of bend.
 
+  void Mpole_Alloc(elemtype *Elem);
   void Mpole_Init(int Fnum1);
-
   void Mpole_Print(FILE *f, int Fnum1);
+
+  void SI_init(void);
+
+  template<typename T>
+    void get_B2(const double h_ref, const T B[], const ss_vect<T> &xp,
+		T &B2_perp, T &B2_par);
+  template<typename T>
+    void radiate(ss_vect<T> &x, const double L, const double h_ref,
+		 const T B[]);
+  template<typename T>
+    void bend_fringe(const double hb, ss_vect<T> &x);
+  template<typename T>
+    void EdgeFocus(const double irho, double phi, double gap, ss_vect<T> &x);
+  template<typename T>
+    void quad_fringe(const double b2, ss_vect<T> &x);
+  template<typename T>
+    void thin_kick(const int Order, const double MB[], const double L,
+		   const double h_bend, const double h_ref, ss_vect<T> &x);
 
   template<typename T>
     void Mpole_Pass(CellType &Cell, ss_vect<T> &x);
@@ -188,10 +214,19 @@ class WigglerType {
   mpolArray BW;
   int       order;               // The highest order in PB.
 
+  void Wiggler_Alloc(elemtype *Elem);
   void Wiggler_Init(int Fnum1);
-
   void Wiggler_Print(FILE *f, int Fnum1);
 
+  template<typename T>
+    void Wiggler_pass_EF(const elemtype &elem, ss_vect<T> &x);
+  template<typename T>
+    void Wiggler_pass_EF2(int nstep, double L, double kxV, double kxH,
+			  double kz, 
+			  double BoBrhoV, double BoBrhoH, double phi,
+			  ss_vect<T> &x);
+  template<typename T>
+    void Wiggler_pass_EF3(const elemtype &elem, ss_vect<T> &x);
   template<typename T>
     void Wiggler_Pass(CellType &Cell, ss_vect<T> &X);
 };
@@ -238,8 +273,8 @@ class InsertionType {
   //  mpolArray BW;
   int order;        // The highest order in PB
 
+  void Insertion_Alloc(elemtype *Elem);
   void Insertion_Init(int Fnum1);
-  
   void Insertion_Print(FILE *f, int Fnum1);
 
   template<typename T>
@@ -258,7 +293,8 @@ class FieldMapType {
   double ***BoBrho[3], ***BoBrho2[3];  // [B_x, B_y, B_z].
   double ***AoBrho[2], ***AoBrho2[2];  /* [Ax(x, y, z), Ay(x, y, z)],
 					  spline info. */
-
+  void FieldMap_Alloc(elemtype *Elem);
+  void get_B(const char *file_name, FieldMapType *FM);
   void FieldMap_Init(int Fnum1);
 
   template<typename T>
@@ -281,8 +317,11 @@ class SolenoidType {
   double  dTrnd;  // random number
   double  BoBrho; // normalized field strength
 
+  void Solenoid_Alloc(elemtype *Elem);
   void Solenoid_Init(int Fnum1);
 
+  template<typename T>
+    void sol_pass(const elemtype &elem, ss_vect<T> &x);
   template<typename T>
     void Solenoid_Pass(CellType &Cell, ss_vect<T> &ps);
 };
@@ -299,6 +338,7 @@ class CavityType {
   bool   entry_focus; // Edge focusing at entry.
   bool   exit_focus;  // Edge focusing at exit.
 
+  void Cav_Alloc(elemtype *Elem);
   void Cav_Init(int Fnum1);
 
   template<typename T>
@@ -312,6 +352,8 @@ class SpreaderType {
   double   E_max[Spreader_max];      // energy levels in increasing order
   CellType *Cell_ptrs[Spreader_max];
 
+  void Spreader_Alloc(elemtype *Elem);
+
   void Spreader_Init(int Fnum1);
 };
 
@@ -322,6 +364,7 @@ class RecombinerType {
   double E_min;
   double E_max;
 
+  void Recombiner_Alloc(elemtype *Elem);
   void Recombiner_Init(int Fnum1);
 };
 
@@ -338,33 +381,33 @@ class ElemFamType {
 
 
 struct LatticeParam {
-  double   dPcommon,        // dp for numerical differentiation.
+  double   dPcommon,  // dp for numerical differentiation.
     dPparticle;      // energy deviation.
-  double   delta_RF;        // RF acceptance.
-  Vector2  TotalTune;       // transverse tunes.
+  double   delta_RF;  // RF acceptance.
+  Vector2  TotalTune; // transverse tunes.
   double   Omega,
     U0,              // energy lost per turn in keV.
     Alphac;          // alphap.
-  Vector2  Chrom;           // chromaticities.
-  double   Energy;          // ring energy.
-  long     Cell_nLoc,       // number of elements.
+  Vector2  Chrom;     // chromaticities.
+  double   Energy;    // ring energy.
+  long     Cell_nLoc, // number of elements.
     Elem_nFam,       // number of families.
     CODimax;         // Max number of cod search before failing.
-  double   CODeps;          // precision for closed orbit finder.
-  psVector CODvect;         // closed orbit.
-  int      bpm;             // bpm number.
-  int      hcorr;           // horizontal corrector number.
-  int      vcorr;           // vertical corrector number.
-  int      qt;              // vertical corrector number.
-  int      gs;              // girder start marker.
-  int      ge;              // girder end marker.
-  Matrix   OneTurnMat,      // oneturn matrix.
+  double   CODeps;    // precision for closed orbit finder.
+  psVector CODvect;   // closed orbit.
+  int      bpm;       // bpm number.
+  int      hcorr;     // horizontal corrector number.
+  int      vcorr;     // vertical corrector number.
+  int      qt;        // vertical corrector number.
+  int      gs;        // girder start marker.
+  int      ge;        // girder end marker.
+  Matrix   OneTurnMat,// oneturn matrix.
     Ascr,
     Ascrinv,
     Vr,              // real part of the eigenvectors.
     Vi;              // imaginal par of the eigenvectors.
 
-  bool     Cavity_on,       // if true, cavity turned on.
+  bool     Cavity_on, // if true, cavity turned on.
     radiation,       // if true, radiation turned on.
     emittance,
     dip_fringe,      // dipole hard-edge fringe field.
@@ -376,21 +419,21 @@ struct LatticeParam {
     EPU,
     wake_on;
 
-  double   dE,              // energy loss.
+  double   dE,       // energy loss.
     alpha_rad[DOF],  // damping coeffs.
     D_rad[DOF],      // diffusion coeffs (Floquet space).
     J[DOF],          // partition numbers.
     tau[DOF];        // damping times.
-  bool     IBS;             // intrabeam scattering.
-  double   Qb,              // bunch charge.
+  bool     IBS;      // intrabeam scattering.
+  double   Qb,       // bunch charge.
     D_IBS[DOF];      // diffusion matrix (Floquet space).
-  psVector wr, wi;          // real and imaginary part of eigenvalues.
-  double   eps[DOF],        // 3 motion invariants.
+  psVector wr, wi;   // real and imaginary part of eigenvalues.
+  double   eps[DOF], // 3 motion invariants.
     epsp[DOF],       /* transverse and longitudinal projected
 			emittances. */
     alpha_z, beta_z, // longitudinal alpha and beta.
     beta0, gamma0;   // Relativistic factors.
-  int      RingType;        // 1 if a ring (0 if transfer line).
+  int      RingType; // 1 if a ring (0 if transfer line).
 };
 
 
@@ -424,27 +467,22 @@ class LatticeType {
   double Elem_GetKval(int Fnum1, int Knum1, int Order);
 
   void Mpole_SetB(int Fnum1, int Knum1, int Order);
-
   double Mpole_GetB(int Fnum1, int Knum1, int Order);
 
   void Mpole_DefBpar(int Fnum1, int Knum1, int Order, double Bpar);
-
   void Mpole_DefBsys(int Fnum1, int Knum1, int Order, double Bsys);
 
   void Mpole_SetdS(int Fnum1, int Knum1);
-
   void Mpole_SetdT(int Fnum1, int Knum1);
 
   double Mpole_GetdT(int Fnum1, int Knum1);
 
   void Mpole_DefdTpar(int Fnum1, int Knum1, double PdTpar);
-
   void Mpole_DefdTsys(int Fnum1, int Knum1, double PdTsys);
 
   void Wiggler_SetB(int Fnum1, int Knum1, int Order);
 
   void Wiggler_SetdS(int Fnum1, int Knum1);
-
   void Wiggler_SetdT(int Fnum1, int Knum1);
 
 
@@ -468,10 +506,8 @@ class LatticeType {
 
   void Ring_Fittune(Vector2 &nu, double eps, iVector2 &nq, long qf[], long qd[],
 		    double dkL, long imax);
-
   void Ring_Fitchrom(Vector2 &ksi, double eps, iVector2 &ns,
 		     long sf[], long sd[], double dkpL, long imax);
-
   void Ring_FitDisp(long pos, double eta, double eps, long nq, long q[],
 		    double dkL, long imax);
 
@@ -538,45 +574,28 @@ class LatticeType {
   void ScaleTolerances(const char *TolFileName, const double scl);
 
   void SetKpar(int Fnum, int Knum, int Order, double k);
-
   void SetdKpar(int Fnum, int Knum, int Order, double k);
-
   void SetL(int Fnum, int Knum, double L);
-
   void SetL(int Fnum, double L);
-
   void SetKLpar(int Fnum, int Knum, int Order, double kL);
-
   void SetdKLpar(int Fnum, int Knum, int Order, double dkL);
-
   void SetdKrpar(int Fnum, int Knum, int Order, double dkrel);
-
   void Setbn(int Fnum, int order, double bn);
-
   void SetbnL(int Fnum, int order, double bnL);
-
   void Setdbn(int Fnum, int order, double dbn);
-
   void SetdbnL(int Fnum, int order, double dbnL);
-
   void Setbnr(int Fnum, int order, double bnr);
-
   void SetbnL_sys(int Fnum, int Order, double bnL_sys);
 
   void set_dbn_rel(const int type, const int n, const double dbn_rel);
 
   double GetKpar(int Fnum, int Knum, int Order);
-
   double GetL(int Fnum, int Knum);
-
   double GetKLpar(int Fnum, int Knum, int Order);
 
   void SetdKLsys(int Fnum, int Order, double dkLsys);
-
   void SetdKLrms(int Fnum, int Order, double dkLrms);
-
   void Setdkrrms(int Fnum, int Order, double dkrrms);
-
   void SetKL(int Fnum, int Order);
 
   void set_dx(const int type, const double sigma_x, const double sigma_y);
