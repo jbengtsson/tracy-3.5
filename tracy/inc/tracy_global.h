@@ -38,15 +38,30 @@ class RecombinerType;
 class SolenoidType;
 
 
-class elemtype {
+// Virtual base class for LEGO blocks.
+class ElemType {
  private:
  public:
-  partsName Name;        // Element name.
-  double    L;           // Length[m].
-  bool      Reverse;     // Reverse element.
-  PartsKind Kind;        // Enumeration for magnet types.
-  union
-  {
+  partsName Name;    // Element name.
+  double    L;       // Length [m].
+  bool      Reverse; // Reversed element.
+  PartsKind Kind;    // Enumeration for magnet types.
+
+  //explicit ElemType(std::string &Name1, double L1, bool Reverse1)
+  //  : Name(Name1), L(L1), Reverse(Reverse1) {}
+
+  //virtual void f() = 0;
+
+  // Templates can't be virtual functions. 
+  //template<typename T>
+  //  virtual void propagate(ss_vect<T> &ps) const; 
+};
+
+
+class elemtype : public ElemType {
+ private:
+ public:
+  union {
     DriftType      *D;   // Drift.
     MpoleType      *M;   // Multipole.
     WigglerType    *W;   // Wiggler.
@@ -63,21 +78,21 @@ class elemtype {
 class CellType {
  private:
  public:
-  int       Fnum;            // Element Family #.
-  int       Knum;            // Element Kid #.
-  double    S;               // Position in the ring.
-  CellType* next_ptr;        // pointer to next cell (for tracking).
-  Vector2   dS,              // Transverse displacement.
-            dT;              // dT = (cos(dT), sin(dT)).
-  elemtype  Elem;            // Structure (name, type).
-  Vector2   Nu,              // Phase advances.
-            Alpha,           // Alpha functions (redundant).
-            Beta,            // beta fonctions (redundant).
-            Eta, Etap;       // dispersion and its derivative (redundant).
-  psVector  BeamPos;         // Last position of the beam this cell.
-  Matrix    A,               // Floquet space to phase space transformation.
-            sigma;           // sigma matrix (redundant).
-  Vector2   maxampl[2];      /* Horizontal and vertical physical apertures:
+  int      Fnum;       // Element Family #.
+  int      Knum;       // Element Kid #.
+  double   S;          // Position in the ring.
+  CellType *next_ptr;   // pointer to next cell (for tracking).
+  Vector2  dS,         // Transverse displacement.
+           dT;         // dT = (cos(dT), sin(dT)).
+  elemtype Elem;       // Structure (name, type).
+  Vector2  Nu,         // Phase advances.
+           Alpha,      // Alpha functions (redundant).
+           Beta,       // beta fonctions (redundant).
+           Eta, Etap;  // dispersion and its derivative (redundant).
+  psVector BeamPos;    // Last position of the beam this cell.
+  Matrix   A,          // Floquet space to phase space transformation.
+           sigma;      // sigma matrix (redundant).
+  Vector2  maxampl[2]; /* Horizontal and vertical physical apertures:
 				maxampl[X_][0] < x < maxampl[X_][1]
 				maxampl[Y_][0] < y < maxampl[Y_][1]. */
 
@@ -126,8 +141,6 @@ class DriftType {
   void Drift_Print(FILE *f, int Fnum1);
 
   template<typename T>
-    void Drift(const double L, ss_vect<T> &x);
-  template<typename T>
     void Drift_Pass(CellType &Cell, ss_vect<T> &x);
 };
 
@@ -169,22 +182,6 @@ class MpoleType {
   void SI_init(void);
 
   template<typename T>
-    void get_B2(const double h_ref, const T B[], const ss_vect<T> &xp,
-		T &B2_perp, T &B2_par);
-  template<typename T>
-    void radiate(ss_vect<T> &x, const double L, const double h_ref,
-		 const T B[]);
-  template<typename T>
-    void bend_fringe(const double hb, ss_vect<T> &x);
-  template<typename T>
-    void EdgeFocus(const double irho, double phi, double gap, ss_vect<T> &x);
-  template<typename T>
-    void quad_fringe(const double b2, ss_vect<T> &x);
-  template<typename T>
-    void thin_kick(const int Order, const double MB[], const double L,
-		   const double h_bend, const double h_ref, ss_vect<T> &x);
-
-  template<typename T>
     void Mpole_Pass(CellType &Cell, ss_vect<T> &x);
 };
 
@@ -218,15 +215,6 @@ class WigglerType {
   void Wiggler_Init(int Fnum1);
   void Wiggler_Print(FILE *f, int Fnum1);
 
-  template<typename T>
-    void Wiggler_pass_EF(const elemtype &elem, ss_vect<T> &x);
-  template<typename T>
-    void Wiggler_pass_EF2(int nstep, double L, double kxV, double kxH,
-			  double kz, 
-			  double BoBrhoV, double BoBrhoH, double phi,
-			  ss_vect<T> &x);
-  template<typename T>
-    void Wiggler_pass_EF3(const elemtype &elem, ss_vect<T> &x);
   template<typename T>
     void Wiggler_Pass(CellType &Cell, ss_vect<T> &X);
 };
@@ -321,8 +309,6 @@ class SolenoidType {
   void Solenoid_Init(int Fnum1);
 
   template<typename T>
-    void sol_pass(const elemtype &elem, ss_vect<T> &x);
-  template<typename T>
     void Solenoid_Pass(CellType &Cell, ss_vect<T> &ps);
 };
 
@@ -381,59 +367,59 @@ class ElemFamType {
 
 
 struct LatticeParam {
-  double   dPcommon,  // dp for numerical differentiation.
-    dPparticle;      // energy deviation.
-  double   delta_RF;  // RF acceptance.
-  Vector2  TotalTune; // transverse tunes.
+  double   dPcommon,   // dp for numerical differentiation.
+    dPparticle;        // energy deviation.
+  double   delta_RF;   // RF acceptance.
+  Vector2  TotalTune;  // transverse tunes.
   double   Omega,
-    U0,              // energy lost per turn in keV.
-    Alphac;          // alphap.
-  Vector2  Chrom;     // chromaticities.
-  double   Energy;    // ring energy.
-  long     Cell_nLoc, // number of elements.
-    Elem_nFam,       // number of families.
-    CODimax;         // Max number of cod search before failing.
-  double   CODeps;    // precision for closed orbit finder.
-  psVector CODvect;   // closed orbit.
-  int      bpm;       // bpm number.
-  int      hcorr;     // horizontal corrector number.
-  int      vcorr;     // vertical corrector number.
-  int      qt;        // vertical corrector number.
-  int      gs;        // girder start marker.
-  int      ge;        // girder end marker.
-  Matrix   OneTurnMat,// oneturn matrix.
+    U0,                // energy lost per turn in keV.
+    Alphac;            // alphap.
+  Vector2  Chrom;      // chromaticities.
+  double   Energy;     // ring energy.
+  long     Cell_nLoc,  // number of elements.
+    Elem_nFam,         // number of families.
+    CODimax;           // Max number of cod search before failing.
+  double   CODeps;     // precision for closed orbit finder.
+  psVector CODvect;    // closed orbit.
+  int      bpm;        // bpm number.
+  int      hcorr;      // horizontal corrector number.
+  int      vcorr;      // vertical corrector number.
+  int      qt;         // vertical corrector number.
+  int      gs;         // girder start marker.
+  int      ge;         // girder end marker.
+  Matrix   OneTurnMat, // oneturn matrix.
     Ascr,
     Ascrinv,
-    Vr,              // real part of the eigenvectors.
-    Vi;              // imaginal par of the eigenvectors.
+    Vr,                // real part of the eigenvectors.
+    Vi;                // imaginal par of the eigenvectors.
 
-  bool     Cavity_on, // if true, cavity turned on.
-    radiation,       // if true, radiation turned on.
+  bool     Cavity_on,  // if true, cavity turned on.
+    radiation,         // if true, radiation turned on.
     emittance,
-    dip_fringe,      // dipole hard-edge fringe field.
-    quad_fringe,     // quadrupole hard-edge fringe field.
-    H_exact,         // "small ring" Hamiltonian.
-    pathlength,      // absolute path length.
+    dip_fringe,        // dipole hard-edge fringe field.
+    quad_fringe,       // quadrupole hard-edge fringe field.
+    H_exact,           // "small ring" Hamiltonian.
+    pathlength,        // absolute path length.
     stable,
     Aperture_on,
     EPU,
     wake_on;
 
-  double   dE,       // energy loss.
-    alpha_rad[DOF],  // damping coeffs.
-    D_rad[DOF],      // diffusion coeffs (Floquet space).
-    J[DOF],          // partition numbers.
-    tau[DOF];        // damping times.
-  bool     IBS;      // intrabeam scattering.
-  double   Qb,       // bunch charge.
-    D_IBS[DOF];      // diffusion matrix (Floquet space).
-  psVector wr, wi;   // real and imaginary part of eigenvalues.
-  double   eps[DOF], // 3 motion invariants.
-    epsp[DOF],       /* transverse and longitudinal projected
-			emittances. */
-    alpha_z, beta_z, // longitudinal alpha and beta.
-    beta0, gamma0;   // Relativistic factors.
-  int      RingType; // 1 if a ring (0 if transfer line).
+  double   dE,         // energy loss.
+    alpha_rad[DOF],    // damping coeffs.
+    D_rad[DOF],        // diffusion coeffs (Floquet space).
+    J[DOF],            // partition numbers.
+    tau[DOF];          // damping times.
+  bool     IBS;        // intrabeam scattering.
+  double   Qb,         // bunch charge.
+    D_IBS[DOF];        // diffusion matrix (Floquet space).
+  psVector wr, wi;     // real and imaginary part of eigenvalues.
+  double   eps[DOF],   // 3 motion invariants.
+    epsp[DOF],         /* transverse and longitudinal projected
+			  emittances. */
+    alpha_z, beta_z,   // longitudinal alpha and beta.
+    beta0, gamma0;     // Relativistic factors.
+  int      RingType;   // 1 if a ring (0 if transfer line).
 };
 
 
