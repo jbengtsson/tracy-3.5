@@ -58,7 +58,7 @@ class ElemType {
 };
 
 
-class elemtype : public ElemType {
+class elemtype {
  private:
  public:
   union {
@@ -132,7 +132,7 @@ class CellType {
 };
 
 
-class DriftType {
+class DriftType : public ElemType {
  private:
  public:
 
@@ -145,7 +145,7 @@ class DriftType {
 };
 
 
-class MpoleType {
+class MpoleType : public ElemType {
  private:
  public:
   int        method;     // Integration Method.
@@ -186,7 +186,7 @@ class MpoleType {
 };
 
 
-class WigglerType {
+class WigglerType : public ElemType {
  private:
  public:
   int       method;              // Integration Method.
@@ -220,7 +220,7 @@ class WigglerType {
 };
 
 
-class InsertionType {
+class InsertionType : public ElemType {
  private:
  public:
   int    method;       // Integration Method.
@@ -270,7 +270,7 @@ class InsertionType {
 };
 
 
-class FieldMapType {
+class FieldMapType : public ElemType {
  private:
  public:
   int    n_step;                       // number of integration steps.
@@ -290,7 +290,7 @@ class FieldMapType {
 };
 
 
-class SolenoidType {
+class SolenoidType : public ElemType {
  private:
  public:
   int     N;      // Number of integration steps
@@ -313,7 +313,7 @@ class SolenoidType {
 };
 
 
-class CavityType {
+class CavityType : public ElemType {
  private:
  public:
   int    N;           // Number of integration steps.
@@ -332,7 +332,7 @@ class CavityType {
 };
 
 
-class SpreaderType {
+class SpreaderType : public ElemType {
  private:
  public:
   double   E_max[Spreader_max];      // energy levels in increasing order
@@ -344,7 +344,7 @@ class SpreaderType {
 };
 
 
-class RecombinerType {
+class RecombinerType : public ElemType {
  private:
  public:
   double E_min;
@@ -355,7 +355,7 @@ class RecombinerType {
 };
 
 
-class ElemFamType {
+class ElemFamType : public ElemType {
  private:
  public:
   elemtype   ElemF;            // Structure (name, type).

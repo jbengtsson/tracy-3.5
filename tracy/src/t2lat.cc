@@ -226,7 +226,7 @@ long CheckElementtable(const char *name, struct LOC_Lattice_Read *LINK)
 
   FORLIM = Lattice.param.Elem_nFam;
   for (i = 1; i <= FORLIM; i++) {
-    if (!strncmp(Lattice.ElemFam[i-1].ElemF.Name, name, sizeof(partsName)))
+    if (!strncmp(Lattice.ElemFam[i-1].Name, name, sizeof(partsName)))
       j = i;
   }
   return j;
@@ -968,7 +968,7 @@ static double BlockLength(long ii, struct LOC_Lat_EVAL *LINK)
   k2 = LINK->LINK->BlockS[ii-1].BSTART;
   k3 = LINK->LINK->BlockS[ii-1].BOWARI;
   for (k1 = k2 - 1; k1 < k3; k1++)
-    S += Lattice.ElemFam[LINK->LINK->Bstack[k1]-1].ElemF.L;
+    S += Lattice.ElemFam[LINK->LINK->Bstack[k1]-1].L;
   return S;
 }
 
@@ -1021,7 +1021,7 @@ static void Factor(struct LOC_Term *LINK)
   double x = 0.0;
   partsName fname;
   long SET[(long)period_ / 32 + 2];
-  elemtype *WITH;
+  ElemFamType *WITH;
   MpoleType *WITH1;
   symset SET1;
   long SET2[(long)lsym / 32 + 2];
@@ -1047,8 +1047,8 @@ static void Factor(struct LOC_Term *LINK)
 	memcpy(fname, LINK->LINK->LINK->id, sizeof(alfa_));
 	memset(fname + sizeof(alfa_), ' ',
 	       sizeof(partsName) - sizeof(alfa_));
-	WITH = &Lattice.ElemFam[V.i-1].ElemF;
-	WITH1 = WITH->M;
+	WITH = &Lattice.ElemFam[V.i-1];
+	WITH1 = WITH->ElemF.M;
 	if (!strncmp(fname, "l              ", sizeof(partsName)))
 	  x = WITH->L;
 	else if (!strncmp(fname, "t              ", sizeof(partsName))) {
@@ -1745,14 +1745,14 @@ static void Lat_ProcessBlockInput(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 
 static bool Lat_CheckWiggler(FILE **fo, long i, struct LOC_Lattice_Read *LINK)
 {
-  double       a, Lambda, L, diff;
-  long         NN;
-  ElemFamType  *WITH;
-  elemtype     *WITH1;
-  WigglerType  *WITH2;
+  double      a, Lambda, L, diff;
+  long        NN;
+  ElemFamType *WITH;
+  WigglerType *WITH1;
 
-  WITH = &Lattice.ElemFam[i-1]; WITH1 = &WITH->ElemF; WITH2 = WITH1->W;
-  Lambda = WITH2->lambda;
+  WITH = &Lattice.ElemFam[i-1];
+  WITH1 = WITH->ElemF.W;
+  Lambda = WITH1->lambda;
   L = WITH1->L; a = L/Lambda;
   NN = (long)floor(a+0.01+0.5);
   diff = fabs((L-NN*Lambda)/L);
@@ -2112,11 +2112,10 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     Lattice.param.Elem_nFam++;
     if (Lattice.param.Elem_nFam <= Elem_nFamMax) {
       WITH = &Lattice.ElemFam[Lattice.param.Elem_nFam-1];
-      WITH1 = &WITH->ElemF;
-      memcpy(WITH1->Name, ElementName, sizeof(partsName));
-      WITH1->L = *V.rnum;
-      WITH1->Kind = PartsKind(drift);
-      WITH1->D->Drift_Alloc(&WITH->ElemF);
+      memcpy(WITH->Name, ElementName, sizeof(partsName));
+      WITH->L = *V.rnum;
+      WITH->Kind = PartsKind(drift);
+      WITH->ElemF.D->Drift_Alloc(&WITH->ElemF);
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
 	     Lattice.param.Elem_nFam, (long)Elem_nFamMax);
@@ -2244,16 +2243,15 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     Lattice.param.Elem_nFam++;
     if (Lattice.param.Elem_nFam <= Elem_nFamMax) {
       WITH = &Lattice.ElemFam[Lattice.param.Elem_nFam-1];
-      WITH1 = &WITH->ElemF;
-      memcpy(WITH1->Name, ElementName, sizeof(partsName));
-      WITH1->L = QL;
-      WITH1->Kind = Mpole;
-      WITH1->M->Mpole_Alloc(&WITH->ElemF);
+      memcpy(WITH->Name, ElementName, sizeof(partsName));
+      WITH->L = QL;
+      WITH->Kind = Mpole;
+      WITH->ElemF.M->Mpole_Alloc(&WITH->ElemF);
       WITH2 = WITH1->M;
       WITH2->method = k2;
       WITH2->N = k1;
-      if (WITH1->L != 0.0)
-	WITH2->irho = t * M_PI / 180.0 / WITH1->L;
+      if (WITH2->L != 0.0)
+	WITH2->irho = t * M_PI / 180.0 / WITH2->L;
       else
 	WITH2->irho = t * M_PI / 180.0;
       WITH2->Tx1 = t1; WITH2->Tx2 = t2; WITH2->gap = gap;
@@ -2355,10 +2353,9 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     Lattice.param.Elem_nFam++;
     if (Lattice.param.Elem_nFam <= Elem_nFamMax) {
       WITH = &Lattice.ElemFam[Lattice.param.Elem_nFam-1];
-      WITH1 = &WITH->ElemF;
-      memcpy(WITH1->Name, ElementName, sizeof(partsName));
-      WITH1->L = QL; WITH1->Kind = Mpole;
-      WITH1->M->Mpole_Alloc(&WITH->ElemF);
+      memcpy(WITH->Name, ElementName, sizeof(partsName));
+      WITH->L = QL; WITH->Kind = Mpole;
+      WITH->ElemF.M->Mpole_Alloc(&WITH->ElemF);
       WITH2 = WITH1->M;
       WITH2->method = k2; WITH2->N = k1; WITH2->dTpar = dt;
       AssignHOM(Lattice.param.Elem_nFam, &V);
@@ -2463,15 +2460,14 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     Lattice.param.Elem_nFam++;
     if (Lattice.param.Elem_nFam <= Elem_nFamMax) {
       WITH = &Lattice.ElemFam[Lattice.param.Elem_nFam-1];
-      WITH1 = &WITH->ElemF;
-      memcpy(WITH1->Name, ElementName, sizeof(partsName));
-      WITH1->L = QL;
-      WITH1->Kind = Mpole;
-      WITH1->M->Mpole_Alloc(&WITH->ElemF);
-      WITH2 = WITH1->M;
+      memcpy(WITH->Name, ElementName, sizeof(partsName));
+      WITH->L = QL;
+      WITH->Kind = Mpole;
+      WITH->ElemF.M->Mpole_Alloc(&WITH->ElemF);
+      WITH2 = WITH->ElemF.M;
       WITH2->method = k2;
       WITH2->N = k1;
-      if (WITH1->L != 0.0)
+      if (WITH->L != 0.0)
 	WITH2->thick = pthicktype(thick);
       else
 	WITH2->thick = pthicktype(thin);
@@ -2581,12 +2577,11 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     Lattice.param.Elem_nFam++;
     if (Lattice.param.Elem_nFam <= Elem_nFamMax) {
       WITH = &Lattice.ElemFam[Lattice.param.Elem_nFam-1];
-      WITH1 = &WITH->ElemF;
-      memcpy(WITH1->Name, ElementName, sizeof(partsName));
-      WITH1->L = QL;
-      WITH1->Kind = Cavity;
-      WITH1->C->Cav_Alloc(&WITH->ElemF);
-      WITH3 = WITH1->C;
+      memcpy(WITH->Name, ElementName, sizeof(partsName));
+      WITH->L = QL;
+      WITH->Kind = Cavity;
+      WITH->ElemF.C->Cav_Alloc(&WITH->ElemF);
+      WITH3 = WITH->ElemF.C;
       WITH3->volt = Vrf;   /* Voltage [V] */
       WITH3->freq = Frf;   /* Frequency in Hz */
       WITH3->phi = QPhi*M_PI/180.0;
@@ -2692,14 +2687,13 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     Lattice.param.Elem_nFam++;
     if (Lattice.param.Elem_nFam <= Elem_nFamMax) {
       WITH = &Lattice.ElemFam[Lattice.param.Elem_nFam-1];
-      WITH1 = &WITH->ElemF;
-      memcpy(WITH1->Name, ElementName, sizeof(partsName));
-      WITH1->L = QL;
-      WITH1->Kind = Mpole;
-      WITH1->M->Mpole_Alloc(&WITH->ElemF);
-      WITH2 = WITH1->M;
+      memcpy(WITH->Name, ElementName, sizeof(partsName));
+      WITH->L = QL;
+      WITH->Kind = Mpole;
+      WITH->ElemF.M->Mpole_Alloc(&WITH->ElemF);
+      WITH2 = WITH->ElemF.M;
       SetDBN(&V);
-      if (WITH1->L != 0.0)
+      if (WITH->L != 0.0)
 	WITH2->thick = pthicktype(thick);
       else
 	WITH2->thick = pthicktype(thin);
@@ -2748,11 +2742,10 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     Lattice.param.Elem_nFam++;
     if (Lattice.param.Elem_nFam <= Elem_nFamMax) {
       WITH = &Lattice.ElemFam[Lattice.param.Elem_nFam-1];
-      WITH1 = &WITH->ElemF;
-      memcpy(WITH1->Name, ElementName, sizeof(partsName));
-      WITH1->Kind = Mpole;
-      WITH1->M->Mpole_Alloc(&WITH->ElemF);
-      WITH2 = WITH1->M;
+      memcpy(WITH->Name, ElementName, sizeof(partsName));
+      WITH->Kind = Mpole;
+      WITH->ElemF.M->Mpole_Alloc(&WITH->ElemF);
+      WITH2 = WITH->ElemF.M;
       WITH2->thick = pthicktype(thin);
       SetDBN(&V);
     } else {
@@ -2795,10 +2788,9 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     Lattice.param.Elem_nFam++;
     if (Lattice.param.Elem_nFam <= Elem_nFamMax) {
       WITH = &Lattice.ElemFam[Lattice.param.Elem_nFam-1];
-      WITH1 = &WITH->ElemF;
-      memcpy(WITH1->Name, ElementName, sizeof(partsName));
-      WITH1->L = 0.0;
-      WITH1->Kind = PartsKind(marker);
+      memcpy(WITH->Name, ElementName, sizeof(partsName));
+      WITH->L = 0.0;
+      WITH->Kind = PartsKind(marker);
       SetDBN(&V);
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
@@ -2965,15 +2957,14 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     Lattice.param.Elem_nFam++;
     if (Lattice.param.Elem_nFam <= Elem_nFamMax) {
       WITH = &Lattice.ElemFam[Lattice.param.Elem_nFam-1];
-      WITH1 = &WITH->ElemF;
-      WITH1->M->Mpole_Alloc(&WITH->ElemF);
-      WITH2 = WITH1->M;
-      memcpy(WITH1->Name, ElementName, sizeof(partsName));
-      WITH1->Kind = Mpole;
-      WITH1->L = QL;
-      if (WITH1->L != 0e0) {
+      WITH->ElemF.M->Mpole_Alloc(&WITH->ElemF);
+      WITH2 = WITH->ElemF.M;
+      memcpy(WITH->Name, ElementName, sizeof(partsName));
+      WITH->Kind = Mpole;
+      WITH->L = QL;
+      if (WITH->L != 0e0) {
 	WITH2->thick = pthicktype(thick);
-	WITH2->irho = t * M_PI / 180.0 / WITH1->L;
+	WITH2->irho = t * M_PI / 180.0 / WITH->L;
       } else {
 	WITH2->thick = pthicktype(thin);
 	WITH2->irho = t * M_PI / 180.0;
@@ -3109,9 +3100,10 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     Lattice.param.Elem_nFam++;
     if (Lattice.param.Elem_nFam <= Elem_nFamMax) {
       WITH = &Lattice.ElemFam[Lattice.param.Elem_nFam-1]; WITH1 = &WITH->ElemF;
-      memcpy(WITH1->Name, ElementName, sizeof(partsName));
-      WITH1->L = QL; WITH1->Kind = Wigl;
-      WITH1->W->Wiggler_Alloc(&WITH->ElemF); WITH4 = WITH1->W;
+      memcpy(WITH->Name, ElementName, sizeof(partsName));
+      WITH->L = QL; WITH->Kind = Wigl;
+      WITH->ElemF.W->Wiggler_Alloc(&WITH->ElemF);
+      WITH4 = WITH->ElemF.W;
       WITH4->method = k2; WITH4->N = k1;
       WITH4->dTpar = dt;
       SetDBN(&V);
@@ -3202,10 +3194,10 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     Lattice.param.Elem_nFam++;
     if (Lattice.param.Elem_nFam <= Elem_nFamMax) {
       WITH = &Lattice.ElemFam[Lattice.param.Elem_nFam-1]; WITH1 = &WITH->ElemF;
-      memcpy(WITH1->Name, ElementName, sizeof(partsName));
-      WITH1->L = QL; WITH1->Kind = FieldMap;
-      WITH1->FM->FieldMap_Alloc(WITH1);
-      WITH6 = WITH1->FM;
+      memcpy(WITH->Name, ElementName, sizeof(partsName));
+      WITH->L = QL; WITH->Kind = FieldMap;
+      WITH->ElemF.FM->FieldMap_Alloc(&WITH->ElemF);
+      WITH6 = WITH->ElemF.FM;
       WITH6->phi = t*M_PI/180.0; WITH6->n_step = k1; WITH6->scl = scaling;
       if (CheckUDItable("energy         ", LINK) != 0) {
 	RefUDItable("energy         ", &Lattice.param.Energy, LINK);
@@ -3315,11 +3307,10 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     /* Fills up the ID */
     if (Lattice.param.Elem_nFam <= Elem_nFamMax) {
       WITH  = &Lattice.ElemFam[Lattice.param.Elem_nFam-1];
-      WITH1 = &WITH->ElemF;
-      memcpy(WITH1->Name, ElementName, sizeof(partsName));
-      WITH1->Kind = Insertion;
-      WITH1->ID->Insertion_Alloc(&WITH->ElemF);
-      WITH5 = WITH1->ID;
+      memcpy(WITH->Name, ElementName, sizeof(partsName));
+      WITH->Kind = Insertion;
+      WITH->ElemF.ID->Insertion_Alloc(&WITH->ElemF);
+      WITH5 = WITH->ElemF.ID;
       WITH5->phi = t*M_PI/180.0;
       WITH5->method = k2;
       WITH5->N = k1;
@@ -3340,7 +3331,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 	strcpy(WITH5->fname1,str1);
 	// Read Id file for first order kicks
 	WITH5->firstorder = true;
-	Read_IDfile(WITH5->fname1, WITH1->L, WITH5->nx, WITH5->nz,
+	Read_IDfile(WITH5->fname1, WITH->L, WITH5->nx, WITH5->nz,
 		    WITH5->tabx, WITH5->tabz, WITH5->thetax1, WITH5->thetaz1,
 		    WITH5->long_comp, WITH5->B2, WITH5->linear);
 	// scale factor from Radia: Tmm to get Tm.
@@ -3361,7 +3352,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 	strcpy(WITH5->fname2,str2);
 	WITH5->secondorder = secondflag;
 	// Read Id file for second order kicks
-	Read_IDfile(WITH5->fname2, WITH1->L, WITH5->nx, WITH5->nz,
+	Read_IDfile(WITH5->fname2, WITH->L, WITH5->nx, WITH5->nz,
 		    WITH5->tabx, WITH5->tabz, WITH5->thetax, WITH5->thetaz,
 		    WITH5->long_comp, WITH5->B2, WITH5->linear);
       } else {
@@ -3436,11 +3427,10 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     Lattice.param.Elem_nFam++;
     if (Lattice.param.Elem_nFam <= Elem_nFamMax) {
       WITH = &Lattice.ElemFam[Lattice.param.Elem_nFam-1];
-      WITH1 = &WITH->ElemF;
-      memcpy(WITH1->Name, ElementName, sizeof(partsName));
-      WITH1->L = *V.rnum;
-      WITH1->Kind = PartsKind(Spreader);
-      WITH1->Spr->Spreader_Alloc(&WITH->ElemF);
+      memcpy(WITH->Name, ElementName, sizeof(partsName));
+      WITH->L = *V.rnum;
+      WITH->Kind = PartsKind(Spreader);
+      WITH->ElemF.Spr->Spreader_Alloc(&WITH->ElemF);
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
 	     Lattice.param.Elem_nFam, (long)Elem_nFamMax);
@@ -3476,11 +3466,10 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     Lattice.param.Elem_nFam++;
     if (Lattice.param.Elem_nFam <= Elem_nFamMax) {
       WITH = &Lattice.ElemFam[Lattice.param.Elem_nFam-1];
-      WITH1 = &WITH->ElemF;
-      memcpy(WITH1->Name, ElementName, sizeof(partsName));
-      WITH1->L = *V.rnum;
-      WITH1->Kind = PartsKind(Recombiner);
-      WITH1->Rec->Recombiner_Alloc(&WITH->ElemF);
+      memcpy(WITH->Name, ElementName, sizeof(partsName));
+      WITH->L = *V.rnum;
+      WITH->Kind = PartsKind(Recombiner);
+      WITH->ElemF.Rec->Recombiner_Alloc(&WITH->ElemF);
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
 	     Lattice.param.Elem_nFam, (long)Elem_nFamMax);
@@ -3546,12 +3535,11 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     Lattice.param.Elem_nFam++;
     if (Lattice.param.Elem_nFam <= Elem_nFamMax) {
       WITH = &Lattice.ElemFam[Lattice.param.Elem_nFam-1];
-      WITH1 = &WITH->ElemF;
-      WITH1->Sol->Solenoid_Alloc(&WITH->ElemF);
-      WITH7 = WITH1->Sol;
-      memcpy(WITH1->Name, ElementName, sizeof(partsName));
-      WITH1->Kind = Solenoid;
-      WITH1->L = QL; WITH7->N = k1; WITH7->BoBrho = QK;
+      WITH->ElemF.Sol->Solenoid_Alloc(&WITH->ElemF);
+      WITH7 = WITH->ElemF.Sol;
+      memcpy(WITH->Name, ElementName, sizeof(partsName));
+      WITH->Kind = Solenoid;
+      WITH->L = QL; WITH7->N = k1; WITH7->BoBrho = QK;
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
 	     Lattice.param.Elem_nFam, (long)Elem_nFamMax);

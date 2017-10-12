@@ -443,7 +443,8 @@ void LatticeType::GetEmittance(const int Fnum, const bool prt)
   phi0 = fabs(asin(Lattice.param.U0/V_RF));
   Lattice.param.delta_RF =
     sqrt(-V_RF*cos(M_PI-phi0)*(2.0-(M_PI-2.0*(M_PI-phi0))
-    *tan(M_PI-phi0))/(fabs(Lattice.param.Alphac)*M_PI*h_RF*1e9*Lattice.param.Energy));
+    *tan(M_PI-phi0))/(fabs(Lattice.param.Alphac)*M_PI*h_RF
+		      *1e9*Lattice.param.Energy));
 
   // Compute diffusion coeffs. for eigenvectors [sigma_xx, sigma_yy, sigma_zz]
   putlinmat(6, Lattice.param.Ascr, Ascr_map); Ascr_map += Lattice.param.CODvect;
@@ -462,11 +463,13 @@ void LatticeType::GetEmittance(const int Fnum, const bool prt)
   for (i = 0; i < DOF; i++) {
     // partition numbers
     Lattice.param.J[i] =
-      2.0*(1.0+Lattice.param.CODvect[delta_])*Lattice.param.alpha_rad[i]/Lattice.param.dE;
+      2.0*(1.0+Lattice.param.CODvect[delta_])*Lattice.param.alpha_rad[i]
+      /Lattice.param.dE;
     // damping times
     Lattice.param.tau[i] = -C/(c0*Lattice.param.alpha_rad[i]);
     // diffusion coeff. and emittance (alpha is for betatron amplitudes)
-    Lattice.param.eps[i] = -Lattice.param.D_rad[i]/(2.0*Lattice.param.alpha_rad[i]);
+    Lattice.param.eps[i] =
+      -Lattice.param.D_rad[i]/(2.0*Lattice.param.alpha_rad[i]);
     // fractional tunes
     nu[i]  = atan2(Lattice.param.wi[i*2], Lattice.param.wr[i*2])/(2.0*M_PI);
     if (nu[i] < 0.0) nu[i] = 1.0 + nu[i];
@@ -482,7 +485,8 @@ void LatticeType::GetEmittance(const int Fnum, const bool prt)
   for (i = 0; i < 6; i++) {
     Ascr_map[i] = tps(Lattice.param.CODvect[i]);
     for (j = 0; j < 6; j++)
-      Ascr_map[i] += Lattice.param.Ascr[i][j]*sqrt(Lattice.param.eps[j/2])*tps(0.0, j+1);
+      Ascr_map[i] +=
+	Lattice.param.Ascr[i][j]*sqrt(Lattice.param.eps[j/2])*tps(0.0, j+1);
   }
   for (loc = 0; loc <= Lattice.param.Cell_nLoc; loc++) {
     Elem_Pass(loc, Ascr_map);
@@ -502,7 +506,8 @@ void LatticeType::GetEmittance(const int Fnum, const bool prt)
   Lattice.param.alpha_z =
     -Lattice.param.Ascr[ct_][ct_]*Lattice.param.Ascr[delta_][ct_]
     - Lattice.param.Ascr[ct_][delta_]*Lattice.param.Ascr[delta_][delta_];
-  Lattice.param.beta_z = sqr(Lattice.param.Ascr[ct_][ct_]) + sqr(Lattice.param.Ascr[ct_][delta_]);
+  Lattice.param.beta_z =
+    sqr(Lattice.param.Ascr[ct_][ct_]) + sqr(Lattice.param.Ascr[ct_][delta_]);
   gamma_z = (1.0+sqr(Lattice.param.alpha_z))/Lattice.param.beta_z;
 
   // bunch size
@@ -524,7 +529,8 @@ void LatticeType::GetEmittance(const int Fnum, const bool prt)
     printf("\n");
     printf("Equilibrium emittance [m.rad]:  "
 	   "eps_x       = %9.3e, eps_y  = %9.3e, eps_z  = %9.3e\n",
-            Lattice.param.eps[X_], Lattice.param.eps[Y_], Lattice.param.eps[Z_]);
+	   Lattice.param.eps[X_], Lattice.param.eps[Y_],
+	   Lattice.param.eps[Z_]);
     printf("Bunch length [mm]:              "
 	   "sigma_s     = %5.3f\n", 1e3*sigma_s);
     printf("Momentum spread:                "
@@ -534,7 +540,8 @@ void LatticeType::GetEmittance(const int Fnum, const bool prt)
             Lattice.param.J[X_], Lattice.param.J[Y_], Lattice.param.J[Z_]);
     printf("Damping times [msec]:           "
 	   "tau_x       = %3.1f,      tau_y  = %3.1f,      tau_z  = %3.1f\n",
-	   1e3*Lattice.param.tau[X_], 1e3*Lattice.param.tau[Y_], 1e3*Lattice.param.tau[Z_]);
+	   1e3*Lattice.param.tau[X_], 1e3*Lattice.param.tau[Y_],
+	   1e3*Lattice.param.tau[Z_]);
     printf("\n");
     printf("alphac:                         "
 	   "alphac      = %8.4e\n", Lattice.param.Alphac);
@@ -982,7 +989,8 @@ void LatticeType::CheckAlignTol(const char *OutputFile)
   fout << "Girders, Quads, Sexts:  " << std::endl;
   for (i = 1; i <= n_girders; i++){
     fout << i << ":" << std::endl;
-    loc_gs = Lattice.Elem_GetPos(gs_Fnum, i); loc_ge = Lattice.Elem_GetPos(ge_Fnum, i);
+    loc_gs = Lattice.Elem_GetPos(gs_Fnum, i);
+    loc_ge = Lattice.Elem_GetPos(ge_Fnum, i);
 
     loc = loc_gs;
     dSsys[X_] = Lattice.Cell[loc].Elem.M->dSsys[X_];
@@ -1144,7 +1152,8 @@ void misalign_rms_type(const int type,
       if ((Lattice.Cell[k].Elem.Kind == Mpole) &&
 	  ((type == Lattice.Cell[k].Elem.M->n_design) ||
 	  ((type == All) &&
-	   ((Lattice.Cell[k].Fnum != Lattice.param.gs) && (Lattice.Cell[k].Fnum != Lattice.param.ge))))) {
+	   ((Lattice.Cell[k].Fnum != Lattice.param.gs) &&
+	    (Lattice.Cell[k].Fnum != Lattice.param.ge))))) {
 	// if all: skip girders
 	misalign_rms_elem(Lattice.Cell[k].Fnum, Lattice.Cell[k].Knum,
 			  dx_rms, dy_rms, dr_rms, new_rnd);
@@ -1166,7 +1175,8 @@ void misalign_sys_type(const int type,
       if ((Lattice.Cell[k].Elem.Kind == Mpole) &&
 	  ((type == Lattice.Cell[k].Elem.M->n_design) ||
 	  ((type == All) &&
-	   ((Lattice.Cell[k].Fnum != Lattice.param.gs) && (Lattice.Cell[k].Fnum != Lattice.param.ge))))) {
+	   ((Lattice.Cell[k].Fnum != Lattice.param.gs) &&
+	    (Lattice.Cell[k].Fnum != Lattice.param.ge))))) {
 	// if all: skip girders
 	misalign_sys_elem(Lattice.Cell[k].Fnum, Lattice.Cell[k].Knum,
 			  dx_sys, dy_sys, dr_sys);
@@ -1207,12 +1217,14 @@ void misalign_rms_girders(const int gs, const int ge,
     Mpole_SetdT(ge, i);
 
     for (k = 0; k <= 1; k++) {
-      dx_gs[k] = Lattice.Cell[loc_gs].dS[k]; dx_ge[k] = Lattice.Cell[loc_ge].dS[k];
+      dx_gs[k] = Lattice.Cell[loc_gs].dS[k];
+      dx_ge[k] = Lattice.Cell[loc_ge].dS[k];
     }
 
     // move elements onto mis-aligned girder
     for (j = loc_gs+1; j < loc_ge; j++) {
-      if ((Lattice.Cell[j].Elem.Kind == Mpole) || (Lattice.Cell[j].Fnum == Lattice.param.bpm)) {
+      if ((Lattice.Cell[j].Elem.Kind == Mpole) ||
+	  (Lattice.Cell[j].Fnum == Lattice.param.bpm)) {
         s = Lattice.Cell[j].S;
 	for (k = 0; k <= 1; k++)
 	  Lattice.Cell[j].Elem.M->dSsys[k]
@@ -1582,8 +1594,10 @@ void set_bnL_design_type(const int type,
 
   if ((type >= Dip) && (type <= HOMmax)) {
     for (k = 1; k <= Lattice.param.Cell_nLoc; k++)
-      if ((Lattice.Cell[k].Elem.Kind == Mpole) && (Lattice.Cell[k].Elem.M->n_design == type))
-	set_bnL_design_elem(Lattice.Cell[k].Fnum, Lattice.Cell[k].Knum, n, bnL, anL);
+      if ((Lattice.Cell[k].Elem.Kind == Mpole) &&
+	  (Lattice.Cell[k].Elem.M->n_design == type))
+	set_bnL_design_elem(Lattice.Cell[k].Fnum, Lattice.Cell[k].Knum,
+			    n, bnL, anL);
   } else
     printf("Bad type argument to set_bnL_design_type()\n");
 }
@@ -2449,7 +2463,8 @@ void LatticeType::IBS(const double Qb, const double eps_SR[], double eps[],
   sigma_s_SR = sqrt(Lattice.param.beta_z*eps_SR[Z_]);
   sigma_delta_SR = sqrt(gamma_z*eps_SR[Z_]);
 
-  sigma_s = sqrt(Lattice.param.beta_z*eps[Z_]); sigma_delta = sqrt(gamma_z*eps[Z_]);
+  sigma_s = sqrt(Lattice.param.beta_z*eps[Z_]);
+  sigma_delta = sqrt(gamma_z*eps[Z_]);
 
   if (prt1) {
     printf("\nQb             = %4.2f nC,        Nb          = %9.3e\n",
@@ -2477,7 +2492,8 @@ void LatticeType::IBS(const double Qb, const double eps_SR[], double eps[],
 
     // Compute beam sizes for given hor/ver emittance, sigma_s,
     // and sigma_delta (for x ~ 0): sigma_x0' = sqrt(eps_x/beta_x).
-    sigma_x = sqrt(Lattice.Cell[k].Beta[X_]*eps[X_]+sqr(Lattice.Cell[k].Eta[X_]*sigma_delta));
+    sigma_x = sqrt(Lattice.Cell[k].Beta[X_]*eps[X_]
+		   +sqr(Lattice.Cell[k].Eta[X_]*sigma_delta));
     sigma_xp = (eps[X_]/sigma_x)*sqrt(1.0+curly_H*sqr(sigma_delta)/eps[X_]);
     sigma_y = sqrt(Lattice.Cell[k].Beta[Y_]*eps[Y_]);
 
@@ -3387,8 +3403,8 @@ double f_bend(double b0L[])
   SetbnL_sys(Fnum_Cart, Dip, b0L[1]);
 
   ps.zero();
-  Cell_Pass(Lattice.Elem_GetPos(Fnum_Cart, 1)-1, Lattice.Elem_GetPos(Fnum_Cart, 1),
-	    ps, lastpos);
+  Cell_Pass(Lattice.Elem_GetPos(Fnum_Cart, 1)-1,
+	    Lattice.Elem_GetPos(Fnum_Cart, 1), ps, lastpos);
 
   if (n_iter_Cart % n_prt == 0)
     std::cout << std::scientific << std::setprecision(3)
@@ -3415,7 +3431,8 @@ void bend_cal_Fam(const int Fnum)
   b0L = dvector(1, n_prm); xi = dmatrix(1, n_prm, 1, n_prm);
 
   std::cout << std::endl;
-  std::cout << "bend_cal: " << Lattice.ElemFam[Fnum-1].ElemF.Name << ":" << std::endl;
+  std::cout << "bend_cal: " << Lattice.ElemFam[Fnum-1].ElemF.Name << ":"
+	    << std::endl;
 
   Fnum_Cart = Fnum;  b0L[1] = 0.0; xi[1][1] = 1e-3;
 

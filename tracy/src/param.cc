@@ -396,7 +396,8 @@ void param_data_type::ini_skew_cor(const double deta_y_max)
 {
   int k;
 
-  std::cout << "ini_skew_cor: out-of-date (Lattice.param.hcorr...)" << std::endl;
+  std::cout << "ini_skew_cor: out-of-date (Lattice.param.hcorr...)"
+	    << std::endl;
   exit(1);
 
   // No of skew quads, BPMs, and correctors
