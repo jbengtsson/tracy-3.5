@@ -216,7 +216,7 @@ void Drift(const double L, ss_vect<T> &ps)
 template<typename T>
 void Drift_Pass(CellType &Cell, ss_vect<T> &x)
 {
-  Drift(Cell.Elem.L, x);
+  Drift(Cell.L, x);
 }
 
 
@@ -1908,7 +1908,7 @@ void FieldMap_Pass(CellType &Cell, ss_vect<T> &ps)
 
 //  GtoL(ps, Cell.dS, Cell.dT, 0e0, 0e0, 0e0);
 
-  Ld = (FM->Lr-Cell.Elem.L)/2e0;
+  Ld = (FM->Lr-Cell.L)/2e0;
   p_rot(FM->phi/2e0*180e0/M_PI, ps);
   printf("\nFieldMap_Pass: entrance negative drift [m] %12.5e", Ld);
   Drift(-Ld, ps);
@@ -2145,7 +2145,7 @@ long LatticeType::Elem_GetPos(const int Fnum1, const int Knum1)
   else {
     loc = -1;
     printf("Elem_GetPos: there are no kids in family %d (%s)\n",
-	   Fnum1, Lattice.ElemFam[Fnum1-1].ElemF.Name);
+	   Fnum1, Lattice.ElemFam[Fnum1-1]F.Name);
     exit_(0);
   }
 

@@ -1753,12 +1753,12 @@ static bool Lat_CheckWiggler(FILE **fo, long i, struct LOC_Lattice_Read *LINK)
   WITH = &Lattice.ElemFam[i-1];
   WITH1 = WITH->ElemF.W;
   Lambda = WITH1->lambda;
-  L = WITH1->L; a = L/Lambda;
+  L = WITH->L; a = L/Lambda;
   NN = (long)floor(a+0.01+0.5);
   diff = fabs((L-NN*Lambda)/L);
   if (diff < 1e-5) return true;
   printf("\n");
-  printf(">>> Incorrect definition of %.*s\n\n", NameLength, WITH1->Name);
+  printf(">>> Incorrect definition of %.*s\n\n", NameLength, WITH->Name);
   printf("    L      ( total length ) =%20.12f [m]\n", L);
   printf("    Lambda ( wave  length ) =%20.12f [m]\n", Lambda);
   printf("    # of Period = L/Lambda  =%20.12f ?????\n\n", L / Lambda);
@@ -2250,8 +2250,8 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       WITH2 = WITH1->M;
       WITH2->method = k2;
       WITH2->N = k1;
-      if (WITH2->L != 0.0)
-	WITH2->irho = t * M_PI / 180.0 / WITH2->L;
+      if (WITH->L != 0.0)
+	WITH2->irho = t * M_PI / 180.0 / WITH->L;
       else
 	WITH2->irho = t * M_PI / 180.0;
       WITH2->Tx1 = t1; WITH2->Tx2 = t2; WITH2->gap = gap;
@@ -3940,11 +3940,11 @@ static void DealWithDefns(struct LOC_Lattice_Read *LINK)
 	    }
 	    if (k <= Cell_nLocMax) {
 	      Lattice.Cell[k].Fnum = k1;
-	      Lattice.Cell[k].Elem.Reverse = LINK->Reverse_stack[j];
+	      Lattice.Cell[k].Reverse = LINK->Reverse_stack[j];
 	      if (debug_lat)
 		printf("  Cell definition: |%s| %2ld %3ld %2d %1d\n",
 		       WITH->Bname, i, k,
-		       Lattice.Cell[k].Fnum, Lattice.Cell[k].Elem.Reverse);
+		       Lattice.Cell[k].Fnum, Lattice.Cell[k].Reverse);
 	    } else {
 	      printf("** Cell_nLocMax exhausted: %ld(%ld)\n",
 		     k, (long)Cell_nLocMax);
@@ -4117,7 +4117,7 @@ static double Circumference(struct LOC_Lattice_Read *LINK)
   S = 0.0;
   FORLIM = Lattice.param.Cell_nLoc;
   for (i = 1; i <= FORLIM; i++)
-    S += Lattice.ElemFam[Lattice.Cell[i].Fnum-1].ElemF.L;
+    S += Lattice.ElemFam[Lattice.Cell[i].Fnum-1].L;
   return S;
 }
 
@@ -4135,7 +4135,7 @@ static void RegisterKids(struct LOC_Lattice_Read *LINK)
       Lattice.ElemFam[i].nKid = 0;
       if (debug_lat)
 	printf("  RegisterKids: %2ld %8s\n", i+1,
-	       Lattice.ElemFam[i].ElemF.Name);
+	       Lattice.ElemFam[i].Name);
     }
   } else {
     printf("Elem_nFamMax exceeded: %ld(%d)\n",
@@ -4386,19 +4386,19 @@ long LatticeType::Elem_Index(const std::string &name)
   i = 1;
   while (i <= Lattice.param.Elem_nFam) {
     if (trace) {
-      std::cout << std::setw(2) << (name1 == Lattice.ElemFam[i-1].ElemF.Name)
-	   << " " << name1 << " " << Lattice.ElemFam[i-1].ElemF.Name << " (";
+      std::cout << std::setw(2) << (name1 == Lattice.ElemFam[i-1].Name)
+	   << " " << name1 << " " << Lattice.ElemFam[i-1].Name << " (";
       for (j = 0; j < SymbolLength; j++)
-	std::cout << std::setw(4) << (int)Lattice.ElemFam[i-1].ElemF.Name[j];
+	std::cout << std::setw(4) << (int)Lattice.ElemFam[i-1].Name[j];
       std::cout  << " )" << std::endl;
     }
 
-    if (name1 == Lattice.ElemFam[i-1].ElemF.Name) break;
+    if (name1 == Lattice.ElemFam[i-1].Name) break;
 
     i++;
   }
 
-  if (name1 != Lattice.ElemFam[i-1].ElemF.Name) {
+  if (name1 != Lattice.ElemFam[i-1].Name) {
     std::cout << "ElemIndex: undefined element " << name << std::endl;
     exit_(1);
   }

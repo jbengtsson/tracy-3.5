@@ -13,12 +13,12 @@
 #define nKidMax      5000  // Max number of kids.
 
 // ID Laurent.
-#define IDXMAX 200
-#define IDZMAX 100
+#define IDXMAX       200
+#define IDZMAX       100
 
 /* definition form old soleilcommon.h */
-#define NTURN 10000  // 2*NTURN for diffusion
-#define DIM   6
+#define NTURN        10000  // 2*NTURN for diffusion
+#define DIM          6
 
 const int max_elem     = Cell_nLocMax;
 const int n_harm_max   = 10;
@@ -75,7 +75,7 @@ class elemtype {
 };
 
 
-class CellType {
+class CellType : public ElemType {
  private:
  public:
   int      Fnum;       // Element Family #.
@@ -132,7 +132,7 @@ class CellType {
 };
 
 
-class DriftType : public ElemType {
+class DriftType {
  private:
  public:
 
@@ -145,7 +145,7 @@ class DriftType : public ElemType {
 };
 
 
-class MpoleType : public ElemType {
+class MpoleType {
  private:
  public:
   int        method;     // Integration Method.
@@ -186,7 +186,7 @@ class MpoleType : public ElemType {
 };
 
 
-class WigglerType : public ElemType {
+class WigglerType {
  private:
  public:
   int       method;              // Integration Method.
@@ -220,7 +220,7 @@ class WigglerType : public ElemType {
 };
 
 
-class InsertionType : public ElemType {
+class InsertionType {
  private:
  public:
   int    method;       // Integration Method.
@@ -270,7 +270,7 @@ class InsertionType : public ElemType {
 };
 
 
-class FieldMapType : public ElemType {
+class FieldMapType {
  private:
  public:
   int    n_step;                       // number of integration steps.
@@ -290,7 +290,7 @@ class FieldMapType : public ElemType {
 };
 
 
-class SolenoidType : public ElemType {
+class SolenoidType  {
  private:
  public:
   int     N;      // Number of integration steps
@@ -313,7 +313,7 @@ class SolenoidType : public ElemType {
 };
 
 
-class CavityType : public ElemType {
+class CavityType {
  private:
  public:
   int    N;           // Number of integration steps.
@@ -332,7 +332,7 @@ class CavityType : public ElemType {
 };
 
 
-class SpreaderType : public ElemType {
+class SpreaderType {
  private:
  public:
   double   E_max[Spreader_max];      // energy levels in increasing order
@@ -344,7 +344,7 @@ class SpreaderType : public ElemType {
 };
 
 
-class RecombinerType : public ElemType {
+class RecombinerType {
  private:
  public:
   double E_min;
