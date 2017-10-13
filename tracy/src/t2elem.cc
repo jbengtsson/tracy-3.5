@@ -3267,6 +3267,8 @@ void Marker_Init(int Fnum1)
   for (i = 0; i < elemfamp->nKid; i++) {
     cellp = &Lattice.Cell[elemfamp->KidList[i]]; elemp = &cellp->Elem;
     cellp->Elem  = elemfamp->ElemF;
+    memcpy(cellp->Name, elemfamp->Name, sizeof(partsName));
+
     cellp->dT[0] = 1e0; cellp->dT[1] = 0e0;
     cellp->dS[0] = 0e0; cellp->dS[1] = 0e0;
   }
