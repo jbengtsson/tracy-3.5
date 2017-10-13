@@ -102,7 +102,7 @@ void get_S(void)
 
   S = 0e0;
   for (j = 0; j <= Lattice.param.Cell_nLoc; j++) {
-    S += Lattice.Cell[j].Elem.L; Lattice.Cell[j].S = S;
+    S += Lattice.Cell[j].L; Lattice.Cell[j].S = S;
   }
 }
 

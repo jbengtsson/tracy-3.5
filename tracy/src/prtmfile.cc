@@ -79,7 +79,7 @@ void prtName(FILE *fp, const int i,
 	     const int type, const int method, const int N)
 {
   fprintf(fp, "%-15s %4d %4d %4d\n",
-	  Lattice.Cell[i].Elem.Name,
+	  Lattice.Cell[i].Name,
 	  Lattice.Cell[i].Fnum, Lattice.Cell[i].Knum, i);
   fprintf(fp, " %3d %3d %3d\n", type, method, N);
   fprintf(fp, " %23.16e %23.16e %23.16e %23.16e\n",
@@ -110,13 +110,13 @@ void LatticeType::prtmfile(const char mfile_dat[])
 
   mfile = file_write(mfile_dat);
   for (i = 0; i <= Lattice.param.Cell_nLoc; i++) {
-    switch (Lattice.Cell[i].Elem.Kind) {
+    switch (Lattice.Cell[i].Kind) {
     case drift:
       prtName(mfile, i, drift_, 0, 0);
-      fprintf(mfile, " %23.16e\n", Lattice.Cell[i].Elem.L);
+      fprintf(mfile, " %23.16e\n", Lattice.Cell[i].L);
       break;
     case Mpole:
-      if (Lattice.Cell[i].Elem.L != 0.0) {
+      if (Lattice.Cell[i].L != 0.0) {
 	prtName(mfile, i, mpole_, Lattice.Cell[i].Elem.M->method,
 		Lattice.Cell[i].Elem.M->N);
 	fprintf(mfile, " %23.16e %23.16e %23.16e %23.16e\n",
@@ -125,7 +125,7 @@ void LatticeType::prtmfile(const char mfile_dat[])
 		Lattice.Cell[i].Elem.M->dTsys
 		+Lattice.Cell[i].Elem.M->dTrms*Lattice.Cell[i].Elem.M->dTrnd);
 	fprintf(mfile, " %23.16e %23.16e %23.16e %23.16e %23.16e\n",
-		Lattice.Cell[i].Elem.L, Lattice.Cell[i].Elem.M->irho,
+		Lattice.Cell[i].L, Lattice.Cell[i].Elem.M->irho,
 		Lattice.Cell[i].Elem.M->Tx1, Lattice.Cell[i].Elem.M->Tx2,
 		Lattice.Cell[i].Elem.M->gap);
 	prtHOM(mfile, Lattice.Cell[i].Elem.M->n_design,
@@ -145,7 +145,7 @@ void LatticeType::prtmfile(const char mfile_dat[])
       prtName(mfile, i, wiggler_, Lattice.Cell[i].Elem.W->method,
 	      Lattice.Cell[i].Elem.W->N);
       fprintf(mfile, " %23.16e %23.16e\n",
-	      Lattice.Cell[i].Elem.L, Lattice.Cell[i].Elem.W->lambda);
+	      Lattice.Cell[i].L, Lattice.Cell[i].Elem.W->lambda);
       fprintf(mfile, "%2d\n", Lattice.Cell[i].Elem.W->n_harm);
       for (j = 0; j < Lattice.Cell[i].Elem.W->n_harm; j++) {
 	fprintf(mfile, "%2d %23.16e %23.16e %23.16e %23.16e %23.16e\n",
@@ -181,7 +181,7 @@ void LatticeType::prtmfile(const char mfile_dat[])
 		Lattice.Cell[i].Elem.ID->fname2);
       break;
     default:
-      printf("prtmfile: unknown type %d\n", Lattice.Cell[i].Elem.Kind);
+      printf("prtmfile: unknown type %d\n", Lattice.Cell[i].Kind);
       exit(1);
       break;
     }

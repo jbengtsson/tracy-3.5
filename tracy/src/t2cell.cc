@@ -52,7 +52,7 @@ template<typename T>
 void Elem_Pass(const long i, ss_vect<T> &x)
 {
 
-  switch (Lattice.Cell[i].Elem.Kind) {
+  switch (Lattice.Cell[i].Kind) {
     case drift:
       Drift_Pass(Lattice.Cell[i], x);
       break;
@@ -256,10 +256,10 @@ bool GetCOD(const long imax, const double eps, const double dP, long &lastpos)
 
 void Cell_Init(void)
 {
-  long         i;
-  double       Stotal;
-  ElemFamType  *elemfamp;
-  elemtype     *elemp;
+  long        i;
+  double      Stotal;
+  ElemFamType *elemfamp;
+  elemtype    *elemp;
 
   char  first_name[] = "begin          ";
 
@@ -268,15 +268,15 @@ void Cell_Init(void)
 
   SI_init();  /* Initializes the constants for symplectic integrator */
 
-  memcpy(Lattice.Cell[0].Elem.Name, first_name, sizeof(first_name));
+  memcpy(Lattice.Cell[0].Name, first_name, sizeof(first_name));
 
   for (i = 1; i <= Lattice.param.Elem_nFam; i++) {
     elemfamp  = &Lattice.ElemFam[i-1]; /* Get 1 of all elements stored in
 					  ElemFam array */
     elemp = &elemfamp->ElemF; // For switch structure: choice on element type
     if (debug)
-      printf("Cell_Init, i:=%3ld: %*s\n", i, SymbolLength, elemp->Name);
-    switch (elemp->Kind) {
+      printf("Cell_Init, i:=%3ld: %*s\n", i, SymbolLength, elemfamp->Name);
+    switch (elemfamp->Kind) {
     case drift:
       elemp->D->Drift_Init(i);
       break;
@@ -326,6 +326,6 @@ void Cell_Init(void)
   /* Computes s-location of each element in the structure */
   Stotal = 0e0;
   for (i = 0; i <= Lattice.param.Cell_nLoc; i++) {
-    Stotal += Lattice.Cell[i].Elem.L; Lattice.Cell[i].S = Stotal;
+    Stotal += Lattice.Cell[i].L; Lattice.Cell[i].S = Stotal;
   }
 }

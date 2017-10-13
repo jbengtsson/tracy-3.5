@@ -514,7 +514,7 @@ int main(int argc, char *argv[])
     for (j = 0; j <= Lattice.param.Cell_nLoc; j++){
       fprintf(fp, "%4li %8.3f %s %6.2f %10.3e %10.3e %10.3e %10.3e %10.3e "
 	      "%10.3e\n",
-	      j, Lattice.Cell[j].S, Lattice.Cell[j].Elem.Name,
+	      j, Lattice.Cell[j].S, Lattice.Cell[j].Name,
 	      get_code(Lattice.Cell[j]),
 	      Lattice.Cell[j].BeamPos[0]*1e3, Lattice.Cell[j].BeamPos[1]*1e3,
 	      Lattice.Cell[j].BeamPos[2]*1e3, Lattice.Cell[j].BeamPos[3]*1e3,

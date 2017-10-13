@@ -190,7 +190,7 @@ void param_data_type::get_bare(void)
 
   n_sext = 0;
   for (j = 0; j <= Lattice.param.Cell_nLoc; j++) {
-    if ((Lattice.Cell[j].Elem.Kind == Mpole) &&
+    if ((Lattice.Cell[j].Kind == Mpole) &&
 	(Lattice.Cell[j].Elem.M->n_design >= Sext)) {
       n_sext++; sexts[n_sext-1] = j;
       for (k = 0; k < 2; k++) {
@@ -627,7 +627,7 @@ void param_data_type::corr_eps_y(void)
   outf = file_write(eta_y_FileName);
   for (i = 0; i <= Lattice.param.Cell_nLoc; i++)
     fprintf(outf, "%4d %7.3f %s %6.3f %10.3e %10.3e\n",
-	    i, Lattice.Cell[i].S, Lattice.Cell[i].Elem.Name,
+	    i, Lattice.Cell[i].S, Lattice.Cell[i].Name,
 	    Lattice.Cell[i].Nu[Y_], 1e3*Lattice.Cell[i].Eta[Y_],
 	    1e3*Lattice.Cell[i].Etap[Y_]);
   fclose(outf);
@@ -643,16 +643,16 @@ void param_data_type::get_IDs(void)
   printf("\n");
   n_ID_Fams = 0;
   for (k = 0; k < Lattice.param.Elem_nFam; k++)
-    switch (Lattice.ElemFam[k].ElemF.Kind) {
+    switch (Lattice.ElemFam[k].Kind) {
     case Wigl:
       printf("found ID family:   %s %12.5e\n",
-	     Lattice.ElemFam[k].ElemF.Name,
+	     Lattice.ElemFam[k].Name,
 	     Lattice.ElemFam[k].ElemF.W->BoBrhoV[0]);
       n_ID_Fams++; ID_Fams[n_ID_Fams-1] = k + 1;
       break;
     case Insertion:
       printf("found ID family:   %s %12.5e",
-	     Lattice.ElemFam[k].ElemF.Name,
+	     Lattice.ElemFam[k].Name,
 	     Lattice.ElemFam[k].ElemF.ID->scaling);
       if (Lattice.ElemFam[k].ElemF.ID->scaling != 0e0) {
 	printf("\n");
@@ -662,7 +662,7 @@ void param_data_type::get_IDs(void)
       break;
     case FieldMap:
       printf("found ID family:   %s %12.5e\n",
-	     Lattice.ElemFam[k].ElemF.Name,
+	     Lattice.ElemFam[k].Name,
 	     Lattice.ElemFam[k].ElemF.FM->scl);
       n_ID_Fams++; ID_Fams[n_ID_Fams-1] = k + 1;
       break;
@@ -681,10 +681,10 @@ void param_data_type::set_IDs(const double scl)
 
   printf("\n");
   for (k = 0; k < n_ID_Fams; k++) {
-    switch (Lattice.ElemFam[ID_Fams[k]-1].ElemF.Kind) {
+    switch (Lattice.ElemFam[ID_Fams[k]-1].Kind) {
     case Wigl:
       printf("setting ID family: %s %12.5e\n",
-	     Lattice.ElemFam[ID_Fams[k]-1].ElemF.Name,
+	     Lattice.ElemFam[ID_Fams[k]-1].Name,
 	     scl*Lattice.ElemFam[ID_Fams[k]-1].ElemF.W->BoBrhoV[0]);
 
       set_Wiggler_BoBrho(ID_Fams[k],
@@ -692,13 +692,13 @@ void param_data_type::set_IDs(const double scl)
       break;
     case Insertion:
       printf("setting ID family: %s %12.5e\n",
-	     Lattice.ElemFam[ID_Fams[k]-1].ElemF.Name, scl);
+	     Lattice.ElemFam[ID_Fams[k]-1].Name, scl);
 
       set_ID_scl(ID_Fams[k], scl);
       break;
     case FieldMap:
       printf("setting ID family: %s %12.5e\n",
-	     Lattice.ElemFam[ID_Fams[k]-1].ElemF.Name, scl);
+	     Lattice.ElemFam[ID_Fams[k]-1].Name, scl);
 
       set_ID_scl(ID_Fams[k], scl);
       break;
@@ -723,14 +723,14 @@ void param_data_type::reset_quads(void)
   for (k = 0; k < N_Fam; k++) {
     // Note, actual values can differ from the original values
 /*    printf("setting quad family: %s %12.5e\n",
-	   Lattice.ElemFam[Q_Fam[k]-1].ElemF.Name,
+	   Lattice.ElemFam[Q_Fam[k]-1].Name,
 	   Lattice.ElemFam[Q_Fam[k]-1].ElemF.M->Bpar[HOMmax+Quad]);
 
     set_bn_design_fam(Q_Fam[k], Quad,
 		       Lattice.ElemFam[Q_Fam[k]-1].ElemF.M->Bpar[HOMmax+Quad], 0.0);*/
 
     printf("setting quad family: %s %12.5e\n",
-	   Lattice.ElemFam[Q_Fam[k]-1].ElemF.Name, b2[k]);
+	   Lattice.ElemFam[Q_Fam[k]-1].Name, b2[k]);
 
     set_bn_design_fam(Q_Fam[k], Quad, b2[k], 0.0);
   }
@@ -841,7 +841,7 @@ bool param_data_type::get_SQ(void)
 
   Nsext = 0;
   for (k = 0; k < Lattice.param.Cell_nLoc; k++) {
-    if ((Lattice.Cell[k].Elem.Kind == Mpole) &&
+    if ((Lattice.Cell[k].Kind == Mpole) &&
 	(Lattice.Cell[k].Elem.M->n_design == Sext)) {
       Nsext++;
 
@@ -860,11 +860,11 @@ bool param_data_type::get_SQ(void)
 
       if (trace) {
 	printf("%-8s %7.3f %8.5f %8.5f %8.5f %8.5f\n",
-	       Lattice.Cell[k].Elem.Name, Ss[Nsext-1],
+	       Lattice.Cell[k].Name, Ss[Nsext-1],
 	       sb[X_][Nsext-1], sNu[X_][Nsext-1]-nu_0[X_],
 	       sb[Y_][Nsext-1], sNu[Y_][Nsext-1]-nu_0[Y_]);
 	fprintf(outf, "%-8s %7.3f %8.5f %8.5f %8.5f %8.5f\n",
-		Lattice.Cell[k].Elem.Name, Ss[Nsext-1],
+		Lattice.Cell[k].Name, Ss[Nsext-1],
 		sb[X_][Nsext-1], sNu[X_][Nsext-1]-nu_0[X_],
 		sb[Y_][Nsext-1], sNu[Y_][Nsext-1]-nu_0[Y_]);
       }
@@ -901,11 +901,11 @@ bool param_data_type::get_SQ(void)
 
     if (trace) {
       printf("%-8s %7.3f %8.5f %8.5f %8.5f %8.5f\n",
-	     Lattice.Cell[quad_prms[k]].Elem.Name, Sq[k], qb[X_][k],
+	     Lattice.Cell[quad_prms[k]].Name, Sq[k], qb[X_][k],
 	     qNu[X_][k], qb[Y_][k], qNu[Y_][k]);
 
       fprintf(outf, "%-8s %7.3f %8.5f %8.5f %8.5f %8.5f\n",
-	      Lattice.Cell[quad_prms[k]].Elem.Name, Sq[k], qb[X_][k],
+	      Lattice.Cell[quad_prms[k]].Name, Sq[k], qb[X_][k],
 	      qNu[X_][k], qb[Y_][k], qNu[Y_][k]);
     }
   }
@@ -1136,16 +1136,16 @@ bool param_data_type::ID_corr(const int N_calls, const int N_steps,
 
 	if ((i == N_steps) && (j == N_calls)) {
 	  Fnum = Lattice.Cell[quad_prms[k-1]].Fnum;
-	  L = Lattice.Cell[quad_prms[k-1]].Elem.L;
+	  L = Lattice.Cell[quad_prms[k-1]].L;
 	  get_bnL_design_elem(Fnum, Lattice.Cell[quad_prms[k-1]].Knum, Quad,
 			      b2L, a2L);
 	  // ElemFam not defined for flat file.
 	  // fprintf(outf, "%10s %6.2f %3d %8.5f\n",
-	  // 	  Lattice.Cell[quad_prms[k-1]].Elem.Name,
+	  // 	  Lattice.Cell[quad_prms[k-1]].Name,
 	  //      Lattice.Cell[quad_prms[k-1]].S, k,
 	  // 	  b2L-Lattice.ElemFam[Fnum-1].ElemF.M->Bpar[HOMmax+Quad]*L);
 	  fprintf(outf, "%10s %6.2f %3d %8.5f\n",
-		  Lattice.Cell[quad_prms[k-1]].Elem.Name,
+		  Lattice.Cell[quad_prms[k-1]].Name,
 		  Lattice.Cell[quad_prms[k-1]].S, k, b2L);
 	}
       }
@@ -1478,17 +1478,17 @@ void param_data_type::Align_BPMs(const int n) const
 
     j = 1; aligned = false;
     do {
-      if ((Lattice.Cell[loc-j].Elem.Kind == Mpole) &&
+      if ((Lattice.Cell[loc-j].Kind == Mpole) &&
 	  (Lattice.Cell[loc-j].Elem.M->n_design == n)) {
 	for (k = 0; k <= 1; k++)
 	  Lattice.Cell[loc].Elem.M->dSsys[k] = Lattice.Cell[loc-j].dS[k];
-	printf("aligned BPM no %1d to %s\n", i, Lattice.Cell[loc-j].Elem.Name);
+	printf("aligned BPM no %1d to %s\n", i, Lattice.Cell[loc-j].Name);
 	aligned = true; break;
-      } else if ((Lattice.Cell[loc+j].Elem.Kind == Mpole) &&
+      } else if ((Lattice.Cell[loc+j].Kind == Mpole) &&
 		 (Lattice.Cell[loc+j].Elem.M->n_design == n)) {
 	for (k = 0; k <= 1; k++)
 	  Lattice.Cell[loc].Elem.M->dSsys[k] = Lattice.Cell[loc+j].dS[k];
-	printf("aligned BPM no %1d to %s\n", i, Lattice.Cell[loc+j].Elem.Name);
+	printf("aligned BPM no %1d to %s\n", i, Lattice.Cell[loc+j].Name);
 	aligned = true; break;
       }
 
@@ -1656,7 +1656,7 @@ void param_data_type::Orb_and_Trim_Stat(void)
   TrimMax[X_] = 0.0; TrimMax[Y_] = 0.0;
   N = Lattice.param.Cell_nLoc; SextCounter = 0;
   for (i = 0; i <= N; i++) {
-    if ((Lattice.Cell[i].Elem.Kind == Mpole) &&
+    if ((Lattice.Cell[i].Kind == Mpole) &&
 	(Lattice.Cell[i].Elem.M->n_design == Sext)) {
       SextCounter++;
       orb[X_] = Lattice.Cell[i].BeamPos[x_];
@@ -1721,7 +1721,7 @@ void param_data_type::prt_cod_corr_lat(void)
     if (i == 0)
       fprintf(CodCorLatFile, "%.*s", 6, "begin ");
     else
-      fprintf(CodCorLatFile, "%.*s", 6, Lattice.Cell[i].Elem.Name);
+      fprintf(CodCorLatFile, "%.*s", 6, Lattice.Cell[i].Name);
 
     fprintf(CodCorLatFile, "%7.3f  %5.2f    %5.2f  %7.4f  %5.2f  %7.4f"
 	    "  %6.3f  %6.3f  %6.3f\n",

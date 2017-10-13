@@ -331,9 +331,9 @@ void LatticeType::Cell_Twiss(long i0, long i1, ss_vect<tps> &Ascr, bool chroma,
 	(GetAngle(getmat(Ascr1, k, k), getmat(Ascr1, k, k+1)) -
 	 GetAngle(getmat(Ascr0, k, k), getmat(Ascr0, k, k+1)))/(2.0*M_PI);
 
-      if ((cellp->Elem.L >= 0.0) && (dnu[j] < -1e-16))
+      if ((cellp->L >= 0.0) && (dnu[j] < -1e-16))
 	dnu[j] += 1.0;
-      else if ((cellp->Elem.L < 0.0) && (dnu[j] > 1e-16))
+      else if ((cellp->L < 0.0) && (dnu[j] > 1e-16))
 	dnu[j] -= 1.0;
 
       nu1[j] += dnu[j];

@@ -322,7 +322,7 @@ void SetErr(void)
   for (i = 1L; i <= Lattice.param.Cell_nLoc; i++)
   {
     Lattice.getelem(i, &Cell);
-    if (Cell.Elem.Kind == 2L)
+    if (Cell.Kind == 2L)
     {
       if (Cell.Elem.M->order == 2L && Cell.dT[1] == 0)
       {
@@ -334,7 +334,7 @@ void SetErr(void)
 	  Cell.Elem.M->Bpar[HOMmax+2L]*cos(2.0*theta);
         if (trace)
 	  printf("%6s % .5e % .5e % .5e\n",
-		 Cell.Elem.Name, Cell.Elem.M->Bpar[HOMmax-2L],
+		 Cell.Name, Cell.Elem.M->Bpar[HOMmax-2L],
 		 Cell.Elem.M->Bpar[HOMmax+2L], theta);
 
         Lattice.putelem(i, &Cell);
@@ -385,40 +385,40 @@ void DefineCh(void)
 
   /* Look for indices for defining the vaccum pipe*/
   for (i = 0; i <= Lattice.param.Cell_nLoc; i++) {
-    if (Lattice.Cell[i].Elem.Kind == marker){
-      if (strncmp(Lattice.Cell[i].Elem.Name,"ssep",4) == 0){
+    if (Lattice.Cell[i].Kind == marker){
+      if (strncmp(Lattice.Cell[i].Name,"ssep",4) == 0){
         if (trace) fprintf(stdout,"trouve %s Element numero %ld \n",
-			   Lattice.Cell[i].Elem.Name,i);
+			   Lattice.Cell[i].Name,i);
         isep1 = i;
       }
-      if (strncmp(Lattice.Cell[i].Elem.Name,"esep",4) == 0) {
+      if (strncmp(Lattice.Cell[i].Name,"esep",4) == 0) {
         if (trace) fprintf(stdout,"trouve %s Element numero %ld \n",
-			   Lattice.Cell[i].Elem.Name,i-1);
+			   Lattice.Cell[i].Name,i-1);
         isep2 = i-1;
       }
-      if (strncmp(Lattice.Cell[i].Elem.Name,"ehu600",6) == 0) {
+      if (strncmp(Lattice.Cell[i].Name,"ehu600",6) == 0) {
         if (trace) fprintf(stdout,"trouve %s Element numero %ld \n",
-			   Lattice.Cell[i].Elem.Name,i-1);
+			   Lattice.Cell[i].Name,i-1);
         hu600 = i-1;
       }
-      if (strncmp(Lattice.Cell[i].Elem.Name,"ssdm",4) == 0) {
+      if (strncmp(Lattice.Cell[i].Name,"ssdm",4) == 0) {
          if (trace) fprintf(stdout,"trouve %s Element numero %ld \n",
-			    Lattice.Cell[i].Elem.Name,i);
+			    Lattice.Cell[i].Name,i);
          isdm1 = i;
       }
-      if (strncmp(Lattice.Cell[i].Elem.Name,"esdm",4) == 0) {
+      if (strncmp(Lattice.Cell[i].Name,"esdm",4) == 0) {
         if (trace) fprintf(stdout,"trouve %s Element numero %ld \n",
-			   Lattice.Cell[i].Elem.Name,i);
+			   Lattice.Cell[i].Name,i);
         isdm2 = i;
       }
-      if (strncmp(Lattice.Cell[i].Elem.Name,"ssdac",5) == 0) {
+      if (strncmp(Lattice.Cell[i].Name,"ssdac",5) == 0) {
         if (trace) fprintf(stdout,"trouve %s Element numero %ld \n",
-			   Lattice.Cell[i].Elem.Name,i);
+			   Lattice.Cell[i].Name,i);
         isdac1 = i;
       }
-      if (strncmp(Lattice.Cell[i].Elem.Name,"esdac",5) == 0) {
+      if (strncmp(Lattice.Cell[i].Name,"esdac",5) == 0) {
         if (trace) fprintf(stdout,"trouve %s Element numero %ld \n",
-			   Lattice.Cell[i].Elem.Name,i-1);
+			   Lattice.Cell[i].Name,i-1);
         isdac2 = i-1;
       }
     }
@@ -1596,43 +1596,43 @@ void Multipole(void)
   {
     Lattice.getelem(i, &Cell); /* get element */
 
-    if (Cell.Elem.Kind == Mpole)
+    if (Cell.Kind == Mpole)
     {
       if (fabs(Cell.Elem.M->irho) > 0.0)
       {
         dlist[ndip] = i;
         ndip++;
-        if (trace) printf("%s % f\n",Cell.Elem.Name, Cell.Elem.M->B[0 + HOMmax]);
+        if (trace) printf("%s % f\n",Cell.Name, Cell.Elem.M->B[0 + HOMmax]);
       }
       else if (fabs(Cell.Elem.M->Bpar[2L + HOMmax]) > 0.0)
       {
         qlist[nquad] = i;
         nquad++;
-        if (trace) printf("%s % f\n",Cell.Elem.Name, Cell.Elem.M->Bpar[2L + HOMmax]);
+        if (trace) printf("%s % f\n",Cell.Name, Cell.Elem.M->Bpar[2L + HOMmax]);
       }
       else if (fabs(Cell.Elem.M->Bpar[3L + HOMmax]) > 0.0)
       {
         slist[nsext] = i;
         nsext++;
-        if (trace) printf("%s % f\n",Cell.Elem.Name, Cell.Elem.M->Bpar[3L + HOMmax]);
+        if (trace) printf("%s % f\n",Cell.Name, Cell.Elem.M->Bpar[3L + HOMmax]);
       }
-      else if ( Cell.Elem.Name[0] == 'c' && Cell.Elem.Name[1] == 'h')
+      else if ( Cell.Name[0] == 'c' && Cell.Name[1] == 'h')
       {
         hcorrlist[nhcorr] = i;
         nhcorr++;
-        if (trace) printf("%s \n",Cell.Elem.Name);
+        if (trace) printf("%s \n",Cell.Name);
       }
-      else if ( Cell.Elem.Name[0] == 'c' && Cell.Elem.Name[1] == 'v')
+      else if ( Cell.Name[0] == 'c' && Cell.Name[1] == 'v')
       {
         vcorrlist[nvcorr] = i;
         nvcorr++;
-        if (trace) printf("%s \n",Cell.Elem.Name);
+        if (trace) printf("%s \n",Cell.Name);
       }
-      else if ( Cell.Elem.Name[0] == 'q' && Cell.Elem.Name[1] == 't')
+      else if ( Cell.Name[0] == 'q' && Cell.Name[1] == 't')
       {
         qcorrlist[nqcorr] = i;
         nqcorr++;
-        if (trace) printf("%s \n",Cell.Elem.Name);
+        if (trace) printf("%s \n",Cell.Name);
       }
     }
   }
@@ -1666,14 +1666,14 @@ void Multipole(void)
  for (i = 0; i < ndip; i++)
  {
    Lattice.getelem(dlist[i], &Cell);
-   theta = Cell.Elem.L*Cell.Elem.M->irho;
+   theta = Cell.L*Cell.Elem.M->irho;
 
    /* gradient error */
    mKL = dBoB2*theta*x0i;
    SetKLpar(Cell.Fnum, Cell.Knum, mOrder=2L, mKL);
 
    if (trace) printf("num= %4d name = %s Fnum = %3d, Knum=%3d theta=% e mKl=% e\n",
-		     i, Cell.Elem.Name,Cell.Fnum, Cell.Knum, theta, mKL);
+		     i, Cell.Name,Cell.Fnum, Cell.Knum, theta, mKL);
 
    /* sextupole error */
    mKL = dBoB3*theta*x02i;
@@ -1721,34 +1721,34 @@ void Multipole(void)
  for (i = 0; i < nquad; i++)
  {
    Lattice.getelem(qlist[i], &Cell);
-   b2 = Cell.Elem.L*GetKpar(Cell.Fnum, Cell.Knum, 2L);
+   b2 = Cell.L*GetKpar(Cell.Fnum, Cell.Knum, 2L);
 
    /* 12-pole multipole error */
-   if ((strncmp(Cell.Elem.Name,"qp2",3)==0) || (strncmp(Cell.Elem.Name,"qp7",3)==0))
+   if ((strncmp(Cell.Name,"qp2",3)==0) || (strncmp(Cell.Name,"qp7",3)==0))
       mKL= b2*dBoB6L*x04i;
    else
       mKL= b2*dBoB6C*x04i;
    SetKLpar(Cell.Fnum, Cell.Knum, mOrder=6L, mKL);
    if (trace) printf("num= %4d name = %s Fnum = %3d, Knum=%3d b2=% e mKl=% e\n",i,
-               Cell.Elem.Name,Cell.Fnum, Cell.Knum, b2, mKL);
+               Cell.Name,Cell.Fnum, Cell.Knum, b2, mKL);
 
    /* 20-pole multipole error */
-   if ((strncmp(Cell.Elem.Name,"qp2",3)==0) || (strncmp(Cell.Elem.Name,"qp7",3)==0))
+   if ((strncmp(Cell.Name,"qp2",3)==0) || (strncmp(Cell.Name,"qp7",3)==0))
      mKL= b2*dBoB10L*x08i;
    else
      mKL= b2*dBoB10C*x08i;
    SetKLpar(Cell.Fnum, Cell.Knum, mOrder=10L, mKL);
    if (trace) printf("num= %4d name = %s Fnum = %3d, Knum=%3d b2=% e mKl=% e\n",i,
-               Cell.Elem.Name,Cell.Fnum, Cell.Knum, b2, mKL);
+               Cell.Name,Cell.Fnum, Cell.Knum, b2, mKL);
 
    /* 28-pole multipole error */
-   if ((strncmp(Cell.Elem.Name,"qp2",3)==0) || (strncmp(Cell.Elem.Name,"qp7",3)==0))
+   if ((strncmp(Cell.Name,"qp2",3)==0) || (strncmp(Cell.Name,"qp7",3)==0))
      mKL= b2*dBoB14L*x012i;
    else
      mKL= b2*dBoB14C*x012i;
    SetKLpar(Cell.Fnum, Cell.Knum, mOrder=14L, mKL);
    if (trace) printf("num= %4d name = %s Fnum = %3d, Knum=%3d b2=% e mKl=% e\n",i,
-               Cell.Elem.Name,Cell.Fnum, Cell.Knum, b2, mKL);
+               Cell.Name,Cell.Fnum, Cell.Knum, b2, mKL);
 
  }
 
@@ -1782,25 +1782,25 @@ void Multipole(void)
    mKL= b3*dBoB9*x06i;
    SetKLpar(Cell.Fnum, Cell.Knum, mOrder=9L, mKL);
    if (trace) printf("num= %4d name = %s Fnum = %3d, Knum=%3d b3=% e mKl=% e\n",i,
-               Cell.Elem.Name,Cell.Fnum, Cell.Knum, b3, mKL);
+               Cell.Name,Cell.Fnum, Cell.Knum, b3, mKL);
 
    /* 30-pole multipole error */
    mKL= b3*dBoB15*x012i;
    SetKLpar(Cell.Fnum, Cell.Knum, mOrder=15L, mKL);
    if (trace) printf("num= %4d name = %s Fnum = %3d, Knum=%3d b3=% e mKl=% e\n",i,
-               Cell.Elem.Name,Cell.Fnum, Cell.Knum, b3, mKL);
+               Cell.Name,Cell.Fnum, Cell.Knum, b3, mKL);
 
    /* 42-pole multipole error */
    mKL= b3*dBoB21*x018i;
    SetKLpar(Cell.Fnum, Cell.Knum, mOrder=21L, mKL);
    if (trace) printf("num= %4d name = %s Fnum = %3d, Knum=%3d b3=% e mKl=% e\n",i,
-               Cell.Elem.Name,Cell.Fnum, Cell.Knum, b3, mKL);
+               Cell.Name,Cell.Fnum, Cell.Knum, b3, mKL);
 
    /* 54-pole multipole error */
    mKL= b3*dBoB27*x024i;
    SetKLpar(Cell.Fnum, Cell.Knum, mOrder=27L, mKL);
    if (trace) printf("num= %4d name = %s Fnum = %3d, Knum=%3d b3=% e mKl=% e\n",i,
-               Cell.Elem.Name,Cell.Fnum, Cell.Knum, b3, mKL);
+               Cell.Name,Cell.Fnum, Cell.Knum, b3, mKL);
 }
 
  /***********************************************************************************/
@@ -1847,20 +1847,20 @@ void Multipole(void)
    SetKLpar(Cell.Fnum, Cell.Knum, mOrder=5L, mKL);
 
    if (trace) printf("num= %4d name = %s Fnum = %3d, Knum=%3d BL/brho=% e mKl=% e\n",i,
-               Cell.Elem.Name,Cell.Fnum, Cell.Knum, corr_strength, mKL);
+               Cell.Name,Cell.Fnum, Cell.Knum, corr_strength, mKL);
    /* 14-pole error */
    mKL = dBoB7*corr_strength*x06i;
    SetKLpar(Cell.Fnum, Cell.Knum, mOrder=7L, mKL);
 
    if (trace) printf("num= %4d name = %s Fnum = %3d, Knum=%3d BL/brho=% e mKl=% e\n",i,
-            Cell.Elem.Name,Cell.Fnum, Cell.Knum, corr_strength, mKL);
+            Cell.Name,Cell.Fnum, Cell.Knum, corr_strength, mKL);
 
    /* 22-pole error */
    mKL = dBoB11*corr_strength*x010i;
    SetKLpar(Cell.Fnum, Cell.Knum, mOrder=11, mKL);
 
    if (trace) printf("num= %4d name = %s Fnum = %3d, Knum=%3d BL/brho=% e mKl=% e\n",i,
-               Cell.Elem.Name,Cell.Fnum, Cell.Knum, corr_strength, mKL);
+               Cell.Name,Cell.Fnum, Cell.Knum, corr_strength, mKL);
  }
 
  /***********************************************************************************/
@@ -1908,20 +1908,20 @@ void Multipole(void)
    SetKLpar(Cell.Fnum, Cell.Knum, mOrder=-5L, mKL);
 
    if (trace) printf("num= %4d name = %s Fnum = %3d, Knum=%3d BL/brho=% e mKl=% e\n",i,
-               Cell.Elem.Name,Cell.Fnum, Cell.Knum, corr_strength, mKL);
+               Cell.Name,Cell.Fnum, Cell.Knum, corr_strength, mKL);
    /* skew 14-pole error */
    mKL = dBoB7*corr_strength*x06i;
    SetKLpar(Cell.Fnum, Cell.Knum, mOrder=-7L, mKL);
 
    if (trace) printf("num= %4d name = %s Fnum = %3d, Knum=%3d BL/brho=% e mKl=% e\n",i,
-            Cell.Elem.Name,Cell.Fnum, Cell.Knum, corr_strength, mKL);
+            Cell.Name,Cell.Fnum, Cell.Knum, corr_strength, mKL);
 
    /* skew 22-pole error */
    mKL = dBoB11*corr_strength*x010i;
    SetKLpar(Cell.Fnum, Cell.Knum, mOrder=-11, mKL);
 
    if (trace) printf("num= %4d name = %s Fnum = %3d, Knum=%3d BL/brho=% e mKl=% e\n",i,
-               Cell.Elem.Name,Cell.Fnum, Cell.Knum, corr_strength, mKL);
+               Cell.Name,Cell.Fnum, Cell.Knum, corr_strength, mKL);
  }
 
  /***********************************************************************************/
@@ -1960,7 +1960,7 @@ void Multipole(void)
    SetKLpar(Cell.Fnum, Cell.Knum, mOrder=-4L, mKL);
 
    if (trace) printf("num= %4d name = %s Fnum = %3d, Knum=%3d BL/brho=% e mKl=% e\n",i,
-               Cell.Elem.Name,Cell.Fnum, Cell.Knum, corr_strength, mKL);
+               Cell.Name,Cell.Fnum, Cell.Knum, corr_strength, mKL);
  }
 }
 
@@ -2008,13 +2008,13 @@ void SetSkewQuad(void)
   {
     Lattice.getelem(i, &Cell); /* get element */
 
-    if (Cell.Elem.Kind == Mpole)
+    if (Cell.Kind == Mpole)
     {
       if (fabs(Cell.Elem.M->Bpar[2L + HOMmax]) > 0.0)
       {
         qlist[nquad] = i;
         nquad++;
-        if (trace) printf("%s % f\n",Cell.Elem.Name,
+        if (trace) printf("%s % f\n",Cell.Name,
                            Cell.Elem.M->Bpar[2L + HOMmax]);
       }
     }
@@ -2044,7 +2044,7 @@ void SetSkewQuad(void)
     Lattice.getelem(qlist[i], &Cell);
 
     /* Get KL for a quadrupole */
-    b2 = Cell.Elem.L*GetKpar(Cell.Fnum, Cell.Knum, 2L);
+    b2 = Cell.L*GetKpar(Cell.Fnum, Cell.Knum, 2L);
 
     mKL = b2*sin(2*theta[i]);
     SetKLpar(Cell.Fnum, Cell.Knum, mOrder=-2L, mKL);
@@ -2053,7 +2053,7 @@ void SetSkewQuad(void)
 
     if (trace) printf("num= %4d name = %s Fnum = %3d, Knum=%3d KL=% e, KtiltL=% e\n"
                 ,i,
-                Cell.Elem.Name,Cell.Fnum, Cell.Knum,
+                Cell.Name,Cell.Fnum, Cell.Knum,
                 Cell.Elem.M->Bpar[HOMmax+2],
                 Cell.Elem.M->Bpar[HOMmax-2]);
  }
@@ -2272,8 +2272,8 @@ void MomentumAcceptance(long deb, long fin, double ep_min, double ep_max,
     Lattice.getelem(lastpos,&Clost);
     Lattice.getelem(pos,&Cell);
     fprintf(stdout,"pos=%4ld z0 =% 10.5f  pz0 =% 10.5f  \n", pos, tabz0[i-1L][pos-1L], tabpz0[i-1L][pos-1L]);
-    fprintf(stdout,"%4ld %10.5f %10.5f %10.5f %*s\n", pos,Cell.S,dp1,Clost.S,5,Clost.Elem.Name);
-    fprintf(outf2,"%4ld %10.5f %10.5f %10.5f %*s\n", pos,Cell.S,dp1,Clost.S,5,Clost.Elem.Name);
+    fprintf(stdout,"%4ld %10.5f %10.5f %10.5f %*s\n", pos,Cell.S,dp1,Clost.S,5,Clost.Name);
+    fprintf(outf2,"%4ld %10.5f %10.5f %10.5f %*s\n", pos,Cell.S,dp1,Clost.S,5,Clost.Name);
     pos++;
   }
   while(pos != fin);
@@ -2422,8 +2422,8 @@ void MomentumAcceptance(long deb, long fin, double ep_min, double ep_max,
     Lattice.getelem(pos,&Cell);
     if (!trace)  printf("i=%4ld pos=%4ld dp=%6.4g\n",i,pos,dp2);
     fprintf(stdout,"pos=%4ld z0 =% 10.5f  pz0 =% 10.5f  \n", pos, tabz0[i-1L][pos-1L], tabpz0[i-1L][pos-1L]);
-    fprintf(stdout,"%4ld %10.5f %10.5f %10.5f %*s\n", pos,Cell.S,dp1,Clost.S, 5, Clost.Elem.Name);
-    fprintf(outf2,"%4ld %10.5f %10.5f %10.5f %*s\n", pos,Cell.S,dp1,Clost.S, 5, Clost.Elem.Name);
+    fprintf(stdout,"%4ld %10.5f %10.5f %10.5f %*s\n", pos,Cell.S,dp1,Clost.S, 5, Clost.Name);
+    fprintf(outf2,"%4ld %10.5f %10.5f %10.5f %*s\n", pos,Cell.S,dp1,Clost.S, 5, Clost.Name);
     pos++;
   }
   while(pos != fin);
@@ -2748,14 +2748,14 @@ void getA4antidamping()
   {
     Lattice.getelem(i, &Cell); /* get element */
 
-    if (Cell.Elem.Kind == Mpole)
+    if (Cell.Kind == Mpole)
     {
       if (fabs(Cell.Elem.M->Bpar[2L + HOMmax]) > 0.0)
       {
         qlist[nquad] = i;
         nquad++;
         if (!trace) printf("%s % f\n",
-			   Cell.Elem.Name, Cell.Elem.M->Bpar[2L + HOMmax]);
+			   Cell.Name, Cell.Elem.M->Bpar[2L + HOMmax]);
       }
     }
   }
@@ -2766,9 +2766,9 @@ void getA4antidamping()
   {
     Lattice.getelem(qlist[i],&Cell);
     fprintf(stdout,"%d Name = %s L=%g A= %g etax=%g \n",
-	    i, Cell.Elem.Name, Cell.Elem.L, A,Cell.Eta[0]);
+	    i, Cell.Name, Cell.L, A,Cell.Eta[0]);
     A +=
-      Cell.Elem.L*2.0*(Cell.Elem.M->Bpar[2L + HOMmax]*Cell.Eta[0])*
+      Cell.L*2.0*(Cell.Elem.M->Bpar[2L + HOMmax]*Cell.Eta[0])*
       (Cell.Elem.M->Bpar[2L + HOMmax]*Cell.Eta[0]);
     i++;
   }

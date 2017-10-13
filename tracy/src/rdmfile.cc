@@ -81,42 +81,44 @@
 std::ifstream  inf;
 
 
-void get_kind(const int kind, elemtype &Elem)
+void get_kind(const int kind, CellType &Cell)
 {
+  elemtype *elemp;
 
+  elemp = &Cell.Elem;
   switch (kind) {
   case marker_:
-    Elem.Kind = PartsKind(marker);
+    Cell.Kind = PartsKind(marker);
     break;
   case drift_:
-    Elem.Kind = PartsKind(drift);
-    Elem.D->Drift_Alloc(&Elem);
+    Cell.Kind = PartsKind(drift);
+    elemp->D->Drift_Alloc(elemp);
     break;
   case mpole_:
-    Elem.Kind = PartsKind(Mpole);
-    Elem.M->Mpole_Alloc(&Elem);
-    Elem.M->thick = pthicktype(thick);
+    Cell.Kind = PartsKind(Mpole);
+    elemp->M->Mpole_Alloc(elemp);
+    elemp->M->thick = pthicktype(thick);
     break;
   case cavity_:
-    Elem.Kind = PartsKind(Cavity);
-    Elem.C->Cav_Alloc(&Elem);
+    Cell.Kind = PartsKind(Cavity);
+    elemp->C->Cav_Alloc(elemp);
     break;
   case thinkick_:
-    Elem.Kind = PartsKind(Mpole);
-    Elem.M->Mpole_Alloc(&Elem);
-    Elem.M->thick = pthicktype(thin);
+    Cell.Kind = PartsKind(Mpole);
+    elemp->M->Mpole_Alloc(elemp);
+    elemp->M->thick = pthicktype(thin);
     break;
   case wiggler_:
-    Elem.Kind = PartsKind(Wigl);
-    Elem.W->Wiggler_Alloc(&Elem);
+    Cell.Kind = PartsKind(Wigl);
+    elemp->W->Wiggler_Alloc(elemp);
     break;
   case insertion_:
-    Elem.Kind = PartsKind(Insertion);
-    Elem.ID->Insertion_Alloc(&Elem);
+    Cell.Kind = PartsKind(Insertion);
+    elemp->ID->Insertion_Alloc(elemp);
     break;
   default:
     std::cout << "get_kind: unknown type " << kind << " "
-	      << Elem.Name << std::endl;
+	      << Cell.Name << std::endl;
     exit_(1);
     break;
   }
@@ -125,12 +127,12 @@ void get_kind(const int kind, elemtype &Elem)
 
 void LatticeType::rdmfile(const char *mfile_dat)
 {
-  char      line[max_str], file_name[max_str];
-  int       j, k, nmpole, kind, method, n;
-  long int  i;
-  double    dTerror;
+  char     line[max_str], file_name[max_str];
+  int      j, k, nmpole, kind, method, n;
+  long int i;
+  double   dTerror;
 
-  bool  prt = false;
+  bool prt = false;
 
   std::cout << std::endl;
   std::cout << "reading machine file: " << mfile_dat << std::endl;
@@ -144,20 +146,21 @@ void LatticeType::rdmfile(const char *mfile_dat)
     Lattice.Cell[i].dS[X_] = 0.0; Lattice.Cell[i].dS[Y_] = 0.0;
     Lattice.Cell[i].dT[X_] = 1.0; Lattice.Cell[i].dT[Y_] = 0.0;
 
-    sscanf(line, "%s %d %d", Lattice.Cell[i].Elem.Name,
+    sscanf(line, "%s %d %d", Lattice.Cell[i].Name,
 	   &Lattice.Cell[i].Fnum, &Lattice.Cell[i].Knum);
 
     // For compability with lattice parser.
     k = 0;
-    while (Lattice.Cell[i].Elem.Name[k] != '\0')
+    while (Lattice.Cell[i].Name[k] != '\0')
       k++;
     for (j = k; j < SymbolLength; j++)
-      Lattice.Cell[i].Elem.Name[j] = ' ';
+      Lattice.Cell[i].Name[j] = ' ';
 
     if (Lattice.Cell[i].Knum == 1) {
-      strcpy(Lattice.ElemFam[Lattice.Cell[i].Fnum-1].ElemF.Name,
-	     Lattice.Cell[i].Elem.Name);
-      Lattice.param.Elem_nFam = max(Lattice.Cell[i].Fnum, Lattice.param.Elem_nFam);
+      strcpy(Lattice.ElemFam[Lattice.Cell[i].Fnum-1].Name,
+	     Lattice.Cell[i].Name);
+      Lattice.param.Elem_nFam =
+	max(Lattice.Cell[i].Fnum, Lattice.param.Elem_nFam);
     }
 
     if (i > 0) {
@@ -170,10 +173,10 @@ void LatticeType::rdmfile(const char *mfile_dat)
     inf.getline(line, max_str);
     if (prt) printf("%s\n", line);
     sscanf(line, "%d %d %d", &kind, &method, &n);
-    get_kind(kind, Lattice.Cell[i].Elem);
+    get_kind(kind, Lattice.Cell[i]);
     if (i > 0)
-      Lattice.ElemFam[Lattice.Cell[i].Fnum-1].ElemF.Kind
-	= Lattice.Cell[i].Elem.Kind;
+      Lattice.ElemFam[Lattice.Cell[i].Fnum-1].Kind
+	= Lattice.Cell[i].Kind;
 
     inf.getline(line, max_str);
     if (prt) printf("%s\n", line);
@@ -181,9 +184,9 @@ void LatticeType::rdmfile(const char *mfile_dat)
 	   &Lattice.Cell[i].maxampl[X_][0], &Lattice.Cell[i].maxampl[X_][1],
 	   &Lattice.Cell[i].maxampl[Y_][0], &Lattice.Cell[i].maxampl[Y_][1]);
 
-    Lattice.Cell[i].Elem.L = 0.0;
+    Lattice.Cell[i].L = 0.0;
 
-    switch (Lattice.Cell[i].Elem.Kind) {
+    switch (Lattice.Cell[i].Kind) {
     case undef:
       std::cout << "rdmfile: unknown type " << i << std::endl;
       exit_(1);
@@ -193,7 +196,7 @@ void LatticeType::rdmfile(const char *mfile_dat)
     case drift:
       inf.getline(line, max_str);
       if (prt) printf("%s\n", line);
-      sscanf(line, "%lf", &Lattice.Cell[i].Elem.L);
+      sscanf(line, "%lf", &Lattice.Cell[i].L);
       break;
     case Cavity:
       inf.getline(line, max_str);
@@ -226,7 +229,7 @@ void LatticeType::rdmfile(const char *mfile_dat)
 	inf.getline(line, max_str);
 	if (prt) printf("%s\n", line);
 	sscanf(line, "%lf %lf %lf %lf %lf",
-	       &Lattice.Cell[i].Elem.L, &Lattice.Cell[i].Elem.M->irho,
+	       &Lattice.Cell[i].L, &Lattice.Cell[i].Elem.M->irho,
 	       &Lattice.Cell[i].Elem.M->Tx1, &Lattice.Cell[i].Elem.M->Tx2,
 	       &Lattice.Cell[i].Elem.M->gap);
 	if (Lattice.Cell[i].Elem.M->irho != 0.0)
@@ -243,7 +246,7 @@ void LatticeType::rdmfile(const char *mfile_dat)
       }
 
       Lattice.Cell[i].Elem.M->c0
-	= sin(Lattice.Cell[i].Elem.L*Lattice.Cell[i].Elem.M->irho/2.0);
+	= sin(Lattice.Cell[i].L*Lattice.Cell[i].Elem.M->irho/2.0);
       Lattice.Cell[i].Elem.M->c1
 	= cos(dtor(Lattice.Cell[i].Elem.M->dTpar))
 	                    *Lattice.Cell[i].Elem.M->c0;
@@ -273,7 +276,7 @@ void LatticeType::rdmfile(const char *mfile_dat)
       inf.getline(line, max_str);
       if (prt) printf("%s\n", line);
       sscanf(line, "%lf %lf",
-	     &Lattice.Cell[i].Elem.L, &Lattice.Cell[i].Elem.W->lambda);
+	     &Lattice.Cell[i].L, &Lattice.Cell[i].Elem.W->lambda);
 
       inf.getline(line, max_str);
       if (prt) printf("%s\n", line);
@@ -312,7 +315,7 @@ void LatticeType::rdmfile(const char *mfile_dat)
 	Lattice.Cell[i].Elem.ID->secondorder = false;
 
 	strcpy(Lattice.Cell[i].Elem.ID->fname1, file_name);
-	Read_IDfile(Lattice.Cell[i].Elem.ID->fname1, Lattice.Cell[i].Elem.L,
+	Read_IDfile(Lattice.Cell[i].Elem.ID->fname1, Lattice.Cell[i].L,
 		    Lattice.Cell[i].Elem.ID->nx, Lattice.Cell[i].Elem.ID->nz,
 		    Lattice.Cell[i].Elem.ID->tabx,
 		    Lattice.Cell[i].Elem.ID->tabz,
@@ -326,7 +329,7 @@ void LatticeType::rdmfile(const char *mfile_dat)
 	Lattice.Cell[i].Elem.ID->secondorder = true;
 
 	strcpy(Lattice.Cell[i].Elem.ID->fname2, file_name);
-	Read_IDfile(Lattice.Cell[i].Elem.ID->fname2, Lattice.Cell[i].Elem.L,
+	Read_IDfile(Lattice.Cell[i].Elem.ID->fname2, Lattice.Cell[i].L,
 		    Lattice.Cell[i].Elem.ID->nx, Lattice.Cell[i].Elem.ID->nz,
 		    Lattice.Cell[i].Elem.ID->tabx,
 		    Lattice.Cell[i].Elem.ID->tabz,
@@ -376,7 +379,7 @@ void LatticeType::rdmfile(const char *mfile_dat)
     if (i == 0)
       Lattice.Cell[i].S = 0.0;
     else
-      Lattice.Cell[i].S = Lattice.Cell[i-1].S + Lattice.Cell[i].Elem.L;
+      Lattice.Cell[i].S = Lattice.Cell[i-1].S + Lattice.Cell[i].L;
   }
   
   Lattice.param.Cell_nLoc = i;

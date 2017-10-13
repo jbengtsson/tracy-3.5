@@ -60,7 +60,7 @@ void spline_(const double x[], const T y[], const int n, const double yp1,
 void splie2_(const double x1a[], const double x2a[], double **ya,
 	     const int m, const int n, double **y2a)
 {
-  int  j;
+  int j;
 
   for (j = 1; j <= m; j++)
     spline_(x2a,ya[j],n,1e30,1e30,y2a[j]);
@@ -71,9 +71,9 @@ template<typename T, typename U>
 void splint_(const double xa[], const U ya[], const U y2a[],
 	     const int n, const T &x, T &y)
 {
-  int     klo,khi,k;
-  double  h;
-  T       a,b;
+  int    klo,khi,k;
+  double h;
+  T      a,b;
 
   klo = 1;
   khi = n;
@@ -135,7 +135,7 @@ template<typename T>
 void GtoL(ss_vect<T> &X, const Vector2 &S, const Vector2 &R,
 	  const double c0, const double c1, const double s1)
 {
-  ss_vect<T>  x1;
+  ss_vect<T> x1;
 
   /* Simplified rotated p_rot */
   X[px_] += c1; X[py_] += s1;
@@ -156,7 +156,7 @@ template<typename T>
 void LtoG(ss_vect<T> &X, const Vector2 &S, const Vector2 &R,
 	  const double c0, const double c1, const double s1)
 {
-  ss_vect<T>  x1;
+  ss_vect<T> x1;
 
   /* Simplified p_rot */
   X[px_] -= c0;
@@ -270,9 +270,9 @@ class is_tps<tps> {
 
   static inline double get_curly_H(const ss_vect<tps> &A)
   {
-    int              j;
-    double           curly_H[2];
-    ss_vect<double>  eta;
+    int             j;
+    double          curly_H[2];
+    ss_vect<double> eta;
 
     eta.zero();
     for (j = 0; j < 4; j++)
@@ -292,9 +292,9 @@ class is_tps<tps> {
     // d<delta^2>/ds = 3*C_U*C_gamma*h_bar*c*E_0^5*(1+delta)^4*(B_perp/(Brho))^3
     //                 /(4*pi*m_e^3)
     // A contains the eigenvectors.
-    int           j;
-    double        B_66;
-    ss_vect<tps>  A_inv;
+    int          j;
+    double       B_66;
+    ss_vect<tps> A_inv;
 
     if (B2_perp > 0e0) {
       B_66 = (q_fluct*pow(B2_perp.cst(), 1.5)*pow(ps0, 4)*ds).cst();
@@ -317,7 +317,7 @@ void get_B2(const double h_ref, const T B[], const ss_vect<T> &xp,
 	    T &B2_perp, T &B2_par)
 {
   // compute B_perp^2 and B_par^2
-  T  xn, e[3];
+  T xn, e[3];
 
   xn = 1e0/sqrt(sqr(1e0+xp[x_]*h_ref)+sqr(xp[px_])+sqr(xp[py_]));
   e[X_] = xp[px_]*xn; e[Y_] = xp[py_]*xn; e[Z_] = (1e0+xp[x_]*h_ref)*xn;
@@ -336,8 +336,8 @@ void radiate(ss_vect<T> &x, const double L, const double h_ref, const T B[])
 {
   // M. Sands "The hysics of Electron Storage Rings" SLAC-121, p. 98.
   // ddelta/d(ds) = -C_gamma*E_0^3*(1+delta)^2*(B_perp/(Brho))^2/(2*pi)
-  T           ps0, ps1, ds, B2_perp = 0e0, B2_par = 0e0;
-  ss_vect<T>  xp;
+  T          ps0, ps1, ds, B2_perp = 0e0, B2_par = 0e0;
+  ss_vect<T> xp;
 
   // large ring: x' and y' unchanged
   xp = x; ps0 = get_p_s(x); xp[px_] /= ps0; xp[py_] /= ps0;
@@ -358,8 +358,8 @@ void radiate(ss_vect<T> &x, const double L, const double h_ref, const T B[])
 template<typename T>
 void radiate_ID(ss_vect<T> &x, const double L, const T &B2_perp)
 {
-  T           ps0, ps1, ds;
-  ss_vect<T>  xp;
+  T          ps0, ps1, ds;
+  ss_vect<T> xp;
 
   // large ring: x' and y' unchanged
   xp = x; ps0 = get_p_s(x); xp[px_] /= ps0; xp[py_] /= ps0;
@@ -392,7 +392,7 @@ static double get_psi(double irho, double phi, double gap)
             K1 is usually 1/2
             K2 is zero here                                                  */
 
-  double  psi;
+  double psi;
 
   const double k1 = 0.5e0, k2 = 0e0;
 
@@ -413,9 +413,9 @@ void thin_kick(const int Order, const double MB[], const double L,
   // The vector potential for the combined-function sector bend is from:
   // C. Iselin "Lie Transformations and Transport Equations for Combined-
   // Function Dipoles" Part. Accel. 17, 143-155 (1985).
-  int         j;
-  T           BxoBrho, ByoBrho, ByoBrho1, B[3], u, p_s;
-  ss_vect<T>  x0;
+  int        j;
+  T          BxoBrho, ByoBrho, ByoBrho1, B[3], u, p_s;
+  ss_vect<T> x0;
 
   if ((h_bend != 0e0) || ((1 <= Order) && (Order <= HOMmax))) {
     x0 = x;
@@ -458,7 +458,7 @@ void thin_kick(const int Order, const double MB[], const double L,
 
 template<typename T>
 void EdgeFocus(const double irho, const double phi, const double gap,
-		      ss_vect<T> &x)
+	       ss_vect<T> &x)
 {
   x[px_] += irho*tan(dtor(phi))*x[x_];
   if (true) {
@@ -501,8 +501,8 @@ void p_rot(double phi, ss_vect<T> &ps)
 template<typename T>
 void bend_fringe(const double hb, ss_vect<T> &ps)
 {
-  T           coeff, u, pz, pz2, pz3;
-  ss_vect<T>  ps1;
+  T          coeff, u, pz, pz2, pz3;
+  ss_vect<T> ps1;
 
   coeff = -hb/2e0; ps1 = ps; pz = get_p_s(ps); pz2 = sqr(pz); pz3 = pz*pz2;
   u = 1e0 + 4e0*coeff*ps1[px_]*ps1[y_]*ps1[py_]/pz3;
@@ -522,7 +522,7 @@ void bend_fringe(const double hb, ss_vect<T> &ps)
 template<typename T>
 void quad_fringe(const double b2, ss_vect<T> &x)
 {
-  T  u, ps;
+  T u, ps;
 
   u = b2/(12e0*(1e0+x[delta_])); ps = u/(1e0+x[delta_]);
   x[py_] /= 1e0 - 3e0*u*sqr(x[y_]); x[y_] -= u*cube(x[y_]);
@@ -542,13 +542,13 @@ void quad_fringe(const double b2, ss_vect<T> &x)
 template<typename T>
 void Mpole_Pass(CellType &Cell, ss_vect<T> &x)
 {
-  int        seg = 0;
-  double     k = 0e0, dL = 0e0, dL1 = 0e0, dL2 = 0e0;
-  double     dkL1 = 0e0, dkL2 = 0e0, h_ref = 0e0;
-  elemtype   *elemp;
-  MpoleType  *M;
+  int       seg = 0;
+  double    k = 0e0, dL = 0e0, dL1 = 0e0, dL2 = 0e0;
+  double    dkL1 = 0e0, dkL2 = 0e0, h_ref = 0e0;
+  CellType  *cellp;
+  MpoleType *M;
 
-  elemp = &Cell.Elem; M = elemp->M;
+  cellp = &Cell; M = cellp->Elem.M;
 
   // Global -> Local.
   GtoL(x, Cell.dS, Cell.dT, M->c0, M->c1, M->s1);
@@ -568,14 +568,14 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &x)
   if (M->thick == thick) {
     if (!Lattice.param.H_exact) {
       // Polar coordinates.
-      h_ref = M->irho; dL = elemp->L/M->N;
+      h_ref = M->irho; dL = cellp->L/M->N;
     } else {
       // Cartesian coordinates.
       h_ref = 0e0;
       if (M->irho == 0e0)
-	dL = elemp->L/M->N;
+	dL = cellp->L/M->N;
       else
-	dL = 2e0/M->irho*sin(elemp->L*M->irho/2e0)/M->N;
+	dL = 2e0/M->irho*sin(cellp->L*M->irho/2e0)/M->N;
     }
   }
 
@@ -591,7 +591,7 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &x)
       /* retrieve normal quad component already in AU55 */
       M->B[Quad+HOMmax] = 0e0;
       /* Kick w/o quad component */
-      thin_kick(M->order, M->B, elemp->L, 0e0, 0e0, x);
+      thin_kick(M->order, M->B, cellp->L, 0e0, 0e0, x);
       /* restore quad component */
       M->B[Quad+HOMmax] = k;
       /* Second Linear */
@@ -611,7 +611,8 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &x)
 
       dcurly_H = 0e0; dI4 = 0e0;
       for (seg = 1; seg <= M->N; seg++) {
-	if (Lattice.param.emittance && (!Lattice.param.Cavity_on) && (M->irho != 0e0)) {
+	if (Lattice.param.emittance && (!Lattice.param.Cavity_on) &&
+	    (M->irho != 0e0)) {
 	  dcurly_H += is_tps<tps>::get_curly_H(x);
 	  dI4 += is_tps<tps>::get_dI4(x);
 	}
@@ -621,7 +622,8 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &x)
 	Drift(dL2, x);
         thin_kick(M->order, M->B, dkL2, M->irho, h_ref, x);
 
-	if (Lattice.param.emittance && (!Lattice.param.Cavity_on) && (M->irho != 0e0)) {
+	if (Lattice.param.emittance && (!Lattice.param.Cavity_on) &&
+	    (M->irho != 0e0)) {
 	  dcurly_H += 4e0*is_tps<tps>::get_curly_H(x);
 	  dI4 += 4e0*is_tps<tps>::get_dI4(x);
 	}
@@ -630,18 +632,20 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &x)
         thin_kick(M->order, M->B, dkL1, M->irho, h_ref, x);
 	Drift(dL1, x);
 
-	if (Lattice.param.emittance && (!Lattice.param.Cavity_on) && (M->irho != 0e0)) {
+	if (Lattice.param.emittance && (!Lattice.param.Cavity_on) &&
+	    (M->irho != 0e0)) {
 	  dcurly_H += is_tps<tps>::get_curly_H(x);
 	  dI4 += is_tps<tps>::get_dI4(x);
 	}
       }
 
-      if (Lattice.param.emittance && (!Lattice.param.Cavity_on) && (M->irho != 0)) {
+      if (Lattice.param.emittance && (!Lattice.param.Cavity_on) &&
+	  (M->irho != 0)) {
 	dcurly_H /= 6e0*M->N;
 	dI4 *= M->irho*(sqr(M->irho)+2e0*M->Bpar[Quad+HOMmax])/(6e0*M->N);
 
-	I2 += elemp->L*sqr(M->irho); I4 += elemp->L*dI4;
-	I5 += elemp->L*fabs(cube(M->irho))*dcurly_H;
+	I2 += cellp->L*sqr(M->irho); I4 += cellp->L*dI4;
+	I5 += cellp->L*fabs(cube(M->irho))*dcurly_H;
       }
     } else
       thin_kick(M->order, M->B, 1e0, 0e0, 0e0, x);
@@ -678,7 +682,7 @@ void Marker_Pass(CellType &Cell, ss_vect<T> &X)
 
 template<typename T, typename U>
 void Cav_Focus(const double L, const T delta, const bool entrance,
-           ss_vect<U> &ps)
+	       ss_vect<U> &ps)
 {
   double sgn;
  
@@ -693,11 +697,11 @@ void Cav_Focus(const double L, const T delta, const bool entrance,
 template<typename T>
 void Cav_Pass(CellType &Cell, ss_vect<T> &X)
 {
-  elemtype    *elemp;
-  CavityType  *C;
-  T           delta;
+  elemtype   *cellp;
+  CavityType *C;
+  T          delta;
 
-  elemp = &Cell.Elem; C = elemp->C;
+  cellp = &Cell.Elem; C = cellp->C;
   if (Lattice.param.Cavity_on && C->volt != 0e0) {
     delta = -C->volt/(Lattice.param.Energy*1e9)
             *sin(2e0*M_PI*C->freq/c0*X[ct_]+C->phi);
@@ -718,13 +722,13 @@ void Cav_Pass1(CellType &Cell, ss_vect<T> &ps)
      Radio-Frequency Linear Accelerators" hys. Rev. E 49(2),
      1599-1602 (1994).                                                        */
 
-  elemtype   *elemp;
+  elemtype   *cellp;
   CavityType *C;
   int        k;
   double     L, h, p_t1;
   T          delta_max, ddelta, delta;
 
-  elemp = &Cell.Elem; C = elemp->C; L = elemp->L;
+  cellp = &Cell.Elem; C = cellp->C; L = cellp->L;
 
   h = L/(C->N+1e0);
   // Lattice.param.Energy contains p_0.
@@ -763,7 +767,7 @@ void Cav_Pass(CellType &Cell, ss_vect<T> &ps)
      Radio-Frequency Linear Accelerators" hys. Rev. E 49(2),
      1599-1602 (1994).                                                        */
 
-  elemtype   *elemp;
+  elemtype   *cellp;
   CavityType *C;
   double     L, lambda, phi;
   double     dgammaMax, dgamma, gamma, gamma1;
@@ -774,7 +778,7 @@ void Cav_Pass(CellType &Cell, ss_vect<T> &ps)
 
   const bool RandS = false;
  
-  elemp = &Cell.Elem; C = elemp->C; L = elemp->L; phi = C->phi;
+  cellp = &Cell.Elem; C = cellp->C; L = cellp->L; phi = C->phi;
   lambda = c0/C->freq;
 
   p_t = is_double<T>::cst(ps[delta_]);
@@ -859,9 +863,9 @@ inline void get_Axy(const WigglerType *W, const double z,
 		    ss_vect<T> &x, T AxoBrho[], T AyoBrho[])
 
 {
-  int     i;
-  double  ky, kz_n;
-  T       cx, cz, sx, sz, chy, shy;
+  int    i;
+  double ky, kz_n;
+  T      cx, cz, sx, sz, chy, shy;
 
   for (i = 0; i <= 3; ++i) {
     AxoBrho[i] = 0e0; AyoBrho[i] = 0e0;
@@ -969,7 +973,7 @@ inline void get_Axy_map(const FieldMapType *FM, const double z,
 */
 
 template<typename T>
-void Wiggler_pass_EF(const elemtype &elem, ss_vect<T> &x)
+void Wiggler_pass_EF(const CellType &Cell, ss_vect<T> &x)
 {
   // First order symplectic integrator for wiggler using expanded Hamiltonian
 
@@ -979,12 +983,12 @@ void Wiggler_pass_EF(const elemtype &elem, ss_vect<T> &x)
   T      psi, hodp, a12, a21, a22, det;
   T      d1, d2, a11, c11, c12, c21, c22, x2, B[3];
 
-  switch (elem.Kind) {
+  switch (Cell.Kind) {
   case Wigl:
-    nstep = elem.W->N;
+    nstep = Cell.Elem.W->N;
     break;
   case FieldMap:
-    nstep = elem.FM->n_step;
+    nstep = Cell.Elem.FM->n_step;
     break;
   default:
     std::cout << "Wiggler_pass_EF: unknown element type" << std::endl;
@@ -992,14 +996,14 @@ void Wiggler_pass_EF(const elemtype &elem, ss_vect<T> &x)
     break;
   }
 
-  h = elem.L/nstep; z = 0e0;
+  h = Cell.L/nstep; z = 0e0;
   for (i = 1; i <= nstep; ++i) {
-    switch (elem.Kind) {
+    switch (Cell.Kind) {
     case Wigl:
-      get_Axy(elem.W, z, x, AxoBrho, AyoBrho);
+      get_Axy(Cell.Elem.W, z, x, AxoBrho, AyoBrho);
       break;
     case FieldMap:
-//      get_Axy_map(elem.FM, z, x, AxoBrho, AyoBrho);
+//      get_Axy_map(Cell.Elem.FM, z, x, AxoBrho, AyoBrho);
       break;
     default:
       std::cout << "Wiggler_pass_EF: unknown element type" << std::endl;
@@ -1048,8 +1052,8 @@ inline void get_Axy2(const double z,
 		     const double phi,
 		     ss_vect<T> &x, T AxoBrho[], T AyoBrho[])
 {
-  int  i;
-  T    cx, sx, cz1, cz2, sz1, sz2, chy, shy, kyH, kyV, chx, shx, cy, sy;
+  int i;
+  T   cx, sx, cz1, cz2, sz1, sz2, chy, shy, kyH, kyV, chx, shx, cy, sy;
 
   for (i = 0; i <= 3; ++i) {
     AxoBrho[i] = 0e0; AyoBrho[i] = 0e0;
@@ -1097,10 +1101,10 @@ void Wiggler_pass_EF2(int nstep, double L, double kxV, double kxH, double kz,
 {
   // First order symplectic integrator for wiggler using expanded Hamiltonian
 
-  int     i;
-  double  h, z;
-  T       hodp, B[3], px1, px2, px3, py1, py2, AxoBrho[4], AyoBrho[4], psi;
-  T       px = 0e0, py = 0e0;
+  int    i;
+  double h, z;
+  T      hodp, B[3], px1, px2, px3, py1, py2, AxoBrho[4], AyoBrho[4], psi;
+  T      px = 0e0, py = 0e0;
 
   h = L/nstep; z = 0e0;
   for (i = 1; i <= nstep; ++i) {
@@ -1143,9 +1147,9 @@ inline void get_Axy_EF3(const WigglerType *W, const double z,
 		       const ss_vect<T> &x,
 		       T &AoBrho, T dAoBrho[], T &dp, const bool hor)
 {
-  int     i;
-  double  ky, kz_n;
-  T       cx, sx, sz, chy, shy, cz;
+  int    i;
+  double ky, kz_n;
+  T      cx, sx, sz, chy, shy, cz;
 
   AoBrho = 0e0; dp = 0e0;
 
@@ -1193,56 +1197,56 @@ inline void get_Axy_EF3(const WigglerType *W, const double z,
 
 
 template<typename T>
-void Wiggler_pass_EF3(const elemtype &elem, ss_vect<T> &x)
+void Wiggler_pass_EF3(const CellType &Cell, ss_vect<T> &x)
 {
   /* Second order symplectic integrator for insertion devices based on:
 
        E. Forest, et al "Explicit Symplectic Integrator for s-dependent
        Static Magnetic Field"                                                */
 
-  int     i;
-  double  h, z;
-  T       hd, AxoBrho, AyoBrho, dAxoBrho[3], dAyoBrho[3], dpy, dpx, B[3];
+  int    i;
+  double h, z;
+  T      hd, AxoBrho, AyoBrho, dAxoBrho[3], dAyoBrho[3], dpy, dpx, B[3];
 
-  h = elem.L/elem.W->N; z = 0e0;
+  h = Cell.L/Cell.Elem.W->N; z = 0e0;
 
-  for (i = 1; i <= elem.W->N; i++) {
+  for (i = 1; i <= Cell.Elem.W->N; i++) {
     hd = h/(1e0+x[delta_]);
 
     // 1: half step in z
     z += 0.5*h;
 
     // 2: half drift in y
-    get_Axy_EF3(elem.W, z, x, AyoBrho, dAyoBrho, dpx, false);
+    get_Axy_EF3(Cell.Elem.W, z, x, AyoBrho, dAyoBrho, dpx, false);
 
     x[px_] -= dpx; x[py_] -= AyoBrho;
     x[y_] += 0.5*hd*x[py_];
     x[ct_] += sqr(0.5)*hd*sqr(x[py_])/(1e0+x[delta_]);
 
-    get_Axy_EF3(elem.W, z, x, AyoBrho, dAyoBrho, dpx, false);
+    get_Axy_EF3(Cell.Elem.W, z, x, AyoBrho, dAyoBrho, dpx, false);
 
     x[px_] += dpx; x[py_] += AyoBrho;
 
     // 3: full drift in x
-    get_Axy_EF3(elem.W, z, x, AxoBrho, dAxoBrho, dpy, true);
+    get_Axy_EF3(Cell.Elem.W, z, x, AxoBrho, dAxoBrho, dpy, true);
 
     x[px_] -= AxoBrho; x[py_] -= dpy; x[x_] += hd*x[px_];
     x[ct_] += 0.5*hd*sqr(x[px_])/(1e0+x[delta_]);
 
     if (Lattice.param.pathlength) x[ct_] += h;
 
-    get_Axy_EF3(elem.W, z, x, AxoBrho, dAxoBrho, dpy, true);
+    get_Axy_EF3(Cell.Elem.W, z, x, AxoBrho, dAxoBrho, dpy, true);
 
     x[px_] += AxoBrho; x[py_] += dpy;
 
     // 4: a half drift in y
-    get_Axy_EF3(elem.W, z, x, AyoBrho, dAyoBrho, dpx, false);
+    get_Axy_EF3(Cell.Elem.W, z, x, AyoBrho, dAyoBrho, dpx, false);
 
     x[px_] -= dpx; x[py_] -= AyoBrho;
     x[y_] += 0.5*hd*x[py_];
     x[ct_] += sqr(0.5)*hd*sqr(x[py_])/(1e0+x[delta_]);
 
-    get_Axy_EF3(elem.W, z, x, AyoBrho, dAyoBrho, dpx, false);
+    get_Axy_EF3(Cell.Elem.W, z, x, AyoBrho, dAyoBrho, dpx, false);
 
     x[px_] += dpx; x[py_] += AyoBrho;
 
@@ -1250,8 +1254,8 @@ void Wiggler_pass_EF3(const elemtype &elem, ss_vect<T> &x)
     z += 0.5*h;
 
     if (Lattice.param.radiation || Lattice.param.emittance) {
-      get_Axy_EF3(elem.W, z, x, AyoBrho, dAyoBrho, dpx, false);
-      get_Axy_EF3(elem.W, z, x, AxoBrho, dAxoBrho, dpy, true);
+      get_Axy_EF3(Cell.Elem.W, z, x, AyoBrho, dAyoBrho, dpx, false);
+      get_Axy_EF3(Cell.Elem.W, z, x, AxoBrho, dAxoBrho, dpy, true);
       B[X_] = -dAyoBrho[Z_]; B[Y_] = dAxoBrho[Z_];
       B[Z_] = dAyoBrho[X_] - dAxoBrho[Y_];
       radiate(x, h, 0e0, B);
@@ -1263,13 +1267,13 @@ void Wiggler_pass_EF3(const elemtype &elem, ss_vect<T> &x)
 template<typename T>
 void Wiggler_Pass(CellType &Cell, ss_vect<T> &X)
 {
-  int          seg;
-  double       L, L1, L2, K1, K2;
-  elemtype     *elemp;
-  WigglerType  *W;
-  ss_vect<T>   X1;
+  int         seg;
+  double      L, L1, L2, K1, K2;
+  CellType    *cellp;
+  WigglerType *W;
+  ss_vect<T>  X1;
 
-  elemp = &Cell.Elem; W = elemp->W;
+  cellp = &Cell; W = cellp->Elem.W;
   // Global -> Local
   GtoL(X, Cell.dS, Cell.dT, 0e0, 0e0, 0e0);
   switch (W->method) {
@@ -1283,27 +1287,27 @@ void Wiggler_Pass(CellType &Cell, ss_vect<T> &X)
   case Meth_First:
     if ((W->BoBrhoV[0] != 0e0) || (W->BoBrhoH[0] != 0e0)) {
       if (!Lattice.param.EPU)
-	Wiggler_pass_EF(Cell.Elem, X);
+	Wiggler_pass_EF(Cell, X);
       else {
-	Wiggler_pass_EF2(W->N, elemp->L, W->kxV[0], W->kxH[0],
+	Wiggler_pass_EF2(W->N, cellp->L, W->kxV[0], W->kxH[0],
 		2e0*M_PI/W->lambda, W->BoBrhoV[0], W->BoBrhoH[0],
 		W->phi[0], X);
       }
     } else
       // drift if field = 0
-      Drift(elemp->L, X);
+      Drift(cellp->L, X);
     break;
 
   case Meth_Second:
     if ((W->BoBrhoV[0] != 0e0) || (W->BoBrhoH[0] != 0e0)) {
-      Wiggler_pass_EF3(Cell.Elem, X);
+      Wiggler_pass_EF3(Cell, X);
     } else
       // drift if field = 0
-      Drift(elemp->L, X);
+      Drift(cellp->L, X);
     break;
 
   case Meth_Fourth:  /* 4-th order integrator */
-    L = elemp->L/W->N;
+    L = cellp->L/W->N;
     L1 = c_1*L; L2 = c_2*L; K1 = d_1*L; K2 = d_2*L;
     for (seg = 1; seg <= W->N; seg++) {
       Drift(L1, X); X1 = X;
@@ -1330,8 +1334,8 @@ void rk4_(const CellType &Cell, const ss_vect<T> &y, const ss_vect<T> dydx,
 	  void (*derivs)(const CellType &, const double, const ss_vect<T> &,
 			 ss_vect<T> &))
 {
-  double      xh,hh,h6;
-  ss_vect<T>  dym, dyt, yt;
+  double     xh,hh,h6;
+  ss_vect<T> dym, dyt, yt;
 
   hh = h*0.5; h6 = h/6e0;
   xh = x + hh; yt = y + hh*dydx;
@@ -1357,11 +1361,11 @@ void f_FM(const CellType &Cell, const double z, const ss_vect<T> &ps,
 {
   // Coordinates are: [x, x', y, y', -ct, delta].
 
-  int           j, kz;
-  T             BoBrho[3], p_s;
-  FieldMapType  *FM;
+  int          j, kz;
+  T            BoBrho[3], p_s;
+  FieldMapType *FM;
 
-  const double  eps = 1e-5;
+  const double eps = 1e-5;
 
 
   FM = Cell.Elem.FM;
@@ -1442,13 +1446,13 @@ inline T get_p_s_cs(const ss_vect<T> &x)
 template<typename T>
 void FieldMap_pass_RK(CellType &Cell, ss_vect<T> &ps, int k)
 {
-  int           i;
-  double        h, z;
-  T             p_s;
-  ss_vect<T>    Dps;
-  FieldMapType  *FM;
+  int          i;
+  double       h, z;
+  T            p_s;
+  ss_vect<T>   Dps;
+  FieldMapType *FM;
 
-  const int     n_step = 2; // Each step needs: f(z_n), f(z_n+h), f(z_n+2h)
+  const int n_step = 2; // Each step needs: f(z_n), f(z_n+h), f(z_n+2h)
 
   FM = Cell.Elem.FM;
 
@@ -1535,14 +1539,14 @@ void FieldMap_pass_SI(CellType &Cell, ss_vect<T> &ps, int k)
   /* E. Chacon-Golcher, F. Neri "A Symplectic Integrator with Arbitrary
      Vector and Scalar Potentials" hys. Lett. A 372 p. 4661-4666 (2008).    */
 
-  int           i, j = 0;
-  double        h, z;
-  T             hd, AoBrho[2], dAoBrho[2], AoBrho_int, ByoBrho;
-  ss_vect<T>    ps1;
-  FieldMapType  *FM;
+  int          i, j = 0;
+  double       h, z;
+  T            hd, AoBrho[2], dAoBrho[2], AoBrho_int, ByoBrho;
+  ss_vect<T>   ps1;
+  FieldMapType *FM;
 
-  const int     n_step = 2;
-  const double  d_diff = 1e0;
+  const int    n_step = 2;
+  const double d_diff = 1e0;
 
 
   FM = Cell.Elem.FM;
@@ -1960,46 +1964,46 @@ void Insertion_Pass(CellType &Cell, ss_vect<T> &x)
        01/07/03 6D tracking activated
        10/01/05 First order kick part added                                  */
 
-  elemtype  *elemp;
-  double    LN = 0e0;
-  T         tx2, tz2;      /* thetax and thetaz retrieved from
+  CellType *cellp;
+  double   LN = 0e0;
+  T        tx2, tz2;      /* thetax and thetaz retrieved from
 			      interpolation routine */
-  T         d, B2_perp;
-  double    alpha0 = 0e0;  // 1/ brh0
-  double    alpha02= 0e0;  // alpha square
-  int       Nslice = 0;
-  int       i = 0;
-  bool      outoftable = false;
+  T        d, B2_perp;
+  double   alpha0 = 0e0;  // 1/ brh0
+  double   alpha02= 0e0;  // alpha square
+  int      Nslice = 0;
+  int      i = 0;
+  bool     outoftable = false;
 
-  elemp  = &Cell.Elem; Nslice = elemp->ID->N;
+  cellp  = &Cell; Nslice = cellp->Elem.ID->N;
 
-  if (elemp->ID->linear) {
-    alpha0 = c0/Lattice.param.Energy*1E-9*elemp->ID->scaling;
-    alpha02 = sgn(elemp->ID->scaling)*alpha0*alpha0;
+  if (cellp->Elem.ID->linear) {
+    alpha0 = c0/Lattice.param.Energy*1E-9*cellp->Elem.ID->scaling;
+    alpha02 = sgn(cellp->Elem.ID->scaling)*alpha0*alpha0;
   } else
-    alpha02 = 1e-6*elemp->ID->scaling;
+    alpha02 = 1e-6*cellp->Elem.ID->scaling;
 
 //  /* Global -> Local */
 //  GtoL(X, Cell->dS, Cell->dT, 0e0, 0e0, 0e0);
 
-  p_rot(elemp->ID->phi/2e0*180e0/M_PI, x);
+  p_rot(cellp->Elem.ID->phi/2e0*180e0/M_PI, x);
 
   // (Nslice+1) drifts, nslice kicks
-  // LN = elemp->L/(Nslice+1);
+  // LN = cellp->L/(Nslice+1);
 
   // Nslice drifts and kicks.
-  LN = elemp->L/Nslice;
+  LN = cellp->L/Nslice;
   Drift(LN/2e0, x);
 
   for (i = 1; i <= Nslice; i++) {
     // printf("%3d %2d %2d %5.3f %11.3e %11.3e %11.3e %11.3e %11.3e %11.3e\n",
-    // 	   i, elemp->ID->linear, elemp->ID->secondorder, elemp->ID->scaling,
+    // 	   i, cellp->ID->linear, cellp->ID->secondorder, cellp->ID->scaling,
     // 	   is_double<T>::cst(x[x_]), is_double<T>::cst(x[px_]),
     // 	   is_double<T>::cst(x[y_]), is_double<T>::cst(x[py_]),
     // 	   is_double<T>::cst(x[delta_]), is_double<T>::cst(x[ct_]));
     // Second order kick
-    if (elemp->ID->secondorder){
-      // if (!elemp->ID->linear)
+    if (cellp->Elem.ID->secondorder){
+      // if (!cellp->ID->linear)
       //   SplineInterpolation2(x[x_], x[y_], tx2, tz2, Cell, outoftable);
       // else {
         LinearInterpolation2(x[x_], x[y_], tx2, tz2, B2_perp, Cell,
@@ -2008,7 +2012,7 @@ void Insertion_Pass(CellType &Cell, ss_vect<T> &x)
 	// Scale locally with (Brho) (as above) instead of when the file
 	// is read; since the beam energy might not be known at that time.
 	if (Lattice.param.radiation || Lattice.param.emittance)
-	  radiate_ID(x, LN, elemp->ID->scaling*B2_perp);
+	  radiate_ID(x, LN, cellp->Elem.ID->scaling*B2_perp);
       // }
 
       if (outoftable) {
@@ -2023,7 +2027,7 @@ void Insertion_Pass(CellType &Cell, ss_vect<T> &x)
 
   Drift(LN/2e0, x);
 
-  p_rot(elemp->ID->phi/2e0*180e0/M_PI, x);
+  p_rot(cellp->Elem.ID->phi/2e0*180e0/M_PI, x);
 
 //  CopyVec(6L, x, Cell->BeamPos);
 
@@ -2033,57 +2037,63 @@ void Insertion_Pass(CellType &Cell, ss_vect<T> &x)
 
 
 template<typename T>
-void sol_pass(const elemtype &elem, ss_vect<T> &x)
+void sol_pass(const CellType &Cell, ss_vect<T> &x)
 {
-  int     i;
-  double  h, z;
-  T       hd, AxoBrho, AyoBrho, dAxoBrho[3], dAyoBrho[3], dpy, dpx, B[3];
+  int    i;
+  double h, z;
+  T      hd, AxoBrho, AyoBrho, dAxoBrho[3], dAyoBrho[3], dpy, dpx, B[3];
 
-  h = elem.L/elem.Sol->N; z = 0e0;
+  h = Cell.L/Cell.Elem.Sol->N; z = 0e0;
 
-  for (i = 1; i <= elem.Sol->N; i++) {
+  for (i = 1; i <= Cell.Elem.Sol->N; i++) {
     hd = h/(1e0+x[delta_]);
 
     // 1: half step in z
     z += 0.5*h;
 
     // 2: half drift in y
-    AyoBrho = elem.Sol->BoBrho*x[x_]/2e0; dpx = elem.Sol->BoBrho*x[y_]/2e0;
-//    get_Axy_EF3(elem.W, z, x, AyoBrho, dAyoBrho, dpx, false);
+    AyoBrho = Cell.Elem.Sol->BoBrho*x[x_]/2e0;
+    dpx = Cell.Elem.Sol->BoBrho*x[y_]/2e0;
+//    get_Axy_EF3(Cell.Elem.W, z, x, AyoBrho, dAyoBrho, dpx, false);
 
     x[px_] -= dpx; x[py_] -= AyoBrho;
     x[y_] += 0.5*hd*x[py_];
     x[ct_] += sqr(0.5)*hd*sqr(x[py_])/(1e0+x[delta_]);
 
-    AyoBrho = elem.Sol->BoBrho*x[x_]/2e0; dpx = elem.Sol->BoBrho*x[y_]/2e0;
-//    get_Axy_EF3(elem.W, z, x, AyoBrho, dAyoBrho, dpx, false);
+    AyoBrho = Cell.Elem.Sol->BoBrho*x[x_]/2e0;
+    dpx = Cell.Elem.Sol->BoBrho*x[y_]/2e0;
+//    get_Axy_EF3(Cell.Elem.W, z, x, AyoBrho, dAyoBrho, dpx, false);
 
     x[px_] += dpx; x[py_] += AyoBrho;
 
     // 3: full drift in x
-    AxoBrho = -elem.Sol->BoBrho*x[y_]/2e0; dpy = -elem.Sol->BoBrho*x[x_]/2e0;
-//    get_Axy_EF3(elem.W, z, x, AxoBrho, dAxoBrho, dpy, true);
+    AxoBrho = -Cell.Elem.Sol->BoBrho*x[y_]/2e0;
+    dpy = -Cell.Elem.Sol->BoBrho*x[x_]/2e0;
+//    get_Axy_EF3(Cell.Elem.W, z, x, AxoBrho, dAxoBrho, dpy, true);
 
     x[px_] -= AxoBrho; x[py_] -= dpy; x[x_] += hd*x[px_];
     x[ct_] += 0.5*hd*sqr(x[px_])/(1e0+x[delta_]);
 
     if (Lattice.param.pathlength) x[ct_] += h;
 
-    AxoBrho = -elem.Sol->BoBrho*x[y_]/2e0; dpy = -elem.Sol->BoBrho*x[x_]/2e0;
-//    get_Axy_EF3(elem.W, z, x, AxoBrho, dAxoBrho, dpy, true);
+    AxoBrho = -Cell.Elem.Sol->BoBrho*x[y_]/2e0;
+    dpy = -Cell.Elem.Sol->BoBrho*x[x_]/2e0;
+//    get_Axy_EF3(Cell.Elem.W, z, x, AxoBrho, dAxoBrho, dpy, true);
 
     x[px_] += AxoBrho; x[py_] += dpy;
 
     // 4: a half drift in y
-    AyoBrho = elem.Sol->BoBrho*x[x_]/2e0; dpx = elem.Sol->BoBrho*x[y_]/2e0;
-//    get_Axy_EF3(elem.W, z, x, AyoBrho, dAyoBrho, dpx, false);
+    AyoBrho = Cell.Elem.Sol->BoBrho*x[x_]/2e0;
+    dpx = Cell.Elem.Sol->BoBrho*x[y_]/2e0;
+//    get_Axy_EF3(Cell.Elem.W, z, x, AyoBrho, dAyoBrho, dpx, false);
 
     x[px_] -= dpx; x[py_] -= AyoBrho;
     x[y_] += 0.5*hd*x[py_];
     x[ct_] += sqr(0.5)*hd*sqr(x[py_])/(1e0+x[delta_]);
 
-    AyoBrho = elem.Sol->BoBrho*x[x_]/2e0; dpx = elem.Sol->BoBrho*x[y_]/2e0;
-//    get_Axy_EF3(elem.W, z, x, AyoBrho, dAyoBrho, dpx, false);
+    AyoBrho = Cell.Elem.Sol->BoBrho*x[x_]/2e0;
+ dpx = Cell.Elem.Sol->BoBrho*x[y_]/2e0;
+//    get_Axy_EF3(Cell.Elem.W, z, x, AyoBrho, dAyoBrho, dpx, false);
 
     x[px_] += dpx; x[py_] += AyoBrho;
 
@@ -2092,13 +2102,13 @@ void sol_pass(const elemtype &elem, ss_vect<T> &x)
 
     if (Lattice.param.radiation || Lattice.param.emittance) {
       dAxoBrho[X_] = 0e0;
-      dAxoBrho[Y_] = -elem.Sol->BoBrho/2e0;
+      dAxoBrho[Y_] = -Cell.Elem.Sol->BoBrho/2e0;
       dAxoBrho[Z_] = 0e0;
-      dAyoBrho[X_] = elem.Sol->BoBrho/2e0;
+      dAyoBrho[X_] = Cell.Elem.Sol->BoBrho/2e0;
       dAyoBrho[Y_] = 0e0;
       dAyoBrho[Z_] = 0e0;
-//      get_Axy_EF3(elem.W, z, x, AyoBrho, dAyoBrho, dpx, false);
-//      get_Axy_EF3(elem.W, z, x, AxoBrho, dAxoBrho, dpy, true);
+//      get_Axy_EF3(Cell.Elem.W, z, x, AyoBrho, dAyoBrho, dpx, false);
+//      get_Axy_EF3(Cell.Elem.W, z, x, AxoBrho, dAxoBrho, dpy, true);
       B[X_] = -dAyoBrho[Z_]; B[Y_] = dAxoBrho[Z_];
       B[Z_] = dAyoBrho[X_] - dAxoBrho[Y_];
       radiate(x, h, 0e0, B);
@@ -2113,7 +2123,7 @@ void Solenoid_Pass(CellType &Cell, ss_vect<T> &ps)
 
   GtoL(ps, Cell.dS, Cell.dT, 0e0, 0e0, 0e0);
 
-  sol_pass(Cell.Elem, ps);
+  sol_pass(Cell, ps);
 
   LtoG(ps, Cell.dS, Cell.dT, 0e0, 0e0, 0e0);
 }
@@ -2138,14 +2148,14 @@ int LatticeType::GetnKid(const int Fnum1)
 
 long LatticeType::Elem_GetPos(const int Fnum1, const int Knum1)
 {
-  long int  loc;
+  long int loc;
 
   if (Lattice.ElemFam[Fnum1-1].nKid != 0)
     loc = Lattice.ElemFam[Fnum1-1].KidList[Knum1-1];
   else {
     loc = -1;
     printf("Elem_GetPos: there are no kids in family %d (%s)\n",
-	   Fnum1, Lattice.ElemFam[Fnum1-1]F.Name);
+	   Fnum1, Lattice.ElemFam[Fnum1-1].Name);
     exit_(0);
   }
 
@@ -2198,13 +2208,13 @@ void SI_init(void)
 
 void Mpole_Print(FILE *f, int Fnum1)
 {
-  elemtype  *elemp;
+  ElemFamType *elemfamp;
   MpoleType *M;
 
-  elemp  = &Lattice.ElemFam[Fnum1-1].ElemF; M = elemp->M;
+  elemfamp = &Lattice.ElemFam[Fnum1-1]; M = elemfamp->ElemF.M;
   fprintf(f, "Element[%3d ] \n", Fnum1);
   fprintf(f, "   Name: %.*s,  Kind:   mpole,  L=% .8E\n",
-          SymbolLength, elemp->Name, elemp->L);
+          SymbolLength, elemfamp->Name, elemfamp->L);
   fprintf(f, "   Method: %d, N=%4d\n", M->method, M->N);
 }
 
@@ -2212,35 +2222,34 @@ void Mpole_Print(FILE *f, int Fnum1)
 void Drift_Print(FILE *f, int Fnum1)
 {
   ElemFamType *elemfamp;
-  elemtype    *elemp;
 
-  elemfamp = &Lattice.ElemFam[Fnum1-1]; elemp = &elemfamp->ElemF;
+  elemfamp = &Lattice.ElemFam[Fnum1-1];
   fprintf(f, "Element[%3d ] \n", Fnum1);
   fprintf(f, "   Name: %.*s,  Kind:   drift,  L=% .8E\n",
-          SymbolLength, elemp->Name, elemp->L);
+          SymbolLength, elemfamp->Name, elemfamp->L);
   fprintf(f, "   nKid:%3d\n\n", elemfamp->nKid);
 }
 
 
 void Wiggler_Print(FILE *f, int Fnum1)
 {
-  elemtype *elemp;
+  ElemFamType *elemfamp;
 
-  elemp = &Lattice.ElemFam[Fnum1-1].ElemF;
+  elemfamp = &Lattice.ElemFam[Fnum1-1];
   fprintf(f, "Element[%3d ] \n", Fnum1);
   fprintf(f, "   Name: %.*s,  Kind:   wiggler,  L=% .8E\n\n",
-          NameLength, elemp->Name, elemp->L);
+          NameLength, elemfamp->Name, elemfamp->L);
 }
 
 
 void Insertion_Print(FILE *f, int Fnum1)
 {
-  elemtype *elemp;
+  ElemFamType *elemfamp;
 
-  elemp = &Lattice.ElemFam[Fnum1-1].ElemF;
+  elemfamp = &Lattice.ElemFam[Fnum1-1];
   fprintf(f, "Element[%3d ] \n", Fnum1);
   fprintf(f, "   Name: %.*s,  Kind:   wiggler,  L=% .8E\n\n",
-          SymbolLength, elemp->Name, elemp->L);
+          SymbolLength, elemfamp->Name, elemfamp->L);
 }
 
 
@@ -2255,7 +2264,7 @@ void Elem_Print(FILE *f, int Fnum1)
     return;
   }
 
-  switch (Lattice.ElemFam[Fnum1-1].ElemF.Kind) {
+  switch (Lattice.ElemFam[Fnum1-1].Kind) {
   case drift:
     Drift_Print(f, Fnum1);
     break;
@@ -2295,8 +2304,8 @@ void DriftType::Drift_Alloc(elemtype *Elem)
 
 void MpoleType::Mpole_Alloc(elemtype *Elem)
 {
-  int        j;
-  MpoleType  *M;
+  int       j;
+  MpoleType *M;
 
   /* Memory allocation */
   Elem->M = (MpoleType *)malloc(sizeof(MpoleType));
@@ -2362,7 +2371,7 @@ void WigglerType::Wiggler_Alloc(elemtype *Elem)
 
 void FieldMapType::FieldMap_Alloc(elemtype *Elem)
 {
-  FieldMapType  *FM;
+  FieldMapType *FM;
 
   Elem->FM = (FieldMapType *)malloc(sizeof(FieldMapType)); FM = Elem->FM;
   FM->n_step = 0; FM->n[X_] = 0; FM->n[Y_] = 0; FM->n[Z_] = 0; FM->scl = 1e0;
@@ -2372,8 +2381,8 @@ void FieldMapType::FieldMap_Alloc(elemtype *Elem)
 
 void InsertionType::Insertion_Alloc(elemtype *Elem)
 {
-  int            i = 0, j = 0;
-  InsertionType  *ID;
+  int           i = 0, j = 0;
+  InsertionType *ID;
 
   Elem->ID = (InsertionType *)malloc(sizeof(InsertionType));
   ID = Elem->ID;
@@ -2424,7 +2433,7 @@ void InsertionType::Insertion_Alloc(elemtype *Elem)
 
 void SpreaderType::Spreader_Alloc(elemtype *Elem)
 {
-  int  k;
+  int k;
 
   Elem->Spr = (SpreaderType *)malloc(sizeof(SpreaderType));
 
@@ -2441,8 +2450,8 @@ void RecombinerType::Recombiner_Alloc(elemtype *Elem)
 
 void SolenoidType::Solenoid_Alloc(elemtype *Elem)
 {
-  int           j;
-  SolenoidType  *Sol;
+  int          j;
+  SolenoidType *Sol;
 
   Elem->Sol = (SolenoidType *)malloc(sizeof(SolenoidType));
   Sol = Elem->Sol; Sol->N = 0;
@@ -2455,10 +2464,10 @@ void SolenoidType::Solenoid_Alloc(elemtype *Elem)
 
 void DriftType::Drift_Init(int Fnum1)
 {
-  int          i;
-  ElemFamType  *elemfamp;
-  CellType     *cellp;
-  elemtype     *elemp;
+  int         i;
+  ElemFamType *elemfamp;
+  CellType    *cellp;
+  elemtype    *elemp;
 
   elemfamp = &Lattice.ElemFam[Fnum1-1];
   for (i = 1; i <= elemfamp->nKid; i++) {
@@ -2467,11 +2476,11 @@ void DriftType::Drift_Init(int Fnum1)
     /* Dynamic memory allocation for element */
     Drift_Alloc(elemp);
     /* copy low level routine */
-    memcpy(elemp->Name, elemfamp->ElemF.Name, sizeof(partsName));
+    memcpy(cellp->Name, elemfamp->Name, sizeof(partsName));
     /* Set the drift length */
-    elemp->L = elemfamp->ElemF.L;
+    cellp->L = elemfamp->L;
     /* set the kind of element */
-    elemp->Kind = elemfamp->ElemF.Kind;
+    cellp->Kind = elemfamp->Kind;
     /* set pointer for the D dynamic space */
     *elemp->D = *elemfamp->ElemF.D;
     cellp->dT[0] = 1e0; /* cos = 1 */
@@ -2482,12 +2491,12 @@ void DriftType::Drift_Init(int Fnum1)
 }
 
 
-int Updateorder(elemtype &Elem)
+int Updateorder(elemtype &elem)
 {
-  int        i, order;
-  MpoleType  *M;
+  int       i, order;
+  MpoleType *M;
 
-  M = Elem.M;
+  M = elem.M;
   if (M->irho != 0e0) /* non zero curvature => bend */
     order = 1;
   else /* mutipole */
@@ -2501,11 +2510,11 @@ int Updateorder(elemtype &Elem)
 
 void MpoleType::Mpole_Init(int Fnum1)
 {
-  int          i;
-  double       phi;
-  ElemFamType  *elemfamp;
-  CellType     *cellp;
-  elemtype     *elemp;
+  int         i;
+  double      phi;
+  ElemFamType *elemfamp;
+  CellType    *cellp;
+  elemtype    *elemp;
 
   /* Pointer on element */
   elemfamp = &Lattice.ElemFam[Fnum1-1];
@@ -2515,18 +2524,18 @@ void MpoleType::Mpole_Init(int Fnum1)
   for (i = 1; i <= elemfamp->nKid; i++) {
     cellp = &Lattice.Cell[elemfamp->KidList[i-1]]; elemp = &cellp->Elem;
     /* Memory allocation and set everything to zero */
-    Mpole_Alloc(elemp);
-    memcpy(elemp->Name, elemfamp->ElemF.Name, sizeof(partsName));
+    Mpole_Alloc(&cellp->Elem);
+    memcpy(cellp->Name, elemfamp->Name, sizeof(partsName));
     /* set length */
-    elemp->L = elemfamp->ElemF.L;
+    cellp->L = elemfamp->L;
     /* set element kind (Mpole) */
-    elemp->Kind = elemfamp->ElemF.Kind;
-    *elemp->M = *elemfamp->ElemF.M;
+    cellp->Kind = elemfamp->Kind;
+    *cellp->Elem.M = *elemfamp->ElemF.M;
 
-    if (reverse_elem && (elemp->Reverse == true)) {
+    if (reverse_elem && (cellp->Reverse == true)) {
       // Swap entrance and exit angles.
       printf("Swapping entrance and exit angles for %8s %2d\n",
-	     elemp->Name, i);
+	     cellp->Name, i);
       phi = elemp->M->Tx1;
       elemp->M->Tx1 = elemp->M->Tx2; elemp->M->Tx2 = phi; 
     }
@@ -2538,11 +2547,11 @@ void MpoleType::Mpole_Init(int Fnum1)
     /* set displacement to zero */
     cellp->dS[0] = 0e0; cellp->dS[1] = 0e0;
 
-    if (elemp->L != 0e0 || elemp->M->irho != 0e0) {
+    if (cellp->L != 0e0 || elemp->M->irho != 0e0) {
       /* Thick element or radius non zero element */
       elemp->M->thick = pthicktype(thick);
       /* sin(L*irho/2) =sin(theta/2) half the angle */
-      elemp->M->c0 = sin(elemp->L*elemp->M->irho/2e0);
+      elemp->M->c0 = sin(cellp->L*elemp->M->irho/2e0);
       /* cos roll: sin(theta/2)*cos(dT) */
       elemp->M->c1 = cellp->dT[0]*elemp->M->c0;
       /* sin roll: sin(theta/2)*cos(dT) */
@@ -2567,9 +2576,9 @@ void WigglerType::Wiggler_Init(int Fnum1)
   for (i = 1; i <= elemfamp->nKid; i++) {
     cellp = &Lattice.Cell[elemfamp->KidList[i-1]]; elemp = &cellp->Elem;
     Wiggler_Alloc(elemp);
-    memcpy(elemp->Name, elemfamp->ElemF.Name, sizeof(partsName));
-    elemp->L = elemfamp->ElemF.L;
-    elemp->Kind = elemfamp->ElemF.Kind;
+    memcpy(cellp->Name, elemfamp->Name, sizeof(partsName));
+    cellp->L = elemfamp->L;
+    cellp->Kind = elemfamp->Kind;
     *elemp->W = *elemfamp->ElemF.W;
 
     // 2/21/12 JB & JC
@@ -2616,8 +2625,8 @@ void get_B_DIAMOND(const char *filename, FieldMapType *FM)
   std::ifstream inf;
   std::ofstream outf;
 
-  const int     skip = 8;
-  const double  Brho = Lattice.param.Energy*1e9/c0;
+  const int    skip = 8;
+  const double Brho = Lattice.param.Energy*1e9/c0;
 
   std::cout << std::endl;
   std::cout << "get_B_DIAMOND: loading field map: " << filename << std::endl;
@@ -2779,12 +2788,12 @@ void get_B_DIAMOND(const char *filename, FieldMapType *FM)
 
 void get_B_NSLS_II(const char *filename, FieldMapType *FM)
 {
-  char         line[max_str];
-  int          i, j, n;
-  double       x_min[3], x_max[3];
-  std::ifstream     inf;
+  char          line[max_str];
+  int           i, j, n;
+  double        x_min[3], x_max[3];
+  std::ifstream inf;
 
-  const double  Brho = Lattice.param.Energy*1e9/c0;
+  const double Brho = Lattice.param.Energy*1e9/c0;
 
   std::cout << std::endl;
   std::cout << "get_B_NSLS_II: loading field map: " << filename << std::endl;
@@ -2910,12 +2919,12 @@ void get_B_NSLS_II(const char *filename, FieldMapType *FM)
 
 void get_B_Oleg1(const char *filename, FieldMapType *FM)
 {
-  char         line[max_str];
-  int          i, j, n;
-  double       x_min[3], x_max[3];
-  std::ifstream     inf;
+  char          line[max_str];
+  int           i, j, n;
+  double        x_min[3], x_max[3];
+  std::ifstream inf;
 
-  const double  Brho = Lattice.param.Energy*1e9/c0;
+  const double Brho = Lattice.param.Energy*1e9/c0;
 
   std::cout << std::endl;
   std::cout << "get_B_Oleg1: loading field map: " << filename << std::endl;
@@ -3041,10 +3050,10 @@ void get_B_Oleg1(const char *filename, FieldMapType *FM)
 
 void get_B_Oleg2(const char *filename, FieldMapType *FM)
 {
-  char         line[max_str];
-  int          i, j, n;
-  double       x_min[3];
-  std::ifstream     inf;
+  char          line[max_str];
+  int           i, j, n;
+  double        x_min[3];
+  std::ifstream inf;
 
   const double  Brho = Lattice.param.Energy*1e9/c0;
 
@@ -3215,9 +3224,9 @@ void FieldMapType::FieldMap_Init(int Fnum1)
   for (i = 1; i <= elemfamp->nKid; i++) {
     cellp = &Lattice.Cell[elemfamp->KidList[i-1]]; elemp = &cellp->Elem;
     FieldMap_Alloc(elemp);
-    memcpy(elemp->Name, elemfamp->ElemF.Name, sizeof(partsName));
-    elemp->L = elemfamp->ElemF.L;
-    elemp->Kind = elemfamp->ElemF.Kind;
+    memcpy(cellp->Name, elemfamp->Name, sizeof(partsName));
+    cellp->L = elemfamp->L;
+    cellp->Kind = elemfamp->Kind;
     *elemp->FM = *elemfamp->ElemF.FM;
 
     cellp->dT[0] = 1e0; cellp->dT[1] = 0e0;
@@ -3228,10 +3237,10 @@ void FieldMapType::FieldMap_Init(int Fnum1)
 
 void CavityType::Cav_Init(int Fnum1)
 {
-  int          i;
-  ElemFamType  *elemfamp;
-  CellType     *cellp;
-  elemtype     *elemp;
+  int         i;
+  ElemFamType *elemfamp;
+  CellType    *cellp;
+  elemtype    *elemp;
 
   elemfamp = &Lattice.ElemFam[Fnum1-1];
   for (i = 0; i < elemfamp->nKid; i++) {
@@ -3243,10 +3252,10 @@ void CavityType::Cav_Init(int Fnum1)
 
 void Marker_Init(int Fnum1)
 {
-  int          i;
-  ElemFamType  *elemfamp;
-  CellType     *cellp;
-  elemtype     *elemp;
+  int         i;
+  ElemFamType *elemfamp;
+  CellType    *cellp;
+  elemtype    *elemp;
 
   elemfamp = &Lattice.ElemFam[Fnum1-1];
   for (i = 0; i < elemfamp->nKid; i++) {
@@ -3260,10 +3269,10 @@ void Marker_Init(int Fnum1)
 
 void InsertionType::Insertion_Init(int Fnum1)
 {
-  int          i;
-  ElemFamType  *elemfamp;
-  CellType     *cellp;
-  elemtype     *elemp;
+  int         i;
+  ElemFamType *elemfamp;
+  CellType    *cellp;
+  elemtype    *elemp;
 
   elemfamp = &Lattice.ElemFam[Fnum1-1];
 //  elemfamp->ElemF.ID->order = order;
@@ -3271,9 +3280,9 @@ void InsertionType::Insertion_Init(int Fnum1)
   for (i = 1; i <= elemfamp->nKid; i++) {
     cellp = &Lattice.Cell[elemfamp->KidList[i-1]]; elemp = &cellp->Elem;
     Insertion_Alloc(elemp);
-    memcpy(elemp->Name, elemfamp->ElemF.Name, sizeof(partsName));
-    elemp->L = elemfamp->ElemF.L;
-    elemp->Kind = elemfamp->ElemF.Kind;
+    memcpy(cellp->Name, elemfamp->Name, sizeof(partsName));
+    cellp->L = elemfamp->L;
+    cellp->Kind = elemfamp->Kind;
     *elemp->ID = *elemfamp->ElemF.ID;
 
     cellp->dT[0] = cos(dtor(elemp->ID->dTpar));
@@ -3285,10 +3294,10 @@ void InsertionType::Insertion_Init(int Fnum1)
 
 void SpreaderType::Spreader_Init(int Fnum1)
 {
-  int          i;
-  ElemFamType  *elemfamp;
-  CellType     *cellp;
-  elemtype     *elemp;
+  int         i;
+  ElemFamType *elemfamp;
+  CellType    *cellp;
+  elemtype    *elemp;
 
   elemfamp = &Lattice.ElemFam[Fnum1-1];
   for (i = 1; i <= elemfamp->nKid; i++) {
@@ -3297,9 +3306,9 @@ void SpreaderType::Spreader_Init(int Fnum1)
     /* Dynamic memory allocation for element */
     Spreader_Alloc(elemp);
     /* copy low level routine */
-    memcpy(elemp->Name, elemfamp->ElemF.Name, sizeof(partsName));
+    memcpy(cellp->Name, elemfamp->Name, sizeof(partsName));
     /* set the kind of element */
-    elemp->Kind = elemfamp->ElemF.Kind;
+    cellp->Kind = elemfamp->Kind;
     /* set pointer for the dynamic space */
     *elemp->Spr = *elemfamp->ElemF.Spr;
     cellp->dT[0] = 1e0; /* cos = 1 */
@@ -3312,10 +3321,10 @@ void SpreaderType::Spreader_Init(int Fnum1)
 
 void RecombinerType::Recombiner_Init(int Fnum1)
 {
-  int          i;
-  ElemFamType  *elemfamp;
-  CellType     *cellp;
-  elemtype     *elemp;
+  int         i;
+  ElemFamType *elemfamp;
+  CellType    *cellp;
+  elemtype    *elemp;
 
   elemfamp = &Lattice.ElemFam[Fnum1-1];
   for (i = 1; i <= elemfamp->nKid; i++) {
@@ -3324,9 +3333,9 @@ void RecombinerType::Recombiner_Init(int Fnum1)
     /* Dynamic memory allocation for element */
     Recombiner_Alloc(elemp);
     /* copy low level routine */
-    memcpy(elemp->Name, elemfamp->ElemF.Name, sizeof(partsName));
+    memcpy(cellp->Name, elemfamp->Name, sizeof(partsName));
     /* set the kind of element */
-    elemp->Kind = elemfamp->ElemF.Kind;
+    cellp->Kind = elemfamp->Kind;
     /* set pointer for the dynamic space */
     *elemp->Rec = *elemfamp->ElemF.Rec;
     cellp->dT[0] = 1e0; /* cos = 1 */
@@ -3339,10 +3348,10 @@ void RecombinerType::Recombiner_Init(int Fnum1)
 
 void SolenoidType::Solenoid_Init(int Fnum1)
 {
-  int          i;
-  ElemFamType  *elemfamp;
-  CellType     *cellp;
-  elemtype     *elemp;
+  int         i;
+  ElemFamType *elemfamp;
+  CellType    *cellp;
+  elemtype    *elemp;
 
   /* Pointer on element */
   elemfamp = &Lattice.ElemFam[Fnum1-1];
@@ -3350,11 +3359,11 @@ void SolenoidType::Solenoid_Init(int Fnum1)
     cellp = &Lattice.Cell[elemfamp->KidList[i-1]]; elemp = &cellp->Elem;
     /* Memory allocation and set everything to zero */
     Solenoid_Alloc(elemp);
-    memcpy(elemp->Name, elemfamp->ElemF.Name, sizeof(partsName));
+    memcpy(cellp->Name, elemfamp->Name, sizeof(partsName));
     /* set length */
-    elemp->L = elemfamp->ElemF.L;
+    cellp->L = elemfamp->L;
     /* set element kind */
-    elemp->Kind = elemfamp->ElemF.Kind;
+    cellp->Kind = elemfamp->Kind;
     *elemp->Sol = *elemfamp->ElemF.Sol;
 
     /* set entrance and exit angles */
@@ -3367,12 +3376,14 @@ void SolenoidType::Solenoid_Init(int Fnum1)
 
 double LatticeType::Elem_GetKval(int Fnum1, int Knum1, int Order)
 {
-  double    Result = 0e0;
-  elemtype  *elemp;
+  double   Result = 0e0;
+  CellType *cellp;
+  elemtype *elemp;
 
   if (Fnum1 > 0) {
-    elemp = &Lattice.Cell[Lattice.ElemFam[Fnum1-1].KidList[Knum1-1]].Elem;
-    switch (elemp->Kind) {
+    cellp = &Lattice.Cell[Lattice.ElemFam[Fnum1-1].KidList[Knum1-1]];
+    elemp = &cellp->Elem;
+    switch (cellp->Kind) {
     case drift:
       Result = 0e0;
       break;
@@ -3384,13 +3395,13 @@ double LatticeType::Elem_GetKval(int Fnum1, int Knum1, int Order)
       break;
     case Mpole: /* KL*/
       if (elemp->M->thick == thick)
-	Result = elemp->L*Lattice.Mpole_GetB(Fnum1, Knum1, Order);
+	Result = cellp->L*Lattice.Mpole_GetB(Fnum1, Knum1, Order);
       else
 	Result = Lattice.Mpole_GetB(Fnum1, Knum1, Order);
       break;
     case Wigl:
       Result =
-	elemp->L*sqrt(2e0
+	cellp->L*sqrt(2e0
 	*Lattice.Cell[Lattice.ElemFam[Fnum1-1].KidList[Knum1-1]]
 		       .Elem.W->BW[Order+HOMmax]);
       break;
@@ -3427,8 +3438,8 @@ void Mpole_SetB(int Fnum1, int Knum1, int Order)
        Compute transport matrix if quadrupole (Order=2)
        Set multipole order to Order if multipole (Order >2)                  */
 
-  CellType *cellp;  /* pointer on the Cell */
-  elemtype *elemp; /* pointer on the Elemetype */
+  CellType  *cellp;  /* pointer on the Cell */
+  elemtype  *elemp; /* pointer on the Elemetype */
   MpoleType *M;/* Pointer on the Multipole */
 
   cellp  = &Lattice.Cell[Lattice.ElemFam[Fnum1-1].KidList[Knum1-1]];
@@ -3457,11 +3468,11 @@ double LatticeType::Mpole_GetB(int Fnum1, int Knum1, int Order)
 
 void Mpole_DefBpar(int Fnum1, int Knum1, int Order, double Bpar)
 {
-  elemtype   *elemp;
-  MpoleType  *M;
+  CellType  *cellp;
+  MpoleType *M;
 
-  elemp = &Lattice.Cell[Lattice.ElemFam[Fnum1-1].KidList[Knum1-1]].Elem;
-  M = elemp->M;
+  cellp = &Lattice.Cell[Lattice.ElemFam[Fnum1-1].KidList[Knum1-1]];
+  M = cellp->Elem.M;
 
   M->Bpar[Order+HOMmax] = Bpar;
 }
@@ -3470,11 +3481,11 @@ void Mpole_DefBpar(int Fnum1, int Knum1, int Order, double Bpar)
 void Mpole_DefBsys(int Fnum1, int Knum1, int Order, double Bsys)
 {
   /*Fnum1, Knum1, Order : integer*/
-  elemtype *elemp;
+  CellType  *cellp;
   MpoleType *M;
 
-  elemp = &Lattice.Cell[Lattice.ElemFam[Fnum1-1].KidList[Knum1-1]].Elem;
-  M = elemp->M;
+  cellp = &Lattice.Cell[Lattice.ElemFam[Fnum1-1].KidList[Knum1-1]];
+  M = cellp->Elem.M;
 
   M->Bsys[Order+HOMmax] = Bsys;
 }
@@ -3504,18 +3515,18 @@ void Mpole_SetdT(int Fnum1, int Knum1)
   cellp->dT[0] = cos(dtor(M->dTpar + M->dTsys + M->dTrms*M->dTrnd));
   cellp->dT[1] = sin(dtor(M->dTpar + M->dTsys + M->dTrms*M->dTrnd));
   /* Calculate simplified p_rots */
-  M->c0 = sin(elemp->L*M->irho/2e0); M->c1 = cos(dtor(M->dTpar))*M->c0;
+  M->c0 = sin(cellp->L*M->irho/2e0); M->c1 = cos(dtor(M->dTpar))*M->c0;
   M->s1 = sin(dtor(M->dTpar))*M->c0;
 }
 
 
 double Mpole_GetdT(int Fnum1, int Knum1)
 {
-  elemtype  *elemp;
+  CellType  *cellp;
   MpoleType *M;
 
-  elemp = &Lattice.Cell[Lattice.ElemFam[Fnum1-1].KidList[Knum1-1]].Elem;
-  M = elemp->M;
+  cellp = &Lattice.Cell[Lattice.ElemFam[Fnum1-1].KidList[Knum1-1]];
+  M = cellp->Elem.M;
 
   return(M->dTpar + M->dTsys + M->dTrms*M->dTrnd);
 }
@@ -3523,11 +3534,11 @@ double Mpole_GetdT(int Fnum1, int Knum1)
 
 void Mpole_DefdTpar(int Fnum1, int Knum1, double dTpar)
 {
-  elemtype  *elemp;
+  CellType  *cellp;
   MpoleType *M;
 
-  elemp = &Lattice.Cell[Lattice.ElemFam[Fnum1-1].KidList[Knum1-1]].Elem;
-  M = elemp->M;
+  cellp = &Lattice.Cell[Lattice.ElemFam[Fnum1-1].KidList[Knum1-1]];
+  M = cellp->Elem.M;
 
   M->dTpar = dTpar;
 }
@@ -3535,11 +3546,11 @@ void Mpole_DefdTpar(int Fnum1, int Knum1, double dTpar)
 
 void Mpole_DefdTsys(int Fnum1, int Knum1, double dTsys)
 {
-  elemtype  *elemp;
+  CellType  *cellp;
   MpoleType *M;
 
-  elemp = &Lattice.Cell[Lattice.ElemFam[Fnum1-1].KidList[Knum1-1]].Elem;
-  M = elemp->M;
+  cellp = &Lattice.Cell[Lattice.ElemFam[Fnum1-1].KidList[Knum1-1]];
+  M = cellp->Elem.M;
 
   M->dTsys = dTsys;
 }

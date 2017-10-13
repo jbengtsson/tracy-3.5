@@ -23,9 +23,9 @@ void chk_bend()
 
   phi = 0e0;
   for (k = 0; k <= Lattice.param.Cell_nLoc; k++) {
-    if ((Lattice.Cell[k].Elem.Kind == Mpole) &&
+    if ((Lattice.Cell[k].Kind == Mpole) &&
 	(Lattice.Cell[k].Elem.M->n_design == Dip)) {
-      phi += Lattice.Cell[k].Elem.L*Lattice.Cell[k].Elem.M->irho;
+      phi += Lattice.Cell[k].L*Lattice.Cell[k].Elem.M->irho;
     }
   }
   phi = 180e0*phi/M_PI;
@@ -47,7 +47,8 @@ void scan_delta(const int n, const double delta)
 
   for (k = 0; k < n; k++) {
     d = (double)k/double(n-1)*delta;
-    ps.zero(); ps[delta_] = d; Cell_Pass(0, Lattice.param.Cell_nLoc, ps, lastpos);
+    ps.zero(); ps[delta_] = d;
+    Cell_Pass(0, Lattice.param.Cell_nLoc, ps, lastpos);
     outf << scientific << setprecision(6)
 	 << setw(14) << d << setw(14) << ps << endl;
   }
@@ -329,7 +330,7 @@ void prt_twoJ(const int n, const double A[][2])
 
   file_wr(outf, file_name.c_str());
   for (k = 0; k <= Lattice.param.Cell_nLoc; k++) {
-    outf << setw(4) << k << " " << setw(10) << Lattice.Cell[k].Elem.Name
+    outf << setw(4) << k << " " << setw(10) << Lattice.Cell[k].Name
 	 << fixed << setprecision(5) << setw(9) << Lattice.Cell[k].S
 	 << setprecision(1) << setw(5) << get_code(Lattice.Cell[k]);
    for (j = 0; j < n; j++)
@@ -362,7 +363,7 @@ void prt_curly_H(const int n, const double delta[])
 
   file_wr(outf, file_name.c_str());
   for (k = 0; k <= Lattice.param.Cell_nLoc; k++) {
-    outf << setw(4) << k << " " << setw(10) << Lattice.Cell[k].Elem.Name
+    outf << setw(4) << k << " " << setw(10) << Lattice.Cell[k].Name
 	 << fixed << setprecision(5) << setw(9) << Lattice.Cell[k].S
 	 << setprecision(1) << setw(5) << get_code(Lattice.Cell[k]);
    for (j = 0; j < n; j++)
@@ -400,7 +401,7 @@ void prt_eta(const int n, const double delta[])
 
   file_wr(outf, file_name.c_str());
   for (k = 0; k <= Lattice.param.Cell_nLoc; k++) {
-    outf << setw(4) << k << " " << setw(10) << Lattice.Cell[k].Elem.Name
+    outf << setw(4) << k << " " << setw(10) << Lattice.Cell[k].Name
 	 << fixed << setprecision(5) << setw(9) << Lattice.Cell[k].S
 	 << setprecision(1) << setw(5) << get_code(Lattice.Cell[k]);
    for (j = 0; j < n; j++)
@@ -440,7 +441,7 @@ void prt_dnu(const int n, const double delta[])
 
   file_wr(outf, file_name.c_str());
   for (k = 0; k <= Lattice.param.Cell_nLoc; k++) {
-    outf << setw(4) << k << " " << setw(10) << Lattice.Cell[k].Elem.Name
+    outf << setw(4) << k << " " << setw(10) << Lattice.Cell[k].Name
 	 << fixed << setprecision(5) << setw(9) << Lattice.Cell[k].S
 	 << setprecision(1) << setw(5) << get_code(Lattice.Cell[k]);
    for (j = 0; j < n; j++)
@@ -470,7 +471,7 @@ void prt_trsvrs(const int n, const double A[][2])
 
   file_wr(outf, file_name.c_str());
 
-  cout << endl << setw(4) << loc << " " << setw(10) << Lattice.Cell[loc].Elem.Name
+  cout << endl << setw(4) << loc << " " << setw(10) << Lattice.Cell[loc].Name
        << fixed << setprecision(5) << setw(9) << Lattice.Cell[loc].S << endl;
 
   cout << endl;
@@ -517,7 +518,7 @@ void prt_long(const int n, const double A[][2])
 
   file_wr(outf, file_name.c_str());
 
-  cout << endl << setw(4) << loc << " " << setw(10) << Lattice.Cell[loc].Elem.Name
+  cout << endl << setw(4) << loc << " " << setw(10) << Lattice.Cell[loc].Name
        << fixed << setprecision(5) << setw(9) << Lattice.Cell[loc].S << endl;
 
   cout << endl;
@@ -569,7 +570,7 @@ void prt_ct(const int n, const double delta[])
 
   file_wr(outf, file_name.c_str());
   for (k = 0; k <= Lattice.param.Cell_nLoc; k++) {
-    outf << setw(4) << k << " " << setw(10) << Lattice.Cell[k].Elem.Name
+    outf << setw(4) << k << " " << setw(10) << Lattice.Cell[k].Name
 	 << fixed << setprecision(5) << setw(9) << Lattice.Cell[k].S
 	 << setprecision(1) << setw(5) << get_code(Lattice.Cell[k]);
    for (j = 0; j < n; j++)

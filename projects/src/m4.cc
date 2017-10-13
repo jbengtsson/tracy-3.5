@@ -302,7 +302,7 @@ void get_cod_rms_data(const int n_seed, const int nfam, const int fnums[], const
       
       for (j = 0; j <= Lattice.param.Cell_nLoc; j++){ // read back beam pos at bpm
 
-	if ( (Lattice.Cell[j].Elem.Kind == Mpole) || (Lattice.Cell[j].Elem.Kind == drift) ) {
+	if ( (Lattice.Cell[j].Kind == Mpole) || (Lattice.Cell[j].Kind == drift) ) {
 	  for (k = 0; k < 6; k++) {
 	    x1[j][k] += Lattice.Cell[j].BeamPos[k];
 	    x2[j][k] += sqr(Lattice.Cell[j].BeamPos[k]);
@@ -332,7 +332,7 @@ void get_cod_rms_data(const int n_seed, const int nfam, const int fnums[], const
   
   for (j = 0; j <= Lattice.param.Cell_nLoc; j++){
         
-    if ( (Lattice.Cell[j].Elem.Kind == Mpole) || (Lattice.Cell[j].Elem.Kind == drift) ) {
+    if ( (Lattice.Cell[j].Kind == Mpole) || (Lattice.Cell[j].Kind == drift) ) {
       for (k = 0; k < 6; k++) {
 	x_mean[j][k] = x1[j][k]/n_seed;
 	x_sigma[j][k] = sqrt((n_seed*x2[j][k]-sqr(x1[j][k]))
@@ -385,7 +385,7 @@ void prt_cod_rms_data(const char name[], double x_mean[][6], double x_sigma[][6]
   for (j = 0; j <= Lattice.param.Cell_nLoc; j++){
    
     fprintf(fp, "%4li %8.3f %s %6.2f %10.3e +/- %10.3e %10.3e +/- %10.3e",
-	    j, Lattice.Cell[j].S, Lattice.Cell[j].Elem.Name, get_code(Lattice.Cell[j]),
+	    j, Lattice.Cell[j].S, Lattice.Cell[j].Name, get_code(Lattice.Cell[j]),
 	    1e3*x_mean[j][x_], 1e3*x_sigma[j][x_],
 	    1e3*x_mean[j][y_], 1e3*x_sigma[j][y_]);
    
@@ -626,7 +626,7 @@ void get_cod_rms_scl_new(const int n_seed)
 	fprintf(fp,"#\n");
 	for(k = 0; k <= Lattice.param.Cell_nLoc; k++){
 	  fprintf(fp,"%4d %10s %6.3f %e %e %e %e %e %e\n",
-		  k, Lattice.Cell[k].Elem.Name, Lattice.Cell[k].S,
+		  k, Lattice.Cell[k].Name, Lattice.Cell[k].S,
 		  avgyoverx[k], sigyoverx[k], maxyoverx[k],
 		  avgtwist[k], sigtwist[k], maxtwist[k]);
 	}
@@ -643,7 +643,7 @@ void get_cod_rms_scl_new(const int n_seed)
       
       for (j = 0; j <= Lattice.param.Cell_nLoc; j++){ // read back beam pos at bpm
 	
-	if ( (Lattice.Cell[j].Elem.Kind == Mpole) || (Lattice.Cell[j].Elem.Kind == drift) ) {
+	if ( (Lattice.Cell[j].Kind == Mpole) || (Lattice.Cell[j].Kind == drift) ) {
 	  for (k = 0; k < 6; k++) {
 	    x1[j][k] += Lattice.Cell[j].BeamPos[k];
 	    x2[j][k] += sqr(Lattice.Cell[j].BeamPos[k]);
@@ -673,7 +673,7 @@ void get_cod_rms_scl_new(const int n_seed)
   
   for (j = 0; j <= Lattice.param.Cell_nLoc; j++){
     
-    if ( (Lattice.Cell[j].Elem.Kind == Mpole) || (Lattice.Cell[j].Elem.Kind == drift) ) {
+    if ( (Lattice.Cell[j].Kind == Mpole) || (Lattice.Cell[j].Kind == drift) ) {
       for (k = 0; k < 6; k++) {
 	x_mean[j][k] = x1[j][k]/n_seed;
 	x_sigma[j][k] = sqrt((n_seed*x2[j][k]-sqr(x1[j][k]))

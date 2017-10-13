@@ -55,7 +55,7 @@ void get_cod_rms(const double dx, const double dy,
 
       n = 0;
       for (j = 0; j <= Lattice.param.Cell_nLoc; j++)
-	if (all || ((Lattice.Cell[j].Elem.Kind == Mpole) &&
+	if (all || ((Lattice.Cell[j].Kind == Mpole) &&
 		    (Lattice.Cell[j].Elem.M->n_design == Sext))) {
 	  n++;
 	  for (k = 0; k < 6; k++) {
@@ -75,7 +75,7 @@ void get_cod_rms(const double dx, const double dy,
 
   n = 0;
   for (j = 0; j <= Lattice.param.Cell_nLoc; j++)
-    if (all || ((Lattice.Cell[j].Elem.Kind == Mpole) &&
+    if (all || ((Lattice.Cell[j].Kind == Mpole) &&
 		(Lattice.Cell[j].Elem.M->n_design == Sext))) {
       n++;
       for (k = 0; k < 6; k++) {

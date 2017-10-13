@@ -144,9 +144,9 @@ template void Cav_Pass(CellType &, ss_vect<double> &);
 
 template void Cav_Pass(CellType &, ss_vect<tps> &);
 
-template void Wiggler_pass_EF(const elemtype &elem, ss_vect<double> &x);
+template void Wiggler_pass_EF(const CellType &Cell, ss_vect<double> &x);
 
-template void Wiggler_pass_EF(const elemtype &elem, ss_vect<tps> &x);
+template void Wiggler_pass_EF(const CellType &Cell, ss_vect<tps> &x);
 
 template void Wiggler_pass_EF2(int nstep, double L,
 			       double kxV, double kxH, double kz,
@@ -158,9 +158,9 @@ template void Wiggler_pass_EF2(int nstep, double L,
 			       double BoBrhoV, double BoBrhoH, double phi,
 			       ss_vect<tps> &x);
 
-template void Wiggler_pass_EF3(const elemtype &elem, ss_vect<double> &x);
+template void Wiggler_pass_EF3(const CellType &Cell, ss_vect<double> &x);
 
-template void Wiggler_pass_EF3(const elemtype &elem, ss_vect<tps> &x);
+template void Wiggler_pass_EF3(const CellType &Cell, ss_vect<tps> &x);
 
 template void Wiggler_Pass(CellType &, ss_vect<double> &);
 
@@ -170,9 +170,9 @@ template void FieldMap_Pass(CellType &, ss_vect<double> &);
 
 template void FieldMap_Pass(CellType &, ss_vect<tps> &);
 
-template void sol_pass(const elemtype &, ss_vect<double> &);
+template void sol_pass(const CellType &, ss_vect<double> &);
 
-template void sol_pass(const elemtype &, ss_vect<tps> &);
+template void sol_pass(const CellType &, ss_vect<tps> &);
 
 template void Solenoid_Pass(CellType &, ss_vect<double> &);
 
