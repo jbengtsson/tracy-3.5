@@ -2769,7 +2769,8 @@ void get_B_DIAMOND(const char *filename, FieldMapType *FM)
 
   std::cout << "field map loaded: " << filename << std::endl;
 
-/*  free_dvector(FM->x[X_], 1, FM->n[X_]); free_dvector(FM->x[Y_], 1, FM->n[Y_]);
+/*  free_dvector(FM->x[X_], 1, FM->n[X_]);
+  free_dvector(FM->x[Y_], 1, FM->n[Y_]);
   free_dvector(FM->x[Z_], 1, FM->n[Z_]);
 
   free_df3tensor(FM->BoBrho[X_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
@@ -3225,8 +3226,7 @@ void FieldMapType::FieldMap_Init(int Fnum1)
     cellp = &Lattice.Cell[elemfamp->KidList[i-1]]; elemp = &cellp->Elem;
     FieldMap_Alloc(elemp);
     memcpy(cellp->Name, elemfamp->Name, sizeof(partsName));
-    cellp->L = elemfamp->L;
-    cellp->Kind = elemfamp->Kind;
+    cellp->L = elemfamp->L; cellp->Kind = elemfamp->Kind;
     *elemp->FM = *elemfamp->ElemF.FM;
 
     cellp->dT[0] = 1e0; cellp->dT[1] = 0e0;
@@ -3245,7 +3245,13 @@ void CavityType::Cav_Init(int Fnum1)
   elemfamp = &Lattice.ElemFam[Fnum1-1];
   for (i = 0; i < elemfamp->nKid; i++) {
     cellp = &Lattice.Cell[elemfamp->KidList[i]]; elemp = &cellp->Elem;
-    cellp->Elem = elemfamp->ElemF;
+    Cav_Alloc(elemp);
+    memcpy(cellp->Name, elemfamp->Name, sizeof(partsName));
+    cellp->L = elemfamp->L; cellp->Kind = elemfamp->Kind;
+    *elemp->C = *elemfamp->ElemF.C;
+
+    cellp->dT[0] = 1e0; cellp->dT[1] = 0e0;
+    cellp->dS[X_] = 0e0; cellp->dS[Y_] = 0e0;
   }
 }
 

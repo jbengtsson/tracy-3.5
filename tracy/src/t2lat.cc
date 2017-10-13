@@ -1047,8 +1047,7 @@ static void Factor(struct LOC_Term *LINK)
 	memcpy(fname, LINK->LINK->LINK->id, sizeof(alfa_));
 	memset(fname + sizeof(alfa_), ' ',
 	       sizeof(partsName) - sizeof(alfa_));
-	WITH = &Lattice.ElemFam[V.i-1];
-	WITH1 = WITH->ElemF.M;
+	WITH = &Lattice.ElemFam[V.i-1];	WITH1 = WITH->ElemF.M;
 	if (!strncmp(fname, "l              ", sizeof(partsName)))
 	  x = WITH->L;
 	else if (!strncmp(fname, "t              ", sizeof(partsName))) {
@@ -2247,7 +2246,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       WITH->L = QL;
       WITH->Kind = Mpole;
       WITH->ElemF.M->Mpole_Alloc(&WITH->ElemF);
-      WITH2 = WITH1->M;
+      WITH2 = WITH->ElemF.M;
       WITH2->method = k2;
       WITH2->N = k1;
       if (WITH->L != 0.0)
@@ -2356,7 +2355,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       memcpy(WITH->Name, ElementName, sizeof(partsName));
       WITH->L = QL; WITH->Kind = Mpole;
       WITH->ElemF.M->Mpole_Alloc(&WITH->ElemF);
-      WITH2 = WITH1->M;
+      WITH2 = WITH->ElemF.M;
       WITH2->method = k2; WITH2->N = k1; WITH2->dTpar = dt;
       AssignHOM(Lattice.param.Elem_nFam, &V);
       SetDBN(&V);
@@ -4213,10 +4212,12 @@ bool LatticeType::Lattice_Read(FILE **fi_, FILE **fo_)
   V.fo = fo_; /* output lattice file */
   if (setjmp(V._JL9999))
     goto _L9999;
-  V.UDIC = 0; Lattice.param.Cell_nLoc = 0; Lattice.param.Elem_nFam = 0; V.NoB = 0;
+  V.UDIC = 0; Lattice.param.Cell_nLoc = 0; Lattice.param.Elem_nFam = 0;
+  V.NoB = 0;
   V.Symmetry = 0; V.Bpointer = 0;
 
-  Lattice.param.CODeps   = 0.0; Lattice.param.dPcommon = 0.0; Lattice.param.Energy   = 0.0;
+  Lattice.param.CODeps = 0.0; Lattice.param.dPcommon = 0.0;
+  Lattice.param.Energy = 0.0;
 
   ErrFlag = false;
 
