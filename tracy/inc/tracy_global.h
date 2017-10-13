@@ -17,7 +17,7 @@
 #define IDZMAX       100
 
 /* definition form old soleilcommon.h */
-#define NTURN        10000  // 2*NTURN for diffusion
+#define NTURN        10000 // 2*NTURN for diffusion
 #define DIM          6
 
 const int max_elem     = Cell_nLocMax;

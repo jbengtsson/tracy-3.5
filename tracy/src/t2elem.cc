@@ -2473,8 +2473,10 @@ void DriftType::Drift_Init(int Fnum1)
   for (i = 1; i <= elemfamp->nKid; i++) {
     /* Get in Cell kid # i from Family Fnum1 */
     cellp = &Lattice.Cell[elemfamp->KidList[i-1]]; elemp = &cellp->Elem;
+
     /* Dynamic memory allocation for element */
     Drift_Alloc(elemp);
+
     /* copy low level routine */
     memcpy(cellp->Name, elemfamp->Name, sizeof(partsName));
     /* Set the drift length */
@@ -2483,6 +2485,7 @@ void DriftType::Drift_Init(int Fnum1)
     cellp->Kind = elemfamp->Kind;
     /* set pointer for the D dynamic space */
     *elemp->D = *elemfamp->ElemF.D;
+
     cellp->dT[0] = 1e0; /* cos = 1 */
     cellp->dT[1] = 0e0; /* sin = 0 */
     cellp->dS[0] = 0e0; /* no H displacement */
@@ -2523,15 +2526,16 @@ void MpoleType::Mpole_Init(int Fnum1)
   elemfamp->ElemF.M->order = Updateorder(elemfamp->ElemF);
   for (i = 1; i <= elemfamp->nKid; i++) {
     cellp = &Lattice.Cell[elemfamp->KidList[i-1]]; elemp = &cellp->Elem;
+
     /* Memory allocation and set everything to zero */
     Mpole_Alloc(&cellp->Elem);
+
     memcpy(cellp->Name, elemfamp->Name, sizeof(partsName));
     /* set length */
     cellp->L = elemfamp->L;
     /* set element kind (Mpole) */
     cellp->Kind = elemfamp->Kind;
     *cellp->Elem.M = *elemfamp->ElemF.M;
-
     if (reverse_elem && (cellp->Reverse == true)) {
       // Swap entrance and exit angles.
       printf("Swapping entrance and exit angles for %8s %2d\n",
@@ -2575,7 +2579,9 @@ void WigglerType::Wiggler_Init(int Fnum1)
   elemfamp->ElemF.W->order = ORDER;
   for (i = 1; i <= elemfamp->nKid; i++) {
     cellp = &Lattice.Cell[elemfamp->KidList[i-1]]; elemp = &cellp->Elem;
+
     Wiggler_Alloc(elemp);
+
     memcpy(cellp->Name, elemfamp->Name, sizeof(partsName));
     cellp->L = elemfamp->L;
     cellp->Kind = elemfamp->Kind;
@@ -3224,7 +3230,9 @@ void FieldMapType::FieldMap_Init(int Fnum1)
   elemfamp = &Lattice.ElemFam[Fnum1-1];
   for (i = 1; i <= elemfamp->nKid; i++) {
     cellp = &Lattice.Cell[elemfamp->KidList[i-1]]; elemp = &cellp->Elem;
+
     FieldMap_Alloc(elemp);
+
     memcpy(cellp->Name, elemfamp->Name, sizeof(partsName));
     cellp->L = elemfamp->L; cellp->Kind = elemfamp->Kind;
     *elemp->FM = *elemfamp->ElemF.FM;
@@ -3245,7 +3253,9 @@ void CavityType::Cav_Init(int Fnum1)
   elemfamp = &Lattice.ElemFam[Fnum1-1];
   for (i = 0; i < elemfamp->nKid; i++) {
     cellp = &Lattice.Cell[elemfamp->KidList[i]]; elemp = &cellp->Elem;
+
     Cav_Alloc(elemp);
+
     memcpy(cellp->Name, elemfamp->Name, sizeof(partsName));
     cellp->L = elemfamp->L; cellp->Kind = elemfamp->Kind;
     *elemp->C = *elemfamp->ElemF.C;
@@ -3266,7 +3276,8 @@ void Marker_Init(int Fnum1)
   elemfamp = &Lattice.ElemFam[Fnum1-1];
   for (i = 0; i < elemfamp->nKid; i++) {
     cellp = &Lattice.Cell[elemfamp->KidList[i]]; elemp = &cellp->Elem;
-    cellp->Elem  = elemfamp->ElemF;
+    cellp->Elem = elemfamp->ElemF;
+
     memcpy(cellp->Name, elemfamp->Name, sizeof(partsName));
 
     cellp->dT[0] = 1e0; cellp->dT[1] = 0e0;
@@ -3287,7 +3298,9 @@ void InsertionType::Insertion_Init(int Fnum1)
 //  x = elemfamp->ElemF.ID->BW[Quad + HOMmax];
   for (i = 1; i <= elemfamp->nKid; i++) {
     cellp = &Lattice.Cell[elemfamp->KidList[i-1]]; elemp = &cellp->Elem;
+
     Insertion_Alloc(elemp);
+
     memcpy(cellp->Name, elemfamp->Name, sizeof(partsName));
     cellp->L = elemfamp->L;
     cellp->Kind = elemfamp->Kind;
@@ -3311,14 +3324,17 @@ void SpreaderType::Spreader_Init(int Fnum1)
   for (i = 1; i <= elemfamp->nKid; i++) {
     /* Get in Cell kid # i from Family Fnum1 */
     cellp = &Lattice.Cell[elemfamp->KidList[i-1]]; elemp = &cellp->Elem;
+
     /* Dynamic memory allocation for element */
     Spreader_Alloc(elemp);
+
     /* copy low level routine */
     memcpy(cellp->Name, elemfamp->Name, sizeof(partsName));
     /* set the kind of element */
     cellp->Kind = elemfamp->Kind;
     /* set pointer for the dynamic space */
     *elemp->Spr = *elemfamp->ElemF.Spr;
+
     cellp->dT[0] = 1e0; /* cos = 1 */
     cellp->dT[1] = 0e0; /* sin = 0 */
     cellp->dS[0] = 0e0; /* no H displacement */
@@ -3338,14 +3354,17 @@ void RecombinerType::Recombiner_Init(int Fnum1)
   for (i = 1; i <= elemfamp->nKid; i++) {
     /* Get in Cell kid # i from Family Fnum1 */
     cellp = &Lattice.Cell[elemfamp->KidList[i-1]]; elemp = &cellp->Elem;
+
     /* Dynamic memory allocation for element */
     Recombiner_Alloc(elemp);
+
     /* copy low level routine */
     memcpy(cellp->Name, elemfamp->Name, sizeof(partsName));
     /* set the kind of element */
     cellp->Kind = elemfamp->Kind;
     /* set pointer for the dynamic space */
     *elemp->Rec = *elemfamp->ElemF.Rec;
+
     cellp->dT[0] = 1e0; /* cos = 1 */
     cellp->dT[1] = 0e0; /* sin = 0 */
     cellp->dS[0] = 0e0; /* no H displacement */
@@ -3365,8 +3384,10 @@ void SolenoidType::Solenoid_Init(int Fnum1)
   elemfamp = &Lattice.ElemFam[Fnum1-1];
   for (i = 1; i <= elemfamp->nKid; i++) {
     cellp = &Lattice.Cell[elemfamp->KidList[i-1]]; elemp = &cellp->Elem;
+
     /* Memory allocation and set everything to zero */
     Solenoid_Alloc(elemp);
+
     memcpy(cellp->Name, elemfamp->Name, sizeof(partsName));
     /* set length */
     cellp->L = elemfamp->L;
