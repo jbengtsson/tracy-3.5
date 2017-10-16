@@ -7,6 +7,8 @@
    J. Bengtsson  NSLS-II, BNL  2004 - 2015,
    J. Bengtsson                2017          Re-factored from C to C++.       */
 
+// LEGO structure for lattice.
+//
 // LEGO:
 //   Leg Godt (play well); invented by Master Cabinet Maker Ole Kirk
 //   Christiansen, 1934.
