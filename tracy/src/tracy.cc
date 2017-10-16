@@ -102,19 +102,19 @@ template void quad_fringe(const double, ss_vect<double> &);
 template void quad_fringe(const double, ss_vect<tps> &);
 
 
-template void Drift_Pass(CellType &, ss_vect<double> &);
-template void Drift_Pass(CellType &, ss_vect<tps> &);
+// template void Drift_Pass(CellType &, ss_vect<double> &);
+// template void Drift_Pass(CellType &, ss_vect<tps> &);
 
 template void thin_kick(const int, const double [], const double, const double,
 			const double, ss_vect<double> &);
 template void thin_kick(const int, const double [], const double, const double,
 			const double, ss_vect<tps> &);
 
-template void Mpole_Pass(CellType &, ss_vect<double> &);
-template void Mpole_Pass(CellType &, ss_vect<tps> &);
+// template void Mpole_Pass(CellType &, ss_vect<double> &);
+// template void Mpole_Pass(CellType &, ss_vect<tps> &);
 
-template void Marker_Pass(CellType &, ss_vect<double> &);
-template void Marker_Pass(CellType &, ss_vect<tps> &);
+// template void Marker_Pass(CellType &, ss_vect<double> &);
+// template void Marker_Pass(CellType &, ss_vect<tps> &);
 
 template void Cav_Focus(const double L, const double delta, const bool entrance,
 			ss_vect<double> &ps);
@@ -123,8 +123,8 @@ template void Cav_Focus(const double L, const double delta, const bool entrance,
 template void Cav_Focus(const double L, const tps delta, const bool entrance,
 			ss_vect<tps> &ps);
 
-template void Cav_Pass(CellType &, ss_vect<double> &);
-template void Cav_Pass(CellType &, ss_vect<tps> &);
+// template void Cav_Pass(CellType &, ss_vect<double> &);
+// template void Cav_Pass(CellType &, ss_vect<tps> &);
 
 template void Wiggler_pass_EF(const CellType &Cell, ss_vect<double> &x);
 template void Wiggler_pass_EF(const CellType &Cell, ss_vect<tps> &x);
@@ -141,17 +141,17 @@ template void Wiggler_pass_EF2(int nstep, double L,
 template void Wiggler_pass_EF3(const CellType &Cell, ss_vect<double> &x);
 template void Wiggler_pass_EF3(const CellType &Cell, ss_vect<tps> &x);
 
-template void Wiggler_Pass(CellType &, ss_vect<double> &);
-template void Wiggler_Pass(CellType &, ss_vect<tps> &);
+// template void Wiggler_Pass(CellType &, ss_vect<double> &);
+// template void Wiggler_Pass(CellType &, ss_vect<tps> &);
 
-template void FieldMap_Pass(CellType &, ss_vect<double> &);
-template void FieldMap_Pass(CellType &, ss_vect<tps> &);
+// template void FieldMap_Pass(CellType &, ss_vect<double> &);
+// template void FieldMap_Pass(CellType &, ss_vect<tps> &);
 
 template void sol_pass(const CellType &, ss_vect<double> &);
 template void sol_pass(const CellType &, ss_vect<tps> &);
 
-template void Solenoid_Pass(CellType &, ss_vect<double> &);
-template void Solenoid_Pass(CellType &, ss_vect<tps> &);
+// template void Solenoid_Pass(CellType &, ss_vect<double> &);
+// template void Solenoid_Pass(CellType &, ss_vect<tps> &);
 
 template void LinearInterpolation2(double &, double &, double &, double &,
 				   double &, CellType &, bool &, int);
@@ -183,8 +183,8 @@ template void splin2(const double [], const double [],
 		     double **, double **, const int, const int,
 		     const tps &, const tps &, tps &);
 
-template void Insertion_Pass(CellType &, ss_vect<double> &);
-template void Insertion_Pass(CellType &, ss_vect<tps> &);
+// template void Insertion_Pass(CellType &, ss_vect<double> &);
+// template void Insertion_Pass(CellType &, ss_vect<tps> &);
 
 
 double d_sign(double a, double b)

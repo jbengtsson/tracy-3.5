@@ -21,7 +21,7 @@
 #define IDXMAX       200
 #define IDZMAX       100
 
-/* definition form old soleilcommon.h */
+/* definitions for old soleilcommon.h */
 #define NTURN        10000 // 2*NTURN for diffusion
 #define DIM          6
 
@@ -31,30 +31,33 @@ const int Spreader_max = 10;
 
 
 #define DOF          (ss_dim/2)
-#define M_PI         3.14159265358979323846  // pi
 #define nv_          6
 #define maxtransfmat 2000
 #define maxkicks     5
 
-const double c0    = 2.99792458e8;             // speed of light in vacuum
-const double q_e   = 1.602e-19;                // electron charge
-const double m_e   = 0.51099906e6;             // electron rest mass [eV/c^2]
-const double mu_0  = 4.0*M_PI*1e-7;            // permittivity of free space
-const double eps_0 = 1.0/(sqr(c0)*mu_0);       // permeability of free space
-const double r_e   = q_e/(4.0*M_PI*eps_0*m_e); // classical electron radius
-const double h_bar = 6.58211899e-16;           // reduced Planck constant [eV s]
+#define M_PI         3.14159265358979323846    // pi.
 
-const double max_ampl = 10.0; // [m]
+const double c0    = 2.99792458e8;             // speed of light in vacuum.
+const double q_e   = 1.602e-19;                // electron charge.
+const double m_e   = 0.51099906e6;             // electron rest mass [eV/c^2].
+const double mu_0  = 4.0*M_PI*1e-7;            // permittivity of free space.
+const double eps_0 = 1.0/(sqr(c0)*mu_0);       // permeability of free space.
+const double r_e   = q_e/(4.0*M_PI*eps_0*m_e); // classical electron radius.
+const double h_bar = 6.58211899e-16;           // reduced Planck constant [eVs].
+
+const double max_ampl = 10.0; // [m].
 
 
-enum pthicktype { thick = 0, thin = 1 };
-enum PartsKind { drift = 0, Wigl = 1, Mpole = 2, Cavity = 3, marker = 4,
-		 undef = 5, Insertion = 6, FieldMap = 7,
-                 Spreader = 8, Recombiner = 9, Solenoid = 10 };
+enum pthicktype {
+  thick = 0, thin = 1 };
+enum PartsKind {
+  drift = 0, Wigl = 1, Mpole = 2, Cavity = 3, marker = 4, undef = 5,
+  Insertion = 6, FieldMap = 7, Spreader = 8, Recombiner = 9, Solenoid = 10 };
 enum { All = 0, Dip = 1, Quad = 2, Sext = 3, Oct = 4, Dec = 5, Dodec = 6 };
 enum { Horizontal = 1, Vertical = 2 };
-enum { Meth_Linear = 0, Meth_First = 1, Meth_Second = 2, Meth_Fourth = 4,
-       Meth_genfun = 5 };
+enum {
+  Meth_Linear = 0, Meth_First = 1, Meth_Second = 2, Meth_Fourth = 4,
+  Meth_genfun = 5 };
 
 #define fitvectmax   200
 #define NameLength   150  // maximum length of identifiers (e.g. file names)
@@ -112,6 +115,9 @@ class ElemType {
   // Templates can't be virtual functions. 
   //template<typename T>
   //  virtual void propagate(ss_vect<T> &ps) const; 
+
+  template<typename T>
+    void Marker_Pass(ss_vect<T> &X);
 };
 
 
@@ -153,12 +159,15 @@ class CellType : public ElemType {
 				maxampl[X_][0] < x < maxampl[X_][1]
 				maxampl[Y_][0] < y < maxampl[Y_][1]. */
 
+  void Cell_Alloc(elemtype *Elem);
+  void Cell_Init(int Fnum1);
+
   void Marker_Init(int Fnum1);
 
   void Cell_Init(void);
 
   void Elem_Print(FILE *f, int Fnum1);
-
+    
   template<typename T>
     T get_p_s(const ss_vect<T> &);
 
@@ -169,26 +178,25 @@ class CellType : public ElemType {
   template<typename T>
     void LtoG(ss_vect<T> &X, const Vector2 &S, const Vector2 &R,
 	      const double c0, const double c1, const double s1);
-    
+
   template<typename T>
-    void Marker_Pass(CellType &Cell, ss_vect<T> &X);
+    void Pass(ss_vect<T> &x) { this->Pass(x); }
 };
 
 
-class DriftType {
+class DriftType : public CellType {
  private:
  public:
 
   void Drift_Alloc(elemtype *Elem);
   void Drift_Init(int Fnum1);
   void Drift_Print(FILE *f, int Fnum1);
-
   template<typename T>
-    void Drift_Pass(CellType &Cell, ss_vect<T> &x);
+    void Pass(ss_vect<T> &x);
 };
 
 
-class MpoleType {
+class MpoleType : public CellType {
  private:
  public:
   int        method;     // Integration Method.
@@ -221,15 +229,14 @@ class MpoleType {
   void Mpole_Alloc(elemtype *Elem);
   void Mpole_Init(int Fnum1);
   void Mpole_Print(FILE *f, int Fnum1);
+  template<typename T>
+    void Pass(ss_vect<T> &x);
 
   void SI_init(void);
-
-  template<typename T>
-    void Mpole_Pass(CellType &Cell, ss_vect<T> &x);
 };
 
 
-class WigglerType {
+class WigglerType : public CellType {
  private:
  public:
   int       method;              // Integration Method.
@@ -257,13 +264,12 @@ class WigglerType {
   void Wiggler_Alloc(elemtype *Elem);
   void Wiggler_Init(int Fnum1);
   void Wiggler_Print(FILE *f, int Fnum1);
-
   template<typename T>
-    void Wiggler_Pass(CellType &Cell, ss_vect<T> &X);
+    void Pass(ss_vect<T> &X);
 };
 
 
-class InsertionType {
+class InsertionType : public CellType {
  private:
  public:
   int    method;       // Integration Method.
@@ -307,13 +313,12 @@ class InsertionType {
   void Insertion_Alloc(elemtype *Elem);
   void Insertion_Init(int Fnum1);
   void Insertion_Print(FILE *f, int Fnum1);
-
   template<typename T>
-    void Insertion_Pass(CellType &Cell, ss_vect<T> &x);
+    void Pass(ss_vect<T> &x);
 };
 
 
-class FieldMapType {
+class FieldMapType : public CellType {
  private:
  public:
   int    n_step;                       // number of integration steps.
@@ -327,13 +332,12 @@ class FieldMapType {
   void FieldMap_Alloc(elemtype *Elem);
   void get_B(const char *file_name, FieldMapType *FM);
   void FieldMap_Init(int Fnum1);
-
   template<typename T>
-    void FieldMap_Pass(CellType &Cell, ss_vect<T> &ps);
+    void Pass(ss_vect<T> &x);
 };
 
 
-class SolenoidType  {
+class SolenoidType : public CellType {
  private:
  public:
   int     N;      // Number of integration steps
@@ -350,13 +354,12 @@ class SolenoidType  {
 
   void Solenoid_Alloc(elemtype *Elem);
   void Solenoid_Init(int Fnum1);
-
   template<typename T>
-    void Solenoid_Pass(CellType &Cell, ss_vect<T> &ps);
+    void Pass(ss_vect<T> &ps);
 };
 
 
-class CavityType {
+class CavityType : public CellType {
  private:
  public:
   int    N;           // Number of integration steps.
@@ -369,13 +372,13 @@ class CavityType {
 
   void Cav_Alloc(elemtype *Elem);
   void Cav_Init(int Fnum1);
-
   template<typename T>
-    void Cav_Pass(CellType &Cell, ss_vect<T> &X);
+    void Pass(ss_vect<T> &X);
+
 };
 
 
-class SpreaderType {
+class SpreaderType : public CellType {
  private:
  public:
   double   E_max[Spreader_max];      // energy levels in increasing order
@@ -387,7 +390,7 @@ class SpreaderType {
 };
 
 
-class RecombinerType {
+class RecombinerType : public CellType {
  private:
  public:
   double E_min;
@@ -410,59 +413,59 @@ class ElemFamType : public ElemType {
 
 
 struct LatticeParam {
-  double   dPcommon,   // dp for numerical differentiation.
-    dPparticle;        // energy deviation.
-  double   delta_RF;   // RF acceptance.
-  Vector2  TotalTune;  // transverse tunes.
+  double   dPcommon,       // dp for numerical differentiation.
+           dPparticle;     // energy deviation.
+  double   delta_RF;       // RF acceptance.
+  Vector2  TotalTune;      // transverse tunes.
   double   Omega,
-    U0,                // energy lost per turn in keV.
-    Alphac;            // alphap.
-  Vector2  Chrom;      // chromaticities.
-  double   Energy;     // ring energy.
-  long     Cell_nLoc,  // number of elements.
-    Elem_nFam,         // number of families.
-    CODimax;           // Max number of cod search before failing.
-  double   CODeps;     // precision for closed orbit finder.
-  psVector CODvect;    // closed orbit.
-  int      bpm;        // bpm number.
-  int      hcorr;      // horizontal corrector number.
-  int      vcorr;      // vertical corrector number.
-  int      qt;         // vertical corrector number.
-  int      gs;         // girder start marker.
-  int      ge;         // girder end marker.
-  Matrix   OneTurnMat, // oneturn matrix.
-    Ascr,
-    Ascrinv,
-    Vr,                // real part of the eigenvectors.
-    Vi;                // imaginal par of the eigenvectors.
+           U0,             // energy lost per turn in keV.
+           Alphac;         // alphap.
+  Vector2  Chrom;          // chromaticities.
+  double   Energy;         // ring energy.
+  long     Cell_nLoc,      // number of elements.
+           Elem_nFam,      // number of families.
+           CODimax;        // Max number of cod search before failing.
+  double   CODeps;         // precision for closed orbit finder.
+  psVector CODvect;        // closed orbit.
+  int      bpm;            // bpm number.
+  int      hcorr;          // horizontal corrector number.
+  int      vcorr;          // vertical corrector number.
+  int      qt;             // vertical corrector number.
+  int      gs;             // girder start marker.
+  int      ge;             // girder end marker.
+  Matrix   OneTurnMat,     // oneturn matrix.
+           Ascr,
+           Ascrinv,
+           Vr,             // real part of the eigenvectors.
+           Vi;             // imaginal par of the eigenvectors.
 
-  bool     Cavity_on,  // if true, cavity turned on.
-    radiation,         // if true, radiation turned on.
-    emittance,
-    dip_fringe,        // dipole hard-edge fringe field.
-    quad_fringe,       // quadrupole hard-edge fringe field.
-    H_exact,           // "small ring" Hamiltonian.
-    pathlength,        // absolute path length.
-    stable,
-    Aperture_on,
-    EPU,
-    wake_on;
+  bool     Cavity_on,      // if true, cavity turned on.
+           radiation,      // if true, radiation turned on.
+           emittance,
+           dip_fringe,     // dipole hard-edge fringe field.
+           quad_fringe,    // quadrupole hard-edge fringe field.
+           H_exact,        // "small ring" Hamiltonian.
+           pathlength,     // absolute path length.
+           stable,
+           Aperture_on,
+           EPU,
+           wake_on;
 
-  double   dE,         // energy loss.
-    alpha_rad[DOF],    // damping coeffs.
-    D_rad[DOF],        // diffusion coeffs (Floquet space).
-    J[DOF],            // partition numbers.
-    tau[DOF];          // damping times.
-  bool     IBS;        // intrabeam scattering.
-  double   Qb,         // bunch charge.
-    D_IBS[DOF];        // diffusion matrix (Floquet space).
-  psVector wr, wi;     // real and imaginary part of eigenvalues.
-  double   eps[DOF],   // 3 motion invariants.
-    epsp[DOF],         /* transverse and longitudinal projected
-			  emittances. */
-    alpha_z, beta_z,   // longitudinal alpha and beta.
-    beta0, gamma0;     // Relativistic factors.
-  int      RingType;   // 1 if a ring (0 if transfer line).
+  double   dE,              // energy loss.
+           alpha_rad[DOF],  // damping coeffs.
+           D_rad[DOF],      // diffusion coeffs (Floquet space).
+           J[DOF],          // partition numbers.
+           tau[DOF];        // damping times.
+  bool     IBS;             // intrabeam scattering.
+  double   Qb,              // bunch charge.
+           D_IBS[DOF];      // diffusion matrix (Floquet space).
+  psVector wr, wi;          // real and imaginary part of eigenvalues.
+  double   eps[DOF],        // 3 motion invariants.
+           epsp[DOF],       /* transverse and longitudinal projected
+			      emittances. */
+           alpha_z, beta_z, // longitudinal alpha and beta.
+           beta0, gamma0;   // Relativistic factors.
+  int      RingType;        // 1 if a ring (0 if transfer line).
 };
 
 
@@ -516,16 +519,6 @@ class LatticeType {
 
 
   // From t2ring.cc.
-
-  /* template<typename T> */
-  /*   void Elem_Pass(const long i, ss_vect<T> &x); */
-
-  /* bool Cell_getCOD(const long imax, const double eps, const double dP, */
-  /* 		   long &lastpos); */
-
-  /* bool GetCOD(const long imax, const double eps, const double dP, */
-  /* 	      long &lastpos); */
-
 
   template<typename T>
     void Elem_Pass(const long i, ss_vect<T> &x);
@@ -799,15 +792,11 @@ class LatticeType {
 };
 
 
-extern double  Fdrift1, Fkick1, Fdrift2, Fkick2, crad, cfluc;
-
-extern tps sigma_;
-
+extern double    Fdrift1, Fkick1, Fdrift2, Fkick2, crad, cfluc;
+extern tps       sigma_;
 extern statusrec status;
-
-extern bool reverse_elem;
-
-extern double FindRes_eps;
+extern bool      reverse_elem;
+extern double    FindRes_eps;
 
 struct LOC_findres {
   int n;
@@ -815,7 +804,7 @@ struct LOC_findres {
   int *nx, *ny;
   double eps;
   bool found;
-} ;
+};
 
 
 // Truncated Power Series Algebra (TPSA).

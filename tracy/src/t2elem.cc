@@ -214,9 +214,9 @@ void Drift(const double L, ss_vect<T> &ps)
 
 
 template<typename T>
-void Drift_Pass(CellType &Cell, ss_vect<T> &x)
+void DriftType::Pass(ss_vect<T> &x)
 {
-  Drift(Cell.L, x);
+  Drift(this->L, x);
 }
 
 
@@ -540,64 +540,60 @@ void quad_fringe(const double b2, ss_vect<T> &x)
 
 
 template<typename T>
-void Mpole_Pass(CellType &Cell, ss_vect<T> &x)
+void MpoleType::Pass(ss_vect<T> &x)
 {
   int       seg = 0;
   double    k = 0e0, dL = 0e0, dL1 = 0e0, dL2 = 0e0;
   double    dkL1 = 0e0, dkL2 = 0e0, h_ref = 0e0;
-  CellType  *cellp;
-  MpoleType *M;
-
-  cellp = &Cell; M = cellp->Elem.M;
 
   // Global -> Local.
-  GtoL(x, Cell.dS, Cell.dT, M->c0, M->c1, M->s1);
+  GtoL(x, this->dS, this->dT, c0, this->c1, this->s1);
 
-  if ((M->method == Meth_Second) || (M->method == Meth_Fourth)) {
+  if ((this->method == Meth_Second) || (this->method == Meth_Fourth)) {
     // Fringe fields.
-    if (Lattice.param.quad_fringe && (M->B[Quad+HOMmax] != 0e0))
-      quad_fringe(M->B[Quad+HOMmax], x);
+    if (Lattice.param.quad_fringe && (this->B[Quad+HOMmax] != 0e0))
+      quad_fringe(this->B[Quad+HOMmax], x);
     if (!Lattice.param.H_exact) {
-      if (M->irho != 0e0) EdgeFocus(M->irho, M->Tx1, M->gap, x);
+      if (this->irho != 0e0) EdgeFocus(this->irho, this->Tx1, this->gap, x);
     } else {
-      p_rot(M->Tx1, x);
-      if (Lattice.param.dip_fringe) bend_fringe(M->irho, x);
+      p_rot(this->Tx1, x);
+      if (Lattice.param.dip_fringe) bend_fringe(this->irho, x);
     }
   }
 
-  if (M->thick == thick) {
+  if (this->thick == thick) {
     if (!Lattice.param.H_exact) {
       // Polar coordinates.
-      h_ref = M->irho; dL = cellp->L/M->N;
+      h_ref = this->irho; dL = this->L/this->N;
     } else {
       // Cartesian coordinates.
       h_ref = 0e0;
-      if (M->irho == 0e0)
-	dL = cellp->L/M->N;
+      if (this->irho == 0e0)
+	dL = this->L/this->N;
       else
-	dL = 2e0/M->irho*sin(cellp->L*M->irho/2e0)/M->N;
+	dL = 2e0/this->irho*sin(this->L*this->irho/2e0)/this->N;
     }
   }
 
-  switch (M->method) {
+  switch (this->method) {
 
   case Meth_Linear:
 
   case Meth_First:
-    if (M->thick == thick) {
+    if (this->thick == thick) {
       /* First Linear  */
-//      LinTrans(5L, M->AU55, x);
-      k = M->B[Quad+HOMmax];
+//      LinTrans(5L, this->AU55, x);
+      k = this->B[Quad+HOMmax];
       /* retrieve normal quad component already in AU55 */
-      M->B[Quad+HOMmax] = 0e0;
+      this->B[Quad+HOMmax] = 0e0;
       /* Kick w/o quad component */
-      thin_kick(M->order, M->B, cellp->L, 0e0, 0e0, x);
+      thin_kick(this->order, this->B, this->L, 0e0, 0e0, x);
       /* restore quad component */
-      M->B[Quad+HOMmax] = k;
+      this->B[Quad+HOMmax] = k;
       /* Second Linear */
-//      LinTrans(5L, M->AD55, x);
+//      LinTrans(5L, this->AD55, x);
     } else /* thin kick */
-      thin_kick(M->order, M->B, 1e0, 0e0, 0e0, x);
+      thin_kick(this->order, this->B, 1e0, 0e0, 0e0, x);
     break;
 
   case Meth_Second:
@@ -606,77 +602,78 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &x)
     break;
 
   case Meth_Fourth:
-    if (M->thick == thick) {
+    if (this->thick == thick) {
       dL1 = c_1*dL; dL2 = c_2*dL; dkL1 = d_1*dL; dkL2 = d_2*dL;
 
       dcurly_H = 0e0; dI4 = 0e0;
-      for (seg = 1; seg <= M->N; seg++) {
+      for (seg = 1; seg <= this->N; seg++) {
 	if (Lattice.param.emittance && (!Lattice.param.Cavity_on) &&
-	    (M->irho != 0e0)) {
+	    (this->irho != 0e0)) {
 	  dcurly_H += is_tps<tps>::get_curly_H(x);
 	  dI4 += is_tps<tps>::get_dI4(x);
 	}
 
 	Drift(dL1, x);
-        thin_kick(M->order, M->B, dkL1, M->irho, h_ref, x);
+        thin_kick(this->order, this->B, dkL1, this->irho, h_ref, x);
 	Drift(dL2, x);
-        thin_kick(M->order, M->B, dkL2, M->irho, h_ref, x);
+        thin_kick(this->order, this->B, dkL2, this->irho, h_ref, x);
 
 	if (Lattice.param.emittance && (!Lattice.param.Cavity_on) &&
-	    (M->irho != 0e0)) {
+	    (this->irho != 0e0)) {
 	  dcurly_H += 4e0*is_tps<tps>::get_curly_H(x);
 	  dI4 += 4e0*is_tps<tps>::get_dI4(x);
 	}
 
 	Drift(dL2, x);
-        thin_kick(M->order, M->B, dkL1, M->irho, h_ref, x);
+        thin_kick(this->order, this->B, dkL1, this->irho, h_ref, x);
 	Drift(dL1, x);
 
 	if (Lattice.param.emittance && (!Lattice.param.Cavity_on) &&
-	    (M->irho != 0e0)) {
+	    (this->irho != 0e0)) {
 	  dcurly_H += is_tps<tps>::get_curly_H(x);
 	  dI4 += is_tps<tps>::get_dI4(x);
 	}
       }
 
       if (Lattice.param.emittance && (!Lattice.param.Cavity_on) &&
-	  (M->irho != 0)) {
-	dcurly_H /= 6e0*M->N;
-	dI4 *= M->irho*(sqr(M->irho)+2e0*M->Bpar[Quad+HOMmax])/(6e0*M->N);
-
-	I2 += cellp->L*sqr(M->irho); I4 += cellp->L*dI4;
-	I5 += cellp->L*fabs(cube(M->irho))*dcurly_H;
+	  (this->irho != 0)) {
+	dcurly_H /= 6e0*this->N;
+	dI4 *=
+	  this->irho*(sqr(this->irho)+2e0*this->Bpar[Quad+HOMmax])
+	  /(6e0*this->N);
+	I2 += this->L*sqr(this->irho); I4 += this->L*dI4;
+	I5 += this->L*fabs(cube(this->irho))*dcurly_H;
       }
     } else
-      thin_kick(M->order, M->B, 1e0, 0e0, 0e0, x);
+      thin_kick(this->order, this->B, 1e0, 0e0, 0e0, x);
 
     break;
   }
 
-  if ((M->method == Meth_Second) || (M->method == Meth_Fourth)) {
+  if ((this->method == Meth_Second) || (this->method == Meth_Fourth)) {
     // Fringe fields.
     if (!Lattice.param.H_exact) {
-      if (M->irho != 0e0) EdgeFocus(M->irho, M->Tx2, M->gap, x);
+      if (this->irho != 0e0) EdgeFocus(this->irho, this->Tx2, this->gap, x);
     } else {
-      if (Lattice.param.dip_fringe) bend_fringe(-M->irho, x);
-      p_rot(M->Tx2, x);
+      if (Lattice.param.dip_fringe) bend_fringe(-this->irho, x);
+      p_rot(this->Tx2, x);
     }
-    if (Lattice.param.quad_fringe && (M->B[Quad+HOMmax] != 0e0))
-      quad_fringe(-M->B[Quad+HOMmax], x);
+    if (Lattice.param.quad_fringe && (this->B[Quad+HOMmax] != 0e0))
+      quad_fringe(-this->B[Quad+HOMmax], x);
   }
 
   // Local -> Global.
-  LtoG(x, Cell.dS, Cell.dT, M->c0, M->c1, M->s1);
+  LtoG(x, this->dS, this->dT, this->c0, this->c1, this->s1);
 }
 
 
 template<typename T>
-void Marker_Pass(CellType &Cell, ss_vect<T> &X)
+void ElemType::Marker_Pass(ss_vect<T> &X)
 {
   /* Global -> Local */
-  GtoL(X, Cell.dS, Cell.dT, 0e0, 0e0, 0e0);
+  // GtoL(X, this->dS, this->dT, 0e0, 0e0, 0e0);
   /* Local -> Global */
-  LtoG(X, Cell.dS, Cell.dT, 0e0, 0e0, 0e0);
+  // LtoG(X, this->dS, this->dT, 0e0, 0e0, 0e0);
 }
 
 
@@ -695,56 +692,51 @@ void Cav_Focus(const double L, const T delta, const bool entrance,
 #if 1
 
 template<typename T>
-void Cav_Pass(CellType &Cell, ss_vect<T> &X)
+void CavityType::Pass(ss_vect<T> &X)
 {
-  elemtype   *cellp;
-  CavityType *C;
-  T          delta;
+  T delta;
 
-  cellp = &Cell.Elem; C = cellp->C;
-  if (Lattice.param.Cavity_on && C->volt != 0e0) {
-    delta = -C->volt/(Lattice.param.Energy*1e9)
-            *sin(2e0*M_PI*C->freq/c0*X[ct_]+C->phi);
+  if (Lattice.param.Cavity_on && this->volt != 0e0) {
+    delta = -this->volt/(Lattice.param.Energy*1e9)
+            *sin(2e0*M_PI*this->freq/c0*X[ct_]+this->phi);
     X[delta_] += delta;
 
     if (Lattice.param.radiation) Lattice.param.dE -= is_double<T>::cst(delta);
 
-    if (Lattice.param.pathlength) X[ct_] -= C->h/C->freq*c0;
+    if (Lattice.param.pathlength) X[ct_] -= this->h/this->freq*c0;
   }
 }
 
 #else
 
 template<typename T>
-void Cav_Pass1(CellType &Cell, ss_vect<T> &ps)
+void CellType::Pass1(CellType &Cell, ss_vect<T> &ps)
 {
   /* J. Rosenzweig and L. Serafini "Transverse Particle Motion in
      Radio-Frequency Linear Accelerators" hys. Rev. E 49(2),
      1599-1602 (1994).                                                        */
 
-  elemtype   *cellp;
-  CavityType *C;
-  int        k;
-  double     L, h, p_t1;
-  T          delta_max, ddelta, delta;
+  int    k;
+  double L, h, p_t1;
+  T      delta_max, ddelta, delta;
 
-  cellp = &Cell.Elem; C = cellp->C; L = cellp->L;
+  L = this->L;
 
-  h = L/(C->N+1e0);
+  h = L/(this->N+1e0);
   // Lattice.param.Energy contains p_0.
-  delta_max = C->volt/(1e9*Lattice.param.Energy); ddelta = delta_max/C->N;
-  delta = delta_max*sin(2e0*M_PI*C->freq*ps[ct_]/c0+C->phi);
-  if (C->entry_focus) Cav_Focus(L, delta, true, ps);
-  for (k = 0; k < C->N; k++) {
+  delta_max = this->volt/(1e9*Lattice.param.Energy); ddelta = delta_max/this->N;
+  delta = delta_max*sin(2e0*M_PI*this->freq*ps[ct_]/c0+this->phi);
+  if (this->entry_focus) Cav_Focus(L, delta, true, ps);
+  for (k = 0; k < this->N; k++) {
     Drift(h, ps);
 
-    ps[delta_] -= ddelta*sin(2e0*M_PI*C->freq*(ps[ct_]-k*h)/c0+C->phi);
+    ps[delta_] -= ddelta*sin(2e0*M_PI*this->freq*(ps[ct_]-k*h)/c0+this->phi);
 
     if (Lattice.param.radiation) Lattice.param.dE -= is_double<T>::cst(ddelta);
-    if (Lattice.param.pathlength) ps[ct_] -= C->h/C->freq*c0;
+    if (Lattice.param.pathlength) ps[ct_] -= this->h/this->freq*c0;
   }
   Drift(h, ps);
-  if (C->exit_focus) Cav_Focus(L, delta, false, ps);
+  if (this->exit_focus) Cav_Focus(L, delta, false, ps);
 
   if (false) {
     // Update p_0.
@@ -761,14 +753,12 @@ void Cav_Pass1(CellType &Cell, ss_vect<T> &ps)
 
 
 template<typename T>
-void Cav_Pass(CellType &Cell, ss_vect<T> &ps)
+void CavityType::Cav_Pass(ss_vect<T> &ps)
 {
   /* J. Rosenzweig and L. Serafini "Transverse Particle Motion in
      Radio-Frequency Linear Accelerators" hys. Rev. E 49(2),
      1599-1602 (1994).                                                        */
 
-  elemtype   *cellp;
-  CavityType *C;
   double     L, lambda, phi;
   double     dgammaMax, dgamma, gamma, gamma1;
   double     sf1, f2, f2s;
@@ -778,22 +768,21 @@ void Cav_Pass(CellType &Cell, ss_vect<T> &ps)
 
   const bool RandS = false;
  
-  cellp = &Cell.Elem; C = cellp->C; L = cellp->L; phi = C->phi;
-  lambda = c0/C->freq;
+  L = this->L; phi = this->phi; lambda = c0/this->freq;
 
   p_t = is_double<T>::cst(ps[delta_]);
   delta = sqrt(1e0+2e0*p_t/Lattice.param.beta0+sqr(p_t)) - 1e0;
   // Lattice.param.Energy contains p_0 [GeV].
   p0 = 1e9*Lattice.param.Energy/m_e;
   gamma = sqrt(1e0+sqr(p0));
-  dgammaMax = C->volt/m_e; dgamma = dgammaMax*sin(phi);
+  dgammaMax = this->volt/m_e; dgamma = dgammaMax*sin(phi);
   gamma1 = gamma + dgamma;
   dp = sqrt(sqr(gamma1)-1e0) - p0;
 
   printf("delta = %e, p0 = %e, gamma = %e, gamma1 = %e, dp = %e\n",
 	 delta, p0, gamma, gamma1, dp);
 
-  if (C->entry_focus) Cav_Focus(L, dgamma/gamma, true, ps);
+  if (this->entry_focus) Cav_Focus(L, dgamma/gamma, true, ps);
 
   if (!RandS) {
     sf1 = sqrt(1e0+sqr(p0));
@@ -837,11 +826,11 @@ void Cav_Pass(CellType &Cell, ss_vect<T> &ps)
 
    // Lattice.param.Energy contains p_0 [GeV].
     ps[delta_] =
-      2e0*M_PI*C->freq*dgammaMax*cos(phi)/(c0*gamma1)*ps0[ct_]
+      2e0*M_PI*this->freq*dgammaMax*cos(phi)/(c0*gamma1)*ps0[ct_]
       + 1e0/(1e0+dp/p0)*ps0[delta_];
   }
 
-  if (C->exit_focus) Cav_Focus(L, dgamma/(gamma+dgamma), false, ps);
+  if (this->exit_focus) Cav_Focus(L, dgamma/(gamma+dgamma), false, ps);
 
   if (false) {
     // Update p_0.
@@ -1265,63 +1254,59 @@ void Wiggler_pass_EF3(const CellType &Cell, ss_vect<T> &x)
 
 
 template<typename T>
-void Wiggler_Pass(CellType &Cell, ss_vect<T> &X)
+void WigglerType::Pass(ss_vect<T> &X)
 {
   int         seg;
   double      L, L1, L2, K1, K2;
-  CellType    *cellp;
-  WigglerType *W;
   ss_vect<T>  X1;
 
-  cellp = &Cell; W = cellp->Elem.W;
   // Global -> Local
-  GtoL(X, Cell.dS, Cell.dT, 0e0, 0e0, 0e0);
-  switch (W->method) {
+  GtoL(X, this->dS, this->dT, 0e0, 0e0, 0e0);
+  switch (this->method) {
 
   case Meth_Linear:
-//    LinTrans(5L, W->W55, X);
     std::cout << "Wiggler_Pass: Meth_Linear not supported" << std::endl;
     exit_(1);
     break;
 
   case Meth_First:
-    if ((W->BoBrhoV[0] != 0e0) || (W->BoBrhoH[0] != 0e0)) {
+    if ((this->BoBrhoV[0] != 0e0) || (this->BoBrhoH[0] != 0e0)) {
       if (!Lattice.param.EPU)
-	Wiggler_pass_EF(Cell, X);
+	Wiggler_pass_EF(this, X);
       else {
-	Wiggler_pass_EF2(W->N, cellp->L, W->kxV[0], W->kxH[0],
-		2e0*M_PI/W->lambda, W->BoBrhoV[0], W->BoBrhoH[0],
-		W->phi[0], X);
+	Wiggler_pass_EF2(this->N, this->L, this->kxV[0], this->kxH[0],
+		2e0*M_PI/this->lambda, this->BoBrhoV[0], this->BoBrhoH[0],
+		this->phi[0], X);
       }
     } else
       // drift if field = 0
-      Drift(cellp->L, X);
+      Drift(this->L, X);
     break;
 
   case Meth_Second:
-    if ((W->BoBrhoV[0] != 0e0) || (W->BoBrhoH[0] != 0e0)) {
-      Wiggler_pass_EF3(Cell, X);
+    if ((this->BoBrhoV[0] != 0e0) || (this->BoBrhoH[0] != 0e0)) {
+      Wiggler_pass_EF3(this, X);
     } else
       // drift if field = 0
-      Drift(cellp->L, X);
+      Drift(this->L, X);
     break;
 
   case Meth_Fourth:  /* 4-th order integrator */
-    L = cellp->L/W->N;
+    L = this->L/this->N;
     L1 = c_1*L; L2 = c_2*L; K1 = d_1*L; K2 = d_2*L;
-    for (seg = 1; seg <= W->N; seg++) {
+    for (seg = 1; seg <= this->N; seg++) {
       Drift(L1, X); X1 = X;
-      thin_kick(W->order, W->BW, K1, 0e0, 0e0, X1);
+      thin_kick(this->order, this->BW, K1, 0e0, 0e0, X1);
       X[py_] = X1[py_]; Drift(L2, X); X1 = X;
-      thin_kick(W->order, W->BW, K2, 0e0, 0e0, X1);
+      thin_kick(this->order, this->BW, K2, 0e0, 0e0, X1);
       X[py_] = X1[py_]; Drift(L2, X); X1 = X;
-      thin_kick(W->order, W->BW, K1, 0e0, 0e0, X1);
+      thin_kick(this->order, this->BW, K1, 0e0, 0e0, X1);
       X[py_] = X1[py_]; Drift(L1, X);
     }
     break;
   }
   // Local -> Global
-  LtoG(X, Cell.dS, Cell.dT, 0e0, 0e0, 0e0);
+  LtoG(X, this->dS, this->dT, 0e0, 0e0, 0e0);
 }
 
 #undef eps
@@ -1896,7 +1881,7 @@ template void FieldMap_pass_SI(CellType &, ss_vect<tps> &, int k);
 
 
 template<typename T>
-void FieldMap_Pass(CellType &Cell, ss_vect<T> &ps)
+void FieldMapType::Pass(ss_vect<T> &ps)
 {
   int          k;
   double       Ld;
@@ -1908,34 +1893,32 @@ void FieldMap_Pass(CellType &Cell, ss_vect<T> &ps)
     first_FM = false;
   }
 
-  FM = Cell.Elem.FM;
+//  GtoL(ps, this->dS, this->dT, 0e0, 0e0, 0e0);
 
-//  GtoL(ps, Cell.dS, Cell.dT, 0e0, 0e0, 0e0);
-
-  Ld = (FM->Lr-Cell.L)/2e0;
-  p_rot(FM->phi/2e0*180e0/M_PI, ps);
+  Ld = (this->Lr-this->L)/2e0;
+  p_rot(this->phi/2e0*180e0/M_PI, ps);
   printf("\nFieldMap_Pass: entrance negative drift [m] %12.5e", Ld);
   Drift(-Ld, ps);
 
-  for (k = 1; k <= FM->n_step; k++) {
+  for (k = 1; k <= this->n_step; k++) {
     if (sympl)
-      FieldMap_pass_SI(Cell, ps, k);
+      FieldMap_pass_SI(this, ps, k);
     else
-      FieldMap_pass_RK(Cell, ps, k);
+      FieldMap_pass_RK(this, ps, k);
   }
 
   printf("\nFieldMap_Pass: exit negative drift [m]     %12.5e", Ld);
   Drift(-Ld, ps);
-  p_rot(FM->phi/2e0*180e0/M_PI, ps);
+  p_rot(this->phi/2e0*180e0/M_PI, ps);
 
-//  LtoG(ps, Cell.dS, Cell.dT, 0e0, 0e0, 0e0);
+//  LtoG(ps, this->dS, this->dT, 0e0, 0e0, 0e0);
 
 //  outf_.close();
 }
 
 
 template<typename T>
-void Insertion_Pass(CellType &Cell, ss_vect<T> &x)
+void InsertionType::Pass(ss_vect<T> &x)
 {
   /* Purpose:
        Track vector x through a insertion
@@ -1964,55 +1947,54 @@ void Insertion_Pass(CellType &Cell, ss_vect<T> &x)
        01/07/03 6D tracking activated
        10/01/05 First order kick part added                                  */
 
-  CellType *cellp;
-  double   LN = 0e0;
-  T        tx2, tz2;      /* thetax and thetaz retrieved from
+  double LN = 0e0;
+  T      tx2, tz2;      /* thetax and thetaz retrieved from
 			      interpolation routine */
-  T        d, B2_perp;
-  double   alpha0 = 0e0;  // 1/ brh0
-  double   alpha02= 0e0;  // alpha square
-  int      Nslice = 0;
-  int      i = 0;
-  bool     outoftable = false;
+  T      d, B2_perp;
+  double alpha0 = 0e0;  // 1/ brh0
+  double alpha02= 0e0;  // alpha square
+  int    Nslice = 0;
+  int    i = 0;
+  bool   outoftable = false;
 
-  cellp  = &Cell; Nslice = cellp->Elem.ID->N;
+  Nslice = this->N;
 
-  if (cellp->Elem.ID->linear) {
-    alpha0 = c0/Lattice.param.Energy*1E-9*cellp->Elem.ID->scaling;
-    alpha02 = sgn(cellp->Elem.ID->scaling)*alpha0*alpha0;
+  if (this->linear) {
+    alpha0 = c0/Lattice.param.Energy*1E-9*this->scaling;
+    alpha02 = sgn(this->scaling)*alpha0*alpha0;
   } else
-    alpha02 = 1e-6*cellp->Elem.ID->scaling;
+    alpha02 = 1e-6*this->scaling;
 
 //  /* Global -> Local */
 //  GtoL(X, Cell->dS, Cell->dT, 0e0, 0e0, 0e0);
 
-  p_rot(cellp->Elem.ID->phi/2e0*180e0/M_PI, x);
+  p_rot(this->phi/2e0*180e0/M_PI, x);
 
   // (Nslice+1) drifts, nslice kicks
-  // LN = cellp->L/(Nslice+1);
+  // LN = this->L/(Nslice+1);
 
   // Nslice drifts and kicks.
-  LN = cellp->L/Nslice;
+  LN = this->L/Nslice;
   Drift(LN/2e0, x);
 
   for (i = 1; i <= Nslice; i++) {
     // printf("%3d %2d %2d %5.3f %11.3e %11.3e %11.3e %11.3e %11.3e %11.3e\n",
-    // 	   i, cellp->ID->linear, cellp->ID->secondorder, cellp->ID->scaling,
+    // 	   i, this->ID->linear, this->ID->secondorder, this->ID->scaling,
     // 	   is_double<T>::cst(x[x_]), is_double<T>::cst(x[px_]),
     // 	   is_double<T>::cst(x[y_]), is_double<T>::cst(x[py_]),
     // 	   is_double<T>::cst(x[delta_]), is_double<T>::cst(x[ct_]));
     // Second order kick
-    if (cellp->Elem.ID->secondorder){
-      // if (!cellp->ID->linear)
+    if (this->secondorder){
+      // if (!this->ID->linear)
       //   SplineInterpolation2(x[x_], x[y_], tx2, tz2, Cell, outoftable);
       // else {
-        LinearInterpolation2(x[x_], x[y_], tx2, tz2, B2_perp, Cell,
+        LinearInterpolation2(x[x_], x[y_], tx2, tz2, B2_perp, this,
 			     outoftable, 2);
 
 	// Scale locally with (Brho) (as above) instead of when the file
 	// is read; since the beam energy might not be known at that time.
 	if (Lattice.param.radiation || Lattice.param.emittance)
-	  radiate_ID(x, LN, cellp->Elem.ID->scaling*B2_perp);
+	  radiate_ID(x, LN, this->scaling*B2_perp);
       // }
 
       if (outoftable) {
@@ -2027,7 +2009,7 @@ void Insertion_Pass(CellType &Cell, ss_vect<T> &x)
 
   Drift(LN/2e0, x);
 
-  p_rot(cellp->Elem.ID->phi/2e0*180e0/M_PI, x);
+  p_rot(this->phi/2e0*180e0/M_PI, x);
 
 //  CopyVec(6L, x, Cell->BeamPos);
 
@@ -2118,14 +2100,14 @@ void sol_pass(const CellType &Cell, ss_vect<T> &x)
 
 
 template<typename T>
-void Solenoid_Pass(CellType &Cell, ss_vect<T> &ps)
+void SolenoidType::Pass(ss_vect<T> &ps)
 {
 
-  GtoL(ps, Cell.dS, Cell.dT, 0e0, 0e0, 0e0);
+  GtoL(ps, this->dS, this->dT, 0e0, 0e0, 0e0);
 
-  sol_pass(Cell, ps);
+  sol_pass(this, ps);
 
-  LtoG(ps, Cell.dS, Cell.dT, 0e0, 0e0, 0e0);
+  LtoG(ps, this->dS, this->dT, 0e0, 0e0, 0e0);
 }
 
 

@@ -48,45 +48,52 @@ inline bool CheckAmpl(const ss_vect<T> &x, const long int loc)
 }
 
 
+// template<typename T>
+// void LatticeType::Elem_Pass(const long i, ss_vect<T> &x)
+// {
+
+//   switch (Lattice.Cell[i].Kind) {
+//     case drift:
+//       Lattice.Cell[i].Pass(x);
+//       break;
+//     case Mpole:
+//       Lattice.Cell[i].Pass(x);
+//       break;
+//     case Wigl:
+//       Lattice.Cell[i].Pass(x);
+//       break;
+//     case FieldMap:
+//       Lattice.Cell[i].Pass(x);
+//       break;
+//     case Insertion:
+//       Lattice.Cell[i].Pass(x);
+//       break;
+//     case Cavity:
+//       Lattice.Cell[i].Pass(x);
+//       break;
+//     case marker:
+//       Lattice.Cell[i].Pass(x);
+//       break;
+//     case Spreader:
+//       break;
+//     case Recombiner:
+//       break;
+//     case Solenoid:
+//       Lattice.Cell[i].Pass(x);
+//       break;
+//     default:
+//       printf("Elem_Pass ** undefined type\n");
+//       break;
+//   }
+
+//   is_tps<T>::get_ps(x, Lattice.Cell[i]);
+// }
+
+
 template<typename T>
 void LatticeType::Elem_Pass(const long i, ss_vect<T> &x)
 {
-
-  switch (Lattice.Cell[i].Kind) {
-    case drift:
-      Drift_Pass(Lattice.Cell[i], x);
-      break;
-    case Mpole:
-      Mpole_Pass(Lattice.Cell[i], x);
-      break;
-    case Wigl:
-      Wiggler_Pass(Lattice.Cell[i], x);
-      break;
-    case FieldMap:
-      FieldMap_Pass(Lattice.Cell[i], x);
-      break;
-    case Insertion:
-      Insertion_Pass(Lattice.Cell[i], x);
-      break;
-    case Cavity:
-      Cav_Pass(Lattice.Cell[i], x);
-      break;
-    case marker:
-      Marker_Pass(Lattice.Cell[i], x);
-      break;
-    case Spreader:
-      break;
-    case Recombiner:
-      break;
-    case Solenoid:
-      Solenoid_Pass(Lattice.Cell[i], x);
-      break;
-    default:
-      printf("Elem_Pass ** undefined type\n");
-      break;
-  }
-
-  is_tps<T>::get_ps(x, Lattice.Cell[i]);
+  Cell[i].Pass(x);
 }
 
 
