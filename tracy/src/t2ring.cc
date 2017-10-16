@@ -151,9 +151,11 @@ void LatticeType::Cell_Geteta(long i0, long i1, bool ring, double dP)
 
   /* cod for the energy dP - Lattice.param.dPcommon / 2e0 */
   if (ring)
-    GetCOD(Lattice.param.CODimax, Lattice.param.CODeps, dP-Lattice.param.dPcommon/2e0, lastpos);
+    Lattice.GetCOD(Lattice.param.CODimax, Lattice.param.CODeps,
+	   dP-Lattice.param.dPcommon/2e0, lastpos);
   else { /* beam mode */
-    CopyVec(n+2, Lattice.param.CODvect, xref); xref[4] = dP - Lattice.param.dPcommon/2e0;
+    CopyVec(n+2, Lattice.param.CODvect, xref);
+    xref[4] = dP - Lattice.param.dPcommon/2e0;
     Cell_Pass(i0, i1, xref, lastpos);
   }
 
@@ -163,9 +165,11 @@ void LatticeType::Cell_Geteta(long i0, long i1, bool ring, double dP)
 
   /* cod for the energy dP - Lattice.param.dPcommon / 2e0 */
   if (ring)
-    GetCOD(Lattice.param.CODimax, Lattice.param.CODeps, dP+Lattice.param.dPcommon/2e0, lastpos);
+    Lattice.GetCOD(Lattice.param.CODimax, Lattice.param.CODeps,
+		   dP+Lattice.param.dPcommon/2e0, lastpos);
   else { /* beam mode */
-    CopyVec(n+2, Lattice.param.CODvect, xref); xref[4] = dP + Lattice.param.dPcommon/2e0;
+    CopyVec(n+2, Lattice.param.CODvect, xref);
+    xref[4] = dP + Lattice.param.dPcommon/2e0;
     Cell_Pass(i0, i1, xref, lastpos);
   }
 
@@ -401,12 +405,14 @@ void LatticeType::Ring_Getchrom(double dP)
 	    dP);
   
   /* Get cod for energy dP - Lattice.param.dPcommon*/
-  GetCOD(Lattice.param.CODimax, Lattice.param.CODeps, dP-Lattice.param.dPcommon*0.5, lastpos);
+  Lattice.GetCOD(Lattice.param.CODimax, Lattice.param.CODeps,
+		 dP-Lattice.param.dPcommon*0.5, lastpos);
   
   if (!status.codflag) {
     /* if no cod */
     fprintf(stdout,"Ring_Getchrom:  Lattice is unstable for"
-	    " dP-Lattice.param.dPcommon=% .5e\n", dP-Lattice.param.dPcommon*0.5);
+	    " dP-Lattice.param.dPcommon=% .5e\n",
+	    dP-Lattice.param.dPcommon*0.5);
     return;
   }
   
@@ -414,11 +420,13 @@ void LatticeType::Ring_Getchrom(double dP)
   Cell_GetABGN(Lattice.param.OneTurnMat, alpha, beta, gamma, nu0);
   
   /* Get cod for energy dP+Lattice.param.dPcommon*/
-  GetCOD(Lattice.param.CODimax, Lattice.param.CODeps, dP+Lattice.param.dPcommon*0.5, lastpos);
+  Lattice.GetCOD(Lattice.param.CODimax, Lattice.param.CODeps,
+		 dP+Lattice.param.dPcommon*0.5, lastpos);
   
   if (!status.codflag) { /* if no cod */
     fprintf(stdout,"Ring_Getchrom  Lattice is unstable for"
-	    " dP+Lattice.param.dPcommon=% .5e \n", dP+Lattice.param.dPcommon*0.5);
+	    " dP+Lattice.param.dPcommon=% .5e \n",
+	    dP+Lattice.param.dPcommon*0.5);
     return;
   }
 
@@ -476,15 +484,16 @@ void LatticeType::Ring_Twiss(bool chroma, double dP)
 
   n = (Lattice.param.Cavity_on)? 6 : 4;
 
-  GetCOD(Lattice.param.CODimax, Lattice.param.CODeps, dP, lastpos);
+  Lattice.GetCOD(Lattice.param.CODimax, Lattice.param.CODeps, dP, lastpos);
 
   if (!status.codflag) return;
 
   // Check if stable
   Cell_GetABGN(Lattice.param.OneTurnMat, alpha, beta, gamma, nu);
   // Get eigenvalues and eigenvectors for the one turn transfer matrix
-  GDiag(n, Lattice.Cell[Lattice.param.Cell_nLoc].S, Lattice.param.Ascr, Lattice.param.Ascrinv, R,
-        Lattice.param.OneTurnMat, Lattice.param.Omega, Lattice.param.Alphac);
+  GDiag(n, Lattice.Cell[Lattice.param.Cell_nLoc].S, Lattice.param.Ascr,
+	Lattice.param.Ascrinv, R, Lattice.param.OneTurnMat, Lattice.param.Omega,
+	Lattice.param.Alphac);
 
   // putlinmat(n, Lattice.param.Ascr, AScr);
   putlinmat(6, Lattice.param.Ascr, AScr);
@@ -500,7 +509,8 @@ void LatticeType::Ring_Twiss(bool chroma, double dP)
   status.tuneflag = true;
 
   if (chroma && !Lattice.param.Cavity_on) {
-    Ring_Getchrom(dP); GetCOD(Lattice.param.CODimax, Lattice.param.CODeps, dP, lastpos);
+    Ring_Getchrom(dP);
+    Lattice.GetCOD(Lattice.param.CODimax, Lattice.param.CODeps, dP, lastpos);
   }
 }
 
@@ -686,8 +696,9 @@ void LatticeType::Ring_Fittune(Vector2 &nu, double eps, iVector2 &nq,
       }
       Ring_GetTwiss(false, dP);
       nu1[0] = Lattice.param.TotalTune[0]; nu1[1] = Lattice.param.TotalTune[1];
-//      GetCOD(Lattice.param.CODimax, Lattice.param.CODeps, dP, lastpos);
-//      Cell_GetABGN(Lattice.param.OneTurnMat, alpha, beta, gamma, nu1);
+      // Lattice.GetCOD(Lattice.param.CODimax, Lattice.param.CODeps, dP,
+      // 		     lastpos);
+      // Cell_GetABGN(Lattice.param.OneTurnMat, alpha, beta, gamma, nu1);
       checkifstable(&V);
       for (k = 0; k <= 1; k++) {
         dnu[k] = nu1[k] - (long)nu1[k] - nu0[k] + (long)nu0[k];
@@ -762,7 +773,8 @@ void LatticeType::Ring_Fitchrom(Vector2 &ksi, double eps, iVector2 &ns,
 
   /* Turn off radiation */
   rad = Lattice.param.radiation; Lattice.param.radiation = false;
-  GetCOD(Lattice.param.CODimax, Lattice.param.CODeps, dP, lastpos); Ring_Getchrom(dP);
+  Lattice.GetCOD(Lattice.param.CODimax, Lattice.param.CODeps, dP, lastpos);
+  Ring_Getchrom(dP);
   for (j = 0; j <= 1; j++)
     ksi0[j] = Lattice.param.Chrom[j];
   i = 0;
@@ -776,7 +788,8 @@ void LatticeType::Ring_Fitchrom(Vector2 &ksi, double eps, iVector2 &ns,
 	else
 	  shiftkp(sd[k], dkpL);
       }
-      GetCOD(Lattice.param.CODimax, Lattice.param.CODeps, dP, lastpos); Ring_Getchrom(dP);
+      Lattice.GetCOD(Lattice.param.CODimax, Lattice.param.CODeps, dP, lastpos);
+      Ring_Getchrom(dP);
       for (k = 0; k <= 1; k++) {
 	dksi[k] = Lattice.param.Chrom[k] - ksi0[k];
 	A[k][j-1] = dksi[k] / dkpL;
@@ -804,7 +817,8 @@ void LatticeType::Ring_Fitchrom(Vector2 &ksi, double eps, iVector2 &ns,
 	  shiftkp(sd[k], dkpL1[j-1]);
       }
     }
-    GetCOD(Lattice.param.CODimax, Lattice.param.CODeps, dP, lastpos); Ring_Getchrom(dP);
+    Lattice.GetCOD(Lattice.param.CODimax, Lattice.param.CODeps, dP, lastpos);
+    Ring_Getchrom(dP);
     for (j = 0; j <= 1; j++)
       ksi0[j] = Lattice.param.Chrom[j];
     if (trace)

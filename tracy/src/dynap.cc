@@ -42,7 +42,7 @@ bool DA_data_type::track(const param_data_type &params,
   }
 
   for (i = 1; i <= params.n_track_DA; i++) {
-    Cell_Pass(0, Lattice.param.Cell_nLoc, ps, lastpos);
+    Lattice.Cell_Pass(0, Lattice.param.Cell_nLoc, ps, lastpos);
     if (lastpos == Lattice.param.Cell_nLoc) {
       if (prt) {
 	if (f_rf == 0.0)

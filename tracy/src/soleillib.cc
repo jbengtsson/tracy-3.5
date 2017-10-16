@@ -196,12 +196,14 @@ void Hfonction(long pos, double dP,Vector2 H)
   Lattice.getelem(pos, &Cell);    /* Position sur l'element pos */
 
   i = 0; /* Horizontal */
-  H[i] = (1+Cell.Alpha[i]*Cell.Alpha[i])/Cell.Beta[i]*Cell.Eta[i]*Cell.Eta[i]+
-          2*Cell.Alpha[i]*Cell.Eta[i]*Cell.Etap[i]+
-          Cell.Beta[i]*Cell.Etap[i]*Cell.Etap[i];
+  H[i] =
+    (1+Cell.Alpha[i]*Cell.Alpha[i])/Cell.Beta[i]*Cell.Eta[i]*Cell.Eta[i]+
+    2*Cell.Alpha[i]*Cell.Eta[i]*Cell.Etap[i]+
+    Cell.Beta[i]*Cell.Etap[i]*Cell.Etap[i];
   i = 1; /* Vertical */
-  H[i] = (1+Cell.Alpha[i]*Cell.Alpha[i])/Cell.Beta[i]*Cell.Eta[i]*Cell.Eta[i]+
-          2*Cell.Alpha[i]*Cell.BeamPos[i]*Cell.Etap[i]+
+  H[i] =
+    (1+Cell.Alpha[i]*Cell.Alpha[i])/Cell.Beta[i]*Cell.Eta[i]*Cell.Eta[i]+
+    2*Cell.Alpha[i]*Cell.BeamPos[i]*Cell.Etap[i]+
     Cell.Beta[i]*Cell.Etap[i]*Cell.Etap[i];
 }
 
@@ -250,13 +252,17 @@ void Hcofonction(long pos, double dP,Vector2 H)
   Lattice.getelem(pos, &Cell);    /* Position sur l'element pos */
 
   i = 0; /* Horizontal */
-  H[i] = (1+Cell.Alpha[i]*Cell.Alpha[i])/Cell.Beta[i]*Cell.BeamPos[i]*Cell.BeamPos[i]+
-          2*Cell.Alpha[i]*Cell.BeamPos[i]*Cell.BeamPos[i+1]+
-          Cell.Beta[i]*Cell.BeamPos[i+1]*Cell.BeamPos[i+1];
+  H[i] =
+    (1+Cell.Alpha[i]*Cell.Alpha[i])/Cell.Beta[i]*Cell.BeamPos[i]
+    *Cell.BeamPos[i]+
+    2*Cell.Alpha[i]*Cell.BeamPos[i]*Cell.BeamPos[i+1]+
+    Cell.Beta[i]*Cell.BeamPos[i+1]*Cell.BeamPos[i+1];
   i = 1; /* Vertical */
-  H[i] = (1+Cell.Alpha[i]*Cell.Alpha[i])/Cell.Beta[i]*Cell.BeamPos[i+1]*Cell.BeamPos[i+1]+
-          2*Cell.Alpha[i]*Cell.BeamPos[i+1]*Cell.BeamPos[i+2]+
-          Cell.Beta[i]*Cell.BeamPos[i+2]*Cell.BeamPos[i+2];
+  H[i] =
+    (1+Cell.Alpha[i]*Cell.Alpha[i])/Cell.Beta[i]*Cell.BeamPos[i+1]
+    *Cell.BeamPos[i+1]+
+    2*Cell.Alpha[i]*Cell.BeamPos[i+1]*Cell.BeamPos[i+2]+
+    Cell.Beta[i]*Cell.BeamPos[i+2]*Cell.BeamPos[i+2];
 }
 
   
@@ -540,7 +546,7 @@ void Trac_Tab(double x, double px, double y, double py, double dp,
   lastn = 0;
   (lastpos)=pos;
 
-  Cell_Pass(pos -1, Lattice.param.Cell_nLoc, x1, lastpos);
+  Lattice.Cell_Pass(pos -1, Lattice.param.Cell_nLoc, x1, lastpos);
 
   if(trace) fprintf(outf1, "\n");
 
@@ -550,7 +556,7 @@ void Trac_Tab(double x, double px, double y, double py, double dp,
         (fabs(x1[0]) < aperture[0]) && (fabs(x1[2]) < aperture[1]))
      /* tracking entre debut anneau et element */
     {
-     Cell_Pass(0,Lattice.param.Cell_nLoc, x1, lastpos);
+     Lattice.Cell_Pass(0,Lattice.param.Cell_nLoc, x1, lastpos);
      if(trace) fprintf(outf1, "%6ld %+10.5e %+10.5e %+10.5e %+10.5e"
 		       " %+10.5e %+10.5e \n",
 		       lastn, x1[0], x1[1], x1[2], x1[3], x1[4], x1[5]);
@@ -568,12 +574,14 @@ void Trac_Tab(double x, double px, double y, double py, double dp,
       lostF = false;
     }
    }
-   while (((lastn) < nmax) && ((lastpos) == Lattice.param.Cell_nLoc) && (lostF == true));
+   while (((lastn) < nmax) && ((lastpos) == Lattice.param.Cell_nLoc) &&
+	  (lostF == true));
 
 
    for (i = 1; i < nmax; i++) {
-     fprintf(outf1, "%6ld %+10.5e %+10.5e %+10.5e %+10.5e %+10.5e %+10.5e \n", i,
-                     Tx[0][i], Tx[1][i], Tx[2][i], Tx[3][i], Tx[4][i], Tx[5][i]);
+     fprintf(outf1, "%6ld %+10.5e %+10.5e %+10.5e %+10.5e %+10.5e %+10.5e \n",
+	     i,
+	     Tx[0][i], Tx[1][i], Tx[2][i], Tx[3][i], Tx[4][i], Tx[5][i]);
    }
 }
 
@@ -1075,8 +1083,10 @@ void NuDp(long Nb, long Nbtour, double emax)
   }
 
   fprintf(outf,"# TRACY II v. 2.6 -- %s -- %s \n", fic, asctime2(newtime));
-  fprintf(outf,"#    dP/P           fx            fz          xcod         pxcod          zcod         pzcod\n");
-  fprintf(stdout,"#    dP/P           fx            fz          xcod         pxcod          zcod         pzcod\n");
+  fprintf(outf,"#    dP/P           fx            fz          xcod         "
+	  "pxcod          zcod         pzcod\n");
+  fprintf(stdout,"#    dP/P           fx            fz          xcod         "
+	  "pxcod          zcod         pzcod\n");
 
   if (Nb <= 1L)
     fprintf(stdout,"NuDp: Error Nb=%ld\n",Nb);
@@ -1147,7 +1157,8 @@ void NuDp(long Nb, long Nbtour, double emax)
        none
 
 ****************************************************************************/
-void Phase(double x,double xp,double y, double yp,double energy, double ctau, long Nbtour)
+void Phase(double x,double xp,double y, double yp,double energy, double ctau,
+	   long Nbtour)
 {
   double Tab[6][NTURN];
   FILE *outf;
@@ -1172,7 +1183,8 @@ void Phase(double x,double xp,double y, double yp,double energy, double ctau, lo
   fprintf(outf,"# TRACY II v. 2.6 -- %s -- %s \n", fic, asctime2(newtime));
   fprintf(outf,"# Phase Space \n");
   fprintf(outf,
-  "#    x           xp             z            zp           dp          ctau\n");
+	  "#    x           xp             z            zp           "
+	  "dp          ctau\n");
 
   // initialization to zero (case where unstable
   for (i = 0; i < Nbtour; i++) {
@@ -1221,8 +1233,8 @@ void Phase(double x,double xp,double y, double yp,double energy, double ctau, lo
        none
 
 ****************************************************************************/
-void PhasePoly(long pos, double x0,double px0, double z0, double pz0, double delta0,
-               double ctau0, long Nbtour)
+void PhasePoly(long pos, double x0,double px0, double z0, double pz0,
+	       double delta0, double ctau0, long Nbtour)
 {
   FILE *outf;
   const char  *fic="phasepoly.out";
@@ -1239,10 +1251,13 @@ void PhasePoly(long pos, double x0,double px0, double z0, double pz0, double del
   newtime = GetTime();
 
   fprintf(stdout,"Closed orbit:\n");
-  fprintf(stdout,"      x            px           z           pz        delta       ctau\n");
+  fprintf(stdout,
+	  "      x            px           z           pz        delta       "
+	  "ctau\n");
   fprintf(stdout,"% 12.8f % 12.8f % 12.8f % 12.8f % 12.8f % 12.8f\n",
-          Lattice.param.CODvect[0], Lattice.param.CODvect[1], Lattice.param.CODvect[2],
-          Lattice.param.CODvect[3], Lattice.param.CODvect[4], Lattice.param.CODvect[5]);
+          Lattice.param.CODvect[0], Lattice.param.CODvect[1],
+	  Lattice.param.CODvect[2], Lattice.param.CODvect[3],
+	  Lattice.param.CODvect[4], Lattice.param.CODvect[5]);
   lastpos = pos;
   Lattice.param.CODvect = xsynch;
 //  xsynch[0] = Lattice.param.CODvect[0];
@@ -1260,7 +1275,8 @@ void PhasePoly(long pos, double x0,double px0, double z0, double pz0, double del
   fprintf(outf,"# TRACY II v. 2.6 -- %s -- %s \n", fic, asctime2(newtime));
   fprintf(outf,"# 6D Phase Space \n");
   fprintf(outf,
-  "# num         x           xp             z            zp           dp          ctau\n");
+	  "# num         x           xp             z            zp           "
+	  "dp          ctau\n");
 
   trace = true;
   for (j = 0; j < ne; j++){
@@ -1336,8 +1352,10 @@ void PhasePortrait(double x0,double px0,double z0, double pz0, double delta0,
     exit_(1);
   }
 
-  fprintf(outf,"# TRACY II v. 2.6  -- %s \n", asctime2(newtime));
-  fprintf(outf,"#  x           xp            z           zp           dp          ctau\n#\n");
+  fprintf(outf, "# TRACY II v. 2.6  -- %s \n", asctime2(newtime));
+  fprintf(outf,
+	  "#  x           xp            z           zp           dp          "
+	  "ctau\n#\n");
   
   x = x0; px = px0;
   z = z0; pz = pz0;
@@ -1438,7 +1456,7 @@ void Check_Trac(double x, double px, double y, double py, double dp)
 
   for (i = 1; i<= Lattice.param.Cell_nLoc; i++)
   {
-    Cell_Pass(i,i+1, x1, lastpos);
+    Lattice.Cell_Pass(i,i+1, x1, lastpos);
     fprintf(outf,"%4d % .5e % .5e % .5e % .5e % .5e % .5e\n",
             i, x1[0],x1[1],x1[2],x1[3],x1[4],x1[5]);
   }
@@ -1471,7 +1489,8 @@ void Check_Trac(double x, double px, double y, double py, double dp)
        none
 
 ****************************************************************************/
-void Enveloppe(double x, double px, double y, double py, double dp, double nturn)
+void Enveloppe(double x, double px, double y, double py, double dp,
+	       double nturn)
 {
   psVector x1; /* Tracking coordinates */
   long lastpos = Lattice.param.Cell_nLoc;
@@ -1484,7 +1503,8 @@ void Enveloppe(double x, double px, double y, double py, double dp, double nturn
   //~ getcod(dp, lastpos);
   findcod(dp);
 
-  printf("xcod=%.5e mm zcod=% .5e mm \n", Lattice.param.CODvect[0]*1e3, Lattice.param.CODvect[2]*1e3);
+  printf("xcod=%.5e mm zcod=% .5e mm \n",
+	 Lattice.param.CODvect[0]*1e3, Lattice.param.CODvect[2]*1e3);
 
   if ((outf = fopen(fic, "w")) == NULL)
   {
@@ -1504,7 +1524,7 @@ void Enveloppe(double x, double px, double y, double py, double dp, double nturn
     {/* loop over full ring */
 
       Lattice.getelem(i, &Cell);
-      Cell_Pass(i,i+1, x1, lastpos);
+      Lattice.Cell_Pass(i,i+1, x1, lastpos);
       if (lastpos != i+1)
       {
        printf("Unstable motion ...\n"); exit_(1);
@@ -1729,8 +1749,8 @@ void Multipole(void)
    else
       mKL= b2*dBoB6C*x04i;
    SetKLpar(Cell.Fnum, Cell.Knum, mOrder=6L, mKL);
-   if (trace) printf("num= %4d name = %s Fnum = %3d, Knum=%3d b2=% e mKl=% e\n",i,
-               Cell.Name,Cell.Fnum, Cell.Knum, b2, mKL);
+   if (trace) printf("num= %4d name = %s Fnum = %3d, Knum=%3d b2=% e mKl=% e\n",
+		     i, Cell.Name,Cell.Fnum, Cell.Knum, b2, mKL);
 
    /* 20-pole multipole error */
    if ((strncmp(Cell.Name,"qp2",3)==0) || (strncmp(Cell.Name,"qp7",3)==0))
@@ -1747,8 +1767,9 @@ void Multipole(void)
    else
      mKL= b2*dBoB14C*x012i;
    SetKLpar(Cell.Fnum, Cell.Knum, mOrder=14L, mKL);
-   if (trace) printf("num= %4d name = %s Fnum = %3d, Knum=%3d b2=% e mKl=% e\n",i,
-               Cell.Name,Cell.Fnum, Cell.Knum, b2, mKL);
+   if (trace)
+     printf("num= %4d name = %s Fnum = %3d, Knum=%3d b2=% e mKl=% e\n",
+	    i, Cell.Name,Cell.Fnum, Cell.Knum, b2, mKL);
 
  }
 
@@ -1781,26 +1802,28 @@ void Multipole(void)
    /* 18-pole multipole error */
    mKL= b3*dBoB9*x06i;
    SetKLpar(Cell.Fnum, Cell.Knum, mOrder=9L, mKL);
-   if (trace) printf("num= %4d name = %s Fnum = %3d, Knum=%3d b3=% e mKl=% e\n",i,
-               Cell.Name,Cell.Fnum, Cell.Knum, b3, mKL);
+   if (trace) printf("num= %4d name = %s Fnum = %3d, Knum=%3d b3=% e mKl=% e\n",
+		     i, Cell.Name,Cell.Fnum, Cell.Knum, b3, mKL);
 
    /* 30-pole multipole error */
    mKL= b3*dBoB15*x012i;
    SetKLpar(Cell.Fnum, Cell.Knum, mOrder=15L, mKL);
-   if (trace) printf("num= %4d name = %s Fnum = %3d, Knum=%3d b3=% e mKl=% e\n",i,
-               Cell.Name,Cell.Fnum, Cell.Knum, b3, mKL);
+   if (trace) printf("num= %4d name = %s Fnum = %3d, Knum=%3d b3=% e mKl=% e\n",
+		     i, Cell.Name,Cell.Fnum, Cell.Knum, b3, mKL);
 
    /* 42-pole multipole error */
    mKL= b3*dBoB21*x018i;
    SetKLpar(Cell.Fnum, Cell.Knum, mOrder=21L, mKL);
-   if (trace) printf("num= %4d name = %s Fnum = %3d, Knum=%3d b3=% e mKl=% e\n",i,
-               Cell.Name,Cell.Fnum, Cell.Knum, b3, mKL);
+   if (trace)
+     printf("num= %4d name = %s Fnum = %3d, Knum=%3d b3=% e mKl=% e\n",
+	    i, Cell.Name,Cell.Fnum, Cell.Knum, b3, mKL);
 
    /* 54-pole multipole error */
    mKL= b3*dBoB27*x024i;
    SetKLpar(Cell.Fnum, Cell.Knum, mOrder=27L, mKL);
-   if (trace) printf("num= %4d name = %s Fnum = %3d, Knum=%3d b3=% e mKl=% e\n",i,
-               Cell.Name,Cell.Fnum, Cell.Knum, b3, mKL);
+   if (trace)
+     printf("num= %4d name = %s Fnum = %3d, Knum=%3d b3=% e mKl=% e\n",
+	    i, Cell.Name,Cell.Fnum, Cell.Knum, b3, mKL);
 }
 
  /***********************************************************************************/
@@ -1846,21 +1869,24 @@ void Multipole(void)
    mKL = dBoB5*corr_strength*x04i;
    SetKLpar(Cell.Fnum, Cell.Knum, mOrder=5L, mKL);
 
-   if (trace) printf("num= %4d name = %s Fnum = %3d, Knum=%3d BL/brho=% e mKl=% e\n",i,
-               Cell.Name,Cell.Fnum, Cell.Knum, corr_strength, mKL);
+   if (trace)
+     printf("num= %4d name = %s Fnum = %3d, Knum=%3d BL/brho=% e mKl=% e\n",
+	    i, Cell.Name,Cell.Fnum, Cell.Knum, corr_strength, mKL);
    /* 14-pole error */
    mKL = dBoB7*corr_strength*x06i;
    SetKLpar(Cell.Fnum, Cell.Knum, mOrder=7L, mKL);
 
-   if (trace) printf("num= %4d name = %s Fnum = %3d, Knum=%3d BL/brho=% e mKl=% e\n",i,
-            Cell.Name,Cell.Fnum, Cell.Knum, corr_strength, mKL);
+   if (trace)
+     printf("num= %4d name = %s Fnum = %3d, Knum=%3d BL/brho=% e mKl=% e\n",
+	    i, Cell.Name,Cell.Fnum, Cell.Knum, corr_strength, mKL);
 
    /* 22-pole error */
    mKL = dBoB11*corr_strength*x010i;
    SetKLpar(Cell.Fnum, Cell.Knum, mOrder=11, mKL);
 
-   if (trace) printf("num= %4d name = %s Fnum = %3d, Knum=%3d BL/brho=% e mKl=% e\n",i,
-               Cell.Name,Cell.Fnum, Cell.Knum, corr_strength, mKL);
+   if (trace)
+     printf("num= %4d name = %s Fnum = %3d, Knum=%3d BL/brho=% e mKl=% e\n",
+	    i, Cell.Name,Cell.Fnum, Cell.Knum, corr_strength, mKL);
  }
 
  /***********************************************************************************/
@@ -1907,21 +1933,24 @@ void Multipole(void)
    mKL = dBoB5*corr_strength*x04i;
    SetKLpar(Cell.Fnum, Cell.Knum, mOrder=-5L, mKL);
 
-   if (trace) printf("num= %4d name = %s Fnum = %3d, Knum=%3d BL/brho=% e mKl=% e\n",i,
-               Cell.Name,Cell.Fnum, Cell.Knum, corr_strength, mKL);
+   if (trace)
+     printf("num= %4d name = %s Fnum = %3d, Knum=%3d BL/brho=% e mKl=% e\n",
+	    i, Cell.Name,Cell.Fnum, Cell.Knum, corr_strength, mKL);
    /* skew 14-pole error */
    mKL = dBoB7*corr_strength*x06i;
    SetKLpar(Cell.Fnum, Cell.Knum, mOrder=-7L, mKL);
 
-   if (trace) printf("num= %4d name = %s Fnum = %3d, Knum=%3d BL/brho=% e mKl=% e\n",i,
-            Cell.Name,Cell.Fnum, Cell.Knum, corr_strength, mKL);
+   if (trace)
+     printf("num= %4d name = %s Fnum = %3d, Knum=%3d BL/brho=% e mKl=% e\n",
+	    i, Cell.Name,Cell.Fnum, Cell.Knum, corr_strength, mKL);
 
    /* skew 22-pole error */
    mKL = dBoB11*corr_strength*x010i;
    SetKLpar(Cell.Fnum, Cell.Knum, mOrder=-11, mKL);
 
-   if (trace) printf("num= %4d name = %s Fnum = %3d, Knum=%3d BL/brho=% e mKl=% e\n",i,
-               Cell.Name,Cell.Fnum, Cell.Knum, corr_strength, mKL);
+   if (trace)
+     printf("num= %4d name = %s Fnum = %3d, Knum=%3d BL/brho=% e mKl=% e\n",
+	    i, Cell.Name,Cell.Fnum, Cell.Knum, corr_strength, mKL);
  }
 
  /***********************************************************************************/
@@ -1959,8 +1988,9 @@ void Multipole(void)
    mKL = dBoB4*qcorr[i]*x02i;
    SetKLpar(Cell.Fnum, Cell.Knum, mOrder=-4L, mKL);
 
-   if (trace) printf("num= %4d name = %s Fnum = %3d, Knum=%3d BL/brho=% e mKl=% e\n",i,
-               Cell.Name,Cell.Fnum, Cell.Knum, corr_strength, mKL);
+   if (trace)
+     printf("num= %4d name = %s Fnum = %3d, Knum=%3d BL/brho=% e mKl=% e\n",
+	    i, Cell.Name,Cell.Fnum, Cell.Knum, corr_strength, mKL);
  }
 }
 
@@ -2051,11 +2081,12 @@ void SetSkewQuad(void)
     mKL = b2*cos(2*theta[i]);
     SetKLpar(Cell.Fnum, Cell.Knum, mOrder=2L, mKL);
 
-    if (trace) printf("num= %4d name = %s Fnum = %3d, Knum=%3d KL=% e, KtiltL=% e\n"
-                ,i,
-                Cell.Name,Cell.Fnum, Cell.Knum,
-                Cell.Elem.M->Bpar[HOMmax+2],
-                Cell.Elem.M->Bpar[HOMmax-2]);
+    if (trace)
+      printf("num= %4d name = %s Fnum = %3d, Knum=%3d KL=% e, KtiltL=% e\n",
+	     i,
+	     Cell.Name,Cell.Fnum, Cell.Knum,
+	     Cell.Elem.M->Bpar[HOMmax+2],
+	     Cell.Elem.M->Bpar[HOMmax-2]);
  }
 }
 
@@ -2141,7 +2172,9 @@ void MomentumAcceptance(long deb, long fin, double ep_min, double ep_max,
   fprintf(outf2,"#  i        s         dp      s_lost  name_lost \n#\n");
 
   fprintf(outf1,"# TRACY II v. 2.6  -- %s \n", asctime2(newtime));
-  fprintf(outf1,"#  i        x           xp            z           zp           dp          ctau\n#\n");
+  fprintf(outf1,
+	  "#  i        x           xp            z           zp           "
+	  "dp          ctau\n#\n");
   
 
   pos = deb; /* starting position in the ring */
@@ -2195,7 +2228,7 @@ void MomentumAcceptance(long deb, long fin, double ep_min, double ep_max,
     // Store vertical initial conditions
     // case where deb is not element 1
     if (deb > 1L){
-       Cell_Pass(1L, deb - 1L, x0, lastpos); // track from 1 to deb-1L element
+       Lattice.Cell_Pass(1L, deb - 1L, x0, lastpos); // track from 1 to deb-1L element
        j = deb -1L;
        if (lastpos != j){ // look if stable
          tabz0 [i- 1L][j] = 1.0;
@@ -2213,7 +2246,7 @@ void MomentumAcceptance(long deb, long fin, double ep_min, double ep_max,
    }
 
     for (j = deb; j < fin; j++){ // loop over elements
-      Cell_Pass(j -1L, j, x0, lastpos);
+      Lattice.Cell_Pass(j -1L, j, x0, lastpos);
       if (lastpos != j){ // look if stable
         tabz0 [i - 1L][j] = 1.0;
         tabpz0[i - 1L][j] = 1.0;
@@ -2261,9 +2294,12 @@ void MomentumAcceptance(long deb, long fin, double ep_min, double ep_max,
       else {
         dp2 = ep_max;
       }      
-      if (trace)  printf("i=%4ld pos=%4ld dp=%6.4g\n",i,pos,dp2);
-      if (0) fprintf(stdout,"pos=%4ld z0 =% 10.5f  pz0 =% 10.5f  \n", pos, tabz0[i-1L][pos-1L], tabpz0[i-1L][pos-1L]);
-      Trac(x, px, tabz0[i-1L][pos], tabpz0[i-1L][pos-1L], dp2+delta , ctau0, nturn, pos, lastn, lastpos, outf1);
+      if (trace) printf("i=%4ld pos=%4ld dp=%6.4g\n",i,pos,dp2);
+      if (0)
+	fprintf(stdout, "pos=%4ld z0 =% 10.5f  pz0 =% 10.5f  \n",
+		pos, tabz0[i-1L][pos-1L], tabpz0[i-1L][pos-1L]);
+      Trac(x, px, tabz0[i-1L][pos], tabpz0[i-1L][pos-1L], dp2+delta, ctau0,
+	   nturn, pos, lastn, lastpos, outf1);
     }
     while (((lastn) == nturn) && (i != nstepp));
     
@@ -2271,9 +2307,12 @@ void MomentumAcceptance(long deb, long fin, double ep_min, double ep_max,
 
     Lattice.getelem(lastpos,&Clost);
     Lattice.getelem(pos,&Cell);
-    fprintf(stdout,"pos=%4ld z0 =% 10.5f  pz0 =% 10.5f  \n", pos, tabz0[i-1L][pos-1L], tabpz0[i-1L][pos-1L]);
-    fprintf(stdout,"%4ld %10.5f %10.5f %10.5f %*s\n", pos,Cell.S,dp1,Clost.S,5,Clost.Name);
-    fprintf(outf2,"%4ld %10.5f %10.5f %10.5f %*s\n", pos,Cell.S,dp1,Clost.S,5,Clost.Name);
+    fprintf(stdout,"pos=%4ld z0 =% 10.5f  pz0 =% 10.5f  \n",
+	    pos, tabz0[i-1L][pos-1L], tabpz0[i-1L][pos-1L]);
+    fprintf(stdout,"%4ld %10.5f %10.5f %10.5f %*s\n",
+	    pos,Cell.S,dp1,Clost.S,5,Clost.Name);
+    fprintf(outf2,"%4ld %10.5f %10.5f %10.5f %*s\n",
+	    pos,Cell.S,dp1,Clost.S,5,Clost.Name);
     pos++;
   }
   while(pos != fin);
@@ -2342,7 +2381,7 @@ void MomentumAcceptance(long deb, long fin, double ep_min, double ep_max,
     // Store vertical initial conditions
     // case where deb is not element 1
     if (deb > 1L){
-       Cell_Pass(1L, deb - 1L, x0, lastpos); // track from 1 to deb-1L element
+       Lattice.Cell_Pass(1L, deb - 1L, x0, lastpos); // track from 1 to deb-1L element
        j = deb -1L;
        if (lastpos != j){ // look if stable
          tabz0 [i- 1L][j] = 1.0;
@@ -2361,7 +2400,7 @@ void MomentumAcceptance(long deb, long fin, double ep_min, double ep_max,
    }
 
     for (j = deb; j < fin; j++){ // loop over elements
-      Cell_Pass(j -1L, j, x0, lastpos);
+      Lattice.Cell_Pass(j -1L, j, x0, lastpos);
       if (lastpos != j){ // look if stable
         tabz0 [i - 1L][j] = 1.0;
         tabpz0[i - 1L][j] = 1.0;
@@ -2412,7 +2451,8 @@ void MomentumAcceptance(long deb, long fin, double ep_min, double ep_max,
         dp2 = em_max;
       }
       if (!trace) printf("i=%4ld pos=%4ld dp=%6.4g\n",i,pos,dp2);
-      Trac(x, px, tabz0[i-1L][pos], tabpz0[i-1L][pos-1L], dp2+delta , ctau0, nturn, pos, lastn, lastpos, outf1);
+      Trac(x, px, tabz0[i-1L][pos], tabpz0[i-1L][pos-1L], dp2+delta , ctau0,
+	   nturn, pos, lastn, lastpos, outf1);
     }
     while (((lastn) == nturn) && (i != nstepm));
 
@@ -2421,9 +2461,12 @@ void MomentumAcceptance(long deb, long fin, double ep_min, double ep_max,
     Lattice.getelem(lastpos,&Clost);
     Lattice.getelem(pos,&Cell);
     if (!trace)  printf("i=%4ld pos=%4ld dp=%6.4g\n",i,pos,dp2);
-    fprintf(stdout,"pos=%4ld z0 =% 10.5f  pz0 =% 10.5f  \n", pos, tabz0[i-1L][pos-1L], tabpz0[i-1L][pos-1L]);
-    fprintf(stdout,"%4ld %10.5f %10.5f %10.5f %*s\n", pos,Cell.S,dp1,Clost.S, 5, Clost.Name);
-    fprintf(outf2,"%4ld %10.5f %10.5f %10.5f %*s\n", pos,Cell.S,dp1,Clost.S, 5, Clost.Name);
+    fprintf(stdout,"pos=%4ld z0 =% 10.5f  pz0 =% 10.5f  \n", 
+	    pos, tabz0[i-1L][pos-1L], tabpz0[i-1L][pos-1L]);
+    fprintf(stdout,"%4ld %10.5f %10.5f %10.5f %*s\n",
+	    pos,Cell.S,dp1,Clost.S, 5, Clost.Name);
+    fprintf(outf2,"%4ld %10.5f %10.5f %10.5f %*s\n",
+	    pos,Cell.S,dp1,Clost.S, 5, Clost.Name);
     pos++;
   }
   while(pos != fin);
@@ -2696,8 +2739,8 @@ void TracCO(double x, double px, double y, double py, double dp, double ctau,
 		lastn, x1[0], x1[1], x1[2], x1[3], x1[4], x1[5]);
       }
 
-      Cell_Pass(pos-1L, Lattice.param.Cell_nLoc, x1, lastpos);
-      Cell_Pass(0,pos-1L, x1, lastpos);
+      Lattice.Cell_Pass(pos-1L, Lattice.param.Cell_nLoc, x1, lastpos);
+      Lattice.Cell_Pass(0,pos-1L, x1, lastpos);
     }
     while (((lastn) < nmax) && ((lastpos) == pos-1L));
 
@@ -3060,12 +3103,16 @@ void Dyna(long Nbx, long Nbz, long Nbtour, double xmax, double zmax,
       else {
        fx[0] = 0.0; fz[0] = 0.0;
       }
-      fprintf(outf,"%14.6e %14.6e %14.6e %14.6e %d\n", x, z, fx[0], fz[0], status);
-      fprintf(stdout,"%14.6e %14.6e %14.6e %14.6e %d\n", x, z, fx[0], fz[0], status);
+      fprintf(outf,"%14.6e %14.6e %14.6e %14.6e %d\n",
+	      x, z, fx[0], fz[0], status);
+      fprintf(stdout,"%14.6e %14.6e %14.6e %14.6e %d\n",
+	      x, z, fx[0], fz[0], status);
       if (diffusion) {
         if (status) Get_NAFF(NTERM2, Nbtour, Tab, fx, fz, nb_freq);
-        fprintf(outf,"%14.6e %14.6e %14.6e %14.6e %d\n", x, z, fx[0], fz[0], status);
-        fprintf(stdout,"%14.6e %14.6e %14.6e %14.6e %d\n", x, z, fx[0], fz[0], status);
+        fprintf(outf,"%14.6e %14.6e %14.6e %14.6e %d\n",
+		x, z, fx[0], fz[0], status);
+        fprintf(stdout,"%14.6e %14.6e %14.6e %14.6e %d\n",
+		x, z, fx[0], fz[0], status);
       }
     }
   }
@@ -3144,7 +3191,8 @@ void Phase2(long pos, double x,double px,double y, double py,double energy,
   fprintf(outf,"# TRACY II v. 2.6 -- %s -- %s \n", fic, asctime2(newtime));
   fprintf(outf,"# Phase Space \n");
   fprintf(outf,
-  "# num         x           xp             z            zp           dp          ctau\n");
+	  "# num         x           xp             z            zp           "
+	  "dp          ctau\n");
 
   trace = true;
   Trac(x,px,y,py,energy,ctau, Nbtour,pos, lastn, lastpos, outf);
@@ -3173,12 +3221,13 @@ void Phase3(long pos, double x,double px,double y, double py,double energy,
   fprintf(outf,"# TRACY II v. 2.6 -- %s -- %s \n", fic, asctime2(newtime));
   fprintf(outf,"# Phase Space \n");
   fprintf(outf,
-  "# num         x           xp             z            zp           dp          ctau\n");
+	  "# num         x           xp             z            zp           "
+	  "dp          ctau\n");
 
   trace = true;
   x1[0] = x;   x1[1] = px;     x1[2] = y;
   x1[3] = py;  x1[4] = energy; x1[5] = ctau;  
-  Cell_Pass(0L, pos-1L, x1, lastpos);
+  Lattice.Cell_Pass(0L, pos-1L, x1, lastpos);
 
   x  = x1[0];       px= x1[1];   y = x1[2];
   py = x1[3];  energy = x1[4]; ctau =x1[5];
@@ -3268,20 +3317,25 @@ void PhaseLongitudinalHamiltonien(void)
 
   if ((outf = fopen(fic, "w")) == NULL)
   {
-    fprintf(stdout, "PhaseLongitudinalHamiltonien: error while opening file %s\n", fic);
+    fprintf(stdout,
+	    "PhaseLongitudinalHamiltonien: error while opening file %s\n", fic);
     exit_(1);
   }
     
-  printf("Last stable orbit %f\n", acos(1.0-T*E/eVRF*Hsynchrotron(0.0,-0.098)));  
+  printf("Last stable orbit %f\n",
+	 acos(1.0-T*E/eVRF*Hsynchrotron(0.0,-0.098)));  
 
   fprintf(outf,"# TRACY II v. 2.6  -- %s \n", asctime2(newtime));
-  fprintf(outf,"#  i          ctau              dp             DH/H               H \n#\n");
+  fprintf(outf,
+	  "#  i          ctau              dp             DH/H               "
+	  "H \n#\n");
 
   for (j = 0L; j < jmax; j++)
   {  
     phi = 0.061417777*j; delta = 0.0001;
     H0 = Hsynchrotron(phi,delta);
-    fprintf(outf,"%4ld % 16.8f % 16.8f % 16.8e % 16.8f\n",0L,fmod(phi,2.0*M_PI)*0.8512/2.0/M_PI,delta, 0.0, H0);
+    fprintf(outf,"%4ld % 16.8f % 16.8f % 16.8e % 16.8f\n",
+	    0L, fmod(phi,2.0*M_PI)*0.8512/2.0/M_PI, delta, 0.0, H0);
 
     for (i = 0L; i < imax; i++){
   // Leap Frog integrator
@@ -3296,8 +3350,9 @@ void PhaseLongitudinalHamiltonien(void)
       PassA(&phi, delta, t*D2);
       PassB(phi, &delta, t*C2);
       PassA(&phi, delta, t*D1);
-      fprintf(outf,"%4ld % 16.8f % 16.8f % 16.8e % 16.8f\n",i,fmod(phi,2.0*M_PI)*0.8512/2.0/M_PI,
-              delta,(H0-Hsynchrotron(phi,delta))/H0,Hsynchrotron(phi,delta));
+      fprintf(outf,"%4ld % 16.8f % 16.8f % 16.8e % 16.8f\n",
+	      i, fmod(phi,2.0*M_PI)*0.8512/2.0/M_PI,
+              delta, (H0-Hsynchrotron(phi,delta))/H0, Hsynchrotron(phi,delta));
     }
       fprintf(outf,"\n");
   }
@@ -3436,7 +3491,9 @@ double Hsynchrotron(double phi, double delta)
 {
   double H = 0.0;
   
-  H  = omegaRF*2.0*M_PI*(dCoC*delta + alpha1*delta*delta/2.0 + alpha2*delta*delta*delta/3.0);
+  H  =
+    omegaRF*2.0*M_PI*(dCoC*delta + alpha1*delta*delta/2.0
+		      + alpha2*delta*delta*delta/3.0);
   H -= eVRF/E/T*(cos(phi) - cos(phis) + (phi-phis)*sin(phis));
   return H;
 }
@@ -3487,7 +3544,8 @@ double EnergyDrift(double *X)
        none
 
 ****************************************************************************/
-void Enveloppe2(double x, double px, double y, double py, double dp, double nturn)
+void Enveloppe2(double x, double px, double y, double py, double dp,
+		double nturn)
 {
   psVector x1; /* Tracking coordinates */
   long lastpos = Lattice.param.Cell_nLoc;
@@ -3529,7 +3587,7 @@ void Enveloppe2(double x, double px, double y, double py, double dp, double ntur
     /* loop over full ring: one turn for intialization */
 
     Lattice.getelem(i,&Cell);
-    Cell_Pass(i,i+1, x1, lastpos);
+    Lattice.Cell_Pass(i,i+1, x1, lastpos);
     if (lastpos != i+1) {
      printf("Unstable motion ...\n"); exit_(1);
     }
@@ -3542,7 +3600,7 @@ void Enveloppe2(double x, double px, double y, double py, double dp, double ntur
    for (i = 0; i<= Lattice.param.Cell_nLoc; i++) {
  
       Lattice.getelem(i, &Cell);
-      Cell_Pass(i, i+1, x1, lastpos);
+      Lattice.Cell_Pass(i, i+1, x1, lastpos);
       if (lastpos != i+1) {
 	printf("Unstable motion ...\n"); exit_(1);
       }

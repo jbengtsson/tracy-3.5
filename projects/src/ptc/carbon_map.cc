@@ -31,7 +31,7 @@ ss_vect<tps> get_fix_point(const int Fnum)
 
   trace = true;
   for (j = 1; j <= n_iter; j++) {
-    map.identity(); Cell_Pass(loc, loc, map, lastpos);
+    map.identity(); Lattice.Cell_Pass(loc, loc, map, lastpos);
 
     FM->phi -= map[px_].cst();
     FM->Lm = map[ct_].cst();
@@ -39,7 +39,7 @@ ss_vect<tps> get_fix_point(const int Fnum)
     FM->L1 += Lattice.Cell[loc].L - FM->Lm;
   }
 
-  map.identity(); Cell_Pass(loc, loc, map, lastpos);
+  map.identity(); Lattice.Cell_Pass(loc, loc, map, lastpos);
 
   cout << endl;
   cout << scientific << setprecision(3)
@@ -334,8 +334,9 @@ int main(int argc, char *argv[])
     if (tweak) {
       dx = -1.4e-3; map[x_] += dx;
     }
-    Cell_Pass(Lattice.Elem_GetPos(Lattice.Elem_Index("bb"), 1),
-	      Lattice.Elem_GetPos(Lattice.Elem_Index("bb"), 1), map, lastpos);
+    Lattice.Cell_Pass(Lattice.Elem_GetPos(Lattice.Elem_Index("bb"), 1),
+		      Lattice.Elem_GetPos(Lattice.Elem_Index("bb"), 1), map,
+		      lastpos);
     if (tweak) map[x_] -= dx;
 
     h = LieFact_DF(map, R);

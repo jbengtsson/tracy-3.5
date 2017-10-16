@@ -46,7 +46,7 @@ void prt_x0(const double delta)
   outf = file_write(file_name.c_str());
 
   ps.zero(); ps[delta_] = delta;
-  Cell_Pass(0, Lattice.param.Cell_nLoc, ps, lastpos);
+  Lattice.Cell_Pass(0, Lattice.param.Cell_nLoc, ps, lastpos);
   for (k = 0; k < lastpos; k++) {
     fprintf(outf, "%4d %15s %9.5f %4.1f %9.5f %9.5f %9.5f %9.5f %9.5f %9.5f\n",
 	    k, Lattice.Cell[k].Name, Lattice.Cell[k].S,
@@ -73,7 +73,7 @@ void scan_delta(const int n, const double delta)
 
   for (k = 0; k < n; k++) {
     d = (double)k/double(n-1)*delta;
-    ps.zero(); ps[delta_] = d; Cell_Pass(0, Lattice.param.Cell_nLoc, ps, lastpos);
+    ps.zero(); ps[delta_] = d; Lattice.Cell_Pass(0, Lattice.param.Cell_nLoc, ps, lastpos);
     outf << std::scientific << std::setprecision(6)
 	 << std::setw(14) << d << std::setw(14) << ps << std::endl;
   }
@@ -120,7 +120,7 @@ double f_opt(double prms[])
   for (k = 0; k < n; k++) {
     deltas[k] = k*h;
     ps.zero(); ps[delta_] = deltas[k];
-    Cell_Pass(0, Lattice.param.Cell_nLoc, ps, lastpos);
+    Lattice.Cell_Pass(0, Lattice.param.Cell_nLoc, ps, lastpos);
     x_delta[k] = sqr(ps[x_]); px_delta[k] = sqr(ps[px_]); ct_delta[k] = ps[ct_];
     x_max = max(fabs(ps[x_]), x_max); px_max = max(fabs(ps[px_]), px_max);
   }
@@ -309,18 +309,19 @@ void check_cav_model()
   Lattice.param.gamma0 = sqrt(sqr(m_e)+sqr(1e9*Lattice.param.Energy))/m_e;
   Lattice.param.beta0  = sqrt(1e0-1e0/sqr(Lattice.param.gamma0));
   printf("\np0 = %12.5e, 1-beta0 = %12.5e, gamma0 = %12.5e\n",
-	 1e9*Lattice.param.Energy, 1e0-Lattice.param.beta0, Lattice.param.gamma0);
+	 1e9*Lattice.param.Energy, 1e0-Lattice.param.beta0,
+	 Lattice.param.gamma0);
 
   if (false) no_sxt();
 
   map.identity();
-  Cell_Pass(0, Lattice.param.Cell_nLoc, map, lastpos);
+  Lattice.Cell_Pass(0, Lattice.param.Cell_nLoc, map, lastpos);
   prt_lin_map(3, map);
 
   if (true)
     p_s =
-      sqrt(1e0+2e0*map[delta_]/Lattice.param.beta0+sqr(map[delta_])-sqr(map[px_])
-	   -sqr(map[py_]));
+      sqrt(1e0+2e0*map[delta_]/Lattice.param.beta0+sqr(map[delta_])
+	   -sqr(map[px_])-sqr(map[py_]));
   else
     p_s = sqrt(sqr(1e9*Lattice.param.Energy/p0)-sqr(map[px_]) -sqr(map[py_]));
 

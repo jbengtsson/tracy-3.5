@@ -9,47 +9,40 @@
 */
 
 
-#define DOF    (ss_dim/2)
+#define DOF  (ss_dim/2)
  
-#define M_PI   3.14159265358979323846  // pi
+#define M_PI 3.14159265358979323846  // pi
 
 #ifndef LONG_MAX
-# define LONG_MAX   ((long)(((unsigned long) -1) >> 1))
-# define LONG_MIN   (~LONG_MAX)
+# define LONG_MAX ((long)(((unsigned long) -1) >> 1))
+# define LONG_MIN (~LONG_MAX)
 #endif
 
-#define debug           false
+#define debug false
 
 #define S_SIZE 200  // max size for file name of a lattice file
 
-#define nv_             6
+#define nv_          6
 
-#define DBNameLen       39
+#define blankname    "               "
 
-#define NameLength      150  // maximum length of identifiers (e.g. file names)
-#define SymbolLength    15   // maximum length of element name
+#define maxincl      5
+#define maxfil       10
+#define bigvectmax   4096
 
-#define blankname       "               "
-
-#define maxincl         5
-#define maxfil          10
-#define bigvectmax      4096
-
-#define HOMmax          21
-
-#define maxtransfmat    2000
-#define maxkicks        5
+#define maxtransfmat 2000
+#define maxkicks     5
 
 
-const double  c0    = 2.99792458e8;             // speed of light in vacuum
-const double  q_e   = 1.602e-19;                // electron charge
-const double  m_e   = 0.51099906e6;             // electron rest mass [eV/c^2]
-const double  mu_0  = 4.0*M_PI*1e-7;            // permittivity of free space
-const double  eps_0 = 1.0/(sqr(c0)*mu_0);       // permeability of free space
-const double  r_e   = q_e/(4.0*M_PI*eps_0*m_e); // classical electron radius
-const double  h_bar = 6.58211899e-16;           // reduced Planck constant [eV s]
+const double c0    = 2.99792458e8;             // speed of light in vacuum
+const double q_e   = 1.602e-19;                // electron charge
+const double m_e   = 0.51099906e6;             // electron rest mass [eV/c^2]
+const double mu_0  = 4.0*M_PI*1e-7;            // permittivity of free space
+const double eps_0 = 1.0/(sqr(c0)*mu_0);       // permeability of free space
+const double r_e   = q_e/(4.0*M_PI*eps_0*m_e); // classical electron radius
+const double h_bar = 6.58211899e-16;           // reduced Planck constant [eV s]
 
-const double  max_ampl = 10.0; // [m]
+const double max_ampl = 10.0; // [m]
 
 
 enum pthicktype { thick = 0, thin = 1 };
@@ -65,21 +58,22 @@ enum { Horizontal = 1, Vertical = 2 };
 enum { Meth_Linear = 0, Meth_First = 1, Meth_Second = 2, Meth_Fourth = 4,
        Meth_genfun = 5 };
 
-typedef char str80[80];
+#define fitvectmax   200
+#define NameLength   150  // maximum length of identifiers (e.g. file names)
+#define DBNameLen    39
+#define HOMmax       21
+#define SymbolLength 15   // maximum length of element name
 
+typedef char str80[80];
 typedef char alfa_[NameLength];
 
 typedef long   iVector2[2];
 typedef double Vector2[2];
 typedef double Vector3[3];
 
-#define fitvectmax      200
 typedef long   fitvect[fitvectmax];
-
-typedef char partsName[NameLength];
-
-typedef char DBNameType[DBNameLen];
-
+typedef char   partsName[NameLength];
+typedef char   DBNameType[DBNameLen];
 typedef double mpolArray[HOMmax+HOMmax+1];
 
 

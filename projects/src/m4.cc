@@ -37,7 +37,7 @@ void get_alphac2_scl(void)
     for (j = 0; j < nv_; j++)
       x[j] = 0.0;
     x[delta_] = delta[n-1];
-    Cell_Pass(0, Lattice.param.Cell_nLoc, x, lastpos);
+    Lattice.Cell_Pass(0, Lattice.param.Cell_nLoc, x, lastpos);
     alphac[n-1] = x[ct_]/Cell.S;
   }
   pol_fit(n, delta, alphac, 3, b, sigma, true);

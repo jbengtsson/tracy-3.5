@@ -88,9 +88,10 @@ void Trac_Simple(double x, double px, double y, double py, double dp,
   do
   { /* tracking through the ring */
     if ((lastpos == Lattice.param.Cell_nLoc) &&
-        (fabs(x1[0]) < aperture[0]) && (fabs(x1[2]) < aperture[1]) && status.codflag)
+        (fabs(x1[0]) < aperture[0]) && (fabs(x1[2]) < aperture[1]) &&
+	status.codflag)
     {
-      Cell_Pass(0, Lattice.param.Cell_nLoc, x1, lastpos);
+      Lattice.Cell_Pass(0, Lattice.param.Cell_nLoc, x1, lastpos);
       Tx[0][lastn] = x1[0]; Tx[1][lastn] = x1[1];
       Tx[2][lastn] = x1[2]; Tx[3][lastn] = x1[3];
       Tx[4][lastn] = x1[4]; Tx[5][lastn] = x1[5];

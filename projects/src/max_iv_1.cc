@@ -24,7 +24,7 @@ double get_eps_x1(void)
 
   Lattice.param.emittance = true;
 
-  Cell_Pass(0, Lattice.param.Cell_nLoc, A, lastpos);
+  Lattice.Cell_Pass(0, Lattice.param.Cell_nLoc, A, lastpos);
 
   eps_x = 1470e0*pow(Lattice.param.Energy, 2)*I5/(I2-I4);
 

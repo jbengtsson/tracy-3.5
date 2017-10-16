@@ -120,7 +120,7 @@ void track(const double Ax, const double Ay)
 	  xt[0], xt[1], xt[2], xt[3], xt[4], xt[5] );
 
   for (i = 0; i <= Lattice.param.Cell_nLoc; i++) {
-    Cell_Pass(i, i, xt, lastpos);
+    Lattice.Cell_Pass(i, i, xt, lastpos);
     fprintf(fd, "%5d %22.14e %22.14e %22.14e %22.14e %22.14e %22.14e \n",
 	    i, xt[0], xt[1], xt[2], xt[3], xt[4], xt[5]);
   }
@@ -371,7 +371,7 @@ int main(int argc, char *argv[])
     if (tweak) {
       dx = -1.4e-3; map[x_] += dx;
     }
-    Cell_Pass(loc, loc, map, lastpos);
+    Lattice.Cell_Pass(loc, loc, map, lastpos);
     if (tweak) map[x_] -= dx;
     prt_lin_map(3, map);
     getlinmat(6, map, M);

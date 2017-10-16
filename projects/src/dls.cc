@@ -120,7 +120,7 @@ void track(const double Ax, const double Ay)
 	  xt[0], xt[1], xt[2], xt[3], xt[4], xt[5] );
 
   for (i = 0; i <= Lattice.param.Cell_nLoc; i++) {
-    Cell_Pass(i, i, xt, lastpos);
+    Lattice.Cell_Pass(i, i, xt, lastpos);
     fprintf(fd, "%5d %22.14e %22.14e %22.14e %22.14e %22.14e %22.14e \n",
 	    i, xt[0], xt[1], xt[2], xt[3], xt[4], xt[5]);
   }

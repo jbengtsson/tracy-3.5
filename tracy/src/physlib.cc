@@ -58,12 +58,14 @@ void printglob(void)
   printf("\n");
   printf("  dPcommon     =  %9.3e  dPparticle   =  %9.3e"
 	 "  Energy [GeV] = %.3f\n",
-         Lattice.param.dPcommon, Lattice.param.dPparticle, Lattice.param.Energy);
+         Lattice.param.dPcommon, Lattice.param.dPparticle,
+	 Lattice.param.Energy);
   printf("  MaxAmplx [m] = %9.3e  MaxAmply [m] = %9.3e"
 	 "  RFAccept [%%] = \xB1%4.2f\n",
          Lattice.Cell[0].maxampl[X_][0], Lattice.Cell[0].maxampl[Y_][0],
 	 Lattice.param.delta_RF*1e2);
-  printf(" Cavity_On    =  %s    ", Lattice.param.Cavity_on ? "TRUE " : "FALSE");
+  printf(" Cavity_On    =  %s    ",
+	 Lattice.param.Cavity_on ? "TRUE " : "FALSE");
   printf("  Radiation_On = %s     \n",
 	 Lattice.param.radiation ? "TRUE " : "FALSE");
   printf("  bpm          =  %3d        qt           = %3d        ",
@@ -170,8 +172,10 @@ void LatticeType::TraceABN(long i0, long i1, const Vector2 &alpha,
   UnitMat(6, Lattice.param.Ascr);
   for (i = 1; i <= 2; i++) {
     sb = sqrt(beta[i-1]); j = i*2 - 1;
-    Lattice.param.Ascr[j-1][j-1] = sb;               Lattice.param.Ascr[j-1][j] = 0.0;
-    Lattice.param.Ascr[j][j - 1] = -(alpha[i-1]/sb); Lattice.param.Ascr[j][j] = 1/sb;
+    Lattice.param.Ascr[j-1][j-1] = sb;
+    Lattice.param.Ascr[j-1][j] = 0.0;
+    Lattice.param.Ascr[j][j - 1] = -(alpha[i-1]/sb);
+    Lattice.param.Ascr[j][j] = 1/sb;
   }
   Lattice.param.Ascr[0][4] = eta[0]; Lattice.param.Ascr[1][4] = etap[0];
   Lattice.param.Ascr[2][4] = eta[1]; Lattice.param.Ascr[3][4] = etap[1];
@@ -253,7 +257,7 @@ void LatticeType::FitDisp(long q, long pos, double eta)
 }
 
 
-#define nfloq           4
+#define nfloq 4
 
 void LatticeType::getfloqs(psVector &x)
 {
@@ -264,7 +268,7 @@ void LatticeType::getfloqs(psVector &x)
 #undef nfloq
 
 
-#define ntrack          4
+#define ntrack 4
 
 // 4D tracking in normal or Floquet space over nmax turns
 
@@ -353,7 +357,8 @@ void LatticeType::track(const char *file_name,
   x2[y_] = x0[y_] + Lattice.param.CODvect[y_];
   x2[py_] = x0[py_] + Lattice.param.CODvect[py_];
   if (Lattice.param.Cavity_on) {
-    x2[delta_] = dp + Lattice.param.CODvect[delta_]; x2[ct_] = Lattice.param.CODvect[ct_];
+    x2[delta_] = dp + Lattice.param.CODvect[delta_];
+    x2[ct_] = Lattice.param.CODvect[ct_];
   } else {
     x2[delta_] = dp; x2[ct_] = 0.0;
   }
@@ -373,7 +378,7 @@ void LatticeType::track(const char *file_name,
     for (i = 0; i < nv_; i++)
       x1[i] = x2[i];
 
-    Cell_Pass(0, Lattice.param.Cell_nLoc, x2, lastpos);
+    Lattice.Cell_Pass(0, Lattice.param.Cell_nLoc, x2, lastpos);
 
     for (i = x_; i <= py_; i++)
       xf[i] = x2[i] - Lattice.param.CODvect[i];
@@ -435,7 +440,7 @@ void LatticeType::track_(double r, struct LOC_getdynap *LINK)
   lastn = 0;
   do {
     lastn++;
-    Cell_Pass(0, Lattice.param.Cell_nLoc, x, lastpos);
+    Lattice.Cell_Pass(0, Lattice.param.Cell_nLoc, x, lastpos);
   } while (lastn != LINK->nturn && lastpos == Lattice.param.Cell_nLoc);
   LINK->lost = (lastn != LINK->nturn);
 }
@@ -499,21 +504,23 @@ void Trac(double x, double px, double y, double py, double dp, double ctau,
   fprintf(outf1, "%6ld %+10.5e %+10.5e %+10.5e %+10.5e %+10.5e %+10.5e \n",
 	  lastn,
 	  x1[0], x1[1], x1[2], x1[3], x1[4], x1[5]);
-  Cell_Pass(pos -1L, Lattice.param.Cell_nLoc, x1, lastpos);
+  Lattice.Cell_Pass(pos -1L, Lattice.param.Cell_nLoc, x1, lastpos);
 
   if (lastpos == Lattice.param.Cell_nLoc)
   do {
     (lastn)++;
-    Cell_Pass(0L,pos-1L, x1, lastpos);
+    Lattice.Cell_Pass(0L,pos-1L, x1, lastpos);
     if(!trace) {
       fprintf(outf1, "%6ld %+10.5e %+10.5e %+10.5e %+10.5e %+10.5e %+10.5e \n",
 	      lastn, x1[0], x1[1], x1[2], x1[3], x1[4], x1[5]);
     }
-    if (lastpos == pos-1L) Cell_Pass(pos-1L,Lattice.param.Cell_nLoc, x1, lastpos);
+    if (lastpos == pos-1L)
+      Lattice.Cell_Pass(pos-1L,Lattice.param.Cell_nLoc, x1, lastpos);
   }
   while (((lastn) < nmax) && ((lastpos) == Lattice.param.Cell_nLoc));
 
-  if (lastpos == Lattice.param.Cell_nLoc) Cell_Pass(0L,pos, x1, lastpos);
+  if (lastpos == Lattice.param.Cell_nLoc)
+    Lattice.Cell_Pass(0L,pos, x1, lastpos);
 
   if (lastpos != pos) {
     printf("Trac: Particle lost \n");
@@ -577,7 +584,7 @@ bool chk_if_lost(double x0, double y0, double delta,
   }
   do {
     lastn++;
-    Cell_Pass(0, Lattice.param.Cell_nLoc, x, lastpos);
+    Lattice.Cell_Pass(0, Lattice.param.Cell_nLoc, x, lastpos);
     if (prt)
       printf("%4ld %7.3f %7.3f %7.3f %7.3f %7.3f %7.3f\n",
 	     lastn, 1e3*x[x_], 1e3*x[px_], 1e3*x[y_], 1e3*x[py_],
@@ -682,7 +689,9 @@ void LatticeType::getcsAscr(void)
 
   UnitMat(6, R);
   for (i = 1; i <= 2; i++) {
-    phi = -atan2(Lattice.param.Ascr[i * 2 - 2][i * 2 - 1], Lattice.param.Ascr[i * 2 - 2]
+    phi =
+      -atan2(Lattice.param.Ascr[i * 2 - 2][i * 2 - 1],
+	     Lattice.param.Ascr[i * 2 - 2]
 		[i * 2 - 2]);
     R[i * 2 - 2][i * 2 - 2] = cos(phi);
     R[i * 2 - 1][i * 2 - 1] = R[i * 2 - 2][i * 2 - 2];
@@ -2444,10 +2453,10 @@ void findcodS(double dP)
       x0[k-1] = vcod[k];
     fprintf(stdout, "Before cod % .5e % .5e % .5e % .5e % .5e % .5e \n",
 	    x0[0], x0[1], x0[2], x0[3], x0[4], x0[5]);
-    Cell_Pass(0, Lattice.param.Cell_nLoc, x0, lastpos);
+    Lattice.Cell_Pass(0, Lattice.param.Cell_nLoc, x0, lastpos);
     fprintf(stdout, "After  cod % .5e % .5e % .5e % .5e % .5e % .5e \n",
 	    x0[0], x0[1], x0[2], x0[3], x0[4], x0[5]);
-    Cell_Pass(0, Lattice.param.Cell_nLoc, x0, lastpos);
+    Lattice.Cell_Pass(0, Lattice.param.Cell_nLoc, x0, lastpos);
   }
   free_dvector(vcod,1,6);
 }
@@ -2523,7 +2532,7 @@ void findcod(double dP)
     fprintf(stdout,
        "Before cod2 % .5e % .5e % .5e % .5e % .5e % .5e \n",
        vcod[0], vcod[1], vcod[2], vcod[3], vcod[4], vcod[5]);
-    Cell_Pass(0, Lattice.param.Cell_nLoc, vcod, lastpos);
+    Lattice.Cell_Pass(0, Lattice.param.Cell_nLoc, vcod, lastpos);
     fprintf(stdout,
        "After  cod2 % .5e % .5e % .5e % .5e % .5e % .5e \n",
        vcod[0], vcod[1], vcod[2], vcod[3], vcod[4], vcod[5]);
@@ -2572,7 +2581,7 @@ void computeFandJS(double *x, int n, double **fjac, double *fvect)
   for (i = 1; i <= 6; i++)
     x0[i - 1] = x[i];
   
-  Cell_Pass(0, Lattice.param.Cell_nLoc, x0, lastpos);
+  Lattice.Cell_Pass(0, Lattice.param.Cell_nLoc, x0, lastpos);
 
   for (i = 1; i <= n; i++)
   {
@@ -2587,7 +2596,7 @@ void computeFandJS(double *x, int n, double **fjac, double *fvect)
       x0[i - 1] = x[i];
     x0[k] += deps;  // differential step in coordinate k
 
-    Cell_Pass(0, Lattice.param.Cell_nLoc, x0, lastpos);  // tracking along the ring
+    Lattice.Cell_Pass(0, Lattice.param.Cell_nLoc, x0, lastpos);  // tracking along the ring
     for (i = 1; i <= 6; i++)
       fx1[i - 1] = x0[i - 1];
 
@@ -2596,7 +2605,7 @@ void computeFandJS(double *x, int n, double **fjac, double *fvect)
     x0[5] = 0.0;
     x0[k] -= deps;  // differential step in coordinate k
 
-    Cell_Pass(0, Lattice.param.Cell_nLoc, x0, lastpos);  // tracking along the ring
+    Lattice.Cell_Pass(0, Lattice.param.Cell_nLoc, x0, lastpos);  // tracking along the ring
     for (i = 1; i <= 6; i++)
       fx2[i - 1] = x0[i - 1];
 
@@ -2646,7 +2655,7 @@ void computeFandJ(int n, psVector &x, Matrix &fjac, psVector &fvect)
 
   CopyVec(6, x, x0);
   
-  Cell_Pass(0, Lattice.param.Cell_nLoc, x0, lastpos);
+  Lattice.Cell_Pass(0, Lattice.param.Cell_nLoc, x0, lastpos);
   CopyVec(n, x0, fvect);
   
   // compute Jacobian matrix by numerical differentiation
@@ -2654,13 +2663,13 @@ void computeFandJ(int n, psVector &x, Matrix &fjac, psVector &fvect)
     CopyVec(6L, x, x0);
     x0[k] += deps;  // differential step in coordinate k
 
-    Cell_Pass(0, Lattice.param.Cell_nLoc, x0, lastpos);  // tracking along the ring
+    Lattice.Cell_Pass(0, Lattice.param.Cell_nLoc, x0, lastpos);  // tracking along the ring
     CopyVec(6L, x0, fx1);
 
     CopyVec(6L, x, x0);
     x0[k] -= deps;  // differential step in coordinate k
 
-    Cell_Pass(0, Lattice.param.Cell_nLoc, x0, lastpos);  // tracking along the ring
+    Lattice.Cell_Pass(0, Lattice.param.Cell_nLoc, x0, lastpos);  // tracking along the ring
     CopyVec(6L, x0, fx2);
 
     for (i = 0; i < n; i++)  // symmetric difference formula

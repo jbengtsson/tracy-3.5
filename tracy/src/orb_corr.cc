@@ -273,7 +273,7 @@ void thread_beam(const int n_cell, const string &Fam_name,
 		      j == 0, false, eps);
   }
 
-  ps.zero(); Cell_Pass(0, Lattice.param.Cell_nLoc, ps, lastpos);
+  ps.zero(); Lattice.Cell_Pass(0, Lattice.param.Cell_nLoc, ps, lastpos);
   codstat1(mean, sigma, max, lastpos, true, orb_corr[X_].bpms);
   printf("\nthread_beam, initial rms trajectory (all):"
 	 "   x = %7.1e mm, y = %7.1e mm\n",
@@ -298,13 +298,13 @@ void thread_beam(const int n_cell, const string &Fam_name,
 
     for (j = 1; j <= n_orbit; j++) {
       ps.zero();
-      Cell_Pass(0, Lattice.param.Cell_nLoc, ps, lastpos);
-      if (i != n_cell-1) Cell_Pass(0, j2, ps, lastpos);
+      Lattice.Cell_Pass(0, Lattice.param.Cell_nLoc, ps, lastpos);
+      if (i != n_cell-1) Lattice.Cell_Pass(0, j2, ps, lastpos);
       orb_corr[0].solve(scl); orb_corr[1].solve(scl);
     }
   }
 
-   ps.zero(); Cell_Pass(0, Lattice.param.Cell_nLoc, ps, lastpos);
+   ps.zero(); Lattice.Cell_Pass(0, Lattice.param.Cell_nLoc, ps, lastpos);
    codstat1(mean, sigma, max, lastpos, true, orb_corr[X_].bpms);
    printf("thread_beam, corrected rms trajectory (all):"
 	  " x = %7.1e mm, y = %7.1e mm\n",

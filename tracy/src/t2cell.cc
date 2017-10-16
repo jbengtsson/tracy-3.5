@@ -49,7 +49,7 @@ inline bool CheckAmpl(const ss_vect<T> &x, const long int loc)
 
 
 template<typename T>
-void Elem_Pass(const long i, ss_vect<T> &x)
+void LatticeType::Elem_Pass(const long i, ss_vect<T> &x)
 {
 
   switch (Lattice.Cell[i].Kind) {
@@ -91,7 +91,8 @@ void Elem_Pass(const long i, ss_vect<T> &x)
 
 
 template<typename T>
-void Cell_Pass(const long i0, const long i1, ss_vect<T> &x, long &lastpos)
+void LatticeType::Cell_Pass(const long i0, const long i1, ss_vect<T> &x,
+			    long &lastpos)
 {
   long int  i = 0;
 
@@ -116,7 +117,8 @@ void Cell_Pass(const long i0, const long i1, ss_vect<T> &x, long &lastpos)
 }
 
 
-void Cell_Pass(const long i0, const long i1, tps &sigma, long &lastpos)
+void LatticeType::Cell_Pass(const long i0, const long i1, tps &sigma,
+			     long &lastpos)
 {
   // Note: Sigma_k+1 = M_k Sigma_k M_k^T = (M_k (M_k Sigma_k)^T)^T
   const int  n = 9;
@@ -128,10 +130,10 @@ void Cell_Pass(const long i0, const long i1, tps &sigma, long &lastpos)
 
   Id.identity();
 
-  map = Id + Lattice.param.CODvect; Cell_Pass(0, i0, map, lastpos);
+  map = Id + Lattice.param.CODvect; Lattice.Cell_Pass(0, i0, map, lastpos);
 
   if (lastpos == i0) {
-    map = Id + map.cst(); Cell_Pass(i0, i1, map, lastpos);
+    map = Id + map.cst(); Lattice.Cell_Pass(i0, i1, map, lastpos);
 
     if (lastpos == i1) {
       // x_1 = zeta(x_0) => f_1(x) = f_0(zeta^-1(x))
@@ -167,8 +169,8 @@ void Cell_Pass(const long i0, const long i1, tps &sigma, long &lastpos)
 
 
 
-bool Cell_getCOD(const long imax, const double eps, const double dP,
-		 long &lastpos)
+bool LatticeType::Cell_getCOD(const long imax, const double eps,
+			      const double dP, long &lastpos)
 {
   long            j, n, n_iter;
   int             no;
@@ -203,7 +205,7 @@ bool Cell_getCOD(const long imax, const double eps, const double dP,
   do {
     n_iter++; map.identity(); map += x0;
 
-    Cell_Pass(0, Lattice.param.Cell_nLoc, map, lastpos); 
+    Lattice.Cell_Pass(0, Lattice.param.Cell_nLoc, map, lastpos); 
 
     if (lastpos == Lattice.param.Cell_nLoc) {
       x1 = map.cst(); dx = x0 - x1; dx0 = PInv(map-I-x1, jj)*dx;
@@ -225,7 +227,7 @@ bool Cell_getCOD(const long imax, const double eps, const double dP,
 
   if (status.codflag) {
     Lattice.param.CODvect = x0; getlinmat(6, map, Lattice.param.OneTurnMat);
-    Cell_Pass(0, Lattice.param.Cell_nLoc, x0, lastpos);
+    Lattice.Cell_Pass(0, Lattice.param.Cell_nLoc, x0, lastpos);
   } else {
     std::cout << std::scientific << std::setprecision(5)
 	      << "\nCell_getCOD: failed to converge after " << n_iter
@@ -244,7 +246,8 @@ bool Cell_getCOD(const long imax, const double eps, const double dP,
 }
 
 
-bool GetCOD(const long imax, const double eps, const double dP, long &lastpos)
+bool LatticeType::GetCOD(const long imax, const double eps, const double dP,
+			 long &lastpos)
 {
   bool  cod;
 
@@ -254,7 +257,7 @@ bool GetCOD(const long imax, const double eps, const double dP, long &lastpos)
 }
 
 
-void Cell_Init(void)
+void LatticeType::Cell_Init(void)
 {
   long        i;
   double      Stotal;

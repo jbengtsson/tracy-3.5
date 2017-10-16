@@ -48,7 +48,7 @@ void scan_delta(const int n, const double delta)
   for (k = 0; k < n; k++) {
     d = (double)k/double(n-1)*delta;
     ps.zero(); ps[delta_] = d;
-    Cell_Pass(0, Lattice.param.Cell_nLoc, ps, lastpos);
+    Lattice.Cell_Pass(0, Lattice.param.Cell_nLoc, ps, lastpos);
     outf << scientific << setprecision(6)
 	 << setw(14) << d << setw(14) << ps << endl;
   }
@@ -95,7 +95,7 @@ double f_opt(double prms[])
   for (k = 0; k < n; k++) {
     deltas[k] = k*h;
     ps.zero(); ps[delta_] = deltas[k];
-    Cell_Pass(0, Lattice.param.Cell_nLoc, ps, lastpos);
+    Lattice.Cell_Pass(0, Lattice.param.Cell_nLoc, ps, lastpos);
     x_delta[k] = sqr(ps[x_]); px_delta[k] = sqr(ps[px_]); ct_delta[k] = ps[ct_];
     x_max = max(fabs(ps[x_]), x_max); px_max = max(fabs(ps[px_]), px_max);
   }
@@ -169,7 +169,7 @@ void get_nu(const double delta, double nu[])
   ss_vect<tps> A;
 
   A.zero(); putlinmat(4, Lattice.Cell[0].A, A); A[delta_] += delta;
-  Cell_Pass(0, Lattice.param.Cell_nLoc, A, lastpos);
+  Lattice.Cell_Pass(0, Lattice.param.Cell_nLoc, A, lastpos);
   A = get_A_CS(2, A, nu);
 }
 
@@ -320,7 +320,7 @@ void prt_twoJ(const int n, const double A[][2])
 	 << "[" << setw(11) << A[j][X_] << ", " << setw(11) << A[j][Y_] << "]"
 	 << endl;
     ps.zero(); ps[x_] = A[j][X_]; ps[y_] =  A[j][Y_];
-    Cell_Pass(0, Lattice.param.Cell_nLoc, ps, lastpos);
+    Lattice.Cell_Pass(0, Lattice.param.Cell_nLoc, ps, lastpos);
     if (lastpos != Lattice.param.Cell_nLoc)
       cout << endl << "Particle lost at: " << lastpos
 	   << "(" << Lattice.param.Cell_nLoc << ")" << endl;
@@ -356,7 +356,7 @@ void prt_curly_H(const int n, const double delta[])
   for (j = 0; j < n; j++) {
     cout << scientific << setprecision(3) << setw(11) << 1e2*delta[j] << endl;
     ps.zero(); ps[delta_] = delta[j];
-    Cell_Pass(0, Lattice.param.Cell_nLoc, ps, lastpos);
+    Lattice.Cell_Pass(0, Lattice.param.Cell_nLoc, ps, lastpos);
     for (k = 0; k <= Lattice.param.Cell_nLoc; k++)
       get_twoJ_phi(k, Lattice.Cell[k].BeamPos, curly_H[j][k], phi);
   }
@@ -388,7 +388,7 @@ void prt_eta(const int n, const double delta[])
   for (j = 0; j < n; j++) {
     cout << scientific << setprecision(2) << setw(10) << 1e2*delta[j] << endl;
     ps.zero(); ps[delta_] = delta[j];
-    Cell_Pass(0, Lattice.param.Cell_nLoc, ps, lastpos);
+    Lattice.Cell_Pass(0, Lattice.param.Cell_nLoc, ps, lastpos);
 
     if (lastpos != Lattice.param.Cell_nLoc)
       cout << endl << "prt_eta: particle lost at " << lastpos
@@ -489,7 +489,7 @@ void prt_trsvrs(const int n, const double A[][2])
 	ps_Fl[2*l]   =  sqrt(twoJ[l])*cos(phi0);
 	ps_Fl[2*l+1] = -sqrt(twoJ[l])*sin(phi0);
       }
-      ps = (A0*ps_Fl).cst(); Cell_Pass(0, Lattice.param.Cell_nLoc, ps, lastpos);
+      ps = (A0*ps_Fl).cst(); Lattice.Cell_Pass(0, Lattice.param.Cell_nLoc, ps, lastpos);
       if (lastpos != Lattice.param.Cell_nLoc)
 	cout << endl << "Particle lost at: " << lastpos
 	     << "(" << Lattice.param.Cell_nLoc << ")" << endl;
@@ -537,7 +537,7 @@ void prt_long(const int n, const double A[][2])
 	ps_Fl[2*l+1] = -sqrt(twoJ[l])*sin(phi0);
       }
       ps = (A0*ps_Fl).cst();
-      Cell_Pass(0, Lattice.param.Cell_nLoc, ps, lastpos);
+      Lattice.Cell_Pass(0, Lattice.param.Cell_nLoc, ps, lastpos);
       outf << scientific << setprecision(5)
       	   << setw(4) << n1 << setw(13) << Lattice.Cell[loc].BeamPos << endl;
     }
@@ -562,7 +562,7 @@ void prt_ct(const int n, const double delta[])
   for (j = 0; j < n; j++) {
     cout << scientific << setprecision(2) << setw(10) << 1e2*delta[j] << endl;
     ps.zero(); ps[delta_] = delta[j];
-    Cell_Pass(0, Lattice.param.Cell_nLoc, ps, lastpos);
+    Lattice.Cell_Pass(0, Lattice.param.Cell_nLoc, ps, lastpos);
     for (k = 0; k <= Lattice.param.Cell_nLoc; k++) {
       ct[j][k] = Lattice.Cell[k].BeamPos[ct_];
     }
@@ -602,7 +602,7 @@ void check_cav_model()
 	 1e9*Lattice.param.Energy, 1e0-Lattice.param.beta0, Lattice.param.gamma0);
 
   map.identity();
-  Cell_Pass(0, Lattice.param.Cell_nLoc, map, lastpos);
+  Lattice.Cell_Pass(0, Lattice.param.Cell_nLoc, map, lastpos);
   prt_lin_map(3, map);
 
   if (true)
@@ -630,7 +630,7 @@ void get_lin_map(double beta[])
   int          k;
   ss_vect<tps> map;
 
-  map.identity(); Cell_Pass(0, Lattice.param.Cell_nLoc, map, lastpos);
+  map.identity(); Lattice.Cell_Pass(0, Lattice.param.Cell_nLoc, map, lastpos);
   prt_lin_map(3, map);
 
   // For a periodic cell.

@@ -47,7 +47,7 @@ using namespace std;
 #endif
 
 #include "tracy.h"
-#include "tracy_global.h"
+#include "LEGO.h"
 
 #include "mathlib.h"
 #include "ety.h"
@@ -57,9 +57,6 @@ using namespace std;
 
 #include "radia2tracy.h"
 #include "pascalio.h"
-
-#include "t2cell.h"
-#include "t2ring.h"
 
 #include "fft.h"
 

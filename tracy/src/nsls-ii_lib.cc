@@ -180,7 +180,7 @@ void get_map(const bool cod)
     Lattice.getcod(0e0, lastpos);
     map += Lattice.param.CODvect;
   }
-  Cell_Pass(0, Lattice.param.Cell_nLoc, map, lastpos);
+  Lattice.Cell_Pass(0, Lattice.param.Cell_nLoc, map, lastpos);
   if (cod) map -= Lattice.param.CODvect;
 }
 
@@ -396,7 +396,7 @@ double LatticeType::get_eps_x(void)
 
   Lattice.param.emittance = true;
 
-  Cell_Pass(0, Lattice.param.Cell_nLoc, A, lastpos);
+  Lattice.Cell_Pass(0, Lattice.param.Cell_nLoc, A, lastpos);
 
   eps_x = 1470.0*pow(Lattice.param.Energy, 2.0)*I5/(I2-I4);
 
@@ -449,7 +449,7 @@ void LatticeType::GetEmittance(const int Fnum, const bool prt)
   // Compute diffusion coeffs. for eigenvectors [sigma_xx, sigma_yy, sigma_zz]
   putlinmat(6, Lattice.param.Ascr, Ascr_map); Ascr_map += Lattice.param.CODvect;
 
-  Cell_Pass(0, Lattice.param.Cell_nLoc, Ascr_map, lastpos);
+  Lattice.Cell_Pass(0, Lattice.param.Cell_nLoc, Ascr_map, lastpos);
 
   // K. Robinson "Radiation Effects in Circular Electron Accelerators"
   // Phys. Rev. 111 (2), 373-380.
@@ -2044,11 +2044,11 @@ bool LatticeType::CorrectCOD(const int n_orbit, const double scl)
   Vector2         mean, sigma, max;
   ss_vect<double> ps;
 
-  // ps.zero(); Cell_Pass(0, Lattice.param.Cell_nLoc, ps, lastpos);
+  // ps.zero(); Lattice.Cell_Pass(0, Lattice.param.Cell_nLoc, ps, lastpos);
   // for (i = 1; i <= n_orbit; i++) {
   //   lstc(1, lastpos); lstc(2, lastpos);
 
-  //   ps.zero(); Cell_Pass(0, Lattice.param.Cell_nLoc, ps, lastpos);
+  //   ps.zero(); Lattice.Cell_Pass(0, Lattice.param.Cell_nLoc, ps, lastpos);
   // }
   // if (false) Lattice.prt_cod("cod.out", Lattice.param.bpm, true);
  
@@ -2249,19 +2249,19 @@ void mom_aper(double &delta, double delta_RF, const long int k,
     delta = (delta_max+delta_min)/2.0;
 
     // propagate initial conditions
-    CopyVec(6, Lattice.param.CODvect, x); Cell_Pass(0, k, x, lastpos);
+    CopyVec(6, Lattice.param.CODvect, x); Lattice.Cell_Pass(0, k, x, lastpos);
     // generate Touschek event
     x[delta_] += delta;
 
     // complete one turn
-    Cell_Pass(k+1, Lattice.param.Cell_nLoc, x, lastpos);
+    Lattice.Cell_Pass(k+1, Lattice.param.Cell_nLoc, x, lastpos);
     if (lastpos < Lattice.param.Cell_nLoc)
       // particle lost
       delta_max = delta;
     else {
       // track
       for(j = 0; j < n_turn; j++) {
-	Cell_Pass(0, Lattice.param.Cell_nLoc, x, lastpos);
+	Lattice.Cell_Pass(0, Lattice.param.Cell_nLoc, x, lastpos);
 
 	if ((delta_max > delta_RF) || (lastpos < Lattice.param.Cell_nLoc)) {
 	  // particle lost
@@ -3387,7 +3387,7 @@ void LatticeType::get_alphac2(void)
     for (j = 0; j < nv_; j++)
       x[j] = 0.0;
     x[delta_] = delta[n-1];
-    Cell_Pass(0, Lattice.param.Cell_nLoc, x, lastpos);
+    Lattice.Cell_Pass(0, Lattice.param.Cell_nLoc, x, lastpos);
     alphac[n-1] = x[ct_]/Cell.S;
   }
   pol_fit(n, delta, alphac, 3, b, sigma, true);
@@ -3409,8 +3409,8 @@ double f_bend(double b0L[])
   SetbnL_sys(Fnum_Cart, Dip, b0L[1]);
 
   ps.zero();
-  Cell_Pass(Lattice.Elem_GetPos(Fnum_Cart, 1)-1,
-	    Lattice.Elem_GetPos(Fnum_Cart, 1), ps, lastpos);
+  Lattice.Cell_Pass(Lattice.Elem_GetPos(Fnum_Cart, 1)-1,
+		    Lattice.Elem_GetPos(Fnum_Cart, 1), ps, lastpos);
 
   if (n_iter_Cart % n_prt == 0)
     std::cout << std::scientific << std::setprecision(3)

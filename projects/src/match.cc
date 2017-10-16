@@ -200,7 +200,7 @@ void get_dnu(const int i0, const int i1, const double alpha0[],
   ss_vect<tps> map;
 
   map.identity(); map[delta_] += dp;
-  Cell_Pass(i0+1, i1, map, lastpos);
+  Lattice.Cell_Pass(i0+1, i1, map, lastpos);
 
   for (k = 0; k < 2; k++) {
     m11 = map[2*k][2*k]; m12 = map[2*k][2*k+1];
