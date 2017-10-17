@@ -269,71 +269,22 @@ void LatticeType::Cell_Init(void)
   long        i;
   double      Stotal;
   ElemFamType *elemfamp;
-  elemtype    *elemp;
+  CellType    *cellp;
 
-  char  first_name[] = "begin          ";
+  char first_name[] = "begin          ";
 
-  if (debug)
-    printf("**  Cell_Init\n");
+  if (debug) printf("**  Cell_Init\n");
 
-  SI_init();  /* Initializes the constants for symplectic integrator */
+  SI_init();
 
-  memcpy(Lattice.Cell[0].Name, first_name, sizeof(first_name));
+  strcpy(Lattice.Cell[0].Name, first_name);
 
   for (i = 1; i <= Lattice.param.Elem_nFam; i++) {
-    elemfamp  = &Lattice.ElemFam[i-1]; /* Get 1 of all elements stored in
-					  ElemFam array */
-    elemp = &elemfamp->ElemF; // For switch structure: choice on element type
+    Lattice.ElemFam[i-1].CellF.Init(i);
     if (debug)
       printf("Cell_Init, i:=%3ld: %*s\n", i, SymbolLength, elemfamp->Name);
-    switch (elemfamp->Kind) {
-    case drift:
-      elemp->D->Drift_Init(i);
-      break;
-      
-    case Mpole:
-      elemp->M->Mpole_Init(i);
-      break;
-      
-    case Wigl:
-      elemp->W->Wiggler_Init(i);
-      break;
-      
-    case FieldMap:
-      elemp->FM->FieldMap_Init(i);
-      break;
-      
-    case Insertion:
-      elemp->ID->Insertion_Init(i);
-      break;
-
-    case Cavity:
-      elemp->C->Cav_Init(i);
-      break;
-
-    case marker:
-      Marker_Init(i);
-      break;
-
-    case Spreader:
-      elemp->Spr->Spreader_Init(i);
-      break;
-
-    case Recombiner:
-      elemp->Rec->Recombiner_Init(i);
-      break;
-
-    case Solenoid:
-      elemp->Sol->Solenoid_Init(i);
-      break;
-
-    default:
-      printf("Cell_Init: undefined type\n");
-      break;
-    }
   }
 
-  /* Computes s-location of each element in the structure */
   Stotal = 0e0;
   for (i = 0; i <= Lattice.param.Cell_nLoc; i++) {
     Stotal += Lattice.Cell[i].L; Lattice.Cell[i].S = Stotal;

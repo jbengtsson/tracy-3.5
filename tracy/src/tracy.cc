@@ -17,6 +17,8 @@
 #include "ety.cc"
 #include "eigenv.cc"
 
+#include "LEGO.cc"
+
 #include "t2lat.cc"
 #include "t2elem.cc"
 #include "t2cell.cc"

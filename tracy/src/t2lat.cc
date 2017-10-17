@@ -9,23 +9,23 @@ J. Bengtsson  NSLS-II, BNL  2004 -
 */
 
 
-#define NoBmax       300          // maximum number of blocks (NoB)
-//#define NoBEmax      25000        /* maximum number of elements in
-//				     a block (Elem_NFam) */
-#define NoBEmax      200000       /* maximum number of elements in
-				     a block (Elem_NFam) */
-//#define UDImax       100          // max number of user defined constants
-#define UDImax       500          // max number of user defined constants
-//#define LatLLng      (132+1)
-// #define LatLLng      (1000+1)
-#define LatLLng      (2000+1)
-#define Lat_nkw_max  200          // no. of key words
+#define NoBmax      300         // maximum number of blocks (NoB)
+//#define NoBEmax     25000     /* maximum number of elements in
+//				   a block (Elem_NFam) */
+#define NoBEmax     200000      /* maximum number of elements in
+				   a block (Elem_NFam) */
+//#define UDImax      100       // max number of user defined constants
+#define UDImax      500         // max number of user defined constants
+//#define LatLLng     (132+1)
+// #define LatLLng    (1000+1)
+#define LatLLng     (2000+1)
+#define Lat_nkw_max 200         // no. of key words
 
 // tables
 
 #define emax         322
 #define emin         (-292)
-#define kmax         15           // max no. of significant digits
+#define kmax         15         // max no. of significant digits
 
 #define nmax         LONG_MAX
 
@@ -279,7 +279,8 @@ static long CheckUDItable(const char *name, struct LOC_Lattice_Read *LINK)
 }
 
 
-static void EnterUDItable(const char *name, double X, struct LOC_Lattice_Read *LINK)
+static void EnterUDItable(const char *name, double X,
+			  struct LOC_Lattice_Read *LINK)
 {
   _REC_UDItable  *WITH;
 
@@ -1350,7 +1351,8 @@ static void GetSym_(struct LOC_Lat_ProcessBlockInput *LINK)
 }
 
 
-static void test_(long *s1, const char *cmnt, struct LOC_Lat_ProcessBlockInput *LINK)
+static void test_(long *s1, const char *cmnt,
+		  struct LOC_Lat_ProcessBlockInput *LINK)
 {
   /*test*/
   if (!P_inset(*LINK->sym, s1))
@@ -1815,7 +1817,8 @@ static void test__(long *s1, const char *cmnt, struct LOC_Lat_DealElement *LINK)
 }
 
 
-static void getest__(long *s1, const char *cmnt, struct LOC_Lat_DealElement *LINK)
+static void getest__(long *s1, const char *cmnt,
+		     struct LOC_Lat_DealElement *LINK)
 {
   /*test*/
   GetSym__(LINK);
@@ -2023,7 +2026,8 @@ static void SetDBN(struct LOC_Lat_DealElement *LINK)
 	   Lattice.param.Elem_nFam, (long)Elem_nFamMax);
     exit_(1);
   }
-  WITH = &Lattice.ElemFam[Lattice.param.Elem_nFam-1]; WITH->NoDBN = LINK->DBNsavemax;
+  WITH = &Lattice.ElemFam[Lattice.param.Elem_nFam-1];
+  WITH->NoDBN = LINK->DBNsavemax;
   if (WITH->NoDBN > 0) {
     FORLIM = WITH->NoDBN;
     for (i = 0; i < FORLIM; i++)
@@ -2114,7 +2118,8 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       memcpy(WITH->Name, ElementName, sizeof(partsName));
       WITH->L = *V.rnum;
       WITH->Kind = PartsKind(drift);
-      WITH->ElemF.D->Drift_Alloc(&WITH->ElemF);
+      // WITH->ElemF.D->Drift_Alloc(&WITH->ElemF);
+      WITH->CellF = DriftType();
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
 	     Lattice.param.Elem_nFam, (long)Elem_nFamMax);
@@ -2245,7 +2250,8 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       memcpy(WITH->Name, ElementName, sizeof(partsName));
       WITH->L = QL;
       WITH->Kind = Mpole;
-      WITH->ElemF.M->Mpole_Alloc(&WITH->ElemF);
+      // WITH->ElemF.M->Mpole_Alloc(&WITH->ElemF);
+      WITH->CellF = MpoleType();
       WITH2 = WITH->ElemF.M;
       WITH2->method = k2;
       WITH2->N = k1;
@@ -2354,7 +2360,8 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       WITH = &Lattice.ElemFam[Lattice.param.Elem_nFam-1];
       memcpy(WITH->Name, ElementName, sizeof(partsName));
       WITH->L = QL; WITH->Kind = Mpole;
-      WITH->ElemF.M->Mpole_Alloc(&WITH->ElemF);
+      // WITH->ElemF.M->Mpole_Alloc(&WITH->ElemF);
+      WITH->CellF = MpoleType();
       WITH2 = WITH->ElemF.M;
       WITH2->method = k2; WITH2->N = k1; WITH2->dTpar = dt;
       AssignHOM(Lattice.param.Elem_nFam, &V);
@@ -2462,7 +2469,8 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       memcpy(WITH->Name, ElementName, sizeof(partsName));
       WITH->L = QL;
       WITH->Kind = Mpole;
-      WITH->ElemF.M->Mpole_Alloc(&WITH->ElemF);
+      // WITH->ElemF.M->Mpole_Alloc(&WITH->ElemF);
+      WITH->CellF = MpoleType();
       WITH2 = WITH->ElemF.M;
       WITH2->method = k2;
       WITH2->N = k1;
@@ -2579,7 +2587,8 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       memcpy(WITH->Name, ElementName, sizeof(partsName));
       WITH->L = QL;
       WITH->Kind = Cavity;
-      WITH->ElemF.C->Cav_Alloc(&WITH->ElemF);
+      // WITH->ElemF.C->Cav_Alloc(&WITH->ElemF);
+      WITH->CellF = CavityType();
       WITH3 = WITH->ElemF.C;
       WITH3->volt = Vrf;   /* Voltage [V] */
       WITH3->freq = Frf;   /* Frequency in Hz */
@@ -2689,7 +2698,8 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       memcpy(WITH->Name, ElementName, sizeof(partsName));
       WITH->L = QL;
       WITH->Kind = Mpole;
-      WITH->ElemF.M->Mpole_Alloc(&WITH->ElemF);
+      // WITH->ElemF.M->Mpole_Alloc(&WITH->ElemF);
+      WITH->CellF = MpoleType();
       WITH2 = WITH->ElemF.M;
       SetDBN(&V);
       if (WITH->L != 0.0)
@@ -2743,7 +2753,8 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       WITH = &Lattice.ElemFam[Lattice.param.Elem_nFam-1];
       memcpy(WITH->Name, ElementName, sizeof(partsName));
       WITH->Kind = Mpole;
-      WITH->ElemF.M->Mpole_Alloc(&WITH->ElemF);
+      // WITH->ElemF.M->Mpole_Alloc(&WITH->ElemF);
+      WITH->CellF = MpoleType();
       WITH2 = WITH->ElemF.M;
       WITH2->thick = pthicktype(thin);
       SetDBN(&V);
@@ -2956,7 +2967,8 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     Lattice.param.Elem_nFam++;
     if (Lattice.param.Elem_nFam <= Elem_nFamMax) {
       WITH = &Lattice.ElemFam[Lattice.param.Elem_nFam-1];
-      WITH->ElemF.M->Mpole_Alloc(&WITH->ElemF);
+      // WITH->ElemF.M->Mpole_Alloc(&WITH->ElemF);
+      WITH->CellF = MpoleType();
       WITH2 = WITH->ElemF.M;
       memcpy(WITH->Name, ElementName, sizeof(partsName));
       WITH->Kind = Mpole;
@@ -3101,7 +3113,8 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       WITH = &Lattice.ElemFam[Lattice.param.Elem_nFam-1]; WITH1 = &WITH->ElemF;
       memcpy(WITH->Name, ElementName, sizeof(partsName));
       WITH->L = QL; WITH->Kind = Wigl;
-      WITH->ElemF.W->Wiggler_Alloc(&WITH->ElemF);
+      // WITH->ElemF.W->Wiggler_Alloc(&WITH->ElemF);
+      WITH->CellF = WigglerType();
       WITH4 = WITH->ElemF.W;
       WITH4->method = k2; WITH4->N = k1;
       WITH4->dTpar = dt;
@@ -3195,7 +3208,8 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       WITH = &Lattice.ElemFam[Lattice.param.Elem_nFam-1]; WITH1 = &WITH->ElemF;
       memcpy(WITH->Name, ElementName, sizeof(partsName));
       WITH->L = QL; WITH->Kind = FieldMap;
-      WITH->ElemF.FM->FieldMap_Alloc(&WITH->ElemF);
+      // WITH->ElemF.FM->FieldMap_Alloc(&WITH->ElemF);
+      WITH->CellF = FieldMapType();
       WITH6 = WITH->ElemF.FM;
       WITH6->phi = t*M_PI/180.0; WITH6->n_step = k1; WITH6->scl = scaling;
       if (CheckUDItable("energy         ", LINK) != 0) {
@@ -3308,7 +3322,8 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       WITH  = &Lattice.ElemFam[Lattice.param.Elem_nFam-1];
       memcpy(WITH->Name, ElementName, sizeof(partsName));
       WITH->Kind = Insertion;
-      WITH->ElemF.ID->Insertion_Alloc(&WITH->ElemF);
+      // WITH->ElemF.ID->Insertion_Alloc(&WITH->ElemF);
+      WITH->CellF = InsertionType();
       WITH5 = WITH->ElemF.ID;
       WITH5->phi = t*M_PI/180.0;
       WITH5->method = k2;
@@ -3429,7 +3444,8 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       memcpy(WITH->Name, ElementName, sizeof(partsName));
       WITH->L = *V.rnum;
       WITH->Kind = PartsKind(Spreader);
-      WITH->ElemF.Spr->Spreader_Alloc(&WITH->ElemF);
+      // WITH->ElemF.Spr->Spreader_Alloc(&WITH->ElemF);
+      WITH->CellF = SpreaderType();
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
 	     Lattice.param.Elem_nFam, (long)Elem_nFamMax);
@@ -3468,7 +3484,8 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       memcpy(WITH->Name, ElementName, sizeof(partsName));
       WITH->L = *V.rnum;
       WITH->Kind = PartsKind(Recombiner);
-      WITH->ElemF.Rec->Recombiner_Alloc(&WITH->ElemF);
+      // WITH->ElemF.Rec->Recombiner_Alloc(&WITH->ElemF);
+      WITH->CellF = RecombinerType();
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
 	     Lattice.param.Elem_nFam, (long)Elem_nFamMax);
@@ -3534,7 +3551,8 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     Lattice.param.Elem_nFam++;
     if (Lattice.param.Elem_nFam <= Elem_nFamMax) {
       WITH = &Lattice.ElemFam[Lattice.param.Elem_nFam-1];
-      WITH->ElemF.Sol->Solenoid_Alloc(&WITH->ElemF);
+      // WITH->ElemF.Sol->Solenoid_Alloc(&WITH->ElemF);
+      WITH->CellF = SolenoidType();
       WITH7 = WITH->ElemF.Sol;
       memcpy(WITH->Name, ElementName, sizeof(partsName));
       WITH->Kind = Solenoid;

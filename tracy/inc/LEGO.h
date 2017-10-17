@@ -159,14 +159,9 @@ class CellType : public ElemType {
 				maxampl[X_][0] < x < maxampl[X_][1]
 				maxampl[Y_][0] < y < maxampl[Y_][1]. */
 
-  void Cell_Alloc(elemtype *Elem);
-  void Cell_Init(int Fnum1);
-
-  void Marker_Init(int Fnum1);
-
   void Cell_Init(void);
 
-  void Elem_Print(FILE *f, int Fnum1);
+  void Elem_Print(FILE *f, int Fnum);
     
   template<typename T>
     T get_p_s(const ss_vect<T> &);
@@ -184,13 +179,25 @@ class CellType : public ElemType {
 };
 
 
+class MarkerType : public CellType {
+ private:
+ public:
+
+  MarkerType(void);
+  void Init(int Fnum);
+  void Marker_Print(FILE *f, int Fnum);
+  template<typename T>
+    void Pass(ss_vect<T> &x);
+};
+
+
 class DriftType : public CellType {
  private:
  public:
 
-  void Drift_Alloc(elemtype *Elem);
-  void Drift_Init(int Fnum1);
-  void Drift_Print(FILE *f, int Fnum1);
+  DriftType(void);
+  void Init(int Fnum);
+  void Drift_Print(FILE *f, int Fnum);
   template<typename T>
     void Pass(ss_vect<T> &x);
 };
@@ -226,9 +233,9 @@ class MpoleType : public CellType {
   double     irho;       // 1/rho [1/m].
   double     c0, c1, s1; // corrections for roll error of bend.
 
-  void Mpole_Alloc(elemtype *Elem);
-  void Mpole_Init(int Fnum1);
-  void Mpole_Print(FILE *f, int Fnum1);
+  MpoleType(void);
+  void Init(int Fnum);
+  void Mpole_Print(FILE *f, int Fnum);
   template<typename T>
     void Pass(ss_vect<T> &x);
 
@@ -261,9 +268,9 @@ class WigglerType : public CellType {
   mpolArray BW;
   int       order;               // The highest order in PB.
 
-  void Wiggler_Alloc(elemtype *Elem);
-  void Wiggler_Init(int Fnum1);
-  void Wiggler_Print(FILE *f, int Fnum1);
+  WigglerType(void);
+  void Init(int Fnum);
+  void Wiggler_Print(FILE *f, int Fnum);
   template<typename T>
     void Pass(ss_vect<T> &X);
 };
@@ -310,9 +317,9 @@ class InsertionType : public CellType {
   //  mpolArray BW;
   int order;        // The highest order in PB
 
-  void Insertion_Alloc(elemtype *Elem);
-  void Insertion_Init(int Fnum1);
-  void Insertion_Print(FILE *f, int Fnum1);
+  InsertionType(void);
+  void Init(int Fnum);
+  void Insertion_Print(FILE *f, int Fnum);
   template<typename T>
     void Pass(ss_vect<T> &x);
 };
@@ -329,9 +336,10 @@ class FieldMapType : public CellType {
   double ***BoBrho[3], ***BoBrho2[3];  // [B_x, B_y, B_z].
   double ***AoBrho[2], ***AoBrho2[2];  /* [Ax(x, y, z), Ay(x, y, z)],
 					  spline info. */
+  FieldMapType(void);
   void FieldMap_Alloc(elemtype *Elem);
   void get_B(const char *file_name, FieldMapType *FM);
-  void FieldMap_Init(int Fnum1);
+  void Init(int Fnum);
   template<typename T>
     void Pass(ss_vect<T> &x);
 };
@@ -352,8 +360,8 @@ class SolenoidType : public CellType {
   double  dTrnd;  // random number
   double  BoBrho; // normalized field strength
 
-  void Solenoid_Alloc(elemtype *Elem);
-  void Solenoid_Init(int Fnum1);
+  SolenoidType(void);
+  void Init(int Fnum);
   template<typename T>
     void Pass(ss_vect<T> &ps);
 };
@@ -370,8 +378,8 @@ class CavityType : public CellType {
   bool   entry_focus; // Edge focusing at entry.
   bool   exit_focus;  // Edge focusing at exit.
 
-  void Cav_Alloc(elemtype *Elem);
-  void Cav_Init(int Fnum1);
+  CavityType(void);
+  void Init(int Fnum);
   template<typename T>
     void Pass(ss_vect<T> &X);
 
@@ -384,9 +392,8 @@ class SpreaderType : public CellType {
   double   E_max[Spreader_max];      // energy levels in increasing order
   CellType *Cell_ptrs[Spreader_max];
 
-  void Spreader_Alloc(elemtype *Elem);
-
-  void Spreader_Init(int Fnum1);
+  SpreaderType(void);
+  void Init(int Fnum);
 };
 
 
@@ -396,8 +403,8 @@ class RecombinerType : public CellType {
   double E_min;
   double E_max;
 
-  void Recombiner_Alloc(elemtype *Elem);
-  void Recombiner_Init(int Fnum1);
+  RecombinerType(void);
+  void Init(int Fnum);
 };
 
 
@@ -405,6 +412,7 @@ class ElemFamType : public ElemType {
  private:
  public:
   elemtype   ElemF;            // Structure (name, type).
+  CellType   CellF;
   int        nKid;             // Kid number.
   int        KidList[nKidMax];
   int        NoDBN;
@@ -488,34 +496,34 @@ class LatticeType {
 
   // From t2elem.cc.
 
-  int GetnKid(const int Fnum1);
+  int GetnKid(const int Fnum);
 
-  long Elem_GetPos(const int Fnum1, const int Knum1);
+  long Elem_GetPos(const int Fnum, const int Knum);
 
 
   void getelem(long i, CellType *cellrec);
   void putelem(long i, CellType *cellrec);
  
-  double Elem_GetKval(int Fnum1, int Knum1, int Order);
+  double Elem_GetKval(int Fnum, int Knum, int Order);
 
-  void Mpole_SetB(int Fnum1, int Knum1, int Order);
-  double Mpole_GetB(int Fnum1, int Knum1, int Order);
+  void Mpole_SetB(int Fnum, int Knum, int Order);
+  double Mpole_GetB(int Fnum, int Knum, int Order);
 
-  void Mpole_DefBpar(int Fnum1, int Knum1, int Order, double Bpar);
-  void Mpole_DefBsys(int Fnum1, int Knum1, int Order, double Bsys);
+  void Mpole_DefBpar(int Fnum, int Knum, int Order, double Bpar);
+  void Mpole_DefBsys(int Fnum, int Knum, int Order, double Bsys);
 
-  void Mpole_SetdS(int Fnum1, int Knum1);
-  void Mpole_SetdT(int Fnum1, int Knum1);
+  void Mpole_SetdS(int Fnum, int Knum);
+  void Mpole_SetdT(int Fnum, int Knum);
 
-  double Mpole_GetdT(int Fnum1, int Knum1);
+  double Mpole_GetdT(int Fnum, int Knum);
 
-  void Mpole_DefdTpar(int Fnum1, int Knum1, double PdTpar);
-  void Mpole_DefdTsys(int Fnum1, int Knum1, double PdTsys);
+  void Mpole_DefdTpar(int Fnum, int Knum, double PdTpar);
+  void Mpole_DefdTsys(int Fnum, int Knum, double PdTsys);
 
-  void Wiggler_SetB(int Fnum1, int Knum1, int Order);
+  void Wiggler_SetB(int Fnum, int Knum, int Order);
 
-  void Wiggler_SetdS(int Fnum1, int Knum1);
-  void Wiggler_SetdT(int Fnum1, int Knum1);
+  void Wiggler_SetdS(int Fnum, int Knum);
+  void Wiggler_SetdT(int Fnum, int Knum);
 
 
   // From t2ring.cc.
@@ -867,3 +875,5 @@ void t2init(void);
 
 template<typename T>
 void p_rot(double phi, ss_vect<T> &x);
+
+int Updateorder(elemtype &elem);
