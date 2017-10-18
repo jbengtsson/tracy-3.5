@@ -83,6 +83,7 @@ std::ifstream  inf;
 
 void get_kind(const int kind, CellType &Cell)
 {
+  elemtype *elemp;
 
   switch (kind) {
   case marker_:
@@ -96,7 +97,7 @@ void get_kind(const int kind, CellType &Cell)
   case mpole_:
     Cell.Kind = PartsKind(Mpole);
     Cell = MpoleType();
-    elemp->M->Mpole_Alloc(elemp);
+    // elemp->M->Mpole_Alloc(elemp);
     elemp->M->thick = pthicktype(thick);
     break;
   case cavity_:
@@ -105,7 +106,7 @@ void get_kind(const int kind, CellType &Cell)
     break;
   case thinkick_:
     Cell.Kind = PartsKind(Mpole);
-    elemp->M->Mpole_Alloc(elemp);
+    // elemp->M->Mpole_Alloc(elemp);
     elemp->M->thick = pthicktype(thin);
     break;
   case wiggler_:
@@ -282,9 +283,9 @@ void LatticeType::rdmfile(const char *mfile_dat)
       if (prt) printf("%s\n", line);
       sscanf(line, "%d", &Lattice.Cell[i].Elem.W->n_harm);
 
-      if (Lattice.Cell[i].Knum == 1)
-	Lattice.Cell[i].Elem.W->Wiggler_Alloc
-	  (&Lattice.ElemFam[Lattice.Cell[i].Fnum-1].ElemF);
+      // if (Lattice.Cell[i].Knum == 1)
+      // 	Lattice.Cell[i].Elem.W->Wiggler_Alloc
+      // 	  (&Lattice.ElemFam[Lattice.Cell[i].Fnum-1].ElemF);
       for (j = 0; j < Lattice.Cell[i].Elem.W->n_harm; j++) {
 	inf.getline(line, max_str);
 	if (prt) printf("%s\n", line);

@@ -1048,7 +1048,8 @@ static void Factor(struct LOC_Term *LINK)
 	memcpy(fname, LINK->LINK->LINK->id, sizeof(alfa_));
 	memset(fname + sizeof(alfa_), ' ',
 	       sizeof(partsName) - sizeof(alfa_));
-	WITH = &Lattice.ElemFam[V.i-1];	WITH1 = WITH->ElemF.M;
+	WITH = &Lattice.ElemFam[V.i-1];
+	WITH1 = static_cast<MpoleType*>(&WITH->CellF);
 	if (!strncmp(fname, "l              ", sizeof(partsName)))
 	  x = WITH->L;
 	else if (!strncmp(fname, "t              ", sizeof(partsName))) {
@@ -1752,7 +1753,8 @@ static bool Lat_CheckWiggler(FILE **fo, long i, struct LOC_Lattice_Read *LINK)
   WigglerType *WITH1;
 
   WITH = &Lattice.ElemFam[i-1];
-  WITH1 = WITH->ElemF.W;
+  // WITH1 = WITH->ElemF.W;
+  WITH1 = static_cast<WigglerType*>(&WITH->CellF);
   Lambda = WITH1->lambda;
   L = WITH->L; a = L/Lambda;
   NN = (long)floor(a+0.01+0.5);
@@ -1894,7 +1896,7 @@ static void AssignHOM(long elem, struct LOC_Lat_DealElement *LINK)
   long       i;
   MpoleType  *M;
 
-  M = Lattice.ElemFam[elem-1].ElemF.M;
+  M = Lattice.ElemFam[elem-1].CellF;
   for (i = -HOMmax; i <= HOMmax; i++) {
     if (LINK->BA[i+HOMmax]) {
       M->Bpar[i+HOMmax] = LINK->B[i+HOMmax];
@@ -2252,11 +2254,11 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       WITH->Kind = Mpole;
       // WITH->ElemF.M->Mpole_Alloc(&WITH->ElemF);
       WITH->CellF = MpoleType();
-      WITH2 = WITH->ElemF.M;
+      WITH2 = static_cast<MpoleType*>(&WITH->CellF);
       WITH2->method = k2;
       WITH2->N = k1;
-      if (WITH->L != 0.0)
-	WITH2->irho = t * M_PI / 180.0 / WITH->L;
+      if (WITH2->L != 0.0)
+	WITH2->irho = t * M_PI / 180.0 / WITH2->L;
       else
 	WITH2->irho = t * M_PI / 180.0;
       WITH2->Tx1 = t1; WITH2->Tx2 = t2; WITH2->gap = gap;
@@ -2362,7 +2364,8 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       WITH->L = QL; WITH->Kind = Mpole;
       // WITH->ElemF.M->Mpole_Alloc(&WITH->ElemF);
       WITH->CellF = MpoleType();
-      WITH2 = WITH->ElemF.M;
+      // WITH2 = WITH->ElemF.M;
+      WITH2 = static_cast<MpoleType*>(&WITH->CellF);
       WITH2->method = k2; WITH2->N = k1; WITH2->dTpar = dt;
       AssignHOM(Lattice.param.Elem_nFam, &V);
       SetDBN(&V);
@@ -2471,7 +2474,8 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       WITH->Kind = Mpole;
       // WITH->ElemF.M->Mpole_Alloc(&WITH->ElemF);
       WITH->CellF = MpoleType();
-      WITH2 = WITH->ElemF.M;
+      // WITH2 = WITH->ElemF.M;
+      WITH2 = static_cast<MpoleType*>(&WITH->CellF);
       WITH2->method = k2;
       WITH2->N = k1;
       if (WITH->L != 0.0)
@@ -2589,7 +2593,8 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       WITH->Kind = Cavity;
       // WITH->ElemF.C->Cav_Alloc(&WITH->ElemF);
       WITH->CellF = CavityType();
-      WITH3 = WITH->ElemF.C;
+      // WITH3 = WITH->ElemF.C;
+      WITH3 = static_cast<CavityType*>(&WITH->CellF);
       WITH3->volt = Vrf;   /* Voltage [V] */
       WITH3->freq = Frf;   /* Frequency in Hz */
       WITH3->phi = QPhi*M_PI/180.0;
@@ -2700,7 +2705,8 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       WITH->Kind = Mpole;
       // WITH->ElemF.M->Mpole_Alloc(&WITH->ElemF);
       WITH->CellF = MpoleType();
-      WITH2 = WITH->ElemF.M;
+      // WITH2 = WITH->ElemF.M;
+      WITH2 = static_cast<MpoleType*>(&WITH->CellF);
       SetDBN(&V);
       if (WITH->L != 0.0)
 	WITH2->thick = pthicktype(thick);
@@ -2755,7 +2761,8 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       WITH->Kind = Mpole;
       // WITH->ElemF.M->Mpole_Alloc(&WITH->ElemF);
       WITH->CellF = MpoleType();
-      WITH2 = WITH->ElemF.M;
+      // WITH2 = WITH->ElemF.M;
+      WITH2 = static_cast<MpoleType*>(&WITH->CellF);
       WITH2->thick = pthicktype(thin);
       SetDBN(&V);
     } else {
@@ -2969,7 +2976,8 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       WITH = &Lattice.ElemFam[Lattice.param.Elem_nFam-1];
       // WITH->ElemF.M->Mpole_Alloc(&WITH->ElemF);
       WITH->CellF = MpoleType();
-      WITH2 = WITH->ElemF.M;
+      // WITH2 = WITH->ElemF.M;
+      WITH2 = static_cast<MpoleType*>(&WITH->CellF);
       memcpy(WITH->Name, ElementName, sizeof(partsName));
       WITH->Kind = Mpole;
       WITH->L = QL;
@@ -3115,7 +3123,8 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       WITH->L = QL; WITH->Kind = Wigl;
       // WITH->ElemF.W->Wiggler_Alloc(&WITH->ElemF);
       WITH->CellF = WigglerType();
-      WITH4 = WITH->ElemF.W;
+      // WITH4 = WITH->ElemF.W;
+      WITH4 = static_cast<WigglerType*>(&WITH->CellF);
       WITH4->method = k2; WITH4->N = k1;
       WITH4->dTpar = dt;
       SetDBN(&V);
@@ -3210,7 +3219,8 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       WITH->L = QL; WITH->Kind = FieldMap;
       // WITH->ElemF.FM->FieldMap_Alloc(&WITH->ElemF);
       WITH->CellF = FieldMapType();
-      WITH6 = WITH->ElemF.FM;
+      // WITH6 = WITH->ElemF.FM;
+      WITH6 = static_cast<FieldMapType*>(&WITH->CellF);
       WITH6->phi = t*M_PI/180.0; WITH6->n_step = k1; WITH6->scl = scaling;
       if (CheckUDItable("energy         ", LINK) != 0) {
 	RefUDItable("energy         ", &Lattice.param.Energy, LINK);
@@ -3324,7 +3334,8 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       WITH->Kind = Insertion;
       // WITH->ElemF.ID->Insertion_Alloc(&WITH->ElemF);
       WITH->CellF = InsertionType();
-      WITH5 = WITH->ElemF.ID;
+      // WITH5 = WITH->ElemF.ID;
+      WITH5 = static_cast<InsertionType*>(&WITH->CellF);
       WITH5->phi = t*M_PI/180.0;
       WITH5->method = k2;
       WITH5->N = k1;
@@ -3553,7 +3564,8 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       WITH = &Lattice.ElemFam[Lattice.param.Elem_nFam-1];
       // WITH->ElemF.Sol->Solenoid_Alloc(&WITH->ElemF);
       WITH->CellF = SolenoidType();
-      WITH7 = WITH->ElemF.Sol;
+      // WITH7 = WITH->ElemF.Sol;
+      WITH7 = static_cast<SolenoidType*>(&WITH->CellF);
       memcpy(WITH->Name, ElementName, sizeof(partsName));
       WITH->Kind = Solenoid;
       WITH->L = QL; WITH7->N = k1; WITH7->BoBrho = QK;

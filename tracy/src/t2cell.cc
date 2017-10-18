@@ -283,9 +283,9 @@ void LatticeType::Cell_Init(void)
     if (debug)
       printf("Cell_Init, i:=%3ld: %*s\n", i, SymbolLength, elemfamp->Name);
     // Lattice.ElemFam[i-1].CellF.Init(i);
-    elemfamp = Lattice.ElemFam[Fnum-1];
+    elemfamp = &Lattice.ElemFam[i-1];
     for (j = 1; j <= elemfamp->nKid; j++)
-      Lattice.Cell[elemfamp->KidList[j-1]] = Lattice.ElemFam[Fnum-1];
+      Lattice.Cell[elemfamp->KidList[j-1]] = Lattice.ElemFam[i-1].CellF;
   }
 
   Stotal = 0e0;

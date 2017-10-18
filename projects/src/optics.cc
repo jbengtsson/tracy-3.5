@@ -327,6 +327,86 @@ void chk_dip(void)
 }
 
 
+void get_drv_terms(void)
+{
+  int             loc, n, k;
+  double          b3L, a3L, s[globval.Cell_nLoc+1];
+  complex<double> h[4][4][4][4][3],
+                  h_loc[4][4][4][4][3][globval.Cell_nLoc+1];
+  FILE            *outf;
+
+  n = 0;
+
+  h[1][0][0][0][2] = complex<double>(0e0, 0e0);
+  h[2][0][0][0][1] = complex<double>(0e0, 0e0);
+  h[0][0][2][0][1] = complex<double>(0e0, 0e0);
+
+  h[2][1][0][0][0] = complex<double>(0e0, 0e0);
+  h[1][0][1][1][0] = complex<double>(0e0, 0e0);
+  h[3][0][0][0][0] = complex<double>(0e0, 0e0);
+  h[1][0][2][0][0] = complex<double>(0e0, 0e0);
+  h[1][0][0][2][0] = complex<double>(0e0, 0e0);
+
+  for (loc = 0; loc <= globval.Cell_nLoc; loc++) {
+    if ((Cell[loc].Elem.Pkind == Mpole) &&
+	(Cell[loc].Elem.M->Porder == Sext)) {
+      n++;
+
+      get_bnL_design_elem(Cell[loc].Fnum, Cell[loc].Knum, Sext, b3L, a3L);
+
+      h[1][0][0][0][2] += get_h1_ijklm(loc, b3L, 1, 0, 0, 0, 2);
+      h[2][0][0][0][1] += get_h1_ijklm(loc, b3L, 2, 0, 0, 0, 1);
+      h[0][0][2][0][1] += get_h1_ijklm(loc, b3L, 0, 0, 2, 0, 1);
+
+      h[2][1][0][0][0] += get_h1_ijklm(loc, b3L, 2, 1, 0, 0, 0);
+      h[1][0][1][1][0] += get_h1_ijklm(loc, b3L, 1, 0, 1, 1, 0);
+      h[3][0][0][0][0] += get_h1_ijklm(loc, b3L, 3, 0, 0, 0, 0);
+      h[1][0][2][0][0] += get_h1_ijklm(loc, b3L, 1, 0, 2, 0, 0);
+      h[1][0][0][2][0] += get_h1_ijklm(loc, b3L, 1, 0, 0, 2, 0);
+
+      s[n-1] = Cell[loc].S;
+
+      h_loc[1][0][0][0][2][n-1] = h[1][0][0][0][2];
+      h_loc[2][0][0][0][1][n-1] = h[2][0][0][0][1];
+      h_loc[0][0][2][0][1][n-1] = h[0][0][2][0][1];
+
+      h_loc[2][1][0][0][0][n-1] = h[2][1][0][0][0];
+      h_loc[1][0][1][1][0][n-1] = h[1][0][1][1][0];
+      h_loc[3][0][0][0][0][n-1] = h[3][0][0][0][0];
+      h_loc[1][0][2][0][0][n-1] = h[1][0][2][0][0];
+      h_loc[1][0][0][2][0][n-1] = h[1][0][0][2][0];
+    }
+  }
+  printf("\nn = %d\n", n);
+  printf("\nh_10002 = %10.3e\n", real(h[1][0][0][0][2]));
+  printf("h_20001 = %10.3e\n", real(h[2][0][0][0][1]));
+  printf("h_00201 = %10.3e\n", real(h[0][0][2][0][1]));
+
+  printf("\nh_21000 = %10.3e\n", real(h[2][1][0][0][0]));
+  printf("h_10110 = %10.3e\n", real(h[1][0][1][1][0]));
+  printf("h_30000 = %10.3e\n", real(h[3][0][0][0][0]));
+  printf("h_10200 = %10.3e\n", real(h[1][0][2][0][0]));
+  printf("h_10020 = %10.3e\n", real(h[1][0][0][2][0]));
+
+  outf = file_write("drv_terms.out");
+  for (k = 0; k < n; k++)
+    fprintf(outf,
+	    "%3d %6.3f %10.3e %10.3e %10.3e %10.3e %10.3e %10.3e %10.3e "
+	    "%10.3e\n",
+	    k+1, s[k],
+	    real(h_loc[1][0][0][0][2][k]),
+	    real(h_loc[2][0][0][0][1][k]),
+	    real(h_loc[0][0][2][0][1][k]),
+
+	    real(h_loc[2][1][0][0][0][k]),
+	    real(h_loc[1][0][1][1][0][k]),
+	    real(h_loc[3][0][0][0][0][k]),
+	    real(h_loc[1][0][2][0][0][k]),
+	    real(h_loc[1][0][0][2][0][k]));
+  fclose(outf);
+}
+
+
 int main(int argc, char *argv[])
 {
   bool             tweak;
@@ -419,6 +499,11 @@ int main(int argc, char *argv[])
   Lattice.prt_lat("linlat1.out", Lattice.param.bpm, true);
   Lattice.prt_lat("linlat.out", Lattice.param.bpm, true, 10);
   Lattice.prt_chrom_lat();
+
+  if (false) {
+    get_drv_terms();
+    exit(0);
+  }
 
   if (false) {
     iniranf(seed); setrancut(1e0);

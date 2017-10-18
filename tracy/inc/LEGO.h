@@ -121,23 +121,6 @@ class ElemType {
 };
 
 
-class elemtype {
- private:
- public:
-  union {
-    DriftType      *D;   // Drift.
-    MpoleType      *M;   // Multipole.
-    WigglerType    *W;   // Wiggler.
-    InsertionType  *ID;  // Kick Map.
-    FieldMapType   *FM;  // Field Map.
-    SolenoidType   *Sol; // Solenoid.
-    CavityType     *C;   // Cavity.
-    SpreaderType   *Spr; // Spreader.
-    RecombinerType *Rec; // Recombiner.
-  };
-};
-
-
 class CellType : public ElemType {
  private:
  public:
@@ -147,7 +130,6 @@ class CellType : public ElemType {
   CellType *next_ptr;  // pointer to next cell (for tracking).
   Vector2  dS,         // Transverse displacement.
            dT;         // dT = (cos(dT), sin(dT)).
-  elemtype Elem;       // Structure (name, type).
   Vector2  Nu,         // Phase advances.
            Alpha,      // Alpha functions (redundant).
            Beta,       // beta fonctions (redundant).
@@ -337,7 +319,6 @@ class FieldMapType : public CellType {
   double ***AoBrho[2], ***AoBrho2[2];  /* [Ax(x, y, z), Ay(x, y, z)],
 					  spline info. */
   FieldMapType(void);
-  void FieldMap_Alloc(elemtype *Elem);
   void get_B(const char *file_name, FieldMapType *FM);
   void Init(int Fnum);
   template<typename T>
@@ -411,7 +392,6 @@ class RecombinerType : public CellType {
 class ElemFamType : public ElemType {
  private:
  public:
-  elemtype   ElemF;            // Structure (name, type).
   CellType   CellF;
   int        nKid;             // Kid number.
   int        KidList[nKidMax];
@@ -878,4 +858,4 @@ void t2init(void);
 template<typename T>
 void p_rot(double phi, ss_vect<T> &x);
 
-int Updateorder(elemtype &elem);
+int Updateorder(CellType &Cell);

@@ -2279,12 +2279,12 @@ void Elem_Print(FILE *f, int Fnum1)
 }
 
 
-int Updateorder(elemtype &elem)
+int Updateorder(CellType &Cell)
 {
   int       i, order;
   MpoleType *M;
 
-  M = elem.M;
+  M = &Cell;
   if (M->irho != 0e0) /* non zero curvature => bend */
     order = 1;
   else /* mutipole */

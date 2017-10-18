@@ -90,8 +90,8 @@ void MpoleType::Init(int Fnum)
   CellType    *cellp;
 
   elemfamp = &Lattice.ElemFam[Fnum-1];
-  memcpy(elemfamp->ElemF.M->B, elemfamp->ElemF.M->Bpar, sizeof(mpolArray));
-  elemfamp->ElemF.M->order = Updateorder(elemfamp->ElemF);
+  memcpy(elemfamp->CellF->B, elemfamp->CellF->Bpar, sizeof(mpolArray));
+  elemfamp->CellF->order = Updateorder(elemfamp->CellF);
   for (i = 1; i <= elemfamp->nKid; i++) {
     cellp = &Lattice.Cell[elemfamp->KidList[i-1]];
 
@@ -169,7 +169,7 @@ void WigglerType::Init(int Fnum)
 
   elemfamp = &Lattice.ElemFam[Fnum-1];
   /* ElemF.M^.B := ElemF.M^.Bpar; */
-  elemfamp->ElemF.W->order = Quad;
+  elemfamp->CellF->order = Quad;
   for (i = 1; i <= elemfamp->nKid; i++) {
     cellp = &Lattice.Cell[elemfamp->KidList[i-1]];
 
@@ -271,8 +271,8 @@ void InsertionType::Init(int Fnum)
   CellType    *cellp;
 
   elemfamp = &Lattice.ElemFam[Fnum-1];
-//  elemfamp->ElemF.ID->order = order;
-//  x = elemfamp->ElemF.ID->BW[Quad + HOMmax];
+//  elemfamp->CellF->order = order;
+//  x = elemfamp->CellF->BW[Quad + HOMmax];
   for (i = 1; i <= elemfamp->nKid; i++) {
     cellp = &Lattice.Cell[elemfamp->KidList[i-1]];
 
