@@ -98,7 +98,7 @@ void MpoleType::Init(int Fnum)
       // Swap entrance and exit angles.
       printf("Swapping entrance and exit angles for %8s %2d\n",
 	     cellp->Name, i);
-      phi = cellp->Tx1; cellp->Tx1 = cellp->Tx2; cellp->Tx2 = phi; 
+      // phi = cellp->Tx1; cellp->Tx1 = cellp->Tx2; cellp->Tx2 = phi; 
     }
   }
 }
@@ -348,6 +348,24 @@ SolenoidType::SolenoidType(void)
 
 
 void SolenoidType::Init(int Fnum)
+{
+  int         i;
+  ElemFamType *elemfamp;
+  CellType    *cellp;
+
+  elemfamp = &Lattice.ElemFam[Fnum-1];
+  for (i = 1; i <= elemfamp->nKid; i++) {
+    cellp = &Lattice.Cell[elemfamp->KidList[i-1]];
+
+    strncpy(cellp->Name, elemfamp->Name, NameLength);
+    cellp->L = elemfamp->L;
+    cellp->Kind = elemfamp->Kind;
+    cellp->Reverse = elemfamp->Reverse;
+  }
+}
+
+
+void Fam_Init(int Fnum)
 {
   int         i;
   ElemFamType *elemfamp;

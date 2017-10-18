@@ -2917,7 +2917,7 @@ void FieldMapType::get_B(const char *filename, FieldMapType *FM)
 }
 
 
-ouble LatticeType::Elem_GetKval(int Fnum1, int Knum1, int Order)
+double LatticeType::Elem_GetKval(int Fnum1, int Knum1, int Order)
 {
   double   Result = 0e0;
   CellType *cellp;

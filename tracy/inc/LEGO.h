@@ -417,6 +417,8 @@ class ElemFamType : public ElemType {
   int        KidList[nKidMax];
   int        NoDBN;
   DBNameType DBNlist[nKidMax];
+
+  void Fam_Init(void);
 };
 
 

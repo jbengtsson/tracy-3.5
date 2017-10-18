@@ -266,7 +266,7 @@ bool LatticeType::GetCOD(const long imax, const double eps, const double dP,
 
 void LatticeType::Cell_Init(void)
 {
-  long        i;
+  long        i, j;
   double      Stotal;
   ElemFamType *elemfamp;
   CellType    *cellp;
@@ -280,9 +280,12 @@ void LatticeType::Cell_Init(void)
   strcpy(Lattice.Cell[0].Name, first_name);
 
   for (i = 1; i <= Lattice.param.Elem_nFam; i++) {
-    Lattice.ElemFam[i-1].CellF.Init(i);
     if (debug)
       printf("Cell_Init, i:=%3ld: %*s\n", i, SymbolLength, elemfamp->Name);
+    // Lattice.ElemFam[i-1].CellF.Init(i);
+    elemfamp = Lattice.ElemFam[Fnum-1];
+    for (j = 1; j <= elemfamp->nKid; j++)
+      Lattice.Cell[elemfamp->KidList[j-1]] = Lattice.ElemFam[Fnum-1];
   }
 
   Stotal = 0e0;
