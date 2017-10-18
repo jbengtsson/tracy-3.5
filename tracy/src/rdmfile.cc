@@ -83,25 +83,25 @@ std::ifstream  inf;
 
 void get_kind(const int kind, CellType &Cell)
 {
-  elemtype *elemp;
 
-  elemp = &Cell.Elem;
   switch (kind) {
   case marker_:
     Cell.Kind = PartsKind(marker);
+    Cell = MarkerType();
     break;
   case drift_:
     Cell.Kind = PartsKind(drift);
-    elemp->D->Drift_Alloc(elemp);
+    Cell = DriftType();
     break;
   case mpole_:
     Cell.Kind = PartsKind(Mpole);
+    Cell = MpoleType();
     elemp->M->Mpole_Alloc(elemp);
     elemp->M->thick = pthicktype(thick);
     break;
   case cavity_:
     Cell.Kind = PartsKind(Cavity);
-    elemp->C->Cav_Alloc(elemp);
+    Cell = CavityType();
     break;
   case thinkick_:
     Cell.Kind = PartsKind(Mpole);
@@ -110,11 +110,11 @@ void get_kind(const int kind, CellType &Cell)
     break;
   case wiggler_:
     Cell.Kind = PartsKind(Wigl);
-    elemp->W->Wiggler_Alloc(elemp);
+    Cell = WigglerType();
     break;
   case insertion_:
     Cell.Kind = PartsKind(Insertion);
-    elemp->ID->Insertion_Alloc(elemp);
+    Cell = InsertionType();
     break;
   default:
     std::cout << "get_kind: unknown type " << kind << " "

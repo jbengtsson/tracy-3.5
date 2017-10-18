@@ -1,6 +1,7 @@
 
 MarkerType::MarkerType(void)
 {
+  this->Kind = PartsKind(marker);
   this->dT[0] = 1e0; this->dT[1] = 0e0;
   this->dS[0] = 0e0; this->dS[1] = 0e0;
 }
@@ -23,6 +24,7 @@ void MarkerType::Init(int Fnum)
 
 DriftType::DriftType(void)
 {
+  this->Kind = PartsKind(drift);
   this->dT[0] = 1e0; this->dT[1] = 0e0;
   this->dS[0] = 0e0; this->dS[1] = 0e0;
 }
@@ -63,6 +65,8 @@ MpoleType::MpoleType(void)
   this->irho = 0e0; this->Tx1 = 0e0; this->Tx2 = 0e0; this->gap = 0e0;
 
   this->c0 = 0e0; this->c1 = 0e0; this->s1 = 0e0;
+
+  this->Kind = PartsKind(Mpole);
 
   this->dT[0] = cos(dtor(this->dTpar));
   this->dT[1] = sin(dtor(this->dTpar));
