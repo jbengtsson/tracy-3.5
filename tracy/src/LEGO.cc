@@ -90,7 +90,7 @@ void MpoleType::Init(int Fnum)
   CellType    *cellp;
 
   elemfamp = &Lattice.ElemFam[Fnum-1];
-  memcpy(elemfamp->CellF->B, elemfamp->CellF->Bpar, sizeof(mpolArray));
+  memcpy(elemfamp->CellF.B, elemfamp->CellF.Bpar, sizeof(mpolArray));
   elemfamp->CellF->order = Updateorder(elemfamp->CellF);
   for (i = 1; i <= elemfamp->nKid; i++) {
     cellp = &Lattice.Cell[elemfamp->KidList[i-1]];
