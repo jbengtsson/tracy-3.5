@@ -857,7 +857,7 @@ void LatticeType::prt_chrom_lat(void)
       ksi[i][X_] = ksi[i-1][X_]; ksi[i][Y_] = ksi[i-1][Y_];
     }
     if (Lattice.Cell[i].Kind == Mpole) {
-      M = static_cast<MpoleType*>(&(Lattice.Cell[i]);
+      M = static_cast<MpoleType*>(&Lattice.Cell[i]);
       ksi[i][X_] -=
 	M->Bpar[Quad+HOMmax]
 	*Lattice.Cell[i].L*Lattice.Cell[i].Beta[X_]/(4.0*M_PI);
