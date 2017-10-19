@@ -161,13 +161,15 @@ void chk_cod(const bool cod, const char *proc_name)
 void no_sxt(void)
 {
   int       k;
+  MpoleType *M;
 
   std::cout << std::endl;
   std::cout << "zeroing sextupoles" << std::endl;
-  for (k = 0; k <= Lattice.param.Cell_nLoc; k++)
-    if ((Lattice.Cell[k].Kind == Mpole) &&
-	(Lattice.Cell[k].Elem.M->order >= Sext))
+  for (k = 0; k <= Lattice.param.Cell_nLoc; k++) {
+    M = static_cast<MpoleType*>(&Lattice.Cell[k]);
+    if ((Lattice.Cell[k].Kind == Mpole) && (M->order >= Sext))
       SetKpar(Lattice.Cell[k].Fnum, Lattice.Cell[k].Knum, Sext, 0.0);
+  }
 }
 
 
@@ -417,17 +419,18 @@ void LatticeType::GetEmittance(const int Fnum, const bool prt)
   bool         emit, rad, cav, path;
   int          i, j, h_RF;
   long int     lastpos, loc;
-  double       C, theta, V_RF, phi0, gamma_z;
+  double       circ, theta, V_RF, phi0, gamma_z;
   double       sigma_s, sigma_delta;
   Vector3      nu;
   Matrix       Ascr;
   ss_vect<tps> Ascr_map;
+  CavityType   *C;
 
   // save state
   rad = Lattice.param.radiation; emit = Lattice.param.emittance;
   cav = Lattice.param.Cavity_on; path = Lattice.param.pathlength;
 
-  C = Lattice.Cell[Lattice.param.Cell_nLoc].S;
+  circ = Lattice.Cell[Lattice.param.Cell_nLoc].S;
 
   // damped system
   Lattice.param.radiation = true; Lattice.param.emittance  = true;
@@ -438,8 +441,9 @@ void LatticeType::GetEmittance(const int Fnum, const bool prt)
   // radiation loss is computed in Cav_Pass
 
   Lattice.param.U0 = Lattice.param.dE*1e9*Lattice.param.Energy;
-  V_RF = Lattice.Cell[Lattice.Elem_GetPos(Fnum, 1)].Elem.C->volt;
-  h_RF = Lattice.Cell[Lattice.Elem_GetPos(Fnum, 1)].Elem.C->h;
+  C = static_cast<CavityType*>(&Lattice.Cell[Lattice.Elem_GetPos(Fnum, 1)]);
+  V_RF = C->volt;
+  h_RF = C->h;
   phi0 = fabs(asin(Lattice.param.U0/V_RF));
   Lattice.param.delta_RF =
     sqrt(-V_RF*cos(M_PI-phi0)*(2.0-(M_PI-2.0*(M_PI-phi0))
@@ -466,7 +470,7 @@ void LatticeType::GetEmittance(const int Fnum, const bool prt)
       2.0*(1.0+Lattice.param.CODvect[delta_])*Lattice.param.alpha_rad[i]
       /Lattice.param.dE;
     // damping times
-    Lattice.param.tau[i] = -C/(c0*Lattice.param.alpha_rad[i]);
+    Lattice.param.tau[i] = -circ/(c0*Lattice.param.alpha_rad[i]);
     // diffusion coeff. and emittance (alpha is for betatron amplitudes)
     Lattice.param.eps[i] =
       -Lattice.param.D_rad[i]/(2.0*Lattice.param.alpha_rad[i]);
@@ -581,25 +585,27 @@ void LatticeType::GetEmittance(const int Fnum, const bool prt)
 
 double get_code(CellType &Cell)
 {
-  double  code;
+  double    code;
+  MpoleType *M;
 
   switch (Cell.Kind) {
   case drift:
     code = 0.0;
     break;
   case Mpole:
-    if (Cell.Elem.M->irho != 0.0)
-      code = sgn(Cell.Elem.M->irho)*0.5;
-    else if (Cell.Elem.M->Bpar[Quad+HOMmax] != 0)
-      code = sgn(Cell.Elem.M->Bpar[Quad+HOMmax]);
-    else if (Cell.Elem.M->Bpar[Sext+HOMmax] != 0)
-      code = 1.5*sgn(Cell.Elem.M->Bpar[Sext+HOMmax]);
-    else if (Cell.Elem.M->Bpar[Oct+HOMmax] != 0)
-      code = 1.75*sgn(Cell.Elem.M->Bpar[Oct+HOMmax]);
-    else if (Cell.Elem.M->Bpar[Dec+HOMmax] != 0)
-      code = 1.75*sgn(Cell.Elem.M->Bpar[Dec+HOMmax]);
-    else if (Cell.Elem.M->Bpar[Dodec+HOMmax] != 0)
-      code = 1.75*sgn(Cell.Elem.M->Bpar[Dodec+HOMmax]);
+    M = static_cast<MpoleType*>(&Cell);
+    if (M->irho != 0.0)
+      code = sgn(M->irho)*0.5;
+    else if (M->Bpar[Quad+HOMmax] != 0)
+      code = sgn(M->Bpar[Quad+HOMmax]);
+    else if (M->Bpar[Sext+HOMmax] != 0)
+      code = 1.5*sgn(M->Bpar[Sext+HOMmax]);
+    else if (M->Bpar[Oct+HOMmax] != 0)
+      code = 1.75*sgn(M->Bpar[Oct+HOMmax]);
+    else if (M->Bpar[Dec+HOMmax] != 0)
+      code = 1.75*sgn(M->Bpar[Dec+HOMmax]);
+    else if (M->Bpar[Dodec+HOMmax] != 0)
+      code = 1.75*sgn(M->Bpar[Dodec+HOMmax]);
     else if (Cell.Fnum == Lattice.param.bpm)
       code = 2.0;
     else
@@ -700,7 +706,7 @@ void LatticeType::prt_lat(const int loc1, const int loc2, const char *fname,
   double          s, h;
   double          alpha[2], beta[2], nu[2], dnu[2], eta[2], etap[2], dnu1[2];
   double          curly_H;
-  MpoleType       *Mp;
+  MpoleType       *M;
   ss_vect<double> eta_Fl;
   ss_vect<tps>    A, A_CS;
   FILE            *outf;
@@ -723,7 +729,7 @@ void LatticeType::prt_lat(const int loc1, const int loc2, const char *fname,
 	  ((Lattice.Cell[i].Kind == drift) ||
 	   ((Lattice.Cell[i].Kind == Mpole)
 	    && (Lattice.Cell[i].L != 0e0)))) {
-	Mp = Lattice.Cell[i].Elem.M;
+	M = static_cast<MpoleType*>(&Lattice.Cell[i]);
 
 	for (k = 0; k < 2; k++) {
 	  alpha[k] = Lattice.Cell[i-1].Alpha[k];
@@ -744,19 +750,19 @@ void LatticeType::prt_lat(const int loc1, const int loc2, const char *fname,
 	  if (Lattice.Cell[i].Kind == drift)
 	    Drift(h, A);
 	  else if (Lattice.Cell[i].Kind == Mpole) {
-	    if ((j == 1) && (Mp->irho != 0e0))
-	      EdgeFocus(Mp->irho, Mp->Tx1, Mp->gap, A);
+	    if ((j == 1) && (M->irho != 0e0))
+	      EdgeFocus(M->irho, M->Tx1, M->gap, A);
 
 	    Drift(c1*h, A);
-	    thin_kick(Quad, Mp->Bpar, d1*h, Mp->irho, Mp->irho, A);
+	    thin_kick(Quad, M->Bpar, d1*h, M->irho, M->irho, A);
 	    Drift(c2*h, A);
-	    thin_kick(Quad, Mp->Bpar, d2*h, Mp->irho, Mp->irho, A);
+	    thin_kick(Quad, M->Bpar, d2*h, M->irho, M->irho, A);
 	    Drift(c2*h, A);
-	    thin_kick(Quad, Mp->Bpar, d1*h, Mp->irho, Mp->irho, A);
+	    thin_kick(Quad, M->Bpar, d1*h, M->irho, M->irho, A);
 	    Drift(c1*h, A);
 
-	    if ((j == n) && (Mp->irho != 0e0))
-	      EdgeFocus(Mp->irho, Mp->Tx2, Mp->gap, A);
+	    if ((j == n) && (M->irho != 0e0))
+	      EdgeFocus(M->irho, M->Tx2, M->gap, A);
 	  }
 
 	  get_ab(A, alpha, beta, dnu, eta, etap);
@@ -823,10 +829,11 @@ void LatticeType::prt_lat(const char *fname, const int Fnum, const bool all,
 
 void LatticeType::prt_chrom_lat(void)
 {
-  long int i;
-  double   dbeta_ddelta[Cell_nLocMax][2], detax_ddelta[Cell_nLocMax];
-  double   ksi[Cell_nLocMax][2];
-  FILE     *outf;
+  long int  i;
+  double    dbeta_ddelta[Cell_nLocMax][2], detax_ddelta[Cell_nLocMax];
+  double    ksi[Cell_nLocMax][2];
+  MpoleType *M;
+  FILE      *outf;
 
   printf("\n");
   printf("prt_chrom_lat: calling Ring_GetTwiss with delta != 0\n");
@@ -850,12 +857,13 @@ void LatticeType::prt_chrom_lat(void)
       ksi[i][X_] = ksi[i-1][X_]; ksi[i][Y_] = ksi[i-1][Y_];
     }
     if (Lattice.Cell[i].Kind == Mpole) {
-	ksi[i][X_] -=
-	  Lattice.Cell[i].Elem.M->Bpar[Quad+HOMmax]
-	  *Lattice.Cell[i].L*Lattice.Cell[i].Beta[X_]/(4.0*M_PI);
-	ksi[i][Y_] +=
-	  Lattice.Cell[i].Elem.M->Bpar[Quad+HOMmax]
-	  *Lattice.Cell[i].L*Lattice.Cell[i].Beta[Y_]/(4.0*M_PI);
+      M = static_cast<MpoleType*>(&(Lattice.Cell[i]);
+      ksi[i][X_] -=
+	M->Bpar[Quad+HOMmax]
+	*Lattice.Cell[i].L*Lattice.Cell[i].Beta[X_]/(4.0*M_PI);
+      ksi[i][Y_] +=
+	M->Bpar[Quad+HOMmax]
+	*Lattice.Cell[i].L*Lattice.Cell[i].Beta[Y_]/(4.0*M_PI);
     }
   }
 
