@@ -251,33 +251,35 @@ template<typename T>
 void LinearInterpolation2(T &X, T &Z, T &TX, T &TZ, T &B2,
 			  CellType &Cell, bool &out, int order)
 {
-  int            i, ix = 0, iz = 0;
-  T              T1, U, THX = 0.0, THZ = 0.0;
-  double         xstep = 0.0;
-  double         zstep = 0.0;
-  int            nx = 0, nz = 0;
-  InsertionType  *WITH;
+  int           i, ix = 0, iz = 0;
+  T             T1, U, THX = 0.0, THZ = 0.0;
+  double        xstep = 0.0;
+  double        zstep = 0.0;
+  int           nx = 0, nz = 0;
+  InsertionType *ID;
   
-  WITH = Cell.Elem.ID; nx = WITH->nx; nz = WITH->nz;
+  ID = static_cast<InsertionType*>(&Cell);
   
-  xstep = WITH->tabx[1]-WITH->tabx[0]; /* increasing values */
-  zstep = WITH->tabz[0]-WITH->tabz[1]; /* decreasing values */
+  nx = ID->nx; nz = ID->nz;
+  
+  xstep = ID->tabx[1]-ID->tabx[0]; /* increasing values */
+  zstep = ID->tabz[0]-ID->tabz[1]; /* decreasing values */
   
   if (traceID) printf("xstep = % f zstep = % f\n", xstep, zstep);
   
   /* test wether X and Z within the transverse map area */
-  if (X < WITH->tabx[0] || X > WITH->tabx[nx-1]) {
+  if (X < ID->tabx[0] || X > ID->tabx[nx-1]) {
     printf("LinearInterpolation2: X out of borders \n");
     printf("X = % lf but tabx[0] = % lf and tabx[nx-1] = % lf\n",
-	   is_double<T>::cst(X), WITH->tabx[0], WITH->tabx[nx-1]);
+	   is_double<T>::cst(X), ID->tabx[0], ID->tabx[nx-1]);
     out = true;
     return;
   }
   
-  if (Z > WITH->tabz[0] || Z < WITH->tabz[nz-1]) {
+  if (Z > ID->tabz[0] || Z < ID->tabz[nz-1]) {
     printf("LinearInterpolation2: Z out of borders \n");
     printf("Z = % lf but tabz[0] = % lf and tabz[nz-1] = % lf\n",
-	   is_double<T>::cst(Z),  WITH->tabz[0], WITH->tabz[nz-1]);
+	   is_double<T>::cst(Z),  ID->tabz[0], ID->tabz[nz-1]);
     out = true;
     return;
   }
@@ -286,41 +288,41 @@ void LinearInterpolation2(T &X, T &Z, T &TX, T &TZ, T &B2,
   
   /* looking for the index for X */
   i = 0;
-  while (X >= WITH->tabx[i]  && i <= nx-1) {
+  while (X >= ID->tabx[i]  && i <= nx-1) {
     i++;
     if (traceID)
       printf("%2d % lf % lf % lf \n",
-	     i, is_double<T>::cst(X), WITH->tabx[i], WITH->tabx[i+1]);
+	     i, is_double<T>::cst(X), ID->tabx[i], ID->tabx[i+1]);
   }
   ix = i - 1;
   
   /* looking for the index for Z */
   i = 0;
-  while (Z <= WITH->tabz[i] && i <= nz-1) {
+  while (Z <= ID->tabz[i] && i <= nz-1) {
     i++;
     if (traceID)
       printf("%2d % lf % lf % lf \n",
-	     i, is_double<T>::cst(Z), WITH->tabz[i], WITH->tabz[i+1]);
+	     i, is_double<T>::cst(Z), ID->tabz[i], ID->tabz[i+1]);
   }
   iz = i - 1;
   
   if (traceID) printf("Indices are ix=%d and iz=%d\n", ix, iz);
   
   /** Bilinear Interpolation **/
-  U = (X - WITH->tabx[ix])/xstep; T1 = -(Z - WITH->tabz[iz])/zstep;
+  U = (X - ID->tabx[ix])/xstep; T1 = -(Z - ID->tabz[iz])/zstep;
   
   if (order == 1) { // first order kick map interpolation
     if (traceID) printf("first order kick map interpolation\n");
     if (ix >= 0 && iz >= 0) {
-      THX = (1.0-U)*(1.0-T1)*WITH->thetax1[iz][ix]
-	    + U*(1.0-T1)*WITH->thetax1[iz][ix+1]
-	    + (1.0-U)*T1*WITH->thetax1[iz+1][ix]
-	    + U*T1*WITH->thetax1[iz+1][ix+1];
+      THX = (1.0-U)*(1.0-T1)*ID->thetax1[iz][ix]
+	    + U*(1.0-T1)*ID->thetax1[iz][ix+1]
+	    + (1.0-U)*T1*ID->thetax1[iz+1][ix]
+	    + U*T1*ID->thetax1[iz+1][ix+1];
       
-      THZ = (1.0-U)*(1.0-T1)*WITH->thetaz1[iz][ix]
-	    + U*(1.0-T1)*WITH->thetaz1[iz][ix+1]
-	    + (1.0-U)*T1*WITH->thetaz1[iz+1][ix]
-	    + U*T1*WITH->thetaz1[iz+1][ix+1];
+      THZ = (1.0-U)*(1.0-T1)*ID->thetaz1[iz][ix]
+	    + U*(1.0-T1)*ID->thetaz1[iz][ix+1]
+	    + (1.0-U)*T1*ID->thetaz1[iz+1][ix]
+	    + U*T1*ID->thetaz1[iz+1][ix+1];
     }
     
     if (traceID) {
@@ -329,15 +331,15 @@ void LinearInterpolation2(T &X, T &Z, T &TX, T &TZ, T &B2,
 	     is_double<T>::cst(T1));
       printf("THX = % lf 11= % lf 12= %lf 21 = %lf 22 =%lf \n",
 	     is_double<T>::cst(THX),
-	     WITH->thetax1[iz][ix], WITH->thetax1[iz][ix+1],
-	     WITH->thetax1[iz+1][ix], WITH->thetax1[iz+1][ix+1]);
+	     ID->thetax1[iz][ix], ID->thetax1[iz][ix+1],
+	     ID->thetax1[iz+1][ix], ID->thetax1[iz+1][ix+1]);
       printf("Z=% f interpolation : U= % lf T =% lf\n",
 	     is_double<T>::cst(Z), is_double<T>::cst(U),
 	     is_double<T>::cst(T1));
       printf("THZ = % lf 11= % lf 12= %lf 21 = %lf 22 =%lf \n",
 	     is_double<T>::cst(THZ),
-	     WITH->thetaz1[iz][ix], WITH->thetaz1[iz][ix+1],
-	     WITH->thetaz1[iz+1][ix],WITH->thetaz1[iz+1][ix+1]);
+	     ID->thetaz1[iz][ix], ID->thetaz1[iz][ix+1],
+	     ID->thetaz1[iz+1][ix],ID->thetaz1[iz+1][ix+1]);
     }
   }
   
@@ -345,23 +347,23 @@ void LinearInterpolation2(T &X, T &Z, T &TX, T &TZ, T &B2,
     if (traceID) printf("second order kick map interpolation\n");
     if (ix >= 0 && iz >= 0) {
       THX =
-	(1.0-U)*(1.0-T1)*WITH->thetax[iz][ix]
-	+ U*(1.0-T1)*WITH->thetax[iz][ix+1]
-	+ (1.0-U)*T1*WITH->thetax[iz+1][ix]
-	+ U*T1*WITH->thetax[iz+1][ix+1];
+	(1.0-U)*(1.0-T1)*ID->thetax[iz][ix]
+	+ U*(1.0-T1)*ID->thetax[iz][ix+1]
+	+ (1.0-U)*T1*ID->thetax[iz+1][ix]
+	+ U*T1*ID->thetax[iz+1][ix+1];
       
       THZ =
-	(1.0-U)*(1.0-T1)*WITH->thetaz[iz][ix]
-	+ U*(1.0-T1)*WITH->thetaz[iz][ix+1]
-	+ (1.0-U)*T1*WITH->thetaz[iz+1][ix]
-	+ U*T1*WITH->thetaz[iz+1][ix+1];
+	(1.0-U)*(1.0-T1)*ID->thetaz[iz][ix]
+	+ U*(1.0-T1)*ID->thetaz[iz][ix+1]
+	+ (1.0-U)*T1*ID->thetaz[iz+1][ix]
+	+ U*T1*ID->thetaz[iz+1][ix+1];
 
-      if (WITH->long_comp)
+      if (ID->long_comp)
 	B2 =
-	  (1.0-U)*(1.0-T1)*WITH->B2[iz][ix]
-	  + U*(1.0-T1)*WITH->B2[iz][ix+1]
-	  + (1.0-U)*T1*WITH->B2[iz+1][ix]
-	  + U*T1*WITH->B2[iz+1][ix+1];
+	  (1.0-U)*(1.0-T1)*ID->B2[iz][ix]
+	  + U*(1.0-T1)*ID->B2[iz][ix+1]
+	  + (1.0-U)*T1*ID->B2[iz+1][ix]
+	  + U*T1*ID->B2[iz+1][ix+1];
     }
     
     if (traceID) {
@@ -370,19 +372,19 @@ void LinearInterpolation2(T &X, T &Z, T &TX, T &TZ, T &B2,
 	     is_double<T>::cst(T1));
       printf("THX = % lf 11= % lf 12= %lf 21 = %lf 22 =%lf \n",
 	     is_double<T>::cst(THX),
-	     WITH->thetax[iz][ix], WITH->thetax[iz][ix+1],
-	     WITH->thetax[iz+1][ix], WITH->thetax[iz+1][ix+1]);
+	     ID->thetax[iz][ix], ID->thetax[iz][ix+1],
+	     ID->thetax[iz+1][ix], ID->thetax[iz+1][ix+1]);
       printf("Z=% f interpolation : U= % lf T =% lf\n",
 	     is_double<T>::cst(Z), is_double<T>::cst(U),
 	     is_double<T>::cst(T1));
       printf("THZ = % lf 11= % lf 12= %lf 21 = %lf 22 =%lf \n",
 	     is_double<T>::cst(THZ),
-	     WITH->thetaz[iz][ix], WITH->thetaz[iz][ix+1],
-	     WITH->thetaz[iz+1][ix], WITH->thetaz[iz+1][ix+1]);
+	     ID->thetaz[iz][ix], ID->thetaz[iz][ix+1],
+	     ID->thetaz[iz+1][ix], ID->thetaz[iz+1][ix+1]);
       printf("B2 = % lf 11= % lf 12= %lf 21 = %lf 22 =%lf \n",
 	     is_double<T>::cst(THZ),
-	     WITH->B2[iz][ix], WITH->B2[iz][ix+1],
-	     WITH->B2[iz+1][ix],WITH->B2[iz+1][ix+1]);
+	     ID->B2[iz][ix], ID->B2[iz][ix+1],
+	     ID->B2[iz+1][ix],ID->B2[iz+1][ix+1]);
     }
   }
   TX = THX; TZ = THZ;
@@ -421,33 +423,35 @@ template<typename T>
 void SplineInterpolation2(T &X, T &Z, T &thetax, T &thetaz,
 			  CellType &Cell, bool &out)
 {
-    int            nx, nz;
-    InsertionType  *WITH;
+    int           nx, nz;
+    InsertionType *ID;
 //    int kx, kz;
 
-    WITH = Cell.Elem.ID; nx = WITH->nx; nz = WITH->nz;
+    ID = static_cast<InsertionType*>(&Cell);
+
+    nx = ID->nx; nz = ID->nz;
 
     /* test wether X and Z within the transverse map area */
-    if (X < WITH->tabx[0] || X > WITH->tabx[nx-1] ||
-	Z > WITH->tabz[0] || Z < WITH->tabz[nz-1]) {
+    if (X < ID->tabx[0] || X > ID->tabx[nx-1] ||
+	Z > ID->tabz[0] || Z < ID->tabz[nz-1]) {
         printf("SplineInterpDeriv2: out of borders in element s= %4.2f %*s\n",
 	       Cell.S, 5, Cell.Name);
         printf("X = % lf but tabx[0] = % lf and tabx[nx-1] = % lf\n",
-	       is_double<T>::cst(X), WITH->tabx[0], WITH->tabx[nx-1]);
+	       is_double<T>::cst(X), ID->tabx[0], ID->tabx[nx-1]);
         printf("Z = % lf but tabz[0] = % lf and tabz[nz-1] = % lf\n",
-	       is_double<T>::cst(Z), WITH->tabz[0], WITH->tabz[nz-1]);
+	       is_double<T>::cst(Z), ID->tabz[0], ID->tabz[nz-1]);
         out = true;
         return;
     }
 
     out = false;
-    splin2(WITH->tab2-1, WITH->tab1-1, WITH->tx, WITH->f2x, nz, nx,
+    splin2(ID->tab2-1, ID->tab1-1, ID->tx, ID->f2x, nz, nx,
 	   Z, X, thetax);
 /*    if (fabs(temp) > ZERO_RADIA)
       *thetax = (double) temp;
     else
       *thetax = 0.0;*/
-    splin2(WITH->tab2-1, WITH->tab1-1, WITH->tz, WITH->f2z, nz, nx,
+    splin2(ID->tab2-1, ID->tab1-1, ID->tz, ID->f2z, nz, nx,
 	   Z, X, thetaz);
 /*    if (fabs(temp) > ZERO_RADIA)
       *thetaz = (double) temp;
@@ -466,27 +470,27 @@ void SplineInterpolation2(T &X, T &Z, T &thetax, T &thetaz,
 }
 
 
-void Matrices4Spline(InsertionType *WITH)
+void Matrices4Spline(InsertionType *ID)
 {
   int kx, kz;
 
-  for (kx = 0; kx < WITH->nx; kx++) {
-    WITH->tab1[kx] = (float) WITH->tabx[kx];
+  for (kx = 0; kx < ID->nx; kx++) {
+    ID->tab1[kx] = (float) ID->tabx[kx];
   }
 
   /** reordering: it has to be in increasing order */
-  for (kz = 0; kz < WITH->nz; kz++) {
-    WITH->tab2[kz] = (float) WITH->tabz[WITH->nz-kz-1];
+  for (kz = 0; kz < ID->nz; kz++) {
+    ID->tab2[kz] = (float) ID->tabz[ID->nz-kz-1];
   }
 
-  for (kx = 0; kx < WITH->nx; kx++) {
-    for (kz = 0; kz <WITH-> nz; kz++) {
-      WITH->tx[kz+1][kx+1] = (float) (WITH->thetax[WITH->nz-kz-1][kx]);
-      WITH->tz[kz+1][kx+1] = (float) (WITH->thetaz[WITH->nz-kz-1][kx]);
+  for (kx = 0; kx < ID->nx; kx++) {
+    for (kz = 0; kz <ID-> nz; kz++) {
+      ID->tx[kz+1][kx+1] = (float) (ID->thetax[ID->nz-kz-1][kx]);
+      ID->tz[kz+1][kx+1] = (float) (ID->thetaz[ID->nz-kz-1][kx]);
     }
   }
 
   // computes second derivative matrices
-  splie2(WITH->tab2-1,WITH->tab1-1,WITH->tx,WITH->nz,WITH->nx,WITH->f2x);
-  splie2(WITH->tab2-1,WITH->tab1-1,WITH->tz,WITH->nz,WITH->nx,WITH->f2z);
+  splie2(ID->tab2-1,ID->tab1-1,ID->tx,ID->nz,ID->nx,ID->f2x);
+  splie2(ID->tab2-1,ID->tab1-1,ID->tz,ID->nz,ID->nx,ID->f2z);
 }

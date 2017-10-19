@@ -12,13 +12,11 @@
 
 
 #define n 4
-
-
 void LatticeType::GetNu(Vector2 &nu, Matrix &M)
 {
-  int     i;
-  double  sgn, detp, detm, b, c, th, tv, b2mc, x_arg, y_arg;
-  Matrix  M1;
+  int    i;
+  double sgn, detp, detm, b, c, th, tv, b2mc, x_arg, y_arg;
+  Matrix M1;
 
   Lattice.param.stable = true;
 
@@ -72,55 +70,11 @@ void LatticeType::GetNu(Vector2 &nu, Matrix &M)
 #undef n
 
 
-/* implementation */
-
-/****************************************************************************/
-/* void Cell_GetABGN(Matrix &M_, Vector2 &alpha, Vector2 &beta, Vector2 &gamma, Vector2 &nu)
-
-   Purpose: called by Ring_Twiss_M and Ring_Twiss
-
-      Get Twiss parameters from the transfer matrix M
-
-                             [Nx   ]
-                         M = [     ]
-                             [   Ny]
-
-      where, in the case of mid-plane symmetry
-
-             [ cos(mu) + alpha sin(mu)        beta sin(mu)      ]
-         N = [                                                  ]
-             [    -gamma sin(mu)        cos(mu) - alpha sin(mu) ]
-
-        cos(mu) =  Trace(N)/2
-        Alpha   =  (N11-N22)/(2*sin(mu))
-        beta    =  N12/sin(mu)
-        gamma   = -N21/sin(mu)
-
-   Input:
-       M oneturn matrix
-
-   Output:
-       alpha, beta, gamma vectors of the Twiss parameters
-       nu tune vector
-
-   Return:
-       none
-
-   Global variables:
-       none
-
-   Specific functions:
-       getnu
-
-   Comments:
-       none
-
-****************************************************************************/
 void LatticeType::Cell_GetABGN(Matrix &M, Vector2 &alpha, Vector2 &beta,
 				Vector2 &gamma, Vector2 &nu)
 {
-  int     i = 0, j = 0;
-  double  c = 0.0, s = 0.0;
+  int    i = 0, j = 0;
+  double c = 0.0, s = 0.0;
 
   Lattice.param.stable = true;
   for (i = 0; i <= 1; i++) {
@@ -143,11 +97,11 @@ void LatticeType::Cell_GetABGN(Matrix &M, Vector2 &alpha, Vector2 &beta,
 #define n 4
 void LatticeType::Cell_Geteta(long i0, long i1, bool ring, double dP)
 {
-  long int  i = 0, lastpos = 0;
-  int       j = 0, k = 0;
-  psVector    xref;
-  psVector    codbuf[Cell_nLocMax+1];
-  CellType  *cellp;
+  long int i = 0, lastpos = 0;
+  int      j = 0, k = 0;
+  psVector xref;
+  psVector codbuf[Cell_nLocMax+1];
+  CellType *cellp;
 
   /* cod for the energy dP - Lattice.param.dPcommon / 2e0 */
   if (ring)
@@ -173,67 +127,24 @@ void LatticeType::Cell_Geteta(long i0, long i1, bool ring, double dP)
     Cell_Pass(i0, i1, xref, lastpos);
   }
 
-  /*       cod(dP-Lattice.param.dPcommon/2e0) - cod(dP-Lattice.param.dPcommon/2e0)     */
-  /* eta = -----------------------------------------------------------     */
-  /*                              Lattice.param.dPcommon                         */
-  /*       cod'(dP-Lattice.param.dPcommon/2e0) - cod'(dP-Lattice.param.dPcommon/2e0)   */
-  /* eta'= --------------------------------------------------------------- */
-  /*                              Lattice.param.dPcommon                         */
-
   for (i = i0; i <= i1; i++) {
     cellp = &Lattice.Cell[i];
     for (j = 1; j <= 2; j++) {
       k = j*2 - 1;
-      cellp->Eta[j-1] = (cellp->BeamPos[k-1]-codbuf[i][k-1])/Lattice.param.dPcommon;
-      cellp->Etap[j-1] = (cellp->BeamPos[k]-codbuf[i][k])/Lattice.param.dPcommon;
+      cellp->Eta[j-1] = (cellp->BeamPos[k-1]-codbuf[i][k-1])
+	/Lattice.param.dPcommon;
+      cellp->Etap[j-1] = (cellp->BeamPos[k]-codbuf[i][k])
+	/Lattice.param.dPcommon;
     }
   }
 }
-
 #undef n
 
-/****************************************************************************/
-/* void getprm(Matrix &Ascr, Vector2 &alpha, Vector2 &beta)
 
-   Purpose:
-     Computes Twiss parameters alpha and beta from the matrix Ascr
-       
-       M oneturn matrix    (A and M are symplectic)
-                  
-           ( A11  A12)         -1                 ( cos(mu) sin(mu))
-       A = (         )   M = (A   R  A)  with R = (                )
-           ( A21  A22)      2    2                (-sin(mu) cos(mu))
-                    -1       x + px
-       eps = 2*J o a     J = ------
-                               2
-                 2     2   2                                  2     2    2
-       eps = (A22 + A21 ) x  + 2(-A22*A12-A21*A11) x*px + (A11 + A12 ) px
-                gamma               alpha                     beta
-                                        
-   Input:                               
-       A matrix
-
-   Output:
-       alpha vector
-       beta  vector
-
-   Return:
-       none
-
-   Global variables:
-       none
-
-   Specific functions:
-       none
-
-   Comments:
-       none
-
-****************************************************************************/
 #define n 4
 void getprm(Matrix &Ascr, Vector2 &alpha, Vector2 &beta)
 {
-  int  i, j;
+  int i, j;
 
   for (i = 1; i <= 2; i++) {
     j = i*2 - 1;
@@ -241,56 +152,14 @@ void getprm(Matrix &Ascr, Vector2 &alpha, Vector2 &beta)
     beta[i-1] = sqr(Ascr[j-1][j-1]) + sqr(Ascr[j-1][j]);
   }
 }
+#undef n
 
-/****************************************************************************/
-/* void dagetprm(ss_vect<tps> &Ascr, Vector2 &alpha, Vector2 &beta)
 
-   Purpose: called by Cell_Twiss
-     Compute Twiss parameters alpha and beta from the matrix Ascr
-
-     M oneturn matrix    (A and M are symplectic)
-
-         ( A11  A12 )         -1                 (  cos(mu) sin(mu) )
-     A = (          )   M = (A   R  A)  with R = (                  )
-         ( A21  A22 )                            ( -sin(mu) cos(mu) )
-
-                            2    2
-                  -1       x + px
-     eps = 2*J o a     J = ------
-                             2
-               2     2   2                                  2     2    2
-     eps = (A22 + A21 ) x  + 2(-A22*A12-A21*A11) x*px + (A11 + A12 ) px
-              gamma               alpha                     beta
-
-     A = Asrc
-       
-     alpha(i-1) = -(A(2i-1,2i-1)*A(2i,2i-1) + A(2i-1,2i)*A(2i,2i))
-     beta(i-1)  =   A(2i-1,2i-1)*A(2i-1,2i-1) + A(2i-1,2i)*A(2i-1,2i)
-       
-   Input:
-       Ascr
-
-   Output:
-       alpha alpha function vector
-       beta  beta  function vector
-
-   Return:
-       none
-
-   Global variables:
-       none
-
-   Specific functions:
-       getmat
-
-   Comments:
-       none
-
-****************************************************************************/
 #define n 4
+
 void dagetprm(ss_vect<tps> &Ascr, Vector2 &alpha, Vector2 &beta)
 {
-  int  i = 0, j = 0;
+  int i = 0, j = 0;
 
   for (i = 1; i <= 2; i++) {
     j = i*2 - 1;
@@ -304,11 +173,11 @@ void dagetprm(ss_vect<tps> &Ascr, Vector2 &alpha, Vector2 &beta)
 void LatticeType::Cell_Twiss(long i0, long i1, ss_vect<tps> &Ascr, bool chroma,
 			      bool ring, double dP)
 {
-  long int      i = 0;
-  int           j = 0, k = 0;
-  Vector2       nu1, dnu;   /* absolute and relative phase advance */
-  ss_vect<tps>  Ascr0, Ascr1;
-  CellType      *cellp;
+  long int     i = 0;
+  int          j = 0, k = 0;
+  Vector2      nu1, dnu;   /* absolute and relative phase advance */
+  ss_vect<tps> Ascr0, Ascr1;
+  CellType     *cellp;
 
   /* initialization */
   for (j = 0; j <= 1; j++) {
@@ -359,46 +228,13 @@ void LatticeType::Cell_Twiss(long i0, long i1, ss_vect<tps> &Ascr, bool chroma,
 #undef n
 
 
-/****************************************************************************/
-/* void Ring_Getchrom(double dP)
-
-   Purpose: called by Ring_Twiss_M and Ring_Twiss
-       Compute chromaticites of the ring by numerical differentiation
-       and by evaluating each time the closed orbit
-
-               nu(dP+dPlocal)-nu(dP-dPlocal)
-           xi =-----------------------------
-                       2 dPlocal     
-                       
-   Input:
-       dP particle energy offset (should be zero cf comments)
-
-   Output:
-       none
-
-   Return:
-       none
-
-   Global variables:
-       status
-       Lattice.param
-       
-   Specific functions:
-       Cell_GetABGN, Cell_GetCOD
-
-   Comments:
-       03/01/03 Stability test from GETcod routines slightly modified
-       WARNING : this routine does not give the chromaticities for dP != 0
-                   but the local slope of the curve xi=f(dP)                   
-       16/10/03 Modified convergence test: now done for both planes
-****************************************************************************/
 #define n 4
 void LatticeType::Ring_Getchrom(double dP)
 {
-  long int  lastpos = 0;
-  int       j;
-  Vector2   alpha = {0.0, 0.0}, beta = {0.0, 0.0}, gamma = {0.0, 0.0};
-  Vector2   nu = {0.0, 0.0}, nu0 = {0.0, 0.0};
+  long int lastpos = 0;
+  int      j;
+  Vector2  alpha = {0.0, 0.0}, beta = {0.0, 0.0}, gamma = {0.0, 0.0};
+  Vector2  nu = {0.0, 0.0}, nu0 = {0.0, 0.0};
 
   if (dP != 0.0)
     fprintf(stdout,"Ring_Getchrom: Warning this is NOT the CHROMA, dP=%e\n",
@@ -443,44 +279,17 @@ void LatticeType::Ring_Getchrom(double dP)
   
   status.chromflag = true;
 }
-
 #undef n
 
-/****************************************************************************/
-/* void Ring_Twiss(bool chroma, double dP)
 
-   Purpose:  called by Ring_GetTwiss
-       Computes twiss parameters for an energy offset dP using da method
-
-   Input:
-       chroma if true computes chromaticities as well
-       dP     energy offset
-
-   Output:
-       none
-
-   Return:
-       none
-
-   Global variables:
-       Lattice.param
-       status
-
-   Specific functions:
-       none
-
-   Comments:
-       11/05/03 in Cell_Twiss start from 1
-
-****************************************************************************/
 void LatticeType::Ring_Twiss(bool chroma, double dP)
 {
-  long int      lastpos = 0;
-  int           n = 0;
-  Vector2       alpha={0.0, 0.0}, beta={0.0, 0.0};
-  Vector2       gamma={0.0, 0.0}, nu={0.0, 0.0};
-  Matrix        R;
-  ss_vect<tps>  AScr;
+  long int     lastpos = 0;
+  int          n = 0;
+  Vector2      alpha={0.0, 0.0}, beta={0.0, 0.0};
+  Vector2      gamma={0.0, 0.0}, nu={0.0, 0.0};
+  Matrix       R;
+  ss_vect<tps> AScr;
 
   n = (Lattice.param.Cavity_on)? 6 : 4;
 
@@ -514,42 +323,15 @@ void LatticeType::Ring_Twiss(bool chroma, double dP)
   }
 }
 
-/****************************************************************************/
-/* void Ring_GetTwiss(bool chroma, double dP)
 
-   Purpose:
-       Computes Twiss functions w/ or w/o chromaticities
-       for particle of energy offset dP
-       matrix or da method
-
-   Input:
-       Chroma if true compute chromaticities and dispersion
-              if false dispersion is set to zero !!!
-       Dp energy offset
-
-   Output:
-       none
-
-   Return:
-       none
-
-   Global variables:
-       Lattice.param, trace
-
-   Specific functions:
-       Ring_Twiss_M, Ring_Twiss
-
-   Comments:
-       none
-
-****************************************************************************/
 void LatticeType::Ring_GetTwiss(bool chroma, double dP)
 {
 
   if (trace) printf("enter ring_gettwiss\n");
   Ring_Twiss(chroma, dP);
   Lattice.param.Alphac =
-    Lattice.param.OneTurnMat[ct_][delta_]/Lattice.Cell[Lattice.param.Cell_nLoc].S;
+    Lattice.param.OneTurnMat[ct_][delta_]
+    /Lattice.Cell[Lattice.param.Cell_nLoc].S;
   if (trace) printf("exit ring_gettwiss\n");
 }
 
@@ -561,69 +343,19 @@ struct LOC_Ring_Fittune
 };
 
 
-/****************************************************************************/
-/* void shiftk(long Elnum, double dk, struct LOC_Ring_Fittune *LINK)
-
-   Purpose:
-
-
-   Input:
-       none
-
-   Output:
-       none
-
-   Return:
-       none
-
-   Global variables:
-       none
-
-   Specific functions:
-       none
-
-   Comments:
-       none
-
-****************************************************************************/
 #define dP 0.0
 void shiftk(long Elnum, double dk, struct LOC_Ring_Fittune *LINK)
 {
-  CellType   *cellp;
-  elemtype   *elemp;
-  MpoleType  *M;
+  CellType  *cellp;
+  MpoleType *M;
 
-  cellp = &Lattice.Cell[Elnum]; elemp = &cellp->Elem; M = elemp->M;
+  cellp = &Lattice.Cell[Elnum];
+  M = static_cast<MpoleType*>(cellp);
   M->Bpar[Quad+HOMmax] += dk;
   Mpole_SetB(cellp->Fnum, cellp->Knum, (long)Quad);
 }
 
 
-/****************************************************************************/
-/* void checkifstable(struct LOC_Ring_Fittune *LINK)
-
-   Purpose:
-
-
-   Input:
-       none
-
-   Output:
-       none
-
-   Return:
-       none
-
-   Global variables:
-       none
-
-   Specific functions:
-       none
-
-   Comments:
-       none
-
-****************************************************************************/
 void checkifstable(struct LOC_Ring_Fittune *LINK)
 {
   if (!Lattice.param.stable) {
@@ -633,39 +365,6 @@ void checkifstable(struct LOC_Ring_Fittune *LINK)
 }
 
 
-/****************************************************************************/
-/* void Ring_Fittune(Vector2 &nu, double eps, long *nq, long *qf, long *qd,
-                  double dkL, long imax)
-
-   Purpose: called by fittune
-       Fit tunes using two family of quadrupoles
-       Linear method
-
-   Input:
-       nu  target tunes
-       eps precision
-       nq  number of quad of family qf and qd
-       qf  position of qf magnets
-       qd  position of qd magnets
-       dKL variation on strengths
-       imax maximum number of iteration
-
-   Output:
-       none
-
-   Return:
-       none
-
-   Global variables:
-       none
-
-   Specific functions:
-       none
-
-   Comments:
-       17 mars 2004: removed labels
-
-****************************************************************************/
 void LatticeType::Ring_Fittune(Vector2 &nu, double eps, iVector2 &nq,
 				long qf[], long qd[], double dkL, long imax)
 {
@@ -673,8 +372,8 @@ void LatticeType::Ring_Fittune(Vector2 &nu, double eps, iVector2 &nq,
 
   int      i, j, k;
   Vector2  nu0, nu1;
-  psVector  dkL1, dnu;
-  Matrix A;
+  psVector dkL1, dnu;
+  Matrix   A;
 
   if (setjmp(V._JL999)) return;
 
@@ -748,10 +447,10 @@ void LatticeType::Ring_Fittune(Vector2 &nu, double eps, iVector2 &nq,
 void shiftkp(long Elnum, double dkp)
 {
   CellType  *cellp;
-  elemtype  *elemp;
   MpoleType *M;
 
-  cellp = &Lattice.Cell[Elnum]; elemp = &cellp->Elem; M = elemp->M;
+  cellp = &Lattice.Cell[Elnum];
+  M = static_cast<MpoleType*>(cellp);
   M->Bpar[Sext+HOMmax] += dkp;
   Mpole_SetB(cellp->Fnum, cellp->Knum, (long)Sext);
 }
@@ -760,12 +459,12 @@ void shiftkp(long Elnum, double dkp)
 void LatticeType::Ring_Fitchrom(Vector2 &ksi, double eps, iVector2 &ns,
 				 long sf[], long sd[], double dkpL, long imax)
 {
-  bool      rad;
-  long int  lastpos;
-  int       i, j, k;
-  Vector2   ksi0;
-  psVector    dkpL1, dksi;
-  Matrix    A;
+  bool     rad;
+  long int lastpos;
+  int      i, j, k;
+  Vector2  ksi0;
+  psVector dkpL1, dksi;
+  Matrix   A;
 
   if (trace)
     printf("  Chromaticity fit, ksix =%10.5f, ksiy =%10.5f, eps =% .3E"
@@ -837,7 +536,6 @@ _L999:
 
 #define dP 0.0
 
-
 /* Local variables for Ring_FitDisp: */
 struct LOC_Ring_FitDisp
 {
@@ -847,13 +545,11 @@ struct LOC_Ring_FitDisp
 
 static void shiftk_(long Elnum, double dk, struct LOC_Ring_FitDisp *LINK)
 {
-  CellType *cellp;
-  elemtype *elemp;
+  CellType  *cellp;
   MpoleType *M;
 
   cellp = &Lattice.Cell[Elnum];
-  elemp = &cellp->Elem;
-  M = elemp->M;
+  M = static_cast<MpoleType*>(cellp);
   M->Bpar[Quad+HOMmax] += dk;
   Mpole_SetB(cellp->Fnum, cellp->Knum, (long)Quad);
 }
@@ -876,9 +572,9 @@ void LatticeType::Ring_FitDisp(long pos, double eta, double eps, long nq,
                          dkL : double; imax : integer*/
   struct LOC_Ring_FitDisp V;
 
-  int     i, j;
-  double  dkL1, Eta0, deta;
-  bool    rad = false;
+  int    i, j;
+  double dkL1, Eta0, deta;
+  bool   rad = false;
 
   if (setjmp(V._JL999)) goto _L999;
 
@@ -915,5 +611,3 @@ _L999:
   Lattice.param.radiation = rad;
 }
 #undef dP
-
-/* End. */

@@ -995,8 +995,9 @@ struct LOC_Factor
 
 static double GetKparm(long direction, struct LOC_Factor *LINK)
 {
-  double Result;
-  symset SET;
+  double    Result;
+  symset    SET;
+  MpoleType *M;
 
   getest(P_expset(SET, 1 << ((long)lbrack)), "<[> expected",
 	 LINK->LINK->LINK->LINK);
@@ -1004,12 +1005,19 @@ static double GetKparm(long direction, struct LOC_Factor *LINK)
   Expression(LINK->LINK->LINK->LINK);
   test(P_expset(SET, 1 << ((long)rbrack)), "<]> expected",
        LINK->LINK->LINK->LINK);
+  M = static_cast<MpoleType*>(&Lattice.ElemFam[LINK->i-1].CellF);
   if (direction == 1)
-    Result = Lattice.ElemFam[LINK->i-1].ElemF.M->Bpar[(long)((long)LINK->
-	     LINK->LINK->LINK->S[LINK->LINK->LINK->LINK->t])+HOMmax];
+    // Result = Lattice.ElemFam[LINK->i-1].ElemF.M->Bpar[(long)((long)LINK->
+    // 	     LINK->LINK->LINK->S[LINK->LINK->LINK->LINK->t])+HOMmax];
+    Result =
+      M->Bpar[(long)((long)LINK->LINK->LINK->LINK->
+		     S[LINK->LINK->LINK->LINK->t])+HOMmax];
   else
-    Result = Lattice.ElemFam[LINK->i-1].ElemF.M->Bpar[HOMmax-(long)LINK->
-            LINK->LINK->LINK->S[LINK->LINK->LINK->LINK->t]];
+    // Result = Lattice.ElemFam[LINK->i-1].ElemF.M->Bpar[HOMmax-(long)LINK->
+    //         LINK->LINK->LINK->S[LINK->LINK->LINK->LINK->t]];
+    Result =
+      M->Bpar[HOMmax-(long)LINK->LINK->LINK->LINK->
+	      S[LINK->LINK->LINK->LINK->t]];
   LINK->LINK->LINK->LINK->t--;
   /* GetSym;*/
   return Result;
@@ -1893,10 +1901,11 @@ static void ClearHOMandDBN(struct LOC_Lat_DealElement *LINK)
 
 static void AssignHOM(long elem, struct LOC_Lat_DealElement *LINK)
 {
-  long       i;
-  MpoleType  *M;
+  long      i;
+  MpoleType *M;
 
-  M = Lattice.ElemFam[elem-1].CellF;
+  // M = Lattice.ElemFam[elem-1].CellF;
+  M = static_cast<MpoleType*>(&Lattice.ElemFam[elem-1].CellF);
   for (i = -HOMmax; i <= HOMmax; i++) {
     if (LINK->BA[i+HOMmax]) {
       M->Bpar[i+HOMmax] = LINK->B[i+HOMmax];
@@ -1908,8 +1917,8 @@ static void AssignHOM(long elem, struct LOC_Lat_DealElement *LINK)
 
 static void GetHarm(struct LOC_Lat_DealElement *LINK)
 {
-  long    i, n;
-  symset  SET;
+  long   i, n;
+  symset SET;
 
   getest__(P_expset(SET, 1 << ((long)lparent)), "<(> expected", LINK);
   LINK->n_harm = 0;
@@ -1938,10 +1947,12 @@ static void GetHarm(struct LOC_Lat_DealElement *LINK)
 
 static void AssignHarm(long elem, struct LOC_Lat_DealElement *LINK)
 {
-  long         i;
-  WigglerType  *W;
+  long        i;
+  WigglerType *W;
 
-  W = Lattice.ElemFam[elem-1].ElemF.W; W->n_harm += LINK->n_harm;
+  // W = Lattice.ElemFam[elem-1].ElemF.W;
+  W = static_cast<WigglerType*>(&Lattice.ElemFam[elem-1].CellF);
+  W->n_harm += LINK->n_harm;
   // the fundamental is stored in harm[0], etc.
   for (i = 1; i < W->n_harm; i++) {
     W->harm[i] = LINK->harm[i-1];
@@ -2059,17 +2070,17 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
   symset         mysys, SET;
   long           SET1[(long)lsym / 32 + 2];
   ElemFamType    *WITH;
-  elemtype       *WITH1;
-  MpoleType      *WITH2;
+  // elemtype       *WITH1;
+  MpoleType      *M;
   symset         SET2;
-  CavityType     *WITH3;
+  CavityType     *C;
   long           SET3[(long)possym / 32 + 2];
   long           SET4[(long)dbnsym / 32 + 2];
-  WigglerType    *WITH4;
-  FieldMapType   *WITH6;
+  WigglerType    *W;
+  FieldMapType   *FM;
   /* ID Laurent */
-  InsertionType  *WITH5;
-  SolenoidType   *WITH7;
+  InsertionType  *ID;
+  SolenoidType   *Sol;
   char str1[100] = "";
   char str2[100] = "";
   bool firstflag  = false; // flag for first kick input
@@ -2254,18 +2265,18 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       WITH->Kind = Mpole;
       // WITH->ElemF.M->Mpole_Alloc(&WITH->ElemF);
       WITH->CellF = MpoleType();
-      WITH2 = static_cast<MpoleType*>(&WITH->CellF);
-      WITH2->method = k2;
-      WITH2->N = k1;
-      if (WITH2->L != 0.0)
-	WITH2->irho = t * M_PI / 180.0 / WITH2->L;
+      M = static_cast<MpoleType*>(&WITH->CellF);
+      M->method = k2;
+      M->N = k1;
+      if (M->L != 0.0)
+	M->irho = t * M_PI / 180.0 / M->L;
       else
-	WITH2->irho = t * M_PI / 180.0;
-      WITH2->Tx1 = t1; WITH2->Tx2 = t2; WITH2->gap = gap;
-      WITH2->n_design = Dip;
+	M->irho = t * M_PI / 180.0;
+      M->Tx1 = t1; M->Tx2 = t2; M->gap = gap;
+      M->n_design = Dip;
       AssignHOM(Lattice.param.Elem_nFam, &V);
       SetDBN(&V);
-      WITH2->Bpar[HOMmax+2] = QK; WITH2->dTpar = dt;
+      M->Bpar[HOMmax+2] = QK; M->dTpar = dt;
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
 	     Lattice.param.Elem_nFam, (long)Elem_nFamMax);
@@ -2364,12 +2375,12 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       WITH->L = QL; WITH->Kind = Mpole;
       // WITH->ElemF.M->Mpole_Alloc(&WITH->ElemF);
       WITH->CellF = MpoleType();
-      // WITH2 = WITH->ElemF.M;
-      WITH2 = static_cast<MpoleType*>(&WITH->CellF);
-      WITH2->method = k2; WITH2->N = k1; WITH2->dTpar = dt;
+      // M = WITH->ElemF.M;
+      M = static_cast<MpoleType*>(&WITH->CellF);
+      M->method = k2; M->N = k1; M->dTpar = dt;
       AssignHOM(Lattice.param.Elem_nFam, &V);
       SetDBN(&V);
-      WITH2->n_design = Quad; WITH2->Bpar[HOMmax+2] = QK;
+      M->n_design = Quad; M->Bpar[HOMmax+2] = QK;
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
 	     Lattice.param.Elem_nFam, (long)Elem_nFamMax);
@@ -2474,18 +2485,18 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       WITH->Kind = Mpole;
       // WITH->ElemF.M->Mpole_Alloc(&WITH->ElemF);
       WITH->CellF = MpoleType();
-      // WITH2 = WITH->ElemF.M;
-      WITH2 = static_cast<MpoleType*>(&WITH->CellF);
-      WITH2->method = k2;
-      WITH2->N = k1;
+      // M = WITH->ElemF.M;
+      M = static_cast<MpoleType*>(&WITH->CellF);
+      M->method = k2;
+      M->N = k1;
       if (WITH->L != 0.0)
-	WITH2->thick = pthicktype(thick);
+	M->thick = pthicktype(thick);
       else
-	WITH2->thick = pthicktype(thin);
-      WITH2->dTpar = dt; WITH2->n_design = Sext;
+	M->thick = pthicktype(thin);
+      M->dTpar = dt; M->n_design = Sext;
       AssignHOM(Lattice.param.Elem_nFam, &V);
       SetDBN(&V);
-      WITH2->Bpar[HOMmax + 3] = QK;
+      M->Bpar[HOMmax + 3] = QK;
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
 	     Lattice.param.Elem_nFam, (long)Elem_nFamMax);
@@ -2593,15 +2604,15 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       WITH->Kind = Cavity;
       // WITH->ElemF.C->Cav_Alloc(&WITH->ElemF);
       WITH->CellF = CavityType();
-      // WITH3 = WITH->ElemF.C;
-      WITH3 = static_cast<CavityType*>(&WITH->CellF);
-      WITH3->volt = Vrf;   /* Voltage [V] */
-      WITH3->freq = Frf;   /* Frequency in Hz */
-      WITH3->phi = QPhi*M_PI/180.0;
-      WITH3->h = harnum;
-      WITH3->N = k1;
-      WITH3->entry_focus = entryf == 1;
-      WITH3->exit_focus = exitf == 1;
+      // C = WITH->ElemF.C;
+      C = static_cast<CavityType*>(&WITH->CellF);
+      C->volt = Vrf;   /* Voltage [V] */
+      C->freq = Frf;   /* Frequency in Hz */
+      C->phi = QPhi*M_PI/180.0;
+      C->h = harnum;
+      C->N = k1;
+      C->entry_focus = entryf == 1;
+      C->exit_focus = exitf == 1;
       SetDBN(&V);
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
@@ -2705,16 +2716,16 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       WITH->Kind = Mpole;
       // WITH->ElemF.M->Mpole_Alloc(&WITH->ElemF);
       WITH->CellF = MpoleType();
-      // WITH2 = WITH->ElemF.M;
-      WITH2 = static_cast<MpoleType*>(&WITH->CellF);
+      // M = WITH->ElemF.M;
+      M = static_cast<MpoleType*>(&WITH->CellF);
       SetDBN(&V);
       if (WITH->L != 0.0)
-	WITH2->thick = pthicktype(thick);
+	M->thick = pthicktype(thick);
       else
-	WITH2->thick = pthicktype(thin);
-      WITH2->method = k2;
-      WITH2->N = k1;
-      WITH2->dTpar = dt;
+	M->thick = pthicktype(thin);
+      M->method = k2;
+      M->N = k1;
+      M->dTpar = dt;
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
 	     Lattice.param.Elem_nFam, (long)Elem_nFamMax);
@@ -2761,9 +2772,9 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       WITH->Kind = Mpole;
       // WITH->ElemF.M->Mpole_Alloc(&WITH->ElemF);
       WITH->CellF = MpoleType();
-      // WITH2 = WITH->ElemF.M;
-      WITH2 = static_cast<MpoleType*>(&WITH->CellF);
-      WITH2->thick = pthicktype(thin);
+      // M = WITH->ElemF.M;
+      M = static_cast<MpoleType*>(&WITH->CellF);
+      M->thick = pthicktype(thin);
       SetDBN(&V);
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
@@ -2976,23 +2987,23 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       WITH = &Lattice.ElemFam[Lattice.param.Elem_nFam-1];
       // WITH->ElemF.M->Mpole_Alloc(&WITH->ElemF);
       WITH->CellF = MpoleType();
-      // WITH2 = WITH->ElemF.M;
-      WITH2 = static_cast<MpoleType*>(&WITH->CellF);
+      // M = WITH->ElemF.M;
+      M = static_cast<MpoleType*>(&WITH->CellF);
       memcpy(WITH->Name, ElementName, sizeof(partsName));
       WITH->Kind = Mpole;
       WITH->L = QL;
       if (WITH->L != 0e0) {
-	WITH2->thick = pthicktype(thick);
-	WITH2->irho = t * M_PI / 180.0 / WITH->L;
+	M->thick = pthicktype(thick);
+	M->irho = t * M_PI / 180.0 / WITH->L;
       } else {
-	WITH2->thick = pthicktype(thin);
-	WITH2->irho = t * M_PI / 180.0;
+	M->thick = pthicktype(thin);
+	M->irho = t * M_PI / 180.0;
       }
-      WITH2->N = k1; WITH2->method = k2;
-      WITH2->Tx1 = t1; WITH2->Tx2 = t2; WITH2->gap = gap;
-      WITH2->dTpar = dt;
+      M->N = k1; M->method = k2;
+      M->Tx1 = t1; M->Tx2 = t2; M->gap = gap;
+      M->dTpar = dt;
       AssignHOM(Lattice.param.Elem_nFam, &V);
-      WITH2->n_design = WITH2->order;
+      M->n_design = M->order;
       SetDBN(&V);
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
@@ -3118,23 +3129,23 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     GetSym__(&V);
     Lattice.param.Elem_nFam++;
     if (Lattice.param.Elem_nFam <= Elem_nFamMax) {
-      WITH = &Lattice.ElemFam[Lattice.param.Elem_nFam-1]; WITH1 = &WITH->ElemF;
+      WITH = &Lattice.ElemFam[Lattice.param.Elem_nFam-1];
       memcpy(WITH->Name, ElementName, sizeof(partsName));
       WITH->L = QL; WITH->Kind = Wigl;
       // WITH->ElemF.W->Wiggler_Alloc(&WITH->ElemF);
       WITH->CellF = WigglerType();
-      // WITH4 = WITH->ElemF.W;
-      WITH4 = static_cast<WigglerType*>(&WITH->CellF);
-      WITH4->method = k2; WITH4->N = k1;
-      WITH4->dTpar = dt;
+      // W = WITH->ElemF.W;
+      W = static_cast<WigglerType*>(&WITH->CellF);
+      W->method = k2; W->N = k1;
+      W->dTpar = dt;
       SetDBN(&V);
-      WITH4->lambda = QKS; WITH4->n_harm = 1; WITH4->harm[0] = 1;
-      WITH4->kxV[0] = QKxV; WITH4->BoBrhoV[0] = QKV;
-      WITH4->kxH[0] = QKxH; WITH4->BoBrhoH[0] = QKH;
-      WITH4->phi[0] = QPhi;
+      W->lambda = QKS; W->n_harm = 1; W->harm[0] = 1;
+      W->kxV[0] = QKxV; W->BoBrhoV[0] = QKV;
+      W->kxH[0] = QKxH; W->BoBrhoH[0] = QKH;
+      W->phi[0] = QPhi;
       AssignHarm(Lattice.param.Elem_nFam, &V);
       /* Equivalent vertically focusing gradient */
-//       WITH4->BW[HOMmax+2] = -QK*QK/2e0;
+//       W->BW[HOMmax+2] = -QK*QK/2e0;
       CheckWiggler(Lattice.param.Elem_nFam, &V);
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
@@ -3214,17 +3225,17 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     GetSym__(&V);
     Lattice.param.Elem_nFam++;
     if (Lattice.param.Elem_nFam <= Elem_nFamMax) {
-      WITH = &Lattice.ElemFam[Lattice.param.Elem_nFam-1]; WITH1 = &WITH->ElemF;
+      WITH = &Lattice.ElemFam[Lattice.param.Elem_nFam-1];
       memcpy(WITH->Name, ElementName, sizeof(partsName));
       WITH->L = QL; WITH->Kind = FieldMap;
       // WITH->ElemF.FM->FieldMap_Alloc(&WITH->ElemF);
       WITH->CellF = FieldMapType();
-      // WITH6 = WITH->ElemF.FM;
-      WITH6 = static_cast<FieldMapType*>(&WITH->CellF);
-      WITH6->phi = t*M_PI/180.0; WITH6->n_step = k1; WITH6->scl = scaling;
+      // FM = WITH->ElemF.FM;
+      FM = static_cast<FieldMapType*>(&WITH->CellF);
+      FM->phi = t*M_PI/180.0; FM->n_step = k1; FM->scl = scaling;
       if (CheckUDItable("energy         ", LINK) != 0) {
 	RefUDItable("energy         ", &Lattice.param.Energy, LINK);
-	if (strcmp(str1, "") != 0) WITH1->FM->get_B(str1, WITH6);
+	if (strcmp(str1, "") != 0) FM->get_B(str1, FM);
       } else {
 	std::cout << "Fieldmap: energy not defined" << std::endl;
 	exit_(1);
@@ -3334,16 +3345,16 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       WITH->Kind = Insertion;
       // WITH->ElemF.ID->Insertion_Alloc(&WITH->ElemF);
       WITH->CellF = InsertionType();
-      // WITH5 = WITH->ElemF.ID;
-      WITH5 = static_cast<InsertionType*>(&WITH->CellF);
-      WITH5->phi = t*M_PI/180.0;
-      WITH5->method = k2;
-      WITH5->N = k1;
-      WITH5->scaling = scaling;
+      // ID = WITH->ElemF.ID;
+      ID = static_cast<InsertionType*>(&WITH->CellF);
+      ID->phi = t*M_PI/180.0;
+      ID->method = k2;
+      ID->N = k1;
+      ID->scaling = scaling;
 
      if (CheckUDItable("energy         ", LINK) != 0) {
 	RefUDItable("energy         ", &Lattice.param.Energy, LINK);
-// 	if (strcmp(str1, "") != 0) get_B(str1, WITH6);
+	// if (strcmp(str1, "") != 0) ID->get_B(str1, FM);
       } else {
 	std::cout << "Insertion_Alloc: energy not defined" << std::endl;
 	exit_(1);
@@ -3352,36 +3363,36 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       // Check if filename given for first order kicks
       if (firstflag) {
 	if (strcmp(str1,"") == 0)
-	  strcpy(WITH5->fname1,"/*No_Filename1_Given*/");
-	strcpy(WITH5->fname1,str1);
+	  strcpy(ID->fname1,"/*No_Filename1_Given*/");
+	strcpy(ID->fname1,str1);
 	// Read Id file for first order kicks
-	WITH5->firstorder = true;
-	Read_IDfile(WITH5->fname1, WITH->L, WITH5->nx, WITH5->nz,
-		    WITH5->tabx, WITH5->tabz, WITH5->thetax1, WITH5->thetaz1,
-		    WITH5->long_comp, WITH5->B2, WITH5->linear);
+	ID->firstorder = true;
+	Read_IDfile(ID->fname1, WITH->L, ID->nx, ID->nz,
+		    ID->tabx, ID->tabz, ID->thetax1, ID->thetaz1,
+		    ID->long_comp, ID->B2, ID->linear);
 	// scale factor from Radia: Tmm to get Tm.
-	for (kx = 0; kx < WITH5->nx; kx++) {
-	  for (kz = 0; kz < WITH5->nz; kz++) {
-	    WITH5->thetax1[kz][kx] = 1e-3*WITH5->thetax1[kz][kx];
-	    WITH5->thetaz1[kz][kx] = 1e-3*WITH5->thetaz1[kz][kx];
+	for (kx = 0; kx < ID->nx; kx++) {
+	  for (kz = 0; kz < ID->nz; kz++) {
+	    ID->thetax1[kz][kx] = 1e-3*ID->thetax1[kz][kx];
+	    ID->thetaz1[kz][kx] = 1e-3*ID->thetaz1[kz][kx];
 	  }
 	}
       } else {
-	strcpy(WITH5->fname1,"/*No_Filename1_Given*/");
+	strcpy(ID->fname1,"/*No_Filename1_Given*/");
       }
 
       // Check if filename given for Second order kicks
       if (secondflag) {
 	if (strcmp(str2,"") != 0)
-	  strcpy(WITH5->fname2,"/*No_Filename2_Given*/");
-	strcpy(WITH5->fname2,str2);
-	WITH5->secondorder = secondflag;
+	  strcpy(ID->fname2,"/*No_Filename2_Given*/");
+	strcpy(ID->fname2,str2);
+	ID->secondorder = secondflag;
 	// Read Id file for second order kicks
-	Read_IDfile(WITH5->fname2, WITH->L, WITH5->nx, WITH5->nz,
-		    WITH5->tabx, WITH5->tabz, WITH5->thetax, WITH5->thetaz,
-		    WITH5->long_comp, WITH5->B2, WITH5->linear);
+	Read_IDfile(ID->fname2, WITH->L, ID->nx, ID->nz,
+		    ID->tabx, ID->tabz, ID->thetax, ID->thetaz,
+		    ID->long_comp, ID->B2, ID->linear);
       } else {
-	strcpy(WITH5->fname2,"/*No_Filename2_Given*/");
+	strcpy(ID->fname2,"/*No_Filename2_Given*/");
       }
 
       // check whether no Radia filename read: something is wrong
@@ -3392,20 +3403,20 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       }
 
       if (k2 != 1) { // linear interpolation
-	WITH5->linear = false;
+	ID->linear = false;
       } else { // cubic interpolation
-	WITH5->linear = true;
+	ID->linear = true;
       }
 
       // stuff for spline interpolation
-      if (!WITH5->linear) {
-	WITH5->tx = dmatrix(1,WITH5->nz,1,WITH5->nx);
-	WITH5->tz = dmatrix(1,WITH5->nz,1,WITH5->nx);
-	WITH5->tab1 = (double *)malloc((WITH5->nx)*sizeof(double));
-	WITH5->tab2 = (double *)malloc((WITH5->nz)*sizeof(double));
-	WITH5->f2x = dmatrix(1,WITH5->nz,1,WITH5->nx);
-	WITH5->f2z = dmatrix(1,WITH5->nz,1,WITH5->nx);
-	Matrices4Spline(WITH5);
+      if (!ID->linear) {
+	ID->tx = dmatrix(1,ID->nz,1,ID->nx);
+	ID->tz = dmatrix(1,ID->nz,1,ID->nx);
+	ID->tab1 = (double *)malloc((ID->nx)*sizeof(double));
+	ID->tab2 = (double *)malloc((ID->nz)*sizeof(double));
+	ID->f2x = dmatrix(1,ID->nz,1,ID->nx);
+	ID->f2z = dmatrix(1,ID->nz,1,ID->nx);
+	Matrices4Spline(ID);
       }
       // to put somewhere
       //      /** Free memory **/
@@ -3564,11 +3575,11 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       WITH = &Lattice.ElemFam[Lattice.param.Elem_nFam-1];
       // WITH->ElemF.Sol->Solenoid_Alloc(&WITH->ElemF);
       WITH->CellF = SolenoidType();
-      // WITH7 = WITH->ElemF.Sol;
-      WITH7 = static_cast<SolenoidType*>(&WITH->CellF);
+      // Sol = WITH->ElemF.Sol;
+      Sol = static_cast<SolenoidType*>(&WITH->CellF);
       memcpy(WITH->Name, ElementName, sizeof(partsName));
       WITH->Kind = Solenoid;
-      WITH->L = QL; WITH7->N = k1; WITH7->BoBrho = QK;
+      WITH->L = QL; Sol->N = k1; Sol->BoBrho = QK;
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
 	     Lattice.param.Elem_nFam, (long)Elem_nFamMax);

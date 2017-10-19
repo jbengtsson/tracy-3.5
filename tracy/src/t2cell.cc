@@ -269,7 +269,6 @@ void LatticeType::Cell_Init(void)
   long        i, j;
   double      Stotal;
   ElemFamType *elemfamp;
-  CellType    *cellp;
 
   char first_name[] = "begin          ";
 

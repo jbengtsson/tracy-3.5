@@ -88,10 +88,12 @@ void MpoleType::Init(int Fnum)
   double      phi;
   ElemFamType *elemfamp;
   CellType    *cellp;
+  MpoleType   *M;
 
   elemfamp = &Lattice.ElemFam[Fnum-1];
-  memcpy(elemfamp->CellF.B, elemfamp->CellF.Bpar, sizeof(mpolArray));
-  elemfamp->CellF->order = Updateorder(elemfamp->CellF);
+  M = static_cast<MpoleType*>(&elemfamp->CellF);
+  memcpy(M->B, M->Bpar, sizeof(mpolArray));
+  M->order = Updateorder(elemfamp->CellF);
   for (i = 1; i <= elemfamp->nKid; i++) {
     cellp = &Lattice.Cell[elemfamp->KidList[i-1]];
 
@@ -102,7 +104,7 @@ void MpoleType::Init(int Fnum)
       // Swap entrance and exit angles.
       printf("Swapping entrance and exit angles for %8s %2d\n",
 	     cellp->Name, i);
-      // phi = cellp->Tx1; cellp->Tx1 = cellp->Tx2; cellp->Tx2 = phi; 
+      phi = M->Tx1; M->Tx1 = M->Tx2; M->Tx2 = phi; 
     }
   }
 }
@@ -166,10 +168,12 @@ void WigglerType::Init(int Fnum)
   int         i;
   ElemFamType *elemfamp;
   CellType    *cellp;
+  WigglerType *W;
 
   elemfamp = &Lattice.ElemFam[Fnum-1];
+  W = static_cast<WigglerType*>(&elemfamp->CellF);
   /* ElemF.M^.B := ElemF.M^.Bpar; */
-  elemfamp->CellF->order = Quad;
+  W->order = Quad;
   for (i = 1; i <= elemfamp->nKid; i++) {
     cellp = &Lattice.Cell[elemfamp->KidList[i-1]];
 

@@ -28,8 +28,8 @@
 
 #include "lsoc.cc"
 
-#include "prtmfile.cc"
-#include "rdmfile.cc"
+//#include "prtmfile.cc"
+//#include "rdmfile.cc"
 
 #include "fft.cc"
 

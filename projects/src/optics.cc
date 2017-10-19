@@ -327,12 +327,31 @@ void chk_dip(void)
 }
 
 
+complex<double> get_h1_ijklm(const int loc, const double b3L,
+		    const int i, const int j, const int k, const int l,
+		    const int m)
+{
+  complex<double> I, h_ijklm;
+
+  I = complex<double>(0e0, 1e0);
+
+  h_ijklm =
+    b3L*pow(Cell[loc].Beta[X_], (i+j)/2e0)*pow(Cell[loc].Beta[Y_], (k+l)/2e0)
+    *pow(Cell[loc].Eta[X_], m)
+    *exp(I*((i-j)*Cell[loc].Nu[X_]+(k-l)*Cell[loc].Nu[Y_])*2e0*M_PI);
+
+  return h_ijklm;
+}
+
+
 void get_drv_terms(void)
 {
+  const int n_max = 200;
+
   int             loc, n, k;
-  double          b3L, a3L, s[globval.Cell_nLoc+1];
+  double          b3L, a3L, s[n_max];
   complex<double> h[4][4][4][4][3],
-                  h_loc[4][4][4][4][3][globval.Cell_nLoc+1];
+                  h_loc[4][4][4][4][3][n_max];
   FILE            *outf;
 
   n = 0;
