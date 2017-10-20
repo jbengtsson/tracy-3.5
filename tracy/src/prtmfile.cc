@@ -114,6 +114,7 @@ void LatticeType::prtmfile(const char mfile_dat[])
 
   mfile = file_write(mfile_dat);
   for (i = 0; i <= Lattice.param.Cell_nLoc; i++) {
+    printf("%8s\n", Lattice.Cell[i].Kind);
     switch (Lattice.Cell[i].Kind) {
     case drift:
       prtName(mfile, i, drift_, 0, 0);
