@@ -186,12 +186,13 @@ void param_data_type::get_param(const string &param_file)
 void param_data_type::get_bare(void)
 {
   // Store optics function values at the sextupoles.
-  long int j, k;
+  long int  j, k;
+  MpoleType *M;
 
   n_sext = 0;
   for (j = 0; j <= Lattice.param.Cell_nLoc; j++) {
-    if ((Lattice.Cell[j].Kind == Mpole) &&
-	(Lattice.Cell[j].Elem.M->n_design >= Sext)) {
+    M = static_cast<MpoleType*>(&Lattice.Cell[j]);
+    if ((Lattice.Cell[j].Kind == Mpole) && (M->n_design >= Sext)) {
       n_sext++; sexts[n_sext-1] = j;
       for (k = 0; k < 2; k++) {
 	betas0_[n_sext-1][k] = Lattice.Cell[j].Beta[k];
@@ -638,32 +639,35 @@ void param_data_type::corr_eps_y(void)
 
 void param_data_type::get_IDs(void)
 {
-  int k;
+  int           k;
+  WigglerType   *W;
+  InsertionType *ID;
+  FieldMapType  *FM;
 
   printf("\n");
   n_ID_Fams = 0;
   for (k = 0; k < Lattice.param.Elem_nFam; k++)
     switch (Lattice.ElemFam[k].Kind) {
     case Wigl:
+      W = static_cast<WigglerType*>(&Lattice.ElemFam[k].CellF);
       printf("found ID family:   %s %12.5e\n",
-	     Lattice.ElemFam[k].Name,
-	     Lattice.ElemFam[k].ElemF.W->BoBrhoV[0]);
+	     Lattice.ElemFam[k].Name, W->BoBrhoV[0]);
       n_ID_Fams++; ID_Fams[n_ID_Fams-1] = k + 1;
       break;
     case Insertion:
+      ID = static_cast<InsertionType*>(&Lattice.ElemFam[k].CellF);
       printf("found ID family:   %s %12.5e",
-	     Lattice.ElemFam[k].Name,
-	     Lattice.ElemFam[k].ElemF.ID->scaling);
-      if (Lattice.ElemFam[k].ElemF.ID->scaling != 0e0) {
+	     Lattice.ElemFam[k].Name, ID->scaling);
+      if (ID->scaling != 0e0) {
 	printf("\n");
 	n_ID_Fams++; ID_Fams[n_ID_Fams-1] = k + 1;
       } else
 	printf("  not included\n");
       break;
     case FieldMap:
+      FM = static_cast<FieldMapType*>(&Lattice.ElemFam[k].CellF);
       printf("found ID family:   %s %12.5e\n",
-	     Lattice.ElemFam[k].Name,
-	     Lattice.ElemFam[k].ElemF.FM->scl);
+	     Lattice.ElemFam[k].Name, FM->scl);
       n_ID_Fams++; ID_Fams[n_ID_Fams-1] = k + 1;
       break;
     default:
@@ -677,29 +681,26 @@ void set_ID_scl(const int Fnum, const double scl);
 
 void param_data_type::set_IDs(const double scl)
 {
-  int k;
+  int         k;
+  WigglerType *W;
 
   printf("\n");
   for (k = 0; k < n_ID_Fams; k++) {
     switch (Lattice.ElemFam[ID_Fams[k]-1].Kind) {
     case Wigl:
+      W = static_cast<WigglerType*>(&Lattice.ElemFam[ID_Fams[k]-1].CellF);
       printf("setting ID family: %s %12.5e\n",
-	     Lattice.ElemFam[ID_Fams[k]-1].Name,
-	     scl*Lattice.ElemFam[ID_Fams[k]-1].ElemF.W->BoBrhoV[0]);
-
-      set_Wiggler_BoBrho(ID_Fams[k],
-			 scl*Lattice.ElemFam[ID_Fams[k]-1].ElemF.W->BoBrhoV[0]);
+	     Lattice.ElemFam[ID_Fams[k]-1].Name, scl*W->BoBrhoV[0]);
+      set_Wiggler_BoBrho(ID_Fams[k], scl*W->BoBrhoV[0]);
       break;
     case Insertion:
       printf("setting ID family: %s %12.5e\n",
 	     Lattice.ElemFam[ID_Fams[k]-1].Name, scl);
-
       set_ID_scl(ID_Fams[k], scl);
       break;
     case FieldMap:
       printf("setting ID family: %s %12.5e\n",
 	     Lattice.ElemFam[ID_Fams[k]-1].Name, scl);
-
       set_ID_scl(ID_Fams[k], scl);
       break;
     default:
@@ -809,9 +810,10 @@ void param_data_type::quad_config()
 
 bool param_data_type::get_SQ(void)
 {
-  int  j, k;
+  int       j, k;
 //  Vector2  alpha3[3], beta3[3], nu3[3], eta3[3], etap3[3];
-  FILE *outf = NULL;
+  MpoleType *M;
+  FILE      *outf = NULL;
 
   /* Note, IDs are split for evaluation of the driving terms at the center:
        id1  1, 2
@@ -841,8 +843,8 @@ bool param_data_type::get_SQ(void)
 
   Nsext = 0;
   for (k = 0; k < Lattice.param.Cell_nLoc; k++) {
-    if ((Lattice.Cell[k].Kind == Mpole) &&
-	(Lattice.Cell[k].Elem.M->n_design == Sext)) {
+    M = static_cast<MpoleType*>(&Lattice.Cell[k]);
+    if ((Lattice.Cell[k].Kind == Mpole) && (M->n_design == Sext)) {
       Nsext++;
 
       if (Nsext > n_b3_max) {
@@ -1461,9 +1463,10 @@ void param_data_type::Align_BPMs(const int n) const
 {
   // Align BPMs to adjacent multipoles.
 
-  bool     aligned;
-  int      i, j, k;
-  long int loc;
+  bool      aligned;
+  int       i, j, k;
+  long int  loc;
+  MpoleType *M, *Mp, *Mm;
 
   const int n_step = 5;
 
@@ -1476,18 +1479,20 @@ void param_data_type::Align_BPMs(const int n) const
       exit_(1);
     }
 
+    M  = static_cast<MpoleType*>(&Lattice.Cell[loc]);
     j = 1; aligned = false;
     do {
-      if ((Lattice.Cell[loc-j].Kind == Mpole) &&
-	  (Lattice.Cell[loc-j].Elem.M->n_design == n)) {
+      Mp = static_cast<MpoleType*>(&Lattice.Cell[loc+j]);
+      Mm = static_cast<MpoleType*>(&Lattice.Cell[loc-j]);
+      if ((Lattice.Cell[loc-j].Kind == Mpole) && (Mm->n_design == n)) {
 	for (k = 0; k <= 1; k++)
-	  Lattice.Cell[loc].Elem.M->dSsys[k] = Lattice.Cell[loc-j].dS[k];
+	  M->dSsys[k] = Lattice.Cell[loc-j].dS[k];
 	printf("aligned BPM no %1d to %s\n", i, Lattice.Cell[loc-j].Name);
 	aligned = true; break;
       } else if ((Lattice.Cell[loc+j].Kind == Mpole) &&
-		 (Lattice.Cell[loc+j].Elem.M->n_design == n)) {
+		 (Mp->n_design == n)) {
 	for (k = 0; k <= 1; k++)
-	  Lattice.Cell[loc].Elem.M->dSsys[k] = Lattice.Cell[loc+j].dS[k];
+	  M->dSsys[k] = Lattice.Cell[loc+j].dS[k];
 	printf("aligned BPM no %1d to %s\n", i, Lattice.Cell[loc+j].Name);
 	aligned = true; break;
       }
@@ -1644,20 +1649,22 @@ bool param_data_type::cod_corr(const int n_cell, const double scl,
 
 void param_data_type::Orb_and_Trim_Stat(void)
 {
-  int     i, j, N;
-  int     SextCounter = 0;
-  int     bins[5] = { 0, 0, 0, 0, 0 };
-  double  bin = 40.0e-6; // bin size for stat
-  double  tr; // trim strength
-  Vector2 Sext_max, Sext_sigma, TrimMax, orb;
+  int       i, j, N;
+  int       SextCounter = 0;
+  int       bins[5] = { 0, 0, 0, 0, 0 };
+  double    bin = 40.0e-6; // bin size for stat
+  double    tr; // trim strength
+  Vector2   Sext_max, Sext_sigma, TrimMax, orb;
+  MpoleType *M;
 
   Sext_max[X_] = 0.0; Sext_max[Y_] = 0.0;
   Sext_sigma[X_] = 0.0; Sext_sigma[Y_] = 0.0;
   TrimMax[X_] = 0.0; TrimMax[Y_] = 0.0;
   N = Lattice.param.Cell_nLoc; SextCounter = 0;
   for (i = 0; i <= N; i++) {
+    M = static_cast<MpoleType*>(&Lattice.Cell[i]);
     if ((Lattice.Cell[i].Kind == Mpole) &&
-	(Lattice.Cell[i].Elem.M->n_design == Sext)) {
+	(M->n_design == Sext)) {
       SextCounter++;
       orb[X_] = Lattice.Cell[i].BeamPos[x_];
       orb[Y_] = Lattice.Cell[i].BeamPos[y_];
@@ -1673,11 +1680,11 @@ void param_data_type::Orb_and_Trim_Stat(void)
     } // sextupole handling
 
     if (Lattice.Cell[i].Fnum == Lattice.param.hcorr) {
-      tr = Lattice.Cell[i].Elem.M->Bpar[HOMmax+Dip];
+      tr = M->Bpar[HOMmax+Dip];
       if (fabs(tr) > TrimMax[X_]) TrimMax[X_] = fabs(tr);
     } // horizontal trim handling
     if (Lattice.Cell[i].Fnum == Lattice.param.vcorr) {
-      tr = Lattice.Cell[i].Elem.M->Bpar[HOMmax-Dip];
+      tr = M->Bpar[HOMmax-Dip];
       if (fabs(tr) > TrimMax[Y_]) TrimMax[Y_] = fabs(tr);
     } // vertical trim handling
   } // looking throught the cells

@@ -28,6 +28,7 @@ void get_cod_rms(const double dx, const double dy,
   bool                cod;
   int                 i, j, k, n, n_cod;
   std::vector<double> x1[6], x2[6], x_mean[6], x_sigma[6];
+  MpoleType           *M;
   FILE                *fp;
 
   const int n_cod_corr = 5;
@@ -54,15 +55,16 @@ void get_cod_rms(const double dx, const double dy,
       n_cod++;
 
       n = 0;
-      for (j = 0; j <= Lattice.param.Cell_nLoc; j++)
-	if (all || ((Lattice.Cell[j].Kind == Mpole) &&
-		    (Lattice.Cell[j].Elem.M->n_design == Sext))) {
+      for (j = 0; j <= Lattice.param.Cell_nLoc; j++) {
+	M = static_cast<MpoleType*>(&Lattice.Cell[j]);
+	if (all || ((Lattice.Cell[j].Kind == Mpole) && (M->n_design == Sext))) {
 	  n++;
 	  for (k = 0; k < 6; k++) {
 	    x1[k][n-1] += Lattice.Cell[j].BeamPos[k];
 	    x2[k][n-1] += sqr(Lattice.Cell[j].BeamPos[k]);
 	  }
 	}
+      }
     } else
       printf("orb_corr: failed\n");
 
@@ -74,9 +76,9 @@ void get_cod_rms(const double dx, const double dy,
   printf("\nget_cod_rms: no of seeds %d, no of cods %d\n", n_seed, n_cod);
 
   n = 0;
-  for (j = 0; j <= Lattice.param.Cell_nLoc; j++)
-    if (all || ((Lattice.Cell[j].Kind == Mpole) &&
-		(Lattice.Cell[j].Elem.M->n_design == Sext))) {
+  for (j = 0; j <= Lattice.param.Cell_nLoc; j++) {
+    M = static_cast<MpoleType*>(&Lattice.Cell[j]);
+    if (all || ((Lattice.Cell[j].Kind == Mpole) && (M->n_design == Sext))) {
       n++;
       for (k = 0; k < 6; k++) {
 	x_mean[k].push_back(x1[k][n-1]/n_cod);
@@ -90,7 +92,8 @@ void get_cod_rms(const double dx, const double dy,
     } else
       fprintf(fp, "%8.3f %6.2f\n",
 	      Lattice.Cell[j].S, get_code(Lattice.Cell[j]));
-  
+  }
+
   fclose(fp);
 }
 
@@ -288,8 +291,9 @@ void chk_b3(void)
 
 void chk_dip(void)
 {
-  int    k, loc;
-  double L, phi, L_sum, phi_sum;
+  int       k, loc;
+  double    L, phi, L_sum, phi_sum;
+  MpoleType *M;
 
   const int
     Fnum[] =
@@ -316,12 +320,12 @@ void chk_dip(void)
   L_sum = 0e0; phi_sum = 0e0;
   for (k = 0; k < n_dip; k++) {
     loc = Lattice.Elem_GetPos(Fnum[k], 1);
+    M = static_cast<MpoleType*>(&Lattice.Cell[loc]);
     L = Lattice.Cell[loc].L;
-    phi = L*Lattice.Cell[loc].Elem.M->irho*180e0/M_PI;
+    phi = L*M->irho*180e0/M_PI;
     L_sum += L; phi_sum += phi;
     printf(" %6s %4.3f %6.3f %9.6f %9.6f %9.6f %9.6f %9.6f\n",
-	   Lattice.Cell[loc].Name, L, 1e0/Lattice.Cell[loc].Elem.M->irho,
-	   phi, Lattice.Cell[loc].Elem.M->Tx1, Lattice.Cell[loc].Elem.M->Tx2,
+	   Lattice.Cell[loc].Name, L, 1e0/M->irho, phi, M->Tx1, M->Tx2,
 	   L_sum, phi_sum);
   }
 }
@@ -336,9 +340,11 @@ complex<double> get_h1_ijklm(const int loc, const double b3L,
   I = complex<double>(0e0, 1e0);
 
   h_ijklm =
-    b3L*pow(Cell[loc].Beta[X_], (i+j)/2e0)*pow(Cell[loc].Beta[Y_], (k+l)/2e0)
-    *pow(Cell[loc].Eta[X_], m)
-    *exp(I*((i-j)*Cell[loc].Nu[X_]+(k-l)*Cell[loc].Nu[Y_])*2e0*M_PI);
+    b3L*pow(Lattice.Cell[loc].Beta[X_],
+	    (i+j)/2e0)*pow(Lattice.Cell[loc].Beta[Y_], (k+l)/2e0)
+    *pow(Lattice.Cell[loc].Eta[X_], m)
+    *exp(I*((i-j)*Lattice.Cell[loc].Nu[X_]+(k-l)
+	    *Lattice.Cell[loc].Nu[Y_])*2e0*M_PI);
 
   return h_ijklm;
 }
@@ -352,6 +358,7 @@ void get_drv_terms(void)
   double          b3L, a3L, s[n_max];
   complex<double> h[4][4][4][4][3],
                   h_loc[4][4][4][4][3][n_max];
+  MpoleType       *M;
   FILE            *outf;
 
   n = 0;
@@ -366,12 +373,13 @@ void get_drv_terms(void)
   h[1][0][2][0][0] = complex<double>(0e0, 0e0);
   h[1][0][0][2][0] = complex<double>(0e0, 0e0);
 
-  for (loc = 0; loc <= globval.Cell_nLoc; loc++) {
-    if ((Cell[loc].Elem.Pkind == Mpole) &&
-	(Cell[loc].Elem.M->Porder == Sext)) {
+  for (loc = 0; loc <= Lattice.param.Cell_nLoc; loc++) {
+    M = static_cast<MpoleType*>(&Lattice.Cell[loc]);
+    if ((Lattice.Cell[loc].Kind == Mpole) && (M->order == Sext)) {
       n++;
 
-      get_bnL_design_elem(Cell[loc].Fnum, Cell[loc].Knum, Sext, b3L, a3L);
+      get_bnL_design_elem(Lattice.Cell[loc].Fnum, Lattice.Cell[loc].Knum,
+			  Sext, b3L, a3L);
 
       h[1][0][0][0][2] += get_h1_ijklm(loc, b3L, 1, 0, 0, 0, 2);
       h[2][0][0][0][1] += get_h1_ijklm(loc, b3L, 2, 0, 0, 0, 1);
@@ -383,7 +391,7 @@ void get_drv_terms(void)
       h[1][0][2][0][0] += get_h1_ijklm(loc, b3L, 1, 0, 2, 0, 0);
       h[1][0][0][2][0] += get_h1_ijklm(loc, b3L, 1, 0, 0, 2, 0);
 
-      s[n-1] = Cell[loc].S;
+      s[n-1] = Lattice.Cell[loc].S;
 
       h_loc[1][0][0][0][2][n-1] = h[1][0][0][0][2];
       h_loc[2][0][0][0][1][n-1] = h[2][0][0][0][1];
@@ -435,6 +443,7 @@ int main(int argc, char *argv[])
   Matrix           M;
   std::vector<int> Fam;
   ostringstream    str;
+  CavityType       *C;
 
   const long        seed   = 1121;
   const int         n_turn = 2064;
@@ -644,9 +653,10 @@ int main(int argc, char *argv[])
   if (false) {
     Lattice.param.Cavity_on = false; Lattice.param.radiation = false;
 
-    f_rf =
-      Lattice.Cell[Lattice.Elem_GetPos(Lattice.Elem_Index("cav"), 1)]
-      .Elem.C->freq;
+    C =
+      static_cast<CavityType*>
+      (&Lattice.Cell[Lattice.Elem_GetPos(Lattice.Elem_Index("cav"), 1)]);
+    f_rf = C->freq;
     printf("\nf_rf = %10.3e\n", f_rf);
 
     Lattice.param.Cavity_on = true;

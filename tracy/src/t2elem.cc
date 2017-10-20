@@ -973,17 +973,19 @@ void Wiggler_pass_EF(const CellType &Cell, ss_vect<T> &x)
                AyoBrho[4] = {0e0, 0e0, 0e0, 0e0},
                psi, hodp, a12, a21, a22, det,
                d1, d2, a11, c11, c12, c21, c22, x2, B[3];
+  CellType     Cell1;
   WigglerType  *W;
   FieldMapType *FM;
 
+  Cell1 = Cell;
   switch (Cell.Kind) {
   case Wigl:
-    W = static_cast<WigglerType*>(&Cell);
+    W = static_cast<WigglerType*>(&Cell1);
 
     nstep = W->N;
     break;
   case FieldMap:
-    FM = static_cast<FieldMapType*>(&Cell);
+    FM = static_cast<FieldMapType*>(&Cell1);
 
     nstep = FM->n_step;
     break;
@@ -1204,9 +1206,11 @@ void Wiggler_pass_EF3(const CellType &Cell, ss_vect<T> &x)
   int         i;
   double      h, z;
   T           hd, AxoBrho, AyoBrho, dAxoBrho[3], dAyoBrho[3], dpy, dpx, B[3];
+  CellType    Cell1;
   WigglerType *W;
 
-  W = static_cast<WigglerType*>(&Cell);
+  Cell1 = Cell;
+  W = static_cast<WigglerType*>(&Cell1);
 
   h = Cell.L/W->N; z = 0e0;
 
@@ -1359,12 +1363,13 @@ void f_FM(const CellType &Cell, const double z, const ss_vect<T> &ps,
 
   int          j, kz;
   T            BoBrho[3], p_s;
+  CellType     Cell1;
   FieldMapType *FM;
 
   const double eps = 1e-5;
 
-
-  FM = static_cast<FieldMapType*>(&Cell);
+  Cell1 = Cell;
+  FM = static_cast<FieldMapType*>(&Cell1);
 
   kz = 0;
   for (j = 1; j <= FM->n[Z_]; j++)
@@ -2035,9 +2040,11 @@ void sol_pass(const CellType &Cell, ss_vect<T> &x)
   int          i;
   double       h, z;
   T            hd, AxoBrho, AyoBrho, dAxoBrho[3], dAyoBrho[3], dpy, dpx, B[3];
+  CellType     Cell1;
   SolenoidType *Sol; 
 
-  Sol = static_cast<SolenoidType*>(&Cell);
+  Cell1 = Cell;
+  Sol = static_cast<SolenoidType*>(&Cell1);
 
   h = Cell.L/Sol->N; z = 0e0;
 

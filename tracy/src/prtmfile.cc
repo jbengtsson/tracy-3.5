@@ -105,8 +105,12 @@ void prtHOM(FILE *fp, const int n_design, const mpolArray B, const int Order)
 
 void LatticeType::prtmfile(const char mfile_dat[])
 {
-  int     i, j;
-  FILE    *mfile;
+  int           i, j;
+  MpoleType     *M;
+  WigglerType   *W;
+  CavityType    *C;
+  InsertionType *ID;
+  FILE          *mfile;
 
   mfile = file_write(mfile_dat);
   for (i = 0; i <= Lattice.param.Cell_nLoc; i++) {
@@ -117,68 +121,48 @@ void LatticeType::prtmfile(const char mfile_dat[])
       break;
     case Mpole:
       if (Lattice.Cell[i].L != 0.0) {
-	prtName(mfile, i, mpole_, Lattice.Cell[i].Elem.M->method,
-		Lattice.Cell[i].Elem.M->N);
+	M = static_cast<MpoleType*>(&Lattice.Cell[i]);
+	prtName(mfile, i, mpole_, M->method, M->N);
 	fprintf(mfile, " %23.16e %23.16e %23.16e %23.16e\n",
 		Lattice.Cell[i].dS[X_], Lattice.Cell[i].dS[Y_],
-		Lattice.Cell[i].Elem.M->dTpar,
-		Lattice.Cell[i].Elem.M->dTsys
-		+Lattice.Cell[i].Elem.M->dTrms*Lattice.Cell[i].Elem.M->dTrnd);
+		M->dTpar, M->dTsys+M->dTrms*M->dTrnd);
 	fprintf(mfile, " %23.16e %23.16e %23.16e %23.16e %23.16e\n",
-		Lattice.Cell[i].L, Lattice.Cell[i].Elem.M->irho,
-		Lattice.Cell[i].Elem.M->Tx1, Lattice.Cell[i].Elem.M->Tx2,
-		Lattice.Cell[i].Elem.M->gap);
-	prtHOM(mfile, Lattice.Cell[i].Elem.M->n_design,
-	       Lattice.Cell[i].Elem.M->B, Lattice.Cell[i].Elem.M->order);
+		Lattice.Cell[i].L, M->irho, M->Tx1, M->Tx2,	M->gap);
+	prtHOM(mfile, M->n_design, M->B, M->order);
       } else {
-	prtName(mfile, i, thinkick_, Lattice.Cell[i].Elem.M->method,
-		Lattice.Cell[i].Elem.M->N);
+	prtName(mfile, i, thinkick_, M->method,	M->N);
 	fprintf(mfile, " %23.16e %23.16e %23.16e\n",
 		Lattice.Cell[i].dS[X_], Lattice.Cell[i].dS[Y_],
-		Lattice.Cell[i].Elem.M->dTsys
-		+Lattice.Cell[i].Elem.M->dTrms*Lattice.Cell[i].Elem.M->dTrnd);
-	prtHOM(mfile, Lattice.Cell[i].Elem.M->n_design,
-	       Lattice.Cell[i].Elem.M->B, Lattice.Cell[i].Elem.M->order);
+		M->dTsys+M->dTrms*M->dTrnd);
+	prtHOM(mfile, M->n_design, M->B, M->order);
       }
       break;
     case Wigl:
-      prtName(mfile, i, wiggler_, Lattice.Cell[i].Elem.W->method,
-	      Lattice.Cell[i].Elem.W->N);
+      prtName(mfile, i, wiggler_, W->method, W->N);
       fprintf(mfile, " %23.16e %23.16e\n",
-	      Lattice.Cell[i].L, Lattice.Cell[i].Elem.W->lambda);
-      fprintf(mfile, "%2d\n", Lattice.Cell[i].Elem.W->n_harm);
-      for (j = 0; j < Lattice.Cell[i].Elem.W->n_harm; j++) {
+	      Lattice.Cell[i].L, W->lambda);
+      fprintf(mfile, "%2d\n", W->n_harm);
+      for (j = 0; j < W->n_harm; j++) {
 	fprintf(mfile, "%2d %23.16e %23.16e %23.16e %23.16e %23.16e\n",
-		Lattice.Cell[i].Elem.W->harm[j],
-		Lattice.Cell[i].Elem.W->kxV[j],
-		Lattice.Cell[i].Elem.W->BoBrhoV[j],
-		Lattice.Cell[i].Elem.W->kxH[j],
-		Lattice.Cell[i].Elem.W->BoBrhoH[j],
-		Lattice.Cell[i].Elem.W->phi[j]);
+		W->harm[j], W->kxV[j], W->BoBrhoV[j], W->kxH[j], W->BoBrhoH[j],
+		W->phi[j]);
       }
       break;
     case Cavity:
       prtName(mfile, i, cavity_, 0, 0);
       fprintf(mfile, " %23.16e %23.16e %d %23.16e %23.16e\n",
-	      Lattice.Cell[i].Elem.C->volt/(1e9*Lattice.param.Energy),
-	      2.0*M_PI*Lattice.Cell[i].Elem.C->freq/c0,
-	      Lattice.Cell[i].Elem.C->h,
-	      1e9*Lattice.param.Energy, Lattice.Cell[i].Elem.C->phi);
+	      C->volt/(1e9*Lattice.param.Energy), 2.0*M_PI*C->freq/c0, C->h,
+	      1e9*Lattice.param.Energy, C->phi);
       break;
     case marker:
       prtName(mfile, i, marker_, 0, 0);
       break;
     case Insertion:
-      prtName(mfile, i, kick_map_, Lattice.Cell[i].Elem.ID->method,
-	      Lattice.Cell[i].Elem.ID->N);
-      if (Lattice.Cell[i].Elem.ID->firstorder)
-	fprintf(mfile, " %3.1lf %1d %s\n",
-		Lattice.Cell[i].Elem.ID->scaling, 1,
-		Lattice.Cell[i].Elem.ID->fname1);
+      prtName(mfile, i, kick_map_, ID->method, ID->N);
+      if (ID->firstorder)
+	fprintf(mfile, " %3.1lf %1d %s\n", ID->scaling, 1, ID->fname1);
       else
-	fprintf(mfile, " %3.1lf %1d %s\n",
-		Lattice.Cell[i].Elem.ID->scaling, 2,
-		Lattice.Cell[i].Elem.ID->fname2);
+	fprintf(mfile, " %3.1lf %1d %s\n", ID->scaling, 2, ID->fname2);
       break;
     default:
       printf("prtmfile: unknown type %d\n", Lattice.Cell[i].Kind);
