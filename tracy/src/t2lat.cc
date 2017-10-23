@@ -137,7 +137,7 @@ LatticeType Lattice;
 statusrec   status;
 bool        trace, traceID;
 
-const bool debug_lat = false;
+const bool debug_lat = true;
 
 bool reverse_elem = false; // Beam Dynamics or Software Engineering reverse.
 
@@ -1467,7 +1467,11 @@ static void Doinverse(struct LOC_GetBlock *LINK)
   GetSym_(LINK->LINK);
   GetBlock(LINK->LINK);
   b2 = LINK->LINK->LINK->Bpointer;
-  if (debug_lat) printf("\n  Doinverse: b2-b1+1 = %ld\n", b2-b1+1);
+  if (debug_lat)
+    printf("\nDoinverse:\n  b2-b1+1 = %ld\n  |%s| 2%ld %2ld\n",
+	   b2-b1+1,
+	   LINK->LINK->LINK->BlockS[LINK->LINK->LINK->NoB-1].Bname,
+	   block_no, LINK->LINK->LINK->NoB);
   /* Bug fix: INV(A, B, ...) for 2 elements
   n_elem = b2 - b1 */
   n_elem = b2 - b1 + 1;
@@ -1489,9 +1493,7 @@ static void Doinverse(struct LOC_GetBlock *LINK)
 	  CheckBLOCKStable(
 	    LINK->LINK->LINK->BlockS[LINK->LINK->LINK->NoB-1].Bname,
 	    LINK->LINK->LINK);
-	printf("  Doinverse:       |%s| 2%ld %2ld %2ld %1d %2ld %1d\n",
-	       LINK->LINK->LINK->BlockS[LINK->LINK->LINK->NoB-1].Bname,
-	       block_no, LINK->LINK->LINK->NoB,
+	printf("  %2ld %1d %2ld %1d\n",
 	       LINK->LINK->LINK->Bstack[b],
 	       LINK->LINK->LINK->Reverse_stack[b],
 	       LINK->LINK->LINK->Bstack[b2-k1-1],
@@ -1510,7 +1512,7 @@ static void Doinverse(struct LOC_GetBlock *LINK)
 	CheckBLOCKStable(
 	  LINK->LINK->LINK->BlockS[LINK->LINK->LINK->NoB-1].Bname,
 	  LINK->LINK->LINK);
-      printf("  Doinverse (odd): |%s| 2%ld %2ld %2ld %1d\n",
+      printf("Odd:\n  |%s| 2%ld %2ld\n  %2ld %1d\n",
 	     LINK->LINK->LINK->BlockS[LINK->LINK->LINK->NoB-1].Bname,
 	     block_no, LINK->LINK->LINK->NoB,
 	     LINK->LINK->LINK->Bstack[b2-k1-1],
@@ -3742,8 +3744,9 @@ static void init_reserved_words(struct LOC_Lattice_Read *LINK)
   Reg("voltage        ", vrfsym, &V);
   Reg("wiggler        ", wglsym, &V);
 
-  if (trace) fprintf(stdout,"Nb of keywords = %ld (%d)\n",
-		     LINK->nkw, Lat_nkw_max);
+  if (trace)
+    fprintf(stdout,"\ninit_reserved_words: No of keywords = %ld (%d)\n",
+	    LINK->nkw, Lat_nkw_max);
 
   LINK->sps[(int)'+'] = plus_;
   LINK->sps[(int)'-'] = minus_;
@@ -3982,9 +3985,10 @@ static void DealWithDefns(struct LOC_Lattice_Read *LINK)
 	      Lattice.Cell[k].Fnum = k1;
 	      Lattice.Cell[k].Reverse = LINK->Reverse_stack[j];
 	      if (debug_lat)
-		printf("  Cell definition: |%s| %2ld %3ld %2d %1d\n",
-		       WITH->Bname, i, k,
-		       Lattice.Cell[k].Fnum, Lattice.Cell[k].Reverse);
+		if (j == WITH->BSTART - 1)
+		  printf("\nCell definition: |%s| %2d\n", WITH->Bname, i);
+		printf("  %2ld %2d %1d\n",
+		       k, Lattice.Cell[k].Fnum, Lattice.Cell[k].Reverse);
 	    } else {
 	      printf("** Cell_nLocMax exhausted: %ld(%ld)\n",
 		     k, (long)Cell_nLocMax);
@@ -4100,13 +4104,13 @@ void GetRingType(struct LOC_Lattice_Read *LINK)
 
   k = CheckUDItable("ringtype       ", LINK);
   if (k == 0L) {
-    fprintf(stdout,"> Ring type is not defined, default is ring.\n");
+    fprintf(stdout,"\n> Ring type is not defined, default is ring.\n");
     Lattice.param.RingType = 1;
   } else {
     Lattice.param.RingType = (int) LINK->UDItable[k - 1L].Uvalue;
     if (Lattice.param.RingType != 1 && Lattice.param.RingType != 0) {
-      printf("> ringtype variable is not defined"
-	      " properly in the lattice file\n");
+      printf("\n> ringtype variable is not defined"
+	     " properly in the lattice file\n");
       printf("> ringtype set to 1 means ring\n");
       printf("> ringtype set to 0 means transfer line\n");
       exit_(1);
@@ -4164,7 +4168,7 @@ static double Circumference(struct LOC_Lattice_Read *LINK)
 
 static void RegisterKids(struct LOC_Lattice_Read *LINK)
 {
-  long i, FORLIM;
+  long        i, FORLIM;
   ElemFamType *WITH;
 
   if (debug_lat) printf("\nRegisterKids:\n");
@@ -4173,9 +4177,7 @@ static void RegisterKids(struct LOC_Lattice_Read *LINK)
     FORLIM = Lattice.param.Elem_nFam;
     for (i = 0; i < FORLIM; i++) {
       Lattice.ElemFam[i].nKid = 0;
-      if (debug_lat)
-	printf("  RegisterKids: %2ld %8s\n", i+1,
-	       Lattice.ElemFam[i].Name);
+      if (debug_lat) printf("  %2ld %8s\n", i+1, Lattice.ElemFam[i].Name);
     }
   } else {
     printf("Elem_nFamMax exceeded: %ld(%d)\n",
@@ -4183,6 +4185,7 @@ static void RegisterKids(struct LOC_Lattice_Read *LINK)
     exit_(1);
   }
 
+  if (debug_lat) printf("\nKids:\n");
   FORLIM = Lattice.param.Cell_nLoc;
   for (i = 1; i <= FORLIM; i++) {
     WITH = &Lattice.ElemFam[Lattice.Cell[i].Fnum-1];
@@ -4192,13 +4195,17 @@ static void RegisterKids(struct LOC_Lattice_Read *LINK)
       Lattice.Cell[i].Knum = WITH->nKid;
     } else
       printf("nKidMax exceeded: %d(%d)\n", WITH->nKid, nKidMax);
+    if (debug_lat)
+      printf("  %3d %2d %s %2d\n",
+	     i, Lattice.Cell[i].Fnum,
+	     Lattice.ElemFam[Lattice.Cell[i].Fnum-1].Name, WITH->nKid);
   }
 }
 
 
 void PrintResult(struct LOC_Lattice_Read *LINK)
 {
-  long j, nKid, FORLIM;
+  long      j, nKid, FORLIM;
   struct tm *newtime;
 
   /* Get time and date */
@@ -4209,14 +4216,11 @@ void PrintResult(struct LOC_Lattice_Read *LINK)
   printf("\n");
   printf("  LATTICE Statistics for today %s \n\n", asctime2(newtime));
   printf("  Number of constants: UDIC                 =%5ld"
-	 ", UDImax          =%5d\n",
-	 LINK->UDIC, UDImax);
+	 ", UDImax          =%5d\n", LINK->UDIC, UDImax);
   printf("  Number of keywords : nkw                  =%5ld"
-	 ", Lat_nkw_max     =%5d\n",
-	 LINK->nkw, Lat_nkw_max);
+	 ", Lat_nkw_max     =%5d\n", LINK->nkw, Lat_nkw_max);
   printf("  Number of Families : Elem_nFam            =%5ld"
-	 ", Elem_nFamMax    =%5d\n",
-	 Lattice.param.Elem_nFam, Elem_nFamMax);
+	 ", Elem_nFamMax    =%5d\n", Lattice.param.Elem_nFam, Elem_nFamMax);
   nKid = 0L;
   FORLIM = Lattice.param.Elem_nFam;
   for (j = 0L; j < FORLIM; j++) {
@@ -4224,17 +4228,13 @@ void PrintResult(struct LOC_Lattice_Read *LINK)
       nKid = Lattice.ElemFam[j].nKid;
   }
   printf("  Max number of Kids : nKidMax              =%5ld"
-	 ", nKidMax         =%5d\n",
-	 nKid, nKidMax);
+	 ", nKidMax         =%5d\n", nKid, nKidMax);
   printf("  Number of Blocks   : NoB                  =%5ld"
-	 ", NoBmax          =%5d\n",
-	 LINK->NoB, NoBmax);
+	 ", NoBmax          =%5d\n", LINK->NoB, NoBmax);
   printf("  Max Block size     : NoBE                 =%5ld"
-	 ", NoBEmax         =%5d\n",
-	 LINK->Bpointer, NoBEmax);
-  printf("  Number of Elements : Cell_nLoc    =%5ld"
-	 ", Cell_nLocmax    =%5d\n",
-	 Lattice.param.Cell_nLoc, Cell_nLocMax);
+	 ", NoBEmax         =%5d\n", LINK->Bpointer, NoBEmax);
+  printf("  Number of Elements : Cell_nLoc            =%5ld"
+	 ", Cell_nLocmax    =%5d\n", Lattice.param.Cell_nLoc, Cell_nLocMax);
   printf("  Circumference      : %12.7f [m]\n", Circumference(LINK));
   printf("\n");
   printf("\n");
@@ -4246,7 +4246,8 @@ bool LatticeType::Lattice_Read(FILE **fi_, FILE **fo_)
   struct LOC_Lattice_Read V;
 
   if (trace)
-    printf("t2lat: dndsym = %d, solsym = %d, max_set = %d, SETBITS = %u\n",
+    printf("\nLattice_Read: dndsym = %d, solsym = %d, max_set = %d"
+	   ", SETBITS = %u\n",
 	   bndsym, solsym, max_set, (unsigned)(4*sizeof(long int)));
 
   V.fi = fi_; /* input lattice file */
@@ -4275,11 +4276,9 @@ bool LatticeType::Lattice_Read(FILE **fi_, FILE **fo_)
     GetDP(&V);      /* define energy offset */
   }
 
-  if (*V.fi != NULL)
-    fclose(*V.fi);  /* Close lat file */
+  if (*V.fi != NULL) fclose(*V.fi);  /* Close lat file */
   *V.fi = NULL;
-  if (*V.fo != NULL)
-    fclose(*V.fo);  /* Close lax file */
+  if (*V.fo != NULL) fclose(*V.fo);  /* Close lax file */
   *V.fo = NULL;
   RegisterKids(&V); /* Check wether too many elements */
   PrintResult(&V);  /* Print lattice statistics */
@@ -4301,6 +4300,74 @@ bool LatticeType::Lattice_Read(FILE **fi_, FILE **fo_)
 #undef tmax
 
 
+long LatticeType::Elem_Index(const std::string &name)
+{
+  long        i, j;
+  std::string name1;
+
+  name1 = name;
+  j = (signed)name.length();
+  for (i = 0; i < j; i++)
+    name1[i] = tolower(name1[i]);
+  for (i = j; i < SymbolLength; i++)
+    name1 += ' ';
+
+  if (trace) {
+    std::cout << std::endl;
+    std::cout << "Elem_Index: " << name << " (";
+    for (i = 0; i < (signed)name1.length(); i++)
+      std::cout << std::setw(4) << (int)name1[i];
+    std::cout << std::setw(4) << (int)name1[name1.length()] << " )"
+	      << std::endl;
+    std::cout << std::endl;
+  }
+
+  if (Lattice.param.Elem_nFam > Elem_nFamMax) {
+    printf("ElemIndex: Elem_nFamMax exceeded: %ld(%d)\n",
+           Lattice.param.Elem_nFam, Elem_nFamMax);
+    exit_(1);
+  }
+
+  i = 1;
+  while (i <= Lattice.param.Elem_nFam) {
+    if (trace) {
+      std::cout << std::setw(2) << (name1 == Lattice.ElemFam[i-1].Name)
+	   << " " << name1 << " " << Lattice.ElemFam[i-1].Name << " (";
+      for (j = 0; j < SymbolLength; j++)
+	std::cout << std::setw(4) << (int)Lattice.ElemFam[i-1].Name[j];
+      std::cout  << " )" << std::endl;
+    }
+
+    if (name1 == Lattice.ElemFam[i-1].Name) break;
+
+    i++;
+  }
+
+  if (name1 != Lattice.ElemFam[i-1].Name) {
+    std::cout << "ElemIndex: undefined element " << name << std::endl;
+    exit_(1);
+  }
+
+  return i;
+}
+
+
+std::ostream& LatticeType::Show_ElemFam(std::ostream &str)
+{
+  int k;
+
+  str << "\nElemFam:\n";
+  for (k = 0; k < this->param.Elem_nFam; k++)
+    str << std::fixed << std::setprecision(3)
+	<< std::setw(3) << k
+	<< " " << Lattice.ElemFam[k].Name << " " << Lattice.ElemFam[k].L
+	<< " " << Lattice.ElemFam[k].Kind << " " << Lattice.ElemFam[k].Reverse
+	<< "\n"; 
+
+  return str;
+}
+
+
 void LatticeType::Read_Lattice(const char *fic)
 {
   bool     status;
@@ -4308,7 +4375,7 @@ void LatticeType::Read_Lattice(const char *fic)
   int      i;
   double   dP = 0.0;
   Vector2  beta, alpha, eta, etap;
-  psVector   codvect;
+  psVector codvect;
 
   const double RFacceptance = 0.060001; // soleil energy acceptance
 
@@ -4394,56 +4461,4 @@ void LatticeType::Read_Lattice(const char *fic)
 
     ttwiss(alpha, beta, eta, etap, dP);
   }
-}
-
-
-long LatticeType::Elem_Index(const std::string &name)
-{
-  long    i, j;
-  std::string  name1;
-
-  name1 = name;
-  j = (signed)name.length();
-  for (i = 0; i < j; i++)
-    name1[i] = tolower(name1[i]);
-  for (i = j; i < SymbolLength; i++)
-    name1 += ' ';
-
-  if (trace) {
-    std::cout << std::endl;
-    std::cout << "ElemIndex: " << name << " (";
-    for (i = 0; i < (signed)name1.length(); i++)
-      std::cout << std::setw(4) << (int)name1[i];
-    std::cout << std::setw(4) << (int)name1[name1.length()] << " )"
-	      << std::endl;
-    std::cout << std::endl;
-  }
-
-  if (Lattice.param.Elem_nFam > Elem_nFamMax) {
-    printf("ElemIndex: Elem_nFamMax exceeded: %ld(%d)\n",
-           Lattice.param.Elem_nFam, Elem_nFamMax);
-    exit_(1);
-  }
-
-  i = 1;
-  while (i <= Lattice.param.Elem_nFam) {
-    if (trace) {
-      std::cout << std::setw(2) << (name1 == Lattice.ElemFam[i-1].Name)
-	   << " " << name1 << " " << Lattice.ElemFam[i-1].Name << " (";
-      for (j = 0; j < SymbolLength; j++)
-	std::cout << std::setw(4) << (int)Lattice.ElemFam[i-1].Name[j];
-      std::cout  << " )" << std::endl;
-    }
-
-    if (name1 == Lattice.ElemFam[i-1].Name) break;
-
-    i++;
-  }
-
-  if (name1 != Lattice.ElemFam[i-1].Name) {
-    std::cout << "ElemIndex: undefined element " << name << std::endl;
-    exit_(1);
-  }
-
-  return i;
 }

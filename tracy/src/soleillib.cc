@@ -427,7 +427,7 @@ void DefineCh(void)
       }
     }
   }
-  trace=0;
+  // trace=0;
 
   /* Set the vacuum chamber */
 

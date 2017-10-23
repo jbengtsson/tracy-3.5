@@ -85,19 +85,6 @@ typedef struct statusrec{
 } statusrec;
 
 
-// LEGO blocks for Lattice.
-
-class DriftType;
-class MpoleType;
-class WigglerType;
-class InsertionType;
-class FieldMapType;
-class CavityType;
-class SpreaderType;
-class RecombinerType;
-class SolenoidType;
-
-
 // Virtual base class for LEGO blocks.
 class ElemType {
  private:
@@ -471,6 +458,8 @@ class LatticeType {
 
   void rdmfile(const char *mfile_dat);
   void prtmfile(const char mfile_dat[]);
+
+  std::ostream& Show_ElemFam(std::ostream &str);
 
   // From t2lat.cc.
 
