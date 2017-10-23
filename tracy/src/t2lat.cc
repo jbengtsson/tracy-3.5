@@ -4214,7 +4214,7 @@ void PrintResult(struct LOC_Lattice_Read *LINK)
   printf("  Number of keywords : nkw                  =%5ld"
 	 ", Lat_nkw_max     =%5d\n",
 	 LINK->nkw, Lat_nkw_max);
-  printf("  Number of Families : Lattice.param.Elem_nFam    =%5ld"
+  printf("  Number of Families : Elem_nFam            =%5ld"
 	 ", Elem_nFamMax    =%5d\n",
 	 Lattice.param.Elem_nFam, Elem_nFamMax);
   nKid = 0L;
@@ -4232,7 +4232,7 @@ void PrintResult(struct LOC_Lattice_Read *LINK)
   printf("  Max Block size     : NoBE                 =%5ld"
 	 ", NoBEmax         =%5d\n",
 	 LINK->Bpointer, NoBEmax);
-  printf("  Number of Elements : Lattice.param.Cell_nLoc    =%5ld"
+  printf("  Number of Elements : Cell_nLoc    =%5ld"
 	 ", Cell_nLocmax    =%5d\n",
 	 Lattice.param.Cell_nLoc, Cell_nLocMax);
   printf("  Circumference      : %12.7f [m]\n", Circumference(LINK));

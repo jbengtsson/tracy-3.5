@@ -125,7 +125,7 @@ void LatticeType::Cell_Pass(const long i0, const long i1, ss_vect<T> &x,
 
 
 void LatticeType::Cell_Pass(const long i0, const long i1, tps &sigma,
-			     long &lastpos)
+			    long &lastpos)
 {
   // Note: Sigma_k+1 = M_k Sigma_k M_k^T = (M_k (M_k Sigma_k)^T)^T
   const int  n = 9;
@@ -292,3 +292,10 @@ void LatticeType::Cell_Init(void)
     Stotal += Lattice.Cell[i].L; Lattice.Cell[i].S = Stotal;
   }
 }
+
+
+// Instantiate
+template void LatticeType::Cell_Pass(const long i0, const long i1,
+				     ss_vect<double> &x, long &lastpos);
+template void LatticeType::Cell_Pass(const long i0, const long i1,
+				     ss_vect<tps> &x, long &lastpos);
