@@ -4358,7 +4358,8 @@ long LatticeType::Elem_Index(const std::string &name)
 
 std::ostream& LatticeType::Show_ElemFam(std::ostream &str)
 {
-  int j, k;
+  int       j, k;
+  MpoleType *M;
 
   const int n_prt = 10;
 
@@ -4373,6 +4374,10 @@ std::ostream& LatticeType::Show_ElemFam(std::ostream &str)
       if (k % n_prt == 0) str << "\n                           ";
     }
     str << "\n";
+    if (ElemFam[j].Kind == Mpole) {
+      M = static_cast<MpoleType*>(&Lattice.ElemFam[j].CellF);
+      M->Show(str);
+    }
   }
 
   return str;
