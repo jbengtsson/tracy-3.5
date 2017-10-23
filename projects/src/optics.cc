@@ -474,9 +474,6 @@ int main(int argc, char *argv[])
     Lattice.rdmfile(argv[1]);
 
   exit(0);
-  Lattice.prtmfile("flat_file.dat");
-  Lattice.prt_lat("linlat1.out", Lattice.param.bpm, true);
-  exit(0);
 
   if (false) {
     loc = Lattice.Elem_GetPos(Lattice.Elem_Index("bb"), 1);

@@ -4358,20 +4358,28 @@ long LatticeType::Elem_Index(const std::string &name)
 
 std::ostream& LatticeType::Show_ElemFam(std::ostream &str)
 {
-  int k;
+  int j, k;
+
+  const int n_prt = 10;
 
   str << "\nElemFam:\n";
-  for (k = 0; k < this->param.Elem_nFam; k++)
+  for (j = 0; j < this->param.Elem_nFam; j++) {
     str << std::fixed << std::setprecision(3)
-	<< std::setw(3) << k+1
-	<< " " << this->ElemFam[k].L << " " << this->ElemFam[k].Kind
-	<< " " << this->ElemFam[k].Name << "\n"; 
+	<< std::setw(3) << j+1
+	<< " " << this->ElemFam[j].L << " " << this->ElemFam[j].Kind
+	<< " " << this->ElemFam[j].Name;
+    for (k = 1; k <= this->ElemFam[j].nKid; k++) {
+      str << " " << std::setw(3) << this->ElemFam[j].KidList[k-1];
+      if (k % n_prt == 0) str << "\n                           ";
+    }
+    str << "\n";
+  }
 
   return str;
 }
 
 
-std::ostream& LatticeType::Show_Lattice(std::ostream &str)
+std::ostream& LatticeType::Show(std::ostream &str)
 {
   int k;
 
@@ -4436,12 +4444,14 @@ void LatticeType::Read_Lattice(const char *fic)
   std::cout << "Lattice file: " << fic_maille << std::endl;
 
   Lattice.Show_ElemFam(std::cout);
-  Lattice.Show_Lattice(std::cout);
-  exit(0);
+  Lattice.Show(std::cout);
 
   /* initializes cell structure: construction of the RING */
   /* Creator of all the matrices for each element         */
   Cell_Init();
+
+  exit(0);
+  Lattice.Show(std::cout);
 
   if (Lattice.param.RingType == 1) { // for a ring
     /* define x/y physical aperture  */

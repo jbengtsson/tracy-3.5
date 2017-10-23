@@ -2223,6 +2223,14 @@ void Mpole_Print(FILE *f, int Fnum)
 }
 
 
+std::ostream& MpoleType::Show(std::ostream &str)
+{
+  str << this->method;
+
+  return str;
+}
+
+
 void Drift_Print(FILE *f, int Fnum)
 {
   ElemFamType *elemfamp;

@@ -37,6 +37,8 @@ const int Spreader_max = 10;
 
 #define M_PI         3.14159265358979323846    // pi.
 
+#define debug true
+
 const double c0    = 2.99792458e8;             // speed of light in vacuum.
 const double q_e   = 1.602e-19;                // electron charge.
 const double m_e   = 0.51099906e6;             // electron rest mass [eV/c^2].
@@ -103,6 +105,7 @@ class ElemType {
   //template<typename T>
   //  virtual void propagate(ss_vect<T> &ps) const; 
 
+  std::ostream& Show(std::ostream &str);
   template<typename T>
     void Marker_Pass(ss_vect<T> &X);
 };
@@ -129,9 +132,8 @@ class CellType : public ElemType {
 				maxampl[Y_][0] < y < maxampl[Y_][1]. */
 
   void Cell_Init(void);
+  std::ostream& Show(std::ostream &str);
 
-  void Elem_Print(FILE *f, int Fnum);
-    
   template<typename T>
     T get_p_s(const ss_vect<T> &);
 
@@ -145,6 +147,8 @@ class CellType : public ElemType {
 
   template<typename T>
     void Pass(ss_vect<T> &x) { this->Pass(x); }
+
+  void Elem_Print(FILE *f, int Fnum);
 };
 
 
@@ -154,9 +158,10 @@ class MarkerType : public CellType {
 
   MarkerType(void);
   void Init(int Fnum);
-  void Marker_Print(FILE *f, int Fnum);
   template<typename T>
     void Pass(ss_vect<T> &x);
+
+  void Marker_Print(FILE *f, int Fnum);
 };
 
 
@@ -166,9 +171,10 @@ class DriftType : public CellType {
 
   DriftType(void);
   void Init(int Fnum);
-  void Drift_Print(FILE *f, int Fnum);
   template<typename T>
     void Pass(ss_vect<T> &x);
+
+  void Drift_Print(FILE *f, int Fnum);
 };
 
 
@@ -204,11 +210,13 @@ class MpoleType : public CellType {
 
   MpoleType(void);
   void Init(int Fnum);
-  void Mpole_Print(FILE *f, int Fnum);
+  std::ostream& Show(std::ostream &str);
   template<typename T>
     void Pass(ss_vect<T> &x);
 
   void SI_init(void);
+
+  void Mpole_Print(FILE *f, int Fnum);
 };
 
 
@@ -460,7 +468,7 @@ class LatticeType {
   void prtmfile(const char mfile_dat[]);
 
   std::ostream& Show_ElemFam(std::ostream &str);
-  std::ostream& Show_Lattice(std::ostream &str);
+  std::ostream& Show(std::ostream &str);
 
   // From t2lat.cc.
 

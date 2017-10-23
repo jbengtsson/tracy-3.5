@@ -14,8 +14,6 @@
 # define LONG_MIN (~LONG_MAX)
 #endif
 
-#define debug false
-
 #define S_SIZE 200  // max size for file name of a lattice file
 
 #define blankname    "               "

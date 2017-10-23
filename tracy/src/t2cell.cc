@@ -270,26 +270,34 @@ void LatticeType::Cell_Init(void)
   double      Stotal;
   ElemFamType *elemfamp;
 
-  char first_name[] = "begin          ";
+  // SymbolLength = 15.
+  const char first_name[] = "begin          ";
+  const int  n_prt        = 10;
 
-  if (debug) printf("**  Cell_Init\n");
+  if (debug) printf("\nCell_Init:\n");
 
   SI_init();
 
-  strcpy(Lattice.Cell[0].Name, first_name);
+  strcpy(this->Cell[0].Name, first_name);
 
-  for (i = 1; i <= Lattice.param.Elem_nFam; i++) {
+  for (i = 1; i <= this->param.Elem_nFam; i++) {
+    elemfamp = &this->ElemFam[i-1];
     if (debug)
-      printf("Cell_Init, i:=%3ld: %*s\n", i, SymbolLength, elemfamp->Name);
-    // Lattice.ElemFam[i-1].CellF.Init(i);
-    elemfamp = &Lattice.ElemFam[i-1];
-    for (j = 1; j <= elemfamp->nKid; j++)
-      Lattice.Cell[elemfamp->KidList[j-1]] = Lattice.ElemFam[i-1].CellF;
+      printf("  %2ld |%*s|", i, SymbolLength, elemfamp->Name);
+    // this->ElemFam[i-1].CellF.Init(i);
+    for (j = 1; j <= elemfamp->nKid; j++) {
+      this->Cell[elemfamp->KidList[j-1]] = elemfamp->CellF;
+      if (debug) {
+	printf(" %3d", elemfamp->KidList[j-1]);
+	if (j % n_prt == 0) printf("\n                      ");
+      }
+    }
+    if (debug) printf("\n");
   }
 
   Stotal = 0e0;
-  for (i = 0; i <= Lattice.param.Cell_nLoc; i++) {
-    Stotal += Lattice.Cell[i].L; Lattice.Cell[i].S = Stotal;
+  for (i = 0; i <= this->param.Cell_nLoc; i++) {
+    Stotal += this->Cell[i].L; this->Cell[i].S = Stotal;
   }
 }
 
