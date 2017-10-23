@@ -460,6 +460,7 @@ class LatticeType {
   void prtmfile(const char mfile_dat[]);
 
   std::ostream& Show_ElemFam(std::ostream &str);
+  std::ostream& Show_Lattice(std::ostream &str);
 
   // From t2lat.cc.
 

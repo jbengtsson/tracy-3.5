@@ -137,7 +137,7 @@ LatticeType Lattice;
 statusrec   status;
 bool        trace, traceID;
 
-const bool debug_lat = true;
+const bool debug_lat = false;
 
 bool reverse_elem = false; // Beam Dynamics or Software Engineering reverse.
 
@@ -3984,11 +3984,13 @@ static void DealWithDefns(struct LOC_Lattice_Read *LINK)
 	    if (k <= Cell_nLocMax) {
 	      Lattice.Cell[k].Fnum = k1;
 	      Lattice.Cell[k].Reverse = LINK->Reverse_stack[j];
-	      if (debug_lat)
+	      if (debug_lat) {
 		if (j == WITH->BSTART - 1)
-		  printf("\nCell definition: |%s| %2d\n", WITH->Bname, i);
-		printf("  %2ld %2d %1d\n",
-		       k, Lattice.Cell[k].Fnum, Lattice.Cell[k].Reverse);
+		  printf("\nCell Definition:\n  |%s| %2ld\n", WITH->Bname, i);
+		printf("  %3ld %2d %1d |%s|\n",
+		       k, Lattice.Cell[k].Fnum, Lattice.Cell[k].Reverse,
+		       Lattice.ElemFam[Lattice.Cell[k].Fnum-1].Name);
+	      }
 	    } else {
 	      printf("** Cell_nLocMax exhausted: %ld(%ld)\n",
 		     k, (long)Cell_nLocMax);
@@ -4196,9 +4198,11 @@ static void RegisterKids(struct LOC_Lattice_Read *LINK)
     } else
       printf("nKidMax exceeded: %d(%d)\n", WITH->nKid, nKidMax);
     if (debug_lat)
-      printf("  %3d %2d %s %2d\n",
-	     i, Lattice.Cell[i].Fnum,
-	     Lattice.ElemFam[Lattice.Cell[i].Fnum-1].Name, WITH->nKid);
+      printf("  %3ld %2d %3d %1d %1d %s\n",
+	     i, Lattice.Cell[i].Fnum, Lattice.Cell[i].Knum,
+	     Lattice.ElemFam[Lattice.Cell[i].Fnum-1].Kind,
+	     Lattice.Cell[i].Reverse,
+	     Lattice.ElemFam[Lattice.Cell[i].Fnum-1].Name);
   }
 }
 
@@ -4359,10 +4363,26 @@ std::ostream& LatticeType::Show_ElemFam(std::ostream &str)
   str << "\nElemFam:\n";
   for (k = 0; k < this->param.Elem_nFam; k++)
     str << std::fixed << std::setprecision(3)
-	<< std::setw(3) << k
-	<< " " << Lattice.ElemFam[k].Name << " " << Lattice.ElemFam[k].L
-	<< " " << Lattice.ElemFam[k].Kind << " " << Lattice.ElemFam[k].Reverse
-	<< "\n"; 
+	<< std::setw(3) << k+1
+	<< " " << this->ElemFam[k].L << " " << this->ElemFam[k].Kind
+	<< " " << this->ElemFam[k].Name << "\n"; 
+
+  return str;
+}
+
+
+std::ostream& LatticeType::Show_Lattice(std::ostream &str)
+{
+  int k;
+
+  str << "\nLattice:\n";
+  for (k = 1; k <= this->param.Cell_nLoc; k++)
+    str << std::fixed << std::setprecision(3)
+	<< "  " << std::setw(3) << k
+	<< " " << std::setw(2) << this->Cell[k].Fnum
+	<< " " << std::setw(3) << this->Cell[k].Knum
+	<< " " << std::setw(1) << this->Cell[k].Reverse
+	<< " " << this->ElemFam[this->Cell[k].Fnum-1].Name << "\n"; 
 
   return str;
 }
@@ -4414,6 +4434,10 @@ void LatticeType::Read_Lattice(const char *fic)
     exit_(1);
   }
   std::cout << "Lattice file: " << fic_maille << std::endl;
+
+  Lattice.Show_ElemFam(std::cout);
+  Lattice.Show_Lattice(std::cout);
+  exit(0);
 
   /* initializes cell structure: construction of the RING */
   /* Creator of all the matrices for each element         */

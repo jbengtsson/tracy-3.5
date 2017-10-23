@@ -473,7 +473,6 @@ int main(int argc, char *argv[])
   else
     Lattice.rdmfile(argv[1]);
 
-  Lattice.Show_ElemFam(std::cout);
   exit(0);
   Lattice.prtmfile("flat_file.dat");
   Lattice.prt_lat("linlat1.out", Lattice.param.bpm, true);
