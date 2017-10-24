@@ -105,7 +105,7 @@ class ElemType {
   //template<typename T>
   //  virtual void propagate(ss_vect<T> &ps) const; 
 
-  std::ostream& Show(std::ostream &str);
+  //std::ostream& Show(std::ostream &str);
   template<typename T>
     void Marker_Pass(ss_vect<T> &X);
 };
@@ -132,7 +132,7 @@ class CellType : public ElemType {
 				maxampl[Y_][0] < y < maxampl[Y_][1]. */
 
   void Cell_Init(void);
-  std::ostream& Show(std::ostream &str);
+  virtual std::ostream& Show(std::ostream &str);
 
   template<typename T>
     T get_p_s(const ss_vect<T> &);
@@ -392,8 +392,6 @@ class ElemFamType : public ElemType {
   int        KidList[nKidMax];
   int        NoDBN;
   DBNameType DBNlist[nKidMax];
-
-  void Fam_Init(void);
 };
 
 
@@ -463,6 +461,59 @@ class LatticeType {
 
   bool Lattice_Read(FILE **fi_, FILE **fo_);
   void Read_Lattice(const char *fic);
+
+  void rdmfile(const char *mfile_dat);
+  void prtmfile(const char mfile_dat[]);
+
+  std::ostream& Show_ElemFam(std::ostream &str);
+  std::ostream& Show(std::ostream &str);
+
+  // LEGO.cc.
+  void Fam_Init(const int Fnum);
+
+  // t2lat.
+
+  long Elem_Index(const std::string &name1);
+
+  long CheckElementtable(const char *name, struct LOC_Lattice_Read *LINK);
+  double BlockLength(long ii, struct LOC_Lat_EVAL *LINK);
+  double GetKparm(long direction, struct LOC_Factor *LINK);
+  void Factor(struct LOC_Term *LINK);
+  void Term(struct LOC_Expression *LINK);
+  void Expression(struct LOC_Lat_EVAL *LINK);
+  double Lat_EVAL(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
+		  long *errpos_,
+		  long *lc_, long *nkw_, long *inum_, long emax__,
+		  long emin__,
+		  long kmax__, long nmax__, char *chin_, char *id_,
+		  double *rnum_,
+		  bool *skipflag_, bool *rsvwd_, char *line_,
+		  Lat_symbol *sym_,
+		  alfa_ *key_, Lat_symbol *ksy_, Lat_symbol *sps_,
+		  struct LOC_Lattice_Read *LINK);
+  double EVAL(struct LOC_Lat_ProcessBlockInput *LINK);
+  void InsideParent(long k4, struct LOC_GetBlock *LINK);
+  void Doinverse(struct LOC_GetBlock *LINK);
+  void GetBlock(struct LOC_Lat_ProcessBlockInput *LINK);
+  void Lat_ProcessBlockInput(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
+			     long *errpos_, long *lc_, long *nkw_,
+			     long *inum_, long emax__, long emin__,
+			     long kmax__, long nmax__, char *chin_,
+			     char *id_, char *BlockName,
+			     double *rnum_, bool *skipflag_, bool *rsvwd_,
+			     char *line_,
+			     Lat_symbol *sym_, alfa_ *key_,
+			     Lat_symbol *ksy_, Lat_symbol *sps_,
+			     struct LOC_Lattice_Read *LINK);
+  bool Lat_CheckWiggler(FILE **fo, long i, struct LOC_Lattice_Read *LINK);
+  double EVAL_(struct LOC_Lat_DealElement *LINK);
+  void ProcessBlockInput(struct LOC_Lat_DealElement *LINK);
+  void CheckWiggler(long i, struct LOC_Lat_DealElement *LINK);
+  void GetHOM(struct LOC_Lat_DealElement *LINK);
+  void AssignHOM(long elem, struct LOC_Lat_DealElement *LINK);
+  void GetHarm(struct LOC_Lat_DealElement *LINK);
+  void AssignHarm(long elem, struct LOC_Lat_DealElement *LINK);
+  void SetDBN(struct LOC_Lat_DealElement *LINK);
   bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 		       long *errpos_, long *lc_, long *nkw_, long *inum_,
 		       long emax__, long emin__,
@@ -473,6 +524,7 @@ class LatticeType {
 		       char *line_, Lat_symbol *sym_, alfa_ *key_,
 		       Lat_symbol *ksy_,
 		       Lat_symbol *sps_, struct LOC_Lattice_Read *LINK);
+  double EVAL__(struct LOC_DealWithDefns *LINK);
   void DealWithDefns(struct LOC_Lattice_Read *LINK);
   void GetEnergy(struct LOC_Lattice_Read *LINK);
   void GetRingType(struct LOC_Lattice_Read *LINK);
@@ -481,16 +533,6 @@ class LatticeType {
   double Circumference(struct LOC_Lattice_Read *LINK);
   void RegisterKids(struct LOC_Lattice_Read *LINK);
   void PrintResult(struct LOC_Lattice_Read *LINK);
-
-  void rdmfile(const char *mfile_dat);
-  void prtmfile(const char mfile_dat[]);
-
-  std::ostream& Show_ElemFam(std::ostream &str);
-  std::ostream& Show(std::ostream &str);
-
-  // From t2lat.cc.
-
-  long Elem_Index(const std::string &name1);
 
   // From t2elem.cc.
 

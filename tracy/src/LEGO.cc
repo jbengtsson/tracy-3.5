@@ -110,15 +110,6 @@ void MpoleType::Init(int Fnum)
 }
 
 
-std::ostream& MpoleType::Show(std::ostream &str)
-{
-  str << "      Mpole: Method = " << this->method << " N = " << this->N
-      << "\n";
-
-  return str;
-}
-
-
 CavityType::CavityType(void)
 {
 
@@ -382,19 +373,131 @@ void SolenoidType::Init(int Fnum)
 }
 
 
-void Fam_Init(int Fnum)
+long LatticeType::Elem_Index(const std::string &name)
+{
+  long        i, j;
+  std::string name1;
+
+  name1 = name;
+  j = (signed)name.length();
+  for (i = 0; i < j; i++)
+    name1[i] = tolower(name1[i]);
+  for (i = j; i < SymbolLength; i++)
+    name1 += ' ';
+
+  if (trace) {
+    std::cout << std::endl;
+    std::cout << "Elem_Index: " << name << " (";
+    for (i = 0; i < (signed)name1.length(); i++)
+      std::cout << std::setw(4) << (int)name1[i];
+    std::cout << std::setw(4) << (int)name1[name1.length()] << " )"
+	      << std::endl;
+    std::cout << std::endl;
+  }
+
+  if (this->param.Elem_nFam > Elem_nFamMax) {
+    printf("ElemIndex: Elem_nFamMax exceeded: %ld(%d)\n",
+           this->param.Elem_nFam, Elem_nFamMax);
+    exit_(1);
+  }
+
+  i = 1;
+  while (i <= this->param.Elem_nFam) {
+    if (trace) {
+      std::cout << std::setw(2) << (name1 == this->ElemFam[i-1].Name)
+	   << " " << name1 << " " << this->ElemFam[i-1].Name << " (";
+      for (j = 0; j < SymbolLength; j++)
+	std::cout << std::setw(4) << (int)this->ElemFam[i-1].Name[j];
+      std::cout  << " )" << std::endl;
+    }
+
+    if (name1 == this->ElemFam[i-1].Name) break;
+
+    i++;
+  }
+
+  if (name1 != this->ElemFam[i-1].Name) {
+    std::cout << "ElemIndex: undefined element " << name << std::endl;
+    exit_(1);
+  }
+
+  return i;
+}
+
+
+void LatticeType::Fam_Init(const int Fnum)
 {
   int         i;
   ElemFamType *elemfamp;
   CellType    *cellp;
 
-  elemfamp = &Lattice.ElemFam[Fnum-1];
+  elemfamp = &this->ElemFam[Fnum-1];
   for (i = 1; i <= elemfamp->nKid; i++) {
-    cellp = &Lattice.Cell[elemfamp->KidList[i-1]];
+    cellp = &this->Cell[elemfamp->KidList[i-1]];
 
     strncpy(cellp->Name, elemfamp->Name, NameLength);
-    cellp->L = elemfamp->L;
-    cellp->Kind = elemfamp->Kind;
+    cellp->L = elemfamp->L; cellp->Kind = elemfamp->Kind;
     cellp->Reverse = elemfamp->Reverse;
   }
+}
+
+
+std::ostream& MpoleType::Show(std::ostream &str)
+{
+  str << "      Mpole: Method = " << this->method << " N = " << this->N
+      << "\n";
+
+  return str;
+}
+
+
+std::ostream& CellType::Show(std::ostream &str)
+{
+  if (this->Kind == Mpole) str << "CellType: Mpole\n";
+};
+
+
+std::ostream& LatticeType::Show_ElemFam(std::ostream &str)
+{
+  int       j, k;
+  MpoleType *M;
+
+  const int n_prt = 10;
+
+  str << "\nElemFam:\n";
+  for (j = 0; j < this->param.Elem_nFam; j++) {
+    str << std::fixed << std::setprecision(3)
+	<< "\n  " << std::setw(3) << j+1
+	<< " " << this->ElemFam[j].L << " " << this->ElemFam[j].Kind
+	<< " " << this->ElemFam[j].Name;
+    for (k = 1; k <= this->ElemFam[j].nKid; k++) {
+      str << " " << std::setw(3) << this->ElemFam[j].KidList[k-1];
+      if (k % n_prt == 0) str << "\n                             ";
+    }
+    str << "\n";
+    this->ElemFam[j].CellF.Show(str);
+    // if (ElemFam[j].Kind == Mpole) {
+    //   M = static_cast<MpoleType*>(&this->ElemFam[j].CellF);
+    //   M->Show(str);
+    // }
+  }
+
+  return str;
+}
+
+
+std::ostream& LatticeType::Show(std::ostream &str)
+{
+  int k;
+
+  str << "\nLattice:\n";
+  for (k = 1; k <= this->param.Cell_nLoc; k++)
+    str << std::fixed << std::setprecision(3)
+	<< "  " << std::setw(3) << k
+	<< " " << std::setw(2) << this->Cell[k].Fnum
+	<< " " << std::setw(3) << this->Cell[k].Knum
+	<< " " << std::setw(1) << this->Cell[k].Reverse
+	<< " " << this->ElemFam[this->Cell[k].Fnum-1].Name << "\n"; 
+
+  return str;
 }
