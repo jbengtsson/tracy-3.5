@@ -91,9 +91,9 @@ void MpoleType::Init(int Fnum)
   MpoleType   *M;
 
   elemfamp = &Lattice.ElemFam[Fnum-1];
-  M = static_cast<MpoleType*>(&elemfamp->CellF);
+  M = static_cast<MpoleType*>(elemfamp->CellF);
   memcpy(M->B, M->Bpar, sizeof(mpolArray));
-  M->order = Updateorder(elemfamp->CellF);
+  M->order = Updateorder(*elemfamp->CellF);
   for (i = 1; i <= elemfamp->nKid; i++) {
     cellp = &Lattice.Cell[elemfamp->KidList[i-1]];
 
@@ -171,7 +171,7 @@ void WigglerType::Init(int Fnum)
   WigglerType *W;
 
   elemfamp = &Lattice.ElemFam[Fnum-1];
-  W = static_cast<WigglerType*>(&elemfamp->CellF);
+  W = static_cast<WigglerType*>(elemfamp->CellF);
   /* ElemF.M^.B := ElemF.M^.Bpar; */
   W->order = Quad;
   for (i = 1; i <= elemfamp->nKid; i++) {
@@ -442,10 +442,26 @@ void LatticeType::Fam_Init(const int Fnum)
 }
 
 
+std::ostream& DriftType::Show(std::ostream &str)
+{
+  str << "      Drift"  << "\n";
+
+  return str;
+}
+
+
 std::ostream& MpoleType::Show(std::ostream &str)
 {
-  str << "      Mpole: Method = " << this->method << " N = " << this->N
+  str << "      Mpole: Method = " << this->method << ", N = " << this->N
       << "\n";
+
+  return str;
+}
+
+
+std::ostream& CavityType::Show(std::ostream &str)
+{
+  str << "      Cavity"  << "\n";
 
   return str;
 }
@@ -453,7 +469,7 @@ std::ostream& MpoleType::Show(std::ostream &str)
 
 std::ostream& CellType::Show(std::ostream &str)
 {
-  if (this->Kind == Mpole) str << "CellType: Mpole\n";
+  if (this->Kind == Mpole) str << "      CellType: Mpole\n";
 };
 
 
@@ -475,11 +491,7 @@ std::ostream& LatticeType::Show_ElemFam(std::ostream &str)
       if (k % n_prt == 0) str << "\n                             ";
     }
     str << "\n";
-    this->ElemFam[j].CellF.Show(str);
-    // if (ElemFam[j].Kind == Mpole) {
-    //   M = static_cast<MpoleType*>(&this->ElemFam[j].CellF);
-    //   M->Show(str);
-    // }
+    // this->ElemFam[j].CellF->Show(str);
   }
 
   return str;
@@ -494,7 +506,7 @@ std::ostream& LatticeType::Show(std::ostream &str)
   for (k = 1; k <= this->param.Cell_nLoc; k++)
     str << std::fixed << std::setprecision(3)
 	<< "  " << std::setw(3) << k
-	<< " " << std::setw(2) << this->Cell[k].Fnum
+	<< " " << std::setw(3) << this->Cell[k].Fnum
 	<< " " << std::setw(3) << this->Cell[k].Knum
 	<< " " << std::setw(1) << this->Cell[k].Reverse
 	<< " " << this->ElemFam[this->Cell[k].Fnum-1].Name << "\n"; 

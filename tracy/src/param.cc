@@ -649,13 +649,13 @@ void param_data_type::get_IDs(void)
   for (k = 0; k < Lattice.param.Elem_nFam; k++)
     switch (Lattice.ElemFam[k].Kind) {
     case Wigl:
-      W = static_cast<WigglerType*>(&Lattice.ElemFam[k].CellF);
+      W = static_cast<WigglerType*>(Lattice.ElemFam[k].CellF);
       printf("found ID family:   %s %12.5e\n",
 	     Lattice.ElemFam[k].Name, W->BoBrhoV[0]);
       n_ID_Fams++; ID_Fams[n_ID_Fams-1] = k + 1;
       break;
     case Insertion:
-      ID = static_cast<InsertionType*>(&Lattice.ElemFam[k].CellF);
+      ID = static_cast<InsertionType*>(Lattice.ElemFam[k].CellF);
       printf("found ID family:   %s %12.5e",
 	     Lattice.ElemFam[k].Name, ID->scaling);
       if (ID->scaling != 0e0) {
@@ -665,7 +665,7 @@ void param_data_type::get_IDs(void)
 	printf("  not included\n");
       break;
     case FieldMap:
-      FM = static_cast<FieldMapType*>(&Lattice.ElemFam[k].CellF);
+      FM = static_cast<FieldMapType*>(Lattice.ElemFam[k].CellF);
       printf("found ID family:   %s %12.5e\n",
 	     Lattice.ElemFam[k].Name, FM->scl);
       n_ID_Fams++; ID_Fams[n_ID_Fams-1] = k + 1;
@@ -688,7 +688,7 @@ void param_data_type::set_IDs(const double scl)
   for (k = 0; k < n_ID_Fams; k++) {
     switch (Lattice.ElemFam[ID_Fams[k]-1].Kind) {
     case Wigl:
-      W = static_cast<WigglerType*>(&Lattice.ElemFam[ID_Fams[k]-1].CellF);
+      W = static_cast<WigglerType*>(Lattice.ElemFam[ID_Fams[k]-1].CellF);
       printf("setting ID family: %s %12.5e\n",
 	     Lattice.ElemFam[ID_Fams[k]-1].Name, scl*W->BoBrhoV[0]);
       set_Wiggler_BoBrho(ID_Fams[k], scl*W->BoBrhoV[0]);

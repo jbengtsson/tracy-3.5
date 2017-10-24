@@ -290,7 +290,7 @@ void LatticeType::rdmfile(const char *mfile_dat)
 	       &W->BoBrhoH[j], &W->phi[j]);
 	W =
 	  static_cast<WigglerType*>
-	  (&Lattice.ElemFam[Lattice.Cell[i].Fnum-1].CellF);
+	  (Lattice.ElemFam[Lattice.Cell[i].Fnum-1].CellF);
 	W->BoBrhoV[j] = W->BoBrhoV[j];W->BoBrhoH[j] = W->BoBrhoH[j];
       }
       break;

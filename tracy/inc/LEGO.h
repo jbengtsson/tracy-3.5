@@ -171,6 +171,7 @@ class DriftType : public CellType {
 
   DriftType(void);
   void Init(int Fnum);
+  std::ostream& Show(std::ostream &str);
   template<typename T>
     void Pass(ss_vect<T> &x);
 
@@ -356,6 +357,7 @@ class CavityType : public CellType {
 
   CavityType(void);
   void Init(int Fnum);
+  std::ostream& Show(std::ostream &str);
   template<typename T>
     void Pass(ss_vect<T> &X);
 
@@ -387,7 +389,7 @@ class RecombinerType : public CellType {
 class ElemFamType : public ElemType {
  private:
  public:
-  CellType   CellF;
+  CellType   *CellF;
   int        nKid;             // Kid number.
   int        KidList[nKidMax];
   int        NoDBN;
@@ -510,9 +512,9 @@ class LatticeType {
   void ProcessBlockInput(struct LOC_Lat_DealElement *LINK);
   void CheckWiggler(long i, struct LOC_Lat_DealElement *LINK);
   void GetHOM(struct LOC_Lat_DealElement *LINK);
-  void AssignHOM(long elem, struct LOC_Lat_DealElement *LINK);
+  void AssignHOM(MpoleType *M, struct LOC_Lat_DealElement *LINK);
   void GetHarm(struct LOC_Lat_DealElement *LINK);
-  void AssignHarm(long elem, struct LOC_Lat_DealElement *LINK);
+  void AssignHarm(WigglerType *W, struct LOC_Lat_DealElement *LINK);
   void SetDBN(struct LOC_Lat_DealElement *LINK);
   bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 		       long *errpos_, long *lc_, long *nkw_, long *inum_,

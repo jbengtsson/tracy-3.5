@@ -1948,7 +1948,7 @@ void set_ID_scl(const int Fnum, const int Knum, const double scl)
     W =
       static_cast<WigglerType*>(&Lattice.Cell[Lattice.Elem_GetPos(Fnum, Knum)]);
     W_Fam =
-      static_cast<WigglerType*>(&Lattice.ElemFam[Fnum-1].CellF);
+      static_cast<WigglerType*>(Lattice.ElemFam[Fnum-1].CellF);
     for (k = 0; k < W->n_harm; k++) {
       W->BoBrhoH[k] = scl*W->BoBrhoH[k]; W->BoBrhoV[k] = scl*W->BoBrhoV[k];
     }
@@ -3478,7 +3478,7 @@ void bend_cal(void)
   MpoleType *M;
 
   for (k = 1; k <= Lattice.param.Elem_nFam; k++) {
-    M = static_cast<MpoleType*>(&Lattice.ElemFam[k-1].CellF);
+    M = static_cast<MpoleType*>(Lattice.ElemFam[k-1].CellF);
     if ((Lattice.ElemFam[k-1].Kind == Mpole) &&
 	(M->irho != 0.0) &&
 	(M->Bpar[Quad+HOMmax] != 0.0))

@@ -2215,7 +2215,7 @@ void Mpole_Print(FILE *f, int Fnum)
   MpoleType *M;
 
   elemfamp = &Lattice.ElemFam[Fnum-1];
-  M = static_cast<MpoleType*>(&elemfamp->CellF);
+  M = static_cast<MpoleType*>(elemfamp->CellF);
   fprintf(f, "Element[%3d ] \n", Fnum);
   fprintf(f, "   Name: %.*s,  Kind:   mpole,  L=% .8E\n",
           SymbolLength, elemfamp->Name, elemfamp->L);

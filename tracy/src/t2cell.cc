@@ -286,7 +286,7 @@ void LatticeType::Cell_Init(void)
       printf("  %2ld |%*s|", i, SymbolLength, elemfamp->Name);
     // this->ElemFam[i-1].CellF.Init(i);
     for (j = 1; j <= elemfamp->nKid; j++) {
-      this->Cell[elemfamp->KidList[j-1]] = elemfamp->CellF;
+      this->Cell[elemfamp->KidList[j-1]] = *elemfamp->CellF;
       if (debug) {
 	printf(" %3d", elemfamp->KidList[j-1]);
 	if (j % n_prt == 0) printf("\n                      ");
