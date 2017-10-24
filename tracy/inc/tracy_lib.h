@@ -47,6 +47,7 @@ using namespace std;
 #endif
 
 #include "tracy.h"
+#include "t2lat.h"
 #include "LEGO.h"
 
 #include "mathlib.h"

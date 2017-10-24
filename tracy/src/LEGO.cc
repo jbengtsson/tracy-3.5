@@ -110,6 +110,15 @@ void MpoleType::Init(int Fnum)
 }
 
 
+std::ostream& MpoleType::Show(std::ostream &str)
+{
+  str << "      Mpole: Method = " << this->method << " N = " << this->N
+      << "\n";
+
+  return str;
+}
+
+
 CavityType::CavityType(void)
 {
 

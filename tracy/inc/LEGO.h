@@ -463,6 +463,24 @@ class LatticeType {
 
   bool Lattice_Read(FILE **fi_, FILE **fo_);
   void Read_Lattice(const char *fic);
+  bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
+		       long *errpos_, long *lc_, long *nkw_, long *inum_,
+		       long emax__, long emin__,
+		       long kmax__, long nmax__, char *chin_, char *id_,
+		       char *ElementName,
+		       char *BlockName_, double *rnum_, bool *skipflag_,
+		       bool *rsvwd_,
+		       char *line_, Lat_symbol *sym_, alfa_ *key_,
+		       Lat_symbol *ksy_,
+		       Lat_symbol *sps_, struct LOC_Lattice_Read *LINK);
+  void DealWithDefns(struct LOC_Lattice_Read *LINK);
+  void GetEnergy(struct LOC_Lattice_Read *LINK);
+  void GetRingType(struct LOC_Lattice_Read *LINK);
+  void GetDP(struct LOC_Lattice_Read *LINK);
+  void GetCODEPS(struct LOC_Lattice_Read *LINK);
+  double Circumference(struct LOC_Lattice_Read *LINK);
+  void RegisterKids(struct LOC_Lattice_Read *LINK);
+  void PrintResult(struct LOC_Lattice_Read *LINK);
 
   void rdmfile(const char *mfile_dat);
   void prtmfile(const char mfile_dat[]);
