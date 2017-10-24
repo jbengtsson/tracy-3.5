@@ -2,8 +2,6 @@
 
 dir=`pwd`
 
-TRACY="tracy-3.5"
-
 cd "$TRACY_LIB"
 
 rm -rf autom4te.cache
