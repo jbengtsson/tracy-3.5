@@ -2103,10 +2103,10 @@ bool LatticeType::Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     this->param.Elem_nFam++;
     if (this->param.Elem_nFam <= Elem_nFamMax) {
       WITH = &this->ElemFam[this->param.Elem_nFam-1];
-      memcpy(WITH->Name, ElementName, sizeof(partsName));
-      WITH->L = *V.rnum; WITH->Kind = PartsKind(drift);
-
       WITH->CellF = new DriftType();
+      memcpy(WITH->CellF->Name, ElementName, sizeof(partsName));
+      WITH->CellF->L = *V.rnum; WITH->CellF->Kind = PartsKind(drift);
+
       WITH->CellF->Show(std::cout);
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
@@ -2234,11 +2234,10 @@ bool LatticeType::Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     GetSym__(&V);
     this->param.Elem_nFam++;
     if (this->param.Elem_nFam <= Elem_nFamMax) {
-      WITH = &this->ElemFam[this->param.Elem_nFam-1];
-      memcpy(WITH->Name, ElementName, sizeof(partsName));
-      WITH->L = QL; WITH->Kind = PartsKind(Mpole);
-
       M = new MpoleType();
+      memcpy(M->Name, ElementName, sizeof(partsName));
+      M->L = QL; M->Kind = PartsKind(Mpole);
+
       M->method = k2; M->N = k1;
       M->irho = (M->L != 0.0)? t*M_PI/180.0/M->L : t*M_PI/180.0;
       M->Tx1 = t1; M->Tx2 = t2; M->gap = gap;
@@ -2246,7 +2245,9 @@ bool LatticeType::Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       AssignHOM(M, &V);
       SetDBN(&V);
       M->Bpar[HOMmax+2] = QK; M->dTpar = dt;
+      WITH = &this->ElemFam[this->param.Elem_nFam-1];
       WITH->CellF = M;
+      WITH->CellF->Show(std::cout);
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
 	     this->param.Elem_nFam, (long)Elem_nFamMax);
@@ -2340,15 +2341,15 @@ bool LatticeType::Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     GetSym__(&V);
     this->param.Elem_nFam++;
     if (this->param.Elem_nFam <= Elem_nFamMax) {
-      WITH = &this->ElemFam[this->param.Elem_nFam-1];
-      memcpy(WITH->Name, ElementName, sizeof(partsName));
-      WITH->L = QL; WITH->Kind = PartsKind(Mpole);
-
       M = new MpoleType();
+      memcpy(M->Name, ElementName, sizeof(partsName));
+      M->L = QL; M->Kind = PartsKind(Mpole);
+
       M->method = k2; M->N = k1; M->dTpar = dt;
       AssignHOM(M, &V);
       SetDBN(&V);
       M->n_design = Quad; M->Bpar[HOMmax+2] = QK;
+      WITH = &this->ElemFam[this->param.Elem_nFam-1];
       WITH->CellF = M;
       WITH->CellF->Show(std::cout);
     } else {
@@ -2449,17 +2450,17 @@ bool LatticeType::Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     GetSym__(&V);
     this->param.Elem_nFam++;
     if (this->param.Elem_nFam <= Elem_nFamMax) {
-      WITH = &this->ElemFam[this->param.Elem_nFam-1];
-      memcpy(WITH->Name, ElementName, sizeof(partsName));
-      WITH->L = QL; WITH->Kind = PartsKind(Mpole);
-
       M = new MpoleType();
+      memcpy(M->Name, ElementName, sizeof(partsName));
+      M->L = QL; M->Kind = PartsKind(Mpole);
+
       M->method = k2; M->N = k1;
-      M->thick = (WITH->L != 0.0)? pthicktype(thick) : pthicktype(thin);
+      M->thick = (M->L != 0.0)? pthicktype(thick) : pthicktype(thin);
       M->dTpar = dt; M->n_design = Sext;
       AssignHOM(M, &V);
       SetDBN(&V);
       M->Bpar[HOMmax+3] = QK;
+      WITH = &this->ElemFam[this->param.Elem_nFam-1];
       WITH->CellF = M;
       WITH->CellF->Show(std::cout);
     } else {
@@ -2563,12 +2564,10 @@ bool LatticeType::Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     GetSym__(&V);
     this->param.Elem_nFam++;
     if (this->param.Elem_nFam <= Elem_nFamMax) {
-      WITH = &this->ElemFam[this->param.Elem_nFam-1];
-      memcpy(WITH->Name, ElementName, sizeof(partsName));
-      WITH->L = QL; WITH->Kind = PartsKind(Cavity);
-
-      // WITH->ElemF.C->Cav_Alloc(&WITH->ElemF);
       C = new CavityType();
+      memcpy(C->Name, ElementName, sizeof(partsName));
+      C->L = QL; C->Kind = PartsKind(Cavity);
+
       C->volt = Vrf; C->freq = Frf;
       C->phi = QPhi*M_PI/180.0;
       C->h = harnum;
@@ -2576,6 +2575,7 @@ bool LatticeType::Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       C->entry_focus = entryf == 1;
       C->exit_focus = exitf == 1;
       SetDBN(&V);
+      WITH = &this->ElemFam[this->param.Elem_nFam-1];
       WITH->CellF = C;
       WITH->CellF->Show(std::cout);
     } else {
@@ -2674,15 +2674,15 @@ bool LatticeType::Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     GetSym__(&V);
     this->param.Elem_nFam++;
     if (this->param.Elem_nFam <= Elem_nFamMax) {
-      WITH = &this->ElemFam[this->param.Elem_nFam-1];
-      memcpy(WITH->Name, ElementName, sizeof(partsName));
-      WITH->L = QL; WITH->Kind = PartsKind(Mpole);
-
       M = new MpoleType();
+      memcpy(M->Name, ElementName, sizeof(partsName));
+      M->L = QL; M->Kind = PartsKind(Mpole);
+
       SetDBN(&V);
-      M->thick = (WITH->L != 0.0)? pthicktype(thick) : pthicktype(thin);
+      M->thick = (M->L != 0.0)? pthicktype(thick) : pthicktype(thin);
       M->method = k2; M->N = k1;
       M->dTpar = dt;
+      WITH = &this->ElemFam[this->param.Elem_nFam-1];
       WITH->CellF = M;
       WITH->CellF->Show(std::cout);
     } else {
@@ -2726,13 +2726,13 @@ bool LatticeType::Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     GetSym__(&V);
     this->param.Elem_nFam++;
     if (this->param.Elem_nFam <= Elem_nFamMax) {
-      WITH = &this->ElemFam[this->param.Elem_nFam-1];
-      memcpy(WITH->Name, ElementName, sizeof(partsName));
-      WITH->Kind = PartsKind(Mpole);
-
       M = new MpoleType();
+      memcpy(M->Name, ElementName, sizeof(partsName));
+      M->Kind = PartsKind(Mpole);
+
       M->thick = pthicktype(thin);
       SetDBN(&V);
+      WITH = &this->ElemFam[this->param.Elem_nFam-1];
       WITH->CellF = M;
       WITH->CellF->Show(std::cout);
     } else {
@@ -2944,15 +2944,13 @@ bool LatticeType::Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     GetSym__(&V);
     this->param.Elem_nFam++;
     if (this->param.Elem_nFam <= Elem_nFamMax) {
-      WITH = &this->ElemFam[this->param.Elem_nFam-1];
-
-      memcpy(WITH->Name, ElementName, sizeof(partsName));
-      WITH->L = QL; WITH->Kind = PartsKind(Mpole);
-
       M = new MpoleType();
-      if (WITH->L != 0e0) {
+      memcpy(M->Name, ElementName, sizeof(partsName));
+      M->L = QL; M->Kind = PartsKind(Mpole);
+
+      if (M->L != 0e0) {
 	M->thick = pthicktype(thick);
-	M->irho = t * M_PI / 180.0 / WITH->L;
+	M->irho = t * M_PI / 180.0 / M->L;
       } else {
 	M->thick = pthicktype(thin);
 	M->irho = t * M_PI / 180.0;
@@ -2962,6 +2960,7 @@ bool LatticeType::Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       AssignHOM(M, &V);
       M->n_design = M->order;
       SetDBN(&V);
+      WITH = &this->ElemFam[this->param.Elem_nFam-1];
       WITH->CellF = M;
       WITH->CellF->Show(std::cout);
     } else {
@@ -3088,11 +3087,10 @@ bool LatticeType::Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     GetSym__(&V);
     this->param.Elem_nFam++;
     if (this->param.Elem_nFam <= Elem_nFamMax) {
-      WITH = &this->ElemFam[this->param.Elem_nFam-1];
-      memcpy(WITH->Name, ElementName, sizeof(partsName));
-      WITH->L = QL; WITH->Kind = PartsKind(Wigl);
-
       W = new WigglerType();
+      memcpy(W->Name, ElementName, sizeof(partsName));
+      W->L = QL; W->Kind = PartsKind(Wigl);
+
       W->method = k2; W->N = k1;
       W->dTpar = dt;
       SetDBN(&V);
@@ -3104,6 +3102,7 @@ bool LatticeType::Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       /* Equivalent vertically focusing gradient */
 //       W->BW[HOMmax+2] = -QK*QK/2e0;
       CheckWiggler(this->param.Elem_nFam, &V);
+      WITH = &this->ElemFam[this->param.Elem_nFam-1];
       WITH->CellF = W;
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
@@ -3183,11 +3182,10 @@ bool LatticeType::Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     GetSym__(&V);
     this->param.Elem_nFam++;
     if (this->param.Elem_nFam <= Elem_nFamMax) {
-      WITH = &this->ElemFam[this->param.Elem_nFam-1];
-      memcpy(WITH->Name, ElementName, sizeof(partsName));
-      WITH->L = QL; WITH->Kind = PartsKind(FieldMap);
-
       FM = new FieldMapType();
+      memcpy(FM->Name, ElementName, sizeof(partsName));
+      FM->L = QL; FM->Kind = PartsKind(FieldMap);
+
       FM->phi = t*M_PI/180.0; FM->n_step = k1; FM->scl = scaling;
       if (CheckUDItable("energy         ", LINK) != 0) {
 	RefUDItable("energy         ", &this->param.Energy, LINK);
@@ -3196,6 +3194,7 @@ bool LatticeType::Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 	std::cout << "Fieldmap: energy not defined" << std::endl;
 	exit_(1);
       }
+      WITH = &this->ElemFam[this->param.Elem_nFam-1];
       WITH->CellF = FM;
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
@@ -3297,11 +3296,10 @@ bool LatticeType::Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 
     /* Fills up the ID */
     if (this->param.Elem_nFam <= Elem_nFamMax) {
-      WITH  = &this->ElemFam[this->param.Elem_nFam-1];
-      memcpy(WITH->Name, ElementName, sizeof(partsName));
-      WITH->Kind = PartsKind(Insertion);
-
       ID = new InsertionType();
+      memcpy(ID->Name, ElementName, sizeof(partsName));
+      ID->Kind = PartsKind(Insertion);
+
       ID->phi = t*M_PI/180.0;
       ID->method = k2; ID->N = k1;
       ID->scaling = scaling;
@@ -3321,7 +3319,7 @@ bool LatticeType::Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 	strcpy(ID->fname1,str1);
 	// Read Id file for first order kicks
 	ID->firstorder = true;
-	Read_IDfile(ID->fname1, WITH->L, ID->nx, ID->nz,
+	Read_IDfile(ID->fname1, ID->L, ID->nx, ID->nz,
 		    ID->tabx, ID->tabz, ID->thetax1, ID->thetaz1,
 		    ID->long_comp, ID->B2, ID->linear);
 	// scale factor from Radia: Tmm to get Tm.
@@ -3342,7 +3340,7 @@ bool LatticeType::Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 	strcpy(ID->fname2,str2);
 	ID->secondorder = secondflag;
 	// Read Id file for second order kicks
-	Read_IDfile(ID->fname2, WITH->L, ID->nx, ID->nz,
+	Read_IDfile(ID->fname2, ID->L, ID->nx, ID->nz,
 		    ID->tabx, ID->tabz, ID->thetax, ID->thetaz,
 		    ID->long_comp, ID->B2, ID->linear);
       } else {
@@ -3382,6 +3380,7 @@ bool LatticeType::Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       //      free_matrix(f2x,1,nz,1,nx);
       //      free_matrix(f2z,1,nz,1,nx);
 
+      WITH = &this->ElemFam[this->param.Elem_nFam-1];
       WITH->CellF = ID;
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
@@ -3418,10 +3417,9 @@ bool LatticeType::Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     this->param.Elem_nFam++;
     if (this->param.Elem_nFam <= Elem_nFamMax) {
       WITH = &this->ElemFam[this->param.Elem_nFam-1];
+      WITH->CellF = new SpreaderType();
       memcpy(WITH->Name, ElementName, sizeof(partsName));
       WITH->L = *V.rnum; WITH->Kind = PartsKind(Spreader);
-
-      WITH->CellF = new SpreaderType();
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
 	     this->param.Elem_nFam, (long)Elem_nFamMax);
@@ -3457,11 +3455,10 @@ bool LatticeType::Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     this->param.Elem_nFam++;
     if (this->param.Elem_nFam <= Elem_nFamMax) {
       WITH = &this->ElemFam[this->param.Elem_nFam-1];
+      WITH->CellF = new RecombinerType();
       memcpy(WITH->Name, ElementName, sizeof(partsName));
       WITH->L = *V.rnum;
       WITH->Kind = PartsKind(Recombiner);
-
-      WITH->CellF = new RecombinerType();
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
 	     this->param.Elem_nFam, (long)Elem_nFamMax);
@@ -3526,12 +3523,12 @@ bool LatticeType::Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     GetSym__(&V);
     this->param.Elem_nFam++;
     if (this->param.Elem_nFam <= Elem_nFamMax) {
-      WITH = &this->ElemFam[this->param.Elem_nFam-1];
-      memcpy(WITH->Name, ElementName, sizeof(partsName));
-      WITH->L = QL; WITH->Kind = PartsKind(Solenoid);
-      
       Sol = new SolenoidType();
+      memcpy(Sol->Name, ElementName, sizeof(partsName));
+      Sol->L = QL; Sol->Kind = PartsKind(Solenoid);
+      
       Sol->N = k1; Sol->BoBrho = QK;
+      WITH = &this->ElemFam[this->param.Elem_nFam-1];
       WITH->CellF = Sol;
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",

@@ -444,7 +444,7 @@ void LatticeType::Fam_Init(const int Fnum)
 
 std::ostream& DriftType::Show(std::ostream &str)
 {
-  str << "      Drift"  << "\n";
+  str << "      Drift  |" << this->Name << "|" << "\n";
 
   return str;
 }
@@ -452,7 +452,10 @@ std::ostream& DriftType::Show(std::ostream &str)
 
 std::ostream& MpoleType::Show(std::ostream &str)
 {
-  str << "      Mpole: Method = " << this->method << ", N = " << this->N
+  str << std::fixed << std::setprecision(3)
+      << "      Mpole  |" << this->Name << "|"
+      << " L = " << setw(6) << this->L
+      << ", Method = " << this->method << ", N = " << this->N
       << "\n";
 
   return str;
@@ -461,7 +464,7 @@ std::ostream& MpoleType::Show(std::ostream &str)
 
 std::ostream& CavityType::Show(std::ostream &str)
 {
-  str << "      Cavity"  << "\n";
+  str << "      Cavity |" << this->Name << "|" << "\n";
 
   return str;
 }
@@ -469,7 +472,7 @@ std::ostream& CavityType::Show(std::ostream &str)
 
 std::ostream& CellType::Show(std::ostream &str)
 {
-  if (this->Kind == Mpole) str << "      CellType: Mpole\n";
+  str << "      CellType\n";
 };
 
 
