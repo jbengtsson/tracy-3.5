@@ -138,8 +138,8 @@ double DA_data_type::get_dynap(param_data_type &params,
   }
   DA += x2[X_]*x0[Y_] - x0[X_]*x2[Y_];
   // x2 from mid-plane symmetry
-  DA = fabs(DA)/sqrt(Lattice.Cell[Lattice.param.Cell_nLoc].Beta[X_]
-       *Lattice.Cell[Lattice.param.Cell_nLoc].Beta[Y_]);
+  DA = fabs(DA)/sqrt(Lattice.Cell[Lattice.param.Cell_nLoc]->Beta[X_]
+       *Lattice.Cell[Lattice.param.Cell_nLoc]->Beta[Y_]);
 
   fprintf(fp, "\n");
   fprintf(fp, "# DA^ = %6.1f mm^2"
@@ -164,7 +164,7 @@ void DA_data_type::get_DA_bare(param_data_type &params)
   DA_bare = file_write("DA_bare.out");
 
   fprintf(DA_bare, "# beta_x = %4.2f, beta_y = %5.2f\n",
-	  Lattice.Cell[Lattice.param.Cell_nLoc].Beta[X_], Lattice.Cell[Lattice.param.Cell_nLoc].Beta[Y_]);
+	  Lattice.Cell[Lattice.param.Cell_nLoc]->Beta[X_], Lattice.Cell[Lattice.param.Cell_nLoc]->Beta[Y_]);
   fprintf(DA_bare, "#\n");
   fprintf(DA_bare, "# Ideal lattice\n");
   fprintf(DA_bare, "#\n");
@@ -185,8 +185,8 @@ void DA_data_type::get_DA_bare(param_data_type &params)
 
     fprintf(DA_bare, "  %5.2f %6.1f   %4.1f      %4.1f   %4.1f  %4.1f\n", 
 	    1e2*d, 1e6*DA,
-	    1e6*sqr(x_hat[X_])/Lattice.Cell[Lattice.param.Cell_nLoc].Beta[X_],
-	    1e6*sqr(x_hat[Y_])/Lattice.Cell[Lattice.param.Cell_nLoc].Beta[Y_],
+	    1e6*sqr(x_hat[X_])/Lattice.Cell[Lattice.param.Cell_nLoc]->Beta[X_],
+	    1e6*sqr(x_hat[Y_])/Lattice.Cell[Lattice.param.Cell_nLoc]->Beta[Y_],
 	    1e3*x_hat[X_], 1e3*x_hat[Y_]);
   
     fflush(DA_bare);
@@ -225,8 +225,8 @@ void DA_data_type::get_DA_real(param_data_type &params,
 
   DA_real = file_write("DA_real.out");
   fprintf(DA_real, "# beta_x = %4.2f, beta_y = %5.2f\n",
-	  Lattice.Cell[Lattice.param.Cell_nLoc].Beta[X_],
-	  Lattice.Cell[Lattice.param.Cell_nLoc].Beta[Y_]);
+	  Lattice.Cell[Lattice.param.Cell_nLoc]->Beta[X_],
+	  Lattice.Cell[Lattice.param.Cell_nLoc]->Beta[Y_]);
   fprintf(DA_real, "#\n");
   fprintf(DA_real, "# Real lattice\n");
   fprintf(DA_real, "#\n");
@@ -309,13 +309,13 @@ void DA_data_type::get_DA_real(param_data_type &params,
 	    d[j]*1e2,
 	    1e6*DA_m[j], 1e6*DA_s[j],
 	    1e6*sqr(x_hat_m[j][X_])
-	    /Lattice.Cell[Lattice.param.Cell_nLoc].Beta[X_],
+	    /Lattice.Cell[Lattice.param.Cell_nLoc]->Beta[X_],
 	    1e6*sqr(x_hat_s[j][X_])
-	    /Lattice.Cell[Lattice.param.Cell_nLoc].Beta[X_],
+	    /Lattice.Cell[Lattice.param.Cell_nLoc]->Beta[X_],
 	    1e6*sqr(x_hat_m[j][Y_])
-	    /Lattice.Cell[Lattice.param.Cell_nLoc].Beta[Y_],
+	    /Lattice.Cell[Lattice.param.Cell_nLoc]->Beta[Y_],
 	    1e6*sqr(x_hat_s[j][Y_])
-	    /Lattice.Cell[Lattice.param.Cell_nLoc].Beta[Y_],
+	    /Lattice.Cell[Lattice.param.Cell_nLoc]->Beta[Y_],
 	    1e3*x_hat_m[j][X_], 1e3*x_hat_s[j][X_],
 	    1e3*x_hat_m[j][Y_], 1e3*x_hat_s[j][Y_]);
   }

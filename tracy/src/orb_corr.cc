@@ -78,12 +78,12 @@ void orb_corr_type::get_trm_mat(void)
 
   for (i = 0; i < m; i++) {
     loc_bpm = bpms[i];
-    betai = Lattice.Cell[loc_bpm].Beta[plane];
-    nui = Lattice.Cell[loc_bpm].Nu[plane];
+    betai = Lattice.Cell[loc_bpm]->Beta[plane];
+    nui = Lattice.Cell[loc_bpm]->Nu[plane];
     for (j = 0; j < n; j++) {
       loc_corr = corrs[j];
-      betaj = Lattice.Cell[loc_corr].Beta[plane];
-      nuj = Lattice.Cell[loc_corr].Nu[plane];
+      betaj = Lattice.Cell[loc_corr]->Beta[plane];
+      nuj = Lattice.Cell[loc_corr]->Nu[plane];
       A[i+1][j+1] = (loc_bpm > loc_corr)?
 	sqrt(betai*betaj)*sin(2.0*M_PI*(nui-nuj)) : 0e0;
     }
@@ -103,12 +103,12 @@ void orb_corr_type::get_orm_mat(void)
 
   for (i = 0; i < m; i++) {
     loc_bpm = bpms[i];
-    betai = Lattice.Cell[loc_bpm].Beta[plane];
-    nui = Lattice.Cell[loc_bpm].Nu[plane];
+    betai = Lattice.Cell[loc_bpm]->Beta[plane];
+    nui = Lattice.Cell[loc_bpm]->Nu[plane];
     for (j = 0; j < n; j++) {
       loc_corr = corrs[j];
-      betaj = Lattice.Cell[loc_corr].Beta[plane];
-      nuj = Lattice.Cell[loc_corr].Nu[plane];
+      betaj = Lattice.Cell[loc_corr]->Beta[plane];
+      nuj = Lattice.Cell[loc_corr]->Nu[plane];
       A[i+1][j+1] = 
 	sqrt(betai*betaj)/(2.0*spiq)*cos(nu*M_PI-fabs(2.0*M_PI*(nui-nuj)));
     }
@@ -150,7 +150,7 @@ void orb_corr_type::solve(const double scl) const
 
   for (j = 0; j < m; j++) {
     loc = bpms[j];
-    b[j+1] = -Lattice.Cell[loc].BeamPos[2*plane] + Lattice.Cell[loc].dS[plane];
+    b[j+1] = -Lattice.Cell[loc]->BeamPos[2*plane] + Lattice.Cell[loc]->dS[plane];
   }
       
   dsvbksb(U, w, V, m, n, b, x);
@@ -158,10 +158,10 @@ void orb_corr_type::solve(const double scl) const
   for (j = 0; j < n; j++) {
     loc = corrs[j];
     if (plane == 0)
-      set_dbnL_design_elem(Lattice.Cell[loc].Fnum, Lattice.Cell[loc].Knum, Dip,
+      set_dbnL_design_elem(Lattice.Cell[loc]->Fnum, Lattice.Cell[loc]->Knum, Dip,
 			   -scl*x[j+1], 0e0);
     else
-      set_dbnL_design_elem(Lattice.Cell[loc].Fnum, Lattice.Cell[loc].Knum, Dip,
+      set_dbnL_design_elem(Lattice.Cell[loc]->Fnum, Lattice.Cell[loc]->Knum, Dip,
 			   0e0, scl*x[j+1]);
   }
 }
@@ -174,7 +174,7 @@ void orb_corr_type::clr_trims(void)
 
   for (j = 0; j < n; j++) {
     loc = corrs[j];
-    set_bnL_design_elem(Lattice.Cell[loc].Fnum, Lattice.Cell[loc].Knum, Dip,
+    set_bnL_design_elem(Lattice.Cell[loc]->Fnum, Lattice.Cell[loc]->Knum, Dip,
 			0e0, 0e0);
   }
 }
@@ -196,9 +196,9 @@ void codstat1(double mean[], double sigma[], double xmax[], const long lastpos,
     for (i = 0; i < lastpos; i++) {
       n++;
       for (j = 0; j < 2; j++) {
-	sum[j]  += Lattice.Cell[i].BeamPos[j*2];
-	sum2[j] += sqr(Lattice.Cell[i].BeamPos[j*2]);
-	xmax[j] =  max(xmax[j], fabs(Lattice.Cell[i].BeamPos[j*2]));
+	sum[j]  += Lattice.Cell[i]->BeamPos[j*2];
+	sum2[j] += sqr(Lattice.Cell[i]->BeamPos[j*2]);
+	xmax[j] =  max(xmax[j], fabs(Lattice.Cell[i]->BeamPos[j*2]));
       }
     }
   } else {
@@ -206,9 +206,9 @@ void codstat1(double mean[], double sigma[], double xmax[], const long lastpos,
       n++;
       for (j = 0; j < 2; j++) {
 	loc = bpms[i];
-	sum[j]  += Lattice.Cell[loc].BeamPos[j*2];
-	sum2[j] += sqr(Lattice.Cell[loc].BeamPos[j*2]);
-	xmax[j] =  max(xmax[j], fabs(Lattice.Cell[loc].BeamPos[j*2]));
+	sum[j]  += Lattice.Cell[loc]->BeamPos[j*2];
+	sum2[j] += sqr(Lattice.Cell[loc]->BeamPos[j*2]);
+	xmax[j] =  max(xmax[j], fabs(Lattice.Cell[loc]->BeamPos[j*2]));
       }
     }
   }
