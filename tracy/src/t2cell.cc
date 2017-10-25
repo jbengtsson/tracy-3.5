@@ -9,11 +9,6 @@
 */
 
 
-long    ntransfmat;
-Matrix  transfmat[maxtransfmat];
-long    kicks[maxtransfmat][maxkicks];
-
-
 template<typename T>
 inline bool CheckAmpl(const ss_vect<T> &x, const long int loc)
 {
@@ -267,6 +262,7 @@ bool LatticeType::GetCOD(const long imax, const double eps, const double dP,
 void LatticeType::Cell_Init(void)
 {
   bool        reverse;
+  int         Fnum, Knum;
   long        i, j;
   double      Stotal;
   ElemFamType *elemfamp;
@@ -281,56 +277,69 @@ void LatticeType::Cell_Init(void)
   SI_init();
 
   this->Cell[0] = new CellType();
+  this->Cell[0]->Kind = PartsKind(undef);
   strcpy(this->Cell[0]->Name, first_name);
 
   for (i = 1; i <= this->param.Elem_nFam; i++) {
     elemfamp = &this->ElemFam[i-1];
     
-    if (debug) printf("  %2ld |%*s|", i, SymbolLength, elemfamp->Name);
+    if (debug)
+      printf("  %3ld %1d |%s|", i, elemfamp->CellF->Kind, elemfamp->CellF->Name);
 
     // this->ElemFam[i-1].CellF.Init(i);
 
     for (j = 1; j <= elemfamp->nKid; j++) {
       cellp = this->Cell[elemfamp->KidList[j-1]];
-      printf("%3d %3d\n", cellp->Fnum, j);
-      reverse = cellp->Reverse;
+      Fnum = cellp->Fnum; Knum = cellp->Knum; reverse = cellp->Reverse;
+
       delete cellp;
 
-      if (elemfamp->Kind == PartsKind(marker))
+      switch (elemfamp->CellF->Kind) {
+      case PartsKind(marker):
 	cellp = new MarkerType();
-      else if (elemfamp->Kind == PartsKind(drift))
+	break;
+      case PartsKind(drift):
 	cellp = new DriftType();
-      else if (elemfamp->Kind == PartsKind(Mpole))
+	break;
+      case PartsKind(Mpole):
 	cellp = new MpoleType();
-      else if (elemfamp->Kind == PartsKind(Wigl))
+	break;
+      case PartsKind(Wigl):
 	cellp = new WigglerType();
-      else if (elemfamp->Kind == PartsKind(Insertion))
+	break;
+      case PartsKind(Insertion):
 	cellp = new InsertionType();
-      else if (elemfamp->Kind == PartsKind(FieldMap))
+	break;
+      case PartsKind(FieldMap):
 	cellp = new FieldMapType();
-      else if (elemfamp->Kind == PartsKind(Cavity))
+	break;
+      case PartsKind(Cavity):
 	cellp = new CavityType();
-      else if (elemfamp->Kind == PartsKind(Spreader))
+	break;
+      case PartsKind(Spreader):
 	cellp = new SpreaderType();
-      else if (elemfamp->Kind == PartsKind(Recombiner))
+	break;
+      case PartsKind(Recombiner):
 	cellp = new RecombinerType();
-      else if (elemfamp->Kind == PartsKind(Solenoid))
+	break;
+      case PartsKind(Solenoid):
 	cellp = new SolenoidType();
-      else {
+	break;
+      default:
 	printf("\nCell_Init: unknown Kind %d\n",
-	       elemfamp->Kind);
+	       elemfamp->CellF->Kind);
 	exit(1);
+	break;
       }
 
       *cellp = *elemfamp->CellF;
-      cellp->Kind = elemfamp->Kind;
-      cellp->Fnum = j;
+      // cellp->Fnum = i; cellp->Knum = j;
+      cellp->Fnum = Fnum; cellp->Knum = Knum;
       cellp->Reverse = reverse;
-      strncpy(cellp->Name, elemfamp->CellF->Name, NameLength);
 
       if (debug) {
-	printf(" %3d", elemfamp->KidList[j-1]);
-	if (j % n_prt == 0) printf("\n                      ");
+	printf(" %4d", elemfamp->KidList[j-1]);
+	if (j % n_prt == 0) printf("\n                         ");
       }
     }
     if (debug) printf("\n");

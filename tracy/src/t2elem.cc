@@ -2158,7 +2158,7 @@ long LatticeType::Elem_GetPos(const int Fnum, const int Knum)
   else {
     loc = -1;
     printf("Elem_GetPos: there are no kids in family %d (%s)\n",
-	   Fnum, Lattice.ElemFam[Fnum-1].Name);
+	   Fnum, Lattice.ElemFam[Fnum-1].CellF->Name);
     exit_(0);
   }
 
@@ -2218,7 +2218,7 @@ void Mpole_Print(FILE *f, int Fnum)
   M = static_cast<MpoleType*>(elemfamp->CellF);
   fprintf(f, "Element[%3d ] \n", Fnum);
   fprintf(f, "   Name: %.*s,  Kind:   mpole,  L=% .8E\n",
-          SymbolLength, elemfamp->Name, elemfamp->L);
+          SymbolLength, elemfamp->CellF->Name, elemfamp->CellF->L);
   fprintf(f, "   Method: %d, N=%4d\n", M->method, M->N);
 }
 
@@ -2230,7 +2230,7 @@ void Drift_Print(FILE *f, int Fnum)
   elemfamp = &Lattice.ElemFam[Fnum-1];
   fprintf(f, "Element[%3d ] \n", Fnum);
   fprintf(f, "   Name: %.*s,  Kind:   drift,  L=% .8E\n",
-          SymbolLength, elemfamp->Name, elemfamp->L);
+          SymbolLength, elemfamp->CellF->Name, elemfamp->CellF->L);
   fprintf(f, "   nKid:%3d\n\n", elemfamp->nKid);
 }
 
@@ -2242,7 +2242,7 @@ void Wiggler_Print(FILE *f, int Fnum)
   elemfamp = &Lattice.ElemFam[Fnum-1];
   fprintf(f, "Element[%3d ] \n", Fnum);
   fprintf(f, "   Name: %.*s,  Kind:   wiggler,  L=% .8E\n\n",
-          NameLength, elemfamp->Name, elemfamp->L);
+          NameLength, elemfamp->CellF->Name, elemfamp->CellF->L);
 }
 
 
@@ -2253,7 +2253,7 @@ void Insertion_Print(FILE *f, int Fnum)
   elemfamp = &Lattice.ElemFam[Fnum-1];
   fprintf(f, "Element[%3d ] \n", Fnum);
   fprintf(f, "   Name: %.*s,  Kind:   wiggler,  L=% .8E\n\n",
-          SymbolLength, elemfamp->Name, elemfamp->L);
+          SymbolLength, elemfamp->CellF->Name, elemfamp->CellF->L);
 }
 
 
@@ -2268,33 +2268,33 @@ void Elem_Print(FILE *f, int Fnum)
     return;
   }
 
-  switch (Lattice.ElemFam[Fnum-1].Kind) {
-  case drift:
+  switch (Lattice.ElemFam[Fnum-1].CellF->Kind) {
+  case PartsKind(drift):
     Drift_Print(f, Fnum);
     break;
 
-  case Mpole:
+  case PartsKind(Mpole):
     Mpole_Print(f, Fnum);
     break;
-  case Wigl:
+  case PartsKind(Wigl):
     Wiggler_Print(f, Fnum);
     break;
-  case FieldMap:
+  case PartsKind(FieldMap):
     break;
-  case Insertion:
+  case PartsKind(Insertion):
     Insertion_Print(f, Fnum);
     break;
-  case Cavity:
+  case PartsKind(Cavity):
     break;
-  case marker:
+  case PartsKind(marker):
     break;
-  case Spreader:
+  case PartsKind(Spreader):
     break;
-  case Recombiner:
+  case PartsKind(Recombiner):
     break;
-  case Solenoid:
+  case PartsKind(Solenoid):
     break;
-  case undef:
+  case PartsKind(undef):
     break;
   }
 }

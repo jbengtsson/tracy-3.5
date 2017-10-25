@@ -445,7 +445,7 @@ struct LatticeParam {
 };
 
 
-class ElemFamType : public ElemType {
+class ElemFamType {
  private:
  public:
   CellType   *CellF;

@@ -473,6 +473,7 @@ int main(int argc, char *argv[])
   else
     Lattice.rdmfile(argv[1]);
 
+  Lattice.prtmfile("flat_file.dat");
   exit(0);
 
   if (false) {

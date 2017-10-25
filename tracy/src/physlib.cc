@@ -1691,7 +1691,7 @@ void set_dbn_rel(const int type, const int n, const double dbn_rel)
   printf("\n");
   printf("Setting Db_%d/b_%d = %6.1e for:\n", n, type, dbn_rel);
   printf("\n");
-  for (j = 0; j <= Lattice.param.Cell_nLoc; j++)
+  for (j = 0; j <= Lattice.param.Cell_nLoc; j++) {
     M = static_cast<MpoleType*>(Lattice.Cell[j]);
     if ((Lattice.Cell[j]->Kind == Mpole)
 	&& (M->n_design == type)) {
@@ -1701,6 +1701,7 @@ void set_dbn_rel(const int type, const int n, const double dbn_rel)
       M->Brnd[n+HOMmax] = normranf();
       Mpole_SetB(Lattice.Cell[j]->Fnum, Lattice.Cell[j]->Knum, n);
     }
+  }
 }
 
 
@@ -1787,7 +1788,7 @@ void set_dx(const int type, const double sigma_x, const double sigma_y)
   printf("Setting sigma_x,y = (%6.1e, %6.1e) for b_%d:\n",
 	 sigma_x, sigma_y, type);
   printf("\n");
-  for (j = 0; j <= Lattice.param.Cell_nLoc; j++)
+  for (j = 0; j <= Lattice.param.Cell_nLoc; j++) {
     M = static_cast<MpoleType*>(Lattice.Cell[j]);
     if ((Lattice.Cell[j]->Kind == Mpole)
 	&& (M->n_design == type)) {
@@ -1798,6 +1799,7 @@ void set_dx(const int type, const double sigma_x, const double sigma_y)
       M->dSrnd[Y_] = normranf();
       Mpole_SetdS(Lattice.Cell[j]->Fnum, Lattice.Cell[j]->Knum);
     }
+  }
 }
 
 

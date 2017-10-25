@@ -1667,10 +1667,12 @@ void set_bnL_sys_type(const int type,
   }
 
   if (type >= Dip && type <= HOMmax) {
-    for(k = 1; k <= Lattice.param.Cell_nLoc; k++)
+    for(k = 1; k <= Lattice.param.Cell_nLoc; k++) {
+      M = static_cast<MpoleType*>(Lattice.Cell[k]);
       if ((Lattice.Cell[k]->Kind == Mpole) && (M->n_design == type))
 	set_bnL_sys_elem(Lattice.Cell[k]->Fnum, Lattice.Cell[k]->Knum,
 			 n, bnL, anL);
+    }
   } else
     printf("Bad type argument to set_bnL_sys_type()\n");
 }
@@ -1813,11 +1815,13 @@ void set_bnr_sys_type(const int type,
   }
 
   if (type >= Dip && type <= HOMmax) {
-    for(k = 1; k <= Lattice.param.Cell_nLoc; k++)
+    for(k = 1; k <= Lattice.param.Cell_nLoc; k++) {
+      M = static_cast<MpoleType*>(Lattice.Cell[k]);
       if ((Lattice.Cell[k]->Kind == Mpole)
 	  && (M->n_design == type))
 	set_bnr_sys_elem(Lattice.Cell[k]->Fnum, Lattice.Cell[k]->Knum,
 			 n, bnr, anr);
+    }
   } else
     printf("Bad type argument to set_bnr_sys_type()\n");
 }
@@ -1898,11 +1902,12 @@ void set_bnr_rms_type(const int type,
   }
 
   if (type >= Dip && type <= HOMmax) {
-    for(k = 1; k <= Lattice.param.Cell_nLoc; k++)
+    for(k = 1; k <= Lattice.param.Cell_nLoc; k++) {
       M = static_cast<MpoleType*>(Lattice.Cell[k]);
       if ((Lattice.Cell[k]->Kind == Mpole) && (M->n_design == type))
 	set_bnr_rms_elem(Lattice.Cell[k]->Fnum, Lattice.Cell[k]->Knum,
 			 n, bnr, anr, new_rnd);
+    }
   } else
     printf("Bad type argument to set_bnr_rms_type()\n");
 }
@@ -1950,7 +1955,7 @@ void set_ID_scl(const int Fnum, const int Knum, const double scl)
     W_Fam =
       static_cast<WigglerType*>(Lattice.ElemFam[Fnum-1].CellF);
     for (k = 0; k < W->n_harm; k++) {
-      W->BoBrhoH[k] = scl*W->BoBrhoH[k]; W->BoBrhoV[k] = scl*W->BoBrhoV[k];
+      W->BoBrhoH[k] = scl*W_Fam->BoBrhoH[k]; W->BoBrhoV[k] = scl*W_Fam->BoBrhoV[k];
     }
     break;
   case Insertion:
@@ -3459,7 +3464,7 @@ void bend_cal_Fam(const int Fnum)
   b0L = dvector(1, n_prm); xi = dmatrix(1, n_prm, 1, n_prm);
 
   std::cout << std::endl;
-  std::cout << "bend_cal: " << Lattice.ElemFam[Fnum-1].Name << ":"
+  std::cout << "bend_cal: " << Lattice.ElemFam[Fnum-1].CellF->Name << ":"
 	    << std::endl;
 
   Fnum_Cart = Fnum;  b0L[1] = 0.0; xi[1][1] = 1e-3;
@@ -3479,7 +3484,7 @@ void bend_cal(void)
 
   for (k = 1; k <= Lattice.param.Elem_nFam; k++) {
     M = static_cast<MpoleType*>(Lattice.ElemFam[k-1].CellF);
-    if ((Lattice.ElemFam[k-1].Kind == Mpole) &&
+    if ((Lattice.ElemFam[k-1].CellF->Kind == Mpole) &&
 	(M->irho != 0.0) &&
 	(M->Bpar[Quad+HOMmax] != 0.0))
       if (Lattice.ElemFam[k-1].nKid > 0) bend_cal_Fam(k);
@@ -3554,7 +3559,7 @@ void set_tune(const char file_name1[], const char file_name2[], const int n)
 
 	fprintf(fp_lat, "%s: Quadrupole, L = %8.6f, K = %10.6f, N = Nquad"
 		", Method = Meth;\n",
-		names[k], Lattice.ElemFam[Fnum-1].L, b2s[k]);
+		names[k], Lattice.ElemFam[Fnum-1].CellF->L, b2s[k]);
       }
       break;
     }

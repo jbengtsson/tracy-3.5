@@ -647,17 +647,17 @@ void param_data_type::get_IDs(void)
   printf("\n");
   n_ID_Fams = 0;
   for (k = 0; k < Lattice.param.Elem_nFam; k++)
-    switch (Lattice.ElemFam[k].Kind) {
+    switch (Lattice.ElemFam[k].CellF->Kind) {
     case Wigl:
       W = static_cast<WigglerType*>(Lattice.ElemFam[k].CellF);
       printf("found ID family:   %s %12.5e\n",
-	     Lattice.ElemFam[k].Name, W->BoBrhoV[0]);
+	     Lattice.ElemFam[k].CellF->Name, W->BoBrhoV[0]);
       n_ID_Fams++; ID_Fams[n_ID_Fams-1] = k + 1;
       break;
     case Insertion:
       ID = static_cast<InsertionType*>(Lattice.ElemFam[k].CellF);
       printf("found ID family:   %s %12.5e",
-	     Lattice.ElemFam[k].Name, ID->scaling);
+	     Lattice.ElemFam[k].CellF->Name, ID->scaling);
       if (ID->scaling != 0e0) {
 	printf("\n");
 	n_ID_Fams++; ID_Fams[n_ID_Fams-1] = k + 1;
@@ -667,7 +667,7 @@ void param_data_type::get_IDs(void)
     case FieldMap:
       FM = static_cast<FieldMapType*>(Lattice.ElemFam[k].CellF);
       printf("found ID family:   %s %12.5e\n",
-	     Lattice.ElemFam[k].Name, FM->scl);
+	     Lattice.ElemFam[k].CellF->Name, FM->scl);
       n_ID_Fams++; ID_Fams[n_ID_Fams-1] = k + 1;
       break;
     default:
@@ -686,21 +686,21 @@ void param_data_type::set_IDs(const double scl)
 
   printf("\n");
   for (k = 0; k < n_ID_Fams; k++) {
-    switch (Lattice.ElemFam[ID_Fams[k]-1].Kind) {
+    switch (Lattice.ElemFam[ID_Fams[k]-1].CellF->Kind) {
     case Wigl:
       W = static_cast<WigglerType*>(Lattice.ElemFam[ID_Fams[k]-1].CellF);
       printf("setting ID family: %s %12.5e\n",
-	     Lattice.ElemFam[ID_Fams[k]-1].Name, scl*W->BoBrhoV[0]);
+	     Lattice.ElemFam[ID_Fams[k]-1].CellF->Name, scl*W->BoBrhoV[0]);
       set_Wiggler_BoBrho(ID_Fams[k], scl*W->BoBrhoV[0]);
       break;
     case Insertion:
       printf("setting ID family: %s %12.5e\n",
-	     Lattice.ElemFam[ID_Fams[k]-1].Name, scl);
+	     Lattice.ElemFam[ID_Fams[k]-1].CellF->Name, scl);
       set_ID_scl(ID_Fams[k], scl);
       break;
     case FieldMap:
       printf("setting ID family: %s %12.5e\n",
-	     Lattice.ElemFam[ID_Fams[k]-1].Name, scl);
+	     Lattice.ElemFam[ID_Fams[k]-1].CellF->Name, scl);
       set_ID_scl(ID_Fams[k], scl);
       break;
     default:
@@ -731,7 +731,7 @@ void param_data_type::reset_quads(void)
 		       Lattice.ElemFam[Q_Fam[k]-1].ElemF.M->Bpar[HOMmax+Quad], 0.0);*/
 
     printf("setting quad family: %s %12.5e\n",
-	   Lattice.ElemFam[Q_Fam[k]-1].Name, b2[k]);
+	   Lattice.ElemFam[Q_Fam[k]-1].CellF->Name, b2[k]);
 
     set_bn_design_fam(Q_Fam[k], Quad, b2[k], 0.0);
   }

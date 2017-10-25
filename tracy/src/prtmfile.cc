@@ -121,8 +121,8 @@ void LatticeType::prtmfile(const char mfile_dat[])
       fprintf(mfile, " %23.16e\n", Lattice.Cell[i]->L);
       break;
     case Mpole:
+      M = static_cast<MpoleType*>(Lattice.Cell[i]);
       if (Lattice.Cell[i]->L != 0.0) {
-	M = static_cast<MpoleType*>(Lattice.Cell[i]);
 	prtName(mfile, i, mpole_, M->method, M->N);
 	fprintf(mfile, " %23.16e %23.16e %23.16e %23.16e\n",
 		Lattice.Cell[i]->dS[X_], Lattice.Cell[i]->dS[Y_],
@@ -139,6 +139,7 @@ void LatticeType::prtmfile(const char mfile_dat[])
       }
       break;
     case Wigl:
+      W = static_cast<WigglerType*>(Lattice.Cell[i]);
       prtName(mfile, i, wiggler_, W->method, W->N);
       fprintf(mfile, " %23.16e %23.16e\n",
 	      Lattice.Cell[i]->L, W->lambda);
@@ -150,6 +151,7 @@ void LatticeType::prtmfile(const char mfile_dat[])
       }
       break;
     case Cavity:
+      C = static_cast<CavityType*>(Lattice.Cell[i]);
       prtName(mfile, i, cavity_, 0, 0);
       fprintf(mfile, " %23.16e %23.16e %d %23.16e %23.16e\n",
 	      C->volt/(1e9*Lattice.param.Energy), 2.0*M_PI*C->freq/c0, C->h,
@@ -159,6 +161,7 @@ void LatticeType::prtmfile(const char mfile_dat[])
       prtName(mfile, i, marker_, 0, 0);
       break;
     case Insertion:
+      ID = static_cast<InsertionType*>(Lattice.Cell[i]);
       prtName(mfile, i, kick_map_, ID->method, ID->N);
       if (ID->firstorder)
 	fprintf(mfile, " %3.1lf %1d %s\n", ID->scaling, 1, ID->fname1);

@@ -163,7 +163,7 @@ void LatticeType::rdmfile(const char *mfile_dat)
       Lattice.Cell[i]->Name[j] = ' ';
 
     if (Lattice.Cell[i]->Knum == 1) {
-      strcpy(Lattice.ElemFam[Lattice.Cell[i]->Fnum-1].Name,
+      strcpy(Lattice.ElemFam[Lattice.Cell[i]->Fnum-1].CellF->Name,
 	     Lattice.Cell[i]->Name);
       Lattice.param.Elem_nFam =
 	max(Lattice.Cell[i]->Fnum, Lattice.param.Elem_nFam);
@@ -182,7 +182,7 @@ void LatticeType::rdmfile(const char *mfile_dat)
     sscanf(line, "%d %d %d", &kind, &method, &n);
     get_kind(kind, Lattice.Cell[i]);
     if (i > 0)
-      Lattice.ElemFam[Lattice.Cell[i]->Fnum-1].Kind
+      Lattice.ElemFam[Lattice.Cell[i]->Fnum-1].CellF->Kind
 	= Lattice.Cell[i]->Kind;
 
     inf.getline(line, max_str);
