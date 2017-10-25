@@ -2134,12 +2134,12 @@ void SolenoidType::Pass(ss_vect<T> &ps)
 
 void  LatticeType::getelem(long i, CellType *cellrec)
 {
-  *cellrec = Lattice.Cell[i];
+  *cellrec = *Lattice.Cell[i];
  }
 
 void  LatticeType::putelem(long i, CellType *cellrec)
 {
-  Lattice.Cell[i] = *cellrec;
+  *Lattice.Cell[i] = *cellrec;
 }
 
 
@@ -2946,7 +2946,7 @@ double LatticeType::Elem_GetKval(int Fnum, int Knum, int Order)
   WigglerType *W;
 
   if (Fnum > 0) {
-    cellp = &Lattice.Cell[Lattice.ElemFam[Fnum-1].KidList[Knum-1]];
+    cellp = Lattice.Cell[Lattice.ElemFam[Fnum-1].KidList[Knum-1]];
     switch (cellp->Kind) {
     case drift:
       Result = 0e0;
@@ -3005,7 +3005,7 @@ void Mpole_SetB(int Fnum, int Knum, int Order)
   CellType  *cellp;  /* pointer on the Cell */
   MpoleType *M;/* Pointer on the Multipole */
 
-  cellp  = &Lattice.Cell[Lattice.ElemFam[Fnum-1].KidList[Knum-1]];
+  cellp  = Lattice.Cell[Lattice.ElemFam[Fnum-1].KidList[Knum-1]];
   M = static_cast<MpoleType*>(cellp);
   M->B[Order+HOMmax] =
     M->Bpar[Order+HOMmax] + M->Bsys[Order+HOMmax]
@@ -3025,7 +3025,7 @@ double LatticeType::Mpole_GetB(int Fnum, int Knum, int Order)
   CellType  *cellp;
   MpoleType *M;
 
-  cellp = &Lattice.Cell[Lattice.ElemFam[Fnum-1].KidList[Knum-1]];
+  cellp = Lattice.Cell[Lattice.ElemFam[Fnum-1].KidList[Knum-1]];
   M = static_cast<MpoleType*>(cellp);
   return (M->B[Order+HOMmax]);
 }
@@ -3036,7 +3036,7 @@ void Mpole_DefBpar(int Fnum, int Knum, int Order, double Bpar)
   CellType  *cellp;
   MpoleType *M;
 
-  cellp = &Lattice.Cell[Lattice.ElemFam[Fnum-1].KidList[Knum-1]];
+  cellp = Lattice.Cell[Lattice.ElemFam[Fnum-1].KidList[Knum-1]];
   M = static_cast<MpoleType*>(cellp);
   M->Bpar[Order+HOMmax] = Bpar;
 }
@@ -3047,7 +3047,7 @@ void Mpole_DefBsys(int Fnum, int Knum, int Order, double Bsys)
   CellType  *cellp;
   MpoleType *M;
 
-  cellp = &Lattice.Cell[Lattice.ElemFam[Fnum-1].KidList[Knum-1]];
+  cellp = Lattice.Cell[Lattice.ElemFam[Fnum-1].KidList[Knum-1]];
   M = static_cast<MpoleType*>(cellp);
   M->Bsys[Order+HOMmax] = Bsys;
 }
@@ -3059,7 +3059,7 @@ void Mpole_SetdS(int Fnum, int Knum)
   CellType  *cellp;
   MpoleType *M;
 
-  cellp = &Lattice.Cell[Lattice.ElemFam[Fnum-1].KidList[Knum-1]];
+  cellp = Lattice.Cell[Lattice.ElemFam[Fnum-1].KidList[Knum-1]];
   M = static_cast<MpoleType*>(cellp);
   for (j = 0; j <= 1; j++)
     cellp->dS[j] = M->dSsys[j] + M->dSrms[j]*M->dSrnd[j];
@@ -3070,7 +3070,7 @@ void Mpole_SetdT(int Fnum, int Knum)
   CellType  *cellp;
   MpoleType *M;
 
-  cellp = &Lattice.Cell[Lattice.ElemFam[Fnum-1].KidList[Knum-1]];
+  cellp = Lattice.Cell[Lattice.ElemFam[Fnum-1].KidList[Knum-1]];
   M = static_cast<MpoleType*>(cellp);
   cellp->dT[0] = cos(dtor(M->dTpar + M->dTsys + M->dTrms*M->dTrnd));
   cellp->dT[1] = sin(dtor(M->dTpar + M->dTsys + M->dTrms*M->dTrnd));
@@ -3085,7 +3085,7 @@ double Mpole_GetdT(int Fnum, int Knum)
   CellType  *cellp;
   MpoleType *M;
 
-  cellp = &Lattice.Cell[Lattice.ElemFam[Fnum-1].KidList[Knum-1]];
+  cellp = Lattice.Cell[Lattice.ElemFam[Fnum-1].KidList[Knum-1]];
   M = static_cast<MpoleType*>(cellp);
   return(M->dTpar + M->dTsys + M->dTrms*M->dTrnd);
 }
@@ -3096,7 +3096,7 @@ void Mpole_DefdTpar(int Fnum, int Knum, double dTpar)
   CellType  *cellp;
   MpoleType *M;
 
-  cellp = &Lattice.Cell[Lattice.ElemFam[Fnum-1].KidList[Knum-1]];
+  cellp = Lattice.Cell[Lattice.ElemFam[Fnum-1].KidList[Knum-1]];
   M = static_cast<MpoleType*>(cellp);
   M->dTpar = dTpar;
 }
@@ -3107,7 +3107,7 @@ void Mpole_DefdTsys(int Fnum, int Knum, double dTsys)
   CellType  *cellp;
   MpoleType *M;
 
-  cellp = &Lattice.Cell[Lattice.ElemFam[Fnum-1].KidList[Knum-1]];
+  cellp = Lattice.Cell[Lattice.ElemFam[Fnum-1].KidList[Knum-1]];
   M = static_cast<MpoleType*>(cellp);
   M->dTsys = dTsys;
 }
@@ -3118,7 +3118,7 @@ void Wiggler_SetB(int Fnum, int Knum, int Order)
   CellType    *cellp;
   WigglerType *W;
 
-  cellp = &Lattice.Cell[Lattice.ElemFam[Fnum-1].KidList[Knum-1]];
+  cellp = Lattice.Cell[Lattice.ElemFam[Fnum-1].KidList[Knum-1]];
   W = static_cast<WigglerType*>(cellp);
   if (abs(Order) > W->order) W->order = abs(Order);
 }
@@ -3130,7 +3130,7 @@ void Wiggler_SetdS(int Fnum, int Knum)
   CellType    *cellp;
   WigglerType *W;
 
-  cellp = &Lattice.Cell[Lattice.ElemFam[Fnum-1].KidList[Knum-1]];
+  cellp = Lattice.Cell[Lattice.ElemFam[Fnum-1].KidList[Knum-1]];
   W = static_cast<WigglerType*>(cellp);
   for (j = 0; j <= 1; j++)
     cellp->dS[j] = W->dSsys[j] + W->dSrms[j]*W->dSrnd[j];
@@ -3141,7 +3141,7 @@ void Wiggler_SetdT(int Fnum, int Knum)
   CellType    *cellp;
   WigglerType *W;
 
-  cellp = &Lattice.Cell[Lattice.ElemFam[Fnum-1].KidList[Knum-1]];
+  cellp = Lattice.Cell[Lattice.ElemFam[Fnum-1].KidList[Knum-1]];
   W = static_cast<WigglerType*>(cellp);
   cellp->dT[0] = cos(dtor(W->dTpar+W->dTsys+W->dTrms*W->dTrnd));
   cellp->dT[1] = sin(dtor(W->dTpar+W->dTsys+W->dTrms*W->dTrnd));

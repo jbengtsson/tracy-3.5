@@ -21,9 +21,9 @@ inline bool CheckAmpl(const ss_vect<T> &x, const long int loc)
 
   if (Lattice.param.Aperture_on)
     not_lost =
-      is_double<T>::cst(x[x_]) > Lattice.Cell[loc].maxampl[X_][0] &&
-      is_double<T>::cst(x[x_]) < Lattice.Cell[loc].maxampl[X_][1] && 
-      fabs(is_double<T>::cst(x[y_])) < Lattice.Cell[loc].maxampl[Y_][1];
+      is_double<T>::cst(x[x_]) > Lattice.Cell[loc]->maxampl[X_][0] &&
+      is_double<T>::cst(x[x_]) < Lattice.Cell[loc]->maxampl[X_][1] && 
+      fabs(is_double<T>::cst(x[y_])) < Lattice.Cell[loc]->maxampl[Y_][1];
   else
     not_lost =
       is_double<T>::cst(x[x_]) > -max_ampl &&
@@ -31,16 +31,16 @@ inline bool CheckAmpl(const ss_vect<T> &x, const long int loc)
       fabs(is_double<T>::cst(x[y_])) < max_ampl;
 
   if (!not_lost) {
-    if (is_double<T>::cst(x[x_]) < Lattice.Cell[loc].maxampl[X_][0] ||
-        is_double<T>::cst(x[x_]) > Lattice.Cell[loc].maxampl[X_][1])
+    if (is_double<T>::cst(x[x_]) < Lattice.Cell[loc]->maxampl[X_][0] ||
+        is_double<T>::cst(x[x_]) > Lattice.Cell[loc]->maxampl[X_][1])
       status.lossplane = 1;
-    else if (fabs(is_double<T>::cst(x[y_])) > Lattice.Cell[loc].maxampl[Y_][1])
+    else if (fabs(is_double<T>::cst(x[y_])) > Lattice.Cell[loc]->maxampl[Y_][1])
       status.lossplane = 2;
 	    
     if (trace)
       printf("CheckAmpl: Particle lost in plane %d at element:"
 	     " %5ld s = %10.5f, x = %12.5e, z= %12.5e\n",
-	     status.lossplane, loc, Lattice.Cell[loc].S,
+	     status.lossplane, loc, Lattice.Cell[loc]->S,
 	     is_double<T>::cst(x[x_]), is_double<T>::cst(x[y_]));
   }
 
@@ -52,34 +52,34 @@ inline bool CheckAmpl(const ss_vect<T> &x, const long int loc)
 // void LatticeType::Elem_Pass(const long i, ss_vect<T> &x)
 // {
 
-//   switch (Lattice.Cell[i].Kind) {
+//   switch (Lattice.Cell[i]->Kind) {
 //     case drift:
-//       Lattice.Cell[i].Pass(x);
+//       Lattice.Cell[i]->Pass(x);
 //       break;
 //     case Mpole:
-//       Lattice.Cell[i].Pass(x);
+//       Lattice.Cell[i]->Pass(x);
 //       break;
 //     case Wigl:
-//       Lattice.Cell[i].Pass(x);
+//       Lattice.Cell[i]->Pass(x);
 //       break;
 //     case FieldMap:
-//       Lattice.Cell[i].Pass(x);
+//       Lattice.Cell[i]->Pass(x);
 //       break;
 //     case Insertion:
-//       Lattice.Cell[i].Pass(x);
+//       Lattice.Cell[i]->Pass(x);
 //       break;
 //     case Cavity:
-//       Lattice.Cell[i].Pass(x);
+//       Lattice.Cell[i]->Pass(x);
 //       break;
 //     case marker:
-//       Lattice.Cell[i].Pass(x);
+//       Lattice.Cell[i]->Pass(x);
 //       break;
 //     case Spreader:
 //       break;
 //     case Recombiner:
 //       break;
 //     case Solenoid:
-//       Lattice.Cell[i].Pass(x);
+//       Lattice.Cell[i]->Pass(x);
 //       break;
 //     default:
 //       printf("Elem_Pass ** undefined type\n");
@@ -93,7 +93,7 @@ inline bool CheckAmpl(const ss_vect<T> &x, const long int loc)
 template<typename T>
 void LatticeType::Elem_Pass(const long i, ss_vect<T> &x)
 {
-  Cell[i].Pass(x);
+  Cell[i]->Pass(x);
 }
 
 
@@ -196,8 +196,8 @@ bool LatticeType::Cell_getCOD(const long imax, const double eps,
     x0[delta_] = 0e0; x0[ct_] = 0e0;
   } else {
     // or eta*dP for 2 1/2 D.O.F.
-    x0[x_] = Lattice.Cell[0].Eta[X_]*dP; x0[px_] = Lattice.Cell[0].Etap[X_]*dP;
-    x0[y_] = Lattice.Cell[0].Eta[Y_]*dP; x0[py_] = Lattice.Cell[0].Etap[Y_]*dP;
+    x0[x_] = Lattice.Cell[0]->Eta[X_]*dP; x0[px_] = Lattice.Cell[0]->Etap[X_]*dP;
+    x0[y_] = Lattice.Cell[0]->Eta[Y_]*dP; x0[py_] = Lattice.Cell[0]->Etap[Y_]*dP;
     x0[delta_] = dP; x0[ct_] = 0e0;
   }
 
@@ -278,7 +278,7 @@ void LatticeType::Cell_Init(void)
 
   SI_init();
 
-  strcpy(this->Cell[0].Name, first_name);
+  strcpy(this->Cell[0]->Name, first_name);
 
   for (i = 1; i <= this->param.Elem_nFam; i++) {
     elemfamp = &this->ElemFam[i-1];
@@ -286,7 +286,7 @@ void LatticeType::Cell_Init(void)
       printf("  %2ld |%*s|", i, SymbolLength, elemfamp->Name);
     // this->ElemFam[i-1].CellF.Init(i);
     for (j = 1; j <= elemfamp->nKid; j++) {
-      this->Cell[elemfamp->KidList[j-1]] = *elemfamp->CellF;
+      *this->Cell[elemfamp->KidList[j-1]] = *elemfamp->CellF;
       if (debug) {
 	printf(" %3d", elemfamp->KidList[j-1]);
 	if (j % n_prt == 0) printf("\n                      ");
@@ -297,7 +297,7 @@ void LatticeType::Cell_Init(void)
 
   Stotal = 0e0;
   for (i = 0; i <= this->param.Cell_nLoc; i++) {
-    Stotal += this->Cell[i].L; this->Cell[i].S = Stotal;
+    Stotal += this->Cell[i]->L; this->Cell[i]->S = Stotal;
   }
 }
 

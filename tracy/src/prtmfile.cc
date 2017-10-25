@@ -79,12 +79,12 @@ void prtName(FILE *fp, const int i,
 	     const int type, const int method, const int N)
 {
   fprintf(fp, "%-15s %4d %4d %4d\n",
-	  Lattice.Cell[i].Name,
-	  Lattice.Cell[i].Fnum, Lattice.Cell[i].Knum, i);
+	  Lattice.Cell[i]->Name,
+	  Lattice.Cell[i]->Fnum, Lattice.Cell[i]->Knum, i);
   fprintf(fp, " %3d %3d %3d\n", type, method, N);
   fprintf(fp, " %23.16e %23.16e %23.16e %23.16e\n",
-	  Lattice.Cell[i].maxampl[X_][0], Lattice.Cell[i].maxampl[X_][1],
-	  Lattice.Cell[i].maxampl[Y_][0], Lattice.Cell[i].maxampl[Y_][1]);
+	  Lattice.Cell[i]->maxampl[X_][0], Lattice.Cell[i]->maxampl[X_][1],
+	  Lattice.Cell[i]->maxampl[Y_][0], Lattice.Cell[i]->maxampl[Y_][1]);
 }
 
 
@@ -114,26 +114,26 @@ void LatticeType::prtmfile(const char mfile_dat[])
 
   mfile = file_write(mfile_dat);
   for (i = 0; i <= Lattice.param.Cell_nLoc; i++) {
-    printf("%8s\n", Lattice.Cell[i].Name);
-    switch (Lattice.Cell[i].Kind) {
+    printf("%8s\n", Lattice.Cell[i]->Name);
+    switch (Lattice.Cell[i]->Kind) {
     case drift:
       prtName(mfile, i, drift_, 0, 0);
-      fprintf(mfile, " %23.16e\n", Lattice.Cell[i].L);
+      fprintf(mfile, " %23.16e\n", Lattice.Cell[i]->L);
       break;
     case Mpole:
-      if (Lattice.Cell[i].L != 0.0) {
-	M = static_cast<MpoleType*>(&Lattice.Cell[i]);
+      if (Lattice.Cell[i]->L != 0.0) {
+	M = static_cast<MpoleType*>(Lattice.Cell[i]);
 	prtName(mfile, i, mpole_, M->method, M->N);
 	fprintf(mfile, " %23.16e %23.16e %23.16e %23.16e\n",
-		Lattice.Cell[i].dS[X_], Lattice.Cell[i].dS[Y_],
+		Lattice.Cell[i]->dS[X_], Lattice.Cell[i]->dS[Y_],
 		M->dTpar, M->dTsys+M->dTrms*M->dTrnd);
 	fprintf(mfile, " %23.16e %23.16e %23.16e %23.16e %23.16e\n",
-		Lattice.Cell[i].L, M->irho, M->Tx1, M->Tx2,	M->gap);
+		Lattice.Cell[i]->L, M->irho, M->Tx1, M->Tx2,	M->gap);
 	prtHOM(mfile, M->n_design, M->B, M->order);
       } else {
 	prtName(mfile, i, thinkick_, M->method,	M->N);
 	fprintf(mfile, " %23.16e %23.16e %23.16e\n",
-		Lattice.Cell[i].dS[X_], Lattice.Cell[i].dS[Y_],
+		Lattice.Cell[i]->dS[X_], Lattice.Cell[i]->dS[Y_],
 		M->dTsys+M->dTrms*M->dTrnd);
 	prtHOM(mfile, M->n_design, M->B, M->order);
       }
@@ -141,7 +141,7 @@ void LatticeType::prtmfile(const char mfile_dat[])
     case Wigl:
       prtName(mfile, i, wiggler_, W->method, W->N);
       fprintf(mfile, " %23.16e %23.16e\n",
-	      Lattice.Cell[i].L, W->lambda);
+	      Lattice.Cell[i]->L, W->lambda);
       fprintf(mfile, "%2d\n", W->n_harm);
       for (j = 0; j < W->n_harm; j++) {
 	fprintf(mfile, "%2d %23.16e %23.16e %23.16e %23.16e %23.16e\n",
@@ -166,7 +166,7 @@ void LatticeType::prtmfile(const char mfile_dat[])
 	fprintf(mfile, " %3.1lf %1d %s\n", ID->scaling, 2, ID->fname2);
       break;
     default:
-      printf("prtmfile: unknown type %d\n", Lattice.Cell[i].Kind);
+      printf("prtmfile: unknown type %d\n", Lattice.Cell[i]->Kind);
       exit(1);
       break;
     }
