@@ -56,12 +56,12 @@ void get_cod_rms(const double dx, const double dy,
 
       n = 0;
       for (j = 0; j <= Lattice.param.Cell_nLoc; j++) {
-	M = static_cast<MpoleType*>(&Lattice.Cell[j]);
-	if (all || ((Lattice.Cell[j].Kind == Mpole) && (M->n_design == Sext))) {
+	M = static_cast<MpoleType*>(Lattice.Cell[j]);
+	if (all || ((Lattice.Cell[j]->Kind == Mpole) && (M->n_design == Sext))) {
 	  n++;
 	  for (k = 0; k < 6; k++) {
-	    x1[k][n-1] += Lattice.Cell[j].BeamPos[k];
-	    x2[k][n-1] += sqr(Lattice.Cell[j].BeamPos[k]);
+	    x1[k][n-1] += Lattice.Cell[j]->BeamPos[k];
+	    x2[k][n-1] += sqr(Lattice.Cell[j]->BeamPos[k]);
 	  }
 	}
       }
@@ -77,8 +77,8 @@ void get_cod_rms(const double dx, const double dy,
 
   n = 0;
   for (j = 0; j <= Lattice.param.Cell_nLoc; j++) {
-    M = static_cast<MpoleType*>(&Lattice.Cell[j]);
-    if (all || ((Lattice.Cell[j].Kind == Mpole) && (M->n_design == Sext))) {
+    M = static_cast<MpoleType*>(Lattice.Cell[j]);
+    if (all || ((Lattice.Cell[j]->Kind == Mpole) && (M->n_design == Sext))) {
       n++;
       for (k = 0; k < 6; k++) {
 	x_mean[k].push_back(x1[k][n-1]/n_cod);
@@ -86,12 +86,12 @@ void get_cod_rms(const double dx, const double dy,
 				  /(n_cod*(n_cod-1.0))));
       }
       fprintf(fp, "%8.3f %6.2f %10.3e +/- %10.3e %10.3e +/- %10.3e\n",
-	      Lattice.Cell[j].S, get_code(Lattice.Cell[j]),
+	      Lattice.Cell[j]->S, get_code(Lattice.Cell[j]),
 	      1e3*x_mean[x_][n-1], 1e3*x_sigma[x_][n-1],
 	      1e3*x_mean[y_][n-1], 1e3*x_sigma[y_][n-1]);
     } else
       fprintf(fp, "%8.3f %6.2f\n",
-	      Lattice.Cell[j].S, get_code(Lattice.Cell[j]));
+	      Lattice.Cell[j]->S, get_code(Lattice.Cell[j]));
   }
 
   fclose(fp);
@@ -109,9 +109,9 @@ void track(const double Ax, const double Ay)
 
   fd = fopen("trackdat_oneturn.dat","w");
   fprintf(fd, "orbit %22.14e %22.14e %22.14e %22.14e %22.14e %22.14e\n",
-	  Lattice.Cell[0].BeamPos[0], Lattice.Cell[0].BeamPos[1],
-	  Lattice.Cell[0].BeamPos[2], Lattice.Cell[0].BeamPos[3],
-	  Lattice.Cell[0].BeamPos[4], Lattice.Cell[0].BeamPos[5] );
+	  Lattice.Cell[0]->BeamPos[0], Lattice.Cell[0]->BeamPos[1],
+	  Lattice.Cell[0]->BeamPos[2], Lattice.Cell[0]->BeamPos[3],
+	  Lattice.Cell[0]->BeamPos[4], Lattice.Cell[0]->BeamPos[5] );
   fprintf(fd, "orbit %22.14e %22.14e %22.14e %22.14e %22.14e %22.14e\n",
 	  Lattice.param.CODvect[0], Lattice.param.CODvect[1],
 	  Lattice.param.CODvect[2], Lattice.param.CODvect[3],
@@ -143,9 +143,9 @@ void prt_symm(const std::vector<int> &Fam)
       loc = Lattice.Elem_GetPos(Fam[j], k);
       if (k % 2 == 0) loc -= 1;
       printf(" %5.1f %6.3f %6.3f %6.3f\n",
-	     Lattice.Cell[loc].S, Lattice.Cell[loc].Beta[X_],
-	     Lattice.Cell[loc].Beta[Y_],
-	     Lattice.Cell[loc].Eta[X_]);
+	     Lattice.Cell[loc]->S, Lattice.Cell[loc]->Beta[X_],
+	     Lattice.Cell[loc]->Beta[Y_],
+	     Lattice.Cell[loc]->Eta[X_]);
     }
   }
 }
@@ -160,8 +160,8 @@ void prt_quad(const std::vector<int> &Fam)
   for (j = 0; j < (int)Fam.size(); j++) {
     loc = Lattice.Elem_GetPos(Fam[j], 1);
     printf(" %4.1f %6.3f %6.3f %2d\n",
-	   Lattice.Cell[loc].S,
-	   Lattice.Cell[loc].Beta[X_], Lattice.Cell[loc].Beta[Y_],
+	   Lattice.Cell[loc]->S,
+	   Lattice.Cell[loc]->Beta[X_], Lattice.Cell[loc]->Beta[Y_],
 	   Lattice.GetnKid(Fam[j]));
   }
 }
@@ -193,15 +193,15 @@ void chk_mini_beta(const std::vector<int> &Fam)
     for (k = 1; k <= Lattice.GetnKid(Fam[j]); k++) {
       loc = Lattice.Elem_GetPos(Fam[j], k);
       if (k % 2 == 1) {
-	nu0[X_] = Lattice.Cell[loc].Nu[X_]; nu0[Y_] = Lattice.Cell[loc].Nu[Y_];
+	nu0[X_] = Lattice.Cell[loc]->Nu[X_]; nu0[Y_] = Lattice.Cell[loc]->Nu[Y_];
       } else {
 	loc -= 1;
 	printf(" %5.1f %6.3f %6.3f %6.3f %8.5f %8.5f\n",
-	       Lattice.Cell[loc].S,
-	       Lattice.Cell[loc].Beta[X_], Lattice.Cell[loc].Beta[Y_],
-	       Lattice.Cell[loc].Eta[X_],
-	       Lattice.Cell[loc].Nu[X_]-nu0[X_],
-	       Lattice.Cell[loc].Nu[Y_]-nu0[Y_]);
+	       Lattice.Cell[loc]->S,
+	       Lattice.Cell[loc]->Beta[X_], Lattice.Cell[loc]->Beta[Y_],
+	       Lattice.Cell[loc]->Eta[X_],
+	       Lattice.Cell[loc]->Nu[X_]-nu0[X_],
+	       Lattice.Cell[loc]->Nu[Y_]-nu0[Y_]);
       }
     }
   }
@@ -227,20 +227,20 @@ void chk_high_oord_achr(void)
   printf("\nCell phase advance:\n");
   printf("Ideal:    [%7.5f, %7.5f]\n", 19.0/8.0, 15.0/16.0);
   printf("\n %7.5f [%7.5f, %7.5f]\n",
-	 Lattice.Cell[loc[0]].S, 
-	 Lattice.Cell[loc[0]].Nu[X_], Lattice.Cell[loc[0]].Nu[Y_]);
+	 Lattice.Cell[loc[0]]->S, 
+	 Lattice.Cell[loc[0]]->Nu[X_], Lattice.Cell[loc[0]]->Nu[Y_]);
   printf(" %7.5f [%7.5f, %7.5f]\n",
-	 Lattice.Cell[loc[1]].S-Lattice.Cell[loc[0]].S, 
-	 Lattice.Cell[loc[1]].Nu[X_]-Lattice.Cell[loc[0]].Nu[X_], 
-	 Lattice.Cell[loc[1]].Nu[Y_]-Lattice.Cell[loc[0]].Nu[Y_]);
+	 Lattice.Cell[loc[1]]->S-Lattice.Cell[loc[0]]->S, 
+	 Lattice.Cell[loc[1]]->Nu[X_]-Lattice.Cell[loc[0]]->Nu[X_], 
+	 Lattice.Cell[loc[1]]->Nu[Y_]-Lattice.Cell[loc[0]]->Nu[Y_]);
   printf(" %7.5f [%7.5f, %7.5f]\n",
-	 Lattice.Cell[loc[2]].S-Lattice.Cell[loc[1]].S, 
-	 Lattice.Cell[loc[2]].Nu[X_]-Lattice.Cell[loc[1]].Nu[X_], 
-	 Lattice.Cell[loc[2]].Nu[Y_]-Lattice.Cell[loc[1]].Nu[Y_]);
+	 Lattice.Cell[loc[2]]->S-Lattice.Cell[loc[1]]->S, 
+	 Lattice.Cell[loc[2]]->Nu[X_]-Lattice.Cell[loc[1]]->Nu[X_], 
+	 Lattice.Cell[loc[2]]->Nu[Y_]-Lattice.Cell[loc[1]]->Nu[Y_]);
   printf(" %7.5f [%7.5f, %7.5f]\n",
-	 Lattice.Cell[loc[3]].S-Lattice.Cell[loc[2]].S, 
-	 Lattice.Cell[loc[3]].Nu[X_]-Lattice.Cell[loc[2]].Nu[X_], 
-	 Lattice.Cell[loc[3]].Nu[Y_]-Lattice.Cell[loc[2]].Nu[Y_]);
+	 Lattice.Cell[loc[3]]->S-Lattice.Cell[loc[2]]->S, 
+	 Lattice.Cell[loc[3]]->Nu[X_]-Lattice.Cell[loc[2]]->Nu[X_], 
+	 Lattice.Cell[loc[3]]->Nu[Y_]-Lattice.Cell[loc[2]]->Nu[Y_]);
 }
 
 
@@ -253,8 +253,8 @@ void chk_b3_Fam(const int Fnum, const bool exit)
     loc = Lattice.Elem_GetPos(Fnum, k);
     if (!exit && ((k-1) % 2 == 1)) loc -= 1;
     printf("%8s %7.5f %7.5f\n",
-	   Lattice.Cell[loc].Name,
-	   Lattice.Cell[loc].Beta[X_], Lattice.Cell[loc].Beta[Y_]);
+	   Lattice.Cell[loc]->Name,
+	   Lattice.Cell[loc]->Beta[X_], Lattice.Cell[loc]->Beta[Y_]);
   }
 }
 
@@ -320,12 +320,12 @@ void chk_dip(void)
   L_sum = 0e0; phi_sum = 0e0;
   for (k = 0; k < n_dip; k++) {
     loc = Lattice.Elem_GetPos(Fnum[k], 1);
-    M = static_cast<MpoleType*>(&Lattice.Cell[loc]);
-    L = Lattice.Cell[loc].L;
+    M = static_cast<MpoleType*>(Lattice.Cell[loc]);
+    L = Lattice.Cell[loc]->L;
     phi = L*M->irho*180e0/M_PI;
     L_sum += L; phi_sum += phi;
     printf(" %6s %4.3f %6.3f %9.6f %9.6f %9.6f %9.6f %9.6f\n",
-	   Lattice.Cell[loc].Name, L, 1e0/M->irho, phi, M->Tx1, M->Tx2,
+	   Lattice.Cell[loc]->Name, L, 1e0/M->irho, phi, M->Tx1, M->Tx2,
 	   L_sum, phi_sum);
   }
 }
@@ -340,11 +340,11 @@ complex<double> get_h1_ijklm(const int loc, const double b3L,
   I = complex<double>(0e0, 1e0);
 
   h_ijklm =
-    b3L*pow(Lattice.Cell[loc].Beta[X_],
-	    (i+j)/2e0)*pow(Lattice.Cell[loc].Beta[Y_], (k+l)/2e0)
-    *pow(Lattice.Cell[loc].Eta[X_], m)
-    *exp(I*((i-j)*Lattice.Cell[loc].Nu[X_]+(k-l)
-	    *Lattice.Cell[loc].Nu[Y_])*2e0*M_PI);
+    b3L*pow(Lattice.Cell[loc]->Beta[X_],
+	    (i+j)/2e0)*pow(Lattice.Cell[loc]->Beta[Y_], (k+l)/2e0)
+    *pow(Lattice.Cell[loc]->Eta[X_], m)
+    *exp(I*((i-j)*Lattice.Cell[loc]->Nu[X_]+(k-l)
+	    *Lattice.Cell[loc]->Nu[Y_])*2e0*M_PI);
 
   return h_ijklm;
 }
@@ -374,11 +374,11 @@ void get_drv_terms(void)
   h[1][0][0][2][0] = complex<double>(0e0, 0e0);
 
   for (loc = 0; loc <= Lattice.param.Cell_nLoc; loc++) {
-    M = static_cast<MpoleType*>(&Lattice.Cell[loc]);
-    if ((Lattice.Cell[loc].Kind == Mpole) && (M->order == Sext)) {
+    M = static_cast<MpoleType*>(Lattice.Cell[loc]);
+    if ((Lattice.Cell[loc]->Kind == Mpole) && (M->order == Sext)) {
       n++;
 
-      get_bnL_design_elem(Lattice.Cell[loc].Fnum, Lattice.Cell[loc].Knum,
+      get_bnL_design_elem(Lattice.Cell[loc]->Fnum, Lattice.Cell[loc]->Knum,
 			  Sext, b3L, a3L);
 
       h[1][0][0][0][2] += get_h1_ijklm(loc, b3L, 1, 0, 0, 0, 2);
@@ -391,7 +391,7 @@ void get_drv_terms(void)
       h[1][0][2][0][0] += get_h1_ijklm(loc, b3L, 1, 0, 2, 0, 0);
       h[1][0][0][2][0] += get_h1_ijklm(loc, b3L, 1, 0, 0, 2, 0);
 
-      s[n-1] = Lattice.Cell[loc].S;
+      s[n-1] = Lattice.Cell[loc]->S;
 
       h_loc[1][0][0][0][2][n-1] = h[1][0][0][0][2];
       h_loc[2][0][0][0][1][n-1] = h[2][0][0][0][1];
@@ -659,7 +659,7 @@ int main(int argc, char *argv[])
 
     C =
       static_cast<CavityType*>
-      (&Lattice.Cell[Lattice.Elem_GetPos(Lattice.Elem_Index("cav"), 1)]);
+      (Lattice.Cell[Lattice.Elem_GetPos(Lattice.Elem_Index("cav"), 1)]);
     f_rf = C->freq;
     printf("\nf_rf = %10.3e\n", f_rf);
 

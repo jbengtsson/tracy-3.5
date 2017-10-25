@@ -266,9 +266,11 @@ bool LatticeType::GetCOD(const long imax, const double eps, const double dP,
 
 void LatticeType::Cell_Init(void)
 {
+  bool        reverse;
   long        i, j;
   double      Stotal;
   ElemFamType *elemfamp;
+  CellType    *cellp;
 
   // SymbolLength = 15.
   const char first_name[] = "begin          ";
@@ -278,40 +280,54 @@ void LatticeType::Cell_Init(void)
 
   SI_init();
 
+  this->Cell[0] = new CellType();
   strcpy(this->Cell[0]->Name, first_name);
 
   for (i = 1; i <= this->param.Elem_nFam; i++) {
     elemfamp = &this->ElemFam[i-1];
-    if (debug)
-      printf("  %2ld |%*s|", i, SymbolLength, elemfamp->Name);
+    
+    if (debug) printf("  %2ld |%*s|", i, SymbolLength, elemfamp->Name);
+
     // this->ElemFam[i-1].CellF.Init(i);
+
     for (j = 1; j <= elemfamp->nKid; j++) {
-      if (Cell[elemfamp->KidList[j-1]]->Kind == PartsKind(marker))
-	this->Cell[elemfamp->KidList[j-1]] = new MarkerType();
-      else if (Cell[elemfamp->KidList[j-1]]->Kind == PartsKind(drift))
-	this->Cell[elemfamp->KidList[j-1]] = new DriftType();
-      else if (Cell[elemfamp->KidList[j-1]]->Kind == PartsKind(Mpole))
-	this->Cell[elemfamp->KidList[j-1]] = new MpoleType();
-      else if (Cell[elemfamp->KidList[j-1]]->Kind == PartsKind(Wigl))
-	this->Cell[elemfamp->KidList[j-1]] = new WigglerType();
-      else if (Cell[elemfamp->KidList[j-1]]->Kind == PartsKind(Insertion))
-	this->Cell[elemfamp->KidList[j-1]] = new InsertionType();
-      else if (Cell[elemfamp->KidList[j-1]]->Kind == PartsKind(FieldMap))
-	this->Cell[elemfamp->KidList[j-1]] = new FieldMapType();
-      else if (Cell[elemfamp->KidList[j-1]]->Kind == PartsKind(Cavity))
-	this->Cell[elemfamp->KidList[j-1]] = new CavityType();
-      else if (Cell[elemfamp->KidList[j-1]]->Kind == PartsKind(Spreader))
-	this->Cell[elemfamp->KidList[j-1]] = new SpreaderType();
-      else if (Cell[elemfamp->KidList[j-1]]->Kind == PartsKind(Recombiner))
-	this->Cell[elemfamp->KidList[j-1]] = new RecombinerType();
-      else if (Cell[elemfamp->KidList[j-1]]->Kind == PartsKind(Solenoid))
-	this->Cell[elemfamp->KidList[j-1]] = new SolenoidType();
+      cellp = this->Cell[elemfamp->KidList[j-1]];
+      printf("%3d %3d\n", cellp->Fnum, j);
+      reverse = cellp->Reverse;
+      delete cellp;
+
+      if (elemfamp->Kind == PartsKind(marker))
+	cellp = new MarkerType();
+      else if (elemfamp->Kind == PartsKind(drift))
+	cellp = new DriftType();
+      else if (elemfamp->Kind == PartsKind(Mpole))
+	cellp = new MpoleType();
+      else if (elemfamp->Kind == PartsKind(Wigl))
+	cellp = new WigglerType();
+      else if (elemfamp->Kind == PartsKind(Insertion))
+	cellp = new InsertionType();
+      else if (elemfamp->Kind == PartsKind(FieldMap))
+	cellp = new FieldMapType();
+      else if (elemfamp->Kind == PartsKind(Cavity))
+	cellp = new CavityType();
+      else if (elemfamp->Kind == PartsKind(Spreader))
+	cellp = new SpreaderType();
+      else if (elemfamp->Kind == PartsKind(Recombiner))
+	cellp = new RecombinerType();
+      else if (elemfamp->Kind == PartsKind(Solenoid))
+	cellp = new SolenoidType();
       else {
 	printf("\nCell_Init: unknown Kind %d\n",
-	       Cell[elemfamp->KidList[j-1]]->Kind);
+	       elemfamp->Kind);
 	exit(1);
       }
-      *this->Cell[elemfamp->KidList[j-1]] = *elemfamp->CellF;
+
+      *cellp = *elemfamp->CellF;
+      cellp->Kind = elemfamp->Kind;
+      cellp->Fnum = j;
+      cellp->Reverse = reverse;
+      strncpy(cellp->Name, elemfamp->CellF->Name, NameLength);
+
       if (debug) {
 	printf(" %3d", elemfamp->KidList[j-1]);
 	if (j % n_prt == 0) printf("\n                      ");

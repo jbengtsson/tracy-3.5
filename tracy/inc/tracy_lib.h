@@ -183,7 +183,7 @@ void get_ab(const ss_vect<tps> &A,
 	    double alpha[], double beta[], double nu[],
 	    double eta[], double etap[]);
 
-double get_code(CellType &Cell);
+double get_code(CellType *Cell);
 
 double get_curly_H(const double alpha_x, const double beta_x,
 		   const double eta_x, const double etap_x);

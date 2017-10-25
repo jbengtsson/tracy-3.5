@@ -118,8 +118,6 @@ LatticeType Lattice;
 statusrec   status;
 bool        trace, traceID;
 
-const bool debug_lat = false;
-
 bool reverse_elem = false; // Beam Dynamics or Software Engineering reverse.
 
 // Set operations
@@ -2100,14 +2098,15 @@ bool LatticeType::Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     *V.rnum = EVAL_(&V);
     test__(P_expset(SET, 1 << ((long)semicolon)), "<;> expected", &V);
     GetSym__(&V);
-    this->param.Elem_nFam++;
+    this->param.Elem_nFam++; 
     if (this->param.Elem_nFam <= Elem_nFamMax) {
       WITH = &this->ElemFam[this->param.Elem_nFam-1];
+      WITH->nKid = 0;
       WITH->CellF = new DriftType();
       memcpy(WITH->CellF->Name, ElementName, sizeof(partsName));
       WITH->CellF->L = *V.rnum; WITH->CellF->Kind = PartsKind(drift);
 
-      WITH->CellF->Show(std::cout);
+      if (debug_lat) WITH->CellF->Show(std::cout);
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
 	     this->param.Elem_nFam, (long)Elem_nFamMax);
@@ -2248,7 +2247,7 @@ bool LatticeType::Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       WITH = &this->ElemFam[this->param.Elem_nFam-1];
       WITH->CellF = M;
 
-      WITH->CellF->Show(std::cout);
+      if (debug_lat) WITH->CellF->Show(std::cout);
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
 	     this->param.Elem_nFam, (long)Elem_nFamMax);
@@ -2353,7 +2352,7 @@ bool LatticeType::Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       WITH = &this->ElemFam[this->param.Elem_nFam-1];
       WITH->CellF = M;
 
-      WITH->CellF->Show(std::cout);
+      if (debug_lat) WITH->CellF->Show(std::cout);
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
 	     this->param.Elem_nFam, (long)Elem_nFamMax);
@@ -2465,7 +2464,7 @@ bool LatticeType::Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       WITH = &this->ElemFam[this->param.Elem_nFam-1];
       WITH->CellF = M;
 
-      WITH->CellF->Show(std::cout);
+      if (debug_lat) WITH->CellF->Show(std::cout);
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
 	     this->param.Elem_nFam, (long)Elem_nFamMax);
@@ -2581,7 +2580,7 @@ bool LatticeType::Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       WITH = &this->ElemFam[this->param.Elem_nFam-1];
       WITH->CellF = C;
 
-      WITH->CellF->Show(std::cout);
+      if (debug_lat) WITH->CellF->Show(std::cout);
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
 	     this->param.Elem_nFam, (long)Elem_nFamMax);
@@ -2689,7 +2688,7 @@ bool LatticeType::Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       WITH = &this->ElemFam[this->param.Elem_nFam-1];
       WITH->CellF = M;
 
-      WITH->CellF->Show(std::cout);
+      if (debug_lat) WITH->CellF->Show(std::cout);
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
 	     this->param.Elem_nFam, (long)Elem_nFamMax);
@@ -2740,7 +2739,7 @@ bool LatticeType::Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       WITH = &this->ElemFam[this->param.Elem_nFam-1];
       WITH->CellF = M;
 
-      WITH->CellF->Show(std::cout);
+      if (debug_lat) WITH->CellF->Show(std::cout);
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
 	     this->param.Elem_nFam, (long)Elem_nFamMax);
@@ -2786,7 +2785,7 @@ bool LatticeType::Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       WITH->CellF->L = 0.0; WITH->CellF->Kind = PartsKind(marker);
       SetDBN(&V);
 
-      WITH->CellF->Show(std::cout);
+      if (debug_lat) WITH->CellF->Show(std::cout);
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
 	     this->param.Elem_nFam, (long)Elem_nFamMax);
@@ -2970,7 +2969,7 @@ bool LatticeType::Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       WITH = &this->ElemFam[this->param.Elem_nFam-1];
       WITH->CellF = M;
 
-      WITH->CellF->Show(std::cout);
+      if (debug_lat) WITH->CellF->Show(std::cout);
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
 	     this->param.Elem_nFam, (long)Elem_nFamMax);
@@ -3938,6 +3937,7 @@ void LatticeType::DealWithDefns(struct LOC_Lattice_Read *LINK)
 	      exit(1);
 	    }
 	    if (k <= Cell_nLocMax) {
+	      this->Cell[k] = new CellType();
 	      this->Cell[k]->Fnum = k1;
 	      this->Cell[k]->Reverse = LINK->Reverse_stack[j];
 	      if (debug_lat) {
@@ -3945,7 +3945,7 @@ void LatticeType::DealWithDefns(struct LOC_Lattice_Read *LINK)
 		  printf("\nCell Definition:\n  |%s| %2ld\n", WITH->Bname, i);
 		printf("  %3ld %2d %1d |%s|\n",
 		       k, this->Cell[k]->Fnum, this->Cell[k]->Reverse,
-		       this->ElemFam[this->Cell[k]->Fnum-1].Name);
+		       this->ElemFam[this->Cell[k]->Fnum-1].CellF->Name);
 	      }
 	    } else {
 	      printf("** Cell_nLocMax exhausted: %ld(%ld)\n",
@@ -4135,7 +4135,8 @@ void LatticeType::RegisterKids(struct LOC_Lattice_Read *LINK)
     FORLIM = this->param.Elem_nFam;
     for (i = 0; i < FORLIM; i++) {
       this->ElemFam[i].nKid = 0;
-      if (debug_lat) printf("  %2ld %8s\n", i+1, this->ElemFam[i].Name);
+      if (debug_lat)
+	printf("  %2ld |%8s|\n", i+1, this->ElemFam[i].CellF->Name);
     }
   } else {
     printf("Elem_nFamMax exceeded: %ld(%d)\n",
@@ -4154,11 +4155,11 @@ void LatticeType::RegisterKids(struct LOC_Lattice_Read *LINK)
     } else
       printf("nKidMax exceeded: %d(%d)\n", WITH->nKid, nKidMax);
     if (debug_lat)
-      printf("  %3ld %2d %3d %1d %1d %s\n",
+      printf("  %3ld %2d %3d %1d %1d |%s|\n",
 	     i, this->Cell[i]->Fnum, this->Cell[i]->Knum,
 	     this->ElemFam[this->Cell[i]->Fnum-1].Kind,
 	     this->Cell[i]->Reverse,
-	     this->ElemFam[this->Cell[i]->Fnum-1].Name);
+	     this->ElemFam[this->Cell[i]->Fnum-1].CellF->Name);
   }
 }
 
@@ -4308,14 +4309,12 @@ void LatticeType::Read_Lattice(const char *fic)
   std::cout << "Lattice file: " << fic_maille << std::endl;
 
   this->Show_ElemFam(std::cout);
-  this->Show(std::cout);
 
   /* initializes cell structure: construction of the RING */
   /* Creator of all the matrices for each element         */
   Cell_Init();
 
   this->Show(std::cout);
-  exit(0);
 
   if (this->param.RingType == 1) { // for a ring
     /* define x/y physical aperture  */

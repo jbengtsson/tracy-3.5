@@ -37,7 +37,7 @@ const int Spreader_max = 10;
 
 #define M_PI         3.14159265358979323846    // pi.
 
-#define debug true
+const bool debug = true, debug_lat = false;
 
 const double c0    = 2.99792458e8;             // speed of light in vacuum.
 const double q_e   = 1.602e-19;                // electron charge.
@@ -93,8 +93,9 @@ class ElemType {
  public:
   partsName Name;    // Element name.
   double    L;       // Length [m].
+  double    S;       // Position in the ring.
   bool      Reverse; // Reversed element.
-  PartsKind Kind;    // Enumeration for magnet types.
+  PartsKind Kind;    // Element type.
 
   //explicit ElemType(std::string &Name1, double L1, bool Reverse1)
   //  : Name(Name1), L(L1), Reverse(Reverse1) {}
@@ -116,7 +117,6 @@ class CellType : public ElemType {
  public:
   int      Fnum;       // Element Family #.
   int      Knum;       // Element Kid #.
-  double   S;          // Position in the ring.
   CellType *next_ptr;  // pointer to next cell (for tracking).
   Vector2  dS,         // Transverse displacement.
            dT;         // dT = (cos(dT), sin(dT)).
@@ -131,6 +131,7 @@ class CellType : public ElemType {
 				maxampl[X_][0] < x < maxampl[X_][1]
 				maxampl[Y_][0] < y < maxampl[Y_][1]. */
 
+  CellType(void) { this->Kind = PartsKind(undef); };
   void Cell_Init(void);
   virtual std::ostream& Show(std::ostream &str);
 
@@ -387,17 +388,6 @@ class RecombinerType : public CellType {
 };
 
 
-class ElemFamType : public ElemType {
- private:
- public:
-  CellType   *CellF;
-  int        nKid;             // Kid number.
-  int        KidList[nKidMax];
-  int        NoDBN;
-  DBNameType DBNlist[nKidMax];
-};
-
-
 struct LatticeParam {
   double   dPcommon,       // dp for numerical differentiation.
            dPparticle;     // energy deviation.
@@ -452,6 +442,17 @@ struct LatticeParam {
            alpha_z, beta_z, // longitudinal alpha and beta.
            beta0, gamma0;   // Relativistic factors.
   int      RingType;        // 1 if a ring (0 if transfer line).
+};
+
+
+class ElemFamType : public ElemType {
+ private:
+ public:
+  CellType   *CellF;
+  int        nKid;             // Kid number.
+  int        KidList[nKidMax];
+  int        NoDBN;
+  DBNameType DBNlist[nKidMax];
 };
 
 
