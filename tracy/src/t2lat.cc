@@ -208,7 +208,7 @@ long LatticeType::CheckElementtable(const char *name,
 
   FORLIM = this->param.Elem_nFam;
   for (i = 1; i <= FORLIM; i++) {
-    if (!strncmp(this->ElemFam[i-1].Name, name, sizeof(partsName)))
+    if (!strncmp(this->ElemFam[i-1].CellF->Name, name, sizeof(partsName)))
       j = i;
   }
   return j;
@@ -244,7 +244,7 @@ static long CheckBLOCKStable(const char *name, struct LOC_Lattice_Read *LINK)
 
 static long CheckUDItable(const char *name, struct LOC_Lattice_Read *LINK)
 {
-  long  i, j, FORLIM;
+  long i, j, FORLIM;
 
   j = 0;
   if (LINK->UDIC > UDImax) {
@@ -254,7 +254,7 @@ static long CheckUDItable(const char *name, struct LOC_Lattice_Read *LINK)
   }
   FORLIM = LINK->UDIC;
   for (i = 1L; i <= FORLIM; i++) {
-    if (!strncmp(LINK->UDItable[i - 1L].Uname, name, sizeof(partsName)))
+    if (!strncmp(LINK->UDItable[i-1L].Uname, name, sizeof(partsName)))
       j = i;
   }
   return j;
@@ -264,7 +264,7 @@ static long CheckUDItable(const char *name, struct LOC_Lattice_Read *LINK)
 static void EnterUDItable(const char *name, double X,
 			  struct LOC_Lattice_Read *LINK)
 {
-  _REC_UDItable  *WITH;
+  _REC_UDItable *WITH;
 
   LINK->UDIC++;
   if (LINK->UDIC > UDImax) {
@@ -1007,13 +1007,13 @@ double LatticeType::GetKparm(long direction, struct LOC_Factor *LINK)
 void LatticeType::Factor(struct LOC_Term *LINK)
 {
   struct LOC_Factor V;
-  double x = 0.0;
-  partsName fname;
-  long SET[(long)period_ / 32 + 2];
-  ElemFamType *WITH;
-  MpoleType *WITH1;
-  symset SET1;
-  long SET2[(long)lsym / 32 + 2];
+  double            x = 0.0;
+  partsName         fname;
+  long              SET[(long)period_ / 32 + 2];
+  ElemFamType       *WITH;
+  MpoleType         *WITH1;
+  symset            SET1;
+  long              SET2[(long)lsym / 32 + 2];
 
   V.LINK = LINK;
   /* factor */
@@ -2247,6 +2247,7 @@ bool LatticeType::Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       M->Bpar[HOMmax+2] = QK; M->dTpar = dt;
       WITH = &this->ElemFam[this->param.Elem_nFam-1];
       WITH->CellF = M;
+
       WITH->CellF->Show(std::cout);
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
@@ -2351,6 +2352,7 @@ bool LatticeType::Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       M->n_design = Quad; M->Bpar[HOMmax+2] = QK;
       WITH = &this->ElemFam[this->param.Elem_nFam-1];
       WITH->CellF = M;
+
       WITH->CellF->Show(std::cout);
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
@@ -2462,6 +2464,7 @@ bool LatticeType::Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       M->Bpar[HOMmax+3] = QK;
       WITH = &this->ElemFam[this->param.Elem_nFam-1];
       WITH->CellF = M;
+
       WITH->CellF->Show(std::cout);
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
@@ -2577,6 +2580,7 @@ bool LatticeType::Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       SetDBN(&V);
       WITH = &this->ElemFam[this->param.Elem_nFam-1];
       WITH->CellF = C;
+
       WITH->CellF->Show(std::cout);
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
@@ -2684,6 +2688,7 @@ bool LatticeType::Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       M->dTpar = dt;
       WITH = &this->ElemFam[this->param.Elem_nFam-1];
       WITH->CellF = M;
+
       WITH->CellF->Show(std::cout);
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
@@ -2734,6 +2739,7 @@ bool LatticeType::Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       SetDBN(&V);
       WITH = &this->ElemFam[this->param.Elem_nFam-1];
       WITH->CellF = M;
+
       WITH->CellF->Show(std::cout);
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
@@ -2775,11 +2781,12 @@ bool LatticeType::Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     this->param.Elem_nFam++;
     if (this->param.Elem_nFam <= Elem_nFamMax) {
       WITH = &this->ElemFam[this->param.Elem_nFam-1];
-      memcpy(WITH->Name, ElementName, sizeof(partsName));
-      WITH->L = 0.0;
-      WITH->Kind = PartsKind(marker);
-
+      WITH->CellF = new MarkerType();
+      memcpy(WITH->CellF->Name, ElementName, sizeof(partsName));
+      WITH->CellF->L = 0.0; WITH->CellF->Kind = PartsKind(marker);
       SetDBN(&V);
+
+      WITH->CellF->Show(std::cout);
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
 	     this->param.Elem_nFam, (long)Elem_nFamMax);
@@ -2962,6 +2969,7 @@ bool LatticeType::Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       SetDBN(&V);
       WITH = &this->ElemFam[this->param.Elem_nFam-1];
       WITH->CellF = M;
+
       WITH->CellF->Show(std::cout);
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
@@ -4104,14 +4112,14 @@ void LatticeType::GetCODEPS(struct LOC_Lattice_Read *LINK)
 
 double LatticeType::Circumference(struct LOC_Lattice_Read *LINK)
 {
-  long i;
+  long   i;
   double S;
-  long FORLIM;
+  long   FORLIM;
 
   S = 0.0;
   FORLIM = this->param.Cell_nLoc;
   for (i = 1; i <= FORLIM; i++)
-    S += this->ElemFam[this->Cell[i].Fnum-1].L;
+    S += this->ElemFam[this->Cell[i].Fnum-1].CellF->L;
   return S;
 }
 
@@ -4306,8 +4314,8 @@ void LatticeType::Read_Lattice(const char *fic)
   /* Creator of all the matrices for each element         */
   Cell_Init();
 
-  exit(0);
   this->Show(std::cout);
+  exit(0);
 
   if (this->param.RingType == 1) { // for a ring
     /* define x/y physical aperture  */

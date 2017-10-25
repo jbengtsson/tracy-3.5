@@ -442,10 +442,18 @@ void LatticeType::Fam_Init(const int Fnum)
 }
 
 
+std::ostream& MarkerType::Show(std::ostream &str)
+{
+  str << "      Marker |" << this->Name << "|" << "\n";
+  return str;
+}
+
+
 std::ostream& DriftType::Show(std::ostream &str)
 {
-  str << "      Drift  |" << this->Name << "|" << "\n";
-
+  str << std::fixed << std::setprecision(3)
+      << "      Drift  |" << this->Name << "|"
+      << " L = " << setw(6) << this->L << "\n";
   return str;
 }
 
@@ -455,9 +463,7 @@ std::ostream& MpoleType::Show(std::ostream &str)
   str << std::fixed << std::setprecision(3)
       << "      Mpole  |" << this->Name << "|"
       << " L = " << setw(6) << this->L
-      << ", Method = " << this->method << ", N = " << this->N
-      << "\n";
-
+      << ", Method = " << this->method << ", N = " << this->N << "\n";
   return str;
 }
 
@@ -465,7 +471,6 @@ std::ostream& MpoleType::Show(std::ostream &str)
 std::ostream& CavityType::Show(std::ostream &str)
 {
   str << "      Cavity |" << this->Name << "|" << "\n";
-
   return str;
 }
 
@@ -473,6 +478,7 @@ std::ostream& CavityType::Show(std::ostream &str)
 std::ostream& CellType::Show(std::ostream &str)
 {
   str << "      CellType\n";
+  return str;
 };
 
 
@@ -487,11 +493,12 @@ std::ostream& LatticeType::Show_ElemFam(std::ostream &str)
   for (j = 0; j < this->param.Elem_nFam; j++) {
     str << std::fixed << std::setprecision(3)
 	<< "\n  " << std::setw(3) << j+1
-	<< " " << this->ElemFam[j].L << " " << this->ElemFam[j].Kind
-	<< " " << this->ElemFam[j].Name;
+	<< " " << this->ElemFam[j].CellF->L
+	<< " " << this->ElemFam[j].CellF->Kind
+	<< " |" << this->ElemFam[j].CellF->Name << "|";
     for (k = 1; k <= this->ElemFam[j].nKid; k++) {
       str << " " << std::setw(3) << this->ElemFam[j].KidList[k-1];
-      if (k % n_prt == 0) str << "\n                             ";
+      if (k % n_prt == 0) str << "\n                               ";
     }
     str << "\n";
     // this->ElemFam[j].CellF->Show(str);
@@ -512,7 +519,8 @@ std::ostream& LatticeType::Show(std::ostream &str)
 	<< " " << std::setw(3) << this->Cell[k].Fnum
 	<< " " << std::setw(3) << this->Cell[k].Knum
 	<< " " << std::setw(1) << this->Cell[k].Reverse
-	<< " " << this->ElemFam[this->Cell[k].Fnum-1].Name << "\n"; 
+	<< " |" << this->Cell[k].Name << "|"
+	<< "\n"; 
 
   return str;
 }

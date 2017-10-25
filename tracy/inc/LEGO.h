@@ -158,6 +158,7 @@ class MarkerType : public CellType {
 
   MarkerType(void);
   void Init(int Fnum);
+  std::ostream& Show(std::ostream &str);
   template<typename T>
     void Pass(ss_vect<T> &x);
 
