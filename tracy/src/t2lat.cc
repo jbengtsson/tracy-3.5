@@ -3938,14 +3938,14 @@ void LatticeType::DealWithDefns(struct LOC_Lattice_Read *LINK)
 	      exit(1);
 	    }
 	    if (k <= Cell_nLocMax) {
-	      this->Cell[k].Fnum = k1;
-	      this->Cell[k].Reverse = LINK->Reverse_stack[j];
+	      this->Cell[k]->Fnum = k1;
+	      this->Cell[k]->Reverse = LINK->Reverse_stack[j];
 	      if (debug_lat) {
 		if (j == WITH->BSTART - 1)
 		  printf("\nCell Definition:\n  |%s| %2ld\n", WITH->Bname, i);
 		printf("  %3ld %2d %1d |%s|\n",
-		       k, this->Cell[k].Fnum, this->Cell[k].Reverse,
-		       this->ElemFam[this->Cell[k].Fnum-1].Name);
+		       k, this->Cell[k]->Fnum, this->Cell[k]->Reverse,
+		       this->ElemFam[this->Cell[k]->Fnum-1].Name);
 	      }
 	    } else {
 	      printf("** Cell_nLocMax exhausted: %ld(%ld)\n",
@@ -4119,7 +4119,7 @@ double LatticeType::Circumference(struct LOC_Lattice_Read *LINK)
   S = 0.0;
   FORLIM = this->param.Cell_nLoc;
   for (i = 1; i <= FORLIM; i++)
-    S += this->ElemFam[this->Cell[i].Fnum-1].CellF->L;
+    S += this->ElemFam[this->Cell[i]->Fnum-1].CellF->L;
   return S;
 }
 
@@ -4146,19 +4146,19 @@ void LatticeType::RegisterKids(struct LOC_Lattice_Read *LINK)
   if (debug_lat) printf("\nKids:\n");
   FORLIM = this->param.Cell_nLoc;
   for (i = 1; i <= FORLIM; i++) {
-    WITH = &this->ElemFam[this->Cell[i].Fnum-1];
+    WITH = &this->ElemFam[this->Cell[i]->Fnum-1];
     WITH->nKid++;
     if (WITH->nKid <= nKidMax) {
       WITH->KidList[WITH->nKid-1] = i;
-      this->Cell[i].Knum = WITH->nKid;
+      this->Cell[i]->Knum = WITH->nKid;
     } else
       printf("nKidMax exceeded: %d(%d)\n", WITH->nKid, nKidMax);
     if (debug_lat)
       printf("  %3ld %2d %3d %1d %1d %s\n",
-	     i, this->Cell[i].Fnum, this->Cell[i].Knum,
-	     this->ElemFam[this->Cell[i].Fnum-1].Kind,
-	     this->Cell[i].Reverse,
-	     this->ElemFam[this->Cell[i].Fnum-1].Name);
+	     i, this->Cell[i]->Fnum, this->Cell[i]->Knum,
+	     this->ElemFam[this->Cell[i]->Fnum-1].Kind,
+	     this->Cell[i]->Reverse,
+	     this->ElemFam[this->Cell[i]->Fnum-1].Name);
   }
 }
 

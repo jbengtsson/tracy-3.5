@@ -15,7 +15,7 @@ void MarkerType::Init(int Fnum)
 
   elemfamp = &Lattice.ElemFam[Fnum-1];
   for (i = 0; i < elemfamp->nKid; i++) {
-    cellp = &Lattice.Cell[elemfamp->KidList[i]];
+    cellp = Lattice.Cell[elemfamp->KidList[i]];
 
     strncpy(cellp->Name, elemfamp->Name, NameLength);
     cellp->Kind = elemfamp->Kind; cellp->Reverse = elemfamp->Reverse;
@@ -38,7 +38,7 @@ void DriftType::Init(int Fnum)
 
   elemfamp = &Lattice.ElemFam[Fnum-1];
   for (i = 1; i <= elemfamp->nKid; i++) {
-    cellp = &Lattice.Cell[elemfamp->KidList[i-1]];
+    cellp = Lattice.Cell[elemfamp->KidList[i-1]];
 
     strncpy(cellp->Name, elemfamp->Name, NameLength);
     cellp->L = elemfamp->L; cellp->Kind = elemfamp->Kind;
@@ -95,7 +95,7 @@ void MpoleType::Init(int Fnum)
   memcpy(M->B, M->Bpar, sizeof(mpolArray));
   M->order = Updateorder(*elemfamp->CellF);
   for (i = 1; i <= elemfamp->nKid; i++) {
-    cellp = &Lattice.Cell[elemfamp->KidList[i-1]];
+    cellp = Lattice.Cell[elemfamp->KidList[i-1]];
 
     strncpy(cellp->Name, elemfamp->Name, NameLength);
     cellp->L = elemfamp->L; cellp->Kind = elemfamp->Kind;
@@ -129,7 +129,7 @@ void CavityType::Init(int Fnum)
 
   elemfamp = &Lattice.ElemFam[Fnum-1];
   for (i = 0; i < elemfamp->nKid; i++) {
-    cellp = &Lattice.Cell[elemfamp->KidList[i]];
+    cellp = Lattice.Cell[elemfamp->KidList[i]];
 
     strncpy(cellp->Name, elemfamp->Name, NameLength);
     cellp->L = elemfamp->L; cellp->Kind = elemfamp->Kind;
@@ -175,7 +175,7 @@ void WigglerType::Init(int Fnum)
   /* ElemF.M^.B := ElemF.M^.Bpar; */
   W->order = Quad;
   for (i = 1; i <= elemfamp->nKid; i++) {
-    cellp = &Lattice.Cell[elemfamp->KidList[i-1]];
+    cellp = Lattice.Cell[elemfamp->KidList[i-1]];
 
     strncpy(cellp->Name, elemfamp->Name, NameLength);
     cellp->L = elemfamp->L; cellp->Kind = elemfamp->Kind;
@@ -205,7 +205,7 @@ void FieldMapType::Init(int Fnum)
 
   elemfamp = &Lattice.ElemFam[Fnum-1];
   for (i = 1; i <= elemfamp->nKid; i++) {
-    cellp = &Lattice.Cell[elemfamp->KidList[i-1]];
+    cellp = Lattice.Cell[elemfamp->KidList[i-1]];
 
     strncpy(cellp->Name, elemfamp->Name, NameLength);
     cellp->L = elemfamp->L; cellp->Kind = elemfamp->Kind;
@@ -278,7 +278,7 @@ void InsertionType::Init(int Fnum)
 //  elemfamp->CellF->order = order;
 //  x = elemfamp->CellF->BW[Quad + HOMmax];
   for (i = 1; i <= elemfamp->nKid; i++) {
-    cellp = &Lattice.Cell[elemfamp->KidList[i-1]];
+    cellp = Lattice.Cell[elemfamp->KidList[i-1]];
 
     strncpy(cellp->Name, elemfamp->Name, NameLength);
     cellp->L = elemfamp->L; cellp->Kind = elemfamp->Kind;
@@ -307,7 +307,7 @@ void SpreaderType::Init(int Fnum)
 
   elemfamp = &Lattice.ElemFam[Fnum-1];
   for (i = 1; i <= elemfamp->nKid; i++) {
-     cellp = &Lattice.Cell[elemfamp->KidList[i-1]];
+     cellp = Lattice.Cell[elemfamp->KidList[i-1]];
 
     strncpy(cellp->Name, elemfamp->Name, NameLength);
     cellp->Kind = elemfamp->Kind;
@@ -331,7 +331,7 @@ void RecombinerType::Init(int Fnum)
 
   elemfamp = &Lattice.ElemFam[Fnum-1];
   for (i = 1; i <= elemfamp->nKid; i++) {
-    cellp = &Lattice.Cell[elemfamp->KidList[i-1]];
+    cellp = Lattice.Cell[elemfamp->KidList[i-1]];
 
     strncpy(cellp->Name, elemfamp->Name, NameLength);
     cellp->Kind = elemfamp->Kind;
@@ -363,7 +363,7 @@ void SolenoidType::Init(int Fnum)
 
   elemfamp = &Lattice.ElemFam[Fnum-1];
   for (i = 1; i <= elemfamp->nKid; i++) {
-    cellp = &Lattice.Cell[elemfamp->KidList[i-1]];
+    cellp = Lattice.Cell[elemfamp->KidList[i-1]];
 
     strncpy(cellp->Name, elemfamp->Name, NameLength);
     cellp->L = elemfamp->L;
@@ -433,7 +433,7 @@ void LatticeType::Fam_Init(const int Fnum)
 
   elemfamp = &this->ElemFam[Fnum-1];
   for (i = 1; i <= elemfamp->nKid; i++) {
-    cellp = &this->Cell[elemfamp->KidList[i-1]];
+    cellp = this->Cell[elemfamp->KidList[i-1]];
 
     strncpy(cellp->Name, elemfamp->Name, NameLength);
     cellp->L = elemfamp->L; cellp->Kind = elemfamp->Kind;
@@ -484,8 +484,7 @@ std::ostream& CellType::Show(std::ostream &str)
 
 std::ostream& LatticeType::Show_ElemFam(std::ostream &str)
 {
-  int       j, k;
-  MpoleType *M;
+  int j, k;
 
   const int n_prt = 10;
 
@@ -516,10 +515,10 @@ std::ostream& LatticeType::Show(std::ostream &str)
   for (k = 1; k <= this->param.Cell_nLoc; k++)
     str << std::fixed << std::setprecision(3)
 	<< "  " << std::setw(3) << k
-	<< " " << std::setw(3) << this->Cell[k].Fnum
-	<< " " << std::setw(3) << this->Cell[k].Knum
-	<< " " << std::setw(1) << this->Cell[k].Reverse
-	<< " |" << this->Cell[k].Name << "|"
+	<< " " << std::setw(3) << this->Cell[k]->Fnum
+	<< " " << std::setw(3) << this->Cell[k]->Knum
+	<< " " << std::setw(1) << this->Cell[k]->Reverse
+	<< " |" << this->Cell[k]->Name << "|"
 	<< "\n"; 
 
   return str;
