@@ -277,7 +277,7 @@ void LatticeType::Cell_Init(void)
   SI_init();
 
   this->Cell[0] = new CellType();
-  this->Cell[0]->Kind = PartsKind(undef);
+  this->Cell[0]->Kind = PartsKind(undef); this->Cell[0]->Reverse = false;
   strcpy(this->Cell[0]->Name, first_name);
 
   for (i = 1; i <= this->param.Elem_nFam; i++) {

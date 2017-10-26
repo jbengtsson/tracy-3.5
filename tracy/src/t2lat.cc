@@ -4309,10 +4309,7 @@ void LatticeType::Read_Lattice(const char *fic)
   /* Creator of all the matrices for each element         */
   Cell_Init();
 
-  this->Show_ElemFam(std::cout);
-  this->Show(std::cout);
-
-  if (this->param.RingType == 1) { // for a ring
+ if (this->param.RingType == 1) { // for a ring
     /* define x/y physical aperture  */
     ChamberOff();
 

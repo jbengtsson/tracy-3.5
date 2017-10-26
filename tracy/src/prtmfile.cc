@@ -114,13 +114,20 @@ void LatticeType::prtmfile(const char mfile_dat[])
 
   mfile = file_write(mfile_dat);
   for (i = 0; i <= Lattice.param.Cell_nLoc; i++) {
-    printf("%8s\n", Lattice.Cell[i]->Name);
     switch (Lattice.Cell[i]->Kind) {
-    case drift:
+    case PartsKind(undef):
+      // First element: begin.
       prtName(mfile, i, drift_, 0, 0);
       fprintf(mfile, " %23.16e\n", Lattice.Cell[i]->L);
       break;
-    case Mpole:
+    case PartsKind(marker):
+      prtName(mfile, i, marker_, 0, 0);
+      break;
+    case PartsKind(drift):
+      prtName(mfile, i, drift_, 0, 0);
+      fprintf(mfile, " %23.16e\n", Lattice.Cell[i]->L);
+      break;
+    case PartsKind(Mpole):
       M = static_cast<MpoleType*>(Lattice.Cell[i]);
       if (Lattice.Cell[i]->L != 0.0) {
 	prtName(mfile, i, mpole_, M->method, M->N);
@@ -138,7 +145,7 @@ void LatticeType::prtmfile(const char mfile_dat[])
 	prtHOM(mfile, M->n_design, M->B, M->order);
       }
       break;
-    case Wigl:
+    case PartsKind(Wigl):
       W = static_cast<WigglerType*>(Lattice.Cell[i]);
       prtName(mfile, i, wiggler_, W->method, W->N);
       fprintf(mfile, " %23.16e %23.16e\n",
@@ -150,17 +157,14 @@ void LatticeType::prtmfile(const char mfile_dat[])
 		W->phi[j]);
       }
       break;
-    case Cavity:
+    case PartsKind(Cavity):
       C = static_cast<CavityType*>(Lattice.Cell[i]);
       prtName(mfile, i, cavity_, 0, 0);
       fprintf(mfile, " %23.16e %23.16e %d %23.16e %23.16e\n",
 	      C->volt/(1e9*Lattice.param.Energy), 2.0*M_PI*C->freq/c0, C->h,
 	      1e9*Lattice.param.Energy, C->phi);
       break;
-    case marker:
-      prtName(mfile, i, marker_, 0, 0);
-      break;
-    case Insertion:
+    case PartsKind(Insertion):
       ID = static_cast<InsertionType*>(Lattice.Cell[i]);
       prtName(mfile, i, kick_map_, ID->method, ID->N);
       if (ID->firstorder)

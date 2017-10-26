@@ -473,7 +473,12 @@ int main(int argc, char *argv[])
   else
     Lattice.rdmfile(argv[1]);
 
+  // Lattice.Show_ElemFam(std::cout);
+  // Lattice.Show(std::cout);
+
   Lattice.prtmfile("flat_file.dat");
+  Lattice.Ring_GetTwiss(true, 0e0); printglob();
+
   exit(0);
 
   if (false) {

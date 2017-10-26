@@ -534,7 +534,7 @@ std::ostream& LatticeType::Show(std::ostream &str)
   int k;
 
   str << "\nLattice:\n";
-  for (k = 1; k <= this->param.Cell_nLoc; k++)
+  for (k = 0; k <= this->param.Cell_nLoc; k++)
     str << std::fixed << std::setprecision(3)
 	<< "  " << std::setw(4) << k
 	<< " " << std::setw(3) << this->Cell[k]->Fnum

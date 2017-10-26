@@ -37,7 +37,7 @@ const int Spreader_max = 10;
 
 #define M_PI         3.14159265358979323846    // pi.
 
-const bool debug = true, debug_lat = false;
+const bool debug = false, debug_lat = false;
 
 const double c0    = 2.99792458e8;             // speed of light in vacuum.
 const double q_e   = 1.602e-19;                // electron charge.
