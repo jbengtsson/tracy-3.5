@@ -284,7 +284,8 @@ void LatticeType::Cell_Init(void)
     elemfamp = &this->ElemFam[i-1];
     
     if (debug)
-      printf("  %3ld %1d |%s|", i, elemfamp->CellF->Kind, elemfamp->CellF->Name);
+      printf("  %3ld %1d |%s|",
+	     i, elemfamp->CellF->Kind, elemfamp->CellF->Name);
 
     // this->ElemFam[i-1].CellF.Init(i);
 
@@ -341,6 +342,7 @@ void LatticeType::Cell_Init(void)
 	break;
       }
 
+      this->Cell[elemfamp->KidList[j-1]] = cellp;
       *cellp = *elemfamp->CellF;
       // cellp->Fnum = i; cellp->Knum = j;
       cellp->Fnum = Fnum; cellp->Knum = Knum;

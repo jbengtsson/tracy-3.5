@@ -1,8 +1,11 @@
 
-CellType::CellType(void) { this->Kind = PartsKind(undef); }
+CellType::CellType(void) : ElemType()
+{
+  this->Kind = PartsKind(undef);
+}
 
 
-MarkerType::MarkerType(void)
+MarkerType::MarkerType(void) : CellType()
 {
   this->Kind = PartsKind(marker);
 
@@ -11,7 +14,7 @@ MarkerType::MarkerType(void)
 }
 
 
-DriftType::DriftType(void)
+DriftType::DriftType(void) : CellType()
 {
   this->Kind = PartsKind(drift);
 
@@ -20,7 +23,7 @@ DriftType::DriftType(void)
 }
 
 
-MpoleType::MpoleType(void)
+MpoleType::MpoleType(void) : CellType()
 {
   int j;
 
@@ -55,7 +58,7 @@ MpoleType::MpoleType(void)
 }
 
 
-WigglerType::WigglerType(void)
+WigglerType::WigglerType(void) : CellType()
 {
   int j;
 
@@ -82,7 +85,7 @@ WigglerType::WigglerType(void)
 }
 
 
-InsertionType::InsertionType(void)
+InsertionType::InsertionType(void) : CellType()
 {
   int i = 0, j = 0;
 
@@ -138,7 +141,7 @@ InsertionType::InsertionType(void)
 }
 
 
-FieldMapType::FieldMapType(void)
+FieldMapType::FieldMapType(void) : CellType()
 {
 
   this->Kind = PartsKind(FieldMap);
@@ -153,7 +156,7 @@ FieldMapType::FieldMapType(void)
 }
 
 
-CavityType::CavityType(void)
+CavityType::CavityType(void) : CellType()
 {
 
   this->Kind = PartsKind(Cavity);
@@ -166,7 +169,7 @@ CavityType::CavityType(void)
 }
 
 
-SpreaderType::SpreaderType(void)
+SpreaderType::SpreaderType(void) : CellType()
 {
   int k;
 
@@ -180,7 +183,7 @@ SpreaderType::SpreaderType(void)
 }
 
 
-RecombinerType::RecombinerType(void)
+RecombinerType::RecombinerType(void) : CellType()
 {
   this->Kind = PartsKind(Recombiner);
 
@@ -189,7 +192,7 @@ RecombinerType::RecombinerType(void)
 }
 
 
-SolenoidType::SolenoidType(void)
+SolenoidType::SolenoidType(void) : CellType()
 {
   int j;
 
