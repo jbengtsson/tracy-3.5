@@ -131,7 +131,7 @@ class CellType : public ElemType {
 				maxampl[X_][0] < x < maxampl[X_][1]
 				maxampl[Y_][0] < y < maxampl[Y_][1]. */
 
-  CellType(void) { this->Kind = PartsKind(undef); };
+  CellType(void);
   void Cell_Init(void);
   virtual std::ostream& Show(std::ostream &str);
 

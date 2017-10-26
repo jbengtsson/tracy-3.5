@@ -292,7 +292,12 @@ void LatticeType::Cell_Init(void)
       cellp = this->Cell[elemfamp->KidList[j-1]];
       Fnum = cellp->Fnum; Knum = cellp->Knum; reverse = cellp->Reverse;
 
-      delete cellp;
+      if (cellp->Kind == PartsKind(undef))
+	delete cellp;
+      else {
+	printf("\nCell_Init: %d %d is not undefined %d\n",
+	       cellp->Fnum, cellp->Knum, cellp->Kind);
+      }
 
       switch (elemfamp->CellF->Kind) {
       case PartsKind(marker):
@@ -324,6 +329,10 @@ void LatticeType::Cell_Init(void)
 	break;
       case PartsKind(Solenoid):
 	cellp = new SolenoidType();
+	break;
+      case PartsKind(undef):
+	printf("\nCell_Init: undefined  %d\n",
+	       elemfamp->CellF->Kind);
 	break;
       default:
 	printf("\nCell_Init: unknown Kind %d\n",

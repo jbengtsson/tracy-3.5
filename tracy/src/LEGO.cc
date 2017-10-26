@@ -1,4 +1,7 @@
 
+CellType::CellType(void) { this->Kind = PartsKind(undef); }
+
+
 MarkerType::MarkerType(void)
 {
   this->Kind = PartsKind(marker);
