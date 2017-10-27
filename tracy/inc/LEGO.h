@@ -106,7 +106,8 @@ class ElemType {
   //template<typename T>
   //  virtual void propagate(ss_vect<T> &ps) const; 
 
-  //std::ostream& Show(std::ostream &str);
+  /* virtual std::ostream& Show(std::ostream &str); */
+
   template<typename T>
     void Marker_Pass(ss_vect<T> &X);
 };
@@ -128,12 +129,15 @@ class CellType : public ElemType {
   Matrix   A,          // Floquet space to phase space transformation.
            sigma;      // sigma matrix (redundant).
   Vector2  maxampl[2]; /* Horizontal and vertical physical apertures:
-				maxampl[X_][0] < x < maxampl[X_][1]
-				maxampl[Y_][0] < y < maxampl[Y_][1]. */
+			    maxampl[X_][0] < x < maxampl[X_][1]
+			    maxampl[Y_][0] < y < maxampl[Y_][1]. */
 
   CellType(void);
-  virtual CellType* clone() const {};
-  virtual std::ostream& Show(std::ostream &str);
+  virtual CellType* clone(void) const {
+    printf("\nCellType::clone(): should never be called.\n");
+    exit(1);
+  };
+  virtual std::ostream& Show(std::ostream &str) const;
 
   void Cell_Init(void);
 
@@ -160,10 +164,10 @@ class MarkerType : public CellType {
  public:
 
   MarkerType(void);
-  virtual CellType* clone() const {
+  virtual CellType* clone(void) const {
     return new MarkerType(static_cast<const MarkerType&>(*this));
   }
-  std::ostream& Show(std::ostream &str);
+  virtual std::ostream& Show(std::ostream &str) const;
 
   template<typename T>
     void Pass(ss_vect<T> &x);
@@ -178,10 +182,10 @@ class DriftType : public CellType {
  public:
 
   DriftType(void);
-  virtual CellType* clone() const {
+  virtual CellType* clone(void) const {
     return new DriftType(static_cast<const DriftType&>(*this));
   }
-  std::ostream& Show(std::ostream &str);
+  virtual std::ostream& Show(std::ostream &str) const;
 
   template<typename T>
     void Pass(ss_vect<T> &x);
@@ -223,10 +227,10 @@ class MpoleType : public CellType {
 
   MpoleType(void);
   void Updateorder(void);
-  virtual CellType* clone() const {
+  virtual CellType* clone(void) const {
     return new MpoleType(static_cast<const MpoleType&>(*this));
   }
-  std::ostream& Show(std::ostream &str);
+  virtual std::ostream& Show(std::ostream &str) const;
 
   template<typename T>
     void Pass(ss_vect<T> &x);
@@ -264,7 +268,7 @@ class WigglerType : public CellType {
   int       order;               // The highest order in PB.
 
   WigglerType(void);
-  virtual CellType* clone() const {
+  virtual CellType* clone(void) const {
     return new WigglerType(static_cast<const WigglerType&>(*this));
   }
 
@@ -318,7 +322,7 @@ class InsertionType : public CellType {
   int order;        // The highest order in PB
 
   InsertionType(void);
-  virtual CellType* clone() const {
+  virtual CellType* clone(void) const {
     return new InsertionType(static_cast<const InsertionType&>(*this));
   }
 
@@ -342,7 +346,7 @@ class FieldMapType : public CellType {
   double ***AoBrho[2], ***AoBrho2[2];  /* [Ax(x, y, z), Ay(x, y, z)],
 					  spline info. */
   FieldMapType(void);
-  virtual CellType* clone() const {
+  virtual CellType* clone(void) const {
     return new FieldMapType(static_cast<const FieldMapType&>(*this));
   }
 
@@ -370,7 +374,7 @@ class SolenoidType : public CellType {
   double  BoBrho; // normalized field strength
 
   SolenoidType(void);
-  virtual CellType* clone() const {
+  virtual CellType* clone(void) const {
     return new SolenoidType(static_cast<const SolenoidType&>(*this));
   }
 
@@ -393,11 +397,11 @@ class CavityType : public CellType {
   bool   exit_focus;  // Edge focusing at exit.
 
   CavityType(void);
-  virtual CellType* clone() const {
+  virtual CellType* clone(void) const {
     return new CavityType(static_cast<const CavityType&>(*this));
   }
 
-  std::ostream& Show(std::ostream &str);
+  virtual std::ostream& Show(std::ostream &str) const;
 
   template<typename T>
     void Pass(ss_vect<T> &X);
@@ -413,7 +417,7 @@ class SpreaderType : public CellType {
   CellType *Cell_ptrs[Spreader_max];
 
   SpreaderType(void);
-  virtual CellType* clone() const {
+  virtual CellType* clone(void) const {
     return new SpreaderType(static_cast<const SpreaderType&>(*this));
   }
 
@@ -428,7 +432,7 @@ class RecombinerType : public CellType {
   double E_max;
 
   RecombinerType(void);
-  virtual CellType* clone() const {
+  virtual CellType* clone(void) const {
     return new RecombinerType(static_cast<const RecombinerType&>(*this));
   }
 
@@ -517,8 +521,8 @@ class LatticeType {
   void rdmfile(const char *mfile_dat);
   void prtmfile(const char mfile_dat[]);
 
-  std::ostream& Show_ElemFam(std::ostream &str);
-  std::ostream& Show(std::ostream &str);
+  std::ostream& Show_ElemFam(std::ostream &str) const;
+  virtual std::ostream& Show(std::ostream &str) const;
 
   // LEGO.cc.
   void Fam_Init(const int Fnum);

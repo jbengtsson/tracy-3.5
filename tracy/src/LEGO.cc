@@ -463,14 +463,14 @@ long LatticeType::Elem_Index(const std::string &name)
 }
 
 
-std::ostream& MarkerType::Show(std::ostream &str)
+std::ostream& MarkerType::Show(std::ostream &str) const
 {
   str << "      Marker |" << this->Name << "|" << "\n";
   return str;
 }
 
 
-std::ostream& DriftType::Show(std::ostream &str)
+std::ostream& DriftType::Show(std::ostream &str) const
 {
   str << std::fixed << std::setprecision(3)
       << "      Drift  |" << this->Name << "|"
@@ -479,7 +479,7 @@ std::ostream& DriftType::Show(std::ostream &str)
 }
 
 
-std::ostream& MpoleType::Show(std::ostream &str)
+std::ostream& MpoleType::Show(std::ostream &str) const
 {
   str << std::fixed << std::setprecision(3)
       << "      Mpole  |" << this->Name << "|"
@@ -489,21 +489,21 @@ std::ostream& MpoleType::Show(std::ostream &str)
 }
 
 
-std::ostream& CavityType::Show(std::ostream &str)
+std::ostream& CavityType::Show(std::ostream &str) const
 {
   str << "      Cavity |" << this->Name << "|" << "\n";
   return str;
 }
 
 
-std::ostream& CellType::Show(std::ostream &str)
+std::ostream& CellType::Show(std::ostream &str) const
 {
   str << "      CellType\n";
   return str;
 };
 
 
-std::ostream& LatticeType::Show_ElemFam(std::ostream &str)
+std::ostream& LatticeType::Show_ElemFam(std::ostream &str) const
 {
   int       j, k;
   MpoleType *M;
@@ -536,7 +536,7 @@ std::ostream& LatticeType::Show_ElemFam(std::ostream &str)
 }
 
 
-std::ostream& LatticeType::Show(std::ostream &str)
+std::ostream& LatticeType::Show(std::ostream &str) const
 {
   int       k;
   MpoleType *M;
