@@ -1870,8 +1870,8 @@ static void ClearHOMandDBN(struct LOC_Lat_DealElement *LINK)
   long i;
 
   for (i = -HOMmax; i <= HOMmax; i++) {
-    LINK->B[i + HOMmax] = 0.0;
-    LINK->BA[i + HOMmax] = false;
+    LINK->B[i+HOMmax] = 0.0;
+    LINK->BA[i+HOMmax] = false;
   }
   LINK->DBNsavemax = 0;
 }
@@ -2237,13 +2237,14 @@ bool LatticeType::Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       memcpy(M->Name, ElementName, sizeof(partsName));
       M->L = QL;
 
+      SetDBN(&V);
       M->method = k2; M->N = k1;
       M->irho = (M->L != 0.0)? t*M_PI/180.0/M->L : t*M_PI/180.0;
       M->Tx1 = t1; M->Tx2 = t2; M->gap = gap;
       M->n_design = Dip;
       AssignHOM(M, &V);
-      SetDBN(&V);
       M->Bpar[HOMmax+2] = QK; M->dTpar = dt;
+      M->Updateorder();
       WITH = &this->ElemFam[this->param.Elem_nFam-1];
       WITH->CellF = M;
 
@@ -2345,10 +2346,11 @@ bool LatticeType::Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       memcpy(M->Name, ElementName, sizeof(partsName));
       M->L = QL;
 
+      SetDBN(&V);
       M->method = k2; M->N = k1; M->dTpar = dt;
       AssignHOM(M, &V);
-      SetDBN(&V);
       M->n_design = Quad; M->Bpar[HOMmax+2] = QK;
+      M->Updateorder();
       WITH = &this->ElemFam[this->param.Elem_nFam-1];
       WITH->CellF = M;
 
@@ -2455,12 +2457,13 @@ bool LatticeType::Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       memcpy(M->Name, ElementName, sizeof(partsName));
       M->L = QL;
 
+      SetDBN(&V);
       M->method = k2; M->N = k1;
       M->thick = (M->L != 0.0)? pthicktype(thick) : pthicktype(thin);
       M->dTpar = dt; M->n_design = Sext;
       AssignHOM(M, &V);
-      SetDBN(&V);
       M->Bpar[HOMmax+3] = QK;
+      M->Updateorder();
       WITH = &this->ElemFam[this->param.Elem_nFam-1];
       WITH->CellF = M;
 
@@ -2685,6 +2688,7 @@ bool LatticeType::Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       M->thick = (M->L != 0.0)? pthicktype(thick) : pthicktype(thin);
       M->method = k2; M->N = k1;
       M->dTpar = dt;
+      M->Updateorder();
       WITH = &this->ElemFam[this->param.Elem_nFam-1];
       WITH->CellF = M;
 
@@ -2733,8 +2737,9 @@ bool LatticeType::Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       M = new MpoleType();
       memcpy(M->Name, ElementName, sizeof(partsName));
 
-      M->thick = pthicktype(thin);
       SetDBN(&V);
+      M->thick = pthicktype(thin);
+      M->Updateorder();
       WITH = &this->ElemFam[this->param.Elem_nFam-1];
       WITH->CellF = M;
 
@@ -2953,6 +2958,7 @@ bool LatticeType::Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       memcpy(M->Name, ElementName, sizeof(partsName));
       M->L = QL;
 
+      SetDBN(&V);
       if (M->L != 0e0) {
 	M->thick = pthicktype(thick);
 	M->irho = t * M_PI / 180.0 / M->L;
@@ -2964,7 +2970,7 @@ bool LatticeType::Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       M->Tx1 = t1; M->Tx2 = t2; M->gap = gap; M->dTpar = dt;
       AssignHOM(M, &V);
       M->n_design = M->order;
-      SetDBN(&V);
+      M->Updateorder();
       WITH = &this->ElemFam[this->param.Elem_nFam-1];
       WITH->CellF = M;
 

@@ -12,7 +12,7 @@
 template<typename T>
 inline bool CheckAmpl(const ss_vect<T> &x, const long int loc)
 {
-  bool  not_lost;
+  bool not_lost;
 
   if (Lattice.param.Aperture_on)
     not_lost =
@@ -96,7 +96,7 @@ template<typename T>
 void LatticeType::Cell_Pass(const long i0, const long i1, ss_vect<T> &x,
 			    long &lastpos)
 {
-  long int  i = 0;
+  long int i = 0;
 
   if (Lattice.param.radiation) Lattice.param.dE = 0e0;
 
@@ -123,12 +123,12 @@ void LatticeType::Cell_Pass(const long i0, const long i1, tps &sigma,
 			    long &lastpos)
 {
   // Note: Sigma_k+1 = M_k Sigma_k M_k^T = (M_k (M_k Sigma_k)^T)^T
-  const int  n = 9;
+  const int n = 9;
 
-  int           i, j, jj[n][nv_tps];
-  ss_vect<tps>  Id, A;
+  int          i, j, jj[n][nv_tps];
+  ss_vect<tps> Id, A;
 
-  const double  deps = 1e-20;
+  const double deps = 1e-20;
 
   Id.identity();
 
@@ -191,8 +191,10 @@ bool LatticeType::Cell_getCOD(const long imax, const double eps,
     x0[delta_] = 0e0; x0[ct_] = 0e0;
   } else {
     // or eta*dP for 2 1/2 D.O.F.
-    x0[x_] = Lattice.Cell[0]->Eta[X_]*dP; x0[px_] = Lattice.Cell[0]->Etap[X_]*dP;
-    x0[y_] = Lattice.Cell[0]->Eta[Y_]*dP; x0[py_] = Lattice.Cell[0]->Etap[Y_]*dP;
+    x0[x_] = Lattice.Cell[0]->Eta[X_]*dP;
+    x0[px_] = Lattice.Cell[0]->Etap[X_]*dP;
+    x0[y_] = Lattice.Cell[0]->Eta[Y_]*dP;
+    x0[py_] = Lattice.Cell[0]->Etap[Y_]*dP;
     x0[delta_] = dP; x0[ct_] = 0e0;
   }
 
@@ -251,7 +253,7 @@ bool LatticeType::Cell_getCOD(const long imax, const double eps,
 bool LatticeType::GetCOD(const long imax, const double eps, const double dP,
 			 long &lastpos)
 {
-  bool  cod;
+  bool cod;
 
   cod = Cell_getCOD(imax, eps, dP, lastpos);
 
@@ -300,50 +302,8 @@ void LatticeType::Cell_Init(void)
 	       cellp->Fnum, cellp->Knum, cellp->Kind);
       }
 
-      switch (elemfamp->CellF->Kind) {
-      case PartsKind(marker):
-	cellp = new MarkerType();
-	break;
-      case PartsKind(drift):
-	cellp = new DriftType();
-	break;
-      case PartsKind(Mpole):
-	cellp = new MpoleType();
-	break;
-      case PartsKind(Wigl):
-	cellp = new WigglerType();
-	break;
-      case PartsKind(Insertion):
-	cellp = new InsertionType();
-	break;
-      case PartsKind(FieldMap):
-	cellp = new FieldMapType();
-	break;
-      case PartsKind(Cavity):
-	cellp = new CavityType();
-	break;
-      case PartsKind(Spreader):
-	cellp = new SpreaderType();
-	break;
-      case PartsKind(Recombiner):
-	cellp = new RecombinerType();
-	break;
-      case PartsKind(Solenoid):
-	cellp = new SolenoidType();
-	break;
-      case PartsKind(undef):
-	printf("\nCell_Init: undefined  %d\n",
-	       elemfamp->CellF->Kind);
-	break;
-      default:
-	printf("\nCell_Init: unknown Kind %d\n",
-	       elemfamp->CellF->Kind);
-	exit(1);
-	break;
-      }
-
-      this->Cell[elemfamp->KidList[j-1]] = cellp;
-      *cellp = *elemfamp->CellF;
+      this->Cell[elemfamp->KidList[j-1]] = elemfamp->CellF->clone();
+      cellp = this->Cell[elemfamp->KidList[j-1]];
       // cellp->Fnum = i; cellp->Knum = j;
       cellp->Fnum = Fnum; cellp->Knum = Knum;
       cellp->Reverse = reverse;
@@ -363,7 +323,7 @@ void LatticeType::Cell_Init(void)
 }
 
 
-// Instantiate
+// Instantiate.
 template void LatticeType::Cell_Pass(const long i0, const long i1,
 				     ss_vect<double> &x, long &lastpos);
 template void LatticeType::Cell_Pass(const long i0, const long i1,

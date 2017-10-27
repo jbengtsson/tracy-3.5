@@ -2300,20 +2300,17 @@ void Elem_Print(FILE *f, int Fnum)
 }
 
 
-int Updateorder(CellType &Cell)
+void MpoleType::Updateorder(void)
 {
-  int       i, order;
-  MpoleType *M;
+  int i;
 
-  M = static_cast<MpoleType*>(&Cell);
-  if (M->irho != 0e0) /* non zero curvature => bend */
-    order = 1;
-  else /* mutipole */
-    order = 0;
+  if (this->irho != 0e0)
+    this->order = 1;
+  else
+    this->order = 0;
+  memcpy(this->B, this->Bpar, sizeof(mpolArray));
   for (i = -HOMmax; i <= HOMmax; i++)
-    if (M->B[i+HOMmax] != 0e0 && abs(i) > order) order = abs(i);
-
-  return order;
+    if (this->B[i+HOMmax] != 0e0 && abs(i) > this->order) this->order = abs(i);
 }
 
 
@@ -2997,10 +2994,10 @@ double LatticeType::Elem_GetKval(int Fnum, int Knum, int Order)
 void Mpole_SetB(int Fnum, int Knum, int Order)
 {
   /*  called by Cell_SetdP
-       Compute full multipole composent as sum of design, systematic
-       and random part
-       Compute transport matrix if quadrupole (Order=2)
-       Set multipole order to Order if multipole (Order >2)                  */
+      Compute full multipole composent as sum of design, systematic
+      and random part
+      Compute transport matrix if quadrupole (Order=2)
+      Set multipole order to Order if multipole (Order >2)                    */
 
   CellType  *cellp;  /* pointer on the Cell */
   MpoleType *M;/* Pointer on the Multipole */

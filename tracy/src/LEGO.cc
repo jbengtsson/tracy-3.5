@@ -242,32 +242,32 @@ void DriftType::Init(int Fnum)
 }
 
 
-void MpoleType::Init(int Fnum)
-{
-  int         i;
-  double      phi;
-  ElemFamType *elemfamp;
-  CellType    *cellp;
-  MpoleType   *M;
+// void MpoleType::Init(int Fnum)
+// {
+//   int         i;
+//   double      phi;
+//   ElemFamType *elemfamp;
+//   CellType    *cellp;
+//   MpoleType   *M;
 
-  elemfamp = &Lattice.ElemFam[Fnum-1];
-  M = static_cast<MpoleType*>(elemfamp->CellF);
-  memcpy(M->B, M->Bpar, sizeof(mpolArray));
-  M->order = Updateorder(*elemfamp->CellF);
-  for (i = 1; i <= elemfamp->nKid; i++) {
-    cellp = Lattice.Cell[elemfamp->KidList[i-1]];
+//   elemfamp = &Lattice.ElemFam[Fnum-1];
+//   M = static_cast<MpoleType*>(elemfamp->CellF);
+//   memcpy(M->B, M->Bpar, sizeof(mpolArray));
+//   M->order = Updateorder(*elemfamp->CellF);
+//   for (i = 1; i <= elemfamp->nKid; i++) {
+//     cellp = Lattice.Cell[elemfamp->KidList[i-1]];
 
-    strncpy(cellp->Name, elemfamp->CellF->Name, NameLength);
-    cellp->L = elemfamp->CellF->L; cellp->Kind = elemfamp->CellF->Kind;
-    cellp->Reverse = elemfamp->CellF->Reverse;
-    if (reverse_elem && (cellp->Reverse == true)) {
-      // Swap entrance and exit angles.
-      printf("Swapping entrance and exit angles for %8s %2d\n",
-	     cellp->Name, i);
-      phi = M->Tx1; M->Tx1 = M->Tx2; M->Tx2 = phi; 
-    }
-  }
-}
+//     strncpy(cellp->Name, elemfamp->CellF->Name, NameLength);
+//     cellp->L = elemfamp->CellF->L; cellp->Kind = elemfamp->CellF->Kind;
+//     cellp->Reverse = elemfamp->CellF->Reverse;
+//     if (reverse_elem && (cellp->Reverse == true)) {
+//       // Swap entrance and exit angles.
+//       printf("Swapping entrance and exit angles for %8s %2d\n",
+// 	     cellp->Name, i);
+//       phi = M->Tx1; M->Tx1 = M->Tx2; M->Tx2 = phi; 
+//     }
+//   }
+// }
 
 
 void CavityType::Init(int Fnum)
@@ -505,7 +505,8 @@ std::ostream& CellType::Show(std::ostream &str)
 
 std::ostream& LatticeType::Show_ElemFam(std::ostream &str)
 {
-  int j, k;
+  int       j, k;
+  MpoleType *M;
 
   const int n_prt = 10;
 
@@ -513,13 +514,19 @@ std::ostream& LatticeType::Show_ElemFam(std::ostream &str)
   for (j = 0; j < this->param.Elem_nFam; j++) {
     str << std::fixed << std::setprecision(3)
 	<< "\n  " << std::setw(3) << j+1
-	<< " " << std::setw(3) << this->ElemFam[j].nKid
-	<< " " << this->ElemFam[j].CellF->L
-	<< " " << this->ElemFam[j].CellF->Kind
-	<< " |" << this->ElemFam[j].CellF->Name << "|";
+	<< " " << std::setw(3) << std::setw(3) << this->ElemFam[j].nKid
+	<< " " << std::setw(5) << this->ElemFam[j].CellF->L
+	<< " " << std::setw(2) << this->ElemFam[j].CellF->Kind;
+    if (this->ElemFam[j].CellF->Kind == PartsKind(Mpole)) {
+      M = static_cast<MpoleType*>(this->ElemFam[j].CellF);
+      str << " " << std::setw(2) << M->n_design;
+    } else 
+      str << "   ";
+
+      str << " |" << this->ElemFam[j].CellF->Name << "|";
     for (k = 1; k <= this->ElemFam[j].nKid; k++) {
       str << " " << std::setw(4) << this->ElemFam[j].KidList[k-1];
-      if (k % n_prt == 0) str << "\n                                   ";
+      if (k % n_prt == 0) str << "\n                                       ";
     }
     str << "\n";
     // this->ElemFam[j].CellF->Show(str);
@@ -531,18 +538,28 @@ std::ostream& LatticeType::Show_ElemFam(std::ostream &str)
 
 std::ostream& LatticeType::Show(std::ostream &str)
 {
-  int k;
+  int       k;
+  MpoleType *M;
 
   str << "\nLattice:\n";
-  for (k = 0; k <= this->param.Cell_nLoc; k++)
+  for (k = 0; k <= this->param.Cell_nLoc; k++) {
     str << std::fixed << std::setprecision(3)
 	<< "  " << std::setw(4) << k
 	<< " " << std::setw(3) << this->Cell[k]->Fnum
 	<< " " << std::setw(3) << this->Cell[k]->Knum
 	<< " " << std::setw(2) << this->Cell[k]->Kind
-	<< " " << std::setw(1) << this->Cell[k]->Reverse
-	<< " |" << this->Cell[k]->Name << "|"
-	<< "\n"; 
+	<< " " << std::setw(1) << this->Cell[k]->Reverse;
+    if (this->Cell[k]->Kind == PartsKind(Mpole)) {
+      M = static_cast<MpoleType*>(this->Cell[k]);
+      str << std::fixed << std::setprecision(3)
+	  << " " << std::setw(2) << M->n_design
+	  << " " << std::setw(2) << M->order
+	  << " " << std::setw(7) << M->Bpar[Quad+HOMmax]
+	  << " " << std::setw(7) << M->B[Quad+HOMmax];
+    } else 
+      str << "   ";
+    str << " |" << this->Cell[k]->Name << "|\n"; 
+  }
 
   return str;
 }

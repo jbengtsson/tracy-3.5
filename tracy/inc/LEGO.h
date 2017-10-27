@@ -132,8 +132,10 @@ class CellType : public ElemType {
 				maxampl[Y_][0] < y < maxampl[Y_][1]. */
 
   CellType(void);
-  void Cell_Init(void);
+  virtual CellType* clone() const {};
   virtual std::ostream& Show(std::ostream &str);
+
+  void Cell_Init(void);
 
   template<typename T>
     T get_p_s(const ss_vect<T> &);
@@ -158,11 +160,15 @@ class MarkerType : public CellType {
  public:
 
   MarkerType(void);
-  void Init(int Fnum);
+  virtual CellType* clone() const {
+    return new MarkerType(static_cast<const MarkerType&>(*this));
+  }
   std::ostream& Show(std::ostream &str);
+
   template<typename T>
     void Pass(ss_vect<T> &x);
 
+  void Init(int Fnum);
   void Marker_Print(FILE *f, int Fnum);
 };
 
@@ -172,11 +178,15 @@ class DriftType : public CellType {
  public:
 
   DriftType(void);
-  void Init(int Fnum);
+  virtual CellType* clone() const {
+    return new DriftType(static_cast<const DriftType&>(*this));
+  }
   std::ostream& Show(std::ostream &str);
+
   template<typename T>
     void Pass(ss_vect<T> &x);
 
+  void Init(int Fnum);
   void Drift_Print(FILE *f, int Fnum);
 };
 
@@ -212,13 +222,18 @@ class MpoleType : public CellType {
   double     c0, c1, s1; // corrections for roll error of bend.
 
   MpoleType(void);
-  void Init(int Fnum);
+  void Updateorder(void);
+  virtual CellType* clone() const {
+    return new MpoleType(static_cast<const MpoleType&>(*this));
+  }
   std::ostream& Show(std::ostream &str);
+
   template<typename T>
     void Pass(ss_vect<T> &x);
 
   void SI_init(void);
 
+  /* void Init(int Fnum); */
   void Mpole_Print(FILE *f, int Fnum);
 };
 
@@ -249,10 +264,15 @@ class WigglerType : public CellType {
   int       order;               // The highest order in PB.
 
   WigglerType(void);
-  void Init(int Fnum);
-  void Wiggler_Print(FILE *f, int Fnum);
+  virtual CellType* clone() const {
+    return new WigglerType(static_cast<const WigglerType&>(*this));
+  }
+
   template<typename T>
     void Pass(ss_vect<T> &X);
+
+  void Init(int Fnum);
+  void Wiggler_Print(FILE *f, int Fnum);
 };
 
 
@@ -298,10 +318,15 @@ class InsertionType : public CellType {
   int order;        // The highest order in PB
 
   InsertionType(void);
-  void Init(int Fnum);
-  void Insertion_Print(FILE *f, int Fnum);
+  virtual CellType* clone() const {
+    return new InsertionType(static_cast<const InsertionType&>(*this));
+  }
+
   template<typename T>
     void Pass(ss_vect<T> &x);
+
+  void Init(int Fnum);
+  void Insertion_Print(FILE *f, int Fnum);
 };
 
 
@@ -317,10 +342,15 @@ class FieldMapType : public CellType {
   double ***AoBrho[2], ***AoBrho2[2];  /* [Ax(x, y, z), Ay(x, y, z)],
 					  spline info. */
   FieldMapType(void);
-  void get_B(const char *file_name, FieldMapType *FM);
-  void Init(int Fnum);
+  virtual CellType* clone() const {
+    return new FieldMapType(static_cast<const FieldMapType&>(*this));
+  }
+
   template<typename T>
     void Pass(ss_vect<T> &x);
+
+  void get_B(const char *file_name, FieldMapType *FM);
+  void Init(int Fnum);
 };
 
 
@@ -340,9 +370,14 @@ class SolenoidType : public CellType {
   double  BoBrho; // normalized field strength
 
   SolenoidType(void);
-  void Init(int Fnum);
+  virtual CellType* clone() const {
+    return new SolenoidType(static_cast<const SolenoidType&>(*this));
+  }
+
   template<typename T>
     void Pass(ss_vect<T> &ps);
+
+  void Init(int Fnum);
 };
 
 
@@ -358,11 +393,16 @@ class CavityType : public CellType {
   bool   exit_focus;  // Edge focusing at exit.
 
   CavityType(void);
-  void Init(int Fnum);
+  virtual CellType* clone() const {
+    return new CavityType(static_cast<const CavityType&>(*this));
+  }
+
   std::ostream& Show(std::ostream &str);
+
   template<typename T>
     void Pass(ss_vect<T> &X);
 
+  void Init(int Fnum);
 };
 
 
@@ -373,6 +413,10 @@ class SpreaderType : public CellType {
   CellType *Cell_ptrs[Spreader_max];
 
   SpreaderType(void);
+  virtual CellType* clone() const {
+    return new SpreaderType(static_cast<const SpreaderType&>(*this));
+  }
+
   void Init(int Fnum);
 };
 
@@ -384,6 +428,10 @@ class RecombinerType : public CellType {
   double E_max;
 
   RecombinerType(void);
+  virtual CellType* clone() const {
+    return new RecombinerType(static_cast<const RecombinerType&>(*this));
+  }
+
   void Init(int Fnum);
 };
 
@@ -919,5 +967,3 @@ void t2init(void);
 
 template<typename T>
 void p_rot(double phi, ss_vect<T> &x);
-
-int Updateorder(CellType &Cell);
