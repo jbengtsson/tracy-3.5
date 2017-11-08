@@ -434,6 +434,23 @@ void get_drv_terms(void)
 }
 
 
+void chk_bend()
+{
+  int       k;
+  double    phi;
+  MpoleType *M;
+
+  phi = 0e0;
+  for (k = 0; k <= Lattice.param.Cell_nLoc; k++) {
+    M = static_cast<MpoleType*>(Lattice.Cell[k]);
+    if ((Lattice.Cell[k]->Kind == Mpole) && (M->n_design == Dip))
+      phi += Lattice.Cell[k]->L*M->irho;
+  }
+  phi = 180e0*phi/M_PI;
+  printf("\nphi = %8.6f [deg]\n", phi);
+}
+
+
 int main(int argc, char *argv[])
 {
   bool             tweak;
