@@ -7,7 +7,7 @@ queue="ap-high.q"
 t1="00:10:00"
 t2="12:00:00"
 
-dir=$TRACY_LIB/projects/src
+dir=$HOME/git_repos/tracy-3.5-3.1/projects/src
 
 \rm bare_da.cmd.o*
 
