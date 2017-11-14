@@ -67,9 +67,9 @@ else if (case == 4) \
   x_min = -6.0; x_max = 6.0; y_min = -6.0; y_max = 6.0; \
   delta_min = -5.1; delta_max = 5.1; \
 else if (case == 5) \
-  nu_x_min = 56.5; nu_x_max = 57.0; nu_y_min = 22.0; nu_y_max = 22.5; \
+  nu_x_min = 56.5; nu_x_max = 57.0; nu_y_min = 21.9; nu_y_max = 22.4; \
   x_min = -3.0; x_max = 3.0; y_min = -2.0; y_max = 2.0; \
-  delta_min = -2.0; delta_max = 2.0; \
+  delta_min = -3.0; delta_max = 3.0; \
 else if (case == 6) \
   nu_x_min = 28.0; nu_x_max = 28.5; nu_y_min = 13.0; nu_y_max = 13.5; \
   x_min = -15.0; x_max = 15.0; y_min = -10.0; y_max = 10.0; \
