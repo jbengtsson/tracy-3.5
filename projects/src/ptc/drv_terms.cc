@@ -1,4 +1,4 @@
-#define NO 4
+#define NO 5
 
 #include "tracy_lib.h"
 
@@ -23,13 +23,18 @@ void chk_bend()
 }
 
 
-void get_drv_terms()
+void get_drv_terms(const double twoJx, const double twoJy, const double delta)
 {
   long int     lastpos;
   int          k;
   tps          h_re, h_im;
-  ss_vect<tps> nus;
+  ss_vect<tps> Id_scl, nus;
   ofstream     outf;
+
+  Id_scl.identity();
+  Id_scl[x_] *= sqrt(twoJx); Id_scl[px_] *= sqrt(twoJx);
+  Id_scl[y_] *= sqrt(twoJy); Id_scl[py_] *= sqrt(twoJy);
+  Id_scl[delta_] *= delta;
 
   outf.open("drv_terms.out", ios::out);
   printf("\n");
@@ -42,8 +47,9 @@ void get_drv_terms()
       Cell_Pass(0, k-1, map, lastpos);
     }
     MNF = MapNorm(map, no_tps);
-    CtoR(get_h(), h_re, h_im); nus = dHdJ(MNF.K);
-    printf("%5d (%3d) nu = [%7.5f %7.5f]\n",
+    CtoR(get_h(), h_re, h_im); h_re = h_re*Id_scl; h_im = h_im*Id_scl;
+    nus = dHdJ(MNF.K);
+    printf("%5d (%3ld) nu = [%7.5f %7.5f]\n",
 	   k, globval.Cell_nLoc, nus[0].cst(), nus[1].cst());
     outf << fixed << setprecision(3)
 	 << setw(6) << k+1 << setw(9) << Cell[k].S
@@ -91,11 +97,17 @@ void get_drv_terms()
 
 int main(int argc, char *argv[])
 {
+  int    j;
+  double twoJ[2];
+
+  const double A_max[]    = {2e-2, 1e-2},
+               delta_max  = 2e-2,
+               beta_inj[] = {10.5, 5.2};
 
   globval.H_exact    = false; globval.quad_fringe = false;
   globval.Cavity_on  = false; globval.radiation   = false;
   globval.emittance  = false; globval.IBS         = false;
-  globval.pathlength = false;  globval.bpm         = 0;
+  globval.pathlength = false; globval.bpm         = 0;
 
   // disable from TPSALib and LieLib log messages
   idprset(-1);
@@ -111,5 +123,7 @@ int main(int argc, char *argv[])
 
   Ring_GetTwiss(true, 0e0); printglob();
 
-  get_drv_terms();
+  for (j = 0; j < 2; j++)
+    twoJ[j] = sqr(A_max[j])/beta_inj[j];
+  get_drv_terms(twoJ[X_], twoJ[Y_], delta_max);
 }
