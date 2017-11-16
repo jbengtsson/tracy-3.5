@@ -59,7 +59,7 @@ plot file_name using 2:10 title "h_{40000}" with steps ls 1, \
      file_name using 2:17 title "h_{20020}" with steps ls 8;
 if (!ps) pause mouse "click on graph to cont.\n";
 
-if (ps) set output "drv_terms_3.".(ext);
+if (ps) set output "drv_terms_4.".(ext);
 set title "3rd Order Geometric Terms";
 set xlabel "s [m]"; set ylabel "Re{h_ijklm}";
 plot file_name using 2:18 title "h_{50000}" with steps ls 1, \

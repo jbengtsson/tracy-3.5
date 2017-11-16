@@ -28,14 +28,13 @@ void get_cod_rms(const double dx, const double dy,
   bool                cod;
   int                 i, j, k, n, n_cod;
   std::vector<double> x1[6], x2[6], x_mean[6], x_sigma[6];
-  MpoleType           *M;
   FILE                *fp;
 
   const int n_cod_corr = 5;
 
-  Lattice.param.Cavity_on = false;
+  globval.Cavity_on = false;
 
-  for (j = 0; j <= Lattice.param.Cell_nLoc; j++)
+  for (j = 0; j <= globval.Cell_nLoc; j++)
     for (k = 0; k < 6; k++) {
       x1[k].push_back(0e0); x2[k].push_back(0e0);
     }
@@ -49,36 +48,35 @@ void get_cod_rms(const double dx, const double dy,
     misalign_rms_type(Dip,  dx, dy, 0e0, true);
     misalign_rms_type(Quad, dx, dy, 0e0, true);
     
-    cod = Lattice.orb_corr(n_cod_corr);
+    cod = orb_corr(n_cod_corr);
 
     if (cod) {
       n_cod++;
 
       n = 0;
-      for (j = 0; j <= Lattice.param.Cell_nLoc; j++) {
-	M = static_cast<MpoleType*>(Lattice.Cell[j]);
-	if (all || ((Lattice.Cell[j]->Kind == Mpole) && (M->n_design == Sext))) {
+      for (j = 0; j <= globval.Cell_nLoc; j++)
+	if (all || ((Cell[j].Elem.Pkind == Mpole) &&
+		    (Cell[j].Elem.M->n_design == Sext))) {
 	  n++;
 	  for (k = 0; k < 6; k++) {
-	    x1[k][n-1] += Lattice.Cell[j]->BeamPos[k];
-	    x2[k][n-1] += sqr(Lattice.Cell[j]->BeamPos[k]);
+	    x1[k][n-1] += Cell[j].BeamPos[k];
+	    x2[k][n-1] += sqr(Cell[j].BeamPos[k]);
 	  }
 	}
-      }
     } else
       printf("orb_corr: failed\n");
 
     // Reset orbit trims.
-    set_bn_design_fam(Lattice.param.hcorr, Dip, 0e0, 0e0);
-    set_bn_design_fam(Lattice.param.vcorr, Dip, 0e0, 0e0);
+    set_bn_design_fam(globval.hcorr, Dip, 0e0, 0e0);
+    set_bn_design_fam(globval.vcorr, Dip, 0e0, 0e0);
   }
 
   printf("\nget_cod_rms: no of seeds %d, no of cods %d\n", n_seed, n_cod);
 
   n = 0;
-  for (j = 0; j <= Lattice.param.Cell_nLoc; j++) {
-    M = static_cast<MpoleType*>(Lattice.Cell[j]);
-    if (all || ((Lattice.Cell[j]->Kind == Mpole) && (M->n_design == Sext))) {
+  for (j = 0; j <= globval.Cell_nLoc; j++)
+    if (all || ((Cell[j].Elem.Pkind == Mpole) &&
+		(Cell[j].Elem.M->n_design == Sext))) {
       n++;
       for (k = 0; k < 6; k++) {
 	x_mean[k].push_back(x1[k][n-1]/n_cod);
@@ -86,14 +84,12 @@ void get_cod_rms(const double dx, const double dy,
 				  /(n_cod*(n_cod-1.0))));
       }
       fprintf(fp, "%8.3f %6.2f %10.3e +/- %10.3e %10.3e +/- %10.3e\n",
-	      Lattice.Cell[j]->S, get_code(Lattice.Cell[j]),
+	      Cell[j].S, get_code(Cell[j]),
 	      1e3*x_mean[x_][n-1], 1e3*x_sigma[x_][n-1],
 	      1e3*x_mean[y_][n-1], 1e3*x_sigma[y_][n-1]);
     } else
-      fprintf(fp, "%8.3f %6.2f\n",
-	      Lattice.Cell[j]->S, get_code(Lattice.Cell[j]));
-  }
-
+      fprintf(fp, "%8.3f %6.2f\n", Cell[j].S, get_code(Cell[j]));
+  
   fclose(fp);
 }
 
@@ -105,25 +101,25 @@ void track(const double Ax, const double Ay)
   ss_vect<double> xt, xs;
   FILE            *fd;
 
-  Lattice.getcod(0e0, lastpos);
+  getcod(0e0, lastpos);
 
   fd = fopen("trackdat_oneturn.dat","w");
   fprintf(fd, "orbit %22.14e %22.14e %22.14e %22.14e %22.14e %22.14e\n",
-	  Lattice.Cell[0]->BeamPos[0], Lattice.Cell[0]->BeamPos[1],
-	  Lattice.Cell[0]->BeamPos[2], Lattice.Cell[0]->BeamPos[3],
-	  Lattice.Cell[0]->BeamPos[4], Lattice.Cell[0]->BeamPos[5] );
+	  Cell[0].BeamPos[0], Cell[0].BeamPos[1],
+	  Cell[0].BeamPos[2], Cell[0].BeamPos[3],
+	  Cell[0].BeamPos[4], Cell[0].BeamPos[5] );
   fprintf(fd, "orbit %22.14e %22.14e %22.14e %22.14e %22.14e %22.14e\n",
-	  Lattice.param.CODvect[0], Lattice.param.CODvect[1],
-	  Lattice.param.CODvect[2], Lattice.param.CODvect[3],
-	  Lattice.param.CODvect[4], Lattice.param.CODvect[5]);
+	  globval.CODvect[0], globval.CODvect[1],
+	  globval.CODvect[2], globval.CODvect[3],
+	  globval.CODvect[4], globval.CODvect[5]);
 
   xt.zero(); xt[x_] = Ax; xt[y_] = Ay; 
 
   fprintf(fd, "start %22.14e %22.14e %22.14e %22.14e %22.14e %22.14e\n",
 	  xt[0], xt[1], xt[2], xt[3], xt[4], xt[5] );
 
-  for (i = 0; i <= Lattice.param.Cell_nLoc; i++) {
-    Lattice.Cell_Pass(i, i, xt, lastpos);
+  for (i = 0; i <= globval.Cell_nLoc; i++) {
+    Cell_Pass(i, i, xt, lastpos);
     fprintf(fd, "%5d %22.14e %22.14e %22.14e %22.14e %22.14e %22.14e \n",
 	    i, xt[0], xt[1], xt[2], xt[3], xt[4], xt[5]);
   }
@@ -139,13 +135,12 @@ void prt_symm(const std::vector<int> &Fam)
 
   for (j = 0; j < (int)Fam.size(); j++) {
     printf("\n");
-    for (k = 1; k <= Lattice.GetnKid(Fam[j]); k++) {
-      loc = Lattice.Elem_GetPos(Fam[j], k);
+    for (k = 1; k <= GetnKid(Fam[j]); k++) {
+      loc = Elem_GetPos(Fam[j], k);
       if (k % 2 == 0) loc -= 1;
       printf(" %5.1f %6.3f %6.3f %6.3f\n",
-	     Lattice.Cell[loc]->S, Lattice.Cell[loc]->Beta[X_],
-	     Lattice.Cell[loc]->Beta[Y_],
-	     Lattice.Cell[loc]->Eta[X_]);
+	     Cell[loc].S, Cell[loc].Beta[X_], Cell[loc].Beta[Y_],
+	     Cell[loc].Eta[X_]);
     }
   }
 }
@@ -158,11 +153,10 @@ void prt_quad(const std::vector<int> &Fam)
 
   printf("\n");
   for (j = 0; j < (int)Fam.size(); j++) {
-    loc = Lattice.Elem_GetPos(Fam[j], 1);
+    loc = Elem_GetPos(Fam[j], 1);
     printf(" %4.1f %6.3f %6.3f %2d\n",
-	   Lattice.Cell[loc]->S,
-	   Lattice.Cell[loc]->Beta[X_], Lattice.Cell[loc]->Beta[Y_],
-	   Lattice.GetnKid(Fam[j]));
+	   Cell[loc].S, Cell[loc].Beta[X_], Cell[loc].Beta[Y_],
+	   GetnKid(Fam[j]));
   }
 }
 
@@ -179,7 +173,7 @@ void chk_optics(const double alpha_x, const double alpha_y,
   eta[X_]   = eta_x;   eta[Y_]   = eta_y;
   etap[X_]  = etap_x;  etap[Y_]  = etap_y;
 
-  Lattice.ttwiss(alpha, beta, eta, etap, 0e0);
+  ttwiss(alpha, beta, eta, etap, 0e0);
 }
 
 
@@ -190,57 +184,69 @@ void chk_mini_beta(const std::vector<int> &Fam)
 
   for (j = 0; j < (int)Fam.size(); j++) {
     printf("\n");
-    for (k = 1; k <= Lattice.GetnKid(Fam[j]); k++) {
-      loc = Lattice.Elem_GetPos(Fam[j], k);
+    for (k = 1; k <= GetnKid(Fam[j]); k++) {
+      loc = Elem_GetPos(Fam[j], k);
       if (k % 2 == 1) {
-	nu0[X_] = Lattice.Cell[loc]->Nu[X_]; nu0[Y_] = Lattice.Cell[loc]->Nu[Y_];
+	nu0[X_] = Cell[loc].Nu[X_]; nu0[Y_] = Cell[loc].Nu[Y_];
       } else {
 	loc -= 1;
 	printf(" %5.1f %6.3f %6.3f %6.3f %8.5f %8.5f\n",
-	       Lattice.Cell[loc]->S,
-	       Lattice.Cell[loc]->Beta[X_], Lattice.Cell[loc]->Beta[Y_],
-	       Lattice.Cell[loc]->Eta[X_],
-	       Lattice.Cell[loc]->Nu[X_]-nu0[X_],
-	       Lattice.Cell[loc]->Nu[Y_]-nu0[Y_]);
+	       Cell[loc].S, Cell[loc].Beta[X_], Cell[loc].Beta[Y_],
+	       Cell[loc].Eta[X_],
+	       Cell[loc].Nu[X_]-nu0[X_], Cell[loc].Nu[Y_]-nu0[Y_]);
       }
     }
   }
 }
 
 
-void chk_high_oord_achr(void)
+void chk_high_ord_achr(void)
 {
   int loc[4];
 
-  Lattice.Ring_GetTwiss(true, 0e0);
- 
-  loc[0] = Lattice.Elem_GetPos(Lattice.Elem_Index("ss1"), 1);
-  loc[1] = Lattice.Elem_GetPos(Lattice.Elem_Index("ss1"), 3);
-  loc[2] = Lattice.Elem_GetPos(Lattice.Elem_Index("ss1"), 5);
-  loc[3] = Lattice.param.Cell_nLoc;
+  // 8-BA (Hossein) 3.
+  const int lattice = 3;
 
-  // loc[0] = Lattice.Elem_GetPos(Lattice.Elem_Index("idmarker_end"), 1);
-  // loc[1] = Lattice.Elem_GetPos(Lattice.Elem_Index("idmarker_end"), 3);
-  // loc[2] = Lattice.Elem_GetPos(Lattice.Elem_Index("idmarker_end"), 5);
-  // loc[3] = Lattice.param.Cell_nLoc;
+  Ring_GetTwiss(true, 0e0);
+ 
+  switch (lattice) {
+  case 1:
+    loc[0] = Elem_GetPos(ElemIndex("ss1"), 1);
+    loc[1] = Elem_GetPos(ElemIndex("ss1"), 3);
+    loc[2] = Elem_GetPos(ElemIndex("ss1"), 5);
+    loc[3] = globval.Cell_nLoc;
+    break;
+  case 2:
+    loc[0] = Elem_GetPos(ElemIndex("idmarker_end"), 1);
+    loc[1] = Elem_GetPos(ElemIndex("idmarker_end"), 3);
+    loc[2] = Elem_GetPos(ElemIndex("idmarker_end"), 5);
+    loc[3] = globval.Cell_nLoc;
+    break;
+  case 3:
+    loc[0] = Elem_GetPos(ElemIndex("du20"), 1);
+    loc[1] = Elem_GetPos(ElemIndex("du20"), 3);
+    loc[2] = Elem_GetPos(ElemIndex("du20"), 5);
+    loc[3] = globval.Cell_nLoc;
+    break;
+  }
 
   printf("\nCell phase advance:\n");
   printf("Ideal:    [%7.5f, %7.5f]\n", 19.0/8.0, 15.0/16.0);
   printf("\n %7.5f [%7.5f, %7.5f]\n",
-	 Lattice.Cell[loc[0]]->S, 
-	 Lattice.Cell[loc[0]]->Nu[X_], Lattice.Cell[loc[0]]->Nu[Y_]);
+	 Cell[loc[0]].S, 
+	 Cell[loc[0]].Nu[X_], Cell[loc[0]].Nu[Y_]);
   printf(" %7.5f [%7.5f, %7.5f]\n",
-	 Lattice.Cell[loc[1]]->S-Lattice.Cell[loc[0]]->S, 
-	 Lattice.Cell[loc[1]]->Nu[X_]-Lattice.Cell[loc[0]]->Nu[X_], 
-	 Lattice.Cell[loc[1]]->Nu[Y_]-Lattice.Cell[loc[0]]->Nu[Y_]);
+	 Cell[loc[1]].S-Cell[loc[0]].S, 
+	 Cell[loc[1]].Nu[X_]-Cell[loc[0]].Nu[X_], 
+	 Cell[loc[1]].Nu[Y_]-Cell[loc[0]].Nu[Y_]);
   printf(" %7.5f [%7.5f, %7.5f]\n",
-	 Lattice.Cell[loc[2]]->S-Lattice.Cell[loc[1]]->S, 
-	 Lattice.Cell[loc[2]]->Nu[X_]-Lattice.Cell[loc[1]]->Nu[X_], 
-	 Lattice.Cell[loc[2]]->Nu[Y_]-Lattice.Cell[loc[1]]->Nu[Y_]);
+	 Cell[loc[2]].S-Cell[loc[1]].S, 
+	 Cell[loc[2]].Nu[X_]-Cell[loc[1]].Nu[X_], 
+	 Cell[loc[2]].Nu[Y_]-Cell[loc[1]].Nu[Y_]);
   printf(" %7.5f [%7.5f, %7.5f]\n",
-	 Lattice.Cell[loc[3]]->S-Lattice.Cell[loc[2]]->S, 
-	 Lattice.Cell[loc[3]]->Nu[X_]-Lattice.Cell[loc[2]]->Nu[X_], 
-	 Lattice.Cell[loc[3]]->Nu[Y_]-Lattice.Cell[loc[2]]->Nu[Y_]);
+	 Cell[loc[3]].S-Cell[loc[2]].S, 
+	 Cell[loc[3]].Nu[X_]-Cell[loc[2]].Nu[X_], 
+	 Cell[loc[3]].Nu[Y_]-Cell[loc[2]].Nu[Y_]);
 }
 
 
@@ -249,12 +255,11 @@ void chk_b3_Fam(const int Fnum, const bool exit)
   int k, loc;
 
   printf("\n");
-  for (k = 1; k <= Lattice.GetnKid(Fnum); k++) {
-    loc = Lattice.Elem_GetPos(Fnum, k);
+  for (k = 1; k <= GetnKid(Fnum); k++) {
+    loc = Elem_GetPos(Fnum, k);
     if (!exit && ((k-1) % 2 == 1)) loc -= 1;
     printf("%8s %7.5f %7.5f\n",
-	   Lattice.Cell[loc]->Name,
-	   Lattice.Cell[loc]->Beta[X_], Lattice.Cell[loc]->Beta[Y_]);
+	   Cell[loc].Elem.PName, Cell[loc].Beta[X_], Cell[loc].Beta[Y_]);
   }
 }
 
@@ -265,20 +270,18 @@ void chk_b3(void)
 
   const int
     // Fnum[] =
-    //   {Lattice.Elem_Index("sfa"), Lattice.Elem_Index("sfb"),
-    //    Lattice.Elem_Index("sda"), Lattice.Elem_Index("sdb"),
-    //    Lattice.Elem_Index("s1"),
-    //    Lattice.Elem_Index("s2a"), Lattice.Elem_Index("s2b"),
-    //    Lattice.Elem_Index("s3"),  Lattice.Elem_Index("s4"),
-    //    Lattice.Elem_Index("s5"), Lattice.Elem_Index("s6")},
+    //   {ElemIndex("sfa"), ElemIndex("sfb"),
+    //    ElemIndex("sda"), ElemIndex("sdb"),
+    //    ElemIndex("s1"),
+    //    ElemIndex("s2a"), ElemIndex("s2b"),
+    //    ElemIndex("s3"),  ElemIndex("s4"), ElemIndex("s5"), ElemIndex("s6")},
     Fnum[] =
-      {Lattice.Elem_Index("sf"), Lattice.Elem_Index("sd"),
-       Lattice.Elem_Index("s1"), Lattice.Elem_Index("s2"),
-       Lattice.Elem_Index("s3"),  Lattice.Elem_Index("s4"),
-       Lattice.Elem_Index("s5"), Lattice.Elem_Index("s6")},
+      {ElemIndex("sf"), ElemIndex("sd"),
+       ElemIndex("s1"), ElemIndex("s2"), ElemIndex("s3"),  ElemIndex("s4"),
+       ElemIndex("s5"), ElemIndex("s6")},
     n_b3 = sizeof(Fnum)/sizeof(*Fnum);
 
-  Lattice.Ring_GetTwiss(true, 0e0);
+  Ring_GetTwiss(true, 0e0);
  
   printf("\nSextupole Scheme:\n");
   for (k = 0; k < n_b3; k++)
@@ -291,41 +294,38 @@ void chk_b3(void)
 
 void chk_dip(void)
 {
-  int       k, loc;
-  double    L, phi, L_sum, phi_sum;
-  MpoleType *M;
+  int    k, loc;
+  double L, phi, L_sum, phi_sum;
 
   const int
     Fnum[] =
-      {Lattice.Elem_Index("bn00"), Lattice.Elem_Index("bn01"),
-       Lattice.Elem_Index("bn02"), Lattice.Elem_Index("bn03"),
-       Lattice.Elem_Index("bn04"), Lattice.Elem_Index("bn05"),
-       Lattice.Elem_Index("bn06")},
+      {ElemIndex("bn00"), ElemIndex("bn01"), ElemIndex("bn02"),
+       ElemIndex("bn03"), ElemIndex("bn04"), ElemIndex("bn05"),
+       ElemIndex("bn06")},
     // Fnum[] =
-    //   {Lattice.Elem_Index("i_bn00"), Lattice.Elem_Index("i_bn01"),
-    //    Lattice.Elem_Index("i_bn02"), Lattice.Elem_Index("i_bn03"),
-    //    Lattice.Elem_Index("i_bn04"), Lattice.Elem_Index("i_bn05"),
-    //    Lattice.Elem_Index("i_bn06")},
+    //   {ElemIndex("i_bn00"), ElemIndex("i_bn01"), ElemIndex("i_bn02"),
+    //    ElemIndex("i_bn03"), ElemIndex("i_bn04"), ElemIndex("i_bn05"),
+    //    ElemIndex("i_bn06")},
     // Fnum[] =
-    //   {Lattice.Elem_Index("bn00"), Lattice.Elem_Index("bn03"),
-    //    Lattice.Elem_Index("bn06")},
+    //   {ElemIndex("bn00"), ElemIndex("bn03"),
+    //    ElemIndex("bn06")},
     // Fnum[] =
-    //   {Lattice.Elem_Index("i_bn00"), Lattice.Elem_Index("i_bn03"),
-    //    Lattice.Elem_Index("i_bn06")},
+    //   {ElemIndex("i_bn00"), ElemIndex("i_bn03"),
+    //    ElemIndex("i_bn06")},
     n_dip = sizeof(Fnum)/sizeof(*Fnum);
 
-  Lattice.Ring_GetTwiss(true, 0e0);
+  Ring_GetTwiss(true, 0e0);
  
   printf("\nLong grad dipole:\n");
   L_sum = 0e0; phi_sum = 0e0;
   for (k = 0; k < n_dip; k++) {
-    loc = Lattice.Elem_GetPos(Fnum[k], 1);
-    M = static_cast<MpoleType*>(Lattice.Cell[loc]);
-    L = Lattice.Cell[loc]->L;
-    phi = L*M->irho*180e0/M_PI;
+    loc = Elem_GetPos(Fnum[k], 1);
+    L = Cell[loc].Elem.PL;
+    phi = L*Cell[loc].Elem.M->Pirho*180e0/M_PI;
     L_sum += L; phi_sum += phi;
     printf(" %6s %4.3f %6.3f %9.6f %9.6f %9.6f %9.6f %9.6f\n",
-	   Lattice.Cell[loc]->Name, L, 1e0/M->irho, phi, M->Tx1, M->Tx2,
+	   Cell[loc].Elem.PName, L, 1e0/Cell[loc].Elem.M->Pirho,
+	   phi, Cell[loc].Elem.M->PTx1, Cell[loc].Elem.M->PTx2,
 	   L_sum, phi_sum);
   }
 }
@@ -340,11 +340,9 @@ complex<double> get_h1_ijklm(const int loc, const double b3L,
   I = complex<double>(0e0, 1e0);
 
   h_ijklm =
-    b3L*pow(Lattice.Cell[loc]->Beta[X_],
-	    (i+j)/2e0)*pow(Lattice.Cell[loc]->Beta[Y_], (k+l)/2e0)
-    *pow(Lattice.Cell[loc]->Eta[X_], m)
-    *exp(I*((i-j)*Lattice.Cell[loc]->Nu[X_]+(k-l)
-	    *Lattice.Cell[loc]->Nu[Y_])*2e0*M_PI);
+    b3L*pow(Cell[loc].Beta[X_], (i+j)/2e0)*pow(Cell[loc].Beta[Y_], (k+l)/2e0)
+    *pow(Cell[loc].Eta[X_], m)
+    *exp(I*((i-j)*Cell[loc].Nu[X_]+(k-l)*Cell[loc].Nu[Y_])*2e0*M_PI);
 
   return h_ijklm;
 }
@@ -358,9 +356,9 @@ void get_drv_terms(void)
   double          b3L, a3L, s[n_max];
   complex<double> h[4][4][4][4][3],
                   h_loc[4][4][4][4][3][n_max];
-  MpoleType       *M;
   FILE            *outf;
 
+  printf("\nget_drv_terms\n");
   n = 0;
 
   h[1][0][0][0][2] = complex<double>(0e0, 0e0);
@@ -373,13 +371,12 @@ void get_drv_terms(void)
   h[1][0][2][0][0] = complex<double>(0e0, 0e0);
   h[1][0][0][2][0] = complex<double>(0e0, 0e0);
 
-  for (loc = 0; loc <= Lattice.param.Cell_nLoc; loc++) {
-    M = static_cast<MpoleType*>(Lattice.Cell[loc]);
-    if ((Lattice.Cell[loc]->Kind == Mpole) && (M->order == Sext)) {
+  for (loc = 0; loc <= globval.Cell_nLoc; loc++) {
+    if ((Cell[loc].Elem.Pkind == Mpole) &&
+	(Cell[loc].Elem.M->Porder == Sext)) {
       n++;
 
-      get_bnL_design_elem(Lattice.Cell[loc]->Fnum, Lattice.Cell[loc]->Knum,
-			  Sext, b3L, a3L);
+      get_bnL_design_elem(Cell[loc].Fnum, Cell[loc].Knum, Sext, b3L, a3L);
 
       h[1][0][0][0][2] += get_h1_ijklm(loc, b3L, 1, 0, 0, 0, 2);
       h[2][0][0][0][1] += get_h1_ijklm(loc, b3L, 2, 0, 0, 0, 1);
@@ -391,7 +388,7 @@ void get_drv_terms(void)
       h[1][0][2][0][0] += get_h1_ijklm(loc, b3L, 1, 0, 2, 0, 0);
       h[1][0][0][2][0] += get_h1_ijklm(loc, b3L, 1, 0, 0, 2, 0);
 
-      s[n-1] = Lattice.Cell[loc]->S;
+      s[n-1] = Cell[loc].S;
 
       h_loc[1][0][0][0][2][n-1] = h[1][0][0][0][2];
       h_loc[2][0][0][0][1][n-1] = h[2][0][0][0][1];
@@ -436,15 +433,15 @@ void get_drv_terms(void)
 
 void chk_bend()
 {
-  int       k;
-  double    phi;
-  MpoleType *M;
+  int    k;
+  double phi;
 
   phi = 0e0;
-  for (k = 0; k <= Lattice.param.Cell_nLoc; k++) {
-    M = static_cast<MpoleType*>(Lattice.Cell[k]);
-    if ((Lattice.Cell[k]->Kind == Mpole) && (M->n_design == Dip))
-      phi += Lattice.Cell[k]->L*M->irho;
+  for (k = 0; k <= globval.Cell_nLoc; k++) {
+    if ((Cell[k].Elem.Pkind == Mpole) &&
+	(Cell[k].Elem.M->n_design == Dip)) {
+      phi += Cell[k].Elem.PL*Cell[k].Elem.M->Pirho;
+    }
   }
   phi = 180e0*phi/M_PI;
   printf("\nphi = %8.6f [deg]\n", phi);
@@ -460,11 +457,10 @@ int main(int argc, char *argv[])
   Matrix           M;
   std::vector<int> Fam;
   ostringstream    str;
-  CavityType       *C;
 
   const long        seed   = 1121;
   const int         n_turn = 2064;
-  const double      delta  = 3.0e-2,
+  const double      delta  = 2e-2,
   //                   nu[]    = { 102.18/20.0, 68.30/20.0 };
   // const std::string q_fam[] = { "qfe", "qde" }, s_fam[] = { "sfh",  "sd" };
   //                   nu[]    = { 39.1/12.0, 15.25/12.0 };
@@ -473,40 +469,32 @@ int main(int argc, char *argv[])
                     nu[]    = { 9.2, 3.64 };
   const std::string q_fam[] = { "qf03", "qd04" }, s_fam[] = { "sfh",  "sd" };
 
-  Lattice.param.H_exact    = false; Lattice.param.quad_fringe = false;
-  Lattice.param.Cavity_on  = false; Lattice.param.radiation   = false;
-  Lattice.param.emittance  = false; Lattice.param.IBS         = false;
-  Lattice.param.pathlength = false; Lattice.param.bpm         = 0;
+  globval.H_exact    = false; globval.quad_fringe = false;
+  globval.Cavity_on  = false; globval.radiation   = false;
+  globval.emittance  = false; globval.IBS         = false;
+  globval.pathlength = false; globval.bpm         = 0;
 
-  reverse_elem = true;
+  reverse_elem = false;
 
   // 1: DIAMOND, 3: Oleg I, 4: Oleg II.
   FieldMap_filetype = 1; sympl = false;
 
-  trace = true;
-
   if (true)
-    Lattice.Read_Lattice(argv[1]);
+    Read_Lattice(argv[1]);
   else
-    Lattice.rdmfile(argv[1]);
+    rdmfile(argv[1]);
 
-  // Lattice.Show_ElemFam(std::cout);
-  // Lattice.Show(std::cout);
-
-  Lattice.prtmfile("flat_file.dat");
-  Lattice.Ring_GetTwiss(true, 0e0); printglob();
-
-  exit(0);
+  chk_bend();
 
   if (false) {
-    loc = Lattice.Elem_GetPos(Lattice.Elem_Index("bb"), 1);
+    loc = Elem_GetPos(ElemIndex("bb"), 1);
     map.identity();
     // Tweak to remain within field map range at entrance.
     tweak = true;
     if (tweak) {
       dx = -1.4e-3; map[x_] += dx;
     }
-    Lattice.Cell_Pass(loc, loc, map, lastpos);
+    Cell_Pass(loc, loc, map, lastpos);
     if (tweak) map[x_] -= dx;
     prt_lin_map(3, map);
     getlinmat(6, map, M);
@@ -514,8 +502,8 @@ int main(int argc, char *argv[])
     exit(0);
   }
 
-  if (false) {
-    chk_high_oord_achr();
+  if (true) {
+    chk_high_ord_achr();
     exit(0);
   }
 
@@ -531,29 +519,29 @@ int main(int argc, char *argv[])
 
   if (false) {
     chk_optics(0.0, 0.0, 13.04171, 8.795924, 1.397388e-03, 0.0, 0.0, 0.0);
-    Lattice.prt_lat("linlat1.out", Lattice.param.bpm, true);
-    Lattice.prt_lat("linlat.out", Lattice.param.bpm, true, 10);
+    prt_lat("linlat1.out", globval.bpm, true);
+    prt_lat("linlat.out", globval.bpm, true, 10);
     exit(0);
   }
 
   if (false) {
-    Lattice.param.Cavity_on = true;
+    globval.Cavity_on = true;
     track(6e-3, 0.1e-3);
     exit(0);
   }
 
   if (false) no_sxt();
 
-  Lattice.Ring_GetTwiss(true, 0e0); printglob();
+  Ring_GetTwiss(true, 0e0); printglob();
 
-  if (false) Lattice.get_alphac2();
+  if (false) get_alphac2();
 
-  Lattice.prtmfile("flat_file.dat");
+  prtmfile("flat_file.dat");
 
-  // Lattice.param.bpm = Lattice.Elem_Index("bpm");
-  Lattice.prt_lat("linlat1.out", Lattice.param.bpm, true);
-  Lattice.prt_lat("linlat.out", Lattice.param.bpm, true, 10);
-  Lattice.prt_chrom_lat();
+  // globval.bpm = ElemIndex("bpm");
+  prt_lat("linlat1.out", globval.bpm, true);
+  prt_lat("linlat.out", globval.bpm, true, 10);
+  prt_chrom_lat();
 
   if (false) {
     get_drv_terms();
@@ -562,13 +550,12 @@ int main(int argc, char *argv[])
 
   if (false) {
     iniranf(seed); setrancut(1e0);
-    // Lattice.param.bpm = Lattice.Elem_Index("mon");
-    Lattice.param.bpm = Lattice.Elem_Index("bpm");
-    Lattice.param.hcorr = Lattice.Elem_Index("ch");
-    Lattice.param.vcorr = Lattice.Elem_Index("cv");
+    // globval.bpm = ElemIndex("mon");
+    globval.bpm = ElemIndex("bpm");
+    globval.hcorr = ElemIndex("ch"); globval.vcorr = ElemIndex("cv");
 
-    gcmat(Lattice.param.bpm, Lattice.param.hcorr, 1);
-    gcmat(Lattice.param.bpm, Lattice.param.vcorr, 2);
+    gcmat(globval.bpm, globval.hcorr, 1);
+    gcmat(globval.bpm, globval.vcorr, 2);
 
     get_cod_rms(50e-6, 50e-6, 100, true);
 
@@ -576,55 +563,55 @@ int main(int argc, char *argv[])
   }
 
   if (false) {
-    Fam.push_back(Lattice.Elem_Index("ts1b"));
-    // Fam.push_back(Lattice.Elem_Index("ts1d"));
+    Fam.push_back(ElemIndex("ts1b"));
+    // Fam.push_back(ElemIndex("ts1d"));
     chk_mini_beta(Fam);
     exit(0);
   }
 
   if (false) {
-    // Fam.push_back(Lattice.Elem_Index("s1b"));
-    // Fam.push_back(Lattice.Elem_Index("s1d"));
-    // Fam.push_back(Lattice.Elem_Index("s2b"));
-    // Fam.push_back(Lattice.Elem_Index("s2d"));
-    // Fam.push_back(Lattice.Elem_Index("sx1"));
-    // Fam.push_back(Lattice.Elem_Index("sy1"));
+    // Fam.push_back(ElemIndex("s1b"));
+    // Fam.push_back(ElemIndex("s1d"));
+    // Fam.push_back(ElemIndex("s2b"));
+    // Fam.push_back(ElemIndex("s2d"));
+    // Fam.push_back(ElemIndex("sx1"));
+    // Fam.push_back(ElemIndex("sy1"));
 
   switch (2) {
   case 1:
     // DIAMOND.
-    Fam.push_back(Lattice.Elem_Index("ts1a"));
-    Fam.push_back(Lattice.Elem_Index("ts1ab"));
-    Fam.push_back(Lattice.Elem_Index("ts2a"));
-    Fam.push_back(Lattice.Elem_Index("ts2ab"));
-    Fam.push_back(Lattice.Elem_Index("ts1b"));
-    Fam.push_back(Lattice.Elem_Index("ts2b"));
-    Fam.push_back(Lattice.Elem_Index("ts1c"));
-    Fam.push_back(Lattice.Elem_Index("ts2c"));
-    Fam.push_back(Lattice.Elem_Index("ts1d"));
-    Fam.push_back(Lattice.Elem_Index("ts2d"));
-    Fam.push_back(Lattice.Elem_Index("ts1e"));
-    Fam.push_back(Lattice.Elem_Index("ts2e"));
+    Fam.push_back(ElemIndex("ts1a"));
+    Fam.push_back(ElemIndex("ts1ab"));
+    Fam.push_back(ElemIndex("ts2a"));
+    Fam.push_back(ElemIndex("ts2ab"));
+    Fam.push_back(ElemIndex("ts1b"));
+    Fam.push_back(ElemIndex("ts2b"));
+    Fam.push_back(ElemIndex("ts1c"));
+    Fam.push_back(ElemIndex("ts2c"));
+    Fam.push_back(ElemIndex("ts1d"));
+    Fam.push_back(ElemIndex("ts2d"));
+    Fam.push_back(ElemIndex("ts1e"));
+    Fam.push_back(ElemIndex("ts2e"));
 
-    Fam.push_back(Lattice.Elem_Index("s1"));
-    Fam.push_back(Lattice.Elem_Index("s2"));
-    Fam.push_back(Lattice.Elem_Index("s3"));
-    Fam.push_back(Lattice.Elem_Index("s4"));
-    Fam.push_back(Lattice.Elem_Index("s5"));
+    Fam.push_back(ElemIndex("s1"));
+    Fam.push_back(ElemIndex("s2"));
+    Fam.push_back(ElemIndex("s3"));
+    Fam.push_back(ElemIndex("s4"));
+    Fam.push_back(ElemIndex("s5"));
     break;
   case 2:
     // DIAMOND-II, 6-BA.
-    Fam.push_back(Lattice.Elem_Index("sd1"));
-    Fam.push_back(Lattice.Elem_Index("sd2"));
-    Fam.push_back(Lattice.Elem_Index("sd3"));
-    // Fam.push_back(Lattice.Elem_Index("sd4"));
-    Fam.push_back(Lattice.Elem_Index("sf21"));
-    Fam.push_back(Lattice.Elem_Index("sd31"));
-    // Fam.push_back(Lattice.Elem_Index("sd41"));
-    Fam.push_back(Lattice.Elem_Index("sf1"));
-    // Fam.push_back(Lattice.Elem_Index("sf2"));
-    Fam.push_back(Lattice.Elem_Index("sh1a"));
-    Fam.push_back(Lattice.Elem_Index("sh1e"));
+    Fam.push_back(ElemIndex("sd1"));
+    Fam.push_back(ElemIndex("sd2"));
+    Fam.push_back(ElemIndex("sd3"));
+    // Fam.push_back(ElemIndex("sd4"));
+    Fam.push_back(ElemIndex("sf21"));
+    Fam.push_back(ElemIndex("sd31"));
+    // Fam.push_back(ElemIndex("sd41"));
+    Fam.push_back(ElemIndex("sf1"));
+    // Fam.push_back(ElemIndex("sf2"));
+    Fam.push_back(ElemIndex("sh1a"));
+    Fam.push_back(ElemIndex("sh1e"));
     break;
   }
 
@@ -632,38 +619,38 @@ int main(int argc, char *argv[])
   }
 
   if (false) {
-    Fam.push_back(Lattice.Elem_Index("q1_2"));
-    Fam.push_back(Lattice.Elem_Index("q1_2m"));
-    Fam.push_back(Lattice.Elem_Index("q1b"));
-    Fam.push_back(Lattice.Elem_Index("q2b"));
-    Fam.push_back(Lattice.Elem_Index("q1d"));
-    Fam.push_back(Lattice.Elem_Index("q2d"));
-    Fam.push_back(Lattice.Elem_Index("q3d"));
+    Fam.push_back(ElemIndex("q1_2"));
+    Fam.push_back(ElemIndex("q1_2m"));
+    Fam.push_back(ElemIndex("q1b"));
+    Fam.push_back(ElemIndex("q2b"));
+    Fam.push_back(ElemIndex("q1d"));
+    Fam.push_back(ElemIndex("q2d"));
+    Fam.push_back(ElemIndex("q3d"));
 
     prt_quad(Fam);
   }
 
-  if (true) Lattice.GetEmittance(Lattice.Elem_Index("cav"), true);
+  if (true) GetEmittance(ElemIndex("cav"), true);
 
   if (false) {
-    b2_fam[0] = Lattice.Elem_Index(q_fam[0].c_str());
-    b2_fam[1] = Lattice.Elem_Index(q_fam[1].c_str());
-    Lattice.FitTune(b2_fam[0], b2_fam[1], nu[X_], nu[Y_]);
+    b2_fam[0] = ElemIndex(q_fam[0].c_str());
+    b2_fam[1] = ElemIndex(q_fam[1].c_str());
+    FitTune(b2_fam[0], b2_fam[1], nu[X_], nu[Y_]);
     get_bn_design_elem(b2_fam[0], 1, Quad, b2[0], a2);
     get_bn_design_elem(b2_fam[1], 1, Quad, b2[1], a2);
 
     printf("\nnu_x = %8.5f nu_y = %8.5f\n",
-	   Lattice.param.TotalTune[X_], Lattice.param.TotalTune[Y_]);
+	   globval.TotalTune[X_], globval.TotalTune[Y_]);
     printf("  %s = %8.5f  %s = %8.5f\n",
 	   q_fam[0].c_str(), b2[0], q_fam[1].c_str(), b2[1]);
 
-    Lattice.Ring_GetTwiss(true, 0e0); printglob();
+    Ring_GetTwiss(true, 0e0); printglob();
   }
 
   if (false) {
-    b3_fam[0] = Lattice.Elem_Index(s_fam[0].c_str());
-    b3_fam[1] = Lattice.Elem_Index(s_fam[1].c_str());
-    Lattice.FitChrom(b3[0], b3[1], 0e0, 0e0);
+    b3_fam[0] = ElemIndex(s_fam[0].c_str());
+    b3_fam[1] = ElemIndex(s_fam[1].c_str());
+    FitChrom(b3[0], b3[1], 0e0, 0e0);
     get_bn_design_elem(b3_fam[0], 1, Sext, b3[0], a3);
     get_bn_design_elem(b3_fam[1], 1, Sext, b3[1], a3);
     get_bnL_design_elem(b3_fam[0], 1, Sext, b3L[0], a3L);
@@ -672,21 +659,18 @@ int main(int argc, char *argv[])
     printf("\n%s = %10.5f (%10.5f), %s = %10.5f (%10.5f)\n",
 	   s_fam[0].c_str(), b3[0], b3L[0], s_fam[1].c_str(), b3[1], b3L[1]);
 
-    Lattice.Ring_GetTwiss(true, 0e0); printglob();
+    Ring_GetTwiss(true, 0e0); printglob();
   }
 
-  Lattice.prtmfile("flat_file.fit");
+  prtmfile("flat_file.fit");
 
   if (false) {
-    Lattice.param.Cavity_on = false; Lattice.param.radiation = false;
+    globval.Cavity_on = false; globval.radiation = false;
 
-    C =
-      static_cast<CavityType*>
-      (Lattice.Cell[Lattice.Elem_GetPos(Lattice.Elem_Index("cav"), 1)]);
-    f_rf = C->freq;
+    f_rf = Cell[Elem_GetPos(ElemIndex("cav"), 1)].Elem.C->Pfreq;
     printf("\nf_rf = %10.3e\n", f_rf);
 
-    Lattice.param.Cavity_on = true;
+    globval.Cavity_on = true;
     // Synchro-betatron resonance for "101pm_above_coupres_tracy.lat".
     // track("track.out", 2.6e-3, 0e0, 1e-6, 0e0, 0e0, n_turn, lastn, lastpos,
     // 	  0, 0*f_rf);
@@ -697,13 +681,13 @@ int main(int argc, char *argv[])
     // 	  0, f_rf);
 
     // lattice/101pm_s7o7_a_tracy.lat.
-    Lattice.track("track.out", 5.5e-3, 0e0, 1e-6, 0e0, 0e0, n_turn,
-		  lastn, lastpos, 0, 0*f_rf);
+    track("track.out", 5.5e-3, 0e0, 1e-6, 0e0, 0e0, n_turn, lastn, lastpos,
+    	  0, 0*f_rf);
   }
 
   if (true) {
-    Lattice.param.Cavity_on = true;
-    Lattice.get_dynap(delta, 25, n_turn, false);
+    globval.Cavity_on = true;
+    get_dynap(delta, 25, n_turn, false);
   }
 
 }
