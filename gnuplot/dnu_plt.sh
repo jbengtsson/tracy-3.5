@@ -7,7 +7,7 @@ gnuplot << EOP
 
 N = $prm1; ps = $prm2; case = $prm3; pert = 0;
 
-# MAX-VI: 1, SLS-2: 2, DIAMOND-II: 4-BA 3, 6-BA 4, 8-BA 5, DIAMOND: 6.
+# MAX-VI: 1, SLS-2: 2, DIAMOND-II: 4-BA 3, 6-BA 4, DIAMOND: 5, DELTA: 6.
 
 f_s = 24; l_w = 2;
 if (ps == 0) \
@@ -34,9 +34,9 @@ else if ((N == 1) && (case == 3)) \
 else if ((N == 1) && (case == 4)) \
   N_x = 58; N_y = 21; \
 else if ((N == 1) && (case == 5)) \
-  N_x = 56; N_y = 22; \
-else if ((N == 1) && (case == 6)) \
   N_x = 28; N_y = 13; \
+else if ((N == 1) && (case == 6)) \
+  N_x = 8; N_y = 3; \
 else if (N == 12) \
   N_x = 3; N_y = 1; \
 else if (N == 20) \
@@ -45,9 +45,7 @@ else if ((N == 6) && (case == 3)) \
   N_x = 8; N_y = 2; \
 else if ((N == 6) && (case == 4)) \
   N_x = 9; N_y = 3; \
-else if ((N == 6) && (case == 5)) \
-  N_x = 9; N_y = 3; \
-else if ((N == 24) && (case == 6)) \
+else if ((N == 24) && (case == 4)) \
   N_x = 2; N_y = 0;
 
 if (case == 1) \
@@ -59,8 +57,6 @@ else if (case == 3) \
 else if (case == 4) \
   x_min = 58.0; x_max = 58.5; y_min = 21.0; y_max = 21.5; \
 else if (case == 5) \
-  x_min = 56.5; x_max = 57.0; y_min = 22.0; y_max = 22.5; \
-else if (case == 6) \
   x_min = 28.0; x_max = 28.5; y_min = 13.0; y_max = 13.5;
 
 # left adjusted labels
