@@ -479,7 +479,7 @@ int main(int argc, char *argv[])
   // 1: DIAMOND, 3: Oleg I, 4: Oleg II.
   FieldMap_filetype = 1; sympl = false;
 
-  if (false)
+  if (true)
     Read_Lattice(argv[1]);
   else
     rdmfile(argv[1]);
