@@ -67,13 +67,6 @@ SB:  sextupole, L = 0.0, K = -0*0.15/2, N = 1, Method = Meth;
 SB1: sextupole, L = 0.0, K = -0*0.04/2, N = 1, Method = Meth;
 SB2: sextupole, L = 0.0, K = -0*0.02/2, N = 1, Method = Meth;
 
-S1:  sextupole, L = 0.0, K =  0.0,    N = 1, Method = Meth;
-S2:  sextupole, L = 0.0, K =  0.0,    N = 1, Method = Meth;
-
-{SN1: sextupole, L = 0.0, K =  0.0,    N = 1, Method = Meth;
-SN2: sextupole, L = 0.0, K =  0.0,    N = 1, Method = Meth;
-SS2: sextupole, L = 0.0, K =  0.0,    N = 1, Method = Meth;}
-
 { del008: }
 {SF1: sextupole, L = 0.0, K =  0.0,    N = 1, Method = Meth;
 SF2: sextupole, L = 0.0, K =  2.68/2, N = 1, Method = Meth;
@@ -96,28 +89,6 @@ SD2: sextupole, L = 0.0, K = -3.75/2, N = 1, Method = Meth;
 SS3: sextupole, L = 0.0, K =  2.12/2, N = 1, Method = Meth;
 SS4: sextupole, L = 0.0, K = -4.22/2, N = 1, Method = Meth;}
 
-{sf1:  sextupole, L = 0.0,  K =  0.90907, N = 1, Method = Meth;
-sf2:  sextupole, L = 0.0,  K =  2.56224, N = 1, Method = Meth;
-sf3:  sextupole, L = 0.0,  K =  0.50772, N = 1, Method = Meth;
-
-sd1:  sextupole, L = 0.0,  K = -2.86243, N = 1, Method = Meth;
-sd2:  sextupole, L = 0.0,  K = -2.15051, N = 1, Method = Meth;
-
-ss3:  sextupole, L = 0.0,  K =  0.92772, N = 1, Method = Meth;
-ss4:  sextupole, L = 0.0,  K = -1.58598, N = 1, Method = Meth;}
-
-{ Symmetric solution. }
-sf1:  sextupole, L = 0.0,  K =  1.58359, N = 1, Method = Meth;
-sf2:  sextupole, L = 0.0,  K =  1.07390, N = 1, Method = Meth;
-sf3:  sextupole, L = 0.0,  K =  1.05130, N = 1, Method = Meth;
-
-sd1:  sextupole, L = 0.0,  K = -2.55628, N = 1, Method = Meth;
-sd2:  sextupole, L = 0.0,  K = -1.36112, N = 1, Method = Meth;
-
-ss3:  sextupole, L = 0.0,  K =  1.55072, N = 1, Method = Meth;
-ss4:  sextupole, L = 0.0,  K = -1.82453, N = 1, Method = Meth;
-
-{ Nonsymmetric solution. }
 sf1:  sextupole, L = 0.0,  K =  1.27490, N = 1, Method = Meth;
 sf2:  sextupole, L = 0.0,  K =  1.77996, N = 1, Method = Meth;
 sf3:  sextupole, L = 0.0,  K =  0.34763, N = 1, Method = Meth;
