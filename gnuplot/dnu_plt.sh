@@ -7,7 +7,7 @@ gnuplot << EOP
 
 N = $prm1; ps = $prm2; case = $prm3; pert = 0;
 
-# MAX-VI: 1, SLS-2: 2, DIAMOND-II: 4-BA 3, 6-BA 4, DIAMOND: 5, DELTA: 6.
+# MAX-VI 1, SLS-2 2, DIAMOND-II 4-BA 3, 6-BA 4, 8-BA 5, DIAMOND: 6, DELTA: 7.
 
 f_s = 24; l_w = 2;
 if (ps == 0) \
@@ -34,9 +34,11 @@ else if ((N == 1) && (case == 3)) \
 else if ((N == 1) && (case == 4)) \
   N_x = 58; N_y = 21; \
 else if ((N == 1) && (case == 5)) \
-  N_x = 28; N_y = 13; \
+  N_x = 56; N_y = 22; \
 else if ((N == 1) && (case == 6)) \
-  N_x = 9; N_y = 3; \
+  N_x = 28; N_y = 13; \
+else if ((N == 1) && (case == 7)) \
+  N_x = 8; N_y = 3; \
 else if (N == 12) \
   N_x = 3; N_y = 1; \
 else if (N == 20) \
@@ -44,6 +46,8 @@ else if (N == 20) \
 else if ((N == 6) && (case == 3)) \
   N_x = 8; N_y = 2; \
 else if ((N == 6) && (case == 4)) \
+  N_x = 9; N_y = 3; \
+else if ((N == 6) && (case == 5)) \
   N_x = 9; N_y = 3; \
 else if ((N == 24) && (case == 4)) \
   N_x = 2; N_y = 0;
