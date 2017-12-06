@@ -89,6 +89,7 @@ SD2: sextupole, L = 0.0, K = -3.75/2, N = 1, Method = Meth;
 SS3: sextupole, L = 0.0, K =  2.12/2, N = 1, Method = Meth;
 SS4: sextupole, L = 0.0, K = -4.22/2, N = 1, Method = Meth;}
 
+{ jb_2_2_3_mod: }
 sf1:  sextupole, L = 0.0,  K =  1.27490, N = 1, Method = Meth;
 sf2:  sextupole, L = 0.0,  K =  1.77996, N = 1, Method = Meth;
 sf3:  sextupole, L = 0.0,  K =  0.34763, N = 1, Method = Meth;
