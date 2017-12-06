@@ -8,7 +8,7 @@ prm4=${4-1}
 gnuplot << EOP
 
 N = $prm1; ps = $prm2; case  = $prm3; scale = $prm4;
-#MAX-VI: 1, SLS-2: 2, DIAMOND-II: 4-BA 3, 6-BA 4, 8-BA 5, DIAMOND: 6.
+#MAX-VI: 1, SLS-2: 2, DIAMOND-II: 4-BA 3, 6-BA 4, 8-BA 5, DIAMOND: 6, DELTA 7.
 
 f_s = 24; l_w = 2;
 if (ps == 0) \
@@ -39,6 +39,8 @@ else if ((N == 1) && (case == 5)) \
   N_x = 56; N_y = 22; \
 else if ((N == 1) && (case == 6)) \
   N_x = 28; N_y = 13; \
+else if ((N == 1) && (case == 7)) \
+  N_x = 9; N_y = 3; \
 else if (N == 20) \
   N_x = 5; N_y = 3; \
 else if ((N == 6) && (case == 3)) \
@@ -46,9 +48,9 @@ else if ((N == 6) && (case == 3)) \
 else if ((N == 6) && (case == 4)) \
   N_x = 10; N_y = 4; sgn_x = -1; sgn_y = -1; \
 else if ((N == 6) && (case == 5)) \
-  N_x = 9; N_y = 4; sgn_x = 1; sgn_y = -1; \
+  N_x = 9; N_y = 4; sgn_y = -1; \
 else if ((N == 24) && (case == 6)) \
-  N_x = 2; N_y = 0; sgn_x = 1; sgn_y = -1;
+  N_x = 2; N_y = 0; sgn_y = -1;
 
 if (case == 1) \
   nu_x_min = 102.0; nu_x_max = 102.5; nu_y_min = 68.0; nu_y_max = 68.5; \
@@ -73,6 +75,10 @@ else if (case == 5) \
 else if (case == 6) \
   nu_x_min = 28.0; nu_x_max = 28.5; nu_y_min = 13.0; nu_y_max = 13.5; \
   x_min = -15.0; x_max = 15.0; y_min = -10.0; y_max = 10.0; \
+  delta_min = -2.6; delta_max = 2.6; \
+else if (case == 7) \
+  nu_x_min = 9.1; nu_x_max = 9.3; nu_y_min = 3.2; nu_y_max = 3.4; \
+  x_min = -35.0; x_max = 35.0; y_min = -6.0; y_max = 6.0; \
   delta_min = -2.6; delta_max = 2.6;
 
 set grid;

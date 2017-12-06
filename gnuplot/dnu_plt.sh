@@ -36,7 +36,7 @@ else if ((N == 1) && (case == 4)) \
 else if ((N == 1) && (case == 5)) \
   N_x = 28; N_y = 13; \
 else if ((N == 1) && (case == 6)) \
-  N_x = 8; N_y = 3; \
+  N_x = 9; N_y = 3; \
 else if (N == 12) \
   N_x = 3; N_y = 1; \
 else if (N == 20) \
