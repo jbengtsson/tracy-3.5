@@ -284,7 +284,7 @@ EQ03: quadrupole, l = 0.234, k = -1.86341, N = Nquad, Method = Meth;
 EQ04: quadrupole, l = 0.234, k =  3.36380, N = Nquad, Method = Meth;
 EQ05: quadrupole, l = 0.234, k = -1.58707, N = Nquad, Method = Meth;
 
-D_Q01_L  =  0.0;
+{D_Q01_L  =  0.0;
 D_Q02_L  =  0.0;
 D_Q03_L  =  0.0;
 
@@ -317,19 +317,19 @@ DU_EQ05: drift, L =  D_EQ05_L;
 DD_EQ05: drift, L = -D_EQ05_L;
 
 DU_B10:  drift, L =  D_B10_L;
-DD_B10:  drift, L = -D_B10_L;
+DD_B10:  drift, L = -D_B10_L;}
 
-QQ01: DU_Q01, Q01;
-QQ02: DU_Q02, Q02;
-QQ03: DU_Q03, Q03, DD_Q03, DD_Q02, DD_Q01;
+QQ01: {DU_Q01,} Q01};
+QQ02: {DU_Q02,} Q02};
+QQ03: {DU_Q03,} Q03{, DD_Q03, DD_Q02, DD_Q01};
 
-BB10:  DU_B10, B10;
-EEQ01: DU_EQ01, EQ01;
-EEQ02: DU_EQ02, EQ02, DD_EQ02, DD_EQ01, DD_B10;
+BB10:  {DU_B10,} B10;
+EEQ01: {DU_EQ01,} EQ01;
+EEQ02: {DU_EQ02,} EQ02{, DD_EQ02, DD_EQ01, DD_B10};
 
-EEQ03: DU_EQ03, EQ03;
-EEQ04: DU_EQ04, EQ04;
-EEQ05: DU_EQ05, EQ05, DD_EQ05, DD_EQ04, DD_EQ03;
+EEQ03: {DU_EQ03,} EQ03;
+EEQ04: {DU_EQ04,} EQ04;
+EEQ05: {DU_EQ05,} EQ05{, DD_EQ05, DD_EQ04, DD_EQ03};
 
 U561: drift, L = 1.07;
 U562: drift, L = 1.07;
