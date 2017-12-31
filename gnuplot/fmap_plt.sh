@@ -40,7 +40,7 @@ else if ((N == 1) && (case == 5)) \
 else if ((N == 1) && (case == 6)) \
   N_x = 28; N_y = 13; \
 else if ((N == 1) && (case == 7)) \
-  N_x = 9; N_y = 3; \
+  N_x = 9; N_y = 4; sgn_x = -1; sgn_y = -1; \
 else if (N == 20) \
   N_x = 5; N_y = 3; \
 else if ((N == 6) && (case == 3)) \
@@ -77,7 +77,7 @@ else if (case == 6) \
   x_min = -15.0; x_max = 15.0; y_min = -10.0; y_max = 10.0; \
   delta_min = -2.6; delta_max = 2.6; \
 else if (case == 7) \
-  nu_x_min = 9.1; nu_x_max = 9.3; nu_y_min = 3.2; nu_y_max = 3.4; \
+  nu_x_min = 8.5; nu_x_max = 8.9; nu_y_min = 3.5; nu_y_max = 3.6; \
   x_min = -35.0; x_max = 35.0; y_min = -6.0; y_max = 6.0; \
   delta_min = -2.6; delta_max = 2.6;
 
