@@ -191,10 +191,11 @@ bool LatticeType::Cell_getCOD(const long imax, const double eps,
     x0[delta_] = 0e0; x0[ct_] = 0e0;
   } else {
     // or eta*dP for 2 1/2 D.O.F.
-    x0[x_] = Lattice.Cell[0]->Eta[X_]*dP;
-    x0[px_] = Lattice.Cell[0]->Etap[X_]*dP;
-    x0[y_] = Lattice.Cell[0]->Eta[Y_]*dP;
-    x0[py_] = Lattice.Cell[0]->Etap[Y_]*dP;
+    // x0[x_] = Lattice.Cell[0]->Eta[X_]*dP;
+    // x0[px_] = Lattice.Cell[0]->Etap[X_]*dP;
+    // x0[y_] = Lattice.Cell[0]->Eta[Y_]*dP;
+    // x0[py_] = Lattice.Cell[0]->Etap[Y_]*dP;
+    x0[x_] = 0e0; x0[px_] = 0e0; x0[y_] = 0e0; x0[py_] = 0e0;
     x0[delta_] = dP; x0[ct_] = 0e0;
   }
 
@@ -204,6 +205,9 @@ bool LatticeType::Cell_getCOD(const long imax, const double eps,
   if (trace) {
     std::cout << std::endl;
     std::cout << "Cell_getCOD:" << std::endl;
+    std::cout << std::scientific << std::setprecision(5)
+	      << "  0                        x0 ="
+	      << std::setw(13) << x0 << std::endl;
   }
   n_iter = 0; I.identity();
   do {

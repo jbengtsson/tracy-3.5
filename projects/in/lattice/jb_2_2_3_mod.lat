@@ -58,6 +58,7 @@ QD03: quadrupole, L = 0.117, K = -2.32178, N = Nquad, Method = Meth;
 QD04: quadrupole, L = 0.117, K = -2.43748, N = Nquad, Method = Meth;
 {QD041: quadrupole, L = 0.117, K = -2.43748, N = Nquad, Method = Meth;}
 
+{ nu = [8.65, 3.55].}
 QF031: quadrupole, l = 0.217, k =  3.39473, N = Nquad, Method = Meth;
 QD041: quadrupole, l = 0.117, k = -2.05847, N = Nquad, Method = Meth;
 
