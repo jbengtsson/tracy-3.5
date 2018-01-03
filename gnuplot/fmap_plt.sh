@@ -132,8 +132,10 @@ i11    = floor(nu_x_min+nu_y_max);
 i1m1_1 = floor(nu_x_min-nu_y_min);
 i1m1_2 = floor(nu_x_min-nu_y_min) - 1.0;
 
-i30_1  = floor(nu_x_min) + 2.0/3.0;
-i30_2  = floor(nu_x_min) + 4.0/3.0;
+i30_1  = floor(nu_x_min) + 1.0/3.0;
+i30_2  = floor(nu_x_min) + 2.0/3.0;
+i30_3  = floor(nu_x_min) + 3.0/3.0;
+i30_4  = floor(nu_x_min) + 4.0/3.0;
 i12_1  = floor(nu_x_min+2*nu_y_max) - 2.0;
 i12_2  = floor(nu_x_min+2*nu_y_max) - 1.0;
 i12_3  = floor(nu_x_min+2*nu_y_max);
@@ -228,6 +230,8 @@ splot "fmap.out" using \
                                                               \
       i30_1, v,                  1.0 notitle with lines ls 1, \
       i30_2, v,                  1.0 notitle with lines ls 1, \
+      i30_3, v,                  1.0 notitle with lines ls 1, \
+      i30_4, v,                  1.0 notitle with lines ls 1, \
       u,     (i12_1-u)/2.0,      1.0 notitle with lines ls 1, \
       u,     (i12_2-u)/2.0,      1.0 notitle with lines ls 1, \
       u,     (i12_3-u)/2.0,      1.0 notitle with lines ls 1, \
@@ -361,6 +365,8 @@ splot "fmapdp.out" using \
                                                               \
       i30_1, v,                  1.0 notitle with lines ls 1, \
       i30_2, v,                  1.0 notitle with lines ls 1, \
+      i30_3, v,                  1.0 notitle with lines ls 1, \
+      i30_4, v,                  1.0 notitle with lines ls 1, \
       u,     (i12_1-u)/2.0,      1.0 notitle with lines ls 1, \
       u,     (i12_2-u)/2.0,      1.0 notitle with lines ls 1, \
       u,     (i12_3-u)/2.0,      1.0 notitle with lines ls 1, \
