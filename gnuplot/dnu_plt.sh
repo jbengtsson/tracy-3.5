@@ -125,6 +125,8 @@ plot "chrom2.out" using 1:(N*\$2) title "{/Symbol n}_x" with lines ls 1, \
      with lines ls 3;
 if (!ps) pause mouse "click on graph to cont.\n";
 
+exit;
+
 if (ps) set output "dnu_4.".(ext);
 
 #set origin 0.5, 0.0;
