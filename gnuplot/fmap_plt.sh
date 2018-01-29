@@ -11,6 +11,9 @@ gnuplot << EOP
 home_dir = "$prm1"; N = $prm2; ps = $prm3; case  = $prm4; scale = $prm5;
 #MAX-VI: 1, SLS-2: 2, DIAMOND-II: 4-BA 3, 6-BA 4, 8-BA 5, DIAMOND: 6, DELTA 7.
 
+# Only works for postscript terminal.
+#set fontpath "/usr/share/fonts/msttcore"
+
 f_s = 24; l_w = 2;
 if (ps == 0) \
   set terminal x11; \
@@ -24,8 +27,10 @@ else if (ps == 3) \
   set terminal pdf enhanced color solid lw l_w font "Times-Roman f_s"; \
   ext = "pdf"; \
 else if (ps == 4) \
-  set term pngcairo enhanced color solid lw l_w font "Times-Roman f_s"; \
+  set term png enhanced; \
   ext = "png";
+# set term pngcairo enhanced color solid lw l_w font "Times-Roman f_s"; \
+
 
 sgn_x = 1; sgn_y = 1;
 if ((N == 1) && (case == 1)) \
@@ -201,6 +206,7 @@ i33    = floor(3.0*nu_x_min+3.0*nu_y_max) + 1;
 set urange [nu_x_min:nu_x_max]; set vrange [nu_y_min:nu_y_max];
 
 if (ps) set output (home_dir)."fmap_1.".(ext);
+#if (ps) set output "| display png:-";
 
 #set multiplot;
 
