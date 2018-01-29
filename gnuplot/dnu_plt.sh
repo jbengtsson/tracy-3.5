@@ -23,7 +23,10 @@ else if (ps == 3) \
   ext = "pdf"; \
 else if (ps == 4) \
   set term pngcairo enhanced color solid lw l_w font "Times-Roman f_s"; \
-  ext = "png";
+  ext = "png"; \
+else if (ps == 5) \
+  set term svg enhanced font "Times-Roman,f_s"; \
+  ext = "svg";
 
 if ((N == 1) && (case == 1)) \
   N_x = 102; N_y = 68; \

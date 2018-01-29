@@ -27,9 +27,11 @@ else if (ps == 3) \
   set terminal pdf enhanced color solid lw l_w font "Times-Roman f_s"; \
   ext = "pdf"; \
 else if (ps == 4) \
-  set term png enhanced; \
-  ext = "png";
-# set term pngcairo enhanced color solid lw l_w font "Times-Roman f_s"; \
+  set term pngcairo enhanced color solid lw l_w font "Times-Roman f_s"; \
+  ext = "png"; \
+else if (ps == 5) \
+  set term svg enhanced font "Times-Roman,f_s"; \
+  ext = "svg";
 
 
 sgn_x = 1; sgn_y = 1;
