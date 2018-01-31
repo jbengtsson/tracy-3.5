@@ -8,9 +8,14 @@ gnuplot << EOP
 
 home_dir = "$prm1"; N = $prm2; ps = $prm3; case = $prm4; pert = 0;
 
-print home_dir
-
 # MAX-VI 1, SLS-2 2, DIAMOND-II 4-BA 3, 6-BA 4, 8-BA 5, DIAMOND: 6, DELTA: 7.
+
+file1  = (home_dir)."/dnu_dAx.out";
+file12 = (home_dir)."/dnu_dAx_pert.out"
+file2  = (home_dir)."/dnu_dAy.out";
+file22 = (home_dir)."/dnu_dAy_pert.out";
+file3  = (home_dir)."/chrom2.out";
+file4  = (home_dir)."/fmap_est.dat";
 
 f_s = 24; l_w = 2;
 if (ps == 0) \
@@ -83,7 +88,7 @@ set clabel "%5.2f"; set key left;
 
 set palette rgbformulae 22, 13, -31 negative;
 
-if (ps) set output (home_dir)."dnu_1.".(ext);
+if (ps) set output (home_dir)."/dnu_1.".(ext);
 
 #set multiplot;
 
@@ -91,49 +96,44 @@ if (ps) set output (home_dir)."dnu_1.".(ext);
 set title "{/Symbol n}_x vs. A_{x,y}";
 set xlabel "A_{x,y} [mm]"; set ylabel "{/Symbol n}_x";
 if (!pert) \
-  plot "dnu_dAx.out" using 1:(N*(N_x+\$5)) title "A_x" with lines ls 1, \
-       "dnu_dAy.out" using 2:(N*(N_x+\$5)) title "A_y" with lines ls 3; \
+  plot file1 using 1:(N*(N_x+\$5)) title "A_x" with lines ls 1, \
+       file2 using 2:(N*(N_x+\$5)) title "A_y" with lines ls 3; \
 else \
-  plot "dnu_dAx.out" using 1:(N*(N_x+\$5)) title "A_x" with lines ls 1, \
-       "dnu_dAy.out" using 2:(N*(N_x+\$5)) title "A_y" with lines ls 3, \
-       "dnu_dAx_pert.out" using 1:(N*(N_x+\$3)) title "A_x (pert)" \
-       with lines ls 2, \
-       "dnu_dAy_pert.out" using 2:(N*(N_x+\$3)) title "A_y (pert)" \
-       with lines ls 4;
+  plot file1 using 1:(N*(N_x+\$5)) title "A_x" with lines ls 1, \
+       file2 using 2:(N*(N_x+\$5)) title "A_y" with lines ls 3, \
+       file11 using 1:(N*(N_x+\$3)) title "A_x (pert)" with lines ls 2, \
+       file22 using 2:(N*(N_x+\$3)) title "A_y (pert)" with lines ls 4;
 if (!ps) pause mouse "click on graph to cont.\n";
 
-if (ps) set output (home_dir)."dnu_2.".(ext);
+if (ps) set output (home_dir)."/dnu_2.".(ext);
 
 #set origin 0.0, 0.0;
 set title "{/Symbol n}_y vs. A_{x,y}";
 set xlabel "A_{x,y} [mm]"; set ylabel "{/Symbol n}_y"; \
 if (!pert) \
-  plot "dnu_dAx.out" using 1:(N*(N_y+\$6)) title "A_x" with lines ls 1, \
-       "dnu_dAy.out" using 2:(N*(N_y+\$6)) title "A_y" with lines ls 3; \
+  plot file1 using 1:(N*(N_y+\$6)) title "A_x" with lines ls 1, \
+       file1 using 2:(N*(N_y+\$6)) title "A_y" with lines ls 3; \
 else \
-  plot "dnu_dAx.out" using 1:(N*(N_y+\$6)) title "A_x" with lines ls 1, \
-       "dnu_dAy.out" using 2:(N*(N_y+\$6)) title "A_y" with lines ls 3, \
-       "dnu_dAx_pert.out" using 1:(N*(N_y+\$4)) title "A_x (pert)" \
-       with lines ls 2, \
-       "dnu_dAy_pert.out" using 2:(N*(N_y+\$4)) title "A_y (pert)" \
-       with lines ls 4;
+  plot file1 using 1:(N*(N_y+\$6)) title "A_x" with lines ls 1, \
+       file2 using 2:(N*(N_y+\$6)) title "A_y" with lines ls 3, \
+       file12 using 1:(N*(N_y+\$4)) title "A_x (pert)" with lines ls 2, \
+       file22 using 2:(N*(N_y+\$4)) title "A_y (pert)" with lines ls 4;
 if (!ps) pause mouse "click on graph to cont.\n";
 
-if (ps) set output (home_dir)."dnu_3.".(ext);
+if (ps) set output (home_dir)."/dnu_3.".(ext);
 
 #set origin 0.5, 0.5;
 set title "Chromaticity";
 set xlabel "{/Symbol d} [%]"; set ylabel "{/Symbol n}_x";
 set y2label "{/Symbol n}_y";
 set ytics nomirror; set y2tics;
-plot "chrom2.out" using 1:(N*\$2) title "{/Symbol n}_x" with lines ls 1, \
-     "chrom2.out" using 1:(N*\$3) axis x1y2 title "{/Symbol n}_y" \
-     with lines ls 3;
+plot file3 using 1:(N*\$2) title "{/Symbol n}_x" with lines ls 1, \
+     file3 using 1:(N*\$3) axis x1y2 title "{/Symbol n}_y" with lines ls 3;
 if (!ps) pause mouse "click on graph to cont.\n";
 
 exit;
 
-if (ps) set output (home_dir)."dnu_4.".(ext);
+if (ps) set output (home_dir)."/dnu_4.".(ext);
 
 #set origin 0.5, 0.0;
 
@@ -244,9 +244,9 @@ i33    = floor(3.0*x_min+3.0*y_max) + 1;
 set xrange [x_min:x_max]; set yrange [y_min:y_max]; set zrange [0:1];
 set urange [x_min:x_max]; set vrange [y_min:y_max];
 
-splot "fmapdp_est.dat" using (N*(\$3+N_x)):(N*(\$4+N_y)):5 notitle \
+splot file4 using (N*(\$3+N_x)):(N*(\$4+N_y)):5 notitle \
       with points pt 2 lc rgb "blue" ps 0.5,\
-      "fmap_est.dat" using (N*(\$3+N_x)):(N*(\$4+N_y)):5 notitle \
+      file4 using (N*(\$3+N_x)):(N*(\$4+N_y)):5 notitle \
       with points pt 1 lc rgb "red" ps 0.5, \
       i10,   v,                  1.0 notitle with lines ls 1, \
       u,     i01_1,              1.0 notitle with lines ls 1, \

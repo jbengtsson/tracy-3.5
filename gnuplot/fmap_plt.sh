@@ -11,6 +11,9 @@ gnuplot << EOP
 home_dir = "$prm1"; N = $prm2; ps = $prm3; case  = $prm4; scale = $prm5;
 #MAX-VI: 1, SLS-2: 2, DIAMOND-II: 4-BA 3, 6-BA 4, 8-BA 5, DIAMOND: 6, DELTA 7.
 
+file1 = (home_dir)."/fmap.out";
+file2 = (home_dir)."/fmapdp.out";
+
 # Only works for postscript terminal.
 #set fontpath "/usr/share/fonts/msttcore"
 
@@ -207,7 +210,7 @@ i33    = floor(3.0*nu_x_min+3.0*nu_y_max) + 1;
 
 set urange [nu_x_min:nu_x_max]; set vrange [nu_y_min:nu_y_max];
 
-if (ps) set output (home_dir)."fmap_1.".(ext);
+if (ps) set output (home_dir)."/fmap_1.".(ext);
 #if (ps) set output "| display png:-";
 
 #set multiplot;
@@ -220,7 +223,7 @@ set colorbox;
 set title "Tune Shift";
 set xlabel "{/Symbol n}_x"; set ylabel "{/Symbol n}_y";
 if (scale) set xrange [nu_x_min:nu_x_max]; set yrange [nu_y_min:nu_y_max]; 
-splot (home_dir)."fmap.out" using \
+splot file1 using \
       ((abs(\$3-int(\$3)) > 1e-6)? N*(N_x+sgn_x*\$3) : NaN): \
       ((abs(\$4-int(\$4)) > 1e-6)? N*(N_y+sgn_y*\$4) : NaN):7 \
       notitle w points pt 13 lt palette z, \
@@ -301,7 +304,7 @@ splot (home_dir)."fmap.out" using \
 
 if (!ps) pause mouse "click on graph to cont.\n";
 
-if (ps) set output (home_dir)."fmap_2.".(ext);
+if (ps) set output (home_dir)."/fmap_2.".(ext);
 
 set pm3d at b map;
 #set contour;
@@ -311,7 +314,7 @@ set pm3d at b map;
 set title "Diffusion Map";
 set xlabel "A_x"; set ylabel "A_y";
 if (scale) set xrange [x_min:x_max]; set yrange [y_min:y_max];
-splot (home_dir)."fmap.out" using 1:2:((\$7 != -2.0)? \$7 : NaN) notitle lt palette z;
+splot file1 using 1:2:((\$7 != -2.0)? \$7 : NaN) notitle lt palette z;
 
 #unset multiplot;
 if (!ps) pause mouse "click on graph to cont.\n";
@@ -342,7 +345,7 @@ set parametric;
 
 set urange [nu_x_min:nu_x_max]; set vrange [nu_y_min:nu_y_max];
 
-if (ps) set output (home_dir)."fmap_3.".(ext);
+if (ps) set output (home_dir)."/fmap_3.".(ext);
 
 #set multiplot;
 
@@ -355,7 +358,7 @@ set colorbox;
 set title "Tune Shift";
 set xlabel "{/Symbol n}_x"; set ylabel "{/Symbol n}_y";
 if (scale) set xrange [nu_x_min:nu_x_max]; set yrange [nu_y_min:nu_y_max];
-splot (home_dir)."fmapdp.out" using \
+splot file2 using \
       ((abs(\$3-int(\$3)) > 1e-6)? N*(N_x+sgn_x*\$3) : NaN): \
       ((abs(\$4-int(\$4)) > 1e-6)? N*(N_y+sgn_y*\$4) : NaN):7 \
       notitle w points pt 13 lt palette z, \
@@ -436,7 +439,7 @@ splot (home_dir)."fmapdp.out" using \
 
 if (!ps) pause mouse "click on graph to cont.\n";
 
-if (ps) set output (home_dir)."fmap_4.".(ext);
+if (ps) set output (home_dir)."/fmap_4.".(ext);
 
 set pm3d at b map;
 #unset colorbox;
@@ -445,7 +448,7 @@ set pm3d at b map;
 set title "Diffusion Map";
 set xlabel "{/Symbol d} [%]"; set ylabel "A_x";
 if (scale) set xrange [delta_min:delta_max]; set yrange [x_min:x_max];
-splot (home_dir)."fmapdp.out" using 1:2:((\$7 != -2.0)? \$7 : NaN) notitle lt palette z;
+splot file2 using 1:2:((\$7 != -2.0)? \$7 : NaN) notitle lt palette z;
 
 #unset multiplot;
 if (!ps) pause mouse "click on graph to cont.\n";
