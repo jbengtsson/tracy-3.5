@@ -10,12 +10,12 @@ home_dir = "$prm1"; N = $prm2; ps = $prm3; case = $prm4; pert = 0;
 
 # MAX-VI 1, SLS-2 2, DIAMOND-II 4-BA 3, 6-BA 4, 8-BA 5, DIAMOND: 6, DELTA: 7.
 
-file1  = (home_dir)."/dnu_dAx.out";
-file12 = (home_dir)."/dnu_dAx_pert.out"
-file2  = (home_dir)."/dnu_dAy.out";
-file22 = (home_dir)."/dnu_dAy_pert.out";
-file3  = (home_dir)."/chrom2.out";
-file4  = (home_dir)."/fmap_est.dat";
+file1  = (home_dir)."dnu_dAx.out";
+file12 = (home_dir)."dnu_dAx_pert.out"
+file2  = (home_dir)."dnu_dAy.out";
+file22 = (home_dir)."dnu_dAy_pert.out";
+file3  = (home_dir)."chrom2.out";
+file4  = (home_dir)."fmap_est.dat";
 
 f_s = 24; l_w = 2;
 if (ps == 0) \
