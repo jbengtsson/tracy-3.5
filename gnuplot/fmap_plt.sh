@@ -11,8 +11,8 @@ gnuplot << EOP
 home_dir = "$prm1"; N = $prm2; ps = $prm3; case  = $prm4; scale = $prm5;
 #MAX-VI: 1, SLS-2: 2, DIAMOND-II: 4-BA 3, 6-BA 4, 8-BA 5, DIAMOND: 6, DELTA 7.
 
-file1 = (home_dir)."/fmap.out";
-file2 = (home_dir)."/fmapdp.out";
+file1 = (home_dir)."fmap.out";
+file2 = (home_dir)."fmapdp.out";
 
 # Only works for postscript terminal.
 #set fontpath "/usr/share/fonts/msttcore"
