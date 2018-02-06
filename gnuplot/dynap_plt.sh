@@ -9,9 +9,9 @@ gnuplot << EOP
 home_dir = "$prm1"; ps = $prm2; delta = sprintf("%3.1f", $prm3);
 norm = 0; mom_aper = 1; phys_app = 0;
 
-file1 = (home_dir)."/dynap.out";
-file2 = (home_dir)."/dynap_dp".delta.".out";
-file3 = (home_dir)."/dynap_dp-".delta.".out";
+file1 = (home_dir)."dynap.out";
+file2 = (home_dir)."dynap_dp".delta.".out";
+file3 = (home_dir)."dynap_dp-".delta.".out";
 
 f_s = 24; l_w = 2;
 if (ps == 0) \
