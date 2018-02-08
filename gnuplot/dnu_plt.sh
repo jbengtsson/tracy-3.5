@@ -88,7 +88,7 @@ set clabel "%5.2f"; set key left;
 
 set palette rgbformulae 22, 13, -31 negative;
 
-if (ps) set output (home_dir)."/dnu_1.".(ext);
+if (ps) set output (home_dir)."dnu_1.".(ext);
 
 #set multiplot;
 
@@ -105,7 +105,7 @@ else \
        file22 using 2:(N*(N_x+\$3)) title "A_y (pert)" with lines ls 4;
 if (!ps) pause mouse "click on graph to cont.\n";
 
-if (ps) set output (home_dir)."/dnu_2.".(ext);
+if (ps) set output (home_dir)."dnu_2.".(ext);
 
 #set origin 0.0, 0.0;
 set title "{/Symbol n}_y vs. A_{x,y}";
@@ -120,7 +120,7 @@ else \
        file22 using 2:(N*(N_y+\$4)) title "A_y (pert)" with lines ls 4;
 if (!ps) pause mouse "click on graph to cont.\n";
 
-if (ps) set output (home_dir)."/dnu_3.".(ext);
+if (ps) set output (home_dir)."dnu_3.".(ext);
 
 #set origin 0.5, 0.5;
 set title "Chromaticity";
@@ -133,7 +133,7 @@ if (!ps) pause mouse "click on graph to cont.\n";
 
 exit;
 
-if (ps) set output (home_dir)."/dnu_4.".(ext);
+if (ps) set output (home_dir)."dnu_4.".(ext);
 
 #set origin 0.5, 0.0;
 

@@ -51,7 +51,7 @@ if (phys_app) \
   set arrow from  x_hat, y_hat to  x_hat,   0.0 nohead \
   lt 1 lw 1 lc rgb "black";
 
-if (ps) set output (home_dir)."/dynap.".(ext);
+if (ps) set output (home_dir)."dynap.".(ext);
 
 if (!norm) \
   set title "Dynamic Aperture (bare lattice)"; \
