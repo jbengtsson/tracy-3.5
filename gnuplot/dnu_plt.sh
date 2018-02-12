@@ -112,7 +112,7 @@ set title "{/Symbol n}_y vs. A_{x,y}";
 set xlabel "A_{x,y} [mm]"; set ylabel "{/Symbol n}_y"; \
 if (!pert) \
   plot file1 using 1:(N*(N_y+\$6)) title "A_x" with lines ls 1, \
-       file1 using 2:(N*(N_y+\$6)) title "A_y" with lines ls 3; \
+       file2 using 2:(N*(N_y+\$6)) title "A_y" with lines ls 3; \
 else \
   plot file1 using 1:(N*(N_y+\$6)) title "A_x" with lines ls 1, \
        file2 using 2:(N*(N_y+\$6)) title "A_y" with lines ls 3, \
