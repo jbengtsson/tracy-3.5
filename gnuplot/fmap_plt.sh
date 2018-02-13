@@ -52,8 +52,10 @@ else if ((N == 1) && (case == 6)) \
   N_x = 28; N_y = 13; \
 else if ((N == 1) && (case == 7)) \
   N_x = 9; N_y = 4; sgn_x = -1; sgn_y = -1; \
-else if (N == 20) \
+else if ((N == 20) && (case == 1)) \
   N_x = 5; N_y = 3; \
+else if ((N == 12) && (case == 2)) \
+  N_x = 3; N_y = 1; \
 else if ((N == 6) && (case == 3)) \
   N_x = 9; N_y = 3; sgn_x = -1; sgn_y = -1; \
 else if ((N == 6) && (case == 4)) \
