@@ -6,7 +6,7 @@
 define lattice;
 energy = 2.400000;
 dp = 1.0d-10;  codeps = 1.0d-6;  dk = 1.0d-6;
-meth = 4; nbend = 10; nquad = 10;
+meth = 4; nbend = 10; nquad = 10; nsext = 2;
 
 {----- variables ----------------------------------------------------}
 
@@ -85,13 +85,31 @@ bn05    : bending, l = 0.053107, t = 0.312495, k = 0.000000,
 bn06    : bending, l = 0.060418, t = 0.312497, k = 0.000000,
           t1 = -1.875004, t2 = 2.187501, n=nbend, method=meth;
 
-sxxh    : sextupole, l = 0.050000, k = 235.717792, n = 3, method=meth;
+{sxxh    : sextupole, l = 0.050000, k = 235.717792, n = 3, method=meth;
 sxyh    : sextupole, l = 0.050000, k = -418.149740, n = 3, method=meth;
 syyh    : sextupole, l = 0.050000, k = 210.529965, n = 3, method=meth;
 sdmh    : sextupole, l = 0.050000, k = -498.317783, n = 3, method=meth;
 sfmh    : sextupole, l = 0.050000, k = 478.486426, n = 3, method=meth;
 sdh     : sextupole, l = 0.050000, k = -311.833925, n = 3, method=meth;
-sfh     : sextupole, l = 0.050000, k = 346.551671, n = 3, method=meth;
+sfh     : sextupole, l = 0.050000, k = 346.551671, n = 3, method=meth;}
+
+{ J.B.: tune_conf/SLS-2/iter_1/0/dnu. }
+{sdmh    : sextupole, l = 0.05000, k = -2.15570e+02, n = nsext, Method = Meth;
+sfmh    : sextupole, l = 0.05000, k =  2.80442e+02, n = nsext, Method = Meth;
+sdh     : sextupole, l = 0.05000, k = -3.71526e+02, n = nsext, Method = Meth;
+sfh     : sextupole, l = 0.05000, k =  4.48049e+02, n = nsext, Method = Meth;
+sxxh    : sextupole, l = 0.05000, k =  8.67175e+01, n = nsext, Method = Meth;
+sxyh    : sextupole, l = 0.05000, k = -2.16964e+02, n = nsext, Method = Meth;
+syyh    : sextupole, l = 0.05000, k =  1.98150e+02, n = nsext, Method = Meth;}
+
+{ J.B.: . }
+sdmh    : sextupole, l = 0.05000, k = -4.59597e+02, n = nsext, Method = Meth;
+sfmh    : sextupole, l = 0.05000, k =  4.52787e+02, n = nsext, Method = Meth;
+sdh     : sextupole, l = 0.05000, k = -3.23504e+02, n = nsext, Method = Meth;
+sfh     : sextupole, l = 0.05000, k =  3.61694e+02, n = nsext, Method = Meth;
+sxxh    : sextupole, l = 0.05000, k =  2.02681e+02, n = nsext, Method = Meth;
+sxyh    : sextupole, l = 0.05000, k = -3.41156e+02, n = nsext, Method = Meth;
+syyh    : sextupole, l = 0.05000, k =  1.43268e+02, n = nsext, Method = Meth;
 
 bsom    : marker;
 bnom    : marker;
@@ -118,12 +136,12 @@ lgbs    : marker;
 lgbn    : marker;
 lgbe    : marker;
 
-oxx     : multipole, l = 0.0, hom = (4,    3.4366, 0);
-oxy     : multipole, l = 0.0, hom = (4,   35.9217, 0);
-oyy     : multipole, l = 0.0, hom = (4,  127.2040, 0);
-ocxm    : multipole, l = 0.0, hom = (4, -136.2927, 0);
-ocx1    : multipole, l = 0.0, hom = (4,   41.4485, 0);
-ocx2    : multipole, l = 0.0, hom = (4,  -74.4525, 0);
+oxx     : multipole, l = 0.0, hom = (4,    0*3.4366, 0);
+oxy     : multipole, l = 0.0, hom = (4,   0*35.9217, 0);
+oyy     : multipole, l = 0.0, hom = (4,  0*127.2040, 0);
+ocxm    : multipole, l = 0.0, hom = (4, -0*136.2927, 0);
+ocx1    : multipole, l = 0.0, hom = (4,   0*41.4485, 0);
+ocx2    : multipole, l = 0.0, hom = (4,  -0*74.4525, 0);
 
 mon     : beam position monitor;
 
@@ -136,7 +154,7 @@ cv      : corrector, vertical;
 
 cc     : ch, cv;
 sd     : sdh, sdh;
-sdm    : {sdmh}sdh, {sdmh}sdh;
+sdm    : sdmh, sdmh;
 oqc1   : dao, qof, ocx1, qof, dao;
 oqc2   : dao, qof, ocx2, qof, dao;
 oqcm   : dao, qofm, ocxm, qofm, dao;
@@ -145,7 +163,7 @@ mqo2   : oqc2, sfh;
 mmon   : doc, mon, doc, sfh;
 mp1    : mmon, cc, inv(mqo1);
 mp2    : mmon, cc, inv(mqo2);
-mpm    : doc, mon, doc, {sfmh}sfh, cc, {sfmh}sfh, oqcm;
+mpm    : doc, mon, doc, sfmh, cc, sfmh, oqcm;
 mxy    : doc, oxy, doc, sxyh, sxyh, doc;
 mxx    : doc, oxx, doc, sxxh, cc, sxxh, doc;
 myy    : doc, oyy, doc, syyh, cc, syyh, doc;

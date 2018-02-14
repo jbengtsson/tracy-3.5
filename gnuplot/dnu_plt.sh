@@ -76,7 +76,7 @@ else if (case == 4) \
   x_min = -15.0; x_max = 15.0; delta_min = -3.0; delta_max = 3.0; \
   nu_x_min = 58.0; nu_x_max = 58.5; nu_y_min = 21.0; nu_y_max = 21.5; \
 else if (case == 5) \
-  x_min = -7.0; x_max = 7.0; delta_min = -3.0; delta_max = 3.0; \
+  x_min = -4.0; x_max = 4.0; delta_min = -2.0; delta_max = 2.0; \
   nu_x_min = 28.0; nu_x_max = 28.5; nu_y_min = 13.0; nu_y_max = 13.5;
 
 # left adjusted labels
@@ -100,7 +100,7 @@ if (ps) set output (home_dir)."dnu_1.".(ext);
 #set size 0.5, 0.5; set origin 0.0, 0.5;
 set title "{/Symbol n}_x vs. A_{x,y}";
 set xlabel "A_{x,y} [mm]"; set ylabel "{/Symbol n}_x";
-set xrange [x_min:x_max];
+#set xrange [x_min:x_max];
 if (!pert) \
   plot file1 using 1:(N*(N_x+\$5)) title "A_x" with lines ls 1, \
        file2 using 2:(N*(N_x+\$5)) title "A_y" with lines ls 3; \
@@ -116,7 +116,7 @@ if (ps) set output (home_dir)."dnu_2.".(ext);
 #set origin 0.0, 0.0;
 set title "{/Symbol n}_y vs. A_{x,y}";
 set xlabel "A_{x,y} [mm]"; set ylabel "{/Symbol n}_y"; \
-set xrange [x_min:x_max];
+#set xrange [x_min:x_max];
 if (!pert) \
   plot file1 using 1:(N*(N_y+\$6)) title "A_x" with lines ls 1, \
        file2 using 2:(N*(N_y+\$6)) title "A_y" with lines ls 3; \
@@ -134,7 +134,7 @@ set title "Chromaticity";
 set xlabel "{/Symbol d} [%]"; set ylabel "{/Symbol n}_x";
 set y2label "{/Symbol n}_y";
 set ytics nomirror; set y2tics;
-set xrange [delta_min:delta_max];
+#set xrange [delta_min:delta_max];
 plot file3 using 1:(N*\$2) title "{/Symbol n}_x" with lines ls 1, \
      file3 using 1:(N*\$3) axis x1y2 title "{/Symbol n}_y" with lines ls 3;
 if (!ps) pause mouse "click on graph to cont.\n";
