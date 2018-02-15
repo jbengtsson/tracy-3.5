@@ -8,7 +8,8 @@ gnuplot << EOP
 
 home_dir = "$prm1"; N = $prm2; ps = $prm3; case = $prm4; pert = 0;
 
-# MAX-VI 1, SLS-2 2, DIAMOND-II 4-BA 3, 6-BA 4, 8-BA 5, DIAMOND: 6, DELTA: 7.
+# MAX-VI 1, SLS-2 2, DIAMOND-II 4-BA 3, 6-BA 4, 8-BA 5, DIAMOND: 6, ALS-U 7,
+# DELTA: 8.
 
 file1  = (home_dir)."dnu_dAx.out";
 file12 = (home_dir)."dnu_dAx_pert.out"
@@ -49,6 +50,8 @@ else if ((N == 1) && (case == 5)) \
 else if ((N == 1) && (case == 6)) \
   N_x = 28; N_y = 13; \
 else if ((N == 1) && (case == 7)) \
+  N_x = 39; N_y = 14; \
+else if ((N == 1) && (case == 8)) \
   N_x = 8; N_y = 3; \
 else if (N == 12) \
   N_x = 3; N_y = 1; \
@@ -60,7 +63,11 @@ else if ((N == 6) && (case == 4)) \
   N_x = 9; N_y = 3; \
 else if ((N == 6) && (case == 5)) \
   N_x = 9; N_y = 3; \
-else if ((N == 24) && (case == 4)) \
+else if ((N == 24) && (case == 6)) \
+  N_x = 2; N_y = 0; \
+else if ((N == 12) && (case == 7)) \
+  N_x = 3; N_y = 1; \
+else if ((N == 24) && (case == 8)) \
   N_x = 2; N_y = 0;
 
 if (case == 1) \
@@ -76,6 +83,15 @@ else if (case == 4) \
   x_min = -15.0; x_max = 15.0; delta_min = -3.0; delta_max = 3.0; \
   nu_x_min = 58.0; nu_x_max = 58.5; nu_y_min = 21.0; nu_y_max = 21.5; \
 else if (case == 5) \
+  x_min = -4.0; x_max = 4.0; delta_min = -2.0; delta_max = 2.0; \
+  nu_x_min = 28.0; nu_x_max = 28.5; nu_y_min = 13.0; nu_y_max = 13.5; \
+else if (case == 6) \
+  x_min = -6.0; x_max = 6.0; delta_min = -4.0; delta_max = 4.0; \
+  nu_x_min = 28.0; nu_x_max = 28.5; nu_y_min = 13.0; nu_y_max = 13.5; \
+else if (case == 7) \
+  x_min = -6.0; x_max = 6.0; delta_min = -4.0; delta_max = 4.0; \
+  nu_x_min = 39.0; nu_x_max = 39.5; nu_y_min = 14.0; nu_y_max = 14.5; \
+else if (case == 8) \
   x_min = -4.0; x_max = 4.0; delta_min = -2.0; delta_max = 2.0; \
   nu_x_min = 28.0; nu_x_max = 28.5; nu_y_min = 13.0; nu_y_max = 13.5;
 
