@@ -9,7 +9,8 @@ prm5=${5-1}
 gnuplot << EOP
 
 home_dir = "$prm1"; N = $prm2; ps = $prm3; case  = $prm4; scale = $prm5;
-#MAX-VI: 1, SLS-2: 2, DIAMOND-II: 4-BA 3, 6-BA 4, 8-BA 5, DIAMOND: 6, DELTA 7.
+#MAX-VI: 1, SLS-2: 2, DIAMOND-II: 4-BA 3, 6-BA 4, 8-BA 5, DIAMOND: 6, ALS-U 7,
+# DELTA 8.
 
 file1 = (home_dir)."fmap.out";
 file2 = (home_dir)."fmapdp.out";
@@ -62,7 +63,11 @@ else if ((N == 6) && (case == 4)) \
   N_x = 10; N_y = 4; sgn_x = -1; sgn_y = -1; \
 else if ((N == 6) && (case == 5)) \
   N_x = 9; N_y = 4; sgn_y = -1; \
-else if ((N == 24) && (case == 6)) \
+else if ((N == 6) && (case == 6)) \
+  N_x = 9; N_y = 4; sgn_y = -1; \
+else if ((N == 12) && (case == 7)) \
+  N_x = 3; N_y = 1; \
+else if ((N == 24) && (case == 8)) \
   N_x = 2; N_y = 0; sgn_y = -1;
 
 # DELTA: del008.
@@ -93,6 +98,10 @@ else if (case == 6) \
   x_min = -15.0; x_max = 15.0; y_min = -10.0; y_max = 10.0; \
   delta_min = -3.0; delta_max = 3.0; \
 else if (case == 7) \
+  nu_x_min = 39.0; nu_x_max = 39.5; nu_y_min = 14.0; nu_y_max = 14.5; \
+  x_min = -6.0; x_max = 6.0; y_min = -4.0; y_max = 4.0; \
+  delta_min = -4.0; delta_max = 4.0; \
+else if (case == 8) \
   nu_x_min = 8.5; nu_x_max = 8.75; nu_y_min = 3.49; nu_y_max = 3.6; \
   x_min = -35.0; x_max = 35.0; y_min = -6.0; y_max = 6.0; \
   delta_min = -2.6; delta_max = 2.6;
