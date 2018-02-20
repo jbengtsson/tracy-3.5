@@ -29,12 +29,22 @@ def marker_ematrix(line, tokens, decls):
 def marker_malign(line, tokens, decls):
     return marker(line, tokens, decls) + ' { malign }'
 
+def marker_recirc(line, tokens, decls):
+    return marker(line, tokens, decls) + ' { recirc }'
+
+def marker_sreffects(line, tokens, decls):
+    return marker(line, tokens, decls) + ' { sreffects }'
+
 def bpm(line, tokens, decls):
     return  '%s: Beam Position Monitor;' % (tokens[0])
 
 def drift(line, tokens, decls):
-    loc_l = tokens.index('l')
-    return '%s: Drift, L = %s;' % (tokens[0], get_arg(tokens[loc_l+1], decls))
+    try:
+        loc_l = tokens.index('l')
+        L = get_arg(tokens[loc_l+1], decls)
+    except ValueError:
+        L = 0.0;
+    return '%s: Drift, L = %s;' % (tokens[0], L)
 
 def rcol(line, tokens, decls):
     return drift(line, tokens, decls) + ' { rcol }'
@@ -96,14 +106,18 @@ def oct1(line, tokens, decls):
     return str
 
 def cavity(line, tokens, decls):
-    loc_l = tokens.index('l')
+    try:
+        loc_l = tokens.index('l')
+        L = get_arg(tokens[loc_l+1], decls)
+    except ValueError:
+        L = 0.0;
     loc_f = tokens.index('freq')
     loc_v = tokens.index('volt')
     loc_phi = tokens.index('phase')
     # loc_entryf = tokens.index('end1_focus')
     # loc_exitf = tokens.index('end2_focus')
     str = '%s: Cavity, L = %s, Frequency = %s, Voltage = %s' % \
-          (tokens[0], get_arg(tokens[loc_l+1], decls),
+          (tokens[0], L,
            get_arg(tokens[loc_f+1], decls),
            get_arg(tokens[loc_v+1], decls))
     if loc_phi: str += ', phi = %s' % \
@@ -136,6 +150,12 @@ def line(line, tokens, decls):
             str += ';'
     return str
 
+def use(line, tokens, decls):
+    return '\nring: %s;\n\ncell: ring, symmetry = 1;' % (tokens[1])
+
+def ret(line, tokens, decls):
+    return '\nend;'
+
 
 # Elegant -> Tracy-2,3 dictionary.
 ele2tracy = {
@@ -145,6 +165,8 @@ ele2tracy = {
     'ematrix'   : marker_ematrix,
     'twiss'     : marker_twiss,
     'malign'    : marker_malign,
+    'recirc'    : marker_recirc,
+    'sreffects' : marker_sreffects,
     'moni'      : bpm,
     'drif'      : drift,
     'drift'     : drift,
@@ -160,7 +182,9 @@ ele2tracy = {
     'ksext'     : sext,
     'koct'      : oct1,
     'rfca'      : cavity,
-    'line'      : line
+    'line'      : line,
+    'use'       : use,
+    'return'    : ret
     }
 
 
@@ -203,14 +227,40 @@ def get_arg(str, decls):
 
 
 def parse_definition(line, tokens, decls):
-    n_elem = 10; # No of elements per line.
-
     for k in range(len(tokens)):
         # Remove white space; unless a string.
         if not tokens[k].startswith('"'):
             tokens[k] = re.sub('[\s]', '', tokens[k])
     try:
         str = ele2tracy[tokens[1]](line, tokens, decls)
+    except KeyError:
+        print '\n*** undefined token!'
+        print line
+        exit(1)
+    return str
+
+
+def parse_use(line, tokens, decls):
+    for k in range(len(tokens)):
+        # Remove white space; unless a string.
+        if not tokens[k].startswith('"'):
+            tokens[k] = re.sub('[\s]', '', tokens[k])
+    try:
+        str = ele2tracy[tokens[0]](line, tokens, decls)
+    except KeyError:
+        print '\n*** undefined token!'
+        print line
+        exit(1)
+    return str
+
+
+def parse_return(line, tokens, decls):
+    for k in range(len(tokens)):
+        # Remove white space; unless a string.
+        if not tokens[k].startswith('"'):
+            tokens[k] = re.sub('[\s]', '', tokens[k])
+    try:
+        str = ele2tracy[tokens[0]](line, tokens, decls)
     except KeyError:
         print '\n*** undefined token!'
         print line
@@ -229,15 +279,22 @@ def parse_line(line, outf, decls):
     elif line_lc.startswith('%'):
         # Declaration.
         outf.write('%s;\n' % (parse_decl(line_lc.strip('%'), decls)))
+    elif line_lc.find('use') != -1:
+        # USE.
+        tokens = re.split(r'[,:=]', line_lc)
+        outf.write('%s\n' % (parse_use(line_lc, tokens, decls)))
+    elif line_lc.find('return') != -1:
+        # RETURN.
+        tokens = re.split(r'[,:=]', line_lc)
+        outf.write('%s\n' % (parse_return(line_lc, tokens, decls)))
+    elif line_lc.find(':') != -1:
+        # Definition.
+        tokens = re.split(r'[,:=]', line_lc)
+        outf.write('%s\n' % (parse_definition(line_lc, tokens, decls)))
     else:
-        if line_lc.find(':') != -1:
-            # Definition.
-            tokens = re.split(r'[,:=]', line_lc)
-            outf.write('%s\n' % (parse_definition(line_lc, tokens, decls)))
-        else:
-            print '\n*** undefined statement!'
-            print line
-            exit(1)
+        print '\n*** undefined statement!'
+        print line
+        exit(1)
 
 def prt_decl(outf):
     outf.write('define lattice; ringtype = 1;\n')
@@ -262,9 +319,6 @@ def transl_file(file_name, decls):
             line += (inf.readline()).strip('\r\n')
         parse_line(line, outf, decls)
         line = inf.readline()
-    outf.write('\nline: linac1upchicane1;\n')
-    outf.write('\ncell: line, symmetry = 1;\n')
-    outf.write('\nend;\n')
 
 
 home_dir = ''
