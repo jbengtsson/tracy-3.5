@@ -55,20 +55,25 @@ def bend(line, tokens, decls):
     loc_l = tokens.index('l')
     loc_phi = tokens.index('angle')
     loc_roll = get_index(tokens, 'tilt')
+    loc_hgap = get_index(tokens, 'hgap')
+    loc_fint = get_index(tokens, 'fint')
     loc_e1 = get_index(tokens, 'e1')
     loc_e2 = get_index(tokens, 'e2')
     loc_k = get_index(tokens, 'k1')
     loc_n = get_index(tokens, 'n_kicks')
-    str = '%s: Bending, L = %s, T = (%s)*180.0/pi' % \
+    str = '%s: Bending, L = %s, T = %17.15f' % \
         (tokens[0], get_arg(tokens[loc_l+1], decls),
-         get_arg(tokens[loc_phi+1], decls))
-    if loc_roll: str += ', Roll = (%s)*180.0/pi' % \
-            (get_arg(tokens[loc_roll+1], decls))
-    if loc_e1: str += ', T1 = (%s)*180.0/pi' % \
-            (get_arg(tokens[loc_e1+1], decls))
-    if loc_e2: str += ', T2 = (%s)*180.0/pi' % \
-                 (get_arg(tokens[loc_e2+1], decls))
-    if loc_k:  str += ', K = %s' %  (get_arg(tokens[loc_k+1], decls))
+         float(get_arg(tokens[loc_phi+1], decls))*180.0/math.pi)
+    if loc_roll: str += ', Roll = %17.15f' % \
+            (float(get_arg(tokens[loc_roll+1], decls))*180.0/math.pi)
+    if loc_hgap: str += ', Gap = %17.15f' % \
+            (4.0*float(get_arg(tokens[loc_hgap+1], decls))
+             *float(get_arg(tokens[loc_fint+1], decls)))
+    if loc_e1: str += ', T1 = %17.15f' % \
+            (float(get_arg(tokens[loc_e1+1], decls))*180.0/math.pi)
+    if loc_e2: str += ', T2 = %17.15f' % \
+                 (float(get_arg(tokens[loc_e2+1], decls))*180.0/math.pi)
+    if loc_k: str += ', K = %s' % (get_arg(tokens[loc_k+1], decls))
     if False and loc_n != None:
         str += ', N = %s, Method = 4;' % (tokens[loc_n+1])
     else:
@@ -120,13 +125,11 @@ def cavity(line, tokens, decls):
           (tokens[0], L,
            get_arg(tokens[loc_f+1], decls),
            get_arg(tokens[loc_v+1], decls))
-    if loc_phi: str += ', phi = %s' % \
-       (get_arg(tokens[loc_phi+1], decls))
+    if loc_phi: str += ', phi = 0*%s;' % (get_arg(tokens[loc_phi+1], decls))
     # if loc_entryf: str += ', rf_focus1 = %s' % \
     #    (get_arg(tokens[loc_entryf+1], decls))
     # if loc_exitf: str += ', rf_focus2 = %s' % \
     #    (get_arg(tokens[loc_exitf+1], decls))
-    str +=', n = 1;'
     return str
 
 def line(line, tokens, decls):
