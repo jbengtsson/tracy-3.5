@@ -287,6 +287,31 @@ void quad_scan(const int n,
 }
 
 
+void prt_b2(const param_type &b2_prms)
+{
+  long int loc;
+  int      k;
+  double   b2, a2;
+  FILE     *outf;
+
+  const std::string file_name = "b2.out";
+
+  outf = file_write(file_name.c_str());
+
+  fprintf(outf, "\n");
+  for (k = 0; k < (int)b2_prms.n_prm; k++) {
+    loc = Elem_GetPos(b2_prms.Fnum[k], 1);
+    get_bn_design_elem(b2_prms.Fnum[k], 1, Quad, b2, a2);
+    fprintf(outf,
+	    "%-8s: quadrupole, l = %7.5f"
+	    ", k = %12.5e, n = nquad, Method = Meth;\n",
+	    Cell[loc].Elem.PName, Cell[loc].Elem.PL, b2);
+  }
+
+  fclose(outf);
+}
+
+
 void prt_emit(const param_type &b2_prms, const double *b2)
 {
   double b3[2], a3;
@@ -321,6 +346,7 @@ double f_emit(double *b2)
 {
   // Optimize unit cell.
   // Lattice: unit cell.
+  // Nota Bene: singular for crossing integer Cell Tunes.
 
   static double chi2_ref = 1e30;
 
@@ -362,10 +388,15 @@ double f_emit(double *b2)
   chi2 += sqr(scl_ksi*b3L[0]);
   chi2 += sqr(scl_ksi*b3L[1]);
 
-  // if ((fabs(tr[X_]) > 2e0) || (fabs(tr[Y_]) > 2e0)) chi2 += 1e10;
-  // for (i = 1; i <= b2_prms.n_prm; i++) {
-  //   if (fabs(b2[i]) > b2_prms.bn_max[i-1]) chi2 += 1e10;
-  // }
+  if ((fabs(tr[X_]) > 2e0) || (fabs(tr[Y_]) > 2e0)) {
+    printf("\nTr{M}: %6.3f %6.3f\n", tr[X_], tr[Y_]);
+    chi2 += 1e10;
+    exit(1);
+  }
+
+  for (i = 1; i <= b2_prms.n_prm; i++) {
+    if (fabs(b2[i]) > b2_prms.bn_max[i-1]) chi2 += 1e10;
+  }
 
   if (chi2 < chi2_ref) {
     printf("\nchi2: %11.5e -> %11.5e\n", chi2_ref, chi2);
@@ -383,6 +414,7 @@ double f_emit(double *b2)
     if (b2_prms.n_prm % n_prt != 0) printf("\n");
 
     prtmfile("flat_file.fit");
+    prt_b2(b2_prms);
     prt_emit(b2_prms, b2);
 
     prt_lat("linlat1.out", globval.bpm, true);
