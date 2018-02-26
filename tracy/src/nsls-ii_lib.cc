@@ -1568,7 +1568,7 @@ void set_dbnL_design_fam(const int Fnum,
   }
 
   for (k = 1; k <= Lattice.GetnKid(Fnum); k++)
-    set_bnL_design_elem(Fnum, k, n, dbnL, danL);
+    set_dbnL_design_elem(Fnum, k, n, dbnL, danL);
 }
 
 
