@@ -40,7 +40,7 @@ else if (ps == 5) \
 
 sgn_x = 1; sgn_y = 1;
 if ((N == 1) && (case == 1)) \
-  N_x = 102; N_y = 68;\
+  N_x = 102; N_y = 68; \
 else if ((N == 1) && (case == 2)) \
   N_x = 39; N_y = 15; \
 else if ((N == 1) && (case == 3)) \
@@ -54,7 +54,7 @@ else if ((N == 1) && (case == 6)) \
 else if ((N == 1) && (case == 7)) \
   N_x = 9; N_y = 4; sgn_x = -1; sgn_y = -1; \
 else if ((N == 20) && (case == 1)) \
-  N_x = 5; N_y = 3; \
+  N_x = 5; N_y = 1; \
 else if ((N == 12) && (case == 2)) \
   N_x = 3; N_y = 1; \
 else if ((N == 6) && (case == 3)) \
@@ -69,12 +69,14 @@ else if ((N == 12) && (case == 7)) \
   N_x = 3; N_y = 1; \
 else if ((N == 24) && (case == 8)) \
   N_x = 2; N_y = 0; sgn_y = -1;
+#  N_x = 5; N_y = 3; 
 
 # DELTA: del008.
 #  N_x = 9; N_y = 3; 
 
+#  nu_x_min = 102.0; nu_x_max = 102.5; nu_y_min = 68.0; nu_y_max = 68.5; 
 if (case == 1) \
-  nu_x_min = 102.0; nu_x_max = 102.5; nu_y_min = 68.0; nu_y_max = 68.5; \
+  nu_x_min = 101.0; nu_x_max = 102.0; nu_y_min = 27.0; nu_y_max = 28.0; \
   x_min = -2.0; x_max = 2.0; y_min = -2.0; y_max = 2.0; \
   delta_min = -5.1; delta_max = 5.1; \
 else if (case == 2) \
