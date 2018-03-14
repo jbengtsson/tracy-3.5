@@ -9,7 +9,7 @@ prm5=${5-1}
 gnuplot << EOP
 
 home_dir = "$prm1"; N = $prm2; ps = $prm3; case  = $prm4; scale = $prm5;
-#MAX-VI: 1, SLS-2: 2, DIAMOND-II: 4-BA 3, 6-BA 4, 8-BA 5, DIAMOND: 6, ALS-U 7,
+#MAX-V: 1, SLS-2: 2, DIAMOND-II: 4-BA 3, 6-BA 4, 8-BA 5, DIAMOND: 6, ALS-U 7,
 # DELTA 8.
 
 file1 = (home_dir)."fmap.out";
@@ -38,9 +38,10 @@ else if (ps == 5) \
   ext = "svg";
 
 
+#  N_x = 102; N_y = 68; 
 sgn_x = 1; sgn_y = 1;
 if ((N == 1) && (case == 1)) \
-  N_x = 102; N_y = 68; \
+  N_x = 101; N_y = 27; \
 else if ((N == 1) && (case == 2)) \
   N_x = 39; N_y = 15; \
 else if ((N == 1) && (case == 3)) \
@@ -75,9 +76,10 @@ else if ((N == 24) && (case == 8)) \
 #  N_x = 9; N_y = 3; 
 
 #  nu_x_min = 102.0; nu_x_max = 102.5; nu_y_min = 68.0; nu_y_max = 68.5; 
+#  x_min = -2.0; x_max = 2.0; y_min = -2.0; y_max = 2.0; 
 if (case == 1) \
   nu_x_min = 101.0; nu_x_max = 102.0; nu_y_min = 27.0; nu_y_max = 28.0; \
-  x_min = -2.0; x_max = 2.0; y_min = -2.0; y_max = 2.0; \
+  x_min = -1.5; x_max = 1.5; y_min = -1.5; y_max = 1.5; \
   delta_min = -5.1; delta_max = 5.1; \
 else if (case == 2) \
   nu_x_min = 39.0; nu_x_max = 39.5; nu_y_min = 15.0; nu_y_max = 15.6; \
