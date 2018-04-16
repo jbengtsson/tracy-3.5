@@ -1,11 +1,12 @@
-ps = 0; eps = 0;
+ps = 0;
 
 font_size = 30; line_width = 2;
-if (!ps) set terminal x11;
-if (ps && !eps) \
+if (ps == 0) \
+  set terminal x11 enhanced lw line_width "Times-Roman"; \
+else if (ps == 1) \
   set terminal postscript enhanced color solid \
-  lw line_width "Times-Roman" font_size;
-if (ps && eps) \
+  lw line_width "Times-Roman" font_size; \
+else if (ps == 2) \
   set terminal postscript eps enhanced color solid \
   lw line_width "Times-Roman" font_size;
 
@@ -38,7 +39,7 @@ if (!ps) pause -1;
 if (ps) set output "cod_3.ps"
 set title "Horizontal Corrector Strength";
 set xlabel "s [m]";
-set ylabel "{\Symbol t}_x [mrad]";
+set ylabel "{/Symbol q}_x [mrad]";
 set y2range [-1.5:20];
 plot "cod.out" using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
      lc rgb "black", \
@@ -48,7 +49,7 @@ if (!ps) pause -1;
 if (ps) set output "cod_4.ps"
 set title "Vertical Corrector Strength";
 set xlabel "s [m]";
-set ylabel "{\Symbol t}_y [mrad]";
+set ylabel "{/Symbol q}_y [mrad]";
 set y2range [-1.5:20];
 plot "cod.out" using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
      lc rgb "black", \
