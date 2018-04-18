@@ -109,7 +109,7 @@ else if (case == 5) \
   x_min = -3.0; x_max = 3.0; y_min = -2.0; y_max = 2.0; \
   delta_min = -3.0; delta_max = 3.0; \
 else if (case == 6) \
-  nu_x_min = 69.0; nu_x_max = 69.5; nu_y_min = 28.3; nu_y_max = 28.8; \
+  nu_x_min = 69.1; nu_x_max = 69.5; nu_y_min = 28.1; nu_y_max = 28.7; \
   x_min = -3.0; x_max = 3.0; y_min = -2.0; y_max = 2.0; \
   delta_min = -3.0; delta_max = 3.0; \
 else if (case == 7) \
