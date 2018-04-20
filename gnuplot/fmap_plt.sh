@@ -342,7 +342,7 @@ set pm3d at b map;
 
 #set origin 0.0, 0.0;
 set title "Diffusion Map";
-set xlabel "A_x"; set ylabel "A_y";
+set xlabel "x [mm]"; set ylabel "y [mm]";
 if (scale) set xrange [x_min:x_max]; set yrange [y_min:y_max];
 splot file1 using 1:2:((\$7 != -2.0)? \$7 : NaN) notitle lt palette z;
 
@@ -476,7 +476,7 @@ set pm3d at b map;
 
 #set origin 0.0, 0.0;
 set title "Diffusion Map";
-set xlabel "{/Symbol d} [%]"; set ylabel "A_x";
+set xlabel "{/Symbol d} [%]"; set ylabel "x [mm]";
 if (scale) set xrange [delta_min:delta_max]; set yrange [x_min:x_max];
 splot file2 using 1:2:((\$7 != -2.0)? \$7 : NaN) notitle lt palette z;
 
