@@ -41,6 +41,8 @@ if ((N == 1) && (case == 1)) \
   N_x = 102; N_y = 68; \
 else if ((N == 1) && (case == 2)) \
   N_x = 39; N_y = 15; \
+else if ((N == 3) && (case == 2)) \
+  N_x = 12; N_y = 4; \
 else if ((N == 1) && (case == 3)) \
   N_x = 51; N_y = 17; \
 else if ((N == 1) && (case == 4)) \
