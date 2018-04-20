@@ -250,6 +250,8 @@ unset pm3d;
 set colorbox;
 
 #set size 1.0, 0.5; set origin 0.0, 0.5;
+# Work-around for y-axis label.
+set size 0.9, 1.0; set origin 0.03, 0.0;
 set title "Tune Shift";
 set xlabel "{/Symbol n}_x"; set ylabel "{/Symbol n}_y";
 if (scale) set xrange [nu_x_min:nu_x_max]; set yrange [nu_y_min:nu_y_max]; 
@@ -341,6 +343,8 @@ set pm3d at b map;
 #unset colorbox;
 
 #set origin 0.0, 0.0;
+# Restore work-around for y-axis label.
+set size 1.0, 1.0; set origin 0.0, 0.0;
 set title "Diffusion Map";
 set xlabel "x [mm]"; set ylabel "y [mm]";
 if (scale) set xrange [x_min:x_max]; set yrange [y_min:y_max];
@@ -385,6 +389,8 @@ unset pm3d;
 set colorbox;
 
 #set size 1.0, 0.5; set origin 0.0, 0.5;
+# Work-around for y-axis label.
+set size 0.9, 1.0; set origin 0.03, 0.0;
 set title "Tune Shift";
 set xlabel "{/Symbol n}_x"; set ylabel "{/Symbol n}_y";
 if (scale) set xrange [nu_x_min:nu_x_max]; set yrange [nu_y_min:nu_y_max];
@@ -475,6 +481,8 @@ set pm3d at b map;
 #unset colorbox;
 
 #set origin 0.0, 0.0;
+# Restore work-around for y-axis label.
+set size 1.0, 1.0; set origin 0.0, 0.0;
 set title "Diffusion Map";
 set xlabel "{/Symbol d} [%]"; set ylabel "x [mm]";
 if (scale) set xrange [delta_min:delta_max]; set yrange [x_min:x_max];
