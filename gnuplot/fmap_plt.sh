@@ -52,7 +52,7 @@ if ((N == 1) && (case == 1)) \
 else if ((N == 1) && (case == 2)) \
   N_x = 39; N_y = 15; \
 else if ((N == 1) && (case == 3)) \
-  N_x = 51; N_y = 17; \
+  N_x = 57; N_y = 20; \
 else if ((N == 1) && (case == 4)) \
   N_x = 57; N_y = 22; \
 else if ((N == 1) && (case == 5)) \
@@ -97,8 +97,8 @@ else if (case == 2) \
   x_min = -6.0; x_max = 6.0; y_min = -6.0; y_max = 6.0; \
   delta_min = -5.1; delta_max = 5.1; \
 else if (case == 3) \
-  nu_x_min = 51.0; nu_x_max = 51.5; nu_y_min = 17.0; nu_y_max = 17.6; \
-  x_min = -5.0; x_max = 5.0; y_min = -3.0; y_max = 3.0; \
+  nu_x_min = 57.0; nu_x_max = 57.5; nu_y_min = 20.0; nu_y_max = 20.5; \
+  x_min = -8.0; x_max = 8.0; y_min = -4.0; y_max = 4.0; \
   delta_min = -3.1; delta_max = 3.1; \
 else if (case == 4) \
   nu_x_min = 57.0; nu_x_max = 57.5; nu_y_min = 22.2; nu_y_max = 22.6; \
