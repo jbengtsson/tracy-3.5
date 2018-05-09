@@ -11,7 +11,7 @@ gnuplot << EOP
 home_dir = "$prm1"; N = $prm2; ps = $prm3; case  = $prm4; scale = $prm5;
 # MAX-V               1,
 # SLS-2               2,
-# DIAMOND-II:    4-BA 3,
+# DIAMOND-II:    DTBA 3,
 #                6-BA 4,
 #                8-BA 5,
 #             6-RB-BA 6,
@@ -72,7 +72,7 @@ else if ((N == 6) && (case == 3)) \
 else if ((N == 6) && (case == 4)) \
   N_x = 10; N_y = 4; sgn_x = -1; sgn_y = -1; \
 else if ((N == 6) && (case == 5)) \
-  N_x = 9; N_y = 4; sgn_y = -1; \
+  N_x = 10; N_y = 4; sgn_x = -1; sgn_y = -1; \
 else if ((N == 6) && (case == 6)) \
   N_x = 12; N_y = 5; sgn_x = -1; sgn_y = -1; \
 else if ((N == 6) && (case == 7)) \
@@ -105,8 +105,8 @@ else if (case == 4) \
   x_min = -8.0; x_max = 8.0; y_min = -3.0; y_max = 3.0; \
   delta_min = -5.1; delta_max = 5.1; \
 else if (case == 5) \
-  nu_x_min = 56.5; nu_x_max = 57.0; nu_y_min = 22.4; nu_y_max = 23.0; \
-  x_min = -3.0; x_max = 3.0; y_min = -2.0; y_max = 2.0; \
+  nu_x_min = 57.0; nu_x_max = 57.5; nu_y_min = 22.0; nu_y_max = 22.5; \
+  x_min = -8.0; x_max = 8.0; y_min = -4.0; y_max = 4.0; \
   delta_min = -3.0; delta_max = 3.0; \
 else if (case == 6) \
   nu_x_min = 69.1; nu_x_max = 69.5; nu_y_min = 28.1; nu_y_max = 28.7; \
