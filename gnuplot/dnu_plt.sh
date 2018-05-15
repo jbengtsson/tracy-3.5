@@ -8,8 +8,17 @@ gnuplot << EOP
 
 home_dir = "$prm1"; N = $prm2; ps = $prm3; case = $prm4; pert = 0;
 
-# MAX-VI 1, SLS-2 2, DIAMOND-II 4-BA 3, 6-BA 4, 8-BA 5, DIAMOND: 6, ALS-U 7,
+# MAX-VI 1, SLS-2 2, DIAMOND-II D-TBA 3, 6-BA 4, 8-BA 5, DIAMOND: 6, ALS-U 7,
 # DELTA: 8.
+
+# MAX-V               1,
+# SLS-2               2,
+# DIAMOND-II:    DTBA 3,
+#                6-BA 4,
+#                8-BA 5,
+# DIAMOND             6,
+# ALS-U               7,
+# DELTA               8.
 
 file1  = (home_dir)."dnu_dAx.out";
 file12 = (home_dir)."dnu_dAx_pert.out"
@@ -44,7 +53,7 @@ else if ((N == 1) && (case == 2)) \
 else if ((N == 3) && (case == 2)) \
   N_x = 12; N_y = 4; \
 else if ((N == 1) && (case == 3)) \
-  N_x = 51; N_y = 17; \
+  N_x = 57; N_y = 20; \
 else if ((N == 1) && (case == 4)) \
   N_x = 58; N_y = 21; \
 else if ((N == 1) && (case == 5)) \
