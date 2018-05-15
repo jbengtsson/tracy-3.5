@@ -104,7 +104,8 @@ def oct1(line, tokens, decls):
     loc_k = tokens.index('k3')
     # The field expansion is a power series for Tracy-2,3 vs. a Taylor expansion
     # for Elegant; i.e., like in MAD-8.
-    str = '%s: Multipole, L = %s, HOM = (4, %s, 0.0), N = Nsext, Method = 4;' \
+    str = '%s: Multipole, L = %s, HOM = (4, %s/6.0, 0.0), N = Nsext' \
+        ', Method = 4;' \
         % \
         (tokens[0], get_arg(tokens[loc_l+1], decls),
          get_arg(tokens[loc_k+1], decls))
