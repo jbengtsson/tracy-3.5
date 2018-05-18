@@ -87,42 +87,42 @@ else if ((N == 24) && (case == 9)) \
 #  N_x = 9; N_y = 3; 
 
 #  nu_x_min = 102.0; nu_x_max = 102.5; nu_y_min = 68.0; nu_y_max = 68.5; 
-#  x_min = -2.0; x_max = 2.0; y_min = -2.0; y_max = 2.0; 
+#  x_max = 2.0; y_max = 2.0; 
 if (case == 1) \
   nu_x_min = 101.0; nu_x_max = 102.0; nu_y_min = 27.0; nu_y_max = 28.0; \
-  x_min = -1.5; x_max = 1.5; y_min = -1.5; y_max = 1.5; \
+  x_max = 1.5; y_max = 1.5; \
   delta_min = -5.1; delta_max = 5.1; \
 else if (case == 2) \
   nu_x_min = 39.0; nu_x_max = 39.5; nu_y_min = 15.0; nu_y_max = 15.6; \
-  x_min = -6.0; x_max = 6.0; y_min = -6.0; y_max = 6.0; \
+  x_max = 6.0; y_max = 6.0; \
   delta_min = -5.1; delta_max = 5.1; \
 else if (case == 3) \
   nu_x_min = 57.0; nu_x_max = 57.5; nu_y_min = 19.8; nu_y_max = 20.5; \
-  x_min = -10.0; x_max = 10.0; y_min = -4.0; y_max = 4.0; \
+  x_max = 10.0; y_max = 4.0; \
   delta_min = -3.1; delta_max = 3.1; \
 else if (case == 4) \
   nu_x_min = 57.0; nu_x_max = 57.5; nu_y_min = 22.2; nu_y_max = 22.6; \
-  x_min = -8.0; x_max = 8.0; y_min = -3.0; y_max = 3.0; \
+  x_max = 8.0; y_max = 3.0; \
   delta_min = -5.1; delta_max = 5.1; \
 else if (case == 5) \
   nu_x_min = 57.0; nu_x_max = 57.5; nu_y_min = 22.0; nu_y_max = 22.5; \
-  x_min = -8.0; x_max = 8.0; y_min = -4.0; y_max = 4.0; \
+  x_max = 8.0; y_min = -4.0; y_max = 4.0; \
   delta_min = -3.0; delta_max = 3.0; \
 else if (case == 6) \
   nu_x_min = 69.1; nu_x_max = 69.5; nu_y_min = 28.1; nu_y_max = 28.7; \
-  x_min = -2.5; x_max = 2.5; y_min = -2.0; y_max = 2.0; \
+  x_max = 2.5; y_max = 2.0; \
   delta_min = -3.0; delta_max = 3.0; \
 else if (case == 7) \
   nu_x_min = 28.1; nu_x_max = 28.26; nu_y_min = 13.1; nu_y_max = 13.4; \
-  x_min = -15.0; x_max = 15.0; y_min = -10.0; y_max = 10.0; \
+  x_max = 15.0; y_max = 10.0; \
   delta_min = -3.0; delta_max = 3.0; \
 else if (case == 8) \
-  nu_x_min = 40.0; nu_x_max = 40.5; nu_y_min = 14.0; nu_y_max = 14.5; \
-  x_min = -6.0; x_max = 6.0; y_min = -4.0; y_max = 4.0; \
-  delta_min = -4.0; delta_max = 4.0; \
+  nu_x_min = 40.2; nu_x_max = 40.6; nu_y_min = 14.1; nu_y_max = 14.8; \
+  x_max = 4.0; y_max = 3.0; \
+  delta_min = -5.0; delta_max = 5.0; \
 else if (case == 9) \
   nu_x_min = 8.5; nu_x_max = 8.75; nu_y_min = 3.49; nu_y_max = 3.6; \
-  x_min = -35.0; x_max = 35.0; y_min = -6.0; y_max = 6.0; \
+  x_max = 35.0; y_min = -6.0; y_max = 6.0; \
   delta_min = -2.6; delta_max = 2.6;
 
 # DELTA: del008 .
@@ -347,7 +347,7 @@ set pm3d at b map;
 set size 1.0, 1.0; set origin 0.0, 0.0;
 set title "Diffusion Map";
 set xlabel "x [mm]"; set ylabel "y [mm]";
-if (scale) set xrange [x_min:x_max]; set yrange [y_min:y_max];
+if (scale) set xrange [-x_max:x_max]; set yrange [-y_max:y_max];
 splot file1 using 1:2:((\$7 != -2.0)? \$7 : NaN) notitle lt palette z;
 
 #unset multiplot;
@@ -485,7 +485,7 @@ set pm3d at b map;
 set size 1.0, 1.0; set origin 0.0, 0.0;
 set title "Diffusion Map";
 set xlabel "{/Symbol d} [%]"; set ylabel "x [mm]";
-if (scale) set xrange [delta_min:delta_max]; set yrange [x_min:x_max];
+if (scale) set xrange [-delta_max:delta_max]; set yrange [-x_max:x_max];
 splot file2 using 1:2:((\$7 != -2.0)? \$7 : NaN) notitle lt palette z;
 
 #unset multiplot;
