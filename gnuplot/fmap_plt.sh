@@ -56,7 +56,7 @@ else if ((N == 1) && (case == 3)) \
 else if ((N == 1) && (case == 4)) \
   N_x = 57; N_y = 22; \
 else if ((N == 1) && (case == 5)) \
-  N_x = 57; N_y = 23; sgn_x = -1; sgn_y = -1; \
+  N_x = 57; N_y = 22; \
 else if ((N == 1) && (case == 6)) \
   N_x = 69; N_y = 29; sgn_y = -1; \
 else if ((N == 1) && (case == 7)) \
