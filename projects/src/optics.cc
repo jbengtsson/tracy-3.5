@@ -484,6 +484,8 @@ int main(int argc, char *argv[])
   else
     rdmfile(argv[1]);
 
+  exit(0);
+
   chk_bend();
 
   if (false) {

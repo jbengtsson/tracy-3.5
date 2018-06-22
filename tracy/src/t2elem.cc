@@ -214,8 +214,9 @@ void Drift(const double L, ss_vect<T> &ps)
 
 
 template<typename T>
-void DriftType::Pass(ss_vect<T> &x)
+void DriftType::Elem_Pass(ss_vect<T> &x)
 {
+  printf("DriftType::Pass/n");
   Drift(this->L, x);
 }
 
@@ -540,11 +541,13 @@ void quad_fringe(const double b2, ss_vect<T> &x)
 
 
 template<typename T>
-void MpoleType::Pass(ss_vect<T> &x)
+void MpoleType::Elem_Pass(ss_vect<T> &x)
 {
   int    seg = 0;
   double k = 0e0, dL = 0e0, dL1 = 0e0, dL2 = 0e0;
   double dkL1 = 0e0, dkL2 = 0e0, h_ref = 0e0;
+
+  printf("MpoleType::Pass/n");
 
   // Global -> Local.
   // Can not be moved to ElemType level because it needs: c0, c1, and s1.
@@ -669,8 +672,9 @@ void MpoleType::Pass(ss_vect<T> &x)
 
 
 template<typename T>
-void ElemType::Marker_Pass(ss_vect<T> &X)
+void MarkerType::Elem_Pass(ss_vect<T> &X)
 {
+  printf("Elem_Pass\n");
   /* Global -> Local */
   // GtoL(X, this->dS, this->dT, 0e0, 0e0, 0e0);
   /* Local -> Global */
@@ -678,22 +682,10 @@ void ElemType::Marker_Pass(ss_vect<T> &X)
 }
 
 
-template<typename T, typename U>
-void Cav_Focus(const double L, const T delta, const bool entrance,
-	       ss_vect<U> &ps)
-{
-  double sgn;
- 
-  sgn = (entrance)? -1e0 : 1e0;
-
-  ps[px_] += sgn*ps[x_]*delta/(2e0*L);
-  ps[py_] += sgn*ps[y_]*delta/(2e0*L);
-}
-
 #if 1
 
 template<typename T>
-void CavityType::Pass(ss_vect<T> &X)
+void CavityType::Elem_Pass(ss_vect<T> &X)
 {
   T delta;
 
@@ -710,8 +702,21 @@ void CavityType::Pass(ss_vect<T> &X)
 
 #else
 
+template<typename T, typename U>
+void Cav_Focus(const double L, const T delta, const bool entrance,
+	       ss_vect<U> &ps)
+{
+  double sgn;
+ 
+  sgn = (entrance)? -1e0 : 1e0;
+
+  ps[px_] += sgn*ps[x_]*delta/(2e0*L);
+  ps[py_] += sgn*ps[y_]*delta/(2e0*L);
+}
+
+
 template<typename T>
-void CellType::Pass1(CellType &Cell, ss_vect<T> &ps)
+void Cav_Pass1(CellType &Cell, ss_vect<T> &ps)
 {
   /* J. Rosenzweig and L. Serafini "Transverse Particle Motion in
      Radio-Frequency Linear Accelerators" hys. Rev. E 49(2),
@@ -754,7 +759,7 @@ void CellType::Pass1(CellType &Cell, ss_vect<T> &ps)
 
 
 template<typename T>
-void CavityType::Cav_Pass(ss_vect<T> &ps)
+void Cav_Pass(ss_vect<T> &ps)
 {
   /* J. Rosenzweig and L. Serafini "Transverse Particle Motion in
      Radio-Frequency Linear Accelerators" hys. Rev. E 49(2),
@@ -1269,7 +1274,7 @@ void Wiggler_pass_EF3(const CellType &Cell, ss_vect<T> &x)
 
 
 template<typename T>
-void WigglerType::Pass(ss_vect<T> &X)
+void WigglerType::Elem_Pass(ss_vect<T> &X)
 {
   int         seg;
   double      L, L1, L2, K1, K2;
@@ -1897,7 +1902,7 @@ template void FieldMap_pass_SI(CellType &, ss_vect<tps> &, int k);
 
 
 template<typename T>
-void FieldMapType::Pass(ss_vect<T> &ps)
+void FieldMapType::Elem_Pass(ss_vect<T> &ps)
 {
   int          k;
   double       Ld;
@@ -1934,7 +1939,7 @@ void FieldMapType::Pass(ss_vect<T> &ps)
 
 
 template<typename T>
-void InsertionType::Pass(ss_vect<T> &x)
+void InsertionType::Elem_Pass(ss_vect<T> &x)
 {
   /* Purpose:
        Track vector x through a insertion
@@ -2121,7 +2126,7 @@ void sol_pass(const CellType &Cell, ss_vect<T> &x)
 
 
 template<typename T>
-void SolenoidType::Pass(ss_vect<T> &ps)
+void SolenoidType::Elem_Pass(ss_vect<T> &ps)
 {
 
   GtoL(ps, this->dS, this->dT, 0e0, 0e0, 0e0);

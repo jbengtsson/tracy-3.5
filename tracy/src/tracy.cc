@@ -118,12 +118,12 @@ template void thin_kick(const int, const double [], const double, const double,
 // template void Marker_Pass(CellType &, ss_vect<double> &);
 // template void Marker_Pass(CellType &, ss_vect<tps> &);
 
-template void Cav_Focus(const double L, const double delta, const bool entrance,
-			ss_vect<double> &ps);
-template void Cav_Focus(const double L, const double delta, const bool entrance,
-			ss_vect<tps> &ps);
-template void Cav_Focus(const double L, const tps delta, const bool entrance,
-			ss_vect<tps> &ps);
+// template void Cav_Focus(const double L, const double delta, const bool entrance,
+// 			ss_vect<double> &ps);
+// template void Cav_Focus(const double L, const double delta, const bool entrance,
+// 			ss_vect<tps> &ps);
+// template void Cav_Focus(const double L, const tps delta, const bool entrance,
+// 			ss_vect<tps> &ps);
 
 // template void Cav_Pass(CellType &, ss_vect<double> &);
 // template void Cav_Pass(CellType &, ss_vect<tps> &);

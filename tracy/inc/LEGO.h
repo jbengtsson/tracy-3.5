@@ -88,7 +88,7 @@ typedef struct statusrec{
 
 
 // Virtual base class for LEGO blocks.
-class ElemType {
+template<typename T> class ElemType {
  private:
  public:
   partsName Name;    // Element name.
@@ -108,8 +108,7 @@ class ElemType {
 
   /* virtual std::ostream& Show(std::ostream &str); */
 
-  template<typename T>
-    void Marker_Pass(ss_vect<T> &X);
+  virtual void Elem_Pass(ss_vect<T> &x) = 0;
 };
 
 
@@ -145,15 +144,19 @@ class CellType : public ElemType {
     T get_p_s(const ss_vect<T> &);
 
   template<typename T>
-    void GtoL(ss_vect<T> &X, const Vector2 &S, const Vector2 &R,
+    void GtoL(ss_vect<T> &x, const Vector2 &S, const Vector2 &R,
 	      const double c0, const double c1, const double s1);
 
   template<typename T>
-    void LtoG(ss_vect<T> &X, const Vector2 &S, const Vector2 &R,
+    void LtoG(ss_vect<T> &x, const Vector2 &S, const Vector2 &R,
 	      const double c0, const double c1, const double s1);
 
   template<typename T>
-    void Pass(ss_vect<T> &x) { this->Pass(x); }
+    void Pass(ss_vect<T> &x)
+    {
+      printf("CellType::Pass\n");
+      Elem_Pass(x);
+    }
 
   void Elem_Print(FILE *f, int Fnum);
 };
@@ -170,7 +173,7 @@ class MarkerType : public CellType {
   virtual std::ostream& Show(std::ostream &str) const;
 
   template<typename T>
-    void Pass(ss_vect<T> &x);
+    void Elem_Pass(ss_vect<T> &x);
 
   void Init(int Fnum);
   void Marker_Print(FILE *f, int Fnum);
@@ -188,7 +191,7 @@ class DriftType : public CellType {
   virtual std::ostream& Show(std::ostream &str) const;
 
   template<typename T>
-    void Pass(ss_vect<T> &x);
+    void Elem_Pass(ss_vect<T> &x);
 
   void Init(int Fnum);
   void Drift_Print(FILE *f, int Fnum);
@@ -233,7 +236,7 @@ class MpoleType : public CellType {
   virtual std::ostream& Show(std::ostream &str) const;
 
   template<typename T>
-    void Pass(ss_vect<T> &x);
+    void Elem_Pass(ss_vect<T> &x);
 
   void SI_init(void);
 
@@ -273,7 +276,7 @@ class WigglerType : public CellType {
   }
 
   template<typename T>
-    void Pass(ss_vect<T> &X);
+    void Elem_Pass(ss_vect<T> &X);
 
   void Init(int Fnum);
   void Wiggler_Print(FILE *f, int Fnum);
@@ -327,7 +330,7 @@ class InsertionType : public CellType {
   }
 
   template<typename T>
-    void Pass(ss_vect<T> &x);
+    void Elem_Pass(ss_vect<T> &x);
 
   void Init(int Fnum);
   void Insertion_Print(FILE *f, int Fnum);
@@ -351,7 +354,7 @@ class FieldMapType : public CellType {
   }
 
   template<typename T>
-    void Pass(ss_vect<T> &x);
+    void Elem_Pass(ss_vect<T> &x);
 
   void get_B(const char *file_name, FieldMapType *FM);
   void Init(int Fnum);
@@ -379,7 +382,7 @@ class SolenoidType : public CellType {
   }
 
   template<typename T>
-    void Pass(ss_vect<T> &ps);
+    void Elem_Pass(ss_vect<T> &ps);
 
   void Init(int Fnum);
 };
@@ -404,7 +407,7 @@ class CavityType : public CellType {
   virtual std::ostream& Show(std::ostream &str) const;
 
   template<typename T>
-    void Pass(ss_vect<T> &X);
+    void Elem_Pass(ss_vect<T> &X);
 
   void Init(int Fnum);
 };

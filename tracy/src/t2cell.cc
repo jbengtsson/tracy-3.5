@@ -88,7 +88,9 @@ inline bool CheckAmpl(const ss_vect<T> &x, const long int loc)
 template<typename T>
 void LatticeType::Elem_Pass(const long i, ss_vect<T> &x)
 {
+  printf("entering Pass %3ld %10s\n", i, Cell[i]->Name);
   Cell[i]->Pass(x);
+  printf("leaving Pass\n");
 }
 
 
@@ -112,7 +114,9 @@ void LatticeType::Cell_Pass(const long i0, const long i1, ss_vect<T> &x,
   else {
     lastpos = i1;
     for (i = i0; i <= i1; i++) {
+      printf("entering Elem_Pass %3ld\n", i);
       Elem_Pass(i, x);
+      printf("exiting Elem_Pass\n");
       if (!CheckAmpl(x, i)) { lastpos = i; break; }
     }
   }

@@ -1,4 +1,5 @@
 
+template<typename T>
 CellType::CellType(void) : ElemType()
 {
   this->Kind = PartsKind(undef);
@@ -220,7 +221,8 @@ void MarkerType::Init(int Fnum)
     cellp = Lattice.Cell[elemfamp->KidList[i]];
 
     strncpy(cellp->Name, elemfamp->CellF->Name, NameLength);
-    cellp->Kind = elemfamp->CellF->Kind; cellp->Reverse = elemfamp->CellF->Reverse;
+    cellp->Kind = elemfamp->CellF->Kind;
+    cellp->Reverse = elemfamp->CellF->Reverse;
   }
 } 
 
