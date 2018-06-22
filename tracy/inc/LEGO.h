@@ -112,7 +112,7 @@ template<typename T> class ElemType {
 };
 
 
-class CellType : public ElemType {
+class CellType : public ElemType<T> {
  private:
  public:
   int      Fnum;       // Element Family #.
