@@ -88,7 +88,8 @@ typedef struct statusrec{
 
 
 // Virtual base class for LEGO blocks.
-template<typename T> class ElemType {
+template<typename T>
+class ElemType {
  private:
  public:
   partsName Name;    // Element name.
@@ -100,9 +101,9 @@ template<typename T> class ElemType {
   //explicit ElemType(std::string &Name1, double L1, bool Reverse1)
   //  : Name(Name1), L(L1), Reverse(Reverse1) {}
 
+  // Virtual functions can't be templates; but a class can. 
   //virtual void f() = 0;
 
-  // Templates can't be virtual functions. 
   //template<typename T>
   //  virtual void propagate(ss_vect<T> &ps) const; 
 
@@ -112,6 +113,7 @@ template<typename T> class ElemType {
 };
 
 
+template<typename T>
 class CellType : public ElemType<T> {
  private:
  public:
@@ -140,65 +142,62 @@ class CellType : public ElemType<T> {
 
   void Cell_Init(void);
 
-  template<typename T>
-    T get_p_s(const ss_vect<T> &);
+  T get_p_s(const ss_vect<T> &);
 
-  template<typename T>
-    void GtoL(ss_vect<T> &x, const Vector2 &S, const Vector2 &R,
-	      const double c0, const double c1, const double s1);
+  void GtoL(ss_vect<T> &x, const Vector2 &S, const Vector2 &R,
+	    const double c0, const double c1, const double s1);
 
-  template<typename T>
-    void LtoG(ss_vect<T> &x, const Vector2 &S, const Vector2 &R,
-	      const double c0, const double c1, const double s1);
+  void LtoG(ss_vect<T> &x, const Vector2 &S, const Vector2 &R,
+	    const double c0, const double c1, const double s1);
 
-  template<typename T>
-    void Pass(ss_vect<T> &x)
-    {
-      printf("CellType::Pass\n");
-      Elem_Pass(x);
-    }
+  void Pass(ss_vect<T> &x)
+  {
+    printf("CellType::Pass\n");
+    Elem_Pass(x);
+  }
 
   void Elem_Print(FILE *f, int Fnum);
 };
 
 
-class MarkerType : public CellType {
+template<typename T>
+class MarkerType : public CellType<T> {
  private:
  public:
 
   MarkerType(void);
-  virtual CellType* clone(void) const {
+  virtual CellType<T>* clone(void) const {
     return new MarkerType(static_cast<const MarkerType&>(*this));
   }
   virtual std::ostream& Show(std::ostream &str) const;
 
-  template<typename T>
-    void Elem_Pass(ss_vect<T> &x);
+  void Elem_Pass(ss_vect<T> &x);
 
   void Init(int Fnum);
   void Marker_Print(FILE *f, int Fnum);
 };
 
 
-class DriftType : public CellType {
+template<typename T>
+class DriftType : public CellType<T> {
  private:
  public:
 
   DriftType(void);
-  virtual CellType* clone(void) const {
+  virtual CellType<T>* clone(void) const {
     return new DriftType(static_cast<const DriftType&>(*this));
   }
   virtual std::ostream& Show(std::ostream &str) const;
 
-  template<typename T>
-    void Elem_Pass(ss_vect<T> &x);
+  void Elem_Pass(ss_vect<T> &x);
 
   void Init(int Fnum);
   void Drift_Print(FILE *f, int Fnum);
 };
 
 
-class MpoleType : public CellType {
+template<typename T>
+class MpoleType : public CellType<T> {
  private:
  public:
   int        method;     // Integration Method.
@@ -230,13 +229,12 @@ class MpoleType : public CellType {
 
   MpoleType(void);
   void Updateorder(void);
-  virtual CellType* clone(void) const {
+  virtual CellType<T>* clone(void) const {
     return new MpoleType(static_cast<const MpoleType&>(*this));
   }
   virtual std::ostream& Show(std::ostream &str) const;
 
-  template<typename T>
-    void Elem_Pass(ss_vect<T> &x);
+  void Elem_Pass(ss_vect<T> &x);
 
   void SI_init(void);
 
@@ -245,7 +243,8 @@ class MpoleType : public CellType {
 };
 
 
-class WigglerType : public CellType {
+template<typename T>
+class WigglerType : public CellType<T> {
  private:
  public:
   int       method;              // Integration Method.
@@ -271,19 +270,19 @@ class WigglerType : public CellType {
   int       order;               // The highest order in PB.
 
   WigglerType(void);
-  virtual CellType* clone(void) const {
+  virtual CellType<T>* clone(void) const {
     return new WigglerType(static_cast<const WigglerType&>(*this));
   }
 
-  template<typename T>
-    void Elem_Pass(ss_vect<T> &X);
+  void Elem_Pass(ss_vect<T> &X);
 
   void Init(int Fnum);
   void Wiggler_Print(FILE *f, int Fnum);
 };
 
 
-class InsertionType : public CellType {
+template<typename T>
+class InsertionType : public CellType<T> {
  private:
  public:
   int    method;       // Integration Method.
@@ -325,19 +324,19 @@ class InsertionType : public CellType {
   int order;        // The highest order in PB
 
   InsertionType(void);
-  virtual CellType* clone(void) const {
+  virtual CellType<T>* clone(void) const {
     return new InsertionType(static_cast<const InsertionType&>(*this));
   }
 
-  template<typename T>
-    void Elem_Pass(ss_vect<T> &x);
+  void Elem_Pass(ss_vect<T> &x);
 
   void Init(int Fnum);
   void Insertion_Print(FILE *f, int Fnum);
 };
 
 
-class FieldMapType : public CellType {
+template<typename T>
+class FieldMapType : public CellType<T> {
  private:
  public:
   int    n_step;                       // number of integration steps.
@@ -349,19 +348,19 @@ class FieldMapType : public CellType {
   double ***AoBrho[2], ***AoBrho2[2];  /* [Ax(x, y, z), Ay(x, y, z)],
 					  spline info. */
   FieldMapType(void);
-  virtual CellType* clone(void) const {
+  virtual CellType<T>* clone(void) const {
     return new FieldMapType(static_cast<const FieldMapType&>(*this));
   }
 
-  template<typename T>
-    void Elem_Pass(ss_vect<T> &x);
+  void Elem_Pass(ss_vect<T> &x);
 
   void get_B(const char *file_name, FieldMapType *FM);
   void Init(int Fnum);
 };
 
 
-class SolenoidType : public CellType {
+template<typename T>
+class SolenoidType : public CellType<T> {
  private:
  public:
   int     N;      // Number of integration steps
@@ -377,18 +376,18 @@ class SolenoidType : public CellType {
   double  BoBrho; // normalized field strength
 
   SolenoidType(void);
-  virtual CellType* clone(void) const {
+  virtual CellType<T>* clone(void) const {
     return new SolenoidType(static_cast<const SolenoidType&>(*this));
   }
 
-  template<typename T>
-    void Elem_Pass(ss_vect<T> &ps);
+  void Elem_Pass(ss_vect<T> &ps);
 
   void Init(int Fnum);
 };
 
 
-class CavityType : public CellType {
+template<typename T>
+class CavityType : public CellType<T> {
  private:
  public:
   int    N;           // Number of integration steps.
@@ -400,27 +399,27 @@ class CavityType : public CellType {
   bool   exit_focus;  // Edge focusing at exit.
 
   CavityType(void);
-  virtual CellType* clone(void) const {
+  virtual CellType<T>* clone(void) const {
     return new CavityType(static_cast<const CavityType&>(*this));
   }
 
   virtual std::ostream& Show(std::ostream &str) const;
 
-  template<typename T>
-    void Elem_Pass(ss_vect<T> &X);
+  void Elem_Pass(ss_vect<T> &X);
 
   void Init(int Fnum);
 };
 
 
-class SpreaderType : public CellType {
+template<typename T>
+class SpreaderType : public CellType<T> {
  private:
  public:
   double   E_max[Spreader_max];      // energy levels in increasing order
-  CellType *Cell_ptrs[Spreader_max];
+  CellType<T> *Cell_ptrs[Spreader_max];
 
   SpreaderType(void);
-  virtual CellType* clone(void) const {
+  virtual CellType<T>* clone(void) const {
     return new SpreaderType(static_cast<const SpreaderType&>(*this));
   }
 
@@ -428,14 +427,15 @@ class SpreaderType : public CellType {
 };
 
 
-class RecombinerType : public CellType {
+template<typename T>
+class RecombinerType : public CellType<T> {
  private:
  public:
   double E_min;
   double E_max;
 
   RecombinerType(void);
-  virtual CellType* clone(void) const {
+  virtual CellType<T>* clone(void) const {
     return new RecombinerType(static_cast<const RecombinerType&>(*this));
   }
 
@@ -500,23 +500,25 @@ struct LatticeParam {
 };
 
 
+  template<typename T>
 class ElemFamType {
  private:
  public:
-  CellType   *CellF;
-  int        nKid;             // Kid number.
-  int        KidList[nKidMax];
-  int        NoDBN;
-  DBNameType DBNlist[nKidMax];
+  CellType<T> *CellF;
+  int         nKid;             // Kid number.
+  int         KidList[nKidMax];
+  int         NoDBN;
+  DBNameType  DBNlist[nKidMax];
 };
 
 
+template<typename T>
 class LatticeType {
  private:
  public:
-  LatticeParam param;
-  ElemFamType  ElemFam[Elem_nFamMax];
-  CellType     *Cell[Cell_nLocMax+1];
+  LatticeParam   param;
+  ElemFamType<T> ElemFam[Elem_nFamMax];
+  CellType<T>    *Cell[Cell_nLocMax+1];
 
   bool Lattice_Read(FILE **fi_, FILE **fo_);
   void Read_Lattice(const char *fic);
@@ -569,9 +571,9 @@ class LatticeType {
   void ProcessBlockInput(struct LOC_Lat_DealElement *LINK);
   void CheckWiggler(long i, struct LOC_Lat_DealElement *LINK);
   void GetHOM(struct LOC_Lat_DealElement *LINK);
-  void AssignHOM(MpoleType *M, struct LOC_Lat_DealElement *LINK);
+  void AssignHOM(MpoleType<T> *M, struct LOC_Lat_DealElement *LINK);
   void GetHarm(struct LOC_Lat_DealElement *LINK);
-  void AssignHarm(WigglerType *W, struct LOC_Lat_DealElement *LINK);
+  void AssignHarm(WigglerType<T> *W, struct LOC_Lat_DealElement *LINK);
   void SetDBN(struct LOC_Lat_DealElement *LINK);
   bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 		       long *errpos_, long *lc_, long *nkw_, long *inum_,
@@ -600,8 +602,8 @@ class LatticeType {
   long Elem_GetPos(const int Fnum, const int Knum);
 
 
-  void getelem(long i, CellType *cellrec);
-  void putelem(long i, CellType *cellrec);
+  void getelem(long i, CellType<T> *cellrec);
+  void putelem(long i, CellType<T> *cellrec);
  
   double Elem_GetKval(int Fnum, int Knum, int Order);
 
@@ -627,11 +629,9 @@ class LatticeType {
 
   // From t2ring.cc.
 
-  template<typename T>
-    void Elem_Pass(const long i, ss_vect<T> &x);
+  void Elem_Pass(const long i, ss_vect<T> &x);
 
-  template<typename T>
-    void Cell_Pass(const long i0, const long i1, ss_vect<T> &x, long &lastpos);
+  void Cell_Pass(const long i0, const long i1, ss_vect<T> &x, long &lastpos);
 
   void Cell_Pass(const long i0, const long i1, tps &sigma, long &lastpos);
 
