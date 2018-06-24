@@ -1318,7 +1318,7 @@ void WigglerType::Elem_Propagate(ss_vect<T> &X)
 
 
 template<typename T>
-void FieldMapType::rk4_(const ss_vect<T> &y, const ss_vect<T> dydx,
+void FieldMapType::rk4_(const ss_vect<T> &y, const ss_vect<T> &dydx,
 			const double x, const double h, ss_vect<T> &yout,
 			void (*derivs)(const double, const ss_vect<T> &,
 				       ss_vect<T> &))
@@ -1349,7 +1349,7 @@ void FieldMapType::f_FM(const double z, const ss_vect<T> &ps, ss_vect<T> &Dps)
 {
   // Coordinates are: [x, x', y, y', -ct, delta].
   int          j, kz;
-  T            BoBrho[3], p_s;
+  T            BoBrho1[3], p_s;
 
   const double eps = 1e-5;
 
@@ -1371,27 +1371,27 @@ void FieldMapType::f_FM(const double z, const ss_vect<T> &ps, ss_vect<T> &Dps)
   }
 
   splin2_(x[X_], x[Y_], BoBrho[X_][kz], BoBrho2[X_][kz],
-	   n[X_], n[Y_], ps[x_], ps[y_], BoBrho[X_]);
+	   n[X_], n[Y_], ps[x_], ps[y_], BoBrho1[X_]);
 
-  if (BoBrho[X_] == NAN) {
+  if (BoBrho1[X_] == NAN) {
     for (j = 0; j < ss_dim; j++)
       Dps[j] = NAN;
     return;
   }
 
   splin2_(x[X_], x[Y_], BoBrho[Y_][kz], BoBrho2[Y_][kz],
-	   n[X_], n[Y_], ps[x_], ps[y_], BoBrho[Y_]);
+	   n[X_], n[Y_], ps[x_], ps[y_], BoBrho1[Y_]);
 
-  if (BoBrho[Y_] == NAN) {
+  if (BoBrho1[Y_] == NAN) {
     for (j = 0; j < ss_dim; j++)
       Dps[j] = NAN;
     return;
   }
 
   splin2_(x[X_], x[Y_], BoBrho[Z_][kz], BoBrho2[Z_][kz],
-	   n[X_], n[Y_], ps[x_], ps[y_], BoBrho[Z_]);
+	   n[X_], n[Y_], ps[x_], ps[y_], BoBrho1[Z_]);
 
-  if (BoBrho[Z_] == NAN) {
+  if (BoBrho1[Z_] == NAN) {
     for (j = 0; j < ss_dim; j++)
       Dps[j] = NAN;
     return;
@@ -1401,13 +1401,13 @@ void FieldMapType::f_FM(const double z, const ss_vect<T> &ps, ss_vect<T> &Dps)
 
   Dps[x_] = ps[px_];
   Dps[px_] =
-    -(ps[px_]*ps[py_]*BoBrho[X_]-(1e0+sqr(ps[px_]))*BoBrho[Y_]
-      +ps[py_]*BoBrho[Z_])/p_s;
+    -(ps[px_]*ps[py_]*BoBrho1[X_]-(1e0+sqr(ps[px_]))*BoBrho1[Y_]
+      +ps[py_]*BoBrho1[Z_])/p_s;
 
   Dps[y_] = ps[py_];
   Dps[py_] =
-    -((1e0+sqr(ps[py_]))*BoBrho[X_]-ps[px_]*ps[py_]*BoBrho[Y_]
-      -ps[px_]*BoBrho[Z_])/p_s;
+    -((1e0+sqr(ps[py_]))*BoBrho1[X_]-ps[px_]*ps[py_]*BoBrho1[Y_]
+      -ps[px_]*BoBrho1[Z_])/p_s;
 
   Dps[ct_] = (1e0+ps[delta_])/p_s - 1e0;
 
@@ -1469,7 +1469,9 @@ void FieldMapType::FieldMap_pass_RK(ss_vect<T> &ps, int k)
 	return;
       }
 
-      rk4_(ps, Dps, x[Z_][i], h, ps, f_FM);
+      printf("FieldMap_pass_RK: problem\n");
+      exit(1);
+      // rk4_(ps, Dps, x[Z_][i], h, ps, f_FM);
 
       z += h; Lr += h; s_FM += h;
     } else {
@@ -1521,7 +1523,7 @@ void FieldMapType::FieldMap_pass_SI(ss_vect<T> &ps, int k)
 
   int          i, j = 0;
   double       h, z;
-  T            hd, AoBrho[2], dAoBrho[2], AoBrho_int, ByoBrho;
+  T            hd, AoBrho1[2], dAoBrho[2], AoBrho_int, ByoBrho;
   ss_vect<T>   ps1;
 
   const int    n_step = 2;
@@ -1558,16 +1560,16 @@ void FieldMapType::FieldMap_pass_SI(ss_vect<T> &ps, int k)
     ps1 = ps;
 
     splin2_(x[X_], x[Y_], AoBrho[Y_][j], AoBrho2[Y_][j],
-	    n[X_], n[Y_], ps[x_], ps[y_], AoBrho[0]);
+	    n[X_], n[Y_], ps[x_], ps[y_], AoBrho1[0]);
 
-    if (AoBrho[0] == NAN) {
+    if (AoBrho1[0] == NAN) {
       for (j = 0; j < ss_dim; j++)
 	ps[j] = NAN;
       return;
     }
 
-    ps1[y_] += (ps[py_]-AoBrho[0])*0.5*hd;
-    ps1[ct_] += sqr(0.5)*hd*sqr(ps[py_]-AoBrho[0])/(1e0+ps[delta_]);
+    ps1[y_] += (ps[py_]-AoBrho1[0])*0.5*hd;
+    ps1[ct_] += sqr(0.5)*hd*sqr(ps[py_]-AoBrho1[0])/(1e0+ps[delta_]);
 
     splin2_(x[X_], x[Y_], AoBrho[Y_][j], AoBrho2[Y_][j],
 	    n[X_], n[Y_], ps[x_]+d_diff*dx[X_], ps[y_],
@@ -1618,15 +1620,15 @@ void FieldMapType::FieldMap_pass_SI(ss_vect<T> &ps, int k)
       AoBrho_int*(is_double<T>::cst(ps1[y_])-is_double<T>::cst(ps[y_]))/2e0;
 
     splin2_(x[X_], x[Y_], AoBrho[Y_][j], AoBrho2[Y_][j],
-	    n[X_], n[Y_], ps1[x_], ps1[y_], AoBrho[1]);
+	    n[X_], n[Y_], ps1[x_], ps1[y_], AoBrho1[1]);
 
-    if (AoBrho[1] == NAN) {
+    if (AoBrho1[1] == NAN) {
       for (j = 0; j < ss_dim; j++)
 	ps[j] = NAN;
       return;
     }
 
-    ps1[py_] += AoBrho[1] - AoBrho[0];
+    ps1[py_] += AoBrho1[1] - AoBrho1[0];
 
     ps = ps1;
 
@@ -1634,27 +1636,27 @@ void FieldMapType::FieldMap_pass_SI(ss_vect<T> &ps, int k)
     ps1 = ps;
 
     splin2_(x[X_], x[Y_], AoBrho[X_][j], AoBrho2[X_][j],
-	    n[X_], n[Y_], ps[x_], ps[y_], AoBrho[0]);
+	    n[X_], n[Y_], ps[x_], ps[y_], AoBrho1[0]);
 
-    if (AoBrho[0] == NAN) {
+    if (AoBrho1[0] == NAN) {
       for (j = 0; j < ss_dim; j++)
 	ps[j] = NAN;
       return;
     }
 
-    ps1[x_] += (ps[px_]-AoBrho[0])*hd;
-    ps1[ct_] += 0.5*hd*sqr(ps[px_]-AoBrho[0])/(1e0+ps[delta_]);
+    ps1[x_] += (ps[px_]-AoBrho1[0])*hd;
+    ps1[ct_] += 0.5*hd*sqr(ps[px_]-AoBrho1[0])/(1e0+ps[delta_]);
 
     splin2_(x[X_], x[Y_], AoBrho[X_][j], AoBrho2[X_][j],
-	    n[X_], n[Y_], ps1[x_], ps1[y_], AoBrho[1]);
+	    n[X_], n[Y_], ps1[x_], ps1[y_], AoBrho1[1]);
 
-    if (AoBrho[1] == NAN) {
+    if (AoBrho1[1] == NAN) {
       for (j = 0; j < ss_dim; j++)
 	ps[j] = NAN;
       return;
     }
 
-    ps1[px_] += AoBrho[1] - AoBrho[0];
+    ps1[px_] += AoBrho1[1] - AoBrho1[0];
 
     splin2_(x[X_], x[Y_], AoBrho[X_][j], AoBrho2[X_][j],
 	    n[X_], n[Y_], ps[x_], ps[y_]+d_diff*dx[Y_],
@@ -1710,16 +1712,16 @@ void FieldMapType::FieldMap_pass_SI(ss_vect<T> &ps, int k)
     ps1 = ps;
 
     splin2_(x[X_], x[Y_], AoBrho[Y_][j], AoBrho2[Y_][j],
-	    n[X_], n[Y_], ps[x_], ps[y_], AoBrho[0]);
+	    n[X_], n[Y_], ps[x_], ps[y_], AoBrho1[0]);
 
-    if (AoBrho[0] == NAN) {
+    if (AoBrho1[0] == NAN) {
       for (j = 0; j < ss_dim; j++)
 	ps[j] = NAN;
       return;
     }
 
-    ps1[y_] += (ps[py_]-AoBrho[0])*0.5*hd;
-    ps1[ct_] += sqr(0.5)*hd*sqr(ps[py_]-AoBrho[0])/(1e0+ps[delta_]);
+    ps1[y_] += (ps[py_]-AoBrho1[0])*0.5*hd;
+    ps1[ct_] += sqr(0.5)*hd*sqr(ps[py_]-AoBrho1[0])/(1e0+ps[delta_]);
 
     splin2_(x[X_], x[Y_], AoBrho[Y_][j], AoBrho2[Y_][j],
 	    n[X_], n[Y_], ps[x_]+d_diff*dx[X_], ps[y_],
@@ -1770,9 +1772,9 @@ void FieldMapType::FieldMap_pass_SI(ss_vect<T> &ps, int k)
       AoBrho_int*(is_double<T>::cst(ps1[y_])-is_double<T>::cst(ps[y_]))/2e0;
 
     splin2_(x[X_], x[Y_], AoBrho[Y_][j], AoBrho2[Y_][j],
-	    n[X_], n[Y_], ps1[x_], ps1[y_], AoBrho[1]);
+	    n[X_], n[Y_], ps1[x_], ps1[y_], AoBrho1[1]);
 
-    if (AoBrho[1] == NAN) {
+    if (AoBrho1[1] == NAN) {
       for (j = 0; j < ss_dim; j++)
 	ps[j] = NAN;
       return;
@@ -1797,22 +1799,22 @@ void FieldMapType::FieldMap_pass_SI(ss_vect<T> &ps, int k)
 
     if (trace) {
       splin2_(x[X_], x[Y_], AoBrho[X_][j], AoBrho2[X_][j],
-	      n[X_], n[Y_], ps[x_], ps[y_], AoBrho[0]);
+	      n[X_], n[Y_], ps[x_], ps[y_], AoBrho1[0]);
       splin2_(x[X_], x[Y_], AoBrho[Y_][j], AoBrho2[Y_][j],
-	      n[X_], n[Y_], ps[x_], ps[y_], AoBrho[1]);
+	      n[X_], n[Y_], ps[x_], ps[y_], AoBrho1[1]);
       splin2_(x[X_], x[Y_], BoBrho[Y_][j], BoBrho2[Y_][j],
 	      n[X_], n[Y_], ps[x_], ps[y_], ByoBrho);
 
       outf_ << std::scientific << std::setprecision(3)
 	    << std::setw(11) << s_FM
 	    << std::setw(11) << is_double<T>::cst(ps[x_])
-	    << std::setw(11) << is_double<T>::cst(ps[px_]-AoBrho[0])
+	    << std::setw(11) << is_double<T>::cst(ps[px_]-AoBrho1[0])
 	    << std::setw(11) << is_double<T>::cst(ps[y_])
-	    << std::setw(11) << is_double<T>::cst(ps[py_]-AoBrho[1])
+	    << std::setw(11) << is_double<T>::cst(ps[py_]-AoBrho1[1])
 	    << std::setw(11) << is_double<T>::cst(ps[delta_])
 	    << std::setw(11) << is_double<T>::cst(ps[ct_])
-	    << std::setw(11) << is_double<T>::cst(AoBrho[0])
-	    << std::setw(11) << is_double<T>::cst(AoBrho[1])
+	    << std::setw(11) << is_double<T>::cst(AoBrho1[0])
+	    << std::setw(11) << is_double<T>::cst(AoBrho1[1])
 	    << std::setw(11) << is_double<T>::cst(ByoBrho)
 	    << std::endl;
     }
@@ -1820,26 +1822,26 @@ void FieldMapType::FieldMap_pass_SI(ss_vect<T> &ps, int k)
 
   // Change of gauge
   splin2_(x[X_], x[Y_], AoBrho[X_][j], AoBrho2[X_][j],
-	  n[X_], n[Y_], ps[x_], ps[y_], AoBrho[0]);
+	  n[X_], n[Y_], ps[x_], ps[y_], AoBrho1[0]);
 
-  if (AoBrho[0] == NAN) {
+  if (AoBrho1[0] == NAN) {
     for (j = 0; j < ss_dim; j++)
       ps[j] = NAN;
     return;
   }
 
-  ps[px_] -= AoBrho[0];
+  ps[px_] -= AoBrho1[0];
 
   splin2_(x[X_], x[Y_], AoBrho[Y_][j], AoBrho2[Y_][j],
-	  n[X_], n[Y_], ps[x_], ps[y_], AoBrho[0]);
+	  n[X_], n[Y_], ps[x_], ps[y_], AoBrho1[0]);
 
-  if (AoBrho[0] == NAN) {
+  if (AoBrho1[0] == NAN) {
     for (j = 0; j < ss_dim; j++)
       ps[j] = NAN;
     return;
   }
 
-  ps[py_] -= AoBrho[0];
+  ps[py_] -= AoBrho1[0];
 
   switch (FieldMap_filetype) {
   case 2:
@@ -1877,7 +1879,6 @@ void FieldMapType::Elem_Propagate(ss_vect<T> &ps)
 {
   int          k;
   double       Ld;
-  FieldMapType *FM;
 
   if (trace & first_FM) {
     file_wr(outf_, "FieldMap_pass.dat");

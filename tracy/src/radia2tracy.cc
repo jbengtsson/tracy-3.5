@@ -248,7 +248,7 @@ void Read_IDfile(char *fic_radia, double &L, int &nx, int &nz,
 
 
 template<typename T>
-void InsertionType::LinearInterpolation2(T &X, T &Z, T &TX, T &TZ, T &B2,
+void InsertionType::LinearInterpolation2(T &X, T &Z, T &TX, T &TZ, T &B2_perp,
 					 bool &out, int order)
 {
   int           i, ix = 0, iz = 0;
@@ -256,7 +256,6 @@ void InsertionType::LinearInterpolation2(T &X, T &Z, T &TX, T &TZ, T &B2,
   double        xstep = 0.0;
   double        zstep = 0.0;
   int           nx = 0, nz = 0;
-  InsertionType *ID;
   
   nx = nx; nz = nz;
   
@@ -357,7 +356,7 @@ void InsertionType::LinearInterpolation2(T &X, T &Z, T &TX, T &TZ, T &B2,
 	+ U*T1*thetaz[iz+1][ix+1];
 
       if (long_comp)
-	B2 =
+	B2_perp =
 	  (1.0-U)*(1.0-T1)*B2[iz][ix]
 	  + U*(1.0-T1)*B2[iz][ix+1]
 	  + (1.0-U)*T1*B2[iz+1][ix]

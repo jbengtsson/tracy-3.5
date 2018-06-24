@@ -356,7 +356,7 @@ class InsertionType : public CellType {
     void Elem_Propagate(ss_vect<T> &ps);
 
   template<typename T>
-    void LinearInterpolation2(T &X, T &Z, T &TX, T &TZ, T &B2, bool &out,
+    void LinearInterpolation2(T &X, T &Z, T &TX, T &TZ, T &B2_perp, bool &out,
 			      int order);
 
   void Init(int Fnum);
@@ -395,7 +395,7 @@ class FieldMapType : public CellType {
   template<typename T>
     void f_FM(const double z, const ss_vect<T> &ps, ss_vect<T> &Dps);
   template<typename T>
-    void rk4_(const ss_vect<T> &y, const ss_vect<T> dydx,
+    void rk4_(const ss_vect<T> &y, const ss_vect<T> &dydx,
 	      const double x, const double h, ss_vect<T> &yout,
 	      void (*derivs)(const double, const ss_vect<T> &, ss_vect<T> &));
 
