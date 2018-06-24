@@ -105,7 +105,7 @@ void prt_sigma(void)
   fprintf(outf, "#\n");
 
   for (i = 0; i <= Lattice.param.Cell_nLoc; i++) {
-    switch (Lattice.Cell[i]->Kind) {
+    switch (Lattice.Cell[i]->Elem.Kind) {
     case drift:
       code = 0.0;
       break;
@@ -1693,7 +1693,7 @@ void set_dbn_rel(const int type, const int n, const double dbn_rel)
   printf("\n");
   for (j = 0; j <= Lattice.param.Cell_nLoc; j++) {
     M = static_cast<MpoleType*>(Lattice.Cell[j]);
-    if ((Lattice.Cell[j]->Kind == Mpole)
+    if ((Lattice.Cell[j]->Elem.Kind == Mpole)
 	&& (M->n_design == type)) {
       printf("%s\n", Lattice.Cell[j]->Name);
       dbn = dbn_rel*M->Bpar[type+HOMmax];
@@ -1790,7 +1790,7 @@ void set_dx(const int type, const double sigma_x, const double sigma_y)
   printf("\n");
   for (j = 0; j <= Lattice.param.Cell_nLoc; j++) {
     M = static_cast<MpoleType*>(Lattice.Cell[j]);
-    if ((Lattice.Cell[j]->Kind == Mpole)
+    if ((Lattice.Cell[j]->Elem.Kind == Mpole)
 	&& (M->n_design == type)) {
       printf("%s\n", Lattice.Cell[j]->Name);
       M->dSrms[X_] = sigma_x;

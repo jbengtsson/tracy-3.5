@@ -192,7 +192,7 @@ void param_data_type::get_bare(void)
   n_sext = 0;
   for (j = 0; j <= Lattice.param.Cell_nLoc; j++) {
     M = static_cast<MpoleType*>(Lattice.Cell[j]);
-    if ((Lattice.Cell[j]->Kind == Mpole) && (M->n_design >= Sext)) {
+    if ((Lattice.Cell[j]->Elem.Kind == Mpole) && (M->n_design >= Sext)) {
       n_sext++; sexts[n_sext-1] = j;
       for (k = 0; k < 2; k++) {
 	betas0_[n_sext-1][k] = Lattice.Cell[j]->Beta[k];
@@ -647,7 +647,7 @@ void param_data_type::get_IDs(void)
   printf("\n");
   n_ID_Fams = 0;
   for (k = 0; k < Lattice.param.Elem_nFam; k++)
-    switch (Lattice.ElemFam[k].CellF->Kind) {
+    switch (Lattice.ElemFam[k].CellF->Elem.Kind) {
     case Wigl:
       W = static_cast<WigglerType*>(Lattice.ElemFam[k].CellF);
       printf("found ID family:   %s %12.5e\n",
@@ -686,7 +686,7 @@ void param_data_type::set_IDs(const double scl)
 
   printf("\n");
   for (k = 0; k < n_ID_Fams; k++) {
-    switch (Lattice.ElemFam[ID_Fams[k]-1].CellF->Kind) {
+    switch (Lattice.ElemFam[ID_Fams[k]-1].CellF->Elem.Kind) {
     case Wigl:
       W = static_cast<WigglerType*>(Lattice.ElemFam[ID_Fams[k]-1].CellF);
       printf("setting ID family: %s %12.5e\n",
@@ -844,7 +844,7 @@ bool param_data_type::get_SQ(void)
   Nsext = 0;
   for (k = 0; k < Lattice.param.Cell_nLoc; k++) {
     M = static_cast<MpoleType*>(Lattice.Cell[k]);
-    if ((Lattice.Cell[k]->Kind == Mpole) && (M->n_design == Sext)) {
+    if ((Lattice.Cell[k]->Elem.Kind == Mpole) && (M->n_design == Sext)) {
       Nsext++;
 
       if (Nsext > n_b3_max) {
@@ -1484,12 +1484,12 @@ void param_data_type::Align_BPMs(const int n) const
     do {
       Mp = static_cast<MpoleType*>(Lattice.Cell[loc+j]);
       Mm = static_cast<MpoleType*>(Lattice.Cell[loc-j]);
-      if ((Lattice.Cell[loc-j]->Kind == Mpole) && (Mm->n_design == n)) {
+      if ((Lattice.Cell[loc-j]->Elem.Kind == Mpole) && (Mm->n_design == n)) {
 	for (k = 0; k <= 1; k++)
 	  M->dSsys[k] = Lattice.Cell[loc-j]->dS[k];
 	printf("aligned BPM no %1d to %s\n", i, Lattice.Cell[loc-j]->Name);
 	aligned = true; break;
-      } else if ((Lattice.Cell[loc+j]->Kind == Mpole) &&
+      } else if ((Lattice.Cell[loc+j]->Elem.Kind == Mpole) &&
 		 (Mp->n_design == n)) {
 	for (k = 0; k <= 1; k++)
 	  M->dSsys[k] = Lattice.Cell[loc+j]->dS[k];
@@ -1663,7 +1663,7 @@ void param_data_type::Orb_and_Trim_Stat(void)
   N = Lattice.param.Cell_nLoc; SextCounter = 0;
   for (i = 0; i <= N; i++) {
     M = static_cast<MpoleType*>(Lattice.Cell[i]);
-    if ((Lattice.Cell[i]->Kind == Mpole) &&
+    if ((Lattice.Cell[i]->Elem.Kind == Mpole) &&
 	(M->n_design == Sext)) {
       SextCounter++;
       orb[X_] = Lattice.Cell[i]->BeamPos[x_];

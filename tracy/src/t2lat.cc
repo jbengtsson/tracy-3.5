@@ -1050,12 +1050,12 @@ void LatticeType::Factor(struct LOC_Term *LINK)
 	else if (!strncmp(fname, "gap            ", sizeof(partsName)))
 	  x = WITH1->gap;
 	else if (!strncmp(fname, "roll           ", sizeof(partsName))) {
-	  if (WITH->CellF->Kind == PartsKind(Mpole))
+	  if (WITH->CellF->Elem.Kind == PartsKind(Mpole))
 	    x = WITH1->dTpar;
-	  else if (WITH->CellF->Kind == PartsKind(Wigl))
+	  else if (WITH->CellF->Elem.Kind == PartsKind(Wigl))
 	    x = WITH1->dTpar;
 	} else if (!strncmp(fname, "n              ", sizeof(partsName))) {
-	  if (((1 << ((long)WITH->CellF->Kind)) &
+	  if (((1 << ((long)WITH->CellF->Elem.Kind)) &
 	       ((1 << ((long)Mpole)) | (1 << ((long)Wigl)))) != 0)
 	    x = WITH1->N;
 	} else if (!strncmp(fname, "b              ", sizeof(partsName)))
@@ -3942,12 +3942,12 @@ void LatticeType::DealWithDefns(struct LOC_Lattice_Read *LINK)
 	    if (k <= Cell_nLocMax) {
 	      this->Cell[k] = new CellType();
 	      this->Cell[k]->Fnum = k1;
-	      this->Cell[k]->Reverse = LINK->Reverse_stack[j];
+	      this->Cell[k]->Elem.Reverse = LINK->Reverse_stack[j];
 	      if (debug_lat) {
 		if (j == WITH->BSTART - 1)
 		  printf("\nCell Definition:\n  |%s| %2ld\n", WITH->Bname, i);
 		printf("  %3ld %3d %1d |%s|\n",
-		       k, this->Cell[k]->Fnum, this->Cell[k]->Reverse,
+		       k, this->Cell[k]->Fnum, this->Cell[k]->Elem.Reverse,
 		       this->ElemFam[this->Cell[k]->Fnum-1].CellF->Name);
 	      }
 	    } else {
@@ -4160,8 +4160,8 @@ void LatticeType::RegisterKids(struct LOC_Lattice_Read *LINK)
     if (debug_lat)
       printf("  %3ld %2d %3d %1d %1d |%s|\n",
 	     i, this->Cell[i]->Fnum, this->Cell[i]->Knum,
-	     this->ElemFam[this->Cell[i]->Fnum-1].CellF->Kind,
-	     this->Cell[i]->Reverse,
+	     this->ElemFam[this->Cell[i]->Fnum-1].CellF->Elem.Kind,
+	     this->Cell[i]->Elem.Reverse,
 	     this->ElemFam[this->Cell[i]->Fnum-1].CellF->Name);
   }
 }

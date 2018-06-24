@@ -114,7 +114,7 @@ void LatticeType::prtmfile(const char mfile_dat[])
 
   mfile = file_write(mfile_dat);
   for (i = 0; i <= Lattice.param.Cell_nLoc; i++) {
-    switch (Lattice.Cell[i]->Kind) {
+    switch (Lattice.Cell[i]->Elem.Kind) {
     case PartsKind(undef):
       // First element: begin.
       prtName(mfile, i, drift_, 0, 0);
@@ -173,7 +173,7 @@ void LatticeType::prtmfile(const char mfile_dat[])
 	fprintf(mfile, " %3.1lf %1d %s\n", ID->scaling, 2, ID->fname2);
       break;
     default:
-      printf("prtmfile: unknown type %d\n", Lattice.Cell[i]->Kind);
+      printf("prtmfile: unknown type %d\n", Lattice.Cell[i]->Elem.Kind);
       exit(1);
       break;
     }

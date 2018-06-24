@@ -91,9 +91,6 @@ typedef struct statusrec{
 class ElemType {
  private:
  public:
-  partsName Name;    // Element name.
-  double    L;       // Length [m].
-  double    S;       // Position in the ring.
   bool      Reverse; // Reversed element.
   PartsKind Kind;    // Element type.
 
@@ -108,24 +105,28 @@ class ElemType {
 };
 
 
-class CellType : public ElemType {
+class CellType {
  private:
  public:
-  int      Fnum;       // Element Family #.
-  int      Knum;       // Element Kid #.
-  CellType *next_ptr;  // pointer to next cell (for tracking).
-  Vector2  dS,         // Transverse displacement.
-           dT;         // dT = (cos(dT), sin(dT)).
-  Vector2  Nu,         // Phase advances.
-           Alpha,      // Alpha functions (redundant).
-           Beta,       // beta fonctions (redundant).
-           Eta, Etap;  // dispersion and its derivative (redundant).
-  psVector BeamPos;    // Last position of the beam this cell.
-  Matrix   A,          // Floquet space to phase space transformation.
-           sigma;      // sigma matrix (redundant).
-  Vector2  maxampl[2]; /* Horizontal and vertical physical apertures:
-			    maxampl[X_][0] < x < maxampl[X_][1]
-			    maxampl[Y_][0] < y < maxampl[Y_][1]. */
+  partsName Name;       // Element name.
+  double    L,          // Length [m].
+            S;          // Position in the ring.
+  int       Fnum,       // Element Family #.
+            Knum;       // Element Kid #.
+  CellType  *next_ptr;  // pointer to next cell (for tracking).
+  Vector2   dS,         // Transverse displacement.
+            dT;         // dT = (cos(dT), sin(dT)).
+  ElemType  Elem;
+  Vector2   Nu,         // Phase advances.
+            Alpha,      // Alpha functions (redundant).
+            Beta,       // beta fonctions (redundant).
+            Eta, Etap;  // dispersion and its derivative (redundant).
+  psVector  BeamPos;    // Last position of the beam this cell.
+  Matrix    A,          // Floquet space to phase space transformation.
+            sigma;      // sigma matrix (redundant).
+  Vector2   maxampl[2]; /* Horizontal and vertical physical apertures:
+			   maxampl[X_][0] < x < maxampl[X_][1]
+			   maxampl[Y_][0] < y < maxampl[Y_][1]. */
 
   CellType(void);
   virtual CellType* clone(void) const {
@@ -144,20 +145,20 @@ class CellType : public ElemType {
     void LtoG(ss_vect<T> &ps, const Vector2 &S, const Vector2 &R,
 	      const double c0, const double c1, const double s1);
 
-  virtual void Propagate(ss_vect<double> &ps) { Elem_Propagate(ps); } 
-  virtual void Propagate(ss_vect<tps> &ps)    { Elem_Propagate(ps); } 
-  template<typename T>
-    void Elem_Propagate(ss_vect<T> &ps)
-    {
-      printf("CellType::Propagate\n");
-      /* Elem_Propagate(ps); */
-    }
+  /* virtual void Propagate(ss_vect<double> &ps) { Elem_Propagate(ps); }  */
+  /* virtual void Propagate(ss_vect<tps> &ps)    { Elem_Propagate(ps); }  */
+  /* template<typename T> */
+  /*   void Elem_Propagate(ss_vect<T> &ps) */
+  /*   { */
+  /*     printf("CellType::Propagate\n"); */
+  /*     this->Elem_Propagate(ps); */
+  /*   } */
 
   void Elem_Print(FILE *f, int Fnum);
 };
 
 
-class MarkerType : public CellType {
+class MarkerType : public CellType, ElemType {
  private:
  public:
 
@@ -177,7 +178,7 @@ class MarkerType : public CellType {
 };
 
 
-class DriftType : public CellType {
+class DriftType: public CellType, ElemType {
  private:
  public:
 
@@ -197,7 +198,7 @@ class DriftType : public CellType {
 };
 
 
-class MpoleType : public CellType {
+class MpoleType: public CellType, ElemType {
  private:
  public:
   int        method;     // Integration Method.
@@ -246,7 +247,7 @@ class MpoleType : public CellType {
 };
 
 
-class WigglerType : public CellType {
+class WigglerType: public CellType, ElemType {
  private:
  public:
   int       method;              // Integration Method.
@@ -301,7 +302,7 @@ class WigglerType : public CellType {
 };
 
 
-class InsertionType : public CellType {
+class InsertionType: public CellType, ElemType {
  private:
  public:
   int    method;       // Integration Method.
@@ -361,7 +362,7 @@ class InsertionType : public CellType {
 };
 
 
-class FieldMapType : public CellType {
+class FieldMapType: public CellType, ElemType {
  private:
  public:
   int    n_step;                       // number of integration steps.
@@ -403,7 +404,7 @@ class FieldMapType : public CellType {
 };
 
 
-class SolenoidType : public CellType {
+class SolenoidType: public CellType, ElemType {
  private:
  public:
   int     N;      // Number of integration steps
@@ -435,7 +436,7 @@ class SolenoidType : public CellType {
 };
 
 
-class CavityType : public CellType {
+class CavityType: public CellType, ElemType {
  private:
  public:
   int    N;           // Number of integration steps.
@@ -462,7 +463,7 @@ class CavityType : public CellType {
 };
 
 
-class SpreaderType : public CellType {
+class SpreaderType: public CellType, ElemType {
  private:
  public:
   double   E_max[Spreader_max];      // energy levels in increasing order
@@ -488,7 +489,7 @@ class SpreaderType : public CellType {
 };
 
 
-class RecombinerType : public CellType {
+class RecombinerType: public CellType, ElemType {
  private:
  public:
   double E_min;

@@ -167,7 +167,7 @@ void no_sxt(void)
   std::cout << "zeroing sextupoles" << std::endl;
   for (k = 0; k <= Lattice.param.Cell_nLoc; k++) {
     M = static_cast<MpoleType*>(Lattice.Cell[k]);
-    if ((Lattice.Cell[k]->Kind == Mpole) && (M->order >= Sext))
+    if ((Lattice.Cell[k]->Elem.Kind == Mpole) && (M->order >= Sext))
       SetKpar(Lattice.Cell[k]->Fnum, Lattice.Cell[k]->Knum, Sext, 0.0);
   }
 }
@@ -586,7 +586,7 @@ double get_code(CellType *Cell)
   double    code;
   MpoleType *M;
 
-  switch (Cell->Kind) {
+  switch (Cell->Elem.Kind) {
   case drift:
     code = 0.0;
     break;
@@ -723,8 +723,8 @@ void LatticeType::prt_lat(const int loc1, const int loc2, const char *fname,
 
   for (i = loc1; i <= loc2; i++) {
     if (all || (Lattice.Cell[i]->Fnum == Fnum)) {
-      if ((i != 0) && ((Lattice.Cell[i]->Kind == drift) ||
-	   ((Lattice.Cell[i]->Kind == Mpole) && (Lattice.Cell[i]->L != 0e0)))) {
+      if ((i != 0) && ((Lattice.Cell[i]->Elem.Kind == drift) ||
+	   ((Lattice.Cell[i]->Elem.Kind == Mpole) && (Lattice.Cell[i]->L != 0e0)))) {
 	M = static_cast<MpoleType*>(Lattice.Cell[i]);
 
 	for (k = 0; k < 2; k++) {
@@ -743,9 +743,9 @@ void LatticeType::prt_lat(const int loc1, const int loc2, const char *fname,
 	for (j = 1; j <= n; j++) {
 	  s += h;
 
-	  if (Lattice.Cell[i]->Kind == drift)
+	  if (Lattice.Cell[i]->Elem.Kind == drift)
 	    Drift(h, A);
-	  else if (Lattice.Cell[i]->Kind == Mpole) {
+	  else if (Lattice.Cell[i]->Elem.Kind == Mpole) {
 	    if ((j == 1) && (M->irho != 0e0))
 	      EdgeFocus(M->irho, M->Tx1, M->gap, A);
 
@@ -852,7 +852,7 @@ void LatticeType::prt_chrom_lat(void)
     if (i != 0) {
       ksi[i][X_] = ksi[i-1][X_]; ksi[i][Y_] = ksi[i-1][Y_];
     }
-    if (Lattice.Cell[i]->Kind == Mpole) {
+    if (Lattice.Cell[i]->Elem.Kind == Mpole) {
       M = static_cast<MpoleType*>(Lattice.Cell[i]);
       ksi[i][X_] -=
 	M->Bpar[Quad+HOMmax]
@@ -1015,7 +1015,7 @@ void LatticeType::CheckAlignTol(const char *OutputFile)
 
     for (j = loc_gs+1; j < loc_ge; j++) {
       M = static_cast<MpoleType*>(Lattice.Cell[j]);
-      if ((Lattice.Cell[j]->Kind == Mpole) &&
+      if ((Lattice.Cell[j]->Elem.Kind == Mpole) &&
 	  (M->n_design >= Quad || M->n_design >= Sext)) {
         loc = j;
 	dSsys[X_] = M->dSsys[X_];
@@ -1155,7 +1155,7 @@ void misalign_rms_type(const int type,
   if ((type >= All) && (type <= HOMmax)) {
     for (k = 1; k <= Lattice.param.Cell_nLoc; k++) {
       M = static_cast<MpoleType*>(Lattice.Cell[k]);
-      if ((Lattice.Cell[k]->Kind == Mpole) && ((type == M->n_design) ||
+      if ((Lattice.Cell[k]->Elem.Kind == Mpole) && ((type == M->n_design) ||
 	  ((type == All) &&
 	   ((Lattice.Cell[k]->Fnum != Lattice.param.gs) &&
 	    (Lattice.Cell[k]->Fnum != Lattice.param.ge))))) {
@@ -1179,7 +1179,7 @@ void misalign_sys_type(const int type,
   if ((type >= All) && (type <= HOMmax)) {
     for (k = 1; k <= Lattice.param.Cell_nLoc; k++) {
       M = static_cast<MpoleType*>(Lattice.Cell[k]);
-      if ((Lattice.Cell[k]->Kind == Mpole) && ((type == M->n_design) ||
+      if ((Lattice.Cell[k]->Elem.Kind == Mpole) && ((type == M->n_design) ||
 	  ((type == All) &&
 	   ((Lattice.Cell[k]->Fnum != Lattice.param.gs) &&
 	    (Lattice.Cell[k]->Fnum != Lattice.param.ge))))) {
@@ -1232,7 +1232,7 @@ void misalign_rms_girders(const int gs, const int ge,
 
     // move elements onto mis-aligned girder
     for (j = loc_gs+1; j < loc_ge; j++) {
-      if ((Lattice.Cell[j]->Kind == Mpole) ||
+      if ((Lattice.Cell[j]->Elem.Kind == Mpole) ||
 	  (Lattice.Cell[j]->Fnum == Lattice.param.bpm)) {
         s = Lattice.Cell[j]->S;
 	M = static_cast<MpoleType*>(Lattice.Cell[j]);
@@ -1284,7 +1284,7 @@ void misalign_sys_girders(const int gs, const int ge,
 
     // move elements onto mis-aligned girder
     for (j = loc_gs+1; j < loc_ge; j++) {
-      if ((Lattice.Cell[j]->Kind == Mpole)
+      if ((Lattice.Cell[j]->Elem.Kind == Mpole)
 	  || (Lattice.Cell[j]->Fnum == Lattice.param.bpm)) {
         s = Lattice.Cell[j]->S;
 	M = static_cast<MpoleType*>(Lattice.Cell[j]);
@@ -1331,7 +1331,7 @@ void set_aper_type(const int type, const double Dxmin, const double Dxmax,
   if (type >= All && type <= HOMmax) {
     for(k = 1; k <= Lattice.param.Cell_nLoc; k++) {
       M = static_cast<MpoleType*>(Lattice.Cell[k]);
-      if (((Lattice.Cell[k]->Kind == Mpole) &&
+      if (((Lattice.Cell[k]->Elem.Kind == Mpole) &&
 	   (M->n_design == type)) || (type == All))
 	set_aper_elem(Lattice.Cell[k]->Fnum, Lattice.Cell[k]->Knum,
 		      Dxmin, Dxmax, Dymin, Dymax);
@@ -1356,7 +1356,7 @@ void set_L(const int Fnum, const int Knum, const double L)
 
   loc = Lattice.Elem_GetPos(Fnum, Knum);
   cellp = Lattice.Cell[loc];
-  if (cellp->Kind == Mpole) {
+  if (cellp->Elem.Kind == Mpole) {
     M = static_cast<MpoleType*>(cellp);
     if (M->irho != 0e0) {
       // Phi is constant.
@@ -1601,7 +1601,7 @@ void set_bnL_design_type(const int type,
   if ((type >= Dip) && (type <= HOMmax)) {
     for (k = 1; k <= Lattice.param.Cell_nLoc; k++) {
       M = static_cast<MpoleType*>(Lattice.Cell[k]);
-      if ((Lattice.Cell[k]->Kind == Mpole) && (M->n_design == type))
+      if ((Lattice.Cell[k]->Elem.Kind == Mpole) && (M->n_design == type))
 	set_bnL_design_elem(Lattice.Cell[k]->Fnum, Lattice.Cell[k]->Knum,
 			    n, bnL, anL);
     }
@@ -1669,7 +1669,7 @@ void set_bnL_sys_type(const int type,
   if (type >= Dip && type <= HOMmax) {
     for(k = 1; k <= Lattice.param.Cell_nLoc; k++) {
       M = static_cast<MpoleType*>(Lattice.Cell[k]);
-      if ((Lattice.Cell[k]->Kind == Mpole) && (M->n_design == type))
+      if ((Lattice.Cell[k]->Elem.Kind == Mpole) && (M->n_design == type))
 	set_bnL_sys_elem(Lattice.Cell[k]->Fnum, Lattice.Cell[k]->Knum,
 			 n, bnL, anL);
     }
@@ -1751,7 +1751,7 @@ void set_bnL_rms_type(const int type,
   if (type >= Dip && type <= HOMmax) {
     for (k = 1; k <= Lattice.param.Cell_nLoc; k++) {
       M = static_cast<MpoleType*>(Lattice.Cell[k]);
-      if ((Lattice.Cell[k]->Kind == Mpole) && (M->n_design == type))
+      if ((Lattice.Cell[k]->Elem.Kind == Mpole) && (M->n_design == type))
 	set_bnL_rms_elem(Lattice.Cell[k]->Fnum, Lattice.Cell[k]->Knum,
 			 n, bnL, anL, new_rnd);
     }
@@ -1817,7 +1817,7 @@ void set_bnr_sys_type(const int type,
   if (type >= Dip && type <= HOMmax) {
     for(k = 1; k <= Lattice.param.Cell_nLoc; k++) {
       M = static_cast<MpoleType*>(Lattice.Cell[k]);
-      if ((Lattice.Cell[k]->Kind == Mpole)
+      if ((Lattice.Cell[k]->Elem.Kind == Mpole)
 	  && (M->n_design == type))
 	set_bnr_sys_elem(Lattice.Cell[k]->Fnum, Lattice.Cell[k]->Knum,
 			 n, bnr, anr);
@@ -1904,7 +1904,7 @@ void set_bnr_rms_type(const int type,
   if (type >= Dip && type <= HOMmax) {
     for(k = 1; k <= Lattice.param.Cell_nLoc; k++) {
       M = static_cast<MpoleType*>(Lattice.Cell[k]);
-      if ((Lattice.Cell[k]->Kind == Mpole) && (M->n_design == type))
+      if ((Lattice.Cell[k]->Elem.Kind == Mpole) && (M->n_design == type))
 	set_bnr_rms_elem(Lattice.Cell[k]->Fnum, Lattice.Cell[k]->Knum,
 			 n, bnr, anr, new_rnd);
     }
@@ -1947,7 +1947,7 @@ void set_ID_scl(const int Fnum, const int Knum, const double scl)
   InsertionType *ID;
   FieldMapType  *FM;
 
-  switch (Lattice.Cell[Lattice.Elem_GetPos(Fnum, Knum)]->Kind) {
+  switch (Lattice.Cell[Lattice.Elem_GetPos(Fnum, Knum)]->Elem.Kind) {
   case Wigl:
     // scale the ID field
     W =
@@ -3484,7 +3484,7 @@ void bend_cal(void)
 
   for (k = 1; k <= Lattice.param.Elem_nFam; k++) {
     M = static_cast<MpoleType*>(Lattice.ElemFam[k-1].CellF);
-    if ((Lattice.ElemFam[k-1].CellF->Kind == Mpole) &&
+    if ((Lattice.ElemFam[k-1].CellF->Elem.Kind == Mpole) &&
 	(M->irho != 0.0) &&
 	(M->Bpar[Quad+HOMmax] != 0.0))
       if (Lattice.ElemFam[k-1].nKid > 0) bend_cal_Fam(k);

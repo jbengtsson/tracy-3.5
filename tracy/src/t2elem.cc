@@ -2239,7 +2239,7 @@ void Elem_Print(FILE *f, int Fnum)
     return;
   }
 
-  switch (Lattice.ElemFam[Fnum-1].CellF->Kind) {
+  switch (Lattice.ElemFam[Fnum-1].CellF->Elem.Kind) {
   case PartsKind(drift):
     Drift_Print(f, Fnum);
     break;
@@ -2915,7 +2915,7 @@ double LatticeType::Elem_GetKval(int Fnum, int Knum, int Order)
 
   if (Fnum > 0) {
     cellp = Lattice.Cell[Lattice.ElemFam[Fnum-1].KidList[Knum-1]];
-    switch (cellp->Kind) {
+    switch (cellp->Elem.Kind) {
     case drift:
       Result = 0e0;
       break;

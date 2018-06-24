@@ -329,7 +329,7 @@ void SetErr(void)
 
   for (i = 1L; i <= Lattice.param.Cell_nLoc; i++) {
     Lattice.getelem(i, &Cell);
-    if (Cell.Kind == 2L) {
+    if (Cell.Elem.Kind == 2L) {
       M = static_cast<MpoleType*>(&Cell);
       if (M->order == 2L && Cell.dT[1] == 0) {
         if ((pair%2)==0) theta = fac*normranf();
@@ -389,7 +389,7 @@ void DefineCh(void)
 
   /* Look for indices for defining the vaccum pipe*/
   for (i = 0; i <= Lattice.param.Cell_nLoc; i++) {
-    if (Lattice.Cell[i]->Kind == marker){
+    if (Lattice.Cell[i]->Elem.Kind == marker){
       if (strncmp(Lattice.Cell[i]->Name,"ssep",4) == 0){
         if (trace) fprintf(stdout,"trouve %s Element numero %ld \n",
 			   Lattice.Cell[i]->Name,i);
@@ -1624,7 +1624,7 @@ void Multipole(void)
   for (i = 0; i <= Lattice.param.Cell_nLoc; i++) {
     Lattice.getelem(i, &Cell); /* get element */
 
-    if (Cell.Kind == Mpole) {
+    if (Cell.Elem.Kind == Mpole) {
       M = static_cast<MpoleType*>(&Cell);
       if (fabs(M->irho) > 0.0) {
         dlist[ndip] = i;
@@ -2031,7 +2031,7 @@ void SetSkewQuad(void)
   for (i = 0; i <= Lattice.param.Cell_nLoc; i++) {
     Lattice.getelem(i, &Cell); /* get element */
 
-    if (Cell.Kind == Mpole) {
+    if (Cell.Elem.Kind == Mpole) {
       M = static_cast<MpoleType*>(&Cell);
       if (fabs(M->Bpar[2L+HOMmax]) > 0.0) {
         qlist[nquad] = i;
@@ -2775,7 +2775,7 @@ void getA4antidamping()
   for (i = 0; i <= Lattice.param.Cell_nLoc; i++) {
     Lattice.getelem(i, &Cell); /* get element */
 
-    if (Cell.Kind == Mpole) {
+    if (Cell.Elem.Kind == Mpole) {
       M = static_cast<MpoleType*>(&Cell);
       if (fabs(M->Bpar[2L+HOMmax]) > 0.0) {
 	qlist[nquad] = i;

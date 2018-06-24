@@ -1,33 +1,33 @@
 
-CellType::CellType(void) : ElemType()
+CellType::CellType(void)
 {
-  this->Kind = PartsKind(undef);
+  this->Elem.Kind = PartsKind(undef);
 }
 
 
-MarkerType::MarkerType(void) : CellType()
+MarkerType::MarkerType(void) : ElemType()
 {
-  this->Kind = PartsKind(marker);
+  this->Elem.Kind = PartsKind(marker);
 
   this->dT[X_] = 1e0; this->dT[Y_] = 0e0;
   this->dS[X_] = 0e0; this->dS[Y_] = 0e0;
 }
 
 
-DriftType::DriftType(void) : CellType()
+DriftType::DriftType(void) : ElemType()
 {
-  this->Kind = PartsKind(drift);
+  this->Elem.Kind = PartsKind(drift);
 
   this->dT[X_] = 1e0; this->dT[Y_] = 0e0;
   this->dS[X_] = 0e0; this->dS[Y_] = 0e0;
 }
 
 
-MpoleType::MpoleType(void) : CellType()
+MpoleType::MpoleType(void) : ElemType()
 {
   int j;
 
-  this->Kind = PartsKind(Mpole);
+  this->Elem.Kind = PartsKind(Mpole);
 
   this->method = Meth_Fourth; this->N = 0;
   for (j = 0; j <= 1; j++) {
@@ -58,11 +58,11 @@ MpoleType::MpoleType(void) : CellType()
 }
 
 
-WigglerType::WigglerType(void) : CellType()
+WigglerType::WigglerType(void) : ElemType()
 {
   int j;
 
-  this->Kind = PartsKind(Wigl);
+  this->Elem.Kind = PartsKind(Wigl);
 
   this->method = Meth_Linear; this->N = 0;
   for (j = 0; j <= 1; j++) {
@@ -85,11 +85,11 @@ WigglerType::WigglerType(void) : CellType()
 }
 
 
-InsertionType::InsertionType(void) : CellType()
+InsertionType::InsertionType(void) : ElemType()
 {
   int i = 0, j = 0;
 
-  this->Kind = PartsKind(Insertion);
+  this->Elem.Kind = PartsKind(Insertion);
 
   this->method = Meth_Linear; this->N = 0;
   this->nx = 0; this->nz = 0;
@@ -141,10 +141,10 @@ InsertionType::InsertionType(void) : CellType()
 }
 
 
-FieldMapType::FieldMapType(void) : CellType()
+FieldMapType::FieldMapType(void) : ElemType()
 {
 
-  this->Kind = PartsKind(FieldMap);
+  this->Elem.Kind = PartsKind(FieldMap);
 
   this->n_step = 0; this->n[X_] = 0; this->n[Y_] = 0; this->n[Z_] = 0;
   this->scl = 1e0;
@@ -156,10 +156,10 @@ FieldMapType::FieldMapType(void) : CellType()
 }
 
 
-CavityType::CavityType(void) : CellType()
+CavityType::CavityType(void) : ElemType()
 {
 
-  this->Kind = PartsKind(Cavity);
+  this->Elem.Kind = PartsKind(Cavity);
 
   this->volt = 0e0; this->freq = 0e0; this->phi = 0e0; this->h = 0;
   this->entry_focus = false; this->exit_focus = false;
@@ -169,11 +169,11 @@ CavityType::CavityType(void) : CellType()
 }
 
 
-SpreaderType::SpreaderType(void) : CellType()
+SpreaderType::SpreaderType(void) : ElemType()
 {
   int k;
 
-  this->Kind = PartsKind(Spreader);
+  this->Elem.Kind = PartsKind(Spreader);
 
   for (k = 0; k < Spreader_max; k++)
     this->Cell_ptrs[k] = NULL;
@@ -183,20 +183,20 @@ SpreaderType::SpreaderType(void) : CellType()
 }
 
 
-RecombinerType::RecombinerType(void) : CellType()
+RecombinerType::RecombinerType(void) : ElemType()
 {
-  this->Kind = PartsKind(Recombiner);
+  this->Elem.Kind = PartsKind(Recombiner);
 
   this->dT[X_] = 1e0; this->dT[Y_] = 0e0;
   this->dS[X_] = 0e0; this->dS[Y_] = 0e0;
 }
 
 
-SolenoidType::SolenoidType(void) : CellType()
+SolenoidType::SolenoidType(void) : ElemType()
 {
   int j;
 
-  this->Kind = PartsKind(Solenoid);
+  this->Elem.Kind = PartsKind(Solenoid);
 
   this->N = 0;
   for (j = 0; j <= 1; j++) {
@@ -220,8 +220,8 @@ void MarkerType::Init(int Fnum)
     cellp = Lattice.Cell[elemfamp->KidList[i]];
 
     strncpy(cellp->Name, elemfamp->CellF->Name, NameLength);
-    cellp->Kind = elemfamp->CellF->Kind;
-    cellp->Reverse = elemfamp->CellF->Reverse;
+    cellp->Elem.Kind = elemfamp->CellF->Elem.Kind;
+    cellp->Elem.Reverse = elemfamp->CellF->Elem.Reverse;
   }
 } 
 
@@ -237,8 +237,9 @@ void DriftType::Init(int Fnum)
     cellp = Lattice.Cell[elemfamp->KidList[i-1]];
 
     strncpy(cellp->Name, elemfamp->CellF->Name, NameLength);
-    cellp->L = elemfamp->CellF->L; cellp->Kind = elemfamp->CellF->Kind;
-    cellp->Reverse = elemfamp->CellF->Reverse;
+    cellp->L = elemfamp->CellF->L;
+    cellp->Elem.Kind = elemfamp->CellF->Elem.Kind;
+    cellp->Elem.Reverse = elemfamp->CellF->Elem.Reverse;
   }
 }
 
@@ -282,8 +283,9 @@ void CavityType::Init(int Fnum)
     cellp = Lattice.Cell[elemfamp->KidList[i]];
 
     strncpy(cellp->Name, elemfamp->CellF->Name, NameLength);
-    cellp->L = elemfamp->CellF->L; cellp->Kind = elemfamp->CellF->Kind;
-    cellp->Reverse = elemfamp->CellF->Reverse;
+    cellp->L = elemfamp->CellF->L;
+    cellp->Elem.Kind = elemfamp->CellF->Elem.Kind;
+    cellp->Elem.Reverse = elemfamp->CellF->Elem.Reverse;
   }
 }
 
@@ -303,8 +305,9 @@ void WigglerType::Init(int Fnum)
     cellp = Lattice.Cell[elemfamp->KidList[i-1]];
 
     strncpy(cellp->Name, elemfamp->CellF->Name, NameLength);
-    cellp->L = elemfamp->CellF->L; cellp->Kind = elemfamp->CellF->Kind;
-    cellp->Reverse = elemfamp->CellF->Reverse;
+    cellp->L = elemfamp->CellF->L;
+    cellp->Elem.Kind = elemfamp->CellF->Elem.Kind;
+    cellp->Elem.Reverse = elemfamp->CellF->Elem.Reverse;
   }
 }
 
@@ -320,8 +323,9 @@ void FieldMapType::Init(int Fnum)
     cellp = Lattice.Cell[elemfamp->KidList[i-1]];
 
     strncpy(cellp->Name, elemfamp->CellF->Name, NameLength);
-    cellp->L = elemfamp->CellF->L; cellp->Kind = elemfamp->CellF->Kind;
-    cellp->Reverse = elemfamp->CellF->Reverse;
+    cellp->L = elemfamp->CellF->L;
+    cellp->Elem.Kind = elemfamp->CellF->Elem.Kind;
+    cellp->Elem.Reverse = elemfamp->CellF->Elem.Reverse;
   }
 }
 
@@ -339,8 +343,9 @@ void InsertionType::Init(int Fnum)
     cellp = Lattice.Cell[elemfamp->KidList[i-1]];
 
     strncpy(cellp->Name, elemfamp->CellF->Name, NameLength);
-    cellp->L = elemfamp->CellF->L; cellp->Kind = elemfamp->CellF->Kind;
-    cellp->Reverse = elemfamp->CellF->Reverse;
+    cellp->L = elemfamp->CellF->L;
+    cellp->Elem.Kind = elemfamp->CellF->Elem.Kind;
+    cellp->Elem.Reverse = elemfamp->CellF->Elem.Reverse;
   }
 }
 
@@ -356,8 +361,8 @@ void SpreaderType::Init(int Fnum)
      cellp = Lattice.Cell[elemfamp->KidList[i-1]];
 
     strncpy(cellp->Name, elemfamp->CellF->Name, NameLength);
-    cellp->Kind = elemfamp->CellF->Kind;
-    cellp->Reverse = elemfamp->CellF->Reverse;
+    cellp->Elem.Kind = elemfamp->CellF->Elem.Kind;
+    cellp->Elem.Reverse = elemfamp->CellF->Elem.Reverse;
   }
 }
 
@@ -373,8 +378,8 @@ void RecombinerType::Init(int Fnum)
     cellp = Lattice.Cell[elemfamp->KidList[i-1]];
 
     strncpy(cellp->Name, elemfamp->CellF->Name, NameLength);
-    cellp->Kind = elemfamp->CellF->Kind;
-    cellp->Reverse = elemfamp->CellF->Reverse;
+    cellp->Elem.Kind = elemfamp->CellF->Elem.Kind;
+    cellp->Elem.Reverse = elemfamp->CellF->Elem.Reverse;
   }
 }
 void SolenoidType::Init(int Fnum)
@@ -389,8 +394,8 @@ void SolenoidType::Init(int Fnum)
 
     strncpy(cellp->Name, elemfamp->CellF->Name, NameLength);
     cellp->L = elemfamp->CellF->L;
-    cellp->Kind = elemfamp->CellF->Kind;
-    cellp->Reverse = elemfamp->CellF->Reverse;
+    cellp->Elem.Kind = elemfamp->CellF->Elem.Kind;
+    cellp->Elem.Reverse = elemfamp->CellF->Elem.Reverse;
   }
 }
 
@@ -406,8 +411,9 @@ void LatticeType::Fam_Init(const int Fnum)
     cellp = this->Cell[elemfamp->KidList[i-1]];
 
     strncpy(cellp->Name, elemfamp->CellF->Name, NameLength);
-    cellp->L = elemfamp->CellF->L; cellp->Kind = elemfamp->CellF->Kind;
-    cellp->Reverse = elemfamp->CellF->Reverse;
+    cellp->L = elemfamp->CellF->L;
+    cellp->Elem.Kind = elemfamp->CellF->Elem.Kind;
+    cellp->Elem.Reverse = elemfamp->CellF->Elem.Reverse;
   }
 }
 
@@ -517,8 +523,8 @@ std::ostream& LatticeType::Show_ElemFam(std::ostream &str) const
 	<< "\n  " << std::setw(3) << j+1
 	<< " " << std::setw(3) << std::setw(3) << this->ElemFam[j].nKid
 	<< " " << std::setw(5) << this->ElemFam[j].CellF->L
-	<< " " << std::setw(2) << this->ElemFam[j].CellF->Kind;
-    if (this->ElemFam[j].CellF->Kind == PartsKind(Mpole)) {
+	<< " " << std::setw(2) << this->ElemFam[j].CellF->Elem.Kind;
+    if (this->ElemFam[j].CellF->Elem.Kind == PartsKind(Mpole)) {
       M = static_cast<MpoleType*>(this->ElemFam[j].CellF);
       str << " " << std::setw(2) << M->n_design;
     } else 
@@ -548,9 +554,9 @@ std::ostream& LatticeType::Show(std::ostream &str) const
 	<< "  " << std::setw(4) << k
 	<< " " << std::setw(3) << this->Cell[k]->Fnum
 	<< " " << std::setw(3) << this->Cell[k]->Knum
-	<< " " << std::setw(2) << this->Cell[k]->Kind
-	<< " " << std::setw(1) << this->Cell[k]->Reverse;
-    if (this->Cell[k]->Kind == PartsKind(Mpole)) {
+	<< " " << std::setw(2) << this->Cell[k]->Elem.Kind
+	<< " " << std::setw(1) << this->Cell[k]->Elem.Reverse;
+    if (this->Cell[k]->Elem.Kind == PartsKind(Mpole)) {
       M = static_cast<MpoleType*>(this->Cell[k]);
       str << std::fixed << std::setprecision(3)
 	  << " " << std::setw(2) << M->n_design

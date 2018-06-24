@@ -88,9 +88,9 @@ inline bool CheckAmpl(const ss_vect<T> &x, const long int loc)
 template<typename T>
 void LatticeType::Elem_Pass(const long i, ss_vect<T> &x)
 {
-  printf("entering Pass %3ld %10s\n", i, Cell[i]->Name);
-  Cell[i]->Propagate(x);
-  printf("leaving  Pass\n");
+  printf("entering Propagate %3ld %10s\n", i, Cell[i]->Name);
+  Cell[i]->Elem.Propagate(x);
+  printf("leaving  Propagate\n");
 }
 
 
@@ -114,9 +114,9 @@ void LatticeType::Cell_Pass(const long i0, const long i1, ss_vect<T> &x,
   else {
     lastpos = i1;
     for (i = i0; i <= i1; i++) {
-      printf("entering Elem_Pass %3ld\n", i);
-      Elem_Pass(i, x);
-      printf("exiting  Elem_Pass\n");
+      printf("entering Propagate %3ld %10s\n", i, Cell[i]->Name);
+      Cell[i]->Elem.Propagate(x);
+      printf("exiting  Propagate\n");
       if (!CheckAmpl(x, i)) { lastpos = i; break; }
     }
   }
@@ -287,7 +287,8 @@ void LatticeType::Cell_Init(void)
   SI_init();
 
   this->Cell[0] = new CellType();
-  this->Cell[0]->Kind = PartsKind(undef); this->Cell[0]->Reverse = false;
+  this->Cell[0]->Elem.Kind = PartsKind(undef);
+  this->Cell[0]->Elem.Reverse = false;
   strcpy(this->Cell[0]->Name, first_name);
 
   for (i = 1; i <= this->param.Elem_nFam; i++) {
@@ -295,26 +296,26 @@ void LatticeType::Cell_Init(void)
     
     if (debug)
       printf("  %3ld %1d |%s|",
-	     i, elemfamp->CellF->Kind, elemfamp->CellF->Name);
+	     i, elemfamp->CellF->Elem.Kind, elemfamp->CellF->Name);
 
     // this->ElemFam[i-1].CellF.Init(i);
 
     for (j = 1; j <= elemfamp->nKid; j++) {
       cellp = this->Cell[elemfamp->KidList[j-1]];
-      Fnum = cellp->Fnum; Knum = cellp->Knum; reverse = cellp->Reverse;
+      Fnum = cellp->Fnum; Knum = cellp->Knum; reverse = cellp->Elem.Reverse;
 
-      if (cellp->Kind == PartsKind(undef))
+      if (cellp->Elem.Kind == PartsKind(undef))
 	delete cellp;
       else {
 	printf("\nCell_Init: %d %d is not undefined %d\n",
-	       cellp->Fnum, cellp->Knum, cellp->Kind);
+	       cellp->Fnum, cellp->Knum, cellp->Elem.Kind);
       }
 
       this->Cell[elemfamp->KidList[j-1]] = elemfamp->CellF->clone();
       cellp = this->Cell[elemfamp->KidList[j-1]];
       // cellp->Fnum = i; cellp->Knum = j;
       cellp->Fnum = Fnum; cellp->Knum = Knum;
-      cellp->Reverse = reverse;
+      cellp->Elem.Reverse = reverse;
 
       if (debug) {
 	printf(" %4d", elemfamp->KidList[j-1]);

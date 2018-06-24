@@ -87,35 +87,35 @@ void get_kind(const int kind, CellType *Cell)
 
   switch (kind) {
   case marker_:
-    Cell->Kind = PartsKind(marker);
+    Cell->Elem.Kind = PartsKind(marker);
     Cell = new MarkerType();
     break;
   case drift_:
-    Cell->Kind = PartsKind(drift);
+    Cell->Elem.Kind = PartsKind(drift);
     Cell = new DriftType();
     break;
   case mpole_:
-    Cell->Kind = PartsKind(Mpole);
+    Cell->Elem.Kind = PartsKind(Mpole);
     M = new MpoleType();
     M->thick = pthicktype(thick);
     Cell = M;
     break;
   case cavity_:
-    Cell->Kind = PartsKind(Cavity);
+    Cell->Elem.Kind = PartsKind(Cavity);
     Cell = new CavityType();
     break;
   case thinkick_:
-    Cell->Kind = PartsKind(Mpole);
+    Cell->Elem.Kind = PartsKind(Mpole);
     M = new MpoleType();
     M->thick = pthicktype(thin);
     Cell = M;
     break;
   case wiggler_:
-    Cell->Kind = PartsKind(Wigl);
+    Cell->Elem.Kind = PartsKind(Wigl);
     Cell = new WigglerType();
     break;
   case insertion_:
-    Cell->Kind = PartsKind(Insertion);
+    Cell->Elem.Kind = PartsKind(Insertion);
     Cell = new InsertionType();
     break;
   default:
@@ -182,8 +182,8 @@ void LatticeType::rdmfile(const char *mfile_dat)
     sscanf(line, "%d %d %d", &kind, &method, &n);
     get_kind(kind, Lattice.Cell[i]);
     if (i > 0)
-      Lattice.ElemFam[Lattice.Cell[i]->Fnum-1].CellF->Kind
-	= Lattice.Cell[i]->Kind;
+      Lattice.ElemFam[Lattice.Cell[i]->Fnum-1].CellF->Elem.Kind
+	= Lattice.Cell[i]->Elem.Kind;
 
     inf.getline(line, max_str);
     if (prt) printf("%s\n", line);
@@ -193,7 +193,7 @@ void LatticeType::rdmfile(const char *mfile_dat)
 
     Lattice.Cell[i]->L = 0.0;
 
-    switch (Lattice.Cell[i]->Kind) {
+    switch (Lattice.Cell[i]->Elem.Kind) {
     case undef:
       std::cout << "rdmfile: unknown type " << i << std::endl;
       exit_(1);
