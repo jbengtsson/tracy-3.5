@@ -3201,7 +3201,7 @@ bool LatticeType::Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       FM->phi = t*M_PI/180.0; FM->n_step = k1; FM->scl = scaling;
       if (CheckUDItable("energy         ", LINK) != 0) {
 	RefUDItable("energy         ", &this->param.Energy, LINK);
-	if (strcmp(str1, "") != 0) FM->get_B(str1, FM);
+	if (strcmp(str1, "") != 0) FM->get_B(str1);
       } else {
 	std::cout << "Fieldmap: energy not defined" << std::endl;
 	exit_(1);

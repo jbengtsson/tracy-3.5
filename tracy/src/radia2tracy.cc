@@ -248,8 +248,8 @@ void Read_IDfile(char *fic_radia, double &L, int &nx, int &nz,
 
 
 template<typename T>
-void LinearInterpolation2(T &X, T &Z, T &TX, T &TZ, T &B2,
-			  CellType &Cell, bool &out, int order)
+void InsertionType::LinearInterpolation2(T &X, T &Z, T &TX, T &TZ, T &B2,
+					 bool &out, int order)
 {
   int           i, ix = 0, iz = 0;
   T             T1, U, THX = 0.0, THZ = 0.0;
@@ -258,28 +258,26 @@ void LinearInterpolation2(T &X, T &Z, T &TX, T &TZ, T &B2,
   int           nx = 0, nz = 0;
   InsertionType *ID;
   
-  ID = static_cast<InsertionType*>(&Cell);
+  nx = nx; nz = nz;
   
-  nx = ID->nx; nz = ID->nz;
-  
-  xstep = ID->tabx[1]-ID->tabx[0]; /* increasing values */
-  zstep = ID->tabz[0]-ID->tabz[1]; /* decreasing values */
+  xstep = tabx[1]-tabx[0]; /* increasing values */
+  zstep = tabz[0]-tabz[1]; /* decreasing values */
   
   if (traceID) printf("xstep = % f zstep = % f\n", xstep, zstep);
   
   /* test wether X and Z within the transverse map area */
-  if (X < ID->tabx[0] || X > ID->tabx[nx-1]) {
+  if (X < tabx[0] || X > tabx[nx-1]) {
     printf("LinearInterpolation2: X out of borders \n");
     printf("X = % lf but tabx[0] = % lf and tabx[nx-1] = % lf\n",
-	   is_double<T>::cst(X), ID->tabx[0], ID->tabx[nx-1]);
+	   is_double<T>::cst(X), tabx[0], tabx[nx-1]);
     out = true;
     return;
   }
   
-  if (Z > ID->tabz[0] || Z < ID->tabz[nz-1]) {
+  if (Z > tabz[0] || Z < tabz[nz-1]) {
     printf("LinearInterpolation2: Z out of borders \n");
     printf("Z = % lf but tabz[0] = % lf and tabz[nz-1] = % lf\n",
-	   is_double<T>::cst(Z),  ID->tabz[0], ID->tabz[nz-1]);
+	   is_double<T>::cst(Z),  tabz[0], tabz[nz-1]);
     out = true;
     return;
   }
@@ -288,41 +286,41 @@ void LinearInterpolation2(T &X, T &Z, T &TX, T &TZ, T &B2,
   
   /* looking for the index for X */
   i = 0;
-  while (X >= ID->tabx[i]  && i <= nx-1) {
+  while (X >= tabx[i]  && i <= nx-1) {
     i++;
     if (traceID)
       printf("%2d % lf % lf % lf \n",
-	     i, is_double<T>::cst(X), ID->tabx[i], ID->tabx[i+1]);
+	     i, is_double<T>::cst(X), tabx[i], tabx[i+1]);
   }
   ix = i - 1;
   
   /* looking for the index for Z */
   i = 0;
-  while (Z <= ID->tabz[i] && i <= nz-1) {
+  while (Z <= tabz[i] && i <= nz-1) {
     i++;
     if (traceID)
       printf("%2d % lf % lf % lf \n",
-	     i, is_double<T>::cst(Z), ID->tabz[i], ID->tabz[i+1]);
+	     i, is_double<T>::cst(Z), tabz[i], tabz[i+1]);
   }
   iz = i - 1;
   
   if (traceID) printf("Indices are ix=%d and iz=%d\n", ix, iz);
   
   /** Bilinear Interpolation **/
-  U = (X - ID->tabx[ix])/xstep; T1 = -(Z - ID->tabz[iz])/zstep;
+  U = (X - tabx[ix])/xstep; T1 = -(Z - tabz[iz])/zstep;
   
   if (order == 1) { // first order kick map interpolation
     if (traceID) printf("first order kick map interpolation\n");
     if (ix >= 0 && iz >= 0) {
-      THX = (1.0-U)*(1.0-T1)*ID->thetax1[iz][ix]
-	    + U*(1.0-T1)*ID->thetax1[iz][ix+1]
-	    + (1.0-U)*T1*ID->thetax1[iz+1][ix]
-	    + U*T1*ID->thetax1[iz+1][ix+1];
+      THX = (1.0-U)*(1.0-T1)*thetax1[iz][ix]
+	    + U*(1.0-T1)*thetax1[iz][ix+1]
+	    + (1.0-U)*T1*thetax1[iz+1][ix]
+	    + U*T1*thetax1[iz+1][ix+1];
       
-      THZ = (1.0-U)*(1.0-T1)*ID->thetaz1[iz][ix]
-	    + U*(1.0-T1)*ID->thetaz1[iz][ix+1]
-	    + (1.0-U)*T1*ID->thetaz1[iz+1][ix]
-	    + U*T1*ID->thetaz1[iz+1][ix+1];
+      THZ = (1.0-U)*(1.0-T1)*thetaz1[iz][ix]
+	    + U*(1.0-T1)*thetaz1[iz][ix+1]
+	    + (1.0-U)*T1*thetaz1[iz+1][ix]
+	    + U*T1*thetaz1[iz+1][ix+1];
     }
     
     if (traceID) {
@@ -331,15 +329,15 @@ void LinearInterpolation2(T &X, T &Z, T &TX, T &TZ, T &B2,
 	     is_double<T>::cst(T1));
       printf("THX = % lf 11= % lf 12= %lf 21 = %lf 22 =%lf \n",
 	     is_double<T>::cst(THX),
-	     ID->thetax1[iz][ix], ID->thetax1[iz][ix+1],
-	     ID->thetax1[iz+1][ix], ID->thetax1[iz+1][ix+1]);
+	     thetax1[iz][ix], thetax1[iz][ix+1],
+	     thetax1[iz+1][ix], thetax1[iz+1][ix+1]);
       printf("Z=% f interpolation : U= % lf T =% lf\n",
 	     is_double<T>::cst(Z), is_double<T>::cst(U),
 	     is_double<T>::cst(T1));
       printf("THZ = % lf 11= % lf 12= %lf 21 = %lf 22 =%lf \n",
 	     is_double<T>::cst(THZ),
-	     ID->thetaz1[iz][ix], ID->thetaz1[iz][ix+1],
-	     ID->thetaz1[iz+1][ix],ID->thetaz1[iz+1][ix+1]);
+	     thetaz1[iz][ix], thetaz1[iz][ix+1],
+	     thetaz1[iz+1][ix],thetaz1[iz+1][ix+1]);
     }
   }
   
@@ -347,23 +345,23 @@ void LinearInterpolation2(T &X, T &Z, T &TX, T &TZ, T &B2,
     if (traceID) printf("second order kick map interpolation\n");
     if (ix >= 0 && iz >= 0) {
       THX =
-	(1.0-U)*(1.0-T1)*ID->thetax[iz][ix]
-	+ U*(1.0-T1)*ID->thetax[iz][ix+1]
-	+ (1.0-U)*T1*ID->thetax[iz+1][ix]
-	+ U*T1*ID->thetax[iz+1][ix+1];
+	(1.0-U)*(1.0-T1)*thetax[iz][ix]
+	+ U*(1.0-T1)*thetax[iz][ix+1]
+	+ (1.0-U)*T1*thetax[iz+1][ix]
+	+ U*T1*thetax[iz+1][ix+1];
       
       THZ =
-	(1.0-U)*(1.0-T1)*ID->thetaz[iz][ix]
-	+ U*(1.0-T1)*ID->thetaz[iz][ix+1]
-	+ (1.0-U)*T1*ID->thetaz[iz+1][ix]
-	+ U*T1*ID->thetaz[iz+1][ix+1];
+	(1.0-U)*(1.0-T1)*thetaz[iz][ix]
+	+ U*(1.0-T1)*thetaz[iz][ix+1]
+	+ (1.0-U)*T1*thetaz[iz+1][ix]
+	+ U*T1*thetaz[iz+1][ix+1];
 
-      if (ID->long_comp)
+      if (long_comp)
 	B2 =
-	  (1.0-U)*(1.0-T1)*ID->B2[iz][ix]
-	  + U*(1.0-T1)*ID->B2[iz][ix+1]
-	  + (1.0-U)*T1*ID->B2[iz+1][ix]
-	  + U*T1*ID->B2[iz+1][ix+1];
+	  (1.0-U)*(1.0-T1)*B2[iz][ix]
+	  + U*(1.0-T1)*B2[iz][ix+1]
+	  + (1.0-U)*T1*B2[iz+1][ix]
+	  + U*T1*B2[iz+1][ix+1];
     }
     
     if (traceID) {
@@ -372,19 +370,19 @@ void LinearInterpolation2(T &X, T &Z, T &TX, T &TZ, T &B2,
 	     is_double<T>::cst(T1));
       printf("THX = % lf 11= % lf 12= %lf 21 = %lf 22 =%lf \n",
 	     is_double<T>::cst(THX),
-	     ID->thetax[iz][ix], ID->thetax[iz][ix+1],
-	     ID->thetax[iz+1][ix], ID->thetax[iz+1][ix+1]);
+	     thetax[iz][ix], thetax[iz][ix+1],
+	     thetax[iz+1][ix], thetax[iz+1][ix+1]);
       printf("Z=% f interpolation : U= % lf T =% lf\n",
 	     is_double<T>::cst(Z), is_double<T>::cst(U),
 	     is_double<T>::cst(T1));
       printf("THZ = % lf 11= % lf 12= %lf 21 = %lf 22 =%lf \n",
 	     is_double<T>::cst(THZ),
-	     ID->thetaz[iz][ix], ID->thetaz[iz][ix+1],
-	     ID->thetaz[iz+1][ix], ID->thetaz[iz+1][ix+1]);
+	     thetaz[iz][ix], thetaz[iz][ix+1],
+	     thetaz[iz+1][ix], thetaz[iz+1][ix+1]);
       printf("B2 = % lf 11= % lf 12= %lf 21 = %lf 22 =%lf \n",
 	     is_double<T>::cst(THZ),
-	     ID->B2[iz][ix], ID->B2[iz][ix+1],
-	     ID->B2[iz+1][ix],ID->B2[iz+1][ix+1]);
+	     B2[iz][ix], B2[iz][ix+1],
+	     B2[iz+1][ix], B2[iz+1][ix+1]);
     }
   }
   TX = THX; TZ = THZ;

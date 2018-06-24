@@ -147,10 +147,10 @@ class CellType : public ElemType {
     void LtoG(ss_vect<T> &ps, const Vector2 &S, const Vector2 &R,
 	      const double c0, const double c1, const double s1);
 
-  virtual void Propagate(ss_vect<double> &ps) { templ_Propagate(ps); } 
-  virtual void Propagate(ss_vect<tps> &ps) { templ_Propagate(ps); } 
+  virtual void Propagate(ss_vect<double> &ps) { Elem_Propagate(ps); } 
+  virtual void Propagate(ss_vect<tps> &ps) { Elem_Propagate(ps); } 
   template<typename T>
-    void templ_Propagate(ss_vect<T> &ps)
+    void Elem_Propagate(ss_vect<T> &ps)
     {
       printf("CellType::Propagate\n");
       Propagate(ps);
@@ -170,10 +170,10 @@ class MarkerType : public CellType {
   }
   virtual std::ostream& Show(std::ostream &str) const;
 
-  virtual void Propagate(ss_vect<double> &ps) { templ_Propagate(ps); } 
-  virtual void Propagate(ss_vect<tps> &ps) { templ_Propagate(ps); } 
+  virtual void Propagate(ss_vect<double> &ps) { Elem_Propagate(ps); } 
+  virtual void Propagate(ss_vect<tps> &ps) { Elem_Propagate(ps); } 
   template<typename T>
-    void templ_Propagate(ss_vect<T> &ps);
+    void Elem_Propagate(ss_vect<T> &ps);
 
   void Init(int Fnum);
   void Marker_Print(FILE *f, int Fnum);
@@ -190,10 +190,10 @@ class DriftType : public CellType {
   }
   virtual std::ostream& Show(std::ostream &str) const;
 
-  virtual void Propagate(ss_vect<double> &ps) { templ_Propagate(ps); } 
-  virtual void Propagate(ss_vect<tps> &ps) { templ_Propagate(ps); } 
+  virtual void Propagate(ss_vect<double> &ps) { Elem_Propagate(ps); } 
+  virtual void Propagate(ss_vect<tps> &ps) { Elem_Propagate(ps); } 
   template<typename T>
-    void templ_Propagate(ss_vect<T> &ps);
+    void Elem_Propagate(ss_vect<T> &ps);
 
   void Init(int Fnum);
   void Drift_Print(FILE *f, int Fnum);
@@ -237,10 +237,10 @@ class MpoleType : public CellType {
   }
   virtual std::ostream& Show(std::ostream &str) const;
 
-  virtual void Propagate(ss_vect<double> &ps) { templ_Propagate(ps); } 
-  virtual void Propagate(ss_vect<tps> &ps) { templ_Propagate(ps); } 
+  virtual void Propagate(ss_vect<double> &ps) { Elem_Propagate(ps); } 
+  virtual void Propagate(ss_vect<tps> &ps) { Elem_Propagate(ps); } 
   template<typename T>
-    void templ_Propagate(ss_vect<T> &ps);
+    void Elem_Propagate(ss_vect<T> &ps);
 
   void SI_init(void);
 
@@ -279,10 +279,25 @@ class WigglerType : public CellType {
     return new WigglerType(static_cast<const WigglerType&>(*this));
   }
 
-  virtual void Propagate(ss_vect<double> &ps) { templ_Propagate(ps); } 
-  virtual void Propagate(ss_vect<tps> &ps) { templ_Propagate(ps); } 
+  virtual void Propagate(ss_vect<double> &ps) { Elem_Propagate(ps); } 
+  virtual void Propagate(ss_vect<tps> &ps) { Elem_Propagate(ps); } 
   template<typename T>
-    void templ_Propagate(ss_vect<T> &ps);
+    void Elem_Propagate(ss_vect<T> &ps);
+
+  template<typename T>
+    void Wiggler_pass_EF(ss_vect<T> &x);
+  template<typename T>
+    void Wiggler_pass_EF2(ss_vect<T> &x);
+  template<typename T>
+    void Wiggler_pass_EF3(ss_vect<T> &x);
+  template<typename T>
+    void get_Axy(const double z, ss_vect<T> &x, T AxoBrho[], T AyoBrho[]);
+  template<typename T>
+    void get_Axy2(const double z, const double kz, ss_vect<T> &x,
+		  T AxoBrho[], T AyoBrho[]);
+  template<typename T>
+    void get_Axy_EF3(const double z, const ss_vect<T> &x,
+		     T &AoBrho, T dAoBrho[], T &dp, const bool hor);
 
   void Init(int Fnum);
   void Wiggler_Print(FILE *f, int Fnum);
@@ -335,10 +350,14 @@ class InsertionType : public CellType {
     return new InsertionType(static_cast<const InsertionType&>(*this));
   }
 
-  virtual void Propagate(ss_vect<double> &ps) { templ_Propagate(ps); } 
-  virtual void Propagate(ss_vect<tps> &ps) { templ_Propagate(ps); } 
+  virtual void Propagate(ss_vect<double> &ps) { Elem_Propagate(ps); } 
+  virtual void Propagate(ss_vect<tps> &ps) { Elem_Propagate(ps); } 
   template<typename T>
-    void templ_Propagate(ss_vect<T> &ps);
+    void Elem_Propagate(ss_vect<T> &ps);
+
+  template<typename T>
+    void LinearInterpolation2(T &X, T &Z, T &TX, T &TZ, T &B2, bool &out,
+			      int order);
 
   void Init(int Fnum);
   void Insertion_Print(FILE *f, int Fnum);
@@ -361,12 +380,28 @@ class FieldMapType : public CellType {
     return new FieldMapType(static_cast<const FieldMapType&>(*this));
   }
 
-  virtual void Propagate(ss_vect<double> &ps) { templ_Propagate(ps); } 
-  virtual void Propagate(ss_vect<tps> &ps) { templ_Propagate(ps); } 
+  virtual void Propagate(ss_vect<double> &ps) { Elem_Propagate(ps); } 
+  virtual void Propagate(ss_vect<tps> &ps) { Elem_Propagate(ps); } 
   template<typename T>
-    void templ_Propagate(ss_vect<T> &ps);
+    void Elem_Propagate(ss_vect<T> &ps);
 
-  void get_B(const char *file_name, FieldMapType *FM);
+  template<typename T>
+    void FieldMap_pass_SI(ss_vect<T> &ps, int k);
+  template<typename T>
+    void FieldMap_pass_RK(ss_vect<T> &ps, int k);
+  void get_B_NSLS_II(const char *filename);
+  void get_B_Oleg1(const char *filename);
+  void get_B_Oleg2(const char *filename);
+  template<typename T>
+    void f_FM(const double z, const ss_vect<T> &ps, ss_vect<T> &Dps);
+  template<typename T>
+    void rk4_(const ss_vect<T> &y, const ss_vect<T> dydx,
+	      const double x, const double h, ss_vect<T> &yout,
+	      void (*derivs)(const double, const ss_vect<T> &, ss_vect<T> &));
+
+  void get_B(const char *file_name);
+  void get_B_DIAMOND(const char *filename);
+
   void Init(int Fnum);
 };
 
@@ -391,10 +426,13 @@ class SolenoidType : public CellType {
     return new SolenoidType(static_cast<const SolenoidType&>(*this));
   }
 
-  virtual void Propagate(ss_vect<double> &ps) { templ_Propagate(ps); } 
-  virtual void Propagate(ss_vect<tps> &ps) { templ_Propagate(ps); } 
+  virtual void Propagate(ss_vect<double> &ps) { Elem_Propagate(ps); } 
+  virtual void Propagate(ss_vect<tps> &ps) { Elem_Propagate(ps); } 
   template<typename T>
-    void templ_Propagate(ss_vect<T> &ps);
+    void Elem_Propagate(ss_vect<T> &ps);
+  
+  template<typename T>
+    void sol_pass(ss_vect<T> &x);
 
   void Init(int Fnum);
 };
@@ -418,10 +456,10 @@ class CavityType : public CellType {
 
   virtual std::ostream& Show(std::ostream &str) const;
 
-  virtual void Propagate(ss_vect<double> &ps) { templ_Propagate(ps); } 
-  virtual void Propagate(ss_vect<tps> &ps) { templ_Propagate(ps); } 
+  virtual void Propagate(ss_vect<double> &ps) { Elem_Propagate(ps); } 
+  virtual void Propagate(ss_vect<tps> &ps) { Elem_Propagate(ps); } 
   template<typename T>
-    void templ_Propagate(ss_vect<T> &ps);
+    void Elem_Propagate(ss_vect<T> &ps);
 
   void Init(int Fnum);
 };
@@ -440,10 +478,10 @@ class SpreaderType : public CellType {
 
   /* virtual std::ostream& Show(std::ostream &str) const; */
 
-  virtual void Propagate(ss_vect<double> &ps) { templ_Propagate(ps); } 
-  virtual void Propagate(ss_vect<tps> &ps) { templ_Propagate(ps); } 
+  virtual void Propagate(ss_vect<double> &ps) { Elem_Propagate(ps); } 
+  virtual void Propagate(ss_vect<tps> &ps) { Elem_Propagate(ps); } 
   template<typename T>
-    void templ_Propagate(ss_vect<T> &ps);
+    void Elem_Propagate(ss_vect<T> &ps);
 
   void Init(int Fnum);
 };
@@ -462,10 +500,10 @@ class RecombinerType : public CellType {
 
   /* virtual std::ostream& Show(std::ostream &str) const; */
 
-  virtual void Propagate(ss_vect<double> &ps) { templ_Propagate(ps); } 
-  virtual void Propagate(ss_vect<tps> &ps) { templ_Propagate(ps); } 
+  virtual void Propagate(ss_vect<double> &ps) { Elem_Propagate(ps); } 
+  virtual void Propagate(ss_vect<tps> &ps) { Elem_Propagate(ps); } 
   template<typename T>
-    void templ_Propagate(ss_vect<T> &ps);
+    void Elem_Propagate(ss_vect<T> &ps);
 
   void Init(int Fnum);
 };

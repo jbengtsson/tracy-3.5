@@ -214,7 +214,7 @@ void Drift(const double L, ss_vect<T> &ps)
 
 
 template<typename T>
-void DriftType::templ_Propagate(ss_vect<T> &x)
+void DriftType::Elem_Propagate(ss_vect<T> &x)
 {
   printf("DriftType::Pass/n");
   Drift(this->L, x);
@@ -541,7 +541,7 @@ void quad_fringe(const double b2, ss_vect<T> &x)
 
 
 template<typename T>
-void MpoleType::templ_Propagate(ss_vect<T> &x)
+void MpoleType::Elem_Propagate(ss_vect<T> &x)
 {
   int    seg = 0;
   double k = 0e0, dL = 0e0, dL1 = 0e0, dL2 = 0e0;
@@ -672,9 +672,9 @@ void MpoleType::templ_Propagate(ss_vect<T> &x)
 
 
 template<typename T>
-void MarkerType::templ_Propagate(ss_vect<T> &X)
+void MarkerType::Elem_Propagate(ss_vect<T> &X)
 {
-  printf("MarkerType::templ_Propagate\n");
+  printf("MarkerType::Elem_Propagate\n");
   /* Global -> Local */
   // GtoL(X, this->dS, this->dT, 0e0, 0e0, 0e0);
   /* Local -> Global */
@@ -685,7 +685,7 @@ void MarkerType::templ_Propagate(ss_vect<T> &X)
 #if 1
 
 template<typename T>
-void CavityType::templ_Propagate(ss_vect<T> &X)
+void CavityType::Elem_Propagate(ss_vect<T> &X)
 {
   T delta;
 
@@ -854,8 +854,8 @@ void Cav_Pass(ss_vect<T> &ps)
 #endif
 
 template<typename T>
-inline void get_Axy(const WigglerType *W, const double z,
-		    ss_vect<T> &x, T AxoBrho[], T AyoBrho[])
+inline void WigglerType::get_Axy(const double z, ss_vect<T> &x,
+				 T AxoBrho[], T AyoBrho[])
 
 {
   int    i;
@@ -866,27 +866,27 @@ inline void get_Axy(const WigglerType *W, const double z,
     AxoBrho[i] = 0e0; AyoBrho[i] = 0e0;
   }
 
-  for (i = 0; i < W->n_harm; i ++) {
-    kz_n = W->harm[i]*2e0*M_PI/W->lambda; ky = sqrt(sqr(W->kxV[i])+sqr(kz_n));
-    cx = cos(W->kxV[i]*x[x_]); sx = sin(W->kxV[i]*x[x_]);
+  for (i = 0; i < n_harm; i ++) {
+    kz_n = harm[i]*2e0*M_PI/lambda; ky = sqrt(sqr(kxV[i])+sqr(kz_n));
+    cx = cos(kxV[i]*x[x_]); sx = sin(kxV[i]*x[x_]);
     chy = cosh(ky*x[y_]); shy = sinh(ky*x[y_]); sz = sin(kz_n*z);
 
-    AxoBrho[0] += W->BoBrhoV[i]/kz_n*cx*chy*sz;
-    AyoBrho[0] += W->BoBrhoV[i]*W->kxV[i]/(ky*kz_n)*sx*shy*sz;
+    AxoBrho[0] += BoBrhoV[i]/kz_n*cx*chy*sz;
+    AyoBrho[0] += BoBrhoV[i]*kxV[i]/(ky*kz_n)*sx*shy*sz;
 
     // derivatives with respect to x
-    AxoBrho[1] -= W->BoBrhoV[i]*W->kxV[i]/kz_n*sx*chy*sz;
-    AyoBrho[1] += W->BoBrhoV[i]*sqr(W->kxV[i])/(ky*kz_n)*cx*shy*sz;
+    AxoBrho[1] -= BoBrhoV[i]*kxV[i]/kz_n*sx*chy*sz;
+    AyoBrho[1] += BoBrhoV[i]*sqr(kxV[i])/(ky*kz_n)*cx*shy*sz;
 
     // derivatives with respect to y
-    AxoBrho[2] += W->BoBrhoV[i]*ky/kz_n*cx*shy*sz;
-    AyoBrho[2] += W->BoBrhoV[i]*W->kxV[i]/kz_n*sx*chy*sz;
+    AxoBrho[2] += BoBrhoV[i]*ky/kz_n*cx*shy*sz;
+    AyoBrho[2] += BoBrhoV[i]*kxV[i]/kz_n*sx*chy*sz;
 
     if (Lattice.param.radiation) {
       cz = cos(kz_n*z);
       // derivatives with respect to z
-      AxoBrho[3] += W->BoBrhoV[i]*cx*chy*cz;
-      AyoBrho[3] += W->BoBrhoV[i]*W->kxV[i]/ky*sx*shy*cz;
+      AxoBrho[3] += BoBrhoV[i]*cx*chy*cz;
+      AyoBrho[3] += BoBrhoV[i]*kxV[i]/ky*sx*shy*cz;
     }
   }
 }
@@ -968,7 +968,7 @@ inline void get_Axy_map(const FieldMapType *FM, const double z,
 */
 
 template<typename T>
-void Wiggler_pass_EF(const CellType &Cell, ss_vect<T> &x)
+void WigglerType::Wiggler_pass_EF(ss_vect<T> &x)
 {
   // First order symplectic integrator for wiggler using expanded Hamiltonian
 
@@ -978,21 +978,17 @@ void Wiggler_pass_EF(const CellType &Cell, ss_vect<T> &x)
                AyoBrho[4] = {0e0, 0e0, 0e0, 0e0},
                psi, hodp, a12, a21, a22, det,
                d1, d2, a11, c11, c12, c21, c22, x2, B[3];
-  CellType     Cell1;
-  WigglerType  *W;
-  FieldMapType *FM;
 
-  Cell1 = Cell;
-  switch (Cell.Kind) {
+  switch (Kind) {
   case Wigl:
-    W = static_cast<WigglerType*>(&Cell1);
-
-    nstep = W->N;
+    nstep = N;
     break;
   case FieldMap:
-    FM = static_cast<FieldMapType*>(&Cell1);
+    printf("Wiggler_pass_EF: problem\n");
+    exit(1);
+    // FM = static_cast<FieldMapType*>(&Cell1);
 
-    nstep = FM->n_step;
+    // nstep = FM->n_step;
     break;
   default:
     std::cout << "Wiggler_pass_EF: unknown element type" << std::endl;
@@ -1000,11 +996,11 @@ void Wiggler_pass_EF(const CellType &Cell, ss_vect<T> &x)
     break;
   }
 
-  h = Cell.L/nstep; z = 0e0;
+  h = L/nstep; z = 0e0;
   for (i = 1; i <= nstep; ++i) {
-    switch (Cell.Kind) {
+    switch (Kind) {
     case Wigl:
-      get_Axy(W, z, x, AxoBrho, AyoBrho);
+      get_Axy(z, x, AxoBrho, AyoBrho);
       break;
     case FieldMap:
 //      get_Axy_map(Cell.Elem.FM, z, x, AxoBrho, AyoBrho);
@@ -1050,11 +1046,8 @@ void Wiggler_pass_EF(const CellType &Cell, ss_vect<T> &x)
 
 
 template<typename T>
-inline void get_Axy2(const double z,
-		     const double kxV, const double kxH, const double kz,
-		     const double BoBrhoV, const double BoBrhoH,
-		     const double phi,
-		     ss_vect<T> &x, T AxoBrho[], T AyoBrho[])
+inline void WigglerType::get_Axy2(const double z, const double kz,
+				  ss_vect<T> &x, T AxoBrho[], T AyoBrho[])
 {
   int i;
   T   cx, sx, cz1, cz2, sz1, sz2, chy, shy, kyH, kyV, chx, shx, cy, sy;
@@ -1063,56 +1056,55 @@ inline void get_Axy2(const double z,
     AxoBrho[i] = 0e0; AyoBrho[i] = 0e0;
   }
 
-  kyV = sqrt(sqr(kz)+sqr(kxV)); kyH = sqrt(sqr(kz)+sqr(kxH));
-  cx = cos(kxV*x[x_]); sx = sin(kxV*x[x_]);
-  cy = cos(kxH*x[y_]); sy = sin(kxH*x[y_]);
+  kyV = sqrt(sqr(kz)+sqr(kxV[0])); kyH = sqrt(sqr(kz)+sqr(kxH[0]));
+  cx = cos(kxV[0]*x[x_]); sx = sin(kxV[0]*x[x_]);
+  cy = cos(kxH[0]*x[y_]); sy = sin(kxH[0]*x[y_]);
   chx = cosh(kyH*x[x_]); shx = sinh(kyH*x[x_]);
   chy = cosh(kyV*x[y_]); shy = sinh(kyV*x[y_]);
-  sz1 = sin(kz*z); sz2 = sin(kz*z+phi);
+  sz1 = sin(kz*z); sz2 = sin(kz*z+phi[0]);
 
-  AxoBrho[0] += BoBrhoV/kz*cx*chy*sz1;
-  AxoBrho[0] -= BoBrhoH*kxH/(kyH*kz)*shx*sy*sz2;
-  AyoBrho[0] += BoBrhoV*kxV/(kyV*kz)*sx*shy*sz1;
-  AyoBrho[0] -= BoBrhoH/kz*chx*cy*sz2;
+  AxoBrho[0] += BoBrhoV[0]/kz*cx*chy*sz1;
+  AxoBrho[0] -= BoBrhoH[0]*kxH[0]/(kyH*kz)*shx*sy*sz2;
+  AyoBrho[0] += BoBrhoV[0]*kxV[0]/(kyV*kz)*sx*shy*sz1;
+  AyoBrho[0] -= BoBrhoH[0]/kz*chx*cy*sz2;
 
   /* derivatives with respect to x */
-  AxoBrho[1] -= BoBrhoV*kxV/kz*sx*chy*sz1;
-  AxoBrho[1] -= BoBrhoH*kxH/kz*chx*sy*sz2;
-  AyoBrho[1] += BoBrhoV*sqr(kxV)/(kyV*kz)*cx*shy*sz1;
-  AyoBrho[1] -= BoBrhoH*kyH/kz*shx*cy*sz2;
+  AxoBrho[1] -= BoBrhoV[0]*kxV[0]/kz*sx*chy*sz1;
+  AxoBrho[1] -= BoBrhoH[0]*kxH[0]/kz*chx*sy*sz2;
+  AyoBrho[1] += BoBrhoV[0]*sqr(kxV[0])/(kyV*kz)*cx*shy*sz1;
+  AyoBrho[1] -= BoBrhoH[0]*kyH/kz*shx*cy*sz2;
 
   /* derivatives with respect to y */
-  AxoBrho[2] += BoBrhoV*kyV/kz*cx*shy*sz1;
-  AxoBrho[2] -= BoBrhoH*sqr(kxH)/(kyH*kz)*shx*cy*sz2;
-  AyoBrho[2] += BoBrhoV*kxV/kz*sx*chy*sz1;
-  AyoBrho[2] += BoBrhoH*kxH/kz*chx*sy*sz2;
+  AxoBrho[2] += BoBrhoV[0]*kyV/kz*cx*shy*sz1;
+  AxoBrho[2] -= BoBrhoH[0]*sqr(kxH[0])/(kyH*kz)*shx*cy*sz2;
+  AyoBrho[2] += BoBrhoV[0]*kxV[0]/kz*sx*chy*sz1;
+  AyoBrho[2] += BoBrhoH[0]*kxH[0]/kz*chx*sy*sz2;
 
   if (Lattice.param.radiation) {
-    cz1 = cos(kz*z); cz2=cos(kz*z+phi);
+    cz1 = cos(kz*z); cz2=cos(kz*z+phi[0]);
     /* derivatives with respect to z */
-    AxoBrho[3] += BoBrhoV*cx*chy*cz1;
-    AxoBrho[3] -= BoBrhoH*kxH/kyH*shx*sy*cz2;
-    AyoBrho[3] += BoBrhoV*kxV/kyV*sx*shy*cz1;
-    AyoBrho[3] -= BoBrhoH*chx*cy*cz2;
+    AxoBrho[3] += BoBrhoV[0]*cx*chy*cz1;
+    AxoBrho[3] -= BoBrhoH[0]*kxH[0]/kyH*shx*sy*cz2;
+    AyoBrho[3] += BoBrhoV[0]*kxV[0]/kyV*sx*shy*cz1;
+    AyoBrho[3] -= BoBrhoH[0]*chx*cy*cz2;
   }
 }
 
 
 template<typename T>
-void Wiggler_pass_EF2(int nstep, double L, double kxV, double kxH, double kz,
-		      double BoBrhoV, double BoBrhoH, double phi,
-		      ss_vect<T> &x)
+void WigglerType::Wiggler_pass_EF2(ss_vect<T> &x)
 {
   // First order symplectic integrator for wiggler using expanded Hamiltonian
 
   int    i;
-  double h, z;
+  double h, z, kz;
   T      hodp, B[3], px1, px2, px3, py1, py2, AxoBrho[4], AyoBrho[4], psi;
   T      px = 0e0, py = 0e0;
 
-  h = L/nstep; z = 0e0;
-  for (i = 1; i <= nstep; ++i) {
-    get_Axy2(z, kxV, kxH, kz, BoBrhoV, BoBrhoH, phi, x, AxoBrho, AyoBrho);
+  kz = 2e0*M_PI/this->lambda;
+  h = L/N; z = 0e0;
+  for (i = 1; i <= N; ++i) {
+    get_Axy2(z, kz, x, AxoBrho, AyoBrho);
 
     psi = 1e0 + x[delta_]; hodp = h/psi;
 
@@ -1147,9 +1139,9 @@ void Wiggler_pass_EF2(int nstep, double L, double kxV, double kxH, double kz,
 
 
 template<typename T>
-inline void get_Axy_EF3(const WigglerType *W, const double z,
-		       const ss_vect<T> &x,
-		       T &AoBrho, T dAoBrho[], T &dp, const bool hor)
+inline void WigglerType::get_Axy_EF3(const double z, const ss_vect<T> &x,
+				     T &AoBrho, T dAoBrho[], T &dp,
+				     const bool hor)
 {
   int    i;
   double ky, kz_n;
@@ -1160,102 +1152,96 @@ inline void get_Axy_EF3(const WigglerType *W, const double z,
   for (i = 0; i < 3; i++)
     dAoBrho[i] = 0e0;
 
-  for (i = 0; i < W->n_harm; i++) {
-    kz_n = W->harm[i]*2e0*M_PI/W->lambda; ky = sqrt(sqr(W->kxV[i])+sqr(kz_n));
+  for (i = 0; i < n_harm; i++) {
+    kz_n = harm[i]*2e0*M_PI/lambda; ky = sqrt(sqr(kxV[i])+sqr(kz_n));
 
-    cx  = cos(W->kxV[i]*x[x_]); sx = sin(W->kxV[i]*x[x_]);
+    cx  = cos(kxV[i]*x[x_]); sx = sin(kxV[i]*x[x_]);
     chy = cosh(ky*x[y_]); shy = sinh(ky*x[y_]); sz = sin(kz_n*z);
 
     if (hor) {
       // A_x/Brho
-      AoBrho += W->BoBrhoV[i]/kz_n*cx*chy*sz;
+      AoBrho += BoBrhoV[i]/kz_n*cx*chy*sz;
 
       if (Lattice.param.radiation) {
 	cz = cos(kz_n*z);
-	dAoBrho[X_] -= W->BoBrhoV[i]*W->kxV[i]/kz_n*sx*chy*sz;
-	dAoBrho[Y_] += W->BoBrhoV[i]*ky/kz_n*cx*shy*sz;
-	dAoBrho[Z_] += W->BoBrhoV[i]*cx*chy*cz;
+	dAoBrho[X_] -= BoBrhoV[i]*kxV[i]/kz_n*sx*chy*sz;
+	dAoBrho[Y_] += BoBrhoV[i]*ky/kz_n*cx*shy*sz;
+	dAoBrho[Z_] += BoBrhoV[i]*cx*chy*cz;
       }
 
       // dp_y
-      if (W->kxV[i] == 0e0)
-	dp += W->BoBrhoV[i]/kz_n*ky*x[x_]*shy*sz;
+      if (kxV[i] == 0e0)
+	dp += BoBrhoV[i]/kz_n*ky*x[x_]*shy*sz;
       else
-	dp += W->BoBrhoV[i]/(W->kxV[i]*kz_n)*ky*sx*shy*sz;
+	dp += BoBrhoV[i]/(kxV[i]*kz_n)*ky*sx*shy*sz;
     } else {
       // A_y/Brho
-      AoBrho += W->BoBrhoV[i]*W->kxV[i]/(ky*kz_n)*sx*shy*sz;
+      AoBrho += BoBrhoV[i]*kxV[i]/(ky*kz_n)*sx*shy*sz;
 
       if (Lattice.param.radiation) {
 	cz = cos(kz_n*z);
-	dAoBrho[X_] += W->BoBrhoV[i]*sqr(W->kxV[i])/(ky*kz_n)*cx*shy*sz;
-	dAoBrho[Y_] += W->BoBrhoV[i]*W->kxV[i]/kz_n*sx*chy*sz;
-	dAoBrho[Z_] += W->BoBrhoV[i]*W->kxV[i]/ky*sx*shy*cz;
+	dAoBrho[X_] += BoBrhoV[i]*sqr(kxV[i])/(ky*kz_n)*cx*shy*sz;
+	dAoBrho[Y_] += BoBrhoV[i]*kxV[i]/kz_n*sx*chy*sz;
+	dAoBrho[Z_] += BoBrhoV[i]*kxV[i]/ky*sx*shy*cz;
       }
 
       // dp_x
-      dp += W->BoBrhoV[i]/kz_n*sqr(W->kxV[i]/ky)*cx*chy*sz;
+      dp += BoBrhoV[i]/kz_n*sqr(kxV[i]/ky)*cx*chy*sz;
     }
   }
 }
 
 
 template<typename T>
-void Wiggler_pass_EF3(const CellType &Cell, ss_vect<T> &x)
+void WigglerType::Wiggler_pass_EF3(ss_vect<T> &x)
 {
   /* Second order symplectic integrator for insertion devices based on:
 
        E. Forest, et al "Explicit Symplectic Integrator for s-dependent
        Static Magnetic Field"                                                */
 
-  int         i;
-  double      h, z;
-  T           hd, AxoBrho, AyoBrho, dAxoBrho[3], dAyoBrho[3], dpy, dpx, B[3];
-  CellType    Cell1;
-  WigglerType *W;
+  int    i;
+  double h, z;
+  T      hd, AxoBrho, AyoBrho, dAxoBrho[3], dAyoBrho[3], dpy, dpx, B[3];
 
-  Cell1 = Cell;
-  W = static_cast<WigglerType*>(&Cell1);
-
-  h = Cell.L/W->N; z = 0e0;
-
-  for (i = 1; i <= W->N; i++) {
+  h = L/N; z = 0e0;
+  for (i = 1; i <= N; i++) {
     hd = h/(1e0+x[delta_]);
 
     // 1: half step in z
     z += 0.5*h;
 
     // 2: half drift in y
-    get_Axy_EF3(W, z, x, AyoBrho, dAyoBrho, dpx, false);
+    get_Axy_EF3(z, x, AyoBrho, dAyoBrho, dpx, false);
 
     x[px_] -= dpx; x[py_] -= AyoBrho;
     x[y_] += 0.5*hd*x[py_];
     x[ct_] += sqr(0.5)*hd*sqr(x[py_])/(1e0+x[delta_]);
 
-    get_Axy_EF3(W, z, x, AyoBrho, dAyoBrho, dpx, false);
+    get_Axy_EF3(z, x, AyoBrho, dAyoBrho, dpx, false);
 
     x[px_] += dpx; x[py_] += AyoBrho;
 
     // 3: full drift in x
-    get_Axy_EF3(W, z, x, AxoBrho, dAxoBrho, dpy, true);
+    get_Axy_EF3(z, x, AxoBrho, dAxoBrho, dpy, true);
 
     x[px_] -= AxoBrho; x[py_] -= dpy; x[x_] += hd*x[px_];
     x[ct_] += 0.5*hd*sqr(x[px_])/(1e0+x[delta_]);
 
     if (Lattice.param.pathlength) x[ct_] += h;
 
-    get_Axy_EF3(W, z, x, AxoBrho, dAxoBrho, dpy, true);
+    get_Axy_EF3(z, x, AxoBrho, dAxoBrho, dpy, true);
 
     x[px_] += AxoBrho; x[py_] += dpy;
 
     // 4: a half drift in y
-    get_Axy_EF3(W, z, x, AyoBrho, dAyoBrho, dpx, false);
+    get_Axy_EF3(z, x, AyoBrho, dAyoBrho, dpx, false);
 
     x[px_] -= dpx; x[py_] -= AyoBrho;
     x[y_] += 0.5*hd*x[py_];
     x[ct_] += sqr(0.5)*hd*sqr(x[py_])/(1e0+x[delta_]);
 
-    get_Axy_EF3(W, z, x, AyoBrho, dAyoBrho, dpx, false);
+    get_Axy_EF3(z, x, AyoBrho, dAyoBrho, dpx, false);
 
     x[px_] += dpx; x[py_] += AyoBrho;
 
@@ -1263,8 +1249,8 @@ void Wiggler_pass_EF3(const CellType &Cell, ss_vect<T> &x)
     z += 0.5*h;
 
     if (Lattice.param.radiation || Lattice.param.emittance) {
-      get_Axy_EF3(W, z, x, AyoBrho, dAyoBrho, dpx, false);
-      get_Axy_EF3(W, z, x, AxoBrho, dAxoBrho, dpy, true);
+      get_Axy_EF3(z, x, AyoBrho, dAyoBrho, dpx, false);
+      get_Axy_EF3(z, x, AxoBrho, dAxoBrho, dpy, true);
       B[X_] = -dAyoBrho[Z_]; B[Y_] = dAxoBrho[Z_];
       B[Z_] = dAyoBrho[X_] - dAxoBrho[Y_];
       radiate(x, h, 0e0, B);
@@ -1274,7 +1260,7 @@ void Wiggler_pass_EF3(const CellType &Cell, ss_vect<T> &x)
 
 
 template<typename T>
-void WigglerType::templ_Propagate(ss_vect<T> &X)
+void WigglerType::Elem_Propagate(ss_vect<T> &X)
 {
   int         seg;
   double      L, L1, L2, K1, K2;
@@ -1292,11 +1278,9 @@ void WigglerType::templ_Propagate(ss_vect<T> &X)
   case Meth_First:
     if ((this->BoBrhoV[0] != 0e0) || (this->BoBrhoH[0] != 0e0)) {
       if (!Lattice.param.EPU)
-	Wiggler_pass_EF(this, X);
+	Wiggler_pass_EF(X);
       else {
-	Wiggler_pass_EF2(this->N, this->L, this->kxV[0], this->kxH[0],
-		2e0*M_PI/this->lambda, this->BoBrhoV[0], this->BoBrhoH[0],
-		this->phi[0], X);
+	Wiggler_pass_EF2(X);
       }
     } else
       // drift if field = 0
@@ -1305,7 +1289,7 @@ void WigglerType::templ_Propagate(ss_vect<T> &X)
 
   case Meth_Second:
     if ((this->BoBrhoV[0] != 0e0) || (this->BoBrhoH[0] != 0e0)) {
-      Wiggler_pass_EF3(this, X);
+      Wiggler_pass_EF3(X);
     } else
       // drift if field = 0
       Drift(this->L, X);
@@ -1334,19 +1318,19 @@ void WigglerType::templ_Propagate(ss_vect<T> &X)
 
 
 template<typename T>
-void rk4_(const CellType &Cell, const ss_vect<T> &y, const ss_vect<T> dydx,
-	  const double x, const double h, ss_vect<T> &yout,
-	  void (*derivs)(const CellType &, const double, const ss_vect<T> &,
-			 ss_vect<T> &))
+void FieldMapType::rk4_(const ss_vect<T> &y, const ss_vect<T> dydx,
+			const double x, const double h, ss_vect<T> &yout,
+			void (*derivs)(const double, const ss_vect<T> &,
+				       ss_vect<T> &))
 {
-  double     xh,hh,h6;
+  double     xh, hh, h6;
   ss_vect<T> dym, dyt, yt;
 
   hh = h*0.5; h6 = h/6e0;
   xh = x + hh; yt = y + hh*dydx;
-  (*derivs)(Cell, xh, yt, dyt); yt = y + hh*dyt;
-  (*derivs)(Cell, xh, yt, dym); yt = y + h*dym; dym += dyt;
-  (*derivs)(Cell, x+h, yt, dyt);
+  (*derivs)(xh, yt, dyt); yt = y + hh*dyt;
+  (*derivs)(xh, yt, dym); yt = y + h*dym; dym += dyt;
+  (*derivs)(x+h, yt, dyt);
   yout = y + h6*(dydx+dyt+2e0*dym);
 }
 
@@ -1361,24 +1345,17 @@ inline T get_p_s_ps(const ss_vect<T> &x, const T &qop_Ax, const T &qop_Ay)
 
 
 template<typename T>
-void f_FM(const CellType &Cell, const double z, const ss_vect<T> &ps,
-	  ss_vect<T> &Dps)
+void FieldMapType::f_FM(const double z, const ss_vect<T> &ps, ss_vect<T> &Dps)
 {
   // Coordinates are: [x, x', y, y', -ct, delta].
-
   int          j, kz;
   T            BoBrho[3], p_s;
-  CellType     Cell1;
-  FieldMapType *FM;
 
   const double eps = 1e-5;
 
-  Cell1 = Cell;
-  FM = static_cast<FieldMapType*>(&Cell1);
-
   kz = 0;
-  for (j = 1; j <= FM->n[Z_]; j++)
-    if (fabs(z-FM->x[Z_][j]) < eps) {
+  for (j = 1; j <= n[Z_]; j++)
+    if (fabs(z-x[Z_][j]) < eps) {
       kz = j;
       break;
     }
@@ -1393,8 +1370,8 @@ void f_FM(const CellType &Cell, const double z, const ss_vect<T> &ps,
     return;
   }
 
-  splin2_(FM->x[X_], FM->x[Y_], FM->BoBrho[X_][kz], FM->BoBrho2[X_][kz],
-	   FM->n[X_], FM->n[Y_], ps[x_], ps[y_], BoBrho[X_]);
+  splin2_(x[X_], x[Y_], BoBrho[X_][kz], BoBrho2[X_][kz],
+	   n[X_], n[Y_], ps[x_], ps[y_], BoBrho[X_]);
 
   if (BoBrho[X_] == NAN) {
     for (j = 0; j < ss_dim; j++)
@@ -1402,8 +1379,8 @@ void f_FM(const CellType &Cell, const double z, const ss_vect<T> &ps,
     return;
   }
 
-  splin2_(FM->x[X_], FM->x[Y_], FM->BoBrho[Y_][kz], FM->BoBrho2[Y_][kz],
-	   FM->n[X_], FM->n[Y_], ps[x_], ps[y_], BoBrho[Y_]);
+  splin2_(x[X_], x[Y_], BoBrho[Y_][kz], BoBrho2[Y_][kz],
+	   n[X_], n[Y_], ps[x_], ps[y_], BoBrho[Y_]);
 
   if (BoBrho[Y_] == NAN) {
     for (j = 0; j < ss_dim; j++)
@@ -1411,8 +1388,8 @@ void f_FM(const CellType &Cell, const double z, const ss_vect<T> &ps,
     return;
   }
 
-  splin2_(FM->x[X_], FM->x[Y_], FM->BoBrho[Z_][kz], FM->BoBrho2[Z_][kz],
-	   FM->n[X_], FM->n[Y_], ps[x_], ps[y_], BoBrho[Z_]);
+  splin2_(x[X_], x[Y_], BoBrho[Z_][kz], BoBrho2[Z_][kz],
+	   n[X_], n[Y_], ps[x_], ps[y_], BoBrho[Z_]);
 
   if (BoBrho[Z_] == NAN) {
     for (j = 0; j < ss_dim; j++)
@@ -1450,17 +1427,14 @@ inline T get_p_s_cs(const ss_vect<T> &x)
 
 
 template<typename T>
-void FieldMap_pass_RK(CellType &Cell, ss_vect<T> &ps, int k)
+void FieldMapType::FieldMap_pass_RK(ss_vect<T> &ps, int k)
 {
   int          i;
   double       h, z;
   T            p_s;
   ss_vect<T>   Dps;
-  FieldMapType *FM;
 
   const int n_step = 2; // Each step needs: f(z_n), f(z_n+h), f(z_n+2h)
-
-  FM = static_cast<FieldMapType*>(&Cell);
 
   switch (FieldMap_filetype) {
   case 2:
@@ -1474,7 +1448,7 @@ void FieldMap_pass_RK(CellType &Cell, ss_vect<T> &ps, int k)
   // transform to [x, x', y, y']
   p_s = get_p_s(ps); ps[px_] /= p_s; ps[py_] /= p_s;
 
-  h = n_step*FM->dx[Z_]; z = FM->x[Z_][1]; FM->Lr = 0e0;
+  h = n_step*dx[Z_]; z = x[Z_][1]; Lr = 0e0;
   if (trace)
     outf_ << std::scientific << std::setprecision(3)
 	  << std::setw(11) << s_FM
@@ -1485,9 +1459,9 @@ void FieldMap_pass_RK(CellType &Cell, ss_vect<T> &ps, int k)
 	  << std::setw(11) << is_double<T>::cst(ps[delta_])
 	  << std::setw(11) << is_double<T>::cst(ps[ct_])
 	  << std::endl;
-  for(i = 1+FM->cut; i < FM->n[Z_]-FM->cut; i += n_step) {
-    if (i <= FM->n[Z_]-FM->cut-2) {
-      f_FM(Cell, z, ps, Dps);
+  for(i = 1+cut; i < n[Z_]-cut; i += n_step) {
+    if (i <= n[Z_]-cut-2) {
+      f_FM(z, ps, Dps);
 
       if (Dps[x_] == NAN) {
 	std::cout << "FieldMap_pass_RK: particle lost" << std::endl;
@@ -1495,12 +1469,12 @@ void FieldMap_pass_RK(CellType &Cell, ss_vect<T> &ps, int k)
 	return;
       }
 
-      rk4_(Cell, ps, Dps, FM->x[Z_][i], h, ps, f_FM);
+      rk4_(ps, Dps, x[Z_][i], h, ps, f_FM);
 
-      z += h; FM->Lr += h; s_FM += h;
+      z += h; Lr += h; s_FM += h;
     } else {
       // Use 2nd order Runge-Kutta (aka Midpoint method)
-      f_FM(Cell, z, ps, Dps);
+      f_FM(z, ps, Dps);
 
       if (Dps[x_] == NAN) {
 	std::cout << "FieldMap_pass_RK: particle lost" << std::endl;
@@ -1510,7 +1484,7 @@ void FieldMap_pass_RK(CellType &Cell, ss_vect<T> &ps, int k)
 
       ps += h/2e0*Dps;
 
-      z += h/2e0; FM->Lr += h/2e0; s_FM += h/2e0;
+      z += h/2e0; Lr += h/2e0; s_FM += h/2e0;
     }
 
     if (trace)
@@ -1540,7 +1514,7 @@ void FieldMap_pass_RK(CellType &Cell, ss_vect<T> &ps, int k)
 
 
 template<typename T>
-void FieldMap_pass_SI(CellType &Cell, ss_vect<T> &ps, int k)
+void FieldMapType::FieldMap_pass_SI(ss_vect<T> &ps, int k)
 {
   /* E. Chacon-Golcher, F. Neri "A Symplectic Integrator with Arbitrary
      Vector and Scalar Potentials" hys. Lett. A 372 p. 4661-4666 (2008).    */
@@ -1549,13 +1523,10 @@ void FieldMap_pass_SI(CellType &Cell, ss_vect<T> &ps, int k)
   double       h, z;
   T            hd, AoBrho[2], dAoBrho[2], AoBrho_int, ByoBrho;
   ss_vect<T>   ps1;
-  FieldMapType *FM;
 
   const int    n_step = 2;
   const double d_diff = 1e0;
 
-
-  FM = static_cast<FieldMapType*>(&Cell);
 
   switch (FieldMap_filetype) {
   case 2:
@@ -1566,7 +1537,7 @@ void FieldMap_pass_SI(CellType &Cell, ss_vect<T> &ps, int k)
     break;
   }
 
-  h = n_step*FM->dx[Z_]; z = 0e0; FM->Lr = 0e0;
+  h = n_step*dx[Z_]; z = 0e0; Lr = 0e0;
   if (false)
     outf_ << std::scientific << std::setprecision(3)
 	  << std::setw(11) << s_FM
@@ -1577,7 +1548,7 @@ void FieldMap_pass_SI(CellType &Cell, ss_vect<T> &ps, int k)
 	  << std::setw(11) << is_double<T>::cst(ps[delta_])
 	  << std::setw(11) << is_double<T>::cst(ps[ct_])
 	  << std::endl;
-  for (i = 1+FM->cut; i < FM->n[Z_]-FM->cut; i += n_step) {
+  for (i = 1+cut; i < n[Z_]-cut; i += n_step) {
     hd = h/(1e0+ps[delta_]);
 
     // 1. Half step in z.
@@ -1586,8 +1557,8 @@ void FieldMap_pass_SI(CellType &Cell, ss_vect<T> &ps, int k)
     // 2. Half drift in y.
     ps1 = ps;
 
-    splin2_(FM->x[X_], FM->x[Y_], FM->AoBrho[Y_][j], FM->AoBrho2[Y_][j],
-	    FM->n[X_], FM->n[Y_], ps[x_], ps[y_], AoBrho[0]);
+    splin2_(x[X_], x[Y_], AoBrho[Y_][j], AoBrho2[Y_][j],
+	    n[X_], n[Y_], ps[x_], ps[y_], AoBrho[0]);
 
     if (AoBrho[0] == NAN) {
       for (j = 0; j < ss_dim; j++)
@@ -1598,8 +1569,8 @@ void FieldMap_pass_SI(CellType &Cell, ss_vect<T> &ps, int k)
     ps1[y_] += (ps[py_]-AoBrho[0])*0.5*hd;
     ps1[ct_] += sqr(0.5)*hd*sqr(ps[py_]-AoBrho[0])/(1e0+ps[delta_]);
 
-    splin2_(FM->x[X_], FM->x[Y_], FM->AoBrho[Y_][j], FM->AoBrho2[Y_][j],
-	    FM->n[X_], FM->n[Y_], ps[x_]+d_diff*FM->dx[X_], ps[y_],
+    splin2_(x[X_], x[Y_], AoBrho[Y_][j], AoBrho2[Y_][j],
+	    n[X_], n[Y_], ps[x_]+d_diff*dx[X_], ps[y_],
 	    dAoBrho[1]);
 
     if (dAoBrho[1] == NAN) {
@@ -1608,8 +1579,8 @@ void FieldMap_pass_SI(CellType &Cell, ss_vect<T> &ps, int k)
       return;
     }
 
-    splin2_(FM->x[X_], FM->x[Y_], FM->AoBrho[Y_][j], FM->AoBrho2[Y_][j],
-	    FM->n[X_], FM->n[Y_], ps[x_]-d_diff*FM->dx[X_], ps[y_],
+    splin2_(x[X_], x[Y_], AoBrho[Y_][j], AoBrho2[Y_][j],
+	    n[X_], n[Y_], ps[x_]-d_diff*dx[X_], ps[y_],
 	    dAoBrho[0]);
 
     if (dAoBrho[0] == NAN) {
@@ -1618,10 +1589,10 @@ void FieldMap_pass_SI(CellType &Cell, ss_vect<T> &ps, int k)
       return;
     }
 
-    AoBrho_int = (dAoBrho[1]-dAoBrho[0])/(2e0*d_diff*FM->dx[X_]);
+    AoBrho_int = (dAoBrho[1]-dAoBrho[0])/(2e0*d_diff*dx[X_]);
 
-    splin2_(FM->x[X_], FM->x[Y_], FM->AoBrho[Y_][j], FM->AoBrho2[Y_][j],
-	    FM->n[X_], FM->n[Y_], ps1[x_]+d_diff*FM->dx[X_], ps1[y_],
+    splin2_(x[X_], x[Y_], AoBrho[Y_][j], AoBrho2[Y_][j],
+	    n[X_], n[Y_], ps1[x_]+d_diff*dx[X_], ps1[y_],
 	    dAoBrho[1]);
 
     if (dAoBrho[1] == NAN) {
@@ -1630,8 +1601,8 @@ void FieldMap_pass_SI(CellType &Cell, ss_vect<T> &ps, int k)
       return;
     }
 
-    splin2_(FM->x[X_], FM->x[Y_], FM->AoBrho[Y_][j], FM->AoBrho2[Y_][j],
-	    FM->n[X_], FM->n[Y_], ps1[x_]-d_diff*FM->dx[X_], ps1[y_],
+    splin2_(x[X_], x[Y_], AoBrho[Y_][j], AoBrho2[Y_][j],
+	    n[X_], n[Y_], ps1[x_]-d_diff*dx[X_], ps1[y_],
 	    dAoBrho[0]);
 
     if (dAoBrho[0] == NAN) {
@@ -1640,14 +1611,14 @@ void FieldMap_pass_SI(CellType &Cell, ss_vect<T> &ps, int k)
       return;
     }
 
-    AoBrho_int += (dAoBrho[1]-dAoBrho[0])/(2e0*d_diff*FM->dx[X_]);
+    AoBrho_int += (dAoBrho[1]-dAoBrho[0])/(2e0*d_diff*dx[X_]);
 
     // Trapezoidal rule
     ps1[px_] +=
       AoBrho_int*(is_double<T>::cst(ps1[y_])-is_double<T>::cst(ps[y_]))/2e0;
 
-    splin2_(FM->x[X_], FM->x[Y_], FM->AoBrho[Y_][j], FM->AoBrho2[Y_][j],
-	    FM->n[X_], FM->n[Y_], ps1[x_], ps1[y_], AoBrho[1]);
+    splin2_(x[X_], x[Y_], AoBrho[Y_][j], AoBrho2[Y_][j],
+	    n[X_], n[Y_], ps1[x_], ps1[y_], AoBrho[1]);
 
     if (AoBrho[1] == NAN) {
       for (j = 0; j < ss_dim; j++)
@@ -1662,8 +1633,8 @@ void FieldMap_pass_SI(CellType &Cell, ss_vect<T> &ps, int k)
     // 3. Full drift in x.
     ps1 = ps;
 
-    splin2_(FM->x[X_], FM->x[Y_], FM->AoBrho[X_][j], FM->AoBrho2[X_][j],
-	    FM->n[X_], FM->n[Y_], ps[x_], ps[y_], AoBrho[0]);
+    splin2_(x[X_], x[Y_], AoBrho[X_][j], AoBrho2[X_][j],
+	    n[X_], n[Y_], ps[x_], ps[y_], AoBrho[0]);
 
     if (AoBrho[0] == NAN) {
       for (j = 0; j < ss_dim; j++)
@@ -1674,8 +1645,8 @@ void FieldMap_pass_SI(CellType &Cell, ss_vect<T> &ps, int k)
     ps1[x_] += (ps[px_]-AoBrho[0])*hd;
     ps1[ct_] += 0.5*hd*sqr(ps[px_]-AoBrho[0])/(1e0+ps[delta_]);
 
-    splin2_(FM->x[X_], FM->x[Y_], FM->AoBrho[X_][j], FM->AoBrho2[X_][j],
-	    FM->n[X_], FM->n[Y_], ps1[x_], ps1[y_], AoBrho[1]);
+    splin2_(x[X_], x[Y_], AoBrho[X_][j], AoBrho2[X_][j],
+	    n[X_], n[Y_], ps1[x_], ps1[y_], AoBrho[1]);
 
     if (AoBrho[1] == NAN) {
       for (j = 0; j < ss_dim; j++)
@@ -1685,8 +1656,8 @@ void FieldMap_pass_SI(CellType &Cell, ss_vect<T> &ps, int k)
 
     ps1[px_] += AoBrho[1] - AoBrho[0];
 
-    splin2_(FM->x[X_], FM->x[Y_], FM->AoBrho[X_][j], FM->AoBrho2[X_][j],
-	    FM->n[X_], FM->n[Y_], ps[x_], ps[y_]+d_diff*FM->dx[Y_],
+    splin2_(x[X_], x[Y_], AoBrho[X_][j], AoBrho2[X_][j],
+	    n[X_], n[Y_], ps[x_], ps[y_]+d_diff*dx[Y_],
 	    dAoBrho[1]);
 
     if (dAoBrho[1] == NAN) {
@@ -1695,8 +1666,8 @@ void FieldMap_pass_SI(CellType &Cell, ss_vect<T> &ps, int k)
       return;
     }
 
-    splin2_(FM->x[X_], FM->x[Y_], FM->AoBrho[X_][j], FM->AoBrho2[X_][j],
-	    FM->n[X_], FM->n[Y_], ps[x_], ps[y_]-d_diff*FM->dx[Y_],
+    splin2_(x[X_], x[Y_], AoBrho[X_][j], AoBrho2[X_][j],
+	    n[X_], n[Y_], ps[x_], ps[y_]-d_diff*dx[Y_],
 	    dAoBrho[0]);
 
     if (dAoBrho[0] == NAN) {
@@ -1705,10 +1676,10 @@ void FieldMap_pass_SI(CellType &Cell, ss_vect<T> &ps, int k)
       return;
     }
 
-    AoBrho_int = (dAoBrho[1]-dAoBrho[0])/(2e0*d_diff*FM->dx[Y_]);
+    AoBrho_int = (dAoBrho[1]-dAoBrho[0])/(2e0*d_diff*dx[Y_]);
 
-    splin2_(FM->x[X_], FM->x[Y_], FM->AoBrho[X_][j], FM->AoBrho2[X_][j],
-	    FM->n[X_], FM->n[Y_], ps1[x_], ps1[y_]+d_diff*FM->dx[Y_],
+    splin2_(x[X_], x[Y_], AoBrho[X_][j], AoBrho2[X_][j],
+	    n[X_], n[Y_], ps1[x_], ps1[y_]+d_diff*dx[Y_],
 	    dAoBrho[1]);
 
     if (dAoBrho[1] == NAN) {
@@ -1717,8 +1688,8 @@ void FieldMap_pass_SI(CellType &Cell, ss_vect<T> &ps, int k)
       return;
     }
 
-    splin2_(FM->x[X_], FM->x[Y_], FM->AoBrho[X_][j], FM->AoBrho2[X_][j],
-	    FM->n[X_], FM->n[Y_], ps1[x_], ps1[y_]-d_diff*FM->dx[Y_],
+    splin2_(x[X_], x[Y_], AoBrho[X_][j], AoBrho2[X_][j],
+	    n[X_], n[Y_], ps1[x_], ps1[y_]-d_diff*dx[Y_],
 	    dAoBrho[0]);
 
     if (dAoBrho[0] == NAN) {
@@ -1727,7 +1698,7 @@ void FieldMap_pass_SI(CellType &Cell, ss_vect<T> &ps, int k)
       return;
     }
 
-    AoBrho_int += (dAoBrho[1]-dAoBrho[0])/(2e0*d_diff*FM->dx[Y_]);
+    AoBrho_int += (dAoBrho[1]-dAoBrho[0])/(2e0*d_diff*dx[Y_]);
 
     // Trapezoidal rule
     ps1[py_] +=
@@ -1738,8 +1709,8 @@ void FieldMap_pass_SI(CellType &Cell, ss_vect<T> &ps, int k)
     // 4. Half drift in y.
     ps1 = ps;
 
-    splin2_(FM->x[X_], FM->x[Y_], FM->AoBrho[Y_][j], FM->AoBrho2[Y_][j],
-	    FM->n[X_], FM->n[Y_], ps[x_], ps[y_], AoBrho[0]);
+    splin2_(x[X_], x[Y_], AoBrho[Y_][j], AoBrho2[Y_][j],
+	    n[X_], n[Y_], ps[x_], ps[y_], AoBrho[0]);
 
     if (AoBrho[0] == NAN) {
       for (j = 0; j < ss_dim; j++)
@@ -1750,8 +1721,8 @@ void FieldMap_pass_SI(CellType &Cell, ss_vect<T> &ps, int k)
     ps1[y_] += (ps[py_]-AoBrho[0])*0.5*hd;
     ps1[ct_] += sqr(0.5)*hd*sqr(ps[py_]-AoBrho[0])/(1e0+ps[delta_]);
 
-    splin2_(FM->x[X_], FM->x[Y_], FM->AoBrho[Y_][j], FM->AoBrho2[Y_][j],
-	    FM->n[X_], FM->n[Y_], ps[x_]+d_diff*FM->dx[X_], ps[y_],
+    splin2_(x[X_], x[Y_], AoBrho[Y_][j], AoBrho2[Y_][j],
+	    n[X_], n[Y_], ps[x_]+d_diff*dx[X_], ps[y_],
 	    dAoBrho[1]);
 
     if (dAoBrho[1] == NAN) {
@@ -1760,8 +1731,8 @@ void FieldMap_pass_SI(CellType &Cell, ss_vect<T> &ps, int k)
       return;
     }
 
-    splin2_(FM->x[X_], FM->x[Y_], FM->AoBrho[Y_][j], FM->AoBrho2[Y_][j],
-	    FM->n[X_], FM->n[Y_], ps[x_]-d_diff*FM->dx[X_], ps[y_],
+    splin2_(x[X_], x[Y_], AoBrho[Y_][j], AoBrho2[Y_][j],
+	    n[X_], n[Y_], ps[x_]-d_diff*dx[X_], ps[y_],
 	    dAoBrho[0]);
 
     if (dAoBrho[0] == NAN) {
@@ -1770,10 +1741,10 @@ void FieldMap_pass_SI(CellType &Cell, ss_vect<T> &ps, int k)
       return;
     }
 
-    AoBrho_int = (dAoBrho[1]-dAoBrho[0])/(2e0*d_diff*FM->dx[X_]);
+    AoBrho_int = (dAoBrho[1]-dAoBrho[0])/(2e0*d_diff*dx[X_]);
 
-    splin2_(FM->x[X_], FM->x[Y_], FM->AoBrho[Y_][j], FM->AoBrho2[Y_][j],
-	    FM->n[X_], FM->n[Y_], ps1[x_]+d_diff*FM->dx[X_], ps1[y_],
+    splin2_(x[X_], x[Y_], AoBrho[Y_][j], AoBrho2[Y_][j],
+	    n[X_], n[Y_], ps1[x_]+d_diff*dx[X_], ps1[y_],
 	    dAoBrho[1]);
 
     if (dAoBrho[1] == NAN) {
@@ -1782,8 +1753,8 @@ void FieldMap_pass_SI(CellType &Cell, ss_vect<T> &ps, int k)
       return;
     }
 
-    splin2_(FM->x[X_], FM->x[Y_], FM->AoBrho[Y_][j], FM->AoBrho2[Y_][j],
-	    FM->n[X_], FM->n[Y_], ps1[x_]-d_diff*FM->dx[X_], ps1[y_],
+    splin2_(x[X_], x[Y_], AoBrho[Y_][j], AoBrho2[Y_][j],
+	    n[X_], n[Y_], ps1[x_]-d_diff*dx[X_], ps1[y_],
 	    dAoBrho[0]);
 
     if (dAoBrho[0] == NAN) {
@@ -1792,14 +1763,14 @@ void FieldMap_pass_SI(CellType &Cell, ss_vect<T> &ps, int k)
       return;
     }
 
-    AoBrho_int += (dAoBrho[1]-dAoBrho[0])/(2e0*d_diff*FM->dx[X_]);
+    AoBrho_int += (dAoBrho[1]-dAoBrho[0])/(2e0*d_diff*dx[X_]);
 
     // Trapezoidal rule
     ps1[px_] +=
       AoBrho_int*(is_double<T>::cst(ps1[y_])-is_double<T>::cst(ps[y_]))/2e0;
 
-    splin2_(FM->x[X_], FM->x[Y_], FM->AoBrho[Y_][j], FM->AoBrho2[Y_][j],
-	    FM->n[X_], FM->n[Y_], ps1[x_], ps1[y_], AoBrho[1]);
+    splin2_(x[X_], x[Y_], AoBrho[Y_][j], AoBrho2[Y_][j],
+	    n[X_], n[Y_], ps1[x_], ps1[y_], AoBrho[1]);
 
     if (AoBrho[1] == NAN) {
       for (j = 0; j < ss_dim; j++)
@@ -1816,7 +1787,7 @@ void FieldMap_pass_SI(CellType &Cell, ss_vect<T> &ps, int k)
 
     if (Lattice.param.pathlength) ps[ct_] += h;
 
-    FM->Lr += h;
+    Lr += h;
 
     if (Lattice.param.radiation || Lattice.param.emittance) {
 //      B[X_] = -AoBrhoy[3]; B[Y_] = AoBrho[X_][3];
@@ -1825,12 +1796,12 @@ void FieldMap_pass_SI(CellType &Cell, ss_vect<T> &ps, int k)
     }
 
     if (trace) {
-      splin2_(FM->x[X_], FM->x[Y_], FM->AoBrho[X_][j], FM->AoBrho2[X_][j],
-	      FM->n[X_], FM->n[Y_], ps[x_], ps[y_], AoBrho[0]);
-      splin2_(FM->x[X_], FM->x[Y_], FM->AoBrho[Y_][j], FM->AoBrho2[Y_][j],
-	      FM->n[X_], FM->n[Y_], ps[x_], ps[y_], AoBrho[1]);
-      splin2_(FM->x[X_], FM->x[Y_], FM->BoBrho[Y_][j], FM->BoBrho2[Y_][j],
-	      FM->n[X_], FM->n[Y_], ps[x_], ps[y_], ByoBrho);
+      splin2_(x[X_], x[Y_], AoBrho[X_][j], AoBrho2[X_][j],
+	      n[X_], n[Y_], ps[x_], ps[y_], AoBrho[0]);
+      splin2_(x[X_], x[Y_], AoBrho[Y_][j], AoBrho2[Y_][j],
+	      n[X_], n[Y_], ps[x_], ps[y_], AoBrho[1]);
+      splin2_(x[X_], x[Y_], BoBrho[Y_][j], BoBrho2[Y_][j],
+	      n[X_], n[Y_], ps[x_], ps[y_], ByoBrho);
 
       outf_ << std::scientific << std::setprecision(3)
 	    << std::setw(11) << s_FM
@@ -1848,8 +1819,8 @@ void FieldMap_pass_SI(CellType &Cell, ss_vect<T> &ps, int k)
   }
 
   // Change of gauge
-  splin2_(FM->x[X_], FM->x[Y_], FM->AoBrho[X_][j], FM->AoBrho2[X_][j],
-	  FM->n[X_], FM->n[Y_], ps[x_], ps[y_], AoBrho[0]);
+  splin2_(x[X_], x[Y_], AoBrho[X_][j], AoBrho2[X_][j],
+	  n[X_], n[Y_], ps[x_], ps[y_], AoBrho[0]);
 
   if (AoBrho[0] == NAN) {
     for (j = 0; j < ss_dim; j++)
@@ -1859,8 +1830,8 @@ void FieldMap_pass_SI(CellType &Cell, ss_vect<T> &ps, int k)
 
   ps[px_] -= AoBrho[0];
 
-  splin2_(FM->x[X_], FM->x[Y_], FM->AoBrho[Y_][j], FM->AoBrho2[Y_][j],
-	  FM->n[X_], FM->n[Y_], ps[x_], ps[y_], AoBrho[0]);
+  splin2_(x[X_], x[Y_], AoBrho[Y_][j], AoBrho2[Y_][j],
+	  n[X_], n[Y_], ps[x_], ps[y_], AoBrho[0]);
 
   if (AoBrho[0] == NAN) {
     for (j = 0; j < ss_dim; j++)
@@ -1882,27 +1853,27 @@ void FieldMap_pass_SI(CellType &Cell, ss_vect<T> &ps, int k)
 
 
 // Instantiate
-template void f_FM(const CellType &, const double, const ss_vect<double> &,
-		   ss_vect<double> &);
-template void f_FM(const CellType &, const double, const ss_vect<tps> &,
-		   ss_vect<tps> &);
-template void rk4_(const CellType &, const ss_vect<double> &,
-		   const ss_vect<double>, const double, const double,
-		   ss_vect<double> &,
-		   void (*derivs)(const CellType &, const double,
-				  const ss_vect<double> &, ss_vect<double> &));
-template void rk4_(const CellType &, const ss_vect<tps> &, const ss_vect<tps>,
-		   const double, const double, ss_vect<tps> &,
-		   void (*derivs)(const CellType &, const double,
-				  const ss_vect<tps> &, ss_vect<tps> &));
-template void FieldMap_pass_RK(CellType &, ss_vect<double> &, int k);
-template void FieldMap_pass_RK(CellType &, ss_vect<tps> &, int k);
-template void FieldMap_pass_SI(CellType &, ss_vect<double> &, int k);
-template void FieldMap_pass_SI(CellType &, ss_vect<tps> &, int k);
+// template void f_FM(const CellType &, const double, const ss_vect<double> &,
+// 		   ss_vect<double> &);
+// template void f_FM(const CellType &, const double, const ss_vect<tps> &,
+// 		   ss_vect<tps> &);
+// template void rk4_(const CellType &, const ss_vect<double> &,
+// 		   const ss_vect<double>, const double, const double,
+// 		   ss_vect<double> &,
+// 		   void (*derivs)(const CellType &, const double,
+// 				  const ss_vect<double> &, ss_vect<double> &));
+// template void rk4_(const CellType &, const ss_vect<tps> &, const ss_vect<tps>,
+// 		   const double, const double, ss_vect<tps> &,
+// 		   void (*derivs)(const CellType &, const double,
+// 				  const ss_vect<tps> &, ss_vect<tps> &));
+// template void FieldMap_pass_RK(CellType &, ss_vect<double> &, int k);
+// template void FieldMap_pass_RK(CellType &, ss_vect<tps> &, int k);
+// template void FieldMap_pass_SI(CellType &, ss_vect<double> &, int k);
+// template void FieldMap_pass_SI(CellType &, ss_vect<tps> &, int k);
 
 
 template<typename T>
-void FieldMapType::templ_Propagate(ss_vect<T> &ps)
+void FieldMapType::Elem_Propagate(ss_vect<T> &ps)
 {
   int          k;
   double       Ld;
@@ -1923,9 +1894,9 @@ void FieldMapType::templ_Propagate(ss_vect<T> &ps)
 
   for (k = 1; k <= this->n_step; k++) {
     if (sympl)
-      FieldMap_pass_SI(this, ps, k);
+      FieldMap_pass_SI(ps, k);
     else
-      FieldMap_pass_RK(this, ps, k);
+      FieldMap_pass_RK(ps, k);
   }
 
   printf("\nFieldMap_Pass: exit negative drift [m]     %12.5e", Ld);
@@ -1939,7 +1910,7 @@ void FieldMapType::templ_Propagate(ss_vect<T> &ps)
 
 
 template<typename T>
-void InsertionType::templ_Propagate(ss_vect<T> &x)
+void InsertionType::Elem_Propagate(ss_vect<T> &x)
 {
   /* Purpose:
        Track vector x through a insertion
@@ -2007,10 +1978,9 @@ void InsertionType::templ_Propagate(ss_vect<T> &x)
     // Second order kick
     if (this->secondorder){
       // if (!this->ID->linear)
-      //   SplineInterpolation2(x[x_], x[y_], tx2, tz2, Cell, outoftable);
+      //   SplineInterpolation2(x[x_], x[y_], tx2, tz2, outoftable);
       // else {
-        LinearInterpolation2(x[x_], x[y_], tx2, tz2, B2_perp, this,
-			     outoftable, 2);
+        LinearInterpolation2(x[x_], x[y_], tx2, tz2, B2_perp, outoftable, 2);
 
 	// Scale locally with (Brho) (as above) instead of when the file
 	// is read; since the beam energy might not be known at that time.
@@ -2040,43 +2010,38 @@ void InsertionType::templ_Propagate(ss_vect<T> &x)
 
 
 template<typename T>
-void sol_pass(const CellType &Cell, ss_vect<T> &x)
+void SolenoidType::sol_pass(ss_vect<T> &x)
 {
   int          i;
   double       h, z;
   T            hd, AxoBrho, AyoBrho, dAxoBrho[3], dAyoBrho[3], dpy, dpx, B[3];
-  CellType     Cell1;
-  SolenoidType *Sol; 
 
-  Cell1 = Cell;
-  Sol = static_cast<SolenoidType*>(&Cell1);
+  h = L/N; z = 0e0;
 
-  h = Cell.L/Sol->N; z = 0e0;
-
-  for (i = 1; i <= Sol->N; i++) {
+  for (i = 1; i <= N; i++) {
     hd = h/(1e0+x[delta_]);
 
     // 1: half step in z
     z += 0.5*h;
 
     // 2: half drift in y
-    AyoBrho = Sol->BoBrho*x[x_]/2e0;
-    dpx = Sol->BoBrho*x[y_]/2e0;
+    AyoBrho = BoBrho*x[x_]/2e0;
+    dpx = BoBrho*x[y_]/2e0;
 //    get_Axy_EF3(W, z, x, AyoBrho, dAyoBrho, dpx, false);
 
     x[px_] -= dpx; x[py_] -= AyoBrho;
     x[y_] += 0.5*hd*x[py_];
     x[ct_] += sqr(0.5)*hd*sqr(x[py_])/(1e0+x[delta_]);
 
-    AyoBrho = Sol->BoBrho*x[x_]/2e0;
-    dpx = Sol->BoBrho*x[y_]/2e0;
+    AyoBrho = BoBrho*x[x_]/2e0;
+    dpx = BoBrho*x[y_]/2e0;
 //    get_Axy_EF3(W, z, x, AyoBrho, dAyoBrho, dpx, false);
 
     x[px_] += dpx; x[py_] += AyoBrho;
 
     // 3: full drift in x
-    AxoBrho = -Sol->BoBrho*x[y_]/2e0;
-    dpy = -Sol->BoBrho*x[x_]/2e0;
+    AxoBrho = -BoBrho*x[y_]/2e0;
+    dpy = -BoBrho*x[x_]/2e0;
 //    get_Axy_EF3(W, z, x, AxoBrho, dAxoBrho, dpy, true);
 
     x[px_] -= AxoBrho; x[py_] -= dpy; x[x_] += hd*x[px_];
@@ -2084,23 +2049,23 @@ void sol_pass(const CellType &Cell, ss_vect<T> &x)
 
     if (Lattice.param.pathlength) x[ct_] += h;
 
-    AxoBrho = -Sol->BoBrho*x[y_]/2e0;
-    dpy = -Sol->BoBrho*x[x_]/2e0;
+    AxoBrho = -BoBrho*x[y_]/2e0;
+    dpy = -BoBrho*x[x_]/2e0;
 //    get_Axy_EF3(W, z, x, AxoBrho, dAxoBrho, dpy, true);
 
     x[px_] += AxoBrho; x[py_] += dpy;
 
     // 4: a half drift in y
-    AyoBrho = Sol->BoBrho*x[x_]/2e0;
-    dpx = Sol->BoBrho*x[y_]/2e0;
+    AyoBrho = BoBrho*x[x_]/2e0;
+    dpx = BoBrho*x[y_]/2e0;
 //    get_Axy_EF3(W, z, x, AyoBrho, dAyoBrho, dpx, false);
 
     x[px_] -= dpx; x[py_] -= AyoBrho;
     x[y_] += 0.5*hd*x[py_];
     x[ct_] += sqr(0.5)*hd*sqr(x[py_])/(1e0+x[delta_]);
 
-    AyoBrho = Sol->BoBrho*x[x_]/2e0;
-    dpx = Sol->BoBrho*x[y_]/2e0;
+    AyoBrho = BoBrho*x[x_]/2e0;
+    dpx = BoBrho*x[y_]/2e0;
 //    get_Axy_EF3(W, z, x, AyoBrho, dAyoBrho, dpx, false);
 
     x[px_] += dpx; x[py_] += AyoBrho;
@@ -2110,9 +2075,9 @@ void sol_pass(const CellType &Cell, ss_vect<T> &x)
 
     if (Lattice.param.radiation || Lattice.param.emittance) {
       dAxoBrho[X_] = 0e0;
-      dAxoBrho[Y_] = -Sol->BoBrho/2e0;
+      dAxoBrho[Y_] = -BoBrho/2e0;
       dAxoBrho[Z_] = 0e0;
-      dAyoBrho[X_] = Sol->BoBrho/2e0;
+      dAyoBrho[X_] = BoBrho/2e0;
       dAyoBrho[Y_] = 0e0;
       dAyoBrho[Z_] = 0e0;
 //      get_Axy_EF3(W, z, x, AyoBrho, dAyoBrho, dpx, false);
@@ -2126,12 +2091,12 @@ void sol_pass(const CellType &Cell, ss_vect<T> &x)
 
 
 template<typename T>
-void SolenoidType::templ_Propagate(ss_vect<T> &ps)
+void SolenoidType::Elem_Propagate(ss_vect<T> &ps)
 {
 
   GtoL(ps, this->dS, this->dT, 0e0, 0e0, 0e0);
 
-  sol_pass(this, ps);
+  sol_pass(ps);
 
   LtoG(ps, this->dS, this->dT, 0e0, 0e0, 0e0);
 }
@@ -2343,10 +2308,10 @@ template void splin2_(const double [], const double [], double **, double **,
 		      const int, const int, const tps &, const tps &, tps &);
 
 
-void get_B_DIAMOND(const char *filename, FieldMapType *FM)
+void FieldMapType::get_B_DIAMOND(const char *filename)
 {
   char          line[max_str];
-  int           i, j, n, ny;
+  int           i, j, n1, ny;
   double        x0, y0, z0;
   std::ifstream inf;
   std::ofstream outf;
@@ -2366,103 +2331,103 @@ void get_B_DIAMOND(const char *filename, FieldMapType *FM)
   sscanf(line, "Starting point[cm] : %lf %lf %lf", &x0, &y0, &z0);
   inf.getline(line, max_str);
   sscanf(line, "Step size[cm]      : %lf %lf %lf",
-	 &FM->dx[X_], &FM->dx[Y_], &FM->dx[Z_]);
+	 &dx[X_], &dx[Y_], &dx[Z_]);
   inf.getline(line, max_str);
-  sscanf(line, "Number of points   : %d %d %d", &FM->n[X_], &ny, &FM->n[Z_]);
+  sscanf(line, "Number of points   : %d %d %d", &n[X_], &ny, &n[Z_]);
 
   // Convert from [cm] to [m].
   x0 *= 1e-2; y0 *= 1e-2; z0 *= 1e-2;
-  FM->dx[X_] *= 1e-2; FM->dx[Y_] *= 1e-2; FM->dx[Z_] *= 1e-2;
-  FM->Lr = FM->dx[Z_]*(FM->n[Z_]-1);
+  dx[X_] *= 1e-2; dx[Y_] *= 1e-2; dx[Z_] *= 1e-2;
+  Lr = dx[Z_]*(n[Z_]-1);
 
-  FM->n[Y_] = 2*ny - 1;
+  n[Y_] = 2*ny - 1;
 
-  FM->x[X_] = dvector(1, FM->n[X_]); FM->x[Y_] = dvector(1, FM->n[Y_]);
-  FM->x[Z_] = dvector(1, FM->n[Z_]);
+  x[X_] = dvector(1, n[X_]); x[Y_] = dvector(1, n[Y_]);
+  x[Z_] = dvector(1, n[Z_]);
 
-  FM->BoBrho[X_]  = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  FM->BoBrho[Y_]  = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  FM->BoBrho[Z_]  = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  FM->BoBrho2[X_] = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  FM->BoBrho2[Y_] = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  FM->BoBrho2[Z_] = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+  BoBrho[X_]  = df3tensor(1, n[Z_], 1, n[X_], 1, n[Y_]);
+  BoBrho[Y_]  = df3tensor(1, n[Z_], 1, n[X_], 1, n[Y_]);
+  BoBrho[Z_]  = df3tensor(1, n[Z_], 1, n[X_], 1, n[Y_]);
+  BoBrho2[X_] = df3tensor(1, n[Z_], 1, n[X_], 1, n[Y_]);
+  BoBrho2[Y_] = df3tensor(1, n[Z_], 1, n[X_], 1, n[Y_]);
+  BoBrho2[Z_] = df3tensor(1, n[Z_], 1, n[X_], 1, n[Y_]);
 
-  FM->AoBrho[X_]  = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  FM->AoBrho[Y_]  = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  FM->AoBrho2[X_] = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  FM->AoBrho2[Y_] = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+  AoBrho[X_]  = df3tensor(1, n[Z_], 1, n[X_], 1, n[Y_]);
+  AoBrho[Y_]  = df3tensor(1, n[Z_], 1, n[X_], 1, n[Y_]);
+  AoBrho2[X_] = df3tensor(1, n[Z_], 1, n[X_], 1, n[Y_]);
+  AoBrho2[Y_] = df3tensor(1, n[Z_], 1, n[X_], 1, n[Y_]);
 
   for (i = 1; i <= 2; i++)
     inf.getline(line, max_str);
 
-  for (n = 1; n <= FM->n[Z_]; n++)
+  for (n1 = 1; n1 <= n[Z_]; n1++)
     for (j = 1; j <= ny; j++)
-      for (i = 1; i <= FM->n[X_]; i++) {
+      for (i = 1; i <= n[X_]; i++) {
 	inf.getline(line, max_str);
 	sscanf(line, "%lf %lf %lf %lf %lf %lf",
-	       &FM->x[X_][i], &FM->x[Y_][ny-1+j], &FM->x[Z_][n],
-	       &FM->BoBrho[X_][n][i][ny-1+j],
-	       &FM->BoBrho[Y_][n][i][ny-1+j],
-	       &FM->BoBrho[Z_][n][i][ny-1+j]);
+	       &x[X_][i], &x[Y_][ny-1+j], &x[Z_][n1],
+	       &BoBrho[X_][n1][i][ny-1+j],
+	       &BoBrho[Y_][n1][i][ny-1+j],
+	       &BoBrho[Z_][n1][i][ny-1+j]);
 
 	// Convert from [cm] to [m].
-	FM->x[X_][i] *= 1e-2; FM->x[Y_][ny-1+j] *= 1e-2; FM->x[Z_][n] *= 1e-2;
+	x[X_][i] *= 1e-2; x[Y_][ny-1+j] *= 1e-2; x[Z_][n1] *= 1e-2;
 	// Convert from [Gauss] to [Tesla].
-	FM->BoBrho[X_][n][i][ny-1+j] /= 1e+4*Brho;
-	FM->BoBrho[Y_][n][i][ny-1+j] /= 1e+4*Brho;
-	FM->BoBrho[Z_][n][i][ny-1+j] /= 1e+4*Brho;
+	BoBrho[X_][n1][i][ny-1+j] /= 1e+4*Brho;
+	BoBrho[Y_][n1][i][ny-1+j] /= 1e+4*Brho;
+	BoBrho[Z_][n1][i][ny-1+j] /= 1e+4*Brho;
 	// Scale.
-	FM->BoBrho[X_][n][i][ny-1+j] *= FM->scl;
-	FM->BoBrho[Y_][n][i][ny-1+j] *= FM->scl;
-	FM->BoBrho[Z_][n][i][ny-1+j] *= FM->scl;
+	BoBrho[X_][n1][i][ny-1+j] *= scl;
+	BoBrho[Y_][n1][i][ny-1+j] *= scl;
+	BoBrho[Z_][n1][i][ny-1+j] *= scl;
 
 	// Compute vector potential (axial gauge) by extended trapezodial rule.
-	if (n == 1) {
-	  FM->AoBrho[X_][n][i][ny-1+j] =
-	    -FM->BoBrho[Y_][n][i][ny-1+j]*FM->dx[Z_]/2e0;
-	  FM->AoBrho[Y_][n][i][ny-1+j] =
-	    FM->BoBrho[X_][n][i][ny-1+j]*FM->dx[Z_]/2e0;
-	} else if (n == FM->n[Z_]) {
-	  FM->AoBrho[X_][n][i][ny-1+j] =
-	    FM->AoBrho[X_][n-1][i][ny-1+j]
-	    - FM->BoBrho[Y_][n][i][ny-1+j]*FM->dx[Z_]/2e0;
-	  FM->AoBrho[Y_][n][i][ny-1+j] =
-	    FM->AoBrho[Y_][n-1][i][ny-1+j]
-	    + FM->BoBrho[X_][n][i][ny-1+j]*FM->dx[Z_]/2e0;
+	if (n1 == 1) {
+	  AoBrho[X_][n1][i][ny-1+j] =
+	    -BoBrho[Y_][n1][i][ny-1+j]*dx[Z_]/2e0;
+	  AoBrho[Y_][n1][i][ny-1+j] =
+	    BoBrho[X_][n1][i][ny-1+j]*dx[Z_]/2e0;
+	} else if (n1 == n[Z_]) {
+	  AoBrho[X_][n1][i][ny-1+j] =
+	    AoBrho[X_][n1-1][i][ny-1+j]
+	    - BoBrho[Y_][n1][i][ny-1+j]*dx[Z_]/2e0;
+	  AoBrho[Y_][n1][i][ny-1+j] =
+	    AoBrho[Y_][n1-1][i][ny-1+j]
+	    + BoBrho[X_][n1][i][ny-1+j]*dx[Z_]/2e0;
 	} else {
-	  FM->AoBrho[X_][n][i][ny-1+j] =
-	    FM->AoBrho[X_][n-1][i][ny-1+j]
-	    - FM->BoBrho[Y_][n][i][ny-1+j]*FM->dx[Z_];
-	  FM->AoBrho[Y_][n][i][ny-1+j] =
-	    FM->AoBrho[Y_][n-1][i][ny-1+j]
-	    + FM->BoBrho[X_][n][i][ny-1+j]*FM->dx[Z_];
+	  AoBrho[X_][n1][i][ny-1+j] =
+	    AoBrho[X_][n1-1][i][ny-1+j]
+	    - BoBrho[Y_][n1][i][ny-1+j]*dx[Z_];
+	  AoBrho[Y_][n1][i][ny-1+j] =
+	    AoBrho[Y_][n1-1][i][ny-1+j]
+	    + BoBrho[X_][n1][i][ny-1+j]*dx[Z_];
 	}
       }
 
   inf.close();
 
   printf("\n%10.5f %10.5f %10.5f\n", x0, y0, z0);
-  printf("%10.5f %10.5f %10.5f\n", FM->dx[X_], FM->dx[Y_], FM->dx[Z_]);
-  printf("%10d %10d %10d\n", FM->n[X_], FM->n[Y_], FM->n[Z_]);
+  printf("%10.5f %10.5f %10.5f\n", dx[X_], dx[Y_], dx[Z_]);
+  printf("%10d %10d %10d\n", n[X_], n[Y_], n[Z_]);
   printf("%10.3f -> %10.3f %10.3f -> %10.3f %10.3f -> %10.3f\n",
-	 FM->x[X_][1], FM->x[X_][FM->n[X_]],
-	 FM->x[Y_][1], FM->x[Y_][FM->n[Y_]],
-	 FM->x[Z_][1], FM->x[Z_][FM->n[Z_]]);
-  printf("Magnet length [m]: %10.5f\n", FM->Lr);
+	 x[X_][1], x[X_][n[X_]],
+	 x[Y_][1], x[Y_][n[Y_]],
+	 x[Z_][1], x[Z_][n[Z_]]);
+  printf("Magnet length [m]: %10.5f\n", Lr);
 
   for (j = 1; j <= ny-1; j++) {
-    FM->x[Y_][j] = -FM->x[Y_][2*ny-j];
-    for (i = 1; i <= FM->n[X_]; i++) {
-      for (n = 1; n <= FM->n[Z_]; n++) {
+    x[Y_][j] = -x[Y_][2*ny-j];
+    for (i = 1; i <= n[X_]; i++) {
+      for (n1 = 1; n1 <= n[Z_]; n1++) {
 	// B[X_] is antisymmetric in y (rot(A) = 0)
-	FM->BoBrho[X_][n][i][j] = -FM->BoBrho[X_][n][i][2*ny-j];
-	FM->BoBrho[Y_][n][i][j] =  FM->BoBrho[Y_][n][i][2*ny-j];
+	BoBrho[X_][n1][i][j] = -BoBrho[X_][n1][i][2*ny-j];
+	BoBrho[Y_][n1][i][j] =  BoBrho[Y_][n1][i][2*ny-j];
 	// Bz is antisymmetric in y
-	FM->BoBrho[Z_][n][i][j] = -FM->BoBrho[Z_][n][i][2*ny-j];
+	BoBrho[Z_][n1][i][j] = -BoBrho[Z_][n1][i][2*ny-j];
 
-	FM->AoBrho[X_][n][i][j] = FM->AoBrho[X_][n][i][2*ny-j];
+	AoBrho[X_][n1][i][j] = AoBrho[X_][n1][i][2*ny-j];
 	// Ay is antisymmetric in y
-	FM->AoBrho[Y_][n][i][j] = -FM->AoBrho[Y_][n][i][2*ny-j];
+	AoBrho[Y_][n1][i][j] = -AoBrho[Y_][n1][i][2*ny-j];
       }
     }
   }
@@ -2470,53 +2435,53 @@ void get_B_DIAMOND(const char *filename, FieldMapType *FM)
   if (true) {
     file_wr(outf, "field_map.dat");
     std::cout << std::scientific << std::setprecision(3)
-	      << std::setw(11) << FM->x[X_][7] << std::setw(11) << FM->x[Y_][7]
+	      << std::setw(11) << x[X_][7] << std::setw(11) << x[Y_][7]
 	      << std::endl;
-    for (i = 1; i <= FM->n[X_]; i++)
+    for (i = 1; i <= n[X_]; i++)
       outf << std::scientific << std::setprecision(3)
-	   << std::setw(11) << FM->x[X_][i]
-	   << std::setw(11) << FM->BoBrho[Y_][7][i][7] << std::endl;
+	   << std::setw(11) << x[X_][i]
+	   << std::setw(11) << BoBrho[Y_][7][i][7] << std::endl;
     outf.close();
   }
 
-  for (n = 1; n <= FM->n[Z_]; n++) {
-    splie2_(FM->x[X_], FM->x[Y_], FM->BoBrho[X_][n],
-	    FM->n[X_], FM->n[Y_], FM->BoBrho2[X_][n]);
-    splie2_(FM->x[X_], FM->x[Y_], FM->BoBrho[Y_][n],
-	    FM->n[X_], FM->n[Y_], FM->BoBrho2[Y_][n]);
-    splie2_(FM->x[X_], FM->x[Y_], FM->BoBrho[Z_][n],
-	    FM->n[X_], FM->n[Y_], FM->BoBrho2[Z_][n]);
+  for (n1 = 1; n1 <= n[Z_]; n1++) {
+    splie2_(x[X_], x[Y_], BoBrho[X_][n1],
+	    n[X_], n[Y_], BoBrho2[X_][n1]);
+    splie2_(x[X_], x[Y_], BoBrho[Y_][n1],
+	    n[X_], n[Y_], BoBrho2[Y_][n1]);
+    splie2_(x[X_], x[Y_], BoBrho[Z_][n1],
+	    n[X_], n[Y_], BoBrho2[Z_][n1]);
 
-    splie2_(FM->x[X_], FM->x[Y_], FM->AoBrho[X_][n],
-	    FM->n[X_], FM->n[Y_], FM->AoBrho2[X_][n]);
-    splie2_(FM->x[X_], FM->x[Y_], FM->AoBrho[Y_][n],
-	    FM->n[X_], FM->n[Y_], FM->AoBrho2[Y_][n]);
+    splie2_(x[X_], x[Y_], AoBrho[X_][n1],
+	    n[X_], n[Y_], AoBrho2[X_][n1]);
+    splie2_(x[X_], x[Y_], AoBrho[Y_][n1],
+	    n[X_], n[Y_], AoBrho2[Y_][n1]);
   }
 
   std::cout << "field map loaded: " << filename << std::endl;
 
-/*  free_dvector(FM->x[X_], 1, FM->n[X_]);
-  free_dvector(FM->x[Y_], 1, FM->n[Y_]);
-  free_dvector(FM->x[Z_], 1, FM->n[Z_]);
+/*  free_dvector(x[X_], 1, n[X_]);
+  free_dvector(x[Y_], 1, n[Y_]);
+  free_dvector(x[Z_], 1, n[Z_]);
 
-  free_df3tensor(FM->BoBrho[X_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->BoBrho[Y_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->BoBrho[Z_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->BoBrho2[X_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->BoBrho2[Y_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->BoBrho2[Z_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+  free_df3tensor(BoBrho[X_],  1, n[Z_], 1, n[X_], 1, n[Y_]);
+  free_df3tensor(BoBrho[Y_],  1, n[Z_], 1, n[X_], 1, n[Y_]);
+  free_df3tensor(BoBrho[Z_],  1, n[Z_], 1, n[X_], 1, n[Y_]);
+  free_df3tensor(BoBrho2[X_], 1, n[Z_], 1, n[X_], 1, n[Y_]);
+  free_df3tensor(BoBrho2[Y_], 1, n[Z_], 1, n[X_], 1, n[Y_]);
+  free_df3tensor(BoBrho2[Z_], 1, n[Z_], 1, n[X_], 1, n[Y_]);
 
-  free_df3tensor(FM->AoBrho[X_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->AoBrho[Y_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->AoBrho2[X_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->AoBrho2[Y_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);*/
+  free_df3tensor(AoBrho[X_],  1, n[Z_], 1, n[X_], 1, n[Y_]);
+  free_df3tensor(AoBrho[Y_],  1, n[Z_], 1, n[X_], 1, n[Y_]);
+  free_df3tensor(AoBrho2[X_], 1, n[Z_], 1, n[X_], 1, n[Y_]);
+  free_df3tensor(AoBrho2[Y_], 1, n[Z_], 1, n[X_], 1, n[Y_]);*/
 }
 
 
-void get_B_NSLS_II(const char *filename, FieldMapType *FM)
+void FieldMapType::get_B_NSLS_II(const char *filename)
 {
   char          line[max_str];
-  int           i, j, n;
+  int           i, j, n1;
   double        x_min[3], x_max[3];
   std::ifstream inf;
 
@@ -2530,124 +2495,124 @@ void get_B_NSLS_II(const char *filename, FieldMapType *FM)
   inf.getline(line, max_str);
   inf.getline(line, max_str);
   sscanf(line, "#%lf <= x <= %lf, dx = %lf, nx = %d",
-	 &x_min[X_], &x_max[X_], &FM->dx[X_], &FM->n[X_]);
-  x_min[X_] *= 1e-2; x_max[X_] *= 1e-2; FM->dx[X_] *= 1e-2;
+	 &x_min[X_], &x_max[X_], &dx[X_], &n[X_]);
+  x_min[X_] *= 1e-2; x_max[X_] *= 1e-2; dx[X_] *= 1e-2;
   inf.getline(line, max_str);
   sscanf(line, "#%lf <= y <= %lf, dy = %lf, ny = %d",
-	 &x_min[Y_], &x_max[Y_], &FM->dx[Y_], &FM->n[Y_]);
-  x_min[Y_] *= 1e-2; x_max[Y_] *= 1e-2; FM->dx[Y_] *= 1e-2;
+	 &x_min[Y_], &x_max[Y_], &dx[Y_], &n[Y_]);
+  x_min[Y_] *= 1e-2; x_max[Y_] *= 1e-2; dx[Y_] *= 1e-2;
   inf.getline(line, max_str);
   sscanf(line, "#%lf <= z <= %lf, dz = %lf, nz = %d",
-	 &x_min[Z_], &x_max[Z_], &FM->dx[Z_], &FM->n[Z_]);
-  x_min[Z_] *= 1e-2; x_max[Z_] *= 1e-2; FM->dx[Z_] *= 1e-2;
+	 &x_min[Z_], &x_max[Z_], &dx[Z_], &n[Z_]);
+  x_min[Z_] *= 1e-2; x_max[Z_] *= 1e-2; dx[Z_] *= 1e-2;
 
-  FM->x[X_] = dvector(1, FM->n[X_]); FM->x[Y_] = dvector(1, FM->n[Y_]);
-  FM->x[Z_] = dvector(1, FM->n[Z_]);
+  x[X_] = dvector(1, n[X_]); x[Y_] = dvector(1, n[Y_]);
+  x[Z_] = dvector(1, n[Z_]);
 
-  FM->BoBrho[X_]  = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  FM->BoBrho[Y_]  = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  FM->BoBrho[Z_]  = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  FM->BoBrho2[X_] = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  FM->BoBrho2[Y_] = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  FM->BoBrho2[Z_] = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+  BoBrho[X_]  = df3tensor(1, n[Z_], 1, n[X_], 1, n[Y_]);
+  BoBrho[Y_]  = df3tensor(1, n[Z_], 1, n[X_], 1, n[Y_]);
+  BoBrho[Z_]  = df3tensor(1, n[Z_], 1, n[X_], 1, n[Y_]);
+  BoBrho2[X_] = df3tensor(1, n[Z_], 1, n[X_], 1, n[Y_]);
+  BoBrho2[Y_] = df3tensor(1, n[Z_], 1, n[X_], 1, n[Y_]);
+  BoBrho2[Z_] = df3tensor(1, n[Z_], 1, n[X_], 1, n[Y_]);
 
-  FM->AoBrho[X_]  = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  FM->AoBrho[Y_]  = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  FM->AoBrho2[X_] = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  FM->AoBrho2[Y_] = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+  AoBrho[X_]  = df3tensor(1, n[Z_], 1, n[X_], 1, n[Y_]);
+  AoBrho[Y_]  = df3tensor(1, n[Z_], 1, n[X_], 1, n[Y_]);
+  AoBrho2[X_] = df3tensor(1, n[Z_], 1, n[X_], 1, n[Y_]);
+  AoBrho2[Y_] = df3tensor(1, n[Z_], 1, n[X_], 1, n[Y_]);
 
-  for (i = 1; i <= FM->n[X_]; i++)
-    for (j = 1; j <= FM->n[Y_]; j++)
-      for (n = 1; n <= FM->n[Z_]; n++) {
+  for (i = 1; i <= n[X_]; i++)
+    for (j = 1; j <= n[Y_]; j++)
+      for (n1 = 1; n1 <= n[Z_]; n1++) {
 	inf.getline(line, max_str);
 	sscanf(line, "%lf %lf %lf %lf %lf %lf",
-	       &FM->x[X_][i], &FM->x[Y_][j], &FM->x[Z_][n],
-	       &FM->BoBrho[X_][n][i][j],
-	       &FM->BoBrho[Y_][n][i][j],
-	       &FM->BoBrho[Z_][n][i][j]);
+	       &x[X_][i], &x[Y_][j], &x[Z_][n1],
+	       &BoBrho[X_][n1][i][j],
+	       &BoBrho[Y_][n1][i][j],
+	       &BoBrho[Z_][n1][i][j]);
 
 	// convert from cm to m
-	FM->x[X_][i] *= 1e-2; FM->x[Y_][j] *= 1e-2; FM->x[Z_][n] *= 1e-2;
+	x[X_][i] *= 1e-2; x[Y_][j] *= 1e-2; x[Z_][n1] *= 1e-2;
 
-	FM->BoBrho[X_][n][i][j] = Brho;
-	FM->BoBrho[Y_][n][i][j] = Brho;
-	FM->BoBrho[Z_][n][i][j] = Brho;
+	BoBrho[X_][n1][i][j] = Brho;
+	BoBrho[Y_][n1][i][j] = Brho;
+	BoBrho[Z_][n1][i][j] = Brho;
 
 	// Compute vector potential (axial gauge) by extended trapezodial rule
- 	if (n == 1) {
-	  FM->AoBrho[X_][n][i][j] = -FM->BoBrho[Y_][n][i][j]*FM->dx[Z_]/2e0;
-	  FM->AoBrho[Y_][n][i][j] =  FM->BoBrho[X_][n][i][j]*FM->dx[Z_]/2e0;
-	} else if (n == FM->n[Z_]) {
-	  FM->AoBrho[X_][n][i][j] =
-	    FM->AoBrho[X_][n-1][i][j] - FM->BoBrho[Y_][n][i][j]*FM->dx[Z_]/2e0;
-	  FM->AoBrho[Y_][n][i][j] =
-	    FM->AoBrho[Y_][n-1][i][j] + FM->BoBrho[X_][n][i][j]*FM->dx[Z_]/2e0;
+ 	if (n1 == 1) {
+	  AoBrho[X_][n1][i][j] = -BoBrho[Y_][n1][i][j]*dx[Z_]/2e0;
+	  AoBrho[Y_][n1][i][j] =  BoBrho[X_][n1][i][j]*dx[Z_]/2e0;
+	} else if (n1 == n[Z_]) {
+	  AoBrho[X_][n1][i][j] =
+	    AoBrho[X_][n1-1][i][j] - BoBrho[Y_][n1][i][j]*dx[Z_]/2e0;
+	  AoBrho[Y_][n1][i][j] =
+	    AoBrho[Y_][n1-1][i][j] + BoBrho[X_][n1][i][j]*dx[Z_]/2e0;
 	} else {
-	  FM->AoBrho[X_][n][i][j] =
-	    FM->AoBrho[X_][n-1][i][j] - FM->BoBrho[Y_][n][i][j]*FM->dx[Z_];
-	  FM->AoBrho[Y_][n][i][j] =
-	    FM->AoBrho[Y_][n-1][i][j] + FM->BoBrho[X_][n][i][j]*FM->dx[Z_];
+	  AoBrho[X_][n1][i][j] =
+	    AoBrho[X_][n1-1][i][j] - BoBrho[Y_][n1][i][j]*dx[Z_];
+	  AoBrho[Y_][n1][i][j] =
+	    AoBrho[Y_][n1-1][i][j] + BoBrho[X_][n1][i][j]*dx[Z_];
 	}
      }
 
   inf.close();
 
-  FM->Lr = FM->dx[Z_]*(FM->n[Z_]-1);
+  Lr = dx[Z_]*(n[Z_]-1);
 
   std::cout << std::fixed << std::setprecision(5)
-	    << std::setw(10) << 1e3*FM->dx[X_]
-	    << std::setw(10) << 1e3*FM->dx[Y_]
-	    << std::setw(10) << 1e3*FM->dx[Z_] << std::endl;
-  std::cout << std::setw(10) << FM->n[X_] << std::setw(10) << FM->n[Y_]
-	    << std::setw(10) << FM->n[Z_] << std::endl;
+	    << std::setw(10) << 1e3*dx[X_]
+	    << std::setw(10) << 1e3*dx[Y_]
+	    << std::setw(10) << 1e3*dx[Z_] << std::endl;
+  std::cout << std::setw(10) << n[X_] << std::setw(10) << n[Y_]
+	    << std::setw(10) << n[Z_] << std::endl;
   std::cout << std::fixed << std::setprecision(3)
-	    << std::setw(10) << FM->x[X_][1]
-	    << std::setw(10) << FM->x[X_][FM->n[X_]]
-	    << std::setw(10) << FM->x[Y_][1]
-	    << std::setw(10) << FM->x[Y_][FM->n[Y_]]
-	    << std::setw(10) << FM->x[Z_][1]
-	    << std::setw(10) << FM->x[Z_][FM->n[Z_]] << std::endl;
+	    << std::setw(10) << x[X_][1]
+	    << std::setw(10) << x[X_][n[X_]]
+	    << std::setw(10) << x[Y_][1]
+	    << std::setw(10) << x[Y_][n[Y_]]
+	    << std::setw(10) << x[Z_][1]
+	    << std::setw(10) << x[Z_][n[Z_]] << std::endl;
   std::cout << std::fixed << std::setprecision(5)
-	    << "Magnet length [m]:" << std::setw(10) << FM->Lr << std::endl;
+	    << "Magnet length [m]:" << std::setw(10) << Lr << std::endl;
 
-  for (n = 1; n <= FM->n[Z_]; n++) {
-    splie2_(FM->x[X_], FM->x[Y_], FM->BoBrho[X_][n],
-	    FM->n[X_], FM->n[Y_], FM->BoBrho2[X_][n]);
-    splie2_(FM->x[X_], FM->x[Y_], FM->BoBrho[Y_][n],
-	    FM->n[X_], FM->n[Y_], FM->BoBrho2[Y_][n]);
-    splie2_(FM->x[X_], FM->x[Y_], FM->BoBrho[Z_][n],
-	    FM->n[X_], FM->n[Y_], FM->BoBrho2[Z_][n]);
+  for (n1 = 1; n1 <= n[Z_]; n1++) {
+    splie2_(x[X_], x[Y_], BoBrho[X_][n1],
+	    n[X_], n[Y_], BoBrho2[X_][n1]);
+    splie2_(x[X_], x[Y_], BoBrho[Y_][n1],
+	    n[X_], n[Y_], BoBrho2[Y_][n1]);
+    splie2_(x[X_], x[Y_], BoBrho[Z_][n1],
+	    n[X_], n[Y_], BoBrho2[Z_][n1]);
 
-    splie2_(FM->x[X_], FM->x[Y_], FM->AoBrho[X_][n],
-	    FM->n[X_], FM->n[Y_], FM->AoBrho2[X_][n]);
-    splie2_(FM->x[X_], FM->x[Y_], FM->AoBrho[Y_][n],
-	    FM->n[X_], FM->n[Y_], FM->AoBrho2[Y_][n]);
+    splie2_(x[X_], x[Y_], AoBrho[X_][n1],
+	    n[X_], n[Y_], AoBrho2[X_][n1]);
+    splie2_(x[X_], x[Y_], AoBrho[Y_][n1],
+	    n[X_], n[Y_], AoBrho2[Y_][n1]);
   }
 
   std::cout << "field map loaded: " << filename << std::endl;
 
-/*  free_dvector(FM->x[X_], 1, FM->n[X_]);
-  free_dvector(FM->x[Y_], 1, FM->n[Y_]);
-  free_dvector(FM->x[Z_], 1, FM->n[Z_]);
+/*  free_dvector(x[X_], 1, n[X_]);
+  free_dvector(x[Y_], 1, n[Y_]);
+  free_dvector(x[Z_], 1, n[Z_]);
 
-  free_df3tensor(FM->BoBrho[X_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->BoBrho[Y_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->BoBrho[Z_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->BoBrho2[X_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->BoBrho2[Y_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->BoBrho2[Z_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+  free_df3tensor(BoBrho[X_],  1, n[Z_], 1, n[X_], 1, n[Y_]);
+  free_df3tensor(BoBrho[Y_],  1, n[Z_], 1, n[X_], 1, n[Y_]);
+  free_df3tensor(BoBrho[Z_],  1, n[Z_], 1, n[X_], 1, n[Y_]);
+  free_df3tensor(BoBrho2[X_], 1, n[Z_], 1, n[X_], 1, n[Y_]);
+  free_df3tensor(BoBrho2[Y_], 1, n[Z_], 1, n[X_], 1, n[Y_]);
+  free_df3tensor(BoBrho2[Z_], 1, n[Z_], 1, n[X_], 1, n[Y_]);
 
-  free_df3tensor(FM->AoBrho[X_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->AoBrho[Y_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->AoBrho2[X_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->AoBrho2[Y_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);*/
+  free_df3tensor(AoBrho[X_],  1, n[Z_], 1, n[X_], 1, n[Y_]);
+  free_df3tensor(AoBrho[Y_],  1, n[Z_], 1, n[X_], 1, n[Y_]);
+  free_df3tensor(AoBrho2[X_], 1, n[Z_], 1, n[X_], 1, n[Y_]);
+  free_df3tensor(AoBrho2[Y_], 1, n[Z_], 1, n[X_], 1, n[Y_]);*/
 }
 
 
-void get_B_Oleg1(const char *filename, FieldMapType *FM)
+void FieldMapType::get_B_Oleg1(const char *filename)
 {
   char          line[max_str];
-  int           i, j, n;
+  int           i, j, n1;
   double        x_min[3], x_max[3];
   std::ifstream inf;
 
@@ -2661,124 +2626,124 @@ void get_B_Oleg1(const char *filename, FieldMapType *FM)
   inf.getline(line, max_str);
   inf.getline(line, max_str);
   sscanf(line, "#%lf <= x <= %lf, dx = %lf, nx = %d",
-	 &x_min[X_], &x_max[X_], &FM->dx[X_], &FM->n[X_]);
-  FM->dx[X_] *= 1e-3;
+	 &x_min[X_], &x_max[X_], &dx[X_], &n[X_]);
+  dx[X_] *= 1e-3;
   inf.getline(line, max_str);
   sscanf(line, "#%lf <= y <= %lf, dy = %lf, ny = %d",
-	 &x_min[Y_], &x_max[Y_], &FM->dx[Y_], &FM->n[Y_]);
-  FM->dx[Y_] *= 1e-3;
+	 &x_min[Y_], &x_max[Y_], &dx[Y_], &n[Y_]);
+  dx[Y_] *= 1e-3;
   inf.getline(line, max_str);
   sscanf(line, "#%lf <= z <= %lf, dz = %lf, nz = %d",
-	 &x_min[Z_], &x_max[Z_], &FM->dx[Z_], &FM->n[Z_]);
-  FM->dx[Z_] *= 1e-3;
+	 &x_min[Z_], &x_max[Z_], &dx[Z_], &n[Z_]);
+  dx[Z_] *= 1e-3;
 
-  FM->x[X_] = dvector(1, FM->n[X_]); FM->x[Y_] = dvector(1, FM->n[Y_]);
-  FM->x[Z_] = dvector(1, FM->n[Z_]);
+  x[X_] = dvector(1, n[X_]); x[Y_] = dvector(1, n[Y_]);
+  x[Z_] = dvector(1, n[Z_]);
 
-  FM->BoBrho[X_]  = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  FM->BoBrho[Y_]  = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  FM->BoBrho[Z_]  = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  FM->BoBrho2[X_] = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  FM->BoBrho2[Y_] = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  FM->BoBrho2[Z_] = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+  BoBrho[X_]  = df3tensor(1, n[Z_], 1, n[X_], 1, n[Y_]);
+  BoBrho[Y_]  = df3tensor(1, n[Z_], 1, n[X_], 1, n[Y_]);
+  BoBrho[Z_]  = df3tensor(1, n[Z_], 1, n[X_], 1, n[Y_]);
+  BoBrho2[X_] = df3tensor(1, n[Z_], 1, n[X_], 1, n[Y_]);
+  BoBrho2[Y_] = df3tensor(1, n[Z_], 1, n[X_], 1, n[Y_]);
+  BoBrho2[Z_] = df3tensor(1, n[Z_], 1, n[X_], 1, n[Y_]);
 
-  FM->AoBrho[X_]  = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  FM->AoBrho[Y_]  = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  FM->AoBrho2[X_] = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  FM->AoBrho2[Y_] = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+  AoBrho[X_]  = df3tensor(1, n[Z_], 1, n[X_], 1, n[Y_]);
+  AoBrho[Y_]  = df3tensor(1, n[Z_], 1, n[X_], 1, n[Y_]);
+  AoBrho2[X_] = df3tensor(1, n[Z_], 1, n[X_], 1, n[Y_]);
+  AoBrho2[Y_] = df3tensor(1, n[Z_], 1, n[X_], 1, n[Y_]);
 
-  for (n = 1; n <= FM->n[Z_]; n++)
-    for (j = 1; j <= FM->n[Y_]; j++)
-      for (i = 1; i <= FM->n[X_]; i++) {
+  for (n1 = 1; n1 <= n[Z_]; n1++)
+    for (j = 1; j <= n[Y_]; j++)
+      for (i = 1; i <= n[X_]; i++) {
 	inf.getline(line, max_str);
 	sscanf(line, "%lf %lf %lf %lf %lf %lf",
-	       &FM->x[X_][i], &FM->x[Y_][j], &FM->x[Z_][n],
-	       &FM->BoBrho[X_][n][i][j],
-	       &FM->BoBrho[Y_][n][i][j],
-	       &FM->BoBrho[Z_][n][i][j]);
+	       &x[X_][i], &x[Y_][j], &x[Z_][n1],
+	       &BoBrho[X_][n1][i][j],
+	       &BoBrho[Y_][n1][i][j],
+	       &BoBrho[Z_][n1][i][j]);
 
 	// convert from mm to m
-	FM->x[X_][i] *= 1e-3; FM->x[Y_][j] *= 1e-3; FM->x[Z_][n] *= 1e-3;
+	x[X_][i] *= 1e-3; x[Y_][j] *= 1e-3; x[Z_][n1] *= 1e-3;
 
-	FM->BoBrho[X_][n][i][j] /= Brho;
-	FM->BoBrho[Y_][n][i][j] /= Brho;
-	FM->BoBrho[Z_][n][i][j] /= Brho;
+	BoBrho[X_][n1][i][j] /= Brho;
+	BoBrho[Y_][n1][i][j] /= Brho;
+	BoBrho[Z_][n1][i][j] /= Brho;
 
 	// Compute vector potential (axial gauge) by extended trapezodial rule
- 	if (n == 1) {
-	  FM->AoBrho[X_][n][i][j] = -FM->BoBrho[Y_][n][i][j]*FM->dx[Z_]/2e0;
-	  FM->AoBrho[Y_][n][i][j] =  FM->BoBrho[X_][n][i][j]*FM->dx[Z_]/2e0;
-	} else if (n == FM->n[Z_]) {
-	  FM->AoBrho[X_][n][i][j] =
-	    FM->AoBrho[X_][n-1][i][j] - FM->BoBrho[Y_][n][i][j]*FM->dx[Z_]/2e0;
-	  FM->AoBrho[Y_][n][i][j] =
-	    FM->AoBrho[Y_][n-1][i][j] + FM->BoBrho[X_][n][i][j]*FM->dx[Z_]/2e0;
+ 	if (n1 == 1) {
+	  AoBrho[X_][n1][i][j] = -BoBrho[Y_][n1][i][j]*dx[Z_]/2e0;
+	  AoBrho[Y_][n1][i][j] =  BoBrho[X_][n1][i][j]*dx[Z_]/2e0;
+	} else if (n1 == n[Z_]) {
+	  AoBrho[X_][n1][i][j] =
+	    AoBrho[X_][n1-1][i][j] - BoBrho[Y_][n1][i][j]*dx[Z_]/2e0;
+	  AoBrho[Y_][n1][i][j] =
+	    AoBrho[Y_][n1-1][i][j] + BoBrho[X_][n1][i][j]*dx[Z_]/2e0;
 	} else {
-	  FM->AoBrho[X_][n][i][j] =
-	    FM->AoBrho[X_][n-1][i][j] - FM->BoBrho[Y_][n][i][j]*FM->dx[Z_];
-	  FM->AoBrho[Y_][n][i][j] =
-	    FM->AoBrho[Y_][n-1][i][j] + FM->BoBrho[X_][n][i][j]*FM->dx[Z_];
+	  AoBrho[X_][n1][i][j] =
+	    AoBrho[X_][n1-1][i][j] - BoBrho[Y_][n1][i][j]*dx[Z_];
+	  AoBrho[Y_][n1][i][j] =
+	    AoBrho[Y_][n1-1][i][j] + BoBrho[X_][n1][i][j]*dx[Z_];
 	}
      }
 
   inf.close();
 
-  FM->Lr = FM->dx[Z_]*(FM->n[Z_]-1);
+  Lr = dx[Z_]*(n[Z_]-1);
 
   std::cout << std::fixed << std::setprecision(5)
-	    << std::setw(10) << 1e3*FM->dx[X_]
-	    << std::setw(10) << 1e3*FM->dx[Y_]
-	    << std::setw(10) << 1e3*FM->dx[Z_] << std::endl;
-  std::cout << std::setw(10) << FM->n[X_] << std::setw(10) << FM->n[Y_]
-	    << std::setw(10) << FM->n[Z_] << std::endl;
+	    << std::setw(10) << 1e3*dx[X_]
+	    << std::setw(10) << 1e3*dx[Y_]
+	    << std::setw(10) << 1e3*dx[Z_] << std::endl;
+  std::cout << std::setw(10) << n[X_] << std::setw(10) << n[Y_]
+	    << std::setw(10) << n[Z_] << std::endl;
   std::cout << std::fixed << std::setprecision(3)
-	    << std::setw(10) << FM->x[X_][1]
-	    << std::setw(10) << FM->x[X_][FM->n[X_]]
-	    << std::setw(10) << FM->x[Y_][1]
-	    << std::setw(10) << FM->x[Y_][FM->n[Y_]]
-	    << std::setw(10) << FM->x[Z_][1]
-	    << std::setw(10) << FM->x[Z_][FM->n[Z_]] << std::endl;
+	    << std::setw(10) << x[X_][1]
+	    << std::setw(10) << x[X_][n[X_]]
+	    << std::setw(10) << x[Y_][1]
+	    << std::setw(10) << x[Y_][n[Y_]]
+	    << std::setw(10) << x[Z_][1]
+	    << std::setw(10) << x[Z_][n[Z_]] << std::endl;
   std::cout << std::fixed << std::setprecision(5)
-	    << "Magnet length [m]:" << std::setw(10) << FM->Lr << std::endl;
+	    << "Magnet length [m]:" << std::setw(10) << Lr << std::endl;
 
-  for (n = 1; n <= FM->n[Z_]; n++) {
-    splie2_(FM->x[X_], FM->x[Y_], FM->BoBrho[X_][n],
-	    FM->n[X_], FM->n[Y_], FM->BoBrho2[X_][n]);
-    splie2_(FM->x[X_], FM->x[Y_], FM->BoBrho[Y_][n],
-	    FM->n[X_], FM->n[Y_], FM->BoBrho2[Y_][n]);
-    splie2_(FM->x[X_], FM->x[Y_], FM->BoBrho[Z_][n],
-	    FM->n[X_], FM->n[Y_], FM->BoBrho2[Z_][n]);
+  for (n1 = 1; n1 <= n[Z_]; n1++) {
+    splie2_(x[X_], x[Y_], BoBrho[X_][n1],
+	    n[X_], n[Y_], BoBrho2[X_][n1]);
+    splie2_(x[X_], x[Y_], BoBrho[Y_][n1],
+	    n[X_], n[Y_], BoBrho2[Y_][n1]);
+    splie2_(x[X_], x[Y_], BoBrho[Z_][n1],
+	    n[X_], n[Y_], BoBrho2[Z_][n1]);
 
-    splie2_(FM->x[X_], FM->x[Y_], FM->AoBrho[X_][n],
-	    FM->n[X_], FM->n[Y_], FM->AoBrho2[X_][n]);
-    splie2_(FM->x[X_], FM->x[Y_], FM->AoBrho[Y_][n],
-	    FM->n[X_], FM->n[Y_], FM->AoBrho2[Y_][n]);
+    splie2_(x[X_], x[Y_], AoBrho[X_][n1],
+	    n[X_], n[Y_], AoBrho2[X_][n1]);
+    splie2_(x[X_], x[Y_], AoBrho[Y_][n1],
+	    n[X_], n[Y_], AoBrho2[Y_][n1]);
   }
 
   std::cout << "field map loaded: " << filename << std::endl;
 
-/*  free_dvector(FM->x[X_], 1, FM->n[X_]);
-  free_dvector(FM->x[Y_], 1, FM->n[Y_]);
-  free_dvector(FM->x[Z_], 1, FM->n[Z_]);
+/*  free_dvector(x[X_], 1, n[X_]);
+  free_dvector(x[Y_], 1, n[Y_]);
+  free_dvector(x[Z_], 1, n[Z_]);
 
-  free_df3tensor(FM->BoBrho[X_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->BoBrho[Y_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->BoBrho[Z_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->BoBrho2[X_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->BoBrho2[Y_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->BoBrho2[Z_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+  free_df3tensor(BoBrho[X_],  1, n[Z_], 1, n[X_], 1, n[Y_]);
+  free_df3tensor(BoBrho[Y_],  1, n[Z_], 1, n[X_], 1, n[Y_]);
+  free_df3tensor(BoBrho[Z_],  1, n[Z_], 1, n[X_], 1, n[Y_]);
+  free_df3tensor(BoBrho2[X_], 1, n[Z_], 1, n[X_], 1, n[Y_]);
+  free_df3tensor(BoBrho2[Y_], 1, n[Z_], 1, n[X_], 1, n[Y_]);
+  free_df3tensor(BoBrho2[Z_], 1, n[Z_], 1, n[X_], 1, n[Y_]);
 
-  free_df3tensor(FM->AoBrho[X_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->AoBrho[Y_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->AoBrho2[X_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->AoBrho2[Y_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);*/
+  free_df3tensor(AoBrho[X_],  1, n[Z_], 1, n[X_], 1, n[Y_]);
+  free_df3tensor(AoBrho[Y_],  1, n[Z_], 1, n[X_], 1, n[Y_]);
+  free_df3tensor(AoBrho2[X_], 1, n[Z_], 1, n[X_], 1, n[Y_]);
+  free_df3tensor(AoBrho2[Y_], 1, n[Z_], 1, n[X_], 1, n[Y_]);*/
 }
 
 
-void get_B_Oleg2(const char *filename, FieldMapType *FM)
+void FieldMapType::get_B_Oleg2(const char *filename)
 {
   char          line[max_str];
-  int           i, j, n;
+  int           i, j, n1;
   double        x_min[3];
   std::ifstream inf;
 
@@ -2792,74 +2757,74 @@ void get_B_Oleg2(const char *filename, FieldMapType *FM)
   inf.getline(line, max_str);
 
   inf.getline(line, max_str); sscanf(line, "#%lf", &x_min[X_]);
-  inf.getline(line, max_str); sscanf(line, "#%lf", &FM->dx[X_]);
-  inf.getline(line, max_str); sscanf(line, "#%d", &FM->n[X_]);
+  inf.getline(line, max_str); sscanf(line, "#%lf", &dx[X_]);
+  inf.getline(line, max_str); sscanf(line, "#%d", &n[X_]);
 
   inf.getline(line, max_str); sscanf(line, "#%lf", &x_min[Y_]);
-  inf.getline(line, max_str); sscanf(line, "#%lf", &FM->dx[Y_]);
-  inf.getline(line, max_str); sscanf(line, "#%d", &FM->n[Y_]);
+  inf.getline(line, max_str); sscanf(line, "#%lf", &dx[Y_]);
+  inf.getline(line, max_str); sscanf(line, "#%d", &n[Y_]);
 
   inf.getline(line, max_str); sscanf(line, "#%lf", &x_min[Z_]);
-  inf.getline(line, max_str); sscanf(line, "#%lf", &FM->dx[Z_]);
-  inf.getline(line, max_str); sscanf(line, "#%d", &FM->n[Z_]);
+  inf.getline(line, max_str); sscanf(line, "#%lf", &dx[Z_]);
+  inf.getline(line, max_str); sscanf(line, "#%d", &n[Z_]);
 
   std::cout << std::fixed << std::setprecision(5)
-	    << std::setw(10) << 1e3*FM->dx[X_]
-	    << std::setw(10) << 1e3*FM->dx[Y_]
-	    << std::setw(10) << 1e3*FM->dx[Z_] << std::endl;
-  std::cout << std::setw(10) << FM->n[X_] << std::setw(10) << FM->n[Y_]
-	    << std::setw(10) << FM->n[Z_] << std::endl;
+	    << std::setw(10) << 1e3*dx[X_]
+	    << std::setw(10) << 1e3*dx[Y_]
+	    << std::setw(10) << 1e3*dx[Z_] << std::endl;
+  std::cout << std::setw(10) << n[X_] << std::setw(10) << n[Y_]
+	    << std::setw(10) << n[Z_] << std::endl;
   std::cout << std::fixed << std::setprecision(3)
 	    << std::setw(10) << x_min[X_] << std::setw(10) << x_min[Y_]
 	    << std::setw(10) << x_min[Z_] << std::endl;
 
-  FM->x[X_] = dvector(1, FM->n[X_]); FM->x[Y_] = dvector(1, FM->n[Y_]);
-  FM->x[Z_] = dvector(1, FM->n[Z_]);
+  x[X_] = dvector(1, n[X_]); x[Y_] = dvector(1, n[Y_]);
+  x[Z_] = dvector(1, n[Z_]);
 
-  FM->BoBrho[X_]  = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  FM->BoBrho[Y_]  = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  FM->BoBrho[Z_]  = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  FM->BoBrho2[X_] = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  FM->BoBrho2[Y_] = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  FM->BoBrho2[Z_] = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+  BoBrho[X_]  = df3tensor(1, n[Z_], 1, n[X_], 1, n[Y_]);
+  BoBrho[Y_]  = df3tensor(1, n[Z_], 1, n[X_], 1, n[Y_]);
+  BoBrho[Z_]  = df3tensor(1, n[Z_], 1, n[X_], 1, n[Y_]);
+  BoBrho2[X_] = df3tensor(1, n[Z_], 1, n[X_], 1, n[Y_]);
+  BoBrho2[Y_] = df3tensor(1, n[Z_], 1, n[X_], 1, n[Y_]);
+  BoBrho2[Z_] = df3tensor(1, n[Z_], 1, n[X_], 1, n[Y_]);
 
-  FM->AoBrho[X_]  = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  FM->AoBrho[Y_]  = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  FM->AoBrho2[X_] = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  FM->AoBrho2[Y_] = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+  AoBrho[X_]  = df3tensor(1, n[Z_], 1, n[X_], 1, n[Y_]);
+  AoBrho[Y_]  = df3tensor(1, n[Z_], 1, n[X_], 1, n[Y_]);
+  AoBrho2[X_] = df3tensor(1, n[Z_], 1, n[X_], 1, n[Y_]);
+  AoBrho2[Y_] = df3tensor(1, n[Z_], 1, n[X_], 1, n[Y_]);
 
-  for (n = 1; n <= FM->n[Z_]; n++) {
-    FM->x[Z_][n] = (n == 1)? x_min[Z_] : FM->x[Z_][n-1] + FM->dx[Z_];
+  for (n1 = 1; n1 <= n[Z_]; n1++) {
+    x[Z_][n1] = (n1 == 1)? x_min[Z_] : x[Z_][n1-1] + dx[Z_];
 
-    for (j = 1; j <= FM->n[Y_]; j++) {
-      FM->x[Y_][j] = (j == 1)? x_min[Y_] : FM->x[Y_][j-1] + FM->dx[Y_];
+    for (j = 1; j <= n[Y_]; j++) {
+      x[Y_][j] = (j == 1)? x_min[Y_] : x[Y_][j-1] + dx[Y_];
 
-      for (i = 1; i <= FM->n[X_]; i++) {
-	FM->x[X_][i] = (i == 1)? x_min[X_] : FM->x[X_][i-1] + FM->dx[X_];
+      for (i = 1; i <= n[X_]; i++) {
+	x[X_][i] = (i == 1)? x_min[X_] : x[X_][i-1] + dx[X_];
 
 	inf.getline(line, max_str);
 	sscanf(line, "%lf %lf %lf",
-	       &FM->BoBrho[X_][n][i][j], &FM->BoBrho[Y_][n][i][j],
-	       &FM->BoBrho[Z_][n][i][j]);
+	       &BoBrho[X_][n1][i][j], &BoBrho[Y_][n1][i][j],
+	       &BoBrho[Z_][n1][i][j]);
 
-	FM->BoBrho[X_][n][i][j] /= Brho;
-	FM->BoBrho[Y_][n][i][j] /= Brho;
-	FM->BoBrho[Z_][n][i][j] /= Brho;
+	BoBrho[X_][n1][i][j] /= Brho;
+	BoBrho[Y_][n1][i][j] /= Brho;
+	BoBrho[Z_][n1][i][j] /= Brho;
 
 	// Compute vector potential (axial gauge) by extended trapezodial rule
- 	if (n == 1) {
-	  FM->AoBrho[X_][n][i][j] = -FM->BoBrho[Y_][n][i][j]*FM->dx[Z_]/2e0;
-	  FM->AoBrho[Y_][n][i][j] =  FM->BoBrho[X_][n][i][j]*FM->dx[Z_]/2e0;
-	} else if (n == FM->n[Z_]) {
-	  FM->AoBrho[X_][n][i][j] =
-	    FM->AoBrho[X_][n-1][i][j] - FM->BoBrho[Y_][n][i][j]*FM->dx[Z_]/2e0;
-	  FM->AoBrho[Y_][n][i][j] =
-	    FM->AoBrho[Y_][n-1][i][j] + FM->BoBrho[X_][n][i][j]*FM->dx[Z_]/2e0;
+ 	if (n1 == 1) {
+	  AoBrho[X_][n1][i][j] = -BoBrho[Y_][n1][i][j]*dx[Z_]/2e0;
+	  AoBrho[Y_][n1][i][j] =  BoBrho[X_][n1][i][j]*dx[Z_]/2e0;
+	} else if (n1 == n[Z_]) {
+	  AoBrho[X_][n1][i][j] =
+	    AoBrho[X_][n1-1][i][j] - BoBrho[Y_][n1][i][j]*dx[Z_]/2e0;
+	  AoBrho[Y_][n1][i][j] =
+	    AoBrho[Y_][n1-1][i][j] + BoBrho[X_][n1][i][j]*dx[Z_]/2e0;
 	} else {
-	  FM->AoBrho[X_][n][i][j] =
-	    FM->AoBrho[X_][n-1][i][j] - FM->BoBrho[Y_][n][i][j]*FM->dx[Z_];
-	  FM->AoBrho[Y_][n][i][j] =
-	    FM->AoBrho[Y_][n-1][i][j] + FM->BoBrho[X_][n][i][j]*FM->dx[Z_];
+	  AoBrho[X_][n1][i][j] =
+	    AoBrho[X_][n1-1][i][j] - BoBrho[Y_][n1][i][j]*dx[Z_];
+	  AoBrho[Y_][n1][i][j] =
+	    AoBrho[Y_][n1-1][i][j] + BoBrho[X_][n1][i][j]*dx[Z_];
 	}
       }
     }
@@ -2867,70 +2832,70 @@ void get_B_Oleg2(const char *filename, FieldMapType *FM)
 
   inf.close();
 
-  FM->Lr = FM->dx[Z_]*(FM->n[Z_]-1);
+  Lr = dx[Z_]*(n[Z_]-1);
 
   std::cout << std::fixed << std::setprecision(5)
-	    << std::setw(10) << 1e3*FM->dx[X_]
-	    << std::setw(10) << 1e3*FM->dx[Y_]
-	    << std::setw(10) << 1e3*FM->dx[Z_] << std::endl;
-  std::cout << std::setw(10) << FM->n[X_] << std::setw(10) << FM->n[Y_]
-	    << std::setw(10) << FM->n[Z_] << std::endl;
+	    << std::setw(10) << 1e3*dx[X_]
+	    << std::setw(10) << 1e3*dx[Y_]
+	    << std::setw(10) << 1e3*dx[Z_] << std::endl;
+  std::cout << std::setw(10) << n[X_] << std::setw(10) << n[Y_]
+	    << std::setw(10) << n[Z_] << std::endl;
   std::cout << std::fixed << std::setprecision(3)
-	    << std::setw(10) << FM->x[X_][1]
-	    << std::setw(10) << FM->x[X_][FM->n[X_]]
-	    << std::setw(10) << FM->x[Y_][1]
-	    << std::setw(10) << FM->x[Y_][FM->n[Y_]]
-	    << std::setw(10) << FM->x[Z_][1]
-	    << std::setw(10) << FM->x[Z_][FM->n[Z_]] << std::endl;
+	    << std::setw(10) << x[X_][1]
+	    << std::setw(10) << x[X_][n[X_]]
+	    << std::setw(10) << x[Y_][1]
+	    << std::setw(10) << x[Y_][n[Y_]]
+	    << std::setw(10) << x[Z_][1]
+	    << std::setw(10) << x[Z_][n[Z_]] << std::endl;
   std::cout << std::fixed << std::setprecision(5)
-	    << "Magnet length [m]:" << std::setw(10) << FM->Lr << std::endl;
+	    << "Magnet length [m]:" << std::setw(10) << Lr << std::endl;
 
-  for (n = 1; n <= FM->n[Z_]; n++) {
-    splie2_(FM->x[X_], FM->x[Y_], FM->BoBrho[X_][n],
-	    FM->n[X_], FM->n[Y_], FM->BoBrho2[X_][n]);
-    splie2_(FM->x[X_], FM->x[Y_], FM->BoBrho[Y_][n],
-	    FM->n[X_], FM->n[Y_], FM->BoBrho2[Y_][n]);
-    splie2_(FM->x[X_], FM->x[Y_], FM->BoBrho[Z_][n],
-	    FM->n[X_], FM->n[Y_], FM->BoBrho2[Z_][n]);
+  for (n1 = 1; n1 <= n[Z_]; n1++) {
+    splie2_(x[X_], x[Y_], BoBrho[X_][n1],
+	    n[X_], n[Y_], BoBrho2[X_][n1]);
+    splie2_(x[X_], x[Y_], BoBrho[Y_][n1],
+	    n[X_], n[Y_], BoBrho2[Y_][n1]);
+    splie2_(x[X_], x[Y_], BoBrho[Z_][n1],
+	    n[X_], n[Y_], BoBrho2[Z_][n1]);
   }
 
   std::cout << "field map loaded: " << filename << std::endl;
 
-/*  free_dvector(FM->x[X_], 1, FM->n[X_]);
-  free_dvector(FM->x[Y_], 1, FM->n[Y_]);
-  free_dvector(FM->x[Z_], 1, FM->n[Z_]);
+/*  free_dvector(x[X_], 1, n[X_]);
+  free_dvector(x[Y_], 1, n[Y_]);
+  free_dvector(x[Z_], 1, n[Z_]);
 
-  free_df3tensor(FM->BoBrho[X_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->BoBrho[Y_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->BoBrho[Z_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->BoBrho2[X_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->BoBrho2[Y_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->BoBrho2[Z_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+  free_df3tensor(BoBrho[X_],  1, n[Z_], 1, n[X_], 1, n[Y_]);
+  free_df3tensor(BoBrho[Y_],  1, n[Z_], 1, n[X_], 1, n[Y_]);
+  free_df3tensor(BoBrho[Z_],  1, n[Z_], 1, n[X_], 1, n[Y_]);
+  free_df3tensor(BoBrho2[X_], 1, n[Z_], 1, n[X_], 1, n[Y_]);
+  free_df3tensor(BoBrho2[Y_], 1, n[Z_], 1, n[X_], 1, n[Y_]);
+  free_df3tensor(BoBrho2[Z_], 1, n[Z_], 1, n[X_], 1, n[Y_]);
 
-  free_df3tensor(FM->AoBrho[X_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->AoBrho[Y_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->AoBrho2[X_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->AoBrho2[Y_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);*/
+  free_df3tensor(AoBrho[X_],  1, n[Z_], 1, n[X_], 1, n[Y_]);
+  free_df3tensor(AoBrho[Y_],  1, n[Z_], 1, n[X_], 1, n[Y_]);
+  free_df3tensor(AoBrho2[X_], 1, n[Z_], 1, n[X_], 1, n[Y_]);
+  free_df3tensor(AoBrho2[Y_], 1, n[Z_], 1, n[X_], 1, n[Y_]);*/
 }
 
 
-void FieldMapType::get_B(const char *filename, FieldMapType *FM)
+void FieldMapType::get_B(const char *filename)
 {
   // Do not scale fieldmaps only Hamiltonians, i.e., the kick.  Note that RADIA
   // (2nd order) kick maps are quadratic in the field, and 1st order linear.
 
   switch (FieldMap_filetype) {
   case 1:
-    get_B_DIAMOND(filename, FM);
+    get_B_DIAMOND(filename);
     break;
   case 2:
-    get_B_NSLS_II(filename, FM);
+    get_B_NSLS_II(filename);
     break;
   case 3:
-    get_B_Oleg1(filename, FM);
+    get_B_Oleg1(filename);
     break;
   case 4:
-    get_B_Oleg2(filename, FM);
+    get_B_Oleg2(filename);
     break;
   default:
     std::cout << "get_B: unknown FieldMap type " << FieldMap_filetype
