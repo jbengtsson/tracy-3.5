@@ -150,7 +150,7 @@ class CellType : public ElemType {
     void Elem_Propagate(ss_vect<T> &ps)
     {
       printf("CellType::Propagate\n");
-      Propagate(ps);
+      /* Elem_Propagate(ps); */
     }
 
   void Elem_Print(FILE *f, int Fnum);

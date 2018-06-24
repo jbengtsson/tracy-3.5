@@ -90,7 +90,7 @@ void LatticeType::Elem_Pass(const long i, ss_vect<T> &x)
 {
   printf("entering Pass %3ld %10s\n", i, Cell[i]->Name);
   Cell[i]->Propagate(x);
-  printf("leaving Pass\n");
+  printf("leaving  Pass\n");
 }
 
 
@@ -116,7 +116,7 @@ void LatticeType::Cell_Pass(const long i0, const long i1, ss_vect<T> &x,
     for (i = i0; i <= i1; i++) {
       printf("entering Elem_Pass %3ld\n", i);
       Elem_Pass(i, x);
-      printf("exiting Elem_Pass\n");
+      printf("exiting  Elem_Pass\n");
       if (!CheckAmpl(x, i)) { lastpos = i; break; }
     }
   }
@@ -329,10 +329,3 @@ void LatticeType::Cell_Init(void)
     Stotal += this->Cell[i]->L; this->Cell[i]->S = Stotal;
   }
 }
-
-
-// Instantiate.
-template void LatticeType::Cell_Pass(const long i0, const long i1,
-				     ss_vect<double> &x, long &lastpos);
-template void LatticeType::Cell_Pass(const long i0, const long i1,
-				     ss_vect<tps> &x, long &lastpos);
