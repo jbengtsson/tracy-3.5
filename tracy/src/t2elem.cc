@@ -979,7 +979,7 @@ void WigglerType::Wiggler_pass_EF(ss_vect<T> &x)
                psi, hodp, a12, a21, a22, det,
                d1, d2, a11, c11, c12, c21, c22, x2, B[3];
 
-  switch (Kind) {
+  switch (Elem.Kind) {
   case Wigl:
     nstep = N;
     break;
@@ -998,7 +998,7 @@ void WigglerType::Wiggler_pass_EF(ss_vect<T> &x)
 
   h = L/nstep; z = 0e0;
   for (i = 1; i <= nstep; ++i) {
-    switch (Kind) {
+    switch (Elem.Kind) {
     case Wigl:
       get_Axy(z, x, AxoBrho, AyoBrho);
       break;
@@ -2100,17 +2100,6 @@ void SolenoidType::Elem_Propagate(ss_vect<T> &ps)
   sol_pass(ps);
 
   LtoG(ps, this->dS, this->dT, 0e0, 0e0, 0e0);
-}
-
-
-void  LatticeType::getelem(long i, CellType *cellrec)
-{
-  *cellrec = *Lattice.Cell[i];
- }
-
-void  LatticeType::putelem(long i, CellType *cellrec)
-{
-  *Lattice.Cell[i] = *cellrec;
 }
 
 

@@ -3386,10 +3386,8 @@ bool LatticeType::orb_corr(const int n_orbit)
 
 void LatticeType::get_alphac(void)
 {
-  CellType  Cell;
-
-  Lattice.getelem(Lattice.param.Cell_nLoc, &Cell);
-  Lattice.param.Alphac = Lattice.param.OneTurnMat[ct_][delta_]/Cell.S;
+  Lattice.param.Alphac = Lattice.param.OneTurnMat[ct_][delta_]
+    /Lattice.Cell[Lattice.param.Cell_nLoc]->S;
 }
 
 
@@ -3404,18 +3402,17 @@ void LatticeType::get_alphac2(void)
   int       i, j, n;
   long int  lastpos;
   double    delta[2*n_points+1], alphac[2*n_points+1], sigma;
-  psVector    x, b;
-  CellType  Cell;
+  psVector  x, b;
 
   Lattice.param.pathlength = false;
-  Lattice.getelem(Lattice.param.Cell_nLoc, &Cell); n = 0;
   for (i = -n_points; i <= n_points; i++) {
     n++; delta[n-1] = i*(double)d_delta/(double)n_points;
     for (j = 0; j < nv_; j++)
       x[j] = 0.0;
     x[delta_] = delta[n-1];
     Lattice.Cell_Pass(0, Lattice.param.Cell_nLoc, x, lastpos);
-    alphac[n-1] = x[ct_]/Cell.S;
+    alphac[n-1] =
+      x[ct_]/Lattice.Cell[Lattice.param.Cell_nLoc]->S;
   }
   pol_fit(n, delta, alphac, 3, b, sigma, true);
   printf("\n");

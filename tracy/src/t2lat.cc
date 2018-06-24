@@ -3940,7 +3940,7 @@ void LatticeType::DealWithDefns(struct LOC_Lattice_Read *LINK)
 	      exit(1);
 	    }
 	    if (k <= Cell_nLocMax) {
-	      this->Cell[k] = new CellType();
+	      this->Cell[k] = new MarkerType();
 	      this->Cell[k]->Fnum = k1;
 	      this->Cell[k]->Elem.Reverse = LINK->Reverse_stack[j];
 	      if (debug_lat) {

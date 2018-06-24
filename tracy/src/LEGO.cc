@@ -1,11 +1,5 @@
 
-CellType::CellType(void)
-{
-  this->Elem.Kind = PartsKind(undef);
-}
-
-
-MarkerType::MarkerType(void) : ElemType()
+MarkerType::MarkerType(void) : CellType()
 {
   this->Elem.Kind = PartsKind(marker);
 
@@ -14,7 +8,7 @@ MarkerType::MarkerType(void) : ElemType()
 }
 
 
-DriftType::DriftType(void) : ElemType()
+DriftType::DriftType(void) : CellType()
 {
   this->Elem.Kind = PartsKind(drift);
 
@@ -23,7 +17,7 @@ DriftType::DriftType(void) : ElemType()
 }
 
 
-MpoleType::MpoleType(void) : ElemType()
+MpoleType::MpoleType(void) : CellType()
 {
   int j;
 
@@ -58,7 +52,7 @@ MpoleType::MpoleType(void) : ElemType()
 }
 
 
-WigglerType::WigglerType(void) : ElemType()
+WigglerType::WigglerType(void) : CellType()
 {
   int j;
 
@@ -85,7 +79,7 @@ WigglerType::WigglerType(void) : ElemType()
 }
 
 
-InsertionType::InsertionType(void) : ElemType()
+InsertionType::InsertionType(void) : CellType()
 {
   int i = 0, j = 0;
 
@@ -141,7 +135,7 @@ InsertionType::InsertionType(void) : ElemType()
 }
 
 
-FieldMapType::FieldMapType(void) : ElemType()
+FieldMapType::FieldMapType(void) : CellType()
 {
 
   this->Elem.Kind = PartsKind(FieldMap);
@@ -156,7 +150,7 @@ FieldMapType::FieldMapType(void) : ElemType()
 }
 
 
-CavityType::CavityType(void) : ElemType()
+CavityType::CavityType(void) : CellType()
 {
 
   this->Elem.Kind = PartsKind(Cavity);
@@ -169,7 +163,7 @@ CavityType::CavityType(void) : ElemType()
 }
 
 
-SpreaderType::SpreaderType(void) : ElemType()
+SpreaderType::SpreaderType(void) : CellType()
 {
   int k;
 
@@ -183,7 +177,7 @@ SpreaderType::SpreaderType(void) : ElemType()
 }
 
 
-RecombinerType::RecombinerType(void) : ElemType()
+RecombinerType::RecombinerType(void) : CellType()
 {
   this->Elem.Kind = PartsKind(Recombiner);
 
@@ -192,7 +186,7 @@ RecombinerType::RecombinerType(void) : ElemType()
 }
 
 
-SolenoidType::SolenoidType(void) : ElemType()
+SolenoidType::SolenoidType(void) : CellType()
 {
   int j;
 

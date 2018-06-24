@@ -97,10 +97,6 @@ class ElemType {
   //explicit ElemType(std::string &Name1, double L1, bool Reverse1)
   //  : Name(Name1), L(L1), Reverse(Reverse1) {}
 
-  // Virtual functions can't be templates. 
-  virtual void Propagate(ss_vect<double> &ps) = 0;
-  virtual void Propagate(ss_vect<tps> &ps) = 0;
-
   /* virtual std::ostream& Show(std::ostream &str); */
 };
 
@@ -128,7 +124,7 @@ class CellType {
 			   maxampl[X_][0] < x < maxampl[X_][1]
 			   maxampl[Y_][0] < y < maxampl[Y_][1]. */
 
-  CellType(void);
+  /* CellType(void); */
   virtual CellType* clone(void) const {
     printf("\nCellType::clone(): should never be called.\n");
     exit(1);
@@ -145,20 +141,15 @@ class CellType {
     void LtoG(ss_vect<T> &ps, const Vector2 &S, const Vector2 &R,
 	      const double c0, const double c1, const double s1);
 
-  /* virtual void Propagate(ss_vect<double> &ps) { Elem_Propagate(ps); }  */
-  /* virtual void Propagate(ss_vect<tps> &ps)    { Elem_Propagate(ps); }  */
-  /* template<typename T> */
-  /*   void Elem_Propagate(ss_vect<T> &ps) */
-  /*   { */
-  /*     printf("CellType::Propagate\n"); */
-  /*     this->Elem_Propagate(ps); */
-  /*   } */
+  // Virtual functions can't be templates. 
+  virtual void Propagate(ss_vect<double> &ps) = 0;
+  virtual void Propagate(ss_vect<tps> &ps) = 0;
 
   void Elem_Print(FILE *f, int Fnum);
 };
 
 
-class MarkerType : public CellType, ElemType {
+class MarkerType : public CellType {
  private:
  public:
 
@@ -178,7 +169,7 @@ class MarkerType : public CellType, ElemType {
 };
 
 
-class DriftType: public CellType, ElemType {
+class DriftType: public CellType {
  private:
  public:
 
@@ -198,7 +189,7 @@ class DriftType: public CellType, ElemType {
 };
 
 
-class MpoleType: public CellType, ElemType {
+class MpoleType: public CellType {
  private:
  public:
   int        method;     // Integration Method.
@@ -247,7 +238,7 @@ class MpoleType: public CellType, ElemType {
 };
 
 
-class WigglerType: public CellType, ElemType {
+class WigglerType: public CellType {
  private:
  public:
   int       method;              // Integration Method.
@@ -302,7 +293,7 @@ class WigglerType: public CellType, ElemType {
 };
 
 
-class InsertionType: public CellType, ElemType {
+class InsertionType: public CellType {
  private:
  public:
   int    method;       // Integration Method.
@@ -362,7 +353,7 @@ class InsertionType: public CellType, ElemType {
 };
 
 
-class FieldMapType: public CellType, ElemType {
+class FieldMapType: public CellType {
  private:
  public:
   int    n_step;                       // number of integration steps.
@@ -404,7 +395,7 @@ class FieldMapType: public CellType, ElemType {
 };
 
 
-class SolenoidType: public CellType, ElemType {
+class SolenoidType: public CellType {
  private:
  public:
   int     N;      // Number of integration steps
@@ -436,7 +427,7 @@ class SolenoidType: public CellType, ElemType {
 };
 
 
-class CavityType: public CellType, ElemType {
+class CavityType: public CellType {
  private:
  public:
   int    N;           // Number of integration steps.
@@ -463,7 +454,7 @@ class CavityType: public CellType, ElemType {
 };
 
 
-class SpreaderType: public CellType, ElemType {
+class SpreaderType: public CellType {
  private:
  public:
   double   E_max[Spreader_max];      // energy levels in increasing order
@@ -489,7 +480,7 @@ class SpreaderType: public CellType, ElemType {
 };
 
 
-class RecombinerType: public CellType, ElemType {
+class RecombinerType: public CellType {
  private:
  public:
   double E_min;
@@ -671,10 +662,6 @@ class LatticeType {
 
   long Elem_GetPos(const int Fnum, const int Knum);
 
-
-  void getelem(long i, CellType *cellrec);
-  void putelem(long i, CellType *cellrec);
- 
   double Elem_GetKval(int Fnum, int Knum, int Order);
 
   void Mpole_SetB(int Fnum, int Knum, int Order);

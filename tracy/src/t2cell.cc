@@ -43,54 +43,13 @@ inline bool CheckAmpl(const ss_vect<T> &x, const long int loc)
 }
 
 
-// template<typename T>
-// void LatticeType::Elem_Pass(const long i, ss_vect<T> &x)
-// {
-
-//   switch (Lattice.Cell[i]->Kind) {
-//     case drift:
-//       Lattice.Cell[i]->Pass(x);
-//       break;
-//     case Mpole:
-//       Lattice.Cell[i]->Pass(x);
-//       break;
-//     case Wigl:
-//       Lattice.Cell[i]->Pass(x);
-//       break;
-//     case FieldMap:
-//       Lattice.Cell[i]->Pass(x);
-//       break;
-//     case Insertion:
-//       Lattice.Cell[i]->Pass(x);
-//       break;
-//     case Cavity:
-//       Lattice.Cell[i]->Pass(x);
-//       break;
-//     case marker:
-//       Lattice.Cell[i]->Pass(x);
-//       break;
-//     case Spreader:
-//       break;
-//     case Recombiner:
-//       break;
-//     case Solenoid:
-//       Lattice.Cell[i]->Pass(x);
-//       break;
-//     default:
-//       printf("Elem_Pass ** undefined type\n");
-//       break;
-//   }
-
-//   is_tps<T>::get_ps(x, Lattice.Cell[i]);
-// }
-
-
 template<typename T>
 void LatticeType::Elem_Pass(const long i, ss_vect<T> &x)
 {
-  printf("entering Propagate %3ld %10s\n", i, Cell[i]->Name);
-  Cell[i]->Elem.Propagate(x);
-  printf("leaving  Propagate\n");
+  printf("LatticeType::Elem_Pass: entering Propagate %3ld %10s\n",
+	 i, Cell[i]->Name);
+  Cell[i]->Propagate(x);
+  printf("LatticeType::Elem_Pass: leaving  Propagate\n");
 }
 
 
@@ -114,9 +73,10 @@ void LatticeType::Cell_Pass(const long i0, const long i1, ss_vect<T> &x,
   else {
     lastpos = i1;
     for (i = i0; i <= i1; i++) {
-      printf("entering Propagate %3ld %10s\n", i, Cell[i]->Name);
-      Cell[i]->Elem.Propagate(x);
-      printf("exiting  Propagate\n");
+      printf("LatticeType::Cell_Pass: entering Propagate %3ld %10s\n",
+	     i, Cell[i]->Name);
+      Cell[i]->Propagate(x);
+      printf("LatticeType::Cell_Pass: exiting  Propagate\n");
       if (!CheckAmpl(x, i)) { lastpos = i; break; }
     }
   }
@@ -286,7 +246,7 @@ void LatticeType::Cell_Init(void)
 
   SI_init();
 
-  this->Cell[0] = new CellType();
+  this->Cell[0] = new MarkerType();
   this->Cell[0]->Elem.Kind = PartsKind(undef);
   this->Cell[0]->Elem.Reverse = false;
   strcpy(this->Cell[0]->Name, first_name);
