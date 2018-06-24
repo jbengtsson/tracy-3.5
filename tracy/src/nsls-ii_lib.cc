@@ -962,7 +962,7 @@ void LatticeType::prt_beampos(const char *file_name)
 
 void LatticeType::CheckAlignTol(const char *OutputFile)
   // check aligment errors of individual magnets on giders
-  // the dT and roll angle are all printed out
+  // the dR and roll angle are all printed out
 {
   int          i, j;
   int          n_girders;
@@ -972,7 +972,7 @@ void LatticeType::CheckAlignTol(const char *OutputFile)
   int          loc, loc_gs, loc_ge;
   char         *name;
   double       s;
-  double       dSsys[2], dSrms[2], dSrnd[2], dS[2], dT[2];
+  double       dSsys[2], dSrms[2], dSrnd[2], dS[2], dR[2];
   MpoleType    *M;
   std::fstream fout;
 
@@ -1003,15 +1003,15 @@ void LatticeType::CheckAlignTol(const char *OutputFile)
     dSrms[X_] = M->dSrms[X_]; dSrms[Y_] = M->dSrms[Y_];
     dSrnd[X_] = M->dSrnd[X_]; dSrnd[Y_] = M->dSrnd[Y_];
     dS[X_] = Lattice.Cell[loc]->dS[X_]; dS[Y_] = Lattice.Cell[loc]->dS[Y_];
-    dT[0] = Lattice.Cell[loc]->dT[0]; dT[1] = Lattice.Cell[loc]->dT[1];
+    dR[0] = Lattice.Cell[loc]->dR[0]; dR[1] = Lattice.Cell[loc]->dR[1];
     s = Lattice.Cell[loc]->S; name = Lattice.Cell[loc]->Name;
     fout << "  " << name << "  " << loc << "   " << s
 	 << "  " <<  dSsys[X_] << "  " <<  dSsys[Y_]
 	 << "   " << dSrms[X_] << "  " <<  dSrms[Y_]
 	 << "   " << dSrnd[X_] << "  " <<  dSrnd[Y_]
-         << "   " << M->dTrms << "  "
-	 << M->dTrnd << "   " << dS[X_]     << "  "
-	 <<  dS[Y_] << "   " << atan2( dT[1], dT[0] )  << std::endl;
+         << "   " << M->dRrms << "  "
+	 << M->dRrnd << "   " << dS[X_]     << "  "
+	 <<  dS[Y_] << "   " << atan2( dR[1], dR[0] )  << std::endl;
 
     for (j = loc_gs+1; j < loc_ge; j++) {
       M = static_cast<MpoleType*>(Lattice.Cell[j]);
@@ -1025,16 +1025,16 @@ void LatticeType::CheckAlignTol(const char *OutputFile)
 	dSrnd[X_] = M->dSrnd[X_];
 	dSrnd[Y_] = M->dSrnd[Y_];
 	dS[X_] = Lattice.Cell[loc]->dS[X_]; dS[Y_] = Lattice.Cell[loc]->dS[Y_];
-	dT[0] = Lattice.Cell[loc]->dT[0];   dT[1] = Lattice.Cell[loc]->dT[1];
+	dR[0] = Lattice.Cell[loc]->dR[0];   dR[1] = Lattice.Cell[loc]->dR[1];
 	s = Lattice.Cell[loc]->S; name=Lattice.Cell[loc]->Name;
 	fout << "  " << name << "  " << loc << "   " << s
 	     << "  " <<  dSsys[X_] << "  " <<  dSsys[Y_]
 	     << "   " << dSrms[X_] << "  " <<  dSrms[Y_]
 	     << "   " << dSrnd[X_] << "  " <<  dSrnd[Y_]
-	     << "   " << M->dTrms << "  "
-	     << M->dTrnd
+	     << "   " << M->dRrms << "  "
+	     << M->dRrnd
 	     << "   " << dS[X_] << "  " <<  dS[Y_]
-	     << "   " << atan2( dT[1], dT[0] )  << std::endl;
+	     << "   " << atan2( dR[1], dR[0] )  << std::endl;
       }
     }
 
@@ -1047,16 +1047,16 @@ void LatticeType::CheckAlignTol(const char *OutputFile)
     dSrnd[X_] = M->dSrnd[X_];
     dSrnd[Y_] = M->dSrnd[Y_];
     dS[X_] = Lattice.Cell[loc]->dS[X_]; dS[Y_] = Lattice.Cell[loc]->dS[Y_];
-    dT[0] = Lattice.Cell[loc]->dT[0]; dT[1] = Lattice.Cell[loc]->dT[1];
+    dR[0] = Lattice.Cell[loc]->dR[0]; dR[1] = Lattice.Cell[loc]->dR[1];
     s=Lattice.Cell[loc]->S; name=Lattice.Cell[loc]->Name;
     fout << "  " << name << "  " << loc << "   " << s
 	 << "  " <<  dSsys[X_] << "  " <<  dSsys[Y_]
 	 << "   " << dSrms[X_] << "  " <<  dSrms[Y_]
 	 << "   " << dSrnd[X_] << "  " <<  dSrnd[Y_]
-         << "   " << M->dTrms
-	 << "  " << M->dTrnd
+         << "   " << M->dRrms
+	 << "  " << M->dRrnd
          << "   " << dS[X_]     << "  " <<  dS[Y_]
-	 << "   " << atan2( dT[1], dT[0] )  << std::endl;
+	 << "   " << atan2( dR[1], dR[0] )  << std::endl;
 
   }
 
@@ -1073,16 +1073,16 @@ void LatticeType::CheckAlignTol(const char *OutputFile)
     dSrnd[X_] = M->dSrnd[X_];
     dSrnd[Y_] = M->dSrnd[Y_];
     dS[X_] = Lattice.Cell[loc]->dS[X_]; dS[Y_] = Lattice.Cell[loc]->dS[Y_];
-    dT[0] = Lattice.Cell[loc]->dT[0]; dT[1] = Lattice.Cell[loc]->dT[1];
+    dR[0] = Lattice.Cell[loc]->dR[0]; dR[1] = Lattice.Cell[loc]->dR[1];
     s = Lattice.Cell[loc]->S; name = Lattice.Cell[loc]->Name;
     fout << "  " << name << "  " << loc << "   " << s
 	 << "  " <<  dSsys[X_] << "  " <<  dSsys[Y_]
 	 << "   " << dSrms[X_] << "  " <<  dSrms[Y_]
 	 << "   " << dSrnd[X_] << "  " <<  dSrnd[Y_]
-	 << "   " << M->dTrms
-	 << "  " << M->dTrnd
+	 << "   " << M->dRrms
+	 << "  " << M->dRrnd
 	 << "   " << dS[X_]     << "  " <<  dS[Y_]
-	 << "   " << atan2( dT[1], dT[0] )  << std::endl;
+	 << "   " << atan2( dR[1], dR[0] )  << std::endl;
   }
 
   fout.close();
@@ -1098,18 +1098,18 @@ void misalign_rms_elem(const int Fnum, const int Knum,
 
   loc = Lattice.Elem_GetPos(Fnum, Knum);
   M = static_cast<MpoleType*>(Lattice.Cell[loc]);
-  M->dSrms[X_] = dx_rms; M->dSrms[Y_] = dy_rms; M->dTrms = dr_rms;
+  M->dSrms[X_] = dx_rms; M->dSrms[Y_] = dy_rms; M->dRrms = dr_rms;
   if (new_rnd) {
     if (normal) {
       M->dSrnd[X_] = normranf(); M->dSrnd[Y_] = normranf();
-      M->dTrnd = normranf();
+      M->dRrnd = normranf();
     } else {
       M->dSrnd[X_] = ranf(); M->dSrnd[Y_] = ranf();
-      M->dTrnd = ranf();
+      M->dRrnd = ranf();
     }
   }
 
-  Mpole_SetdS(Fnum, Knum); Mpole_SetdT(Fnum, Knum);
+  Mpole_SetdS(Fnum, Knum); Mpole_SetdR(Fnum, Knum);
 }
 
 void misalign_sys_elem(const int Fnum, const int Knum,
@@ -1121,8 +1121,8 @@ void misalign_sys_elem(const int Fnum, const int Knum,
 
   loc = Lattice.Elem_GetPos(Fnum, Knum);
   M = static_cast<MpoleType*>(Lattice.Cell[loc]);
-  M->dSsys[X_] = dx_sys; M->dSsys[Y_] = dy_sys; M->dTsys = dr_sys;
-  Mpole_SetdS(Fnum, Knum); Mpole_SetdT(Fnum, Knum);
+  M->dSsys[X_] = dx_sys; M->dSsys[Y_] = dy_sys; M->dRsys = dr_sys;
+  Mpole_SetdS(Fnum, Knum); Mpole_SetdR(Fnum, Knum);
 }
 
 void misalign_rms_fam(const int Fnum,
@@ -1222,8 +1222,8 @@ void misalign_rms_girders(const int gs, const int ge,
     // Note, girders needs to be introduced as gs->ge pairs
     M_gs = static_cast<MpoleType*>(Lattice.Cell[loc_gs]);
     M_ge = static_cast<MpoleType*>(Lattice.Cell[loc_ge]);
-    M_ge->dTrnd = M_gs->dTrnd;
-    Mpole_SetdT(ge, i);
+    M_ge->dRrnd = M_gs->dRrnd;
+    Mpole_SetdR(ge, i);
 
     for (k = 0; k <= 1; k++) {
       dx_gs[k] = Lattice.Cell[loc_gs]->dS[k];
@@ -1238,7 +1238,7 @@ void misalign_rms_girders(const int gs, const int ge,
 	M = static_cast<MpoleType*>(Lattice.Cell[j]);
 	for (k = 0; k <= 1; k++)
 	  M->dSsys[k] = dx_gs[k] + (dx_ge[k]-dx_gs[k])*(s-s_gs)/(s_ge-s_gs);
-	M->dTsys = M_gs->dTrms*M_gs->dTrnd;
+	M->dRsys = M_gs->dRrms*M_gs->dRrnd;
       }
     }
   }
@@ -1274,8 +1274,8 @@ void misalign_sys_girders(const int gs, const int ge,
     // Note, girders needs to be introduced as gs->ge pairs
     M_ge = static_cast<MpoleType*>(Lattice.Cell[loc_ge]);
     M_gs = static_cast<MpoleType*>(Lattice.Cell[loc_gs]);
-    M_ge->dTrnd = M_gs->dTrnd;
-    Mpole_SetdT(ge, i);
+    M_ge->dRrnd = M_gs->dRrnd;
+    Mpole_SetdR(ge, i);
 
     for (k = 0; k <= 1; k++) {
       dx_gs[k] = Lattice.Cell[loc_gs]->dS[k];
@@ -1290,7 +1290,7 @@ void misalign_sys_girders(const int gs, const int ge,
 	M = static_cast<MpoleType*>(Lattice.Cell[j]);
 	for (k = 0; k <= 1; k++)
 	  M->dSsys[k] = dx_gs[k] + (dx_ge[k]-dx_gs[k])*(s-s_gs)/(s_ge-s_gs);
-	M->dTsys = M_gs->dTrms*M_gs->dTrnd;
+	M->dRsys = M_gs->dRrms*M_gs->dRrnd;
       }
     }
   }

@@ -1051,9 +1051,9 @@ void LatticeType::Factor(struct LOC_Term *LINK)
 	  x = WITH1->gap;
 	else if (!strncmp(fname, "roll           ", sizeof(partsName))) {
 	  if (WITH->CellF->Elem.Kind == PartsKind(Mpole))
-	    x = WITH1->dTpar;
+	    x = WITH1->dRpar;
 	  else if (WITH->CellF->Elem.Kind == PartsKind(Wigl))
-	    x = WITH1->dTpar;
+	    x = WITH1->dRpar;
 	} else if (!strncmp(fname, "n              ", sizeof(partsName))) {
 	  if (((1 << ((long)WITH->CellF->Elem.Kind)) &
 	       ((1 << ((long)Mpole)) | (1 << ((long)Wigl)))) != 0)
@@ -2243,7 +2243,7 @@ bool LatticeType::Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       M->Tx1 = t1; M->Tx2 = t2; M->gap = gap;
       M->n_design = Dip;
       AssignHOM(M, &V);
-      M->Bpar[HOMmax+2] = QK; M->dTpar = dt;
+      M->Bpar[HOMmax+2] = QK; M->dRpar = dt;
       M->Updateorder();
       WITH = &this->ElemFam[this->param.Elem_nFam-1];
       WITH->CellF = M;
@@ -2347,7 +2347,7 @@ bool LatticeType::Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       M->L = QL;
 
       SetDBN(&V);
-      M->method = k2; M->N = k1; M->dTpar = dt;
+      M->method = k2; M->N = k1; M->dRpar = dt;
       AssignHOM(M, &V);
       M->n_design = Quad; M->Bpar[HOMmax+2] = QK;
       M->Updateorder();
@@ -2460,7 +2460,7 @@ bool LatticeType::Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       SetDBN(&V);
       M->method = k2; M->N = k1;
       M->thick = (M->L != 0.0)? pthicktype(thick) : pthicktype(thin);
-      M->dTpar = dt; M->n_design = Sext;
+      M->dRpar = dt; M->n_design = Sext;
       AssignHOM(M, &V);
       M->Bpar[HOMmax+3] = QK;
       M->Updateorder();
@@ -2687,7 +2687,7 @@ bool LatticeType::Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       SetDBN(&V);
       M->thick = (M->L != 0.0)? pthicktype(thick) : pthicktype(thin);
       M->method = k2; M->N = k1;
-      M->dTpar = dt;
+      M->dRpar = dt;
       M->Updateorder();
       WITH = &this->ElemFam[this->param.Elem_nFam-1];
       WITH->CellF = M;
@@ -2967,7 +2967,7 @@ bool LatticeType::Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 	M->irho = t * M_PI / 180.0;
       }
       M->N = k1; M->method = k2;
-      M->Tx1 = t1; M->Tx2 = t2; M->gap = gap; M->dTpar = dt;
+      M->Tx1 = t1; M->Tx2 = t2; M->gap = gap; M->dRpar = dt;
       AssignHOM(M, &V);
       M->n_design = M->order;
       M->Updateorder();
@@ -3104,7 +3104,7 @@ bool LatticeType::Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       W->L = QL;
 
       W->method = k2; W->N = k1;
-      W->dTpar = dt;
+      W->dRpar = dt;
       SetDBN(&V);
       W->lambda = QKS; W->n_harm = 1; W->harm[0] = 1;
       W->kxV[0] = QKxV; W->BoBrhoV[0] = QKV;

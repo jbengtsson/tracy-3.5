@@ -111,7 +111,7 @@ class CellType {
             Knum;       // Element Kid #.
   CellType  *next_ptr;  // pointer to next cell (for tracking).
   Vector2   dS,         // Transverse displacement.
-            dT;         // dT = (cos(dT), sin(dT)).
+            dR;         // Roll error: dR = (cos(dR), sin(dT)).
   ElemType  Elem;
   Vector2   Nu,         // Phase advances.
             Alpha,      // Alpha functions (redundant).
@@ -199,10 +199,10 @@ class MpoleType: public CellType {
   Vector2    dSrms;      // rms [m].
   Vector2    dSrnd;      // random number.
   // Roll angle
-  double     dTpar;      // design [deg].
-  double     dTsys;      // systematic [deg].
-  double     dTrms;      // rms [deg].
-  double     dTrnd;      // random number.
+  double     dRpar;      // design [deg].
+  double     dRsys;      // systematic [deg].
+  double     dRrms;      // rms [deg].
+  double     dRrnd;      // random number.
   // Multipole strengths
   mpolArray  Bpar;       // design.
   mpolArray  Bsys;       // systematic.
@@ -248,10 +248,10 @@ class WigglerType: public CellType {
   Vector2   dSrms;               // rms [m].
   Vector2   dSrnd;               // random number.
   // Roll angle
-  double    dTpar;               // design [deg].
-  double    dTsys;               // systematic [deg].
-  double    dTrms;               // rms [deg].
-  double    dTrnd;               // random number.
+  double    dRpar;               // design [deg].
+  double    dRsys;               // systematic [deg].
+  double    dRrms;               // rms [deg].
+  double    dRrnd;               // random number.
   double    lambda;              // lambda.
   int       n_harm;              // no of harmonics.
   int       harm[n_harm_max];    // harmonic number.
@@ -322,10 +322,10 @@ class InsertionType: public CellType {
   Vector2 dSrms;   // rms [m]
   Vector2 dSrnd;   // random number
   // Roll angle
-  double  dTpar;   // design [deg]
-  double  dTsys;   // systematic [deg]
-  double  dTrms;   // rms [deg]
-  double  dTrnd;   // random number
+  double  dRpar;   // design [deg]
+  double  dRsys;   // systematic [deg]
+  double  dRrms;   // rms [deg]
+  double  dRrnd;   // random number
   // Strength
   //  double lperiod;  // Length Period [m]
   //  int nperiod;     // Number of periods
@@ -404,10 +404,10 @@ class SolenoidType: public CellType {
   Vector2 dSrms; // rms [m]
   Vector2 dSrnd; // random number
   // Roll angle
-  double  dTpar;  // design [deg]
-  double  dTsys;  // systematic [deg]
-  double  dTrms;  // rms [deg]
-  double  dTrnd;  // random number
+  double  dRpar;  // design [deg]
+  double  dRsys;  // systematic [deg]
+  double  dRrms;  // rms [deg]
+  double  dRrnd;  // random number
   double  BoBrho; // normalized field strength
 
   SolenoidType(void);
@@ -671,17 +671,17 @@ class LatticeType {
   void Mpole_DefBsys(int Fnum, int Knum, int Order, double Bsys);
 
   void Mpole_SetdS(int Fnum, int Knum);
-  void Mpole_SetdT(int Fnum, int Knum);
+  void Mpole_SetdR(int Fnum, int Knum);
 
-  double Mpole_GetdT(int Fnum, int Knum);
+  double Mpole_GetdR(int Fnum, int Knum);
 
-  void Mpole_DefdTpar(int Fnum, int Knum, double PdTpar);
-  void Mpole_DefdTsys(int Fnum, int Knum, double PdTsys);
+  void Mpole_DefdRpar(int Fnum, int Knum, double PdRpar);
+  void Mpole_DefdRsys(int Fnum, int Knum, double PdRsys);
 
   void Wiggler_SetB(int Fnum, int Knum, int Order);
 
   void Wiggler_SetdS(int Fnum, int Knum);
-  void Wiggler_SetdT(int Fnum, int Knum);
+  void Wiggler_SetdR(int Fnum, int Knum);
 
 
   // From t2ring.cc.

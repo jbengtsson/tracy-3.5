@@ -339,7 +339,7 @@ void SetErr(void)
   for (i = 1L; i <= Lattice.param.Cell_nLoc; i++) {
     if (Lattice.Cell[i]->Elem.Kind == 2L) {
       M = static_cast<MpoleType*>(Lattice.Cell[i]);
-      if (M->order == 2L && Lattice.Cell[i]->dT[1] == 0) {
+      if (M->order == 2L && Lattice.Cell[i]->dR[1] == 0) {
         if ((pair%2)==0) theta = fac*normranf();
 	/* random error every 2 elements (quad split into 2) */
         pair++;

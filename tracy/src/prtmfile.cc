@@ -133,7 +133,7 @@ void LatticeType::prtmfile(const char mfile_dat[])
 	prtName(mfile, i, mpole_, M->method, M->N);
 	fprintf(mfile, " %23.16e %23.16e %23.16e %23.16e\n",
 		Lattice.Cell[i]->dS[X_], Lattice.Cell[i]->dS[Y_],
-		M->dTpar, M->dTsys+M->dTrms*M->dTrnd);
+		M->dRpar, M->dRsys+M->dRrms*M->dRrnd);
 	fprintf(mfile, " %23.16e %23.16e %23.16e %23.16e %23.16e\n",
 		Lattice.Cell[i]->L, M->irho, M->Tx1, M->Tx2,	M->gap);
 	prtHOM(mfile, M->n_design, M->B, M->order);
@@ -141,7 +141,7 @@ void LatticeType::prtmfile(const char mfile_dat[])
 	prtName(mfile, i, thinkick_, M->method,	M->N);
 	fprintf(mfile, " %23.16e %23.16e %23.16e\n",
 		Lattice.Cell[i]->dS[X_], Lattice.Cell[i]->dS[Y_],
-		M->dTsys+M->dTrms*M->dTrnd);
+		M->dRsys+M->dRrms*M->dRrnd);
 	prtHOM(mfile, M->n_design, M->B, M->order);
       }
       break;

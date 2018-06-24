@@ -1385,8 +1385,8 @@ void SetTol(int Fnum, double dxrms, double dyrms, double drrms)
     M = static_cast<MpoleType*>(Lattice.Cell[k]);
     M->dSrms[X_] = dxrms; M->dSrnd[X_] = normranf();
     M->dSrms[Y_] = dyrms; M->dSrnd[Y_] = normranf();
-    M->dTrms     = drrms; M->dTrnd     = normranf();
-    Mpole_SetdS(Fnum, i); Mpole_SetdT(Fnum, i);
+    M->dRrms     = drrms; M->dRrnd     = normranf();
+    Mpole_SetdS(Fnum, i); Mpole_SetdR(Fnum, i);
   }
 }
 
@@ -1402,8 +1402,8 @@ void Scale_Tol(int Fnum, double dxrms, double dyrms, double drrms)
     M = static_cast<MpoleType*>(Lattice.Cell[loc]);
     M->dSrms[X_] = dxrms;
     M->dSrms[Y_] = dyrms;
-    M->dTrms     = drrms;
-    Mpole_SetdS(Fnum, Knum); Mpole_SetdT(Fnum, Knum);
+    M->dRrms     = drrms;
+    Mpole_SetdS(Fnum, Knum); Mpole_SetdR(Fnum, Knum);
   }
 }
 
@@ -1417,8 +1417,8 @@ void SetaTol(int Fnum, int Knum, double dx, double dy, double dr)
   M = static_cast<MpoleType*>(Lattice.Cell[loc]);
   M->dSrms[0] = dx; M->dSrnd[0] = 1e0;
   M->dSrms[1] = dy; M->dSrnd[1] = 1e0;
-  M->dTrms    = dr; M->dTrnd    = 1e0;
-  Mpole_SetdS(Fnum, Knum); Mpole_SetdT(Fnum, Knum);
+  M->dRrms    = dr; M->dRrnd    = 1e0;
+  Mpole_SetdS(Fnum, Knum); Mpole_SetdR(Fnum, Knum);
 }
 
 

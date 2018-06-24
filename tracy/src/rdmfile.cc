@@ -132,7 +132,7 @@ void LatticeType::rdmfile(const char *mfile_dat)
   char          line[max_str], file_name[max_str];
   int           j, k, nmpole, kind, method, n;
   long int      i;
-  double        dTerror;
+  double        dRerror;
   MpoleType     *M;
   WigglerType   *W;
   CavityType    *C;
@@ -150,7 +150,7 @@ void LatticeType::rdmfile(const char *mfile_dat)
     sscanf(line, "%*s %*d %*d %ld", &i);
 
     Lattice.Cell[i]->dS[X_] = 0.0; Lattice.Cell[i]->dS[Y_] = 0.0;
-    Lattice.Cell[i]->dT[X_] = 1.0; Lattice.Cell[i]->dT[Y_] = 0.0;
+    Lattice.Cell[i]->dR[X_] = 1.0; Lattice.Cell[i]->dR[Y_] = 0.0;
 
     sscanf(line, "%s %d %d", Lattice.Cell[i]->Name,
 	   &Lattice.Cell[i]->Fnum, &Lattice.Cell[i]->Knum);
@@ -224,10 +224,10 @@ void LatticeType::rdmfile(const char *mfile_dat)
 	if (prt) printf("%s\n", line);
 	sscanf(line, "%lf %lf %lf %lf",
 	       &Lattice.Cell[i]->dS[X_], &Lattice.Cell[i]->dS[Y_],
-	       &M->dTpar, &dTerror);
-	Lattice.Cell[i]->dT[X_] = cos(dtor(dTerror+M->dTpar));
-	Lattice.Cell[i]->dT[Y_] = sin(dtor(dTerror+M->dTpar));
-	M->dTrms = dTerror - M->dTpar;M->dTrnd = 1e0;
+	       &M->dRpar, &dRerror);
+	Lattice.Cell[i]->dR[X_] = cos(dtor(dRerror+M->dRpar));
+	Lattice.Cell[i]->dR[Y_] = sin(dtor(dRerror+M->dRpar));
+	M->dRrms = dRerror - M->dRpar;M->dRrnd = 1e0;
 
 	inf.getline(line, max_str);
 	if (prt) printf("%s\n", line);
@@ -239,15 +239,15 @@ void LatticeType::rdmfile(const char *mfile_dat)
 	inf.getline(line, max_str);
 	if (prt) printf("%s\n", line);
 	sscanf(line, "%lf %lf %lf",
-	       &Lattice.Cell[i]->dS[X_], &Lattice.Cell[i]->dS[Y_], &dTerror); 
-	Lattice.Cell[i]->dT[X_] = cos(dtor(dTerror));
-	Lattice.Cell[i]->dT[Y_] = sin(dtor(dTerror));
-	M->dTrms = dTerror; M->dTrnd = 1e0;
+	       &Lattice.Cell[i]->dS[X_], &Lattice.Cell[i]->dS[Y_], &dRerror); 
+	Lattice.Cell[i]->dR[X_] = cos(dtor(dRerror));
+	Lattice.Cell[i]->dR[Y_] = sin(dtor(dRerror));
+	M->dRrms = dRerror; M->dRrnd = 1e0;
       }
 
       M->c0 = sin(Lattice.Cell[i]->L*M->irho/2.0);
-      M->c1 = cos(dtor(M->dTpar))*M->c0;
-      M->s1 = sin(dtor(M->dTpar))*M->c0;
+      M->c1 = cos(dtor(M->dRpar))*M->c0;
+      M->s1 = sin(dtor(M->dRpar))*M->c0;
 
       inf.getline(line, max_str);
       if (prt) printf("%s\n", line);

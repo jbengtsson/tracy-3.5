@@ -545,7 +545,7 @@ void MpoleType::Elem_Propagate(ss_vect<T> &x)
 
   // Global -> Local.
   // Can not be moved to ElemType level because it needs: c0, c1, and s1.
-  GtoL(x, this->dS, this->dT, this->c0, this->c1, this->s1);
+  GtoL(x, this->dS, this->dR, this->c0, this->c1, this->s1);
 
   if ((this->method == Meth_Second) || (this->method == Meth_Fourth)) {
     // Fringe fields.
@@ -661,7 +661,7 @@ void MpoleType::Elem_Propagate(ss_vect<T> &x)
   }
 
   // Local -> Global.
-  LtoG(x, this->dS, this->dT, this->c0, this->c1, this->s1);
+  LtoG(x, this->dS, this->dR, this->c0, this->c1, this->s1);
 }
 
 
@@ -669,9 +669,9 @@ template<typename T>
 void MarkerType::Elem_Propagate(ss_vect<T> &X)
 {
   /* Global -> Local */
-  // GtoL(X, this->dS, this->dT, 0e0, 0e0, 0e0);
+  // GtoL(X, this->dS, this->dR, 0e0, 0e0, 0e0);
   /* Local -> Global */
-  // LtoG(X, this->dS, this->dT, 0e0, 0e0, 0e0);
+  // LtoG(X, this->dS, this->dR, 0e0, 0e0, 0e0);
 }
 
 
@@ -1260,7 +1260,7 @@ void WigglerType::Elem_Propagate(ss_vect<T> &X)
   ss_vect<T>  X1;
 
   // Global -> Local
-  GtoL(X, this->dS, this->dT, 0e0, 0e0, 0e0);
+  GtoL(X, this->dS, this->dR, 0e0, 0e0, 0e0);
   switch (this->method) {
 
   case Meth_Linear:
@@ -1303,7 +1303,7 @@ void WigglerType::Elem_Propagate(ss_vect<T> &X)
     break;
   }
   // Local -> Global
-  LtoG(X, this->dS, this->dT, 0e0, 0e0, 0e0);
+  LtoG(X, this->dS, this->dR, 0e0, 0e0, 0e0);
 }
 
 #undef eps
@@ -1879,7 +1879,7 @@ void FieldMapType::Elem_Propagate(ss_vect<T> &ps)
     first_FM = false;
   }
 
-//  GtoL(ps, this->dS, this->dT, 0e0, 0e0, 0e0);
+//  GtoL(ps, this->dS, this->dR, 0e0, 0e0, 0e0);
 
   Ld = (this->Lr-this->L)/2e0;
   p_rot(this->phi/2e0*180e0/M_PI, ps);
@@ -1897,7 +1897,7 @@ void FieldMapType::Elem_Propagate(ss_vect<T> &ps)
   Drift(-Ld, ps);
   p_rot(this->phi/2e0*180e0/M_PI, ps);
 
-//  LtoG(ps, this->dS, this->dT, 0e0, 0e0, 0e0);
+//  LtoG(ps, this->dS, this->dR, 0e0, 0e0, 0e0);
 
 //  outf_.close();
 }
@@ -1952,7 +1952,7 @@ void InsertionType::Elem_Propagate(ss_vect<T> &x)
     alpha02 = 1e-6*this->scaling;
 
 //  /* Global -> Local */
-//  GtoL(X, Cell->dS, Cell->dT, 0e0, 0e0, 0e0);
+//  GtoL(X, Cell->dS, Cell->dR, 0e0, 0e0, 0e0);
 
   p_rot(this->phi/2e0*180e0/M_PI, x);
 
@@ -1999,7 +1999,7 @@ void InsertionType::Elem_Propagate(ss_vect<T> &x)
 //  CopyVec(6L, x, Cell->BeamPos);
 
 //  /* Local -> Global */
-//  LtoG(X, Cell->dS, Cell->dT, 0e0, 0e0, 0e0);
+//  LtoG(X, Cell->dS, Cell->dR, 0e0, 0e0, 0e0);
 }
 
 
@@ -2088,11 +2088,11 @@ template<typename T>
 void SolenoidType::Elem_Propagate(ss_vect<T> &ps)
 {
 
-  GtoL(ps, this->dS, this->dT, 0e0, 0e0, 0e0);
+  GtoL(ps, this->dS, this->dR, 0e0, 0e0, 0e0);
 
   sol_pass(ps);
 
-  LtoG(ps, this->dS, this->dT, 0e0, 0e0, 0e0);
+  LtoG(ps, this->dS, this->dR, 0e0, 0e0, 0e0);
 }
 
 
@@ -3015,51 +3015,51 @@ void Mpole_SetdS(int Fnum, int Knum)
     cellp->dS[j] = M->dSsys[j] + M->dSrms[j]*M->dSrnd[j];
 }
 
-void Mpole_SetdT(int Fnum, int Knum)
+void Mpole_SetdR(int Fnum, int Knum)
 {
   CellType  *cellp;
   MpoleType *M;
 
   cellp = Lattice.Cell[Lattice.ElemFam[Fnum-1].KidList[Knum-1]];
   M = static_cast<MpoleType*>(cellp);
-  cellp->dT[0] = cos(dtor(M->dTpar + M->dTsys + M->dTrms*M->dTrnd));
-  cellp->dT[1] = sin(dtor(M->dTpar + M->dTsys + M->dTrms*M->dTrnd));
+  cellp->dR[0] = cos(dtor(M->dRpar + M->dRsys + M->dRrms*M->dRrnd));
+  cellp->dR[1] = sin(dtor(M->dRpar + M->dRsys + M->dRrms*M->dRrnd));
   /* Calculate simplified p_rots */
-  M->c0 = sin(cellp->L*M->irho/2e0); M->c1 = cos(dtor(M->dTpar))*M->c0;
-  M->s1 = sin(dtor(M->dTpar))*M->c0;
+  M->c0 = sin(cellp->L*M->irho/2e0); M->c1 = cos(dtor(M->dRpar))*M->c0;
+  M->s1 = sin(dtor(M->dRpar))*M->c0;
 }
 
 
-double Mpole_GetdT(int Fnum, int Knum)
+double Mpole_GetdR(int Fnum, int Knum)
 {
   CellType  *cellp;
   MpoleType *M;
 
   cellp = Lattice.Cell[Lattice.ElemFam[Fnum-1].KidList[Knum-1]];
   M = static_cast<MpoleType*>(cellp);
-  return(M->dTpar + M->dTsys + M->dTrms*M->dTrnd);
+  return(M->dRpar + M->dRsys + M->dRrms*M->dRrnd);
 }
 
 
-void Mpole_DefdTpar(int Fnum, int Knum, double dTpar)
+void Mpole_DefdRpar(int Fnum, int Knum, double dRpar)
 {
   CellType  *cellp;
   MpoleType *M;
 
   cellp = Lattice.Cell[Lattice.ElemFam[Fnum-1].KidList[Knum-1]];
   M = static_cast<MpoleType*>(cellp);
-  M->dTpar = dTpar;
+  M->dRpar = dRpar;
 }
 
 
-void Mpole_DefdTsys(int Fnum, int Knum, double dTsys)
+void Mpole_DefdRsys(int Fnum, int Knum, double dRsys)
 {
   CellType  *cellp;
   MpoleType *M;
 
   cellp = Lattice.Cell[Lattice.ElemFam[Fnum-1].KidList[Knum-1]];
   M = static_cast<MpoleType*>(cellp);
-  M->dTsys = dTsys;
+  M->dRsys = dRsys;
 }
 
 
@@ -3086,13 +3086,13 @@ void Wiggler_SetdS(int Fnum, int Knum)
     cellp->dS[j] = W->dSsys[j] + W->dSrms[j]*W->dSrnd[j];
 }
 
-void Wiggler_SetdT(int Fnum, int Knum)
+void Wiggler_SetdR(int Fnum, int Knum)
 {
   CellType    *cellp;
   WigglerType *W;
 
   cellp = Lattice.Cell[Lattice.ElemFam[Fnum-1].KidList[Knum-1]];
   W = static_cast<WigglerType*>(cellp);
-  cellp->dT[0] = cos(dtor(W->dTpar+W->dTsys+W->dTrms*W->dTrnd));
-  cellp->dT[1] = sin(dtor(W->dTpar+W->dTsys+W->dTrms*W->dTrnd));
+  cellp->dR[0] = cos(dtor(W->dRpar+W->dRsys+W->dRrms*W->dRrnd));
+  cellp->dR[1] = sin(dtor(W->dRpar+W->dRsys+W->dRrms*W->dRrnd));
 }

@@ -3,7 +3,7 @@ MarkerType::MarkerType(void) : CellType()
 {
   this->Elem.Kind = PartsKind(marker);
 
-  this->dT[X_] = 1e0; this->dT[Y_] = 0e0;
+  this->dR[X_] = 1e0; this->dR[Y_] = 0e0;
   this->dS[X_] = 0e0; this->dS[Y_] = 0e0;
 }
 
@@ -12,7 +12,7 @@ DriftType::DriftType(void) : CellType()
 {
   this->Elem.Kind = PartsKind(drift);
 
-  this->dT[X_] = 1e0; this->dT[Y_] = 0e0;
+  this->dR[X_] = 1e0; this->dR[Y_] = 0e0;
   this->dS[X_] = 0e0; this->dS[Y_] = 0e0;
 }
 
@@ -27,7 +27,7 @@ MpoleType::MpoleType(void) : CellType()
   for (j = 0; j <= 1; j++) {
     this->dSsys[j] = 0e0; this->dSrms[j] = 0e0; this->dSrnd[j] = 0e0;
   }
-  this->dTpar = 0e0; this->dTsys = 0e0; this->dTrms = 0e0; this->dTrnd = 0e0;
+  this->dRpar = 0e0; this->dRsys = 0e0; this->dRrms = 0e0; this->dRrnd = 0e0;
   for (j = -HOMmax; j <= HOMmax; j++) {
     this->B[j+HOMmax]    = 0e0; this->Bpar[j+HOMmax] = 0e0;
     this->Bsys[j+HOMmax] = 0e0; this->Brms[j+HOMmax] = 0e0;
@@ -38,15 +38,15 @@ MpoleType::MpoleType(void) : CellType()
 
   this->c0 = 0e0; this->c1 = 0e0; this->s1 = 0e0;
 
-  this->dT[X_] = cos(dtor(this->dTpar));
-  this->dT[Y_] = sin(dtor(this->dTpar));
+  this->dR[X_] = cos(dtor(this->dRpar));
+  this->dR[Y_] = sin(dtor(this->dRpar));
   this->dS[X_] = 0e0; this->dS[Y_] = 0e0;
 
   if (this->L != 0e0 || this->irho != 0e0) {
     this->thick = pthicktype(thick);
     this->c0 = sin(this->L*this->irho/2e0);
-    this->c1 = this->dT[X_]*this->c0;
-    this->s1 = this->dT[Y_]*this->c0;
+    this->c1 = this->dR[X_]*this->c0;
+    this->s1 = this->dR[Y_]*this->c0;
   } else
     this->thick = pthicktype(thin);
 }
@@ -62,7 +62,7 @@ WigglerType::WigglerType(void) : CellType()
   for (j = 0; j <= 1; j++) {
     this->dSsys[j] = 0e0; this->dSrnd[j] = 0e0;
   }
-  this->dTpar = 0e0; this->dTsys = 0e0; this->dTrnd = 0e0;
+  this->dRpar = 0e0; this->dRsys = 0e0; this->dRrnd = 0e0;
   this->n_harm = 0; this->lambda = 0e0;
   for (j = 0; j < n_harm_max; j++) {
     this->BoBrhoV[j] = 0e0; this->BoBrhoH[j] = 0e0;
@@ -73,8 +73,8 @@ WigglerType::WigglerType(void) : CellType()
     this->BW[j+HOMmax] = 0e0;
   this->order = 0;
 
-  this->dT[X_] = cos(dtor(this->dTpar));
-  this->dT[Y_] = sin(dtor(this->dTpar));
+  this->dR[X_] = cos(dtor(this->dRpar));
+  this->dR[Y_] = sin(dtor(this->dRpar));
   this->dS[X_] = 0e0; this->dS[Y_] = 0e0;
 }
 
@@ -124,13 +124,13 @@ InsertionType::InsertionType(void) : CellType()
   for (j = 0; j <= 1; j++) {
     this->dSsys[j] = 0e0; this->dSrnd[j] = 0e0;
   }
-  this->dTpar = 0e0; this->dTsys = 0e0; this->dTrnd = 0e0;
+  this->dRpar = 0e0; this->dRsys = 0e0; this->dRrnd = 0e0;
 //  for (j = 0; j <= HOMmax; j++)
 //    this->BW[j+HOMmax] = 0e0;
   this->order = 0;
 
-  this->dT[X_] = cos(dtor(this->dTpar));
-  this->dT[Y_] = sin(dtor(this->dTpar));
+  this->dR[X_] = cos(dtor(this->dRpar));
+  this->dR[Y_] = sin(dtor(this->dRpar));
   this->dS[X_] = 0e0; this->dS[Y_] = 0e0;
 }
 
@@ -145,7 +145,7 @@ FieldMapType::FieldMapType(void) : CellType()
   this->phi = 0e0; this->Ld = 0e0; this->L1 = 0e0; this->cut = 0;
   this->x0 = 0e0;
 
-  this->dT[X_] = 1e0; this->dT[Y_] = 0e0;
+  this->dR[X_] = 1e0; this->dR[Y_] = 0e0;
   this->dS[X_] = 0e0; this->dS[Y_] = 0e0;
 }
 
@@ -158,7 +158,7 @@ CavityType::CavityType(void) : CellType()
   this->volt = 0e0; this->freq = 0e0; this->phi = 0e0; this->h = 0;
   this->entry_focus = false; this->exit_focus = false;
 
-  this->dT[X_] = 1e0; this->dT[Y_] = 0e0;
+  this->dR[X_] = 1e0; this->dR[Y_] = 0e0;
   this->dS[X_] = 0e0; this->dS[Y_] = 0e0;
 }
 
@@ -172,7 +172,7 @@ SpreaderType::SpreaderType(void) : CellType()
   for (k = 0; k < Spreader_max; k++)
     this->Cell_ptrs[k] = NULL;
 
-  this->dT[X_] = 1e0; this->dT[Y_] = 0e0;
+  this->dR[X_] = 1e0; this->dR[Y_] = 0e0;
   this->dS[X_] = 0e0; this->dS[Y_] = 0e0;
 }
 
@@ -181,7 +181,7 @@ RecombinerType::RecombinerType(void) : CellType()
 {
   this->Elem.Kind = PartsKind(Recombiner);
 
-  this->dT[X_] = 1e0; this->dT[Y_] = 0e0;
+  this->dR[X_] = 1e0; this->dR[Y_] = 0e0;
   this->dS[X_] = 0e0; this->dS[Y_] = 0e0;
 }
 
@@ -196,9 +196,9 @@ SolenoidType::SolenoidType(void) : CellType()
   for (j = 0; j <= 1; j++) {
     this->dSsys[j] = 0e0; this->dSrms[j] = 0e0; this->dSrnd[j] = 0e0;
   }
-  this->dTpar = 0e0; this->dTsys = 0e0; this->dTrnd = 0e0;
+  this->dRpar = 0e0; this->dRsys = 0e0; this->dRrnd = 0e0;
 
-  this->dT[X_] = 1e0; this->dT[Y_] = 0e0;
+  this->dR[X_] = 1e0; this->dR[Y_] = 0e0;
   this->dS[X_] = 0e0; this->dS[Y_] = 0e0;
 }
 

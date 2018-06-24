@@ -26,10 +26,10 @@ void track(const double x, const double p_x,
 int main(int argc, char *argv[])
 {
 
-  globval.H_exact    = false; globval.quad_fringe = false;
-  globval.Cavity_on  = false; globval.radiation   = false;
-  globval.emittance  = false; globval.IBS         = false;
-  globval.pathlength = false; globval.bpm         = 0;
+  Lattice.param.H_exact    = false; Lattice.param.quad_fringe = false;
+  Lattice.param.Cavity_on  = false; Lattice.param.radiation   = false;
+  Lattice.param.emittance  = false; Lattice.param.IBS         = false;
+  Lattice.param.pathlength = false; Lattice.param.bpm         = 0;
 
   reverse_elem = !false;
 
