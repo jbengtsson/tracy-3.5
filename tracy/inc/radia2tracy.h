@@ -21,7 +21,7 @@ template<typename T>
 void SplineInterpolation2(T &X, T &Z, T &thetax, T &thetaz,
 			  CellType &Cell, bool &out);
 
-void Matrices4Spline(InsertionType *WITH);
+void Matrices4Spline(InsertionType *ID);
 
 template<typename T>
 void spline(const double x[], const T y[], int const n,

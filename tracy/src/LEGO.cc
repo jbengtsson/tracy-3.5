@@ -1,5 +1,4 @@
 
-template<typename T>
 CellType::CellType(void) : ElemType()
 {
   this->Kind = PartsKind(undef);
@@ -525,7 +524,7 @@ std::ostream& LatticeType::Show_ElemFam(std::ostream &str) const
     } else 
       str << "   ";
 
-      str << " |" << this->ElemFam[j].CellF->Name << "|";
+    str << " |" << this->ElemFam[j].CellF->Name << "|";
     for (k = 1; k <= this->ElemFam[j].nKid; k++) {
       str << " " << std::setw(4) << this->ElemFam[j].KidList[k-1];
       if (k % n_prt == 0) str << "\n                                       ";

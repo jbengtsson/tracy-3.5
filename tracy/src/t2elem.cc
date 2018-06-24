@@ -214,7 +214,7 @@ void Drift(const double L, ss_vect<T> &ps)
 
 
 template<typename T>
-void DriftType::Elem_Pass(ss_vect<T> &x)
+void DriftType::Propagate(ss_vect<T> &x)
 {
   printf("DriftType::Pass/n");
   Drift(this->L, x);
@@ -541,7 +541,7 @@ void quad_fringe(const double b2, ss_vect<T> &x)
 
 
 template<typename T>
-void MpoleType::Elem_Pass(ss_vect<T> &x)
+void MpoleType::Propagate(ss_vect<T> &x)
 {
   int    seg = 0;
   double k = 0e0, dL = 0e0, dL1 = 0e0, dL2 = 0e0;
@@ -672,9 +672,9 @@ void MpoleType::Elem_Pass(ss_vect<T> &x)
 
 
 template<typename T>
-void MarkerType::Elem_Pass(ss_vect<T> &X)
+void MarkerType::Propagate(ss_vect<T> &X)
 {
-  printf("Elem_Pass\n");
+  printf("Propagate\n");
   /* Global -> Local */
   // GtoL(X, this->dS, this->dT, 0e0, 0e0, 0e0);
   /* Local -> Global */
@@ -685,7 +685,7 @@ void MarkerType::Elem_Pass(ss_vect<T> &X)
 #if 1
 
 template<typename T>
-void CavityType::Elem_Pass(ss_vect<T> &X)
+void CavityType::Propagate(ss_vect<T> &X)
 {
   T delta;
 
@@ -1274,7 +1274,7 @@ void Wiggler_pass_EF3(const CellType &Cell, ss_vect<T> &x)
 
 
 template<typename T>
-void WigglerType::Elem_Pass(ss_vect<T> &X)
+void WigglerType::Propagate(ss_vect<T> &X)
 {
   int         seg;
   double      L, L1, L2, K1, K2;
@@ -1902,7 +1902,7 @@ template void FieldMap_pass_SI(CellType &, ss_vect<tps> &, int k);
 
 
 template<typename T>
-void FieldMapType::Elem_Pass(ss_vect<T> &ps)
+void FieldMapType::Propagate(ss_vect<T> &ps)
 {
   int          k;
   double       Ld;
@@ -1939,7 +1939,7 @@ void FieldMapType::Elem_Pass(ss_vect<T> &ps)
 
 
 template<typename T>
-void InsertionType::Elem_Pass(ss_vect<T> &x)
+void InsertionType::Propagate(ss_vect<T> &x)
 {
   /* Purpose:
        Track vector x through a insertion
@@ -2126,7 +2126,7 @@ void sol_pass(const CellType &Cell, ss_vect<T> &x)
 
 
 template<typename T>
-void SolenoidType::Elem_Pass(ss_vect<T> &ps)
+void SolenoidType::Propagate(ss_vect<T> &ps)
 {
 
   GtoL(ps, this->dS, this->dT, 0e0, 0e0, 0e0);

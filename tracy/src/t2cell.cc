@@ -89,7 +89,7 @@ template<typename T>
 void LatticeType::Elem_Pass(const long i, ss_vect<T> &x)
 {
   printf("entering Pass %3ld %10s\n", i, Cell[i]->Name);
-  Cell[i]->Pass(x);
+  Cell[i]->Propagate(x);
   printf("leaving Pass\n");
 }
 

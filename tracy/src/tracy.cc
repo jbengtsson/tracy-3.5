@@ -56,7 +56,7 @@ const int     nv_tps   = ss_dim, // no of variables
 double eps_tps  = 1e-25;  // floating point truncation
 
 
-// instantiate templates
+// Instantiate templates.
 
 template class ss_vect<double>;
 template class ss_vect<tps>;
