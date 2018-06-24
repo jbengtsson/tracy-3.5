@@ -62,15 +62,15 @@ template class ss_vect<double>;
 template class ss_vect<tps>;
 
 
-template void GtoL(ss_vect<double> &, const Vector2 &, const Vector2 &,
-		   const double, const double, const double);
-template void GtoL(ss_vect<tps> &, const Vector2 &, const Vector2 &,
-		   const double, const double, const double);
+// template void GtoL(ss_vect<double> &, const Vector2 &, const Vector2 &,
+// 		   const double, const double, const double);
+// template void GtoL(ss_vect<tps> &, const Vector2 &, const Vector2 &,
+// 		   const double, const double, const double);
 
-template void LtoG(ss_vect<tps> &, const Vector2 &, const Vector2 &,
-		   const double, const double, const double);
-template void LtoG(ss_vect<double> &, const Vector2 &, const Vector2 &,
-		   const double, const double, const double);
+// template void LtoG(ss_vect<tps> &, const Vector2 &, const Vector2 &,
+// 		   const double, const double, const double);
+// template void LtoG(ss_vect<double> &, const Vector2 &, const Vector2 &,
+// 		   const double, const double, const double);
 
 template void p_rot(double, ss_vect<double> &);
 template void p_rot(double, ss_vect<tps> &);

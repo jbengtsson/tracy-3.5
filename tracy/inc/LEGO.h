@@ -137,9 +137,6 @@ class CellType : public ElemType {
   void Cell_Init(void);
 
   template<typename T>
-    T get_p_s(const ss_vect<T> &);
-
-  template<typename T>
     void GtoL(ss_vect<T> &ps, const Vector2 &S, const Vector2 &R,
 	      const double c0, const double c1, const double s1);
 
@@ -148,7 +145,7 @@ class CellType : public ElemType {
 	      const double c0, const double c1, const double s1);
 
   virtual void Propagate(ss_vect<double> &ps) { Elem_Propagate(ps); } 
-  virtual void Propagate(ss_vect<tps> &ps) { Elem_Propagate(ps); } 
+  virtual void Propagate(ss_vect<tps> &ps)    { Elem_Propagate(ps); } 
   template<typename T>
     void Elem_Propagate(ss_vect<T> &ps)
     {
@@ -171,7 +168,7 @@ class MarkerType : public CellType {
   virtual std::ostream& Show(std::ostream &str) const;
 
   virtual void Propagate(ss_vect<double> &ps) { Elem_Propagate(ps); } 
-  virtual void Propagate(ss_vect<tps> &ps) { Elem_Propagate(ps); } 
+  virtual void Propagate(ss_vect<tps> &ps)    { Elem_Propagate(ps); } 
   template<typename T>
     void Elem_Propagate(ss_vect<T> &ps);
 
@@ -191,7 +188,7 @@ class DriftType : public CellType {
   virtual std::ostream& Show(std::ostream &str) const;
 
   virtual void Propagate(ss_vect<double> &ps) { Elem_Propagate(ps); } 
-  virtual void Propagate(ss_vect<tps> &ps) { Elem_Propagate(ps); } 
+  virtual void Propagate(ss_vect<tps> &ps)    { Elem_Propagate(ps); } 
   template<typename T>
     void Elem_Propagate(ss_vect<T> &ps);
 
@@ -238,7 +235,7 @@ class MpoleType : public CellType {
   virtual std::ostream& Show(std::ostream &str) const;
 
   virtual void Propagate(ss_vect<double> &ps) { Elem_Propagate(ps); } 
-  virtual void Propagate(ss_vect<tps> &ps) { Elem_Propagate(ps); } 
+  virtual void Propagate(ss_vect<tps> &ps)    { Elem_Propagate(ps); } 
   template<typename T>
     void Elem_Propagate(ss_vect<T> &ps);
 
@@ -280,7 +277,7 @@ class WigglerType : public CellType {
   }
 
   virtual void Propagate(ss_vect<double> &ps) { Elem_Propagate(ps); } 
-  virtual void Propagate(ss_vect<tps> &ps) { Elem_Propagate(ps); } 
+  virtual void Propagate(ss_vect<tps> &ps)    { Elem_Propagate(ps); } 
   template<typename T>
     void Elem_Propagate(ss_vect<T> &ps);
 
@@ -351,7 +348,7 @@ class InsertionType : public CellType {
   }
 
   virtual void Propagate(ss_vect<double> &ps) { Elem_Propagate(ps); } 
-  virtual void Propagate(ss_vect<tps> &ps) { Elem_Propagate(ps); } 
+  virtual void Propagate(ss_vect<tps> &ps)    { Elem_Propagate(ps); } 
   template<typename T>
     void Elem_Propagate(ss_vect<T> &ps);
 
@@ -381,7 +378,7 @@ class FieldMapType : public CellType {
   }
 
   virtual void Propagate(ss_vect<double> &ps) { Elem_Propagate(ps); } 
-  virtual void Propagate(ss_vect<tps> &ps) { Elem_Propagate(ps); } 
+  virtual void Propagate(ss_vect<tps> &ps)    { Elem_Propagate(ps); } 
   template<typename T>
     void Elem_Propagate(ss_vect<T> &ps);
 
@@ -427,7 +424,7 @@ class SolenoidType : public CellType {
   }
 
   virtual void Propagate(ss_vect<double> &ps) { Elem_Propagate(ps); } 
-  virtual void Propagate(ss_vect<tps> &ps) { Elem_Propagate(ps); } 
+  virtual void Propagate(ss_vect<tps> &ps)    { Elem_Propagate(ps); } 
   template<typename T>
     void Elem_Propagate(ss_vect<T> &ps);
   
@@ -457,7 +454,7 @@ class CavityType : public CellType {
   virtual std::ostream& Show(std::ostream &str) const;
 
   virtual void Propagate(ss_vect<double> &ps) { Elem_Propagate(ps); } 
-  virtual void Propagate(ss_vect<tps> &ps) { Elem_Propagate(ps); } 
+  virtual void Propagate(ss_vect<tps> &ps)    { Elem_Propagate(ps); } 
   template<typename T>
     void Elem_Propagate(ss_vect<T> &ps);
 
@@ -481,7 +478,11 @@ class SpreaderType : public CellType {
   virtual void Propagate(ss_vect<double> &ps) { Elem_Propagate(ps); } 
   virtual void Propagate(ss_vect<tps> &ps) { Elem_Propagate(ps); } 
   template<typename T>
-    void Elem_Propagate(ss_vect<T> &ps);
+    void Elem_Propagate(ss_vect<T> &ps)
+    {
+      printf("SpreaderType::Elem_Propagate: not implemented\n");
+      exit(1);
+    }
 
   void Init(int Fnum);
 };
@@ -501,9 +502,13 @@ class RecombinerType : public CellType {
   /* virtual std::ostream& Show(std::ostream &str) const; */
 
   virtual void Propagate(ss_vect<double> &ps) { Elem_Propagate(ps); } 
-  virtual void Propagate(ss_vect<tps> &ps) { Elem_Propagate(ps); } 
+  virtual void Propagate(ss_vect<tps> &ps)    { Elem_Propagate(ps); } 
   template<typename T>
-    void Elem_Propagate(ss_vect<T> &ps);
+    void Elem_Propagate(ss_vect<T> &ps)
+    {
+      printf("SpreaderType::Elem_Propagate: not implemented\n");
+      exit(1);
+    }
 
   void Init(int Fnum);
 };
