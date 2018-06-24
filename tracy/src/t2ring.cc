@@ -196,7 +196,7 @@ void LatticeType::Cell_Twiss(long i0, long i1, ss_vect<tps> &Ascr, bool chroma,
 
   Ascr1 = Ascr0;
   for (i = i0; i <= i1; i++) {
-    Elem_Pass(i, Ascr1);
+    Lattice.Cell[i]->Propagate(Ascr1);
     cellp = Lattice.Cell[i];
     dagetprm(Ascr1, cellp->Alpha, cellp->Beta);
     for (j = 0; j <= 1; j++) {

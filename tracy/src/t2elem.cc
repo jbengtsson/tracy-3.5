@@ -214,11 +214,7 @@ void Drift(const double L, ss_vect<T> &ps)
 
 
 template<typename T>
-void DriftType::Elem_Propagate(ss_vect<T> &x)
-{
-  printf("DriftType::Pass/n");
-  Drift(this->L, x);
-}
+void DriftType::Elem_Propagate(ss_vect<T> &x) { Drift(this->L, x); }
 
 
 // partial template-class specialization
@@ -462,7 +458,7 @@ void EdgeFocus(const double irho, const double phi, const double gap,
 	       ss_vect<T> &x)
 {
   x[px_] += irho*tan(dtor(phi))*x[x_];
-  if (true) {
+  if (!true) {
     // warning: => diverging Taylor map (see SSC-141)
     // x[py_] -=
     //   irho*tan(dtor(phi)-get_psi(irho, phi, gap))*x[y_]/(1e0+x[delta_]);
@@ -546,8 +542,6 @@ void MpoleType::Elem_Propagate(ss_vect<T> &x)
   int    seg = 0;
   double k = 0e0, dL = 0e0, dL1 = 0e0, dL2 = 0e0;
   double dkL1 = 0e0, dkL2 = 0e0, h_ref = 0e0;
-
-  printf("MpoleType::Pass/n");
 
   // Global -> Local.
   // Can not be moved to ElemType level because it needs: c0, c1, and s1.
@@ -674,7 +668,6 @@ void MpoleType::Elem_Propagate(ss_vect<T> &x)
 template<typename T>
 void MarkerType::Elem_Propagate(ss_vect<T> &X)
 {
-  printf("MarkerType::Elem_Propagate\n");
   /* Global -> Local */
   // GtoL(X, this->dS, this->dT, 0e0, 0e0, 0e0);
   /* Local -> Global */

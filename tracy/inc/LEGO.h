@@ -687,9 +687,6 @@ class LatticeType {
   // From t2ring.cc.
 
   template<typename T>
-    void Elem_Pass(const long i, ss_vect<T> &ps);
-
-  template<typename T>
     void Cell_Pass(const long i0, const long i1, ss_vect<T> &ps, long &lastpos);
 
   void Cell_Pass(const long i0, const long i1, tps &sigma, long &lastpos);

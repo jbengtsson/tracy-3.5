@@ -25,7 +25,13 @@ void track(const double x, const double p_x,
 
 int main(int argc, char *argv[])
 {
-  // LatticeType Lattice;
+
+  globval.H_exact    = false; globval.quad_fringe = false;
+  globval.Cavity_on  = false; globval.radiation   = false;
+  globval.emittance  = false; globval.IBS         = false;
+  globval.pathlength = false; globval.bpm         = 0;
+
+  reverse_elem = !false;
 
   if (true)
     Lattice.Read_Lattice(argv[1]); 

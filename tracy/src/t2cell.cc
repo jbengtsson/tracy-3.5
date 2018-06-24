@@ -44,16 +44,6 @@ inline bool CheckAmpl(const ss_vect<T> &x, const long int loc)
 
 
 template<typename T>
-void LatticeType::Elem_Pass(const long i, ss_vect<T> &x)
-{
-  printf("LatticeType::Elem_Pass: entering Propagate %3ld %10s\n",
-	 i, Cell[i]->Name);
-  Cell[i]->Propagate(x);
-  printf("LatticeType::Elem_Pass: leaving  Propagate\n");
-}
-
-
-template<typename T>
 void LatticeType::Cell_Pass(const long i0, const long i1, ss_vect<T> &x,
 			    long &lastpos)
 {
@@ -73,10 +63,7 @@ void LatticeType::Cell_Pass(const long i0, const long i1, ss_vect<T> &x,
   else {
     lastpos = i1;
     for (i = i0; i <= i1; i++) {
-      printf("LatticeType::Cell_Pass: entering Propagate %3ld %10s\n",
-	     i, Cell[i]->Name);
       Cell[i]->Propagate(x);
-      printf("LatticeType::Cell_Pass: exiting  Propagate\n");
       if (!CheckAmpl(x, i)) { lastpos = i; break; }
     }
   }

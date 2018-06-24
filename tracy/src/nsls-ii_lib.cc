@@ -491,7 +491,7 @@ void LatticeType::GetEmittance(const int Fnum, const bool prt)
 	Lattice.param.Ascr[i][j]*sqrt(Lattice.param.eps[j/2])*tps(0.0, j+1);
   }
   for (loc = 0; loc <= Lattice.param.Cell_nLoc; loc++) {
-    Elem_Pass(loc, Ascr_map);
+    Lattice.Cell[loc]->Propagate(Ascr_map);
     // sigma = A x A^tp
     getlinmat(6, Ascr_map, Lattice.Cell[loc]->sigma);
     TpMat(6, Lattice.Cell[loc]->sigma);
