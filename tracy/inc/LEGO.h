@@ -97,6 +97,11 @@ class ElemType {
   //explicit ElemType(std::string &Name1, double L1, bool Reverse1)
   //  : Name(Name1), L(L1), Reverse(Reverse1) {}
 
+  // Virtual functions can't be templates.
+  // and Elem in CellType can't be virtual.
+  /* template<typename T> */
+  /*   virtual void Propagate(ss_vect<double> &ps) = 0; */
+
   /* virtual std::ostream& Show(std::ostream &str); */
 };
 
@@ -133,17 +138,17 @@ class CellType {
 
   void Cell_Init(void);
 
-  template<typename T>
-    void GtoL(ss_vect<T> &ps, const Vector2 &S, const Vector2 &R,
-	      const double c0, const double c1, const double s1);
-
-  template<typename T>
-    void LtoG(ss_vect<T> &ps, const Vector2 &S, const Vector2 &R,
-	      const double c0, const double c1, const double s1);
-
   // Virtual functions can't be templates. 
   virtual void Propagate(ss_vect<double> &ps) = 0;
   virtual void Propagate(ss_vect<tps> &ps) = 0;
+
+  template<typename T>
+    void GtoL(ss_vect<T> &ps,
+	      const double c0, const double c1, const double s1);
+
+  template<typename T>
+    void LtoG(ss_vect<T> &ps,
+	      const double c0, const double c1, const double s1);
 
   void Elem_Print(FILE *f, int Fnum);
 };

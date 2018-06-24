@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
   else
     Lattice.rdmfile("flat_file.dat");
 
-  trace = true;
+  trace = !true;
 
   track(1e-3, 0e0, 1e-3, 0e0, 0e0);
 

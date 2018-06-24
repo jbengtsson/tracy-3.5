@@ -132,44 +132,44 @@ void splin2_(const double x1a[], const double x2a[], double **ya, double **y2a,
 
 
 template<typename T>
-void CellType::GtoL(ss_vect<T> &X, const Vector2 &S, const Vector2 &R,
+void CellType::GtoL(ss_vect<T> &ps,
 		    const double c0, const double c1, const double s1)
 {
-  ss_vect<T> x1;
+  ss_vect<T> ps1;
 
-  /* Simplified rotated p_rot */
-  X[px_] += c1; X[py_] += s1;
-  /* Translate */
-  X[x_] -= S[X_]; X[y_] -= S[Y_];
-  /* Rotate */
-  x1 = X;
-  X[x_]  =  R[X_]*x1[x_]  + R[Y_]*x1[y_];
-  X[px_] =  R[X_]*x1[px_] + R[Y_]*x1[py_];
-  X[y_]  = -R[Y_]*x1[x_]  + R[X_]*x1[y_];
-  X[py_] = -R[Y_]*x1[px_] + R[X_]*x1[py_] ;
-  /* Simplified p_rot */
-  X[px_] -= c0;
+  // Simplified rotated p_rot.
+  ps[px_] += c1; ps[py_] += s1;
+  // Translate.
+  ps[x_] -= dS[X_]; ps[y_] -= dS[Y_];
+  // Rotate.
+  ps1 = ps;
+  ps[x_]  =  dR[X_]*ps1[x_]  + dR[Y_]*ps1[y_];
+  ps[px_] =  dR[X_]*ps1[px_] + dR[Y_]*ps1[py_];
+  ps[y_]  = -dR[Y_]*ps1[x_]  + dR[X_]*ps1[y_];
+  ps[py_] = -dR[Y_]*ps1[px_] + dR[X_]*ps1[py_] ;
+  // Simplified p_rot.
+  ps[px_] -= c0;
 }
 
 
 template<typename T>
-void CellType::LtoG(ss_vect<T> &X, const Vector2 &S, const Vector2 &R,
+void CellType::LtoG(ss_vect<T> &ps,
 		    const double c0, const double c1, const double s1)
 {
-  ss_vect<T> x1;
+  ss_vect<T> ps1;
 
-  /* Simplified p_rot */
-  X[px_] -= c0;
-  /* Rotate */
-  x1 = X;
-  X[x_]  = R[X_]*x1[x_]  - R[Y_]*x1[y_];
-  X[px_] = R[X_]*x1[px_] - R[Y_]*x1[py_];
-  X[y_]  = R[Y_]*x1[x_]  + R[X_]*x1[y_];
-  X[py_] = R[Y_]*x1[px_] + R[X_]*x1[py_];
-  /* Translate */
-  X[x_] += S[X_]; X[y_] += S[Y_];
-  /* p_rot rotated */
-  X[px_] += c1; X[py_] += s1;
+  // Simplified p_rot.
+  ps[px_] -= c0;
+  // Rotate.
+  ps1 = ps;
+  ps[x_]  = dR[X_]*ps1[x_]  - dR[Y_]*ps1[y_];
+  ps[px_] = dR[X_]*ps1[px_] - dR[Y_]*ps1[py_];
+  ps[y_]  = dR[Y_]*ps1[x_]  + dR[X_]*ps1[y_];
+  ps[py_] = dR[Y_]*ps1[px_] + dR[X_]*ps1[py_];
+  // Translate.
+  ps[x_] += dS[X_]; ps[y_] += dS[Y_];
+  // p_rot rotated.
+  ps[px_] += c1; ps[py_] += s1;
 }
 
 
@@ -545,7 +545,7 @@ void MpoleType::Elem_Propagate(ss_vect<T> &x)
 
   // Global -> Local.
   // Can not be moved to ElemType level because it needs: c0, c1, and s1.
-  GtoL(x, this->dS, this->dR, this->c0, this->c1, this->s1);
+  this->GtoL(x, this->c0, this->c1, this->s1);
 
   if ((this->method == Meth_Second) || (this->method == Meth_Fourth)) {
     // Fringe fields.
@@ -661,7 +661,7 @@ void MpoleType::Elem_Propagate(ss_vect<T> &x)
   }
 
   // Local -> Global.
-  LtoG(x, this->dS, this->dR, this->c0, this->c1, this->s1);
+  this->LtoG(x, this->c0, this->c1, this->s1);
 }
 
 
@@ -669,9 +669,9 @@ template<typename T>
 void MarkerType::Elem_Propagate(ss_vect<T> &X)
 {
   /* Global -> Local */
-  // GtoL(X, this->dS, this->dR, 0e0, 0e0, 0e0);
+  // this->GtoL(X, 0e0, 0e0, 0e0);
   /* Local -> Global */
-  // LtoG(X, this->dS, this->dR, 0e0, 0e0, 0e0);
+  // this->LtoG(X, 0e0, 0e0, 0e0);
 }
 
 
@@ -1260,7 +1260,7 @@ void WigglerType::Elem_Propagate(ss_vect<T> &X)
   ss_vect<T>  X1;
 
   // Global -> Local
-  GtoL(X, this->dS, this->dR, 0e0, 0e0, 0e0);
+  this->GtoL(X, 0e0, 0e0, 0e0);
   switch (this->method) {
 
   case Meth_Linear:
@@ -1303,7 +1303,7 @@ void WigglerType::Elem_Propagate(ss_vect<T> &X)
     break;
   }
   // Local -> Global
-  LtoG(X, this->dS, this->dR, 0e0, 0e0, 0e0);
+  this->LtoG(X, 0e0, 0e0, 0e0);
 }
 
 #undef eps
@@ -1879,7 +1879,7 @@ void FieldMapType::Elem_Propagate(ss_vect<T> &ps)
     first_FM = false;
   }
 
-//  GtoL(ps, this->dS, this->dR, 0e0, 0e0, 0e0);
+//  this->GtoL(ps, 0e0, 0e0, 0e0);
 
   Ld = (this->Lr-this->L)/2e0;
   p_rot(this->phi/2e0*180e0/M_PI, ps);
@@ -1897,7 +1897,7 @@ void FieldMapType::Elem_Propagate(ss_vect<T> &ps)
   Drift(-Ld, ps);
   p_rot(this->phi/2e0*180e0/M_PI, ps);
 
-//  LtoG(ps, this->dS, this->dR, 0e0, 0e0, 0e0);
+//  this->LtoG(ps, 0e0, 0e0, 0e0);
 
 //  outf_.close();
 }
@@ -1952,7 +1952,7 @@ void InsertionType::Elem_Propagate(ss_vect<T> &x)
     alpha02 = 1e-6*this->scaling;
 
 //  /* Global -> Local */
-//  GtoL(X, Cell->dS, Cell->dR, 0e0, 0e0, 0e0);
+//  this->GtoL(X, 0e0, 0e0, 0e0);
 
   p_rot(this->phi/2e0*180e0/M_PI, x);
 
@@ -1999,7 +1999,7 @@ void InsertionType::Elem_Propagate(ss_vect<T> &x)
 //  CopyVec(6L, x, Cell->BeamPos);
 
 //  /* Local -> Global */
-//  LtoG(X, Cell->dS, Cell->dR, 0e0, 0e0, 0e0);
+//  this->LtoG(X, 0e0, 0e0, 0e0);
 }
 
 
@@ -2088,11 +2088,11 @@ template<typename T>
 void SolenoidType::Elem_Propagate(ss_vect<T> &ps)
 {
 
-  GtoL(ps, this->dS, this->dR, 0e0, 0e0, 0e0);
+  this->GtoL(ps, 0e0, 0e0, 0e0);
 
   sol_pass(ps);
 
-  LtoG(ps, this->dS, this->dR, 0e0, 0e0, 0e0);
+  this->LtoG(ps, 0e0, 0e0, 0e0);
 }
 
 
