@@ -118,8 +118,6 @@ LatticeType Lattice;
 statusrec   status;
 bool        trace, traceID;
 
-bool reverse_elem = false; // Beam Dynamics or Software Engineering reverse.
-
 // Set operations
 
 // val IN s

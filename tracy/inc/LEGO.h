@@ -527,59 +527,59 @@ class MapType: public CellType {
 
 
 struct LatticeParam {
-  double   dPcommon,       // dp for numerical differentiation.
-           dPparticle;     // energy deviation.
-  double   delta_RF;       // RF acceptance.
-  Vector2  TotalTune;      // transverse tunes.
-  double   Omega,
-           U0,             // energy lost per turn in keV.
-           Alphac;         // alphap.
-  Vector2  Chrom;          // chromaticities.
-  double   Energy;         // ring energy.
-  long     Cell_nLoc,      // number of elements.
-           Elem_nFam,      // number of families.
-           CODimax;        // Max number of cod search before failing.
-  double   CODeps;         // precision for closed orbit finder.
-  psVector CODvect;        // closed orbit.
-  int      bpm;            // bpm number.
-  int      hcorr;          // horizontal corrector number.
-  int      vcorr;          // vertical corrector number.
-  int      qt;             // vertical corrector number.
-  int      gs;             // girder start marker.
-  int      ge;             // girder end marker.
-  Matrix   OneTurnMat,     // oneturn matrix.
-           Ascr,
-           Ascrinv,
-           Vr,             // real part of the eigenvectors.
-           Vi;             // imaginal par of the eigenvectors.
+   double   dPcommon,       // dp for numerical differentiation.
+            dPparticle,     // energy deviation.
+            delta_RF;       // RF acceptance.
+   Vector2  TotalTune;      // transverse tunes.
+   double   Omega,
+            U0,             // energy lost per turn in keV.
+            Alphac;         // alphap.
+   Vector2  Chrom;          // chromaticities.
+   double   Energy;         // ring energy.
+   long     Cell_nLoc,      // number of elements.
+            Elem_nFam,      // number of families.
+            CODimax;        // Max number of cod search before failing.
+   double   CODeps;         // precision for closed orbit finder.
+   psVector CODvect;        // closed orbit.
+   int      bpm,            // bpm number.
+            hcorr,          // horizontal corrector number.
+            vcorr,          // vertical corrector number.
+            qt,             // vertical corrector number.
+            gs,             // girder start marker.
+            ge;             // girder end marker.
+   Matrix   OneTurnMat,     // oneturn matrix.
+            Ascr,
+            Ascrinv,
+            Vr,             // real part of the eigenvectors.
+            Vi;             // imaginal par of the eigenvectors.
 
-  bool     Cavity_on,      // if true, cavity turned on.
-           radiation,      // if true, radiation turned on.
-           emittance,
-           dip_fringe,     // dipole hard-edge fringe field.
-           quad_fringe,    // quadrupole hard-edge fringe field.
-           H_exact,        // "small ring" Hamiltonian.
-           pathlength,     // absolute path length.
-           stable,
-           Aperture_on,
-           EPU,
-           wake_on;
+   bool     Cavity_on,      // if true, cavity turned on.
+            radiation,      // if true, radiation turned on.
+            emittance,
+            dip_fringe,     // dipole hard-edge fringe field.
+            quad_fringe,    // quadrupole hard-edge fringe field.
+            H_exact,        // "small ring" Hamiltonian.
+            pathlength,     // absolute path length.
+            stable,
+            Aperture_on,
+            EPU,
+            reverse_elem;   // Beam Dynamics or Software Engineering reverse.
 
-  double   dE,              // energy loss.
-           alpha_rad[DOF],  // damping coeffs.
-           D_rad[DOF],      // diffusion coeffs (Floquet space).
-           J[DOF],          // partition numbers.
-           tau[DOF];        // damping times.
-  bool     IBS;             // intrabeam scattering.
-  double   Qb,              // bunch charge.
-           D_IBS[DOF];      // diffusion matrix (Floquet space).
-  psVector wr, wi;          // real and imaginary part of eigenvalues.
-  double   eps[DOF],        // 3 motion invariants.
-           epsp[DOF],       /* transverse and longitudinal projected
-			      emittances. */
-           alpha_z, beta_z, // longitudinal alpha and beta.
-           beta0, gamma0;   // Relativistic factors.
-  int      RingType;        // 1 if a ring (0 if transfer line).
+   double   dE,              // energy loss.
+            alpha_rad[DOF],  // damping coeffs.
+            D_rad[DOF],      // diffusion coeffs (Floquet space).
+            J[DOF],          // partition numbers.
+            tau[DOF];        // damping times.
+   bool     IBS;             // intrabeam scattering.
+   double   Qb,              // bunch charge.
+            D_IBS[DOF];      // diffusion matrix (Floquet space).
+   psVector wr, wi;          // real and imaginary part of eigenvalues.
+   double   eps[DOF],        // 3 motion invariants.
+            epsp[DOF],       /* transverse and longitudinal projected
+				      emittances. */
+            alpha_z, beta_z, // longitudinal alpha and beta.
+            beta0, gamma0;   // Relativistic factors.
+   int      RingType;        // 1 if a ring (0 if transfer line).
 };
 
 
@@ -597,9 +597,9 @@ class ElemFamType {
 class LatticeType {
  private:
  public:
-  LatticeParam   param;
-  ElemFamType ElemFam[Elem_nFamMax];
-  CellType    *Cell[Cell_nLocMax+1];
+  LatticeParam param;
+  ElemFamType  ElemFam[Elem_nFamMax];
+  CellType     *Cell[Cell_nLocMax+1];
 
   bool Lattice_Read(FILE **fi_, FILE **fo_);
   void Read_Lattice(const char *fic);

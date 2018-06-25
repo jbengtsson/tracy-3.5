@@ -527,10 +527,12 @@ int main(int argc, char *argv[])
   Lattice.param.emittance  = false; Lattice.param.IBS         = false;
   Lattice.param.pathlength = false; Lattice.param.bpm         = 0;
 
-  reverse_elem = false;
+  Lattice.param.reverse_elem = false;
 
   // 1: DIAMOND, 3: Oleg I, 4: Oleg II.
   FieldMap_filetype = 1; sympl = false;
+
+  trace = true;
 
   if (true)
      Lattice.Read_Lattice(argv[1]);
