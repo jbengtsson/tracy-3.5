@@ -618,65 +618,6 @@ class LatticeType {
 
   long Elem_Index(const std::string &name1);
 
-  long CheckElementtable(const char *name, struct LOC_Lattice_Read *LINK);
-  double BlockLength(long ii, struct LOC_Lat_EVAL *LINK);
-  double GetKparm(long direction, struct LOC_Factor *LINK);
-  void Factor(struct LOC_Term *LINK);
-  void Term(struct LOC_Expression *LINK);
-  void Expression(struct LOC_Lat_EVAL *LINK);
-  double Lat_EVAL(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
-		  long *errpos_,
-		  long *lc_, long *nkw_, long *inum_, long emax__,
-		  long emin__,
-		  long kmax__, long nmax__, char *chin_, char *id_,
-		  double *rnum_,
-		  bool *skipflag_, bool *rsvwd_, char *line_,
-		  Lat_symbol *sym_,
-		  alfa_ *key_, Lat_symbol *ksy_, Lat_symbol *sps_,
-		  struct LOC_Lattice_Read *LINK);
-  double EVAL(struct LOC_Lat_ProcessBlockInput *LINK);
-  void InsideParent(long k4, struct LOC_GetBlock *LINK);
-  void Doinverse(struct LOC_GetBlock *LINK);
-  void GetBlock(struct LOC_Lat_ProcessBlockInput *LINK);
-  void Lat_ProcessBlockInput(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
-			     long *errpos_, long *lc_, long *nkw_,
-			     long *inum_, long emax__, long emin__,
-			     long kmax__, long nmax__, char *chin_,
-			     char *id_, char *BlockName,
-			     double *rnum_, bool *skipflag_, bool *rsvwd_,
-			     char *line_,
-			     Lat_symbol *sym_, alfa_ *key_,
-			     Lat_symbol *ksy_, Lat_symbol *sps_,
-			     struct LOC_Lattice_Read *LINK);
-  bool Lat_CheckWiggler(FILE **fo, long i, struct LOC_Lattice_Read *LINK);
-  double EVAL_(struct LOC_Lat_DealElement *LINK);
-  void ProcessBlockInput(struct LOC_Lat_DealElement *LINK);
-  void CheckWiggler(long i, struct LOC_Lat_DealElement *LINK);
-  void GetHOM(struct LOC_Lat_DealElement *LINK);
-  void AssignHOM(MpoleType *M, struct LOC_Lat_DealElement *LINK);
-  void GetHarm(struct LOC_Lat_DealElement *LINK);
-  void AssignHarm(WigglerType *W, struct LOC_Lat_DealElement *LINK);
-  void SetDBN(struct LOC_Lat_DealElement *LINK);
-  bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
-		       long *errpos_, long *lc_, long *nkw_, long *inum_,
-		       long emax__, long emin__,
-		       long kmax__, long nmax__, char *chin_, char *id_,
-		       char *ElementName,
-		       char *BlockName_, double *rnum_, bool *skipflag_,
-		       bool *rsvwd_,
-		       char *line_, Lat_symbol *sym_, alfa_ *key_,
-		       Lat_symbol *ksy_,
-		       Lat_symbol *sps_, struct LOC_Lattice_Read *LINK);
-  double EVAL__(struct LOC_DealWithDefns *LINK);
-  void DealWithDefns(struct LOC_Lattice_Read *LINK);
-  void GetEnergy(struct LOC_Lattice_Read *LINK);
-  void GetRingType(struct LOC_Lattice_Read *LINK);
-  void GetDP(struct LOC_Lattice_Read *LINK);
-  void GetCODEPS(struct LOC_Lattice_Read *LINK);
-  double Circumference(struct LOC_Lattice_Read *LINK);
-  void RegisterKids(struct LOC_Lattice_Read *LINK);
-  void PrintResult(struct LOC_Lattice_Read *LINK);
-
   // From t2elem.cc.
 
   int GetnKid(const int Fnum);
@@ -979,6 +920,68 @@ class LatticeType {
 		     bool stable[]);
 
   void set_map(const char *name, const double dnu_x, const double dnu_y);
+
+
+  // t2lat.
+
+  long CheckElementtable(const char *name, struct LOC_Lattice_Read *LINK);
+  double BlockLength(long ii, struct LOC_Lat_EVAL *LINK);
+  double GetKparm(long direction, struct LOC_Factor *LINK);
+  void Factor(struct LOC_Term *LINK);
+  void Term(struct LOC_Expression *LINK);
+  void Expression(struct LOC_Lat_EVAL *LINK);
+  double Lat_EVAL(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
+		  long *errpos_,
+		  long *lc_, long *nkw_, long *inum_, long emax__,
+		  long emin__,
+		  long kmax__, long nmax__, char *chin_, char *id_,
+		  double *rnum_,
+		  bool *skipflag_, bool *rsvwd_, char *line_,
+		  Lat_symbol *sym_,
+		  alfa_ *key_, Lat_symbol *ksy_, Lat_symbol *sps_,
+		  struct LOC_Lattice_Read *LINK);
+  double EVAL(struct LOC_Lat_ProcessBlockInput *LINK);
+  void InsideParent(long k4, struct LOC_GetBlock *LINK);
+  void Doinverse(struct LOC_GetBlock *LINK);
+  void GetBlock(struct LOC_Lat_ProcessBlockInput *LINK);
+  void Lat_ProcessBlockInput(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
+			     long *errpos_, long *lc_, long *nkw_,
+			     long *inum_, long emax__, long emin__,
+			     long kmax__, long nmax__, char *chin_,
+			     char *id_, char *BlockName,
+			     double *rnum_, bool *skipflag_, bool *rsvwd_,
+			     char *line_,
+			     Lat_symbol *sym_, alfa_ *key_,
+			     Lat_symbol *ksy_, Lat_symbol *sps_,
+			     struct LOC_Lattice_Read *LINK);
+  bool Lat_CheckWiggler(FILE **fo, long i, struct LOC_Lattice_Read *LINK);
+  double EVAL_(struct LOC_Lat_DealElement *LINK);
+  void ProcessBlockInput(struct LOC_Lat_DealElement *LINK);
+  void CheckWiggler(long i, struct LOC_Lat_DealElement *LINK);
+  void GetHOM(struct LOC_Lat_DealElement *LINK);
+  void AssignHOM(MpoleType *M, struct LOC_Lat_DealElement *LINK);
+  void GetHarm(struct LOC_Lat_DealElement *LINK);
+  void AssignHarm(WigglerType *W, struct LOC_Lat_DealElement *LINK);
+  void SetDBN(struct LOC_Lat_DealElement *LINK);
+  bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
+		       long *errpos_, long *lc_, long *nkw_, long *inum_,
+		       long emax__, long emin__,
+		       long kmax__, long nmax__, char *chin_, char *id_,
+		       char *ElementName,
+		       char *BlockName_, double *rnum_, bool *skipflag_,
+		       bool *rsvwd_,
+		       char *line_, Lat_symbol *sym_, alfa_ *key_,
+		       Lat_symbol *ksy_,
+		       Lat_symbol *sps_, struct LOC_Lattice_Read *LINK);
+  double EVAL__(struct LOC_DealWithDefns *LINK);
+  void DealWithDefns(struct LOC_Lattice_Read *LINK);
+  void GetEnergy(struct LOC_Lattice_Read *LINK);
+  void GetRingType(struct LOC_Lattice_Read *LINK);
+  void GetDP(struct LOC_Lattice_Read *LINK);
+  void GetCODEPS(struct LOC_Lattice_Read *LINK);
+  double Circumference(struct LOC_Lattice_Read *LINK);
+  void RegisterKids(struct LOC_Lattice_Read *LINK);
+  void PrintResult(struct LOC_Lattice_Read *LINK);
 };
 
 
