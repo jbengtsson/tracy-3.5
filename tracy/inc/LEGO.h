@@ -5,6 +5,8 @@
    M. Boege      SLS, PSI      1998          Pascal to C translation,
    L. Nadolski   SOLEIL        2002          Link to NAFF and Radia field maps,
    J. Bengtsson  NSLS-II, BNL  2004 - 2015,
+   J. Rowland    DIAMOND       2004          Demo/Prototype Python Interface,
+   J. Chrin      SLS           2017          Prototype Python Interface,
    J. Bengtsson                2017          Re-factored from C to C++.       */
 
 // LEGO structure for lattice.
