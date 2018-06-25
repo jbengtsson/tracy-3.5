@@ -238,32 +238,33 @@ void DriftType::Init(int Fnum)
 }
 
 
-// void MpoleType::Init(int Fnum)
-// {
-//   int         i;
-//   double      phi;
-//   ElemFamType *elemfamp;
-//   CellType    *cellp;
-//   MpoleType   *M;
+void MpoleType::Init(int Fnum)
+{
+  int         i;
+  double      phi;
+  ElemFamType *elemfamp;
+  CellType    *cellp;
+  MpoleType   *M;
 
-//   elemfamp = &Lattice.ElemFam[Fnum-1];
-//   M = static_cast<MpoleType*>(elemfamp->CellF);
-//   memcpy(M->B, M->Bpar, sizeof(mpolArray));
-//   M->order = Updateorder(*elemfamp->CellF);
-//   for (i = 1; i <= elemfamp->nKid; i++) {
-//     cellp = Lattice.Cell[elemfamp->KidList[i-1]];
+  elemfamp = &Lattice.ElemFam[Fnum-1];
+  M = static_cast<MpoleType*>(elemfamp->CellF);
+  memcpy(M->B, M->Bpar, sizeof(mpolArray));
+  M->Updateorder();
 
-//     strncpy(cellp->Name, elemfamp->CellF->Name, NameLength);
-//     cellp->L = elemfamp->CellF->L; cellp->Kind = elemfamp->CellF->Kind;
-//     cellp->Reverse = elemfamp->CellF->Reverse;
-//     if (reverse_elem && (cellp->Reverse == true)) {
-//       // Swap entrance and exit angles.
-//       printf("Swapping entrance and exit angles for %8s %2d\n",
-// 	     cellp->Name, i);
-//       phi = M->Tx1; M->Tx1 = M->Tx2; M->Tx2 = phi; 
-//     }
-//   }
-// }
+  for (i = 1; i <= elemfamp->nKid; i++) {
+    cellp = Lattice.Cell[elemfamp->KidList[i-1]];
+
+    strncpy(cellp->Name, elemfamp->CellF->Name, NameLength);
+    cellp->L = elemfamp->CellF->L;
+    cellp->Elem.Kind = elemfamp->CellF->Elem.Kind;
+    M->Elem.Reverse = elemfamp->CellF->Elem.Reverse;
+    if (Lattice.param.reverse_elem && (cellp->Elem.Reverse == true)) {
+      // Swap entrance and exit angles.
+      printf("Swapping entrance and exit angles for %8s %2d\n", cellp->Name, i);
+      phi = M->Tx1; M->Tx1 = M->Tx2; M->Tx2 = phi; 
+    }
+  }
+}
 
 
 void CavityType::Init(int Fnum)

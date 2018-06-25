@@ -1467,7 +1467,9 @@ void LatticeType::Doinverse(struct LOC_GetBlock *LINK)
 	  CheckBLOCKStable(
 	    LINK->LINK->LINK->BlockS[LINK->LINK->LINK->NoB-1].Bname,
 	    LINK->LINK->LINK);
-	printf("  %2ld %1d %2ld %1d\n",
+	printf("  Doinverse:       |%s| 2%ld %2ld %2ld %1d %2ld %1d\n",
+	       LINK->LINK->LINK->BlockS[LINK->LINK->LINK->NoB-1].Bname,
+	       block_no, LINK->LINK->LINK->NoB,
 	       LINK->LINK->LINK->Bstack[b],
 	       LINK->LINK->LINK->Reverse_stack[b],
 	       LINK->LINK->LINK->Bstack[b2-k1-1],
@@ -1486,7 +1488,7 @@ void LatticeType::Doinverse(struct LOC_GetBlock *LINK)
 	CheckBLOCKStable(
 	  LINK->LINK->LINK->BlockS[LINK->LINK->LINK->NoB-1].Bname,
 	  LINK->LINK->LINK);
-      printf("Odd:\n  |%s| 2%ld %2ld\n  %2ld %1d\n",
+      printf("  Doinverse (odd): |%s| 2%ld %2ld %2ld %1d\n",
 	     LINK->LINK->LINK->BlockS[LINK->LINK->LINK->NoB-1].Bname,
 	     block_no, LINK->LINK->LINK->NoB,
 	     LINK->LINK->LINK->Bstack[b2-k1-1],
@@ -3942,11 +3944,8 @@ void LatticeType::DealWithDefns(struct LOC_Lattice_Read *LINK)
 	      this->Cell[k]->Fnum = k1;
 	      this->Cell[k]->Elem.Reverse = LINK->Reverse_stack[j];
 	      if (debug_lat) {
-		if (j == WITH->BSTART - 1)
-		  printf("\nCell Definition:\n  |%s| %2ld\n", WITH->Bname, i);
-		printf("  %3ld %3d %1d |%s|\n",
-		       k, this->Cell[k]->Fnum, this->Cell[k]->Elem.Reverse,
-		       this->ElemFam[this->Cell[k]->Fnum-1].CellF->Name);
+		printf("  Cell definition: |%s| %2ld %3ld %2d %1d\n",
+		       WITH->Bname, i, k, Cell[k]->Fnum, Cell[k]->Elem.Reverse);
 	      }
 	    } else {
 	      printf("** Cell_nLocMax exhausted: %ld(%ld)\n",

@@ -241,7 +241,7 @@ class MpoleType: public CellType {
 
   void SI_init(void);
 
-  /* void Init(int Fnum); */
+  void Init(int Fnum);
   void Mpole_Print(FILE *f, int Fnum);
 };
 
@@ -988,7 +988,6 @@ class LatticeType {
 extern double    Fdrift1, Fkick1, Fdrift2, Fkick2, crad, cfluc;
 extern tps       sigma_;
 extern statusrec status;
-extern bool      reverse_elem;
 extern double    FindRes_eps;
 
 struct LOC_findres {
