@@ -458,7 +458,7 @@ void EdgeFocus(const double irho, const double phi, const double gap,
 	       ss_vect<T> &x)
 {
   x[px_] += irho*tan(dtor(phi))*x[x_];
-  if (!true) {
+  if (!Lattice.param.dip_edge_fudge) {
     // warning: => diverging Taylor map (see SSC-141)
     // x[py_] -=
     //   irho*tan(dtor(phi)-get_psi(irho, phi, gap))*x[y_]/(1e0+x[delta_]);

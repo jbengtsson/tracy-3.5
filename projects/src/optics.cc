@@ -522,17 +522,16 @@ int main(int argc, char *argv[])
 
   const double R_ref = 5e-3;
 
-  Lattice.param.H_exact    = false; Lattice.param.quad_fringe = false;
-  Lattice.param.Cavity_on  = false; Lattice.param.radiation   = false;
-  Lattice.param.emittance  = false; Lattice.param.IBS         = false;
-  Lattice.param.pathlength = false; Lattice.param.bpm         = 0;
-
-  Lattice.param.reverse_elem = false;
+  Lattice.param.H_exact        = false; Lattice.param.quad_fringe  = false;
+  Lattice.param.Cavity_on      = false; Lattice.param.radiation    = false;
+  Lattice.param.emittance      = false; Lattice.param.IBS          = false;
+  Lattice.param.pathlength     = false; Lattice.param.bpm          = 0;
+  Lattice.param.dip_edge_fudge = true;  Lattice.param.reverse_elem = false;
 
   // 1: DIAMOND, 3: Oleg I, 4: Oleg II.
   FieldMap_filetype = 1; sympl = false;
 
-  trace = true;
+  trace = !true;
 
   if (true)
      Lattice.Read_Lattice(argv[1]);

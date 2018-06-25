@@ -563,6 +563,7 @@ struct LatticeParam {
             stable,
             Aperture_on,
             EPU,
+            dip_edge_fudge, // Dipole edge fudge.
             reverse_elem;   // Beam Dynamics or Software Engineering reverse.
 
    double   dE,              // energy loss.
