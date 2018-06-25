@@ -435,7 +435,7 @@ long LatticeType::Elem_Index(const std::string &name)
   }
 
   if (this->param.Elem_nFam > Elem_nFamMax) {
-    printf("ElemIndex: Elem_nFamMax exceeded: %ld(%d)\n",
+    printf("Elem_Index: Elem_nFamMax exceeded: %ld(%d)\n",
            this->param.Elem_nFam, Elem_nFamMax);
     exit_(1);
   }

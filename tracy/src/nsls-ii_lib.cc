@@ -2905,7 +2905,8 @@ void LatticeType::IBS_BM(const double Qb, const double eps_SR[], double eps[],
   for (i = 0; i < 3; i++)
     tau_inv[i] *=
       sqr(r_e)*c0*N_b*log_Coulomb
-      /(M_PI*cube(2e0*beta_rel)*pow(gamma, 4e0)*Lattice.Cell[Lattice.param.Cell_nLoc]->S);
+      /(M_PI*cube(2e0*beta_rel)*pow(gamma, 4e0)
+	*Lattice.Cell[Lattice.param.Cell_nLoc]->S);
 
   D_x = eps[X_]*tau_inv[X_]; D_delta = eps[Z_]*tau_inv[Z_];
 
@@ -3563,4 +3564,70 @@ void set_tune(const char file_name1[], const char file_name2[], const int n)
   }
 
   fclose(fp_lat);
+}
+
+
+void get_map_twiss(const ss_vect<tps> &M,
+		   double beta0[], double beta1[], double nu[], bool stable[])
+{
+  // Assumes that alpha_0 = alpha_1 = 0.
+  int k;
+  double cosmu, sinmu;
+
+  const bool prt = true;
+
+  for (k = 0; k < 2; k++) {
+    stable[k] = M[2*k][2*k]*M[2*k+1][2*k+1] <= 1e0;
+    if (stable[k]) {
+      cosmu = sqrt(M[2*k][2*k]*M[2*k+1][2*k+1]);
+      if (M[2*k][2*k] < 0e0) cosmu = -cosmu;
+      nu[k] = acos(cosmu)/(2e0*M_PI);
+      if (M[2*k][2*k+1] < 0e0) nu[k] = 1e0 - nu[k];
+      sinmu = sin(2e0*M_PI*nu[k]);
+      beta0[k] = M[2*k][2*k+1]*M[2*k+1][2*k+1]/(cosmu*sinmu);
+      beta1[k] = M[2*k][2*k]*M[2*k][2*k+1]/(cosmu*sinmu);
+    }
+  }
+
+  if (prt) {
+    printf("\n  nu    = [%8.5f, %8.5f]\n", nu[X_], nu[Y_]);
+    printf("  beta  = [%8.5f, %8.5f]\n", beta0[X_], beta0[Y_]);
+    printf("  beta  = [%8.5f, %8.5f]\n", beta1[X_], beta1[Y_]);
+  }
+}
+
+
+void set_map(const char *name, const double dnu_x, const double dnu_y)
+{
+  // Insert at zero eta & eta'.
+  bool         stable[2];
+  long int     lastpos;
+  int          Fnum, k, loc, loc2;
+  double       cosmu, sinmu, nu[2], beta0[2], beta1[2];
+  ss_vect<tps> Id, M;
+  MapType      *Map, *Map2;
+
+  const double dnu[] = {dnu_x, dnu_y};
+
+  Fnum = Lattice.Elem_Index(name);
+  loc =  Lattice.Elem_GetPos(Fnum, 1);
+
+  M.identity();
+   Lattice.Cell_Pass(0, loc, M, lastpos);
+  get_map_twiss(M, beta0, beta1, nu, stable);
+
+  Id.identity();
+  for (k = 0; k < 2; k++) {
+    Map = static_cast<MapType*>(Lattice.Cell[loc]);
+    cosmu = cos(2e0*M_PI*dnu[k]); sinmu = sin(2e0*M_PI*dnu[k]);
+    Map->M[2*k]   = cosmu*Id[2*k] + beta1[k]*sinmu*Id[2*k+1];
+    Map->M[2*k+1] = -sinmu/beta1[k]*Id[2*k] + cosmu*Id[2*k+1];
+  }
+
+  for (k = 2; k <= Lattice.GetnKid(Fnum); k++) {
+    loc2 = Lattice.Elem_GetPos(Fnum, k);
+    Map = static_cast<MapType*>(Lattice.Cell[loc]);
+    Map2 = static_cast<MapType*>(Lattice.Cell[loc2]);
+    Map2->M = Map->M;
+  }
 }

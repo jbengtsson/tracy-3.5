@@ -54,7 +54,8 @@ enum pthicktype {
   thick = 0, thin = 1 };
 enum PartsKind {
   drift = 0, Wigl = 1, Mpole = 2, Cavity = 3, marker = 4, undef = 5,
-  Insertion = 6, FieldMap = 7, Spreader = 8, Recombiner = 9, Solenoid = 10 };
+  Insertion = 6, FieldMap = 7, Spreader = 8, Recombiner = 9, Solenoid = 10,
+  Map = 11 };
 enum { All = 0, Dip = 1, Quad = 2, Sext = 3, Oct = 4, Dec = 5, Dodec = 6 };
 enum { Horizontal = 1, Vertical = 2 };
 enum {
@@ -511,6 +512,18 @@ class RecombinerType: public CellType {
 };
 
 
+class MapType: public CellType {
+ private:
+ public:
+  ss_vect<tps> M;
+
+  virtual void Propagate(ss_vect<double> &ps) { Elem_Propagate(ps); } 
+  virtual void Propagate(ss_vect<tps> &ps)    { Elem_Propagate(ps); } 
+  void Elem_Propagate(ss_vect<double> &ps);
+  void Elem_Propagate(ss_vect<tps> &ps);
+};
+
+
 struct LatticeParam {
   double   dPcommon,       // dp for numerical differentiation.
            dPparticle;     // energy deviation.
@@ -957,6 +970,12 @@ class LatticeType {
   void bend_cal(void);
 
   void set_tune(const char file_name1[], const char file_name2[], const int n);
+
+  void get_map_twiss(const ss_vect<tps> &M,
+		     double beta0[], double beta1[], double nu[],
+		     bool stable[]);
+
+  void set_map(const char *name, const double dnu_x, const double dnu_y);
 };
 
 

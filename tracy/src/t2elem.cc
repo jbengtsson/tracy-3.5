@@ -2089,11 +2089,14 @@ void SolenoidType::Elem_Propagate(ss_vect<T> &ps)
 {
 
   this->GtoL(ps, 0e0, 0e0, 0e0);
-
   sol_pass(ps);
-
   this->LtoG(ps, 0e0, 0e0, 0e0);
 }
+
+
+void MapType::Elem_Propagate(ss_vect<double> &ps) { ps = (this->M*ps).cst(); }
+
+void MapType::Elem_Propagate(ss_vect<tps> &ps) { ps = this->M*ps; }
 
 
 int LatticeType::GetnKid(const int Fnum)
@@ -2246,6 +2249,8 @@ void Elem_Print(FILE *f, int Fnum)
   case PartsKind(Recombiner):
     break;
   case PartsKind(Solenoid):
+    break;
+  case PartsKind(Map):
     break;
   case PartsKind(undef):
     break;
@@ -2932,6 +2937,9 @@ double LatticeType::Elem_GetKval(int Fnum, int Knum, int Order)
       Result = 0e0;
       break;
     case Solenoid:
+      Result = 0e0;
+      break;
+    case Map:
       Result = 0e0;
       break;
     case undef:
