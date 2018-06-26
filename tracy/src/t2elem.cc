@@ -13,10 +13,6 @@ double        c_1, d_1, c_2, d_2, cl_rad, q_fluct;
 double        I2, I4, I5, dcurly_H, dI4, s_FM;
 std::ofstream outf_;
 
-// for FieldMap
-bool  sympl             = true;
-int   FieldMap_filetype = 2;
-
 
 template<typename T>
 void spline_(const double x[], const T y[], const int n, const double yp1,
@@ -1429,7 +1425,7 @@ void FieldMapType::FieldMap_pass_RK(ss_vect<T> &ps, int k)
 
   const int n_step = 2; // Each step needs: f(z_n), f(z_n+h), f(z_n+2h)
 
-  switch (FieldMap_filetype) {
+  switch (Lattice.param.FieldMap_filetype) {
   case 2:
   case 3:
   case 4:
@@ -1497,7 +1493,7 @@ void FieldMapType::FieldMap_pass_RK(ss_vect<T> &ps, int k)
   // transform back to [x, px, y, py] (A_x,y,z = 0)
   p_s = get_p_s_cs(ps); ps[px_] *= p_s; ps[py_] *= p_s;
 
-  switch (FieldMap_filetype) {
+  switch (Lattice.param.FieldMap_filetype) {
   case 2:
   case 3:
   case 4:
@@ -1523,7 +1519,7 @@ void FieldMapType::FieldMap_pass_SI(ss_vect<T> &ps, int k)
   const double d_diff = 1e0;
 
 
-  switch (FieldMap_filetype) {
+  switch (Lattice.param.FieldMap_filetype) {
   case 2:
   case 3:
   case 4:
@@ -1836,7 +1832,7 @@ void FieldMapType::FieldMap_pass_SI(ss_vect<T> &ps, int k)
 
   ps[py_] -= AoBrho1[0];
 
-  switch (FieldMap_filetype) {
+  switch (Lattice.param.FieldMap_filetype) {
   case 2:
   case 3:
   case 4:
@@ -1887,7 +1883,7 @@ void FieldMapType::Elem_Propagate(ss_vect<T> &ps)
   Drift(-Ld, ps);
 
   for (k = 1; k <= this->n_step; k++) {
-    if (sympl)
+    if (Lattice.param.sympl)
       FieldMap_pass_SI(ps, k);
     else
       FieldMap_pass_RK(ps, k);
@@ -2872,7 +2868,7 @@ void FieldMapType::get_B(const char *filename)
   // Do not scale fieldmaps only Hamiltonians, i.e., the kick.  Note that RADIA
   // (2nd order) kick maps are quadratic in the field, and 1st order linear.
 
-  switch (FieldMap_filetype) {
+  switch (Lattice.param.FieldMap_filetype) {
   case 1:
     get_B_DIAMOND(filename);
     break;
@@ -2886,8 +2882,8 @@ void FieldMapType::get_B(const char *filename)
     get_B_Oleg2(filename);
     break;
   default:
-    std::cout << "get_B: unknown FieldMap type " << FieldMap_filetype
-	      << std::endl;
+    std::cout << "get_B: unknown FieldMap type "
+	      << Lattice.param.FieldMap_filetype << std::endl;
     break;
   }
 }
