@@ -590,7 +590,7 @@ class ElemFamType {
  private:
  public:
   CellType   *CellF;
-  int        nKid;             // Kid number.
+  int        nKid;             // No of Kids.
   int        KidList[nKidMax];
   int        NoDBN;
   DBNameType DBNlist[nKidMax];
