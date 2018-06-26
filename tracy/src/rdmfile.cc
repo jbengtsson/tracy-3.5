@@ -97,7 +97,7 @@ void get_kind(const int kind, CellType *Cell)
   case mpole_:
     Cell->Elem.Kind = PartsKind(Mpole);
     M = new MpoleType();
-    M->thick = pthicktype(thick);
+    M->thick = thicktype(thick_);
     Cell = M;
     break;
   case cavity_:
@@ -107,7 +107,7 @@ void get_kind(const int kind, CellType *Cell)
   case thinkick_:
     Cell->Elem.Kind = PartsKind(Mpole);
     M = new MpoleType();
-    M->thick = pthicktype(thin);
+    M->thick = thicktype(thin_);
     Cell = M;
     break;
   case wiggler_:
@@ -219,7 +219,7 @@ void LatticeType::rdmfile(const char *mfile_dat)
       M = static_cast<MpoleType*>(Lattice.Cell[i]);
       M->method = method; M->N = n;
 
-      if (M->thick == thick) {
+      if (M->thick == thicktype(thick_)) {
 	inf.getline(line, max_str);
 	if (prt) printf("%s\n", line);
 	sscanf(line, "%lf %lf %lf %lf",

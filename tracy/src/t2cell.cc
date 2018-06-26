@@ -263,7 +263,8 @@ void LatticeType::Cell_Init(void)
 	printf("\nCell_Init: %d %d is not MarkerType %d\n",
 	       cellp->Fnum, cellp->Knum, cellp->Elem.Kind);
 
-      cellp = this->Cell[elemfamp->KidList[j-1]] = elemfamp->CellF->clone();
+      this->Cell[elemfamp->KidList[j-1]] = elemfamp->CellF->clone();
+      cellp = this->Cell[elemfamp->KidList[j-1]];
       cellp->Fnum = Fnum; cellp->Knum = Knum; cellp->Elem.Reverse = Reverse;
 
       if (cellp->Elem.Kind == PartsKind(Mpole)) {
@@ -275,6 +276,26 @@ void LatticeType::Cell_Init(void)
 		 cellp->Name, i);
 	  phi = M->Tx1; M2->Tx1 = M->Tx2; M2->Tx2 = phi; 
 	}
+
+	// Set entrance and exit angles.
+	cellp->dR[0] = cos(dtor(M2->dRpar));
+	cellp->dR[1] = sin(dtor(M2->dRpar));
+
+	// Set displacement to zero.
+	cellp->dS[0] = 0e0; cellp->dS[1] = 0e0;
+
+	if (cellp->L != 0e0 || M2->irho != 0e0) {
+	  // Thick element or non zero bend radius.
+	  M2->thick = thicktype(thick_);
+	  // sin(L*irho/2) = sin(theta/2) half the angle.
+	  M2->c0 = sin(cellp->L*M2->irho/2e0);
+	  // cos roll: sin(theta/2)*cos(dR).
+	  M2->c1 = cellp->dR[0]*M2->c0;
+	  // sin roll: sin(theta/2)*sin(dR).
+	  M2->s1 = cellp->dR[1]*M2->c0;
+	} else
+	  // Thin lens.
+	  M2->thick = thicktype(thin_);
       }
 
       if (debug) {

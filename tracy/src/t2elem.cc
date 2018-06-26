@@ -555,7 +555,7 @@ void MpoleType::Elem_Propagate(ss_vect<T> &x)
     }
   }
 
-  if (this->thick == thick) {
+  if (this->thick == thicktype(thick_)) {
     if (!Lattice.param.H_exact) {
       // Polar coordinates.
       h_ref = this->irho; dL = this->L/this->N;
@@ -574,9 +574,9 @@ void MpoleType::Elem_Propagate(ss_vect<T> &x)
   case Meth_Linear:
 
   case Meth_First:
-    if (this->thick == thick) {
+    if (this->thick == thicktype(thick_)) {
       /* First Linear  */
-//      LinTrans(5L, this->AU55, x);
+      //      LinTrans(5L, this->AU55, x);
       k = this->B[Quad+HOMmax];
       /* retrieve normal quad component already in AU55 */
       this->B[Quad+HOMmax] = 0e0;
@@ -585,7 +585,7 @@ void MpoleType::Elem_Propagate(ss_vect<T> &x)
       /* restore quad component */
       this->B[Quad+HOMmax] = k;
       /* Second Linear */
-//      LinTrans(5L, this->AD55, x);
+      //      LinTrans(5L, this->AD55, x);
     } else /* thin kick */
       thin_kick(this->order, this->B, 1e0, 0e0, 0e0, x);
     break;
@@ -596,7 +596,7 @@ void MpoleType::Elem_Propagate(ss_vect<T> &x)
     break;
 
   case Meth_Fourth:
-    if (this->thick == thick) {
+    if (this->thick == thicktype(thick_)) {
       dL1 = c_1*dL; dL2 = c_2*dL; dkL1 = d_1*dL; dkL2 = d_2*dL;
 
       dcurly_H = 0e0; dI4 = 0e0;
@@ -2910,7 +2910,7 @@ double LatticeType::Elem_GetKval(int Fnum, int Knum, int Order)
       break;
     case Mpole: /* KL*/
       M = static_cast<MpoleType*>(cellp);
-      if (M->thick == thick)
+      if (M->thick == thicktype(thick_))
 	Result = cellp->L*Lattice.Mpole_GetB(Fnum, Knum, Order);
       else
 	Result = Lattice.Mpole_GetB(Fnum, Knum, Order);

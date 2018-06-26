@@ -52,8 +52,8 @@ const double h_bar = 6.58211899e-16;           // reduced Planck constant [eVs].
 const double max_ampl = 10.0; // [m].
 
 
-enum pthicktype {
-  thick = 0, thin = 1 };
+enum thicktype {
+  thick_ = 0, thin_ = 1 };
 enum PartsKind {
   drift = 0, Wigl = 1, Mpole = 2, Cavity = 3, marker = 4, undef = 5,
   Insertion = 6, FieldMap = 7, Spreader = 8, Recombiner = 9, Solenoid = 10,
@@ -219,7 +219,7 @@ class MpoleType: public CellType {
   mpolArray  B;          // total.
   int        order;      // The highest order in PB.
   int        n_design;   // multipole order (design).
-  pthicktype thick;
+  thicktype  thick;      // Thick or thin element.
   // Bending Angles
   double     Tx1;        // horizontal entrance angle [deg].
   double     Tx2;        // horizontal exit angle [deg].

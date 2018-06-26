@@ -43,12 +43,12 @@ MpoleType::MpoleType(void) : CellType()
   this->dS[X_] = 0e0; this->dS[Y_] = 0e0;
 
   if (this->L != 0e0 || this->irho != 0e0) {
-    this->thick = pthicktype(thick);
+    this->thick = thicktype(thick_);
     this->c0 = sin(this->L*this->irho/2e0);
     this->c1 = this->dR[X_]*this->c0;
     this->s1 = this->dR[Y_]*this->c0;
   } else
-    this->thick = pthicktype(thin);
+    this->thick = thicktype(thin_);
 }
 
 

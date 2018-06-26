@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
   if (true)
     Lattice.Read_Lattice(argv[1]); 
   else
-    Lattice.rdmfile("flat_file.dat");
+    Lattice.rdmfile(argv[1]);
 
   trace = !true;
 

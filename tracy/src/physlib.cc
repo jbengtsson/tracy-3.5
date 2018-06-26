@@ -1609,7 +1609,7 @@ void SetdKrpar(int Fnum, int Knum, int Order, double dkrel)
 
   loc = Lattice.Elem_GetPos(Fnum, Knum);
   M = static_cast<MpoleType*>(Lattice.Cell[loc]);
-  if (Order == Dip && M->thick == thick)
+  if (Order == Dip && M->thick == thicktype(thick_))
     M->Bpar[Dip+HOMmax] += dkrel*M->irho;
   else
     M->Bpar[Order+HOMmax] += dkrel*M->Bpar[Order+HOMmax];
@@ -1760,7 +1760,7 @@ void Setdkrrms(int Fnum, int Order, double dkrrms)
   for (Knum = 1; Knum <= Lattice.GetnKid(Fnum); Knum++) {
     loc = Lattice.Elem_GetPos(Fnum, Knum);
     M = static_cast<MpoleType*>(Lattice.Cell[loc]);
-    if (Order == Dip && M->thick == thick)
+    if (Order == Dip && M->thick == thicktype(thick_))
       M->Brms[Dip+HOMmax] = dkrrms*M->irho;
     else
       M->Brms[Order+HOMmax] = dkrrms*M->Bpar[Order+HOMmax];
