@@ -221,9 +221,10 @@ void LatticeType::Cell_Init(void)
   bool        reverse;
   int         Fnum, Knum;
   long        i, j;
-  double      Stotal;
+  double      Stotal, phi;
   ElemFamType *elemfamp;
   CellType    *cellp;
+  MpoleType   *M, *M2;
 
   // SymbolLength = 15.
   const char first_name[] = "begin          ";
@@ -240,6 +241,7 @@ void LatticeType::Cell_Init(void)
 
   for (i = 1; i <= this->param.Elem_nFam; i++) {
     elemfamp = &this->ElemFam[i-1];
+    M = static_cast<MpoleType*>(elemfamp->CellF);
     
     if (debug)
       printf("  %3ld %1d |%s|",
@@ -251,18 +253,26 @@ void LatticeType::Cell_Init(void)
       cellp = this->Cell[elemfamp->KidList[j-1]];
       Fnum = cellp->Fnum; Knum = cellp->Knum; reverse = cellp->Elem.Reverse;
 
-      if (cellp->Elem.Kind == PartsKind(undef))
+      if (cellp->Elem.Kind == PartsKind(marker))
 	delete cellp;
       else {
-	printf("\nCell_Init: %d %d is not undefined %d\n",
+	printf("\nCell_Init: %d %d is not MarkerType %d\n",
 	       cellp->Fnum, cellp->Knum, cellp->Elem.Kind);
       }
 
       this->Cell[elemfamp->KidList[j-1]] = elemfamp->CellF->clone();
       cellp = this->Cell[elemfamp->KidList[j-1]];
+      M2 = static_cast<MpoleType*>(cellp);
       // cellp->Fnum = i; cellp->Knum = j;
       cellp->Fnum = Fnum; cellp->Knum = Knum;
       cellp->Elem.Reverse = reverse;
+
+      if (Lattice.param.reverse_elem && (cellp->Elem.Reverse == true)) {
+	// Swap entrance and exit angles.
+	printf("Swapping entrance and exit angles for %8s %2ld\n",
+	       cellp->Name, i);
+	phi = M->Tx1; M2->Tx1 = M->Tx2; M2->Tx2 = phi; 
+      }
 
       if (debug) {
 	printf(" %4d", elemfamp->KidList[j-1]);
