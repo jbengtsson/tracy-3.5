@@ -64,8 +64,8 @@ else if ((N == 1) && (case == 7)) \
   N_x = 39; N_y = 14; \
 else if ((N == 1) && (case == 8)) \
   N_x = 8; N_y = 3; \
-else if (N == 12) \
-  N_x = 3; N_y = 1; \
+else if ((N == 12) && (case == 2))\
+  N_x = 12; N_y = 4; \
 else if (N == 20) \
   N_x = 5; N_y = 3; \
 else if ((N == 6) && (case == 3)) \
