@@ -75,70 +75,67 @@
 #define cavity_    2
 #define thinkick_  3
 #define wiggler_   4
-#define insertion_ 6
+#define kick_map   6
+#define map_       7
 
 
 std::ifstream  inf;
 
 
-void get_kind(const int kind, CellType *Cell)
+void get_kind(const int kind, elemtype &Elem)
 {
-  MpoleType *M;
 
   switch (kind) {
   case marker_:
-    Cell->Elem.Kind = PartsKind(marker);
-    Cell = new MarkerType();
+    Elem.Pkind = PartsKind(marker);
     break;
   case drift_:
-    Cell->Elem.Kind = PartsKind(drift);
-    Cell = new DriftType();
+    Elem.Pkind = PartsKind(drift);
+    Drift_Alloc(&Elem);
     break;
   case mpole_:
-    Cell->Elem.Kind = PartsKind(Mpole);
-    M = new MpoleType();
-    M->thick = thicktype(thick_);
-    Cell = M;
+    Elem.Pkind = PartsKind(Mpole);
+    Mpole_Alloc(&Elem);
+    Elem.M->Pthick = pthicktype(thick);
     break;
   case cavity_:
-    Cell->Elem.Kind = PartsKind(Cavity);
-    Cell = new CavityType();
+    Elem.Pkind = PartsKind(Cavity);
+    Cav_Alloc(&Elem);
     break;
   case thinkick_:
-    Cell->Elem.Kind = PartsKind(Mpole);
-    M = new MpoleType();
-    M->thick = thicktype(thin_);
-    Cell = M;
+    Elem.Pkind = PartsKind(Mpole);
+    Mpole_Alloc(&Elem);
+    Elem.M->Pthick = pthicktype(thin);
     break;
   case wiggler_:
-    Cell->Elem.Kind = PartsKind(Wigl);
-    Cell = new WigglerType();
+    Elem.Pkind = PartsKind(Wigl);
+    Wiggler_Alloc(&Elem);
     break;
-  case insertion_:
-    Cell->Elem.Kind = PartsKind(Insertion);
-    Cell = new InsertionType();
+  case kick_map:
+    Elem.Pkind = PartsKind(Insertion);
+    Insertion_Alloc(&Elem);
+    break;
+  case map_:
+    Elem.Pkind = PartsKind(Map);
+    Map_Alloc(&Elem);
     break;
   default:
-    std::cout << "get_kind: unknown type " << kind << " "
-	      << Cell->Name << std::endl;
+    std::cout << "get_kind: unknown type " << kind << " " << Elem.PName
+	      << std::endl;
     exit_(1);
     break;
   }
 }
 
 
-void LatticeType::rdmfile(const char *mfile_dat)
+void rdmfile(const char *mfile_dat)
 {
-  char          line[max_str], file_name[max_str];
-  int           j, k, nmpole, kind, method, n;
-  long int      i;
-  double        dRerror;
-  MpoleType     *M;
-  WigglerType   *W;
-  CavityType    *C;
-  InsertionType *ID;
+  char      line[max_str], file_name[max_str];
+  int       j, k, nmpole, kind, method, n;
+  long int  i;
+  double    dTerror;
 
-  bool prt = false;
+  bool  prt = false;
 
   std::cout << std::endl;
   std::cout << "reading machine file: " << mfile_dat << std::endl;
@@ -149,51 +146,45 @@ void LatticeType::rdmfile(const char *mfile_dat)
     if (prt) printf("%s\n", line);
     sscanf(line, "%*s %*d %*d %ld", &i);
 
-    Lattice.Cell[i]->dS[X_] = 0.0; Lattice.Cell[i]->dS[Y_] = 0.0;
-    Lattice.Cell[i]->dR[X_] = 1.0; Lattice.Cell[i]->dR[Y_] = 0.0;
+    Cell[i].dS[X_] = 0.0; Cell[i].dS[Y_] = 0.0;
+    Cell[i].dT[X_] = 1.0; Cell[i].dT[Y_] = 0.0;
 
-    sscanf(line, "%s %d %d", Lattice.Cell[i]->Name,
-	   &Lattice.Cell[i]->Fnum, &Lattice.Cell[i]->Knum);
+    sscanf(line, "%s %d %d", Cell[i].Elem.PName, &Cell[i].Fnum, &Cell[i].Knum);
 
     // For compability with lattice parser.
     k = 0;
-    while (Lattice.Cell[i]->Name[k] != '\0')
+    while (Cell[i].Elem.PName[k] != '\0')
       k++;
     for (j = k; j < SymbolLength; j++)
-      Lattice.Cell[i]->Name[j] = ' ';
+      Cell[i].Elem.PName[j] = ' ';
 
-    if (Lattice.Cell[i]->Knum == 1) {
-      strcpy(Lattice.ElemFam[Lattice.Cell[i]->Fnum-1].CellF->Name,
-	     Lattice.Cell[i]->Name);
-      Lattice.param.Elem_nFam =
-	max(Lattice.Cell[i]->Fnum, Lattice.param.Elem_nFam);
+    if (Cell[i].Knum == 1) {
+      strcpy(ElemFam[Cell[i].Fnum-1].ElemF.PName, Cell[i].Elem.PName);
+      globval.Elem_nFam = max(Cell[i].Fnum, globval.Elem_nFam);
     }
 
     if (i > 0) {
-      Lattice.ElemFam[Lattice.Cell[i]->Fnum-1].KidList[Lattice.Cell[i]->Knum-1]
-	= i;
-      Lattice.ElemFam[Lattice.Cell[i]->Fnum-1].nKid =
-	max(Lattice.Cell[i]->Knum,
-	    Lattice.ElemFam[Lattice.Cell[i]->Fnum-1].nKid);
+      ElemFam[Cell[i].Fnum-1].KidList[Cell[i].Knum-1] = i;
+      ElemFam[Cell[i].Fnum-1].nKid =
+	max(Cell[i].Knum, ElemFam[Cell[i].Fnum-1].nKid);
     }
 
     inf.getline(line, max_str);
     if (prt) printf("%s\n", line);
     sscanf(line, "%d %d %d", &kind, &method, &n);
-    get_kind(kind, Lattice.Cell[i]);
+    get_kind(kind, Cell[i].Elem);
     if (i > 0)
-      Lattice.ElemFam[Lattice.Cell[i]->Fnum-1].CellF->Elem.Kind
-	= Lattice.Cell[i]->Elem.Kind;
+      ElemFam[Cell[i].Fnum-1].ElemF.Pkind = Cell[i].Elem.Pkind;
 
     inf.getline(line, max_str);
     if (prt) printf("%s\n", line);
     sscanf(line, "%lf %lf %lf %lf",
-	   &Lattice.Cell[i]->maxampl[X_][0], &Lattice.Cell[i]->maxampl[X_][1],
-	   &Lattice.Cell[i]->maxampl[Y_][0], &Lattice.Cell[i]->maxampl[Y_][1]);
+	   &Cell[i].maxampl[X_][0], &Cell[i].maxampl[X_][1],
+	   &Cell[i].maxampl[Y_][0], &Cell[i].maxampl[Y_][1]);
 
-    Lattice.Cell[i]->L = 0.0;
+    Cell[i].Elem.PL = 0.0;
 
-    switch (Lattice.Cell[i]->Elem.Kind) {
+    switch (Cell[i].Elem.Pkind) {
     case undef:
       std::cout << "rdmfile: unknown type " << i << std::endl;
       exit_(1);
@@ -203,137 +194,145 @@ void LatticeType::rdmfile(const char *mfile_dat)
     case drift:
       inf.getline(line, max_str);
       if (prt) printf("%s\n", line);
-      sscanf(line, "%lf", &Lattice.Cell[i]->L);
+      sscanf(line, "%lf", &Cell[i].Elem.PL);
       break;
     case Cavity:
-      C = static_cast<CavityType*>(Lattice.Cell[i]);
       inf.getline(line, max_str);
       if (prt) printf("%s\n", line);
       sscanf(line, "%lf %lf %d %lf %lf",
-	     &C->volt, &C->freq, &C->h, &Lattice.param.Energy, &C->phi);
-      Lattice.param.Energy *= 1e-9;
-      C->volt *= Lattice.param.Energy*1e9;
-      C->freq *= c0/(2.0*M_PI);
+	     &Cell[i].Elem.C->Pvolt, &Cell[i].Elem.C->Pfreq,
+	     &Cell[i].Elem.C->Ph, &globval.Energy, &Cell[i].Elem.C->phi);
+      globval.Energy *= 1e-9;
+      Cell[i].Elem.C->Pvolt *= globval.Energy*1e9;
+      Cell[i].Elem.C->Pfreq *= c0/(2.0*M_PI);
      break;
     case Mpole:
-      M = static_cast<MpoleType*>(Lattice.Cell[i]);
-      M->method = method; M->N = n;
+      Cell[i].Elem.M->Pmethod = method; Cell[i].Elem.M->PN = n;
 
-      if (M->thick == thicktype(thick_)) {
+      if (Cell[i].Elem.M->Pthick == thick) {
 	inf.getline(line, max_str);
 	if (prt) printf("%s\n", line);
 	sscanf(line, "%lf %lf %lf %lf",
-	       &Lattice.Cell[i]->dS[X_], &Lattice.Cell[i]->dS[Y_],
-	       &M->dRpar, &dRerror);
-	Lattice.Cell[i]->dR[X_] = cos(dtor(dRerror+M->dRpar));
-	Lattice.Cell[i]->dR[Y_] = sin(dtor(dRerror+M->dRpar));
-	M->dRrms = dRerror - M->dRpar;M->dRrnd = 1e0;
+	       &Cell[i].dS[X_], &Cell[i].dS[Y_],
+	       &Cell[i].Elem.M->PdTpar, &dTerror);
+	Cell[i].dT[X_] = cos(dtor(dTerror+Cell[i].Elem.M->PdTpar));
+	Cell[i].dT[Y_] = sin(dtor(dTerror+Cell[i].Elem.M->PdTpar));
+	Cell[i].Elem.M->PdTrms = dTerror - Cell[i].Elem.M->PdTpar;
+	Cell[i].Elem.M->PdTrnd = 1e0;
 
 	inf.getline(line, max_str);
 	if (prt) printf("%s\n", line);
 	sscanf(line, "%lf %lf %lf %lf %lf",
-	       &Lattice.Cell[i]->L, &M->irho, &M->Tx1, &M->Tx2, &M->gap);
-	if (M->irho != 0.0)
-	  M->order = 1;
+	       &Cell[i].Elem.PL, &Cell[i].Elem.M->Pirho,
+	       &Cell[i].Elem.M->PTx1, &Cell[i].Elem.M->PTx2,
+	       &Cell[i].Elem.M->Pgap);
+	if (Cell[i].Elem.M->Pirho != 0.0) Cell[i].Elem.M->Porder = 1;
       } else {
 	inf.getline(line, max_str);
 	if (prt) printf("%s\n", line);
 	sscanf(line, "%lf %lf %lf",
-	       &Lattice.Cell[i]->dS[X_], &Lattice.Cell[i]->dS[Y_], &dRerror); 
-	Lattice.Cell[i]->dR[X_] = cos(dtor(dRerror));
-	Lattice.Cell[i]->dR[Y_] = sin(dtor(dRerror));
-	M->dRrms = dRerror; M->dRrnd = 1e0;
+	       &Cell[i].dS[X_], &Cell[i].dS[Y_], &dTerror); 
+	Cell[i].dT[X_] = cos(dtor(dTerror));
+	Cell[i].dT[Y_] = sin(dtor(dTerror));
+	Cell[i].Elem.M->PdTrms = dTerror; Cell[i].Elem.M->PdTrnd = 1e0;
       }
 
-      M->c0 = sin(Lattice.Cell[i]->L*M->irho/2.0);
-      M->c1 = cos(dtor(M->dRpar))*M->c0;
-      M->s1 = sin(dtor(M->dRpar))*M->c0;
+      Cell[i].Elem.M->Pc0 = sin(Cell[i].Elem.PL*Cell[i].Elem.M->Pirho/2.0);
+      Cell[i].Elem.M->Pc1 = cos(dtor(Cell[i].Elem.M->PdTpar))
+	                    *Cell[i].Elem.M->Pc0;
+      Cell[i].Elem.M->Ps1 = sin(dtor(Cell[i].Elem.M->PdTpar))
+	                    *Cell[i].Elem.M->Pc0;
 
       inf.getline(line, max_str);
       if (prt) printf("%s\n", line);
-      sscanf(line, "%d %d", &nmpole, &M->n_design);
+      sscanf(line, "%d %d", &nmpole, &Cell[i].Elem.M->n_design);
       for (j = 1; j <= nmpole; j++) {
 	inf.getline(line, max_str);
 	if (prt) printf("%s\n", line);
 	sscanf(line, "%d", &n);
 	sscanf(line, "%*d %lf %lf",
-	       &M->B[HOMmax+n], &M->B[HOMmax-n]);
-	M->Bpar[HOMmax+n] = M->B[HOMmax+n]; M->Bpar[HOMmax-n] = M->B[HOMmax-n];
-	M->order = max(n, M->order);
+	       &Cell[i].Elem.M->PB[HOMmax+n], &Cell[i].Elem.M->PB[HOMmax-n]);
+	Cell[i].Elem.M->PBpar[HOMmax+n] = Cell[i].Elem.M->PB[HOMmax+n];
+	Cell[i].Elem.M->PBpar[HOMmax-n] = Cell[i].Elem.M->PB[HOMmax-n];
+	Cell[i].Elem.M->Porder = max(n, Cell[i].Elem.M->Porder);
       }
       break;
     case Wigl:
-      W = static_cast<WigglerType*>(Lattice.Cell[i]);
-      W->method = method; W->N = n;
+      Cell[i].Elem.W->Pmethod = method; Cell[i].Elem.W->PN = n;
 
       inf.getline(line, max_str);
       if (prt) printf("%s\n", line);
-      sscanf(line, "%lf %lf", &Lattice.Cell[i]->L, &W->lambda);
+      sscanf(line, "%lf %lf", &Cell[i].Elem.PL, &Cell[i].Elem.W->lambda);
 
       inf.getline(line, max_str);
       if (prt) printf("%s\n", line);
-      sscanf(line, "%d", &W->n_harm);
+      sscanf(line, "%d", &Cell[i].Elem.W->n_harm);
 
-      // if (Lattice.Cell[i]->Knum == 1)
-      // 	W->Wiggler_Alloc
-      // 	  (&Lattice.ElemFam[Lattice.Cell[i]->Fnum-1].ElemF);
-      for (j = 0; j < W->n_harm; j++) {
+      if (Cell[i].Knum == 1) Wiggler_Alloc(&ElemFam[Cell[i].Fnum-1].ElemF);
+      for (j = 0; j < Cell[i].Elem.W->n_harm; j++) {
 	inf.getline(line, max_str);
 	if (prt) printf("%s\n", line);
-	sscanf(line, "%d %lf %lf %lf %lf %lf",
-	       &W->harm[j], &W->kxV[j], &W->BoBrhoV[j], &W->kxH[j],
-	       &W->BoBrhoH[j], &W->phi[j]);
-	W =
-	  static_cast<WigglerType*>
-	  (Lattice.ElemFam[Lattice.Cell[i]->Fnum-1].CellF);
-	W->BoBrhoV[j] = W->BoBrhoV[j];W->BoBrhoH[j] = W->BoBrhoH[j];
+	sscanf(line, "%d %lf %lf %lf %lf %lf", &Cell[i].Elem.W->harm[j],
+	       &Cell[i].Elem.W->kxV[j], &Cell[i].Elem.W->BoBrhoV[j],
+	       &Cell[i].Elem.W->kxH[j], &Cell[i].Elem.W->BoBrhoH[j],
+	       &Cell[i].Elem.W->phi[j]);
+	ElemFam[Cell[i].Fnum-1].ElemF.W->BoBrhoV[j]
+	  = Cell[i].Elem.W->BoBrhoV[j];
+	ElemFam[Cell[i].Fnum-1].ElemF.W->BoBrhoH[j]
+	  = Cell[i].Elem.W->BoBrhoH[j];
       }
       break;
     case Insertion:
-      ID = static_cast<InsertionType*>(Lattice.Cell[i]);
-      ID->method = method;
-      ID->N = n;
+      Cell[i].Elem.ID->Pmethod = method; Cell[i].Elem.ID->PN = n;
 
       inf.getline(line, max_str);
       if (prt) printf("%s\n", line);
-      sscanf(line, "%lf %d %s", &ID->scaling, &n, file_name);
+      sscanf(line, "%lf %d %s", &Cell[i].Elem.ID->scaling, &n, file_name);
 
       if (n == 1) {
-	ID->firstorder = true;
-	ID->secondorder = false;
+	Cell[i].Elem.ID->firstorder = true;
+	Cell[i].Elem.ID->secondorder = false;
 
-	strcpy(ID->fname1, file_name);
-	Read_IDfile(ID->fname1, Lattice.Cell[i]->L, ID->nx, ID->nz,
-		    ID->tabx, ID->tabz, ID->thetax1,
-		    ID->thetaz1, ID->long_comp, ID->B2, ID->linear);
+	strcpy(Cell[i].Elem.ID->fname1, file_name);
+	Read_IDfile(Cell[i].Elem.ID->fname1, Cell[i].Elem.PL,
+		    Cell[i].Elem.ID->nx, Cell[i].Elem.ID->nz,
+		    Cell[i].Elem.ID->tabx, Cell[i].Elem.ID->tabz,
+		    Cell[i].Elem.ID->thetax1, Cell[i].Elem.ID->thetaz1,
+		    Cell[i].Elem.ID->long_comp, Cell[i].Elem.ID->B2);
       } else if (n == 2) {
-	ID->firstorder = false;
-	ID->secondorder = true;
+	Cell[i].Elem.ID->firstorder = false;
+	Cell[i].Elem.ID->secondorder = true;
 
-	strcpy(ID->fname2, file_name);
-	Read_IDfile(ID->fname2, Lattice.Cell[i]->L, ID->nx, ID->nz,
-		    ID->tabx, ID->tabz, ID->thetax, ID->thetaz,
-		    ID->long_comp, ID->B2, ID->linear);
+	strcpy(Cell[i].Elem.ID->fname2, file_name);
+	Read_IDfile(Cell[i].Elem.ID->fname2, Cell[i].Elem.PL,
+		    Cell[i].Elem.ID->nx, Cell[i].Elem.ID->nz,
+		    Cell[i].Elem.ID->tabx, Cell[i].Elem.ID->tabz,
+		    Cell[i].Elem.ID->thetax, Cell[i].Elem.ID->thetaz,
+		    Cell[i].Elem.ID->long_comp, Cell[i].Elem.ID->B2);
       } else {
 	std::cout << "rdmfile: undef order " << n << std::endl;
 	exit_(1);
       }
 
-      if (ID->method == 1)
-	ID->linear = true;
+      if (Cell[i].Elem.ID->Pmethod == 1)
+	Cell[i].Elem.ID->linear = true;
       else
-	ID->linear = false;
+	Cell[i].Elem.ID->linear = false;
 
-      if (!ID->linear) {
-	ID->tx = dmatrix(1, ID->nz, 1, ID->nx);
-	ID->tz = dmatrix(1, ID->nz, 1, ID->nx);
-	ID->tab1
-	  = (double *)malloc((ID->nx)*sizeof(double));
-	ID->tab2
-	  = (double *)malloc((ID->nz)*sizeof(double));
-	ID->f2x = dmatrix(1, ID->nz, 1, ID->nx);
-	ID->f2z = dmatrix(1, ID->nz, 1, ID->nx);
-	Matrices4Spline(ID);
+      if (!Cell[i].Elem.ID->linear) {
+	Cell[i].Elem.ID->tx = dmatrix(1, Cell[i].Elem.ID->nz,
+				      1, Cell[i].Elem.ID->nx);
+	Cell[i].Elem.ID->tz = dmatrix(1, Cell[i].Elem.ID->nz,
+				      1, Cell[i].Elem.ID->nx);
+	Cell[i].Elem.ID->tab1 = (double *)malloc((Cell[i].Elem.ID->nx)
+						 *sizeof(double));
+	Cell[i].Elem.ID->tab2 = (double *)malloc((Cell[i].Elem.ID->nz)
+						 *sizeof(double));
+	Cell[i].Elem.ID->f2x = dmatrix(1, Cell[i].Elem.ID->nz,
+				       1, Cell[i].Elem.ID->nx);
+	Cell[i].Elem.ID->f2z = dmatrix(1, Cell[i].Elem.ID->nz,
+				       1, Cell[i].Elem.ID->nx);
+	Matrices4Spline(Cell[i].Elem.ID);
       }
 
 /*      free_matrix(tx, 1, nz, 1, nx); free_matrix(tz, 1, nz, 1, nx);
@@ -342,6 +341,9 @@ void LatticeType::rdmfile(const char *mfile_dat)
       break;
     case FieldMap:
       break;
+    case Map:
+      Cell[i].Elem.Map->M.identity();
+      break;
     default:
       std::cout << "rdmfile: unknown type" << std::endl;
       exit_(1);
@@ -349,23 +351,21 @@ void LatticeType::rdmfile(const char *mfile_dat)
     }
 
     if (i == 0)
-      Lattice.Cell[i]->S = 0.0;
+      Cell[i].S = 0.0;
     else
-      Lattice.Cell[i]->S = Lattice.Cell[i-1]->S + Lattice.Cell[i]->L;
+      Cell[i].S = Cell[i-1].S + Cell[i].Elem.PL;
   }
   
-  Lattice.param.Cell_nLoc = i;
+  globval.Cell_nLoc = i;
  
-  Lattice.param.dPcommon = 1e-8;
-  Lattice.param.CODeps = 1e-14;
-  Lattice.param.CODimax = 40;
+  globval.dPcommon = 1e-8; globval.CODeps = 1e-14; globval.CODimax = 40;
 
   SI_init();
 
   std::cout << std::endl;
   std::cout  << std::fixed << std::setprecision(5)
-	<< "rdmfile: read " << Lattice.param.Cell_nLoc << " elements, C = "
-	<< Lattice.Cell[Lattice.param.Cell_nLoc]->S << std::endl;
+	<< "rdmfile: read " << globval.Cell_nLoc << " elements, C = "
+	<< Cell[globval.Cell_nLoc].S << std::endl;
 
   inf.close();
 }

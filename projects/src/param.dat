@@ -1,12 +1,12 @@
 # Beam energy [GeV].
-energy       2.4
+energy       3
 
 # Input files.
-in_dir       /afs/psi.ch/user/b//bengtsson_j/git_repos/projects/in/
-flat_file    /afs/psi.ch/user/b//bengtsson_j/git_repos/projects/src/
+in_dir       /home/ria34843/git_repos/tracy-3.5/projects/in/
+flat_file    /dls/physics/ria34843/out/tune_conf/6-HMBA/ref_2/1/dynap/
 # Seed should be 2279.
-ae_file      Align_Err/AlignErr.n_ba.dat
-fe_file      Field_Err/FieldErr.n_ba.dat
+ae_file      Align_Err/AlignErr.6-BA.dat
+fe_file      Field_Err/FieldErr.6-BA.dat
 #ap_file      Aper/Apertures.dat
 
 # Flags.
@@ -15,31 +15,33 @@ DA_bare       false
 # Parameters.
 s_cut         1.0    // Gaussian distribution truncated at 1 sigma.
 n_stat        20
-n_orbit       5
+n_orbit       10
 
 # Beam threading.
 loc_name      b_t
-n_cell        3
+n_cell        6
 
 # Orbit correction.
 bpm_names     bpm
-h_corrs       chv
-v_corrs       chv
+h_corrs       ch
+v_corrs       cv
 
 # Girder correlations.
 #gs            gs
 #ge            ge
 
 #
-n_track       512
+n_track       4096
 n_aper        15
 n_delta       10
 delta         5e-2
 
 N_calls       5
 N_steps       1
-ID_quads      qf qm qfe qde
+ID_quads      qdm22 qfm1 qdm11 qdm21 qf1 qd2 qd3 qf422 qf421 qd5 qf6 qf8
+ID_s_cut      1e2
 # No blank line after ID_quads.
 #
 # Linear coupling and vertical dispersion.
 n_lin         0
+

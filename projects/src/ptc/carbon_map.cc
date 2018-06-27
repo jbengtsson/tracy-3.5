@@ -18,7 +18,7 @@ ss_vect<tps> get_fix_point(const int Fnum)
   const int  n_iter = 3;
 
   
-  loc = Lattice.Elem_GetPos(Fnum, 1); FM = Lattice.Cell[loc].Elem.FM;
+  loc = Elem_GetPos(Fnum, 1); FM = Cell[loc].Elem.FM;
 
   FM->Ld = 0.0; FM->L1 = 0.0;
   if (!NSLS_II) {
@@ -31,37 +31,35 @@ ss_vect<tps> get_fix_point(const int Fnum)
 
   trace = true;
   for (j = 1; j <= n_iter; j++) {
-    map.identity(); Lattice.Cell_Pass(loc, loc, map, lastpos);
+    map.identity(); Cell_Pass(loc, loc, map, lastpos);
 
     FM->phi -= map[px_].cst();
     FM->Lm = map[ct_].cst();
     FM->Ld += 2.0*map[x_].cst()/FM->phi;
-    FM->L1 += Lattice.Cell[loc].L - FM->Lm;
+    FM->L1 += Cell[loc].Elem.PL - FM->Lm;
   }
 
-  map.identity(); Lattice.Cell_Pass(loc, loc, map, lastpos);
+  map.identity(); Cell_Pass(loc, loc, map, lastpos);
 
   cout << endl;
   cout << scientific << setprecision(3)
        << "get_fix_pont:" << setw(11) << map.cst();
   cout << fixed << setprecision(5)
        << "phi [deg] = " << setw(7) << FM->phi*180.0/M_PI
-       << ", L [m] = " << setw(7) << Lattice.Cell[loc].L << endl;
+       << ", L [m] = " << setw(7) << Cell[loc].Elem.PL << endl;
   cout << fixed << setprecision(5)
        << "Lr [m] = " << setw(7) << FM->Lr
        << ", Lm [m] = " << setw(7) << FM->Lm
        << ", Ld [m] = " << setw(7) << FM->Ld
        << ", L1 [m] = " << setw(7) << FM->L1 << endl;
 
-  for (j = 1; j <= Lattice.GetnKid(Fnum); j++) {
-    loc = Lattice.Elem_GetPos(Fnum, j);
-    Lattice.Cell[loc].Elem.FM->cut = FM->cut;
-    Lattice.Cell[loc].Elem.FM->x0 = FM->x0;
-    Lattice.Cell[loc].Elem.FM->phi = FM->phi;
-    Lattice.Cell[loc].Elem.FM->Lr = FM->Lr;
-    Lattice.Cell[loc].Elem.FM->Lm = FM->Lm;
-    Lattice.Cell[loc].Elem.FM->Ld = FM->Ld;
-    Lattice.Cell[loc].Elem.FM->L1 = FM->L1;
+  for (j = 1; j <= GetnKid(Fnum); j++) {
+    loc = Elem_GetPos(Fnum, j);
+    Cell[loc].Elem.FM->cut = FM->cut;
+    Cell[loc].Elem.FM->x0 = FM->x0;
+    Cell[loc].Elem.FM->phi = FM->phi;
+    Cell[loc].Elem.FM->Lr = FM->Lr; Cell[loc].Elem.FM->Lm = FM->Lm;
+    Cell[loc].Elem.FM->Ld = FM->Ld; Cell[loc].Elem.FM->L1 = FM->L1;
   }
 
   return map;
@@ -305,10 +303,10 @@ int main(int argc, char *argv[])
   ss_vect<tps> map, R, Id;
   ofstream     outf;
 
-  Lattice.param.H_exact    = false; Lattice.param.quad_fringe = false;
-  Lattice.param.Cavity_on  = false; Lattice.param.radiation   = false;
-  Lattice.param.emittance  = false; Lattice.param.IBS         = false;
-  Lattice.param.pathlength = false; Lattice.param.bpm         = 0;
+  globval.H_exact    = false; globval.quad_fringe = false;
+  globval.Cavity_on  = false; globval.radiation   = false;
+  globval.emittance  = false; globval.IBS         = false;
+  globval.pathlength = false; globval.bpm         = 0;
 
   // 1: DIAMOND, 3: Oleg I, 4: Oleg II.
   FieldMap_filetype = 1; sympl = false;
@@ -316,7 +314,7 @@ int main(int argc, char *argv[])
   // disable from TPSALib and LieLib log messages
   idprset(-1);
 
-  Lattice.Read_Lattice(argv[1]);
+  Read_Lattice(argv[1]);
 
   // no_sxt();
 
@@ -325,8 +323,8 @@ int main(int argc, char *argv[])
   if (true) {
     trace = false;
 
-    Lattice.param.H_exact    = true;
-    Lattice.param.dip_fringe = false;
+    globval.H_exact    = true;
+    globval.dip_fringe = false;
 
     map.identity();
     // Tweak to remain within field map range at entrance.
@@ -334,9 +332,8 @@ int main(int argc, char *argv[])
     if (tweak) {
       dx = -1.4e-3; map[x_] += dx;
     }
-    Lattice.Cell_Pass(Lattice.Elem_GetPos(Lattice.Elem_Index("bb"), 1),
-		      Lattice.Elem_GetPos(Lattice.Elem_Index("bb"), 1), map,
-		      lastpos);
+    Cell_Pass(Elem_GetPos(ElemIndex("bb"), 1),
+	      Elem_GetPos(ElemIndex("bb"), 1), map, lastpos);
     if (tweak) map[x_] -= dx;
 
     h = LieFact_DF(map, R);
@@ -373,7 +370,7 @@ int main(int argc, char *argv[])
   }
 
   if (false) {
-    map = get_fix_point(Lattice.Elem_Index("bb"));
+    map = get_fix_point(ElemIndex("bb"));
 
     prt_lin_map(3, map);
 
@@ -414,8 +411,8 @@ int main(int argc, char *argv[])
   if (true) {
     trace = true;
 
-    Lattice.Ring_GetTwiss(true, 0.0); printglob();
+    Ring_GetTwiss(true, 0.0); printglob();
 
-    Lattice.prt_lat("linlat.out", Lattice.param.bpm, true);  
+    prt_lat("linlat.out", globval.bpm, true);  
   }
 }

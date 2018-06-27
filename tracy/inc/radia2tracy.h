@@ -11,7 +11,7 @@
 void Read_IDfile(char *fic_radia, double &L, int &pnx, int &pnz,
                  double tabx[IDXMAX],  double tabz[IDZMAX],
                  double thetax[IDZMAX][IDXMAX], double thetaz[IDZMAX][IDXMAX],
-		 bool &long_comp, double B2[IDZMAX][IDXMAX], int linear);
+		 bool &long_comp, double B2[IDZMAX][IDXMAX]);
 
 template<typename T>
 void LinearInterpolation2(T &X, T &Z, T &TX, T &TZ, T &B2, CellType &Cell,
@@ -21,7 +21,7 @@ template<typename T>
 void SplineInterpolation2(T &X, T &Z, T &thetax, T &thetaz,
 			  CellType &Cell, bool &out);
 
-void Matrices4Spline(InsertionType *ID);
+void Matrices4Spline(InsertionType *WITH);
 
 template<typename T>
 void spline(const double x[], const T y[], int const n,

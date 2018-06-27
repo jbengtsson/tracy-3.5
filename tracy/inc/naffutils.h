@@ -6,6 +6,9 @@
     email                : nadolski@synchrotron-soleil.fr
  ***************************************************************************/
 
+/* definition form old soleilcommon.h */
+#define NTURN 10000  // 2*NTURN for diffusion
+#define DIM   6
 
 /* Frequency Map Analysis */
 void Get_NAFF(int nterm, long ndata, double Tab[DIM][NTURN],

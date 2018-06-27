@@ -42,8 +42,8 @@ bool DA_data_type::track(const param_data_type &params,
   }
 
   for (i = 1; i <= params.n_track_DA; i++) {
-    Lattice.Cell_Pass(0, Lattice.param.Cell_nLoc, ps, lastpos);
-    if (lastpos == Lattice.param.Cell_nLoc) {
+    Cell_Pass(0, globval.Cell_nLoc, ps, lastpos);
+    if (lastpos == globval.Cell_nLoc) {
       if (prt) {
 	if (f_rf == 0.0)
 	  os << std::scientific << std::setprecision(16)
@@ -138,8 +138,8 @@ double DA_data_type::get_dynap(param_data_type &params,
   }
   DA += x2[X_]*x0[Y_] - x0[X_]*x2[Y_];
   // x2 from mid-plane symmetry
-  DA = fabs(DA)/sqrt(Lattice.Cell[Lattice.param.Cell_nLoc]->Beta[X_]
-       *Lattice.Cell[Lattice.param.Cell_nLoc]->Beta[Y_]);
+  DA = fabs(DA)/sqrt(Cell[globval.Cell_nLoc].Beta[X_]
+       *Cell[globval.Cell_nLoc].Beta[Y_]);
 
   fprintf(fp, "\n");
   fprintf(fp, "# DA^ = %6.1f mm^2"
@@ -159,12 +159,12 @@ void DA_data_type::get_DA_bare(param_data_type &params)
   double DA, x_min[2], x_max[2], x_hat[2], d;
   FILE   *DA_bare, *fp;
 
-  Lattice.param.Cavity_on = true;
+  globval.Cavity_on = true;
 
   DA_bare = file_write("DA_bare.out");
 
   fprintf(DA_bare, "# beta_x = %4.2f, beta_y = %5.2f\n",
-	  Lattice.Cell[Lattice.param.Cell_nLoc]->Beta[X_], Lattice.Cell[Lattice.param.Cell_nLoc]->Beta[Y_]);
+	  Cell[globval.Cell_nLoc].Beta[X_], Cell[globval.Cell_nLoc].Beta[Y_]);
   fprintf(DA_bare, "#\n");
   fprintf(DA_bare, "# Ideal lattice\n");
   fprintf(DA_bare, "#\n");
@@ -185,8 +185,8 @@ void DA_data_type::get_DA_bare(param_data_type &params)
 
     fprintf(DA_bare, "  %5.2f %6.1f   %4.1f      %4.1f   %4.1f  %4.1f\n", 
 	    1e2*d, 1e6*DA,
-	    1e6*sqr(x_hat[X_])/Lattice.Cell[Lattice.param.Cell_nLoc]->Beta[X_],
-	    1e6*sqr(x_hat[Y_])/Lattice.Cell[Lattice.param.Cell_nLoc]->Beta[Y_],
+	    1e6*sqr(x_hat[X_])/Cell[globval.Cell_nLoc].Beta[X_],
+	    1e6*sqr(x_hat[Y_])/Cell[globval.Cell_nLoc].Beta[Y_],
 	    1e3*x_hat[X_], 1e3*x_hat[Y_]);
   
     fflush(DA_bare);
@@ -225,8 +225,8 @@ void DA_data_type::get_DA_real(param_data_type &params,
 
   DA_real = file_write("DA_real.out");
   fprintf(DA_real, "# beta_x = %4.2f, beta_y = %5.2f\n",
-	  Lattice.Cell[Lattice.param.Cell_nLoc]->Beta[X_],
-	  Lattice.Cell[Lattice.param.Cell_nLoc]->Beta[Y_]);
+	  Cell[globval.Cell_nLoc].Beta[X_],
+	  Cell[globval.Cell_nLoc].Beta[Y_]);
   fprintf(DA_real, "#\n");
   fprintf(DA_real, "# Real lattice\n");
   fprintf(DA_real, "#\n");
@@ -236,7 +236,7 @@ void DA_data_type::get_DA_real(param_data_type &params,
 	    "            mm              mm\n");
 
   for (j = 1; j <= params.n_stat; j++) {
-    Lattice.param.Cavity_on = false;
+    globval.Cavity_on = false;
 
     if (params.fe_file != "") params.LoadFieldErr(false, 1e0, true);
     if (params.ae_file != "") {
@@ -247,13 +247,14 @@ void DA_data_type::get_DA_real(param_data_type &params,
 
       cod = params.cod_corr(n_cell, 1e0, orb_corr);
     } else
-      cod = Lattice.getcod(0e0, lastpos);
+      cod = getcod(0e0, lastpos);
 
     params.Orb_and_Trim_Stat();
 
     if (params.N_calls > 0) {
-      params.ID_corr(params.N_calls, params.N_steps, false);
-      cod = params.cod_corr(n_cell, 1e0, orb_corr);
+      params.ID_corr(false, orb_corr);
+      // Orbit must be corrected for each iteration.
+      // cod = params.cod_corr(n_cell, 1e0, orb_corr);
     }
 
     params.Orb_and_Trim_Stat();
@@ -261,23 +262,23 @@ void DA_data_type::get_DA_real(param_data_type &params,
     printf("\n");
     if (cod) {
       printf("err_and_corr: orbit correction completed\n");
-      if (j == 1) Lattice.prt_cod("cod.out", Lattice.param.bpm, true);
+      if (j == 1) prt_cod("cod.out", globval.bpm, true);
  
-      Lattice.Ring_GetTwiss(true, 0.0); printglob();
+      Ring_GetTwiss(true, 0.0); printglob();
 
-      Lattice.GetEmittance(Lattice.Elem_Index("cav"), true);
+      GetEmittance(ElemIndex("cav"), true);
 
       if (params.n_lin > 0) {
 	params.corr_eps_y();
-	Lattice.Ring_GetTwiss(true, 0.0); printglob();
-	Lattice.GetEmittance(Lattice.Elem_Index("cav"), true);
+	Ring_GetTwiss(true, 0.0); printglob();
+	GetEmittance(ElemIndex("cav"), true);
       }
 
-      Lattice.prt_beamsizes();
+      prt_beamsizes();
 
       if (params.ap_file != "") params.LoadApers(1.0, 1.0);
 
-      Lattice.param.Cavity_on = true;
+      globval.Cavity_on = true;
       for (k = 0; k <= params.n_delta_DA; k++) {
 	DA = get_dynap(params, fp[k], 10e-3, d[k], 0.1e-3, x_min, x_max);
 	DA_m[k] += DA; DA_s[k] += sqr(DA);
@@ -289,7 +290,7 @@ void DA_data_type::get_DA_real(param_data_type &params,
 
      if (params.n_lin > 0)
 	// reset skew quads
-	// set_bn_design_fam(Lattice.param.qt, Quad, 0.0, 0.0);
+	// set_bn_design_fam(globval.qt, Quad, 0.0, 0.0);
 
       if (params.N_calls > 0) params.reset_quads();  
     } else
@@ -308,14 +309,10 @@ void DA_data_type::get_DA_real(param_data_type &params,
 	    "   %5.2f \xB1 %6.3f     %5.2f \xB1 %6.3f\n", 
 	    d[j]*1e2,
 	    1e6*DA_m[j], 1e6*DA_s[j],
-	    1e6*sqr(x_hat_m[j][X_])
-	    /Lattice.Cell[Lattice.param.Cell_nLoc]->Beta[X_],
-	    1e6*sqr(x_hat_s[j][X_])
-	    /Lattice.Cell[Lattice.param.Cell_nLoc]->Beta[X_],
-	    1e6*sqr(x_hat_m[j][Y_])
-	    /Lattice.Cell[Lattice.param.Cell_nLoc]->Beta[Y_],
-	    1e6*sqr(x_hat_s[j][Y_])
-	    /Lattice.Cell[Lattice.param.Cell_nLoc]->Beta[Y_],
+	    1e6*sqr(x_hat_m[j][X_])/Cell[globval.Cell_nLoc].Beta[X_],
+	    1e6*sqr(x_hat_s[j][X_])/Cell[globval.Cell_nLoc].Beta[X_],
+	    1e6*sqr(x_hat_m[j][Y_])/Cell[globval.Cell_nLoc].Beta[Y_],
+	    1e6*sqr(x_hat_s[j][Y_])/Cell[globval.Cell_nLoc].Beta[Y_],
 	    1e3*x_hat_m[j][X_], 1e3*x_hat_s[j][X_],
 	    1e3*x_hat_m[j][Y_], 1e3*x_hat_s[j][Y_]);
   }

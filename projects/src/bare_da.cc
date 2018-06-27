@@ -4,42 +4,56 @@
 
 int no_tps = NO;
 
-// MAX-IV           1,
-// SLS-2            2,
-// DIAMOND          3,
-// DIAMOND-II 4-BA  4,
-// DIAMOND-II 6-BA  5.
-// DIAMOND-II 8-BA  6.
-const int lat_case = 3;
+// MAX-IV              1,
+// SLS-2               2,
+// DIAMOND             3,
+// DIAMOND-II 4-BA     4,
+// DIAMOND-II 6-BA     5.
+// DIAMOND-II 8-BA     6.
+// DIAMOND-II RB-6-BA  7.
+// DIAMOND-II D-TBA    8.
+// DELTA               9.
+// ALS-U              10.
 
-const double delta_max[] = {3.0e-2, 3.0e-2, 1.5e-2, 3e-2, 3e-2, 3e-2};
+const int lat_case = 5;
+
+const double
+  delta_max[] =
+    {3e-2, 3e-2, 1.5e-2, 3e-2, 3e-2, 1e-2, 3e-2, 2e-2, 1e-2, 3e-2},
+  dnu[]       = {0.1, 0.0};
+
 
 int main(int argc, char *argv[])
 {
 
   const int    n_turn = 2064;
-  const double delta  = 1.5e-2;
 
-  Lattice.param.H_exact    = false; Lattice.param.quad_fringe = false;
-  Lattice.param.Cavity_on  = false; Lattice.param.radiation   = false;
-  Lattice.param.emittance  = false; Lattice.param.IBS         = false;
-  Lattice.param.pathlength = false; Lattice.param.bpm         = 0;
+  globval.H_exact    = false; globval.quad_fringe = false;
+  globval.Cavity_on  = false; globval.radiation   = false;
+  globval.emittance  = false; globval.IBS         = false;
+  globval.pathlength = false; globval.bpm         = 0;
 
   if (false)
-    Lattice.Read_Lattice(argv[1]);
+    Read_Lattice(argv[1]);
   else
-    Lattice.rdmfile(argv[1]);
+    rdmfile(argv[1]);
 
-  Lattice.Ring_GetTwiss(true, 0e0); printglob();
+  Ring_GetTwiss(true, 0e0); printglob();
 
-  Lattice.prt_lat("linlat1.out", Lattice.param.bpm, true);
-  Lattice.prt_lat("linlat.out", Lattice.param.bpm, true, 10);
+  prt_lat("linlat1.out", globval.bpm, true);
+  prt_lat("linlat.out", globval.bpm, true, 10);
 
-  if (true) Lattice.GetEmittance(Lattice.Elem_Index("cav"), true);
+  if (true) GetEmittance(ElemIndex("cav"), true);
+
+  if (false) {
+    Ring_GetTwiss(true, 0e0); printglob();
+    set_map("ps_rot", dnu[X_], dnu[Y_]);
+    Ring_GetTwiss(true, 0e0); printglob();
+  }
 
   if (true) {
-    Lattice.param.Cavity_on = true;
-    Lattice.get_dynap(delta_max[lat_case-1], 25, n_turn, false);
+    globval.Cavity_on = true;
+    get_dynap(delta_max[lat_case-1], 25, n_turn, false);
   }
 
 }

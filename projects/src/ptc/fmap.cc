@@ -145,26 +145,26 @@ int main(int argc, char *argv[])
   // const double A_max[] = {6.0e-3, 6.0e-3}, delta_max = 5e-2;
   // const double A_max[] = {4.0e-3, 2.0e-3}, delta_max = 3e-2;
 
-  Lattice.param.H_exact    = false; Lattice.param.quad_fringe = false;
-  Lattice.param.Cavity_on  = false; Lattice.param.radiation   = false;
-  Lattice.param.emittance  = false; Lattice.param.IBS         = false;
-  Lattice.param.pathlength = false; Lattice.param.bpm         = 0;
+  globval.H_exact    = false; globval.quad_fringe = false;
+  globval.Cavity_on  = false; globval.radiation   = false;
+  globval.emittance  = false; globval.IBS         = false;
+  globval.pathlength = false; globval.bpm         = 0;
 
   // disable from TPSALib- and LieLib log messages
   idprset_(-1);
 
   if (false)
-    Lattice.Read_Lattice(argv[1]);
+    Read_Lattice(argv[1]);
   else
-    Lattice.rdmfile(argv[1]);
+    rdmfile(argv[1]);
 
-  Lattice.param.EPU = true;
+  globval.EPU = true;
 
   danot_(1);
 
-  Lattice.Ring_GetTwiss(true, 0.0); printglob();
+  Ring_GetTwiss(true, 0.0); printglob();
 
-  Lattice.prt_lat("linlat.out", Lattice.param.bpm, true);
+  prt_lat("linlat.out", globval.bpm, true);
 
   k = atoi(argv[2]);
   if (k == 1) {

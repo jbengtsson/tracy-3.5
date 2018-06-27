@@ -12,10 +12,10 @@ void prt_Beam_Pos(const string &file_name)
 
   file_wr(outf, file_name.c_str());
 
-  for (k = 0; k < Lattice.param.Cell_nLoc; k++)
+  for (k = 0; k < globval.Cell_nLoc; k++)
     outf << std::scientific << std::setprecision(15)
-	 << std::setw(4) << k << " " << std::setw(10) << Lattice.Cell[k]->Name
-	 << std::setw(23) << Lattice.Cell[k]->BeamPos << "\n";
+	 << std::setw(4) << k << " " << std::setw(10) << Cell[k].Elem.PName
+	 << std::setw(23) << Cell[k].BeamPos << "\n";
 
   outf.close();
 }
@@ -32,13 +32,11 @@ void track(const double x, const double p_x,
 
   std::cout << std::scientific << std::setprecision(3)
 	    << "\n" << std::setw(11) << ps << "\n"; 
-  Lattice.Cell_Pass(0, Lattice.param.Cell_nLoc, ps, lastpos);  
+  Cell_Pass(0, globval.Cell_nLoc, ps, lastpos);  
   std::cout << std::scientific << std::setprecision(3)
 	    << std::setw(11) << ps << "\n"; 
 
   prt_Beam_Pos("track.out");
-
-  Lattice.prtmfile("flat_file.dat");
 }
 
 
@@ -46,22 +44,22 @@ void track(const double x, const double p_x,
 int main(int argc, char *argv[])
 {
 
-  Lattice.param.H_exact           = false; Lattice.param.quad_fringe  = false;
-  Lattice.param.Cavity_on         = false; Lattice.param.radiation    = false;
-  Lattice.param.emittance         = false; Lattice.param.IBS          = false;
-  Lattice.param.pathlength        = false; Lattice.param.bpm          = 0;
-  Lattice.param.dip_edge_fudge    = true;  Lattice.param.reverse_elem = !false;
-  // 1: DIAMOND, 3: Oleg I, 4: Oleg II.
-  Lattice.param.FieldMap_filetype = 1;     Lattice.param.sympl        = false;
-
-  if (true)
-    Lattice.Read_Lattice(argv[1]); 
-  else
-    Lattice.rdmfile(argv[1]);
+  reverse_elem = !false;
 
   trace = !true;
 
-  Lattice.Ring_GetTwiss(true, 0e-2); printglob();
+  if (true)
+    Read_Lattice(argv[1]); 
+  else
+    rdmfile("flat_file.dat");
+
+  globval.H_exact        = false;  globval.quad_fringe = false;
+  globval.Cavity_on      = false;  globval.radiation   = false;
+  globval.emittance      = false;  globval.IBS         = false;
+  globval.pathlength     = false;  globval.bpm         = 0;
+  globval.dip_edge_fudge = true;
+
+  Ring_GetTwiss(true, 0e-2); printglob();
 
   track(1e-3, 0e0, 1e-3, 0e0, 0e0);
 }

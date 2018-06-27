@@ -2,7 +2,7 @@ SUBDIRS      = ptc
 
 bin_PROGRAMS = optics dynap leac dnu touschek ibs vlad tbt \
                max_iv_1 max_iv_2 ibs_for_les delta bare_da match \
-               carbon_map dls 6BA track_fft m4 track
+               carbon_map dls 6BA track_fft m4 m4_mod dls_ii track
 
 #sc_f_LINK    = gfortran -g -O0 -Wall -fbounds-check -o sc_f
 
@@ -26,6 +26,8 @@ dls_SOURCES         = dls.cc
 6BA_SOURCES         = 6BA.cc
 track_fft_SOURCES   = track_fft.cc
 m4_SOURCES          = m4.cc
+m4_mod_SOURCES      = m4_mod.cc
+dls_ii_SOURCES      = dls_ii.cc
 track_SOURCES       = track.cc
 
 #LIBS     = -L$(TRACY_LIB)/tracy -ltracy

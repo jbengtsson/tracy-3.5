@@ -1,4 +1,4 @@
-const int N_Fam_max = 15, max_corr = 100, max_bpm = 200;
+const int N_Fam_max = 20, max_corr = 100, max_bpm = 200;
 
 // Computation result files
 const char beam_envelope_file[] = "beam_envelope.out";
@@ -63,9 +63,8 @@ class param_data_type {
 
   // ID control.
   int                      N_calls, N_steps, N_Fam, Q_Fam[N_Fam_max];
-  int                      n_sext, sexts[Cell_nLocMax];
-  double                   betas0_[Cell_nLocMax][2], nus0_[Cell_nLocMax][2],
-                           nu0_[2];
+  int                      n_sext, sexts[max_elem];
+  double                   betas0_[max_elem][2], nus0_[max_elem][2], nu0_[2];
   double                   b2[N_Fam_max], ID_s_cut;
   double                   **SkewRespMat, *VertCouple, *SkewStrengthCorr;
   double                   *eta_y;
@@ -112,7 +111,7 @@ class param_data_type {
   void X_vector(const bool first);
   void ini_ID_corr(const bool IDs);
   void W_diag(void);
-  bool ID_corr(const int N_calls, const int N_steps, const bool IDs);
+  bool ID_corr(const bool IDs, orb_corr_type orb_corr[]);
   
   void LoadAlignTol(const bool Scale_it, const double Scale, const bool new_rnd,
 		    const int seed) const;

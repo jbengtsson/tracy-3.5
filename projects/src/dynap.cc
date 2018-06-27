@@ -4,6 +4,8 @@
 
 int no_tps = NO;
 
+const double dnu[] = {0.1, 0.0};
+
 
 void err_and_corr(const string &param_file)
 {
@@ -11,11 +13,24 @@ void err_and_corr(const string &param_file)
   orb_corr_type   orb_corr[2];
   DA_data_type    DA;
 
+  params.get_param(param_file);
+
+  globval.dPcommon = 1e-10;
+
+  Ring_GetTwiss(true, 0e0); printglob();
+
+  if (false) {
+    // Do not use for Real Lattice.
+    Ring_GetTwiss(true, 0e0); printglob();
+    set_map("ps_rot", dnu[X_], dnu[Y_]);
+    Ring_GetTwiss(true, 0e0); printglob();
+  }
+
   params.err_and_corr_init(param_file, orb_corr);
 
-  Lattice.param.CODeps = 1e-10;
+  globval.CODeps = 1e-10;
 
-  Lattice.param.Cavity_on = true;
+  globval.Cavity_on = true;
 
   if (params.DA_bare) DA.get_DA_bare(params);
 
@@ -27,10 +42,10 @@ void err_and_corr(const string &param_file)
 
 int main(int argc, char *argv[])
 {
-  Lattice.param.H_exact    = false; Lattice.param.quad_fringe = false;
-  Lattice.param.Cavity_on  = false; Lattice.param.radiation   = false;
-  Lattice.param.emittance  = false; Lattice.param.IBS         = false;
-  Lattice.param.pathlength = false; Lattice.param.Aperture_on = false;
+  globval.H_exact    = false; globval.quad_fringe = false;
+  globval.Cavity_on  = false; globval.radiation   = false;
+  globval.emittance  = false; globval.IBS         = false;
+  globval.pathlength = false; globval.Aperture_on = false;
 
   if (argc < 1) {
     printf("*** bad command line\n");

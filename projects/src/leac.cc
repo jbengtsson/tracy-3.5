@@ -4,6 +4,8 @@
 
 int no_tps = NO;
 
+const double dnu[] = {0.55/6.0, -0.07/6.0};
+
 
 void err_and_corr(const string &param_file, const int mode)
 {
@@ -13,9 +15,20 @@ void err_and_corr(const string &param_file, const int mode)
   param_data_type params;
   orb_corr_type   orb_corr[2];
 
-  params.err_and_corr_init(param_file, orb_corr);
+  params.get_param(param_file);
 
-  Lattice.param.CODeps = 1e-10;
+  globval.CODeps = 1e-10;
+
+  Ring_GetTwiss(true, 0e0); printglob();
+
+  if (false) {
+    // Do not use for Real Lattice.
+    Ring_GetTwiss(true, 0e0); printglob();
+    set_map("ps_rot", dnu[X_], dnu[Y_]);
+    Ring_GetTwiss(true, 0e0); printglob();
+  }
+
+  params.err_and_corr_init(param_file, orb_corr);
 
   if (params.fe_file != "") params.LoadFieldErr(false, 1e0, true);
   if (params.ae_file != "") {
@@ -26,16 +39,16 @@ void err_and_corr(const string &param_file, const int mode)
 
     cod = params.cod_corr(params.n_cell, 1e0, orb_corr);
   } else
-    cod = Lattice.getcod(0e0, lastpos);
+    cod = getcod(0e0, lastpos);
 
   params.Orb_and_Trim_Stat();
 
   if (params.N_calls > 0) {
-    params.ID_corr(params.N_calls, params.N_steps, false);
-    cod = params.cod_corr(params.n_cell, 1e0, orb_corr);
+    params.ID_corr(false, orb_corr);
+    // cod = params.cod_corr(params.n_cell, 1e0, orb_corr);
   }
 
-  Lattice.prtmfile("flat_file.dat");
+  prtmfile("flat_file.dat");
 
   if (cod) {
     if (mode == 1) {
@@ -61,10 +74,10 @@ void err_and_corr(const string &param_file, const int mode)
 
 int main(int argc, char *argv[])
 {
-  Lattice.param.H_exact    = false; Lattice.param.quad_fringe = false;
-  Lattice.param.Cavity_on  = false; Lattice.param.radiation   = false;
-  Lattice.param.emittance  = false; Lattice.param.IBS         = false;
-  Lattice.param.pathlength = false; Lattice.param.Aperture_on = false;
+  globval.H_exact    = false; globval.quad_fringe = false;
+  globval.Cavity_on  = false; globval.radiation   = false;
+  globval.emittance  = false; globval.IBS         = false;
+  globval.pathlength = false; globval.Aperture_on = false;
 
   if (argc < 2) {
     printf("*** bad command line\n");

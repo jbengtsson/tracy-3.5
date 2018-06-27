@@ -7,8 +7,8 @@
 
 #include "tracy_lib.h"
 
-int no_tps   = NO,
-    ndpt_tps = 5;
+int  no_tps   = NO,
+     ndpt_tps = 5;
 
 
 const char home_dir[] = "/home/bengtsson";
@@ -278,27 +278,27 @@ int main(int argc, char *argv[])
   ss_vect<tps>  Id;
   ofstream      outf;
 
-  Lattice.param.H_exact    = false; Lattice.param.quad_fringe = false;
-  Lattice.param.Cavity_on  = false; Lattice.param.radiation   = false;
-  Lattice.param.emittance  = false; Lattice.param.IBS         = false;
-  Lattice.param.pathlength = false; Lattice.param.bpm         = 0;
+  globval.H_exact    = false; globval.quad_fringe = false;
+  globval.Cavity_on  = false; globval.radiation   = false;
+  globval.emittance  = false; globval.IBS         = false;
+  globval.pathlength = false; globval.bpm         = 0;
 
   // disable from TPSALib- and LieLib log messages
   idprset_(-1);
 
   if (false)
-    Lattice.Read_Lattice(argv[1]);
+    Read_Lattice(argv[1]);
   else {
-    Lattice.rdmfile(argv[1]);
+    rdmfile(argv[1]);
   }
 
-  Lattice.param.EPU = true;
+  globval.EPU = true;
 
   danot_(1);
 
 //  Ring_GetTwiss(true, 0.0); printglob();
 
-  Lattice.prt_lat("linlat.out", Lattice.param.bpm, true);
+  prt_lat("linlat.out", globval.bpm, true);
 
   danot_(no_tps-1);
 
@@ -310,12 +310,12 @@ int main(int argc, char *argv[])
 
   CtoR(MNF.K, K_re, K_im); CtoR(MNF.g, g_re, g_im);
 
-//  Jx = sqr(20e-3)/(2.0*Lattice.Cell[Lattice.param.Cell_nLoc].Beta[X_]);
-//  Jy = sqr(10e-3)/(2.0*Lattice.Cell[Lattice.param.Cell_nLoc].Beta[Y_]);
+//  Jx = sqr(20e-3)/(2.0*Cell[globval.Cell_nLoc].Beta[X_]);
+//  Jy = sqr(10e-3)/(2.0*Cell[globval.Cell_nLoc].Beta[Y_]);
 //  delta = 3e-2;
 
-  Jx = sqr(15e-3)/(2.0*Lattice.Cell[Lattice.param.Cell_nLoc].Beta[X_]);
-  Jy = sqr(6.5e-3)/(2.0*Lattice.Cell[Lattice.param.Cell_nLoc].Beta[Y_]);
+  Jx = sqr(15e-3)/(2.0*Cell[globval.Cell_nLoc].Beta[X_]);
+  Jy = sqr(6.5e-3)/(2.0*Cell[globval.Cell_nLoc].Beta[Y_]);
   delta = 2.5e-2;
 
   Id.identity();

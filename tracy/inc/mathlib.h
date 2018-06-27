@@ -22,8 +22,9 @@
 #define sgn(n) ((n > 0) ? 1 : ((n < 0) ? -1 : 0)) 
 
 
-extern long int rseed0, rseed;
-extern double   normcut_;
+extern long rseed0;
+extern long rseed;
+extern double normcut_;
 
 void iniranf(const long i);
 void newseed(void);
