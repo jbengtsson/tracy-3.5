@@ -50,7 +50,7 @@ sgn_x = 1; sgn_y = 1;
 if ((N == 1) && (case == 1)) \
   N_x = 101; N_y = 27; \
 else if ((N == 1) && (case == 2)) \
-  N_x = 39; N_y = 15; \
+  N_x = 38; N_y = 14; \
 else if ((N == 1) && (case == 3)) \
   N_x = 57; N_y = 20; \
 else if ((N == 1) && (case == 4)) \
@@ -93,7 +93,7 @@ if (case == 1) \
   x_max = 1.5; y_max = 1.5; \
   delta_min = -5.1; delta_max = 5.1; \
 else if (case == 2) \
-  nu_x_min = 39.0; nu_x_max = 39.5; nu_y_min = 15.0; nu_y_max = 15.6; \
+  nu_x_min = 38.0; nu_x_max = 38.5; nu_y_min = 14.0; nu_y_max = 14.6; \
   x_max = 6.0; y_max = 6.0; \
   delta_min = -5.1; delta_max = 5.1; \
 else if (case == 3) \
