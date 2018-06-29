@@ -306,7 +306,7 @@ void chk_mpole(void)
   int              k;
   std::vector<int> Fnum;
 
-  const int lat_case = 1;
+  const int lat_case = 2;
 
   switch (lat_case) {
   case 1:
@@ -332,11 +332,11 @@ void chk_mpole(void)
     Fnum.push_back(ElemIndex("sda"));
     Fnum.push_back(ElemIndex("sdb"));
 
-    Fnum.push_back(ElemIndex("s1"));
-    Fnum.push_back(ElemIndex("s2"));
-    Fnum.push_back(ElemIndex("s3"));
-    Fnum.push_back(ElemIndex("s4"));
-    Fnum.push_back(ElemIndex("s5"));
+    // Fnum.push_back(ElemIndex("s1"));
+    // Fnum.push_back(ElemIndex("s2"));
+    // Fnum.push_back(ElemIndex("s3"));
+    // Fnum.push_back(ElemIndex("s4"));
+    // Fnum.push_back(ElemIndex("s5"));
 
     Fnum.push_back(ElemIndex("o1a"));
     Fnum.push_back(ElemIndex("o2a"));

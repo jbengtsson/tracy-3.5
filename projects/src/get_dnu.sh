@@ -8,7 +8,7 @@ t1="00:10:00"
 t2="00:30:00"
 
 #dir=`pwd`
-dir=$HOME/git_repos/tracy-3.5-3.2/projects/src
+dir=$HOME/git_repos/tracy-3.5_temp/projects/src
 
 #~/projects/src/main /home/bengtsson/projects/in/lattice/sls-2
 #wait

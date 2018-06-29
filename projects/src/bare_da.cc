@@ -15,11 +15,11 @@ int no_tps = NO;
 // DELTA               9.
 // ALS-U              10.
 
-const int lat_case = 5;
+const int lat_case = 2;
 
 const double
   delta_max[] =
-    {3e-2, 3e-2, 1.5e-2, 3e-2, 3e-2, 1e-2, 3e-2, 2e-2, 1e-2, 3e-2},
+    {3e-2, 5e-2, 1.5e-2, 3e-2, 3e-2, 1e-2, 3e-2, 2e-2, 1e-2, 3e-2},
   dnu[]       = {0.1, 0.0};
 
 
