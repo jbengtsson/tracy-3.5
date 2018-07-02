@@ -94,8 +94,8 @@ if (case == 1) \
   delta_min = -5.1; delta_max = 5.1; \
 else if (case == 2) \
   nu_x_min = 38.0; nu_x_max = 38.5; nu_y_min = 14.0; nu_y_max = 14.6; \
-  x_max = 6.0; y_max = 6.0; \
-  delta_min = -5.1; delta_max = 5.1; \
+  x_max = 8.0; y_max = 8.0; \
+  delta_min = -6.1; delta_max = 6.1; \
 else if (case == 3) \
   nu_x_min = 57.0; nu_x_max = 57.5; nu_y_min = 19.8; nu_y_max = 20.5; \
   x_max = 10.0; y_max = 4.0; \
