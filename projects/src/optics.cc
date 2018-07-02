@@ -314,8 +314,10 @@ void chk_mpole(void)
     Fnum.push_back(ElemIndex("sxxh"));
     Fnum.push_back(ElemIndex("sxyh"));
     Fnum.push_back(ElemIndex("syyh"));
-    // Fnum.push_back(ElemIndex("sdmh"));
-    // Fnum.push_back(ElemIndex("sfmh"));
+    if (!false) {
+      Fnum.push_back(ElemIndex("sdmh"));
+      Fnum.push_back(ElemIndex("sfmh"));
+    }
     Fnum.push_back(ElemIndex("sdh"));
     Fnum.push_back(ElemIndex("sfh"));
 
@@ -323,14 +325,19 @@ void chk_mpole(void)
     Fnum.push_back(ElemIndex("oxy"));
     Fnum.push_back(ElemIndex("oyy"));
     Fnum.push_back(ElemIndex("ocxm"));
-    // Fnum.push_back(ElemIndex("ocx1"));
-    // Fnum.push_back(ElemIndex("ocx2"));
+    if (!false) {
+      Fnum.push_back(ElemIndex("ocx1"));
+      Fnum.push_back(ElemIndex("ocx2"));
+    }
     break;
    case 2:
     // H-6-BA.
-    Fnum.push_back(ElemIndex("sf"));
+    Fnum.push_back(ElemIndex("sfa"));
     Fnum.push_back(ElemIndex("sda"));
+    Fnum.push_back(ElemIndex("sfb"));
     Fnum.push_back(ElemIndex("sdb"));
+    Fnum.push_back(ElemIndex("sdc"));
+    Fnum.push_back(ElemIndex("sdd"));
 
     // Fnum.push_back(ElemIndex("s1"));
     // Fnum.push_back(ElemIndex("s2"));
@@ -340,9 +347,10 @@ void chk_mpole(void)
 
     Fnum.push_back(ElemIndex("o1a"));
     Fnum.push_back(ElemIndex("o2a"));
-    Fnum.push_back(ElemIndex("o3"));
+    Fnum.push_back(ElemIndex("o3a"));
     Fnum.push_back(ElemIndex("o1b"));
     Fnum.push_back(ElemIndex("o2b"));
+    Fnum.push_back(ElemIndex("o3b"));
 
     Fnum.push_back(ElemIndex("o4"));
     Fnum.push_back(ElemIndex("o5"));

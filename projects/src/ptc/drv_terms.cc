@@ -124,7 +124,7 @@ int main(int argc, char *argv[])
 
   std::string home_dir = "";
 
-  if (true)
+  if (!true)
     Read_Lattice((home_dir+argv[1]).c_str());
   else
     rdmfile(argv[1]);
