@@ -13,8 +13,10 @@ void prt_Beam_Pos(const string &file_name)
   file_wr(outf, file_name.c_str());
 
   for (k = 0; k < globval.Cell_nLoc; k++)
-    outf << std::scientific << std::setprecision(15)
-	 << std::setw(4) << k << " " << std::setw(10) << Cell[k].Elem.PName
+    outf << std::setw(4) << k << " " << std::setw(10) << Cell[k].Elem.PName
+	 << std::fixed << std::setprecision(5)
+	 << std::setw(12) << Cell[k].S
+	 << std::scientific << std::setprecision(15)
 	 << std::setw(23) << Cell[k].BeamPos << "\n";
 
   outf.close();
