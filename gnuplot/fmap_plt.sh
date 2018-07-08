@@ -45,10 +45,9 @@ else if (ps == 5) \
   ext = "svg";
 
 
-#  N_x = 102; N_y = 68; 
 sgn_x = 1; sgn_y = 1;
 if ((N == 1) && (case == 1)) \
-  N_x = 101; N_y = 27; \
+  N_x = 102; N_y = 68; \
 else if ((N == 1) && (case == 2)) \
   N_x = 38; N_y = 14; \
 else if ((N == 1) && (case == 3)) \
@@ -63,8 +62,6 @@ else if ((N == 1) && (case == 7)) \
   N_x = 28; N_y = 13; \
 else if ((N == 1) && (case == 8)) \
   N_x = 40; N_y = 14; \
-else if ((N == 20) && (case == 1)) \
-  N_x = 5; N_y = 1; \
 else if ((N == 12) && (case == 2)) \
   N_x = 3; N_y = 1; \
 else if ((N == 6) && (case == 3)) \
@@ -79,19 +76,18 @@ else if ((N == 6) && (case == 7)) \
   N_x = 12; N_y = 5; sgn_x = -1; sgn_y = -1; \
 else if ((N == 12) && (case == 8)) \
   N_x = 3; N_y = 1; \
+else if ((N == 20) && (case == 1)) \
+  N_x = 5; N_y = 3; \
 else if ((N == 24) && (case == 9)) \
   N_x = 2; N_y = 0; sgn_y = -1;
-#  N_x = 5; N_y = 3; 
 
 # DELTA: del008.
 #  N_x = 9; N_y = 3; 
 
-#  nu_x_min = 102.0; nu_x_max = 102.5; nu_y_min = 68.0; nu_y_max = 68.5; 
-#  x_max = 2.0; y_max = 2.0; 
 if (case == 1) \
-  nu_x_min = 101.0; nu_x_max = 102.0; nu_y_min = 27.0; nu_y_max = 28.0; \
-  x_max = 1.5; y_max = 1.5; \
-  delta_min = -5.1; delta_max = 5.1; \
+  nu_x_min = 102.0; nu_x_max = 102.5; nu_y_min = 68.0; nu_y_max = 68.5; \
+  x_max = 2.0; y_max = 2.0; \
+  delta_min = -5.0; delta_max = 5.0; \
 else if (case == 2) \
   nu_x_min = 38.0; nu_x_max = 38.5; nu_y_min = 14.0; nu_y_max = 14.6; \
   x_max = 8.0; y_max = 8.0; \
