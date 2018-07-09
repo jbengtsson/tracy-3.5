@@ -7,7 +7,7 @@ t1="96:00:00"
 t2="96:00:00"
 
 #dir=`pwd`
-dir=$HOME/git_repos/tracy-3.5-3.2/projects/src
+dir=$HOME/git_repos/tracy-3.5_temp/projects/src
 
 \rm dynap.cmd.o*
 

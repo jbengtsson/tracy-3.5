@@ -1,12 +1,12 @@
 # Beam energy [GeV].
-energy       3
+energy       2.4
 
 # Input files.
 in_dir       /home/ria34843/git_repos/tracy-3.5/projects/in/
-flat_file    /dls/physics/ria34843/out/tune_conf/6-HMBA/ref_2/1/dynap/
+flat_file    /dls/physics/ria34843/out/MAX-V/Tech_Note/18-BA/repro/dynap/
 # Seed should be 2279.
-ae_file      Align_Err/AlignErr.6-BA.dat
-fe_file      Field_Err/FieldErr.6-BA.dat
+ae_file      Align_Err/AlignErr.n_ba.dat
+fe_file      Field_Err/FieldErr.n_ba.dat
 #ap_file      Aper/Apertures.dat
 
 # Flags.
@@ -18,13 +18,13 @@ n_stat        20
 n_orbit       10
 
 # Beam threading.
-loc_name      b_t
-n_cell        6
+loc_name      l4
+n_cell        20
 
 # Orbit correction.
 bpm_names     bpm
-h_corrs       ch
-v_corrs       cv
+h_corrs       chv
+v_corrs       chv
 
 # Girder correlations.
 #gs            gs
@@ -38,8 +38,8 @@ delta         5e-2
 
 N_calls       5
 N_steps       1
-ID_quads      qdm22 qfm1 qdm11 qdm21 qf1 qd2 qd3 qf422 qf421 qd5 qf6 qf8
-ID_s_cut      1e2
+ID_quads      qf qm qfe qde
+ID_s_cut      1e1
 # No blank line after ID_quads.
 #
 # Linear coupling and vertical dispersion.

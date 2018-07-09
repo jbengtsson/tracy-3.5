@@ -306,7 +306,7 @@ void chk_mpole(void)
   int              k;
   std::vector<int> Fnum;
 
-  const int lat_case = 2;
+  const int lat_case = 5;
 
   switch (lat_case) {
   case 1:
@@ -370,6 +370,19 @@ void chk_mpole(void)
     Fnum.push_back(ElemIndex("syy1"));
     Fnum.push_back(ElemIndex("syy2"));
     Fnum.push_back(ElemIndex("syy3"));
+    break;
+  case 5:
+    // ALS-U.
+    Fnum.push_back(ElemIndex("sf1"));
+    Fnum.push_back(ElemIndex("sf2"));
+    Fnum.push_back(ElemIndex("sf3"));
+    Fnum.push_back(ElemIndex("sd1h"));
+    Fnum.push_back(ElemIndex("sd2h"));
+    Fnum.push_back(ElemIndex("sd3h"));
+    Fnum.push_back(ElemIndex("sd4h"));
+    Fnum.push_back(ElemIndex("sh1"));
+    Fnum.push_back(ElemIndex("sh2"));
+    Fnum.push_back(ElemIndex("sh3"));
     break;
   }
 
@@ -524,7 +537,7 @@ int main(int argc, char *argv[])
   // 1: DIAMOND, 3: Oleg I, 4: Oleg II.
   FieldMap_filetype = 1; sympl = false;
 
-  reverse_elem = !false;
+  reverse_elem = false;
 
   trace = !true;
 
