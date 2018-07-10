@@ -2042,11 +2042,11 @@ void Insertion_Pass(CellType &Cell, ss_vect<T> &x)
   Drift(LN/2e0, x);
 
   for (i = 1; i <= Nslice; i++) {
-    printf("%3d %2d %2d %5.3f %11.3e %11.3e %11.3e %11.3e %11.3e %11.3e\n",
-	   i, elemp->ID->linear, elemp->ID->secondorder, elemp->ID->scaling,
-	   is_double<T>::cst(x[x_]), is_double<T>::cst(x[px_]),
-	   is_double<T>::cst(x[y_]), is_double<T>::cst(x[py_]),
-	   is_double<T>::cst(x[delta_]), is_double<T>::cst(x[ct_]));
+    // printf("%3d %2d %2d %5.3f %11.3e %11.3e %11.3e %11.3e %11.3e %11.3e\n",
+    // 	   i, elemp->ID->linear, elemp->ID->secondorder, elemp->ID->scaling,
+    // 	   is_double<T>::cst(x[x_]), is_double<T>::cst(x[px_]),
+    // 	   is_double<T>::cst(x[y_]), is_double<T>::cst(x[py_]),
+    // 	   is_double<T>::cst(x[delta_]), is_double<T>::cst(x[ct_]));
     // Second order kick
     if (elemp->ID->secondorder){
       // if (!elemp->ID->linear)

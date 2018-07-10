@@ -306,30 +306,31 @@ void chk_mpole(void)
   int              k;
   std::vector<int> Fnum;
 
-  const int lat_case = 5;
+  const int lat_case = 1;
 
   switch (lat_case) {
   case 1:
     // SLS-2.
-    Fnum.push_back(ElemIndex("sxxh"));
-    Fnum.push_back(ElemIndex("sxyh"));
-    Fnum.push_back(ElemIndex("syyh"));
-    if (false) {
-      Fnum.push_back(ElemIndex("sdmh"));
-      Fnum.push_back(ElemIndex("sfmh"));
-    }
-    Fnum.push_back(ElemIndex("sdh"));
-    Fnum.push_back(ElemIndex("sfh"));
-    if (false) {
-      Fnum.push_back(ElemIndex("oxx"));
-      Fnum.push_back(ElemIndex("oxy"));
-      Fnum.push_back(ElemIndex("oyy"));
-      Fnum.push_back(ElemIndex("ocxm"));
-    }
-    if (false) {
-      Fnum.push_back(ElemIndex("ocx1"));
-      Fnum.push_back(ElemIndex("ocx2"));
-    }
+    Fnum.push_back(ElemIndex("sd"));
+    Fnum.push_back(ElemIndex("sf"));
+    // Fnum.push_back(ElemIndex("sdm"));
+    // Fnum.push_back(ElemIndex("sfm"));
+
+    Fnum.push_back(ElemIndex("sxx"));
+    Fnum.push_back(ElemIndex("sxy"));
+    Fnum.push_back(ElemIndex("syy"));
+
+    Fnum.push_back(ElemIndex("ocxm"));
+    // Fnum.push_back(ElemIndex("ocx1"));
+    // Fnum.push_back(ElemIndex("ocx2"));
+
+    Fnum.push_back(ElemIndex("ocym"));
+    // Fnum.push_back(ElemIndex("ocy1"));
+    // Fnum.push_back(ElemIndex("ocy2"));
+
+    Fnum.push_back(ElemIndex("oxx"));
+    Fnum.push_back(ElemIndex("oxy"));
+    Fnum.push_back(ElemIndex("oyy"));
     break;
   case 2:
     // H-6-BA.
@@ -534,8 +535,8 @@ int main(int argc, char *argv[])
 
   const double R_ref = 5e-3;
 
-  // 1: DIAMOND, 3: Oleg I, 4: Oleg II.
-  FieldMap_filetype = 1; sympl = false;
+  // 1: DIAMOND, 2: NSLS-II, 3: Oleg I, 4: Oleg II.
+  FieldMap_filetype = 4; sympl = !false;
 
   reverse_elem = false;
 
@@ -714,7 +715,7 @@ int main(int argc, char *argv[])
     prt_quad(Fam);
   }
 
-  if (true) GetEmittance(ElemIndex("cav"), true);
+  if (true)  GetEmittance(ElemIndex("cav"), true);
 
   if (false) {
     b2_fam[0] = ElemIndex(q_fam[0].c_str());

@@ -19,7 +19,7 @@ const int lat_case = 2;
 
 const double
   delta_max[] =
-    {3e-2, 5e-2, 1.5e-2, 3e-2, 3e-2, 1e-2, 3e-2, 2e-2, 1e-2, 3e-2},
+    {3e-2, 5e-2, 1.5e-2, 3e-2, 3e-2, 1e-2, 3e-2, 2e-2, 1e-2, 4e-2},
   dnu[]       = {0.1, 0.0};
 
 
