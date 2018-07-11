@@ -16,7 +16,7 @@ int  no_tps = NO;
 // DELTA               9.
 // ALS-U              10.
 
-const int lat_case = 2;
+const int lat_case = 5;
 
 const double
   A_max[][2] =

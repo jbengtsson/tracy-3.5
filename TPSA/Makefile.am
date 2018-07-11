@@ -4,4 +4,5 @@ libTPSALib_a_SOURCES = TPSALib.f
 
 libLieLib_a_SOURCES  = LieLib.f
 
-AM_FFLAGS   = -g -O2 -Wall -fbounds-check -fPIC
+FFLAGS    = -g -O2 -Wall -fbounds-check -fdefault-integer-8 -mcmodel=large
+AM_FFLAGS = -g -O2 -Wall -fbounds-check -fPIC

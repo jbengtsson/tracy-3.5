@@ -140,7 +140,7 @@ double tps::operator[](const int k) const
   return(r);
 }
 
-double tps::operator[](const int jj[]) const
+double tps::operator[](const long int jj[]) const
 {
   double  r;
 
@@ -148,7 +148,7 @@ double tps::operator[](const int jj[]) const
   return(r);
 }
 
-void tps::pook(const int jj[], const double r)
+void tps::pook(const long int jj[], const double r)
 { dapok_(ltps, jj, r); }
 
 tps& tps::operator=(const double r)

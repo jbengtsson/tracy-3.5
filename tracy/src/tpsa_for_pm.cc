@@ -165,7 +165,7 @@ tps::tps(const double r)
 
 tps::tps(const double r, const int i)
 {
-    char  name[11];
+  char  name[11];
 
   if (!ini_tps) TPSA_Ini();
   seq_tps++; intptr = 0; sprintf(name, "tps-%-5hu", seq_tps);
@@ -177,9 +177,9 @@ tps::tps(const double r, const int i)
 }
 
 
-tps::tps(const double r, const int jj[])
+tps::tps(const double r, const long int jj[])
 {
-    char  name[11];
+  char  name[11];
 
   if (!ini_tps) TPSA_Ini();
   seq_tps++; intptr = 0; sprintf(name, "tps-%-5hu", seq_tps);
@@ -189,7 +189,7 @@ tps::tps(const double r, const int jj[])
 
 
 tps::tps(const tps &x) {
-    char  name[11];
+  char  name[11];
 
   if (!ini_tps) TPSA_Ini();
   seq_tps++; intptr = 0; sprintf(name, "tps-%-5hu", seq_tps);
@@ -216,7 +216,7 @@ double tps::operator[](const int k) const
 }
 
 
-double tps::operator[](const int jj[]) const
+double tps::operator[](const long int jj[]) const
 {
   double  r;
 
@@ -225,14 +225,15 @@ double tps::operator[](const int jj[]) const
 }
 
 
-void tps::pook(const int jj[], const double r)
+void tps::pook(const long int jj[], const double r)
 { dapok_(intptr, jj, r); }
 
-void tps::exprt(double rbuf[], int ibuf1[], int ibuf2[], char *name) const
+void tps::exprt(double rbuf[], long int ibuf1[], long int ibuf2[],
+		char *name) const
 { daexp_(intptr, rbuf, ibuf1, ibuf2, name, name_len_for); }
 
 void tps::imprt(const int n, double rbuf[],
-		const int ibuf1[], const int ibuf2[])
+		const long int ibuf1[], const long int ibuf2[])
 { rbuf[0] = n; daimp_(rbuf, ibuf1, ibuf2, intptr); }
 
 tps& tps::operator=(const double r)
@@ -610,7 +611,8 @@ tps LieExp(const tps &H, const tps &x)
 
 tps LieFlo(const ss_vect<tps> &H, const tps &x)
 {
-  int  i, Hintptrs[nv_tps];
+  int  i;
+  long int Hintptrs[nv_tps];
   tps  y;
 
   for (i = 0; i < nv_tps; i++) {
@@ -625,8 +627,9 @@ tps LieFlo(const ss_vect<tps> &H, const tps &x)
 ss_vect<tps> FExpo(const tps &H, const ss_vect<tps> &x,
 		   const int k0, const int k1, const int k)
 {
-  int           i, xintptrs[nv_tps], mapintptrs[nv_tps];
-  ss_vect<tps>  map;
+  int          i;
+  long int     xintptrs[nv_tps], mapintptrs[nv_tps];
+  ss_vect<tps> map;
 
   for (i = 0; i < nv_tps; i++) {
     xintptrs[i] = x[i].intptr; mapintptrs[i] = map[i].intptr;
@@ -640,8 +643,9 @@ ss_vect<tps> FExpo(const tps &H, const ss_vect<tps> &x,
 
 ss_vect<tps> LieExp(const tps &H, const ss_vect<tps> &x)
 {
-  int           i, xintptrs[nv_tps], mapintptrs[nv_tps];
-  ss_vect<tps>  map;
+  int          i;
+  long int     xintptrs[nv_tps], mapintptrs[nv_tps];
+  ss_vect<tps> map;
 
   for (i = 0; i < nv_tps; i++) {
     xintptrs[i] = x[i].intptr; mapintptrs[i] = map[i].intptr;
@@ -655,8 +659,9 @@ ss_vect<tps> LieExp(const tps &H, const ss_vect<tps> &x)
 
 ss_vect<tps> LieFlo(const ss_vect<tps> &H, const ss_vect<tps> &x)
 {
-  int           i, Hintptrs[nv_tps], xintptrs[nv_tps], mapintptrs[nv_tps];
-  ss_vect<tps>  map;
+  int          i;
+  long int     Hintptrs[nv_tps], xintptrs[nv_tps], mapintptrs[nv_tps];
+  ss_vect<tps> map;
 
   for (i = 0; i < nv_tps; i++) {
     Hintptrs[i] = H[i].intptr; xintptrs[i] = x[i].intptr;
@@ -672,7 +677,8 @@ ss_vect<tps> LieFlo(const ss_vect<tps> &H, const ss_vect<tps> &x)
 void CCT(const tps x[], const int n_x, const tps y[], const int n_y,
 	 tps z[], const int n_z)
 {
-  int           i, xintptrs[n_x], yintptrs[n_y], zintptrs[n_z];
+  int      i;
+  long int xintptrs[n_x], yintptrs[n_y], zintptrs[n_z];
 
   for (i = 0; i < n_x; i++)
     xintptrs[i] = x[i].intptr;
@@ -686,8 +692,9 @@ void CCT(const tps x[], const int n_x, const tps y[], const int n_y,
 
 ss_vect<tps> Inv_Ext(const ss_vect<tps> &x)
 {
-  int           i, xintptrs[nv_tps], yintptrs[nv_tps];
-  ss_vect<tps>  y;
+  int          i;
+  long int     xintptrs[nv_tps], yintptrs[nv_tps];
+  ss_vect<tps> y;
 
   for (i = 0; i < nv_tps; i++) {
     xintptrs[i] = x[i].intptr; yintptrs[i] = y[i].intptr;
@@ -699,8 +706,9 @@ ss_vect<tps> Inv_Ext(const ss_vect<tps> &x)
 
 ss_vect<tps> MTREE(const ss_vect<tps> &x)
 {
-  int           i, xintptrs[nv_tps], yintptrs[nv_tps];
-  ss_vect<tps>  y;
+  int          i;
+  long int     xintptrs[nv_tps], yintptrs[nv_tps];
+  ss_vect<tps> y;
 
   for (i = 0; i < nv_tps; i++) {
     xintptrs[i] = x[i].intptr; yintptrs[i] = y[i].intptr;
@@ -712,8 +720,9 @@ ss_vect<tps> MTREE(const ss_vect<tps> &x)
 
 ss_vect<double> PPUSH(const ss_vect<tps> &x, ss_vect<double> &y)
 {
-  int              i, xintptrs[nv_tps];
-  ss_vect<double>  z;
+  int             i;
+  long int        xintptrs[nv_tps];
+  ss_vect<double> z;
 
   for (i = 0; i < nv_tps; i++)
     xintptrs[i] = x[i].intptr;
@@ -726,9 +735,10 @@ ss_vect<double> PPUSH(const ss_vect<tps> &x, ss_vect<double> &y)
 
 tps operator*(const tps &x, const ss_vect<tps> &y)
 {
-  int  i, xintptrs[nv_tps], y1intptrs[nv_tps], zintptrs[nv_tps];
-  tps           z;
-  ss_vect<tps>  y1;
+  int          i;
+  long int     xintptrs[nv_tps], y1intptrs[nv_tps], zintptrs[nv_tps];
+  tps          z;
+  ss_vect<tps> y1;
 
   xintptrs[0] = x.intptr; zintptrs[0] = z.intptr; y1 = y;
   for (i = 2*nd_tps; i < nv_tps; i++)
@@ -742,8 +752,9 @@ tps operator*(const tps &x, const ss_vect<tps> &y)
 
 ss_vect<tps> operator*(const ss_vect<tps> &x, const ss_vect<tps> &y)
 {
-  int           i, xintptrs[nv_tps], yintptrs[nv_tps], zintptrs[nv_tps];
-  ss_vect<tps>  z;
+  int          i;
+  long int     xintptrs[nv_tps], yintptrs[nv_tps], zintptrs[nv_tps];
+  ss_vect<tps> z;
 
   for (i = 0; i < nv_tps; i++) {
     xintptrs[i] = x[i].intptr; yintptrs[i] = y[i].intptr;
@@ -760,8 +771,9 @@ ss_vect<tps> operator*(const ss_vect<tps> &x, const ss_vect<tps> &y)
 
 ss_vect<tps> Inv(const ss_vect<tps> &x)
 {
-  int           i, xintptrs[nv_tps], yintptrs[nv_tps];
-  ss_vect<tps>  y;
+  int          i;
+  long int     xintptrs[nv_tps], yintptrs[nv_tps];
+  ss_vect<tps> y;
 
   for (i = 0; i < nv_tps; i++) {
     xintptrs[i] = x[i].intptr; yintptrs[i] = y[i].intptr;
@@ -779,8 +791,8 @@ ss_vect<tps> Inv(const ss_vect<tps> &x)
 
 ss_vect<tps> PInv(const ss_vect<tps> &x, const iVector &jj)
 {
-  int           k, n;
-  ss_vect<tps>  y, z;
+  int          k, n;
+  ss_vect<tps> y, z;
 
   n = 0;
   for (k = 0; k < ss_dim; k++) {
@@ -805,8 +817,9 @@ ss_vect<tps> PInv(const ss_vect<tps> &x, const iVector &jj)
 
 ss_vect<tps> PInv(const ss_vect<tps> &x, const iVector &jj)
 {
-  int           i, xintptrs[nv_tps], yintptrs[nv_tps];
-  ss_vect<tps>  y;
+  int          i;
+  long int     xintptrs[nv_tps], yintptrs[nv_tps];
+  ss_vect<tps> y;
 
   for (i = 0; i < nv_tps; i++) {
     xintptrs[i] = x[i].intptr; yintptrs[i] = y[i].intptr;
@@ -821,7 +834,8 @@ ss_vect<tps> PInv(const ss_vect<tps> &x, const iVector &jj)
 void GoFix(const ss_vect<tps> &xy, ss_vect<tps> &a1, ss_vect<tps> &a1inv,
 	   const int nord)
 {
-  int  i, xyintptrs[nv_tps], a1intptrs[nv_tps], a1invintptrs[nv_tps];
+  int      i;
+  long int xyintptrs[nv_tps], a1intptrs[nv_tps], a1invintptrs[nv_tps];
 
   for (i = 0; i < nv_tps; i++) {
     xyintptrs[i] = xy[i].intptr; a1intptrs[i] = a1[i].intptr;
@@ -832,9 +846,10 @@ void GoFix(const ss_vect<tps> &xy, ss_vect<tps> &a1, ss_vect<tps> &a1inv,
 
 MNF_struct MapNorm(const ss_vect<tps> &map, const int no)
 {
-  int         i, mapintptrs[nv_tps], A1intptrs[nv_tps], A0intptrs[nv_tps];
-  int         map_resintptrs[nv_tps];
-  MNF_struct  MNF;
+  int        i;
+  long int   mapintptrs[nv_tps], A1intptrs[nv_tps], A0intptrs[nv_tps];
+  long int   map_resintptrs[nv_tps];
+  MNF_struct MNF;
 
   for (i = 0; i < nv_tps; i++) {
     mapintptrs[i] = map[i].intptr;
@@ -851,9 +866,10 @@ ss_vect<tps> MapNormF(const ss_vect<tps> &x, ss_vect<tps> &g, ss_vect<tps> &a2,
 		      ss_vect<tps> &a1, ss_vect<tps> &xy,
 		      const int nord, const int kpmax)
 {
-  int   i, xintptrs[nv_tps], gintptrs[nv_tps], a2intptrs[nv_tps];
-  int   a1intptrs[nv_tps], xyintptrs[nv_tps], Kintptrs[nv_tps];
-  ss_vect<tps>  K;
+  int          i;
+  long int     xintptrs[nv_tps], gintptrs[nv_tps], a2intptrs[nv_tps];
+  long int     a1intptrs[nv_tps], xyintptrs[nv_tps], Kintptrs[nv_tps];
+  ss_vect<tps> K;
 
   for (i = 0; i < nv_tps; i++) {
     xintptrs[i] = x[i].intptr; gintptrs[i] = g[i].intptr;
@@ -868,8 +884,9 @@ ss_vect<tps> MapNormF(const ss_vect<tps> &x, ss_vect<tps> &g, ss_vect<tps> &a2,
 
 ss_vect<tps> dHdJ(const tps &H)
 {
-  int           i, nuintptrs[nv_tps];
-  ss_vect<tps>  nu;
+  int          i;
+  long int     nuintptrs[nv_tps];
+  ss_vect<tps> nu;
 
   for (i = 0; i < nv_tps; i++)
     nuintptrs[i] = nu[i].intptr;
@@ -886,7 +903,7 @@ void CtoR(const tps &a, tps &a_re, tps &a_im)
 
 tps RtoC(const tps &a_re, const tps &a_im)
 {
-  tps  a;
+  tps a;
 
   rtoc_(a_re.intptr, a_im.intptr, a.intptr);
   return a;
@@ -900,8 +917,9 @@ tps LieFact_DF(const ss_vect<tps> &xy, ss_vect<tps> &x)
        M = M_lin exp(:h_3:) exp(:h_4:) ... 
 
   */
-  int  i, xyintptrs[nv_tps], xintptrs[nv_tps];
-  tps  H;
+  int      i;
+  long int xyintptrs[nv_tps], xintptrs[nv_tps];
+  tps      H;
 
   for (i = 0; i < nv_tps; i++) {
     xyintptrs[i] = xy[i].intptr; xintptrs[i] = x[i].intptr;
@@ -924,8 +942,9 @@ tps LieFact(const ss_vect<tps> &xy)
 
 ss_vect<tps> FlowFact(const ss_vect<tps> &xy)
 {
-  int           i, xyintptrs[nv_tps], Vintptrs[nv_tps];
-  ss_vect<tps>  V;
+  int          i;
+  long int     xyintptrs[nv_tps], Vintptrs[nv_tps];
+  ss_vect<tps> V;
 
   for (i = 0; i < nv_tps; i++) {
     xyintptrs[i] = xy[i].intptr; Vintptrs[i] = V[i].intptr;
@@ -937,8 +956,9 @@ ss_vect<tps> FlowFact(const ss_vect<tps> &xy)
 
 tps Intd(const ss_vect<tps> &V, double scl)
 {
-  int  i, Vintptrs[nv_tps];
-  tps  H;
+  int      i;
+  long int Vintptrs[nv_tps];
+  tps      H;
 
   for (i = 0; i < nv_tps; i++)
     Vintptrs[i] = V[i].intptr;
@@ -949,8 +969,9 @@ tps Intd(const ss_vect<tps> &V, double scl)
 
 ss_vect<tps> Difd(const tps &H, double scl)
 {
-  int           i, Vintptrs[nv_tps];
-  ss_vect<tps>  V;
+  int          i;
+  long int     Vintptrs[nv_tps];
+  ss_vect<tps> V;
 
   for (i = 0; i < nv_tps; i++)
     Vintptrs[i] = V[i].intptr;
@@ -961,7 +982,7 @@ ss_vect<tps> Difd(const tps &H, double scl)
 
 tps PB(const tps &a, const tps &b)
 {
-  tps  c;
+  tps c;
 
   etpoi_(a.intptr, b.intptr, c.intptr);
   return c;
@@ -970,7 +991,7 @@ tps PB(const tps &a, const tps &b)
 
 tps Take(const tps &H, const int n)
 {
-  tps  Hn;
+  tps Hn;
 
   take_(H.intptr, n, Hn.intptr);
   return Hn;
@@ -979,8 +1000,9 @@ tps Take(const tps &H, const int n)
 
 ss_vect<tps> Taked(const ss_vect<tps> &H, const int n)
 {
-  int           i, Hintptrs[nv_tps], Hnintptrs[nv_tps];
-  ss_vect<tps>  Hn;
+  int          i;
+  long int     Hintptrs[nv_tps], Hnintptrs[nv_tps];
+  ss_vect<tps> Hn;
 
   for (i = 0; i < nv_tps; i++) {
     Hintptrs[i] = H[i].intptr; Hnintptrs[i] = Hn[i].intptr;
@@ -992,12 +1014,12 @@ ss_vect<tps> Taked(const ss_vect<tps> &H, const int n)
 
 std::istream& operator>>(std::istream &is, tps &a)
 {
-  char	  line[max_str], *token;
-  int     i, n, no1, nv1;
-  int     ibuf1[bufsize], ibuf2[bufsize], jj[ss_dim];
-  double  rbuf[bufsize];
+  char	   line[max_str], *token;
+  int      i, n, no1, nv1;
+  long int ibuf1[bufsize], ibuf2[bufsize], jj[ss_dim];
+  double   rbuf[bufsize];
 
-  const bool  debug_ = false, prt = false;
+  const bool debug_ = false, prt = false;
 
   if (debug_) {
 //    darea77_(a.intptr, 8);
@@ -1021,7 +1043,7 @@ std::istream& operator>>(std::istream &is, tps &a)
       token = strtok(line, " "); sscanf(token, "%d", &no1);
       token = strtok(NULL, " "); sscanf(token, "%le", &rbuf[n]);
       for (i = 0; i < ss_dim; i++) {
-	token = strtok(NULL, " "); sscanf(token, "%d", &jj[i]);
+	token = strtok(NULL, " "); sscanf(token, "%ld", &jj[i]);
       }
       if (prt) {
 	std::cout << std::scientific << std::setprecision(3)
@@ -1048,11 +1070,11 @@ std::istream& operator>>(std::istream &is, tps &a)
 
 std::ostream& operator<<(std::ostream &os, const tps &a)
 {
-  char           name[11];
-  int            i, j, ord, n, no;
-  int            ibuf1[bufsize], ibuf2[bufsize], jj[nv_tps];
-  double         rbuf[bufsize];
-  std::ostringstream  s;
+  char               name[11];
+  int                i, j, ord, n, no;
+  long int           ibuf1[bufsize], ibuf2[bufsize], jj[nv_tps];
+  double             rbuf[bufsize];
+  std::ostringstream s;
 
   const bool  debug_ = false;
 

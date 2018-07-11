@@ -9,7 +9,8 @@ AM_CPPFLAGS = -I../inc -I$(NUM_REC)/inc
 #INCLUDES = -I../inc -I$(NUM_REC)/inc \
 #	   -I/usr/include/c++/3.3.6
 
-AM_CXXFLAGS    = -g -O0 -Wall -Wno-error=all -fPIC
-# AM_CXXFLAGS    = -g -O0 -Wall -Wno-error=all -fno-implicit-templates -fPIC
-#CXXFLAGS   = -pg -O2 -Wall -fno-implicit-templates -fPIC
-#CXXFLAGS   = -g -O2 -Wall -frepo
+FFLAGS      = -g -O2 -Wall -fbounds-check -fdefault-integer-8 -mcmodel=large
+AM_CXXFLAGS = -g -O0 -Wall -Wno-error=all -fPIC
+# AM_CXXFLAGS = -g -O0 -Wall -Wno-error=all -fno-implicit-templates -fPIC
+#CXXFLAGS = -pg -O2 -Wall -fno-implicit-templates -fPIC
+#CXXFLAGS = -g -O2 -Wall -frepo

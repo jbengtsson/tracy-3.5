@@ -27,7 +27,7 @@ typedef double  tps_buf[ss_dim+1]; // const. and linear terms
 
 template<typename T> class ss_vect;
 
-typedef int  iVector[ss_dim];
+typedef long int iVector[ss_dim];
 
 // Polymorphic class for floating point and TPSA
 
@@ -38,7 +38,7 @@ class tps {
   tps(void);
   tps(const double);
   tps(const double, const int);
-  tps(const double, const int []);
+  tps(const double, const long int []);
   tps(const tps &);
   ~tps(void);
 
@@ -49,11 +49,11 @@ class tps {
 
   const double cst(void) const;
   double operator[](const int) const;
-  double operator[](const int []) const;
-  void pook(const int [], const double);
+  double operator[](const long int []) const;
+  void pook(const long int [], const double);
 
-  void exprt(double [], int [], int [], char []) const;
-  void imprt(const int, double [], const int [], const int []);
+  void exprt(double [], long int [], long int [], char []) const;
+  void imprt(const int, double [], const long int [], const long int []);
 
   tps& operator=(const double);
   tps& operator+=(const double);
@@ -137,9 +137,9 @@ class tps {
 #if NO == 1
   tps_buf  ltps;  // linear TPSA
 #else
-  int     intptr; // index used by Fortran implementation
+  long int intptr; // index used by Fortran implementation
 #endif
-  double  r;      // floating-point calc. if intptr = 0
+  double   r;      // floating-point calc. if intptr = 0
 };
 
 

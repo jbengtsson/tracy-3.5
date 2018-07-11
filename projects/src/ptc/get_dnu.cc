@@ -1,28 +1,44 @@
-// #define NO 6
-// to model tune footprint
+
 #define NO 6
-// #define NO 10
-// #define NO 12
-// #define NO 15
 
 #include "tracy_lib.h"
 
-int  no_tps   = NO,
-     ndpt_tps = 5;
+int no_tps   = NO,
+    ndpt_tps = 5;
 
+
+// MAX-IV              1,
+// SLS-2               2,
+// DIAMOND             3,
+// DIAMOND-II DTBA     4,
+// DIAMOND-II H-6-BA   5.
+// DIAMOND-II H-8-BA   6.
+// DIAMOND-II RB-6-BA  7.
+// DIAMOND-II D-DBA    8.
+// DELTA               9.
+// ALS-U              10.
+
+const int lat_case = 5;
+
+const double
+  A_max[][2] =
+    {{1.5e-3, 1.5e-3}, {7e-3, 5e-3}, {15e-3, 8e-3}, {10e-3, 4e-3},
+     {  7e-3,   4e-3}, {3e-3, 2e-3},  {3e-3, 2e-3}, {3e-3, 2e-3},
+      {35e-3,   6e-3}, {4e-3, 4e-3}},
+  delta_max[] = {3e-2, 5e-2, 1.5e-2, 3e-2, 3e-2, 3e-2, 3e-2, 2e-2, 3e-2, 4e-2},
+  dnu[]       = {0.1, 0.0};
 
 const char home_dir[] = "/home/bengtsson";
 
-double        nu0[2];
-ss_vect<tps>  A_inv, nus;
+double       nu0[2];
+ss_vect<tps> A_inv, nus;
 
-// const double  Ax = 6e-3, Ay = 4e-3, delta = 5e-2;
 const double  Ax = 5e-3, Ay = 3e-3, delta = 3e-2;
 
 
 void get_map_n(const int n)
 {
-  ss_vect<tps>  map2, map4;
+  ss_vect<tps> map2, map4;
 
   get_map(false);
 
@@ -90,11 +106,11 @@ void get_map_normal_form()
 
 tps get_H(void)
 {
-  int           i;
-  tps           H, gn;
-  ss_vect<tps>  Id, Mn;
+  int          i;
+  tps          H, gn;
+  ss_vect<tps> Id, Mn;
 
-  const bool  prt = false;
+  const bool prt = false;
 
   // Construct generator.
   // K is in Dragt-Finn form but the generators commute.
@@ -118,10 +134,10 @@ tps get_H(void)
 
 void get_A(void)
 {
-  int           j;
-  iVector       jj;
-  tps           gn;
-  ss_vect<tps>  Id, A;
+  int          j;
+  iVector      jj;
+  tps          gn;
+  ss_vect<tps> Id, A;
 
   Id.identity(); A = MNF.A1;
   for (j = no_tps; j >= 3; j--) {
@@ -137,9 +153,9 @@ void get_A(void)
 
 void get_twoJ(const ss_vect<double> &ps, double twoJ[])
 {
-  int              j;
-  ss_vect<double>  z;
-  ss_vect<tps>     Id;
+  int             j;
+  ss_vect<double> z;
+  ss_vect<tps>    Id;
 
   z = (A_inv*ps).cst();
 
@@ -150,17 +166,16 @@ void get_twoJ(const ss_vect<double> &ps, double twoJ[])
 
 void get_dnu(const double Ax_max, const double Ay_max, const double delta_max)
 {
-  char             str[max_str];
-  int              i;
-  double           twoJ[2], nux, nuy;
-  ss_vect<double>  ps;
-  ss_vect<tps>     Id;
+  char            str[max_str];
+  int             i;
+  double          twoJ[2], nux, nuy;
+  ss_vect<double> ps;
+  ss_vect<tps>    Id;
+  ifstream        inf;
+  ofstream        outf;
 
-  ifstream      inf;
-  ofstream      outf;
-
-  const int     n_ampl = 25, n_delta = 20;
-  const double  A_min = 1e-6;
+  const int    n_ampl = 25, n_delta = 20;
+  const double A_min = 1e-6;
 
   if (false) {
     sprintf(str, "%s%s", home_dir, "/Thor-2.0/thor/wrk");
@@ -230,16 +245,15 @@ void get_dnu(const double Ax_max, const double Ay_max, const double delta_max)
 
 void get_dnu2(const double Ax_max, const double Ay_max, const double delta)
 {
-  char             str[max_str];
-  int              i, j;
-  double           twoJ[2], nux, nuy;
-  ss_vect<double>  ps;
-  ss_vect<tps>     Id;
+  char            str[max_str];
+  int             i, j;
+  double          twoJ[2], nux, nuy;
+  ss_vect<double> ps;
+  ss_vect<tps>    Id;
+  ifstream        inf;
+  ofstream        outf;
 
-  ifstream      inf;
-  ofstream      outf;
-
-  const int     n_ampl = 10;
+  const int n_ampl = 10;
 
   if (false) {
     sprintf(str, "%s%s", home_dir, "/Thor-2.0/thor/wrk");
@@ -272,11 +286,10 @@ void get_dnu2(const double Ax_max, const double Ay_max, const double delta)
 
 int main(int argc, char *argv[])
 {
-  char          str[max_str];
-  double        Jx, Jy, delta;
-  tps           H, H_re, H_im, g_re, g_im, K_re, K_im;
-  ss_vect<tps>  Id;
-  ofstream      outf;
+  double       Jx, Jy, delta;
+  tps          H, H_re, H_im, g_re, g_im, K_re, K_im;
+  ss_vect<tps> Id;
+  ofstream     outf;
 
   globval.H_exact    = false; globval.quad_fringe = false;
   globval.Cavity_on  = false; globval.radiation   = false;
@@ -350,7 +363,7 @@ int main(int argc, char *argv[])
   // Note, nus are in Floquet space.
   get_A();
 
-  get_dnu(Ax, Ay, 3.0e-2);
+  get_dnu(A_max[lat_case-1][X_], A_max[lat_case-1][Y_], delta_max[lat_case-1]);
 
 //  get_dnu2(Ax, Ay, 0.0);
 

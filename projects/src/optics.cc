@@ -306,7 +306,7 @@ void chk_mpole(void)
   int              k;
   std::vector<int> Fnum;
 
-  const int lat_case = 1;
+  const int lat_case = 2;
 
   switch (lat_case) {
   case 1:

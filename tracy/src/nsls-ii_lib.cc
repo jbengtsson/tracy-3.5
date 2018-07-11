@@ -233,7 +233,8 @@ ss_vect<tps> get_S(const int n_DOF)
 
 ss_vect<tps> tp_S(const int n_DOF, const ss_vect<tps> &A)
 {
-  int           j, jj[ss_dim];
+  int           j;
+  long int      jj[ss_dim];
   ss_vect<tps>  S;
 
   for (j = 1; j <= ss_dim; j++)

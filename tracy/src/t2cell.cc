@@ -118,7 +118,8 @@ void Cell_Pass(const long i0, const long i1, tps &sigma, long &lastpos)
   // Note: Sigma_k+1 = M_k Sigma_k M_k^T = (M_k (M_k Sigma_k)^T)^T
   const int  n = 9;
 
-  int           i, j, jj[n][nv_tps];
+  int           i, j;
+  long int      jj[n][nv_tps];
   ss_vect<tps>  Id, A;
 
   const double  deps = 1e-20;

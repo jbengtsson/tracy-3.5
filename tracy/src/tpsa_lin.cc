@@ -15,9 +15,9 @@
 #define danamlen  10
 #define dafunlen   4
 
-typedef char    danambuf[danamlen];
-typedef char    funnambuf[dafunlen];
-typedef int     iVector[ss_dim];
+typedef char     danambuf[danamlen];
+typedef char     funnambuf[dafunlen];
+typedef long int iVector[ss_dim];
 
 extern const int  nv_tps, nd_tps, iref_tps;
 extern int        no_tps, ndpt_tps;
@@ -91,7 +91,7 @@ void dacon_(tps_buf &x, const double r)
 }
 
 
-void dapek_(const tps_buf &x, const int jj[], double &r)
+void dapek_(const tps_buf &x, const long int jj[], double &r)
 {
   int  i, nzero;
 
@@ -112,7 +112,7 @@ void dapek_(const tps_buf &x, const int jj[], double &r)
 }
 
 
-void dapok_(tps_buf &x, const int jj[], const double r)
+void dapok_(tps_buf &x, const long int jj[], const double r)
 {
   int  i, nzero;
 
