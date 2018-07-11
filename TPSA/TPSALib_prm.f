@@ -17,7 +17,7 @@
 !     &           lno=16, lnv=7)
 !     For Workstation.
       parameter (lda=100000, lst=900000000, lea=500000, lia=80000,         &
-     &           lno=9, lnv=7)
+     &           lno=14, lnv=7)
 
       integer           nda, ndamaxi
       common /fordes/   nda, ndamaxi
