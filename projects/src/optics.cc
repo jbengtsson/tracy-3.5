@@ -206,16 +206,17 @@ void chk_high_ord_achr(void)
   double           dnu[2];
   std::vector<int> loc;
 
-  // D-TBA  0,
-  // H-6BA  1,
-  // H-8BA  2,
-  // RB-6BA 3.
-  const int lat_case = 1;
+  // D-TBA  1,
+  // D-TBA  2,
+  // H-6BA  3,
+  // H-8BA  4,
+  // RB-6BA 5.
+  const int lat_case = 3;
 
   Ring_GetTwiss(true, 0e0);
  
   switch (lat_case) {
-  case 0:
+  case 1:
     dnu[X_] = 0.0; dnu[Y_] = 0.0;
     loc.push_back(Elem_GetPos(ElemIndex("dr_01"),     1));
     loc.push_back(Elem_GetPos(ElemIndex("idmarker"),  2));
@@ -247,21 +248,28 @@ void chk_high_ord_achr(void)
     loc.push_back(Elem_GetPos(ElemIndex("idmarker"), 23));
     loc.push_back(Elem_GetPos(ElemIndex("idmarker"), 24));
    break;
-  case 1:
+  case 2:
+    dnu[X_] = 0.0; dnu[Y_] = 0.0;
+    loc.push_back(Elem_GetPos(ElemIndex("dc_1_01"),  1));
+    loc.push_back(Elem_GetPos(ElemIndex("idmarker"), 2));
+    loc.push_back(Elem_GetPos(ElemIndex("idmarker"), 3));
+    loc.push_back(Elem_GetPos(ElemIndex("idmarker"), 4));
+   break;
+  case 3:
     dnu[X_] = 19.0/8.0; dnu[Y_] = 15.0/16.0;
     loc.push_back(Elem_GetPos(ElemIndex("ss1"), 1));
     loc.push_back(Elem_GetPos(ElemIndex("ss1"), 3));
     loc.push_back(Elem_GetPos(ElemIndex("ss1"), 5));
     loc.push_back(globval.Cell_nLoc);
     break;
-  case 2:
+  case 4:
     dnu[X_] = 19.0/8.0; dnu[Y_] = 15.0/16.0;
     loc.push_back(Elem_GetPos(ElemIndex("du1"), 1));
     loc.push_back(Elem_GetPos(ElemIndex("du1"), 3));
     loc.push_back(Elem_GetPos(ElemIndex("du1"), 5));
     loc.push_back(globval.Cell_nLoc);
     break;
-  case 3:
+  case 5:
     dnu[X_] = 23.0/8.0; dnu[Y_] = 19.0/16.0;
     loc.push_back(Elem_GetPos(ElemIndex("dss1"), 1));
     loc.push_back(Elem_GetPos(ElemIndex("dss1"), 3));
@@ -283,6 +291,34 @@ void chk_high_ord_achr(void)
 	     Cell[loc[k]].S-Cell[loc[k-1]].S, 
 	     Cell[loc[k]].Nu[X_]-Cell[loc[k-1]].Nu[X_], 
 	     Cell[loc[k]].Nu[Y_]-Cell[loc[k-1]].Nu[Y_]);
+}
+
+
+void chk_mI_trans(void)
+{
+  int Fnum, k, loc0, loc1;
+
+  const int lat_case = 2;
+
+  Ring_GetTwiss(true, 0e0);
+ 
+  switch (lat_case) {
+  case 1:
+    Fnum = ElemIndex("sextmark");
+   break;
+  case 2:
+    Fnum = ElemIndex("sf");
+   break;
+  }
+
+  printf("\nChromatic sextupole phase advance:\n");
+  for (k = 2; k <= GetnKid(Fnum); k += 2) {
+    loc0 = Elem_GetPos(Fnum, k-1); loc1 = Elem_GetPos(Fnum, k);
+    printf(" %8s [%7.5f, %7.5f]\n",
+	   Cell[loc1].Elem.PName, 
+	   Cell[loc1].Nu[X_]-Cell[loc0].Nu[X_], 
+	   Cell[loc1].Nu[Y_]-Cell[loc0].Nu[Y_]);
+  }
 }
 
 
@@ -571,6 +607,11 @@ int main(int argc, char *argv[])
 
   if (false) {
     chk_high_ord_achr();
+    exit(0);
+  }
+
+  if (false) {
+    chk_mI_trans();
     exit(0);
   }
 

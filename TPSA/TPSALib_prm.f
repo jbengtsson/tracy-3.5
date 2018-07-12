@@ -11,13 +11,14 @@
 
       integer           lda, lea, lia, lno, lnv, lst
 
-!      parameter (lda=30000, lst=200000000, lea=500000, lia=80000,         &
-!     &           lno=16, lnv=7)
+!     For Workstation.
+      parameter (lda=30000, lst=200000000, lea=500000, lia=80000,         &
+     &           lno=16, lnv=7)
 !      parameter (lda=30000, lst=20000000, lea=500000, lia=80000,         &
 !     &           lno=16, lnv=7)
-!     For Workstation.
-      parameter (lda=100000, lst=900000000, lea=500000, lia=80000,         &
-     &           lno=14, lnv=7)
+!     For Cluster Server.
+!      parameter (lda=100000, lst=900000000, lea=500000, lia=80000,         &
+!     &           lno=14, lnv=7)
 
       integer           nda, ndamaxi
       common /fordes/   nda, ndamaxi
