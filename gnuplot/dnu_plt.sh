@@ -4,9 +4,10 @@ prm1=${1-""}
 prm2=${2-1}
 prm3=${3-0}
 prm4=${4-5}
+prm5=${5-0}
 gnuplot << EOP
 
-home_dir = "$prm1"; N = $prm2; ps = $prm3; case = $prm4; pert = 0;
+home_dir = "$prm1"; N = $prm2; ps = $prm3; case = $prm4; pert = $prm5;
 
 # MAX-VI 1, SLS-2 2, DIAMOND-II D-TBA 3, 6-BA 4, 8-BA 5, DIAMOND: 6, ALS-U 7,
 # DELTA: 8.
@@ -25,7 +26,7 @@ file12 = (home_dir)."dnu_dAx_pert.out"
 file2  = (home_dir)."dnu_dAy.out";
 file22 = (home_dir)."dnu_dAy_pert.out";
 file3  = (home_dir)."chrom2.out";
-file4  = (home_dir)."fmap_est.dat";
+file32 = (home_dir)."chrom2_pert.out";
 
 f_s = 24; l_w = 2;
 if (ps == 0) \
@@ -134,7 +135,7 @@ if (!pert) \
 else \
   plot file1 using 1:(N*(N_x+\$5)) title "A_x" with lines ls 1, \
        file2 using 2:(N*(N_x+\$5)) title "A_y" with lines ls 3, \
-       file11 using 1:(N*(N_x+\$3)) title "A_x (pert)" with lines ls 2, \
+       file12 using 1:(N*(N_x+\$3)) title "A_x (pert)" with lines ls 2, \
        file22 using 2:(N*(N_x+\$3)) title "A_y (pert)" with lines ls 4;
 if (!ps) pause mouse "click on graph to cont.\n";
 
@@ -162,8 +163,16 @@ set xlabel "{/Symbol d} [%]"; set ylabel "{/Symbol n}_x";
 set y2label "{/Symbol n}_y";
 set ytics nomirror; set y2tics;
 #set xrange [delta_min:delta_max];
-plot file3 using 1:(N*\$2) title "{/Symbol n}_x" with lines ls 1, \
-     file3 using 1:(N*\$3) axis x1y2 title "{/Symbol n}_y" with lines ls 3;
+if (!pert) \
+  plot file3 using 1:(N*\$2) title "{/Symbol n}_x" with lines ls 1, \
+       file3 using 1:(N*\$3) axis x1y2 title "{/Symbol n}_y" with lines ls 3; \
+else \
+  plot file3 using 1:(N*\$2) title "{/Symbol n}_x" with lines ls 1, \
+       file3 using 1:(N*\$3) axis x1y2 title "{/Symbol n}_y" with lines ls 3, \
+       file32 using 1:(N*(N_x+\$2)) title "{/Symbol n}_x (pert)" \
+       with lines ls 2, \
+       file32 using 1:(N*(N_y+\$3)) axis x1y2 title "{/Symbol n}_y" \
+       with lines ls 4;
 if (!ps) pause mouse "click on graph to cont.\n";
 
 exit;
