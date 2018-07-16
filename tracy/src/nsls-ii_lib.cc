@@ -2575,13 +2575,13 @@ void IBS_BM(const double Qb, const double eps_SR[], double eps[],
   //   d = z*Z*e^2/(2*pi*eps_0*m*v^2) = z*Z*e/(4*pi*eps_0*T_trans [eV]).
   r_min_Cl = 1.44e-9*sqr(q_i)/T_trans;
 
-  // Test particle de Broglie wavelength in the coordinate system in which the
-  // scattering center is at rest, p. 3, J.A. Krommes "An Introduction to the
-  // Physics of the Coulomb Logarithm with Emphasis on Quantum-Mechanical
-  // Effects" arXiv:1806.04990 (2018):
+  // Test particle de Broglie wavelength in the scattering center's rest system
+  // p. 3, J.A. Krommes "An Introduction to the Physics of the Coulomb
+  // Logarithm with Emphasis on Quantum-Mechanical Effects" arXiv:1806.04990
+  // (2018):
   //   b_min = h/mu*u
-  // where mu is the reduced mass.
-  // Similarly, from p. 34, "NRL Plasma Formularly" (2013):
+  // where mu is the reduced mass. Similarly, from p. 34, "NRL Plasma
+  // Formularly" (2013):
   //   b_min = h_bar/2*mu*u = h_bar*c0/sqrt(m*c0^2 [eV]*T_trans [eV])
   // i.e., the constant should be h_bar*c0 = 1.973e-7; not 1.973e-13.
   if (!ZAP_BS)
