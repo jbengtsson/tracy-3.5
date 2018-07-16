@@ -107,7 +107,7 @@ void get_Touschek(void)
 
 void get_IBS(const int n, const double ds, const double Qb, const double eps[])
 {
-  int    i, j;
+  int    j;
   double eps0[3], eps1[3], sigma0_s, sigma0_delta, sigma_s, sigma_delta;
   FILE   *outf;
 
@@ -166,7 +166,7 @@ int main(int argc, char *argv[])
   globval.pathlength = false; globval.bpm         = 0;
 
   const double delta = 3e-2;
-  const double Qb    = 5e-9, sigma_s = 8.8e-2, sigma_delta = 0.77e-3;
+  const double Qb    = 5e-9, sigma_s = 8.8e-3, sigma_delta = 0.77e-3;
   const double nu[]  = {101.9/20.0, 27.6/20.0};
 
   if (true)
@@ -226,6 +226,7 @@ int main(int argc, char *argv[])
     // alpha_z << 1 => eps_z ~ sigma_s * sigma_delta.
     globval.eps[Z_] = sigma_s*sigma_delta;
     globval.beta_z  = sqr(sigma_s)/globval.eps[Z_];
+    globval.alpha_z = 0e0;
 
     printf("\nbeta_z = %5.3f, eps_z = %10.3e\n",
 	   globval.beta_z, globval.eps[Z_]);
