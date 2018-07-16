@@ -567,15 +567,15 @@ void get_cod_rms_scl_new(const int n_seed)
     // reset orbit trims
     zero_trims();
     
-    LoadFieldErr_scl("lattice/FieldErr.alsu.dat", false, 1.0, true, i);
-    LoadAlignTol("lattice/AlignErr.alsu-20171002.dat", false, 1.0, true, i);
+    LoadFieldErr_scl("lattice/FieldErr.alsu-20171215_mod3.dat", false, 1.0, true, i);
+    LoadAlignTol("lattice/AlignErr.alsu-20171002_mod3.dat", false, 1.0, true, i);
     
     // if COD fails because of large misalignments, introduce intermediate steps to approach solution
     if (true) {
       int  steps = 2;
       for (l = 1; l <=steps; l++) {
 	cout << endl << "*** COD STEPPING " << l << " of " << steps << " (in iteration " << i+1 << "/" << n_seed << " ) ***" << endl;
-	LoadAlignTol("lattice/AlignErr.alsu-20171002.dat", true, (double)l/double(steps), false, i);
+	LoadAlignTol("lattice/AlignErr.alsu-20171002_mod3.dat", true, (double)l/double(steps), false, i);
 	cod = orb_corr_scl(3);
       }
     } else
@@ -819,50 +819,53 @@ int main(int argc, char *argv[])
 
   iniranf(seed); setrancut(2.0);
 
-  // turn on globval.Cavity_on and globval.radiation to get proper synchr radiation damping
-  // IDs accounted too if: wiggler model and symplectic integrator (method = 1)
-  globval.H_exact    = false; globval.quad_fringe = false;
-  globval.Cavity_on  = true;  globval.radiation   = false;
-  globval.emittance  = false; 
-  globval.pathlength = false; //globval.bpm         = 0;
-
-  reverse_elem = true; // true=inverted lattice elements are properly inverted (bend entr/exit angles)
-
-  
-  //// overview, on energy: 6-4 (60x40 takes ~40 min)
-  //const double  x_max_FMA = 6e-3, y_max_FMA = 4e-3;
-  //const int     n_x = 60, n_y = 40, n_tr = 2046;
-  //const double  x_max_FMA = 5e-3, y_max_FMA = 3e-3;
-  //const int     n_x = 60, n_y = 40, n_tr = 2046; // 5-3 takes ~25 min
-  //// overview, off energy: 6-2 (20x40 takes ~85 min)
-  const double  x_max_FMA = 2e-3, delta_FMA = 6e-2;
-  const int     n_x = 20, n_dp = 40, n_tr = 2046;
-
+  reverse_elem           = true;  // true=inverted lattice elements are properly inverted (bend entr/exit angles)
 
   if (true)
     Read_Lattice(argv[1]); //make sure reverse_elem set to true so lattice element inversion ok
   else
     rdmfile("flat_file.dat"); //instead of reading lattice file, get data from flat file
 
+  // turn on globval.Cavity_on and globval.radiation to get proper synchr radiation damping
+  // IDs accounted too if: wiggler model and symplectic integrator (method = 1)
+  globval.H_exact        = false; globval.quad_fringe = false;
+  globval.Cavity_on      = false; globval.radiation   = false;
+  globval.emittance      = false; 
+  globval.pathlength     = false; //globval.bpm         = 0;
+  globval.dip_edge_fudge = false; // false: correct calculation to leading order in delta (20180626-0855)
+                                  // true : K.Brown fudge for dipole edge focusing (compatibility with MAD-X, Elegant, AT, etc.)
+  
+  //// overview, on energy: 5-3 (60x40 takes ~40 min)
+  //const double  x_max_FMA = 5e-3, y_max_FMA = 3e-3;
+  //const int     n_x = 4*60, n_y = 4*40, n_tr = 2046; // 5-3 takes ~25 min (w/o multiplier, w/ *4 -> ~96 hrs)
+  //// overview, off energy: 6-2 (20x40 takes ~85 min)
+  const double  x_max_FMA = 2e-3, delta_FMA = 6e-2;
+  const int     n_x = 4*20, n_dp = 4*40, n_tr = 2046; // 2-6 w/ *4 on both takes ~96 hrs
+
   //no_sxt(); //turns off sextupoles
   if (false) {
     int  sf,sd;
-    sf = ElemIndex("sf2"); sd = ElemIndex("sd2");
+    sf = ElemIndex("sf1"); sd = ElemIndex("sd2h");
     printf("  sf = %8.5f   sd = %8.5f\n", GetKLpar(sf, 1, Sext), GetKLpar(sd, 1, Sext));
     FitChrom(sf,sd,-1.0,-1.0); //adjusts chroma using two sext families
     printf("  sf = %8.5f   sd = %8.5f\n", GetKLpar(sf, 1, Sext), GetKLpar(sd, 1, Sext));
   }
 
+  globval.Cavity_on = !true; globval.radiation = !true;
+  // Ring_GetTwiss() only 6D if cav/rad ON, but will only return linear chroma if cav OFF
+  Ring_GetTwiss(true, 0e-2); printglob(); //gettwiss computes one-turn matrix arg=(w or w/o chromat, dp/p)
   globval.Cavity_on = true; globval.radiation = true;
-  Ring_GetTwiss(true, 0e-2); printglob(); //gettwiss computes one-turn matrix arg=(w or w/o chromat, dp/p); only 6D if cav/rad ON
+  // Ring_GetTwiss() only 6D if cav/rad ON, but will only return linear chroma if cav OFF
+  Ring_GetTwiss(true, 0e-2); printglob(); //gettwiss computes one-turn matrix arg=(w or w/o chromat, dp/p)
+
   //prt_lat("linlat.out", ElemIndex("bpm_m"), true);  //updated from older T3 version; no longer used as of 2017
   prt_lat("linlat.out", globval.bpm, true); // Print linear optics at end of each element.
   //prt_lat("linlat.out", globval.bpm, true, 10); // Pretty print of linear optics functions through elements.
 
   //prt_chrom_lat(); //writes chromatic functions into chromlat.out
-  prtmfile("flat_file.dat"); // writes flat file
+  //prtmfile("flat_file.dat"); // writes flat file
   get_matching_params_scl();
-  get_alphac2_scl();
+  //get_alphac2_scl();
   GetEmittance(ElemIndex("cav"), true); // call GetEmittance last since it screws up linlat output
   //prt_beamsizes(); // writes beam_envelope.out; contains sigmamatrix(s), theta(s)
     
@@ -907,7 +910,8 @@ int main(int argc, char *argv[])
     //prt_cod("cod_err.out", ElemIndex("bpm_m"), true);  //updated from older T3 version
      
     // load alignment errors and field errors, correct orbit, repeat N times, and get statistics
-    get_cod_rms_scl_new(1); //trim coils aren't reset when finished
+    globval.Cavity_on = false; globval.radiation = false; // OCO tends to fail if CAV on
+    get_cod_rms_scl_new(20); //trim coils aren't reset when finished
     
     // for aperture limitations use LoadApers (in nsls_ii_lib.cc) and Apertures.dat
     //globval.Aperture_on = true;
@@ -915,12 +919,12 @@ int main(int argc, char *argv[])
     
   }
   
-  if (!false) {
+  if (false) {
     cout << endl;
     cout << "computing tune shifts" << endl;
-    globval.Cavity_on = false; globval.radiation = false;
-    dnu_dA(4e-3, 3e-3, 0.0, 25);  // the final argument 25 defines the number of amplitude steps
-    get_ksi2(3e-2); // this gets the chromas (up to +/-delta) and writes them into chrom2.out
+    globval.Cavity_on = false; globval.radiation = false; // get_ksi2 does not work if cav/rad on
+    dnu_dA(3e-3, 2e-3, 0.0, 25);  // the final argument 25 defines the number of amplitude steps
+    get_ksi2(6.0e-2); // this gets the chromas (up to +/-delta) and writes them into chrom2.out
   }
   
   if (false) {
@@ -932,7 +936,7 @@ int main(int argc, char *argv[])
     globval.radiation = false; // this adds ripple around long. ellipse (needs many turns to resolve damp.)
     //globval.Aperture_on = true;
     //LoadApers("lattice/Apertures.dat", 1, 1);
-    get_dynap_scl(3*1.0e-2, 512); // first argument is +/-delta for off-mom DA
+    //get_dynap_scl(3*1.0e-2, 512); // first argument is +/-delta for off-mom DA
   }
   
 
@@ -943,9 +947,10 @@ int main(int argc, char *argv[])
   int     k, n_turns;
   double  sigma_s, sigma_delta, tau, eps[3];
   FILE    *outf;
-  const double  Qb   = 1.151e-9; // 500 mA * 195.936m / 2.9979e8 m/s / 284 populated bunches
+  // const double  Qb   = 1.151e-9; // 500 mA * 195.936m / 2.9979e8 m/s / 284 populated bunches
+  const double  Qb   = 5e-9; // 500 mA * 195.936m / 2.9979e8 m/s / 284 populated bunches
   
-  if (!true) {
+  if (true) {
     double  sum_delta[globval.Cell_nLoc+1][2];
     double  sum2_delta[globval.Cell_nLoc+1][2];
     
@@ -957,10 +962,10 @@ int main(int argc, char *argv[])
       sum2_delta[k][0] = 0.0; sum2_delta[k][1] = 0.0;
     }
     
-    globval.eps[X_] = 74e-12;
-    globval.eps[Y_] = 74e-12;
-    sigma_delta     = 1.073e-03;
-    sigma_s         = 3.3e-3;
+    globval.eps[X_] = 320e-12;
+    globval.eps[Y_] = 8e-12;
+    sigma_delta     = 0.77e-03;
+    sigma_s         = 8.8e-3;
 
     // approx. (alpha_z << 1)
     globval.eps[Z_] = sigma_delta*sigma_s;
@@ -983,18 +988,18 @@ int main(int argc, char *argv[])
       globval.beta_z *= bunchLengthening;  // gamma_z does not change, alpha_z still assumed ~= 0
     }
     
-    globval.delta_RF = 3.5e-2; //globval.delta_RF given by cav voltage in lattice file
+    globval.delta_RF = 7.06e-2; //globval.delta_RF given by cav voltage in lattice file
 
     Touschek(Qb, globval.delta_RF, globval.eps[X_], globval.eps[Y_],
     	     sigma_delta, sigma_s);
           
 
     // IBS
-    if (false) {       
+    if (true) {       
       // initialize eps_IBS with eps_SR
       for(k = 0; k < 3; k++)
 	eps[k] = globval.eps[k];
-      for(k = 0; k < 10; k++){ //prototype (looping because IBS routine doesn't check convergence)
+      for(k = 0; k < 25; k++){ //prototype (looping because IBS routine doesn't check convergence)
 	cout << endl << "*** IBS iteration step " << k << " ***";
 	IBS_BM(Qb, globval.eps, eps, true, true);  // use IBS_BM instead of old IBS // 20170814: results likely cannot be trusted
       }
@@ -1002,15 +1007,15 @@ int main(int argc, char *argv[])
     
     
     // TOUSCHEK TRACKING
-    if (true) {       
-      //globval.eps[X_] = 83.273e-12;
-      //globval.eps[Y_] = 83.273e-12;
-      //sigma_delta     = 1.162e-03;
-      //sigma_s         = 3.574e-3;
+    if (false) {       
+      //globval.eps[X_] = 74.664e-12;
+      //globval.eps[Y_] = 74.664e-12;
+      //sigma_delta     = 1.190e-03;
+      //sigma_s         = 3.659e-3;
 
       Touschek(Qb, globval.delta_RF, globval.eps[X_], globval.eps[Y_], sigma_delta, sigma_s);
       
-      n_turns = 578; // track for one synchr.osc. -> 1/nu_s (ALS-U 7BA bare @ 0.83MV)
+      n_turns = 834; // track for one synchr.osc. -> 1/nu_s
       
       globval.Aperture_on = true;
       //LoadApers("lattice/Apertures.dat", 1, 1);

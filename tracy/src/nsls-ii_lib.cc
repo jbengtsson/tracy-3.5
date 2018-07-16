@@ -2518,7 +2518,7 @@ void IBS_BM(const double Qb, const double eps_SR[], double eps[],
   double    a_BM, b_BM, c_BM, a2_CM, b2_CM, D_CM;
   double    D_x, D_delta, eps_IBS[3];
 
-  const bool    ZAP_BS = false;
+  const bool    ZAP_BS = true;
   const int     model = 2; // 1: Bjorken-Mtingwa, 2: Conte-Martini, 3: MAD-X
   const double  gamma = 1e9*globval.Energy/m_e;
   const double  beta_rel = sqrt(1e0-1e0/sqr(gamma));
@@ -2565,18 +2565,33 @@ void IBS_BM(const double Qb, const double eps_SR[], double eps[],
 
   V = 8e0*pow(M_PI, 3e0/2e0)*sigma_m[X_]*sigma_m[Y_]*sigma_s;
   rho = N_b/V;
+  // Transverse temperature (p. 171, "ZAP User's Manual"):
+  //   T_trans [eV] = 2*E_kin_trans [eV].
   T_trans = (gamma*1e9*globval.Energy-m_e)*eps[X_]/beta_m[X_];
   lambda_D = 743.4e-2/q_i*sqrt(T_trans/(1e-6*rho));
   r_max = min(sigma_m[X_], lambda_D);
 
+  // Classical distance of closest approach:
+  //   d = z*Z*e^2/(2*pi*eps_0*m*v^2) = z*Z*e/(4*pi*eps_0*T_trans [eV]).
   r_min_Cl = 1.44e-9*sqr(q_i)/T_trans;
 
+  // Test particle de Broglie wavelength in the coordinate system in which the
+  // scattering center is at rest, p. 3, J.A. Krommes "An Introduction to the
+  // Physics of the Coulomb Logarithm with Emphasis on Quantum-Mechanical
+  // Effects" arXiv:1806.04990 (2018):
+  //   b_min = h/mu*u
+  // where mu is the reduced mass.
+  // Similarly, from p. 34, "NRL Plasma Formularly" (2013):
+  //   b_min = h_bar/2*mu*u = h_bar*c0/sqrt(m*c0^2 [eV]*T_trans [eV])
+  // i.e., the constant should be h_bar*c0 = 1.973e-7; not 1.973e-13.
   if (!ZAP_BS)
     r_min_QM = 1.973e-13/(2e0*sqrt(T_trans*m_e));
   else
-    // Bug in ZAP.
+    // ZAP implementation, a Bug (variable name is "COULOG"):
+    //   [ETRANS] = eV, [E0] = Mev => *1e6, not *1e-6).
     r_min_QM = 1.973e-13/(2e0*sqrt(1e-12*T_trans*m_e));
 
+  // Interpolation between classical and quantum-mechanical limits.
   r_min = max(r_min_Cl, r_min_QM);
 
   log_Coulomb = log(r_max/r_min);

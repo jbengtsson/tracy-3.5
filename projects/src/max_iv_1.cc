@@ -112,7 +112,6 @@ void get_IBS(const int n, const double ds, const double Qb, const double eps[])
   FILE   *outf;
 
   const char file_name[] = "ibs.out";
-  const int n_iter = 20;
 
   outf = file_write(file_name);
 
@@ -125,33 +124,31 @@ void get_IBS(const int n, const double ds, const double Qb, const double eps[])
   fprintf(outf, "# sigma0_s eps_x    ratio_x  eps_y    ratio_y"
 	  "  sigma_s  sigma_delta\n");
   fprintf(outf, "#   [cm]  [pm.rad]          [pm.rad]   [cm]\n");
-  for (i = 1; i <= n; i++) {
-    for (j = 0; j < 3; j++)
-      eps1[j] = eps0[j];
+  for (j = 0; j < 3; j++)
+    eps1[j] = eps0[j];
 
-    printf("\n");
-    for (j = 1; j <= n_iter; j++) {
-      if (j == 1) {
-	printf("\nIBS %d:\n", j);
-	IBS_BM(Qb, eps, eps1, true, true);
-      } else if ((j == n_iter-1) || (j == n_iter)) {
-	printf("\nIBS %d:\n", j);
-	IBS_BM(Qb, eps0, eps1, false, true);
-      } else
-	IBS_BM(Qb, eps0, eps1, false, false);
-    }
-
-    sigma_s = sqrt(globval.beta_z*eps1[Z_]);
-    sigma_delta = eps1[Z_]/sigma_s;
-    fprintf(outf, "%8.3f %8.3f %8.3f %8.3f %8.3f %8.3f %12.3e\n",
-	    1e2*sigma0_s, 1e12*eps1[X_], eps1[X_]/eps0[X_], 1e12*eps1[Y_],
-	    eps1[Y_]/eps0[Y_], 1e2*sigma_s, sigma_delta);
-    fflush(outf);
-
-    // alpha_z << 1 => eps_z ~ sigma_s * sigma_delta.
-    sigma0_s += ds; eps0[Z_] = sigma0_s*sigma0_delta;
-    globval.beta_z = sqr(sigma0_s)/eps0[Z_];
+  printf("\n");
+  for (j = 1; j <= n; j++) {
+    if (j == 1) {
+      printf("\nIBS %d:\n", j);
+      IBS_BM(Qb, eps, eps1, true, true);
+    } else if ((j == n-1) || (j == n)) {
+      printf("\nIBS %d:\n", j);
+      IBS_BM(Qb, eps0, eps1, false, true);
+    } else
+      IBS_BM(Qb, eps0, eps1, false, false);
   }
+
+  sigma_s = sqrt(globval.beta_z*eps1[Z_]);
+  sigma_delta = eps1[Z_]/sigma_s;
+  fprintf(outf, "%8.3f %8.3f %8.3f %8.3f %8.3f %8.3f %12.3e\n",
+	  1e2*sigma0_s, 1e12*eps1[X_], eps1[X_]/eps0[X_], 1e12*eps1[Y_],
+	  eps1[Y_]/eps0[Y_], 1e2*sigma_s, sigma_delta);
+  fflush(outf);
+
+  // alpha_z << 1 => eps_z ~ sigma_s * sigma_delta.
+  sigma0_s += ds; eps0[Z_] = sigma0_s*sigma0_delta;
+  globval.beta_z = sqr(sigma0_s)/eps0[Z_];
 
   fclose(outf);
 }
@@ -169,7 +166,7 @@ int main(int argc, char *argv[])
   globval.pathlength = false; globval.bpm         = 0;
 
   const double delta = 3e-2;
-  const double Qb    = 5e-9, sigma_s = 1e-2, sigma_delta = 1e-3;
+  const double Qb    = 5e-9, sigma_s = 8.8e-2, sigma_delta = 0.77e-3;
   const double nu[]  = {101.9/20.0, 27.6/20.0};
 
   if (true)
@@ -218,11 +215,13 @@ int main(int argc, char *argv[])
   get_eps_x1();
   GetEmittance(ElemIndex("cav"), true);
 
-  if (false) {
+  if (!false) {
     printf("\nalpha_z = %11.3e, beta_z = %10.3e\n",
 	   globval.alpha_z,  globval.beta_z);
 
-    globval.eps[Y_] = globval.eps[X_];
+    globval.eps[X_] = 0.320e-9; globval.eps[Y_] = 0.008e-9;
+    // Round beam.
+    // globval.eps[Y_] = globval.eps[X_];
 
     // alpha_z << 1 => eps_z ~ sigma_s * sigma_delta.
     globval.eps[Z_] = sigma_s*sigma_delta;
@@ -231,7 +230,7 @@ int main(int argc, char *argv[])
     printf("\nbeta_z = %5.3f, eps_z = %10.3e\n",
 	   globval.beta_z, globval.eps[Z_]);
 
-    get_IBS(21, 1e-2, Qb, globval.eps);
+    get_IBS(20, 1e-2, Qb, globval.eps);
   }
 
 //   get_Touschek();
