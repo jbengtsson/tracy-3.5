@@ -207,69 +207,36 @@ void chk_high_ord_achr(void)
   std::vector<int> loc;
 
   // D-TBA  1,
-  // D-TBA  2,
-  // H-6BA  3,
-  // H-8BA  4,
-  // RB-6BA 5.
-  const int lat_case = 3;
+  // H-6BA  2,
+  // H-8BA  3,
+  // RB-6BA 4.
+  const int lat_case = 1;
 
   Ring_GetTwiss(true, 0e0);
  
   switch (lat_case) {
   case 1:
-    dnu[X_] = 0.0; dnu[Y_] = 0.0;
-    loc.push_back(Elem_GetPos(ElemIndex("dr_01"),     1));
-    loc.push_back(Elem_GetPos(ElemIndex("idmarker"),  2));
-    loc.push_back(Elem_GetPos(ElemIndex("idmarker"),  3));
-    loc.push_back(Elem_GetPos(ElemIndex("idmarker"),  4));
-
-    loc.push_back(Elem_GetPos(ElemIndex("dr_01"),     5));
-    loc.push_back(Elem_GetPos(ElemIndex("idmarker"),  6));
-    loc.push_back(Elem_GetPos(ElemIndex("idmarker"),  7));
-    loc.push_back(Elem_GetPos(ElemIndex("idmarker"),  8));
-
-    loc.push_back(Elem_GetPos(ElemIndex("dr_01"),     9));
-    loc.push_back(Elem_GetPos(ElemIndex("idmarker"), 10));
-    loc.push_back(Elem_GetPos(ElemIndex("idmarker"), 11));
-    loc.push_back(Elem_GetPos(ElemIndex("idmarker"), 12));
-
-    loc.push_back(Elem_GetPos(ElemIndex("dr_01"),    13));
-    loc.push_back(Elem_GetPos(ElemIndex("idmarker"), 14));
-    loc.push_back(Elem_GetPos(ElemIndex("idmarker"), 15));
-    loc.push_back(Elem_GetPos(ElemIndex("idmarker"), 16));
-
-    loc.push_back(Elem_GetPos(ElemIndex("dr_01"),    17));
-    loc.push_back(Elem_GetPos(ElemIndex("idmarker"), 18));
-    loc.push_back(Elem_GetPos(ElemIndex("idmarker"), 19));
-    loc.push_back(Elem_GetPos(ElemIndex("idmarker"), 20));
-
-    loc.push_back(Elem_GetPos(ElemIndex("dr_01"),    21));
-    loc.push_back(Elem_GetPos(ElemIndex("idmarker"), 22));
-    loc.push_back(Elem_GetPos(ElemIndex("idmarker"), 23));
-    loc.push_back(Elem_GetPos(ElemIndex("idmarker"), 24));
-   break;
-  case 2:
-    dnu[X_] = 0.0; dnu[Y_] = 0.0;
+    dnu[X_] = 19.0/8.0; dnu[Y_] = 15.0/16.0;
     loc.push_back(Elem_GetPos(ElemIndex("dc_1_01"),  1));
     loc.push_back(Elem_GetPos(ElemIndex("idmarker"), 2));
     loc.push_back(Elem_GetPos(ElemIndex("idmarker"), 3));
     loc.push_back(Elem_GetPos(ElemIndex("idmarker"), 4));
    break;
-  case 3:
+  case 2:
     dnu[X_] = 19.0/8.0; dnu[Y_] = 15.0/16.0;
     loc.push_back(Elem_GetPos(ElemIndex("ss1"), 1));
     loc.push_back(Elem_GetPos(ElemIndex("ss1"), 3));
     loc.push_back(Elem_GetPos(ElemIndex("ss1"), 5));
     loc.push_back(globval.Cell_nLoc);
     break;
-  case 4:
+  case 3:
     dnu[X_] = 19.0/8.0; dnu[Y_] = 15.0/16.0;
     loc.push_back(Elem_GetPos(ElemIndex("du1"), 1));
     loc.push_back(Elem_GetPos(ElemIndex("du1"), 3));
     loc.push_back(Elem_GetPos(ElemIndex("du1"), 5));
     loc.push_back(globval.Cell_nLoc);
     break;
-  case 5:
+  case 4:
     dnu[X_] = 23.0/8.0; dnu[Y_] = 19.0/16.0;
     loc.push_back(Elem_GetPos(ElemIndex("dss1"), 1));
     loc.push_back(Elem_GetPos(ElemIndex("dss1"), 3));
@@ -369,6 +336,14 @@ void chk_mpole(void)
     Fnum.push_back(ElemIndex("oyy"));
     break;
   case 2:
+    // D-TBA.
+    Fnum.push_back(ElemIndex("sf1"));
+    Fnum.push_back(ElemIndex("sd1a"));
+    Fnum.push_back(ElemIndex("sd2a"));
+    Fnum.push_back(ElemIndex("sd1b"));
+    Fnum.push_back(ElemIndex("sd2b"));
+    break;
+  case 3:
     // H-6-BA.
     Fnum.push_back(ElemIndex("sf"));
     Fnum.push_back(ElemIndex("sda"));
@@ -390,14 +365,14 @@ void chk_mpole(void)
     Fnum.push_back(ElemIndex("o5"));
     Fnum.push_back(ElemIndex("o6"));
     break;
-  case 3:
+  case 4:
     // H-8-BA_II.
     Fnum.push_back(ElemIndex("sf")); Fnum.push_back(ElemIndex("sd"));
     Fnum.push_back(ElemIndex("s1")); Fnum.push_back(ElemIndex("s2"));
     Fnum.push_back(ElemIndex("s3")); Fnum.push_back(ElemIndex("s4"));
     Fnum.push_back(ElemIndex("s5")); Fnum.push_back(ElemIndex("s6"));
     break;
-  case 4:
+  case 5:
     // RB-6-BA.
     Fnum.push_back(ElemIndex("sd"));  Fnum.push_back(ElemIndex("sfm"));
     Fnum.push_back(ElemIndex("sdm")); Fnum.push_back(ElemIndex("sxx"));
@@ -408,7 +383,7 @@ void chk_mpole(void)
     Fnum.push_back(ElemIndex("syy2"));
     Fnum.push_back(ElemIndex("syy3"));
     break;
-  case 5:
+  case 6:
     // ALS-U.
     Fnum.push_back(ElemIndex("sf1"));
     Fnum.push_back(ElemIndex("sf2"));

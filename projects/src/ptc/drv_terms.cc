@@ -1,4 +1,4 @@
-#define NO 5
+#define NO 4
 
 #include "tracy_lib.h"
 
@@ -42,6 +42,8 @@ void prt_drv_terms(ofstream &outf, const int k,
   outf << fixed << setprecision(3)
        << setw(6) << k << setw(9) << Cell[k].S
        << scientific << setprecision(5)
+
+       << setw(13) << h_ijklm(h_re, 1, 0, 0, 0, 2)
 
        << setw(13) << h_ijklm(h_re, 2, 0, 0, 0, 1)
        << setw(13) << h_ijklm(h_re, 0, 0, 2, 0, 1)
