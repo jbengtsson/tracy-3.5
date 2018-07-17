@@ -13,33 +13,28 @@ pi = 3.14159265358979323846;
 {AP: MAXAMP, X_MAX=0.15, Y_MAX=0.15}
 
 C_d:  drift, l = 0.15;
-CAV:  cavity, l = 0.0, voltage = 0.36e6, harnum = 192,
-      frequency = 499.6540966666666e6, phi = 0.0 {180.0-21.95};
+{CAV:  cavity, l = 0.0, voltage = 0.36e6, harnum = 192,
+      frequency = 499.6540966666666e6, phi = 0.0;}
+CAV:  cavity, l = 0.0, voltage = 1e6, harnum = 192,
+      frequency = 499.6540966666666e6, phi = 0.0;
 CAV1: C_d, CAV, C_d;
 
-B20: bending, L = 1.151193583313629, T = 0.3490658*180.0/pi,
-     T1 = 0.1745329*180.0/pi, T2 = 0.1745329*180.0/pi, N = Nbend, Method = Meth;
-B7:  bending, L = 0.5814895570316309, T = 0.1221731*180.0/pi,
-     T1 = 0.06108655*180.0/pi, T2 = 0.06108655*180.0/pi, N = Nbend,
-     Method = Meth;
-B3:  bending, L = 0.5850668311029373, T = 0.05236*180.0/pi,
-     T1 = 0.02618*180.0/pi, T2 = 0.02618*180.0/pi, N = Nbend, Method = Meth;
+B20: bending, L = 1.151193583313629, T = 20.0, T1 = 10.0, T2 = 10.0,
+     N = Nbend, Method = Meth;
+B7:  bending, L = 0.5814895570316309, T = 7.0, T1 = 3.5, T2 = 3.5,
+     N = Nbend, Method = Meth;
+B3:  bending, L = 0.5850668311029373, T = 3.0, T1 = 1.5, T2 = 1.5,
+     N = Nbend, Method = Meth;
 
-QF01: quadrupole, L = 0.217, K =  1.904478, N = Nquad, Method = Meth;
+{QF01: quadrupole, L = 0.217, K =  1.904478, N = Nquad, Method = Meth;
 QF02: quadrupole, L = 0.217, K =  2.880125, N = Nquad, Method = Meth;
 QF03: quadrupole, L = 0.217, K =  3.835739, N = Nquad, Method = Meth;
 QD01: quadrupole, L = 0.117, K = -1.827804, N = Nquad, Method = Meth;
 QD02: quadrupole, L = 0.117, K = -1.439061, N = Nquad, Method = Meth;
 QD03: quadrupole, L = 0.117, K = -2.317805, N = Nquad, Method = Meth;
-QD04: quadrupole, L = 0.117, K = -2.424349, N = Nquad, Method = Meth;
-QN01: quadrupole, L = 0.117, K = -2.521478, N = Nquad, Method = Meth;
-QN02: quadrupole, L = 0.217, K =  2.755639, N = Nquad, Method = Meth;
-QN03: quadrupole, L = 0.117, K =  0.214173, N = Nquad, Method = Meth;
-QN04: quadrupole, L = 0.117, K =  0.50445,  N = Nquad, Method = Meth;
-QN05: quadrupole, L = 0.117, K = -2.605665, N = Nquad, Method = Meth;
-QN06: quadrupole, L = 0.117, K =  2.70212,  N = Nquad, Method = Meth;
-QN07: quadrupole, L = 0.117, K =  0.0,      N = Nquad, Method = Meth;
-QN08: quadrupole, L = 0.117, K =  0.0,      N = Nquad, Method = Meth;
+QD04: quadrupole, L = 0.117, K = -2.424349, N = Nquad, Method = Meth;}
+
+{ Quadrupoles in 2nd straight. }
 QS01: quadrupole, L = 0.117, K = -1.389007, N = Nquad, Method = Meth;
 QS02: quadrupole, L = 0.217, K =  2.931214, N = Nquad, Method = Meth;
 QS03: quadrupole, L = 0.117, K = -1.686768, N = Nquad, Method = Meth;
@@ -50,20 +45,59 @@ QS07: quadrupole, L = 0.117, K = -1.193575, N = Nquad, Method = Meth;
 QS08: quadrupole, L = 0.117, K =  2.986112, N = Nquad, Method = Meth;
 QS09: quadrupole, L = 0.117, K = -2.313881, N = Nquad, Method = Meth;
 
-SB:  sextupole, L = 0.0, K = -0.15/2, N = 1, Method = Meth;
-SB1: sextupole, L = 0.0, K = -0.04/2, N = 1, Method = Meth;
-SB2: sextupole, L = 0.0, K = -0.02/2, N = 1, Method = Meth;
-SF1: sextupole, L = 0.0, K =  0.0,    N = 1, Method = Meth;
+{ nu = [9.14, 3.64].}
+QF01: quadrupole, L = 0.217, K =  1.92537, N = Nquad, Method = Meth;
+QF02: quadrupole, L = 0.217, K =  2.89552, N = Nquad, Method = Meth;
+QF03: quadrupole, L = 0.217, K =  3.86189, N = Nquad, Method = Meth;
+QD01: quadrupole, L = 0.117, K = -1.83272, N = Nquad, Method = Meth;
+QD02: quadrupole, L = 0.117, K = -1.44531, N = Nquad, Method = Meth;
+QD03: quadrupole, L = 0.117, K = -2.32178, N = Nquad, Method = Meth;
+QD04: quadrupole, L = 0.117, K = -2.43748, N = Nquad, Method = Meth;
+
+SS1: sextupole, L = 0.0, K =  0.0,    N = 1, Method = Meth;
+
+SB:  sextupole, L = 0.0, K = -0*0.15/2, N = 1, Method = Meth;
+SB1: sextupole, L = 0.0, K = -0*0.04/2, N = 1, Method = Meth;
+SB2: sextupole, L = 0.0, K = -0*0.02/2, N = 1, Method = Meth;
+
+S1:  sextupole, L = 0.0, K =  0.0,    N = 1, Method = Meth;
+S2:  sextupole, L = 0.0, K =  0.0,    N = 1, Method = Meth;
+
+{SN1: sextupole, L = 0.0, K =  0.0,    N = 1, Method = Meth;
+SN2: sextupole, L = 0.0, K =  0.0,    N = 1, Method = Meth;
+SS2: sextupole, L = 0.0, K =  0.0,    N = 1, Method = Meth;}
+
+{ del008: }
+{SF1: sextupole, L = 0.0, K =  0.0,    N = 1, Method = Meth;
 SF2: sextupole, L = 0.0, K =  2.68/2, N = 1, Method = Meth;
 SF3: sextupole, L = 0.0, K =  6.1/2,  N = 1, Method = Meth;
+
 SD1: sextupole, L = 0.0, K = -6.1/2,  N = 1, Method = Meth;
 SD2: sextupole, L = 0.0, K = -5.8/2,  N = 1, Method = Meth;
-SN1: sextupole, L = 0.0, K =  0.0,    N = 1, Method = Meth;
-SN2: sextupole, L = 0.0, K =  0.0,    N = 1, Method = Meth;
-SS1: sextupole, L = 0.0, K =  0.0,    N = 1, Method = Meth;
-SS2: sextupole, L = 0.0, K =  0.0,    N = 1, Method = Meth;
+
 SS3: sextupole, L = 0.0, K =  1.48/2, N = 1, Method = Meth;
-SS4: sextupole, L = 0.0, K = -5.8/2,  N = 1, Method = Meth;
+SS4: sextupole, L = 0.0, K = -5.8/2,  N = 1, Method = Meth;}
+
+{ del011: }
+{SF1: sextupole, L = 0.0, K =  2.53/2, N = 1, Method = Meth;
+SF2: sextupole, L = 0.0, K =  3.50/2, N = 1, Method = Meth;
+SF3: sextupole, L = 0.0, K =  2.53/2, N = 1, Method = Meth;
+
+SD1: sextupole, L = 0.0, K = -5.97/2, N = 1, Method = Meth;
+SD2: sextupole, L = 0.0, K = -3.75/2, N = 1, Method = Meth;
+
+SS3: sextupole, L = 0.0, K =  2.12/2, N = 1, Method = Meth;
+SS4: sextupole, L = 0.0, K = -4.22/2, N = 1, Method = Meth;}
+
+sf1:  sextupole, L = 0.0,  K =  0.90907, N = 1, Method = Meth;
+sf2:  sextupole, L = 0.0,  K =  2.56224, N = 1, Method = Meth;
+sf3:  sextupole, L = 0.0,  K =  0.50772, N = 1, Method = Meth;
+
+sd1:  sextupole, L = 0.0,  K = -2.86243, N = 1, Method = Meth;
+sd2:  sextupole, L = 0.0,  K = -2.15051, N = 1, Method = Meth;
+
+ss3:  sextupole, L = 0.0,  K =  0.92772, N = 1, Method = Meth;
+ss4:  sextupole, L = 0.0,  K = -1.58598, N = 1, Method = Meth;
 
 D00:   drift, L = 0.36264989502;
 D00C:  drift, L = 1.22414989502;
@@ -286,13 +320,6 @@ WIGGLER_ON:
 WIGGLER_OFF: WEIN, DWIGI1, SAW, BL8, BL9, BL10, DWIGI2, DWIGI, WAUS;
 WIGGLER1: WIGGLER_OFF;
 
-L1_START: marker;
-L1_END:   marker;
-L2_START: marker;
-L2_END:   marker;
-L3_START: marker;
-L3_END:   marker;
-
 s_s_1: marker;
 s_s_2: marker;
 s_s_3: marker;
@@ -312,30 +339,6 @@ QUADRANT1:
   SF3, D04, QD04, VK04, QD04, BPM06, D01, SD1, D02, SB, B20, SB,
   D02, SD1, D01, BPM07, QD04, QD04, D05, QF03, SF2, HK04, QF03, D01, SF3, D04,
   QD04, QD04, BPM08, D01, SD1, D02, SB, B20, SB;
-
-QUADRANT11:
-  L1_START,
-  D02, SD2, D01, BPM09, QN01, VK05, SN1, QN01, D06, QN02, SF2, HK05, QN02, D01,
-  SF3, D07, D07, BPM10, QN03, QN03, D01, SD2, D08, D08,
-  L1_END,
-  SB1, B7, SB1,
-  L2_START,
-  D09, BPM11, QN04, HK06, QN04, D10, D10, D01, DQ3N, D11, D11, D11, BPM12,
-  QN05, VK06, QN05, D12, D12, BPM13, QN06, HK07, QN06, D25, QN07, HK08, QN07,
-  D26, QN08, VK07, QN08, D27,
-  L2_END,
-  SB2, B3, SB2,
-  L3_START,
-  D14, D14IA, BPM14, D14IB, D14, D14, D14, D15, D15, BL4, BL5, FEL,
-  L3_END;
-
-QUADRANT20:
-  D15, D15, D14, D14, D14, D14IB, BPM15, D14IA, D14, SB2, B3, SB2, D27, QN08,
-  VK08, QN08, D26, QN07, HK09, QN07, D25, QN06, HK0, QN06, BPM16, D12, D12,
-  QN05, VK09, QN05, BPM17, D11, D11, D11, DQ3N, D01, D10, D10, QN04, HK1, QN04,
-  BPM18, D09, SB1, B7, SB1, D08, D08, SD2, D01, QN03, QN03, BPM19, D07, D07,
-  SF3, D01, QN02, SF2, HK, QN02, D06, QN01, VK0, SN1, QN01, BPM20, D01, SD2,
-  D02;
 
 QUADRANT2:
   SB, B20, SB, D02, SD1, D01, BPM21, QD04, QD04, D04, SF3, D01, QF03, SF2, HK3,
@@ -374,90 +377,114 @@ QUADRANT4:
   BERGOZ, D03E, QD02, VK6, QD02, BPM53, D01, SD1, D02, SB, B20, SB, D02,
   SD1, D01, BPM54, QD01, QD01, D00D, DCAV, CAV1, DCAV, QF01, SF1;
 
-B10: bending, L = 0.5707241094555955, T = 0.1745329*180.0/pi,
-     T1 = 0.08726645*180.0/pi, T2 = 0.08726645*180.0/pi, N = Nbend,
-     Method = Meth;
+B10: bending, L = 0.5707241094555955, T = 10.0, T1 = 5.0, T2 = 5.0,
+     N = Nbend, Method = Meth;
 
-Q01:  quadrupole, L = 0.234, K =  0.9997159818787944, N = Nquad, Method = Meth;
-Q02:  quadrupole, L = 0.234, K = -4.296740169778668,  N = Nquad, Method = Meth;
-Q03:  quadrupole, L = 0.434, K =  3.127255235072216,  N = Nquad, Method = Meth;
+EQ03:         drift, l =  0.234;
+L_Q03:        drift, l =  0.2;
+L_EQ02:       drift, l = -0.2;
+D_EQ05_EQ06:  drift, l =  0.15;
+DN_EQ05_EQ06: drift, l = -0.15;
 
-EQ01: quadrupole, L = 0.234, K = -3.679848327048429,  N = Nquad, Method = Meth;
-EQ02: quadrupole, L = 0.234, K =  2.367334445840143,  N = Nquad, Method = Meth;
-EQ03: quadrupole, L = 0.234, K =  1.844497401665833,  N = Nquad, Method = Meth;
-EQ04: quadrupole, L = 0.234, K =  2.182676986493074,  N = Nquad, Method = Meth;
-EQ05: quadrupole, L = 0.234, K = -2.268658006454124,  N = Nquad, Method = Meth;
-EQ06: quadrupole, L = 0.0,   K =  0.0,                N = Nquad, Method = Meth;
+Q01:  quadrupole, l = 0.234, k = -3.12236, N = Nquad, Method = Meth;
+Q02:  quadrupole, l = 0.234, k =  3.91086, N = Nquad, Method = Meth;
+Q03:  quadrupole, l = 0.234, k =  1.74315, N = Nquad, Method = Meth;
+
+EQ01: quadrupole, l = 0.234, k = -3.86353, N = Nquad, Method = Meth;
+EQ02: quadrupole, l = 0.434, k =  2.31892, N = Nquad, Method = Meth;
+
+EQ04: quadrupole, l = 0.234, k =  1.91410, N = Nquad, Method = Meth;
+EQ05: quadrupole, l = 0.234, k = -3.87986, N = Nquad, Method = Meth;
+EQ06: quadrupole, l = 0.234, k =  1.80699, N = Nquad, Method = Meth;
+
+D_Q01_L  =  0.05027;
+D_Q02_L  =  0.05014;
+D_Q03_L  =  0.05009;
+D_EQ01_L = -0.00142;
+D_EQ02_L = -0.00114;
+D_EQ04_L =  0.05002;
+D_EQ05_L =  0.05001;
+D_EQ06_L = -0.00003;
+
+D_B10_L  =  0.05011;
+
+DU_Q01:  drift, L =  D_Q01_L;
+DD_Q01:  drift, L = -D_Q01_L;
+DU_Q02:  drift, L =  D_Q02_L;
+DD_Q02:  drift, L = -D_Q02_L;
+DU_Q03:  drift, L =  D_Q03_L;
+DD_Q03:  drift, L = -D_Q03_L;
+
+DU_EQ01: drift, L =  D_EQ01_L;
+DD_EQ01: drift, L = -D_EQ01_L;
+DU_EQ02: drift, L =  D_EQ02_L;
+DD_EQ02: drift, L = -D_EQ02_L;
+
+DU_EQ04: drift, L =  D_EQ04_L;
+DD_EQ04: drift, L = -D_EQ04_L;
+DU_EQ05: drift, L =  D_EQ05_L;
+DD_EQ05: drift, L = -D_EQ05_L;
+DU_EQ06: drift, L =  D_EQ06_L;
+DD_EQ06: drift, L = -D_EQ06_L;
+
+DU_B10:  drift, L =  D_B10_L;
+DD_B10:  drift, L = -D_B10_L;
+
+QQ01: DU_Q01, Q01;
+QQ02: DU_Q02, Q02;
+QQ03: DU_Q03, Q03, L_Q03, DD_Q03, DD_Q02, DD_Q01;
+
+BB10:  DU_B10, B10;
+EEQ01: DU_EQ01, EQ01;
+EEQ02: DU_EQ02, EQ02, L_EQ02, DD_EQ02, DD_EQ01, DD_B10;
+
+EEQ04: DU_EQ04, EQ04;
+EEQ05: DU_EQ05, EQ05;
+EEQ06: DU_EQ06, EQ06, DD_EQ06, DD_EQ05, DD_EQ04;
+
+U561: drift, L = 1.07;
+U562: drift, L = 1.07;
 
 F01:  drift, L = 0.1500001947745855;
 F02:  drift, L = 0.1998347228625822;
 F03:  drift, L = 0.1760875326528089;
 F04:  drift, L = 0.2638153189336666;
 F05:  drift, L = 0.2065099007760627;
-U561: drift, L = 1.07;
-U562: drift, L = 1.07;
+{U562: drift, L = 1.07;}
 E01:  drift, L = 0.1522164008292093;
 E02:  drift, L = 0.1848722162647881;
 E03:  drift, L = 0.1512694548262472;
 E04:  drift, L = 0.152910793324165;
 E05:  drift, L = 0.1633312373793755;
 E06:  drift, L = 0.1743659766930873;
-E07:  drift, L = 0.1697949406840447;
+E07:  drift, L = 0.1697949406840447-0.234;
 EF:   drift, L = 4;
 EF2:  drift, L = 0.5;
 
 START2: marker;
 ENDF:   marker;
-FEMTOM: marker;
 EEHGM:  marker;
 EEHGMM: marker;
 DISPM:  marker;
 TRY:    marker;
 MIDDLE: marker;
 
-FEMTO1:
-  F01, Q01, F02, Q02, F03, Q03, F04, U561, FEMTOM, U562, F05, ENDF, B10,
-  START, E01, EQ01, E02, DISPM, EQ02, E03, EQ03, E04, DISPM, EEHGM, EF2, EF2,
-  EF2, EF2, EF2, EF2, EF2, EF2, EEHGMM, EF2, EF2, EF2, EF2, EF2, EF2, EF2, EF2,
-  EEHGM, E05, EQ04, E06, EQ05, EQ06, E07, EEND;
-
-FEMTO: FEMTO1, inv(FEMTO1);
-
-TEST1:
-  START, E01, EQ01, E02, DISPM, EQ02, E03, EQ03, E04, DISPM, EEHGM, EF,
-  EEHGMM, EF, EEHGM, E05, EQ04, E06, EQ05, EQ06, E07, EEND;
-
-TEST: TEST1, inv(TEST1);
-
-BENE1:
-  E04, DISPM, EEHGM, EF, EEHGMM, EF, EEHGM, E05, EQ04, E06, EQ05, EQ06, E07,
-  EEND;
-
-BENE: BENE1, inv(BENE1);
-
 BERNARD1:
-  DISPM, DISPM, DISPM, START2, E01, EQ01, E02, DISPM, EQ02, E03, EQ03, E04,
-  DISPM,
-  S_S_2, EF2, EF2, EF2, EF2, EF2, EF2, EF2, EF2, S_S_2,
-  EEHGM, E05, EQ04, E06, EQ05,
-  EQ06, E07,
-  S_S_3, EF2, EF2, EF2, EF2, EF2, EF2, EF2, EF2;
+  DISPM, DISPM, DISPM, START2, E01, EEQ01, E02, DISPM, EEQ02, E03, EQ03, E04,
+  DISPM, S_S_2, EF2, EF2, EF2, EF2, EF2, EF2, EF2, EF2, S_S_2, EEHGM, E05, EEQ04,
+  E06, EEQ05, D_EQ05_EQ06, EEQ06, DN_EQ05_EQ06, E07, S_S_3, EF2, EF2, EF2, EF2, EF2,
+  EF2, EF2, EF2;
 
 BERNARD: BERNARD1, MIDDLE, inv(BERNARD1), TRY;
 
 EEHG1:
-  F01, Q01, F02, Q02, F03, Q03, F04,
-  S_S_1, U561, FEMTOM, U562, S_S_1,
-  F05, ENDF, B10,
+  F01, QQ01, F02, QQ02, F03, QQ03, F04, S_S_1, U561, U562, S_S_1, F05, ENDF, BB10,
   BERNARD1;
 
 EEHG: EEHG1, inv(EEHG1);
 
-DELTA: START, QUADRANT1, FEMTO, QUADRANT2, QUADRANT3, QUADRANT4, EEND{, AP};
-
 DELTA2: START, QUADRANT1, EEHG, QUADRANT2, QUADRANT3, QUADRANT4, EEND{, AP};
 
-{line: BERNARD, CAV;}
 line: DELTA2, CAV;
 
 cell: line, symmetry = 1;
