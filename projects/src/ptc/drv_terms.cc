@@ -1,9 +1,14 @@
-#define NO 4
+#define NO 3
 
 #include "tracy_lib.h"
 
 int no_tps   = NO,
     ndpt_tps = 5;
+
+
+const double A_max[]    = {2e-2, 1e-2},
+             delta_max  = 2e-2,
+             beta_inj[] = {10.5, 5.2};
 
 
 void chk_bend()
@@ -80,6 +85,8 @@ void prt_drv_terms(ofstream &outf, const int k,
        << setw(13) << h_ijklm(h_re, 0, 1, 0, 4, 0)
 
        << "\n";
+
+  outf.flush();
 }
 
 
@@ -111,10 +118,6 @@ int main(int argc, char *argv[])
 {
   int    j;
   double twoJ[2];
-
-  const double A_max[]    = {2e-2, 1e-2},
-               delta_max  = 2e-2,
-               beta_inj[] = {10.5, 5.2};
 
   globval.H_exact    = false; globval.quad_fringe = false;
   globval.Cavity_on  = false; globval.radiation   = false;

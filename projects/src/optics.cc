@@ -218,6 +218,7 @@ void chk_high_ord_achr(void)
   case 1:
     dnu[X_] = 19.0/8.0; dnu[Y_] = 15.0/16.0;
     loc.push_back(Elem_GetPos(ElemIndex("dc_1_01"),  1));
+    // loc.push_back(Elem_GetPos(ElemIndex("idmarker"), 1));
     loc.push_back(Elem_GetPos(ElemIndex("idmarker"), 2));
     loc.push_back(Elem_GetPos(ElemIndex("idmarker"), 3));
     loc.push_back(Elem_GetPos(ElemIndex("idmarker"), 4));
@@ -265,7 +266,7 @@ void chk_mI_trans(void)
 {
   int Fnum, k, loc0, loc1;
 
-  const int lat_case = 2;
+  const int lat_case = 1;
 
   Ring_GetTwiss(true, 0e0);
  
@@ -338,10 +339,13 @@ void chk_mpole(void)
   case 2:
     // D-TBA.
     Fnum.push_back(ElemIndex("sf1"));
-    Fnum.push_back(ElemIndex("sd1a"));
-    Fnum.push_back(ElemIndex("sd2a"));
-    Fnum.push_back(ElemIndex("sd1b"));
-    Fnum.push_back(ElemIndex("sd2b"));
+
+    Fnum.push_back(ElemIndex("sd1"));
+    Fnum.push_back(ElemIndex("sd2"));
+    // Fnum.push_back(ElemIndex("sd1a"));
+    // Fnum.push_back(ElemIndex("sd2a"));
+    // Fnum.push_back(ElemIndex("sd1b"));
+    // Fnum.push_back(ElemIndex("sd2b"));
     break;
   case 3:
     // H-6-BA.
