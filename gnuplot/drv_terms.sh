@@ -1,8 +1,14 @@
-ps = 0;
+#!/bin/sh
+
+prm1=${1-0}
+
+gnuplot << EOP
+
+ps = $prm1;
 
 file_name = "drv_terms.out";
 
-f_s = 14; l_w = 2;
+f_s = 24; l_w = 2;
 if (ps == 0) \
   set terminal x11; \
 else if (ps == 1) \
@@ -79,3 +85,5 @@ plot file_name using 2:19 title "h_{50000}" with steps ls 1, \
      file_name using 2:32 title "h_{10040}" with steps ls 6, \
      file_name using 2:33 title "h_{01040}" with steps ls 7;
 if (!ps) pause mouse "click on graph to cont.\n";
+
+EOP
