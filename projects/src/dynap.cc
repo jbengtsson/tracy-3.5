@@ -47,10 +47,10 @@ int main(int argc, char *argv[])
   globval.emittance  = false; globval.IBS         = false;
   globval.pathlength = false; globval.Aperture_on = false;
 
-  if (argc < 1) {
+  if (argc == 2)
+    err_and_corr(argv[1]);
+  else {
     printf("*** bad command line\n");
     exit(1);
   }
-
-  err_and_corr(argv[1]);
 }
