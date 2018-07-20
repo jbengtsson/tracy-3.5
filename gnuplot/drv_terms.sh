@@ -37,7 +37,8 @@ set style line 8 lt 1 lw 1 lc rgb "yellow";
 
 if (ps) set output "drv_terms_1.".(ext);
 set title "1st Order Chromatic  Terms";
-set xlabel "s [m]"; set ylabel "Re\\{h_{ijklm}\\}";
+set xlabel "s [m]"; set ylabel "|\\{h_{ijklm}\\|}";
+#set logscale y;
 plot file_name using 2:3 title "h_{10002}" with steps ls 1, \
      file_name using 2:4 title "h_{20001}" with steps ls 2, \
      file_name using 2:5 title "h_{00201}" with steps ls 3;
@@ -45,7 +46,7 @@ if (!ps) pause mouse "click on graph to cont.\n";
 
 if (ps) set output "drv_terms_2.".(ext);
 set title "1st Order Geometric Terms";
-set xlabel "s [m]"; set ylabel "Re\\{h_{ijklm}\\}";
+set xlabel "s [m]"; set ylabel "|\\{h_{ijklm}\\}|";
 plot file_name using 2:6 title "h_{30000}" with steps ls 1, \
      file_name using 2:7 title "h_{21000}" with steps ls 2, \
      file_name using 2:8 title "h_{10200}" with steps ls 3, \
@@ -55,7 +56,7 @@ if (!ps) pause mouse "click on graph to cont.\n";
 
 if (ps) set output "drv_terms_3.".(ext);
 set title "2nd Order Geometric Terms";
-set xlabel "s [m]"; set ylabel "Re\\{h_{ijklm}\\}";
+set xlabel "s [m]"; set ylabel "|\\{h_{ijklm}\\}|";
 plot file_name using 2:11 title "h_{40000}" with steps ls 1, \
      file_name using 2:12 title "h_{31000}" with steps ls 2, \
      file_name using 2:13 title "h_{20200}" with steps ls 3, \
@@ -68,7 +69,7 @@ if (!ps) pause mouse "click on graph to cont.\n";
 
 if (ps) set output "drv_terms_4.".(ext);
 set title "3rd Order Geometric Terms";
-set xlabel "s [m]"; set ylabel "Re\\{h_{ijklm}\\}";
+set xlabel "s [m]"; set ylabel "|\\{h_{ijklm}\\}|";
 plot file_name using 2:19 title "h_{50000}" with steps ls 1, \
      file_name using 2:20 title "h_{41000}" with steps ls 2, \
      file_name using 2:21 title "h_{32000}" with steps ls 3, \

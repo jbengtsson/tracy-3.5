@@ -12,14 +12,15 @@ home_dir = "$prm1"; N = $prm2; ps = $prm3; case = $prm4; pert = $prm5;
 # MAX-VI 1, SLS-2 2, DIAMOND-II D-TBA 3, 6-BA 4, 8-BA 5, DIAMOND: 6, ALS-U 7,
 # DELTA: 8.
 
-# MAX-V               1,
-# SLS-2               2,
-# DIAMOND-II:    DTBA 3,
-#                6-BA 4,
-#                8-BA 5,
-# DIAMOND             6,
-# ALS-U               7,
-# DELTA               8.
+# MAX-V                   1,
+# SLS-2                   2,
+# DIAMOND-II: DTBA        3,
+#             6-BA        4,
+#             8-BA        5,
+#             6-BA, Maxim 6,
+# DIAMOND                 7,
+# ALS-U                   8,
+# DELTA                   9.
 
 file1  = (home_dir)."dnu_dAx.out";
 file12 = (home_dir)."dnu_dAx_pert.out"
@@ -60,10 +61,12 @@ else if ((N == 1) && (case == 4)) \
 else if ((N == 1) && (case == 5)) \
   N_x = 56; N_y = 22; \
 else if ((N == 1) && (case == 6)) \
-  N_x = 28; N_y = 13; \
+  N_x = 75; N_y = 27; \
 else if ((N == 1) && (case == 7)) \
-  N_x = 39; N_y = 14; \
+  N_x = 28; N_y = 13; \
 else if ((N == 1) && (case == 8)) \
+  N_x = 39; N_y = 14; \
+else if ((N == 1) && (case == 9)) \
   N_x = 8; N_y = 3; \
 else if ((N == 12) && (case == 2))\
   N_x = 3; N_y = 1; \
@@ -75,11 +78,13 @@ else if ((N == 6) && (case == 4)) \
   N_x = 9; N_y = 3; \
 else if ((N == 6) && (case == 5)) \
   N_x = 9; N_y = 3; \
-else if ((N == 24) && (case == 6)) \
+else if ((N == 6) && (case == 6)) \
+  N_x = 12; N_y = 4; \
+else if ((N == 24) && (case == 7)) \
   N_x = 2; N_y = 0; \
-else if ((N == 12) && (case == 7)) \
+else if ((N == 12) && (case == 8)) \
   N_x = 3; N_y = 1; \
-else if ((N == 24) && (case == 8)) \
+else if ((N == 24) && (case == 9)) \
   N_x = 2; N_y = 0;
 
 if (case == 1) \
