@@ -24,6 +24,10 @@ else if (ps == 4) \
   set term pngcairo enhanced color solid lw l_w font "Times-Roman f_s"; \
   ext = "png";
 
+# left adjusted labels
+#set key Left;
+set clabel "%5.2f"; set key left;
+
 set grid;
 
 set style line 1 lt 1 lw 1 lc rgb "blue";
