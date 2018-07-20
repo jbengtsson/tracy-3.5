@@ -1,4 +1,4 @@
-#define NO 3
+#define NO 5
 
 #include "tracy_lib.h"
 
@@ -28,61 +28,88 @@ void chk_bend()
 }
 
 
-void prt_drv_terms(ofstream &outf, const int k,
-		   const double twoJx, const double twoJy, const double delta)
+double h_ijklm_abs(const tps &h_re, const tps &h_im,
+		   const int i, const int j, const int k, const int l,
+		   const int m)
 {
+  return sqrt(sqr(h_ijklm(h_re, i, j, k, l, m))
+	      +sqr(h_ijklm(h_im, i, j, k, l, m)));
+}
+
+
+tps get_h_local(const ss_vect<tps> &map)
+{
+  ss_vect<tps>  map1, R;
+
+  // Parallel transport nonlinear kick to start of lattice,
+  // assumes left to right evaluation.
+
+  if (true)
+    // Dragt-Finn factorization.
+    return LieFact_DF(map, R);
+  else {
+    // Single Lie exponent.
+    danot_(1); map1 = map; danot_(no_tps);
+    return LieFact(map*Inv(map1));
+  }
+}
+
+
+void prt_drv_terms(ofstream &outf, const int k,
+		   const double twoJ[], const double delta,
+		   const ss_vect<tps> &map_Fl)
+{
+  int          i;
   tps          h_re, h_im;
-  ss_vect<tps> Id_scl, nus;
+  ss_vect<tps> Id_scl, A0, A1;
 
   Id_scl.identity();
-  Id_scl[x_] *= sqrt(twoJx); Id_scl[px_] *= sqrt(twoJx);
-  Id_scl[y_] *= sqrt(twoJy); Id_scl[py_] *= sqrt(twoJy);
+  for (i = 0; i < 4; i++)
+    Id_scl[i] *= sqrt(twoJ[i/2]);
   Id_scl[delta_] *= delta;
 
-  MNF = MapNorm(map, no_tps);
-  CtoR(get_h(), h_re, h_im); h_re = h_re*Id_scl; h_im = h_im*Id_scl;
-  nus = dHdJ(MNF.K);
-  printf("%5d (%3ld) nu = [%7.5f %7.5f]\n",
-	 k, globval.Cell_nLoc, nus[0].cst(), nus[1].cst());
+  CtoR(get_h_local(map_Fl)*Id_scl, h_re, h_im);
+
+  printf("%5d (%3ld)\n", k, globval.Cell_nLoc);
   outf << fixed << setprecision(3)
        << setw(6) << k << setw(9) << Cell[k].S
        << scientific << setprecision(5)
 
-       << setw(13) << h_ijklm(h_re, 1, 0, 0, 0, 2)
+       << setw(13) << h_ijklm_abs(h_re, h_im, 1, 0, 0, 0, 2)
 
-       << setw(13) << h_ijklm(h_re, 2, 0, 0, 0, 1)
-       << setw(13) << h_ijklm(h_re, 0, 0, 2, 0, 1)
+       << setw(13) << h_ijklm_abs(h_re, h_im, 2, 0, 0, 0, 1)
+       << setw(13) << h_ijklm_abs(h_re, h_im, 0, 0, 2, 0, 1)
 
-       << setw(13) << h_ijklm(h_re, 3, 0, 0, 0, 0)
-       << setw(13) << h_ijklm(h_re, 2, 1, 0, 0, 0)
-       << setw(13) << h_ijklm(h_re, 1, 0, 2, 0, 0)
-       << setw(13) << h_ijklm(h_re, 1, 0, 0, 2, 0)
-       << setw(13) << h_ijklm(h_re, 1, 0, 1, 1, 0)
+       << setw(13) << h_ijklm_abs(h_re, h_im, 3, 0, 0, 0, 0)
+       << setw(13) << h_ijklm_abs(h_re, h_im, 2, 1, 0, 0, 0)
+       << setw(13) << h_ijklm_abs(h_re, h_im, 1, 0, 2, 0, 0)
+       << setw(13) << h_ijklm_abs(h_re, h_im, 1, 0, 0, 2, 0)
+       << setw(13) << h_ijklm_abs(h_re, h_im, 1, 0, 1, 1, 0)
 
-       << setw(13) << h_ijklm(h_re, 4, 0, 0, 0, 0)
-       << setw(13) << h_ijklm(h_re, 3, 1, 0, 0, 0)
-       << setw(13) << h_ijklm(h_re, 2, 0, 2, 0, 0)
-       << setw(13) << h_ijklm(h_re, 1, 1, 2, 0, 0)
-       << setw(13) << h_ijklm(h_re, 0, 0, 4, 0, 0)
-       << setw(13) << h_ijklm(h_re, 2, 0, 1, 1, 0)
-       << setw(13) << h_ijklm(h_re, 0, 0, 3, 1, 0)
-       << setw(13) << h_ijklm(h_re, 2, 0, 0, 2, 0)
+       << setw(13) << h_ijklm_abs(h_re, h_im, 4, 0, 0, 0, 0)
+       << setw(13) << h_ijklm_abs(h_re, h_im, 3, 1, 0, 0, 0)
+       << setw(13) << h_ijklm_abs(h_re, h_im, 2, 0, 2, 0, 0)
+       << setw(13) << h_ijklm_abs(h_re, h_im, 1, 1, 2, 0, 0)
+       << setw(13) << h_ijklm_abs(h_re, h_im, 0, 0, 4, 0, 0)
+       << setw(13) << h_ijklm_abs(h_re, h_im, 2, 0, 1, 1, 0)
+       << setw(13) << h_ijklm_abs(h_re, h_im, 0, 0, 3, 1, 0)
+       << setw(13) << h_ijklm_abs(h_re, h_im, 2, 0, 0, 2, 0)
 
-       << setw(13) << h_ijklm(h_re, 5, 0, 0, 0, 0)
-       << setw(13) << h_ijklm(h_re, 4, 1, 0, 0, 0)
-       << setw(13) << h_ijklm(h_re, 3, 2, 0, 0, 0)
-       << setw(13) << h_ijklm(h_re, 3, 0, 2, 0, 0)
-       << setw(13) << h_ijklm(h_re, 2, 1, 2, 0, 0)
-       << setw(13) << h_ijklm(h_re, 1, 0, 4, 0, 0)
-       << setw(13) << h_ijklm(h_re, 3, 0, 1, 1, 0)
-       << setw(13) << h_ijklm(h_re, 2, 1, 1, 1, 0)
-       << setw(13) << h_ijklm(h_re, 1, 0, 3, 1, 0)
-       << setw(13) << h_ijklm(h_re, 3, 0, 0, 2, 0)
-       << setw(13) << h_ijklm(h_re, 2, 1, 0, 2, 0)
-       << setw(13) << h_ijklm(h_re, 1, 0, 2, 2, 0)
-       << setw(13) << h_ijklm(h_re, 1, 0, 1, 3, 0)
-       << setw(13) << h_ijklm(h_re, 1, 0, 0, 4, 0)
-       << setw(13) << h_ijklm(h_re, 0, 1, 0, 4, 0)
+       << setw(13) << h_ijklm_abs(h_re, h_im, 5, 0, 0, 0, 0)
+       << setw(13) << h_ijklm_abs(h_re, h_im, 4, 1, 0, 0, 0)
+       << setw(13) << h_ijklm_abs(h_re, h_im, 3, 2, 0, 0, 0)
+       << setw(13) << h_ijklm_abs(h_re, h_im, 3, 0, 2, 0, 0)
+       << setw(13) << h_ijklm_abs(h_re, h_im, 2, 1, 2, 0, 0)
+       << setw(13) << h_ijklm_abs(h_re, h_im, 1, 0, 4, 0, 0)
+       << setw(13) << h_ijklm_abs(h_re, h_im, 3, 0, 1, 1, 0)
+       << setw(13) << h_ijklm_abs(h_re, h_im, 2, 1, 1, 1, 0)
+       << setw(13) << h_ijklm_abs(h_re, h_im, 1, 0, 3, 1, 0)
+       << setw(13) << h_ijklm_abs(h_re, h_im, 3, 0, 0, 2, 0)
+       << setw(13) << h_ijklm_abs(h_re, h_im, 2, 1, 0, 2, 0)
+       << setw(13) << h_ijklm_abs(h_re, h_im, 1, 0, 2, 2, 0)
+       << setw(13) << h_ijklm_abs(h_re, h_im, 1, 0, 1, 3, 0)
+       << setw(13) << h_ijklm_abs(h_re, h_im, 1, 0, 0, 4, 0)
+       << setw(13) << h_ijklm_abs(h_re, h_im, 0, 1, 0, 4, 0)
 
        << "\n";
 
@@ -90,26 +117,22 @@ void prt_drv_terms(ofstream &outf, const int k,
 }
 
 
-void get_drv_terms(const double twoJx, const double twoJy, const double delta)
+void get_drv_terms(const double twoJ[], const double delta)
 {
-  long int lastpos;
-  int      k;
-  ofstream outf;
-
-  const int n_step = 1;
+  long int     lastpos;
+  int          k;
+  double       alpha[2], beta[2], eta[2], etap[2];
+  ss_vect<tps> map, A0, A1, A_Atp;
+  ofstream     outf;
 
   outf.open("drv_terms.out", ios::out);
   printf("\n");
-  k = 0;
-  while (k <= globval.Cell_nLoc) {
-    map.identity();
-    Cell_Pass(k, globval.Cell_nLoc, map, lastpos);
-    if (k != 0) Cell_Pass(0, k-1, map, lastpos);
-    prt_drv_terms(outf, k, twoJx, twoJy, delta);
-    k += n_step;
+  map.identity(); putlinmat(6, globval.Ascr, A0); A1 = A0;
+  for (k = 0; k <= globval.Cell_nLoc; k++) {
+    Cell_Pass(k, k, map, lastpos); Cell_Pass(k, k, A1, lastpos);
+    A1 = get_A(Cell[k].Alpha, Cell[k].Beta, Cell[k].Eta, Cell[k].Etap);
+    prt_drv_terms(outf, k, twoJ, delta, Inv(A1)*map*A0);
   }
-  if (k != globval.Cell_nLoc)
-    prt_drv_terms(outf, globval.Cell_nLoc, twoJx, twoJy, delta);
   outf.close();
 }
 
@@ -140,5 +163,5 @@ int main(int argc, char *argv[])
 
   for (j = 0; j < 2; j++)
     twoJ[j] = sqr(A_max[j])/beta_inj[j];
-  get_drv_terms(twoJ[X_], twoJ[Y_], delta_max);
+  get_drv_terms(twoJ, delta_max);
 }
