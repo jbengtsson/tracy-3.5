@@ -282,8 +282,8 @@ void chk_mI_trans(void)
   printf("\nChromatic sextupole phase advance:\n");
   for (k = 2; k <= GetnKid(Fnum); k += 2) {
     loc0 = Elem_GetPos(Fnum, k-1); loc1 = Elem_GetPos(Fnum, k);
-    printf(" %8s [%7.5f, %7.5f]\n",
-	   Cell[loc1].Elem.PName, 
+    printf(" %8s %7.3f [%7.5f, %7.5f]\n",
+	   Cell[loc1].Elem.PName, Cell[loc1].S,
 	   Cell[loc1].Nu[X_]-Cell[loc0].Nu[X_], 
 	   Cell[loc1].Nu[Y_]-Cell[loc0].Nu[Y_]);
   }
@@ -611,7 +611,7 @@ int main(int argc, char *argv[])
     exit(0);
   }
 
-  if (!false) {
+  if (false) {
     chk_optics(-0.3026596977, -0.1377651491, 11.1525671, 0.3779633018,
 	       0.7946624468, -0.02521684799, 0.0, 0.0);
     prt_lat("linlat1.out", globval.bpm, true);

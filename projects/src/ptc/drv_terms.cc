@@ -41,9 +41,6 @@ tps get_h_local(const ss_vect<tps> &map)
 {
   ss_vect<tps>  map1, R;
 
-  // Parallel transport nonlinear kick to start of lattice,
-  // assumes left to right evaluation.
-
   if (true)
     // Dragt-Finn factorization.
     return LieFact_DF(map, R);
@@ -121,19 +118,45 @@ void get_drv_terms(const double twoJ[], const double delta)
 {
   long int     lastpos;
   int          k;
-  double       alpha[2], beta[2], eta[2], etap[2];
-  ss_vect<tps> map, A0, A1, A_Atp;
+  double       dnu[2];
+  ss_vect<tps> Id, map, map_Fl, A0, A1;
   ofstream     outf;
 
+  const double eta0[]  = {0e0, 0e0},
+               etap0[] = {0e0, 0e0};
+  
   outf.open("drv_terms.out", ios::out);
-  printf("\n");
-  map.identity(); putlinmat(6, globval.Ascr, A0); A1 = A0;
+  Id.identity();
+
+  // Get linear dispersion.
+  danot_(2);
+  map.identity();
+  Cell_Pass(0, globval.Cell_nLoc, map, lastpos);
+  MNF = MapNorm(map, 1);
+  danot_(no_tps);
+
+  A0 = MNF.A1; A1 = A0;
+  map.identity();
+  map[x_] += MNF.A0[x_][delta_]*Id[delta_];
+  map[px_] += MNF.A0[px_][delta_]*Id[delta_];
   for (k = 0; k <= globval.Cell_nLoc; k++) {
-    Cell_Pass(k, k, map, lastpos); Cell_Pass(k, k, A1, lastpos);
-    A1 = get_A(Cell[k].Alpha, Cell[k].Beta, Cell[k].Eta, Cell[k].Etap);
-    prt_drv_terms(outf, k, twoJ, delta, Inv(A1)*map*A0);
+    Elem_Pass(k, map);
+    danot_(1);
+    Elem_Pass(k, A1);
+    danot_(no_tps);
+    A1 = get_A_CS(2, A1, dnu);
+    map_Fl = map;
+    map_Fl[x_] -= map[x_][delta_]*Id[delta_];
+    map_Fl[px_] -= map[px_][delta_]*Id[delta_];
+    A1 = get_A(Cell[k].Alpha, Cell[k].Beta, eta0, etap0);
+    map_Fl = Inv(A1)*map_Fl*A0;
+    prt_drv_terms(outf, k, twoJ, delta, map_Fl);
   }
   outf.close();
+  std::cout << std::scientific << std::setprecision(3)
+  	    << A1 << "\n";
+  // std::cout << std::scientific << std::setprecision(3)
+  // 	    << MNF.A0 << "\n";
 }
 
 
