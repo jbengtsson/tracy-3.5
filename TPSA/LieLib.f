@@ -262,12 +262,12 @@
       call daallno(x,1,'ETALL     ')
       return
       end
-      subroutine dadal1(x)
-      implicit none
-      integer x
-      call dadal(x,1)
-      return
-      end
+!      subroutine dadal1(x)
+!      implicit none
+!      integer x
+!      call dadal(x,1)
+!      return
+!      end
       subroutine etppulnv(x,xi,xff)
       implicit none
       integer i,ndim,ndim2,ntt
