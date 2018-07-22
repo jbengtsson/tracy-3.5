@@ -161,8 +161,19 @@ void prt_quad(const std::vector<int> &Fam)
 }
 
 
-void chk_optics(const double alpha_x, const double alpha_y,
-		const double beta_x, const double beta_y,
+void prt_drift()
+{
+  int k;
+
+  printf("\n");
+  for (k = 0; k <= globval.Cell_nLoc; k++)
+    if (Cell[k].Elem.Pkind == drift)
+      printf("%3d %10s %13.10f\n", k, Cell[k].Elem.PName, Cell[k].Elem.PL);
+}
+
+
+void chk_optics(const double alpha_x, const double beta_x,
+		const double alpha_y, const double beta_y,
 		const double eta_x, const double etap_x,
 		const double eta_y, const double etap_y)
 {
@@ -585,6 +596,11 @@ int main(int argc, char *argv[])
   }
 
   if (false) {
+    prt_drift();
+    exit(0);
+  }
+
+  if (false) {
     chk_high_ord_achr();
     exit(0);
   }
@@ -612,7 +628,7 @@ int main(int argc, char *argv[])
   }
 
   if (false) {
-    chk_optics(-0.3026596977, -0.1377651491, 11.1525671, 0.3779633018,
+    chk_optics(-0.3026596977, 11.1525671, -0.1377651491, 0.3779633018,
 	       0.7946624468, -0.02521684799, 0.0, 0.0);
     prt_lat("linlat1.out", globval.bpm, true);
     prt_lat("linlat.out", globval.bpm, true, 10);
