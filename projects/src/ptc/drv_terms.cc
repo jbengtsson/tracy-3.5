@@ -153,8 +153,6 @@ void get_drv_terms(const double twoJ[], const double delta)
     prt_drv_terms(outf, k, twoJ, delta, map_Fl);
   }
   outf.close();
-  std::cout << std::scientific << std::setprecision(3)
-  	    << A1 << "\n";
   // std::cout << std::scientific << std::setprecision(3)
   // 	    << MNF.A0 << "\n";
 }
