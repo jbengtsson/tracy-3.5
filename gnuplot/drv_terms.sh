@@ -44,7 +44,7 @@ if (ps) set output "drv_terms_1.".(ext);
 set title "1st Order Chromatic  Terms";
 set xlabel "s [m]"; set ylabel "|\\{h_{ijklm}\\|}";
 set y2range [-2.0:20];
-set ytics nomirror; set y2tics;
+set ytics nomirror;
 #set logscale y;
 plot file_name2 using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
      lc rgb "black", \
