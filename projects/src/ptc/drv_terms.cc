@@ -6,6 +6,8 @@ int no_tps   = NO,
     ndpt_tps = 5;
 
 
+const int n_cell = 2;
+
 const double A_max[]    = {2e-2, 1e-2},
              delta_max  = 2e-2,
              beta_inj[] = {10.5, 5.2};
@@ -56,7 +58,8 @@ void prt_drv_terms(ofstream &outf, const int k,
 		   const double twoJ[], const double delta,
 		   const ss_vect<tps> &map_Fl)
 {
-  int          i;
+  int          i, loc;
+  double       s;
   tps          h_re, h_im;
   ss_vect<tps> Id_scl, A0, A1;
 
@@ -67,9 +70,14 @@ void prt_drv_terms(ofstream &outf, const int k,
 
   CtoR(get_h_local(map_Fl)*Id_scl, h_re, h_im);
 
-  printf("%5d (%3ld)\n", k, globval.Cell_nLoc);
-  outf << fixed << setprecision(3)
-       << setw(6) << k << setw(9) << Cell[k].S
+  loc = k % (globval.Cell_nLoc+1);
+  s = Cell[loc].S;
+  if (k > globval.Cell_nLoc) s += Cell[globval.Cell_nLoc].S;
+
+  printf("%5d (%3ld)\n", k, n_cell*globval.Cell_nLoc);
+  outf << fixed << setw(3) << k
+       << setprecision(3) << setw(9) << s
+       << setprecision(1) << setw(5) << get_code(Cell[loc])
        << scientific << setprecision(5)
 
        << setw(13) << h_ijklm_abs(h_re, h_im, 1, 0, 0, 0, 2)
@@ -117,7 +125,7 @@ void prt_drv_terms(ofstream &outf, const int k,
 void get_drv_terms(const double twoJ[], const double delta)
 {
   long int     lastpos;
-  int          k;
+  int          k, loc;
   double       dnu[2];
   ss_vect<tps> Id, map, map_Fl, A0, A1;
   ofstream     outf;
@@ -139,16 +147,17 @@ void get_drv_terms(const double twoJ[], const double delta)
   map.identity();
   map[x_] += MNF.A0[x_][delta_]*Id[delta_];
   map[px_] += MNF.A0[px_][delta_]*Id[delta_];
-  for (k = 0; k <= globval.Cell_nLoc; k++) {
-    Elem_Pass(k, map);
+  for (k = 0; k <= n_cell*globval.Cell_nLoc; k++) {
+    loc = k % (globval.Cell_nLoc+1);
+    Elem_Pass(loc, map);
     danot_(1);
-    Elem_Pass(k, A1);
+    Elem_Pass(loc, A1);
     danot_(no_tps);
     A1 = get_A_CS(2, A1, dnu);
     map_Fl = map;
     map_Fl[x_] -= map[x_][delta_]*Id[delta_];
     map_Fl[px_] -= map[px_][delta_]*Id[delta_];
-    A1 = get_A(Cell[k].Alpha, Cell[k].Beta, eta0, etap0);
+    A1 = get_A(Cell[loc].Alpha, Cell[loc].Beta, eta0, etap0);
     map_Fl = Inv(A1)*map_Fl*A0;
     prt_drv_terms(outf, k, twoJ, delta, map_Fl);
   }

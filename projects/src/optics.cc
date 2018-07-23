@@ -217,10 +217,10 @@ void chk_high_ord_achr(void)
   double           dnu[2];
   std::vector<int> loc;
 
-  // D-TBA  1,
-  // H-6BA  2,
-  // H-8BA  3,
-  // RB-6BA 4.
+  // M-6HBAi 1,
+  // H-6BA   2,
+  // H-8BA   3,
+  // RB-6BA  4.
   const int lat_case = 1;
 
   Ring_GetTwiss(true, 0e0);
@@ -229,7 +229,6 @@ void chk_high_ord_achr(void)
   case 1:
     dnu[X_] = 19.0/8.0; dnu[Y_] = 15.0/16.0;
     loc.push_back(Elem_GetPos(ElemIndex("dc_1_01"),  1));
-    // loc.push_back(Elem_GetPos(ElemIndex("idmarker"), 1));
     loc.push_back(Elem_GetPos(ElemIndex("idmarker"), 2));
     loc.push_back(Elem_GetPos(ElemIndex("idmarker"), 3));
     loc.push_back(Elem_GetPos(ElemIndex("idmarker"), 4));
@@ -277,6 +276,7 @@ void chk_mI_trans(void)
 {
   int Fnum, k, loc0, loc1;
 
+  // M-6HBAi 1,
   const int lat_case = 1;
 
   Ring_GetTwiss(true, 0e0);
@@ -321,6 +321,8 @@ void chk_mpole(void)
   int              k;
   std::vector<int> Fnum;
 
+  // SLS-2   1,
+  // M-6HBAi 2,
   const int lat_case = 2;
 
   switch (lat_case) {
@@ -348,8 +350,8 @@ void chk_mpole(void)
     Fnum.push_back(ElemIndex("oyy"));
     break;
   case 2:
-    // D-TBA.
-    Fnum.push_back(ElemIndex("sf1"));
+    // M-6HBAi.
+    Fnum.push_back(ElemIndex("sextmark"));
 
     Fnum.push_back(ElemIndex("sd1"));
     Fnum.push_back(ElemIndex("sd2"));
