@@ -6,6 +6,8 @@ gnuplot << EOP
 
 ps = $prm1; plt_I5 = 1;
 
+file_name = "linlat.out";
+
 f_s = 24; l_w = 2;
 if (ps == 0) \
   set terminal x11; \
@@ -32,41 +34,41 @@ if (ps) set output "linlat_1.".(ext);
 set title "Beta Functions";
 set xlabel "s [m]"; set ylabel "{/Symbol b} [m]";
 set y2range [-2.0:20];
-plot "linlat.out" using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
+plot file_name using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
      lc rgb "black", \
-     "linlat.out" using 3:6 title "{/Symbol b}_x" with lines ls 1, \
-     "linlat.out" using 3:11 title "{/Symbol b}_y" with lines ls 3;
+     file_name using 3:6 title "{/Symbol b}_x" with lines ls 1, \
+     file_name using 3:11 title "{/Symbol b}_y" with lines ls 3;
 if (!ps) pause mouse "click on graph to cont.\n";
 
 if (ps) set output "linlat_2.".(ext);
 set title "Dispersion";
 set xlabel "s [m]"; set ylabel "{/Symbol h} [m]";
 set y2range [-2.0:20];
-plot "linlat.out" using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
+plot file_name using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
      lc rgb "black", \
-     "linlat.out" using 3:8 title "{/Symbol h}_x" with lines ls 1, \
-     "linlat.out" using 3:13 title "{/Symbol h}_y" with lines ls 3;
+     file_name using 3:8 title "{/Symbol h}_x" with lines ls 1, \
+     file_name using 3:13 title "{/Symbol h}_y" with lines ls 3;
 if (!ps) pause mouse "click on graph to cont.\n";
 
 if (ps) set output "linlat_3.".(ext);
 set title "Normalized Phase Advance";
 set xlabel "s [m]"; set ylabel "{/Symbol n}";
 set y2range [-2.0:20];
-plot "linlat.out" using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
+plot file_name using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
      lc rgb "black", \
-     "linlat.out" using 3:7 title "{/Symbol n}_x" with lines ls 1, \
-     "linlat.out" using 3:12 title "{/Symbol n}_y" with lines ls 3;
+     file_name using 3:7 title "{/Symbol n}_x" with lines ls 1, \
+     file_name using 3:12 title "{/Symbol n}_y" with lines ls 3;
 if (!ps) pause mouse "click on graph to cont.\n";
 
 if (ps) set output "linlat_4.".(ext);
 set title "{/Symbol g}";
 set xlabel "s [m]"; set ylabel "{/Symbol g}";
 set y2range [-2.0:20];
-plot "linlat.out" using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
+plot file_name using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
      lc rgb "black", \
-     "linlat.out" using 3:((1.0+\$5**2)/\$6) title "{/Symbol g}_x" \
+     file_name using 3:((1.0+\$5**2)/\$6) title "{/Symbol g}_x" \
      with lines ls 1, \
-     "linlat.out" using 3:((1.0+\$10**2)/\$11) title "{/Symbol g}_y" \
+     file_name using 3:((1.0+\$10**2)/\$11) title "{/Symbol g}_y" \
      with lines ls 3;
 if (!ps) pause mouse "click on graph to cont.\n";
 
@@ -76,21 +78,21 @@ if (ps) set output "linlat_5.".(ext);
  set title "{/Symbol a}"; \
 set xlabel "s [m]"; set ylabel "{/Symbol a}"; \
 set y2range [-2.0:20]; \
-plot "linlat.out" using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
+plot file_name using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
      lc rgb "black", \
-     "linlat.out" using 3:5 title "{/Symbol a}_x" with lines ls 1, \
-     "linlat.out" using 3:10 title "{/Symbol a}_y" with lines ls 3; \
+     file_name using 3:5 title "{/Symbol a}_x" with lines ls 1, \
+     file_name using 3:10 title "{/Symbol a}_y" with lines ls 3; \
 if (!ps) pause mouse "click on graph to cont.\n";
 
 if (ps) set output "linlat_6.".(ext);
 set title "{/Symbol b}_{x,y}{/Symbol \264h}_x";
 set xlabel "s [m]"; set ylabel "";
 set y2range [-2.0:20];
-plot "linlat.out" using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
+plot file_name using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
      lc rgb "black", \
-     "linlat.out" using 3:(\$6*\$8) title "{/Symbol b}_x{/Symbol \264h}_x" \
+     file_name using 3:(\$6*\$8) title "{/Symbol b}_x{/Symbol \264h}_x" \
      with lines ls 1, \
-     "linlat.out" using 3:(\$11*\$8) title "{/Symbol b}_y{/Symbol \264h}_x" \
+     file_name using 3:(\$11*\$8) title "{/Symbol b}_y{/Symbol \264h}_x" \
      with lines ls 3;
 if (!ps) pause mouse "click on graph to cont.\n";
 
@@ -103,7 +105,7 @@ unset colorbox;
 if (ps) set output "linlat_7.".(ext);
 set title "Floquet Space";
 set xlabel "{/Symbol h}~"; set ylabel "{/Symbol h}'~";
-plot "linlat.out" using 15:16:(abs(\$4)) notitle "{/Symbol n}_x" \
+plot file_name using 15:16:(abs(\$4)) notitle "{/Symbol n}_x" \
       with lines lt palette z;
 if (!ps) pause mouse "click on graph to cont.\n";
 
