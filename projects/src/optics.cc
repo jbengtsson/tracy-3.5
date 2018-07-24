@@ -645,7 +645,7 @@ int main(int argc, char *argv[])
 
   if (false) {
     Ring_GetTwiss(true, 0e0); printglob();
-    set_map("ps_rot", 0.55/6.0, -0.07/6.0);
+    set_map("ps_rot", 0.21/6.0, 0.34/6.0);
     Ring_GetTwiss(true, 0e0); printglob();
     exit(0);
   }

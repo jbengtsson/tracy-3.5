@@ -191,6 +191,11 @@ int main(int argc, char *argv[])
 
   Ring_GetTwiss(true, 0e0); printglob();
 
+  if (!false) {
+    set_map("ps_rot", 0.21/6.0, 0.34/6.0);
+    Ring_GetTwiss(true, 0e0); printglob();
+  }
+
   for (j = 0; j < 2; j++)
     twoJ[j] = sqr(A_max[j])/beta_inj[j];
   get_drv_terms(twoJ, delta_max);

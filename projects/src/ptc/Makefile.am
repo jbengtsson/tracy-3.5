@@ -1,11 +1,12 @@
-bin_PROGRAMS = fmap get_dnu vlad tracy_2_3 carbon_map drv_terms
+bin_PROGRAMS = fmap get_dnu vlad tracy_2_3 carbon_map drv_terms get_nl_optics
 
-fmap_SOURCES       = fmap.cc
-get_dnu_SOURCES    = get_dnu.cc
-vlad_SOURCES       = vlad.cc
-tracy_2_3_SOURCES  = tracy_2_3.cc
-carbon_map_SOURCES = carbon_map.cc
-drv_terms_SOURCES  = drv_terms.cc
+fmap_SOURCES          = fmap.cc
+get_dnu_SOURCES       = get_dnu.cc
+vlad_SOURCES          = vlad.cc
+tracy_2_3_SOURCES     = tracy_2_3.cc
+carbon_map_SOURCES    = carbon_map.cc
+drv_terms_SOURCES     = drv_terms.cc
+get_nl_optics_SOURCES = get_nl_optics.cc
 
 LIBS     = -L$(TRACY_LIB)/tracy/lib -ltracy_ptc -lTPSALib -lLieLib \
            -L$(NUM_REC)/lib -lnum_rec \
