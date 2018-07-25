@@ -540,6 +540,38 @@ void pole_tip_field(const double R_ref)
 }
 
 
+void get_dbeta_deta(const double delta)
+{
+  int            j, k;
+  vector<double> dbeta[2], deta[2];
+  FILE           *outf;
+
+  const string file_name = "dbeta_deta.out";
+
+  outf = file_write(file_name.c_str());
+
+  printf("\nOptics for delta = %4.2f %%\n", 1e2*delta);
+  Ring_GetTwiss(true, delta); printglob();
+  for (k = 0; k <= globval.Cell_nLoc; k++) {
+    for (j = 0; j < 2; j++)
+      dbeta[j].push_back(Cell[k].Beta[j]);
+    deta[0].push_back(Cell[k].Eta[X_]); deta[1].push_back(Cell[k].Etap[X_]);
+  }
+  printf("\nOptics for delta = %4.2f \%\n", 0e0);
+  Ring_GetTwiss(true, 0e0); printglob();
+  for (k = 0; k <= globval.Cell_nLoc; k++) {
+    fprintf(outf, "%4d %10s %8.3f %4.1f %10.5f %10.5f %8.5f %8.5f"
+	    " %10.5f %10.5f %8.5f %8.5f\n",
+	    k, Cell[k].Elem.PName, Cell[k].S, get_code(Cell[k]),
+	    Cell[k].Beta[X_], Cell[k].Beta[Y_],
+	    Cell[k].Eta[X_], Cell[k].Etap[X_],
+	    dbeta[X_][k], dbeta[Y_][k], deta[0][k], deta[1][k]);
+  }
+
+  fclose(outf);
+}
+
+
 int main(int argc, char *argv[])
 {
   bool             tweak;
@@ -644,14 +676,18 @@ int main(int argc, char *argv[])
   }
 
   if (false) {
-    Ring_GetTwiss(true, 0e0); printglob();
-    set_map("ps_rot", 0.21/6.0, 0.34/6.0);
-    Ring_GetTwiss(true, 0e0); printglob();
+    dnu_mpole();
     exit(0);
   }
 
-  if (false) {
-    dnu_mpole();
+  if (!false) {
+    Ring_GetTwiss(true, 0e0); printglob();
+    set_map("ps_rot", 0.12, 0.08);
+    Ring_GetTwiss(true, 0e0); printglob();
+  }
+
+  if (!false) {
+    get_dbeta_deta(1e-2);
     exit(0);
   }
 

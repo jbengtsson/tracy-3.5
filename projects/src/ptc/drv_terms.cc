@@ -6,7 +6,7 @@ int no_tps   = NO,
     ndpt_tps = 5;
 
 
-const int n_cell = 2;
+const int n_cell = 1;
 
 const double A_max[]    = {2e-2, 1e-2},
              delta_max  = 2e-2,
@@ -192,7 +192,7 @@ int main(int argc, char *argv[])
   Ring_GetTwiss(true, 0e0); printglob();
 
   if (!false) {
-    set_map("ps_rot", 0.21/6.0, 0.34/6.0);
+    set_map("ps_rot", 0.12, 0.08);
     Ring_GetTwiss(true, 0e0); printglob();
   }
 

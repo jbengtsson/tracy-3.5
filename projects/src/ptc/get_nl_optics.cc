@@ -27,29 +27,6 @@ void prt_eta(FILE *fp, const int order, const int k, const ss_vect<tps> &cod)
 }
 
 
-void get_eta()
-{
-  int          k;
-  ss_vect<tps> cod;
-  FILE         *outf;
-
-  const string file_name = "eta_nl.out";
-  const int    order     = 3;
-
-  get_map(false); MNF = MapNorm(map, no_tps); cod = MNF.A0;
-
-  outf = file_write(file_name.c_str());
-  for (k = 0; k <= globval.Cell_nLoc; k++) {
-    Elem_Pass(k, cod);
-    prt_eta(outf, order, k, cod*Id_scl);
-  }
-  fclose(outf);
-
-  // std::cout << std::scientific << std::setprecision(3)
-  // 	    << MNF.A0 << "\n";
-}
-
-
 ss_vect<tps> get_A_nl(const tps g)
 {
   int          j;
@@ -64,39 +41,53 @@ ss_vect<tps> get_A_nl(const tps g)
 }
 
 
-void prt_dbeta(FILE *fp, const int k, const ss_vect<tps> &A_Atp)
+void prt_dbeta_deta(FILE *fp, const int k, const ss_vect<tps> &A)
 {
-  fprintf(fp, "%4d %10s %8.3f %4.1f",
-	  k, Cell[k].Elem.PName, Cell[k].S, get_code(Cell[k]));
-  fprintf(fp, " %13.5e %13.5e",
-	  h_ijklm(A_Atp[x_], 1, 0, 0, 0, 0), h_ijklm(A_Atp[y_], 0, 0, 1, 0, 0));
-  fprintf(fp, " %13.5e %13.5e",
-	  h_ijklm(A_Atp[x_], 1, 0, 0, 0, 0)+h_ijklm(A_Atp[x_], 1, 0, 0, 0, 1),
-	  h_ijklm(A_Atp[y_], 0, 0, 1, 0, 0)+h_ijklm(A_Atp[y_], 0, 0, 1, 0, 1));
+  ss_vect<tps> A_Atp;
+
+
+  A_Atp = A*tp_S(3, A);
+
+  fprintf(fp, "%4d %10s %8.3f %4.1f %10.5f %10.5f %8.5f %8.5f"
+	  " %10.5f %10.5f %8.5f %8.5f",
+	  k, Cell[k].Elem.PName, Cell[k].S, get_code(Cell[k]),
+	  h_ijklm(A_Atp[x_]*Id_scl, 1, 0, 0, 0, 0),
+	  h_ijklm(A_Atp[y_]*Id_scl, 0, 0, 1, 0, 0),
+	  h_ijklm(A[x_], 0, 0, 0, 0, 1),
+	  h_ijklm(A[px_], 0, 0, 0, 0, 1),
+	  h_ijklm(A_Atp[x_]*Id_scl, 1, 0, 0, 0, 0)
+	  +h_ijklm(A_Atp[x_]*Id_scl, 1, 0, 0, 0, 1),
+	  h_ijklm(A_Atp[y_]*Id_scl, 0, 0, 1, 0, 1)
+	  + h_ijklm(A_Atp[y_]*Id_scl, 0, 0, 1, 0, 0),
+	  h_ijklm(A[x_], 0, 0, 0, 0, 1)
+	  +h_ijklm(A[x_]*delta_max, 0, 0, 0, 0, 2),
+	  h_ijklm(A[px_], 0, 0, 0, 0, 1)
+	  +h_ijklm(A[px_]*delta_max, 0, 0, 0, 0, 2));
   fprintf(fp, "\n");
 }
 
 
-void get_dbeta()
+void get_dbeta_eta()
 {
   int          k;
-  ss_vect<tps> A, A_Atp;
+  ss_vect<tps> A;
   FILE         *outf;
 
-  const string file_name = "beta_nl.out";
+  const string file_name = "dbeta_deta.out";
 
   get_map(false); MNF = MapNorm(map, 1);
-  A = MNF.A0*MNF.A1*get_A_nl(MNF.g);
-  // A = LieExp(MNF.g, MNF.A0*MNF.A1);
-
-  // std::cout << std::scientific << std::setprecision(3) <<  MNF.g << "\n";
+  // A = MNF.A0*MNF.A1*get_A_nl(MNF.g);
+  A = LieExp(MNF.g, MNF.A0*MNF.A1);
 
   outf = file_write(file_name.c_str());
   for (k = 0; k <= globval.Cell_nLoc; k++) {
-    Elem_Pass(k, A); A_Atp = A*tp_S(3, A);
-    prt_dbeta(outf, k, A_Atp*Id_scl);
+    Elem_Pass(k, A);
+    prt_dbeta_deta(outf, k, A);
   }
   fclose(outf);
+
+  // std::cout << std::scientific << std::setprecision(3)
+  // 	    << MNF.A0 << "\n";
 }
 
 
@@ -112,7 +103,7 @@ int main(int argc, char *argv[])
   // disable from TPSALib- and LieLib log messages
   idprset_(-1);
 
-  if (!false)
+  if (false)
     Read_Lattice(argv[1]);
   else {
     rdmfile(argv[1]);
@@ -129,13 +120,12 @@ int main(int argc, char *argv[])
 
   Ring_GetTwiss(true, 0.0); printglob();
 
-  if (false) {
-    set_map("ps_rot", 0.21/6.0, 0.34/6.0);
+  if (!false) {
+    set_map("ps_rot", 0.12, 0.08);
     Ring_GetTwiss(true, 0e0); printglob();
   }
 
   danot_(no_tps);
 
-  get_eta();
-  get_dbeta();
+  get_dbeta_eta();
 }
