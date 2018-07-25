@@ -5,6 +5,9 @@
 int no_tps = NO;
 
 
+const double dnu[] = {0.03, 0.02};
+
+
 void prt_name(FILE * outf, const char *name)
 {
     int j, k, len;
@@ -550,14 +553,14 @@ void get_dbeta_deta(const double delta)
 
   outf = file_write(file_name.c_str());
 
-  printf("\nOptics for delta = %4.2f %%\n", 1e2*delta);
+  printf("\nOptics for delta = %4.2f%%\n", 1e2*delta);
   Ring_GetTwiss(true, delta); printglob();
   for (k = 0; k <= globval.Cell_nLoc; k++) {
     for (j = 0; j < 2; j++)
       dbeta[j].push_back(Cell[k].Beta[j]);
     deta[0].push_back(Cell[k].Eta[X_]); deta[1].push_back(Cell[k].Etap[X_]);
   }
-  printf("\nOptics for delta = %4.2f \%\n", 0e0);
+  printf("\nOptics for delta = %4.2f%%\n", 0e0);
   Ring_GetTwiss(true, 0e0); printglob();
   for (k = 0; k <= globval.Cell_nLoc; k++) {
     fprintf(outf, "%4d %10s %8.3f %4.1f %10.5f %10.5f %8.5f %8.5f"
@@ -682,11 +685,11 @@ int main(int argc, char *argv[])
 
   if (!false) {
     Ring_GetTwiss(true, 0e0); printglob();
-    set_map("ps_rot", 0.12, 0.08);
+    set_map("ps_rot", dnu[X_], dnu[Y_]);
     Ring_GetTwiss(true, 0e0); printglob();
   }
 
-  if (!false) {
+  if (false) {
     get_dbeta_deta(1e-2);
     exit(0);
   }
@@ -846,8 +849,6 @@ int main(int argc, char *argv[])
   }
 
   if (true) {
-    // set_map("M", 0.0, 0.0);
-
     globval.Cavity_on = true;
     get_dynap(delta, 25, n_turn, false);
   }

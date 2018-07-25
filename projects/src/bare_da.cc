@@ -4,23 +4,25 @@
 
 int no_tps = NO;
 
-// MAX-IV              1,
-// SLS-2               2,
-// DIAMOND             3,
-// DIAMOND-II 4-BA     4,
-// DIAMOND-II 6-BA     5.
-// DIAMOND-II 8-BA     6.
-// DIAMOND-II RB-6-BA  7.
-// DIAMOND-II D-TBA    8.
-// DELTA               9.
-// ALS-U              10.
+// MAX-IV   1,
+// SLS-2    2,
+// M-H6BAi  3.
+// M-H6BA   4.
+// M-H8BA   5.
+// RB-6BA   6.
+// M-6BA    7.
+// DIAMOND  8,
+// DELTA    9.
+// ALS-U    10.
 
-const int lat_case = 2;
+const int lat_case = 3;
 
 const double
   delta_max[] =
-    {3e-2, 5e-2, 1.5e-2, 3e-2, 3e-2, 1e-2, 3e-2, 2e-2, 1e-2, 4e-2},
-  dnu[]       = {0.1, 0.0};
+    {3e-2, 5e-2, 1e-2, 3e-2,
+     3e-2, 1e-2, 3e-2, 2e-2,
+     3e-2, 1e-2, 4e-2},
+  dnu[]       = {0.03, 0.02};
 
 
 int main(int argc, char *argv[])
@@ -45,7 +47,7 @@ int main(int argc, char *argv[])
 
   if (true) GetEmittance(ElemIndex("cav"), true);
 
-  if (false) {
+  if (!false) {
     Ring_GetTwiss(true, 0e0); printglob();
     set_map("ps_rot", dnu[X_], dnu[Y_]);
     Ring_GetTwiss(true, 0e0); printglob();
