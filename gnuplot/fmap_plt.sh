@@ -9,15 +9,17 @@ prm5=${5-1}
 gnuplot << EOP
 
 home_dir = "$prm1"; N = $prm2; ps = $prm3; case  = $prm4; scale = $prm5;
-# MAX-V               1,
-# SLS-2               2,
-# DIAMOND-II:    DTBA 3,
-#                6-BA 4,
-#                8-BA 5,
-#             6-RB-BA 6,
-# DIAMOND             7,
-# ALS-U               8,
-# DELTA               9.
+
+# MAX-V   1,
+# SLS-2   2,
+# M-H6BAi 3,
+# M-H6BA  4,
+# M-H8BA  5,
+# RB-6BA  6,
+# M-6BA   7,
+# DIAMOND 8,
+# ALS-U   9,
+# DELTA   10.
 
 file1 = (home_dir)."fmap.out";
 file2 = (home_dir)."fmapdp.out";
@@ -73,12 +75,14 @@ else if ((N == 6) && (case == 5)) \
 else if ((N == 6) && (case == 6)) \
   N_x = 12; N_y = 5; sgn_x = -1; sgn_y = -1; \
 else if ((N == 6) && (case == 7)) \
+  N_x = 13; N_y = 5; sgn_x = -1; sgn_y = -1; \
+else if ((N == 6) && (case == 8)) \
   N_x = 12; N_y = 5; sgn_x = -1; sgn_y = -1; \
-else if ((N == 12) && (case == 8)) \
+else if ((N == 12) && (case == 9)) \
   N_x = 3; N_y = 1; \
-else if ((N == 20) && (case == 1)) \
+else if ((N == 20) && (case == 10)) \
   N_x = 5; N_y = 3; \
-else if ((N == 24) && (case == 9)) \
+else if ((N == 24) && (case == 11)) \
   N_x = 2; N_y = 0; sgn_y = -1;
 
 # DELTA: del008.
@@ -86,40 +90,34 @@ else if ((N == 24) && (case == 9)) \
 
 if (case == 1) \
   nu_x_min = 102.0; nu_x_max = 102.5; nu_y_min = 68.0; nu_y_max = 68.5; \
-  x_max = 2.0; y_max = 2.0; \
-  delta_min = -5.0; delta_max = 5.0; \
+  x_max = 2.0; y_max = 2.0; delta_max = 5.0; \
 else if (case == 2) \
   nu_x_min = 38.0; nu_x_max = 38.5; nu_y_min = 14.0; nu_y_max = 14.6; \
-  x_max = 8.0; y_max = 8.0; \
-  delta_min = -6.1; delta_max = 6.1; \
+  x_max = 8.0; y_max = 8.0; delta_max = 6.1; \
 else if (case == 3) \
   nu_x_min = 57.0; nu_x_max = 57.5; nu_y_min = 19.8; nu_y_max = 20.5; \
-  x_max = 10.0; y_max = 4.0; \
-  delta_min = -3.1; delta_max = 3.1; \
+  x_max = 10.0; y_max = 4.0; delta_max = 3.1; \
 else if (case == 4) \
   nu_x_min = 57.0; nu_x_max = 57.5; nu_y_min = 22.0; nu_y_max = 22.6; \
-  x_max = 8.0; y_max = 3.0; \
-  delta_min = -5.1; delta_max = 5.1; \
+  x_max = 8.0; y_max = 3.0; delta_max = 5.1; \
 else if (case == 5) \
   nu_x_min = 57.0; nu_x_max = 57.5; nu_y_min = 22.0; nu_y_max = 22.5; \
-  x_max = 8.0; y_min = -4.0; y_max = 4.0; \
-  delta_min = -3.0; delta_max = 3.0; \
+  x_max = 8.0; y_max = 4.0;  delta_max = 3.0; \
 else if (case == 6) \
   nu_x_min = 69.1; nu_x_max = 69.5; nu_y_min = 28.1; nu_y_max = 28.7; \
-  x_max = 2.5; y_max = 2.0; \
-  delta_min = -3.0; delta_max = 3.0; \
+  x_max = 2.5; y_max = 2.0; delta_max = 3.0; \
 else if (case == 7) \
-  nu_x_min = 28.1; nu_x_max = 28.26; nu_y_min = 13.1; nu_y_max = 13.4; \
-  x_max = 15.0; y_max = 10.0; \
-  delta_min = -3.0; delta_max = 3.0; \
+  nu_x_min = 74.8; nu_x_max = 75.8; nu_y_min = 26.9; nu_y_max = 28.4; \
+  x_max = 5.05; y_max = 5.0; delta_max = 5.0; \
 else if (case == 8) \
-  nu_x_min = 40.2; nu_x_max = 40.6; nu_y_min = 14.1; nu_y_max = 14.8; \
-  x_max = 4.0; y_max = 3.0; \
-  delta_min = -5.0; delta_max = 5.0; \
+  nu_x_min = 28.1; nu_x_max = 28.26; nu_y_min = 13.1; nu_y_max = 13.4; \
+  x_max = 15.0; y_max = 10.0; delta_max = 3.0; \
 else if (case == 9) \
+  nu_x_min = 40.2; nu_x_max = 40.6; nu_y_min = 14.1; nu_y_max = 14.8; \
+  x_max = 4.0; y_max = 3.0; delta_max = 5.0; \
+else if (case == 10) \
   nu_x_min = 8.5; nu_x_max = 8.75; nu_y_min = 3.49; nu_y_max = 3.6; \
-  x_max = 35.0; y_min = -6.0; y_max = 6.0; \
-  delta_min = -2.6; delta_max = 2.6;
+  x_max = 35.0; y_min = -6.0; y_max = 6.0; delta_max = 2.6;
 
 # DELTA: del008 .
 #  nu_x_min = 9.0; nu_x_max = 9.3; nu_y_min = 3.1; nu_y_max = 3.4; 
