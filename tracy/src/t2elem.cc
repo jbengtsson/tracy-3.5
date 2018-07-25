@@ -2568,7 +2568,9 @@ void Solenoid_Alloc(elemtype *Elem)
 
 void Map_Alloc(elemtype *Elem)
 {
-  Elem->Map = (MapType *)malloc(sizeof(MapType));
+  // Elem->Map = (MapType *)malloc(sizeof(MapType));
+  // Use new; to allocate TPSA vector.
+  Elem->Map = new MapType();
 }
 
 
