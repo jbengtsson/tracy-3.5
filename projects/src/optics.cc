@@ -5,7 +5,8 @@
 int no_tps = NO;
 
 
-const double dnu[] = {0.03, 0.02};
+const bool   set_dnu  = false;
+const double dnu[]    = {0.03, 0.02};
 
 
 void prt_name(FILE * outf, const char *name)
@@ -683,18 +684,18 @@ int main(int argc, char *argv[])
     exit(0);
   }
 
-  if (false) {
+  if (set_dnu) {
     Ring_GetTwiss(true, 0e0); printglob();
     set_map("ps_rot", dnu[X_], dnu[Y_]);
     Ring_GetTwiss(true, 0e0); printglob();
   }
 
   if (false) {
-    get_dbeta_deta(1e-2);
+    get_dbeta_deta(1.5e-2);
     exit(0);
   }
 
-  if (false) no_sxt();
+  if (!false) no_sxt();
 
   globval.Cavity_on = false; globval.radiation = false;
   Ring_GetTwiss(true, 0e0); printglob();

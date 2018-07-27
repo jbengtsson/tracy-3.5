@@ -16,7 +16,8 @@ int  no_tps = NO;
 // DELTA    9.
 // ALS-U    10.
 
-const int lat_case = 3;
+const bool set_dnu  = false;
+const int  lat_case = 3;
 
 const double
   A_max[][2] =
@@ -44,7 +45,7 @@ int main(int argc, char *argv[])
 
   globval.EPU = false;
 
-  if (!false) {
+  if (set_dnu) {
     Ring_GetTwiss(true, 0e0); printglob();
     set_map("ps_rot", dnu[X_], dnu[Y_]);
     Ring_GetTwiss(true, 0e0); printglob();

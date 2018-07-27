@@ -120,7 +120,7 @@ int main(int argc, char *argv[])
 
   Ring_GetTwiss(true, 0.0); printglob();
 
-  if (!false) {
+  if (false) {
     set_map("ps_rot", 0.12, 0.08);
     Ring_GetTwiss(true, 0e0); printglob();
   }
