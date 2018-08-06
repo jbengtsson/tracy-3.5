@@ -4,7 +4,10 @@
 
 int no_tps = NO;
 
-const double dnu[] = {0.1, 0.0};
+
+const bool   set_dnu    = false;
+const double dnu[]      = {0.03, 0.02},
+             eta_x[]    = {0.0,  0.0};
 
 
 void err_and_corr(const string &param_file)
@@ -19,10 +22,9 @@ void err_and_corr(const string &param_file)
 
   Ring_GetTwiss(true, 0e0); printglob();
 
-  if (false) {
+  if (set_dnu) {
     // Do not use for Real Lattice.
-    Ring_GetTwiss(true, 0e0); printglob();
-    set_map("ps_rot", dnu[X_], dnu[Y_]);
+    set_map("ps_rot", dnu[X_], dnu[Y_], eta_x[0], eta_x[1]);
     Ring_GetTwiss(true, 0e0); printglob();
   }
 

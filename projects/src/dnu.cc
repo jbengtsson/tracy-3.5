@@ -18,16 +18,16 @@ int  no_tps = NO;
 
 const bool set_dnu  = false;
 const int  lat_case = 3;
-
 const double
-  A_max[][2] =
+  A_max[][2]  =
     {{1.5e-3, 1.5e-3}, { 7e-3, 5e-3}, {6e-3, 3e-3}, {10e-3, 4e-3},
      {  5e-3,   3e-3}, { 3e-3, 2e-3},  {3e-3, 2e-3}, {3e-3, 2e-3},
      {  3e-3,   2e-3}, {35e-3, 6e-3}, {4e-3, 4e-3}},
   delta_max[] = {3e-2, 5e-2, 2e-2, 3e-2,
 		 3e-2, 3e-2, 3e-2, 2e-2,
 		 3e-2, 3e-2, 4e-2},
-  dnu[]       = {0.03, 0.02};
+  dnu[]       = {0.03, 0.02},
+  eta_x[]     = {0.0,  0.0};
 
 
 int main(int argc, char *argv[])
@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
 
   if (set_dnu) {
     Ring_GetTwiss(true, 0e0); printglob();
-    set_map("ps_rot", dnu[X_], dnu[Y_]);
+    set_map("ps_rot", dnu[X_], dnu[Y_], eta_x[0], eta_x[1]);
     Ring_GetTwiss(true, 0e0); printglob();
   }
 

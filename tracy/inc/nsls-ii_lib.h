@@ -301,4 +301,5 @@ void prt_H_long(const int n, const double phi_max, const double delta_max,
 void get_map_twiss(const ss_vect<tps> &M,
 		   double beta0[], double beta1[], double nu[], bool stable[]);
 
-void set_map(const char *name, const double dnu_x, const double dnu_y);
+void set_map(const char *name, const double dnu_x, const double dnu_y,
+	     const double eta_x, const double etap_x);

@@ -3488,30 +3488,35 @@ void get_map_twiss(const ss_vect<tps> &M,
 }
 
 
-void set_map(const char *name, const double dnu_x, const double dnu_y)
+void set_map(const char *name, const double dnu_x, const double dnu_y,
+	     const double eta_x, const double etap_x)
 {
-  // Insert at zero eta & eta'.
+  // Set phase-space rotation.
   bool         stable[2];
   long int     lastpos;
   int          Fnum, k, loc, loc2;
   double       cosmu, sinmu, nu[2], beta0[2], beta1[2];
-  ss_vect<tps> Id, M;
+  ss_vect<tps> Id, Id_eta, M;
 
   const double dnu[] = {dnu_x, dnu_y};
 
-  Fnum = ElemIndex(name);
-  loc = Elem_GetPos(Fnum, 1);
+  Fnum = ElemIndex(name); loc = Elem_GetPos(Fnum, 1);
 
-  M.identity();
-  Cell_Pass(0, loc, M, lastpos);
+  M.identity(); Cell_Pass(0, loc, M, lastpos);
   get_map_twiss(M, beta0, beta1, nu, stable);
 
   Id.identity();
   for (k = 0; k < 2; k++) {
     cosmu = cos(2e0*M_PI*dnu[k]); sinmu = sin(2e0*M_PI*dnu[k]);
-    Cell[loc].Elem.Map->M[2*k] = cosmu*Id[2*k] + beta1[k]*sinmu*Id[2*k+1];
+    Cell[loc].Elem.Map->M[2*k]   = cosmu*Id[2*k] + beta1[k]*sinmu*Id[2*k+1];
     Cell[loc].Elem.Map->M[2*k+1] = -sinmu/beta1[k]*Id[2*k] + cosmu*Id[2*k+1];
   }
+
+  // Zero linear dispersion contribution.
+  Id_eta.zero(); Id_eta[x_] = eta_x*Id[delta_]; Id_eta[px_] = etap_x*Id[delta_];
+  Id_eta = Cell[loc].Elem.Map->M*Id_eta;
+  Cell[loc].Elem.Map->M[x_]  -= (Id_eta[x_][delta_]-eta_x)*Id[delta_];
+  Cell[loc].Elem.Map->M[px_] -= (Id_eta[px_][delta_]-etap_x)*Id[delta_];
 
   for (k = 2; k <= GetnKid(Fnum); k++) {
     loc2 = Elem_GetPos(Fnum, k);

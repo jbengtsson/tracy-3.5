@@ -5,8 +5,14 @@
 int no_tps = NO;
 
 
-const bool   set_dnu  = false;
-const double dnu[]    = {0.03, 0.02};
+const bool
+  set_dnu  = false,
+  mI_rot   = !false;
+const double
+  dnu[]      = {0.03, 0.02},
+  eta_x[]    = {0.0, 0.0},
+  dnu_mI[]   = {1.5-1.44129, 0.5-0.47593},
+  eta_x_mI[] = {0.02466, 0.0};
 
 
 void prt_name(FILE * outf, const char *name)
@@ -638,14 +644,20 @@ int main(int argc, char *argv[])
     exit(0);
   }
 
-  if (false) {
-    chk_high_ord_achr();
-    exit(0);
+  if (mI_rot) {
+    Ring_GetTwiss(true, 0e0); printglob();
+    set_map("mI_rot", dnu_mI[X_], dnu_mI[Y_], eta_x_mI[0], eta_x_mI[1]);
+    Ring_GetTwiss(true, 0e0); printglob();
   }
 
-  if (false) {
+  if (!false) {
+    chk_high_ord_achr();
+    // exit(0);
+  }
+
+  if (!false) {
     chk_mI_trans();
-    exit(0);
+    // exit(0);
   }
 
   if (false) {
@@ -686,11 +698,11 @@ int main(int argc, char *argv[])
 
   if (set_dnu) {
     Ring_GetTwiss(true, 0e0); printglob();
-    set_map("ps_rot", dnu[X_], dnu[Y_]);
+    set_map("ps_rot", dnu[X_], dnu[Y_], eta_x_mI[0], eta_x_mI[1]);
     Ring_GetTwiss(true, 0e0); printglob();
   }
 
-  if (false) {
+  if (!false) {
     get_dbeta_deta(1.5e-2);
     exit(0);
   }
