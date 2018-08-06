@@ -3502,6 +3502,9 @@ void set_map(const char *name, const double dnu_x, const double dnu_y,
 
   Fnum = ElemIndex(name); loc = Elem_GetPos(Fnum, 1);
 
+  Cell[loc].Elem.Map->dnu[X_] = dnu_x; Cell[loc].Elem.Map->dnu[Y_] = dnu_y;
+  Cell[loc].Elem.Map->eta_x   = eta_x; Cell[loc].Elem.Map->etap_x  = etap_x;
+
   M.identity(); Cell_Pass(0, loc, M, lastpos);
   get_map_twiss(M, beta0, beta1, nu, stable);
 
@@ -3520,6 +3523,10 @@ void set_map(const char *name, const double dnu_x, const double dnu_y,
 
   for (k = 2; k <= GetnKid(Fnum); k++) {
     loc2 = Elem_GetPos(Fnum, k);
+    Cell[loc2].Elem.Map->dnu[X_] = Cell[loc].Elem.Map->dnu[X_];
+    Cell[loc2].Elem.Map->dnu[Y_] = Cell[loc].Elem.Map->dnu[Y_];
+    Cell[loc2].Elem.Map->eta_x   = Cell[loc].Elem.Map->eta_x ;
+    Cell[loc2].Elem.Map->etap_x  = Cell[loc].Elem.Map->etap_x;
     Cell[loc2].Elem.Map = Cell[loc].Elem.Map;
   }
 }
