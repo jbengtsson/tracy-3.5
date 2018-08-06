@@ -8,10 +8,11 @@ int no_tps = NO;
 const bool
   set_dnu  = false,
   mI_rot   = !false;
+
 const double
   dnu[]      = {0.03, 0.02},
   eta_x[]    = {0.0, 0.0},
-  dnu_mI[]   = {1.5-1.44129, 0.5-0.47593},
+  dnu_mI[]   = {1.5-1.44129-0.0, 0.5-0.47593-0.0},
   eta_x_mI[] = {0.02466, 0.0};
 
 
@@ -704,10 +705,10 @@ int main(int argc, char *argv[])
 
   if (!false) {
     get_dbeta_deta(1.5e-2);
-    exit(0);
+    // exit(0);
   }
 
-  if (!false) no_sxt();
+  if (false) no_sxt();
 
   globval.Cavity_on = false; globval.radiation = false;
   Ring_GetTwiss(true, 0e0); printglob();
