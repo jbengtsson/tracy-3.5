@@ -7,17 +7,6 @@ int no_tps   = NO,
     ndpt_tps = 5;
 
 
-double       twoJ[2];
-ss_vect<tps> Id_scl;
-
-const bool   set_dnu = false;
-const double
-  beta_inj[] = {10.0, 3.0},
-  A_max[]    = {5e-3, 2e-3},
-  delta_max  = 3e-2,
-  dnu[]      = {0.03, 0.02};
-
-
 void prt_eta(FILE *fp, const int order, const int k, const ss_vect<tps> &cod)
 {
   int i, j;
@@ -52,21 +41,11 @@ void prt_dbeta_deta(FILE *fp, const int k, const ss_vect<tps> &A)
 
   A_Atp = A*tp_S(3, A);
 
-  fprintf(fp, "%4d %10s %8.3f %4.1f %10.5f %10.5f %8.5f %8.5f"
-	  " %10.5f %10.5f %8.5f %8.5f",
+  fprintf(fp, "%4d %10s %8.3f %4.1f %12.5e %12.5e %12.5e",
 	  k, Cell[k].Elem.PName, Cell[k].S, get_code(Cell[k]),
-	  h_ijklm(A_Atp[x_]*Id_scl, 1, 0, 0, 0, 0),
-	  h_ijklm(A_Atp[y_]*Id_scl, 0, 0, 1, 0, 0),
-	  h_ijklm(A[x_], 0, 0, 0, 0, 1),
-	  h_ijklm(A[px_], 0, 0, 0, 0, 1),
-	  h_ijklm(A_Atp[x_]*Id_scl, 1, 0, 0, 0, 0)
-	  +h_ijklm(A_Atp[x_]*Id_scl, 1, 0, 0, 0, 1),
-	  h_ijklm(A_Atp[y_]*Id_scl, 0, 0, 1, 0, 1)
-	  + h_ijklm(A_Atp[y_]*Id_scl, 0, 0, 1, 0, 0),
-	  h_ijklm(A[x_], 0, 0, 0, 0, 1)
-	  +h_ijklm(A[x_]*delta_max, 0, 0, 0, 0, 2),
-	  h_ijklm(A[px_], 0, 0, 0, 0, 1)
-	  +h_ijklm(A[px_]*delta_max, 0, 0, 0, 0, 2));
+	  h_ijklm(MNF.g, 2, 0, 0, 0, 1),
+	  h_ijklm(MNF.g, 0, 0, 2, 0, 1),
+	  h_ijklm(A[x_], 1, 0, 0, 0, 1));
   fprintf(fp, "\n");
 }
 
@@ -113,21 +92,9 @@ int main(int argc, char *argv[])
     rdmfile(argv[1]);
   }
 
-  for (j = 0; j < 2; j++)
-    twoJ[j] = sqr(A_max[j])/beta_inj[j];
-  Id_scl.identity();
-  // for (j = 0; j < 4; j++)
-  //   Id_scl[j] *= sqrt(twoJ[j/2]);
-  Id_scl[delta_] *= delta_max;
-
   danot_(2);
 
   Ring_GetTwiss(true, 0.0); printglob();
-
-  if (set_dnu) {
-    set_map(ElemIndex("ps_rot"), dnu[X_], dnu[Y_]);
-    Ring_GetTwiss(true, 0e0); printglob();
-  }
 
   danot_(no_tps);
 

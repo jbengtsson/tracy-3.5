@@ -81,6 +81,7 @@
 
 std::ifstream  inf;
 
+const int line_max = 200;
 
 void get_kind(const int kind, elemtype &Elem)
 {
@@ -130,7 +131,7 @@ void get_kind(const int kind, elemtype &Elem)
 
 void rdmfile(const char *mfile_dat)
 {
-  char      line[max_str], file_name[max_str];
+  char      line[line_max], file_name[line_max];
   int       j, k, nmpole, kind, method, n;
   long int  i;
   double    dTerror, dnu[2], beta[2], eta_x, etap_x;
@@ -142,7 +143,7 @@ void rdmfile(const char *mfile_dat)
 
   file_rd(inf, mfile_dat);
 
-  while (inf.getline(line, max_str)) {
+  while (inf.getline(line, line_max)) {
     if (prt) printf("%s\n", line);
     sscanf(line, "%*s %*d %*d %ld", &i);
 
@@ -169,14 +170,14 @@ void rdmfile(const char *mfile_dat)
 	max(Cell[i].Knum, ElemFam[Cell[i].Fnum-1].nKid);
     }
 
-    inf.getline(line, max_str);
+    inf.getline(line, line_max);
     if (prt) printf("%s\n", line);
     sscanf(line, "%d %d %d", &kind, &method, &n);
     get_kind(kind, Cell[i].Elem);
     if (i > 0)
       ElemFam[Cell[i].Fnum-1].ElemF.Pkind = Cell[i].Elem.Pkind;
 
-    inf.getline(line, max_str);
+    inf.getline(line, line_max);
     if (prt) printf("%s\n", line);
     sscanf(line, "%lf %lf %lf %lf",
 	   &Cell[i].maxampl[X_][0], &Cell[i].maxampl[X_][1],
@@ -192,12 +193,12 @@ void rdmfile(const char *mfile_dat)
     case marker:
       break;
     case drift:
-      inf.getline(line, max_str);
+      inf.getline(line, line_max);
       if (prt) printf("%s\n", line);
       sscanf(line, "%lf", &Cell[i].Elem.PL);
       break;
     case Cavity:
-      inf.getline(line, max_str);
+      inf.getline(line, line_max);
       if (prt) printf("%s\n", line);
       sscanf(line, "%lf %lf %d %lf %lf",
 	     &Cell[i].Elem.C->Pvolt, &Cell[i].Elem.C->Pfreq,
@@ -210,7 +211,7 @@ void rdmfile(const char *mfile_dat)
       Cell[i].Elem.M->Pmethod = method; Cell[i].Elem.M->PN = n;
 
       if (Cell[i].Elem.M->Pthick == thick) {
-	inf.getline(line, max_str);
+	inf.getline(line, line_max);
 	if (prt) printf("%s\n", line);
 	sscanf(line, "%lf %lf %lf %lf",
 	       &Cell[i].dS[X_], &Cell[i].dS[Y_],
@@ -220,7 +221,7 @@ void rdmfile(const char *mfile_dat)
 	Cell[i].Elem.M->PdTrms = dTerror - Cell[i].Elem.M->PdTpar;
 	Cell[i].Elem.M->PdTrnd = 1e0;
 
-	inf.getline(line, max_str);
+	inf.getline(line, line_max);
 	if (prt) printf("%s\n", line);
 	sscanf(line, "%lf %lf %lf %lf %lf",
 	       &Cell[i].Elem.PL, &Cell[i].Elem.M->Pirho,
@@ -228,7 +229,7 @@ void rdmfile(const char *mfile_dat)
 	       &Cell[i].Elem.M->Pgap);
 	if (Cell[i].Elem.M->Pirho != 0.0) Cell[i].Elem.M->Porder = 1;
       } else {
-	inf.getline(line, max_str);
+	inf.getline(line, line_max);
 	if (prt) printf("%s\n", line);
 	sscanf(line, "%lf %lf %lf",
 	       &Cell[i].dS[X_], &Cell[i].dS[Y_], &dTerror); 
@@ -243,11 +244,11 @@ void rdmfile(const char *mfile_dat)
       Cell[i].Elem.M->Ps1 = sin(dtor(Cell[i].Elem.M->PdTpar))
 	                    *Cell[i].Elem.M->Pc0;
 
-      inf.getline(line, max_str);
+      inf.getline(line, line_max);
       if (prt) printf("%s\n", line);
       sscanf(line, "%d %d", &nmpole, &Cell[i].Elem.M->n_design);
       for (j = 1; j <= nmpole; j++) {
-	inf.getline(line, max_str);
+	inf.getline(line, line_max);
 	if (prt) printf("%s\n", line);
 	sscanf(line, "%d", &n);
 	sscanf(line, "%*d %lf %lf",
@@ -260,17 +261,17 @@ void rdmfile(const char *mfile_dat)
     case Wigl:
       Cell[i].Elem.W->Pmethod = method; Cell[i].Elem.W->PN = n;
 
-      inf.getline(line, max_str);
+      inf.getline(line, line_max);
       if (prt) printf("%s\n", line);
       sscanf(line, "%lf %lf", &Cell[i].Elem.PL, &Cell[i].Elem.W->lambda);
 
-      inf.getline(line, max_str);
+      inf.getline(line, line_max);
       if (prt) printf("%s\n", line);
       sscanf(line, "%d", &Cell[i].Elem.W->n_harm);
 
       if (Cell[i].Knum == 1) Wiggler_Alloc(&ElemFam[Cell[i].Fnum-1].ElemF);
       for (j = 0; j < Cell[i].Elem.W->n_harm; j++) {
-	inf.getline(line, max_str);
+	inf.getline(line, line_max);
 	if (prt) printf("%s\n", line);
 	sscanf(line, "%d %lf %lf %lf %lf %lf", &Cell[i].Elem.W->harm[j],
 	       &Cell[i].Elem.W->kxV[j], &Cell[i].Elem.W->BoBrhoV[j],
@@ -285,7 +286,7 @@ void rdmfile(const char *mfile_dat)
     case Insertion:
       Cell[i].Elem.ID->Pmethod = method; Cell[i].Elem.ID->PN = n;
 
-      inf.getline(line, max_str);
+      inf.getline(line, line_max);
       if (prt) printf("%s\n", line);
       sscanf(line, "%lf %d %s", &Cell[i].Elem.ID->scaling, &n, file_name);
 
@@ -342,7 +343,9 @@ void rdmfile(const char *mfile_dat)
     case FieldMap:
       break;
     case Map:
-      sscanf(line, "%le %le %le %le %le %le",
+      inf.getline(line, line_max);
+      if (prt) printf("%s\n", line);
+      sscanf(line, "%lf %lf %lf %lf %lf %lf",
 	     &dnu[X_], &dnu[Y_], &beta[X_], &beta[Y_], &eta_x, &etap_x);
       set_map(Cell[i].Elem.Map, dnu, beta, eta_x, etap_x);
       break;

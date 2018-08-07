@@ -6,13 +6,14 @@ int no_tps = NO;
 
 
 const bool
-  set_dnu  = false,
-  mI_rot   = !false;
+  set_dnu = false,
+  mI_rot  = !false,
+  HOA_rot = !false;
 
 const double
-  dnu[]      = {0.03, 0.02},
-  eta_x[]    = {0.0, 0.0},
-  dnu_mI[]   = {1.5-1.44129-0.0, 0.5-0.47593-0.0};
+  nu[]     = {0.2, 0.7},
+  dnu_mI[] = {1.5-1.44129-0.0, 0.5-0.47593-0.0},
+  nu_HOA[] = {19.0/8.0, 15.0/16.0};
 
 
 void prt_name(FILE * outf, const char *name)
@@ -552,30 +553,34 @@ void pole_tip_field(const double R_ref)
 
 void get_dbeta_deta(const double delta)
 {
+  // Evaluate derivative; to avoid effect of tune shift.
   int            j, k;
-  vector<double> dbeta[2], deta[2];
+  vector<double> dbeta[2], deta_x;
   FILE           *outf;
+
+  const double d_delta = 1e-5;
 
   const string file_name = "dbeta_deta.out";
 
   outf = file_write(file_name.c_str());
 
-  printf("\nOptics for delta = %4.2f%%\n", 1e2*delta);
-  Ring_GetTwiss(true, delta); printglob();
+  printf("\nOptics for delta = %10.3e\n", d_delta);
+  Ring_GetTwiss(true, d_delta); printglob();
   for (k = 0; k <= globval.Cell_nLoc; k++) {
     for (j = 0; j < 2; j++)
       dbeta[j].push_back(Cell[k].Beta[j]);
-    deta[0].push_back(Cell[k].Eta[X_]); deta[1].push_back(Cell[k].Etap[X_]);
+    deta_x.push_back(Cell[k].Eta[X_]);
   }
-  printf("\nOptics for delta = %4.2f%%\n", 0e0);
-  Ring_GetTwiss(true, 0e0); printglob();
+  printf("\nOptics for delta = %10.3e\n", -d_delta);
+  Ring_GetTwiss(true, -d_delta); printglob();
   for (k = 0; k <= globval.Cell_nLoc; k++) {
-    fprintf(outf, "%4d %10s %8.3f %4.1f %10.5f %10.5f %8.5f %8.5f"
-	    " %10.5f %10.5f %8.5f %8.5f\n",
+    for (j = 0; j < 2; j++) {
+      dbeta[j][k] -= Cell[k].Beta[j]; dbeta[j][k] /= (2e0*d_delta);
+    }
+    deta_x[k] -= Cell[k].Eta[X_]; deta_x[k] /= (2e0*d_delta);
+    fprintf(outf, "%4d %10s %8.3f %4.1f %12.5e %12.5e %12.5e\n",
 	    k, Cell[k].Elem.PName, Cell[k].S, get_code(Cell[k]),
-	    Cell[k].Beta[X_], Cell[k].Beta[Y_],
-	    Cell[k].Eta[X_], Cell[k].Etap[X_],
-	    dbeta[X_][k], dbeta[Y_][k], deta[0][k], deta[1][k]);
+	    dbeta[X_][k], dbeta[Y_][k], deta_x[k]);
   }
 
   fclose(outf);
@@ -585,23 +590,24 @@ void get_dbeta_deta(const double delta)
 int main(int argc, char *argv[])
 {
   bool             tweak;
-  long int         lastn, lastpos, loc;
-  int              b2_fam[2], b3_fam[2];
-  double           b2[2], a2, b3[2], b3L[2], a3, a3L, f_rf, dx;
+  long int         lastn, lastpos, loc, loc2;
+  int              k, b2_fam[2], b3_fam[2];
+  double           b2[2], a2, b3[2], b3L[2], a3, a3L, f_rf, dx, dnu[2];
   Matrix           M;
   std::vector<int> Fam;
   ostringstream    str;
 
-  const long        seed   = 1121;
-  const int         n_turn = 2064;
-  const double      delta  = 3e-2,
+  const long   seed   = 1121;
+  const int    n_turn = 2064;
+  const double delta  = 3e-2;
   //                   nu[]    = { 102.18/20.0, 68.30/20.0 };
   // const std::string q_fam[] = { "qfe", "qde" }, s_fam[] = { "sfh", "sd" };
   //                   nu[]    = { 39.1/12.0, 15.25/12.0 };
   //                   // nu[]    = { 3.266+0.01, 1.275 };
   // const std::string q_fam[] = { "qm2b", "qm3" }, s_fam[] = { "sfh", "sd" };
-                    nu[]    = { 9.2, 3.64 };
-  const std::string q_fam[] = { "qf03", "qd04" }, s_fam[] = { "sfh", "sd" };
+  const std::string
+    q_fam[] = { "qf03", "qd04" },
+    s_fam[] = { "sfh", "sd" };
 
   const double R_ref = 5e-3;
 
@@ -622,6 +628,10 @@ int main(int argc, char *argv[])
   globval.emittance      = false;  globval.IBS         = false;
   globval.pathlength     = false;  globval.bpm         = 0;
   globval.dip_edge_fudge = true;
+
+  if (false) no_sxt();
+
+  Ring_GetTwiss(true, 0e0); printglob();
 
   if (false) {
     loc = Elem_GetPos(ElemIndex("bb"), 1);
@@ -650,6 +660,36 @@ int main(int argc, char *argv[])
     Ring_GetTwiss(true, 0e0); printglob();
   }
 
+  if (HOA_rot) {
+    Ring_GetTwiss(true, 0e0); printglob();
+    loc = Elem_GetPos(ElemIndex("HOA_2_rot"), 1);
+    for (k = 0; k < 2; k++)
+      dnu[k] = fract(nu_HOA[k]) - fract(Cell[loc].Nu[k]);
+    printf("\ndnu HOA_1: [%7.5f %7.5f]\n", dnu[X_], dnu[Y_]);
+    set_map(ElemIndex("HOA_1_rot"), dnu[X_], dnu[Y_]);
+    loc2 = Elem_GetPos(ElemIndex("HOA_2_rot"), 2);
+    for (k = 0; k < 2; k++)
+      dnu[k] = fract(nu_HOA[k]) - fract(Cell[loc2].Nu[k]-Cell[loc].Nu[k]);
+    printf("\ndnu HOA_2: [%7.5f %7.5f]\n", dnu[X_], dnu[Y_]);
+    set_map(ElemIndex("HOA_2_rot"), dnu[X_], dnu[Y_]);
+    Ring_GetTwiss(true, 0e0); printglob();
+  }
+
+  if (set_dnu) {
+    Ring_GetTwiss(true, 0e0); printglob();
+    for (k = 0; k < 2; k++)
+      dnu[k] = nu[k] - fract(globval.TotalTune[k]);
+    printf("\n fractional tune set to: [%7.5f, %7.5f]\n", nu[X_], nu[Y_]);
+    set_map(ElemIndex("ps_rot"), dnu[X_], dnu[Y_]);
+    Ring_GetTwiss(true, 0e0); printglob();
+  }
+
+  prtmfile("flat_file.dat");
+  // globval.bpm = ElemIndex("bpm");
+  prt_lat("linlat1.out", globval.bpm, true);
+  prt_lat("linlat.out", globval.bpm, true, 10);
+  prt_chrom_lat();
+
   if (!false) {
     chk_high_ord_achr();
     // exit(0);
@@ -657,10 +697,7 @@ int main(int argc, char *argv[])
 
   if (!false) {
     chk_mI_trans();
-    prt_lat("linlat1.out", globval.bpm, true);
-    prt_lat("linlat.out", globval.bpm, true, 10);
-    prtmfile("flat_file.dat");
-    exit(0);
+    // exit(0);
   }
 
   if (false) {
@@ -699,30 +736,15 @@ int main(int argc, char *argv[])
     exit(0);
   }
 
-  if (set_dnu) {
-    Ring_GetTwiss(true, 0e0); printglob();
-    set_map(ElemIndex("ps_rot"), dnu[X_], dnu[Y_]);
-    Ring_GetTwiss(true, 0e0); printglob();
-  }
-
   if (!false) {
-    get_dbeta_deta(1.5e-2);
-    // exit(0);
+    get_dbeta_deta(1e-4);
+    exit(0);
   }
-
-  if (false) no_sxt();
 
   globval.Cavity_on = false; globval.radiation = false;
   Ring_GetTwiss(true, 0e0); printglob();
 
   if (false) get_alphac2();
-
-  prtmfile("flat_file.dat");
-
-  // globval.bpm = ElemIndex("bpm");
-  prt_lat("linlat1.out", globval.bpm, true);
-  prt_lat("linlat.out", globval.bpm, true, 10);
-  prt_chrom_lat();
 
   if (false) {
     iniranf(seed); setrancut(1e0);
