@@ -133,7 +133,7 @@ void rdmfile(const char *mfile_dat)
   char      line[max_str], file_name[max_str];
   int       j, k, nmpole, kind, method, n;
   long int  i;
-  double    dTerror;
+  double    dTerror, dnu[2], eta_x, etap_x;
 
   bool  prt = false;
 
@@ -342,7 +342,8 @@ void rdmfile(const char *mfile_dat)
     case FieldMap:
       break;
     case Map:
-      Cell[i].Elem.Map->M.identity();
+      sscanf(line, "%le %le %le %le", &dnu[X_], &dnu[Y_], &eta_x, &etap_x);
+      set_map(Cell[i].Elem.Map, i, dnu, eta_x, etap_x);
       break;
     default:
       std::cout << "rdmfile: unknown type" << std::endl;

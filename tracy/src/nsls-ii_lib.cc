@@ -3488,22 +3488,15 @@ void get_map_twiss(const ss_vect<tps> &M,
 }
 
 
-void set_map(const char *name, const double dnu_x, const double dnu_y,
+void set_map(MapType *Map, long int loc, const double dnu[],
 	     const double eta_x, const double etap_x)
 {
   // Set phase-space rotation.
   bool         stable[2];
   long int     lastpos;
-  int          Fnum, k, loc, loc2;
+  int          k;
   double       cosmu, sinmu, nu[2], beta0[2], beta1[2];
   ss_vect<tps> Id, Id_eta, M;
-
-  const double dnu[] = {dnu_x, dnu_y};
-
-  Fnum = ElemIndex(name); loc = Elem_GetPos(Fnum, 1);
-
-  Cell[loc].Elem.Map->dnu[X_] = dnu_x; Cell[loc].Elem.Map->dnu[Y_] = dnu_y;
-  Cell[loc].Elem.Map->eta_x   = eta_x; Cell[loc].Elem.Map->etap_x  = etap_x;
 
   M.identity(); Cell_Pass(0, loc, M, lastpos);
   get_map_twiss(M, beta0, beta1, nu, stable);
@@ -3511,22 +3504,46 @@ void set_map(const char *name, const double dnu_x, const double dnu_y,
   Id.identity();
   for (k = 0; k < 2; k++) {
     cosmu = cos(2e0*M_PI*dnu[k]); sinmu = sin(2e0*M_PI*dnu[k]);
-    Cell[loc].Elem.Map->M[2*k]   = cosmu*Id[2*k] + beta1[k]*sinmu*Id[2*k+1];
-    Cell[loc].Elem.Map->M[2*k+1] = -sinmu/beta1[k]*Id[2*k] + cosmu*Id[2*k+1];
+    Map->M[2*k]   = cosmu*Id[2*k] + beta1[k]*sinmu*Id[2*k+1];
+    Map->M[2*k+1] = -sinmu/beta1[k]*Id[2*k] + cosmu*Id[2*k+1];
   }
 
   // Zero linear dispersion contribution.
   Id_eta.zero(); Id_eta[x_] = eta_x*Id[delta_]; Id_eta[px_] = etap_x*Id[delta_];
-  Id_eta = Cell[loc].Elem.Map->M*Id_eta;
-  Cell[loc].Elem.Map->M[x_]  -= (Id_eta[x_][delta_]-eta_x)*Id[delta_];
-  Cell[loc].Elem.Map->M[px_] -= (Id_eta[px_][delta_]-etap_x)*Id[delta_];
+  Id_eta = Map->M*Id_eta;
+  Map->M[x_]  -= (Id_eta[x_][delta_]-eta_x)*Id[delta_];
+  Map->M[px_] -= (Id_eta[px_][delta_]-etap_x)*Id[delta_];
+}
 
-  for (k = 2; k <= GetnKid(Fnum); k++) {
-    loc2 = Elem_GetPos(Fnum, k);
-    Cell[loc2].Elem.Map->dnu[X_] = Cell[loc].Elem.Map->dnu[X_];
-    Cell[loc2].Elem.Map->dnu[Y_] = Cell[loc].Elem.Map->dnu[Y_];
-    Cell[loc2].Elem.Map->eta_x   = Cell[loc].Elem.Map->eta_x ;
-    Cell[loc2].Elem.Map->etap_x  = Cell[loc].Elem.Map->etap_x;
-    Cell[loc2].Elem.Map = Cell[loc].Elem.Map;
+
+void set_map(const int Fnum)
+{
+  int         k;
+  ElemFamType *elemfamp;
+  CellType    *cellp;
+
+  elemfamp = &ElemFam[Fnum-1];
+
+  set_map(elemfamp->ElemF.Map, elemfamp->KidList[0],
+	  elemfamp->ElemF.Map->dnu,
+	  elemfamp->ElemF.Map->eta_x, elemfamp->ElemF.Map->etap_x);
+
+  for (k = 1; k <= elemfamp->nKid; k++) {
+    cellp = &Cell[elemfamp->KidList[k-1]];
+    *cellp->Elem.Map = *elemfamp->ElemF.Map;
   }
+}
+
+
+void set_map(const int Fnum, const double dnu_x, const double dnu_y,
+	     const double eta_x, const double etap_x)
+{
+  ElemFamType *elemfamp;
+
+  elemfamp = &ElemFam[Fnum-1];
+
+  elemfamp->ElemF.Map->dnu[X_] = dnu_x; elemfamp->ElemF.Map->dnu[Y_] = dnu_y;
+  elemfamp->ElemF.Map->eta_x   = eta_x; elemfamp->ElemF.Map->etap_x  = etap_x;
+
+  set_map(Fnum);
 }

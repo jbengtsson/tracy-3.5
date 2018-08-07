@@ -647,7 +647,8 @@ int main(int argc, char *argv[])
 
   if (mI_rot) {
     Ring_GetTwiss(true, 0e0); printglob();
-    set_map("mI_rot", dnu_mI[X_], dnu_mI[Y_], eta_x_mI[0], eta_x_mI[1]);
+    set_map(ElemIndex("mI_rot"),
+	    dnu_mI[X_], dnu_mI[Y_], eta_x_mI[0], eta_x_mI[1]);
     Ring_GetTwiss(true, 0e0); printglob();
   }
 
@@ -658,7 +659,9 @@ int main(int argc, char *argv[])
 
   if (!false) {
     chk_mI_trans();
-    // exit(0);
+    prt_lat("linlat1.out", globval.bpm, true);
+    prt_lat("linlat.out", globval.bpm, true, 10);
+    exit(0);
   }
 
   if (false) {
@@ -699,7 +702,8 @@ int main(int argc, char *argv[])
 
   if (set_dnu) {
     Ring_GetTwiss(true, 0e0); printglob();
-    set_map("ps_rot", dnu[X_], dnu[Y_], eta_x_mI[0], eta_x_mI[1]);
+    set_map(ElemIndex("ps_rot"),
+	    dnu[X_], dnu[Y_], eta_x_mI[0], eta_x_mI[1]);
     Ring_GetTwiss(true, 0e0); printglob();
   }
 
