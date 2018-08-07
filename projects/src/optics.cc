@@ -12,8 +12,7 @@ const bool
 const double
   dnu[]      = {0.03, 0.02},
   eta_x[]    = {0.0, 0.0},
-  dnu_mI[]   = {1.5-1.44129-0.0, 0.5-0.47593-0.0},
-  eta_x_mI[] = {0.02466, 0.0};
+  dnu_mI[]   = {1.5-1.44129-0.0, 0.5-0.47593-0.0};
 
 
 void prt_name(FILE * outf, const char *name)
@@ -647,8 +646,7 @@ int main(int argc, char *argv[])
 
   if (mI_rot) {
     Ring_GetTwiss(true, 0e0); printglob();
-    set_map(ElemIndex("mI_rot"),
-	    dnu_mI[X_], dnu_mI[Y_], eta_x_mI[0], eta_x_mI[1]);
+    set_map(ElemIndex("mI_rot"), dnu_mI[X_], dnu_mI[Y_]);
     Ring_GetTwiss(true, 0e0); printglob();
   }
 
@@ -703,8 +701,7 @@ int main(int argc, char *argv[])
 
   if (set_dnu) {
     Ring_GetTwiss(true, 0e0); printglob();
-    set_map(ElemIndex("ps_rot"),
-	    dnu[X_], dnu[Y_], eta_x_mI[0], eta_x_mI[1]);
+    set_map(ElemIndex("ps_rot"), dnu[X_], dnu[Y_]);
     Ring_GetTwiss(true, 0e0); printglob();
   }
 

@@ -3488,8 +3488,7 @@ void get_map_twiss(const ss_vect<tps> &M,
 }
 
 
-void set_map(MapType *Map, long int loc, const double dnu[],
-	     const double eta_x, const double etap_x)
+void set_map(MapType *Map, long int loc, const double dnu[])
 {
   // Set phase-space rotation.
   bool         stable[2];
@@ -3501,7 +3500,7 @@ void set_map(MapType *Map, long int loc, const double dnu[],
   M.identity(); Cell_Pass(0, loc, M, lastpos);
   get_map_twiss(M, beta0, beta1, nu, stable);
 
-  Id.identity();
+  Id.identity(); Map->M.identity();
   for (k = 0; k < 2; k++) {
     cosmu = cos(2e0*M_PI*dnu[k]); sinmu = sin(2e0*M_PI*dnu[k]);
     Map->M[2*k]   = cosmu*Id[2*k] + beta1[k]*sinmu*Id[2*k+1];
@@ -3509,14 +3508,12 @@ void set_map(MapType *Map, long int loc, const double dnu[],
   }
 
   // Zero linear dispersion contribution.
-  Id_eta.zero(); Id_eta[x_] = eta_x*Id[delta_]; Id_eta[px_] = etap_x*Id[delta_];
+  Id_eta.identity();
+  Id_eta[x_]  = M[x_][delta_]*Id[delta_];
+  Id_eta[px_] = M[px_][delta_]*Id[delta_];
   Id_eta = Map->M*Id_eta;
-  Map->M[x_]  -= (Id_eta[x_][delta_]-eta_x)*Id[delta_];
-  Map->M[px_] -= (Id_eta[px_][delta_]-etap_x)*Id[delta_];
-
-  cout << scientific << setprecision(3) << setw(12) << Map->M << "\n";
-  Id_eta.identity(); Id_eta[x_] = eta_x*Id[delta_]; Id_eta[px_] = etap_x*Id[delta_];
-  cout << scientific << setprecision(3) << setw(12) << Map->M*Id_eta << "\n";
+  Map->M[x_]  -= (Id_eta[x_][delta_]-M[x_][delta_])*Id[delta_];
+  Map->M[px_] -= (Id_eta[px_][delta_]-M[px_][delta_])*Id[delta_];
 }
 
 
@@ -3528,9 +3525,7 @@ void set_map(const int Fnum)
 
   elemfamp = &ElemFam[Fnum-1];
 
-  set_map(elemfamp->ElemF.Map, elemfamp->KidList[0],
-	  elemfamp->ElemF.Map->dnu,
-	  elemfamp->ElemF.Map->eta_x, elemfamp->ElemF.Map->etap_x);
+  set_map(elemfamp->ElemF.Map, elemfamp->KidList[0], elemfamp->ElemF.Map->dnu);
 
   for (k = 1; k <= elemfamp->nKid; k++) {
     cellp = &Cell[elemfamp->KidList[k-1]];
@@ -3539,15 +3534,13 @@ void set_map(const int Fnum)
 }
 
 
-void set_map(const int Fnum, const double dnu_x, const double dnu_y,
-	     const double eta_x, const double etap_x)
+void set_map(const int Fnum, const double dnu_x, const double dnu_y)
 {
   ElemFamType *elemfamp;
 
   elemfamp = &ElemFam[Fnum-1];
 
   elemfamp->ElemF.Map->dnu[X_] = dnu_x; elemfamp->ElemF.Map->dnu[Y_] = dnu_y;
-  elemfamp->ElemF.Map->eta_x   = eta_x; elemfamp->ElemF.Map->etap_x  = etap_x;
 
   set_map(Fnum);
 }
