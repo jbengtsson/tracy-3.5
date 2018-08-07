@@ -3513,6 +3513,10 @@ void set_map(MapType *Map, long int loc, const double dnu[],
   Id_eta = Map->M*Id_eta;
   Map->M[x_]  -= (Id_eta[x_][delta_]-eta_x)*Id[delta_];
   Map->M[px_] -= (Id_eta[px_][delta_]-etap_x)*Id[delta_];
+
+  cout << scientific << setprecision(3) << setw(12) << Map->M << "\n";
+  Id_eta.identity(); Id_eta[x_] = eta_x*Id[delta_]; Id_eta[px_] = etap_x*Id[delta_];
+  cout << scientific << setprecision(3) << setw(12) << Map->M*Id_eta << "\n";
 }
 
 

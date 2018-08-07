@@ -178,9 +178,9 @@ void prtmfile(const char mfile_dat[])
       break;
     case Map:
       prtName(mfile, i, map_, 0, 0);
-      fprintf(mfile, " %23.16le %23.16le %23.16le %23.16le\n",
-	      Cell[i].Elem.Map->dnu[X_], Cell[i].Elem.Map->dnu[Y_],
-	      Cell[i].Elem.Map->eta_x, Cell[i].Elem.Map->etap_x);
+      // fprintf(mfile, " %23.16le %23.16le %23.16le %23.16le\n",
+      // 	      Cell[i].Elem.Map->dnu[X_], Cell[i].Elem.Map->dnu[Y_],
+      // 	      Cell[i].Elem.Map->eta_x, Cell[i].Elem.Map->etap_x);
       break;
     default:
       printf("prtmfile: unknown type %d\n", Cell[i].Elem.Pkind);
