@@ -3488,48 +3488,55 @@ void get_map_twiss(const ss_vect<tps> &M,
 }
 
 
-void set_map(MapType *Map, long int loc, const double dnu[])
+void set_map(MapType *Map, const double dnu[], const double beta[],
+	     const double eta_x, const double etap_x)
 {
   // Set phase-space rotation.
-  bool         stable[2];
-  long int     lastpos;
   int          k;
-  double       cosmu, sinmu, nu[2], beta0[2], beta1[2];
-  ss_vect<tps> Id, Id_eta, M;
+  double       cosmu, sinmu;
+  ss_vect<tps> Id, Id_eta;
 
-  M.identity(); Cell_Pass(0, loc, M, lastpos);
-  get_map_twiss(M, beta0, beta1, nu, stable);
+  Id.identity();
 
-  Id.identity(); Map->M.identity();
+  Map->M.identity();
   for (k = 0; k < 2; k++) {
     cosmu = cos(2e0*M_PI*dnu[k]); sinmu = sin(2e0*M_PI*dnu[k]);
-    Map->M[2*k]   = cosmu*Id[2*k] + beta1[k]*sinmu*Id[2*k+1];
-    Map->M[2*k+1] = -sinmu/beta1[k]*Id[2*k] + cosmu*Id[2*k+1];
+    Map->M[2*k]   = cosmu*Id[2*k] + beta[k]*sinmu*Id[2*k+1];
+    Map->M[2*k+1] = -sinmu/beta[k]*Id[2*k] + cosmu*Id[2*k+1];
   }
 
   // Zero linear dispersion contribution.
   Id_eta.identity();
-  Id_eta[x_]  = M[x_][delta_]*Id[delta_];
-  Id_eta[px_] = M[px_][delta_]*Id[delta_];
+  Id_eta[x_] = eta_x*Id[delta_]; Id_eta[px_] = etap_x*Id[delta_];
   Id_eta = Map->M*Id_eta;
-  Map->M[x_]  -= (Id_eta[x_][delta_]-M[x_][delta_])*Id[delta_];
-  Map->M[px_] -= (Id_eta[px_][delta_]-M[px_][delta_])*Id[delta_];
+  Map->M[x_]  -= (Id_eta[x_][delta_]-eta_x)*Id[delta_];
+  Map->M[px_] -= (Id_eta[px_][delta_]-etap_x)*Id[delta_];
 }
 
 
 void set_map(const int Fnum)
 {
-  int         k;
-  ElemFamType *elemfamp;
-  CellType    *cellp;
+  int          k;
+  bool         stable[2];
+  long int     lastpos;
+  double       nu[2], beta0[2], beta1[2];
+  ss_vect<tps> M;
+  ElemFamType  *elemfamp;
+  CellType     *cellp;
+  elemtype     *elemp;
 
-  elemfamp = &ElemFam[Fnum-1];
+  elemfamp = &ElemFam[Fnum-1]; elemp = &elemfamp->ElemF;
 
-  set_map(elemfamp->ElemF.Map, elemfamp->KidList[0], elemfamp->ElemF.Map->dnu);
+  M.identity(); Cell_Pass(0, elemfamp->KidList[0], M, lastpos);
+  get_map_twiss(M, beta0, elemp->Map->beta, nu, stable);
+  elemp->Map->eta_x = M[x_][delta_]; elemp->Map->etap_x = M[px_][delta_];
+
+  set_map(elemp->Map, elemp->Map->dnu, elemp->Map->beta, elemp->Map->eta_x,
+	  elemp->Map->etap_x);
 
   for (k = 1; k <= elemfamp->nKid; k++) {
     cellp = &Cell[elemfamp->KidList[k-1]];
-    *cellp->Elem.Map = *elemfamp->ElemF.Map;
+    *cellp->Elem.Map = *elemp->Map;
   }
 }
 
@@ -3537,10 +3544,12 @@ void set_map(const int Fnum)
 void set_map(const int Fnum, const double dnu_x, const double dnu_y)
 {
   ElemFamType *elemfamp;
+  CellType    *cellp;
+  elemtype    *elemp;
 
-  elemfamp = &ElemFam[Fnum-1];
+  elemfamp = &ElemFam[Fnum-1]; elemp = &elemfamp->ElemF;
 
-  elemfamp->ElemF.Map->dnu[X_] = dnu_x; elemfamp->ElemF.Map->dnu[Y_] = dnu_y;
+  elemp->Map->dnu[X_] = dnu_x; elemp->Map->dnu[Y_] = dnu_y;
 
   set_map(Fnum);
 }

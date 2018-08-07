@@ -212,7 +212,7 @@ struct SolenoidType {
 };
 
 struct MapType {
-  double       dnu[2];
+  double       dnu[2], beta[2], eta_x, etap_x;
   ss_vect<tps> M;
 };
 
