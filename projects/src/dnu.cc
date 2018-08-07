@@ -26,8 +26,7 @@ const double
   delta_max[] = {3e-2, 5e-2, 2e-2, 3e-2,
 		 3e-2, 3e-2, 3e-2, 2e-2,
 		 3e-2, 3e-2, 4e-2},
-  dnu[]       = {0.03, 0.02},
-  eta_x[]     = {0.0,  0.0};
+  dnu[]       = {0.03, 0.02};
 
 
 int main(int argc, char *argv[])
@@ -47,7 +46,7 @@ int main(int argc, char *argv[])
 
   if (set_dnu) {
     Ring_GetTwiss(true, 0e0); printglob();
-    set_map("ps_rot", dnu[X_], dnu[Y_], eta_x[0], eta_x[1]);
+    set_map(ElemIndex("ps_rot"), dnu[X_], dnu[Y_]);
     Ring_GetTwiss(true, 0e0); printglob();
   }
 

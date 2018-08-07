@@ -10,13 +10,12 @@ int no_tps   = NO,
 double       twoJ[2];
 ss_vect<tps> Id_scl;
 
-const bool   set_dnu    = false;
+const bool   set_dnu = false;
 const double
   beta_inj[] = {10.0, 3.0},
   A_max[]    = {5e-3, 2e-3},
   delta_max  = 3e-2,
-  dnu[]      = {0.03, 0.02},
-  eta_x[]    = {0.0,  0.0};
+  dnu[]      = {0.03, 0.02};
 
 
 void prt_eta(FILE *fp, const int order, const int k, const ss_vect<tps> &cod)
@@ -126,7 +125,7 @@ int main(int argc, char *argv[])
   Ring_GetTwiss(true, 0.0); printglob();
 
   if (set_dnu) {
-    set_map("ps_rot", dnu[X_], dnu[Y_], eta_x[0], eta_x[1]);
+    set_map(ElemIndex("ps_rot"), dnu[X_], dnu[Y_]);
     Ring_GetTwiss(true, 0e0); printglob();
   }
 

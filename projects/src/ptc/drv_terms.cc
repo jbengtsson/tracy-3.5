@@ -6,14 +6,13 @@ int no_tps   = NO,
     ndpt_tps = 5;
 
 
-const bool   set_dnu    = false;
-const int    n_cell     = 1;
+const bool   set_dnu = false;
+const int    n_cell  = 1;
 const double
   A_max[]    = {2e-2, 1e-2},
   delta_max  = 2e-2,
   beta_inj[] = {10.5, 5.2},
-  dnu[]      = {0.03, 0.02},
-  eta_x[]    = {0.0,  0.0};
+  dnu[]      = {0.03, 0.02};
 
 
 void chk_bend()
@@ -195,7 +194,7 @@ int main(int argc, char *argv[])
   Ring_GetTwiss(true, 0e0); printglob();
 
   if (set_dnu) {
-    set_map("ps_rot", dnu[X_], dnu[Y_], eta_x[0], eta_x[1]);
+    set_map(ElemIndex("ps_rot"), dnu[X_], dnu[Y_]);
     Ring_GetTwiss(true, 0e0); printglob();
   }
 
