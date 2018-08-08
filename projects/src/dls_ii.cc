@@ -139,7 +139,7 @@ void nu_cell_tweak(const double dnu_diff_min)
   for (k = 0; k < 2; k++)
     if (fabs(dnu_diff[k]) < dnu_diff_min)
       dnu[k] = sgn(dnu_diff[k])*dnu_diff_min - dnu_diff[k];
-  set_map(ElemIndex("M"), dnu[X_], dnu[Y_]);
+  set_map(ElemIndex("M"), dnu);
 
   M.identity();
   Cell_Pass(0, globval.Cell_nLoc, M, lastpos);

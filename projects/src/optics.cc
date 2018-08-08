@@ -7,8 +7,8 @@ int no_tps = NO;
 
 const bool
   set_dnu = false,
-  mI_rot  = false,
-  HOA_rot = false;
+  mI_rot  = !false,
+  HOA_rot = !false;
 
 const double
   nu[]     = {0.2, 0.7},
@@ -677,14 +677,14 @@ int main(int argc, char *argv[])
       dnu[k] = fract(nu_HOA[k]) - fract(Cell[loc].Nu[k]);
     printf("\ndnu HOA_1: [%7.5f %7.5f]\n", dnu[X_], dnu[Y_]);
     set_map(ElemIndex("HOA_1_rot"), dnu);
-    Ring_GetTwiss(true, 0e0); printglob();
 
-    // loc2 = Elem_GetPos(ElemIndex("HOA_2_rot"), 1);
-    // for (k = 0; k < 2; k++)
-    //   dnu[k] = fract(nu_HOA[k]) - fract(Cell[loc2].Nu[k]-Cell[loc].Nu[k]);
-    // printf("\ndnu HOA_2: [%7.5f %7.5f]\n", dnu[X_], dnu[Y_]);
-    // set_map(ElemIndex("HOA_2_rot"), dnu);
-    // Ring_GetTwiss(true, 0e0); printglob();
+    loc2 = Elem_GetPos(ElemIndex("HOA_2_rot"), 1);
+    for (k = 0; k < 2; k++)
+      dnu[k] = fract(nu_HOA[k]) - fract(Cell[loc2].Nu[k]-Cell[loc].Nu[k]);
+    printf("\ndnu HOA_2: [%7.5f %7.5f]\n", dnu[X_], dnu[Y_]);
+    set_map(ElemIndex("HOA_2_rot"), dnu);
+
+    Ring_GetTwiss(true, 0e0); printglob();
   }
 
   if (set_dnu) {
