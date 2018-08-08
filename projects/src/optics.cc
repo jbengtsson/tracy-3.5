@@ -7,13 +7,13 @@ int no_tps = NO;
 
 const bool
   set_dnu = false,
-  mI_rot  = !false,
-  HOA_rot = !false;
+  mI_rot  = false,
+  HOA_rot = false;
 
 const double
   nu[]     = {0.2, 0.7},
   dnu_mI[] = {1.5-1.44129-0.0, 0.5-0.47593-0.0},
-  nu_HOA[] = {19.0/8.0, 15.0/16.0};
+  nu_HOA[] = {19.0/8.0-0.001, 15.0/16.0-0.001};
 
 
 void prt_name(FILE * outf, const char *name)
@@ -588,6 +588,36 @@ void get_dbeta_deta(const double delta)
 }
 
 
+void get_dbeta_deta1(const double delta)
+{
+  int            j, k;
+  vector<double> dbeta[2], deta_x;
+  FILE           *outf;
+
+  const string file_name = "dbeta_deta1.out";
+
+  outf = file_write(file_name.c_str());
+
+  printf("\nOptics for delta = %10.3e\n", delta);
+  Ring_GetTwiss(true, delta); printglob();
+  for (k = 0; k <= globval.Cell_nLoc; k++) {
+    for (j = 0; j < 2; j++)
+      dbeta[j].push_back(Cell[k].Beta[j]);
+    deta_x.push_back(Cell[k].Eta[X_]);
+  }
+  printf("\nOptics for delta = %10.3e\n", 0e0);
+  Ring_GetTwiss(true, 0e0); printglob();
+  for (k = 0; k <= globval.Cell_nLoc; k++)
+    fprintf(outf, "%4d %10s %8.3f %4.1f %12.5e %12.5e %12.5e"
+	    " %12.5e %12.5e %12.5e\n",
+	    k, Cell[k].Elem.PName, Cell[k].S, get_code(Cell[k]),
+	    Cell[k].Beta[X_], Cell[k].Beta[Y_], Cell[k].Eta[X_],
+	    dbeta[X_][k], dbeta[Y_][k], deta_x[k]);
+
+  fclose(outf);
+}
+
+
 int main(int argc, char *argv[])
 {
   bool             tweak;
@@ -632,9 +662,9 @@ int main(int argc, char *argv[])
 
   if (false) no_sxt();
 
-  if (!false) {
+  if (false) {
     Ring_GetTwiss(true, 0e0); printglob();
-    dnu[X_] = 0.1; dnu[Y_] = 0.1;
+    dnu[X_] = 1e-5; dnu[Y_] = 1e-5;
     set_map(ElemIndex("ps_rot_2"), dnu);
   }
 
@@ -659,11 +689,6 @@ int main(int argc, char *argv[])
   if (false) {
     prt_drift();
     exit(0);
-  }
-
-  if (!false) {
-    chk_high_ord_achr();
-    // exit(0);
   }
 
   if (mI_rot) {
@@ -747,8 +772,9 @@ int main(int argc, char *argv[])
     exit(0);
   }
 
-  if (false) {
-    get_dbeta_deta(1e-4);
+  if (!false) {
+    // get_dbeta_deta(1e-4);
+    get_dbeta_deta1(1.5e-2);
     exit(0);
   }
 
