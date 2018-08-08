@@ -645,7 +645,7 @@ int main(int argc, char *argv[])
   // 1: DIAMOND, 2: NSLS-II, 3: Oleg I, 4: Oleg II.
   FieldMap_filetype = 4; sympl = !false;
 
-  reverse_elem = false;
+  reverse_elem = !false;
 
   trace = !true;
 
@@ -726,12 +726,12 @@ int main(int argc, char *argv[])
   prt_lat("linlat.out", globval.bpm, true, 10);
   // prt_chrom_lat();
 
-  if (!false) {
+  if (false) {
     chk_high_ord_achr();
     // exit(0);
   }
 
-  if (!false) {
+  if (false) {
     chk_mI_trans();
     exit(0);
   }
@@ -772,7 +772,7 @@ int main(int argc, char *argv[])
     exit(0);
   }
 
-  if (!false) {
+  if (false) {
     // get_dbeta_deta(1e-4);
     get_dbeta_deta1(1.5e-2);
     exit(0);
