@@ -3474,9 +3474,17 @@ void get_map_twiss(const ss_vect<tps> &M,
       if (M[2*k][2*k] < 0e0) cosmu = -cosmu;
       nu[k] = acos(cosmu)/(2e0*M_PI);
       if (M[2*k][2*k+1] < 0e0) nu[k] = 1e0 - nu[k];
-      sinmu = sin(2e0*M_PI*nu[k]);
-      beta0[k] = M[2*k][2*k+1]*M[2*k+1][2*k+1]/(cosmu*sinmu);
-      beta1[k] = M[2*k][2*k]*M[2*k][2*k+1]/(cosmu*sinmu);
+      if (nu[k] != 0e0) {
+	sinmu = sin(2e0*M_PI*nu[k]);
+	beta0[k] = M[2*k][2*k+1]*M[2*k+1][2*k+1]/(cosmu*sinmu);
+	beta1[k] = M[2*k][2*k]*M[2*k][2*k+1]/(cosmu*sinmu);
+      } else {
+	printf("\nget_map_twiss: dnu is zero for plane %d\n", k);
+	exit(1);
+      }
+    } else {
+      printf("\nget_map_twiss: M unstable for plane %d\n", k);
+      exit(1);
     }
   }
 
@@ -3488,21 +3496,27 @@ void get_map_twiss(const ss_vect<tps> &M,
 }
 
 
-void set_map(MapType *Map, const double dnu[], const double beta[],
-	     const double eta_x, const double etap_x)
+void set_map(MapType *Map)
 {
   // Set phase-space rotation.
   int          k;
-  double       cosmu, sinmu;
+  double       dnu[2], alpha[2], beta[2], eta_x, etap_x, cosmu, sinmu;
   ss_vect<tps> Id, Id_eta;
 
   Id.identity();
 
+  for (k = 0; k < 2; k++) {
+    dnu[k] = Map->dnu[k]; alpha[k] = Map->alpha[k]; beta[k] = Map->beta[k];
+  }
+  eta_x = Map->eta_x; etap_x = Map->etap_x;
+
   Map->M.identity();
   for (k = 0; k < 2; k++) {
     cosmu = cos(2e0*M_PI*dnu[k]); sinmu = sin(2e0*M_PI*dnu[k]);
-    Map->M[2*k]   = cosmu*Id[2*k] + beta[k]*sinmu*Id[2*k+1];
-    Map->M[2*k+1] = -sinmu/beta[k]*Id[2*k] + cosmu*Id[2*k+1];
+    Map->M[2*k]   = (cosmu+alpha[k]*sinmu)*Id[2*k] + beta[k]*sinmu*Id[2*k+1];
+    Map->M[2*k+1] =
+      -(1e0+sqr(alpha[k]))*sinmu/beta[k]*Id[2*k]
+      + (cosmu-alpha[k]*sinmu)*Id[2*k+1];
   }
 
   // Zero linear dispersion contribution.
@@ -3514,42 +3528,21 @@ void set_map(MapType *Map, const double dnu[], const double beta[],
 }
 
 
-void set_map(const int Fnum)
+void set_map(const int Fnum, const double dnu[])
 {
-  int          k;
-  bool         stable[2];
-  long int     lastpos;
-  double       nu[2], beta0[2], beta1[2];
-  ss_vect<tps> M;
-  ElemFamType  *elemfamp;
-  CellType     *cellp;
-  elemtype     *elemp;
+  long int loc;
+  int      j, k;
 
-  elemfamp = &ElemFam[Fnum-1]; elemp = &elemfamp->ElemF;
+  for (j = 1; j <= GetnKid(Fnum); j++) {
+    loc = Elem_GetPos(Fnum, j);
+    for (k = 0; k < 2; k++) {
+      Cell[loc].Elem.Map->dnu[k]   = dnu[k];
+      Cell[loc].Elem.Map->alpha[k] = Cell[loc].Alpha[k];
+      Cell[loc].Elem.Map->beta[k]  = Cell[loc].Beta[k];
+    }
+    Cell[loc].Elem.Map->eta_x  = Cell[loc].Eta[X_];
+    Cell[loc].Elem.Map->etap_x = Cell[loc].Etap[X_];
 
-  M.identity(); Cell_Pass(0, elemfamp->KidList[0], M, lastpos);
-  get_map_twiss(M, beta0, elemp->Map->beta, nu, stable);
-  elemp->Map->eta_x = M[x_][delta_]; elemp->Map->etap_x = M[px_][delta_];
-
-  set_map(elemp->Map, elemp->Map->dnu, elemp->Map->beta, elemp->Map->eta_x,
-	  elemp->Map->etap_x);
-
-  for (k = 1; k <= elemfamp->nKid; k++) {
-    cellp = &Cell[elemfamp->KidList[k-1]];
-    *cellp->Elem.Map = *elemp->Map;
+    set_map(Cell[loc].Elem.Map);
   }
-}
-
-
-void set_map(const int Fnum, const double dnu_x, const double dnu_y)
-{
-  ElemFamType *elemfamp;
-  CellType    *cellp;
-  elemtype    *elemp;
-
-  elemfamp = &ElemFam[Fnum-1]; elemp = &elemfamp->ElemF;
-
-  elemp->Map->dnu[X_] = dnu_x; elemp->Map->dnu[Y_] = dnu_y;
-
-  set_map(Fnum);
 }

@@ -7,8 +7,8 @@ int no_tps = NO;
 
 const bool
   set_dnu = false,
-  mI_rot  = !false,
-  HOA_rot = !false;
+  mI_rot  = false,
+  HOA_rot = false;
 
 const double
   nu[]     = {0.2, 0.7},
@@ -239,10 +239,11 @@ void chk_high_ord_achr(void)
   switch (lat_case) {
   case 1:
     dnu[X_] = 19.0/8.0; dnu[Y_] = 15.0/16.0;
-    loc.push_back(Elem_GetPos(ElemIndex("dc_1_01"),  1));
+    // loc.push_back(Elem_GetPos(ElemIndex("dc_1_01"),  1));
     loc.push_back(Elem_GetPos(ElemIndex("idmarker"), 2));
     loc.push_back(Elem_GetPos(ElemIndex("idmarker"), 3));
     loc.push_back(Elem_GetPos(ElemIndex("idmarker"), 4));
+    loc.push_back(Elem_GetPos(ElemIndex("idmarker"), 5));
    break;
   case 2:
     dnu[X_] = 19.0/8.0; dnu[Y_] = 15.0/16.0;
@@ -631,6 +632,12 @@ int main(int argc, char *argv[])
 
   if (false) no_sxt();
 
+  if (!false) {
+    Ring_GetTwiss(true, 0e0); printglob();
+    dnu[X_] = 0.1; dnu[Y_] = 0.1;
+    set_map(ElemIndex("ps_rot_2"), dnu);
+  }
+
   Ring_GetTwiss(true, 0e0); printglob();
 
   if (false) {
@@ -654,33 +661,37 @@ int main(int argc, char *argv[])
     exit(0);
   }
 
+  if (!false) {
+    chk_high_ord_achr();
+    // exit(0);
+  }
+
   if (mI_rot) {
-    Ring_GetTwiss(true, 0e0); printglob();
-    set_map(ElemIndex("mI_rot"), dnu_mI[X_], dnu_mI[Y_]);
+    set_map(ElemIndex("mI_rot"), dnu_mI);
     Ring_GetTwiss(true, 0e0); printglob();
   }
 
   if (HOA_rot) {
-    Ring_GetTwiss(true, 0e0); printglob();
-    loc = Elem_GetPos(ElemIndex("HOA_2_rot"), 1);
+    loc = Elem_GetPos(ElemIndex("HOA_1_rot"), 1);
     for (k = 0; k < 2; k++)
       dnu[k] = fract(nu_HOA[k]) - fract(Cell[loc].Nu[k]);
     printf("\ndnu HOA_1: [%7.5f %7.5f]\n", dnu[X_], dnu[Y_]);
-    set_map(ElemIndex("HOA_1_rot"), dnu[X_], dnu[Y_]);
-    loc2 = Elem_GetPos(ElemIndex("HOA_2_rot"), 2);
-    for (k = 0; k < 2; k++)
-      dnu[k] = fract(nu_HOA[k]) - fract(Cell[loc2].Nu[k]-Cell[loc].Nu[k]);
-    printf("\ndnu HOA_2: [%7.5f %7.5f]\n", dnu[X_], dnu[Y_]);
-    set_map(ElemIndex("HOA_2_rot"), dnu[X_], dnu[Y_]);
+    set_map(ElemIndex("HOA_1_rot"), dnu);
     Ring_GetTwiss(true, 0e0); printglob();
+
+    // loc2 = Elem_GetPos(ElemIndex("HOA_2_rot"), 1);
+    // for (k = 0; k < 2; k++)
+    //   dnu[k] = fract(nu_HOA[k]) - fract(Cell[loc2].Nu[k]-Cell[loc].Nu[k]);
+    // printf("\ndnu HOA_2: [%7.5f %7.5f]\n", dnu[X_], dnu[Y_]);
+    // set_map(ElemIndex("HOA_2_rot"), dnu);
+    // Ring_GetTwiss(true, 0e0); printglob();
   }
 
   if (set_dnu) {
-    Ring_GetTwiss(true, 0e0); printglob();
     for (k = 0; k < 2; k++)
       dnu[k] = nu[k] - fract(globval.TotalTune[k]);
     printf("\n fractional tune set to: [%7.5f, %7.5f]\n", nu[X_], nu[Y_]);
-    set_map(ElemIndex("ps_rot"), dnu[X_], dnu[Y_]);
+    set_map(ElemIndex("ps_rot"), dnu);
     Ring_GetTwiss(true, 0e0); printglob();
   }
 
@@ -688,7 +699,7 @@ int main(int argc, char *argv[])
   // globval.bpm = ElemIndex("bpm");
   prt_lat("linlat1.out", globval.bpm, true);
   prt_lat("linlat.out", globval.bpm, true, 10);
-  prt_chrom_lat();
+  // prt_chrom_lat();
 
   if (!false) {
     chk_high_ord_achr();
@@ -736,7 +747,7 @@ int main(int argc, char *argv[])
     exit(0);
   }
 
-  if (!false) {
+  if (false) {
     get_dbeta_deta(1e-4);
     exit(0);
   }

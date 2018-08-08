@@ -134,7 +134,7 @@ void rdmfile(const char *mfile_dat)
   char      line[line_max], file_name[line_max];
   int       j, k, nmpole, kind, method, n;
   long int  i;
-  double    dTerror, dnu[2], beta[2], eta_x, etap_x;
+  double    dTerror;
 
   bool  prt = false;
 
@@ -345,9 +345,12 @@ void rdmfile(const char *mfile_dat)
     case Map:
       inf.getline(line, line_max);
       if (prt) printf("%s\n", line);
-      sscanf(line, "%lf %lf %lf %lf %lf %lf",
-	     &dnu[X_], &dnu[Y_], &beta[X_], &beta[Y_], &eta_x, &etap_x);
-      set_map(Cell[i].Elem.Map, dnu, beta, eta_x, etap_x);
+      sscanf(line, "%lf %lf %lf %lf %lf %lf %lf %lf",
+	     &Cell[i].Elem.Map->dnu[X_], &Cell[i].Elem.Map->dnu[Y_],
+	     &Cell[i].Elem.Map->alpha[X_], &Cell[i].Elem.Map->alpha[Y_],
+	     &Cell[i].Elem.Map->beta[X_], &Cell[i].Elem.Map->beta[Y_],
+	     &Cell[i].Elem.Map->eta_x, &Cell[i].Elem.Map->etap_x);
+      set_map(Cell[i].Elem.Map);
       break;
     default:
       std::cout << "rdmfile: unknown type" << std::endl;

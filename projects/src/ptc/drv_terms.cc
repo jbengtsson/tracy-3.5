@@ -194,7 +194,7 @@ int main(int argc, char *argv[])
   Ring_GetTwiss(true, 0e0); printglob();
 
   if (set_dnu) {
-    set_map(ElemIndex("ps_rot"), dnu[X_], dnu[Y_]);
+    set_map(ElemIndex("ps_rot"), dnu);
     Ring_GetTwiss(true, 0e0); printglob();
   }
 

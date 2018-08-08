@@ -23,7 +23,7 @@ void err_and_corr(const string &param_file)
 
   if (set_dnu) {
     // Do not use for Real Lattice.
-    set_map(ElemIndex("ps_rot"), dnu[X_], dnu[Y_]);
+    set_map(ElemIndex("ps_rot"), dnu);
     Ring_GetTwiss(true, 0e0); printglob();
   }
 
