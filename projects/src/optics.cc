@@ -708,7 +708,7 @@ int main(int argc, char *argv[])
 
   if (!false) {
     chk_mI_trans();
-    // exit(0);
+    exit(0);
   }
 
   if (false) {
