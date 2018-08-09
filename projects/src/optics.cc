@@ -12,7 +12,7 @@ const bool
 
 const double
   nu[]     = {0.2, 0.7},
-  dnu_mI[] = {1.5-1.44129-0.0, 0.5-0.47593-0.0},
+  dnu_mI[] = {1.5-1.44129-0.013, 0.5-0.47593-0.013},
   nu_HOA[] = {19.0/8.0, 15.0/16.0};
 
 
@@ -585,6 +585,34 @@ void get_dbeta_deta(const double delta)
   }
 
   fclose(outf);
+}
+
+
+void set_map_per(MapType *Map, const double alpha0[], const double beta0[],
+		 const double alpha1[], const double beta1[])
+{
+  // Phase advance is set to zero.
+  int          k;
+  ss_vect<tps> Id;
+
+  Map->M.identity();
+  for (k = 0; k < 2; k++) {
+    Map->M[2*k]   = sqrt(beta1[k]/beta0[k])*Id[2*k];
+    Map->M[2*k+1] =
+      (alpha1[k]-alpha0[k])/sqrt(beta0[k]*beta1[k])*Id[2*k]
+      + sqrt(beta0[k]/beta1[k])*Id[2*k+1];
+  }
+}
+
+
+void set_map_per(const int Fnum, const double alpha0[], const double beta0[],
+		 const double alpha1[], const double beta1[])
+{
+  int j;
+
+  for (j = 1; j <= GetnKid(Fnum); j++)
+    set_map_per(Cell[Elem_GetPos(Fnum, j)].Elem.Map, alpha0, beta0,
+		alpha1, beta1);
 }
 
 
