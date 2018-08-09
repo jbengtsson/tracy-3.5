@@ -588,6 +588,33 @@ void get_dbeta_deta(const double delta)
 }
 
 
+void set_map_per(MapType *Map, const double alpha0[], const double beta0[],
+		 const double alpha1[], const double beta1[])
+{
+  // Phase advance is set to zero.
+  int          k;
+  ss_vect<tps> Id;
+
+  Map->M.identity();
+  for (k = 0; k < 2; k++) {
+    Map->M[2*k]   = sqrt(beta1[k]/beta0[k])*Id[2*k];
+    Map->M[2*k+1] =
+      (alpha1[k]-alpha0[k])/sqrt(beta0[k]*beta1[k])*Id[2*k]
+      + sqrt(beta0[k]/beta1[k])*Id[2*k+1];
+  }
+}
+
+
+void set_map_per(const int Fnum, const double alpha0[], const double beta0[],
+		 const double alpha1[], const double beta1[])
+{
+  int j;
+
+  for (j = 1; j <= GetnKid(Fnum); j++)
+    set_map_per(Cell[Elem_GetPos(Fnum, j)].Elem.Map, alpha0, beta0,
+		alpha1, beta1);
+}
+
 int main(int argc, char *argv[])
 {
   bool             tweak;
