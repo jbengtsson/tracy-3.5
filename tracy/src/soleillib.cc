@@ -67,28 +67,28 @@ void Get_Disp_dp(void)
 /* void InducedAmplitude(long spos)
 
    Purpose:
-      Compute the induced amplitude for a particle getting for a energy offset dP
-        process similar to a Touschek scattering
-        The induced maplitude is trnasported to the first element of the lattice
-        by scaling the maplitude with energy dependent betafunctions        
+     Compute the induced amplitude for a particle getting for a energy offset dP
+     process similar to a Touschek scattering
+     The induced maplitude is trnasported to the first element of the lattice
+     by scaling the maplitude with energy dependent betafunctions        
 
    Input:
-       spos : position where Touschek scattering occurs
+     spos : position where Touschek scattering occurs
 
    Output:
-       amp_ind.out
+     amp_ind.out
 
    Return:
-       none
+     none
 
    Global variables:
-       none
+     none
 
    specific functions:
-       none
+     none
 
    Comments:
-       none
+     none
 
 ****************************************************************************/
 void InducedAmplitude(long spos)
@@ -132,17 +132,23 @@ void InducedAmplitude(long spos)
     /* compute H at s =spos */
     dP20 = ((dP == 0) ? 1.0 : dP*dP);
     i = 0; /* Horizontal */
-    H[i] = ((1.0+Cell.Alpha[i]*Cell.Alpha[i])/Cell.Beta[i]*codvector[spos][0]*codvector[spos][0]+
-            2.0*Cell.Alpha[i]*codvector[spos][0]*codvector[spos][1]+
-            Cell.Beta[i]*codvector[spos][1]*codvector[spos][1])/dP20;
+    H[i] =
+      ((1.0+Cell.Alpha[i]*Cell.Alpha[i])/Cell.Beta[i]*codvector[spos][0]
+       *codvector[spos][0]
+       + 2.0*Cell.Alpha[i]*codvector[spos][0]*codvector[spos][1]
+       + Cell.Beta[i]*codvector[spos][1]*codvector[spos][1])/dP20;
     i = 1; /* Vertical */
-    H[i] = ((1.0+Cell.Alpha[i]*Cell.Alpha[i])/Cell.Beta[i]*codvector[spos][2]*codvector[spos][2]+
-            2.0*Cell.Alpha[i]*codvector[spos][2]*codvector[spos][3]+
-            Cell.Beta[i]*codvector[spos][3]*codvector[spos][3])/dP20;
+    H[i] =
+      ((1.0+Cell.Alpha[i]*Cell.Alpha[i])/Cell.Beta[i]*codvector[spos][2]
+       *codvector[spos][2]
+       + 2.0*Cell.Alpha[i]*codvector[spos][2]*codvector[spos][3]
+       + Cell.Beta[i]*codvector[spos][3]*codvector[spos][3])/dP20;
 
     fprintf(outf, "%+10.5e %+10.5e %+10.5e %+10.5e %+10.5e %+10.5e %+10.5e "
                   "%+10.5e %+10.5e %+10.5e %+10.5e \n",
-                  dP, codvector[spos][0], codvector[spos][1], Celldebut.Beta[0], Celldebut.Beta[1], Cell.Beta[0], Cell.Beta[1], H[0], H[1], Cell.Eta[0], Cell.Etap[0]);
+	    dP, codvector[spos][0], codvector[spos][1], Celldebut.Beta[0],
+	    Celldebut.Beta[1], Cell.Beta[0], Cell.Beta[1], H[0], H[1],
+	    Cell.Eta[0], Cell.Etap[0]);
   }
   fclose(outf);
 }
@@ -247,13 +253,17 @@ void Hcofonction(long pos, double dP,Vector2 H)
   getelem(pos, &Cell);    /* Position sur l'element pos */
 
   i = 0; /* Horizontal */
-  H[i] = (1+Cell.Alpha[i]*Cell.Alpha[i])/Cell.Beta[i]*Cell.BeamPos[i]*Cell.BeamPos[i]+
-          2*Cell.Alpha[i]*Cell.BeamPos[i]*Cell.BeamPos[i+1]+
-          Cell.Beta[i]*Cell.BeamPos[i+1]*Cell.BeamPos[i+1];
+  H[i] =
+    (1+Cell.Alpha[i]*Cell.Alpha[i])/Cell.Beta[i]*Cell.BeamPos[i]
+    *Cell.BeamPos[i]
+    + 2*Cell.Alpha[i]*Cell.BeamPos[i]*Cell.BeamPos[i+1]
+    + Cell.Beta[i]*Cell.BeamPos[i+1]*Cell.BeamPos[i+1];
   i = 1; /* Vertical */
-  H[i] = (1+Cell.Alpha[i]*Cell.Alpha[i])/Cell.Beta[i]*Cell.BeamPos[i+1]*Cell.BeamPos[i+1]+
-          2*Cell.Alpha[i]*Cell.BeamPos[i+1]*Cell.BeamPos[i+2]+
-          Cell.Beta[i]*Cell.BeamPos[i+2]*Cell.BeamPos[i+2];
+  H[i] =
+    (1+Cell.Alpha[i]*Cell.Alpha[i])/Cell.Beta[i]*Cell.BeamPos[i+1]
+    *Cell.BeamPos[i+1]
+    + 2*Cell.Alpha[i]*Cell.BeamPos[i+1]*Cell.BeamPos[i+2]
+    + Cell.Beta[i]*Cell.BeamPos[i+2]*Cell.BeamPos[i+2];
 }
 
   
@@ -3184,7 +3194,7 @@ void Phase3(long pos, double x,double px,double y, double py,double energy,
        Compute longitudinal phase space from analytical model
                                                          2              3
                                 (                   delta          delta  )
-      H(phi,delta) =    omegaRF*(dCoC delta + alpha1----- + alpha2*-----  )
+      H(phi,delta) =    omegaRF*(dCoC delta + alpha1----- + alpha2_*-----  )
                                 (                     2              3    )
 
                        eVRF (                                               )
@@ -3199,7 +3209,7 @@ void Phase3(long pos, double x,double px,double y, double py,double energy,
        eVRF    RF voltage in electron volt
        phis    synchronous phase
        alpha1  first order momentum compaction factor
-       alpha2  second order momentum compaction factor
+       alpha2_  second order momentum compaction factor
        dCoC    betatron path lengthening
 
    Input:
@@ -3222,8 +3232,8 @@ void Phase3(long pos, double x,double px,double y, double py,double energy,
 
 ****************************************************************************/
 /* SOLEIL value for SOLAMOR2 */
-#define alpha1 4.38E-4
-#define alpha2 4.49E-3
+#define alpha1_ 4.38E-4
+#define alpha2_ 4.49E-3
 #define dCoC  0E-6
 #define phis  -0.238
 #define E 2.75E3
@@ -3302,7 +3312,7 @@ void PhaseLongitudinalHamiltonien(void)
        Integrate exp(step*liederivativeof(H(delta,phi))
                                                          2              3
                                 (                   delta          delta  )
-      H(phi,delta) =    omegaRF*(dCoC delta + alpha1----- + alpha2*-----  )
+      H(phi,delta) =    omegaRF*(dCoC delta + alpha1_----- + alpha2_*-----  )
                                 (                     2              3    )
 
 
@@ -3310,8 +3320,8 @@ void PhaseLongitudinalHamiltonien(void)
        omegaRF RF frequency/2pi
        eVRF    RF voltage in electron volt
        phis    synchronous phase
-       alpha1  first order momentum compaction factor
-       alpha2  second order momentum compaction factor
+       alpha1_  first order momentum compaction factor
+       alpha2_  second order momentum compaction factor
        dCoC    betatron path lengthening
 
    Input:
@@ -3336,7 +3346,7 @@ void PhaseLongitudinalHamiltonien(void)
 ****************************************************************************/
 void PassA(double *phi, double delta0, double step)
 {
-  *phi -= omegaRF*2.0*M_PI*(dCoC + alpha1*delta0 + alpha2*delta0*delta0)*step;
+  *phi -= omegaRF*2.0*M_PI*(dCoC + alpha1_*delta0 + alpha2_*delta0*delta0)*step;
 }
 
 /****************************************************************************/
@@ -3354,8 +3364,8 @@ void PassA(double *phi, double delta0, double step)
        omegaRF RF frequency/2pi
        eVRF    RF voltage in electron volt
        phis    synchronous phase
-       alpha1  first order momentum compaction factor
-       alpha2  second order momentum compaction factor
+       alpha1_  first order momentum compaction factor
+       alpha2_  second order momentum compaction factor
        dCoC    betatron path lengthening
 
    Input:
@@ -3390,7 +3400,7 @@ void PassB(double phi0, double *delta, double step)
        Compute Hamiltonian
                                                          2              3
                                 (                   delta          delta  )
-      H(phi,delta) =    omegaRF*(dCoC delta + alpha1----- + alpha2*-----  )
+      H(phi,delta) =    omegaRF*(dCoC delta + alpha1_----- + alpha2_*-----  )
                                 (                     2              3    )
 
                        eVRF (                                               )
@@ -3402,8 +3412,8 @@ void PassB(double phi0, double *delta, double step)
        omegaRF RF frequency/2pi
        eVRF    RF voltage in electron volt
        phis    synchronous phase
-       alpha1  first order momentum compaction factor
-       alpha2  second order momentum compaction factor
+       alpha1_  first order momentum compaction factor
+       alpha2_  second order momentum compaction factor
        dCoC    betatron path lengthening
 
    Output:
@@ -3426,7 +3436,7 @@ double Hsynchrotron(double phi, double delta)
 {
   double H = 0.0;
   
-  H  = omegaRF*2.0*M_PI*(dCoC*delta + alpha1*delta*delta/2.0 + alpha2*delta*delta*delta/3.0);
+  H  = omegaRF*2.0*M_PI*(dCoC*delta + alpha1_*delta*delta/2.0 + alpha2_*delta*delta*delta/3.0);
   H -= eVRF/E/T*(cos(phi) - cos(phis) + (phi-phis)*sin(phis));
   return H;
 }

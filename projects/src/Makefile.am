@@ -2,7 +2,7 @@ SUBDIRS      = ptc
 
 bin_PROGRAMS = optics dynap leac dnu touschek ibs vlad tbt \
                max_iv_1 max_iv_2 ibs_for_les delta bare_da match \
-               carbon_map dls 6BA track_fft m4 m4_mod dls_ii track
+               carbon_map dls 6BA track_fft m4 m4_mod dls_ii track opt_des_1
 
 #sc_f_LINK    = gfortran -g -O0 -Wall -fbounds-check -o sc_f
 
@@ -29,6 +29,7 @@ m4_SOURCES          = m4.cc
 m4_mod_SOURCES      = m4_mod.cc
 dls_ii_SOURCES      = dls_ii.cc
 track_SOURCES       = track.cc
+opt_des_1_SOURCES   = opt_des_1.cc
 
 #LIBS     = -L$(TRACY_LIB)/tracy -ltracy
 # gfortran needs to be before stdc_++ for Fortran programs
