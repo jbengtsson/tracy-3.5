@@ -623,7 +623,6 @@ void prt_lat(const int loc1, const int loc2, const char *fname, const int Fnum,
   fprintf(outf, "                        [m]                [m]\n");
   fprintf(outf, "#\n");
 
-  I2 = 0.0; I5 = 0.0;
   for (i = loc1; i <= loc2; i++) {
     if (all || (Cell[i].Fnum == Fnum)) {
       fprintf(outf, "%4ld %15s %9.5f %4.1f"
