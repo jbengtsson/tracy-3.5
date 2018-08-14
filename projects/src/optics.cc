@@ -139,6 +139,23 @@ void track(const double Ax, const double Ay)
 }
 
 
+void chk_phi()
+{
+  int    k;
+  double phi;
+
+  phi = 0e0;
+  for (k = 0; k <= globval.Cell_nLoc; k++) {
+    if ((Cell[k].Elem.Pkind == Mpole) &&
+	(Cell[k].Elem.M->n_design == Dip)) {
+      phi += Cell[k].Elem.PL*Cell[k].Elem.M->Pirho;
+    }
+  }
+  phi = 180e0*phi/M_PI;
+  printf("\nphi = %8.6f\n", phi);
+}
+
+
 void prt_symm(const std::vector<int> &Fam)
 {
   long int loc;
@@ -180,6 +197,63 @@ void prt_drift()
   for (k = 0; k <= globval.Cell_nLoc; k++)
     if (Cell[k].Elem.Pkind == drift)
       printf("%3d %10s %13.10f\n", k, Cell[k].Elem.PName, Cell[k].Elem.PL);
+}
+
+
+double rad2deg(const double a) { return a*180e0/M_PI; }
+
+
+void prt_dip()
+{
+  int                        j, k, loc;
+  double                     phi, L, L1, phi1, phi2;
+  std::vector<int>           row;
+  std::vector< vector<int> > Fnum;
+
+  row.push_back(ElemIndex("b1_1"));
+  row.push_back(ElemIndex("b1_2"));
+  row.push_back(ElemIndex("b1_3"));
+  row.push_back(ElemIndex("b1_4"));
+  row.push_back(ElemIndex("b1_5"));
+  Fnum.push_back(row);
+  row.clear();
+
+  row.push_back(ElemIndex("b2_1"));
+  row.push_back(ElemIndex("b2_2"));
+  row.push_back(ElemIndex("b2_3"));
+  row.push_back(ElemIndex("b2_4"));
+  row.push_back(ElemIndex("b2_5"));
+  Fnum.push_back(row);
+  row.clear();
+
+  row.push_back(ElemIndex("b3_1"));
+  row.push_back(ElemIndex("b3_2"));
+  row.push_back(ElemIndex("b3_1"));
+  Fnum.push_back(row);
+  row.clear();
+
+  row.push_back(ElemIndex("b4_1"));
+  row.push_back(ElemIndex("b4_2"));
+  Fnum.push_back(row);
+  row.clear();
+
+  phi2 = 0e0;
+  for (j = 0; j < (int)Fnum.size(); j++) {
+    printf("\n");
+    L1 = 0.0; phi1 = 0e0;
+    for (k = 0; k < (int)Fnum[j].size(); k++) {
+      loc = Elem_GetPos(Fnum[j][k], 1);
+      L = Cell[loc].Elem.PL; phi = rad2deg(L*Cell[loc].Elem.M->Pirho);
+      L1 += Cell[loc].Elem.PL; phi1 += phi;
+      printf("%10s %13.10f %13.10f %13.10f %13.10f\n",
+	     Cell[loc].Elem.PName, L,
+	     phi, rad2deg(Cell[loc].Elem.M->PTx1),
+	     rad2deg(Cell[loc].Elem.M->PTx1));
+    }
+    printf("\nMagnet: L = %13.10f phi = %13.10f\n", L1, phi1);
+    phi2 += phi1;
+  }
+  printf("\nCell: phi = %13.10f\n", phi2);
 }
 
 
@@ -289,7 +363,7 @@ void chk_mI_trans(void)
   int Fnum, k, loc0, loc1;
 
   // M-6HBAi 1,
-  const int lat_case = 1;
+  const int lat_case = 2;
 
   Ring_GetTwiss(true, 0e0);
  
@@ -298,7 +372,7 @@ void chk_mI_trans(void)
     Fnum = ElemIndex("sextmark");
    break;
   case 2:
-    Fnum = ElemIndex("sf");
+    Fnum = ElemIndex("msf");
    break;
   }
 
@@ -657,7 +731,17 @@ int main(int argc, char *argv[])
   }
 
   if (false) {
+    chk_phi();
+    exit(0);
+  }
+
+  if (false) {
     prt_drift();
+    exit(0);
+  }
+
+  if (false) {
+    prt_dip();
     exit(0);
   }
 
