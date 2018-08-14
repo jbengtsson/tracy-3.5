@@ -240,22 +240,26 @@ double get_eps_x1(const bool track)
 
 void get_nu(ss_vect<tps> &A, const double delta, double nu[])
 {
-  long int lastpos;
+  long int     lastpos;
+  ss_vect<tps> A_delta;
 
-  A.zero(); putlinmat(4, Cell[0].A, A); A[delta_] += delta;
-  Cell_Pass(0, globval.Cell_nLoc, A, lastpos);
-  get_A_CS(2, A, nu);
+  A_delta = get_A_CS(2, A, nu); A_delta[delta_] += delta;
+  Cell_Pass(0, globval.Cell_nLoc, A_delta, lastpos);
+  get_A_CS(2, A_delta, nu);
+  printf("\n[%18.16f, %18.16f]\n", nu[X_], nu[Y_]);
 }
 
 
-void get_ksi(ss_vect<tps> &A, double ksi[])
+void get_ksi1(ss_vect<tps> &A, double ksi1[])
 {
   int    k;
   double nu0[2], nu1[2];
 
-  get_nu(A, -globval.dPcommon, nu0); get_nu(A, globval.dPcommon, nu1);
+  const double delta = 1e-8;
+
+  get_nu(A, -delta, nu0); get_nu(A, delta, nu1);
   for (k = 0; k < 2; k++)
-    ksi[k] = (nu1[k]-nu0[k])/(2e0*globval.dPcommon);
+    ksi1[k] = (nu1[k]-nu0[k])/(2e0*delta);
 }
 
 
@@ -504,9 +508,12 @@ void  prt_ksi1(const double eps_x, double *b2)
   long int loc;
 
   loc = Elem_GetPos(ElemIndex("ms"), 1);
-  printf("Linear Optics:\n %12.5e %12.5e %12.5e %12.5e %12.5e\n",
-	 eps_x, Cell[loc].Eta[X_], Cell[loc].Etap[X_],
+  printf("Linear Optics:\n %12.5e %12.5e %12.5e %12.5e %12.5e %12.5e %12.5e\n",
+	 eps_x, globval.Chrom[X_], globval.Chrom[Y_],
+	 Cell[loc].Eta[X_], Cell[loc].Etap[X_],
 	 Cell[loc].Alpha[X_], Cell[loc].Alpha[Y_]);
+  loc = Elem_GetPos(ElemIndex("b1_5"), 2);
+  printf(" %12.5e %12.5e\n", Cell[loc].Eta[X_], Cell[loc].Etap[X_]);
   printf("b2s:\n");
   b2_prms.prt_prm(b2);
 
@@ -524,10 +531,11 @@ double f_ksi1(double *b2)
   double       chi2, eps_x;
   ss_vect<tps> A;
 
-  const int    n_prt = 1;
+  const int    n_prt = 10;
   const double
-    eta_x_ms     = 2.5e-2,
-    eps_x_design = 0.188; // nm.rad.
+    eta_x_ref  = 2.44e-2,
+    eps_x_ref  = 0.188, // nm.rad.
+    ksi1_ref[] = {-2.9, -3.0};
 
   b2_prms.set_prm(b2);
 
@@ -536,15 +544,29 @@ double f_ksi1(double *b2)
   Cell_Twiss(0, globval.Cell_nLoc, A, false, false, 0e0);
   eps_x = get_eps_x1(false);
   globval.emittance = false;
+  Ring_GetTwiss(true, 0e0);
 
   chi2 = 0e0;
   
-  loc = Elem_GetPos(ElemIndex("ms"), 1);
-  chi2 += 1e0*sqr(Cell[loc].Eta[X_]-eta_x_ms);
-  chi2 += 1e0*sqr(Cell[loc].Etap[X_]);
-  chi2 += 1e0*sqr(Cell[loc].Alpha[X_]);
-  chi2 += 1e0*sqr(Cell[loc].Alpha[Y_]);
-  chi2 += 1e-8*sqr(eps_x-eps_x_design);
+  if (globval.stable) {
+    loc = Elem_GetPos(ElemIndex("ms"), 1);
+    chi2 += 1e0*sqr(Cell[loc].Eta[X_]-eta_x_ref);
+    chi2 += 1e4*sqr(Cell[loc].Etap[X_]);
+    chi2 += 1e4*sqr(Cell[loc].Alpha[X_]);
+    chi2 += 1e4*sqr(Cell[loc].Alpha[Y_]);
+
+    loc = Elem_GetPos(ElemIndex("b1_5"), 2);
+    chi2 += 1e4*sqr(Cell[loc].Etap[X_]);
+    chi2 += 1e4*sqr(Cell[loc].Etap[X_]);
+
+    chi2 += 1e1*sqr(eps_x-eps_x_ref);
+
+    chi2 += 1e-1*sqr(globval.Chrom[X_]-ksi1_ref[X_]);
+    chi2 += 1e0*sqr(globval.Chrom[Y_]-ksi1_ref[Y_]);
+  } else {
+    chi2 = 1e30;
+    printf("\nunstable\n");
+  }
 
   if (chi2 < chi2_ref) {
     n++;
@@ -567,7 +589,7 @@ double f_ksi1(double *b2)
 void fit_ksi1(param_type &b2_prms)
 {
   int          n_b2, i, j, iter;
-  double       *b2, **xi, fret;
+  double       *b2, **xi, fret, eps_x;
   ss_vect<tps> A;
 
   n_b2 = b2_prms.n_prm;
@@ -580,14 +602,16 @@ void fit_ksi1(param_type &b2_prms)
   A = get_A(ic[0], ic[1], ic[2], ic[3]);
   Cell_Twiss(0, globval.Cell_nLoc, A, false, false, 0e0);
   globval.emittance = false;
-  prt_ksi1(get_eps_x1(false), b2);
+  eps_x = get_eps_x1(false);
+  Ring_GetTwiss(true, 0e0);
+  prt_ksi1(eps_x, b2);
   prt_lat("linlat1.out", globval.bpm, true);
   prt_lat("linlat.out", globval.bpm, true, 10);
 
   // Set initial directions (unit vectors).
   for (i = 1; i <= n_b2; i++)
     for (j = 1; j <= n_b2; j++)
-      xi[i][j] = (i == j)? 1e0 : 0e0;
+      xi[i][j] = (i == j)? 1e-3 : 0e0;
 
   n = 0;
   dpowell(b2, xi, n_b2, 1e-16, &iter, &fret, f_ksi1);
@@ -605,10 +629,12 @@ void fit_ksi1(param_type &b2_prms)
 
 int main(int argc, char *argv[])
 {
+  double       eps_x;
+  ss_vect<tps> A;
 
   reverse_elem = false;
 
-  if (true)
+  if (!true)
     Read_Lattice(argv[1]);
   else
     rdmfile(argv[1]);
@@ -619,10 +645,13 @@ int main(int argc, char *argv[])
   globval.pathlength     = false;  globval.bpm         = 0;
   globval.dip_edge_fudge = true;
 
-  // Ring_GetTwiss(true, 0e0); printglob();
-  ttwiss(ic[0], ic[1], ic[2], ic[3], 0e0);
+  if (true) {
+    Ring_GetTwiss(true, 0e0); printglob();
+  } else
+    ttwiss(ic[0], ic[1], ic[2], ic[3], 0e0);
 
-  printf("\neps_x = %5.3f nm.rad\n\n", get_eps_x1(true));
+  eps_x = get_eps_x1(true);
+  printf("\neps_x = %5.3f nm.rad\n\n", eps_x);
 
   prt_lat("linlat1.out", globval.bpm, true);
   prt_lat("linlat.out", globval.bpm, true, 10);

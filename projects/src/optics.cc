@@ -615,11 +615,11 @@ int main(int argc, char *argv[])
   // 1: DIAMOND, 2: NSLS-II, 3: Oleg I, 4: Oleg II.
   FieldMap_filetype = 4; sympl = !false;
 
-  reverse_elem = false;
+  reverse_elem = !false;
 
   trace = !true;
 
-  if (!true)
+  if (true)
     Read_Lattice(argv[1]);
   else
     rdmfile(argv[1]);
@@ -862,6 +862,8 @@ int main(int argc, char *argv[])
   }
 
   if (true)  GetEmittance(ElemIndex("cav"), true);
+
+  exit(0);
 
   if (false) {
     b2_fam[0] = ElemIndex(q_fam[0].c_str());

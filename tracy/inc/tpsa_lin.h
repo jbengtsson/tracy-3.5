@@ -28,9 +28,9 @@ double getmat(const ss_vect<tps> &map, const long int i, const long int j);
 void putmat(ss_vect<tps> &map, const long int i, const long int j,
 	    const double r);
 
-void getlinmat(const long int nv, const ss_vect<tps> &map, Matrix &mat);
+void getlinmat(const int nv, const ss_vect<tps> &map, Matrix &mat);
 
-void putlinmat(const long int nv, const Matrix &mat, ss_vect<tps> &map);
+void putlinmat(const int nv, const Matrix &mat, ss_vect<tps> &map);
 
 void dacop_(const tps_buf &x, tps_buf &z);
 

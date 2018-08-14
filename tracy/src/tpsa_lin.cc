@@ -146,7 +146,7 @@ void putmat(ss_vect<tps> &map, const int i, const int j, const double r)
 }
 
 
-void getlinmat(const long int nv, const ss_vect<tps> &map, Matrix &mat)
+void getlinmat(const int nv, const ss_vect<tps> &map, Matrix &mat)
 {
   int  j, k;
 
@@ -156,7 +156,7 @@ void getlinmat(const long int nv, const ss_vect<tps> &map, Matrix &mat)
 }
 
 
-void putlinmat(const long int nv, const Matrix &mat, ss_vect<tps> &map)
+void putlinmat(const int nv, const Matrix &mat, ss_vect<tps> &map)
 {
   /* Puts zeroes in constant part of da map */
   int j, k;
