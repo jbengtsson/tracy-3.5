@@ -704,7 +704,7 @@ int main(int argc, char *argv[])
   globval.pathlength     = false;  globval.bpm         = 0;
   globval.dip_edge_fudge = true;
 
-  if (!false) no_sxt();
+  if (false) no_sxt();
 
   if (false) {
     Ring_GetTwiss(true, 0e0); printglob();
