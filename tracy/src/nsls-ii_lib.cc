@@ -3587,21 +3587,24 @@ void set_map_per(const int Fnum,
 }
 
 
-void set_map_reversal(MapType *Map)
+void set_map_reversal(CellType &Cell)
 {
-  // Phase advance is set to zero.
-  int k;
+  long int loc, lastpos;
+  MapType  *Map;
 
+  danot_(1);
+  Map = Cell.Elem.Map;
   Map->M.identity();
-  for (k = 0; k < 2; k++)
-    Map->M[2*k+1] = -Map->M[2*k+1];
+  loc = Elem_GetPos(Cell.Fnum, Cell.Knum);
+  Cell_Pass(0, loc-1, Map->M, lastpos);
+  Map->M = Inv(Map->M);
 }
 
 
-void set_map_reversal(const int Fnum)
+void set_map_reversal(const long int Fnum)
 {
   int j;
 
   for (j = 1; j <= GetnKid(Fnum); j++)
-    set_map_reversal(Cell[Elem_GetPos(Fnum, j)].Elem.Map);
+    set_map_reversal(Cell[Elem_GetPos(Fnum, j)]);
 }

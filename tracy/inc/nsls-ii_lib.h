@@ -317,6 +317,6 @@ void set_map_per(const int Fnum,
 		 const double alpha1[], const double beta1[],
 		 const double eta1[], const double etap1[]);
 
-void set_map_reversal(MapType *Map);
+void set_map_reversal(CellType &Cell);
 
-void set_map_reversal(const int Fnum);
+void set_map_reversal(const long int Fnum);
