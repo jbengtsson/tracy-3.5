@@ -417,10 +417,19 @@ void prt_b2(const param_type &b2_prms, const double *b2)
 	      Cell[loc].Elem.M->PTx2, Cell[loc].Elem.M->PBpar[Quad+HOMmax]);
     } else if (b2_prms.n[k] == -1)
       fprintf(outf, " drift, l = %11.8f;\n", Cell[loc].Elem.PL);
-    else if (b2_prms.n[k] == 2)
-      fprintf(outf, " quadrupole, l = %11.8f, k = %11.8f, n = nquad"
-	      ", method = 4;\n",
-	      Cell[loc].Elem.PL, Cell[loc].Elem.M->PBpar[Quad+HOMmax]);
+    else if (b2_prms.n[k] == 2) {
+      if (Cell[loc].Elem.M->n_design == Quad)
+	fprintf(outf, " quadrupole, l = %11.8f, k = %11.8f, n = nquad"
+		", method = 4;\n",
+		Cell[loc].Elem.PL, Cell[loc].Elem.M->PBpar[Quad+HOMmax]);
+      else if (Cell[loc].Elem.M->n_design == Dip) {
+	phi = rad2deg(Cell[loc].Elem.PL*Cell[loc].Elem.M->Pirho);
+	fprintf(outf, " bending, l = %11.8f, t = %11.8f, t1 = %11.8f"
+		", t2 = %11.8f,  k = %11.8f, n = nbend, method = 4;\n",
+		Cell[loc].Elem.PL, phi, Cell[loc].Elem.M->PTx1,
+		Cell[loc].Elem.M->PTx2, Cell[loc].Elem.M->PBpar[Quad+HOMmax]);
+      }
+    }
   }
 
   fclose(outf);
@@ -494,12 +503,7 @@ void fit_powell(param_type &b2_prms, const double eps, double (*f)(double *),
 
   n_iter = 0; chi2_ref = 1e30; chi2_prt = 1e30;
   dpowell(b2, xi, n_b2, 1e-16, &iter, &fret, f);
-
   b2_prms.set_prm(b2);
-  eps_x = get_lin_opt(true);
-
-  prt_lat("linlat1.out", globval.bpm, true);
-  prt_lat("linlat.out", globval.bpm, true, 10);
 
   free_dvector(b2, 1, n_b2); free_dmatrix(xi, 1, n_b2, 1, n_b2);
 }
@@ -537,7 +541,7 @@ void prt_match(double *b2)
 
   printf("Linear Optics:\n    %5.3f %6.3f %6.3f %12.5e %12.5e %12.5e"
 	 " %12.5e %12.5e %12.5e\n",
-	 eps_x, Cell[locs[2]].Beta[X_], Cell[locs[2]].Beta[Y_],
+	 eps_x, Cell[locs[1]].Beta[X_], Cell[locs[1]].Beta[Y_],
 	 Cell[locs[0]].Alpha[X_], Cell[locs[0]].Alpha[Y_],
 	 Cell[locs[0]].Etap[X_],
 	 Cell[locs[1]].Alpha[X_], Cell[locs[1]].Alpha[Y_],
@@ -780,7 +784,7 @@ double f_ksi1(double *b2)
 
 int main(int argc, char *argv[])
 {
-  double eps_x, dnu[2];
+  double eps_x;
 
   reverse_elem = !false;
 
@@ -795,13 +799,9 @@ int main(int argc, char *argv[])
   globval.pathlength     = false;  globval.bpm         = 0;
   globval.dip_edge_fudge = true;
 
-  Ring_GetTwiss(true, 0e0); printglob();
-  dnu[X_] = 0.1; dnu[Y_] = 0.1;
-  set_map(ElemIndex("ps_rot"), dnu);
-
   // set_map_reversal(ElemIndex("line_inv"));
 
-  if (true) {
+  if (!true) {
     Ring_GetTwiss(true, 0e0); printglob();
   } else
     ttwiss(ic[0], ic[1], ic[2], ic[3], 0e0);
@@ -812,19 +812,31 @@ int main(int argc, char *argv[])
   prt_lat("linlat1.out", globval.bpm, true);
   prt_lat("linlat.out", globval.bpm, true, 10);
 
-  if (false) {
-    b2_prms.add_prm("qf1", 2, -20.0, 20.0, 1.0);
-    b2_prms.add_prm("qd2", 2, -20.0, 20.0, 1.0);
-    b2_prms.add_prm("qf3", 2, -20.0, 20.0, 1.0);
-    b2_prms.add_prm("qf5", 2, -20.0, 20.0, 1.0);
+  if (!false) {
+    b2_prms.add_prm("dr1", -2, -20.0, 20.0, 1.0);
+    b2_prms.add_prm("b1",  -2, -20.0, 20.0, 1.0);
+    b2_prms.add_prm("b1",   2, -20.0, 20.0, 1.0);
+    b2_prms.add_prm("qf1",  2, -20.0, 20.0, 1.0);
+    b2_prms.add_prm("qd2",  2, -20.0, 20.0, 1.0);
+    b2_prms.add_prm("qf3",  2, -20.0, 20.0, 1.0);
+    b2_prms.add_prm("qf5",  2, -20.0, 20.0, 1.0);
 
-    b2_prms.bn_tol = 1e-6; b2_prms.step = 1.0;
+    // b2_prms.add_prm("qf6",  2, -20.0, 20.0, 1.0);
+    // b2_prms.add_prm("qd7",  2, -20.0, 20.0, 1.0);
 
     locs.push_back(Elem_GetPos(ElemIndex("sfh"), 1));
     locs.push_back(Elem_GetPos(ElemIndex("b1"), 2));
+    // locs.push_back(Elem_GetPos(ElemIndex("b1"), 4));
     locs.push_back(globval.Cell_nLoc);
 
+    b2_prms.bn_tol = 1e-6; b2_prms.step = 1.0;
+
     fit_powell(b2_prms, 1e-3, f_match, prt_match);
+
+    eps_x = get_lin_opt(false);
+
+    prt_lat("linlat1.out", globval.bpm, true);
+    prt_lat("linlat.out", globval.bpm, true, 10);
   }
 
   if (false) {
