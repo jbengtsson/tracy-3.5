@@ -844,11 +844,11 @@ int main(int argc, char *argv[])
 
   //no_sxt(); //turns off sextupoles
   if (false) {
-    int  sf,sd;
-    sf = ElemIndex("sf1"); sd = ElemIndex("sd2h");
-    printf("  sf = %8.5f   sd = %8.5f\n", GetKLpar(sf, 1, Sext), GetKLpar(sd, 1, Sext));
-    FitChrom(sf,sd,-1.0,-1.0); //adjusts chroma using two sext families
-    printf("  sf = %8.5f   sd = %8.5f\n", GetKLpar(sf, 1, Sext), GetKLpar(sd, 1, Sext));
+    // int  sf,sd;
+    // sf = ElemIndex("sf1"); sd = ElemIndex("sd2h");
+    // printf("  sf = %8.5f   sd = %8.5f\n", GetKLpar(sf, 1, Sext), GetKLpar(sd, 1, Sext));
+    // FitChrom(sf,sd,-1.0,-1.0); //adjusts chroma using two sext families
+    // printf("  sf = %8.5f   sd = %8.5f\n", GetKLpar(sf, 1, Sext), GetKLpar(sd, 1, Sext));
   }
 
   globval.Cavity_on = !true; globval.radiation = !true;

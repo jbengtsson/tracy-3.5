@@ -181,27 +181,27 @@ int main(int argc, char *argv[])
   Ring_GetTwiss(true, 0e0); printglob();
 
   if (false) {
-    qf = ElemIndex("qf"); qd = ElemIndex("bh");
-    FitTune(qf, qd, nu[X_], nu[Y_]);
-    get_bn_design_elem(qf, 1, Quad, b2[0], a2);
-    get_bn_design_elem(qd, 1, Quad, b2[1], a2);
+    // qf = ElemIndex("qf"); qd = ElemIndex("bh");
+    // FitTune(qf, qd, nu[X_], nu[Y_]);
+    // get_bn_design_elem(qf, 1, Quad, b2[0], a2);
+    // get_bn_design_elem(qd, 1, Quad, b2[1], a2);
 
-    printf("\nnu_x = %7.5f nu_y = %7.5f\n",
-	   globval.TotalTune[X_], globval.TotalTune[Y_]);
-    printf("  qf = %8.5f   qd = %8.5f\n", b2[0], b2[1]);
+    // printf("\nnu_x = %7.5f nu_y = %7.5f\n",
+    // 	   globval.TotalTune[X_], globval.TotalTune[Y_]);
+    // printf("  qf = %8.5f   qd = %8.5f\n", b2[0], b2[1]);
 
-    Ring_GetTwiss(true, 0.0); printglob();
+    // Ring_GetTwiss(true, 0.0); printglob();
   }
 
   if (false) {
-    sf = ElemIndex("sfh"); sd = ElemIndex("sd");
-    FitChrom(sf, sd, 0e0, 0e0);
-    get_bn_design_elem(sf, 1, Sext, b3[0], a3);
-    get_bn_design_elem(sd, 1, Sext, b3[1], a3);
+    // sf = ElemIndex("sfh"); sd = ElemIndex("sd");
+    // FitChrom(sf, sd, 0e0, 0e0);
+    // get_bn_design_elem(sf, 1, Sext, b3[0], a3);
+    // get_bn_design_elem(sd, 1, Sext, b3[1], a3);
 
-    printf("\nsf = %10.5f, sd = %10.5f", b3[0], b3[1]);
+    // printf("\nsf = %10.5f, sd = %10.5f", b3[0], b3[1]);
 
-    Ring_GetTwiss(true, 0.0); printglob();
+    // Ring_GetTwiss(true, 0.0); printglob();
   }
 
   prt_lat("linlat1.out", globval.bpm, true);

@@ -288,33 +288,33 @@ int main(int argc, char *argv[])
   if (true) GetEmittance(ElemIndex("cav"), true);
 
   if (false) {
-    b2_fam[0] = ElemIndex(q_fam[0].c_str());
-    b2_fam[1] = ElemIndex(q_fam[1].c_str());
-    FitTune(b2_fam[0], b2_fam[1], nu[X_], nu[Y_]);
-    get_bn_design_elem(b2_fam[0], 1, Quad, b2[0], a2);
-    get_bn_design_elem(b2_fam[1], 1, Quad, b2[1], a2);
+    // b2_fam[0] = ElemIndex(q_fam[0].c_str());
+    // b2_fam[1] = ElemIndex(q_fam[1].c_str());
+    // FitTune(b2_fam[0], b2_fam[1], nu[X_], nu[Y_]);
+    // get_bn_design_elem(b2_fam[0], 1, Quad, b2[0], a2);
+    // get_bn_design_elem(b2_fam[1], 1, Quad, b2[1], a2);
 
-    printf("\nnu_x = %8.5f nu_y = %8.5f\n",
-	   globval.TotalTune[X_], globval.TotalTune[Y_]);
-    printf("  %s = %8.5f  %s = %8.5f\n",
-	   q_fam[0].c_str(), b2[0], q_fam[1].c_str(), b2[1]);
+    // printf("\nnu_x = %8.5f nu_y = %8.5f\n",
+    // 	   globval.TotalTune[X_], globval.TotalTune[Y_]);
+    // printf("  %s = %8.5f  %s = %8.5f\n",
+    // 	   q_fam[0].c_str(), b2[0], q_fam[1].c_str(), b2[1]);
 
-    Ring_GetTwiss(true, 0e0); printglob();
+    // Ring_GetTwiss(true, 0e0); printglob();
   }
 
   if (false) {
-    b3_fam[0] = ElemIndex(s_fam[0].c_str());
-    b3_fam[1] = ElemIndex(s_fam[1].c_str());
-    FitChrom(b3[0], b3[1], 0e0, 0e0);
-    get_bn_design_elem(b3_fam[0], 1, Sext, b3[0], a3);
-    get_bn_design_elem(b3_fam[1], 1, Sext, b3[1], a3);
-    get_bnL_design_elem(b3_fam[0], 1, Sext, b3L[0], a3L);
-    get_bnL_design_elem(b3_fam[1], 1, Sext, b3L[1], a3L);
+    // b3_fam[0] = ElemIndex(s_fam[0].c_str());
+    // b3_fam[1] = ElemIndex(s_fam[1].c_str());
+    // FitChrom(b3[0], b3[1], 0e0, 0e0);
+    // get_bn_design_elem(b3_fam[0], 1, Sext, b3[0], a3);
+    // get_bn_design_elem(b3_fam[1], 1, Sext, b3[1], a3);
+    // get_bnL_design_elem(b3_fam[0], 1, Sext, b3L[0], a3L);
+    // get_bnL_design_elem(b3_fam[1], 1, Sext, b3L[1], a3L);
 
-    printf("\n%s = %10.5f (%10.5f), %s = %10.5f (%10.5f)\n",
-	   s_fam[0].c_str(), b3[0], b3L[0], s_fam[1].c_str(), b3[1], b3L[1]);
+    // printf("\n%s = %10.5f (%10.5f), %s = %10.5f (%10.5f)\n",
+    // 	   s_fam[0].c_str(), b3[0], b3L[0], s_fam[1].c_str(), b3[1], b3L[1]);
 
-    Ring_GetTwiss(true, 0e0); printglob();
+    // Ring_GetTwiss(true, 0e0); printglob();
   }
 
   prtmfile("flat_file.fit");
