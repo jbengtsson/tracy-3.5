@@ -11,136 +11,116 @@
 */
 
 
-#define n  4
-
-
 void GetNu(Vector2 &nu, Matrix &M)
 {
-  int     i;
-  double  sgn, detp, detm, b, c, th, tv, b2mc, x_arg, y_arg;
-  Matrix  M1;
+  /* Not assuming mid-plane symmetry, the charachteristic polynomial for a
+     symplectic periodic matrix is given by
 
-  globval.stable = true;
+       P(lambda) = det(M-lambda*I)
+                 = (lambda-lambda0)(lambda-1/lambda0)
+		   (lambda-lambda1)(lambda-1/lambda1)
+
+     It follows that
+
+       P(1) = (2-x)(2-y),     P(-1) = (2+x)(2+y)
+
+     where
+
+       x = lambda0 + 1/lambda0 = 2 cos(2 pi nu_x)
+
+     and similarly for y. Eliminating y
+
+       x^2 + 4 b x + 4 c = 0
+
+     where
+
+       b = (P(1)-P(-1))/16,    c =(P(1)+P(-1))/8 - 1
+
+     Solving for x
+
+       x,y = -2 (b +/- sqrt(b^2-c))
+
+     where the sign is given by
+
+       trace(hor) > trace(ver)
+
+     gives
+
+       nu_x,y = arccos(x,y/2)/(2 pi)
+
+     For mid-plane symmetry it simplies to
+
+       nu_x = arccos((m11+m22)/2)/(2 pi)                                      */
+
+  int    i;
+  double sgn, detp, detm, b, c, tr[2], b2mc, x;
+  Matrix M1;
+
+  const int n = 4;
 
   CopyMat((long)n, M, M1);
-
   for (i = 0; i < n; i++)
-    M1[i][i] -= 1.0;   
-  detp = DetMat((long)n, M1); /* det(M-I) */
-
+    M1[i][i] -= 1e0;   
+  detp = DetMat((long)n, M1);
   for (i = 0; i < n; i++)
-    M1[i][i] += 2.0;
-  detm = DetMat((long)n, M1); /* det(M+I) */
-
+    M1[i][i] += 2e0;
+  detm = DetMat((long)n, M1);
   for (i = 0; i < n; i++)
-    M1[i][i] -= 1.0; /* restore M */
+    M1[i][i] -= 1e0;
 
-  b = (detp-detm)/16.0; c = (detp+detm)/8.0 - 1.0;
-  th = (M1[0][0]+M1[1][1])/2.0; tv = (M1[2][2]+M1[3][3])/2.0;
+  for (i = 0; i < 2; i++)
+    tr[i] = (M1[2*i][2*i]+M1[2*i+1][2*i+1]);
+  sgn = (tr[X_] > tr[Y_])? 1e0 : -1e0;
 
-  b2mc = b*b - c;
+  b = (detp-detm)/16e0; c = (detp+detm)/8e0 - 1e0;
+  b2mc = sqr(b) - c;
 
-  if (b2mc < 0.0) {
-    globval.stable = false; nu[0] = -1.0; nu[1] = -1.0;
+  if (b2mc < 0e0) {
+    globval.stable = false; nu[0] = NAN; nu[1] = NAN;
     printf("\nGetNu: unstable\n");
     return;
   }
 
-  sgn = (th > tv)? 1.0 : -1.0;
-
-  x_arg = -b + sgn*sqrt(b2mc);
-  if (fabs(x_arg) <= 1.0) {
-    nu[X_] = acos(x_arg)/(2.0*M_PI);
-    if (M1[0][1] < 0.0) nu[X_] = 1.0 - nu[X_];
-  } else {
-    globval.stable = false; nu[X_] = -1.0;
-    printf("\nGetNu: unstable (horizontal)\n");
-  }
-
-  y_arg = -b - sgn*sqrt(b2mc);
-  if (fabs(y_arg) <= 1.0) {
-    nu[Y_] = acos(y_arg)/(2.0*M_PI);
-    if (M1[2][3] < 0.0) nu[Y_] = 1.0 - nu[Y_];
-  } else {
-    globval.stable = false; nu[Y_] = -1.0;
-    printf("\nGetNu: unstable (vertical)\n");
-    return;
+  for (i = 0; i < 2; i++) {
+    if (i == 0)
+      x = -2e0*(b-sgn*sqrt(b2mc));
+    else
+      x = -2e0*(b+sgn*sqrt(b2mc));
+    if (fabs(x) <= 1e0) {
+      nu[i] = acos(x/2e0)/(2e0*M_PI);
+      if (M1[2*i][2*i+1] < 0e0) nu[i] = 1e0 - nu[i];
+    } else {
+      globval.stable = false; nu[i] = NAN;
+      printf("\nGetNu: unstable plane %d\n", i);
+      return;
+    }
   }
 
   return;
 }
-#undef n
 
 
-/* implementation */
-
-/****************************************************************************/
-/* void Cell_GetABGN(Matrix &M_, Vector2 &alpha, Vector2 &beta, Vector2 &gamma, Vector2 &nu)
-
-   Purpose: called by Ring_Twiss_M and Ring_Twiss
-
-      Get Twiss parameters from the transfer matrix M
-
-                             [Nx   ]
-                         M = [     ]
-                             [   Ny]
-
-      where, in the case of mid-plane symmetry
-
-             [ cos(mu) + alpha sin(mu)        beta sin(mu)      ]
-         N = [                                                  ]
-             [    -gamma sin(mu)        cos(mu) - alpha sin(mu) ]
-
-        cos(mu) =  Trace(N)/2
-        Alpha   =  (N11-N22)/(2*sin(mu))
-        beta    =  N12/sin(mu)
-        gamma   = -N21/sin(mu)
-
-   Input:
-       M oneturn matrix
-
-   Output:
-       alpha, beta, gamma vectors of the Twiss parameters
-       nu tune vector
-
-   Return:
-       none
-
-   Global variables:
-       none
-
-   Specific functions:
-       getnu
-
-   Comments:
-       none
-
-****************************************************************************/
 void Cell_GetABGN(Matrix &M,
 		  Vector2 &alpha, Vector2 &beta, Vector2 &gamma, Vector2 &nu)
 {
-  int     i = 0, j = 0;
-  double  c = 0.0, s = 0.0;
+  int    i;
+  double c = 0e0, s = 0e0;
 
   globval.stable = true;
-  for (i = 0; i <= 1; i++) {
-    j = (i+1)*2 - 1;
-    /* c=cos(mu) = Tr(N)/2 */
-    c = (M[j-1][j-1]+M[j][j])/2.0;
-    globval.stable = (fabs(c) < 1.0);
+  for (i = 0; i < 2; i++) {
+    c = (M[2*i][2*i]+M[2*i+1][2*i+1])/2e0;
+    globval.stable = (fabs(c) < 1e0);
     if (globval.stable) {
-      // s = sin(mu)
-      s = sqrt(1.0-c*c)*sgn(M[j-1][j]);
-      alpha[i] = (M[j-1][j-1]-M[j][j])/(2.0*s); beta[i]  =  M[j-1][j]/s;
-      gamma[i] = -(M[j][j-1]/s);
-//      nu[i] = acos(c)/2/pi;
-      GetNu(nu, M);
+      s = sqrt(1e0-sqr(c))*sgn(M[2*i][2*i+1]);
+      alpha[i] = (M[2*i][2*i]-M[2*i+1][2*i+1])/(2e0*s);
+      beta[i] = M[2*i][2*i+1]/s; gamma[i] = -M[2*i+1][2*i]/s;
     }
   }
+  GetNu(nu, M);
+  if (!globval.stable) printf("Cell_GetABGN: unstable\n");
 }
 
 
-#define n  4
 void Cell_Geteta(long i0, long i1, bool ring, double dP)
 {
   long int  i = 0, lastpos = 0;
@@ -148,6 +128,8 @@ void Cell_Geteta(long i0, long i1, bool ring, double dP)
   psVector    xref;
   psVector    codbuf[Cell_nLocMax+1];
   CellType  *cellp;
+
+  const int n = 4;
 
   /* cod for the energy dP - globval.dPcommon / 2e0 */
   if (ring)
@@ -169,13 +151,6 @@ void Cell_Geteta(long i0, long i1, bool ring, double dP)
     Cell_Pass(i0, i1, xref, lastpos);
   }
 
-  /*       cod(dP-globval.dPcommon/2e0) - cod(dP-globval.dPcommon/2e0)     */
-  /* eta = -----------------------------------------------------------     */
-  /*                              globval.dPcommon                         */
-  /*       cod'(dP-globval.dPcommon/2e0) - cod'(dP-globval.dPcommon/2e0)   */
-  /* eta'= --------------------------------------------------------------- */
-  /*                              globval.dPcommon                         */
-
   for (i = i0; i <= i1; i++) {
     cellp = &Cell[i];
     for (j = 1; j <= 2; j++) {
@@ -186,47 +161,7 @@ void Cell_Geteta(long i0, long i1, bool ring, double dP)
   }
 }
 
-#undef n
 
-/****************************************************************************/
-/* void getprm(Matrix &Ascr, Vector2 &alpha, Vector2 &beta)
-
-   Purpose:
-     Computes Twiss parameters alpha and beta from the matrix Ascr
-       
-       M oneturn matrix    (A and M are symplectic)
-                  
-           ( A11  A12)         -1                 ( cos(mu) sin(mu))
-       A = (         )   M = (A   R  A)  with R = (                )
-           ( A21  A22)      2    2                (-sin(mu) cos(mu))
-                    -1       x + px
-       eps = 2*J o a     J = ------
-                               2
-                 2     2   2                                  2     2    2
-       eps = (A22 + A21 ) x  + 2(-A22*A12-A21*A11) x*px + (A11 + A12 ) px
-                gamma               alpha                     beta
-                                        
-   Input:                               
-       A matrix
-
-   Output:
-       alpha vector
-       beta  vector
-
-   Return:
-       none
-
-   Global variables:
-       none
-
-   Specific functions:
-       none
-
-   Comments:
-       none
-
-****************************************************************************/
-#define n 4
 void getprm(Matrix &Ascr, Vector2 &alpha, Vector2 &beta)
 {
   int  i, j;
@@ -238,52 +173,7 @@ void getprm(Matrix &Ascr, Vector2 &alpha, Vector2 &beta)
   }
 }
 
-/****************************************************************************/
-/* void dagetprm(ss_vect<tps> &Ascr, Vector2 &alpha, Vector2 &beta)
 
-   Purpose: called by Cell_Twiss
-     Compute Twiss parameters alpha and beta from the matrix Ascr
-
-     M oneturn matrix    (A and M are symplectic)
-
-         ( A11  A12 )         -1                 (  cos(mu) sin(mu) )
-     A = (          )   M = (A   R  A)  with R = (                  )
-         ( A21  A22 )                            ( -sin(mu) cos(mu) )
-
-                            2    2
-                  -1       x + px
-     eps = 2*J o a     J = ------
-                             2
-               2     2   2                                  2     2    2
-     eps = (A22 + A21 ) x  + 2(-A22*A12-A21*A11) x*px + (A11 + A12 ) px
-              gamma               alpha                     beta
-
-     A = Asrc
-       
-     alpha(i-1) = -(A(2i-1,2i-1)*A(2i,2i-1) + A(2i-1,2i)*A(2i,2i))
-     beta(i-1)  =   A(2i-1,2i-1)*A(2i-1,2i-1) + A(2i-1,2i)*A(2i-1,2i)
-       
-   Input:
-       Ascr
-
-   Output:
-       alpha alpha function vector
-       beta  beta  function vector
-
-   Return:
-       none
-
-   Global variables:
-       none
-
-   Specific functions:
-       getmat
-
-   Comments:
-       none
-
-****************************************************************************/
-#define n 4
 void dagetprm(ss_vect<tps> &Ascr, Vector2 &alpha, Vector2 &beta)
 {
   int  i = 0, j = 0;
@@ -305,6 +195,8 @@ void Cell_Twiss(long i0, long i1, ss_vect<tps> &Ascr, bool chroma, bool ring,
   Vector2       nu1, dnu;   /* absolute and relative phase advance */
   ss_vect<tps>  Ascr0, Ascr1;
   CellType      *cellp;
+
+  const int n = 4;
 
   /* initialization */
   for (j = 0; j <= 1; j++) {
@@ -352,119 +244,46 @@ void Cell_Twiss(long i0, long i1, ss_vect<tps> &Ascr, bool chroma, bool ring,
   if (chroma && !globval.Cavity_on) Cell_Geteta(i0, i1, ring, dP);
 }
 
-#undef n
 
-
-/****************************************************************************/
-/* void Ring_Getchrom(double dP)
-
-   Purpose: called by Ring_Twiss_M and Ring_Twiss
-       Compute chromaticites of the ring by numerical differentiation
-       and by evaluating each time the closed orbit
-
-               nu(dP+dPlocal)-nu(dP-dPlocal)
-           xi =-----------------------------
-                       2 dPlocal     
-                       
-   Input:
-       dP particle energy offset (should be zero cf comments)
-
-   Output:
-       none
-
-   Return:
-       none
-
-   Global variables:
-       status
-       globval
-       
-   Specific functions:
-       Cell_GetABGN, Cell_GetCOD
-
-   Comments:
-       03/01/03 Stability test from GETcod routines slightly modified
-       WARNING : this routine does not give the chromaticities for dP != 0
-                   but the local slope of the curve xi=f(dP)                   
-       16/10/03 Modified convergence test: now done for both planes
-****************************************************************************/
-#define n               4
 void Ring_Getchrom(double dP)
 {
   long int  lastpos = 0;
   int       j;
   Vector2   alpha = {0.0, 0.0}, beta = {0.0, 0.0}, gamma = {0.0, 0.0};
   Vector2   nu = {0.0, 0.0}, nu0 = {0.0, 0.0};
-
-  if (dP != 0.0)
-    fprintf(stdout,"Ring_Getchrom: Warning this is NOT the CHROMA, dP=%e\n",
-	    dP);
   
-  /* Get cod for energy dP - globval.dPcommon*/
+  if (dP != 0e0)
+    printf("\nRing_Getchrom: linear chromaticity for delta = %e\n", dP);
+  
   GetCOD(globval.CODimax, globval.CODeps, dP-globval.dPcommon*0.5, lastpos);
-  
   if (!status.codflag) {
-    /* if no cod */
-    fprintf(stdout,"Ring_Getchrom:  Lattice is unstable for"
-	    " dP-globval.dPcommon=% .5e\n", dP-globval.dPcommon*0.5);
+    printf("\nRing_Getchrom: closed orbit finder failed\n");
     return;
   }
-  
-  /* get tunes for energy dP - globval.dPcommon/2 from oneturn matrix */
   Cell_GetABGN(globval.OneTurnMat, alpha, beta, gamma, nu0);
+  if (!globval.stable) {
+    printf("\nRing_Getchrom: unstable\n");
+    return;
+  }
   
-  /* Get cod for energy dP+globval.dPcommon*/
   GetCOD(globval.CODimax, globval.CODeps, dP+globval.dPcommon*0.5, lastpos);
-  
-  if (!status.codflag) { /* if no cod */
-    fprintf(stdout,"Ring_Getchrom  Lattice is unstable for"
-	    " dP+globval.dPcommon=% .5e \n", dP+globval.dPcommon*0.5);
+  if (!status.codflag) {
+    printf("\nRing_Getchrom: closed orbit finder failed");
+    return;
+  }
+  Cell_GetABGN(globval.OneTurnMat, alpha, beta, gamma, nu);
+  if (!globval.stable) {
+    printf("\n:Ring_Getchrom: unstable\n");
     return;
   }
 
-  /* get tunes for energy dP+globval.dPcommon/2 from oneturn matrix */
-  Cell_GetABGN(globval.OneTurnMat, alpha, beta, gamma, nu);
-  
-  if (!globval.stable) {
-    printf("Ring_Getchrom:  Lattice is unstable\n");
-  }
-
-  /* Get chromaticities by numerical differentiation*/
-  for (j = 0; j <= 1; j++)
+  for (j = 0; j < 2; j++)
     globval.Chrom[j] = (nu[j]-nu0[j])/globval.dPcommon;
   
   status.chromflag = true;
 }
 
-#undef n
 
-/****************************************************************************/
-/* void Ring_Twiss(bool chroma, double dP)
-
-   Purpose:  called by Ring_GetTwiss
-       Computes twiss parameters for an energy offset dP using da method
-
-   Input:
-       chroma if true computes chromaticities as well
-       dP     energy offset
-
-   Output:
-       none
-
-   Return:
-       none
-
-   Global variables:
-       globval
-       status
-
-   Specific functions:
-       none
-
-   Comments:
-       11/05/03 in Cell_Twiss start from 1
-
-****************************************************************************/
 void Ring_Twiss(bool chroma, double dP)
 {
   long int      lastpos = 0;
@@ -482,7 +301,10 @@ void Ring_Twiss(bool chroma, double dP)
 
   // Check if stable
   Cell_GetABGN(globval.OneTurnMat, alpha, beta, gamma, nu);
-  if (!globval.stable) return;
+  if (!globval.stable) {
+    printf("Ring_Twiss: unstable\n");
+    return;
+  }
   // Get eigenvalues and eigenvectors for the one turn transfer matrix
   GDiag(n, Cell[globval.Cell_nLoc].S, globval.Ascr, globval.Ascrinv, R,
         globval.OneTurnMat, globval.Omega, globval.Alphac);
@@ -504,35 +326,7 @@ void Ring_Twiss(bool chroma, double dP)
   }
 }
 
-/****************************************************************************/
-/* void Ring_GetTwiss(bool chroma, double dP)
 
-   Purpose:
-       Computes Twiss functions w/ or w/o chromaticities
-       for particle of energy offset dP
-       matrix or da method
-
-   Input:
-       Chroma if true compute chromaticities and dispersion
-              if false dispersion is set to zero !!!
-       Dp energy offset
-
-   Output:
-       none
-
-   Return:
-       none
-
-   Global variables:
-       globval, trace
-
-   Specific functions:
-       Ring_Twiss_M, Ring_Twiss
-
-   Comments:
-       none
-
-****************************************************************************/
 void Ring_GetTwiss(bool chroma, double dP)
 {
 
@@ -550,32 +344,6 @@ struct LOC_Ring_Fittune
 };
 
 
-/****************************************************************************/
-/* void shiftk(long Elnum, double dk, struct LOC_Ring_Fittune *LINK)
-
-   Purpose:
-
-
-   Input:
-       none
-
-   Output:
-       none
-
-   Return:
-       none
-
-   Global variables:
-       none
-
-   Specific functions:
-       none
-
-   Comments:
-       none
-
-****************************************************************************/
-#define dP              0.0
 void shiftk(long Elnum, double dk, struct LOC_Ring_Fittune *LINK)
 {
   CellType   *cellp;
@@ -588,73 +356,15 @@ void shiftk(long Elnum, double dk, struct LOC_Ring_Fittune *LINK)
 }
 
 
-/****************************************************************************/
-/* void checkifstable(struct LOC_Ring_Fittune *LINK)
-
-   Purpose:
-
-
-   Input:
-       none
-
-   Output:
-       none
-
-   Return:
-       none
-
-   Global variables:
-       none
-
-   Specific functions:
-       none
-
-   Comments:
-       none
-
-****************************************************************************/
 void checkifstable(struct LOC_Ring_Fittune *LINK)
 {
   if (!globval.stable) {
-    printf("  lattice is unstable\n");
+    printf("\ncheckifstable: unstable\n");
     longjmp(LINK->_JL999, 1);
   }
 }
 
 
-/****************************************************************************/
-/* void Ring_Fittune(Vector2 &nu, double eps, long *nq, long *qf, long *qd,
-                  double dkL, long imax)
-
-   Purpose: called by fittune
-       Fit tunes using two family of quadrupoles
-       Linear method
-
-   Input:
-       nu  target tunes
-       eps precision
-       nq  number of quad of family qf and qd
-       qf  position of qf magnets
-       qd  position of qd magnets
-       dKL variation on strengths
-       imax maximum number of iteration
-
-   Output:
-       none
-
-   Return:
-       none
-
-   Global variables:
-       none
-
-   Specific functions:
-       none
-
-   Comments:
-       17 mars 2004: removed labels
-
-****************************************************************************/
 void Ring_Fittune(Vector2 &nu, double eps, iVector2 &nq, long qf[], long qd[],
                   double dkL, long imax)
 {
@@ -670,7 +380,7 @@ void Ring_Fittune(Vector2 &nu, double eps, iVector2 &nq, long qf[], long qd[],
   if (trace)
     printf("  Tune fit, nux =%10.5f, nuy =%10.5f, eps =% .3E,"
 	   " imax =%4ld, dkL = % .5E\n", nu[0], nu[1], eps, imax, dkL);
-  Ring_GetTwiss(false, dP); checkifstable(&V);
+  Ring_GetTwiss(false, 0e0); checkifstable(&V);
   memcpy(nu0, globval.TotalTune, sizeof(Vector2));
   i = 0;
   do {
@@ -683,9 +393,9 @@ void Ring_Fittune(Vector2 &nu, double eps, iVector2 &nq, long qf[], long qd[],
         else
           shiftk(qd[k], dkL, &V); // new value for qd
       }
-      Ring_GetTwiss(false, dP);
+      Ring_GetTwiss(false, 0e0);
       nu1[0] = globval.TotalTune[0]; nu1[1] = globval.TotalTune[1];
-//      GetCOD(globval.CODimax, globval.CODeps, dP, lastpos);
+//      GetCOD(globval.CODimax, globval.CODeps, 0e0, lastpos);
 //      Cell_GetABGN(globval.OneTurnMat, alpha, beta, gamma, nu1);
       checkifstable(&V);
       for (k = 0; k <= 1; k++) {
@@ -719,7 +429,7 @@ void Ring_Fittune(Vector2 &nu, double eps, iVector2 &nq, long qf[], long qd[],
 	  shiftk(qd[k], dkL1[j-1], &V);
       }
     }
-    Ring_GetTwiss(false, dP); checkifstable(&V);
+    Ring_GetTwiss(false, 0e0); checkifstable(&V);
     memcpy(nu0, globval.TotalTune, sizeof(Vector2));
     if (trace)
       printf("  Nux = %10.6f%10.6f, Nuy = %10.6f%10.6f,"
@@ -729,10 +439,8 @@ void Ring_Fittune(Vector2 &nu, double eps, iVector2 &nq, long qf[], long qd[],
 	     Elem_GetKval(Cell[qd[0]].Fnum, 1, (long)Quad), i);
   } while (sqrt(sqr(nu[0]-nu0[0])+sqr(nu[1]-nu0[1])) >= eps && i != imax);
 }
-#undef dP
 
 
-#define dP  0.0
 void shiftkp(long Elnum, double dkp)
 {
   CellType  *cellp;
@@ -762,7 +470,7 @@ void Ring_Fitchrom(const double ksi[], const double eps, const long ns[],
 
   /* Turn off radiation */
   rad = globval.radiation; globval.radiation = false;
-  GetCOD(globval.CODimax, globval.CODeps, dP, lastpos); Ring_Getchrom(dP);
+  GetCOD(globval.CODimax, globval.CODeps, 0e0, lastpos); Ring_Getchrom(0e0);
   for (j = 0; j <= 1; j++)
     ksi0[j] = globval.Chrom[j];
   i = 0;
@@ -776,7 +484,7 @@ void Ring_Fitchrom(const double ksi[], const double eps, const long ns[],
 	else
 	  shiftkp(sd[k], dkpL);
       }
-      GetCOD(globval.CODimax, globval.CODeps, dP, lastpos); Ring_Getchrom(dP);
+      GetCOD(globval.CODimax, globval.CODeps, 0e0, lastpos); Ring_Getchrom(0e0);
       for (k = 0; k <= 1; k++) {
 	dksi[k] = globval.Chrom[k] - ksi0[k];
 	A[k][j-1] = dksi[k] / dkpL;
@@ -804,23 +512,18 @@ void Ring_Fitchrom(const double ksi[], const double eps, const long ns[],
 	  shiftkp(sd[k], dkpL1[j-1]);
       }
     }
-    GetCOD(globval.CODimax, globval.CODeps, dP, lastpos); Ring_Getchrom(dP);
+    GetCOD(globval.CODimax, globval.CODeps, 0e0, lastpos); Ring_Getchrom(0e0);
     for (j = 0; j <= 1; j++)
       ksi0[j] = globval.Chrom[j];
     if (trace)
       printf("  ksix =%10.6f, ksiy =%10.6f, SF = % .5E, SD = % .5E @%3d\n",
-	     ksi0[0], ksi0[1], Elem_GetKval(Cell[sf[0]].Fnum, 1, (long)Sext),
-	     Elem_GetKval(Cell[sd[0]].Fnum, 1, (long)Sext), i);
+	     ksi0[0], ksi0[1], Elem_GetKval(Cell[sf[0]].Fnum, 1, Sext),
+	     Elem_GetKval(Cell[sd[0]].Fnum, 1, Sext), i);
   } while (sqrt(sqr(ksi[0]-ksi0[0])+sqr(ksi[1]-ksi0[1])) >= eps && i != imax);
 _L999:
   /* Restore radiation */
   globval.radiation = rad;
 }
-
-#undef dP
-
-
-#define dP 0.0
 
 
 /* Local variables for Ring_FitDisp: */
@@ -847,7 +550,7 @@ static void shiftk_(long Elnum, double dk, struct LOC_Ring_FitDisp *LINK)
 void checkifstable_(struct LOC_Ring_FitDisp *LINK)
 {
   if (!globval.stable) {
-    printf("  lattice is unstable\n");
+    printf("\ncheckifstable_: unstable\n");
     longjmp(LINK->_JL999, 1);
   }
 }
@@ -873,14 +576,14 @@ void Ring_FitDisp(long pos, double eta, double eps, long nq, long q[],
 	   eta, eps, imax, dkL);
   /* Turn off radiation */
   rad = globval.radiation; globval.radiation = false;
-  Ring_GetTwiss(true, dP); checkifstable_(&V);
+  Ring_GetTwiss(true, 0e0); checkifstable_(&V);
   Eta0 = Cell[pos].Eta[0];
   i = 0;
   while (fabs(eta-Eta0) > eps && i < imax) {
     i++;
     for (j = 0; j < nq; j++)
       shiftk_(q[j], dkL, &V);
-    Ring_GetTwiss(true, dP); checkifstable_(&V);
+    Ring_GetTwiss(true, 0e0); checkifstable_(&V);
     deta = Cell[pos].Eta[0] - Eta0;
     if (deta == 0.0) {
       printf("  deta is 0\n");
@@ -889,7 +592,7 @@ void Ring_FitDisp(long pos, double eta, double eps, long nq, long q[],
     dkL1 = (eta-Eta0)*dkL/deta - dkL;
     for (j = 0; j < nq; j++)
       shiftk_(q[j], dkL1, &V);
-    Ring_GetTwiss(true, dP); checkifstable_(&V);
+    Ring_GetTwiss(true, 0e0); checkifstable_(&V);
     Eta0 = Cell[pos].Eta[0];
     if (trace)
       printf("  Dispersion = % .5E, kL =% .5E @%3d\n",
@@ -899,6 +602,3 @@ _L999:
   /* Restore radiation */
   globval.radiation = rad;
 }
-#undef dP
-
-/* End. */

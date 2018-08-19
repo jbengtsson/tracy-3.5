@@ -16,7 +16,7 @@ const double ic[][2] =
 
 
 int                 n_iter;
-double              chi2_ref, chi2_prt, chi2, eps_x, beta_b3L_2[2];
+double              chi2_ref, chi2_prt, chi2, eps_x, beta_b3L_2[2], nu[2];
 std::vector<int>    Fnum_b3, locs;
 std::vector<string> drv_terms;
 
@@ -253,10 +253,12 @@ void get_nu(ss_vect<tps> &A, const double delta, double nu[])
   long int     lastpos;
   ss_vect<tps> A_delta;
 
+  const bool prt = false;
+
   A_delta = get_A_CS(2, A, nu); A_delta[delta_] += delta;
   Cell_Pass(0, globval.Cell_nLoc, A_delta, lastpos);
   get_A_CS(2, A_delta, nu);
-  printf("\n[%18.16f, %18.16f]\n", nu[X_], nu[Y_]);
+  if (prt) printf("\n[%18.16f, %18.16f]\n", nu[X_], nu[Y_]);
 }
 
 
@@ -436,6 +438,32 @@ void prt_b3(void)
 }
 
 
+bool get_nu(double nu[])
+{
+  long int     lastpos;
+  int          k;
+  double       cosmu;
+  ss_vect<tps> ps;
+
+  bool prt = false;
+
+  ps.identity();
+  Cell_Pass(0, globval.Cell_nLoc, ps, lastpos);
+  for (k = 0; k < 2; k++) {
+    cosmu = (ps[2*k][2*k]+ps[2*k+1][2*k+1])/2e0;
+    if (cosmu < 1e0) {
+      nu[k] = acos(cosmu)/(2e0*M_PI);
+      if (ps[2*k][2*k+1] < 0e0) nu[k] = 1e0 - nu[k];
+    } else {
+      printf("\nget_nu: unstable in plane %d %7.5f\n", k, cosmu);
+      return false;
+    }
+  }
+  if (prt) printf("\nget_nu: nu = [%7.5f, %7.5f]\n", nu[X_], nu[Y_]);
+  return true;
+}
+
+
 double get_lin_opt(const bool periodic)
 {
   double       eps_x;
@@ -484,29 +512,6 @@ void fit_powell(param_type &b2_prms, const double eps, double (*f)(double *),
   b2_prms.set_prm(b2);
 
   free_dvector(b2, 1, n_b2); free_dmatrix(xi, 1, n_b2, 1, n_b2);
-}
-
-
-bool is_stable()
-{
-  bool         stable[2];
-  long int     lastpos;
-  int          k;
-  double       cosmu, nu[2];
-  ss_vect<tps> ps;
-
-  ps.identity();
-  Cell_Pass(0, globval.Cell_nLoc, ps, lastpos);
-  for (k = 0; k < 2; k++) {
-    cosmu = ps[2*k][2*k];
-    stable[k] = cosmu < 1e0;
-    if (ps[2*k][2*k] < 0e0) cosmu = -cosmu;
-    nu[k] = acos(cosmu)/(2e0*M_PI);
-    if (ps[2*k][2*k+1] < 0e0) nu[k] = 1e0 - nu[k];
-    if (!stable[k]) printf("\nis_stable: unstable in plane %d", k);
-  }
-  // printf("\nnu = [%7.5f, %7.5f]\n", nu[X_], nu[Y_]);
-  return stable[X_] && stable[Y_];
 }
 
 
@@ -653,7 +658,7 @@ double f_achrom(double *b2)
   b2_prms.set_prm(b2);
 
   n_b3 = (int)Fnum_b3.size();
-  if (is_stable()) {
+  if (get_nu(nu)) {
     fit_ksi1(0e0, 0e0, 1e-1);
     eps_x = get_lin_opt(true);
 
@@ -681,7 +686,7 @@ double f_achrom(double *b2)
     }
   } else {
     chi2 = 1e30;
-    printf("\nf_achrom: unstable");
+    printf("\nf_achrom: unstable\n");
   }
 
   return chi2;
@@ -690,16 +695,20 @@ double f_achrom(double *b2)
 
 void prt_emit(double *b2)
 {
-  long int loc;
 
   chi2_prt = chi2;
   printf("\n%3d chi2: %12.5e -> %12.5e\n", n_iter, chi2_ref, chi2_prt);
   chi2_ref = chi2;
 
-  loc = globval.Cell_nLoc;
-
-  printf("Linear Optics:\n %12.5e %12.5e %12.5e\n",
-	 eps_x, Cell[loc].Eta[X_], Cell[loc].Etap[X_]);
+  printf("Linear Optics:\n    %5.3f %6.3f %6.3f  %6.3f %6.3f"
+	 " %12.5e %12.5e %12.5e %12.5e %12.5e %12.5e %12.5e %12.5e\n",
+	 eps_x, Cell[locs[3]].Beta[X_], Cell[locs[3]].Beta[Y_],
+	 nu[X_], nu[Y_],
+	 Cell[locs[0]].Alpha[X_], Cell[locs[0]].Alpha[Y_],
+	 Cell[locs[0]].Etap[X_],
+	 Cell[locs[1]].Alpha[X_], Cell[locs[1]].Alpha[Y_],
+	 Cell[locs[1]].Etap[X_],
+	 Cell[locs[2]].Eta[X_], Cell[locs[2]].Etap[X_]);
   printf("b2s:\n");
   b2_prms.prt_prm(b2);
 
@@ -711,24 +720,33 @@ void prt_emit(double *b2)
 
 double f_emit(double *b2)
 {
-  int loc;
+  bool stable;
 
   const int n_prt = 1;
 
   b2_prms.set_prm(b2);
   eps_x = get_lin_opt(true);
-
-  loc = globval.Cell_nLoc;
+  stable = get_nu(nu);
 
   chi2 = 0e0;
-  
-  chi2 += 1e0*sqr(Cell[loc].Eta[X_]);
-  chi2 += 1e0*sqr(Cell[loc].Etap[X_]);
-  // chi2 += 1e-10*sqr(eps_x);
+  if (stable) {
+    chi2 += 1e0*sqr(Cell[locs[0]].Alpha[X_]);
+    chi2 += 1e0*sqr(Cell[locs[0]].Alpha[Y_]);
+    chi2 += 1e0*sqr(Cell[locs[0]].Etap[X_]);
+    chi2 += 1e0*sqr(Cell[locs[1]].Alpha[X_]);
+    chi2 += 1e0*sqr(Cell[locs[1]].Alpha[Y_]);
+    chi2 += 1e0*sqr(Cell[locs[1]].Etap[X_]);
+    chi2 += 1e0*sqr(Cell[locs[2]].Eta[X_]);
+    chi2 += 1e0*sqr(Cell[locs[2]].Etap[X_]);
+    chi2 += 1e-4*sqr(eps_x);
 
-  if (chi2 < chi2_ref) {
-    n_iter++;
-    if (n_iter % n_prt == 0) prt_emit(b2);
+    if (chi2 < chi2_ref) {
+      n_iter++;
+      if (n_iter % n_prt == 0) prt_emit(b2);
+    }
+  } else {
+    chi2 = 1e30;
+    printf("\nf_emit: unstable\n");
   }
 
   return chi2;
@@ -840,7 +858,7 @@ int main(int argc, char *argv[])
     b2_prms.add_prm("qf1",  2, -20.0, 20.0, 1.0);
     b2_prms.add_prm("qd2",  2, -20.0, 20.0, 1.0);
     b2_prms.add_prm("qf3",  2, -20.0, 20.0, 1.0);
-    b2_prms.add_prm("qf5",  2, -20.0, 20.0, 1.0);
+    b2_prms.add_prm("qf4",  2, -20.0, 20.0, 1.0);
 
     locs.push_back(Elem_GetPos(ElemIndex("sfh"), 1));
     locs.push_back(Elem_GetPos(ElemIndex("b2"), 1));
@@ -900,10 +918,20 @@ int main(int argc, char *argv[])
     fit_powell(b2_prms, 1e-3, f_achrom, prt_achrom);
   }
 
-  if (false) {
-    b2_prms.add_prm("b3",  2, -20.0, 20.0, 1.0);
-    b2_prms.add_prm("qf5", 2, -20.0, 20.0, 1.0);
-    b2_prms.add_prm("q7",  2, -20.0, 20.0, 1.0);
+  if (!false) {
+    b2_prms.add_prm("b1",  -2, -20.0, 20.0, 1.0);
+    b2_prms.add_prm("b1",   2, -20.0, 20.0, 1.0);
+    b2_prms.add_prm("b2",  -2, -20.0, 20.0, 1.0);
+    b2_prms.add_prm("b2",   2, -20.0, 20.0, 1.0);
+    b2_prms.add_prm("qf1",  2, -20.0, 20.0, 1.0);
+    b2_prms.add_prm("qd2",  2, -20.0, 20.0, 1.0);
+    b2_prms.add_prm("qf3",  2, -20.0, 20.0, 1.0);
+    b2_prms.add_prm("qf4",  2, -20.0, 20.0, 1.0);
+
+    locs.push_back(Elem_GetPos(ElemIndex("sfh"), 1));
+    locs.push_back(Elem_GetPos(ElemIndex("b2"), 1));
+    locs.push_back(Elem_GetPos(ElemIndex("b1"), 2));
+    locs.push_back(globval.Cell_nLoc);
 
     b2_prms.bn_tol = 1e-6; b2_prms.step = 1.0;
 

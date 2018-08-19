@@ -2831,7 +2831,7 @@ void fmapfull(long Nbx, long Nbz, long Nbtour, double xmax, double zmax,
  long nturn = Nbtour;
  bool status=true;
  struct tm *newtime;
- char name[14];
+ char name[16];
 
  /* Get time and date */
  time_t aclock;
@@ -2853,11 +2853,11 @@ void fmapfull(long Nbx, long Nbz, long Nbtour, double xmax, double zmax,
  fprintf(outf,"#    x[m]          z[m]          ");
 
  for (k = 0; k < NTERM; k++){
-   sprintf(name,"f%dx           ",k);
+   sprintf(name,"f%2dx           ",k);
    fprintf(outf,"%s",name);
  }
  for (k = 0; k < NTERM; k++){
-   sprintf(name,"f%dz           ",k);
+   sprintf(name,"f%2dz           ",k);
    fprintf(outf,"%s",name);
  }
 
@@ -2866,11 +2866,11 @@ void fmapfull(long Nbx, long Nbz, long Nbtour, double xmax, double zmax,
  }
  else{
    for (k = 0; k < NTERM; k++){
-     sprintf(name,"df%dx          ",k);
+     sprintf(name,"df%2dx          ",k);
      fprintf(outf,"%s",name);
    }
    for (k = 0; k < NTERM; k++){
-     sprintf(name,"df%dz          ",k);
+     sprintf(name,"df%2dz          ",k);
      fprintf(outf,"%s",name);
    }
    fprintf(outf,"\n");

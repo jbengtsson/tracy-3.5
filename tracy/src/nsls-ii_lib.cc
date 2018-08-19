@@ -611,7 +611,7 @@ void prt_lat(const int loc1, const int loc2, const char *fname, const int Fnum,
 	     const bool all)
 {
   long int      i = 0;
-  double        I5;
+  double        I5 = 0e0;
   FILE          *outf;
 
   outf = file_write(fname);
