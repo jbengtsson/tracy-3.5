@@ -25,8 +25,7 @@ double bn_internal(const double bn_bounded,
 		   const double bn_min, const double bn_max);
 double bn_bounded(const double bn_internal,
 		  const double bn_min, const double bn_max);
-double get_bn_s(const int Fnum, const int Knum);
-void set_bn_s(const int Fnum, const double dbn);
+void set_ds(const int Fnum, const double ds, const double l0, const double l1);
 void get_S(void);
 
 
@@ -36,7 +35,7 @@ private:
 public:
   int                 n_prm;
   double              bn_tol, step;
-  std::vector<double> bn_min, bn_max, bn_scl;
+  std::vector<double> bn_min, bn_max, bn_scl, l0, l1;
   std::vector<int>    Fnum, n;
 
   void add_prm(const std::string Fname, const int n,
@@ -60,6 +59,8 @@ void param_type::add_prm(const std::string Fname, const int n,
   this->bn_min.push_back(bn_min);
   this->bn_max.push_back(bn_max);
   this->bn_scl.push_back(bn_scl);
+  this->l0.push_back(0e0);
+  this->l1.push_back(0e0);
   n_prm = Fnum.size();
 }
 
@@ -74,16 +75,20 @@ void param_type::ini_prm(double *bn)
     if (n[i-1] > 0)
       // Multipole.
       get_bn_design_elem(Fnum[i-1], 1, n[i-1], bn[i], an);
-    else if (n[i-1] == -1)
+    else if (n[i-1] == -1) {
+      // Displacement.
+      loc = Elem_GetPos(Fnum[i-1], 1);
+      l0[i-1] = Cell[loc+1].Elem.PL;
+      l1[i-1] = Cell[loc-1].Elem.PL;
+      bn[i] = 0e0;
+    } else if (n[i-1] == -2)
       // Length.
       bn[i] = get_L(Fnum[i-1], 1);
-    else if (n[i-1] == -2) {
+    else if (n[i-1] == -3) {
       // Bend angle; L is fixed.
       loc = Elem_GetPos(Fnum[i-1], 1);
       bn[i] = rad2deg(Cell[loc].Elem.PL*Cell[loc].Elem.M->Pirho);
-    } else if (n[i-1] == -3)
-      // Location.
-      bn[i] = get_bn_s(Fnum[i-1], 1);
+    }
     // Bounded.
     bn[i] = bn_internal(bn[i], bn_min[i-1], bn_max[i-1]);
   }
@@ -101,10 +106,13 @@ void param_type::set_prm(double *bn) const
     if (n[i-1] > 0)
       // Multipole strength.
       set_bn_design_fam(Fnum[i-1], n[i-1], bn_ext, 0e0);
-    else if (n[i-1] == -1) {
+    else if (n[i-1] == -1)
+      // Displacement.
+      set_ds(Fnum[i-1], bn_ext, l0[i-1], l1[i-1]);
+    else if (n[i-1] == -2) {
       // Length.
       set_L(Fnum[i-1], bn_ext); get_S();
-    } else if (n[i-1] == -2) {
+    } else if (n[i-1] == -3) {
       // Bend angle; L is fixed.
       loc = Elem_GetPos(Fnum[i-1], 1);
       i_rho = deg2rad(bn_ext)/Cell[loc].Elem.PL;
@@ -112,16 +120,14 @@ void param_type::set_prm(double *bn) const
 	loc = Elem_GetPos(Fnum[i-1], k);
 	Cell[loc].Elem.M->Pirho = i_rho;
       }
-    } else if (n[i-1] == -3)
-      // Location.
-      set_bn_s(Fnum[i-1], bn_ext);
+    }
   }
 }
 
 
 void param_type::prt_prm(double *bn) const
 {
-  int    i;
+  int    i, loc;
   double bn_ext;
 
   const int n_prt = 8;
@@ -130,6 +136,10 @@ void param_type::prt_prm(double *bn) const
     // Bounded.
     bn_ext = bn_bounded(bn[i], bn_min[i-1], bn_max[i-1]);
     printf(" %9.5f", bn_ext);
+    if (n[i-1] == -1) {
+      loc = Elem_GetPos(Fnum[i-1], 1);
+      printf(" (%7.5f, %7.5f)", Cell[loc+1].Elem.PL, Cell[loc-1].Elem.PL);
+    }
     if (i % n_prt == 0) printf("\n");
   }
   if (n_prm % n_prt != 0) printf("\n");
@@ -150,86 +160,54 @@ double bn_bounded(const double bn_internal,
 }
 
 
-void get_s_loc(const int Fnum, const int Knum, int loc[])
+void set_ds(const int Fnum, const int Knum, const double ds,
+	    const double l0, const double l1)
 {
-  partsName name;
+  int loc;
 
   const bool prt = false;
 
-  // Point to multipole.
-  loc[1] = Elem_GetPos(Fnum, Knum);
-  if (Cell[loc[1]-1].Elem.PName[1] == 'u') {
-    loc[0] = loc[1] - 1;
-    strcpy(name, Cell[loc[1]-1].Elem.PName); name[1] = 'd';
-    loc[2] = Elem_GetPos(ElemIndex(name), Knum);
-  } else if (Cell[loc[1]-1].Elem.PName[1] == 'd') {
-    loc[2] = loc[1] - 1;
-    strcpy(name, Cell[loc[1]-1].Elem.PName); name[1] = 'u';
-    loc[0] = Elem_GetPos(ElemIndex(name), Knum);
-  } else if (Cell[loc[1]+1].Elem.PName[1] == 'd') {
-    loc[2] = loc[1] + 1;
-    strcpy(name, Cell[loc[1]+1].Elem.PName); name[1] = 'u';
-    loc[0] = Elem_GetPos(ElemIndex(name), Knum);
-  } else if (Cell[loc[1]+1].Elem.PName[1] == 'u') {
-    loc[0] = loc[1] + 1;
-    strcpy(name, Cell[loc[1]+1].Elem.PName); name[1] = 'd';
-    loc[2] = Elem_GetPos(ElemIndex(name), Knum);
+  loc = Elem_GetPos(Fnum, Knum);
+
+  if (Knum % 2 == 1) {
+    set_L(Cell[loc+1].Fnum, Knum, l0+ds);
+    set_L(Cell[loc-1].Fnum, Knum, l1-ds);
   } else {
-    printf("\nget_s_loc: configuration error %s (%d)\n",
-	   Cell[loc[1]].Elem.PName, loc[1]);
-    exit(1);
-  }
+    set_L(Cell[loc+1].Fnum, Knum, l1-ds);
+    set_L(Cell[loc-1].Fnum, Knum, l0+ds);
+ }
 
   if (prt)
-    printf("\nget_s_loc: %s %s %s\n",
-	   Cell[loc[0]].Elem.PName, Cell[loc[1]].Elem.PName,
-	   Cell[loc[2]].Elem.PName);
+    printf("\n  %5s %8.5f\n  %5s %8.5f\n  %5s %8.5f\n",
+	   Cell[loc].Elem.PName, ds,
+	   Cell[loc+1].Elem.PName, Cell[loc+1].Elem.PL,
+	   Cell[loc-1].Elem.PName, Cell[loc-1].Elem.PL);
 }
 
 
-double get_bn_s(const int Fnum, const int Knum)
-{
-  int    loc[3];
-  double ds;
-
-  const bool prt = false;
-
-  get_s_loc(Fnum, Knum, loc);
-  ds = Cell[loc[0]].Elem.PL;
-
-  if (prt)
-    printf("\nget_bn_s:  %s %s(%d) %s %10.3e %10.3e\n",
-	   Cell[loc[0]].Elem.PName, Cell[loc[1]].Elem.PName, Knum,
-	   Cell[loc[2]].Elem.PName, Cell[loc[0]].Elem.PL, Cell[loc[2]].Elem.PL);
-
-  return ds;
-}
-
-
-void set_bn_s(const int Fnum, const int Knum, const double ds)
-{
-  int loc[3];
-
-  const bool prt = false;
-
-  get_s_loc(Fnum, Knum, loc);
-  set_L(Cell[loc[0]].Fnum, Knum, ds);
-  set_L(Cell[loc[2]].Fnum, Knum, -ds);
-
-  if (prt)
-    printf("\nset_bn_s:  %s %s(%d) %s %10.3e %10.3e\n",
-	   Cell[loc[0]].Elem.PName, Cell[loc[1]].Elem.PName, Knum,
-	   Cell[loc[2]].Elem.PName, ds, -ds);
-}
-
-
-void set_bn_s(const int Fnum, const double ds)
+void set_ds(const int Fnum, const double ds, const double l0, const double l1)
 {
   int k;
 
   for (k = 1; k <= GetnKid(Fnum); k++)
-    set_bn_s(Fnum, k, ds);
+    set_ds(Fnum, k, ds, l0, l1);
 }
+
+
+struct constr_type {
+private:
+
+public:
+  int                 n_constr;
+  std::vector<int>    Fnum, constr;
+
+  void add_constr(const std::string Fname, const int n,
+		  const double bn_min, const double bn_max,
+		  const double bn_scl);
+  void ini_constr(double *bn);
+  void set_constr(double *bn) const;
+  void prt_constr(double *bn) const;
+};
 
 
 void get_S(void)
@@ -532,7 +510,7 @@ bool is_stable()
 }
 
 
-void prt_match(double *b2)
+void prt_match_1(double *b2)
 {
 
   chi2_prt = chi2;
@@ -557,9 +535,8 @@ void prt_match(double *b2)
 }
 
 
-double f_match(double *b2)
+double f_match_1(double *b2)
 {
-  double eps_x;
 
   const int n_prt = 10;
 
@@ -576,7 +553,51 @@ double f_match(double *b2)
 
   if (chi2 < chi2_ref) {
     n_iter++;
-    if (n_iter % n_prt == 0) prt_match(b2);
+    if (n_iter % n_prt == 0) prt_match_1(b2);
+  }
+
+  return chi2;
+}
+
+
+void prt_match_2(double *b2)
+{
+
+  chi2_prt = chi2;
+  printf("\n%3d chi2: %12.5e -> %12.5e\n", n_iter, chi2_ref, chi2_prt);
+  chi2_ref = chi2;
+
+  printf("Linear Optics:\n    %5.3f %6.3f %6.3f %12.5e %12.5e\n",
+	 eps_x, Cell[locs[0]].Beta[X_], Cell[locs[0]].Beta[Y_],
+	 Cell[locs[0]].Alpha[X_], Cell[locs[0]].Alpha[Y_]);
+  printf("b2s:\n");
+  b2_prms.prt_prm(b2);
+
+  prtmfile("flat_file.fit");
+  prt_lat("linlat1.out", globval.bpm, true);
+  prt_lat("linlat.out", globval.bpm, true, 10);
+
+  prt_b2(b2_prms, b2);
+}
+
+
+double f_match_2(double *b2)
+{
+
+  const int n_prt = 10;
+
+  b2_prms.set_prm(b2);
+  eps_x = get_lin_opt(false);
+
+  chi2 = 0e0;
+  chi2 += 1e0*sqr(Cell[locs[0]].Alpha[X_]);
+  chi2 += 1e0*sqr(Cell[locs[0]].Alpha[Y_]);
+  chi2 += 1e-2*sqr(Cell[locs[0]].Beta[X_]-3e0);
+  chi2 += 1e-2*sqr(Cell[locs[0]].Beta[Y_]-3e0);
+
+  if (chi2 < chi2_ref) {
+    n_iter++;
+    if (n_iter % n_prt == 0) prt_match_2(b2);
   }
 
   return chi2;
@@ -690,8 +711,7 @@ void prt_emit(double *b2)
 
 double f_emit(double *b2)
 {
-  int    loc;
-  double eps_x, chi2;
+  int loc;
 
   const int n_prt = 1;
 
@@ -812,26 +832,41 @@ int main(int argc, char *argv[])
   prt_lat("linlat1.out", globval.bpm, true);
   prt_lat("linlat.out", globval.bpm, true, 10);
 
-  if (!false) {
-    b2_prms.add_prm("dr1", -2, -20.0, 20.0, 1.0);
+  if (false) {
     b2_prms.add_prm("b1",  -2, -20.0, 20.0, 1.0);
     b2_prms.add_prm("b1",   2, -20.0, 20.0, 1.0);
+    b2_prms.add_prm("b2",  -2, -20.0, 20.0, 1.0);
+    b2_prms.add_prm("b2",   2, -20.0, 20.0, 1.0);
     b2_prms.add_prm("qf1",  2, -20.0, 20.0, 1.0);
     b2_prms.add_prm("qd2",  2, -20.0, 20.0, 1.0);
     b2_prms.add_prm("qf3",  2, -20.0, 20.0, 1.0);
     b2_prms.add_prm("qf5",  2, -20.0, 20.0, 1.0);
 
-    // b2_prms.add_prm("qf6",  2, -20.0, 20.0, 1.0);
-    // b2_prms.add_prm("qd7",  2, -20.0, 20.0, 1.0);
-
     locs.push_back(Elem_GetPos(ElemIndex("sfh"), 1));
-    locs.push_back(Elem_GetPos(ElemIndex("b1"), 2));
-    // locs.push_back(Elem_GetPos(ElemIndex("b1"), 4));
+    locs.push_back(Elem_GetPos(ElemIndex("b2"), 1));
     locs.push_back(globval.Cell_nLoc);
 
     b2_prms.bn_tol = 1e-6; b2_prms.step = 1.0;
 
-    fit_powell(b2_prms, 1e-3, f_match, prt_match);
+    fit_powell(b2_prms, 1e-3, f_match_1, prt_match_1);
+
+    eps_x = get_lin_opt(false);
+
+    prt_lat("linlat1.out", globval.bpm, true);
+    prt_lat("linlat.out", globval.bpm, true, 10);
+  }
+
+  if (false) {
+    b2_prms.add_prm("qf6",  2, -20.0, 20.0, 1.0);
+    b2_prms.add_prm("qf6", -1,  -0.05,  0.2, 1.0);
+    b2_prms.add_prm("qd7",  2, -20.0, 20.0, 1.0);
+    b2_prms.add_prm("qd7", -1,  -0.05,  0.2, 1.0);
+
+    locs.push_back(globval.Cell_nLoc);
+
+    b2_prms.bn_tol = 1e-6; b2_prms.step = 1.0;
+
+    fit_powell(b2_prms, 1e-3, f_match_2, prt_match_2);
 
     eps_x = get_lin_opt(false);
 
