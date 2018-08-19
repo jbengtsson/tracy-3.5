@@ -76,13 +76,6 @@ void ttwiss(const Vector2 &alpha, const Vector2 &beta,
 
 void prt_sigma(void);
 
-/* 2 parameter fitting routines */
-void FitTune(long qf, long qd, double nux, double nuy);
-
-void FitChrom(long sf, long sd, double ksix, double ksiy);
-
-void FitDisp(long q, long  pos, double eta);
-
 void inibump(long coh, long cov);
 
 void getfloqs(psVector &x);

@@ -15,7 +15,7 @@ const double ic[][2] =
   {{0.0, 0.0}, {4.97103, 5.52181}, {0.0, 0.0}, {0.0, 0.0}};
 
 
-int                 n_iter;
+int                 n_iter, n_b3;
 double              chi2_ref, chi2_prt, chi2, eps_x, beta_b3L_2[2], nu[2];
 std::vector<int>    Fnum_b3, locs;
 std::vector<string> drv_terms;
@@ -497,10 +497,7 @@ void fit_powell(param_type &b2_prms, const double eps, double (*f)(double *),
   b2 = dvector(1, n_b2); xi = dmatrix(1, n_b2, 1, n_b2);
 
   b2_prms.ini_prm(b2);
-  eps_x = get_lin_opt(true);
-
-  printf("\neps_x = %5.3f nm.rad\n\n", eps_x);
-  f_prt(b2);
+  f(b2);
 
   // Set initial directions (unit vectors).
   for (i = 1; i <= n_b2; i++)
@@ -509,7 +506,13 @@ void fit_powell(param_type &b2_prms, const double eps, double (*f)(double *),
 
   n_iter = 0; chi2_ref = 1e30; chi2_prt = 1e30;
   dpowell(b2, xi, n_b2, 1e-16, &iter, &fret, f);
-  b2_prms.set_prm(b2);
+
+  printf("\n  fret = %12.5e\n", fret);
+  printf("b2s:\n");
+  b2_prms.prt_prm(b2);
+  // b2_prms.set_prm(b2);
+  // eps_x = get_lin_opt(false);
+  // f_prt(b2);
 
   free_dvector(b2, 1, n_b2); free_dmatrix(xi, 1, n_b2, 1, n_b2);
 }
@@ -618,12 +621,16 @@ void prt_achrom(double *b2)
   printf("\n%3d chi2: %12.5e -> %12.5e\n", n_iter, chi2_ref, chi2_prt);
   chi2_ref = chi2;
 
-  printf("  Linear Optics:\n    %5.3f %6.3f %6.3f %8.5f %8.5f %8.5f %8.5f"
-	 " %8.5f %8.5f %8.5f\n",
-	 eps_x, Cell[locs[2]].Beta[X_], Cell[locs[2]].Beta[Y_],
-	 Cell[locs[0]].Eta[X_], Cell[locs[0]].Etap[X_],
+  printf("Linear Optics:\n    %5.3f %6.3f %6.3f  %6.3f %6.3f"
+	 " %12.5e %12.5e %12.5e %12.5e %12.5e %12.5e %12.5e %12.5e"
+	 " %8.5f %8.5f\n",
+	 eps_x, Cell[locs[3]].Beta[X_], Cell[locs[3]].Beta[Y_],
+	 nu[X_], nu[Y_],
+	 Cell[locs[0]].Alpha[X_], Cell[locs[0]].Alpha[Y_],
+	 Cell[locs[0]].Etap[X_],
 	 Cell[locs[1]].Alpha[X_], Cell[locs[1]].Alpha[Y_],
 	 Cell[locs[1]].Etap[X_],
+	 Cell[locs[2]].Eta[X_], Cell[locs[2]].Etap[X_],
 	 sqrt(beta_b3L_2[X_]), sqrt(beta_b3L_2[Y_]));
   printf("  b2s:\n  ");
   b2_prms.prt_prm(b2);
@@ -649,16 +656,17 @@ void prt_achrom(double *b2)
 
 double f_achrom(double *b2)
 {
-  int    n_b3, j, k;
+  bool   stable;
+  int    j, k;
   double b3L, a3L;
 
-  const int    n_prt  = 5;
-  const double eps0_x = 0.120; // [nm.rad].
+  const int    n_prt  = 10;
+  const double eps0_x = 0.150; // [nm.rad].
 
   b2_prms.set_prm(b2);
 
-  n_b3 = (int)Fnum_b3.size();
-  if (get_nu(nu)) {
+  stable = get_nu(nu);
+  if (stable) {
     fit_ksi1(0e0, 0e0, 1e-1);
     eps_x = get_lin_opt(true);
 
@@ -672,22 +680,23 @@ double f_achrom(double *b2)
 
     chi2 = 0e0;
     chi2 += 1e0*sqr(eps_x-eps0_x);
-    chi2 += 1e0*sqr(Cell[locs[0]].Eta[X_]);
+    chi2 += 1e0*sqr(Cell[locs[0]].Alpha[X_]);
+    chi2 += 1e0*sqr(Cell[locs[0]].Alpha[Y_]);
     chi2 += 1e0*sqr(Cell[locs[0]].Etap[X_]);
     chi2 += 1e0*sqr(Cell[locs[1]].Alpha[X_]);
     chi2 += 1e0*sqr(Cell[locs[1]].Alpha[Y_]);
     chi2 += 1e0*sqr(Cell[locs[1]].Etap[X_]);
+    chi2 += 1e0*sqr(Cell[locs[2]].Eta[X_]);
+    chi2 += 1e0*sqr(Cell[locs[2]].Etap[X_]);
     chi2 += 1e-7*beta_b3L_2[X_];
     chi2 += 1e-7*beta_b3L_2[Y_];
- 
+
     if (chi2 < chi2_ref) {
       n_iter++;
       if (n_iter % n_prt == 0) prt_achrom(b2);
     }
-  } else {
+  } else
     chi2 = 1e30;
-    printf("\nf_achrom: unstable\n");
-  }
 
   return chi2;
 }
@@ -703,7 +712,7 @@ void prt_emit(double *b2)
   printf("Linear Optics:\n    %5.3f %6.3f %6.3f  %6.3f %6.3f"
 	 " %12.5e %12.5e %12.5e %12.5e %12.5e %12.5e %12.5e %12.5e\n",
 	 eps_x, Cell[locs[3]].Beta[X_], Cell[locs[3]].Beta[Y_],
-	 nu[X_], nu[Y_],
+	 globval.TotalTune[X_], globval.TotalTune[Y_],
 	 Cell[locs[0]].Alpha[X_], Cell[locs[0]].Alpha[Y_],
 	 Cell[locs[0]].Etap[X_],
 	 Cell[locs[1]].Alpha[X_], Cell[locs[1]].Alpha[Y_],
@@ -715,21 +724,21 @@ void prt_emit(double *b2)
   prtmfile("flat_file.fit");
   prt_lat("linlat1.out", globval.bpm, true);
   prt_lat("linlat.out", globval.bpm, true, 10);
+
+  prt_b2(b2_prms, b2);
 }
 
 
 double f_emit(double *b2)
 {
-  bool stable;
 
   const int n_prt = 1;
 
   b2_prms.set_prm(b2);
   eps_x = get_lin_opt(true);
-  stable = get_nu(nu);
 
   chi2 = 0e0;
-  if (stable) {
+  if (globval.stable) {
     chi2 += 1e0*sqr(Cell[locs[0]].Alpha[X_]);
     chi2 += 1e0*sqr(Cell[locs[0]].Alpha[Y_]);
     chi2 += 1e0*sqr(Cell[locs[0]].Etap[X_]);
@@ -744,10 +753,8 @@ double f_emit(double *b2)
       n_iter++;
       if (n_iter % n_prt == 0) prt_emit(b2);
     }
-  } else {
+  } else
     chi2 = 1e30;
-    printf("\nf_emit: unstable\n");
-  }
 
   return chi2;
 }
@@ -826,6 +833,8 @@ int main(int argc, char *argv[])
 
   reverse_elem = !false;
 
+  trace = false;
+
   if (true)
     Read_Lattice(argv[1]);
   else
@@ -839,7 +848,7 @@ int main(int argc, char *argv[])
 
   // set_map_reversal(ElemIndex("line_inv"));
 
-  if (!true) {
+  if (true) {
     Ring_GetTwiss(true, 0e0); printglob();
   } else
     ttwiss(ic[0], ic[1], ic[2], ic[3], 0e0);
@@ -892,33 +901,32 @@ int main(int argc, char *argv[])
     prt_lat("linlat.out", globval.bpm, true, 10);
   }
 
-  if (false) {
-    b2_prms.add_prm("qf1", 2, -20.0, 20.0, 1.0);
-    b2_prms.add_prm("qd2", 2, -20.0, 20.0, 1.0);
-    b2_prms.add_prm("qf3", 2, -20.0, 20.0, 1.0);
-    // b2_prms.add_prm("qf4", 2, -20.0, 20.0, 1.0);
-    b2_prms.add_prm("qf5", 2, -20.0, 20.0, 1.0);
-    b2_prms.add_prm("qf6", 2, -20.0, 20.0, 1.0);
-    b2_prms.add_prm("qd7", 2, -20.0, 20.0, 1.0);
+  if (!false) {
+    b2_prms.add_prm("b1",  -2, -20.0, 20.0, 1.0);
+    b2_prms.add_prm("b1",   2, -20.0, 20.0, 1.0);
+    b2_prms.add_prm("b2",  -2, -20.0, 20.0, 1.0);
+    b2_prms.add_prm("b2",   2, -20.0, 20.0, 1.0);
+    b2_prms.add_prm("qf1",  2, -20.0, 20.0, 1.0);
+    b2_prms.add_prm("qd2",  2, -20.0, 20.0, 1.0);
+    b2_prms.add_prm("qf3",  2, -20.0, 20.0, 1.0);
+    b2_prms.add_prm("qf4",  2, -20.0, 20.0, 1.0);
+
+    locs.push_back(Elem_GetPos(ElemIndex("sfh"), 1));
+    locs.push_back(Elem_GetPos(ElemIndex("b2"), 1));
+    locs.push_back(Elem_GetPos(ElemIndex("b1"), 2));
+    locs.push_back(globval.Cell_nLoc);
 
     b2_prms.bn_tol = 1e-6; b2_prms.step = 1.0;
 
     Fnum_b3.push_back(ElemIndex("sfh"));
-    // Fnum_b3.push_back(ElemIndex("sd1"));
-    Fnum_b3.push_back(ElemIndex("sd2"));
-
-    locs.clear();
-    // eta_x = eta'_x = 0.
-    locs.push_back(Elem_GetPos(ElemIndex("b1"), 1)-1);
-    // Mirror symmetry.
-    locs.push_back(Elem_GetPos(ElemIndex("b2h"), 1));
-    locs.push_back(globval.Cell_nLoc);
+    Fnum_b3.push_back(ElemIndex("sd"));
+    n_b3 = (int)Fnum_b3.size();
 
     no_sxt();
     fit_powell(b2_prms, 1e-3, f_achrom, prt_achrom);
   }
 
-  if (!false) {
+  if (false) {
     b2_prms.add_prm("b1",  -2, -20.0, 20.0, 1.0);
     b2_prms.add_prm("b1",   2, -20.0, 20.0, 1.0);
     b2_prms.add_prm("b2",  -2, -20.0, 20.0, 1.0);

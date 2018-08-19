@@ -240,11 +240,11 @@ double f_emit(double *b2)
   tr[Y_] = globval.OneTurnMat[y_][y_] + globval.OneTurnMat[py_][py_];
   // printf("trace: %6.3f %6.3f\n", tr[X_], tr[Y_]);
 
-  sf_sd[0] = ElemIndex(sf_sd_name[0].c_str());
-  sf_sd[1] = ElemIndex(sf_sd_name[1].c_str());
-  FitChrom(sf_sd[0], sf_sd[1], 0e0, 0e0);
-  get_bnL_design_elem(sf_sd[0], 1, Sext, b3L[0], a3L);
-  get_bnL_design_elem(sf_sd[1], 1, Sext, b3L[1], a3L);
+  // sf_sd[0] = ElemIndex(sf_sd_name[0].c_str());
+  // sf_sd[1] = ElemIndex(sf_sd_name[1].c_str());
+  // FitChrom(sf_sd[0], sf_sd[1], 0e0, 0e0);
+  // get_bnL_design_elem(sf_sd[0], 1, Sext, b3L[0], a3L);
+  // get_bnL_design_elem(sf_sd[1], 1, Sext, b3L[1], a3L);
 
   chi2 = 0e0;
   chi2 += sqr(scl_eps*(eps1_x-eps_x));

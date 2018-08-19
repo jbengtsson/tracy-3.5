@@ -189,69 +189,6 @@ void TraceABN(long i0, long i1, const Vector2 &alpha, const Vector2 &beta,
 }
 
 
-void FitTune(long qf, long qd, double nux, double nuy)
-{
-  long      i;
-  iVector2  nq = {0,0};
-  Vector2   nu = {0.0, 0.0};
-  fitvect   qfbuf, qdbuf;
-
-  /* Get elements for the first quadrupole family */
-  nq[X_] = GetnKid(qf);
-  for (i = 1; i <= nq[X_]; i++)
-    qfbuf[i-1] = Elem_GetPos(qf, i);
-
-  /* Get elements for the second quadrupole family */
-  nq[Y_] = GetnKid(qd);
-  for (i = 1; i <= nq[Y_]; i++)
-    qdbuf[i - 1] = Elem_GetPos(qd, i);
-
-  nu[X_] = nux; nu[Y_] = nuy;
-
-  /* fit tunes */
-  Ring_Fittune(nu, nueps, nq, qfbuf, qdbuf, nudkL, nuimax);
-}
-
-
-void FitChrom(long sf, long sd, double ksix, double ksiy)
-{
-  long      i;
-  iVector2  ns = {0,0};
-  fitvect   sfbuf, sdbuf;
-  Vector2   ksi ={0.0, 0.0};
-
-  /* Get elements for the first sextupole family */
-  ns[X_] = GetnKid(sf);
-  for (i = 1; i <= ns[X_]; i++)
-    sfbuf[i-1] = Elem_GetPos(sf, i);
-
-  /* Get elements for the second sextupole family */
-  ns[Y_] = GetnKid(sd);
-  for (i = 1; i <= ns[Y_]; i++)
-    sdbuf[i-1] = Elem_GetPos(sd, i);
-
-  ksi[X_] = ksix; ksi[Y_] = ksiy;
-
-  /* Fit chromaticities */
-  /*    Ring_Fitchrom(ksi, ksieps, ns, sfbuf, sdbuf, 1.0, 1);*/
-  Ring_Fitchrom(ksi, ksieps, ns, sfbuf, sdbuf, ksidkpL, ksiimax);
-}
-
-
-void FitDisp(long q, long pos, double eta)
-{
-  long     i, nq;
-  fitvect  qbuf;
-
-  /* Get elements for the quadrupole family */
-  nq = GetnKid(q);
-  for (i = 1; i <= nq; i++)
-    qbuf[i-1] = Elem_GetPos(q, i);
-
-  Ring_FitDisp(pos, eta, dispeps, nq, qbuf, dispdkL, dispimax);
-}
-
-
 #define nfloq           4
 
 void getfloqs(psVector &x)
