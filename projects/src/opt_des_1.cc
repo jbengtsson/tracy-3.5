@@ -15,9 +15,9 @@ const double ic[][2] =
   {{0.0, 0.0}, {4.97103, 5.52181}, {0.0, 0.0}, {0.0, 0.0}};
 
 
-int                 n_iter, n_b3;
-double              chi2_ref, chi2_prt, chi2, eps_x, beta_b3L_2[2], nu[2];
-std::vector<int>    Fnum_b3, locs;
+int                 n_iter, n_b1, n_b3;
+double              chi2_ref, chi2_prt, chi2, eps_x, beta_b3L_2[2], nu[2], phi;
+std::vector<int>    Fnum_b1, Fnum_b3, locs;
 std::vector<string> drv_terms;
 
 
@@ -26,6 +26,7 @@ double bn_internal(const double bn_bounded,
 double bn_bounded(const double bn_internal,
 		  const double bn_min, const double bn_max);
 void set_ds(const int Fnum, const double ds, const double l0, const double l1);
+void set_bend(const int Fnum, const double phi);
 void get_S(void);
 
 
@@ -97,8 +98,8 @@ void param_type::ini_prm(double *bn)
 
 void param_type::set_prm(double *bn) const
 {
-  int    i, k, loc;
-  double bn_ext, i_rho;
+  int    i, k;
+  double bn_ext;
 
   for (i = 1; i <= n_prm; i++) {
     // Bounded.
@@ -112,15 +113,9 @@ void param_type::set_prm(double *bn) const
     else if (n[i-1] == -2) {
       // Length.
       set_L(Fnum[i-1], bn_ext); get_S();
-    } else if (n[i-1] == -3) {
+    } else if (n[i-1] == -3)
       // Bend angle; L is fixed.
-      loc = Elem_GetPos(Fnum[i-1], 1);
-      i_rho = deg2rad(bn_ext)/Cell[loc].Elem.PL;
-      for (k = 1; k <= GetnKid(Fnum[i-1]); k++) {
-	loc = Elem_GetPos(Fnum[i-1], k);
-	Cell[loc].Elem.M->Pirho = i_rho;
-      }
-    }
+      set_bend(Fnum[i-1], bn_ext);
   }
 }
 
@@ -175,7 +170,7 @@ void set_ds(const int Fnum, const int Knum, const double ds,
   } else {
     set_L(Cell[loc+1].Fnum, Knum, l1-ds);
     set_L(Cell[loc-1].Fnum, Knum, l0+ds);
- }
+  }
 
   if (prt)
     printf("\n  %5s %8.5f\n  %5s %8.5f\n  %5s %8.5f\n",
@@ -193,6 +188,21 @@ void set_ds(const int Fnum, const double ds, const double l0, const double l1)
     set_ds(Fnum, k, ds, l0, l1);
 }
 
+
+void set_bend(const int Fnum, const double phi)
+{
+  int    loc, k;
+  double i_rho;
+
+  loc = Elem_GetPos(Fnum, 1);
+  i_rho = deg2rad(phi)/Cell[loc].Elem.PL;
+  for (k = 1; k <= GetnKid(Fnum); k++) {
+    loc = Elem_GetPos(Fnum, k);
+    Cell[loc].Elem.M->Pirho = i_rho;
+    Cell[loc].Elem.M->PTx1 = phi/2e0;
+    Cell[loc].Elem.M->PTx2 = phi/2e0;
+  }
+}
 
 struct constr_type {
 private:
@@ -391,8 +401,9 @@ void prt_b2(const param_type &b2_prms, const double *b2)
     prt_name(outf, Cell[loc].Elem.PName);
     if (b2_prms.n[k] == -2) {
       phi = rad2deg(Cell[loc].Elem.PL*Cell[loc].Elem.M->Pirho);
-      fprintf(outf, " bending, l = %11.8f, t = %11.8f, t1 = %11.8f"
-	      ", t2 = %11.8f,  k = %11.8f, n = nbend, method = 4;\n",
+      fprintf(outf, " bending, l = %11.8f,"
+	      "\n    t = %11.8f, t1 = %11.8f, t2 = %11.8f, k = %11.8f,"
+	      "\n    n = nbend, method = 4;\n",
 	      Cell[loc].Elem.PL, phi, Cell[loc].Elem.M->PTx1,
 	      Cell[loc].Elem.M->PTx2, Cell[loc].Elem.M->PBpar[Quad+HOMmax]);
     } else if (b2_prms.n[k] == -1)
@@ -404,8 +415,9 @@ void prt_b2(const param_type &b2_prms, const double *b2)
 		Cell[loc].Elem.PL, Cell[loc].Elem.M->PBpar[Quad+HOMmax]);
       else if (Cell[loc].Elem.M->n_design == Dip) {
 	phi = rad2deg(Cell[loc].Elem.PL*Cell[loc].Elem.M->Pirho);
-	fprintf(outf, " bending, l = %11.8f, t = %11.8f, t1 = %11.8f"
-		", t2 = %11.8f,  k = %11.8f, n = nbend, method = 4;\n",
+	fprintf(outf, " bending, l = %11.8f,"
+		"\n    t = %11.8f, t1 = %11.8f, t2 = %11.8f, k = %11.8f,"
+		"\n    n = nbend, method = 4;\n",
 		Cell[loc].Elem.PL, phi, Cell[loc].Elem.M->PTx1,
 		Cell[loc].Elem.M->PTx2, Cell[loc].Elem.M->PBpar[Quad+HOMmax]);
       }
@@ -623,6 +635,7 @@ void prt_achrom(double *b2)
 
   printf("Linear Optics:\n"
 	 "   %5.3f"
+	 "\n  %8.5f"
 	 "\n  %6.3f       %6.3f"
 	 "\n  %6.3f       %6.3f"
 	 "\n  %8.5f     %8.5f     %8.5f"
@@ -630,7 +643,7 @@ void prt_achrom(double *b2)
 	 "\n  %8.5f     %8.5f"
 	 "\n  %8.5f     %8.5f"
 	 "\n  %12.5e %12.5e\n",
-	 eps_x, Cell[locs[3]].Beta[X_], Cell[locs[3]].Beta[Y_],
+	 eps_x, phi, Cell[locs[3]].Beta[X_], Cell[locs[3]].Beta[Y_],
 	 nu[X_], nu[Y_],
 	 Cell[locs[0]].Alpha[X_], Cell[locs[0]].Alpha[Y_],
 	 Cell[locs[0]].Etap[X_],
@@ -664,14 +677,29 @@ void prt_achrom(double *b2)
 double f_achrom(double *b2)
 {
   bool   stable;
-  int    j, k;
-  double b3L, a3L;
+  int    j, k, loc;
+  double b3L, a3L, phi1;
 
-  const int    n_prt  = 10;
-  const double eps0_x = 0.150; // [nm.rad].
+  const int    n_prt = 10;
+  const double
+    eps0_x = 0.150, // [nm.rad].
+    phi0   = 7.5;
 
   b2_prms.set_prm(b2);
 
+  // Correct total bend angle.
+  phi = 0e0;
+  for (k = 0; k < n_b1; k++) {
+    loc = Elem_GetPos(Fnum_b1[k], 1);
+    phi +=
+      GetnKid(Fnum_b1[k])*rad2deg(Cell[loc].Elem.PL*Cell[loc].Elem.M->Pirho);
+  }
+  loc = Elem_GetPos(Fnum_b1[n_b1-1], 1);
+  phi1 =
+    rad2deg(Cell[loc].Elem.PL*Cell[loc].Elem.M->Pirho)
+    - (phi-phi0)/GetnKid(Fnum_b1[n_b1-1]);
+  set_bend(Fnum_b1[n_b1-1], phi1);
+ 
   stable = get_nu(nu);
   if (stable) {
     fit_ksi1(0e0, 0e0, 1e-1);
@@ -686,7 +714,7 @@ double f_achrom(double *b2)
     }
 
     chi2 = 0e0;
-    chi2 += 1e-1*sqr(eps_x-eps0_x);
+    chi2 += 1e-2*sqr(eps_x-eps0_x);
 
     chi2 += 1e0*sqr(Cell[locs[0]].Alpha[X_]);
     chi2 += 1e0*sqr(Cell[locs[0]].Alpha[Y_]);
@@ -696,11 +724,11 @@ double f_achrom(double *b2)
     chi2 += 1e0*sqr(Cell[locs[1]].Alpha[Y_]);
     chi2 += 1e0*sqr(Cell[locs[1]].Etap[X_]);
 
-    chi2 += 1e0*sqr(Cell[locs[2]].Eta[X_]);
-    chi2 += 1e0*sqr(Cell[locs[2]].Etap[X_]);
+    chi2 += 1e4*sqr(Cell[locs[2]].Eta[X_]);
+    chi2 += 1e4*sqr(Cell[locs[2]].Etap[X_]);
 
-    chi2 += 1e0*sqr(Cell[locs[3]].Alpha[X_]);
-    chi2 += 1e0*sqr(Cell[locs[3]].Alpha[Y_]);
+    chi2 += 1e1*sqr(Cell[locs[3]].Alpha[X_]);
+    chi2 += 1e1*sqr(Cell[locs[3]].Alpha[Y_]);
 
     chi2 += 1e-8*beta_b3L_2[X_];
     chi2 += 1e-8*beta_b3L_2[Y_];
@@ -849,7 +877,7 @@ int main(int argc, char *argv[])
 
   trace = false;
 
-  if (!true)
+  if (true)
     Read_Lattice(argv[1]);
   else
     rdmfile(argv[1]);
@@ -922,6 +950,7 @@ int main(int argc, char *argv[])
   }
 
   if (!false) {
+    b2_prms.add_prm("b1",  -3, -20.0, 20.0,  1.0);
     b2_prms.add_prm("b1",  -2, -20.0, 20.0,  1.0);
     b2_prms.add_prm("b1",   2, -20.0, 20.0,  1.0);
     b2_prms.add_prm("b2",  -2, -20.0, 20.0,  1.0);
@@ -943,6 +972,10 @@ int main(int argc, char *argv[])
     Fnum_b3.push_back(ElemIndex("sfh"));
     Fnum_b3.push_back(ElemIndex("sd"));
     n_b3 = (int)Fnum_b3.size();
+
+    Fnum_b1.push_back(ElemIndex("b1"));
+    Fnum_b1.push_back(ElemIndex("b2"));
+    n_b1 = (int)Fnum_b1.size();
 
     no_sxt();
     fit_powell(b2_prms, 1e-3, f_achrom, prt_achrom);
