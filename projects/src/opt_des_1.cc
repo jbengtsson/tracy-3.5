@@ -621,9 +621,15 @@ void prt_achrom(double *b2)
   printf("\n%3d chi2: %12.5e -> %12.5e\n", n_iter, chi2_ref, chi2_prt);
   chi2_ref = chi2;
 
-  printf("Linear Optics:\n    %5.3f %6.3f %6.3f  %6.3f %6.3f"
-	 " %12.5e %12.5e %12.5e %12.5e %12.5e %12.5e %12.5e %12.5e"
-	 " %8.5f %8.5f\n",
+  printf("Linear Optics:\n"
+	 "   %5.3f"
+	 "\n  %6.3f       %6.3f"
+	 "\n  %6.3f       %6.3f"
+	 "\n  %8.5f     %8.5f     %8.5f"
+	 "\n  %8.5f     %8.5f     %8.5f"
+	 "\n  %8.5f     %8.5f"
+	 "\n  %8.5f     %8.5f"
+	 "\n  %12.5e %12.5e\n",
 	 eps_x, Cell[locs[3]].Beta[X_], Cell[locs[3]].Beta[Y_],
 	 nu[X_], nu[Y_],
 	 Cell[locs[0]].Alpha[X_], Cell[locs[0]].Alpha[Y_],
@@ -631,6 +637,7 @@ void prt_achrom(double *b2)
 	 Cell[locs[1]].Alpha[X_], Cell[locs[1]].Alpha[Y_],
 	 Cell[locs[1]].Etap[X_],
 	 Cell[locs[2]].Eta[X_], Cell[locs[2]].Etap[X_],
+	 Cell[locs[3]].Alpha[X_], Cell[locs[3]].Alpha[Y_],
 	 sqrt(beta_b3L_2[X_]), sqrt(beta_b3L_2[Y_]));
   printf("  b2s:\n  ");
   b2_prms.prt_prm(b2);
@@ -679,17 +686,24 @@ double f_achrom(double *b2)
     }
 
     chi2 = 0e0;
-    chi2 += 1e0*sqr(eps_x-eps0_x);
+    chi2 += 1e-1*sqr(eps_x-eps0_x);
+
     chi2 += 1e0*sqr(Cell[locs[0]].Alpha[X_]);
     chi2 += 1e0*sqr(Cell[locs[0]].Alpha[Y_]);
     chi2 += 1e0*sqr(Cell[locs[0]].Etap[X_]);
+
     chi2 += 1e0*sqr(Cell[locs[1]].Alpha[X_]);
     chi2 += 1e0*sqr(Cell[locs[1]].Alpha[Y_]);
     chi2 += 1e0*sqr(Cell[locs[1]].Etap[X_]);
+
     chi2 += 1e0*sqr(Cell[locs[2]].Eta[X_]);
     chi2 += 1e0*sqr(Cell[locs[2]].Etap[X_]);
-    chi2 += 1e-7*beta_b3L_2[X_];
-    chi2 += 1e-7*beta_b3L_2[Y_];
+
+    chi2 += 1e0*sqr(Cell[locs[3]].Alpha[X_]);
+    chi2 += 1e0*sqr(Cell[locs[3]].Alpha[Y_]);
+
+    chi2 += 1e-8*beta_b3L_2[X_];
+    chi2 += 1e-8*beta_b3L_2[Y_];
 
     if (chi2 < chi2_ref) {
       n_iter++;
@@ -829,13 +843,13 @@ double f_ksi1(double *b2)
 
 int main(int argc, char *argv[])
 {
-  double eps_x;
+  double eps_x, dnu[2];
 
   reverse_elem = !false;
 
   trace = false;
 
-  if (true)
+  if (!true)
     Read_Lattice(argv[1]);
   else
     rdmfile(argv[1]);
@@ -847,6 +861,12 @@ int main(int argc, char *argv[])
   globval.dip_edge_fudge = true;
 
   // set_map_reversal(ElemIndex("line_inv"));
+
+  if (!false) {
+    Ring_GetTwiss(true, 0e0); printglob();
+    dnu[X_] = 0.1; dnu[Y_] = 0.0;
+    set_map(ElemIndex("ps_rot"), dnu);
+  }
 
   if (true) {
     Ring_GetTwiss(true, 0e0); printglob();
@@ -902,14 +922,16 @@ int main(int argc, char *argv[])
   }
 
   if (!false) {
-    b2_prms.add_prm("b1",  -2, -20.0, 20.0, 1.0);
-    b2_prms.add_prm("b1",   2, -20.0, 20.0, 1.0);
-    b2_prms.add_prm("b2",  -2, -20.0, 20.0, 1.0);
-    b2_prms.add_prm("b2",   2, -20.0, 20.0, 1.0);
-    b2_prms.add_prm("qf1",  2, -20.0, 20.0, 1.0);
-    b2_prms.add_prm("qd2",  2, -20.0, 20.0, 1.0);
-    b2_prms.add_prm("qf3",  2, -20.0, 20.0, 1.0);
-    b2_prms.add_prm("qf4",  2, -20.0, 20.0, 1.0);
+    b2_prms.add_prm("b1",  -2, -20.0, 20.0,  1.0);
+    b2_prms.add_prm("b1",   2, -20.0, 20.0,  1.0);
+    b2_prms.add_prm("b2",  -2, -20.0, 20.0,  1.0);
+    b2_prms.add_prm("b2",   2, -20.0, 20.0,  1.0);
+    b2_prms.add_prm("qf1",  2, -20.0, 20.0,  1.0);
+    b2_prms.add_prm("qd2",  2, -20.0, 20.0,  1.0);
+    b2_prms.add_prm("qf3",  2, -20.0, 20.0,  1.0);
+    b2_prms.add_prm("qf3", -1,  -0.2,  0.01, 1.0);
+    b2_prms.add_prm("qf4",  2, -20.0, 20.0,  1.0);
+    b2_prms.add_prm("qf4", -1,  -0.2,  0.01, 1.0);
 
     locs.push_back(Elem_GetPos(ElemIndex("sfh"), 1));
     locs.push_back(Elem_GetPos(ElemIndex("b2"), 1));
