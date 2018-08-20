@@ -802,7 +802,7 @@ int main(int argc, char *argv[])
   // globval.bpm = ElemIndex("bpm");
   prt_lat("linlat1.out", globval.bpm, true);
   prt_lat("linlat.out", globval.bpm, true, 10);
-  // prt_chrom_lat();
+  prt_chrom_lat();
 
   if (false) {
     chk_high_ord_achr();
@@ -947,7 +947,7 @@ int main(int argc, char *argv[])
 
   if (true)  GetEmittance(ElemIndex("cav"), true);
 
-  exit(0);
+  if (!true) exit(0);
 
   if (false) {
     // b2_fam[0] = ElemIndex(q_fam[0].c_str());
