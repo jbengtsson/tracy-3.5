@@ -447,15 +447,15 @@ void prt_b2(const param_type &b2_prms, const double *b2)
 
   for (k = 0; k < b2_prms.n_prm; k++) {
     loc = Elem_GetPos(b2_prms.Fnum[k], 1);
-    prt_name(outf, Cell[loc].Elem.PName, 0);
+    prt_name(outf, Cell[loc].Elem.PName, -1);
     if (b2_prms.n[k] != -1)
       prt_elem(outf, Cell[loc]);
     else {
       fprintf(outf, "\n  ");
-      prt_name(outf, Cell[loc+1].Elem.PName, 0);
+      prt_name(outf, Cell[loc+1].Elem.PName, -1);
       prt_drift(outf, Cell[loc+1]);
       fprintf(outf, "  ");
-      prt_name(outf, Cell[loc-1].Elem.PName, 0);
+      prt_name(outf, Cell[loc-1].Elem.PName, -1);
       prt_drift(outf, Cell[loc-1]);
     }
   }
@@ -716,7 +716,7 @@ double f_achrom(double *b2)
   int    j, k, loc;
   double b3L, a3L, phi1;
 
-  const int    n_prt = 1;
+  const int    n_prt = 10;
   const double
     eps0_x = 0.190, // [nm.rad].
     phi0   = 7.5;
@@ -916,7 +916,7 @@ int main(int argc, char *argv[])
 
   trace = false;
 
-  if (true)
+  if (!true)
     Read_Lattice(argv[1]);
   else
     rdmfile(argv[1]);
