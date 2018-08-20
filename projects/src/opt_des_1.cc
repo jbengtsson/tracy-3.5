@@ -16,7 +16,8 @@ const double ic[][2] =
 
 
 int                 n_iter, n_b1, n_b3;
-double              chi2_ref, chi2_prt, chi2, eps_x, beta_b3L_2[2], nu[2], phi;
+double              chi2_ref, chi2_prt, chi2, eps_x, beta_b3L_2[2], nu[2];
+double              phi, L;
 std::vector<int>    Fnum_b1, Fnum_b3, locs;
 std::vector<string> drv_terms;
 
@@ -127,6 +128,7 @@ void param_type::prt_prm(double *bn) const
 
   const int n_prt = 8;
 
+  printf("  ");
   for (i = 1; i <= n_prm; i++) {
     // Bounded.
     bn_ext = bn_bounded(bn[i], bn_min[i-1], bn_max[i-1]);
@@ -135,7 +137,7 @@ void param_type::prt_prm(double *bn) const
       loc = Elem_GetPos(Fnum[i-1], 1);
       printf(" (%7.5f, %7.5f)", Cell[loc+1].Elem.PL, Cell[loc-1].Elem.PL);
     }
-    if (i % n_prt == 0) printf("\n");
+    if (i % n_prt == 0) printf("\n  ");
   }
   if (n_prm % n_prt != 0) printf("\n");
 }
@@ -636,6 +638,7 @@ void prt_achrom(double *b2)
   printf("Linear Optics:\n"
 	 "   %5.3f"
 	 "\n  %8.5f"
+	 "\n  %8.5f"
 	 "\n  %6.3f       %6.3f"
 	 "\n  %6.3f       %6.3f"
 	 "\n  %8.5f     %8.5f     %8.5f"
@@ -643,7 +646,7 @@ void prt_achrom(double *b2)
 	 "\n  %8.5f     %8.5f"
 	 "\n  %8.5f     %8.5f"
 	 "\n  %12.5e %12.5e\n",
-	 eps_x, phi, Cell[locs[3]].Beta[X_], Cell[locs[3]].Beta[Y_],
+	 eps_x, L, phi, Cell[locs[3]].Beta[X_], Cell[locs[3]].Beta[Y_],
 	 nu[X_], nu[Y_],
 	 Cell[locs[0]].Alpha[X_], Cell[locs[0]].Alpha[Y_],
 	 Cell[locs[0]].Etap[X_],
@@ -652,16 +655,16 @@ void prt_achrom(double *b2)
 	 Cell[locs[2]].Eta[X_], Cell[locs[2]].Etap[X_],
 	 Cell[locs[3]].Alpha[X_], Cell[locs[3]].Alpha[Y_],
 	 sqrt(beta_b3L_2[X_]), sqrt(beta_b3L_2[Y_]));
-  printf("  b2s:\n  ");
+  printf("  b2s:\n");
   b2_prms.prt_prm(b2);
-  printf("  b3s:\n   ");
+  printf("  b3s:\n");
   for (k = 0; k < (int)Fnum_b3.size(); k++) {
     get_bn_design_elem(Fnum_b3[k], 1, Sext, b3L, a3L);
     if (k == 0)
       // Half sextupole.
-      printf(" %9.5f", 2e0*b3L);
+      printf("   %9.5f", 2e0*b3L);
     else
-      printf(" %9.5f", b3L);
+      printf("   %9.5f", b3L);
   }
   printf("\n");
 
@@ -713,8 +716,13 @@ double f_achrom(double *b2)
 	beta_b3L_2[j] += sqr(b3L*Cell[Elem_GetPos(Fnum_b3[k], 1)].Beta[j]);
     }
 
+    L = get_L(ElemIndex("d25"), 1);
+
     chi2 = 0e0;
-    chi2 += 1e-2*sqr(eps_x-eps0_x);
+
+    chi2 += 1e-1*(L-0.4);
+	      
+    chi2 += 1e-1*sqr(eps_x-eps0_x);
 
     chi2 += 1e0*sqr(Cell[locs[0]].Alpha[X_]);
     chi2 += 1e0*sqr(Cell[locs[0]].Alpha[Y_]);
@@ -877,7 +885,7 @@ int main(int argc, char *argv[])
 
   trace = false;
 
-  if (true)
+  if (!true)
     Read_Lattice(argv[1]);
   else
     rdmfile(argv[1]);
@@ -892,7 +900,7 @@ int main(int argc, char *argv[])
 
   if (!false) {
     Ring_GetTwiss(true, 0e0); printglob();
-    dnu[X_] = 0.1; dnu[Y_] = 0.0;
+    dnu[X_] = 0.1; dnu[Y_] = 0.2;
     set_map(ElemIndex("ps_rot"), dnu);
   }
 
@@ -950,17 +958,18 @@ int main(int argc, char *argv[])
   }
 
   if (!false) {
+    b2_prms.add_prm("qf1",  2, -20.0, 20.0,  1.0);
+    b2_prms.add_prm("qd2",  2, -20.0, 20.0,  1.0);
+    b2_prms.add_prm("d25", -2,   0.2,  0.5,  1.0);
+    b2_prms.add_prm("qf3",  2, -20.0, 20.0,  1.0);
+    // b2_prms.add_prm("qf3", -1,  -0.2,  0.01, 1.0);
     b2_prms.add_prm("b1",  -3, -20.0, 20.0,  1.0);
     b2_prms.add_prm("b1",  -2, -20.0, 20.0,  1.0);
     b2_prms.add_prm("b1",   2, -20.0, 20.0,  1.0);
     b2_prms.add_prm("b2",  -2, -20.0, 20.0,  1.0);
     b2_prms.add_prm("b2",   2, -20.0, 20.0,  1.0);
-    b2_prms.add_prm("qf1",  2, -20.0, 20.0,  1.0);
-    b2_prms.add_prm("qd2",  2, -20.0, 20.0,  1.0);
-    b2_prms.add_prm("qf3",  2, -20.0, 20.0,  1.0);
-    b2_prms.add_prm("qf3", -1,  -0.2,  0.01, 1.0);
     b2_prms.add_prm("qf4",  2, -20.0, 20.0,  1.0);
-    b2_prms.add_prm("qf4", -1,  -0.2,  0.01, 1.0);
+    // b2_prms.add_prm("qf4", -1,  -0.2,  0.01, 1.0);
 
     locs.push_back(Elem_GetPos(ElemIndex("sfh"), 1));
     locs.push_back(Elem_GetPos(ElemIndex("b2"), 1));
