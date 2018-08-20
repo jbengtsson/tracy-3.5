@@ -55,7 +55,7 @@ private:
 public:
   int                 n_loc;
   std::vector<double> value;
-  std::vector<int>    Fnum, loc, type;
+  std::vector<int>    Fnum, Fnum_b3, loc, type;
 
   void add_constr(const int loc, const int type,
 		  const double v1, const double v2, const double v3,
@@ -113,6 +113,17 @@ void param_type::ini_prm(double *bn)
       get_bn_design_elem(Fnum[i-1], 1, n[i-1], bn[i], an);
     else if (n[i-1] == -1) {
       // Displacement.
+      loc = Elem_GetPos(Fnum[i-1], 1);
+      if (Cell[loc+1].Elem.Pkind != drift) {
+	printf("\nini_prm: upstream element of %s not a drift %s\n",
+	       Cell[loc].Elem.PName, Cell[loc+1].Elem.PName);
+	exit(1);
+      }
+      if (Cell[loc-1].Elem.Pkind != drift) {
+	printf("\nini_prm: downstream element of %s not a drift %s\n",
+	       Cell[loc].Elem.PName, Cell[loc-1].Elem.PName);
+	exit(1);
+      }
       bn[i] = 0e0;
     } else if (n[i-1] == -2)
       // Length.
@@ -248,22 +259,25 @@ void constr_type::add_constr(const int loc, const int type,
 			     const double v4, const double v5, const double v6)
 {
   // Binary value: alpha_x, alpha_x, beta_x, beta_y, eta_x, eta'_x.
+  int k;
+
+  const int    n = 6;
+  const double value[] = {v1, v2, v3, v4, v5, v6};
 
   this->loc.push_back(loc);
-  this->type.push_back(loc);
-  this->value.push_back(loc);
+  this->type.push_back(type);
+  for (k = 0; k < n; k++)
+    this->value.push_back(value[k]);
 }
 
 
 void get_S(void)
 {
-  int    j;
-  double S;
+  int j;
 
-  S = 0e0;
-  for (j = 0; j <= globval.Cell_nLoc; j++) {
-    S += Cell[j].Elem.PL; Cell[j].S = S;
-  }
+  Cell[0].S = 0e0;
+  for (j = 1; j <= globval.Cell_nLoc; j++)
+    Cell[j].S = Cell[j-1].S + Cell[j].Elem.PL;
 }
 
 
@@ -916,7 +930,7 @@ int main(int argc, char *argv[])
 
   trace = false;
 
-  if (!true)
+  if (true)
     Read_Lattice(argv[1]);
   else
     rdmfile(argv[1]);
@@ -1001,7 +1015,6 @@ int main(int argc, char *argv[])
     b2_prms.add_prm("b1",   2, -20.0,  20.0,  1.0);
 
     b2_prms.add_prm("b2",  -2,   0.1,   0.5,  1.0);
-    b2_prms.add_prm("b2",  -1,  -0.2,   0.2,  1.0);
     b2_prms.add_prm("b2",   2, -20.0,  20.0,  1.0);
 
     b2_prms.add_prm("qf4",  2, -20.0,  20.0,  1.0);
