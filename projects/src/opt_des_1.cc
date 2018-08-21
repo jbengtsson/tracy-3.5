@@ -54,10 +54,10 @@ private:
 
 public:
   int                 n_loc;
-  std::vector<double> value;
+  std::vector<double> value, scl;
   std::vector<int>    Fnum, Fnum_b3, loc, type;
 
-  void add_constr(const int loc, const int type,
+  void add_constr(const int loc, const int type, const double scl,
 		  const double v1, const double v2, const double v3,
 		  const double v4, const double v5, const double v6);
   void ini_constr(double *bn);
@@ -181,10 +181,10 @@ void param_type::prt_prm(double *bn) const
 	   labels[n[i-1]+3].c_str(), bn_ext, bn_min[i-1], bn_max[i-1]);
     if (n[i-1] == -1) {
       printf(" ");
-      prt_name(stdout, Cell[loc+1].Elem.PName, -1);
-      printf(" %7.5f, ", Cell[loc+1].Elem.PL);
       prt_name(stdout, Cell[loc-1].Elem.PName, -1);
-      printf(" %7.5f", Cell[loc-1].Elem.PL);
+      printf(" %7.5f, ", Cell[loc-1].Elem.PL);
+      prt_name(stdout, Cell[loc+1].Elem.PName, -1);
+      printf(" %7.5f", Cell[loc+1].Elem.PL);
     }
     printf("\n");
   }
@@ -254,18 +254,19 @@ void set_bend(const int Fnum, const double phi)
 }
 
 
-void constr_type::add_constr(const int loc, const int type,
+void constr_type::add_constr(const int loc, const int type, const double scl,
 			     const double v1, const double v2, const double v3,
 			     const double v4, const double v5, const double v6)
 {
   // Binary value: alpha_x, alpha_x, beta_x, beta_y, eta_x, eta'_x.
   int k;
 
-  const int    n = 6;
+  const int    n       = 6;
   const double value[] = {v1, v2, v3, v4, v5, v6};
 
   this->loc.push_back(loc);
   this->type.push_back(type);
+  this->scl.push_back(scl);
   for (k = 0; k < n; k++)
     this->value.push_back(value[k]);
 }
@@ -766,25 +767,25 @@ double f_achrom(double *b2)
 
     chi2 = 0e0;
 
-    chi2 += 1e1*sqr(eps_x-eps0_x);
+    chi2 += 1e2*sqr(eps_x-eps0_x);
 
     chi2 += 1e0*sqr(Cell[locs[0]].Alpha[X_]);
     chi2 += 1e0*sqr(Cell[locs[0]].Alpha[Y_]);
-    chi2 += 1e2*sqr(Cell[locs[0]].Eta[X_]-0.04);
+    chi2 += 1e0*sqr(Cell[locs[0]].Eta[X_]-0.05);
     chi2 += 1e0*sqr(Cell[locs[0]].Etap[X_]);
 
     chi2 += 1e0*sqr(Cell[locs[1]].Alpha[X_]);
     chi2 += 1e0*sqr(Cell[locs[1]].Alpha[Y_]);
-    chi2 += 1e2*sqr(Cell[locs[1]].Etap[X_]);
+    chi2 += 1e4*sqr(Cell[locs[1]].Etap[X_]);
 
-    chi2 += 1e3*sqr(Cell[locs[2]].Eta[X_]);
-    chi2 += 1e3*sqr(Cell[locs[2]].Etap[X_]);
+    chi2 += 1e4*sqr(Cell[locs[2]].Eta[X_]);
+    chi2 += 1e4*sqr(Cell[locs[2]].Etap[X_]);
 
     chi2 += 1e1*sqr(Cell[locs[3]].Alpha[X_]);
     chi2 += 1e1*sqr(Cell[locs[3]].Alpha[Y_]);
 
-    chi2 += 1e-8*beta_b3L_2[X_];
-    chi2 += 1e-8*beta_b3L_2[Y_];
+    chi2 += 1e-7*beta_b3L_2[X_];
+    chi2 += 1e-7*beta_b3L_2[Y_];
 
     if (chi2 < chi2_ref) {
       n_iter++;
@@ -930,7 +931,7 @@ int main(int argc, char *argv[])
 
   trace = false;
 
-  if (true)
+  if (!true)
     Read_Lattice(argv[1]);
   else
     rdmfile(argv[1]);
@@ -943,9 +944,9 @@ int main(int argc, char *argv[])
 
   // set_map_reversal(ElemIndex("line_inv"));
 
-  if (false) {
+  if (!false) {
     Ring_GetTwiss(true, 0e0); printglob();
-    dnu[X_] = 0.1; dnu[Y_] = 0.0;
+    dnu[X_] = 0.2; dnu[Y_] = 0.1;
     set_map(ElemIndex("ps_rot"), dnu);
   }
 
@@ -1007,6 +1008,7 @@ int main(int argc, char *argv[])
 
     b2_prms.add_prm("qf1",  2, -20.0,  20.0,  1.0);
     b2_prms.add_prm("qd2",  2, -20.0,  20.0,  1.0);
+    b2_prms.add_prm("d_3", -2,   0.2,   0.45, 1.0);
     b2_prms.add_prm("qf3",  2, -20.0,  20.0,  1.0);
 
     b2_prms.add_prm("b1",  -3, -20.0,  20.0,  1.0);
@@ -1022,16 +1024,16 @@ int main(int argc, char *argv[])
 
     // Binary value: alpha_x, alpha_y, beta_x, beta_y, eta_x, eta'_x.
     achr_constr.add_constr(Elem_GetPos(ElemIndex("sfh"), 1),
-			   0b110001,
+			   0b110001, 1e0,
 			   0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
     achr_constr.add_constr(Elem_GetPos(ElemIndex("b2"), 1),
-			   0b110001,
+			   0b110001, 1e0,
 			   0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
     achr_constr.add_constr(Elem_GetPos(ElemIndex("b1"), 2),
-			   0b000011,
+			   0b000011, 1e0,
 			   0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
     achr_constr.add_constr(globval.Cell_nLoc,
-			   0b000000,
+			   0b000000, 1e0,
 			   0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 
     locs.push_back(Elem_GetPos(ElemIndex("sfh"), 1));
