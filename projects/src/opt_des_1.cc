@@ -53,15 +53,16 @@ struct constr_type {
 private:
 
 public:
-  int                 n_loc;
-  std::vector<double> value, scl;
-  std::vector<int>    Fnum, Fnum_b3, loc, type;
+  int                                n_loc;
+  std::vector< std::vector<double> > value, scl;
+  std::vector<int>                   Fnum, Fnum_b3, loc, type;
 
-  void add_constr(const int loc, const int type, const double scl,
+  void add_constr(const int loc,
+		  const double scl1, const double scl2, const double scl3,
+		  const double scl4, const double scl5, const double scl6,
 		  const double v1, const double v2, const double v3,
 		  const double v4, const double v5, const double v6);
-  void ini_constr(double *bn);
-  void set_constr(double *bn) const;
+  double get_chi2(void);
   void prt_constr(double *bn) const;
 };
 
@@ -125,6 +126,8 @@ void param_type::ini_prm(double *bn)
 	exit(1);
       }
       bn[i] = 0e0;
+      bn_min[i-1] = -(Cell[loc-1].Elem.PL-bn_min[i-1]);
+      bn_max[i-1] = Cell[loc+1].Elem.PL - bn_max[i-1];
     } else if (n[i-1] == -2)
       // Length.
       bn[i] = get_L(Fnum[i-1], 1);
@@ -214,11 +217,11 @@ void set_ds(const int Fnum, const int Knum, const double ds)
   loc = Elem_GetPos(Fnum, Knum);
 
   if (Knum % 2 == 1) {
-    set_dL(Cell[loc+1].Fnum, Knum, ds);
-    set_dL(Cell[loc-1].Fnum, Knum, -ds);
-  } else {
     set_dL(Cell[loc+1].Fnum, Knum, -ds);
     set_dL(Cell[loc-1].Fnum, Knum, ds);
+  } else {
+    set_dL(Cell[loc+1].Fnum, Knum, ds);
+    set_dL(Cell[loc-1].Fnum, Knum, -ds);
   }
 
   if (prt)
@@ -254,31 +257,51 @@ void set_bend(const int Fnum, const double phi)
 }
 
 
-void constr_type::add_constr(const int loc, const int type, const double scl,
+void constr_type::add_constr(const int loc,
+			     const double scl1, const double scl2,
+			     const double scl3, const double scl4,
+			     const double scl5, const double scl6,
 			     const double v1, const double v2, const double v3,
 			     const double v4, const double v5, const double v6)
 {
   // Binary value: alpha_x, alpha_x, beta_x, beta_y, eta_x, eta'_x.
-  int k;
-
-  const int    n       = 6;
-  const double value[] = {v1, v2, v3, v4, v5, v6};
+  const int                 n     = 6;
+  const double              scl[] = {scl1, scl2, scl3, scl4, scl5, scl6};
+  const double              val[] = {v1,   v2,   v3,   v4,   v5,   v6};
+  const std::vector<double> vec1(scl, scl+n);
+  const std::vector<double> vec2(val, val+n);
 
   this->loc.push_back(loc);
-  this->type.push_back(type);
-  this->scl.push_back(scl);
-  for (k = 0; k < n; k++)
-    this->value.push_back(value[k]);
+  this->scl.push_back(vec1);
+  this->value.push_back(vec2);
+}
+
+
+double constr_type::get_chi2(void)
+{
+  int    j, k;
+  double chi2;
+
+  chi2 = 0e0;
+  for (k = 0; k < (int)loc.size(); k++) {
+    chi2 += scl[k][0]*sqr(Cell[loc[k]].Alpha[X_]-value[k][0]);
+    chi2 += scl[k][1]*sqr(Cell[loc[k]].Alpha[Y_]-value[k][1]);
+    chi2 += scl[k][2]*sqr(Cell[loc[k]].Beta[X_]-value[k][2]);
+    chi2 += scl[k][3]*sqr(Cell[loc[k]].Beta[Y_]-value[k][3]);
+    chi2 += scl[k][4]*sqr(Cell[loc[k]].Eta[X_]-value[k][4]);
+    chi2 += scl[k][5]*sqr(Cell[loc[k]].Etap[X_]-value[k][5]);
+  }
+  return chi2;
 }
 
 
 void get_S(void)
 {
-  int j;
+  int k;
 
   Cell[0].S = 0e0;
-  for (j = 1; j <= globval.Cell_nLoc; j++)
-    Cell[j].S = Cell[j-1].S + Cell[j].Elem.PL;
+  for (k = 1; k <= globval.Cell_nLoc; k++)
+    Cell[k].S = Cell[k-1].S + Cell[k].Elem.PL;
 }
 
 
@@ -581,100 +604,6 @@ void fit_powell(param_type &b2_prms, const double eps, double (*f)(double *),
 }
 
 
-void prt_match_1(double *b2)
-{
-
-  chi2_prt = chi2;
-  printf("\n%3d chi2: %12.5e -> %12.5e\n", n_iter, chi2_ref, chi2_prt);
-  chi2_ref = chi2;
-
-  printf("Linear Optics:\n    %5.3f %6.3f %6.3f %12.5e %12.5e %12.5e"
-	 " %12.5e %12.5e %12.5e\n",
-	 eps_x, Cell[locs[1]].Beta[X_], Cell[locs[1]].Beta[Y_],
-	 Cell[locs[0]].Alpha[X_], Cell[locs[0]].Alpha[Y_],
-	 Cell[locs[0]].Etap[X_],
-	 Cell[locs[1]].Alpha[X_], Cell[locs[1]].Alpha[Y_],
-	 Cell[locs[1]].Etap[X_]);
-  printf("b2s:\n");
-  b2_prms.prt_prm(b2);
-
-  prtmfile("flat_file.fit");
-  prt_lat("linlat1.out", globval.bpm, true);
-  prt_lat("linlat.out", globval.bpm, true, 10);
-
-  prt_b2(b2_prms, b2);
-}
-
-
-double f_match_1(double *b2)
-{
-
-  const int n_prt = 10;
-
-  b2_prms.set_prm(b2);
-  eps_x = get_lin_opt(false);
-
-  chi2 = 0e0;
-  chi2 += 1e0*sqr(Cell[locs[0]].Alpha[X_]);
-  chi2 += 1e0*sqr(Cell[locs[0]].Alpha[Y_]);
-  chi2 += 1e0*sqr(Cell[locs[0]].Etap[X_]); 
-  chi2 += 1e0*sqr(Cell[locs[1]].Alpha[X_]);
-  chi2 += 1e0*sqr(Cell[locs[1]].Alpha[Y_]);
-  chi2 += 1e0*sqr(Cell[locs[1]].Etap[X_]); 
-
-  if (chi2 < chi2_ref) {
-    n_iter++;
-    if (n_iter % n_prt == 0) prt_match_1(b2);
-  }
-
-  return chi2;
-}
-
-
-void prt_match_2(double *b2)
-{
-
-  chi2_prt = chi2;
-  printf("\n%3d chi2: %12.5e -> %12.5e\n", n_iter, chi2_ref, chi2_prt);
-  chi2_ref = chi2;
-
-  printf("Linear Optics:\n    %5.3f %6.3f %6.3f %12.5e %12.5e\n",
-	 eps_x, Cell[locs[0]].Beta[X_], Cell[locs[0]].Beta[Y_],
-	 Cell[locs[0]].Alpha[X_], Cell[locs[0]].Alpha[Y_]);
-  printf("b2s:\n");
-  b2_prms.prt_prm(b2);
-
-  prtmfile("flat_file.fit");
-  prt_lat("linlat1.out", globval.bpm, true);
-  prt_lat("linlat.out", globval.bpm, true, 10);
-
-  prt_b2(b2_prms, b2);
-}
-
-
-double f_match_2(double *b2)
-{
-
-  const int n_prt = 10;
-
-  b2_prms.set_prm(b2);
-  eps_x = get_lin_opt(false);
-
-  chi2 = 0e0;
-  chi2 += 1e0*sqr(Cell[locs[0]].Alpha[X_]);
-  chi2 += 1e0*sqr(Cell[locs[0]].Alpha[Y_]);
-  chi2 += 1e-2*sqr(Cell[locs[0]].Beta[X_]-3e0);
-  chi2 += 1e-2*sqr(Cell[locs[0]].Beta[Y_]-3e0);
-
-  if (chi2 < chi2_ref) {
-    n_iter++;
-    if (n_iter % n_prt == 0) prt_match_2(b2);
-  }
-
-  return chi2;
-}
-
-
 void prt_achrom(double *b2)
 {
   int    k;
@@ -731,7 +660,7 @@ double f_achrom(double *b2)
   int    j, k, loc;
   double b3L, a3L, phi1;
 
-  const int    n_prt = 10;
+  const int n_prt = 1;
   const double
     eps0_x = 0.190, // [nm.rad].
     phi0   = 7.5;
@@ -769,20 +698,7 @@ double f_achrom(double *b2)
 
     chi2 += 1e2*sqr(eps_x-eps0_x);
 
-    chi2 += 1e0*sqr(Cell[locs[0]].Alpha[X_]);
-    chi2 += 1e0*sqr(Cell[locs[0]].Alpha[Y_]);
-    chi2 += 1e0*sqr(Cell[locs[0]].Eta[X_]-0.05);
-    chi2 += 1e0*sqr(Cell[locs[0]].Etap[X_]);
-
-    chi2 += 1e0*sqr(Cell[locs[1]].Alpha[X_]);
-    chi2 += 1e0*sqr(Cell[locs[1]].Alpha[Y_]);
-    chi2 += 1e4*sqr(Cell[locs[1]].Etap[X_]);
-
-    chi2 += 1e4*sqr(Cell[locs[2]].Eta[X_]);
-    chi2 += 1e4*sqr(Cell[locs[2]].Etap[X_]);
-
-    chi2 += 1e1*sqr(Cell[locs[3]].Alpha[X_]);
-    chi2 += 1e1*sqr(Cell[locs[3]].Alpha[Y_]);
+    chi2 += achr_constr.get_chi2();
 
     chi2 += 1e-7*beta_b3L_2[X_];
     chi2 += 1e-7*beta_b3L_2[Y_];
@@ -790,131 +706,6 @@ double f_achrom(double *b2)
     if (chi2 < chi2_ref) {
       n_iter++;
       if (n_iter % n_prt == 0) prt_achrom(b2);
-    }
-  } else
-    chi2 = 1e30;
-
-  return chi2;
-}
-
-
-void prt_emit(double *b2)
-{
-
-  chi2_prt = chi2;
-  printf("\n%3d chi2: %12.5e -> %12.5e\n", n_iter, chi2_ref, chi2_prt);
-  chi2_ref = chi2;
-
-  printf("Linear Optics:\n    %5.3f %6.3f %6.3f  %6.3f %6.3f"
-	 " %12.5e %12.5e %12.5e %12.5e %12.5e %12.5e %12.5e %12.5e\n",
-	 eps_x, Cell[locs[3]].Beta[X_], Cell[locs[3]].Beta[Y_],
-	 globval.TotalTune[X_], globval.TotalTune[Y_],
-	 Cell[locs[0]].Alpha[X_], Cell[locs[0]].Alpha[Y_],
-	 Cell[locs[0]].Etap[X_],
-	 Cell[locs[1]].Alpha[X_], Cell[locs[1]].Alpha[Y_],
-	 Cell[locs[1]].Etap[X_],
-	 Cell[locs[2]].Eta[X_], Cell[locs[2]].Etap[X_]);
-  printf("b2s:\n");
-  b2_prms.prt_prm(b2);
-
-  prtmfile("flat_file.fit");
-  prt_lat("linlat1.out", globval.bpm, true);
-  prt_lat("linlat.out", globval.bpm, true, 10);
-
-  prt_b2(b2_prms, b2);
-}
-
-
-double f_emit(double *b2)
-{
-
-  const int n_prt = 1;
-
-  b2_prms.set_prm(b2);
-  eps_x = get_lin_opt(true);
-
-  chi2 = 0e0;
-  if (globval.stable) {
-    chi2 += 1e0*sqr(Cell[locs[0]].Alpha[X_]);
-    chi2 += 1e0*sqr(Cell[locs[0]].Alpha[Y_]);
-    chi2 += 1e0*sqr(Cell[locs[0]].Etap[X_]);
-    chi2 += 1e0*sqr(Cell[locs[1]].Alpha[X_]);
-    chi2 += 1e0*sqr(Cell[locs[1]].Alpha[Y_]);
-    chi2 += 1e0*sqr(Cell[locs[1]].Etap[X_]);
-    chi2 += 1e0*sqr(Cell[locs[2]].Eta[X_]);
-    chi2 += 1e0*sqr(Cell[locs[2]].Etap[X_]);
-    chi2 += 1e-4*sqr(eps_x);
-
-    if (chi2 < chi2_ref) {
-      n_iter++;
-      if (n_iter % n_prt == 0) prt_emit(b2);
-    }
-  } else
-    chi2 = 1e30;
-
-  return chi2;
-}
-
-
-void prt_ksi1(double *b2)
-{
-  long int loc;
-
-  chi2_prt = chi2;
-  printf("\n%3d chi2: %12.5e -> %12.5e\n", n_iter, chi2_ref, chi2_prt);
-  chi2_ref = chi2;
-
-  loc = Elem_GetPos(ElemIndex("ms"), 1);
-
-  printf("Linear Optics:\n %12.5e %12.5e %12.5e %12.5e %12.5e %12.5e %12.5e\n",
-	 eps_x, globval.Chrom[X_], globval.Chrom[Y_],
-	 Cell[loc].Eta[X_], Cell[loc].Etap[X_],
-	 Cell[loc].Alpha[X_], Cell[loc].Alpha[Y_]);
-  loc = Elem_GetPos(ElemIndex("b1_5"), 2);
-  printf(" %12.5e %12.5e\n", Cell[loc].Eta[X_], Cell[loc].Etap[X_]);
-  printf("b2s:\n");
-  b2_prms.prt_prm(b2);
-
-  prtmfile("flat_file.fit");
-  prt_lat("linlat1.out", globval.bpm, true);
-  prt_lat("linlat.out", globval.bpm, true, 10);
-}
-
-
-double f_ksi1(double *b2)
-{
-  int    loc;
-  double eps_x, chi2;
-
-  const int    n_prt = 10;
-  const double
-    eta_x_ref  = 2.44e-2,
-    eps_x_ref  = 0.188, // nm.rad.
-    ksi1_ref[] = {-2.9, -3.0};
-
-  b2_prms.set_prm(b2);
-  eps_x = get_lin_opt(true);
-
-  chi2 = 0e0;
-  if (globval.stable) {
-    loc = Elem_GetPos(ElemIndex("ms"), 1);
-    chi2 += 1e0*sqr(Cell[loc].Eta[X_]-eta_x_ref);
-    chi2 += 1e4*sqr(Cell[loc].Etap[X_]);
-    chi2 += 1e4*sqr(Cell[loc].Alpha[X_]);
-    chi2 += 1e4*sqr(Cell[loc].Alpha[Y_]);
-
-    loc = Elem_GetPos(ElemIndex("b1_5"), 2);
-    chi2 += 1e4*sqr(Cell[loc].Etap[X_]);
-    chi2 += 1e4*sqr(Cell[loc].Etap[X_]);
-
-    chi2 += 1e1*sqr(eps_x-eps_x_ref);
-
-    chi2 += 1e-1*sqr(globval.Chrom[X_]-ksi1_ref[X_]);
-    chi2 += 1e0*sqr(globval.Chrom[Y_]-ksi1_ref[Y_]);
-
-    if (chi2 < chi2_ref) {
-      n_iter++;
-      if (n_iter % n_prt == 0) prt_ksi1(b2);
     }
   } else
     chi2 = 1e30;
@@ -946,7 +737,7 @@ int main(int argc, char *argv[])
 
   if (!false) {
     Ring_GetTwiss(true, 0e0); printglob();
-    dnu[X_] = 0.2; dnu[Y_] = 0.1;
+    dnu[X_] = 0.0; dnu[Y_] = -0.2;
     set_map(ElemIndex("ps_rot"), dnu);
   }
 
@@ -961,85 +752,38 @@ int main(int argc, char *argv[])
   prt_lat("linlat1.out", globval.bpm, true);
   prt_lat("linlat.out", globval.bpm, true, 10);
 
-  if (false) {
-    b2_prms.add_prm("b1",  -2, -20.0, 20.0, 1.0);
-    b2_prms.add_prm("b1",   2, -20.0, 20.0, 1.0);
-    b2_prms.add_prm("b2",  -2, -20.0, 20.0, 1.0);
-    b2_prms.add_prm("b2",   2, -20.0, 20.0, 1.0);
-    b2_prms.add_prm("qf1",  2, -20.0, 20.0, 1.0);
-    b2_prms.add_prm("qd2",  2, -20.0, 20.0, 1.0);
-    b2_prms.add_prm("qf3",  2, -20.0, 20.0, 1.0);
-    b2_prms.add_prm("qf4",  2, -20.0, 20.0, 1.0);
-
-    locs.push_back(Elem_GetPos(ElemIndex("sfh"), 1));
-    locs.push_back(Elem_GetPos(ElemIndex("b2"), 1));
-    locs.push_back(globval.Cell_nLoc);
-
-    b2_prms.bn_tol = 1e-6; b2_prms.step = 1.0;
-
-    fit_powell(b2_prms, 1e-3, f_match_1, prt_match_1);
-
-    eps_x = get_lin_opt(false);
-
-    prt_lat("linlat1.out", globval.bpm, true);
-    prt_lat("linlat.out", globval.bpm, true, 10);
-  }
-
-  if (false) {
-    b2_prms.add_prm("qf6",  2, -20.0, 20.0, 1.0);
-    b2_prms.add_prm("qf6", -1,  -0.05,  0.2, 1.0);
-    b2_prms.add_prm("qd7",  2, -20.0, 20.0, 1.0);
-    b2_prms.add_prm("qd7", -1,  -0.05,  0.2, 1.0);
-
-    locs.push_back(globval.Cell_nLoc);
-
-    b2_prms.bn_tol = 1e-6; b2_prms.step = 1.0;
-
-    fit_powell(b2_prms, 1e-3, f_match_2, prt_match_2);
-
-    eps_x = get_lin_opt(false);
-
-    prt_lat("linlat1.out", globval.bpm, true);
-    prt_lat("linlat.out", globval.bpm, true, 10);
-  }
-
   if (!false) {
-    b2_prms.add_prm("sd",  -1,  -0.3,   0.01,  1.0);
+    // b2_prms.add_prm("sd",  -1,   0.07,   0.1,  1.0);
 
-    b2_prms.add_prm("qf1",  2, -20.0,  20.0,  1.0);
-    b2_prms.add_prm("qd2",  2, -20.0,  20.0,  1.0);
-    b2_prms.add_prm("d_3", -2,   0.2,   0.45, 1.0);
-    b2_prms.add_prm("qf3",  2, -20.0,  20.0,  1.0);
+    b2_prms.add_prm("qf1",  2, -20.0,   20.0,  1.0);
+    b2_prms.add_prm("qd2",  2, -20.0,   20.0,  1.0);
+    b2_prms.add_prm("d_3", -2,   0.2,    0.45, 1.0);
+    b2_prms.add_prm("qf3",  2, -20.0,   20.0,  1.0);
 
-    b2_prms.add_prm("b1",  -3, -20.0,  20.0,  1.0);
-    b2_prms.add_prm("b1",  -2,   0.1,   0.8,  1.0);
-    b2_prms.add_prm("b1",  -1,  -0.2,   0.2,  1.0);
-    b2_prms.add_prm("b1",   2, -20.0,  20.0,  1.0);
+    b2_prms.add_prm("b1",  -3, -20.0,   20.0,  1.0);
+    b2_prms.add_prm("b1",  -2,   0.1,    0.8,  1.0);
+    b2_prms.add_prm("b1",  -1,   0.075,  0.07, 1.0);
+    b2_prms.add_prm("b1",   2, -20.0,   20.0,  1.0);
 
-    b2_prms.add_prm("b2",  -2,   0.1,   0.5,  1.0);
-    b2_prms.add_prm("b2",   2, -20.0,  20.0,  1.0);
+    b2_prms.add_prm("b2",  -2,   0.1,    0.5,  1.0);
+    b2_prms.add_prm("b2",   2, -20.0,   20.0,  1.0);
 
-    b2_prms.add_prm("qf4",  2, -20.0,  20.0,  1.0);
-    b2_prms.add_prm("qf4", -1,  -0.2,   0.01, 1.0);
+    b2_prms.add_prm("qf4",  2, -20.0,   20.0,  1.0);
+    b2_prms.add_prm("qf4", -1,   0.1,    0.1,  1.0);
 
-    // Binary value: alpha_x, alpha_y, beta_x, beta_y, eta_x, eta'_x.
+    // Parameters: alpha_x, alpha_y, beta_x, beta_y, eta_x, eta'_x.
     achr_constr.add_constr(Elem_GetPos(ElemIndex("sfh"), 1),
-			   0b110001, 1e0,
-			   0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+			   1e1, 1e1, 0e0, 0e0, 1e0,  0e0,
+			   0e0, 0e0, 0e0, 0e0, 6e-2, 0e0);
     achr_constr.add_constr(Elem_GetPos(ElemIndex("b2"), 1),
-			   0b110001, 1e0,
-			   0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+			   1e1, 1e1, 0e0, 0e0, 0e0, 1e1,
+			   0e0, 0e0, 0e0, 0e0, 0e0, 0e0);
     achr_constr.add_constr(Elem_GetPos(ElemIndex("b1"), 2),
-			   0b000011, 1e0,
-			   0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+			   0e0, 0e0, 0e0, 0e0, 1e3, 1e3,
+			   0e0, 0e0, 0e0, 0e0, 0e0, 0e0);
     achr_constr.add_constr(globval.Cell_nLoc,
-			   0b000000, 1e0,
-			   0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-
-    locs.push_back(Elem_GetPos(ElemIndex("sfh"), 1));
-    locs.push_back(Elem_GetPos(ElemIndex("b2"), 1));
-    locs.push_back(Elem_GetPos(ElemIndex("b1"), 2));
-    locs.push_back(globval.Cell_nLoc);
+			   1e1, 1e1, 1e-1, 1e-1, 0e0, 0e0,
+			   0e0, 0e0, 5e0,  3e0,  0e0, 0e0);
 
     b2_prms.bn_tol = 1e-6; b2_prms.step = 1.0;
 
@@ -1053,44 +797,5 @@ int main(int argc, char *argv[])
 
     no_sxt();
     fit_powell(b2_prms, 1e-3, f_achrom, prt_achrom);
-  }
-
-  if (false) {
-    b2_prms.add_prm("b1",  -2, -20.0, 20.0, 1.0);
-    b2_prms.add_prm("b1",   2, -20.0, 20.0, 1.0);
-    b2_prms.add_prm("b2",  -2, -20.0, 20.0, 1.0);
-    b2_prms.add_prm("b2",   2, -20.0, 20.0, 1.0);
-    b2_prms.add_prm("qf1",  2, -20.0, 20.0, 1.0);
-    b2_prms.add_prm("qd2",  2, -20.0, 20.0, 1.0);
-    b2_prms.add_prm("qf3",  2, -20.0, 20.0, 1.0);
-    b2_prms.add_prm("qf4",  2, -20.0, 20.0, 1.0);
-
-    locs.push_back(Elem_GetPos(ElemIndex("sfh"), 1));
-    locs.push_back(Elem_GetPos(ElemIndex("b2"), 1));
-    locs.push_back(Elem_GetPos(ElemIndex("b1"), 2));
-    locs.push_back(globval.Cell_nLoc);
-
-    b2_prms.bn_tol = 1e-6; b2_prms.step = 1.0;
-
-    fit_powell(b2_prms, 1e-3, f_emit, prt_emit);
-  }
-
-  if (false) {
-    b2_prms.add_prm("qf1ss", 2, -20.0, 20.0, 1.0);
-    b2_prms.add_prm("qd2ss", 2, -20.0, 20.0, 1.0);
-
-    b2_prms.add_prm("qd3l",  2, -20.0, 20.0, 1.0);
-    b2_prms.add_prm("qf4l",  2, -20.0, 20.0, 1.0);
-    b2_prms.add_prm("qd3r",  2, -20.0, 20.0, 1.0);
-    b2_prms.add_prm("qf4r",  2, -20.0, 20.0, 1.0);
-    b2_prms.add_prm("qf5",   2, -20.0, 20.0, 1.0);
-    b2_prms.add_prm("qf6",   2, -20.0, 20.0, 1.0);
-
-    b2_prms.bn_tol = 1e-6; b2_prms.step = 1.0;
-
-    b2_prms.add_prm("q_b1",  2, -20.0, 20.0, 1.0);
-    b2_prms.add_prm("q_b2",  2, -20.0, 20.0, 1.0);
-
-    fit_powell(b2_prms, 1e-3, f_ksi1, prt_ksi1);
   }
 }
