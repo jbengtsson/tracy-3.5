@@ -18,7 +18,7 @@ const double ic[][2] =
 int                 n_iter, n_b1, n_b3;
 double              chi2_ref, chi2_prt, chi2, eps_x, beta_b3L_2[2], nu[2];
 double              phi;
-std::vector<int>    Fnum_b1, Fnum_b3, locs;
+std::vector<int>    Fnum_b1, Fnum_b3;
 std::vector<string> drv_terms;
 
 
@@ -623,14 +623,15 @@ void prt_achrom(double *b2)
 	 "\n    %8.5f     %8.5f"
 	 "\n    %8.5f     %8.5f"
 	 "\n    %12.5e %12.5e\n",
-	 eps_x, phi, Cell[locs[3]].Beta[X_], Cell[locs[3]].Beta[Y_],
+	 eps_x, phi,
+	 Cell[achr_constr.loc[3]].Beta[X_], Cell[achr_constr.loc[3]].Beta[Y_],
 	 nu[X_], nu[Y_],
-	 Cell[locs[0]].Alpha[X_], Cell[locs[0]].Alpha[Y_],
-	 Cell[locs[0]].Eta[X_], Cell[locs[0]].Etap[X_],
-	 Cell[locs[1]].Alpha[X_], Cell[locs[1]].Alpha[Y_],
-	 Cell[locs[1]].Eta[X_], Cell[locs[1]].Etap[X_],
-	 Cell[locs[2]].Eta[X_], Cell[locs[2]].Etap[X_],
-	 Cell[locs[3]].Alpha[X_], Cell[locs[3]].Alpha[Y_],
+	 Cell[achr_constr.loc[0]].Alpha[X_], Cell[achr_constr.loc[0]].Alpha[Y_],
+	 Cell[achr_constr.loc[0]].Eta[X_], Cell[achr_constr.loc[0]].Etap[X_],
+	 Cell[achr_constr.loc[1]].Alpha[X_], Cell[achr_constr.loc[1]].Alpha[Y_],
+	 Cell[achr_constr.loc[1]].Eta[X_], Cell[achr_constr.loc[1]].Etap[X_],
+	 Cell[achr_constr.loc[2]].Eta[X_], Cell[achr_constr.loc[2]].Etap[X_],
+	 Cell[achr_constr.loc[3]].Alpha[X_], Cell[achr_constr.loc[3]].Alpha[Y_],
 	 sqrt(beta_b3L_2[X_]), sqrt(beta_b3L_2[Y_]));
   printf("\n  b2s:\n");
   b2_prms.prt_prm(b2);
@@ -695,7 +696,6 @@ double f_achrom(double *b2)
     }
 
     chi2 = 0e0;
-
     chi2 += 1e2*sqr(eps_x-eps0_x);
 
     chi2 += achr_constr.get_chi2();
@@ -785,7 +785,7 @@ int main(int argc, char *argv[])
 			   1e1, 1e1, 1e-1, 1e-1, 0e0, 0e0,
 			   0e0, 0e0, 5e0,  3e0,  0e0, 0e0);
 
-    b2_prms.bn_tol = 1e-6; b2_prms.step = 1.0;
+   b2_prms.bn_tol = 1e-6; b2_prms.step = 1.0;
 
     Fnum_b3.push_back(ElemIndex("sfh"));
     Fnum_b3.push_back(ElemIndex("sd"));
