@@ -63,7 +63,8 @@ public:
 		  const double v1, const double v2, const double v3,
 		  const double v4, const double v5, const double v6);
   double get_chi2(void);
-  void prt_constr(double *bn) const;
+  void prt_Jacobian(void) const;
+  void prt_constr(void) const;
 };
 
 
@@ -264,7 +265,7 @@ void constr_type::add_constr(const int loc,
 			     const double v1, const double v2, const double v3,
 			     const double v4, const double v5, const double v6)
 {
-  // Binary value: alpha_x, alpha_x, beta_x, beta_y, eta_x, eta'_x.
+  // Parameters are: alpha_x,y, beta_x,y, eta_x, eta'_x.
   const int                 n     = 6;
   const double              scl[] = {scl1, scl2, scl3, scl4, scl5, scl6};
   const double              val[] = {v1,   v2,   v3,   v4,   v5,   v6};
@@ -661,7 +662,7 @@ double f_achrom(double *b2)
   int    j, k, loc;
   double b3L, a3L, phi1;
 
-  const int n_prt = 1;
+  const int n_prt = 10;
   const double
     eps0_x = 0.190, // [nm.rad].
     phi0   = 7.5;
@@ -771,7 +772,7 @@ int main(int argc, char *argv[])
     b2_prms.add_prm("qf4",  2, -20.0,   20.0,  1.0);
     b2_prms.add_prm("qf4", -1,   0.1,    0.1,  1.0);
 
-    // Parameters: alpha_x, alpha_y, beta_x, beta_y, eta_x, eta'_x.
+    // Parameters are: alpha_x,y, beta_x,y, eta_x, eta'_x.
     achr_constr.add_constr(Elem_GetPos(ElemIndex("sfh"), 1),
 			   1e1, 1e1, 0e0, 0e0, 1e0,  0e0,
 			   0e0, 0e0, 0e0, 0e0, 6e-2, 0e0);
@@ -779,7 +780,7 @@ int main(int argc, char *argv[])
 			   1e1, 1e1, 0e0, 0e0, 0e0, 1e1,
 			   0e0, 0e0, 0e0, 0e0, 0e0, 0e0);
     achr_constr.add_constr(Elem_GetPos(ElemIndex("b1"), 2),
-			   0e0, 0e0, 0e0, 0e0, 1e3, 1e3,
+			   0e0, 0e0, 0e0, 0e0, 1e2, 1e2,
 			   0e0, 0e0, 0e0, 0e0, 0e0, 0e0);
     achr_constr.add_constr(globval.Cell_nLoc,
 			   1e1, 1e1, 1e-1, 1e-1, 0e0, 0e0,
