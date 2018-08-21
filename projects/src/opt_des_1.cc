@@ -780,7 +780,7 @@ int main(int argc, char *argv[])
 			   1e1, 1e1, 0e0, 0e0, 0e0, 1e1,
 			   0e0, 0e0, 0e0, 0e0, 0e0, 0e0);
     achr_constr.add_constr(Elem_GetPos(ElemIndex("b1"), 2),
-			   0e0, 0e0, 0e0, 0e0, 1e2, 1e2,
+			   0e0, 0e0, 0e0, 0e0, 1e1, 1e1,
 			   0e0, 0e0, 0e0, 0e0, 0e0, 0e0);
     achr_constr.add_constr(globval.Cell_nLoc,
 			   1e1, 1e1, 1e-1, 1e-1, 0e0, 0e0,
