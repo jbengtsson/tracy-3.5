@@ -6,12 +6,12 @@ int no_tps = NO;
 
 
 const bool
-  set_dnu = false,
+  set_dnu = !false,
   mI_rot  = false,
   HOA_rot = false;
 
 const double
-  nu[]     = {0.2, 0.7},
+  nu[]     = {0.19, 0.70},
   dnu_mI[] = {1.5-1.44129-0.0, 0.5-0.47593-0.0},
   nu_HOA[] = {19.0/8.0, 15.0/16.0};
 
@@ -674,7 +674,7 @@ int main(int argc, char *argv[])
 
   const long   seed   = 1121;
   const int    n_turn = 2064;
-  const double delta  = 3e-2;
+  const double delta  = 5e-2;
   //                   nu[]    = { 102.18/20.0, 68.30/20.0 };
   // const std::string q_fam[] = { "qfe", "qde" }, s_fam[] = { "sfh", "sd" };
   //                   nu[]    = { 39.1/12.0, 15.25/12.0 };
@@ -693,7 +693,7 @@ int main(int argc, char *argv[])
 
   trace = !true;
 
-  if (!true)
+  if (true)
     Read_Lattice(argv[1]);
   else
     rdmfile(argv[1]);
@@ -791,6 +791,9 @@ int main(int argc, char *argv[])
   }
 
   if (set_dnu) {
+    dnu[X_] = 0.0; dnu[Y_] = 0.0;
+    set_map(ElemIndex("ps_rot"), dnu);
+    Ring_GetTwiss(true, 0e0); printglob();
     for (k = 0; k < 2; k++)
       dnu[k] = nu[k] - fract(globval.TotalTune[k]);
     printf("\n fractional tune set to: [%7.5f, %7.5f]\n", nu[X_], nu[Y_]);

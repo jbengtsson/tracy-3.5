@@ -353,11 +353,12 @@ double constr_type::get_chi2(void) const
 
 void constr_type::prt_constr(const double chi2) const
 {
-  int    k, loc;
-  double b3L, a3L;
+  int           k, loc;
+  double        b3L, a3L;
   static double chi2_ref;
 
-  printf("\n%3d chi2: %11.5e -> %11.5e\n", n_iter, this->chi2, chi2);
+  printf("\n%3d chi2: %11.5e -> %11.5e\n", n_iter, chi2_ref, chi2);
+  chi2_ref = chi2;
 
   printf("\n  Linear Optics:\n");
   printf("    eps_x     = %5.3f\n"
@@ -369,7 +370,7 @@ void constr_type::prt_constr(const double chi2) const
 
   printf("    b_3       = [");
   for (k = 0; k < n_b3; k++) {
-    get_bn_design_elem(Fnum_b3[k], 1, Sext, b3L, a3L);
+    get_bnL_design_elem(Fnum_b3[k], 1, Sext, b3L, a3L);
     printf("%10.3e", b3L);
     if (k != n_b3-1) printf(", ");
   }
@@ -609,7 +610,7 @@ void prt_b3(const constr_type &constr)
 
   for (k = 0; k < constr.n_b3; k++) {
     loc = Elem_GetPos(constr.Fnum_b3[k], 1);
-    prt_name(outf, Cell[loc].Elem.PName, 0);
+    prt_name(outf, Cell[loc].Elem.PName, -1);
     fprintf(outf, " sextupole, l = %11.8f, k = %13.8f, n = nsext"
 	    ", method = 4;\n",
 	    Cell[loc].Elem.PL, Cell[loc].Elem.M->PBpar[Sext+HOMmax]);
@@ -880,7 +881,8 @@ void set_lat_constr_2(constr_type &constr)
   lat_prms.bn_tol = 1e-6; lat_prms.step = 1.0;
 
   lat_constr.Fnum_b3.push_back(ElemIndex("sfh"));
-  lat_constr.Fnum_b3.push_back(ElemIndex("sd1"));
+  lat_constr.Fnum_b3.push_back(ElemIndex("sd1a"));
+  lat_constr.Fnum_b3.push_back(ElemIndex("sd1b"));
   lat_constr.Fnum_b3.push_back(ElemIndex("sd2"));
 
   lat_constr.Fnum_b1.push_back(ElemIndex("b1"));
