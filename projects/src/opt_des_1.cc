@@ -355,6 +355,7 @@ void constr_type::prt_constr(const double chi2) const
 {
   int    k, loc;
   double b3L, a3L;
+  static double chi2_ref;
 
   printf("\n%3d chi2: %11.5e -> %11.5e\n", n_iter, this->chi2, chi2);
 
@@ -758,7 +759,7 @@ double f_achrom(double *b2)
   bool   stable;
   double chi2;
 
-  const int n_prt = 1;
+  const int n_prt = 10;
 
   lat_prms.set_prm(b2);
   phi_corr(lat_constr);
@@ -784,6 +785,111 @@ double f_achrom(double *b2)
 }
 
 
+void set_lat_prms_1(param_type &prms)
+{
+    // lat_prms.add_prm("sd",  -1,   0.07,   0.1,  1.0);
+
+    prms.add_prm("qf1",  2, -20.0,   20.0,  1.0);
+    prms.add_prm("qd2",  2, -20.0,   20.0,  1.0);
+    prms.add_prm("d_3", -2,   0.2,    0.45, 1.0);
+    prms.add_prm("qf3",  2, -20.0,   20.0,  1.0);
+
+    prms.add_prm("b1",  -3, -20.0,   20.0,  1.0);
+    prms.add_prm("b1",  -2,   0.1,    0.8,  1.0);
+    prms.add_prm("b1",  -1,   0.075,  0.07, 1.0);
+    prms.add_prm("b1",   2, -20.0,   20.0,  1.0);
+
+    prms.add_prm("b2",  -2,   0.1,    0.5,  1.0);
+    prms.add_prm("b2",   2, -20.0,   20.0,  1.0);
+
+    prms.add_prm("qf4",  2, -20.0,   20.0,  1.0);
+    prms.add_prm("qf4", -1,   0.1,    0.1,  1.0);
+
+    // Parameters are initialized in optimizer.
+}
+
+
+void set_lat_constr_1(constr_type &constr)
+{
+  // Lattice constraints are: alpha_x,y, beta_x,y, eta_x, eta'_x.
+  constr.add_constr(Elem_GetPos(ElemIndex("sfh"), 1),
+			1e1, 1e1, 0e0, 0e0, 1e0,  0e0,
+			0e0, 0e0, 0e0, 0e0, 6e-2, 0e0);
+  constr.add_constr(Elem_GetPos(ElemIndex("b2"), 1),
+			1e1, 1e1, 0e0, 0e0, 0e0, 1e1,
+			0e0, 0e0, 0e0, 0e0, 0e0, 0e0);
+  constr.add_constr(Elem_GetPos(ElemIndex("b1"), 2),
+			0e0, 0e0, 0e0, 0e0, 1e5, 1e5,
+			0e0, 0e0, 0e0, 0e0, 0e0, 0e0);
+  constr.add_constr(globval.Cell_nLoc,
+			1e1, 1e1, 1e-1, 1e-1, 0e0, 0e0,
+			0e0, 0e0, 4e0,  2.5e0,  0e0, 0e0);
+
+  lat_prms.bn_tol = 1e-6; lat_prms.step = 1.0;
+
+  lat_constr.Fnum_b3.push_back(ElemIndex("sfh"));
+  lat_constr.Fnum_b3.push_back(ElemIndex("sd"));
+
+  lat_constr.Fnum_b1.push_back(ElemIndex("b1"));
+  lat_constr.Fnum_b1.push_back(ElemIndex("b2"));
+
+  lat_constr.ini_constr(1e2, 0.190, 1e-7, 7.5);
+}
+
+
+void set_lat_prms_2(param_type &prms)
+{
+    // lat_prms.add_prm("sd",  -1,   0.07,   0.1,  1.0);
+
+    prms.add_prm("qf1",  2, -20.0,   20.0,  1.0);
+    prms.add_prm("qd2",  2, -20.0,   20.0,  1.0);
+    prms.add_prm("d_3", -2,   0.2,    0.45, 1.0);
+    prms.add_prm("qf3",  2, -20.0,   20.0,  1.0);
+
+    prms.add_prm("b1",  -3, -20.0,   20.0,  1.0);
+    prms.add_prm("b1",  -2,   0.1,    1.2,  1.0);
+    prms.add_prm("b1",  -1,   0.075,  0.07, 1.0);
+    prms.add_prm("b1",   2, -20.0,   20.0,  1.0);
+
+    prms.add_prm("b2",  -2,   0.1,    0.7,  1.0);
+    prms.add_prm("b2",   2, -20.0,   20.0,  1.0);
+
+    prms.add_prm("qf4",  2, -20.0,   20.0,  1.0);
+    prms.add_prm("qf4", -1,   0.1,    0.1,  1.0);
+
+    // Parameters are initialized in optimizer.
+}
+
+
+void set_lat_constr_2(constr_type &constr)
+{
+  // Lattice constraints are: alpha_x,y, beta_x,y, eta_x, eta'_x.
+  constr.add_constr(Elem_GetPos(ElemIndex("sfh"), 1),
+			1e1, 1e1, 0e0, 0e0, 1e3,  0e0,
+			0e0, 0e0, 0e0, 0e0, 7e-2, 0e0);
+  constr.add_constr(Elem_GetPos(ElemIndex("b2"), 1),
+			1e1, 1e1, 0e0, 0e0, 0e0, 1e1,
+			0e0, 0e0, 0e0, 0e0, 0e0, 0e0);
+  constr.add_constr(Elem_GetPos(ElemIndex("b1"), 2),
+			0e0, 0e0, 0e0, 0e0, 1e5, 1e5,
+			0e0, 0e0, 0e0, 0e0, 0e0, 0e0);
+  constr.add_constr(globval.Cell_nLoc,
+			1e1, 1e1, 1e-1, 1e-1, 0e0, 0e0,
+			0e0, 0e0, 4e0,  2.5e0,  0e0, 0e0);
+
+  lat_prms.bn_tol = 1e-6; lat_prms.step = 1.0;
+
+  lat_constr.Fnum_b3.push_back(ElemIndex("sfh"));
+  lat_constr.Fnum_b3.push_back(ElemIndex("sd1"));
+  lat_constr.Fnum_b3.push_back(ElemIndex("sd2"));
+
+  lat_constr.Fnum_b1.push_back(ElemIndex("b1"));
+  lat_constr.Fnum_b1.push_back(ElemIndex("b2"));
+
+  lat_constr.ini_constr(1e2, 0.190, 1e-7, 7.5);
+}
+
+
 int main(int argc, char *argv[])
 {
   double eps_x, dnu[2];
@@ -792,7 +898,7 @@ int main(int argc, char *argv[])
 
   trace = false;
 
-  if (!true)
+  if (true)
     Read_Lattice(argv[1]);
   else
     rdmfile(argv[1]);
@@ -807,7 +913,7 @@ int main(int argc, char *argv[])
 
   if (!false) {
     Ring_GetTwiss(true, 0e0); printglob();
-    dnu[X_] = 0.0; dnu[Y_] = -0.2;
+    dnu[X_] = 0.0; dnu[Y_] = 0.1;
     set_map(ElemIndex("ps_rot"), dnu);
   }
 
@@ -823,48 +929,11 @@ int main(int argc, char *argv[])
   prt_lat("linlat.out", globval.bpm, true, 10);
 
   if (!false) {
-    // lat_prms.add_prm("sd",  -1,   0.07,   0.1,  1.0);
+    // set_lat_prms_1(lat_prms);
+    // set_lat_constr_1(lat_constr);
 
-    lat_prms.add_prm("qf1",  2, -20.0,   20.0,  1.0);
-    lat_prms.add_prm("qd2",  2, -20.0,   20.0,  1.0);
-    lat_prms.add_prm("d_3", -2,   0.2,    0.45, 1.0);
-    lat_prms.add_prm("qf3",  2, -20.0,   20.0,  1.0);
-
-    lat_prms.add_prm("b1",  -3, -20.0,   20.0,  1.0);
-    lat_prms.add_prm("b1",  -2,   0.1,    0.8,  1.0);
-    lat_prms.add_prm("b1",  -1,   0.075,  0.07, 1.0);
-    lat_prms.add_prm("b1",   2, -20.0,   20.0,  1.0);
-
-    lat_prms.add_prm("b2",  -2,   0.1,    0.5,  1.0);
-    lat_prms.add_prm("b2",   2, -20.0,   20.0,  1.0);
-
-    lat_prms.add_prm("qf4",  2, -20.0,   20.0,  1.0);
-    lat_prms.add_prm("qf4", -1,   0.1,    0.1,  1.0);
-    // Parameters are initialized in optimizer.
-
-    // Lattice constraints are: alpha_x,y, beta_x,y, eta_x, eta'_x.
-    lat_constr.add_constr(Elem_GetPos(ElemIndex("sfh"), 1),
-			   1e1, 1e1, 0e0, 0e0, 1e0,  0e0,
-			   0e0, 0e0, 0e0, 0e0, 6e-2, 0e0);
-    lat_constr.add_constr(Elem_GetPos(ElemIndex("b2"), 1),
-			   1e1, 1e1, 0e0, 0e0, 0e0, 1e1,
-			   0e0, 0e0, 0e0, 0e0, 0e0, 0e0);
-    lat_constr.add_constr(Elem_GetPos(ElemIndex("b1"), 2),
-			   0e0, 0e0, 0e0, 0e0, 1e5, 1e5,
-			   0e0, 0e0, 0e0, 0e0, 0e0, 0e0);
-    lat_constr.add_constr(globval.Cell_nLoc,
-			   1e1, 1e1, 1e-1, 1e-1, 0e0, 0e0,
-			   0e0, 0e0, 4e0,  2.5e0,  0e0, 0e0);
-
-    lat_prms.bn_tol = 1e-6; lat_prms.step = 1.0;
-
-    lat_constr.Fnum_b3.push_back(ElemIndex("sfh"));
-    lat_constr.Fnum_b3.push_back(ElemIndex("sd"));
-
-    lat_constr.Fnum_b1.push_back(ElemIndex("b1"));
-    lat_constr.Fnum_b1.push_back(ElemIndex("b2"));
-
-    lat_constr.ini_constr(1e2, 0.190, 1e-7, 7.5);
+    set_lat_prms_2(lat_prms);
+    set_lat_constr_2(lat_constr);
 
     no_sxt();
     fit_powell(lat_prms, 1e-3, f_achrom);
