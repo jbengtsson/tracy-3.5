@@ -7,25 +7,26 @@ int  no_tps = NO;
 
 // MAX-IV   1,
 // SLS-2    2,
-// M-H6BAi  3.
-// M-H6BA   4.
-// M-H8BA   5.
-// RB-6BA   6.
-// M-6BA    7.
-// DIAMOND  8,
-// DELTA    9.
-// ALS-U    10.
+// M-H6BAi  3,
+// M-H6BA   4,
+// M-H8BA   5,
+// RB-6BA   6,
+// M-6BA    7,
+// TBA-6x8  8,
+// DIAMOND  9,
+// DELTA    10,
+// ALS-U    11.
 
 const bool set_dnu  = false;
-const int  lat_case = 3;
+const int  lat_case = 7;
 const double
   A_max[][2]  =
     {{1.5e-3, 1.5e-3}, { 7e-3, 5e-3}, {6e-3, 3e-3}, {10e-3, 4e-3},
-     {  5e-3,   3e-3}, { 3e-3, 2e-3},  {3e-3, 2e-3}, {3e-3, 2e-3},
+     {  5e-3,   3e-3}, { 3e-3, 2e-3}, {3e-3, 2e-3}, {3e-3, 2e-3},
      {  3e-3,   2e-3}, {35e-3, 6e-3}, {4e-3, 4e-3}},
   delta_max[] = {3e-2, 5e-2, 2e-2, 3e-2,
-		 3e-2, 3e-2, 3e-2, 2e-2,
-		 3e-2, 3e-2, 4e-2},
+		 3e-2, 3e-2, 3e-2, 3e-2,
+		 2e-2, 3e-2, 4e-2},
   dnu[]       = {0.03, 0.02};
 
 
@@ -36,6 +37,8 @@ int main(int argc, char *argv[])
   globval.Cavity_on  = false; globval.radiation   = false;
   globval.emittance  = false; globval.IBS         = false;
   globval.pathlength = false; globval.bpm         = 0;
+
+  reverse_elem = !false;
 
   if (false)
     Read_Lattice(argv[1]);
