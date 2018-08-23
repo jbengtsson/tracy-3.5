@@ -10,11 +10,6 @@ double rad2deg(const double a) { return a*180e0/M_PI; }
 double deg2rad(const double a) { return a*M_PI/180e0; }
 
 
-// Standard Cell.
-const double ic[][2] =
-  {{0.0, 0.0}, {4.97103, 5.52181}, {0.0, 0.0}, {0.0, 0.0}};
-
-
 double eps_x;
 
 
@@ -58,15 +53,19 @@ struct constr_type {
 private:
 
 public:
+  bool
+    ring;
   int
     n_loc, n_b3, n_b1,
     n_iter;
   double
+    ic[4][2],
     chi2,
     eps_x_scl,
     eps0_x,       // Hor. emittance [nm.rad].
     drv_terms_scl,
     nu[2],
+    phi_scl,
     phi,
     phi0,         // Total bend angle.
     drv_terms[2];
@@ -85,8 +84,9 @@ public:
 		  const double scl4, const double scl5, const double scl6,
 		  const double v1, const double v2, const double v3,
 		  const double v4, const double v5, const double v6);
-  void ini_constr(const double eps_x_scl, const double eps0_x,
-		  const double drv_terms_scl, const double phi0);
+  void ini_constr(const bool ring, const double eps_x_scl, const double eps0_x,
+		  const double drv_terms_scl,
+		  const double phi_scl, const double phi0);
   double get_chi2(void) const;
   void prt_Jacobian(void) const;
   void prt_constr(const double chi2) const;
@@ -312,8 +312,10 @@ void constr_type::add_constr(const int loc,
 }
 
 
-void constr_type::ini_constr(const double eps_x_scl, const double eps0_x,
-			     const double drv_terms_scl, const double phi0)
+void constr_type::ini_constr(const bool ring,
+			     const double eps_x_scl, const double eps0_x,
+			     const double drv_terms_scl,
+			     const double phi_scl, const double phi0)
 {
   n_b3 = Fnum_b3.size();
   n_b1 = Fnum_b1.size();
@@ -332,9 +334,7 @@ double constr_type::get_chi2(void) const
   double chi2;
 
   chi2 = 0e0;
-
-  chi2 += 1e2*sqr(eps_x-eps0_x);
-
+  chi2 += eps_x_scl*sqr(eps_x-eps0_x);
   for (k = 0; k < n_loc; k++) {
     chi2 += scl[k][0]*sqr(Cell[loc[k]].Alpha[X_]-value[k][0]);
     chi2 += scl[k][1]*sqr(Cell[loc[k]].Alpha[Y_]-value[k][1]);
@@ -343,32 +343,39 @@ double constr_type::get_chi2(void) const
     chi2 += scl[k][4]*sqr(Cell[loc[k]].Eta[X_]-value[k][4]);
     chi2 += scl[k][5]*sqr(Cell[loc[k]].Etap[X_]-value[k][5]);
   }
-
-  chi2 += 1e-7*drv_terms[X_];
-  chi2 += 1e-7*drv_terms[Y_];
-
+  chi2 += drv_terms_scl*drv_terms[X_];
+  chi2 += drv_terms_scl*drv_terms[Y_];
   return chi2;
 }
 
 
 void constr_type::prt_constr(const double chi2) const
 {
-  int           k, loc;
+  int           k, loc1, loc2;
   double        b3L, a3L;
   static double chi2_ref;
 
   printf("\n%3d chi2: %11.5e -> %11.5e\n", n_iter, chi2_ref, chi2);
+
   chi2_ref = chi2;
 
   printf("\n  Linear Optics:\n");
-  printf("    eps_x     = %5.3f\n"
-	 "    phi       = %7.5f\n"
-	 "    nu        = [%5.3f, %5.3f]\n"
-	 "    drv terms = [%10.3e, %10.3e]\n",
-	 eps_x, phi, nu[X_], nu[Y_],
-	 sqrt(drv_terms[X_]), sqrt(drv_terms[Y_]));
+  printf("    eps_x      = %5.3f\n"
+	 "    phi        = %7.5f\n"
+	 "    nu         = [%5.3f, %5.3f]\n",
+	 eps_x, phi, nu[X_], nu[Y_]);
+  if (drv_terms_scl != 0e0) {
+    loc1 = Elem_GetPos(Fnum_b3[0], 1);
+    loc2 = Elem_GetPos(Fnum_b3[0], 3);
 
-  printf("    b_3       = [");
+    printf("    drv terms  = [%10.3e, %10.3e]\n"
+	   "    -I Transf. = [%8.5f,   %8.5f]\n",
+	   sqrt(drv_terms[X_]), sqrt(drv_terms[Y_]),
+	   Cell[loc2].Nu[X_]-Cell[loc1].Nu[X_],
+	   Cell[loc2].Nu[Y_]-Cell[loc1].Nu[Y_]);
+  }
+
+  printf("    b_3        = [");
   for (k = 0; k < n_b3; k++) {
     get_bnL_design_elem(Fnum_b3[k], 1, Sext, b3L, a3L);
     printf("%10.3e", b3L);
@@ -378,11 +385,11 @@ void constr_type::prt_constr(const double chi2) const
 
   printf("\n     alpha_x   alpha_y  beta_x   beta_y    eta_x    eta'_x\n");
   for (k = 0; k < n_loc; k++) {
-    loc = this->loc[k];
+    loc1 = this->loc[k];
     printf("    %8.5f  %8.5f %8.5f %8.5f %8.5f %8.5f\n",
-	   Cell[loc].Alpha[X_], Cell[loc].Alpha[Y_],
-	   Cell[loc].Beta[X_], Cell[loc].Beta[Y_],
-	   Cell[loc].Eta[X_], Cell[loc].Etap[X_]);
+	   Cell[loc1].Alpha[X_], Cell[loc1].Alpha[Y_],
+	   Cell[loc1].Beta[X_], Cell[loc1].Beta[Y_],
+	   Cell[loc1].Eta[X_], Cell[loc1].Etap[X_]);
   }
 }
 
@@ -646,18 +653,18 @@ bool get_nu(double nu[])
 }
 
 
-double get_lin_opt(const bool periodic)
+double get_lin_opt(constr_type &constr)
 {
   double       eps_x;
   ss_vect<tps> A;
 
-  if (periodic) {
+  if (lat_constr.ring) {
     Ring_GetTwiss(true, 0e0);
     eps_x = get_eps_x1(true);
   } else {
     globval.emittance = true;
     // ttwiss(ic[0], ic[1], ic[2], ic[3], 0e0);
-    A = get_A(ic[0], ic[1], ic[2], ic[3]);
+    A = get_A(constr.ic[0], constr.ic[1], constr.ic[2], constr.ic[3]);
     Cell_Twiss(0, globval.Cell_nLoc, A, false, false, 0e0);
     eps_x = get_eps_x1(false);
     globval.emittance = false;
@@ -763,13 +770,18 @@ double f_achrom(double *b2)
   const int n_prt = 10;
 
   lat_prms.set_prm(b2);
-  phi_corr(lat_constr);
 
-  stable = get_nu(lat_constr.nu);
-  if (stable) {
-    fit_ksi1(lat_constr.Fnum_b3, 0e0, 0e0, 1e-1);
-    eps_x = get_lin_opt(true);
-    get_drv_terms(lat_constr);
+  if (lat_constr.phi_scl != 0e0) phi_corr(lat_constr);
+
+  if (lat_constr.ring)
+    stable = get_nu(lat_constr.nu);
+  else
+  if ((lat_constr.ring && stable) || !lat_constr.ring) {
+    eps_x = get_lin_opt(lat_constr);
+    if (lat_constr.drv_terms_scl != 0e0) {
+      fit_ksi1(lat_constr.Fnum_b3, 0e0, 0e0, 1e-3);
+      get_drv_terms(lat_constr);
+    }
 
     chi2 = lat_constr.get_chi2();
 
@@ -834,7 +846,7 @@ void set_lat_constr_1(constr_type &constr)
   lat_constr.Fnum_b1.push_back(ElemIndex("b1"));
   lat_constr.Fnum_b1.push_back(ElemIndex("b2"));
 
-  lat_constr.ini_constr(1e2, 0.190, 1e-7, 7.5);
+  lat_constr.ini_constr(false, 1e2, 0.190, 1e-7, 1e0, 7.5);
 }
 
 
@@ -888,7 +900,44 @@ void set_lat_constr_2(constr_type &constr)
   lat_constr.Fnum_b1.push_back(ElemIndex("b1"));
   lat_constr.Fnum_b1.push_back(ElemIndex("b2"));
 
-  lat_constr.ini_constr(1e2, 0.190, 1e-7, 7.5);
+  lat_constr.ini_constr(true, 1e2, 0.190, 1e-7, 1e0, 7.5);
+}
+
+
+void set_lat_prms_3(param_type &prms)
+{
+    prms.add_prm("d2",   -2,   0.1,   0.4, 1.0);
+    prms.add_prm("dr4d", -2,   0.1,   0.4, 1.0);
+    prms.add_prm("qf5",   2, -20.0,  20.0, 1.0);
+    // prms.add_prm("qf5",  -1,   0.1,   0.1, 1.0);
+    prms.add_prm("qd6",   2, -20.0,  20.0, 1.0);
+    // prms.add_prm("qd6",  -1,   0.1,  0.1, 1.0);
+
+    // Parameters are initialized in optimizer.
+}
+
+
+void set_lat_constr_3(constr_type &constr)
+{
+  int j, k;
+
+  // Standard Cell.
+  const int    n       = 4;
+  const double ic[][2] =
+    {{0.0, 0.0}, {4.01753, 3.12783}, {0.0, 0.0}, {0.0, 0.0}};
+
+// Lattice constraints are: alpha_x,y, beta_x,y, eta_x, eta'_x.
+  constr.add_constr(globval.Cell_nLoc,
+			1e4, 1e4, 1e0, 1e0, 1e0, 1e0,
+			0.0, 0.0, 4.0, 2.5, 0.0, 0.0);
+
+  lat_prms.bn_tol = 1e-6; lat_prms.step = 1.0;
+
+  lat_constr.ini_constr(true, 0e0, 0e0, 0e0, 0e0, 0e0);
+
+  for (j = 0; j < n; j++)
+    for (k = 0; k < 2; k++)
+      lat_constr.ic[j][k] = ic[j][k];
 }
 
 
@@ -913,29 +962,44 @@ int main(int argc, char *argv[])
 
   // set_map_reversal(ElemIndex("line_inv"));
 
-  if (!false) {
+  if (false) {
     Ring_GetTwiss(true, 0e0); printglob();
     dnu[X_] = 0.0; dnu[Y_] = 0.1;
     set_map(ElemIndex("ps_rot"), dnu);
   }
 
-  if (true) {
-    Ring_GetTwiss(true, 0e0); printglob();
-  } else
-    ttwiss(ic[0], ic[1], ic[2], ic[3], 0e0);
+  if (false) {
+    if (!true) {
+      Ring_GetTwiss(true, 0e0); printglob();
+    } else
+      ttwiss(lat_constr.ic[0], lat_constr.ic[1],
+	     lat_constr.ic[2], lat_constr.ic[3], 0e0);
 
-  eps_x = get_eps_x1(true);
-  printf("\neps_x = %5.3f nm.rad\n\n", eps_x);
+    eps_x = get_eps_x1(true);
+    printf("\neps_x = %5.3f nm.rad\n\n", eps_x);
 
-  prt_lat("linlat1.out", globval.bpm, true);
-  prt_lat("linlat.out", globval.bpm, true, 10);
+    prt_lat("linlat1.out", globval.bpm, true);
+    prt_lat("linlat.out", globval.bpm, true, 10);
+  }
 
-  if (!false) {
+  if (false) {
+    // Optimize Standard Cell.
+
     // set_lat_prms_1(lat_prms);
     // set_lat_constr_1(lat_constr);
 
     set_lat_prms_2(lat_prms);
     set_lat_constr_2(lat_constr);
+
+    no_sxt();
+    fit_powell(lat_prms, 1e-3, f_achrom);
+  }
+
+  if (!false) {
+    // Match Mid Cell.
+
+    set_lat_prms_3(lat_prms);
+    set_lat_constr_3(lat_constr);
 
     no_sxt();
     fit_powell(lat_prms, 1e-3, f_achrom);
