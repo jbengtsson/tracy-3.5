@@ -938,10 +938,10 @@ void tweak_std_cell(param_type &prms, constr_type &constr)
 		    1e1, 1e1, 0e0, 0e0, 1e3,  0e0,
 		    0e0, 0e0, 0e0, 0e0, 7e-2, 0e0);
   constr.add_constr(Elem_GetPos(ElemIndex("b2"), 1),
-		    1e1, 1e1, 0e0, 0e0, 0e0, 1e1,
+		    1e3, 1e3, 0e0, 0e0, 0e0, 1e1,
 		    0e0, 0e0, 0e0, 0e0, 0e0, 0e0);
   constr.add_constr(Elem_GetPos(ElemIndex("b1"), 2),
-		    1e1, 1e1, 0e0, 0e0, 1e5, 1e5,
+		    0e0, 0e0, 0e0, 0e0, 1e5, 1e5,
 		    0e0, 0e0, 0e0, 0e0, 0e0, 0e0);
   constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
 		    1e4, 1e4, 1e1, 1e1, 1e0, 1e0,
@@ -955,7 +955,7 @@ void tweak_std_cell(param_type &prms, constr_type &constr)
   lat_constr.Fnum_b3.push_back(ElemIndex("sfh"));
   lat_constr.Fnum_b3.push_back(ElemIndex("sd1a"));
   lat_constr.Fnum_b3.push_back(ElemIndex("sd1b"));
-  lat_constr.Fnum_b3.push_back(ElemIndex("sd2"));
+  // lat_constr.Fnum_b3.push_back(ElemIndex("sd2"));
 
   lat_constr.Fnum_b1.push_back(ElemIndex("b1"));
   lat_constr.Fnum_b1.push_back(ElemIndex("b2"));
@@ -1004,7 +1004,7 @@ int main(int argc, char *argv[])
 
   trace = false;
 
-  if (true)
+  if (!true)
     Read_Lattice(argv[1]);
   else
     rdmfile(argv[1]);
