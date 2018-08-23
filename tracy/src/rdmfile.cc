@@ -131,12 +131,13 @@ void get_kind(const int kind, elemtype &Elem)
 
 void rdmfile(const char *mfile_dat)
 {
-  char      line[line_max], file_name[line_max];
-  int       j, k, nmpole, kind, method, n;
-  long int  i;
-  double    dTerror;
+  char     line[line_max], file_name[line_max];
+  int      j, k, nmpole, kind, method, n;
+  long int i;
+  double   dTerror;
 
-  bool  prt = false;
+  const bool prt  = false;
+  const int  n_ps = 6;
 
   std::cout << std::endl;
   std::cout << "reading machine file: " << mfile_dat << std::endl;

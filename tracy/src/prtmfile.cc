@@ -108,8 +108,10 @@ void prtHOM(FILE *fp, const int n_design, const mpolArray PB, const int Order)
 
 void prtmfile(const char mfile_dat[])
 {
-  int     i, j;
-  FILE    *mfile;
+  int  i, j, k;
+  FILE *mfile;
+
+  const int n_ps = 6;
 
   mfile = file_write(mfile_dat);
   for (i = 0; i <= globval.Cell_nLoc; i++) {
@@ -178,12 +180,11 @@ void prtmfile(const char mfile_dat[])
       break;
     case Map:
       prtName(mfile, i, map_, 0, 0);
-      fprintf(mfile, " %23.16le %23.16le %23.16le %23.16le %23.16le %23.16le"
-	      " %23.16le %23.16le\n",
-      	      Cell[i].Elem.Map->dnu[X_], Cell[i].Elem.Map->dnu[Y_],
-	      Cell[i].Elem.Map->alpha[X_], Cell[i].Elem.Map->alpha[Y_],
-	      Cell[i].Elem.Map->beta[X_], Cell[i].Elem.Map->beta[Y_],
-	      Cell[i].Elem.Map->eta_x, Cell[i].Elem.Map->etap_x);
+      for (j = 0; j < n_ps; j++) {
+	for (k = 0; k < n_ps; k++)
+	  fprintf(mfile, " %23.16le", Cell[i].Elem.Map->M[j][k]);
+	fprintf(mfile, "\n");
+      }
       break;
     default:
       printf("prtmfile: unknown type %d\n", Cell[i].Elem.Pkind);
