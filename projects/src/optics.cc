@@ -6,12 +6,12 @@ int no_tps = NO;
 
 
 const bool
-  set_dnu = false,
+  set_dnu = !false,
   mI_rot  = false,
   HOA_rot = false;
 
 const double
-  nu[]     = {0.20, 0.70},
+  nu[]     = {0.19, 0.70},
   dnu_mI[] = {1.5-1.44129-0.0, 0.5-0.47593-0.0},
   nu_HOA[] = {19.0/8.0, 15.0/16.0};
 

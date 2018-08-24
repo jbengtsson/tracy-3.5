@@ -131,14 +131,15 @@ void get_kind(const int kind, elemtype &Elem)
 
 void rdmfile(const char *mfile_dat)
 {
+  const int  n_ps = 6;
+
   char         line[line_max], file_name[line_max];
   int          j, k, nmpole, kind, method, n;
   long int     i;
-  double       dTerror, val;
+  double       dTerror, val[n_ps];
   ss_vect<tps> Id;
 
   const bool prt  = false;
-  const int  n_ps = 6;
 
   std::cout << std::endl;
   std::cout << "reading machine file: " << mfile_dat << std::endl;
@@ -349,14 +350,11 @@ void rdmfile(const char *mfile_dat)
       for (j = 0; j < n_ps; j++) {
 	inf.getline(line, line_max);
 	if (prt) printf("%s\n", line);
-	for (k = 0; k < n_ps; k++) {
-	  sscanf(line, "%lf", &val);
-	  printf("%e", val);
-	  Cell[i].Elem.Map->M[k] += val*Id[j];
-	  printf("%e", val);
-	}
+	sscanf(line, "%lf %lf %lf %lf %lf %lf",
+	       &val[0], &val[1], &val[2], &val[3], &val[4], &val[5]);
+	for (k = 0; k < n_ps; k++)
+	  Cell[i].Elem.Map->M[j] += val[k]*Id[k];
       }
-      prt_lin_map(3, Cell[i].Elem.Map->M);
       break;
     default:
       std::cout << "rdmfile: unknown type" << std::endl;
