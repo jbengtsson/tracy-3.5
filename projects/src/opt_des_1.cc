@@ -23,6 +23,11 @@ void get_S(void);
 
 
 struct param_type {
+  // Parameter Type:
+  //   Bend Angle  -3,
+  //   Length      -2,
+  //   Position    -1,
+  //   Quadrupole   2.
 private:
 
 public:
@@ -50,6 +55,8 @@ public:
 
 
 struct constr_type {
+  // Constraint Type:
+  //   alpha_x, alpha_y, beta_x, beta_y, eta_x, eta'_x.
 private:
 
 public:
@@ -824,6 +831,42 @@ double f_achrom(double *b2)
 }
 
 
+double f_achrom_sp(double *b2)
+{
+  bool   stable;
+  double chi2;
+
+  const int n_prt = 5;
+
+  lat_prms.set_prm(b2);
+  if (lat_constr.phi_scl != 0e0)
+    phi_corr(lat_constr);
+
+  if (lat_constr.ring)
+    stable = get_nu(lat_constr.nu);
+
+  if ((lat_constr.ring && stable) || !lat_constr.ring) {
+    eps_x = get_lin_opt(lat_constr);
+    if (lat_constr.drv_terms_scl != 0e0) {
+      fit_ksi1(lat_constr.Fnum_b3, 0e0, 0e0, 1e-2);
+      get_drv_terms(lat_constr);
+    }
+
+    chi2 = lat_constr.get_chi2();
+
+    if (chi2 < lat_constr.chi2) {
+      if (lat_constr.n_iter % n_prt == 0)
+	prt_achrom(b2, chi2, lat_constr, lat_prms);
+      lat_constr.n_iter++;
+      lat_constr.chi2 = chi2;
+    }
+  } else
+    chi2 = 1e30;
+
+  return chi2;
+}
+
+
 void tweak_ss_1(param_type &prms, constr_type &constr)
 {
   // lat_prms.add_prm("sd",  -1,   0.07,   0.1,  1.0);
@@ -1018,6 +1061,84 @@ void tweak_std_cell(param_type &prms, constr_type &constr)
 }
 
 
+void tweak_super_per(param_type &prms, constr_type &constr)
+{
+  // Parameter Type:
+  //   Bend Angle  -3,
+  //   Length      -2,
+  //   Position    -1,
+  //   Quadrupole   2.
+
+  // Long-Straight Matching Cell.
+  prms.add_prm("qd1_ls",    2, -20.0,   20.0,  1.0);
+  prms.add_prm("d1",       -2,   0.075,  0.3,  1.0);
+  prms.add_prm("qf2_ls",    2, -20.0,   20.0,  1.0);
+  prms.add_prm("d2",       -2,   0.075,  0.3,  1.0);
+  prms.add_prm("qd3_ls",    2, -20.0,   20.0,  1.0);
+  prms.add_prm("d3",       -2,   0.075,  0.3,  1.0);
+  prms.add_prm("qf4_ls",    2, -20.0,   20.0,  1.0);
+  prms.add_prm("d4",       -2,   0.075,  0.51, 1.0);
+
+  // TBA Cell.
+  prms.add_prm("b1",       -3, -20.0,   20.0,  1.0);
+  prms.add_prm("b1",       -2,   0.1,    1.2,  1.0);
+  prms.add_prm("b1",       -1,   0.075,  0.07, 1.0);
+  prms.add_prm("b1",        2, -20.0,   20.0,  1.0);
+  prms.add_prm("b2",       -2,   0.1,    0.7,  1.0);
+  prms.add_prm("b2",        2, -20.0,   20.0,  1.0);
+  prms.add_prm("qf1a_tba",  2, -20.0,   20.0,  1.0);
+  prms.add_prm("qf1b_tba",  2, -20.0,   20.0,  1.0);
+
+  // Standard-Straight Matching Cell.
+  prms.add_prm("d8",       -2,   0.075,  0.2,  1.0);
+  prms.add_prm("qf1_ms",    2, -20.0,   20.0,  1.0);
+  prms.add_prm("d9",       -2,   0.075,  0.2,  1.0);
+  prms.add_prm("qd2_ms",    2, -20.0,   20.0,  1.0);
+
+  // Mid-Straight Matching Cell.
+  prms.add_prm("qf1_ss",    2, -20.0,   20.0,  1.0);
+  prms.add_prm("d12",      -2,   0.075,  0.2,  1.0);
+  prms.add_prm("qd2_ss",    2, -20.0,   20.0,  1.0);
+  prms.add_prm("d11",      -2,   0.075,  0.32, 1.0);
+  prms.add_prm("qf3_ss",    2, -20.0,   20.0,  1.0);
+  prms.add_prm("d10",      -2,   0.075,  0.2,  1.0);
+
+  // Parameters are initialized in optimizer.
+
+  // Lattice constraints are: alpha_x,y, beta_x,y, eta_x, eta'_x.
+  constr.add_constr(Elem_GetPos(ElemIndex("sfh"), 1),
+		    1e3, 1e3, 0e0, 0e0, 0e3,  0e0,
+		    0e0, 0e0, 0e0, 0e0, 7e-2, 0e0);
+  constr.add_constr(Elem_GetPos(ElemIndex("b2"), 1),
+		    1e3, 1e3, 0e0, 0e0, 0e0, 1e1,
+		    0e0, 0e0, 0e0, 0e0, 0e0, 0e0);
+  constr.add_constr(Elem_GetPos(ElemIndex("b1"), 1)-1,
+		    0e0, 0e0, 0e0, 0e0, 1e5, 1e5,
+		    0e0, 0e0, 0e0, 0e0, 0e0, 0e0);
+  constr.add_constr(Elem_GetPos(ElemIndex("b1"), 2),
+		    0e0, 0e0, 0e0, 0e0, 1e5, 1e5,
+		    0e0, 0e0, 0e0, 0e0, 0e0, 0e0);
+  constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
+		    1e3, 1e3, 1e-1, 1e-1, 1e5, 1e5,
+		    0.0, 0.0,  3.0, 1.5,  0.0, 0.0);
+  constr.add_constr(Elem_GetPos(ElemIndex("ss"), 2),
+		    1e3, 1e3, 1e-1, 1e-1, 0e0, 0e0,
+		    0e0, 0e0, 4e0, 2.5e0,  0e0, 0e0);
+
+  lat_prms.bn_tol = 1e-6; lat_prms.step = 1.0;
+
+  lat_constr.Fnum_b3.push_back(ElemIndex("sfh"));
+  lat_constr.Fnum_b3.push_back(ElemIndex("sd1a"));
+  lat_constr.Fnum_b3.push_back(ElemIndex("sd1b"));
+  // lat_constr.Fnum_b3.push_back(ElemIndex("sd2"));
+
+  lat_constr.Fnum_b1.push_back(ElemIndex("b1"));
+  lat_constr.Fnum_b1.push_back(ElemIndex("b2"));
+
+  lat_constr.ini_constr(true, 1e4, 0.190, 1e0, 15.0, 1e-7);
+}
+
+
 int main(int argc, char *argv[])
 {
   double eps_x, dnu[2];
@@ -1069,13 +1190,22 @@ int main(int argc, char *argv[])
     fit_powell(lat_prms, 1e-3, f_achrom);
   }
 
-  if (!false) {
+  if (false) {
     // Optimize Standard Cell.
 
     tweak_std_cell(lat_prms, lat_constr);
 
     no_sxt();
     fit_powell(lat_prms, 1e-3, f_achrom);
+  }
+
+  if (!false) {
+    // Optimize Super Period.
+
+    tweak_super_per(lat_prms, lat_constr);
+
+    no_sxt();
+    fit_powell(lat_prms, 1e-3, f_achrom_sp);
   }
 
   if (false) {
