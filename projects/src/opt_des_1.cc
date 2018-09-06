@@ -778,6 +778,8 @@ void phi_corr(constr_type &constr)
   int    k, loc;
   double phi1;
 
+  const bool prt = false;
+
   constr.phi = 0e0;
   for (k = 0; k < constr.n_b1; k++) {
     loc = Elem_GetPos(constr.Fnum_b1[k], 1);
@@ -792,6 +794,7 @@ void phi_corr(constr_type &constr)
     /GetnKid(constr.Fnum_b1[constr.n_b1-1]);
   set_bend(constr.Fnum_b1[constr.n_b1-1], phi1);
  
+  if (prt) printf("\nphi_corr: %6.3f (%6.3f)\n", constr.phi, constr.phi0);
 }
 
 
@@ -1030,22 +1033,22 @@ void tweak_std_cell(param_type &prms, constr_type &constr)
   // Lattice constraints are: alpha_x,y, beta_x,y, eta_x, eta'_x.
   constr.add_constr(Elem_GetPos(ElemIndex("sfh"), 1),
 		    1e3, 1e3, 0e0, 0e0, 0e3,  0e0,
-		    0e0, 0e0, 0e0, 0e0, 7e-2, 0e0);
+		    0.0, 0.0, 0.0, 0.0, 7e-2, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("b2"), 1),
 		    1e3, 1e3, 0e0, 0e0, 0e0, 1e1,
-		    0e0, 0e0, 0e0, 0e0, 0e0, 0e0);
+		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("b1"), 1)-1,
 		    0e0, 0e0, 0e0, 0e0, 1e5, 1e5,
-		    0e0, 0e0, 0e0, 0e0, 0e0, 0e0);
+		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("b1"), 2),
 		    0e0, 0e0, 0e0, 0e0, 1e5, 1e5,
-		    0e0, 0e0, 0e0, 0e0, 0e0, 0e0);
+		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
 		    1e3, 1e3, 1e-1, 1e-1, 1e5, 1e5,
-		    0.0, 0.0,  3.0, 1.5,  0.0, 0.0);
+		    0.0, 0.0, 3.0, 1.5, 0.0, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("ss"), 2),
-		    1e3, 1e3, 1e-1, 1e-1, 0e0, 0e0,
-		    0e0, 0e0, 4e0, 2.5e0,  0e0, 0e0);
+		    1e3, 1e3, 1e-1, 1e-1, 1e5, 1e5,
+		    0.0, 0.0, 4.0, 2.5, 0.0, 0.0);
 
   lat_prms.bn_tol = 1e-6; lat_prms.step = 1.0;
 
@@ -1061,7 +1064,7 @@ void tweak_std_cell(param_type &prms, constr_type &constr)
 }
 
 
-void tweak_super_per(param_type &prms, constr_type &constr)
+void tweak_sp(param_type &prms, constr_type &constr)
 {
   // Parameter Type:
   //   Bend Angle  -3,
@@ -1082,20 +1085,20 @@ void tweak_super_per(param_type &prms, constr_type &constr)
   // TBA Cell.
   prms.add_prm("b1",       -3, -20.0,   20.0,  1.0);
   prms.add_prm("b1",       -2,   0.1,    1.2,  1.0);
-  prms.add_prm("b1",       -1,   0.075,  0.07, 1.0);
+  // prms.add_prm("b1",       -1,   0.075,  0.07, 1.0);
   prms.add_prm("b1",        2, -20.0,   20.0,  1.0);
   prms.add_prm("b2",       -2,   0.1,    0.7,  1.0);
   prms.add_prm("b2",        2, -20.0,   20.0,  1.0);
   prms.add_prm("qf1a_tba",  2, -20.0,   20.0,  1.0);
   prms.add_prm("qf1b_tba",  2, -20.0,   20.0,  1.0);
 
-  // Standard-Straight Matching Cell.
+  // Mid-Straight Matching Cell.
   prms.add_prm("d8",       -2,   0.075,  0.2,  1.0);
   prms.add_prm("qf1_ms",    2, -20.0,   20.0,  1.0);
   prms.add_prm("d9",       -2,   0.075,  0.2,  1.0);
   prms.add_prm("qd2_ms",    2, -20.0,   20.0,  1.0);
 
-  // Mid-Straight Matching Cell.
+  // Standard-Straight Matching Cell.
   prms.add_prm("qf1_ss",    2, -20.0,   20.0,  1.0);
   prms.add_prm("d12",      -2,   0.075,  0.2,  1.0);
   prms.add_prm("qd2_ss",    2, -20.0,   20.0,  1.0);
@@ -1108,22 +1111,25 @@ void tweak_super_per(param_type &prms, constr_type &constr)
   // Lattice constraints are: alpha_x,y, beta_x,y, eta_x, eta'_x.
   constr.add_constr(Elem_GetPos(ElemIndex("sfh"), 1),
 		    1e3, 1e3, 0e0, 0e0, 0e3,  0e0,
-		    0e0, 0e0, 0e0, 0e0, 7e-2, 0e0);
+		    0.0, 0.0, 0.0, 0.0, 7e-2, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("b2"), 1),
 		    1e3, 1e3, 0e0, 0e0, 0e0, 1e1,
-		    0e0, 0e0, 0e0, 0e0, 0e0, 0e0);
+		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("b1"), 1)-1,
-		    0e0, 0e0, 0e0, 0e0, 1e5, 1e5,
-		    0e0, 0e0, 0e0, 0e0, 0e0, 0e0);
+		    0e0, 0e0, 0e0, 0e0, 1e4, 1e4,
+		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("b1"), 2),
-		    0e0, 0e0, 0e0, 0e0, 1e5, 1e5,
-		    0e0, 0e0, 0e0, 0e0, 0e0, 0e0);
+		    0e0, 0e0, 0e0, 0e0, 1e4, 1e4,
+		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+  constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
+		    1e3, 1e3, 1e-2, 1e-2, 1e4, 1e4,
+		    0.0, 0.0, 15.0, 4.0,  0.0, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
-		    1e3, 1e3, 1e-1, 1e-1, 1e5, 1e5,
-		    0.0, 0.0,  3.0, 1.5,  0.0, 0.0);
-  constr.add_constr(Elem_GetPos(ElemIndex("ss"), 2),
-		    1e3, 1e3, 1e-1, 1e-1, 0e0, 0e0,
-		    0e0, 0e0, 4e0, 2.5e0,  0e0, 0e0);
+		    1e3, 1e3, 1e-2, 1e-2, 1e4, 1e4,
+		    0.0, 0.0, 3.0,  1.5,  0.0, 0.0);
+  constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
+		    1e3, 1e3, 1e-2, 1e-2, 0e0, 0e0,
+		    0.0, 0.0, 4.0,  2.5,  0.0, 0.0);
 
   lat_prms.bn_tol = 1e-6; lat_prms.step = 1.0;
 
@@ -1135,19 +1141,24 @@ void tweak_super_per(param_type &prms, constr_type &constr)
   lat_constr.Fnum_b1.push_back(ElemIndex("b1"));
   lat_constr.Fnum_b1.push_back(ElemIndex("b2"));
 
-  lat_constr.ini_constr(true, 1e4, 0.190, 1e0, 15.0, 1e-7);
+  // Only 1 Standard Straight: phi = 30.
+  lat_constr.ini_constr(true, 1e4, 0.190, 1e0, 30.0, 1e-4);
 }
 
 
 int main(int argc, char *argv[])
 {
+  char   buffer[BUFSIZ];
   double eps_x, dnu[2];
 
   reverse_elem = !false;
 
   trace = false;
 
-  if (!true)
+  // Unbuffered output.
+  setvbuf(stdout, buffer, _IONBF, BUFSIZ);
+
+  if (true)
     Read_Lattice(argv[1]);
   else
     rdmfile(argv[1]);
@@ -1160,9 +1171,9 @@ int main(int argc, char *argv[])
 
   // set_map_reversal(ElemIndex("line_inv"));
 
-  if (false) {
+  if (!false) {
     Ring_GetTwiss(true, 0e0); printglob();
-    dnu[X_] = 0.1; dnu[Y_] = 0.0;
+    dnu[X_] = 0.0; dnu[Y_] = -0.2;
     set_map(ElemIndex("ps_rot"), dnu);
   }
 
@@ -1202,7 +1213,7 @@ int main(int argc, char *argv[])
   if (!false) {
     // Optimize Super Period.
 
-    tweak_super_per(lat_prms, lat_constr);
+    tweak_sp(lat_prms, lat_constr);
 
     no_sxt();
     fit_powell(lat_prms, 1e-3, f_achrom_sp);
