@@ -167,7 +167,15 @@ void param_type::ini_prm(double *bn)
       bn[i] = rad2deg(Cell[loc].Elem.PL*Cell[loc].Elem.M->Pirho);
     }
     // Bounded.
-    bn[i] = bn_internal(bn[i], bn_min[i-1], bn_max[i-1]);
+    if ((bn_min[i-1] <= bn[i]) && (bn[i] <= bn_max[i-1]))
+      bn[i] = bn_internal(bn[i], bn_min[i-1], bn_max[i-1]);
+    else {
+      loc = Elem_GetPos(Fnum[i-1], 1);
+      printf("\nini_prm:\n  outside range ");
+      prt_name(stdout, Cell[loc].Elem.PName, 8);
+      printf(" %10.3e [%10.3e, %10.3e]\n", bn[i], bn_min[i-1], bn_max[i-1]);
+      exit(1);
+    }
   }
 }
 
@@ -439,7 +447,7 @@ void get_S(void)
 
 double get_eps_x1(const bool track)
 {
-  // eps_x [pm.rad].
+  // eps_x [nm.rad].
   long int     lastpos;
   ss_vect<tps> A;
 
@@ -696,7 +704,6 @@ double get_lin_opt(constr_type &constr)
     eps_x = get_eps_x1(true);
   } else {
     globval.emittance = true;
-    // ttwiss(ic[0], ic[1], ic[2], ic[3], 0e0);
     A = get_A(constr.ic[0], constr.ic[1], constr.ic[2], constr.ic[3]);
     Cell_Twiss(0, globval.Cell_nLoc, A, false, false, 0e0);
     eps_x = get_eps_x1(false);
@@ -1016,7 +1023,7 @@ void match_ss(param_type &prms, constr_type &constr)
 
   // Standard Straight.
   prms.add_prm("d10",    -2,   0.075,  0.35, 1.0);
-  prms.add_prm("qf3_ss",  2, -20.0,    0.0,  1.0);
+  prms.add_prm("qf3_ss",  2, -20.0,   20.0,  1.0);
   prms.add_prm("d11",    -2,   0.075,  0.35, 1.0);
   prms.add_prm("qd2_ss",  2, -20.0,   20.0,  1.0);
   prms.add_prm("d12",    -2,   0.075,  0.35, 1.0);
@@ -1026,10 +1033,10 @@ void match_ss(param_type &prms, constr_type &constr)
 
   // Lattice constraints are: alpha_x,y, beta_x,y, eta_x, eta'_x.
   constr.add_constr(Elem_GetPos(ElemIndex("sfh"), 1),
-		    1e3, 1e3, 0e0, 0e0, 0e3,  0e0,
+		    1e4, 1e4, 0e0, 0e0, 0e3,  0e0,
 		    0.0, 0.0, 0.0, 0.0, 7e-2, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("b2"), 1),
-		    1e3, 1e3, 0e0, 0e0, 0e0, 1e1,
+		    1e4, 1e4, 0e0, 0e0, 0e0, 1e1,
 		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("b1"), 1)-1,
 		    0e0, 0e0, 0e0, 0e0, 1e4, 1e4,
@@ -1039,7 +1046,7 @@ void match_ss(param_type &prms, constr_type &constr)
 		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 
   constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
-		    1e3, 1e3, 0e-2, 0e-2, 0e0, 0e0,
+		    1e4, 1e4, 0e-2, 0e-2, 0e0, 0e0,
 		    0.0, 0.0, 4.0,  2.5,  0.0, 0.0);
 
   lat_prms.bn_tol = 1e-6; lat_prms.step = 1.0;

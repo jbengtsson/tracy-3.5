@@ -228,7 +228,7 @@ void Cell_Twiss(long i0, long i1, ss_vect<tps> &Ascr, bool chroma, bool ring,
       //                getmat(Ascr1, k, 6)*getmat(Ascr1, 6, 5);
       // cellp->Etap[k-1] = getmat(Ascr1, 2*k, 5)*getmat(Ascr1, 6, 6) -
       //                 getmat(Ascr1, 2*k, 6)*getmat(Ascr1, 6, 5);
-      cellp->Eta[k-1] = getmat(Ascr1, k, 5);
+      cellp->Eta[k-1] = getmat(Ascr1, 2*k-1, 5);
       cellp->Etap[k-1] = getmat(Ascr1, 2*k, 5);
     }
     Ascr0 = Ascr1;
