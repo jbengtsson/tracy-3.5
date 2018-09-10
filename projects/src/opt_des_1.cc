@@ -381,17 +381,13 @@ void constr_type::prt_constr(const double chi2) const
 {
   int           k, loc1, loc2;
   double        b3L, a3L, b3, a3;
-  static double chi2_ref;
 
-  printf("\n%3d chi2: %11.5e -> %11.5e\n", n_iter, chi2_ref, chi2);
-
-  chi2_ref = chi2;
-
+  printf("\n%3d chi2: %11.5e -> %11.5e\n", n_iter, this->chi2, chi2);
   printf("\n  Linear Optics:\n");
-  printf("    eps_x       = %5.3f\n"
+  printf("    eps_x       = %5.3f    (%5.3f)\n"
 	 "    nu          = [%5.3f, %5.3f]\n",
-	 eps_x, nu[X_], nu[Y_]);
-  if (phi_scl != 0e0) printf("    phi         = %7.5f\n", phi);
+	 eps_x, eps0_x, nu[X_], nu[Y_]);
+  if (phi_scl != 0e0) printf("    phi         = %7.5f (%7.5f)\n", phi, phi0);
   if (drv_terms_scl != 0e0) {
     loc1 = Elem_GetPos(Fnum_b3[0], 1);
     loc2 = Elem_GetPos(Fnum_b3[0], 3);
@@ -752,7 +748,7 @@ void fit_powell(param_type &lat_prms, const double eps, double (*f)(double *))
 
   dpowell(b2, xi, n_b2, 1e-16, &iter, &fret, f);
 
-  printf("\n  fret = %12.5e\n", fret);
+  printf("\n  iter = %d fret = %12.5e\n", iter, fret);
   printf("b2s:\n");
   lat_prms.prt_prm(b2);
   // lat_prms.set_prm(b2);
@@ -779,29 +775,44 @@ void prt_f(double *b2, const double chi2, constr_type &lat_constr,
 }
 
 
-void phi_corr(constr_type &constr)
+double get_phi(constr_type &constr)
 {
-  // Correct total bend angle.
   int    k, loc;
-  double phi1;
+  double phi;
 
-  const bool prt = false;
-
-  constr.phi = 0e0;
+  phi = 0e0;
   for (k = 0; k < constr.n_b1; k++) {
     loc = Elem_GetPos(constr.Fnum_b1[k], 1);
-    constr.phi +=
+    phi +=
       GetnKid(constr.Fnum_b1[k])
       *rad2deg(Cell[loc].Elem.PL*Cell[loc].Elem.M->Pirho);
   }
+
+  return phi;
+}
+
+
+void phi_corr(constr_type &constr)
+{
+  // Correct total bend angle.
+  int    loc;
+  double phi1, phi;
+
+  const bool prt = false;
+
   loc = Elem_GetPos(constr.Fnum_b1[constr.n_b1-1], 1);
+  phi = get_phi(constr);
   phi1 =
     rad2deg(Cell[loc].Elem.PL*Cell[loc].Elem.M->Pirho)
-    - (constr.phi-constr.phi0)
+    - (phi-constr.phi0)
     /GetnKid(constr.Fnum_b1[constr.n_b1-1]);
   set_bend(constr.Fnum_b1[constr.n_b1-1], phi1);
  
-  if (prt) printf("\nphi_corr: %6.3f (%6.3f)\n", constr.phi, constr.phi0);
+  constr.phi = get_phi(constr);
+
+  if (prt)
+    printf("\nphi_corr: %6.3f -> %6.3f (%6.3f)\n",
+	   phi, constr.phi, constr.phi0);
 }
 
 
@@ -809,12 +820,12 @@ double f_match(double *b2)
 {
   double chi2;
 
-  const int n_prt = 10;
+  const int n_prt = 5;
 
   lat_prms.set_prm(b2);
 
-  // if (lat_constr.phi_scl != 0e0)
-  //   phi_corr(lat_constr);
+  if (lat_constr.phi_scl != 0e0)
+    phi_corr(lat_constr);
 
   eps_x = get_lin_opt(lat_constr);
 
@@ -1005,7 +1016,14 @@ void tweak_ss_2(param_type &prms, constr_type &constr)
 
 void match_ss(param_type &prms, constr_type &constr)
 {
+  // Parameter Type:
+  //   Bend Angle  -3,
+  //   Length      -2,
+  //   Position    -1,
+  //   Quadrupole   2.
+
   int j, k;
+
   // Standard Cell.
   const int    n_ic    = 4;
   const double ic[][2] =
@@ -1055,7 +1073,7 @@ void match_ss(param_type &prms, constr_type &constr)
   lat_constr.Fnum_b1.push_back(ElemIndex("b2"));
 
   // Standard Straight Half Cell: phi = 7.5.
-  lat_constr.ini_constr(false, 1e4, 0.190, 1e0, 2*7.5, 0e0);
+  lat_constr.ini_constr(false, 1e5, 0.190, 1e0, 7.5, 0e0);
 
   for (j = 0; j < n_ic; j++)
     for (k = 0; k < 2; k++)
