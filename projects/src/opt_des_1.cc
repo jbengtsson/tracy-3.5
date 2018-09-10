@@ -734,6 +734,8 @@ void fit_powell(param_type &lat_prms, const double eps, double (*f)(double *))
   double       *b2, **xi, fret, eps_x;
   ss_vect<tps> A;
 
+  const double ftol = 1e-8;
+
   n_b2 = lat_prms.n_prm;
 
   b2 = dvector(1, n_b2); xi = dmatrix(1, n_b2, 1, n_b2);
@@ -746,7 +748,7 @@ void fit_powell(param_type &lat_prms, const double eps, double (*f)(double *))
     for (j = 1; j <= n_b2; j++)
       xi[i][j] = (i == j)? eps : 0e0;
 
-  dpowell(b2, xi, n_b2, 1e-16, &iter, &fret, f);
+  dpowell(b2, xi, n_b2, ftol, &iter, &fret, f);
 
   printf("\n  iter = %d fret = %12.5e\n", iter, fret);
   printf("b2s:\n");
@@ -820,7 +822,7 @@ double f_match(double *b2)
 {
   double chi2;
 
-  const int n_prt = 5;
+  const int n_prt = 10;
 
   lat_prms.set_prm(b2);
 
@@ -1030,38 +1032,41 @@ void match_ss(param_type &prms, constr_type &constr)
     {{0.0, 0.0}, {3.80126, 2.88971}, {0.0, 0.0}, {0.0, 0.0}};
 
   // TBA Cell.
-  prms.add_prm("b1",       -3, -20.0,   20.0,  1.0);
-  prms.add_prm("b1",       -2,   0.1,    1.2,  1.0);
+  // prms.add_prm("b1",       -3, -20.0,   20.0,  1.0);
+  // prms.add_prm("b1",       -2,   0.1,    1.2,  1.0);
   // prms.add_prm("b1",       -1,   0.075,  0.07, 1.0);
-  prms.add_prm("b1",        2, -20.0,   20.0,  1.0);
-  prms.add_prm("b2",       -2,   0.1,    0.7,  1.0);
-  prms.add_prm("b2",        2, -20.0,   20.0,  1.0);
-  prms.add_prm("qf1a_tba",  2, -20.0,   20.0,  1.0);
-  prms.add_prm("qf1b_tba",  2, -20.0,   20.0,  1.0);
+  // prms.add_prm("b1",        2, -20.0,   20.0,  1.0);
+  // prms.add_prm("b2",       -2,   0.1,    0.7,  1.0);
+  // prms.add_prm("b2",        2, -20.0,   20.0,  1.0);
+  // prms.add_prm("qf1a_tba",  2, -20.0,   20.0,  1.0);
+  // prms.add_prm("qf1b_tba",  2, -20.0,   20.0,  1.0);
 
   // Standard Straight.
   prms.add_prm("d10",    -2,   0.075,  0.35, 1.0);
-  prms.add_prm("qf3_ss",  2, -20.0,   20.0,  1.0);
+  prms.add_prm("qf3_ss",  2, -20.0,   -0.5,  1.0);
+  prms.add_prm("qf3_ss", -2,   0.1,    0.4,  1.0);
   prms.add_prm("d11",    -2,   0.075,  0.35, 1.0);
   prms.add_prm("qd2_ss",  2, -20.0,   20.0,  1.0);
+  prms.add_prm("qd2_ss", -2,   0.2,    0.4,  1.0);
   prms.add_prm("d12",    -2,   0.075,  0.35, 1.0);
   prms.add_prm("qf1_ss",  2, -20.0,   20.0,  1.0);
+  prms.add_prm("qf1_ss", -2,   0.1,    0.4,  1.0);
 
   // Parameters are initialized in optimizer.
 
   // Lattice constraints are: alpha_x,y, beta_x,y, eta_x, eta'_x.
-  constr.add_constr(Elem_GetPos(ElemIndex("sfh"), 1),
-		    1e4, 1e4, 0e0, 0e0, 0e3,  0e0,
-		    0.0, 0.0, 0.0, 0.0, 7e-2, 0.0);
-  constr.add_constr(Elem_GetPos(ElemIndex("b2"), 1),
-		    1e4, 1e4, 0e0, 0e0, 0e0, 1e1,
-		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-  constr.add_constr(Elem_GetPos(ElemIndex("b1"), 1)-1,
-		    0e0, 0e0, 0e0, 0e0, 1e4, 1e4,
-		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-  constr.add_constr(Elem_GetPos(ElemIndex("b1"), 2),
-		    0e0, 0e0, 0e0, 0e0, 1e4, 1e4,
-		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+  // constr.add_constr(Elem_GetPos(ElemIndex("sfh"), 1),
+  // 		    1e4, 1e4, 0e0, 0e0, 0e3,  0e0,
+  // 		    0.0, 0.0, 0.0, 0.0, 7e-2, 0.0);
+  // constr.add_constr(Elem_GetPos(ElemIndex("b2"), 1),
+  // 		    1e4, 1e4, 0e0, 0e0, 0e0, 1e1,
+  // 		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+  // constr.add_constr(Elem_GetPos(ElemIndex("b1"), 1)-1,
+  // 		    0e0, 0e0, 0e0, 0e0, 1e4, 1e4,
+  // 		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+  // constr.add_constr(Elem_GetPos(ElemIndex("b1"), 2),
+  // 		    0e0, 0e0, 0e0, 0e0, 1e4, 1e4,
+  // 		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 
   constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
 		    1e4, 1e4, 0e-2, 0e-2, 0e0, 0e0,
@@ -1073,7 +1078,7 @@ void match_ss(param_type &prms, constr_type &constr)
   lat_constr.Fnum_b1.push_back(ElemIndex("b2"));
 
   // Standard Straight Half Cell: phi = 7.5.
-  lat_constr.ini_constr(false, 1e5, 0.190, 1e0, 7.5, 0e0);
+  lat_constr.ini_constr(false, 0e5, 0.190, 0e0, 7.5, 0e0);
 
   for (j = 0; j < n_ic; j++)
     for (k = 0; k < 2; k++)
@@ -1175,7 +1180,7 @@ int main(int argc, char *argv[])
   // Unbuffered output.
   setvbuf(stdout, buffer, _IONBF, BUFSIZ);
 
-  if (true)
+  if (!true)
     Read_Lattice(argv[1]);
   else
     rdmfile(argv[1]);
