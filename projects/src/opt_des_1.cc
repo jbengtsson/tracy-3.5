@@ -625,15 +625,15 @@ void prt_b2(const param_type &lat_prms)
 
   for (k = 0; k < lat_prms.n_prm; k++) {
     loc = Elem_GetPos(lat_prms.Fnum[k], 1);
-    prt_name(outf, Cell[loc].Elem.PName, 4);
+    prt_name(outf, Cell[loc].Elem.PName, 6);
     if (lat_prms.n[k] != -1)
       prt_elem(outf, Cell[loc]);
     else {
       fprintf(outf, "\n  ");
-      prt_name(outf, Cell[loc+1].Elem.PName, 4);
+      prt_name(outf, Cell[loc+1].Elem.PName, 6);
       prt_drift(outf, Cell[loc+1]);
       fprintf(outf, "  ");
-      prt_name(outf, Cell[loc-1].Elem.PName, 4);
+      prt_name(outf, Cell[loc-1].Elem.PName, 6);
       prt_drift(outf, Cell[loc-1]);
     }
   }
@@ -1031,17 +1031,7 @@ void match_ss(param_type &prms, constr_type &constr)
   const double ic[][2] =
     {{0.0, 0.0}, {3.80126, 2.88971}, {0.0, 0.0}, {0.0, 0.0}};
 
-  // TBA Cell.
-  // prms.add_prm("b1",       -3, -20.0,   20.0,  1.0);
-  // prms.add_prm("b1",       -2,   0.1,    1.2,  1.0);
-  // prms.add_prm("b1",       -1,   0.075,  0.07, 1.0);
-  // prms.add_prm("b1",        2, -20.0,   20.0,  1.0);
-  // prms.add_prm("b2",       -2,   0.1,    0.7,  1.0);
-  // prms.add_prm("b2",        2, -20.0,   20.0,  1.0);
-  // prms.add_prm("qf1a_tba",  2, -20.0,   20.0,  1.0);
-  // prms.add_prm("qf1b_tba",  2, -20.0,   20.0,  1.0);
-
-  // Standard Straight.
+ // Standard Straight.
   prms.add_prm("d10",    -2,   0.075,  0.35, 1.0);
   prms.add_prm("qf3_ss",  2, -20.0,   -0.5,  1.0);
   prms.add_prm("qf3_ss", -2,   0.1,    0.4,  1.0);
@@ -1054,31 +1044,58 @@ void match_ss(param_type &prms, constr_type &constr)
 
   // Parameters are initialized in optimizer.
 
-  // Lattice constraints are: alpha_x,y, beta_x,y, eta_x, eta'_x.
-  // constr.add_constr(Elem_GetPos(ElemIndex("sfh"), 1),
-  // 		    1e4, 1e4, 0e0, 0e0, 0e3,  0e0,
-  // 		    0.0, 0.0, 0.0, 0.0, 7e-2, 0.0);
-  // constr.add_constr(Elem_GetPos(ElemIndex("b2"), 1),
-  // 		    1e4, 1e4, 0e0, 0e0, 0e0, 1e1,
-  // 		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-  // constr.add_constr(Elem_GetPos(ElemIndex("b1"), 1)-1,
-  // 		    0e0, 0e0, 0e0, 0e0, 1e4, 1e4,
-  // 		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-  // constr.add_constr(Elem_GetPos(ElemIndex("b1"), 2),
-  // 		    0e0, 0e0, 0e0, 0e0, 1e4, 1e4,
-  // 		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-
   constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
 		    1e4, 1e4, 0e-2, 0e-2, 0e0, 0e0,
 		    0.0, 0.0, 4.0,  2.5,  0.0, 0.0);
 
   lat_prms.bn_tol = 1e-6; lat_prms.step = 1.0;
 
-  lat_constr.Fnum_b1.push_back(ElemIndex("b1"));
-  lat_constr.Fnum_b1.push_back(ElemIndex("b2"));
+  lat_constr.ini_constr(false, 0e5, 0.190, 0e0, 0.0, 0e0);
 
-  // Standard Straight Half Cell: phi = 7.5.
-  lat_constr.ini_constr(false, 0e5, 0.190, 0e0, 7.5, 0e0);
+  for (j = 0; j < n_ic; j++)
+    for (k = 0; k < 2; k++)
+      lat_constr.ic[j][k] = ic[j][k];
+}
+
+
+void match_ls(param_type &prms, constr_type &constr)
+{
+  // Parameter Type:
+  //   Bend Angle  -3,
+  //   Length      -2,
+  //   Position    -1,
+  //   Quadrupole   2.
+
+  int j, k;
+
+  // Long Cell.
+  const int    n_ic    = 4;
+  const double ic[][2] =
+    {{0.0, 0.0}, {2.68752, 2.17171}, {0.0, 0.0}, {0.0, 0.0}};
+
+ // Long Straight.
+  prms.add_prm("d1",     -2,   0.075,  0.35, 1.0);
+  prms.add_prm("qd1_ls",  2,   0.0,   20.0,  1.0);
+  prms.add_prm("qd1_ls", -2,   0.1,    0.4,  1.0);
+  prms.add_prm("d2",     -2,   0.075,  0.35, 1.0);
+  prms.add_prm("qf2_ls",  2, -20.0,   -0.5,  1.0);
+  prms.add_prm("qf2_ls", -2,   0.1,    0.4,  1.0);
+  prms.add_prm("d3",     -2,   0.075,  0.35, 1.0);
+  prms.add_prm("qd3_ls",  2,   0.5,   20.0,  1.0);
+  prms.add_prm("qd3_ls", -2,   0.1,    0.4,  1.0);
+  prms.add_prm("d4",     -2,   0.075,  0.51, 1.0);
+  prms.add_prm("qf4_ls",  2, -20.0,   -0.5,  1.0);
+  prms.add_prm("qf4_ls", -2,   0.1,    0.4,  1.0);
+
+  // Parameters are initialized in optimizer.
+
+  constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
+		    1e4, 1e4, 0e-2, 0e-2, 0e0, 0e0,
+		    0.0, 0.0, 15.0, 4.0,  0.0, 0.0);
+
+  lat_prms.bn_tol = 1e-6; lat_prms.step = 1.0;
+
+  lat_constr.ini_constr(false, 0e5, 0.190, 0e0, 0.0, 0e0);
 
   for (j = 0; j < n_ic; j++)
     for (k = 0; k < 2; k++)
@@ -1232,10 +1249,19 @@ int main(int argc, char *argv[])
     fit_powell(lat_prms, 1e-3, f_achrom_sp);
   }
 
-  if (!false) {
+  if (false) {
     // Match Standard Straight.
 
     match_ss(lat_prms, lat_constr);
+
+    no_sxt();
+    fit_powell(lat_prms, 1e-3, f_match);
+  }
+
+  if (!false) {
+    // Match Long Straight.
+
+    match_ls(lat_prms, lat_constr);
 
     no_sxt();
     fit_powell(lat_prms, 1e-3, f_match);
