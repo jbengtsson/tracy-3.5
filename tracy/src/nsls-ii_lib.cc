@@ -1327,7 +1327,6 @@ void set_L(const int Fnum, const double L)
 
 void set_dL(const int Fnum, const int Knum, const double dL)
 {
-
   Cell[Elem_GetPos(Fnum, Knum)].Elem.PL += dL;
 }
 
@@ -1337,11 +1336,11 @@ void set_dL(const int Fnum, const double dL)
   int  k;
 
   for (k = 1; k <= GetnKid(Fnum); k++)
-    Cell[Elem_GetPos(Fnum, k)].Elem.PL += dL;
+    set_dL(Fnum, k, dL);
 }
 
 
-// multipole components
+// Multipole Components.
 
 void get_bn_design_elem(const int Fnum, const int Knum,
 			const int n, double &bn, double &an)
