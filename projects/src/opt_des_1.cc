@@ -604,6 +604,11 @@ void constr_type::prt_constr(const double chi2) const
 	 eps_x, eps0_x, nu[X_], nu[Y_]);
   if (phi_scl != 0e0) printf("    phi         = %7.5f (%7.5f)\n", phi, phi0);
   if (drv_terms_scl != 0e0) {
+    if (n_b3 == 0) {
+      printf("\nprt_constr: no sextupole families defined\n");
+      exit(0);
+    }
+
     loc1 = Elem_GetPos(Fnum_b3[0], 1);
     loc2 = Elem_GetPos(Fnum_b3[0], 3);
 
@@ -1054,43 +1059,6 @@ double f_achrom(double *b2)
 }
 
 
-double f_achrom_sp(double *b2)
-{
-  bool   stable;
-  double chi2;
-
-  const int n_prt = 5;
-
-  lat_prms.set_prm(b2);
-
-  if (lat_constr.phi_scl != 0e0)
-    phi_corr(lat_constr);
-
-  if (lat_constr.ring)
-    stable = get_nu(lat_constr.nu);
-
-  if ((lat_constr.ring && stable) || !lat_constr.ring) {
-    eps_x = get_lin_opt(lat_constr);
-    if (lat_constr.drv_terms_scl != 0e0) {
-      fit_ksi1(lat_constr.Fnum_b3, 0e0, 0e0, 1e-2);
-      get_drv_terms(lat_constr);
-    }
-
-    chi2 = lat_constr.get_chi2();
-
-    if (chi2 < lat_constr.chi2) {
-      if (lat_constr.n_iter % n_prt == 0)
-	prt_f(b2, chi2, lat_constr, lat_prms);
-      lat_constr.n_iter++;
-      lat_constr.chi2 = chi2;
-    }
-  } else
-    chi2 = 1e30;
-
-  return chi2;
-}
-
-
 void match_ss(param_type &prms, constr_type &constr)
 {
   // Parameter Type:
@@ -1175,6 +1143,47 @@ void match_ls(param_type &prms, constr_type &constr)
 }
 
 
+void drv_terms_ls(param_type &prms, constr_type &constr)
+{
+  // Parameter Type:
+  //   Bend Angle  -3,
+  //   Length      -2,
+  //   Position    -1,
+  //   Quadrupole   2.
+
+  // Long Straight.
+  prms.add_prm("d4",     -2,   0.075,  0.51, 1.0);
+  prms.add_prm("qd4_ls",  2, -20.0,   -0.5,  1.0);
+  prms.add_prm("qd4_ls", -2,   0.1,    0.4,  1.0);
+  prms.add_prm("d3",     -2,   0.075,  0.35, 1.0);
+  prms.add_prm("qf3_ls",  2, -20.0,   20.0,  1.0);
+  prms.add_prm("qf3_ls", -2,   0.1,    0.4,  1.0);
+  prms.add_prm("d2",     -2,   0.075,  0.35, 1.0);
+  prms.add_prm("qd2_ls",  2, -20.0,   20.0,  1.0);
+  prms.add_prm("qd2_ls", -2,   0.1,    0.4,  1.0);
+  prms.add_prm("d1",     -2,   0.075,  0.35, 1.0);
+  prms.add_prm("qf1_ls",  2, -20.0,   20.0,  1.0);
+  prms.add_prm("qf1_ls", -2,   0.1,    0.4,  1.0);
+
+  // Parameters are initialized in optimizer.
+
+  constr.add_constr(Elem_GetPos(ElemIndex("d2"), 1),
+		    0e0, 0e0, 1e0, 0e0, 0e0, 0e0,
+		    0.0, 0.0, 20.0, 0.0,  0.0, 0.0);
+  constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
+		    0e0, 0e0, 1e-1, 1e-1, 0e0, 0e0,
+		    0.0, 0.0, 15.0, 4.0,  0.0, 0.0);
+
+  lat_prms.bn_tol = 1e-6; lat_prms.step = 1.0;
+
+  lat_constr.Fnum_b3.push_back(ElemIndex("sfh"));
+  lat_constr.Fnum_b3.push_back(ElemIndex("sd1a"));
+  lat_constr.Fnum_b3.push_back(ElemIndex("sd1b"));
+
+  lat_constr.ini_constr(true, 0e0, 0.190, 0e0, 0.0, 1e-6);
+}
+
+
 void tweak_sp(param_type &prms, constr_type &constr)
 {
   // Parameter Type:
@@ -1184,9 +1193,9 @@ void tweak_sp(param_type &prms, constr_type &constr)
   //   Quadrupole   2.
 
   // Long Straight.
-  prms.add_prm("d1",     -2,   0.075,  0.35, 1.0);
-  prms.add_prm("qd1_ls",  2, -20.0,   20.0,  1.0);
-  prms.add_prm("qd1_ls", -2,   0.1,    0.4,  1.0);
+  // prms.add_prm("d1",     -2,   0.075,  0.35, 1.0);
+  // prms.add_prm("qd1_ls",  2, -20.0,   20.0,  1.0);
+  // prms.add_prm("qd1_ls", -2,   0.1,    0.4,  1.0);
   prms.add_prm("d2",     -2,   0.075,  0.35, 1.0);
   prms.add_prm("qf2_ls",  2, -20.0,   20.0,  1.0);
   prms.add_prm("qf2_ls", -2,   0.1,    0.4,  1.0);
@@ -1292,7 +1301,7 @@ int main(int argc, char *argv[])
 
   if (!false) {
     Ring_GetTwiss(true, 0e0); printglob();
-    dnu[X_] = 0.2; dnu[Y_] = 0.0;
+    dnu[X_] = 0.1; dnu[Y_] = 0.0;
     set_map(ElemIndex("ps_rot"), dnu);
   }
 
@@ -1310,30 +1319,31 @@ int main(int argc, char *argv[])
     prt_lat("linlat.out", globval.bpm, true, 10);
   }
 
-  if (!false) {
-    // Optimize Super Period.
-
-    tweak_sp(lat_prms, lat_constr);
-
-    no_sxt();
-    fit_powell(lat_prms, 1e-3, f_achrom_sp);
-  }
-
   if (false) {
     // Match Standard Straight.
-
     match_ss(lat_prms, lat_constr);
-
     no_sxt();
     fit_powell(lat_prms, 1e-3, f_match);
   }
 
   if (false) {
     // Match Long Straight.
-
     match_ls(lat_prms, lat_constr);
-
     no_sxt();
     fit_powell(lat_prms, 1e-3, f_match);
+  }
+
+  if (!false) {
+    // Optimize Long Straight.
+    drv_terms_ls(lat_prms, lat_constr);
+    no_sxt();
+    fit_powell(lat_prms, 1e-3, f_achrom);
+  }
+
+  if (false) {
+    // Optimize Super Period.
+    tweak_sp(lat_prms, lat_constr);
+    no_sxt();
+    fit_powell(lat_prms, 1e-3, f_achrom);
   }
 }
