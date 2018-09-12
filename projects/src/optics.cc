@@ -693,7 +693,7 @@ int main(int argc, char *argv[])
 
   trace = !true;
 
-  if (!true)
+  if (true)
     Read_Lattice(argv[1]);
   else
     rdmfile(argv[1]);
@@ -708,7 +708,7 @@ int main(int argc, char *argv[])
 
   if (false) {
     Ring_GetTwiss(true, 0e0); printglob();
-    dnu[X_] = 0.0; dnu[Y_] = 0.0;
+    dnu[X_] = 0.3; dnu[Y_] = 0.7;
     set_map(ElemIndex("ps_rot"), dnu);
   }
 

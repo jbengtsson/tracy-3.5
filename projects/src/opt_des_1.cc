@@ -507,41 +507,53 @@ void constr_param_diff(const int Fnum, const int n, const double eps)
 
 void constr_type::get_Jacobian(param_type &lat_prms)
 {
-  int                 i, j, k, ind = 0;
+  int                 i, j, k, n_constr, ind = 0;
   double              eps;
   std::vector<double> row;
 
   const int n_type = 5;
 
-  for (i = 0; i < lat_prms.n_prm; i++) {
-    eps = get_eps(lat_prms.n[i-1]);
+  n_constr = 0;
+  for (j = 0; j < n_loc; j++)
+    for (k = 0; k < n_type; k++)
+      if (scl[j][k] != 0e0) n_constr++;
+    
+  Jacobian.resize(n_constr);
+  for (i = 0; i < n_constr; i++)
+    Jacobian[i].resize(lat_prms.n_prm);
 
-    constr_param_diff(lat_prms.Fnum[i-1], lat_prms.n[i-1], eps);
-    get_lin_opt(lat_constr);
-    for (j = 0; j < n_loc; j++) {
-      for (k = 0; k < n_type; k++)
-	if (scl[j][k] != 0e0) row.push_back(get_constr(loc[j], k));
-    }
- 
-    constr_param_diff(lat_prms.Fnum[i-1], lat_prms.n[i-1], -eps);
+  printf("\nget_Jacobian: %d %d\n",
+	 (int)Jacobian.size(), (int)Jacobian[0].size());
+
+  for (i = 0; i < lat_prms.n_prm; i++) {
+    eps = get_eps(lat_prms.n[i]);
+
+    constr_param_diff(lat_prms.Fnum[i], lat_prms.n[i], eps);
     get_lin_opt(lat_constr);
     for (j = 0; j < n_loc; j++) {
       ind = 0;
       for (k = 0; k < n_type; k++)
-	if (scl[j][0] != 0e0) {
-	  row[ind] = (row[ind]-get_constr(loc[j], k))/(2e0*eps);
+	if (scl[j][k] != 0e0) {
+	  Jacobian[ind][i] = get_constr(loc[j], k);
+	  ind++;
+	}
+    }
+ 
+    constr_param_diff(lat_prms.Fnum[i], lat_prms.n[i], -eps);
+    get_lin_opt(lat_constr);
+    for (j = 0; j < n_loc; j++) {
+      ind = 0;
+      for (k = 0; k < n_type; k++)
+	if (scl[j][k] != 0e0) {
+	  Jacobian[ind][i] -= get_constr(loc[j], k);
+	  Jacobian[ind][i] /= 2e0*eps;
 	  ind++;
 	}
     }
 
-    std::copy(row.begin(), row.end(),
-	      std::ostream_iterator<char>(std::cout, " "));
-    exit(0);
-
-    Jacobian.push_back(row);
-
-    constr_param_diff(lat_prms.Fnum[i-1], lat_prms.n[i-1], eps);
+    constr_param_diff(lat_prms.Fnum[i], lat_prms.n[i], eps);
   }
+
 }
 
 
@@ -549,8 +561,9 @@ void constr_type::prt_Jacobian(void) const
 {
   int i, j;
 
-  for (i = 0; i < (int)Jacobian[0].size(); i++) {
-    for (j = 0; j < n_loc; j++)
+  printf("\n");
+  for (i = 0; i < (int)Jacobian.size(); i++) {
+    for (j = 0; j < (int)Jacobian[i].size(); j++)
       printf(" %12.5e", Jacobian[i][j]);
     printf("\n");
   }
@@ -917,9 +930,11 @@ void fit_powell(param_type &lat_prms, const double eps, double (*f)(double *))
   lat_prms.ini_prm(b2);
   f(b2);
 
-  // lat_constr.get_Jacobian(lat_prms);
-  // lat_constr.prt_Jacobian();
-  // exit(0);
+  if (!false) {
+    lat_constr.get_Jacobian(lat_prms);
+    lat_constr.prt_Jacobian();
+    exit(0);
+  }
 
   // Set initial directions (unit vectors).
   for (i = 1; i <= n_b2; i++)
@@ -1170,6 +1185,9 @@ void drv_terms_ls(param_type &prms, constr_type &constr)
   constr.add_constr(Elem_GetPos(ElemIndex("d2"), 1),
 		    0e0, 0e0, 1e0, 0e0, 0e0, 0e0,
 		    0.0, 0.0, 20.0, 0.0,  0.0, 0.0);
+  constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
+		    1e3, 1e3, 0e0, 0e0, 0e0, 0e0,
+		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
 		    0e0, 0e0, 1e-1, 1e-1, 0e0, 0e0,
 		    0.0, 0.0, 15.0, 4.0,  0.0, 0.0);
@@ -1301,7 +1319,7 @@ int main(int argc, char *argv[])
 
   if (!false) {
     Ring_GetTwiss(true, 0e0); printglob();
-    dnu[X_] = 0.1; dnu[Y_] = 0.0;
+    dnu[X_] = 0.2; dnu[Y_] = 0.0;
     set_map(ElemIndex("ps_rot"), dnu);
   }
 
