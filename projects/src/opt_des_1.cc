@@ -66,7 +66,7 @@ public:
   bool
     ring;
   int
-    n_loc, n_b3, n_b1,
+    n_loc, n_constr, n_b3, n_b1,
     n_iter;
   double
     ic[4][2],
@@ -81,8 +81,8 @@ public:
     drv_terms[2];
   std::vector< std::vector<double> >
     value,
-    scl,
-    Jacobian;
+    scl;
+  double **Jacobian;
   std::vector<int>
     Fnum,
     Fnum_b3,
@@ -100,7 +100,8 @@ public:
 		  const double drv_terms_scl);
   void get_Jacobian(param_type &lat_prms);
   double get_chi2(void) const;
-  void prt_Jacobian(void) const;
+  void get_dchi2(double *df) const;
+  void prt_Jacobian(const int n) const;
   void prt_constr(const double chi2) const;
 };
 
@@ -191,7 +192,7 @@ void param_type::set_prm(double *bn)
   double bn_ext;
 
   const bool prt   = false;
-  const int  n_prt = 5;
+  const int  n_prt = 6;
 
   if (prt) printf("\nset_prm:\n  ");
   for (i = 1; i <= n_prm; i++) {
@@ -418,6 +419,8 @@ double get_constr(const int loc, const int k)
 {
   double constr = 0e0;
 
+  const bool prt = false;
+
   switch (k) {
   case 0:
     constr = Cell[loc].Alpha[X_];
@@ -439,8 +442,11 @@ double get_constr(const int loc, const int k)
     break;
   default:
     printf("\nget_constr: unknown constr %d\n", k);
+    exit(1);
     break;
   }
+
+  if (prt) printf("get_constr: %1d %10.3e\n", k, constr);
 
   return constr;
 }
@@ -450,7 +456,8 @@ double get_eps(const int n)
 {
   double eps = 0e0;
 
-  const double prm_eps[] = { 1e-2, 1e-3, 1e-3, 1e-3 };
+  const bool   prt       = false;
+  const double prm_eps[] = { 1e-3, 1e-4, 1e-4, 1e-4 };
 
   switch (n) {
   case -3:
@@ -471,14 +478,17 @@ double get_eps(const int n)
     break;
   default:
     printf("\nget_eps: unknown parameter type %d\n", n);
+    exit(1);
     break;
   }
+
+  if (prt) printf("get_eps: %2d %10.3e\n", n, eps);
 
   return eps;
 }
 
 
-void constr_param_diff(const int Fnum, const int n, const double eps)
+void constr_dparam(const int Fnum, const int n, const double eps)
 {
 
   switch (n) {
@@ -499,7 +509,7 @@ void constr_param_diff(const int Fnum, const int n, const double eps)
     set_dbn_design_fam(Fnum, n, eps, 0e0);
     break;
   default:
-    printf("\nconstr_param_diff: unknown parameter type %d\n", n);
+    printf("\nconstr_dparam: unknown parameter type %d\n", n);
     break;
   }
 }
@@ -507,7 +517,7 @@ void constr_param_diff(const int Fnum, const int n, const double eps)
 
 void constr_type::get_Jacobian(param_type &lat_prms)
 {
-  int                 i, j, k, n_constr, ind = 0;
+  int                 i, j, k, ind = 0;
   double              eps;
   std::vector<double> row;
 
@@ -518,52 +528,49 @@ void constr_type::get_Jacobian(param_type &lat_prms)
     for (k = 0; k < n_type; k++)
       if (scl[j][k] != 0e0) n_constr++;
     
-  Jacobian.resize(n_constr);
-  for (i = 0; i < n_constr; i++)
-    Jacobian[i].resize(lat_prms.n_prm);
+  Jacobian = dmatrix(1, n_constr, 1, lat_prms.n_prm);
 
-  printf("\nget_Jacobian: %d %d\n",
-	 (int)Jacobian.size(), (int)Jacobian[0].size());
+  printf("\nget_Jacobian: %d %d\n", n_constr, lat_prms.n_prm);
 
   for (i = 0; i < lat_prms.n_prm; i++) {
     eps = get_eps(lat_prms.n[i]);
 
-    constr_param_diff(lat_prms.Fnum[i], lat_prms.n[i], eps);
+    constr_dparam(lat_prms.Fnum[i], lat_prms.n[i], eps);
     get_lin_opt(lat_constr);
     for (j = 0; j < n_loc; j++) {
-      ind = 0;
+      ind = 1;
       for (k = 0; k < n_type; k++)
 	if (scl[j][k] != 0e0) {
-	  Jacobian[ind][i] = get_constr(loc[j], k);
+	  Jacobian[ind][i+1] = get_constr(loc[j], k);
 	  ind++;
 	}
     }
  
-    constr_param_diff(lat_prms.Fnum[i], lat_prms.n[i], -eps);
+    constr_dparam(lat_prms.Fnum[i], lat_prms.n[i], -2e0*eps);
     get_lin_opt(lat_constr);
     for (j = 0; j < n_loc; j++) {
-      ind = 0;
+      ind = 1;
       for (k = 0; k < n_type; k++)
-	if (scl[j][k] != 0e0) {
-	  Jacobian[ind][i] -= get_constr(loc[j], k);
-	  Jacobian[ind][i] /= 2e0*eps;
-	  ind++;
-	}
+    	if (scl[j][k] != 0e0) {
+    	  Jacobian[ind][i+1] -= get_constr(loc[j], k);
+    	  Jacobian[ind][i+1] /= 2e0*eps;
+    	  ind++;
+    	}
     }
 
-    constr_param_diff(lat_prms.Fnum[i], lat_prms.n[i], eps);
+    constr_dparam(lat_prms.Fnum[i], lat_prms.n[i], eps);
   }
 
 }
 
 
-void constr_type::prt_Jacobian(void) const
+void constr_type::prt_Jacobian(const int n) const
 {
   int i, j;
 
   printf("\n");
-  for (i = 0; i < (int)Jacobian.size(); i++) {
-    for (j = 0; j < (int)Jacobian[i].size(); j++)
+  for (i = 1; i <= n_constr; i++) {
+    for (j = 1; j <= n; j++)
       printf(" %12.5e", Jacobian[i][j]);
     printf("\n");
   }
@@ -596,6 +603,41 @@ double constr_type::get_chi2(void) const
   }
 
   return chi2;
+}
+
+
+void constr_type::get_dchi2(double *df) const
+{
+  int    k, loc;
+  double eps;
+
+  const bool prt = false;
+
+  for (k = 0; k < lat_prms.n_prm; k++) {
+    eps = get_eps(lat_prms.n[k]);
+
+    if (prt) {
+      printf("\nget_dchi2: ");
+      loc = Elem_GetPos(lat_prms.Fnum[k], 1);
+      prt_name(stdout, Cell[loc].Elem.PName, 6);
+      printf(" %2d %10.3e", lat_prms.n[k], eps);
+    }
+
+    constr_dparam(lat_prms.Fnum[k], lat_prms.n[k], eps);
+    eps_x = get_lin_opt(lat_constr);
+    df[k+1] = lat_constr.get_chi2();
+
+    constr_dparam(lat_prms.Fnum[k], lat_prms.n[k], -2e0*eps);
+    eps_x = get_lin_opt(lat_constr);
+    df[k+1] -= lat_constr.get_chi2();
+    df[k+1] /= 2e0*eps;
+
+    constr_dparam(lat_prms.Fnum[k], lat_prms.n[k], eps);
+  }
+
+  // Avoid: "warning: deprecated conversion from string constant to ‘char*’".
+  printf("\n");
+  dvdump(stdout, (char *)"get_dchi2:", df, lat_prms.n_prm, (char *)" %12.5e");
 }
 
 
@@ -888,7 +930,7 @@ bool get_nu(double nu[])
       nu[k] = acos(cosmu)/(2e0*M_PI);
       if (ps[2*k][2*k+1] < 0e0) nu[k] = 1e0 - nu[k];
     } else {
-      printf("\nget_nu: unstable in plane %d %7.5f\n", k, cosmu);
+      printf("\nget_nu: unstable in plane %d %10.3e\n", k, cosmu);
       return false;
     }
   }
@@ -912,61 +954,6 @@ void get_drv_terms(constr_type &constr)
 	sqr(n_kid*b3L*Cell[Elem_GetPos(constr.Fnum_b3[k], 1)].Beta[j]);
     }
   }
-}
-
-
-void fit_powell(param_type &lat_prms, const double eps, double (*f)(double *))
-{
-  int          n_b2, i, j, iter;
-  double       *b2, **xi, fret, eps_x;
-  ss_vect<tps> A;
-
-  const double ftol = 1e-8;
-
-  n_b2 = lat_prms.n_prm;
-
-  b2 = dvector(1, n_b2); xi = dmatrix(1, n_b2, 1, n_b2);
-
-  lat_prms.ini_prm(b2);
-  f(b2);
-
-  if (false) {
-    lat_constr.get_Jacobian(lat_prms);
-    lat_constr.prt_Jacobian();
-    exit(0);
-  }
-
-  // Set initial directions (unit vectors).
-  for (i = 1; i <= n_b2; i++)
-    for (j = 1; j <= n_b2; j++)
-      xi[i][j] = (i == j)? eps : 0e0;
-
-  dpowell(b2, xi, n_b2, ftol, &iter, &fret, f);
-
-  printf("\n  iter = %d fret = %12.5e\n", iter, fret);
-  printf("b2s:\n");
-  lat_prms.prt_prm(b2);
-  // lat_prms.set_prm(b2);
-  // eps_x = get_lin_opt(false);
-  // f_prt(b2);
-
-  free_dvector(b2, 1, n_b2); free_dmatrix(xi, 1, n_b2, 1, n_b2);
-}
-
-
-void prt_f(double *b2, const double chi2, constr_type &lat_constr,
-	      param_type &lat_prms)
-{
-  lat_constr.prt_constr(chi2);
-
-  printf("\n  Parameters:\n");
-  lat_prms.prt_prm(b2);
-  prtmfile("flat_file.fit");
-  prt_lat("linlat1.out", globval.bpm, true);
-  prt_lat("linlat.out", globval.bpm, true, 10);
-
-  prt_b2(lat_prms);
-  prt_b3(lat_constr);
 }
 
 
@@ -1011,6 +998,100 @@ void phi_corr(constr_type &constr)
 }
 
 
+void fit_powell(param_type &lat_prms, const double eps, double (*f)(double *))
+{
+  int          n_b2, i, j, iter;
+  double       *b2, **xi, fret, eps_x;
+  ss_vect<tps> A;
+
+  const double ftol = 1e-8;
+
+  n_b2 = lat_prms.n_prm;
+
+  b2 = dvector(1, n_b2); xi = dmatrix(1, n_b2, 1, n_b2);
+
+  lat_prms.ini_prm(b2);
+  f(b2);
+
+  if (false) {
+    lat_constr.get_Jacobian(lat_prms);
+    lat_constr.prt_Jacobian(n_b2);
+    exit(0);
+  }
+
+  // Set initial directions (unit vectors).
+  for (i = 1; i <= n_b2; i++)
+    for (j = 1; j <= n_b2; j++)
+      xi[i][j] = (i == j)? eps : 0e0;
+
+  dpowell(b2, xi, n_b2, ftol, &iter, &fret, f);
+
+  printf("\n  iter = %d fret = %12.5e\n", iter, fret);
+  printf("b2s:\n");
+  lat_prms.prt_prm(b2);
+  // lat_prms.set_prm(b2);
+  // eps_x = get_lin_opt(false);
+  // f_prt(b2);
+
+  free_dvector(b2, 1, n_b2); free_dmatrix(xi, 1, n_b2, 1, n_b2);
+}
+
+
+void f_der(double *b2, double *df)
+{
+  lat_prms.set_prm(b2);
+
+  if (lat_constr.phi_scl != 0e0)
+    phi_corr(lat_constr);
+
+  lat_constr.get_dchi2(df);
+}
+
+void fit_conj_grad(param_type &lat_prms, const double eps,
+		   double (*f)(double *))
+{
+  int          n_b2, iter;
+  double       *b2, fret, eps_x;
+  ss_vect<tps> A;
+
+  const double ftol = 1e-8;
+
+  n_b2 = lat_prms.n_prm;
+
+  b2 = dvector(1, n_b2);
+
+  lat_prms.ini_prm(b2);
+  f(b2);
+
+  dfrprmn(b2, n_b2, ftol, &iter, &fret, f, f_der);
+
+  printf("\n  iter = %d fret = %12.5e\n", iter, fret);
+  printf("b2s:\n");
+  lat_prms.prt_prm(b2);
+  // lat_prms.set_prm(b2);
+  // eps_x = get_lin_opt(false);
+  // f_prt(b2);
+
+  free_dvector(b2, 1, n_b2);
+}
+
+
+void prt_f(double *b2, const double chi2, constr_type &lat_constr,
+	      param_type &lat_prms)
+{
+  lat_constr.prt_constr(chi2);
+
+  printf("\n  Parameters:\n");
+  lat_prms.prt_prm(b2);
+  prtmfile("flat_file.fit");
+  prt_lat("linlat1.out", globval.bpm, true);
+  prt_lat("linlat.out", globval.bpm, true, 10);
+
+  prt_b2(lat_prms);
+  prt_b3(lat_constr);
+}
+
+
 double f_match(double *b2)
 {
   double chi2;
@@ -1042,7 +1123,7 @@ double f_achrom(double *b2)
   bool   stable;
   double chi2;
 
-  const int n_prt = 5;
+  const int n_prt = 1;
 
   lat_prms.set_prm(b2);
 
@@ -1103,7 +1184,7 @@ void match_ss(param_type &prms, constr_type &constr)
   // Parameters are initialized in optimizer.
 
   constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
-		    1e4, 1e4, 0e-2, 0e-2, 0e0, 0e0,
+		    1e4, 1e4, 1e-2, 1e-2, 0e0, 0e0,
 		    0.0, 0.0, 4.0,  2.5,  0.0, 0.0);
 
   lat_prms.bn_tol = 1e-6; lat_prms.step = 1.0;
@@ -1131,21 +1212,24 @@ void match_ls(param_type &prms, constr_type &constr)
   const double ic[][2] =
     {{0.0, 0.0}, {2.68752, 2.17171}, {0.0, 0.0}, {0.0, 0.0}};
 
- // Long Straight.
-  prms.add_prm("d1",     -2,   0.075,  0.35, 1.0);
-  prms.add_prm("qd1_ls",  2, -20.0,   20.0,  1.0);
-  prms.add_prm("qd1_ls", -2,   0.1,    0.4,  1.0);
+  // Long Straight.
+  prms.add_prm("d4",     -2,   0.075,  0.51, 1.0);
+  prms.add_prm("qd4_ls",  2, -20.0,   -0.5,  1.0);
+  prms.add_prm("qd4_ls", -2,   0.1,    0.4,  1.0);
+  prms.add_prm("d3",     -2,   0.075,  0.35, 1.0);
+  prms.add_prm("qf3_ls",  2, -20.0,   20.0,  1.0);
+  prms.add_prm("qf3_ls", -2,   0.1,    0.4,  1.0);
   prms.add_prm("d2",     -2,   0.075,  0.35, 1.0);
-  prms.add_prm("qf2_ls",  2, -20.0,   20.0,  1.0);
-  prms.add_prm("qf2_ls", -2,   0.1,    0.4,  1.0);
-  prms.add_prm("d3",     -2,   0.075,  0.51, 1.0);
-  prms.add_prm("qd3_ls",  2, -20.0,   -0.5,  1.0);
-  prms.add_prm("qd3_ls", -2,   0.1,    0.4,  1.0);
+  prms.add_prm("qd2_ls",  2, -20.0,   20.0,  1.0);
+  prms.add_prm("qd2_ls", -2,   0.1,    0.4,  1.0);
+  prms.add_prm("d1",     -2,   0.075,  0.35, 1.0);
+  prms.add_prm("qf1_ls",  2, -20.0,   20.0,  1.0);
+  prms.add_prm("qf1_ls", -2,   0.1,    0.4,  1.0);
 
   // Parameters are initialized in optimizer.
 
   constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
-		    1e4, 1e4, 0e-2, 0e-2, 0e0, 0e0,
+		    1e4, 1e4, 1e-2, 1e-2, 0e0, 0e0,
 		    0.0, 0.0, 15.0, 4.0,  0.0, 0.0);
 
   lat_prms.bn_tol = 1e-6; lat_prms.step = 1.0;
@@ -1266,7 +1350,7 @@ void tweak_sp(param_type &prms, constr_type &constr)
   prms.add_prm("qd2_ms",   -2,   0.1,    0.2,  1.0);
 
   // TBA Cell.
-  prms.add_prm("b1",       -3, -20.0,   20.0,  1.0);
+  // prms.add_prm("b1",       -3, -20.0,   20.0,  1.0);
   prms.add_prm("b1",       -2,   0.1,    1.2,  1.0);
   // prms.add_prm("b1",       -1,   0.075,  0.07, 1.0);
   prms.add_prm("b1",        2, -20.0,   20.0,  1.0);
@@ -1281,27 +1365,30 @@ void tweak_sp(param_type &prms, constr_type &constr)
 
   // Lattice constraints are: alpha_x,y, beta_x,y, eta_x, eta'_x.
   constr.add_constr(Elem_GetPos(ElemIndex("sfh"), 1),
-		    1e3, 1e3, 0e0, 0e0, 0e3,  0e0,
-		    0.0, 0.0, 0.0, 0.0, 7e-2, 0.0);
+  		    1e3, 1e3, 0e0, 0e0, 0e3,  0e0,
+  		    0.0, 0.0, 0.0, 0.0, 7e-2, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("b2"), 1),
-		    1e3, 1e3, 0e0, 0e0, 0e0, 1e1,
-		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+  		    1e3, 1e3, 0e0, 0e0, 0e0, 1e1,
+  		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("b1"), 1)-1,
-		    0e0, 0e0, 0e0, 0e0, 1e4, 1e4,
-		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+  		    0e0, 0e0, 0e0, 0e0, 1e4, 1e4,
+  		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("b1"), 2),
-		    0e0, 0e0, 0e0, 0e0, 1e4, 1e4,
-		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+  		    0e0, 0e0, 0e0, 0e0, 1e4, 1e4,
+  		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 
+  constr.add_constr(Elem_GetPos(ElemIndex("d2"), 1),
+		    0e0, 0e0, 1e-1, 0e0, 0e0, 0e0,
+		    0.0, 0.0, 20.0, 0.0,  0.0, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
-		    1e3, 1e3, 1e-2, 1e-2, 1e4, 1e4,
+		    1e4, 1e4, 1e-2, 1e-2, 0e0, 0e0,
 		    0.0, 0.0, 15.0, 4.0,  0.0, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
-		    1e3, 1e3, 1e-2, 1e-2, 1e4, 1e4,
-		    0.0, 0.0, 3.0,  1.5,  0.0, 0.0);
+  		    1e4, 1e4, 1e-2, 1e-2, 0e0, 0e0,
+  		    0.0, 0.0, 3.0,  1.5,  0.0, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
-		    1e3, 1e3, 1e-2, 1e-2, 0e0, 0e0,
-		    0.0, 0.0, 4.0,  2.5,  0.0, 0.0);
+  		    1e4, 1e4, 1e-2, 1e-2, 0e0, 0e0,
+  		    0.0, 0.0, 4.0,  2.5,  0.0, 0.0);
 
   lat_prms.bn_tol = 1e-6; lat_prms.step = 1.0;
 
@@ -1313,7 +1400,7 @@ void tweak_sp(param_type &prms, constr_type &constr)
   lat_constr.Fnum_b1.push_back(ElemIndex("b2"));
 
   // Only 1 Standard Straight: phi = 30.
-  lat_constr.ini_constr(true, 1e4, 0.190, 1e0, 30.0, 1e-4);
+  lat_constr.ini_constr(true, 1e6, 0.190, 0e0, 30.0, 1e-6);
 }
 
 
@@ -1344,7 +1431,7 @@ int main(int argc, char *argv[])
 
   if (!false) {
     Ring_GetTwiss(true, 0e0); printglob();
-    dnu[X_] = 0.3; dnu[Y_] = 0.0;
+    dnu[X_] = 0.4; dnu[Y_] = 0.3;
     set_map(ElemIndex("ps_rot"), dnu);
   }
 
@@ -1387,6 +1474,7 @@ int main(int argc, char *argv[])
     // Optimize Super Period.
     tweak_sp(lat_prms, lat_constr);
     no_sxt();
-    fit_powell(lat_prms, 1e-3, f_achrom);
+    // fit_powell(lat_prms, 1e-3, f_achrom);
+    fit_conj_grad(lat_prms, 1e-3, f_achrom);
   }
 }
