@@ -930,7 +930,7 @@ void fit_powell(param_type &lat_prms, const double eps, double (*f)(double *))
   lat_prms.ini_prm(b2);
   f(b2);
 
-  if (!false) {
+  if (false) {
     lat_constr.get_Jacobian(lat_prms);
     lat_constr.prt_Jacobian();
     exit(0);
@@ -1158,7 +1158,7 @@ void match_ls(param_type &prms, constr_type &constr)
 }
 
 
-void drv_terms_ls(param_type &prms, constr_type &constr)
+void drv_terms_straights(param_type &prms, constr_type &constr)
 {
   // Parameter Type:
   //   Bend Angle  -3,
@@ -1180,17 +1180,39 @@ void drv_terms_ls(param_type &prms, constr_type &constr)
   prms.add_prm("qf1_ls",  2, -20.0,   20.0,  1.0);
   prms.add_prm("qf1_ls", -2,   0.1,    0.4,  1.0);
 
+  // Mid-Straight.
+  prms.add_prm("d8",       -2,   0.075,  0.2,  1.0);
+  prms.add_prm("qf1_ms",    2, -20.0,   20.0,  1.0);
+  prms.add_prm("qf1_ms",   -2,   0.1,    0.2,  1.0);
+  prms.add_prm("d9",       -2,   0.075,  0.2,  1.0);
+  prms.add_prm("qd2_ms",    2, -20.0,   20.0,  1.0);
+  prms.add_prm("qd2_ms",   -2,   0.1,    0.2,  1.0);
+
+  // Standard Straight.
+  prms.add_prm("d10",    -2,   0.075,  0.35, 1.0);
+  prms.add_prm("qd3_ss",  2, -20.0,   -0.5,  1.0);
+  prms.add_prm("qd3_ss", -2,   0.1,    0.4,  1.0);
+  prms.add_prm("d11",    -2,   0.075,  0.35, 1.0);
+  prms.add_prm("qf2_ss",  2, -20.0,   20.0,  1.0);
+  prms.add_prm("qf2_ss", -2,   0.2,    0.4,  1.0);
+  prms.add_prm("d12",    -2,   0.075,  0.35, 1.0);
+  prms.add_prm("qd1_ss",  2, -20.0,   20.0,  1.0);
+  prms.add_prm("qd1_ss", -2,   0.1,    0.4,  1.0);
+
   // Parameters are initialized in optimizer.
 
   constr.add_constr(Elem_GetPos(ElemIndex("d2"), 1),
-		    0e0, 0e0, 1e0, 0e0, 0e0, 0e0,
+		    0e0, 0e0, 1e0,  0e0, 0e0, 0e0,
 		    0.0, 0.0, 20.0, 0.0,  0.0, 0.0);
-  constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
-		    1e3, 1e3, 0e0, 0e0, 0e0, 0e0,
-		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
-		    0e0, 0e0, 1e-1, 1e-1, 0e0, 0e0,
+		    0e0, 0e0, 1e0,  1e0, 0e0, 0e0,
 		    0.0, 0.0, 15.0, 4.0,  0.0, 0.0);
+  constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
+		    1e3, 1e3, 1e0, 1e0, 1e4, 1e4,
+		    0.0, 0.0, 3.0, 1.5,  0.0, 0.0);
+  constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
+		    1e3, 1e3, 1e0, 1e0, 0e0, 0e0,
+		    0.0, 0.0, 4.0, 2.5,  0.0, 0.0);
 
   lat_prms.bn_tol = 1e-6; lat_prms.step = 1.0;
 
@@ -1211,15 +1233,18 @@ void tweak_sp(param_type &prms, constr_type &constr)
   //   Quadrupole   2.
 
   // Long Straight.
-  // prms.add_prm("d1",     -2,   0.075,  0.35, 1.0);
-  // prms.add_prm("qd1_ls",  2, -20.0,   20.0,  1.0);
-  // prms.add_prm("qd1_ls", -2,   0.1,    0.4,  1.0);
+  prms.add_prm("d4",     -2,   0.075,  0.51, 1.0);
+  prms.add_prm("qd4_ls",  2, -20.0,   -0.5,  1.0);
+  prms.add_prm("qd4_ls", -2,   0.1,    0.4,  1.0);
+  prms.add_prm("d3",     -2,   0.075,  0.35, 1.0);
+  prms.add_prm("qf3_ls",  2, -20.0,   20.0,  1.0);
+  prms.add_prm("qf3_ls", -2,   0.1,    0.4,  1.0);
   prms.add_prm("d2",     -2,   0.075,  0.35, 1.0);
-  prms.add_prm("qf2_ls",  2, -20.0,   20.0,  1.0);
-  prms.add_prm("qf2_ls", -2,   0.1,    0.4,  1.0);
-  prms.add_prm("d3",     -2,   0.075,  0.51, 1.0);
-  prms.add_prm("qd3_ls",  2, -20.0,   -0.5,  1.0);
-  prms.add_prm("qd3_ls", -2,   0.1,    0.4,  1.0);
+  prms.add_prm("qd2_ls",  2, -20.0,   20.0,  1.0);
+  prms.add_prm("qd2_ls", -2,   0.1,    0.4,  1.0);
+  prms.add_prm("d1",     -2,   0.075,  0.35, 1.0);
+  prms.add_prm("qf1_ls",  2, -20.0,   20.0,  1.0);
+  prms.add_prm("qf1_ls", -2,   0.1,    0.4,  1.0);
 
   // Standard Straight.
   prms.add_prm("d10",    -2,   0.075,  0.35, 1.0);
@@ -1319,7 +1344,7 @@ int main(int argc, char *argv[])
 
   if (!false) {
     Ring_GetTwiss(true, 0e0); printglob();
-    dnu[X_] = 0.2; dnu[Y_] = 0.0;
+    dnu[X_] = 0.3; dnu[Y_] = 0.0;
     set_map(ElemIndex("ps_rot"), dnu);
   }
 
@@ -1351,14 +1376,14 @@ int main(int argc, char *argv[])
     fit_powell(lat_prms, 1e-3, f_match);
   }
 
-  if (!false) {
-    // Optimize Long Straight.
-    drv_terms_ls(lat_prms, lat_constr);
+  if (false) {
+    // Optimize Standard Straight.
+    drv_terms_straights(lat_prms, lat_constr);
     no_sxt();
     fit_powell(lat_prms, 1e-3, f_achrom);
   }
 
-  if (false) {
+  if (!false) {
     // Optimize Super Period.
     tweak_sp(lat_prms, lat_constr);
     no_sxt();
