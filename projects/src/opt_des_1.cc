@@ -1371,14 +1371,14 @@ void tweak_sp(param_type &prms, constr_type &constr)
   		    1e3, 1e3, 0e0, 0e0, 0e0, 1e1,
   		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("b1"), 1)-1,
-  		    0e0, 0e0, 0e0, 0e0, 1e4, 1e4,
+  		    0e0, 0e0, 0e0, 0e0, 1e3, 1e3,
   		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("b1"), 2),
-  		    0e0, 0e0, 0e0, 0e0, 1e4, 1e4,
+  		    0e0, 0e0, 0e0, 0e0, 1e3, 1e3,
   		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 
   constr.add_constr(Elem_GetPos(ElemIndex("d2"), 1),
-		    0e0, 0e0, 1e-1, 0e0, 0e0, 0e0,
+		    0e0, 0e0, 1e0, 0e0, 0e0, 0e0,
 		    0.0, 0.0, 20.0, 0.0,  0.0, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
 		    1e4, 1e4, 1e-2, 1e-2, 0e0, 0e0,
@@ -1400,7 +1400,7 @@ void tweak_sp(param_type &prms, constr_type &constr)
   lat_constr.Fnum_b1.push_back(ElemIndex("b2"));
 
   // Only 1 Standard Straight: phi = 30.
-  lat_constr.ini_constr(true, 1e6, 0.190, 0e0, 30.0, 1e-6);
+  lat_constr.ini_constr(true, 1e7, 0.190, 0e0, 30.0, 1e-7);
 }
 
 
