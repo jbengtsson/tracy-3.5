@@ -1211,12 +1211,12 @@ void match_ss(param_type &prms, constr_type &constr)
   // Parameters are initialized in optimizer.
 
   constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
-		    1e4, 1e4, 1e-2, 1e-2, 0e0, 0e0,
+		    1e3, 1e3, 1e0, 1e0, 0e0, 0e0,
 		    0.0, 0.0, 4.0,  2.5,  0.0, 0.0);
 
   lat_prms.bn_tol = 1e-6; lat_prms.step = 1.0;
 
-  lat_constr.ini_constr(false, 0.0, 0.0, 0e5, 0.190, 0e0, 0.0, 0e0, "ps_rot");
+  lat_constr.ini_constr(false, 0.0, 0.0, 0e0, 0.0, 0e0, 0.0, 0e0, "ps_rot");
 
   for (j = 0; j < n_ic; j++)
     for (k = 0; k < 2; k++)
@@ -1236,8 +1236,9 @@ void match_ls(param_type &prms, constr_type &constr)
 
   // Long Cell.
   const int    n_ic    = 4;
+  // Center Standard Straight.
   const double ic[][2] =
-    {{0.0, 0.0}, {2.68752, 2.17171}, {0.0, 0.0}, {0.0, 0.0}};
+    {{0.0, 0.0}, {3.60504, 10.90254}, {0.0, 0.0}, {0.0, 0.0}};
 
   // Long Straight.
   prms.add_prm("d4",     -2,   0.075,  0.51, 1.0);
@@ -1255,13 +1256,15 @@ void match_ls(param_type &prms, constr_type &constr)
 
   // Parameters are initialized in optimizer.
 
+  constr.add_constr(Elem_GetPos(ElemIndex("qf3_ls"), 1),
+  		    0e0, 0e0, 1e-1, 0e0, 0e0, 0e0,
+  		    0.0, 0.0, 20.0, 0.0,  0.0, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
-		    1e4, 1e4, 1e-2, 1e-2, 0e0, 0e0,
-		    0.0, 0.0, 15.0, 4.0,  0.0, 0.0);
-
+  		    1e5, 1e5, 1e0,  1e0, 0e0, 0e0,
+  		    0.0, 0.0, 15.0, 4.0,  0.0, 0.0);
   lat_prms.bn_tol = 1e-6; lat_prms.step = 1.0;
 
-  lat_constr.ini_constr(false, 0.0, 0.0, 0e5, 0.190, 0e0, 0.0, 0e0, "ps_rot");
+  lat_constr.ini_constr(false, 0.0, 0.0, 0e0, 0.0, 0e0, 0.0, 0e0, "ps_rot");
 
   for (j = 0; j < n_ic; j++)
     for (k = 0; k < 2; k++)
@@ -1344,18 +1347,18 @@ void tweak_sp(param_type &prms, constr_type &constr)
   //   Quadrupole   2.
 
   // Long Straight.
-  // prms.add_prm("d4",     -2,   0.075,  0.51, 1.0);
-  // prms.add_prm("qd4_ls",  2, -20.0,   -0.5,  1.0);
-  // prms.add_prm("qd4_ls", -2,   0.1,    0.4,  1.0);
-  // prms.add_prm("d3",     -2,   0.075,  0.35, 1.0);
-  // prms.add_prm("qf3_ls",  2, -20.0,   20.0,  1.0);
-  // prms.add_prm("qf3_ls", -2,   0.1,    0.4,  1.0);
-  // prms.add_prm("d2",     -2,   0.075,  0.35, 1.0);
-  // prms.add_prm("qd2_ls",  2, -20.0,   20.0,  1.0);
-  // prms.add_prm("qd2_ls", -2,   0.1,    0.4,  1.0);
-  // prms.add_prm("d1",     -2,   0.075,  0.35, 1.0);
-  // prms.add_prm("qf1_ls",  2, -20.0,   20.0,  1.0);
-  // prms.add_prm("qf1_ls", -2,   0.1,    0.4,  1.0);
+  prms.add_prm("d4",     -2,   0.075,  0.51, 1.0);
+  prms.add_prm("qd4_ls",  2, -20.0,   -0.5,  1.0);
+  prms.add_prm("qd4_ls", -2,   0.1,    0.4,  1.0);
+  prms.add_prm("d3",     -2,   0.075,  0.35, 1.0);
+  prms.add_prm("qf3_ls",  2, -20.0,   20.0,  1.0);
+  prms.add_prm("qf3_ls", -2,   0.1,    0.4,  1.0);
+  prms.add_prm("d2",     -2,   0.075,  0.35, 1.0);
+  prms.add_prm("qd2_ls",  2, -20.0,   20.0,  1.0);
+  prms.add_prm("qd2_ls", -2,   0.1,    0.4,  1.0);
+  prms.add_prm("d1",     -2,   0.075,  0.35, 1.0);
+  prms.add_prm("qf1_ls",  2, -20.0,   20.0,  1.0);
+  prms.add_prm("qf1_ls", -2,   0.1,    0.4,  1.0);
 
   // Standard Straight.
   // prms.add_prm("d10",    -2,   0.075,  0.35, 1.0);
@@ -1369,12 +1372,12 @@ void tweak_sp(param_type &prms, constr_type &constr)
   // prms.add_prm("qd1_ss", -2,   0.1,    0.4,  1.0);
 
   // Mid-Straight.
-  prms.add_prm("d8",       -2,   0.075,  0.2,  1.0);
-  prms.add_prm("qf1_ms",    2, -20.0,   20.0,  1.0);
-  prms.add_prm("qf1_ms",   -2,   0.1,    0.2,  1.0);
-  prms.add_prm("d9",       -2,   0.075,  0.2,  1.0);
-  prms.add_prm("qd2_ms",    2, -20.0,   20.0,  1.0);
-  prms.add_prm("qd2_ms",   -2,   0.1,    0.2,  1.0);
+  // prms.add_prm("d8",       -2,   0.075,  0.2,  1.0);
+  // prms.add_prm("qf1_ms",    2, -20.0,   20.0,  1.0);
+  // prms.add_prm("qf1_ms",   -2,   0.1,    0.2,  1.0);
+  // prms.add_prm("d9",       -2,   0.075,  0.2,  1.0);
+  // prms.add_prm("qd2_ms",    2, -20.0,   20.0,  1.0);
+  // prms.add_prm("qd2_ms",   -2,   0.1,    0.2,  1.0);
 
   // TBA Cell.
   // prms.add_prm("b1",       -3, -20.0,   20.0,  1.0);
@@ -1404,15 +1407,15 @@ void tweak_sp(param_type &prms, constr_type &constr)
   // 		    0e0, 0e0, 0e0, 0e0, 1e4, 1e4,
   // 		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 
-  // constr.add_constr(Elem_GetPos(ElemIndex("d2"), 1),
-  // 		    0e0, 0e0, 1e1, 0e0, 0e0, 0e0,
-  // 		    0.0, 0.0, 20.0, 0.0,  0.0, 0.0);
-  // constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
-  // 		    1e4, 1e4, 1e-2, 1e-2, 0e0, 0e0,
-  // 		    0.0, 0.0, 15.0, 4.0,  0.0, 0.0);
-  constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
-  		    1e4, 1e4, 0e-2, 0e-2, 0e0, 0e0,
-  		    0.0, 0.0, 3.0,  1.5,  0.0, 0.0);
+  constr.add_constr(Elem_GetPos(ElemIndex("d2"), 1),
+  		    0e0, 0e0, 1e1, 0e0, 0e0, 0e0,
+  		    0.0, 0.0, 20.0, 0.0,  0.0, 0.0);
+  constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
+  		    1e4, 1e4, 1e-2, 1e-2, 0e0, 0e0,
+  		    0.0, 0.0, 15.0, 4.0,  0.0, 0.0);
+  // constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
+  // 		    1e4, 1e4, 0e-2, 0e-2, 0e0, 0e0,
+  // 		    0.0, 0.0, 3.0,  1.5,  0.0, 0.0);
   // constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
   // 		    1e4, 1e4, 1e-2, 1e-2, 0e0, 0e0,
   // 		    0.0, 0.0, 4.0,  2.5,  0.0, 0.0);
@@ -1427,7 +1430,7 @@ void tweak_sp(param_type &prms, constr_type &constr)
   lat_constr.Fnum_b1.push_back(ElemIndex("b2"));
 
   // Only 1 Standard Straight: phi = 30.
-  lat_constr.ini_constr(true, 0.24, 0.26, 0e5, 0.190, 1e0, 30.0, 0e-6,
+  lat_constr.ini_constr(true, 0.24, 0.26, 0e5, 0.190, 1e0, 30.0, 1e-6,
 			"ps_rot");
 }
 
@@ -1478,7 +1481,7 @@ int main(int argc, char *argv[])
     fit_powell(lat_prms, 1e-3, f_match);
   }
 
-  if (false) {
+  if (!false) {
     // Match Long Straight.
     match_ls(lat_prms, lat_constr);
     no_sxt();
@@ -1492,7 +1495,7 @@ int main(int argc, char *argv[])
     fit_powell(lat_prms, 1e-3, f_achrom);
   }
 
-  if (!false) {
+  if (false) {
     // Optimize Super Period.
     tweak_sp(lat_prms, lat_constr);
     no_sxt();
