@@ -579,8 +579,10 @@ void constr_type::prt_Jacobian(const int n) const
 
 double constr_type::get_chi2(void) const
 {
-  int    k, loc1, loc2;
+  int    k;
   double chi2;
+
+  const bool prt = false;
 
   chi2 = 0e0;
   chi2 += eps_x_scl*sqr(eps_x-eps0_x);
@@ -595,12 +597,7 @@ double constr_type::get_chi2(void) const
   chi2 += drv_terms_scl*drv_terms[X_];
   chi2 += drv_terms_scl*drv_terms[Y_];
 
-  if (false) {
-    loc1 = Elem_GetPos(Fnum_b3[0], 1);
-    loc2 = Elem_GetPos(Fnum_b3[0], 3);
-    chi2 += 1e5*sqr(Cell[loc2].Nu[X_]-Cell[loc1].Nu[X_]-0.42);
-    chi2 += 1e5*sqr(Cell[loc2].Nu[Y_]-Cell[loc1].Nu[Y_]-0.42);
-  }
+  if (prt) printf("\nget_chi2: %12.5e\n", chi2);
 
   return chi2;
 }
@@ -926,7 +923,7 @@ bool get_nu(double nu[])
   Cell_Pass(0, globval.Cell_nLoc, ps, lastpos);
   for (k = 0; k < 2; k++) {
     cosmu = (ps[2*k][2*k]+ps[2*k+1][2*k+1])/2e0;
-    if (cosmu < 1e0) {
+    if (fabs(cosmu) < 1e0) {
       nu[k] = acos(cosmu)/(2e0*M_PI);
       if (ps[2*k][2*k+1] < 0e0) nu[k] = 1e0 - nu[k];
     } else {
@@ -1047,8 +1044,7 @@ void f_der(double *b2, double *df)
   lat_constr.get_dchi2(df);
 }
 
-void fit_conj_grad(param_type &lat_prms, const double eps,
-		   double (*f)(double *))
+void fit_conj_grad(param_type &lat_prms, double (*f)(double *))
 {
   int          n_b2, iter;
   double       *b2, fret, eps_x;
@@ -1130,8 +1126,7 @@ double f_achrom(double *b2)
   if (lat_constr.phi_scl != 0e0)
     phi_corr(lat_constr);
 
-  if (lat_constr.ring)
-    stable = get_nu(lat_constr.nu);
+  if (lat_constr.ring) stable = get_nu(lat_constr.nu);
 
   if ((lat_constr.ring && stable) || !lat_constr.ring) {
     eps_x = get_lin_opt(lat_constr);
@@ -1431,7 +1426,7 @@ int main(int argc, char *argv[])
 
   if (!false) {
     Ring_GetTwiss(true, 0e0); printglob();
-    dnu[X_] = 0.4; dnu[Y_] = 0.3;
+    dnu[X_] = 0.4; dnu[Y_] = 0.0;
     set_map(ElemIndex("ps_rot"), dnu);
   }
 
@@ -1475,6 +1470,6 @@ int main(int argc, char *argv[])
     tweak_sp(lat_prms, lat_constr);
     no_sxt();
     // fit_powell(lat_prms, 1e-3, f_achrom);
-    fit_conj_grad(lat_prms, 1e-3, f_achrom);
+    fit_conj_grad(lat_prms, f_achrom);
   }
 }
