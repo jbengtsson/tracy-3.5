@@ -303,10 +303,9 @@ void chk_high_ord_achr(void)
   std::vector<int> loc;
 
   // M-6HBAi 1,
-  // H-6BA   2,
-  // H-8BA   3,
-  // RB-6BA  4.
-  const int lat_case = 1;
+  // TBA-6x8 2,
+  // RB-6BA  3.
+  const int lat_case = 2;
 
   Ring_GetTwiss(true, 0e0);
  
@@ -320,20 +319,17 @@ void chk_high_ord_achr(void)
     loc.push_back(Elem_GetPos(ElemIndex("idmarker"), 5));
    break;
   case 2:
-    dnu[X_] = 19.0/8.0; dnu[Y_] = 15.0/16.0;
-    loc.push_back(Elem_GetPos(ElemIndex("ss1"), 1));
-    loc.push_back(Elem_GetPos(ElemIndex("ss1"), 3));
-    loc.push_back(Elem_GetPos(ElemIndex("ss1"), 5));
+    dnu[X_] = 11.0/8.0; dnu[Y_] = 15.0/16.0;
+    loc.push_back(Elem_GetPos(ElemIndex("ms"), 1));
+    loc.push_back(Elem_GetPos(ElemIndex("ss"), 1));
+    loc.push_back(Elem_GetPos(ElemIndex("ms"), 2));
+    loc.push_back(Elem_GetPos(ElemIndex("ss"), 2));
+    loc.push_back(Elem_GetPos(ElemIndex("ms"), 3));
+    loc.push_back(Elem_GetPos(ElemIndex("ss"), 3));
+    loc.push_back(Elem_GetPos(ElemIndex("ms"), 4));
     loc.push_back(globval.Cell_nLoc);
     break;
   case 3:
-    dnu[X_] = 19.0/8.0; dnu[Y_] = 15.0/16.0;
-    loc.push_back(Elem_GetPos(ElemIndex("du1"), 1));
-    loc.push_back(Elem_GetPos(ElemIndex("du1"), 3));
-    loc.push_back(Elem_GetPos(ElemIndex("du1"), 5));
-    loc.push_back(globval.Cell_nLoc);
-    break;
-  case 4:
     dnu[X_] = 23.0/8.0; dnu[Y_] = 19.0/16.0;
     loc.push_back(Elem_GetPos(ElemIndex("dss1"), 1));
     loc.push_back(Elem_GetPos(ElemIndex("dss1"), 3));
