@@ -327,7 +327,7 @@ void chk_high_ord_achr(void)
     loc.push_back(Elem_GetPos(ElemIndex("ms"), 3));
     loc.push_back(Elem_GetPos(ElemIndex("ss"), 3));
     loc.push_back(Elem_GetPos(ElemIndex("ms"), 4));
-    loc.push_back(globval.Cell_nLoc);
+    loc.push_back(Elem_GetPos(ElemIndex("ls"), 2));
     break;
   case 3:
     dnu[X_] = 23.0/8.0; dnu[Y_] = 19.0/16.0;
@@ -704,7 +704,7 @@ int main(int argc, char *argv[])
 
   if (false) {
     Ring_GetTwiss(true, 0e0); printglob();
-    dnu[X_] = 0.0; dnu[Y_] = 0.0;
+    dnu[X_] = 0.05; dnu[Y_] = 0.05;
     set_map(ElemIndex("ps_rot"), dnu);
   }
 
@@ -803,7 +803,7 @@ int main(int argc, char *argv[])
   prt_lat("linlat.out", globval.bpm, true, 10);
   prt_chrom_lat();
 
-  if (false) {
+  if (!false) {
     chk_high_ord_achr();
     // exit(0);
   }
