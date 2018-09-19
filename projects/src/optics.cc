@@ -403,97 +403,24 @@ void chk_mpole(void)
   int              k;
   std::vector<int> Fnum;
 
-  // SLS-2   1,
-  // M-6HBAi 2,
+  // M-6HBAi 12,
+  // TBA-6x8 2,
   const int lat_case = 2;
 
   switch (lat_case) {
   case 1:
-    // SLS-2.
-    Fnum.push_back(ElemIndex("sd"));
-    Fnum.push_back(ElemIndex("sf"));
-    // Fnum.push_back(ElemIndex("sdm"));
-    // Fnum.push_back(ElemIndex("sfm"));
-
-    Fnum.push_back(ElemIndex("sxx"));
-    Fnum.push_back(ElemIndex("sxy"));
-    Fnum.push_back(ElemIndex("syy"));
-
-    Fnum.push_back(ElemIndex("ocxm"));
-    // Fnum.push_back(ElemIndex("ocx1"));
-    // Fnum.push_back(ElemIndex("ocx2"));
-
-    Fnum.push_back(ElemIndex("ocym"));
-    // Fnum.push_back(ElemIndex("ocy1"));
-    // Fnum.push_back(ElemIndex("ocy2"));
-
-    Fnum.push_back(ElemIndex("oxx"));
-    Fnum.push_back(ElemIndex("oxy"));
-    Fnum.push_back(ElemIndex("oyy"));
-    break;
-  case 2:
     // M-6HBAi.
     Fnum.push_back(ElemIndex("sextmark"));
 
     Fnum.push_back(ElemIndex("sd1"));
     Fnum.push_back(ElemIndex("sd2"));
-    // Fnum.push_back(ElemIndex("sd1a"));
-    // Fnum.push_back(ElemIndex("sd2a"));
-    // Fnum.push_back(ElemIndex("sd1b"));
-    // Fnum.push_back(ElemIndex("sd2b"));
     break;
-  case 3:
+  case 2:
     // H-6-BA.
-    Fnum.push_back(ElemIndex("sf"));
-    Fnum.push_back(ElemIndex("sda"));
-    Fnum.push_back(ElemIndex("sdb"));
+    Fnum.push_back(ElemIndex("sfh"));
+    Fnum.push_back(ElemIndex("sd1a"));
+    Fnum.push_back(ElemIndex("sd1b"));
 
-    // Fnum.push_back(ElemIndex("s1"));
-    // Fnum.push_back(ElemIndex("s2"));
-    // Fnum.push_back(ElemIndex("s3"));
-    // Fnum.push_back(ElemIndex("s4"));
-    // Fnum.push_back(ElemIndex("s5"));
-
-    Fnum.push_back(ElemIndex("o1a"));
-    Fnum.push_back(ElemIndex("o2a"));
-    Fnum.push_back(ElemIndex("o1b"));
-    Fnum.push_back(ElemIndex("o2b"));
-    Fnum.push_back(ElemIndex("o3"));
-
-    Fnum.push_back(ElemIndex("o4"));
-    Fnum.push_back(ElemIndex("o5"));
-    Fnum.push_back(ElemIndex("o6"));
-    break;
-  case 4:
-    // H-8-BA_II.
-    Fnum.push_back(ElemIndex("sf")); Fnum.push_back(ElemIndex("sd"));
-    Fnum.push_back(ElemIndex("s1")); Fnum.push_back(ElemIndex("s2"));
-    Fnum.push_back(ElemIndex("s3")); Fnum.push_back(ElemIndex("s4"));
-    Fnum.push_back(ElemIndex("s5")); Fnum.push_back(ElemIndex("s6"));
-    break;
-  case 5:
-    // RB-6-BA.
-    Fnum.push_back(ElemIndex("sd"));  Fnum.push_back(ElemIndex("sfm"));
-    Fnum.push_back(ElemIndex("sdm")); Fnum.push_back(ElemIndex("sxx"));
-    Fnum.push_back(ElemIndex("sxy1"));
-    Fnum.push_back(ElemIndex("sxy2"));
-    Fnum.push_back(ElemIndex("sxy3"));
-    Fnum.push_back(ElemIndex("syy1"));
-    Fnum.push_back(ElemIndex("syy2"));
-    Fnum.push_back(ElemIndex("syy3"));
-    break;
-  case 6:
-    // ALS-U.
-    Fnum.push_back(ElemIndex("sf1"));
-    Fnum.push_back(ElemIndex("sf2"));
-    Fnum.push_back(ElemIndex("sf3"));
-    Fnum.push_back(ElemIndex("sd1h"));
-    Fnum.push_back(ElemIndex("sd2h"));
-    Fnum.push_back(ElemIndex("sd3h"));
-    Fnum.push_back(ElemIndex("sd4h"));
-    Fnum.push_back(ElemIndex("sh1"));
-    Fnum.push_back(ElemIndex("sh2"));
-    Fnum.push_back(ElemIndex("sh3"));
     break;
   }
 
@@ -803,7 +730,7 @@ int main(int argc, char *argv[])
   prt_lat("linlat.out", globval.bpm, true, 10);
   prt_chrom_lat();
 
-  if (!false) {
+  if (false) {
     chk_high_ord_achr();
     // exit(0);
   }
