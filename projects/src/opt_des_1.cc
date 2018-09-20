@@ -1161,32 +1161,6 @@ void prt_f(double *b2, const double chi2, constr_type &lat_constr,
 }
 
 
-double f_match(double *b2)
-{
-  double chi2;
-
-  const int n_prt = 10;
-
-  lat_prms.set_prm(b2);
-
-  if (lat_constr.phi_scl != 0e0)
-    phi_corr(lat_constr);
-
-  eps_x = get_lin_opt(lat_constr);
-
-  chi2 = lat_constr.get_chi2();
-
-  if (chi2 < lat_constr.chi2) {
-    if (lat_constr.n_iter % n_prt == 0)
-      prt_f(b2, chi2, lat_constr, lat_prms);
-    lat_constr.n_iter++;
-    lat_constr.chi2 = chi2;
-  }
-
-  return chi2;
-}
-
-
 bool set_nu(const double nu0[], constr_type &constr, double &eps_x,
 	    const int ps_rot_Fam)
 {
@@ -1211,7 +1185,6 @@ bool set_nu(const double nu0[], constr_type &constr, double &eps_x,
 }
 
 
-
 void get_high_ord_achr(constr_type &constr)
 {
   int j, k;
@@ -1232,6 +1205,34 @@ void get_mI(constr_type &constr)
   loc[1] = Elem_GetPos(lat_constr.Fnum_b3[0], 3);
   for (k = 0; k < 2; k++)
     constr.mI[k] = Cell[loc[1]].Nu[k] - Cell[loc[0]].Nu[k];
+}
+
+
+double f_match(double *b2)
+{
+  double chi2;
+
+  const int n_prt = 5;
+
+  lat_prms.set_prm(b2);
+
+  if (lat_constr.phi_scl != 0e0)
+    phi_corr(lat_constr);
+
+  eps_x = get_lin_opt(lat_constr);
+
+  chi2 = lat_constr.get_chi2();
+
+  if (lat_constr.high_ord_achr_scl != 0e0) get_high_ord_achr(lat_constr);
+
+  if (chi2 < lat_constr.chi2) {
+    if (lat_constr.n_iter % n_prt == 0)
+      prt_f(b2, chi2, lat_constr, lat_prms);
+    lat_constr.n_iter++;
+    lat_constr.chi2 = chi2;
+  }
+
+  return chi2;
 }
 
 
@@ -1501,13 +1502,12 @@ void match_ss(param_type &prms, constr_type &constr)
   //   Length      -2,
   //   Position    -1,
   //   Quadrupole   2.
+  int j, k, n;
 
-  int j, k;
-
-  // From Center of TBA: alpha, beta, eta, eta'.
+  // From Center of Mid Straight: alpha, beta, eta, eta'.
   const int    n_ic    = 4;
   const double ic[n_ic][2] =
-    {{0.0, 0.0}, {0.28644, 2.43232}, {0.01204, 0.0}, {0.0, 0.0}};
+    {{0.0, 0.0}, {3.74279, 2.92735}, {0.0, 0.0}, {0.0, 0.0}};
 
   // Standard Straight.
   prms.add_prm("d10",    -2,   0.075,  0.4, 1.0);
@@ -1524,10 +1524,22 @@ void match_ss(param_type &prms, constr_type &constr)
 
   // Lattice constraints are: alpha_x,y, beta_x,y, eta_x, eta'_x.
   constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
-		    1e5, 1e5, 1e-2, 1e-2, 0e0, 0e0,
-		    0.0, 0.0, 4.0,  2.5,  0.0, 0.0);
+		    1e0, 1e0, 1e-10, 1e-10, 0e0, 0e0,
+		    0.0, 0.0, 4.0,   2.5,   0.0, 0.0);
 
   lat_prms.bn_tol = 1e-6; lat_prms.step = 1.0;
+
+  lat_constr.high_ord_achr_scl = 1e0;
+  lat_constr.high_ord_achr_val[X_] = 11.0/8.0;
+  lat_constr.high_ord_achr_val[Y_] = 15.0/16.0;
+
+  lat_constr.high_ord_achr_Fnum.push_back(0);
+  lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("ss"), 1));
+
+  n = lat_constr.high_ord_achr_Fnum.size() - 1;
+  lat_constr.high_ord_achr_dnu.resize(n);
+  for (k = 0; k < n; k++)
+    lat_constr.high_ord_achr_dnu[k].resize(2, 0e0);
 
   lat_constr.ini_constr(false);
 
@@ -1544,36 +1556,46 @@ void match_ls(param_type &prms, constr_type &constr)
   //   Length      -2,
   //   Position    -1,
   //   Quadrupole   2.
+  int j, k, n;
 
-  int j, k;
-
-  // Long Cell.
+  // From Center of Mid Straight: alpha, beta, eta, eta'.
   const int    n_ic    = 4;
-  // Center Standard Straight.
-  const double ic[][2] =
-    {{0.0, 0.0}, {2.58158, 2.70458}, {0.0, 0.0}, {0.0, 0.0}};
+  const double ic[n_ic][2] =
+    {{0.0, 0.0}, {3.74279, 2.92735}, {0.0, 0.0}, {0.0, 0.0}};
 
   // Long Straight.
-  prms.add_prm("d4",     -2,   0.075,  0.51, 1.0);
-  prms.add_prm("qd4_ls",  2, -20.0,   -0.5,  1.0);
-  prms.add_prm("qd4_ls", -2,   0.1,    0.4,  1.0);
-  prms.add_prm("d3",     -2,   0.075,  0.35, 1.0);
-  prms.add_prm("qf3_ls",  2, -20.0,   20.0,  1.0);
-  prms.add_prm("qf3_ls", -2,   0.1,    0.4,  1.0);
-  prms.add_prm("d2",     -2,   0.075,  0.35, 1.0);
-  prms.add_prm("qd2_ls",  2, -20.0,   20.0,  1.0);
-  prms.add_prm("qd2_ls", -2,   0.1,    0.4,  1.0);
-  prms.add_prm("d1",     -2,   0.075,  0.35, 1.0);
-  prms.add_prm("qf1_ls",  2, -20.0,   20.0,  1.0);
-  prms.add_prm("qf1_ls", -2,   0.1,    0.4,  1.0);
+  prms.add_prm("d4",     -2,   0.075,  0.5, 1.0);
+  prms.add_prm("qd4_ls",  2, -20.0,   20.0, 1.0);
+  prms.add_prm("qd4_ls", -2,   0.1,    0.4, 1.0);
+  prms.add_prm("d3",     -2,   0.075,  0.4, 1.0);
+  prms.add_prm("qf3_ls",  2, -20.0,   20.0, 1.0);
+  prms.add_prm("qf3_ls", -2,   0.1,    0.4, 1.0);
+  prms.add_prm("d2",     -2,   0.075,  0.4, 1.0);
+  prms.add_prm("qd2_ls",  2, -20.0,   20.0, 1.0);
+  prms.add_prm("qd2_ls", -2,   0.1,    0.4, 1.0);
+  prms.add_prm("d1",     -2,   0.075,  0.4, 1.0);
+  prms.add_prm("qf1_ls",  2, -20.0,   20.0, 1.0);
+  prms.add_prm("qf1_ls", -2,   0.1,    0.4, 1.0);
 
   // Parameters are initialized in optimizer.
 
   constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
-  		    1e5, 1e5, 1e0,  1e0, 0e0, 0e0,
-  		    0.0, 0.0, 15.0, 4.0,  0.0, 0.0);
+  		    1e5, 1e5, 1e-10, 1e-10, 0e0, 0e0,
+  		    0.0, 0.0, 15.0,  4.0,   0.0, 0.0);
 
   lat_prms.bn_tol = 1e-6; lat_prms.step = 1.0;
+
+  lat_constr.high_ord_achr_scl = 1e2;
+  lat_constr.high_ord_achr_val[X_] = 11.0/8.0;
+  lat_constr.high_ord_achr_val[Y_] = 15.0/16.0;
+
+  lat_constr.high_ord_achr_Fnum.push_back(0);
+  lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("ls"), 1));
+
+  n = lat_constr.high_ord_achr_Fnum.size() - 1;
+  lat_constr.high_ord_achr_dnu.resize(n);
+  for (k = 0; k < n; k++)
+    lat_constr.high_ord_achr_dnu[k].resize(2, 0e0);
 
   lat_constr.ini_constr(false);
 
@@ -1908,7 +1930,7 @@ int main(int argc, char *argv[])
 
   // set_map_reversal(ElemIndex("line_inv"));
 
-  if (!false) {
+  if (false) {
     Ring_GetTwiss(true, 0e0); printglob();
     dnu[X_] = 0.2; dnu[Y_] = 0.2;
     set_map(ElemIndex("ps_rot"), dnu);
@@ -1952,7 +1974,7 @@ int main(int argc, char *argv[])
     fit_conj_grad(lat_prms, f_achrom);
   }
 
-  if (!false) {
+  if (false) {
     // Match Standard Straight.
     match_ss(lat_prms, lat_constr);
     no_sxt();
@@ -1981,7 +2003,7 @@ int main(int argc, char *argv[])
     fit_conj_grad(lat_prms, f_achrom);
   }
 
-  if (false) {
+  if (!false) {
     // Optimize Super Period.
     opt_high_ord_achr(lat_prms, lat_constr);
     no_sxt();

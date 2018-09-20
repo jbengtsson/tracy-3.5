@@ -631,7 +631,7 @@ int main(int argc, char *argv[])
 
   if (false) {
     Ring_GetTwiss(true, 0e0); printglob();
-    dnu[X_] = 0.05; dnu[Y_] = 0.05;
+    dnu[X_] = 0.02; dnu[Y_] = 0.02;
     set_map(ElemIndex("ps_rot"), dnu);
   }
 
