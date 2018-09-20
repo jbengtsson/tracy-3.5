@@ -6,7 +6,7 @@ int no_tps = NO;
 
 
 const bool
-  set_dnu = false,
+  set_dnu = !false,
   mI_rot  = false,
   HOA_rot = false;
 
@@ -313,6 +313,7 @@ void chk_high_ord_achr(void)
   case 1:
     dnu[X_] = 19.0/8.0; dnu[Y_] = 15.0/16.0;
     // loc.push_back(Elem_GetPos(ElemIndex("dc_1_01"),  1));
+    loc.push_back(0);
     loc.push_back(Elem_GetPos(ElemIndex("idmarker"), 2));
     loc.push_back(Elem_GetPos(ElemIndex("idmarker"), 3));
     loc.push_back(Elem_GetPos(ElemIndex("idmarker"), 4));
@@ -320,6 +321,7 @@ void chk_high_ord_achr(void)
    break;
   case 2:
     dnu[X_] = 11.0/8.0; dnu[Y_] = 15.0/16.0;
+    loc.push_back(Elem_GetPos(ElemIndex("ls"), 1));
     loc.push_back(Elem_GetPos(ElemIndex("ms"), 1));
     loc.push_back(Elem_GetPos(ElemIndex("ss"), 1));
     loc.push_back(Elem_GetPos(ElemIndex("ms"), 2));
@@ -340,17 +342,12 @@ void chk_high_ord_achr(void)
 
   printf("\nCell phase advance:\n");
   printf("Ideal:    [%7.5f, %7.5f]\n", dnu[X_], dnu[Y_]);
-  for (k = 0; k < (int)loc.size(); k++)
-    if (k == 0)
-      printf("\n %9.5f %8.5f %8.5f %7.5f [%7.5f, %7.5f]\n",
-	     Cell[loc[k]].S, Cell[loc[k]].Alpha[X_], Cell[loc[k]].Alpha[Y_],
-	     Cell[loc[0]].S,  Cell[loc[0]].Nu[X_], Cell[loc[0]].Nu[Y_]);
-    else
-      printf(" %9.5f %8.5f %8.5f %7.5f [%7.5f, %7.5f]\n",
-	     Cell[loc[k]].S, Cell[loc[k]].Alpha[X_], Cell[loc[k]].Alpha[Y_],
-	     Cell[loc[k]].S-Cell[loc[k-1]].S, 
-	     Cell[loc[k]].Nu[X_]-Cell[loc[k-1]].Nu[X_], 
-	     Cell[loc[k]].Nu[Y_]-Cell[loc[k-1]].Nu[Y_]);
+  for (k = 1; k < (int)loc.size(); k++)
+    printf(" %9.5f %8.5f %8.5f %7.5f [%7.5f, %7.5f]\n",
+	   Cell[loc[k]].S, Cell[loc[k]].Alpha[X_], Cell[loc[k]].Alpha[Y_],
+	   Cell[loc[k]].S-Cell[loc[k-1]].S, 
+	   Cell[loc[k]].Nu[X_]-Cell[loc[k-1]].Nu[X_], 
+	   Cell[loc[k]].Nu[Y_]-Cell[loc[k-1]].Nu[Y_]);
 }
 
 
@@ -359,6 +356,7 @@ void chk_mI_trans(void)
   int Fnum, k, loc0, loc1;
 
   // M-6HBAi 1,
+  // TBA-6x8 2.
   const int lat_case = 2;
 
   Ring_GetTwiss(true, 0e0);
@@ -368,12 +366,12 @@ void chk_mI_trans(void)
     Fnum = ElemIndex("sextmark");
    break;
   case 2:
-    Fnum = ElemIndex("msf");
+    Fnum = ElemIndex("sfh");
    break;
   }
 
   printf("\nChromatic sextupole phase advance:\n");
-  for (k = 2; k <= GetnKid(Fnum); k += 2) {
+  for (k = 3; k <= GetnKid(Fnum); k += 4) {
     loc0 = Elem_GetPos(Fnum, k-1); loc1 = Elem_GetPos(Fnum, k);
     printf(" %8s %7.3f [%7.5f, %7.5f]\n",
 	   Cell[loc1].Elem.PName, Cell[loc1].S,
@@ -729,6 +727,15 @@ int main(int argc, char *argv[])
   prt_lat("linlat1.out", globval.bpm, true);
   prt_lat("linlat.out", globval.bpm, true, 10);
   prt_chrom_lat();
+
+  if (false) {
+    printf("\n%10s:  \n  %17.14f %17.14f %17.14f %17.14f %17.14f %17.14f\n",
+	   Cell[0].Elem.PName,
+	   Cell[0].Alpha[X_], Cell[0].Beta[X_],
+	   Cell[0].Eta[X_], Cell[0].Etap[X_],
+	   Cell[0].Alpha[Y_], Cell[0].Beta[Y_]);
+    exit(0);
+  }
 
   if (false) {
     chk_high_ord_achr();
