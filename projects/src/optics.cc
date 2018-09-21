@@ -635,6 +635,16 @@ int main(int argc, char *argv[])
 
   Ring_GetTwiss(true, 0e0); printglob();
 
+
+  if (false) {
+    printf("\n%10s\n  %17.14f %17.14f %17.14f %17.14f %17.14f %17.14f\n",
+	   Cell[0].Elem.PName,
+	   Cell[0].Alpha[X_], Cell[0].Beta[X_],
+	   Cell[0].Eta[X_], Cell[0].Etap[X_],
+	   Cell[0].Alpha[Y_], Cell[0].Beta[Y_]);
+    exit(0);
+  }
+
   if (false) {
     loc = Elem_GetPos(ElemIndex("bb"), 1);
     map.identity();
