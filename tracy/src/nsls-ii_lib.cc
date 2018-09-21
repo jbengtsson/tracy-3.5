@@ -124,7 +124,7 @@ void file_wr(std::ofstream &outf, const char file_name[])
 
 FILE* file_read(const char file_name[])
 {
-  FILE      *fp;
+  FILE *fp;
 
   fp = fopen(file_name, "r");
   if (fp == NULL) {
@@ -137,7 +137,7 @@ FILE* file_read(const char file_name[])
 
 FILE* file_write(const char file_name[])
 {
-  FILE      *fp;
+  FILE *fp;
 
   fp = fopen(file_name, "w");
   if (fp == NULL) {
@@ -160,10 +160,9 @@ void chk_cod(const bool cod, const char *proc_name)
 
 void no_sxt(void)
 {
-  int       k;
+  int k;
 
-  std::cout << std::endl;
-  std::cout << "zeroing sextupoles" << std::endl;
+  // printf("\nzeroing sextupoles\n");
   for (k = 0; k <= globval.Cell_nLoc; k++)
     if ((Cell[k].Elem.Pkind == Mpole) && (Cell[k].Elem.M->Porder >= Sext))
       SetKpar(Cell[k].Fnum, Cell[k].Knum, Sext, 0.0);
@@ -172,7 +171,7 @@ void no_sxt(void)
 
 void get_map(const bool cod)
 {
-  long int  lastpos;
+  long int lastpos;
 
   map.identity();
   if (cod) {
@@ -188,7 +187,7 @@ void get_map(const bool cod)
 
 tps get_h(void)
 {
-  ss_vect<tps>  map1, R;
+  ss_vect<tps> map1, R;
 
   // Parallel transport nonlinear kick to start of lattice,
   // assumes left to right evaluation.
@@ -207,7 +206,7 @@ tps get_h(void)
 
 void get_m2(const ss_vect<tps> &ps, tps m2[])
 {
-  int  i, j, k;
+  int i, j, k;
 
   k = 0;
   for (i = 0; i < 2*nd_tps; i++)
@@ -219,8 +218,8 @@ void get_m2(const ss_vect<tps> &ps, tps m2[])
 
 ss_vect<tps> get_S(const int n_DOF)
 {
-  int           j;
-  ss_vect<tps>  S;
+  int          j;
+  ss_vect<tps> S;
 
   S.zero();
   for (j = 0; j < n_DOF; j++) {
@@ -233,9 +232,9 @@ ss_vect<tps> get_S(const int n_DOF)
 
 ss_vect<tps> tp_S(const int n_DOF, const ss_vect<tps> &A)
 {
-  int           j;
-  long int      jj[ss_dim];
-  ss_vect<tps>  S;
+  int          j;
+  long int     jj[ss_dim];
+  ss_vect<tps> S;
 
   for (j = 1; j <= ss_dim; j++)
     jj[j-1] = (j <= 2*n_DOF)? 1 : 0;

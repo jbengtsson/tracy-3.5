@@ -37,7 +37,7 @@ double h_ijklm_abs(const tps &h_re, const tps &h_im,
 		   const int m)
 {
   return sqrt(sqr(h_ijklm(h_re, i, j, k, l, m))
-	      +sqr(h_ijklm(h_im, i, j, k, l, m)));
+  	      +sqr(h_ijklm(h_im, i, j, k, l, m)));
 }
 
 
