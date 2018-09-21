@@ -303,8 +303,7 @@ void chk_high_ord_achr(void)
   std::vector<int> loc;
 
   // M-6HBAi 1,
-  // TBA-6x8 2,
-  // RB-6BA  3.
+  // TBA-6x8 2.
   const int lat_case = 2;
 
   Ring_GetTwiss(true, 0e0);
@@ -320,7 +319,7 @@ void chk_high_ord_achr(void)
     loc.push_back(Elem_GetPos(ElemIndex("idmarker"), 5));
    break;
   case 2:
-    dnu[X_] = 11.0/8.0; dnu[Y_] = 15.0/16.0;
+    dnu[X_] = 11.0/8.0; dnu[Y_] = 17.0/16.0;
     loc.push_back(Elem_GetPos(ElemIndex("ls"), 1));
     loc.push_back(Elem_GetPos(ElemIndex("ms"), 1));
     loc.push_back(Elem_GetPos(ElemIndex("ss"), 1));
@@ -330,13 +329,6 @@ void chk_high_ord_achr(void)
     loc.push_back(Elem_GetPos(ElemIndex("ss"), 3));
     loc.push_back(Elem_GetPos(ElemIndex("ms"), 4));
     loc.push_back(Elem_GetPos(ElemIndex("ls"), 2));
-    break;
-  case 3:
-    dnu[X_] = 23.0/8.0; dnu[Y_] = 19.0/16.0;
-    loc.push_back(Elem_GetPos(ElemIndex("dss1"), 1));
-    loc.push_back(Elem_GetPos(ElemIndex("dss1"), 3));
-    loc.push_back(Elem_GetPos(ElemIndex("dss1"), 5));
-    loc.push_back(globval.Cell_nLoc);
     break;
   }
 
@@ -614,7 +606,7 @@ int main(int argc, char *argv[])
 
   trace = !true;
 
-  if (true)
+  if (!true)
     Read_Lattice(argv[1]);
   else
     rdmfile(argv[1]);
@@ -629,7 +621,7 @@ int main(int argc, char *argv[])
 
   if (false) {
     Ring_GetTwiss(true, 0e0); printglob();
-    dnu[X_] = 0.02; dnu[Y_] = 0.02;
+    dnu[X_] = 0.1; dnu[Y_] = 0.2;
     set_map(ElemIndex("ps_rot"), dnu);
   }
 

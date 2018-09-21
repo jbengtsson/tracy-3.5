@@ -10,7 +10,7 @@ int no_tps = NO;
 const double
   high_ord_achr_dnu  = 1e-3,
   high_ord_achr_nu[] =
-    {11.0/8.0+high_ord_achr_dnu, 15.0/16.0-high_ord_achr_dnu},
+    {11.0/8.0+high_ord_achr_dnu, 17.0/16.0-high_ord_achr_dnu},
   mI_nu[] = {0.373, 0.52};
 
 
@@ -1430,7 +1430,7 @@ void match_ls(param_type &prms, constr_type &constr)
   // From Center of Mid Straight: alpha, beta, eta, eta'.
   const int    n_ic    = 4;
   const double ic[n_ic][2] =
-    {{0.0, 0.0}, {5.76402884595997, 2.06477178130148}, {0.0, 0.0}, {0.0, 0.0}};
+    {{0.0, 0.0}, {4.75253654761357, 1.65302475096758}, {0.0, 0.0}, {0.0, 0.0}};
  
   // Long Straight.
   prms.add_prm("d4",     -2,   0.075,  0.3,  1.0);
@@ -1474,7 +1474,7 @@ void match_ls(param_type &prms, constr_type &constr)
 }
 
 
-void opt_high_ord_achr(param_type &prms, constr_type &constr)
+void opt_std_cell(param_type &prms, constr_type &constr)
 {
   // Parameter Type:
   //   Bend Angle  -3,
@@ -1518,7 +1518,7 @@ void opt_high_ord_achr(param_type &prms, constr_type &constr)
 
   // Lattice constraints are: alpha_x,y, beta_x,y, eta_x, eta'_x.
   constr.add_constr(Elem_GetPos(ElemIndex("b2"), 1),
-  		    1e5, 1e5, 0e0, 0e0,  0e0, 1e6,
+  		    1e5, 1e5, 0e0, 0e-1, 0e0, 1e6,
   		    0.0, 0.0, 0.0, 10.0, 0.0, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("b1"), 1)-1,
   		    0e0, 0e0, 0e0, 0e0, 1e6, 1e6,
@@ -1544,7 +1544,7 @@ void opt_high_ord_achr(param_type &prms, constr_type &constr)
   lat_constr.Fnum_b1.push_back(ElemIndex("b1"));
   lat_constr.Fnum_b1.push_back(ElemIndex("b2"));
 
-  lat_constr.high_ord_achr_scl = 1e6;
+  lat_constr.high_ord_achr_scl = 1e4;
   for (k = 0; k < 2; k++)
     lat_constr.high_ord_achr_nu[k] = high_ord_achr_nu[k];
 
@@ -1557,12 +1557,136 @@ void opt_high_ord_achr(param_type &prms, constr_type &constr)
   for (k = 0; k < n; k++)
     lat_constr.high_ord_achr_dnu[k].resize(2, 0e0);
 
-  lat_constr.drv_terms_scl = 1e-7;
+  lat_constr.drv_terms_scl = 1e-5;
 
-  lat_constr.eps_x_scl = 1e2; lat_constr.eps0_x = 0.190;
+  lat_constr.mI_scl[X_] = 1e-10; lat_constr.mI_scl[Y_] = 1e-10;
+  for (k = 0; k < 2; k++)
+    lat_constr.mI0[k] = mI_nu[k];
 
-  // 2 TBA, 2 1/2-MS, 1 SS: phi = 15.
+  lat_constr.eps_x_scl = 1e3; lat_constr.eps0_x = 0.190;
+
+  // 2 TBA: phi = 15.
   lat_constr.phi_scl = 1e0; lat_constr.phi0 = 15.0;
+
+  lat_constr.L_scl = 1e-10; lat_constr.L0 = 10.0;
+
+  lat_constr.ini_constr(true);
+}
+
+
+void opt_short_cell(param_type &prms, constr_type &constr)
+{
+  // Parameter Type:
+  //   Bend Angle  -3,
+  //   Length      -2,
+  //   Position    -1,
+  //   Quadrupole   2.
+  int k, n;
+
+  // TBA Cell.
+  prms.add_prm("b1",       -3, -20.0,   20.0,  1.0);
+  prms.add_prm("b1",       -2,   0.1,    1.2,  1.0);
+  // prms.add_prm("b1",       -1,   0.075,  0.07, 1.0);
+  prms.add_prm("b1",        2, -20.0,   20.0,  1.0);
+  prms.add_prm("b2",       -2,   0.1,    0.7,  1.0);
+  prms.add_prm("b2",        2, -20.0,   20.0,  1.0);
+  prms.add_prm("qf1a_tba",  2, -20.0,   20.0,  1.0);
+  prms.add_prm("qf1a_tba", -2,   0.1,    0.25, 1.0);
+  prms.add_prm("qf1b_tba",  2, -20.0,   20.0,  1.0);
+  prms.add_prm("qf1b_tba", -2,   0.1,    0.25, 1.0);
+
+  // Mid-Straight.
+  prms.add_prm("d8",       -2,   0.075,  0.2,  1.0);
+  prms.add_prm("qf1_ms",    2, -20.0,   20.0,  1.0);
+  prms.add_prm("qf1_ms",   -2,   0.1,    0.25, 1.0);
+  prms.add_prm("d9",       -2,   0.075,  0.2,  1.0);
+  prms.add_prm("qd2_ms",    2, -20.0,   20.0,  1.0);
+  prms.add_prm("qd2_ms",   -2,   0.1,    0.2,  1.0);
+
+  // Standard Straight.
+  prms.add_prm("d10",    -2,   0.075,  0.4, 1.0);
+  prms.add_prm("qd3_ss",  2, -20.0,   20.0, 1.0);
+  prms.add_prm("qd3_ss", -2,   0.1,    0.4, 1.0);
+  prms.add_prm("d11",    -2,   0.075,  0.4, 1.0);
+  prms.add_prm("qf2_ss",  2, -20.0,   20.0, 1.0);
+  prms.add_prm("qf2_ss", -2,   0.15,   0.4, 1.0);
+  prms.add_prm("d12",    -2,   0.075,  0.4, 1.0);
+  prms.add_prm("qd1_ss",  2, -20.0,   20.0, 1.0);
+  prms.add_prm("qd1_ss", -2,   0.1,    0.4, 1.0);
+
+  // Long Straight.
+  prms.add_prm("d4",     -2,   0.075,  0.3,  1.0);
+  prms.add_prm("qd4_ls",  2, -20.0,   20.0,  1.0);
+  prms.add_prm("qd4_ls", -2,   0.1,    0.4,  1.0);
+  prms.add_prm("d3",     -2,   0.075,  0.3,  1.0);
+  prms.add_prm("qf3_ls",  2, -20.0,   20.0,  1.0);
+  prms.add_prm("qf3_ls", -2,   0.1,    0.4,  1.0);
+  prms.add_prm("d2",     -2,   0.075,  0.35, 1.0);
+  prms.add_prm("qd2_ls",  2, -20.0,   20.0,  1.0);
+  prms.add_prm("qd2_ls", -2,   0.1,    0.4,  1.0);
+  prms.add_prm("d1",     -2,   0.075,  0.2,  1.0);
+  prms.add_prm("qf1_ls",  2, -20.0,   20.0,  1.0);
+  prms.add_prm("qf1_ls", -2,   0.1,    0.4,  1.0);
+
+  // Parameters are initialized in optimizer.
+
+  // Lattice constraints are: alpha_x,y, beta_x,y, eta_x, eta'_x.
+  constr.add_constr(Elem_GetPos(ElemIndex("b2"), 1),
+  		    1e5, 1e5, 0e0, 0e-1, 0e0, 1e6,
+  		    0.0, 0.0, 0.0, 10.0, 0.0, 0.0);
+  constr.add_constr(Elem_GetPos(ElemIndex("b1"), 1)-1,
+  		    0e0, 0e0, 0e0, 0e0, 1e6, 1e6,
+  		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+  constr.add_constr(Elem_GetPos(ElemIndex("b1"), 2),
+  		    0e0, 0e0, 0e0, 0e0, 1e6, 1e6,
+  		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+
+  constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
+  		    1e5, 1e5, 1e-2, 1e-2, 0e0, 0e0,
+  		    0.0, 0.0, 3.0,  1.5,  0.0, 0.0);
+
+  constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
+  		    1e5, 1e5, 1e-2, 1e-2, 0e0, 0e0,
+  		    0.0, 0.0, 4.0,  2.5,  0.0, 0.0);
+
+  constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
+  		    1e5, 1e5, 1e-10, 1e-10, 0e0, 0e0,
+  		    0.0, 0.0, 15.0,  4.0,   0.0, 0.0);
+
+ lat_prms.bn_tol = 1e-6; lat_prms.step = 1.0;
+
+  lat_constr.Fnum_b3.push_back(ElemIndex("sfh"));
+  lat_constr.Fnum_b3.push_back(ElemIndex("sd1a"));
+  lat_constr.Fnum_b3.push_back(ElemIndex("sd1b"));
+
+  lat_constr.Fnum_b1.push_back(ElemIndex("b1"));
+  lat_constr.Fnum_b1.push_back(ElemIndex("b2"));
+
+  lat_constr.high_ord_achr_scl = 1e4;
+  for (k = 0; k < 2; k++)
+    lat_constr.high_ord_achr_nu[k] = high_ord_achr_nu[k];
+
+  lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("ls"), 1));
+  lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("ms"), 1));
+  lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("ss"), 1));
+  lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("ms"), 2));
+  lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("ls"), 2));
+
+  n = lat_constr.high_ord_achr_Fnum.size() - 1;
+  lat_constr.high_ord_achr_dnu.resize(n);
+  for (k = 0; k < n; k++)
+    lat_constr.high_ord_achr_dnu[k].resize(2, 0e0);
+
+  lat_constr.drv_terms_scl = 1e-5;
+
+  lat_constr.mI_scl[X_] = 1e-10; lat_constr.mI_scl[Y_] = 1e-10;
+  for (k = 0; k < 2; k++)
+    lat_constr.mI0[k] = mI_nu[k];
+
+  lat_constr.eps_x_scl = 1e3; lat_constr.eps0_x = 0.190;
+
+  // 2 TBA: phi = 15.
+  lat_constr.phi_scl = 1e0; lat_constr.phi0 = 30.0;
 
   lat_constr.L_scl = 1e-10; lat_constr.L0 = 10.0;
 
@@ -1653,11 +1777,23 @@ int main(int argc, char *argv[])
     fit_powell(lat_prms, 1e-3, f_match);
   }
 
-  if (!false) {
-    // Optimize Super Period: Higher-Order-Achromat.
-    opt_high_ord_achr(lat_prms, lat_constr);
+  if (false) {
+    // Optimize Standard Cell: Higher-Order-Achromat.
+    opt_std_cell(lat_prms, lat_constr);
     no_sxt();
-    fit_powell(lat_prms, 1e-3, f_achrom);
-    // fit_conj_grad(lat_prms, f_achrom);
+    if (true)
+      fit_powell(lat_prms, 1e-3, f_achrom);
+    else
+      fit_conj_grad(lat_prms, f_achrom);
+  }
+
+  if (!false) {
+    // Optimize Short Cell: Higher-Order-Achromat.
+    opt_short_cell(lat_prms, lat_constr);
+    no_sxt();
+    if (true)
+      fit_powell(lat_prms, 1e-3, f_achrom);
+    else
+      fit_conj_grad(lat_prms, f_achrom);
   }
 }
