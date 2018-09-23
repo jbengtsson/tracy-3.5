@@ -373,6 +373,23 @@ void chk_mI_trans(void)
 }
 
 
+void chk_drv_terms(void)
+{
+  int k;
+
+  Ring_GetTwiss(true, 0e0);
+ 
+  printf("\nh_10200 phase advance:\n");
+  for (k = 0; k <= globval.Cell_nLoc; k++)
+    if ((Cell[k].Elem.Pkind == Mpole) && (Cell[k].Elem.M->Porder == Sext))
+      printf(" %8s %7.3f %7.5f\n",
+	     Cell[k].Elem.PName, Cell[k].S, Cell[k].Nu[X_]+2.0*Cell[k].Nu[Y_]);
+  k = globval.Cell_nLoc;
+  printf(" %8s %7.3f %7.5f\n",
+	 Cell[k].Elem.PName, Cell[k].S, Cell[k].Nu[X_]+2.0*Cell[k].Nu[Y_]);
+}
+
+
 void chk_mpole_Fam(const int Fnum, const bool exit)
 {
   int k, loc;
@@ -746,6 +763,11 @@ int main(int argc, char *argv[])
 
   if (false) {
     chk_mI_trans();
+    exit(0);
+  }
+
+  if (false) {
+    chk_drv_terms();
     exit(0);
   }
 

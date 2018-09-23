@@ -32,7 +32,7 @@ void chk_bend()
 }
 
 
-double h_ijklm_abs(const tps &h_re, const tps &h_im,
+double h_abs_ijklm(const tps &h_re, const tps &h_im,
 		   const int i, const int j, const int k, const int l,
 		   const int m)
 {
@@ -82,42 +82,42 @@ void prt_drv_terms(ofstream &outf, const int k,
        << setprecision(1) << setw(5) << get_code(Cell[loc])
        << scientific << setprecision(5)
 
-       << setw(13) << h_ijklm_abs(h_re, h_im, 1, 0, 0, 0, 2)
+       << setw(13) << h_abs_ijklm(h_re, h_im, 1, 0, 0, 0, 2)
 
-       << setw(13) << h_ijklm_abs(h_re, h_im, 2, 0, 0, 0, 1)
-       << setw(13) << h_ijklm_abs(h_re, h_im, 0, 0, 2, 0, 1)
+       << setw(13) << h_abs_ijklm(h_re, h_im, 2, 0, 0, 0, 1)
+       << setw(13) << h_abs_ijklm(h_re, h_im, 0, 0, 2, 0, 1)
 
-       << setw(13) << h_ijklm_abs(h_re, h_im, 3, 0, 0, 0, 0)
-       << setw(13) << h_ijklm_abs(h_re, h_im, 2, 1, 0, 0, 0)
-       << setw(13) << h_ijklm_abs(h_re, h_im, 1, 0, 2, 0, 0)
-       << setw(13) << h_ijklm_abs(h_re, h_im, 1, 0, 0, 2, 0)
-       << setw(13) << h_ijklm_abs(h_re, h_im, 1, 0, 1, 1, 0)
+       << setw(13) << h_abs_ijklm(h_re, h_im, 3, 0, 0, 0, 0)
+       << setw(13) << h_abs_ijklm(h_re, h_im, 2, 1, 0, 0, 0)
+       << setw(13) << h_abs_ijklm(h_re, h_im, 1, 0, 2, 0, 0)
+       << setw(13) << h_abs_ijklm(h_re, h_im, 1, 0, 0, 2, 0)
+       << setw(13) << h_abs_ijklm(h_re, h_im, 1, 0, 1, 1, 0)
 
-       << setw(13) << h_ijklm_abs(h_re, h_im, 4, 0, 0, 0, 0)
-       << setw(13) << h_ijklm_abs(h_re, h_im, 3, 1, 0, 0, 0)
-       << setw(13) << h_ijklm_abs(h_re, h_im, 2, 0, 2, 0, 0)
-       << setw(13) << h_ijklm_abs(h_re, h_im, 1, 1, 2, 0, 0)
-       << setw(13) << h_ijklm_abs(h_re, h_im, 0, 0, 4, 0, 0)
-       << setw(13) << h_ijklm_abs(h_re, h_im, 2, 0, 1, 1, 0)
-       << setw(13) << h_ijklm_abs(h_re, h_im, 0, 0, 3, 1, 0)
-       << setw(13) << h_ijklm_abs(h_re, h_im, 2, 0, 0, 2, 0)
+       << setw(13) << h_abs_ijklm(h_re, h_im, 4, 0, 0, 0, 0)
+       << setw(13) << h_abs_ijklm(h_re, h_im, 3, 1, 0, 0, 0)
+       << setw(13) << h_abs_ijklm(h_re, h_im, 2, 0, 2, 0, 0)
+       << setw(13) << h_abs_ijklm(h_re, h_im, 1, 1, 2, 0, 0)
+       << setw(13) << h_abs_ijklm(h_re, h_im, 0, 0, 4, 0, 0)
+       << setw(13) << h_abs_ijklm(h_re, h_im, 2, 0, 1, 1, 0)
+       << setw(13) << h_abs_ijklm(h_re, h_im, 0, 0, 3, 1, 0)
+       << setw(13) << h_abs_ijklm(h_re, h_im, 2, 0, 0, 2, 0)
 
-       << setw(13) << h_ijklm_abs(h_re, h_im, 5, 0, 0, 0, 0)
-       << setw(13) << h_ijklm_abs(h_re, h_im, 4, 1, 0, 0, 0)
-       << setw(13) << h_ijklm_abs(h_re, h_im, 3, 2, 0, 0, 0)
-       << setw(13) << h_ijklm_abs(h_re, h_im, 3, 0, 2, 0, 0)
-       << setw(13) << h_ijklm_abs(h_re, h_im, 2, 1, 2, 0, 0)
-       << setw(13) << h_ijklm_abs(h_re, h_im, 1, 0, 4, 0, 0)
-       << setw(13) << h_ijklm_abs(h_re, h_im, 3, 0, 1, 1, 0)
-       << setw(13) << h_ijklm_abs(h_re, h_im, 2, 1, 1, 1, 0)
-       << setw(13) << h_ijklm_abs(h_re, h_im, 1, 0, 3, 1, 0)
-       << setw(13) << h_ijklm_abs(h_re, h_im, 3, 0, 0, 2, 0)
-       << setw(13) << h_ijklm_abs(h_re, h_im, 2, 1, 0, 2, 0)
-       << setw(13) << h_ijklm_abs(h_re, h_im, 1, 0, 2, 2, 0)
-       << setw(13) << h_ijklm_abs(h_re, h_im, 1, 0, 1, 3, 0)
-       << setw(13) << h_ijklm_abs(h_re, h_im, 1, 0, 0, 4, 0)
-       << setw(13) << h_ijklm_abs(h_re, h_im, 0, 1, 0, 4, 0)
-
+       << setw(13) << h_abs_ijklm(h_re, h_im, 5, 0, 0, 0, 0)
+       << setw(13) << h_abs_ijklm(h_re, h_im, 4, 1, 0, 0, 0)
+       << setw(13) << h_abs_ijklm(h_re, h_im, 3, 2, 0, 0, 0)
+       << setw(13) << h_abs_ijklm(h_re, h_im, 3, 0, 2, 0, 0)
+       << setw(13) << h_abs_ijklm(h_re, h_im, 2, 1, 2, 0, 0)
+       << setw(13) << h_abs_ijklm(h_re, h_im, 1, 0, 4, 0, 0)
+       << setw(13) << h_abs_ijklm(h_re, h_im, 3, 0, 1, 1, 0)
+       << setw(13) << h_abs_ijklm(h_re, h_im, 1, 0, 4, 0, 0)
+       << setw(13) << h_abs_ijklm(h_re, h_im, 2, 1, 1, 1, 0)
+       << setw(13) << h_abs_ijklm(h_re, h_im, 1, 0, 3, 1, 0)
+       << setw(13) << h_abs_ijklm(h_re, h_im, 3, 0, 0, 2, 0)
+       << setw(13) << h_abs_ijklm(h_re, h_im, 2, 1, 0, 2, 0)
+       << setw(13) << h_abs_ijklm(h_re, h_im, 1, 0, 2, 2, 0)
+       << setw(13) << h_abs_ijklm(h_re, h_im, 1, 0, 1, 3, 0)
+       << setw(13) << h_abs_ijklm(h_re, h_im, 1, 0, 0, 4, 0)
+       << setw(13) << h_abs_ijklm(h_re, h_im, 0, 1, 0, 4, 0)
        << "\n";
 
   outf.flush();
