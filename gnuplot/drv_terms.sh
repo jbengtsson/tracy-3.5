@@ -48,123 +48,59 @@ set ytics nomirror;
 plot file_name using 2:3 axis x1y2 notitle with fsteps lt 1 lw 1 \
      lc rgb "black", \
      file_name using 2:4 title "h_{10002}" with steps ls 1, \
-     file_name using 2:6 title "h_{20001}" with steps ls 2, \
-     file_name using 2:8 title "h_{00201}" with steps ls 3;
+     file_name using 2:5 title "h_{20001}" with steps ls 2, \
+     file_name using 2:6 title "h_{00201}" with steps ls 3;
 if (!ps) pause mouse "click on graph to cont.\n";
 
 if (ps) set output "drv_terms_2.".(ext);
-set title "1st Order Chromatic  Terms";
-set xlabel "s [m]"; set ylabel "{/Symbol \320} h_{ijklm}";
-set y2range [-2.0:20];
-set ytics nomirror;
-#set logscale y;
+set title "1st Order Geometric Terms";
+set xlabel "s [m]"; set ylabel "|h_{ijklm}|";
 plot file_name using 2:3 axis x1y2 notitle with fsteps lt 1 lw 1 \
      lc rgb "black", \
-     file_name using 2:3 title "h_{10002}" with steps ls 1, \
-     file_name using 2:5 title "h_{20001}" with steps ls 2, \
-     file_name using 2:7 title "h_{00201}" with steps ls 3;
+     file_name using 2:7 title "h_{30000}" with steps ls 1, \
+     file_name using 2:8 title "h_{21000}" with steps ls 2, \
+     file_name using 2:9 title "h_{10200}" with steps ls 3, \
+     file_name using 2:10 title "h_{10020}" with steps ls 4, \
+     file_name using 2:11 title "h_{10110}" with steps ls 5;
 if (!ps) pause mouse "click on graph to cont.\n";
 
 if (ps) set output "drv_terms_3.".(ext);
-set title "1st Order Geometric Terms";
+set title "2nd Order Geometric Terms";
 set xlabel "s [m]"; set ylabel "|h_{ijklm}|";
+set y2range [-2.0:20];
 plot file_name using 2:3 axis x1y2 notitle with fsteps lt 1 lw 1 \
      lc rgb "black", \
-     file_name using 2:10 title "h_{30000}" with steps ls 1, \
-     file_name using 2:12 title "h_{21000}" with steps ls 2, \
-     file_name using 2:14title "h_{10200}" with steps ls 3, \
-     file_name using 2:16 title "h_{10020}" with steps ls 4, \
-     file_name using 2:18 title "h_{10110}" with steps ls 5;
+     file_name using 2:12 title "h_{40000}" with steps ls 1, \
+     file_name using 2:13 title "h_{31000}" with steps ls 2, \
+     file_name using 2:14 title "h_{20200}" with steps ls 3, \
+     file_name using 2:15 title "h_{11200}" with steps ls 4, \
+     file_name using 2:16 title "h_{00400}" with steps ls 5, \
+     file_name using 2:17 title "h_{20110}" with steps ls 6, \
+     file_name using 2:18 title "h_{00310}" with steps ls 7, \
+     file_name using 2:19 title "h_{20020}" with steps ls 8;
 if (!ps) pause mouse "click on graph to cont.\n";
 
 if (ps) set output "drv_terms_4.".(ext);
-set title "1st Order Geometric Terms";
-set xlabel "s [m]"; set ylabel "{/Symbol \320} h_{ijklm}";
-plot file_name using 2:3 axis x1y2 notitle with fsteps lt 1 lw 1 \
-     lc rgb "black", \
-     file_name using 2:9 title "h_{30000}" with steps ls 1, \
-     file_name using 2:11 title "h_{21000}" with steps ls 2, \
-     file_name using 2:13title "h_{10200}" with steps ls 3, \
-     file_name using 2:15 title "h_{10020}" with steps ls 4, \
-     file_name using 2:17 title "h_{10110}" with steps ls 5;
-if (!ps) pause mouse "click on graph to cont.\n";
-
-if (ps) set output "drv_terms_5.".(ext);
-set title "2nd Order Geometric Terms";
-set xlabel "s [m]"; set ylabel "|h_{ijklm}|";
-set y2range [-2.0:20];
-plot file_name using 2:3 axis x1y2 notitle with fsteps lt 1 lw 1 \
-     lc rgb "black", \
-     file_name using 2:20 title "h_{40000}" with steps ls 1, \
-     file_name using 2:22 title "h_{31000}" with steps ls 2, \
-     file_name using 2:24 title "h_{20200}" with steps ls 3, \
-     file_name using 2:26 title "h_{11200}" with steps ls 4, \
-     file_name using 2:28 title "h_{00400}" with steps ls 5, \
-     file_name using 2:30 title "h_{20110}" with steps ls 6, \
-     file_name using 2:32 title "h_{00310}" with steps ls 7, \
-     file_name using 2:34 title "h_{20020}" with steps ls 8;
-if (!ps) pause mouse "click on graph to cont.\n";
-
-if (ps) set output "drv_terms_6.".(ext);
-set title "2nd Order Geometric Terms";
-set xlabel "s [m]"; set ylabel "{/Symbol \320} h_{ijklm}";
-set y2range [-2.0:20];
-plot file_name using 2:3 axis x1y2 notitle with fsteps lt 1 lw 1 \
-     lc rgb "black", \
-     file_name using 2:19 title "h_{40000}" with steps ls 1, \
-     file_name using 2:21 title "h_{31000}" with steps ls 2, \
-     file_name using 2:23 title "h_{20200}" with steps ls 3, \
-     file_name using 2:25 title "h_{11200}" with steps ls 4, \
-     file_name using 2:27 title "h_{00400}" with steps ls 5, \
-     file_name using 2:29 title "h_{20110}" with steps ls 6, \
-     file_name using 2:31 title "h_{00310}" with steps ls 7, \
-     file_name using 2:33 title "h_{20020}" with steps ls 8;
-if (!ps) pause mouse "click on graph to cont.\n";
-
-if (ps) set output "drv_terms_7.".(ext);
 set title "3rd Order Geometric Terms";
 set xlabel "s [m]"; set ylabel "|h_{ijklm}|";
 set y2range [-2.0:20];
 plot file_name using 2:3 axis x1y2 notitle with fsteps lt 1 lw 1 \
      lc rgb "black", \
-     file_name using 2:36 title "h_{50000}" with steps ls 1, \
-     file_name using 2:38 title "h_{41000}" with steps ls 2, \
-     file_name using 2:40 title "h_{32000}" with steps ls 3, \
-     file_name using 2:42 title "h_{30200}" with steps ls 4, \
-     file_name using 2:44 title "h_{21200}" with steps ls 5, \
-     file_name using 2:46 title "h_{10400}" with steps ls 6, \
-     file_name using 2:48 title "h_{30110}" with steps ls 7, \
-     file_name using 2:50 title "h_{21110}" with steps ls 8, \
-     file_name using 2:52 title "h_{10310}" with steps ls 1, \
-     file_name using 2:54 title "h_{30020}" with steps ls 2, \
-     file_name using 2:56 title "h_{21020}" with steps ls 3, \
-     file_name using 2:58 title "h_{10220}" with steps ls 4, \
-     file_name using 2:60 title "h_{10130}" with steps ls 5, \
-     file_name using 2:62 title "h_{10040}" with steps ls 6, \
-     file_name using 2:64 title "h_{01040}" with steps ls 7;
-if (!ps) pause mouse "click on graph to cont.\n";
-
-if (ps) set output "drv_terms_9.".(ext);
-set title "3rd Order Geometric Terms";
-set xlabel "s [m]"; set ylabel "{/Symbol \320} h_{ijklm}";
-set y2range [-2.0:20];
-plot file_name using 2:3 axis x1y2 notitle with fsteps lt 1 lw 1 \
-     lc rgb "black", \
-     file_name using 2:35 title "h_{50000}" with steps ls 1, \
-     file_name using 2:37 title "h_{41000}" with steps ls 2, \
-     file_name using 2:39 title "h_{32000}" with steps ls 3, \
-     file_name using 2:41 title "h_{30200}" with steps ls 4, \
-     file_name using 2:43 title "h_{21200}" with steps ls 5, \
-     file_name using 2:45 title "h_{10400}" with steps ls 6, \
-     file_name using 2:47 title "h_{30110}" with steps ls 7, \
-     file_name using 2:49 title "h_{21110}" with steps ls 8, \
-     file_name using 2:51 title "h_{10310}" with steps ls 1, \
-     file_name using 2:53 title "h_{30020}" with steps ls 2, \
-     file_name using 2:55 title "h_{21020}" with steps ls 3, \
-     file_name using 2:57 title "h_{10220}" with steps ls 4, \
-     file_name using 2:59 title "h_{10130}" with steps ls 5, \
-     file_name using 2:61 title "h_{10040}" with steps ls 6, \
-     file_name using 2:63 title "h_{01040}" with steps ls 7;
+     file_name using 2:20 title "h_{50000}" with steps ls 1, \
+     file_name using 2:21 title "h_{41000}" with steps ls 2, \
+     file_name using 2:22 title "h_{32000}" with steps ls 3, \
+     file_name using 2:23 title "h_{30200}" with steps ls 4, \
+     file_name using 2:24 title "h_{21200}" with steps ls 5, \
+     file_name using 2:25 title "h_{10400}" with steps ls 6, \
+     file_name using 2:26 title "h_{30110}" with steps ls 7, \
+     file_name using 2:27 title "h_{21110}" with steps ls 8, \
+     file_name using 2:28 title "h_{10310}" with steps ls 1, \
+     file_name using 2:29 title "h_{30020}" with steps ls 2, \
+     file_name using 2:30 title "h_{21020}" with steps ls 3, \
+     file_name using 2:31 title "h_{10220}" with steps ls 4, \
+     file_name using 2:32 title "h_{10130}" with steps ls 5, \
+     file_name using 2:34 title "h_{10040}" with steps ls 6, \
+     file_name using 2:35 title "h_{01040}" with steps ls 7;
 if (!ps) pause mouse "click on graph to cont.\n";
 
 EOP
