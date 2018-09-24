@@ -737,7 +737,7 @@ int main(int argc, char *argv[])
   prt_lat("linlat.out", globval.bpm, true, 10);
   prt_chrom_lat();
 
-  if (!false) {
+  if (false) {
     printf("\n%10s:  \n  %13.10f %13.10f %13.10f %13.10f %13.10f %13.10f\n",
 	   Cell[0].Elem.PName,
 	   Cell[0].Alpha[X_], Cell[0].Beta[X_],
