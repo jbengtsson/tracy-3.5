@@ -1396,7 +1396,7 @@ void match_ls(param_type &prms, constr_type &constr)
   // Parameters are initialized in optimizer.
 
   constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
-  		    1e0, 1e0, 1e-2, 1e-2, 0e0, 0e0,
+  		    1e0, 1e0, 1e-4, 1e-4, 0e0, 0e0,
   		    0.0, 0.0, 15.0, 4.0,  0.0, 0.0);
 
   lat_prms.bn_tol = 1e-6; lat_prms.step = 1.0;
