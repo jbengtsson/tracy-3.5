@@ -78,7 +78,7 @@ public:
     ps_rot_Fam;
   double
     ic[4][2],
-    chi2,
+    chi2, chi2_prt,
     eps_x_scl,
     eps0_x,               // Hor. emittance [nm.rad].
     drv_terms_scl,
@@ -107,7 +107,7 @@ public:
     type;
 
   constr_type(void) {
-    n_iter = 0; chi2 = 1e30;
+    n_iter = 0; chi2 = 1e30; chi2_prt = 1e30;
     eps_x_scl = 0e0; phi_scl = 0e0; drv_terms_scl = 0e0;
     high_ord_achr_scl = 0e0; mI_scl[X_] = mI_scl[Y_] = 0e0; L_scl = 0e0;
   }
@@ -122,7 +122,7 @@ public:
   double get_chi2(void) const;
   void get_dchi2(double *df) const;
   void prt_Jacobian(const int n) const;
-  void prt_constr(const double chi2) const;
+  void prt_constr(const double chi2);
 };
 
 
@@ -767,10 +767,11 @@ void prt_high_ord_achr(const constr_type &constr)
 }
 
 
-void constr_type::prt_constr(const double chi2) const
+void constr_type::prt_constr(const double chi2)
 {
 
-  printf("\n%3d chi2: %11.5e -> %11.5e\n", n_iter, this->chi2, chi2);
+  printf("\n%3d chi2: %11.5e -> %11.5e\n", n_iter, this->chi2_prt, chi2);
+  this->chi2_prt = chi2;
   printf("\n  Linear Optics:\n");
   printf("    eps_x       = %5.3f    (%5.3f)\n"
 	 "    nu          = [%5.3f, %5.3f]\n"
@@ -1559,7 +1560,7 @@ void opt_std_cell(param_type &prms, constr_type &constr)
   for (k = 0; k < n; k++)
     lat_constr.high_ord_achr_dnu[k].resize(2, 0e0);
 
-  lat_constr.drv_terms_scl = 1e-7;
+  lat_constr.drv_terms_scl = 1e-8;
 
   lat_constr.mI_scl[X_] = 1e-10; lat_constr.mI_scl[Y_] = 1e-10;
   for (k = 0; k < 2; k++)
@@ -1722,7 +1723,7 @@ int main(int argc, char *argv[])
   // Unbuffered output.
   setvbuf(stdout, buffer, _IONBF, BUFSIZ);
 
-  if (true)
+  if (!true)
     Read_Lattice(argv[1]);
   else
     rdmfile(argv[1]);
