@@ -1339,7 +1339,7 @@ void opt_mI(param_type &prms, constr_type &constr)
 
   lat_constr.eps_x_scl = 1e3; lat_constr.eps0_x = 0.200;
 
-  lat_constr.drv_terms_scl = 1e-7;
+  lat_constr.drv_terms_scl = 1e-6;
 
   lat_constr.mI_scl[X_] = 1e2; lat_constr.mI_scl[Y_] = 1e2;
   for (k = 0; k < 2; k++)
@@ -1818,7 +1818,7 @@ int main(int argc, char *argv[])
   // Unbuffered output.
   setvbuf(stdout, buffer, _IONBF, BUFSIZ);
 
-  if (true)
+  if (!true)
     Read_Lattice(argv[1]);
   else
     rdmfile(argv[1]);
