@@ -3,4 +3,4 @@
 # combine PBS standard output and error files
 #$ -j y
 
-$HOME/git_repos/tracy-3.5_temp/projects/src/opt_des_1.cmd $lat_file
+$HOME/git_repos/tracy-3.5_temp/projects/src/opt_des_1 $lat_file

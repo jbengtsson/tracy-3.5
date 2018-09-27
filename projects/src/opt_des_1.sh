@@ -1,5 +1,7 @@
 #!/bin/sh
 
+prm1=$1
+
 #queue="ap-medium.q"
 queue="ap-high.q"
 #queue="test-medium.q"

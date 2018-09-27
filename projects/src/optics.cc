@@ -218,25 +218,6 @@ void prt_dip()
   Fnum.push_back(row);
   row.clear();
 
-  row.push_back(ElemIndex("b2_1"));
-  row.push_back(ElemIndex("b2_2"));
-  row.push_back(ElemIndex("b2_3"));
-  row.push_back(ElemIndex("b2_4"));
-  row.push_back(ElemIndex("b2_5"));
-  Fnum.push_back(row);
-  row.clear();
-
-  row.push_back(ElemIndex("b3_1"));
-  row.push_back(ElemIndex("b3_2"));
-  row.push_back(ElemIndex("b3_1"));
-  Fnum.push_back(row);
-  row.clear();
-
-  row.push_back(ElemIndex("b4_1"));
-  row.push_back(ElemIndex("b4_2"));
-  Fnum.push_back(row);
-  row.clear();
-
   phi2 = 0e0;
   for (j = 0; j < (int)Fnum.size(); j++) {
     printf("\n");
@@ -247,8 +228,7 @@ void prt_dip()
       L1 += Cell[loc].Elem.PL; phi1 += phi;
       printf("%10s %13.10f %13.10f %13.10f %13.10f\n",
 	     Cell[loc].Elem.PName, L,
-	     phi, rad2deg(Cell[loc].Elem.M->PTx1),
-	     rad2deg(Cell[loc].Elem.M->PTx1));
+	     phi, Cell[loc].Elem.M->PTx1, Cell[loc].Elem.M->PTx2);
     }
     printf("\nMagnet: L = %13.10f phi = %13.10f\n", L1, phi1);
     phi2 += phi1;
@@ -319,15 +299,23 @@ void chk_high_ord_achr(void)
     loc.push_back(Elem_GetPos(ElemIndex("idmarker"), 5));
    break;
   case 2:
-    dnu[X_] = 11.0/8.0; dnu[Y_] = 17.0/16.0;
+    dnu[X_] = 11.0/(2.0*8.0); dnu[Y_] = 15.0/(2.0*16.0);
     loc.push_back(Elem_GetPos(ElemIndex("ls"), 1));
+    loc.push_back(Elem_GetPos(ElemIndex("b2"), 1));
     loc.push_back(Elem_GetPos(ElemIndex("ms"), 1));
+    loc.push_back(Elem_GetPos(ElemIndex("b2"), 3));
     loc.push_back(Elem_GetPos(ElemIndex("ss"), 1));
+    loc.push_back(Elem_GetPos(ElemIndex("b2"), 5));
     loc.push_back(Elem_GetPos(ElemIndex("ms"), 2));
+    loc.push_back(Elem_GetPos(ElemIndex("b2"), 7));
     loc.push_back(Elem_GetPos(ElemIndex("ss"), 2));
+    loc.push_back(Elem_GetPos(ElemIndex("b2"), 9));
     loc.push_back(Elem_GetPos(ElemIndex("ms"), 3));
+    loc.push_back(Elem_GetPos(ElemIndex("b2"), 11));
     loc.push_back(Elem_GetPos(ElemIndex("ss"), 3));
+    loc.push_back(Elem_GetPos(ElemIndex("b2"), 13));
     loc.push_back(Elem_GetPos(ElemIndex("ms"), 4));
+    loc.push_back(Elem_GetPos(ElemIndex("b2"), 15));
     loc.push_back(Elem_GetPos(ElemIndex("ls"), 2));
     break;
   }
@@ -623,7 +611,7 @@ int main(int argc, char *argv[])
 
   trace = !true;
 
-  if (true)
+  if (!true)
     Read_Lattice(argv[1]);
   else
     rdmfile(argv[1]);
@@ -638,7 +626,7 @@ int main(int argc, char *argv[])
 
   if (false) {
     Ring_GetTwiss(true, 0e0); printglob();
-    dnu[X_] = 0.1; dnu[Y_] = 0.2;
+    dnu[X_] = -0.2; dnu[Y_] = -0.1;
     set_map(ElemIndex("ps_rot"), dnu);
   }
 
