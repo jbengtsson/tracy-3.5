@@ -206,15 +206,15 @@ double rad2deg(const double a) { return a*180e0/M_PI; }
 void prt_dip()
 {
   int                        j, k, loc;
-  double                     phi, L, L1, phi1, phi2;
+  double                     phi, L, L1, phi1, phi2, phi_rel, phi_rel_tot;
   std::vector<int>           row;
   std::vector< vector<int> > Fnum;
 
-  row.push_back(ElemIndex("b1_1"));
-  row.push_back(ElemIndex("b1_2"));
-  row.push_back(ElemIndex("b1_3"));
-  row.push_back(ElemIndex("b1_4"));
-  row.push_back(ElemIndex("b1_5"));
+  row.push_back(ElemIndex("b1l_1"));
+  row.push_back(ElemIndex("b1l_2"));
+  row.push_back(ElemIndex("b1l_3"));
+  row.push_back(ElemIndex("b1l_4"));
+  row.push_back(ElemIndex("b1l_5"));
   Fnum.push_back(row);
   row.clear();
 
@@ -234,6 +234,19 @@ void prt_dip()
     phi2 += phi1;
   }
   printf("\nCell: phi = %13.10f\n", phi2);
+
+  for (j = 0; j < (int)Fnum.size(); j++) {
+    printf("\nphi ratios: \n");
+    phi_rel_tot = 0e0;
+    for (k = 0; k < (int)Fnum[j].size(); k++) {
+      loc = Elem_GetPos(Fnum[j][k], 1);
+      L = Cell[loc].Elem.PL; phi = rad2deg(L*Cell[loc].Elem.M->Pirho);
+      phi_rel = phi/phi2;
+      phi_rel_tot += phi_rel;
+      printf(" %8.6f", phi_rel);
+    }
+    printf("\nTotal: %8.6f\n", phi_rel_tot);
+  }
 }
 
 
@@ -611,7 +624,7 @@ int main(int argc, char *argv[])
 
   trace = !true;
 
-  if (!true)
+  if (true)
     Read_Lattice(argv[1]);
   else
     rdmfile(argv[1]);

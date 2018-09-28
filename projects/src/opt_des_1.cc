@@ -11,7 +11,7 @@ const double
   high_ord_achr_dnu  = 1e-3,
   high_ord_achr_nu[] =
     {11.0/8.0+high_ord_achr_dnu, 15.0/16.0-high_ord_achr_dnu},
-  mI_nu[] = {1.5, 0.50};
+  mI_nu[] = {1.5, 0.5};
 
 
 double rad2deg(const double a) { return a*180e0/M_PI; }
@@ -230,7 +230,7 @@ void param_type::set_prm(double *bn)
       set_L(Fnum[i-1], bn_ext); get_S();
     } else if (n[i-1] == -3)
       // Bend angle; L is fixed.
-      set_phi(Fnum[i-1], bn_ext);
+      if (i < n_prm) set_phi(Fnum[i-1], bn_ext);
     if (prt) {
       printf(" %12.5e", bn_ext);
       if (i % n_prt == 0) printf("\n  ");
@@ -1118,8 +1118,7 @@ void f_der(double *b2, double *df)
 {
   lat_prms.set_prm(b2);
 
-  if (lat_constr.phi_scl != 0e0)
-    phi_corr(lat_constr);
+  if (lat_constr.phi_scl != 0e0) phi_corr(lat_constr);
 
   lat_constr.get_dchi2(df);
 }
@@ -1224,8 +1223,7 @@ double f_match(double *b2)
 
   lat_prms.set_prm(b2);
 
-  if (lat_constr.phi_scl != 0e0)
-    phi_corr(lat_constr);
+  if (lat_constr.phi_scl != 0e0) phi_corr(lat_constr);
 
   eps_x = get_lin_opt(lat_constr);
 
@@ -1253,8 +1251,7 @@ double f_achrom(double *b2)
 
   lat_prms.set_prm(b2);
 
-  if (lat_constr.phi_scl != 0e0)
-    phi_corr(lat_constr);
+  if (lat_constr.phi_scl != 0e0) phi_corr(lat_constr);
 
   if (lat_constr.ring) stable = get_nu(lat_constr.nu);
 
@@ -1300,6 +1297,8 @@ void opt_mI(param_type &prms, constr_type &constr)
   prms.add_prm("qf8",    2, -20.0,   20.0,  1.0);
   prms.add_prm("b1",    -3, -20.0,   20.0,  1.0);
   prms.add_prm("b2",    -3, -20.0,   20.0,  1.0);
+  prms.add_prm("b1",     2, -20.0,   20.0,  1.0);
+  prms.add_prm("b2",     2, -20.0,   20.0,  1.0);
   prms.add_prm("dq1",    2, -20.0,   20.0,  1.0);
   // prms.add_prm("dq1",   -2, -20.0,   20.0,  1.0);
   prms.add_prm("qf6",    2, -20.0,   20.0,  1.0);
@@ -1314,17 +1313,16 @@ void opt_mI(param_type &prms, constr_type &constr)
 
   // Lattice constraints are: alpha_x,y, beta_x,y, eta_x, eta'_x.
   constr.add_constr(Elem_GetPos(ElemIndex("b1"), 1)-1,
-  		    0e0, 0e0, 0e0, 0e0, 1e5, 1e5,
+  		    0e0, 0e0, 0e0, 0e0, 1e6, 1e6,
   		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("dq1"), 1),
-  		    0e0, 0e0, 0e0, 0e0, 1e5, 1e5,
+  		    0e0, 0e0, 0e0, 0e0, 1e6, 1e6,
   		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
-  		    0e0, 0e0, 1e-2, 1e-2, 0e0, 0e0,
+  		    0e0, 0e0, 1e-1, 1e-1, 0e0, 0e0,
   		    0.0, 0.0, 3.0,  1.5,  0.0, 0.0);
-
   constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
-  		    0e0, 0e0, 1e-2, 1e-2, 0e0, 0e0,
+  		    0e0, 0e0, 1e-1, 1e-1, 0e0, 0e0,
   		    0.0, 0.0, 4.0,  2.5,  0.0, 0.0);
 
   lat_prms.bn_tol = 1e-5; lat_prms.step = 1.0;
@@ -1337,11 +1335,11 @@ void opt_mI(param_type &prms, constr_type &constr)
   lat_constr.Fnum_b1.push_back(ElemIndex("b2"));
   lat_constr.Fnum_b1.push_back(ElemIndex("dq1"));
 
-  lat_constr.eps_x_scl = 1e3; lat_constr.eps0_x = 0.200;
+  lat_constr.eps_x_scl = 1e4; lat_constr.eps0_x = 0.221;
 
-  lat_constr.drv_terms_scl = 1e-6;
+  lat_constr.drv_terms_scl = 1e-5;
 
-  lat_constr.mI_scl[X_] = 1e2; lat_constr.mI_scl[Y_] = 1e2;
+  lat_constr.mI_scl[X_] = 1e3; lat_constr.mI_scl[Y_] = 1e3;
   for (k = 0; k < 2; k++)
     lat_constr.mI0[k] = mI_nu[k];
 
@@ -1818,7 +1816,7 @@ int main(int argc, char *argv[])
   // Unbuffered output.
   setvbuf(stdout, buffer, _IONBF, BUFSIZ);
 
-  if (!true)
+  if (true)
     Read_Lattice(argv[1]);
   else
     rdmfile(argv[1]);
