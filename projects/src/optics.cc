@@ -206,22 +206,30 @@ double rad2deg(const double a) { return a*180e0/M_PI; }
 void prt_dip()
 {
   int                        j, k, loc;
-  double                     phi, L, L1, phi1, phi2, phi_rel, phi_rel_tot;
+  double                     phi, L, L1, phi1, phi_rel, phi_rel_tot;
   std::vector<int>           row;
   std::vector< vector<int> > Fnum;
+  std::vector<double>        phi2;
 
-  row.push_back(ElemIndex("b1l_1"));
-  row.push_back(ElemIndex("b1l_2"));
-  row.push_back(ElemIndex("b1l_3"));
-  row.push_back(ElemIndex("b1l_4"));
-  row.push_back(ElemIndex("b1l_5"));
+  row.push_back(ElemIndex("bl1_1"));
+  row.push_back(ElemIndex("bl1_2"));
+  row.push_back(ElemIndex("bl1_3"));
+  row.push_back(ElemIndex("bl1_4"));
+  row.push_back(ElemIndex("bl1_5"));
   Fnum.push_back(row);
   row.clear();
 
-  phi2 = 0e0;
+  row.push_back(ElemIndex("bl2_1"));
+  row.push_back(ElemIndex("bl2_2"));
+  row.push_back(ElemIndex("bl2_3"));
+  row.push_back(ElemIndex("bl2_4"));
+  row.push_back(ElemIndex("bl2_5"));
+  Fnum.push_back(row);
+  row.clear();
+
   for (j = 0; j < (int)Fnum.size(); j++) {
     printf("\n");
-    L1 = 0.0; phi1 = 0e0;
+    L1 = 0.0; phi1 = 0e0; phi2.push_back(0e0);
     for (k = 0; k < (int)Fnum[j].size(); k++) {
       loc = Elem_GetPos(Fnum[j][k], 1);
       L = Cell[loc].Elem.PL; phi = rad2deg(L*Cell[loc].Elem.M->Pirho);
@@ -231,9 +239,9 @@ void prt_dip()
 	     phi, Cell[loc].Elem.M->PTx1, Cell[loc].Elem.M->PTx2);
     }
     printf("\nMagnet: L = %13.10f phi = %13.10f\n", L1, phi1);
-    phi2 += phi1;
+    phi2[j] += phi1;
+    printf("\nCell: phi = %13.10f\n", phi2[j]);
   }
-  printf("\nCell: phi = %13.10f\n", phi2);
 
   for (j = 0; j < (int)Fnum.size(); j++) {
     printf("\nphi ratios: \n");
@@ -241,7 +249,7 @@ void prt_dip()
     for (k = 0; k < (int)Fnum[j].size(); k++) {
       loc = Elem_GetPos(Fnum[j][k], 1);
       L = Cell[loc].Elem.PL; phi = rad2deg(L*Cell[loc].Elem.M->Pirho);
-      phi_rel = phi/phi2;
+      phi_rel = phi/phi2[j];
       phi_rel_tot += phi_rel;
       printf(" %8.6f", phi_rel);
     }
