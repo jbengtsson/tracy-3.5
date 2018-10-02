@@ -195,6 +195,20 @@ void param_type::add_prm(const std::vector<int> &grad_dip_Fnum,
 }
 
 
+double get_grad_dip_phi(std::vector<int> &Fnum)
+{
+  int    k, loc;
+  double phi;
+
+  phi = 0e0;
+  for (k = 0; k < (int)Fnum.size(); k++) {
+    loc = Elem_GetPos(Fnum[k], 1);
+    phi += Cell[loc].Elem.PL*Cell[loc].Elem.M->Pirho;
+  }
+  return rad2deg(phi);
+}
+
+
 void param_type::ini_prm(double *bn)
 {
   int    i, loc;
@@ -228,8 +242,11 @@ void param_type::ini_prm(double *bn)
       bn[i] = get_L(Fnum[i-1], 1);
     else if (n[i-1] == -3) {
       // Bend angle; L is fixed.
-      loc = Elem_GetPos(abs(Fnum[i-1]), 1);
-      bn[i] = rad2deg(Cell[loc].Elem.PL*Cell[loc].Elem.M->Pirho);
+      if (Fnum[i-1] > 0) {
+	loc = Elem_GetPos(Fnum[i-1], 1);
+	bn[i] = rad2deg(Cell[loc].Elem.PL*Cell[loc].Elem.M->Pirho);
+      } else
+	bn[i] = get_grad_dip_phi(grad_dip_Fnum[i-1]);
     }
     // Bounded.
     if ((bn_min[i-1] <= bn[i]) && (bn[i] <= bn_max[i-1]))
@@ -245,12 +262,36 @@ void param_type::ini_prm(double *bn)
 }
 
 
-void set_grad_dip_phi(const std::vector<int> &Fnum, const double phi)
+void set_phi(const int Fnum, const double phi,
+	     const double phi0, const double phi1)
 {
-  int k;
+  int    loc, k;
+  double i_rho;
 
-  for (k = 0; k < (int)Fnum.size(); k++)
-    set_phi(Fnum[k], phi);
+  loc = Elem_GetPos(Fnum, 1);
+  i_rho = deg2rad(phi)/Cell[loc].Elem.PL;
+  for (k = 1; k <= GetnKid(Fnum); k++) {
+    loc = Elem_GetPos(Fnum, k);
+    Cell[loc].Elem.M->Pirho = i_rho;
+    Cell[loc].Elem.M->PTx1 = phi0;
+    Cell[loc].Elem.M->PTx2 = phi1;
+  }
+}
+
+
+void set_grad_dip_phi(const std::vector<int> &Fnum,
+		      const std::vector<double> & scl, const double phi_tot)
+{
+  int    k;
+  double phi, phi0, phi1;
+
+  phi1 = 0e0;
+  for (k = 0; k < (int)Fnum.size(); k++) {
+    phi0 = (k == 0)? 0e0 : -phi;
+    phi = phi_tot*scl[k];
+    phi1 += phi;
+    set_phi(Fnum[k], phi, phi0, phi1);
+  }
 }
 
 
@@ -260,6 +301,76 @@ void set_grad_dip_b2(const std::vector<int> &Fnum, const double b2)
 
   for (k = 0; k < (int)Fnum.size(); k++)
     set_bn_design_fam(Fnum[k], Quad, b2, 0e0);
+}
+
+
+double get_phi_tot(const int Fnum)
+{
+  int loc;
+
+  loc = Elem_GetPos(Fnum, 1);
+  return GetnKid(Fnum)*rad2deg(Cell[loc].Elem.PL*Cell[loc].Elem.M->Pirho);
+}
+
+
+double get_phi(constr_type &constr)
+{
+  int    j, k;
+  double phi;
+
+  const bool prt = false;
+
+  if (prt) printf("\nget_phi:\n");
+  phi = 0e0;
+  for (j = 0; j < constr.n_b1; j++) {
+    if (constr.Fnum_b1[j] > 0) {
+      phi += get_phi_tot(constr.Fnum_b1[j]);
+      if (prt) {
+	printf("  ");
+	prt_name(stdout, Cell[Elem_GetPos(constr.Fnum_b1[j], 1)].Elem.PName,
+		 "", 8);
+	printf("%6.3f\n", phi);
+      }
+    } else
+      for (k = 0; k < (int)constr.grad_dip_Fnum_b1[j].size(); k++) {
+	phi += get_phi_tot(constr.grad_dip_Fnum_b1[j][k]);
+	if (prt) {
+	  printf("  ");
+	  prt_name(stdout,
+		   Cell[Elem_GetPos(constr.grad_dip_Fnum_b1[j][k], 1)]
+		   .Elem.PName, "", 8);
+	  printf("%6.3f\n", phi);
+	}
+      }
+  }
+
+  return phi;
+}
+
+
+void phi_corr(constr_type &constr)
+{
+  // Correct total bend angle.
+  int    loc;
+  double phi1, phi;
+
+  const bool prt = false;
+
+  loc = Elem_GetPos(constr.Fnum_b1[constr.n_b1-1], 1);
+  phi = get_phi(constr);
+  phi1 =
+    rad2deg(Cell[loc].Elem.PL*Cell[loc].Elem.M->Pirho)
+    - (phi-constr.phi0)
+    /GetnKid(constr.Fnum_b1[constr.n_b1-1]);
+  set_phi(constr.Fnum_b1[constr.n_b1-1], phi1);
+ 
+  constr.phi = get_phi(constr);
+
+  if (prt) {
+    printf("\nphi_corr:\n  ");
+    prt_name(stdout, Cell[loc].Elem.PName, "", 8);
+    printf("\n  %5.3f -> %5.3f (%5.3f)\n", phi, constr.phi, constr.phi0);
+  }
 }
 
 
@@ -290,12 +401,10 @@ void param_type::set_prm(double *bn)
       set_L(Fnum[i-1], bn_ext); get_S();
     } else if (n[i-1] == -3) {
       // Bend angle; L is fixed.
-      if (i < n_prm) {
-	if (Fnum[i-1] > 0)
-	  set_phi(Fnum[i-1], bn_ext);
-	else
-	  set_grad_dip_phi(grad_dip_Fnum[i-1], bn_ext);
-      }
+      if (Fnum[i-1] > 0)
+	set_phi(Fnum[i-1], bn_ext);
+      else
+	set_grad_dip_phi(grad_dip_Fnum[i-1], grad_dip_scl[i-1], bn_ext);
     }
     if (prt) {
       printf(" %12.5e", bn_ext);
@@ -492,56 +601,6 @@ double get_lin_opt(constr_type &constr)
   }
 
   return eps_x;
-}
-
-
-double get_phi_tot(const int Fnum)
-{
-  int loc;
-
-  loc = Elem_GetPos(Fnum, 1);
-  return GetnKid(Fnum)*rad2deg(Cell[loc].Elem.PL*Cell[loc].Elem.M->Pirho);
-}
-
-double get_phi(constr_type &constr)
-{
-  int    j, k;
-  double phi;
-
-  phi = 0e0;
-  for (j = 0; j < constr.n_b1; j++) {
-    if (constr.Fnum_b1[j] > 0)
-      phi = get_phi_tot(constr.Fnum_b1[j]);
-    else
-      for (k = 0; k < (int)constr.grad_dip_Fnum_b1.size(); k++)
-	phi += get_phi_tot(constr.grad_dip_Fnum_b1[j][k]);
-  }
-
-  return phi;
-}
-
-
-void phi_corr(constr_type &constr)
-{
-  // Correct total bend angle.
-  int    loc;
-  double phi1, phi;
-
-  const bool prt = false;
-
-  loc = Elem_GetPos(constr.Fnum_b1[constr.n_b1-1], 1);
-  phi = get_phi(constr);
-  phi1 =
-    rad2deg(Cell[loc].Elem.PL*Cell[loc].Elem.M->Pirho)
-    - (phi-constr.phi0)
-    /GetnKid(constr.Fnum_b1[constr.n_b1-1]);
-  set_phi(constr.Fnum_b1[constr.n_b1-1], phi1);
- 
-  constr.phi = get_phi(constr);
-
-  if (prt)
-    printf("\nphi_corr: %6.3f -> %6.3f (%6.3f)\n",
-	   phi, constr.phi, constr.phi0);
 }
 
 
@@ -817,7 +876,7 @@ void prt_drv_terms(const constr_type &constr)
   double b3L, a3L, b3, a3;
 
   if (constr.n_b3 == 0) {
-    printf("\nprt_constr: no sextupole families defined\n");
+    printf("\nprt_drv_terms: no sextupole families defined\n");
     exit(0);
   }
 
@@ -1025,26 +1084,62 @@ void prt_drift(FILE *outf, CellType &Cell)
 }
 
 
-void prt_elem(FILE *outf, CellType &Cell)
+void prt_dip(FILE *outf, CellType &Cell)
 {
   double phi;
 
-  if (Cell.Elem.Pkind == drift)
-    prt_drift(outf, Cell);
-  else if (Cell.Elem.Pkind == Mpole) {
-    if (Cell.Elem.M->n_design == Dip) {
-      phi = rad2deg(Cell.Elem.PL*Cell.Elem.M->Pirho);
-      fprintf(outf, " bending, l = %11.8f,"
-	      "\n    t = %11.8f, t1 = %11.8f, t2 = %11.8f, k = %11.8f,"
-	      "\n    n = nbend, method = 4;\n",
-	      Cell.Elem.PL, phi, Cell.Elem.M->PTx1,
-	      Cell.Elem.M->PTx2, Cell.Elem.M->PBpar[Quad+HOMmax]);
-    } else if (Cell.Elem.M->n_design == Quad)
+  phi = rad2deg(Cell.Elem.PL*Cell.Elem.M->Pirho);
+  fprintf(outf, " bending, l = %11.8f,"
+	  "\n    t = %11.8f, t1 = %11.8f, t2 = %11.8f, k = %11.8f,"
+	  "\n    n = nbend, method = 4;\n",
+	  Cell.Elem.PL, phi, Cell.Elem.M->PTx1,
+	  Cell.Elem.M->PTx2, Cell.Elem.M->PBpar[Quad+HOMmax]);
+}
+
+
+void prt_grad_dip(FILE *outf, const std::vector<int> &Fnum)
+{
+  int k, loc;
+
+  const bool prt = false;
+
+  if (prt) printf("prt_grad_dip: %d\n", (int)Fnum.size());
+  for (k = 0; k < (int)Fnum.size(); k++) {
+    loc = Elem_GetPos(Fnum[k], 1);
+    prt_name(outf, Cell[loc].Elem.PName, ":", 8);
+    prt_dip(outf, Cell[loc]);
+  }
+}
+
+
+void prt_elem(FILE *outf, const param_type &lat_prms, const int n)
+{
+  int loc;
+
+  const bool prt = false;
+
+  loc = Elem_GetPos(abs(lat_prms.Fnum[n-1]), 1);
+  if (prt) {
+    printf("prt_elem: ");
+    prt_name(stdout, Cell[loc].Elem.PName, "\n", 0);
+  }
+  if (Cell[loc].Elem.Pkind == drift) {
+    prt_name(outf, Cell[loc].Elem.PName, ":", 8);
+    prt_drift(outf, Cell[loc]);
+  } else if (Cell[loc].Elem.Pkind == Mpole) {
+    if (Cell[loc].Elem.M->n_design == Dip) {
+      if (lat_prms.Fnum[n] > 0) {
+	prt_name(outf, Cell[loc].Elem.PName, ":", 8);
+	prt_dip(outf, Cell[loc]);
+      } else
+      	prt_grad_dip(outf, lat_prms.grad_dip_Fnum[n-1]);
+    } else if (Cell[loc].Elem.M->n_design == Quad)
+      prt_name(outf, Cell[loc].Elem.PName, ":", 8);
       fprintf(outf, " quadrupole, l = %11.8f, k = %11.8f, n = nquad"
 	      ", method = 4;\n",
-	      Cell.Elem.PL, Cell.Elem.M->PBpar[Quad+HOMmax]);
+	      Cell[loc].Elem.PL, Cell[loc].Elem.M->PBpar[Quad+HOMmax]);
   } else {
-    printf("\nprt_elem: %s %d\n", Cell.Elem.PName, Cell.Elem.Pkind);
+    printf("\nprt_elem: %s %d\n", Cell[loc].Elem.PName, Cell[loc].Elem.Pkind);
     exit(1);
   }
 }
@@ -1061,7 +1156,7 @@ bool Fam_printed(const int Fnum, const std::vector<int> &Fam_prt)
 }
 
 
-void prt_b2(const std::vector<int> &Fnum, const std::vector<int> &n)
+void prt_b2(const param_type &lat_prms)
 {
   long int         loc;
   int              k;
@@ -1072,24 +1167,22 @@ void prt_b2(const std::vector<int> &Fnum, const std::vector<int> &n)
 
   outf = file_write(file_name.c_str());
 
-  for (k = 0; k < (int)Fnum.size(); k++) {
-    if (!Fam_printed(abs(Fnum[k]), Fam_prt)) {
-      if (Fnum[k] > 0) {
-	loc = Elem_GetPos(Fnum[k], 1);
-	prt_name(outf, Cell[loc].Elem.PName, ":", 8);
-	if (n[k] != -1)
-	  prt_elem(outf, Cell[loc]);
-	else {
-	  fprintf(outf, "\n  ");
-	  prt_name(outf, Cell[loc+1].Elem.PName, ":", 8);
-	  prt_drift(outf, Cell[loc+1]);
-	  fprintf(outf, "  ");
-	  prt_name(outf, Cell[loc-1].Elem.PName, ":", 8);
-	  prt_drift(outf, Cell[loc-1]);
-	}
+  for (k = 0; k < lat_prms.n_prm; k++) {
+    if (!Fam_printed(abs(lat_prms.Fnum[k]), Fam_prt)) {
+      loc = Elem_GetPos(abs(lat_prms.Fnum[k]), 1);
+      if (lat_prms.n[k] != -1)
+	prt_elem(outf, lat_prms, k+1);
+      else {
+	// Position.
+	fprintf(outf, "\n  ");
+	prt_name(outf, Cell[loc+1].Elem.PName, ":", 8);
+	prt_drift(outf, Cell[loc+1]);
+	fprintf(outf, "  ");
+	prt_name(outf, Cell[loc-1].Elem.PName, ":", 8);
+	prt_drift(outf, Cell[loc-1]);
       }
     }
-    Fam_prt.push_back(abs(Fnum[k]));
+    Fam_prt.push_back(abs(lat_prms.Fnum[k]));
   }
 
   fclose(outf);
@@ -1205,7 +1298,6 @@ void fit_powell(param_type &lat_prms, const double eps, double (*f)(double *))
 void f_der(double *b2, double *df)
 {
   lat_prms.set_prm(b2);
-
   if (lat_constr.phi_scl != 0e0) phi_corr(lat_constr);
 
   lat_constr.get_dchi2(df);
@@ -1251,7 +1343,7 @@ void prt_f(double *b2, const double chi2, constr_type &lat_constr,
   prt_lat("linlat1.out", globval.bpm, true);
   prt_lat("linlat.out", globval.bpm, true, 10);
 
-  prt_b2(lat_prms.Fnum, lat_prms.n);
+  prt_b2(lat_prms);
   prt_b3(lat_constr.Fnum_b3);
 }
 
@@ -1310,7 +1402,6 @@ double f_match(double *b2)
   const int n_prt = 5;
 
   lat_prms.set_prm(b2);
-
   if (lat_constr.phi_scl != 0e0) phi_corr(lat_constr);
 
   eps_x = get_lin_opt(lat_constr);
@@ -1338,7 +1429,6 @@ double f_achrom(double *b2)
   const int n_prt = 5;
 
   lat_prms.set_prm(b2);
-
   if (lat_constr.phi_scl != 0e0) phi_corr(lat_constr);
 
   if (lat_constr.ring) stable = get_nu(lat_constr.nu);
@@ -1375,10 +1465,10 @@ double f_achrom(double *b2)
 void opt_mI(param_type &prms, constr_type &constr)
 {
   // Parameter Type:
-  //   Bend Angle           -3,
-  //   Length               -2,
-  //   Position             -1,
-  //   Quadrupole            2.
+  //   Bend Angle  -3,
+  //   Length      -2,
+  //   Position    -1,
+  //   Quadrupole   2.
   int                 k;
   std::vector<int>    grad_dip_Fnum;
   std::vector<double> grad_dip_scl;
@@ -1398,6 +1488,9 @@ void opt_mI(param_type &prms, constr_type &constr)
   prms.add_prm(grad_dip_Fnum, grad_dip_scl, -3, -20.0, 20.0, 1.0);
   prms.add_prm(grad_dip_Fnum, grad_dip_scl,  2, -20.0, 20.0, 1.0);
 
+  lat_constr.Fnum_b1.push_back(-ElemIndex("bl1_1"));
+  lat_constr.grad_dip_Fnum_b1.push_back(grad_dip_Fnum);
+
   grad_dip_Fnum.clear();
   grad_dip_Fnum.push_back(ElemIndex("bl2_1"));
   grad_dip_Fnum.push_back(ElemIndex("bl2_2"));
@@ -1407,16 +1500,21 @@ void opt_mI(param_type &prms, constr_type &constr)
   prms.add_prm(grad_dip_Fnum, grad_dip_scl, -3, -20.0, 20.0, 1.0);
   prms.add_prm(grad_dip_Fnum, grad_dip_scl,  2, -20.0, 20.0, 1.0);
 
+  lat_constr.Fnum_b1.push_back(-ElemIndex("bl2_1"));
+  lat_constr.grad_dip_Fnum_b1.push_back(grad_dip_Fnum);
+
+  lat_constr.Fnum_b1.push_back(ElemIndex("dq1"));
+
   prms.add_prm("dq1",    2, -20.0,   20.0,  1.0);
   // prms.add_prm("dq1",   -2, -20.0,   20.0,  1.0);
 
-  prms.add_prm("qf1",    2, -20.0,   20.0,  1.0);
-  prms.add_prm("qd2",    2, -20.0,   20.0,  1.0);
-  prms.add_prm("qd3",    2, -20.0,   20.0,  1.0);
-  prms.add_prm("qf4",    2, -20.0,   20.0,  1.0);
-  prms.add_prm("qd5",    2, -20.0,   20.0,  1.0);
-  prms.add_prm("qf6",    2, -20.0,   20.0,  1.0);
-  prms.add_prm("qf8",    2, -20.0,   20.0,  1.0);
+  prms.add_prm("qf1", 2, -20.0, 20.0, 1.0);
+  prms.add_prm("qd2", 2, -20.0, 20.0, 1.0);
+  prms.add_prm("qd3", 2, -20.0, 20.0, 1.0);
+  prms.add_prm("qf4", 2, -20.0, 20.0, 1.0);
+  prms.add_prm("qd5", 2, -20.0, 20.0, 1.0);
+  prms.add_prm("qf6", 2, -20.0, 20.0, 1.0);
+  prms.add_prm("qf8", 2, -20.0, 20.0, 1.0);
 
  // Parameters are initialized in optimizer.
 
@@ -1427,11 +1525,12 @@ void opt_mI(param_type &prms, constr_type &constr)
   constr.add_constr(Elem_GetPos(ElemIndex("dq1"), 1),
   		    0e0, 0e0, 0e0, 0e0, 1e6, 1e6,
   		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+  // Include constraint on alpha; in case of using ps_rot.
   constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
-  		    0e0, 0e0, 1e-1, 1e-1, 0e0, 0e0,
+  		    1e5, 1e5, 1e-2, 1e-2, 0e0, 0e0,
   		    0.0, 0.0, 3.0,  1.5,  0.0, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
-  		    0e0, 0e0, 1e-1, 1e-1, 0e0, 0e0,
+  		    1e5, 1e5, 1e-2, 1e-2, 0e0, 0e0,
   		    0.0, 0.0, 4.0,  2.5,  0.0, 0.0);
 
   lat_prms.bn_tol = 1e-5; lat_prms.step = 1.0;
@@ -1440,11 +1539,7 @@ void opt_mI(param_type &prms, constr_type &constr)
   lat_constr.Fnum_b3.push_back(ElemIndex("sd1"));
   lat_constr.Fnum_b3.push_back(ElemIndex("sd2"));
 
-  lat_constr.Fnum_b1.push_back(-ElemIndex("bl1_1"));
-  lat_constr.Fnum_b1.push_back(-ElemIndex("bl2_1"));
-  lat_constr.Fnum_b1.push_back(ElemIndex("dq1"));
-
-  lat_constr.eps_x_scl = 1e4; lat_constr.eps0_x = 0.221;
+  lat_constr.eps_x_scl = 1e4; lat_constr.eps0_x = 0.180;
 
   lat_constr.drv_terms_scl = 1e-5;
 
@@ -1452,6 +1547,7 @@ void opt_mI(param_type &prms, constr_type &constr)
   for (k = 0; k < 2; k++)
     lat_constr.mI0[k] = mI_nu[k];
 
+  // Standard Cell.
   lat_constr.phi_scl = 1e0; lat_constr.phi0 = 15.0;
   lat_constr.L_scl = 1e-10; lat_constr.L0 = 10.0;
 
@@ -1462,10 +1558,10 @@ void opt_mI(param_type &prms, constr_type &constr)
 void opt_tba(param_type &prms, constr_type &constr)
 {
   // Parameter Type:
-  //   Bend Angle           -3,
-  //   Length               -2,
-  //   Position             -1,
-  //   Quadrupole            2.
+  //   Bend Angle  -3,
+  //   Length      -2,
+  //   Position    -1,
+  //   Quadrupole   2.
   int k, n;
 
   // TBA Cell.
@@ -1540,10 +1636,10 @@ void opt_tba(param_type &prms, constr_type &constr)
 void match_ms(param_type &prms, constr_type &constr)
 {
   // Parameter Type:
-  //   Bend Angle           -3,
-  //   Length               -2,
-  //   Position             -1,
-  //   Quadrupole            2.
+  //   Bend Angle  -3,
+  //   Length      -2,
+  //   Position    -1,
+  //   Quadrupole   2.
   int                 j, k;
   std::vector<int>    grad_dip_Fnum;
   std::vector<double> grad_dip_scl;
@@ -1941,7 +2037,7 @@ int main(int argc, char *argv[])
 
   if (false) {
     Ring_GetTwiss(true, 0e0); printglob();
-    dnu[X_] = 0.0; dnu[Y_] = -0.2;
+    dnu[X_] = 0.2; dnu[Y_] = 0.0;
     set_map(ElemIndex("ps_rot"), dnu);
   }
 

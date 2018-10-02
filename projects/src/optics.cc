@@ -6,7 +6,7 @@ int no_tps = NO;
 
 
 const bool
-  set_dnu = false,
+  set_dnu = !false,
   mI_rot  = false,
   HOA_rot = false;
 
@@ -632,7 +632,7 @@ int main(int argc, char *argv[])
 
   trace = !true;
 
-  if (true)
+  if (!true)
     Read_Lattice(argv[1]);
   else
     rdmfile(argv[1]);
