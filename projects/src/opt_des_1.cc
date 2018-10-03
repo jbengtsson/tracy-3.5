@@ -1133,11 +1133,12 @@ void prt_elem(FILE *outf, const param_type &lat_prms, const int n)
 	prt_dip(outf, Cell[loc]);
       } else
       	prt_grad_dip(outf, lat_prms.grad_dip_Fnum[n-1]);
-    } else if (Cell[loc].Elem.M->n_design == Quad)
+    } else if (Cell[loc].Elem.M->n_design == Quad) {
       prt_name(outf, Cell[loc].Elem.PName, ":", 8);
       fprintf(outf, " quadrupole, l = %11.8f, k = %11.8f, n = nquad"
 	      ", method = 4;\n",
 	      Cell[loc].Elem.PL, Cell[loc].Elem.M->PBpar[Quad+HOMmax]);
+    }
   } else {
     printf("\nprt_elem: %s %d\n", Cell[loc].Elem.PName, Cell[loc].Elem.Pkind);
     exit(1);
@@ -1249,8 +1250,11 @@ void get_drv_terms(constr_type &constr)
     get_bnL_design_elem(constr.Fnum_b3[k], 1, Sext, b3L, a3L);
     n_kid = GetnKid(constr.Fnum_b3[k]);
     for (j = 0; j < 2; j++) {
-      constr.drv_terms[j] +=
-      	n_kid*sqr(b3L*Cell[Elem_GetPos(constr.Fnum_b3[k], 1)].Beta[j]);
+      if (!true)
+	constr.drv_terms[j] +=
+	  n_kid*sqr(b3L*Cell[Elem_GetPos(constr.Fnum_b3[k], 1)].Beta[j]);
+      else
+	constr.drv_terms[j] += n_kid*sqr(b3L);
     }
   }
 }
@@ -1462,7 +1466,7 @@ double f_achrom(double *b2)
 }
 
 
-void opt_mI(param_type &prms, constr_type &constr)
+void opt_mI_std(param_type &prms, constr_type &constr)
 {
   // Parameter Type:
   //   Bend Angle  -3,
@@ -1541,7 +1545,7 @@ void opt_mI(param_type &prms, constr_type &constr)
 
   lat_constr.eps_x_scl = 1e4; lat_constr.eps0_x = 0.180;
 
-  lat_constr.drv_terms_scl = 1e-5;
+  lat_constr.drv_terms_scl = 1e-3;
 
   lat_constr.mI_scl[X_] = 1e3; lat_constr.mI_scl[Y_] = 1e3;
   for (k = 0; k < 2; k++)
@@ -1552,6 +1556,153 @@ void opt_mI(param_type &prms, constr_type &constr)
   lat_constr.L_scl = 1e-10; lat_constr.L0 = 10.0;
 
   lat_constr.ini_constr(true);
+}
+
+
+void opt_mI_sp(param_type &prms, constr_type &constr)
+{
+  // Parameter Type:
+  //   Bend Angle  -3,
+  //   Length      -2,
+  //   Position    -1,
+  //   Quadrupole   2.
+  int                 k;
+  std::vector<int>    grad_dip_Fnum;
+  std::vector<double> grad_dip_scl;
+
+  // Standard Cell.
+  grad_dip_scl.push_back(0.129665);
+  grad_dip_scl.push_back(0.149256);
+  grad_dip_scl.push_back(0.174737);
+  grad_dip_scl.push_back(0.216027);
+  grad_dip_scl.push_back(0.330314);
+
+  grad_dip_Fnum.push_back(ElemIndex("bl1_1"));
+  grad_dip_Fnum.push_back(ElemIndex("bl1_2"));
+  grad_dip_Fnum.push_back(ElemIndex("bl1_3"));
+  grad_dip_Fnum.push_back(ElemIndex("bl1_4"));
+  grad_dip_Fnum.push_back(ElemIndex("bl1_5"));
+  prms.add_prm(grad_dip_Fnum, grad_dip_scl, -3, -20.0, 20.0, 1.0);
+  prms.add_prm(grad_dip_Fnum, grad_dip_scl,  2, -20.0, 20.0, 1.0);
+
+  lat_constr.Fnum_b1.push_back(-ElemIndex("bl1_1"));
+  lat_constr.grad_dip_Fnum_b1.push_back(grad_dip_Fnum);
+
+  grad_dip_Fnum.clear();
+  grad_dip_Fnum.push_back(ElemIndex("bl2_1"));
+  grad_dip_Fnum.push_back(ElemIndex("bl2_2"));
+  grad_dip_Fnum.push_back(ElemIndex("bl2_3"));
+  grad_dip_Fnum.push_back(ElemIndex("bl2_4"));
+  grad_dip_Fnum.push_back(ElemIndex("bl2_5"));
+  prms.add_prm(grad_dip_Fnum, grad_dip_scl, -3, -20.0, 20.0, 1.0);
+  prms.add_prm(grad_dip_Fnum, grad_dip_scl,  2, -20.0, 20.0, 1.0);
+
+  lat_constr.Fnum_b1.push_back(-ElemIndex("bl2_1"));
+  lat_constr.grad_dip_Fnum_b1.push_back(grad_dip_Fnum);
+
+  lat_constr.Fnum_b1.push_back(ElemIndex("dq1"));
+
+  prms.add_prm("dq1",    2, -20.0,   20.0,  1.0);
+  // prms.add_prm("dq1",   -2, -20.0,   20.0,  1.0);
+
+  // Standard Straight.
+  prms.add_prm("qf1", 2, -20.0, 20.0, 1.0);
+  prms.add_prm("qd2", 2, -20.0, 20.0, 1.0);
+  // Dipole Cell.
+  prms.add_prm("qd3", 2, -20.0, 20.0, 1.0);
+  prms.add_prm("qf4", 2, -20.0, 20.0, 1.0);
+  prms.add_prm("qd5", 2, -20.0, 20.0, 1.0);
+  prms.add_prm("qf6", 2, -20.0, 20.0, 1.0);
+  prms.add_prm("qf8", 2, -20.0, 20.0, 1.0);
+
+  // Long Straight.
+  prms.add_prm("qf1_c1",   2, -20.0, 20.0, 1.0);
+  prms.add_prm("qd2_c1",   2, -20.0, 20.0, 1.0);
+  prms.add_prm("quad_add", 2, -20.0, 20.0, 1.0);
+
+  // Parameters are initialized in optimizer.
+
+  // Lattice constraints are: alpha_x,y, beta_x,y, eta_x, eta'_x.
+  constr.add_constr(Elem_GetPos(ElemIndex("bl1_5"), 1)-1,
+  		    0e0, 0e0, 0e0, 0e0, 1e6, 1e6,
+  		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+  constr.add_constr(Elem_GetPos(ElemIndex("dq1"), 1),
+  		    0e0, 0e0, 0e0, 0e0, 1e6, 1e6,
+  		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+  constr.add_constr(Elem_GetPos(ElemIndex("bl1_5"), 2),
+  		    0e0, 0e0, 0e0, 0e0, 1e6, 1e6,
+  		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+  // Include constraint on alpha; in case of using ps_rot.
+  constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
+  		    1e5, 1e5, 1e-2, 1e-2, 1e6, 1e6,
+  		    0.0, 0.0, 3.0,  1.5,  0.0, 0.0);
+  constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
+  		    1e5, 1e5, 1e-2, 1e-2, 1e6, 1e6,
+  		    0.0, 0.0, 4.0,  2.5,  0.0, 0.0);
+  constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
+  		    1e5, 1e5, 1e-2, 1e-2, 1e6, 1e6,
+  		    0.0, 0.0, 10.0, 4.0,  0.0, 0.0);
+
+  lat_prms.bn_tol = 1e-5; lat_prms.step = 1.0;
+
+  lat_constr.Fnum_b3.push_back(ElemIndex("sf1"));
+  lat_constr.Fnum_b3.push_back(ElemIndex("sd1"));
+  lat_constr.Fnum_b3.push_back(ElemIndex("sd2"));
+
+  lat_constr.eps_x_scl = 1e4; lat_constr.eps0_x = 0.180;
+
+  lat_constr.drv_terms_scl = 1e-5;
+
+  lat_constr.mI_scl[X_] = 1e3; lat_constr.mI_scl[Y_] = 1e3;
+  for (k = 0; k < 2; k++)
+    lat_constr.mI0[k] = mI_nu[k];
+
+  // 8 Dipole Cells.
+  lat_constr.phi_scl = 1e0; lat_constr.phi0 = 60.0;
+  lat_constr.L_scl = 1e-10; lat_constr.L0 = 10.0;
+
+  lat_constr.ini_constr(true);
+}
+
+
+void match_mI_ls(param_type &prms, constr_type &constr)
+{
+  // Parameter Type:
+  //   Bend Angle  -3,
+  //   Length      -2,
+  //   Position    -1,
+  //   Quadrupole   2.
+  int                 j, k;
+  std::vector<int>    grad_dip_Fnum;
+  std::vector<double> grad_dip_scl;
+
+  // From Center of Mid Straight: alpha, beta, eta, eta'.
+  const int    n_ic        = 4;
+  const double ic[n_ic][2] =
+    {{0.0, 0.0}, {6.3641513305, 2.1215351170}, {0.0, 0.0}, {0.0, 0.0}};
+ 
+  // Long Straight.
+  prms.add_prm("qf1_c1",   2, -20.0, 20.0, 1.0);
+  prms.add_prm("qd2_c1",   2, -20.0, 20.0, 1.0);
+  prms.add_prm("quad_add", 2, -20.0, 20.0, 1.0);
+
+  // Parameters are initialized in optimizer.
+
+  constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
+  		    1e0, 1e0, 1e-2, 1e-2, 0e0, 0e0,
+  		    0.0, 0.0, 10.0, 4.0,  0.0, 0.0);
+
+  lat_prms.bn_tol = 1e-6; lat_prms.step = 1.0;
+
+  lat_constr.high_ord_achr_scl = 0e0;
+  for (k = 0; k < 2; k++)
+    lat_constr.high_ord_achr_nu[k] = high_ord_achr_nu[k]/2.0;
+
+  lat_constr.ini_constr(false);
+
+  for (j = 0; j < n_ic; j++)
+    for (k = 0; k < 2; k++)
+      lat_constr.ic[j][k] = ic[j][k];
 }
 
 
@@ -2000,9 +2151,9 @@ void fit_ksi1(const double ksi_x, const double ksi_y)
 {
   std::vector<int> Fnum;
 
-  Fnum.push_back(ElemIndex("sfh"));
-  Fnum.push_back(ElemIndex("sd1a"));
-  Fnum.push_back(ElemIndex("sd1b"));
+  Fnum.push_back(ElemIndex("sf1"));
+  Fnum.push_back(ElemIndex("sd1"));
+  Fnum.push_back(ElemIndex("sd2"));
 
   fit_ksi1(Fnum, 0e0, 0e0, 1e1);
 
@@ -2035,9 +2186,9 @@ int main(int argc, char *argv[])
 
   // set_map_reversal(ElemIndex("line_inv"));
 
-  if (false) {
+  if (!false) {
     Ring_GetTwiss(true, 0e0); printglob();
-    dnu[X_] = 0.2; dnu[Y_] = 0.0;
+    dnu[X_] = 0.0; dnu[Y_] = 0.2;
     set_map(ElemIndex("ps_rot"), dnu);
   }
 
@@ -2060,7 +2211,21 @@ int main(int argc, char *argv[])
 
   if (!false) {
     // Optimize Standard Straight: mI.
-    opt_mI(lat_prms, lat_constr);
+    opt_mI_std(lat_prms, lat_constr);
+    no_sxt();
+    fit_powell(lat_prms, 1e-3, f_achrom);
+  }
+
+  if (false) {
+    // Match Long Straight: mI.
+    match_mI_ls(lat_prms, lat_constr);
+    no_sxt();
+    fit_powell(lat_prms, 1e-3, f_match);
+  }
+
+  if (false) {
+    // Optimize 1 LS & 1 SS: mI.
+    opt_mI_sp(lat_prms, lat_constr);
     no_sxt();
     fit_powell(lat_prms, 1e-3, f_achrom);
   }
