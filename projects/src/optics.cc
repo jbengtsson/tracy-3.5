@@ -6,9 +6,10 @@ int no_tps = NO;
 
 
 const bool
-  set_dnu = !false,
+  set_dnu = false,
   mI_rot  = false,
-  HOA_rot = false;
+  HOA_rot = false,
+  prt_ms  = false;
 
 const double
   nu[]     = {0.19, 0.70},
@@ -358,7 +359,8 @@ void chk_mI_trans(void)
 
   // M-6HBAi 1,
   // TBA-6x8 2.
-  const int lat_case = 2;
+  // ESRF-U  3.
+  const int lat_case = 1;
 
   Ring_GetTwiss(true, 0e0);
  
@@ -369,10 +371,14 @@ void chk_mI_trans(void)
   case 2:
     Fnum = ElemIndex("sfh");
    break;
+  case 3:
+    Fnum = ElemIndex("dispbumpcenter");
+   break;
   }
 
   printf("\nChromatic sextupole phase advance:\n");
-  for (k = 3; k <= GetnKid(Fnum); k += 4) {
+  // for (k = 3; k <= GetnKid(Fnum); k += 4) {
+  for (k = 2; k <= GetnKid(Fnum); k += 2) {
     loc0 = Elem_GetPos(Fnum, k-1); loc1 = Elem_GetPos(Fnum, k);
     printf(" %8s %7.3f [%7.5f, %7.5f]\n",
 	   Cell[loc1].Elem.PName, Cell[loc1].S,
@@ -746,12 +752,13 @@ int main(int argc, char *argv[])
   prt_lat("linlat.out", globval.bpm, true, 10);
   prt_chrom_lat();
 
-  if (false) {
+  if (prt_ms) {
+    loc = Elem_GetPos(ElemIndex("ms"), 1);
     printf("\n%10s:  \n  %13.10f %13.10f %13.10f %13.10f %13.10f %13.10f\n",
-	   Cell[0].Elem.PName,
-	   Cell[0].Alpha[X_], Cell[0].Beta[X_],
-	   Cell[0].Eta[X_], Cell[0].Etap[X_],
-	   Cell[0].Alpha[Y_], Cell[0].Beta[Y_]);
+	   Cell[loc].Elem.PName,
+	   Cell[loc].Alpha[X_], Cell[loc].Beta[X_],
+	   Cell[loc].Eta[X_], Cell[loc].Etap[X_],
+	   Cell[loc].Alpha[Y_], Cell[loc].Beta[Y_]);
     exit(0);
   }
 
@@ -760,7 +767,7 @@ int main(int argc, char *argv[])
     // exit(0);
   }
 
-  if (false) {
+  if (!false) {
     chk_mI_trans();
     exit(0);
   }

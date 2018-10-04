@@ -6,8 +6,8 @@ prm1=$1
 queue="ap-high.q"
 #queue="test-medium.q"
 
-t1="00:10:00"
-t2="04:00:00"
+t1="24:00:00"
+t2="24:00:00"
 
 #dir=`pwd`
 dir=$HOME/git_repos/tracy-3.5_temp/projects/src

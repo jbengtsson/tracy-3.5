@@ -931,7 +931,7 @@ void constr_type::prt_constr(const double chi2)
   if (high_ord_achr_scl != 0e0) prt_high_ord_achr(*this);
 
   if ((mI_scl[X_] != 0e0) || (mI_scl[Y_] != 0e0))
-    printf("\n  -I Transf.  = [%8.5f,   %8.5f]\n", mI[X_], mI[Y_]);
+    printf("\n    -I Transf.  = [%8.5f,   %8.5f]\n", mI[X_], mI[Y_]);
 
   prt_val(*this);
 }
@@ -1250,11 +1250,8 @@ void get_drv_terms(constr_type &constr)
     get_bnL_design_elem(constr.Fnum_b3[k], 1, Sext, b3L, a3L);
     n_kid = GetnKid(constr.Fnum_b3[k]);
     for (j = 0; j < 2; j++) {
-      if (!true)
-	constr.drv_terms[j] +=
-	  n_kid*sqr(b3L*Cell[Elem_GetPos(constr.Fnum_b3[k], 1)].Beta[j]);
-      else
-	constr.drv_terms[j] += n_kid*sqr(b3L);
+      constr.drv_terms[j] +=
+	n_kid*sqr(b3L*Cell[Elem_GetPos(constr.Fnum_b3[k], 1)].Beta[j]);
     }
   }
 }
@@ -1410,6 +1407,8 @@ double f_match(double *b2)
 
   eps_x = get_lin_opt(lat_constr);
 
+  if (lat_constr.drv_terms_scl != 0e0) get_drv_terms(lat_constr);
+
   if (lat_constr.high_ord_achr_scl != 0e0) get_high_ord_achr(lat_constr);
 
   chi2 = lat_constr.get_chi2();
@@ -1512,11 +1511,17 @@ void opt_mI_std(param_type &prms, constr_type &constr)
   prms.add_prm("dq1",    2, -20.0,   20.0,  1.0);
   // prms.add_prm("dq1",   -2, -20.0,   20.0,  1.0);
 
+
+  // Mid Straight.
   prms.add_prm("qf1", 2, -20.0, 20.0, 1.0);
   prms.add_prm("qd2", 2, -20.0, 20.0, 1.0);
+
+  // Dipole Cell.
   prms.add_prm("qd3", 2, -20.0, 20.0, 1.0);
   prms.add_prm("qf4", 2, -20.0, 20.0, 1.0);
   prms.add_prm("qd5", 2, -20.0, 20.0, 1.0);
+
+  // Standard Straight.
   prms.add_prm("qf6", 2, -20.0, 20.0, 1.0);
   prms.add_prm("qf8", 2, -20.0, 20.0, 1.0);
 
@@ -1531,10 +1536,10 @@ void opt_mI_std(param_type &prms, constr_type &constr)
   		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   // Include constraint on alpha; in case of using ps_rot.
   constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
-  		    1e5, 1e5, 1e-2, 1e-2, 0e0, 0e0,
+  		    1e5, 1e5, 1e0, 1e0, 0e0, 0e0,
   		    0.0, 0.0, 3.0,  1.5,  0.0, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
-  		    1e5, 1e5, 1e-2, 1e-2, 0e0, 0e0,
+  		    1e5, 1e5, 1e0, 1e0, 0e0, 0e0,
   		    0.0, 0.0, 4.0,  2.5,  0.0, 0.0);
 
   lat_prms.bn_tol = 1e-5; lat_prms.step = 1.0;
@@ -1545,7 +1550,7 @@ void opt_mI_std(param_type &prms, constr_type &constr)
 
   lat_constr.eps_x_scl = 1e4; lat_constr.eps0_x = 0.180;
 
-  lat_constr.drv_terms_scl = 1e-3;
+  lat_constr.drv_terms_scl = 1e-6;
 
   lat_constr.mI_scl[X_] = 1e3; lat_constr.mI_scl[Y_] = 1e3;
   for (k = 0; k < 2; k++)
@@ -1602,16 +1607,19 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
 
   lat_constr.Fnum_b1.push_back(ElemIndex("dq1"));
 
-  prms.add_prm("dq1",    2, -20.0,   20.0,  1.0);
+  prms.add_prm("dq1", 2, -20.0,   20.0,  1.0);
   // prms.add_prm("dq1",   -2, -20.0,   20.0,  1.0);
 
-  // Standard Straight.
+  // Mid Straight.
   prms.add_prm("qf1", 2, -20.0, 20.0, 1.0);
   prms.add_prm("qd2", 2, -20.0, 20.0, 1.0);
+
   // Dipole Cell.
   prms.add_prm("qd3", 2, -20.0, 20.0, 1.0);
   prms.add_prm("qf4", 2, -20.0, 20.0, 1.0);
   prms.add_prm("qd5", 2, -20.0, 20.0, 1.0);
+
+  // Standard Straight.
   prms.add_prm("qf6", 2, -20.0, 20.0, 1.0);
   prms.add_prm("qf8", 2, -20.0, 20.0, 1.0);
 
@@ -1620,7 +1628,7 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
   prms.add_prm("qd2_c1",   2, -20.0, 20.0, 1.0);
   prms.add_prm("quad_add", 2, -20.0, 20.0, 1.0);
 
-  // Parameters are initialized in optimizer.
+ // Parameters are initialized in optimizer.
 
   // Lattice constraints are: alpha_x,y, beta_x,y, eta_x, eta'_x.
   constr.add_constr(Elem_GetPos(ElemIndex("bl1_5"), 1)-1,
@@ -1629,18 +1637,15 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
   constr.add_constr(Elem_GetPos(ElemIndex("dq1"), 1),
   		    0e0, 0e0, 0e0, 0e0, 1e6, 1e6,
   		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-  constr.add_constr(Elem_GetPos(ElemIndex("bl1_5"), 2),
-  		    0e0, 0e0, 0e0, 0e0, 1e6, 1e6,
-  		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   // Include constraint on alpha; in case of using ps_rot.
   constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
-  		    1e5, 1e5, 1e-2, 1e-2, 1e6, 1e6,
+  		    1e5, 1e5, 1e0, 1e0, 0e0, 0e0,
   		    0.0, 0.0, 3.0,  1.5,  0.0, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
-  		    1e5, 1e5, 1e-2, 1e-2, 1e6, 1e6,
+  		    1e5, 1e5, 1e0, 1e0, 0e0, 0e0,
   		    0.0, 0.0, 4.0,  2.5,  0.0, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
-  		    1e5, 1e5, 1e-2, 1e-2, 1e6, 1e6,
+  		    1e5, 1e5, 1e0, 1e0, 1e6, 1e6,
   		    0.0, 0.0, 10.0, 4.0,  0.0, 0.0);
 
   lat_prms.bn_tol = 1e-5; lat_prms.step = 1.0;
@@ -1653,11 +1658,11 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
 
   lat_constr.drv_terms_scl = 1e-5;
 
-  lat_constr.mI_scl[X_] = 1e3; lat_constr.mI_scl[Y_] = 1e3;
+  lat_constr.mI_scl[X_] = 1e4; lat_constr.mI_scl[Y_] = 1e4;
   for (k = 0; k < 2; k++)
     lat_constr.mI0[k] = mI_nu[k];
 
-  // 8 Dipole Cells.
+  // Super Period.
   lat_constr.phi_scl = 1e0; lat_constr.phi0 = 60.0;
   lat_constr.L_scl = 1e-10; lat_constr.L0 = 10.0;
 
@@ -1665,7 +1670,7 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
 }
 
 
-void match_mI_ls(param_type &prms, constr_type &constr)
+void match_ls(param_type &prms, constr_type &constr)
 {
   // Parameter Type:
   //   Bend Angle  -3,
@@ -1679,24 +1684,20 @@ void match_mI_ls(param_type &prms, constr_type &constr)
   // From Center of Mid Straight: alpha, beta, eta, eta'.
   const int    n_ic        = 4;
   const double ic[n_ic][2] =
-    {{0.0, 0.0}, {6.3641513305, 2.1215351170}, {0.0, 0.0}, {0.0, 0.0}};
+    {{0.0, 0.0}, {3.9981883057, 0.9138424525}, {0.0, 0.0}, {0.0, 0.0}};
  
   // Long Straight.
   prms.add_prm("qf1_c1",   2, -20.0, 20.0, 1.0);
-  prms.add_prm("qd2_c1",   2, -20.0, 20.0, 1.0);
+  prms.add_prm("qd2_c1",   2,   0.0, 20.0, 1.0);
   prms.add_prm("quad_add", 2, -20.0, 20.0, 1.0);
 
   // Parameters are initialized in optimizer.
 
   constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
-  		    1e0, 1e0, 1e-2, 1e-2, 0e0, 0e0,
+  		    1e0, 1e0, 1e-4, 1e-5, 0e0, 0e0,
   		    0.0, 0.0, 10.0, 4.0,  0.0, 0.0);
 
-  lat_prms.bn_tol = 1e-6; lat_prms.step = 1.0;
-
-  lat_constr.high_ord_achr_scl = 0e0;
-  for (k = 0; k < 2; k++)
-    lat_constr.high_ord_achr_nu[k] = high_ord_achr_nu[k]/2.0;
+  lat_prms.bn_tol = 1e-5; lat_prms.step = 1.0;
 
   lat_constr.ini_constr(false);
 
@@ -2186,9 +2187,9 @@ int main(int argc, char *argv[])
 
   // set_map_reversal(ElemIndex("line_inv"));
 
-  if (!false) {
+  if (false) {
     Ring_GetTwiss(true, 0e0); printglob();
-    dnu[X_] = 0.0; dnu[Y_] = 0.2;
+    dnu[X_] = 0.1; dnu[Y_] = 0.2;
     set_map(ElemIndex("ps_rot"), dnu);
   }
 
@@ -2206,28 +2207,26 @@ int main(int argc, char *argv[])
     prt_lat("linlat.out", globval.bpm, true, 10);
   }
 
-  if (false)
-    fit_ksi1(0e0, 0e0);
+  if (false) fit_ksi1(0e0, 0e0);
 
-  if (!false) {
+  if (false) {
     // Optimize Standard Straight: mI.
     opt_mI_std(lat_prms, lat_constr);
     no_sxt();
     fit_powell(lat_prms, 1e-3, f_achrom);
   }
 
-  if (false) {
-    // Match Long Straight: mI.
-    match_mI_ls(lat_prms, lat_constr);
-    no_sxt();
-    fit_powell(lat_prms, 1e-3, f_match);
-  }
-
-  if (false) {
-    // Optimize 1 LS & 1 SS: mI.
+  if (!false) {
+    // Optimize Super Period: mI.
     opt_mI_sp(lat_prms, lat_constr);
     no_sxt();
     fit_powell(lat_prms, 1e-3, f_achrom);
+  }
+
+  if (false) {
+    // Match Long Straight: mI.
+    match_ls(lat_prms, lat_constr);
+    fit_powell(lat_prms, 1e-3, f_match);
   }
 
   if (false) {
