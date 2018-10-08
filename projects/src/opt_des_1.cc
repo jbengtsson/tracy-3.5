@@ -931,7 +931,7 @@ void constr_type::prt_constr(const double chi2)
   if (phi_scl != 0e0) {
     loc = Elem_GetPos(Fnum_b1[n_b1-1], 1);
     phi = rad2deg(Cell[loc].Elem.PL*Cell[loc].Elem.M->Pirho);
-    printf("    phi         = %7.5f (%7.5f)\n\n    ", phi, phi0);
+    printf("    phi         = %7.5f (%7.5f)\n    ", phi, phi0);
     prt_name(stdout, Cell[loc].Elem.PName, "_phi:", 6);
     printf(" = %7.5f\n", phi);
   }
@@ -1520,8 +1520,8 @@ void opt_mI_std(param_type &prms, constr_type &constr)
 
   lat_constr.Fnum_b1.push_back(ElemIndex("dq1"));
 
-  prms.add_prm("dq1",  2, -20.0, 20.0, 1.0);
-  prms.add_prm("dq1", -2,   0.5,  1.0, 1.0);
+  prms.add_prm("dq1",  2, -20.0, 20.0,   1.0);
+  prms.add_prm("dq1", -2,   0.5,  0.867, 1.0);
 
   // Mid Straight.
   prms.add_prm("qf1", 2, -20.0, 20.0, 1.0);
@@ -1540,10 +1540,10 @@ void opt_mI_std(param_type &prms, constr_type &constr)
 
   // Lattice constraints are: alpha_x,y, beta_x,y, eta_x, eta'_x.
   constr.add_constr(Elem_GetPos(ElemIndex("bl1_5"), 1)-1,
-  		    0e0, 0e0, 0e0, 0e0, 1e6, 1e6,
+  		    0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
   		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("dq1"), 1),
-  		    0e0, 0e0, 0e0, 0e0, 1e6, 1e6,
+  		    0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
   		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   // Include constraint on alpha; in case of using ps_rot.
   constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
@@ -1559,10 +1559,10 @@ void opt_mI_std(param_type &prms, constr_type &constr)
   lat_constr.Fnum_b3.push_back(ElemIndex("sd1"));
   lat_constr.Fnum_b3.push_back(ElemIndex("sd2"));
 
-  lat_constr.eps_x_scl = 1e4; lat_constr.eps0_x = 0.195;
+  lat_constr.eps_x_scl = 1e5; lat_constr.eps0_x = 0.195;
 
-  lat_constr.ksi1_scl      = 1e0;
-  lat_constr.drv_terms_scl = 1e-5;
+  lat_constr.ksi1_scl      = 5e0;
+  lat_constr.drv_terms_scl = 1e-4;
   lat_constr.mI_scl[X_]    = 1e3;
   lat_constr.mI_scl[Y_]    = 1e3;
   for (k = 0; k < 2; k++)
