@@ -7,6 +7,8 @@
 int no_tps = NO;
 
 
+const bool ps_rot = !false;
+
 const double
   high_ord_achr_dnu  = 1e-3,
   high_ord_achr_nu[] =
@@ -91,6 +93,7 @@ public:
     eps0_x,               // Hor. emittance [nm.rad].
     drv_terms_scl,
     nu[2],
+    ksi1_scl,
     ksi1[2],
     phi_scl,
     phi, phi0,            // Cell bend angle.
@@ -118,7 +121,7 @@ public:
 
   constr_type(void) {
     n_iter = 0; chi2 = 1e30; chi2_prt = 1e30;
-    eps_x_scl = 0e0; phi_scl = 0e0; drv_terms_scl = 0e0;
+    eps_x_scl = 0e0; phi_scl = 0e0; ksi1_scl = 0e0; drv_terms_scl = 0e0;
     high_ord_achr_scl = 0e0; mI_scl[X_] = mI_scl[Y_] = 0e0; L_scl = 0e0;
   }
 
@@ -794,6 +797,7 @@ double constr_type::get_chi2(void) const
   }
   chi2 += L_scl*sqr(Cell[globval.Cell_nLoc].S-L0);
   for (k = 0; k < 2; k++) {
+    chi2 += ksi1_scl*sqr(ksi1[k]);
     chi2 += drv_terms_scl*drv_terms[k];
     chi2 += mI_scl[k]*sqr(mI[k]-mI0[k]);
   }
@@ -914,6 +918,8 @@ void prt_high_ord_achr(const constr_type &constr)
 
 void constr_type::prt_constr(const double chi2)
 {
+  int    loc;
+  double phi;
 
   printf("\n%3d chi2: %11.5e -> %11.5e\n", n_iter, this->chi2_prt, chi2);
   this->chi2_prt = chi2;
@@ -922,7 +928,13 @@ void constr_type::prt_constr(const double chi2)
 	 "    nu          = [%5.3f, %5.3f]\n"
 	 "    ksi1        = [%5.3f, %5.3f]\n",
 	 eps_x, eps0_x, nu[X_], nu[Y_], ksi1[X_], ksi1[Y_]);
-  if (phi_scl != 0e0) printf("    phi         = %7.5f (%7.5f)\n", phi, phi0);
+  if (phi_scl != 0e0) {
+    loc = Elem_GetPos(Fnum_b1[n_b1-1], 1);
+    phi = rad2deg(Cell[loc].Elem.PL*Cell[loc].Elem.M->Pirho);
+    printf("    phi         = %7.5f (%7.5f)\n\n    ", phi, phi0);
+    prt_name(stdout, Cell[loc].Elem.PName, "_phi:", 6);
+    printf(" = %7.5f\n", phi);
+  }
   if (L_scl != 0e0)
     printf("    L           = %7.5f (%7.5f)\n", Cell[globval.Cell_nLoc].S, L0);
 
@@ -1489,7 +1501,7 @@ void opt_mI_std(param_type &prms, constr_type &constr)
   grad_dip_Fnum.push_back(ElemIndex("bl1_4"));
   grad_dip_Fnum.push_back(ElemIndex("bl1_5"));
   prms.add_prm(grad_dip_Fnum, grad_dip_scl, -3, -20.0, 20.0, 1.0);
-  prms.add_prm(grad_dip_Fnum, grad_dip_scl,  2, -20.0, 20.0, 1.0);
+  prms.add_prm(grad_dip_Fnum, grad_dip_scl,  2,  -1.0,  1.0, 1.0);
 
   lat_constr.Fnum_b1.push_back(-ElemIndex("bl1_1"));
   lat_constr.grad_dip_Fnum_b1.push_back(grad_dip_Fnum);
@@ -1501,16 +1513,15 @@ void opt_mI_std(param_type &prms, constr_type &constr)
   grad_dip_Fnum.push_back(ElemIndex("bl2_4"));
   grad_dip_Fnum.push_back(ElemIndex("bl2_5"));
   prms.add_prm(grad_dip_Fnum, grad_dip_scl, -3, -20.0, 20.0, 1.0);
-  prms.add_prm(grad_dip_Fnum, grad_dip_scl,  2, -20.0, 20.0, 1.0);
+  prms.add_prm(grad_dip_Fnum, grad_dip_scl,  2,  -1.0,  1.0, 1.0);
 
   lat_constr.Fnum_b1.push_back(-ElemIndex("bl2_1"));
   lat_constr.grad_dip_Fnum_b1.push_back(grad_dip_Fnum);
 
   lat_constr.Fnum_b1.push_back(ElemIndex("dq1"));
 
-  prms.add_prm("dq1",    2, -20.0,   20.0,  1.0);
-  // prms.add_prm("dq1",   -2, -20.0,   20.0,  1.0);
-
+  prms.add_prm("dq1",  2, -20.0, 20.0, 1.0);
+  prms.add_prm("dq1", -2,   0.5,  1.0, 1.0);
 
   // Mid Straight.
   prms.add_prm("qf1", 2, -20.0, 20.0, 1.0);
@@ -1536,10 +1547,10 @@ void opt_mI_std(param_type &prms, constr_type &constr)
   		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   // Include constraint on alpha; in case of using ps_rot.
   constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
-  		    1e5, 1e5, 1e0, 1e0, 0e0, 0e0,
+  		    1e5, 1e5, 1e-1, 1e-1, 0e0, 0e0,
   		    0.0, 0.0, 3.0,  1.5,  0.0, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
-  		    1e5, 1e5, 1e0, 1e0, 0e0, 0e0,
+  		    1e5, 1e5, 1e-1, 1e-1, 0e0, 0e0,
   		    0.0, 0.0, 4.0,  2.5,  0.0, 0.0);
 
   lat_prms.bn_tol = 1e-5; lat_prms.step = 1.0;
@@ -1548,11 +1559,12 @@ void opt_mI_std(param_type &prms, constr_type &constr)
   lat_constr.Fnum_b3.push_back(ElemIndex("sd1"));
   lat_constr.Fnum_b3.push_back(ElemIndex("sd2"));
 
-  lat_constr.eps_x_scl = 1e4; lat_constr.eps0_x = 0.180;
+  lat_constr.eps_x_scl = 1e4; lat_constr.eps0_x = 0.195;
 
-  lat_constr.drv_terms_scl = 1e-6;
-
-  lat_constr.mI_scl[X_] = 1e3; lat_constr.mI_scl[Y_] = 1e3;
+  lat_constr.ksi1_scl      = 1e0;
+  lat_constr.drv_terms_scl = 1e-5;
+  lat_constr.mI_scl[X_]    = 1e3;
+  lat_constr.mI_scl[Y_]    = 1e3;
   for (k = 0; k < 2; k++)
     lat_constr.mI0[k] = mI_nu[k];
 
@@ -1656,9 +1668,10 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
 
   lat_constr.eps_x_scl = 1e4; lat_constr.eps0_x = 0.180;
 
+  lat_constr.ksi1_scl      = 1e1;
   lat_constr.drv_terms_scl = 1e-5;
-
-  lat_constr.mI_scl[X_] = 1e4; lat_constr.mI_scl[Y_] = 1e4;
+  lat_constr.mI_scl[X_]    = 1e4;
+  lat_constr.mI_scl[Y_]    = 1e4;
   for (k = 0; k < 2; k++)
     lat_constr.mI0[k] = mI_nu[k];
 
@@ -2187,9 +2200,9 @@ int main(int argc, char *argv[])
 
   // set_map_reversal(ElemIndex("line_inv"));
 
-  if (false) {
+  if (ps_rot) {
     Ring_GetTwiss(true, 0e0); printglob();
-    dnu[X_] = 0.1; dnu[Y_] = 0.2;
+    dnu[X_] = 0.0; dnu[Y_] = 0.0;
     set_map(ElemIndex("ps_rot"), dnu);
   }
 
@@ -2209,14 +2222,14 @@ int main(int argc, char *argv[])
 
   if (false) fit_ksi1(0e0, 0e0);
 
-  if (false) {
+  if (!false) {
     // Optimize Standard Straight: mI.
     opt_mI_std(lat_prms, lat_constr);
     no_sxt();
     fit_powell(lat_prms, 1e-3, f_achrom);
   }
 
-  if (!false) {
+  if (false) {
     // Optimize Super Period: mI.
     opt_mI_sp(lat_prms, lat_constr);
     no_sxt();

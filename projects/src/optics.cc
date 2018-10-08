@@ -6,7 +6,7 @@ int no_tps = NO;
 
 
 const bool
-  set_dnu = false,
+  set_dnu = !false,
   mI_rot  = false,
   HOA_rot = false,
   prt_ms  = false;
@@ -767,7 +767,7 @@ int main(int argc, char *argv[])
     // exit(0);
   }
 
-  if (!false) {
+  if (false) {
     chk_mI_trans();
     exit(0);
   }
