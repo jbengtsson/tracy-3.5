@@ -1542,14 +1542,14 @@ void opt_mI_std(param_type &prms, constr_type &constr)
 
   // Lattice constraints are: alpha_x,y, beta_x,y, eta_x, eta'_x.
   constr.add_constr(Elem_GetPos(ElemIndex("bl1_5"), 1)-1,
-  		    0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
+  		    0e0, 0e0, 0e0, 0e0, 1e6, 1e6,
   		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-  constr.add_constr(Elem_GetPos(ElemIndex("dq1"), 1),
-  		    0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
-  		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+  // constr.add_constr(Elem_GetPos(ElemIndex("dq1"), 1),
+  // 		    0e0, 0e0, 0e0, 0e0, 1e6, 1e6,
+  // 		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   // Include constraint on alpha; in case of using ps_rot.
   constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
-  		    1e5, 1e5, 1e0, 1e0, 1e7,   0e0,
+  		    1e5, 1e5, 1e0, 1e0, 1e5,   0e0,
   		    0.0, 0.0, 3.0, 1.5, 0.025, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
   		    1e5, 1e5, 1e0, 1e0, 0e0, 0e0,
@@ -1561,7 +1561,7 @@ void opt_mI_std(param_type &prms, constr_type &constr)
   lat_constr.Fnum_b3.push_back(ElemIndex("sd1"));
   lat_constr.Fnum_b3.push_back(ElemIndex("sd2"));
 
-  lat_constr.eps_x_scl = 1e5; lat_constr.eps0_x = 0.195;
+  lat_constr.eps_x_scl = 1e4; lat_constr.eps0_x = 0.195;
 
   lat_constr.ksi1_scl      = 5e0;
   lat_constr.drv_terms_scl = 1e-3;
@@ -2189,7 +2189,7 @@ int main(int argc, char *argv[])
   // Unbuffered output.
   setvbuf(stdout, buffer, _IONBF, BUFSIZ);
 
-  if (!true)
+  if (true)
     Read_Lattice(argv[1]);
   else
     rdmfile(argv[1]);
