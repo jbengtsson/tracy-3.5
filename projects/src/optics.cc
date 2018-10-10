@@ -607,6 +607,60 @@ void get_dbeta_deta(const double delta)
 }
 
 
+void get_drv_terms(std::vector<int> &Fnum)
+{
+  int    j, k, n_kid;
+  double drv_terms[2], b3L, a3L;
+
+  for (k = 0; k < 2; k++)
+    drv_terms[k] = 0e0;
+  for (k = 0; k < (int)Fnum.size(); k++) {
+    get_bnL_design_elem(Fnum[k], 1, Sext, b3L, a3L);
+    n_kid = GetnKid(Fnum[k]);
+    for (j = 0; j < 2; j++) {
+      drv_terms[j] +=
+	n_kid*sqr(b3L*Cell[Elem_GetPos(Fnum[k], 1)].Beta[j]);
+    }
+  }
+  printf("\ndrv. terms  = [%10.3e, %10.3e]\n",
+	 sqrt(drv_terms[X_]), sqrt(drv_terms[Y_]));
+}
+
+
+void get_drv_terms(void)
+{
+  std::vector<int> Fnum;
+
+  // M-6HBAi      1,
+  // M-6HBA-0-.-. 2.
+  // ESRF-U       3.
+  const int lat_case = 2;
+
+  switch (lat_case) {
+  case 1:
+    Fnum.push_back(ElemIndex(""));
+    Fnum.push_back(ElemIndex(""));
+    Fnum.push_back(ElemIndex(""));
+    break;
+  case 2:
+    Fnum.push_back(ElemIndex("sf1"));
+    Fnum.push_back(ElemIndex("sd1"));
+    Fnum.push_back(ElemIndex("sd2"));
+    break;
+  case 3:
+    Fnum.push_back(ElemIndex("sf2a"));
+    Fnum.push_back(ElemIndex("sf2e"));
+    Fnum.push_back(ElemIndex("sd1a"));
+    Fnum.push_back(ElemIndex("sd1b"));
+    Fnum.push_back(ElemIndex("sd1d"));
+    Fnum.push_back(ElemIndex("sd1e"));
+    break;
+  }
+
+  get_drv_terms(Fnum);
+}
+
+
 int main(int argc, char *argv[])
 {
   bool             tweak;
@@ -658,6 +712,11 @@ int main(int argc, char *argv[])
   }
 
   Ring_GetTwiss(true, 0e0); printglob();
+
+  if (false) {
+    get_drv_terms();
+    exit(0);
+  }
 
   if (false) {
     loc = Elem_GetPos(ElemIndex("bb"), 1);

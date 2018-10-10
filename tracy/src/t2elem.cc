@@ -3304,6 +3304,145 @@ void get_B_Oleg2(const char *filename, FieldMapType *FM)
 }
 
 
+void get_B_SRW(const char *filename, FieldMapType *FM)
+{
+  char          line[max_str];
+  int           i, j, n;
+  double        x_min[3];
+  std::ifstream inf;
+
+  const double  Brho = globval.Energy*1e9/c0;
+
+  std::cout << std::endl;
+  std::cout << "get_B_SRW: loading field map: " << filename << std::endl;
+
+  file_rd(inf, filename);
+
+  inf.getline(line, max_str);
+
+  inf.getline(line, max_str); sscanf(line, "#%lf", &x_min[X_]);
+  inf.getline(line, max_str); sscanf(line, "#%lf", &FM->dx[X_]);
+  inf.getline(line, max_str); sscanf(line, "#%d", &FM->n[X_]);
+
+  inf.getline(line, max_str); sscanf(line, "#%lf", &x_min[Y_]);
+  inf.getline(line, max_str); sscanf(line, "#%lf", &FM->dx[Y_]);
+  inf.getline(line, max_str); sscanf(line, "#%d", &FM->n[Y_]);
+
+  inf.getline(line, max_str); sscanf(line, "#%lf", &x_min[Z_]);
+  inf.getline(line, max_str); sscanf(line, "#%lf", &FM->dx[Z_]);
+  inf.getline(line, max_str); sscanf(line, "#%d", &FM->n[Z_]);
+
+  std::cout << std::fixed << std::setprecision(5)
+	    << std::setw(10) << 1e3*FM->dx[X_]
+	    << std::setw(10) << 1e3*FM->dx[Y_]
+	    << std::setw(10) << 1e3*FM->dx[Z_] << std::endl;
+  std::cout << std::setw(10) << FM->n[X_] << std::setw(10) << FM->n[Y_]
+	    << std::setw(10) << FM->n[Z_] << std::endl;
+  std::cout << std::fixed << std::setprecision(3)
+	    << std::setw(10) << x_min[X_] << std::setw(10) << x_min[Y_]
+	    << std::setw(10) << x_min[Z_] << std::endl;
+
+  FM->x[X_] = dvector(1, FM->n[X_]); FM->x[Y_] = dvector(1, FM->n[Y_]);
+  FM->x[Z_] = dvector(1, FM->n[Z_]);
+
+  FM->BoBrho[X_]  = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+  FM->BoBrho[Y_]  = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+  FM->BoBrho[Z_]  = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+  FM->BoBrho2[X_] = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+  FM->BoBrho2[Y_] = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+  FM->BoBrho2[Z_] = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+
+  FM->AoBrho[X_]  = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+  FM->AoBrho[Y_]  = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+  FM->AoBrho2[X_] = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+  FM->AoBrho2[Y_] = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+
+  for (n = 1; n <= FM->n[Z_]; n++) {
+    FM->x[Z_][n] = (n == 1)? x_min[Z_] : FM->x[Z_][n-1] + FM->dx[Z_];
+
+    for (j = 1; j <= FM->n[Y_]; j++) {
+      FM->x[Y_][j] = (j == 1)? x_min[Y_] : FM->x[Y_][j-1] + FM->dx[Y_];
+
+      for (i = 1; i <= FM->n[X_]; i++) {
+	FM->x[X_][i] = (i == 1)? x_min[X_] : FM->x[X_][i-1] + FM->dx[X_];
+
+	inf.getline(line, max_str);
+	sscanf(line, "%lf %lf %lf",
+	       &FM->BoBrho[X_][n][i][j], &FM->BoBrho[Y_][n][i][j],
+	       &FM->BoBrho[Z_][n][i][j]);
+
+	FM->BoBrho[X_][n][i][j] /= Brho;
+	FM->BoBrho[Y_][n][i][j] /= Brho;
+	FM->BoBrho[Z_][n][i][j] /= Brho;
+
+	// Compute vector potential (axial gauge) by extended trapezodial rule
+ 	if (n == 1) {
+	  FM->AoBrho[X_][n][i][j] = -FM->BoBrho[Y_][n][i][j]*FM->dx[Z_]/2e0;
+	  FM->AoBrho[Y_][n][i][j] =  FM->BoBrho[X_][n][i][j]*FM->dx[Z_]/2e0;
+	} else if (n == FM->n[Z_]) {
+	  FM->AoBrho[X_][n][i][j] =
+	    FM->AoBrho[X_][n-1][i][j] - FM->BoBrho[Y_][n][i][j]*FM->dx[Z_]/2e0;
+	  FM->AoBrho[Y_][n][i][j] =
+	    FM->AoBrho[Y_][n-1][i][j] + FM->BoBrho[X_][n][i][j]*FM->dx[Z_]/2e0;
+	} else {
+	  FM->AoBrho[X_][n][i][j] =
+	    FM->AoBrho[X_][n-1][i][j] - FM->BoBrho[Y_][n][i][j]*FM->dx[Z_];
+	  FM->AoBrho[Y_][n][i][j] =
+	    FM->AoBrho[Y_][n-1][i][j] + FM->BoBrho[X_][n][i][j]*FM->dx[Z_];
+	}
+      }
+    }
+  }
+
+  inf.close();
+
+  FM->Lr = FM->dx[Z_]*(FM->n[Z_]-1);
+
+  std::cout << std::fixed << std::setprecision(5)
+	    << std::setw(10) << 1e3*FM->dx[X_]
+	    << std::setw(10) << 1e3*FM->dx[Y_]
+	    << std::setw(10) << 1e3*FM->dx[Z_] << std::endl;
+  std::cout << std::setw(10) << FM->n[X_] << std::setw(10) << FM->n[Y_]
+	    << std::setw(10) << FM->n[Z_] << std::endl;
+  std::cout << std::fixed << std::setprecision(3)
+	    << std::setw(10) << FM->x[X_][1]
+	    << std::setw(10) << FM->x[X_][FM->n[X_]]
+	    << std::setw(10) << FM->x[Y_][1]
+	    << std::setw(10) << FM->x[Y_][FM->n[Y_]]
+	    << std::setw(10) << FM->x[Z_][1]
+	    << std::setw(10) << FM->x[Z_][FM->n[Z_]] << std::endl;
+  std::cout << std::fixed << std::setprecision(5)
+	    << "Magnet length [m]:" << std::setw(10) << FM->Lr << std::endl;
+
+  for (n = 1; n <= FM->n[Z_]; n++) {
+    splie2_(FM->x[X_], FM->x[Y_], FM->BoBrho[X_][n],
+	    FM->n[X_], FM->n[Y_], FM->BoBrho2[X_][n]);
+    splie2_(FM->x[X_], FM->x[Y_], FM->BoBrho[Y_][n],
+	    FM->n[X_], FM->n[Y_], FM->BoBrho2[Y_][n]);
+    splie2_(FM->x[X_], FM->x[Y_], FM->BoBrho[Z_][n],
+	    FM->n[X_], FM->n[Y_], FM->BoBrho2[Z_][n]);
+  }
+
+  std::cout << "field map loaded: " << filename << std::endl;
+
+/*  free_dvector(FM->x[X_], 1, FM->n[X_]);
+  free_dvector(FM->x[Y_], 1, FM->n[Y_]);
+  free_dvector(FM->x[Z_], 1, FM->n[Z_]);
+
+  free_df3tensor(FM->BoBrho[X_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+  free_df3tensor(FM->BoBrho[Y_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+  free_df3tensor(FM->BoBrho[Z_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+  free_df3tensor(FM->BoBrho2[X_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+  free_df3tensor(FM->BoBrho2[Y_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+  free_df3tensor(FM->BoBrho2[Z_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+
+  free_df3tensor(FM->AoBrho[X_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+  free_df3tensor(FM->AoBrho[Y_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+  free_df3tensor(FM->AoBrho2[X_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+  free_df3tensor(FM->AoBrho2[Y_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);*/
+}
+
+
 void get_B(const char *filename, FieldMapType *FM)
 {
   // Do not scale fieldmaps only Hamiltonians, i.e., the kick.  Note that RADIA
@@ -3322,9 +3461,12 @@ void get_B(const char *filename, FieldMapType *FM)
   case 4:
     get_B_Oleg2(filename, FM);
     break;
+  case 5:
+    get_B_SRW(filename, FM);
+    break;
   default:
-    std::cout << "get_B: unknown FieldMap type " << FieldMap_filetype
-	      << std::endl;
+    printf("\nget_B: unknown FieldMap type %d", FieldMap_filetype);
+    exit(1);
     break;
   }
 }
