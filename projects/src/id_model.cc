@@ -8,8 +8,8 @@ int no_tps = NO;
 int main(int argc, char *argv[])
 {
 
-  // 1: DIAMOND, 2: NSLS-II, 3: Oleg I, 4: Oleg II, 5: SRW.
-  FieldMap_filetype = 5; sympl = !false;
+  // DIAMOND 1, NSLS-II 2, Oleg I 3, Oleg II 4, SRW 5.
+  FieldMap_filetype = 5; sympl = false;
 
   reverse_elem = !false;
 
@@ -29,4 +29,7 @@ int main(int argc, char *argv[])
   Ring_GetTwiss(true, 0e0); printglob();
 
   GetEmittance(ElemIndex("cav"), true);
+
+  prt_lat("linlat1.out", globval.bpm, true);
+  prt_lat("linlat.out", globval.bpm, true, 10);
 }

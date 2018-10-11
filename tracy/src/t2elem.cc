@@ -1433,6 +1433,11 @@ void f_FM(const CellType &Cell, const double z, const ss_vect<T> &ps,
     return;
   }
 
+  for (j = 0; j < 6; j++)
+    cout << scientific << setprecision(3) << setw(11)
+	 << is_double<T>::cst(ps[j]);
+  cout << "\n";
+
   splin2_(FM->x[X_], FM->x[Y_], FM->BoBrho[X_][kz], FM->BoBrho2[X_][kz],
 	   FM->n[X_], FM->n[Y_], ps[x_], ps[y_], BoBrho[X_]);
 
@@ -1503,11 +1508,13 @@ void FieldMap_pass_RK(CellType &Cell, ss_vect<T> &ps, int k)
   FM = Cell.Elem.FM;
 
   switch (FieldMap_filetype) {
-  case 2:
-  case 3:
-  case 4:
+  case 1:
+    break;
+  case 2 ... 4:
     // Transform to right handed system
     ps[x_] = -ps[x_]; ps[px_] = -ps[px_];
+    break;
+  case 5:
     break;
   }
 
@@ -1569,11 +1576,13 @@ void FieldMap_pass_RK(CellType &Cell, ss_vect<T> &ps, int k)
   p_s = get_p_s_cs(ps); ps[px_] *= p_s; ps[py_] *= p_s;
 
   switch (FieldMap_filetype) {
-  case 2:
-  case 3:
-  case 4:
+  case 1:
+    break;
+  case 2 ... 4:
     // Transform back to left handed system
     ps[x_] = -ps[x_]; ps[px_] = -ps[px_];
+    break;
+  case 5:
     break;
   }
 }
@@ -1598,9 +1607,7 @@ void FieldMap_pass_SI(CellType &Cell, ss_vect<T> &ps, int k)
   FM = Cell.Elem.FM;
 
   switch (FieldMap_filetype) {
-  case 2:
-  case 3:
-  case 4:
+  case 2 ... 4:
     // Transform to right handed system
     ps[x_] = -ps[x_]; ps[px_] = -ps[px_];
     break;
@@ -1911,9 +1918,7 @@ void FieldMap_pass_SI(CellType &Cell, ss_vect<T> &ps, int k)
   ps[py_] -= AoBrho[0];
 
   switch (FieldMap_filetype) {
-  case 2:
-  case 3:
-  case 4:
+  case 2 ... 4:
     // Transform back to left handed system
     ps[x_] = -ps[x_]; ps[px_] = -ps[px_];
     break;
@@ -3313,8 +3318,7 @@ void get_B_SRW(const char *filename, FieldMapType *FM)
 
   const double  Brho = globval.Energy*1e9/c0;
 
-  std::cout << std::endl;
-  std::cout << "get_B_SRW: loading field map: " << filename << std::endl;
+  printf("\nget_B_SRW: loading field map: %s\n", filename);
 
   file_rd(inf, filename);
 
@@ -3332,15 +3336,11 @@ void get_B_SRW(const char *filename, FieldMapType *FM)
   inf.getline(line, max_str); sscanf(line, "#%lf", &FM->dx[Z_]);
   inf.getline(line, max_str); sscanf(line, "#%d", &FM->n[Z_]);
 
-  std::cout << std::fixed << std::setprecision(5)
-	    << std::setw(10) << 1e3*FM->dx[X_]
-	    << std::setw(10) << 1e3*FM->dx[Y_]
-	    << std::setw(10) << 1e3*FM->dx[Z_] << std::endl;
-  std::cout << std::setw(10) << FM->n[X_] << std::setw(10) << FM->n[Y_]
-	    << std::setw(10) << FM->n[Z_] << std::endl;
-  std::cout << std::fixed << std::setprecision(3)
-	    << std::setw(10) << x_min[X_] << std::setw(10) << x_min[Y_]
-	    << std::setw(10) << x_min[Z_] << std::endl;
+  printf("\n  dx [mm]   = [%7.5f, %7.5f, %7.5f]\n",
+	 1e3*FM->dx[X_], 1e3*FM->dx[Y_], 1e3*FM->dx[Z_]);
+  printf("  n         = [%d, %d, %d]\n", FM->n[X_], FM->n[Y_], FM->n[Z_]);
+  printf("  x_min [m] = [%7.5f, %7.5f, %7.5f]\n",
+	 x_min[X_], x_min[Y_], x_min[Z_]);
 
   FM->x[X_] = dvector(1, FM->n[X_]); FM->x[Y_] = dvector(1, FM->n[Y_]);
   FM->x[Z_] = dvector(1, FM->n[Z_]);
@@ -3398,21 +3398,15 @@ void get_B_SRW(const char *filename, FieldMapType *FM)
 
   FM->Lr = FM->dx[Z_]*(FM->n[Z_]-1);
 
-  std::cout << std::fixed << std::setprecision(5)
-	    << std::setw(10) << 1e3*FM->dx[X_]
-	    << std::setw(10) << 1e3*FM->dx[Y_]
-	    << std::setw(10) << 1e3*FM->dx[Z_] << std::endl;
-  std::cout << std::setw(10) << FM->n[X_] << std::setw(10) << FM->n[Y_]
-	    << std::setw(10) << FM->n[Z_] << std::endl;
-  std::cout << std::fixed << std::setprecision(3)
-	    << std::setw(10) << FM->x[X_][1]
-	    << std::setw(10) << FM->x[X_][FM->n[X_]]
-	    << std::setw(10) << FM->x[Y_][1]
-	    << std::setw(10) << FM->x[Y_][FM->n[Y_]]
-	    << std::setw(10) << FM->x[Z_][1]
-	    << std::setw(10) << FM->x[Z_][FM->n[Z_]] << std::endl;
-  std::cout << std::fixed << std::setprecision(5)
-	    << "Magnet length [m]:" << std::setw(10) << FM->Lr << std::endl;
+  printf("\n  dx [mm]   = [%7.5f, %7.5f, %7.5f]\n",
+	 1e3*FM->dx[X_], 1e3*FM->dx[Y_], 1e3*FM->dx[Z_]);
+  printf("  n         = [%d, %d, %d]\n", FM->n[X_], FM->n[Y_], FM->n[Z_]);
+  printf("  x [m]     = [%5.3f - %5.3f, %5.3f - %5.3f, %5.3f - %5.3f]\n",
+	 FM->x[X_][1], FM->x[X_][FM->n[X_]],
+	 FM->x[Y_][1], FM->x[Y_][FM->n[Y_]],
+	 FM->x[Z_][1], FM->x[Z_][FM->n[Z_]]);
+
+  printf("\n  Magnet length [m]: %7.5f\n", FM->Lr);
 
   for (n = 1; n <= FM->n[Z_]; n++) {
     splie2_(FM->x[X_], FM->x[Y_], FM->BoBrho[X_][n],
@@ -3423,7 +3417,7 @@ void get_B_SRW(const char *filename, FieldMapType *FM)
 	    FM->n[X_], FM->n[Y_], FM->BoBrho2[Z_][n]);
   }
 
-  std::cout << "field map loaded: " << filename << std::endl;
+  printf("\n  Field map loaded: %s\n", filename);
 
 /*  free_dvector(FM->x[X_], 1, FM->n[X_]);
   free_dvector(FM->x[Y_], 1, FM->n[Y_]);

@@ -627,33 +627,36 @@ void get_drv_terms(std::vector<int> &Fnum)
 }
 
 
-void get_drv_terms(void)
+void prt_drv_terms(void)
 {
+  int              lat_case;
   std::vector<int> Fnum;
 
-  // M-6HBAi      1,
-  // M-6HBA-0-.-. 2.
-  // ESRF-U       3.
-  const int lat_case = 2;
+  // ESRF-U       1,
+  // M-6HBAi      2,
+  // M-6HBA-3-1-1 3,
+  // M-6HBA-0-.-. 4.
 
+  printf("Lattice Case (1..3)? ");
+  scanf("%d", &lat_case);
   switch (lat_case) {
   case 1:
-    Fnum.push_back(ElemIndex(""));
-    Fnum.push_back(ElemIndex(""));
-    Fnum.push_back(ElemIndex(""));
-    break;
-  case 2:
-    Fnum.push_back(ElemIndex("sf1"));
-    Fnum.push_back(ElemIndex("sd1"));
-    Fnum.push_back(ElemIndex("sd2"));
-    break;
-  case 3:
     Fnum.push_back(ElemIndex("sf2a"));
     Fnum.push_back(ElemIndex("sf2e"));
     Fnum.push_back(ElemIndex("sd1a"));
     Fnum.push_back(ElemIndex("sd1b"));
     Fnum.push_back(ElemIndex("sd1d"));
     Fnum.push_back(ElemIndex("sd1e"));
+    break;
+  case 2:
+    Fnum.push_back(ElemIndex(""));
+    Fnum.push_back(ElemIndex(""));
+    Fnum.push_back(ElemIndex(""));
+    break;
+  case 3 ... 4:
+    Fnum.push_back(ElemIndex("sf1"));
+    Fnum.push_back(ElemIndex("sd1"));
+    Fnum.push_back(ElemIndex("sd2"));
     break;
   }
 
@@ -714,8 +717,8 @@ int main(int argc, char *argv[])
   Ring_GetTwiss(true, 0e0); printglob();
 
   if (false) {
-    get_drv_terms();
-    exit(0);
+    prt_drv_terms();
+    // exit(0);
   }
 
   if (false) {

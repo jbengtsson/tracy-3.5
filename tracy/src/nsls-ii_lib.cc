@@ -534,7 +534,7 @@ void GetEmittance(const int Fnum, const bool prt)
 	   "J_x         =  %5.3f,     J_y    = %5.3f,     J_z    = %5.3f\n",
             globval.J[X_], globval.J[Y_], globval.J[Z_]);
     printf("Damping times [msec]:           "
-	   "tau_x       =  %3.1f,       tau_y  = %3.1f,       tau_z  = %3.1f\n",
+	   "tau_x       =  %3.1f,      tau_y  = %3.1f,      tau_z  = %3.1f\n",
 	   1e3*globval.tau[X_], 1e3*globval.tau[Y_], 1e3*globval.tau[Z_]);
     printf("\n");
     printf("alphac:                         "

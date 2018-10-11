@@ -1653,7 +1653,7 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
   // 		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   // Include constraint on alpha; in case of using ps_rot.
   constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
-  		    1e5, 1e5, 1e0, 1e0, 1e5,   0e0,
+  		    1e5, 1e5, 1e1, 1e1, 1e5,   0e0,
   		    0.0, 0.0, 3.0, 1.5, 0.025, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
   		    1e5, 1e5, 1e1, 1e1, 0e0, 0e0,
@@ -1699,7 +1699,7 @@ void match_ls(param_type &prms, constr_type &constr)
   // From Center of Mid Straight: alpha, beta, eta, eta'.
   const int    n_ic        = 4;
   const double ic[n_ic][2] =
-    {{0.0, 0.0}, {1.8029174034, 2.6056048007}, {0.0215368682, 0.0}, {0.0, 0.0}};
+    {{0.0, 0.0}, {2.0965943400, 2.1785445942}, {0.0189930126, 0.0}, {0.0, 0.0}};
  
   // Long Straight.
   prms.add_prm("qf1_c1",   2, -20.0, 20.0, 1.0);
@@ -2189,7 +2189,7 @@ int main(int argc, char *argv[])
   // Unbuffered output.
   setvbuf(stdout, buffer, _IONBF, BUFSIZ);
 
-  if (!true)
+  if (true)
     Read_Lattice(argv[1]);
   else
     rdmfile(argv[1]);
@@ -2224,14 +2224,14 @@ int main(int argc, char *argv[])
 
   if (false) fit_ksi1(0e0, 0e0);
 
-  if (!false) {
+  if (false) {
     // Optimize Standard Straight: mI.
     opt_mI_std(lat_prms, lat_constr);
     no_sxt();
     fit_powell(lat_prms, 1e-3, f_achrom);
   }
 
-  if (false) {
+  if (!false) {
     // Optimize Super Period: mI.
     opt_mI_sp(lat_prms, lat_constr);
     no_sxt();
