@@ -1622,7 +1622,7 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
   lat_constr.Fnum_b1.push_back(ElemIndex("dq1"));
 
   prms.add_prm("dq1",  2, -20.0,   20.0,  1.0);
-  prms.add_prm("dq1", -2, -20.0,   20.0,  1.0);
+  // prms.add_prm("dq1", -2, -20.0,   20.0,  1.0);
 
   // Mid Straight.
   prms.add_prm("qf1", 2, -20.0, 20.0, 1.0);
@@ -1668,7 +1668,7 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
   lat_constr.Fnum_b3.push_back(ElemIndex("sd1"));
   lat_constr.Fnum_b3.push_back(ElemIndex("sd2"));
 
-  lat_constr.eps_x_scl = 1e5; lat_constr.eps0_x = 0.190;
+  lat_constr.eps_x_scl = 1e5; lat_constr.eps0_x = 0.125;
 
   lat_constr.ksi1_scl      = 0e0;
   lat_constr.drv_terms_scl = 1e-4;
@@ -1678,7 +1678,9 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
     lat_constr.mI0[k] = mI_nu[k];
 
   // Super Period.
-  lat_constr.phi_scl = 1e0; lat_constr.phi0 = 60.0;
+  lat_constr.phi_scl = 1e0;
+  // lat_constr.phi0 = 60.0;
+  lat_constr.phi0 = 65.639987;
   lat_constr.L_scl = 1e-10; lat_constr.L0 = 10.0;
 
   lat_constr.ini_constr(true);

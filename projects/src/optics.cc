@@ -12,25 +12,28 @@ const bool
   prt_ms  = false;
 
 const double
-  nu[]     = {0.19, 0.70},
+  nu[]     = {0.18, 0.73},
   dnu_mI[] = {1.5-1.44129-0.0, 0.5-0.47593-0.0},
   nu_HOA[] = {19.0/8.0, 15.0/16.0};
 
 
-void prt_name(FILE * outf, const char *name)
+double rad2deg(const double a) { return a*180e0/M_PI; }
+
+double deg2rad(const double a) { return a*M_PI/180e0; }
+
+
+void prt_name(FILE *outf, const char *name, const string &str, const int len)
 {
-    int j, k, len;
+  int j, k;
 
-    len = strlen(name);
-
-    j = 0;
-    do {
-	fprintf(outf, "%c", name[j]);
-	j++;
-    } while ((j < len) && (name[j] != ' '));
-    fprintf(outf, ",");
-    for (k = j; k < len; k++)
-	fprintf(outf, "%c", name[k]);
+  j = 0;
+  do {
+    fprintf(outf, "%c", name[j]);
+    j++;
+  } while (name[j] != ' ');
+  fprintf(outf, str.c_str());
+  for (k = j; k < len; k++)
+    fprintf(outf, " ");
 }
 
 
@@ -143,17 +146,25 @@ void track(const double Ax, const double Ay)
 void chk_phi()
 {
   int    k;
-  double phi;
+  double dphi, phi, mphi;
 
-  phi = 0e0;
+  printf("\n");
+  phi = 0e0; mphi = 0e0;
   for (k = 0; k <= globval.Cell_nLoc; k++) {
+    // if ((Cell[k].Elem.Pkind == Mpole) &&
+    // 	(Cell[k].Elem.M->n_design == Dip)) {
     if ((Cell[k].Elem.Pkind == Mpole) &&
-	(Cell[k].Elem.M->n_design == Dip)) {
-      phi += Cell[k].Elem.PL*Cell[k].Elem.M->Pirho;
+	(Cell[k].Elem.M->Pirho != 0e0)) {
+      dphi = rad2deg(Cell[k].Elem.PL*Cell[k].Elem.M->Pirho);
+      if (dphi != 0e0) {
+	prt_name(stdout, Cell[k].Elem.PName, "", 8);
+	printf(" %9.6f\n", dphi);
+      }
+      phi += dphi;
+      if (dphi < 0e0) mphi += dphi;
     }
   }
-  phi = 180e0*phi/M_PI;
-  printf("\nphi = %8.6f\n", phi);
+  printf("\nphi = %8.6f mphi = %8.6f pphi = %8.6f\n", phi, mphi, phi-mphi);
 }
 
 
@@ -199,9 +210,6 @@ void prt_drift()
     if (Cell[k].Elem.Pkind == drift)
       printf("%3d %10s %13.10f\n", k, Cell[k].Elem.PName, Cell[k].Elem.PL);
 }
-
-
-double rad2deg(const double a) { return a*180e0/M_PI; }
 
 
 void prt_dip()
@@ -695,7 +703,7 @@ int main(int argc, char *argv[])
 
   trace = !true;
 
-  if (!true)
+  if (true)
     Read_Lattice(argv[1]);
   else
     rdmfile(argv[1]);

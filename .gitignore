@@ -23,7 +23,6 @@ out
 bin
 max_iv
 sls-2
-python
 *.out
 *.dat
 *.eps
