@@ -1380,8 +1380,8 @@ void rk4_(const CellType &Cell, const ss_vect<T> &y, const ss_vect<T> dydx,
 	  void (*derivs)(const CellType &, const double, const ss_vect<T> &,
 			 ss_vect<T> &))
 {
-  double      xh,hh,h6;
-  ss_vect<T>  dym, dyt, yt;
+  double     xh,hh,h6;
+  ss_vect<T> dym, dyt, yt;
 
   hh = h*0.5; h6 = h/6e0;
   xh = x + hh; yt = y + hh*dydx;
@@ -1389,6 +1389,12 @@ void rk4_(const CellType &Cell, const ss_vect<T> &y, const ss_vect<T> dydx,
   (*derivs)(Cell, xh, yt, dym); yt = y + h*dym; dym += dyt;
   (*derivs)(Cell, x+h, yt, dyt);
   yout = y + h6*(dydx+dyt+2e0*dym);
+
+  if (globval.radiation || globval.emittance) {
+    //      B[X_] = -AoBrhoy[3]; B[Y_] = AoBrho[X_][3];
+    //      B[Z_] = AoBrhoy[1] - AoBrho[X_][2];
+    //      radiate(ps, h, 0e0, B);
+  }
 }
 
 
@@ -1528,13 +1534,7 @@ void FieldMap_pass_RK(CellType &Cell, ss_vect<T> &ps)
   if (trace)
     outf_ << std::scientific << std::setprecision(3)
 	  << std::setw(11) << s_FM
-	  << std::setw(11) << is_double<T>::cst(ps[x_])
-	  << std::setw(11) << is_double<T>::cst(ps[px_])
-	  << std::setw(11) << is_double<T>::cst(ps[y_])
-	  << std::setw(11) << is_double<T>::cst(ps[py_])
-	  << std::setw(11) << is_double<T>::cst(ps[delta_])
-	  << std::setw(11) << is_double<T>::cst(ps[ct_])
-	  << std::endl;
+	  << std::setw(11) << is_double< ss_vect<T> >::cst(ps) << "\n";
   for(i = 1+FM->cut; i < FM->n[Z_]-FM->cut; i += n_step) {
     if (i <= FM->n[Z_]-FM->cut-2) {
       f_FM(Cell, z, ps, Dps);
@@ -1565,14 +1565,9 @@ void FieldMap_pass_RK(CellType &Cell, ss_vect<T> &ps)
 
     if (trace)
       outf_ << std::scientific << std::setprecision(3)
+	    << std::setw(5) << i
 	    << std::setw(11) << s_FM
-	    << std::setw(11) << is_double<T>::cst(ps[x_])
-	    << std::setw(11) << is_double<T>::cst(ps[px_])
-	    << std::setw(11) << is_double<T>::cst(ps[y_])
-	    << std::setw(11) << is_double<T>::cst(ps[py_])
-	    << std::setw(11) << is_double<T>::cst(ps[delta_])
-	    << std::setw(11) << is_double<T>::cst(ps[ct_])
-	    << std::endl;
+	    << std::setw(11) << is_double< ss_vect<T> >::cst(ps) << "\n";
   }
 
   // transform back to [x, px, y, py] (A_x,y,z = 0)
@@ -1620,13 +1615,7 @@ void FieldMap_pass_SI(CellType &Cell, ss_vect<T> &ps, int k)
   if (false)
     outf_ << std::scientific << std::setprecision(3)
 	  << std::setw(11) << s_FM
-	  << std::setw(11) << is_double<T>::cst(ps[x_])
-	  << std::setw(11) << is_double<T>::cst(ps[px_])
-	  << std::setw(11) << is_double<T>::cst(ps[y_])
-	  << std::setw(11) << is_double<T>::cst(ps[py_])
-	  << std::setw(11) << is_double<T>::cst(ps[delta_])
-	  << std::setw(11) << is_double<T>::cst(ps[ct_])
-	  << std::endl;
+	  << std::setw(11) << is_double< ss_vect<T> >::cst(ps) << "\n";
   for (i = 1+FM->cut; i < FM->n[Z_]-FM->cut; i += n_step) {
     hd = h/(1e0+ps[delta_]);
 
@@ -1884,16 +1873,10 @@ void FieldMap_pass_SI(CellType &Cell, ss_vect<T> &ps, int k)
 
       outf_ << std::scientific << std::setprecision(3)
 	    << std::setw(11) << s_FM
-	    << std::setw(11) << is_double<T>::cst(ps[x_])
-	    << std::setw(11) << is_double<T>::cst(ps[px_]-AoBrho[0])
-	    << std::setw(11) << is_double<T>::cst(ps[y_])
-	    << std::setw(11) << is_double<T>::cst(ps[py_]-AoBrho[1])
-	    << std::setw(11) << is_double<T>::cst(ps[delta_])
-	    << std::setw(11) << is_double<T>::cst(ps[ct_])
+	    << std::setw(11) << is_double< ss_vect<T> >::cst(ps)
 	    << std::setw(11) << is_double<T>::cst(AoBrho[0])
 	    << std::setw(11) << is_double<T>::cst(AoBrho[1])
-	    << std::setw(11) << is_double<T>::cst(ByoBrho)
-	    << std::endl;
+	    << std::setw(11) << is_double<T>::cst(ByoBrho) << "\n";
     }
   }
 
@@ -1968,10 +1951,10 @@ void FieldMap_Pass(CellType &Cell, ss_vect<T> &ps)
 
   Ld = (FM->Lr-Cell.Elem.PL)/2e0;
   p_rot(FM->phi/2e0*180e0/M_PI, ps);
-  printf("\nFieldMap_Pass:\n  entrance negative drift [m] %12.5e\n", Ld);
-  printf("  n = [%d, %d, %d]\n", FM->n[X_], FM->n[Y_], FM->n[Z_]);
+  printf("\nFieldMap_Pass:\n  entrance negative drift [m] %12.5e\n", -Ld);
   Drift(-Ld, ps);
 
+  // n_step: number of Field Map repetitions.
   for (k = 1; k <= FM->n_step; k++) {
     if (sympl)
       FieldMap_pass_SI(Cell, ps, k);
@@ -1979,7 +1962,7 @@ void FieldMap_Pass(CellType &Cell, ss_vect<T> &ps)
       FieldMap_pass_RK(Cell, ps);
   }
 
-  printf("  exit negative drift [m]     %12.5e\n", Ld);
+  printf("  exit negative drift [m]     %12.5e\n", -Ld);
   Drift(-Ld, ps);
   p_rot(FM->phi/2e0*180e0/M_PI, ps);
 

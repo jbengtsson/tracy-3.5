@@ -39,9 +39,9 @@ int main(int argc, char *argv[])
 
 
   loc = Elem_GetPos(ElemIndex("tpw"), 1);
-  ps.zero(); ps[x_] = 0e-3; ps[y_] = 1e-3;
+  ps.zero(); ps[x_] = 1e-3; ps[y_] = 1e-3;
   prt_ps(ps);
-  Cell_Pass(loc, globval.Cell_nLoc, ps, lastpos);
+  Cell_Pass(loc, loc, ps, lastpos);
   prt_ps(ps);
 
   // Ring_GetTwiss(true, 0e0); printglob();
