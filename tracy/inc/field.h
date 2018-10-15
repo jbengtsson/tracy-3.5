@@ -251,13 +251,25 @@ typedef psVector         Matrix[ss_dim];
 
 typedef struct MNF_struct
 {
-  tps           K;       // new effective Hamiltonian
-  ss_vect<tps>  A0;      // transformation to fixed point
-  ss_vect<tps>  A1;      // (linear) transformation to Floquet space
-  tps           g;       /* generator for nonlinear transformation to
+  tps          K;       // new effective Hamiltonian
+  ss_vect<tps> A0;      // transformation to fixed point
+  ss_vect<tps> A1;      // (linear) transformation to Floquet space
+  tps          g;       /* generator for nonlinear transformation to
 			    Floquet space */
-  ss_vect<tps>  map_res; // residual map
+  ss_vect<tps> map_res; // residual map
 } MNF_struct;
+
+
+template<>
+inline ss_vect<double> ss_vect<tps>::cst(void) const
+{
+  int             i;
+  ss_vect<double> x;
+
+  for (i = 0; i < ss_dim; i++)
+    x[i] = (*this)[i].cst();
+  return x;
+}
 
 
 // partial template-class specialization
@@ -277,6 +289,20 @@ template<>
 class is_double<tps> {
  public:
   static inline double cst(const tps &x) { return x.cst(); }
+};
+
+// partial specialization
+template<>
+class is_double< ss_vect<double> > {
+ public:
+  static inline ss_vect<double> cst(const ss_vect<double> &x) { return x; }
+};
+
+// partial specialization
+template<>
+class is_double< ss_vect<tps> > {
+ public:
+  static inline ss_vect<double> cst(const ss_vect<tps> &x) { return x.cst(); }
 };
 
 

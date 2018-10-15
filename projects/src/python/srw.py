@@ -29,7 +29,7 @@ def rd_srw(file_name):
     inf  = open(file_name, 'r');
 
     x_min = numpy.zeros(3); dx = numpy.zeros(3); n = numpy.zeros(3)
-    # Skipe 1st line.
+    # Skip 1st line.
     line = inf.readline()
     for k in range(0, 3):
         x_min[k] = inf.readline().split('#')[1]
@@ -64,15 +64,15 @@ def prt_srw_3D(file_name, B, x_min, dx, n):
     fprintf(outf, '#%1d #number of points vs Z\n', n[Z_])
 
     x = numpy.zeros(3)
-    x[X_] = x_min[X_]
-    for i in range(0, 2):
+    for n in range(0, B[:, 0].size):
         x[Y_] = x_min[Y_]
-        for j in range(0, 2):
-            for k in range(0, B[:, 0].size):
+        for i in range(0, 3):
+            x[X_] = x_min[X_]
+            for j in range(0, 3):
                 fprintf(outf, '   %13.5e %13.5e %13.5e\n',
-                        B[k, 0], B[k, 1], B[k, 2])
+                        B[n, 0], B[n, 1], B[n, 2])
+                x[X_] += dx[X_]
             x[Y_] += dx[Y_]
-        x[X_] += dx[X_]
 
     printf('  %7.5f %7.5f\n', x[X_], x[Y_])
 
@@ -80,6 +80,7 @@ def prt_srw_3D(file_name, B, x_min, dx, n):
 
 
 home_dir  = '/home/ria34843/git_repos/tracy-3.5/projects/in/lattice/'
+#file_name = '3pw_1p5srs_29_rpw.dat'
 file_name = '3pw_1p45dd_29_jb_2.dat'
 
 [B, x_min, dx, n] = rd_srw(home_dir+file_name)

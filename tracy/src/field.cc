@@ -2,18 +2,6 @@
 
    Definitions:  Polymorphic number class.              */
 
-template<>
-ss_vect<double> ss_vect<tps>::cst(void) const
-{
-  int              i;
-  ss_vect<double>  x;
-
-  for (i = 0; i < ss_dim; i++)
-    x[i] = (*this)[i].cst();
-  return x;
-}
-
-
 template<typename T>
 ss_vect<T>& ss_vect<T>::operator=(const ss_vect<T> &x)
 {

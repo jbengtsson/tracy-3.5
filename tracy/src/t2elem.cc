@@ -1407,11 +1407,11 @@ void f_FM(const CellType &Cell, const double z, const ss_vect<T> &ps,
 {
   // Coordinates are: [x, x', y, y', -ct, delta].
 
-  int           j, kz;
-  T             BoBrho[3], p_s;
-  FieldMapType  *FM;
+  int          j, kz;
+  T            BoBrho[3], p_s;
+  FieldMapType *FM;
 
-  const double  eps = 1e-5;
+  const double eps = 1e-5;
 
 
   FM = Cell.Elem.FM;
@@ -1433,10 +1433,13 @@ void f_FM(const CellType &Cell, const double z, const ss_vect<T> &ps,
     return;
   }
 
-  for (j = 0; j < 6; j++)
-    cout << scientific << setprecision(3) << setw(11)
-	 << is_double<T>::cst(ps[j]);
-  cout << "\n";
+  if (false) {
+    cout << scientific << setprecision(3) << setw(11) << z;
+    for (j = 0; j < 6; j++)
+      cout << scientific << setprecision(3) << setw(11)
+	   << is_double<T>::cst(ps[j]);
+    cout << "\n";
+  }
 
   splin2_(FM->x[X_], FM->x[Y_], FM->BoBrho[X_][kz], FM->BoBrho2[X_][kz],
 	   FM->n[X_], FM->n[Y_], ps[x_], ps[y_], BoBrho[X_]);
@@ -1488,22 +1491,22 @@ void f_FM(const CellType &Cell, const double z, const ss_vect<T> &ps,
 template<typename T>
 inline T get_p_s_cs(const ss_vect<T> &x)
 {
-  // Compute p_s in configuration space.
+  // Compute p_s in configuration space: [x, x', y, y', delta, ct].
 
   return (1e0+x[delta_])/sqrt(1e0+sqr(x[px_])+sqr(x[py_]));
 }
 
 
 template<typename T>
-void FieldMap_pass_RK(CellType &Cell, ss_vect<T> &ps, int k)
+void FieldMap_pass_RK(CellType &Cell, ss_vect<T> &ps)
 {
-  int           i;
-  double        h, z;
-  T             p_s;
-  ss_vect<T>    Dps;
-  FieldMapType  *FM;
+  int          i;
+  double       h, z;
+  T            p_s;
+  ss_vect<T>   Dps;
+  FieldMapType *FM;
 
-  const int     n_step = 2; // Each step needs: f(z_n), f(z_n+h), f(z_n+2h)
+  const int n_step = 2; // Each step needs: f(z_n), f(z_n+h), f(z_n+2h)
 
   FM = Cell.Elem.FM;
 
@@ -1940,8 +1943,8 @@ template void rk4_(const CellType &, const ss_vect<tps> &, const ss_vect<tps>,
 		   const double, const double, ss_vect<tps> &,
 		   void (*derivs)(const CellType &, const double,
 				  const ss_vect<tps> &, ss_vect<tps> &));
-template void FieldMap_pass_RK(CellType &, ss_vect<double> &, int k);
-template void FieldMap_pass_RK(CellType &, ss_vect<tps> &, int k);
+template void FieldMap_pass_RK(CellType &, ss_vect<double> &);
+template void FieldMap_pass_RK(CellType &, ss_vect<tps> &);
 template void FieldMap_pass_SI(CellType &, ss_vect<double> &, int k);
 template void FieldMap_pass_SI(CellType &, ss_vect<tps> &, int k);
 
@@ -1965,17 +1968,18 @@ void FieldMap_Pass(CellType &Cell, ss_vect<T> &ps)
 
   Ld = (FM->Lr-Cell.Elem.PL)/2e0;
   p_rot(FM->phi/2e0*180e0/M_PI, ps);
-  printf("\nFieldMap_Pass: entrance negative drift [m] %12.5e", Ld);
+  printf("\nFieldMap_Pass:\n  entrance negative drift [m] %12.5e\n", Ld);
+  printf("  n = [%d, %d, %d]\n", FM->n[X_], FM->n[Y_], FM->n[Z_]);
   Drift(-Ld, ps);
 
   for (k = 1; k <= FM->n_step; k++) {
     if (sympl)
       FieldMap_pass_SI(Cell, ps, k);
     else
-      FieldMap_pass_RK(Cell, ps, k);
+      FieldMap_pass_RK(Cell, ps);
   }
 
-  printf("\nFieldMap_Pass: exit negative drift [m]     %12.5e", Ld);
+  printf("  exit negative drift [m]     %12.5e\n", Ld);
   Drift(-Ld, ps);
   p_rot(FM->phi/2e0*180e0/M_PI, ps);
 
