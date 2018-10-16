@@ -6,7 +6,7 @@ int no_tps = NO;
 
 
 const bool
-  set_dnu = !false,
+  set_dnu = false,
   mI_rot  = false,
   HOA_rot = false,
   prt_ms  = false;
@@ -164,7 +164,7 @@ void chk_phi()
       if (dphi < 0e0) mphi += dphi;
     }
   }
-  printf("\nphi = %8.6f mphi = %8.6f pphi = %8.6f\n", phi, mphi, phi-mphi);
+  printf("\nphi = %8.6f phi- = %8.6f phi+ = %8.6f\n", phi, mphi, phi-mphi);
 }
 
 

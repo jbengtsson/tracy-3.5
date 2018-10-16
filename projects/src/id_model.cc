@@ -38,16 +38,18 @@ int main(int argc, char *argv[])
   globval.dip_edge_fudge = true;
 
 
-  loc = Elem_GetPos(ElemIndex("tpw"), 1);
-  ps.zero(); ps[x_] = 1e-3; ps[y_] = 1e-3;
-  prt_ps(ps);
-  Cell_Pass(loc, loc, ps, lastpos);
-  prt_ps(ps);
+  if (false) {
+    loc = Elem_GetPos(ElemIndex("tpw"), 1);
+    ps.zero(); ps[x_] = 1e-3; ps[y_] = 1e-3;
+    prt_ps(ps);
+    Cell_Pass(loc, loc, ps, lastpos);
+    prt_ps(ps);
+  }
 
-  // Ring_GetTwiss(true, 0e0); printglob();
+  Ring_GetTwiss(true, 0e0); printglob();
 
-  // GetEmittance(ElemIndex("cav"), true);
+  prt_lat("linlat1.out", globval.bpm, true);
+  prt_lat("linlat.out", globval.bpm, true, 10);
 
-  // prt_lat("linlat1.out", globval.bpm, true);
-  // prt_lat("linlat.out", globval.bpm, true, 10);
+  GetEmittance(ElemIndex("cav"), true);
 }

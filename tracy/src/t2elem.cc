@@ -1376,24 +1376,43 @@ void Wiggler_Pass(CellType &Cell, ss_vect<T> &X)
 
 template<typename T>
 void rk4_(const CellType &Cell, const ss_vect<T> &y, const ss_vect<T> dydx,
-	  const double x, const double h, ss_vect<T> &yout,
+	  const double x, const double h, ss_vect<T> &ps, const double z,
 	  void (*derivs)(const CellType &, const double, const ss_vect<T> &,
 			 ss_vect<T> &))
 {
-  double     xh,hh,h6;
-  ss_vect<T> dym, dyt, yt;
+  int          j, kz;
+  double       xh, hh, h6;
+  T            BoBrho[3];
+  ss_vect<T>   dym, dyt, yt;
+  FieldMapType *FM;
+
+  const double eps = 1e-5;
 
   hh = h*0.5; h6 = h/6e0;
   xh = x + hh; yt = y + hh*dydx;
   (*derivs)(Cell, xh, yt, dyt); yt = y + hh*dyt;
   (*derivs)(Cell, xh, yt, dym); yt = y + h*dym; dym += dyt;
   (*derivs)(Cell, x+h, yt, dyt);
-  yout = y + h6*(dydx+dyt+2e0*dym);
+  ps = y + h6*(dydx+dyt+2e0*dym);
 
   if (globval.radiation || globval.emittance) {
-    //      B[X_] = -AoBrhoy[3]; B[Y_] = AoBrho[X_][3];
-    //      B[Z_] = AoBrhoy[1] - AoBrho[X_][2];
-    //      radiate(ps, h, 0e0, B);
+    FM = Cell.Elem.FM;
+
+    kz = 0;
+    for (j = 1; j <= FM->n[Z_]; j++)
+      if (fabs(z-FM->x[Z_][j]) < eps) {
+	kz = j;
+	break;
+      }
+
+    splin2_(FM->x[X_], FM->x[Y_], FM->BoBrho[X_][kz], FM->BoBrho2[X_][kz],
+	    FM->n[X_], FM->n[Y_], ps[x_], ps[y_], BoBrho[X_]);
+    splin2_(FM->x[X_], FM->x[Y_], FM->BoBrho[Y_][kz], FM->BoBrho2[Y_][kz],
+	    FM->n[X_], FM->n[Y_], ps[x_], ps[y_], BoBrho[Y_]);
+    splin2_(FM->x[X_], FM->x[Y_], FM->BoBrho[Z_][kz], FM->BoBrho2[Z_][kz],
+	    FM->n[X_], FM->n[Y_], ps[x_], ps[y_], BoBrho[Z_]);
+
+    radiate(ps, h, 0e0, BoBrho);
   }
 }
 
@@ -1441,14 +1460,12 @@ void f_FM(const CellType &Cell, const double z, const ss_vect<T> &ps,
 
   if (false) {
     cout << scientific << setprecision(3) << setw(11) << z;
-    for (j = 0; j < 6; j++)
-      cout << scientific << setprecision(3) << setw(11)
-	   << is_double<T>::cst(ps[j]);
-    cout << "\n";
+    cout << scientific << setprecision(3) << setw(11)
+	 << is_double< ss_vect<T> >::cst(ps) << "\n";
   }
 
   splin2_(FM->x[X_], FM->x[Y_], FM->BoBrho[X_][kz], FM->BoBrho2[X_][kz],
-	   FM->n[X_], FM->n[Y_], ps[x_], ps[y_], BoBrho[X_]);
+	  FM->n[X_], FM->n[Y_], ps[x_], ps[y_], BoBrho[X_]);
 
   if (BoBrho[X_] == NAN) {
     for (j = 0; j < ss_dim; j++)
@@ -1545,7 +1562,7 @@ void FieldMap_pass_RK(CellType &Cell, ss_vect<T> &ps)
 	return;
       }
 
-      rk4_(Cell, ps, Dps, FM->x[Z_][i], h, ps, f_FM);
+      rk4_(Cell, ps, Dps, FM->x[Z_][i], h, ps, z, f_FM);
 
       z += h; FM->Lr += h; s_FM += h;
     } else {
@@ -1919,11 +1936,12 @@ template void f_FM(const CellType &, const double, const ss_vect<tps> &,
 		   ss_vect<tps> &);
 template void rk4_(const CellType &, const ss_vect<double> &,
 		   const ss_vect<double>, const double, const double,
-		   ss_vect<double> &,
+		   ss_vect<double> &, const double,
 		   void (*derivs)(const CellType &, const double,
 				  const ss_vect<double> &, ss_vect<double> &));
-template void rk4_(const CellType &, const ss_vect<tps> &, const ss_vect<tps>,
-		   const double, const double, ss_vect<tps> &,
+template void rk4_(const CellType &, const ss_vect<tps> &,
+		   const ss_vect<tps>, const double, const double,
+		   ss_vect<tps> &, const double,
 		   void (*derivs)(const CellType &, const double,
 				  const ss_vect<tps> &, ss_vect<tps> &));
 template void FieldMap_pass_RK(CellType &, ss_vect<double> &);
