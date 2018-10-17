@@ -6,7 +6,7 @@ int no_tps = NO;
 
 
 const bool
-  set_dnu = !false,
+  set_dnu = false,
   mI_rot  = false,
   HOA_rot = false,
   prt_ms  = false;
@@ -361,27 +361,30 @@ void chk_high_ord_achr(void)
 }
 
 
-void chk_mI_trans(void)
+void chk_mI_trans(const int lat_case)
 {
   int Fnum, k, loc0, loc1;
 
-  // M-6HBAi 1,
-  // TBA-6x8 2.
-  // ESRF-U  3.
-  const int lat_case = 1;
+  // ESRF-U        1,
+  // M-6HBAi-2-1-1 2,
+  // M-6HBA-0-.-.  3.
 
   Ring_GetTwiss(true, 0e0);
  
   switch (lat_case) {
   case 1:
-    Fnum = ElemIndex("sextmark");
-   break;
-  case 2:
-    Fnum = ElemIndex("sfh");
-   break;
-  case 3:
     Fnum = ElemIndex("dispbumpcenter");
    break;
+  case 2:
+    Fnum = ElemIndex("sextmark");
+   break;
+  case 3:
+    Fnum = ElemIndex("sf1_ctr");
+   break;
+  default:
+    printf("\nchk_mI_trans: unknown lattice type\n");
+    exit(1);
+    break;
   }
 
   printf("\nChromatic sextupole phase advance:\n");
@@ -635,18 +638,14 @@ void get_drv_terms(std::vector<int> &Fnum)
 }
 
 
-void prt_drv_terms(void)
+void prt_drv_terms(const int lat_case)
 {
-  int              lat_case;
   std::vector<int> Fnum;
 
-  // ESRF-U       1,
-  // M-6HBAi      2,
-  // M-6HBA-3-1-1 3,
-  // M-6HBA-0-.-. 4.
+  // ESRF-U        1,
+  // M-6HBAi-2-1-1 2,
+  // M-6HBA-0-.-.  3.
 
-  printf("Lattice Case (1..3)? ");
-  scanf("%d", &lat_case);
   switch (lat_case) {
   case 1:
     Fnum.push_back(ElemIndex("sf2a"));
@@ -656,15 +655,14 @@ void prt_drv_terms(void)
     Fnum.push_back(ElemIndex("sd1d"));
     Fnum.push_back(ElemIndex("sd1e"));
     break;
-  case 2:
-    Fnum.push_back(ElemIndex(""));
-    Fnum.push_back(ElemIndex(""));
-    Fnum.push_back(ElemIndex(""));
-    break;
-  case 3 ... 4:
-    Fnum.push_back(ElemIndex("sf1"));
+  case 2 ... 3:
+    Fnum.push_back(ElemIndex("sf1h"));
     Fnum.push_back(ElemIndex("sd1"));
     Fnum.push_back(ElemIndex("sd2"));
+    break;
+  default:
+    printf("\nprt_drv_terms: unknown lattice type\n");
+    exit(1);
     break;
   }
 
@@ -676,7 +674,7 @@ int main(int argc, char *argv[])
 {
   bool             tweak;
   long int         lastn, lastpos, loc, loc2;
-  int              k, b2_fam[2], b3_fam[2];
+  int              k, b2_fam[2], b3_fam[2], lat_case;
   double           b2[2], a2, b3[2], b3L[2], a3, a3L, f_rf, dx, dnu[2];
   Matrix           M;
   std::vector<int> Fam;
@@ -725,8 +723,19 @@ int main(int argc, char *argv[])
   Ring_GetTwiss(true, 0e0); printglob();
 
   if (!false) {
-    prt_drv_terms();
-    // exit(0);
+    printf("Lattice Case (1..3)? ");
+    scanf("%d", &lat_case);
+
+    prt_drv_terms(lat_case);
+    chk_mI_trans(lat_case);
+
+    no_sxt();
+    Ring_GetTwiss(true, 0e0); printglob();
+
+    prt_lat("linlat1.out", globval.bpm, true);
+    prt_lat("linlat.out", globval.bpm, true, 10);
+
+    exit(0);
   }
 
   if (false) {
@@ -835,11 +844,6 @@ int main(int argc, char *argv[])
   if (false) {
     chk_high_ord_achr();
     // exit(0);
-  }
-
-  if (false) {
-    chk_mI_trans();
-    exit(0);
   }
 
   if (false) {
