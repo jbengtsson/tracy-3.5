@@ -1672,8 +1672,8 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
 
   lat_constr.ksi1_scl      = 0e0;
   lat_constr.drv_terms_scl = 1e-5;
-  lat_constr.mI_scl[X_]    = 1e4;
-  lat_constr.mI_scl[Y_]    = 1e4;
+  lat_constr.mI_scl[X_]    = 1e5;
+  lat_constr.mI_scl[Y_]    = 1e5;
   for (k = 0; k < 2; k++)
     lat_constr.mI0[k] = mI_nu[k];
 

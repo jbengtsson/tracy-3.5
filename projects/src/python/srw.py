@@ -37,12 +37,14 @@ def rd_srw(file_name):
         n[k] = int(inf.readline().split('#')[1])
 
     B = []
-    for line in inf:
-        B.append([float(Bk) for Bk in line.split()])
-    B = numpy.asanyarray(B)
+    for line in inf: B.append([Bk for Bk in line.split()])
+    B = numpy.asanyarray(B).astype(numpy.float)
 
     inf.close();
 
+    printf('  n     = [%1d, %1d, %1d]\n', n[X_], n[Y_], n[Z_])
+    printf('  dx    = [%8.5f, %8.5f, %8.5f]\n', dx[X_], dx[Y_], dx[Z_])
+    printf('  x_min = [%8.5f, %8.5f, %8.5f]\n', x_min[X_], x_min[Y_], x_min[Z_])
     return [B, x_min, dx, n]
 
 
@@ -65,7 +67,7 @@ def prt_srw_3D(file_name, B, x_min, dx, n):
 
     x = numpy.zeros(3)
     x[Z_] = x_min[Z_] - dx[Z_]
-    for n in range(0, B[:, 0].size):
+    for k in range(0, B[:, 0].size):
         x[Z_] += dx[Z_]
         x[Y_] = x_min[Y_] - dx[Y_]
         for i in range(0, 3):
@@ -74,9 +76,12 @@ def prt_srw_3D(file_name, B, x_min, dx, n):
             for j in range(0, 3):
                 x[X_] += dx[X_]
                 fprintf(outf, '   %13.5e %13.5e %13.5e\n',
-                        B[n, 0], B[n, 1], B[n, 2])
+                        B[k, 0], B[k, 1], B[k, 2])
 
-    printf('  x_max = [%7.5f, %7.5f, %7.5f]\n', x[X_], x[Y_], x[Z_])
+    printf('  n     = [%1d, %1d, %1d]\n', n[X_], n[Y_], n[Z_])
+    printf('  dx    = [%8.5f, %8.5f, %8.5f]\n', dx[X_], dx[Y_], dx[Z_])
+    printf('  x_min = [%8.5f, %8.5f, %8.5f]\n', x_min[X_], x_min[Y_], x_min[Z_])
+    printf('  x_max = [%8.5f, %8.5f, %8.5f]\n', x[X_], x[Y_], x[Z_])
 
     outf.close()
 
@@ -89,5 +94,7 @@ file_name = '3pw_1p45dd_29_jb_2.dat'
 
 dx[X_]    = 5e-3;    dx[Y_]    = 2.5e-3
 x_min[X_] = -dx[X_]; x_min[Y_] = -dx[Y_]
-n[X_]     = 3;       n[Y_]     = 3;
+n[X_]     = 3;       n[Y_]     = 3
+
+printf('\n')
 prt_srw_3D('srw.out', B, x_min, dx, n)
