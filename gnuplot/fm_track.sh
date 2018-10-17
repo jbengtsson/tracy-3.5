@@ -1,4 +1,12 @@
-ps = 0;
+#!/bin/sh
+
+prm1=${1-0}
+
+gnuplot << EOP
+
+ps = $prm1;
+
+file_name = "FieldMap_pass.dat";
 
 f_s = 24; l_w = 2;
 if (ps == 0) \
@@ -22,10 +30,16 @@ set style line 1 lt 1 lw 1 lc rgb "blue";
 set style line 2 lt 1 lw 1 lc rgb "green";
 set style line 3 lt 1 lw 1 lc rgb "red";
 
-if (ps) set output "ct.".(ext);
-
-set cntrparam level 20;
-set title "Time of Flight"
-set xlabel "{/Symbol d} [%]"; set ylabel "ct [mm]";
-plot "ct.out" using (1e2*$2):(1e3*$3) notitle w lines ls 1;
+if (ps) set output "fm_track.".(ext)
+set title "ID Trajectory";
+set xlabel "s [m]"; set ylabel "x [mm]";
+plot file_name using 2:(1e3*\$3) notitle w lines ls 1;
 if (!ps) pause mouse "click on graph to cont.\n";
+
+if (ps) set output "fm_track.".(ext)
+set title "ID Trajectory";
+set xlabel "s [m]"; set ylabel "p_x [mrad]";
+plot file_name using 2:(1e3*\$4) notitle w lines ls 1;
+if (!ps) pause mouse "click on graph to cont.\n";
+
+EOP
