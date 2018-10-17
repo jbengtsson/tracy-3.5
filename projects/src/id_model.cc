@@ -38,12 +38,13 @@ int main(int argc, char *argv[])
   globval.dip_edge_fudge = true;
 
 
-  if (false) {
-    loc = Elem_GetPos(ElemIndex("tpw"), 1);
+  if (!false) {
+    loc = Elem_GetPos(ElemIndex("dw_100"), 1);
     ps.zero(); ps[x_] = 1e-3; ps[y_] = 1e-3;
     prt_ps(ps);
     Cell_Pass(loc, loc, ps, lastpos);
     prt_ps(ps);
+    exit(0);
   }
 
   Ring_GetTwiss(true, 0e0); printglob();

@@ -1550,7 +1550,7 @@ void FieldMap_pass_RK(CellType &Cell, ss_vect<T> &ps)
   h = n_step*FM->dx[Z_]; z = FM->x[Z_][1]; FM->Lr = 0e0;
   if (trace)
     outf_ << std::scientific << std::setprecision(3)
-	  << std::setw(11) << s_FM
+	  << std::setw(5) << i << std::setw(11) << s_FM
 	  << std::setw(11) << is_double< ss_vect<T> >::cst(ps) << "\n";
   for(i = 1+FM->cut; i < FM->n[Z_]-FM->cut; i += n_step) {
     if (i <= FM->n[Z_]-FM->cut-2) {
@@ -1582,8 +1582,7 @@ void FieldMap_pass_RK(CellType &Cell, ss_vect<T> &ps)
 
     if (trace)
       outf_ << std::scientific << std::setprecision(3)
-	    << std::setw(5) << i
-	    << std::setw(11) << s_FM
+	    << std::setw(5) << i << std::setw(11) << s_FM
 	    << std::setw(11) << is_double< ss_vect<T> >::cst(ps) << "\n";
   }
 
@@ -1631,7 +1630,7 @@ void FieldMap_pass_SI(CellType &Cell, ss_vect<T> &ps, int k)
   h = n_step*FM->dx[Z_]; z = 0e0; FM->Lr = 0e0;
   if (false)
     outf_ << std::scientific << std::setprecision(3)
-	  << std::setw(11) << s_FM
+	  << std::setw(5) << i << std::setw(11) << s_FM
 	  << std::setw(11) << is_double< ss_vect<T> >::cst(ps) << "\n";
   for (i = 1+FM->cut; i < FM->n[Z_]-FM->cut; i += n_step) {
     hd = h/(1e0+ps[delta_]);

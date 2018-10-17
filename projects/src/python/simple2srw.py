@@ -112,15 +112,17 @@ def prt_srw_3D(file_name, B, x_min, dx, n):
     outf.close()
 
 
-home_dir  = '/home/ria34843/git_repos/tracy-3.5/projects/in/lattice/'
+#home_dir  = '/home/ria34843/git_repos/tracy-3.5/projects/in/lattice/'
+home_dir  = '/home/johan/git_repos/tracy-3.5/projects/in/lattice/'
 #file_name = '3pw_1p5srs_29_rpw.dat'
 #file_name = '3pw_1p45dd_29_jb_2.dat'
 #file_name = 'lattice_nsls-ii/w80bzvert.txt'
-file_name = 'lattice_nsls-ii/w100bzvert.txt'
+#file_name = 'lattice_nsls-ii/w100bzvert.txt'
+file_name = 'w100bzvert.txt'
 
 [B, x_min, dx, n] = rd_simple(home_dir+file_name)
 
 dx[X_] = 5e-3; x_min[X_] = -dx[X_]; n[X_] = 3;
 printf('\n  x_min      = [%12.5e, %12.5e, %12.5e]\n',
        x_min[X_], x_min[Y_], x_min[Z_])
-prt_srw_3D('3pw.out', B, x_min, dx, n)
+prt_srw_3D('w100.out', B, x_min, dx, n)
