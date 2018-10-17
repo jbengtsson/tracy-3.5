@@ -75,7 +75,36 @@ def rd_simple(file_name):
     return [B, x_min, dx, n]
 
 
-def prt_srw_3D(file_name, B, x_min, dx, n):
+def rd_field_map_csv(file_name):
+    inf  = open(file_name, 'r');
+
+    n = [int(k) for k in inf.readline().strip('\n\r').split(',')]
+    inf.readline()
+
+    B = numpy.zeros((3, n[X_], n[Y_], n[Z_]))
+    for i in range(0, n[X_]):
+        for k in range(0, n[Z_]):
+            for j in range(0, n[Y_]):
+                tokens = inf.readline().strip('\n\r').split(',')
+                x = 1e-3*numpy.asanyarray(tokens[0:3]).astype(numpy.float)
+                B[:, i, j, k] = \
+                    numpy.asanyarray(tokens[3:6]).astype(numpy.float)
+                if ((i == 0) and (j == 0) and (k == 0)):
+                    x_min = x
+                elif ((i == 1) and (j == 1) and (k == 1)):
+                    dx = x - x_min
+
+    inf.close();
+
+    printf('\n  n        = [%d, %d, %d]\n', n[X_], n[Y_], n[Z_])
+    printf('  x_min    = [%12.5e, %12.5e, %12.5e]\n',
+           x_min[X_], x_min[Y_], x_min[Z_])
+    printf('  dx       = [%12.5e, %12.5e, %12.5e]\n', dx[X_], dx[Y_], dx[Z_])
+    print '  Shape{B} =', B.shape
+    return [B, x_min, dx, n]
+
+
+def prt_srw(file_name, B, x_min, dx, n):
     outf = open(file_name, 'w')
 
     fprintf(outf,
@@ -93,36 +122,33 @@ def prt_srw_3D(file_name, B, x_min, dx, n):
     fprintf(outf, '#%1d #number of points vs Z\n', n[Z_])
 
     x = numpy.zeros(3)
-    k = 0
-    x[Z_] = x_min[Z_] - dx[Z_]
-    while k < B[:, 0].size:
+    x[Z_] = x_min[Z_] - dx[Z_];
+    for i in range(0, n[Z_]):
         x[Z_] += dx[Z_]
         x[Y_] = x_min[Y_] - dx[Y_]
-        for i in range(0, n[Y_]):
+        for j in range(0, n[Y_]):
             x[Y_] += dx[Y_]
             x[X_] = x_min[X_] - dx[X_]
-            for j in range(0, 3):
+            for k in range(0, n[X_]):
                 x[X_] += dx[X_]
-                fprintf(outf, '   %13.5e %13.5e %13.5e\n',
-                        B[k, 0], B[k, 1], B[k, 2])
-            k += 1
-
-    printf('  x_max      = [%12.5e, %12.5e, %12.5e]\n', x[X_], x[Y_], x[Z_])
+                fprintf(outf, '  %12.5e %12.5e %12.5e\n',
+                        B[X_, k, j, i], B[Y_, k, j, i], B[Z_, k, j, i])
 
     outf.close()
+
+    printf('  x_max    = [%12.5e, %12.5e, %12.5e]\n', x[X_], x[Y_], x[Z_])
 
 
 home_dir  = '/home/ria34843/git_repos/tracy-3.5/projects/in/lattice/'
 #home_dir  = '/home/johan/git_repos/tracy-3.5/projects/in/lattice/'
-#file_name = '3pw_1p5srs_29_rpw.dat'
-#file_name = '3pw_1p45dd_29_jb_2.dat'
-#file_name = 'lattice_nsls-ii/w80bzvert.txt'
-file_name = 'lattice_nsls-ii/w100bzvert.txt'
-#file_name = 'w100bzvert.txt'
 
-[B, x_min, dx, n] = rd_simple(home_dir+file_name)
+# file_name = '3pw_1p45dd_29_jb_2.dat'
+# [B, x_min, dx, n] = rd_simple(home_dir+file_name)
+# dx[X_] = 5e-3; x_min[X_] = -dx[X_]; n[X_] = 3;
+# printf('\n  x_min      = [%12.5e, %12.5e, %12.5e]\n',
+#        x_min[X_], x_min[Y_], x_min[Z_])
+# prt_srw('w100.out', B, x_min, dx, n)
 
-dx[X_] = 5e-3; x_min[X_] = -dx[X_]; n[X_] = 3;
-printf('\n  x_min      = [%12.5e, %12.5e, %12.5e]\n',
-       x_min[X_], x_min[Y_], x_min[Z_])
-prt_srw_3D('w100.out', B, x_min, dx, n)
+file_name = 'lattice_nsls-ii/w100v5_pole90mm_bxyz.csv'
+[B, x_min, dx, n] = rd_field_map_csv(home_dir+file_name)
+prt_srw('w100_srw.out', B, x_min, dx, n)

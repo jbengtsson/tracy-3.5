@@ -38,9 +38,9 @@ int main(int argc, char *argv[])
   globval.dip_edge_fudge = true;
 
 
-  if (!false) {
+  if (false) {
     loc = Elem_GetPos(ElemIndex("dw_100"), 1);
-    ps.zero(); ps[x_] = 1e-3; ps[y_] = 1e-3;
+    ps.zero();
     prt_ps(ps);
     Cell_Pass(loc, loc, ps, lastpos);
     prt_ps(ps);

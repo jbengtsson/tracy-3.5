@@ -703,7 +703,7 @@ int main(int argc, char *argv[])
 
   trace = !true;
 
-  if (!true)
+  if (true)
     Read_Lattice(argv[1]);
   else
     rdmfile(argv[1]);
@@ -724,7 +724,7 @@ int main(int argc, char *argv[])
 
   Ring_GetTwiss(true, 0e0); printglob();
 
-  if (false) {
+  if (!false) {
     prt_drv_terms();
     // exit(0);
   }

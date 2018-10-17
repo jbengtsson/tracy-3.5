@@ -48,7 +48,7 @@ def rd_srw(file_name):
     return [B, x_min, dx, n]
 
 
-def prt_srw_3D(file_name, B, x_min, dx, n):
+def prt_srw(file_name, B, x_min, dx, n):
     outf = open(file_name, 'w')
 
     fprintf(outf,
@@ -97,4 +97,4 @@ x_min[X_] = -dx[X_]; x_min[Y_] = -dx[Y_]
 n[X_]     = 3;       n[Y_]     = 3
 
 printf('\n')
-prt_srw_3D('srw.out', B, x_min, dx, n)
+prt_srw('srw.out', B, x_min, dx, n)
