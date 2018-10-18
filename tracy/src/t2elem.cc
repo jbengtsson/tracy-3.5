@@ -1536,11 +1536,14 @@ void FieldMap_pass_RK(CellType &Cell, ss_vect<T> &ps)
   switch (FieldMap_filetype) {
   case 1:
     break;
-  case 2 ... 4:
+  case 2 ... 5:
     // Transform to right handed system
     ps[x_] = -ps[x_]; ps[px_] = -ps[px_];
     break;
-  case 5:
+  default:
+    printf("\nFieldMap_pass_RK: unknown Fieldmap type: %d\n",
+	   FieldMap_filetype);
+    exit(1);
     break;
   }
 
@@ -1592,11 +1595,14 @@ void FieldMap_pass_RK(CellType &Cell, ss_vect<T> &ps)
   switch (FieldMap_filetype) {
   case 1:
     break;
-  case 2 ... 4:
+  case 2 ... 5:
     // Transform back to left handed system
     ps[x_] = -ps[x_]; ps[px_] = -ps[px_];
     break;
-  case 5:
+  default:
+    printf("\nFieldMap_pass_RK: unknown Fieldmap type: %d\n",
+	   FieldMap_filetype);
+    exit(1);
     break;
   }
 }
