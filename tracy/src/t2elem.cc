@@ -1375,7 +1375,7 @@ void Wiggler_Pass(CellType &Cell, ss_vect<T> &X)
 
 
 template<typename T>
-void rk4_(const CellType &Cell, const ss_vect<T> &y, const ss_vect<T> dydx,
+void rk4_(const CellType &Cell, const ss_vect<T> &y, const ss_vect<T> &dydx,
 	  const double x, const double h, ss_vect<T> &ps, const double z,
 	  void (*derivs)(const CellType &, const double, const ss_vect<T> &,
 			 ss_vect<T> &))
@@ -1411,6 +1411,9 @@ void rk4_(const CellType &Cell, const ss_vect<T> &y, const ss_vect<T> dydx,
 	    FM->n[X_], FM->n[Y_], ps[x_], ps[y_], BoBrho[Y_]);
     splin2_(FM->x[X_], FM->x[Y_], FM->BoBrho[Z_][kz], FM->BoBrho2[Z_][kz],
 	    FM->n[X_], FM->n[Y_], ps[x_], ps[y_], BoBrho[Z_]);
+
+    for (j = 0; j < 3; j++)
+    BoBrho[j] *= FM->scl;
 
     radiate(ps, h, 0e0, BoBrho);
   }
@@ -1458,12 +1461,6 @@ void f_FM(const CellType &Cell, const double z, const ss_vect<T> &ps,
     return;
   }
 
-  if (false) {
-    cout << scientific << setprecision(3) << setw(11) << z;
-    cout << scientific << setprecision(3) << setw(11)
-	 << is_double< ss_vect<T> >::cst(ps) << "\n";
-  }
-
   splin2_(FM->x[X_], FM->x[Y_], FM->BoBrho[X_][kz], FM->BoBrho2[X_][kz],
 	  FM->n[X_], FM->n[Y_], ps[x_], ps[y_], BoBrho[X_]);
 
@@ -1490,6 +1487,9 @@ void f_FM(const CellType &Cell, const double z, const ss_vect<T> &ps,
       Dps[j] = NAN;
     return;
   }
+
+  for (j = 0; j < 3; j++)
+    BoBrho[j] *= FM->scl;
 
   p_s = get_p_s_cs(ps);
 
@@ -1934,12 +1934,12 @@ template void f_FM(const CellType &, const double, const ss_vect<double> &,
 template void f_FM(const CellType &, const double, const ss_vect<tps> &,
 		   ss_vect<tps> &);
 template void rk4_(const CellType &, const ss_vect<double> &,
-		   const ss_vect<double>, const double, const double,
+		   const ss_vect<double> &, const double, const double,
 		   ss_vect<double> &, const double,
 		   void (*derivs)(const CellType &, const double,
 				  const ss_vect<double> &, ss_vect<double> &));
 template void rk4_(const CellType &, const ss_vect<tps> &,
-		   const ss_vect<tps>, const double, const double,
+		   const ss_vect<tps> &, const double, const double,
 		   ss_vect<tps> &, const double,
 		   void (*derivs)(const CellType &, const double,
 				  const ss_vect<tps> &, ss_vect<tps> &));
@@ -1968,7 +1968,9 @@ void FieldMap_Pass(CellType &Cell, ss_vect<T> &ps)
 
   Ld = (FM->Lr-Cell.Elem.PL)/2e0;
   p_rot(FM->phi/2e0*180e0/M_PI, ps);
-  printf("\nFieldMap_Pass:\n  entrance negative drift [m] %12.5e\n", -Ld);
+  printf("\nFieldMap_Pass:\n");
+  printf("  phi = %12.5e\n  cut = %12d\n", FM->phi, FM->cut);
+  printf("  entrance negative drift [m] %12.5e\n", -Ld);
   Drift(-Ld, ps);
 
   // n_step: number of Field Map repetitions.
