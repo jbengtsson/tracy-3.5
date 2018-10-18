@@ -6,7 +6,7 @@ int no_tps = NO;
 
 
 const bool
-  set_dnu = false,
+  set_dnu = !false,
   mI_rot  = false,
   HOA_rot = false,
   prt_ms  = false;
@@ -655,8 +655,13 @@ void prt_drv_terms(const int lat_case)
     Fnum.push_back(ElemIndex("sd1d"));
     Fnum.push_back(ElemIndex("sd1e"));
     break;
-  case 2 ... 3:
+  case 2:
     Fnum.push_back(ElemIndex("sf1h"));
+    Fnum.push_back(ElemIndex("sd1"));
+    Fnum.push_back(ElemIndex("sd2"));
+    break;
+  case 3:
+    Fnum.push_back(ElemIndex("sf1"));
     Fnum.push_back(ElemIndex("sd1"));
     Fnum.push_back(ElemIndex("sd2"));
     break;
@@ -722,7 +727,7 @@ int main(int argc, char *argv[])
 
   Ring_GetTwiss(true, 0e0); printglob();
 
-  if (!false) {
+  if (false) {
     printf("Lattice Case (1..3)? ");
     scanf("%d", &lat_case);
 

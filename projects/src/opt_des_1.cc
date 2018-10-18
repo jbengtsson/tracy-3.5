@@ -1619,10 +1619,16 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
   lat_constr.Fnum_b1.push_back(-ElemIndex("bl2_1"));
   lat_constr.grad_dip_Fnum_b1.push_back(grad_dip_Fnum);
 
+  prms.add_prm("dq1", -3, -20.0,   20.0,  1.0);
+  prms.add_prm("dq1",  2, -20.0,   20.0,  1.0);
   lat_constr.Fnum_b1.push_back(ElemIndex("dq1"));
 
-  prms.add_prm("dq1",  2, -20.0,   20.0,  1.0);
-  // prms.add_prm("dq1", -2, -20.0,   20.0,  1.0);
+  prms.add_prm("qf4", -3, -20.0, 20.0, 1.0);
+  lat_constr.Fnum_b1.push_back(ElemIndex("qf4"));
+  prms.add_prm("qf6", -3, -20.0, 20.0, 1.0);
+  lat_constr.Fnum_b1.push_back(ElemIndex("qf6"));
+  // prms.add_prm("qf8", -3, -20.0, 20.0, 1.0);
+  lat_constr.Fnum_b1.push_back(ElemIndex("qf8"));
 
   // Mid Straight.
   prms.add_prm("qf1", 2, -20.0, 20.0, 1.0);
@@ -1655,12 +1661,16 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
   constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
   		    1e5, 1e5, 1e1, 1e1, 1e6,   0e0,
   		    0.0, 0.0, 3.0, 1.5, 0.023, 0.0);
+  // Both SS constraints are needed.
   constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
-  		    1e5, 1e5, 1e1, 1e1, 0e0, 0e0,
-  		    0.0, 0.0, 4.0, 2.5,  0.0, 0.0);
+  		    1e5, 1e5, 1e1, 1e1, 1e6, 1e6,
+  		    0.0, 0.0, 4.0, 2.5, 0.0, 0.0);
+  constr.add_constr(Elem_GetPos(ElemIndex("ss"), 2),
+  		    1e5, 1e5, 1e1, 1e1, 1e6, 1e6,
+  		    0.0, 0.0, 4.0, 2.5, 0.0, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
   		    1e5, 1e5, 1e1,  1e1, 1e6, 1e6,
-  		    0.0, 0.0, 10.0, 4.0,  0.0, 0.0);
+  		    0.0, 0.0, 10.0, 4.0, 0.0, 0.0);
 
   lat_prms.bn_tol = 1e-5; lat_prms.step = 1.0;
 
@@ -1671,7 +1681,7 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
   lat_constr.eps_x_scl = 1e6; lat_constr.eps0_x = 0.095;
 
   lat_constr.ksi1_scl      = 0e0;
-  lat_constr.drv_terms_scl = 1e-5;
+  lat_constr.drv_terms_scl = 1e-4;
   lat_constr.mI_scl[X_]    = 1e5;
   lat_constr.mI_scl[Y_]    = 1e5;
   for (k = 0; k < 2; k++)
@@ -1679,8 +1689,8 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
 
   // Super Period.
   lat_constr.phi_scl = 1e0;
-  // lat_constr.phi0 = 60.0;
-  lat_constr.phi0 = 64.807980;
+  lat_constr.phi0 = 60.0;
+  // lat_constr.phi0 = 64.807980;
   lat_constr.L_scl = 1e-10; lat_constr.L0 = 10.0;
 
   lat_constr.ini_constr(true);
@@ -2191,7 +2201,7 @@ int main(int argc, char *argv[])
   // Unbuffered output.
   setvbuf(stdout, buffer, _IONBF, BUFSIZ);
 
-  if (!true)
+  if (true)
     Read_Lattice(argv[1]);
   else
     rdmfile(argv[1]);

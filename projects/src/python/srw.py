@@ -97,4 +97,4 @@ x_min[X_] = -dx[X_]; x_min[Y_] = -dx[Y_]
 n[X_]     = 3;       n[Y_]     = 3
 
 printf('\n')
-prt_srw('srw.out', B, x_min, dx, n)
+prt_srw('tpw.out', B, x_min, dx, n)

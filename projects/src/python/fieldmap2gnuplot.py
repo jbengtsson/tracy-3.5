@@ -106,7 +106,13 @@ def prt_gnuplot(file_name, B, x_min, dx, n):
 # file_name = 'lattice_nsls-ii/w100v5_pole90mm_bxyz.csv'
 #[B, x_min, dx, n] = rd_field_map_csv(home_dir+file_name)
 
-file_name = 'w100_srw.out'
-[B, x_min, dx, n] = rd_srw(file_name)
+#file_name = 'w100_srw.out'
+# [B, x_min, dx, n] = rd_srw(file_name)
 
-prt_gnuplot('w100_fm_gnuplot.out', B, x_min, dx, n)
+#home_dir  = '/home/ria34843/git_repos/tracy-3.5/projects/in/lattice/'
+#file_name = '3pw_1p45dd_29_jb_2.dat'
+home_dir = ''
+file_name = 'tpw.out'
+[B, x_min, dx, n] = rd_srw(home_dir+file_name)
+
+prt_gnuplot('tpw_fm_gnuplot.out', B, x_min, dx, n)
