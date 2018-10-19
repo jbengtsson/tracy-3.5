@@ -706,7 +706,7 @@ int main(int argc, char *argv[])
 
   trace = !true;
 
-  if (true)
+  if (!true)
     Read_Lattice(argv[1]);
   else
     rdmfile(argv[1]);
@@ -739,6 +739,7 @@ int main(int argc, char *argv[])
 
     prt_lat("linlat1.out", globval.bpm, true);
     prt_lat("linlat.out", globval.bpm, true, 10);
+    prt_chrom_lat();
 
     exit(0);
   }

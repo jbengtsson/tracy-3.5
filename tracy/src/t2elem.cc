@@ -339,7 +339,7 @@ class is_tps<tps> {
   static inline double get_dI4(const ss_vect<tps> &A) { return A[x_][delta_]; }
 
   static inline void emittance(const tps &B2_perp, const tps &ds,
-			       const tps &ps0, const ss_vect<tps> &A) {
+			       const tps &p_s0, const ss_vect<tps> &A) {
     // M. Sands "The Physics of Electron Storage Rings" SLAC-121, p. 118.
     // d<delta^2>/ds = 3*C_U*C_gamma*h_bar*c*E_0^5*(1+delta)^4*(B_perp/(Brho))^3
     //                 /(4*pi*m_e^3)
@@ -349,7 +349,7 @@ class is_tps<tps> {
     ss_vect<tps> A_inv;
 
     if (B2_perp > 0e0) {
-      B_66 = (q_fluct*pow(B2_perp.cst(), 1.5)*pow(ps0, 4)*ds).cst();
+      B_66 = (q_fluct*pow(B2_perp.cst(), 1.5)*pow(p_s0, 4)*ds).cst();
       A_inv = Inv(A);
       // D_11 = D_22 = curly_H_x,y * B_66 / 2,
       // curly_H_x,y = eta_Fl^2 + etap_Fl^2
@@ -359,7 +359,7 @@ class is_tps<tps> {
     }
   }
 
-  static inline void diff_mat(const tps &B2_perp, const tps &ds, const tps &ps0,
+  static inline void diff_mat(const tps &B2_perp, const tps &ds, const tps &p_s0,
 			      ss_vect<tps> &x) { }
 
 };
