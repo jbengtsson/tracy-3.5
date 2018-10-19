@@ -548,13 +548,13 @@ void GetEmittance(const int Fnum, const bool prt)
 	   1e0-nu[X_], 1e0-nu[Y_], 1e0-nu[Z_]);
     printf("\n");
     printf("sigmas:                         "
-	   "sigma_x     =  %5.1f microns, sigma_px    = %5.1f urad\n",
+	   "sigma_x     =  %5.1f  microns, sigma_px    = %5.1f urad\n",
 	   1e6*sqrt(Cell[0].sigma[x_][x_]), 1e6*sqrt(Cell[0].sigma[px_][px_]));
     printf("                                "
-	   "sigma_y     =  %5.1f microns, sigma_py    = %5.1f urad\n",
+	   "sigma_y     =  %5.1f  microns, sigma_py    = %5.1f urad\n",
 	   1e6*sqrt(Cell[0].sigma[y_][y_]), 1e6*sqrt(Cell[0].sigma[py_][py_]));
     printf("                                "
-	   "sigma_s     =  %5.2f mm,      sigma_delta = %8.2e\n",
+	   "sigma_s     =  %6.2f mm,      sigma_delta = %8.2e\n",
 	   1e3*sqrt(Cell[0].sigma[ct_][ct_]),
 	   sqrt(Cell[0].sigma[delta_][delta_]));
 

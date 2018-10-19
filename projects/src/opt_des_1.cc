@@ -1681,7 +1681,7 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
   lat_constr.eps_x_scl = 1e6; lat_constr.eps0_x = 0.095;
 
   lat_constr.ksi1_scl      = 0e0;
-  lat_constr.drv_terms_scl = 1e-4;
+  lat_constr.drv_terms_scl = 1e-3;
   lat_constr.mI_scl[X_]    = 1e5;
   lat_constr.mI_scl[Y_]    = 1e5;
   for (k = 0; k < 2; k++)
@@ -2201,7 +2201,7 @@ int main(int argc, char *argv[])
   // Unbuffered output.
   setvbuf(stdout, buffer, _IONBF, BUFSIZ);
 
-  if (true)
+  if (!true)
     Read_Lattice(argv[1]);
   else
     rdmfile(argv[1]);
@@ -2232,6 +2232,7 @@ int main(int argc, char *argv[])
 
     prt_lat("linlat1.out", globval.bpm, true);
     prt_lat("linlat.out", globval.bpm, true, 10);
+    prt_chrom_lat();
   }
 
   if (false) fit_ksi1(0e0, 0e0);
