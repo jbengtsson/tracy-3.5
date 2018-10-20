@@ -359,8 +359,9 @@ class is_tps<tps> {
     }
   }
 
-  static inline void diff_mat(const tps &B2_perp, const tps &ds, const tps &p_s0,
-			      ss_vect<tps> &x) { }
+  static inline void diff_mat(const tps &B2_perp, const tps &ds,
+			      const tps &p_s0, ss_vect<tps> &x)
+  { }
 
 };
 
@@ -1390,7 +1391,8 @@ template<typename T>
 inline T get_p_s_cs(const ss_vect<T> &cs)
 {
   // p_s for Configuration Space: [x, x', y, y', delta, ct];
-  // Eq. (39), CERN 88-05).
+  // Eq. (39), CERN 88-05) and:
+  //   p_s = gamma*s^dot/p0 = (1+delta)*s^dot/v.
 
   return (1e0+cs[delta_])/sqrt(1e0+sqr(cs[px_])+sqr(cs[py_]));
 }
