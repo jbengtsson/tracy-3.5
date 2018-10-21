@@ -359,8 +359,9 @@ class is_tps<tps> {
     }
   }
 
-  static inline void diff_mat(const tps &B2_perp, const tps &ds, const tps &p_s0,
-			      ss_vect<tps> &x) { }
+  static inline void diff_mat(const tps &B2_perp, const tps &ds,
+			      const tps &p_s0, ss_vect<tps> &x)
+  { }
 
 };
 
@@ -392,10 +393,10 @@ void radiate(ss_vect<T> &ps, const double L, const double h_ref, const T B[])
   T          p_s0, p_s1, ds, B2_perp = 0e0, B2_par = 0e0;
   ss_vect<T> cs;
 
-  // large ring: x' and y' unchanged
+  // Large ring: x' and y' unchanged.
   p_s0 = get_p_s(ps); cs = ps; cs[px_] /= p_s0; cs[py_] /= p_s0;
 
-  // H = -p_s => ds = H*L
+  // H = -p_s => ds = H*L.
   ds = (1e0+cs[x_]*h_ref+(sqr(cs[px_])+sqr(cs[py_]))/2e0)*L;
   get_B2(h_ref, B, cs, B2_perp, B2_par);
 
@@ -414,10 +415,10 @@ void radiate_ID(ss_vect<T> &ps, const double L, const T &B2_perp)
   T          p_s0, p_s1, ds;
   ss_vect<T> cs;
 
-  // large ring: x' and y' unchanged
+  // Large ring: x' and y' unchanged.
   cs = ps; p_s0 = get_p_s(ps); cs[px_] /= p_s0; cs[py_] /= p_s0;
 
-  // H = -p_s => ds = H*L
+  // H = -p_s => ds = H*L.
   ds = (1e0+(sqr(cs[px_])+sqr(cs[py_]))/2e0)*L;
 
   if (globval.radiation) {
@@ -1389,7 +1390,9 @@ inline T get_p_s_ps(const ss_vect<T> &ps, const T &qop_Ax, const T &qop_Ay)
 template<typename T>
 inline T get_p_s_cs(const ss_vect<T> &cs)
 {
-  // p_s for Configuration Space: [x, x', y, y', delta, ct].
+  // p_s for Configuration Space: [x, x', y, y', delta, ct];
+  // Eq. (39), CERN 88-05) and:
+  //   p_s = gamma*s^dot/p0 = (1+delta)*s^dot/v.
 
   return (1e0+cs[delta_])/sqrt(1e0+sqr(cs[px_])+sqr(cs[py_]));
 }
@@ -1402,8 +1405,7 @@ void radiate_cs(ss_vect<T> &cs, const double L, const T B[])
   // ddelta/d(ds) = -C_gamma*E_0^3*(1+delta)^2*(B_perp/(Brho))^2/(2*pi)
   T  p_s, ds, B2_perp = 0e0, B2_par = 0e0;
 
-  // large ring: x' and y' unchanged
-  // ds = -p_s*L
+  // Large ring: x' and y' unchanged, ds = -p_s*L.
   ds = (1e0+(sqr(cs[px_])+sqr(cs[py_]))/2e0)*L;
   get_B2(0e0, B, cs, B2_perp, B2_par);
 
@@ -1606,7 +1608,7 @@ void FieldMap_pass_RK(CellType &Cell, ss_vect<T> &ps)
 
 
 template<typename T>
-void FieldMap_pass_SI(CellType &Cell, ss_vect<T> &ps, int k)
+void FieldMap_pass_SI(CellType &Cell, ss_vect<T> &ps)
 {
   /* E. Chacon-Golcher, F. Neri "A Symplectic Integrator with Arbitrary
      Vector and Scalar Potentials" Phys. Lett. A 372 p. 4661-4666 (2008).    */
@@ -1624,16 +1626,23 @@ void FieldMap_pass_SI(CellType &Cell, ss_vect<T> &ps, int k)
   FM = Cell.Elem.FM;
 
   switch (FieldMap_filetype) {
-  case 2 ... 4:
+  case 1:
+    break;
+  case 2 ... 5:
     // Transform to right handed system
     ps[x_] = -ps[x_]; ps[px_] = -ps[px_];
+    break;
+  default:
+    printf("\nFieldMap_pass_SI: unknown Fieldmap type: %d\n",
+	   FieldMap_filetype);
+    exit(1);
     break;
   }
 
   h = n_step*FM->dx[Z_]; z = 0e0; FM->Lr = 0e0;
-  if (false)
+  if (trace)
     outf_ << std::scientific << std::setprecision(3)
-	  << std::setw(5) << i << std::setw(11) << s_FM
+	  << std::setw(5) << 0 << std::setw(11) << s_FM
 	  << std::setw(11) << is_double< ss_vect<T> >::cst(ps) << "\n";
   for (i = 1+FM->cut; i < FM->n[Z_]-FM->cut; i += n_step) {
     hd = h/(1e0+ps[delta_]);
@@ -1882,21 +1891,10 @@ void FieldMap_pass_SI(CellType &Cell, ss_vect<T> &ps, int k)
 //      radiate(ps, h, 0e0, B);
     }
 
-    if (trace) {
-      splin2_(FM->x[X_], FM->x[Y_], FM->AoBrho[X_][j], FM->AoBrho2[X_][j],
-	      FM->n[X_], FM->n[Y_], ps[x_], ps[y_], AoBrho[0]);
-      splin2_(FM->x[X_], FM->x[Y_], FM->AoBrho[Y_][j], FM->AoBrho2[Y_][j],
-	      FM->n[X_], FM->n[Y_], ps[x_], ps[y_], AoBrho[1]);
-      splin2_(FM->x[X_], FM->x[Y_], FM->BoBrho[Y_][j], FM->BoBrho2[Y_][j],
-	      FM->n[X_], FM->n[Y_], ps[x_], ps[y_], ByoBrho);
-
+    if (trace)
       outf_ << std::scientific << std::setprecision(3)
-	    << std::setw(11) << s_FM
-	    << std::setw(11) << is_double< ss_vect<T> >::cst(ps)
-	    << std::setw(11) << is_double<T>::cst(AoBrho[0])
-	    << std::setw(11) << is_double<T>::cst(AoBrho[1])
-	    << std::setw(11) << is_double<T>::cst(ByoBrho) << "\n";
-    }
+	    << std::setw(5) << 0 << std::setw(11) << s_FM
+	    << std::setw(11) << is_double< ss_vect<T> >::cst(ps) << "\n";
   }
 
   // Change of gauge
@@ -1923,9 +1921,16 @@ void FieldMap_pass_SI(CellType &Cell, ss_vect<T> &ps, int k)
   ps[py_] -= AoBrho[0];
 
   switch (FieldMap_filetype) {
-  case 2 ... 4:
-    // Transform back to left handed system
+  case 1:
+    break;
+  case 2 ... 5:
+    // Transform back to left handed system.
     ps[x_] = -ps[x_]; ps[px_] = -ps[px_];
+    break;
+  default:
+    printf("\nFieldMap_pass_SI: unknown Fieldmap type: %d\n",
+	   FieldMap_filetype);
+    exit(1);
     break;
   }
 }
@@ -1948,8 +1953,8 @@ template void rk4_(const CellType &, const ss_vect<tps> &,
 				  const ss_vect<tps> &, ss_vect<tps> &));
 template void FieldMap_pass_RK(CellType &, ss_vect<double> &);
 template void FieldMap_pass_RK(CellType &, ss_vect<tps> &);
-template void FieldMap_pass_SI(CellType &, ss_vect<double> &, int k);
-template void FieldMap_pass_SI(CellType &, ss_vect<tps> &, int k);
+template void FieldMap_pass_SI(CellType &, ss_vect<double> &);
+template void FieldMap_pass_SI(CellType &, ss_vect<tps> &);
 
 
 template<typename T>
@@ -1979,7 +1984,7 @@ void FieldMap_Pass(CellType &Cell, ss_vect<T> &ps)
   // n_step: number of Field Map repetitions.
   for (k = 1; k <= FM->n_step; k++) {
     if (sympl)
-      FieldMap_pass_SI(Cell, ps, k);
+      FieldMap_pass_SI(Cell, ps);
     else
       FieldMap_pass_RK(Cell, ps);
   }

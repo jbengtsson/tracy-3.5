@@ -706,7 +706,7 @@ int main(int argc, char *argv[])
 
   trace = !true;
 
-  if (!true)
+  if (true)
     Read_Lattice(argv[1]);
   else
     rdmfile(argv[1]);
