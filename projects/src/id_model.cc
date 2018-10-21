@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
 
   reverse_elem = !false;
 
-  trace = !false;
+  trace = false;
 
   if (true)
     Read_Lattice(argv[1]);
@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
     exit(0);
   }
 
-  if (!false) {
+  if (false) {
     globval.radiation = !true;
 
     loc1 = Elem_GetPos(ElemIndex("d_dw"), 1);

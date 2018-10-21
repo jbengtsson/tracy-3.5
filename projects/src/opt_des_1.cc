@@ -13,7 +13,8 @@ const double
   high_ord_achr_dnu  = 1e-3,
   high_ord_achr_nu[] =
     {11.0/8.0+high_ord_achr_dnu, 15.0/16.0-high_ord_achr_dnu},
-  mI_nu[] = {1.5, 0.5};
+  mI_nu_ref[]        = {1.5, 0.5},
+  beta_eta_x_ref[]   = {1.0, 1.0};
 
 
 double rad2deg(const double a) { return a*180e0/M_PI; }
@@ -104,22 +105,25 @@ public:
     mI[2], mI0[2],       // -I Transformer.
     L_scl,
     L0,                  // Cell length.
-  beta_eta_x_scl;
+    beta_eta_x_scl,
+    beta_eta_x0[2];
   std::vector< std::vector<double> >
     value,
     value_scl,
-    high_ord_achr_dnu;
+    high_ord_achr_dnu,
+    beta_eta_x;
   double **Jacobian;
   std::vector<int>
     Fnum,
     Fnum_b3,
     Fnum_b1,
-    Fnum_beta_eta_x,
     high_ord_achr_Fnum,
     loc,
     type;
   std::vector< std::vector<int> >
-    grad_dip_Fnum_b1;
+    grad_dip_Fnum_b1,
+    Fnum_beta_eta_x;
+  
 
   constr_type(void) {
     n_iter = 0; chi2 = 1e30; chi2_prt = 1e30;
@@ -803,6 +807,12 @@ double constr_type::get_chi2(void) const
     chi2 += drv_terms_scl*drv_terms[k];
     chi2 += mI_scl[k]*sqr(mI[k]-mI0[k]);
   }
+  if (lat_constr.beta_eta_x_scl != 0e0)
+    // Only include if allocated.
+    for (k = 0; k < 2; k++) {
+      for (j = 0; j < (int)Fnum_beta_eta_x[k].size(); j++)
+	chi2 += beta_eta_x_scl*sqr(beta_eta_x[k][j]-beta_eta_x0[k]);
+    }
   for (j = 0; j < (int)high_ord_achr_dnu.size(); j++)
     for (k = 0; k < 2; k++)
       chi2 +=
@@ -917,6 +927,25 @@ void prt_high_ord_achr(const constr_type &constr)
 	   constr.high_ord_achr_dnu[j][X_], constr.high_ord_achr_dnu[j][Y_]);
 }
 
+void prt_beta_eta_x(const std::vector<int> &Fnum_beta_eta_x,
+		    const std::vector<double> &beta_eta_x, const bool hor)
+{
+  int k, n;
+  
+  n = Fnum_beta_eta_x.size();
+  if (hor)
+    printf("    beta_x*eta_x = [");
+  else
+    printf("    beta_y*eta_x = [");
+  for (k = 0; k < n; k++) {
+    printf("%5.3f", beta_eta_x[k]);
+    if (k < n-1)
+      printf(", ");
+    else
+      printf("]\n");
+  }
+}
+
 
 void constr_type::prt_constr(const double chi2)
 {
@@ -926,10 +955,15 @@ void constr_type::prt_constr(const double chi2)
   printf("\n%3d chi2: %11.5e -> %11.5e\n", n_iter, this->chi2_prt, chi2);
   this->chi2_prt = chi2;
   printf("\n  Linear Optics:\n");
-  printf("    eps_x       = %5.3f    (%5.3f)\n"
-	 "    nu          = [%5.3f, %5.3f]\n"
-	 "    ksi1        = [%5.3f, %5.3f]\n",
+  printf("    eps_x        = %5.3f    (%5.3f)\n"
+	 "    nu           = [%5.3f, %5.3f]\n"
+	 "    ksi1         = [%5.3f, %5.3f]\n",
 	 eps_x, eps0_x, nu[X_], nu[Y_], ksi1[X_], ksi1[Y_]);
+  if (lat_constr.beta_eta_x_scl != 0e0) {
+    // Only include if allocated.
+    prt_beta_eta_x(Fnum_beta_eta_x[X_], beta_eta_x[X_], true);
+    prt_beta_eta_x(Fnum_beta_eta_x[Y_], beta_eta_x[Y_], false);
+  }
   if (phi_scl != 0e0) {
     loc = Elem_GetPos(Fnum_b1[n_b1-1], 1);
     phi = rad2deg(Cell[loc].Elem.PL*Cell[loc].Elem.M->Pirho);
@@ -1265,9 +1299,22 @@ void get_drv_terms(constr_type &constr)
     n_kid = GetnKid(constr.Fnum_b3[k]);
     for (j = 0; j < 2; j++) {
       constr.drv_terms[j] +=
-	n_kid*cube(b3L*Cell[Elem_GetPos(constr.Fnum_b3[k], 1)].Beta[j]);
+	n_kid
+	*sqr(b3L*pow(Cell[Elem_GetPos(constr.Fnum_b3[k], 1)].Beta[j], 1.5));
     }
   }
+}
+
+
+void get_beta_eta_x(constr_type &constr)
+{
+  int j, k, loc;
+
+  for (k = 0; k < 2; k++)
+    for (j = 0; j < (int)constr.Fnum_beta_eta_x[k].size(); j++) {
+      loc = Elem_GetPos(constr.Fnum_beta_eta_x[k][j], 1);
+      constr.beta_eta_x[k][j] = Cell[loc].Beta[k]*Cell[loc].Eta[X_];
+    }
 }
 
 
@@ -1463,6 +1510,8 @@ double f_achrom(double *b2)
     if ((lat_constr.mI_scl[X_] != 0e0) || (lat_constr.mI_scl[Y_] != 0e0))
       get_mI(lat_constr);
 
+    if (lat_constr.beta_eta_x_scl != 0e0) get_beta_eta_x(lat_constr);
+
     chi2 = lat_constr.get_chi2();
 
     if (chi2 < lat_constr.chi2) {
@@ -1570,7 +1619,7 @@ void opt_mI_std(param_type &prms, constr_type &constr)
   lat_constr.mI_scl[X_]    = 1e5;
   lat_constr.mI_scl[Y_]    = 1e5;
   for (k = 0; k < 2; k++)
-    lat_constr.mI0[k] = mI_nu[k];
+    lat_constr.mI0[k] = mI_nu_ref[k];
 
   // Standard Cell.
   lat_constr.phi_scl = 1e0; lat_constr.phi0 = 15.0;
@@ -1588,8 +1637,8 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
   //   Position    -1,
   //   Quadrupole   2.
   int                 k;
-  std::vector<int>    grad_dip_Fnum;
-  std::vector<double> grad_dip_scl;
+  std::vector<int>    grad_dip_Fnum, beta_eta_x_Fnum;
+  std::vector<double> grad_dip_scl, beta_eta_x;
 
   // Standard Cell.
   grad_dip_scl.push_back(0.129665);
@@ -1683,11 +1732,26 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
   lat_constr.eps_x_scl = 1e6; lat_constr.eps0_x = 0.095;
 
   lat_constr.ksi1_scl      = 0e0;
-  lat_constr.drv_terms_scl = 1e-3;
+  lat_constr.drv_terms_scl = 1e-4;
+
   lat_constr.mI_scl[X_]    = 1e6;
   lat_constr.mI_scl[Y_]    = 1e6;
   for (k = 0; k < 2; k++)
-    lat_constr.mI0[k] = mI_nu[k];
+    lat_constr.mI0[k] = mI_nu_ref[k];
+
+  lat_constr.beta_eta_x_scl = 1e2;
+  beta_eta_x_Fnum.push_back(ElemIndex("sf1"));
+  lat_constr.Fnum_beta_eta_x.push_back(beta_eta_x_Fnum);
+  beta_eta_x.resize(beta_eta_x_Fnum.size());
+  lat_constr.beta_eta_x.push_back(beta_eta_x);
+  beta_eta_x_Fnum.clear();
+  beta_eta_x_Fnum.push_back(ElemIndex("sd1"));
+  beta_eta_x_Fnum.push_back(ElemIndex("sd2"));
+  beta_eta_x.resize(beta_eta_x_Fnum.size());
+  lat_constr.beta_eta_x.push_back(beta_eta_x);
+  lat_constr.Fnum_beta_eta_x.push_back(beta_eta_x_Fnum);
+  for (k = 0; k < 2; k++)
+    lat_constr.beta_eta_x0[k] = beta_eta_x_ref[k];
 
   // Super Period.
   lat_constr.phi_scl = 1e0;
@@ -1804,7 +1868,7 @@ void opt_tba(param_type &prms, constr_type &constr)
 
   lat_constr.mI_scl[X_] = 1e-10; lat_constr.mI_scl[Y_] = 1e-10;
   for (k = 0; k < 2; k++)
-    lat_constr.mI0[k] = mI_nu[k];
+    lat_constr.mI0[k] = mI_nu_ref[k];
 
   // 2 TBA & 1 MS: phi = 7.5.
   lat_constr.phi_scl = 1e0; lat_constr.phi0 = 7.5;
@@ -1961,7 +2025,7 @@ void opt_std_cell(param_type &prms, constr_type &constr)
 
   lat_constr.mI_scl[X_] = 1e-10; lat_constr.mI_scl[Y_] = 1e-10;
   for (k = 0; k < 2; k++)
-    lat_constr.mI0[k] = mI_nu[k];
+    lat_constr.mI0[k] = mI_nu_ref[k];
 
   lat_constr.eps_x_scl = 1e3; lat_constr.eps0_x = 0.190;
 
@@ -2034,7 +2098,7 @@ void opt_long_cell(param_type &prms, constr_type &constr)
 
   lat_constr.mI_scl[X_] = 1e-10; lat_constr.mI_scl[Y_] = 1e-10;
   for (k = 0; k < 2; k++)
-    lat_constr.mI0[k] = mI_nu[k];
+    lat_constr.mI0[k] = mI_nu_ref[k];
 
   lat_constr.eps_x_scl = 1e3; lat_constr.eps0_x = 0.190;
 
@@ -2164,7 +2228,7 @@ void opt_short_cell(param_type &prms, constr_type &constr)
 
   lat_constr.mI_scl[X_] = 1e-10; lat_constr.mI_scl[Y_] = 1e-10;
   for (k = 0; k < 2; k++)
-    lat_constr.mI0[k] = mI_nu[k];
+    lat_constr.mI0[k] = mI_nu_ref[k];
 
   lat_constr.eps_x_scl = 1e2; lat_constr.eps0_x = 0.190;
 
