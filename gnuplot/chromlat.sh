@@ -42,6 +42,8 @@ plot "chromlat.out" using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
      with lines ls 3;
 if (!ps) pause mouse "click on graph to cont.\n";
 
+exit()
+
 if (ps) set output "chromlat_2.".(ext)
 set title "Linear Coupling: sqrt({/Symbol b}_x{/Symbol \264b}_y)";
 set xlabel "s [m]"; set ylabel "[m]";
