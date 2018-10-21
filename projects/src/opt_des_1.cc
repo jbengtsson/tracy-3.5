@@ -90,7 +90,7 @@ public:
     ic[4][2],
     chi2, chi2_prt,
     eps_x_scl,
-    eps0_x,               // Hor. emittance [nm.rad].
+    eps0_x,              // Hor. emittance [nm.rad].
     drv_terms_scl,
     nu[2],
     ksi1_scl,
@@ -101,9 +101,10 @@ public:
     high_ord_achr_scl,
     high_ord_achr_nu[2], // Higher-Order-Achromat Phase Advance.
     mI_scl[2],
-    mI[2], mI0[2],        // -I Transformer.
+    mI[2], mI0[2],       // -I Transformer.
     L_scl,
-    L0;                   // Cell length.
+    L0,                  // Cell length.
+  beta_eta_x_scl;
   std::vector< std::vector<double> >
     value,
     value_scl,
@@ -113,6 +114,7 @@ public:
     Fnum,
     Fnum_b3,
     Fnum_b1,
+    Fnum_beta_eta_x,
     high_ord_achr_Fnum,
     loc,
     type;
@@ -1263,7 +1265,7 @@ void get_drv_terms(constr_type &constr)
     n_kid = GetnKid(constr.Fnum_b3[k]);
     for (j = 0; j < 2; j++) {
       constr.drv_terms[j] +=
-	n_kid*sqr(b3L*Cell[Elem_GetPos(constr.Fnum_b3[k], 1)].Beta[j]);
+	n_kid*cube(b3L*Cell[Elem_GetPos(constr.Fnum_b3[k], 1)].Beta[j]);
     }
   }
 }
@@ -1682,8 +1684,8 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
 
   lat_constr.ksi1_scl      = 0e0;
   lat_constr.drv_terms_scl = 1e-3;
-  lat_constr.mI_scl[X_]    = 1e5;
-  lat_constr.mI_scl[Y_]    = 1e5;
+  lat_constr.mI_scl[X_]    = 1e6;
+  lat_constr.mI_scl[Y_]    = 1e6;
   for (k = 0; k < 2; k++)
     lat_constr.mI0[k] = mI_nu[k];
 
