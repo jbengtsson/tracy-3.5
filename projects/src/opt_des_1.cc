@@ -1739,7 +1739,7 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
   for (k = 0; k < 2; k++)
     lat_constr.mI0[k] = mI_nu_ref[k];
 
-  lat_constr.beta_eta_x_scl = 1e2;
+  lat_constr.beta_eta_x_scl = 1e3;
   beta_eta_x_Fnum.push_back(ElemIndex("sf1"));
   lat_constr.Fnum_beta_eta_x.push_back(beta_eta_x_Fnum);
   beta_eta_x.resize(beta_eta_x_Fnum.size());
