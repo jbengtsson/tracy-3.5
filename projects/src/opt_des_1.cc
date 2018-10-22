@@ -1404,6 +1404,7 @@ void prt_f(double *b2, const double chi2, constr_type &lat_constr,
   prtmfile("flat_file.fit");
   prt_lat("linlat1.out", globval.bpm, true);
   prt_lat("linlat.out", globval.bpm, true, 10);
+  prt_chrom_lat();
 
   prt_b2(lat_prms);
   prt_b3(lat_constr.Fnum_b3);
@@ -1732,14 +1733,14 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
   lat_constr.eps_x_scl = 1e6; lat_constr.eps0_x = 0.095;
 
   lat_constr.ksi1_scl      = 0e0;
-  lat_constr.drv_terms_scl = 1e-4;
+  lat_constr.drv_terms_scl = 1e-3;
 
   lat_constr.mI_scl[X_]    = 1e6;
   lat_constr.mI_scl[Y_]    = 1e6;
   for (k = 0; k < 2; k++)
     lat_constr.mI0[k] = mI_nu_ref[k];
 
-  lat_constr.beta_eta_x_scl = 1e3;
+  lat_constr.beta_eta_x_scl = 1e4;
   beta_eta_x_Fnum.push_back(ElemIndex("sf1"));
   lat_constr.Fnum_beta_eta_x.push_back(beta_eta_x_Fnum);
   beta_eta_x.resize(beta_eta_x_Fnum.size());

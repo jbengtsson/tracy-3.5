@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
 
   reverse_elem = !false;
 
-  trace = false;
+  trace = !false;
 
   if (true)
     Read_Lattice(argv[1]);
@@ -72,13 +72,13 @@ int main(int argc, char *argv[])
     exit(0);
   }
 
-  if (false) {
+  if (!false) {
     globval.radiation = !true;
 
-    loc1 = Elem_GetPos(ElemIndex("d_dw"), 1);
-    loc2 = Elem_GetPos(ElemIndex("d_dw"), 2);
-    // loc1 = Elem_GetPos(ElemIndex("tpw"), 1);
-    // loc2 = Elem_GetPos(ElemIndex("tpw"), 1);
+    // loc1 = Elem_GetPos(ElemIndex("d_dw"), 1);
+    // loc2 = Elem_GetPos(ElemIndex("d_dw"), 2);
+    loc1 = Elem_GetPos(ElemIndex("tpw"), 1);
+    loc2 = Elem_GetPos(ElemIndex("tpw"), 1);
     map.identity();
     Cell_Pass(loc1, loc2, map, lastpos);
     prt_lin_map1(3, map);
