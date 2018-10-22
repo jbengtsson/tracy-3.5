@@ -630,7 +630,7 @@ void get_drv_terms(std::vector<int> &Fnum)
     n_kid = GetnKid(Fnum[k]);
     for (j = 0; j < 2; j++) {
       drv_terms[j] +=
-	n_kid*sqr(b3L*Cell[Elem_GetPos(Fnum[k], 1)].Beta[j]);
+	n_kid*sqr(b3L*pow(Cell[Elem_GetPos(Fnum[k], 1)].Beta[j], 1.5));
     }
   }
   printf("\ndrv. terms  = [%10.3e, %10.3e]\n",
