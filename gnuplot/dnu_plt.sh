@@ -11,11 +11,12 @@ home_dir = "$prm1"; N = $prm2; ps = $prm3; case = $prm4; pert = $prm5;
 
 # MAX-V        1,
 # SLS-2        2,
-# M-H6BAi      3,
-# M-H6BA-0-.-. 4,
-# DIAMOND      5,
-# ALS-U        6,
-# DELTA        7.
+# ESRF-U       3, # 30 Std Cells; total is 32.
+# M-H6BAi      4,
+# M-H6BA-0-.-. 5,
+# DIAMOND      6,
+# ALS-U        7,
+# DELTA        8.
 
 
 file1  = (home_dir)."dnu_dAx.out";
@@ -51,42 +52,45 @@ else if ((N == 1) && (case == 2)) \
 else if ((N == 3) && (case == 2)) \
   N_x = 12; N_y = 4; \
 else if ((N == 1) && (case == 3)) \
-  N_x = 57; N_y = 20; \
+  N_x = 71; N_y = 25; \
 else if ((N == 1) && (case == 4)) \
-  N_x = 57; N_y = 19; \
+  N_x = 57; N_y = 20; \
 else if ((N == 1) && (case == 5)) \
-  N_x = 39; N_y = 14; \
+  N_x = 57; N_y = 19; \
 else if ((N == 1) && (case == 6)) \
+  N_x = 39; N_y = 14; \
+else if ((N == 1) && (case == 7)) \
   N_x = 8; N_y = 3; \
-else if ((N == 12) && (case == 7))\
+else if ((N == 12) && (case == 8))\
   N_x = 3; N_y = 1; \
 else if (N == 20) \
   N_x = 5; N_y = 3; \
-else if ((N == 6) && (case == 3)) \
-  N_x = 9; N_y = 3; \
-else if ((N == 6) && (case == 4)) \
-  N_x = 10; N_y = 3; \
-else if ((N == 24) && (case == 5)) \
+else if ((N == 30) && (case == 3)) \
   N_x = 2; N_y = 0; \
-else if ((N == 12) && (case == 6)) \
+else if ((N == 6) && (case == 4)) \
+  N_x = 9; N_y = 3; \
+else if ((N == 24) && (case == 4)) \
+  N_x = 2; N_y = 0; \
+else if ((N == 6) && (case == 5)) \
+  N_x = 10; N_y = 3; \
+else if ((N == 24) && (case == 6)) \
+  N_x = 2; N_y = 0; \
+else if ((N == 12) && (case == 7)) \
   N_x = 3; N_y = 1; \
-else if ((N == 24) && (case == 7)) \
+else if ((N == 24) && (case == 8)) \
   N_x = 2; N_y = 0;
 
 if (case == 1) \
-  x_max = 1.2; delta_max = 3.0; \
   nu_x_min = 102.0; nu_x_max = 102.5; nu_y_min = 68.0; nu_y_max = 68.5; \
 else if (case == 2) \
-  x_max = 7.0; delta_max = 5.0; \
   nu_x_min = 39.0; nu_x_max = 39.5; nu_y_min = 15.0; nu_y_max = 15.5; \
 else if (case == 3) \
-  x_max = 15.0; delta_max = 3.0; \
-  nu_x_min = 51.0; nu_x_max = 51.5; nu_y_min = 17.0; nu_y_max = 17.5; \
+  nu_x_min = 71.0; nu_x_max = 71.5; nu_y_min = 25.0; nu_y_max = 25.5; \
 else if (case == 4) \
-  x_max = 3.0; delta_max = 3.0; \
-  nu_x_min = 57.0; nu_x_max = 58.0; nu_y_min = 19.0; nu_y_max = 20.0; \
+  nu_x_min = 51.0; nu_x_max = 51.5; nu_y_min = 17.0; nu_y_max = 17.5; \
 else if (case == 5) \
-  x_max = 4.0; delta_max = 2.0; \
+  nu_x_min = 57.0; nu_x_max = 58.0; nu_y_min = 19.0; nu_y_max = 20.0; \
+else if (case == 6) \
   nu_x_min = 28.0; nu_x_max = 28.5; nu_y_min = 13.0; nu_y_max = 13.5;
 
 # left adjusted labels
@@ -110,7 +114,6 @@ if (ps) set output (home_dir)."dnu_1.".(ext);
 #set size 0.5, 0.5; set origin 0.0, 0.5;
 set title "{/Symbol n}_x vs. A_{x,y}";
 set xlabel "A_{x,y} [mm]"; set ylabel "{/Symbol n}_x";
-#set xrange [-x_max:x_max];
 if (!pert) \
   plot file1 using 1:(N*(N_x+\$5)) title "A_x" with lines ls 1, \
        file2 using 2:(N*(N_x+\$5)) title "A_y" with lines ls 3; \
@@ -126,7 +129,6 @@ if (ps) set output (home_dir)."dnu_2.".(ext);
 #set origin 0.0, 0.0;
 set title "{/Symbol n}_y vs. A_{x,y}";
 set xlabel "A_{x,y} [mm]"; set ylabel "{/Symbol n}_y"; \
-#set xrange [-x_max:x_max];
 if (!pert) \
   plot file1 using 1:(N*(N_y+\$6)) title "A_x" with lines ls 1, \
        file2 using 2:(N*(N_y+\$6)) title "A_y" with lines ls 3; \
@@ -144,7 +146,6 @@ set title "Chromaticity";
 set xlabel "{/Symbol d} [%]"; set ylabel "{/Symbol n}_x";
 set y2label "{/Symbol n}_y";
 set ytics nomirror; set y2tics;
-#set xrange [-delta_max:delta_max];
 if (!pert) \
   plot file3 using 1:(N*\$2) title "{/Symbol n}_x" with lines ls 1, \
        file3 using 1:(N*\$3) axis x1y2 title "{/Symbol n}_y" with lines ls 3; \
