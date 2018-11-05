@@ -7,12 +7,12 @@
 int no_tps = NO;
 
 
-const bool ps_rot = false;
+const bool ps_rot = !false;
 
 const double
-  high_ord_achr_dnu  = 1e-3,
+  high_ord_achr_dnu  = 0e-3,
   high_ord_achr_nu[] =
-    {11.0/8.0+high_ord_achr_dnu, 15.0/16.0-high_ord_achr_dnu},
+    {2.45+high_ord_achr_dnu, 0.75-high_ord_achr_dnu},
   mI_nu_ref[]        = {1.5, 0.5},
   beta_eta_x_ref[]   = {1.0, 1.0};
 
@@ -896,17 +896,17 @@ void prt_drv_terms(const constr_type &constr)
     exit(0);
   }
 
-  printf("    drv. terms  = [%10.3e, %10.3e]\n",
+  printf("    drv. terms   = [%10.3e, %10.3e]\n",
 	 sqrt(constr.drv_terms[X_]), sqrt(constr.drv_terms[Y_]));
 
-  printf("    b_3L        = [");
+  printf("    b_3L         = [");
   for (k = 0; k < constr.n_b3; k++) {
     get_bnL_design_elem(constr.Fnum_b3[k], 1, Sext, b3L, a3L);
     printf("%10.3e", b3L);
     if (k != constr.n_b3-1) printf(", ");
   }
   printf("]\n");
-  printf("    b_3         = [");
+  printf("    b_3          = [");
   for (k = 0; k < constr.n_b3; k++) {
     get_bn_design_elem(constr.Fnum_b3[k], 1, Sext, b3, a3);
     printf("%10.3e", b3);
@@ -967,19 +967,19 @@ void constr_type::prt_constr(const double chi2)
   if (phi_scl != 0e0) {
     loc = Elem_GetPos(Fnum_b1[n_b1-1], 1);
     phi = rad2deg(Cell[loc].Elem.PL*Cell[loc].Elem.M->Pirho);
-    printf("    phi         = %7.5f (%7.5f)\n    ", phi_tot, phi0);
-    prt_name(stdout, Cell[loc].Elem.PName, "_phi:", 6);
+    printf("    phi          = %7.5f (%7.5f)\n    ", phi_tot, phi0);
+    prt_name(stdout, Cell[loc].Elem.PName, "_phi:", 7);
     printf(" = %7.5f\n", phi);
   }
   if (L_scl != 0e0)
-    printf("    L           = %7.5f (%7.5f)\n", Cell[globval.Cell_nLoc].S, L0);
+    printf("    L            = %7.5f (%7.5f)\n", Cell[globval.Cell_nLoc].S, L0);
 
   if (drv_terms_scl != 0e0) prt_drv_terms(*this);
 
   if (high_ord_achr_scl != 0e0) prt_high_ord_achr(*this);
 
   if ((mI_scl[X_] != 0e0) || (mI_scl[Y_] != 0e0))
-    printf("\n    -I Transf.  = [%8.5f,   %8.5f]\n", mI[X_], mI[Y_]);
+    printf("\n    -I Transf.   = [%8.5f,   %8.5f]\n", mI[X_], mI[Y_]);
 
   prt_val(*this);
 }
@@ -1637,7 +1637,7 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
   //   Length      -2,
   //   Position    -1,
   //   Quadrupole   2.
-  int                 k;
+  int                 k, n;
   std::vector<int>    grad_dip_Fnum, beta_eta_x_Fnum;
   std::vector<double> grad_dip_scl, beta_eta_x;
 
@@ -1706,13 +1706,16 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
   constr.add_constr(Elem_GetPos(ElemIndex("bl1_5"), 1)-1,
   		    0e0, 0e0, 0e0, 0e0, 1e6, 1e6,
   		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-  // constr.add_constr(Elem_GetPos(ElemIndex("dq1"), 1),
-  // 		    0e0, 0e0, 0e0, 0e0, 1e6, 1e6,
-  // 		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+  constr.add_constr(Elem_GetPos(ElemIndex("bl1_5"), 2),
+  		    0e0, 0e0, 0e0, 0e0, 1e6, 1e6,
+  		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   // Include constraint on alpha; in case of using ps_rot.
   constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
   		    1e5, 1e5, 1e1, 1e1, 1e6,   0e0,
-  		    0.0, 0.0, 3.0, 1.5, 0.023, 0.0);
+  		    0.0, 0.0, 3.0, 1.5, 0.024, 0.0);
+  constr.add_constr(Elem_GetPos(ElemIndex("ms"), 2),
+  		    1e5, 1e5, 1e1, 1e1, 1e6,   0e0,
+  		    0.0, 0.0, 3.0, 1.5, 0.024, 0.0);
   // Both SS constraints are needed.
   constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
   		    1e5, 1e5, 1e1, 1e1, 1e6, 1e6,
@@ -1732,15 +1735,28 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
 
   lat_constr.eps_x_scl = 1e6; lat_constr.eps0_x = 0.095;
 
-  lat_constr.ksi1_scl      = 0e0;
-  lat_constr.drv_terms_scl = 1e-3;
+  lat_constr.high_ord_achr_scl = 1e2;
+  for (k = 0; k < 2; k++)
+    lat_constr.high_ord_achr_nu[k] = high_ord_achr_nu[k];
 
-  lat_constr.mI_scl[X_]    = 1e6;
-  lat_constr.mI_scl[Y_]    = 1e6;
+  lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("ls"), 1));
+  lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("ss"), 1));
+  lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("ss"), 2));
+
+  n = lat_constr.high_ord_achr_Fnum.size() - 1;
+  lat_constr.high_ord_achr_dnu.resize(n);
+  for (k = 0; k < n; k++)
+    lat_constr.high_ord_achr_dnu[k].resize(2, 0e0);
+
+  lat_constr.ksi1_scl      = 0e0;
+  lat_constr.drv_terms_scl = 1e-4;
+
+  lat_constr.mI_scl[X_]    = 1e5;
+  lat_constr.mI_scl[Y_]    = 1e5;
   for (k = 0; k < 2; k++)
     lat_constr.mI0[k] = mI_nu_ref[k];
 
-  lat_constr.beta_eta_x_scl = 1e4;
+  lat_constr.beta_eta_x_scl = 1e-10;
   beta_eta_x_Fnum.push_back(ElemIndex("sf1"));
   lat_constr.Fnum_beta_eta_x.push_back(beta_eta_x_Fnum);
   beta_eta_x.resize(beta_eta_x_Fnum.size());
@@ -2268,7 +2284,7 @@ int main(int argc, char *argv[])
   // Unbuffered output.
   setvbuf(stdout, buffer, _IONBF, BUFSIZ);
 
-  if (!true)
+  if (true)
     Read_Lattice(argv[1]);
   else
     rdmfile(argv[1]);
@@ -2283,7 +2299,7 @@ int main(int argc, char *argv[])
 
   if (ps_rot) {
     Ring_GetTwiss(true, 0e0); printglob();
-    dnu[X_] = 0.0; dnu[Y_] = 0.0;
+    dnu[X_] = -0.1; dnu[Y_] = 0.0;
     set_map(ElemIndex("ps_rot"), dnu);
   }
 

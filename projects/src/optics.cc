@@ -9,7 +9,8 @@ const bool
   set_dnu = !false,
   mI_rot  = false,
   HOA_rot = false,
-  prt_ms  = false;
+  prt_ms  = false,
+  prt_dt  = false;
 
 const double
   nu[]     = {0.18, 0.73},
@@ -306,15 +307,15 @@ void chk_mini_beta(const std::vector<int> &Fam)
 }
 
 
-void chk_high_ord_achr(void)
+void chk_high_ord_achr(const int lat_case)
 {
   int              k;
   double           dnu[2];
   std::vector<int> loc;
 
-  // M-6HBAi 1,
-  // TBA-6x8 2.
-  const int lat_case = 2;
+  // ESRF-U        1,
+  // M-6HBAi-2-1-1 2,
+  // M-6HBA-0-.-.  3.
 
   Ring_GetTwiss(true, 0e0);
  
@@ -329,23 +330,11 @@ void chk_high_ord_achr(void)
     loc.push_back(Elem_GetPos(ElemIndex("idmarker"), 5));
    break;
   case 2:
-    dnu[X_] = 11.0/(2.0*8.0); dnu[Y_] = 15.0/(2.0*16.0);
+    dnu[X_] = 11.0/8.0; dnu[Y_] = 15.0/16;
     loc.push_back(Elem_GetPos(ElemIndex("ls"), 1));
-    loc.push_back(Elem_GetPos(ElemIndex("b2"), 1));
-    loc.push_back(Elem_GetPos(ElemIndex("ms"), 1));
-    loc.push_back(Elem_GetPos(ElemIndex("b2"), 3));
     loc.push_back(Elem_GetPos(ElemIndex("ss"), 1));
-    loc.push_back(Elem_GetPos(ElemIndex("b2"), 5));
-    loc.push_back(Elem_GetPos(ElemIndex("ms"), 2));
-    loc.push_back(Elem_GetPos(ElemIndex("b2"), 7));
     loc.push_back(Elem_GetPos(ElemIndex("ss"), 2));
-    loc.push_back(Elem_GetPos(ElemIndex("b2"), 9));
-    loc.push_back(Elem_GetPos(ElemIndex("ms"), 3));
-    loc.push_back(Elem_GetPos(ElemIndex("b2"), 11));
     loc.push_back(Elem_GetPos(ElemIndex("ss"), 3));
-    loc.push_back(Elem_GetPos(ElemIndex("b2"), 13));
-    loc.push_back(Elem_GetPos(ElemIndex("ms"), 4));
-    loc.push_back(Elem_GetPos(ElemIndex("b2"), 15));
     loc.push_back(Elem_GetPos(ElemIndex("ls"), 2));
     break;
   }
@@ -648,12 +637,21 @@ void prt_drv_terms(const int lat_case)
 
   switch (lat_case) {
   case 1:
-    Fnum.push_back(ElemIndex("sf2a"));
-    Fnum.push_back(ElemIndex("sf2e"));
-    Fnum.push_back(ElemIndex("sd1a"));
-    Fnum.push_back(ElemIndex("sd1b"));
-    Fnum.push_back(ElemIndex("sd1d"));
-    Fnum.push_back(ElemIndex("sd1e"));
+    if (!true) {
+      Fnum.push_back(ElemIndex("sf2a"));
+      Fnum.push_back(ElemIndex("sf2e"));
+      Fnum.push_back(ElemIndex("sd1a"));
+      Fnum.push_back(ElemIndex("sd1b"));
+      Fnum.push_back(ElemIndex("sd1d"));
+      Fnum.push_back(ElemIndex("sd1e"));
+    } else {
+      Fnum.push_back(ElemIndex("sd3a"));
+      Fnum.push_back(ElemIndex("sf4a"));
+      Fnum.push_back(ElemIndex("sd3b"));
+      Fnum.push_back(ElemIndex("sd3d"));
+      Fnum.push_back(ElemIndex("sf4e"));
+      Fnum.push_back(ElemIndex("sd3e"));
+    }
     break;
   case 2:
     Fnum.push_back(ElemIndex("sf1h"));
@@ -706,7 +704,7 @@ int main(int argc, char *argv[])
 
   trace = !true;
 
-  if (!true)
+  if (true)
     Read_Lattice(argv[1]);
   else
     rdmfile(argv[1]);
@@ -721,13 +719,13 @@ int main(int argc, char *argv[])
 
   if (false) {
     Ring_GetTwiss(true, 0e0); printglob();
-    dnu[X_] = -0.2; dnu[Y_] = -0.1;
+    dnu[X_] = -0.18; dnu[Y_] = -0.1;
     set_map(ElemIndex("ps_rot"), dnu);
   }
 
   Ring_GetTwiss(true, 0e0); printglob();
 
-  if (false) {
+  if (prt_dt) {
     printf("Lattice Case (1..3)? ");
     scanf("%d", &lat_case);
 
@@ -847,8 +845,11 @@ int main(int argc, char *argv[])
     exit(0);
   }
 
-  if (false) {
-    chk_high_ord_achr();
+  if (!false) {
+    printf("Lattice Case (1..3)? ");
+    scanf("%d", &lat_case);
+
+    chk_high_ord_achr(lat_case);
     // exit(0);
   }
 
@@ -893,9 +894,9 @@ int main(int argc, char *argv[])
     exit(0);
   }
 
-  if (false) {
+  if (!false) {
     get_dbeta_deta(1e-4);
-    exit(0);
+    // exit(0);
   }
 
   globval.Cavity_on = false; globval.radiation = false;

@@ -266,7 +266,7 @@ void Ring_Getchrom(double dP)
   }
   Cell_GetABGN(globval.OneTurnMat, alpha, beta, gamma, nu);
   if (!globval.stable) {
-    printf("\n:Ring_Getchrom: unstable\n");
+    printf("\nRing_Getchrom: unstable\n");
     return;
   }
 
