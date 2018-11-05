@@ -1733,7 +1733,7 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
   lat_constr.Fnum_b3.push_back(ElemIndex("sd1"));
   lat_constr.Fnum_b3.push_back(ElemIndex("sd2"));
 
-  lat_constr.eps_x_scl = 1e6; lat_constr.eps0_x = 0.095;
+  lat_constr.eps_x_scl = 1e5; lat_constr.eps0_x = 0.095;
 
   lat_constr.high_ord_achr_scl = 1e2;
   for (k = 0; k < 2; k++)
