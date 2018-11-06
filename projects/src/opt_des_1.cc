@@ -10,9 +10,7 @@ int no_tps = NO;
 const bool ps_rot = !false;
 
 const double
-  high_ord_achr_dnu  = 0e-3,
-  high_ord_achr_nu[] =
-    {2.45+high_ord_achr_dnu, 0.75-high_ord_achr_dnu},
+  high_ord_achr_nu[] = {2.5-0.125, 0.75+0.125},
   mI_nu_ref[]        = {1.5, 0.5},
   beta_eta_x_ref[]   = {1.0, 1.0};
 
@@ -571,6 +569,7 @@ double get_eps_x1(const bool track)
 {
   // eps_x [nm.rad].
   long int     lastpos;
+  double       eps_x;
   ss_vect<tps> A;
 
   const bool prt = false;
@@ -584,12 +583,14 @@ double get_eps_x1(const bool track)
     globval.emittance = false;
   }
 
+  eps_x = 1470e0*sqr(globval.Energy)*I5/(I2-I4);
+
   if (prt) {
     printf("\neps_x = %5.3f nm.rad\n", eps_x);
     printf("J_x   = %5.3f, J_z = %5.3f\n", 1.0-I4/I2, 2.0+I4/I2);
   }
 
-  return 1470e0*sqr(globval.Energy)*I5/(I2-I4);
+  return eps_x;
 }
 
 
@@ -1732,10 +1733,11 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
   lat_constr.Fnum_b3.push_back(ElemIndex("sf1"));
   lat_constr.Fnum_b3.push_back(ElemIndex("sd1"));
   lat_constr.Fnum_b3.push_back(ElemIndex("sd2"));
+  // lat_constr.Fnum_b3.push_back(ElemIndex("sh2"));
 
-  lat_constr.eps_x_scl = 1e5; lat_constr.eps0_x = 0.095;
+  lat_constr.eps_x_scl = 1e4; lat_constr.eps0_x = 0.095;
 
-  lat_constr.high_ord_achr_scl = 1e2;
+  lat_constr.high_ord_achr_scl = 1e4;
   for (k = 0; k < 2; k++)
     lat_constr.high_ord_achr_nu[k] = high_ord_achr_nu[k];
 
@@ -2286,8 +2288,10 @@ int main(int argc, char *argv[])
 
   if (true)
     Read_Lattice(argv[1]);
-  else
+  else {
     rdmfile(argv[1]);
+    globval.dPcommon = 1e-10;
+  }
 
   globval.H_exact        = false;  globval.quad_fringe = false;
   globval.Cavity_on      = false;  globval.radiation   = false;
@@ -2299,7 +2303,7 @@ int main(int argc, char *argv[])
 
   if (ps_rot) {
     Ring_GetTwiss(true, 0e0); printglob();
-    dnu[X_] = -0.1; dnu[Y_] = 0.0;
+    dnu[X_] = -0.1; dnu[Y_] = -0.01;
     set_map(ElemIndex("ps_rot"), dnu);
   }
 

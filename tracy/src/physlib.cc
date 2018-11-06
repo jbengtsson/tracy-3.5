@@ -60,7 +60,7 @@ void printglob(void)
 	 "  Energy [GeV] = %.3f\n",
          globval.dPcommon, globval.dPparticle, globval.Energy);
   printf("  MaxAmplx [m] = %9.3e  MaxAmply [m] = %9.3e"
-	 "  RFAccept [%%] = \xB1%4.2f\n",
+	 "  RFAccept [%%] = %4.2f\n",
          Cell[0].maxampl[X_][0], Cell[0].maxampl[Y_][0],
 	 globval.delta_RF*1e2);
   printf(" Cavity_On    =  %s    ", globval.Cavity_on ? "TRUE " : "FALSE");

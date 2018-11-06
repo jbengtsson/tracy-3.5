@@ -52,12 +52,12 @@ void upr_case(char str[])
 // generate backtrace
 void prt_trace (void)
 {
-  const int  max_entries = 20;
+  const int max_entries = 20;
 
-  void    *array[max_entries];
-  size_t  size;
-  char    **strings;
-  size_t  i;
+  void   *array[max_entries];
+  size_t size;
+  char   **strings;
+  size_t i;
 
   size = backtrace(array, max_entries);
   strings = backtrace_symbols(array, size);
@@ -78,7 +78,6 @@ void prt_trace (void)
 
 void file_rd(std::ifstream &inf, const string &file_name)
 {
-
   inf.open(file_name.c_str(), std::ios::in);
   if (!inf.is_open()) {
     cout << "File not found: " << file_name << "\n";
@@ -89,7 +88,6 @@ void file_rd(std::ifstream &inf, const string &file_name)
 
 void file_wr(std::ofstream &outf, const string &file_name)
 {
-
   outf.open(file_name.c_str(), std::ios::out);
   if (!outf.is_open()) {
     cout << "Could not create file: " << file_name << "\n";
@@ -100,7 +98,6 @@ void file_wr(std::ofstream &outf, const string &file_name)
 
 void file_rd(std::ifstream &inf, const char file_name[])
 {
-
   inf.open(file_name, std::ios::in);
   if (!inf.is_open()) {
     printf("File not found: %s\n", file_name);
@@ -111,7 +108,6 @@ void file_rd(std::ifstream &inf, const char file_name[])
 
 void file_wr(std::ofstream &outf, const char file_name[])
 {
-
   outf.open(file_name, std::ios::out);
   if (!outf.is_open()) {
     printf("Could not create file: %s\n", file_name);
@@ -125,7 +121,6 @@ void file_wr(std::ofstream &outf, const char file_name[])
 FILE* file_read(const char file_name[])
 {
   FILE *fp;
-
   fp = fopen(file_name, "r");
   if (fp == NULL) {
     printf("File not found: %s\n", file_name);
@@ -138,7 +133,6 @@ FILE* file_read(const char file_name[])
 FILE* file_write(const char file_name[])
 {
   FILE *fp;
-
   fp = fopen(file_name, "w");
   if (fp == NULL) {
     printf("Could not create file: %s\n", file_name);
@@ -150,7 +144,6 @@ FILE* file_write(const char file_name[])
 
 void chk_cod(const bool cod, const char *proc_name)
 {
-
   if (!cod) {
     printf("%s: closed orbit not found\n", proc_name);
 //     exit_(1);
@@ -247,7 +240,7 @@ ss_vect<tps> tp_S(const int n_DOF, const ss_vect<tps> &A)
 
 void get_dnu(const int n, const ss_vect<tps> &A, double dnu[])
 {
-  int  k;
+  int k;
 
   for (k = 0; k < n; k++) {
     dnu[k] = atan2(A[2*k][2*k+1], A[2*k][2*k])/(2.0*M_PI);
@@ -260,8 +253,8 @@ void get_ab(const ss_vect<tps> &A,
 	    double alpha[], double beta[], double dnu[],
 	    double eta[], double etap[])
 {
-  int           k;
-  ss_vect<tps>  A_Atp;
+  int          k;
+  ss_vect<tps> A_Atp;
 
   A_Atp = A*tp_S(2, A);
 
@@ -278,8 +271,8 @@ void get_ab(const ss_vect<tps> &A,
 ss_vect<tps> get_A(const double alpha[], const double beta[],
 		   const double eta[], const double etap[])
 {
-  int           k;
-  ss_vect<tps>  A, Id;
+  int          k;
+  ss_vect<tps> A, Id;
 
   Id.identity();
 
@@ -297,9 +290,9 @@ ss_vect<tps> get_A(const double alpha[], const double beta[],
 
 ss_vect<tps> get_A_CS(const int n, const ss_vect<tps> &A, double dnu[])
 {
-  int           k;
-  double        c, s;
-  ss_vect<tps>  Id, R;
+  int          k;
+  double       c, s;
+  ss_vect<tps> Id, R;
 
   Id.identity(); R.identity(); get_dnu(n, A, dnu);
   for (k = 0; k < n; k++) {
@@ -332,9 +325,12 @@ void prt_lin_map(const int n_DOF, const ss_vect<tps> &map)
 void get_twoJ(const int n_DOF, const ss_vect<double> &ps,
 	      const ss_vect<tps> &A, double twoJ[])
 {
-  int              j;
-  iVector          jj;
-  ss_vect<double>  z;
+  int             j, no;
+  iVector         jj;
+  ss_vect<double> z;
+
+  no = no_tps;
+  danot_(1);
 
   for (j = 0; j < nv_tps; j++)
     jj[j] = (j < 2*n_DOF)? 1 : 0;
@@ -343,13 +339,15 @@ void get_twoJ(const int n_DOF, const ss_vect<double> &ps,
 
   for (j = 0; j < n_DOF; j++)
     twoJ[j] = sqr(z[2*j]) + sqr(z[2*j+1]);
+
+  danot_(no);
 }
 
 
 double get_curly_H(const double alpha_x, const double beta_x,
 		   const double eta_x, const double etap_x)
 {
-  double  curly_H, gamma_x;
+  double curly_H, gamma_x;
 
   gamma_x = (1.0+sqr(alpha_x))/beta_x;
 
@@ -361,10 +359,10 @@ double get_curly_H(const double alpha_x, const double beta_x,
 
 double get_eps_x(void)
 {
-  bool             cav, emit;
-  long int         lastpos;
-  double           eps_x;
-  ss_vect<tps>     A;
+  bool         cav, emit;
+  long int     lastpos;
+  double       eps_x;
+  ss_vect<tps> A;
 
   /* Note:
 
@@ -413,14 +411,14 @@ void GetEmittance(const int Fnum, const bool prt)
 {
   // A. Chao "Evaluation of Beam Distribution Parameters in an Electron
   // Storage Ring" J. Appl. Phys 50 (2), 595-598.
-  bool          emit, rad, cav, path;
-  int           i, j, h_RF;
-  long int      lastpos, loc;
-  double        C, theta, V_RF, phi0, gamma_z;
-  double        sigma_s, sigma_delta;
-  Vector3       nu;
-  Matrix        Ascr;
-  ss_vect<tps>  Ascr_map;
+  bool         emit, rad, cav, path;
+  int          i, j, h_RF;
+  long int     lastpos, loc;
+  double       C, theta, V_RF, phi0, gamma_z;
+  double       sigma_s, sigma_delta;
+  Vector3      nu;
+  Matrix       Ascr;
+  ss_vect<tps> Ascr_map;
 
   // save state
   rad = globval.radiation; emit = globval.emittance;
@@ -573,7 +571,7 @@ void GetEmittance(const int Fnum, const bool prt)
 
 double get_code(CellType &Cell)
 {
-  double  code;
+  double code;
 
   switch (Cell.Elem.Pkind) {
   case drift:
@@ -609,23 +607,26 @@ double get_code(CellType &Cell)
 void prt_lat(const int loc1, const int loc2, const char *fname, const int Fnum,
 	     const bool all)
 {
-  long int      i = 0;
-  double        I5 = 0e0;
-  FILE          *outf;
+  long int i = 0;
+  double   I5 = 0e0;
+  FILE     *outf;
 
   outf = file_write(fname);
-  fprintf(outf, "#        name             s     code"
-	        "   alphax   betax     nux      etax    etapx");
-  fprintf(outf, "     alphay   betay     nuy      etay    etapy      I5\n");
-  fprintf(outf, "#                        [m]"
-	        "                     [m]                [m]");
+  fprintf(outf,
+	  "#        name             s     code"
+	  "   alphax   betax     nux      etax    etapx");
+  fprintf(outf,
+	  "     alphay   betay     nuy      etay    etapy      I5\n");
+  fprintf(outf,
+	  "#                        [m]"
+	  "                     [m]                [m]");
   fprintf(outf, "                        [m]                [m]\n");
   fprintf(outf, "#\n");
 
   for (i = loc1; i <= loc2; i++) {
     if (all || (Cell[i].Fnum == Fnum)) {
-      fprintf(outf, "%4ld %15s %9.5f %4.1f"
-	      " %9.5f %8.5f %8.5f %8.5f %8.5f"
+      fprintf(outf,
+	      "%4ld %15s %9.5f %4.1f %9.5f %8.5f %8.5f %8.5f %8.5f"
 	      " %9.5f %8.5f %8.5f %8.5f %8.5f  %8.2e\n",
 	      i, Cell[i].Elem.PName, Cell[i].S, get_code(Cell[i]),
 	      Cell[i].Alpha[X_], Cell[i].Beta[X_], Cell[i].Nu[X_],
@@ -649,10 +650,10 @@ void prt_lat(const char *fname, const int Fnum, const bool all)
 
 
 void Cell_Twiss(const long int i0, const long int i1) {
-  long int      i;
-  int           k, nu_int[2];
-  double        alpha[2], beta[2], dnu[2], eta[2], etap[2];
-  ss_vect<tps>  A;
+  long int     i;
+  int          k, nu_int[2];
+  double       alpha[2], beta[2], dnu[2], eta[2], etap[2];
+  ss_vect<tps> A;
 
   for (k = 0; k < 2; k++)
     nu_int[k] = 0;
@@ -682,15 +683,15 @@ void Cell_Twiss(const long int i0, const long int i1) {
 void prt_lat(const int loc1, const int loc2, const char *fname, const int Fnum,
 	     const bool all, const int n)
 {
-  long int         i = 0;
-  int              j, k;
-  double           s, h;
-  double           alpha[2], beta[2], nu[2], dnu[2], eta[2], etap[2], dnu1[2];
-  double           curly_H;
-  MpoleType        *Mp;
-  ss_vect<double>  eta_Fl;
-  ss_vect<tps>     A, A_CS;
-  FILE             *outf;
+  long int        i = 0;
+  int             j, k;
+  double          s, h;
+  double          alpha[2], beta[2], nu[2], dnu[2], eta[2], etap[2], dnu1[2];
+  double          curly_H;
+  MpoleType       *Mp;
+  ss_vect<double> eta_Fl;
+  ss_vect<tps>    A, A_CS;
+  FILE            *outf;
 
   const double  c1 = 1e0/(2e0*(2e0-pow(2e0, 1e0/3e0))), c2 = 0.5e0-c1;
   const double  d1 = 2e0*c1, d2 = 1e0-2e0*d1;
@@ -800,20 +801,19 @@ void prt_lat(const char *fname, const int Fnum, const bool all, const int n)
 
 void prt_chrom_lat(void)
 {
-  long int  i;
-  double    dbeta_ddelta[Cell_nLocMax][2], detax_ddelta[Cell_nLocMax];
-  double    ksi[Cell_nLocMax][2];
-  FILE      *outf;
+  long int i;
+  double   dbeta_ddelta[Cell_nLocMax][2], detax_ddelta[Cell_nLocMax];
+  double   ksi[Cell_nLocMax][2];
+  FILE     *outf;
 
-  printf("\n");
-  printf("prt_chrom_lat: calling Ring_GetTwiss with delta != 0\n");
+  printf("\nprt_chrom_lat:\n  calling Ring_GetTwiss with delta != 0\n");
   Ring_GetTwiss(true, globval.dPcommon);
   for (i = 0; i <= globval.Cell_nLoc; i++) {
     dbeta_ddelta[i][X_] = Cell[i].Beta[X_];
     dbeta_ddelta[i][Y_] = Cell[i].Beta[Y_];
     detax_ddelta[i] = Cell[i].Eta[X_];
   }
-  printf("prt_chrom_lat: calling Ring_GetTwiss with delta != 0\n");
+  printf("  calling Ring_GetTwiss with delta != 0\n");
   Ring_GetTwiss(true, -globval.dPcommon);
   ksi[0][X_] = 0.0; ksi[0][Y_] = 0.0;
   for (i = 0; i <= globval.Cell_nLoc; i++) {
@@ -827,10 +827,12 @@ void prt_chrom_lat(void)
       ksi[i][X_] = ksi[i-1][X_]; ksi[i][Y_] = ksi[i-1][Y_];
     }
     if (Cell[i].Elem.Pkind == Mpole) {
-	ksi[i][X_] -= Cell[i].Elem.M->PBpar[Quad+HOMmax]
-                     *Cell[i].Elem.PL*Cell[i].Beta[X_]/(4.0*M_PI);
-	ksi[i][Y_] += Cell[i].Elem.M->PBpar[Quad+HOMmax]
-                     *Cell[i].Elem.PL*Cell[i].Beta[Y_]/(4.0*M_PI);
+      ksi[i][X_] -=
+	Cell[i].Elem.M->PBpar[Quad+HOMmax]
+	*Cell[i].Elem.PL*Cell[i].Beta[X_]/(4.0*M_PI);
+      ksi[i][Y_] +=
+	Cell[i].Elem.M->PBpar[Quad+HOMmax]
+	*Cell[i].Elem.PL*Cell[i].Beta[Y_]/(4.0*M_PI);
     }
   }
 
@@ -844,10 +846,9 @@ void prt_chrom_lat(void)
   fprintf(outf, "       [m]      [m]       [m]\n");
   fprintf(outf, "#\n");
   for (i = 0; i <= globval.Cell_nLoc; i++) {
-    fprintf(outf, "%4ld %15s %6.2f %4.1f"
-	          "  %6.3f  %8.3f    %8.3f   %8.3f"
-	          "   %6.3f %8.3f   %8.3f  %5.2f  %5.2f"
-	          "  %6.3f  %6.3f  %6.3f\n",
+    fprintf(outf,
+	    "%4ld %15s %6.2f %4.1f  %6.3f  %8.3f    %8.3f   %8.3f"
+	    "   %6.3f %8.3f   %8.3f  %5.2f  %5.2f  %6.3f  %6.3f  %6.3f\n",
 	    i, Cell[i].Elem.PName, Cell[i].S, get_code(Cell[i]),
 	    Cell[i].Beta[X_]*Cell[i].Eta[X_],
 	    sqrt(Cell[i].Beta[X_]*Cell[i].Beta[Y_]),
@@ -868,7 +869,7 @@ void prt_cod(const char *file_name, const int Fnum, const bool all)
   long      i;
   FILE      *outf;
   long      FORLIM;
-  struct    tm *newtime;
+  struct tm *newtime;
 
   outf = file_write(file_name);
 
@@ -888,7 +889,8 @@ void prt_cod(const char *file_name, const int Fnum, const bool all)
   for (i = 0L; i <= FORLIM; i++) {
     if (all || (Cell[i].Fnum == Fnum)) {
       /* COD is in local coordinates */
-      fprintf(outf, "%4ld %.*s %6.2f %4.1f %6.3f %6.3f %6.3f %6.3f"
+      fprintf(outf,
+	      "%4ld %.*s %6.2f %4.1f %6.3f %6.3f %6.3f %6.3f"
 	      " %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f\n",
 	      i, SymbolLength, Cell[i].Elem.PName, Cell[i].S,
 	      get_code(Cell[i]),
@@ -906,8 +908,8 @@ void prt_cod(const char *file_name, const int Fnum, const bool all)
 
 void prt_beampos(const char *file_name)
 {
-  long int  k;
-  FILE      *outf;
+  long int k;
+  FILE     *outf;
 
   outf = file_write(file_name);
 
@@ -930,15 +932,15 @@ void CheckAlignTol(const char *OutputFile)
   // check aligment errors of individual magnets on giders
   // the dT and roll angle are all printed out
 {
-  int  i, j;
-  int  n_girders;
-  int  gs_Fnum, ge_Fnum;
-  int  gs_nKid, ge_nKid;
-  int  dip_Fnum,dip_nKid;
-  int  loc, loc_gs, loc_ge;
-  char * name;
-  double s;
-  double PdSsys[2], PdSrms[2], PdSrnd[2], dS[2], dT[2];
+  int          i, j;
+  int          n_girders;
+  int          gs_Fnum, ge_Fnum;
+  int          gs_nKid, ge_nKid;
+  int          dip_Fnum,dip_nKid;
+  int          loc, loc_gs, loc_ge;
+  char         *name;
+  double       s;
+  double       PdSsys[2], PdSrms[2], PdSrnd[2], dS[2], dT[2];
   std::fstream fout;
 
   gs_Fnum = globval.gs;   gs_nKid = GetnKid(gs_Fnum);
@@ -1114,7 +1116,7 @@ void misalign_rms_type(const int type,
 		       const double dx_rms, const double dy_rms,
 		       const double dr_rms, const bool new_rnd)
 {
-  long int   k;
+  long int k;
 
   if ((type >= All) && (type <= HOMmax)) {
     for (k = 1; k <= globval.Cell_nLoc; k++) {
@@ -1136,7 +1138,7 @@ void misalign_sys_type(const int type,
 		       const double dx_sys, const double dy_sys,
 		       const double dr_sys)
 {
-  long int   k;
+  long int k;
 
   if ((type >= All) && (type <= HOMmax)) {
     for (k = 1; k <= globval.Cell_nLoc; k++) {
@@ -1158,9 +1160,9 @@ void misalign_rms_girders(const int gs, const int ge,
 			  const double dx_rms, const double dy_rms,
 			  const double dr_rms, const bool new_rnd)
 {
-  int       i, k, n_girders, n_ge, n_gs;
-  long int  loc_gs, loc_ge, j;
-  double    s_gs, s_ge, dx_gs[2], dx_ge[2], s;
+  int      i, k, n_girders, n_ge, n_gs;
+  long int loc_gs, loc_ge, j;
+  double   s_gs, s_ge, dx_gs[2], dx_ge[2], s;
 
   n_gs = GetnKid(gs); n_ge = GetnKid(ge);
 
@@ -1206,9 +1208,9 @@ void misalign_sys_girders(const int gs, const int ge,
 			  const double dx_sys, const double dy_sys,
 			  const double dr_sys)
 {
-  int       i, k, n_girders, n_ge, n_gs;
-  long int  loc_gs, loc_ge, j;
-  double    s_gs, s_ge, dx_gs[2], dx_ge[2], s;
+  int      i, k, n_girders, n_ge, n_gs;
+  long int loc_gs, loc_ge, j;
+  double   s_gs, s_ge, dx_gs[2], dx_ge[2], s;
 
   n_gs = GetnKid(gs); n_ge = GetnKid(ge);
 
@@ -1256,7 +1258,7 @@ void set_aper_elem(const int Fnum, const int Knum,
 		   const double Dxmin, const double Dxmax,
 		   const double Dymin, const double Dymax)
 {
-  int  k;
+  int k;
 
     k = Elem_GetPos(Fnum, Knum);
     Cell[k].maxampl[X_][0] = Dxmin; Cell[k].maxampl[X_][1] = Dxmax;
@@ -1276,7 +1278,7 @@ void set_aper_fam(const int Fnum,
 void set_aper_type(const int type, const double Dxmin, const double Dxmax,
 		   const double Dymin, const double Dymax)
 {
-  long int   k;
+  long int k;
 
   if (type >= All && type <= HOMmax) {
     for(k = 1; k <= globval.Cell_nLoc; k++)
@@ -1317,7 +1319,7 @@ void set_L(const int Fnum, const int Knum, const double L)
 
 void set_L(const int Fnum, const double L)
 {
-  int  k;
+  int k;
 
   for (k = 1; k <= GetnKid(Fnum); k++)
     set_L(Fnum, k, L);
@@ -1332,7 +1334,7 @@ void set_dL(const int Fnum, const int Knum, const double dL)
 
 void set_dL(const int Fnum, const double dL)
 {
-  int  k;
+  int k;
 
   for (k = 1; k <= GetnKid(Fnum); k++)
     set_dL(Fnum, k, dL);
@@ -1344,7 +1346,7 @@ void set_dL(const int Fnum, const double dL)
 void get_bn_design_elem(const int Fnum, const int Knum,
 			const int n, double &bn, double &an)
 {
-  elemtype  elem;
+  elemtype elem;
 
   if (n < 1) {
     std::cout << "get_bn_design_elem: n < 1 (" << n << ")" << std::endl;
@@ -1360,7 +1362,7 @@ void get_bn_design_elem(const int Fnum, const int Knum,
 void get_bnL_design_elem(const int Fnum, const int Knum,
 			 const int n, double &bnL, double &anL)
 {
-  elemtype  elem;
+  elemtype elem;
 
   if (n < 1) {
     std::cout << "get_bnL_design_elem: n < 1 (" << n << ")" << std::endl;
@@ -1398,7 +1400,7 @@ void set_bn_design_elem(const int Fnum, const int Knum,
 void set_dbn_design_elem(const int Fnum, const int Knum,
 			 const int n, const double dbn, const double dan)
 {
-  elemtype  elem;
+  elemtype elem;
 
   if (n < 1) {
     std::cout << "set_dbn_design_elem: n < 1 (" << n << ")" << std::endl;
@@ -1446,7 +1448,7 @@ void set_dbn_design_fam(const int Fnum,
 void set_bnL_design_elem(const int Fnum, const int Knum,
 			 const int n, const double bnL, const double anL)
 {
-  elemtype  elem;
+  elemtype elem;
 
   if (n < 1) {
     std::cout << "set_bnL_design_elem: n < 1 (" << n << ")" << std::endl;
@@ -1470,7 +1472,7 @@ void set_bnL_design_elem(const int Fnum, const int Knum,
 void set_dbnL_design_elem(const int Fnum, const int Knum,
 			  const int n, const double dbnL, const double danL)
 {
-  elemtype  elem;
+  elemtype elem;
 
   if (n < 1) {
     std::cout << "set_dbnL_design_elem: n < 1 (" << n << ")" << std::endl;
@@ -1524,7 +1526,7 @@ void set_bnL_design_fam(const int Fnum,
 void set_bnL_design_type(const int type,
 			 const int n, const double bnL, const double anL)
 {
-  long int  k;
+  long int k;
 
   if (n < 1) {
     std::cout << "set_bnL_design_type: n < 1 (" << n << ")" << std::endl;
@@ -1543,7 +1545,7 @@ void set_bnL_design_type(const int type,
 void set_bnL_sys_elem(const int Fnum, const int Knum,
 		      const int n, const double bnL, const double anL)
 {
-  elemtype  elem;
+  elemtype elem;
 
   if (n < 1) {
     std::cout << "set_bnL_sys_elem: n < 1 (" << n << ")" << std::endl;
@@ -1589,7 +1591,7 @@ void set_bnL_sys_fam(const int Fnum,
 void set_bnL_sys_type(const int type,
 		      const int n, const double bnL, const double anL)
 {
-  long int   k;
+  long int k;
 
   if (n < 1) {
     std::cout << "set_bnL_sys_type: n < 1 (" << n << ")" << std::endl;
@@ -1609,9 +1611,9 @@ void set_bnL_rms_elem(const int Fnum, const int Knum,
 		      const int n, const double bnL, const double anL,
 		      const bool new_rnd)
 {
-  elemtype  elem;
+  elemtype elem;
 
-  bool  prt = false;
+  bool prt = false;
 
   if (n < 1) {
     std::cout << "set_bnL_rms_elem: n < 1 (" << n << ")" << std::endl;
@@ -1667,7 +1669,7 @@ void set_bnL_rms_type(const int type,
 		      const int n, const double bnL, const double anL,
 		      const bool new_rnd)
 {
-  long int   k;
+  long int k;
 
   if (n < 1) {
     std::cout << "get_bnL_rms_type: n < 1 (" << n << ")" << std::endl;
@@ -1686,9 +1688,9 @@ void set_bnL_rms_type(const int type,
 void set_bnr_sys_elem(const int Fnum, const int Knum,
 		      const int n, const double bnr, const double anr)
 {
-  int        nd;
-  MpoleType  *mp;
-  bool prt = false;
+  int       nd;
+  MpoleType *mp;
+  bool      prt = false;
 
   if (n < 1) {
     std::cout << "set_bnr_sys_elem: n < 1 (" << n << ")" << std::endl;
@@ -1727,7 +1729,7 @@ void set_bnr_sys_fam(const int Fnum,
 void set_bnr_sys_type(const int type,
 		      const int n, const double bnr, const double anr)
 {
-  long int   k;
+  long int k;
 
   if (n < 1) {
     std::cout << "set_bnr_sys_type: n < 1 (" << n << ")" << std::endl;
@@ -1747,10 +1749,10 @@ void set_bnr_rms_elem(const int Fnum, const int Knum,
 		      const int n, const double bnr, const double anr,
 		      const bool new_rnd)
 {
-  int        nd;
-  MpoleType  *mp;
+  int       nd;
+  MpoleType *mp;
 
-  bool  prt = false;
+  bool prt = false;
 
   if (n < 1) {
     std::cout << "set_bnr_rms_elem: n < 1 (" << n << ")" << std::endl;
@@ -1808,7 +1810,7 @@ void set_bnr_rms_type(const int type,
 		      const int n, const double bnr, const double anr,
 		      const bool new_rnd)
 {
-  long int   k;
+  long int k;
 
   if (n < 1) {
     std::cout << "set_bnr_rms_type: n < 1 (" << n << ")" << std::endl;
@@ -1840,7 +1842,7 @@ void set_Wiggler_BoBrho(const int Fnum, const int Knum, const double BoBrhoV)
 
 void set_Wiggler_BoBrho(const int Fnum, const double BoBrhoV)
 {
-  int  k;
+  int k;
 
   for (k = 1; k <= GetnKid(Fnum); k++)
     set_Wiggler_BoBrho(Fnum, k, BoBrhoV);
@@ -1849,8 +1851,8 @@ void set_Wiggler_BoBrho(const int Fnum, const double BoBrhoV)
 
 void set_ID_scl(const int Fnum, const int Knum, const double scl)
 {
-  int           k;
-  WigglerType*  W;
+  int          k;
+  WigglerType* W;
 
   switch (Cell[Elem_GetPos(Fnum, Knum)].Elem.Pkind) {
   case Wigl:
@@ -1888,8 +1890,8 @@ void SetFieldValues_fam(const int Fnum, const bool rms, const double r0,
 			const int n, const double Bn, const double An,
 			const bool new_rnd)
 {
-  int     N;
-  double  bnr, anr;
+  int    N;
+  double bnr, anr;
 
   N = Cell[Elem_GetPos(Fnum, 1)].Elem.M->n_design;
   if (r0 == 0.0) {
@@ -1912,7 +1914,7 @@ void SetFieldValues_type(const int N, const bool rms, const double r0,
 			 const int n, const double Bn, const double An,
 			 const bool new_rnd)
 {
-  double  bnr, anr;
+  double bnr, anr;
 
   if (r0 == 0.0) {
     // input is: (b_n L), (a_n L)
@@ -1934,7 +1936,7 @@ void SetFieldErrors(const char *name, const bool rms, const double r0,
 		    const int n, const double Bn, const double An,
 		    const bool new_rnd)
 {
-  int     Fnum;
+  int Fnum;
 
   if (strcmp("all", name) == 0) {
     printf("all: not yet implemented\n");
@@ -2007,12 +2009,14 @@ bool CorrectCOD(const int n_orbit, const double scl)
 
 void prt_beamsizes()
 {
-  int   k;
-  FILE  *fp;
+  int  k;
+  FILE *fp;
 
   fp = file_write(beam_envelope_file);
 
-  fprintf(fp,"# k    name    s    s_xx    s_pxpx    s_xpx    s_yy    s_pypy    s_ypy    theta_xy\n");
+  fprintf(fp,
+	  "# k    name    s    s_xx    s_pxpx    s_xpx    s_yy"
+	  "    s_pypy    s_ypy    theta_xy\n");
   for(k = 0; k <= globval.Cell_nLoc; k++)
     fprintf(fp,"%4d %10s %e %e %e %e %e %e %e %e\n",
 	    k, Cell[k].Elem.PName, Cell[k].S,
@@ -2029,7 +2033,7 @@ void prt_beamsizes()
 
 double f_int_Touschek(const double u)
 {
-  double  f;
+  double f;
 
   if (u > 0.0)
     f = (1.0/u-log(1.0/u)/2.0-1.0)*exp(-u_Touschek/u);
@@ -2046,9 +2050,9 @@ double Touschek_loc(const long int i, const double gamma,
 		    const double sigma_delta, const double sigma_s,
 		    const bool ZAP_BS)
 {
-  int     k;
-  double  sigma_x, sigma_y, sigma_xp, curly_H, dtau_inv;
-  double  alpha[2], beta[2], eta[2], etap[2];
+  int    k;
+  double sigma_x, sigma_y, sigma_xp, curly_H, dtau_inv;
+  double alpha[2], beta[2], eta[2], etap[2];
 
   if ((i < 0) || (i > globval.Cell_nLoc)) {
     std::cout << "Touschek_loc: undefined location " << i << std::endl;
@@ -2100,11 +2104,11 @@ double Touschek(const double Qb, const double delta_RF,
   // instead of the integrand; incorrect.  Hence, the Touschek lifetime is
   // overestimated by ~20%.
 
-  long int  i;
-  double    p1, p2, dtau_inv, tau_inv;
+  long int i;
+  double   p1, p2, dtau_inv, tau_inv;
 
-  const bool    ZAP_BS = false;
-  const double  gamma = 1e9*globval.Energy/m_e, N_e = Qb/q_e;
+  const bool   ZAP_BS = false;
+  const double gamma = 1e9*globval.Energy/m_e, N_e = Qb/q_e;
 
   printf("\n");
   printf("Qb = %4.2f nC, delta_RF = %4.2f%%"
@@ -2153,12 +2157,12 @@ void mom_aper(double &delta, double delta_RF, const long int k,
 	      const int n_turn, const bool positive)
 {
   // Binary search to determine momentum aperture at location k.
-  int       j;
-  long int  lastpos;
-  double    delta_min, delta_max;
-  psVector    x;
+  int      j;
+  long int lastpos;
+  double   delta_min, delta_max;
+  psVector x;
 
-  const double  eps = 1e-4;
+  const double eps = 1e-4;
 
   delta_min = 0.0; delta_max = positive ? fabs(delta_RF) : -fabs(delta_RF);
   while (fabs(delta_max-delta_min) > eps) {
@@ -2208,7 +2212,7 @@ double Touschek(const double Qb, const double delta_RF, const bool consistent,
   const bool prt = false;
 
   //  const char  file_name[] = "Touschek.out";
-  const double  eps = 1e-12, gamma = 1e9*globval.Energy/m_e, N_e = Qb/q_e;
+  const double eps = 1e-12, gamma = 1e9*globval.Energy/m_e, N_e = Qb/q_e;
 
   cav = globval.Cavity_on; aper = globval.Aperture_on;
 
@@ -2293,7 +2297,7 @@ double f_IBS(const double chi_m)
 {
   // Interpolated integral (V. Litvinenko).
 
-  double  f, ln_chi_m;
+  double f, ln_chi_m;
 
   const double A = 1.0, B = 0.579, C = 0.5;
 
@@ -2313,11 +2317,11 @@ double f_int_IBS(const double chi)
 
 double get_int_IBS(void)
 {
-  int     k;
-  double  f;
+  int    k;
+  double f;
 
-  const int     n_decades = 30;
-  const double  base      = 10e0;
+  const int    n_decades = 30;
+  const double base      = 10e0;
 
   f = 0e0;
   for (k = 0; k <= n_decades; k++) {
@@ -2367,14 +2371,14 @@ void IBS(const double Qb, const double eps_SR[], double eps[],
 
        eps_x = eps_x_SR/2 + sqrt(eps_x_SR^2/4+eps_x_IBS^2)                   */
 
-  long int  k;
-  double    D_x, D_delta, b_max, L, gamma_z, a;
-  double    sigma_x, sigma_xp, sigma_y, sigma_s, sigma_delta;
-  double    incr, curly_H, eps_IBS[3];
-  double    sigma_s_SR, sigma_delta_SR;
+  long int k;
+  double   D_x, D_delta, b_max, L, gamma_z, a;
+  double   sigma_x, sigma_xp, sigma_y, sigma_s, sigma_delta;
+  double   incr, curly_H, eps_IBS[3];
+  double   sigma_s_SR, sigma_delta_SR;
 
-  const bool    integrate = false;
-  const double  gamma = 1e9*globval.Energy/m_e, N_b = Qb/q_e;
+  const bool   integrate = false;
+  const double gamma = 1e9*globval.Energy/m_e, N_b = Qb/q_e;
 
   // bunch size
   gamma_z = (1.0+sqr(globval.alpha_z))/globval.beta_z;
@@ -2473,11 +2477,11 @@ double f_int_IBS_BM(const double lambda)
 
 double get_int_IBS_BM(void)
 {
-  int     k;
-  double  f;
+  int    k;
+  double f;
 
-  const int     n    = 30;
-  const double  decade = 10e0;
+  const int    n    = 30;
+  const double decade = 10e0;
 
   f = 0e0;
   for (k = 0; k <= n; k++) {
@@ -2505,21 +2509,21 @@ void IBS_BM(const double Qb, const double eps_SR[], double eps[],
   // averages the optics functions over an element instead of the integrand;
   // incorrect.  Hence, the IBS effect is underestimated.
 
-  long int  k;
-  int       i;
-  double    gamma_z, sigma_s_SR, sigma_delta_SR, sigma_s, sigma_delta;
-  double    V, beta_m[2], sigma_m[2], alpha[2], beta[2], eta[2], etap[2];
-  double    T_trans, rho, lambda_D, r_max;
-  double    r_min, r_min_Cl, r_min_QM, log_Coulomb;
-  double    L, curly_H[2], phi[2], dtau_inv[3], tau_inv[3], Gamma;
-  double    a_BM, b_BM, c_BM, a2_CM, b2_CM, D_CM;
-  double    D_x, D_delta, eps_IBS[3];
+  long int k;
+  int      i;
+  double   gamma_z, sigma_s_SR, sigma_delta_SR, sigma_s, sigma_delta;
+  double   V, beta_m[2], sigma_m[2], alpha[2], beta[2], eta[2], etap[2];
+  double   T_trans, rho, lambda_D, r_max;
+  double   r_min, r_min_Cl, r_min_QM, log_Coulomb;
+  double   L, curly_H[2], phi[2], dtau_inv[3], tau_inv[3], Gamma;
+  double   a_BM, b_BM, c_BM, a2_CM, b2_CM, D_CM;
+  double   D_x, D_delta, eps_IBS[3];
 
-  const bool    ZAP_BS = true;
-  const int     model = 2; // 1: Bjorken-Mtingwa, 2: Conte-Martini, 3: MAD-X
-  const double  gamma = 1e9*globval.Energy/m_e;
-  const double  beta_rel = sqrt(1e0-1e0/sqr(gamma));
-  const double  N_b = Qb/q_e, q_i = 1e0;
+  const bool   ZAP_BS = true;
+  const int    model = 2; // 1: Bjorken-Mtingwa, 2: Conte-Martini, 3: MAD-X
+  const double gamma = 1e9*globval.Energy/m_e;
+  const double beta_rel = sqrt(1e0-1e0/sqr(gamma));
+  const double N_b = Qb/q_e, q_i = 1e0;
 
   // bunch size
   gamma_z = (1e0+sqr(globval.alpha_z))/globval.beta_z;
@@ -2842,7 +2846,7 @@ void IBS_BM(const double Qb, const double eps_SR[], double eps[],
 
 void rm_space(char *name)
 {
-  int  i, k;
+  int i, k;
 
   i = 0;
   while (name[i] == ' ')
@@ -2855,10 +2859,10 @@ void rm_space(char *name)
 
 void get_bn(const char file_name[], int n, const bool prt)
 {
-  char      line[max_str], str[max_str], str1[max_str], *token, *name, *p;
-  int       n_prm, Fnum, Knum, order;
-  double    bnL, bn, C, L;
-  FILE      *inf, *fp_lat;
+  char   line[max_str], str[max_str], str1[max_str], *token, *name, *p;
+  int    n_prm, Fnum, Knum, order;
+  double bnL, bn, C, L;
+  FILE   *inf, *fp_lat;
 
   inf = file_read(file_name); fp_lat = file_write("get_bn.lat");
 
@@ -2940,12 +2944,12 @@ void get_bn(const char file_name[], int n, const bool prt)
 double get_dynap(const double delta, const int n_aper, const int n_track,
 		 const bool cod)
 {
-  char      str[max_str];
-  int       i;
-  double    x_aper[n_aper], y_aper[n_aper], DA;
-  FILE      *fp;
+  char   str[max_str];
+  int    i;
+  double x_aper[n_aper], y_aper[n_aper], DA;
+  FILE   *fp;
 
-  const int  prt = true;
+  const int prt = true;
 
   fp = file_write("dynap.out");
   dynap(fp, 5e-3, 0.0, 0.1e-3, n_aper, n_track, x_aper, y_aper, false, cod,
@@ -2979,8 +2983,8 @@ double get_chi2(long int n, double x[], double y[], long int m, psVector b)
 {
   /* Compute chi2 for polynomial fit */
 
-  int     i, j;
-  double  sum, z;
+  int    i, j;
+  double sum, z;
 
   sum = 0.0;
   for (i = 0; i < n; i++) {
@@ -2998,8 +3002,8 @@ void pol_fit(int n, double x[], double y[], int order, psVector &b,
 {
   /* Polynomial fit by linear chi-square */
 
-  int     i, j, k;
-  Matrix  T1;
+  int    i, j, k;
+  Matrix T1;
 
   const	double sigma_k = 1.0, chi2 = 4.0;
 
@@ -3032,12 +3036,12 @@ void pol_fit(int n, double x[], double y[], int order, psVector &b,
 
 void get_ksi2(const double d_delta)
 {
-  const int     n_points = 20, order = 5;
+  const int n_points = 20, order = 5;
 
-  int       i, n;
-  double    delta[2*n_points+1], nu[2][2*n_points+1], sigma;
-  psVector    b;
-  FILE      *fp;
+  int      i, n;
+  double   delta[2*n_points+1], nu[2][2*n_points+1], sigma;
+  psVector b;
+  FILE     *fp;
 
   fp = file_write("chrom2.out");
   n = 0;
@@ -3060,8 +3064,8 @@ void get_ksi2(const double d_delta)
 
 bool find_nu(const int n, const double nus[], const double eps, double &nu)
 {
-  bool  lost;
-  int   k;
+  bool lost;
+  int  k;
 
   k = 0;
   while ((k < n) && (fabs(nus[k]-nu) > eps)) {
@@ -3084,19 +3088,19 @@ bool find_nu(const int n, const double nus[], const double eps, double &nu)
 bool get_nu(const double Ax, const double Ay, const double delta,
 	    const double eps, double &nu_x, double &nu_y)
 {
-  const int  n_turn = 512, n_peaks = 5;
+  const int n_turn = 512, n_peaks = 5;
 
-  bool      lost, ok_x, ok_y;
-  char      str[max_str];
-  int       i;
-  long int  lastpos, lastn, n;
-  double    x[n_turn], px[n_turn], y[n_turn], py[n_turn];
-  double    nu[2][n_peaks], A[2][n_peaks];
-  psVector    x0;
-  FILE      *fp;
+  bool     lost, ok_x, ok_y;
+  char     str[max_str];
+  int      i;
+  long int lastpos, lastn, n;
+  double   x[n_turn], px[n_turn], y[n_turn], py[n_turn];
+  double   nu[2][n_peaks], A[2][n_peaks];
+  psVector x0;
+  FILE     *fp;
 
-  const bool   prt = false;
-  const char   file_name[] = "track.out";
+  const bool prt = false;
+  const char file_name[] = "track.out";
 
   // complex FFT in Floquet space
   x0[x_] = Ax; x0[px_] = 0.0; x0[y_] = Ay; x0[py_] = 0.0;
@@ -3133,17 +3137,17 @@ bool get_nu(const double Ax, const double Ay, const double delta,
 void dnu_dA(const double Ax_max, const double Ay_max, const double delta,
 	    const int n_ampl)
 {
-  bool      ok;
-  int       i;
-  double    nu_x, nu_y, Ax, Ay, Jx, Jy;
-  psVector    ps;
-  FILE      *fp;
+  bool     ok;
+  int      i;
+  double   nu_x, nu_y, Ax, Ay, Jx, Jy;
+  psVector ps;
+  FILE     *fp;
 
-  const double  A_min  = 0.1e-3;
+  const double A_min  = 0.1e-3;
 //  const double  eps0   = 0.04, eps   = 0.02;
 //  const double  eps0   = 0.025, eps   = 0.02;
 //   const double  eps0   = 0.04, eps   = 0.015;
-  const double  eps = 0.01;
+  const double eps = 0.01;
 
   Ring_GetTwiss(false, 0.0);
 
@@ -3243,10 +3247,10 @@ void dnu_dA(const double Ax_max, const double Ay_max, const double delta,
 
 bool orb_corr(const int n_orbit)
 {
-  bool      cod = false;
-  int       i;
-  long      lastpos;
-  Vector2   xmean, xsigma, xmax;
+  bool    cod = false;
+  int     i;
+  long    lastpos;
+  Vector2 xmean, xsigma, xmax;
 
   printf("\n");
   globval.CODvect.zero();
@@ -3277,7 +3281,7 @@ bool orb_corr(const int n_orbit)
 
 void get_alphac(void)
 {
-  CellType  Cell;
+  CellType Cell;
 
   getelem(globval.Cell_nLoc, &Cell);
   globval.Alphac = globval.OneTurnMat[ct_][delta_]/Cell.S;
@@ -3289,14 +3293,14 @@ void get_alphac2(void)
   /* Note, do not extract from M[5][4], i.e. around delta
      dependent fixed point.                                */
 
-  const int     n_points = 5;
-  const double  d_delta  = 2e-2;
+  const int    n_points = 5;
+  const double d_delta  = 2e-2;
 
-  int       i, j, n;
-  long int  lastpos;
-  double    delta[2*n_points+1], alphac[2*n_points+1], sigma;
-  psVector    x, b;
-  CellType  Cell;
+  int      i, j, n;
+  long int lastpos;
+  double   delta[2*n_points+1], alphac[2*n_points+1], sigma;
+  psVector x, b;
+  CellType Cell;
 
   globval.pathlength = false;
   getelem(globval.Cell_nLoc, &Cell); n = 0;
@@ -3318,9 +3322,9 @@ void get_alphac2(void)
 double f_bend(double b0L[])
 {
   long int lastpos;
-  psVector   ps;
+  psVector ps;
 
-  const int   n_prt = 10;
+  const int n_prt = 10;
 
   n_iter_Cart++;
 
@@ -3332,9 +3336,10 @@ double f_bend(double b0L[])
 
   if (n_iter_Cart % n_prt == 0)
     std::cout << std::scientific << std::setprecision(3)
-	 << std::setw(4) << n_iter_Cart
-	 << std::setw(11) << ps[x_] << std::setw(11) << ps[px_] << std::setw(11) << ps[ct_]
-	 << std::setw(11) << b0L[1] << std::endl;
+	      << std::setw(4) << n_iter_Cart
+	      << std::setw(11) << ps[x_] << std::setw(11) << ps[px_]
+	      << std::setw(11) << ps[ct_]
+	      << std::setw(11) << b0L[1] << std::endl;
 
   return sqr(ps[x_]) + sqr(ps[px_]);
 }
@@ -3343,10 +3348,10 @@ double f_bend(double b0L[])
 void bend_cal_Fam(const int Fnum)
 {
   /* Adjusts b1L_sys to zero the orbit for a given gradient. */
-  const int  n_prm = 1;
+  const int n_prm = 1;
 
-  int    iter;
-  double *b0L, **xi, fret;
+  int      iter;
+  double   *b0L, **xi, fret;
   psVector ps;
 
   const double ftol = 1e-15;
@@ -3368,7 +3373,7 @@ void bend_cal_Fam(const int Fnum)
 
 void bend_cal(void)
 {
-  long int  k;
+  long int k;
 
   for (k = 1; k <= globval.Elem_nFam; k++)
     if ((ElemFam[k-1].ElemF.Pkind == Mpole) &&
@@ -3381,8 +3386,8 @@ void bend_cal(void)
 double h_ijklm(const tps &h, const int i, const int j, const int k,
 	       const int l, const int m)
 {
-  int      i1;
-  iVector  jj;
+  int     i1;
+  iVector jj;
 
   for (i1 = 0; i1 < nv_tps; i1++)
     jj[i1] = 0;
@@ -3393,13 +3398,13 @@ double h_ijklm(const tps &h, const int i, const int j, const int k,
 
 void set_tune(const char file_name1[], const char file_name2[], const int n)
 {
-  const int  n_b2 = 8;
+  const int n_b2 = 8;
 
-  char      line[max_str], names[n_b2][max_str];
-  int       j, k, Fnum;
-  double    b2s[n_b2], nu[2];
-  std::ifstream  inf1, inf2;
-  FILE      *fp_lat;
+  char          line[max_str], names[n_b2][max_str];
+  int           j, k, Fnum;
+  double        b2s[n_b2], nu[2];
+  std::ifstream inf1, inf2;
+  FILE          *fp_lat;
 
   file_rd(inf1, file_name1); file_rd(inf2, file_name2);
 
@@ -3459,7 +3464,7 @@ void get_map_twiss(const ss_vect<tps> &M,
 		   double beta0[], double beta1[], double nu[], bool stable[])
 {
   // Assumes that alpha_0 = alpha_1 = 0.
-  int k;
+  int    k;
   double cosmu, sinmu;
 
   const bool prt = true;

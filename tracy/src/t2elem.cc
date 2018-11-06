@@ -323,9 +323,9 @@ class is_tps<tps> {
 
   static inline double get_curly_H(const ss_vect<tps> &A)
   {
-    int              j;
-    double           curly_H[2];
-    ss_vect<double>  eta;
+    int             j;
+    double          curly_H[2];
+    ss_vect<double> eta;
 
     eta.zero();
     for (j = 0; j < 4; j++)
