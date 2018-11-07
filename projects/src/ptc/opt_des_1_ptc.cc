@@ -809,9 +809,10 @@ double constr_type::get_chi2(void) const
   chi2 += L_scl*sqr(Cell[globval.Cell_nLoc].S-L0);
   for (k = 0; k < 2; k++) {
     chi2 += ksi1_scl*sqr(ksi1[k]);
-    chi2 += drv_terms_scl*drv_terms_simple[k];
     chi2 += mI_scl[k]*sqr(mI[k]-mI0[k]);
   }
+  for (k = 0; k < (int)drv_terms.size(); k++)
+    chi2 += drv_terms_scl*sqr(drv_terms[k]);
   if (lat_constr.beta_eta_x_scl != 0e0)
     // Only include if allocated.
     for (k = 0; k < 2; k++) {
@@ -823,7 +824,7 @@ double constr_type::get_chi2(void) const
       chi2 +=
 	high_ord_achr_scl*sqr(high_ord_achr_dnu[j][k]-high_ord_achr_nu[k]);
 
-  if (prt) printf("\nget_chi2: %12.5e\n", chi2);
+  if (prt) printf("\nget_chi2: %11.5e (%11.5e)\n", chi2, this->chi2);
 
   return chi2;
 }
@@ -893,40 +894,20 @@ void prt_val(const constr_type &constr)
 
 void prt_h(const constr_type &constr)
 {
-  int k;
-
-  printf("    h            = [%10.3e, %10.3e]\n",
-	 sqrt(constr.drv_terms_simple[X_]), sqrt(constr.drv_terms_simple[Y_]));
-
-  printf("    b_3L         = [");
-  for (k = 0; k < constr.n_b3; k++) {
-    get_bnL_design_elem(constr.Fnum_b3[k], 1, Sext, b3L, a3L);
-    printf("%10.3e", b3L);
-    if (k != constr.n_b3-1) printf(", ");
-  }
-  printf("]\n");
-  printf("    b_3          = [");
-  for (k = 0; k < constr.n_b3; k++) {
-    get_bn_design_elem(constr.Fnum_b3[k], 1, Sext, b3, a3);
-    printf("%10.3e", b3);
-    if (k != constr.n_b3-1) printf(", ");
-  }
-  printf("]\n");
-}
-
-
-void prt_drv_terms(const constr_type &constr)
-{
   int    k;
   double b3L, a3L, b3, a3;
 
-  if (constr.n_b3 == 0) {
-    printf("\nprt_drv_terms: no sextupole families defined\n");
-    exit(0);
+  printf("    h            = [");
+  for (k = 0; k < 3; k++) {
+    printf("%10.3e", constr.drv_terms[k]);
+    if (k < 2) printf(",");
   }
-
-  printf("    drv. terms   = [%10.3e, %10.3e]\n",
-	 sqrt(constr.drv_terms_simple[X_]), sqrt(constr.drv_terms_simple[Y_]));
+  printf("]\n                   [");
+  for (k = 3; k < 8; k++) {
+    printf("%10.3e", constr.drv_terms[k]);
+    if (k < 7) printf(",");
+  }
+  printf("]\n");
 
   printf("    b_3L         = [");
   for (k = 0; k < constr.n_b3; k++) {
@@ -1003,12 +984,12 @@ void constr_type::prt_constr(const double chi2)
   if (L_scl != 0e0)
     printf("    L            = %7.5f (%7.5f)\n", Cell[globval.Cell_nLoc].S, L0);
 
-  if (drv_terms_scl != 0e0) prt_drv_terms(*this);
+  if (drv_terms_scl != 0e0) prt_h(*this);
 
   if (high_ord_achr_scl != 0e0) prt_high_ord_achr(*this);
 
   if ((mI_scl[X_] != 0e0) || (mI_scl[Y_] != 0e0))
-    printf("\n    -I Transf.   = [%8.5f,   %8.5f]\n", mI[X_], mI[Y_]);
+    printf("\n    -I Transf.   = [%7.5f, %7.5f]\n", mI[X_], mI[Y_]);
 
   prt_val(*this);
 }
@@ -1316,28 +1297,42 @@ bool get_nu(double nu[])
 }
 
 
-void get_h(const double twoJx, const double twoJy, const double delta,
-	   constr_type &constr)
+tps get_h_local(const ss_vect<tps> &map)
+{
+  ss_vect<tps>  map1, R;
+
+  if (true)
+    // Dragt-Finn factorization.
+    return LieFact_DF(map, R);
+  else {
+    // Single Lie exponent.
+    danot_(1); map1 = map; danot_(no_tps);
+    return LieFact(map*Inv(map1));
+  }
+}
+
+
+void get_h(const double twoJ[], const double delta, constr_type &constr)
 {
   int          k;
   tps          K_re, K_im, h_re, h_im;
   ss_vect<tps> Id_scl;
 
-  const double twoJ[] = {twoJx, twoJy};
+  const bool   prt = false;
 
   Id_scl.identity();
-  for (k = 0; k < 2; k++) {
-    Id_scl[2*k] *= sqrt(twoJ[k]); Id_scl[2*k+1] *= sqrt(twoJ[k]);
-  }
+  for (k = 0; k < 4; k++)
+    Id_scl[k] *= sqrt(twoJ[k/2]);
   Id_scl[delta_] *= delta;
 
   danot_(no_tps-1);
   get_map(false);
   danot_(no_tps);
-  MNF = MapNorm(map, no_tps);
-  CtoR(get_h()*Id_scl, h_re, h_im);
+  putlinmat(6, globval.Ascr, MNF.A1);
+  CtoR(get_h_local(Inv(MNF.A1)*map*MNF.A1)*Id_scl, h_re, h_im);
 
   // 1st order chromatic.
+  constr.drv_terms.clear();
   constr.drv_terms.push_back(h_ijklm(h_re, 1, 0, 0, 0, 2));
   constr.drv_terms.push_back(h_ijklm(h_re, 2, 0, 0, 0, 1));
   constr.drv_terms.push_back(h_ijklm(h_re, 0, 0, 2, 0, 1));
@@ -1347,25 +1342,8 @@ void get_h(const double twoJx, const double twoJy, const double delta,
   constr.drv_terms.push_back(h_ijklm(h_re, 3, 0, 0, 0, 0));
   constr.drv_terms.push_back(h_ijklm(h_re, 1, 0, 0, 2, 0));
   constr.drv_terms.push_back(h_ijklm(h_re, 1, 0, 2, 0, 0));
-}
 
-
-void get_drv_terms_simple(constr_type &constr)
-{
-  int    j, k, n_kid;
-  double b3L, a3L;
-
-  for (k = 0; k < 2; k++)
-    constr.drv_terms_simple[k] = 0e0;
-  for (k = 0; k < constr.n_b3; k++) {
-    get_bnL_design_elem(constr.Fnum_b3[k], 1, Sext, b3L, a3L);
-    n_kid = GetnKid(constr.Fnum_b3[k]);
-    for (j = 0; j < 2; j++) {
-      constr.drv_terms_simple[j] +=
-	n_kid
-	*sqr(b3L*pow(Cell[Elem_GetPos(constr.Fnum_b3[k], 1)].Beta[j], 1.5));
-    }
-  }
+  if (prt) cout << h_re;
 }
 
 
@@ -1532,10 +1510,8 @@ double f_match(double *b2)
 
   eps_x = get_lin_opt(lat_constr);
 
-  if (lat_constr.drv_terms_scl != 0e0) {
-    get_drv_terms_simple(lat_constr);
-    get_h(twoJ[X_], twoJ[Y_], delta, lat_constr);
-  }
+  if (lat_constr.drv_terms_scl != 0e0)
+    get_h(twoJ, delta, lat_constr);
 
   if (lat_constr.high_ord_achr_scl != 0e0) get_high_ord_achr(lat_constr);
 
@@ -1569,8 +1545,7 @@ double f_achrom(double *b2)
 
     if (lat_constr.drv_terms_scl != 0e0) {
       fit_ksi1(lat_constr.Fnum_b3, 0e0, 0e0, 1e1);
-      get_drv_terms_simple(lat_constr);
-      get_h(twoJ[X_], twoJ[Y_], delta, lat_constr);
+      get_h(twoJ, delta, lat_constr);
     }
 
     if (lat_constr.high_ord_achr_scl != 0e0) get_high_ord_achr(lat_constr);
@@ -1803,7 +1778,7 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
 
   lat_constr.eps_x_scl = 1e4; lat_constr.eps0_x = 0.095;
 
-  lat_constr.high_ord_achr_scl = 1e4;
+  lat_constr.high_ord_achr_scl = 1e-14;
   for (k = 0; k < 2; k++)
     lat_constr.high_ord_achr_nu[k] = high_ord_achr_nu[k];
 
@@ -1817,7 +1792,7 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
     lat_constr.high_ord_achr_dnu[k].resize(2, 0e0);
 
   lat_constr.ksi1_scl      = 0e0;
-  lat_constr.drv_terms_scl = 1e-4;
+  lat_constr.drv_terms_scl = 1e13;
 
   lat_constr.mI_scl[X_]    = 1e5;
   lat_constr.mI_scl[Y_]    = 1e5;
@@ -2365,7 +2340,8 @@ int main(int argc, char *argv[])
   globval.pathlength     = false;  globval.bpm         = 0;
   globval.dip_edge_fudge = true;
 
-  // set_map_reversal(ElemIndex("line_inv"));
+  // disable from TPSALib and LieLib log messages
+  idprset(-1);
 
   if (ps_rot) {
     Ring_GetTwiss(true, 0e0); printglob();

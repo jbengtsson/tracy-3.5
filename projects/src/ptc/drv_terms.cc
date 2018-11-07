@@ -9,10 +9,9 @@ int no_tps   = NO,
 const bool   set_dnu = false;
 const int    n_cell  = 1;
 const double
-  A_max[]    = {2e-2, 1e-2},
-  delta_max  = 2e-2,
-  beta_inj[] = {10.5, 5.2},
-  dnu[]      = {0.03, 0.02};
+  twoJ[]    = {sqr(7e-3)/10.0, sqr(4e-3)/4.0},
+  delta_max = 2.5e-2,
+  dnu[]     = {0.03, 0.02};
 
 
 void chk_bend()
@@ -171,8 +170,6 @@ void get_drv_terms(const double twoJ[], const double delta)
 
 int main(int argc, char *argv[])
 {
-  int    j;
-  double twoJ[2];
 
   globval.H_exact    = false; globval.quad_fringe = false;
   globval.Cavity_on  = false; globval.radiation   = false;
@@ -198,7 +195,5 @@ int main(int argc, char *argv[])
     Ring_GetTwiss(true, 0e0); printglob();
   }
 
-  for (j = 0; j < 2; j++)
-    twoJ[j] = sqr(A_max[j])/beta_inj[j];
   get_drv_terms(twoJ, delta_max);
 }

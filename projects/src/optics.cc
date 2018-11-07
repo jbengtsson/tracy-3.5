@@ -6,7 +6,7 @@ int no_tps = NO;
 
 
 const bool
-  set_dnu = !false,
+  set_dnu = false,
   mI_rot  = false,
   HOA_rot = false,
   prt_ms  = false,
@@ -717,10 +717,10 @@ int main(int argc, char *argv[])
 
   if (false) no_sxt();
 
-  if (false) {
+  if (!false) {
     Ring_GetTwiss(true, 0e0); printglob();
-    dnu[X_] = -0.18; dnu[Y_] = -0.1;
-    set_map(ElemIndex("ps_rot"), dnu);
+    dnu[X_] = 0.320; dnu[Y_] = -0.117;
+    set_map(ElemIndex("ps_rot2"), dnu);
   }
 
   Ring_GetTwiss(true, 0e0); printglob();
