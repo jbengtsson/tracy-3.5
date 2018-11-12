@@ -31,12 +31,16 @@ void chk_bend()
 }
 
 
-double h_abs_ijklm(const tps &h_re, const tps &h_im,
-		   const int i, const int j, const int k, const int l,
-		   const int m)
+double h_abs_ijklm(const tps &h_re, const tps &h_im, const int i, const int j,
+		   const int k, const int l, const int m)
 {
-  return sqrt(sqr(h_ijklm(h_re, i, j, k, l, m))
-  	      +sqr(h_ijklm(h_im, i, j, k, l, m)));
+  int     i1;
+  iVector jj;
+
+  for (i1 = 0; i1 < nv_tps; i1++)
+    jj[i1] = 0;
+  jj[x_] = i; jj[px_] = j; jj[y_] = k; jj[py_] = l; jj[delta_] = m;
+  return sqrt(sqr(h_re[jj])+sqr(h_im[jj]));
 }
 
 
