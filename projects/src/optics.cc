@@ -717,7 +717,7 @@ int main(int argc, char *argv[])
 
   if (false) no_sxt();
 
-  if (!false) {
+  if (false) {
     Ring_GetTwiss(true, 0e0); printglob();
     dnu[X_] = 0.320; dnu[Y_] = -0.117;
     set_map(ElemIndex("ps_rot2"), dnu);
@@ -845,7 +845,7 @@ int main(int argc, char *argv[])
     exit(0);
   }
 
-  if (!false) {
+  if (false) {
     printf("Lattice Case (1..3)? ");
     scanf("%d", &lat_case);
 

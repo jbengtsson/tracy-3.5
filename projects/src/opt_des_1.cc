@@ -1775,7 +1775,6 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
   // Super Period.
   lat_constr.phi_scl = 1e0;
   lat_constr.phi0 = 60.0;
-  // lat_constr.phi0 = 64.807980;
   lat_constr.L_scl = 1e-10; lat_constr.L0 = 10.0;
 
   lat_constr.ini_constr(true);
