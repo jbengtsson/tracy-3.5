@@ -1675,13 +1675,15 @@ void opt_mI_std(param_type &prms, constr_type &constr)
   lat_constr.Fnum_b3.push_back(ElemIndex("sd1"));
   lat_constr.Fnum_b3.push_back(ElemIndex("sd2"));
 
-  lat_constr.eps_x_scl = 1e5; lat_constr.eps0_x = 0.190;
+  lat_constr.eps0_x = 0.190;
 
+  for (k = 0; k < 2; k++)
+    lat_constr.mI0[k] = mI_nu_ref[k];
+
+  lat_constr.eps_x_scl     = 1e5;
   lat_constr.drv_terms_scl = 1e-3;
   lat_constr.mI_scl[X_]    = 1e5;
   lat_constr.mI_scl[Y_]    = 1e5;
-  for (k = 0; k < 2; k++)
-    lat_constr.mI0[k] = mI_nu_ref[k];
 
   // Standard Cell.
   lat_constr.phi_scl = 1e0; lat_constr.phi0 = 15.0;
@@ -1764,10 +1766,12 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
  // Parameters are initialized in optimizer.
 
   // Lattice constraints are: alpha_x,y, beta_x,y, eta_x, eta'_x.
-  constr.add_constr(Elem_GetPos(ElemIndex("dl1a_5"), 1)-1,
+  constr.add_constr(Elem_GetPos(ElemIndex("bl1_5"), 1)-1,
+  // constr.add_constr(Elem_GetPos(ElemIndex("dl1a_5"), 1)-1,
   		    0e0, 0e0, 0e0, 0e0, 1e6, 1e6,
   		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-  constr.add_constr(Elem_GetPos(ElemIndex("dl1a_5"), 2),
+  constr.add_constr(Elem_GetPos(ElemIndex("bl1_5"), 2),
+  // constr.add_constr(Elem_GetPos(ElemIndex("dl1a_5"), 2),
   		    0e0, 0e0, 0e0, 0e0, 1e6, 1e6,
   		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   // Include constraint on alpha; in case of using ps_rot.
@@ -1812,19 +1816,19 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
   for (k = 0; k < 2; k++)
     lat_constr.mI0[k] = mI_nu_ref[k];
 
-  lat_constr.eps_x_scl         = 1e3;
-  lat_constr.ksi1_svd_scl[X_]  = 1e2;
+  lat_constr.eps_x_scl         = 1e2;
+  lat_constr.ksi1_svd_scl[X_]  = 1e3;
   lat_constr.ksi1_svd_scl[Y_]  = 1e3;
-  lat_constr.drv_terms_scl     = 1e14;
+  lat_constr.drv_terms_scl     = 1e15;
   lat_constr.mI_scl[X_]        = 1e5;
   lat_constr.mI_scl[Y_]        = 1e5;
-  lat_constr.high_ord_achr_scl = 1e6;
+  lat_constr.high_ord_achr_scl = 2e5;
 
-  printf("\n  eps_x_scl         =  %9.3e\n"
+  printf("\n  eps_x_scl         = %9.3e\n"
 	 "  ksi1_svd_scl      = [%9.3e, %9.3e]\n"
-	 "  drv_terms_scl     =  %9.3e\n"
+	 "  drv_terms_scl     = %9.3e\n"
 	 "  mI_scl            = [%9.3e, %9.3e]\n"
-	 "  high_ord_achr_scl =  %9.3e\n",
+	 "  high_ord_achr_scl = %9.3e\n",
 	 lat_constr.eps_x_scl,
 	 lat_constr.ksi1_svd_scl[X_], lat_constr.ksi1_svd_scl[Y_],
 	 lat_constr.drv_terms_scl,
@@ -2376,7 +2380,7 @@ int main(int argc, char *argv[])
 
   if (ps_rot) {
     Ring_GetTwiss(true, 0e0); printglob();
-    dnu[X_] = -0.1; dnu[Y_] = 0.098;
+    dnu[X_] = -0.1; dnu[Y_] = 0.198;
     set_map(ElemIndex("ps_rot"), dnu);
   }
 
