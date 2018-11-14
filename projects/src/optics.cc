@@ -6,11 +6,11 @@ int no_tps = NO;
 
 
 const bool
-  set_dnu = !false,
+  set_dnu = false,
   mI_rot  = false,
   HOA_rot = false,
   prt_ms  = false,
-  prt_dt  = false;
+  prt_dt  = !false;
 
 const double
   nu[]     = {0.18, 0.73},
@@ -141,6 +141,142 @@ void track(const double Ax, const double Ay)
   }
 
   fclose(fd);
+}
+
+
+void fit_ksi1(const std::vector<int> &Fnum_b3,
+	      const double ksi_x, const double ksi_y, const double db3L,
+	      double svd[])
+{
+  int                 n_b3, j, k, n_svd;
+  double              **A, **U, **V, *w, *b, *x, b3L, a3L;
+  std::vector<string> drv_terms;
+
+  const bool   prt = false;
+  const int    m   = 2;
+  const double
+    ksi0[]  = {ksi_x, ksi_y},
+    svd_cut = 1e-10;
+
+  n_b3 = Fnum_b3.size();
+
+  A = dmatrix(1, m, 1, n_b3); U = dmatrix(1, m, 1, n_b3);
+  V = dmatrix(1, n_b3, 1, n_b3);
+  w = dvector(1, n_b3); b = dvector(1, m); x = dvector(1, n_b3);
+
+  // Zero sextupoles to track linear chromaticity.
+  no_sxt();
+
+  for (k = 1; k <= n_b3; k++) {
+    set_dbnL_design_fam(Fnum_b3[k-1], Sext, db3L, 0e0);
+    Ring_Getchrom(0e0);
+    if (prt)
+      printf("\nfit_ksi1: ksi1+ = [%9.5f, %9.5f]\n",
+	     globval.Chrom[X_], globval.Chrom[Y_]);
+
+    for (j = 1; j <= m; j++)
+      A[j][k] = globval.Chrom[j-1];
+    set_dbnL_design_fam(Fnum_b3[k-1], Sext, -2e0*db3L, 0e0);
+    Ring_Getchrom(0e0);
+    if (prt)
+      printf("fit_ksi1: ksi1- = [%9.5f, %9.5f]\n",
+	 globval.Chrom[X_], globval.Chrom[Y_]);
+    for (j = 1; j <= 2; j++) {
+      A[j][k] -= globval.Chrom[j-1]; A[j][k] /= 2e0*db3L;
+    }
+
+    set_dbnL_design_fam(Fnum_b3[k-1], Sext, db3L, 0e0);
+  }
+
+  Ring_Getchrom(0e0);
+  if (prt)
+    printf("\nfit_ksi1: ksi1  = [%9.5f, %9.5f]\n",
+	   globval.Chrom[X_], globval.Chrom[Y_]);
+  for (j = 1; j <= 2; j++)
+    b[j] = -(globval.Chrom[j-1]-ksi0[j-1]);
+
+  dmcopy(A, m, n_b3, U); dsvdcmp(U, m, n_b3, w, V);
+
+  printf("\nfit_ksi1:\n  singular values:\n");
+  n_svd = 0;
+  for (j = 1; j <= n_b3; j++) {
+    printf("  %9.3e", w[j]);
+    if (w[j] < svd_cut) {
+      w[j] = 0e0;
+      printf(" (zeroed)");
+    } else {
+      if (n_svd > 2) {
+	printf("fit_ksi1: more than 2 non-zero singular values");
+	exit(1);
+      }
+      svd[n_svd] = w[j];
+      n_svd++;
+    }
+    printf("\n");
+  }
+
+  dsvbksb(U, w, V, m, n_b3, b, x);
+
+  for (k = 1; k <= n_b3; k++)
+    set_dbnL_design_fam(Fnum_b3[k-1], Sext, x[k], 0e0);
+
+  if (prt) {
+    printf("  b3:\n  ");
+    for (k = 0; k < n_b3; k++) {
+      get_bn_design_elem(Fnum_b3[k], 1, Sext, b3L, a3L);
+      printf(" %9.5f", b3L);
+    }
+    printf("\n");
+  }
+
+  free_dmatrix(A, 1, m, 1, n_b3); free_dmatrix(U, 1, m, 1, n_b3);
+  free_dmatrix(V, 1, n_b3, 1, n_b3);
+  free_dvector(w, 1, n_b3); free_dvector(b, 1, m); free_dvector(x, 1, n_b3);
+}
+
+
+void fit_ksi1(const int lat_case, const double ksi_x, const double ksi_y)
+{
+  double           svd[2];
+  std::vector<int> Fnum;
+
+  // ESRF-U        1,
+  // M-6HBAi-2-1-1 2,
+  // M-6HBA-0-.-.  3.
+
+  switch (lat_case) {
+  case 1:
+    Fnum.push_back(ElemIndex("sd1a"));
+    Fnum.push_back(ElemIndex("sd1b"));
+    Fnum.push_back(ElemIndex("sd1d"));
+    Fnum.push_back(ElemIndex("sd1e"));
+    Fnum.push_back(ElemIndex("sf2a"));
+    Fnum.push_back(ElemIndex("sf2e"));
+    Fnum.push_back(ElemIndex("sh1a"));
+    Fnum.push_back(ElemIndex("sh2b"));
+    Fnum.push_back(ElemIndex("sh3e"));
+    break;
+  case 2:
+    Fnum.push_back(ElemIndex("sf1"));
+    Fnum.push_back(ElemIndex("sd1"));
+    Fnum.push_back(ElemIndex("sd2"));
+    Fnum.push_back(ElemIndex("sh1"));
+    Fnum.push_back(ElemIndex("sh2"));
+    break;
+  case 3:
+    Fnum.push_back(ElemIndex("sf1"));
+    Fnum.push_back(ElemIndex("sd1"));
+    Fnum.push_back(ElemIndex("sd2"));
+    Fnum.push_back(ElemIndex("sh1"));
+    Fnum.push_back(ElemIndex("sh2"));
+    break;
+  default:
+    printf("\nfit_ksi1: unknown lattice type\n");
+    exit(1);
+    break;
+  }
+
+  fit_ksi1(Fnum, 0e0, 0e0, 1e1, svd);
 }
 
 
@@ -337,6 +473,10 @@ void chk_high_ord_achr(const int lat_case)
     loc.push_back(Elem_GetPos(ElemIndex("ss"), 3));
     loc.push_back(Elem_GetPos(ElemIndex("ls"), 2));
     break;
+  default:
+    printf("\nchk_high_ord_achr: unknown lattice type\n");
+    exit(1);
+    break;
   }
 
   printf("\nCell phase advance:\n");
@@ -365,7 +505,7 @@ void chk_mI_trans(const int lat_case)
     Fnum = ElemIndex("dispbumpcenter");
    break;
   case 2:
-    Fnum = ElemIndex("sextmark");
+    Fnum = ElemIndex("sf1");
    break;
   case 3:
     Fnum = ElemIndex("sf1_ctr");
@@ -433,7 +573,6 @@ void chk_mpole(void)
   case 1:
     // M-6HBAi.
     Fnum.push_back(ElemIndex("sextmark"));
-
     Fnum.push_back(ElemIndex("sd1"));
     Fnum.push_back(ElemIndex("sd2"));
     break;
@@ -442,7 +581,10 @@ void chk_mpole(void)
     Fnum.push_back(ElemIndex("sfh"));
     Fnum.push_back(ElemIndex("sd1a"));
     Fnum.push_back(ElemIndex("sd1b"));
-
+    break;
+  default:
+    printf("\nchk_mpole: unknown lattice type\n");
+    exit(1);
     break;
   }
 
@@ -491,6 +633,10 @@ void dnu_mpole(void)
     Fnum.push_back(ElemIndex("sf"));
     // Fnum.push_back(ElemIndex("sda"));
     // Fnum.push_back(ElemIndex("sdb"));
+    break;
+  default:
+    printf("\ndnu_mpole: unknown lattice type\n");
+    exit(1);
     break;
   }
 
@@ -566,6 +712,10 @@ void pole_tip_field(const double R_ref)
 	       Cell[k].Elem.PName, Cell[k].Elem.PL, n, bn,
 	       get_pole_tip_field(Brho, R_ref, n, bn));
 	break;
+      default:
+	printf("\npole_tip_field: unknown lattice type\n");
+	exit(1);
+	break;
       }
     }
 }
@@ -607,72 +757,6 @@ void get_dbeta_deta(const double delta)
 }
 
 
-void get_drv_terms(std::vector<int> &Fnum)
-{
-  int    j, k, n_kid;
-  double drv_terms[2], b3L, a3L;
-
-  for (k = 0; k < 2; k++)
-    drv_terms[k] = 0e0;
-  for (k = 0; k < (int)Fnum.size(); k++) {
-    get_bnL_design_elem(Fnum[k], 1, Sext, b3L, a3L);
-    n_kid = GetnKid(Fnum[k]);
-    for (j = 0; j < 2; j++) {
-      drv_terms[j] +=
-	n_kid*sqr(b3L*pow(Cell[Elem_GetPos(Fnum[k], 1)].Beta[j], 1.5));
-    }
-  }
-  printf("\ndrv. terms  = [%10.3e, %10.3e]\n",
-	 sqrt(drv_terms[X_]), sqrt(drv_terms[Y_]));
-}
-
-
-void prt_drv_terms(const int lat_case)
-{
-  std::vector<int> Fnum;
-
-  // ESRF-U        1,
-  // M-6HBAi-2-1-1 2,
-  // M-6HBA-0-.-.  3.
-
-  switch (lat_case) {
-  case 1:
-    if (!true) {
-      Fnum.push_back(ElemIndex("sf2a"));
-      Fnum.push_back(ElemIndex("sf2e"));
-      Fnum.push_back(ElemIndex("sd1a"));
-      Fnum.push_back(ElemIndex("sd1b"));
-      Fnum.push_back(ElemIndex("sd1d"));
-      Fnum.push_back(ElemIndex("sd1e"));
-    } else {
-      Fnum.push_back(ElemIndex("sd3a"));
-      Fnum.push_back(ElemIndex("sf4a"));
-      Fnum.push_back(ElemIndex("sd3b"));
-      Fnum.push_back(ElemIndex("sd3d"));
-      Fnum.push_back(ElemIndex("sf4e"));
-      Fnum.push_back(ElemIndex("sd3e"));
-    }
-    break;
-  case 2:
-    Fnum.push_back(ElemIndex("sf1h"));
-    Fnum.push_back(ElemIndex("sd1"));
-    Fnum.push_back(ElemIndex("sd2"));
-    break;
-  case 3:
-    Fnum.push_back(ElemIndex("sf1"));
-    Fnum.push_back(ElemIndex("sd1"));
-    Fnum.push_back(ElemIndex("sd2"));
-    break;
-  default:
-    printf("\nprt_drv_terms: unknown lattice type\n");
-    exit(1);
-    break;
-  }
-
-  get_drv_terms(Fnum);
-}
-
-
 int main(int argc, char *argv[])
 {
   bool             tweak;
@@ -704,7 +788,7 @@ int main(int argc, char *argv[])
 
   trace = !true;
 
-  if (!true)
+  if (true)
     Read_Lattice(argv[1]);
   else
     rdmfile(argv[1]);
@@ -729,7 +813,8 @@ int main(int argc, char *argv[])
     printf("Lattice Case (1..3)? ");
     scanf("%d", &lat_case);
 
-    prt_drv_terms(lat_case);
+    fit_ksi1(lat_case, 0e0, 0e0);
+
     chk_mI_trans(lat_case);
 
     no_sxt();
@@ -971,6 +1056,10 @@ int main(int argc, char *argv[])
     // Fam.push_back(ElemIndex("sf2"));
     Fam.push_back(ElemIndex("sh1a"));
     Fam.push_back(ElemIndex("sh1e"));
+    break;
+  default:
+    printf("\nmain: unknown case\n");
+    exit(1);
     break;
   }
 
