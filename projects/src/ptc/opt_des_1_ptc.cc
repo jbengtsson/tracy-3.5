@@ -98,7 +98,6 @@ public:
     ksi1[2],
     phi_scl,
     phi_tot, phi0,       // Cell bend angle.
-    drv_terms_simple[2],
     high_ord_achr_scl,
     high_ord_achr_nu[2], // Higher-Order-Achromat Phase Advance.
     mI_scl[2],

@@ -148,9 +148,8 @@ void fit_ksi1(const std::vector<int> &Fnum_b3,
 	      const double ksi_x, const double ksi_y, const double db3L,
 	      double svd[])
 {
-  int                 n_b3, j, k, n_svd;
-  double              **A, **U, **V, *w, *b, *x, b3L, a3L;
-  std::vector<string> drv_terms;
+  int    n_b3, j, k, n_svd;
+  double **A, **U, **V, *w, *b, *x, b3L, a3L;
 
   const bool   prt = false;
   const int    m   = 2;
