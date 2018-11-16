@@ -8,7 +8,7 @@ int no_tps   = NO,
     ndpt_tps = 5;
 
 
-const bool ps_rot = !false;
+const bool ps_rot = false;
 
 const double
   high_ord_achr_nu[] = {2.5-0.125, 0.75+0.125},
@@ -93,6 +93,7 @@ public:
     eps0_x,              // Hor. emittance [nm.rad].
     drv_terms_scl,
     drv_terms_sum2,
+    drv_terms_simple_scl,
     drv_terms_simple[2],
     nu[2],
     ksi1[2],
@@ -128,7 +129,7 @@ public:
     n_iter = 0; chi2 = 1e30; chi2_prt = 1e30;
     eps_x_scl = 0e0; phi_scl = 0e0;
     ksi1_svd_scl = 0e0;
-    drv_terms_scl = 0e0; high_ord_achr_scl = 0e0;
+    drv_terms_scl = 0e0; drv_terms_simple_scl = 0e0; high_ord_achr_scl = 0e0;
     mI_scl[X_] = mI_scl[Y_] = 0e0; L_scl = 0e0;
   }
 
@@ -810,7 +811,7 @@ double constr_type::get_chi2(void) const
   chi2 += L_scl*sqr(Cell[globval.Cell_nLoc].S-L0);
   for (k = 0; k < 2; k++) {
     chi2 += mI_scl[k]*sqr(mI[k]-mI0[k]);
-    // chi2 += drv_terms_scl*drv_terms_simple[k];
+    chi2 += drv_terms_simple_scl*drv_terms_simple[k];
     chi2 += ksi1_svd_scl*exp(-ksi1_svd[k]);
   }
   chi2 += drv_terms_scl*drv_terms_sum2;
@@ -1551,8 +1552,8 @@ double f_achrom(double *b2)
 
     if (lat_constr.drv_terms_scl != 0e0) {
       fit_ksi1(lat_constr.Fnum_b3, 0e0, 0e0, 1e1, lat_constr.ksi1_svd);
-      get_h(twoJ, delta, lat_constr);
       get_drv_terms(lat_constr);
+      get_h(twoJ, delta, lat_constr);
     }
 
     if (lat_constr.high_ord_achr_scl != 0e0) get_high_ord_achr(lat_constr);
@@ -1675,7 +1676,7 @@ void opt_mI_std(param_type &prms, constr_type &constr)
   lat_constr.Fnum_b3.push_back(ElemIndex("sd2"));
   // lat_constr.Fnum_b3.push_back(ElemIndex("sh2"));
 
-  lat_constr.eps0_x = 0.156;
+  lat_constr.eps0_x = 0.250;
 
   for (k = 0; k < 2; k++)
     lat_constr.high_ord_achr_nu[k] = high_ord_achr_nu[k];
@@ -1691,22 +1692,24 @@ void opt_mI_std(param_type &prms, constr_type &constr)
   for (k = 0; k < 2; k++)
     lat_constr.mI0[k] = mI_nu_ref[k];
 
-  lat_constr.eps_x_scl         = 1e5;
-  lat_constr.ksi1_svd_scl      = 1e4;
-  lat_constr.drv_terms_scl     = 1e16;
-  lat_constr.mI_scl[X_]        = 1e2;
-  lat_constr.mI_scl[Y_]        = 1e2;
-  lat_constr.high_ord_achr_scl = 1e-10;
-  lat_constr.phi_scl           = 1e0;
+  lat_constr.eps_x_scl            = 1e6;
+  lat_constr.ksi1_svd_scl         = 1e1;
+  lat_constr.drv_terms_simple_scl = 1e-1;
+  lat_constr.drv_terms_scl        = 1e15;
+  lat_constr.mI_scl[X_]           = 1e3;
+  lat_constr.mI_scl[Y_]           = 1e3;
+  lat_constr.high_ord_achr_scl    = 1e5;
+  lat_constr.phi_scl              = 1e0;
 
-  printf("\n  eps_x_scl         = %9.3e\n"
-	 "  ksi1_svd_scl      = %9.3e\n"
-	 "  drv_terms_scl     = %9.3e\n"
-	 "  mI_scl            = [%9.3e, %9.3e]\n"
-	 "  high_ord_achr_scl = %9.3e\n"
-	 "  phi_scl           = %9.3e\n",
+  printf("\n  eps_x_scl            = %9.3e\n"
+	 "  ksi1_svd_scl         = %9.3e\n"
+	 "  drv_terms_simple_scl = %9.3e\n"
+	 "  drv_terms_scl        = %9.3e\n"
+	 "  mI_scl               = [%9.3e, %9.3e]\n"
+	 "  high_ord_achr_scl    = %9.3e\n"
+	 "  phi_scl              = %9.3e\n",
 	 lat_constr.eps_x_scl, lat_constr.ksi1_svd_scl,
-	 lat_constr.drv_terms_scl,
+	 lat_constr.drv_terms_simple_scl, lat_constr.drv_terms_scl,
 	 lat_constr.mI_scl[X_], lat_constr.mI_scl[Y_],
 	 lat_constr.high_ord_achr_scl, lat_constr.phi_scl);
 
@@ -2373,7 +2376,7 @@ int main(int argc, char *argv[])
   // Unbuffered output.
   setvbuf(stdout, buffer, _IONBF, BUFSIZ);
 
-  if (true)
+  if (!true)
     Read_Lattice(argv[1]);
   else {
     rdmfile(argv[1]);
@@ -2393,7 +2396,7 @@ int main(int argc, char *argv[])
 
   if (ps_rot) {
     Ring_GetTwiss(true, 0e0); printglob();
-    dnu[X_] = -0.1; dnu[Y_] = 0.198;
+    dnu[X_] = 0.0; dnu[Y_] = 0.0;
     set_map(ElemIndex("ps_rot"), dnu);
   }
 
