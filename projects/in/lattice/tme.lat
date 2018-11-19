@@ -1,0 +1,30 @@
+define lattice; ringtype = 1;
+
+Energy = 3.0;
+
+dP = 1e-8; CODeps = 1e-14;
+
+Meth = 4; Nbend = 10; Nquad = 1;
+
+pi = 4.0*arctan(1.0);
+
+c0 = 2.99792458e8; h_rf = 1320; C = 10.1586800; Brho = 1e9*Energy/c0;
+
+CAV: Cavity, Frequency = c0/C*h_rf, Voltage = 5.00e6/2, Harnum = h_rf;
+
+
+D1: Drift, L = 0.9; 
+D2: Drift, L = 0.4; 
+D3: Drift, L = 3.02934; 
+
+B: Bending, L = 2*0.75, T = 2*5.0, T1 = 0.0, T2 = 0.0,
+   N = Nbend, Method = Meth;
+
+QF: Quadrupole, L = 0.0, K =  1.39953,  N = Nquad, Method = Meth;
+QD: Quadrupole, L = 0.0, K = -0.943982, N = Nquad, Method = Meth;
+
+LINE: D3, QD, D2, QF, D1, B, D1, QF, D2, QD, D3, CAV;
+
+CELL: LINE, SYMMETRY = 1;
+
+END;
