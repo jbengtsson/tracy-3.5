@@ -51,6 +51,20 @@ plot file_name using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
 if (!ps) pause mouse "click on graph to cont.\n";
 
 if (ps) set output "linlat_3.".(ext);
+set title "{/Symbol b}_{x,y}{/Symbol \264h}_x";
+set xlabel "s [m]"; set ylabel "";
+set y2range [-2.0:20];
+plot file_name using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
+     lc rgb "black", \
+     file_name using 3:(\$6*\$8) title "{/Symbol b}_x{/Symbol \264h}_x" \
+     with lines ls 1, \
+     file_name using 3:(\$11*\$8) title "{/Symbol b}_y{/Symbol \264h}_x" \
+     with lines ls 3;
+if (!ps) pause mouse "click on graph to cont.\n";
+
+exit;
+
+if (ps) set output "linlat_4.".(ext);
 set title "Normalized Phase Advance";
 set xlabel "s [m]"; set ylabel "{/Symbol n}";
 set y2range [-2.0:20];
@@ -60,7 +74,7 @@ plot file_name using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
      file_name using 3:12 title "{/Symbol n}_y" with lines ls 3;
 if (!ps) pause mouse "click on graph to cont.\n";
 
-if (ps) set output "linlat_4.".(ext);
+if (ps) set output "linlat_5.".(ext);
 set title "{/Symbol g}";
 set xlabel "s [m]"; set ylabel "{/Symbol g}";
 set y2range [-2.0:20];
@@ -72,9 +86,9 @@ plot file_name using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
      with lines ls 3;
 if (!ps) pause mouse "click on graph to cont.\n";
 
-#exit;
+exit;
 
-if (ps) set output "linlat_5.".(ext);
+if (ps) set output "linlat_6.".(ext);
  set title "{/Symbol a}"; \
 set xlabel "s [m]"; set ylabel "{/Symbol a}"; \
 set y2range [-2.0:20]; \
@@ -82,18 +96,6 @@ plot file_name using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
      lc rgb "black", \
      file_name using 3:5 title "{/Symbol a}_x" with lines ls 1, \
      file_name using 3:10 title "{/Symbol a}_y" with lines ls 3; \
-if (!ps) pause mouse "click on graph to cont.\n";
-
-if (ps) set output "linlat_6.".(ext);
-set title "{/Symbol b}_{x,y}{/Symbol \264h}_x";
-set xlabel "s [m]"; set ylabel "";
-set y2range [-2.0:20];
-plot file_name using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
-     lc rgb "black", \
-     file_name using 3:(\$6*\$8) title "{/Symbol b}_x{/Symbol \264h}_x" \
-     with lines ls 1, \
-     file_name using 3:(\$11*\$8) title "{/Symbol b}_y{/Symbol \264h}_x" \
-     with lines ls 3;
 if (!ps) pause mouse "click on graph to cont.\n";
 
 file_name_palette = "`echo \$TRACY_LIB`/gnuplot/jet.dat";
