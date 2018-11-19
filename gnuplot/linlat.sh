@@ -62,6 +62,22 @@ plot file_name using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
      with lines ls 3;
 if (!ps) pause mouse "click on graph to cont.\n";
 
+file_name_palette = "`echo \$TRACY_LIB`/gnuplot/jet.dat";
+# Load 64-color palette for Jet
+set palette model RGB file file_name_palette \
+  using (\$1/255):(\$2/255):(\$3/255);
+unset colorbox;
+#set cbrange [-2.0:1.5];
+
+if (ps) set output "linlat_7.".(ext);
+set title "Floquet Space";
+set xlabel "{/Symbol h}_x\\\~"; set ylabel "{/Symbol h}\'_x\\\~";
+set xrange [0:*];
+show xrange;
+plot file_name using 15:16:(abs(\$4)) notitle "{/Symbol n}_x" \
+     with lines lt palette z;
+if (!ps) pause mouse "click on graph to cont.\n";
+
 exit;
 
 if (ps) set output "linlat_4.".(ext);
@@ -96,20 +112,6 @@ plot file_name using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
      lc rgb "black", \
      file_name using 3:5 title "{/Symbol a}_x" with lines ls 1, \
      file_name using 3:10 title "{/Symbol a}_y" with lines ls 3; \
-if (!ps) pause mouse "click on graph to cont.\n";
-
-file_name_palette = "`echo \$TRACY_LIB`/gnuplot/jet.dat";
-# Load 64-color palette for Jet
-set palette model RGB file file_name_palette \
-  using (\$1/255):(\$2/255):(\$3/255);
-unset colorbox;
-#set cbrange [-2.0:1.5];
-
-if (ps) set output "linlat_7.".(ext);
-set title "Floquet Space";
-set xlabel "{/Symbol h}_x\\\~"; set ylabel "{/Symbol h}\'_x\\\~";
-plot file_name using 15:16:(abs(\$4)) notitle "{/Symbol n}_x" \
-     with lines lt palette z;
 if (!ps) pause mouse "click on graph to cont.\n";
 
 EOP
