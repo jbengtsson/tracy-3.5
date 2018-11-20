@@ -10,7 +10,7 @@ const bool
   mI_rot  = false,
   HOA_rot = false,
   prt_ms  = false,
-  prt_dt  = !false;
+  prt_dt  = false;
 
 const double
   nu[]     = {0.18, 0.73},
@@ -756,6 +756,67 @@ void get_dbeta_deta(const double delta)
 }
 
 
+ss_vect<tps> get_sympl_form(const int dof)
+{
+  int          k;
+  ss_vect<tps> Id, omega;
+
+  Id.identity(); omega.zero();
+  for (k = 0; k < dof; k++) {
+    omega[2*k] = Id[2*k+1]; omega[2*k+1] = -Id[2*k];
+  }
+  return omega;
+}
+
+
+void A_At_pass(void)
+{
+  long int     lastpos;
+  int          i;
+  ss_vect<tps> omega, omega_tp, A, A_Atp;
+
+  omega = get_sympl_form(2); omega_tp = tp_S(2, omega);
+  A.identity(); putlinmat(4, globval.Ascr, A);
+  A_Atp = A*tp_S(2, A);
+  printf("\n   alpha_x  beta_x   alpha_y  beta_y:\n"
+	 "  %8.5f %8.5f %8.5f %8.5f\n",
+	 -A_Atp[x_][px_], A_Atp[x_][x_], -A_Atp[y_][py_], A_Atp[y_][y_]);
+  for (i = 0; i <= 5; i++) {
+    Cell_Pass(i, i, A_Atp, lastpos); A_Atp = tp_S(2, A_Atp);
+    Cell_Pass(i, i, A_Atp, lastpos);
+    printf("  %8.5f %8.5f %8.5f %8.5f\n",
+	   -A_Atp[x_][px_], A_Atp[x_][x_], -A_Atp[y_][py_], A_Atp[y_][y_]);
+  }
+}
+
+
+void curly_H_s(void)
+{
+  long int        lastpos;
+  int             i;
+  double          curly_H, psi, dnu[2];
+  ss_vect<double> eta, eta_Fl;
+  ss_vect<tps>    Id, A;
+  FILE            *outf;
+
+  outf = file_write("curly_H_s.out");
+  printf("\n");
+  eta.zero(); eta[0] = Cell[0].Eta[X_]; eta[1] = Cell[0].Etap[X_];
+  A.identity(); putlinmat(2, globval.Ascr, A);
+  for (i = 0; i <= globval.Cell_nLoc; i++) {
+    eta.zero(); eta[0] = Cell[i].Eta[X_]; eta[1] = Cell[i].Etap[X_];
+    Cell_Pass(i, i, A, lastpos); A = get_A_CS(2, A, dnu);
+
+    eta_Fl = (Inv(A)*eta).cst();
+
+    fprintf(outf, "  %6.3f %10.3e %10.3e\n",
+	    Cell[i].S, eta_Fl[x_], eta_Fl[px_]);
+
+  }
+  fclose(outf);
+}
+
+
 int main(int argc, char *argv[])
 {
   bool             tweak;
@@ -807,6 +868,16 @@ int main(int argc, char *argv[])
   }
 
   Ring_GetTwiss(true, 0e0); printglob();
+
+  if (false) {
+    A_At_pass();
+    exit(0);
+  }
+
+  if (false) {
+    curly_H_s();
+    exit(0);
+  }
 
   if (prt_dt) {
     printf("Lattice Case (1..3)? ");

@@ -1651,22 +1651,22 @@ void opt_mI_std(param_type &prms, constr_type &constr)
   // Lattice constraints are: alpha_x,y, beta_x,y, eta_x, eta'_x.
   // constr.add_constr(Elem_GetPos(ElemIndex("bl1_5"), 1)-1,
   constr.add_constr(Elem_GetPos(ElemIndex("dl1a_5"), 1)-1,
-  		    0e0, 0e0, 0e0, 0e0, 1e6, 1e6,
+  		    0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
   		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   // constr.add_constr(Elem_GetPos(ElemIndex("bl1_5"), 2),
   constr.add_constr(Elem_GetPos(ElemIndex("dl1a_5"), 2),
-  		    0e0, 0e0, 0e0, 0e0, 1e6, 1e6,
+  		    0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
   		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   // Include constraint on alpha; in case of using ps_rot.
   constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
-  		    1e5, 1e5, 1e1, 1e1, 1e6,   0e0,
+  		    1e5, 1e5, 1e1, 1e1, 1e7,   0e0,
   		    0.0, 0.0, 3.0, 1.5, 0.024, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("ms"), 2),
-  		    1e5, 1e5, 1e1, 1e1, 1e6,   0e0,
+  		    1e5, 1e5, 1e1, 1e1, 1e7,   0e0,
   		    0.0, 0.0, 3.0, 1.5, 0.024, 0.0);
   // Both SS constraints are needed.
   constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
-  		    1e5, 1e5, 1e1, 1e1, 1e6, 1e6,
+  		    1e5, 1e5, 1e1, 1e1, 1e7, 1e7,
   		    0.0, 0.0, 4.0, 2.5, 0.0, 0.0);
 
   lat_prms.bn_tol = 1e-5; lat_prms.step = 1.0;
@@ -1692,13 +1692,13 @@ void opt_mI_std(param_type &prms, constr_type &constr)
   for (k = 0; k < 2; k++)
     lat_constr.mI0[k] = mI_nu_ref[k];
 
-  lat_constr.eps_x_scl            = 1e6;
+  lat_constr.eps_x_scl            = 1e5;
   lat_constr.ksi1_svd_scl         = 1e1;
-  lat_constr.drv_terms_simple_scl = 1e-1;
-  lat_constr.drv_terms_scl        = 1e15;
-  lat_constr.mI_scl[X_]           = 1e3;
-  lat_constr.mI_scl[Y_]           = 1e3;
-  lat_constr.high_ord_achr_scl    = 1e5;
+  lat_constr.drv_terms_simple_scl = 1e-3;
+  lat_constr.drv_terms_scl        = 1e13;
+  lat_constr.mI_scl[X_]           = 1e5;
+  lat_constr.mI_scl[Y_]           = 1e5;
+  lat_constr.high_ord_achr_scl    = 1e4;
   lat_constr.phi_scl              = 1e0;
 
   printf("\n  eps_x_scl            = %9.3e\n"
