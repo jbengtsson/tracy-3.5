@@ -69,18 +69,35 @@ set palette model RGB file file_name_palette \
 unset colorbox;
 #set cbrange [-2.0:1.5];
 
-if (ps) set output "linlat_7.".(ext);
+if (ps) set output "linlat_4.".(ext);
 set title "Floquet Space";
 set xlabel "{/Symbol h}_x\\\~"; set ylabel "{/Symbol h}\'_x\\\~";
 set xrange [0:*];
-show xrange;
 plot file_name using 15:16:(abs(\$4)) notitle "{/Symbol n}_x" \
      with lines lt palette z;
 if (!ps) pause mouse "click on graph to cont.\n";
 
 exit;
 
-if (ps) set output "linlat_4.".(ext);
+if (ps) set output "linlat_5.".(ext);
+set title "curly\\\_H_x";
+set xlabel "s [m]"; set ylabel "";
+set y2range [-2.0:20];
+plot file_name using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
+     lc rgb "black", \
+     file_name using 3:(\$15**2+\$16**2) notitle with lines ls 1;
+if (!ps) pause mouse "click on graph to cont.\n";
+
+if (ps) set output "linlat_6.".(ext);
+set title "arg\\\{curly\\\_H_x\\\}";
+set xlabel "s [m]"; set ylabel "";
+set y2range [-2.0:20];
+plot file_name using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
+     lc rgb "black", \
+     file_name using 3:(-atan2(\$16, \$15)) notitle with lines ls 1;
+if (!ps) pause mouse "click on graph to cont.\n";
+
+if (ps) set output "linlat_7.".(ext);
 set title "Normalized Phase Advance";
 set xlabel "s [m]"; set ylabel "{/Symbol n}";
 set y2range [-2.0:20];
@@ -90,7 +107,7 @@ plot file_name using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
      file_name using 3:12 title "{/Symbol n}_y" with lines ls 3;
 if (!ps) pause mouse "click on graph to cont.\n";
 
-if (ps) set output "linlat_5.".(ext);
+if (ps) set output "linlat_8.".(ext);
 set title "{/Symbol g}";
 set xlabel "s [m]"; set ylabel "{/Symbol g}";
 set y2range [-2.0:20];
@@ -104,7 +121,7 @@ if (!ps) pause mouse "click on graph to cont.\n";
 
 exit;
 
-if (ps) set output "linlat_6.".(ext);
+if (ps) set output "linlat_9.".(ext);
  set title "{/Symbol a}"; \
 set xlabel "s [m]"; set ylabel "{/Symbol a}"; \
 set y2range [-2.0:20]; \
