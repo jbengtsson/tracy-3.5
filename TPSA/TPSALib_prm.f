@@ -12,13 +12,13 @@
       integer           lda, lea, lia, lno, lnv, lst
 
 !     For Laptop, NO = 7.
-      parameter (lda=100000, lst=200000000, lea=500000, lia=80000,          &
-     &           lno=10, lnv=7)
+!      parameter (lda=100000, lst=200000000, lea=500000, lia=80000,          &
+!     &           lno=10, lnv=7)
 !      parameter (lda=100000, lst=400000000, lea=500000, lia=80000,         &
 !     &           lno=10, lnv=7)
 !     For Workstation.
-!      parameter (lda=30000, lst=200000000, lea=500000, lia=80000,         &
-!     &           lno=16, lnv=7)
+      parameter (lda=30000, lst=200000000, lea=500000, lia=80000,         &
+     &           lno=16, lnv=7)
 !      parameter (lda=30000, lst=20000000, lea=500000, lia=80000,         &
 !     &           lno=16, lnv=7)
 !     For Cluster Server.
