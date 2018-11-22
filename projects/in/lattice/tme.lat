@@ -17,14 +17,15 @@ D1: Drift, L = 0.9;
 D2: Drift, L = 0.4; 
 D3: Drift, L = 3.02934; 
 
-B_H: Bending, L = 0.75, T = 5.0, T1 = 0.0, T2 = 0.0,
-   N = Nbend, Method = Meth;
+B_H: Bending, L = 0.75, T = 5.0, T1 = 0.0, T2 = 0.0, N = Nbend, Method = Meth;
 
 QF: Quadrupole, L = 0.0, K =  1.39953,  N = Nquad, Method = Meth;
 QD: Quadrupole, L = 0.0, K = -0.943982, N = Nquad, Method = Meth;
 
 H_CELL: D3, QD, D2, QF, D1, B_H;
-LINE:   H_CELL, INV(H_CELL);
+
+{LINE:   H_CELL, INV(H_CELL);}
+LINE:   INV(H_CELL), H_CELL;
 
 RING: LINE, CAV;
 
