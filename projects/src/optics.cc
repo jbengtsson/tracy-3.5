@@ -794,9 +794,9 @@ void curly_H_s(void)
 {
   long int        lastpos;
   int             i;
-  double          curly_H, psi, dnu[2];
+  double          dnu[2];
   ss_vect<double> eta, eta_Fl;
-  ss_vect<tps>    Id, A;
+  ss_vect<tps>    A;
   FILE            *outf;
 
   outf = file_write("curly_H_s.out");
@@ -813,6 +813,84 @@ void curly_H_s(void)
 	    Cell[i].S, eta_Fl[x_], eta_Fl[px_]);
 
   }
+  fclose(outf);
+}
+
+
+void prt_eta_Fl(void)
+{
+  long int        lastpos;
+  int             i;
+  double          dphi, s, mu_x, alpha1_x, beta1_x;
+  ss_vect<double> eta, eta_Fl0, eta_Fl;
+  ss_vect<tps>    Id, A, M, R, A_Atp0, A_Atp;
+  FILE            *outf;
+
+  const int    n_step = 25;
+  const double
+    L        = 0.75,
+    phi      = 5.0,
+    rho      = L/(5.0*M_PI/180e0),
+    alpha0_x = 0.0,
+    beta0_x  = 0.19177,
+    gamma0_x = (1e0+sqr(alpha0_x))/beta0_x;
+
+  Id.identity();
+
+  outf = file_write("eta_Fl.out");
+
+  A.identity(); putlinmat(2, globval.Ascr, A);
+
+  eta.zero(); eta[x_] = Cell[0].Eta[X_]; eta[px_] = Cell[0].Etap[X_];
+  eta_Fl0 = (Inv(A)*eta).cst();
+
+  R.identity(); M.identity();
+
+  A_Atp0.identity();
+  A_Atp0[x_]  = beta0_x*Id[x_]    - alpha0_x*Id[px_];
+  A_Atp0[px_] = -alpha0_x*Id[x_] + gamma0_x*Id[px_];
+
+  for (i = 0; i <= n_step; i++) {
+    s = i*L/n_step;
+
+    M[x_]  = cos(s/rho)*Id[x_] + rho*sin(s/rho)*Id[px_];
+    M[px_] = -sin(s/rho)/rho*Id[x_] + cos(s/rho)*Id[px_];
+
+    mu_x = atan(s/beta0_x);
+
+    if (!true) {
+      A_Atp = M*A_Atp0*tp_S(2, M);
+      beta1_x = A_Atp[x_][x_]; alpha1_x = -A_Atp[px_][x_];
+
+      R[x_] =
+	cos(mu_x)*Id[x_] + sin(mu_x)*Id[px_]
+	+ rho*(1e0-cos(s/rho))/sqrt(beta1_x);
+      R[px_] =
+	-sin(mu_x)*Id[x_] + cos(mu_x)*Id[px_]
+	+(beta1_x*sin(s/rho)+alpha1_x*rho*(1e0-cos(s/rho)))/sqrt(beta1_x);
+    } else {
+      R[x_] =
+	cos(mu_x)*Id[x_] + sin(mu_x)*Id[px_]
+	+ (sqr(s)+alpha0_x*cube(s)/beta0_x
+	   +(5e0*sqr(beta0_x)+6e0*sqr(rho)*(3e0*alpha0_x-beta0_x*gamma0_x))
+	   *pow(s, 4)/(sqr(beta0_x*rho)))
+	/(2e0*rho*sqrt(beta0_x));
+      R[px_] =
+	-sin(mu_x)*Id[x_] + cos(mu_x)*Id[px_]
+	+sqrt(beta0_x)
+	*(s-alpha1_x*sqr(s)/(2e0*beta0_x)-cube(s)/(6e0*sqr(rho))
+	  +alpha0_x*(sqr(beta0_x)
+		     +6e0*sqr(rho)*(sqr(alpha0_x)-beta0_x*gamma0_x)*pow(s, 4)))
+	/rho;
+    }
+
+    eta_Fl = (R*eta_Fl0).cst();
+
+    fprintf(outf, "  %6.3f %6.3f  %6.3f %6.3f %10.3e %10.3e\n",
+	    s, mu_x/(2e0*M_PI), alpha1_x, beta1_x, eta_Fl[x_], eta_Fl[px_]);
+
+  }
+
   fclose(outf);
 }
 
@@ -876,6 +954,11 @@ int main(int argc, char *argv[])
 
   if (false) {
     curly_H_s();
+    exit(0);
+  }
+
+  if (!false) {
+    prt_eta_Fl();
     exit(0);
   }
 
