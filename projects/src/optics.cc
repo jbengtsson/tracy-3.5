@@ -845,8 +845,10 @@ void prt_eta_Fl(void)
   eta_Fl0 = (Inv(A)*eta0).cst();
 
   A_Atp0.identity();
-  A_Atp0[x_]  = beta0_x*Id[x_]   - alpha0_x*Id[px_];
-  A_Atp0[px_] = -alpha0_x*Id[x_] + gamma0_x*Id[px_];
+  A_Atp0[x_] = Cell[0].Beta[X_]*Id[x_] - Cell[0].Alpha[X_]*Id[px_];
+  A_Atp0[px_] =
+    -Cell[0].Alpha[X_]*Id[x_]
+    + (1e0+sqr(Cell[0].Alpha[X_]))*Id[px_]/Cell[0].Beta[X_];
 
   Omega.identity(); Omega[x_] = Id[px_]; Omega[px_] = -Id[x_];
 
@@ -858,16 +860,13 @@ void prt_eta_Fl(void)
     mu_x = atan(s/beta0_x);
 
     M[x_] =
-      cos(s/rho)*Id[x_] + rho*sin(s/rho)*Id[px_]
-      + rho*(1e0-cos(s/rho))/sqrt(beta1_x);
-    M[px_] =
-      -sin(s/rho)/rho*Id[x_] + cos(s/rho)*Id[px_]
-      + (beta1_x*sin(s/rho)+alpha1_x*rho*(1e0-cos(s/rho)))/sqrt(beta1_x);
+      cos(s/rho)*Id[x_] + rho*sin(s/rho)*Id[px_] + rho*(1e0-cos(s/rho));
+    M[px_] = -sin(s/rho)/rho*Id[x_] + cos(s/rho)*Id[px_] + sin(s/rho);
 
     A_Atp = (M-M.cst())*A_Atp0*tp_S(1, M-M.cst());
     beta1_x = A_Atp[x_][x_]; alpha1_x = -A_Atp[px_][x_];
 
-    if (!true) {
+    if (true) {
       R[x_] =
 	cos(mu_x)*Id[x_] + sin(mu_x)*Id[px_]
 	+ rho*(1e0-cos(s/rho))/sqrt(beta1_x);
