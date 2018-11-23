@@ -820,10 +820,10 @@ void curly_H_s(void)
 void prt_eta_Fl(void)
 {
   long int        lastpos;
-  int             i;
-  double          dphi, s, mu_x, alpha1_x, beta1_x;
-  ss_vect<double> eta, eta_Fl0, eta_Fl;
-  ss_vect<tps>    Id, A, M, R, A_Atp0, A_Atp;
+  int             i, k;
+  double          dphi, s, mu_x, alpha1_x, beta1_x, curly_H;
+  ss_vect<double> eta0, eta, eta_Fl0, eta_Fl, omega_eta, A_Atp_omega_eta;
+  ss_vect<tps>    Id, A, M, R, A_Atp0, A_Atp, Omega;
   FILE            *outf;
 
   const int    n_step = 25;
@@ -841,53 +841,56 @@ void prt_eta_Fl(void)
 
   A.identity(); putlinmat(2, globval.Ascr, A);
 
-  eta.zero(); eta[x_] = Cell[0].Eta[X_]; eta[px_] = Cell[0].Etap[X_];
-  eta_Fl0 = (Inv(A)*eta).cst();
+  eta0.zero(); eta0[x_] = Cell[0].Eta[X_]; eta0[px_] = Cell[0].Etap[X_];
+  eta_Fl0 = (Inv(A)*eta0).cst();
+
+  A_Atp0.identity(); A_Atp0[6] = 0e0;
+  A_Atp0[x_]  = beta0_x*Id[x_]   - alpha0_x*Id[px_];
+  A_Atp0[px_] = -alpha0_x*Id[x_] + gamma0_x*Id[px_];
+
+  Omega.identity(); Omega[x_] = Id[px_]; Omega[px_] = -Id[x_];
 
   R.identity(); M.identity();
-
-  A_Atp0.identity();
-  A_Atp0[x_]  = beta0_x*Id[x_]    - alpha0_x*Id[px_];
-  A_Atp0[px_] = -alpha0_x*Id[x_] + gamma0_x*Id[px_];
 
   for (i = 0; i <= n_step; i++) {
     s = i*L/n_step;
 
-    M[x_]  = cos(s/rho)*Id[x_] + rho*sin(s/rho)*Id[px_];
-    M[px_] = -sin(s/rho)/rho*Id[x_] + cos(s/rho)*Id[px_];
+    M[x_] =
+      cos(s/rho)*Id[x_] + rho*sin(s/rho)*Id[px_]
+      + rho*(1e0-cos(s/rho))/sqrt(beta1_x);
+    M[px_] =
+      -sin(s/rho)/rho*Id[x_] + cos(s/rho)*Id[px_]
+      + (beta1_x*sin(s/rho)+alpha1_x*rho*(1e0-cos(s/rho)))/sqrt(beta1_x);
 
     mu_x = atan(s/beta0_x);
 
-    if (!true) {
-      A_Atp = M*A_Atp0*tp_S(2, M);
-      beta1_x = A_Atp[x_][x_]; alpha1_x = -A_Atp[px_][x_];
+    A_Atp = M*A_Atp0*tp_S(1, M);
+    beta1_x = A_Atp[x_][x_]; alpha1_x = -A_Atp[px_][x_];
 
-      R[x_] =
-	cos(mu_x)*Id[x_] + sin(mu_x)*Id[px_]
-	+ rho*(1e0-cos(s/rho))/sqrt(beta1_x);
-      R[px_] =
-	-sin(mu_x)*Id[x_] + cos(mu_x)*Id[px_]
-	+(beta1_x*sin(s/rho)+alpha1_x*rho*(1e0-cos(s/rho)))/sqrt(beta1_x);
-    } else {
-      R[x_] =
-	cos(mu_x)*Id[x_] + sin(mu_x)*Id[px_]
-	+ (sqr(s)+alpha0_x*cube(s)/beta0_x
-	   +(5e0*sqr(beta0_x)+6e0*sqr(rho)*(3e0*alpha0_x-beta0_x*gamma0_x))
-	   *pow(s, 4)/(sqr(beta0_x*rho)))
-	/(2e0*rho*sqrt(beta0_x));
-      R[px_] =
-	-sin(mu_x)*Id[x_] + cos(mu_x)*Id[px_]
-	+sqrt(beta0_x)
-	*(s-alpha1_x*sqr(s)/(2e0*beta0_x)-cube(s)/(6e0*sqr(rho))
-	  +alpha0_x*(sqr(beta0_x)
-		     +6e0*sqr(rho)*(sqr(alpha0_x)-beta0_x*gamma0_x)*pow(s, 4)))
-	/rho;
-    }
+    R[x_] =
+      cos(mu_x)*Id[x_] + sin(mu_x)*Id[px_]
+      + rho*(1e0-cos(s/rho))/sqrt(beta1_x);
+    R[px_] =
+      -sin(mu_x)*Id[x_] + cos(mu_x)*Id[px_]
+      + (beta1_x*sin(s/rho)+alpha1_x*rho*(1e0-cos(s/rho)))/sqrt(beta1_x);
 
     eta_Fl = (R*eta_Fl0).cst();
 
-    fprintf(outf, "  %6.3f %6.3f  %6.3f %6.3f %10.3e %10.3e\n",
-	    s, mu_x/(2e0*M_PI), alpha1_x, beta1_x, eta_Fl[x_], eta_Fl[px_]);
+    omega_eta = (Omega*M*eta0).cst();
+    A_Atp_omega_eta = (A_Atp*Omega*M*eta0).cst();
+    cout << scientific << setprecision(3)
+	 << "\n" << setw(11) << (M*eta0).cst() << "\n";
+    cout << scientific << setprecision(3)
+	 << "\n" << setw(11) << omega_eta
+	 << "\n" << setw(11) << A_Atp_omega_eta << "\n";
+    exit(0);
+    curly_H = 0e0;
+    for (k = 0; k < 2; k++)
+      curly_H += omega_eta[k]*A_Atp_omega_eta[k];
+
+    fprintf(outf, "  %6.3f %6.3f  %6.3f %6.3f %10.3e %10.3e %10.3e\n",
+	    s, mu_x/(2e0*M_PI), alpha1_x, beta1_x, eta_Fl[x_], eta_Fl[px_],
+	    curly_H);
 
   }
 
