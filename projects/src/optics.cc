@@ -822,7 +822,7 @@ void prt_eta_Fl(void)
   long int        lastpos;
   int             i, k;
   double          dphi, s, mu_x, alpha1_x, beta1_x, curly_H;
-  ss_vect<double> eta0, eta, eta_Fl0, eta_Fl, omega_eta, A_Atp_omega_eta;
+  ss_vect<double> eta0, eta_Fl0, eta_Fl, omega_M_eta, A_Atp_omega_M_eta;
   ss_vect<tps>    Id, A, M, R, A_Atp0, A_Atp, Omega;
   FILE            *outf;
 
@@ -844,7 +844,7 @@ void prt_eta_Fl(void)
   eta0.zero(); eta0[x_] = Cell[0].Eta[X_]; eta0[px_] = Cell[0].Etap[X_];
   eta_Fl0 = (Inv(A)*eta0).cst();
 
-  A_Atp0.identity(); A_Atp0[6] = 0e0;
+  A_Atp0.identity();
   A_Atp0[x_]  = beta0_x*Id[x_]   - alpha0_x*Id[px_];
   A_Atp0[px_] = -alpha0_x*Id[x_] + gamma0_x*Id[px_];
 
@@ -855,6 +855,8 @@ void prt_eta_Fl(void)
   for (i = 0; i <= n_step; i++) {
     s = i*L/n_step;
 
+    mu_x = atan(s/beta0_x);
+
     M[x_] =
       cos(s/rho)*Id[x_] + rho*sin(s/rho)*Id[px_]
       + rho*(1e0-cos(s/rho))/sqrt(beta1_x);
@@ -862,31 +864,28 @@ void prt_eta_Fl(void)
       -sin(s/rho)/rho*Id[x_] + cos(s/rho)*Id[px_]
       + (beta1_x*sin(s/rho)+alpha1_x*rho*(1e0-cos(s/rho)))/sqrt(beta1_x);
 
-    mu_x = atan(s/beta0_x);
-
-    A_Atp = M*A_Atp0*tp_S(1, M);
+    A_Atp = (M-M.cst())*A_Atp0*tp_S(1, M-M.cst());
     beta1_x = A_Atp[x_][x_]; alpha1_x = -A_Atp[px_][x_];
 
-    R[x_] =
-      cos(mu_x)*Id[x_] + sin(mu_x)*Id[px_]
-      + rho*(1e0-cos(s/rho))/sqrt(beta1_x);
-    R[px_] =
-      -sin(mu_x)*Id[x_] + cos(mu_x)*Id[px_]
-      + (beta1_x*sin(s/rho)+alpha1_x*rho*(1e0-cos(s/rho)))/sqrt(beta1_x);
+    if (!true) {
+      R[x_] =
+	cos(mu_x)*Id[x_] + sin(mu_x)*Id[px_]
+	+ rho*(1e0-cos(s/rho))/sqrt(beta1_x);
+      R[px_] =
+	-sin(mu_x)*Id[x_] + cos(mu_x)*Id[px_]
+	+ (beta1_x*sin(s/rho)+alpha1_x*rho*(1e0-cos(s/rho)))/sqrt(beta1_x);
 
-    eta_Fl = (R*eta_Fl0).cst();
+      eta_Fl = (R*eta_Fl0).cst();
 
-    omega_eta = (Omega*M*eta0).cst();
-    A_Atp_omega_eta = (A_Atp*Omega*M*eta0).cst();
-    cout << scientific << setprecision(3)
-	 << "\n" << setw(11) << (M*eta0).cst() << "\n";
-    cout << scientific << setprecision(3)
-	 << "\n" << setw(11) << omega_eta
-	 << "\n" << setw(11) << A_Atp_omega_eta << "\n";
-    exit(0);
-    curly_H = 0e0;
-    for (k = 0; k < 2; k++)
-      curly_H += omega_eta[k]*A_Atp_omega_eta[k];
+      curly_H = sqr(eta_Fl[x_]) + sqr(eta_Fl[px_]);
+    } else {
+      omega_M_eta = (Omega*M*eta0).cst();
+      A_Atp_omega_M_eta = (A_Atp*omega_M_eta).cst();
+      curly_H = 0e0;
+      for (k = 0; k < 2; k++)
+	curly_H += omega_M_eta[k]*A_Atp_omega_M_eta[k];
+    }
+
 
     fprintf(outf, "  %6.3f %6.3f  %6.3f %6.3f %10.3e %10.3e %10.3e\n",
 	    s, mu_x/(2e0*M_PI), alpha1_x, beta1_x, eta_Fl[x_], eta_Fl[px_],
