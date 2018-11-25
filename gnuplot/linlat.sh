@@ -72,10 +72,13 @@ unset colorbox;
 if (ps) set output "linlat_4.".(ext);
 set title "Floquet Space";
 set xlabel "{/Symbol h}_x\\\~"; set ylabel "{/Symbol h}\'_x\\\~";
+set size square;
 set xrange [0:*]
 plot file_name using 15:16:(abs(\$4)) notitle "{/Symbol n}_x" \
      with lines lt palette z;
 if (!ps) pause mouse "click on graph to cont.\n";
+
+set size nosquare;
 
 #exit;
 
