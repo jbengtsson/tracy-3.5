@@ -72,15 +72,17 @@ unset colorbox;
 if (ps) set output "linlat_4.".(ext);
 set title "{/ZapfChancery-MediumItalic H}_x({/Symbol h}_x\\\~, {/Symbol h}\'_x\\\~)";
 set xlabel "{/Symbol h}_x\\\~"; set ylabel "{/Symbol h}\'_x\\\~";
+set format x "%e"
+set format y "%e"
 set size square;
-set xrange [0:*]
+#set xrange [0:*]
 plot file_name using 15:16:(abs(\$4)) notitle "{/Symbol n}_x" \
      with lines lt palette z;
 if (!ps) pause mouse "click on graph to cont.\n";
 
 set size nosquare;
 
-#exit;
+exit;
 
 if (ps) set output "linlat_5.".(ext);
 set title "{/Symbol h}_x [m]";
