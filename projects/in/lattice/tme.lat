@@ -29,9 +29,9 @@ B_4: Bending, L = 0.75/n_b, T = phi_b/4, T1 = 0.0, T2 = 0.0,
      N = Nbend, Method = Meth;
 B_5: Bending, L = 0.75/n_b, T = phi_b/5, T1 = 0.0, T2 = 0.0,
      N = Nbend, Method = Meth;
-B_H: B_1, B_2, B_3, B_4, B_5;
+{B_H: B_1, B_2, B_3, B_4, B_5;}
 
-{B_H: Bending, L = 0.75, T = 5.0, T1 = 0.0, T2 = 0.0, N = Nbend, Method = Meth;}
+B_H: Bending, L = 0.75, T = 5.0, T1 = 0.0, T2 = 0.0, N = Nbend, Method = Meth;
 
 QF: Quadrupole, L = 0.0, K =  1.39953,  N = Nquad, Method = Meth;
 QD: Quadrupole, L = 0.0, K = -0.943982, N = Nquad, Method = Meth;
