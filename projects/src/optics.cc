@@ -6,7 +6,7 @@ int no_tps = NO;
 
 
 const bool
-  set_dnu = false,
+  set_dnu = !false,
   mI_rot  = false,
   HOA_rot = false,
   prt_ms  = false,
@@ -927,7 +927,7 @@ int main(int argc, char *argv[])
 
   trace = !true;
 
-  if (true)
+  if (!true)
     Read_Lattice(argv[1]);
   else
     rdmfile(argv[1]);
@@ -958,7 +958,7 @@ int main(int argc, char *argv[])
     exit(0);
   }
 
-  if (!false) {
+  if (false) {
     prt_eta_Fl();
     exit(0);
   }
@@ -1115,8 +1115,8 @@ int main(int argc, char *argv[])
   }
 
   if (false) {
-    chk_optics(-0.3026596977, 11.1525671, -0.1377651491, 0.3779633018,
-	       0.7946624468, -0.02521684799, 0.0, 0.0);
+    chk_optics(0.0, 0.19177, 0.0, 4.80833,
+	       0.01086, 0.0, 0.0, 0.0);
     prt_lat("linlat1.out", globval.bpm, true);
     prt_lat("linlat.out", globval.bpm, true, 10);
     exit(0);
