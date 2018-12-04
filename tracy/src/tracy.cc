@@ -30,6 +30,7 @@
 #include "t2elem.cc"
 #include "t2cell.cc"
 #include "t2ring.cc"
+#include "sigma_track.cc"
 
 #include "pascalio.cc"
 

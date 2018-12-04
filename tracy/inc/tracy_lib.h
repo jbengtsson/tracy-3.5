@@ -62,6 +62,7 @@ using namespace std;
 #include "t2cell.h"
 #include "t2lat.h"
 #include "t2ring.h"
+#include "sigma_track.h"
 
 #include "fft.h"
 

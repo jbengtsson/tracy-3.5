@@ -1735,18 +1735,18 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
   lat_constr.Fnum_b1.push_back(-ElemIndex("dl2a_1"));
   lat_constr.grad_dip_Fnum_b1.push_back(grad_dip_Fnum);
 
+  if (!false) {
+    prms.add_prm("qf4", -3, -20.0, 20.0, 1.0);
+    lat_constr.Fnum_b1.push_back(ElemIndex("qf4"));
+    prms.add_prm("qf6", -3, -20.0, 20.0, 1.0);
+    lat_constr.Fnum_b1.push_back(ElemIndex("qf6"));
+    prms.add_prm("qf8", -3, -20.0, 20.0, 1.0);
+    lat_constr.Fnum_b1.push_back(ElemIndex("qf8"));
+  }
+
   // prms.add_prm("dq1", -3, -20.0,   20.0,  1.0);
   lat_constr.Fnum_b1.push_back(ElemIndex("dq1"));
   prms.add_prm("dq1",  2, -20.0,   20.0,  1.0);
-
-  if (!false) {
-    // prms.add_prm("qf4", -3, -20.0, 20.0, 1.0);
-    lat_constr.Fnum_b1.push_back(ElemIndex("qf4"));
-    // prms.add_prm("qf6", -3, -20.0, 20.0, 1.0);
-    lat_constr.Fnum_b1.push_back(ElemIndex("qf6"));
-    // // prms.add_prm("qf8", -3, -20.0, 20.0, 1.0);
-    lat_constr.Fnum_b1.push_back(ElemIndex("qf8"));
-  }
 
   // Mid Straight.
   prms.add_prm("qf1", 2, -20.0, 20.0, 1.0);
@@ -1779,10 +1779,10 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
   		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   // Include constraint on alpha; in case of using ps_rot.
   constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
-  		    1e5, 1e5, 1e1, 1e1, 1e5,   0e0,
+  		    1e5, 1e5, 1e1, 1e1, 1e6,   0e0,
   		    0.0, 0.0, 3.0, 1.5, 0.024, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("ms"), 2),
-  		    1e5, 1e5, 1e1, 1e1, 1e5,   0e0,
+  		    1e5, 1e5, 1e1, 1e1, 1e6,   0e0,
   		    0.0, 0.0, 3.0, 1.5, 0.024, 0.0);
   // Both SS constraints are needed.
   constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
@@ -1819,7 +1819,7 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
   for (k = 0; k < 2; k++)
     lat_constr.mI0[k] = mI_nu_ref[k];
 
-  lat_constr.eps_x_scl            = 1e3;
+  lat_constr.eps_x_scl            = 1e5;
   lat_constr.ksi1_svd_scl         = 1e0;
   lat_constr.drv_terms_simple_scl = 1e-4;
   lat_constr.drv_terms_scl        = 1e13;
