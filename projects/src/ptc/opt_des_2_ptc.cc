@@ -8,7 +8,7 @@ int no_tps   = NO,
     ndpt_tps = 5;
 
 
-const bool ps_rot = !false;
+const bool ps_rot = false;
 
 const double
   high_ord_achr_nu[] = {2.5-0.125, 0.75+0.125},
@@ -1577,7 +1577,7 @@ void opt_mI_std(param_type &prms, constr_type &constr)
   grad_dip_Fnum.push_back(ElemIndex("dl1a_3"));
   grad_dip_Fnum.push_back(ElemIndex("dl1a_4"));
   grad_dip_Fnum.push_back(ElemIndex("dl1a_5"));
-  prms.add_prm(grad_dip_Fnum, grad_dip_scl, -3, -20.0, 20.0, 1.0);
+  // prms.add_prm(grad_dip_Fnum, grad_dip_scl, -3, -20.0, 20.0, 1.0);
   if (long_grad_dip)
     prms.add_prm(grad_dip_Fnum, grad_dip_scl,  2, -20.0, 20.0, 1.0);
 
@@ -1590,7 +1590,7 @@ void opt_mI_std(param_type &prms, constr_type &constr)
   grad_dip_Fnum.push_back(ElemIndex("dl2a_3"));
   grad_dip_Fnum.push_back(ElemIndex("dl2a_4"));
   grad_dip_Fnum.push_back(ElemIndex("dl2a_5"));
-  prms.add_prm(grad_dip_Fnum, grad_dip_scl, -3, -20.0, 20.0, 1.0);
+  // prms.add_prm(grad_dip_Fnum, grad_dip_scl, -3, -20.0, 20.0, 1.0);
   if (long_grad_dip)
     prms.add_prm(grad_dip_Fnum, grad_dip_scl,  2, -20.0, 20.0, 1.0);
 
@@ -1602,11 +1602,11 @@ void opt_mI_std(param_type &prms, constr_type &constr)
   prms.add_prm("dq1",  2, -20.0,   20.0,  1.0);
 
   // prms.add_prm("qf4", -3, -20.0, 20.0, 1.0);
-  // lat_constr.Fnum_b1.push_back(ElemIndex("qf4"));
+  lat_constr.Fnum_b1.push_back(ElemIndex("qf4"));
   // prms.add_prm("qf6", -3, -20.0, 20.0, 1.0);
-  // lat_constr.Fnum_b1.push_back(ElemIndex("qf6"));
+  lat_constr.Fnum_b1.push_back(ElemIndex("qf6"));
   // // prms.add_prm("qf8", -3, -20.0, 20.0, 1.0);
-  // lat_constr.Fnum_b1.push_back(ElemIndex("qf8"));
+  lat_constr.Fnum_b1.push_back(ElemIndex("qf8"));
 
   // Mid Straight.
   prms.add_prm("qf1", 2, -20.0, 20.0, 1.0);
@@ -1648,7 +1648,7 @@ void opt_mI_std(param_type &prms, constr_type &constr)
   lat_constr.Fnum_b3.push_back(ElemIndex("sd2"));
   // lat_constr.Fnum_b3.push_back(ElemIndex("sh2"));
 
-  lat_constr.eps0_x = 0.250;
+  lat_constr.eps0_x = 0.200;
 
   for (k = 0; k < 2; k++)
     lat_constr.high_ord_achr_nu[k] = high_ord_achr_nu[k];
@@ -1664,16 +1664,16 @@ void opt_mI_std(param_type &prms, constr_type &constr)
   for (k = 0; k < 2; k++)
     lat_constr.mI0[k] = mI_nu_ref[k];
 
-  lat_constr.eps_x_scl            = 1e5;
+  lat_constr.eps_x_scl            = 1e4;
   lat_constr.ksi1_svd_scl         = 1e0;
-  lat_constr.drv_terms_simple_scl = 1e-2;
-  lat_constr.drv_terms_scl        = 1e2;
-  lat_constr.mI_scl[X_]           = 1e5;
-  lat_constr.mI_scl[Y_]           = 1e5;
+  lat_constr.drv_terms_simple_scl = 1e-4;
+  lat_constr.drv_terms_scl        = 1e-13;
+  lat_constr.mI_scl[X_]           = 1e4;
+  lat_constr.mI_scl[Y_]           = 1e4;
   lat_constr.high_ord_achr_scl    = 1e4;
   lat_constr.phi_scl              = 1e0;
 
-  printf("\n  eps_x_scl          = %9.3e\n"
+  printf("\n  eps_x_scl            = %9.3e\n"
 	 "  ksi1_svd_scl         = %9.3e\n"
 	 "  drv_terms_simple_scl = %9.3e\n"
 	 "  drv_terms_scl        = %9.3e\n"
@@ -1819,13 +1819,13 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
   for (k = 0; k < 2; k++)
     lat_constr.mI0[k] = mI_nu_ref[k];
 
-  lat_constr.eps_x_scl            = 1e5;
+  lat_constr.eps_x_scl            = 1e4;
   lat_constr.ksi1_svd_scl         = 1e0;
-  lat_constr.drv_terms_simple_scl = 1e-4;
+  lat_constr.drv_terms_simple_scl = 1e-5;
   lat_constr.drv_terms_scl        = 1e13;
-  lat_constr.mI_scl[X_]           = 1e5;
-  lat_constr.mI_scl[Y_]           = 1e5;
-  lat_constr.high_ord_achr_scl    = 1e7;
+  lat_constr.mI_scl[X_]           = 1e6;
+  lat_constr.mI_scl[Y_]           = 1e6;
+  lat_constr.high_ord_achr_scl    = 1e8;
   lat_constr.phi_scl              = 1e0;
 
   printf("\n  eps_x_scl            = %9.3e\n"
@@ -2395,14 +2395,14 @@ int main(int argc, char *argv[])
 
   if (false) fit_ksi1(0e0, 0e0);
 
-  if (false) {
+  if (!false) {
     // Optimize Standard Straight: mI.
     opt_mI_std(lat_prms, lat_constr);
     no_sxt();
     fit_powell(lat_prms, 1e-3, f_achrom);
   }
 
-  if (!false) {
+  if (false) {
     // Optimize Super Period: mI.
     opt_mI_sp(lat_prms, lat_constr);
     no_sxt();
