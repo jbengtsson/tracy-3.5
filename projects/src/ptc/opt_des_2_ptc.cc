@@ -1563,7 +1563,7 @@ void opt_mI_std(param_type &prms, constr_type &constr)
   std::vector<int>    grad_dip_Fnum;
   std::vector<double> grad_dip_scl;
 
-  const bool long_grad_dip = !false;
+  const bool dphi = false, long_grad_dip = !false;
 
   // Standard Cell.
   grad_dip_scl.push_back(0.129665);
@@ -1577,11 +1577,11 @@ void opt_mI_std(param_type &prms, constr_type &constr)
   grad_dip_Fnum.push_back(ElemIndex("dl1a_3"));
   grad_dip_Fnum.push_back(ElemIndex("dl1a_4"));
   grad_dip_Fnum.push_back(ElemIndex("dl1a_5"));
-  // prms.add_prm(grad_dip_Fnum, grad_dip_scl, -3, -20.0, 20.0, 1.0);
+  if (dphi)
+    prms.add_prm(grad_dip_Fnum, grad_dip_scl, -3, -20.0, 20.0, 1.0);
+  lat_constr.Fnum_b1.push_back(-ElemIndex("dl1a_1"));
   if (long_grad_dip)
     prms.add_prm(grad_dip_Fnum, grad_dip_scl,  2, -20.0, 20.0, 1.0);
-
-  lat_constr.Fnum_b1.push_back(-ElemIndex("dl1a_1"));
   lat_constr.grad_dip_Fnum_b1.push_back(grad_dip_Fnum);
 
   grad_dip_Fnum.clear();
@@ -1590,23 +1590,34 @@ void opt_mI_std(param_type &prms, constr_type &constr)
   grad_dip_Fnum.push_back(ElemIndex("dl2a_3"));
   grad_dip_Fnum.push_back(ElemIndex("dl2a_4"));
   grad_dip_Fnum.push_back(ElemIndex("dl2a_5"));
-  // prms.add_prm(grad_dip_Fnum, grad_dip_scl, -3, -20.0, 20.0, 1.0);
+  if (dphi)
+    prms.add_prm(grad_dip_Fnum, grad_dip_scl, -3, -20.0, 20.0, 1.0);
+  lat_constr.Fnum_b1.push_back(-ElemIndex("dl2a_1"));
+
   if (long_grad_dip)
     prms.add_prm(grad_dip_Fnum, grad_dip_scl,  2, -20.0, 20.0, 1.0);
-
-  lat_constr.Fnum_b1.push_back(-ElemIndex("dl2a_1"));
   lat_constr.grad_dip_Fnum_b1.push_back(grad_dip_Fnum);
 
-  // prms.add_prm("dq1", -3, -20.0,   20.0,  1.0);
-  lat_constr.Fnum_b1.push_back(ElemIndex("dq1"));
-  prms.add_prm("dq1",  2, -20.0,   20.0,  1.0);
+  if (dphi) {
+    prms.add_prm("qf4", -3, -20.0, 20.0, 1.0);
+    lat_constr.Fnum_b1.push_back(ElemIndex("qf4"));
+  }
+  if (dphi) {
+    prms.add_prm("qf6", -3, -20.0, 20.0, 1.0);
+    lat_constr.Fnum_b1.push_back(ElemIndex("qf6"));
+  }
 
-  // prms.add_prm("qf4", -3, -20.0, 20.0, 1.0);
-  lat_constr.Fnum_b1.push_back(ElemIndex("qf4"));
-  // prms.add_prm("qf6", -3, -20.0, 20.0, 1.0);
-  lat_constr.Fnum_b1.push_back(ElemIndex("qf6"));
-  // // prms.add_prm("qf8", -3, -20.0, 20.0, 1.0);
-  lat_constr.Fnum_b1.push_back(ElemIndex("qf8"));
+  if (dphi) {
+    prms.add_prm("qf8", -3, -20.0, 20.0, 1.0);
+    lat_constr.Fnum_b1.push_back(ElemIndex("qf8"));
+  }
+
+  if (dphi) {
+    // Commented out must be defined last.
+    // prms.add_prm("dq1", -3, -20.0,   20.0,  1.0);
+    lat_constr.Fnum_b1.push_back(ElemIndex("dq1"));
+  }
+  prms.add_prm("dq1",  2, -20.0,   20.0,  1.0);
 
   // Mid Straight.
   prms.add_prm("qf1", 2, -20.0, 20.0, 1.0);
@@ -1671,7 +1682,7 @@ void opt_mI_std(param_type &prms, constr_type &constr)
   lat_constr.mI_scl[X_]           = 1e4;
   lat_constr.mI_scl[Y_]           = 1e4;
   lat_constr.high_ord_achr_scl    = 1e4;
-  lat_constr.phi_scl              = 1e0;
+  lat_constr.phi_scl              = 0e0;
 
   printf("\n  eps_x_scl            = %9.3e\n"
 	 "  ksi1_svd_scl         = %9.3e\n"
@@ -1744,6 +1755,7 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
     lat_constr.Fnum_b1.push_back(ElemIndex("qf8"));
   }
 
+  // Commented out must be defined last.
   // prms.add_prm("dq1", -3, -20.0,   20.0,  1.0);
   lat_constr.Fnum_b1.push_back(ElemIndex("dq1"));
   prms.add_prm("dq1",  2, -20.0,   20.0,  1.0);
