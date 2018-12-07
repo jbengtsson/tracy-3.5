@@ -33,13 +33,11 @@ void A_At_pass(void)
 	 "  %8.5f %8.5f %8.5f %8.5f\n",
 	 -A_Atp[x_][px_], A_Atp[x_][x_], -A_Atp[y_][py_], A_Atp[y_][y_]);
 
-  for (i = 0; i <= 5; i++) {
-    Cell_Pass(i, i, A_Atp, lastpos); A_Atp = tp_S(2, A_Atp);
-    Cell_Pass(i, i, A_Atp, lastpos);
+  Cell_Pass(0, globval.Cell_nLoc, A_Atp, lastpos); A_Atp = tp_S(2, A_Atp);
+  Cell_Pass(0, globval.Cell_nLoc, A_Atp, lastpos);
 
-    printf("  %8.5f %8.5f %8.5f %8.5f\n",
-	   -A_Atp[x_][px_], A_Atp[x_][x_], -A_Atp[y_][py_], A_Atp[y_][y_]);
-  }
+  printf("  %8.5f %8.5f %8.5f %8.5f\n",
+	 -A_Atp[x_][px_], A_Atp[x_][x_], -A_Atp[y_][py_], A_Atp[y_][y_]);
 }
 
 
