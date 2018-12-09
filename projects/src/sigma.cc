@@ -22,22 +22,20 @@ void A_At_pass(void)
 {
   long int     lastpos;
   int          i;
-  ss_vect<tps> omega, omega_tp, A, A_Atp;
-
-  omega = get_sympl_form(2); omega_tp = tp_S(2, omega);
+  ss_vect<tps> A, sigma;
 
   A.identity(); putlinmat(4, globval.Ascr, A);
-  A_Atp = A*tp_S(2, A);
+  sigma = A*tp_S(2, A);
 
   printf("\n   alpha_x  beta_x   alpha_y  beta_y:\n"
 	 "  %8.5f %8.5f %8.5f %8.5f\n",
-	 -A_Atp[x_][px_], A_Atp[x_][x_], -A_Atp[y_][py_], A_Atp[y_][y_]);
+	 -sigma[x_][px_], sigma[x_][x_], -sigma[y_][py_], sigma[y_][y_]);
 
-  Cell_Pass(0, globval.Cell_nLoc, A_Atp, lastpos); A_Atp = tp_S(2, A_Atp);
-  Cell_Pass(0, globval.Cell_nLoc, A_Atp, lastpos);
+  Cell_Pass(0, globval.Cell_nLoc, sigma, lastpos); sigma = tp_S(2, sigma);
+  Cell_Pass(0, globval.Cell_nLoc, sigma, lastpos);
 
   printf("  %8.5f %8.5f %8.5f %8.5f\n",
-	 -A_Atp[x_][px_], A_Atp[x_][x_], -A_Atp[y_][py_], A_Atp[y_][y_]);
+	 -sigma[x_][px_], sigma[x_][x_], -sigma[y_][py_], sigma[y_][y_]);
 }
 
 
