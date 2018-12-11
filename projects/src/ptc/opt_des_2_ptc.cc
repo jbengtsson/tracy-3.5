@@ -8,7 +8,7 @@ int no_tps   = NO,
     ndpt_tps = 5;
 
 
-const bool ps_rot = false;
+const bool ps_rot = !false;
 
 const double
   high_ord_achr_nu[] = {2.5-0.125, 0.75+0.125},
@@ -1712,7 +1712,11 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
   std::vector<int>    grad_dip_Fnum;
   std::vector<double> grad_dip_scl;
 
-  const bool dphi = false, long_grad_dip = !false;
+  const bool
+    dphi          = false,
+    long_grad_dip = !false,
+    dip_cell      = true,
+    LS_extra      = !false;
 
   // Standard Cell.
   grad_dip_scl.push_back(0.129665);
@@ -1761,26 +1765,29 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
     lat_constr.Fnum_b1.push_back(ElemIndex("dq1"));
   }
 
-  prms.add_prm("dq1", 2, -20.0,   20.0,  1.0);
+  if (dip_cell) {
+    prms.add_prm("dq1", 2, -20.0,   20.0,  1.0);
 
-  // Mid Straight.
-  prms.add_prm("qf1", 2, -20.0, 20.0, 1.0);
-  prms.add_prm("qd2", 2, -20.0, 20.0, 1.0);
+    // Mid Straight.
+    prms.add_prm("qf1", 2, -20.0, 20.0, 1.0);
+    prms.add_prm("qd2", 2, -20.0, 20.0, 1.0);
 
-  // Dipole Cell.
-  prms.add_prm("qd3", 2, -20.0, 20.0, 1.0);
-  prms.add_prm("qf4", 2, -20.0, 20.0, 1.0);
-  prms.add_prm("qd5", 2, -20.0, 20.0, 1.0);
+    // Dipole Cell.
+    prms.add_prm("qd3", 2, -20.0, 20.0, 1.0);
+    prms.add_prm("qf4", 2, -20.0, 20.0, 1.0);
+    prms.add_prm("qd5", 2, -20.0, 20.0, 1.0);
 
-  // Standard Straight.
-  prms.add_prm("qf6", 2, -20.0, 20.0, 1.0);
-  prms.add_prm("qf8", 2, -20.0, 20.0, 1.0);
+    // Standard Straight.
+    prms.add_prm("qf6", 2, -20.0, 20.0, 1.0);
+    prms.add_prm("qf8", 2, -20.0, 20.0, 1.0);
+  }
 
   // Long Straight.
   prms.add_prm("qf1_c1",    2, -20.0, 20.0, 1.0);
   prms.add_prm("qd2_c1",    2, -20.0, 20.0, 1.0);
   prms.add_prm("quad_add",  2, -20.0, 20.0, 1.0);
-  prms.add_prm("quad_add1", 2, -20.0, 20.0, 1.0);
+  if (LS_extra)
+    prms.add_prm("quad_add1", 2, -20.0, 20.0, 1.0);
 
  // Parameters are initialized in optimizer.
 
@@ -1872,19 +1879,26 @@ void match_ls(param_type &prms, constr_type &constr)
   //   Length      -2,
   //   Position    -1,
   //   Quadrupole   2.
-  int                 j, k;
+  int                 j, k, n;
   std::vector<int>    grad_dip_Fnum;
   std::vector<double> grad_dip_scl;
+
+  const bool LS_extra = !false;
 
   // From Center of Mid Straight: alpha, beta, eta, eta'.
   const int    n_ic        = 4;
   const double ic[n_ic][2] =
-    {{0.0, 0.0}, {1.9277150831, 2.6177770136}, {0.0210533600, 0.0}, {0.0, 0.0}};
+    {{0.0, 0.0}, {2.4140652101, 2.3823258945}, {0.0, 0.0}, {0.0, 0.0}};
  
   // Long Straight.
   prms.add_prm("qf1_c1",   2, -20.0, 20.0, 1.0);
   prms.add_prm("qd2_c1",   2, -20.0, 20.0, 1.0);
   prms.add_prm("quad_add", 2, -20.0, 20.0, 1.0);
+  if (LS_extra)
+    prms.add_prm("quad_add1", 2, -20.0, 20.0, 1.0);
+
+  // prms.add_prm("qd2_c1",    -1, -20.0, 20.0, 1.0);
+  // prms.add_prm("quad_add1", -1, -20.0, 20.0, 1.0);
 
   // Parameters are initialized in optimizer.
 
@@ -1893,6 +1907,19 @@ void match_ls(param_type &prms, constr_type &constr)
   		    0.0, 0.0, 10.0, 4.0,  0.0, 0.0);
 
   lat_prms.bn_tol = 1e-5; lat_prms.step = 1.0;
+
+  for (k = 0; k < 2; k++)
+    lat_constr.high_ord_achr_nu[k] = high_ord_achr_nu[k];
+
+  lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("ms"), 1));
+  lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("ms"), 2));
+
+  n = lat_constr.high_ord_achr_Fnum.size() - 1;
+  lat_constr.high_ord_achr_dnu.resize(n);
+  for (k = 0; k < n; k++)
+    lat_constr.high_ord_achr_dnu[k].resize(2, 0e0);
+
+  lat_constr.high_ord_achr_scl = 1e2;
 
   lat_constr.ini_constr(false);
 
@@ -2390,7 +2417,7 @@ int main(int argc, char *argv[])
 
   if (ps_rot) {
     Ring_GetTwiss(true, 0e0); printglob();
-    dnu[X_] = 0.0; dnu[Y_] = -0.1;
+    dnu[X_] = 0.05; dnu[Y_] = -0.1;
     set_map(ElemIndex("ps_rot"), dnu);
   }
 
