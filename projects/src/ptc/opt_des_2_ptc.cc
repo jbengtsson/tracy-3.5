@@ -1883,22 +1883,16 @@ void match_ls(param_type &prms, constr_type &constr)
   std::vector<int>    grad_dip_Fnum;
   std::vector<double> grad_dip_scl;
 
-  const bool LS_extra = !false;
-
   // From Center of Mid Straight: alpha, beta, eta, eta'.
   const int    n_ic        = 4;
   const double ic[n_ic][2] =
-    {{0.0, 0.0}, {2.4140652101, 2.3823258945}, {0.0, 0.0}, {0.0, 0.0}};
+    {{0.0, 0.0}, {2.4140652101, 2.3823258945}, {0.0247363234, 0.0}, {0.0, 0.0}};
  
   // Long Straight.
-  prms.add_prm("qf1_c1",   2, -20.0, 20.0, 1.0);
-  prms.add_prm("qd2_c1",   2, -20.0, 20.0, 1.0);
-  prms.add_prm("quad_add", 2, -20.0, 20.0, 1.0);
-  if (LS_extra)
-    prms.add_prm("quad_add1", 2, -20.0, 20.0, 1.0);
-
-  // prms.add_prm("qd2_c1",    -1, -20.0, 20.0, 1.0);
-  // prms.add_prm("quad_add1", -1, -20.0, 20.0, 1.0);
+  prms.add_prm("qf1_c1",    2, -20.0,  0.0, 1.0);
+  prms.add_prm("qd2_c1",    2,   0.0, 20.0, 1.0);
+  prms.add_prm("quad_add",  2,   0.0, 20.0, 1.0);
+  prms.add_prm("quad_add1", 2, -20.0,  0.0, 1.0);
 
   // Parameters are initialized in optimizer.
 
