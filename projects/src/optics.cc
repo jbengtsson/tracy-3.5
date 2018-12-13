@@ -940,7 +940,7 @@ int main(int argc, char *argv[])
 
   if (false) no_sxt();
 
-  if (!false) {
+  if (false) {
     Ring_GetTwiss(true, 0e0); printglob();
     dnu[X_] = 0.0; dnu[Y_] = 0.03;
     set_map(ElemIndex("ps_rot"), dnu);
