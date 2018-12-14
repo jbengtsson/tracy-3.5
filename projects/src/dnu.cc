@@ -13,7 +13,7 @@ int  no_tps = NO;
 // DELTA        6,
 // ALS-U        7.
 
-const bool set_dnu  = false;
+const bool set_dnu  = !false;
 const int  lat_case = 4;
 const double
   A_max[][2]  =
@@ -21,7 +21,7 @@ const double
      {  5e-3,   3e-3}, { 3e-3, 2e-3}, {3e-3, 2e-3}},
   delta_max[] = {3e-2, 5e-2, 2e-2, 3e-2,
 		 3e-2, 3e-2, 3e-2},
-  dnu[]       = {0.03, 0.02};
+  dnu[]       = {0.1/6.0, 0.25/6.0};
 
 
 int main(int argc, char *argv[])
@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
 
   reverse_elem = !false;
 
-  if (false)
+  if (!false)
     Read_Lattice(argv[1]);
   else
     rdmfile(argv[1]);
