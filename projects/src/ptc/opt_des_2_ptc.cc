@@ -8,7 +8,7 @@ int no_tps   = NO,
     ndpt_tps = 5;
 
 
-const bool ps_rot = !false;
+const bool ps_rot = false;
 
 const double
   high_ord_achr_nu[] = {2.5-0.125, 0.75+0.125},
@@ -1716,7 +1716,7 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
     dphi          = false,
     long_grad_dip = !false,
     dip_cell      = true,
-    LS_extra      = !false;
+    LS_extra      = false;
 
   // Standard Cell.
   grad_dip_scl.push_back(0.129665);
