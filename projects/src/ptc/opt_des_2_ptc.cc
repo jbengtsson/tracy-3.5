@@ -1144,7 +1144,7 @@ void prt_grad_dip(FILE *outf, const std::vector<int> &Fnum)
 
   const bool prt = false;
 
-  if (prt) printf("prt_grad_dip: %d\n", (int)Fnum.size());
+  if (prt) printf("  prt_grad_dip: %d\n", (int)Fnum.size());
   for (k = 0; k < (int)Fnum.size(); k++) {
     loc = Elem_GetPos(Fnum[k], 1);
     prt_name(outf, Cell[loc].Elem.PName, ":", 8);
@@ -1161,15 +1161,16 @@ void prt_elem(FILE *outf, const param_type &lat_prms, const int n)
 
   loc = Elem_GetPos(abs(lat_prms.Fnum[n-1]), 1);
   if (prt) {
-    printf("prt_elem: ");
+    printf("prt_elem:\n  ");
     prt_name(stdout, Cell[loc].Elem.PName, "\n", 0);
   }
   if (Cell[loc].Elem.Pkind == drift) {
     prt_name(outf, Cell[loc].Elem.PName, ":", 8);
     prt_drift(outf, Cell[loc]);
   } else if (Cell[loc].Elem.Pkind == Mpole) {
+    printf("  n_design:     %1d\n", Cell[loc].Elem.M->n_design);
     if (Cell[loc].Elem.M->n_design == Dip) {
-      if (lat_prms.Fnum[n] > 0) {
+      if (lat_prms.Fnum[n-1] > 0) {
 	prt_name(outf, Cell[loc].Elem.PName, ":", 8);
 	prt_dip(outf, Cell[loc]);
       } else
@@ -1579,9 +1580,10 @@ void opt_mI_std(param_type &prms, constr_type &constr)
   grad_dip_Fnum.push_back(ElemIndex("dl1a_5"));
   if (dphi)
     prms.add_prm(grad_dip_Fnum, grad_dip_scl, -3, -20.0, 20.0, 1.0);
-  lat_constr.Fnum_b1.push_back(-ElemIndex("dl1a_1"));
   if (long_grad_dip)
     prms.add_prm(grad_dip_Fnum, grad_dip_scl,  2, -20.0, 20.0, 1.0);
+
+  lat_constr.Fnum_b1.push_back(-ElemIndex("dl1a_1"));
   lat_constr.grad_dip_Fnum_b1.push_back(grad_dip_Fnum);
 
   grad_dip_Fnum.clear();
@@ -1592,10 +1594,10 @@ void opt_mI_std(param_type &prms, constr_type &constr)
   grad_dip_Fnum.push_back(ElemIndex("dl2a_5"));
   if (dphi)
     prms.add_prm(grad_dip_Fnum, grad_dip_scl, -3, -20.0, 20.0, 1.0);
-  lat_constr.Fnum_b1.push_back(-ElemIndex("dl2a_1"));
-
   if (long_grad_dip)
     prms.add_prm(grad_dip_Fnum, grad_dip_scl,  2, -20.0, 20.0, 1.0);
+
+  lat_constr.Fnum_b1.push_back(-ElemIndex("dl2a_1"));
   lat_constr.grad_dip_Fnum_b1.push_back(grad_dip_Fnum);
 
   if (dphi) {
@@ -1655,7 +1657,7 @@ void opt_mI_std(param_type &prms, constr_type &constr)
   lat_constr.Fnum_b3.push_back(ElemIndex("sd2"));
   // lat_constr.Fnum_b3.push_back(ElemIndex("sh2"));
 
-  lat_constr.eps0_x = 0.199;
+  lat_constr.eps0_x = 0.099;
 
   for (k = 0; k < 2; k++)
     lat_constr.high_ord_achr_nu[k] = high_ord_achr_nu[k];
@@ -2432,14 +2434,14 @@ int main(int argc, char *argv[])
 
   if (false) fit_ksi1(0e0, 0e0);
 
-  if (false) {
+  if (!false) {
     // Optimize Standard Straight: mI.
     opt_mI_std(lat_prms, lat_constr);
     no_sxt();
     fit_powell(lat_prms, 1e-3, f_achrom);
   }
 
-  if (!false) {
+  if (false) {
     // Optimize Super Period: mI.
     opt_mI_sp(lat_prms, lat_constr);
     no_sxt();
