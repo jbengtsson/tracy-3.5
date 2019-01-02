@@ -1168,7 +1168,7 @@ void prt_elem(FILE *outf, const param_type &lat_prms, const int n)
     prt_name(outf, Cell[loc].Elem.PName, ":", 8);
     prt_drift(outf, Cell[loc]);
   } else if (Cell[loc].Elem.Pkind == Mpole) {
-    printf("  n_design:     %1d\n", Cell[loc].Elem.M->n_design);
+    if (prt) printf("  n_design:     %1d\n", Cell[loc].Elem.M->n_design);
     if (Cell[loc].Elem.M->n_design == Dip) {
       if (lat_prms.Fnum[n-1] > 0) {
 	prt_name(outf, Cell[loc].Elem.PName, ":", 8);
@@ -1564,7 +1564,7 @@ void opt_mI_std(param_type &prms, constr_type &constr)
   std::vector<int>    grad_dip_Fnum;
   std::vector<double> grad_dip_scl;
 
-  const bool dphi = false, long_grad_dip = !false;
+  const bool dphi = !false, long_grad_dip = !false;
 
   // Standard Cell.
   grad_dip_scl.push_back(0.129665);
