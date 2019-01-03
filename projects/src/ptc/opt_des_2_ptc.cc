@@ -1601,14 +1601,16 @@ void opt_mI_std(param_type &prms, constr_type &constr)
   lat_constr.grad_dip_Fnum_b1.push_back(grad_dip_Fnum);
 
   if (dphi) {
-    prms.add_prm("qf4", -3, -20.0, 20.0, 1.0);
-    lat_constr.Fnum_b1.push_back(ElemIndex("qf4"));
+    if (false) {
+      prms.add_prm("qf4", -3, -20.0, 20.0, 1.0);
+      lat_constr.Fnum_b1.push_back(ElemIndex("qf4"));
 
-    prms.add_prm("qf6", -3, -20.0, 20.0, 1.0);
-    lat_constr.Fnum_b1.push_back(ElemIndex("qf6"));
+      prms.add_prm("qf6", -3, -20.0, 20.0, 1.0);
+      lat_constr.Fnum_b1.push_back(ElemIndex("qf6"));
 
-    prms.add_prm("qf8", -3, -20.0, 20.0, 1.0);
-    lat_constr.Fnum_b1.push_back(ElemIndex("qf8"));
+      prms.add_prm("qf8", -3, -20.0, 20.0, 1.0);
+      lat_constr.Fnum_b1.push_back(ElemIndex("qf8"));
+    }
 
     // Commented out must be defined last.
     // prms.add_prm("dq1", -3, -20.0,   20.0,  1.0);
@@ -1657,7 +1659,7 @@ void opt_mI_std(param_type &prms, constr_type &constr)
   lat_constr.Fnum_b3.push_back(ElemIndex("sd2"));
   // lat_constr.Fnum_b3.push_back(ElemIndex("sh2"));
 
-  lat_constr.eps0_x = 0.099;
+  lat_constr.eps0_x = 0.175;
 
   for (k = 0; k < 2; k++)
     lat_constr.high_ord_achr_nu[k] = high_ord_achr_nu[k];
@@ -1680,7 +1682,7 @@ void opt_mI_std(param_type &prms, constr_type &constr)
   lat_constr.mI_scl[X_]           = 1e5;
   lat_constr.mI_scl[Y_]           = 1e5;
   lat_constr.high_ord_achr_scl    = 1e5;
-  lat_constr.phi_scl              = 0e0;
+  lat_constr.phi_scl              = (dphi)? 1e0 : 0e0;
 
   printf("\n  eps_x_scl            = %9.3e\n"
 	 "  ksi1_svd_scl         = %9.3e\n"
@@ -1851,7 +1853,7 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
   lat_constr.mI_scl[X_]           = 1e5;
   lat_constr.mI_scl[Y_]           = 1e5;
   lat_constr.high_ord_achr_scl    = 1e5;
-  lat_constr.phi_scl              = 0e0;
+  lat_constr.phi_scl              = (dphi)? 1e0 : 0e0;
 
   printf("\n  eps_x_scl            = %9.3e\n"
 	 "  ksi1_svd_scl         = %9.3e\n"
