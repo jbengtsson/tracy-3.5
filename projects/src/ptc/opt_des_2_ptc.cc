@@ -1601,7 +1601,7 @@ void opt_mI_std(param_type &prms, constr_type &constr)
   lat_constr.grad_dip_Fnum_b1.push_back(grad_dip_Fnum);
 
   if (dphi) {
-    if (false) {
+    if (!false) {
       prms.add_prm("qf4", -3, -20.0, 20.0, 1.0);
       lat_constr.Fnum_b1.push_back(ElemIndex("qf4"));
 
@@ -1659,7 +1659,7 @@ void opt_mI_std(param_type &prms, constr_type &constr)
   lat_constr.Fnum_b3.push_back(ElemIndex("sd2"));
   // lat_constr.Fnum_b3.push_back(ElemIndex("sh2"));
 
-  lat_constr.eps0_x = 0.175;
+  lat_constr.eps0_x = 0.095;
 
   for (k = 0; k < 2; k++)
     lat_constr.high_ord_achr_nu[k] = high_ord_achr_nu[k];
@@ -1675,9 +1675,11 @@ void opt_mI_std(param_type &prms, constr_type &constr)
   for (k = 0; k < 2; k++)
     lat_constr.mI0[k] = mI_nu_ref[k];
 
-  lat_constr.eps_x_scl            = 1e4;
+  // lat_constr.eps_x_scl            = 1e5;
+  lat_constr.eps_x_scl            = 1e6;
   lat_constr.ksi1_svd_scl         = 1e0;
-  lat_constr.drv_terms_simple_scl = 1e-3;
+  // lat_constr.drv_terms_simple_scl = 1e-3;
+  lat_constr.drv_terms_simple_scl = 1e-4;
   lat_constr.drv_terms_scl        = 1e-13;
   lat_constr.mI_scl[X_]           = 1e5;
   lat_constr.mI_scl[Y_]           = 1e5;
