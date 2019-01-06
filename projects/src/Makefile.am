@@ -3,7 +3,7 @@ SUBDIRS      = ptc
 bin_PROGRAMS = optics dynap leac dnu touschek ibs vlad tbt \
                max_iv_1 max_iv_2 ibs_for_les delta bare_da match \
                carbon_map dls 6BA track_fft m4 m4_mod dls_ii track opt_des_1 \
-               id_model sigma
+               id_model sigma tech_note
 
 #sc_f_LINK    = gfortran -g -O0 -Wall -fbounds-check -o sc_f
 
@@ -33,6 +33,7 @@ track_SOURCES       = track.cc
 opt_des_1_SOURCES   = opt_des_1.cc
 id_model_SOURCES    = id_model.cc
 sigma_SOURCES       = sigma.cc
+tech_note_SOURCES   = tech_note.cc
 
 #LIBS     = -L$(TRACY_LIB)/tracy -ltracy
 # gfortran needs to be before stdc_++ for Fortran programs

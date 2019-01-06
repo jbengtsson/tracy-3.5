@@ -3552,9 +3552,7 @@ void set_map(const int Fnum, const double dnu[])
 
 void set_map_per(MapType *Map,
 		 const double alpha0[], const double beta0[],
-		 const double eta0[], const double etap0[],
-		 const double alpha1[], const double beta1[],
-		 const double eta1[], const double etap1[])
+		 const double eta0[], const double etap0[])
 {
   // Phase advance is set to zero.
   int          k;
@@ -3562,31 +3560,26 @@ void set_map_per(MapType *Map,
 
   Id.identity(); Map->M.identity();
   for (k = 0; k < 2; k++) {
-    Map->M[2*k]   = sqrt(beta1[k]/beta0[k])*Id[2*k];
-    Map->M[2*k+1] =
-      -(alpha1[k]-alpha0[k])/sqrt(beta0[k]*beta1[k])*Id[2*k]
-      + sqrt(beta0[k]/beta1[k])*Id[2*k+1];
+    Map->M[2*k]   = Id[2*k];
+    Map->M[2*k+1] = 2e0*alpha0[k]/beta0[k]*Id[2*k] + Id[2*k+1];
   }
 
   Id_eta.identity();
   Id_eta[x_] = eta0[X_]*Id[delta_]; Id_eta[px_] = etap0[X_]*Id[delta_];
   Id_eta = Map->M*Id_eta;
-  Map->M[x_]  -= (Id_eta[x_][delta_]-eta1[X_])*Id[delta_];
-  Map->M[px_] -= (Id_eta[px_][delta_]-etap1[X_])*Id[delta_];
+  Map->M[px_] -= (Id_eta[px_][delta_]+etap0[X_])*Id[delta_];
 }
 
 
 void set_map_per(const int Fnum,
 		 const double alpha0[], const double beta0[],
-		 const double eta0[], const double etap0[],
-		 const double alpha1[], const double beta1[],
-		 const double eta1[], const double etap1[])
+		 const double eta0[], const double etap0[])
 {
   int j;
 
   for (j = 1; j <= GetnKid(Fnum); j++)
-    set_map_per(Cell[Elem_GetPos(Fnum, j)].Elem.Map, alpha0, beta0, eta0, etap0,
-		alpha1, beta1, eta1, etap1);
+    set_map_per(Cell[Elem_GetPos(Fnum, j)].Elem.Map,
+		alpha0, beta0, eta0, etap0);
 }
 
 

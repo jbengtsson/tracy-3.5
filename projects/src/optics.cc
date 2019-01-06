@@ -997,9 +997,9 @@ int main(int argc, char *argv[])
     exit(0);
   }
 
-  if (false) {
+  if (!false) {
     chk_phi();
-    exit(0);
+    // exit(0);
   }
 
   if (false) {
@@ -1023,8 +1023,7 @@ int main(int argc, char *argv[])
       eta1[]   = { 0.07297,  0.0},
       etap1[]  = {-0.01063,  0.0};
 
-    set_map_per(ElemIndex("ps_per"), alpha1, beta1, eta1, etap1,
-		alpha0, beta0, eta0, etap0);
+    set_map_per(ElemIndex("ps_per"), alpha1, beta1, eta1, etap1);
     if (!true) {
       Ring_GetTwiss(true, 0e0); printglob();
     } else
