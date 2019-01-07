@@ -39,16 +39,12 @@ int main(int argc, char *argv[])
   ss_vect<tps> A;
 
   const double
-    eta0[]     = { 0.00152705,  0.0},
-    etap0[]    = { 0.0,         0.0},
-    alpha0[]   = { 0.0,         0.0},
-    beta0[]    = { 0.0962146,   0.2},
-    eta1[]     = { 0.00609655,  0.0},
-    etap1[]    = { 0.0252206,   0.0},
-    alpha1[]   = {-5.22971,    -1.22356},
-    beta1[]    = { 1.82155,     0.73649},
-    m_etap1[]  = {-0.0252206,   0.0},
-    m_alpha1[] = { 5.22971,     1.22356};
+    eta1[]     = { 0.0177041,   0.0},
+    etap1[]    = { 0.0566527,   0.0},
+    alpha1[]   = {-6.45968,     2.46939},
+    beta1[]    = { 2.73766,     1.32365},
+    m_etap1[]  = {-etap1[X_],  -etap1[Y_]},
+    m_alpha1[] = {-alpha1[X_], -alpha1[Y_]};
   
   if (true)
     Read_Lattice(argv[1]);
@@ -63,19 +59,20 @@ int main(int argc, char *argv[])
 
   if (!false) set_map_per(ElemIndex("Mir"), alpha1, beta1, eta1, etap1);
 
-  if (!true) {
+  if (true) {
     Ring_GetTwiss(true, 0e0); printglob();
-    // trace = true;
-    // GetEmittance(ElemIndex("cav"), true);
+    GetEmittance(ElemIndex("cav"), true);
+    Ring_GetTwiss(true, 0e0);
   } else {
-    globval.emittance = true;
-    A = get_A(m_alpha1, beta1, eta1, m_etap1);
-    Cell_Twiss(0, globval.Cell_nLoc, A, false, false, 0e0);
-    eps_x = get_eps_x1(false);
-    globval.emittance = false;
-  }
+    // globval.emittance = true;
+    // // A = get_A(m_alpha1, beta1, eta1, m_etap1);
+    // A = get_A(m_alpha1, beta1, eta1, etap1);
+    // Cell_Twiss(0, globval.Cell_nLoc, A, false, false, 0e0);
+    // eps_x = get_eps_x1(false);
+    // globval.emittance = false;
 
-  ttwiss(m_alpha1, beta1, eta1, m_etap1, 0e0);
+    ttwiss(m_alpha1, beta1, eta1, m_etap1, 0e0);
+  }
 
   prt_lat("linlat1.out", globval.bpm, true);
   prt_lat("linlat.out", globval.bpm, true, 10);
