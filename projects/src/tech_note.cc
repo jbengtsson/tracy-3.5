@@ -39,10 +39,10 @@ int main(int argc, char *argv[])
   ss_vect<tps> A;
 
   const double
-    eta1[]     = { 0.0177041,   0.0},
-    etap1[]    = { 0.0566527,   0.0},
-    alpha1[]   = {-6.45968,     2.46939},
-    beta1[]    = { 2.73766,     1.32365},
+    eta1[]     = { 0.03281,   0.0},
+    etap1[]    = { 0.06387,   0.0},
+    alpha1[]   = {-7.90529,    9.26216},
+    beta1[]    = { 5.24394,    4.46707},
     m_etap1[]  = {-etap1[X_],  -etap1[Y_]},
     m_alpha1[] = {-alpha1[X_], -alpha1[Y_]};
   

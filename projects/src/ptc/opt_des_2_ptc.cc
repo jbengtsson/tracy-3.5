@@ -1789,11 +1789,13 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
   }
 
   // Long Straight.
-  prms.add_prm("qf1_c1",    2, -20.0, 20.0, 1.0);
-  prms.add_prm("qd2_c1",    2, -20.0, 20.0, 1.0);
-  prms.add_prm("quad_add",  2, -20.0, 20.0, 1.0);
-  if (LS_extra)
-    prms.add_prm("quad_add1", 2, -20.0, 20.0, 1.0);
+  prms.add_prm("qd3_c1",   2, -20.0, 20.0, 1.0);
+  prms.add_prm("qf4l",     2, -20.0, 20.0, 1.0);
+  prms.add_prm("qf4_c1",   2, -20.0, 20.0, 1.0);
+
+  prms.add_prm("qf1_c1",   2, -20.0, 20.0, 1.0);
+  prms.add_prm("qd2_c1",   2, -20.0, 20.0, 1.0);
+  prms.add_prm("quad_add", 2, -20.0, 20.0, 1.0);
 
  // Parameters are initialized in optimizer.
 
@@ -1831,7 +1833,7 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
   lat_constr.Fnum_b3.push_back(ElemIndex("sd2"));
   // lat_constr.Fnum_b3.push_back(ElemIndex("sh2"));
 
-  lat_constr.eps0_x = 0.199;
+  lat_constr.eps0_x = 0.099;
 
   for (k = 0; k < 2; k++)
     lat_constr.high_ord_achr_nu[k] = high_ord_achr_nu[k];
@@ -1848,9 +1850,9 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
   for (k = 0; k < 2; k++)
     lat_constr.mI0[k] = mI_nu_ref[k];
 
-  lat_constr.eps_x_scl            = 1e4;
+  lat_constr.eps_x_scl            = 1e6;
   lat_constr.ksi1_svd_scl         = 1e0;
-  lat_constr.drv_terms_simple_scl = 1e-3;
+  lat_constr.drv_terms_simple_scl = 1e-4;
   lat_constr.drv_terms_scl        = 1e-13;
   lat_constr.mI_scl[X_]           = 1e5;
   lat_constr.mI_scl[Y_]           = 1e5;
@@ -1892,18 +1894,24 @@ void match_ls(param_type &prms, constr_type &constr)
   // From Center of Mid Straight: alpha, beta, eta, eta'.
   const int    n_ic        = 4;
   const double ic[n_ic][2] =
-    {{0.0, 0.0}, {2.4140652101, 2.3823258945}, {0.0247363234, 0.0}, {0.0, 0.0}};
+    {{0.0, 0.0}, {3.0740381425, 2.3953469985}, {0.0243073632, 0.0}, {0.0, 0.0}};
  
   // Long Straight.
-  prms.add_prm("qf1_c1",    2, -20.0,  0.0, 1.0);
-  prms.add_prm("qd2_c1",    2,   0.0, 20.0, 1.0);
-  prms.add_prm("quad_add",  2,   0.0, 20.0, 1.0);
-  prms.add_prm("quad_add1", 2, -20.0,  0.0, 1.0);
+  prms.add_prm("qd3_c1",   2, -20.0, 20.0, 1.0);
+  prms.add_prm("qf4l",     2, -20.0, 20.0, 1.0);
+  prms.add_prm("qf4_c1",   2, -20.0, 20.0, 1.0);
+
+  prms.add_prm("qf1_c1",   2, -20.0, 20.0, 1.0);
+  prms.add_prm("qd2_c1",   2, -20.0, 20.0, 1.0);
+  prms.add_prm("quad_add", 2, -20.0, 20.0, 1.0);
 
   // Parameters are initialized in optimizer.
 
+  constr.add_constr(Elem_GetPos(ElemIndex("quad_add"), 1),
+  		    0e0, 0e0, 0e0, 0e0, 1e3, 1e3,
+  		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
-  		    1e0, 1e0, 1e-4, 1e-5, 0e0, 0e0,
+  		    1e0, 1e0, 1e-7, 1e-7, 0e0, 0e0,
   		    0.0, 0.0, 10.0, 4.0,  0.0, 0.0);
 
   lat_prms.bn_tol = 1e-5; lat_prms.step = 1.0;
@@ -2438,14 +2446,14 @@ int main(int argc, char *argv[])
 
   if (false) fit_ksi1(0e0, 0e0);
 
-  if (!false) {
+  if (false) {
     // Optimize Standard Straight: mI.
     opt_mI_std(lat_prms, lat_constr);
     no_sxt();
     fit_powell(lat_prms, 1e-3, f_achrom);
   }
 
-  if (false) {
+  if (!false) {
     // Optimize Super Period: mI.
     opt_mI_sp(lat_prms, lat_constr);
     no_sxt();

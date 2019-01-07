@@ -997,7 +997,7 @@ int main(int argc, char *argv[])
     exit(0);
   }
 
-  if (!false) {
+  if (false) {
     chk_phi();
     // exit(0);
   }
