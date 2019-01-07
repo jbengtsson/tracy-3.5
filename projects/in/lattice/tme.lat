@@ -17,21 +17,32 @@ D1: Drift, L = 0.9;
 D2: Drift, L = 0.4; 
 D3: Drift, L = 3.02934; 
 
-n_b = 5; scl = 1 + 1/2 + 1/3 + 1/4 + 1/5;
-phi_b = 5.0/scl;
-B_1: Bending, L = 0.75/n_b, T = phi_b/1, T1 = 0.0, T2 = 0.0,
+L_b = 0.75; n_b = 5; ds = L_b/n_b;
+a = 5.7;
+scl = (1.0/(1.0+a*0*ds)+1.0/(1.0+a*1*ds)+1.0/(1.0+a*2*ds)+1.0/(1.0+a*3*ds)
+      +1.0/(1.0+a*4*ds))/5.0;
+phi_b = 5.0/scl; rho0 = L_b/(phi_b*pi/180.0);
+{a = 2.0/L_b;
+phi_b = 5.0*10.0/8.970684; rho0 = L_b*log(2.0)/(phi_b*pi/180.0);}
+ 
+rho = rho0*(1.0+a*0*ds);
+B_1: Bending, L = L_b/n_b, T = ds*180.0/(rho*pi), T1 = 0.0, T2 = 0.0,
      N = Nbend, Method = Meth;
-B_2: Bending, L = 0.75/n_b, T = phi_b/2, T1 = 0.0, T2 = 0.0,
+rho = rho0*(1.0+a*1*ds);
+B_2: Bending, L = L_b/n_b, T = ds*180.0/(rho*pi), T1 = 0.0, T2 = 0.0,
      N = Nbend, Method = Meth;
-B_3: Bending, L = 0.75/n_b, T = phi_b/3, T1 = 0.0, T2 = 0.0,
+rho = rho0*(1.0+a*2*ds);
+B_3: Bending, L = L_b/n_b, T = ds*180.0/(rho*pi), T1 = 0.0, T2 = 0.0,
      N = Nbend, Method = Meth;
-B_4: Bending, L = 0.75/n_b, T = phi_b/4, T1 = 0.0, T2 = 0.0,
+rho = rho0*(1.0+a*3*ds);
+B_4: Bending, L = L_b/n_b, T = ds*180.0/(rho*pi), T1 = 0.0, T2 = 0.0,
      N = Nbend, Method = Meth;
-B_5: Bending, L = 0.75/n_b, T = phi_b/5, T1 = 0.0, T2 = 0.0,
+rho = rho0*(1.0+a*4*ds);
+B_5: Bending, L = L_b/n_b, T = ds*180.0/(rho*pi), T1 = 0.0, T2 = 0.0,
      N = Nbend, Method = Meth;
-{B_H: B_1, B_2, B_3, B_4, B_5;}
+B_H: B_1, B_2, B_3, B_4, B_5;
 
-B_H: Bending, L = 0.75, T = 5.0, T1 = 0.0, T2 = 0.0, N = Nbend, Method = Meth;
+{B_H: Bending, L = L_b, T = 5.0, T1 = 0.0, T2 = 0.0, N = Nbend, Method = Meth;}
 
 QF: Quadrupole, L = 0.0, K =  1.39953,  N = Nquad, Method = Meth;
 QD: Quadrupole, L = 0.0, K = -0.943982, N = Nquad, Method = Meth;
