@@ -33,9 +33,22 @@ double get_eps_x1(const bool track)
 }
 
 
+void get_map(const double delta)
+{
+  long int     lastpos;
+  ss_vect<tps> map;
+
+  map.identity(); map[delta_] = delta;
+  Cell_Pass(0, globval.Cell_nLoc, map, lastpos);
+
+  prt_lin_map(3, map);
+}
+
+
 int main(int argc, char *argv[])
 {
-  double       eps_x;
+  int          j, k;
+  double       eps_x, del;
   ss_vect<tps> A;
 
   const double
@@ -56,6 +69,9 @@ int main(int argc, char *argv[])
   globval.emittance      = false;  globval.IBS         = false;
   globval.pathlength     = false;  globval.bpm         = 0;
   globval.dip_edge_fudge = true;
+
+  get_map(0e0);
+  get_map(1e-2);
 
   if (!false) set_map_per(ElemIndex("Mir"), alpha1, beta1, eta1, etap1);
 
