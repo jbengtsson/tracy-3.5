@@ -52,12 +52,16 @@ int main(int argc, char *argv[])
   ss_vect<tps> A;
 
   const double
-    eta1[]     = { 0.03281,   0.0},
-    etap1[]    = { 0.06387,   0.0},
-    alpha1[]   = {-7.90529,    9.26216},
-    beta1[]    = { 5.24394,    4.46707},
-    m_etap1[]  = {-etap1[X_],  -etap1[Y_]},
-    m_alpha1[] = {-alpha1[X_], -alpha1[Y_]};
+    eta0[]     = { 0.0078751,  0.0},
+    etap0[]    = { 0.0,        0.0},
+    alpha0[]   = { 0.0,        0.0},
+    beta0[]    = { 0.21821,    5.0},
+    eta1[]     = { 0.0328105,  0.0},
+    etap1[]    = { 0.063868,   0.0},
+    alpha1[]   = {-7.90529,    2.59913},
+    beta1[]    = { 5.24392,    1.37611},
+    m_etap1[]  = {-etap0[X_],  -etap0[Y_]},
+    m_alpha1[] = {-alpha0[X_], -alpha0[Y_]};
   
   if (true)
     Read_Lattice(argv[1]);
@@ -69,9 +73,6 @@ int main(int argc, char *argv[])
   globval.emittance      = false;  globval.IBS         = false;
   globval.pathlength     = false;  globval.bpm         = 0;
   globval.dip_edge_fudge = true;
-
-  get_map(0e0);
-  get_map(1e-2);
 
   if (!false) set_map_per(ElemIndex("Mir"), alpha1, beta1, eta1, etap1);
 
@@ -87,7 +88,7 @@ int main(int argc, char *argv[])
     // eps_x = get_eps_x1(false);
     // globval.emittance = false;
 
-    ttwiss(m_alpha1, beta1, eta1, m_etap1, 0e0);
+    ttwiss(alpha0, beta0, eta0, etap0, 0e0);
   }
 
   prt_lat("linlat1.out", globval.bpm, true);

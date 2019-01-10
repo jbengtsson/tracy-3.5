@@ -3559,10 +3559,8 @@ void set_map_per(MapType *Map,
   ss_vect<tps> Id, Id_eta;
 
   Id.identity(); Map->M.identity();
-  for (k = 0; k < 2; k++) {
-    Map->M[2*k]   = Id[2*k];
-    Map->M[2*k+1] = 2e0*alpha0[k]/beta0[k]*Id[2*k] + Id[2*k+1];
-  }
+  for (k = 0; k < 2; k++)
+    Map->M[2*k+1] += 2e0*alpha0[k]/beta0[k]*Id[2*k];
 
   Id_eta.identity();
   Id_eta[x_] = eta0[X_]*Id[delta_]; Id_eta[px_] = etap0[X_]*Id[delta_];
