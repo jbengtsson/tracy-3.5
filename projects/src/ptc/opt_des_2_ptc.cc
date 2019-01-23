@@ -11,7 +11,7 @@ int no_tps   = NO,
 const bool ps_rot = false;
 
 const double
-  high_ord_achr_nu[] = {2.5-0.125, 0.75+0.125},
+  high_ord_achr_nu[] = {(2.5-0.125)/2e0, (0.75+0.125)/2e0},
   mI_nu_ref[]        = {1.5, 0.5},
   twoJ[]             = {sqr(7e-3)/10.0, sqr(4e-3)/4.0},
   delta              = 2.5e-2;
@@ -1920,7 +1920,7 @@ void match_ls(param_type &prms, constr_type &constr)
     lat_constr.high_ord_achr_nu[k] = high_ord_achr_nu[k];
 
   lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("ms"), 1));
-  lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("ms"), 2));
+  lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("ls"), 1));
 
   n = lat_constr.high_ord_achr_Fnum.size() - 1;
   lat_constr.high_ord_achr_dnu.resize(n);

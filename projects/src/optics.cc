@@ -304,6 +304,48 @@ void chk_phi()
 }
 
 
+void dpath_length()
+{
+  int    k, loc;
+  double phi, dL, L_tot, phi_tot, mphi, Lc1, phi2, rho2, L2, Lc2;
+
+  printf("\n");
+  L_tot = 0e0; phi_tot = 0e0;
+  for (k = 0; k <= globval.Cell_nLoc; k++) {
+    if ((Cell[k].Elem.Pkind == Mpole) &&
+	(Cell[k].Elem.M->Pirho != 0e0)) {
+      phi = Cell[k].Elem.PL*Cell[k].Elem.M->Pirho;
+      phi_tot += phi;
+      if (phi < 0e0) {
+	dL = Cell[k].Elem.PL - 2e0*sin(phi/2e0)/Cell[k].Elem.M->Pirho;
+	L_tot += dL; mphi += phi;
+	prt_name(stdout, Cell[k].Elem.PName, "", 8);
+	printf(" phi [deg] = %9.6f L [m] = %9.6f rho [m] = %9.6f"
+	       " dL [mm] = %9.6f L_tot [mm] = %9.6f\n",
+	       rad2deg(phi), Cell[k].Elem.PL, 1e0/Cell[k].Elem.M->Pirho,
+	       1e3*dL, 1e3*L_tot);
+      }
+    }
+  }
+  printf("\nphi = %8.6f phi- = %8.6f phi+ = %8.6f\n",
+	 rad2deg(phi_tot), rad2deg(mphi), rad2deg(phi_tot-mphi));
+
+  printf("\n");
+  loc = Elem_GetPos(ElemIndex("dq1"), 1);
+  phi = Cell[loc].Elem.PL*Cell[loc].Elem.M->Pirho;
+  Lc1 = 2e0*sin(phi/2e0)/Cell[loc].Elem.M->Pirho;
+  phi2 = phi + mphi/8e0; rho2 = Lc1/(2e0*sin(phi2/2e0)); L2 = rho2*phi2;
+  Lc1 = 2e0*sin(phi/2e0)/Cell[loc].Elem.M->Pirho;
+  Lc2 = 2e0*rho2*sin(phi2/2e0);
+  prt_name(stdout, Cell[loc].Elem.PName, "", 8);
+  printf(" phi = %9.6f L = %9.6f rho = %9.6f Lc1 = %9.6f\n",
+	 rad2deg(phi), Cell[loc].Elem.PL, 1e0/Cell[loc].Elem.M->Pirho, Lc1);
+  printf("         phi = %9.6f L = %9.6f rho = %9.6f Lc2 = %9.6f\n",
+	 rad2deg(phi2), L2, rho2, Lc2);
+  printf(" dL [mm] = %9.6f\n", 1e3*8e0*(L2-Cell[loc].Elem.PL));
+}
+
+
 void prt_symm(const std::vector<int> &Fam)
 {
   long int loc;
@@ -1000,6 +1042,11 @@ int main(int argc, char *argv[])
   if (false) {
     chk_phi();
     // exit(0);
+  }
+
+  if (false) {
+    dpath_length();
+    exit(0);
   }
 
   if (false) {
