@@ -1719,7 +1719,7 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
   std::vector<double> grad_dip_scl;
 
   const bool
-    dphi          = false,
+    dphi          = !false,
     long_grad_dip = !false,
     dip_cell      = true,
     LS_extra      = false;
@@ -1759,12 +1759,19 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
   lat_constr.grad_dip_Fnum_b1.push_back(grad_dip_Fnum);
 
   if (dphi) {
+    // Strandard Straight.
     prms.add_prm("qf4", -3, -20.0, 20.0, 1.0);
     lat_constr.Fnum_b1.push_back(ElemIndex("qf4"));
     prms.add_prm("qf6", -3, -20.0, 20.0, 1.0);
     lat_constr.Fnum_b1.push_back(ElemIndex("qf6"));
     prms.add_prm("qf8", -3, -20.0, 20.0, 1.0);
     lat_constr.Fnum_b1.push_back(ElemIndex("qf8"));
+
+    // Long Straight.
+    prms.add_prm("qf4l", -3, -20.0, 20.0, 1.0);
+    lat_constr.Fnum_b1.push_back(ElemIndex("qf4l"));
+    prms.add_prm("qf4_c1", -3, -20.0, 20.0, 1.0);
+    lat_constr.Fnum_b1.push_back(ElemIndex("qf4_c1"));
 
     // Commented out must be defined last.
     // prms.add_prm("dq1", -3, -20.0,   20.0,  1.0);
@@ -1927,7 +1934,7 @@ void match_ls(param_type &prms, constr_type &constr)
   for (k = 0; k < n; k++)
     lat_constr.high_ord_achr_dnu[k].resize(2, 0e0);
 
-  lat_constr.high_ord_achr_scl = 1e2;
+  lat_constr.high_ord_achr_scl = 1e-1;
 
   lat_constr.ini_constr(false);
 
