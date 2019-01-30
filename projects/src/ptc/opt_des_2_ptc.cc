@@ -11,7 +11,7 @@ int no_tps   = NO,
 const bool ps_rot = false;
 
 const double
-  high_ord_achr_nu[] = {(2.5-0.125)/2e0, (0.75+0.125)/2e0},
+  high_ord_achr_nu[] = {2.5-0.125, 0.75+0.125},
   mI_nu_ref[]        = {1.5, 0.5},
   twoJ[]             = {sqr(7e-3)/10.0, sqr(4e-3)/4.0},
   delta              = 2.5e-2;
@@ -103,7 +103,7 @@ public:
     high_ord_achr_scl,
     high_ord_achr_nu[2], // Higher-Order-Achromat Phase Advance.
     mI_scl[2],
-    mI[2], mI0[2],       // -I Transformer.
+    mI0[2],              // -I Transformer.
     L_scl,
     L0;                  // Cell length.
   std::vector<double>
@@ -111,6 +111,7 @@ public:
   std::vector< std::vector<double> >
     value,
     value_scl,
+    mI,
     high_ord_achr_dnu;
   double **Jacobian;
   std::vector<int>
@@ -121,7 +122,8 @@ public:
     loc,
     type;
   std::vector< std::vector<int> >
-    grad_dip_Fnum_b1;
+    grad_dip_Fnum_b1,
+    mI_loc;
   
 
   constr_type(void) {
@@ -808,8 +810,10 @@ double constr_type::get_chi2(void) const
     chi2 += value_scl[k][5]*sqr(Cell[loc[k]].Etap[X_]-value[k][5]);
   }
   chi2 += L_scl*sqr(Cell[globval.Cell_nLoc].S-L0);
+  for (j = 0; j < (int)mI.size(); j++)
+    for (k = 0; k < 2; k++)
+      chi2 += mI_scl[k]*sqr(mI[j][k]-mI0[k]);
   for (k = 0; k < 2; k++) {
-    chi2 += mI_scl[k]*sqr(mI[k]-mI0[k]);
     chi2 += drv_terms_simple_scl*drv_terms_simple[k];
     chi2 += ksi1_svd_scl*exp(-ksi1_svd[k]);
   }
@@ -938,7 +942,7 @@ void prt_high_ord_achr(const constr_type &constr)
 
 void constr_type::prt_constr(const double chi2)
 {
-  int    loc;
+  int    loc, k;
   double phi;
 
   printf("\n%3d chi2: %11.5e -> %11.5e\n", n_iter, this->chi2_prt, chi2);
@@ -950,7 +954,7 @@ void constr_type::prt_constr(const double chi2)
 	 "    svd          = [%9.3e, %9.3e] %5.3f\n",
 	 eps_x, eps0_x, nu[X_], nu[Y_], ksi1[X_], ksi1[Y_],
 	 lat_constr.ksi1_svd[X_], lat_constr.ksi1_svd[Y_],
-	 lat_constr.ksi1_svd[X_]/lat_constr.ksi1_svd[Y_]);
+	 lat_constr.ksi1_svd[Y_]/lat_constr.ksi1_svd[X_]);
   if (phi_scl != 0e0) {
     loc = Elem_GetPos(Fnum_b1[n_b1-1], 1);
     phi = rad2deg(Cell[loc].Elem.PL*Cell[loc].Elem.M->Pirho);
@@ -965,8 +969,12 @@ void constr_type::prt_constr(const double chi2)
 
   if (high_ord_achr_scl != 0e0) prt_high_ord_achr(*this);
 
-  if ((mI_scl[X_] != 0e0) || (mI_scl[Y_] != 0e0))
-    printf("\n    -I Transf.   = [%7.5f, %7.5f]\n", mI[X_], mI[Y_]);
+  if ((mI_scl[X_] != 0e0) || (mI_scl[Y_] != 0e0)) {
+    printf("\n  -I Transf.:\n");
+    for (k = 0; k < (int)mI.size(); k++)
+      printf("    [%7.5f, %7.5f] [%3d, %3d]\n",
+	     mI[k][X_], mI[k][Y_], mI_loc[k][0], mI_loc[k][1]);
+  }
 
   prt_val(*this);
 }
@@ -1473,12 +1481,17 @@ void get_high_ord_achr(constr_type &constr)
 
 void get_mI(constr_type &constr)
 {
-  int    k, loc[2];
+  int                 j, k;
+  std::vector<double> dnu;
 
-  loc[0] = Elem_GetPos(lat_constr.Fnum_b3[0], 1);
-  loc[1] = Elem_GetPos(lat_constr.Fnum_b3[0], 2);
-  for (k = 0; k < 2; k++)
-    constr.mI[k] = Cell[loc[1]].Nu[k] - Cell[loc[0]].Nu[k];
+  constr.mI.clear();
+  for (j = 0; j < (int)constr.mI_loc.size(); j++) {
+    for (k = 0; k < 2; k++)
+      dnu.push_back(Cell[lat_constr.mI_loc[j][1]].Nu[k]
+		    -Cell[lat_constr.mI_loc[j][0]].Nu[k]);
+    constr.mI.push_back(dnu);
+    dnu.clear();
+  }
 }
 
 
@@ -1715,14 +1728,13 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
   //   Position    -1,
   //   Quadrupole   2.
   int                 k, n;
-  std::vector<int>    grad_dip_Fnum;
+  std::vector<int>    grad_dip_Fnum, mI_loc;
   std::vector<double> grad_dip_scl;
 
   const bool
     dphi          = !false,
     long_grad_dip = !false,
-    dip_cell      = true,
-    LS_extra      = false;
+    dip_cell      = true;
 
   // Standard Cell.
   grad_dip_scl.push_back(0.129665);
@@ -1842,6 +1854,14 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
 
   lat_constr.eps0_x = 0.099;
 
+  mI_loc.push_back(Elem_GetPos(ElemIndex("sf1"), 1));
+  mI_loc.push_back(Elem_GetPos(ElemIndex("sf1"), 2));
+  lat_constr.mI_loc.push_back(mI_loc);
+  mI_loc.clear();
+  mI_loc.push_back(Elem_GetPos(ElemIndex("sf1"), 3));
+  mI_loc.push_back(Elem_GetPos(ElemIndex("sf1"), 4));
+  lat_constr.mI_loc.push_back(mI_loc);
+
   for (k = 0; k < 2; k++)
     lat_constr.high_ord_achr_nu[k] = high_ord_achr_nu[k];
 
@@ -1857,7 +1877,7 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
   for (k = 0; k < 2; k++)
     lat_constr.mI0[k] = mI_nu_ref[k];
 
-  lat_constr.eps_x_scl            = 1e6;
+  lat_constr.eps_x_scl            = 1e5;
   lat_constr.ksi1_svd_scl         = 1e0;
   lat_constr.drv_terms_simple_scl = 1e-4;
   lat_constr.drv_terms_scl        = 1e-13;
