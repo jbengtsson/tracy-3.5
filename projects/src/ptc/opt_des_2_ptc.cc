@@ -11,7 +11,8 @@ int no_tps   = NO,
 const bool ps_rot = false;
 
 const double
-  high_ord_achr_nu[] = {2.5-0.125, 0.75+0.125},
+  // high_ord_achr_nu[] = {2.5-0.125, 0.75+0.125},
+  high_ord_achr_nu[] = {19.0/8.0, 15.0/16.0},
   mI_nu_ref[]        = {1.5, 0.5},
   twoJ[]             = {sqr(7e-3)/10.0, sqr(4e-3)/4.0},
   delta              = 2.5e-2;
@@ -1574,7 +1575,7 @@ void opt_mI_std(param_type &prms, constr_type &constr)
   //   Position    -1,
   //   Quadrupole   2.
   int                 k, n;
-  std::vector<int>    grad_dip_Fnum;
+  std::vector<int>    grad_dip_Fnum, mI_loc;
   std::vector<double> grad_dip_scl;
 
   const bool dphi = !false, long_grad_dip = !false;
@@ -1674,6 +1675,10 @@ void opt_mI_std(param_type &prms, constr_type &constr)
 
   lat_constr.eps0_x = 0.095;
 
+  mI_loc.push_back(Elem_GetPos(ElemIndex("sf1"), 1));
+  mI_loc.push_back(Elem_GetPos(ElemIndex("sf1"), 2));
+  lat_constr.mI_loc.push_back(mI_loc);
+
   for (k = 0; k < 2; k++)
     lat_constr.high_ord_achr_nu[k] = high_ord_achr_nu[k];
 
@@ -1688,11 +1693,11 @@ void opt_mI_std(param_type &prms, constr_type &constr)
   for (k = 0; k < 2; k++)
     lat_constr.mI0[k] = mI_nu_ref[k];
 
-  // lat_constr.eps_x_scl            = 1e5;
-  lat_constr.eps_x_scl            = 1e6;
+  lat_constr.eps_x_scl            = 1e5;
+  // lat_constr.eps_x_scl            = 1e6;
   lat_constr.ksi1_svd_scl         = 1e0;
-  // lat_constr.drv_terms_simple_scl = 1e-3;
-  lat_constr.drv_terms_simple_scl = 1e-4;
+  lat_constr.drv_terms_simple_scl = 1e-3;
+  // lat_constr.drv_terms_simple_scl = 1e-4;
   lat_constr.drv_terms_scl        = 1e-13;
   lat_constr.mI_scl[X_]           = 1e5;
   lat_constr.mI_scl[Y_]           = 1e5;
@@ -1921,7 +1926,7 @@ void match_ls(param_type &prms, constr_type &constr)
   // From Center of Mid Straight: alpha, beta, eta, eta'.
   const int    n_ic        = 4;
   const double ic[n_ic][2] =
-    {{0.0, 0.0}, {3.0740381425, 2.3953469985}, {0.0243073632, 0.0}, {0.0, 0.0}};
+    {{0.0, 0.0}, {2.6861510471, 2.1473061845}, {0.0243754976, 0.0}, {0.0, 0.0}};
  
   // Long Straight.
   prms.add_prm("qd3_c1",   2, -20.0, 20.0, 1.0);

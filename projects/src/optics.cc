@@ -310,7 +310,7 @@ void dpath_length()
   double phi, dL, L_tot, phi_tot, mphi, Lc1, phi2, rho2, L2, Lc2;
 
   printf("\n");
-  L_tot = 0e0; phi_tot = 0e0;
+  L_tot = 0e0; phi_tot = 0e0; mphi = 0e0;
   for (k = 0; k <= globval.Cell_nLoc; k++) {
     if ((Cell[k].Elem.Pkind == Mpole) &&
 	(Cell[k].Elem.M->Pirho != 0e0)) {
