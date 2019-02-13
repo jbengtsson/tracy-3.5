@@ -340,9 +340,11 @@ class is_tps<tps> {
 
   static inline void emittance(const tps &B2_perp, const tps &ds,
 			       const tps &p_s0, const ss_vect<tps> &A) {
-    // M. Sands "The Physics of Electron Storage Rings" SLAC-121, p. 118.
-    // d<delta^2>/ds = 3*C_U*C_gamma*h_bar*c*E_0^5*(1+delta)^4*(B_perp/(Brho))^3
-    //                 /(4*pi*m_e^3)
+    // M. Sands "The Physics of Electron Storage Rings" SLAC-121, Eq. (5.20),
+    // p. 118; normalized with E^2:
+    //   d<delta^2>/ds =
+    //     3*C_U*C_gamma*h_bar*c*E_0^5*(1+delta)^4*(B_perp/(Brho))^3
+    //     /(4*pi*m_e^3 [eV/c^2])
     // A contains the eigenvectors.
     int          j;
     double       B_66;

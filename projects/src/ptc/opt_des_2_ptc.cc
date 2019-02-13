@@ -8,7 +8,9 @@ int no_tps   = NO,
     ndpt_tps = 5;
 
 
-const bool ps_rot = false;
+const bool
+  ps_rot        = false,
+  phi_spec_case = !false;
 
 const double
   // high_ord_achr_nu[] = {2.5-0.125, 0.75+0.125},
@@ -338,6 +340,10 @@ double get_phi(constr_type &constr)
   for (j = 0; j < constr.n_b1; j++) {
     if (constr.Fnum_b1[j] > 0) {
       phi += get_phi_tot(constr.Fnum_b1[j]);
+      if (phi_spec_case && (constr.Fnum_b1[j] == ElemIndex("qf4"))) {
+	phi += get_phi_tot(ElemIndex("qf4l"));
+	phi += get_phi_tot(ElemIndex("qf4_c1"));
+      }
       if (prt) {
 	printf("  ");
 	prt_name(stdout, Cell[Elem_GetPos(constr.Fnum_b1[j], 1)].Elem.PName,
@@ -387,12 +393,26 @@ void phi_corr(constr_type &constr)
 }
 
 
+void set_phi_spec(const char *name,
+		  const double phi, const double phi0, double &phi1)
+{
+  int Fnum, loc;
+
+  Fnum = ElemIndex(name);
+  loc = Elem_GetPos(Fnum, 1);
+  printf("  %10s %2d %3d\n", Cell[loc].Elem.PName, Fnum, loc);
+  phi1 += phi;
+  set_phi(Fnum, phi, phi0, phi1);
+}
+
+
 void param_type::set_prm(double *bn)
 {
   int    i;
   double bn_ext;
 
-  const bool prt   = false;
+  const bool prt = false;
+
   const int  n_prt = 6;
 
   if (prt) printf("\nset_prm:\n  ");
@@ -414,9 +434,13 @@ void param_type::set_prm(double *bn)
       set_L(Fnum[i-1], bn_ext); get_S();
     } else if (n[i-1] == -3) {
       // Bend angle; L is fixed.
-      if (Fnum[i-1] > 0)
+      if (Fnum[i-1] > 0) {
 	set_phi(Fnum[i-1], bn_ext);
-      else
+	if (phi_spec_case && (Fnum[i-1] == ElemIndex("qf4"))) {
+	  set_phi(ElemIndex("qf4l"), bn_ext);
+	  set_phi(ElemIndex("qf4_c1"), bn_ext);
+	}
+      } else
 	set_grad_dip_phi(grad_dip_Fnum[i-1], grad_dip_scl[i-1], bn_ext);
     }
     if (prt) {
@@ -1785,10 +1809,10 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
     lat_constr.Fnum_b1.push_back(ElemIndex("qf8"));
 
     // Long Straight.
-    prms.add_prm("qf4l", -3, -20.0, 20.0, 1.0);
-    lat_constr.Fnum_b1.push_back(ElemIndex("qf4l"));
-    prms.add_prm("qf4_c1", -3, -20.0, 20.0, 1.0);
-    lat_constr.Fnum_b1.push_back(ElemIndex("qf4_c1"));
+    // prms.add_prm("qf4l", -3, -20.0, 20.0, 1.0);
+    // lat_constr.Fnum_b1.push_back(ElemIndex("qf4l"));
+    // prms.add_prm("qf4_c1", -3, -20.0, 20.0, 1.0);
+    // lat_constr.Fnum_b1.push_back(ElemIndex("qf4_c1"));
 
     // Commented out must be defined last.
     // prms.add_prm("dq1", -3, -20.0,   20.0,  1.0);
@@ -1826,28 +1850,28 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
   // Lattice constraints are: alpha_x,y, beta_x,y, eta_x, eta'_x.
   // constr.add_constr(Elem_GetPos(ElemIndex("bl1_5"), 1)-1,
   constr.add_constr(Elem_GetPos(ElemIndex("dl1a_5"), 1)-1,
-  		    0e0, 0e0, 0e0, 0e0, 1e6, 1e6,
+  		    0e0, 0e0, 0e0, 0e0, 1e8, 1e8,
   		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   // constr.add_constr(Elem_GetPos(ElemIndex("bl1_5"), 2),
   constr.add_constr(Elem_GetPos(ElemIndex("dl1a_5"), 2),
-  		    0e0, 0e0, 0e0, 0e0, 1e6, 1e6,
+  		    0e0, 0e0, 0e0, 0e0, 1e8, 1e8,
   		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   // Include constraint on alpha; in case of using ps_rot.
   constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
-  		    1e5, 1e5, 1e1, 1e1, 1e6,   0e0,
+  		    1e5, 1e5, 1e1, 1e1, 1e8,   0e0,
   		    0.0, 0.0, 3.0, 1.5, 0.024, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("ms"), 2),
-  		    1e5, 1e5, 1e1, 1e1, 1e6,   0e0,
+  		    1e5, 1e5, 1e1, 1e1, 1e8,   0e0,
   		    0.0, 0.0, 3.0, 1.5, 0.024, 0.0);
   // Both SS constraints are needed.
   constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
-  		    1e5, 1e5, 1e1, 1e1, 1e6, 1e6,
+  		    1e5, 1e5, 1e1, 1e1, 1e8, 1e8,
   		    0.0, 0.0, 4.0, 2.5, 0.0, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("ss"), 2),
-  		    1e5, 1e5, 1e1, 1e1, 1e6, 1e6,
+  		    1e5, 1e5, 1e1, 1e1, 1e8, 1e8,
   		    0.0, 0.0, 4.0, 2.5, 0.0, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
-  		    1e5, 1e5, 1e1,  1e1, 1e6, 1e6,
+  		    1e5, 1e5, 1e1,  1e1, 1e8, 1e8,
   		    0.0, 0.0, 10.0, 4.0, 0.0, 0.0);
 
   lat_prms.bn_tol = 1e-5; lat_prms.step = 1.0;
