@@ -14,14 +14,14 @@ int  no_tps = NO;
 // ALS-U        7.
 
 const bool set_dnu  = !false;
-const int  lat_case = 4;
+const int  lat_case = 1;
 const double
 A_max[][2]  =
-  {{1.5e-3, 1.5e-3}, { 7e-3, 5e-3}, {6e-3, 3e-3}, {8e-3, 5e-3},
+  {{4e-3, 3e-3}, { 7e-3, 5e-3}, {6e-3, 3e-3}, {8e-3, 5e-3},
    {  5e-3,   3e-3}, { 3e-3, 2e-3}, {3e-3, 2e-3}},
   delta_max[] = {3e-2, 5e-2, 2e-2, 3e-2,
 		 3e-2, 3e-2, 3e-2},
-  dnu[]       = {0.05/6.0, 0.0};
+  dnu[]       = {0.1/6.0, 0.0};
 
 
 int main(int argc, char *argv[])

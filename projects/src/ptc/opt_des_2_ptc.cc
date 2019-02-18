@@ -9,7 +9,7 @@ int no_tps   = NO,
 
 
 const bool
-  ps_rot        = false,
+  ps_rot        = !false,
   phi_spec_case = !false;
 
 const double
@@ -1881,7 +1881,7 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
   lat_constr.Fnum_b3.push_back(ElemIndex("sd2"));
   // lat_constr.Fnum_b3.push_back(ElemIndex("sh2"));
 
-  lat_constr.eps0_x = 0.099;
+  lat_constr.eps0_x = 0.097;
 
   mI_loc.push_back(Elem_GetPos(ElemIndex("sf1"), 1));
   mI_loc.push_back(Elem_GetPos(ElemIndex("sf1"), 2));
@@ -1906,7 +1906,7 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
   for (k = 0; k < 2; k++)
     lat_constr.mI0[k] = mI_nu_ref[k];
 
-  lat_constr.eps_x_scl            = 1e5;
+  lat_constr.eps_x_scl            = 1e8;
   lat_constr.ksi1_svd_scl         = 1e0;
   lat_constr.drv_terms_simple_scl = 1e-4;
   lat_constr.drv_terms_scl        = 1e-13;
@@ -2461,7 +2461,7 @@ int main(int argc, char *argv[])
   // Unbuffered output.
   setvbuf(stdout, buffer, _IONBF, BUFSIZ);
 
-  if (true)
+  if (!true)
     Read_Lattice(argv[1]);
   else {
     rdmfile(argv[1]);
@@ -2481,7 +2481,7 @@ int main(int argc, char *argv[])
 
   if (ps_rot) {
     Ring_GetTwiss(true, 0e0); printglob();
-    dnu[X_] = 0.05; dnu[Y_] = -0.1;
+    dnu[X_] = 0.1; dnu[Y_] = 0.0;
     set_map(ElemIndex("ps_rot"), dnu);
   }
 
