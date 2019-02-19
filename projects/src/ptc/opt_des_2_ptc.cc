@@ -1908,7 +1908,7 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
 
   lat_constr.eps_x_scl            = 5e6;
   lat_constr.ksi1_svd_scl         = 1e0;
-  lat_constr.drv_terms_simple_scl = 1e-4;
+  lat_constr.drv_terms_simple_scl = 1e-5;
   lat_constr.drv_terms_scl        = 1e-13;
   lat_constr.mI_scl[X_]           = 1e5;
   lat_constr.mI_scl[Y_]           = 1e5;

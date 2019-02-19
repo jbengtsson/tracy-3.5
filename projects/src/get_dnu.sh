@@ -13,8 +13,9 @@ dir=$HOME/git_repos/tracy-3.5_temp/projects/src
 #~/projects/src/main /home/bengtsson/projects/in/lattice/sls-2
 #wait
 
-\rm dnu.cmd.o* fmap*.cmd.o*
+#\rm dnu.cmd.o* fmap*.cmd.o*
+\rm dnu.cmd.o*
 
 qsub -l s_rt=$t1 -l h_rt=$t2 -q $queue $dir/dnu.cmd
-qsub -l s_rt=$t1 -l h_rt=$t2 -q $queue $dir/fmap.cmd
-qsub -l s_rt=$t1 -l h_rt=$t2 -q $queue $dir/fmap_dp.cmd
+#qsub -l s_rt=$t1 -l h_rt=$t2 -q $queue $dir/fmap.cmd
+#qsub -l s_rt=$t1 -l h_rt=$t2 -q $queue $dir/fmap_dp.cmd
