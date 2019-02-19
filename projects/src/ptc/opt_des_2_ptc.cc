@@ -1850,28 +1850,28 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
   // Lattice constraints are: alpha_x,y, beta_x,y, eta_x, eta'_x.
   // constr.add_constr(Elem_GetPos(ElemIndex("bl1_5"), 1)-1,
   constr.add_constr(Elem_GetPos(ElemIndex("dl1a_5"), 1)-1,
-  		    0e0, 0e0, 0e0, 0e0, 1e8, 1e8,
+  		    0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
   		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   // constr.add_constr(Elem_GetPos(ElemIndex("bl1_5"), 2),
   constr.add_constr(Elem_GetPos(ElemIndex("dl1a_5"), 2),
-  		    0e0, 0e0, 0e0, 0e0, 1e8, 1e8,
+  		    0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
   		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   // Include constraint on alpha; in case of using ps_rot.
   constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
-  		    1e5, 1e5, 1e1, 1e1, 1e8,   0e0,
+  		    1e5, 1e5, 1e1, 1e1, 1e7,   0e0,
   		    0.0, 0.0, 3.0, 1.5, 0.024, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("ms"), 2),
-  		    1e5, 1e5, 1e1, 1e1, 1e8,   0e0,
+  		    1e5, 1e5, 1e1, 1e1, 1e7,   0e0,
   		    0.0, 0.0, 3.0, 1.5, 0.024, 0.0);
   // Both SS constraints are needed.
   constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
-  		    1e5, 1e5, 1e1, 1e1, 1e8, 1e8,
+  		    1e5, 1e5, 1e1, 1e1, 1e7, 1e7,
   		    0.0, 0.0, 4.0, 2.5, 0.0, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("ss"), 2),
-  		    1e5, 1e5, 1e1, 1e1, 1e8, 1e8,
+  		    1e5, 1e5, 1e1, 1e1, 1e7, 1e7,
   		    0.0, 0.0, 4.0, 2.5, 0.0, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
-  		    1e5, 1e5, 1e1,  1e1, 1e8, 1e8,
+  		    1e5, 1e5, 1e1,  1e1, 1e7, 1e7,
   		    0.0, 0.0, 10.0, 4.0, 0.0, 0.0);
 
   lat_prms.bn_tol = 1e-5; lat_prms.step = 1.0;
@@ -1881,7 +1881,7 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
   lat_constr.Fnum_b3.push_back(ElemIndex("sd2"));
   // lat_constr.Fnum_b3.push_back(ElemIndex("sh2"));
 
-  lat_constr.eps0_x = 0.097;
+  lat_constr.eps0_x = 0.095;
 
   mI_loc.push_back(Elem_GetPos(ElemIndex("sf1"), 1));
   mI_loc.push_back(Elem_GetPos(ElemIndex("sf1"), 2));
@@ -1906,7 +1906,7 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
   for (k = 0; k < 2; k++)
     lat_constr.mI0[k] = mI_nu_ref[k];
 
-  lat_constr.eps_x_scl            = 1e8;
+  lat_constr.eps_x_scl            = 5e6;
   lat_constr.ksi1_svd_scl         = 1e0;
   lat_constr.drv_terms_simple_scl = 1e-4;
   lat_constr.drv_terms_scl        = 1e-13;
@@ -2461,7 +2461,7 @@ int main(int argc, char *argv[])
   // Unbuffered output.
   setvbuf(stdout, buffer, _IONBF, BUFSIZ);
 
-  if (!true)
+  if (true)
     Read_Lattice(argv[1]);
   else {
     rdmfile(argv[1]);
