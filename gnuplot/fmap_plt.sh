@@ -18,17 +18,6 @@ home_dir = "$prm1"; N = $prm2; ps = $prm3; case  = $prm4; scale = $prm5;
 # ALS-U        6,
 # DELTA        7.
 
-# MAX-V   1,
-# SLS-2   2,
-# M-H6BAi 3,
-# M-H6BA  4,
-# M-H8BA  5,
-# RB-6BA  6,
-# M-6BA   7,
-# DIAMOND 8,
-# ALS-U   9,
-# DELTA   10.
-
 file1 = (home_dir)."fmap.out";
 file2 = (home_dir)."fmapdp.out";
 
@@ -73,7 +62,7 @@ else if ((N == 6) && (case == 3)) \
 else if ((N == 6) && (case == 4)) \
   N_x = 10; N_y = 4; sgn_x = 1; sgn_y = -1; \
 else if ((N == 6) && (case == 5)) \
-  N_x = 12; N_y = 5; sgn_x = -1; sgn_y = -1; \
+  N_x = 10; N_y = 4; sgn_x = -1; sgn_y = -1; \
 else if ((N == 12) && (case == 6)) \
   N_x = 3; N_y = 1; \
 else if ((N == 20) && (case == 7)) \

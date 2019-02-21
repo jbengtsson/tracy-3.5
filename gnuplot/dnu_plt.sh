@@ -70,7 +70,7 @@ else if ((N == 30) && (case == 3)) \
 else if ((N == 6) && (case == 4)) \
   N_x = 9; N_y = 3; \
 else if ((N == 6) && (case == 5)) \
-  N_x = 10; N_y = 3; \
+  N_x = 9; N_y = 3; \
 else if ((N == 24) && (case == 4)) \
   N_x = 2; N_y = 0; \
 else if ((N == 24) && (case == 5)) \
