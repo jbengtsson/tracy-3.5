@@ -32,8 +32,8 @@ H_cell: B_h, Qf, D1;
 {Line: B_h, Mir, B_h, Cav;}
 {Line: Mir, B_h, Cav, B_h;}
 {Line: B_h, H_cell;}
-Line: H_cell, Inv(H_cell), Cav;
-{Line: Inv(H_cell), H_cell, Cav;}
+{Line: H_cell, Inv(H_cell), Cav;}
+Line: Inv(H_cell), H_cell, Cav;
 
 Ring: Line;
 
