@@ -18,7 +18,7 @@ config/
 *.*~
 
 # Command, data and graphics files.
-#in
+in
 out
 bin
 max_iv
