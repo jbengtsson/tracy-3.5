@@ -1,0 +1,47 @@
+define lattice; ringtype = 1;
+
+Energy = 3.5;
+
+dP = 1e-8; CODeps = 1e-14;
+
+Meth = 4; Nbend = 10; Nquad = 1;
+
+pi = 4.0*arctan(1.0);
+
+c0 = 2.99792458e8; h_rf = 1320; C = 10.1586800; Brho = 1e9*Energy/c0;
+
+Cav: Cavity, Frequency = c0/C*h_rf, Voltage = 5.00e6/2, Harnum = h_rf;
+
+
+L_b = 1.7; phi_b = 5; K_b = -1.5;
+a = 0.60977; rho0 = a*L_b*arctan(1.0/a)/(phi_b*pi/180.0);
+n_b = 5; ds = L_b/(2.0*n_b);
+ 
+rho = rho0*(1.0+(2.0*1.0*ds/(a*L_b))**2);
+B_1: Bending, L = ds, T = ds*180.0/(rho*pi), K = K_b, T1 = 0.0, T2 = 0.0,
+     N = Nbend, Method = Meth;
+rho = rho0*(1.0+(2.0*2.0*ds/(a*L_b))**2);
+B_2: Bending, L = ds, T = ds*180.0/(rho*pi), K = K_b, T1 = 0.0, T2 = 0.0,
+     N = Nbend, Method = Meth;
+rho = rho0*(1.0+(2.0*3.0*ds/(a*L_b))**2);
+B_3: Bending, L = ds, T = ds*180.0/(rho*pi), K = K_b, T1 = 0.0, T2 = 0.0,
+     N = Nbend, Method = Meth;
+rho = rho0*(1.0+(2.0*4.0*ds/(a*L_b))**2);
+B_4: Bending, L = ds, T = ds*180.0/(rho*pi), K = K_b, T1 = 0.0, T2 = 0.0,
+     N = Nbend, Method = Meth;
+rho = rho0*(1.0+(2.0*5.0*ds/(a*L_b))**2);
+B_5: Bending, L = ds, T = ds*180.0/(rho*pi), K = K_b, T1 = 0.0, T2 = 0.0,
+     N = Nbend, Method = Meth;
+B_h: B_1, B_2, B_3, B_4, B_5;
+
+
+Mir: Map;
+
+{Line: B_h, Cav;}
+Line: B_h, Mir, Inv(B_h), Cav;
+
+Ring: Line;
+
+Cell: Ring, Symmetry = 1;
+
+end;
