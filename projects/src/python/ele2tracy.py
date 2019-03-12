@@ -5,6 +5,10 @@ import StringIO
 import sys
 
 # Module to translate from ELEGANT to Tracy-2,3 lattice.
+# Assumptions:
+#   No space after end of Arithmetic Expression '"'.
+#   No space after end-of-line Marker '&'.
+#   Line with interspersed comments '!' not supported.
 
 
 def get_index(tokens, token):
@@ -260,9 +264,17 @@ def transl_file(file_name, decls):
             # Line
             line = line.strip('&')
             line += (inf.readline()).strip('\r\n')
+            # line2 = (inf.readline()).strip('\r\n')
+            # if not line2.startswith('!'):
+            #     line += line2
+            # else:
+            #     # Line interspersed with Comment.
+            #     outf.write('{ %s }\n' % (line2.strip('!')))
+            #     # Go again.
+            #     line += '&'
         parse_line(line, outf, decls)
         line = inf.readline()
-    outf.write('\nline: linac1upchicane1;\n')
+    outf.write('\nline: ???;\n')
     outf.write('\ncell: line, symmetry = 1;\n')
     outf.write('\nend;\n')
 
