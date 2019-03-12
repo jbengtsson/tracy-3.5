@@ -8,7 +8,6 @@ import sys
 # Assumptions:
 #   No space after end of Arithmetic Expression '"'.
 #   No space after end-of-line Marker '&'.
-#   Line with interspersed comments '!' not supported.
 
 
 def get_index(tokens, token):
@@ -260,18 +259,13 @@ def transl_file(file_name, decls):
     while line:
         line = line.strip('\r\n')
         while line.endswith('&'):
-            # print line
-            # Line
-            line = line.strip('&')
+            if line.startswith('!'):
+                # Comment.
+                outf.write('{ %s }\n' % (line.strip('!')))
+            else:
+                line = line.strip('&')
             line += (inf.readline()).strip('\r\n')
-            # line2 = (inf.readline()).strip('\r\n')
-            # if not line2.startswith('!'):
-            #     line += line2
-            # else:
-            #     # Line interspersed with Comment.
-            #     outf.write('{ %s }\n' % (line2.strip('!')))
-            #     # Go again.
-            #     line += '&'
+        print line
         parse_line(line, outf, decls)
         line = inf.readline()
     outf.write('\nline: ???;\n')
