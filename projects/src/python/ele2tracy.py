@@ -51,6 +51,8 @@ def bend(line, tokens, decls):
     loc_e1 = get_index(tokens, 'e1')
     loc_e2 = get_index(tokens, 'e2')
     loc_k = get_index(tokens, 'k1')
+    loc_hgap = get_index(tokens, 'hgap')
+    loc_fint = get_index(tokens, 'fint')
     loc_n = get_index(tokens, 'n_kicks')
     str = '%s: Bending, L = %s, T = (%s)*180.0/pi' % \
         (tokens[0], get_arg(tokens[loc_l+1], decls),
@@ -62,6 +64,12 @@ def bend(line, tokens, decls):
     if loc_e2: str += ', T2 = (%s)*180.0/pi' % \
                  (get_arg(tokens[loc_e2+1], decls))
     if loc_k:  str += ', K = %s' %  (get_arg(tokens[loc_k+1], decls))
+    if loc_hgap and loc_fint:
+        str += ', GAP = 4*%s*%s' % \
+                (get_arg(tokens[loc_hgap+1], decls),
+                 get_arg(tokens[loc_fint+1], decls))
+    else:
+        sys.stdout.write('bend: hgap or fint not defined\n')
     if False and loc_n != None:
         str += ', N = %s, Method = 4;' % (tokens[loc_n+1])
     else:
@@ -109,7 +117,7 @@ def cavity(line, tokens, decls):
           (tokens[0], get_arg(tokens[loc_l+1], decls),
            get_arg(tokens[loc_f+1], decls),
            get_arg(tokens[loc_v+1], decls))
-    if loc_phi: str += ', phi = %s' % \
+    if loc_phi: str += ', phi = 0*%s' % \
        (get_arg(tokens[loc_phi+1], decls))
     # if loc_entryf: str += ', rf_focus1 = %s' % \
     #    (get_arg(tokens[loc_entryf+1], decls))
@@ -149,12 +157,15 @@ ele2tracy = {
     'twiss'     : marker_twiss,
     'malign'    : marker_malign,
     'moni'      : bpm,
+    'monitor'   : bpm,
     'drif'      : drift,
     'drift'     : drift,
     'edrift'    : drift,
     'csrdrif'   : drift,
     'rcol'      : drift,
     'kicker'    : drift,
+    'bumper'    : drift,
+    'csben'     : bend,
     'csbend'    : bend,
     'csrcsbend' : bend,
     'quad'      : quad,
@@ -258,15 +269,27 @@ def transl_file(file_name, decls):
     line = inf.readline()
     while line:
         line = line.strip('\r\n')
-        while line.endswith('&'):
-            if line.startswith('!'):
-                # Comment.
-                outf.write('{ %s }\n' % (line.strip('!')))
-            else:
+        # Remove trailing spaces.
+        line = line.rstrip()
+        if line.startswith('!'):
+            # Comment.
+            outf.write('{ %s }\n' % (line.strip('!')))
+        else:
+            # Skip characters after Line with Comment at end.
+            [line, sep, tail] = line.partition('!')
+            while line.endswith('&'):
                 line = line.strip('&')
-            line += (inf.readline()).strip('\r\n')
-        print line
-        parse_line(line, outf, decls)
+                line2 = (inf.readline()).strip('\r\n')
+                # Remove trailing spaces.
+                line2 = line2.rstrip()
+                if line2.startswith('!'):
+                    # Comment.
+                    while line2.startswith('!'):
+                        line2 = (inf.readline()).strip('\r\n')
+                        # Remove trailing spaces.
+                        line2 = line2.rstrip()
+                line += line2
+            parse_line(line, outf, decls)
         line = inf.readline()
     outf.write('\nline: ???;\n')
     outf.write('\ncell: line, symmetry = 1;\n')
