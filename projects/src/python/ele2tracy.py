@@ -5,9 +5,6 @@ import StringIO
 import sys
 
 # Module to translate from ELEGANT to Tracy-2,3 lattice.
-# Assumptions:
-#   No space after end of Arithmetic Expression '"'.
-#   No space after end-of-line Marker '&'.
 
 
 def get_index(tokens, token):
