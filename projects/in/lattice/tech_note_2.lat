@@ -38,7 +38,8 @@ B_h: B_1, B_2, B_3, B_4, B_5;
 Mir: Map;
 
 {Line: B_h, Cav;}
-Line: B_h, Mir, Inv(B_h), Cav;
+{Line: B_h, Mir, Inv(B_h), Cav;}
+Line: Inv(B_h), B_h, Mir, Cav;
 
 Ring: Line;
 
