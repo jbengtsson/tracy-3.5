@@ -51,18 +51,20 @@ int main(int argc, char *argv[])
   double       eps_x, del;
   ss_vect<tps> A;
 
-  // const double
-  //   eta0[]     = { 0.0078751,  0.0},
-  //   etap0[]    = { 0.0,        0.0},
-  //   alpha0[]   = { 0.0,        0.0},
-  //   beta0[]    = { 0.21821,    5.0},
-  //   eta1[]     = { 0.0328105,  0.0},
-  //   etap1[]    = { 0.063868,   0.0},
-  //   alpha1[]   = {-7.90529,    2.59913},
-  //   beta1[]    = { 5.24392,    1.37611},
-  //   m_etap1[]  = {-etap0[X_],  -etap0[Y_]},
-  //   m_alpha1[] = {-alpha0[X_], -alpha0[Y_]};
   const double
+#define CASE 4
+#if CASE == 1
+    eta0[]     = { 0.0078751,  0.0},
+    etap0[]    = { 0.0,        0.0},
+    alpha0[]   = { 0.0,        0.0},
+    beta0[]    = { 0.21821,    5.0},
+    eta1[]     = { 0.0328105,  0.0},
+    etap1[]    = { 0.063868,   0.0},
+    alpha1[]   = {-7.90529,    2.59913},
+    beta1[]    = { 5.24392,    1.37611},
+    m_etap1[]  = {-etap0[X_],  -etap0[Y_]},
+    m_alpha1[] = {-alpha0[X_], -alpha0[Y_]};
+#elif CASE == 2
     eta0[]     = {  0.0017490,  0.0},
     etap0[]    = {  0.0,        0.0},
     alpha0[]   = {  0.0,        0.0},
@@ -73,18 +75,30 @@ int main(int argc, char *argv[])
     beta1[]    = {  9.36865,    1.37607},
     m_etap1[]  = {-etap0[X_],  -etap0[Y_]},
     m_alpha1[] = {-alpha0[X_], -alpha0[Y_]};
-  // const double
-  //   eta0[]     = {  0.0,        0.0},
-  //   etap0[]    = {  0.0,        0.0},
-  //   alpha0[]   = {  0.0,        0.0},
-  //   beta0[]    = {  0.11271,    5.0},
-  //   eta1[]     = {  0.02234,    0.0},
-  //   etap1[]    = {  0.04845,    0.0},
-  //   alpha1[]   = {-14.56328,    2.59911},
-  //   beta1[]    = {  9.36865,    1.37607},
-  //   m_etap1[]  = {-etap0[X_],  -etap0[Y_]},
-  //   m_alpha1[] = {-alpha0[X_], -alpha0[Y_]};
-  
+#elif CASE == 3
+    eta0[]     = {  0.0017490,  0.0},
+    etap0[]    = {  0.0,        0.0},
+    alpha0[]   = {  0.0,        0.0},
+    beta0[]    = {  3*0.11271,  5.0},
+    eta1[]     = {  0.02512,    0.0},
+    etap1[]    = {  0.05110,    0.0},
+    alpha1[]   = { -5.57908,    2.59911},
+    beta1[]    = {  3.88386,    1.37607},
+    m_etap1[]  = {-etap0[X_],  -etap0[Y_]},
+    m_alpha1[] = {-alpha0[X_], -alpha0[Y_]};
+#elif CASE == 4
+    eta0[]     = {  0.0017490/2,  0.0},
+    etap0[]    = {  0.0,        0.0},
+    alpha0[]   = {  0.0,        0.0},
+    beta0[]    = {  3*0.11271,  5.0},
+    eta1[]     = {  0.02373,    0.0},
+    etap1[]    = {  0.04978,    0.0},
+    alpha1[]   = { -5.57908,    2.59911},
+    beta1[]    = {  3.88386,    1.37607},
+    m_etap1[]  = {-etap0[X_],  -etap0[Y_]},
+    m_alpha1[] = {-alpha0[X_], -alpha0[Y_]};
+#endif
+
   if (true)
     Read_Lattice(argv[1]);
   else
