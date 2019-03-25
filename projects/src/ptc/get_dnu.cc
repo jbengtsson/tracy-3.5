@@ -1,5 +1,5 @@
 
-#define NO 10
+#define NO 4
 
 #include "tracy_lib.h"
 
@@ -7,33 +7,26 @@ int no_tps   = NO,
     ndpt_tps = 5;
 
 
-// MAX-IV              1,
-// SLS-2               2,
-// DIAMOND             3,
-// DIAMOND-II DTBA     4,
-// DIAMOND-II H-6-BA   5.
-// DIAMOND-II H-8-BA   6.
-// DIAMOND-II RB-6-BA  7.
-// DIAMOND-II D-DBA    8.
-// DELTA               9.
-// ALS-U              10.
+// MAX-IV       1,
+// SLS-2        2,
+// M-H6BAi      3,
+// M-H6BA-0-.-. 4,
+// DIAMOND      5,
+// DELTA        6,
+// ALS-U        7.
 
-const int lat_case = 2;
-
+const bool set_dnu  = false;
 const double
-  A_max[][2] =
-    {{1.5e-3, 1.5e-3}, {4e-3, 2e-3}, {15e-3, 8e-3}, {10e-3, 4e-3},
-     {  3e-3,   2e-3}, {3e-3, 2e-3},  {3e-3, 2e-3}, {3e-3, 2e-3},
-      {35e-3,   6e-3}, {4e-3, 4e-3}},
-  delta_max[] = {3e-2, 5e-2, 1.5e-2, 3e-2, 3e-2, 3e-2, 3e-2, 2e-2, 3e-2, 4e-2},
-  dnu[]       = {0.1, 0.0};
+  beta_inj[] = {8.7, 2.1},
+  A_max[2]   = {4e-3, 2e-3},
+  twoJ[]     = {sqr(A_max[X_])/beta_inj[X_], sqr(A_max[Y_])/beta_inj[Y_]},
+  delta_max  = 3e-2,
+  dnu[]      = {0.1/6.0, 0.0};
 
 const char home_dir[] = "/home/bengtsson";
 
 double       nu0[2];
 ss_vect<tps> A_inv, nus;
-
-const double  Ax = 5e-3, Ay = 3e-3, delta = 3e-2;
 
 
 void get_map_n(const int n)
@@ -286,7 +279,6 @@ void get_dnu2(const double Ax_max, const double Ay_max, const double delta)
 
 int main(int argc, char *argv[])
 {
-  double       Jx, Jy, delta;
   tps          H, H_re, H_im, g_re, g_im, K_re, K_im;
   ss_vect<tps> Id;
   ofstream     outf;
@@ -323,18 +315,10 @@ int main(int argc, char *argv[])
 
   CtoR(MNF.K, K_re, K_im); CtoR(MNF.g, g_re, g_im);
 
-//  Jx = sqr(20e-3)/(2.0*Cell[globval.Cell_nLoc].Beta[X_]);
-//  Jy = sqr(10e-3)/(2.0*Cell[globval.Cell_nLoc].Beta[Y_]);
-//  delta = 3e-2;
-
-  Jx = sqr(15e-3)/(2.0*Cell[globval.Cell_nLoc].Beta[X_]);
-  Jy = sqr(6.5e-3)/(2.0*Cell[globval.Cell_nLoc].Beta[Y_]);
-  delta = 2.5e-2;
-
   Id.identity();
-  Id[x_] *= sqrt(2.0*Jx); Id[px_] *= sqrt(2.0*Jx);
-  Id[y_] *= sqrt(2.0*Jy); Id[py_] *= sqrt(2.0*Jy);
-  Id[delta_] *= delta;
+  Id[x_] *= sqrt(twoJ[X_]); Id[px_] *= sqrt(twoJ[X_]);
+  Id[y_] *= sqrt(twoJ[Y_]); Id[py_] *= sqrt(twoJ[Y_]);
+  Id[delta_] *= delta_max;
 
   if (true) {
 //    H = get_H(); CtoR(H, H_re, H_im);
@@ -363,7 +347,7 @@ int main(int argc, char *argv[])
   // Note, nus are in Floquet space.
   get_A();
 
-  get_dnu(A_max[lat_case-1][X_], A_max[lat_case-1][Y_], delta_max[lat_case-1]);
+  get_dnu(A_max[X_], A_max[Y_], delta_max);
 
 //  get_dnu2(Ax, Ay, 0.0);
 
