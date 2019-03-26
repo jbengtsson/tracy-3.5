@@ -5,23 +5,12 @@
 int  no_tps = NO;
 
 
-// MAX-IV       1,
-// SLS-2        2,
-// M-H6BAi      3,
-// M-H6BA-0-.-. 4,
-// DIAMOND      5,
-// DELTA        6,
-// ALS-U        7.
-
 const bool set_dnu  = false;
 const int  lat_case = 3;
 const double
-A_max[][2]  =
-  {{4e-3, 3e-3}, {7e-3, 3e-3}, {8e-3, 3e-3}, {8e-3, 5e-3},
-   {5e-3, 3e-3}, {3e-3, 2e-3}, {3e-3, 2e-3}},
-  delta_max[] = {3e-2, 3e-2, 3e-2, 2.5e-2,
-		 3e-2, 3e-2, 3e-2},
-  dnu[]       = {0.1/6.0, 0.0};
+  A_max[]   = {5e-3, 2e-3},
+  delta_max = 3e-2,
+  dnu[]     = {0.1/6.0, 0.0};
 
 
 int main(int argc, char *argv[])
@@ -47,6 +36,6 @@ int main(int argc, char *argv[])
     Ring_GetTwiss(true, 0e0); printglob();
   }
 
-  dnu_dA(A_max[lat_case-1][X_], A_max[lat_case-1][Y_], 0e0, 25);
-  get_ksi2(delta_max[lat_case-1]);
+  dnu_dA(A_max[X_], A_max[Y_], 0e0, 25);
+  get_ksi2(delta_max);
 }
