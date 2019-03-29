@@ -8,7 +8,7 @@ int  no_tps = NO;
 const bool set_dnu  = false;
 const int  lat_case = 3;
 const double
-  A_max[]   = {5e-3, 2e-3},
+  A_max[]   = {6e-3, 2e-3},
   delta_max = 3e-2,
   dnu[]     = {0.1/6.0, 0.0};
 
