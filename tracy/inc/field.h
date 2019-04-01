@@ -27,8 +27,6 @@ typedef double  tps_buf[ss_dim+1]; // const. and linear terms
 
 template<typename T> class ss_vect;
 
-typedef long int iVector[ss_dim];
-
 // Polymorphic class for floating point and TPSA
 
 struct MNF_struct;
@@ -118,7 +116,7 @@ class tps {
   friend ss_vect<tps> Inv(const ss_vect<tps> &);
   // Q(nv, nv) = P(nv, nv)^-1
   friend ss_vect<tps> Inv_Ext(const ss_vect<tps> &);
-  friend ss_vect<tps> PInv(const ss_vect<tps> &, const iVector &);
+  friend ss_vect<tps> PInv(const ss_vect<tps> &, const long int[]);
   friend void GoFix(const ss_vect<tps> &, ss_vect<tps> &,
 		    ss_vect<tps> &, const int);
   friend MNF_struct MapNorm(const ss_vect<tps> &, const int);
@@ -223,7 +221,7 @@ template<typename T> class ss_vect {
   friend ss_vect<tps> Inv(const ss_vect<tps> &);
   // Q(nv, nv) = P(nv, nv)^-1
   friend ss_vect<tps> Inv_Ext(const ss_vect<tps> &);
-  friend ss_vect<tps> PInv(const ss_vect<tps> &, const iVector &);
+  friend ss_vect<tps> PInv(const ss_vect<tps> &, const long int []);
   friend void GoFix(const ss_vect<tps> &, ss_vect<tps> &,
 		    ss_vect<tps> &, const int);
   friend MNF_struct MapNorm(const ss_vect<tps> &, const int);

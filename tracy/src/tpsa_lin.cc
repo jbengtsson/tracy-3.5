@@ -17,7 +17,6 @@
 
 typedef char     danambuf[danamlen];
 typedef char     funnambuf[dafunlen];
-typedef long int iVector[ss_dim];
 
 extern const int  nv_tps, nd_tps, iref_tps;
 extern int        no_tps, ndpt_tps;

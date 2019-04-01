@@ -130,7 +130,7 @@ tps::~tps(void)
 double tps::operator[](const int k) const
 {
   int     i;
-  iVector jj;
+  long int jj[ss_dim];
   double  r;
 
   for (i = 0; i < nv_tps; i++)
@@ -306,9 +306,9 @@ tps cosh(const tps &a)
 
 const double tps::cst(void) const
 {
-  int     i;
-  iVector jj;
-  double  r;
+  int      i;
+  long int jj[ss_dim];
+  double   r;
 
   for (i = 0; i < nv_tps; i++)
     jj[i] = 0;
@@ -358,7 +358,7 @@ ss_vect<tps> Inv(const ss_vect<tps> &x)
   return y;
 }
 
-ss_vect<tps> PInv(const ss_vect<tps> &x, const iVector &jj)
+ss_vect<tps> PInv(const ss_vect<tps> &x, const long int jj[])
 {
   int           k, n;
   ss_vect<tps>  y, z;
@@ -437,9 +437,9 @@ std::istream& operator>>(std::istream &is, tps &a)
 
 std::ostream& operator<<(std::ostream &os, const tps &a)
 {
-  int            i, j, n;
-  iVector        jj;
-  std::ostringstream  s;
+  int                i, j, n;
+  long int           jj[ss_dim];
+  std::ostringstream s;
 
   s << std::endl;
   s << "NO = " << no_tps << ", NV = " << nv_tps << std::endl;

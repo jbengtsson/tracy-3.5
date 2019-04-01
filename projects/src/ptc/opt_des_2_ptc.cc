@@ -1332,8 +1332,8 @@ tps get_h_local(const ss_vect<tps> &map)
 double h_abs_ijklm(const tps &h_re, const tps &h_im, const int i, const int j,
 		   const int k, const int l, const int m)
 {
-  int     i1;
-  iVector jj;
+  int      i1;
+  long int jj[ss_dim];
 
   for (i1 = 0; i1 < nv_tps; i1++)
     jj[i1] = 0;

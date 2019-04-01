@@ -168,8 +168,8 @@ bool Cell_getCOD(long imax, double eps, double dP, long &lastpos)
 {
   long            j, n, n_iter;
   int             no;
+  long int        jj[ss_dim];
   double          dxabs;
-  iVector         jj;
   ss_vect<double> x0, x1, dx;
   ss_vect<tps>    I, dx0, map;
 

@@ -21,7 +21,7 @@ void get_map_normal_form()
 void get_A(void)
 {
   int          j;
-  iVector      jj;
+  long int     jj[ss_dim];
   tps          gn;
   ss_vect<tps> Id, A;
 

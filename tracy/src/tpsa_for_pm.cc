@@ -53,8 +53,8 @@ long int nok(long int n, long int k)
 double getmat(const ss_vect<tps> &map, const int i, const int j)
 {
   int      k;
+  long int jj[ss_dim];
   double   r;
-  iVector  jj;
 
   for (k = 0; k < nv_tps; k++)
     jj[k] = 0;
@@ -70,7 +70,7 @@ double getmat(const ss_vect<tps> &map, const int i, const int j)
 void putmat(ss_vect<tps> &map, const int i, const int j, const double r)
 {
   int      k;
-  iVector  jj;
+  long int jj[ss_dim];
 
   for (k = 0; k < nv_tps; k++)
     jj[k] = 0;
@@ -205,7 +205,7 @@ tps::~tps(void)
 double tps::operator[](const int k) const
 {
   int      i;
-  iVector  jj;
+  long int jj[ss_dim];
   double   r;
 
   for (i = 0; i < nv_tps; i++)
@@ -555,7 +555,7 @@ tps cosh(const tps &a)
 const double tps::cst(void) const
 {
   int      i;
-  iVector  jj;
+  long int jj[ss_dim];
   double   r;
 
   for (i = 0; i < nv_tps; i++)
@@ -789,7 +789,7 @@ ss_vect<tps> Inv(const ss_vect<tps> &x)
 
 #if NO == 1
 
-ss_vect<tps> PInv(const ss_vect<tps> &x, const iVector &jj)
+ss_vect<tps> PInv(const ss_vect<tps> &x, const long int jj[])
 {
   int          k, n;
   ss_vect<tps> y, z;
@@ -815,7 +815,7 @@ ss_vect<tps> PInv(const ss_vect<tps> &x, const iVector &jj)
 
 #else
 
-ss_vect<tps> PInv(const ss_vect<tps> &x, const iVector &jj)
+ss_vect<tps> PInv(const ss_vect<tps> &x, const long int jj[])
 {
   int          i;
   long int     xintptrs[nv_tps], yintptrs[nv_tps];

@@ -326,7 +326,7 @@ void get_twoJ(const int n_DOF, const ss_vect<double> &ps,
 	      const ss_vect<tps> &A, double twoJ[])
 {
   int             j, no;
-  iVector         jj;
+  long int        jj[ss_dim];
   ss_vect<double> z;
 
   no = no_tps;
@@ -3386,8 +3386,8 @@ void bend_cal(void)
 double h_ijklm(const tps &h, const int i, const int j, const int k,
 	       const int l, const int m)
 {
-  int     i1;
-  iVector jj;
+  int      i1;
+  long int jj[ss_dim];
 
   for (i1 = 0; i1 < nv_tps; i1++)
     jj[i1] = 0;
