@@ -18,7 +18,7 @@ int no_tps   = NO,
 const bool set_dnu  = false;
 const double
   beta_inj[] = {8.7, 2.1},
-  A_max[]    = {5e-3, 0.3e-3},
+  A_max[]    = {4e-3, 0.3e-3},
   twoJ[]     = {sqr(A_max[X_])/beta_inj[X_], sqr(A_max[Y_])/beta_inj[Y_]},
   delta_max  = 3e-2,
   dnu[]      = {0.1/6.0, 0.0};
@@ -85,70 +85,6 @@ void get_map_n(const int n)
     exit(1);
     break;
   }
-}
-
-
-tps g_renorm(const double nu0_x, const double nu0_y,
-	     const double nu1_x, const double nu1_y,
-	     const tps &g)
-{
-  // Renormalize g: (1-R^-1)^-1 * h 
-
-  int           i, j, k, l, m;
-  long int      jj1[ss_dim], jj2[ss_dim];
-  double        re, im, cotan0, cotan1, cotan0_sqr;
-  tps           h_re, h_im, g_re, g_im, G_re, G_im, mn1, mn2;
-  ss_vect<tps>  Id;
-
-  CtoR(g, g_re, g_im);
-
-  for (k = 0; k < ss_dim; k++) {
-    jj1[k] = 0; jj2[k] = 0;
-  }
-
-  Id.identity(); G_re = 0.0; G_im = 0.0;
-  for (i = 0; i <= no_tps; i++) {
-    jj1[x_] = i; jj2[px_] = i;
-    for (j = 0; j <= i; j++) {
-      jj1[px_] = j; jj2[x_] = j;
-      for (k = 0; k <= no_tps; k++) {
-	jj1[y_] = k; jj2[py_] = k;
-	for (l = 0; l <= no_tps; l++) {
-	  jj1[py_] = l; jj2[y_] = l;
-
-	  if (i+j+k+l <= no_tps) {
-	    cotan0 = 1.0/tan(((i-j)*nu0_x+(k-l)*nu0_y)*M_PI);
-	    cotan0_sqr = sqr(cotan0);
-	    cotan1 = 1.0/tan(((i-j)*nu1_x+(k-l)*nu1_y)*M_PI);
-	    mn1 =
-	      pow(Id[x_], i)*pow(Id[px_], j)*pow(Id[y_], k)*pow(Id[py_], l);
-	    mn2 =
-	      pow(Id[x_], j)*pow(Id[px_], i)*pow(Id[y_], l)*pow(Id[py_], k);
-
-	    for (m = 0; m <= no_tps; m++) {
-	      if (i+j+k+l+m <= no_tps) {
-		jj1[delta_] = m; jj2[delta_] = m;
-		if ((i != j) || (k != l)) {
-		  re = g_re[jj1]; im = g_im[jj1];
-
-		  // compute h
-		  h_re = (re+cotan0*im)*2.0/(1.0+cotan0_sqr);
-		  h_im = (im-cotan0*re)*2.0/(1.0+cotan0_sqr);
-
-		  // renormalize g
-		  G_re += (h_re-cotan1*h_im)*(mn1+mn2)*pow(Id[delta_], m)/2.0;
-		  G_im += (h_im+cotan1*h_re)*(mn1-mn2)*pow(Id[delta_], m)/2.0;
-		  g_re.pook(jj2, 0.0); g_im.pook(jj2, 0.0);
-		}
-	      }
-	    }
-	  }
-	}
-      }
-    }
-  }
-
-  return RtoC(G_re, G_im);
 }
 
 
