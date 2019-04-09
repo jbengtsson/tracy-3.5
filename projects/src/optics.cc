@@ -938,6 +938,32 @@ void prt_eta_Fl(void)
 }
 
 
+void track(const string fname, const int n, const double x, const double p_x,
+	   const double y, const double p_y, const double delta)
+{
+  long int        lastpos;
+  int             k;
+  ss_vect<double> ps;
+  ofstream        outf;
+
+  file_wr(outf, fname.c_str());
+
+  ps.zero();
+  ps[x_] = x; ps[px_] = p_x; ps[y_] = y; ps[py_] = p_y; ps[delta_] = delta;
+
+  outf << std::scientific << std::setprecision(6)
+       << "\n" << std::setw(14) << ps << "\n"; 
+  for (k = 1; k <= n; k++) {
+    Cell_Pass(0, globval.Cell_nLoc, ps, lastpos);  
+    outf << std::scientific << std::setprecision(6)
+	 << std::setw(14) << ps << "\n";
+  }
+
+  outf.close();
+}
+
+
+
 int main(int argc, char *argv[])
 {
   bool             tweak;
@@ -988,7 +1014,14 @@ int main(int argc, char *argv[])
     set_map(ElemIndex("ps_rot"), dnu);
   }
 
+  // globval.Cavity_on = !false; globval.radiation = !false;
   Ring_GetTwiss(true, 0e0); printglob();
+
+  if (false) {
+    globval.Cavity_on  = !false; globval.radiation = !false;
+    track("track.out", 10, 0e0, 0e0, 0e0, 0e0, 0e0);
+    exit(0);
+  }
 
   if (false) {
     A_At_pass();
@@ -1161,16 +1194,16 @@ int main(int argc, char *argv[])
   }
 
   if (false) {
-    chk_optics(-4.298255e-02, 9.634816e+00, -2.711343e-03, 5.954390e+00,
-	       8.796128e-02, 1.647212e-03, 0.0, 0.0);
+    chk_optics(0.000194849, 8.369339975, 2.95E-06, 5.58E-07,
+	       0.000194849, 4.39626403, 0.0, 0.0);
     prt_lat("linlat1.out", globval.bpm, true);
     prt_lat("linlat.out", globval.bpm, true, 10);
     exit(0);
   }
 
   if (false) {
-    globval.Cavity_on = true;
-    track(6e-3, 0.1e-3);
+    globval.Cavity_on = false; globval.radiation = false;
+    track(0e-3, 0e-3);
     exit(0);
   }
 

@@ -10,7 +10,7 @@ const int  lat_case = 3;
 const double
   A_max[]   = {6e-3, 2e-3},
   delta_max = 3e-2,
-  dnu[]     = {0.1/6.0, 0.0};
+  dnu[]     = {0.02/6.0, -0.02/6.0};
 
 
 int main(int argc, char *argv[])
