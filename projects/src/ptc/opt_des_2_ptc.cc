@@ -9,13 +9,14 @@ int no_tps   = NO,
 
 
 const bool
-  ps_rot        = !false,
+  ps_rot        = false,
   phi_spec_case = !false;
 
 const double
   // high_ord_achr_nu[] = {2.5-0.125, 0.75+0.125},
   high_ord_achr_nu[] = {19.0/8.0, 15.0/16.0},
-  mI_nu_ref[]        = {1.5, 0.5},
+  mI_dnu[]           = {0.1, -0.1},
+  mI_nu_ref[]        = {1.5-mI_dnu[X_], 0.5-mI_dnu[Y_]},
   twoJ[]             = {sqr(7e-3)/10.0, sqr(4e-3)/4.0},
   delta              = 2.5e-2;
 
@@ -1591,6 +1592,25 @@ double f_achrom(double *b2)
 }
 
 
+void prt_prms(constr_type &constr)
+{
+  printf("\n  eps_x_scl            = %9.3e\n"
+	 "  ksi1_svd_scl         = %9.3e\n"
+	 "  drv_terms_simple_scl = %9.3e\n"
+	 "  drv_terms_scl        = %9.3e\n"
+	 "  mI_nu_ref            = [%7.5f, %7.5f]\n"
+	 "  mI_scl               = [%9.3e, %9.3e]\n"
+	 "  high_ord_achr_scl    = %9.3e\n"
+	 "  phi_scl              = %9.3e\n",
+	 constr.eps_x_scl, constr.ksi1_svd_scl,
+	 constr.drv_terms_simple_scl,
+	 constr.drv_terms_scl,
+	 mI_nu_ref[X_], mI_nu_ref[Y_],
+	 constr.mI_scl[X_], constr.mI_scl[Y_],
+	 constr.high_ord_achr_scl, constr.phi_scl);
+}
+
+
 void opt_mI_std(param_type &prms, constr_type &constr)
 {
   // Parameter Type:
@@ -1728,18 +1748,7 @@ void opt_mI_std(param_type &prms, constr_type &constr)
   lat_constr.high_ord_achr_scl    = 1e5;
   lat_constr.phi_scl              = (dphi)? 1e0 : 0e0;
 
-  printf("\n  eps_x_scl            = %9.3e\n"
-	 "  ksi1_svd_scl         = %9.3e\n"
-	 "  drv_terms_simple_scl = %9.3e\n"
-	 "  drv_terms_scl        = %9.3e\n"
-	 "  mI_scl               = [%9.3e, %9.3e]\n"
-	 "  high_ord_achr_scl    = %9.3e\n"
-	 "  phi_scl              = %9.3e\n",
-	 lat_constr.eps_x_scl, lat_constr.ksi1_svd_scl,
-	 lat_constr.drv_terms_simple_scl,
-	 lat_constr.drv_terms_scl,
-	 lat_constr.mI_scl[X_], lat_constr.mI_scl[Y_],
-	 lat_constr.high_ord_achr_scl, lat_constr.phi_scl);
+  prt_prms(lat_constr);
 
   // Super Period.
   lat_constr.phi0 = 15.0;
@@ -1785,19 +1794,21 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
   lat_constr.Fnum_b1.push_back(-ElemIndex("dl1a_1"));
   lat_constr.grad_dip_Fnum_b1.push_back(grad_dip_Fnum);
 
-  grad_dip_Fnum.clear();
-  grad_dip_Fnum.push_back(ElemIndex("dl2a_1"));
-  grad_dip_Fnum.push_back(ElemIndex("dl2a_2"));
-  grad_dip_Fnum.push_back(ElemIndex("dl2a_3"));
-  grad_dip_Fnum.push_back(ElemIndex("dl2a_4"));
-  grad_dip_Fnum.push_back(ElemIndex("dl2a_5"));
-  if (dphi)
-    prms.add_prm(grad_dip_Fnum, grad_dip_scl, -3, -20.0, 20.0, 1.0);
-  if (long_grad_dip)
-    prms.add_prm(grad_dip_Fnum, grad_dip_scl,  2, -20.0, 20.0, 1.0);
+  if (!true) {
+    grad_dip_Fnum.clear();
+    grad_dip_Fnum.push_back(ElemIndex("dl2a_1"));
+    grad_dip_Fnum.push_back(ElemIndex("dl2a_2"));
+    grad_dip_Fnum.push_back(ElemIndex("dl2a_3"));
+    grad_dip_Fnum.push_back(ElemIndex("dl2a_4"));
+    grad_dip_Fnum.push_back(ElemIndex("dl2a_5"));
+    if (dphi)
+      prms.add_prm(grad_dip_Fnum, grad_dip_scl, -3, -20.0, 20.0, 1.0);
+    if (long_grad_dip)
+      prms.add_prm(grad_dip_Fnum, grad_dip_scl,  2, -20.0, 20.0, 1.0);
 
-  lat_constr.Fnum_b1.push_back(-ElemIndex("dl2a_1"));
-  lat_constr.grad_dip_Fnum_b1.push_back(grad_dip_Fnum);
+    lat_constr.Fnum_b1.push_back(-ElemIndex("dl2a_1"));
+    lat_constr.grad_dip_Fnum_b1.push_back(grad_dip_Fnum);
+  }
 
   if (dphi) {
     // Strandard Straight.
@@ -1915,18 +1926,7 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
   lat_constr.high_ord_achr_scl    = 1e5;
   lat_constr.phi_scl              = (dphi)? 1e0 : 0e0;
 
-  printf("\n  eps_x_scl            = %9.3e\n"
-	 "  ksi1_svd_scl         = %9.3e\n"
-	 "  drv_terms_simple_scl = %9.3e\n"
-	 "  drv_terms_scl        = %9.3e\n"
-	 "  mI_scl               = [%9.3e, %9.3e]\n"
-	 "  high_ord_achr_scl    = %9.3e\n"
-	 "  phi_scl              = %9.3e\n",
-	 lat_constr.eps_x_scl, lat_constr.ksi1_svd_scl,
-	 lat_constr.drv_terms_simple_scl,
-	 lat_constr.drv_terms_scl,
-	 lat_constr.mI_scl[X_], lat_constr.mI_scl[Y_],
-	 lat_constr.high_ord_achr_scl, lat_constr.phi_scl);
+  prt_prms(lat_constr);
 
   // Super Period.
   lat_constr.phi0 = 60.0;
