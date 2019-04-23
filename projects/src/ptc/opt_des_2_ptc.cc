@@ -1794,7 +1794,7 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
   lat_constr.Fnum_b1.push_back(-ElemIndex("dl1a_1"));
   lat_constr.grad_dip_Fnum_b1.push_back(grad_dip_Fnum);
 
-  if (!true) {
+  if (true) {
     grad_dip_Fnum.clear();
     grad_dip_Fnum.push_back(ElemIndex("dl2a_1"));
     grad_dip_Fnum.push_back(ElemIndex("dl2a_2"));
@@ -1820,10 +1820,10 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
     lat_constr.Fnum_b1.push_back(ElemIndex("qf8"));
 
     // Long Straight.
-    // prms.add_prm("qf4l", -3, -20.0, 20.0, 1.0);
-    // lat_constr.Fnum_b1.push_back(ElemIndex("qf4l"));
-    // prms.add_prm("qf4_c1", -3, -20.0, 20.0, 1.0);
-    // lat_constr.Fnum_b1.push_back(ElemIndex("qf4_c1"));
+    prms.add_prm("qf4l", -3, -20.0, 20.0, 1.0);
+    lat_constr.Fnum_b1.push_back(ElemIndex("qf4l"));
+    prms.add_prm("qf4_c1", -3, -20.0, 20.0, 1.0);
+    lat_constr.Fnum_b1.push_back(ElemIndex("qf4_c1"));
 
     // Commented out must be defined last.
     // prms.add_prm("dq1", -3, -20.0,   20.0,  1.0);
@@ -1892,7 +1892,8 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
   lat_constr.Fnum_b3.push_back(ElemIndex("sd2"));
   // lat_constr.Fnum_b3.push_back(ElemIndex("sh2"));
 
-  lat_constr.eps0_x = 0.095;
+  lat_constr.eps0_x = 0.145;
+  // lat_constr.eps0_x = 0.095;
 
   mI_loc.push_back(Elem_GetPos(ElemIndex("sf1"), 1));
   mI_loc.push_back(Elem_GetPos(ElemIndex("sf1"), 2));
@@ -1917,14 +1918,28 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
   for (k = 0; k < 2; k++)
     lat_constr.mI0[k] = mI_nu_ref[k];
 
-  lat_constr.eps_x_scl            = 5e6;
-  lat_constr.ksi1_svd_scl         = 1e0;
-  lat_constr.drv_terms_simple_scl = 1e-5;
-  lat_constr.drv_terms_scl        = 1e-13;
-  lat_constr.mI_scl[X_]           = 1e5;
-  lat_constr.mI_scl[Y_]           = 1e5;
-  lat_constr.high_ord_achr_scl    = 1e5;
-  lat_constr.phi_scl              = (dphi)? 1e0 : 0e0;
+  if (true) {
+    // Relaxed.
+    lat_constr.eps_x_scl            = 1e6;
+    lat_constr.ksi1_svd_scl         = 1e1;
+    lat_constr.drv_terms_simple_scl = 1e-2;
+    lat_constr.drv_terms_scl        = 1e-13;
+
+    lat_constr.mI_scl[X_]           = 1e3;
+    lat_constr.mI_scl[Y_]           = 1e3;
+    lat_constr.high_ord_achr_scl    = 1e3;
+  } else {
+    // Tight.
+    lat_constr.eps_x_scl            = 5e6;
+    lat_constr.ksi1_svd_scl         = 1e0;
+    lat_constr.drv_terms_simple_scl = 1e-5;
+    lat_constr.drv_terms_scl        = 1e-13;
+
+    lat_constr.mI_scl[X_]           = 1e5;
+    lat_constr.mI_scl[Y_]           = 1e5;
+    lat_constr.high_ord_achr_scl    = 1e5;
+  }
+  lat_constr.phi_scl                = (dphi)? 1e0 : 0e0;
 
   prt_prms(lat_constr);
 
@@ -2461,7 +2476,7 @@ int main(int argc, char *argv[])
   // Unbuffered output.
   setvbuf(stdout, buffer, _IONBF, BUFSIZ);
 
-  if (true)
+  if (!true)
     Read_Lattice(argv[1]);
   else {
     rdmfile(argv[1]);
