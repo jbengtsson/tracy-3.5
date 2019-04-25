@@ -570,6 +570,25 @@ void chk_mI_trans(const int lat_case)
 }
 
 
+void chk_lin_chrom(void)
+{
+  int Fnum, k, loc0, loc1;
+
+  Ring_GetTwiss(true, 0e0);
+ 
+  printf("\nchk_lin_chrom:\n");
+  Fnum = ElemIndex("sf1");
+  loc0 = Elem_GetPos(Fnum, 2); loc1 = Elem_GetPos(Fnum, 3);
+  printf(" %8s [%7.5f, %7.5f]\n",
+	 Cell[loc1].Elem.PName,
+	 Cell[loc1].Nu[X_]-Cell[loc0].Nu[X_], 
+	 Cell[loc1].Nu[Y_]-Cell[loc0].Nu[Y_]);
+  loc1 = Elem_GetPos(Fnum, 1);
+  printf(" %8s [%7.5f, %7.5f]\n",
+	 Cell[loc1].Elem.PName, 2e0*Cell[loc1].Nu[X_], 2e0*Cell[loc1].Nu[Y_]);
+}
+
+
 void chk_drv_terms(void)
 {
   int k;
@@ -1036,6 +1055,23 @@ int main(int argc, char *argv[])
 
   if (false) {
     prt_eta_Fl();
+    exit(0);
+  }
+
+  if (!false) {
+    Ring_GetTwiss(true, 0e0); printglob();
+
+    dnu[X_] = -0.136; dnu[Y_] = -0.172;
+    set_map(ElemIndex("ps_rot_ss"), dnu);
+
+    dnu[X_] = -0.075; dnu[Y_] = -0.081;
+    set_map(ElemIndex("ps_rot_ls"), dnu);
+
+    Ring_GetTwiss(true, 0e0); printglob();
+  }
+
+  if (false) {
+    chk_lin_chrom();
     exit(0);
   }
 
