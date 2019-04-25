@@ -1061,18 +1061,18 @@ int main(int argc, char *argv[])
   if (!false) {
     Ring_GetTwiss(true, 0e0); printglob();
 
-    dnu[X_] = -0.131; dnu[Y_] = -0.178;
+    dnu[X_] = -0.1; dnu[Y_] = 0.0;
     set_map(ElemIndex("ps_rot_ss"), dnu);
 
-    dnu[X_] = -0.072; dnu[Y_] = -0.089;
+    dnu[X_] = 0.0; dnu[Y_] = 0.0;
     set_map(ElemIndex("ps_rot_ls"), dnu);
 
     Ring_GetTwiss(true, 0e0); printglob();
   }
 
-  if (false) {
+  if (!false) {
     chk_lin_chrom();
-    exit(0);
+    // exit(0);
   }
 
   if (prt_dt) {
