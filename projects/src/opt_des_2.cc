@@ -1,11 +1,10 @@
-#define NO 3
+#define NO 1
 
 #include "tracy_lib.h"
 
 #include <iterator>
 
-int no_tps   = NO,
-    ndpt_tps = 5;
+int no_tps   = NO;
 
 
 const bool
@@ -95,8 +94,6 @@ public:
     chi2, chi2_prt,
     eps_x_scl,
     eps0_x,              // Hor. emittance [nm.rad].
-    drv_terms_scl,
-    drv_terms_sum2,
     drv_terms_simple_scl,
     drv_terms_simple[2],
     nu[2],
@@ -113,8 +110,6 @@ public:
     twonu0[2],           // 2*nu.
     L_scl,
     L0;                  // Cell length.
-  std::vector<double>
-    drv_terms;
   std::vector< std::vector<double> >
     value,
     value_scl,
@@ -139,7 +134,7 @@ public:
     n_iter = 0; chi2 = 1e30; chi2_prt = 1e30;
     eps_x_scl = 0e0; phi_scl = 0e0;
     ksi1_svd_scl = 0e0;
-    drv_terms_scl = 0e0; drv_terms_simple_scl = 0e0; high_ord_achr_scl = 0e0;
+    drv_terms_simple_scl = 0e0; high_ord_achr_scl = 0e0;
     mI_scl[X_] = mI_scl[Y_] = 0e0; twonu_scl[X_] = twonu_scl[Y_] = 0e0;
     L_scl = 0e0;
   }
@@ -636,8 +631,6 @@ double get_lin_opt(constr_type &constr)
   double       eps_x;
   ss_vect<tps> A;
 
-  danot_(1);
-
   if (lat_constr.ring) {
     Ring_GetTwiss(true, 0e0);
     eps_x = get_eps_x1(true);
@@ -852,7 +845,6 @@ double constr_type::get_chi2(void) const
     chi2 += drv_terms_simple_scl*drv_terms_simple[k];
     chi2 += ksi1_svd_scl*exp(-ksi1_svd[k]);
   }
-  chi2 += drv_terms_scl*drv_terms_sum2;
   for (j = 0; j < (int)high_ord_achr_dnu.size(); j++)
     for (k = 0; k < 2; k++)
       chi2 +=
@@ -933,18 +925,6 @@ void prt_h(const constr_type &constr)
 
   printf("    drv. terms   = [%9.3e, %9.3e]\n",
 	 sqrt(constr.drv_terms_simple[X_]), sqrt(constr.drv_terms_simple[Y_]));
-  printf("    h            = [");
-  for (k = 0; k < 3; k++) {
-    printf("%10.3e", constr.drv_terms[k]);
-    if (k < 2) printf(", ");
-  }
-  printf("]\n                   [");
-  for (k = 3; k < 8; k++) {
-    printf("%10.3e", constr.drv_terms[k]);
-    if (k < 7) printf(", ");
-  }
-  printf("]\n");
-  printf("                   %9.3e\n", constr.drv_terms_sum2);
 
   printf("    b_3L         = [");
   for (k = 0; k < constr.n_b3; k++) {
@@ -1000,7 +980,7 @@ void constr_type::prt_constr(const double chi2)
   if (L_scl != 0e0)
     printf("    L            = %7.5f (%7.5f)\n", Cell[globval.Cell_nLoc].S, L0);
 
-  if (drv_terms_scl != 0e0) prt_h(*this);
+  prt_h(*this);
 
   if (high_ord_achr_scl != 0e0) prt_high_ord_achr(*this);
 
@@ -1056,24 +1036,6 @@ void get_ksi1(ss_vect<tps> &A, double ksi1[])
   get_nu(A, -delta, nu0); get_nu(A, delta, nu1);
   for (k = 0; k < 2; k++)
     ksi1[k] = (nu1[k]-nu0[k])/(2e0*delta);
-}
-
-
-void prt_system(std::vector<string> &drv_terms, const int m, const int n,
-		double **A, double *b)
-{
-  int i, j;
-
-  printf("\n Ax = b:\n          ");
-  for (j = 1; j <= n; j++)
-    printf("%11d", j);
-  printf("\n");
-  for (i = 1; i <= m; i++) {
-    printf("%4d %10s", i, drv_terms[i-1].c_str());
-    for (j = 1; j <= n; j++)
-      printf("%11.3e", A[i][j]);
-    printf("%11.3e\n", b[i]);
-  }
 }
 
 
@@ -1331,21 +1293,6 @@ bool get_nu(double nu[])
 }
 
 
-tps get_h_local(const ss_vect<tps> &map)
-{
-  ss_vect<tps>  map1, R;
-
-  if (true)
-    // Dragt-Finn factorization.
-    return LieFact_DF(map, R);
-  else {
-    // Single Lie exponent.
-    danot_(1); map1 = map; danot_(no_tps);
-    return LieFact(map*Inv(map1));
-  }
-}
-
-
 double h_abs_ijklm(const tps &h_re, const tps &h_im, const int i, const int j,
 		   const int k, const int l, const int m)
 {
@@ -1356,45 +1303,6 @@ double h_abs_ijklm(const tps &h_re, const tps &h_im, const int i, const int j,
     jj[i1] = 0;
   jj[x_] = i; jj[px_] = j; jj[y_] = k; jj[py_] = l; jj[delta_] = m;
   return sqrt(sqr(h_re[jj])+sqr(h_im[jj]));
-}
-
-
-void get_h(const double twoJ[], const double delta, constr_type &constr)
-{
-  int          k;
-  tps          K_re, K_im, h_re, h_im;
-  ss_vect<tps> Id_scl;
-
-  const bool   prt = false;
-
-  Id_scl.identity();
-  for (k = 0; k < 4; k++)
-    Id_scl[k] *= sqrt(twoJ[k/2]);
-  Id_scl[delta_] *= delta;
-
-  danot_(no_tps-1);
-  get_map(false);
-  danot_(no_tps);
-  putlinmat(6, globval.Ascr, MNF.A1);
-  CtoR(get_h_local(Inv(MNF.A1)*map*MNF.A1)*Id_scl, h_re, h_im);
-
-  // 1st order chromatic.
-  constr.drv_terms.clear();
-  constr.drv_terms.push_back(h_abs_ijklm(h_re, h_im, 1, 0, 0, 0, 2));
-  constr.drv_terms.push_back(h_abs_ijklm(h_re, h_im, 2, 0, 0, 0, 1));
-  constr.drv_terms.push_back(h_abs_ijklm(h_re, h_im, 0, 0, 2, 0, 1));
-  // 1st order geometric.
-  constr.drv_terms.push_back(h_abs_ijklm(h_re, h_im, 2, 1, 0, 0, 0));
-  constr.drv_terms.push_back(h_abs_ijklm(h_re, h_im, 1, 0, 1, 1, 0));
-  constr.drv_terms.push_back(h_abs_ijklm(h_re, h_im, 3, 0, 0, 0, 0));
-  constr.drv_terms.push_back(h_abs_ijklm(h_re, h_im, 1, 0, 0, 2, 0));
-  constr.drv_terms.push_back(h_abs_ijklm(h_re, h_im, 1, 0, 2, 0, 0));
-
-  constr.drv_terms_sum2 = 0e0;
-  for (k = 0; k < (int)constr.drv_terms.size(); k++)
-    constr.drv_terms_sum2 += sqr(constr.drv_terms[k]);
-
-  if (prt) cout << h_re << h_im;
 }
 
 
@@ -1569,9 +1477,6 @@ double f_match(double *b2)
 
   eps_x = get_lin_opt(lat_constr);
 
-  if (lat_constr.drv_terms_scl != 0e0)
-    get_h(twoJ, delta, lat_constr);
-
   if (lat_constr.high_ord_achr_scl != 0e0) get_high_ord_achr(lat_constr);
 
   chi2 = lat_constr.get_chi2();
@@ -1602,10 +1507,9 @@ double f_achrom(double *b2)
   if ((lat_constr.ring && stable) || !lat_constr.ring) {
     eps_x = get_lin_opt(lat_constr);
 
-    if (lat_constr.drv_terms_scl != 0e0) {
+    if (lat_constr.drv_terms_simple_scl != 0e0) {
       fit_ksi1(lat_constr.Fnum_b3, 0e0, 0e0, 1e1, lat_constr.ksi1_svd);
       get_drv_terms(lat_constr);
-      get_h(twoJ, delta, lat_constr);
     }
 
     if (lat_constr.high_ord_achr_scl != 0e0) get_high_ord_achr(lat_constr);
@@ -1637,7 +1541,6 @@ void prt_prms(constr_type &constr)
   printf("\n  eps_x_scl            = %9.3e\n"
 	 "  ksi1_svd_scl         = %9.3e\n"
 	 "  drv_terms_simple_scl = %9.3e\n"
-	 "  drv_terms_scl        = %9.3e\n"
 	 "  mI_nu_ref            = [%7.5f, %7.5f]\n"
 	 "  mI_scl               = [%9.3e, %9.3e]\n"
 	 "  high_ord_achr_scl    = %9.3e\n"
@@ -1646,7 +1549,6 @@ void prt_prms(constr_type &constr)
 	 "  phi_scl              = %9.3e\n",
 	 constr.eps_x_scl, constr.ksi1_svd_scl,
 	 constr.drv_terms_simple_scl,
-	 constr.drv_terms_scl,
 	 mI_nu_ref[X_], mI_nu_ref[Y_],
 	 constr.mI_scl[X_], constr.mI_scl[Y_],
 	 constr.high_ord_achr_scl,
@@ -1787,7 +1689,6 @@ void opt_mI_std(param_type &prms, constr_type &constr)
   lat_constr.ksi1_svd_scl         = 1e0;
   lat_constr.drv_terms_simple_scl = 1e-3;
   // lat_constr.drv_terms_simple_scl = 1e-4;
-  lat_constr.drv_terms_scl        = 1e-13;
   lat_constr.mI_scl[X_]           = 1e5;
   lat_constr.mI_scl[Y_]           = 1e5;
   lat_constr.high_ord_achr_scl    = 1e5;
@@ -1974,7 +1875,6 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
     lat_constr.ksi1_svd_scl         = 1e0;
     // lat_constr.drv_terms_simple_scl = 1e-3;
     lat_constr.drv_terms_simple_scl = 1e-2;
-    lat_constr.drv_terms_scl        = 1e-13;
 
     lat_constr.mI_scl[X_]           = 1e3;
     lat_constr.mI_scl[Y_]           = 1e3;
@@ -1986,7 +1886,6 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
     lat_constr.ksi1_svd_scl         = 1e0;
     // lat_constr.drv_terms_simple_scl = 1e-5;
     lat_constr.drv_terms_simple_scl = 1e-4;
-    lat_constr.drv_terms_scl        = 1e-13;
 
     lat_constr.mI_scl[X_]           = 1e5;
     lat_constr.mI_scl[Y_]           = 1e5;
@@ -2211,7 +2110,6 @@ void opt_mI_twonu_sp(param_type &prms, constr_type &constr)
     lat_constr.ksi1_svd_scl         = 1e0;
     // lat_constr.drv_terms_simple_scl = 1e-3;
     lat_constr.drv_terms_simple_scl = 1e-4;
-    lat_constr.drv_terms_scl        = 1e-13;
 
     // lat_constr.mI_scl[X_]           = 1e3;
     // lat_constr.mI_scl[Y_]           = 1e3;
@@ -2227,7 +2125,6 @@ void opt_mI_twonu_sp(param_type &prms, constr_type &constr)
     lat_constr.ksi1_svd_scl         = 1e0;
     // lat_constr.drv_terms_simple_scl = 1e-5;
     lat_constr.drv_terms_simple_scl = 1e-4;
-    lat_constr.drv_terms_scl        = 1e-13;
 
     lat_constr.mI_scl[X_]           = 1e5;
     lat_constr.mI_scl[Y_]           = 1e5;
@@ -2369,8 +2266,6 @@ void opt_tba(param_type &prms, constr_type &constr)
     lat_constr.high_ord_achr_dnu[k].resize(2, 0e0);
 
   lat_constr.eps_x_scl = 1e2; lat_constr.eps0_x = 0.190;
-
-  lat_constr.drv_terms_scl = 1e-7;
 
   lat_constr.mI_scl[X_] = 1e-10; lat_constr.mI_scl[Y_] = 1e-10;
   for (k = 0; k < 2; k++)
@@ -2527,8 +2422,6 @@ void opt_std_cell(param_type &prms, constr_type &constr)
   for (k = 0; k < n; k++)
     lat_constr.high_ord_achr_dnu[k].resize(2, 0e0);
 
-  lat_constr.drv_terms_scl = 1e-6;
-
   lat_constr.mI_scl[X_] = 1e-10; lat_constr.mI_scl[Y_] = 1e-10;
   for (k = 0; k < 2; k++)
     lat_constr.mI0[k] = mI_nu_ref[k];
@@ -2599,8 +2492,6 @@ void opt_long_cell(param_type &prms, constr_type &constr)
   lat_constr.high_ord_achr_dnu.resize(n);
   for (k = 0; k < n; k++)
     lat_constr.high_ord_achr_dnu[k].resize(2, 0e0);
-
-  lat_constr.drv_terms_scl = 1e-6;
 
   lat_constr.mI_scl[X_] = 1e-10; lat_constr.mI_scl[Y_] = 1e-10;
   for (k = 0; k < 2; k++)
@@ -2730,8 +2621,6 @@ void opt_short_cell(param_type &prms, constr_type &constr)
   for (k = 0; k < n; k++)
     lat_constr.high_ord_achr_dnu[k].resize(2, 0e0);
 
-  lat_constr.drv_terms_scl = 1e-5;
-
   lat_constr.mI_scl[X_] = 1e-10; lat_constr.mI_scl[Y_] = 1e-10;
   for (k = 0; k < 2; k++)
     lat_constr.mI0[k] = mI_nu_ref[k];
@@ -2786,11 +2675,6 @@ int main(int argc, char *argv[])
   globval.emittance      = false;  globval.IBS         = false;
   globval.pathlength     = false;  globval.bpm         = 0;
   globval.dip_edge_fudge = true;
-
-  // disable from TPSALib and LieLib log messages
-  idprset(-1);
-
-  danot_(1);
 
   if (ps_rot) {
     Ring_GetTwiss(true, 0e0); printglob();
