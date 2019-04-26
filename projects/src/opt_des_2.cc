@@ -2677,8 +2677,10 @@ int main(int argc, char *argv[])
   globval.dip_edge_fudge = true;
 
   if (ps_rot) {
-    Ring_GetTwiss(true, 0e0); printglob();
     dnu[X_] = 0.0; dnu[Y_] = 0.0;
+    set_map(ElemIndex("ps_rot"), dnu);
+    Ring_GetTwiss(true, 0e0); printglob();
+    dnu[X_] = 0.01; dnu[Y_] = 0.0;
     set_map(ElemIndex("ps_rot"), dnu);
   }
 
