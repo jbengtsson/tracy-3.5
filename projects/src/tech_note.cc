@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
   ss_vect<tps> A;
 
   const double
-#define CASE 4
+#define CASE 5
 #if CASE == 1
     eta0[]     = { 0.0078751,  0.0},
     etap0[]    = { 0.0,        0.0},
@@ -97,6 +97,17 @@ int main(int argc, char *argv[])
     beta1[]    = {  3.88386,    1.37607},
     m_etap1[]  = {-etap0[X_],  -etap0[Y_]},
     m_alpha1[] = {-alpha0[X_], -alpha0[Y_]};
+#elif CASE == 5
+    eta0[]     = { 0.02699931, 0.0},
+    etap0[]    = { 0.0,        0.0},
+    alpha0[]   = { 0.0,        0.0},
+    beta0[]    = { 3.86657,    0.88804},
+    eta1[]     = { 0.0,        0.0},
+    etap1[]    = { 0.0,        0.0},
+    alpha1[]   = { 0.0,        0.0},
+    beta1[]    = { 1.76416,    2.38834},
+    m_etap1[]  = {-etap0[X_],  -etap0[Y_]},
+    m_alpha1[] = {-alpha0[X_], -alpha0[Y_]};
 #endif
 
   if (true)
@@ -110,9 +121,9 @@ int main(int argc, char *argv[])
   globval.pathlength     = false;  globval.bpm         = 0;
   globval.dip_edge_fudge = true;
 
-  if (!false) set_map_per(ElemIndex("Mir"), alpha1, beta1, eta1, etap1);
+  if (false) set_map_per(ElemIndex("Mir"), alpha1, beta1, eta1, etap1);
 
-  if (true) {
+  if (!true) {
     Ring_GetTwiss(true, 0e0); printglob();
     GetEmittance(ElemIndex("cav"), true);
     Ring_GetTwiss(true, 0e0);

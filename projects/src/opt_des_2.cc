@@ -16,7 +16,7 @@ const double
   high_ord_achr_nu[] = {19.0/8.0, 15.0/16.0},
   mI_dnu[]           = {0.0, 0.0},
   mI_nu_ref[]        = {1.5-mI_dnu[X_], 0.5-mI_dnu[Y_]},
-  twonu_ref[]        = {0.75, 0.25},
+  twonu_ref[]        = {1.25, 0.5},
   twoJ[]             = {sqr(7e-3)/10.0, sqr(4e-3)/4.0},
   delta              = 2.5e-2;
 
@@ -958,8 +958,10 @@ void prt_high_ord_achr(const constr_type &constr)
 void constr_type::prt_constr(const double chi2)
 {
   int    loc, k;
-  double phi;
+  double phi, svd;
 
+  svd = (lat_constr.ksi1_svd[X_])?
+    lat_constr.ksi1_svd[Y_]/lat_constr.ksi1_svd[X_] : 0e0;
   printf("\n%3d chi2: %11.5e -> %11.5e\n", n_iter, this->chi2_prt, chi2);
   this->chi2_prt = chi2;
   printf("\n  Linear Optics:\n");
@@ -968,8 +970,7 @@ void constr_type::prt_constr(const double chi2)
 	 "    ksi1         = [%5.3f, %5.3f]\n"
 	 "    svd          = [%9.3e, %9.3e] %5.3f\n",
 	 eps_x, eps0_x, nu[X_], nu[Y_], ksi1[X_], ksi1[Y_],
-	 lat_constr.ksi1_svd[X_], lat_constr.ksi1_svd[Y_],
-	 lat_constr.ksi1_svd[Y_]/lat_constr.ksi1_svd[X_]);
+	 lat_constr.ksi1_svd[X_], lat_constr.ksi1_svd[Y_], svd);
   if (phi_scl != 0e0) {
     loc = Elem_GetPos(Fnum_b1[n_b1-1], 1);
     phi = rad2deg(Cell[loc].Elem.PL*Cell[loc].Elem.M->Pirho);
@@ -1418,7 +1419,7 @@ void fit_conj_grad(param_type &lat_prms, double (*f)(double *))
 
 
 void prt_f(double *b2, const double chi2, constr_type &lat_constr,
-	   param_type &lat_prms)
+	   param_type &lat_prms, const bool chrom)
 {
   lat_constr.prt_constr(chi2);
 
@@ -1427,7 +1428,7 @@ void prt_f(double *b2, const double chi2, constr_type &lat_constr,
   prtmfile("flat_file.fit");
   prt_lat("linlat1.out", globval.bpm, true);
   prt_lat("linlat.out", globval.bpm, true, 10);
-  prt_chrom_lat();
+  if (chrom) prt_chrom_lat();
 
   prt_b2(lat_prms);
   prt_b3(lat_constr.Fnum_b3);
@@ -1470,7 +1471,8 @@ void get_twonu(constr_type &constr)
   constr.twonu.clear();
   for (j = 0; j < (int)constr.twonu_loc.size(); j++) {
     for (k = 0; k < 2; k++) {
-      if (lat_constr.twonu_loc[j][0] == 0)
+      // if (lat_constr.twonu_loc[j][0] == 0)
+      if (j == 0)
 	dnu.push_back(2e0*(Cell[lat_constr.twonu_loc[j][1]].Nu[k]
 			   -Cell[lat_constr.twonu_loc[j][0]].Nu[k]));
       else
@@ -1496,11 +1498,14 @@ double f_match(double *b2)
 
   if (lat_constr.high_ord_achr_scl != 0e0) get_high_ord_achr(lat_constr);
 
+  if ((lat_constr.twonu_scl[X_] != 0e0) || (lat_constr.twonu_scl[Y_] != 0e0))
+    get_twonu(lat_constr);
+
   chi2 = lat_constr.get_chi2();
 
   if (chi2 < lat_constr.chi2) {
     if (lat_constr.n_iter % n_prt == 0)
-      prt_f(b2, chi2, lat_constr, lat_prms);
+      prt_f(b2, chi2, lat_constr, lat_prms, false);
     lat_constr.n_iter++;
     lat_constr.chi2 = chi2;
   }
@@ -1541,7 +1546,7 @@ double f_achrom(double *b2)
 
     if (chi2 < lat_constr.chi2) {
       if (lat_constr.n_iter % n_prt == 0)
-	prt_f(b2, chi2, lat_constr, lat_prms);
+	prt_f(b2, chi2, lat_constr, lat_prms, true);
 
       lat_constr.n_iter++;
       lat_constr.chi2 = chi2;
@@ -2413,6 +2418,70 @@ void match_ls(param_type &prms, constr_type &constr)
 }
 
 
+void match_als_u(param_type &prms, constr_type &constr)
+{
+  // Parameter Type:
+  //   Bend Angle  -3,
+  //   Length      -2,
+  //   Position    -1,
+  //   Quadrupole   2.
+  int                 j, k, n;
+  std::vector<int>    grad_dip_Fnum, twonu_loc;
+  std::vector<double> grad_dip_scl;
+
+  // From Center of Mid Straight: alpha, beta, eta, eta'.
+  const int    n_ic        = 4;
+  const double ic[n_ic][2] =
+    {{0.0, 0.0}, {3.86657, 0.88804}, {0.02699931, 0.0}, {0.0, 0.0}};
+ 
+  prms.add_prm("q1",   2, -20.0, 20.0, 1.0);
+  prms.add_prm("q2",   2, -20.0, 20.0, 1.0);
+  prms.add_prm("q3",   2, -20.0, 20.0, 1.0);
+  prms.add_prm("q4",   2, -20.0, 20.0, 1.0);
+
+  prms.add_prm("mqfh", 2, -20.0, 20.0, 1.0);
+
+  // Parameters are initialized in optimizer.
+
+  constr.add_constr(Elem_GetPos(ElemIndex("q1"), 1),
+  		    0e0, 0e0, 0e0, 0e0, 1e3, 1e3,
+  		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+  constr.add_constr(Elem_GetPos(ElemIndex("ssh"), 1),
+  		    1e0, 1e0, 1e-3, 1e-3, 1e5, 1e5,
+  		    0.0, 0.0, 2.1,  2.3, 0.0, 0.0);
+
+  lat_prms.bn_tol = 1e-5; lat_prms.step = 1.0;
+
+  for (k = 0; k < 2; k++)
+    lat_constr.high_ord_achr_nu[k] = high_ord_achr_nu[k];
+
+  lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("ssh"), 1));
+
+  twonu_loc.push_back(Elem_GetPos(ElemIndex("sf"), 2));
+  twonu_loc.push_back(globval.Cell_nLoc);
+  lat_constr.twonu_loc.push_back(twonu_loc);
+
+  n = lat_constr.high_ord_achr_Fnum.size() - 1;
+  lat_constr.high_ord_achr_dnu.resize(n);
+  for (k = 0; k < n; k++)
+    lat_constr.high_ord_achr_dnu[k].resize(2, 0e0);
+
+  for (k = 0; k < 2; k++)
+    lat_constr.twonu0[k] = twonu_ref[k];
+
+  lat_constr.ksi1_svd_scl      = 0e0;
+  lat_constr.high_ord_achr_scl = 0e-1;
+  lat_constr.twonu_scl[X_]     = 1e0;
+  lat_constr.twonu_scl[Y_]     = 1e0;
+
+  lat_constr.ini_constr(false);
+
+  for (j = 0; j < n_ic; j++)
+    for (k = 0; k < 2; k++)
+      lat_constr.ic[j][k] = ic[j][k];
+}
+
+
 void opt_tba(param_type &prms, constr_type &constr)
 {
   // Parameter Type:
@@ -2918,7 +2987,7 @@ int main(int argc, char *argv[])
     fit_powell(lat_prms, 1e-3, f_achrom);
   }
 
-  if (!false) {
+  if (false) {
     // Optimize Standard Straight: mI.
     opt_mI_twonu_std(lat_prms, lat_constr);
     no_sxt();
@@ -2946,7 +3015,7 @@ int main(int argc, char *argv[])
   }
 
   if (!false) {
-    // Match Long Straight: mI.
+    // Match ALS-U.
     match_als_u(lat_prms, lat_constr);
     fit_powell(lat_prms, 1e-3, f_match);
   }

@@ -17,10 +17,13 @@ int no_tps   = NO,
 
 const bool set_dnu  = false;
 const double
-  beta_inj[] = {8.7, 2.1},
-  A_max[]    = {5e-3, 1.5e-3},
+  // beta_inj[] = {8.7, 2.1},
+  // A_max[]    = {5e-3, 1.5e-3},
+  // delta_max  = 3e-2,
+  beta_inj[] = {2.1, 2.3},
+  A_max[]    = {3e-3, 2.5e-3},
+  delta_max  = 4e-2,
   twoJ[]     = {sqr(A_max[X_])/beta_inj[X_], sqr(A_max[Y_])/beta_inj[Y_]},
-  delta_max  = 3e-2,
   dnu[]      = {0.1/6.0, 0.0};
 
 const char home_dir[] = "/home/bengtsson";
