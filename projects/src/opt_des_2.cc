@@ -2945,6 +2945,12 @@ int main(int argc, char *argv[])
     fit_powell(lat_prms, 1e-3, f_match);
   }
 
+  if (!false) {
+    // Match Long Straight: mI.
+    match_als_u(lat_prms, lat_constr);
+    fit_powell(lat_prms, 1e-3, f_match);
+  }
+
   if (false) {
     // Optimize TBA & Mid Straight: Higher-Order-Achromat.
     opt_tba(lat_prms, lat_constr);
