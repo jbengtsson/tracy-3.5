@@ -1058,7 +1058,7 @@ int main(int argc, char *argv[])
     exit(0);
   }
 
-  if (!false) {
+  if (false) {
     Ring_GetTwiss(true, 0e0); printglob();
 
     dnu[X_] = -0.14; dnu[Y_] = -0.13;
