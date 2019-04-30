@@ -16,7 +16,7 @@ const double
   high_ord_achr_nu[] = {19.0/8.0, 15.0/16.0},
   mI_dnu[]           = {0.0, 0.0},
   mI_nu_ref[]        = {1.5-mI_dnu[X_], 0.5-mI_dnu[Y_]},
-  twonu_ref[]        = {1.25, 0.5},
+  twonu_ref[]        = {3.25, 1.25},
   twoJ[]             = {sqr(7e-3)/10.0, sqr(4e-3)/4.0},
   delta              = 2.5e-2;
 
@@ -2432,7 +2432,7 @@ void match_als_u(param_type &prms, constr_type &constr)
   // From Center of Mid Straight: alpha, beta, eta, eta'.
   const int    n_ic        = 4;
   const double ic[n_ic][2] =
-    {{0.0, 0.0}, {3.86657, 0.88804}, {0.02699931, 0.0}, {0.0, 0.0}};
+    {{0.0, 0.0}, {0.11535, 3.26201}, {0.00027592, 0.0}, {0.0, 0.0}};
  
   prms.add_prm("q1",   2, -20.0, 20.0, 1.0);
   prms.add_prm("q2",   2, -20.0, 20.0, 1.0);
@@ -2447,8 +2447,8 @@ void match_als_u(param_type &prms, constr_type &constr)
   		    0e0, 0e0, 0e0, 0e0, 1e3, 1e3,
   		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("ssh"), 1),
-  		    1e0, 1e0, 1e-3, 1e-3, 1e5, 1e5,
-  		    0.0, 0.0, 2.1,  2.3, 0.0, 0.0);
+  		    1e0, 1e0, 1e-5, 1e-5, 1e5, 1e5,
+  		    0.0, 0.0, 2.1,  2.3,  0.0, 0.0);
 
   lat_prms.bn_tol = 1e-5; lat_prms.step = 1.0;
 
@@ -2457,7 +2457,7 @@ void match_als_u(param_type &prms, constr_type &constr)
 
   lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("ssh"), 1));
 
-  twonu_loc.push_back(Elem_GetPos(ElemIndex("sf"), 2));
+  twonu_loc.push_back(0);
   twonu_loc.push_back(globval.Cell_nLoc);
   lat_constr.twonu_loc.push_back(twonu_loc);
 

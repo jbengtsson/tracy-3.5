@@ -6,15 +6,15 @@ int no_tps = NO;
 
 
 const bool
-  set_dnu = false,
+  set_dnu = !false,
   mI_rot  = false,
   HOA_rot = false,
   prt_ms  = false,
   prt_dt  = false;
 
 const double
-  // nu[]     = {0.005, 0.0},
-  nu[]     = {0.1/6.0, -0.2/6.0},
+  nu[]     = {0.01, -0.01},
+  // nu[]     = {0.1/6.0, -0.2/6.0},
   dnu_mI[] = {1.5-1.44129-0.0, 0.5-0.47593-0.0},
   nu_HOA[] = {19.0/8.0, 15.0/16.0};
 
@@ -1061,11 +1061,11 @@ int main(int argc, char *argv[])
   if (false) {
     Ring_GetTwiss(true, 0e0); printglob();
 
-    dnu[X_] = -0.14; dnu[Y_] = -0.13;
+    // dnu[X_] = -0.14; dnu[Y_] = -0.13;
     set_map(ElemIndex("ps_rot_ss"), dnu);
 
-    dnu[X_] = -0.08; dnu[Y_] = -0.04;
-    set_map(ElemIndex("ps_rot_ls"), dnu);
+    // dnu[X_] = -0.08; dnu[Y_] = -0.04;
+    // set_map(ElemIndex("ps_rot_ls"), dnu);
 
     Ring_GetTwiss(true, 0e0); printglob();
   }

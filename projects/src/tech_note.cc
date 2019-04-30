@@ -98,10 +98,10 @@ int main(int argc, char *argv[])
     m_etap1[]  = {-etap0[X_],  -etap0[Y_]},
     m_alpha1[] = {-alpha0[X_], -alpha0[Y_]};
 #elif CASE == 5
-    eta0[]     = { 0.02699931, 0.0},
+    eta0[]     = { 0.00027592, 0.0},
     etap0[]    = { 0.0,        0.0},
     alpha0[]   = { 0.0,        0.0},
-    beta0[]    = { 3.86657,    0.88804},
+    beta0[]    = { 0.11535,    3.26201},
     eta1[]     = { 0.0,        0.0},
     etap1[]    = { 0.0,        0.0},
     alpha1[]   = { 0.0,        0.0},
