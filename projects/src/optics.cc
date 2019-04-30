@@ -6,7 +6,7 @@ int no_tps = NO;
 
 
 const bool
-  set_dnu = !false,
+  set_dnu = false,
   mI_rot  = false,
   HOA_rot = false,
   prt_ms  = false,
@@ -14,6 +14,7 @@ const bool
 
 const double
   nu[]     = {0.01, -0.01},
+  // nu[]     = {0.17/12.0, -0.12/12.0},
   // nu[]     = {0.1/6.0, -0.2/6.0},
   dnu_mI[] = {1.5-1.44129-0.0, 0.5-0.47593-0.0},
   nu_HOA[] = {19.0/8.0, 15.0/16.0};
@@ -1193,6 +1194,16 @@ int main(int argc, char *argv[])
 
   if (prt_ms) {
     loc = Elem_GetPos(ElemIndex("ms"), 1);
+    printf("\n%10s:  \n  %13.10f %13.10f %13.10f %13.10f %13.10f %13.10f\n",
+	   Cell[loc].Elem.PName,
+	   Cell[loc].Alpha[X_], Cell[loc].Beta[X_],
+	   Cell[loc].Eta[X_], Cell[loc].Etap[X_],
+	   Cell[loc].Alpha[Y_], Cell[loc].Beta[Y_]);
+    exit(0);
+  }
+
+  if (false) {
+    loc = Elem_GetPos(ElemIndex("lgb00"), 1);
     printf("\n%10s:  \n  %13.10f %13.10f %13.10f %13.10f %13.10f %13.10f\n",
 	   Cell[loc].Elem.PName,
 	   Cell[loc].Alpha[X_], Cell[loc].Beta[X_],

@@ -16,7 +16,7 @@ const double
   high_ord_achr_nu[] = {19.0/8.0, 15.0/16.0},
   mI_dnu[]           = {0.0, 0.0},
   mI_nu_ref[]        = {1.5-mI_dnu[X_], 0.5-mI_dnu[Y_]},
-  twonu_ref[]        = {3.25, 1.25},
+  twonu_ref[]        = {3.25+0.029, 1.25-0.01},
   twoJ[]             = {sqr(7e-3)/10.0, sqr(4e-3)/4.0},
   delta              = 2.5e-2;
 
@@ -2432,7 +2432,7 @@ void match_als_u(param_type &prms, constr_type &constr)
   // From Center of Mid Straight: alpha, beta, eta, eta'.
   const int    n_ic        = 4;
   const double ic[n_ic][2] =
-    {{0.0, 0.0}, {0.11535, 3.26201}, {0.00027592, 0.0}, {0.0, 0.0}};
+    {{0.0, 0.0}, {0.1153496843, 3.2620137331}, {0.0002943186, 0.0}, {0.0, 0.0}};
  
   prms.add_prm("q1",   2, -20.0, 20.0, 1.0);
   prms.add_prm("q2",   2, -20.0, 20.0, 1.0);
@@ -2471,8 +2471,8 @@ void match_als_u(param_type &prms, constr_type &constr)
 
   lat_constr.ksi1_svd_scl      = 0e0;
   lat_constr.high_ord_achr_scl = 0e-1;
-  lat_constr.twonu_scl[X_]     = 1e0;
-  lat_constr.twonu_scl[Y_]     = 1e0;
+  lat_constr.twonu_scl[X_]     = 1e1;
+  lat_constr.twonu_scl[Y_]     = 1e1;
 
   lat_constr.ini_constr(false);
 
