@@ -16,7 +16,9 @@ const double
   high_ord_achr_nu[] = {19.0/8.0, 15.0/16.0},
   mI_dnu[]           = {0.0, 0.0},
   mI_nu_ref[]        = {1.5-mI_dnu[X_], 0.5-mI_dnu[Y_]},
-  twonu_ref[]        = {3.25+0.029, 1.25-0.01},
+  twonu_ref[]        = {2.25+0.005, 0.75-0.005},
+  // ALS-U.
+  // twonu_ref[]        = {3.25+0.029, 1.25-0.01},
   twoJ[]             = {sqr(7e-3)/10.0, sqr(4e-3)/4.0},
   delta              = 2.5e-2;
 
@@ -1864,7 +1866,7 @@ void opt_mI_twonu_std(param_type &prms, constr_type &constr)
   lat_constr.mI_loc.push_back(mI_loc);
 
   twonu_loc.push_back(0);
-  twonu_loc.push_back(Elem_GetPos(ElemIndex("sf1"), 1));
+  twonu_loc.push_back(globval.Cell_nLoc);
   lat_constr.twonu_loc.push_back(twonu_loc);
 
   for (k = 0; k < 2; k++)
@@ -1887,8 +1889,8 @@ void opt_mI_twonu_std(param_type &prms, constr_type &constr)
   if (relaxed) {
     lat_constr.eps_x_scl            = 5e6;
     // lat_constr.eps_x_scl            = 1e6;
-    lat_constr.ksi1_svd_scl         = 1e0;
-    lat_constr.drv_terms_simple_scl = 1e-1;
+    lat_constr.ksi1_svd_scl         = 1e3;
+    lat_constr.drv_terms_simple_scl = 1e-2;
     // lat_constr.drv_terms_simple_scl = 1e-4;
     lat_constr.mI_scl[X_]           = 1e5;
     lat_constr.mI_scl[Y_]           = 1e5;
@@ -3001,7 +3003,7 @@ int main(int argc, char *argv[])
     fit_powell(lat_prms, 1e-3, f_achrom);
   }
 
-  if (false) {
+  if (!false) {
     // Optimize Super Period: mI & 2*nu.
     opt_mI_twonu_sp(lat_prms, lat_constr);
     no_sxt();
@@ -3014,7 +3016,7 @@ int main(int argc, char *argv[])
     fit_powell(lat_prms, 1e-3, f_match);
   }
 
-  if (!false) {
+  if (false) {
     // Match ALS-U.
     match_als_u(lat_prms, lat_constr);
     fit_powell(lat_prms, 1e-3, f_match);
