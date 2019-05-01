@@ -1063,10 +1063,12 @@ int main(int argc, char *argv[])
     Ring_GetTwiss(true, 0e0); printglob();
 
     // dnu[X_] = -0.14; dnu[Y_] = -0.13;
+    dnu[X_] = -0.13+0.005; dnu[Y_] = -0.18-0.005;
     set_map(ElemIndex("ps_rot_ss"), dnu);
 
     // dnu[X_] = -0.08; dnu[Y_] = -0.04;
-    // set_map(ElemIndex("ps_rot_ls"), dnu);
+    dnu[X_] = -0.13+0.005; dnu[Y_] = -0.18-0.005;
+    set_map(ElemIndex("ps_rot_ls"), dnu);
 
     Ring_GetTwiss(true, 0e0); printglob();
   }

@@ -1473,13 +1473,8 @@ void get_twonu(constr_type &constr)
   constr.twonu.clear();
   for (j = 0; j < (int)constr.twonu_loc.size(); j++) {
     for (k = 0; k < 2; k++) {
-      // if (lat_constr.twonu_loc[j][0] == 0)
-      if (j == 0)
-	dnu.push_back(2e0*(Cell[lat_constr.twonu_loc[j][1]].Nu[k]
-			   -Cell[lat_constr.twonu_loc[j][0]].Nu[k]));
-      else
-	dnu.push_back(Cell[lat_constr.twonu_loc[j][1]].Nu[k]
-		      -Cell[lat_constr.twonu_loc[j][0]].Nu[k]);
+      dnu.push_back(Cell[lat_constr.twonu_loc[j][1]].Nu[k]
+		    -Cell[lat_constr.twonu_loc[j][0]].Nu[k]);
     }
     constr.twonu.push_back(dnu);
     dnu.clear();
@@ -1889,7 +1884,7 @@ void opt_mI_twonu_std(param_type &prms, constr_type &constr)
   if (relaxed) {
     lat_constr.eps_x_scl            = 5e6;
     // lat_constr.eps_x_scl            = 1e6;
-    lat_constr.ksi1_svd_scl         = 1e3;
+    lat_constr.ksi1_svd_scl         = 1e0;
     lat_constr.drv_terms_simple_scl = 1e-2;
     // lat_constr.drv_terms_simple_scl = 1e-4;
     lat_constr.mI_scl[X_]           = 1e5;
@@ -2989,7 +2984,7 @@ int main(int argc, char *argv[])
     fit_powell(lat_prms, 1e-3, f_achrom);
   }
 
-  if (false) {
+  if (!false) {
     // Optimize Standard Straight: mI.
     opt_mI_twonu_std(lat_prms, lat_constr);
     no_sxt();
@@ -3003,7 +2998,7 @@ int main(int argc, char *argv[])
     fit_powell(lat_prms, 1e-3, f_achrom);
   }
 
-  if (!false) {
+  if (false) {
     // Optimize Super Period: mI & 2*nu.
     opt_mI_twonu_sp(lat_prms, lat_constr);
     no_sxt();
