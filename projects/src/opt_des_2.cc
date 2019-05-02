@@ -1882,13 +1882,13 @@ void opt_mI_twonu_std(param_type &prms, constr_type &constr)
     lat_constr.twonu0[k] = twonu_ref[k];
 
   if (relaxed) {
-    lat_constr.eps_x_scl            = 5e6;
+    lat_constr.eps_x_scl            = 1e6;
     // lat_constr.eps_x_scl            = 1e6;
     lat_constr.ksi1_svd_scl         = 1e0;
-    lat_constr.drv_terms_simple_scl = 1e-2;
+    lat_constr.drv_terms_simple_scl = 1e-4;
     // lat_constr.drv_terms_simple_scl = 1e-4;
-    lat_constr.mI_scl[X_]           = 1e5;
-    lat_constr.mI_scl[Y_]           = 1e5;
+    lat_constr.mI_scl[X_]           = 1e6;
+    lat_constr.mI_scl[Y_]           = 1e6;
     lat_constr.high_ord_achr_scl    = 0e5;
     lat_constr.twonu_scl[X_]        = 1e6;
     lat_constr.twonu_scl[Y_]        = 1e6;
