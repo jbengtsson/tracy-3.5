@@ -843,10 +843,12 @@ double constr_type::get_chi2(void) const
   for (j = 0; j < (int)twonu.size(); j++)
     for (k = 0; k < 2; k++)
       chi2 += twonu_scl[k]*sqr(twonu[j][k]-twonu0[k]);
-  for (k = 0; k < 2; k++) {
+  for (k = 0; k < 2; k++)
     chi2 += drv_terms_simple_scl*drv_terms_simple[k];
-    chi2 += ksi1_svd_scl*exp(-ksi1_svd[k]);
-  }
+  if (!true)
+    chi2 += ksi1_svd_scl/(ksi1_svd[X_]*ksi1_svd[Y_]);
+  else
+    chi2 += ksi1_svd_scl/(1e0/ksi1_svd[X_]+1e0/ksi1_svd[Y_]);
   for (j = 0; j < (int)high_ord_achr_dnu.size(); j++)
     for (k = 0; k < 2; k++)
       chi2 +=
@@ -960,19 +962,24 @@ void prt_high_ord_achr(const constr_type &constr)
 void constr_type::prt_constr(const double chi2)
 {
   int    loc, k;
-  double phi, svd;
+  double phi, svd, geom_mean, harm_mean;
 
-  svd = (lat_constr.ksi1_svd[X_])?
-    lat_constr.ksi1_svd[Y_]/lat_constr.ksi1_svd[X_] : 0e0;
+  if (lat_constr.ksi1_svd[X_] != 0e0) {
+    geom_mean = sqrt(lat_constr.ksi1_svd[X_]*lat_constr.ksi1_svd[Y_]);
+    harm_mean = 2e0/(1e0/lat_constr.ksi1_svd[X_]+1e0/lat_constr.ksi1_svd[Y_]);
+  } else {
+    geom_mean = harm_mean = 0e0;
+  }
   printf("\n%3d chi2: %11.5e -> %11.5e\n", n_iter, this->chi2_prt, chi2);
   this->chi2_prt = chi2;
   printf("\n  Linear Optics:\n");
   printf("    eps_x        = %5.3f (%5.3f)\n"
 	 "    nu           = [%5.3f, %5.3f]\n"
 	 "    ksi1         = [%5.3f, %5.3f]\n"
-	 "    svd          = [%9.3e, %9.3e] %5.3f\n",
+	 "    svd          = [%9.3e, %9.3e] %6.4f %6.4f %6.4f\n",
 	 eps_x, eps0_x, nu[X_], nu[Y_], ksi1[X_], ksi1[Y_],
-	 lat_constr.ksi1_svd[X_], lat_constr.ksi1_svd[Y_], svd);
+	 lat_constr.ksi1_svd[X_], lat_constr.ksi1_svd[Y_],
+	 geom_mean, 1e0/geom_mean, harm_mean);
   if (phi_scl != 0e0) {
     loc = Elem_GetPos(Fnum_b1[n_b1-1], 1);
     phi = rad2deg(Cell[loc].Elem.PL*Cell[loc].Elem.M->Pirho);
@@ -1841,10 +1848,18 @@ void opt_mI_twonu_std(param_type &prms, constr_type &constr)
 		      0.0, 0.0, 4.0, 2.5, 0.0, 0.0);
   }
 
-  // Increase beta_y.
-  constr.add_constr(Elem_GetPos(ElemIndex("sd2"), 1),
-  		    0e5, 0e5, 1e1, 1e3, 0e7, 0e7,
-  		    0.0, 0.0, 1.0, 8.0, 0.0, 0.0);
+  if (false) {
+    // Increase beta_x.
+    constr.add_constr(Elem_GetPos(ElemIndex("sf1"), 1),
+		      0e5, 0e5, 1e2, 1e0, 0e7, 0e7,
+		      0.0, 0.0, 8.0, 1.0, 0.0, 0.0);
+  }
+  if (false) {
+    // Increase beta_y.
+    constr.add_constr(Elem_GetPos(ElemIndex("sd2"), 1),
+		      0e5, 0e5, 1e1, 1e3, 0e7, 0e7,
+		      0.0, 0.0, 1.0, 8.0, 0.0, 0.0);
+  }
 
   lat_prms.bn_tol = 1e-5; lat_prms.step = 1.0;
 
@@ -1884,7 +1899,7 @@ void opt_mI_twonu_std(param_type &prms, constr_type &constr)
   if (relaxed) {
     lat_constr.eps_x_scl            = 1e6;
     // lat_constr.eps_x_scl            = 1e6;
-    lat_constr.ksi1_svd_scl         = 1e0;
+    lat_constr.ksi1_svd_scl         = 1e2;
     lat_constr.drv_terms_simple_scl = 1e-4;
     // lat_constr.drv_terms_simple_scl = 1e-4;
     lat_constr.mI_scl[X_]           = 1e6;
@@ -2043,6 +2058,7 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
   		    1e5, 1e5, 1e1,  1e1, 1e7, 1e7,
   		    0.0, 0.0, 10.0, 4.0, 0.0, 0.0);
 
+  // Increase beta_y.
   // constr.add_constr(Elem_GetPos(ElemIndex("sd2"), 1),
   // 		    0e5, 0e5, 1e1, 1e3, 0e7, 0e7,
   // 		    0.0, 0.0, 1.0, 8.0, 0.0, 0.0);
@@ -2268,6 +2284,7 @@ void opt_mI_twonu_sp(param_type &prms, constr_type &constr)
 		      0.0, 0.0, 10.0, 4.0, 0.0, 0.0);
   }
 
+  // Increase beta_y.
   // constr.add_constr(Elem_GetPos(ElemIndex("sd2"), 1),
   // 		    0e5, 0e5, 1e1, 1e3, 0e7, 0e7,
   // 		    0.0, 0.0, 1.0, 8.0, 0.0, 0.0);
