@@ -16,7 +16,7 @@ const double
   high_ord_achr_nu[] = {19.0/8.0, 15.0/16.0},
   mI_dnu[]           = {0.0, 0.0},
   mI_nu_ref[]        = {1.5-mI_dnu[X_], 0.5-mI_dnu[Y_]},
-  twonu_ref[]        = {2.25+0.005, 0.75-0.005},
+  twonu_ref[]        = {2.75+0.005, 0.75-0.005},
   // ALS-U.
   // twonu_ref[]        = {3.25+0.029, 1.25-0.01},
   twoJ[]             = {sqr(7e-3)/10.0, sqr(4e-3)/4.0},
@@ -848,7 +848,7 @@ double constr_type::get_chi2(void) const
   if (!true)
     chi2 += ksi1_svd_scl/(ksi1_svd[X_]*ksi1_svd[Y_]);
   else
-    chi2 += ksi1_svd_scl/(1e0/ksi1_svd[X_]+1e0/ksi1_svd[Y_]);
+    chi2 += sqr(ksi1_svd_scl/(1e0/ksi1_svd[X_]+1e0/ksi1_svd[Y_]));
   for (j = 0; j < (int)high_ord_achr_dnu.size(); j++)
     for (k = 0; k < 2; k++)
       chi2 +=
@@ -1851,7 +1851,7 @@ void opt_mI_twonu_std(param_type &prms, constr_type &constr)
   if (false) {
     // Increase beta_x.
     constr.add_constr(Elem_GetPos(ElemIndex("sf1"), 1),
-		      0e5, 0e5, 1e2, 1e0, 0e7, 0e7,
+		      0e5, 0e5, 1e4, 1e2, 0e7, 0e7,
 		      0.0, 0.0, 8.0, 1.0, 0.0, 0.0);
   }
   if (false) {
@@ -1869,7 +1869,7 @@ void opt_mI_twonu_std(param_type &prms, constr_type &constr)
   // lat_constr.Fnum_b3.push_back(ElemIndex("sh2"));
 
   // lat_constr.eps0_x = 0.145;
-  lat_constr.eps0_x = 0.095;
+  lat_constr.eps0_x = 0.080;
 
   mI_loc.push_back(Elem_GetPos(ElemIndex("sf1"), 1));
   mI_loc.push_back(Elem_GetPos(ElemIndex("sf1"), 2));
@@ -1899,8 +1899,8 @@ void opt_mI_twonu_std(param_type &prms, constr_type &constr)
   if (relaxed) {
     lat_constr.eps_x_scl            = 1e6;
     // lat_constr.eps_x_scl            = 1e6;
-    lat_constr.ksi1_svd_scl         = 1e2;
-    lat_constr.drv_terms_simple_scl = 1e-4;
+    lat_constr.ksi1_svd_scl         = 1e-1;
+    lat_constr.drv_terms_simple_scl = 1e-2;
     // lat_constr.drv_terms_simple_scl = 1e-4;
     lat_constr.mI_scl[X_]           = 1e6;
     lat_constr.mI_scl[Y_]           = 1e6;
@@ -1910,7 +1910,7 @@ void opt_mI_twonu_std(param_type &prms, constr_type &constr)
   } else {
     lat_constr.eps_x_scl            = 1e5;
     // lat_constr.eps_x_scl            = 1e6;
-    lat_constr.ksi1_svd_scl         = 1e0;
+    lat_constr.ksi1_svd_scl         = 1e3;
     lat_constr.drv_terms_simple_scl = 1e-3;
     // lat_constr.drv_terms_simple_scl = 1e-4;
     lat_constr.mI_scl[X_]           = 1e5;
@@ -2970,11 +2970,12 @@ int main(int argc, char *argv[])
   globval.dip_edge_fudge = true;
 
   if (ps_rot) {
-    dnu[X_] = 0.0; dnu[Y_] = 0.1;
+    Ring_GetTwiss(true, 0e0); printglob();
+    dnu[X_] = 0.0; dnu[Y_] = 0.0;
+    set_map(ElemIndex("ps_rot"), dnu);
+    dnu[X_] = 0.2; dnu[Y_] = 0.0;
     set_map(ElemIndex("ps_rot"), dnu);
     Ring_GetTwiss(true, 0e0); printglob();
-    dnu[X_] = 0.01; dnu[Y_] = 0.0;
-    set_map(ElemIndex("ps_rot"), dnu);
   }
 
   if (false) {
