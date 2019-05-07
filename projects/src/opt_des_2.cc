@@ -2,7 +2,7 @@
 
 #include "tracy_lib.h"
 
-#include "Powell/src/newuoa.h"
+#include "newuoa.h"
 
 int no_tps = NO;
 
@@ -12,13 +12,20 @@ const bool
   phi_spec_case = false;
 
 const double
+#define CASE 1
+#if CASE == 1
+  eps0_x             = 0.145,
+  twonu_ref[]        = {2.25+0.005, 0.75-0.005},
+  // ALS-U.
+  // twonu_ref[]        = {3.25+0.029, 1.25-0.01},
+#elif CASE == 2
+  eps0_x             = 0.080,
+  twonu_ref[]        = {2.75+0.005, 0.75-0.005},
+#endif
   // high_ord_achr_nu[] = {2.5-0.125, 0.75+0.125},
   high_ord_achr_nu[] = {19.0/8.0, 15.0/16.0},
   mI_dnu[]           = {0.0, 0.0},
   mI_nu_ref[]        = {1.5-mI_dnu[X_], 0.5-mI_dnu[Y_]},
-  twonu_ref[]        = {2.75+0.005, 0.75-0.005},
-  // ALS-U.
-  // twonu_ref[]        = {3.25+0.029, 1.25-0.01},
   twoJ[]             = {sqr(7e-3)/10.0, sqr(4e-3)/4.0},
   delta              = 2.5e-2;
 
@@ -100,6 +107,7 @@ public:
     drv_terms_simple[2],
     nu[2],
     ksi1[2],
+    ksi1_ctrl_scl[3],
     ksi1_svd_scl,
     ksi1_svd[2],
     phi_scl,
@@ -112,6 +120,8 @@ public:
     twonu0[2],           // 2*nu.
     L_scl,
     L0;                  // Cell length.
+  std::vector<double> 
+    ksi1_ctrl;
   std::vector< std::vector<double> >
     value,
     value_scl,
@@ -135,8 +145,10 @@ public:
   constr_type(void) {
     n_iter = 0; chi2 = 1e30; chi2_prt = 1e30;
     eps_x_scl = 0e0; phi_scl = 0e0;
+    ksi1_ctrl_scl[0] = ksi1_ctrl_scl[1] = ksi1_ctrl_scl[2] = 0e0;
     ksi1_svd_scl = 0e0;
-    drv_terms_simple_scl = 0e0; high_ord_achr_scl = 0e0;
+    drv_terms_simple_scl = 0e0;
+    high_ord_achr_scl = 0e0;
     mI_scl[X_] = mI_scl[Y_] = 0e0; twonu_scl[X_] = twonu_scl[Y_] = 0e0;
     L_scl = 0e0;
   }
@@ -822,12 +834,13 @@ void constr_type::prt_Jacobian(const int n) const
 double constr_type::get_chi2(void) const
 {
   int    j, k;
-  double chi2;
+  double chi2, mean, geom_mean;
 
   const bool prt = false;
 
   chi2 = 0e0; 
   chi2 += eps_x_scl*sqr(eps_x-eps0_x);
+
   for (k = 0; k < n_loc; k++) {
     chi2 += value_scl[k][0]*sqr(Cell[loc[k]].Alpha[X_]-value[k][0]);
     chi2 += value_scl[k][1]*sqr(Cell[loc[k]].Alpha[Y_]-value[k][1]);
@@ -836,19 +849,26 @@ double constr_type::get_chi2(void) const
     chi2 += value_scl[k][4]*sqr(Cell[loc[k]].Eta[X_]-value[k][4]);
     chi2 += value_scl[k][5]*sqr(Cell[loc[k]].Etap[X_]-value[k][5]);
   }
+
   chi2 += L_scl*sqr(Cell[globval.Cell_nLoc].S-L0);
   for (j = 0; j < (int)mI.size(); j++)
     for (k = 0; k < 2; k++)
       chi2 += mI_scl[k]*sqr(mI[j][k]-mI0[k]);
+
   for (j = 0; j < (int)twonu.size(); j++)
     for (k = 0; k < 2; k++)
       chi2 += twonu_scl[k]*sqr(twonu[j][k]-twonu0[k]);
+
   for (k = 0; k < 2; k++)
     chi2 += drv_terms_simple_scl*drv_terms_simple[k];
-  if (!true)
-    chi2 += ksi1_svd_scl/(ksi1_svd[X_]*ksi1_svd[Y_]);
-  else
-    chi2 += sqr(ksi1_svd_scl/(1e0/ksi1_svd[X_]+1e0/ksi1_svd[Y_]));
+
+  for (j = 0; j < (int)ksi1_ctrl.size(); j++)
+    chi2 += ksi1_ctrl_scl[j]/sqr(ksi1_ctrl[j]);
+  
+  mean = (ksi1_svd[X_]+ksi1_svd[Y_])/2e0;
+  geom_mean = sqrt(ksi1_svd[X_]*ksi1_svd[Y_]);
+  chi2 += ksi1_svd_scl/sqr(geom_mean/mean);
+
   for (j = 0; j < (int)high_ord_achr_dnu.size(); j++)
     for (k = 0; k < 2; k++)
       chi2 +=
@@ -962,24 +982,23 @@ void prt_high_ord_achr(const constr_type &constr)
 void constr_type::prt_constr(const double chi2)
 {
   int    loc, k;
-  double phi, svd, geom_mean, harm_mean;
+  double phi, mean, geom_mean;
 
-  if (lat_constr.ksi1_svd[X_] != 0e0) {
-    geom_mean = sqrt(lat_constr.ksi1_svd[X_]*lat_constr.ksi1_svd[Y_]);
-    harm_mean = 2e0/(1e0/lat_constr.ksi1_svd[X_]+1e0/lat_constr.ksi1_svd[Y_]);
-  } else {
-    geom_mean = harm_mean = 0e0;
-  }
+  mean = (ksi1_svd[X_]+ksi1_svd[Y_])/2e0;
+  geom_mean = sqrt(ksi1_svd[X_]*ksi1_svd[Y_]);
   printf("\n%3d chi2: %11.5e -> %11.5e\n", n_iter, this->chi2_prt, chi2);
   this->chi2_prt = chi2;
   printf("\n  Linear Optics:\n");
   printf("    eps_x        = %5.3f (%5.3f)\n"
 	 "    nu           = [%5.3f, %5.3f]\n"
-	 "    ksi1         = [%5.3f, %5.3f]\n"
-	 "    svd          = [%9.3e, %9.3e] %6.4f %6.4f %6.4f\n",
-	 eps_x, eps0_x, nu[X_], nu[Y_], ksi1[X_], ksi1[Y_],
-	 lat_constr.ksi1_svd[X_], lat_constr.ksi1_svd[Y_],
-	 geom_mean, 1e0/geom_mean, harm_mean);
+	 "    ksi1         = [%5.3f, %5.3f]\n",
+	 eps_x, eps0_x, nu[X_], nu[Y_], ksi1[X_], ksi1[Y_]);
+  if (lat_constr.ksi1_ctrl.size() != 0)
+    printf("    ksi1_ctrl    = [%5.3f, %5.3f, %5.3f]\n",
+	   lat_constr.ksi1_ctrl[0], lat_constr.ksi1_ctrl[1],
+	   lat_constr.ksi1_ctrl[2]);
+  printf("    svd          = [%9.3e, %9.3e] %6.4f\n",
+	 lat_constr.ksi1_svd[X_], lat_constr.ksi1_svd[Y_], geom_mean/mean);
   if (phi_scl != 0e0) {
     loc = Elem_GetPos(Fnum_b1[n_b1-1], 1);
     phi = rad2deg(Cell[loc].Elem.PL*Cell[loc].Elem.M->Pirho);
@@ -1345,6 +1364,7 @@ void fit_powell(param_type &lat_prms, const double eps, double (*f)(double *))
 
   const double
     // rho_beg = lat_prms.dbn[0],
+    rho_beg = 1e-1,
     rho_end = 1e-6;
 
   int          n_b2, i, j, iter;
@@ -1488,6 +1508,22 @@ void get_twonu(constr_type &constr)
   }
 }
 
+void get_ksi1_ctrl(constr_type &constr)
+{
+  int loc;
+
+  constr.ksi1_ctrl.clear();
+  loc = Elem_GetPos(constr.Fnum_b3[0], 1);
+  constr.ksi1_ctrl.push_back((Cell[loc].Beta[Y_]-Cell[loc].Beta[X_])
+			     *Cell[loc].Eta[X_]);
+  loc = Elem_GetPos(constr.Fnum_b3[1], 1);
+  constr.ksi1_ctrl.push_back((Cell[loc].Beta[X_]-Cell[loc].Beta[Y_])
+			     *Cell[loc].Eta[X_]);
+  loc = Elem_GetPos(constr.Fnum_b3[2], 1);
+  constr.ksi1_ctrl.push_back((Cell[loc].Beta[Y_]-Cell[loc].Beta[X_])
+			     *Cell[loc].Eta[X_]);
+}
+
 
 double f_match(double *b2)
 {
@@ -1545,6 +1581,8 @@ double f_achrom(double *b2)
 
     if ((lat_constr.twonu_scl[X_] != 0e0) || (lat_constr.twonu_scl[Y_] != 0e0))
       get_twonu(lat_constr);
+
+    if (lat_constr.ksi1_ctrl_scl[1] != 0e0) get_ksi1_ctrl(lat_constr);
 
     chi2 = lat_constr.get_chi2();
 
@@ -1863,13 +1901,12 @@ void opt_mI_twonu_std(param_type &prms, constr_type &constr)
 
   lat_prms.bn_tol = 1e-5; lat_prms.step = 1.0;
 
-  lat_constr.Fnum_b3.push_back(ElemIndex("sf1"));
   lat_constr.Fnum_b3.push_back(ElemIndex("sd1"));
+  lat_constr.Fnum_b3.push_back(ElemIndex("sf1"));
   lat_constr.Fnum_b3.push_back(ElemIndex("sd2"));
   // lat_constr.Fnum_b3.push_back(ElemIndex("sh2"));
 
-  // lat_constr.eps0_x = 0.145;
-  lat_constr.eps0_x = 0.080;
+  lat_constr.eps0_x = eps0_x;
 
   mI_loc.push_back(Elem_GetPos(ElemIndex("sf1"), 1));
   mI_loc.push_back(Elem_GetPos(ElemIndex("sf1"), 2));
@@ -1899,7 +1936,10 @@ void opt_mI_twonu_std(param_type &prms, constr_type &constr)
   if (relaxed) {
     lat_constr.eps_x_scl            = 1e6;
     // lat_constr.eps_x_scl            = 1e6;
-    lat_constr.ksi1_svd_scl         = 1e-1;
+    lat_constr.ksi1_ctrl_scl[0]     = 5e0;
+    lat_constr.ksi1_ctrl_scl[1]     = 1e1;
+    lat_constr.ksi1_ctrl_scl[2]     = 5e0;
+    lat_constr.ksi1_svd_scl         = 0e3;
     lat_constr.drv_terms_simple_scl = 1e-2;
     // lat_constr.drv_terms_simple_scl = 1e-4;
     lat_constr.mI_scl[X_]           = 1e6;

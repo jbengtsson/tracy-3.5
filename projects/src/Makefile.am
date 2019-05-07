@@ -31,10 +31,14 @@ m4_mod_SOURCES      = m4_mod.cc
 dls_ii_SOURCES      = dls_ii.cc
 track_SOURCES       = track.cc
 opt_des_1_SOURCES   = opt_des_1.cc
+#opt_des_2_SOURCES   = opt_des_2.cc newuoa.f
 opt_des_2_SOURCES   = opt_des_2.cc
 id_model_SOURCES    = id_model.cc
 sigma_SOURCES       = sigma.cc
 tech_note_SOURCES   = tech_note.cc
+
+opt_des_2_LDADD = -L/usr/lib/x86_64-linux-gnu \
+	  	  -lgfortran
 
 #LIBS     = -L$(TRACY_LIB)/tracy -ltracy
 # gfortran needs to be before stdc_++ for Fortran programs
@@ -48,3 +52,4 @@ AM_CPPFLAGS = -I$(TRACY_LIB)/tracy/inc -I$(NUM_REC)/inc
 AM_FFLAGS   = -g -O0 -Wall -fbounds-check
 AM_CXXFLAGS = -g -O0 -Wall -Wno-non-template-friend
 #CXXFLAGS = -pg -O2 -Wall -Wno-non-template-friend
+FFLAGS      = -g -O2 -Wall -fbounds-check -fdefault-integer-8
