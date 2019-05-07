@@ -2,7 +2,7 @@
 
 #include "tracy_lib.h"
 
-#include "newuoa.h"
+#include "Powell/src/newuoa.h"
 
 int no_tps = NO;
 
@@ -12,15 +12,17 @@ const bool
   phi_spec_case = false;
 
 const double
-#define CASE 1
+#define CASE 2
 #if CASE == 1
   eps0_x             = 0.145,
   twonu_ref[]        = {2.25+0.005, 0.75-0.005},
-  // ALS-U.
-  // twonu_ref[]        = {3.25+0.029, 1.25-0.01},
 #elif CASE == 2
-  eps0_x             = 0.080,
+  eps0_x             = 0.095,
   twonu_ref[]        = {2.75+0.005, 0.75-0.005},
+#elif CASE == 2
+  // ALS-U.
+  eps0_x             = 0.075,
+  twonu_ref[]        = {3.25+0.029, 1.25-0.01},
 #endif
   // high_ord_achr_nu[] = {2.5-0.125, 0.75+0.125},
   high_ord_achr_nu[] = {19.0/8.0, 15.0/16.0},
@@ -863,11 +865,13 @@ double constr_type::get_chi2(void) const
     chi2 += drv_terms_simple_scl*drv_terms_simple[k];
 
   for (j = 0; j < (int)ksi1_ctrl.size(); j++)
-    chi2 += ksi1_ctrl_scl[j]/sqr(ksi1_ctrl[j]);
+    if (ksi1_ctrl_scl[j] != 0e0) chi2 += ksi1_ctrl_scl[j]/sqr(ksi1_ctrl[j]);
   
-  mean = (ksi1_svd[X_]+ksi1_svd[Y_])/2e0;
-  geom_mean = sqrt(ksi1_svd[X_]*ksi1_svd[Y_]);
-  chi2 += ksi1_svd_scl/sqr(geom_mean/mean);
+  if (ksi1_svd_scl != 0) {
+    mean = (ksi1_svd[X_]+ksi1_svd[Y_])/2e0;
+    geom_mean = sqrt(ksi1_svd[X_]*ksi1_svd[Y_]);
+    chi2 += ksi1_svd_scl/sqr(geom_mean/mean);
+  }
 
   for (j = 0; j < (int)high_ord_achr_dnu.size(); j++)
     for (k = 0; k < 2; k++)
@@ -1527,7 +1531,8 @@ void get_ksi1_ctrl(constr_type &constr)
 
 double f_match(double *b2)
 {
-  double chi2;
+  double      chi2;
+  static bool first = true;
 
   const int n_prt = 5;
 
@@ -1543,7 +1548,8 @@ double f_match(double *b2)
 
   chi2 = lat_constr.get_chi2();
 
-  if (chi2 < lat_constr.chi2) {
+  if (first || (chi2 < lat_constr.chi2)) {
+    first = false;
     if (lat_constr.n_iter % n_prt == 0)
       prt_f(b2, chi2, lat_constr, lat_prms, false);
     lat_constr.n_iter++;
@@ -1556,8 +1562,9 @@ double f_match(double *b2)
 
 double f_achrom(double *b2)
 {
-  bool   stable;
-  double chi2;
+  bool        stable;
+  double      chi2;
+  static bool first = true;
 
   const int n_prt = 5;
 
@@ -1586,7 +1593,8 @@ double f_achrom(double *b2)
 
     chi2 = lat_constr.get_chi2();
 
-    if (chi2 < lat_constr.chi2) {
+    if (first || (chi2 < lat_constr.chi2)) {
+      first = false;
       if (lat_constr.n_iter % n_prt == 0)
 	prt_f(b2, chi2, lat_constr, lat_prms, true);
 
@@ -1936,12 +1944,13 @@ void opt_mI_twonu_std(param_type &prms, constr_type &constr)
   if (relaxed) {
     lat_constr.eps_x_scl            = 1e6;
     // lat_constr.eps_x_scl            = 1e6;
-    lat_constr.ksi1_ctrl_scl[0]     = 5e0;
-    lat_constr.ksi1_ctrl_scl[1]     = 1e1;
-    lat_constr.ksi1_ctrl_scl[2]     = 5e0;
-    lat_constr.ksi1_svd_scl         = 0e3;
-    lat_constr.drv_terms_simple_scl = 1e-2;
+    lat_constr.ksi1_ctrl_scl[0]     = 5e-1;
+    lat_constr.ksi1_ctrl_scl[1]     = 1e0;
+    lat_constr.ksi1_ctrl_scl[2]     = 5e-1;
+    lat_constr.drv_terms_simple_scl = 1e-3;
     // lat_constr.drv_terms_simple_scl = 1e-4;
+    // Not useful.
+    lat_constr.ksi1_svd_scl         = 0e3;
     lat_constr.mI_scl[X_]           = 1e6;
     lat_constr.mI_scl[Y_]           = 1e6;
     lat_constr.high_ord_achr_scl    = 0e5;
@@ -2429,13 +2438,11 @@ void match_ls(param_type &prms, constr_type &constr)
   // From Center of Mid Straight: alpha, beta, eta, eta'.
   const int    n_ic        = 4;
   const double ic[n_ic][2] =
-    {{0.0, 0.0}, {2.6861510471, 2.1473061845}, {0.0243754976, 0.0}, {0.0, 0.0}};
+    {{0.0, 0.0}, {2.0570129948, 1.5563496294}, {0.0239117785, 0.0}, {0.0, 0.0}};
  
-  // Long Straight.
+  // Perturbed symmetry at end of Dipole Cell.
   prms.add_prm("qd3_c1",   2, -20.0, 20.0, 1.0);
-  prms.add_prm("qf4l",     2, -20.0, 20.0, 1.0);
-  prms.add_prm("qf4_c1",   2, -20.0, 20.0, 1.0);
-
+  // Long Straight.
   prms.add_prm("qf1_c1",   2, -20.0, 20.0, 1.0);
   prms.add_prm("qd2_c1",   2, -20.0, 20.0, 1.0);
   prms.add_prm("quad_add", 2, -20.0, 20.0, 1.0);
@@ -2462,7 +2469,7 @@ void match_ls(param_type &prms, constr_type &constr)
   for (k = 0; k < n; k++)
     lat_constr.high_ord_achr_dnu[k].resize(2, 0e0);
 
-  lat_constr.high_ord_achr_scl = 1e-1;
+  lat_constr.high_ord_achr_scl = 0e-1;
 
   lat_constr.ini_constr(false);
 
@@ -3013,7 +3020,7 @@ int main(int argc, char *argv[])
     Ring_GetTwiss(true, 0e0); printglob();
     dnu[X_] = 0.0; dnu[Y_] = 0.0;
     set_map(ElemIndex("ps_rot"), dnu);
-    dnu[X_] = 0.2; dnu[Y_] = 0.0;
+    dnu[X_] = 0.005; dnu[Y_] = -0.005;
     set_map(ElemIndex("ps_rot"), dnu);
     Ring_GetTwiss(true, 0e0); printglob();
   }
@@ -3042,7 +3049,7 @@ int main(int argc, char *argv[])
     fit_powell(lat_prms, 1e-3, f_achrom);
   }
 
-  if (!false) {
+  if (false) {
     // Optimize Standard Straight: mI.
     opt_mI_twonu_std(lat_prms, lat_constr);
     no_sxt();
@@ -3063,7 +3070,7 @@ int main(int argc, char *argv[])
     fit_powell(lat_prms, 1e-3, f_achrom);
   }
 
-  if (false) {
+  if (!false) {
     // Match Long Straight: mI.
     match_ls(lat_prms, lat_constr);
     fit_powell(lat_prms, 1e-3, f_match);

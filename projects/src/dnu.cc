@@ -5,7 +5,7 @@
 int  no_tps = NO;
 
 
-const bool set_dnu  = false;
+const bool set_dnu  = !false;
 const int  lat_case = 3;
 const double
   A_max[]   = {6e-3, 2e-3},
@@ -13,7 +13,7 @@ const double
   // ALS-U.
   // A_max[]   = {4e-3, 2.5e-3},
   // delta_max = 4e-2,
-  dnu[]     = {0.02/6.0, -0.02/6.0};
+  dnu[]     = {-0.0/6.0, -0.02/6.0};
 
 
 int main(int argc, char *argv[])
