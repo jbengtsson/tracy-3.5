@@ -12,7 +12,7 @@ const bool
   phi_spec_case = false;
 
 const double
-#define CASE 2
+#define CASE 1
 #if CASE == 1
   eps0_x             = 0.145,
   twonu_ref[]        = {2.25+0.005, 0.75-0.005},
@@ -1944,9 +1944,12 @@ void opt_mI_twonu_std(param_type &prms, constr_type &constr)
   if (relaxed) {
     lat_constr.eps_x_scl            = 1e6;
     // lat_constr.eps_x_scl            = 1e6;
-    lat_constr.ksi1_ctrl_scl[0]     = 5e-1;
-    lat_constr.ksi1_ctrl_scl[1]     = 1e0;
-    lat_constr.ksi1_ctrl_scl[2]     = 5e-1;
+    // lat_constr.ksi1_ctrl_scl[0]     = 5e-1;
+    // lat_constr.ksi1_ctrl_scl[1]     = 1e0;
+    // lat_constr.ksi1_ctrl_scl[2]     = 5e-1;
+    lat_constr.ksi1_ctrl_scl[0]     = 5e1;
+    lat_constr.ksi1_ctrl_scl[1]     = 1e2;
+    lat_constr.ksi1_ctrl_scl[2]     = 5e1;
     lat_constr.drv_terms_simple_scl = 1e-3;
     // lat_constr.drv_terms_simple_scl = 1e-4;
     // Not useful.
@@ -3049,7 +3052,7 @@ int main(int argc, char *argv[])
     fit_powell(lat_prms, 1e-3, f_achrom);
   }
 
-  if (false) {
+  if (!false) {
     // Optimize Standard Straight: mI.
     opt_mI_twonu_std(lat_prms, lat_constr);
     no_sxt();
@@ -3070,7 +3073,7 @@ int main(int argc, char *argv[])
     fit_powell(lat_prms, 1e-3, f_achrom);
   }
 
-  if (!false) {
+  if (false) {
     // Match Long Straight: mI.
     match_ls(lat_prms, lat_constr);
     fit_powell(lat_prms, 1e-3, f_match);
