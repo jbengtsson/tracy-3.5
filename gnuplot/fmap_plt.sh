@@ -1,7 +1,7 @@
 #!/bin/sh
 
 prm1=${1-""}
-prm2=${2-1}
+prm2=${2-6}
 prm3=${3-0}
 prm4=${4-5}
 prm5=${5-1}
@@ -12,11 +12,12 @@ home_dir = "$prm1"; N = $prm2; ps = $prm3; case  = $prm4; scale = $prm5;
 
 # MAX-V        1,
 # SLS-2        2,
-# M-H6BAi      3,
-# M-H6BA-0-.-. 4,
-# DIAMOND      5,
-# ALS-U        6,
-# DELTA        7.
+# ESRF-U       3, # 30 Std Cells; total is 32.
+# M-H6BAi      4,
+# M-H6BA-0-.-. 5,
+# DIAMOND      6,
+# ALS-U        7,
+# DELTA        8.
 
 file1 = (home_dir)."fmap.out";
 file2 = (home_dir)."fmapdp.out";
@@ -49,25 +50,25 @@ if ((N == 1) && (case == 1)) \
   N_x = 102; N_y = 68; \
 else if ((N == 1) && (case == 2)) \
   N_x = 38; N_y = 14; \
-else if ((N == 1) && (case == 3)) \
-  N_x = 57; N_y = 20; \
 else if ((N == 1) && (case == 4)) \
-  N_x = 57; N_y = 22; \
+  N_x = 57; N_y = 20; \
 else if ((N == 1) && (case == 5)) \
+  N_x = 64; N_y = 18; \
+else if ((N == 1) && (case == 6)) \
   N_x = 57; N_y = 22; \
 else if ((N == 1) && (case == 8)) \
   N_x = 40; N_y = 14; \
 else if ((N == 12) && (case == 2)) \
   N_x = 3; N_y = 1; \
-else if ((N == 6) && (case == 3)) \
-  N_x = 9; N_y = 3; sgn_x = -1; sgn_y = -1; \
 else if ((N == 6) && (case == 4)) \
-  N_x = 10; N_y = 4; sgn_x = 1; sgn_y = -1; \
+  N_x = 9; N_y = 3; sgn_x = -1; sgn_y = -1; \
 else if ((N == 6) && (case == 5)) \
+  N_x = 11; N_y = 3; sgn_x = -1; \
+else if ((N == 6) && (case == 6)) \
   N_x = 10; N_y = 4; sgn_x = -1; sgn_y = -1; \
-else if ((N == 12) && (case == 6)) \
+else if ((N == 12) && (case == 7)) \
   N_x = 3; N_y = 1; \
-else if ((N == 20) && (case == 7)) \
+else if ((N == 20) && (case == 8)) \
   N_x = 5; N_y = 3;
 
 # DELTA: del008.
@@ -86,7 +87,7 @@ else if (case == 4) \
   nu_x_min = 61.0; nu_x_max = 62.0; nu_y_min = 22.0; nu_y_max = 23.0; \
   x_max = 8.0; y_max = 5.0; delta_max = 4.0; \
 else if (case == 5) \
-  nu_x_min = 57.0; nu_x_max = 57.5; nu_y_min = 22.0; nu_y_max = 22.8; \
+  nu_x_min = 64.0; nu_x_max = 64.5; nu_y_min = 18.0; nu_y_max = 18.5; \
   x_max = 6.0; y_max = 3.0; delta_max = 3.0; \
 else if (case == 6) \
   nu_x_min = 40.2; nu_x_max = 40.6; nu_y_min = 14.1; nu_y_max = 14.8; \
