@@ -5,7 +5,7 @@
 int  no_tps = NO;
 
 
-const bool set_dnu  = !false;
+const bool set_dnu  = false;
 const int  lat_case = 3;
 const double
   A_max[]   = {6e-3, 2e-3},

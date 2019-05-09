@@ -19,7 +19,7 @@ const double
 #elif CASE == 2
   eps0_x             = 0.095,
   twonu_ref[]        = {2.75+0.005, 0.75-0.005},
-#elif CASE == 2
+#elif CASE == 3
   // ALS-U.
   eps0_x             = 0.075,
   twonu_ref[]        = {3.25+0.029, 1.25-0.01},
@@ -1947,9 +1947,9 @@ void opt_mI_twonu_std(param_type &prms, constr_type &constr)
     // lat_constr.ksi1_ctrl_scl[0]     = 5e-1;
     // lat_constr.ksi1_ctrl_scl[1]     = 1e0;
     // lat_constr.ksi1_ctrl_scl[2]     = 5e-1;
-    lat_constr.ksi1_ctrl_scl[0]     = 5e1;
-    lat_constr.ksi1_ctrl_scl[1]     = 1e2;
-    lat_constr.ksi1_ctrl_scl[2]     = 5e1;
+    lat_constr.ksi1_ctrl_scl[0]     = 1e-1;
+    lat_constr.ksi1_ctrl_scl[1]     = 5e-2;
+    lat_constr.ksi1_ctrl_scl[2]     = 1e-1;
     lat_constr.drv_terms_simple_scl = 1e-3;
     // lat_constr.drv_terms_simple_scl = 1e-4;
     // Not useful.
@@ -2238,7 +2238,7 @@ void opt_mI_twonu_sp(param_type &prms, constr_type &constr)
   }
 
   if (dphi) {
-    // Strandard Straight.
+    // Dipole Cell.
     prms.add_prm("qf4", -3, -20.0, 20.0, 1.0);
     lat_constr.Fnum_b1.push_back(ElemIndex("qf4"));
     prms.add_prm("qf6", -3, -20.0, 20.0, 1.0);
@@ -2246,13 +2246,7 @@ void opt_mI_twonu_sp(param_type &prms, constr_type &constr)
     prms.add_prm("qf8", -3, -20.0, 20.0, 1.0);
     lat_constr.Fnum_b1.push_back(ElemIndex("qf8"));
 
-    // Long Straight.
-    prms.add_prm("qf4l", -3, -20.0, 20.0, 1.0);
-    lat_constr.Fnum_b1.push_back(ElemIndex("qf4l"));
-    prms.add_prm("qf4_c1", -3, -20.0, 20.0, 1.0);
-    lat_constr.Fnum_b1.push_back(ElemIndex("qf4_c1"));
-
-    // Commented out must be defined last.
+   // Commented out must be defined last.
     // prms.add_prm("dq1", -3, -20.0,   20.0,  1.0);
     lat_constr.Fnum_b1.push_back(ElemIndex("dq1"));
   }
@@ -2275,9 +2269,8 @@ void opt_mI_twonu_sp(param_type &prms, constr_type &constr)
   }
 
   // Long Straight.
+  // Perturbation of Dipole Cell.
   prms.add_prm("qd3_c1",   2, -20.0, 20.0, 1.0);
-  prms.add_prm("qf4l",     2, -20.0, 20.0, 1.0);
-  prms.add_prm("qf4_c1",   2, -20.0, 20.0, 1.0);
 
   prms.add_prm("qf1_c1",   2, -20.0, 20.0, 1.0);
   prms.add_prm("qd2_c1",   2, -20.0, 20.0, 1.0);
@@ -2336,11 +2329,6 @@ void opt_mI_twonu_sp(param_type &prms, constr_type &constr)
 		      0.0, 0.0, 10.0, 4.0, 0.0, 0.0);
   }
 
-  // Increase beta_y.
-  // constr.add_constr(Elem_GetPos(ElemIndex("sd2"), 1),
-  // 		    0e5, 0e5, 1e1, 1e3, 0e7, 0e7,
-  // 		    0.0, 0.0, 1.0, 8.0, 0.0, 0.0);
-
   lat_prms.bn_tol = 1e-5; lat_prms.step = 1.0;
 
   lat_constr.Fnum_b3.push_back(ElemIndex("sf1"));
@@ -2348,8 +2336,7 @@ void opt_mI_twonu_sp(param_type &prms, constr_type &constr)
   lat_constr.Fnum_b3.push_back(ElemIndex("sd2"));
   // lat_constr.Fnum_b3.push_back(ElemIndex("sh2"));
 
-  // lat_constr.eps0_x = 0.145;
-  lat_constr.eps0_x = 0.095;
+  lat_constr.eps0_x = eps0_x;
 
   mI_loc.push_back(Elem_GetPos(ElemIndex("sf1"), 1));
   mI_loc.push_back(Elem_GetPos(ElemIndex("sf1"), 2));
@@ -2388,15 +2375,17 @@ void opt_mI_twonu_sp(param_type &prms, constr_type &constr)
   if (relaxed) {
     lat_constr.eps_x_scl            = 1e6;
     // lat_constr.eps_x_scl            = 5e6;
+    lat_constr.ksi1_ctrl_scl[0]     = 0e-1;
+    lat_constr.ksi1_ctrl_scl[1]     = 0e0;
+    lat_constr.ksi1_ctrl_scl[2]     = 0e-1;
+    lat_constr.drv_terms_simple_scl = 1e-3;
+    // lat_constr.drv_terms_simple_scl = 1e-4;
+    // Not useful.
     lat_constr.ksi1_svd_scl         = 1e0;
-    // lat_constr.drv_terms_simple_scl = 1e-3;
-    lat_constr.drv_terms_simple_scl = 1e-4;
-
-    // lat_constr.mI_scl[X_]           = 1e3;
-    // lat_constr.mI_scl[Y_]           = 1e3;
-    lat_constr.mI_scl[X_]           = 1e1;
-    lat_constr.mI_scl[Y_]           = 1e1;
-    // lat_constr.high_ord_achr_scl    = 1e3;
+    lat_constr.mI_scl[X_]           = 1e3;
+    lat_constr.mI_scl[Y_]           = 1e3;
+    // lat_constr.mI_scl[X_]           = 1e1;
+    // lat_constr.mI_scl[Y_]           = 1e1;
     lat_constr.high_ord_achr_scl    = 0e3;
     lat_constr.twonu_scl[X_]        = 1e5;
     lat_constr.twonu_scl[Y_]        = 1e5;
@@ -3053,7 +3042,7 @@ int main(int argc, char *argv[])
   }
 
   if (!false) {
-    // Optimize Standard Straight: mI.
+    // Optimize Standard Straight: mI & 2*nu.
     opt_mI_twonu_std(lat_prms, lat_constr);
     no_sxt();
     fit_powell(lat_prms, 1e-3, f_achrom);

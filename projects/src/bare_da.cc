@@ -16,14 +16,10 @@ int no_tps = NO;
 // ALS-U    10.
 
 const bool set_dnu  = false;
-const int  lat_case = 3;
 
 const double
-  delta_max[] =
-    {3e-2, 5e-2, 1e-2, 3e-2,
-     3e-2, 1e-2, 3e-2, 2e-2,
-     3e-2, 1e-2, 4e-2},
-  dnu[]      = {0.03, 0.02};
+  delta_max = 2.5e-2,
+  dnu[]     = {0.03, 0.02};
 
 
 int main(int argc, char *argv[])
@@ -56,7 +52,7 @@ int main(int argc, char *argv[])
 
   if (true) {
     globval.Cavity_on = true;
-    get_dynap(delta_max[lat_case-1], 25, n_turn, false);
+    get_dynap(delta_max, 25, n_turn, false);
   }
 
 }

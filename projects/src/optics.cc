@@ -1077,7 +1077,7 @@ int main(int argc, char *argv[])
     chk_lin_chrom();
     // exit(0);
   }
-
+  
   if (prt_dt) {
     printf("Lattice Case (1..3)? ");
     scanf("%d", &lat_case);
