@@ -4,9 +4,6 @@
 
 int no_tps = NO;
 
-const bool   set_dnu  = false;
-const double dnu[]    = {-0.2/6.0, 0.0/6.0};
-
 
 void err_and_corr(const string &param_file, const int mode)
 {
@@ -21,13 +18,6 @@ void err_and_corr(const string &param_file, const int mode)
   globval.CODeps = 1e-10;
 
   Ring_GetTwiss(true, 0e0); printglob();
-
-  if (set_dnu) {
-    // Do not use for Real Lattice.
-    Ring_GetTwiss(true, 0e0); printglob();
-    set_map(ElemIndex("ps_rot"), dnu);
-    Ring_GetTwiss(true, 0e0); printglob();
-  }
 
   params.err_and_corr_init(param_file, orb_corr);
 

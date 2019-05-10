@@ -6,16 +6,16 @@ int no_tps = NO;
 
 
 const bool
-  set_dnu = false,
+  set_dnu = !false,
   mI_rot  = false,
   HOA_rot = false,
   prt_ms  = false,
   prt_dt  = false;
 
 const double
-  nu[]     = {0.01, -0.01},
-  // nu[]     = {0.17/12.0, -0.12/12.0},
+  // nu[]     = {0.01, -0.01},
   // nu[]     = {0.1/6.0, -0.2/6.0},
+  nu[]     = {64.1/6.0, 18.34/6.0},
   dnu_mI[] = {1.5-1.44129-0.0, 0.5-0.47593-0.0},
   nu_HOA[] = {19.0/8.0, 15.0/16.0};
 
@@ -1181,8 +1181,10 @@ int main(int argc, char *argv[])
     set_map(ElemIndex("ps_rot"), dnu);
     Ring_GetTwiss(true, 0e0); printglob();
     for (k = 0; k < 2; k++)
-      // dnu[k] = nu[k] - fract(globval.TotalTune[k]);
-      dnu[k] = nu[k];
+      if (true)
+	dnu[k] = nu[k] - fract(globval.TotalTune[k])/6e0;
+      else
+	dnu[k] = nu[k];
     printf("\n fractional tune set to: [%7.5f, %7.5f]\n", nu[X_], nu[Y_]);
     set_map(ElemIndex("ps_rot"), dnu);
     Ring_GetTwiss(true, 0e0); printglob();

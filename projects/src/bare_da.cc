@@ -15,7 +15,6 @@ int no_tps = NO;
 // DELTA    9.
 // ALS-U    10.
 
-const bool set_dnu  = false;
 
 const double
   delta_max = 2.5e-2,
@@ -44,15 +43,8 @@ int main(int argc, char *argv[])
 
   if (true) GetEmittance(ElemIndex("cav"), true);
 
-  if (set_dnu) {
-    Ring_GetTwiss(true, 0e0); printglob();
-    set_map(ElemIndex("ps_rot"), dnu);
-    Ring_GetTwiss(true, 0e0); printglob();
-  }
-
   if (true) {
     globval.Cavity_on = true;
     get_dynap(delta_max, 25, n_turn, false);
   }
-
 }
