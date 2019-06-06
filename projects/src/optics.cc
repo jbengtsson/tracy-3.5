@@ -1035,7 +1035,7 @@ int main(int argc, char *argv[])
     set_map(ElemIndex("ps_rot"), dnu);
   }
 
-  // globval.Cavity_on = !false; globval.radiation = !false;
+  globval.Cavity_on = !false; globval.radiation = !false;
   Ring_GetTwiss(true, 0e0); printglob();
 
   if (false) {
@@ -1401,12 +1401,11 @@ int main(int argc, char *argv[])
   }
 
   if (!false) {
-    globval.Cavity_on = false; globval.radiation = false;
+    globval.Cavity_on = !false; globval.radiation = !false;
 
     f_rf = Cell[Elem_GetPos(ElemIndex("cav"), 1)].Elem.C->Pfreq;
     printf("\nf_rf = %10.3e\n", f_rf);
 
-    globval.Cavity_on = !true;
     // Synchro-betatron resonance for "101pm_above_coupres_tracy.lat".
     // track("track.out", 2.6e-3, 0e0, 1e-6, 0e0, 0e0, n_turn, lastn, lastpos,
     // 	  0, 0*f_rf);
@@ -1417,7 +1416,7 @@ int main(int argc, char *argv[])
     // 	  0, f_rf);
 
     // lattice/101pm_s7o7_a_tracy.lat.
-    track("track.out", 1e-3, 0e0, 0*1e-3, 0e0, 0e0, n_turn, lastn, lastpos,
+    track("track.out", 1e-5, 0e0, 0*1e-3, 0e0, 0e0, n_turn, lastn, lastpos,
     	  0, 0*f_rf);
   }
 
