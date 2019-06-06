@@ -276,7 +276,7 @@ void track(const char *file_name,
     fprintf(outf, "#\n");
     fprintf(outf, "%4d %23.16e %23.16e %23.16e %23.16e %23.16e %23.16e\n",
 	    0, scl_1*ic1, scl_2*ic2, scl_1*ic3, scl_2*ic4, 1e2*dp, 
-	    1e3*globval.CODvect[ct_]);
+	    0*1e3*globval.CODvect[ct_]);
   } else {
     fprintf(outf, "         [%%]           [deg]\n");
     fprintf(outf, "#\n");
@@ -334,7 +334,7 @@ void track(const char *file_name,
       fprintf(outf,
 	      "%4ld %23.16le %23.16le %23.16le %23.16le %23.16le %23.16le\n",
 	      lastn, scl_1*xf[0], scl_2*xf[1], scl_1*xf[2], scl_2*xf[3],
-	      1e2*xf[4], 1e3*xf[5]);
+	      1e2*xf[4], 1e3*(xf[5]-globval.CODvect[ct_]));
     else
       fprintf(outf,
 	      "%4ld %23.16le %23.16le %23.16le %23.16le %23.16le %23.16le\n",
