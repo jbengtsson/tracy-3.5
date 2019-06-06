@@ -990,9 +990,11 @@ int main(int argc, char *argv[])
   bool             tweak;
   long int         lastn, lastpos, loc, loc2;
   int              k, b2_fam[2], b3_fam[2], lat_case;
-  double           b2[2], a2, b3[2], b3L[2], a3, a3L, f_rf, dx, dnu[2];
+  double           b2[2], a2, b3[2], b3L[2], a3, a3L, f_rf, dx, dnu[3];
+  tps              a;
   Matrix           M;
   std::vector<int> Fam;
+  ss_vect<tps>     Ascr, A_Atp, Id, Ms;
   ostringstream    str;
 
   const long   seed   = 1121;
@@ -1037,6 +1039,9 @@ int main(int argc, char *argv[])
 
   globval.Cavity_on = !false; globval.radiation = !false;
   Ring_GetTwiss(true, 0e0); printglob();
+  printf("\nDet = %17.10e",
+	 globval.OneTurnMat[ct_][ct_]*globval.OneTurnMat[delta_][delta_]
+	 -globval.OneTurnMat[ct_][delta_]*globval.OneTurnMat[delta_][ct_]);
 
   if (false) {
     globval.Cavity_on  = !false; globval.radiation = !false;
@@ -1366,7 +1371,34 @@ int main(int argc, char *argv[])
     prt_quad(Fam);
   }
 
-  if (true)  GetEmittance(ElemIndex("cav"), true);
+  if (true) {
+    GetEmittance(ElemIndex("cav"), true);
+    if (!false) {
+      Id.identity();
+      Ms[x_] =
+	(cos(-2e0*M_PI*globval.TotalTune[Z_])
+	 +globval.alpha_z*sin(-2e0*M_PI*globval.TotalTune[Z_]))*Id[x_]
+	+ globval.beta_z*sin(-2e0*M_PI*globval.TotalTune[Z_])*Id[px_];
+      Ms[px_] =
+	-(1e0+sqr(globval.alpha_z))/globval.beta_z
+	*sin(-2e0*M_PI*globval.TotalTune[Z_])*Id[x_]
+	+(cos(-2e0*M_PI*globval.TotalTune[Z_])
+	  -globval.alpha_z*sin(-2e0*M_PI*globval.TotalTune[Z_]))*Id[px_];
+      prt_lin_map(1, Ms);
+      Ms = exp(-Cell[globval.Cell_nLoc].S/(c0*globval.tau[Z_]))*Ms;
+      prt_lin_map(1, Ms);
+      printf("\nDet = %17.10e",
+	     Ms[x_][x_]*Ms[px_][px_]-Ms[x_][px_]*Ms[px_][x_]);
+
+      // Variables needs to be changed too.
+      // putlinmat(6, globval.Ascr, Ascr);
+      // a = Ascr[delta_]; Ascr[delta_] = Ascr[ct_]; Ascr[ct_] = a;
+      // Ascr = get_A_CS(3, Ascr, dnu);
+      // A_Atp = Ascr*tp_S(3, Ascr);
+      // printf("\nA_Atp\n");
+      // prt_lin_map(3, A_Atp);
+    }
+  }
 
   if (!true) exit(0);
 
@@ -1401,7 +1433,7 @@ int main(int argc, char *argv[])
   }
 
   if (!false) {
-    globval.Cavity_on = !false; globval.radiation = !false;
+    globval.Cavity_on = false; globval.radiation = false;
 
     f_rf = Cell[Elem_GetPos(ElemIndex("cav"), 1)].Elem.C->Pfreq;
     printf("\nf_rf = %10.3e\n", f_rf);
