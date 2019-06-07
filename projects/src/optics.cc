@@ -1433,7 +1433,7 @@ int main(int argc, char *argv[])
   }
 
   if (!false) {
-    globval.Cavity_on = !false; globval.radiation = false;
+    globval.Cavity_on = false; globval.radiation = false;
 
     f_rf = Cell[Elem_GetPos(ElemIndex("cav"), 1)].Elem.C->Pfreq;
     printf("\nf_rf = %10.3e\n", f_rf);
@@ -1448,7 +1448,20 @@ int main(int argc, char *argv[])
     // 	  0, f_rf);
 
     // lattice/101pm_s7o7_a_tracy.lat.
-    track("track.out", 1e-5, 0e0, 0*1e-3, 0e0, 0e0, n_turn, lastn, lastpos,
+    double       J[2], curly_H;
+    ss_vect<tps> eta, eta_Fl, Ainv, Id;
+    const double A[] = {1e-6, 0*1e-3};
+    Id.identity();
+    J[X_] = sqr(A[X_])/(2e0*Cell[globval.Cell_nLoc].Beta[X_]);
+    eta[x_] = Cell[globval.Cell_nLoc].Eta[X_];
+    eta[px_] = Cell[globval.Cell_nLoc].Etap[X_];
+    putlinmat(2, globval.Ascrinv, Ainv);
+    eta_Fl = Ainv*eta;
+    curly_H = sqr(eta_Fl[x_].cst()) + sqr(eta_Fl[px_].cst());
+    printf("\n  J_x                 = %10.3e\n", J[X_]);
+    printf("  curly_H             = %10.3e\n", curly_H);
+    printf("  sqrt(2*J_x*curly_H) = %10.3e\n", sqrt(2e0*J[X_]*curly_H));
+    track("track.out", A[X_], 0e0, A[Y_], 0e0, 0e0, n_turn, lastn, lastpos,
     	  0, 0*f_rf);
   }
 
