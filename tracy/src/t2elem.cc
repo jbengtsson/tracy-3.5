@@ -539,7 +539,7 @@ void p_rot(double phi, ss_vect<T> &ps)
 
   c = cos(dtor(phi)); s = sin(dtor(phi)); t = tan(dtor(phi)); pz = get_p_s(ps);
 
-  if (!globval.H_exact) {
+  if (!globval.H_exact && !globval.Cart_Bend) {
      ps[px_] = s*pz + c*ps[px_];
   } else {
     // ps1 = ps; p = c*pz - s*ps1[px_];
@@ -615,16 +615,15 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &x)
     // Fringe fields.
     if (globval.quad_fringe && (M->PB[Quad+HOMmax] != 0e0))
       quad_fringe(M->PB[Quad+HOMmax], x);
-    if (!globval.H_exact) {
+    if (!globval.Cart_Bend) {
       if (M->Pirho != 0e0) EdgeFocus(M->Pirho, M->PTx1, M->Pgap, x);
     } else {
-      p_rot(M->PTx1, x);
-      if (globval.dip_fringe) bend_fringe(M->Pirho, x);
+      p_rot(M->PTx1, x); bend_fringe(M->Pirho, x);
     }
   }
 
   if (M->Pthick == thick) {
-    if (!globval.H_exact) {
+    if (!globval.Cart_Bend) {
       // Polar coordinates.
       h_ref = M->Pirho; dL = elemp->PL/M->PN;
     } else {
@@ -707,11 +706,10 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &x)
 
   if ((M->Pmethod == Meth_Second) || (M->Pmethod == Meth_Fourth)) {
     // Fringe fields.
-    if (!globval.H_exact) {
+    if (!globval.Cart_Bend) {
       if (M->Pirho != 0e0) EdgeFocus(M->Pirho, M->PTx2, M->Pgap, x);
     } else {
-      if (globval.dip_fringe) bend_fringe(-M->Pirho, x);
-      p_rot(M->PTx2, x);
+      bend_fringe(-M->Pirho, x); p_rot(M->PTx2, x);
     }
     if (globval.quad_fringe && (M->PB[Quad+HOMmax] != 0e0))
       quad_fringe(-M->PB[Quad+HOMmax], x);

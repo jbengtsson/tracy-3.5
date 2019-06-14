@@ -2172,6 +2172,7 @@ void Read_Lattice(const char *fic)
   Cell_Init();
 
   globval.H_exact        = false; // Small Ring Hamiltonian
+  globval.Cart_Bend      = false; // Cartesian Bend
   globval.dip_edge_fudge = true;
 
   if (globval.RingType == 1) { // for a ring

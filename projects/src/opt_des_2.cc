@@ -14,7 +14,7 @@ const bool
 const double
 #define CASE 1
 #if CASE == 1
-  eps0_x             = 0.145,
+  eps0_x             = 0.79,
   twonu_ref[]        = {2.25+0.005, 0.75-0.005},
 #elif CASE == 2
   eps0_x             = 0.095,
@@ -25,7 +25,7 @@ const double
   twonu_ref[]        = {3.25+0.029, 1.25-0.01},
 #endif
   // high_ord_achr_nu[] = {2.5-0.125, 0.75+0.125},
-  high_ord_achr_nu[] = {19.0/8.0, 15.0/16.0},
+  high_ord_achr_nu[] = {21.0/8.0, 14.0/16.0},
   mI_dnu[]           = {0.0, 0.0},
   mI_nu_ref[]        = {1.5-mI_dnu[X_], 0.5-mI_dnu[Y_]},
   twoJ[]             = {sqr(7e-3)/10.0, sqr(4e-3)/4.0},
@@ -1956,9 +1956,9 @@ void opt_mI_twonu_std(param_type &prms, constr_type &constr)
     lat_constr.ksi1_svd_scl         = 0e3;
     lat_constr.mI_scl[X_]           = 1e6;
     lat_constr.mI_scl[Y_]           = 1e6;
-    lat_constr.high_ord_achr_scl    = 0e5;
-    lat_constr.twonu_scl[X_]        = 1e6;
-    lat_constr.twonu_scl[Y_]        = 1e6;
+    lat_constr.high_ord_achr_scl    = 1e5;
+    lat_constr.twonu_scl[X_]        = 0e6;
+    lat_constr.twonu_scl[Y_]        = 0e6;
   } else {
     lat_constr.eps_x_scl            = 1e5;
     // lat_constr.eps_x_scl            = 1e6;

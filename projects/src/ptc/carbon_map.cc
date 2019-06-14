@@ -324,7 +324,6 @@ int main(int argc, char *argv[])
     trace = false;
 
     globval.H_exact    = true;
-    globval.dip_fringe = false;
 
     map.identity();
     // Tweak to remain within field map range at entrance.

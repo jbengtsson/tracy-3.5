@@ -984,6 +984,18 @@ void track(const string fname, const int n, const double x, const double p_x,
 }
 
 
+void prt_mat(const int n, const Matrix &A)
+{
+  int i, j;
+
+  printf("matrix:\n");
+  for (i = 0; i < n; i++) {
+    for (j = 0; j < n; j++)
+      printf(" %19.15f", A[i][j]);
+    printf("\n");
+  }
+}
+
 
 int main(int argc, char *argv[])
 {
@@ -1023,11 +1035,11 @@ int main(int argc, char *argv[])
   else
     rdmfile(argv[1]);
 
-  globval.H_exact        = false;  globval.quad_fringe = false;
-  globval.Cavity_on      = false;  globval.radiation   = false;
-  globval.emittance      = false;  globval.IBS         = false;
-  globval.pathlength     = false;  globval.bpm         = 0;
-  globval.dip_edge_fudge = true;
+  globval.H_exact    = !false; globval.quad_fringe   = false;
+  globval.Cavity_on  = false;  globval.radiation      = false;
+  globval.emittance  = false;  globval.IBS            = false;
+  globval.pathlength = false;  globval.bpm            = 0;
+  globval.Cart_Bend  = !false;  globval.dip_edge_fudge = true;
 
   if (false) no_sxt();
 
@@ -1037,11 +1049,13 @@ int main(int argc, char *argv[])
     set_map(ElemIndex("ps_rot"), dnu);
   }
 
-  globval.Cavity_on = !false; globval.radiation = !false;
+  globval.Cavity_on = false; globval.radiation = false;
   Ring_GetTwiss(true, 0e0); printglob();
-  printf("\nDet = %17.10e",
-	 globval.OneTurnMat[ct_][ct_]*globval.OneTurnMat[delta_][delta_]
-	 -globval.OneTurnMat[ct_][delta_]*globval.OneTurnMat[delta_][ct_]);
+
+  if (!false) {
+    prt_mat(6, globval.OneTurnMat);
+    exit(0);
+  }
 
   if (false) {
     globval.Cavity_on  = !false; globval.radiation = !false;
