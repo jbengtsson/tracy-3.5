@@ -120,6 +120,7 @@ public:
     mI0[2],              // -I Transformer.
     twonu_scl[2],
     twonu0[2],           // 2*nu.
+    alpha_c_scl,         // alpha_c.
     L_scl,
     L0;                  // Cell length.
   std::vector<double> 
@@ -878,6 +879,9 @@ double constr_type::get_chi2(void) const
       chi2 +=
 	high_ord_achr_scl*sqr(high_ord_achr_dnu[j][k]-high_ord_achr_nu[k]);
 
+  if (alpha_c_scl != 0)
+    chi2 += alpha_c_scl*sqr(1e0/globval.Alphac);
+
   if (prt) printf("\nget_chi2: %11.5e (%11.5e)\n", chi2, this->chi2);
 
   return chi2;
@@ -1010,6 +1014,8 @@ void constr_type::prt_constr(const double chi2)
     prt_name(stdout, Cell[loc].Elem.PName, "_phi:", 7);
     printf(" = %7.5f\n", phi);
   }
+  if (alpha_c_scl != 0e0)
+    printf("    alpha_c      = %9.3e\n", globval.Alphac);
   if (L_scl != 0e0)
     printf("    L            = %7.5f (%7.5f)\n", Cell[globval.Cell_nLoc].S, L0);
 
@@ -1869,7 +1875,7 @@ void opt_mI_twonu_std(param_type &prms, constr_type &constr)
 		      0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
 		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
     constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
-		      1e5, 1e5, 1e0, 1e0, 1e7,   0e0,
+		      1e5, 1e5, 1e1, 1e1, 1e7,   0e0,
 		      0.0, 0.0, 3.0, 1.5, 0.024, 0.0);
     // Both SS constraints are needed.
     constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
@@ -1954,11 +1960,12 @@ void opt_mI_twonu_std(param_type &prms, constr_type &constr)
     // lat_constr.drv_terms_simple_scl = 1e-4;
     // Not useful.
     lat_constr.ksi1_svd_scl         = 0e3;
-    lat_constr.mI_scl[X_]           = 1e6;
-    lat_constr.mI_scl[Y_]           = 1e6;
-    lat_constr.high_ord_achr_scl    = 1e5;
+    lat_constr.mI_scl[X_]           = 1e5;
+    lat_constr.mI_scl[Y_]           = 1e5;
+    lat_constr.high_ord_achr_scl    = 1e6;
     lat_constr.twonu_scl[X_]        = 0e6;
     lat_constr.twonu_scl[Y_]        = 0e6;
+    lat_constr.alpha_c_scl          = 1e-6;
   } else {
     lat_constr.eps_x_scl            = 1e5;
     // lat_constr.eps_x_scl            = 1e6;
@@ -1970,6 +1977,7 @@ void opt_mI_twonu_std(param_type &prms, constr_type &constr)
     lat_constr.high_ord_achr_scl    = 0e5;
     lat_constr.twonu_scl[X_]        = 1e5;
     lat_constr.twonu_scl[Y_]        = 1e5;
+    lat_constr.alpha_c_scl          = 0e6;
   }
   lat_constr.phi_scl                = (dphi)? 1e0 : 0e0;
 

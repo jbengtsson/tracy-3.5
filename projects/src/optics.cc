@@ -1035,11 +1035,11 @@ int main(int argc, char *argv[])
   else
     rdmfile(argv[1]);
 
-  globval.H_exact    = !false; globval.quad_fringe   = false;
-  globval.Cavity_on  = false;  globval.radiation      = false;
-  globval.emittance  = false;  globval.IBS            = false;
-  globval.pathlength = false;  globval.bpm            = 0;
-  globval.Cart_Bend  = !false;  globval.dip_edge_fudge = true;
+  globval.H_exact    = false; globval.quad_fringe    = false;
+  globval.Cavity_on  = false; globval.radiation      = false;
+  globval.emittance  = false; globval.IBS            = false;
+  globval.pathlength = false; globval.bpm            = 0;
+  globval.Cart_Bend  = false; globval.dip_edge_fudge = true;
 
   if (false) no_sxt();
 
@@ -1052,7 +1052,7 @@ int main(int argc, char *argv[])
   globval.Cavity_on = false; globval.radiation = false;
   Ring_GetTwiss(true, 0e0); printglob();
 
-  if (!false) {
+  if (false) {
     prt_mat(6, globval.OneTurnMat);
     exit(0);
   }
