@@ -1,19 +1,18 @@
 #define PLANES 2
 
 typedef struct globvalrec {
-  double   dPcommon,        // dp for numerical differentiation
-           dPparticle,      // energy deviation
-           delta_RF;        // RF acceptance
-  Vector2  TotalTune;       // transverse tunes
-  double   Omega,
-           U0,              // energy lost per turn in keV
-           Alphac;          // alphap
-  Vector2  Chrom;           // chromaticities
-  double   Energy;          // ring energy
-  long     Cell_nLoc,       // number of elements
-           Elem_nFam,       // number of families
-           CODimax;         /* maximum number of cod search before
-				    failing */
+  double   dPcommon,        // dp for numerical differentiation.
+           dPparticle,      // energy deviation.
+           delta_RF;        // RF acceptance.
+  Vector2  TotalTune;       // transverse tunes.
+  double   Omega,           // Synchrotron Frequency.
+           U0,              // Energy Loss per turn [keV].
+           Alphac;          // Linear Momentum Compaction.
+  Vector2  Chrom;           // Linear Chromaticities.
+  double   Energy;          // Beam Energy.
+  long     Cell_nLoc,       // Number of Elements.
+           Elem_nFam,       // Number of Families.
+           CODimax;         // maximum number of cod search before failing.
   double   CODeps;          // precision for closed orbit finder
   psVector CODvect;         // closed orbit
   int      bpm,             // bpm number
@@ -22,37 +21,36 @@ typedef struct globvalrec {
            qt,              // vertical corrector number
            gs,              // girder start marker
            ge;              // girder end marker
-  Matrix   OneTurnMat,      // oneturn matrix
+  Matrix   OneTurnMat,      // Linear Poincare Map.
            Ascr,
            Ascrinv,
-           Vr,              // real part of the eigenvectors
-           Vi;              // imaginal par of the eigenvectors
+           Vr,              // Eigenvectors: Real and 
+           Vi;              //               Imaginary part.
 
   bool     Cavity_on,       // if true, cavity turned on
            radiation,       // if true, radiation turned on
            emittance,
            quad_fringe,     // quadrupole hard-edge fringe field.
-           H_exact,         // "small ring" Hamiltonian.
+           H_exact,         // "Small Ring" Hamiltonian.
            Cart_Bend,
-           dip_edge_fudge,  // Dipole edge fudge.
-           pathlength,      // absolute path length
+           dip_edge_fudge,  // Dipole Edge fudge.
+           pathlength,      // Absolute Path Length.
            stable,
            Aperture_on,
            EPU;
 
-  double   dE,              // energy loss
-           alpha_rad[DOF],  // damping coeffs.
-           D_rad[DOF],      // diffusion coeffs (Floquet space)
-           J[DOF],          // partition numbers
-           tau[DOF];        // damping times
-  bool     IBS;             // intrabeam scattering
-  double   Qb,              // bunch charge
-           D_IBS[DOF];      // diffusion matrix (Floquet space)
-  psVector wr, wi;          // real and imaginary part of eigenvalues
+  double   dE,              // Energy Loss.
+           alpha_rad[DOF],  // Damping Coeffs.
+           D_rad[DOF],      // Diffusion Coeffs (Floquet Space).
+           J[DOF],          // Partition Numbers.
+           tau[DOF];        // Damping Times.
+  bool     IBS;             // Intrabeam Scattering.
+  double   Qb,              // Bunch Charge.
+           D_IBS[DOF];      // Diffusion Matrix (Floquet Ipace).
+  psVector wr, wi;          // Eigenvalues: Real and Imaginary part.
   double   eps[DOF],        // 3 motion invariants
-	   epsp[DOF],       /* transverse and longitudinal projected
-				   emittances */
-           alpha_z, beta_z, // longitudinal alpha and beta
+           epsp[DOF],       // transverse and longitudinal projected emittances.
+           alpha_z, beta_z, // Longitudinal alpha and beta
            beta0, gamma0;   // Relativistic factors.
   int      RingType;        // 1 if a ring (0 if transfer line)
 } globvalrec;
