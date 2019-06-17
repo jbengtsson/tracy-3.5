@@ -2,9 +2,9 @@
 
 typedef struct globvalrec {
   double   dPcommon,        // dp for numerical differentiation.
-           dPparticle,      // energy deviation.
-           delta_RF;        // RF acceptance.
-  Vector2  TotalTune;       // transverse tunes.
+           dPparticle,      // Energy deviation.
+           delta_RF;        // RF Acceptance.
+  Vector2  TotalTune;       // Transverse Tunes.
   double   Omega,           // Synchrotron Frequency.
            U0,              // Energy Loss per turn [keV].
            Alphac;          // Linear Momentum Compaction.
@@ -12,19 +12,19 @@ typedef struct globvalrec {
   double   Energy;          // Beam Energy.
   long     Cell_nLoc,       // Number of Elements.
            Elem_nFam,       // Number of Families.
-           CODimax;         // maximum number of cod search before failing.
-  double   CODeps;          // precision for closed orbit finder
-  psVector CODvect;         // closed orbit
-  int      bpm,             // bpm number
-           hcorr,           // horizontal corrector number
-           vcorr,           // vertical corrector number
-           qt,              // vertical corrector number
-           gs,              // girder start marker
-           ge;              // girder end marker
+           CODimax;         // closed Orbit Finder: max number of iterations,
+  double   CODeps;          //                      precision.
+  psVector CODvect;         // Closed Orbit.
+  int      bpm,             // BPM Number.
+           hcorr,           // Corrector: Horizontal number,
+           vcorr,           //            Vertical number.
+           qt,              // Vertical corrector number.
+           gs,              // Girder: start marker,
+           ge;              //         end marker.
   Matrix   OneTurnMat,      // Linear Poincare Map.
            Ascr,
            Ascrinv,
-           Vr,              // Eigenvectors: Real and 
+           Vr,              // Eigenvectors: Real part, 
            Vi;              //               Imaginary part.
 
   bool     Cavity_on,       // if true, cavity turned on
@@ -48,9 +48,9 @@ typedef struct globvalrec {
   double   Qb,              // Bunch Charge.
            D_IBS[DOF];      // Diffusion Matrix (Floquet Ipace).
   psVector wr, wi;          // Eigenvalues: Real and Imaginary part.
-  double   eps[DOF],        // 3 motion invariants
-           epsp[DOF],       // transverse and longitudinal projected emittances.
-           alpha_z, beta_z, // Longitudinal alpha and beta
+  double   eps[DOF],        // Eigenemittances.
+           epsp[DOF],       // Trans. & Long. projected Emittances.
+           alpha_z, beta_z, // Long. alpha and beta.
            beta0, gamma0;   // Relativistic factors.
   int      RingType;        // 1 if a ring (0 if transfer line)
 } globvalrec;
@@ -94,24 +94,24 @@ struct WigglerType {
   int       Pmethod,             // Integration Method
             PN;                  // number of integration steps
   // Displacement Error
-  Vector2   PdSsys,              // systematic [m]
-            PdSrms,              // rms [m]
-            PdSrnd;              // random number
+  Vector2   PdSsys,              // Systematic [m].
+            PdSrms,              // RMS [m].
+            PdSrnd;              // Random number.
   // Roll angle
-  double    PdTpar,              // design [deg]
-            PdTsys,              // systematic [deg]
-            PdTrms,              // rms [deg]
-            PdTrnd,              // random number
-            lambda;              // lambda
-  int       n_harm,              // no of harmonics
-            harm[n_harm_max];    // harmonic number
-  double    BoBrhoV[n_harm_max], // B/Brho vertical
-            BoBrhoH[n_harm_max], // B/Brho horizontal
-            kxV[n_harm_max],     // kx
-            kxH[n_harm_max],     // kx
-            phi[n_harm_max];     // phi
+  double    PdTpar,              // Design [deg].
+            PdTsys,              // Systematic [deg].
+            PdTrms,              // RMS [deg].
+            PdTrnd,              // Random number.
+            lambda;              // lambda.
+  int       n_harm,              // No of harmonics.
+            harm[n_harm_max];    // Harmonic number.
+  double    BoBrhoV[n_harm_max], // B/Brho vertical.
+            BoBrhoH[n_harm_max], // B/Brho horizontal.
+            kxV[n_harm_max],     // kx.
+            kxH[n_harm_max],     // kx.
+            phi[n_harm_max];     // phi.
   mpolArray PBW;
-  int       Porder;              // The highest order in PB
+  int       Porder;              // The highest order in PB.
 };
 
 
