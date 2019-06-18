@@ -1385,7 +1385,7 @@ int main(int argc, char *argv[])
     prt_quad(Fam);
   }
 
-  if (true) {
+  if (!true) {
     GetEmittance(ElemIndex("cav"), true);
     if (!false) {
       Id.identity();
@@ -1447,7 +1447,8 @@ int main(int argc, char *argv[])
   }
 
   if (!false) {
-    globval.Cavity_on = false; globval.radiation = false;
+    globval.Cavity_on = !false; globval.radiation = false;
+    Ring_GetTwiss(true, 0e0); printglob();
 
     f_rf = Cell[Elem_GetPos(ElemIndex("cav"), 1)].Elem.C->Pfreq;
     printf("\nf_rf = %10.3e\n", f_rf);
@@ -1462,22 +1463,37 @@ int main(int argc, char *argv[])
     // 	  0, f_rf);
 
     // lattice/101pm_s7o7_a_tracy.lat.
-    double       J[2], curly_H;
-    ss_vect<tps> eta, eta_Fl, Ainv, Id;
-    const double A[] = {10e-6, 0*1e-3};
-    Id.identity();
-    J[X_] = sqr(A[X_])/(2e0*Cell[globval.Cell_nLoc].Beta[X_]);
+    double          J[2], curly_H[2], x_hat;
+    ss_vect<double> eta, Ampl;
+    ss_vect<tps>    A;
+
+    Ampl.zero();
+    Ampl[x_] = 10e-6; Ampl[y_] = 0*1e-3;
+    putlinmat(2, globval.Ascr, A);
+    get_twoJ(1, Ampl, A, J);
+    for (k = 0; k < 2; k++)
+      J[k] /= 2e0;
+
+    eta.zero();
     eta[x_] = Cell[globval.Cell_nLoc].Eta[X_];
     eta[px_] = Cell[globval.Cell_nLoc].Etap[X_];
-    putlinmat(2, globval.Ascrinv, Ainv);
-    eta_Fl = Ainv*eta;
-    curly_H = sqr(eta_Fl[x_].cst()) + sqr(eta_Fl[px_].cst());
-    printf("\n  2*pi*ksi_x*J_x      = %10.3e\n",
+    get_twoJ(1, eta, A, curly_H);
+
+    x_hat = sqrt(2e0*J[X_]*curly_H[X_]);
+
+    printf("\n  J_x                 = %10.3e\n", J[X_]);
+    printf("  2*pi*ksi_x*J_x      = %10.3e\n",
 	   2e0*M_PI*globval.Chrom[X_]*J[X_]);
-    printf("  curly_H             = %10.3e\n", curly_H);
-    printf("  sqrt(2*J_x*curly_H) = %10.3e\n", sqrt(2e0*J[X_]*curly_H));
-    track("track.out", A[X_], 0e0, A[Y_], 0e0, 0e0, n_turn, lastn, lastpos,
+    printf("  curly_H             = %10.3e\n", curly_H[X_]);
+    printf("  sqrt(2*J_x*curly_H) = %10.3e\n", x_hat);
+    printf("  delta_hat           = %10.3e\n",
+	   2e0*M_PI*globval.Chrom[X_]*J[X_]
+	   /(globval.Alphac*Cell[globval.Cell_nLoc].S));
+
+    track("track.out", Ampl[X_], 0e0, Ampl[Y_], 0e0, 0e0, 2000, lastn, lastpos,
     	  0, 0*f_rf);
+
+    exit(0);
   }
 
   if (true) {

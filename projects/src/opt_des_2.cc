@@ -1965,7 +1965,7 @@ void opt_mI_twonu_std(param_type &prms, constr_type &constr)
     lat_constr.high_ord_achr_scl    = 1e6;
     lat_constr.twonu_scl[X_]        = 0e6;
     lat_constr.twonu_scl[Y_]        = 0e6;
-    lat_constr.alpha_c_scl          = 1e-6;
+    lat_constr.alpha_c_scl          = 1e-5;
   } else {
     lat_constr.eps_x_scl            = 1e5;
     // lat_constr.eps_x_scl            = 1e6;
