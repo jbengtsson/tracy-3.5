@@ -1447,7 +1447,7 @@ int main(int argc, char *argv[])
   }
 
   if (!false) {
-    globval.Cavity_on = !false; globval.radiation = false;
+    globval.Cavity_on = false; globval.radiation = false;
     Ring_GetTwiss(true, 0e0); printglob();
 
     f_rf = Cell[Elem_GetPos(ElemIndex("cav"), 1)].Elem.C->Pfreq;
@@ -1489,6 +1489,8 @@ int main(int argc, char *argv[])
     printf("  delta_hat           = %10.3e\n",
 	   2e0*M_PI*globval.Chrom[X_]*J[X_]
 	   /(globval.Alphac*Cell[globval.Cell_nLoc].S));
+    printf("  ds0                 = %10.3e\n",
+	   Cell[globval.Cell_nLoc].Eta[X_]*Ampl[x_]);
 
     track("track.out", Ampl[X_], 0e0, Ampl[Y_], 0e0, 0e0, 2000, lastn, lastpos,
     	  0, 0*f_rf);
