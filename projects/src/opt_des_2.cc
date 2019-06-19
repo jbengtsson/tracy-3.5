@@ -12,12 +12,12 @@ const bool
   phi_spec_case = false;
 
 const double
-#define CASE 1
+#define CASE 2
 #if CASE == 1
-  eps0_x             = 0.79,
+  eps0_x             = 0.079,
   twonu_ref[]        = {2.25+0.005, 0.75-0.005},
 #elif CASE == 2
-  eps0_x             = 0.095,
+  eps0_x             = 0.079,
   twonu_ref[]        = {2.75+0.005, 0.75-0.005},
 #elif CASE == 3
   // ALS-U.
@@ -1948,7 +1948,7 @@ void opt_mI_twonu_std(param_type &prms, constr_type &constr)
     lat_constr.twonu0[k] = twonu_ref[k];
 
   if (relaxed) {
-    lat_constr.eps_x_scl            = 1e6;
+    lat_constr.eps_x_scl            = 1e7;
     // lat_constr.eps_x_scl            = 1e6;
     // lat_constr.ksi1_ctrl_scl[0]     = 5e-1;
     // lat_constr.ksi1_ctrl_scl[1]     = 1e0;
@@ -1962,10 +1962,10 @@ void opt_mI_twonu_std(param_type &prms, constr_type &constr)
     lat_constr.ksi1_svd_scl         = 0e3;
     lat_constr.mI_scl[X_]           = 1e5;
     lat_constr.mI_scl[Y_]           = 1e5;
-    lat_constr.high_ord_achr_scl    = 1e6;
-    lat_constr.twonu_scl[X_]        = 0e6;
-    lat_constr.twonu_scl[Y_]        = 0e6;
-    lat_constr.alpha_c_scl          = 1e-5;
+    lat_constr.high_ord_achr_scl    = 0e6;
+    lat_constr.twonu_scl[X_]        = 1e6;
+    lat_constr.twonu_scl[Y_]        = 1e6;
+    lat_constr.alpha_c_scl          = 1e-6;
   } else {
     lat_constr.eps_x_scl            = 1e5;
     // lat_constr.eps_x_scl            = 1e6;

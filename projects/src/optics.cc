@@ -1446,7 +1446,7 @@ int main(int argc, char *argv[])
     // Ring_GetTwiss(true, 0e0); printglob();
   }
 
-  if (!false) {
+  if (false) {
     f_rf = Cell[Elem_GetPos(ElemIndex("cav"), 1)].Elem.C->Pfreq;
     printf("\nf_rf = %10.3e\n", f_rf);
 
