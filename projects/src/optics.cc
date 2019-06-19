@@ -1385,7 +1385,7 @@ int main(int argc, char *argv[])
     prt_quad(Fam);
   }
 
-  if (!true) {
+  if (true) {
     GetEmittance(ElemIndex("cav"), true);
     if (!false) {
       Id.identity();
@@ -1447,9 +1447,6 @@ int main(int argc, char *argv[])
   }
 
   if (!false) {
-    globval.Cavity_on = false; globval.radiation = false;
-    Ring_GetTwiss(true, 0e0); printglob();
-
     f_rf = Cell[Elem_GetPos(ElemIndex("cav"), 1)].Elem.C->Pfreq;
     printf("\nf_rf = %10.3e\n", f_rf);
 
@@ -1463,36 +1460,54 @@ int main(int argc, char *argv[])
     // 	  0, f_rf);
 
     // lattice/101pm_s7o7_a_tracy.lat.
-    double          J[2], curly_H[2], x_hat;
-    ss_vect<double> eta, Ampl;
-    ss_vect<tps>    A;
+    double          twoJ[3], curly_H[2], ds, ds0, ds_x, ds_hat,
+      delta_mean, delta_hat, gamma_z;
+    ss_vect<double> eta, A;
+    ss_vect<tps>    Ascr;
 
-    Ampl.zero();
-    Ampl[x_] = 10e-6; Ampl[y_] = 0*1e-3;
-    putlinmat(2, globval.Ascr, A);
-    get_twoJ(1, Ampl, A, J);
-    for (k = 0; k < 2; k++)
-      J[k] /= 2e0;
+    const double nu_s = 4.497e-3;
+
+    globval.Cavity_on = false; globval.radiation = false;
+    Ring_GetTwiss(true, 0e0); printglob();
+
+    A.zero();
+    A[x_] = 1000e-6; A[y_] = 0*1e-3;
+    Ascr.zero();
+    putlinmat(2, globval.Ascr, Ascr);
+    get_twoJ(1, A, Ascr, twoJ);
 
     eta.zero();
     eta[x_] = Cell[globval.Cell_nLoc].Eta[X_];
     eta[px_] = Cell[globval.Cell_nLoc].Etap[X_];
-    get_twoJ(1, eta, A, curly_H);
+    get_twoJ(1, eta, Ascr, curly_H);
 
-    x_hat = sqrt(2e0*J[X_]*curly_H[X_]);
+    ds = M_PI*globval.Chrom[X_]*twoJ[X_];
+    ds0 = Cell[globval.Cell_nLoc].Etap[X_]*A[x_];
+    ds_x = sqrt(twoJ[X_]*curly_H[X_]);
 
-    printf("\n  J_x                 = %10.3e\n", J[X_]);
-    printf("  2*pi*ksi_x*J_x      = %10.3e\n",
-	   2e0*M_PI*globval.Chrom[X_]*J[X_]);
-    printf("  curly_H             = %10.3e\n", curly_H[X_]);
-    printf("  sqrt(2*J_x*curly_H) = %10.3e\n", x_hat);
-    printf("  delta_hat           = %10.3e\n",
-	   2e0*M_PI*globval.Chrom[X_]*J[X_]
-	   /(globval.Alphac*Cell[globval.Cell_nLoc].S));
-    printf("  ds0                 = %10.3e\n",
-	   Cell[globval.Cell_nLoc].Eta[X_]*Ampl[x_]);
+    twoJ[Z_] = M_PI*nu_s*sqr(ds_x)/Cell[globval.Cell_nLoc].S;
+    gamma_z = (1e0+sqr(globval.alpha_z))/globval.beta_z;
+    ds_hat = sqrt(twoJ[Z_]*gamma_z);
 
-    track("track.out", Ampl[X_], 0e0, Ampl[Y_], 0e0, 0e0, 2000, lastn, lastpos,
+    delta_mean = ds/(globval.Alphac*Cell[globval.Cell_nLoc].S);
+    delta_hat = ds_hat/(globval.Alphac*Cell[globval.Cell_nLoc].S);
+
+    printf("\n  A_x                        = %9.3e [micron]\n", 1e6*A[X_]);
+    printf("  2*J_x                      = %9.3e\n", twoJ[X_]);
+    printf("  2*J_s                      = %9.3e\n", twoJ[Z_]);
+    printf("  curly_H                    = %9.3e\n", curly_H[X_]);
+    printf("  ds = 2*pi*ksi_x*J_x        = %9.3e [micron]\n", 1e6*ds);
+    printf("  ds0                        = %7.5f [micron]\n", 1e6*ds0);
+    printf("  ds_x = sqrt(2*J_x*curly_H) = %7.5f [micron]\n", 1e6*ds_x);
+    printf("  ds^                        = %7.5f [micron]\n", 1e6*ds_hat);
+    printf("  nu_s                       = %10.5e\n", nu_s);
+    printf("  beta_s                     = %7.5f\n", globval.beta_z);
+    printf("  alpha_s                    = %7.5f\n", globval.alpha_z);
+    printf("  delta_mean                 = %9.3e\n", delta_mean);
+    printf("  delta_hat                  = %9.3e\n", delta_hat);
+
+    globval.Cavity_on = !false; globval.radiation = false;
+    track("track.out", A[X_], 0e0, A[Y_], 0e0, 0e0, 2000, lastn, lastpos,
     	  0, 0*f_rf);
 
     exit(0);
