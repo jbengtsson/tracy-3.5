@@ -12,7 +12,7 @@ const bool
   phi_spec_case = false;
 
 const double
-#define CASE 2
+#define CASE 3
 #if CASE == 1
   eps0_x             = 0.079,
   twonu_ref[]        = {2.25+0.005, 0.75-0.005},
@@ -20,6 +20,9 @@ const double
   eps0_x             = 0.079,
   twonu_ref[]        = {2.75+0.005, 0.75-0.005},
 #elif CASE == 3
+  eps0_x             = 0.079,
+  twonu_ref[]        = {2.75+0.005, 1.25-0.005},
+#elif CASE == 4
   // ALS-U.
   eps0_x             = 0.075,
   twonu_ref[]        = {3.25+0.029, 1.25-0.01},
@@ -3020,7 +3023,7 @@ int main(int argc, char *argv[])
     Ring_GetTwiss(true, 0e0); printglob();
     dnu[X_] = 0.0; dnu[Y_] = 0.0;
     set_map(ElemIndex("ps_rot"), dnu);
-    dnu[X_] = 0.005; dnu[Y_] = -0.005;
+    dnu[X_] = 0.0; dnu[Y_] = 0.2;
     set_map(ElemIndex("ps_rot"), dnu);
     Ring_GetTwiss(true, 0e0); printglob();
   }
