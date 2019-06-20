@@ -12,7 +12,7 @@ const bool
   phi_spec_case = false;
 
 const double
-#define CASE 3
+#define CASE 2
 #if CASE == 1
   eps0_x             = 0.079,
   twonu_ref[]        = {2.25+0.005, 0.75-0.005},
@@ -2384,7 +2384,7 @@ void opt_mI_twonu_sp(param_type &prms, constr_type &constr)
     lat_constr.twonu0[k] = twonu_ref[k];
 
   if (relaxed) {
-    lat_constr.eps_x_scl            = 1e6;
+    lat_constr.eps_x_scl            = 1e7;
     // lat_constr.eps_x_scl            = 5e6;
     lat_constr.ksi1_ctrl_scl[0]     = 0e-1;
     lat_constr.ksi1_ctrl_scl[1]     = 0e0;
@@ -2397,9 +2397,10 @@ void opt_mI_twonu_sp(param_type &prms, constr_type &constr)
     lat_constr.mI_scl[Y_]           = 1e3;
     // lat_constr.mI_scl[X_]           = 1e1;
     // lat_constr.mI_scl[Y_]           = 1e1;
-    lat_constr.high_ord_achr_scl    = 0e3;
-    lat_constr.twonu_scl[X_]        = 1e5;
-    lat_constr.twonu_scl[Y_]        = 1e5;
+    lat_constr.high_ord_achr_scl    = 1e6;
+    lat_constr.twonu_scl[X_]        = 0e6;
+    lat_constr.twonu_scl[Y_]        = 0e6;
+    lat_constr.alpha_c_scl          = 1e-6;
   } else {
     lat_constr.eps_x_scl            = 5e6;
     // lat_constr.eps_x_scl            = 1e6;
@@ -2414,6 +2415,7 @@ void opt_mI_twonu_sp(param_type &prms, constr_type &constr)
     lat_constr.high_ord_achr_scl    = 0e4;
     lat_constr.twonu_scl[X_]        = 1e3;
     lat_constr.twonu_scl[Y_]        = 1e3;
+    lat_constr.alpha_c_scl          = 1e-6;
   }
   lat_constr.phi_scl                = (dphi)? 1e0 : 0e0;
 
@@ -3023,7 +3025,7 @@ int main(int argc, char *argv[])
     Ring_GetTwiss(true, 0e0); printglob();
     dnu[X_] = 0.0; dnu[Y_] = 0.0;
     set_map(ElemIndex("ps_rot"), dnu);
-    dnu[X_] = 0.0; dnu[Y_] = 0.2;
+    dnu[X_] = 0.0; dnu[Y_] = 0.01;
     set_map(ElemIndex("ps_rot"), dnu);
     Ring_GetTwiss(true, 0e0); printglob();
   }
@@ -3052,7 +3054,7 @@ int main(int argc, char *argv[])
     fit_powell(lat_prms, 1e-3, f_achrom);
   }
 
-  if (!false) {
+  if (false) {
     // Optimize Standard Straight: mI & 2*nu.
     opt_mI_twonu_std(lat_prms, lat_constr);
     no_sxt();
@@ -3066,7 +3068,7 @@ int main(int argc, char *argv[])
     fit_powell(lat_prms, 1e-3, f_achrom);
   }
 
-  if (false) {
+  if (!false) {
     // Optimize Super Period: mI & 2*nu.
     opt_mI_twonu_sp(lat_prms, lat_constr);
     no_sxt();
