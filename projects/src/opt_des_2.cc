@@ -8,7 +8,7 @@ int no_tps = NO;
 
 
 const bool
-  ps_rot        = false,
+  ps_rot        = !false,
   phi_spec_case = false;
 
 const double
@@ -27,8 +27,14 @@ const double
   eps0_x             = 0.075,
   twonu_ref[]        = {3.25+0.029, 1.25-0.01},
 #endif
-  // high_ord_achr_nu[] = {2.5-0.125, 0.75+0.125},
-  high_ord_achr_nu[] = {21.0/8.0, 14.0/16.0},
+#define CASE 2
+#if CASE == 1
+  high_ord_achr_nu[] = {2.5-0.125, 0.75+0.125},
+#elif CASE == 2
+  high_ord_achr_nu[] = {21.0/8.0, 7.0/8.0},
+#elif CASE == 3
+  high_ord_achr_nu[] = {11.0/4.0, 3.0/4.0},
+#endif
   mI_dnu[]           = {0.0, 0.0},
   mI_nu_ref[]        = {1.5-mI_dnu[X_], 0.5-mI_dnu[Y_]},
   twoJ[]             = {sqr(7e-3)/10.0, sqr(4e-3)/4.0},
@@ -3025,7 +3031,7 @@ int main(int argc, char *argv[])
     Ring_GetTwiss(true, 0e0); printglob();
     dnu[X_] = 0.0; dnu[Y_] = 0.0;
     set_map(ElemIndex("ps_rot"), dnu);
-    dnu[X_] = 0.0; dnu[Y_] = 0.01;
+    dnu[X_] = 0.105; dnu[Y_] = -0.105;
     set_map(ElemIndex("ps_rot"), dnu);
     Ring_GetTwiss(true, 0e0); printglob();
   }
