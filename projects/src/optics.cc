@@ -1446,7 +1446,7 @@ int main(int argc, char *argv[])
     // Ring_GetTwiss(true, 0e0); printglob();
   }
 
-  if (!false) {
+  if (false) {
     f_rf = Cell[Elem_GetPos(ElemIndex("cav"), 1)].Elem.C->Pfreq;
     printf("\nf_rf = %10.3e\n", f_rf);
 
@@ -1487,7 +1487,7 @@ int main(int argc, char *argv[])
     delta_mean = ds/(globval.Alphac*Cell[globval.Cell_nLoc].S);
     delta_hat =
       sqr(2e0*M_PI*nu_s)*ds_hat
-      /(globval.Alphac*Cell[globval.Cell_nLoc].S)*sin(pi*nus);
+      /(globval.Alphac*Cell[globval.Cell_nLoc].S*sin(pi*globval.TotalTune[X_]));
 
     printf("\n  A_x                        = %9.3e [micron]\n", 1e6*A[X_]);
     printf("  2*J_x                      = %9.3e\n", twoJ[X_]);
@@ -1499,10 +1499,6 @@ int main(int argc, char *argv[])
     printf("  nu_s                       = %10.5e\n", nu_s);
     printf("  delta_mean                 = %9.3e\n", delta_mean);
     printf("  delta_hat                  = %9.3e\n", delta_hat);
-
-    printf("  ddelta                     = %9.3e\n",
-	   sqr(2e0*M_PI*nu_s)*6.799e-08
-	   /(globval.Alphac*Cell[globval.Cell_nLoc].S));
     globval.Cavity_on = !false; globval.radiation = false;
     track("track.out", A[X_], 0e0, A[Y_], 0e0, 0e0, 2000, lastn, lastpos,
     	  0, 0*f_rf);
