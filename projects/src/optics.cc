@@ -1485,9 +1485,16 @@ int main(int argc, char *argv[])
     eta[px_] = Cell[globval.Cell_nLoc].Etap[X_];
     get_twoJ(1, eta, Ascr, curly_H);
 
-    putlinmat(4, globval.OneTurnMat, M);
+    putlinmat(6, globval.OneTurnMat, M);
+    ps = ((Id-M)*eta).cst();
     cout << scientific << setprecision(5)
-	 << "\n" << setw(13) << ((Id-M)*eta).cst() << "\n";
+	 << "\n" << setw(13) << ps << "\n";
+    M[x_] -= eta[px_]*Id[delta_];
+    M[px_] -= eta[x_]*Id[delta_];
+    prt_lin_map(3, M);
+    cout << scientific << setprecision(5)
+	 << "\n" << setw(13) << ps[px_]-eta[px_]
+	 << setw(13) << -ps[x_]+eta[x_] << "\n";
 
     ds0 = Cell[globval.Cell_nLoc].Etap[X_]*A[x_];
     ds = M_PI*globval.Chrom[X_]*twoJ[X_];
