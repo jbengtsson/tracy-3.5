@@ -1461,6 +1461,7 @@ int main(int argc, char *argv[])
 
     // lattice/101pm_s7o7_a_tracy.lat.
     int             k;
+    long int        jj[ss_dim];
     double          twoJ[2], curly_H[2], ds, ds0, ds_hat, delta_mean, delta_hat,
                     phi_x;
     ss_vect<double> eta, A, ps;
@@ -1486,15 +1487,15 @@ int main(int argc, char *argv[])
     get_twoJ(1, eta, Ascr, curly_H);
 
     putlinmat(6, globval.OneTurnMat, M);
+    for (k = 0; k < ss_dim; k++)
+      jj[k] = 0;
+    jj[0] = 1; jj[1] = 1;
+    ps.zero();
+    ps[x_] = M[x_][delta_]; ps[px_] = M[px_][delta_];
+    eta = (PInv(Id-M, jj)*ps).cst();
+    cout << scientific << setprecision(5) << "\n" << setw(13) << eta << "\n";
     ps = ((Id-M)*eta).cst();
-    cout << scientific << setprecision(5)
-	 << "\n" << setw(13) << ps << "\n";
-    M[x_] -= eta[px_]*Id[delta_];
-    M[px_] -= eta[x_]*Id[delta_];
-    prt_lin_map(3, M);
-    cout << scientific << setprecision(5)
-	 << "\n" << setw(13) << ps[px_]-eta[px_]
-	 << setw(13) << -ps[x_]+eta[x_] << "\n";
+    cout << scientific << setprecision(5) << setw(13) << ps << "\n";
 
     ds0 = Cell[globval.Cell_nLoc].Etap[X_]*A[x_];
     ds = M_PI*globval.Chrom[X_]*twoJ[X_];
