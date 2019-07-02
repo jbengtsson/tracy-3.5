@@ -991,9 +991,73 @@ void prt_mat(const int n, const Matrix &A)
   printf("matrix:\n");
   for (i = 0; i < n; i++) {
     for (j = 0; j < n; j++)
-      printf(" %19.15f", A[i][j]);
+      printf(" %18.15f", A[i][j]);
     printf("\n");
   }
+}
+
+
+void get_matrix(const string &name, const double delta)
+{
+  int          k;
+  double       L, rho, b2, K[2], psi[2];
+  elemtype     Elem;
+  ss_vect<tps> Id, map;
+
+  // prt_mat(6, globval.OneTurnMat);
+
+  Id.identity();
+
+  Elem = Cell[Elem_GetPos(ElemIndex(name.c_str()), 1)].Elem;
+  L = Elem.PL;
+  rho = 1e0/Elem.M->Pirho;
+  b2  = Elem.M->PBpar[Quad+HOMmax];
+  printf("\n  L = %7.5f rho = %7.5f b_2 = %7.5f \n", L, rho, b2);
+  K[X_] = b2 + 1e0/sqr(rho); K[Y_] = b2;
+  for (k = 0; k < 2; k++)
+    psi[k] = sqrt(fabs(K[k])/(1e0+delta))*L;
+
+  map.identity();
+  if (K[X_] >= 0e0) {
+    map[x_] =
+      cos(psi[X_])*Id[x_] + sin(psi[X_])/(sqrt(K[X_]*(1e0+delta)))*Id[px_]
+      + (1e0-cos(psi[X_]))/(rho*K[X_])*Id[delta_];
+    map[px_] =
+      -sqrt(K[X_]*(1e0+delta))*sin(psi[X_])*Id[x_] + cos(psi[X_])*Id[px_]
+      + sin(psi[X_])*sqrt(1e0+delta)/(rho*sqrt(K[X_]))*Id[delta_];
+    map[y_] =
+      (psi[Y_] != 0e0)?
+      cosh(psi[Y_])*Id[y_] + sinh(psi[Y_])/(sqrt(K[Y_]*(1e0+delta)))*Id[py_]
+      :
+      cosh(psi[Y_])*Id[y_] + L*(1e0+delta)*Id[py_];
+    map[py_] =
+      sqrt(K[Y_]*(1e0+delta))*sinh(psi[Y_])*Id[y_] + cosh(psi[Y_])*Id[py_];
+    map[ct_] +=
+      sin(psi[X_])*sqrt(1e0+delta)/(rho*sqrt(K[X_]))*Id[x_]
+      + (1e0-cos(psi[X_]))/(rho*K[X_])*Id[px_]
+      + (psi[X_]-sin(psi[X_]))*sqrt(1e0+delta)
+      /(sqr(rho)*pow(K[X_], 3e0/2e0))*Id[delta_];
+  } else {
+    printf("\nK_x < 0\n");
+    K[X_] = -K[X_]; K[Y_] = -K[Y_];
+    map[x_] =
+      cosh(psi[X_])*Id[x_] + sinh(psi[X_])/(sqrt(K[X_]*(1e0+delta)))*Id[px_]
+      - (1e0-cosh(psi[X_]))/(rho*K[X_])*Id[delta_];
+    map[px_] =
+      sqrt(K[X_]*(1e0+delta))*sinh(psi[X_])*Id[x_] + cosh(psi[X_])*Id[px_]
+      + sinh(psi[X_])*sqrt(1e0+delta)/(rho*sqrt(K[X_]))*Id[delta_];
+    map[y_] =
+      cos(psi[Y_])*Id[y_] + sin(psi[Y_])/(sqrt(K[Y_]*(1e0+delta)))*Id[py_];
+    map[py_] =
+      -sqrt(K[Y_]*(1e0+delta))*sin(psi[Y_])*Id[y_] + cos(psi[Y_])*Id[py_];
+    map[ct_] =
+      sinh(psi[X_])*sqrt(1e0+delta)/(rho*sqrt(K[X_]))*Id[x_]
+      - (1e0-cosh(psi[X_]))/(rho*K[X_])*Id[px_]
+      + (psi[X_]-sin(psi[X_]))*sqrt(1e0+delta)
+      /(sqr(rho)*pow(K[X_], 3e0/2e0))*Id[delta_];
+  }
+
+  prt_lin_map(3, map);
 }
 
 
@@ -1053,7 +1117,8 @@ int main(int argc, char *argv[])
   Ring_GetTwiss(true, 0e0); printglob();
 
   if (false) {
-    prt_mat(6, globval.OneTurnMat);
+    get_matrix("dq1", 0e0);
+
     exit(0);
   }
 
@@ -1446,7 +1511,7 @@ int main(int argc, char *argv[])
     // Ring_GetTwiss(true, 0e0); printglob();
   }
 
-  if (!false) {
+  if (false) {
     f_rf = Cell[Elem_GetPos(ElemIndex("cav"), 1)].Elem.C->Pfreq;
     printf("\nf_rf = %10.3e\n", f_rf);
 
