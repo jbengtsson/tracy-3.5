@@ -8,7 +8,7 @@ int no_tps = NO;
 
 
 const bool
-  ps_rot        = !false,
+  ps_rot        = !false, // Note, needs to be zeroed; after use.
   phi_spec_case = false;
 
 const double
@@ -2375,8 +2375,8 @@ void opt_mI_twonu_sp(param_type &prms, constr_type &constr)
     lat_constr.twonu0[k] = twonu_ref[k];
 
   if (relaxed) {
-    lat_constr.eps_x_scl            = 1e7;
-    // lat_constr.eps_x_scl            = 5e6;
+    // lat_constr.eps_x_scl            = 1e7;
+    lat_constr.eps_x_scl            = 5e6;
     lat_constr.ksi1_ctrl_scl[0]     = 0e-1;
     lat_constr.ksi1_ctrl_scl[1]     = 0e0;
     lat_constr.ksi1_ctrl_scl[2]     = 0e-1;
@@ -3016,7 +3016,7 @@ int main(int argc, char *argv[])
     Ring_GetTwiss(true, 0e0); printglob();
     dnu[X_] = 0.0; dnu[Y_] = 0.0;
     set_map(ElemIndex("ps_rot"), dnu);
-    dnu[X_] = 0.1; dnu[Y_] = 0.1;
+    dnu[X_] = 0.05; dnu[Y_] = -0.05;
     set_map(ElemIndex("ps_rot"), dnu);
     Ring_GetTwiss(true, 0e0); printglob();
   }

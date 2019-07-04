@@ -1053,7 +1053,7 @@ void get_matrix(const string &name, const double delta)
     map[ct_] =
       sinh(psi[X_])*sqrt(1e0+delta)/(rho*sqrt(K[X_]))*Id[x_]
       - (1e0-cosh(psi[X_]))/(rho*K[X_])*Id[px_]
-      + (psi[X_]-sin(psi[X_]))*sqrt(1e0+delta)
+      - (psi[X_]-sinh(psi[X_]))*sqrt(1e0+delta)
       /(sqr(rho)*pow(K[X_], 3e0/2e0))*Id[delta_];
   }
 
