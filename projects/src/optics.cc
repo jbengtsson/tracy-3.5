@@ -1118,7 +1118,6 @@ int main(int argc, char *argv[])
 
   if (false) {
     get_matrix("dq1", 0e0);
-
     exit(0);
   }
 
