@@ -139,18 +139,20 @@ void GtoL(ss_vect<T> &ps, Vector2 &S, Vector2 &R,
 {
   ss_vect<T> ps1;
 
-  /* Simplified rotated p_rot */
+  // Simplified rotated p_rot: R^-1(theta_des) prot(phi/2) R(theta_des).
   ps[px_] += c1; ps[py_] += s1;
-  /* Translate */
+  // Eucluclidian transformation:
+  //   first Translate,
   ps[x_] -= S[X_]; ps[y_] -= S[Y_];
-  /* Rotate */
+  //   then Rotate.
   ps1 = ps;
   ps[x_]  =  R[X_]*ps1[x_]  + R[Y_]*ps1[y_];
   ps[px_] =  R[X_]*ps1[px_] + R[Y_]*ps1[py_];
   ps[y_]  = -R[Y_]*ps1[x_]  + R[X_]*ps1[y_];
   ps[py_] = -R[Y_]*ps1[px_] + R[X_]*ps1[py_] ;
-  /* Simplified p_rot */
+  // Simplified p_rot.
   ps[px_] -= c0;
+  // Phase space vector is now in magnet's local coordinates.
 }
 
 
@@ -160,17 +162,19 @@ void LtoG(ss_vect<T> &ps, Vector2 &S, Vector2 &R,
 {
   ss_vect<T> ps1;
 
-  /* Simplified p_rot */
+  // Reverse of GtoL, with inverted Euclidian.
+  // Simplified p_rot.
   ps[px_] -= c0;
-  /* Rotate */
+  // Inverted Eucluclidian transformation:
+  //   first Rotate.
   ps1 = ps;
   ps[x_]  = R[X_]*ps1[x_]  - R[Y_]*ps1[y_];
   ps[px_] = R[X_]*ps1[px_] - R[Y_]*ps1[py_];
   ps[y_]  = R[Y_]*ps1[x_]  + R[X_]*ps1[y_];
   ps[py_] = R[Y_]*ps1[px_] + R[X_]*ps1[py_];
-  /* Translate */
+  //   then Translate.
   ps[x_] += S[X_]; ps[y_] += S[Y_];
-  /* p_rot rotated */
+  // Rotated p_rot.
   ps[px_] += c1; ps[py_] += s1;
 }
 

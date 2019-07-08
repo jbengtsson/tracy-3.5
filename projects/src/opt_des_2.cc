@@ -14,7 +14,7 @@ const bool
 const double
   eps0_x             = 0.079,
   twonu_ref[]        = {0.0, 0.0},
-#define CASE 2
+#define CASE 1
 #if CASE == 1
   high_ord_achr_nu[] = {21.0/8.0, 7.0/8.0},
 #elif CASE == 2
@@ -3016,7 +3016,7 @@ int main(int argc, char *argv[])
     Ring_GetTwiss(true, 0e0); printglob();
     dnu[X_] = 0.0; dnu[Y_] = 0.0;
     set_map(ElemIndex("ps_rot"), dnu);
-    dnu[X_] = 0.08; dnu[Y_] = -0.05;
+    dnu[X_] = 0.1; dnu[Y_] = -0.09;
     set_map(ElemIndex("ps_rot"), dnu);
     Ring_GetTwiss(true, 0e0); printglob();
   }
