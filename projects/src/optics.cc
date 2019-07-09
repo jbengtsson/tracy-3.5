@@ -13,8 +13,8 @@ const bool
   prt_dt  = false;
 
 const double
-  // nu[]     = {0.01, -0.01},
-  nu[]     = {0.1/6.0, -0.2/6.0},
+  nu[]     = {0.05, -0.05},
+  // nu[]     = {0.1/6.0, -0.2/6.0},
   // nu[]     = {64.1/6.0, 18.34/6.0},
   dnu_mI[] = {1.5-1.44129-0.0, 0.5-0.47593-0.0},
   nu_HOA[] = {19.0/8.0, 15.0/16.0};
@@ -1003,30 +1003,28 @@ void get_disp(void)
   long int        jj[ss_dim], lastn, lastpos;
   double          twoJ[2], curly_H[2], ds, ds0, ds_hat, delta_mean, delta_hat,
                   phi_x, f_rf;
-  ss_vect<double> eta, A, ps;
+  ss_vect<double> eta, A, ps, D;
   ss_vect<tps>    Ascr, Id, M;
   ofstream        outf;
 
-  const double nu_s = 4.324953e-3;
+  const double nu_s = 4.324953e-3, eps = 1e-10;
 
   f_rf = Cell[Elem_GetPos(ElemIndex("cav"), 1)].Elem.C->Pfreq;
   printf("\nf_rf = %10.3e\n", f_rf);
-
-  // Synchro-betatron resonance for "101pm_above_coupres_tracy.lat".
-  // track("track.out", 2.6e-3, 0e0, 1e-6, 0e0, 0e0, n_turn, lastn, lastpos,
-  // 	  0, 0*f_rf);
-  // track("track.out", 1e-6, 0e0, 1.9e-3, 0e0, 0e0, n_turn, lastn, lastpos,
-  // 	  0, 0*f_rf);
-    
-  // track("track.out", 1e-3, 0e0, 1e-3, 0e0, 0e0, 10*n_turn, lastn, lastpos,
-  // 	  0, f_rf);
-
-  // lattice/101pm_s7o7_a_tracy.lat.
 
   Id.identity();
 
   globval.Cavity_on = false; globval.radiation = false;
   Ring_GetTwiss(true, 0e0); printglob();
+
+  putlinmat(6, globval.OneTurnMat, M);
+
+  D[x_] = M[x_][x_]*M[px_][delta_] - M[px_][x_]*M[x_][delta_];
+  D[px_] = M[x_][px_]*M[px_][delta_] - M[px_][px_]*M[x_][delta_];
+
+  printf("\n  m_16, m_26 = %13.6e %13.6e\n", D[x_], D[px_]);
+
+  exit(0);
 
   A.zero();
   A[x_] = 10e-6; A[y_] = 0*1e-3;
@@ -1467,7 +1465,7 @@ int main(int argc, char *argv[])
     set_map(ElemIndex("ps_rot"), dnu);
     Ring_GetTwiss(true, 0e0); printglob();
     for (k = 0; k < 2; k++)
-      if (true)
+      if (!true)
 	dnu[k] = nu[k] - fract(globval.TotalTune[k])/6e0;
       else
 	dnu[k] = nu[k];
@@ -1652,37 +1650,35 @@ int main(int argc, char *argv[])
     prt_quad(Fam);
   }
 
-  if (true) {
-    GetEmittance(ElemIndex("cav"), true);
+  if (true) GetEmittance(ElemIndex("cav"), true);
 
-    if (false) {
-      Id.identity();
-      Ms[x_] =
-	(cos(-2e0*M_PI*globval.TotalTune[Z_])
-	 +globval.alpha_z*sin(-2e0*M_PI*globval.TotalTune[Z_]))*Id[x_]
-	+ globval.beta_z*sin(-2e0*M_PI*globval.TotalTune[Z_])*Id[px_];
-      Ms[px_] =
-	-(1e0+sqr(globval.alpha_z))/globval.beta_z
-	*sin(-2e0*M_PI*globval.TotalTune[Z_])*Id[x_]
-	+(cos(-2e0*M_PI*globval.TotalTune[Z_])
-	  -globval.alpha_z*sin(-2e0*M_PI*globval.TotalTune[Z_]))*Id[px_];
-      prt_lin_map(1, Ms);
-      Ms = exp(-Cell[globval.Cell_nLoc].S/(c0*globval.tau[Z_]))*Ms;
-      prt_lin_map(1, Ms);
-      printf("\nDet = %17.10e",
-	     Ms[x_][x_]*Ms[px_][px_]-Ms[x_][px_]*Ms[px_][x_]);
+  if (false) {
+    Id.identity();
+    Ms[x_] =
+      (cos(-2e0*M_PI*globval.TotalTune[Z_])
+       +globval.alpha_z*sin(-2e0*M_PI*globval.TotalTune[Z_]))*Id[x_]
+      + globval.beta_z*sin(-2e0*M_PI*globval.TotalTune[Z_])*Id[px_];
+    Ms[px_] =
+      -(1e0+sqr(globval.alpha_z))/globval.beta_z
+      *sin(-2e0*M_PI*globval.TotalTune[Z_])*Id[x_]
+      +(cos(-2e0*M_PI*globval.TotalTune[Z_])
+	-globval.alpha_z*sin(-2e0*M_PI*globval.TotalTune[Z_]))*Id[px_];
+    prt_lin_map(1, Ms);
+    Ms = exp(-Cell[globval.Cell_nLoc].S/(c0*globval.tau[Z_]))*Ms;
+    prt_lin_map(1, Ms);
+    printf("\nDet = %17.10e",
+	   Ms[x_][x_]*Ms[px_][px_]-Ms[x_][px_]*Ms[px_][x_]);
 
-      // Variables needs to be changed too.
-      // putlinmat(6, globval.Ascr, Ascr);
-      // a = Ascr[delta_]; Ascr[delta_] = Ascr[ct_]; Ascr[ct_] = a;
-      // Ascr = get_A_CS(3, Ascr, dnu);
-      // A_Atp = Ascr*tp_S(3, Ascr);
-      // printf("\nA_Atp\n");
-      // prt_lin_map(3, A_Atp);
-    }
+    // Variables needs to be changed too.
+    // putlinmat(6, globval.Ascr, Ascr);
+    // a = Ascr[delta_]; Ascr[delta_] = Ascr[ct_]; Ascr[ct_] = a;
+    // Ascr = get_A_CS(3, Ascr, dnu);
+    // A_Atp = Ascr*tp_S(3, Ascr);
+    // printf("\nA_Atp\n");
+    // prt_lin_map(3, A_Atp);
+
+    exit(0);
   }
-
-  if (!true) exit(0);
 
   if (false) {
     // b2_fam[0] = ElemIndex(q_fam[0].c_str());
@@ -1716,7 +1712,6 @@ int main(int argc, char *argv[])
 
   if (false) {
     get_disp();
-
     exit(0);
   }
 
