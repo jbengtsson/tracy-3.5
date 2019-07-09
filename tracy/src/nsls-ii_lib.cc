@@ -3522,11 +3522,13 @@ void set_map(MapType *Map)
   }
 
   // Zero linear dispersion contribution.
-  Id_eta.identity();
-  Id_eta[x_] = eta_x*Id[delta_]; Id_eta[px_] = etap_x*Id[delta_];
-  Id_eta = Map->M*Id_eta;
-  Map->M[x_]  -= (Id_eta[x_][delta_]-eta_x)*Id[delta_];
-  Map->M[px_] -= (Id_eta[px_][delta_]-etap_x)*Id[delta_];
+  if (false) {
+    Id_eta.identity();
+    Id_eta[x_] = eta_x*Id[delta_]; Id_eta[px_] = etap_x*Id[delta_];
+    Id_eta = Map->M*Id_eta;
+    Map->M[x_]  -= (Id_eta[x_][delta_]-eta_x)*Id[delta_];
+    Map->M[px_] -= (Id_eta[px_][delta_]-etap_x)*Id[delta_];
+  }
 }
 
 
