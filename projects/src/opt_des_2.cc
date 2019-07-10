@@ -2198,7 +2198,7 @@ void opt_mI_twonu_sp(param_type &prms, constr_type &constr)
   std::vector<double> grad_dip_scl;
 
   const bool
-    dphi          = false,
+    dphi          = !false,
     qf6_rb        = !true,
     long_grad_dip = !false,
     dip_cell      = true,
@@ -2252,7 +2252,7 @@ void opt_mI_twonu_sp(param_type &prms, constr_type &constr)
     prms.add_prm("qf8", -3, -20.0, 20.0, 1.0);
     lat_constr.Fnum_b1.push_back(ElemIndex("qf8"));
 
-   // Commented out must be defined last.
+    // Commented out must be defined last.
     // prms.add_prm("dq1", -3, -20.0,   20.0,  1.0);
     lat_constr.Fnum_b1.push_back(ElemIndex("dq1"));
   }
