@@ -13,7 +13,7 @@ const bool
   prt_dt  = false;
 
 const double
-  nu[]     = {0.05, -0.05},
+  nu[]     = {0.13, -0.17},
   // nu[]     = {0.1/6.0, -0.2/6.0},
   // nu[]     = {64.1/6.0, 18.34/6.0},
   dnu_mI[] = {1.5-1.44129-0.0, 0.5-0.47593-0.0},
@@ -1023,6 +1023,7 @@ void get_disp(void)
   D[px_] = M[x_][px_]*M[px_][delta_] - M[px_][px_]*M[x_][delta_];
 
   printf("\n  m_16, m_26 = %13.6e %13.6e\n", D[x_], D[px_]);
+  printf("  dalpha_c   = %13.6e\n", M[x_][delta_]*M[px_][delta_]);
 
   exit(0);
 
@@ -1482,13 +1483,13 @@ int main(int argc, char *argv[])
 
   if (prt_ms) {
     loc = Elem_GetPos(ElemIndex("ms"), 1);
-    printf("\n%10s:  \n  {%13.10f, %13.10f}, {%13.10f, %13.10f}"
-	   ", {%13.10f, %13.10f}, {%13.10f, %13.10f}\n",
+    printf("\n%10s:\n  (%12.10f, %12.10f, %12.10f, %12.10f,"
+	   "\n  %12.10f, %12.10f, %3.1f, %3.1f)\n",
 	   Cell[loc].Elem.PName,
-	   Cell[loc].Alpha[X_], Cell[loc].Alpha[Y_],
-	   Cell[loc].Beta[X_], Cell[loc].Beta[Y_],
-	   Cell[loc].Eta[X_], Cell[loc].Eta[Y_],
-	   Cell[loc].Etap[X_], Cell[loc].Etap[Y_]);
+	   Cell[loc].Alpha[X_], Cell[loc].Beta[X_],
+	   Cell[loc].Alpha[Y_], Cell[loc].Beta[Y_],
+	   Cell[loc].Eta[X_], Cell[loc].Etap[X_], 
+	   Cell[loc].Eta[Y_], Cell[loc].Etap[Y_]);
     exit(0);
   }
 
@@ -1533,8 +1534,8 @@ int main(int argc, char *argv[])
   }
 
   if (false) {
-    chk_optics(0.000194849, 8.369339975, 2.95E-06, 5.58E-07,
-	       0.000194849, 4.39626403, 0.0, 0.0);
+    chk_optics(0.0000000000, 2.0991177170, 0.0000000000, 5.2903747964,
+	       0.0212855877, -0.0000000222, 0.0, 0.0);
     prt_lat("linlat1.out", globval.bpm, true);
     prt_lat("linlat.out", globval.bpm, true, 10);
     exit(0);

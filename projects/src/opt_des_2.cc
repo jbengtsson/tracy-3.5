@@ -8,7 +8,7 @@ int no_tps = NO;
 
 
 const bool
-  ps_rot        = !false, // Note, needs to be zeroed; after use.
+  ps_rot        = false, // Note, needs to be zeroed; after use.
   phi_spec_case = false;
 
 const double
@@ -2198,9 +2198,11 @@ void opt_mI_twonu_sp(param_type &prms, constr_type &constr)
   std::vector<double> grad_dip_scl;
 
   const bool
-    dphi          = !false,
+    dphi          = false,
+    qf6_rb        = !true,
     long_grad_dip = !false,
     dip_cell      = true,
+    sp_short      = !false,
     relaxed       = true;
 
   // Standard Cell.
@@ -2243,8 +2245,10 @@ void opt_mI_twonu_sp(param_type &prms, constr_type &constr)
     // Dipole Cell.
     prms.add_prm("qf4", -3, -20.0, 20.0, 1.0);
     lat_constr.Fnum_b1.push_back(ElemIndex("qf4"));
-    prms.add_prm("qf6", -3, -20.0, 20.0, 1.0);
-    lat_constr.Fnum_b1.push_back(ElemIndex("qf6"));
+    if (qf6_rb) {
+      prms.add_prm("qf6", -3, -20.0, 20.0, 1.0);
+      lat_constr.Fnum_b1.push_back(ElemIndex("qf6"));
+    }
     prms.add_prm("qf8", -3, -20.0, 20.0, 1.0);
     lat_constr.Fnum_b1.push_back(ElemIndex("qf8"));
 
@@ -2384,8 +2388,8 @@ void opt_mI_twonu_sp(param_type &prms, constr_type &constr)
     // lat_constr.drv_terms_simple_scl = 1e-4;
     // Not useful.
     lat_constr.ksi1_svd_scl         = 0e3;
-    lat_constr.mI_scl[X_]           = 1e7;
-    lat_constr.mI_scl[Y_]           = 1e7;
+    lat_constr.mI_scl[X_]           = 1e6;
+    lat_constr.mI_scl[Y_]           = 1e6;
     // lat_constr.mI_scl[X_]           = 1e1;
     // lat_constr.mI_scl[Y_]           = 1e1;
     lat_constr.high_ord_achr_scl    = 1e7;
@@ -2412,8 +2416,12 @@ void opt_mI_twonu_sp(param_type &prms, constr_type &constr)
 
   prt_prms(lat_constr);
 
-  // Super Period.
-  lat_constr.phi0 = 60.0;
+  if (!sp_short)
+    // Super Period.
+    lat_constr.phi0 = 60.0;
+  else
+    // Short Super Period.
+    lat_constr.phi0 = 45.0;
   lat_constr.L_scl = 0e-10; lat_constr.L0 = 10.0;
 
   lat_constr.ini_constr(true);
