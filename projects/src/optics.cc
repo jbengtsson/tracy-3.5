@@ -1018,10 +1018,8 @@ void get_disp(void)
   Ring_GetTwiss(true, 0e0); printglob();
 
   putlinmat(6, globval.OneTurnMat, M);
-
   D[x_] = M[x_][x_]*M[px_][delta_] - M[px_][x_]*M[x_][delta_];
   D[px_] = M[x_][px_]*M[px_][delta_] - M[px_][px_]*M[x_][delta_];
-
   printf("\n  m_16, m_26 = %13.6e %13.6e\n", D[x_], D[px_]);
 
   A.zero();
@@ -1063,7 +1061,7 @@ void get_disp(void)
 
     printf("\ndet{M} = %12.5e\n", DetMat(6, globval.OneTurnMat));
 
-    globval.Cavity_on = !false; globval.radiation = false;
+    globval.Cavity_on = true; globval.radiation = false;
     Ring_GetTwiss(true, 0e0); printglob();
 
     printf("\ndet{M} = %12.5e\n", DetMat(6, globval.OneTurnMat));
@@ -1087,7 +1085,6 @@ void get_disp(void)
 	   M_PI*globval.TotalTune[Z_]);
 
     M.zero();
-
     M[ct_] =
       (cos(2e0*M_PI*globval.TotalTune[Z_])
        +globval.alpha_z*sin(2e0*M_PI*globval.TotalTune[Z_]))*Id[ct_]
@@ -1117,18 +1114,18 @@ void get_disp(void)
     prt_lin_map(3, M);
   }
 
-  globval.Cavity_on = false; globval.radiation = false;
+  globval.Cavity_on = !false; globval.radiation = false;
   track("track.out", A[X_], 0e0, A[Y_], 0e0, 0e0, 2000, lastn, lastpos,
 	0, 0*f_rf);
 
-  if (false) {
+  if (!false) {
     // Standard Map.
     file_wr(outf, "std_map.out");
     ps.zero();
     for (k = 1; k <= 500; k++) {
-      ps[delta_] +=
-	sqr(2e0*M_PI*nu_s)/(globval.Alphac*Cell[globval.Cell_nLoc].S)
-	*ds_hat*sin(k*2e0*M_PI*globval.TotalTune[X_]+M_PI/4e0);
+      ps[delta_] -=
+	sqr(2e0*M_PI*nu_s)*ds_hat*sin(k*2e0*M_PI*globval.TotalTune[X_])
+	/(globval.Alphac*Cell[globval.Cell_nLoc].S);
       ps[ct_] += globval.Alphac*Cell[globval.Cell_nLoc].S*ps[delta_];
       outf << scientific << setprecision(5)
 	   << setw(5) << k << setw(13) << ps << "\n";

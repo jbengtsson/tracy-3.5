@@ -2203,7 +2203,9 @@ void opt_mI_twonu_sp(param_type &prms, constr_type &constr)
     long_grad_dip = !false,
     dip_cell      = true,
     sp_short      = !false,
-    relaxed       = true;
+    relaxed       = !true;
+
+  printf("\n opt_mI_twonu_sp:\n relaxed: %d\n", relaxed);
 
   // Standard Cell.
   grad_dip_scl.push_back(0.129665);
@@ -2294,10 +2296,10 @@ void opt_mI_twonu_sp(param_type &prms, constr_type &constr)
 		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
     // Include constraint on alpha; in case of using ps_rot.
     constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
-		      1e5, 1e5, 1e0, 1e0, 1e6,   0e0,
+		      1e5, 1e5, 1e0, 1e0, 1e6,   1e6,
 		      0.0, 0.0, 3.0, 1.5, 0.024, 0.0);
     constr.add_constr(Elem_GetPos(ElemIndex("ms"), 2),
-		      1e5, 1e5, 1e0, 1e0, 1e6,   0e0,
+		      1e5, 1e5, 1e0, 1e0, 1e6,   1e6,
 		      0.0, 0.0, 3.0, 1.5, 0.024, 0.0);
     // Both SS constraints are needed.
     constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
@@ -2311,27 +2313,27 @@ void opt_mI_twonu_sp(param_type &prms, constr_type &constr)
 		      0.0, 0.0, 10.0, 4.0, 0.0, 0.0);
   } else {
     constr.add_constr(Elem_GetPos(ElemIndex("dl1a_5"), 1)-1,
-		      0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
+		      0e0, 0e0, 0e0, 0e0, 1e8, 1e8,
 		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
     constr.add_constr(Elem_GetPos(ElemIndex("dl1a_5"), 2),
-		      0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
+		      0e0, 0e0, 0e0, 0e0, 1e8, 1e8,
 		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
     // Include constraint on alpha; in case of using ps_rot.
     constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
-		      1e5, 1e5, 1e1, 1e1, 1e7,   0e0,
+		      1e6, 1e6, 1e-1, 1e-1, 1e6,   1e8,
 		      0.0, 0.0, 3.0, 1.5, 0.024, 0.0);
     constr.add_constr(Elem_GetPos(ElemIndex("ms"), 2),
-		      1e5, 1e5, 1e1, 1e1, 1e7,   0e0,
+		      1e6, 1e6, 1e-1, 1e-1, 1e6,   1e8,
 		      0.0, 0.0, 3.0, 1.5, 0.024, 0.0);
     // Both SS constraints are needed.
     constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
-		      1e5, 1e5, 1e1, 1e1, 1e7, 1e7,
+		      1e6, 1e6, 1e-1, 1e-1, 1e8, 1e8,
 		      0.0, 0.0, 4.0, 2.5, 0.0, 0.0);
     constr.add_constr(Elem_GetPos(ElemIndex("ss"), 2),
-		      1e5, 1e5, 1e1, 1e1, 1e7, 1e7,
+		      1e6, 1e6, 1e-1, 1e-1, 1e8, 1e8,
 		      0.0, 0.0, 4.0, 2.5, 0.0, 0.0);
     constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
-		      1e5, 1e5, 1e1,  1e1, 1e7, 1e7,
+		      1e6, 1e6, 1e-1,  1e-1, 1e8, 1e8,
 		      0.0, 0.0, 10.0, 4.0, 0.0, 0.0);
   }
 
@@ -2379,38 +2381,33 @@ void opt_mI_twonu_sp(param_type &prms, constr_type &constr)
     lat_constr.twonu0[k] = twonu_ref[k];
 
   if (relaxed) {
-    // lat_constr.eps_x_scl            = 1e7;
     lat_constr.eps_x_scl            = 5e6;
     lat_constr.ksi1_ctrl_scl[0]     = 0e-1;
     lat_constr.ksi1_ctrl_scl[1]     = 0e0;
     lat_constr.ksi1_ctrl_scl[2]     = 0e-1;
     lat_constr.drv_terms_simple_scl = 1e-3;
-    // lat_constr.drv_terms_simple_scl = 1e-4;
     // Not useful.
     lat_constr.ksi1_svd_scl         = 0e3;
     lat_constr.mI_scl[X_]           = 1e6;
     lat_constr.mI_scl[Y_]           = 1e6;
-    // lat_constr.mI_scl[X_]           = 1e1;
-    // lat_constr.mI_scl[Y_]           = 1e1;
     lat_constr.high_ord_achr_scl    = 1e7;
     lat_constr.twonu_scl[X_]        = 0e6;
     lat_constr.twonu_scl[Y_]        = 0e6;
     lat_constr.alpha_c_scl          = 1e-6;
   } else {
-    lat_constr.eps_x_scl            = 5e6;
-    // lat_constr.eps_x_scl            = 1e6;
-    lat_constr.ksi1_svd_scl         = 1e0;
-    // lat_constr.drv_terms_simple_scl = 1e-5;
-    lat_constr.drv_terms_simple_scl = 1e-4;
-
-    lat_constr.mI_scl[X_]           = 1e5;
-    lat_constr.mI_scl[Y_]           = 1e5;
-    // lat_constr.high_ord_achr_scl    = 1e5;
-    // lat_constr.high_ord_achr_scl    = 1e4;
-    lat_constr.high_ord_achr_scl    = 0e4;
-    lat_constr.twonu_scl[X_]        = 1e3;
-    lat_constr.twonu_scl[Y_]        = 1e3;
-    lat_constr.alpha_c_scl          = 1e-6;
+    lat_constr.eps_x_scl            = 1e5;
+    lat_constr.ksi1_ctrl_scl[0]     = 0e-1;
+    lat_constr.ksi1_ctrl_scl[1]     = 0e0;
+    lat_constr.ksi1_ctrl_scl[2]     = 0e-1;
+    lat_constr.drv_terms_simple_scl = 1e-6;
+    // Not useful.
+    lat_constr.ksi1_svd_scl         = 0e3;
+    lat_constr.mI_scl[X_]           = 1e4;
+    lat_constr.mI_scl[Y_]           = 1e4;
+    lat_constr.high_ord_achr_scl    = 1e4;
+    lat_constr.twonu_scl[X_]        = 0e6;
+    lat_constr.twonu_scl[Y_]        = 0e6;
+    lat_constr.alpha_c_scl          = 1e-9;
   }
   lat_constr.phi_scl                = (dphi)? 1e0 : 0e0;
 
