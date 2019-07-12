@@ -1916,7 +1916,7 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
 		      1e5, 1e5, 1e-1, 1e-1, 1e6, 1e6,
 		      0.0, 0.0, 4.0, 2.5, 0.0, 0.0);
     constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
-		      1e5, 1e5, 1e-1,  1e-1, 1e6, 1e6,
+		      1e5, 1e5, 1e1,  1e-1, 1e6, 1e6,
 		      0.0, 0.0, 10.0, 4.0, 0.0, 0.0);
   } else {
     constr.add_constr(Elem_GetPos(ElemIndex("dl1a_5"), 1)-1,
@@ -2632,14 +2632,14 @@ int main(int argc, char *argv[])
 
   if (false) fit_ksi1(0e0, 0e0);
 
-  if (!false) {
+  if (false) {
     // Optimize Standard Straight: mI & 2*nu.
     opt_mI_std(lat_prms, lat_constr);
     no_sxt();
     fit_powell(lat_prms, 1e-3, f_achrom);
   }
 
-  if (false) {
+  if (!false) {
     // Optimize Super Period: mI & 2*nu.
     opt_mI_sp(lat_prms, lat_constr);
     no_sxt();
