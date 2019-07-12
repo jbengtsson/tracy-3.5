@@ -11,13 +11,18 @@ const bool
   ps_rot        = false, // Note, needs to be zeroed; after use.
   phi_spec_case = false;
 
+#define CASE 3
+
 const double
-  eps0_x             = 0.079,
-#define CASE 1
 #if CASE == 1
+  eps0_x             = 0.079,
   high_ord_achr_nu[] = {21.0/8.0, 7.0/8.0},
 #elif CASE == 2
+  eps0_x             = 0.079,
   high_ord_achr_nu[] = {11.0/4.0+0.01, 3.0/4.0-0.01},
+#elif CASE == 3
+  eps0_x             = 0.150,
+  high_ord_achr_nu[] = {9.0/4.0+0.01, 3.0/4.0-0.01},
 #endif
   mI_dnu[]           = {0.0, 0.0},
   mI_nu_ref[]        = {1.5-mI_dnu[X_], 0.5-mI_dnu[Y_]},
@@ -1605,6 +1610,8 @@ void opt_mI_std(param_type &prms, constr_type &constr)
     long_grad_dip = !false,
     relaxed       = true;
 
+  printf("\n opt_mI_std:\n relaxed: %d\n", relaxed);
+
   // Standard Cell.
   grad_dip_scl.push_back(0.129665);
   grad_dip_scl.push_back(0.149256);
@@ -1909,7 +1916,7 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
 		      1e5, 1e5, 1e-1, 1e-1, 1e6, 1e6,
 		      0.0, 0.0, 4.0, 2.5, 0.0, 0.0);
     constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
-		      1e5, 1e5, 1e1,  1e-1, 1e6, 1e6,
+		      1e5, 1e5, 1e-1,  1e-1, 1e6, 1e6,
 		      0.0, 0.0, 10.0, 4.0, 0.0, 0.0);
   } else {
     constr.add_constr(Elem_GetPos(ElemIndex("dl1a_5"), 1)-1,
@@ -2625,14 +2632,14 @@ int main(int argc, char *argv[])
 
   if (false) fit_ksi1(0e0, 0e0);
 
-  if (false) {
+  if (!false) {
     // Optimize Standard Straight: mI & 2*nu.
     opt_mI_std(lat_prms, lat_constr);
     no_sxt();
     fit_powell(lat_prms, 1e-3, f_achrom);
   }
 
-  if (!false) {
+  if (false) {
     // Optimize Super Period: mI & 2*nu.
     opt_mI_sp(lat_prms, lat_constr);
     no_sxt();
