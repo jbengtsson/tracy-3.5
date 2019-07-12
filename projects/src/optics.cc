@@ -1023,7 +1023,7 @@ void get_disp(void)
   printf("\n  m_16, m_26 = %13.6e %13.6e\n", D[x_], D[px_]);
 
   A.zero();
-  A[x_] = 10e-6; A[px_] = 0e-6; A[y_] = 0e-6; A[py_] = 0e-6;
+  A[x_] = 0e-6; A[px_] = 0e-6; A[y_] = 0e-6; A[py_] = 0e-6; A[delta_] = 1e-3;
   Ascr.zero();
   putlinmat(2, globval.Ascr, Ascr);
   get_twoJ(1, A, Ascr, twoJ);
@@ -1115,8 +1115,8 @@ void get_disp(void)
   }
 
   globval.Cavity_on = !false; globval.radiation = false;
-  track("track.out", A[X_], 0e0, A[Y_], 0e0, 0e0, 2000, lastn, lastpos,
-	0, 0*f_rf);
+  track("track.out", A[x_], A[px_], A[y_], A[py_], A[delta_], 2000,
+	lastn, lastpos,	0, 0*f_rf);
 
   if (!false) {
     // Standard Map.
@@ -1467,6 +1467,13 @@ int main(int argc, char *argv[])
 
   if (prt_ms) {
     loc = Elem_GetPos(ElemIndex("ms"), 1);
+    printf("\n%10s:\n  {{%12.10f, %12.10f}, {%12.10f, %12.10f},"
+	   " {%12.10f, %12.10f}, {%3.1f, %3.1f}}\n",
+	   Cell[loc].Elem.PName,
+	   Cell[loc].Alpha[X_], Cell[loc].Alpha[Y_],
+	   Cell[loc].Beta[X_], Cell[loc].Beta[Y_],
+	   Cell[loc].Eta[X_], Cell[loc].Eta[Y_],
+	   Cell[loc].Etap[X_], Cell[loc].Etap[Y_]);
     printf("\n%10s:\n  (%12.10f, %12.10f, %12.10f, %12.10f,"
 	   "\n  %12.10f, %12.10f, %3.1f, %3.1f)\n",
 	   Cell[loc].Elem.PName,
@@ -1695,7 +1702,7 @@ int main(int argc, char *argv[])
     // Ring_GetTwiss(true, 0e0); printglob();
   }
 
-  if (!false) {
+  if (false) {
     get_disp();
     exit(0);
   }
