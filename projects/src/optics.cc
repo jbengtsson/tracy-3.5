@@ -13,7 +13,7 @@ const bool
   prt_dt  = false;
 
 const double
-  nu[]     = {0.13, -0.17},
+  nu[]     = {-0.1, 0.0},
   // nu[]     = {0.1/6.0, -0.2/6.0},
   // nu[]     = {64.1/6.0, 18.34/6.0},
   dnu_mI[] = {1.5-1.44129-0.0, 0.5-0.47593-0.0},
@@ -1288,12 +1288,6 @@ int main(int argc, char *argv[])
 
   if (false) no_sxt();
 
-  if (false) {
-    Ring_GetTwiss(true, 0e0); printglob();
-    dnu[X_] = 0.1/6.0; dnu[Y_] = 0.25/6.0;
-    set_map(ElemIndex("ps_rot"), dnu);
-  }
-
   globval.Cavity_on = false; globval.radiation = false;
   Ring_GetTwiss(true, 0e0); printglob();
 
@@ -1326,20 +1320,6 @@ int main(int argc, char *argv[])
   if (false) {
     prt_eta_Fl();
     exit(0);
-  }
-
-  if (false) {
-    Ring_GetTwiss(true, 0e0); printglob();
-
-    // dnu[X_] = -0.14; dnu[Y_] = -0.13;
-    dnu[X_] = -0.13+0.005; dnu[Y_] = -0.18-0.005;
-    set_map(ElemIndex("ps_rot_ss"), dnu);
-
-    // dnu[X_] = -0.08; dnu[Y_] = -0.04;
-    dnu[X_] = -0.13+0.005; dnu[Y_] = -0.18-0.005;
-    set_map(ElemIndex("ps_rot_ls"), dnu);
-
-    Ring_GetTwiss(true, 0e0); printglob();
   }
 
   if (false) {

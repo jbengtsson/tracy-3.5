@@ -13,7 +13,7 @@ const bool
 
 const double
   eps0_x             = 0.079,
-#define CASE 2
+#define CASE 1
 #if CASE == 1
   high_ord_achr_nu[] = {21.0/8.0, 7.0/8.0},
 #elif CASE == 2
@@ -1896,20 +1896,20 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
 		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
     // Include constraint on alpha; in case of using ps_rot.
     constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
-		      1e5, 1e5, 1e0, 1e0, 1e5,   1e6,
+		      1e5, 1e5, 1e-1, 1e-1, 1e5,   1e6,
 		      0.0, 0.0, 3.0, 1.5, 0.024, 0.0);
     constr.add_constr(Elem_GetPos(ElemIndex("ms"), 2),
-		      1e5, 1e5, 1e0, 1e0, 1e5,   1e6,
+		      1e5, 1e5, 1e-1, 1e-1, 1e5,   1e6,
 		      0.0, 0.0, 3.0, 1.5, 0.024, 0.0);
     // Both SS constraints are needed.
     constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
-		      1e5, 1e5, 1e0, 1e0, 1e6, 1e6,
+		      1e5, 1e5, 1e-1, 1e-1, 1e6, 1e6,
 		      0.0, 0.0, 4.0, 2.5, 0.0, 0.0);
     constr.add_constr(Elem_GetPos(ElemIndex("ss"), 2),
-		      1e5, 1e5, 1e0, 1e0, 1e6, 1e6,
+		      1e5, 1e5, 1e-1, 1e-1, 1e6, 1e6,
 		      0.0, 0.0, 4.0, 2.5, 0.0, 0.0);
     constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
-		      1e5, 1e5, 1e0,  1e0, 1e6, 1e6,
+		      1e5, 1e5, 1e1,  1e-1, 1e6, 1e6,
 		      0.0, 0.0, 10.0, 4.0, 0.0, 0.0);
   } else {
     constr.add_constr(Elem_GetPos(ElemIndex("dl1a_5"), 1)-1,
@@ -1974,12 +1974,12 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
     lat_constr.ksi1_ctrl_scl[0]     = 0e-1;
     lat_constr.ksi1_ctrl_scl[1]     = 0e0;
     lat_constr.ksi1_ctrl_scl[2]     = 0e-1;
-    lat_constr.drv_terms_simple_scl = 1e-3;
+    lat_constr.drv_terms_simple_scl = 1e-4;
     // Not useful.
     lat_constr.ksi1_svd_scl         = 0e3;
-    lat_constr.mI_scl[X_]           = 1e6;
-    lat_constr.mI_scl[Y_]           = 1e6;
-    lat_constr.high_ord_achr_scl    = 1e7;
+    lat_constr.mI_scl[X_]           = 1e5;
+    lat_constr.mI_scl[Y_]           = 1e5;
+    lat_constr.high_ord_achr_scl    = 1e5;
     lat_constr.alpha_c_scl          = 1e-7;
   } else {
     lat_constr.eps_x_scl            = 1e6;
@@ -2026,8 +2026,8 @@ void match_ls(param_type &prms, constr_type &constr)
   // From Center of Mid Straight: alpha, beta, eta, eta'.
   const int    n_ic        = 4;
   const double ic[n_ic][2] =
-    {{-0.0000000000, -0.0000000000}, {3.7038270032, 1.1322952150},
-     {0.0191532700, 0.0000000000}, {-0.0, 0.0}};
+    {{0.0000000000, 0.0000000000}, {3.7187240522, 1.0839822183},
+     {0.0212751084, 0.0000000000}, {-0.0, 0.0}};
  
   // Long Straight.
   prms.add_prm("qf1_c1",   2, -20.0, 20.0, 1.0);
@@ -2040,12 +2040,12 @@ void match_ls(param_type &prms, constr_type &constr)
   // Parameters are initialized in optimizer.
 
   constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
-  		    1e3, 1e3, 1e0,  1e0, 0e0, 0e0,
+  		    1e3, 1e3, 1e-1, 1e-1, 0e0, 0e0,
   		    0.0, 0.0, 10.0, 4.0, 0.0, 0.0);
 
   if (pert_dip_cell)
     constr.add_constr(Elem_GetPos(ElemIndex("quad_add"), 1),
-		      0e0, 0e0, 0e0, 0e0, 1e3, 1e3,
+		      0e0, 0e0, 0e0, 0e0, 1e5, 1e5,
 		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 
   lat_prms.bn_tol = 1e-5; lat_prms.step = 1.0;
@@ -2061,7 +2061,7 @@ void match_ls(param_type &prms, constr_type &constr)
   for (k = 0; k < n; k++)
     lat_constr.high_ord_achr_dnu[k].resize(2, 0e0);
 
-  lat_constr.high_ord_achr_scl = 1e-1;
+  lat_constr.high_ord_achr_scl = 1e1;
 
   lat_constr.ini_constr(false);
 
@@ -2632,14 +2632,14 @@ int main(int argc, char *argv[])
     fit_powell(lat_prms, 1e-3, f_achrom);
   }
 
-  if (false) {
+  if (!false) {
     // Optimize Super Period: mI & 2*nu.
     opt_mI_sp(lat_prms, lat_constr);
     no_sxt();
     fit_powell(lat_prms, 1e-3, f_achrom);
   }
 
-  if (!false) {
+  if (false) {
     // Match Long Straight: mI.
     match_ls(lat_prms, lat_constr);
     fit_powell(lat_prms, 1e-3, f_match);
