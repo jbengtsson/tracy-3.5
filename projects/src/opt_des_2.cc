@@ -11,7 +11,7 @@ const bool
   ps_rot        = false, // Note, needs to be zeroed; after use.
   phi_spec_case = false;
 
-#define CASE 3
+#define CASE 1
 
 const double
 #if CASE == 1
@@ -1916,7 +1916,7 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
 		      1e5, 1e5, 1e-1, 1e-1, 1e6, 1e6,
 		      0.0, 0.0, 4.0, 2.5, 0.0, 0.0);
     constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
-		      1e5, 1e5, 1e1,  1e-1, 1e6, 1e6,
+		      1e5, 1e5, 1e-1,  1e-1, 1e6, 1e6,
 		      0.0, 0.0, 10.0, 4.0, 0.0, 0.0);
   } else {
     constr.add_constr(Elem_GetPos(ElemIndex("dl1a_5"), 1)-1,
