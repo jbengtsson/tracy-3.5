@@ -2,25 +2,22 @@
 
 #include "tracy_lib.h"
 
-int  no_tps = NO;
+int no_tps = NO;
 
 
-const int  lat_case = 3;
 const double
-  A_max[]   = {6e-3, 2e-3},
+  A_max[]   = {4e-3, 2e-3},
   delta_max = 2.5e-2;
-  // ALS-U.
-  // A_max[]   = {4e-3, 2.5e-3},
-  // delta_max = 4e-2;
 
 
 int main(int argc, char *argv[])
 {
 
-  globval.H_exact    = false; globval.quad_fringe = false;
-  globval.Cavity_on  = false; globval.radiation   = false;
-  globval.emittance  = false; globval.IBS         = false;
-  globval.pathlength = false; globval.bpm         = 0;
+  globval.H_exact    = false; globval.quad_fringe    = false;
+  globval.Cavity_on  = false; globval.radiation      = false;
+  globval.emittance  = false; globval.IBS            = false;
+  globval.pathlength = false; globval.bpm            = 0;
+  globval.Cart_Bend  = false; globval.dip_edge_fudge = true;
 
   reverse_elem = !false;
 
