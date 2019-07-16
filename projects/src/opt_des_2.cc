@@ -8,10 +8,10 @@ int no_tps = NO;
 
 
 const bool
-  ps_rot        = false, // Note, needs to be zeroed; after use.
+  ps_rot        = !false, // Note, needs to be zeroed; after use.
   phi_spec_case = false;
 
-#define CASE 3
+#define CASE 1
 
 const double
 #if CASE == 1
@@ -25,7 +25,7 @@ const double
   high_ord_achr_nu[] = {11.0/4.0+0.01, 3.0/4.0-0.01},
 #elif CASE == 4
   eps0_x             = 0.079,
-  high_ord_achr_nu[] = {21.0/8.0, 6.0/8.0},
+  high_ord_achr_nu[] = {21.0/8.0+0.01, 6.0/8.0-0.01},
 #elif CASE == 5
   eps0_x             = 0.150,
   high_ord_achr_nu[] = {9.0/4.0+0.01, 3.0/4.0-0.01},
@@ -1772,8 +1772,8 @@ void opt_mI_std(param_type &prms, constr_type &constr)
     // lat_constr.drv_terms_simple_scl = 1e-4;
     // Not useful.
     lat_constr.ksi1_svd_scl         = 0e3;
-    lat_constr.mI_scl[X_]           = 1e5;
-    lat_constr.mI_scl[Y_]           = 1e5;
+    lat_constr.mI_scl[X_]           = 1e6;
+    lat_constr.mI_scl[Y_]           = 1e6;
     lat_constr.high_ord_achr_scl    = 1e6;
     lat_constr.alpha_c_scl          = 1e-6;
   } else {
@@ -1909,20 +1909,20 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
 		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
     // Include constraint on alpha; in case of using ps_rot.
     constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
-		      1e5, 1e5, 1e-1, 1e-1, 1e5,   1e7,
+		      1e6, 1e6, 1e-1, 1e-1, 1e5,   1e7,
 		      0.0, 0.0, 3.0, 1.5, 0.024, 0.0);
     constr.add_constr(Elem_GetPos(ElemIndex("ms"), 2),
-		      1e5, 1e5, 1e-1, 1e-1, 1e5,   1e7,
+		      1e6, 1e6, 1e-1, 1e-1, 1e5,   1e7,
 		      0.0, 0.0, 3.0, 1.5, 0.024, 0.0);
     // Both SS constraints are needed.
     constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
-		      1e5, 1e5, 1e-1, 1e-1, 1e7, 1e7,
+		      1e6, 1e6, 1e-1, 1e-1, 1e7, 1e7,
 		      0.0, 0.0, 4.0, 2.5, 0.0, 0.0);
     constr.add_constr(Elem_GetPos(ElemIndex("ss"), 2),
-		      1e5, 1e5, 1e-1, 1e-1, 1e7, 1e7,
+		      1e6, 1e6, 1e-1, 1e-1, 1e7, 1e7,
 		      0.0, 0.0, 4.0, 2.5, 0.0, 0.0);
     constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
-		      1e5, 1e5, 1e1,  1e-1, 1e7, 1e7,
+		      1e6, 1e6, 1e-1,  1e-1, 1e7, 1e7,
 		      0.0, 0.0, 10.0, 4.0, 0.0, 0.0);
   } else {
     constr.add_constr(Elem_GetPos(ElemIndex("dl1a_5"), 1)-1,
