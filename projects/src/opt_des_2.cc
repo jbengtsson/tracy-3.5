@@ -8,10 +8,11 @@ int no_tps = NO;
 
 
 const bool
-  ps_rot        = !false, // Note, needs to be zeroed; after use.
-  phi_spec_case = false;
+  ps_rot        = false, // Note, needs to be zeroed; after use.
+  phi_spec_case = false,
+  sp_short      = !false;
 
-#define CASE 1
+#define CASE 4
 
 const double
 #if CASE == 1
@@ -25,7 +26,7 @@ const double
   high_ord_achr_nu[] = {11.0/4.0+0.01, 3.0/4.0-0.01},
 #elif CASE == 4
   eps0_x             = 0.079,
-  high_ord_achr_nu[] = {21.0/8.0+0.01, 6.0/8.0-0.01},
+  high_ord_achr_nu[] = {21.0/8.0+0.01, 3.0/4.0-0.01},
 #elif CASE == 5
   eps0_x             = 0.150,
   high_ord_achr_nu[] = {9.0/4.0+0.01, 3.0/4.0-0.01},
@@ -1815,7 +1816,6 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
     qf6_rb        = false,
     long_grad_dip = !false,
     dip_cell      = true,
-    sp_short      = !false,
     relaxed       = true;
 
   printf("\n opt_mI_sp:\n relaxed: %d\n", relaxed);
@@ -1909,10 +1909,10 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
 		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
     // Include constraint on alpha; in case of using ps_rot.
     constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
-		      1e6, 1e6, 1e-1, 1e-1, 1e5,   1e7,
+		      1e6, 1e6, 1e-1, 1e-1, 1e6,   1e7,
 		      0.0, 0.0, 3.0, 1.5, 0.024, 0.0);
     constr.add_constr(Elem_GetPos(ElemIndex("ms"), 2),
-		      1e6, 1e6, 1e-1, 1e-1, 1e5,   1e7,
+		      1e6, 1e6, 1e-1, 1e-1, 1e6,   1e7,
 		      0.0, 0.0, 3.0, 1.5, 0.024, 0.0);
     // Both SS constraints are needed.
     constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
@@ -1993,7 +1993,8 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
     lat_constr.mI_scl[X_]           = 1e6;
     lat_constr.mI_scl[Y_]           = 1e6;
     lat_constr.high_ord_achr_scl    = 1e6;
-    lat_constr.alpha_c_scl          = 1e-7;
+    // 1e-7 is too small.
+    lat_constr.alpha_c_scl          = 1e-6;
   } else {
     lat_constr.eps_x_scl            = 1e6;
     lat_constr.ksi1_ctrl_scl[0]     = 0e-1;

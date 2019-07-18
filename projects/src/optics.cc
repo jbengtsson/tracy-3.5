@@ -6,7 +6,7 @@ int no_tps = NO;
 
 
 const bool
-  set_dnu = !false,
+  set_dnu = false,
   mI_rot  = false,
   HOA_rot = false,
   prt_ms  = false,
@@ -1001,18 +1001,23 @@ void get_disp(void)
 {
   int             k;
   long int        jj[ss_dim], lastn, lastpos;
-  double          twoJ[2], curly_H[2], ds, ds0, ds_hat, delta_mean, delta_hat,
-                  phi_x, f_rf;
+  double          twoJ[2], curly_H[2], ds[2], ds0, ds_hat, delta_mean[2],
+                  delta_hat, phi_x, f_rf, m_56, m_65, m_66, alpha_s, beta_s,
+                  nu_s;
   ss_vect<double> eta, A, ps, D;
   ss_vect<tps>    Ascr, Id, M;
   ofstream        outf;
 
-  const double nu_s = 4.324953e-3, eps = 1e-10;
+  const double eps = 1e-10;
 
   f_rf = Cell[Elem_GetPos(ElemIndex("cav"), 1)].Elem.C->Pfreq;
   printf("\nf_rf = %10.3e\n", f_rf);
 
   Id.identity();
+
+  globval.Cavity_on = !false; globval.radiation = false;
+  Ring_GetTwiss(true, 0e0); printglob();
+  nu_s = -globval.TotalTune[Z_];
 
   globval.Cavity_on = false; globval.radiation = false;
   Ring_GetTwiss(true, 0e0); printglob();
@@ -1023,10 +1028,10 @@ void get_disp(void)
   printf("\n  m_16, m_26 = %13.6e %13.6e\n", D[x_], D[px_]);
 
   A.zero();
-  A[x_] = 0e-6; A[px_] = 0e-6; A[y_] = 0e-6; A[py_] = 0e-6; A[delta_] = 1e-3;
+  A[x_] = 10e-6; A[px_] = 0e-6; A[y_] = 00e-6; A[py_] = 0e-6; A[delta_] = 0e-3;
   Ascr.zero();
-  putlinmat(2, globval.Ascr, Ascr);
-  get_twoJ(1, A, Ascr, twoJ);
+  putlinmat(4, globval.Ascr, Ascr);
+  get_twoJ(2, A, Ascr, twoJ);
 
   eta.zero();
   eta[x_] = Cell[globval.Cell_nLoc].Eta[X_];
@@ -1036,35 +1041,52 @@ void get_disp(void)
   ds0 =
     Cell[globval.Cell_nLoc].Etap[X_]*A[x_]
     - Cell[globval.Cell_nLoc].Eta[X_]*A[px_];
-  ds = M_PI*globval.Chrom[X_]*twoJ[X_];
+  for (k = 0; k < 2; k++)
+    ds[k] = M_PI*globval.Chrom[k]*twoJ[k];
   ds_hat = sqrt(twoJ[X_]*curly_H[X_]);
 
-  delta_mean = ds/(globval.Alphac*Cell[globval.Cell_nLoc].S);
+  for (k = 0; k < 2; k++)
+    delta_mean[k] = ds[k]/(globval.Alphac*Cell[globval.Cell_nLoc].S);
   delta_hat =
     sqr(2e0*M_PI*nu_s)*ds_hat
-    /(globval.Alphac*Cell[globval.Cell_nLoc].S
-      *sin(M_PI*globval.TotalTune[X_]));
+    /(globval.Alphac*Cell[globval.Cell_nLoc].S*sin(M_PI*globval.TotalTune[X_]));
 
-  printf("\n  A_x                        = %9.3e [micron]\n", 1e6*A[X_]);
-  printf("  2*J_x                      = %9.3e\n", twoJ[X_]);
-  printf("  curly_H                    = %9.3e\n", curly_H[X_]);
-  printf("\n  ds0                        = %7.5f [micron]\n", 1e6*ds0);
-  printf("  ds = 2*pi*ksi_x*J_x        = %9.3e [micron]\n", 1e6*ds);
-  printf("  ds^ = sqrt(2*J_x*curly_H)  = %7.5f [micron]\n", 1e6*ds_hat);
-  printf("\n  nu_s                       = %10.5e\n", nu_s);
-  printf("  delta_mean                 = %9.3e\n", delta_mean);
-  printf("  delta_hat                  = %9.3e\n", delta_hat);
+  alpha_s = (1e0-cos(2e0*M_PI*nu_s))/sin(2e0*M_PI*nu_s);
+  beta_s  = globval.Alphac*Cell[globval.Cell_nLoc].S/sin(2e0*M_PI*nu_s);
+  M.identity();
+  M[ct_] =
+    (cos(2e0*M_PI*nu_s)+alpha_s*sin(2e0*M_PI*nu_s))*Id[ct_]
+    + beta_s*sin(2e0*M_PI*nu_s)*Id[delta_];
+  M[delta_] =
+    -(1e0+sqr(alpha_s))*sin(2e0*M_PI*nu_s)/beta_s*Id[ct_]
+    + (cos(2e0*M_PI*nu_s)-alpha_s*sin(2e0*M_PI*nu_s))*Id[delta_];
+  prt_lin_map(3, M);
+
+  printf("\n  A_x                       = %9.3e [micron]\n", 1e6*A[X_]);
+  printf("  2*J                       = %9.3e %9.3e\n", twoJ[X_], twoJ[Y_]);
+  printf("  curly_H                   = %9.3e\n", curly_H[X_]);
+  printf("\n  ds0                       = %7.5f [micron]\n", 1e6*ds0);
+  printf("  ds = 2*pi*ksi*J           = %9.3e %9.3e [micron]\n",
+	 1e6*ds[X_], 1e6*ds[Y_]);
+  printf("  ds^ = sqrt(2*J_x*curly_H) = %7.5f [micron]\n", 1e6*ds_hat);
+  printf("\n  nu_s                      = %10.5e\n", nu_s);
+  printf("  delta_mean                = %9.3e %9.3e\n",
+	 delta_mean[X_], delta_mean[Y_]);
+  printf("  delta_hat                 = %9.3e\n", delta_hat);
+  printf("\n  nu_s                      = %10.3e\n", nu_s);
+  printf("  alpha_s                   = %10.3e\n", alpha_s);
+  printf("  beta_s                    = %10.3e\n", beta_s);
 
   if (!false) {
     globval.Cavity_on = false; globval.radiation = false;
     Ring_GetTwiss(true, 0e0); printglob();
 
-    printf("\ndet{M} = %12.5e\n", DetMat(6, globval.OneTurnMat));
+    printf("\ndet{M}-1 = %12.5e\n", DetMat(6, globval.OneTurnMat)-1e0);
 
     globval.Cavity_on = true; globval.radiation = false;
     Ring_GetTwiss(true, 0e0); printglob();
 
-    printf("\ndet{M} = %12.5e\n", DetMat(6, globval.OneTurnMat));
+    printf("\ndet{M}-1 = %12.5e\n", DetMat(6, globval.OneTurnMat)-1e0);
 
     globval.alpha_z =
       -globval.Ascr[ct_][ct_]*globval.Ascr[delta_][ct_]
@@ -1101,13 +1123,9 @@ void get_disp(void)
 	    +Cell[globval.Cell_nLoc].Beta[X_]*Cell[globval.Cell_nLoc].Etap[X_],
 	    Cell[globval.Cell_nLoc].Eta[X_]);
 
-    printf("\ndet{M} = %12.5e\n",
-	   M[ct_][ct_]*M[delta_][delta_]-M[ct_][delta_]*M[delta_][ct_]);
+    printf("\ndet{M}-1 = %12.5e\n",
+	   M[ct_][ct_]*M[delta_][delta_]-M[ct_][delta_]*M[delta_][ct_]-1e0);
     printf("phi_x  = %12.5e\n", phi_x*180e0/M_PI);
-
-    M[ct_] +=
-      sqrt(curly_H[X_]/Cell[globval.Cell_nLoc].Beta[X_])
-      *sin(2e0*M_PI*globval.TotalTune[X_]-phi_x)*Id[x_];
 
     // M = exp(-Cell[globval.Cell_nLoc].S/(globval.tau[Z_]*c0))*M;
 
@@ -1121,12 +1139,18 @@ void get_disp(void)
   if (!false) {
     // Standard Map.
     file_wr(outf, "std_map.out");
+
+    prtmat(6, globval.OneTurnMat);
+    m_56 = globval.OneTurnMat[ct_][delta_];
+    m_65 = globval.OneTurnMat[delta_][ct_];
+
     ps.zero();
-    for (k = 1; k <= 500; k++) {
-      ps[delta_] -=
-	sqr(2e0*M_PI*nu_s)*ds_hat*sin(k*2e0*M_PI*globval.TotalTune[X_])
-	/(globval.Alphac*Cell[globval.Cell_nLoc].S);
-      ps[ct_] += globval.Alphac*Cell[globval.Cell_nLoc].S*ps[delta_];
+    for (k = 1; k <= 2000; k++) {
+      ps[delta_] +=
+	-sqr(2e0*M_PI*nu_s)/(globval.Alphac*Cell[globval.Cell_nLoc].S)*ps[ct_];
+      ps[ct_] +=
+	globval.Alphac*Cell[globval.Cell_nLoc].S
+	*(ps[delta_]+ds_hat*sin(k*2e0*M_PI*globval.TotalTune[X_]));
       outf << scientific << setprecision(5)
 	   << setw(5) << k << setw(13) << ps << "\n";
     }
@@ -1682,7 +1706,7 @@ int main(int argc, char *argv[])
     // Ring_GetTwiss(true, 0e0); printglob();
   }
 
-  if (false) {
+  if (!false) {
     get_disp();
     exit(0);
   }
