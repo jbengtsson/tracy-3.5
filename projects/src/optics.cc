@@ -1025,7 +1025,7 @@ void get_disp(void)
   putlinmat(6, globval.OneTurnMat, M);
   D[x_] = M[x_][x_]*M[px_][delta_] - M[px_][x_]*M[x_][delta_];
   D[px_] = M[x_][px_]*M[px_][delta_] - M[px_][px_]*M[x_][delta_];
-  printf("\n  m_16, m_26 = %13.6e %13.6e\n", D[x_], D[px_]);
+  printf("\n  m_51, m_52 = %13.6e %13.6e\n", D[x_], D[px_]);
 
   A.zero();
   A[x_] = 10e-6; A[px_] = 0e-6; A[y_] = 00e-6; A[py_] = 0e-6; A[delta_] = 0e-3;
@@ -1706,7 +1706,7 @@ int main(int argc, char *argv[])
     // Ring_GetTwiss(true, 0e0); printglob();
   }
 
-  if (!false) {
+  if (false) {
     get_disp();
     exit(0);
   }
