@@ -1711,11 +1711,11 @@ void opt_mI_std(param_type &prms, constr_type &constr)
 		      0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
 		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
     constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
-		      1e6, 1e6, 1e0, 1e0, 1e6,   0e0,
+		      1e7, 1e7, 1e-2, 1e-2, 1e7,   0e0,
 		      0.0, 0.0, 3.0, 1.5, 0.024, 0.0);
     // Both SS constraints are needed.
     constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
-		      1e6, 1e6, 1e0, 1e0, 1e7, 1e7,
+		      1e7, 1e7, 1e-2, 1e-2, 1e7, 1e7,
 		      0.0, 0.0, 4.0, 2.5, 0.0, 0.0);
   } else {
     constr.add_constr(Elem_GetPos(ElemIndex("dl1a_5"), 1)-1,
@@ -1777,33 +1777,35 @@ void opt_mI_std(param_type &prms, constr_type &constr)
     lat_constr.mI0[k] = mI_nu_ref[k];
 
   if (relaxed) {
-    lat_constr.eps_x_scl            = 5e6;
-    lat_constr.ksi1_ctrl_scl[0]     = 1e-1;
-    lat_constr.ksi1_ctrl_scl[1]     = 5e-2;
-    lat_constr.ksi1_ctrl_scl[2]     = 1e-1;
-    lat_constr.drv_terms_simple_scl = 1e-3;
-    // lat_constr.drv_terms_simple_scl = 1e-4;
+    lat_constr.eps_x_scl              = 5e6;
+    lat_constr.ksi1_ctrl_scl[0]       = 1e-1;
+    lat_constr.ksi1_ctrl_scl[1]       = 5e-2;
+    lat_constr.ksi1_ctrl_scl[2]       = 1e-1;
+    if (!true)
+      lat_constr.drv_terms_simple_scl = 1e-3;
+    else
+      lat_constr.drv_terms_simple_scl = 1e-4;
     // Not useful.
-    lat_constr.ksi1_svd_scl         = 0e3;
-    lat_constr.mI_scl[X_]           = 1e5;
-    lat_constr.mI_scl[Y_]           = 1e5;
-    lat_constr.high_ord_achr_scl    = 1e5;
-    lat_constr.alpha_c_scl          = 5e-7;
+    lat_constr.ksi1_svd_scl           = 0e3;
+    lat_constr.mI_scl[X_]             = 1e5;
+    lat_constr.mI_scl[Y_]             = 1e5;
+    lat_constr.high_ord_achr_scl      = 1e5;
+    lat_constr.alpha_c_scl            = 5e-7;
   } else {
-    lat_constr.eps_x_scl            = 5e6;
-    lat_constr.ksi1_ctrl_scl[0]     = 1e-1;
-    lat_constr.ksi1_ctrl_scl[1]     = 5e-2;
-    lat_constr.ksi1_ctrl_scl[2]     = 1e-1;
-    lat_constr.drv_terms_simple_scl = 1e-3;
+    lat_constr.eps_x_scl              = 5e6;
+    lat_constr.ksi1_ctrl_scl[0]       = 1e-1;
+    lat_constr.ksi1_ctrl_scl[1]       = 5e-2;
+    lat_constr.ksi1_ctrl_scl[2]       = 1e-1;
+    lat_constr.drv_terms_simple_scl   = 1e-3;
     // lat_constr.drv_terms_simple_scl = 1e-4;
     // Not useful.
-    lat_constr.ksi1_svd_scl         = 0e3;
-    lat_constr.mI_scl[X_]           = 1e5;
-    lat_constr.mI_scl[Y_]           = 1e5;
-    lat_constr.high_ord_achr_scl    = 1e5;
-    lat_constr.alpha_c_scl          = 5e-7;
+    lat_constr.ksi1_svd_scl           = 0e3;
+    lat_constr.mI_scl[X_]             = 1e5;
+    lat_constr.mI_scl[Y_]             = 1e5;
+    lat_constr.high_ord_achr_scl      = 1e5;
+    lat_constr.alpha_c_scl            = 5e-7;
   }
-  lat_constr.phi_scl                = (dphi)? 1e0 : 0e0;
+  lat_constr.phi_scl                  = (dphi)? 1e0 : 0e0;
 
   prt_prms(lat_constr);
 
@@ -2005,7 +2007,7 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
     lat_constr.ksi1_svd_scl         = 0e3;
     lat_constr.mI_scl[X_]           = 1e6;
     lat_constr.mI_scl[Y_]           = 1e6;
-    lat_constr.high_ord_achr_scl    = 1e6;
+    lat_constr.high_ord_achr_scl    = 1e7;
     // 1e-7 is too small.
     lat_constr.alpha_c_scl          = 1e-6;
   } else {
@@ -2063,8 +2065,8 @@ void match_ls(param_type &prms, constr_type &constr)
   // Parameters are initialized in optimizer.
 
   constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
-  		    1e3, 1e3, 1e-1, 1e-1, 0e0, 0e0,
-  		    0.0, 0.0, 10.0, 4.0,  0.0, 0.0);
+  		    1e3, 1e3, 1e0,  1e0,  0e0, 0e0,
+  		    0.0, 0.0, 10.0, 4.0, 0.0, 0.0);
 
   if (pert_dip_cell)
     constr.add_constr(Elem_GetPos(ElemIndex("quad_add"), 1),
@@ -2084,7 +2086,7 @@ void match_ls(param_type &prms, constr_type &constr)
   for (k = 0; k < n; k++)
     lat_constr.high_ord_achr_dnu[k].resize(2, 0e0);
 
-  lat_constr.high_ord_achr_scl = 1e4;
+  lat_constr.high_ord_achr_scl = 1e5;
 
   lat_constr.ini_constr(false);
 

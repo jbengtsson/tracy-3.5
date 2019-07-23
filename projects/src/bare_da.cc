@@ -17,7 +17,7 @@ int no_tps = NO;
 
 
 const double
-  delta_max = 2.5e-2,
+  delta_max = 2e-2,
   dnu[]     = {0.03, 0.02};
 
 
