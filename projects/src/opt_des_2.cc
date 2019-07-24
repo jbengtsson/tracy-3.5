@@ -27,10 +27,10 @@ const int opt_case = 1;
 // From Center of Mid Straight: alpha, beta, eta, eta'.
 const int    n_ic        = 4;
 const double ic[n_ic][2] =
-  {{0.0000000000, 0.0000000000}, {3.3916014779, 1.6541176315},
-   {0.0268039271, 0.0000000000}, {0.0, 0.0}};
+  {{0.0000000000, 0.0000000000}, {3.4450418586, 1.6148236201},
+   {0.0248850385, 0.0000000000}, {0.0, 0.0}};
 
-#define LAT_CASE 1
+#define LAT_CASE 5
 
 const double
 #if LAT_CASE == 1
@@ -38,13 +38,13 @@ const double
   high_ord_achr_nu[] = {21.0/8.0, 7.0/8.0},
 #elif LAT_CASE == 2
   eps0_x             = 0.079,
-  high_ord_achr_nu[] = {11.0/4.0+0.01, 3.0/4.0-0.01},
+  high_ord_achr_nu[] = {21.0/8.0+0.01, 3.0/4.0-0.01},
 #elif LAT_CASE == 3
-  eps0_x             = 0.069,
+  eps0_x             = 0.079,
   high_ord_achr_nu[] = {11.0/4.0+0.01, 3.0/4.0-0.01},
 #elif LAT_CASE == 4
-  eps0_x             = 0.079,
-  high_ord_achr_nu[] = {21.0/8.0+0.01, 3.0/4.0-0.01},
+  eps0_x             = 0.069,
+  high_ord_achr_nu[] = {11.0/4.0+0.01, 3.0/4.0-0.01},
 #elif LAT_CASE == 5
   eps0_x             = 0.150,
   high_ord_achr_nu[] = {9.0/4.0+0.01, 3.0/4.0-0.01},
@@ -1919,10 +1919,16 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
 
   // Lattice constraints are: alpha_x,y, beta_x,y, eta_x, eta'_x.
   if (relaxed) {
-    constr.add_constr(Elem_GetPos(ElemIndex("dl1a_5"), 1)-1,
+    // constr.add_constr(Elem_GetPos(ElemIndex("dl1a_5"), 1)-1,
+    // 		      0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
+    // 		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+    // constr.add_constr(Elem_GetPos(ElemIndex("dl1a_5"), 2),
+    // 		      0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
+    // 		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+    constr.add_constr(Elem_GetPos(ElemIndex("qf1"), 1)-1,
 		      0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
 		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-    constr.add_constr(Elem_GetPos(ElemIndex("dl1a_5"), 2),
+    constr.add_constr(Elem_GetPos(ElemIndex("qf1"), 2),
 		      0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
 		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
     // Include constraint on alpha; in case of using ps_rot.
@@ -2054,27 +2060,31 @@ void match_ls(param_type &prms, constr_type &constr)
   std::vector<int>    grad_dip_Fnum;
   std::vector<double> grad_dip_scl;
 
-  // Long Straight.
-  prms.add_prm("qf1_c1",   2, -20.0, 20.0, 1.0);
-  prms.add_prm("qd2_c1",   2, -20.0, 20.0, 1.0);
-  prms.add_prm("quad_add", 2, -20.0, 20.0, 1.0);
   if (pert_dip_cell)
     // Perturbed symmetry at end of Dipole Cell: 
     //   1. Initialize with Qd3.
     //   2. Exclude for 1st pass.
     //   3. Include for fine tuning.
     prms.add_prm("qd3_c1",   2, -20.0, 20.0, 1.0);
+  // Long Straight.
+  prms.add_prm("qd2_c1",   2, -20.0, 20.0, 1.0);
+  prms.add_prm("qf1_c1",   2, -20.0, 20.0, 1.0);
+  prms.add_prm("quad_add", 2, -20.0, 20.0, 1.0);
 
   // Parameters are initialized in optimizer.
 
-  constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
-  		    1e3, 1e3, 1e0,  1e0,  0e0, 0e0,
-  		    0.0, 0.0, 10.0, 4.0, 0.0, 0.0);
-
-  if (pert_dip_cell)
+  if (!pert_dip_cell)
+    constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
+		      1e2, 1e2, 1e-2, 1e-2, 1e-10, 1e-10,
+		      0.0, 0.0, 10.0, 4.0,  0.0,   0.0);
+  else {
+    constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
+		      1e1, 1e1, 1e-2, 1e-2, 1e3, 1e3,
+		      0.0, 0.0, 10.0, 4.0,  0.0, 0.0);
     constr.add_constr(Elem_GetPos(ElemIndex("quad_add"), 1),
-		      0e0, 0e0, 0e0, 0e0, 1e5, 1e5,
+		      0e0, 0e0, 0e0, 0e0, 1e3, 1e3,
 		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+  }
 
   lat_prms.bn_tol = 1e-5; lat_prms.step = 1.0;
 
@@ -2089,7 +2099,10 @@ void match_ls(param_type &prms, constr_type &constr)
   for (k = 0; k < n; k++)
     lat_constr.high_ord_achr_dnu[k].resize(2, 0e0);
 
-  lat_constr.high_ord_achr_scl = 1e5;
+  if (!pert_dip_cell)
+    lat_constr.high_ord_achr_scl = 1e2;
+  else
+    lat_constr.high_ord_achr_scl = 1e0;
 
   lat_constr.ini_constr(false);
 
