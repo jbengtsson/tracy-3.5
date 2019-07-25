@@ -12,7 +12,7 @@ const bool
   ps_rot        = false, // Note, needs to be zeroed; after use.
   phi_spec_case = false,
   qf6_rb        = false,
-  sp_short      = true,
+  sp_short      = !true,
   sp_std        = true,
   relaxed       = true,
   pert_dip_cell = !false;
@@ -22,15 +22,15 @@ const bool
      opt_mI_std  1,
      match_ls    2,
      opt_mi_sp   3.                                                           */
-const int opt_case = 1;
+const int opt_case = 3;
 
 // From Center of Mid Straight: alpha, beta, eta, eta'.
 const int    n_ic        = 4;
 const double ic[n_ic][2] =
-  {{0.0000000000, 0.0000000000}, {3.4450418586, 1.6148236201},
-   {0.0248850385, 0.0000000000}, {0.0, 0.0}};
+  {{0.0000000000, 0.0000000000}, {3.8590487617, 1.5525117804},
+   {0.0240477346, 0.0000000000}, {0.0, 0.0}};
 
-#define LAT_CASE 5
+#define LAT_CASE 3
 
 const double
 #if LAT_CASE == 1
@@ -38,10 +38,10 @@ const double
   high_ord_achr_nu[] = {21.0/8.0, 7.0/8.0},
 #elif LAT_CASE == 2
   eps0_x             = 0.079,
-  high_ord_achr_nu[] = {21.0/8.0+0.01, 3.0/4.0-0.01},
+  high_ord_achr_nu[] = {11.0/4.0+0.01, 3.0/4.0-0.01},
 #elif LAT_CASE == 3
   eps0_x             = 0.079,
-  high_ord_achr_nu[] = {11.0/4.0+0.01, 3.0/4.0-0.01},
+  high_ord_achr_nu[] = {21.0/8.0+0.01, 3.0/4.0-0.01},
 #elif LAT_CASE == 4
   eps0_x             = 0.069,
   high_ord_achr_nu[] = {11.0/4.0+0.01, 3.0/4.0-0.01},
@@ -1974,6 +1974,19 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
 		      0.0, 0.0, 10.0, 4.0, 0.0, 0.0);
   }
 
+  if (false) {
+    // Increase beta_x.
+    constr.add_constr(Elem_GetPos(ElemIndex("sf1"), 1),
+		      0e5, 0e5, 1e4, 1e2, 0e7, 0e7,
+		      0.0, 0.0, 8.0, 1.0, 0.0, 0.0);
+  }
+  if (false) {
+    // Increase beta_y.
+    constr.add_constr(Elem_GetPos(ElemIndex("sd2"), 1),
+		      0e5, 0e5, 1e1, 1e3, 0e7, 0e7,
+		      0.0, 0.0, 1.0, 8.0, 0.0, 0.0);
+  }
+
   lat_prms.bn_tol = 1e-5; lat_prms.step = 1.0;
 
   lat_constr.Fnum_b3.push_back(ElemIndex("sf1"));
@@ -2075,11 +2088,11 @@ void match_ls(param_type &prms, constr_type &constr)
 
   if (!pert_dip_cell)
     constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
-		      1e2, 1e2, 1e-2, 1e-2, 1e-10, 1e-10,
+		      1e2, 1e2, 1e-3, 1e-3, 1e-10, 1e-10,
 		      0.0, 0.0, 10.0, 4.0,  0.0,   0.0);
   else {
     constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
-		      1e1, 1e1, 1e-2, 1e-2, 1e3, 1e3,
+		      1e2, 1e2, 1e-3, 1e-3, 1e3, 1e3,
 		      0.0, 0.0, 10.0, 4.0,  0.0, 0.0);
     constr.add_constr(Elem_GetPos(ElemIndex("quad_add"), 1),
 		      0e0, 0e0, 0e0, 0e0, 1e3, 1e3,
@@ -2100,9 +2113,9 @@ void match_ls(param_type &prms, constr_type &constr)
     lat_constr.high_ord_achr_dnu[k].resize(2, 0e0);
 
   if (!pert_dip_cell)
-    lat_constr.high_ord_achr_scl = 1e2;
+    lat_constr.high_ord_achr_scl = 1e-2;
   else
-    lat_constr.high_ord_achr_scl = 1e0;
+    lat_constr.high_ord_achr_scl = 1e-2;
 
   lat_constr.ini_constr(false);
 
@@ -2644,7 +2657,7 @@ int main(int argc, char *argv[])
     Ring_GetTwiss(true, 0e0); printglob();
     dnu[X_] = 0.0; dnu[Y_] = 0.0;
     set_map(ElemIndex("ps_rot"), dnu);
-    dnu[X_] = 0.0; dnu[Y_] = 0.0;
+    dnu[X_] = 0.05; dnu[Y_] = -0.05;
     set_map(ElemIndex("ps_rot"), dnu);
     Ring_GetTwiss(true, 0e0); printglob();
   }
