@@ -12,7 +12,7 @@ const bool
   ps_rot        = false, // Note, needs to be zeroed; after use.
   phi_spec_case = false,
   qf6_rb        = false,
-  sp_short      = !true,
+  sp_short      = true,
   sp_std        = true,
   relaxed       = true,
   pert_dip_cell = !false;
@@ -30,7 +30,7 @@ const double ic[n_ic][2] =
   {{0.0000000000, 0.0000000000}, {3.8590487617, 1.5525117804},
    {0.0240477346, 0.0000000000}, {0.0, 0.0}};
 
-#define LAT_CASE 3
+#define LAT_CASE 5
 
 const double
 #if LAT_CASE == 1
