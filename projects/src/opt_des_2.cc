@@ -12,7 +12,7 @@ const bool
   ps_rot        = false, // Note, needs to be zeroed; after use.
   phi_spec_case = false,
   qf6_rb        = false,
-  sp_short      = true,
+  sp_short      = !true,
   sp_std        = true,
   relaxed       = true,
   pert_dip_cell = !false;
@@ -30,29 +30,37 @@ const double ic[n_ic][2] =
   {{0.0000000000, 0.0000000000}, {3.8590487617, 1.5525117804},
    {0.0240477346, 0.0000000000}, {0.0, 0.0}};
 
-#define LAT_CASE 5
+#define LAT_CASE 4
 
 const double
 #if LAT_CASE == 1
   eps0_x             = 0.079,
   high_ord_achr_nu[] = {21.0/8.0, 7.0/8.0},
+  twoJ[]             = {sqr(3e-3)/10.0, sqr(2e-3)/4.0},
+  delta              = 2e-2,
 #elif LAT_CASE == 2
   eps0_x             = 0.079,
   high_ord_achr_nu[] = {11.0/4.0+0.01, 3.0/4.0-0.01},
+  twoJ[]             = {sqr(3e-3)/10.0, sqr(2e-3)/4.0},
+  delta              = 2e-2,
 #elif LAT_CASE == 3
   eps0_x             = 0.079,
   high_ord_achr_nu[] = {21.0/8.0+0.01, 3.0/4.0-0.01},
+  twoJ[]             = {sqr(3e-3)/10.0, sqr(2e-3)/4.0},
+  delta              = 2e-2,
 #elif LAT_CASE == 4
   eps0_x             = 0.069,
   high_ord_achr_nu[] = {11.0/4.0+0.01, 3.0/4.0-0.01},
+  twoJ[]             = {sqr(3e-3)/10.0, sqr(2e-3)/4.0},
+  delta              = 2e-2,
 #elif LAT_CASE == 5
-  eps0_x             = 0.150,
+  eps0_x             = 0.149,
   high_ord_achr_nu[] = {9.0/4.0+0.01, 3.0/4.0-0.01},
+  twoJ[]             = {sqr(7e-3)/10.0, sqr(4e-3)/4.0},
+  delta              = 2.5e-2,
 #endif
   mI_dnu[]           = {0.0, 0.0},
-  mI_nu_ref[]        = {1.5-mI_dnu[X_], 0.5-mI_dnu[Y_]},
-  twoJ[]             = {sqr(7e-3)/10.0, sqr(4e-3)/4.0},
-  delta              = 2.5e-2;
+  mI_nu_ref[]        = {1.5-mI_dnu[X_], 0.5-mI_dnu[Y_]};
 
 double rad2deg(const double a) { return a*180e0/M_PI; }
 
@@ -1919,35 +1927,51 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
 
   // Lattice constraints are: alpha_x,y, beta_x,y, eta_x, eta'_x.
   if (relaxed) {
-    // constr.add_constr(Elem_GetPos(ElemIndex("dl1a_5"), 1)-1,
-    // 		      0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
-    // 		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-    // constr.add_constr(Elem_GetPos(ElemIndex("dl1a_5"), 2),
-    // 		      0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
-    // 		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-    constr.add_constr(Elem_GetPos(ElemIndex("qf1"), 1)-1,
+#if 0
+    constr.add_constr(Elem_GetPos(ElemIndex("dl1a_5"), 1)-1,
+    		      0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
+    		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+    constr.add_constr(Elem_GetPos(ElemIndex("dl1a_5"), 2),
+    		      0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
+    		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+#else
+    // Include quadrupoles before Std & Long Straights.
+    constr.add_constr(Elem_GetPos(ElemIndex("qf1_c1"), 1)-1,
 		      0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
 		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-    constr.add_constr(Elem_GetPos(ElemIndex("qf1"), 2),
+    constr.add_constr(Elem_GetPos(ElemIndex("qf1"), 1),
 		      0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
 		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+    constr.add_constr(Elem_GetPos(ElemIndex("qf1"), 2)-1,
+		      0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
+		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+    constr.add_constr(Elem_GetPos(ElemIndex("qf1"), 3),
+		      0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
+		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+    constr.add_constr(Elem_GetPos(ElemIndex("qf1"), 4)-1,
+		      0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
+		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+    constr.add_constr(Elem_GetPos(ElemIndex("qf1_c1"), 2),
+		      0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
+		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+#endif
     // Include constraint on alpha; in case of using ps_rot.
     constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
 		      1e6, 1e6, 1e-2, 1e-2, 1e6,   1e7,
-		      0.0, 0.0, 3.0, 1.5, 0.024, 0.0);
+		      0.0, 0.0, 3.0,  1.5,  0.024, 0.0);
     constr.add_constr(Elem_GetPos(ElemIndex("ms"), 2),
 		      1e6, 1e6, 1e-2, 1e-2, 1e6,   1e7,
-		      0.0, 0.0, 3.0, 1.5, 0.024, 0.0);
+		      0.0, 0.0, 3.0,  1.5,  0.024, 0.0);
     // Both SS constraints are needed.
     constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
 		      1e6, 1e6, 1e-2, 1e-2, 1e7, 1e7,
-		      0.0, 0.0, 4.0, 2.5, 0.0, 0.0);
+		      0.0, 0.0, 4.0,  2.5,  0.0, 0.0);
     constr.add_constr(Elem_GetPos(ElemIndex("ss"), 2),
 		      1e6, 1e6, 1e-2, 1e-2, 1e7, 1e7,
-		      0.0, 0.0, 4.0, 2.5, 0.0, 0.0);
+		      0.0, 0.0, 4.0,  2.5,  0.0, 0.0);
     constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
-		      1e6, 1e6, 1e-2,  1e-2, 1e7, 1e7,
-		      0.0, 0.0, 10.0, 4.0, 0.0, 0.0);
+		      1e6, 1e6, 1e2,  1e-2, 1e7, 1e7,
+		      0.0, 0.0, 10.0, 4.0,  0.0, 0.0);
   } else {
     constr.add_constr(Elem_GetPos(ElemIndex("dl1a_5"), 1)-1,
 		      0e0, 0e0, 0e0, 0e0, 1e8, 1e8,
@@ -2020,7 +2044,8 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
     lat_constr.mI0[k] = mI_nu_ref[k];
 
   if (relaxed) {
-    lat_constr.eps_x_scl            = 1e7;
+    // lat_constr.eps_x_scl            = 1e7;
+    lat_constr.eps_x_scl            = 1e6;
     lat_constr.ksi1_ctrl_scl[0]     = 0e-1;
     lat_constr.ksi1_ctrl_scl[1]     = 0e0;
     lat_constr.ksi1_ctrl_scl[2]     = 0e-1;
