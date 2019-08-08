@@ -12,7 +12,7 @@ const bool
   ps_rot        = false, // Note, needs to be zeroed; after use.
   phi_spec_case = false,
   qf6_rb        = false,
-  sp_short      = !true,
+  sp_short      = true,
   sp_std        = true,
   relaxed       = true,
   pert_dip_cell = !false;
@@ -27,10 +27,10 @@ const int opt_case = 3;
 // From Center of Mid Straight: alpha, beta, eta, eta'.
 const int    n_ic        = 4;
 const double ic[n_ic][2] =
-  {{0.0000000000, 0.0000000000}, {3.8590487617, 1.5525117804},
-   {0.0240477346, 0.0000000000}, {0.0, 0.0}};
+  {{-0.0000000000, 0.0000000000}, {5.7121470188, 2.5034708418},
+   {0.0256120421, 0.0000000000}, {0.0, 0.0}};
 
-#define LAT_CASE 4
+#define LAT_CASE 5
 
 const double
 #if LAT_CASE == 1
@@ -1970,7 +1970,7 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
 		      1e6, 1e6, 1e-2, 1e-2, 1e7, 1e7,
 		      0.0, 0.0, 4.0,  2.5,  0.0, 0.0);
     constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
-		      1e6, 1e6, 1e2,  1e-2, 1e7, 1e7,
+		      1e6, 1e6, 1e-2, 1e-2, 1e7, 1e7,
 		      0.0, 0.0, 10.0, 4.0,  0.0, 0.0);
   } else {
     constr.add_constr(Elem_GetPos(ElemIndex("dl1a_5"), 1)-1,
@@ -2044,8 +2044,7 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
     lat_constr.mI0[k] = mI_nu_ref[k];
 
   if (relaxed) {
-    // lat_constr.eps_x_scl            = 1e7;
-    lat_constr.eps_x_scl            = 1e6;
+    lat_constr.eps_x_scl            = 1e7;
     lat_constr.ksi1_ctrl_scl[0]     = 0e-1;
     lat_constr.ksi1_ctrl_scl[1]     = 0e0;
     lat_constr.ksi1_ctrl_scl[2]     = 0e-1;
@@ -2100,7 +2099,7 @@ void match_ls(param_type &prms, constr_type &constr)
 
   if (pert_dip_cell)
     // Perturbed symmetry at end of Dipole Cell: 
-    //   1. Initialize with Qd3.
+    //   1. Initialize with: [Qf1, Qd2, Qd3].
     //   2. Exclude for 1st pass.
     //   3. Include for fine tuning.
     prms.add_prm("qd3_c1",   2, -20.0, 20.0, 1.0);
@@ -2112,6 +2111,7 @@ void match_ls(param_type &prms, constr_type &constr)
   // Parameters are initialized in optimizer.
 
   if (!pert_dip_cell)
+    // Eta_x & eta_x' are zero after Dipole Cell.
     constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
 		      1e2, 1e2, 1e-3, 1e-3, 1e-10, 1e-10,
 		      0.0, 0.0, 10.0, 4.0,  0.0,   0.0);
@@ -2119,7 +2119,7 @@ void match_ls(param_type &prms, constr_type &constr)
     constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
 		      1e2, 1e2, 1e-3, 1e-3, 1e3, 1e3,
 		      0.0, 0.0, 10.0, 4.0,  0.0, 0.0);
-    constr.add_constr(Elem_GetPos(ElemIndex("quad_add"), 1),
+    constr.add_constr(Elem_GetPos(ElemIndex("qf1_c1"), 1),
 		      0e0, 0e0, 0e0, 0e0, 1e3, 1e3,
 		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   }
@@ -2682,7 +2682,7 @@ int main(int argc, char *argv[])
     Ring_GetTwiss(true, 0e0); printglob();
     dnu[X_] = 0.0; dnu[Y_] = 0.0;
     set_map(ElemIndex("ps_rot"), dnu);
-    dnu[X_] = 0.05; dnu[Y_] = -0.05;
+    dnu[X_] = 0.11; dnu[Y_] = -0.1;
     set_map(ElemIndex("ps_rot"), dnu);
     Ring_GetTwiss(true, 0e0); printglob();
   }

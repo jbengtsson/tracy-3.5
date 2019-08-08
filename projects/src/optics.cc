@@ -1472,7 +1472,7 @@ int main(int argc, char *argv[])
   if (prt_ms) {
     loc = Elem_GetPos(ElemIndex("ms"), 1);
     printf("\n%10s:\n  {{%12.10f, %12.10f}, {%12.10f, %12.10f},"
-	   " {%12.10f, %12.10f}, {%3.1f, %3.1f}}\n",
+	   " {%12.10f, %12.10f}, {%3.1f, %3.1f}};\n",
 	   Cell[loc].Elem.PName,
 	   Cell[loc].Alpha[X_], Cell[loc].Alpha[Y_],
 	   Cell[loc].Beta[X_], Cell[loc].Beta[Y_],
