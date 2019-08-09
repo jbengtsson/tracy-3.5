@@ -27,10 +27,10 @@ const int opt_case = 3;
 // From Center of Mid Straight: alpha, beta, eta, eta'.
 const int    n_ic        = 4;
 const double ic[n_ic][2] =
-  {{-0.0000000000, 0.0000000000}, {5.7121470188, 2.5034708418},
-   {0.0256120421, 0.0000000000}, {0.0, 0.0}};
+  {{0.0000000000, -0.0000000000}, {3.3597952508, 1.4318570540},
+   {0.0276469883, 0.0000000000}, {0.0, 0.0}};
 
-#define LAT_CASE 5
+#define LAT_CASE 2
 
 const double
 #if LAT_CASE == 1
