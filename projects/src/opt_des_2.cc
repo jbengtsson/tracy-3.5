@@ -11,7 +11,7 @@ const bool
 
   ps_rot        = false, // Note, needs to be zeroed; after use.
   phi_spec_case = false,
-  qf6_rb        = false,
+  qf6_rb        = !false,
   sp_short      = true,
   sp_std        = true,
   relaxed       = true,

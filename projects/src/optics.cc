@@ -1021,22 +1021,18 @@ void get_disp(void)
   alpha_c = globval.Alphac;
   C = Cell[globval.Cell_nLoc].S;
 
-#if 1
+#if 0
+  // Expanded.
   printf("\n  m_66, m_65 = %21.14e %21.14e\n",
 	 1e0, -sqr(2e0*M_PI*nu_s)/(alpha_c*C));
   printf("  m_56, m_55 = %21.14e %21.14e\n", -alpha_c*C, 1e0);
 #else
+  // "Exact".
   alpha_s =
     -globval.Ascr[ct_][ct_]*globval.Ascr[delta_][ct_]
     - globval.Ascr[ct_][delta_]*globval.Ascr[delta_][delta_];
   beta_s = sqr(globval.Ascr[ct_][ct_]) + sqr(globval.Ascr[ct_][delta_]);
   gamma_s = (1e0+sqr(alpha_s))/beta_s;
-  printf("\nA_scr: %10.3e %10.3e\n",
-	 -globval.Ascr[ct_][ct_]*globval.Ascr[delta_][ct_],
-	 -globval.Ascr[ct_][delta_]*globval.Ascr[delta_][delta_]);
-  printf("       %10.3e %10.3e\n",
-	 sqr(globval.Ascr[ct_][ct_]),
-	 sqr(globval.Ascr[ct_][delta_]));
 
   printf("\n  nu_s       = %15.8e\n", nu_s);
   printf("  alpha_s    = %10.3e\n", alpha_s);
@@ -1155,13 +1151,10 @@ void get_disp(void)
 	    +Cell[globval.Cell_nLoc].Beta[X_]*Cell[globval.Cell_nLoc].Etap[X_],
 	    Cell[globval.Cell_nLoc].Eta[X_]);
 
+    prt_lin_map(3, M);
     printf("\ndet{M}-1 = %12.5e\n",
 	   M[ct_][ct_]*M[delta_][delta_]-M[ct_][delta_]*M[delta_][ct_]-1e0);
     printf("phi_x  = %12.5e\n", phi_x*180e0/M_PI);
-
-    // M = exp(-C/(globval.tau[Z_]*c0))*M;
-
-    prt_lin_map(3, M);
   }
 
   globval.Cavity_on = !false; globval.radiation = false;
@@ -1172,6 +1165,7 @@ void get_disp(void)
     // Standard Map.
     file_wr(outf, "std_map.out");
 
+    printf("\n");
     prtmat(6, globval.OneTurnMat);
     m_56 = globval.OneTurnMat[ct_][delta_];
     m_65 = globval.OneTurnMat[delta_][ct_];
