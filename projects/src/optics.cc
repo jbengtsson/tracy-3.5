@@ -1341,13 +1341,22 @@ int main(int argc, char *argv[])
   Ring_GetTwiss(true, 0e0); printglob();
 
   if (false) {
+    globval.Cavity_on = !false; globval.radiation = !false;
+    trace = true;
+    getcod(0e0, lastpos);
+    exit(0);
+  }
+
+  if (false) {
     int             k;
     ss_vect<double> ps;
     ofstream        outf;
 
     file_wr(outf, "track.out");
+    globval.Cavity_on = !false; globval.radiation = !false;
     ps.zero();
-    ps[x_] = 1e-3; ps[px_] = -1e-3; ps[y_] = 0.5e-3; ps[py_] = -0.5e-3;
+    ps[x_] = 0e-3; ps[px_] = 0e-3; ps[y_] = 0e-3; ps[py_] = 0e-3;
+    ps[ct_] = 0e-3;
     for (k = 0; k <= globval.Cell_nLoc; k++) {
       Cell_Pass(k, k, ps, lastpos);
       outf << setw(4) << k
@@ -1751,7 +1760,7 @@ int main(int argc, char *argv[])
     // Ring_GetTwiss(true, 0e0); printglob();
   }
 
-  if (!false) {
+  if (false) {
     get_disp();
     exit(0);
   }
