@@ -1341,13 +1341,6 @@ int main(int argc, char *argv[])
   Ring_GetTwiss(true, 0e0); printglob();
 
   if (false) {
-    globval.Cavity_on = !false; globval.radiation = !false;
-    trace = true;
-    getcod(0e0, lastpos);
-    exit(0);
-  }
-
-  if (false) {
     int             k;
     ss_vect<double> ps;
     ofstream        outf;
