@@ -239,7 +239,8 @@ void param_data_type::FindSQ_SVDmat(double **SkewRespMat, double **U,
 {
   int i, j;
 
-  const double  cut = 1e-10; // cut value for SVD singular values
+  const int    n_prt = 6;
+  const double cut   = 1e-10; // cut value for SVD singular values
 
   for (i = 1; i <= N_COUPLE; i++)
     for (j = 1; j <= N_SKEW; j++)
@@ -257,10 +258,10 @@ void param_data_type::FindSQ_SVDmat(double **SkewRespMat, double **U,
     if (w[i] < cut ) {
       w[i] = 0.0;
       printf(" (zeroed)");
-      if (i % 8 == 0) printf("\n");
+      if (i % n_prt == 0) printf("\n");
     }
   }
-  if (i % 8 != 0) printf("\n");
+  if (N_SKEW % n_prt != 0) printf("\n");
 }
 
 

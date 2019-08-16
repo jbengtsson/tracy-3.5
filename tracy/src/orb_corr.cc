@@ -31,14 +31,14 @@ void prt_bpm_corr(const int m, const int n, const std::vector<long int> &bpms,
     printf("%8s", Cell[bpms[k]].Elem.PName);
     if ((k+1) % n_prt == 0) printf("\n  ");
   }
-  if ((m+1) % n_prt != 0) printf("\n");
+  if (m % n_prt != 0) printf("\n");
 
   printf("\ncorrs:\n  ");
   for (k = 0; k < n; k++) {
     printf("%8s", Cell[corrs[k]].Elem.PName);
     if ((k+1) % n_prt == 0) printf("\n  ");
   }
-  if ((n+1) % n_prt != 0) printf("\n");
+  if (n % n_prt != 0) printf("\n");
 }
 
 void orb_corr_type::alloc(const long int i0, const long int i1,
@@ -300,6 +300,7 @@ void thread_beam(const int n_cell, const string &Fam_name,
   for (i = 0; i < n_cell; i++) {
     i0 = Elem_GetPos(Fnum, 2*i+1); i1 = Elem_GetPos(Fnum, 2*i+2);
     i2 = Elem_GetPos(Fnum, 2*i+3);
+    if (trace) printf("\n  i0 = %d i1 = %d i2 = %3d\n", i0, i1, i2);
     for (j = 0; j < 2; j++) {
       orb_corr[j].corrs = get_elem(i0, i1, corr_Fam_names[j]);
       if (i != n_cell-1)
@@ -313,12 +314,16 @@ void thread_beam(const int n_cell, const string &Fam_name,
       }
     }
 
-    for (j = 1; j <= n_orbit; j++) {
+    for (j = 1; j <= 5; j++) {
       ps.zero();
       Cell_Pass(0, globval.Cell_nLoc, ps, lastpos);
-      if (trace && (lastpos != globval.Cell_nLoc))
-	printf("thread_beam: n_orbit = %2d beam lost at %4ld (%4ld)\n",
-	       j, lastpos, globval.Cell_nLoc);
+      if (trace) {
+	cout << setw(2) << j
+	     << scientific << setprecision(5) << setw(13) << ps << "\n";
+	if (lastpos != globval.Cell_nLoc)
+	  printf("thread_beam: n_orbit = %2d beam lost at %4ld (%4ld)\n",
+		 j, lastpos, globval.Cell_nLoc);
+      }
       if (i != n_cell-1) Cell_Pass(0, j2, ps, lastpos);
       orb_corr[0].solve(scl); orb_corr[1].solve(scl);
     }
