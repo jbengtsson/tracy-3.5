@@ -19,6 +19,28 @@ std::vector<long int> get_elem(const long int i0, const long int i1,
 }
 
 
+void prt_bpm_corr(const int m, const int n, const std::vector<long int> &bpms,
+		  const std::vector<long int> &corrs)
+{
+  int k;
+
+  const int n_prt = 6;
+
+  printf("\nbpms:\n  ");
+  for (k = 0; k < m; k++) {
+    printf("%8s", Cell[bpms[k]].Elem.PName);
+    if ((k+1) % n_prt == 0) printf("\n  ");
+  }
+  if ((m+1) % n_prt != 0) printf("\n");
+
+  printf("\ncorrs:\n  ");
+  for (k = 0; k < n; k++) {
+    printf("%8s", Cell[corrs[k]].Elem.PName);
+    if ((k+1) % n_prt == 0) printf("\n  ");
+  }
+  if ((n+1) % n_prt != 0) printf("\n");
+}
+
 void orb_corr_type::alloc(const long int i0, const long int i1,
 			  const long int i2,
 			  const std::vector<string> &bpm_Fam_names,
@@ -45,6 +67,7 @@ void orb_corr_type::alloc(const long int i0, const long int i1,
   svd_decomp();
 
   printf("\nalloc: plane = %d n_bpm = %d, n_corr = %d\n", hor, m, n);
+  prt_bpm_corr(m, n, bpms, corrs);
 }
 
 

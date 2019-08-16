@@ -38,6 +38,8 @@ int main(int argc, char *argv[])
   globval.emittance  = false; globval.IBS         = false;
   globval.pathlength = false; globval.Aperture_on = false;
 
+  trace = true;
+
   if (argc == 2)
     err_and_corr(argv[1]);
   else {

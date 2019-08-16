@@ -948,7 +948,7 @@ void param_data_type::A_matrix(void)
     A1[4*Nsext+2][j] =  scl_nu*qb0[Y_][j-1]/(4.0*M_PI);
   }
 
-  if (trace) {
+  if (false && trace) {
     printf("\n");
     printf("AA:\n");
     printf("\n");
@@ -987,7 +987,7 @@ void param_data_type::X_vector(const bool first)
     Xsext[4*Nsext+2] = scl_nu*(Nu_Y0-globval.TotalTune[Y_]);
   }
 
-  if (trace) {
+  if (false && trace) {
     printf("\n");
     printf("X:\n");
     printf("\n");
