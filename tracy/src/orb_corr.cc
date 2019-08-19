@@ -105,7 +105,8 @@ void orb_corr_type::get_trm_mat(void)
     for (j = 0; j < n; j++) {
       loc_corr = corrs[j];
       betaj = Cell[loc_corr].Beta[plane]; nuj = Cell[loc_corr].Nu[plane];
-      A[i+1][j+1] = (loc_bpm > loc_corr)?
+      A[i+1][j+1] = 
+	(loc_bpm > loc_corr)?
 	sqrt(betai*betaj)*sin(2.0*M_PI*(nui-nuj)) : 0e0;
     }
   }
@@ -269,12 +270,12 @@ void cod_ini(const std::vector<string> &bpm_Fam_names,
 void thread_beam(const int n_cell, const string &Fam_name,
 		 const std::vector<string> &bpm_Fam_names,
 		 const std::vector<string> corr_Fam_names[],
-		 const int n_orbit, const double scl)
+		 const int n_thread, const double scl)
 {
   // Thread beam one super period at the time.
   // Assumes a marker at entrance, center, and exit of each super period.
 
-  long int              lastpos, i0, i1, i2, j1, j2 = 0;
+  long int              lastpos, i0, i1;
   int                   i, j, Fnum;
   Vector2               mean, sigma, max;
   ss_vect<double>       ps;
@@ -284,12 +285,6 @@ void thread_beam(const int n_cell, const string &Fam_name,
   const double eps = 1e-4;
 
   Fnum = ElemIndex(Fam_name);
-  i0 = Elem_GetPos(Fnum, 1); i1 = Elem_GetPos(Fnum, 2);
-  i2 = Elem_GetPos(Fnum, 3);
-  for (j = 0; j < 2; j++) {
-    orb_corr[j].alloc(i0, i1, i2, bpm_Fam_names, corr_Fam_names[j],
-		      j == 0, false, eps);
-  }
 
   ps.zero(); Cell_Pass(0, globval.Cell_nLoc, ps, lastpos);
   codstat(mean, sigma, max, lastpos, true, orb_corr[X_].bpms);
@@ -298,45 +293,41 @@ void thread_beam(const int n_cell, const string &Fam_name,
 	 1e3*sigma[X_], 1e3*sigma[Y_]);
 
   for (i = 0; i < n_cell; i++) {
-    i0 = Elem_GetPos(Fnum, 2*i+1); i1 = Elem_GetPos(Fnum, 2*i+2);
-    i2 = Elem_GetPos(Fnum, 2*i+3);
-    if (trace) printf("\n  i0 = %d i1 = %d i2 = %3d\n", i0, i1, i2);
+    i0 = Elem_GetPos(Fnum, i+1); i1 = Elem_GetPos(Fnum, i+2);
+    for (j = 0; j < 2; j++)
+      orb_corr[j].alloc(i0, i1, i1, bpm_Fam_names, corr_Fam_names[j],
+			j == 0, false, eps);
+    if (trace)
+      printf("\n  i = %d (%d) i0 = %d i1 = %d (s = %5.3f)\n",
+	     i+1, n_cell, i0, i1, Cell[i1].S);
     for (j = 0; j < 2; j++) {
       orb_corr[j].corrs = get_elem(i0, i1, corr_Fam_names[j]);
-      if (i != n_cell-1)
-	orb_corr[j].bpms = get_elem(i0, i2, bpm_Fam_names);
-      else {
-	orb_corr[j].bpms = get_elem(i0, i1, bpm_Fam_names);
-	j1 = Elem_GetPos(Fnum, 1); j2 = Elem_GetPos(Fnum, 2);
-	bpms = get_elem(j1, j2,	bpm_Fam_names);
-	orb_corr[j].bpms.insert(orb_corr[j].bpms.end(),
-				bpms.begin(), bpms.end());
-      }
+      orb_corr[j].bpms = get_elem(i0, i1, bpm_Fam_names);
     }
 
-    for (j = 1; j <= 5; j++) {
+    printf("\n");
+    for (j = 1; j <= n_thread; j++) {
       ps.zero();
-      Cell_Pass(0, globval.Cell_nLoc, ps, lastpos);
+      Cell_Pass(0, i1, ps, lastpos);
       if (trace) {
-	cout << setw(2) << j
+	cout << setw(3) << j
 	     << scientific << setprecision(5) << setw(13) << ps << "\n";
-	if (lastpos != globval.Cell_nLoc)
-	  printf("thread_beam: n_orbit = %2d beam lost at %4ld (%4ld)\n",
+	if (lastpos != i1)
+	  printf("thread_beam: n_thread = %2d beam lost at %4ld (%4ld)\n",
 		 j, lastpos, globval.Cell_nLoc);
       }
-      if (i != n_cell-1) Cell_Pass(0, j2, ps, lastpos);
       orb_corr[0].solve(scl); orb_corr[1].solve(scl);
     }
+
+    for (j = 0; j < 2; j++)
+      orb_corr[j].dealloc();
   }
 
   ps.zero(); Cell_Pass(0, globval.Cell_nLoc, ps, lastpos);
   codstat(mean, sigma, max, lastpos, true, orb_corr[X_].bpms);
-  printf("thread_beam, corrected rms trajectory (all):"
+  printf("\nthread_beam, corrected rms trajectory (all):"
 	 " x = %7.1e mm, y = %7.1e mm\n",
 	 1e3*sigma[X_], 1e3*sigma[Y_]);
-
-  for (j = 0; j < 2; j++)
-    orb_corr[j].dealloc();
 }
 
 

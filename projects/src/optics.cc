@@ -1291,6 +1291,47 @@ void get_eta(void)
 }
 
 
+void trm(const string &bpm, const int i,
+	 const string &corr, const int j)
+{
+  long int loc_bpm, loc_corr;
+  double   betai, betaj, nui, nuj, A_ij;
+
+  loc_bpm = Elem_GetPos(ElemIndex(bpm.c_str()), i);
+  betai = Cell[loc_bpm].Beta[X_]; nui = Cell[loc_bpm].Nu[X_];
+  loc_corr = Elem_GetPos(ElemIndex(corr.c_str()), j);
+  betaj = Cell[loc_corr].Beta[X_]; nuj = Cell[loc_corr].Nu[X_];
+  A_ij =
+    (loc_bpm > loc_corr)?
+    sqrt(betai*betaj)*sin(2.0*M_PI*(nui-nuj)) : 0e0;
+
+  printf("\ntrm:     A_ij = %12.5e\n", A_ij);
+}
+
+
+void trm_num(const string &bpm, const int i,
+	     const string &corr, const int j, const double eps)
+{
+  long int        lastpos, loc_bpm, loc_corr;
+  double          A_ij;
+  ss_vect<double> ps0, ps1;
+
+  loc_bpm = Elem_GetPos(ElemIndex(bpm.c_str()), i);
+  loc_corr = Elem_GetPos(ElemIndex(corr.c_str()), j);
+  set_dbnL_design_elem(Cell[loc_corr].Fnum, Cell[loc_corr].Knum, Dip, eps, 0e0);
+  ps1.zero();
+  Cell_Pass(0, loc_bpm, ps1, lastpos);
+  set_dbnL_design_elem(Cell[loc_corr].Fnum, Cell[loc_corr].Knum, Dip, -2e0*eps,
+		       0e0);
+  ps0.zero();
+  Cell_Pass(0, loc_bpm, ps0, lastpos);
+  set_dbnL_design_elem(Cell[loc_corr].Fnum, Cell[loc_corr].Knum, Dip, eps, 0e0);
+  A_ij = (ps1[x_]-ps0[x_])/(2e0*eps);
+
+  printf("trm_num: A_ij = %12.5e\n", A_ij);
+}
+
+
 int main(int argc, char *argv[])
 {
   bool             tweak;
@@ -1359,6 +1400,12 @@ int main(int argc, char *argv[])
 	   << setw(22) << ps << "\n";
     }
     outf.close();
+    exit(0);
+  }
+
+  if (!false) {
+    trm("bpm_11", 3, "ch_11", 1);
+    trm_num("bpm_11", 3, "ch_11", 1, 1e-8);
     exit(0);
   }
 

@@ -207,8 +207,6 @@ void DA_data_type::get_DA_real(param_data_type &params,
   double   DA_m[params.n_delta_DA+1], DA_s[params.n_delta_DA+1];
   double   x_hat_m[params.n_delta_DA+1][2], x_hat_s[params.n_delta_DA+1][2];
 
-  const int    n_cell = 20;
-  
   FILE *DA_real = NULL, *fp[params.n_delta_DA+1];
 
   for (j = 0; j <= params.n_delta_DA; j++) {
@@ -245,7 +243,7 @@ void DA_data_type::get_DA_real(param_data_type &params,
       // Beam based alignment.
       if (params.bba) params.Align_BPMs(Quad);
 
-      cod = params.cod_corr(n_cell, 1e0, orb_corr);
+      cod = params.cod_corr(1e0, orb_corr);
     } else
       cod = getcod(0e0, lastpos);
 
@@ -254,7 +252,7 @@ void DA_data_type::get_DA_real(param_data_type &params,
     if (params.N_calls > 0) {
       params.ID_corr(false, orb_corr);
       // Orbit must be corrected for each iteration.
-      // cod = params.cod_corr(n_cell, 1e0, orb_corr);
+      // cod = params.cod_corr(1e0, orb_corr);
     }
 
     params.Orb_and_Trim_Stat();

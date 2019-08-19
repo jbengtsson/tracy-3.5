@@ -5,6 +5,7 @@ int         param_data_type::n_orbit       = 5;
 int         param_data_type::n_scale       = 1;
 std::string param_data_type::loc_Fam_name  = "";
 int         param_data_type::n_cell        = -1;
+int         param_data_type::n_thread      = -1;
 
 int         param_data_type::n_lin         =  3;
 int         param_data_type::SQ_per_scell  =  2;
@@ -102,6 +103,8 @@ void param_data_type::get_param(const string &param_file)
 	sstr.clear(); sstr.str(""); sstr << str; loc_Fam_name = sstr.str();
       } else if (strcmp("n_cell", name) == 0)
 	sscanf(line, "%*s %d", &n_cell);
+      else if (strcmp("n_thread", name) == 0)
+	sscanf(line, "%*s %d", &n_thread);
       else if (strcmp("n_scale", name) == 0)
 	sscanf(line, "%*s %d", &n_scale);
       else if (strcmp("n_orbit", name) == 0)
@@ -1124,7 +1127,7 @@ bool param_data_type::ID_corr(const bool IDs, orb_corr_type orb_corr[])
 	}
 	fflush(outf);
 	if (cod_corr) {
-	  cod = this->cod_corr(n_cell, 1e0, orb_corr);
+	  cod = this->cod_corr(1e0, orb_corr);
 	  if (!cod) printf("*** ID_corr: cod_correct failed\n");
 	}
       }
@@ -1580,8 +1583,7 @@ void param_data_type::ini_COD_corr(const int n_bpm_Fam,
 }
 
 
-bool param_data_type::cod_corr(const int n_cell, const double scl,
-			       orb_corr_type orb_corr[])
+bool param_data_type::cod_corr(const double scl, orb_corr_type orb_corr[])
 {
   bool            cod = false;
   long int        lastpos;
@@ -1595,7 +1597,7 @@ bool param_data_type::cod_corr(const int n_cell, const double scl,
   if (!cod) {
     printf("\ncould not find closed orbit; threading beam\n");
     thread_beam(n_cell, loc_Fam_name, bpm_Fam_names, corr_Fam_names,
-		n_orbit, scl);
+		n_thread, scl);
   }
 
   cod = cod_correct(n_orbit, scl, orb_corr);

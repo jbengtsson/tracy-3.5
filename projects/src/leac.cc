@@ -28,7 +28,7 @@ void err_and_corr(const string &param_file, const int mode)
     // Beam based alignment.
     if (params.bba) params.Align_BPMs(Quad);
 
-    cod = params.cod_corr(params.n_cell, 1e0, orb_corr);
+    cod = params.cod_corr(1e0, orb_corr);
   } else
     cod = getcod(0e0, lastpos);
 

@@ -57,7 +57,7 @@ class param_data_type {
   int                      N_BPM, N_HCOR, N_VCOR, N_SKEW, N_COUPLE;
   // Orbit control.
   static std::string       loc_Fam_name;
-  static int               n_cell;
+  static int               n_cell, n_thread;
   std::vector<std::string> bpm_Fam_names, corr_Fam_names[2];
   static bool              bba;
 
@@ -126,8 +126,7 @@ class param_data_type {
 		    const int n_vcorr_Fam, const std::string vcorr_names[],
 		    const bool svd);
 
-  bool cod_corr(const int n_cell, const double scl,
-		orb_corr_type orb_corr[]);
+  bool cod_corr(const double scl, orb_corr_type orb_corr[]);
 
   void Orb_and_Trim_Stat(void);
 

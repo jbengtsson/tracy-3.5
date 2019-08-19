@@ -31,7 +31,7 @@ void codstat(double mean[], double sigma[], double xmax[], const long lastpos,
 void thread_beam(const int n_cell, const string &Fam_name,
 		 const std::vector<string> &bpm_Fam_names,
 		 const std::vector<string> corr_Fam_names[],
-		 const int n_orbit, const double scl);
+		 const int n_thread, const double scl);
 
 void cod_ini(const std::vector<string> &bpm_Fam_names,
 	     const std::vector<string> corr_Fam_names[],
