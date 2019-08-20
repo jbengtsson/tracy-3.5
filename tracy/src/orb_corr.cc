@@ -107,7 +107,7 @@ void orb_corr_type::get_trm_mat(void)
       betaj = Cell[loc_corr].Beta[plane]; nuj = Cell[loc_corr].Nu[plane];
       A[i+1][j+1] = 
 	(loc_bpm > loc_corr)?
-	sqrt(betai*betaj)*sin(2.0*M_PI*(nui-nuj)) : 0e0;
+	sqrt(betai*betaj)*sin(2e0*M_PI*(nui-nuj)) : 0e0;
     }
   }
 }
@@ -117,7 +117,7 @@ void orb_corr_type::get_orm_mat(void)
 {
   int      plane, i, j;
   long int loc_bpm, loc_corr;
-  double   nu, betai, betaj, nui, nuj, spiq;
+  double   nu, spiq, betai, betaj, nui, nuj;
 
   plane = (hor)? 0 : 1;
 
@@ -130,7 +130,7 @@ void orb_corr_type::get_orm_mat(void)
       loc_corr = corrs[j];
       betaj = Cell[loc_corr].Beta[plane]; nuj = Cell[loc_corr].Nu[plane];
       A[i+1][j+1] = 
-	sqrt(betai*betaj)/(2.0*spiq)*cos(nu*M_PI-fabs(2.0*M_PI*(nui-nuj)));
+	sqrt(betai*betaj)/(2.0*spiq)*cos(nu*M_PI-fabs(2e0*M_PI*(nui-nuj)));
     }
   }
 }

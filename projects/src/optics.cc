@@ -1291,6 +1291,45 @@ void get_eta(void)
 }
 
 
+void orm(const string &bpm, const int i,
+	 const string &corr, const int j)
+{
+  long int loc_bpm, loc_corr;
+  double   nu, spiq, betai, betaj, nui, nuj, A_ij;
+
+  nu = globval.TotalTune[X_]; spiq = sin(M_PI*nu);
+  loc_bpm = Elem_GetPos(ElemIndex(bpm.c_str()), i);
+  betai = Cell[loc_bpm].Beta[X_]; nui = Cell[loc_bpm].Nu[X_];
+  loc_corr = Elem_GetPos(ElemIndex(corr.c_str()), j);
+  betaj = Cell[loc_corr].Beta[X_]; nuj = Cell[loc_corr].Nu[X_];
+  A_ij = sqrt(betai*betaj)/(2e0*spiq)*cos(nu*M_PI-fabs(2e0*M_PI*(nui-nuj)));
+
+  printf("\norm:     A_ij = %12.5e\n", A_ij);
+}
+
+
+void orm_num(const string &bpm, const int i,
+	     const string &corr, const int j, const double eps)
+{
+  long int        lastpos, loc_bpm, loc_corr;
+  double          A_ij, x0, x1;
+
+  loc_bpm = Elem_GetPos(ElemIndex(bpm.c_str()), i);
+  loc_corr = Elem_GetPos(ElemIndex(corr.c_str()), j);
+  set_dbnL_design_elem(Cell[loc_corr].Fnum, Cell[loc_corr].Knum, Dip, eps, 0e0);
+  getcod(0.0, lastpos);
+  x1 = Cell[loc_bpm].BeamPos[x_];
+  set_dbnL_design_elem(Cell[loc_corr].Fnum, Cell[loc_corr].Knum, Dip, -2e0*eps,
+		       0e0);
+  getcod(0.0, lastpos);
+  x0 = Cell[loc_bpm].BeamPos[x_];
+  set_dbnL_design_elem(Cell[loc_corr].Fnum, Cell[loc_corr].Knum, Dip, eps, 0e0);
+  A_ij = (x1-x0)/(2e0*eps);
+
+  printf("orm_num: A_ij = %12.5e\n", A_ij);
+}
+
+
 void trm(const string &bpm, const int i,
 	 const string &corr, const int j)
 {
@@ -1303,7 +1342,7 @@ void trm(const string &bpm, const int i,
   betaj = Cell[loc_corr].Beta[X_]; nuj = Cell[loc_corr].Nu[X_];
   A_ij =
     (loc_bpm > loc_corr)?
-    sqrt(betai*betaj)*sin(2.0*M_PI*(nui-nuj)) : 0e0;
+    sqrt(betai*betaj)*sin(2e0*M_PI*(nui-nuj)) : 0e0;
 
   printf("\ntrm:     A_ij = %12.5e\n", A_ij);
 }
@@ -1404,6 +1443,9 @@ int main(int argc, char *argv[])
   }
 
   if (!false) {
+    orm("bpm_11", 3, "ch_11", 1);
+    orm_num("bpm_11", 3, "ch_11", 1, 1e-8);
+    printf("\n");
     trm("bpm_11", 3, "ch_11", 1);
     trm_num("bpm_11", 3, "ch_11", 1, 1e-8);
     exit(0);
