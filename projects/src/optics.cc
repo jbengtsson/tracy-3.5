@@ -13,8 +13,11 @@ const bool
   prt_dt  = false;
 
 const double
-  nu[]     = {-0.05, 0.0},
-  // nu[]     = {0.1/6.0, -0.2/6.0},
+#if 1
+  nu[]     = {0.0/6.0, 0.05/6.0},
+#else
+  nu[]     = {0.0, 0.1},
+#endif
   // nu[]     = {64.1/6.0, 18.34/6.0},
   dnu_mI[] = {1.5-1.44129-0.0, 0.5-0.47593-0.0},
   nu_HOA[] = {19.0/8.0, 15.0/16.0};
@@ -1442,7 +1445,7 @@ int main(int argc, char *argv[])
     exit(0);
   }
 
-  if (!false) {
+  if (false) {
     orm("bpm_11", 3, "ch_11", 1);
     orm_num("bpm_11", 3, "ch_11", 1, 1e-8);
     printf("\n");

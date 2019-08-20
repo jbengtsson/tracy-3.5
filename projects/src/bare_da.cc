@@ -16,9 +16,7 @@ int no_tps = NO;
 // ALS-U    10.
 
 
-const double
-  delta_max = 2e-2,
-  dnu[]     = {0.03, 0.02};
+const double delta_max = 2e-2;
 
 
 int main(int argc, char *argv[])
