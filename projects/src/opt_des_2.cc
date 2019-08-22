@@ -12,7 +12,7 @@ const bool
   ps_rot        = false, // Note, needs to be zeroed; after use.
   phi_spec_case = false,
   qf6_rb        = false,
-  sp_short      = !true,
+  sp_short      = true,
   sp_std        = true,
   relaxed       = true,
   pert_dip_cell = !false;
@@ -22,15 +22,15 @@ const bool
      opt_mI_std  1,
      match_ls    2,
      opt_mi_sp   3.                                                           */
-const int opt_case = 3;
+const int opt_case = 1;
 
 // From Center of Mid Straight: alpha, beta, eta, eta'.
 const int    n_ic        = 4;
 const double ic[n_ic][2] =
-  {{0.0000000000, -0.0000000000}, {3.3597952508, 1.4318570540},
-   {0.0276469883, 0.0000000000}, {0.0, 0.0}};
+  {{0.0000000000, -0.0000000000}, {4.2953004137, 1.2853874594},
+   {0.0297328983, 0.0000000000}, {-0.0, 0.0}};
 
-#define LAT_CASE 1
+#define LAT_CASE 5
 
 const double
 #if LAT_CASE == 1
@@ -1753,8 +1753,8 @@ void opt_mI_std(param_type &prms, constr_type &constr)
   if (false) {
     // Increase beta_x.
     constr.add_constr(Elem_GetPos(ElemIndex("sf1"), 1),
-		      0e5, 0e5, 1e4, 1e2, 0e7, 0e7,
-		      0.0, 0.0, 8.0, 1.0, 0.0, 0.0);
+		      0e5, 0e5, 1e4,  1e2, 0e7, 0e7,
+		      0.0, 0.0, 12.0, 1.0, 0.0, 0.0);
   }
   if (false) {
     // Increase beta_y.
@@ -1792,10 +1792,11 @@ void opt_mI_std(param_type &prms, constr_type &constr)
 
   if (relaxed) {
     lat_constr.eps_x_scl              = 5e6;
-    lat_constr.ksi1_ctrl_scl[0]       = 1e-1;
-    lat_constr.ksi1_ctrl_scl[1]       = 5e-2;
-    lat_constr.ksi1_ctrl_scl[2]       = 1e-1;
-    lat_constr.drv_terms_simple_scl   = 1e-3;
+    lat_constr.ksi1_ctrl_scl[0]       = 0e-1;
+    lat_constr.ksi1_ctrl_scl[1]       = 0e-2;
+    lat_constr.ksi1_ctrl_scl[2]       = 0e-1;
+    // lat_constr.drv_terms_simple_scl   = 1e-3;
+    lat_constr.drv_terms_simple_scl   = 1e-2;
     // Not useful.
     lat_constr.ksi1_svd_scl           = 0e3;
     lat_constr.mI_scl[X_]             = 1e5;
@@ -1804,9 +1805,9 @@ void opt_mI_std(param_type &prms, constr_type &constr)
     lat_constr.alpha_c_scl            = 5e-7;
   } else {
     lat_constr.eps_x_scl              = 5e6;
-    lat_constr.ksi1_ctrl_scl[0]       = 1e-1;
-    lat_constr.ksi1_ctrl_scl[1]       = 5e-2;
-    lat_constr.ksi1_ctrl_scl[2]       = 1e-1;
+    lat_constr.ksi1_ctrl_scl[0]       = 0e-1;
+    lat_constr.ksi1_ctrl_scl[1]       = 0e-2;
+    lat_constr.ksi1_ctrl_scl[2]       = 0e-1;
     lat_constr.drv_terms_simple_scl   = 1e-3;
     // lat_constr.drv_terms_simple_scl = 1e-4;
     // Not useful.
@@ -1960,6 +1961,9 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
 		      1e6, 1e6, 1e-2, 1e-2, 1e6,   1e7,
 		      0.0, 0.0, 3.0,  1.5,  0.024, 0.0);
     constr.add_constr(Elem_GetPos(ElemIndex("ms"), 2),
+		      1e6, 1e6, 1e-2, 1e-2, 1e6,   1e7,
+		      0.0, 0.0, 3.0,  1.5,  0.024, 0.0);
+    constr.add_constr(Elem_GetPos(ElemIndex("ms"), 3),
 		      1e6, 1e6, 1e-2, 1e-2, 1e6,   1e7,
 		      0.0, 0.0, 3.0,  1.5,  0.024, 0.0);
     // Both SS constraints are needed.
