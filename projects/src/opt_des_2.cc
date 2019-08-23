@@ -8,7 +8,6 @@ int no_tps = NO;
 
 
 const bool
-
   ps_rot        = false, // Note, needs to be zeroed; after use.
   phi_spec_case = false,
   qf6_rb        = false,
@@ -27,8 +26,8 @@ const int opt_case = 1;
 // From Center of Mid Straight: alpha, beta, eta, eta'.
 const int    n_ic        = 4;
 const double ic[n_ic][2] =
-  {{0.0000000000, -0.0000000000}, {4.2953004137, 1.2853874594},
-   {0.0297328983, 0.0000000000}, {-0.0, 0.0}};
+  {{-0.0000000000, 0.0000000000}, {2.2956955897, 2.9098243348},
+   {0.0240480640, 0.0000000000}, {-0.0, 0.0}};
 
 #define LAT_CASE 5
 
@@ -2060,6 +2059,7 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
     lat_constr.high_ord_achr_scl    = 1e6;
     // 1e-7 is too small.
     lat_constr.alpha_c_scl          = 1e-6;
+    // lat_constr.alpha_c_scl          = 5e-7;
   } else {
     lat_constr.eps_x_scl            = 1e6;
     lat_constr.ksi1_ctrl_scl[0]     = 0e-1;
@@ -2117,7 +2117,7 @@ void match_ls(param_type &prms, constr_type &constr)
   if (!pert_dip_cell)
     // Eta_x & eta_x' are zero after Dipole Cell.
     constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
-		      1e2, 1e2, 1e-3, 1e-3, 1e-10, 1e-10,
+		      1e2, 1e2, 1e-2, 1e-3, 1e-10, 1e-10,
 		      0.0, 0.0, 10.0, 4.0,  0.0,   0.0);
   else {
     constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
