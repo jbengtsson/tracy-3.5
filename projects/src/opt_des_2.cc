@@ -29,7 +29,7 @@ const double ic[n_ic][2] =
   {{-0.0000000000, 0.0000000000}, {2.2956955897, 2.9098243348},
    {0.0240480640, 0.0000000000}, {-0.0, 0.0}};
 
-#define LAT_CASE 5
+#define LAT_CASE 6
 
 const double
 #if LAT_CASE == 1
@@ -55,6 +55,11 @@ const double
 #elif LAT_CASE == 5
   eps0_x             = 0.149,
   high_ord_achr_nu[] = {9.0/4.0+0.01, 3.0/4.0-0.01},
+  twoJ[]             = {sqr(7e-3)/10.0, sqr(4e-3)/4.0},
+  delta              = 2.5e-2,
+#elif LAT_CASE == 6
+  eps0_x             = 0.149,
+  high_ord_achr_nu[] = {19.0/8.0+0.01, 3.0/4.0-0.01},
   twoJ[]             = {sqr(7e-3)/10.0, sqr(4e-3)/4.0},
   delta              = 2.5e-2,
 #endif
@@ -1726,7 +1731,6 @@ void opt_mI_std(param_type &prms, constr_type &constr)
     constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
 		      1e7, 1e7, 1e-2, 1e-2, 1e7,   0e0,
 		      0.0, 0.0, 3.0, 1.5, 0.024, 0.0);
-    // Both SS constraints are needed.
     constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
 		      1e7, 1e7, 1e-2, 1e-2, 1e7, 1e7,
 		      0.0, 0.0, 4.0, 2.5, 0.0, 0.0);
@@ -1740,11 +1744,7 @@ void opt_mI_std(param_type &prms, constr_type &constr)
     constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
 		      1e7, 1e7, 1e0, 1e0, 1e7,   0e0,
 		      0.0, 0.0, 3.0, 1.5, 0.024, 0.0);
-    // Both SS constraints are needed.
     constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
-		      1e7, 1e7, 1e0, 1e0, 1e7, 1e7,
-		      0.0, 0.0, 4.0, 2.5, 0.0, 0.0);
-    constr.add_constr(Elem_GetPos(ElemIndex("ss"), 2),
 		      1e7, 1e7, 1e0, 1e0, 1e7, 1e7,
 		      0.0, 0.0, 4.0, 2.5, 0.0, 0.0);
   }
@@ -1752,7 +1752,7 @@ void opt_mI_std(param_type &prms, constr_type &constr)
   if (false) {
     // Increase beta_x.
     constr.add_constr(Elem_GetPos(ElemIndex("sf1"), 1),
-		      0e5, 0e5, 1e4,  1e2, 0e7, 0e7,
+		      0e5, 0e5, 1e3,  1e1, 0e7, 0e7,
 		      0.0, 0.0, 12.0, 1.0, 0.0, 0.0);
   }
   if (false) {
@@ -1798,9 +1798,12 @@ void opt_mI_std(param_type &prms, constr_type &constr)
     lat_constr.drv_terms_simple_scl   = 1e-2;
     // Not useful.
     lat_constr.ksi1_svd_scl           = 0e3;
-    lat_constr.mI_scl[X_]             = 1e5;
-    lat_constr.mI_scl[Y_]             = 1e5;
-    lat_constr.high_ord_achr_scl      = 1e5;
+    // lat_constr.mI_scl[X_]             = 1e5;
+    // lat_constr.mI_scl[Y_]             = 1e5;
+    // lat_constr.high_ord_achr_scl      = 1e5;
+    lat_constr.mI_scl[X_]             = 1e6;
+    lat_constr.mI_scl[Y_]             = 1e6;
+    lat_constr.high_ord_achr_scl      = 1e6;
     lat_constr.alpha_c_scl            = 5e-7;
   } else {
     lat_constr.eps_x_scl              = 5e6;

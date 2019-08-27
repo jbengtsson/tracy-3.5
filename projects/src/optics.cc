@@ -12,13 +12,10 @@ const bool
   prt_ms  = false,
   prt_dt  = false;
 
+const int n_cell = 6;
+
 const double
-#if 1
-  nu[]     = {0.0/6.0, 0.05/6.0},
-#else
-  nu[]     = {0.0, 0.1},
-#endif
-  // nu[]     = {64.1/6.0, 18.34/6.0},
+  nu[]     = {62.74, 21.34},
   dnu_mI[] = {1.5-1.44129-0.0, 0.5-0.47593-0.0},
   nu_HOA[] = {19.0/8.0, 15.0/16.0};
 
@@ -1593,11 +1590,13 @@ int main(int argc, char *argv[])
     set_map(ElemIndex("ps_rot"), dnu);
     Ring_GetTwiss(true, 0e0); printglob();
     for (k = 0; k < 2; k++)
-      if (!true)
-	dnu[k] = nu[k] - fract(globval.TotalTune[k])/6e0;
+      if (true)
+	dnu[k] = nu[k]/n_cell - globval.TotalTune[k];
       else
 	dnu[k] = nu[k];
-    printf("\n fractional tune set to: [%7.5f, %7.5f]\n", nu[X_], nu[Y_]);
+    printf("\ntune set to:\n  dnu     = [%8.5f, %8.5f]\n", dnu[X_], dnu[Y_]);
+    printf("  nu_cell = [%8.5f, %8.5f]\n", nu[X_]/n_cell, nu[Y_]/n_cell);
+    printf("  nu      = [%8.5f, %8.5f]\n", nu[X_], nu[Y_]);
     set_map(ElemIndex("ps_rot"), dnu);
     Ring_GetTwiss(true, 0e0); printglob();
   }
