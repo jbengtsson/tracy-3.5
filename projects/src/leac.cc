@@ -15,6 +15,7 @@ void err_and_corr(const string &param_file, const int mode)
 
   params.get_param(param_file);
 
+  globval.dPcommon = 1e-10;
   globval.CODeps = 1e-10;
 
   Ring_GetTwiss(true, 0e0); printglob();

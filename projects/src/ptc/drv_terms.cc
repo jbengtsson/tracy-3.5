@@ -1,4 +1,4 @@
-#define NO 5
+#define NO 3
 
 #include "tracy_lib.h"
 
@@ -9,9 +9,11 @@ int no_tps   = NO,
 const bool   set_dnu = false;
 const int    n_cell  = 1;
 const double
-  twoJ[]    = {sqr(7e-3)/10.0, sqr(4e-3)/4.0},
-  delta_max = 2.5e-2,
-  dnu[]     = {0.03, 0.02};
+  beta_inj[] = {7.9, 3.1},
+  A_max[]    = {3e-3, 1.5e-3},
+  delta_max  = 2e-2,
+  twoJ[]     = {sqr(A_max[X_])/beta_inj[X_], sqr(A_max[Y_])/beta_inj[Y_]},
+  dnu[]      = {0.03, 0.02};
 
 
 void chk_bend()
@@ -135,6 +137,7 @@ void get_drv_terms(const double twoJ[], const double delta)
                etap0[] = {0e0, 0e0};
   
   outf.open("drv_terms.out", ios::out);
+
   Id.identity();
 
   // Get linear dispersion.
@@ -162,9 +165,55 @@ void get_drv_terms(const double twoJ[], const double delta)
     map_Fl = Inv(A1)*map_Fl*A0;
     prt_drv_terms(outf, k, twoJ, delta, map_Fl);
   }
+
   outf.close();
-  // std::cout << std::scientific << std::setprecision(3)
-  // 	    << MNF.A0 << "\n";
+
+  // cout << scientific << setprecision(3) << MNF.A0 << "\n";
+}
+
+
+void get_ampl_orb(const double twoJ[])
+{
+  long int        lastpos;
+  int             j, k;
+  ss_vect<tps>    Id, Id_scl, x, dx_loc;
+  ofstream        outf;
+
+  outf.open("ampl_orb.out", ios::out);
+
+  Id.identity();
+
+  Id_scl.identity();
+  for (k = 0; k < 4; k++)
+    Id_scl[k] *= sqrt(twoJ[k/2]);
+  Id_scl[delta_] = 0e0;
+
+  danot_(no_tps-1);
+  map.identity(); Cell_Pass(0, globval.Cell_nLoc, map, lastpos);
+  danot_(no_tps);
+  MNF = MapNorm(map, 1);
+  cout << scientific << setprecision(3) << MNF.g << "\n";
+
+  for (k = 0; k < 4; k++)
+    dx_loc[k] = PB(MNF.g, Id[k]);
+  dx_loc = MNF.A1*dx_loc;
+  cout << scientific << setprecision(3) << setw(13) << dx_loc[x_] << "\n";
+  Cell_Pass(0, globval.Cell_nLoc, dx_loc, lastpos);
+  cout << scientific << setprecision(3) << setw(13) << dx_loc[x_] << "\n";
+
+  // for (j = 0; j <= globval.Cell_nLoc; j++) {
+  //   Elem_Pass(j, dx_loc);
+  //   if (!false ||
+  // 	((Cell[j].Elem.Pkind == Mpole) &&
+  // 	 (Cell[j].Elem.M->PBpar[Sext+HOMmax] != 0e0)))
+  //     outf << setw(4) << j << fixed << setprecision(3) << setw(8) << Cell[j].S;
+  //     for (k = 0; k < 4; k++)
+  // 	outf << scientific << setprecision(5) << setw(13)
+  // 	     << abs2(dx_loc[k]*Id_scl);
+  //     outf << "\n";
+  // }
+
+  outf.close();
 }
 
 
@@ -195,5 +244,7 @@ int main(int argc, char *argv[])
     Ring_GetTwiss(true, 0e0); printglob();
   }
 
-  get_drv_terms(twoJ, delta_max);
+  // get_drv_terms(twoJ, delta_max);
+
+  get_ampl_orb(twoJ);
 }

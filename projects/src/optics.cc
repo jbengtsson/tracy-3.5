@@ -573,7 +573,7 @@ void chk_mI_trans(const int lat_case)
 
 void chk_lin_chrom(void)
 {
-  int Fnum, k, loc0, loc1;
+  int Fnum, loc0, loc1;
 
   Ring_GetTwiss(true, 0e0);
  
@@ -836,18 +836,19 @@ void A_At_pass(void)
 {
   long int     lastpos;
   int          i;
-  ss_vect<tps> omega, omega_tp, A, A_Atp;
+  ss_vect<tps> A, A_Atp;
 
-  omega = get_sympl_form(2); omega_tp = tp_S(2, omega);
   A.identity(); putlinmat(4, globval.Ascr, A);
   A_Atp = A*tp_S(2, A);
-  printf("\n   alpha_x  beta_x   alpha_y  beta_y:\n"
-	 "  %8.5f %8.5f %8.5f %8.5f\n",
+  printf("\n    alpha_x  beta_x    alpha_y  beta_y:\n"
+	 "  %9.5f %8.5f %9.5f %8.5f\n",
 	 -A_Atp[x_][px_], A_Atp[x_][x_], -A_Atp[y_][py_], A_Atp[y_][y_]);
-  for (i = 0; i <= 5; i++) {
-    Cell_Pass(i, i, A_Atp, lastpos); A_Atp = tp_S(2, A_Atp);
+  for (i = 0; i <= globval.Cell_nLoc; i++) {
     Cell_Pass(i, i, A_Atp, lastpos);
-    printf("  %8.5f %8.5f %8.5f %8.5f\n",
+    A_Atp = tp_S(2, A_Atp);
+    Cell_Pass(i, i, A_Atp, lastpos);
+    A_Atp = tp_S(2, A_Atp);
+    printf("  %9.5f %8.5f %9.5f %8.5f\n",
 	   -A_Atp[x_][px_], A_Atp[x_][x_], -A_Atp[y_][py_], A_Atp[y_][y_]);
   }
 }
@@ -1371,25 +1372,6 @@ void trm_num(const string &bpm, const int i,
 }
 
 
-void A_At_prop()
-{
-  long int     lastpos;
-  int          k;
-  ss_vect<tps> A, A_At;
-
-  A.identity(); putlinmat(4, globval.Ascr, A);
-  A_At = A*tp_S(2, A);
-  printf("\n");
-  for (k = 0; k <= globval.Cell_nLoc; k++) {
-    Cell_Pass(k, k, A_At, lastpos);
-    A_At = tp_S(2, A_At);
-    Cell_Pass(k, k, A_At, lastpos);
-    A_At = tp_S(2, A_At);
-    printf("  %3d %8.5f %8.5f\n", k, A_At[x_][x_], A_At[y_][y_]);
-  }
-}
-
-
 int main(int argc, char *argv[])
 {
   bool             tweak;
@@ -1438,11 +1420,6 @@ int main(int argc, char *argv[])
 
   globval.Cavity_on = false; globval.radiation = false;
   Ring_GetTwiss(true, 0e0); printglob();
-
-  if (!false) {
-    A_At_prop();
-    exit(0);
-  }
 
   if (false) {
     int             k;

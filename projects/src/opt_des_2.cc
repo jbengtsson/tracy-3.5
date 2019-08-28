@@ -11,7 +11,7 @@ const bool
   ps_rot        = false, // Note, needs to be zeroed; after use.
   phi_spec_case = false,
   qf6_rb        = false,
-  sp_short      = true,
+  sp_short      = !true,
   sp_std        = true,
   relaxed       = true,
   pert_dip_cell = !false;
@@ -21,7 +21,7 @@ const bool
      opt_mI_std  1,
      match_ls    2,
      opt_mi_sp   3.                                                           */
-const int opt_case = 1;
+const int opt_case = 3;
 
 // From Center of Mid Straight: alpha, beta, eta, eta'.
 const int    n_ic        = 4;
@@ -29,7 +29,7 @@ const double ic[n_ic][2] =
   {{-0.0000000000, 0.0000000000}, {2.2956955897, 2.9098243348},
    {0.0240480640, 0.0000000000}, {-0.0, 0.0}};
 
-#define LAT_CASE 6
+#define LAT_CASE 1
 
 const double
 #if LAT_CASE == 1
@@ -1749,13 +1749,13 @@ void opt_mI_std(param_type &prms, constr_type &constr)
 		      0.0, 0.0, 4.0, 2.5, 0.0, 0.0);
   }
 
-  if (false) {
+  if (!false) {
     // Increase beta_x.
     constr.add_constr(Elem_GetPos(ElemIndex("sf1"), 1),
 		      0e5, 0e5, 1e3,  1e1, 0e7, 0e7,
 		      0.0, 0.0, 12.0, 1.0, 0.0, 0.0);
   }
-  if (false) {
+  if (!false) {
     // Increase beta_y.
     constr.add_constr(Elem_GetPos(ElemIndex("sd2"), 1),
 		      0e5, 0e5, 1e1, 1e3, 0e7, 0e7,
