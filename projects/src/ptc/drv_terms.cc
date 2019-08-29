@@ -174,11 +174,14 @@ void get_drv_terms(const double twoJ[], const double delta)
 
 void get_ampl_orb(const double twoJ[])
 {
-  long int        lastpos;
-  int             j, k;
-  ss_vect<tps>    Id, Id_scl, x, dx_loc;
-  ofstream        outf;
+  long int     lastpos;
+  int          j, k;
+  ss_vect<tps> Id, Id_scl, x, dx, dx_fl, dx_fl_lin, A1;
+  ofstream     outf;
 
+  const double eta0[]  = {0e0, 0e0},
+               etap0[] = {0e0, 0e0};
+  
   outf.open("ampl_orb.out", ios::out);
 
   Id.identity();
@@ -188,30 +191,30 @@ void get_ampl_orb(const double twoJ[])
     Id_scl[k] *= sqrt(twoJ[k/2]);
   Id_scl[delta_] = 0e0;
 
-  danot_(no_tps-1);
-  map.identity(); Cell_Pass(0, globval.Cell_nLoc, map, lastpos);
   danot_(no_tps);
-  MNF = MapNorm(map, 1);
-  cout << scientific << setprecision(3) << MNF.g << "\n";
-
-  for (k = 0; k < 4; k++)
-    dx_loc[k] = PB(MNF.g, Id[k]);
-  dx_loc = MNF.A1*dx_loc;
-  cout << scientific << setprecision(3) << setw(13) << dx_loc[x_] << "\n";
-  Cell_Pass(0, globval.Cell_nLoc, dx_loc, lastpos);
-  cout << scientific << setprecision(3) << setw(13) << dx_loc[x_] << "\n";
-
-  // for (j = 0; j <= globval.Cell_nLoc; j++) {
-  //   Elem_Pass(j, dx_loc);
-  //   if (!false ||
-  // 	((Cell[j].Elem.Pkind == Mpole) &&
-  // 	 (Cell[j].Elem.M->PBpar[Sext+HOMmax] != 0e0)))
-  //     outf << setw(4) << j << fixed << setprecision(3) << setw(8) << Cell[j].S;
-  //     for (k = 0; k < 4; k++)
-  // 	outf << scientific << setprecision(5) << setw(13)
-  // 	     << abs2(dx_loc[k]*Id_scl);
-  //     outf << "\n";
-  // }
+  map.identity(); Cell_Pass(0, globval.Cell_nLoc, map, lastpos);
+  MNF = MapNorm(map, 1); A1 = MNF.A1;
+  dx_fl = LieExp(MNF.g, Id);
+  dx = A1*dx_fl;
+  for (j = 0; j <= globval.Cell_nLoc; j++) {
+    Elem_Pass(j, dx);
+    A1 = get_A(Cell[j].Alpha, Cell[j].Beta, eta0, etap0);
+    dx_fl = Inv(A1)*dx;
+    // Remove linear terms.
+    danot_(1);
+    dx_fl_lin = dx_fl;
+    danot_(no_tps);
+    dx_fl = dx_fl - dx_fl_lin;
+    if (!false ||
+  	((Cell[j].Elem.Pkind == Mpole) &&
+  	 (Cell[j].Elem.M->PBpar[Sext+HOMmax] != 0e0))) {
+      outf << setw(4) << j << fixed << setprecision(3) << setw(8) << Cell[j].S;
+      for (k = 0; k < 4; k++)
+  	outf << scientific << setprecision(5) << setw(13)
+  	     << abs2(dx_fl[k]*Id_scl);
+      outf << "\n";
+    }
+  }
 
   outf.close();
 }
