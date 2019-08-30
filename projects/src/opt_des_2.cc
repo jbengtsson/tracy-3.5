@@ -26,10 +26,10 @@ const int opt_case = 3;
 // From Center of Mid Straight: alpha, beta, eta, eta'.
 const int    n_ic        = 4;
 const double ic[n_ic][2] =
-  {{-0.0000000000, 0.0000000000}, {2.2956955897, 2.9098243348},
-   {0.0240480640, 0.0000000000}, {-0.0, 0.0}};
+  {{0.0000000000, 0.0000000000}, {1.1828160000, 1.3609384750},
+   {0.0252746382, 0.0000000000}, {0.0, 0.0}};
 
-#define LAT_CASE 1
+#define LAT_CASE 6
 
 const double
 #if LAT_CASE == 1
@@ -1749,13 +1749,13 @@ void opt_mI_std(param_type &prms, constr_type &constr)
 		      0.0, 0.0, 4.0, 2.5, 0.0, 0.0);
   }
 
-  if (!false) {
+  if (false) {
     // Increase beta_x.
     constr.add_constr(Elem_GetPos(ElemIndex("sf1"), 1),
 		      0e5, 0e5, 1e3,  1e1, 0e7, 0e7,
 		      0.0, 0.0, 12.0, 1.0, 0.0, 0.0);
   }
-  if (!false) {
+  if (false) {
     // Increase beta_y.
     constr.add_constr(Elem_GetPos(ElemIndex("sd2"), 1),
 		      0e5, 0e5, 1e1, 1e3, 0e7, 0e7,
@@ -1939,7 +1939,10 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
     		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 #else
     // Include quadrupoles before Std & Long Straights.
-    constr.add_constr(Elem_GetPos(ElemIndex("qf1_c1"), 1)-1,
+    // constr.add_constr(Elem_GetPos(ElemIndex("qf1_c1"), 1)-1,
+    // 		      0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
+    // 		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+    constr.add_constr(Elem_GetPos(ElemIndex("quad_add"), 1)-1,
 		      0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
 		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
     constr.add_constr(Elem_GetPos(ElemIndex("qf1"), 1),
@@ -1954,7 +1957,10 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
     constr.add_constr(Elem_GetPos(ElemIndex("qf1"), 4)-1,
 		      0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
 		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-    constr.add_constr(Elem_GetPos(ElemIndex("qf1_c1"), 2),
+    // constr.add_constr(Elem_GetPos(ElemIndex("qf1_c1"), 2),
+    // 		      0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
+    // 		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+    constr.add_constr(Elem_GetPos(ElemIndex("quad_add"), 2),
 		      0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
 		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 #endif
@@ -2004,13 +2010,13 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
 		      0.0, 0.0, 10.0, 4.0, 0.0, 0.0);
   }
 
-  if (false) {
+  if (!false) {
     // Increase beta_x.
     constr.add_constr(Elem_GetPos(ElemIndex("sf1"), 1),
-		      0e5, 0e5, 1e4, 1e2, 0e7, 0e7,
-		      0.0, 0.0, 8.0, 1.0, 0.0, 0.0);
+		      0e5, 0e5, 1e3,  1e2, 0e7, 0e7,
+		      0.0, 0.0, 12.0, 1.0, 0.0, 0.0);
   }
-  if (false) {
+  if (!false) {
     // Increase beta_y.
     constr.add_constr(Elem_GetPos(ElemIndex("sd2"), 1),
 		      0e5, 0e5, 1e1, 1e3, 0e7, 0e7,
@@ -2050,19 +2056,24 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
     lat_constr.mI0[k] = mI_nu_ref[k];
 
   if (relaxed) {
-    lat_constr.eps_x_scl            = 1e7;
+    // lat_constr.eps_x_scl            = 1e7;
+    lat_constr.eps_x_scl            = 1e6;
     lat_constr.ksi1_ctrl_scl[0]     = 0e-1;
     lat_constr.ksi1_ctrl_scl[1]     = 0e0;
     lat_constr.ksi1_ctrl_scl[2]     = 0e-1;
     lat_constr.drv_terms_simple_scl = 1e-4;
     // Not useful.
     lat_constr.ksi1_svd_scl         = 0e3;
-    lat_constr.mI_scl[X_]           = 1e6;
-    lat_constr.mI_scl[Y_]           = 1e6;
-    lat_constr.high_ord_achr_scl    = 1e6;
+    lat_constr.mI_scl[X_]           = 1e7;
+    lat_constr.mI_scl[Y_]           = 1e7;
+    lat_constr.high_ord_achr_scl    = 1e7;
+    // lat_constr.mI_scl[X_]           = 5e6;
+    // lat_constr.mI_scl[Y_]           = 5e6;
+    // lat_constr.high_ord_achr_scl    = 5e6;
     // 1e-7 is too small.
-    lat_constr.alpha_c_scl          = 1e-6;
+    // lat_constr.alpha_c_scl          = 1e-6;
     // lat_constr.alpha_c_scl          = 5e-7;
+    lat_constr.alpha_c_scl          = 1e-7;
   } else {
     lat_constr.eps_x_scl            = 1e6;
     lat_constr.ksi1_ctrl_scl[0]     = 0e-1;
@@ -2126,7 +2137,10 @@ void match_ls(param_type &prms, constr_type &constr)
     constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
 		      1e2, 1e2, 1e-3, 1e-3, 1e3, 1e3,
 		      0.0, 0.0, 10.0, 4.0,  0.0, 0.0);
-    constr.add_constr(Elem_GetPos(ElemIndex("qf1_c1"), 1),
+    // constr.add_constr(Elem_GetPos(ElemIndex("qf1_c1"), 1),
+    // 		      0e0, 0e0, 0e0, 0e0, 1e3, 1e3,
+    // 		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+    constr.add_constr(Elem_GetPos(ElemIndex("quad_add"), 1),
 		      0e0, 0e0, 0e0, 0e0, 1e3, 1e3,
 		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   }

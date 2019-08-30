@@ -280,6 +280,37 @@ void get_dnu2(const double Ax_max, const double Ay_max, const double delta)
 }
 
 
+void wtf()
+{
+  long int jj[ss_dim];
+  int      k;
+  tps      g_re, g_im, K_re, K_im;
+  
+  Ring_GetTwiss(true, 0.0); printglob();
+
+  get_map(false);
+
+  danot_(no_tps);
+  get_map_normal_form(); nus = dHdJ(MNF.K);
+
+  CtoR(MNF.K, K_re, K_im); CtoR(MNF.g, g_re, g_im);
+
+  cout << scientific << setprecision(5) << K_re;
+  for (k = 0; k < nv_tps; k++)
+    jj[k] = 0;
+  jj[x_] = 1; jj[px_] = 1; jj[delta_] = 1;
+  printf("\nTune Shift Terms:\n  h_11001 = %12.5e\n", -2e0*K_re[jj]);
+  jj[x_] = 0; jj[px_] = 0; jj[y_] = 1; jj[py_] = 1;
+  printf("  h_00111 = %12.5e\n", -2e0*K_re[jj]);
+  jj[x_] = 2; jj[px_] = 2; jj[y_] = 0; jj[py_] = 0; jj[delta_] = 0;
+  printf("  h_22000 = %12.5e\n", -4e0*K_re[jj]);
+  jj[x_] = 0; jj[px_] = 0; jj[y_] = 2; jj[py_] = 2;
+  printf("  h_00220 = %12.5e\n", -4e0*K_re[jj]);
+  jj[x_] = 1; jj[px_] = 1; jj[y_] = 1; jj[py_] = 1;
+  printf("  h_11110 = %12.5e\n", -4e0*K_re[jj]);
+}
+
+
 int main(int argc, char *argv[])
 {
   tps          H, H_re, H_im, g_re, g_im, K_re, K_im;
@@ -301,6 +332,11 @@ int main(int argc, char *argv[])
   }
 
   globval.EPU = true;
+
+  if (false) {
+    wtf();
+    exit(0);
+  }
 
   danot_(1);
 

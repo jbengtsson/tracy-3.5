@@ -1009,8 +1009,6 @@ void get_disp(void)
   ss_vect<tps>    Ascr, Id, M;
   ofstream        outf;
 
-  const double eps = 1e-10;
-
   f_rf = Cell[Elem_GetPos(ElemIndex("cav"), 1)].Elem.C->Pfreq;
   printf("\nf_rf = %10.3e\n", f_rf);
 
@@ -1093,7 +1091,8 @@ void get_disp(void)
     + (cos(2e0*M_PI*nu_s)-alpha_s*sin(2e0*M_PI*nu_s))*Id[delta_];
   prt_lin_map(3, M);
 
-  printf("\n  A_x                       = %9.3e [micron]\n", 1e6*A[X_]);
+  printf("\n  alpha_c                   = %9.3e\n", alpha_c);
+  printf("  A_x                       = %9.3e [micron]\n", 1e6*A[X_]);
   printf("  2*J                       = %9.3e %9.3e\n", twoJ[X_], twoJ[Y_]);
   printf("  curly_H                   = %9.3e\n", curly_H[X_]);
   printf("\n  ds0                       = %7.5f [micron]\n", 1e6*ds0);
@@ -1372,6 +1371,22 @@ void trm_num(const string &bpm, const int i,
 }
 
 
+void wtf(void)
+{
+  globval.Cavity_on = true; globval.radiation = !false;
+  Ring_GetTwiss(true, 0e0); printglob();
+  globval.alpha_z =
+    -globval.Ascr[ct_][ct_]*globval.Ascr[delta_][ct_]
+    - globval.Ascr[ct_][delta_]*globval.Ascr[delta_][delta_];
+  globval.beta_z = sqr(globval.Ascr[ct_][ct_]) + sqr(globval.Ascr[ct_][delta_]);
+ 
+  printf("\nLattice Parameters:\n  alpha = [%9.5f, %9.5f, %9.5f]\n",
+	 Cell[0].Alpha[X_], Cell[0].Alpha[Y_], globval.alpha_z);
+  printf("  beta  = [%9.5f, %9.5f, %9.5f]\n",
+	 Cell[0].Beta[X_], Cell[0].Beta[Y_], globval.beta_z);
+}
+
+
 int main(int argc, char *argv[])
 {
   bool             tweak;
@@ -1420,6 +1435,11 @@ int main(int argc, char *argv[])
 
   globval.Cavity_on = false; globval.radiation = false;
   Ring_GetTwiss(true, 0e0); printglob();
+
+  if (false) {
+    wtf();
+    exit(0);
+  }
 
   if (false) {
     int             k;
@@ -1686,7 +1706,7 @@ int main(int argc, char *argv[])
     exit(0);
   }
 
-  if (false) {
+  if (!false) {
     get_dbeta_deta(1e-4);
     // exit(0);
   }
