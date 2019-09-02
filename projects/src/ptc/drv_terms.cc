@@ -205,13 +205,13 @@ void get_ampl_orb(const double twoJ[])
     dx_fl_lin = dx_fl;
     danot_(no_tps);
     dx_fl = dx_fl - dx_fl_lin;
-    if (!false ||
+    if (false ||
   	((Cell[j].Elem.Pkind == Mpole) &&
   	 (Cell[j].Elem.M->PBpar[Sext+HOMmax] != 0e0))) {
       outf << setw(4) << j << fixed << setprecision(3) << setw(8) << Cell[j].S;
       for (k = 0; k < 4; k++)
   	outf << scientific << setprecision(5) << setw(13)
-  	     << abs2(dx_fl[k]*Id_scl);
+  	     << sqrt(abs2(dx_fl[k]*Id_scl));
       outf << "\n";
     }
   }
