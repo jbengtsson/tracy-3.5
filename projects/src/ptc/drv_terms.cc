@@ -177,7 +177,7 @@ void get_ampl_orb(const double twoJ[])
   long int     lastpos;
   int          j, k;
   double       dnu;
-  ss_vect<tps> Id, Id_scl, dx, dx_fl, dx_fl_lin, A1, dR;
+  ss_vect<tps> Id, Id_scl, dx, dx_fl, dx_fl_lin, A1, dR, M;
   ofstream     outf;
 
   const double eta0[]  = {0e0, 0e0},
@@ -195,19 +195,11 @@ void get_ampl_orb(const double twoJ[])
   danot_(no_tps);
   map.identity(); Cell_Pass(0, globval.Cell_nLoc, map, lastpos);
   MNF = MapNorm(map, 1); A1 = MNF.A1;
-  dx_fl = LieExp(MNF.g, Id);
-  dx = A1*dx_fl;
-  for (j = 1; j <= globval.Cell_nLoc; j++) {
-    Elem_Pass(j, dx);
+  M.identity();
+  for (j = 0; j <= globval.Cell_nLoc; j++) {
+    Elem_Pass(j, M);
     A1 = get_A(Cell[j].Alpha, Cell[j].Beta, eta0, etap0);
-    dR.identity();
-    for (k = 0; k < 2; k++) {
-      dnu = Cell[j].Nu[k] - Cell[j-1].Nu[k];
-      dR[2*k] = cos(2e0*M_PI*dnu)*Id[2*k] + sin(2e0*M_PI*dnu)*Id[2*k+1];
-      dR[2*k+1] = -sin(2e0*M_PI*dnu)*Id[2*k] + cos(2e0*M_PI*dnu)*Id[2*k+1];
-    }
-    // dx_fl = Inv(dR)*Inv(A1)*dx;
-    dx_fl = Inv(A1)*dx;
+    dx_fl = LieExp(MNF.g, Inv(A1)*M*MNF.A1);
     // Remove linear terms.
     danot_(1);
     dx_fl_lin = dx_fl;
@@ -233,7 +225,8 @@ void get_ampl_orb_2(const double twoJ[])
 {
   long int     lastpos;
   int          j, k;
-  ss_vect<tps> Id, Id_scl, dx_fl, dx_fl_lin;
+  double       dnu;
+  ss_vect<tps> Id, Id_scl, dx_fl, dx_fl_lin, dR;
   ofstream     outf;
 
   outf.open("ampl_orb.out", ios::out);
@@ -248,9 +241,17 @@ void get_ampl_orb_2(const double twoJ[])
   danot_(no_tps);
   for (j = 0; j <= globval.Cell_nLoc; j++) {
     map.identity(); Cell_Pass(j, globval.Cell_nLoc, map, lastpos);
-    if (j > 0) Cell_Pass(0, j-1, map, lastpos);
+    dR.identity();
+    if (j > 0) {
+      Cell_Pass(0, j-1, map, lastpos);
+      for (k = 0; k < 2; k++) {
+	dnu = Cell[j].Nu[k] - Cell[j-1].Nu[k];
+	dR[2*k] = cos(2e0*M_PI*dnu)*Id[2*k] + sin(2e0*M_PI*dnu)*Id[2*k+1];
+	dR[2*k+1] = -sin(2e0*M_PI*dnu)*Id[2*k] + cos(2e0*M_PI*dnu)*Id[2*k+1];
+      }
+    }
     MNF = MapNorm(map, 1);
-    dx_fl = LieExp(MNF.g, Id);
+    dx_fl = dR*LieExp(MNF.g, Id);
     // Remove linear terms.
     danot_(1);
     dx_fl_lin = dx_fl;
@@ -301,6 +302,8 @@ int main(int argc, char *argv[])
 
   // get_drv_terms(twoJ, delta_max);
 
-  get_ampl_orb(twoJ);
-  // get_ampl_orb_2(twoJ);
+  if (true)
+    get_ampl_orb(twoJ);
+  else
+    get_ampl_orb_2(twoJ);
 }
