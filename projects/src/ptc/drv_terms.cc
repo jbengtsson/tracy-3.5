@@ -176,8 +176,7 @@ void get_ampl_orb(const double twoJ[])
 {
   long int     lastpos;
   int          j, k;
-  double       dnu;
-  ss_vect<tps> Id, Id_scl, dx, dx_fl, dx_fl_lin, A1, dR, M;
+  ss_vect<tps> Id, Id_scl, dx, dx_fl, dx_fl_lin, A1, M;
   ofstream     outf;
 
   const double eta0[]  = {0e0, 0e0},
@@ -198,16 +197,17 @@ void get_ampl_orb(const double twoJ[])
   M.identity();
   for (j = 0; j <= globval.Cell_nLoc; j++) {
     Elem_Pass(j, M);
-    A1 = get_A(Cell[j].Alpha, Cell[j].Beta, eta0, etap0);
-    dx_fl = LieExp(MNF.g, Inv(A1)*M*MNF.A1);
-    // Remove linear terms.
-    danot_(1);
-    dx_fl_lin = dx_fl;
-    danot_(no_tps);
-    dx_fl = dx_fl - dx_fl_lin;
     if (!false ||
   	((Cell[j].Elem.Pkind == Mpole) &&
   	 (Cell[j].Elem.M->PBpar[Sext+HOMmax] != 0e0))) {
+      A1 = get_A(Cell[j].Alpha, Cell[j].Beta, eta0, etap0);
+      dx_fl = Inv(A1)*M*LieExp(MNF.g, Id)*A1;
+      dx_fl = tp_S(3, dx_fl);
+      // Remove linear terms.
+      danot_(1);
+      dx_fl_lin = dx_fl;
+      danot_(no_tps);
+      dx_fl = dx_fl - dx_fl_lin;
       outf << setw(4) << j << fixed << setprecision(3) << setw(8) << Cell[j].S
 	   << " " << setw(8) << Cell[j].Elem.PName;
       for (k = 0; k < 4; k++)
