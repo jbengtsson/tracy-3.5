@@ -233,11 +233,11 @@ void get_ampl_orb(const double twoJ[])
   for (j = 0; j <= globval.Cell_nLoc; j++) {
     danot_(no_tps-1);
     Elem_Pass(j, M);
-    map1 = M*map*Inv(M);
-    danot_(no_tps);
-    if (false ||
+    if (!false ||
   	((Cell[j].Elem.Pkind == Mpole) &&
   	 (Cell[j].Elem.M->PBpar[Sext+HOMmax] != 0e0))) {
+      map1 = M*map*Inv(M);
+      danot_(no_tps);
       MNF = MapNorm(map1, 1);
       dx_fl = LieExp(MNF.g, Id);
       // Transpose before removing linear terms.
