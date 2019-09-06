@@ -176,9 +176,9 @@ void tst_g()
 {
   long int     lastpos;
   int          k;
-  ss_vect<tps> Id, Id_scl, M, A0, A1, dx, dx_fl, dR;
+  ss_vect<tps> Id, Id_scl, dx_fl, M, M_fl, A0, A1;
 
-  const int loc = 30;
+  const int loc = 31;
 
   daeps_(1e-10);
 
@@ -193,8 +193,9 @@ void tst_g()
   Cell_Pass(0, loc, map, lastpos);
   danot_(no_tps);
   MNF = MapNorm(map, 1);
-  dx_fl = LieExp(MNF.g, Id);
-  cout << scientific << setprecision(5) << setw(13) << (dx_fl*Id_scl)[x_];
+  // dx_fl = LieExp(MNF.g, Id);
+  // cout << scientific << setprecision(5) << setw(13) << (dx_fl*Id_scl)[x_];
+  cout << scientific << setprecision(5) << setw(13) << MNF.g;
 
   danot_(no_tps-1);
   map.identity(); Cell_Pass(0, globval.Cell_nLoc, map, lastpos);
@@ -203,10 +204,11 @@ void tst_g()
   MNF = MapNorm(map, 1);
   A0 = get_A(Cell[0].Alpha, Cell[0].Beta, Cell[0].Eta, Cell[0].Etap);
   A1 = get_A(Cell[loc].Alpha, Cell[loc].Beta, Cell[loc].Eta, Cell[loc].Etap);
-  M = Inv(A1)*M*A0;
-  // dx_fl = M*LieExp(MNF.g, Id)*Inv(M);
-  dx_fl = LieExp(MNF.g*Inv(M), Id);
-  cout << scientific << setprecision(5) << setw(13) << (dx_fl*Id_scl)[x_];
+  M_fl = Inv(A1)*M*A0;
+  dx_fl = M_fl*LieExp(MNF.g, Id)*Inv(M_fl);
+  // dx_fl = LieExp(MNF.g*Inv(M), Id);
+  // cout << scientific << setprecision(5) << setw(13) << (dx_fl*Id_scl)[x_];
+  cout << scientific << setprecision(5) << setw(13) << MNF.g*Inv(M_fl);
 }
 
 
