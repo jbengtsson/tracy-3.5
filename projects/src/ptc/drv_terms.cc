@@ -175,10 +175,9 @@ void get_drv_terms(const double twoJ[], const double delta)
 void tst_g()
 {
   long int     lastpos;
-  int          k;
-  ss_vect<tps> Id, Id_scl, dx_fl, M, M_fl, A0, A1;
+  ss_vect<tps> Id, Id_scl, dx_fl, M, M_fl, A1;
 
-  const int loc = 31;
+  const int loc = 30;
 
   daeps_(1e-10);
 
@@ -195,76 +194,23 @@ void tst_g()
   MNF = MapNorm(map, 1);
   // dx_fl = LieExp(MNF.g, Id);
   // cout << scientific << setprecision(5) << setw(13) << (dx_fl*Id_scl)[x_];
-  cout << scientific << setprecision(5) << setw(13) << MNF.g;
+  cout << scientific << setprecision(5) << setw(13) << (MNF.g)*Id_scl;
 
   danot_(no_tps-1);
   map.identity(); Cell_Pass(0, globval.Cell_nLoc, map, lastpos);
   M.identity(); Cell_Pass(0, loc, M, lastpos);
   danot_(no_tps);
   MNF = MapNorm(map, 1);
-  A0 = get_A(Cell[0].Alpha, Cell[0].Beta, Cell[0].Eta, Cell[0].Etap);
   A1 = get_A(Cell[loc].Alpha, Cell[loc].Beta, Cell[loc].Eta, Cell[loc].Etap);
-  M_fl = Inv(A1)*M*A0;
-  dx_fl = M_fl*LieExp(MNF.g, Id)*Inv(M_fl);
-  // dx_fl = LieExp(MNF.g*Inv(M), Id);
+  M_fl = Inv(A1)*M*MNF.A1;
+  // dx_fl = M_fl*LieExp(MNF.g, Id)*Inv(M_fl);
+  dx_fl = LieExp(MNF.g*Inv(M_fl), Id);
   // cout << scientific << setprecision(5) << setw(13) << (dx_fl*Id_scl)[x_];
-  cout << scientific << setprecision(5) << setw(13) << MNF.g*Inv(M_fl);
+  cout << scientific << setprecision(5) << setw(13) << (MNF.g*Inv(M_fl))*Id_scl;
 }
 
 
 void get_ampl_orb(const double twoJ[])
-{
-  long int     lastpos;
-  int          j, k;
-  tps          g;
-  ss_vect<tps> Id, Id_scl, dx_fl, dx_fl_lin, A0, A1, M;
-  ofstream     outf;
-
-  outf.open("ampl_orb.out", ios::out);
-
-  Id.identity();
-
-  Id_scl.identity();
-  for (k = 0; k < 4; k++)
-    Id_scl[k] *= sqrt(twoJ[k/2]);
-  Id_scl[delta_] = 0e0;
-
-  danot_(no_tps-1);
-  map.identity(); Cell_Pass(0, globval.Cell_nLoc, map, lastpos);
-  danot_(no_tps);
-  MNF = MapNorm(map, 1);
-  A0 = get_A(Cell[0].Alpha, Cell[0].Beta, Cell[0].Eta, Cell[0].Etap);
-  M.identity();
-  for (j = 0; j <= globval.Cell_nLoc; j++) {
-    danot_(no_tps-1);
-    Elem_Pass(j, M);
-    danot_(no_tps);
-    if (!false ||
-  	((Cell[j].Elem.Pkind == Mpole) &&
-  	 (Cell[j].Elem.M->PBpar[Sext+HOMmax] != 0e0))) {
-      A1 = get_A(Cell[j].Alpha, Cell[j].Beta, Cell[j].Eta, Cell[j].Etap);
-
-      dx_fl = LieExp(MNF.g*tp_S(3, Inv(A1)*M*A0), Id);
-      dx_fl = tp_S(3, dx_fl);
-      // Remove linear terms.
-      danot_(1);
-      dx_fl_lin = dx_fl;
-      danot_(no_tps);
-      dx_fl = (dx_fl-dx_fl_lin)*Id_scl;
-      outf << setw(4) << j << fixed << setprecision(3) << setw(8) << Cell[j].S
-	   << " " << setw(8) << Cell[j].Elem.PName;
-      for (k = 0; k < 4; k++)
-  	outf << scientific << setprecision(5) << setw(13)
-  	     << sqrt(abs2(dx_fl[k]));
-      outf << "\n";
-    }
-  }
-
-  outf.close();
-}
-
-
-void get_ampl_orb_2(const double twoJ[])
 {
   long int     lastpos;
   int          j, k;
@@ -289,11 +235,12 @@ void get_ampl_orb_2(const double twoJ[])
     Elem_Pass(j, M);
     map1 = M*map*Inv(M);
     danot_(no_tps);
-    if (!false ||
+    if (false ||
   	((Cell[j].Elem.Pkind == Mpole) &&
   	 (Cell[j].Elem.M->PBpar[Sext+HOMmax] != 0e0))) {
       MNF = MapNorm(map1, 1);
       dx_fl = LieExp(MNF.g, Id);
+      // Transpose before removing linear terms.
       dx_fl = tp_S(3, dx_fl);
       // Remove linear terms.
       danot_(1);
@@ -342,13 +289,10 @@ int main(int argc, char *argv[])
 
   // get_drv_terms(twoJ, delta_max);
 
-  if (!false) {
+  if (false) {
     tst_g();
     exit(0);
   }
 
-  if (true)
-    get_ampl_orb(twoJ);
-  else
-    get_ampl_orb_2(twoJ);
+  get_ampl_orb(twoJ);
 }
