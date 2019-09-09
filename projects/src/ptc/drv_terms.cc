@@ -233,9 +233,8 @@ void get_ampl_orb(const double twoJ[])
   for (j = 0; j <= globval.Cell_nLoc; j++) {
     danot_(no_tps-1);
     Elem_Pass(j, M);
-    if (!false ||
-  	((Cell[j].Elem.Pkind == Mpole) &&
-  	 (Cell[j].Elem.M->PBpar[Sext+HOMmax] != 0e0))) {
+    if ((Cell[j].Elem.Pkind == Mpole) &&
+  	 (Cell[j].Elem.M->PBpar[Sext+HOMmax] != 0e0)) {
       map1 = M*map*Inv(M);
       danot_(no_tps);
       MNF = MapNorm(map1, 1);
@@ -251,7 +250,8 @@ void get_ampl_orb(const double twoJ[])
 	   << " " << setw(8) << Cell[j].Elem.PName;
       for (k = 0; k < 4; k++)
   	outf << scientific << setprecision(5) << setw(13)
-  	     << sqrt(abs2(dx_fl[k]));
+  	     << sqrt(abs2(Cell[j].Elem.M->PBpar[Sext+HOMmax]*Cell[j].Elem.PL
+			  *dx_fl[k]));
       outf << "\n";
     }
   }
