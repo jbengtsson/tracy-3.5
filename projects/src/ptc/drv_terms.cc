@@ -287,12 +287,12 @@ int main(int argc, char *argv[])
     Ring_GetTwiss(true, 0e0); printglob();
   }
 
-  // get_drv_terms(twoJ, delta_max);
-
   if (false) {
     tst_g();
     exit(0);
   }
 
-  get_ampl_orb(twoJ);
+  if (!true) get_drv_terms(twoJ, delta_max);
+
+  if (!false) get_ampl_orb(twoJ);
 }

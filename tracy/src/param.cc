@@ -1592,13 +1592,16 @@ bool param_data_type::cod_corr(const double scl, orb_corr_type orb_corr[])
 
   orb_corr[X_].clr_trims(); orb_corr[Y_].clr_trims();
   
-  cod = getcod(0e0, lastpos);
+  // cod = getcod(0e0, lastpos);
+  // if (!cod) {
+  //   printf("\ncould not find closed orbit; threading beam\n");
+  //   thread_beam(n_cell, loc_Fam_name, bpm_Fam_names, corr_Fam_names,
+  // 		n_thread, scl);
+  // }
 
-  if (!cod) {
-    printf("\ncould not find closed orbit; threading beam\n");
-    thread_beam(n_cell, loc_Fam_name, bpm_Fam_names, corr_Fam_names,
-		n_thread, scl);
-  }
+  printf("\nthreading beam\n");
+  thread_beam(n_cell, loc_Fam_name, bpm_Fam_names, corr_Fam_names,
+	      n_thread, scl);
 
   cod = cod_correct(n_orbit, scl, orb_corr);
   Ring_GetTwiss(false, 0e0); printglob();
