@@ -7,7 +7,7 @@ int no_tps   = NO,
 
 
 const bool   set_dnu = false;
-const int    n_cell  = 1;
+const int    n_cell  = 2;
 const double
   beta_inj[] = {7.9, 3.1},
   A_max[]    = {3e-3, 1.5e-3},
@@ -292,7 +292,7 @@ int main(int argc, char *argv[])
     exit(0);
   }
 
-  if (!true) get_drv_terms(twoJ, delta_max);
+  if (true) get_drv_terms(twoJ, delta_max);
 
   if (!false) get_ampl_orb(twoJ);
 }

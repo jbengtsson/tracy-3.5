@@ -14,20 +14,25 @@ void err_and_corr(const string &param_file)
   orb_corr_type   orb_corr[2];
   FILE            *fp;
 
-  // MAX-VI:
-  // const double Qb = 5e-9, eps_x = 16e-12, eps_y = 16e-12,
-  //              sigma_s = 1e-2, sigma_delta = 1e-3;
-  // SLS-2:
-  const double Qb = 0.994e-9, eps_x = 101e-12, eps_y = 10e-12,
-               sigma_s = 2.58e-3, sigma_delta = 1.0e-3;
+  const double
+    // DIAMOND-II.
+    Qb          = 0.6e-9,
+    eps[]       = {79e-12, 8e-12},
+    sigma_s     = 3e-3,
+    sigma_delta = 1.3e-3;
 
   const string file_name = "mom_aper.out";
+
+  params.get_param(param_file);
+
+  globval.dPcommon = 1e-10;
+  globval.CODeps = 1e-10;
+
+  Ring_GetTwiss(true, 0e0); printglob();
 
   params.err_and_corr_init(param_file, orb_corr);
 
   globval.Cavity_on = false;
-
-  globval.CODeps = 1e-10;
 
   if (params.fe_file != "") params.LoadFieldErr(false, 1e0, true);
   if (params.ae_file != "") {
@@ -55,7 +60,7 @@ void err_and_corr(const string &param_file)
  
     globval.delta_RF = 5.2e-2; globval.Cavity_on = true;
 
-    Touschek(Qb, globval.delta_RF, eps_x, eps_y, sigma_delta, sigma_s);
+    Touschek(Qb, globval.delta_RF, eps[X_], eps[Y_], sigma_delta, sigma_s);
       
     double  sum_delta[globval.Cell_nLoc+1][2];
     double  sum2_delta[globval.Cell_nLoc+1][2];
@@ -68,7 +73,7 @@ void err_and_corr(const string &param_file)
     }
  
     Touschek(Qb, globval.delta_RF, false,
-	     eps_x, eps_y, sigma_delta, sigma_s,
+	     eps[X_], eps[Y_], sigma_delta, sigma_s,
 	     params.n_track_DA, false, sum_delta, sum2_delta);
 
     fp = file_write((file_name).c_str()); 
@@ -85,12 +90,13 @@ void err_and_corr(const string &param_file)
 
 int main(int argc, char *argv[])
 {
-  globval.H_exact    = false; globval.quad_fringe = false;
-  globval.Cavity_on  = false; globval.radiation   = false;
-  globval.emittance  = false; globval.IBS         = false;
-  globval.pathlength = false; globval.Aperture_on = false;
+  globval.H_exact    = false; globval.quad_fringe    = false;
+  globval.Cavity_on  = false; globval.radiation      = false;
+  globval.emittance  = false; globval.IBS            = false;
+  globval.pathlength = false; globval.Aperture_on    = false;
+  globval.Cart_Bend  = false; globval.dip_edge_fudge = true;
 
-  if (argc < 1) {
+  if (argc < 2) {
     printf("*** bad command line\n");
     exit(1);
   }
