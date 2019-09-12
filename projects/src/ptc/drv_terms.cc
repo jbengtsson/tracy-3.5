@@ -10,7 +10,8 @@ const bool   set_dnu = false;
 const int    n_cell  = 2;
 const double
   beta_inj[] = {7.9, 3.1},
-  A_max[]    = {3e-3, 1.5e-3},
+  // A_max[]    = {3e-3, 1.5e-3},
+  A_max[]    = {1e-3, 0e-3},
   delta_max  = 2e-2,
   twoJ[]     = {sqr(A_max[X_])/beta_inj[X_], sqr(A_max[Y_])/beta_inj[Y_]},
   dnu[]      = {0.03, 0.02};
@@ -212,10 +213,11 @@ void tst_g()
 
 void get_ampl_orb(const double twoJ[])
 {
-  long int     lastpos;
-  int          j, k;
-  ss_vect<tps> Id, Id_scl, dx_fl, dx_fl_lin, M, map1;
-  ofstream     outf;
+  long int        lastpos;
+  int             j, k;
+  ss_vect<double> ps, ps_fl;
+  ss_vect<tps>    Id, Id_scl, dx, dx_lin, M, map1;
+  ofstream        outf;
 
   outf.open("ampl_orb.out", ios::out);
 
@@ -226,33 +228,33 @@ void get_ampl_orb(const double twoJ[])
     Id_scl[k] *= sqrt(twoJ[k/2]);
   Id_scl[delta_] = 0e0;
 
+  ps.zero(); ps[x_] = 1e-3;
+
   map.identity();
   danot_(no_tps-1);
   Cell_Pass(0, globval.Cell_nLoc, map, lastpos);
   M.identity();
   for (j = 0; j <= globval.Cell_nLoc; j++) {
     danot_(no_tps-1);
-    Elem_Pass(j, M);
-    if ((Cell[j].Elem.Pkind == Mpole) &&
-  	 (Cell[j].Elem.M->PBpar[Sext+HOMmax] != 0e0)) {
+    Elem_Pass(j, M); Elem_Pass(j, ps);
+    if (!false || ((Cell[j].Elem.Pkind == Mpole) &&
+		   (Cell[j].Elem.M->PBpar[Sext+HOMmax] != 0e0))) {
       map1 = M*map*Inv(M);
       danot_(no_tps);
       MNF = MapNorm(map1, 1);
-      dx_fl = LieExp(MNF.g, Id);
+      dx = MNF.A1*LieExp(MNF.g, Id)*Inv(MNF.A1);
       // Transpose before removing linear terms.
-      dx_fl = tp_S(3, dx_fl);
+      // dx = tp_S(3, dx);
       // Remove linear terms.
       danot_(1);
-      dx_fl_lin = dx_fl;
-      danot_(no_tps);
-      dx_fl = (dx_fl-dx_fl_lin)*Id_scl;
+      dx_lin = dx;
+      danot_(2);
+      dx = dx - dx_lin;
+
       outf << setw(4) << j << fixed << setprecision(3) << setw(8) << Cell[j].S
-	   << " " << setw(8) << Cell[j].Elem.PName;
-      for (k = 0; k < 4; k++)
-  	outf << scientific << setprecision(5) << setw(13)
-  	     << sqrt(abs2(Cell[j].Elem.M->PBpar[Sext+HOMmax]*Cell[j].Elem.PL
-			  *dx_fl[k]));
-      outf << "\n";
+	   << " " << setw(8) << Cell[j].Elem.PName
+	   << scientific << setprecision(5) << setw(13) << (dx*ps).cst()
+	   << "\n";
     }
   }
 
@@ -292,7 +294,7 @@ int main(int argc, char *argv[])
     exit(0);
   }
 
-  if (true) get_drv_terms(twoJ, delta_max);
+  if (!true) get_drv_terms(twoJ, delta_max);
 
   if (!false) get_ampl_orb(twoJ);
 }
