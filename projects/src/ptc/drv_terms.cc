@@ -236,13 +236,16 @@ void get_ampl_orb(const double twoJ[])
   M.identity();
   for (j = 0; j <= globval.Cell_nLoc; j++) {
     danot_(no_tps-1);
-    Elem_Pass(j, M); Elem_Pass(j, ps);
+    Elem_Pass(j, M);
+    // Elem_Pass(j, ps);
     if (!false || ((Cell[j].Elem.Pkind == Mpole) &&
 		   (Cell[j].Elem.M->PBpar[Sext+HOMmax] != 0e0))) {
       map1 = M*map*Inv(M);
       danot_(no_tps);
       MNF = MapNorm(map1, 1);
       dx = MNF.A1*LieExp(MNF.g, Id)*Inv(MNF.A1);
+      danot_(2);
+      dx = dx;
       // Transpose before removing linear terms.
       // dx = tp_S(3, dx);
       // Remove linear terms.
