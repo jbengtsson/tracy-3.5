@@ -211,57 +211,79 @@ void tst_g()
 }
 
 
+tps dacfu1(const tps &a, double (*func)(const long int []))
+{
+  char    name[11];
+  int     j, n;
+  long int jj[ss_dim], ibuf1[bufsize], ibuf2[bufsize];
+  double  rbuf[bufsize];
+  tps     b;
+
+  a.exprt(rbuf, ibuf1, ibuf2, name); n = (int)rbuf[0];
+
+  for (j = 0; j < n; j++) {
+    dehash_(no_tps, ss_dim, ibuf1[j], ibuf2[j], jj);
+
+    rbuf[j+1] *= (*func)(jj);
+  }
+
+  b.imprt(n, rbuf, ibuf1, ibuf2);
+
+  // Remove zeroes.
+  return 1e0*b;
+}
+
+
+double f_kernel(const long int jj[])
+{
+
+  return
+    (((jj[x_] != 0) || (jj[y_] != 0)) &&
+     (jj[x_] == jj[px_]) && (jj[y_] == jj[py_]))?
+    1e0 : 0e0;
+}
+
+
 void get_ampl_orb(const double twoJ[])
 {
   long int        lastpos;
   int             j, k;
-  ss_vect<double> ps, ps_fl;
-  ss_vect<tps>    Id, Id_scl, dx, dx_lin, M, map1;
+  ss_vect<double> Id_scl;
+  ss_vect<tps>    Id, dx_fl, dx_fl_re, dx_fl_im, M;
   ofstream        outf;
 
   outf.open("ampl_orb.out", ios::out);
 
   Id.identity();
 
-  Id_scl.identity();
-  for (k = 0; k < 4; k++)
-    Id_scl[k] *= sqrt(twoJ[k/2]);
-  Id_scl[delta_] = 0e0;
+  Id_scl.zero();
+  for (j = 0; j < 4; j++)
+    Id_scl[j] = sqrt(twoJ[j/2]);
 
-  ps.zero(); ps[x_] = 1e-3;
-
-  map.identity();
   danot_(no_tps-1);
+  map.identity();
   Cell_Pass(0, globval.Cell_nLoc, map, lastpos);
-
-  // danot_(no_tps);
-  // MNF = MapNorm(map, 1);
-  // dx = MNF.A1*LieExp(MNF.g, Id)*Inv(MNF.A1);
 
   M.identity();
   for (j = 0; j <= globval.Cell_nLoc; j++) {
     danot_(no_tps-1);
     Elem_Pass(j, M);
-    Elem_Pass(j, ps);
-    // Elem_Pass(j, dx);
+
     if (!false || ((Cell[j].Elem.Pkind == Mpole) &&
 		   (Cell[j].Elem.M->PBpar[Sext+HOMmax] != 0e0))) {
-      map1 = M*map*Inv(M);
       danot_(no_tps);
-      MNF = MapNorm(map1, 1);
-      dx = MNF.A1*LieExp(MNF.g, Id)*Inv(MNF.A1);
-      // Transpose before removing linear terms.
-      // dx = tp_S(3, dx);
-      // Remove linear terms.
-      danot_(1);
-      dx_lin = dx;
-      danot_(2);
-      dx = dx - dx_lin;
-
+      MNF = MapNorm(M*map*Inv(M), 1);
+      for (k = 0; k < 1; k++) {
+	CtoR(LieExp(MNF.g, Id[k]), dx_fl_re[k], dx_fl_im[k]);
+	dx_fl_re[k] = dacfu1(dx_fl_re[k], f_kernel);
+	dx_fl_im[k] = dacfu1(dx_fl_im[k], f_kernel);
+	CtoR(dx_fl_re[k], dx_fl_im[k], dx_fl[k]);
+      }
       outf << setw(4) << j << fixed << setprecision(3) << setw(8) << Cell[j].S
 	   << " " << setw(8) << Cell[j].Elem.PName
 	   << scientific << setprecision(5)
-	   << setw(13) << (dx*ps).cst() << "\n";
+	   << setw(13) << (dx_fl_re[x_]*Id_scl).cst()
+	   << setw(13) << (dx_fl_im[y_]*Id_scl).cst() << "\n";
     }
   }
 
@@ -281,6 +303,8 @@ int main(int argc, char *argv[])
   idprset(-1);
 
   std::string home_dir = "";
+
+  daeps_(eps_tps);
 
   if (!true)
     Read_Lattice((home_dir+argv[1]).c_str());
