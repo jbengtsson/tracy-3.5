@@ -19,7 +19,7 @@ void dx_dJ(const int n_turn, const double Ax, const double Ay)
   ps.zero();
   printf("\n");
   for (k = 0; k <= globval.Cell_nLoc; k++)
-    if (!false || ((Cell[k].Elem.Pkind == Mpole)
+    if (false || ((Cell[k].Elem.Pkind == Mpole)
 	 && (Cell[k].Elem.M->PBpar[Sext+HOMmax] != 0e0))) {
       loc.push_back(k); ps_loc.push_back(ps);
     }
@@ -42,11 +42,7 @@ void dx_dJ(const int n_turn, const double Ax, const double Ay)
 
   for (k = 0; k < n; k++)
     for (j = 0; j < ss_dim; j++)
-#if 1
       ps_loc[k][j] /= n_turn;
-#else
-    ps_loc[k][j] = fabs(ps_loc[k][j]/n_turn);
-#endif
 
   for (k = 0; k < n; k++)
     outf << setw(4) << k

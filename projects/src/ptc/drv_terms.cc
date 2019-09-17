@@ -270,14 +270,13 @@ void get_ampl_orb(const double twoJ[])
     Elem_Pass(j, M);
     danot_(no_tps);
 
-    if (!false || ((Cell[j].Elem.Pkind == Mpole) &&
+    if (false || ((Cell[j].Elem.Pkind == Mpole) &&
 		   (Cell[j].Elem.M->PBpar[Sext+HOMmax] != 0e0))) {
       MNF = MapNorm(M*map*Inv(M), 1);
+      dx_fl = LieExp(MNF.g, Id);
       for (k = 0; k < 4; k++) {
-	CtoR(LieExp(MNF.g, Id[k]), dx_re[k], dx_im[k]);
+	CtoR(dx_fl[k], dx_re[k], dx_im[k]);
 	dx_re[k] = dacfu1(dx_re[k], f_kernel);
-	dx_im[k] = dacfu1(dx_im[k], f_kernel);
-	CtoR(dx_re[k], dx_im[k], dx[k]);
       }
       dx_re = MNF.A1*dx_re; dx_im = MNF.A1*dx_im;
       outf << setw(4) << j << fixed << setprecision(3) << setw(8) << Cell[j].S
