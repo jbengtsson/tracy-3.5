@@ -244,15 +244,15 @@ double f_kernel(const long int jj[])
 }
 
 
-void get_ampl_orb(const double twoJ[])
+void get_dx_dJ(const double twoJ[])
 {
   long int        lastpos;
   int             j, k;
   ss_vect<double> Id_scl;
-  ss_vect<tps>    Id, dx, dx_fl, dx_re, dx_im, M;
+  ss_vect<tps>    Id, dx_fl, dx_re, dx_im, M;
   ofstream        outf;
 
-  outf.open("ampl_orb.out", ios::out);
+  outf.open("get_dx_dJ.out", ios::out);
 
   Id.identity();
 
@@ -273,7 +273,7 @@ void get_ampl_orb(const double twoJ[])
     if (false || ((Cell[j].Elem.Pkind == Mpole) &&
 		   (Cell[j].Elem.M->PBpar[Sext+HOMmax] != 0e0))) {
       MNF = MapNorm(M*map*Inv(M), 1);
-#if 0
+#if 1
       dx_fl = LieExp(MNF.g, Id);
 #else
       for (k = 0; k < 4; k++)
@@ -333,5 +333,5 @@ int main(int argc, char *argv[])
 
   if (!true) get_drv_terms(twoJ, delta_max);
 
-  if (!false) get_ampl_orb(twoJ);
+  if (!false) get_dx_dJ(twoJ);
 }

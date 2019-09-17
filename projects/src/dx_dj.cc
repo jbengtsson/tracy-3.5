@@ -5,7 +5,7 @@
 int no_tps = NO;
 
 
-void dx_dJ(const int n_turn, const double Ax, const double Ay)
+void get_dx_dJ(const int n_turn, const double Ax, const double Ay)
 {
   long int                      lastpos;
   int                           j, k, n;
@@ -14,7 +14,7 @@ void dx_dJ(const int n_turn, const double Ax, const double Ay)
   std::vector<ss_vect<double> > ps_loc;
   ofstream                      outf;
 
-  file_wr(outf, "dx_dJ.out");
+  file_wr(outf, "get_dx_dJ.out");
 
   ps.zero();
   printf("\n");
@@ -75,6 +75,6 @@ int main(int argc, char *argv[])
   globval.Cavity_on = false; globval.radiation = false;
   Ring_GetTwiss(true, 0e0); printglob();
 
-  dx_dJ(500, 1e-3, 0e-3);
+  get_dx_dJ(500, 1e-3, 0e-3);
 
 }
