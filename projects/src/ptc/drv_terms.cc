@@ -249,7 +249,7 @@ void get_ampl_orb(const double twoJ[])
   long int        lastpos;
   int             j, k;
   ss_vect<double> Id_scl;
-  ss_vect<tps>    Id, dx_fl, dx_fl_re, dx_fl_im, M;
+  ss_vect<tps>    Id, dx, dx_fl, dx_re, dx_im, M;
   ofstream        outf;
 
   outf.open("ampl_orb.out", ios::out);
@@ -268,22 +268,24 @@ void get_ampl_orb(const double twoJ[])
   for (j = 0; j <= globval.Cell_nLoc; j++) {
     danot_(no_tps-1);
     Elem_Pass(j, M);
+    danot_(no_tps);
 
     if (!false || ((Cell[j].Elem.Pkind == Mpole) &&
 		   (Cell[j].Elem.M->PBpar[Sext+HOMmax] != 0e0))) {
-      danot_(no_tps);
       MNF = MapNorm(M*map*Inv(M), 1);
-      for (k = 0; k < 1; k++) {
-	CtoR(LieExp(MNF.g, Id[k]), dx_fl_re[k], dx_fl_im[k]);
-	dx_fl_re[k] = dacfu1(dx_fl_re[k], f_kernel);
-	dx_fl_im[k] = dacfu1(dx_fl_im[k], f_kernel);
-	CtoR(dx_fl_re[k], dx_fl_im[k], dx_fl[k]);
+      for (k = 0; k < 4; k++) {
+	CtoR(LieExp(MNF.g, Id[k]), dx_re[k], dx_im[k]);
+	dx_re[k] = dacfu1(dx_re[k], f_kernel);
+	dx_im[k] = dacfu1(dx_im[k], f_kernel);
+	CtoR(dx_re[k], dx_im[k], dx[k]);
       }
+      dx_re = MNF.A1*dx_re; dx_im = MNF.A1*dx_im;
       outf << setw(4) << j << fixed << setprecision(3) << setw(8) << Cell[j].S
-	   << " " << setw(8) << Cell[j].Elem.PName
-	   << scientific << setprecision(5)
-	   << setw(13) << (dx_fl_re[x_]*Id_scl).cst()
-	   << setw(13) << (dx_fl_im[y_]*Id_scl).cst() << "\n";
+	   << " " << setw(8) << Cell[j].Elem.PName;
+      for (k = 0; k < 4; k++)
+	outf << scientific << setprecision(5)
+	     << setw(13) << (dx_re[k]*Id_scl).cst();
+      outf << "\n";
     }
   }
 
