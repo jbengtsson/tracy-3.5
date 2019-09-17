@@ -273,7 +273,12 @@ void get_ampl_orb(const double twoJ[])
     if (false || ((Cell[j].Elem.Pkind == Mpole) &&
 		   (Cell[j].Elem.M->PBpar[Sext+HOMmax] != 0e0))) {
       MNF = MapNorm(M*map*Inv(M), 1);
+#if 0
       dx_fl = LieExp(MNF.g, Id);
+#else
+      for (k = 0; k < 4; k++)
+	dx_fl[k] = PB(MNF.g, Id[k]);
+#endif
       for (k = 0; k < 4; k++) {
 	CtoR(dx_fl[k], dx_re[k], dx_im[k]);
 	dx_re[k] = dacfu1(dx_re[k], f_kernel);
