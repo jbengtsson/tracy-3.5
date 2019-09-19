@@ -10,8 +10,7 @@ const bool   set_dnu = false;
 const int    n_cell  = 2;
 const double
   beta_inj[] = {7.9, 3.1},
-  // A_max[]    = {3e-3, 1.5e-3},
-  A_max[]    = {1e-3, 0e-3},
+  A_max[]    = {3e-3, 1.5e-3},
   delta_max  = 2e-2,
   twoJ[]     = {sqr(A_max[X_])/beta_inj[X_], sqr(A_max[Y_])/beta_inj[Y_]},
   dnu[]      = {0.03, 0.02};
@@ -246,19 +245,19 @@ double f_kernel(const long int jj[])
 
 void get_dx_dJ(const double twoJ[])
 {
-  long int        lastpos;
-  int             j, k;
-  ss_vect<double> Id_scl;
-  ss_vect<tps>    Id, dx_fl, dx_re, dx_im, M;
-  ofstream        outf;
+  long int     lastpos;
+  int          j, k;
+  ss_vect<tps> Id, Id_scl, dx_fl, dx_re, dx_im, M;
+  ofstream     outf;
 
-  outf.open("get_dx_dJ.out", ios::out);
+  outf.open("dx_dJ.out", ios::out);
 
   Id.identity();
 
-  Id_scl.zero();
+  Id_scl.identity();
   for (j = 0; j < 4; j++)
-    Id_scl[j] = sqrt(twoJ[j/2]);
+    Id_scl[j] *= sqrt(twoJ[j/2]);
+  Id_scl[delta_] = 0e0;
 
   danot_(no_tps-1);
   map.identity();
@@ -271,7 +270,7 @@ void get_dx_dJ(const double twoJ[])
     danot_(no_tps);
 
     if (false || ((Cell[j].Elem.Pkind == Mpole) &&
-		   (Cell[j].Elem.M->PBpar[Sext+HOMmax] != 0e0))) {
+		  (Cell[j].Elem.M->PBpar[Sext+HOMmax] != 0e0))) {
       MNF = MapNorm(M*map*Inv(M), 1);
 #if 1
       dx_fl = LieExp(MNF.g, Id);
@@ -279,17 +278,14 @@ void get_dx_dJ(const double twoJ[])
       for (k = 0; k < 4; k++)
 	dx_fl[k] = PB(MNF.g, Id[k]);
 #endif
-      for (k = 0; k < 4; k++) {
+      for (k = 0; k < 4; k++)
 	CtoR(dx_fl[k], dx_re[k], dx_im[k]);
-	dx_re[k] = dacfu1(dx_re[k], f_kernel);
-      }
       dx_re = MNF.A1*dx_re; dx_im = MNF.A1*dx_im;
       outf << setw(4) << j << fixed << setprecision(3) << setw(8) << Cell[j].S
-	   << " " << setw(8) << Cell[j].Elem.PName;
-      for (k = 0; k < 4; k++)
-	outf << scientific << setprecision(5)
-	     << setw(13) << (dx_re[k]*Id_scl).cst();
-      outf << "\n";
+	   << " " << setw(8) << Cell[j].Elem.PName
+	   << scientific << setprecision(5)
+	   << setw(13) << h_ijklm(dx_re[x_]*Id_scl, 1, 1, 0, 0, 0)
+	   << setw(13) << h_ijklm(dx_re[x_]*Id_scl, 0, 0, 1, 1, 0) << "\n";
     }
   }
 
