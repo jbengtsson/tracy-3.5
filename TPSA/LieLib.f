@@ -1,6 +1,13 @@
+      module lielib
+      contains
+
       subroutine lieinit(no1,nv1,nd1,ndpt1,iref1,nis)
+     &           bind(C, name="lieinit_")
+      use iso_c_binding
       implicit none
-      integer i,iref1,nd1,ndc1,ndim,ndpt1,nis,no1,nv1
+      integer(C_LONG) no1,nv1,nd1,ndpt1,iref1,nis
+
+      integer i,ndc1,ndim
       double precision ang,ra,st
 !! Lieinit initializes AD Package and Lielib
       parameter (ndim=3)
@@ -90,7 +97,8 @@
       xintex(         10)=  4.592886537931051e-008
 
       return
-      end
+      end subroutine
+
       subroutine flowpara(ifl,jtu)
       implicit none
       integer iflow,jtune
@@ -99,7 +107,8 @@
       iflow=ifl
       jtune=jtu
       return
-      end
+      end subroutine
+
       subroutine pertpeek(st,ang,ra)
       implicit none
       integer i,ndim,ndim2,nreso,ntt
@@ -127,7 +136,8 @@
         ra(i)=rad(i)
       enddo
       return
-      end
+      end subroutine
+
       subroutine inputres(mx1,nres1)
       implicit none
       integer i,j,ndim,ndim2,nreso,ntt
@@ -152,7 +162,8 @@
         enddo
       enddo
       return
-      end
+      end subroutine
+
       subroutine respoke(mres,nre,ire)
       implicit none
       integer i,ire,j,ndim,ndim2,nre,nreso,ntt
@@ -184,7 +195,8 @@
       enddo
       call initpert(st,ang,ra)
       return
-      end
+      end subroutine
+
       subroutine liepeek(iia,icoast)
       implicit none
       integer ndim,ndim2,nreso,ntt
@@ -208,7 +220,8 @@
       icoast(4)=ndpt
 
       return
-      end
+      end subroutine
+
       subroutine lienot(not)
       implicit none
       integer no,not
@@ -217,7 +230,20 @@
       no=not
 
       return
-      end
+      end subroutine
+
+      subroutine etallnom1(x,nom)
+      implicit none
+      integer n,nd2
+! CREATES A AD-VARIABLE WHICH CAN BE DESTROYED BY DADAL
+! allocates vector of n polynomials and give it the name NOM=A10
+      integer x,i1(4),i2(4)
+      character*10 nom
+      x=0
+      call daallno1(x,nom)
+      return
+      end subroutine
+
       subroutine etallnom(x,n,nom)
       implicit none
       integer i,n,nd2
@@ -237,7 +263,8 @@
         enddo
       endif
       return
-      end
+      end subroutine
+
       subroutine etall(x,n)
       implicit none
       integer i,n,nd2
@@ -255,19 +282,22 @@
         enddo
       endif
       return
-      end
+      end subroutine
+
       subroutine etall1(x)
       implicit none
       integer x
       call daallno(x,1,'ETALL     ')
       return
-      end
+      end subroutine
+
 !      subroutine dadal1(x)
 !      implicit none
 !      integer x
 !      call dadal(x,1)
 !      return
-!      end
+!      end subroutine
+
       subroutine etppulnv(x,xi,xff)
       implicit none
       integer i,ndim,ndim2,ntt
@@ -293,10 +323,14 @@
       enddo
 
       return
-      end
-      subroutine etmtree(y,x)
+      end subroutine
+
+      subroutine etmtree(y,x) bind(C, name="etmtree_")
+      use iso_c_binding
       implicit none
-      integer i,ie,iv,ndim,ndim2,nt,ntt
+      integer(C_LONG) y(*), x(*)
+
+       integer i,ie,iv,ndim,ndim2,nt,ntt
 ! ROUTINES USING THE MAP IN AD-FORM
 ! Note, no must be set to nomax
       parameter (ndim=3)
@@ -305,7 +339,6 @@
       dimension ie(ntt),iv(ntt)
       integer nd,nd2,no,nv
       common /ii/no,nv,nd,nd2
-      integer  x(*),y(*)
 
       nt=nv-nd2
       if(nt.gt.0) then
@@ -325,17 +358,21 @@
         call dadal(ie,nt)
       endif
       return
-      end
-      subroutine etppush(x,xi)
+      end subroutine
+
+      subroutine etppush(x,xi) bind(C, name="etppush_")
+      use iso_c_binding
       implicit none
+      integer(C_LONG) x(*)
+      real(C_DOUBLE) xi(*)
+
       integer i,ndim,ndim2,ntt
       parameter (ndim=3)
       parameter (ndim2=6)
       parameter (ntt=40)
       integer nd,nd2,no,nv
       common /ii/no,nv,nd,nd2
-      integer  x(*)
-      double precision xi(*),xf(ntt),xii(ntt)
+      double precision xf(ntt),xii(ntt)
 
       do i=1,nd2
         xii(i)=xi(i)
@@ -348,17 +385,21 @@
       enddo
 
       return
-      end
-      subroutine etppush2(x,xi,xff)
+      end subroutine
+
+      subroutine etppush2(x,xi,xff) bind(C, name="etppush2_")
+      use iso_c_binding
       implicit none
+      integer(C_LONG) x(*)
+      real(C_DOUBLE) xi(*), xff(*)
+
       integer i,ndim,ndim2,ntt
       parameter (ndim=3)
       parameter (ndim2=6)
       parameter (ntt=40)
       integer nd,nd2,no,nv
       common /ii/no,nv,nd,nd2
-      integer  x(*)
-      double precision xi(*),xff(*),xf(ntt),xii(ntt)
+      double precision xf(ntt),xii(ntt)
 
       do i=1,nd2
         xii(i)=xi(i)
@@ -371,7 +412,8 @@
       enddo
 
       return
-      end
+      end subroutine
+
       subroutine ppushlnv(x,xi,xff,nd1)
       implicit none
       integer i,nd1,ndim,ndim2,ntt
@@ -397,9 +439,13 @@
       enddo
 
       return
-      end
-      subroutine etcct(x,y,z)
+      end subroutine
+
+      subroutine etcct(x,y,z) bind(C, name="etcct_")
+      use iso_c_binding
       implicit none
+      integer(C_LONG) x(*),y(*),z(*)
+
       integer i,ie,iv,ndim,ndim2,nt,ntt
 !  Z=XoY
       parameter (ndim=3)
@@ -408,7 +454,6 @@
       dimension ie(ntt),iv(ntt)
       integer nd,nd2,no,nv
       common /ii/no,nv,nd,nd2
-      integer  x(*),y(*),z(*)
 
       nt=nv-nd2
       if(nt.gt.0) then
@@ -428,7 +473,8 @@
         call dadal(ie,nt)
       endif
       return
-      end
+      end subroutine
+
       subroutine trx(h,rh,y)
       implicit none
       integer i,ie,iv,ndim,ndim2,nt,ntt
@@ -460,7 +506,8 @@
         call dadal(ie,nt)
       endif
       return
-      end
+      end subroutine
+
       subroutine trxflo(h,rh,y)
       implicit none
       integer j,k,ndim,ndim2,ntt
@@ -476,8 +523,8 @@
 !
       call etallnom(yi,nd2  ,'YI        ')
       call etallnom(ht,nd2  ,'HT        ')
-      call etallnom(b1,1,'B1        ')
-      call etallnom(b2,1,'B2        ')
+      call etallnom1(b1,'B1        ')
+      call etallnom1(b2,'B2        ')
 
       call etinv(y,yi)
 !----- HT= H o Y
@@ -499,7 +546,8 @@
       call dadal(ht,nd2)
       call dadal(yi,nd2)
       return
-      end
+      end subroutine
+
       subroutine simil(a,x,ai,y)
       implicit none
       integer ndim,ndim2,ntt
@@ -524,7 +572,8 @@
       call dadal(v,nd2)
       call dadal(w,nd2)
       return
-      end
+      end subroutine
+
       subroutine etini(x)
       implicit none
       integer i,ndim,ndim2,ntt
@@ -540,9 +589,13 @@
         call davar(x(i),0.d0,i)
       enddo
       return
-      end
-      subroutine etinv(x,y)
+      end subroutine
+
+      subroutine etinv(x,y) bind(C, name="etinv_")
+      use iso_c_binding
       implicit none
+      integer(C_LONG) x(*), y(*)
+
       integer i,ie1,ie2,iv1,iv2,ndim,ndim2,nt,ntt
 ! Y=X^-1
       parameter (ndim=3)
@@ -551,8 +604,6 @@
       dimension ie1(ntt),ie2(ntt),iv1(ntt),iv2(ntt)
       integer nd,nd2,no,nv
       common /ii/no,nv,nd,nd2
-
-      integer x(*),y(*)
 
       nt=nv-nd2
       if(nt.gt.0) then
@@ -581,19 +632,21 @@
         call dadal(ie1,nt)
       endif
       return
-      end
-      subroutine etpin(x,y,jj)
+      end subroutine
+
+      subroutine etpin(x,y,jj) bind(C, name="etpin_")
+      use iso_c_binding
       implicit none
-      integer i,ie1,ie2,iv1,iv2,jj,ndim,ndim2,nt,ntt
+      integer(C_LONG) x(*), y(*), jj(*)
+
+      integer i,ie1,ie2,iv1,iv2,ndim,ndim2,nt,ntt
 !  Y=PARTIAL INVERSION OF X SEE BERZ'S PACKAGE
       parameter (ndim=3)
       parameter (ndim2=6)
       parameter (ntt=40)
-      dimension ie1(ntt),ie2(ntt),iv1(ntt),iv2(ntt),jj(*)
+      dimension ie1(ntt),ie2(ntt),iv1(ntt),iv2(ntt)
       integer nd,nd2,no,nv
       common /ii/no,nv,nd,nd2
-
-      integer x(*),y(*)
 
       nt=nv-nd2
       if(nt.gt.0) then
@@ -622,7 +675,8 @@
         call dadal(ie1,nt)
       endif
       return
-      end
+      end subroutine
+
       subroutine dapek0(v,x,jj)
       implicit none
       integer i,jj,ndim2,ntt
@@ -639,7 +693,8 @@
         call dapek(v(i),jd,x(i))
       enddo
       return
-      end
+      end subroutine
+
       subroutine dapok0(v,x,jj)
       implicit none
       integer i,jj,ndim2,ntt
@@ -655,7 +710,8 @@
         call dapok(v(i),jd,x(i))
       enddo
       return
-      end
+      end subroutine
+
       subroutine dapokzer(v,jj)
       implicit none
       integer i,jj,ndim2,ntt
@@ -669,7 +725,8 @@
         call dapok(v(i),jd,0.d0)
       enddo
       return
-      end
+      end subroutine
+
       subroutine davar0(v,x,jj)
       implicit none
       integer i,jj,ndim2,ntt
@@ -682,13 +739,17 @@
         call davar(v(i),x(i),i)
       enddo
       return
-      end
-      subroutine comcfu(b,f1,f2,c)
+      end subroutine
+
+      subroutine comcfu(b,f1,f2,c) bind(C, name="comcfu_")
+      use iso_c_binding
       implicit none
-      double precision f1,f2
-      external f1,f2
+      integer(C_LONG) b(*), c(*)
+      real(C_DOUBLE), bind(C) :: f1, f2
+      external       f1, f2
+
 ! Complex dacfu
-      integer b(*),c(*),t(4)
+      integer t(4)
       call etall(t,4)
 
       call dacfu(b(1),f1,t(1))
@@ -700,24 +761,28 @@
       call daadd(t(2),t(3),c(2))
       call dadal(t,4)
       return
-      end
-      subroutine take(h,m,ht)
+      end subroutine
+
+      subroutine take(h,m,ht) bind(C, name="take_")
+      use iso_c_binding
       implicit none
-      integer i,m,ndim,ntt
+      integer(C_LONG) h, ht, m
+
+      integer i,ndim,ntt
       double precision r
 !  HT= H_M  (TAKES M^th DEGREE PIECE ALL VARIABLES INCLUDED)
       parameter (ndim=3)
       parameter (ntt=40)
       integer nd,nd2,no,nv
       common /ii/no,nv,nd,nd2
-      integer h,ht,j(ntt)
+      integer j(ntt)
 
       integer b1,b2,b3
 !
 !
-      call etallnom(b1,1,'B1        ')
-      call etallnom(b2,1,'B2        ')
-      call etallnom(b3,1,'B3        ')
+      call etallnom1(b1,'B1        ')
+      call etallnom1(b2,'B2        ')
+      call etallnom1(b3,'B3        ')
 
       if(no.ge.2) then
         if(m.eq.0) then
@@ -759,7 +824,8 @@
       call dadal(b2,1)
       call dadal(b1,1)
       return
-      end
+      end subroutine
+
       subroutine taked(h,m,ht)
       implicit none
       integer i,m,ndim2,ntt
@@ -772,8 +838,8 @@
 
       integer b1,b2,x(ndim2)
 !
-      call etallnom(b1,1,'B1        ')
-      call etallnom(b2,1,'B2        ')
+      call etallnom1(b1,'B1        ')
+      call etallnom1(b2,'B2        ')
       call etallnom(x,nd2  ,'X         ')
 
 
@@ -788,7 +854,8 @@
       call dadal(b2,1)
       call dadal(b1,1)
       return
-      end
+      end subroutine
+
       subroutine daclrd(h)
       implicit none
       integer i,ndim2,ntt
@@ -802,7 +869,8 @@
         call daclr(h(i))
       enddo
       return
-      end
+      end subroutine
+
       subroutine dacopd(h,ht)
       implicit none
       integer i,ndim2,ntt
@@ -816,7 +884,8 @@
         call dacop(h(i),ht(i))
       enddo
       return
-      end
+      end subroutine
+
       subroutine dacmud(h,sca,ht)
       implicit none
       integer i,ndim2,ntt
@@ -830,7 +899,8 @@
         call dacmu(h(i),sca,ht(i))
       enddo
       return
-      end
+      end subroutine
+
       subroutine dalind(h,rh,ht,rt,hr)
       implicit none
       integer i,ndim2
@@ -850,7 +920,8 @@
       call dacopd(b,hr)
       call dadal(b,nd2)
       return
-      end
+      end subroutine
+
       subroutine daread(h,nd1,mfile,xipo)
       implicit none
       integer i,mfile,nd1,ndim2,ntt
@@ -869,7 +940,8 @@
         call dapok(h(i),j,rx)
       enddo
       return
-      end
+      end subroutine
+
       subroutine daprid(h,n1,n2,mfile)
       implicit none
       integer i,mfile,n1,n2,ndim2,ntt
@@ -882,15 +954,20 @@
         call dapri(h(i),mfile)
       enddo
       return
-      end
-      subroutine prresflo(h,eps,mfile)
+      end subroutine
+
+      subroutine prresflo(h,eps,mfile) bind(C, name="prresflo_")
+      use iso_c_binding
       implicit none
-      integer i,mfile,ndim2,ntt
-      double precision deps,eps,filtres
+      integer(C_LONG) h(*), mfile
+      real(C_DOUBLE) eps
+
+      integer i,ndim2,ntt
+      double precision deps,filtres
 !  print a map   in resonance basis for human consumption (useless)
       parameter (ndim2=6)
       parameter (ntt=40)
-      integer  h(*) ,b(ndim2) ,c(ndim2)
+      integer  b(ndim2) ,c(ndim2)
       integer nd,nd2,no,nv
       common /ii/no,nv,nd,nd2
       integer ifilt
@@ -913,14 +990,17 @@
       call  dadal(c,nd2)
       call  dadal(b,nd2)
       return
-      end
-      double precision function filtres(j)
+      end subroutine
+
+      double precision function filtres(j) bind(C, name="filtres_")
+      use iso_c_binding
       implicit none
+      integer(C_LONG) j(*)
+
       integer i,ic,ndim
       parameter (ndim=3)
 !      PARAMETER (NTT=40)
 !      INTEGER J(NTT)
-      integer j(*)
       integer nd,nd2,no,nv
       common /ii/no,nv,nd,nd2
       integer ndc,ndc2,ndpt,ndt
@@ -938,9 +1018,13 @@
         filtres=0.0d0
       endif
       return
-      end
-      subroutine daflo(h,x,y)
+      end function
+
+      subroutine daflo(h,x,y) bind(C, name="daflo_")
+      use iso_c_binding
       implicit none
+      integer(C_LONG) h, x, y
+
       integer i,ndim,ndim2,ntt
 ! LIE EXPONENT ROUTINES WITH FLOW OPERATORS
 
@@ -950,12 +1034,11 @@
       parameter (ntt=40)
       integer nd,nd2,no,nv
       common /ii/no,nv,nd,nd2
-      integer  h(*),x,y
       integer b1,b2,b3
 !
-      call etallnom(b1,1,'B1        ')
-      call etallnom(b2,1,'B2        ')
-      call etallnom(b3,1,'B3        ')
+      call etallnom1(b1,'B1        ')
+      call etallnom1(b2,'B2        ')
+      call etallnom1(b3,'B3        ')
 
       call daclr(b1)
       call daclr(b2)
@@ -970,7 +1053,8 @@
       call dadal(b2,1)
       call dadal(b1,1)
       return
-      end
+      end subroutine
+
       subroutine daflod(h,x,y)
       implicit none
       integer i,ndim,ndim2,ntt
@@ -995,11 +1079,16 @@
       call dadal(b1,nd2)
       call dadal(b2,nd2)
       return
-      end
-      subroutine intd(v,h,sca)
+      end subroutine
+
+      subroutine intd(v,h,sca) bind(C, name="intd_")
+      use iso_c_binding
       implicit none
+      integer(C_LONG) v(*), h
+      real(C_DOUBLE) sca
+
       integer i,ndim,ndim2,ntt
-      double precision dlie,sca
+      double precision dlie
 ! IF SCA=-1.D0
 !     \VEC{V}.GRAD   = J GRAD H . GRAD = :H:
 
@@ -1011,15 +1100,14 @@
       integer nd,nd2,no,nv
       common /ii/no,nv,nd,nd2
       external dlie
-      integer v(*),h
 
       integer b1,b2,b3,b4,x(ndim2)
 !
 !
-      call etallnom(b1,1,'B1        ')
-      call etallnom(b2,1,'B2        ')
-      call etallnom(b3,1,'B3        ')
-      call etallnom(b4,1,'B4        ')
+      call etallnom1(b1,'B1        ')
+      call etallnom1(b2,'B2        ')
+      call etallnom1(b3,'B3        ')
+      call etallnom1(b4,'B4        ')
       call etallnom(x,nd2  ,'X         ')
 
       call daclr(b4)
@@ -1041,7 +1129,8 @@
       call dadal(b2,1)
       call dadal(b1,1)
       return
-      end
+      end subroutine
+
       subroutine difd(h1,v,sca)
       implicit none
       integer i,ndim,ndim2,ntt
@@ -1054,8 +1143,8 @@
       common /ii/no,nv,nd,nd2
       integer  v(*),h1
       integer b1,h
-      call etall(b1,1)
-      call etall(h,1)
+      call etall1(b1)
+      call etall1(h)
       call dacop(h1,h)
       do i=1,nd
         call dader(2*i-1,h,v(2*i))
@@ -1065,7 +1154,8 @@
       call dadal(h,1)
       call dadal(b1,1)
       return
-      end
+      end subroutine
+
       subroutine expflo(h,x,y,eps,nrmax)
       implicit none
       integer i,ndim,ndim2,nrmax,ntt
@@ -1081,10 +1171,10 @@
       logical more
 !
 !
-      call etallnom(b1,1,'B1        ')
-      call etallnom(b2,1,'B2        ')
-      call etallnom(b3,1,'B3        ')
-      call etallnom(b4,1,'B4        ')
+      call etallnom1(b1,'B1        ')
+      call etallnom1(b2,'B2        ')
+      call etallnom1(b3,'B3        ')
+      call etallnom1(b4,'B4        ')
 
       call dacop(x,b4)
       call dacop(x,b1)
@@ -1129,7 +1219,8 @@
       call dadal(b2,1)
       call dadal(b1,1)
       return
-      end
+      end subroutine
+
       subroutine expflod(h,x,w,eps,nrmax)
       implicit none
       integer j,ndim,ndim2,nrmax,ntt
@@ -1144,7 +1235,7 @@
       integer b0,v(ndim2)
 !
 !
-      call etallnom(b0,1,'B0        ')
+      call etallnom1(b0,'B0        ')
       call etallnom(v,nd2  ,'V         ')
 
       call dacopd(x,v)
@@ -1156,7 +1247,8 @@
       call dadal(v,nd2)
       call dadal(b0,1)
       return
-      end
+      end subroutine
+
       subroutine facflo(h,x,w,nrmin,nrmax,sca,ifac)
       implicit none
       integer i,ifac,ndim,ndim2,nmax,nrmax,nrmin,ntt
@@ -1175,7 +1267,7 @@
 !
       call etallnom(bm,nd2  ,'BM        ')
       call etallnom(b0,nd2  ,'B0        ')
-      call etallnom(v,1  ,'V         ')
+      call etallnom1(v,'V         ')
 
       call dacop(x,v)
 
@@ -1207,7 +1299,8 @@
       call dadal(b0,nd2)
       call dadal(bm,nd2)
       return
-      end
+      end subroutine
+
       subroutine facflod(h,x,w,nrmin,nrmax,sca,ifac)
       implicit none
       integer i,ifac,ndim,ndim2,nrmax,nrmin,ntt
@@ -1228,11 +1321,16 @@
       enddo
 
       return
-      end
-      subroutine fexpo(h,x,w,nrmin,nrmax,sca,ifac)
+      end subroutine
+
+      subroutine fexpo(h,x,w,nrmin,nrmax,sca,ifac)                      &
+     &           bind(C, name="fexpo_")
+      use iso_c_binding
       implicit none
-      integer ifac,ndim,ndim2,nrma,nrmax,nrmi,nrmin,ntt
-      double precision sca
+      integer(C_LONG) h, x(*), w(*), nrmin, nrmax, ifac
+      real(C_DOUBLE) sca
+
+      integer ndim,ndim2,nrma,nrmi,ntt
 !   WRAPPED ROUTINES FOR THE OPERATOR  \VEC{H}=:H:
 ! WRAPPING FACFLOD
       parameter (ndim=3)
@@ -1240,7 +1338,6 @@
       parameter (ntt=40)
       integer nd,nd2,no,nv
       common /ii/no,nv,nd,nd2
-      integer x(*),w(*),h
 
       integer v(ndim2)
 
@@ -1253,7 +1350,8 @@
       call dadal(v,nd2)
 
       return
-      end
+      end subroutine
+
       subroutine etcom(x,y,h)
       implicit none
       integer i,j,ndim,ndim2,ntt
@@ -1265,8 +1363,8 @@
       common /ii/no,nv,nd,nd2
       integer h(*),x(*),y(*),t1,t2,t3(ndim2)
 
-      call etall(t1,1)
-      call etall(t2,1)
+      call etall1(t1)
+      call etall1(t2)
       call etall(t3,nd2)
 
       do j=1,nd2
@@ -1288,9 +1386,13 @@
       call dadal(t2,1)
       call dadal(t3,nd2)
       return
-      end
-      subroutine etpoi(x,y,h)
+      end subroutine
+
+      subroutine etpoi(x,y,h) bind(C, name="etpoi_")
+      use iso_c_binding
       implicit none
+      integer(C_LONG) x, y, h
+
       integer i,ndim,ndim2,ntt
 ! ETPOI TAKES THE POISSON BRACKET OF TWO FUNCTIONS
       parameter (ndim2=6)
@@ -1298,11 +1400,11 @@
       parameter (ntt=40)
       integer nd,nd2,no,nv
       common /ii/no,nv,nd,nd2
-      integer h,x,y,t1,t2,t3
+      integer t1,t2,t3
 
-      call etall(t1,1)
-      call etall(t2,1)
-      call etall(t3,1)
+      call etall1(t1)
+      call etall1(t2)
+      call etall1(t3)
 
       do i=1,nd
 
@@ -1325,11 +1427,15 @@
       call dadal(t2,1)
       call dadal(t3,1)
       return
-      end
-      subroutine exp1d(h,x,y,eps,non)
+      end subroutine
+
+      subroutine exp1d(h,x,y,eps,non) bind(C, name="exp1d_")
+      use iso_c_binding
       implicit none
-      integer ndim,ndim2,non,ntt
-      double precision eps
+      integer(C_LONG) h, x, y, non
+      real(C_DOUBLE) eps
+
+      integer ndim,ndim2,ntt
 ! WRAPPING EXPFLO
       parameter (ndim2=6)
       parameter (ndim=3)
@@ -1338,7 +1444,6 @@
       common /ii/no,nv,nd,nd2
       integer idpr
       common /printing/ idpr
-      integer h,x,y
 
       integer v(ndim2)
 
@@ -1349,23 +1454,26 @@
       call dadal(v,nd2)
 
       return
-      end
-      subroutine expnd2(h,x,w,eps,nrmax)
+      end subroutine
+
+      subroutine expnd2(h,x,w,eps,nrmax) bind(C, name="expnd2_")
+      use iso_c_binding
       implicit none
-      integer j,ndim,ndim2,nrmax,ntt
-      double precision eps
+      integer(C_LONG) h, x(*), w(*), nrmax
+      real(C_DOUBLE) eps
+
+      integer j,ndim,ndim2,ntt
 ! WRAPPING EXPFLOD USING EXP1D
       parameter (ndim=3)
       parameter (ndim2=6)
       parameter (ntt=40)
       integer nd,nd2,no,nv
       common /ii/no,nv,nd,nd2
-      integer x(*),w(*),h
 
       integer b0,v(ndim2)
 !
 !
-      call etallnom(b0,1,'B0        ')
+      call etallnom1(b0,'B0        ')
       call etallnom(v,nd2  ,'V         ')
 
       call dacopd(x,v)
@@ -1377,11 +1485,15 @@
       call dadal(v,nd2)
       call dadal(b0,1)
       return
-      end
-      subroutine flofacg(xy,h,epsone)
+      end subroutine
+
+      subroutine flofacg(xy,h,epsone) bind(C, name="flofacg_")
+      use iso_c_binding
       implicit none
+      integer(C_LONG) xy(*), h(*), epsone
+
       integer i,k,kk,ndim,ndim2,nrmax,ntt
-      double precision eps,epsone,r,xn,xnbefore,xnorm,xnorm1,xx
+      double precision eps,r,xn,xnbefore,xnorm,xnorm1,xx
 ! GENERAL ONE EXPONENT FACTORIZATION
       parameter (ndim=3)
       parameter (ndim2=6)
@@ -1393,7 +1505,7 @@
       common /ii/no,nv,nd,nd2
       double precision xintex
       common /integratedex/ xintex(0:20)
-      integer xy(*),x(ndim2),h(*)
+      integer x(ndim2)
       integer v(ndim2),w(ndim2),t(ndim2), z(ndim2)
       integer jj(ntt)
       jj(1)=1
@@ -1463,7 +1575,8 @@
       call dadal(t,nd2)
       call dadal(z,nd2)
       return
-      end
+      end subroutine
+
       subroutine flofac(xy,x,h)
       implicit none
       integer k,ndim,ndim2,ntt
@@ -1500,9 +1613,13 @@
       call dadal(w,nd2)
       call dadal(v,nd2)
       return
-      end
-      subroutine liefact(xy,x,h)
+      end subroutine
+
+      subroutine liefact(xy,x,h) bind(C, name="liefact_")
+      use iso_c_binding
       implicit none
+      integer(C_LONG) xy(*), x(*), h
+
       integer ndim,ndim2,ntt
 ! SYMPLECTIC DRAGT-FINN FACTORIZATION WRAPPING FLOFAC
       parameter (ndim=3)
@@ -1510,7 +1627,6 @@
       parameter (ntt=40)
       integer nd,nd2,no,nv
       common /ii/no,nv,nd,nd2
-      integer xy(*),x(*),h
 
       integer v(ndim2)
 
@@ -1522,12 +1638,17 @@
       call dadal(v,nd2)
 
       return
-      end
+      end subroutine
 
 
-      logical*1 function mapnorm(x,ft,a2,a1,xy,h,nord)
+
+      logical*1 function mapnorm(x,ft,a2,a1,xy,h,nord)                  &
+     &                bind(C, name="mapnorm_")
+      use iso_c_binding
       implicit none
-      integer isi,ndim,ndim2,nord,ntt
+      integer(C_LONG) x(*), a1(*), a2(*), ft, xy(*), h, nord
+
+      integer isi,ndim,ndim2,ntt
 !--NORMALIZATION ROUTINES OF LIELIB
 !- WRAPPING MAPNORMF
       parameter (ndim=3)
@@ -1535,7 +1656,7 @@
       parameter (ntt=40)
       integer nd,nd2,no,nv
       common /ii/no,nv,nd,nd2
-      integer x(*),a1(*),a2(*),ft,xy(*),h,hf(ndim2),ftf(ndim2)
+      integer hf(ndim2),ftf(ndim2)
       logical*1 mapnormf
 
       call etall(ftf,nd2)
@@ -1548,14 +1669,18 @@
       call dadal(hf,nd2)
 
       return
-      end
-      subroutine gettura(psq,radsq)
+      end function
+
+      subroutine gettura(psq,radsq) bind(C, name="gettura_")
+      use iso_c_binding
       implicit none
-      integer ik,ndim,ndim2,ntt
+      integer(C_LONG) ndim
       parameter (ndim=3)
+      real(C_DOUBLE) psq(ndim),radsq(ndim)
+
+      integer ik,ndim2,ntt
       parameter (ndim2=6)
       parameter (ntt=40)
-      double precision psq(ndim),radsq(ndim)
       integer nd,nd2,no,nv
       common /ii/no,nv,nd,nd2
       double precision ps,rads
@@ -1567,7 +1692,8 @@
       enddo
 
       return
-      end
+      end subroutine
+
       subroutine setidpr(idprint,nplan)
       implicit none
       integer idprint,ik,ndim,ndim2,nplan
@@ -1588,10 +1714,14 @@
       idpr=idprint
 
       return
-      end
-      subroutine idprset(idprint)
+      end subroutine
+
+      subroutine idprset(idprint) bind(C, name="idprset_")
+      use iso_c_binding
       implicit none
-      integer idprint,ndim,ndim2
+      integer(C_LONG) idprint
+
+      integer ndim,ndim2
       parameter (ndim=3)
       parameter (ndim2=6)
       integer nd,nd2,no,nv
@@ -1605,12 +1735,17 @@
       idpr=idprint
 
       return
-      end
+      end subroutine
 
 
-      logical*1 function mapnormf(x,ft,a2,a1,xy,h,nord,isi)
+
+      logical*1 function mapnormf(x,ft,a2,a1,xy,h,nord,isi)             &
+     &                            bind(C, name="mapnormf_")
+      use iso_c_binding
       implicit none
-      integer ij,isi,ndim,ndim2,nord,ntt
+      integer(C_LONG) x(*), a1(*), a2(*), ft(*), xy(*), h(*), nord, isi
+
+      integer ij,ndim,ndim2,ntt
       double precision angle,p,rad,st,x2pi,x2pii
       parameter (ndim=3)
       parameter (ndim2=6)
@@ -1620,7 +1755,6 @@
       common /ii/no,nv,nd,nd2
       integer ndc,ndc2,ndpt,ndt
       common /coast/ndc,ndc2,ndt,ndpt
-      integer x(*),a1(*),a2(*),ft(*),xy(*),h(*)
       integer itu
       common /tunedef/itu
       integer idpr
@@ -1684,10 +1818,14 @@
       call dadal(a2i,nd2)
       call dadal(a1i,nd2)
       return
-      end
-      subroutine gofix(xy,a1,a1i,nord)
+      end function
+
+      subroutine gofix(xy,a1,a1i,nord) bind(C, name="gofix_")
+      use iso_c_binding
       implicit none
-      integer i,ndim,ndim2,nord,ntt
+      integer(C_LONG) xy(*), a1(*), a1i(*), nord
+
+      integer i,ndim,ndim2,ntt
       double precision xic
 ! GETTING TO THE FIXED POINT AND CHANGING TIME APPROPRIATELY IN THE
 ! COASTING BEAM CASE
@@ -1704,7 +1842,6 @@
       common /ii/no,nv,nd,nd2
       integer ndc,ndc2,ndpt,ndt
       common /coast/ndc,ndc2,ndt,ndpt
-      integer xy(*),a1(*),a1i(*)
 
       integer x(ndim2),w(ndim2),v(ndim2),rel(ndim2)
 !
@@ -1784,7 +1921,8 @@
       call dadal(w,nd2)
       call dadal(x,nd2)
       return
-      end
+      end subroutine
+
       double precision function transver(j)
       implicit none
       integer i,ic,ndim
@@ -1805,7 +1943,8 @@
       enddo
       if(ic.ne.1) transver=0.d0
       return
-      end
+      end function
+
       subroutine orderflo(h,ft,x,ang,ra)
       implicit none
       integer k,ndim,ndim2,ntt
@@ -1876,7 +2015,8 @@
       call dadal(v,nd2)
       call dadal(w,nd2)
       return
-      end
+      end subroutine
+
       subroutine nuanaflo(h,ft)
       implicit none
       integer i,ndim,ndim2,ntt
@@ -1936,9 +2076,13 @@
       call dadal(ci,nd2)
 
       return
-      end
-      double precision function xgam(j)
+      end subroutine
+
+      double precision function xgam(j) bind(C, name="xgam_")
+      use iso_c_binding
       implicit none
+      integer(C_LONG) j(*)
+
       integer i,ic,ij,ik,ndim,ndim2
       double precision ad,ans,as,ex,exh
 ! XGAM AND XGBM ARE THE EIGENVALUES OF THE OPERATOR NEWANAFLO
@@ -1956,7 +2100,7 @@
       integer ndc,ndc2,ndpt,ndt
       common /coast/ndc,ndc2,ndt,ndpt
 !      INTEGER J(NTT),JJ(NDIM),JP(NDIM)
-      integer j(*),jj(ndim),jp(ndim)
+      integer jj(ndim),jp(ndim)
       xgam=0.d0
       ad=0.d0
       as=0.d0
@@ -1984,9 +2128,13 @@
       xgam=2.d0*(-exh*dsinh(ad/2.d0)+ex*dsin(as/2.d0)**2)/ans
 
       return
-      end
-      double precision function xgbm(j)
+      end function
+
+      double precision function xgbm(j) bind(C, name="xgbm_")
+      use iso_c_binding
       implicit none
+      integer(C_LONG) j(*)
+
       integer i,ic,ij,ik,ndim,ndim2
       double precision ad,ans,as,ex,exh
       parameter (ndim=3)
@@ -2003,7 +2151,7 @@
       integer ndc,ndc2,ndpt,ndt
       common /coast/ndc,ndc2,ndt,ndpt
 !      INTEGER J(NTT),JJ(NDIM),JP(NDIM)
-      integer j(*),jj(ndim),jp(ndim)
+      integer jj(ndim),jp(ndim)
       xgbm=0.d0
       ad=0.d0
       as=0.d0
@@ -2031,9 +2179,13 @@
       xgbm=dsin(as)*ex/ans
 
       return
-      end
-      double precision function filt(j)
+      end function
+
+      double precision function filt(j) bind(C, name="filt_")
+      use iso_c_binding
       implicit none
+      integer(C_LONG) j(*)
+
       integer i,ic,ic1,ic2,ij,ik,ji,ndim,ndim2,nreso
 !  PROJECTION FUNCTIONS ON THE KERNEL ANMD RANGE OF (1-R^-1)
 !-  THE KERNEL OF (1-R^-1)
@@ -2054,7 +2206,7 @@
       integer iflow,jtune
       common /vecflow/ iflow,jtune
 !      INTEGER J(NTT),JJ(NDIM)
-      integer j(*),jj(ndim)
+      integer jj(ndim)
 
       filt=1.d0
 
@@ -2085,9 +2237,13 @@
 
       filt=0.d0
       return
-      end
-      double precision function dfilt(j)
+      end function
+
+      double precision function dfilt(j) bind(C, name="dfilt_")
+      use iso_c_binding
       implicit none
+      integer(C_LONG) j(*)
+
       integer ndim,ndim2,nreso
       double precision fil,filt
 !-  THE RANGE OF (1-R^-1)^1
@@ -2104,7 +2260,6 @@
       common /reson/mx(ndim,nreso),nres
       external filt
 !      INTEGER J(NTT)
-      integer j(*)
 
       fil=filt(j)
       if(fil.gt.0.5d0) then
@@ -2113,7 +2268,8 @@
         dfilt=1.d0
       endif
       return
-      end
+      end function
+
       subroutine dhdjflo(h,t)
       implicit none
       integer i,ndim,ndim2,ntt
@@ -2132,8 +2288,8 @@
 !
       call etall(b1,nd2)
       call etall(b2,nd2)
-      call etall(bb1,1)
-      call etall(bb2,1)
+      call etall1(bb1)
+      call etall1(bb2)
 
       x2pi=datan(1.d0)*8.d0
       call ctorflo(h,b1,b2)
@@ -2158,9 +2314,13 @@
       call dadal(b2,nd2)
       call dadal(b1,nd2)
       return
-      end
-      subroutine dhdj(h,t)
+      end subroutine
+
+      subroutine dhdj(h,t) bind(C, name="dhdj_")
+      use iso_c_binding
       implicit none
+      integer(C_LONG) h, t(*)
+
       integer i,ndim,ndim2,ntt
       double precision coe,x2pi
       parameter (ndim=3)
@@ -2170,14 +2330,13 @@
       common /ii/no,nv,nd,nd2
       integer ndc,ndc2,ndpt,ndt
       common /coast/ndc,ndc2,ndt,ndpt
-      integer h,t(*)
 
       integer b1,b2,bb1,bb2
 !
-      call etallnom(b1,1,'B1        ')
-      call etallnom(b2,1,'B2        ')
-      call etallnom(bb1,1,'BB1       ')
-      call etallnom(bb2,1,'BB2       ')
+      call etallnom1(b1,'B1        ')
+      call etallnom1(b2,'B2        ')
+      call etallnom1(bb1,'BB1       ')
+      call etallnom1(bb2,'BB2       ')
 
       x2pi=datan(1.d0)*8.d0
       call ctor(h,b1,b2)
@@ -2207,7 +2366,8 @@
       call dadal(b2,1)
       call dadal(b1,1)
       return
-      end
+      end subroutine
+
       subroutine h2pluflo(h,ang,ra)
       implicit none
       integer i,j,ndim,ndim2,ntt
@@ -2260,7 +2420,8 @@
         call dapok(h(ndt),j,-ang(nd))
       endif
       return
-      end
+      end subroutine
+
       subroutine rotflo(ro,ang,ra)
       implicit none
       integer i,ndim,ndim2,ntt
@@ -2320,7 +2481,8 @@
       endif
 
       return
-      end
+      end subroutine
+
       subroutine rotiflo(roi,ang,ra)
       implicit none
       integer i,ndim,ndim2,ntt
@@ -2385,7 +2547,8 @@
       endif
 
       return
-      end
+      end subroutine
+
       subroutine hyper(a,ch,sh)
       implicit none
       double precision a,ch,sh,x,xi
@@ -2395,9 +2558,13 @@
       ch=(x+xi)/2.d0
       sh=(x-xi)/2.d0
       return
-      end
-      subroutine ctor(c1,r2,i2)
+      end subroutine
+
+      subroutine ctor(c1,r2,i2) bind(C, name="ctor_")
+      use iso_c_binding
       implicit none
+      integer(C_LONG) c1, r2, i2
+
       integer ndim2,ntt
 ! CHANGES OF BASIS
 !   C1------> R2+I R1
@@ -2405,12 +2572,11 @@
       parameter (ntt=40)
       integer nd,nd2,no,nv
       common /ii/no,nv,nd,nd2
-      integer c1,r2,i2
       integer b1,b2,x(ndim2)
 !
 !
-      call etallnom(b1,1,'B1        ')
-      call etallnom(b2,1,'B2        ')
+      call etallnom1(b1,'B1        ')
+      call etallnom1(b2,'B2        ')
       call etallnom(x,nd2  ,'X         ')
 
       call ctoi(c1,b1)
@@ -2422,26 +2588,30 @@
       call dadal(b2,1)
       call dadal(b1,1)
       return
-      end
-      subroutine rtoc(r1,i1,c2)
+      end subroutine
+
+      subroutine rtoc(r1,i1,c2) bind(C, name="rtoc_")
+      use iso_c_binding
       implicit none
+      integer(C_LONG) r1, i1, c2
+
       integer ndim2,ntt
 !  INVERSE OF CTOR
       parameter (ndim2=6)
       parameter (ntt=40)
       integer nd,nd2,no,nv
       common /ii/no,nv,nd,nd2
-      integer c2,r1,i1
 
       integer b1
 !
-      call etallnom(b1,1,'B1        ')
+      call etallnom1(b1,'B1        ')
 
       call daadd(r1,i1,b1)
       call itoc(b1,c2)
       call dadal(b1,1)
       return
-      end
+      end subroutine
+
       subroutine ctorflo(c,dr,di)
       implicit none
       integer ndim,ndim2,ntt
@@ -2455,7 +2625,8 @@
       call resvec(dr,di,dr,di)
 
       return
-      end
+      end subroutine
+
       subroutine rtocflo(dr,di,c)
       implicit none
       integer ndim,ndim2,ntt
@@ -2477,7 +2648,8 @@
       call dadal(ei,nd2)
 
       return
-      end
+      end subroutine
+
       subroutine ctord(c,cr,ci)
       implicit none
       integer i,ndim,ndim2,ntt
@@ -2494,7 +2666,8 @@
         call ctor(c(i),cr(i),ci(i))
       enddo
       return
-      end
+      end subroutine
+
       subroutine rtocd(cr,ci,c)
       implicit none
       integer i,ndim,ndim2,ntt
@@ -2509,7 +2682,8 @@
         call rtoc(cr(i),ci(i),c(i))
       enddo
       return
-      end
+      end subroutine
+
       subroutine resvec(cr,ci,dr,di)
       implicit none
       integer i,ndim,ndim2,ntt
@@ -2560,7 +2734,8 @@
       call dadal(tr,2)
       call dadal(ti,2)
       return
-      end
+      end subroutine
+
       subroutine reelflo(c,ci,f,fi)
       implicit none
       integer i,ndim,ndim2,ntt
@@ -2604,7 +2779,8 @@
       call dadal(e,nd2)
       call dadal(ei,nd2)
       return
-      end
+      end subroutine
+
       subroutine compcjg(cr,ci,dr,di)
       implicit none
       integer ndim,ndim2,ntt
@@ -2625,26 +2801,32 @@
 
       call dadal(x,nd2)
       return
-      end
+      end subroutine
 
 
-      logical*1 function midbflo(c,a2,a2i,q,a,st)
+
+      logical*1 function midbflo(c,a2,a2i,q,a,st)                       &
+     &                   bind(C, name="midbflo_")
+      use iso_c_binding
       implicit none
-      integer i,j,ndim,ndim2,ntt
-      double precision a,ch,cm,cr,q,r,sa,sai,shm,                       &
-     &st,x2pi
+      integer(C_LONG) ndim
+      parameter (ndim=3)
+      integer(C_LONG) c(*), a2(*), a2i(*)
+      real(C_DOUBLE) q(ndim), a(ndim), st(ndim)
+
+      integer i,j,ndim2,ntt
+      double precision ch,cm,cr,r,sa,sai,shm,                           &
+     &x2pi
 ! LINEAR EXACT NORMALIZATION USING EIGENVALUE PACKAGE OF NERI
       parameter (ntt=40)
       parameter (ndim2=6)
-      parameter (ndim=3)
       integer jx(ntt)
       integer nd,nd2,no,nv
       common /ii/no,nv,nd,nd2
       integer ndc,ndc2,ndpt,ndt
       common /coast/ndc,ndc2,ndt,ndpt
-      dimension cr(ndim2,ndim2),st(ndim),q(ndim),a(ndim)
+      dimension cr(ndim2,ndim2)
       dimension sa(ndim2,ndim2),sai(ndim2,ndim2),cm(ndim2,ndim2)
-      integer c(*),a2(*),a2i(*)
       logical*1 mapflol
 
 !*DAEXT(NO,NV) C(NDIM2),A2(NDIM2),A2I(NDIM2)
@@ -2722,16 +2904,21 @@
       enddo
 
       return
-      end
+      end function
 
 
-      logical*1 function mapflol(sa,sai,cr,cm,st)
+      logical*1 function mapflol(sa,sai,cr,cm,st)                       &
+     &                   bind(C, name="mapflol_")
+      use iso_c_binding
       implicit none
-      integer i,ier,iunst,j,l,n,n1,ndim,ndim2
-      double precision ap,ax,cm,cr,                                     &
-     &p,rd,rd1,ri,rr,s1,sa,sai,st,vi,vr,w,x,x2pi,xd,xj,xsu,xx
-      parameter (ndim2=6)
-      parameter (ndim=3)
+      integer(C_LONG) ndim, ndim2
+      parameter (ndim=3, ndim2=6)
+      real(C_DOUBLE) sa(ndim2,ndim2),sai(ndim2,ndim2), cr(ndim2,ndim2), &
+     &               cm(ndim2,ndim2), st(ndim)
+
+      integer i,ier,iunst,j,l,n,n1
+      double precision ap,ax,                                           &
+     &p,rd,rd1,ri,rr,s1,vi,vr,w,x,x2pi,xd,xj,xsu,xx
       integer nd,nd2,no,nv
       common /ii/no,nv,nd,nd2
       integer ndc,ndc2,ndpt,ndt
@@ -2743,9 +2930,9 @@
       double precision epsplane,xplane
       common /choice/ xplane(ndim),epsplane,nplane(ndim)
 ! ---------------------
-      dimension cr(ndim2,ndim2),xj(ndim2,ndim2),n(ndim),x(ndim)
-      dimension rr(ndim2),ri(ndim2),sa(ndim2,ndim2),xx(ndim)            &
-     &,sai(ndim2,ndim2),cm(ndim2,ndim2),w(ndim2,ndim2),st(ndim)
+      dimension xj(ndim2,ndim2),n(ndim),x(ndim)
+      dimension rr(ndim2),ri(ndim2),xx(ndim)                            &
+     &,w(ndim2,ndim2)
       dimension vr(ndim2,ndim2),vi(ndim2,ndim2),s1(ndim2,ndim2),p(ndim2)
       logical*1 eig6
 
@@ -2914,7 +3101,8 @@
       call mulnd2(cm,cr)
 
       return
-      end
+      end function
+
       subroutine mulnd2(rt,r)
       implicit none
       integer i,ia,j,ndim,ndim2
@@ -2943,7 +3131,8 @@
         enddo
       enddo
       return
-      end
+      end subroutine
+
       subroutine movearou(rt)
       implicit none
       integer ipause, mypause
@@ -3076,7 +3265,8 @@
       enddo
 
       return
-      end
+      end subroutine
+
       subroutine movemul(rt,xy,rto,xr)
       implicit none
       integer i,j,k,ndim,ndim2
@@ -3115,7 +3305,8 @@
         xr=xr-dabs(rto(2*i,2*i-1))
       enddo
       return
-      end
+      end subroutine
+
       subroutine initpert(st,ang,ra)
       implicit none
       integer i,ndim,ndim2,nn,nreso
@@ -3181,14 +3372,17 @@
         idsta(i)=idint(dsta(i)+.01)
       enddo
       return
-      end
-      double precision function dlie(j)
+      end subroutine
+
+      double precision function dlie(j) bind(C, name="dlie_")
+      use iso_c_binding
       implicit none
+      integer(C_LONG) j(*)
+
       integer i,ndim
       parameter (ndim=3)
 !      PARAMETER (NTT=40)
 !      INTEGER J(NTT)
-      integer j(*)
       integer nd,nd2,no,nv
       common /ii/no,nv,nd,nd2
       dlie=0.d0
@@ -3198,9 +3392,13 @@
       dlie=dlie+1.d0
       dlie=1.d0/dlie
       return
-      end
-      double precision function rext(j)
+      end function
+
+      double precision function rext(j) bind(C, name="rext_")
+      use iso_c_binding
       implicit none
+      integer(C_LONG) j(*)
+
       integer i,lie,mo,ndim
       parameter (ndim=3)
 !      PARAMETER (NTT=40)
@@ -3210,7 +3408,6 @@
       common /coast/ndc,ndc2,ndt,ndpt
       integer idsta,ista
       common /istable/ista(ndim),idsta(ndim)
-      integer j(*)
       lie=0
       do i=1,nd-ndc
         lie=ista(i)*j(2*i)+lie
@@ -3225,7 +3422,8 @@
       return
  14   rext = 1.d0
       return
-      end
+      end function
+
       subroutine cpart(h,ch)
       implicit none
       integer ndim,ntt
@@ -3238,7 +3436,8 @@
       integer h,ch
       call dacfu(h,rext,ch)
       return
-      end
+      end subroutine
+
       subroutine ctoi(f1,f2)
       implicit none
       integer ndim2,ntt
@@ -3250,7 +3449,7 @@
       integer b1,x(ndim2)
 !
 !
-      call etallnom(b1,1,'B1        ')
+      call etallnom1(b1,'B1        ')
       call etallnom(x,nd2  ,'X         ')
 
       call cpart(f1,b1)
@@ -3259,7 +3458,8 @@
       call dadal(x,nd2)
       call dadal(b1,1)
       return
-      end
+      end subroutine
+
       subroutine itoc(f1,f2)
       implicit none
       integer ndim2,ntt
@@ -3270,7 +3470,7 @@
       integer f1,f2
       integer b1,x(ndim2)
 !
-      call etallnom(b1,1,'B1        ')
+      call etallnom1(b1,'B1        ')
       call etallnom(x,nd2  ,'X         ')
 
       call etrtc(x)
@@ -3279,7 +3479,8 @@
       call dadal(x,nd2)
       call dadal(b1,1)
       return
-      end
+      end subroutine
+
       subroutine etrtc(x)
       implicit none
       integer i,ndim,ndim2,ntt
@@ -3305,7 +3506,8 @@
       enddo
       call dadal(rel,nd2)
       return
-      end
+      end subroutine
+
       subroutine etctr(x)
       implicit none
       integer i,ndim,ndim2,ntt
@@ -3330,7 +3532,8 @@
       enddo
       call dadal(rel,nd2)
       return
-      end
+      end subroutine
+
       subroutine etcjg(x)
       implicit none
       integer i,ndim,ndim2,ntt
@@ -3363,12 +3566,20 @@
       enddo
       call dadal(rel,nd2)
       return
-      end
+      end subroutine
 
 
-      logical*1 function eig6(fm,reval,aieval,revec,aievec)
+
+      logical*1 function eig6(fm,reval,aieval,revec,aievec)             &
+     &                bind(C, name="eig6_")
+      use iso_c_binding
       implicit none
-      integer jet,ndim2
+      integer(C_LONG) ndim2
+      parameter (ndim2=6)
+      real(C_DOUBLE) fm(ndim2,ndim2), aieval(ndim2), reval(ndim2),      &
+     &               revec(ndim2,ndim2), aievec(ndim2,ndim2)
+
+      integer jet
 !**************************************************************************
 
 !  Diagonalization routines of NERI
@@ -3385,16 +3596,13 @@
 !  the eigenvectors 2 ,4, and 6 have the opposite normalization.
 !  written by F. Neri, Feb 26 1986.
 !
-      parameter (ndim2=6)
       integer nn
       integer ilo,ihi,mdim,info
       integer nd,nd2,no,nv
       common /ii/no,nv,nd,nd2
       integer ndc,ndc2,ndpt,ndt
       common /coast/ndc,ndc2,ndt,ndpt
-      double precision reval(ndim2),aieval(ndim2),                      &
-     &revec(ndim2,ndim2),aievec(ndim2,ndim2)
-      double precision fm(ndim2,ndim2),aa(ndim2,ndim2)
+      double precision aa(ndim2,ndim2)
       integer i,i1
       double precision ort(ndim2),vv(ndim2,ndim2)
 
@@ -3435,7 +3643,7 @@
         endif
       enddo
       return
-      end
+      end function
 
 
       subroutine ety(nm,n,low,igh,a,ort)
@@ -3546,7 +3754,8 @@
 !
   200 return
 !     ********** last card of ety **********
-      end
+      end subroutine
+
       subroutine etyt(nm,n,low,igh,a,ort,z)
       implicit none
       integer i,j,n,kl,mm,mp,nm,igh,low,mp1
@@ -3635,7 +3844,8 @@
 !
   200 return
 !     ********** last card of etyt **********
-      end
+      end subroutine
+
       subroutine ety2(nm,n,low,igh,h,wr,wi,z,ierr)
       implicit none
       integer i,j,k,l,m,n,en,ii,jj,ll,mm,na,nm,nn,                      &
@@ -4071,7 +4281,8 @@
  1000 ierr = en
  1001 return
 !     ********** last card of ety2 **********
-      end
+      end subroutine
+
       subroutine etdiv(a,b,c,d,e,f)
       implicit none
 !   computes the complex division
@@ -4124,7 +4335,8 @@
         b = -b
       endif
       return
-      end
+      end subroutine
+
       subroutine sympl3(m)
 !**********************************************************
 !
@@ -4190,7 +4402,8 @@
 ! 600   continue
       enddo
       return
-      end
+      end subroutine
+
 
 
       logical*1 function averaged(f,a,flag,fave)
@@ -4218,8 +4431,8 @@
       logical*1 mapnormf
 
       if(.not.flag) then
-        call etall(cosi,1)
-        call etall(sine,1)
+        call etall1(cosi)
+        call etall1(sine)
         call trx(f,f,a)
         call ctor(f,cosi,sine)
         call dacfu(cosi,avepol,fave)
@@ -4227,8 +4440,8 @@
         call dadal(sine,1)
       else
 
-        call etall(cosi,1)
-        call etall(sine,1)
+        call etall1(cosi)
+        call etall1(sine)
         call etall(ftf,nd2)
         call etall(hf,nd2)
         call etall(a2,nd2)
@@ -4256,14 +4469,17 @@
       endif
 
       return
-      end
-      double precision function avepol(j)
+      end function
+
+      double precision function avepol(j) bind(C, name="avepol_")
+      use iso_c_binding
       implicit none
+      integer(C_LONG) j(*)
+
       integer i,ndim
       parameter (ndim=3)
 !      PARAMETER (NTT=40)
 !      INTEGER J(NTT)
-      integer j(*)
       integer nd,nd2,no,nv
       common /ii/no,nv,nd,nd2
       integer ndc,ndc2,ndpt,ndt
@@ -4277,7 +4493,7 @@
       enddo
 
       return
-      end
+      end function
 
 
       logical function couplean(map1,tune,map2,oneturn)
@@ -4307,15 +4523,15 @@
 
       logical*1 mapnorm
 
-      call etall(ftf,1)
-      call etall(hf,1)
+      call etall1(ftf)
+      call etall1(hf)
       call etall(a1,nd2)
       call etall(a2,nd2)
       call etall(m1,nd2)
       call etall(m2,nd2)
       call etall(xy,nd2)
-      call etall(cs,1)
-      call etall(h,1)
+      call etall1(cs)
+      call etall1(h)
 
 !     map1 is an a-script, the last nv entry should be empty
 !  this a-script should around the fixed point to all orders
@@ -4374,14 +4590,17 @@
       call dadal(h,1)
 
       return
-      end
-      double precision function planar(j)
+      end function
+
+      double precision function planar(j) bind(C, name="planar_")
+      use iso_c_binding
       implicit none
+      integer(C_LONG) j(*)
+
       integer i,ndim
       parameter (ndim=3)
 !      PARAMETER (NTT=40)
 !      INTEGER J(NTT)
-      integer j(*)
       integer nd,nd2,no,nv
       common /ii/no,nv,nd,nd2
       integer ndc,ndc2,ndpt,ndt
@@ -4403,14 +4622,17 @@
       enddo
 
       return
-      end
-      double precision function killnonl(j)
+      end function
+
+      double precision function killnonl(j) bind(C, name="killnonl_")
+      use iso_c_binding
       implicit none
+      integer(C_LONG) j(*)
+
       integer i,ic,ndim
       parameter (ndim=3)
 !      PARAMETER (NTT=40)
 !      INTEGER J(NTT)
-      integer j(*)
       integer nd,nd2,no,nv
       common /ii/no,nv,nd,nd2
       integer ndc,ndc2,ndpt,ndt
@@ -4426,7 +4648,8 @@
       if(j(nv).ne.0) killnonl=0.d0
 
       return
-      end
+      end function
+
       subroutine fexpo1(h,x,w,nrmin,nrmax,sca,ifac)
       implicit none
       integer ifac,ndim,ndim2,nrma,nrmax,nrmi,nrmin,ntt
@@ -4448,7 +4671,8 @@
       call dadal(v,nd2)
 
       return
-      end
+      end subroutine
+
       subroutine etcctpar(x,ix,xj,z)
       implicit none
       integer i,ie,ix,ndim,ndim2,ntt
@@ -4474,4 +4698,6 @@
 
       call dadal(ie,nv)
       return
-      end
+      end subroutine
+
+      end module lielib

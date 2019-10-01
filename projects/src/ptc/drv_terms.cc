@@ -1,4 +1,4 @@
-#define NO 3
+#define NO 4
 
 #include "tracy_lib.h"
 
@@ -296,6 +296,51 @@ void get_dx_dJ(const double twoJ[])
 }
 
 
+void map_gymn(void)
+{
+  ss_vect<tps> Id, map1, map_res;
+
+  Id.identity();
+
+  danot_(no_tps-1);
+  get_map(false);
+  danot_(no_tps);
+  MNF = MapNorm(map, 1);
+  daeps_(1e-7);
+  cout << scientific << setprecision(5) << 1e0*MNF.K << 1e0*MNF.g;
+
+  daeps_(eps_tps);
+  map1 =
+    MNF.A0*MNF.A1*FExpo(MNF.g, Id, 3, no_tps, -1)
+    *FExpo(MNF.K, Id, 2, no_tps, -1)
+    *Inv(MNF.A0*MNF.A1*FExpo(MNF.g, Id, 3, no_tps, -1));
+#if 1
+  map_res =
+    Inv(FExpo(MNF.K, Id, 2, no_tps, -1))
+    *Inv(MNF.A0*MNF.A1*FExpo(MNF.g, Id, 3, no_tps, -1))*map
+    *MNF.A0*MNF.A1*FExpo(MNF.g, Id, 3, no_tps, -1);
+  MNF = MapNorm(map_res, 1);
+  daeps_(1e-7);
+  cout << scientific << setprecision(5) << 1e0*MNF.K << 1e0*MNF.g;
+  danot_(no_tps-1);
+  cout << scientific << setprecision(5)
+       << 1e0*MNF.map_res[x_] << 1e0*map_res[x_];
+#else
+  map_res =
+    Inv(MNF.A0*MNF.A1*FExpo(MNF.g, Id, 3, no_tps, -1))*map
+    *MNF.A0*MNF.A1*FExpo(MNF.g, Id, 3, no_tps, -1);
+  daeps_(1e-7);
+  danot_(no_tps-1);
+  cout << scientific << setprecision(5)
+       << 1e0*MNF.map_res[x_] << 1e0*map_res[x_];
+#endif
+
+  danot_(no_tps-1);
+  get_map(false);
+  danot_(no_tps);
+}
+
+
 int main(int argc, char *argv[])
 {
 
@@ -325,12 +370,17 @@ int main(int argc, char *argv[])
     Ring_GetTwiss(true, 0e0); printglob();
   }
 
+  if (!false) {
+    map_gymn();
+    exit(0);
+  }
+
   if (false) {
     tst_g();
     exit(0);
   }
 
-  if (!true) get_drv_terms(twoJ, delta_max);
+  if (true) get_drv_terms(twoJ, delta_max);
 
   if (!false) get_dx_dJ(twoJ);
 }
