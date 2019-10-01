@@ -271,7 +271,7 @@ void get_dx_dJ(const double twoJ[])
     danot_(no_tps);
 
     if (false || ((Cell[j].Elem.Pkind == Mpole) &&
-		   (Cell[j].Elem.M->PBpar[Sext+HOMmax] != 0e0))) {
+		  (Cell[j].Elem.M->PBpar[Sext+HOMmax] != 0e0))) {
       MNF = MapNorm(M*map*Inv(M), 1);
 #if 1
       dx_fl = LieExp(MNF.g, Id);
@@ -279,10 +279,8 @@ void get_dx_dJ(const double twoJ[])
       for (k = 0; k < 4; k++)
 	dx_fl[k] = PB(MNF.g, Id[k]);
 #endif
-      for (k = 0; k < 4; k++) {
+      for (k = 0; k < 4; k++)
 	CtoR(dx_fl[k], dx_re[k], dx_im[k]);
-	dx_re[k] = dacfu1(dx_re[k], f_kernel);
-      }
       dx_re = MNF.A1*dx_re; dx_im = MNF.A1*dx_im;
       dx[X_] = h_ijklm(dx_re[x_]*Id_scl, 1, 1, 0, 0, 0);
       dx[Y_] = h_ijklm(dx_re[x_]*Id_scl, 0, 0, 1, 1, 0);
