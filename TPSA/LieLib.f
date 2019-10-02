@@ -1,7 +1,7 @@
       module lielib
       contains
 
-      subroutine lieinit(no1,nv1,nd1,ndpt1,iref1,nis)
+      subroutine lieinit(no1,nv1,nd1,ndpt1,iref1,nis)                   &
      &           bind(C, name="lieinit_")
       use iso_c_binding
       implicit none
@@ -47,6 +47,7 @@
       do i=1,100
         is(i)=0
       enddo
+      write(*, *) "lieinit:", no, nv, nd, nd2, ndpt, idpr
       write(*, *) "lieinit: calling daini"
       call daini(no,nv,0)
       if(nis.gt.0)call etallnom(is,nis,'$$IS      ')
@@ -62,7 +63,7 @@
         else
           ndt=nd2
           if(ndpt.ne.nd2-1) then
-            write(6,*) ' LETHAL ERROR IN LIEINIT'
+            write(6,*) ' LETHAL ERROR IN LIEINIT', ndpt, nd2-1
             stop
           endif
         endif
@@ -287,16 +288,16 @@
       subroutine etall1(x)
       implicit none
       integer x
-      call daallno(x,1,'ETALL     ')
+      call daallno1(x,'ETALL     ')
       return
       end subroutine
 
-!      subroutine dadal1(x)
-!      implicit none
-!      integer x
-!      call dadal(x,1)
-!      return
-!      end subroutine
+      subroutine dadal1(x)
+      implicit none
+      integer x
+      call dadal(x,1)
+      return
+      end subroutine
 
       subroutine etppulnv(x,xi,xff)
       implicit none
@@ -330,7 +331,7 @@
       implicit none
       integer(C_LONG) y(*), x(*)
 
-       integer i,ie,iv,ndim,ndim2,nt,ntt
+      integer i,ie,iv,ndim,ndim2,nt,ntt
 ! ROUTINES USING THE MAP IN AD-FORM
 ! Note, no must be set to nomax
       parameter (ndim=3)
@@ -826,15 +827,18 @@
       return
       end subroutine
 
-      subroutine taked(h,m,ht)
+      subroutine taked(h,m,ht) bind(C, name="taked_")
+      use iso_c_binding
       implicit none
-      integer i,m,ndim2,ntt
+      integer(C_LONG) h(*), m, ht(*)
+
+      integer i,ndim2,ntt
 !  \VEC{HT}= \VEC{H_M}  (TAKES M^th DEGREE PIECE ALL VARIABLES INCLUDED)
       parameter (ndim2=6)
       parameter (ntt=40)
       integer nd,nd2,no,nv
       common /ii/no,nv,nd,nd2
-      integer h(*),ht(*),j(ntt)
+      integer j(ntt)
 
       integer b1,b2,x(ndim2)
 !
@@ -967,7 +971,7 @@
 !  print a map   in resonance basis for human consumption (useless)
       parameter (ndim2=6)
       parameter (ntt=40)
-      integer  b(ndim2) ,c(ndim2)
+      integer b(ndim2),c(ndim2)
       integer nd,nd2,no,nv
       common /ii/no,nv,nd,nd2
       integer ifilt
@@ -992,7 +996,7 @@
       return
       end subroutine
 
-      double precision function filtres(j) bind(C, name="filtres_")
+      real(C_DOUBLE) function filtres(j) bind(C, name="filtres_")
       use iso_c_binding
       implicit none
       integer(C_LONG) j(*)
@@ -1000,7 +1004,7 @@
       integer i,ic,ndim
       parameter (ndim=3)
 !      PARAMETER (NTT=40)
-!      INTEGER J(NTT)
+!      integer J(NTT)
       integer nd,nd2,no,nv
       common /ii/no,nv,nd,nd2
       integer ndc,ndc2,ndpt,ndt
@@ -1023,7 +1027,7 @@
       subroutine daflo(h,x,y) bind(C, name="daflo_")
       use iso_c_binding
       implicit none
-      integer(C_LONG) h, x, y
+      integer(C_LONG) h(*), x, y
 
       integer i,ndim,ndim2,ntt
 ! LIE EXPONENT ROUTINES WITH FLOW OPERATORS
@@ -1055,15 +1059,17 @@
       return
       end subroutine
 
-      subroutine daflod(h,x,y)
+      subroutine daflod(h,x,y) bind(C, name="daflod_")
+      use iso_c_binding
       implicit none
+      integer(C_LONG) h(*), x(*), y(*)
+
       integer i,ndim,ndim2,ntt
       parameter (ndim=3)
       parameter (ndim2=6)
       parameter (ntt=40)
       integer nd,nd2,no,nv
       common /ii/no,nv,nd,nd2
-      integer  h(*),x(*),y(*)
       integer b1(ndim2),b2(ndim2)
 !
       call etall(b1,nd2)
@@ -1131,17 +1137,19 @@
       return
       end subroutine
 
-      subroutine difd(h1,v,sca)
+      subroutine difd(h1,v,sca) bind(C, name="difd_")
+      use iso_c_binding
       implicit none
+      integer(C_LONG) h1, v(*)
+      real(C_DOUBLE)  sca
+
       integer i,ndim,ndim2,ntt
-      double precision sca
 ! INVERSE OF INTD ROUTINE
       parameter (ndim=3)
       parameter (ndim2=6)
       parameter (ntt=40)
       integer nd,nd2,no,nv
       common /ii/no,nv,nd,nd2
-      integer  v(*),h1
       integer b1,h
       call etall1(b1)
       call etall1(h)
@@ -1640,10 +1648,8 @@
       return
       end subroutine
 
-
-
-      logical*1 function mapnorm(x,ft,a2,a1,xy,h,nord)                  &
-     &                bind(C, name="mapnorm_")
+      logical(C_BOOL) function mapnorm(x,ft,a2,a1,xy,h,nord)            &
+     &                         bind(C, name="mapnorm_")
       use iso_c_binding
       implicit none
       integer(C_LONG) x(*), a1(*), a2(*), ft, xy(*), h, nord
@@ -1737,10 +1743,8 @@
       return
       end subroutine
 
-
-
-      logical*1 function mapnormf(x,ft,a2,a1,xy,h,nord,isi)             &
-     &                            bind(C, name="mapnormf_")
+      logical(C_BOOL) function mapnormf(x,ft,a2,a1,xy,h,nord,isi)       &
+     &                         bind(C, name="mapnormf_")
       use iso_c_binding
       implicit none
       integer(C_LONG) x(*), a1(*), a2(*), ft(*), xy(*), h(*), nord, isi
@@ -1929,7 +1933,7 @@
 ! USED IN A DACFU CALL OF GOFIX
       parameter (ndim=3)
 !      PARAMETER (NTT=40)
-!      INTEGER J(NTT)
+!      integer J(NTT)
       integer j(*)
       integer nd,nd2,no,nv
       common /ii/no,nv,nd,nd2
@@ -2078,7 +2082,7 @@
       return
       end subroutine
 
-      double precision function xgam(j) bind(C, name="xgam_")
+      real(C_DOUBLE) function xgam(j) bind(C, name="xgam_")
       use iso_c_binding
       implicit none
       integer(C_LONG) j(*)
@@ -2099,7 +2103,7 @@
       common /ii/no,nv,nd,nd2
       integer ndc,ndc2,ndpt,ndt
       common /coast/ndc,ndc2,ndt,ndpt
-!      INTEGER J(NTT),JJ(NDIM),JP(NDIM)
+!      integer J(NTT),JJ(NDIM),JP(NDIM)
       integer jj(ndim),jp(ndim)
       xgam=0.d0
       ad=0.d0
@@ -2130,7 +2134,7 @@
       return
       end function
 
-      double precision function xgbm(j) bind(C, name="xgbm_")
+      real(C_DOUBLE) function xgbm(j) bind(C, name="xgbm_")
       use iso_c_binding
       implicit none
       integer(C_LONG) j(*)
@@ -2150,7 +2154,7 @@
       common /ii/no,nv,nd,nd2
       integer ndc,ndc2,ndpt,ndt
       common /coast/ndc,ndc2,ndt,ndpt
-!      INTEGER J(NTT),JJ(NDIM),JP(NDIM)
+!      integer J(NTT),JJ(NDIM),JP(NDIM)
       integer jj(ndim),jp(ndim)
       xgbm=0.d0
       ad=0.d0
@@ -2181,7 +2185,7 @@
       return
       end function
 
-      double precision function filt(j) bind(C, name="filt_")
+      real(C_DOUBLE) function filt(j) bind(C, name="filt_")
       use iso_c_binding
       implicit none
       integer(C_LONG) j(*)
@@ -2205,7 +2209,7 @@
       common /reson/mx(ndim,nreso),nres
       integer iflow,jtune
       common /vecflow/ iflow,jtune
-!      INTEGER J(NTT),JJ(NDIM)
+!      integer J(NTT),JJ(NDIM)
       integer jj(ndim)
 
       filt=1.d0
@@ -2239,7 +2243,7 @@
       return
       end function
 
-      double precision function dfilt(j) bind(C, name="dfilt_")
+      real(C_DOUBLE) function dfilt(j) bind(C, name="dfilt_")
       use iso_c_binding
       implicit none
       integer(C_LONG) j(*)
@@ -2259,7 +2263,7 @@
       integer mx,nres
       common /reson/mx(ndim,nreso),nres
       external filt
-!      INTEGER J(NTT)
+!      integer J(NTT)
 
       fil=filt(j)
       if(fil.gt.0.5d0) then
@@ -2803,10 +2807,8 @@
       return
       end subroutine
 
-
-
-      logical*1 function midbflo(c,a2,a2i,q,a,st)                       &
-     &                   bind(C, name="midbflo_")
+      logical(C_BOOL) function midbflo(c,a2,a2i,q,a,st)                 &
+     &                         bind(C, name="midbflo_")
       use iso_c_binding
       implicit none
       integer(C_LONG) ndim
@@ -2906,9 +2908,8 @@
       return
       end function
 
-
-      logical*1 function mapflol(sa,sai,cr,cm,st)                       &
-     &                   bind(C, name="mapflol_")
+      logical(C_BOOL) function mapflol(sa,sai,cr,cm,st)                 &
+     &                         bind(C, name="mapflol_")
       use iso_c_binding
       implicit none
       integer(C_LONG) ndim, ndim2
@@ -3374,7 +3375,7 @@
       return
       end subroutine
 
-      double precision function dlie(j) bind(C, name="dlie_")
+      real(C_DOUBLE) function dlie(j) bind(C, name="dlie_")
       use iso_c_binding
       implicit none
       integer(C_LONG) j(*)
@@ -3382,7 +3383,7 @@
       integer i,ndim
       parameter (ndim=3)
 !      PARAMETER (NTT=40)
-!      INTEGER J(NTT)
+!      integer J(NTT)
       integer nd,nd2,no,nv
       common /ii/no,nv,nd,nd2
       dlie=0.d0
@@ -3394,7 +3395,7 @@
       return
       end function
 
-      double precision function rext(j) bind(C, name="rext_")
+      real(C_DOUBLE) function rext(j) bind(C, name="rext_")
       use iso_c_binding
       implicit none
       integer(C_LONG) j(*)
@@ -3568,10 +3569,8 @@
       return
       end subroutine
 
-
-
-      logical*1 function eig6(fm,reval,aieval,revec,aievec)             &
-     &                bind(C, name="eig6_")
+      logical(C_BOOL) function eig6(fm,reval,aieval,revec,aievec)       &
+     &                         bind(C, name="eig6_")
       use iso_c_binding
       implicit none
       integer(C_LONG) ndim2
@@ -3644,7 +3643,6 @@
       enddo
       return
       end function
-
 
       subroutine ety(nm,n,low,igh,a,ort)
       implicit none
@@ -4404,8 +4402,6 @@
       return
       end subroutine
 
-
-
       logical*1 function averaged(f,a,flag,fave)
       implicit none
       integer isi,ndim,ndim2,nord,ntt
@@ -4471,7 +4467,7 @@
       return
       end function
 
-      double precision function avepol(j) bind(C, name="avepol_")
+      real(C_DOUBLE) function avepol(j) bind(C, name="avepol_")
       use iso_c_binding
       implicit none
       integer(C_LONG) j(*)
@@ -4479,7 +4475,7 @@
       integer i,ndim
       parameter (ndim=3)
 !      PARAMETER (NTT=40)
-!      INTEGER J(NTT)
+!      integer J(NTT)
       integer nd,nd2,no,nv
       common /ii/no,nv,nd,nd2
       integer ndc,ndc2,ndpt,ndt
@@ -4494,7 +4490,6 @@
 
       return
       end function
-
 
       logical function couplean(map1,tune,map2,oneturn)
       implicit none
@@ -4592,7 +4587,7 @@
       return
       end function
 
-      double precision function planar(j) bind(C, name="planar_")
+      real(C_DOUBLE) function planar(j) bind(C, name="planar_")
       use iso_c_binding
       implicit none
       integer(C_LONG) j(*)
@@ -4600,7 +4595,7 @@
       integer i,ndim
       parameter (ndim=3)
 !      PARAMETER (NTT=40)
-!      INTEGER J(NTT)
+!      integer J(NTT)
       integer nd,nd2,no,nv
       common /ii/no,nv,nd,nd2
       integer ndc,ndc2,ndpt,ndt
@@ -4624,7 +4619,7 @@
       return
       end function
 
-      double precision function killnonl(j) bind(C, name="killnonl_")
+      real(C_DOUBLE) function killnonl(j) bind(C, name="killnonl_")
       use iso_c_binding
       implicit none
       integer(C_LONG) j(*)
@@ -4632,7 +4627,7 @@
       integer i,ic,ndim
       parameter (ndim=3)
 !      PARAMETER (NTT=40)
-!      INTEGER J(NTT)
+!      integer J(NTT)
       integer nd,nd2,no,nv
       common /ii/no,nv,nd,nd2
       integer ndc,ndc2,ndpt,ndt

@@ -7,16 +7,16 @@
 
 */
 
-extern int  no_tps, ndpt_tps;
+extern int no_tps, ndpt_tps;
 
-bool    ini_tps = false, header = false, res_basis = false, stable = false;
+bool ini_tps = false, header = false, res_basis = false, stable = false;
 
-unsigned short int  seq_tps = 0;       // sequence no for TPSA vector
-//const int           n_max   = 150;     // max iterations for LieExp
-const int           n_max   = 200;     // max iterations for LieExp
+//const int n_max   = 150;     // max iterations for LieExp
+const int n_max   = 200;     // max iterations for LieExp
 
-// Fortran strings are passed from C by: [str, strlen(str)].
-const int   name_len_for = 10; // name length in FORTRAN library is 10.
+// Name length for FORTRAN library is 10; 10+1 for C.
+const int  name_len_for              = 10; 
+const char tpsa_name[name_len_for+1] = "tps-";
 
 int  bufsize; // Note, max no of monomials is (no+nv)!/(nv!*no!)
  
@@ -144,32 +144,27 @@ void TPSA_Ini(void)
 void TPSAEps(const double eps)
 { daeps_(eps); eps_tps = eps; }
 
-tps::tps(void) {
-  char  name[11];
-
+tps::tps(void)
+{
   if (!ini_tps) TPSA_Ini();
-  seq_tps++; intptr = 0; sprintf(name, "tps-%-5hu", seq_tps);
-  daall_(intptr, 1, name, no_tps, nv_tps, name_len_for); dacon_(intptr, 0.0);
+  intptr = 0;
+  daall_(intptr, 1, tpsa_name, no_tps, nv_tps); dacon_(intptr, 0.0);
 }
 
 
 tps::tps(const double r)
 {
-  char  name[11];
-
   if (!ini_tps) TPSA_Ini();
-  seq_tps++; intptr = 0; sprintf(name, "tps-%-5hu", seq_tps);
-  daall_(intptr, 1, name, no_tps, nv_tps, name_len_for); dacon_(intptr, r);
+  intptr = 0;
+  daall_(intptr, 1, tpsa_name, no_tps, nv_tps); dacon_(intptr, r);
 }
 
 
 tps::tps(const double r, const int i)
 {
-  char  name[11];
-
   if (!ini_tps) TPSA_Ini();
-  seq_tps++; intptr = 0; sprintf(name, "tps-%-5hu", seq_tps);
-  daall_(intptr, 1, name, no_tps, nv_tps, name_len_for);
+  intptr = 0;
+  daall_(intptr, 1, tpsa_name, no_tps, nv_tps);
   if (i == 0)
     dacon_(intptr, r);
   else
@@ -179,21 +174,17 @@ tps::tps(const double r, const int i)
 
 tps::tps(const double r, const long int jj[])
 {
-  char  name[11];
-
   if (!ini_tps) TPSA_Ini();
-  seq_tps++; intptr = 0; sprintf(name, "tps-%-5hu", seq_tps);
-  daall_(intptr, 1, name, no_tps, nv_tps, name_len_for);
+  intptr = 0;
+  daall_(intptr, 1, tpsa_name, no_tps, nv_tps);
   dapok_(intptr, jj, r);
 }
 
 
 tps::tps(const tps &x) {
-  char  name[11];
-
   if (!ini_tps) TPSA_Ini();
-  seq_tps++; intptr = 0; sprintf(name, "tps-%-5hu", seq_tps);
-  daall_(intptr, 1, name, no_tps, nv_tps, name_len_for);
+  intptr = 0;
+  daall_(intptr, 1, tpsa_name, no_tps, nv_tps);
   dacop_(x.intptr, intptr);
 }
 
@@ -230,7 +221,7 @@ void tps::pook(const long int jj[], const double r)
 
 void tps::exprt(double rbuf[], long int ibuf1[], long int ibuf2[],
 		char *name) const
-{ daexp_(intptr, rbuf, ibuf1, ibuf2, name, name_len_for); }
+{ daexp_(intptr, rbuf, ibuf1, ibuf2, name); }
 
 void tps::imprt(const int n, double rbuf[],
 		const long int ibuf1[], const long int ibuf2[])
@@ -272,7 +263,7 @@ tps sqrt(const tps &a)
 {
   tps  b;
 
-  dafun_("SQRT", a.intptr, b.intptr, name_len_for);
+  dafun_("SQRT", a.intptr, b.intptr);
   return b;
 }
 
@@ -300,7 +291,7 @@ tps exp(const tps &a)
 {
   tps  b;
 
-  dafun_("EXP ", a.intptr, b.intptr, name_len_for);
+  dafun_("EXP ", a.intptr, b.intptr);
   return b;
 }
 
@@ -309,7 +300,7 @@ tps log(const tps &a)
 {
   tps  b;
 
-  dafun_("LOG ", a.intptr, b.intptr, name_len_for);
+  dafun_("LOG ", a.intptr, b.intptr);
   return b;
 }
 
@@ -320,7 +311,7 @@ tps sin(const tps &a)
 {
   tps  b;
 
-  dafun_("SIN ", a.intptr, b.intptr, name_len_for);
+  dafun_("SIN ", a.intptr, b.intptr);
   return b;
 }
 
@@ -328,7 +319,7 @@ tps cos(const tps &a)
 {
   tps  b;
 
-  dafun_("COS ", a.intptr, b.intptr, name_len_for);
+  dafun_("COS ", a.intptr, b.intptr);
   return b;
 }
 
@@ -336,7 +327,7 @@ tps tan(const tps &a)
 {
   tps  b;
 
-  dafun_("TAN ", a.intptr, b.intptr, name_len_for);
+  dafun_("TAN ", a.intptr, b.intptr);
   return b;
 }
 
@@ -401,7 +392,7 @@ tps asin(const tps &a)
 {
   tps  b;
 
-  dafun_("ASIN", a.intptr, b.intptr, name_len_for);
+  dafun_("ASIN", a.intptr, b.intptr);
   return b;
 }
 
@@ -410,7 +401,7 @@ tps acos(const tps &a)
 {
   tps  b;
 
-  dafun_("ACOS", a.intptr, b.intptr, name_len_for);
+  dafun_("ACOS", a.intptr, b.intptr);
   return b;
 }
 
@@ -1068,84 +1059,71 @@ std::istream& operator>>(std::istream &is, tps &a)
 }
 
 
+void prt_header(std::ostream &os)
+{
+  os << "\n";
+  if (!res_basis) {
+    os << "                                                        n\n"
+       << "      ====     i  i   i  i  i   i  i     i             ====\n"
+       << "      \\         1  2   3  4  5   6  7     n            \\   \n"
+       << "  P =  |   a  x  p   y  p  d  ct  p ... p  ,    |I| =  |   i\n"
+       << "      /     I     x      y         1     n             /     k\n"
+       << "      ====                                             ====\n"
+       << "       I                                               k=1\n";
+  } else {
+    os << "                                                          n\n"
+       << "      ====      i   i   i   i  i   i  i     i            ====\n"
+       << "      \\        + 1 - 2 + 3 - 4  5   6  7     n           \\   \n"
+       << "  P =  |   a  h   h   h   h   d  ct  p ... p  ,    |I| =  |   i\n"
+       << "      /     I  x   x   y   y          1     n            /     k\n"
+       << "      ====                                               ====\n"
+       << "       I                                                 k=1\n";
+  }
+}
+
+
 std::ostream& operator<<(std::ostream &os, const tps &a)
 {
-  char               name[11];
+  char               name[name_len_for+1];
   int                i, j, ord, n, no;
   long int           ibuf1[bufsize], ibuf2[bufsize], jj[nv_tps];
   double             rbuf[bufsize];
   std::ostringstream s;
 
-  const bool  debug_ = false;
+  const bool debug_ = false;
 
   if (debug_) {
     dapri_(a.intptr, 6);
     return os;
   }
 
-  daexp_(a.intptr, rbuf, ibuf1, ibuf2, name, name_len_for);
-  s << std::endl;
+  daexp_(a.intptr, rbuf, ibuf1, ibuf2, name);
+  s << "\n";
   
-  name[10] = '\0'; i = 0;
-  while ((i <= 9) && (name[i] != ' ')) {
+  i = 0;
+  while ((i < name_len_for) && (name[i] != ' ')) {
     s << name[i]; i++;
   }
   n = (int) rbuf[0];
   s << ", NO = " << no_tps
-    << ", NV = " << nv_tps << ", INA = " << a.intptr << std::endl;
+    << ", NV = " << nv_tps << ", INA = " << a.intptr << "\n";
 
   for (i = 1; i <= 66; i++)
     s << "-"; 
-  s << std::endl;
+  s << "\n";
 
-  if (header) {
-    s << std::endl;
-    if (!res_basis) {
-      s << "                                                        n"
-	<< std::endl;
-      s << "      ====     i  i   i  i  i   i  i     i             ===="
-	<< std::endl;
-      s << "      \\         1  2   3  4  5   6  7     n            \\   "
-	<< std::endl;
-      s << "  P =  |   a  x  p   y  p  d  ct  p ... p  ,    |I| =  |   i"
-	<< std::endl;
-      s << "      /     I     x      y         1     n             /     k"
-	<< std::endl;
-      s << "      ====                                             ===="
-	<< std::endl;
-      s << "       I                                               k=1"
-	<< std::endl;
-    } else {
-      s << "                                                          n"
-	<< std::endl;
-      s << "      ====      i   i   i   i  i   i  i     i            ===="
-	<< std::endl;
-      s << "      \\        + 1 - 2 + 3 - 4  5   6  7     n           \\   "
-	<< std::endl;
-      s << "  P =  |   a  h   h   h   h   d  ct  p ... p  ,    |I| =  |   i"
-	<< std::endl;
-      s << "      /     I  x   x   y   y          1     n            /     k"
-	<< std::endl;
-      s << "      ====                                               ===="
-	<< std::endl;
-      s << "       I                                                 k=1"
-	<< std::endl;
-    }
-  }
+  if (header) prt_header(s);
   
   if (n != 0) {
-    s << std::endl;
-    s << "   |I|         a              ";
+    s << "\n   |I|         a              ";
     for (i = 1; i <= nv_tps; i++)
       s << "  i";
-    s << std::endl;
-    s << "                I              ";
+    s << "\n                I              ";
     for (i = 1; i <= nv_tps; i++)
       s << std::setw(3) << i;
-    s << std::endl;
-    s << std::endl;
+    s << "\n\n";
   } else
-    s << "   ALL COMPONENTS ZERO " << std::endl;
+    s << "   ALL COMPONENTS ZERO " << "\n";
   for (no = 0; no <= no_tps; no++) {
     for (i = 1; i <= n; i++) {
       dehash_(no_tps, nv_tps, ibuf1[i-1], ibuf2[i-1], jj);
@@ -1158,7 +1136,7 @@ std::ostream& operator<<(std::ostream &os, const tps &a)
             << std::setprecision(16) << rbuf[i] << " ";
 	  for (j = 0; j < nv_tps; j++)
 	    s << std::setw(3) << jj[j];
-	  s << std::endl;
+	  s << "\n";
 	}
     }
   }
@@ -1167,7 +1145,7 @@ std::ostream& operator<<(std::ostream &os, const tps &a)
     << std::scientific << std::setw(24) << std::setprecision(16) << 0.0 << " ";
   for (j = 0; j < nv_tps; j++)
     s << std::setw(3) << 0;
-  s << std::endl;
+  s << "\n";
 
   return os << s.str();
 }
