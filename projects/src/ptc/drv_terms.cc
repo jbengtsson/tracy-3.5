@@ -296,24 +296,6 @@ void get_dx_dJ(const double twoJ[])
 }
 
 
-void zero_res(tps &g)
-{
-  long int jj[ss_dim];
-  int      j;
-
-  for (j = 0; j < nv_tps; j++)
-    jj[j] = 0;
-  jj[x_] = 2; jj[px_] = 1;
-  g.pook(jj, 0e0);
-  jj[x_] = 1; jj[px_] = 2;
-  g.pook(jj, 0e0);
-  jj[x_] = 1; jj[px_] = 0; jj[y_] = 1; jj[py_] = 1;
-  g.pook(jj, 0e0);
-  jj[x_] = 0; jj[px_] = 1;
-  g.pook(jj, 0e0);
-}
-
-
 ss_vect<tps> get_map(const MNF_struct MNF)
 {
   ss_vect<tps> Id, map;
@@ -339,17 +321,6 @@ void map_gymn(void)
   get_map(false);
   danot_(no_tps);
   MNF = MapNorm(map, 1);
-
-  daeps_(1e-8);
-  cout << scientific << setprecision(5) << 1e0*MNF.K << 1e0*MNF.g;
-  zero_res(MNF.g);
-  cout << scientific << setprecision(5) << 1e0*MNF.g;
-  daeps_(eps_tps);
-  map1 = get_map(MNF);
-  MNF = MapNorm(map1, 1);
-  daeps_(1e-8);
-  cout << scientific << setprecision(5) << 1e0*MNF.K << 1e0*MNF.g;
-  exit(0);
 
 #if 1
   daeps_(eps_tps);
@@ -402,7 +373,7 @@ int main(int argc, char *argv[])
     Ring_GetTwiss(true, 0e0); printglob();
   }
 
-  if (!false) {
+  if (false) {
     map_gymn();
     exit(0);
   }
