@@ -1,4 +1,4 @@
-#define NO 4
+#define NO 3
 
 #include "tracy_lib.h"
 
@@ -270,10 +270,10 @@ void get_dx_dJ(const double twoJ[])
     Elem_Pass(j, M);
     danot_(no_tps);
 
-    if (false || ((Cell[j].Elem.Pkind == Mpole) &&
-		  (Cell[j].Elem.M->PBpar[Sext+HOMmax] != 0e0))) {
+    if ((Cell[j].Elem.Pkind == Mpole) &&
+	(Cell[j].Elem.M->PBpar[Sext+HOMmax] != 0e0)) {
       MNF = MapNorm(M*map*Inv(M), 1);
-#if 1
+#if 0
       dx_fl = LieExp(MNF.g, Id);
 #else
       for (k = 0; k < 4; k++)
@@ -282,8 +282,17 @@ void get_dx_dJ(const double twoJ[])
       for (k = 0; k < 4; k++)
 	CtoR(dx_fl[k], dx_re[k], dx_im[k]);
       dx_re = MNF.A1*dx_re; dx_im = MNF.A1*dx_im;
+#if 1
+      dx[X_] = 
+	Cell[j].Elem.M->PBpar[Sext+HOMmax]
+	*h_ijklm(dx_re[x_]*Id_scl, 1, 1, 0, 0, 0);
+      dx[Y_] =
+ 	Cell[j].Elem.M->PBpar[Sext+HOMmax]
+	*h_ijklm(dx_re[x_]*Id_scl, 0, 0, 1, 1, 0);
+#else
       dx[X_] = h_ijklm(dx_re[x_]*Id_scl, 1, 1, 0, 0, 0);
       dx[Y_] = h_ijklm(dx_re[x_]*Id_scl, 0, 0, 1, 1, 0);
+#endif
       outf << setw(4) << j << fixed << setprecision(3) << setw(8) << Cell[j].S
 	   << " " << setw(8) << Cell[j].Elem.PName;
       for (k = 0; k < 2; k++)
@@ -311,9 +320,29 @@ ss_vect<tps> get_map(const MNF_struct MNF)
 }
 
 
+void zero_res(tps &g)
+{
+  long int jj[ss_dim];
+  int      k;
+
+  for (k = 0; k < ss_dim; k++)
+    jj[k] = 0;
+  jj[x_] = 2; jj[px_] = 1;
+  g.pook(jj, 0e0);
+  jj[x_] = 1; jj[px_] = 2;
+  g.pook(jj, 0e0);
+  jj[x_] = 1; jj[px_] = 0; jj[y_] = 1; jj[py_] = 1;
+  g.pook(jj, 0e0);
+  jj[x_] = 0; jj[px_] = 1;
+  g.pook(jj, 0e0);
+}
+
+
 void map_gymn(void)
 {
-  ss_vect<tps> Id, map1, map_res;
+  int          k;
+  tps          g_re, g_im;
+  ss_vect<tps> Id, map1, map_res, dx_fl, dx_re, dx_im;
 
   Id.identity();
 
@@ -321,6 +350,29 @@ void map_gymn(void)
   get_map(false);
   danot_(no_tps);
   MNF = MapNorm(map, 1);
+
+  CtoR(MNF.g, g_re, g_im);
+  daeps_(1e-8);
+  cout << scientific << setprecision(5) << 1e0*g_im;
+  if (true) zero_res(g_im);
+  cout << scientific << setprecision(5) << 1e0*g_im;
+  MNF.g = RtoC(g_re, g_im);
+
+#if 0
+  dx_fl = LieExp(MNF.g, Id);
+#else
+  for (k = 0; k < 4; k++)
+    dx_fl[k] = PB(MNF.g, Id[k]);
+#endif
+  for (k = 0; k < 4; k++)
+    CtoR(dx_fl[k], dx_re[k], dx_im[k]);
+  dx_re = MNF.A1*dx_re; dx_im = MNF.A1*dx_im;
+  printf("\ndx(J) = %10.3e %10.3e %10.3e %10.3e\n",
+  	 h_ijklm(dx_re[x_], 1, 1, 0, 0, 0),
+  	 h_ijklm(dx_re[x_], 0, 0, 1, 1, 0),
+  	 h_ijklm(dx_im[x_], 1, 1, 0, 0, 0),
+  	 h_ijklm(dx_im[x_], 0, 0, 1, 1, 0));
+  exit(0);
 
 #if 1
   daeps_(eps_tps);
@@ -383,7 +435,7 @@ int main(int argc, char *argv[])
     exit(0);
   }
 
-  if (true) get_drv_terms(twoJ, delta_max);
+  if (!true) get_drv_terms(twoJ, delta_max);
 
   if (!false) get_dx_dJ(twoJ);
 }
