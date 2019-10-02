@@ -296,6 +296,39 @@ void get_dx_dJ(const double twoJ[])
 }
 
 
+void zero_res(tps &g)
+{
+  long int jj[ss_dim];
+  int      j;
+
+  for (j = 0; j < nv_tps; j++)
+    jj[j] = 0;
+  jj[x_] = 2; jj[px_] = 1;
+  g.pook(jj, 0e0);
+  jj[x_] = 1; jj[px_] = 2;
+  g.pook(jj, 0e0);
+  jj[x_] = 1; jj[px_] = 0; jj[y_] = 1; jj[py_] = 1;
+  g.pook(jj, 0e0);
+  jj[x_] = 0; jj[px_] = 1;
+  g.pook(jj, 0e0);
+}
+
+
+ss_vect<tps> get_map(const MNF_struct MNF)
+{
+  ss_vect<tps> Id, map;
+
+  Id.identity();
+
+  map =
+    MNF.A0*MNF.A1*FExpo(MNF.g, Id, 3, no_tps, -1)
+    *FExpo(MNF.K, Id, 2, no_tps, -1)
+    *Inv(MNF.A0*MNF.A1*FExpo(MNF.g, Id, 3, no_tps, -1));
+
+  return map;
+}
+
+
 void map_gymn(void)
 {
   ss_vect<tps> Id, map1, map_res;
@@ -306,22 +339,25 @@ void map_gymn(void)
   get_map(false);
   danot_(no_tps);
   MNF = MapNorm(map, 1);
-  daeps_(1e-7);
-  cout << scientific << setprecision(5) << 1e0*MNF.K << 1e0*MNF.g;
 
+  daeps_(1e-8);
+  cout << scientific << setprecision(5) << 1e0*MNF.K << 1e0*MNF.g;
+  zero_res(MNF.g);
+  cout << scientific << setprecision(5) << 1e0*MNF.g;
   daeps_(eps_tps);
-  map1 =
-    MNF.A0*MNF.A1*FExpo(MNF.g, Id, 3, no_tps, -1)
-    *FExpo(MNF.K, Id, 2, no_tps, -1)
-    *Inv(MNF.A0*MNF.A1*FExpo(MNF.g, Id, 3, no_tps, -1));
+  map1 = get_map(MNF);
+  MNF = MapNorm(map1, 1);
+  daeps_(1e-8);
+  cout << scientific << setprecision(5) << 1e0*MNF.K << 1e0*MNF.g;
+  exit(0);
+
 #if 1
+  daeps_(eps_tps);
   map_res =
     Inv(FExpo(MNF.K, Id, 2, no_tps, -1))
     *Inv(MNF.A0*MNF.A1*FExpo(MNF.g, Id, 3, no_tps, -1))*map
     *MNF.A0*MNF.A1*FExpo(MNF.g, Id, 3, no_tps, -1);
-  MNF = MapNorm(map_res, 1);
-  daeps_(1e-7);
-  cout << scientific << setprecision(5) << 1e0*MNF.K << 1e0*MNF.g;
+  daeps_(1e-8);
   danot_(no_tps-1);
   cout << scientific << setprecision(5)
        << 1e0*MNF.map_res[x_] << 1e0*map_res[x_];
@@ -329,25 +365,21 @@ void map_gymn(void)
   map_res =
     Inv(MNF.A0*MNF.A1*FExpo(MNF.g, Id, 3, no_tps, -1))*map
     *MNF.A0*MNF.A1*FExpo(MNF.g, Id, 3, no_tps, -1);
-  daeps_(1e-7);
+  daeps_(1e-8);
   danot_(no_tps-1);
-  cout << scientific << setprecision(5)
-       << 1e0*MNF.map_res[x_] << 1e0*map_res[x_];
+  cout << scientific << setprecision(5) << (map_res-MNF.map_res)[x_];
 #endif
-
-  danot_(no_tps-1);
-  get_map(false);
-  danot_(no_tps);
 }
 
 
 int main(int argc, char *argv[])
 {
 
-  globval.H_exact    = false; globval.quad_fringe = false;
-  globval.Cavity_on  = false; globval.radiation   = false;
-  globval.emittance  = false; globval.IBS         = false;
-  globval.pathlength = false; globval.bpm         = 0;
+  globval.H_exact    = false; globval.quad_fringe    = false;
+  globval.Cavity_on  = false; globval.radiation      = false;
+  globval.emittance  = false; globval.IBS            = false;
+  globval.pathlength = false; globval.bpm            = 0;
+  globval.Cart_Bend  = false; globval.dip_edge_fudge = true;
 
   // disable from TPSALib and LieLib log messages
   idprset(-1);

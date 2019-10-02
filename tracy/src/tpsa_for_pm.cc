@@ -627,7 +627,7 @@ ss_vect<tps> FExpo(const tps &H, const ss_vect<tps> &x,
   }
   fexpo_(H.intptr, xintptrs, mapintptrs, k0, k1, 1.0, k);
   for (i = 2*nd_tps; i < nv_tps; i++)
-    map[i] = tps(0.0, i+1);
+    map[i] = tps(0e0, i+1);
   return map;
 }
 
