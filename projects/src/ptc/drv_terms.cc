@@ -245,11 +245,12 @@ double f_kernel(const long int jj[])
 
 void get_dx_dJ(const double twoJ[])
 {
-  long int        lastpos;
-  int             j, k;
-  double          b3L, a3L, dx[2];
-  ss_vect<tps>    Id, Id_scl, dx_fl, dx_re, dx_im, M;
-  ofstream        outf;
+  long int     lastpos;
+  int          j, k;
+  double       b3L, a3L, dx[2];
+  tps          g_re, g_im;
+  ss_vect<tps> Id, Id_scl, dx_fl, dx_re, dx_im, M;
+  ofstream     outf;
 
   outf.open("dx_dJ.out", ios::out);
 
@@ -270,32 +271,37 @@ void get_dx_dJ(const double twoJ[])
     Elem_Pass(j, M);
     danot_(no_tps);
 
-    if (Cell[j].Elem.Pkind == Mpole) {
-      get_bnL_design_elem(Cell[j].Fnum, Cell[j].Knum, Sext, b3L, a3L);
-      if (b3L != 0e0) {
-	MNF = MapNorm(M*map*Inv(M), 1);
+    if (!false || (Cell[j].Elem.Pkind == Mpole)) {
+      MNF = MapNorm(M*map*Inv(M), 1);
 #if 0
-	dx_fl = LieExp(MNF.g, Id);
+      dx_fl = LieExp(MNF.g, Id);
 #else
-	for (k = 0; k < 4; k++)
-	  dx_fl[k] = PB(MNF.g, Id[k]);
+      for (k = 0; k < 4; k++)
+	dx_fl[k] = PB(MNF.g, Id[k]);
 #endif
-	for (k = 0; k < 4; k++)
-	  CtoR(dx_fl[k], dx_re[k], dx_im[k]);
-	dx_re = MNF.A1*dx_re; dx_im = MNF.A1*dx_im;
-#if 1
-	dx[X_] = b3L*h_ijklm(dx_re[x_]*Id_scl, 1, 1, 0, 0, 0);
-	dx[Y_] = b3L*h_ijklm(dx_re[x_]*Id_scl, 0, 0, 1, 1, 0);
+      for (k = 0; k < 4; k++)
+	CtoR(dx_fl[k], dx_re[k], dx_im[k]);
+#if 0
+      // Phase space.
+      get_bnL_design_elem(Cell[j].Fnum, Cell[j].Knum, Sext, b3L, a3L);
+      dx_re = MNF.A1*dx_re; dx_im = MNF.A1*dx_im;
+      dx[X_] = b3L*h_ijklm(dx_re[x_]*Id_scl, 1, 1, 0, 0, 0);
+      dx[Y_] = b3L*h_ijklm(dx_re[x_]*Id_scl, 0, 0, 1, 1, 0);
 #else
-	dx[X_] = h_ijklm(dx_re[x_]*Id_scl, 1, 1, 0, 0, 0);
-	dx[Y_] = h_ijklm(dx_re[x_]*Id_scl, 0, 0, 1, 1, 0);
+      // Floquet space.
+      dx[X_] = h_ijklm(dx_re[x_]*Id_scl, 1, 1, 0, 0, 0);
+      dx[Y_] = h_ijklm(dx_re[x_]*Id_scl, 0, 0, 1, 1, 0);
 #endif
-	outf << setw(4) << j << fixed << setprecision(3) << setw(8) << Cell[j].S
-	     << " " << setw(8) << Cell[j].Elem.PName;
-	for (k = 0; k < 2; k++)
-	  outf << scientific << setprecision(5) << setw(13) << dx[k];
-	outf << "\n";
-      }
+      outf << setw(4) << j << fixed << setprecision(3) << setw(8) << Cell[j].S
+	   << " " << setw(8) << Cell[j].Elem.PName;
+      // for (k = 0; k < 2; k++)
+      // 	outf << scientific << setprecision(5) << setw(13) << dx[k];
+      // outf << "\n";
+      CtoR(MNF.g, g_re, g_im);
+      cout << scientific << setprecision(5) << MNF.g;
+      outf << scientific << setprecision(5)
+	   << setw(13) << h_ijklm(MNF.g*Id_scl, 2, 1, 0, 0, 0)
+	   << setw(13) << h_ijklm(MNF.g*Id_scl, 1, 0, 1, 1, 0) << "\n";
     }
   }
 
@@ -433,7 +439,7 @@ int main(int argc, char *argv[])
     exit(0);
   }
 
-  if (true) get_drv_terms(twoJ, delta_max);
+  if (!true) get_drv_terms(twoJ, delta_max);
 
   if (!false) get_dx_dJ(twoJ);
 }
