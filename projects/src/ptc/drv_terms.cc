@@ -1,4 +1,4 @@
-#define NO 3
+#define NO 4
 
 #include "tracy_lib.h"
 
@@ -7,7 +7,7 @@ int no_tps   = NO,
 
 
 const bool   set_dnu = false;
-const int    n_cell  = 2;
+const int    n_cell  = 4;
 const double
   beta_inj[] = {7.9, 3.1},
   A_max[]    = {3e-3, 1.5e-3},
@@ -74,8 +74,7 @@ void prt_drv_terms(ofstream &outf, const int k,
   CtoR(get_h_local(map_Fl)*Id_scl, h_re, h_im);
 
   loc = k % (globval.Cell_nLoc+1);
-  s = Cell[loc].S;
-  if (k > globval.Cell_nLoc) s += Cell[globval.Cell_nLoc].S;
+  s = Cell[loc].S + k/(globval.Cell_nLoc+1)*Cell[globval.Cell_nLoc].S;
 
   printf("%5d (%3ld)\n", k, n_cell*globval.Cell_nLoc);
   outf << fixed << setw(3) << k
@@ -439,7 +438,7 @@ int main(int argc, char *argv[])
     exit(0);
   }
 
-  if (!true) get_drv_terms(twoJ, delta_max);
+  if (true) get_drv_terms(twoJ, delta_max);
 
-  if (!false) get_dx_dJ(twoJ);
+  if (false) get_dx_dJ(twoJ);
 }

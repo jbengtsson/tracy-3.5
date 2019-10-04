@@ -21,7 +21,7 @@ const bool
      opt_mI_std  1,
      match_ls    2,
      opt_mi_sp   3.                                                           */
-const int opt_case = 3;
+const int opt_case = 1;
 
 // From Center of Mid Straight: alpha, beta, eta, eta'.
 const int    n_ic        = 4;
@@ -29,7 +29,7 @@ const double ic[n_ic][2] =
   {{0.0000000000, 0.0000000000}, {1.1828160000, 1.3609384750},
    {0.0252746382, 0.0000000000}, {0.0, 0.0}};
 
-#define LAT_CASE 6
+#define LAT_CASE 5
 
 const double
 #if LAT_CASE == 1
@@ -60,6 +60,11 @@ const double
 #elif LAT_CASE == 6
   eps0_x             = 0.149,
   high_ord_achr_nu[] = {19.0/8.0+0.01, 3.0/4.0-0.01},
+  twoJ[]             = {sqr(7e-3)/10.0, sqr(4e-3)/4.0},
+  delta              = 2.5e-2,
+#elif LAT_CASE == 7
+  eps0_x             = 0.149,
+  high_ord_achr_nu[] = {10.0/4.0+0.01, 2.0/4.0-0.01},
   twoJ[]             = {sqr(7e-3)/10.0, sqr(4e-3)/4.0},
   delta              = 2.5e-2,
 #endif
@@ -1749,10 +1754,10 @@ void opt_mI_std(param_type &prms, constr_type &constr)
 		      0.0, 0.0, 4.0, 2.5, 0.0, 0.0);
   }
 
-  if (false) {
+  if (!false) {
     // Increase beta_x.
     constr.add_constr(Elem_GetPos(ElemIndex("sf1"), 1),
-		      0e5, 0e5, 1e3,  1e1, 0e7, 0e7,
+		      0e5, 0e5, 1e2,  1e0, 0e7, 0e7,
 		      0.0, 0.0, 12.0, 1.0, 0.0, 0.0);
   }
   if (false) {
@@ -1795,7 +1800,8 @@ void opt_mI_std(param_type &prms, constr_type &constr)
     lat_constr.ksi1_ctrl_scl[1]       = 0e-2;
     lat_constr.ksi1_ctrl_scl[2]       = 0e-1;
     // lat_constr.drv_terms_simple_scl   = 1e-3;
-    lat_constr.drv_terms_simple_scl   = 1e-2;
+    // lat_constr.drv_terms_simple_scl   = 1e-2;
+    lat_constr.drv_terms_simple_scl   = 1e-1;
     // Not useful.
     lat_constr.ksi1_svd_scl           = 0e3;
     // lat_constr.mI_scl[X_]             = 1e5;
@@ -1804,7 +1810,8 @@ void opt_mI_std(param_type &prms, constr_type &constr)
     lat_constr.mI_scl[X_]             = 1e6;
     lat_constr.mI_scl[Y_]             = 1e6;
     lat_constr.high_ord_achr_scl      = 1e6;
-    lat_constr.alpha_c_scl            = 5e-7;
+    // lat_constr.alpha_c_scl            = 5e-7;
+    lat_constr.alpha_c_scl            = 1e-8;
   } else {
     lat_constr.eps_x_scl              = 5e6;
     lat_constr.ksi1_ctrl_scl[0]       = 0e-1;
