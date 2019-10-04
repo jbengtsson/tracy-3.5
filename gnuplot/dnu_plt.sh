@@ -78,7 +78,7 @@ else if ((N == 24) && (case == 5)) \
 else if ((N == 24) && (case == 6)) \
   N_x = 2; N_y = 0; \
 else if ((N == 12) && (case == 7)) \
-  N_x = 3; N_y = 1; \
+  N_x = 2; N_y = 0; \
 else if ((N == 24) && (case == 8)) \
   N_x = 2; N_y = 0;
 
@@ -94,6 +94,8 @@ else if (case == 5) \
   nu_x_min = 57.0; nu_x_max = 58.0; nu_y_min = 21.0; nu_y_max = 22.0; \
 else if (case == 6) \
   nu_x_min = 28.0; nu_x_max = 28.5; nu_y_min = 13.0; nu_y_max = 13.5;
+else if (case == 7) \
+  nu_x_min = 58.0; nu_x_max = 58.5; nu_y_min = 8.9.0; nu_y_max = 10.5;
 
 # left adjusted labels
 set key Left;

@@ -71,7 +71,7 @@ else if ((N == 6) && (case == 5)) \
 else if ((N == 6) && (case == 6)) \
   N_x = 10; N_y = 4; sgn_y = -1; \
 else if ((N == 12) && (case == 7)) \
-  N_x = 3; N_y = 1; \
+  N_x = 3; N_y = 2; sgn_y = -1; \
 else if ((N == 20) && (case == 8)) \
   N_x = 5; N_y = 3;
 
@@ -97,8 +97,8 @@ else if (case == 6) \
   nu_x_min = 62.5; nu_x_max = 63.0; nu_y_min = 21.0; nu_y_max = 21.5; \
   x_max = 4.0; y_max = 3.0; delta_max = 3.0; \
 else if (case == 7) \
-  nu_x_min = 8.5; nu_x_max = 8.75; nu_y_min = 3.49; nu_y_max = 3.6; \
-  x_max = 35.0; y_min = -6.0; y_max = 6.0; delta_max = 2.6;
+  nu_x_min = 41.0; nu_x_max = 41.5; nu_y_min = 20.0; nu_y_max = 20.5; \
+  x_max = 2.0; y_min = -2.0; y_max = 2.0; delta_max = 2.5;
 
 # DELTA: del008 .
 #  nu_x_min = 9.0; nu_x_max = 9.3; nu_y_min = 3.1; nu_y_max = 3.4; 
