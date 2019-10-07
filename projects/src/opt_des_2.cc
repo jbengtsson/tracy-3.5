@@ -10,7 +10,7 @@ int no_tps = NO;
 const bool
   ps_rot        = false, // Note, needs to be zeroed; after use.
   phi_spec_case = false,
-  qf6_rb        = false,
+  qf6_rb        = !false,
   sp_short      = !true,
   sp_std        = true,
   relaxed       = true,
@@ -64,7 +64,12 @@ const double
   delta              = 2.5e-2,
 #elif LAT_CASE == 7
   eps0_x             = 0.149,
-  high_ord_achr_nu[] = {10.0/4.0+0.01, 2.0/4.0-0.01},
+  high_ord_achr_nu[] = {9.0/4.0+0.01, 5.0/4.0-0.01},
+  twoJ[]             = {sqr(7e-3)/10.0, sqr(4e-3)/4.0},
+  delta              = 2.5e-2,
+#elif LAT_CASE == 8
+  eps0_x             = 0.149,
+  high_ord_achr_nu[] = {5.0/2.0+0.01, 1.0/2.0-0.01},
   twoJ[]             = {sqr(7e-3)/10.0, sqr(4e-3)/4.0},
   delta              = 2.5e-2,
 #endif
@@ -898,7 +903,12 @@ double constr_type::get_chi2(void) const
     chi2 += drv_terms_simple_scl*drv_terms_simple[k];
 
   for (j = 0; j < (int)ksi1_ctrl.size(); j++)
-    if (ksi1_ctrl_scl[j] != 0e0) chi2 += ksi1_ctrl_scl[j]/sqr(ksi1_ctrl[j]);
+    if (ksi1_ctrl_scl[j] != 0e0) {
+      if (j < 2)
+	chi2 += ksi1_ctrl_scl[j]/sqr(ksi1_ctrl[j]);
+      else
+	chi2 += ksi1_ctrl_scl[j]*sqr(ksi1_ctrl[j]);
+    }
   
   if (ksi1_svd_scl != 0) {
     mean = (ksi1_svd[X_]+ksi1_svd[Y_])/2e0;
@@ -1529,18 +1539,16 @@ void get_mI(constr_type &constr)
 
 void get_ksi1_ctrl(constr_type &constr)
 {
-  int loc;
+  int k, loc[3];
 
+  for (k = 0; k < 3; k++)
+    loc[k] = Elem_GetPos(constr.Fnum_b3[k], 1);
   constr.ksi1_ctrl.clear();
-  loc = Elem_GetPos(constr.Fnum_b3[0], 1);
-  constr.ksi1_ctrl.push_back((Cell[loc].Beta[Y_]-Cell[loc].Beta[X_])
-			     *Cell[loc].Eta[X_]);
-  loc = Elem_GetPos(constr.Fnum_b3[1], 1);
-  constr.ksi1_ctrl.push_back((Cell[loc].Beta[X_]-Cell[loc].Beta[Y_])
-			     *Cell[loc].Eta[X_]);
-  loc = Elem_GetPos(constr.Fnum_b3[2], 1);
-  constr.ksi1_ctrl.push_back((Cell[loc].Beta[Y_]-Cell[loc].Beta[X_])
-			     *Cell[loc].Eta[X_]);
+  constr.ksi1_ctrl.push_back((Cell[loc[0]].Beta[Y_]-Cell[loc[0]].Beta[X_])
+			     *Cell[loc[0]].Eta[X_]);
+  constr.ksi1_ctrl.push_back((Cell[loc[1]].Beta[X_]-Cell[loc[1]].Beta[Y_])
+			     *Cell[loc[1]].Eta[X_]);
+  constr.ksi1_ctrl.push_back((Cell[loc[0]].Beta[Y_]-Cell[loc[2]].Beta[Y_]));
 }
 
 
@@ -1588,10 +1596,9 @@ double f_achrom(double *b2)
   if ((lat_constr.ring && stable) || !lat_constr.ring) {
     eps_x = get_lin_opt(lat_constr);
 
-    if (lat_constr.drv_terms_simple_scl != 0e0) {
-      fit_ksi1(lat_constr.Fnum_b3, 0e0, 0e0, 1e1, lat_constr.ksi1_svd);
-      get_drv_terms(lat_constr);
-    }
+    fit_ksi1(lat_constr.Fnum_b3, 0e0, 0e0, 1e1, lat_constr.ksi1_svd);
+
+    if (lat_constr.drv_terms_simple_scl != 0e0) get_drv_terms(lat_constr);
 
     if (lat_constr.high_ord_achr_scl != 0e0) get_high_ord_achr(lat_constr);
 
@@ -1702,7 +1709,8 @@ void opt_mI_std(param_type &prms, constr_type &constr)
     lat_constr.Fnum_b1.push_back(ElemIndex("dq1"));
   }
 
-  prms.add_prm("dq1", 2, -20.0,   20.0,  1.0);
+  prms.add_prm("dq1", -2,   0.0, 0.87,  1.0);
+  prms.add_prm("dq1",  2, -20.0, 20.0,  1.0);
 
   // Mid Straight.
   prms.add_prm("qf1", 2, -20.0, 20.0, 1.0);
@@ -1735,10 +1743,10 @@ void opt_mI_std(param_type &prms, constr_type &constr)
 		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
     constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
 		      1e7, 1e7, 1e-2, 1e-2, 1e7,   0e0,
-		      0.0, 0.0, 3.0, 1.5, 0.024, 0.0);
+		      0.0, 0.0, 3.0,  1.5,  0.015, 0.0);
     constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
 		      1e7, 1e7, 1e-2, 1e-2, 1e7, 1e7,
-		      0.0, 0.0, 4.0, 2.5, 0.0, 0.0);
+		      0.0, 0.0, 4.0,  2.5,  0.0, 0.0);
   } else {
     constr.add_constr(Elem_GetPos(ElemIndex("dl1a_5"), 1)-1,
 		      0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
@@ -1754,7 +1762,7 @@ void opt_mI_std(param_type &prms, constr_type &constr)
 		      0.0, 0.0, 4.0, 2.5, 0.0, 0.0);
   }
 
-  if (!false) {
+  if (false) {
     // Increase beta_x.
     constr.add_constr(Elem_GetPos(ElemIndex("sf1"), 1),
 		      0e5, 0e5, 1e3,  1e1, 0e7, 0e7,
@@ -1796,9 +1804,9 @@ void opt_mI_std(param_type &prms, constr_type &constr)
 
   if (relaxed) {
     lat_constr.eps_x_scl              = 5e6;
-    lat_constr.ksi1_ctrl_scl[0]       = 0e-1;
-    lat_constr.ksi1_ctrl_scl[1]       = 0e-2;
-    lat_constr.ksi1_ctrl_scl[2]       = 0e-1;
+    lat_constr.ksi1_ctrl_scl[0]       = 1e1;
+    lat_constr.ksi1_ctrl_scl[1]       = 5e2;
+    lat_constr.ksi1_ctrl_scl[2]       = 1e3;
     // lat_constr.drv_terms_simple_scl   = 1e-3;
     lat_constr.drv_terms_simple_scl   = 1e-2;
     // lat_constr.drv_terms_simple_scl   = 1e-1;
@@ -1807,11 +1815,11 @@ void opt_mI_std(param_type &prms, constr_type &constr)
     // lat_constr.mI_scl[X_]             = 1e5;
     // lat_constr.mI_scl[Y_]             = 1e5;
     // lat_constr.high_ord_achr_scl      = 1e5;
-    lat_constr.mI_scl[X_]             = 1e6;
-    lat_constr.mI_scl[Y_]             = 1e6;
-    lat_constr.high_ord_achr_scl      = 1e6;
-    // lat_constr.alpha_c_scl            = 5e-7;
-    lat_constr.alpha_c_scl            = 1e-8;
+    lat_constr.mI_scl[X_]             = 1e7;
+    lat_constr.mI_scl[Y_]             = 1e7;
+    lat_constr.high_ord_achr_scl      = 1e7;
+    lat_constr.alpha_c_scl            = 5e-7;
+    // lat_constr.alpha_c_scl            = 1e-8;
   } else {
     lat_constr.eps_x_scl              = 5e6;
     lat_constr.ksi1_ctrl_scl[0]       = 0e-1;
@@ -2032,8 +2040,8 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
 
   lat_prms.bn_tol = 1e-5; lat_prms.step = 1.0;
 
-  lat_constr.Fnum_b3.push_back(ElemIndex("sf1"));
   lat_constr.Fnum_b3.push_back(ElemIndex("sd1"));
+  lat_constr.Fnum_b3.push_back(ElemIndex("sf1"));
   lat_constr.Fnum_b3.push_back(ElemIndex("sd2"));
   // lat_constr.Fnum_b3.push_back(ElemIndex("sh2"));
 
@@ -2276,8 +2284,8 @@ void opt_tba(param_type &prms, constr_type &constr)
 
   lat_prms.bn_tol = 1e-6; lat_prms.step = 1.0;
 
-  lat_constr.Fnum_b3.push_back(ElemIndex("sfh"));
   lat_constr.Fnum_b3.push_back(ElemIndex("sd1a"));
+  lat_constr.Fnum_b3.push_back(ElemIndex("sfh"));
   lat_constr.Fnum_b3.push_back(ElemIndex("sd1b"));
 
   lat_constr.Fnum_b1.push_back(ElemIndex("b1"));
@@ -2430,8 +2438,8 @@ void opt_std_cell(param_type &prms, constr_type &constr)
 
  lat_prms.bn_tol = 1e-6; lat_prms.step = 1.0;
 
-  lat_constr.Fnum_b3.push_back(ElemIndex("sfh"));
   lat_constr.Fnum_b3.push_back(ElemIndex("sd1a"));
+  lat_constr.Fnum_b3.push_back(ElemIndex("sfh"));
   lat_constr.Fnum_b3.push_back(ElemIndex("sd1b"));
 
   lat_constr.Fnum_b1.push_back(ElemIndex("b1"));
@@ -2501,8 +2509,8 @@ void opt_long_cell(param_type &prms, constr_type &constr)
 
   lat_prms.bn_tol = 1e-6; lat_prms.step = 1.0;
 
-  lat_constr.Fnum_b3.push_back(ElemIndex("sfh"));
   lat_constr.Fnum_b3.push_back(ElemIndex("sd1a"));
+  lat_constr.Fnum_b3.push_back(ElemIndex("sfh"));
   lat_constr.Fnum_b3.push_back(ElemIndex("sd1b"));
 
   lat_constr.Fnum_b1.push_back(ElemIndex("b1"));
@@ -2625,8 +2633,8 @@ void opt_short_cell(param_type &prms, constr_type &constr)
 
  lat_prms.bn_tol = 1e-6; lat_prms.step = 1.0;
 
-  lat_constr.Fnum_b3.push_back(ElemIndex("sfh"));
   lat_constr.Fnum_b3.push_back(ElemIndex("sd1a"));
+  lat_constr.Fnum_b3.push_back(ElemIndex("sfh"));
   lat_constr.Fnum_b3.push_back(ElemIndex("sd1b"));
 
   lat_constr.Fnum_b1.push_back(ElemIndex("b1"));
@@ -2710,7 +2718,7 @@ int main(int argc, char *argv[])
     Ring_GetTwiss(true, 0e0); printglob();
     dnu[X_] = 0.0; dnu[Y_] = 0.0;
     set_map(ElemIndex("ps_rot"), dnu);
-    dnu[X_] = 0.11; dnu[Y_] = -0.1;
+    dnu[X_] = 0.01; dnu[Y_] = -0.01;
     set_map(ElemIndex("ps_rot"), dnu);
     Ring_GetTwiss(true, 0e0); printglob();
   }
