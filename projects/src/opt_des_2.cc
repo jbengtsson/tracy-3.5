@@ -1709,7 +1709,6 @@ void opt_mI_std(param_type &prms, constr_type &constr)
     lat_constr.Fnum_b1.push_back(ElemIndex("dq1"));
   }
 
-  prms.add_prm("dq1", -3, -20.0, 20.0, 1.0);
   prms.add_prm("dq1",  2, -20.0, 20.0, 1.0);
 
   // Mid Straight.
