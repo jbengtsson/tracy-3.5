@@ -8,7 +8,7 @@ int no_tps = NO;
 
 
 const bool
-  ps_rot        = false, // Note, needs to be zeroed; after use.
+  ps_rot        = !false, // Note, needs to be zeroed; after use.
   phi_spec_case = false,
   qf6_rb        = !false,
   sp_short      = !true,
@@ -1605,7 +1605,10 @@ double f_achrom(double *b2)
     if ((lat_constr.mI_scl[X_] != 0e0) || (lat_constr.mI_scl[Y_] != 0e0))
       get_mI(lat_constr);
 
-    if (lat_constr.ksi1_ctrl_scl[1] != 0e0) get_ksi1_ctrl(lat_constr);
+    if ((lat_constr.ksi1_ctrl_scl[0] != 0e0)
+	|| (lat_constr.ksi1_ctrl_scl[1] != 0e0)
+	|| (lat_constr.ksi1_ctrl_scl[2] != 0e0))
+      get_ksi1_ctrl(lat_constr);
 
     chi2 = lat_constr.get_chi2();
 
@@ -1742,7 +1745,7 @@ void opt_mI_std(param_type &prms, constr_type &constr)
 		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
     constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
 		      1e7, 1e7, 1e-2, 1e-2, 1e7,   0e0,
-		      0.0, 0.0, 3.0,  1.5,  0.015, 0.0);
+		      0.0, 0.0, 3.0,  1.5,  0.020, 0.0);
     constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
 		      1e7, 1e7, 1e-2, 1e-2, 1e7, 1e7,
 		      0.0, 0.0, 4.0,  2.5,  0.0, 0.0);
@@ -1803,22 +1806,20 @@ void opt_mI_std(param_type &prms, constr_type &constr)
 
   if (relaxed) {
     lat_constr.eps_x_scl              = 5e6;
-    lat_constr.ksi1_ctrl_scl[0]       = 1e1;
-    lat_constr.ksi1_ctrl_scl[1]       = 5e2;
+    lat_constr.ksi1_ctrl_scl[0]       = 1e0;
+    lat_constr.ksi1_ctrl_scl[1]       = 1e1;
+    // Default.
+    // lat_constr.ksi1_ctrl_scl[2]       = 1e2;
     lat_constr.ksi1_ctrl_scl[2]       = 1e3;
-    // lat_constr.drv_terms_simple_scl   = 1e-3;
+    // Default.
+    // lat_constr.drv_terms_simple_scl   = 1e-4;
     lat_constr.drv_terms_simple_scl   = 1e-2;
-    // lat_constr.drv_terms_simple_scl   = 1e-1;
     // Not useful.
     lat_constr.ksi1_svd_scl           = 0e3;
-    // lat_constr.mI_scl[X_]             = 1e5;
-    // lat_constr.mI_scl[Y_]             = 1e5;
-    // lat_constr.high_ord_achr_scl      = 1e5;
     lat_constr.mI_scl[X_]             = 1e7;
     lat_constr.mI_scl[Y_]             = 1e7;
     lat_constr.high_ord_achr_scl      = 1e7;
     lat_constr.alpha_c_scl            = 5e-7;
-    // lat_constr.alpha_c_scl            = 1e-8;
   } else {
     lat_constr.eps_x_scl              = 5e6;
     lat_constr.ksi1_ctrl_scl[0]       = 0e-1;
@@ -2717,7 +2718,7 @@ int main(int argc, char *argv[])
     Ring_GetTwiss(true, 0e0); printglob();
     dnu[X_] = 0.0; dnu[Y_] = 0.0;
     set_map(ElemIndex("ps_rot"), dnu);
-    dnu[X_] = 0.01; dnu[Y_] = -0.01;
+    dnu[X_] = 0.0; dnu[Y_] = 0.0;
     set_map(ElemIndex("ps_rot"), dnu);
     Ring_GetTwiss(true, 0e0); printglob();
   }
