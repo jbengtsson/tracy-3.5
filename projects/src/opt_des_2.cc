@@ -29,7 +29,7 @@ const double ic[n_ic][2] =
   {{0.0000000000, 0.0000000000}, {1.1828160000, 1.3609384750},
    {0.0252746382, 0.0000000000}, {0.0, 0.0}};
 
-#define LAT_CASE 5
+#define LAT_CASE 7
 
 const double
 #if LAT_CASE == 1
@@ -65,11 +65,6 @@ const double
 #elif LAT_CASE == 7
   eps0_x             = 0.149,
   high_ord_achr_nu[] = {9.0/4.0+0.01, 5.0/4.0-0.01},
-  twoJ[]             = {sqr(7e-3)/10.0, sqr(4e-3)/4.0},
-  delta              = 2.5e-2,
-#elif LAT_CASE == 8
-  eps0_x             = 0.149,
-  high_ord_achr_nu[] = {5.0/2.0+0.01, 1.0/2.0-0.01},
   twoJ[]             = {sqr(7e-3)/10.0, sqr(4e-3)/4.0},
   delta              = 2.5e-2,
 #endif
@@ -1807,17 +1802,20 @@ void opt_mI_std(param_type &prms, constr_type &constr)
   if (relaxed) {
     lat_constr.eps_x_scl              = 5e6;
     lat_constr.ksi1_ctrl_scl[0]       = 1e0;
-    lat_constr.ksi1_ctrl_scl[1]       = 1e1;
+    // Default.
+    // lat_constr.ksi1_ctrl_scl[1]       = 1e1;
+    lat_constr.ksi1_ctrl_scl[1]       = 1e2;
     // Default.
     // lat_constr.ksi1_ctrl_scl[2]       = 1e2;
     lat_constr.ksi1_ctrl_scl[2]       = 1e3;
     // Default.
     // lat_constr.drv_terms_simple_scl   = 1e-4;
-    lat_constr.drv_terms_simple_scl   = 1e-2;
+    // lat_constr.drv_terms_simple_scl   = 1e-2;
+    lat_constr.drv_terms_simple_scl   = 1e-1;
     // Not useful.
     lat_constr.ksi1_svd_scl           = 0e3;
     lat_constr.mI_scl[X_]             = 1e7;
-    lat_constr.mI_scl[Y_]             = 1e7;
+    lat_constr.mI_scl[Y_]             = 1e6;
     lat_constr.high_ord_achr_scl      = 1e7;
     lat_constr.alpha_c_scl            = 5e-7;
   } else {
