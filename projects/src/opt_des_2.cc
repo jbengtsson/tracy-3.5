@@ -29,7 +29,7 @@ const double ic[n_ic][2] =
   {{0.0000000000, 0.0000000000}, {1.1828160000, 1.3609384750},
    {0.0252746382, 0.0000000000}, {0.0, 0.0}};
 
-#define LAT_CASE 7
+#define LAT_CASE 5
 
 const double
 #if LAT_CASE == 1
@@ -1710,17 +1710,17 @@ void opt_mI_std(param_type &prms, constr_type &constr)
   prms.add_prm("dq1",  2, -20.0, 20.0, 1.0);
 
   // Mid Straight.
-  prms.add_prm("qf1", 2, -20.0, 20.0, 1.0);
-  prms.add_prm("qd2", 2, -20.0, 20.0, 1.0);
+  prms.add_prm("qf1", 2,   0.0, 20.0, 1.0);
+  prms.add_prm("qd2", 2, -20.0,  0.0, 1.0);
 
   // Dipole Cell.
-  prms.add_prm("qd3", 2, -20.0, 20.0, 1.0);
-  prms.add_prm("qf4", 2, -20.0, 20.0, 1.0);
-  prms.add_prm("qd5", 2, -20.0, 20.0, 1.0);
+  prms.add_prm("qd3", 2, -20.0,  0.0, 1.0);
+  prms.add_prm("qf4", 2,   0.0, 20.0, 1.0);
+  prms.add_prm("qd5", 2, -20.0,  0.0, 1.0);
 
   // Standard Straight.
-  prms.add_prm("qf6", 2, -20.0, 20.0, 1.0);
-  prms.add_prm("qf8", 2, -20.0, 20.0, 1.0);
+  prms.add_prm("qf6", 2,   0.0, 20.0, 1.0);
+  prms.add_prm("qf8", 2,   0.0, 20.0, 1.0);
 
  // Parameters are initialized in optimizer.
 
@@ -1738,9 +1738,16 @@ void opt_mI_std(param_type &prms, constr_type &constr)
     constr.add_constr(Elem_GetPos(ElemIndex("qf1"), 2),
 		      0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
 		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+    // Default.
+#if 1
     constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
-		      1e7, 1e7, 1e-2, 1e-2, 1e7,   0e0,
-		      0.0, 0.0, 3.0,  1.5,  0.020, 0.0);
+    		      1e7, 1e7, 1e-2, 1e-2, 1e7,   0e0,
+    		      0.0, 0.0, 3.0,  1.5,  0.024, 0.0);
+#else
+    constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
+    		      1e7, 1e7, 1e-2, 1e3, 1e7,   0e0,
+    		      0.0, 0.0, 3.0,  1.5, 0.024, 0.0);
+#endif
     constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
 		      1e7, 1e7, 1e-2, 1e-2, 1e7, 1e7,
 		      0.0, 0.0, 4.0,  2.5,  0.0, 0.0);
@@ -1810,13 +1817,20 @@ void opt_mI_std(param_type &prms, constr_type &constr)
     lat_constr.ksi1_ctrl_scl[2]       = 1e3;
     // Default.
     // lat_constr.drv_terms_simple_scl   = 1e-4;
-    // lat_constr.drv_terms_simple_scl   = 1e-2;
-    lat_constr.drv_terms_simple_scl   = 1e-1;
+    lat_constr.drv_terms_simple_scl   = 1e-2;
+    // lat_constr.drv_terms_simple_scl   = 1e-1;
     // Not useful.
     lat_constr.ksi1_svd_scl           = 0e3;
+    // Default.
+#if 0
     lat_constr.mI_scl[X_]             = 1e7;
-    lat_constr.mI_scl[Y_]             = 1e6;
+    lat_constr.mI_scl[Y_]             = 1e7;
     lat_constr.high_ord_achr_scl      = 1e7;
+#else
+    lat_constr.mI_scl[X_]             = 1e6;
+    lat_constr.mI_scl[Y_]             = 1e6;
+    lat_constr.high_ord_achr_scl      = 1e6;
+#endif
     lat_constr.alpha_c_scl            = 5e-7;
   } else {
     lat_constr.eps_x_scl              = 5e6;

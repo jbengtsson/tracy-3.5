@@ -293,14 +293,9 @@ void get_dx_dJ(const double twoJ[])
 #endif
       outf << setw(4) << j << fixed << setprecision(3) << setw(8) << Cell[j].S
 	   << " " << setw(8) << Cell[j].Elem.PName;
-      // for (k = 0; k < 2; k++)
-      // 	outf << scientific << setprecision(5) << setw(13) << dx[k];
-      // outf << "\n";
-      CtoR(MNF.g, g_re, g_im);
-      cout << scientific << setprecision(5) << MNF.g;
-      outf << scientific << setprecision(5)
-	   << setw(13) << h_ijklm(MNF.g*Id_scl, 2, 1, 0, 0, 0)
-	   << setw(13) << h_ijklm(MNF.g*Id_scl, 1, 0, 1, 1, 0) << "\n";
+      for (k = 0; k < 2; k++)
+      	outf << scientific << setprecision(5) << setw(13) << dx[k];
+      outf << "\n";
     }
   }
 
