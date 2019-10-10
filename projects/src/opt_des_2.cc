@@ -8,7 +8,7 @@ int no_tps = NO;
 
 
 const bool
-  ps_rot        = !false, // Note, needs to be zeroed; after use.
+  ps_rot        = false, // Note, needs to be zeroed; after use.
   phi_spec_case = false,
   qf6_rb        = !false,
   sp_short      = !true,
@@ -1817,12 +1817,12 @@ void opt_mI_std(param_type &prms, constr_type &constr)
     lat_constr.ksi1_ctrl_scl[2]       = 1e3;
     // Default.
     // lat_constr.drv_terms_simple_scl   = 1e-4;
-    lat_constr.drv_terms_simple_scl   = 1e-2;
-    // lat_constr.drv_terms_simple_scl   = 1e-1;
+    // lat_constr.drv_terms_simple_scl   = 1e-2;
+    lat_constr.drv_terms_simple_scl   = 1e-1;
     // Not useful.
     lat_constr.ksi1_svd_scl           = 0e3;
     // Default.
-#if 0
+#if 1
     lat_constr.mI_scl[X_]             = 1e7;
     lat_constr.mI_scl[Y_]             = 1e7;
     lat_constr.high_ord_achr_scl      = 1e7;
