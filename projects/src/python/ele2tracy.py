@@ -5,6 +5,11 @@ import StringIO
 import sys
 
 # Module to translate from ELEGANT to Tracy-2,3 lattice.
+# Assumptions: Blank line after a block of comments:
+#   !      &
+#   !      &
+#
+#   ...
 
 
 def get_index(tokens, token):
@@ -41,10 +46,10 @@ def bpm(line, tokens, decls):
 def drift(line, tokens, decls):
     try:
         loc_l = tokens.index('l')
-        L = get_arg(tokens[loc_l+1], decls)
+        L = float(get_arg(tokens[loc_l+1], decls))
     except ValueError:
         L = 0.0;
-    return '%s: Drift, L = %s;' % (tokens[0], L)
+    return '%s: Drift, L = %17.15f;' % (tokens[0], L)
 
 def rcol(line, tokens, decls):
     return drift(line, tokens, decls) + ' { rcol }'
@@ -61,8 +66,8 @@ def bend(line, tokens, decls):
     loc_e2 = get_index(tokens, 'e2')
     loc_k = get_index(tokens, 'k1')
     loc_n = get_index(tokens, 'n_kicks')
-    str = '%s: Bending, L = %s, T = %17.15f' % \
-        (tokens[0], get_arg(tokens[loc_l+1], decls),
+    str = '%s: Bending, L = %17.15f, T = %17.15f' % \
+        (tokens[0], float(get_arg(tokens[loc_l+1], decls)),
          float(get_arg(tokens[loc_phi+1], decls))*180.0/math.pi)
     if loc_roll: str += ', Roll = %17.15f' % \
             (float(get_arg(tokens[loc_roll+1], decls))*180.0/math.pi)
@@ -179,6 +184,9 @@ ele2tracy = {
     'csrdrif'    : drift,
     'rcol'       : drift,
     'kicker'     : drift,
+    'bumper'     : drift,
+    'monitor'    : drift,
+    'csben'      : bend,
     'csbend'     : bend,
     'csrcsbend'  : bend,
     'quad'       : quad,
@@ -317,12 +325,15 @@ def transl_file(file_name, decls):
     prt_decl(outf)
     line = inf.readline()
     while line:
-        line = line.strip('\r\n')
+        line = line.rstrip().strip('\r\n')
+        if False: print line
         while line.endswith('&'):
-            # print line
-            # Line
-            line = line.strip('&')
-            line += (inf.readline()).strip('\r\n')
+            line = line.rstrip().rstrip('&')
+            if False: print '&:', line
+            line1 = (inf.readline()).rstrip().strip('\r\n')
+            while line1.startswith('!'):
+                line1 = (inf.readline()).rstrip().strip('\r\n')
+            line += line1
         parse_line(line, outf, decls)
         line = inf.readline()
 
