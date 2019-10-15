@@ -46,10 +46,10 @@ def bpm(line, tokens, decls):
 def drift(line, tokens, decls):
     try:
         loc_l = tokens.index('l')
-        L = float(get_arg(tokens[loc_l+1], decls))
+        L = get_arg(tokens[loc_l+1], decls)
     except ValueError:
         L = 0.0;
-    return '%s: Drift, L = %17.15f;' % (tokens[0], L)
+    return '%s: Drift, L = %s;' % (tokens[0], L)
 
 def rcol(line, tokens, decls):
     return drift(line, tokens, decls) + ' { rcol }'
@@ -66,8 +66,8 @@ def bend(line, tokens, decls):
     loc_e2 = get_index(tokens, 'e2')
     loc_k = get_index(tokens, 'k1')
     loc_n = get_index(tokens, 'n_kicks')
-    str = '%s: Bending, L = %17.15f, T = %17.15f' % \
-        (tokens[0], float(get_arg(tokens[loc_l+1], decls)),
+    str = '%s: Bending, L = %s, T = %17.15f' % \
+        (tokens[0], get_arg(tokens[loc_l+1], decls),
          float(get_arg(tokens[loc_phi+1], decls))*180.0/math.pi)
     if loc_roll: str += ', Roll = %17.15f' % \
             (float(get_arg(tokens[loc_roll+1], decls))*180.0/math.pi)
