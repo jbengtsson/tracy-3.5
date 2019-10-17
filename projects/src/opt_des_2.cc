@@ -1739,18 +1739,21 @@ void opt_mI_std(param_type &prms, constr_type &constr)
 		      0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
 		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
     // Default.
-#if 1
+#if 0
     constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
     		      1e7, 1e7, 1e-2, 1e-2, 1e7,   0e0,
     		      0.0, 0.0, 3.0,  1.5,  0.024, 0.0);
-#else
-    constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
-    		      1e7, 1e7, 1e-2, 1e3, 1e7,   0e0,
-    		      0.0, 0.0, 3.0,  1.5, 0.024, 0.0);
-#endif
     constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
 		      1e7, 1e7, 1e-2, 1e-2, 1e7, 1e7,
 		      0.0, 0.0, 4.0,  2.5,  0.0, 0.0);
+#else
+    constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
+    		      1e7, 1e7, 1e2, 1e2, 1e7,   0e0,
+    		      0.0, 0.0, 3.0, 1.5, 0.024, 0.0);
+    constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
+		      1e7, 1e7, 1e2, 1e2, 1e7, 1e7,
+		      0.0, 0.0, 4.0,  2.5,  0.0, 0.0);
+#endif
   } else {
     constr.add_constr(Elem_GetPos(ElemIndex("dl1a_5"), 1)-1,
 		      0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
@@ -1834,8 +1837,8 @@ void opt_mI_std(param_type &prms, constr_type &constr)
     lat_constr.mI_scl[X_]             = 1e7;
     lat_constr.mI_scl[Y_]             = 1e7;
 #else
-    lat_constr.mI_scl[X_]             = 1e6;
-    lat_constr.mI_scl[Y_]             = 1e6;
+    lat_constr.mI_scl[X_]             = 1e5;
+    lat_constr.mI_scl[Y_]             = 1e5;
 #endif
 #if 0
     lat_constr.high_ord_achr_scl      = 1e7;

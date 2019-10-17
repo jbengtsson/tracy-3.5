@@ -414,7 +414,7 @@ void GetEmittance(const int Fnum, const bool prt)
   bool         emit, rad, cav, path;
   int          i, j, h_RF;
   long int     lastpos, loc;
-  double       C, theta, V_RF, phi0, gamma_z;
+  double       C, D_rad[3], theta, V_RF, phi0, gamma_z;
   double       sigma_s, sigma_delta;
   Vector3      nu;
   Matrix       Ascr;
@@ -450,7 +450,7 @@ void GetEmittance(const int Fnum, const bool prt)
   // K. Robinson "Radiation Effects in Circular Electron Accelerators"
   // Phys. Rev. 111 (2), 373-380.
   // Iu.F. Orlov, E.K. Tarasov "Damping of Oscillations in a Cyclic Electron
-  // Accelerator" J. Exptl. Theoet. Phys. 34, 651-657 (1958).
+  // Accelerator" J. Exptl. Theoret. Phys. 34, 651-657 (1958).
   // To leading order:
   //   Sum_k(alpha_k) = 2*U_0/E
   // or
@@ -462,6 +462,7 @@ void GetEmittance(const int Fnum, const bool prt)
       2.0*(1.0+globval.CODvect[delta_])*globval.alpha_rad[i]/globval.dE;
     // damping times
     globval.tau[i] = -C/(c0*globval.alpha_rad[i]);
+    D_rad[i] = globval.D_rad[i];
     // diffusion coeff. and emittance (alpha is for betatron amplitudes)
     globval.eps[i] = -globval.D_rad[i]/(2.0*globval.alpha_rad[i]);
     // fractional tunes
@@ -520,29 +521,32 @@ void GetEmittance(const int Fnum, const bool prt)
 	   "delta_RF    = %4.2f\n", 1e2*globval.delta_RF);
     printf("\n");
     printf("Equilibrium emittance [m.rad]:  "
-	   "eps_x       =  %9.3e, eps_y  = %9.3e, eps_z  = %9.3e\n",
+	   "eps         =  [%9.3e, %9.3e, %9.3e]\n",
             globval.eps[X_], globval.eps[Y_], globval.eps[Z_]);
-    printf("Longitudinal phase space:       "
-	   "alpha_z     = %10.3e, beta_z = %9.3e\n", globval.alpha_z, globval.beta_z);
-    printf("Bunch length [mm]:              "
+   printf("Bunch length [mm]:              "
 	   "sigma_s     =  %5.3f\n", 1e3*sigma_s);
     printf("Momentum spread:                "
 	   "sigma_delta =  %9.3e\n", sigma_delta);
-    printf("Partition numbers:              "
-	   "J_x         =  %5.3f,     J_y    = %5.3f,     J_z    = %5.3f\n",
+    printf("Longitudinal phase space:       "
+	   "alpha_z     = %10.3e, beta_z = %9.3e\n",
+	   globval.alpha_z, globval.beta_z);
+     printf("Partition numbers:              "
+	   "J           =  [%5.3f, %5.3f, %5.3f]\n",
             globval.J[X_], globval.J[Y_], globval.J[Z_]);
     printf("Damping times [msec]:           "
-	   "tau_x       =  %3.1f,      tau_y  = %3.1f,      tau_z  = %3.1f\n",
+	   "tau         =  [%3.1f, %3.1f, %3.1f]\n",
 	   1e3*globval.tau[X_], 1e3*globval.tau[Y_], 1e3*globval.tau[Z_]);
+    printf("Diffusion coeffs:               "
+	   "D           =  [%7.1e, %7.1e, %7.1e]\n",
+	   D_rad[X_], D_rad[Y_], D_rad[Z_]);
     printf("\n");
     printf("alphac:                         "
 	   "alphac      = %11.3e\n", globval.Alphac);
     printf("\n");
     printf("Fractional tunes:               "
-	   "nu_x        =  %7.5f,   nu_y   = %7.5f,   nu_z   = %12.5e\n",
-	   nu[X_], nu[Y_], nu[Z_]);
+	   "nu_x        =  [%7.5f, %7.5f, %12.5e]\n", nu[X_], nu[Y_], nu[Z_]);
     printf("                                "
-	   "1-nu_x      =  %7.5f,   1-nu_y = %7.5f,   1-nu_z = %12.5e\n",
+	   "1-nu_x      =  [%7.5f, %7.5f, %12.5e]\n",
 	   1e0-nu[X_], 1e0-nu[Y_], 1e0-nu[Z_]);
     printf("\n");
     printf("sigmas:                         "
