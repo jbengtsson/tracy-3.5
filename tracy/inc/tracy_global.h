@@ -3,8 +3,8 @@
 typedef struct globvalrec {
   double   dPcommon,        // dp for numerical differentiation.
            dPparticle,      // Energy deviation.
-           delta_RF;        // RF Acceptance.
-  Vector2  TotalTune;       // Transverse Tunes.
+           delta_RF,        // RF Acceptance.
+           TotalTune[3];    // Transverse Tunes.
   double   Omega,           // Synchrotron Frequency.
            U0,              // Energy Loss per turn [keV].
            Alphac;          // Linear Momentum Compaction.

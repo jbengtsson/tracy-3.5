@@ -12,7 +12,7 @@ const bool
   prt_ms  = false,
   prt_dt  = false;
 
-const int n_cell = 6;
+const int n_cell = 4;
 
 const double
   // nu[]     = {62.74, 21.34},
@@ -1185,6 +1185,64 @@ void get_disp(void)
 }
 
 
+void get_Poincare_Map(void)
+{
+  int          k;
+  double       alpha[3], mu[3], beta[3], gamma[3];
+  ss_vect<tps> Id, M;
+
+  Id.identity();
+
+  globval.Cavity_on = true; globval.radiation = false;
+  Ring_GetTwiss(true, 0e0); printglob();
+
+  mu[Z_] = -2e0*M_PI*globval.Omega;
+  alpha[Z_] =
+    -globval.Ascr[ct_][ct_]*globval.Ascr[delta_][ct_]
+    - globval.Ascr[ct_][delta_]*globval.Ascr[delta_][delta_];
+  beta[Z_] = sqr(globval.Ascr[ct_][ct_]) + sqr(globval.Ascr[ct_][delta_]);
+  gamma[Z_] = (1e0+sqr(alpha[Z_]))/beta[Z_];
+
+  printf("\n  %12.5e %12.5e %12.5e\n", -globval.Omega, alpha[Z_], beta[Z_]);
+  printf("  %12.5e %12.5e\n",
+	 -globval.Ascr[ct_][ct_]*globval.Ascr[delta_][ct_],
+	 -globval.Ascr[ct_][delta_]*globval.Ascr[delta_][delta_]);
+
+  globval.Cavity_on = false; globval.radiation = false;
+  Ring_GetTwiss(true, 0e0);
+
+  for (k = 0; k < 2; k++) {
+    mu[k] = 2e0*M_PI*globval.TotalTune[k];
+    alpha[k] = Cell[0].Alpha[k]; beta[k] = Cell[0].Beta[k];
+    gamma[k] = (1e0+sqr(alpha[k]))/beta[k];
+  }
+
+  M.zero();
+  for (k = 0; k < 3; k++) {
+    if (k < 2) {
+      M[2*k] =
+	(cos(mu[k])+alpha[k]*sin(mu[k]))*Id[2*k] + beta[k]*sin(mu[k])*Id[2*k+1];
+      M[2*k+1] =
+	-gamma[k]*sin(mu[k])*Id[2*k]
+	+ (cos(mu[k])-alpha[k]*sin(mu[k]))*Id[2*k+1];
+    } else {
+      M[2*k+1] =
+	(cos(mu[k])+alpha[k]*sin(mu[k]))*Id[2*k+1] + beta[k]*sin(mu[k])*Id[2*k];
+      M[2*k] =
+	-gamma[k]*sin(mu[k])*Id[2*k+1]
+	+ (cos(mu[k])-alpha[k]*sin(mu[k]))*Id[2*k];
+    }
+  }
+  M[x_] += globval.OneTurnMat[x_][delta_]* Id[delta_];
+  M[px_] += globval.OneTurnMat[px_][delta_]*Id[delta_];
+  M[ct_] +=
+    (M[x_][x_]*M[px_][delta_]-M[px_][x_]*M[x_][delta_])*Id[x_]
+    +(M[x_][px_]*M[px_][delta_]-M[px_][px_]*M[x_][delta_])*Id[px_];
+
+  prt_lin_map(3, M);
+}
+
+
 void get_matrix(const string &name, const double delta)
 {
   int          k;
@@ -1442,6 +1500,24 @@ int main(int argc, char *argv[])
     exit(0);
   }
 
+  if (!false) {
+    get_Poincare_Map();
+    exit(0);
+  }
+
+  if (false) {
+    long int     lastpos;
+    ss_vect<tps> map;
+
+    globval.Cavity_on = !false; globval.radiation = false;
+
+    map.identity();
+    Cell_Pass(0, globval.Cell_nLoc, map, lastpos);
+    prt_lin_map(3, map);
+    exit(0);
+  }
+
+
   if (false) {
     int             k;
     ss_vect<double> ps;
@@ -1689,8 +1765,7 @@ int main(int argc, char *argv[])
   }
 
   if (false) {
-    chk_optics(0.0000000000, 2.0991177170, 0.0000000000, 5.2903747964,
-	       0.0212855877, -0.0000000222, 0.0, 0.0);
+    chk_optics(0.0, 9.634816, 0.0, 5.954390, 0.0, 0.0, 0.0, 0.0);
     prt_lat("linlat1.out", globval.bpm, true);
     prt_lat("linlat.out", globval.bpm, true, 10);
     exit(0);
