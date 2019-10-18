@@ -5,7 +5,7 @@
 int no_tps = NO;
 
 
-const int M_M_tp_dim = 21;
+const int mat_vec_dim = 3;
 
 
 ss_vect<tps> get_sympl_form(const int dof)
@@ -23,31 +23,93 @@ ss_vect<tps> get_sympl_form(const int dof)
 
 ss_vect<tps> lin_map_tp(const int n_dim, const ss_vect<tps> &M)
 {
-  int          i, j, n = 0;
+  int          i, j;
   ss_vect<tps> Id, M_tp;
 
   Id.identity();
   M_tp.zero();
-  printf("\n ");
   for (i = 0; i < 2*n_dim; i++)
     for (j = 0; j < 2*n_dim; j++) {
-      n++;
-      printf("\n %d", n);
       M_tp[i] += M[j][i]*Id[j];
     }
-  printf("\n");
   return M_tp;
+}
+
+
+void sym_mat_to_vec(const ss_vect<tps> &M, double *M_vec,
+		    stringstream str[], const bool tp)
+{
+  // Symmetric matrix vectorization.
+  int i, j, k;
+
+  k = 0;
+  for (i = 1; i <= 2; i++)
+    for (j = i; j <= 2; j++) {
+      k++;
+      if (!tp) {
+	M_vec[k] = M[i][j];
+	str[k-1] << "(" << i << j << ")";
+      } else {
+	M_vec[k] = M[j][i];
+	str[k-1] << "(" << j << i << ")";
+      }
+    }
+
+  cout << "\n";
+  for (i = 0; i < mat_vec_dim; i++)
+    cout << " " << str[i].str();
+  cout << "\n";
+}
+
+
+void vec_sym_mat(const double *M_vec, ss_vect<tps> &M)
+{
+  // Inverse of symmetric matrix vectorization.
+  int          i, j, k;
+  ss_vect<tps> Id;
+
+  Id.identity();
+  M.zero();
+  i = j = k = 0;
+  for (i = 1; i <= mat_vec_dim; i++) {
+    k++; j++;
+    if (j == ss_dim) {
+      i++; j = 0;
+    }
+    M[i] += M_vec[k]*Id[i];
+    if (i != j) M[j] += M_vec[k]*Id[j];
+  }
 }
 
 
 void get_M_M_tp(const ss_vect<tps> &M, double **M_M_tp)
 {
-  int i, j, k;
+  int    i, j;
+  double *M_vec, *M_tp_vec;
+  stringstream
+    str1[mat_vec_dim], str2[mat_vec_dim], str3[mat_vec_dim][mat_vec_dim];
 
-  for (i = 1; i <= ss_dim; i++)
-    for (j = i; j <= ss_dim; j++)
-      for (k = 1; k <= ss_dim; k++)
-      M_M_tp[i][j] = M[i][j]*M[j][k];
+
+  M_vec = dvector(1, mat_vec_dim);
+  M_tp_vec = dvector(1, mat_vec_dim);
+
+  sym_mat_to_vec(M, M_vec, str1, false);
+  sym_mat_to_vec(lin_map_tp(3, M), M_tp_vec, str2, false);
+  for (i = 1; i <= mat_vec_dim; i++)
+    for (j = 1; j <= mat_vec_dim; j++) {
+      M_M_tp[i][j] = M_vec[i]*M_tp_vec[j];
+      str3[i-1][j-1] << str1[i-1].str() << str2[j-1].str();
+    }
+
+  cout << "\n";
+  for (i = 0; i < mat_vec_dim; i++) {
+    for (j = 0; j < mat_vec_dim; j++)
+      cout << " " << str3[i][j].str();
+    cout << "\n\n";
+  }
+
+  free_dvector(M_vec, 1, mat_vec_dim);
+  free_dvector(M_tp_vec, 1, mat_vec_dim);
 }
 
 
@@ -59,7 +121,7 @@ void get_sigma(void)
 
   const int n_turn = 500000;
 
-  M_M_tp = dmatrix(1, M_M_tp_dim, 1, M_M_tp_dim);
+  M_M_tp = dmatrix(1, mat_vec_dim, 1, mat_vec_dim);
 
   Id.identity();
 
@@ -104,15 +166,15 @@ void get_sigma(void)
   sigma = A*lin_map_tp(3, A);
   for (k = 0; k < ss_dim; k++)
     sigma[k] *= globval.eps[k/2];
+  prt_lin_map(3, sigma);
 
   get_M_M_tp(M, M_M_tp);
 
-  prt_lin_map(3, sigma);
-  for (k = 0; k < n_turn; k++)
-    sigma = M*sigma*M_tp + D;
-  prt_lin_map(3, sigma);
+  // for (k = 0; k < n_turn; k++)
+  //   sigma = M*sigma*M_tp + D;
+  // prt_lin_map(3, sigma);
 
-  free_dmatrix(M_M_tp, 1, M_M_tp_dim, 1, M_M_tp_dim);
+  free_dmatrix(M_M_tp, 1, mat_vec_dim, 1, mat_vec_dim);
 }
 
 
