@@ -1846,7 +1846,8 @@ void opt_mI_std(param_type &prms, constr_type &constr)
     lat_constr.high_ord_achr_scl      = 1e4;
 #endif
 #if 1
-    lat_constr.alpha_c_scl            = 5e-7;
+    // lat_constr.alpha_c_scl            = 5e-7;
+    lat_constr.alpha_c_scl            = 1e-6;
 #else
     lat_constr.alpha_c_scl            = 1e-7;
 #endif
