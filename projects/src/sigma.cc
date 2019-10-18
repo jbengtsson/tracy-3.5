@@ -36,36 +36,49 @@ ss_vect<tps> lin_map_tp(const int n_dim, const ss_vect<tps> &M)
 }
 
 
-void sym_mat_to_vec(const ss_vect<tps> &M, double *M_vec,
-		    stringstream str[], const bool tp)
+void get_lin_mat(const int n_dim, const ss_vect<tps> &map, double **mat)
 {
-  // Symmetric matrix vectorization (Roth's Relationship:
-  //  W. Roth  "On Direct Product Matrices" Bul. Amer. Math. Soc. 40,
-  // 461-468 (1934):
-  //   vec{M Sigma M^T} = (M x M) vec(Sigma) 
+  int i, j;
+
+  for (i = 0; i < n_dim; i++)
+    for (j = 0; j < n_dim; j++)
+      mat[i+1][j+1] = map[i][j];
+}
+
+
+void Kronecker_prod(const int n_dim, double **A, const int B_dim,
+		    double **B, double **C)
+{
+  int i, j, k, l;
+
+  for (i = 1; i <= n_dim; i++)
+    for (j = 1; j <= n_dim; j++)
+      for (k = 1; k <= n_dim; k++)
+	for (l = 1; l <= n_dim; l++)
+	  C[(i-1)*n_dim+k][(j-1)*n_dim+l] = A[i][j]*B[k][l];
+}
+
+
+void red_sym_mat(double **A, double **B)
+{
+}
+
+
+void vech(const ss_vect<tps> &M, double *M_vec)
+{
+  // Symmetric matrix vectorization. 
   int i, j, k;
 
   k = 0;
   for (i = 1; i <= 2; i++)
     for (j = i; j <= 2; j++) {
       k++;
-      if (!tp) {
-	M_vec[k] = M[i][j];
-	str[k-1] << "(" << i << j << ")";
-      } else {
-	M_vec[k] = M[j][i];
-	str[k-1] << "(" << j << i << ")";
-      }
+      M_vec[k] = M[i][j];
     }
-
-  cout << "\n";
-  for (i = 0; i < mat_vec_dim; i++)
-    cout << " " << str[i].str();
-  cout << "\n";
 }
 
 
-void vec_sym_mat(const double *M_vec, ss_vect<tps> &M)
+void inv_vech(const double *M_vec, ss_vect<tps> &M)
 {
   // Inverse of symmetric matrix vectorization.
   int          i, j, k;
@@ -87,32 +100,25 @@ void vec_sym_mat(const double *M_vec, ss_vect<tps> &M)
 
 void get_M_M_tp(const ss_vect<tps> &M, double **M_M_tp)
 {
+  // Roth's Relationship (W. Roth "On Direct Product Matrices" Bul. Amer. Math.
+  // Soc. 40, 461-468 (1934):
+  //   vec{A B C} = (C^T x_circ A) vec(B)
   int    i, j;
-  double *M_vec, *M_tp_vec;
-  stringstream
-    str1[mat_vec_dim], str2[mat_vec_dim], str3[mat_vec_dim][mat_vec_dim];
+  double **M_mat, **M_prod, *M_tp_vec;
 
+  int
+    mat_dim      = 2,
+    prod_mat_dim = sqr(mat_dim);
 
-  M_vec = dvector(1, mat_vec_dim);
-  M_tp_vec = dvector(1, mat_vec_dim);
+  M_mat = dmatrix(1, mat_dim, 1, mat_dim);
+  M_prod = dmatrix(1, prod_mat_dim, 1, prod_mat_dim);
 
-  sym_mat_to_vec(M, M_vec, str1, false);
-  sym_mat_to_vec(lin_map_tp(3, M), M_tp_vec, str2, false);
-  for (i = 1; i <= mat_vec_dim; i++)
-    for (j = 1; j <= mat_vec_dim; j++) {
-      M_M_tp[i][j] = M_vec[i]*M_tp_vec[j];
-      str3[i-1][j-1] << str1[i-1].str() << str2[j-1].str();
-    }
-
-  cout << "\n";
-  for (i = 0; i < mat_vec_dim; i++) {
-    for (j = 0; j < mat_vec_dim; j++)
-      cout << " " << str3[i][j].str();
-    cout << "\n\n";
-  }
-
-  free_dvector(M_vec, 1, mat_vec_dim);
-  free_dvector(M_tp_vec, 1, mat_vec_dim);
+  get_lin_mat(mat_dim, M, M_mat);
+  dmdump(stdout, "\nmatrix:\n", M_mat, mat_dim, mat_dim, "%11.3e");
+  Kronecker_prod(mat_dim, M_mat, mat_dim, M_mat, M_prod);
+  dmdump(stdout, "\nmatrix:\n", M_prod, prod_mat_dim, prod_mat_dim, "%11.3e");
+  free_dmatrix(M_mat, 1, mat_dim, 1, mat_dim);
+  free_dmatrix(M_prod, 1, prod_mat_dim, 1, prod_mat_dim);
 }
 
 
