@@ -39,7 +39,10 @@ ss_vect<tps> lin_map_tp(const int n_dim, const ss_vect<tps> &M)
 void sym_mat_to_vec(const ss_vect<tps> &M, double *M_vec,
 		    stringstream str[], const bool tp)
 {
-  // Symmetric matrix vectorization.
+  // Symmetric matrix vectorization (Roth's Relationship:
+  //  W. Roth  "On Direct Product Matrices" Bul. Amer. Math. Soc. 40,
+  // 461-468 (1934):
+  //   vec{M Sigma M^T} = (M x M) vec(Sigma) 
   int i, j, k;
 
   k = 0;
