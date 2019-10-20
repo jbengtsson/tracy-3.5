@@ -5,7 +5,9 @@
 int no_tps = NO;
 
 
-const int mat_vec_dim = 3;
+const int
+  mat_dim     = 6,
+  mat_vec_dim = mat_dim*(mat_dim-1)/2 + mat_dim;
 
 
 ss_vect<tps> get_sympl_form(const int dof)
@@ -36,15 +38,25 @@ ss_vect<tps> lin_map_tp(const int n_dim, const ss_vect<tps> &M)
 }
 
 
-void prt_mat(const int m, const int n, double **A)
+void prt_vec(const int n, double *a)
+{
+  int i;
+
+  printf("\nvector:\n");
+  for (i = 1; i <= n; i++)
+    printf("%11.3e", a[i]);
+  printf("\n");
+}
+
+
+void prt_mat(const int n, double **A)
 {
   int i, j;
-  printf("\n");
 
   printf("\nmatrix:\n");
-  for (i = 1; i <= m; i++) {
+  for (i = 1; i <= n; i++) {
     for (j = 1; j <= n; j++)
-      printf("%12.3e", A[i][j]);
+      printf("%11.3e", A[i][j]);
     printf("\n");
   }
 }
@@ -58,9 +70,21 @@ void prt_mat(const std::vector< std::vector<double> > &A)
   printf("\nmatrix (%d, %d):\n", m, n);
   for (i = 0; i < m; i++) {
     for (j = 0; j < n; j++)
-      printf("%12.3e", A[i][j]);
+      printf("%11.3e", A[i][j]);
     printf("\n");
   }
+}
+
+
+void prt_mat_vec(const std::vector<double> &A)
+{
+  int i, n;
+
+  n = (int)A.size();
+  printf("\nvector (%d):\n", n);
+  for (i = 0; i < n; i++)
+    printf("%10.3e", A[i]);
+  printf("\n");
 }
 
 
@@ -102,17 +126,13 @@ void Kronecker_prod(const std::vector< std::vector<double> > &A,
 }
 
 
-void get_mat(const int n_dim, double **A, std::vector< std::vector<double> > &B)
+void get_mat(std::vector< std::vector<double> > &A, double **B)
 {
-  int                 i, j;
-  std::vector<double> row;
+  int i, j;
 
-  for (i = 0; i < n_dim; i++) {
-    row.clear();
-    for (j = 0; j < n_dim; j++)
-      row.push_back(A[i+1][j+1]);
-    B.push_back(row);
-  }
+  for (i = 0; i < (int)A.size(); i++)
+    for (j = 0; j < (int)A[0].size(); j++)
+      B[i+1][j+1] = A[i][j];
 }
 
 
@@ -122,8 +142,8 @@ void vech(const ss_vect<tps> &M, double *M_vec)
   int i, j, k;
 
   k = 0;
-  for (i = 1; i <= 2; i++)
-    for (j = i; j <= 2; j++) {
+  for (i = 0; i < mat_dim; i++)
+    for (j = i; j < mat_dim; j++) {
       k++;
       M_vec[k] = M[i][j];
     }
@@ -138,15 +158,15 @@ void inv_vech(const double *M_vec, ss_vect<tps> &M)
 
   Id.identity();
   M.zero();
-  i = j = k = 0;
-  for (i = 1; i <= mat_vec_dim; i++) {
-    k++; j++;
-    if (j == ss_dim) {
-      i++; j = 0;
+  k = 0;
+  for (i = 0; i < mat_dim; i++)
+    for (j = i; j < mat_dim; j++) {
+      k++;
+      M[i] += M_vec[k]*Id[j];
     }
-    M[i] += M_vec[k]*Id[i];
-    if (i != j) M[j] += M_vec[k]*Id[j];
-  }
+  for (i = 0; i < mat_dim; i++)
+    for (j = 0; j < i; j++)
+      M[i] += M[j][i]*Id[j];
 }
 
 
@@ -310,6 +330,30 @@ void red_sym_mat_2(const std::vector<int> ind,
 }
 
 
+void get_M_M_tp(const ss_vect<tps> &M)
+{
+  double **M_M_tp;
+
+  M_M_tp = dmatrix(1, mat_vec_dim, 1, mat_vec_dim);
+
+  M_M_tp[1][1] = sqr(M[x_][x_]);
+  M_M_tp[1][2] = 2e0*M[x_][x_]*M[x_][px_];
+  M_M_tp[1][3] = sqr(M[x_][px_]);
+
+  M_M_tp[2][1] = M[x_][x_]*M[px_][x_];
+  M_M_tp[2][2] = M[x_][px_]*M[px_][x_] + M[x_][x_]*M[px_][px_];
+  M_M_tp[2][3] = M[x_][px_]*M[px_][px_];
+
+  M_M_tp[3][1] = sqr(M[px_][x_]);
+  M_M_tp[3][2] = 2e0*M[px_][x_]*M[px_][px_];
+  M_M_tp[3][3] = sqr(M[px_][px_]);
+
+  prt_mat(3, M_M_tp);
+
+  free_dmatrix(M_M_tp, 1, mat_vec_dim, 1, mat_vec_dim);
+}
+
+
 void get_M_M_tp(const ss_vect<tps> &M, double **M_M_tp)
 {
   // Roth's Relationship (W. Roth "On Direct Product Matrices" Bul. Amer. Math.
@@ -319,51 +363,41 @@ void get_M_M_tp(const ss_vect<tps> &M, double **M_M_tp)
   std::vector<int>                   ind;
   std::vector< std::vector<double> > M_mat, M_prod;
 
-  const int
-    mat_dim          = 2,
-    prod_mat_dim     = sqr(mat_dim),
-    red_prod_mat_dim = mat_dim*(mat_dim-1)/2+mat_dim;
-
   // get_M_M_tp(mat_dim);
   // exit(0);
 
   get_lin_mat(mat_dim, M, M_mat);
-  prt_mat(M_mat);
+  // prt_mat(M_mat);
   Kronecker_prod(M_mat, M_mat, M_prod);
-  prt_mat(M_prod);
+  // prt_mat(M_prod);
 
-  printf("\n");
   for (i = 1; i <= mat_dim-1; i++) {
     for (j = 1; j <= mat_dim-i; j++) {
       i1 = (i-1)*(mat_dim+1) + j + 1; j1 = i1 + j*(mat_dim-1);
       ind.push_back(j1);
-      printf(" (%2d, %2d)", i1, j1);
       red_sym_mat_1(mat_dim, i1, j1, M_prod);
     }
-    printf("\n");
   }
-  prt_mat(M_prod);
-  printf("\n");
-  for (i = 0; i < (int)ind.size(); i++)
-    printf("  %2d", ind[i]);
   bubble_sort(ind);
-  printf("\n");
-  for (i = 0; i < (int)ind.size(); i++)
-    printf("  %2d", ind[i]);
-  printf("\n");
+  // prt_mat(M_prod);
   red_sym_mat_2(ind, M_prod);
-  prt_mat(M_prod);
+  // prt_mat(M_prod);
+  get_mat(M_prod, M_M_tp);
 }
 
 
 void get_sigma(void)
 {
   int          k;
-  double       C, **M_M_tp;
+  double       C, *sigma_vec, *sigma_vec1, **M_M_tp;
   ss_vect<tps> Id, J, A, D, sigma, M, M_tp;
 
-  const int n_turn = 500000;
+  const int  n_turn = 500000;
 
+  printf("\nget_sigma: n = %d\n", mat_vec_dim);
+
+  sigma_vec = dvector(1, mat_vec_dim);
+  sigma_vec1 = dvector(1, mat_vec_dim);
   M_M_tp = dmatrix(1, mat_vec_dim, 1, mat_vec_dim);
 
   Id.identity();
@@ -409,14 +443,24 @@ void get_sigma(void)
   sigma = A*lin_map_tp(3, A);
   for (k = 0; k < ss_dim; k++)
     sigma[k] *= globval.eps[k/2];
+
+  vech(sigma, sigma_vec);
+
+  prt_lin_map(3, sigma);
+  for (k = 0; k < 1; k++)
+    // sigma = M*sigma*M_tp + D;
+    sigma = M*sigma*M_tp;
   prt_lin_map(3, sigma);
 
   get_M_M_tp(M, M_M_tp);
+  dmvmult(M_M_tp, mat_vec_dim, mat_vec_dim, sigma_vec, mat_vec_dim, sigma_vec1);
+  inv_vech(sigma_vec1, sigma);
+  prt_lin_map(3, sigma);
 
-  // for (k = 0; k < n_turn; k++)
-  //   sigma = M*sigma*M_tp + D;
-  // prt_lin_map(3, sigma);
+  // get_M_M_tp(M);
 
+  free_dvector(sigma_vec, 1, mat_vec_dim);
+  free_dvector(sigma_vec1, 1, mat_vec_dim);
   free_dmatrix(M_M_tp, 1, mat_vec_dim, 1, mat_vec_dim);
 }
 
