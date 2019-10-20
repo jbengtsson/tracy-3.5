@@ -414,7 +414,7 @@ void GetEmittance(const int Fnum, const bool prt)
   bool         emit, rad, cav, path;
   int          i, j, h_RF;
   long int     lastpos, loc;
-  double       C, D_rad[3], theta, V_RF, phi0, gamma_z;
+  double       C, theta, V_RF, phi0, gamma_z;
   double       sigma_s, sigma_delta;
   Vector3      nu;
   Matrix       Ascr;
@@ -462,7 +462,6 @@ void GetEmittance(const int Fnum, const bool prt)
       2.0*(1.0+globval.CODvect[delta_])*globval.alpha_rad[i]/globval.dE;
     // damping times
     globval.tau[i] = -C/(c0*globval.alpha_rad[i]);
-    D_rad[i] = globval.D_rad[i];
     // diffusion coeff. and emittance (alpha is for betatron amplitudes)
     globval.eps[i] = -globval.D_rad[i]/(2.0*globval.alpha_rad[i]);
     // fractional tunes
@@ -538,7 +537,7 @@ void GetEmittance(const int Fnum, const bool prt)
 	   1e3*globval.tau[X_], 1e3*globval.tau[Y_], 1e3*globval.tau[Z_]);
     printf("Diffusion coeffs:               "
 	   "D           =  [%7.1e, %7.1e, %7.1e]\n",
-	   D_rad[X_], D_rad[Y_], D_rad[Z_]);
+	   globval.D_rad[X_], globval.D_rad[Y_], globval.D_rad[Z_]);
     printf("\n");
     printf("alphac:                         "
 	   "alphac      = %11.3e\n", globval.Alphac);

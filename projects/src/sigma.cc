@@ -322,6 +322,8 @@ void get_sigma(void)
 
   GetEmittance(ElemIndex("cav"), true);
 
+  prtmat(6, Cell[0].sigma);
+
   globval.Cavity_on = true; globval.radiation = true;
   Ring_GetTwiss(true, 0e0);
 
@@ -330,19 +332,30 @@ void get_sigma(void)
   printf("  tau   = [%10.3e, %10.3e, %10.3e]\n",
 	 -C/(c0*globval.alpha_rad[X_]), -C/(c0*globval.alpha_rad[Y_]),
 	 -C/(c0*globval.alpha_rad[Z_]));
+  printf("  eps   = [%10.3e, %10.3e, %10.3e]\n",
+	 -globval.D_rad[X_]/(2.0*globval.alpha_rad[X_]),
+	 -globval.D_rad[Y_]/(2.0*globval.alpha_rad[Y_]),
+	 -globval.D_rad[Z_]/(2.0*globval.alpha_rad[Z_]));
   printf("  D     = [%10.3e, %10.3e, %10.3e]\n",
 	 globval.D_rad[X_], globval.D_rad[Y_], globval.D_rad[Z_]);
 
   putlinmat(ss_dim, globval.OneTurnMat, M);
+#if 0
   for (k = 0; k < ss_dim; k++)
     M[k] *= exp(globval.alpha_rad[k/2]);
+#endif
   M_tp = lin_map_tp(3, M);
 
+  prt_lin_map(3, M_tp*J*M);
+
   D.zero();
-  D[px_] = 4.015e0/7e0*globval.D_rad[X_]*Id[px_];
-  D[delta_] = 4e0*M_PI*globval.D_rad[Z_]*Id[delta_];
-  // D[px_] = globval.D_rad[X_]*Id[px_];
-  // D[delta_] = globval.D_rad[Z_]*Id[delta_];
+#if 1
+  D[px_] = 2.007e0/7e0*globval.D_rad[X_]*Id[px_];
+  D[delta_] = 2e0*M_PI*globval.D_rad[Z_]*Id[delta_];
+#else
+  D[px_] = globval.D_rad[X_]*Id[px_];
+  D[delta_] = globval.D_rad[Z_]*Id[delta_];
+#endif
   // prt_lin_map(3, D);
 
   get_M_M_tp(M, M_M_tp);
