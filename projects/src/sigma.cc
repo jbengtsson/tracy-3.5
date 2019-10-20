@@ -170,46 +170,6 @@ void inv_vech(const double *M_vec, ss_vect<tps> &M)
 }
 
 
-void prt_mat(const std::vector< std::vector<string> > &A)
-{
-  int i, j;
-
-  cout << "\nmatrix:\n";
-  for (i = 0; i < (int)A.size(); i++) {
-    for (j = 0; j < (int)A[0].size(); j++)
-      cout << " " << A[i][j];
-    cout << endl;
-  }
-}
-
-
-void Kronecker_prod(const int n_dim,
-		    const std::vector< std::vector<string> > &A,
-		    const std::vector< std::vector<string> > &B,
-		    std::vector< std::vector<string> > &C)
-{
-  int                 i, j, k, l;
-  std::vector<string> row;
-  stringstream        str;
-
-  for (i = 0; i < sqr(n_dim); i++) {
-    row.clear();
-    for (j = 0; j < sqr(n_dim); j++)
-      row.push_back("0");
-    C.push_back(row);
-  }
-
-  for (i = 0; i < n_dim; i++)
-    for (j = 0; j < n_dim; j++)
-      for (k = 0; k < n_dim; k++)
-	for (l = 0; l < n_dim; l++) {
-	  str.clear(); str.str("");
-	  str << A[i][j] << "*" << B[k][l];
-	  C[i*n_dim+k][j*n_dim+l] = str.str();
-	}
-}
-
-
 void bubble_sort(std::vector<int> &order)
 {
   bool   swapped;
@@ -224,82 +184,6 @@ void bubble_sort(std::vector<int> &order)
       }
     }
   } while (swapped);
-}
-
-
-void red_sym_mat_1(const int n_dim, const int i, const int j,
-		   std::vector< std::vector<string> > &M)
-{
-  // Matrix dim reduction from symmetry.
-  int k;
-
-  for (k = 0; k < (int)M.size(); k++) {
-    M[k][i-1] += "+" + M[k][j-1];
-    M[k][j-1] = "-";
-  }
-}
-
-
-void red_sym_mat_2(const std::vector<int> ind,
-		   std::vector< std::vector<string> > &M)
-{
-  // Matrix dim reduction from symmetry.
-  int j, k;
-
-  for (j = 0; j < (int)ind.size(); j++) {
-    M.erase(M.begin()+ind[j]-1);
-    for (k = 0; k < (int)M.size(); k++)
-      M[k].erase(M[k].begin()+ind[j]-1);
-  }
-}
-
-
-void get_M_M_tp(const int n_dim)
-{
-  int                                i, j, i1, j1;
-  std::vector<string>                row;
-  std::vector< std::vector<string> > M, Mp;
-  std::vector<int>                   ind;
-  stringstream                       str;
-
-  for (i = 0; i < n_dim; i++) {
-    row.clear();
-    for (j = 0; j < n_dim; j++) {
-      str.clear(); str.str("");
-      str << "(" << i+1 << ", " << j+1 << ")";
-      row.push_back(str.str());
-    }
-    M.push_back(row);
-  }
-  for (i = 0; i < n_dim; i++)
-    for (j = 0; j < i; j++)
-      M[i][j] = M[j][i];
-
-  prt_mat(M);
-  Kronecker_prod(n_dim, M, M, Mp);
-  // prt_mat(Mp);
-
-  printf("\n");
-  for (i = 1; i <= n_dim-1; i++) {
-    for (j = 1; j <= n_dim-i; j++) {
-      i1 = (i-1)*(n_dim+1) + j + 1; j1 = i1 + j*(n_dim-1);
-      ind.push_back(j1);
-      printf(" (%2d, %2d)", i1, j1);
-      red_sym_mat_1(n_dim, i1, j1, Mp);
-    }
-    printf("\n");
-  }
-  prt_mat(Mp);
-  printf("\n");
-  for (i = 0; i < (int)ind.size(); i++)
-    printf("  %2d", ind[i]);
-  bubble_sort(ind);
-  printf("\n");
-  for (i = 0; i < (int)ind.size(); i++)
-    printf("  %2d", ind[i]);
-  printf("\n");
-  red_sym_mat_2(ind, Mp);
-  prt_mat(Mp);
 }
 
 
@@ -363,13 +247,8 @@ void get_M_M_tp(const ss_vect<tps> &M, double **M_M_tp)
   std::vector<int>                   ind;
   std::vector< std::vector<double> > M_mat, M_prod;
 
-  // get_M_M_tp(mat_dim);
-  // exit(0);
-
   get_lin_mat(mat_dim, M, M_mat);
-  // prt_mat(M_mat);
   Kronecker_prod(M_mat, M_mat, M_prod);
-  // prt_mat(M_prod);
 
   for (i = 1; i <= mat_dim-1; i++) {
     for (j = 1; j <= mat_dim-i; j++) {
@@ -379,18 +258,48 @@ void get_M_M_tp(const ss_vect<tps> &M, double **M_M_tp)
     }
   }
   bubble_sort(ind);
-  // prt_mat(M_prod);
   red_sym_mat_2(ind, M_prod);
-  // prt_mat(M_prod);
   get_mat(M_prod, M_M_tp);
+}
+
+
+void get_emit(double **M_M_tp, double *D_vec)
+{
+  int    i, j;
+  double       *sigma_vec, **Id, **MmI, **MmI_inv;
+  ss_vect<tps> sigma;
+
+  sigma_vec = dvector(1, mat_vec_dim);
+  Id = dmatrix(1, mat_vec_dim, 1, mat_vec_dim);
+  MmI = dmatrix(1, mat_vec_dim, 1, mat_vec_dim);
+  MmI_inv = dmatrix(1, mat_vec_dim, 1, mat_vec_dim);
+
+  for (i = 1; i <= mat_vec_dim; i++)
+    for (j = 1; j <= mat_vec_dim; j++)
+      Id[i][j] = (i == j)? 1e0 : 0e0;
+ 
+  dmsub(Id, mat_vec_dim, mat_vec_dim, M_M_tp, MmI);
+  dinverse(MmI, mat_vec_dim, MmI_inv);  
+  dmvmult(MmI_inv, mat_vec_dim, mat_vec_dim, D_vec, mat_vec_dim, sigma_vec);
+  inv_vech(sigma_vec, sigma);
+
+  printf("\nget_emit:\n");
+  prt_lin_map(3, sigma);
+  printf("\n  %9.3e %9.3e\n", sqrt(sigma[x_][x_]), sqrt(sigma[px_][px_]));
+  printf("  %9.3e %9.3e\n", sqrt(sigma[ct_][ct_]), sqrt(sigma[delta_][delta_]));
+
+  free_dvector(sigma_vec, 1, mat_vec_dim);
+  free_dmatrix(Id, 1, mat_vec_dim, 1, mat_vec_dim);
+  free_dmatrix(MmI, 1, mat_vec_dim, 1, mat_vec_dim);
+  free_dmatrix(MmI_inv, 1, mat_vec_dim, 1, mat_vec_dim);
 }
 
 
 void get_sigma(void)
 {
   int          k;
-  double       C, *sigma_vec, *sigma_vec1, **M_M_tp;
-  ss_vect<tps> Id, J, A, D, sigma, M, M_tp;
+  double       C, *sigma_vec, *sigma_vec1, *D_vec, **M_M_tp;
+  ss_vect<tps> Id, J, A, D, sigma, sigma1, M, M_tp;
 
   const int  n_turn = 500000;
 
@@ -398,6 +307,7 @@ void get_sigma(void)
 
   sigma_vec = dvector(1, mat_vec_dim);
   sigma_vec1 = dvector(1, mat_vec_dim);
+  D_vec = dvector(1, mat_vec_dim);
   M_M_tp = dmatrix(1, mat_vec_dim, 1, mat_vec_dim);
 
   Id.identity();
@@ -413,7 +323,7 @@ void get_sigma(void)
   GetEmittance(ElemIndex("cav"), true);
 
   globval.Cavity_on = true; globval.radiation = true;
-  Ring_GetTwiss(true, 0e0); printglob();
+  Ring_GetTwiss(true, 0e0);
 
   printf("\n  alpha = [%10.3e, %10.3e, %10.3e]\n",
 	 globval.alpha_rad[X_], globval.alpha_rad[Y_], globval.alpha_rad[Z_]);
@@ -431,7 +341,17 @@ void get_sigma(void)
   D.zero();
   D[px_] = 4.015e0/7e0*globval.D_rad[X_]*Id[px_];
   D[delta_] = 4e0*M_PI*globval.D_rad[Z_]*Id[delta_];
-  prt_lin_map(3, D);
+  // D[px_] = globval.D_rad[X_]*Id[px_];
+  // D[delta_] = globval.D_rad[Z_]*Id[delta_];
+  // prt_lin_map(3, D);
+
+  get_M_M_tp(M, M_M_tp);
+  vech(sigma, sigma_vec);
+  vech(D, D_vec);
+
+  get_emit(M_M_tp, D_vec);
+
+  exit(0);
 
   A.identity();
   putlinmat(4, globval.Ascr, A);
@@ -444,23 +364,21 @@ void get_sigma(void)
   for (k = 0; k < ss_dim; k++)
     sigma[k] *= globval.eps[k/2];
 
-  vech(sigma, sigma_vec);
-
   prt_lin_map(3, sigma);
   for (k = 0; k < 1; k++)
     // sigma = M*sigma*M_tp + D;
-    sigma = M*sigma*M_tp;
-  prt_lin_map(3, sigma);
+    sigma1 = M*sigma*M_tp;
+  prt_lin_map(3, sigma1);
 
-  get_M_M_tp(M, M_M_tp);
   dmvmult(M_M_tp, mat_vec_dim, mat_vec_dim, sigma_vec, mat_vec_dim, sigma_vec1);
-  inv_vech(sigma_vec1, sigma);
-  prt_lin_map(3, sigma);
+  dvadd(sigma_vec1, mat_vec_dim, D_vec, sigma_vec1);
 
-  // get_M_M_tp(M);
+  inv_vech(sigma_vec1, sigma1);
+  prt_lin_map(3, sigma1);
 
   free_dvector(sigma_vec, 1, mat_vec_dim);
   free_dvector(sigma_vec1, 1, mat_vec_dim);
+  free_dvector(D_vec, 1, mat_vec_dim);
   free_dmatrix(M_M_tp, 1, mat_vec_dim, 1, mat_vec_dim);
 }
 
