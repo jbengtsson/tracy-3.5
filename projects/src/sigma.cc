@@ -36,31 +36,83 @@ ss_vect<tps> lin_map_tp(const int n_dim, const ss_vect<tps> &M)
 }
 
 
-void get_lin_mat(const int n_dim, const ss_vect<tps> &map, double **mat)
+void prt_mat(const int m, const int n, double **A)
 {
   int i, j;
+  printf("\n");
 
-  for (i = 0; i < n_dim; i++)
+  printf("\nmatrix:\n");
+  for (i = 1; i <= m; i++) {
+    for (j = 1; j <= n; j++)
+      printf("%12.3e", A[i][j]);
+    printf("\n");
+  }
+}
+
+
+void prt_mat(const std::vector< std::vector<double> > &A)
+{
+  int i, j, m, n;
+
+  m = (int)A.size(); n = (int)A[0].size();
+  printf("\nmatrix (%d, %d):\n", m, n);
+  for (i = 0; i < m; i++) {
+    for (j = 0; j < n; j++)
+      printf("%12.3e", A[i][j]);
+    printf("\n");
+  }
+}
+
+
+void get_lin_mat(const int n_dim, const ss_vect<tps> &map,
+		 std::vector< std::vector<double> > &mat)
+{
+  int                 i, j;
+  std::vector<double> row;
+
+  for (i = 0; i < n_dim; i++) {
+    row.clear();
     for (j = 0; j < n_dim; j++)
-      mat[i+1][j+1] = map[i][j];
+      row.push_back(map[i][j]);
+    mat.push_back(row);
+  }
 }
 
 
-void Kronecker_prod(const int n_dim, double **A, const int B_dim,
-		    double **B, double **C)
+void Kronecker_prod(const std::vector< std::vector<double> > &A,
+		    const std::vector< std::vector<double> > &B,
+		    std::vector< std::vector<double> > &C)
 {
-  int i, j, k, l;
+  int                 i, j, k, l, m, n;
+  std::vector<double> row;
 
-  for (i = 1; i <= n_dim; i++)
-    for (j = 1; j <= n_dim; j++)
-      for (k = 1; k <= n_dim; k++)
-	for (l = 1; l <= n_dim; l++)
-	  C[(i-1)*n_dim+k][(j-1)*n_dim+l] = A[i][j]*B[k][l];
+  m = (int)B.size(); n = (int)B[0].size();
+
+  row.clear();
+  for (j = 0; j < n*(int)A[0].size(); j++)
+    row.push_back(0e0);
+  for (i = 0; i < m*(int)A.size(); i++)
+    C.push_back(row);
+
+  for (i = 0; i < (int)A.size(); i++)
+    for (j = 0; j < (int)A[0].size(); j++)
+      for (k = 0; k < (int)B.size(); k++)
+	for (l = 0; l < (int)B[0].size(); l++)
+	  C[i*m+k][j*n+l] = A[i][j]*B[k][l];
 }
 
 
-void red_sym_mat(double **A, double **B)
+void get_mat(const int n_dim, double **A, std::vector< std::vector<double> > &B)
 {
+  int                 i, j;
+  std::vector<double> row;
+
+  for (i = 0; i < n_dim; i++) {
+    row.clear();
+    for (j = 0; j < n_dim; j++)
+      row.push_back(A[i+1][j+1]);
+    B.push_back(row);
+  }
 }
 
 
@@ -98,27 +150,209 @@ void inv_vech(const double *M_vec, ss_vect<tps> &M)
 }
 
 
+void prt_mat(const std::vector< std::vector<string> > &A)
+{
+  int i, j;
+
+  cout << "\nmatrix:\n";
+  for (i = 0; i < (int)A.size(); i++) {
+    for (j = 0; j < (int)A[0].size(); j++)
+      cout << " " << A[i][j];
+    cout << endl;
+  }
+}
+
+
+void Kronecker_prod(const int n_dim,
+		    const std::vector< std::vector<string> > &A,
+		    const std::vector< std::vector<string> > &B,
+		    std::vector< std::vector<string> > &C)
+{
+  int                 i, j, k, l;
+  std::vector<string> row;
+  stringstream        str;
+
+  for (i = 0; i < sqr(n_dim); i++) {
+    row.clear();
+    for (j = 0; j < sqr(n_dim); j++)
+      row.push_back("0");
+    C.push_back(row);
+  }
+
+  for (i = 0; i < n_dim; i++)
+    for (j = 0; j < n_dim; j++)
+      for (k = 0; k < n_dim; k++)
+	for (l = 0; l < n_dim; l++) {
+	  str.clear(); str.str("");
+	  str << A[i][j] << "*" << B[k][l];
+	  C[i*n_dim+k][j*n_dim+l] = str.str();
+	}
+}
+
+
+void bubble_sort(std::vector<int> &order)
+{
+  bool   swapped;
+  int    k, ind;
+
+  do {
+    swapped = false;
+    for (k = 0; k < (int)order.size()-1; k++) {
+      if (order[k] < order[k+1]) {
+	ind = order[k]; order[k] = order[k+1]; order[k+1] = ind;
+	swapped = true;
+      }
+    }
+  } while (swapped);
+}
+
+
+void red_sym_mat_1(const int n_dim, const int i, const int j,
+		   std::vector< std::vector<string> > &M)
+{
+  // Matrix dim reduction from symmetry.
+  int k;
+
+  for (k = 0; k < (int)M.size(); k++) {
+    M[k][i-1] += "+" + M[k][j-1];
+    M[k][j-1] = "-";
+  }
+}
+
+
+void red_sym_mat_2(const std::vector<int> ind,
+		   std::vector< std::vector<string> > &M)
+{
+  // Matrix dim reduction from symmetry.
+  int j, k;
+
+  for (j = 0; j < (int)ind.size(); j++) {
+    M.erase(M.begin()+ind[j]-1);
+    for (k = 0; k < (int)M.size(); k++)
+      M[k].erase(M[k].begin()+ind[j]-1);
+  }
+}
+
+
+void get_M_M_tp(const int n_dim)
+{
+  int                                i, j, i1, j1;
+  std::vector<string>                row;
+  std::vector< std::vector<string> > M, Mp;
+  std::vector<int>                   ind;
+  stringstream                       str;
+
+  for (i = 0; i < n_dim; i++) {
+    row.clear();
+    for (j = 0; j < n_dim; j++) {
+      str.clear(); str.str("");
+      str << "(" << i+1 << ", " << j+1 << ")";
+      row.push_back(str.str());
+    }
+    M.push_back(row);
+  }
+  for (i = 0; i < n_dim; i++)
+    for (j = 0; j < i; j++)
+      M[i][j] = M[j][i];
+
+  prt_mat(M);
+  Kronecker_prod(n_dim, M, M, Mp);
+  // prt_mat(Mp);
+
+  printf("\n");
+  for (i = 1; i <= n_dim-1; i++) {
+    for (j = 1; j <= n_dim-i; j++) {
+      i1 = (i-1)*(n_dim+1) + j + 1; j1 = i1 + j*(n_dim-1);
+      ind.push_back(j1);
+      printf(" (%2d, %2d)", i1, j1);
+      red_sym_mat_1(n_dim, i1, j1, Mp);
+    }
+    printf("\n");
+  }
+  prt_mat(Mp);
+  printf("\n");
+  for (i = 0; i < (int)ind.size(); i++)
+    printf("  %2d", ind[i]);
+  bubble_sort(ind);
+  printf("\n");
+  for (i = 0; i < (int)ind.size(); i++)
+    printf("  %2d", ind[i]);
+  printf("\n");
+  red_sym_mat_2(ind, Mp);
+  prt_mat(Mp);
+}
+
+
+void red_sym_mat_1(const int n_dim, const int i, const int j,
+		   std::vector< std::vector<double> > &M)
+{
+  // Matrix dim reduction from symmetry.
+  int k;
+
+  for (k = 0; k < (int)M.size(); k++) {
+    M[k][i-1] += M[k][j-1];
+    M[k][j-1] = 0e0;
+  }
+}
+
+
+void red_sym_mat_2(const std::vector<int> ind,
+		   std::vector< std::vector<double> > &M)
+{
+  // Matrix dim reduction from symmetry.
+  int j, k;
+
+  for (j = 0; j < (int)ind.size(); j++) {
+    M.erase(M.begin()+ind[j]-1);
+    for (k = 0; k < (int)M.size(); k++)
+      M[k].erase(M[k].begin()+ind[j]-1);
+  }
+}
+
+
 void get_M_M_tp(const ss_vect<tps> &M, double **M_M_tp)
 {
   // Roth's Relationship (W. Roth "On Direct Product Matrices" Bul. Amer. Math.
   // Soc. 40, 461-468 (1934):
   //   vec{A B C} = (C^T x_circ A) vec(B)
-  int    i, j;
-  double **M_mat, **M_prod, *M_tp_vec;
+  int                                i, j, i1, j1;
+  std::vector<int>                   ind;
+  std::vector< std::vector<double> > M_mat, M_prod;
 
-  int
-    mat_dim      = 2,
-    prod_mat_dim = sqr(mat_dim);
+  const int
+    mat_dim          = 2,
+    prod_mat_dim     = sqr(mat_dim),
+    red_prod_mat_dim = mat_dim*(mat_dim-1)/2+mat_dim;
 
-  M_mat = dmatrix(1, mat_dim, 1, mat_dim);
-  M_prod = dmatrix(1, prod_mat_dim, 1, prod_mat_dim);
+  // get_M_M_tp(mat_dim);
+  // exit(0);
 
   get_lin_mat(mat_dim, M, M_mat);
-  dmdump(stdout, "\nmatrix:\n", M_mat, mat_dim, mat_dim, "%11.3e");
-  Kronecker_prod(mat_dim, M_mat, mat_dim, M_mat, M_prod);
-  dmdump(stdout, "\nmatrix:\n", M_prod, prod_mat_dim, prod_mat_dim, "%11.3e");
-  free_dmatrix(M_mat, 1, mat_dim, 1, mat_dim);
-  free_dmatrix(M_prod, 1, prod_mat_dim, 1, prod_mat_dim);
+  prt_mat(M_mat);
+  Kronecker_prod(M_mat, M_mat, M_prod);
+  prt_mat(M_prod);
+
+  printf("\n");
+  for (i = 1; i <= mat_dim-1; i++) {
+    for (j = 1; j <= mat_dim-i; j++) {
+      i1 = (i-1)*(mat_dim+1) + j + 1; j1 = i1 + j*(mat_dim-1);
+      ind.push_back(j1);
+      printf(" (%2d, %2d)", i1, j1);
+      red_sym_mat_1(mat_dim, i1, j1, M_prod);
+    }
+    printf("\n");
+  }
+  prt_mat(M_prod);
+  printf("\n");
+  for (i = 0; i < (int)ind.size(); i++)
+    printf("  %2d", ind[i]);
+  bubble_sort(ind);
+  printf("\n");
+  for (i = 0; i < (int)ind.size(); i++)
+    printf("  %2d", ind[i]);
+  printf("\n");
+  red_sym_mat_2(ind, M_prod);
+  prt_mat(M_prod);
 }
 
 
