@@ -326,6 +326,9 @@ void get_sigma(void)
 
   globval.Cavity_on = true; globval.radiation = true;
   Ring_GetTwiss(true, 0e0);
+  putlinmat(ss_dim, globval.OneTurnMat, M);
+  A.identity();
+  putlinmat(4, globval.Ascr, A);
 
   printf("\n  alpha = [%10.3e, %10.3e, %10.3e]\n",
 	 globval.alpha_rad[X_], globval.alpha_rad[Y_], globval.alpha_rad[Z_]);
@@ -339,24 +342,21 @@ void get_sigma(void)
   printf("  D     = [%10.3e, %10.3e, %10.3e]\n",
 	 globval.D_rad[X_], globval.D_rad[Y_], globval.D_rad[Z_]);
 
-  putlinmat(ss_dim, globval.OneTurnMat, M);
 #if 0
   for (k = 0; k < ss_dim; k++)
     M[k] *= exp(globval.alpha_rad[k/2]);
 #endif
-  M_tp = lin_map_tp(3, M);
-
-  prt_lin_map(3, M_tp*J*M);
+  prt_lin_map(3, lin_map_tp(3, M)*J*M);
 
   D.zero();
-#if 1
-  D[px_] = 2.007e0/7e0*globval.D_rad[X_]*Id[px_];
-  D[delta_] = 2e0*M_PI*globval.D_rad[Z_]*Id[delta_];
-#else
+  // Floquet space.
+  D[x_] = globval.D_rad[X_]*Id[x_];
   D[px_] = globval.D_rad[X_]*Id[px_];
-  D[delta_] = globval.D_rad[Z_]*Id[delta_];
-#endif
-  // prt_lin_map(3, D);
+  D[delta_] = 2e0*M_PI*globval.D_rad[Z_]*Id[delta_];
+  prt_lin_map(3, D);
+  D = A*D;
+  prt_lin_map(3, D);
+  
 
   get_M_M_tp(M, M_M_tp);
   vech(sigma, sigma_vec);
