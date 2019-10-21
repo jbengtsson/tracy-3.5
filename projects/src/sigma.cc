@@ -298,10 +298,15 @@ void get_emit(double **M_M_tp, double *D_vec)
 void get_sigma(void)
 {
   int          k;
+  double       C_u, gamma, D_delta;
   double       C, *sigma_vec, *sigma_vec1, *D_vec, **M_M_tp;
   ss_vect<tps> Id, J, A, D, sigma, sigma1, M, M_tp;
 
-  const int  n_turn = 500000;
+  const int    n_turn = 500000;
+  const double
+    h_bar = 6.582119e-16,
+    alpha = 1e0/137.035999084,
+    rho   = 2.62/(6.0*M_PI/180.0);
 
   printf("\nget_sigma: n = %d\n", mat_vec_dim);
 
@@ -342,6 +347,11 @@ void get_sigma(void)
   printf("  D     = [%10.3e, %10.3e, %10.3e]\n",
 	 globval.D_rad[X_], globval.D_rad[Y_], globval.D_rad[Z_]);
 
+  gamma = 1e9*globval.Energy/m_e;
+  C_u = 55e0/(24e0*sqrt(3e0));
+  D_delta = C_u*alpha*c0*pow(gamma, 5)/cube(rho)*sqr(h_bar/(m_e*c0));
+  printf("\nD_delta = %10.3e\n", D_delta);
+
 #if 0
   for (k = 0; k < ss_dim; k++)
     M[k] *= exp(globval.alpha_rad[k/2]);
@@ -356,7 +366,6 @@ void get_sigma(void)
   prt_lin_map(3, D);
   D = A*D;
   prt_lin_map(3, D);
-  
 
   get_M_M_tp(M, M_M_tp);
   vech(sigma, sigma_vec);
