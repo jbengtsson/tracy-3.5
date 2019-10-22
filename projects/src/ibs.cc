@@ -32,10 +32,10 @@ double get_eps_x1(void)
 
   Cell_Pass(0, globval.Cell_nLoc, A, lastpos);
 
-  eps_x = 1470e0*pow(globval.Energy, 2)*I5/(I2-I4);
+  eps_x = 1470e0*pow(globval.Energy, 2)*I[5]/(I[2]-I[4]);
 
   printf("\neps_x = %5.3f pm.rad, J_x = %5.3f, J_z = %5.3f \n",
-	 1e3*eps_x, 1e0-I4/I2, 2e0+I4/I2);
+	 1e3*eps_x, 1e0-I[4]/I[2], 2e0+I[4]/I[2]);
 
   globval.Cavity_on = cav; globval.emittance = emit;
 

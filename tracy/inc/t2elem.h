@@ -4,9 +4,9 @@
 
 */
 
-extern bool    sympl;
-extern int     FieldMap_filetype;
-extern double  cl_rad, q_fluct, I2, I4, I5;
+extern bool   sympl;
+extern int    FieldMap_filetype;
+extern double C_u, C_gamma, C_q, cl_rad, q_fluct, I[];
 
 double det_mat(const int n, double **A);
 

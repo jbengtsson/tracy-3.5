@@ -361,7 +361,7 @@ double get_eps_x(void)
 {
   bool         cav, emit;
   long int     lastpos;
-  double       eps_x;
+  double       eps_x, sigma_delta, J[3];
   ss_vect<tps> A;
 
   /* Note:
@@ -395,11 +395,13 @@ double get_eps_x(void)
 
   Cell_Pass(0, globval.Cell_nLoc, A, lastpos);
 
-  eps_x = 1470.0*pow(globval.Energy, 2.0)*I5/(I2-I4);
+  eps_x = 1470e-9*sqr(globval.Energy)*I[5]/(I[2]-I[4]);
+  sigma_delta = sqrt(1470e-9*sqr(globval.Energy)*I[3]/(2e0*I[2]+I[4]));
+  J[X_] = 1e0 - I[4]/I[2]; J[Z_] = 2e0 + I[4]/I[2]; J[Y_] = 4e0 - J[X_] - J[Z_];
 
-  printf("\n");
-  printf("eps_x = %5.3f nm.rad\n", eps_x);
-  printf("J_x   = %5.3f, J_z = %5.3f\n", 1.0-I4/I2, 2.0+I4/I2);
+  printf("\n  eps_x [nm.rad] = %5.3f\n", 1e9*eps_x);
+  printf("  sigma_delta    = %9.3e\n", sigma_delta);
+  printf("  J              = [%5.3f, %5.3f, %5.3f]\n", J[X_], J[Y_], J[Z_]);
 
   globval.Cavity_on = cav; globval.emittance = emit;
 

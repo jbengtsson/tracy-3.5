@@ -90,13 +90,14 @@ void Elem_Pass(const long i, ss_vect<T> &x)
 template<typename T>
 void Cell_Pass(const long i0, const long i1, ss_vect<T> &x, long &lastpos)
 {
-  long int  i = 0;
+  long int i = 0;
 
   if (globval.radiation) globval.dE = 0e0;
 
   if (globval.emittance) {
-    I2 = 0e0; I4 = 0e0; I5 = 0e0;
-
+   for (i = 2; i <= 5; i++)
+     I[i] = 0e0;
+ 
     for (i = 0; i < DOF; i++)
       globval.D_rad[i] = 0e0;
   }

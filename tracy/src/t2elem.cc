@@ -9,8 +9,9 @@
    Element propagators.                                                      */
 
 bool          first_FM = true;
-double        c_1, d_1, c_2, d_2, cl_rad, q_fluct;
-double        I2, I4, I5, dcurly_H, dI4, s_FM;
+double        C_u, C_gamma, C_q, cl_rad, q_fluct, I[6];
+double        c_1, d_1, c_2, d_2;
+double        dcurly_H, dI4, s_FM;
 ElemFamType   ElemFam[Elem_nFamMax];
 CellType      Cell[Cell_nLocMax+1];
 std::ofstream outf_;
@@ -699,8 +700,10 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &x)
 	dcurly_H /= 6e0*M->PN;
 	dI4 *= M->Pirho*(sqr(M->Pirho)+2e0*M->PBpar[Quad+HOMmax])/(6e0*M->PN);
 
-	I2 += elemp->PL*sqr(M->Pirho); I4 += elemp->PL*dI4;
-	I5 += elemp->PL*fabs(cube(M->Pirho))*dcurly_H;
+	I[2] += elemp->PL*sqr(M->Pirho);
+	I[3] += elemp->PL*fabs(cube(M->Pirho));
+	I[4] += elemp->PL*dI4;
+	I[5] += elemp->PL*fabs(cube(M->Pirho))*dcurly_H;
       }
     } else
       thin_kick(M->Porder, M->PB, 1e0, 0e0, 0e0, x);
@@ -2248,12 +2251,11 @@ void SI_init(void)
   /*  c_1 = 1/(2*(2-2^(1/3))),    c_2 = (1-2^(1/3))/(2*(2-2^(1/3)))
       d_1 = 1/(2-2^(1/3)),        d_2 = -2^(1/3)/(2-2^(1/3))                 */
 
-  double C_gamma, C_u;
-
   c_1 = 1e0/(2e0*(2e0-thirdroot(2e0))); c_2 = 0.5e0 - c_1;
   d_1 = 2e0*c_1; d_2 = 1e0 - 2e0*d_1;
 
   // classical radiation
+  C_u = 55e0/(24e0*sqrt(3e0));
   // C_gamma = 4*pi*r_e [m]/(3*(m_e [GeV/c^2] *c^2)^3)
   C_gamma = 4e0*M_PI*r_e/(3e0*cube(1e-9*m_e));
   // P_gamma = e^2*c^3/(2*pi)*C_gamma*(E [GeV])^2*(B [T])^2
@@ -2263,10 +2265,8 @@ void SI_init(void)
   // eletron rest mass [GeV]: slightly off???
 //  m_e_ = 0.5110034e-03;
   // quantum fluctuations
-  C_u = 55e0/(24e0*sqrt(3e0));
-  q_fluct =
-    3e0*C_u*C_gamma*1e-9*h_bar*c0/(4e0*M_PI*cube(1e-9*m_e))
-    *pow(globval.Energy, 5e0);
+  C_q = 3e0*C_u*h_bar*c0/(4e0*m_e);
+  q_fluct = C_q*C_gamma/(M_PI*sqr(1e-9*m_e))*pow(globval.Energy, 5e0);
 }
 
 

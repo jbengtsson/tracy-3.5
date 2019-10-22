@@ -586,11 +586,11 @@ double get_eps_x1(const bool track)
     globval.emittance = false;
   }
 
-  eps_x = 1470e0*sqr(globval.Energy)*I5/(I2-I4);
+  eps_x = 1470e0*sqr(globval.Energy)*I[5]/(I[2]-I[4]);
 
   if (prt) {
     printf("\neps_x = %5.3f nm.rad\n", eps_x);
-    printf("J_x   = %5.3f, J_z = %5.3f\n", 1.0-I4/I2, 2.0+I4/I2);
+    printf("J_x   = %5.3f, J_z = %5.3f\n", 1.0-I[4]/I[2], 2.0+I[4]/I[2]);
   }
 
   return eps_x;
