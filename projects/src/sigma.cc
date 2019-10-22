@@ -293,19 +293,41 @@ void get_emit(double **M_M_tp, double *D_vec)
 }
 
 
+void prt_rad(const double rho)
+{
+  double C_u, C_gamma, C_q, gamma, P_gamma, eps_c, sigma_delta, D_delta;
+
+  const double
+    h_bar = 6.582119e-16,
+    r_e   = 2.817940e-15;
+
+    gamma = 1e9*globval.Energy/m_e;
+    C_u = 55e0/(24e0*sqrt(3e0));
+    C_gamma = 4e0*M_PI*r_e/(3e0*cube(m_e));
+    C_q = 3e0*C_u*h_bar*c0/(4e0*m_e);
+    eps_c = 3e0*h_bar*c0*cube(gamma)/(2e0*rho);
+    P_gamma = C_gamma*c0*pow(1e9*globval.Energy, 4)/(2e0*M_PI*sqr(rho));
+    sigma_delta = sqrt(C_q/(globval.J[Z_]*rho))*gamma;
+
+    printf("\nm_e               = %9.3e\n", m_e);
+    printf("E [GeV]           = %9.3e gamma = %9.3e rho = %9.3e\n",
+	   globval.Energy, gamma, rho);
+    printf("C_gamma [m/GeV^3] = %9.3e\n", 1e27*C_gamma);
+    printf("C_q [m]           = %9.3e\n", C_q);
+    printf("eps_c [keV]       = %9.3e\n", 1e-3*eps_c);
+    printf("P_gamma           = %9.3e\n", P_gamma);
+    printf("sigma_delta       = %9.3e\n", sigma_delta);
+}
+
+
 void get_sigma(void)
 {
   int          k;
-  double       C_u, C_gamma, C_q, gamma, P_gamma, eps_c, sigma_delta, D_delta;
-  double       C, gamma_s, *sigma_vec, *sigma_vec1, *D_vec, **M_M_tp;
+  double       C, *sigma_vec, *sigma_vec1, *D_vec, **M_M_tp;
   ss_vect<tps> Id, J, A, D, sigma, sigma1, M, M_tp, A_A_tp;
 
   const int    n_turn = 500000;
-  const double
-    h_bar = 6.582119e-16,
-    alpha = 1e0/137.035999084,
-    r_e   = 2.817940e-15,
-    rho   = 2.62/(6.0*M_PI/180.0);
+  const double rho    = 2.62/(6.0*M_PI/180.0);
 
   printf("\nget_sigma: n = %d\n", mat_vec_dim);
 
@@ -332,7 +354,7 @@ void get_sigma(void)
   Ring_GetTwiss(true, 0e0);
   putlinmat(ss_dim, globval.OneTurnMat, M);
   putlinmat(6, globval.Ascr, A);
-  prt_lin_map(3, A);
+  A_A_tp = A*lin_map_tp(3, A);
 
   printf("\n  alpha = [%10.3e, %10.3e, %10.3e]\n",
 	 globval.alpha_rad[X_], globval.alpha_rad[Y_], globval.alpha_rad[Z_]);
@@ -346,39 +368,7 @@ void get_sigma(void)
   printf("  D     = [%10.3e, %10.3e, %10.3e]\n",
 	 globval.D_rad[X_], globval.D_rad[Y_], globval.D_rad[Z_]);
 
-  gamma_s = (1e0+sqr(globval.alpha_z))/globval.beta_z;
-  printf("\nD_delta = %9.3e gamma_s = %9.3e\n",
-	 gamma_s*globval.D_rad[Z_], gamma_s);
-
-  gamma = 1e9*globval.Energy/m_e;
-  C_u = 55e0/(24e0*sqrt(3e0));
-  C_gamma = 4e0*M_PI*r_e/(3e0*cube(m_e));
-  C_q = 3e0*C_u*h_bar*c0/(4e0*m_e);
-  eps_c = 3e0*h_bar*c0*cube(gamma)/(2e0*rho);
-  P_gamma = C_gamma*c0*pow(1e9*globval.Energy, 4)/(2e0*M_PI*sqr(rho));
-#if 0
-  // Correct.
-  sigma_delta = sqrt(C_q/(globval.J[Z_]*rho))*gamma;
-#else
-  // Correct.
-  sigma_delta = sqrt(C_u*eps_c/(2e0*globval.J[Z_]*1e9*globval.Energy));
-#endif
-#if 0
-  D_delta = C_u*P_gamma*eps_c/sqr(1e9*globval.Energy);
-#else
-  D_delta =
-    2e0*C_u*eps_c/(2e0*globval.J[Z_]*1e9*globval.Energy*globval.tau[Z_])*C/c0;
-#endif
-
-  printf("\nm_e               = %9.3e q_e = %9.3e\n", m_e, q_e);
-  printf("E [GeV]           = %9.3e gamma = %9.3e rho = %9.3e\n",
-	 globval.Energy, gamma, rho);
-  printf("C_gamma [m/GeV^3] = %9.3e\n", 1e27*C_gamma);
-  printf("C_q [m]           = %9.3e\n", C_q);
-  printf("eps_c [keV]       = %9.3e\n", 1e-3*eps_c);
-  printf("P_gamma           = %9.3e\n", P_gamma);
-  printf("sigma_delta       = %9.3e\n", sigma_delta);
-  printf("D_delta           = %9.3e\n", D_delta);
+  if (!false) prt_rad(rho);
 
 #if 0
   for (k = 0; k < ss_dim; k++)
@@ -391,8 +381,6 @@ void get_sigma(void)
   for (k = 0; k < ss_dim; k++)
     D[k] = globval.D_rad[k/2]*Id[k];
   prt_lin_map(3, D);
-  A_A_tp = A*lin_map_tp(3, A);
-  prt_lin_map(3, A_A_tp);
   D = D*A_A_tp;
   prt_lin_map(3, D);
 
