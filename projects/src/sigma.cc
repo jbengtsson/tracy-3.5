@@ -285,8 +285,6 @@ void get_emit(double **M_M_tp, double *D_vec)
 
   printf("\nget_emit:\n");
   prt_lin_map(3, sigma);
-  printf("\n  %9.3e %9.3e\n", sqrt(sigma[x_][x_]), sqrt(sigma[px_][px_]));
-  printf("  %9.3e %9.3e\n", sqrt(sigma[ct_][ct_]), sqrt(sigma[delta_][delta_]));
 
   free_dvector(sigma_vec, 1, mat_vec_dim);
   free_dmatrix(Id, 1, mat_vec_dim, 1, mat_vec_dim);
@@ -300,7 +298,7 @@ void get_sigma(void)
   int          k;
   double       C_u, C_gamma, C_q, gamma, P_gamma, eps_c, sigma_delta, D_delta;
   double       C, gamma_s, *sigma_vec, *sigma_vec1, *D_vec, **M_M_tp;
-  ss_vect<tps> Id, J, A, D, sigma, sigma1, M, M_tp;
+  ss_vect<tps> Id, J, A, D, sigma, sigma1, M, M_tp, A_A_tp;
 
   const int    n_turn = 500000;
   const double
@@ -333,8 +331,8 @@ void get_sigma(void)
   globval.Cavity_on = true; globval.radiation = true;
   Ring_GetTwiss(true, 0e0);
   putlinmat(ss_dim, globval.OneTurnMat, M);
-  A.identity();
-  putlinmat(4, globval.Ascr, A);
+  putlinmat(6, globval.Ascr, A);
+  prt_lin_map(3, A);
 
   printf("\n  alpha = [%10.3e, %10.3e, %10.3e]\n",
 	 globval.alpha_rad[X_], globval.alpha_rad[Y_], globval.alpha_rad[Z_]);
@@ -349,7 +347,8 @@ void get_sigma(void)
 	 globval.D_rad[X_], globval.D_rad[Y_], globval.D_rad[Z_]);
 
   gamma_s = (1e0+sqr(globval.alpha_z))/globval.beta_z;
-  printf("\nD_delta = %9.3e\n", gamma_s*globval.D_rad[Z_]);
+  printf("\nD_delta = %9.3e gamma_s = %9.3e\n",
+	 gamma_s*globval.D_rad[Z_], gamma_s);
 
   gamma = 1e9*globval.Energy/m_e;
   C_u = 55e0/(24e0*sqrt(3e0));
@@ -389,11 +388,12 @@ void get_sigma(void)
 
   D.zero();
   // Floquet space.
-  D[x_] = globval.D_rad[X_]*Id[x_];
-  D[px_] = globval.D_rad[X_]*Id[px_];
-  D[delta_] = 2e0*M_PI*globval.D_rad[Z_]*Id[delta_];
+  for (k = 0; k < ss_dim; k++)
+    D[k] = globval.D_rad[k/2]*Id[k];
   prt_lin_map(3, D);
-  D = A*D;
+  A_A_tp = A*lin_map_tp(3, A);
+  prt_lin_map(3, A_A_tp);
+  D = D*A_A_tp;
   prt_lin_map(3, D);
 
   get_M_M_tp(M, M_M_tp);
