@@ -358,7 +358,7 @@ void get_sigma(void)
 
   J.zero();
   for (k = 0; k < 3; k++) {
-    J[2*k] = Id[2*k+1];
+    J[2*k]   =  Id[2*k+1];
     J[2*k+1] = -Id[2*k];
   }
 
@@ -376,15 +376,10 @@ void get_sigma(void)
   putlinmat(6, globval.Ascr, A);
   A_A_tp = A*lin_map_tp(3, A);
 
-  printf("\n  alpha = [%10.3e, %10.3e, %10.3e]\n",
-	 globval.alpha_rad[X_], globval.alpha_rad[Y_], globval.alpha_rad[Z_]);
-  printf("  tau   = [%10.3e, %10.3e, %10.3e]\n",
-	 -C/(c0*globval.alpha_rad[X_]), -C/(c0*globval.alpha_rad[Y_]),
-	 -C/(c0*globval.alpha_rad[Z_]));
+  printf("\n  tau   = [%10.3e, %10.3e, %10.3e]\n",
+	 globval.tau[X_], globval.tau[Y_], globval.tau[Z_]);
   printf("  eps   = [%10.3e, %10.3e, %10.3e]\n",
-	 -globval.D_rad[X_]/(2.0*globval.alpha_rad[X_]),
-	 -globval.D_rad[Y_]/(2.0*globval.alpha_rad[Y_]),
-	 -globval.D_rad[Z_]/(2.0*globval.alpha_rad[Z_]));
+	 globval.eps[X_], globval.eps[Y_], globval.eps[Z_]);
   printf("  D     = [%10.3e, %10.3e, %10.3e]\n",
 	 globval.D_rad[X_], globval.D_rad[Y_], globval.D_rad[Z_]);
 
