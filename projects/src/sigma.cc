@@ -319,6 +319,7 @@ void prt_rad(const double rho)
 
   get_eps_x();
 
+  P_gamma = 1e9*C_gamma*c0*pow(globval.Energy, 4)*I[2]/(2e0*M_PI);
   eps_x = C_q*sqr(gamma)*I[5]/(I[2]-I[4]);
   sigma_delta = sqrt(C_q*I[3]/(2e0*I[2]+I[4]))*gamma;
 
@@ -329,7 +330,8 @@ void prt_rad(const double rho)
   D[Y_] = 0e0;
   D[Z_] = C_q*C_gamma*sqr(gamma)*cube(globval.Energy)*I[3]/(2e0*M_PI);
 
-  printf("\n  eps_x          = %9.3e\n", eps_x);
+  printf("\n  P_gamma        = %9.3e\n", P_gamma);
+  printf("  eps_x          = %9.3e\n", eps_x);
   printf("  sigma_delta    = %9.3e\n", sigma_delta);
   printf("  J              = [%5.3f, %5.3f, %5.3f]\n", J[X_], J[Y_], J[Z_]);
   printf("  tau            = [%9.3e, %9.3e, %9.3e]\n",

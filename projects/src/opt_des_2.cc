@@ -2041,23 +2041,23 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
 #else
     // Include constraint on alpha; in case of using ps_rot.
     constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
-		      1e6, 1e6, 5e2, 5e2, 1e7,   1e7,
+		      1e6, 1e6, 1e2, 1e2, 5e7,   1e8,
 		      0.0, 0.0, 3.0, 1.5, 0.015, 0.0);
     constr.add_constr(Elem_GetPos(ElemIndex("ms"), 2),
-		      1e6, 1e6, 5e2, 5e2, 1e7,   1e7,
+		      1e6, 1e6, 1e2, 1e2, 5e7,   1e8,
 		      0.0, 0.0, 3.0, 1.5, 0.015, 0.0);
     constr.add_constr(Elem_GetPos(ElemIndex("ms"), 3),
-		      1e6, 1e6, 5e2, 5e2, 1e7,   1e7,
+		      1e6, 1e6, 1e2, 1e2, 5e7,   1e8,
 		      0.0, 0.0, 3.0, 1.5, 0.015, 0.0);
     // Both SS constraints are needed.
     constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
-		      1e6, 1e6, 5e2, 5e2, 1e7, 1e7,
+		      1e6, 1e6, 1e2, 1e2, 1e8, 1e8,
 		      0.0, 0.0, 4.0, 2.5,  0.0, 0.0);
     constr.add_constr(Elem_GetPos(ElemIndex("ss"), 2),
-		      1e6, 1e6, 5e2, 5e2, 1e7, 1e7,
+		      1e6, 1e6, 1e2, 1e2, 1e8, 1e8,
 		      0.0, 0.0, 4.0, 2.5,  0.0, 0.0);
     constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
-		      1e6, 1e6, 5e2,  5e2, 1e7, 1e7,
+		      1e6, 1e6, 1e2,  1e2, 1e8, 1e8,
 		      0.0, 0.0, 10.0, 4.0,  0.0, 0.0);
 #endif
   } else {
@@ -2137,7 +2137,14 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
     lat_constr.ksi1_ctrl_scl[0]     = 0e-1;
     lat_constr.ksi1_ctrl_scl[1]     = 0e0;
     lat_constr.ksi1_ctrl_scl[2]     = 0e-1;
-    lat_constr.drv_terms_simple_scl = 1e-4;
+#if 1
+    // Default.
+    lat_constr.drv_terms_simple_scl   = 1e-4;
+#else
+    // lat_constr.drv_terms_simple_scl   = 1e-2;
+    lat_constr.drv_terms_simple_scl   = 5e-2;
+    // lat_constr.drv_terms_simple_scl   = 1e-1;
+#endif
     // Not useful.
     lat_constr.ksi1_svd_scl         = 0e3;
 #if 0
@@ -2155,7 +2162,8 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
 #endif
 #if 1
     // 1e-7 is too small.
-    lat_constr.alpha_c_scl            = 1e-7;
+    lat_constr.alpha_c_scl            = 5e-8;
+    // lat_constr.alpha_c_scl            = 1e-7;
     // lat_constr.alpha_c_scl            = 5e-7;
     // lat_constr.alpha_c_scl            = 5e-6;
 #else
