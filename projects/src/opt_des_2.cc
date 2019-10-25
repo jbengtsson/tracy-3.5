@@ -8,7 +8,7 @@ int no_tps = NO;
 
 
 const bool
-  ps_rot        = false, // Note, needs to be zeroed; after use.
+  ps_rot        = !false, // Note, needs to be zeroed; after use.
   phi_spec_case = false,
   qf6_rb        = false,
   sp_short      = !true,
@@ -29,7 +29,7 @@ const double ic[n_ic][2] =
     {{-0.0000000000, -0.0000000000}, {2.7030084584, 1.9407337499},
      {0.0162153257, 0.0000000000}, {0.0, 0.0}};
 
-#define LAT_CASE 4
+#define LAT_CASE 5
 
 const double
 #if LAT_CASE == 1
@@ -49,25 +49,30 @@ const double
   delta              = 2e-2,
 #elif LAT_CASE == 4
   eps0_x             = 0.099,
-  high_ord_achr_nu[] = {11.0/4.0+0.01, 3.0/4.0-0.01},
+  high_ord_achr_nu[] = {21.0/8.0+0.01, 6.0/8.0-0.01},
   twoJ[]             = {sqr(3e-3)/10.0, sqr(2e-3)/4.0},
   delta              = 2e-2,
 #elif LAT_CASE == 5
   eps0_x             = 0.099,
-  high_ord_achr_nu[] = {9.0/4.0+0.01, 3.0/4.0-0.01},
+  high_ord_achr_nu[] = {19.0/8.0+0.01, 6.0/8.0-0.01},
   twoJ[]             = {sqr(3e-3)/10.0, sqr(2e-3)/4.0},
   delta              = 2e-2,
 #elif LAT_CASE == 6
+  eps0_x             = 0.099,
+  high_ord_achr_nu[] = {21.0/8.0+0.01, 7.0/8.0-0.01},
+  twoJ[]             = {sqr(3e-3)/10.0, sqr(2e-3)/4.0},
+  delta              = 2e-2,
+#elif LAT_CASE == 7
   eps0_x             = 0.149,
   high_ord_achr_nu[] = {9.0/4.0+0.01, 3.0/4.0-0.01},
   twoJ[]             = {sqr(7e-3)/10.0, sqr(4e-3)/4.0},
   delta              = 2.5e-2,
-#elif LAT_CASE == 7
+#elif LAT_CASE == 8
   eps0_x             = 0.149,
   high_ord_achr_nu[] = {19.0/8.0+0.01, 3.0/4.0-0.01},
   twoJ[]             = {sqr(7e-3)/10.0, sqr(4e-3)/4.0},
   delta              = 2.5e-2,
-#elif LAT_CASE == 8
+#elif LAT_CASE == 9
   eps0_x             = 0.149,
   high_ord_achr_nu[] = {9.0/4.0+0.01, 5.0/4.0-0.01},
   twoJ[]             = {sqr(7e-3)/10.0, sqr(4e-3)/4.0},
@@ -2041,23 +2046,23 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
 #else
     // Include constraint on alpha; in case of using ps_rot.
     constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
-		      1e6, 1e6, 1e2, 1e2, 5e7,   1e8,
+		      1e6, 1e6, 1e2, 1e2, 5e7,   1e7,
 		      0.0, 0.0, 3.0, 1.5, 0.015, 0.0);
     constr.add_constr(Elem_GetPos(ElemIndex("ms"), 2),
-		      1e6, 1e6, 1e2, 1e2, 5e7,   1e8,
+		      1e6, 1e6, 1e2, 1e2, 5e7,   1e7,
 		      0.0, 0.0, 3.0, 1.5, 0.015, 0.0);
     constr.add_constr(Elem_GetPos(ElemIndex("ms"), 3),
-		      1e6, 1e6, 1e2, 1e2, 5e7,   1e8,
+		      1e6, 1e6, 1e2, 1e2, 5e7,   1e7,
 		      0.0, 0.0, 3.0, 1.5, 0.015, 0.0);
     // Both SS constraints are needed.
     constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
-		      1e6, 1e6, 1e2, 1e2, 1e8, 1e8,
+		      1e6, 1e6, 1e2, 1e2, 1e7, 1e7,
 		      0.0, 0.0, 4.0, 2.5,  0.0, 0.0);
     constr.add_constr(Elem_GetPos(ElemIndex("ss"), 2),
-		      1e6, 1e6, 1e2, 1e2, 1e8, 1e8,
+		      1e6, 1e6, 1e2, 1e2, 1e7, 1e7,
 		      0.0, 0.0, 4.0, 2.5,  0.0, 0.0);
     constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
-		      1e6, 1e6, 1e2,  1e2, 1e8, 1e8,
+		      1e6, 1e6, 1e2,  1e2, 1e7, 1e7,
 		      0.0, 0.0, 10.0, 4.0,  0.0, 0.0);
 #endif
   } else {
@@ -2137,24 +2142,24 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
     lat_constr.ksi1_ctrl_scl[0]     = 0e-1;
     lat_constr.ksi1_ctrl_scl[1]     = 0e0;
     lat_constr.ksi1_ctrl_scl[2]     = 0e-1;
-#if 1
+#if 0
     // Default.
     lat_constr.drv_terms_simple_scl   = 1e-4;
 #else
-    // lat_constr.drv_terms_simple_scl   = 1e-2;
-    lat_constr.drv_terms_simple_scl   = 5e-2;
+    lat_constr.drv_terms_simple_scl   = 1e-2;
+    // lat_constr.drv_terms_simple_scl   = 5e-2;
     // lat_constr.drv_terms_simple_scl   = 1e-1;
 #endif
     // Not useful.
     lat_constr.ksi1_svd_scl         = 0e3;
-#if 0
+#if 1
     lat_constr.mI_scl[X_]           = 1e7;
     lat_constr.mI_scl[Y_]           = 1e7;
 #else
     lat_constr.mI_scl[X_]           = 1e5;
     lat_constr.mI_scl[Y_]           = 1e5;
 #endif
-#if 0
+#if 1
     lat_constr.high_ord_achr_scl    = 1e7;
 #else
     lat_constr.high_ord_achr_scl    = 1e4;
@@ -2805,7 +2810,7 @@ int main(int argc, char *argv[])
     Ring_GetTwiss(true, 0e0); printglob();
     dnu[X_] = 0.0; dnu[Y_] = 0.0;
     set_map(ElemIndex("ps_rot"), dnu);
-    dnu[X_] = 0.0; dnu[Y_] = 0.0;
+    dnu[X_] = -0.1; dnu[Y_] = -0.1;
     set_map(ElemIndex("ps_rot"), dnu);
     Ring_GetTwiss(true, 0e0); printglob();
   }

@@ -331,6 +331,7 @@ void prt_rad(const double rho)
   D[Z_] = C_q*C_gamma*sqr(gamma)*cube(globval.Energy)*I[3]/(2e0*M_PI);
 
   printf("\n  P_gamma        = %9.3e\n", P_gamma);
+  printf("  P_gamma        = %9.3e\n", 88.5e0*pow(globval.Energy, 4)/rho);
   printf("  eps_x          = %9.3e\n", eps_x);
   printf("  sigma_delta    = %9.3e\n", sigma_delta);
   printf("  J              = [%5.3f, %5.3f, %5.3f]\n", J[X_], J[Y_], J[Z_]);
