@@ -296,7 +296,7 @@ void get_emit(double **M_M_tp, double *D_vec)
 void prt_rad(const double rho)
 {
   int    k;
-  double C, gamma, P_gamma, eps_c, sigma_delta, eps_x, D[3];
+  double C, gamma, P_gamma, eps_c, sigma_delta, eps_x, D[3], gamma_z;
   double J[3], tau[3];
 
   const double
@@ -338,6 +338,17 @@ void prt_rad(const double rho)
   printf("  tau            = [%9.3e, %9.3e, %9.3e]\n",
 	 tau[X_], tau[Y_], tau[Z_]);
   printf("  D              = [%9.3e, %9.3e, %9.3e]\n", D[X_], D[Y_], D[Z_]);
+
+  globval.Cavity_on = true; globval.radiation = true;
+  Ring_GetTwiss(true, 0e0);
+  globval.alpha_z =
+    -globval.Ascr[ct_][ct_]*globval.Ascr[delta_][ct_]
+    - globval.Ascr[ct_][delta_]*globval.Ascr[delta_][delta_];
+  globval.beta_z = sqr(globval.Ascr[ct_][ct_]) + sqr(globval.Ascr[ct_][delta_]);
+  gamma_z = (1.0+sqr(globval.alpha_z))/globval.beta_z;
+
+  printf("  D              = [%9.3e, %9.3e, %9.3e]\n",
+	 D[X_], D[Y_], D[Z_]/gamma_z);
 }
 
 
