@@ -293,51 +293,69 @@ void get_emit(double **M_M_tp, double *D_vec)
 }
 
 
-void prt_rad(const double rho)
+void prt_rad(const double E_0, const double rho)
 {
   int    k;
-  double C, gamma, P_gamma, eps_c, sigma_delta, eps_x, D[3], gamma_z;
-  double J[3], tau[3];
+  double C, gamma, U_0, P_gamma, P_gamma_avg, u_c, sigma_delta, eps_x, D[3];
+  double gamma_z, J[3], tau[3], N, N_u2_avg, Q_p_t, T_0;
 
   const double
     h_bar = 6.582119e-16,
     r_e   = 2.817940e-15;
 
   C = Cell[globval.Cell_nLoc].S;
+  T_0 = C/c0;
 
-  gamma = 1e9*globval.Energy/m_e;
-  eps_c = 3e0*h_bar*c0*cube(gamma)/(2e0*rho);
-  P_gamma = 1e9*C_gamma*c0*pow(globval.Energy, 4)/(2e0*M_PI*sqr(rho));
+  gamma = 1e9*E_0/m_e;
+  u_c = 3e0*h_bar*c0*cube(gamma)/(2e0*rho);
+  P_gamma = 1e9*C_gamma*c0*pow(E_0, 4)/(2e0*M_PI*sqr(rho));
+  N = 15e0*sqrt(3e0)*P_gamma/(8e0*u_c);
 
-  printf("\n  m_e               = %9.3e\n", m_e);
-  printf("  E [GeV]           = %9.3e gamma = %9.3e rho = %9.3e\n",
-	 globval.Energy, gamma, rho);
-  printf("  C_gamma [m/GeV^3] = %9.3e\n", C_gamma);
-  printf("  C_q [m]           = %9.3e\n", C_q);
-  printf("  eps_c [keV]       = %9.3e\n", 1e-3*eps_c);
-  printf("  P_gamma           = %9.3e\n", P_gamma);
+  printf("\n  m_e                  = %9.3e\n", m_e);
+  printf("  E [GeV]              = %9.3e gamma = %9.3e rho = %9.3e\n",
+	 E_0, gamma, rho);
+  printf("  C_gamma [m/GeV^3]    = %9.3e\n", C_gamma);
+  printf("  C_u []               = %9.3e\n", C_u);
+  printf("  C_q [m]              = %9.3e\n", C_q);
+  printf("  u_c [keV]            = %9.3e\n", 1e-3*u_c);
+  printf("  P_gamma [GeV]        = %9.3e\n", 1e-9*P_gamma);
+  printf("  N [sec^-1]           = %9.3e\n", N);
 
   get_eps_x();
 
-  P_gamma = 1e9*C_gamma*c0*pow(globval.Energy, 4)*I[2]/(2e0*M_PI);
+  P_gamma_avg = 1e9*C_gamma*c0*pow(E_0, 4)*I[2]/(2e0*M_PI*C);
+  U_0 = 1e9*C_gamma*pow(E_0, 4)*I[2]/(2e0*M_PI);
   eps_x = C_q*sqr(gamma)*I[5]/(I[2]-I[4]);
   sigma_delta = sqrt(C_q*I[3]/(2e0*I[2]+I[4]))*gamma;
+  N_u2_avg =
+    1e36*3e0*C_u*C_gamma*h_bar*sqr(c0)*pow(E_0, 7)/(4e0*M_PI*cube(m_e*rho));
+  Q_p_t = 3e0*C_u*h_bar*c0*cube(gamma)*P_gamma_avg*I[3]/(2e0*I[2]);
 
   J[X_] = 1e0 - I[4]/I[2]; J[Z_] = 2e0 + I[4]/I[2]; J[Y_] = 4e0 - J[X_] - J[Z_];
   for (k = 0; k < 3; k++)
-    tau[k] = 4e0*M_PI*C/(C_gamma*c0*cube(globval.Energy)*J[k]*I[2]);
-  D[X_] = C_q*C_gamma*sqr(gamma)*cube(globval.Energy)*I[5]/(2e0*M_PI);
+    tau[k] = 4e0*M_PI*T_0/(C_gamma*cube(E_0)*J[k]*I[2]);
+  D[X_] = C_q*C_gamma*sqr(gamma)*cube(E_0)*I[5]/(2e0*M_PI);
   D[Y_] = 0e0;
-  D[Z_] = C_q*C_gamma*sqr(gamma)*cube(globval.Energy)*I[3]/(2e0*M_PI);
+  D[Z_] = C_q*C_gamma*sqr(gamma)*cube(E_0)*I[3]/(2e0*M_PI);
 
-  printf("\n  P_gamma        = %9.3e\n", P_gamma);
-  printf("  P_gamma        = %9.3e\n", 88.5e0*pow(globval.Energy, 4)/rho);
-  printf("  eps_x          = %9.3e\n", eps_x);
-  printf("  sigma_delta    = %9.3e\n", sigma_delta);
-  printf("  J              = [%5.3f, %5.3f, %5.3f]\n", J[X_], J[Y_], J[Z_]);
-  printf("  tau            = [%9.3e, %9.3e, %9.3e]\n",
-	 tau[X_], tau[Y_], tau[Z_]);
-  printf("  D              = [%9.3e, %9.3e, %9.3e]\n", D[X_], D[Y_], D[Z_]);
+  printf("\n  C [m]                 = %7.3f\n", C);
+  printf("  E_0 [GeV]             = %3.1f\n", E_0);
+  printf("  U_0 [keV]             = %5.1f\n", 1e-3*U_0);
+  printf("  <P_gamma> [GeV/sec]   = %9.3e\n", 1e-9*c0*U_0/C);
+  printf("  <P_gamma> [GeV/sec]   = %9.3e\n", 1e-9*P_gamma_avg);
+  printf("  eps_x [m.rad]         = %9.3e\n", eps_x);
+  printf("  sigma_delta           = %9.3e\n", sigma_delta);
+  printf("  J                     = [%5.3f, %5.3f, %5.3f]\n",
+	 J[X_], J[Y_], J[Z_]);
+  printf("  tau [msec]            = [%5.3f, %5.3f, %5.3f]\n",
+	 1e3*tau[X_], 1e3*tau[Y_], 1e3*tau[Z_]);
+  printf("  N<u^2> [eV^2 sec^-1]  = %9.3e\n", C_u*u_c*P_gamma);
+  printf("  N<u^2> [eV^2 sec^-1]  = %9.3e\n", N_u2_avg);
+  printf("  Q_p_t [eV^2 sec^-1]   = %9.3e\n",
+	 4e0*sqr(1e9*E_0*sigma_delta)/tau[Z_]);
+  printf("  Q_p_t [eV^2 sec^-1]   = %9.3e\n", Q_p_t);
+  printf("  [D_J_x, D_J_y, D_p_t] = [%9.3e, %9.3e, %9.3e]\n",
+	 D[X_], D[Y_], D[Z_]);
 
   globval.Cavity_on = true; globval.radiation = true;
   Ring_GetTwiss(true, 0e0);
@@ -347,7 +365,7 @@ void prt_rad(const double rho)
   globval.beta_z = sqr(globval.Ascr[ct_][ct_]) + sqr(globval.Ascr[ct_][delta_]);
   gamma_z = (1.0+sqr(globval.alpha_z))/globval.beta_z;
 
-  printf("  D              = [%9.3e, %9.3e, %9.3e]\n",
+  printf("  [D_J_x, D_J_y, D_J_s] = [%9.3e, %9.3e, %9.3e]\n",
 	 D[X_], D[Y_], D[Z_]/gamma_z);
 }
 
@@ -359,7 +377,10 @@ void get_sigma(void)
   ss_vect<tps> Id, J, A, D, sigma, sigma1, M, M_tp, A_A_tp;
 
   const int    n_turn = 500000;
-  const double rho    = 2.62/(6.0*M_PI/180.0);
+  const double
+    L   = 2.62,
+    phi = 6.0,
+    rho = L/(phi*M_PI/180.0);
 
   printf("\nget_sigma: n = %d\n", mat_vec_dim);
 
@@ -378,7 +399,7 @@ void get_sigma(void)
 
   C = Cell[globval.Cell_nLoc].S;
 
-  if (!false) prt_rad(rho);
+  if (!false) prt_rad(globval.Energy, rho);
 
   GetEmittance(ElemIndex("cav"), true);
 
