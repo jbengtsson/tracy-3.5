@@ -370,6 +370,76 @@ void prt_rad(const double E_0, const double rho)
 }
 
 
+void get_lin_map()
+{
+  int          k;
+  double       C, mu[3], alpha[3], beta[3], gamma[3], tau[3];
+  ss_vect<tps> Id, M, M_rad;
+
+  const bool rad = !true;
+
+  Id.identity();
+
+  C = Cell[globval.Cell_nLoc].S;
+
+  globval.Cavity_on = true; globval.radiation = rad;
+  Ring_GetTwiss(true, 0e0); printglob();
+
+  for (k = 0; k < 2; k++) {
+    mu[k] = 2e0*M_PI*globval.TotalTune[k];
+    alpha[k] = Cell[0].Alpha[k]; beta[k] = Cell[0].Beta[k];
+    gamma[k] = (1e0+sqr(alpha[k]))/beta[k];
+  }
+
+  mu[Z_] = -2e0*M_PI*globval.Omega;
+  alpha[Z_] =
+    -globval.Ascr[ct_][ct_]*globval.Ascr[delta_][ct_]
+    - globval.Ascr[ct_][delta_]*globval.Ascr[delta_][delta_];
+  beta[Z_] = sqr(globval.Ascr[ct_][ct_]) + sqr(globval.Ascr[ct_][delta_]);
+  gamma[Z_] = (1e0+sqr(alpha[Z_]))/beta[Z_];
+
+  M.zero();
+  for (k = 0; k < 3; k++) {
+    if (k < 2) {
+      M[2*k] =
+	(cos(mu[k])+alpha[k]*sin(mu[k]))*Id[2*k] + beta[k]*sin(mu[k])*Id[2*k+1];
+      M[2*k+1] =
+	-gamma[k]*sin(mu[k])*Id[2*k]
+	+ (cos(mu[k])-alpha[k]*sin(mu[k]))*Id[2*k+1];
+    } else {
+      M[2*k+1] =
+	(cos(mu[k])+alpha[k]*sin(mu[k]))*Id[2*k+1] + beta[k]*sin(mu[k])*Id[2*k];
+      M[2*k] =
+	-gamma[k]*sin(mu[k])*Id[2*k+1]
+	+ (cos(mu[k])-alpha[k]*sin(mu[k]))*Id[2*k];
+    }
+  }
+  M[x_] += globval.OneTurnMat[x_][delta_]* Id[delta_];
+  M[px_] += globval.OneTurnMat[px_][delta_]*Id[delta_];
+  M[ct_] +=
+    (M[x_][x_]*M[px_][delta_]-M[px_][x_]*M[x_][delta_])*Id[x_]
+    +(M[x_][px_]*M[px_][delta_]-M[px_][px_]*M[x_][delta_])*Id[px_];
+  M[delta_] +=
+    -sqr(mu[Z_])*M[ct_][x_]/M[ct_][delta_]*Id[x_]
+    -sqr(mu[Z_])*M[ct_][px_]/M[ct_][delta_]*Id[px_];
+
+  if (rad) {
+    M_rad.zero();
+    for (k = 0; k < 3; k++) {
+      tau[k] = -C/(c0*globval.alpha_rad[k]);
+      M_rad[2*k] = exp(-C/(c0*tau[k]))*Id[2*k];
+      M_rad[2*k+1] = exp(-C/(c0*tau[k]))*Id[2*k+1];
+    }
+    M = M_rad*M;
+
+    printf("\n tau [msec]: %12.5e %12.5e %12.5e\n",
+	   1e3*tau[X_], 1e3*tau[Y_], 1e3*tau[Z_]);
+  }
+
+  prt_lin_map(3, M);
+}
+
+
 void get_sigma(void)
 {
   int          k;
@@ -399,7 +469,7 @@ void get_sigma(void)
 
   C = Cell[globval.Cell_nLoc].S;
 
-  if (!false) prt_rad(globval.Energy, rho);
+  if (false) prt_rad(globval.Energy, rho);
 
   GetEmittance(ElemIndex("cav"), true);
 
@@ -486,5 +556,6 @@ int main(int argc, char *argv[])
   Ring_GetTwiss(true, 0e0); printglob();
   prt_lat("linlat1.out", globval.bpm, true);
 
-  get_sigma();
+  // get_sigma();
+  get_lin_map();
 }
