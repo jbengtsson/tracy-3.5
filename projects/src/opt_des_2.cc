@@ -49,12 +49,12 @@ const double
   delta              = 2e-2,
 #elif LAT_CASE == 4
   eps0_x             = 0.099,
-  high_ord_achr_nu[] = {21.0/8.0+0.01, 6.0/8.0-0.01},
+  high_ord_achr_nu[] = {19.0/8.0+0.01, 6.0/8.0-0.01},
   twoJ[]             = {sqr(3e-3)/10.0, sqr(2e-3)/4.0},
   delta              = 2e-2,
 #elif LAT_CASE == 5
   eps0_x             = 0.099,
-  high_ord_achr_nu[] = {19.0/8.0+0.01, 6.0/8.0-0.01},
+  high_ord_achr_nu[] = {21.0/8.0+0.01, 6.0/8.0-0.01},
   twoJ[]             = {sqr(3e-3)/10.0, sqr(2e-3)/4.0},
   delta              = 2e-2,
 #elif LAT_CASE == 6
