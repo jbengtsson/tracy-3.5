@@ -374,9 +374,9 @@ void get_lin_map()
 {
   int          k;
   double       C, mu[3], alpha[3], beta[3], gamma[3], tau[3];
-  ss_vect<tps> Id, M, M_rad;
+  ss_vect<tps> Id, A, M, M_rad;
 
-  const bool rad = !true;
+  const bool rad = true;
 
   Id.identity();
 
@@ -384,6 +384,7 @@ void get_lin_map()
 
   globval.Cavity_on = true; globval.radiation = rad;
   Ring_GetTwiss(true, 0e0); printglob();
+  putlinmat(6, globval.Ascr, A);
 
   for (k = 0; k < 2; k++) {
     mu[k] = 2e0*M_PI*globval.TotalTune[k];
@@ -418,7 +419,8 @@ void get_lin_map()
   M[px_] += globval.OneTurnMat[px_][delta_]*Id[delta_];
   M[ct_] +=
     (M[x_][x_]*M[px_][delta_]-M[px_][x_]*M[x_][delta_])*Id[x_]
-    +(M[x_][px_]*M[px_][delta_]-M[px_][px_]*M[x_][delta_])*Id[px_];
+    +(M[x_][px_]*M[px_][delta_]-M[px_][px_]*M[x_][delta_])*Id[px_]
+    - M[x_][delta_]*M[px_][delta_]*Id[delta_];
   M[delta_] +=
     -sqr(mu[Z_])*M[ct_][x_]/M[ct_][delta_]*Id[x_]
     -sqr(mu[Z_])*M[ct_][px_]/M[ct_][delta_]*Id[px_];
@@ -432,7 +434,7 @@ void get_lin_map()
     }
     M = M_rad*M;
 
-    printf("\n tau [msec]: %12.5e %12.5e %12.5e\n",
+    printf("\n tau [msec]: %6.3f %6.3f %6.3f\n",
 	   1e3*tau[X_], 1e3*tau[Y_], 1e3*tau[Z_]);
   }
 
