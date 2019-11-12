@@ -29,7 +29,7 @@ const double ic[n_ic][2] =
     {{-0.0000000000, -0.0000000000}, {2.7030084584, 1.9407337499},
      {0.0162153257, 0.0000000000}, {0.0, 0.0}};
 
-#define LAT_CASE 5
+#define LAT_CASE 6
 
 const double
 #if LAT_CASE == 1
@@ -2046,24 +2046,24 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
 #else
     // Include constraint on alpha; in case of using ps_rot.
     constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
-		      1e6, 1e6, 1e2, 1e2, 5e7,   1e7,
+		      1e6, 1e6, 1e2, 1e2, 5e6,   1e7,
 		      0.0, 0.0, 3.0, 1.5, 0.015, 0.0);
     constr.add_constr(Elem_GetPos(ElemIndex("ms"), 2),
-		      1e6, 1e6, 1e2, 1e2, 5e7,   1e7,
+		      1e6, 1e6, 1e2, 1e2, 5e6,   1e7,
 		      0.0, 0.0, 3.0, 1.5, 0.015, 0.0);
     constr.add_constr(Elem_GetPos(ElemIndex("ms"), 3),
-		      1e6, 1e6, 1e2, 1e2, 5e7,   1e7,
+		      1e6, 1e6, 1e2, 1e2, 5e6,   1e7,
 		      0.0, 0.0, 3.0, 1.5, 0.015, 0.0);
     // Both SS constraints are needed.
     constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
-		      1e6, 1e6, 1e2, 1e2, 1e7, 1e7,
-		      0.0, 0.0, 4.0, 2.5,  0.0, 0.0);
+		      1e6, 1e6, 1e2,  1e2, 1e7, 1e7,
+		      0.0, 0.0, 4.0,  2.5, 0.0, 0.0);
     constr.add_constr(Elem_GetPos(ElemIndex("ss"), 2),
-		      1e6, 1e6, 1e2, 1e2, 1e7, 1e7,
-		      0.0, 0.0, 4.0, 2.5,  0.0, 0.0);
+		      1e6, 1e6, 1e2,  1e2, 1e7, 1e7,
+		      0.0, 0.0, 4.0,  2.5, 0.0, 0.0);
     constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
 		      1e6, 1e6, 1e2,  1e2, 1e7, 1e7,
-		      0.0, 0.0, 10.0, 4.0,  0.0, 0.0);
+		      0.0, 0.0, 10.0, 4.0, 0.0, 0.0);
 #endif
   } else {
     constr.add_constr(Elem_GetPos(ElemIndex("dl1a_5"), 1)-1,
@@ -2138,7 +2138,8 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
 
   if (relaxed) {
     // lat_constr.eps_x_scl            = 1e7;
-    lat_constr.eps_x_scl            = 1e6;
+    lat_constr.eps_x_scl            = 5e6;
+    // lat_constr.eps_x_scl            = 1e6;
     lat_constr.ksi1_ctrl_scl[0]     = 0e-1;
     lat_constr.ksi1_ctrl_scl[1]     = 0e0;
     lat_constr.ksi1_ctrl_scl[2]     = 0e-1;
@@ -2152,14 +2153,14 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
 #endif
     // Not useful.
     lat_constr.ksi1_svd_scl         = 0e3;
-#if 1
+#if 0
     lat_constr.mI_scl[X_]           = 1e7;
     lat_constr.mI_scl[Y_]           = 1e7;
 #else
     lat_constr.mI_scl[X_]           = 1e5;
     lat_constr.mI_scl[Y_]           = 1e5;
 #endif
-#if 1
+#if 0
     lat_constr.high_ord_achr_scl    = 1e7;
 #else
     lat_constr.high_ord_achr_scl    = 1e4;
@@ -2167,9 +2168,9 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
 #endif
 #if 1
     // 1e-7 is too small.
-    lat_constr.alpha_c_scl            = 5e-8;
+    // lat_constr.alpha_c_scl            = 5e-8;
     // lat_constr.alpha_c_scl            = 1e-7;
-    // lat_constr.alpha_c_scl            = 5e-7;
+    lat_constr.alpha_c_scl            = 5e-7;
     // lat_constr.alpha_c_scl            = 5e-6;
 #else
     lat_constr.alpha_c_scl            = 1e-7;
@@ -2810,7 +2811,7 @@ int main(int argc, char *argv[])
     Ring_GetTwiss(true, 0e0); printglob();
     dnu[X_] = 0.0; dnu[Y_] = 0.0;
     set_map(ElemIndex("ps_rot"), dnu);
-    dnu[X_] = -0.1; dnu[Y_] = -0.1;
+    dnu[X_] = 0.1; dnu[Y_] = 0.2;
     set_map(ElemIndex("ps_rot"), dnu);
     Ring_GetTwiss(true, 0e0); printglob();
   }

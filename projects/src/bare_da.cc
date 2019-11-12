@@ -16,7 +16,7 @@ int no_tps = NO;
 // ALS-U    10.
 
 
-const double delta_max = 2e-2;
+const double delta_max = 1.5e-2;
 
 
 int main(int argc, char *argv[])
@@ -28,6 +28,7 @@ int main(int argc, char *argv[])
   globval.Cavity_on  = false; globval.radiation   = false;
   globval.emittance  = false; globval.IBS         = false;
   globval.pathlength = false; globval.bpm         = 0;
+  globval.Cart_Bend  = false; globval.dip_edge_fudge = true;
 
   if (false)
     Read_Lattice(argv[1]);
