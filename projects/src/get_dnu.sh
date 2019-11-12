@@ -18,6 +18,6 @@ dir=$HOME/git_repos/tracy-3.5_temp/projects/src
 #\rm dnu.cmd.o* fmap*.cmd.o*
 \rm dnu.cmd.o*
 
-qsub -l s_rt=$t1 -l h_rt=$t2 -q $queue  -v flat_file=$prm1 $dir/dnu.cmd
+qsub -l s_rt=$t1 -l h_rt=$t2 -q $queue -v flat_file=$prm1 $dir/dnu.cmd
 #qsub -l s_rt=$t1 -l h_rt=$t2 -q $queue $dir/fmap.cmd
 #qsub -l s_rt=$t1 -l h_rt=$t2 -q $queue $dir/fmap_dp.cmd
