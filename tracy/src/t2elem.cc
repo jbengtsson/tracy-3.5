@@ -735,12 +735,15 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &x)
 
 
 template<typename T>
-void Marker_Pass(CellType &Cell, ss_vect<T> &X)
+void Marker_Pass(CellType &Cell, ss_vect<T> &x)
 {
   /* Global -> Local */
-  GtoL(X, Cell.dS, Cell.dT, 0e0, 0e0, 0e0);
+  GtoL(x, Cell.dS, Cell.dT, 0e0, 0e0, 0e0);
+
+  if (globval.emittance) Cell.curly_dH_x = is_tps<tps>::get_curly_H(x);
+
   /* Local -> Global */
-  LtoG(X, Cell.dS, Cell.dT, 0e0, 0e0, 0e0);
+  LtoG(x, Cell.dS, Cell.dT, 0e0, 0e0, 0e0);
 }
 
 

@@ -368,13 +368,15 @@ void get_I(double I[])
 
   if (prt) {
     printf("\nget_I:\n");
-    printf("\n      name              curly_H      I_1        I_2        I_3"
-	   "        I_4\n\n");
+    printf("\n      name               s     curly_H      I_1        I_2"
+	   "        I_3        I_4\n\n");
   }
   for (j = 0; j <= globval.Cell_nLoc; j++)
-    if ((Cell[j].Elem.Pkind == drift) || (Cell[j].Elem.Pkind == Mpole)) {
+    if ((Cell[j].Elem.Pkind == drift) || (Cell[j].Elem.Pkind == Mpole) ||
+	(Cell[j].Elem.Pkind == marker)) {
       if (prt)
-	printf("%5d %-10s %10.3e", j, Cell[j].Elem.PName, Cell[j].curly_dH_x);
+	printf("%5d %-10s %6.3f %10.3e",
+	       j, Cell[j].Elem.PName, Cell[j].S, Cell[j].curly_dH_x);
       for (k = 2; k <= 5; k++) {
 	I[k] += Cell[j].dI[k];
 	if (prt) printf(" %10.3e", Cell[j].dI[k]);
