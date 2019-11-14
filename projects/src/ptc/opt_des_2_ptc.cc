@@ -606,7 +606,7 @@ double get_eps_x1(const bool track)
 {
   // eps_x [nm.rad].
   long int     lastpos;
-  double       eps_x;
+  double       I[6], eps_x;
   ss_vect<tps> A;
 
   const bool prt = false;
@@ -619,6 +619,8 @@ double get_eps_x1(const bool track)
     // Cell_Twiss(0, globval.Cell_nLoc, A, false, false, 0e0);
     globval.emittance = false;
   }
+
+  get_I(I);
 
   eps_x = 1470e0*sqr(globval.Energy)*I[5]/(I[2]-I[4]);
 

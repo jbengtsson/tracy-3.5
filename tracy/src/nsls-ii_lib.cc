@@ -357,11 +357,28 @@ double get_curly_H(const double alpha_x, const double beta_x,
 }
 
 
+void get_I(double I[])
+{
+  bool         cav, emit;
+  long int     lastpos;
+  int          j, k;
+  ss_vect<tps> A;
+
+  for (k = 2; k <= 5; k++)
+    I[k] = 0e0;
+  for (j = 0; j <= globval.Cell_nLoc; j++)
+    if (Cell[j].Elem.Pkind == Mpole)
+      for (k = 2; k <= 5; k++)
+	I[k] += Cell[j].dI[k];
+}
+
+
 double get_eps_x(void)
 {
   bool         cav, emit;
   long int     lastpos;
-  double       eps_x, sigma_delta, J[3];
+  int          k;
+  double       I[6], eps_x, sigma_delta, J[3];
   ss_vect<tps> A;
 
   /* Note:
@@ -395,9 +412,16 @@ double get_eps_x(void)
 
   Cell_Pass(0, globval.Cell_nLoc, A, lastpos);
 
+  get_I(I);
+
   eps_x = 1470e-9*sqr(globval.Energy)*I[5]/(I[2]-I[4]);
   sigma_delta = sqrt(1470e-9*sqr(globval.Energy)*I[3]/(2e0*I[2]+I[4]));
   J[X_] = 1e0 - I[4]/I[2]; J[Z_] = 2e0 + I[4]/I[2]; J[Y_] = 4e0 - J[X_] - J[Z_];
+
+  printf("\n  I[2..5]:");
+  for (k = 2; k <= 5; k++)
+    printf(" %10.3e", I[k]);
+  printf("\n");
 
   printf("\n  eps_x [nm.rad] = %5.3f\n", 1e9*eps_x);
   printf("  sigma_delta    = %9.3e\n", sigma_delta);

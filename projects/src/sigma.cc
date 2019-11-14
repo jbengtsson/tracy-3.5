@@ -297,7 +297,7 @@ void prt_rad(const double E_0, const double rho)
 {
   int    k;
   double C, gamma, U_0, P_gamma, P_gamma_avg, u_c, sigma_delta, eps_x, D[3];
-  double gamma_z, J[3], tau[3], N, N_u2_avg, Q_p_t, T_0;
+  double gamma_z, J[3], tau[3], N, N_u2_avg, Q_p_t, T_0, I[6];
 
   const double
     h_bar = 6.582119e-16,
@@ -320,6 +320,8 @@ void prt_rad(const double E_0, const double rho)
   printf("  u_c [keV]            = %9.3e\n", 1e-3*u_c);
   printf("  P_gamma [GeV]        = %9.3e\n", 1e-9*P_gamma);
   printf("  N [sec^-1]           = %9.3e\n", N);
+
+  get_I(I);
 
   get_eps_x();
 

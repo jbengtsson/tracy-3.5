@@ -94,13 +94,9 @@ void Cell_Pass(const long i0, const long i1, ss_vect<T> &x, long &lastpos)
 
   if (globval.radiation) globval.dE = 0e0;
 
-  if (globval.emittance) {
-   for (i = 2; i <= 5; i++)
-     I[i] = 0e0;
- 
+  if (globval.emittance)
     for (i = 0; i < DOF; i++)
       globval.D_rad[i] = 0e0;
-  }
 
   if (!CheckAmpl(x, i0))
     lastpos = i0;

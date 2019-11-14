@@ -15,7 +15,7 @@ double get_eps_x1(void)
 {
   bool         cav, emit;
   long int     lastpos;
-  double       eps_x;
+  double       I[6], eps_x;
   ss_vect<tps> A;
 
   cav = globval.Cavity_on; emit = globval.emittance;
@@ -31,6 +31,8 @@ double get_eps_x1(void)
   globval.emittance = true;
 
   Cell_Pass(0, globval.Cell_nLoc, A, lastpos);
+
+  get_I(I);
 
   eps_x = 1470e0*pow(globval.Energy, 2)*I[5]/(I[2]-I[4]);
 
