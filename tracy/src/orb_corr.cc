@@ -298,7 +298,7 @@ void thread_beam(const int n_cell, const string &Fam_name,
       orb_corr[j].alloc(i0, i1, i1, bpm_Fam_names, corr_Fam_names[j],
 			j == 0, false, eps);
     if (trace)
-      printf("\n  i = %d (%d) i0 = %d i1 = %d (s = %5.3f)\n",
+      printf("\n  i = %d (%d) i0 = %ld i1 = %ld (s = %5.3f)\n",
 	     i+1, n_cell, i0, i1, Cell[i1].S);
     for (j = 0; j < 2; j++) {
       orb_corr[j].corrs = get_elem(i0, i1, corr_Fam_names[j]);

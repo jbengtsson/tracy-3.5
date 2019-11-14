@@ -262,6 +262,6 @@ struct CellType {
 				apertures:
 				maxampl[X_][0] < x < maxampl[X_][1]
 				maxampl[Y_][0] < y < maxampl[Y_][1] */
-  double    dcurly_H_x,  // Contribution to curly_H_x.
+  double    curly_dH_x,  // Contribution to curly_H_x.
             dI[6];       // Contribution to I[2..5].
 };

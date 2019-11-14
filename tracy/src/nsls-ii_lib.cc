@@ -359,17 +359,28 @@ double get_curly_H(const double alpha_x, const double beta_x,
 
 void get_I(double I[])
 {
-  bool         cav, emit;
-  long int     lastpos;
-  int          j, k;
-  ss_vect<tps> A;
+  int j, k;
+
+  const bool prt = !false;
 
   for (k = 2; k <= 5; k++)
     I[k] = 0e0;
+
+  if (prt) {
+    printf("\nget_I:\n");
+    printf("\n      name              curly_H      I_1        I_2        I_3"
+	   "        I_4\n\n");
+  }
   for (j = 0; j <= globval.Cell_nLoc; j++)
-    if (Cell[j].Elem.Pkind == Mpole)
-      for (k = 2; k <= 5; k++)
+    if ((Cell[j].Elem.Pkind == drift) || (Cell[j].Elem.Pkind == Mpole)) {
+      if (prt)
+	printf("%5d %-10s %10.3e", j, Cell[j].Elem.PName, Cell[j].curly_dH_x);
+      for (k = 2; k <= 5; k++) {
 	I[k] += Cell[j].dI[k];
+	if (prt) printf(" %10.3e", Cell[j].dI[k]);
+      }
+      if (prt) printf("\n");
+    }
 }
 
 

@@ -201,32 +201,6 @@ inline T get_p_s(const ss_vect<T> &ps)
 }
 
 
-template<typename T>
-void Drift(const double L, ss_vect<T> &ps)
-{
-  T u;
-
-  if (!globval.H_exact) {
-    // Small angle axproximation.
-    u = L/(1e0+ps[delta_]);
-    ps[x_]  += u*ps[px_]; ps[y_] += u*ps[py_];
-    ps[ct_] += u*(sqr(ps[px_])+sqr(ps[py_]))/(2e0*(1e0+ps[delta_]));
-  } else {
-    u = L/get_p_s(ps);
-    ps[x_]  += u*ps[px_]; ps[y_] += u*ps[py_];
-    ps[ct_] += u*(1e0+ps[delta_]) - L;
-  }
-  if (globval.pathlength) ps[ct_] += L;
-}
-
-
-template<typename T>
-void Drift_Pass(CellType &Cell, ss_vect<T> &x)
-{
-  Drift(Cell.Elem.PL, x);
-}
-
-
 void zero_mat(const int n, double** A)
 {
   int i, j;
@@ -437,6 +411,34 @@ void radiate_ID(ss_vect<T> &ps, const double L, const T &B2_perp)
 }
 
 
+template<typename T>
+void Drift(const double L, ss_vect<T> &ps)
+{
+  T u;
+
+  if (!globval.H_exact) {
+    // Small angle axproximation.
+    u = L/(1e0+ps[delta_]);
+    ps[x_]  += u*ps[px_]; ps[y_] += u*ps[py_];
+    ps[ct_] += u*(sqr(ps[px_])+sqr(ps[py_]))/(2e0*(1e0+ps[delta_]));
+  } else {
+    u = L/get_p_s(ps);
+    ps[x_]  += u*ps[px_]; ps[y_] += u*ps[py_];
+    ps[ct_] += u*(1e0+ps[delta_]) - L;
+  }
+  if (globval.pathlength) ps[ct_] += L;
+}
+
+
+template<typename T>
+void Drift_Pass(CellType &Cell, ss_vect<T> &x)
+{
+  Drift(Cell.Elem.PL, x);
+
+  if (globval.emittance) Cell.curly_dH_x = is_tps<tps>::get_curly_H(x);
+}
+
+
 static double get_psi(double irho, double phi, double gap)
 {
   /* Correction for magnet gap (longitudinal fringe field)
@@ -642,7 +644,7 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &x)
   }
 
   if (globval.emittance) {
-    Cell.dcurly_H_x = 0e0;
+    Cell.curly_dH_x = 0e0;
     for (i = 2; i <= 5; i++)
       Cell.dI[i] = 0e0;
   }
@@ -676,8 +678,8 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &x)
       dL1 = c_1*dL; dL2 = c_2*dL; dkL1 = d_1*dL; dkL2 = d_2*dL;
 
       for (seg = 1; seg <= M->PN; seg++) {
-	if (globval.emittance && (!globval.Cavity_on) && (M->Pirho != 0e0)) {
-	  Cell.dcurly_H_x += is_tps<tps>::get_curly_H(x);
+	if (globval.emittance) {
+	  Cell.curly_dH_x += is_tps<tps>::get_curly_H(x);
 	  Cell.dI[4] += is_tps<tps>::get_dI4(x);
 	}
 
@@ -686,8 +688,8 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &x)
 	Drift(dL2, x);
         thin_kick(M->Porder, M->PB, dkL2, M->Pirho, h_ref, x);
 
-	if (globval.emittance && (!globval.Cavity_on) && (M->Pirho != 0e0)) {
-	  Cell.dcurly_H_x += 4e0*is_tps<tps>::get_curly_H(x);
+	if (globval.emittance) {
+	  Cell.curly_dH_x += 4e0*is_tps<tps>::get_curly_H(x);
 	  Cell.dI[4] += 4e0*is_tps<tps>::get_dI4(x);
 	}
 
@@ -695,20 +697,20 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &x)
         thin_kick(M->Porder, M->PB, dkL1, M->Pirho, h_ref, x);
 	Drift(dL1, x);
 
-	if (globval.emittance && (!globval.Cavity_on) && (M->Pirho != 0e0)) {
-	  Cell.dcurly_H_x += is_tps<tps>::get_curly_H(x);
+	if (globval.emittance) {
+	  Cell.curly_dH_x += is_tps<tps>::get_curly_H(x);
 	  Cell.dI[4] += is_tps<tps>::get_dI4(x);
 	}
       }
 
-      if (globval.emittance && (!globval.Cavity_on) && (M->Pirho != 0)) {
-	Cell.dcurly_H_x /= 6e0*M->PN;
+      if (globval.emittance) {
+	Cell.curly_dH_x /= 6e0*M->PN;
 	Cell.dI[2] += elemp->PL*sqr(M->Pirho);
 	Cell.dI[3] += elemp->PL*fabs(cube(M->Pirho));
 	Cell.dI[4] *=
 	  elemp->PL*M->Pirho*(sqr(M->Pirho)+2e0*M->PBpar[Quad+HOMmax])
 	  /(6e0*M->PN);
-	Cell.dI[5] += elemp->PL*fabs(cube(M->Pirho))*Cell.dcurly_H_x;
+	Cell.dI[5] += elemp->PL*fabs(cube(M->Pirho))*Cell.curly_dH_x;
       }
     } else
       thin_kick(M->Porder, M->PB, 1e0, 0e0, 0e0, x);
