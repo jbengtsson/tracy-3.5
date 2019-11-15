@@ -435,7 +435,9 @@ void Drift_Pass(CellType &Cell, ss_vect<T> &x)
 {
   Drift(Cell.Elem.PL, x);
 
-  if (globval.emittance) Cell.curly_dH_x = is_tps<tps>::get_curly_H(x);
+  if (globval.emittance && !globval.Cavity_on)
+    // Needs A^-1.
+    Cell.curly_dH_x = is_tps<tps>::get_curly_H(x);
 }
 
 
@@ -643,7 +645,8 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &x)
     }
   }
 
-  if (globval.emittance) {
+  if (globval.emittance && !globval.Cavity_on) {
+    // Needs A^-1.
     Cell.curly_dH_x = 0e0;
     for (i = 2; i <= 5; i++)
       Cell.dI[i] = 0e0;
@@ -678,7 +681,8 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &x)
       dL1 = c_1*dL; dL2 = c_2*dL; dkL1 = d_1*dL; dkL2 = d_2*dL;
 
       for (seg = 1; seg <= M->PN; seg++) {
-	if (globval.emittance) {
+	if (globval.emittance && !globval.Cavity_on) {
+	  // Needs A^-1.
 	  Cell.curly_dH_x += is_tps<tps>::get_curly_H(x);
 	  Cell.dI[4] += is_tps<tps>::get_dI4(x);
 	}
@@ -688,7 +692,8 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &x)
 	Drift(dL2, x);
         thin_kick(M->Porder, M->PB, dkL2, M->Pirho, h_ref, x);
 
-	if (globval.emittance) {
+	if (globval.emittance && !globval.Cavity_on) {
+	  // Needs A^-1.
 	  Cell.curly_dH_x += 4e0*is_tps<tps>::get_curly_H(x);
 	  Cell.dI[4] += 4e0*is_tps<tps>::get_dI4(x);
 	}
@@ -697,13 +702,15 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &x)
         thin_kick(M->Porder, M->PB, dkL1, M->Pirho, h_ref, x);
 	Drift(dL1, x);
 
-	if (globval.emittance) {
+	if (globval.emittance && !globval.Cavity_on) {
+	  // Needs A^-1.
 	  Cell.curly_dH_x += is_tps<tps>::get_curly_H(x);
 	  Cell.dI[4] += is_tps<tps>::get_dI4(x);
 	}
       }
 
-      if (globval.emittance) {
+      if (globval.emittance && !globval.Cavity_on) {
+	// Needs A^-1.
 	Cell.curly_dH_x /= 6e0*M->PN;
 	Cell.dI[2] += elemp->PL*sqr(M->Pirho);
 	Cell.dI[3] += elemp->PL*fabs(cube(M->Pirho));
@@ -740,7 +747,9 @@ void Marker_Pass(CellType &Cell, ss_vect<T> &x)
   /* Global -> Local */
   GtoL(x, Cell.dS, Cell.dT, 0e0, 0e0, 0e0);
 
-  if (globval.emittance) Cell.curly_dH_x = is_tps<tps>::get_curly_H(x);
+  if (globval.emittance && !globval.Cavity_on)
+    // Needs A^-1.
+    Cell.curly_dH_x = is_tps<tps>::get_curly_H(x);
 
   /* Local -> Global */
   LtoG(x, Cell.dS, Cell.dT, 0e0, 0e0, 0e0);

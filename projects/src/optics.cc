@@ -1514,7 +1514,7 @@ int main(int argc, char *argv[])
   globval.Cavity_on = false; globval.radiation = false;
   Ring_GetTwiss(true, 0e0); printglob();
 
-  if (!false) {
+  if (false) {
     get_eps_x();
     exit(0);
   }
@@ -1806,7 +1806,7 @@ int main(int argc, char *argv[])
     exit(0);
   }
 
-  if (!false) {
+  if (false) {
     get_dbeta_deta(1e-4);
     // exit(0);
   }
