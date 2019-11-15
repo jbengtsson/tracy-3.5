@@ -1514,7 +1514,7 @@ int main(int argc, char *argv[])
   globval.Cavity_on = false; globval.radiation = false;
   Ring_GetTwiss(true, 0e0); printglob();
 
-  if (false) {
+  if (!false) {
     get_eps_x();
     exit(0);
   }

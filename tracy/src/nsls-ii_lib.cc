@@ -361,7 +361,7 @@ void get_I(double I[])
 {
   int j, k;
 
-  const bool prt = !false;
+  const bool prt = false;
 
   for (k = 2; k <= 5; k++)
     I[k] = 0e0;
@@ -373,6 +373,7 @@ void get_I(double I[])
   }
   for (j = 0; j <= globval.Cell_nLoc; j++)
     if ((Cell[j].Elem.Pkind == drift) || (Cell[j].Elem.Pkind == Mpole) ||
+	(Cell[j].Elem.Pkind == Wigl) ||
 	(Cell[j].Elem.Pkind == marker)) {
       if (prt)
 	printf("%5d %-10s %6.3f %10.3e",

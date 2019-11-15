@@ -1220,8 +1220,8 @@ void Wiggler_pass_EF2(int nstep, double L, double kxV, double kxH, double kz,
 
 template<typename T>
 inline void get_Axy_EF3(const WigglerType *W, const double z,
-		       const ss_vect<T> &x,
-		       T &AoBrho, T dAoBrho[], T &dp, const bool hor)
+			const ss_vect<T> &x,
+			T &AoBrho, T dAoBrho[], T &dp, const bool hor)
 {
   int    i;
   double ky, kz_n;
@@ -1242,7 +1242,7 @@ inline void get_Axy_EF3(const WigglerType *W, const double z,
       // A_x/Brho
       AoBrho += W->BoBrhoV[i]/kz_n*cx*chy*sz;
 
-      if (globval.radiation) {
+      if (globval.radiation || (globval.emittance && !globval.Cavity_on)) {
 	cz = cos(kz_n*z);
 	dAoBrho[X_] -= W->BoBrhoV[i]*W->kxV[i]/kz_n*sx*chy*sz;
 	dAoBrho[Y_] += W->BoBrhoV[i]*ky/kz_n*cx*shy*sz;
@@ -1258,7 +1258,7 @@ inline void get_Axy_EF3(const WigglerType *W, const double z,
       // A_y/Brho
       AoBrho += W->BoBrhoV[i]*W->kxV[i]/(ky*kz_n)*sx*shy*sz;
 
-      if (globval.radiation) {
+      if (globval.radiation || (globval.emittance && !globval.Cavity_on)) {
 	cz = cos(kz_n*z);
 	dAoBrho[X_] += W->BoBrhoV[i]*sqr(W->kxV[i])/(ky*kz_n)*cx*shy*sz;
 	dAoBrho[Y_] += W->BoBrhoV[i]*W->kxV[i]/kz_n*sx*chy*sz;
@@ -1273,56 +1273,66 @@ inline void get_Axy_EF3(const WigglerType *W, const double z,
 
 
 template<typename T>
-void Wiggler_pass_EF3(const elemtype &elem, ss_vect<T> &x)
+void Wiggler_pass_EF3(CellType &Cell, ss_vect<T> &x)
 {
   /* Second order symplectic integrator for insertion devices based on:
 
        E. Forest, et al "Explicit Symplectic Integrator for s-dependent
        Static Magnetic Field"                                                */
 
-  int    i;
-  double h, z;
-  T      hd, AxoBrho, AyoBrho, dAxoBrho[3], dAyoBrho[3], dpy, dpx, B[3];
+  int         i;
+  double      h, z, irho;
+  T           hd, AxoBrho, AyoBrho, dAxoBrho[3], dAyoBrho[3], dpy, dpx, B[3];
+  elemtype    *elemp;
+  WigglerType *W;
 
-  h = elem.PL/elem.W->PN; z = 0e0;
+  elemp = &Cell.Elem; W = elemp->W;
 
-  for (i = 1; i <= elem.W->PN; i++) {
+  h = elemp->PL/W->PN; z = 0e0;
+
+  if (globval.emittance && !globval.Cavity_on) {
+    // Needs A^-1.
+    Cell.curly_dH_x += is_tps<tps>::get_curly_H(x);
+    Cell.dI[4] += is_tps<tps>::get_dI4(x);
+  }
+
+  for (i = 1; i <= W->PN; i++) {
     hd = h/(1e0+x[delta_]);
 
     // 1: half step in z
     z += 0.5*h;
 
     // 2: half drift in y
-    get_Axy_EF3(elem.W, z, x, AyoBrho, dAyoBrho, dpx, false);
+    get_Axy_EF3(W, z, x, AyoBrho, dAyoBrho, dpx, false);
 
     x[px_] -= dpx; x[py_] -= AyoBrho;
     x[y_] += 0.5*hd*x[py_];
     x[ct_] += sqr(0.5)*hd*sqr(x[py_])/(1e0+x[delta_]);
 
-    get_Axy_EF3(elem.W, z, x, AyoBrho, dAyoBrho, dpx, false);
+    get_Axy_EF3(W, z, x, AyoBrho, dAyoBrho, dpx, false);
 
     x[px_] += dpx; x[py_] += AyoBrho;
 
     // 3: full drift in x
-    get_Axy_EF3(elem.W, z, x, AxoBrho, dAxoBrho, dpy, true);
+    get_Axy_EF3(W, z, x, AxoBrho, dAxoBrho, dpy, true);
 
     x[px_] -= AxoBrho; x[py_] -= dpy; x[x_] += hd*x[px_];
     x[ct_] += 0.5*hd*sqr(x[px_])/(1e0+x[delta_]);
 
     if (globval.pathlength) x[ct_] += h;
 
-    get_Axy_EF3(elem.W, z, x, AxoBrho, dAxoBrho, dpy, true);
+    get_Axy_EF3(W, z, x, AxoBrho, dAxoBrho, dpy, true);
 
     x[px_] += AxoBrho; x[py_] += dpy;
 
     // 4: a half drift in y
-    get_Axy_EF3(elem.W, z, x, AyoBrho, dAyoBrho, dpx, false);
+    get_Axy_EF3(W, z, x, AyoBrho, dAyoBrho, dpx, false);
 
     x[px_] -= dpx; x[py_] -= AyoBrho;
     x[y_] += 0.5*hd*x[py_];
     x[ct_] += sqr(0.5)*hd*sqr(x[py_])/(1e0+x[delta_]);
 
-    get_Axy_EF3(elem.W, z, x, AyoBrho, dAyoBrho, dpx, false);
+    get_Axy_EF3(W, z, x, AyoBrho, dAyoBrho, dpx, false);
 
     x[px_] += dpx; x[py_] += AyoBrho;
 
@@ -1330,12 +1340,30 @@ void Wiggler_pass_EF3(const elemtype &elem, ss_vect<T> &x)
     z += 0.5*h;
 
     if (globval.radiation || globval.emittance) {
-      get_Axy_EF3(elem.W, z, x, AyoBrho, dAyoBrho, dpx, false);
-      get_Axy_EF3(elem.W, z, x, AxoBrho, dAxoBrho, dpy, true);
+      get_Axy_EF3(W, z, x, AyoBrho, dAyoBrho, dpx, false);
+      get_Axy_EF3(W, z, x, AxoBrho, dAxoBrho, dpy, true);
       B[X_] = -dAyoBrho[Z_]; B[Y_] = dAxoBrho[Z_];
       B[Z_] = dAyoBrho[X_] - dAxoBrho[Y_];
       radiate(x, h, 0e0, B);
     }
+
+    if (globval.emittance && !globval.Cavity_on) {
+      // Needs A^-1.
+      get_Axy_EF3(W, z, x, AxoBrho, dAxoBrho, dpy, true);
+      irho = is_double<T>::cst(dAxoBrho[Z_]);
+      Cell.curly_dH_x += is_tps<tps>::get_curly_H(x);
+      Cell.dI[2] += sqr(irho);
+      Cell.dI[3] += fabs(cube(irho));
+      Cell.dI[4] += is_tps<tps>::get_dI4(x)*irho*sqr(irho);
+      Cell.dI[5] += fabs(cube(irho))*Cell.curly_dH_x;
+     }
+  }
+
+  if (globval.emittance && !globval.Cavity_on) {
+    // Needs A^-1.
+    Cell.curly_dH_x /= W->PN;
+    for (i = 2; i <= 5; i++)
+      Cell.dI[i] *= elemp->PL/W->PN;
   }
 }
 
@@ -1375,7 +1403,7 @@ void Wiggler_Pass(CellType &Cell, ss_vect<T> &ps)
 
   case Meth_Second:
     if ((W->BoBrhoV[0] != 0e0) || (W->BoBrhoH[0] != 0e0)) {
-      Wiggler_pass_EF3(Cell.Elem, ps);
+      Wiggler_pass_EF3(Cell, ps);
     } else
       // drift if field = 0
       Drift(elemp->PL, ps);
