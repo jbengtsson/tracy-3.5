@@ -1355,7 +1355,7 @@ void Wiggler_pass_EF3(CellType &Cell, ss_vect<T> &x)
       Cell.dI[2] += sqr(irho);
       Cell.dI[3] += fabs(cube(irho));
       Cell.dI[4] += is_tps<tps>::get_dI4(x)*irho*sqr(irho);
-      Cell.dI[5] += fabs(cube(irho))*Cell.curly_dH_x;
+      Cell.dI[5] += fabs(cube(irho));
      }
   }
 
@@ -1364,6 +1364,7 @@ void Wiggler_pass_EF3(CellType &Cell, ss_vect<T> &x)
     Cell.curly_dH_x /= W->PN;
     for (i = 2; i <= 5; i++)
       Cell.dI[i] *= elemp->PL/W->PN;
+    Cell.dI[5] *= Cell.curly_dH_x;
   }
 }
 
