@@ -22,7 +22,7 @@ double get_eps_x1(const bool track)
     globval.emittance = false;
   }
 
-  get_I(I);
+  get_I(I, false);
 
   eps_x = 1470e0*sqr(globval.Energy)*I[5]/(I[2]-I[4]);
 

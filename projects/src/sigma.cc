@@ -299,10 +299,6 @@ void prt_rad(const double E_0, const double rho)
   double C, gamma, U_0, P_gamma, P_gamma_avg, u_c, sigma_delta, eps_x, D[3];
   double gamma_z, J[3], tau[3], N, N_u2_avg, Q_p_t, T_0, I[6];
 
-  const double
-    h_bar = 6.582119e-16,
-    r_e   = 2.817940e-15;
-
   C = Cell[globval.Cell_nLoc].S;
   T_0 = C/c0;
 
@@ -311,17 +307,18 @@ void prt_rad(const double E_0, const double rho)
   P_gamma = 1e9*C_gamma*c0*pow(E_0, 4)/(2e0*M_PI*sqr(rho));
   N = 15e0*sqrt(3e0)*P_gamma/(8e0*u_c);
 
-  printf("\n  m_e                  = %9.3e\n", m_e);
-  printf("  E [GeV]              = %9.3e gamma = %9.3e rho = %9.3e\n",
+  printf("\n  m_e                  = %11.5e\n", m_e);
+  printf("  r_e                  = %11.5e\n", r_e);
+  printf("  E [GeV]              = %11.5e gamma = %11.5e rho = %11.5e\n",
 	 E_0, gamma, rho);
-  printf("  C_gamma [m/GeV^3]    = %9.3e\n", C_gamma);
-  printf("  C_u []               = %9.3e\n", C_u);
-  printf("  C_q [m]              = %9.3e\n", C_q);
-  printf("  u_c [keV]            = %9.3e\n", 1e-3*u_c);
-  printf("  P_gamma [GeV]        = %9.3e\n", 1e-9*P_gamma);
-  printf("  N [sec^-1]           = %9.3e\n", N);
+  printf("  C_gamma [m/GeV^3]    = %11.5e\n", C_gamma);
+  printf("  C_u []               = %11.5e\n", C_u);
+  printf("  C_q [m]              = %11.5e\n", C_q);
+  printf("  u_c [keV]            = %11.5e\n", 1e-3*u_c);
+  printf("  P_gamma [GeV]        = %11.5e\n", 1e-9*P_gamma);
+  printf("  N [sec^-1]           = %11.5e\n", N);
 
-  get_I(I);
+  get_I(I, false);
 
   get_eps_x();
 
@@ -473,7 +470,7 @@ void get_sigma(void)
 
   C = Cell[globval.Cell_nLoc].S;
 
-  if (false) prt_rad(globval.Energy, rho);
+  if (!false) prt_rad(globval.Energy, rho);
 
   GetEmittance(ElemIndex("cav"), true);
 
@@ -560,6 +557,6 @@ int main(int argc, char *argv[])
   Ring_GetTwiss(true, 0e0); printglob();
   prt_lat("linlat1.out", globval.bpm, true);
 
-  // get_sigma();
-  get_lin_map();
+  get_sigma();
+  // get_lin_map();
 }

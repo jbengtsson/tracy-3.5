@@ -8,7 +8,7 @@ int no_tps = NO;
 
 
 const bool
-  ps_rot        = false, // Note, needs to be zeroed; after use.
+  ps_rot        = !false, // Note, needs to be zeroed; after use.
   phi_spec_case = false,
   qf6_rb        = false,
   sp_short      = !true,
@@ -678,7 +678,7 @@ double get_eps_x1(const bool track)
     globval.emittance = false;
   }
 
-  get_I(I);
+  get_I(I, false);
 
   eps_x = 1470e0*sqr(globval.Energy)*I[5]/(I[2]-I[4]);
 

@@ -52,7 +52,7 @@ void get_twoJ(const int n_DOF, const ss_vect<double> &ps,
 double get_curly_H(const double alpha_x, const double beta_x,
 		   const double eta_x, const double etap_x);
 
-void get_I(double I[]);
+void get_I(double I[], const bool prt);
 
 double get_eps_x(void);
 

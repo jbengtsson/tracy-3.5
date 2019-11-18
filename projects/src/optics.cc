@@ -1470,7 +1470,7 @@ int main(int argc, char *argv[])
   bool             tweak;
   long int         lastn, lastpos, loc, loc2;
   int              k, b2_fam[2], b3_fam[2], lat_case;
-  double           b2[2], a2, b3[2], b3L[2], a3, a3L, f_rf, dx, dnu[3];
+  double           b2[2], a2, b3[2], b3L[2], a3, a3L, f_rf, dx, dnu[3], I[6];
   tps              a;
   Matrix           M;
   std::vector<int> Fam;
@@ -1516,6 +1516,7 @@ int main(int argc, char *argv[])
 
   if (!false) {
     get_eps_x();
+    get_I(I, true);
     exit(0);
   }
 

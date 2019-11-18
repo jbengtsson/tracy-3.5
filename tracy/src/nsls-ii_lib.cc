@@ -357,19 +357,17 @@ double get_curly_H(const double alpha_x, const double beta_x,
 }
 
 
-void get_I(double I[])
+void get_I(double I[], const bool prt)
 {
   int j, k;
-
-  const bool prt = false;
 
   for (k = 2; k <= 5; k++)
     I[k] = 0e0;
 
   if (prt) {
     printf("\nget_I:\n");
-    printf("\n      name               s     curly_H      I_1        I_2"
-	   "        I_3        I_4\n\n");
+    printf("\n      name               s     curly_H      I_2        I_3"
+	   "        I_4        I_5\n\n");
   }
   for (j = 0; j <= globval.Cell_nLoc; j++)
     if ((Cell[j].Elem.Pkind == drift) || (Cell[j].Elem.Pkind == Mpole) ||
@@ -426,7 +424,7 @@ double get_eps_x(void)
 
   Cell_Pass(0, globval.Cell_nLoc, A, lastpos);
 
-  get_I(I);
+  get_I(I, false);
 
   eps_x = 1470e-9*sqr(globval.Energy)*I[5]/(I[2]-I[4]);
   sigma_delta = sqrt(1470e-9*sqr(globval.Energy)*I[3]/(2e0*I[2]+I[4]));

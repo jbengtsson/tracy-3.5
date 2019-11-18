@@ -26,7 +26,7 @@ double get_eps_x1(void)
 
   Cell_Pass(0, globval.Cell_nLoc, A, lastpos);
 
-  get_I(I);
+  get_I(I, false);
 
   eps_x = 1470e0*pow(globval.Energy, 2)*I[5]/(I[2]-I[4]);
 
