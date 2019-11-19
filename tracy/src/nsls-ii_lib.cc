@@ -367,7 +367,8 @@ void get_I(double I[], const bool prt)
   if (prt) {
     printf("\nget_I:\n");
     printf("\n      name               s     curly_H      I_2        I_3"
-	   "        I_4        I_5\n\n");
+	   "        I_4        I_5      alpha_x    beta_x"
+	   "     eta_x      eta'_x     alpha_y    beta_y\n\n");
   }
   for (j = 0; j <= globval.Cell_nLoc; j++)
     if ((Cell[j].Elem.Pkind == drift) || (Cell[j].Elem.Pkind == Mpole) ||
@@ -380,7 +381,11 @@ void get_I(double I[], const bool prt)
 	I[k] += Cell[j].dI[k];
 	if (prt) printf(" %10.3e", Cell[j].dI[k]);
       }
-      if (prt) printf("\n");
+      if (prt)
+	printf(" %10.3e %10.3e %10.3e %10.3e %10.3e %10.3e\n",
+	       Cell[j].Alpha[X_], Cell[j].Beta[X_],
+	       Cell[j].Eta[X_], Cell[j].Eta[X_],
+	       Cell[j].Alpha[Y_], Cell[j].Beta[Y_]);
     }
 }
 
