@@ -384,7 +384,7 @@ void get_I(double I[], const bool prt)
       if (prt)
 	printf(" %10.3e %10.3e %10.3e %10.3e %10.3e %10.3e\n",
 	       Cell[j].Alpha[X_], Cell[j].Beta[X_],
-	       Cell[j].Eta[X_], Cell[j].Eta[X_],
+	       Cell[j].Eta[X_], Cell[j].Etap[X_],
 	       Cell[j].Alpha[Y_], Cell[j].Beta[Y_]);
     }
 }
