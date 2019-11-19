@@ -29,7 +29,7 @@ const double ic[n_ic][2] =
     {{-0.0000000000, -0.0000000000}, {2.7030084584, 1.9407337499},
      {0.0162153257, 0.0000000000}, {0.0, 0.0}};
 
-#define LAT_CASE 6
+#define LAT_CASE 7
 
 const double
 #if LAT_CASE == 1
@@ -63,16 +63,21 @@ const double
   twoJ[]             = {sqr(3e-3)/10.0, sqr(2e-3)/4.0},
   delta              = 2e-2,
 #elif LAT_CASE == 7
+  eps0_x             = 0.099,
+  high_ord_achr_nu[] = {19.0/8.0+0.01, 7.0/8.0-0.01},
+  twoJ[]             = {sqr(3e-3)/10.0, sqr(2e-3)/4.0},
+  delta              = 2e-2,
+#elif LAT_CASE == 8
   eps0_x             = 0.149,
   high_ord_achr_nu[] = {9.0/4.0+0.01, 3.0/4.0-0.01},
   twoJ[]             = {sqr(7e-3)/10.0, sqr(4e-3)/4.0},
   delta              = 2.5e-2,
-#elif LAT_CASE == 8
+#elif LAT_CASE == 9
   eps0_x             = 0.149,
   high_ord_achr_nu[] = {19.0/8.0+0.01, 3.0/4.0-0.01},
   twoJ[]             = {sqr(7e-3)/10.0, sqr(4e-3)/4.0},
   delta              = 2.5e-2,
-#elif LAT_CASE == 9
+#elif LAT_CASE == 10
   eps0_x             = 0.149,
   high_ord_achr_nu[] = {9.0/4.0+0.01, 5.0/4.0-0.01},
   twoJ[]             = {sqr(7e-3)/10.0, sqr(4e-3)/4.0},
@@ -2155,14 +2160,14 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
 #endif
     // Not useful.
     lat_constr.ksi1_svd_scl         = 0e3;
-#if 0
+#if 1
     lat_constr.mI_scl[X_]           = 1e7;
     lat_constr.mI_scl[Y_]           = 1e7;
 #else
     lat_constr.mI_scl[X_]           = 1e5;
     lat_constr.mI_scl[Y_]           = 1e5;
 #endif
-#if 0
+#if 1
     lat_constr.high_ord_achr_scl    = 1e7;
 #else
     lat_constr.high_ord_achr_scl    = 1e4;
@@ -2172,7 +2177,8 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
     // 1e-7 is too small.
     // lat_constr.alpha_c_scl            = 5e-8;
     // lat_constr.alpha_c_scl            = 1e-7;
-    lat_constr.alpha_c_scl            = 5e-7;
+    // lat_constr.alpha_c_scl            = 5e-7;
+    lat_constr.alpha_c_scl            = 1e-6;
     // lat_constr.alpha_c_scl            = 5e-6;
 #else
     lat_constr.alpha_c_scl            = 1e-7;
