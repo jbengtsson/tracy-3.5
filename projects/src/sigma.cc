@@ -317,7 +317,7 @@ void prt_rad(const double E_0, const double rho)
   printf("  u_c [keV]            = %11.5e\n", 1e-3*u_c);
   printf("  P_gamma [GeV]        = %11.5e\n", 1e-9*P_gamma);
   printf("  N [sec^-1]           = %11.5e\n", N);
-  printf("  C_q []               = %11.5e\n", 1e18*C_q/sqr(m_e));
+  printf("  C_q [GeV^-2]         = %11.5e\n", 1e18*C_q/sqr(m_e));
 
   get_I(I, false);
 
