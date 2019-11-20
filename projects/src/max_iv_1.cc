@@ -12,6 +12,8 @@ double get_eps_x1(void)
   double           I[6], eps_x;
   ss_vect<tps>     A;
 
+  const double C_q_scl = 1e18*C_q/sqr(m_e);
+
   cav = globval.Cavity_on; emit = globval.emittance;
 
   globval.Cavity_on = false; globval.emittance = false;
@@ -28,7 +30,7 @@ double get_eps_x1(void)
 
   get_I(I, false);
 
-  eps_x = 1470e0*pow(globval.Energy, 2)*I[5]/(I[2]-I[4]);
+  eps_x = 1e9*C_q_scl*pow(globval.Energy, 2)*I[5]/(I[2]-I[4]);
 
   printf("\neps_x = %5.3f pm.rad, J_x = %5.3f, J_z = %5.3f \n",
 	 1e3*eps_x, 1e0-I[4]/I[2], 2e0+I[4]/I[2]);

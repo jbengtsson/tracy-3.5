@@ -572,7 +572,8 @@ double get_eps_x1(const bool track)
   double       I[6], eps_x;
   ss_vect<tps> A;
 
-  const bool prt = false;
+  const bool   prt     = false;
+  const double C_q_scl = 1e18*C_q/sqr(m_e);
 
   if (track) {
     globval.emittance = true;
@@ -585,7 +586,7 @@ double get_eps_x1(const bool track)
 
   get_I(I, false);
 
-  eps_x = 1470e0*sqr(globval.Energy)*I[5]/(I[2]-I[4]);
+  eps_x = 1e9*C_q_scl*sqr(globval.Energy)*I[5]/(I[2]-I[4]);
 
   if (prt) {
     printf("\neps_x = %5.3f nm.rad\n", eps_x);

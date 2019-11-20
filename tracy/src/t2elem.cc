@@ -1271,7 +1271,7 @@ inline void get_Axy_EF3(const WigglerType *W, const double z,
   }
 }
 
-
+#if 0
 template<typename T>
 void Wiggler_pass_EF3(CellType &Cell, ss_vect<T> &x)
 {
@@ -1281,7 +1281,7 @@ void Wiggler_pass_EF3(CellType &Cell, ss_vect<T> &x)
        Static Magnetic Field"                                                */
 
   int         i;
-  double      h, z, irho;
+  double      h, z, irho, curly_dH_x;
   T           hd, AxoBrho, AyoBrho, dAxoBrho[3], dAyoBrho[3], dpy, dpx, B[3];
   elemtype    *elemp;
   WigglerType *W;
@@ -1292,8 +1292,9 @@ void Wiggler_pass_EF3(CellType &Cell, ss_vect<T> &x)
 
   if (globval.emittance && !globval.Cavity_on) {
     // Needs A^-1.
-    Cell.curly_dH_x += is_tps<tps>::get_curly_H(x);
-    Cell.dI[4] += is_tps<tps>::get_dI4(x);
+    Cell.curly_dH_x = 0e0;
+    for (i = 2; i <= 5; i++)
+      Cell.dI[i] = 0e0;
   }
 
   for (i = 1; i <= W->PN; i++) {
@@ -1351,12 +1352,13 @@ void Wiggler_pass_EF3(CellType &Cell, ss_vect<T> &x)
       // Needs A^-1.
       get_Axy_EF3(W, z, x, AxoBrho, dAxoBrho, dpy, true);
       irho = is_double<T>::cst(dAxoBrho[Z_]);
-      Cell.curly_dH_x += is_tps<tps>::get_curly_H(x);
+      curly_dH_x = is_tps<tps>::get_curly_H(x);
+      Cell.curly_dH_x += curly_dH_x;
       Cell.dI[2] += sqr(irho);
       Cell.dI[3] += fabs(cube(irho));
-      Cell.dI[4] += is_tps<tps>::get_dI4(x)*irho*sqr(irho);
-      Cell.dI[5] += fabs(cube(irho));
-     }
+      Cell.dI[4] += is_tps<tps>::get_dI4(x)*cube(irho);
+      Cell.dI[5] += curly_dH_x*fabs(cube(irho));
+    }
   }
 
   if (globval.emittance && !globval.Cavity_on) {
@@ -1364,10 +1366,217 @@ void Wiggler_pass_EF3(CellType &Cell, ss_vect<T> &x)
     Cell.curly_dH_x /= W->PN;
     for (i = 2; i <= 5; i++)
       Cell.dI[i] *= elemp->PL/W->PN;
-    Cell.dI[5] *= Cell.curly_dH_x;
+  }
+}
+#else
+void Wiggler_pass_EF3(CellType &Cell, ss_vect<double> &x)
+{
+  /* Second order symplectic integrator for insertion devices based on:
+
+       E. Forest, et al "Explicit Symplectic Integrator for s-dependent
+       Static Magnetic Field"                                                */
+
+  int         i;
+  double      h, z, irho, curly_dH_x;
+  double      hd, AxoBrho, AyoBrho, dAxoBrho[3], dAyoBrho[3], dpy, dpx, B[3];
+  elemtype    *elemp;
+  WigglerType *W;
+
+  elemp = &Cell.Elem; W = elemp->W;
+
+  h = elemp->PL/W->PN; z = 0e0;
+
+  if (globval.emittance && !globval.Cavity_on) {
+    // Needs A^-1.
+    Cell.curly_dH_x = 0e0;
+    for (i = 2; i <= 5; i++)
+      Cell.dI[i] = 0e0;
+  }
+
+  for (i = 1; i <= W->PN; i++) {
+    hd = h/(1e0+x[delta_]);
+
+    // 1: half step in z
+    z += 0.5*h;
+
+    // 2: half drift in y
+    get_Axy_EF3(W, z, x, AyoBrho, dAyoBrho, dpx, false);
+
+    x[px_] -= dpx; x[py_] -= AyoBrho;
+    x[y_] += 0.5*hd*x[py_];
+    x[ct_] += sqr(0.5)*hd*sqr(x[py_])/(1e0+x[delta_]);
+
+    get_Axy_EF3(W, z, x, AyoBrho, dAyoBrho, dpx, false);
+
+    x[px_] += dpx; x[py_] += AyoBrho;
+
+    // 3: full drift in x
+    get_Axy_EF3(W, z, x, AxoBrho, dAxoBrho, dpy, true);
+
+    x[px_] -= AxoBrho; x[py_] -= dpy; x[x_] += hd*x[px_];
+    x[ct_] += 0.5*hd*sqr(x[px_])/(1e0+x[delta_]);
+
+    if (globval.pathlength) x[ct_] += h;
+
+    get_Axy_EF3(W, z, x, AxoBrho, dAxoBrho, dpy, true);
+
+    x[px_] += AxoBrho; x[py_] += dpy;
+
+    // 4: a half drift in y
+    get_Axy_EF3(W, z, x, AyoBrho, dAyoBrho, dpx, false);
+
+    x[px_] -= dpx; x[py_] -= AyoBrho;
+    x[y_] += 0.5*hd*x[py_];
+    x[ct_] += sqr(0.5)*hd*sqr(x[py_])/(1e0+x[delta_]);
+
+    get_Axy_EF3(W, z, x, AyoBrho, dAyoBrho, dpx, false);
+
+    x[px_] += dpx; x[py_] += AyoBrho;
+
+    // 5: half step in z
+    z += 0.5*h;
+
+    if (globval.radiation || globval.emittance) {
+      get_Axy_EF3(W, z, x, AyoBrho, dAyoBrho, dpx, false);
+      get_Axy_EF3(W, z, x, AxoBrho, dAxoBrho, dpy, true);
+      B[X_] = -dAyoBrho[Z_]; B[Y_] = dAxoBrho[Z_];
+      B[Z_] = dAyoBrho[X_] - dAxoBrho[Y_];
+      radiate(x, h, 0e0, B);
+    }
+
+    if (globval.emittance && !globval.Cavity_on) {
+      // Needs A^-1.
+      get_Axy_EF3(W, z, x, AxoBrho, dAxoBrho, dpy, true);
+      irho = is_double<double>::cst(dAxoBrho[Z_]);
+      curly_dH_x = is_tps<tps>::get_curly_H(x);
+      Cell.curly_dH_x += curly_dH_x;
+      Cell.dI[2] += sqr(irho);
+      Cell.dI[3] += fabs(cube(irho));
+      Cell.dI[4] += is_tps<tps>::get_dI4(x)*cube(irho);
+      Cell.dI[5] += curly_dH_x*fabs(cube(irho));
+    }
+
+    if (trace)
+      std::cout << std::scientific << std::setprecision(3)
+		<< std::setw(11) << std::setw(12) << z << x << "\n";
+  }
+
+  if (globval.emittance && !globval.Cavity_on) {
+    // Needs A^-1.
+    Cell.curly_dH_x /= W->PN;
+    for (i = 2; i <= 5; i++)
+      Cell.dI[i] *= elemp->PL/W->PN;
   }
 }
 
+
+void Wiggler_pass_EF3(CellType &Cell, ss_vect<tps> &x)
+{
+  /* Second order symplectic integrator for insertion devices based on:
+
+       E. Forest, et al "Explicit Symplectic Integrator for s-dependent
+       Static Magnetic Field"                                                */
+
+  int          i;
+  double       h, z, irho, curly_dH_x;
+  tps          hd, AxoBrho, AyoBrho, dAxoBrho[3], dAyoBrho[3], dpy, dpx, B[3];
+  elemtype     *elemp;
+  WigglerType  *W;
+
+  elemp = &Cell.Elem; W = elemp->W;
+
+  h = elemp->PL/W->PN; z = 0e0;
+
+  if (globval.emittance && !globval.Cavity_on) {
+    // Needs A^-1.
+    Cell.curly_dH_x = 0e0;
+    for (i = 2; i <= 5; i++)
+      Cell.dI[i] = 0e0;
+  }
+
+  for (i = 1; i <= W->PN; i++) {
+    hd = h/(1e0+x[delta_]);
+
+    // 1: half step in z
+    z += 0.5*h;
+
+    // 2: half drift in y
+    get_Axy_EF3(W, z, x, AyoBrho, dAyoBrho, dpx, false);
+
+    x[px_] -= dpx; x[py_] -= AyoBrho;
+    x[y_] += 0.5*hd*x[py_];
+    x[ct_] += sqr(0.5)*hd*sqr(x[py_])/(1e0+x[delta_]);
+
+    get_Axy_EF3(W, z, x, AyoBrho, dAyoBrho, dpx, false);
+
+    x[px_] += dpx; x[py_] += AyoBrho;
+
+    // 3: full drift in x
+    get_Axy_EF3(W, z, x, AxoBrho, dAxoBrho, dpy, true);
+
+    x[px_] -= AxoBrho; x[py_] -= dpy; x[x_] += hd*x[px_];
+    x[ct_] += 0.5*hd*sqr(x[px_])/(1e0+x[delta_]);
+
+    if (globval.pathlength) x[ct_] += h;
+
+    get_Axy_EF3(W, z, x, AxoBrho, dAxoBrho, dpy, true);
+
+    x[px_] += AxoBrho; x[py_] += dpy;
+
+    // 4: a half drift in y
+    get_Axy_EF3(W, z, x, AyoBrho, dAyoBrho, dpx, false);
+
+    x[px_] -= dpx; x[py_] -= AyoBrho;
+    x[y_] += 0.5*hd*x[py_];
+    x[ct_] += sqr(0.5)*hd*sqr(x[py_])/(1e0+x[delta_]);
+
+    get_Axy_EF3(W, z, x, AyoBrho, dAyoBrho, dpx, false);
+
+    x[px_] += dpx; x[py_] += AyoBrho;
+
+    // 5: half step in z
+    z += 0.5*h;
+
+    if (globval.radiation || globval.emittance) {
+      get_Axy_EF3(W, z, x, AyoBrho, dAyoBrho, dpx, false);
+      get_Axy_EF3(W, z, x, AxoBrho, dAxoBrho, dpy, true);
+      B[X_] = -dAyoBrho[Z_]; B[Y_] = dAxoBrho[Z_];
+      B[Z_] = dAyoBrho[X_] - dAxoBrho[Y_];
+      radiate(x, h, 0e0, B);
+    }
+
+    if (globval.emittance && !globval.Cavity_on) {
+      // Needs A^-1.
+      get_Axy_EF3(W, z, x, AxoBrho, dAxoBrho, dpy, true);
+      irho = is_double<tps>::cst(dAxoBrho[Z_]);
+      curly_dH_x = is_tps<tps>::get_curly_H(x);
+      Cell.curly_dH_x += curly_dH_x;
+      Cell.dI[2] += sqr(irho);
+      Cell.dI[3] += fabs(cube(irho));
+      Cell.dI[4] += is_tps<tps>::get_dI4(x)*cube(irho);
+      Cell.dI[5] += curly_dH_x*fabs(cube(irho));
+
+      if (trace) {
+	double       dnu[2];
+	ss_vect<tps> A, A_A_tp;
+
+	A = get_A_CS(2, x, dnu);
+	A_A_tp = A*tp_S(2, A);
+	printf(" %8.5f %6.3f %5.3f %6.3f %10.3e %10.3e %10.3e\n",
+	       z, -A_A_tp[x_][px_], A_A_tp[x_][x_], A_A_tp[px_][px_],
+	       x[x_][delta_], x[px_][delta_], curly_dH_x);
+      }
+    }
+  }
+
+  if (globval.emittance && !globval.Cavity_on) {
+    // Needs A^-1.
+    Cell.curly_dH_x /= W->PN;
+    for (i = 2; i <= 5; i++)
+      Cell.dI[i] *= elemp->PL/W->PN;
+  }
+}
+#endif
 
 template<typename T>
 void Wiggler_Pass(CellType &Cell, ss_vect<T> &ps)

@@ -395,8 +395,10 @@ double get_eps_x(void)
   bool         cav, emit;
   long int     lastpos;
   int          k;
-  double       I[6], eps_x, sigma_delta, J[3];
+  double       I[6], U_0, eps_x, sigma_delta, J[3];
   ss_vect<tps> A;
+
+  const double C_q_scl = 1e18*C_q/sqr(m_e);
 
   /* Note:
 
@@ -431,8 +433,9 @@ double get_eps_x(void)
 
   get_I(I, false);
 
-  eps_x = 1470e-9*sqr(globval.Energy)*I[5]/(I[2]-I[4]);
-  sigma_delta = sqrt(1470e-9*sqr(globval.Energy)*I[3]/(2e0*I[2]+I[4]));
+  U_0 = 1e9*C_gamma*pow(globval.Energy, 4)*I[2]/(2e0*M_PI);
+  eps_x = C_q_scl*sqr(globval.Energy)*I[5]/(I[2]-I[4]);
+  sigma_delta = sqrt(C_q_scl*sqr(globval.Energy)*I[3]/(2e0*I[2]+I[4]));
   J[X_] = 1e0 - I[4]/I[2]; J[Z_] = 2e0 + I[4]/I[2]; J[Y_] = 4e0 - J[X_] - J[Z_];
 
   printf("\n  I[2..5]:");
@@ -440,7 +443,8 @@ double get_eps_x(void)
     printf(" %10.3e", I[k]);
   printf("\n");
 
-  printf("\n  eps_x [nm.rad] = %5.3f\n", 1e9*eps_x);
+  printf("\n  U_0   [keV]    = %5.1f\n", 1e-3*U_0);
+  printf("  eps_x [nm.rad] = %5.3f\n", 1e9*eps_x);
   printf("  sigma_delta    = %9.3e\n", sigma_delta);
   printf("  J              = [%5.3f, %5.3f, %5.3f]\n", J[X_], J[Y_], J[Z_]);
 
