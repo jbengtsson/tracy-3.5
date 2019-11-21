@@ -1521,7 +1521,7 @@ int main(int argc, char *argv[])
 
       trace = true;
 
-      if (true) {
+      if (!true) {
 	ps.zero(); ps[delta_] = 1e-3;
 	printf("\n");
 	Cell_Pass(0, globval.Cell_nLoc, ps, lastpos);

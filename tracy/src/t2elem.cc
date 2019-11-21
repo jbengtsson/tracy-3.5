@@ -1240,33 +1240,34 @@ inline void get_Axy_EF3(const WigglerType *W, const double z,
 
     if (hor) {
       // A_x/Brho
-      AoBrho += W->BoBrhoV[i]/kz_n*cx*chy*sz;
+      AoBrho += W->BoBrhoV[i]/kz_n*cx*chy*sz/(1e0+x[delta_]);
 
       if (globval.radiation || (globval.emittance && !globval.Cavity_on)) {
 	cz = cos(kz_n*z);
-	dAoBrho[X_] -= W->BoBrhoV[i]*W->kxV[i]/kz_n*sx*chy*sz;
-	dAoBrho[Y_] += W->BoBrhoV[i]*ky/kz_n*cx*shy*sz;
-	dAoBrho[Z_] += W->BoBrhoV[i]*cx*chy*cz;
+	dAoBrho[X_] -= W->BoBrhoV[i]*W->kxV[i]/kz_n*sx*chy*sz/(1e0+x[delta_]);
+	dAoBrho[Y_] += W->BoBrhoV[i]*ky/kz_n*cx*shy*sz/(1e0+x[delta_]);
+	dAoBrho[Z_] += W->BoBrhoV[i]*cx*chy*cz/(1e0+x[delta_]);
       }
 
       // dp_y
       if (W->kxV[i] == 0e0)
-	dp += W->BoBrhoV[i]/kz_n*ky*x[x_]*shy*sz;
+	dp += W->BoBrhoV[i]/kz_n*ky*x[x_]*shy*sz/(1e0+x[delta_]);
       else
-	dp += W->BoBrhoV[i]/(W->kxV[i]*kz_n)*ky*sx*shy*sz;
+	dp += W->BoBrhoV[i]/(W->kxV[i]*kz_n)*ky*sx*shy*sz/(1e0+x[delta_]);
     } else {
       // A_y/Brho
-      AoBrho += W->BoBrhoV[i]*W->kxV[i]/(ky*kz_n)*sx*shy*sz;
+      AoBrho += W->BoBrhoV[i]*W->kxV[i]/(ky*kz_n)*sx*shy*sz/(1e0+x[delta_]);
 
       if (globval.radiation || (globval.emittance && !globval.Cavity_on)) {
 	cz = cos(kz_n*z);
-	dAoBrho[X_] += W->BoBrhoV[i]*sqr(W->kxV[i])/(ky*kz_n)*cx*shy*sz;
-	dAoBrho[Y_] += W->BoBrhoV[i]*W->kxV[i]/kz_n*sx*chy*sz;
-	dAoBrho[Z_] += W->BoBrhoV[i]*W->kxV[i]/ky*sx*shy*cz;
+	dAoBrho[X_] +=
+	  W->BoBrhoV[i]*sqr(W->kxV[i])/(ky*kz_n)*cx*shy*sz/(1e0+x[delta_]);
+	dAoBrho[Y_] += W->BoBrhoV[i]*W->kxV[i]/kz_n*sx*chy*sz/(1e0+x[delta_]);
+	dAoBrho[Z_] += W->BoBrhoV[i]*W->kxV[i]/ky*sx*shy*cz/(1e0+x[delta_]);
       }
 
       // dp_x
-      dp += W->BoBrhoV[i]/kz_n*sqr(W->kxV[i]/ky)*cx*chy*sz;
+      dp += W->BoBrhoV[i]/kz_n*sqr(W->kxV[i]/ky)*cx*chy*sz/(1e0+x[delta_]);
     }
   }
 }
@@ -1458,7 +1459,7 @@ void Wiggler_pass_EF3(CellType &Cell, ss_vect<double> &x)
 
     if (trace)
       std::cout << std::scientific << std::setprecision(3)
-		<< std::setw(11) << std::setw(12) << z << x << "\n";
+		<< std::setw(11) << z << std::setw(12) << x << "\n";
   }
 
   if (globval.emittance && !globval.Cavity_on) {
