@@ -1279,7 +1279,7 @@ void Wiggler_pass_EF3(CellType &Cell, ss_vect<T> &x)
   /* Second order symplectic integrator for insertion devices based on:
 
        E. Forest, et al "Explicit Symplectic Integrator for s-dependent
-       Static Magnetic Field"                                                */
+       Static Magnetic Field" Phys. Rev. E 68,  046502 (2003)                 */
 
   int         i;
   double      h, z, irho, curly_dH_x;
