@@ -2145,8 +2145,8 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
     lat_constr.mI0[k] = mI_nu_ref[k];
 
   if (relaxed) {
-    // lat_constr.eps_x_scl            = 1e7;
-    lat_constr.eps_x_scl            = 5e6;
+    lat_constr.eps_x_scl            = 1e7;
+    // lat_constr.eps_x_scl            = 5e6;
     // lat_constr.eps_x_scl            = 1e6;
     lat_constr.ksi1_ctrl_scl[0]     = 0e-1;
     lat_constr.ksi1_ctrl_scl[1]     = 0e0;
@@ -2178,8 +2178,8 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
     // 1e-7 is too small.
     // lat_constr.alpha_c_scl            = 5e-8;
     // lat_constr.alpha_c_scl            = 1e-7;
-    // lat_constr.alpha_c_scl            = 5e-7;
-    lat_constr.alpha_c_scl            = 1e-6;
+    lat_constr.alpha_c_scl            = 5e-7;
+    // lat_constr.alpha_c_scl            = 1e-6;
     // lat_constr.alpha_c_scl            = 5e-6;
 #else
     lat_constr.alpha_c_scl            = 1e-7;
