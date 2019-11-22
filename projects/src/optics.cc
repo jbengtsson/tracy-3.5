@@ -1528,13 +1528,9 @@ int main(int argc, char *argv[])
       } else {
 	globval.emittance = true;
 
-	putlinmat(6, globval.Ascr, A); A += globval.CODvect;
-	printf("\n");
-	prt_lin_map(3, A);
+	putlinmat(6, globval.Ascr, A);
 	printf("\n");
 	Cell_Pass(0, globval.Cell_nLoc, A, lastpos);
-	printf("\n");
-	prt_lin_map(3, A);
       }
       exit(0);
     }

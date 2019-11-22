@@ -1276,7 +1276,7 @@ inline void get_Axy_EF3(const WigglerType *W, const double z,
 template<typename T>
 void Wiggler_pass_EF3(CellType &Cell, ss_vect<T> &x)
 {
-  /* Second order symplectic integrator for insertion devices based on:
+  /* Symplectic integrator (2nd order) for Insertion Devices based on:
 
        E. Forest, et al "Explicit Symplectic Integrator for s-dependent
        Static Magnetic Field" Phys. Rev. E 68,  046502 (2003)                 */
@@ -1377,11 +1377,12 @@ void Wiggler_pass_EF3(CellType &Cell, ss_vect<double> &x)
        E. Forest, et al "Explicit Symplectic Integrator for s-dependent
        Static Magnetic Field"                                                */
 
-  int         i;
-  double      h, z, irho, curly_dH_x;
-  double      hd, AxoBrho, AyoBrho, dAxoBrho[3], dAyoBrho[3], dpy, dpx, B[3];
-  elemtype    *elemp;
-  WigglerType *W;
+  int          i;
+  double       h, z, irho, curly_dH_x;
+  double       hd, AxoBrho, AyoBrho, dAxoBrho[3], dAyoBrho[3], dpy, dpx, B[3];
+  ss_vect<tps> ps;
+  elemtype     *elemp;
+  WigglerType  *W;
 
   elemp = &Cell.Elem; W = elemp->W;
 
@@ -1457,9 +1458,12 @@ void Wiggler_pass_EF3(CellType &Cell, ss_vect<double> &x)
       Cell.dI[5] += curly_dH_x*fabs(cube(irho));
     }
 
-    if (trace)
+    if (trace) {
+      get_Axy_EF3(W, z, x, AxoBrho, dAxoBrho, dpy, true);
       std::cout << std::scientific << std::setprecision(3)
-		<< std::setw(11) << z << std::setw(12) << x << "\n";
+		<< std::setw(11) << z << std::setw(12) << 1e3*x
+		<< std::setw(11) << is_double<double>::cst(AxoBrho) << "\n";
+    }
   }
 
   if (globval.emittance && !globval.Cavity_on) {
@@ -1563,9 +1567,13 @@ void Wiggler_pass_EF3(CellType &Cell, ss_vect<tps> &x)
 
 	A = get_A_CS(2, x, dnu);
 	A_A_tp = A*tp_S(2, A);
-	printf(" %8.5f %6.3f %5.3f %6.3f %10.3e %10.3e %10.3e\n",
+	printf(" %8.5f %6.3f %5.3f %6.3f %10.3e %10.3e %10.3e",
 	       z, -A_A_tp[x_][px_], A_A_tp[x_][x_], A_A_tp[px_][px_],
 	       x[x_][delta_], x[px_][delta_], curly_dH_x);
+	std::cout << std::scientific << std::setprecision(3)
+		  << std::setw(11) << is_double<tps>::cst(AxoBrho)
+		  << std::setw(11) << is_double<tps>::cst(dAxoBrho[Z_])
+		  << "\n";
       }
     }
   }

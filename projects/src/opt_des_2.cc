@@ -2054,13 +2054,13 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
 #else
     // Include constraint on alpha; in case of using ps_rot.
     constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
-		      1e6, 1e6, 1e2, 1e2, 5e6,   1e7,
+		      1e6, 1e6, 1e2, 1e2, 1e7,   1e7,
 		      0.0, 0.0, 3.0, 1.5, 0.015, 0.0);
     constr.add_constr(Elem_GetPos(ElemIndex("ms"), 2),
-		      1e6, 1e6, 1e2, 1e2, 5e6,   1e7,
+		      1e6, 1e6, 1e2, 1e2, 1e7,   1e7,
 		      0.0, 0.0, 3.0, 1.5, 0.015, 0.0);
     constr.add_constr(Elem_GetPos(ElemIndex("ms"), 3),
-		      1e6, 1e6, 1e2, 1e2, 5e6,   1e7,
+		      1e6, 1e6, 1e2, 1e2, 1e7,   1e7,
 		      0.0, 0.0, 3.0, 1.5, 0.015, 0.0);
     // Both SS constraints are needed.
     constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
@@ -2161,24 +2161,27 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
 #endif
     // Not useful.
     lat_constr.ksi1_svd_scl         = 0e3;
-#if 1
+#if 0
     lat_constr.mI_scl[X_]           = 1e7;
     lat_constr.mI_scl[Y_]           = 1e7;
 #else
-    lat_constr.mI_scl[X_]           = 1e5;
-    lat_constr.mI_scl[Y_]           = 1e5;
+    // lat_constr.mI_scl[X_]           = 1e5;
+    // lat_constr.mI_scl[Y_]           = 1e5;
+    lat_constr.mI_scl[X_]           = 1e6;
+    lat_constr.mI_scl[Y_]           = 1e6;
 #endif
-#if 1
+#if 0
     lat_constr.high_ord_achr_scl    = 1e7;
 #else
-    lat_constr.high_ord_achr_scl    = 1e4;
+    // lat_constr.high_ord_achr_scl    = 1e4;
     // lat_constr.high_ord_achr_scl    = 1e5;
+    lat_constr.high_ord_achr_scl    = 1e5;
 #endif
 #if 1
     // 1e-7 is too small.
     // lat_constr.alpha_c_scl            = 5e-8;
-    // lat_constr.alpha_c_scl            = 1e-7;
-    lat_constr.alpha_c_scl            = 5e-7;
+    lat_constr.alpha_c_scl            = 1e-7;
+    // lat_constr.alpha_c_scl            = 5e-7;
     // lat_constr.alpha_c_scl            = 1e-6;
     // lat_constr.alpha_c_scl            = 5e-6;
 #else
