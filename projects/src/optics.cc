@@ -1515,26 +1515,6 @@ int main(int argc, char *argv[])
   Ring_GetTwiss(true, 0e0); printglob();
 
   if (!false) {
-    if (false) {
-      ss_vect<double> ps;
-      ss_vect<tps>    A;
-
-      trace = true;
-
-      if (!true) {
-	ps.zero(); ps[delta_] = 1e-3;
-	printf("\n");
-	Cell_Pass(0, globval.Cell_nLoc, ps, lastpos);
-      } else {
-	globval.emittance = true;
-
-	putlinmat(6, globval.Ascr, A);
-	printf("\n");
-	Cell_Pass(0, globval.Cell_nLoc, A, lastpos);
-      }
-      exit(0);
-    }
-
     get_eps_x();
     // get_I(I, true);
     exit(0);
