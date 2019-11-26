@@ -1348,11 +1348,10 @@ void Wiggler_pass_EF3(CellType &Cell, ss_vect<T> &ps)
       B[X_] = -dAyoBrho[Z_]; B[Y_] = dAxoBrho[Z_];
       B[Z_] = dAyoBrho[X_] - dAxoBrho[Y_];
       // Tranform from Conjugate to Kinematic Momenta.
-      ps[px_] -= AxoBrho;
-      ps[py_] -= AyoBrho;
+      ps[px_] -= AxoBrho; ps[py_] -= AyoBrho;
       radiate(ps, h, 0e0, B);
-      ps[px_] += AxoBrho;
-      ps[py_] += AyoBrho;
+      // Tranform from Kinematic to Conjugate Momenta.
+      ps[px_] += AxoBrho; ps[py_] += AyoBrho;
     }
 
     if (globval.emittance && !globval.Cavity_on) {
@@ -1681,7 +1680,7 @@ void FieldMap_pass_SI(CellType &Cell, ss_vect<T> &ps)
 
   int          i, j = 0;
   double       h, z;
-  T            hd, AoBrho[2], dAoBrho[2], AoBrho_int, ByoBrho;
+  T            hd, AoBrho[2], dAoBrho[2], AoBrho_int;
   ss_vect<T>   ps1;
   FieldMapType *FM;
 
