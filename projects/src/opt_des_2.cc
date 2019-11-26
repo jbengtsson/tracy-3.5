@@ -2155,7 +2155,8 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
     // Default.
     lat_constr.drv_terms_simple_scl   = 1e-4;
 #else
-    lat_constr.drv_terms_simple_scl   = 1e-2;
+    lat_constr.drv_terms_simple_scl   = 1e-3;
+    // lat_constr.drv_terms_simple_scl   = 1e-2;
     // lat_constr.drv_terms_simple_scl   = 5e-2;
     // lat_constr.drv_terms_simple_scl   = 1e-1;
 #endif
@@ -2175,7 +2176,7 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
 #else
     // lat_constr.high_ord_achr_scl    = 1e4;
     // lat_constr.high_ord_achr_scl    = 1e5;
-    lat_constr.high_ord_achr_scl    = 1e5;
+    lat_constr.high_ord_achr_scl    = 1e6;
 #endif
 #if 1
     // 1e-7 is too small.
