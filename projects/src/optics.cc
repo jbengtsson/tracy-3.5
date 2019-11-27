@@ -1514,7 +1514,21 @@ int main(int argc, char *argv[])
   globval.Cavity_on = false; globval.radiation = false;
   Ring_GetTwiss(true, 0e0); printglob();
 
-  if (false) {
+  if (!false) {
+    double dI5;
+    const int Nw = 23;
+    const double
+      Brho     = globval.Energy*1e9/c0,
+      B_w      = 4.2,
+      lambda_w = 48e-3,
+      k_z      = 2e0*M_PI/lambda_w,
+      beta_x   = 5.67860;
+
+    dI5 =
+      Nw*pow(B_w/Brho, 5)
+      *(8e0*beta_x/(15e0*cube(k_z))
+	+(330e0-3e0*(14e0+30e0*M_PI))/(60e0*beta_x*pow(k_z, 5)));
+    printf("\n  dI5 = %10.3e\n", dI5);
     get_eps_x();
     // get_I(I, true);
     exit(0);
