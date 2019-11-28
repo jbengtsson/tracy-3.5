@@ -2151,7 +2151,7 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
     lat_constr.mI0[k] = mI_nu_ref[k];
 
   if (relaxed) {
-#if 0
+#if 1
     // Default.
     lat_constr.eps_x_scl            = 1e7;
 #else
