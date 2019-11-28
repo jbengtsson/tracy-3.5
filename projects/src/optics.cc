@@ -449,8 +449,8 @@ void prt_dip()
 
 
 void chk_optics(const double alpha_x, const double beta_x,
-		const double alpha_y, const double beta_y,
 		const double eta_x, const double etap_x,
+		const double alpha_y, const double beta_y,
 		const double eta_y, const double etap_y)
 {
   Vector2 alpha, beta, eta, etap;
@@ -1514,21 +1514,7 @@ int main(int argc, char *argv[])
   globval.Cavity_on = false; globval.radiation = false;
   Ring_GetTwiss(true, 0e0); printglob();
 
-  if (!false) {
-    double dI5;
-    const int Nw = 23;
-    const double
-      Brho     = globval.Energy*1e9/c0,
-      B_w      = 4.2,
-      lambda_w = 48e-3,
-      k_z      = 2e0*M_PI/lambda_w,
-      beta_x   = 5.67860;
-
-    dI5 =
-      Nw*pow(B_w/Brho, 5)
-      *(8e0*beta_x/(15e0*cube(k_z))
-	+(330e0-3e0*(14e0+30e0*M_PI))/(60e0*beta_x*pow(k_z, 5)));
-    printf("\n  dI5 = %10.3e\n", dI5);
+  if (false) {
     get_eps_x();
     // get_I(I, true);
     exit(0);
@@ -1804,7 +1790,8 @@ int main(int argc, char *argv[])
   }
 
   if (false) {
-    chk_optics(0.0, 9.634816, 0.0, 5.954390, 0.0, 0.0, 0.0, 0.0);
+    chk_optics(-0.00345, 7.77328, 0.00068, -0.00001, 0.00257, 3.27070,
+	       0.00000, 0.00000);
     prt_lat("linlat1.out", globval.bpm, true);
     prt_lat("linlat.out", globval.bpm, true, 10);
     exit(0);

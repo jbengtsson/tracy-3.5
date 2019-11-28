@@ -26,10 +26,10 @@ const int opt_case = 3;
 // From Center of Mid Straight: alpha, beta, eta, eta'.
 const int    n_ic        = 4;
 const double ic[n_ic][2] =
-    {{-0.0000000000, -0.0000000000}, {2.7030084584, 1.9407337499},
-     {0.0162153257, 0.0000000000}, {0.0, 0.0}};
+  {{-0.0000680157, 0.0000429269}, {2.1711634546, 1.8481374785},
+   { 0.0249456852, 0.0000000000}, {0.0, 0.0}};
 
-#define LAT_CASE 7
+#define LAT_CASE 8
 
 const double
 #if LAT_CASE == 1
@@ -68,16 +68,21 @@ const double
   twoJ[]             = {sqr(3e-3)/10.0, sqr(2e-3)/4.0},
   delta              = 2e-2,
 #elif LAT_CASE == 8
+  eps0_x             = 0.099,
+  high_ord_achr_nu[] = {9.0/4.0+0.01, 3.0/4.0-0.01},
+  twoJ[]             = {sqr(3e-3)/10.0, sqr(2e-3)/4.0},
+  delta              = 2e-2,
+#elif LAT_CASE == 9
   eps0_x             = 0.149,
   high_ord_achr_nu[] = {9.0/4.0+0.01, 3.0/4.0-0.01},
   twoJ[]             = {sqr(7e-3)/10.0, sqr(4e-3)/4.0},
   delta              = 2.5e-2,
-#elif LAT_CASE == 9
+#elif LAT_CASE == 10
   eps0_x             = 0.149,
   high_ord_achr_nu[] = {19.0/8.0+0.01, 3.0/4.0-0.01},
   twoJ[]             = {sqr(7e-3)/10.0, sqr(4e-3)/4.0},
   delta              = 2.5e-2,
-#elif LAT_CASE == 10
+#elif LAT_CASE == 11
   eps0_x             = 0.149,
   high_ord_achr_nu[] = {9.0/4.0+0.01, 5.0/4.0-0.01},
   twoJ[]             = {sqr(7e-3)/10.0, sqr(4e-3)/4.0},
@@ -1970,8 +1975,9 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
     prms.add_prm("dq1", 2, -20.0,   20.0,  1.0);
 
     // Mid Straight.
-    prms.add_prm("qf1", 2, -20.0, 20.0, 1.0);
-    prms.add_prm("qd2", 2, -20.0, 20.0, 1.0);
+    prms.add_prm("qf1",  2, -20.0, 20.0, 1.0);
+    prms.add_prm("qd2",  2, -20.0, 20.0, 1.0);
+    prms.add_prm("qp_q", 2, -20.0, 20.0, 1.0);
 
     // Dipole Cell.
     prms.add_prm("qd3", 2, -20.0, 20.0, 1.0);
@@ -2145,9 +2151,13 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
     lat_constr.mI0[k] = mI_nu_ref[k];
 
   if (relaxed) {
+#if 0
+    // Default.
     lat_constr.eps_x_scl            = 1e7;
-    // lat_constr.eps_x_scl            = 5e6;
+#else
+    lat_constr.eps_x_scl            = 5e6;
     // lat_constr.eps_x_scl            = 1e6;
+#endif
     lat_constr.ksi1_ctrl_scl[0]     = 0e-1;
     lat_constr.ksi1_ctrl_scl[1]     = 0e0;
     lat_constr.ksi1_ctrl_scl[2]     = 0e-1;
@@ -2162,18 +2172,17 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
 #endif
     // Not useful.
     lat_constr.ksi1_svd_scl         = 0e3;
-#if 0
+#if 1
     lat_constr.mI_scl[X_]           = 1e7;
     lat_constr.mI_scl[Y_]           = 1e7;
+
+    lat_constr.high_ord_achr_scl    = 1e7;
 #else
     // lat_constr.mI_scl[X_]           = 1e5;
     // lat_constr.mI_scl[Y_]           = 1e5;
     lat_constr.mI_scl[X_]           = 1e6;
     lat_constr.mI_scl[Y_]           = 1e6;
-#endif
-#if 0
-    lat_constr.high_ord_achr_scl    = 1e7;
-#else
+
     // lat_constr.high_ord_achr_scl    = 1e4;
     // lat_constr.high_ord_achr_scl    = 1e5;
     lat_constr.high_ord_achr_scl    = 1e6;
@@ -2243,8 +2252,8 @@ void match_ls(param_type &prms, constr_type &constr)
     //   3. Include for fine tuning.
     prms.add_prm("qd3_c1",   2, -20.0, 20.0, 1.0);
   // Long Straight.
-  prms.add_prm("qd2_c1",   2, -20.0, 20.0, 1.0);
-  prms.add_prm("qf1_c1",   2, -20.0, 20.0, 1.0);
+  prms.add_prm("qd2_c1",   2, -20.0,  0.0, 1.0);
+  prms.add_prm("qf1_c1",   2,  -1.0, 20.0, 1.0);
   prms.add_prm("quad_add", 2, -20.0, 20.0, 1.0);
 
   // Parameters are initialized in optimizer.
