@@ -65,7 +65,7 @@ else if ((N == 12) && (case == 8))\
   N_x = 3; N_y = 1; \
 else if (N == 20) \
   N_x = 5; N_y = 3; \
-else if ((N == 30) && (case == 3)) \
+else if ((N == 32) && (case == 3)) \
   N_x = 2; N_y = 0; \
 else if ((N == 6) && (case == 4)) \
   N_x = 9; N_y = 3; \
@@ -87,7 +87,7 @@ if (case == 1) \
 else if (case == 2) \
   nu_x_min = 39.0; nu_x_max = 39.5; nu_y_min = 15.0; nu_y_max = 15.5; \
 else if (case == 3) \
-  nu_x_min = 71.0; nu_x_max = 71.5; nu_y_min = 25.0; nu_y_max = 25.5; \
+  nu_x_min = 76.0; nu_x_max = 76.5; nu_y_min = 27.0; nu_y_max = 27.5; \
 else if (case == 4) \
   nu_x_min = 51.0; nu_x_max = 51.5; nu_y_min = 17.0; nu_y_max = 17.5; \
 else if (case == 5) \
