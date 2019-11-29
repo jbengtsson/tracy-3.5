@@ -21,7 +21,7 @@ const bool
      opt_mI_std  1,
      match_ls    2,
      opt_mi_sp   3.                                                           */
-const int opt_case = 3;
+const int opt_case = 1;
 
 // From Center of Mid Straight: alpha, beta, eta, eta'.
 const int    n_ic        = 4;
@@ -1733,13 +1733,15 @@ void opt_mI_std(param_type &prms, constr_type &constr)
   prms.add_prm("dq1",  2, -20.0, 20.0, 1.0);
 
   // Mid Straight.
-  prms.add_prm("qf1", 2,   0.0, 20.0, 1.0);
-  prms.add_prm("qd2", 2, -20.0,  0.0, 1.0);
+  prms.add_prm("qf1",  2,   0.0, 20.0, 1.0);
+  prms.add_prm("qd2",  2, -20.0,  0.0, 1.0);
+  prms.add_prm("qp_q", 2, -20.0, 20.0, 1.0);
 
   // Dipole Cell.
   prms.add_prm("qd3", 2, -20.0,  0.0, 1.0);
   prms.add_prm("qf4", 2,   0.0, 20.0, 1.0);
-  prms.add_prm("qd5", 2, -20.0,  0.0, 1.0);
+  // prms.add_prm("qd5", 2, -20.0,  0.0, 1.0);
+  prms.add_prm("qd5", 2, -20.0, 20.0, 1.0);
 
   // Standard Straight.
   // prms.add_prm("qf6", -1, -0.3,  0.01, 1.0);
@@ -1773,7 +1775,7 @@ void opt_mI_std(param_type &prms, constr_type &constr)
 #else
     constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
     		      1e7, 1e7, 5e2, 5e2, 1e7,   0e0,
-    		      0.0, 0.0, 3.0, 1.5, 0.010, 0.0);
+    		      0.0, 0.0, 3.0, 1.5, 0.015, 0.0);
     constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
 		      1e7, 1e7, 5e2, 5e2, 1e7, 1e7,
 		      0.0, 0.0, 4.0, 2.5, 0.0, 0.0);
@@ -1861,10 +1863,12 @@ void opt_mI_std(param_type &prms, constr_type &constr)
     lat_constr.mI_scl[X_]             = 1e7;
     lat_constr.mI_scl[Y_]             = 1e7;
 #else
-    lat_constr.mI_scl[X_]             = 1e5;
-    lat_constr.mI_scl[Y_]             = 1e5;
+    // lat_constr.mI_scl[X_]             = 1e5;
+    // lat_constr.mI_scl[Y_]             = 1e5;
+    lat_constr.mI_scl[X_]             = 1e6;
+    lat_constr.mI_scl[Y_]             = 1e6;
 #endif
-#if 0
+#if 1
     lat_constr.high_ord_achr_scl      = 1e7;
 #else
     lat_constr.high_ord_achr_scl      = 1e4;
@@ -2833,7 +2837,7 @@ int main(int argc, char *argv[])
     Ring_GetTwiss(true, 0e0); printglob();
     dnu[X_] = 0.0; dnu[Y_] = 0.0;
     set_map(ElemIndex("ps_rot"), dnu);
-    dnu[X_] = 0.0; dnu[Y_] = 0.0;
+    dnu[X_] = 0.1; dnu[Y_] = -0.1;
     set_map(ElemIndex("ps_rot"), dnu);
     Ring_GetTwiss(true, 0e0); printglob();
   }

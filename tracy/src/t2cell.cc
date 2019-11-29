@@ -264,51 +264,41 @@ void Cell_Init(void)
     elemp = &elemfamp->ElemF; // For switch structure: choice on element type
     if (debug)
       printf("Cell_Init, i:=%3ld: %*s\n", i, SymbolLength, elemp->PName);
+
     switch (elemp->Pkind) {
     case drift:
       Drift_Init(i);
       break;
-      
     case Mpole:
       Mpole_Init(i);
       break;
-      
     case Wigl:
       Wiggler_Init(i);
       break;
-      
     case FieldMap:
       FieldMap_Init(i);
       break;
-      
     case Insertion:
       Insertion_Init(i);
       break;
-
     case Cavity:
       Cav_Init(i);
       break;
-
     case marker:
       Marker_Init(i);
       break;
-
     case Spreader:
       Spreader_Init(i);
       break;
-
     case Recombiner:
       Recombiner_Init(i);
       break;
-
     case Solenoid:
       Solenoid_Init(i);
       break;
-
     case Map:
       Map_Init(i);
       break;
-
     default:
       printf("Cell_Init: undefined type\n");
       exit(1);

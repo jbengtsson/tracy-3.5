@@ -16,7 +16,7 @@ const int n_cell = 4;
 
 const double
   // nu[]     = {62.74, 21.34},
-  nu[]     = {0.0, -0.2},
+  nu[]     = {-0.144+0.05, -0.110},
   dnu_mI[] = {1.5-1.44129-0.0, 0.5-0.47593-0.0},
   nu_HOA[] = {19.0/8.0, 15.0/16.0};
 
@@ -1528,6 +1528,15 @@ int main(int argc, char *argv[])
   if (false) {
     get_Poincare_Map();
     exit(0);
+  }
+
+  if (false) {
+    dnu[X_] = 0.0; dnu[Y_] = 0.0;
+    set_map(ElemIndex("ps_mI_rot"), dnu);
+    Ring_GetTwiss(true, 0e0); printglob();
+    dnu[X_] = 0.2; dnu[Y_] = 0.0;
+    set_map(ElemIndex("ps_mI_rot"), dnu);
+    Ring_GetTwiss(true, 0e0); printglob();
   }
 
   if (false) {
