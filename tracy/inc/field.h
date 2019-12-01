@@ -294,6 +294,7 @@ template<>
 class is_double< ss_vect<double> > {
  public:
   static inline ss_vect<double> cst(const ss_vect<double> &x) { return x; }
+  static inline ss_vect<double> ps(const ss_vect<tps> &x) { return x.cst(); }
 };
 
 // partial specialization
@@ -301,6 +302,7 @@ template<>
 class is_double< ss_vect<tps> > {
  public:
   static inline ss_vect<double> cst(const ss_vect<tps> &x) { return x.cst(); }
+  static inline ss_vect<tps> ps(const ss_vect<tps> &x) { return x; }
 };
 
 

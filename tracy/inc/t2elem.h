@@ -151,7 +151,8 @@ void Recombiner_Init(int Fnum1);
 
 void Solenoid_Init(int Fnum1);
 
-void Matrix_Init(int Fnum1);
+
+void get_lin_maps(const double delta);
 
 
 void get_B(const char *file_name, FieldMapType *FM);

@@ -1464,6 +1464,18 @@ void wtf(void)
 	 Cell[0].Beta[X_], Cell[0].Beta[Y_], globval.beta_z);
 }
 
+void prt_M_lin(void)
+{
+  int k;
+
+  for (k = 0; k <= globval.Cell_nLoc; k++) {
+    if (Cell[k].Elem.Pkind == Mpole) {
+      printf("%10s:", Cell[k].Elem.PName);
+      prt_lin_map(3, Cell[k].Elem.M->M_lin);
+    }
+  }
+}
+
 
 int main(int argc, char *argv[])
 {
@@ -1514,8 +1526,8 @@ int main(int argc, char *argv[])
   globval.Cavity_on = false; globval.radiation = false;
   Ring_GetTwiss(true, 0e0); printglob();
 
-  if (false) {
-    get_eps_x();
+  if (!false) {
+     get_eps_x();
     // get_I(I, true);
     exit(0);
   }
@@ -1799,7 +1811,7 @@ int main(int argc, char *argv[])
   }
 
   if (false) {
-    chk_optics(-0.00345, 7.77328, 0.00068, -0.00001, 0.00257, 3.27070,
+    chk_optics(0.00000, 22.29589, 0.00109, 0.00000, 0.00000, 3.47496,
 	       0.00000, 0.00000);
     prt_lat("linlat1.out", globval.bpm, true);
     prt_lat("linlat.out", globval.bpm, true, 10);

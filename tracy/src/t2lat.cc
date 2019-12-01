@@ -3071,7 +3071,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 	if ((unsigned int)k2 >= 32 ||
 	    ((1 << k2) &
 	     ((1 << Meth_Linear) | (1 << Meth_First) | (1 << Meth_Second) |
-	      (1 << Meth_Fourth) | (1 << Meth_genfun))) == 0)
+	      (1 << Meth_Fourth))) == 0)
 	  getest__(P_expset(SET, 0), "Check integrator..", &V);
 	break;
 

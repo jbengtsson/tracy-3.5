@@ -607,43 +607,20 @@ void quad_fringe(const double b2, ss_vect<T> &ps)
 
 
 template<typename T>
-void Mpole_Pass(CellType &Cell, ss_vect<T> &x)
+void Mpole_Pass(CellType &Cell, ss_vect<T> &ps)
 {
-  int       seg = 0, i;
-  double    k = 0e0, dL = 0e0, dL1 = 0e0, dL2 = 0e0;
-  double    dkL1 = 0e0, dkL2 = 0e0, h_ref = 0e0;
-  elemtype  *elemp;
-  MpoleType *M;
+  int             seg = 0, i;
+  double          k = 0e0, dL = 0e0, dL1 = 0e0, dL2 = 0e0;
+  double          dkL1 = 0e0, dkL2 = 0e0, h_ref = 0e0;
+  double          L, K, h, b2, alpha, beta, gamma, psi, eta, etap;
+  ss_vect<tps>    Id;
+  CellType        *Cellp;
+  elemtype        *elemp;
+  MpoleType       *M;
 
   elemp = &Cell.Elem; M = elemp->M;
 
-  // Global -> Local.
-  GtoL(x, Cell.dS, Cell.dT, M->Pc0, M->Pc1, M->Ps1);
-
-  if ((M->Pmethod == Meth_Second) || (M->Pmethod == Meth_Fourth)) {
-    // Fringe fields.
-    if (globval.quad_fringe && (M->PB[Quad+HOMmax] != 0e0))
-      quad_fringe(M->PB[Quad+HOMmax], x);
-    if (!globval.Cart_Bend) {
-      if (M->Pirho != 0e0) EdgeFocus(M->Pirho, M->PTx1, M->Pgap, x);
-    } else {
-      p_rot(M->PTx1, x); bend_fringe(M->Pirho, x);
-    }
-  }
-
-  if (M->Pthick == thick) {
-    if (!globval.Cart_Bend) {
-      // Polar coordinates.
-      h_ref = M->Pirho; dL = elemp->PL/M->PN;
-    } else {
-      // Cartesian coordinates.
-      h_ref = 0e0;
-      if (M->Pirho == 0e0)
-	dL = elemp->PL/M->PN;
-      else
-	dL = 2e0/M->Pirho*sin(elemp->PL*M->Pirho/2e0)/M->PN;
-    }
-  }
+  GtoL(ps, Cell.dS, Cell.dT, M->Pc0, M->Pc1, M->Ps1);
 
   if (globval.emittance && !globval.Cavity_on) {
     // Needs A^-1.
@@ -655,57 +632,115 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &x)
   switch (M->Pmethod) {
 
   case Meth_Linear:
+    ps = is_double< ss_vect<T> >::ps(M->M_lin*ps);
 
-  case Meth_First:
-    if (M->Pthick == thick) {
-      /* First Linear  */
-      k = M->PB[Quad+HOMmax];
-      /* retrieve normal quad component */
-      M->PB[Quad+HOMmax] = 0e0;
-      /* Kick w/o quad component */
-      thin_kick(M->Porder, M->PB, elemp->PL, 0e0, 0e0, x);
-      /* restore quad component */
-      M->PB[Quad+HOMmax] = k;
-      /* Second Linear */
-    } else /* thin kick */
-      thin_kick(M->Porder, M->PB, 1e0, 0e0, 0e0, x);
-    break;
+    if (globval.emittance && !globval.Cavity_on) {
+      if ((Cell.Elem.PL != 0e0) && (Cell.Elem.M->Pirho != 0e0)) {
+	Id.identity();
 
-  case Meth_Second:
-    std::cout << "Mpole_Pass: Meth_Second not supported" << std::endl;
-    exit_(0);
+	L = Cell.Elem.PL;
+	h = Cell.Elem.M->Pirho;
+	b2 = Cell.Elem.M->PBpar[Quad+HOMmax];
+	K = b2 + sqr(Cell.Elem.M->Pirho);
+	psi = sqrt(fabs(K))*L;
+	Cellp = &Cell - 1;
+	alpha = Cellp->Alpha[X_]; beta = Cellp->Beta[X_];
+	gamma = (1e0+sqr(alpha))/beta;
+	eta = Cellp->Eta[X_]; etap = Cellp->Etap[X_];
+
+	Cell.dI[2] += L*sqr(h);
+	Cell.dI[3] += L*fabs(cube(h));
+
+	if (K > 0e0) {
+	  Cell.dI[4] +=
+	    h/K*(2e0*b2+sqr(h))
+	    *((eta*sqrt(K)*sin(psi)+etap*(1e0-cos(psi)))
+	      + h/sqrt(K)*(psi-sin(psi)));
+
+	  Cell.dI[5] +=
+	    L*fabs(cube(h))
+	    *(gamma*sqr(eta)+2e0*alpha*eta*etap+beta*sqr(etap))
+	    - 2e0*pow(h, 4)/(pow(K, 3e0/2e0))
+	    *(sqrt(K)*(alpha*eta+beta*etap)*(cos(psi)-1e0)
+	      +(gamma*eta+alpha*etap)*(psi-sin(psi)))
+	    + fabs(pow(h, 5))/(4e0*pow(K, 5e0/2e0))
+	    *(2e0*alpha*sqrt(K)*(4e0*cos(psi)-cos(2e0*psi)-3e0)
+	      +beta*K*(2e0*psi-sin(2e0*psi))
+	      +gamma*(6e0*psi-8e0*sin(psi)+sin(2e0*psi)));
+	} else {
+	  K = fabs(K);
+
+	  Cell.dI[4] +=
+	    h/K*(2e0*b2+sqr(h))
+	    *((eta*sqrt(K)*sinh(psi)-etap*(1e0-cosh(psi)))
+	      - h/sqrt(K)*(psi-sinh(psi)));
+
+	  Cell.dI[5] +=
+	    L*fabs(cube(h))*
+	    (gamma*sqr(eta)+2e0*alpha*eta*etap+beta*sqr(etap))
+	    + 2e0*pow(h, 4)/(pow(K, 3e0/2e0))
+	    *(sqrt(K)*(alpha*eta+beta*etap)*(cosh(psi)-1e0)
+	      +(gamma*eta+alpha*etap)*(psi-sinh(psi)))
+	    + fabs(pow(h, 5))/(4e0*pow(K, 5e0/2e0))
+	    *(2e0*alpha*sqrt(K)*(4e0*cosh(psi)-cosh(2e0*psi)-3e0)
+	      -beta*K*(2e0*psi-sinh(2e0*psi))
+	      +gamma*(6e0*psi-8e0*sinh(psi)+sinh(2e0*psi)));
+	}
+      }
+    }
     break;
 
   case Meth_Fourth:
+    // Fringe fields.
+    if (globval.quad_fringe && (M->PB[Quad+HOMmax] != 0e0))
+      quad_fringe(M->PB[Quad+HOMmax], ps);
+    if (!globval.Cart_Bend) {
+      if (M->Pirho != 0e0) EdgeFocus(M->Pirho, M->PTx1, M->Pgap, ps);
+    } else {
+      p_rot(M->PTx1, ps); bend_fringe(M->Pirho, ps);
+    }
+
     if (M->Pthick == thick) {
+      if (!globval.Cart_Bend) {
+	// Polar coordinates.
+	h_ref = M->Pirho; dL = elemp->PL/M->PN;
+      } else {
+	// Cartesian coordinates.
+	h_ref = 0e0;
+	if (M->Pirho == 0e0)
+	  dL = elemp->PL/M->PN;
+	else
+	  dL = 2e0/M->Pirho*sin(elemp->PL*M->Pirho/2e0)/M->PN;
+      }
+
       dL1 = c_1*dL; dL2 = c_2*dL; dkL1 = d_1*dL; dkL2 = d_2*dL;
 
       for (seg = 1; seg <= M->PN; seg++) {
 	if (globval.emittance && !globval.Cavity_on) {
 	  // Needs A^-1.
-	  Cell.curly_dH_x += is_tps<tps>::get_curly_H(x);
-	  Cell.dI[4] += is_tps<tps>::get_dI4(x);
+	  Cell.curly_dH_x += is_tps<tps>::get_curly_H(ps);
+	  Cell.dI[4] += is_tps<tps>::get_dI4(ps);
 	}
 
-	Drift(dL1, x);
-        thin_kick(M->Porder, M->PB, dkL1, M->Pirho, h_ref, x);
-	Drift(dL2, x);
-        thin_kick(M->Porder, M->PB, dkL2, M->Pirho, h_ref, x);
+	Drift(dL1, ps);
+        thin_kick(M->Porder, M->PB, dkL1, M->Pirho, h_ref, ps);
+	Drift(dL2, ps);
+        thin_kick(M->Porder, M->PB, dkL2, M->Pirho, h_ref, ps);
 
 	if (globval.emittance && !globval.Cavity_on) {
 	  // Needs A^-1.
-	  Cell.curly_dH_x += 4e0*is_tps<tps>::get_curly_H(x);
-	  Cell.dI[4] += 4e0*is_tps<tps>::get_dI4(x);
+	  Cell.curly_dH_x += 4e0*is_tps<tps>::get_curly_H(ps);
+	  Cell.dI[4] += 4e0*is_tps<tps>::get_dI4(ps);
 	}
 
-	Drift(dL2, x);
-        thin_kick(M->Porder, M->PB, dkL1, M->Pirho, h_ref, x);
-	Drift(dL1, x);
+	Drift(dL2, ps);
+        thin_kick(M->Porder, M->PB, dkL1, M->Pirho, h_ref, ps);
+	Drift(dL1, ps);
 
 	if (globval.emittance && !globval.Cavity_on) {
 	  // Needs A^-1.
-	  Cell.curly_dH_x += is_tps<tps>::get_curly_H(x);
-	  Cell.dI[4] += is_tps<tps>::get_dI4(x);
+	  Cell.curly_dH_x += is_tps<tps>::get_curly_H(ps);
+	  Cell.dI[4] += is_tps<tps>::get_dI4(ps);
 	}
       }
 
@@ -720,39 +755,39 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &x)
 	Cell.dI[5] += elemp->PL*fabs(cube(M->Pirho))*Cell.curly_dH_x;
       }
     } else
-      thin_kick(M->Porder, M->PB, 1e0, 0e0, 0e0, x);
+      thin_kick(M->Porder, M->PB, 1e0, 0e0, 0e0, ps);
 
+    // Fringe fields.
+    if (!globval.Cart_Bend) {
+      if (M->Pirho != 0e0) EdgeFocus(M->Pirho, M->PTx2, M->Pgap, ps);
+    } else {
+      bend_fringe(-M->Pirho, ps); p_rot(M->PTx2, ps);
+    }
+    if (globval.quad_fringe && (M->PB[Quad+HOMmax] != 0e0))
+      quad_fringe(-M->PB[Quad+HOMmax], ps);
+
+    break;
+
+  default:
+    printf("Mpole_Pass: Method not supported %d\n", M->Pmethod);
+    exit_(0);
     break;
   }
 
-  if ((M->Pmethod == Meth_Second) || (M->Pmethod == Meth_Fourth)) {
-    // Fringe fields.
-    if (!globval.Cart_Bend) {
-      if (M->Pirho != 0e0) EdgeFocus(M->Pirho, M->PTx2, M->Pgap, x);
-    } else {
-      bend_fringe(-M->Pirho, x); p_rot(M->PTx2, x);
-    }
-    if (globval.quad_fringe && (M->PB[Quad+HOMmax] != 0e0))
-      quad_fringe(-M->PB[Quad+HOMmax], x);
-  }
-
-  // Local -> Global.
-  LtoG(x, Cell.dS, Cell.dT, M->Pc0, M->Pc1, M->Ps1);
+  LtoG(ps, Cell.dS, Cell.dT, M->Pc0, M->Pc1, M->Ps1);
 }
 
 
 template<typename T>
-void Marker_Pass(CellType &Cell, ss_vect<T> &x)
+void Marker_Pass(CellType &Cell, ss_vect<T> &ps)
 {
-  /* Global -> Local */
-  GtoL(x, Cell.dS, Cell.dT, 0e0, 0e0, 0e0);
+  GtoL(ps, Cell.dS, Cell.dT, 0e0, 0e0, 0e0);
 
   if (globval.emittance && !globval.Cavity_on)
     // Needs A^-1.
-    Cell.curly_dH_x = is_tps<tps>::get_curly_H(x);
+    Cell.curly_dH_x = is_tps<tps>::get_curly_H(ps);
 
-  /* Local -> Global */
-  LtoG(x, Cell.dS, Cell.dT, 0e0, 0e0, 0e0);
+  LtoG(ps, Cell.dS, Cell.dT, 0e0, 0e0, 0e0);
 }
 
 
@@ -2515,6 +2550,8 @@ void Mpole_Alloc(elemtype *Elem)
   M->Pgap   = 0e0; /* Gap for fringe field ??? */
 
   M->Pc0 = 0e0; M->Pc1 = 0e0; M->Ps1 = 0e0;
+
+  M->M_lin.zero();
 }
 
 
@@ -2700,20 +2737,138 @@ static int UpdatePorder(elemtype &Elem)
 }
 
 
+ss_vect<tps> get_edge_lin_map(const double h, const double phi,
+			      const double gap, const double delta)
+{
+  ss_vect<tps> Id, M;
+
+  Id.identity();
+
+  M.identity();
+  M[px_] += h*tan(dtor(phi))*Id[x_];
+  M[py_] -= h*tan(dtor(phi)-get_psi(h, phi, gap))*Id[y_];
+
+  return M;
+}
+
+
+ss_vect<tps> get_sbend_lin_map(const double L, const double h, const double b2,
+			       const double delta)
+{
+  double       K_x, K_y, psi_x, psi_y;
+  ss_vect<tps> Id, M;
+
+  Id.identity();
+
+  K_x = b2 + sqr(h);
+  K_y = fabs(b2);
+  psi_x = sqrt(fabs(K_x)/(1e0+delta))*L;
+  psi_y = sqrt(K_y/(1e0+delta))*L;
+
+  M.identity();
+  if (K_x > 0e0) {
+    M[x_] =
+      cos(psi_x)*Id[x_] + sin(psi_x)/sqrt(K_x*(1e0+delta))*Id[px_]
+      + (1e0-cos(psi_x))*h/K_x*Id[delta_];
+    M[px_] =
+      -sqrt(K_x*(1e0+delta))*sin(psi_x)*Id[x_] + cos(psi_x)*Id[px_]
+      + sin(psi_x)*sqrt(1e0+delta)*h/sqrt(K_x)*Id[delta_];
+
+    if (psi_y != 0e0) {
+      M[y_]  = cosh(psi_y)*Id[y_] + sinh(psi_y)/sqrt(K_y*(1e0+delta))*Id[py_];
+      M[py_] = sqrt(K_y*(1e0+delta))*sinh(psi_y)*Id[y_] + cosh(psi_y)*Id[py_];
+    } else
+      M[y_]  += L/(1e0+delta)*Id[py_];
+ 
+    M[ct_] +=
+      sin(psi_x)*sqrt(1e0+delta)*h/sqrt(K_x)*Id[x_]
+      + (1e0-cos(psi_x))*h/K_x*Id[px_]
+      + (psi_x-sin(psi_x))*sqrt(1e0+delta)*sqr(h)/pow(K_x, 3e0/2e0)*Id[delta_];
+  } else if (K_x < 0e0) {
+    K_x = fabs(K_x);
+    M[x_] =
+      cosh(psi_x)*Id[x_] + sinh(psi_x)/sqrt(K_x*(1e0+delta))*Id[px_]
+      -(1e0-cosh(psi_x))*h/K_x*Id[delta_];
+    M[px_] =
+      sqrt(K_x*(1e0+delta))*sinh(psi_x)*Id[x_] + cosh(psi_x)*Id[px_]
+      + sinh(psi_x)*sqrt(1e0+delta)*h/sqrt(K_x)*Id[delta_];
+
+    if (psi_y != 0e0) {
+      M[y_]  = cos(psi_y)*Id[y_] + sin(psi_y)/sqrt(K_y*(1e0+delta))*Id[py_];
+      M[py_] = -sqrt(K_y*(1e0+delta))*sin(psi_y)*Id[y_] + cos(psi_y)*Id[py_];
+   } else
+      M[y_]  += L/(1e0+delta)*Id[py_];
+
+    M[ct_] +=
+      sinh(psi_x)*sqrt(1e0+delta)*h/sqrt(K_x)*Id[x_]
+      - (1e0-cosh(psi_x))*h/K_x*Id[px_]
+      - (psi_x-sinh(psi_x))*sqrt(1e0+delta)*sqr(h)/pow(K_x, 3e0/2e0)*Id[delta_];
+  } else {
+    // K_x = 0.
+    M[x_] += L/(1e0+delta)*Id[px_];
+    M[y_] += L/(1e0+delta)*Id[py_];
+  }
+
+  return M;
+}
+
+
+ss_vect<tps> get_thin_kick_lin_map(const double b2L, const double delta)
+{
+  ss_vect<tps> Id, M;
+
+  Id.identity();
+
+  M.identity();
+  M[px_] -= b2L*Id[px_];
+  M[py_] += b2L*Id[py_];
+
+  return M;
+}
+
+
+ss_vect<tps> get_lin_map(elemtype &Elem, const double delta)
+{
+  ss_vect<tps> M, M1, M2;
+
+  if (Elem.PL != 0e0) {
+    M =
+      get_sbend_lin_map(Elem.PL, Elem.M->Pirho, Elem.M->PB[Quad+HOMmax], delta);
+    M1 = get_edge_lin_map(Elem.M->Pirho, Elem.M->PTx1, Elem.M->Pgap, delta);
+    M2 = get_edge_lin_map(Elem.M->Pirho, Elem.M->PTx2, Elem.M->Pgap, delta);
+    M = M2*M*M1;
+  } else
+    M = get_thin_kick_lin_map(Elem.PL*Elem.M->PB[Quad+HOMmax], delta);
+
+  return M;
+}
+
+
+void get_lin_maps(const double delta)
+{
+  long int k;
+
+  for (k = 0; k <= globval.Cell_nLoc; k++)
+    if ((Cell[k].Elem.Pkind == Mpole) && (Cell[k].Elem.M->Pthick == thick))
+      Cell[k].Elem.M->M_lin = get_lin_map(Cell[k].Elem, delta);
+}
+
+
 void Mpole_Init(int Fnum1)
 {
   static bool first = true;
-  int         i;
-  double      phi;
-  ElemFamType *elemfamp;
-  CellType    *cellp;
-  elemtype    *elemp;
+  int          i;
+  double       phi;
+  ElemFamType  *elemfamp;
+  CellType     *cellp;
+  elemtype     *elemp;
 
   /* Pointer on element */
   elemfamp = &ElemFam[Fnum1-1];
   memcpy(elemfamp->ElemF.M->PB, elemfamp->ElemF.M->PBpar, sizeof(mpolArray));
   /* Update the right multipole order */
   elemfamp->ElemF.M->Porder = UpdatePorder(elemfamp->ElemF);
+
   for (i = 1; i <= elemfamp->nKid; i++) {
     cellp = &Cell[elemfamp->KidList[i-1]]; elemp = &cellp->Elem;
     /* Memory allocation and set everything to zero */
@@ -2755,6 +2910,11 @@ void Mpole_Init(int Fnum1)
       elemp->M->Ps1 = cellp->dT[1]*elemp->M->Pc0;
     } else /* element as thin lens */
       elemp->M->Pthick = pthicktype(thin);
+
+    if (elemp->M->Pmethod == Meth_Linear) {
+      globval.mat_meth = true;
+      elemp->M->M_lin = get_lin_map(*elemp, 0e0);
+    }
   }
 }
 
@@ -3732,11 +3892,10 @@ void Map_Init(int Fnum1)
 
 void Mpole_SetPB(int Fnum1, int Knum1, int Order)
 {
-  /*  called by Cell_SetdP
-       Compute full multipole composent as sum of design, systematic
-       and random part
-       Compute transport matrix if quadrupole (Order=2)
-       Set multipole order to Order if multipole (Order >2)                  */
+  /* Compute full multipole composent as sum of design, systematic
+     and random part
+     Compute transport matrix if quadrupole (Order=2)
+     Set multipole order to Order if multipole (Order >2)                  */
 
   CellType  *cellp; /* pointer on the Cell */
   elemtype  *elemp; /* pointer on the Elemetype */

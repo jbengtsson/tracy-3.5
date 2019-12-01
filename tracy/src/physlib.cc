@@ -2127,7 +2127,7 @@ void Read_Lattice(const char *fic)
   int      i;
   double   dP = 0.0;
   Vector2  beta, alpha, eta, etap;
-  psVector   codvect;
+  psVector codvect;
 
   const double RFacceptance = 0.060001; // soleil energy acceptance
 
@@ -2139,6 +2139,8 @@ void Read_Lattice(const char *fic)
   /* Initialisation de Tracy */
 
   t2init();
+
+  globval.mat_meth = false;
 
   /* open the lattice Input file  */
 

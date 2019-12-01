@@ -73,8 +73,7 @@ enum { All = 0, Dip = 1, Quad = 2, Sext = 3, Oct = 4, Dec = 5, Dodec = 6 };
 
 enum { Horizontal = 1, Vertical = 2 };
 
-enum { Meth_Linear = 0, Meth_First = 1, Meth_Second = 2, Meth_Fourth = 4,
-       Meth_genfun = 5 };
+enum { Meth_Linear = 0, Meth_First = 1, Meth_Second = 2, Meth_Fourth = 4 };
 
 typedef char str80[80];
 

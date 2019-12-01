@@ -45,7 +45,8 @@ typedef struct globvalrec {
     pathlength,      // Absolute Path Length.
     stable,
     Aperture_on,
-    EPU;
+    EPU,
+    mat_meth;        // Matrix method.
   double
     dE,              // Energy Loss.
     alpha_rad[DOF],  // Damping Coeffs.
@@ -71,10 +72,7 @@ typedef struct globvalrec {
 } globvalrec;
 
 
-struct DriftType {
-  ss_vect<double>
-    M_lin;           // Linear Map for Element.
-};
+struct DriftType { };
 
 
 struct MpoleType {
@@ -113,7 +111,7 @@ struct MpoleType {
     Pc0,            // corrections for roll error of bend.
     Pc1,
     Ps1;
-  ss_vect<double>
+  ss_vect<tps>
     M_lin;          // Linear Map for Element.
 };
 

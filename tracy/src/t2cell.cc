@@ -172,7 +172,13 @@ bool Cell_getCOD(long imax, double eps, double dP, long &lastpos)
 
   no = no_tps; danot_(1);
   
-  n = (globval.Cavity_on)? 6 : 4; globval.dPparticle = dP;
+  if (globval.mat_meth && (dP != globval.dPparticle))
+    // Recompute transport matrices.
+    get_lin_maps(dP);
+
+  globval.dPparticle = dP;
+
+  n = (globval.Cavity_on)? 6 : 4;
 
   x0.zero(); x0[delta_] = dP;
 
