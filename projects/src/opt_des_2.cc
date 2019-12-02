@@ -1872,7 +1872,7 @@ void opt_mI_std(param_type &prms, constr_type &constr)
   if (!false) {
     // Increase beta_x.
     constr.add_constr(Elem_GetPos(ElemIndex("sf1"), 1),
-		      0e5, 0e5, 5e1,  1e1, 0e7, 0e7,
+		      0e5, 0e5, 1e2,  1e1, 0e7, 0e7,
 		      0.0, 0.0, 12.0, 1.0, 0.0, 0.0);
   }
   if (false) {
@@ -1919,9 +1919,9 @@ void opt_mI_std(param_type &prms, constr_type &constr)
   lat_constr.drv_terms_simple_scl = 1e-3;
   // Not useful.
   lat_constr.ksi1_svd_scl         = 0e3;
-  lat_constr.mI_scl[X_]           = 1e6;
-  lat_constr.mI_scl[Y_]           = 1e6;
-  lat_constr.high_ord_achr_scl    = 1e7;
+  lat_constr.mI_scl[X_]           = 5e5;
+  lat_constr.mI_scl[Y_]           = 5e5;
+  lat_constr.high_ord_achr_scl    = 1e6;
   lat_constr.alpha_c_scl          = 5e-7;
 
   lat_constr.phi_scl              = (dphi)? 1e0 : 0e0;
