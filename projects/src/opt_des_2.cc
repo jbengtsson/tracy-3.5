@@ -8,8 +8,7 @@ int no_tps = NO;
 
 
 const bool
-  ps_rot        = !false, // Note, needs to be zeroed; after use.
-  phi_spec_case = false,
+  ps_rot        = false, // Note, needs to be zeroed; after use.
   qf6_rb        = false,
   sp_short      = !true,
   sp_std        = true,
@@ -352,14 +351,18 @@ void param_type::ini_prm(double *bn)
 }
 
 
-void set_lin_map(const int Fnum, const int Knum)
+void set_lin_map(const int Fnum)
 {
-  int loc;
+  int loc, k;
 
-  loc = Elem_GetPos(Fnum, Knum);
+  loc = Elem_GetPos(Fnum, 1);
   if ((Cell[loc].Elem.Pkind == Mpole)
+      && (Cell[loc].Elem.M->Pthick == thick)
       && (Cell[loc].Elem.M->Pmethod == Meth_Linear))
-    Cell[loc].Elem.M->M_lin = get_lin_map(Cell[loc].Elem, 0e0);
+    for (k = 1; k <= GetnKid(Fnum); k++) {
+      loc = Elem_GetPos(Fnum, k);
+      Cell[loc].Elem.M->M_lin = get_lin_map(Cell[loc].Elem, 0e0);
+    }
 }
 
 
@@ -376,9 +379,8 @@ void set_phi(const int Fnum, const double phi,
     Cell[loc].Elem.M->Pirho = i_rho;
     Cell[loc].Elem.M->PTx1 = phi0;
     Cell[loc].Elem.M->PTx2 = phi1;
-
-    set_lin_map(Fnum, k);
   }
+  set_lin_map(Fnum);
 }
 
 
@@ -400,13 +402,11 @@ void set_grad_dip_phi(const std::vector<int> &Fnum,
 
 void set_grad_dip_b2(const std::vector<int> &Fnum, const double b2)
 {
-  int j, k;
+  int k;
 
-  for (j = 0; j < (int)Fnum.size(); j++) {
-    set_bn_design_fam(Fnum[j], Quad, b2, 0e0);
-
-    for (k = 1; k = GetnKid(Fnum[j]); k++)
-      set_lin_map(Fnum[j], k);
+  for (k = 0; k < (int)Fnum.size(); k++) {
+    set_bn_design_fam(Fnum[k], Quad, b2, 0e0);
+    set_lin_map(Fnum[k]);
   }
 }
 
@@ -432,10 +432,6 @@ double get_phi(constr_type &constr)
   for (j = 0; j < constr.n_b1; j++) {
     if (constr.Fnum_b1[j] > 0) {
       phi += get_phi_tot(constr.Fnum_b1[j]);
-      if (phi_spec_case && (constr.Fnum_b1[j] == ElemIndex("qf4"))) {
-	phi += get_phi_tot(ElemIndex("qf4l"));
-	phi += get_phi_tot(ElemIndex("qf4_c1"));
-      }
       if (prt) {
 	printf("  ");
 	prt_name(stdout, Cell[Elem_GetPos(constr.Fnum_b1[j], 1)].Elem.PName,
@@ -515,7 +511,7 @@ void param_type::set_prm(double *bn)
       // Multipole strength.
       if (Fnum[i-1] > 0) {
 	set_bn_design_fam(Fnum[i-1], n[i-1], bn_ext, 0e0);
-	set_lin_map(Fnum[i-1], n[i-1]);
+	if (n[i-1] == Quad) set_lin_map(Fnum[i-1]);
       } else
 	set_grad_dip_b2(grad_dip_Fnum[i-1], bn_ext);
     else if (n[i-1] == -1) {
@@ -525,15 +521,12 @@ void param_type::set_prm(double *bn)
     } else if (n[i-1] == -2) {
       // Length.
       set_L(Fnum[i-1], bn_ext); get_S();
+      set_lin_map(Fnum[i-1]);
     } else if (n[i-1] == -3) {
       // Bend angle; L is fixed.
-      if (Fnum[i-1] > 0) {
+      if (Fnum[i-1] > 0)
 	set_phi(Fnum[i-1], bn_ext);
-	if (phi_spec_case && (Fnum[i-1] == ElemIndex("qf4"))) {
-	  set_phi(ElemIndex("qf4l"), bn_ext);
-	  set_phi(ElemIndex("qf4_c1"), bn_ext);
-	}
-      } else
+      else
 	set_grad_dip_phi(grad_dip_Fnum[i-1], grad_dip_scl[i-1], bn_ext);
     }
     if (prt) {
@@ -692,6 +685,7 @@ double get_eps_x1(const bool track)
 {
   // eps_x [nm.rad].
   long int     lastpos;
+  int          k;
   double       I[6], eps_x;
   ss_vect<tps> A;
 
@@ -712,8 +706,13 @@ double get_eps_x1(const bool track)
   eps_x = 1e9*C_q_scl*sqr(globval.Energy)*I[5]/(I[2]-I[4]);
 
   if (prt) {
-    printf("\neps_x = %5.3f nm.rad\n", eps_x);
-    printf("J_x   = %5.3f, J_z = %5.3f\n", 1.0-I[4]/I[2], 2.0+I[4]/I[2]);
+    printf("\nget_eps_x1:\n");
+    printf("  I[2..5]:");
+    for (k = 2; k <= 5; k++)
+      printf(" %10.3e", I[k]);
+    printf("\n");
+    printf("  eps_x = %5.3f nm.rad\n", eps_x);
+    printf("  J_x   = %5.3f, J_z = %5.3f\n", 1.0-I[4]/I[2], 2.0+I[4]/I[2]);
   }
 
   return eps_x;
@@ -1127,7 +1126,7 @@ void get_nu(ss_vect<tps> &A, const double delta, double nu[])
   long int     lastpos;
   ss_vect<tps> A_delta;
 
-  const bool prt = !false;
+  const bool prt = false;
 
   A_delta = get_A_CS(2, A, nu); A_delta[delta_] += delta;
   Cell_Pass(0, globval.Cell_nLoc, A_delta, lastpos);
@@ -2879,8 +2878,8 @@ int main(int argc, char *argv[])
 
   switch (opt_case) {
   case 1:
-      // Optimize Standard Straight: mI & 2*nu.
-      opt_mI_std(lat_prms, lat_constr);
+    // Optimize Standard Straight: mI & 2*nu.
+    opt_mI_std(lat_prms, lat_constr);
     no_sxt();
     fit_powell(lat_prms, 1e-3, f_achrom);
     break;

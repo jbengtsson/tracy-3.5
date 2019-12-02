@@ -1529,6 +1529,7 @@ int main(int argc, char *argv[])
   if (!false) {
     get_eps_x();
     // get_I(I, true);
+    prtmfile("flat_file.dat");
     exit(0);
   }
 
