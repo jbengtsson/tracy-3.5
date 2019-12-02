@@ -1853,14 +1853,16 @@ void opt_mI_std(param_type &prms, constr_type &constr)
     lat_constr.mI0[k] = mI_nu_ref[k];
 
   if (relaxed) {
-    lat_constr.eps_x_scl              = 5e6;
-    lat_constr.ksi1_ctrl_scl[0]       = 1e0;
+    // lat_constr.eps_x_scl              = 5e6;
+    lat_constr.eps_x_scl              = 1e6;
 #if 1
     // Default.
     // lat_constr.ksi1_ctrl_scl[1]       = 1e1;
     // lat_constr.ksi1_ctrl_scl[2]       = 1e1;
-    lat_constr.ksi1_ctrl_scl[1]       = 1e0;
-    lat_constr.ksi1_ctrl_scl[2]       = 1e0;
+    // lat_constr.ksi1_ctrl_scl[1]       = 1e0;
+    // lat_constr.ksi1_ctrl_scl[2]       = 1e0;
+    lat_constr.ksi1_ctrl_scl[1]       = 0e0;
+    lat_constr.ksi1_ctrl_scl[2]       = 0e0;
 #else
     lat_constr.ksi1_ctrl_scl[1]       = 1e2;
     lat_constr.ksi1_ctrl_scl[2]       = 1e3;
