@@ -8,7 +8,7 @@ int no_tps = NO;
 
 
 const bool
-  ps_rot        = false, // Note, needs to be zeroed; after use.
+  ps_rot        = !false, // Note, needs to be zeroed; after use.
   qf6_rb        = false,
   sp_short      = !true,
   sp_std        = true,
@@ -66,7 +66,7 @@ const double
   twoJ[]             = {sqr(3e-3)/10.0, sqr(2e-3)/4.0},
   delta              = 2e-2,
 #elif LAT_CASE == 8
-  eps0_x             = 0.099,
+  eps0_x             = 0.149,
   high_ord_achr_nu[] = {9.0/4.0+0.01, 3.0/4.0-0.01},
   twoJ[]             = {sqr(3e-3)/10.0, sqr(2e-3)/4.0},
   delta              = 2e-2,
@@ -167,6 +167,7 @@ public:
     drv_terms_simple[2],
     nu[2],
     ksi1[2],
+    ksi1_scl[2],
     ksi1_ctrl_scl[3],
     ksi1_svd_scl,
     ksi1_svd[2],
@@ -202,6 +203,7 @@ public:
   constr_type(void) {
     n_iter = 0; chi2 = 1e30; chi2_prt = 1e30;
     eps_x_scl = 0e0; phi_scl = 0e0;
+    ksi1_scl[X_] = ksi1_scl[Y_] = 0e0;
     ksi1_ctrl_scl[0] = ksi1_ctrl_scl[1] = ksi1_ctrl_scl[2] = 0e0;
     ksi1_svd_scl = 0e0;
     drv_terms_simple_scl = 0e0;
@@ -217,7 +219,7 @@ public:
 		  const double v4, const double v5, const double v6);
   void ini_constr(const bool ring);
   void get_Jacobian(param_type &lat_prms);
-  double get_chi2(void) const;
+  double get_chi2(const bool prt) const;
   void get_dchi2(double *df) const;
   void prt_Jacobian(const int n) const;
   void prt_constr(const double chi2);
@@ -908,56 +910,124 @@ void constr_type::prt_Jacobian(const int n) const
 }
 
 
-double constr_type::get_chi2(void) const
+double constr_type::get_chi2(const bool prt) const
 {
   int    j, k;
-  double chi2, mean, geom_mean;
+  double chi2, dchi2[3], mean, geom_mean;
 
-  const bool prt = false;
+  chi2 = 0e0;
 
-  chi2 = 0e0; 
-  chi2 += eps_x_scl*sqr(eps_x-eps0_x);
-
-  for (k = 0; k < n_loc; k++) {
-    chi2 += value_scl[k][0]*sqr(Cell[loc[k]].Alpha[X_]-value[k][0]);
-    chi2 += value_scl[k][1]*sqr(Cell[loc[k]].Alpha[Y_]-value[k][1]);
-    chi2 += value_scl[k][2]*sqr(Cell[loc[k]].Beta[X_]-value[k][2]);
-    chi2 += value_scl[k][3]*sqr(Cell[loc[k]].Beta[Y_]-value[k][3]);
-    chi2 += value_scl[k][4]*sqr(Cell[loc[k]].Eta[X_]-value[k][4]);
-    chi2 += value_scl[k][5]*sqr(Cell[loc[k]].Etap[X_]-value[k][5]);
+  if (eps_x_scl != 0e0) {
+    dchi2[X_] = eps_x_scl*sqr(eps_x-eps0_x);
+    chi2 += dchi2[X_];
+    if (prt) printf("\nget_chi2:\n  eps_x:             %10.3e\n", dchi2[X_]);
   }
 
-  chi2 += L_scl*sqr(Cell[globval.Cell_nLoc].S-L0);
-  for (j = 0; j < (int)mI.size(); j++)
-    for (k = 0; k < 2; k++)
-      chi2 += mI_scl[k]*sqr(mI[j][k]-mI0[k]);
-
-  for (k = 0; k < 2; k++)
-    chi2 += drv_terms_simple_scl*drv_terms_simple[k];
-
-  for (j = 0; j < (int)ksi1_ctrl.size(); j++)
-    if (ksi1_ctrl_scl[j] != 0e0) {
-      if (j < 2)
-	chi2 += ksi1_ctrl_scl[j]/sqr(ksi1_ctrl[j]);
-      else
-	chi2 += ksi1_ctrl_scl[j]*sqr(ksi1_ctrl[j]);
+  if (prt) printf("\n"); 
+  for (j = 0; j < n_loc; j++) {
+    if (prt) {
+      printf("  ");
+      prt_name(stdout, Cell[loc[j]].Elem.PName, ":", 8);
+      printf("\n");
     }
+    if ((value_scl[j][0] != 0e0) || (value_scl[j][1] != 0e0)) {
+      for (k = 0; k < 2; k++) {
+	dchi2[k] = value_scl[j][k]*sqr(Cell[loc[j]].Alpha[k]-value[j][k]);
+	chi2 += dchi2[k];
+      }
+      if (prt) printf("    alpha:          [%10.3e, %10.3e]\n",
+		      dchi2[X_], dchi2[Y_]);
+    }
+    if ((value_scl[j][2] != 0e0) || (value_scl[j][3] != 0e0)) {
+      for (k = 0; k < 2; k++) {
+	dchi2[k] = value_scl[j][k+2]*sqr(Cell[loc[j]].Beta[k]-value[j][k+2]);
+	chi2 += dchi2[k];
+      }
+      if (prt) printf("    beta:           [%10.3e, %10.3e]\n",
+		      dchi2[X_], dchi2[Y_]);
+    }
+    if ((value_scl[j][4] != 0e0) || (value_scl[j][5] != 0e0)) {
+	dchi2[0] = value_scl[j][4]*sqr(Cell[loc[j]].Eta[X_]-value[j][4]);
+	dchi2[1] = value_scl[j][5]*sqr(Cell[loc[j]].Etap[X_]-value[j][5]);
+	chi2 += dchi2[0]; chi2 += dchi2[1];
+	if (prt) printf("    eta_x eta'_x:   [%10.3e, %10.3e]\n",
+			dchi2[0], dchi2[1]);
+    }
+  }
+
+  if (L_scl != 0e0) {
+    dchi2[0] = L_scl*sqr(Cell[globval.Cell_nLoc].S-L0);
+    chi2 += dchi2[0];
+    printf("\n  S-L0:            %10.3e\n", dchi2[0]);
+  }
+
+  if ((ksi1_scl[X_] != 0e0) || (ksi1_scl[Y_] != 0e0)) {
+    for (k = 0; k < 2; k++) {
+      dchi2[k] = ksi1_scl[k]*ksi1[k];
+      chi2 += dchi2[k];
+    }
+    if (prt) printf("\n  ksi1:             [%10.3e, %10.3e]\n",
+		    dchi2[X_], dchi2[Y_]);
+  }
+
+  if (drv_terms_simple_scl != 0e0) {
+    for (k = 0; k < 2; k++) {
+      dchi2[k] = drv_terms_simple_scl*drv_terms_simple[k];
+      chi2 += dchi2[k];
+    }
+    if (prt) printf("\n  drv_terms_simple: [%10.3e, %10.3e]\n",
+		    dchi2[X_], dchi2[Y_]);
+  }
+
+  if ((ksi1_ctrl_scl[0] != 0e0) || (ksi1_ctrl_scl[1] != 0e0)
+      || (ksi1_ctrl_scl[2] != 0e0)) {
+    for (k = 0; k < 3; k++) {
+      if (k < 2)
+	dchi2[k] = ksi1_ctrl_scl[k]/sqr(ksi1_ctrl[k]);
+      else
+	dchi2[k] = ksi1_ctrl_scl[k]*sqr(ksi1_ctrl[k]);
+      chi2 += dchi2[k];
+    }
+    if (prt) printf("\n  ksi1_ctrl:        [%10.3e, %10.3e, %10.3e]\n",
+		    dchi2[0], dchi2[1], dchi2[2]);
+  }
   
   if (ksi1_svd_scl != 0) {
     mean = (ksi1_svd[X_]+ksi1_svd[Y_])/2e0;
     geom_mean = sqrt(ksi1_svd[X_]*ksi1_svd[Y_]);
-    chi2 += ksi1_svd_scl/sqr(geom_mean/mean);
+    dchi2[0] = ksi1_svd_scl/sqr(geom_mean/mean);
+    chi2 += dchi2[0];
+    if (prt) printf("\n  ksi1_svd:         %10.3e\n", dchi2[0]);
   }
 
-  for (j = 0; j < (int)high_ord_achr_dnu.size(); j++)
-    for (k = 0; k < 2; k++)
-      chi2 +=
-	high_ord_achr_scl*sqr(high_ord_achr_dnu[j][k]-high_ord_achr_nu[k]);
+  if ((mI_scl[X_] != 0e0) || (mI_scl[Y_] != 0e0)) {
+    for (j = 0; j < (int)mI.size(); j++) {
+      for (k = 0; k < 2; k++) {
+	dchi2[k] = mI_scl[k]*sqr(mI[j][k]-mI0[k]);
+	chi2 += dchi2[k];
+      }
+      if (prt) printf("\n  mI:               [%10.3e, %10.3e]\n",
+		      dchi2[X_], dchi2[Y_]);
+    }
+  }
 
-  if (alpha_c_scl != 0)
-    chi2 += alpha_c_scl*sqr(1e0/globval.Alphac);
+  if (high_ord_achr_scl != 0e0) {
+    for (j = 0; j < (int)high_ord_achr_dnu.size(); j++) {
+      for (k = 0; k < 2; k++) {
+	dchi2[k] =
+	  high_ord_achr_scl*sqr(high_ord_achr_dnu[j][k]-high_ord_achr_nu[k]);
+	chi2 += dchi2[k];
+      }
+      if (prt) printf("\n  high_ord_achr:    [%10.3e, %10.3e]\n",
+		      dchi2[X_], dchi2[Y_]);
+    }
+  }
 
-  if (prt) printf("\nget_chi2: %11.5e (%11.5e)\n", chi2, this->chi2);
+  if (alpha_c_scl != 0) {
+    dchi2[0] = alpha_c_scl*sqr(1e0/globval.Alphac);
+    chi2 += dchi2[0];
+    if (prt) printf("\n  alpha_c_scl:       %10.3e\n", dchi2[0]);
+  }
 
   return chi2;
 }
@@ -982,11 +1052,11 @@ void constr_type::get_dchi2(double *df) const
 
     constr_dparam(lat_prms.Fnum[k], lat_prms.n[k], eps);
     eps_x = get_lin_opt(lat_constr);
-    df[k+1] = lat_constr.get_chi2();
+    df[k+1] = lat_constr.get_chi2(false);
 
     constr_dparam(lat_prms.Fnum[k], lat_prms.n[k], -2e0*eps);
     eps_x = get_lin_opt(lat_constr);
-    df[k+1] -= lat_constr.get_chi2();
+    df[k+1] -= lat_constr.get_chi2(false);
     df[k+1] /= 2e0*eps;
 
     constr_dparam(lat_prms.Fnum[k], lat_prms.n[k], eps);
@@ -1599,12 +1669,15 @@ double f_match(double *b2)
 
   if (lat_constr.high_ord_achr_scl != 0e0) get_high_ord_achr(lat_constr);
 
-  chi2 = lat_constr.get_chi2();
+  chi2 = lat_constr.get_chi2(false);
 
   if (first || (chi2 < lat_constr.chi2)) {
     first = false;
-    if (lat_constr.n_iter % n_prt == 0)
+    if (lat_constr.n_iter % n_prt == 0) {
+      // Print dchi2.
+      lat_constr.get_chi2(true);
       prt_f(b2, chi2, lat_constr, lat_prms, false);
+    }
     lat_constr.n_iter++;
     lat_constr.chi2 = chi2;
   }
@@ -1643,12 +1716,15 @@ double f_achrom(double *b2)
 	|| (lat_constr.ksi1_ctrl_scl[2] != 0e0))
       get_ksi1_ctrl(lat_constr);
 
-    chi2 = lat_constr.get_chi2();
+    chi2 = lat_constr.get_chi2(false);
 
     if (first || (chi2 < lat_constr.chi2)) {
       first = false;
-      if (lat_constr.n_iter % n_prt == 0)
+      if (lat_constr.n_iter % n_prt == 0) {
+	// Print dchi2.
+	lat_constr.get_chi2(true);
 	prt_f(b2, chi2, lat_constr, lat_prms, true);
+      }
 
       lat_constr.n_iter++;
       lat_constr.chi2 = chi2;
@@ -1793,10 +1869,10 @@ void opt_mI_std(param_type &prms, constr_type &constr)
 		    0.0, 0.0, 4.0, 2.5, 0.0, 0.0);
 #endif
 
-  if (false) {
+  if (!false) {
     // Increase beta_x.
     constr.add_constr(Elem_GetPos(ElemIndex("sf1"), 1),
-		      0e5, 0e5, 1e3,  1e1, 0e7, 0e7,
+		      0e5, 0e5, 5e1,  1e1, 0e7, 0e7,
 		      0.0, 0.0, 12.0, 1.0, 0.0, 0.0);
   }
   if (false) {
@@ -1833,46 +1909,22 @@ void opt_mI_std(param_type &prms, constr_type &constr)
   for (k = 0; k < 2; k++)
     lat_constr.mI0[k] = mI_nu_ref[k];
 
-  // lat_constr.eps_x_scl              = 5e6;
-  lat_constr.eps_x_scl              = 1e6;
+  lat_constr.eps_x_scl            = 1e7;
   // Default.
-  lat_constr.ksi1_ctrl_scl[0]     = 0e-1;
-  lat_constr.ksi1_ctrl_scl[1]     = 0e0;
-  lat_constr.ksi1_ctrl_scl[2]     = 0e-1;
-#if 0
-  // Default.
-  lat_constr.drv_terms_simple_scl   = 1e-4;
-#else
-  lat_constr.drv_terms_simple_scl   = 1e-2;
-  // lat_constr.drv_terms_simple_scl   = 5e-2;
-  // lat_constr.drv_terms_simple_scl   = 1e-1;
-#endif
+  lat_constr.ksi1_scl[0]          = 1e2;
+  lat_constr.ksi1_scl[1]          = 1e2;
+  lat_constr.ksi1_ctrl_scl[0]     = 1e-1;
+  lat_constr.ksi1_ctrl_scl[1]     = 1e1;
+  lat_constr.ksi1_ctrl_scl[2]     = 1e-1;
+  lat_constr.drv_terms_simple_scl = 1e-3;
   // Not useful.
-  lat_constr.ksi1_svd_scl           = 0e3;
-  // Default.
-#if 0
-  lat_constr.mI_scl[X_]             = 1e7;
-  lat_constr.mI_scl[Y_]             = 1e7;
-#else
-  // lat_constr.mI_scl[X_]             = 1e5;
-  // lat_constr.mI_scl[Y_]             = 1e5;
-  lat_constr.mI_scl[X_]             = 1e6;
-  lat_constr.mI_scl[Y_]             = 1e6;
-#endif
-#if 1
-  lat_constr.high_ord_achr_scl      = 1e7;
-#else
-  lat_constr.high_ord_achr_scl      = 1e4;
-#endif
-#if 1
-  // lat_constr.alpha_c_scl            = 5e-7;
-  // lat_constr.alpha_c_scl            = 5e-6;
-  lat_constr.alpha_c_scl            = 1e-6;
-#else
-  lat_constr.alpha_c_scl            = 1e-7;
-#endif
+  lat_constr.ksi1_svd_scl         = 0e3;
+  lat_constr.mI_scl[X_]           = 1e6;
+  lat_constr.mI_scl[Y_]           = 1e6;
+  lat_constr.high_ord_achr_scl    = 1e7;
+  lat_constr.alpha_c_scl          = 5e-7;
 
-  lat_constr.phi_scl                  = (dphi)? 1e0 : 0e0;
+  lat_constr.phi_scl              = (dphi)? 1e0 : 0e0;
 
   prt_prms(lat_constr);
 
@@ -2770,7 +2822,7 @@ int main(int argc, char *argv[])
     Ring_GetTwiss(true, 0e0); printglob();
     dnu[X_] = 0.0; dnu[Y_] = 0.0;
     set_map(ElemIndex("ps_rot"), dnu);
-    dnu[X_] = 0.1; dnu[Y_] = -0.1;
+    dnu[X_] = 0.0; dnu[Y_] = 0.0;
     set_map(ElemIndex("ps_rot"), dnu);
     Ring_GetTwiss(true, 0e0); printglob();
   }
