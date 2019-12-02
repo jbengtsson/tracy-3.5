@@ -2556,6 +2556,8 @@ void Mpole_Alloc(elemtype *Elem)
   M->Pgap   = 0e0; /* Gap for fringe field ??? */
 
   M->Pc0 = 0e0; M->Pc1 = 0e0; M->Ps1 = 0e0;
+
+  // M_lin is allocated in Mpole_Init.
 }
 
 
@@ -2915,6 +2917,7 @@ void Mpole_Init(int Fnum1)
     } else /* element as thin lens */
       elemp->M->Pthick = pthicktype(thin);
 
+    // Allocate TPSA vector.
     if (globval.mat_meth && (elemp->M->Pthick == thick))
       elemp->M->M_lin = get_lin_map(*elemp, 0e0);
   }
