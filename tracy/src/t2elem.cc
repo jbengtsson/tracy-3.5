@@ -774,7 +774,8 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &ps)
     break;
 
   default:
-    printf("Mpole_Pass: Method not supported %d\n", M->Pmethod);
+    printf("Mpole_Pass: Method not supported %10s %d\n",
+	   Cell.Elem.PName, M->Pmethod);
     exit_(0);
     break;
   }
@@ -2555,8 +2556,6 @@ void Mpole_Alloc(elemtype *Elem)
   M->Pgap   = 0e0; /* Gap for fringe field ??? */
 
   M->Pc0 = 0e0; M->Pc1 = 0e0; M->Ps1 = 0e0;
-
-  M->M_lin.zero();
 }
 
 

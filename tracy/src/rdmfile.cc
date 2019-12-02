@@ -139,7 +139,7 @@ void rdmfile(const char *mfile_dat)
   double       dTerror, val[n_ps];
   ss_vect<tps> Id;
 
-  const bool prt  = false;
+  const bool prt = false;
 
   std::cout << std::endl;
   std::cout << "reading machine file: " << mfile_dat << std::endl;

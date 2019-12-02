@@ -401,6 +401,7 @@ int main(int argc, char *argv[])
   globval.emittance  = false; globval.IBS            = false;
   globval.pathlength = false; globval.bpm            = 0;
   globval.Cart_Bend  = false; globval.dip_edge_fudge = true;
+  globval.mat_meth   = false;
 
   // disable from TPSALib and LieLib log messages
   idprset(-1);

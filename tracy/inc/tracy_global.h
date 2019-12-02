@@ -246,8 +246,6 @@ struct CavityType {
   bool
     entry_focus,  // Edge focusing at entry.
     exit_focus;   // Edge focusing at exit.
-  ss_vect<double>
-    M_lin;        // Linear Map for Element.
 };
 
 struct CellType;
