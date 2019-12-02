@@ -2140,8 +2140,6 @@ void Read_Lattice(const char *fic)
 
   t2init();
 
-  globval.mat_meth = false;
-
   /* open the lattice Input file  */
 
   if ((fi = fopen(fic_maille, "r")) == NULL) {

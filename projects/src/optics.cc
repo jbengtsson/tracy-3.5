@@ -1510,7 +1510,9 @@ int main(int argc, char *argv[])
 
   trace = !true;
 
-  if (true)
+  globval.mat_meth = !false;
+
+  if (!true)
     Read_Lattice(argv[1]);
   else
     rdmfile(argv[1]);

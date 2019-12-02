@@ -606,15 +606,72 @@ void quad_fringe(const double b2, ss_vect<T> &ps)
 }
 
 
+void get_dI4_5(CellType &Cell)
+{
+  double       L, K, h, b2, alpha, beta, gamma, psi, eta, etap;
+  ss_vect<tps> Id;
+  CellType     *Cellp;
+
+
+  Id.identity();
+
+  L = Cell.Elem.PL;
+  h = Cell.Elem.M->Pirho;
+  b2 = Cell.Elem.M->PBpar[Quad+HOMmax];
+  K = b2 + sqr(Cell.Elem.M->Pirho);
+  psi = sqrt(fabs(K))*L;
+  Cellp = &Cell - 1;
+  alpha = Cellp->Alpha[X_]; beta = Cellp->Beta[X_];
+  gamma = (1e0+sqr(alpha))/beta;
+  eta = Cellp->Eta[X_]; etap = Cellp->Etap[X_];
+
+  Cell.dI[2] += L*sqr(h);
+  Cell.dI[3] += L*fabs(cube(h));
+
+  if (K > 0e0) {
+    Cell.dI[4] +=
+      h/K*(2e0*b2+sqr(h))
+      *((eta*sqrt(K)*sin(psi)+etap*(1e0-cos(psi)))
+	+ h/sqrt(K)*(psi-sin(psi)));
+
+    Cell.dI[5] +=
+      L*fabs(cube(h))
+      *(gamma*sqr(eta)+2e0*alpha*eta*etap+beta*sqr(etap))
+      - 2e0*pow(h, 4)/(pow(K, 3e0/2e0))
+      *(sqrt(K)*(alpha*eta+beta*etap)*(cos(psi)-1e0)
+	+(gamma*eta+alpha*etap)*(psi-sin(psi)))
+      + fabs(pow(h, 5))/(4e0*pow(K, 5e0/2e0))
+      *(2e0*alpha*sqrt(K)*(4e0*cos(psi)-cos(2e0*psi)-3e0)
+	+beta*K*(2e0*psi-sin(2e0*psi))
+	+gamma*(6e0*psi-8e0*sin(psi)+sin(2e0*psi)));
+  } else {
+    K = fabs(K);
+
+    Cell.dI[4] +=
+      h/K*(2e0*b2+sqr(h))
+      *((eta*sqrt(K)*sinh(psi)-etap*(1e0-cosh(psi)))
+	- h/sqrt(K)*(psi-sinh(psi)));
+
+    Cell.dI[5] +=
+      L*fabs(cube(h))*
+      (gamma*sqr(eta)+2e0*alpha*eta*etap+beta*sqr(etap))
+      + 2e0*pow(h, 4)/(pow(K, 3e0/2e0))
+      *(sqrt(K)*(alpha*eta+beta*etap)*(cosh(psi)-1e0)
+	+(gamma*eta+alpha*etap)*(psi-sinh(psi)))
+      + fabs(pow(h, 5))/(4e0*pow(K, 5e0/2e0))
+      *(2e0*alpha*sqrt(K)*(4e0*cosh(psi)-cosh(2e0*psi)-3e0)
+	-beta*K*(2e0*psi-sinh(2e0*psi))
+	+gamma*(6e0*psi-8e0*sinh(psi)+sinh(2e0*psi)));
+  }
+}
+
+
 template<typename T>
 void Mpole_Pass(CellType &Cell, ss_vect<T> &ps)
 {
   int             seg = 0, i;
   double          k = 0e0, dL = 0e0, dL1 = 0e0, dL2 = 0e0;
   double          dkL1 = 0e0, dkL2 = 0e0, h_ref = 0e0;
-  double          L, K, h, b2, alpha, beta, gamma, psi, eta, etap;
-  ss_vect<tps>    Id;
-  CellType        *Cellp;
   elemtype        *elemp;
   MpoleType       *M;
 
@@ -631,141 +688,89 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &ps)
 
   switch (M->Pmethod) {
 
-  case Meth_Linear:
-    ps = is_double< ss_vect<T> >::ps(M->M_lin*ps);
-
-    if (globval.emittance && !globval.Cavity_on) {
-      if ((Cell.Elem.PL != 0e0) && (Cell.Elem.M->Pirho != 0e0)) {
-	Id.identity();
-
-	L = Cell.Elem.PL;
-	h = Cell.Elem.M->Pirho;
-	b2 = Cell.Elem.M->PBpar[Quad+HOMmax];
-	K = b2 + sqr(Cell.Elem.M->Pirho);
-	psi = sqrt(fabs(K))*L;
-	Cellp = &Cell - 1;
-	alpha = Cellp->Alpha[X_]; beta = Cellp->Beta[X_];
-	gamma = (1e0+sqr(alpha))/beta;
-	eta = Cellp->Eta[X_]; etap = Cellp->Etap[X_];
-
-	Cell.dI[2] += L*sqr(h);
-	Cell.dI[3] += L*fabs(cube(h));
-
-	if (K > 0e0) {
-	  Cell.dI[4] +=
-	    h/K*(2e0*b2+sqr(h))
-	    *((eta*sqrt(K)*sin(psi)+etap*(1e0-cos(psi)))
-	      + h/sqrt(K)*(psi-sin(psi)));
-
-	  Cell.dI[5] +=
-	    L*fabs(cube(h))
-	    *(gamma*sqr(eta)+2e0*alpha*eta*etap+beta*sqr(etap))
-	    - 2e0*pow(h, 4)/(pow(K, 3e0/2e0))
-	    *(sqrt(K)*(alpha*eta+beta*etap)*(cos(psi)-1e0)
-	      +(gamma*eta+alpha*etap)*(psi-sin(psi)))
-	    + fabs(pow(h, 5))/(4e0*pow(K, 5e0/2e0))
-	    *(2e0*alpha*sqrt(K)*(4e0*cos(psi)-cos(2e0*psi)-3e0)
-	      +beta*K*(2e0*psi-sin(2e0*psi))
-	      +gamma*(6e0*psi-8e0*sin(psi)+sin(2e0*psi)));
-	} else {
-	  K = fabs(K);
-
-	  Cell.dI[4] +=
-	    h/K*(2e0*b2+sqr(h))
-	    *((eta*sqrt(K)*sinh(psi)-etap*(1e0-cosh(psi)))
-	      - h/sqrt(K)*(psi-sinh(psi)));
-
-	  Cell.dI[5] +=
-	    L*fabs(cube(h))*
-	    (gamma*sqr(eta)+2e0*alpha*eta*etap+beta*sqr(etap))
-	    + 2e0*pow(h, 4)/(pow(K, 3e0/2e0))
-	    *(sqrt(K)*(alpha*eta+beta*etap)*(cosh(psi)-1e0)
-	      +(gamma*eta+alpha*etap)*(psi-sinh(psi)))
-	    + fabs(pow(h, 5))/(4e0*pow(K, 5e0/2e0))
-	    *(2e0*alpha*sqrt(K)*(4e0*cosh(psi)-cosh(2e0*psi)-3e0)
-	      -beta*K*(2e0*psi-sinh(2e0*psi))
-	      +gamma*(6e0*psi-8e0*sinh(psi)+sinh(2e0*psi)));
-	}
-      }
-    }
-    break;
-
   case Meth_Fourth:
-    // Fringe fields.
-    if (globval.quad_fringe && (M->PB[Quad+HOMmax] != 0e0))
-      quad_fringe(M->PB[Quad+HOMmax], ps);
-    if (!globval.Cart_Bend) {
-      if (M->Pirho != 0e0) EdgeFocus(M->Pirho, M->PTx1, M->Pgap, ps);
-    } else {
-      p_rot(M->PTx1, ps); bend_fringe(M->Pirho, ps);
-    }
+    if (globval.mat_meth && (M->Pthick == thick) && (M->Porder <= Quad)) {
+      ps = is_double< ss_vect<T> >::ps(M->M_lin*ps);
 
-    if (M->Pthick == thick) {
+      if (globval.emittance && !globval.Cavity_on)
+	if ((Cell.Elem.PL != 0e0) && (Cell.Elem.M->Pirho != 0e0))
+	  get_dI4_5(Cell);
+    } else {
+      // Fringe fields.
+      if (globval.quad_fringe && (M->PB[Quad+HOMmax] != 0e0))
+	quad_fringe(M->PB[Quad+HOMmax], ps);
       if (!globval.Cart_Bend) {
-	// Polar coordinates.
-	h_ref = M->Pirho; dL = elemp->PL/M->PN;
+	if (M->Pirho != 0e0) EdgeFocus(M->Pirho, M->PTx1, M->Pgap, ps);
       } else {
-	// Cartesian coordinates.
-	h_ref = 0e0;
-	if (M->Pirho == 0e0)
-	  dL = elemp->PL/M->PN;
-	else
-	  dL = 2e0/M->Pirho*sin(elemp->PL*M->Pirho/2e0)/M->PN;
+	p_rot(M->PTx1, ps); bend_fringe(M->Pirho, ps);
       }
 
-      dL1 = c_1*dL; dL2 = c_2*dL; dkL1 = d_1*dL; dkL2 = d_2*dL;
-
-      for (seg = 1; seg <= M->PN; seg++) {
-	if (globval.emittance && !globval.Cavity_on) {
-	  // Needs A^-1.
-	  Cell.curly_dH_x += is_tps<tps>::get_curly_H(ps);
-	  Cell.dI[4] += is_tps<tps>::get_dI4(ps);
+      if (M->Pthick == thick) {
+	if (!globval.Cart_Bend) {
+	  // Polar coordinates.
+	  h_ref = M->Pirho; dL = elemp->PL/M->PN;
+	} else {
+	  // Cartesian coordinates.
+	  h_ref = 0e0;
+	  if (M->Pirho == 0e0)
+	    dL = elemp->PL/M->PN;
+	  else
+	    dL = 2e0/M->Pirho*sin(elemp->PL*M->Pirho/2e0)/M->PN;
 	}
 
-	Drift(dL1, ps);
-        thin_kick(M->Porder, M->PB, dkL1, M->Pirho, h_ref, ps);
-	Drift(dL2, ps);
-        thin_kick(M->Porder, M->PB, dkL2, M->Pirho, h_ref, ps);
+	dL1 = c_1*dL; dL2 = c_2*dL; dkL1 = d_1*dL; dkL2 = d_2*dL;
+
+	for (seg = 1; seg <= M->PN; seg++) {
+	  if (globval.emittance && !globval.Cavity_on) {
+	    // Needs A^-1.
+	    Cell.curly_dH_x += is_tps<tps>::get_curly_H(ps);
+	    Cell.dI[4] += is_tps<tps>::get_dI4(ps);
+	  }
+
+	  Drift(dL1, ps);
+	  thin_kick(M->Porder, M->PB, dkL1, M->Pirho, h_ref, ps);
+	  Drift(dL2, ps);
+	  thin_kick(M->Porder, M->PB, dkL2, M->Pirho, h_ref, ps);
+
+	  if (globval.emittance && !globval.Cavity_on) {
+	    // Needs A^-1.
+	    Cell.curly_dH_x += 4e0*is_tps<tps>::get_curly_H(ps);
+	    Cell.dI[4] += 4e0*is_tps<tps>::get_dI4(ps);
+	  }
+
+	  Drift(dL2, ps);
+	  thin_kick(M->Porder, M->PB, dkL1, M->Pirho, h_ref, ps);
+	  Drift(dL1, ps);
+
+	  if (globval.emittance && !globval.Cavity_on) {
+	    // Needs A^-1.
+	    Cell.curly_dH_x += is_tps<tps>::get_curly_H(ps);
+	    Cell.dI[4] += is_tps<tps>::get_dI4(ps);
+	  }
+	}
 
 	if (globval.emittance && !globval.Cavity_on) {
 	  // Needs A^-1.
-	  Cell.curly_dH_x += 4e0*is_tps<tps>::get_curly_H(ps);
-	  Cell.dI[4] += 4e0*is_tps<tps>::get_dI4(ps);
+	  Cell.curly_dH_x /= 6e0*M->PN;
+	  Cell.dI[2] += elemp->PL*sqr(M->Pirho);
+	  Cell.dI[3] += elemp->PL*fabs(cube(M->Pirho));
+	  Cell.dI[4] *=
+	    elemp->PL*M->Pirho*(sqr(M->Pirho)+2e0*M->PBpar[Quad+HOMmax])
+	    /(6e0*M->PN);
+	  Cell.dI[5] += elemp->PL*fabs(cube(M->Pirho))*Cell.curly_dH_x;
 	}
+      } else
+	thin_kick(M->Porder, M->PB, 1e0, 0e0, 0e0, ps);
 
-	Drift(dL2, ps);
-        thin_kick(M->Porder, M->PB, dkL1, M->Pirho, h_ref, ps);
-	Drift(dL1, ps);
-
-	if (globval.emittance && !globval.Cavity_on) {
-	  // Needs A^-1.
-	  Cell.curly_dH_x += is_tps<tps>::get_curly_H(ps);
-	  Cell.dI[4] += is_tps<tps>::get_dI4(ps);
-	}
+      // Fringe fields.
+      if (!globval.Cart_Bend) {
+	if (M->Pirho != 0e0) EdgeFocus(M->Pirho, M->PTx2, M->Pgap, ps);
+      } else {
+	bend_fringe(-M->Pirho, ps); p_rot(M->PTx2, ps);
       }
-
-      if (globval.emittance && !globval.Cavity_on) {
-	// Needs A^-1.
-	Cell.curly_dH_x /= 6e0*M->PN;
-	Cell.dI[2] += elemp->PL*sqr(M->Pirho);
-	Cell.dI[3] += elemp->PL*fabs(cube(M->Pirho));
-	Cell.dI[4] *=
-	  elemp->PL*M->Pirho*(sqr(M->Pirho)+2e0*M->PBpar[Quad+HOMmax])
-	  /(6e0*M->PN);
-	Cell.dI[5] += elemp->PL*fabs(cube(M->Pirho))*Cell.curly_dH_x;
-      }
-    } else
-      thin_kick(M->Porder, M->PB, 1e0, 0e0, 0e0, ps);
-
-    // Fringe fields.
-    if (!globval.Cart_Bend) {
-      if (M->Pirho != 0e0) EdgeFocus(M->Pirho, M->PTx2, M->Pgap, ps);
-    } else {
-      bend_fringe(-M->Pirho, ps); p_rot(M->PTx2, ps);
+      if (globval.quad_fringe && (M->PB[Quad+HOMmax] != 0e0))
+	quad_fringe(-M->PB[Quad+HOMmax], ps);
     }
-    if (globval.quad_fringe && (M->PB[Quad+HOMmax] != 0e0))
-      quad_fringe(-M->PB[Quad+HOMmax], ps);
-
     break;
 
   default:
@@ -2911,10 +2916,8 @@ void Mpole_Init(int Fnum1)
     } else /* element as thin lens */
       elemp->M->Pthick = pthicktype(thin);
 
-    if (elemp->M->Pmethod == Meth_Linear) {
-      globval.mat_meth = true;
+    if (globval.mat_meth && (elemp->M->Pthick == thick))
       elemp->M->M_lin = get_lin_map(*elemp, 0e0);
-    }
   }
 }
 

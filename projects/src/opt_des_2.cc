@@ -12,7 +12,6 @@ const bool
   qf6_rb        = false,
   sp_short      = !true,
   sp_std        = true,
-  relaxed       = true,
   pert_dip_cell = !false;
  
 
@@ -1695,8 +1694,6 @@ void opt_mI_std(param_type &prms, constr_type &constr)
     dphi          = !false,
     long_grad_dip = !false;
 
-  printf("\n opt_mI_std:\n relaxed: %d\n", relaxed);
-
   // Standard Cell.
   grad_dip_scl.push_back(0.129665);
   grad_dip_scl.push_back(0.149256);
@@ -1765,52 +1762,37 @@ void opt_mI_std(param_type &prms, constr_type &constr)
   prms.add_prm("qf6",  2,  0.0, 20.0, 1.0);
   prms.add_prm("qf8",  2,  0.0, 20.0, 1.0);
 
- // Parameters are initialized in optimizer.
+  // Parameters are initialized in optimizer.
 
   // Lattice constraints are: alpha_x,y, beta_x,y, eta_x, eta'_x.
-  if (relaxed) {
-    // constr.add_constr(Elem_GetPos(ElemIndex("dl1a_5"), 1)-1,
-    // 		      0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
-    // 		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-    // constr.add_constr(Elem_GetPos(ElemIndex("dl1a_5"), 2),
-    // 		      0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
-    // 		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-    constr.add_constr(Elem_GetPos(ElemIndex("qf1"), 1)-1,
-		      0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
-		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-    constr.add_constr(Elem_GetPos(ElemIndex("qf1"), 2),
-		      0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
-		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-    // Default.
+  // constr.add_constr(Elem_GetPos(ElemIndex("dl1a_5"), 1)-1,
+  // 		      0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
+  // 		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+  // constr.add_constr(Elem_GetPos(ElemIndex("dl1a_5"), 2),
+  // 		      0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
+  // 		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+  constr.add_constr(Elem_GetPos(ElemIndex("qf1"), 1)-1,
+		    0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
+		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+  constr.add_constr(Elem_GetPos(ElemIndex("qf1"), 2),
+		    0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
+		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+  // Default.
 #if 0
-    constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
-    		      1e7, 1e7, 1e-2, 1e-2, 1e7,   0e0,
-    		      0.0, 0.0, 3.0,  1.5,  0.024, 0.0);
-    constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
-		      1e7, 1e7, 1e-2, 1e-2, 1e7, 1e7,
-		      0.0, 0.0, 4.0,  2.5,  0.0, 0.0);
+  constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
+		    1e7, 1e7, 1e-2, 1e-2, 1e7,   0e0,
+		    0.0, 0.0, 3.0,  1.5,  0.024, 0.0);
+  constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
+		    1e7, 1e7, 1e-2, 1e-2, 1e7, 1e7,
+		    0.0, 0.0, 4.0,  2.5,  0.0, 0.0);
 #else
-    constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
-    		      1e7, 1e7, 5e2, 5e2, 1e7,   0e0,
-    		      0.0, 0.0, 3.0, 1.5, 0.015, 0.0);
-    constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
-		      1e7, 1e7, 5e2, 5e2, 1e7, 1e7,
-		      0.0, 0.0, 4.0, 2.5, 0.0, 0.0);
+  constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
+		    1e7, 1e7, 5e2, 5e2, 1e7,   0e0,
+		    0.0, 0.0, 3.0, 1.5, 0.015, 0.0);
+  constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
+		    1e7, 1e7, 5e2, 5e2, 1e7, 1e7,
+		    0.0, 0.0, 4.0, 2.5, 0.0, 0.0);
 #endif
-  } else {
-    constr.add_constr(Elem_GetPos(ElemIndex("dl1a_5"), 1)-1,
-		      0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
-		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-    constr.add_constr(Elem_GetPos(ElemIndex("dl1a_5"), 2),
-		      0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
-		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-    constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
-		      1e7, 1e7, 1e0, 1e0, 1e7,   0e0,
-		      0.0, 0.0, 3.0, 1.5, 0.024, 0.0);
-    constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
-		      1e7, 1e7, 1e0, 1e0, 1e7, 1e7,
-		      0.0, 0.0, 4.0, 2.5, 0.0, 0.0);
-  }
 
   if (false) {
     // Increase beta_x.
@@ -1852,66 +1834,45 @@ void opt_mI_std(param_type &prms, constr_type &constr)
   for (k = 0; k < 2; k++)
     lat_constr.mI0[k] = mI_nu_ref[k];
 
-  if (relaxed) {
-    // lat_constr.eps_x_scl              = 5e6;
-    lat_constr.eps_x_scl              = 1e6;
-#if 1
-    // Default.
-    // lat_constr.ksi1_ctrl_scl[1]       = 1e1;
-    // lat_constr.ksi1_ctrl_scl[2]       = 1e1;
-    // lat_constr.ksi1_ctrl_scl[1]       = 1e0;
-    // lat_constr.ksi1_ctrl_scl[2]       = 1e0;
-    lat_constr.ksi1_ctrl_scl[1]       = 0e0;
-    lat_constr.ksi1_ctrl_scl[2]       = 0e0;
-#else
-    lat_constr.ksi1_ctrl_scl[1]       = 1e2;
-    lat_constr.ksi1_ctrl_scl[2]       = 1e3;
-#endif
+  // lat_constr.eps_x_scl              = 5e6;
+  lat_constr.eps_x_scl              = 1e6;
+  // Default.
+  lat_constr.ksi1_ctrl_scl[0]     = 0e-1;
+  lat_constr.ksi1_ctrl_scl[1]     = 0e0;
+  lat_constr.ksi1_ctrl_scl[2]     = 0e-1;
 #if 0
-    // Default.
-    lat_constr.drv_terms_simple_scl   = 1e-4;
+  // Default.
+  lat_constr.drv_terms_simple_scl   = 1e-4;
 #else
-    // lat_constr.drv_terms_simple_scl   = 1e-2;
-    lat_constr.drv_terms_simple_scl   = 5e-2;
-    // lat_constr.drv_terms_simple_scl   = 1e-1;
+  lat_constr.drv_terms_simple_scl   = 1e-2;
+  // lat_constr.drv_terms_simple_scl   = 5e-2;
+  // lat_constr.drv_terms_simple_scl   = 1e-1;
 #endif
-    // Not useful.
-    lat_constr.ksi1_svd_scl           = 0e3;
-    // Default.
+  // Not useful.
+  lat_constr.ksi1_svd_scl           = 0e3;
+  // Default.
 #if 0
-    lat_constr.mI_scl[X_]             = 1e7;
-    lat_constr.mI_scl[Y_]             = 1e7;
+  lat_constr.mI_scl[X_]             = 1e7;
+  lat_constr.mI_scl[Y_]             = 1e7;
 #else
-    // lat_constr.mI_scl[X_]             = 1e5;
-    // lat_constr.mI_scl[Y_]             = 1e5;
-    lat_constr.mI_scl[X_]             = 1e6;
-    lat_constr.mI_scl[Y_]             = 1e6;
+  // lat_constr.mI_scl[X_]             = 1e5;
+  // lat_constr.mI_scl[Y_]             = 1e5;
+  lat_constr.mI_scl[X_]             = 1e6;
+  lat_constr.mI_scl[Y_]             = 1e6;
 #endif
 #if 1
-    lat_constr.high_ord_achr_scl      = 1e7;
+  lat_constr.high_ord_achr_scl      = 1e7;
 #else
-    lat_constr.high_ord_achr_scl      = 1e4;
+  lat_constr.high_ord_achr_scl      = 1e4;
 #endif
 #if 1
-    // lat_constr.alpha_c_scl            = 5e-7;
-    lat_constr.alpha_c_scl            = 5e-6;
+  // lat_constr.alpha_c_scl            = 5e-7;
+  // lat_constr.alpha_c_scl            = 5e-6;
+  lat_constr.alpha_c_scl            = 1e-6;
 #else
-    lat_constr.alpha_c_scl            = 1e-7;
+  lat_constr.alpha_c_scl            = 1e-7;
 #endif
-  } else {
-    lat_constr.eps_x_scl              = 5e6;
-    lat_constr.ksi1_ctrl_scl[0]       = 0e-1;
-    lat_constr.ksi1_ctrl_scl[1]       = 0e-2;
-    lat_constr.ksi1_ctrl_scl[2]       = 0e-1;
-    lat_constr.drv_terms_simple_scl   = 1e-3;
-    // lat_constr.drv_terms_simple_scl = 1e-4;
-    // Not useful.
-    lat_constr.ksi1_svd_scl           = 0e3;
-    lat_constr.mI_scl[X_]             = 1e5;
-    lat_constr.mI_scl[Y_]             = 1e5;
-    lat_constr.high_ord_achr_scl      = 1e5;
-    lat_constr.alpha_c_scl            = 5e-7;
-  }
+
   lat_constr.phi_scl                  = (dphi)? 1e0 : 0e0;
 
   prt_prms(lat_constr);
@@ -1939,8 +1900,6 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
     dphi          = !false,
     long_grad_dip = !false,
     dip_cell      = true;
-
-  printf("\n opt_mI_sp:\n relaxed: %d\n", relaxed);
 
   // Standard Cell.
   grad_dip_scl.push_back(0.129665);
@@ -2020,113 +1979,87 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
   prms.add_prm("qd2_c1",   2, -20.0, 20.0, 1.0);
   prms.add_prm("quad_add", 2, -20.0, 20.0, 1.0);
 
- // Parameters are initialized in optimizer.
+  // Parameters are initialized in optimizer.
 
   // Lattice constraints are: alpha_x,y, beta_x,y, eta_x, eta'_x.
-  if (relaxed) {
 #if 0
-    constr.add_constr(Elem_GetPos(ElemIndex("dl1a_5"), 1)-1,
-    		      0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
-    		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-    constr.add_constr(Elem_GetPos(ElemIndex("dl1a_5"), 2),
-    		      0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
-    		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+  constr.add_constr(Elem_GetPos(ElemIndex("dl1a_5"), 1)-1,
+		    0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
+		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+  constr.add_constr(Elem_GetPos(ElemIndex("dl1a_5"), 2),
+		    0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
+		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 #else
-    // Include quadrupoles before Std & Long Straights.
-    // constr.add_constr(Elem_GetPos(ElemIndex("qf1_c1"), 1)-1,
-    // 		      0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
-    // 		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-    constr.add_constr(Elem_GetPos(ElemIndex("quad_add"), 1)-1,
-		      0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
-		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-    constr.add_constr(Elem_GetPos(ElemIndex("qf1"), 1),
-		      0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
-		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-    constr.add_constr(Elem_GetPos(ElemIndex("qf1"), 2)-1,
-		      0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
-		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-    constr.add_constr(Elem_GetPos(ElemIndex("qf1"), 3),
-		      0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
-		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-    constr.add_constr(Elem_GetPos(ElemIndex("qf1"), 4)-1,
-		      0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
-		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-    // constr.add_constr(Elem_GetPos(ElemIndex("qf1_c1"), 2),
-    // 		      0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
-    // 		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-    constr.add_constr(Elem_GetPos(ElemIndex("quad_add"), 2),
-		      0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
-		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+  // Include quadrupoles before Std & Long Straights.
+  // constr.add_constr(Elem_GetPos(ElemIndex("qf1_c1"), 1)-1,
+  // 		      0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
+  // 		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+  constr.add_constr(Elem_GetPos(ElemIndex("quad_add"), 1)-1,
+		    0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
+		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+  constr.add_constr(Elem_GetPos(ElemIndex("qf1"), 1),
+		    0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
+		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+  constr.add_constr(Elem_GetPos(ElemIndex("qf1"), 2)-1,
+		    0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
+		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+  constr.add_constr(Elem_GetPos(ElemIndex("qf1"), 3),
+		    0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
+		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+  constr.add_constr(Elem_GetPos(ElemIndex("qf1"), 4)-1,
+		    0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
+		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+  // constr.add_constr(Elem_GetPos(ElemIndex("qf1_c1"), 2),
+  // 		      0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
+  // 		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+  constr.add_constr(Elem_GetPos(ElemIndex("quad_add"), 2),
+		    0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
+		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 #endif
 
 #if 0
-    // Include constraint on alpha; in case of using ps_rot.
-    constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
-		      1e6, 1e6, 1e-2, 1e-2, 1e6,   1e7,
-		      0.0, 0.0, 3.0,  1.5,  0.024, 0.0);
-    constr.add_constr(Elem_GetPos(ElemIndex("ms"), 2),
-		      1e6, 1e6, 1e-2, 1e-2, 1e6,   1e7,
-		      0.0, 0.0, 3.0,  1.5,  0.024, 0.0);
-    constr.add_constr(Elem_GetPos(ElemIndex("ms"), 3),
-		      1e6, 1e6, 1e-2, 1e-2, 1e6,   1e7,
-		      0.0, 0.0, 3.0,  1.5,  0.024, 0.0);
-    // Both SS constraints are needed.
-    constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
-		      1e6, 1e6, 1e-2, 1e-2, 1e7, 1e7,
-		      0.0, 0.0, 4.0,  2.5,  0.0, 0.0);
-    constr.add_constr(Elem_GetPos(ElemIndex("ss"), 2),
-		      1e6, 1e6, 1e-2, 1e-2, 1e7, 1e7,
-		      0.0, 0.0, 4.0,  2.5,  0.0, 0.0);
-    constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
-		      1e6, 1e6, 1e-2, 1e-2, 1e7, 1e7,
-		      0.0, 0.0, 10.0, 4.0,  0.0, 0.0);
+  // Include constraint on alpha; in case of using ps_rot.
+  constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
+		    1e6, 1e6, 1e-2, 1e-2, 1e6,   1e7,
+		    0.0, 0.0, 3.0,  1.5,  0.024, 0.0);
+  constr.add_constr(Elem_GetPos(ElemIndex("ms"), 2),
+		    1e6, 1e6, 1e-2, 1e-2, 1e6,   1e7,
+		    0.0, 0.0, 3.0,  1.5,  0.024, 0.0);
+  constr.add_constr(Elem_GetPos(ElemIndex("ms"), 3),
+		    1e6, 1e6, 1e-2, 1e-2, 1e6,   1e7,
+		    0.0, 0.0, 3.0,  1.5,  0.024, 0.0);
+  // Both SS constraints are needed.
+  constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
+		    1e6, 1e6, 1e-2, 1e-2, 1e7, 1e7,
+		    0.0, 0.0, 4.0,  2.5,  0.0, 0.0);
+  constr.add_constr(Elem_GetPos(ElemIndex("ss"), 2),
+		    1e6, 1e6, 1e-2, 1e-2, 1e7, 1e7,
+		    0.0, 0.0, 4.0,  2.5,  0.0, 0.0);
+  constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
+		    1e6, 1e6, 1e-2, 1e-2, 1e7, 1e7,
+		    0.0, 0.0, 10.0, 4.0,  0.0, 0.0);
 #else
-    // Include constraint on alpha; in case of using ps_rot.
-    constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
-		      1e6, 1e6, 1e2, 1e2, 1e7,   1e7,
-		      0.0, 0.0, 3.0, 1.5, 0.015, 0.0);
-    constr.add_constr(Elem_GetPos(ElemIndex("ms"), 2),
-		      1e6, 1e6, 1e2, 1e2, 1e7,   1e7,
-		      0.0, 0.0, 3.0, 1.5, 0.015, 0.0);
-    constr.add_constr(Elem_GetPos(ElemIndex("ms"), 3),
-		      1e6, 1e6, 1e2, 1e2, 1e7,   1e7,
-		      0.0, 0.0, 3.0, 1.5, 0.015, 0.0);
-    // Both SS constraints are needed.
-    constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
-		      1e6, 1e6, 1e2,  1e2, 1e7, 1e7,
-		      0.0, 0.0, 4.0,  2.5, 0.0, 0.0);
-    constr.add_constr(Elem_GetPos(ElemIndex("ss"), 2),
-		      1e6, 1e6, 1e2,  1e2, 1e7, 1e7,
-		      0.0, 0.0, 4.0,  2.5, 0.0, 0.0);
-    constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
-		      1e6, 1e6, 1e2,  1e2, 1e7, 1e7,
-		      0.0, 0.0, 10.0, 4.0, 0.0, 0.0);
+  // Include constraint on alpha; in case of using ps_rot.
+  constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
+		    1e6, 1e6, 1e2, 1e2, 1e7,   1e7,
+		    0.0, 0.0, 3.0, 1.5, 0.015, 0.0);
+  constr.add_constr(Elem_GetPos(ElemIndex("ms"), 2),
+		    1e6, 1e6, 1e2, 1e2, 1e7,   1e7,
+		    0.0, 0.0, 3.0, 1.5, 0.015, 0.0);
+  constr.add_constr(Elem_GetPos(ElemIndex("ms"), 3),
+		    1e6, 1e6, 1e2, 1e2, 1e7,   1e7,
+		    0.0, 0.0, 3.0, 1.5, 0.015, 0.0);
+  // Both SS constraints are needed.
+  constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
+		    1e6, 1e6, 1e2,  1e2, 1e7, 1e7,
+		    0.0, 0.0, 4.0,  2.5, 0.0, 0.0);
+  constr.add_constr(Elem_GetPos(ElemIndex("ss"), 2),
+		    1e6, 1e6, 1e2,  1e2, 1e7, 1e7,
+		    0.0, 0.0, 4.0,  2.5, 0.0, 0.0);
+  constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
+		    1e6, 1e6, 1e2,  1e2, 1e7, 1e7,
+		    0.0, 0.0, 10.0, 4.0, 0.0, 0.0);
 #endif
-  } else {
-    constr.add_constr(Elem_GetPos(ElemIndex("dl1a_5"), 1)-1,
-		      0e0, 0e0, 0e0, 0e0, 1e8, 1e8,
-		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-    constr.add_constr(Elem_GetPos(ElemIndex("dl1a_5"), 2),
-		      0e0, 0e0, 0e0, 0e0, 1e8, 1e8,
-		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-    // Include constraint on alpha; in case of using ps_rot.
-    constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
-		      1e6, 1e6, 1e-1, 1e-1, 1e6,   1e8,
-		      0.0, 0.0, 3.0, 1.5, 0.024, 0.0);
-    constr.add_constr(Elem_GetPos(ElemIndex("ms"), 2),
-		      1e6, 1e6, 1e-1, 1e-1, 1e6,   1e8,
-		      0.0, 0.0, 3.0, 1.5, 0.024, 0.0);
-    // Both SS constraints are needed.
-    constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
-		      1e6, 1e6, 1e-1, 1e-1, 1e8, 1e8,
-		      0.0, 0.0, 4.0, 2.5, 0.0, 0.0);
-    constr.add_constr(Elem_GetPos(ElemIndex("ss"), 2),
-		      1e6, 1e6, 1e-1, 1e-1, 1e8, 1e8,
-		      0.0, 0.0, 4.0, 2.5, 0.0, 0.0);
-    constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
-		      1e6, 1e6, 1e-1,  1e-1, 1e8, 1e8,
-		      0.0, 0.0, 10.0, 4.0, 0.0, 0.0);
-  }
 
   if (false) {
     // Increase beta_x.
@@ -2173,73 +2106,53 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
   for (k = 0; k < 2; k++)
     lat_constr.mI0[k] = mI_nu_ref[k];
 
-  if (relaxed) {
 #if 1
-    // Default.
-    lat_constr.eps_x_scl            = 1e7;
+  // Default.
+  lat_constr.eps_x_scl            = 1e7;
 #else
-    lat_constr.eps_x_scl            = 5e6;
-    // lat_constr.eps_x_scl            = 1e6;
+  lat_constr.eps_x_scl            = 5e6;
+  // lat_constr.eps_x_scl            = 1e6;
 #endif
-    lat_constr.ksi1_ctrl_scl[0]     = 0e-1;
-    lat_constr.ksi1_ctrl_scl[1]     = 0e0;
-    lat_constr.ksi1_ctrl_scl[2]     = 0e-1;
+  lat_constr.ksi1_ctrl_scl[0]     = 0e-1;
+  lat_constr.ksi1_ctrl_scl[1]     = 0e0;
+  lat_constr.ksi1_ctrl_scl[2]     = 0e-1;
 #if 0
-    // Default.
-    lat_constr.drv_terms_simple_scl   = 1e-4;
+  // Default.
+  lat_constr.drv_terms_simple_scl   = 1e-4;
 #else
-    lat_constr.drv_terms_simple_scl   = 1e-3;
-    // lat_constr.drv_terms_simple_scl   = 1e-2;
-    // lat_constr.drv_terms_simple_scl   = 5e-2;
-    // lat_constr.drv_terms_simple_scl   = 1e-1;
+  lat_constr.drv_terms_simple_scl   = 1e-3;
+  // lat_constr.drv_terms_simple_scl   = 1e-2;
+  // lat_constr.drv_terms_simple_scl   = 5e-2;
+  // lat_constr.drv_terms_simple_scl   = 1e-1;
 #endif
-    // Not useful.
-    lat_constr.ksi1_svd_scl         = 0e3;
+  // Not useful.
+  lat_constr.ksi1_svd_scl         = 0e3;
 #if 1
-    lat_constr.mI_scl[X_]           = 1e7;
-    lat_constr.mI_scl[Y_]           = 1e7;
+  lat_constr.mI_scl[X_]           = 1e7;
+  lat_constr.mI_scl[Y_]           = 1e7;
 
-    lat_constr.high_ord_achr_scl    = 1e7;
+  lat_constr.high_ord_achr_scl    = 1e7;
 #else
-    // lat_constr.mI_scl[X_]           = 1e5;
-    // lat_constr.mI_scl[Y_]           = 1e5;
-    lat_constr.mI_scl[X_]           = 1e6;
-    lat_constr.mI_scl[Y_]           = 1e6;
+  // lat_constr.mI_scl[X_]           = 1e5;
+  // lat_constr.mI_scl[Y_]           = 1e5;
+  lat_constr.mI_scl[X_]           = 1e6;
+  lat_constr.mI_scl[Y_]           = 1e6;
 
-    // lat_constr.high_ord_achr_scl    = 1e4;
-    // lat_constr.high_ord_achr_scl    = 1e5;
-    lat_constr.high_ord_achr_scl    = 1e6;
+  // lat_constr.high_ord_achr_scl    = 1e4;
+  // lat_constr.high_ord_achr_scl    = 1e5;
+  lat_constr.high_ord_achr_scl    = 1e6;
 #endif
 #if 1
-    // 1e-7 is too small.
-    // lat_constr.alpha_c_scl            = 5e-8;
-    lat_constr.alpha_c_scl            = 1e-7;
-    // lat_constr.alpha_c_scl            = 5e-7;
-    // lat_constr.alpha_c_scl            = 1e-6;
-    // lat_constr.alpha_c_scl            = 5e-6;
+  // 1e-7 is too small.
+  // lat_constr.alpha_c_scl            = 5e-8;
+  lat_constr.alpha_c_scl            = 1e-7;
+  // lat_constr.alpha_c_scl            = 5e-7;
+  // lat_constr.alpha_c_scl            = 1e-6;
+  // lat_constr.alpha_c_scl            = 5e-6;
 #else
-    lat_constr.alpha_c_scl            = 1e-7;
+  lat_constr.alpha_c_scl            = 1e-7;
 #endif
-  } else {
-    lat_constr.eps_x_scl            = 1e6;
-    lat_constr.ksi1_ctrl_scl[0]     = 0e-1;
-    lat_constr.ksi1_ctrl_scl[1]     = 0e0;
-    lat_constr.ksi1_ctrl_scl[2]     = 0e-1;
-#if 0
-    // Default.
-    lat_constr.drv_terms_simple_scl   = 1e-4;
-#else
-    // lat_constr.drv_terms_simple_scl   = 1e-2;
-    lat_constr.drv_terms_simple_scl   = 5e-2;
-    // lat_constr.drv_terms_simple_scl   = 1e-1;
-#endif
-    // Not useful.
-    lat_constr.ksi1_svd_scl         = 0e3;
-    lat_constr.mI_scl[X_]           = 1e4;
-    lat_constr.mI_scl[Y_]           = 1e4;
-    lat_constr.high_ord_achr_scl    = 1e4;
-    lat_constr.alpha_c_scl          = 1e-9;
-  }
+
   lat_constr.phi_scl                = (dphi)? 1e0 : 0e0;
 
   prt_prms(lat_constr);
