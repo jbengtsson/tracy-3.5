@@ -146,6 +146,8 @@ void rdmfile(const char *mfile_dat)
 
   file_rd(inf, mfile_dat);
 
+  globval.mat_meth = false;
+
   while (inf.getline(line, line_max)) {
     if (prt) printf("%s\n", line);
     sscanf(line, "%*s %*d %*d %ld", &i);
@@ -259,6 +261,11 @@ void rdmfile(const char *mfile_dat)
 	Cell[i].Elem.M->PBpar[HOMmax+n] = Cell[i].Elem.M->PB[HOMmax+n];
 	Cell[i].Elem.M->PBpar[HOMmax-n] = Cell[i].Elem.M->PB[HOMmax-n];
 	Cell[i].Elem.M->Porder = max(n, Cell[i].Elem.M->Porder);
+      }
+
+      if (method == Meth_Linear) {
+	globval.mat_meth = true;
+	Cell[i].Elem.M->M_lin = get_lin_map(Cell[i].Elem, 0e0);
       }
       break;
     case Wigl:

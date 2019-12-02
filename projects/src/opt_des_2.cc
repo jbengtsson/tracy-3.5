@@ -352,6 +352,17 @@ void param_type::ini_prm(double *bn)
 }
 
 
+void set_lin_map(const int Fnum, const int Knum)
+{
+  int loc;
+
+  loc = Elem_GetPos(Fnum, Knum);
+  if ((Cell[loc].Elem.Pkind == Mpole)
+      && (Cell[loc].Elem.M->Pmethod == Meth_Linear))
+    Cell[loc].Elem.M->M_lin = get_lin_map(Cell[loc].Elem, 0e0);
+}
+
+
 void set_phi(const int Fnum, const double phi,
 	     const double phi0, const double phi1)
 {
@@ -365,6 +376,8 @@ void set_phi(const int Fnum, const double phi,
     Cell[loc].Elem.M->Pirho = i_rho;
     Cell[loc].Elem.M->PTx1 = phi0;
     Cell[loc].Elem.M->PTx2 = phi1;
+
+    set_lin_map(Fnum, k);
   }
 }
 
@@ -387,10 +400,14 @@ void set_grad_dip_phi(const std::vector<int> &Fnum,
 
 void set_grad_dip_b2(const std::vector<int> &Fnum, const double b2)
 {
-  int k;
+  int j, k;
 
-  for (k = 0; k < (int)Fnum.size(); k++)
-    set_bn_design_fam(Fnum[k], Quad, b2, 0e0);
+  for (j = 0; j < (int)Fnum.size(); j++) {
+    set_bn_design_fam(Fnum[j], Quad, b2, 0e0);
+
+    for (k = 1; k = GetnKid(Fnum[j]); k++)
+      set_lin_map(Fnum[j], k);
+  }
 }
 
 
@@ -496,9 +513,10 @@ void param_type::set_prm(double *bn)
     bn_ext = bn_bounded(bn[i], bn_min[i-1], bn_max[i-1]);
     if (n[i-1] > 0)
       // Multipole strength.
-      if (Fnum[i-1] > 0)
+      if (Fnum[i-1] > 0) {
 	set_bn_design_fam(Fnum[i-1], n[i-1], bn_ext, 0e0);
-      else
+	set_lin_map(Fnum[i-1], n[i-1]);
+      } else
 	set_grad_dip_b2(grad_dip_Fnum[i-1], bn_ext);
     else if (n[i-1] == -1) {
       // Position.

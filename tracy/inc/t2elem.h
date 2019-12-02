@@ -152,6 +152,8 @@ void Recombiner_Init(int Fnum1);
 void Solenoid_Init(int Fnum1);
 
 
+ss_vect<tps> get_lin_map(elemtype &Elem, const double delta);
+
 void get_lin_maps(const double delta);
 
 
