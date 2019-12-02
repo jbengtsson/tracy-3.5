@@ -355,9 +355,8 @@ void set_lin_map(const int Fnum)
   int loc, k;
 
   loc = Elem_GetPos(Fnum, 1);
-  if ((Cell[loc].Elem.Pkind == Mpole)
-      && (Cell[loc].Elem.M->Pthick == thick)
-      && (Cell[loc].Elem.M->Pmethod == Meth_Linear))
+  if (globval.mat_meth && (Cell[loc].Elem.Pkind == Mpole)
+      && (Cell[loc].Elem.M->Pthick == thick))
     for (k = 1; k <= GetnKid(Fnum); k++) {
       loc = Elem_GetPos(Fnum, k);
       Cell[loc].Elem.M->M_lin = get_lin_map(Cell[loc].Elem, 0e0);
@@ -2751,6 +2750,8 @@ int main(int argc, char *argv[])
 
   // Unbuffered output.
   setvbuf(stdout, buffer, _IONBF, BUFSIZ);
+
+  globval.mat_meth = !false;
 
   if (!true)
     Read_Lattice(argv[1]);

@@ -1512,7 +1512,7 @@ int main(int argc, char *argv[])
 
   globval.mat_meth = !false;
 
-  if (!true)
+  if (true)
     Read_Lattice(argv[1]);
   else
     rdmfile(argv[1]);
@@ -1531,7 +1531,11 @@ int main(int argc, char *argv[])
   if (!false) {
     get_eps_x();
     // get_I(I, true);
+
+    prt_lat("linlat1.out", globval.bpm, true);
+    prt_lat("linlat.out", globval.bpm, true, 10);
     prtmfile("flat_file.dat");
+
     exit(0);
   }
 
