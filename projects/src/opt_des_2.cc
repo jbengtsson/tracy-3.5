@@ -66,9 +66,9 @@ const double
   twoJ[]             = {sqr(3e-3)/10.0, sqr(2e-3)/4.0},
   delta              = 2e-2,
 #elif LAT_CASE == 8
-  eps0_x             = 0.149,
-  high_ord_achr_nu[] = {9.0/4.0+0.01, 3.0/4.0-0.01},
-  twoJ[]             = {sqr(3e-3)/10.0, sqr(2e-3)/4.0},
+  eps0_x             = 0.099,
+  high_ord_achr_nu[] = {11.0/4.0+0.01, 3.0/4.0-0.01},
+  twoJ[]             = {sqr(3e-3)/10.0, sqr(4e-3)/4.0},
   delta              = 2e-2,
 #elif LAT_CASE == 9
   eps0_x             = 0.149,
@@ -94,7 +94,7 @@ double rad2deg(const double a) { return a*180e0/M_PI; }
 double deg2rad(const double a) { return a*M_PI/180e0; }
 
 
-double eps_x;
+double eps_x, sigma_E;
 
 
 double bn_internal(const double bn_bounded,
@@ -167,7 +167,7 @@ public:
     drv_terms_simple[2],
     nu[2],
     ksi1[2],
-    ksi1_scl[2],
+    ksi1_scl,
     ksi1_ctrl_scl[3],
     ksi1_svd_scl,
     ksi1_svd[2],
@@ -175,7 +175,7 @@ public:
     phi_tot, phi0,       // Cell bend angle.
     high_ord_achr_scl,
     high_ord_achr_nu[2], // Higher-Order-Achromat Phase Advance.
-    mI_scl[2],
+    mI_scl,
     mI0[2],              // -I Transformer.
     alpha_c_scl,         // alpha_c.
     L_scl,
@@ -203,12 +203,12 @@ public:
   constr_type(void) {
     n_iter = 0; chi2 = 1e30; chi2_prt = 1e30;
     eps_x_scl = 0e0; phi_scl = 0e0;
-    ksi1_scl[X_] = ksi1_scl[Y_] = 0e0;
+    ksi1_scl = 0e0;
     ksi1_ctrl_scl[0] = ksi1_ctrl_scl[1] = ksi1_ctrl_scl[2] = 0e0;
     ksi1_svd_scl = 0e0;
     drv_terms_simple_scl = 0e0;
     high_ord_achr_scl = 0e0;
-    mI_scl[X_] = mI_scl[Y_] = 0e0;
+    mI_scl = 0e0;
     L_scl = 0e0;
   }
 
@@ -681,12 +681,12 @@ void constr_type::add_constr(const int loc,
 }
 
 
-double get_eps_x1(const bool track)
+double get_eps_x1(const bool track, double &eps_x, double &sigma_E)
 {
   // eps_x [nm.rad].
   long int     lastpos;
   int          k;
-  double       I[6], eps_x;
+  double       I[6];
   ss_vect<tps> A;
 
   const bool   prt     = false;
@@ -704,6 +704,7 @@ double get_eps_x1(const bool track)
   get_I(I, false);
 
   eps_x = 1e9*C_q_scl*sqr(globval.Energy)*I[5]/(I[2]-I[4]);
+  sigma_E = sqrt(C_q_scl*sqr(globval.Energy)*I[3]/(2e0*I[2]+I[4]));
 
   if (prt) {
     printf("\nget_eps_x1:\n");
@@ -711,8 +712,9 @@ double get_eps_x1(const bool track)
     for (k = 2; k <= 5; k++)
       printf(" %10.3e", I[k]);
     printf("\n");
-    printf("  eps_x = %5.3f nm.rad\n", eps_x);
-    printf("  J_x   = %5.3f, J_z = %5.3f\n", 1.0-I[4]/I[2], 2.0+I[4]/I[2]);
+    printf("  eps_x   = %9.3f nm.rad\n", eps_x);
+    printf("  sigma_E = %9.3e nm.rad\n", sigma_E);
+    printf("  J_x     = %9.3f, J_z = %5.3f\n", 1.0-I[4]/I[2], 2.0+I[4]/I[2]);
   }
 
   return eps_x;
@@ -726,12 +728,12 @@ double get_lin_opt(constr_type &constr)
 
   if (lat_constr.ring) {
     Ring_GetTwiss(true, 0e0);
-    eps_x = get_eps_x1(true);
+    eps_x = get_eps_x1(true, eps_x, sigma_E);
   } else {
     globval.emittance = true;
     A = get_A(constr.ic[0], constr.ic[1], constr.ic[2], constr.ic[3]);
     Cell_Twiss(0, globval.Cell_nLoc, A, false, false, 0e0);
-    eps_x = get_eps_x1(false);
+    eps_x = get_eps_x1(false, eps_x, sigma_E);
     globval.emittance = false;
   }
 
@@ -961,12 +963,13 @@ double constr_type::get_chi2(const bool prt) const
     printf("\n  S-L0:            %10.3e\n", dchi2[0]);
   }
 
-  if ((ksi1_scl[X_] != 0e0) || (ksi1_scl[Y_] != 0e0)) {
+  if (prt) printf("\n");
+  if (ksi1_scl != 0e0) {
     for (k = 0; k < 2; k++) {
-      dchi2[k] = ksi1_scl[k]*ksi1[k];
+      dchi2[k] = ksi1_scl*sqr(ksi1[k]);
       chi2 += dchi2[k];
     }
-    if (prt) printf("\n  ksi1:             [%10.3e, %10.3e]\n",
+    if (prt) printf("  ksi1:             [%10.3e, %10.3e]\n",
 		    dchi2[X_], dchi2[Y_]);
   }
 
@@ -975,7 +978,7 @@ double constr_type::get_chi2(const bool prt) const
       dchi2[k] = drv_terms_simple_scl*drv_terms_simple[k];
       chi2 += dchi2[k];
     }
-    if (prt) printf("\n  drv_terms_simple: [%10.3e, %10.3e]\n",
+    if (prt) printf("  drv_terms_simple: [%10.3e, %10.3e]\n",
 		    dchi2[X_], dchi2[Y_]);
   }
 
@@ -988,7 +991,7 @@ double constr_type::get_chi2(const bool prt) const
 	dchi2[k] = ksi1_ctrl_scl[k]*sqr(ksi1_ctrl[k]);
       chi2 += dchi2[k];
     }
-    if (prt) printf("\n  ksi1_ctrl:        [%10.3e, %10.3e, %10.3e]\n",
+    if (prt) printf("  ksi1_ctrl:        [%10.3e, %10.3e, %10.3e]\n",
 		    dchi2[0], dchi2[1], dchi2[2]);
   }
   
@@ -997,16 +1000,16 @@ double constr_type::get_chi2(const bool prt) const
     geom_mean = sqrt(ksi1_svd[X_]*ksi1_svd[Y_]);
     dchi2[0] = ksi1_svd_scl/sqr(geom_mean/mean);
     chi2 += dchi2[0];
-    if (prt) printf("\n  ksi1_svd:         %10.3e\n", dchi2[0]);
+    if (prt) printf("  ksi1_svd:         %10.3e\n", dchi2[0]);
   }
 
-  if ((mI_scl[X_] != 0e0) || (mI_scl[Y_] != 0e0)) {
+  if (mI_scl != 0e0) {
     for (j = 0; j < (int)mI.size(); j++) {
       for (k = 0; k < 2; k++) {
-	dchi2[k] = mI_scl[k]*sqr(mI[j][k]-mI0[k]);
+	dchi2[k] = mI_scl*sqr(mI[j][k]-mI0[k]);
 	chi2 += dchi2[k];
       }
-      if (prt) printf("\n  mI:               [%10.3e, %10.3e]\n",
+      if (prt) printf("  mI:               [%10.3e, %10.3e]\n",
 		      dchi2[X_], dchi2[Y_]);
     }
   }
@@ -1018,7 +1021,7 @@ double constr_type::get_chi2(const bool prt) const
 	  high_ord_achr_scl*sqr(high_ord_achr_dnu[j][k]-high_ord_achr_nu[k]);
 	chi2 += dchi2[k];
       }
-      if (prt) printf("\n  high_ord_achr:    [%10.3e, %10.3e]\n",
+      if (prt) printf("  high_ord_achr:    [%10.3e, %10.3e]\n",
 		      dchi2[X_], dchi2[Y_]);
     }
   }
@@ -1168,7 +1171,7 @@ void constr_type::prt_constr(const double chi2)
 
   if (high_ord_achr_scl != 0e0) prt_high_ord_achr(*this);
 
-  if ((mI_scl[X_] != 0e0) || (mI_scl[Y_] != 0e0)) {
+  if (mI_scl != 0e0) {
     printf("\n  -I Transf.:\n");
     for (k = 0; k < (int)mI.size(); k++)
       printf("    [%7.5f, %7.5f] [%3d, %3d]\n",
@@ -1708,7 +1711,7 @@ double f_achrom(double *b2)
 
     if (lat_constr.high_ord_achr_scl != 0e0) get_high_ord_achr(lat_constr);
 
-    if ((lat_constr.mI_scl[X_] != 0e0) || (lat_constr.mI_scl[Y_] != 0e0))
+    if (lat_constr.mI_scl != 0e0)
       get_mI(lat_constr);
 
     if ((lat_constr.ksi1_ctrl_scl[0] != 0e0)
@@ -1742,26 +1745,19 @@ void prt_prms(constr_type &constr)
 	 "  ksi1_svd_scl         = %9.3e\n"
 	 "  drv_terms_simple_scl = %9.3e\n"
 	 "  mI_nu_ref            = [%7.5f, %7.5f]\n"
-	 "  mI_scl               = [%9.3e, %9.3e]\n"
+	 "  mI_scl               = %9.3e\n"
 	 "  high_ord_achr_scl    = %9.3e\n"
 	 "  phi_scl              = %9.3e\n",
 	 constr.eps_x_scl, constr.ksi1_svd_scl,
 	 constr.drv_terms_simple_scl,
-	 mI_nu_ref[X_], mI_nu_ref[Y_],
-	 constr.mI_scl[X_], constr.mI_scl[Y_],
+	 mI_nu_ref[X_], mI_nu_ref[Y_], constr.mI_scl,
 	 constr.high_ord_achr_scl,
 	 constr.phi_scl);
 }
 
 
-void opt_mI_std(param_type &prms, constr_type &constr)
+void set_dip_cell(param_type &prms, constr_type &constr)
 {
-  // Parameter Type:
-  //   Bend Angle  -3,
-  //   Length      -2,
-  //   Position    -1,
-  //   Quadrupole   2.
-  int                 k, n;
   std::vector<int>    grad_dip_Fnum, mI_loc;
   std::vector<double> grad_dip_scl;
 
@@ -1819,60 +1815,50 @@ void opt_mI_std(param_type &prms, constr_type &constr)
     lat_constr.Fnum_b1.push_back(ElemIndex("dq1"));
   }
 
-  prms.add_prm("dq1",  2, -20.0, 20.0, 1.0);
-
-  // Mid Straight.
-  prms.add_prm("qf1",  2,   0.0, 20.0, 1.0);
-  prms.add_prm("qd2",  2, -20.0,  0.0, 1.0);
-  prms.add_prm("qp_q", 2, -20.0, 20.0, 1.0);
-
-  // Dipole Cell.
   prms.add_prm("qd3", 2, -20.0,  0.0, 1.0);
   prms.add_prm("qf4", 2,   0.0, 20.0, 1.0);
   // prms.add_prm("qd5", 2, -20.0,  0.0, 1.0);
   prms.add_prm("qd5", 2, -20.0, 20.0, 1.0);
 
-  // Standard Straight.
+  prms.add_prm("dq1",  2, -20.0, 20.0, 1.0);
+
+  lat_constr.phi_scl = (dphi)? 1e0 : 0e0;
+}
+
+
+void set_straights(param_type &prms)
+{
+  // Mid-Straight.
+  prms.add_prm("qf1",  2,   0.0, 20.0, 1.0);
+  prms.add_prm("qd2",  2, -20.0,  0.0, 1.0);
+  prms.add_prm("qp_q", 2,  -2.0,  2.0, 1.0);
+
+  // Standard-Straight.
   // prms.add_prm("qf6", -1, -0.3,  0.01, 1.0);
   prms.add_prm("qf6",  2,  0.0, 20.0, 1.0);
   prms.add_prm("qf8",  2,  0.0, 20.0, 1.0);
+}
 
-  // Parameters are initialized in optimizer.
 
-  // Lattice constraints are: alpha_x,y, beta_x,y, eta_x, eta'_x.
-  // constr.add_constr(Elem_GetPos(ElemIndex("dl1a_5"), 1)-1,
-  // 		      0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
-  // 		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-  // constr.add_constr(Elem_GetPos(ElemIndex("dl1a_5"), 2),
-  // 		      0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
-  // 		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+void set_b2_constr(constr_type &constr)
+{
   constr.add_constr(Elem_GetPos(ElemIndex("qf1"), 1)-1,
 		    0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
 		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("qf1"), 2),
 		    0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
 		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-  // Default.
-#if 0
   constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
-		    1e7, 1e7, 1e-2, 1e-2, 1e7,   0e0,
-		    0.0, 0.0, 3.0,  1.5,  0.024, 0.0);
+		    1e7, 1e7, 1e2, 1e2, 5e7,   0e0,
+		    0.0, 0.0, 3.0, 1.5, 0.018, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
-		    1e7, 1e7, 1e-2, 1e-2, 1e7, 1e7,
-		    0.0, 0.0, 4.0,  2.5,  0.0, 0.0);
-#else
-  constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
-		    1e7, 1e7, 1e2, 1e2, 5e6,   0e0,
-		    0.0, 0.0, 3.0, 1.5, 0.015, 0.0);
-  constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
-		    1e7, 1e7, 1e2, 1e2, 1e7, 1e7,
+		    1e7, 1e7, 1e2, 1e3, 1e7, 1e7,
 		    0.0, 0.0, 4.0, 2.5, 0.0, 0.0);
-#endif
 
   if (!false) {
     // Increase beta_x.
     constr.add_constr(Elem_GetPos(ElemIndex("sf1"), 1),
-		      0e5, 0e5, 1e2,  1e1, 0e7, 0e7,
+		      0e5, 0e5, 5e1,  1e1, 0e7, 0e7,
 		      0.0, 0.0, 12.0, 1.0, 0.0, 0.0);
   }
   if (false) {
@@ -1881,15 +1867,18 @@ void opt_mI_std(param_type &prms, constr_type &constr)
 		      0e5, 0e5, 1e1, 1e3, 0e7, 0e7,
 		      0.0, 0.0, 1.0, 8.0, 0.0, 0.0);
   }
+}
 
-  lat_prms.bn_tol = 1e-5; lat_prms.step = 1.0;
+
+void set_b3_constr(constr_type &constr)
+{
+  int              k, n;
+  std::vector<int> mI_loc;
 
   lat_constr.Fnum_b3.push_back(ElemIndex("sd1"));
   lat_constr.Fnum_b3.push_back(ElemIndex("sf1"));
   lat_constr.Fnum_b3.push_back(ElemIndex("sd2"));
   // lat_constr.Fnum_b3.push_back(ElemIndex("sh2"));
-
-  lat_constr.eps0_x = eps0_x;
 
   mI_loc.push_back(Elem_GetPos(ElemIndex("sf1"), 1));
   mI_loc.push_back(Elem_GetPos(ElemIndex("sf1"), 2));
@@ -1908,31 +1897,55 @@ void opt_mI_std(param_type &prms, constr_type &constr)
 
   for (k = 0; k < 2; k++)
     lat_constr.mI0[k] = mI_nu_ref[k];
+}
 
-  lat_constr.eps_x_scl            = 1e7;
-  // Default.
-  lat_constr.ksi1_scl[0]          = 1e2;
-  lat_constr.ksi1_scl[1]          = 1e2;
+
+void set_scl(constr_type &constr)
+{
+  lat_constr.eps_x_scl            = 1e6;
+
+  lat_constr.ksi1_scl             = 1e0;
   lat_constr.ksi1_ctrl_scl[0]     = 1e-1;
   lat_constr.ksi1_ctrl_scl[1]     = 1e1;
   lat_constr.ksi1_ctrl_scl[2]     = 1e-1;
   lat_constr.drv_terms_simple_scl = 1e-3;
   // Not useful.
   lat_constr.ksi1_svd_scl         = 0e3;
-  lat_constr.mI_scl[X_]           = 5e5;
-  lat_constr.mI_scl[Y_]           = 5e5;
+  lat_constr.mI_scl               = 5e5;
   lat_constr.high_ord_achr_scl    = 1e6;
+
   lat_constr.alpha_c_scl          = 5e-7;
-
-  lat_constr.phi_scl              = (dphi)? 1e0 : 0e0;
-
-  prt_prms(lat_constr);
 
   // Super Period.
   lat_constr.phi0 = 15.0;
   lat_constr.L_scl = 0e-10; lat_constr.L0 = 10.0;
+}
+
+
+void opt_mI_std(param_type &prms, constr_type &constr)
+{
+  // Parameter Type:
+  //   Bend Angle  -3,
+  //   Length      -2,
+  //   Position    -1,
+  //   Quadrupole   2.
+
+  // Set parameters; initialized by optimizer.
+  set_dip_cell(prms, constr);
+  set_straights(prms);
+
+  set_b2_constr(constr);
+
+  set_b3_constr(constr);
+
+  lat_constr.eps0_x = eps0_x;
+  lat_prms.bn_tol = 1e-5; lat_prms.step = 1.0;
+
+  set_scl(constr);
 
   lat_constr.ini_constr(true);
+
+  prt_prms(lat_constr);
 }
 
 
@@ -2010,12 +2023,12 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
     // Mid Straight.
     prms.add_prm("qf1",  2, -20.0, 20.0, 1.0);
     prms.add_prm("qd2",  2, -20.0, 20.0, 1.0);
-    prms.add_prm("qp_q", 2, -20.0, 20.0, 1.0);
+    prms.add_prm("qp_q", 2,  -1.0,  1.0, 1.0);
 
     // Dipole Cell.
-    prms.add_prm("qd3", 2, -20.0, 20.0, 1.0);
-    prms.add_prm("qf4", 2, -20.0, 20.0, 1.0);
-    prms.add_prm("qd5", 2, -20.0, 20.0, 1.0);
+    prms.add_prm("qd3", 2, -10.0,  0.0, 1.0);
+    prms.add_prm("qf4", 2,   0.0, 10.0, 1.0);
+    prms.add_prm("qd5", 2, -10.0,  0.0, 1.0);
 
     // Standard Straight.
     prms.add_prm("qf6", 2, -20.0, 20.0, 1.0);
@@ -2179,15 +2192,13 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
   // Not useful.
   lat_constr.ksi1_svd_scl         = 0e3;
 #if 1
-  lat_constr.mI_scl[X_]           = 1e7;
-  lat_constr.mI_scl[Y_]           = 1e7;
+  lat_constr.mI_scl               = 1e7;
 
   lat_constr.high_ord_achr_scl    = 1e7;
 #else
   // lat_constr.mI_scl[X_]           = 1e5;
   // lat_constr.mI_scl[Y_]           = 1e5;
-  lat_constr.mI_scl[X_]           = 1e6;
-  lat_constr.mI_scl[Y_]           = 1e6;
+  lat_constr.mI_scl               = 1e6;
 
   // lat_constr.high_ord_achr_scl    = 1e4;
   // lat_constr.high_ord_achr_scl    = 1e5;
@@ -2407,7 +2418,7 @@ void opt_tba(param_type &prms, constr_type &constr)
 
   lat_constr.eps_x_scl = 1e2; lat_constr.eps0_x = 0.190;
 
-  lat_constr.mI_scl[X_] = 1e-10; lat_constr.mI_scl[Y_] = 1e-10;
+  lat_constr.mI_scl = 1e-10;
   for (k = 0; k < 2; k++)
     lat_constr.mI0[k] = mI_nu_ref[k];
 
@@ -2562,7 +2573,7 @@ void opt_std_cell(param_type &prms, constr_type &constr)
   for (k = 0; k < n; k++)
     lat_constr.high_ord_achr_dnu[k].resize(2, 0e0);
 
-  lat_constr.mI_scl[X_] = 1e-10; lat_constr.mI_scl[Y_] = 1e-10;
+  lat_constr.mI_scl = 1e-10;
   for (k = 0; k < 2; k++)
     lat_constr.mI0[k] = mI_nu_ref[k];
 
@@ -2633,7 +2644,7 @@ void opt_long_cell(param_type &prms, constr_type &constr)
   for (k = 0; k < n; k++)
     lat_constr.high_ord_achr_dnu[k].resize(2, 0e0);
 
-  lat_constr.mI_scl[X_] = 1e-10; lat_constr.mI_scl[Y_] = 1e-10;
+  lat_constr.mI_scl = 1e-10;
   for (k = 0; k < 2; k++)
     lat_constr.mI0[k] = mI_nu_ref[k];
 
@@ -2761,7 +2772,7 @@ void opt_short_cell(param_type &prms, constr_type &constr)
   for (k = 0; k < n; k++)
     lat_constr.high_ord_achr_dnu[k].resize(2, 0e0);
 
-  lat_constr.mI_scl[X_] = 1e-10; lat_constr.mI_scl[Y_] = 1e-10;
+  lat_constr.mI_scl = 1e-10;
   for (k = 0; k < 2; k++)
     lat_constr.mI0[k] = mI_nu_ref[k];
 
@@ -2834,7 +2845,7 @@ int main(int argc, char *argv[])
       ttwiss(lat_constr.ic[0], lat_constr.ic[1],
 	     lat_constr.ic[2], lat_constr.ic[3], 0e0);
 
-    eps_x = get_eps_x1(true);
+    eps_x = get_eps_x1(true, eps_x, sigma_E);
     printf("\neps_x = %5.3f nm.rad\n\n", eps_x);
 
     prt_lat("linlat1.out", globval.bpm, true);
