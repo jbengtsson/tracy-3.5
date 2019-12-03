@@ -10,7 +10,7 @@ int no_tps = NO;
 const bool
   ps_rot        = !false, // Note, needs to be zeroed; after use.
   qf6_rb        = false,
-  sp_short      = !true,
+  sp_short      = true,
   sp_std        = true,
   pert_dip_cell = !false;
  
@@ -1831,10 +1831,11 @@ void set_dip_cell_std(param_type &prms, constr_type &constr)
     lat_constr.Fnum_b1.push_back(ElemIndex("dq1"));
   }
 
+  prms.add_prm("dq1", 2, -10.0, 10.0, 1.0);
+
   prms.add_prm("qd3", 2, -10.0,  0.0, 1.0);
   prms.add_prm("qf4", 2,   0.0, 10.0, 1.0);
   prms.add_prm("qd5", 2, -10.0,  0.0, 1.0);
-  prms.add_prm("dq1", 2, -10.0, 10.0, 1.0);
 
   lat_constr.phi_scl = (dphi)? 1e0 : 0e0;
 }
@@ -1963,7 +1964,7 @@ void opt_mI_std(param_type &prms, constr_type &constr)
 
 void set_dip_cell_sp(param_type &prms, constr_type &constr)
 {
-  std::vector<int>    grad_dip_Fnum, mI_loc;
+  std::vector<int>    grad_dip_Fnum;
   std::vector<double> grad_dip_scl;
 
   const bool
@@ -2020,10 +2021,11 @@ void set_dip_cell_sp(param_type &prms, constr_type &constr)
     lat_constr.Fnum_b1.push_back(ElemIndex("dq1"));
   }
 
+  prms.add_prm("dq1", 2, -10.0, 10.0, 1.0);
+
   prms.add_prm("qd3", 2, -10.0,  0.0, 1.0);
   prms.add_prm("qf4", 2,   0.0, 10.0, 1.0);
   prms.add_prm("qd5", 2, -10.0,  0.0, 1.0);
-  prms.add_prm("dq1", 2, -10.0, 10.0, 1.0);
 
   lat_constr.phi_scl = (dphi)? 1e0 : 0e0;
 }
@@ -2032,8 +2034,8 @@ void set_dip_cell_sp(param_type &prms, constr_type &constr)
 void set_b2_ms_std_ls_sp(param_type &prms)
 {
   // Mid Straight.
-  prms.add_prm("qf1",  2, -10.0, 10.0, 1.0);
   prms.add_prm("qd2",  2, -10.0, 10.0, 1.0);
+  prms.add_prm("qf1",  2, -10.0, 10.0, 1.0);
   prms.add_prm("qp_q", 2,  -1.0,  1.0, 1.0);
 
   // Standard Straight.
@@ -2043,8 +2045,8 @@ void set_b2_ms_std_ls_sp(param_type &prms)
   // Long Straight.
   // Perturbation of Dipole Cell.
   prms.add_prm("qd3_c1",   2, -10.0, 10.0, 1.0);
-  prms.add_prm("qf1_c1",   2, -10.0, 10.0, 1.0);
   prms.add_prm("qd2_c1",   2, -10.0, 10.0, 1.0);
+  prms.add_prm("qf1_c1",   2, -10.0, 10.0, 1.0);
   prms.add_prm("quad_add", 2, -10.0, 10.0, 1.0);
 }
 
@@ -2092,13 +2094,12 @@ void set_constr_sp(constr_type &constr)
 		    1e6, 1e6, 1e2,  1e2, 1e7, 1e7,
 		    0.0, 0.0, 10.0, 4.0, 0.0, 0.0);
 
-  if (false) {
+  if (false)
     // Increase beta_x.
     constr.add_constr(Elem_GetPos(ElemIndex("sf1"), 1),
 		      0e5, 0e5, 1e3,  1e2, 0e7, 0e7,
 		      0.0, 0.0, 12.0, 1.0, 0.0, 0.0);
-  }
-  if (false) {
+  if (false)
     // Increase beta_y.
     constr.add_constr(Elem_GetPos(ElemIndex("sd2"), 1),
 		      0e5, 0e5, 1e1, 1e3, 0e7, 0e7,
@@ -2108,6 +2109,9 @@ void set_constr_sp(constr_type &constr)
 
 void set_b3_constr_sp(constr_type &constr)
 {
+  int              k, n;
+  std::vector<int> mI_loc;
+
   lat_constr.Fnum_b3.push_back(ElemIndex("sd1"));
   lat_constr.Fnum_b3.push_back(ElemIndex("sf1"));
   lat_constr.Fnum_b3.push_back(ElemIndex("sd2"));
@@ -2173,30 +2177,21 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
   //   Length      -2,
   //   Position    -1,
   //   Quadrupole   2.
-  int                 k, n;
-  std::vector<int>    grad_dip_Fnum, mI_loc;
-  std::vector<double> grad_dip_scl;
-
-  const bool
-    dphi          = !false,
-    long_grad_dip = !false;
 
   // Set parameters; initialized by optimizer.
   lat_prms.bn_tol = 1e-5; lat_prms.step = 1.0;
 
-  set_dip_cell_std(prms, constr);
-  set_b2_ms_std(prms);
+  set_dip_cell_sp(prms, constr);
+  set_b2_ms_std_ls_sp(prms);
 
   lat_constr.eps0_x = eps0_x;
-  set_constr_std(constr);
-  set_b3_constr_std(constr);
-  set_weights_std(constr);
+  set_constr_sp(constr);
+  set_b3_constr_sp(constr);
+  set_weights_sp(constr);
 
   lat_constr.ini_constr(true);
 
   prt_prms(lat_constr);
-
-
 }
 
 
