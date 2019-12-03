@@ -2143,20 +2143,26 @@ void set_b3_constr_sp(constr_type &constr)
 void set_weights_sp(constr_type &constr)
 {
   lat_constr.eps_x_scl            = 1e7;
+
+  lat_constr.ksi1_scl             = 1e0;
+  lat_constr.drv_terms_simple_scl = 1e-3;
   lat_constr.ksi1_ctrl_scl[0]     = 0e-1;
   lat_constr.ksi1_ctrl_scl[1]     = 0e0;
   lat_constr.ksi1_ctrl_scl[2]     = 0e-1;
-  lat_constr.drv_terms_simple_scl   = 1e-3;
-  // lat_constr.drv_terms_simple_scl   = 1e-2;
-  // lat_constr.drv_terms_simple_scl   = 5e-2;
-  // lat_constr.drv_terms_simple_scl   = 1e-1;
   // Not useful.
   lat_constr.ksi1_svd_scl         = 0e3;
   lat_constr.mI_scl               = 1e7;
-
   lat_constr.high_ord_achr_scl    = 1e7;
-  // 1e-7 is too small.
-  lat_constr.alpha_c_scl            = 1e-7;
+
+  lat_constr.alpha_c_scl          = 1e-7;
+
+  if (!sp_short)
+    // Super Period.
+    lat_constr.phi0 = 60.0;
+  else
+    // Short Super Period.
+    lat_constr.phi0 = 45.0;
+  lat_constr.L_scl = 0e-10; lat_constr.L0 = 10.0;
 }
 
 
@@ -2175,24 +2181,22 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
     dphi          = !false,
     long_grad_dip = !false;
 
-  // Parameters are initialized in optimizer.
-
+  // Set parameters; initialized by optimizer.
   lat_prms.bn_tol = 1e-5; lat_prms.step = 1.0;
 
+  set_dip_cell_std(prms, constr);
+  set_b2_ms_std(prms);
 
+  lat_constr.eps0_x = eps0_x;
+  set_constr_std(constr);
+  set_b3_constr_std(constr);
+  set_weights_std(constr);
+
+  lat_constr.ini_constr(true);
 
   prt_prms(lat_constr);
 
-  if (!sp_short)
-    // Super Period.
-    lat_constr.phi0 = 60.0;
-  else
-    // Short Super Period.
-    lat_constr.phi0 = 45.0;
 
-  lat_constr.L_scl = 0e-10; lat_constr.L0 = 10.0;
-
-  lat_constr.ini_constr(true);
 }
 
 
