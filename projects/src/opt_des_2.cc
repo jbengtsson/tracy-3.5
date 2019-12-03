@@ -2051,41 +2051,8 @@ void set_b2_ms_std_ls_sp(param_type &prms)
 
 void set_constr_sp(constr_type &constr)
 {
-}
-
-
-void set_b3_constr_sp(constr_type &constr)
-{
-}
-
-
-void set_weights_sp(constr_type &constr)
-{
-}
-
-
-void opt_mI_sp(param_type &prms, constr_type &constr)
-{
-  // Parameter Type:
-  //   Bend Angle  -3,
-  //   Length      -2,
-  //   Position    -1,
-  //   Quadrupole   2.
-  int                 k, n;
-  std::vector<int>    grad_dip_Fnum, mI_loc;
-  std::vector<double> grad_dip_scl;
-
-  const bool
-    dphi          = !false,
-    long_grad_dip = !false;
-
-  // Parameters are initialized in optimizer.
-
   // Lattice constraints are: alpha_x,y, beta_x,y, eta_x, eta'_x.
   // Include quadrupoles before Std & Long Straights.
-  // constr.add_constr(Elem_GetPos(ElemIndex("qf1_c1"), 1)-1,
-  // 		      0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
-  // 		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("quad_add"), 1)-1,
 		    0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
 		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
@@ -2101,9 +2068,6 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
   constr.add_constr(Elem_GetPos(ElemIndex("qf1"), 4)-1,
 		    0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
 		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-  // constr.add_constr(Elem_GetPos(ElemIndex("qf1_c1"), 2),
-  // 		      0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
-  // 		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("quad_add"), 2),
 		    0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
 		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
@@ -2139,10 +2103,11 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
     constr.add_constr(Elem_GetPos(ElemIndex("sd2"), 1),
 		      0e5, 0e5, 1e1, 1e3, 0e7, 0e7,
 		      0.0, 0.0, 1.0, 8.0, 0.0, 0.0);
-  }
+}
 
-  lat_prms.bn_tol = 1e-5; lat_prms.step = 1.0;
 
+void set_b3_constr_sp(constr_type &constr)
+{
   lat_constr.Fnum_b3.push_back(ElemIndex("sd1"));
   lat_constr.Fnum_b3.push_back(ElemIndex("sf1"));
   lat_constr.Fnum_b3.push_back(ElemIndex("sd2"));
@@ -2172,7 +2137,11 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
 
   for (k = 0; k < 2; k++)
     lat_constr.mI0[k] = mI_nu_ref[k];
+}
 
+
+void set_weights_sp(constr_type &constr)
+{
   lat_constr.eps_x_scl            = 1e7;
   lat_constr.ksi1_ctrl_scl[0]     = 0e-1;
   lat_constr.ksi1_ctrl_scl[1]     = 0e0;
@@ -2187,11 +2156,30 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
 
   lat_constr.high_ord_achr_scl    = 1e7;
   // 1e-7 is too small.
-  // lat_constr.alpha_c_scl            = 5e-8;
   lat_constr.alpha_c_scl            = 1e-7;
-  // lat_constr.alpha_c_scl            = 5e-7;
-  // lat_constr.alpha_c_scl            = 1e-6;
-  // lat_constr.alpha_c_scl            = 5e-6;
+}
+
+
+void opt_mI_sp(param_type &prms, constr_type &constr)
+{
+  // Parameter Type:
+  //   Bend Angle  -3,
+  //   Length      -2,
+  //   Position    -1,
+  //   Quadrupole   2.
+  int                 k, n;
+  std::vector<int>    grad_dip_Fnum, mI_loc;
+  std::vector<double> grad_dip_scl;
+
+  const bool
+    dphi          = !false,
+    long_grad_dip = !false;
+
+  // Parameters are initialized in optimizer.
+
+  lat_prms.bn_tol = 1e-5; lat_prms.step = 1.0;
+
+
 
   prt_prms(lat_constr);
 
