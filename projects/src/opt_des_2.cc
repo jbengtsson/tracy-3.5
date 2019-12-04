@@ -10,7 +10,7 @@ int no_tps = NO;
 const bool
   ps_rot        = !false, // Note, needs to be zeroed; after use.
   qf6_rb        = false,
-  sp_short      = true,
+  sp_short      = !true,
   sp_std        = true,
   pert_dip_cell = !false;
  
@@ -24,8 +24,8 @@ const int opt_case = 3;
 // From Center of Mid Straight: alpha, beta, eta, eta'.
 const int    n_ic        = 4;
 const double ic[n_ic][2] =
-  {{-0.0000000000, -0.0000000000}, {2.1940162298, 1.8369402328},
-   {0.0202969155, 0.0000000000}, {-0.0, 0.0}};
+  {{-0.0046887332, 0.0001150439}, {2.2915031296, 1.9609784062},
+   {0.0184835333, 0.0000000000}, {0.0, 0.0}};
 
 #define LAT_CASE 8
 
@@ -1984,9 +1984,9 @@ void set_dip_cell_sp(param_type &prms, constr_type &constr)
   grad_dip_Fnum.push_back(ElemIndex("dl1a_4"));
   grad_dip_Fnum.push_back(ElemIndex("dl1a_5"));
   if (dphi)
-    prms.add_prm(grad_dip_Fnum, grad_dip_scl, -3, -10.0, 10.0, 1.0);
+    prms.add_prm(grad_dip_Fnum, grad_dip_scl, -3, -15.0, 15.0, 1.0);
   if (long_grad_dip)
-    prms.add_prm(grad_dip_Fnum, grad_dip_scl,  2, -10.0, 10.0, 1.0);
+    prms.add_prm(grad_dip_Fnum, grad_dip_scl,  2, -15.0, 15.0, 1.0);
 
   lat_constr.Fnum_b1.push_back(-ElemIndex("dl1a_1"));
   lat_constr.grad_dip_Fnum_b1.push_back(grad_dip_Fnum);
@@ -1998,34 +1998,34 @@ void set_dip_cell_sp(param_type &prms, constr_type &constr)
   grad_dip_Fnum.push_back(ElemIndex("dl2a_4"));
   grad_dip_Fnum.push_back(ElemIndex("dl2a_5"));
   if (dphi)
-    prms.add_prm(grad_dip_Fnum, grad_dip_scl, -3, -10.0, 10.0, 1.0);
+    prms.add_prm(grad_dip_Fnum, grad_dip_scl, -3, -15.0, 15.0, 1.0);
   if (long_grad_dip)
-    prms.add_prm(grad_dip_Fnum, grad_dip_scl,  2, -10.0, 10.0, 1.0);
+    prms.add_prm(grad_dip_Fnum, grad_dip_scl,  2, -15.0, 15.0, 1.0);
 
   lat_constr.Fnum_b1.push_back(-ElemIndex("dl2a_1"));
   lat_constr.grad_dip_Fnum_b1.push_back(grad_dip_Fnum);
 
   if (dphi) {
     // Dipole Cell.
-    prms.add_prm("qf4", -3, -10.0, 10.0, 1.0);
+    prms.add_prm("qf4", -3, -15.0, 15.0, 1.0);
     lat_constr.Fnum_b1.push_back(ElemIndex("qf4"));
     if (qf6_rb) {
-      prms.add_prm("qf6", -3, -10.0, 10.0, 1.0);
+      prms.add_prm("qf6", -3, -15.0, 15.0, 1.0);
       lat_constr.Fnum_b1.push_back(ElemIndex("qf6"));
     }
-    prms.add_prm("qf8", -3, -10.0, 10.0, 1.0);
+    prms.add_prm("qf8", -3, -15.0, 15.0, 1.0);
     lat_constr.Fnum_b1.push_back(ElemIndex("qf8"));
 
     // Commented out must be defined last.
-    // prms.add_prm("dq1", -3, -10.0,   10.0,  1.0);
+    // prms.add_prm("dq1", -3, -15.0,   15.0,  1.0);
     lat_constr.Fnum_b1.push_back(ElemIndex("dq1"));
   }
 
-  prms.add_prm("dq1", 2, -10.0, 10.0, 1.0);
+  prms.add_prm("dq1", 2, -15.0, 15.0, 1.0);
 
-  prms.add_prm("qd3", 2, -10.0,  0.0, 1.0);
-  prms.add_prm("qf4", 2,   0.0, 10.0, 1.0);
-  prms.add_prm("qd5", 2, -10.0,  0.0, 1.0);
+  prms.add_prm("qd3", 2, -15.0,  0.0, 1.0);
+  prms.add_prm("qf4", 2,   0.0, 15.0, 1.0);
+  prms.add_prm("qd5", 2, -15.0,  0.0, 1.0);
 
   lat_constr.phi_scl = (dphi)? 1e0 : 0e0;
 }
@@ -2034,64 +2034,45 @@ void set_dip_cell_sp(param_type &prms, constr_type &constr)
 void set_b2_ms_std_ls_sp(param_type &prms)
 {
   // Mid Straight.
-  prms.add_prm("qd2",  2, -10.0, 10.0, 1.0);
-  prms.add_prm("qf1",  2, -10.0, 10.0, 1.0);
-  prms.add_prm("qp_q", 2,  -1.0,  1.0, 1.0);
+  prms.add_prm("qd2",  2, -15.0, 15.0, 1.0);
+  prms.add_prm("qf1",  2, -15.0, 15.0, 1.0);
+  // prms.add_prm("qp_q", 2,  -1.0,  1.0, 1.0);
 
   // Standard Straight.
-  prms.add_prm("qf6", 2, -10.0, 10.0, 1.0);
-  prms.add_prm("qf8", 2, -10.0, 10.0, 1.0);
+  prms.add_prm("qf6", 2, -15.0, 15.0, 1.0);
+  prms.add_prm("qf8", 2, -15.0, 15.0, 1.0);
 
   // Long Straight.
   // Perturbation of Dipole Cell.
-  prms.add_prm("qd3_c1",   2, -10.0, 10.0, 1.0);
-  prms.add_prm("qd2_c1",   2, -10.0, 10.0, 1.0);
-  prms.add_prm("qf1_c1",   2, -10.0, 10.0, 1.0);
-  prms.add_prm("quad_add", 2, -10.0, 10.0, 1.0);
+  prms.add_prm("qd3_c1",   2, -15.0, 15.0, 1.0);
+  prms.add_prm("qd2_c1",   2, -15.0, 15.0, 1.0);
+  prms.add_prm("qf1_c1",   2, -15.0, 15.0, 1.0);
+  prms.add_prm("quad_add", 2, -15.0, 15.0, 1.0);
 }
 
 
 void set_constr_sp(constr_type &constr)
 {
+  int k;
+
   // Lattice constraints are: alpha_x,y, beta_x,y, eta_x, eta'_x.
-  // Include quadrupoles before Std & Long Straights.
+  // Include Matching Sections for Std & Long Straights.
   constr.add_constr(Elem_GetPos(ElemIndex("quad_add"), 1)-1,
-		    0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
+		    0e0, 0e0, 0e0, 0e0, 1e8, 1e8,
 		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("qf1"), 1),
-		    0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
-		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-  constr.add_constr(Elem_GetPos(ElemIndex("qf1"), 2)-1,
-		    0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
-		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-  constr.add_constr(Elem_GetPos(ElemIndex("qf1"), 3),
-		    0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
-		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-  constr.add_constr(Elem_GetPos(ElemIndex("qf1"), 4)-1,
-		    0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
-		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-  constr.add_constr(Elem_GetPos(ElemIndex("quad_add"), 2),
-		    0e0, 0e0, 0e0, 0e0, 1e7, 1e7,
+		    0e0, 0e0, 0e0, 0e0, 1e8, 1e8,
 		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   // Include constraint on alpha; in case of using ps_rot.
   constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
-		    1e6, 1e6, 1e2, 1e2, 1e7,   1e7,
-		    0.0, 0.0, 3.0, 1.5, 0.015, 0.0);
-  constr.add_constr(Elem_GetPos(ElemIndex("ms"), 2),
-		    1e6, 1e6, 1e2, 1e2, 1e7,   1e7,
-		    0.0, 0.0, 3.0, 1.5, 0.015, 0.0);
-  constr.add_constr(Elem_GetPos(ElemIndex("ms"), 3),
-		    1e6, 1e6, 1e2, 1e2, 1e7,   1e7,
-		    0.0, 0.0, 3.0, 1.5, 0.015, 0.0);
-  // Both SS constraints are needed.
-  constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
-		    1e6, 1e6, 1e2,  1e2, 1e7, 1e7,
-		    0.0, 0.0, 4.0,  2.5, 0.0, 0.0);
-  constr.add_constr(Elem_GetPos(ElemIndex("ss"), 2),
-		    1e6, 1e6, 1e2,  1e2, 1e7, 1e7,
-		    0.0, 0.0, 4.0,  2.5, 0.0, 0.0);
+		    1e6, 1e6, 1e-1, 1e-1, 1e8,   1e8,
+		    0.0, 0.0, 3.0,  1.5,  0.018, 0.0);
+  for (k = 1; k <= 2; k++)
+    constr.add_constr(Elem_GetPos(ElemIndex("ss"), k),
+		      1e6, 1e6, 1e0, 1e3, 1e8, 1e8,
+		      0.0, 0.0, 4.0, 2.5, 0.0, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
-		    1e6, 1e6, 1e2,  1e2, 1e7, 1e7,
+		    1e6, 1e6, 1e3,  1e1, 1e8, 1e8,
 		    0.0, 0.0, 10.0, 4.0, 0.0, 0.0);
 
   if (false)
@@ -2130,7 +2111,6 @@ void set_b3_constr_sp(constr_type &constr)
   for (k = 0; k < 2; k++)
     lat_constr.high_ord_achr_nu[k] = high_ord_achr_nu[k];
 
-  lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("ls"), 1));
   lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("ss"), 1));
   lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("ss"), 2));
 
@@ -2146,25 +2126,25 @@ void set_b3_constr_sp(constr_type &constr)
 
 void set_weights_sp(constr_type &constr)
 {
-  lat_constr.eps_x_scl            = 1e7;
+  lat_constr.eps_x_scl            = 5e6;
 
-  lat_constr.ksi1_scl             = 1e0;
-  lat_constr.drv_terms_simple_scl = 1e-3;
+  lat_constr.ksi1_scl             = 1e-1;
+  lat_constr.drv_terms_simple_scl = 1e-4;
   lat_constr.ksi1_ctrl_scl[0]     = 0e-1;
   lat_constr.ksi1_ctrl_scl[1]     = 0e0;
   lat_constr.ksi1_ctrl_scl[2]     = 0e-1;
   // Not useful.
   lat_constr.ksi1_svd_scl         = 0e3;
-  lat_constr.mI_scl               = 1e7;
-  lat_constr.high_ord_achr_scl    = 1e7;
+  lat_constr.mI_scl               = 1e6;
+  lat_constr.high_ord_achr_scl    = 1e6;
 
-  lat_constr.alpha_c_scl          = 1e-7;
+  lat_constr.alpha_c_scl          = 5e-8;
 
   if (!sp_short)
     // Super Period.
     lat_constr.phi0 = 60.0;
   else
-    // Short Super Period.
+    // Super Period with 1 Std Straight only.
     lat_constr.phi0 = 45.0;
   lat_constr.L_scl = 0e-10; lat_constr.L0 = 10.0;
 }
@@ -2198,11 +2178,11 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
 void set_b2_ls(param_type &prms)
 {
   if (pert_dip_cell)
-    prms.add_prm("qd3_c1", 2, -10.0, 10.0, 1.0);
+    prms.add_prm("qd3_c1", 2, -15.0, 15.0, 1.0);
   // Long Straight.
-  prms.add_prm("qd2_c1",   2, -10.0, 10.0, 1.0);
-  prms.add_prm("qf1_c1",   2, -10.0, 10.0, 1.0);
-  prms.add_prm("quad_add", 2, -10.0, 10.0, 1.0);
+  prms.add_prm("qd2_c1",   2, -15.0, 15.0, 1.0);
+  prms.add_prm("qf1_c1",   2, -15.0, 15.0, 1.0);
+  prms.add_prm("quad_add", 2, -15.0, 15.0, 1.0);
 
   // Parameters are initialized in optimizer.
 }
@@ -2213,11 +2193,11 @@ void set_constr_ls(constr_type &constr)
   if (!pert_dip_cell)
     // Eta_x & eta_x' are zero after Dipole Cell.
     constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
-		      1e2, 1e2, 1e0, 1e-1, 1e-10, 1e-10,
+		      1e2, 1e2, 1e-1, 1e-1, 1e-10, 1e-10,
 		      0.0, 0.0, 10.0, 4.0,  0.0,   0.0);
   else {
     constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
-		      1e2, 1e2, 1e0, 1e-1,  1e-10, 1e-10,
+		      1e2, 1e2, 1e-1, 1e-1, 1e-10, 1e-10,
 		      0.0, 0.0, 10.0, 4.0,  0.0,   0.0);
     constr.add_constr(Elem_GetPos(ElemIndex("quad_add"), 1),
 		      0e0, 0e0, 0e0, 0e0, 1e5, 1e5,
@@ -2245,10 +2225,7 @@ void set_b3_constr_ls(constr_type &constr)
 
 void set_weights_ls(constr_type &constr)
 {
-  if (!pert_dip_cell)
-    lat_constr.high_ord_achr_scl = 1e-2;
-  else
-    lat_constr.high_ord_achr_scl = 1e-2;
+  lat_constr.high_ord_achr_scl = 1e1;
 }
 
 
