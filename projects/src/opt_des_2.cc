@@ -1991,19 +1991,22 @@ void set_dip_cell_sp(param_type &prms, constr_type &constr)
   lat_constr.Fnum_b1.push_back(-ElemIndex("dl1a_1"));
   lat_constr.grad_dip_Fnum_b1.push_back(grad_dip_Fnum);
 
-  grad_dip_Fnum.clear();
-  grad_dip_Fnum.push_back(ElemIndex("dl2a_1"));
-  grad_dip_Fnum.push_back(ElemIndex("dl2a_2"));
-  grad_dip_Fnum.push_back(ElemIndex("dl2a_3"));
-  grad_dip_Fnum.push_back(ElemIndex("dl2a_4"));
-  grad_dip_Fnum.push_back(ElemIndex("dl2a_5"));
-  if (dphi)
-    prms.add_prm(grad_dip_Fnum, grad_dip_scl, -3, -15.0, 15.0, 1.0);
-  if (long_grad_dip)
-    prms.add_prm(grad_dip_Fnum, grad_dip_scl,  2, -15.0, 15.0, 1.0);
+  if (true) {
+    // Different longitudinal gradient dipoles.
+    grad_dip_Fnum.clear();
+    grad_dip_Fnum.push_back(ElemIndex("dl2a_1"));
+    grad_dip_Fnum.push_back(ElemIndex("dl2a_2"));
+    grad_dip_Fnum.push_back(ElemIndex("dl2a_3"));
+    grad_dip_Fnum.push_back(ElemIndex("dl2a_4"));
+    grad_dip_Fnum.push_back(ElemIndex("dl2a_5"));
+    if (dphi)
+      prms.add_prm(grad_dip_Fnum, grad_dip_scl, -3, -15.0, 15.0, 1.0);
+    if (long_grad_dip)
+      prms.add_prm(grad_dip_Fnum, grad_dip_scl,  2, -15.0, 15.0, 1.0);
 
-  lat_constr.Fnum_b1.push_back(-ElemIndex("dl2a_1"));
-  lat_constr.grad_dip_Fnum_b1.push_back(grad_dip_Fnum);
+    lat_constr.Fnum_b1.push_back(-ElemIndex("dl2a_1"));
+    lat_constr.grad_dip_Fnum_b1.push_back(grad_dip_Fnum);
+  }
 
   if (dphi) {
     // Dipole Cell.
@@ -2111,6 +2114,7 @@ void set_b3_constr_sp(constr_type &constr)
   for (k = 0; k < 2; k++)
     lat_constr.high_ord_achr_nu[k] = high_ord_achr_nu[k];
 
+  // lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("ls"), 1));
   lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("ss"), 1));
   lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("ss"), 2));
 
