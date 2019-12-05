@@ -18,14 +18,15 @@ const bool
 /* opt_case:
      opt_mI_std  1,
      match_ls    2,
-     opt_mi_sp   3.                                                           */
+     opt_mi_sp   3,
+     match_ss    4.                                                           */
 const int opt_case = 3;
 
 // From Center of Mid Straight: alpha, beta, eta, eta'.
 const int    n_ic        = 4;
 const double ic[n_ic][2] =
-  {{-0.0046887332, 0.0001150439}, {2.2915031296, 1.9609784062},
-   {0.0184835333, 0.0000000000}, {0.0, 0.0}};
+  {{0.0108445648, -0.0096902915}, {2.1910684591, 1.3682317067},
+   {0.0215550560, 0.0000000000}, {0.0, 0.0}};
 
 #define LAT_CASE 8
 
@@ -72,7 +73,7 @@ const double
   delta              = 2e-2,
 #elif LAT_CASE == 9
   eps0_x             = 0.149,
-  high_ord_achr_nu[] = {9.0/4.0+0.01, 3.0/4.0-0.01},
+  high_ord_achr_nu[] = {11.0/4.0+0.01, 5.0/4.0-0.01},
   twoJ[]             = {sqr(7e-3)/10.0, sqr(4e-3)/4.0},
   delta              = 2.5e-2,
 #elif LAT_CASE == 10
@@ -2039,7 +2040,7 @@ void set_b2_ms_std_ls_sp(param_type &prms)
   // Mid Straight.
   prms.add_prm("qd2",  2, -15.0, 15.0, 1.0);
   prms.add_prm("qf1",  2, -15.0, 15.0, 1.0);
-  // prms.add_prm("qp_q", 2,  -1.0,  1.0, 1.0);
+  prms.add_prm("qp_q", 2,  -1.0,  1.0, 1.0);
 
   // Standard Straight.
   prms.add_prm("qf6", 2, -15.0, 15.0, 1.0);
@@ -2069,11 +2070,11 @@ void set_constr_sp(constr_type &constr)
   // Include constraint on alpha; in case of using ps_rot.
   constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
 		    1e6, 1e6, 1e-1, 1e-1, 1e8,   1e8,
-		    0.0, 0.0, 3.0,  1.5,  0.018, 0.0);
+		    0.0, 0.0, 2.0,  2.0,  0.018, 0.0);
   for (k = 1; k <= 2; k++)
     constr.add_constr(Elem_GetPos(ElemIndex("ss"), k),
 		      1e6, 1e6, 1e0, 1e3, 1e8, 1e8,
-		      0.0, 0.0, 4.0, 2.5, 0.0, 0.0);
+		      0.0, 0.0, 1.5, 2.0, 0.0, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
 		    1e6, 1e6, 1e3,  1e1, 1e8, 1e8,
 		    0.0, 0.0, 10.0, 4.0, 0.0, 0.0);
@@ -2252,6 +2253,79 @@ void match_ls(param_type &prms, constr_type &constr)
   set_constr_ls(constr);
   set_b3_constr_ls(constr);
   set_weights_ls(constr);
+
+  lat_constr.ini_constr(false);
+
+  for (j = 0; j < n_ic; j++)
+    for (k = 0; k < 2; k++)
+      lat_constr.ic[j][k] = ic[j][k];
+}
+
+
+void set_b2_ss(param_type &prms)
+{
+  // Std Straight.
+  prms.add_prm("qd2",  2, -15.0, 15.0, 1.0);
+  prms.add_prm("qf1",  2, -15.0, 15.0, 1.0);
+  prms.add_prm("qp_q", 2, -15.0, 15.0, 1.0);
+
+  // Parameters are initialized in optimizer.
+}
+
+
+void set_constr_ss(constr_type &constr)
+{
+  constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
+		    1e2, 1e2, 1e-1, 1e-1, 1e-10, 1e-10,
+		    0.0, 0.0, 2.0,  2.0,  0.0,   0.0);
+  constr.add_constr(Elem_GetPos(ElemIndex("qf1"), 1),
+		    0e0, 0e0, 0e0, 0e0, 1e6, 1e6,
+		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+}
+
+
+void set_b3_constr_ss(constr_type &constr)
+{
+  int k, n;
+
+  for (k = 0; k < 2; k++)
+    lat_constr.high_ord_achr_nu[k] = high_ord_achr_nu[k]/2e0;
+
+  lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("ms"), 1));
+  lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("ss"), 1));
+
+  n = lat_constr.high_ord_achr_Fnum.size() - 1;
+  lat_constr.high_ord_achr_dnu.resize(n);
+  for (k = 0; k < n; k++)
+    lat_constr.high_ord_achr_dnu[k].resize(2, 0e0);
+}
+
+
+void set_weights_ss(constr_type &constr)
+{
+  lat_constr.high_ord_achr_scl = 1e1;
+}
+
+
+void match_ss(param_type &prms, constr_type &constr)
+{
+  // Parameter Type:
+  //   Bend Angle  -3,
+  //   Length      -2,
+  //   Position    -1,
+  //   Quadrupole   2.
+  int j, k;
+
+  // Perturbed symmetry at end of Dipole Cell: 
+  //   1. Initialize with: [Qf1, Qd2, Qd3].
+  //   2. Exclude for 1st pass: pert_dip_cell = false.
+  //   3. Include for fine tuning.
+  lat_prms.bn_tol = 1e-5; lat_prms.step = 1.0;
+  set_b2_ss(prms);
+
+  set_constr_ss(constr);
+  set_b3_constr_ss(constr);
+  set_weights_ss(constr);
 
   lat_constr.ini_constr(false);
 
@@ -2833,6 +2907,12 @@ int main(int argc, char *argv[])
     opt_mI_sp(lat_prms, lat_constr);
     no_sxt();
     fit_powell(lat_prms, 1e-3, f_achrom);
+    // fit_sim_anneal(lat_prms, 1e-3, f_achrom);
+    break;
+  case 4:
+    // Match Short Straight: mI.
+    match_ss(lat_prms, lat_constr);
+    fit_powell(lat_prms, 1e-3, f_match);
     break;
   default:
     printf("\nmain: unknown opt_case %d\n", opt_case);
