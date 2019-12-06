@@ -1923,7 +1923,7 @@ void set_constr_std(constr_type &constr)
 		    0e0, 0e0, 0e0, 0e0, 1e8, 1e7,
 		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
-		    1e7, 1e7, 1e3, 1e2, 5e7,   0e0,
+		    1e7, 1e7, 1e2, 1e2, 5e7,   0e0,
 		    0.0, 0.0, 2.0, 2.0, 0.018, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
 		    1e7, 1e7, 1e1, 1e1, 1e7, 1e7,
