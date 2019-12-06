@@ -919,7 +919,7 @@ double constr_type::get_chi2(const param_type &prms, double *bn,
   int    j, k;
   double chi2, dchi2[3], mean, geom_mean, bn_ext;
 
-  const bool   extra     = !false;
+  const bool   extra     = false;
   const double scl_extra = 1e2;
 
   if (prt) printf("\nget_chi2:\n");
@@ -1978,7 +1978,7 @@ void set_weights_std(constr_type &constr)
 {
   lat_constr.eps_x_scl            = 1e7;
 
-  lat_constr.ksi1_scl             = 5e1;
+  lat_constr.ksi1_scl             = 1e0;
   lat_constr.drv_terms_simple_scl = 1e-4;
   lat_constr.ksi1_ctrl_scl[0]     = 1e-1;
   lat_constr.ksi1_ctrl_scl[1]     = 1e1;
