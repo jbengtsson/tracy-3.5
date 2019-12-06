@@ -20,7 +20,7 @@ const bool
      match_ls    2,
      opt_mi_sp   3,
      match_ss    4.                                                           */
-const int opt_case = 3;
+const int opt_case = 1;
 
 // From Center of Mid Straight: alpha, beta, eta, eta'.
 const int    n_ic        = 4;
@@ -28,7 +28,7 @@ const double ic[n_ic][2] =
   {{0.0108445648, -0.0096902915}, {2.1910684591, 1.3682317067},
    {0.0215550560, 0.0000000000}, {0.0, 0.0}};
 
-#define LAT_CASE 8
+#define LAT_CASE 9
 
 const double
 #if LAT_CASE == 1
@@ -72,7 +72,7 @@ const double
   twoJ[]             = {sqr(3e-3)/10.0, sqr(4e-3)/4.0},
   delta              = 2e-2,
 #elif LAT_CASE == 9
-  eps0_x             = 0.149,
+  eps0_x             = 0.099,
   high_ord_achr_nu[] = {11.0/4.0+0.01, 5.0/4.0-0.01},
   twoJ[]             = {sqr(7e-3)/10.0, sqr(4e-3)/4.0},
   delta              = 2.5e-2,
@@ -919,8 +919,8 @@ double constr_type::get_chi2(const param_type &prms, double *bn,
   int    j, k;
   double chi2, dchi2[3], mean, geom_mean, bn_ext;
 
-  const bool   extra     = false;
-  const double scl_extra = 1e3;
+  const bool   extra     = !false;
+  const double scl_extra = 1e2;
 
   if (prt) printf("\nget_chi2:\n");
 
@@ -934,12 +934,12 @@ double constr_type::get_chi2(const param_type &prms, double *bn,
 
   if (extra) {
     if (prt) printf("\n  extra:\n");
-    // Zero qp_q, #13.
-    k = 13;
+    // Reduce qd2, #12.
+    k = 12;
     bn_ext = bn_bounded(bn[k], prms.bn_min[k-1], prms.bn_max[k-1]);
-    dchi2[0] = scl_extra*sqr(bn_ext+0.1e0);
+    dchi2[0] = scl_extra*sqr(bn_ext);
     chi2 += dchi2[0];
-    if (prt) printf("  qp_q:              %10.3e\n", dchi2[X_]);
+    if (prt) printf("  qd5:               %10.3e\n", dchi2[X_]);
   }
 
   if (prt) printf("\n"); 
@@ -1578,6 +1578,64 @@ void fit_powell(param_type &lat_prms, const double eps, double (*f)(double *))
 }
 
 
+void fit_sim_anneal(param_type &lat_prms, const double eps,
+		    double (*f)(double *))
+{
+  const int
+    n_prm   = lat_prms.n_prm,
+    n_pt    = n_prm + 2,
+    n_w     = (n_pt+13)*(n_pt+n_prm)+3*n_prm*(n_prm+3)/2,
+    n_prt   = 2,
+    max_fun = 5000;
+
+  const double
+    // rho_beg = lat_prms.dbn[0],
+    rho_beg = 1e-1,
+    rho_end = 1e-6;
+
+  int          n_b2, i, j, iter;
+  double       *b2, **xi, fret, eps_x, w[n_w], x[n_prm];
+  ss_vect<tps> A;
+
+  const double ftol = 1e-8;
+
+  n_b2 = lat_prms.n_prm;
+
+  b2 = dvector(1, n_b2); xi = dmatrix(1, n_b2, 1, n_b2);
+
+  lat_prms.ini_prm(b2);
+  f(b2);
+
+  if (false) {
+    lat_constr.get_Jacobian(lat_prms);
+    lat_constr.prt_Jacobian(n_b2);
+    exit(0);
+  }
+
+  if (true) {
+    // Set initial directions (unit vectors).
+    for (i = 1; i <= n_b2; i++)
+      for (j = 1; j <= n_b2; j++)
+	xi[i][j] = (i == j)? eps : 0e0;
+
+    dpowell(b2, xi, n_b2, ftol, &iter, &fret, f);
+  } else {
+    // for (i = 1; i <= n_prm; i++)
+    //   x[i-1] = bn[i];
+    // newuoa_(n_prm, n_pt, x, rho_beg, rho_end, n_prt, max_fun, w);
+  }
+
+  printf("\n  iter = %d fret = %12.5e\n", iter, fret);
+  printf("b2s:\n");
+  lat_prms.prt_prm(b2);
+  // lat_prms.set_prm(b2);
+  // eps_x = get_lin_opt(false);
+  // f_prt(b2);
+
+  free_dvector(b2, 1, n_b2); free_dmatrix(xi, 1, n_b2, 1, n_b2);
+}
+
+
 void f_der(double *b2, double *df)
 {
   lat_prms.set_prm(b2);
@@ -1795,9 +1853,9 @@ void set_dip_cell_std(param_type &prms, constr_type &constr)
   grad_dip_Fnum.push_back(ElemIndex("dl1a_4"));
   grad_dip_Fnum.push_back(ElemIndex("dl1a_5"));
   if (dphi)
-    prms.add_prm(grad_dip_Fnum, grad_dip_scl, -3, -10.0, 10.0, 1.0);
+    prms.add_prm(grad_dip_Fnum, grad_dip_scl, -3, -15.0, 15.0, 1.0);
   if (long_grad_dip)
-    prms.add_prm(grad_dip_Fnum, grad_dip_scl,  2, -10.0, 10.0, 1.0);
+    prms.add_prm(grad_dip_Fnum, grad_dip_scl,  2, -15.0, 15.0, 1.0);
 
   lat_constr.Fnum_b1.push_back(-ElemIndex("dl1a_1"));
   lat_constr.grad_dip_Fnum_b1.push_back(grad_dip_Fnum);
@@ -1809,34 +1867,34 @@ void set_dip_cell_std(param_type &prms, constr_type &constr)
   grad_dip_Fnum.push_back(ElemIndex("dl2a_4"));
   grad_dip_Fnum.push_back(ElemIndex("dl2a_5"));
   if (dphi)
-    prms.add_prm(grad_dip_Fnum, grad_dip_scl, -3, -10.0, 10.0, 1.0);
+    prms.add_prm(grad_dip_Fnum, grad_dip_scl, -3, -15.0, 15.0, 1.0);
   if (long_grad_dip)
-    prms.add_prm(grad_dip_Fnum, grad_dip_scl,  2, -10.0, 10.0, 1.0);
+    prms.add_prm(grad_dip_Fnum, grad_dip_scl,  2, -15.0, 15.0, 1.0);
 
   lat_constr.Fnum_b1.push_back(-ElemIndex("dl2a_1"));
   lat_constr.grad_dip_Fnum_b1.push_back(grad_dip_Fnum);
 
   if (dphi) {
     // Dipole Cell.
-    prms.add_prm("qf4", -3, -10.0, 10.0, 1.0);
+    prms.add_prm("qf4", -3, -15.0, 15.0, 1.0);
     lat_constr.Fnum_b1.push_back(ElemIndex("qf4"));
     if (qf6_rb) {
-      prms.add_prm("qf6", -3, -10.0, 10.0, 1.0);
+      prms.add_prm("qf6", -3, -15.0, 15.0, 1.0);
       lat_constr.Fnum_b1.push_back(ElemIndex("qf6"));
     }
-    prms.add_prm("qf8", -3, -10.0, 10.0, 1.0);
+    prms.add_prm("qf8", -3, -15.0, 15.0, 1.0);
     lat_constr.Fnum_b1.push_back(ElemIndex("qf8"));
 
     // Commented out must be defined last.
-    // prms.add_prm("dq1", -3, -10.0,   10.0,  1.0);
+    // prms.add_prm("dq1", -3, -15.0,   15.0,  1.0);
     lat_constr.Fnum_b1.push_back(ElemIndex("dq1"));
   }
 
-  prms.add_prm("dq1", 2, -10.0, 10.0, 1.0);
+  prms.add_prm("dq1", 2, -15.0, 15.0, 1.0);
 
-  prms.add_prm("qd3", 2, -10.0,  0.0, 1.0);
-  prms.add_prm("qf4", 2,   0.0, 10.0, 1.0);
-  prms.add_prm("qd5", 2, -10.0,  0.0, 1.0);
+  prms.add_prm("qd3", 2, -15.0,  0.0, 1.0);
+  prms.add_prm("qf4", 2,   0.0, 15.0, 1.0);
+  prms.add_prm("qd5", 2, -15.0,  0.0, 1.0);
 
   lat_constr.phi_scl = (dphi)? 1e0 : 0e0;
 }
@@ -1845,14 +1903,14 @@ void set_dip_cell_std(param_type &prms, constr_type &constr)
 void set_b2_ms_std(param_type &prms)
 {
   // Mid-Straight.
-  prms.add_prm("qf1",  2,   0.0, 10.0, 1.0);
-  prms.add_prm("qd2",  2, -10.0,  0.0, 1.0);
-  prms.add_prm("qp_q", 2,  -3.0,  3.0, 1.0);
+  prms.add_prm("qf1",  2,   0.0, 15.0, 1.0);
+  prms.add_prm("qd2",  2, -15.0,  0.0, 1.0);
+  // prms.add_prm("qp_q", 2,  -3.0,  3.0, 1.0);
 
   // Standard-Straight.
   // prms.add_prm("qf6", -1, -0.3,  0.01, 1.0);
-  prms.add_prm("qf6",  2,  0.0, 10.0, 1.0);
-  prms.add_prm("qf8",  2,  0.0, 10.0, 1.0);
+  prms.add_prm("qf6",  2,  0.0, 15.0, 1.0);
+  prms.add_prm("qf8",  2,  0.0, 15.0, 1.0);
 }
 
 
@@ -1866,12 +1924,12 @@ void set_constr_std(constr_type &constr)
 		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
 		    1e7, 1e7, 1e3, 1e2, 5e7,   0e0,
-		    0.0, 0.0, 2.0, 2.5, 0.018, 0.0);
+		    0.0, 0.0, 2.0, 2.0, 0.018, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
-		    1e7, 1e7, 1e1, 5e2, 1e7, 1e7,
-		    0.0, 0.0, 2.5, 2.5, 0.0, 0.0);
+		    1e7, 1e7, 1e1, 1e1, 1e7, 1e7,
+		    0.0, 0.0, 2.0, 2.0, 0.0, 0.0);
 
-  if (!false) {
+  if (false) {
     // Increase beta_x.
     constr.add_constr(Elem_GetPos(ElemIndex("sf1"), 1),
 		      0e5, 0e5, 5e1,  5e0, 0e7, 0e7,
@@ -1920,7 +1978,7 @@ void set_weights_std(constr_type &constr)
 {
   lat_constr.eps_x_scl            = 1e7;
 
-  lat_constr.ksi1_scl             = 1e0;
+  lat_constr.ksi1_scl             = 5e1;
   lat_constr.drv_terms_simple_scl = 1e-4;
   lat_constr.ksi1_ctrl_scl[0]     = 1e-1;
   lat_constr.ksi1_ctrl_scl[1]     = 1e1;
@@ -2869,7 +2927,7 @@ int main(int argc, char *argv[])
     Ring_GetTwiss(true, 0e0); printglob();
     dnu[X_] = 0.0; dnu[Y_] = 0.0;
     set_map(ElemIndex("ps_rot"), dnu);
-    dnu[X_] = 0.0; dnu[Y_] = 0.0;
+    dnu[X_] = 0.0; dnu[Y_] = 0.05;
     set_map(ElemIndex("ps_rot"), dnu);
     Ring_GetTwiss(true, 0e0); printglob();
   }
@@ -2896,7 +2954,10 @@ int main(int argc, char *argv[])
     // Optimize Standard Straight: mI & 2*nu.
     opt_mI_std(lat_prms, lat_constr);
     no_sxt();
-    fit_powell(lat_prms, 1e-3, f_achrom);
+    if (true)
+      fit_powell(lat_prms, 1e-3, f_achrom);
+    else
+      fit_sim_anneal(lat_prms, 1e-3, f_achrom);
     break;
   case 2:
     // Match Long Straight: mI.
