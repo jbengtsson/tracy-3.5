@@ -73,7 +73,8 @@ const double
   delta              = 2e-2,
 #elif LAT_CASE == 9
   eps0_x             = 0.099,
-  high_ord_achr_nu[] = {11.0/4.0+0.01, 5.0/4.0-0.01},
+  // high_ord_achr_nu[] = {11.0/4.0+0.01, 5.0/4.0-0.01},
+  high_ord_achr_nu[] = {11.0/4.0+0.01, 15.0/16.0},
   twoJ[]             = {sqr(7e-3)/10.0, sqr(4e-3)/4.0},
   delta              = 2.5e-2,
 #elif LAT_CASE == 10
@@ -920,7 +921,7 @@ double constr_type::get_chi2(const param_type &prms, double *bn,
   double chi2, dchi2[3], mean, geom_mean, bn_ext;
 
   const bool   extra     = false;
-  const double scl_extra = 1e2;
+  const double scl_extra = 1e4;
 
   if (prt) printf("\nget_chi2:\n");
 
@@ -934,12 +935,12 @@ double constr_type::get_chi2(const param_type &prms, double *bn,
 
   if (extra) {
     if (prt) printf("\n  extra:\n");
-    // Reduce qd2, #12.
-    k = 12;
+    // Reduce gradiend for  dl2a_1 - dl2a_5, #4.
+    k = 4;
     bn_ext = bn_bounded(bn[k], prms.bn_min[k-1], prms.bn_max[k-1]);
     dchi2[0] = scl_extra*sqr(bn_ext);
     chi2 += dchi2[0];
-    if (prt) printf("  qd5:               %10.3e\n", dchi2[X_]);
+    if (prt) printf("  dl2a_1..5:         %10.3e\n", dchi2[X_]);
   }
 
   if (prt) printf("\n"); 
@@ -1905,7 +1906,8 @@ void set_b2_ms_std(param_type &prms)
   // Mid-Straight.
   prms.add_prm("qf1",  2,   0.0, 15.0, 1.0);
   prms.add_prm("qd2",  2, -15.0,  0.0, 1.0);
-  // prms.add_prm("qp_q", 2,  -3.0,  3.0, 1.0);
+  if (!false)
+    prms.add_prm("qp_q", 2,  -3.0,  3.0, 1.0);
 
   // Standard-Straight.
   // prms.add_prm("qf6", -1, -0.3,  0.01, 1.0);
@@ -1923,23 +1925,29 @@ void set_constr_std(constr_type &constr)
 		    0e0, 0e0, 0e0, 0e0, 1e8, 1e7,
 		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
-		    1e7, 1e7, 1e2, 1e2, 5e7,   0e0,
-		    0.0, 0.0, 2.0, 2.0, 0.018, 0.0);
+		    1e7, 1e7, 1e1, 1e3, 1e7,   0e0,
+		    0.0, 0.0, 2.0, 1.0, 0.018, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
-		    1e7, 1e7, 1e1, 1e1, 1e7, 1e7,
-		    0.0, 0.0, 2.0, 2.0, 0.0, 0.0);
+		    1e7, 1e7, 1e1, 1e3, 1e7, 1e7,
+		    0.0, 0.0, 2.0, 1.0, 0.0, 0.0);
 
   if (false) {
-    // Increase beta_x.
+    // Increase beta_y.
     constr.add_constr(Elem_GetPos(ElemIndex("sf1"), 1),
-		      0e5, 0e5, 5e1,  5e0, 0e7, 0e7,
-		      0.0, 0.0, 12.0, 1.0, 0.0, 0.0);
+		      0e5, 0e5, 5e3,  5e3,  0e7, 0e7,
+		      0.0, 0.0, 15.0, 5.0, 0.0, 0.0);
+  }
+  if (false) {
+    // Increase beta_y.
+    constr.add_constr(Elem_GetPos(ElemIndex("sd1"), 1),
+		      0e5, 0e5, 5e2, 5e3,  0e7, 0e7,
+		      0.0, 0.0, 5.0, 15.0, 0.0, 0.0);
   }
   if (false) {
     // Increase beta_y.
     constr.add_constr(Elem_GetPos(ElemIndex("sd2"), 1),
-		      0e5, 0e5, 1e1, 1e3, 0e7, 0e7,
-		      0.0, 0.0, 1.0, 8.0, 0.0, 0.0);
+		      0e5, 0e5, 5e2, 5e3,  0e7, 0e7,
+		      0.0, 0.0, 5.0, 10.0, 0.0, 0.0);
   }
 }
 
@@ -1986,7 +1994,7 @@ void set_weights_std(constr_type &constr)
   // Not useful.
   lat_constr.ksi1_svd_scl         = 0e3;
   lat_constr.mI_scl               = 1e6;
-  lat_constr.high_ord_achr_scl    = 5e5;
+  lat_constr.high_ord_achr_scl    = 1e6;
 
   lat_constr.alpha_c_scl          = 5e-7;
 
@@ -2098,7 +2106,8 @@ void set_b2_ms_std_ls_sp(param_type &prms)
   // Mid Straight.
   prms.add_prm("qd2",  2, -15.0, 15.0, 1.0);
   prms.add_prm("qf1",  2, -15.0, 15.0, 1.0);
-  prms.add_prm("qp_q", 2,  -1.0,  1.0, 1.0);
+  if (false)
+    prms.add_prm("qp_q", 2,  -1.0,  1.0, 1.0);
 
   // Standard Straight.
   prms.add_prm("qf6", 2, -15.0, 15.0, 1.0);
@@ -2927,7 +2936,7 @@ int main(int argc, char *argv[])
     Ring_GetTwiss(true, 0e0); printglob();
     dnu[X_] = 0.0; dnu[Y_] = 0.0;
     set_map(ElemIndex("ps_rot"), dnu);
-    dnu[X_] = 0.0; dnu[Y_] = 0.05;
+    dnu[X_] = 0.0; dnu[Y_] = 0.0;
     set_map(ElemIndex("ps_rot"), dnu);
     Ring_GetTwiss(true, 0e0); printglob();
   }
