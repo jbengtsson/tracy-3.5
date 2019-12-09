@@ -75,9 +75,8 @@ const double
   twoJ[]             = {sqr(3e-3)/10.0, sqr(4e-3)/4.0},
   delta              = 2e-2,
 #elif LAT_CASE == 9
-  eps0_x             = 0.099,
-  // high_ord_achr_nu[] = {11.0/4.0+0.01, 5.0/4.0-0.01},
-  high_ord_achr_nu[] = {11.0/4.0+0.01, 7.0/8.0},
+  eps0_x             = 0.097,
+  high_ord_achr_nu[] = {11.0/4.0, 7.0/8.0},
   twoJ[]             = {sqr(7e-3)/10.0, sqr(4e-3)/4.0},
   delta              = 2.5e-2,
 #elif LAT_CASE == 10
@@ -2158,6 +2157,10 @@ void set_constr_sp(constr_type &constr)
   constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
 		    1e6, 1e6, 1e1,         1e0,         1e8, 1e8,
 		    0.0, 0.0, beta_ls[X_], beta_ls[Y_], 0.0, 0.0);
+  // Symmetry.
+  constr.add_constr(Elem_GetPos(ElemIndex("sf1"), 1),
+		    5e2, 1e3, 0e0, 0e0, 0e0, 0e0,
+		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 
   if (false)
     // Increase beta_x.
