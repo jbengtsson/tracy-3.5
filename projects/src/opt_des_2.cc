@@ -1934,10 +1934,10 @@ void set_constr_std(constr_type &constr)
 		    0e0, 0e0, 0e0, 0e0, 1e8, 1e7,
 		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
-		    1e7, 1e7, 1e1,          1e3,        1e7,   0e0,
+		    1e7, 1e7, 1e1,         1e3,         1e7,   0e0,
 		    0.0, 0.0, beta_ms[X_], beta_ms[Y_], 0.018, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
-		    145, 1e5, 1e1,          1e3,        1e7, 1e7,
+		    1e5, 1e5, 1e1,         1e3,         1e7, 1e7,
 		    0.0, 0.0, beta_ss[X_], beta_ss[Y_], 0.0, 0.0);
   // Symmetry.
   constr.add_constr(Elem_GetPos(ElemIndex("sf1"), 1),
@@ -2213,8 +2213,8 @@ void set_weights_sp(constr_type &constr)
 {
   lat_constr.eps_x_scl            = 5e6;
 
-  lat_constr.ksi1_scl             = 1e-1;
-  lat_constr.drv_terms_simple_scl = 1e-4;
+  lat_constr.ksi1_scl             = 1e0;
+  lat_constr.drv_terms_simple_scl = 1e-3;
   lat_constr.ksi1_ctrl_scl[0]     = 0e-1;
   lat_constr.ksi1_ctrl_scl[1]     = 0e0;
   lat_constr.ksi1_ctrl_scl[2]     = 0e-1;
@@ -2223,7 +2223,7 @@ void set_weights_sp(constr_type &constr)
   lat_constr.mI_scl               = 1e6;
   lat_constr.high_ord_achr_scl    = 1e6;
 
-  lat_constr.alpha_c_scl          = 1e-7;
+  lat_constr.alpha_c_scl          = 5e-7;
 
   if (!sp_short)
     // Super Period.
