@@ -47,48 +47,30 @@ const double
 #elif LAT_CASE == 3
   eps0_x             = 0.079,
   high_ord_achr_nu[] = {21.0/8.0+0.01, 3.0/4.0-0.01},
-  twoJ[]             = {sqr(3e-3)/10.0, sqr(2e-3)/4.0},
-  delta              = 2e-2,
 #elif LAT_CASE == 4
   eps0_x             = 0.099,
   high_ord_achr_nu[] = {19.0/8.0+0.01, 6.0/8.0-0.01},
-  twoJ[]             = {sqr(3e-3)/10.0, sqr(2e-3)/4.0},
-  delta              = 2e-2,
 #elif LAT_CASE == 5
   eps0_x             = 0.099,
   high_ord_achr_nu[] = {21.0/8.0+0.01, 6.0/8.0-0.01},
-  twoJ[]             = {sqr(3e-3)/10.0, sqr(2e-3)/4.0},
-  delta              = 2e-2,
 #elif LAT_CASE == 6
   eps0_x             = 0.099,
   high_ord_achr_nu[] = {21.0/8.0+0.01, 7.0/8.0-0.01},
-  twoJ[]             = {sqr(3e-3)/10.0, sqr(2e-3)/4.0},
-  delta              = 2e-2,
 #elif LAT_CASE == 7
   eps0_x             = 0.099,
   high_ord_achr_nu[] = {19.0/8.0+0.01, 7.0/8.0-0.01},
-  twoJ[]             = {sqr(3e-3)/10.0, sqr(2e-3)/4.0},
-  delta              = 2e-2,
 #elif LAT_CASE == 8
   eps0_x             = 0.099,
   high_ord_achr_nu[] = {11.0/4.0+0.01, 3.0/4.0-0.01},
-  twoJ[]             = {sqr(3e-3)/10.0, sqr(4e-3)/4.0},
-  delta              = 2e-2,
 #elif LAT_CASE == 9
   eps0_x             = 0.097,
-  high_ord_achr_nu[] = {11.0/4.0, 7.0/8.0},
-  twoJ[]             = {sqr(7e-3)/10.0, sqr(4e-3)/4.0},
-  delta              = 2.5e-2,
+  high_ord_achr_nu[] = {11.0/4.0-0.02, 7.0/8.0},
 #elif LAT_CASE == 10
   eps0_x             = 0.149,
   high_ord_achr_nu[] = {19.0/8.0+0.01, 3.0/4.0-0.01},
-  twoJ[]             = {sqr(7e-3)/10.0, sqr(4e-3)/4.0},
-  delta              = 2.5e-2,
 #elif LAT_CASE == 11
   eps0_x             = 0.149,
   high_ord_achr_nu[] = {9.0/4.0+0.01, 5.0/4.0-0.01},
-  twoJ[]             = {sqr(7e-3)/10.0, sqr(4e-3)/4.0},
-  delta              = 2.5e-2,
 #endif
   mI_dnu[]           = {0.0, 0.0},
   mI_nu_ref[]        = {1.5-mI_dnu[X_], 0.5-mI_dnu[Y_]};
@@ -2217,14 +2199,14 @@ void set_weights_sp(constr_type &constr)
   lat_constr.eps_x_scl            = 5e6;
 
   lat_constr.ksi1_scl             = 1e0;
-  lat_constr.drv_terms_simple_scl = 1e-3;
+  lat_constr.drv_terms_simple_scl = 5e-4;
   lat_constr.ksi1_ctrl_scl[0]     = 0e-1;
   lat_constr.ksi1_ctrl_scl[1]     = 0e0;
   lat_constr.ksi1_ctrl_scl[2]     = 0e-1;
   // Not useful.
   lat_constr.ksi1_svd_scl         = 0e3;
   lat_constr.mI_scl               = 1e6;
-  lat_constr.high_ord_achr_scl    = 1e6;
+  lat_constr.high_ord_achr_scl    = 5e7;
 
   lat_constr.alpha_c_scl          = 5e-7;
 
