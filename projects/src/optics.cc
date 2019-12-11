@@ -1528,6 +1528,22 @@ int main(int argc, char *argv[])
   globval.Cavity_on = false; globval.radiation = false;
   Ring_GetTwiss(true, 0e0); printglob();
 
+  if (set_dnu) {
+    dnu[X_] = 0.0; dnu[Y_] = 0.0;
+    set_map(ElemIndex("ps_rot"), dnu);
+    Ring_GetTwiss(true, 0e0); printglob();
+    for (k = 0; k < 2; k++)
+      if (!true)
+	dnu[k] = nu[k]/n_cell - globval.TotalTune[k];
+      else
+	dnu[k] = nu[k];
+    printf("\ntune set to:\n  dnu     = [%8.5f, %8.5f]\n", dnu[X_], dnu[Y_]);
+    printf("  nu_cell = [%8.5f, %8.5f]\n", nu[X_]/n_cell, nu[Y_]/n_cell);
+    printf("  nu      = [%8.5f, %8.5f]\n", nu[X_], nu[Y_]);
+    set_map(ElemIndex("ps_rot"), dnu);
+    Ring_GetTwiss(true, 0e0); printglob();
+  }
+
   if (!false) {
     get_eps_x();
     // get_I(I, true);
@@ -1733,22 +1749,6 @@ int main(int argc, char *argv[])
     printf("\ndnu HOA_2: [%7.5f %7.5f]\n", dnu[X_], dnu[Y_]);
     set_map(ElemIndex("HOA_2_rot"), dnu);
 
-    Ring_GetTwiss(true, 0e0); printglob();
-  }
-
-  if (set_dnu) {
-    dnu[X_] = 0.0; dnu[Y_] = 0.0;
-    set_map(ElemIndex("ps_rot"), dnu);
-    Ring_GetTwiss(true, 0e0); printglob();
-    for (k = 0; k < 2; k++)
-      if (!true)
-	dnu[k] = nu[k]/n_cell - globval.TotalTune[k];
-      else
-	dnu[k] = nu[k];
-    printf("\ntune set to:\n  dnu     = [%8.5f, %8.5f]\n", dnu[X_], dnu[Y_]);
-    printf("  nu_cell = [%8.5f, %8.5f]\n", nu[X_]/n_cell, nu[Y_]/n_cell);
-    printf("  nu      = [%8.5f, %8.5f]\n", nu[X_], nu[Y_]);
-    set_map(ElemIndex("ps_rot"), dnu);
     Ring_GetTwiss(true, 0e0); printglob();
   }
 

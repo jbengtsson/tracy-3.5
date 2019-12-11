@@ -7,7 +7,7 @@ int no_tps = NO;
 
 const double
   A_max[]   = {4e-3, 2e-3},
-  delta_max = 2.5e-2;
+  delta_max = 3.5e-2;
 
 
 int main(int argc, char *argv[])
