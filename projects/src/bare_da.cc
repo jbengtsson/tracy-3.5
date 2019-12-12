@@ -16,7 +16,7 @@ int no_tps = NO;
 // ALS-U    10.
 
 
-const double delta_max = 1.5e-2;
+const double delta_max = 2e-2;
 
 
 int main(int argc, char *argv[])

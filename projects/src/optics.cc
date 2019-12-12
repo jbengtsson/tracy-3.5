@@ -1508,7 +1508,7 @@ int main(int argc, char *argv[])
 
   reverse_elem = !false;
 
-  trace = !true;
+  trace = false;
 
   globval.mat_meth = !false;
 
@@ -1585,7 +1585,6 @@ int main(int argc, char *argv[])
     prt_lin_map(3, map);
     exit(0);
   }
-
 
   if (false) {
     int             k;

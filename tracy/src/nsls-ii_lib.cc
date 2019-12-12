@@ -444,7 +444,7 @@ double get_eps_x(void)
   printf("\n");
 
   printf("\n  U_0   [keV]    = %5.1f\n", 1e-3*U_0);
-  printf("  eps_x [nm.rad] = %5.3f\n", 1e9*eps_x);
+  printf("  eps_x [nm.rad] = %6.4f\n", 1e9*eps_x);
   printf("  sigma_delta    = %9.3e\n", sigma_delta);
   printf("  J              = [%5.3f, %5.3f, %5.3f]\n", J[X_], J[Y_], J[Z_]);
 
