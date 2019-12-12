@@ -33,7 +33,8 @@ const double
 
 const double
   eps0_x             = 0.097,
-  high_ord_achr_nu[] = {11.0/4.0-0.02, 7.0/8.0},
+  dnu[]              = {0.05/6.0, 0.1/6.0},
+  high_ord_achr_nu[] = {11.0/4.0-0.02+dnu[X_], 7.0/8.0+dnu[Y_]},
   mI_dnu[]           = {0.0, 0.0},
   mI_nu_ref[]        = {1.5-mI_dnu[X_], 0.5-mI_dnu[Y_]};
 
@@ -2168,7 +2169,7 @@ void set_weights_sp(constr_type &constr)
   // Not useful.
   lat_constr.ksi1_svd_scl         = 0e3;
   lat_constr.mI_scl               = 5e5;
-  lat_constr.high_ord_achr_scl    = 1e6;
+  lat_constr.high_ord_achr_scl    = 1e7;
 
   lat_constr.alpha_c_scl          = 5e-7;
 
