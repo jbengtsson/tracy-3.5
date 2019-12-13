@@ -20,7 +20,7 @@ const bool
      match_ls    2,
      opt_mi_sp   3,
      match_ss    4.                                                           */
-const int opt_case = 3;
+const int opt_case = 1;
 
 // From Center of Mid Straight: alpha, beta, eta, eta'.
 const int    n_ic        = 4;
@@ -31,10 +31,17 @@ const double
   beta_ss[] = { 2.0, 1.5},
   beta_ls[] = {10.0, 4.0};
 
+#define LAT_CASE 2
+
 const double
+#if LAT_CASE == 1
   eps0_x             = 0.097,
   dnu[]              = {0.05/6.0, 0.1/6.0},
   high_ord_achr_nu[] = {11.0/4.0-0.02+dnu[X_], 7.0/8.0+dnu[Y_]},
+#elif LAT_CASE == 2
+  eps0_x             = 0.150,
+  high_ord_achr_nu[] = {9.0/4.0+0.02, 7.0/8.0},
+#endif
   mI_dnu[]           = {0.0, 0.0},
   mI_nu_ref[]        = {1.5-mI_dnu[X_], 0.5-mI_dnu[Y_]};
 
@@ -1946,14 +1953,14 @@ void set_weights_std(constr_type &constr)
   lat_constr.ksi1_scl             = 1e1;
   lat_constr.drv_terms_simple_scl = 1e-2;
   lat_constr.ksi1_ctrl_scl[0]     = 1e-1;
-  lat_constr.ksi1_ctrl_scl[1]     = 1e1;
+  lat_constr.ksi1_ctrl_scl[1]     = 10*1e1;
   lat_constr.ksi1_ctrl_scl[2]     = 1e-1;
   // Not useful.
   lat_constr.ksi1_svd_scl         = 0e3;
-  lat_constr.mI_scl               = 1e6;
-  lat_constr.high_ord_achr_scl    = 1e6;
+  lat_constr.mI_scl               = 5*1e6;
+  lat_constr.high_ord_achr_scl    = 5*1e6;
 
-  lat_constr.alpha_c_scl          = 5e-7;
+  lat_constr.alpha_c_scl          = 10*5e-7;
 
   // Super Period.
   lat_constr.phi0 = 15.0;
