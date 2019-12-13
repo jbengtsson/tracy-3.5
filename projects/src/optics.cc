@@ -7,17 +7,24 @@ int no_tps = NO;
 
 const bool
   set_dnu = false,
-  mI_rot  = false,
+  mI_rot  = !false,
   HOA_rot = false,
   prt_ms  = false,
   prt_dt  = false;
 
-const int n_cell = 4;
+#if 1
+const int n_cell = 6;
+#else
+const int n_cell = 1;
+#endif
 
 const double
-  // nu[]     = {62.74, 21.34},
+#if 1
+  nu[]     = {62.4, 20.35},
+#else
   nu[]     = {-0.144+0.05, -0.110},
-  dnu_mI[] = {1.5-1.44129-0.0, 0.5-0.47593-0.0},
+#endif
+  dnu_mI[] = {0.05, 0.0},
   nu_HOA[] = {19.0/8.0, 15.0/16.0};
 
 
@@ -1529,11 +1536,11 @@ int main(int argc, char *argv[])
   Ring_GetTwiss(true, 0e0); printglob();
 
   if (set_dnu) {
-    dnu[X_] = 0.05; dnu[Y_] = 0.1;
+    dnu[X_] = 0.0; dnu[Y_] = 0.0;
     set_map(ElemIndex("ps_rot"), dnu);
     Ring_GetTwiss(true, 0e0); printglob();
     for (k = 0; k < 2; k++)
-      if (!true)
+      if (true)
 	dnu[k] = nu[k]/n_cell - globval.TotalTune[k];
       else
 	dnu[k] = nu[k];
@@ -1544,15 +1551,19 @@ int main(int argc, char *argv[])
     Ring_GetTwiss(true, 0e0); printglob();
   }
 
-  if (!false) {
+  if (mI_rot) {
     dnu[X_] = 0.0; dnu[Y_] = 0.0;
-    set_map(ElemIndex("mI_rot"), dnu);
+    set_map(ElemIndex("mI_1_rot"), dnu);
+    set_map(ElemIndex("mI_2_rot"), dnu);
     Ring_GetTwiss(true, 0e0); printglob();
-    dnu[X_] = 0.05; dnu[Y_] = 0.0;
-    printf("\ntune set to:\n  dnu     = [%8.5f, %8.5f]\n", dnu[X_], dnu[Y_]);
-    printf("  nu_cell = [%8.5f, %8.5f]\n", nu[X_]/n_cell, nu[Y_]/n_cell);
-    printf("  nu      = [%8.5f, %8.5f]\n", nu[X_], nu[Y_]);
-    set_map(ElemIndex("mI_rot"), dnu);
+    for (k = 0; k < 2; k++)
+      dnu[k] = dnu_mI[k];
+    set_map(ElemIndex("mI_1_rot"), dnu);
+    Ring_GetTwiss(true, 0e0); printglob();
+    for (k = 0; k < 2; k++)
+      dnu[k] = -dnu_mI[k];
+    set_map(ElemIndex("mI_2_rot"), dnu);
+    printf("\nmI & Cell Tune set to:\n");
     Ring_GetTwiss(true, 0e0); printglob();
   }
 
@@ -1575,15 +1586,6 @@ int main(int argc, char *argv[])
   if (false) {
     get_Poincare_Map();
     exit(0);
-  }
-
-  if (false) {
-    dnu[X_] = 0.0; dnu[Y_] = 0.0;
-    set_map(ElemIndex("ps_mI_rot"), dnu);
-    Ring_GetTwiss(true, 0e0); printglob();
-    dnu[X_] = 0.2; dnu[Y_] = 0.0;
-    set_map(ElemIndex("ps_mI_rot"), dnu);
-    Ring_GetTwiss(true, 0e0); printglob();
   }
 
   if (false) {
@@ -1740,11 +1742,6 @@ int main(int argc, char *argv[])
     prt_lat("linlat.out", globval.bpm, true, 10);
 
     exit(0);
-  }
-
-  if (mI_rot) {
-    set_map(ElemIndex("mI_rot"), dnu_mI);
-    Ring_GetTwiss(true, 0e0); printglob();
   }
 
   if (HOA_rot) {

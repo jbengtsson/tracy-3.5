@@ -20,7 +20,7 @@ const bool
      match_ls    2,
      opt_mi_sp   3,
      match_ss    4.                                                           */
-const int opt_case = 1;
+const int opt_case = 3;
 
 // From Center of Mid Straight: alpha, beta, eta, eta'.
 const int    n_ic        = 4;
@@ -31,7 +31,7 @@ const double
   beta_ss[] = { 2.0, 1.5},
   beta_ls[] = {10.0, 4.0};
 
-#define LAT_CASE 2
+#define LAT_CASE 1
 
 const double
 #if LAT_CASE == 1
@@ -2147,6 +2147,14 @@ void set_b3_constr_sp(constr_type &constr)
   mI_loc.push_back(Elem_GetPos(ElemIndex("sf1"), 5));
   mI_loc.push_back(Elem_GetPos(ElemIndex("sf1"), 7));
   lat_constr.mI_loc.push_back(mI_loc);
+  mI_loc.clear();
+  mI_loc.push_back(Elem_GetPos(ElemIndex("sf1"), 9));
+  mI_loc.push_back(Elem_GetPos(ElemIndex("sf1"), 11));
+  lat_constr.mI_loc.push_back(mI_loc);
+  mI_loc.clear();
+  mI_loc.push_back(Elem_GetPos(ElemIndex("sf1"), 13));
+  mI_loc.push_back(Elem_GetPos(ElemIndex("sf1"), 15));
+  lat_constr.mI_loc.push_back(mI_loc);
 
   for (k = 0; k < 2; k++)
     lat_constr.high_ord_achr_nu[k] = high_ord_achr_nu[k];
@@ -2154,6 +2162,7 @@ void set_b3_constr_sp(constr_type &constr)
   // lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("ls"), 1));
   lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("ss"), 1));
   lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("ss"), 2));
+  lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("ss"), 3));
 
   n = lat_constr.high_ord_achr_Fnum.size() - 1;
   lat_constr.high_ord_achr_dnu.resize(n);
