@@ -19,4 +19,5 @@ LIBS     = -L$(TRACY_LIB)/tracy/lib -ltracy_ptc -lTPSALib -lLieLib \
 #INCLUDES = -I$(TRACY_LIB)/tracy/inc -I$(NUM_REC)/inc
 AM_CPPFLAGS = -I$(TRACY_LIB)/tracy/inc -I$(NUM_REC)/inc
 AM_FFLAGS   = -g -O0 -Wall -fbounds-check
-AM_CXXFLAGS = -g -O0 -Wall -Wno-non-template-friend -fPIC
+#AM_CXXFLAGS = -g -O0 -Wall -Wno-non-template-friend -fPIC
+AM_CXXFLAGS = -g -O0 -Wall -Wno-non-template-friend -fPIC -Wl,--no-relax

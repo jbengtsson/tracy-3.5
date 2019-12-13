@@ -1545,6 +1545,18 @@ int main(int argc, char *argv[])
   }
 
   if (!false) {
+    dnu[X_] = 0.0; dnu[Y_] = 0.0;
+    set_map(ElemIndex("mI_rot"), dnu);
+    Ring_GetTwiss(true, 0e0); printglob();
+    dnu[X_] = 0.05; dnu[Y_] = 0.0;
+    printf("\ntune set to:\n  dnu     = [%8.5f, %8.5f]\n", dnu[X_], dnu[Y_]);
+    printf("  nu_cell = [%8.5f, %8.5f]\n", nu[X_]/n_cell, nu[Y_]/n_cell);
+    printf("  nu      = [%8.5f, %8.5f]\n", nu[X_], nu[Y_]);
+    set_map(ElemIndex("mI_rot"), dnu);
+    Ring_GetTwiss(true, 0e0); printglob();
+  }
+
+  if (!false) {
     get_eps_x();
     // get_I(I, true);
 
