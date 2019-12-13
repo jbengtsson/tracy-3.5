@@ -131,7 +131,7 @@ public:
     phi_tot, phi0,       // Cell bend angle.
     high_ord_achr_scl,
     high_ord_achr_nu[2], // Higher-Order-Achromat Phase Advance.
-    mI_scl,
+    mI_scl[2],
     mI0[2],              // -I Transformer.
     alpha_c_scl,         // alpha_c.
     L_scl,
@@ -164,7 +164,7 @@ public:
     ksi1_svd_scl = 0e0;
     drv_terms_simple_scl = 0e0;
     high_ord_achr_scl = 0e0;
-    mI_scl = 0e0;
+    mI_scl[X_] = mI_scl[Y_] = 0e0;
     L_scl = 0e0;
   }
 
@@ -975,10 +975,10 @@ double constr_type::get_chi2(const param_type &prms, double *bn,
     if (prt) printf("  ksi1_svd:         %10.3e\n", dchi2[0]);
   }
 
-  if (mI_scl != 0e0) {
+  if ((mI_scl[X_] != 0e0) || (mI_scl[Y_] != 0e0)) {
     for (j = 0; j < (int)mI.size(); j++) {
       for (k = 0; k < 2; k++) {
-	dchi2[k] = mI_scl*sqr(mI[j][k]-mI0[k]);
+	dchi2[k] = mI_scl[k]*sqr(mI[j][k]-mI0[k]);
 	chi2 += dchi2[k];
       }
       if (prt) printf("  mI:               [%10.3e, %10.3e]\n",
@@ -1143,7 +1143,7 @@ void constr_type::prt_constr(const double chi2)
 
   if (high_ord_achr_scl != 0e0) prt_high_ord_achr(*this);
 
-  if (mI_scl != 0e0) {
+  if ((mI_scl[X_] != 0e0) || (mI_scl[Y_] != 0e0)) {
     printf("\n  -I Transf.:\n");
     for (k = 0; k < (int)mI.size(); k++)
       printf("    [%7.5f, %7.5f] [%3d, %3d]\n",
@@ -1741,7 +1741,7 @@ double f_achrom(double *b2)
 
     if (lat_constr.high_ord_achr_scl != 0e0) get_high_ord_achr(lat_constr);
 
-    if (lat_constr.mI_scl != 0e0)
+    if ((lat_constr.mI_scl[X_] != 0e0) || (lat_constr.mI_scl[Y_] != 0e0))
       get_mI(lat_constr);
 
     if ((lat_constr.ksi1_ctrl_scl[0] != 0e0)
@@ -1775,12 +1775,12 @@ void prt_prms(constr_type &constr)
 	 "  ksi1_svd_scl         = %9.3e\n"
 	 "  drv_terms_simple_scl = %9.3e\n"
 	 "  mI_nu_ref            = [%7.5f, %7.5f]\n"
-	 "  mI_scl               = %9.3e\n"
+	 "  mI_scl               = %9.3e %9.3e\n"
 	 "  high_ord_achr_scl    = %9.3e\n"
 	 "  phi_scl              = %9.3e\n",
 	 constr.eps_x_scl, constr.ksi1_svd_scl,
 	 constr.drv_terms_simple_scl,
-	 mI_nu_ref[X_], mI_nu_ref[Y_], constr.mI_scl,
+	 mI_nu_ref[X_], mI_nu_ref[Y_], constr.mI_scl[X_], constr.mI_scl[Y_],
 	 constr.high_ord_achr_scl,
 	 constr.phi_scl);
 }
@@ -1951,13 +1951,14 @@ void set_weights_std(constr_type &constr)
   lat_constr.eps_x_scl            = 1e7;
 
   lat_constr.ksi1_scl             = 1e1;
-  lat_constr.drv_terms_simple_scl = 1e-2;
+  lat_constr.drv_terms_simple_scl = 10*1e-2;
   lat_constr.ksi1_ctrl_scl[0]     = 1e-1;
   lat_constr.ksi1_ctrl_scl[1]     = 10*1e1;
   lat_constr.ksi1_ctrl_scl[2]     = 1e-1;
   // Not useful.
   lat_constr.ksi1_svd_scl         = 0e3;
-  lat_constr.mI_scl               = 5*1e6;
+  lat_constr.mI_scl[X_]           = 5*1e6;
+  lat_constr.mI_scl[Y_]           = 0*1e6;
   lat_constr.high_ord_achr_scl    = 5*1e6;
 
   lat_constr.alpha_c_scl          = 10*5e-7;
@@ -2175,7 +2176,8 @@ void set_weights_sp(constr_type &constr)
   lat_constr.ksi1_ctrl_scl[2]     = 0e-1;
   // Not useful.
   lat_constr.ksi1_svd_scl         = 0e3;
-  lat_constr.mI_scl               = 5e5;
+  lat_constr.mI_scl[X_]           = 5e5;
+  lat_constr.mI_scl[Y_]           = 5e5;
   lat_constr.high_ord_achr_scl    = 1e7;
 
   lat_constr.alpha_c_scl          = 5e-7;
@@ -2489,7 +2491,7 @@ void opt_tba(param_type &prms, constr_type &constr)
 
   lat_constr.eps_x_scl = 1e2; lat_constr.eps0_x = 0.190;
 
-  lat_constr.mI_scl = 1e-10;
+  lat_constr.mI_scl[X_] = lat_constr.mI_scl[Y_] = 1e-10;
   for (k = 0; k < 2; k++)
     lat_constr.mI0[k] = mI_nu_ref[k];
 
@@ -2644,7 +2646,7 @@ void opt_std_cell(param_type &prms, constr_type &constr)
   for (k = 0; k < n; k++)
     lat_constr.high_ord_achr_dnu[k].resize(2, 0e0);
 
-  lat_constr.mI_scl = 1e-10;
+  lat_constr.mI_scl[X_] = lat_constr.mI_scl[Y_] = 1e-10;
   for (k = 0; k < 2; k++)
     lat_constr.mI0[k] = mI_nu_ref[k];
 
@@ -2715,7 +2717,7 @@ void opt_long_cell(param_type &prms, constr_type &constr)
   for (k = 0; k < n; k++)
     lat_constr.high_ord_achr_dnu[k].resize(2, 0e0);
 
-  lat_constr.mI_scl = 1e-10;
+  lat_constr.mI_scl[X_] = lat_constr.mI_scl[Y_] = 1e-10;
   for (k = 0; k < 2; k++)
     lat_constr.mI0[k] = mI_nu_ref[k];
 
@@ -2843,7 +2845,7 @@ void opt_short_cell(param_type &prms, constr_type &constr)
   for (k = 0; k < n; k++)
     lat_constr.high_ord_achr_dnu[k].resize(2, 0e0);
 
-  lat_constr.mI_scl = 1e-10;
+  lat_constr.mI_scl[X_] = lat_constr.mI_scl[Y_] = 1e-10;
   for (k = 0; k < 2; k++)
     lat_constr.mI0[k] = mI_nu_ref[k];
 
