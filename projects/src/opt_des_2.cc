@@ -23,7 +23,7 @@ const bool
 const int opt_case = 3;
 
 // From Center of Mid Straight: alpha, beta, eta, eta'.
-const int    n_ic        = 4;
+const int    n_ic = 4;
 const double
   ic[n_ic][2] = {{0.0000000000, 0.0000000000}, {3.0897529783, 1.3175431005},
 		 {0.0195131590, 0.0000000000}, {0.0, 0.0}},
@@ -36,8 +36,8 @@ const double
 const double
 #if LAT_CASE == 1
   eps0_x             = 0.097,
-  dnu[]              = {0.05/6.0, 0.1/6.0},
-  high_ord_achr_nu[] = {11.0/4.0-0.02+dnu[X_], 7.0/8.0+dnu[Y_]},
+  dnu[]              = {0.0/6.0, 0.0/6.0},
+  high_ord_achr_nu[] = {11.0/4.0, 7.0/8.0},
 #elif LAT_CASE == 2
   eps0_x             = 0.150,
   high_ord_achr_nu[] = {9.0/4.0+0.02, 7.0/8.0},
@@ -2179,14 +2179,14 @@ void set_weights_sp(constr_type &constr)
   lat_constr.eps_x_scl            = 5e6;
 
   lat_constr.ksi1_scl             = 1e0;
-  lat_constr.drv_terms_simple_scl = 1e-3;
+  lat_constr.drv_terms_simple_scl = 5e-4;
   lat_constr.ksi1_ctrl_scl[0]     = 0e-1;
   lat_constr.ksi1_ctrl_scl[1]     = 0e0;
   lat_constr.ksi1_ctrl_scl[2]     = 0e-1;
   // Not useful.
   lat_constr.ksi1_svd_scl         = 0e3;
-  lat_constr.mI_scl[X_]           = 5e5;
-  lat_constr.mI_scl[Y_]           = 5e5;
+  lat_constr.mI_scl[X_]           = 1e6;
+  lat_constr.mI_scl[Y_]           = 1e6;
   lat_constr.high_ord_achr_scl    = 1e7;
 
   lat_constr.alpha_c_scl          = 5e-7;

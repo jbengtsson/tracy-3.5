@@ -7,7 +7,7 @@ int no_tps = NO;
 
 const bool
   set_dnu = false,
-  mI_rot  = !false,
+  mI_rot  = false,
   HOA_rot = false,
   prt_ms  = false,
   prt_dt  = false;
@@ -24,7 +24,7 @@ const double
 #else
   nu[]     = {-0.144+0.05, -0.110},
 #endif
-  dnu_mI[] = {0.05, 0.0},
+  dnu_mI[] = {0.02, 0.0},
   nu_HOA[] = {19.0/8.0, 15.0/16.0};
 
 
