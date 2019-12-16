@@ -20,7 +20,7 @@ const bool
      match_ls    2,
      opt_mi_sp   3,
      match_ss    4.                                                           */
-const int opt_case = 3;
+const int opt_case = 1;
 
 // From Center of Mid Straight: alpha, beta, eta, eta'.
 const int    n_ic = 4;
@@ -31,7 +31,7 @@ const double
   beta_ss[] = { 2.0, 1.5},
   beta_ls[] = {10.0, 4.0};
 
-#define LAT_CASE 1
+#define LAT_CASE 2
 
 const double
 #if LAT_CASE == 1
@@ -39,11 +39,11 @@ const double
   dnu[]              = {0.0/6.0, 0.0/6.0},
   high_ord_achr_nu[] = {11.0/4.0, 7.0/8.0},
 #elif LAT_CASE == 2
-  eps0_x             = 0.150,
-  high_ord_achr_nu[] = {9.0/4.0+0.02, 7.0/8.0},
+  eps0_x             = 0.147,
+  high_ord_achr_nu[] = {9.0/4.0, 7.0/8.0},
 #endif
   mI_dnu[]           = {0.0, 0.0},
-  mI_nu_ref[]        = {1.5-mI_dnu[X_], 0.5-mI_dnu[Y_]};
+  mI_nu_ref[]        = {1.5, 0.5};
 
 double rad2deg(const double a) { return a*180e0/M_PI; }
 
@@ -1951,7 +1951,7 @@ void set_weights_std(constr_type &constr)
   lat_constr.eps_x_scl            = 1e7;
 
   lat_constr.ksi1_scl             = 1e1;
-  lat_constr.drv_terms_simple_scl = 10*1e-2;
+  lat_constr.drv_terms_simple_scl = 1*1e-2;
   lat_constr.ksi1_ctrl_scl[0]     = 1e-1;
   lat_constr.ksi1_ctrl_scl[1]     = 10*1e1;
   lat_constr.ksi1_ctrl_scl[2]     = 1e-1;

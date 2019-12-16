@@ -15,11 +15,12 @@ void err_and_corr(const string &param_file)
   FILE            *fp;
 
   const double
-    // DIAMOND-II.
-    Qb          = 0.6e-9,
-    eps[]       = {79e-12, 8e-12},
+    // DIAMOND-II: I_b = 300 mA, 900 bunches => .
+    Qb          = 0.62e-9,
+    eps[]       = {99e-12, 8e-12},
     sigma_s     = 3e-3,
-    sigma_delta = 1.3e-3;
+    sigma_delta = 1.3e-3,
+    delta_RF    = 2.5e-2;
 
   const string file_name = "mom_aper.out";
 
@@ -58,7 +59,7 @@ void err_and_corr(const string &param_file)
     printf("\nerr_and_corr: orbit correction completed\n");
     prt_cod("cod.out", globval.bpm, true);
  
-    globval.delta_RF = 5.2e-2; globval.Cavity_on = true;
+    globval.delta_RF = delta_RF; globval.Cavity_on = true;
 
     Touschek(Qb, globval.delta_RF, eps[X_], eps[Y_], sigma_delta, sigma_s);
       
