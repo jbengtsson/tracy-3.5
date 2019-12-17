@@ -20,7 +20,7 @@ const bool
      match_ls    2,
      opt_mi_sp   3,
      match_ss    4.                                                           */
-const int opt_case = 1;
+const int opt_case = 3;
 
 // From Center of Mid Straight: alpha, beta, eta, eta'.
 const int    n_ic = 4;
@@ -31,7 +31,7 @@ const double
   beta_ss[] = { 2.0, 1.5},
   beta_ls[] = {10.0, 4.0};
 
-#define LAT_CASE 2
+#define LAT_CASE 1
 
 const double
 #if LAT_CASE == 1
@@ -874,8 +874,8 @@ double constr_type::get_chi2(const param_type &prms, double *bn,
   int    j, k;
   double chi2, dchi2[3], mean, geom_mean, bn_ext;
 
-  const bool   extra     = false;
-  const double scl_extra = 1e4;
+  const bool   extra     = !false;
+  const double scl_extra = 1e5;
 
   if (prt) printf("\nget_chi2:\n");
 
@@ -889,12 +889,13 @@ double constr_type::get_chi2(const param_type &prms, double *bn,
 
   if (extra) {
     if (prt) printf("\n  extra:\n");
-    // Reduce dp_q, #13.
-    k = 13;
+    // Zero dl1a b_2, #3.
+    k = 3;
     bn_ext = bn_bounded(bn[k], prms.bn_min[k-1], prms.bn_max[k-1]);
-    dchi2[0] = scl_extra*sqr(bn_ext-0.1);
+    dchi2[0] = scl_extra*sqr(bn_ext-0.001);
     chi2 += dchi2[0];
-    if (prt) printf("  qp_q:              %10.3e\n", dchi2[X_]);
+    if (prt) printf("  dl2a:              %10.3e (%10.3e)\n",
+		    dchi2[X_], bn_ext);
   }
 
   if (prt) printf("\n"); 
@@ -2017,8 +2018,8 @@ void set_dip_cell_sp(param_type &prms, constr_type &constr)
   grad_dip_Fnum.push_back(ElemIndex("dl1a_5"));
   if (dphi)
     prms.add_prm(grad_dip_Fnum, grad_dip_scl, -3, -15.0, 15.0, 1.0);
-  if (long_grad_dip)
-    prms.add_prm(grad_dip_Fnum, grad_dip_scl,  2, -15.0, 15.0, 1.0);
+  // if (long_grad_dip)
+  //   prms.add_prm(grad_dip_Fnum, grad_dip_scl,  2, -15.0, 15.0, 1.0);
 
   lat_constr.Fnum_b1.push_back(-ElemIndex("dl1a_1"));
   lat_constr.grad_dip_Fnum_b1.push_back(grad_dip_Fnum);
