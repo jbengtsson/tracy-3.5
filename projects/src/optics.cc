@@ -19,10 +19,10 @@ const int n_cell = 1;
 #endif
 
 const double
-#if 1
+#if 0
   nu[]     = {62.4, 20.35},
 #else
-  nu[]     = {-0.144+0.05, -0.110},
+  nu[]     = {0.0, 0.1},
 #endif
   dnu_mI[] = {0.02, 0.0},
   nu_HOA[] = {19.0/8.0, 15.0/16.0};
@@ -1484,6 +1484,23 @@ void prt_M_lin(void)
 }
 
 
+void reality_check()
+{
+  int  j;
+  FILE *fp;
+
+  fp = file_write("reality_check.out");
+  for (j = 0; j <= globval.Cell_nLoc; j++)
+    if (Cell[j].Elem.Pkind == Mpole) {
+      fprintf(fp, "\n  %10s %7.3f %7.3f %5.3f %5.3f %5.3f",
+	      Cell[j].Elem.PName, Cell[j-1].S, Cell[j].S, Cell[j].Elem.PL,
+	      Cell[j-1].S-Cell[j-2].S, Cell[j+1].S-Cell[j].S);
+    }
+  fprintf(fp, "\n");
+  fclose(fp);
+}
+
+
 int main(int argc, char *argv[])
 {
   bool             tweak;
@@ -1540,7 +1557,7 @@ int main(int argc, char *argv[])
     set_map(ElemIndex("ps_rot"), dnu);
     Ring_GetTwiss(true, 0e0); printglob();
     for (k = 0; k < 2; k++)
-      if (true)
+      if (!true)
 	dnu[k] = nu[k]/n_cell - globval.TotalTune[k];
       else
 	dnu[k] = nu[k];
@@ -1574,6 +1591,8 @@ int main(int argc, char *argv[])
     prt_lat("linlat1.out", globval.bpm, true);
     prt_lat("linlat.out", globval.bpm, true, 10);
     prtmfile("flat_file.dat");
+
+    if (!false) reality_check();
 
     exit(0);
   }

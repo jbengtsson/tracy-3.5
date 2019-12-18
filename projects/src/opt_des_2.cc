@@ -8,7 +8,7 @@ int no_tps = NO;
 
 
 const bool
-  ps_rot        = !false, // Note, needs to be zeroed; after use.
+  ps_rot        = false, // Note, needs to be zeroed; after use.
   qf6_rb        = false,
   sp_short      = !true,
   sp_std        = true,
@@ -874,8 +874,8 @@ double constr_type::get_chi2(const param_type &prms, double *bn,
   int    j, k;
   double chi2, dchi2[3], mean, geom_mean, bn_ext;
 
-  const bool   extra     = !false;
-  const double scl_extra = 1e5;
+  const bool   extra     = false;
+  const double scl_extra = 1e8;
 
   if (prt) printf("\nget_chi2:\n");
 
@@ -2034,8 +2034,8 @@ void set_dip_cell_sp(param_type &prms, constr_type &constr)
     grad_dip_Fnum.push_back(ElemIndex("dl2a_5"));
     if (dphi)
       prms.add_prm(grad_dip_Fnum, grad_dip_scl, -3, -15.0, 15.0, 1.0);
-    if (long_grad_dip)
-      prms.add_prm(grad_dip_Fnum, grad_dip_scl,  2, -15.0, 15.0, 1.0);
+    // if (long_grad_dip)
+    //   prms.add_prm(grad_dip_Fnum, grad_dip_scl,  2, -15.0, 15.0, 1.0);
 
     lat_constr.Fnum_b1.push_back(-ElemIndex("dl2a_1"));
     lat_constr.grad_dip_Fnum_b1.push_back(grad_dip_Fnum);
@@ -2190,7 +2190,7 @@ void set_weights_sp(constr_type &constr)
   lat_constr.mI_scl[Y_]           = 1e6;
   lat_constr.high_ord_achr_scl    = 1e7;
 
-  lat_constr.alpha_c_scl          = 5e-7;
+  lat_constr.alpha_c_scl          = 5*5e-7;
 
   if (!sp_short)
     // Super Period.
