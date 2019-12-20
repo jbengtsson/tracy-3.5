@@ -14,7 +14,7 @@ const bool
   sp_std          = true,
   pert_dip_cell   = false,
   dphi            = !false,
-  long_grad_dip[] = {false, !false};
+  long_grad_dip[] = {!false, !false};
 
 /* opt_case:
      opt_mI_std  1,
@@ -42,7 +42,7 @@ const double
   high_ord_achr_nu[] = {11.0/4.0, 7.0/8.0},
 #elif LAT_CASE == 2
   eps0_x             = 0.147,
-  high_ord_achr_nu[] = {2.3, 7.0/8.0},
+  high_ord_achr_nu[] = {11.0/4.0, 7.0/8.0},
 #endif
   mI_dnu[]           = {0.0, 0.0},
   mI_nu_ref[]        = {1.5, 0.5};
@@ -1887,7 +1887,7 @@ void set_constr_std(constr_type &constr)
 		    1e7, 1e7, 1e1,         1e3,         1e7,   0e0,
 		    0.0, 0.0, beta_ms[X_], beta_ms[Y_], 0.018, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
-		    1e5, 1e5, 1e1,         1e3,         1e7, 1e7,
+		    1e5, 1e5, 5e2,         1e3,         1e7, 1e7,
 		    0.0, 0.0, beta_ss[X_], beta_ss[Y_], 0.0, 0.0);
   // Symmetry.
   constr.add_constr(Elem_GetPos(ElemIndex("sf1"), 1),
@@ -1947,10 +1947,10 @@ void set_b3_constr_std(constr_type &constr)
 
 void set_weights_std(constr_type &constr)
 {
-  lat_constr.eps_x_scl             = 5e6;
+  lat_constr.eps_x_scl             = 1e6;
 
-  lat_constr.ksi1_scl              = 1e0;
-  lat_constr.drv_terms_simple_scl  = 1e-3;
+  lat_constr.ksi1_scl              = 1e1;
+  lat_constr.drv_terms_simple_scl  = 1e-2;
   lat_constr.ksi1_ctrl_scl[0]      = 1e-1;
   lat_constr.ksi1_ctrl_scl[1]      = 1e0*1e0;
   lat_constr.ksi1_ctrl_scl[2]      = 1e0*1e0;
@@ -1959,9 +1959,9 @@ void set_weights_std(constr_type &constr)
   lat_constr.mI_scl[X_]            = 1e6;
   lat_constr.mI_scl[Y_]            = 1e6;
   lat_constr.high_ord_achr_scl[X_] = 1e6;
-  lat_constr.high_ord_achr_scl[Y_] = 1e5;
+  lat_constr.high_ord_achr_scl[Y_] = 1e4;
 
-  lat_constr.alpha_c_scl           = 5e-6;
+  lat_constr.alpha_c_scl           = 1e-6;
 
   // Super Period.
   lat_constr.phi0 = 15.0;
