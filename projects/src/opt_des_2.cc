@@ -42,7 +42,7 @@ const double
   high_ord_achr_nu[] = {11.0/4.0, 7.0/8.0},
 #elif LAT_CASE == 2
   eps0_x             = 0.147,
-  high_ord_achr_nu[] = {11.0/4.0, 7.0/8.0},
+  high_ord_achr_nu[] = {2.30, 7.0/8.0},
 #endif
   mI_dnu[]           = {0.0, 0.0},
   mI_nu_ref[]        = {1.5, 0.5};
@@ -877,7 +877,7 @@ double constr_type::get_chi2(const param_type &prms, double *bn,
   double chi2, dchi2[3], mean, geom_mean, bn_ext;
 
   const bool   extra     = false;
-  const double scl_extra = 1e2;
+  const double scl_extra = 1e4;
 
   if (prt) printf("\nget_chi2:\n");
 
@@ -891,12 +891,12 @@ double constr_type::get_chi2(const param_type &prms, double *bn,
 
   if (extra) {
     if (prt) printf("\n  extra:\n");
-    // Reduce QD5, #9.
-    k = 9;
+    // Reduce QF1, #12.
+    k = 12;
     bn_ext = bn_bounded(bn[k], prms.bn_min[k-1], prms.bn_max[k-1]);
     dchi2[0] = scl_extra*sqr(bn_ext);
     chi2 += dchi2[0];
-    if (prt) printf("  QD5:               %10.3e (%10.3e)\n",
+    if (prt) printf("  QF1:               %10.3e (%10.3e)\n",
 		    dchi2[0], bn_ext);
   }
 
@@ -1857,10 +1857,14 @@ void set_dip_cell_std(param_type &prms, constr_type &constr)
 void set_b2_ms_std(param_type &prms)
 {
   // Mid-Straight.
-  prms.add_prm("qf1",  2,   0.0, 15.0, 1.0);
-  prms.add_prm("qd2",  2, -15.0,  0.0, 1.0);
-  if (false)
-    prms.add_prm("qp_q", 2,  -3.0,  3.0, 1.0);
+  if (!false) {
+    prms.add_prm("qp_q", 2, -15.0, 15.0, 1.0);
+    prms.add_prm("qf1",  2, -15.0, 0.0, 1.0);
+    prms.add_prm("qd2",  2, -15.0, 15.0, 1.0);
+  } else {
+    prms.add_prm("qf1",  2,   0.0, 15.0, 1.0);
+    prms.add_prm("qd2",  2, -15.0,  0.0, 1.0);
+  }
 
   // Standard-Straight.
   // prms.add_prm("qf6", -1, -0.3,  0.01, 1.0);
@@ -1897,8 +1901,8 @@ void set_constr_std(constr_type &constr)
   if (!false) {
     // Increase beta_x.
     constr.add_constr(Elem_GetPos(ElemIndex("sf1"), 1),
-		      0e5, 0e5, 1e3, 1e2, 0e7, 0e7,
-		      0.0, 0.0, 8.0, 2.0, 0.0, 0.0);
+		      0e5, 0e5, 1e2,  5e2, 0e7, 0e7,
+		      0.0, 0.0, 10.0, 1.0, 0.0, 0.0);
   }
   if (false) {
     // Increase beta_y.
@@ -1956,10 +1960,10 @@ void set_weights_std(constr_type &constr)
   lat_constr.ksi1_ctrl_scl[2]      = 1e0*1e0;
   // Not useful.
   lat_constr.ksi1_svd_scl          = 0e3;
-  lat_constr.mI_scl[X_]            = 1e6;
-  lat_constr.mI_scl[Y_]            = 1e6;
-  lat_constr.high_ord_achr_scl[X_] = 1e6;
-  lat_constr.high_ord_achr_scl[Y_] = 1e4;
+  lat_constr.mI_scl[X_]            = 5e6;
+  lat_constr.mI_scl[Y_]            = 5e6;
+  lat_constr.high_ord_achr_scl[X_] = 5e6;
+  lat_constr.high_ord_achr_scl[Y_] = 0e6;
 
   lat_constr.alpha_c_scl           = 1e-6;
 
@@ -2065,10 +2069,10 @@ void set_dip_cell_sp(param_type &prms, constr_type &constr)
 void set_b2_ms_std_ls_sp(param_type &prms)
 {
   // Mid Straight.
-  prms.add_prm("qd2",  2, -15.0, 15.0, 1.0);
-  prms.add_prm("qf1",  2, -15.0, 15.0, 1.0);
   if (false)
     prms.add_prm("qp_q", 2,  -1.0,  1.0, 1.0);
+  prms.add_prm("qd2",  2, -15.0, 15.0, 1.0);
+  prms.add_prm("qf1",  2, -15.0, 15.0, 1.0);
 
   // Standard Straight.
   prms.add_prm("qf6", 2, -15.0, 15.0, 1.0);
@@ -2309,9 +2313,10 @@ void match_ls(param_type &prms, constr_type &constr)
 void set_b2_ss(param_type &prms)
 {
   // Std Straight.
+  if (false)
+    prms.add_prm("qp_q", 2, -15.0, 15.0, 1.0);
   prms.add_prm("qd2",  2, -15.0, 15.0, 1.0);
   prms.add_prm("qf1",  2, -15.0, 15.0, 1.0);
-  prms.add_prm("qp_q", 2, -15.0, 15.0, 1.0);
 
   // Parameters are initialized in optimizer.
 }
