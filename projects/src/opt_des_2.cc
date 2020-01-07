@@ -21,7 +21,7 @@ const bool
      match_ls    2,
      opt_mi_sp   3,
      match_ss    4.                                                           */
-const int opt_case = 3;
+const int opt_case = 1;
 
 // From Center of Mid Straight: alpha, beta, eta, eta'.
 const int    n_ic = 4;
@@ -552,15 +552,17 @@ void set_ds(const int Fnum, const int Knum, const double ds)
 {
   int loc;
 
-  const bool prt = false;
+  const bool prt = !false;
 
   loc = Elem_GetPos(Fnum, Knum);
 
   if ((Cell[loc+1].Elem.Pkind == drift) && (Cell[loc-1].Elem.Pkind == drift)) {
     if (Knum % 2 == 1) {
+      if (prt) printf("\nset_ds Knum = %d (odd):", Knum);
       set_dL(Cell[loc+1].Fnum, Knum, -ds);
       set_dL(Cell[loc-1].Fnum, Knum, ds);
     } else {
+      if (prt) printf("\nset_ds Knum = %d (even):", Knum);
       set_dL(Cell[loc+1].Fnum, Knum, ds);
       set_dL(Cell[loc-1].Fnum, Knum, -ds);
     }
@@ -582,6 +584,7 @@ void set_ds(const int Fnum, const double ds)
 {
   int k;
 
+  printf("\nset_ds Knum = %d:", GetnKid(Fnum));
   for (k = 1; k <= GetnKid(Fnum); k++)
     set_ds(Fnum, k, ds);
 }
@@ -876,28 +879,32 @@ double constr_type::get_chi2(const param_type &prms, double *bn,
   int    j, k;
   double chi2, dchi2[3], mean, geom_mean, bn_ext;
 
-  const bool   extra     = false;
-  const double scl_extra = 5e5;
+  const bool   extra     = !false;
+  const double scl_extra = 1e6;
 
   if (prt) printf("\nget_chi2:\n");
 
   chi2 = 0e0;
 
+  if (extra) {
+    if (prt) printf("\n  extra:\n");
+    if (!true) {
+      // Reduce QF1 #11.
+      k = 11;
+      bn_ext = bn_bounded(bn[k], prms.bn_min[k-1], prms.bn_max[k-1]);
+    } else {
+      // Tweak D_09.
+      bn_ext = get_L(ElemIndex("d_09"), 1); 
+    }
+    dchi2[0] = scl_extra*sqr(bn_ext-0.075-0.14);
+    chi2 += dchi2[0];
+    if (prt) printf("  D_09:              %10.3e (%10.3e)\n", dchi2[0], bn_ext);
+  }
+
   if (eps_x_scl != 0e0) {
     dchi2[X_] = eps_x_scl*sqr(eps_x-eps0_x);
     chi2 += dchi2[X_];
     if (prt) printf("  eps_x:             %10.3e\n", dchi2[X_]);
-  }
-
-  if (extra) {
-    if (prt) printf("\n  extra:\n");
-    // Reduce dQF1 #12.
-    k = 12;
-    bn_ext = bn_bounded(bn[k], prms.bn_min[k-1], prms.bn_max[k-1]);
-    dchi2[0] = scl_extra*sqr(bn_ext);
-    chi2 += dchi2[0];
-    if (prt) printf("  dQF1:              %10.3e (%10.3e)\n",
-		    dchi2[0], bn_ext);
   }
 
   if (prt) printf("\n"); 
@@ -1860,8 +1867,8 @@ void set_b2_ms_std(param_type &prms)
   if (false)
     prms.add_prm("qp_q",  2, -15.0, 15.0, 1.0);
   prms.add_prm("qf1",  2,   0.0, 15.0, 1.0);
-  prms.add_prm("qf1", -1,  -0.3786, 0.1, 1.0);
   prms.add_prm("qd2",  2, -15.0,  0.0, 1.0);
+  prms.add_prm("qd3", -1,  -0.15, -0.15, 1.0);
 
   // Standard-Straight.
   // prms.add_prm("qf6", -1, -0.3,  0.01, 1.0);
@@ -1885,34 +1892,31 @@ void set_constr_std(constr_type &constr)
 		    0e0, 0e0, 0e0, 0e0, 1e8, 1e7,
 		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
-		    1e7, 1e7, 1e1,         1e3,         1e7,   0e0,
+		    1e7, 1e7, 1e2,         1e2,         1e7,   0e0,
 		    0.0, 0.0, beta_ms[X_], beta_ms[Y_], 0.018, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
-		    1e5, 1e5, 5e2,         1e3,         1e7, 1e7,
+		    1e5, 1e5, 1e2,         1e2,         1e7, 1e7,
 		    0.0, 0.0, beta_ss[X_], beta_ss[Y_], 0.0, 0.0);
   // Symmetry.
   constr.add_constr(Elem_GetPos(ElemIndex("sf1"), 1),
 		    5e2, 1e3, 0e0, 0e0, 0e0, 0e0,
 		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 
-  if (!false) {
+  if (!false)
     // Increase beta_x.
     constr.add_constr(Elem_GetPos(ElemIndex("sf1"), 1),
-		      0e5, 0e5, 1e2,  5e2, 0e7, 0e7,
+		      0e5, 0e5, 1e1,  1e2, 0e7, 0e7,
 		      0.0, 0.0, 10.0, 1.0, 0.0, 0.0);
-  }
-  if (false) {
+  if (false)
     // Increase beta_y.
     constr.add_constr(Elem_GetPos(ElemIndex("sd1"), 1),
 		      0e5, 0e5, 5e2, 5e3,  0e7, 0e7,
 		      0.0, 0.0, 5.0, 15.0, 0.0, 0.0);
-  }
-  if (false) {
+  if (false)
     // Increase beta_y.
     constr.add_constr(Elem_GetPos(ElemIndex("sd2"), 1),
 		      0e5, 0e5, 5e2, 5e3,  0e7, 0e7,
 		      0.0, 0.0, 5.0, 10.0, 0.0, 0.0);
-  }
 }
 
 
@@ -1951,7 +1955,7 @@ void set_weights_std(constr_type &constr)
   lat_constr.eps_x_scl             = 1e6;
 
   lat_constr.ksi1_scl              = 1e1;
-  lat_constr.drv_terms_simple_scl  = 1e-2;
+  lat_constr.drv_terms_simple_scl  = 0e-2;
   lat_constr.ksi1_ctrl_scl[0]      = 1e-1;
   lat_constr.ksi1_ctrl_scl[1]      = 1e0*1e0;
   lat_constr.ksi1_ctrl_scl[2]      = 1e0*1e0;
@@ -2070,6 +2074,7 @@ void set_b2_ms_std_ls_sp(param_type &prms)
     prms.add_prm("qp_q", 2,  -1.0,  1.0, 1.0);
   prms.add_prm("qd2",  2, -15.0, 15.0, 1.0);
   prms.add_prm("qf1",  2, -15.0, 15.0, 1.0);
+  prms.add_prm("qf1", -1,   0.15, -0.279, 1.0);
 
   // Standard Straight.
   prms.add_prm("qf6", 2, -15.0, 15.0, 1.0);
@@ -2115,13 +2120,18 @@ void set_constr_sp(constr_type &constr)
   if (!false)
     // Increase beta_x.
     constr.add_constr(Elem_GetPos(ElemIndex("sf1"), 1),
-		      0e5, 0e5, 1e2,  5e2, 0e7, 0e7,
+		      0e5, 0e5, 1e3,  5e2, 0e7, 0e7,
 		      0.0, 0.0, 10.0, 1.0, 0.0, 0.0);
   if (false)
     // Increase beta_y.
     constr.add_constr(Elem_GetPos(ElemIndex("sd2"), 1),
 		      0e5, 0e5, 1e1, 1e3, 0e7, 0e7,
 		      0.0, 0.0, 1.0, 8.0, 0.0, 0.0);
+  if (!false)
+    // Increase beta_y.
+    constr.add_constr(Elem_GetPos(ElemIndex("qd5"), 1),
+		      0e5, 0e5, 0e1, 1e3,  0e7, 0e7,
+		      0.0, 0.0, 0.0, 10.0, 0.0, 0.0);
 }
 
 
@@ -2185,7 +2195,7 @@ void set_weights_sp(constr_type &constr)
   lat_constr.mI_scl[X_]            = 1e6;
   lat_constr.mI_scl[Y_]            = 1e6;
   lat_constr.high_ord_achr_scl[X_] = 1e6;
-  lat_constr.high_ord_achr_scl[Y_] = 1e6;
+  lat_constr.high_ord_achr_scl[Y_] = 0e6;
 
   lat_constr.alpha_c_scl           = 5e-7;
 
@@ -2922,7 +2932,7 @@ int main(int argc, char *argv[])
     Ring_GetTwiss(true, 0e0); printglob();
     dnu[X_] = 0.0; dnu[Y_] = 0.0;
     set_map(ElemIndex("ps_rot"), dnu);
-    dnu[X_] = 0.0; dnu[Y_] = 0.03;
+    dnu[X_] = 0.0; dnu[Y_] = 0.0;
     set_map(ElemIndex("ps_rot"), dnu);
     Ring_GetTwiss(true, 0e0); printglob();
   }
