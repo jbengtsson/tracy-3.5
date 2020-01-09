@@ -1484,6 +1484,61 @@ void prt_M_lin(void)
 }
 
 
+void prt_lat_param()
+{
+  int    loc, k;
+  double L, rho_inv, phi, B, b_2, dx, beta_max[2], eta_x_max;
+
+  const double Brho = globval.Energy*1e9/c0;
+
+  loc = Elem_GetPos(ElemIndex("dq1"), 1);
+  L = Cell[loc].Elem.PL; rho_inv = Cell[loc].Elem.M->Pirho;
+  b_2 = Cell[loc].Elem.M->PBpar[Quad+HOMmax];
+  phi = L*rho_inv; B = Brho*rho_inv;
+  printf("\nDQ:  L = %5.3f phi = %5.3f B = %5.3f b_2 = %5.3f\n",
+	 L, phi*180e0/M_PI, B, b_2);
+
+  loc = Elem_GetPos(ElemIndex("qf4"), 1);
+  L = Cell[loc].Elem.PL; rho_inv = Cell[loc].Elem.M->Pirho;
+  b_2 = Cell[loc].Elem.M->PBpar[Quad+HOMmax];
+  phi = L*rho_inv; B = Brho*rho_inv; dx = rho_inv/b_2;
+  printf("\nqf4: L = %5.3f phi = %5.3f B = %5.3f b_2 = %5.3f dx = %6.4f\n",
+	 L, phi*180e0/M_PI, B, b_2, dx);
+
+  loc = Elem_GetPos(ElemIndex("qf8"), 1);
+  L = Cell[loc].Elem.PL; rho_inv = Cell[loc].Elem.M->Pirho;
+  b_2 = Cell[loc].Elem.M->PBpar[Quad+HOMmax];
+  phi = L*rho_inv; B = Brho*rho_inv; dx = rho_inv/b_2;
+  printf("qf8: L = %5.3f phi = %5.3f B = %5.3f b_2 = %5.3f dx = %6.4f\n",
+	 L, phi*180e0/M_PI, B, b_2, dx);
+
+  beta_max[X_] = beta_max[Y_] = eta_x_max = 0e0;
+  for (k = 0; k <= globval.Cell_nLoc; k++) {
+    beta_max[X_] = max(Cell[k].Beta[X_], beta_max[X_]);
+    beta_max[Y_] = max(Cell[k].Beta[Y_], beta_max[Y_]);
+    eta_x_max = max(Cell[k].Eta[X_], eta_x_max);
+  }
+  printf("\nmax beta = [%5.3f, %5.3f] max eta_x = %5.3f\n",
+	 beta_max[X_], beta_max[Y_], eta_x_max);
+
+  printf("\nLS:  L = %5.3f beta = [%5.3f, %5.3f]\n",
+	 2e0*Cell[Elem_GetPos(ElemIndex("dl_27"), 1)].S,
+	 Cell[Elem_GetPos(ElemIndex("ls"), 1)].Beta[X_],
+	 Cell[Elem_GetPos(ElemIndex("ls"), 1)].Beta[Y_]);
+  printf("SS:  L = %5.3f beta = [%5.3f, %5.3f]\n",
+	 Cell[Elem_GetPos(ElemIndex("bpm_01"), 2)].S
+	 -Cell[Elem_GetPos(ElemIndex("bpm_01"), 1)].S,
+	 Cell[Elem_GetPos(ElemIndex("ss"), 1)].Beta[X_],
+	 Cell[Elem_GetPos(ElemIndex("ss"), 1)].Beta[Y_]);
+  printf("MS:  L = %5.3f beta = [%5.3f, %5.3f] eta_x = %6.4f\n",
+	 Cell[Elem_GetPos(ElemIndex("bpm_05"), 1)].S
+	 -Cell[Elem_GetPos(ElemIndex("bpm_06"), 1)].S,
+	 Cell[Elem_GetPos(ElemIndex("ms"), 1)].Beta[X_],
+	 Cell[Elem_GetPos(ElemIndex("ms"), 1)].Beta[Y_],
+	 Cell[Elem_GetPos(ElemIndex("ms"), 1)].Eta[X_]);
+}
+
+
 void reality_check()
 {
   int  j;
@@ -1592,9 +1647,10 @@ int main(int argc, char *argv[])
     prt_lat("linlat.out", globval.bpm, true, 10);
     prtmfile("flat_file.dat");
 
-    if (!false) reality_check();
+    if (false) prt_lat_param();
+    if (false) reality_check();
 
-    exit(0);
+   exit(0);
   }
 
   if (false) {

@@ -552,7 +552,7 @@ void set_ds(const int Fnum, const int Knum, const double ds)
 {
   int loc;
 
-  const bool prt = !false;
+  const bool prt = false;
 
   loc = Elem_GetPos(Fnum, Knum);
 
@@ -584,7 +584,6 @@ void set_ds(const int Fnum, const double ds)
 {
   int k;
 
-  printf("\nset_ds Knum = %d:", GetnKid(Fnum));
   for (k = 1; k <= GetnKid(Fnum); k++)
     set_ds(Fnum, k, ds);
 }
@@ -880,7 +879,7 @@ double constr_type::get_chi2(const param_type &prms, double *bn,
   double chi2, dchi2[3], mean, geom_mean, bn_ext;
 
   const bool   extra     = !false;
-  const double scl_extra = 1e6;
+  const double scl_extra = 1e8;
 
   if (prt) printf("\nget_chi2:\n");
 
@@ -894,11 +893,17 @@ double constr_type::get_chi2(const param_type &prms, double *bn,
       bn_ext = bn_bounded(bn[k], prms.bn_min[k-1], prms.bn_max[k-1]);
     } else {
       // Tweak D_09.
-      bn_ext = get_L(ElemIndex("d_09"), 1); 
+      bn_ext = get_L(ElemIndex("d_10_1"), 1); 
+      dchi2[0] = scl_extra*sqr(bn_ext+0.14);
+      chi2 += dchi2[0];
+      if (prt)
+	printf("  D_10_1:            %10.3e (%10.3e)\n", dchi2[0], bn_ext);
+      bn_ext = get_L(ElemIndex("d_10_2"), 1); 
+      dchi2[0] = scl_extra*sqr(bn_ext+0.14);
+      chi2 += dchi2[0];
+      if (prt)
+	printf("  D_10_2:            %10.3e (%10.3e)\n", dchi2[0], bn_ext);
     }
-    dchi2[0] = scl_extra*sqr(bn_ext-0.075-0.14);
-    chi2 += dchi2[0];
-    if (prt) printf("  D_09:              %10.3e (%10.3e)\n", dchi2[0], bn_ext);
   }
 
   if (eps_x_scl != 0e0) {
@@ -1857,6 +1862,9 @@ void set_dip_cell_std(param_type &prms, constr_type &constr)
   prms.add_prm("qf4", 2,   0.0, 15.0, 1.0);
   prms.add_prm("qd5", 2, -15.0,  0.0, 1.0);
 
+  prms.add_prm("qd3", -1,  -0.4, -0.4, 1.0);
+  prms.add_prm("qd5", -1,  -0.4, -0.4, 1.0);
+
   lat_constr.phi_scl = (dphi)? 1e0 : 0e0;
 }
 
@@ -1868,7 +1876,6 @@ void set_b2_ms_std(param_type &prms)
     prms.add_prm("qp_q",  2, -15.0, 15.0, 1.0);
   prms.add_prm("qf1",  2,   0.0, 15.0, 1.0);
   prms.add_prm("qd2",  2, -15.0,  0.0, 1.0);
-  prms.add_prm("qd3", -1,  -0.15, -0.15, 1.0);
 
   // Standard-Straight.
   // prms.add_prm("qf6", -1, -0.3,  0.01, 1.0);
@@ -1902,7 +1909,7 @@ void set_constr_std(constr_type &constr)
 		    5e2, 1e3, 0e0, 0e0, 0e0, 0e0,
 		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 
-  if (!false)
+  if (false)
     // Increase beta_x.
     constr.add_constr(Elem_GetPos(ElemIndex("sf1"), 1),
 		      0e5, 0e5, 1e1,  1e2, 0e7, 0e7,
@@ -1955,7 +1962,7 @@ void set_weights_std(constr_type &constr)
   lat_constr.eps_x_scl             = 1e6;
 
   lat_constr.ksi1_scl              = 1e1;
-  lat_constr.drv_terms_simple_scl  = 0e-2;
+  lat_constr.drv_terms_simple_scl  = 1e-2;
   lat_constr.ksi1_ctrl_scl[0]      = 1e-1;
   lat_constr.ksi1_ctrl_scl[1]      = 1e0*1e0;
   lat_constr.ksi1_ctrl_scl[2]      = 1e0*1e0;
@@ -2074,7 +2081,6 @@ void set_b2_ms_std_ls_sp(param_type &prms)
     prms.add_prm("qp_q", 2,  -1.0,  1.0, 1.0);
   prms.add_prm("qd2",  2, -15.0, 15.0, 1.0);
   prms.add_prm("qf1",  2, -15.0, 15.0, 1.0);
-  prms.add_prm("qf1", -1,   0.15, -0.279, 1.0);
 
   // Standard Straight.
   prms.add_prm("qf6", 2, -15.0, 15.0, 1.0);
@@ -2932,7 +2938,7 @@ int main(int argc, char *argv[])
     Ring_GetTwiss(true, 0e0); printglob();
     dnu[X_] = 0.0; dnu[Y_] = 0.0;
     set_map(ElemIndex("ps_rot"), dnu);
-    dnu[X_] = 0.0; dnu[Y_] = 0.0;
+    dnu[X_] = 0.0; dnu[Y_] = 0.1;
     set_map(ElemIndex("ps_rot"), dnu);
     Ring_GetTwiss(true, 0e0); printglob();
   }
