@@ -14,13 +14,18 @@ void err_and_corr(const string &param_file)
   orb_corr_type   orb_corr[2];
   FILE            *fp;
 
+  // DIAMOND-II: I_b = 300 mA, h = 934.
+  const int 
+    Nb          = 934;
   const double
-    // DIAMOND-II: I_b = 300 mA, 900 bunches => .
-    Qb          = 0.62e-9,
+    C           = 560.571,
+    T0          = C/c0,
+    Ib          = 300e-3,
+    Qb          = Ib*T0/Nb,
     eps[]       = {99e-12, 8e-12},
-    sigma_s     = 3e-3,
-    sigma_delta = 1.3e-3,
-    delta_RF    = 2.5e-2;
+    sigma_s     = 3.0e-3,
+    sigma_delta = 1.1e-3,
+    delta_RF    = 4.0e-2;
 
   const string file_name = "mom_aper.out";
 
