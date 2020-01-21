@@ -1326,8 +1326,10 @@ void param_data_type::LoadAlignTol(const bool Scale_it, const double Scale,
 void param_data_type::LoadFieldErr(const bool Scale_it, const double Scale,
 				   const bool new_rnd) const
 {
+  const int line_max = 500;
+
   bool          rms, set_rnd;
-  char          line[max_str], name[max_str], type[max_str], *prm, *p;
+  char          line[line_max], name[max_str], type[max_str], *prm, *p;
   int           k, n, seed_val;
   double        Bn, An, r0;
   std::ifstream inf;
@@ -1336,7 +1338,7 @@ void param_data_type::LoadFieldErr(const bool Scale_it, const double Scale,
 
   set_rnd = false;
   std::cout << std::endl;
-  while (!inf.getline(line, max_str).eof()) {
+  while (!inf.getline(line, line_max).eof()) {
     if (strstr(line, "#") == NULL) {
       // New seed?
       sscanf(line, "%s", name);
