@@ -6,7 +6,7 @@ int no_tps = NO;
 
 
 const bool
-  set_dnu = false,
+  set_dnu = !false,
   mI_rot  = false,
   HOA_rot = false,
   prt_ms  = false,
@@ -19,8 +19,8 @@ const int n_cell = 1;
 #endif
 
 const double
-#if 0
-  nu[]     = {62.4, 20.35},
+#if 1
+  nu[]     = {64.2, 20.3},
 #else
   nu[]     = {0.0, 0.1},
 #endif
@@ -1612,7 +1612,7 @@ int main(int argc, char *argv[])
     set_map(ElemIndex("ps_rot"), dnu);
     Ring_GetTwiss(true, 0e0); printglob();
     for (k = 0; k < 2; k++)
-      if (!true)
+      if (true)
 	dnu[k] = nu[k]/n_cell - globval.TotalTune[k];
       else
 	dnu[k] = nu[k];
