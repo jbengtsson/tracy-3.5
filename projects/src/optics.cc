@@ -20,7 +20,7 @@ const int n_cell = 1;
 
 const double
 #if 1
-  nu[]     = {64.2, 20.3},
+  nu[]     = {64.18, 20.25},
 #else
   nu[]     = {0.0, 0.1},
 #endif
