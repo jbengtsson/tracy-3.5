@@ -975,6 +975,67 @@ void Cav_Pass(CellType &Cell, ss_vect<T> &ps)
 
 #endif
 
+
+void get_dI4_5_ID(CellType &Cell)
+{
+  double       L, K, h, b2, alpha, beta, gamma, psi, eta, etap;
+  ss_vect<tps> Id;
+  CellType     *Cellp;
+
+
+  Id.identity();
+
+  L = Cell.Elem.PL;
+  h = Cell.Elem.M->Pirho;
+  b2 = Cell.Elem.M->PBpar[Quad+HOMmax];
+  K = b2 + sqr(Cell.Elem.M->Pirho);
+  psi = sqrt(fabs(K))*L;
+  Cellp = &Cell - 1;
+  alpha = Cellp->Alpha[X_]; beta = Cellp->Beta[X_];
+  gamma = (1e0+sqr(alpha))/beta;
+  eta = Cellp->Eta[X_]; etap = Cellp->Etap[X_];
+
+  Cell.dI[2] += L*sqr(h);
+  Cell.dI[3] += L*fabs(cube(h));
+
+  if (K > 0e0) {
+    Cell.dI[4] +=
+      h/K*(2e0*b2+sqr(h))
+      *((eta*sqrt(K)*sin(psi)+etap*(1e0-cos(psi)))
+	+ h/sqrt(K)*(psi-sin(psi)));
+
+    Cell.dI[5] +=
+      L*fabs(cube(h))
+      *(gamma*sqr(eta)+2e0*alpha*eta*etap+beta*sqr(etap))
+      - 2e0*pow(h, 4)/(pow(K, 3e0/2e0))
+      *(sqrt(K)*(alpha*eta+beta*etap)*(cos(psi)-1e0)
+	+(gamma*eta+alpha*etap)*(psi-sin(psi)))
+      + fabs(pow(h, 5))/(4e0*pow(K, 5e0/2e0))
+      *(2e0*alpha*sqrt(K)*(4e0*cos(psi)-cos(2e0*psi)-3e0)
+	+beta*K*(2e0*psi-sin(2e0*psi))
+	+gamma*(6e0*psi-8e0*sin(psi)+sin(2e0*psi)));
+  } else {
+    K = fabs(K);
+
+    Cell.dI[4] +=
+      h/K*(2e0*b2+sqr(h))
+      *((eta*sqrt(K)*sinh(psi)-etap*(1e0-cosh(psi)))
+	- h/sqrt(K)*(psi-sinh(psi)));
+
+    Cell.dI[5] +=
+      L*fabs(cube(h))*
+      (gamma*sqr(eta)+2e0*alpha*eta*etap+beta*sqr(etap))
+      + 2e0*pow(h, 4)/(pow(K, 3e0/2e0))
+      *(sqrt(K)*(alpha*eta+beta*etap)*(cosh(psi)-1e0)
+	+(gamma*eta+alpha*etap)*(psi-sinh(psi)))
+      + fabs(pow(h, 5))/(4e0*pow(K, 5e0/2e0))
+      *(2e0*alpha*sqrt(K)*(4e0*cosh(psi)-cosh(2e0*psi)-3e0)
+	-beta*K*(2e0*psi-sinh(2e0*psi))
+	+gamma*(6e0*psi-8e0*sinh(psi)+sinh(2e0*psi)));
+  }
+}
+
+
 template<typename T>
 inline void get_Axy(const WigglerType *W, const double z,
 		    ss_vect<T> &x, T AxoBrho[], T AyoBrho[])
