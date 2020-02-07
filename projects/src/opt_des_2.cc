@@ -878,7 +878,7 @@ double constr_type::get_chi2(const param_type &prms, double *bn,
   int    j, k;
   double chi2, dchi2[3], mean, geom_mean, bn_ext;
 
-  const bool   extra     = !false;
+  const bool   extra     = false;
   const double scl_extra = 1e8;
 
   if (prt) printf("\nget_chi2:\n");
