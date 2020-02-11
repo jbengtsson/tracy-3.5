@@ -21,6 +21,7 @@ const int n_cell = 1;
 const double
 #if 1
   nu[]     = {64.15, 20.35},
+  // nu[]     = {64.15, 20.18},
 #else
   nu[]     = {0.0, 0.1},
 #endif
