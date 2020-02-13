@@ -58,7 +58,7 @@ else if ((N == 1) && (case == 4)) \
 else if ((N == 1) && (case == 5)) \
   N_x = 57; N_y = 19; \
 else if ((N == 1) && (case == 6)) \
-  N_x = 39; N_y = 14; \
+  N_x = 28; N_y = 13; \
 else if ((N == 1) && (case == 7)) \
   N_x = 8; N_y = 3; \
 else if ((N == 12) && (case == 8))\

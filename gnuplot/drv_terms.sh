@@ -40,7 +40,7 @@ set style line 7 lt 1 lw 1 lc rgb "dark-green";
 set style line 8 lt 1 lw 1 lc rgb "yellow";
 
 if (ps) set output "drv_terms_1.".(ext);
-set title "1st Order Chromatic  Terms";
+set title "2nd Order Chromatic  Terms";
 set xlabel "s [m]"; set ylabel "|h_{ijklm}|";
 set y2range [-2.0:20];
 set ytics nomirror;
@@ -53,7 +53,7 @@ plot file_name using 2:3 axis x1y2 notitle with fsteps lt 1 lw 1 \
 if (!ps) pause mouse "click on graph to cont.\n";
 
 if (ps) set output "drv_terms_2.".(ext);
-set title "1st Order Geometric Terms";
+set title "2nd Order Geometric Terms";
 set xlabel "s [m]"; set ylabel "|h_{ijklm}|";
 plot file_name using 2:3 axis x1y2 notitle with fsteps lt 1 lw 1 \
      lc rgb "black", \
@@ -65,7 +65,7 @@ plot file_name using 2:3 axis x1y2 notitle with fsteps lt 1 lw 1 \
 if (!ps) pause mouse "click on graph to cont.\n";
 
 if (ps) set output "drv_terms_3.".(ext);
-set title "2nd Order Geometric Terms";
+set title "3rd Order Geometric Terms";
 set xlabel "s [m]"; set ylabel "|h_{ijklm}|";
 set y2range [-2.0:20];
 plot file_name using 2:3 axis x1y2 notitle with fsteps lt 1 lw 1 \
@@ -81,7 +81,7 @@ plot file_name using 2:3 axis x1y2 notitle with fsteps lt 1 lw 1 \
 if (!ps) pause mouse "click on graph to cont.\n";
 
 if (ps) set output "drv_terms_4.".(ext);
-set title "3rd Order Geometric Terms";
+set title "4th Order Geometric Terms";
 set xlabel "s [m]"; set ylabel "|h_{ijklm}|";
 set y2range [-2.0:20];
 plot file_name using 2:3 axis x1y2 notitle with fsteps lt 1 lw 1 \
