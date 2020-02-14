@@ -121,6 +121,15 @@ plot file_name using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
 if (!ps) pause mouse "click on graph to cont.\n";
 
 if (ps) set output "linlat_9.".(ext);
+set title "sqrt({/ZapfChancery-MediumItalic H}_x(s)*{/Symbol b}_x)";
+set xlabel "s [m]"; set ylabel "";
+set y2range [-2.0:20];
+plot file_name using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
+     lc rgb "black", \
+     file_name using 3:(sqrt((\$15**2+\$16**2)*\$6)) notitle with lines ls 1;
+if (!ps) pause mouse "click on graph to cont.\n";
+
+if (ps) set output "linlat_10.".(ext);
 set title "arg\\\{{/ZapfChancery-MediumItalic H}_x(s)\\\}";
 set xlabel "s [m]"; set ylabel "";
 set y2range [-2.0:20];
@@ -134,7 +143,7 @@ if (!ps) pause mouse "click on graph to cont.\n";
 
 exit;
 
-if (ps) set output "linlat_10.".(ext);
+if (ps) set output "linlat_11.".(ext);
 set title "Normalized Phase Advance";
 set xlabel "s [m]"; set ylabel "{/Symbol n}";
 set y2range [-2.0:20];
@@ -144,7 +153,7 @@ plot file_name using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
      file_name using 3:12 title "{/Symbol n}_y" with lines ls 3;
 if (!ps) pause mouse "click on graph to cont.\n";
 
-if (ps) set output "linlat_11.".(ext);
+if (ps) set output "linlat_12.".(ext);
 set title "{/Symbol g}";
 set xlabel "s [m]"; set ylabel "{/Symbol g}";
 set y2range [-2.0:20];
@@ -158,7 +167,7 @@ if (!ps) pause mouse "click on graph to cont.\n";
 
 exit;
 
-if (ps) set output "linlat_12.".(ext);
+if (ps) set output "linlat_13.".(ext);
  set title "{/Symbol a}"; \
 set xlabel "s [m]"; set ylabel "{/Symbol a}"; \
 set y2range [-2.0:20]; \
