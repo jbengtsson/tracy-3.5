@@ -608,7 +608,8 @@ void GetEmittance(const int Fnum, const bool prt)
 
     printf("\n");
     printf("Beam ellipse twist [rad]:       tw      = %5.3f\n", theta);
-    printf("                   [deg]:       tw      = %5.3f\n", theta*180.0/M_PI);
+    printf("                   [deg]:       tw      = %5.3f\n",
+	   theta*180.0/M_PI);
   }
 
   // restore state

@@ -6,7 +6,7 @@ int no_tps = NO;
 
 
 const bool
-  set_dnu = false,
+  set_dnu = !false,
   mI_rot  = false,
   HOA_rot = false,
   prt_ms  = false,
@@ -883,8 +883,9 @@ void curly_H_s(void)
 
     eta_Fl = (Inv(A)*eta).cst();
 
-    fprintf(outf, "  %6.3f %10.3e %10.3e\n",
-	    Cell[i].S, eta_Fl[x_], eta_Fl[px_]);
+    fprintf(outf, "  %6.3f %10.3e %10.3e %10.3e\n",
+	    Cell[i].S, eta_Fl[x_], eta_Fl[px_],
+	    sqr(eta_Fl[x_])+sqr(eta_Fl[px_]));
 
   }
   fclose(outf);

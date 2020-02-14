@@ -1,4 +1,3 @@
-
 #define NO 6
 
 #include "tracy_lib.h"
@@ -7,24 +6,17 @@ int no_tps   = NO,
     ndpt_tps = 5;
 
 
-// MAX-IV       1,
-// SLS-2        2,
-// M-H6BAi      3,
-// M-H6BA-0-.-. 4,
-// DIAMOND      5,
-// DELTA        6,
-// ALS-U        7.
-
-const bool set_dnu  = false;
 const double
   // beta_inj[] = {8.7, 2.1},
   // A_max[]    = {5e-3, 1.5e-3},
   // delta_max  = 3e-2,
-  beta_inj[] = {4.1, 1.8},
-  A_max[]    = {4e-3, 2.5e-3},
-  delta_max  = 4e-2,
-  twoJ[]     = {sqr(A_max[X_])/beta_inj[X_], sqr(A_max[Y_])/beta_inj[Y_]},
-  dnu[]      = {0.1/6.0, 0.0};
+  beta_inj[] = {9.7, 5.9},
+  A_max[]    = {5e-3, 1.5e-3},
+  delta_max  = 3.5e-2,
+  // beta_inj[] = {4.1, 1.8},
+  // A_max[]    = {4e-3, 2.5e-3},
+  // delta_max  = 4e-2,
+  twoJ[]     = {sqr(A_max[X_])/beta_inj[X_], sqr(A_max[Y_])/beta_inj[Y_]};
 
 const char home_dir[] = "/home/bengtsson";
 
@@ -142,7 +134,6 @@ void get_A(void)
 
   for (j = 0; j < nv_tps; j++)
     jj[j] = (j < 4)? 1 : 0;
-
   A_inv = PInv(A, jj);
 }
 
@@ -317,10 +308,12 @@ int main(int argc, char *argv[])
   ss_vect<tps> Id;
   ofstream     outf;
 
-  globval.H_exact    = false; globval.quad_fringe = false;
-  globval.Cavity_on  = false; globval.radiation   = false;
-  globval.emittance  = false; globval.IBS         = false;
-  globval.pathlength = false; globval.bpm         = 0;
+  globval.H_exact    = false; globval.quad_fringe    = false;
+  globval.Cavity_on  = false; globval.radiation      = false;
+  globval.emittance  = false; globval.IBS            = false;
+  globval.pathlength = false; globval.bpm            = 0;
+  globval.Cart_Bend  = false; globval.dip_edge_fudge = true;
+  globval.mat_meth   = false;
 
   // disable from TPSALib- and LieLib log messages
   idprset_(-1);

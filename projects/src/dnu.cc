@@ -6,6 +6,7 @@ int no_tps = NO;
 
 
 const double
+  // A_max[]   = {15e-3, 6e-3},
   A_max[]   = {4e-3, 2e-3},
   delta_max = 3.5e-2;
 
