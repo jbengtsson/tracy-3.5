@@ -61,7 +61,7 @@ splot file using 1:2:(N*(\$3+N_x)) notitle w lines lt palette z;
 
 if (!ps) pause mouse "click on graph to cont.\n";
 
-if (ps) set output (home_dir)."dnu_3d_1.".(ext);
+if (ps) set output (home_dir)."dnu_3d_2.".(ext);
 
 set cntrparam level 75;
 set title "{/Symbol n}_y(x, {/Symbol d})";
