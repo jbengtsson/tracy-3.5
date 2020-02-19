@@ -53,9 +53,9 @@ set view 48, 51, 1, 1;
 if (ps) set output (home_dir)."dnu_3d_1.".(ext);
 
 set cntrparam level 75;
-set title "";
+set title "{/Symbol n}_x(x, {/Symbol d})";
 set xlabel "A_x [mm]"; set ylabel "{/Symbol d}";
-set zlabel "{/Symbol n}_x";
+set zlabel "";
 
 splot file using 1:2:(N*(\$3+N_x)) notitle w lines lt palette z;
 
@@ -64,9 +64,9 @@ if (!ps) pause mouse "click on graph to cont.\n";
 if (ps) set output (home_dir)."dnu_3d_1.".(ext);
 
 set cntrparam level 75;
-set title "";
+set title "{/Symbol n}_y(x, {/Symbol d})";
 set xlabel "A_x [mm]"; set ylabel "{/Symbol d}";
-set zlabel "{/Symbol n}_y";
+set zlabel "";
 
 splot file using 1:2:(N*(\$4+N_y)) notitle w lines lt palette z;
 
