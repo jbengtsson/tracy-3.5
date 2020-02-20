@@ -54,10 +54,10 @@ if (ps) set output (home_dir)."dnu_3d_1.".(ext);
 
 set cntrparam level 75;
 set title "{/Symbol n}_x(x, {/Symbol d})";
-set xlabel "A_x [mm]"; set ylabel "{/Symbol d}";
+set xlabel "A_x [mm]"; set ylabel "{/Symbol d} [%]";
 set zlabel "";
 
-splot file using 1:2:(N*(\$3+N_x)) notitle w lines lt palette z;
+splot file using 1:(1e2*\$2):(N*(\$3+N_x)) notitle w lines lt palette z;
 
 if (!ps) pause mouse "click on graph to cont.\n";
 
@@ -65,10 +65,10 @@ if (ps) set output (home_dir)."dnu_3d_2.".(ext);
 
 set cntrparam level 75;
 set title "{/Symbol n}_y(x, {/Symbol d})";
-set xlabel "A_x [mm]"; set ylabel "{/Symbol d}";
+set xlabel "A_x [mm]"; set ylabel "{/Symbol d} [%]";
 set zlabel "";
 
-splot file using 1:2:(N*(\$4+N_y)) notitle w lines lt palette z;
+splot file using 1:(1e2*\$2):(N*(\$4+N_y)) notitle w lines lt palette z;
 
 if (!ps) pause mouse "click on graph to cont.\n";
 
