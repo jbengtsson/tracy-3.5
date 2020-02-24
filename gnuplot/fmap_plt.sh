@@ -10,14 +10,15 @@ gnuplot << EOP
 
 home_dir = "$prm1"; N = $prm2; ps = $prm3; case  = $prm4; scale = $prm5;
 
-# MAX-V        1,
-# SLS-2        2,
-# ESRF-U       3, # 30 Std Cells; total is 32.
-# M-H6BAi      4,
-# M-H6BA-0-.-. 5,
-# DIAMOND      6,
-# ALS-U        7,
-# DELTA        8.
+# MAX-V      1,
+# SLS-2      2,
+# ESRF-U     3, # 30 Std Cells; total is 32.
+# M-H6BAi    4,
+# M-H6BA-19  5,
+# M-H6BA-20  6,
+# DIAMOND    7,
+# ALS-U      8,
+# DELTA      9.
 
 file1 = (home_dir)."fmap.out";
 file2 = (home_dir)."fmapdp.out";
@@ -59,8 +60,12 @@ else if ((N == 1) && (case == 4)) \
 else if ((N == 1) && (case == 5)) \
   N_x = 64; N_y = 20; \
 else if ((N == 1) && (case == 6)) \
-  N_x = 57; N_y = 22; \
+  N_x = 65; N_y = 21; \
+else if ((N == 1) && (case == 7)) \
+  N_x = 64; N_y = 20; \
 else if ((N == 1) && (case == 8)) \
+  N_x = 57; N_y = 22; \
+else if ((N == 1) && (case == 9)) \
   N_x = 40; N_y = 14; \
 else if ((N == 12) && (case == 2)) \
   N_x = 3; N_y = 1; \
@@ -69,10 +74,14 @@ else if ((N == 6) && (case == 4)) \
 else if ((N == 6) && (case == 5)) \
   N_x = 11; N_y = 3; sgn_x = -1; \
 else if ((N == 6) && (case == 6)) \
+  N_x = 11; N_y = 4; sgn_x = -1; sgn_y = -1; \
+else if ((N == 6) && (case == 7)) \
+  N_x = 11; N_y = 3; sgn_x = -1; \
+else if ((N == 6) && (case == 8)) \
   N_x = 10; N_y = 4; sgn_y = -1; \
-else if ((N == 12) && (case == 7)) \
+else if ((N == 12) && (case == 9)) \
   N_x = 3; N_y = 2; sgn_y = -1; \
-else if ((N == 20) && (case == 8)) \
+else if ((N == 20) && (case == 9)) \
   N_x = 5; N_y = 3;
 
 # DELTA: del008.
@@ -94,7 +103,7 @@ else if (case == 5) \
   nu_x_min = 64.0; nu_x_max = 64.5; nu_y_min = 20.0; nu_y_max = 20.7; \
   x_max = 5.0; y_max = 3.0; delta_max = 4.0; \
 else if (case == 6) \
-  nu_x_min = 62.5; nu_x_max = 63.0; nu_y_min = 21.0; nu_y_max = 21.5; \
+  nu_x_min = 65.0; nu_x_max = 65.5; nu_y_min = 21.0; nu_y_max = 21.5; \
   x_max = 4.0; y_max = 3.0; delta_max = 3.0; \
 else if (case == 7) \
   nu_x_min = 41.0; nu_x_max = 41.5; nu_y_min = 20.0; nu_y_max = 20.5; \
