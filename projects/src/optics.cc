@@ -6,7 +6,7 @@ int no_tps = NO;
 
 
 const bool
-  set_dnu = !false,
+  set_dnu = false,
   mI_rot  = false,
   HOA_rot = false,
   prt_ms  = false,
@@ -20,8 +20,8 @@ const int n_cell = 1;
 
 const double
 #if 1
-  nu[]     = {64.15, 20.35},
-  // nu[]     = {64.15, 20.18},
+  // nu[]     = {64.15, 20.35},
+  nu[]     = {64.15, 20.18},
   // nu[]     = {64.21, 20.26},
 #else
   nu[]     = {0.0, 0.1},
@@ -650,9 +650,13 @@ void chk_mpole(void)
     break;
   case 2:
     // H-6-BA.
-    Fnum.push_back(ElemIndex("sfh"));
-    Fnum.push_back(ElemIndex("sd1a"));
-    Fnum.push_back(ElemIndex("sd1b"));
+    Fnum.push_back(ElemIndex("sf1"));
+    Fnum.push_back(ElemIndex("sd1"));
+    Fnum.push_back(ElemIndex("sd2"));
+    Fnum.push_back(ElemIndex("s"));
+    Fnum.push_back(ElemIndex("sh2"));
+    Fnum.push_back(ElemIndex("sh1a"));
+    Fnum.push_back(ElemIndex("sh1b"));
     break;
   default:
     printf("\nchk_mpole: unknown lattice type\n");

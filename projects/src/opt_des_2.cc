@@ -8,9 +8,9 @@ int no_tps = NO;
 
 
 const bool
-  ps_rot          = !false, // Note, needs to be zeroed; after use.
+  ps_rot          = false, // Note, needs to be zeroed; after use.
   qf6_rb          = false,
-  sp_short        = !true,
+  sp_short        = false,
   sp_std          = true,
   pert_dip_cell   = false,
   dphi            = !false,
@@ -21,19 +21,20 @@ const bool
      match_ls    2,
      opt_mi_sp   3,
      match_ss    4.                                                           */
-const int opt_case = 1;
+const int opt_case = 3;
 
 // From Center of Mid Straight: alpha, beta, eta, eta'.
 const int    n_ic = 4;
 const double
-  ic[n_ic][2] = {{0.0000000000, 0.0000000000}, {2.4000073190, 2.0122874662},
-		 {0.0194288010, 0.0000000000}, {0.0, 0.0}},
+  ic[n_ic][2] =
+    {{-0.0033444062, 0.0175010857}, {3.3128077224, 1.0532911743},
+     {0.0179820391, 0.0000000000}, {0.0, 0.0}},
   beta_ms[] = { 2.0, 1.5},
   beta_ss[] = { 2.0, 1.5},
   beta_ls[] = {10.0, 4.0},
   eta_ms_x  = 15e-3;
 
-#define LAT_CASE 2
+#define LAT_CASE 1
 
 const double
 #if LAT_CASE == 1
@@ -1862,8 +1863,8 @@ void set_dip_cell_std(param_type &prms, constr_type &constr)
   prms.add_prm("qf4", 2,   0.0, 15.0, 1.0);
   prms.add_prm("qd5", 2, -15.0,  0.0, 1.0);
 
-  prms.add_prm("qd3", -1,  -0.4, -0.4, 1.0);
-  prms.add_prm("qd5", -1,  -0.4, -0.4, 1.0);
+  // prms.add_prm("qd3", -1,  -0.4, -0.4, 1.0);
+  // prms.add_prm("qd5", -1,  -0.4, -0.4, 1.0);
 
   lat_constr.phi_scl = (dphi)? 1e0 : 0e0;
 }
@@ -1971,7 +1972,7 @@ void set_weights_std(constr_type &constr)
   lat_constr.mI_scl[X_]            = 5e6;
   lat_constr.mI_scl[Y_]            = 5e6;
   lat_constr.high_ord_achr_scl[X_] = 5e6;
-  lat_constr.high_ord_achr_scl[Y_] = 5e6;
+  lat_constr.high_ord_achr_scl[Y_] = 0e6;
 
   lat_constr.alpha_c_scl           = 1e-6;
 
@@ -2123,7 +2124,7 @@ void set_constr_sp(constr_type &constr)
 		    5e2, 1e3, 0e0, 0e0, 0e0, 0e0,
 		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 
-  if (!false)
+  if (false)
     // Increase beta_x.
     constr.add_constr(Elem_GetPos(ElemIndex("sf1"), 1),
 		      0e5, 0e5, 1e3,  5e2, 0e7, 0e7,
@@ -2133,7 +2134,7 @@ void set_constr_sp(constr_type &constr)
     constr.add_constr(Elem_GetPos(ElemIndex("sd2"), 1),
 		      0e5, 0e5, 1e1, 1e3, 0e7, 0e7,
 		      0.0, 0.0, 1.0, 8.0, 0.0, 0.0);
-  if (!false)
+  if (false)
     // Increase beta_y.
     constr.add_constr(Elem_GetPos(ElemIndex("qd5"), 1),
 		      0e5, 0e5, 0e1, 1e3,  0e7, 0e7,
@@ -2330,6 +2331,7 @@ void set_b2_ss(param_type &prms)
     prms.add_prm("qp_q", 2, -15.0, 15.0, 1.0);
   prms.add_prm("qd2",  2, -15.0, 15.0, 1.0);
   prms.add_prm("qf1",  2, -15.0, 15.0, 1.0);
+  // prms.add_prm("qf1", -1,   0.0, -0.5, 1.0);
 
   // Parameters are initialized in optimizer.
 }
@@ -2338,8 +2340,8 @@ void set_b2_ss(param_type &prms)
 void set_constr_ss(constr_type &constr)
 {
   constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
-		    1e2, 1e2, 1e-1, 1e-1, 1e-10, 1e-10,
-		    0.0, 0.0, 2.0,  2.0,  0.0,   0.0);
+		    1e2, 1e2, 1e-1,        1e-1,         1e-10, 1e-10,
+		    0.0, 0.0, beta_ss[X_], beta_ss[Y_],  0.0,   0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("qf1"), 1),
 		    0e0, 0e0, 0e0, 0e0, 1e6, 1e6,
 		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
@@ -2919,7 +2921,7 @@ int main(int argc, char *argv[])
   // Unbuffered output.
   setvbuf(stdout, buffer, _IONBF, BUFSIZ);
 
-  globval.mat_meth = !false;
+  globval.mat_meth = false;
 
   if (!true)
     Read_Lattice(argv[1]);
@@ -2938,7 +2940,7 @@ int main(int argc, char *argv[])
     Ring_GetTwiss(true, 0e0); printglob();
     dnu[X_] = 0.0; dnu[Y_] = 0.0;
     set_map(ElemIndex("ps_rot"), dnu);
-    dnu[X_] = 0.0; dnu[Y_] = 0.1;
+    dnu[X_] = 0.0; dnu[Y_] = -0.1;
     set_map(ElemIndex("ps_rot"), dnu);
     Ring_GetTwiss(true, 0e0); printglob();
   }
