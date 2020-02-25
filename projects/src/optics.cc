@@ -654,9 +654,8 @@ void chk_mpole(void)
     Fnum.push_back(ElemIndex("sd1"));
     Fnum.push_back(ElemIndex("sd2"));
     Fnum.push_back(ElemIndex("s"));
+    Fnum.push_back(ElemIndex("sh1"));
     Fnum.push_back(ElemIndex("sh2"));
-    Fnum.push_back(ElemIndex("sh1a"));
-    Fnum.push_back(ElemIndex("sh1b"));
     break;
   default:
     printf("\nchk_mpole: unknown lattice type\n");
