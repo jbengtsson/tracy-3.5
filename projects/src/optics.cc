@@ -27,7 +27,7 @@ const double
 #else
   nu[]     = {0.0, 0.1},
 #endif
-  dnu_mI[] = {0.2, 0.0},
+  dnu_mI[] = {0.0, 0.0},
   nu_HOA[] = {19.0/8.0, 15.0/16.0};
 
 
