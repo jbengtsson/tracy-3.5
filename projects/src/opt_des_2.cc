@@ -8,7 +8,7 @@ int no_tps = NO;
 
 
 const bool
-  ps_rot          = false, // Note, needs to be zeroed; after use.
+  ps_rot          = !false, // Note, needs to be zeroed; after use.
   qf6_rb          = false,
   sp_short        = false,
   sp_std          = true,
@@ -1933,8 +1933,8 @@ void set_b3_constr_std(constr_type &constr)
   int              k, n;
   std::vector<int> mI_loc;
 
-  lat_constr.Fnum_b3.push_back(ElemIndex("sd1"));
   lat_constr.Fnum_b3.push_back(ElemIndex("sf1"));
+  lat_constr.Fnum_b3.push_back(ElemIndex("sd1"));
   lat_constr.Fnum_b3.push_back(ElemIndex("sd2"));
   // lat_constr.Fnum_b3.push_back(ElemIndex("sh2"));
 
@@ -2147,8 +2147,8 @@ void set_b3_constr_sp(constr_type &constr)
   int              k, n;
   std::vector<int> mI_loc;
 
-  lat_constr.Fnum_b3.push_back(ElemIndex("sd1"));
   lat_constr.Fnum_b3.push_back(ElemIndex("sf1"));
+  lat_constr.Fnum_b3.push_back(ElemIndex("sd1"));
   lat_constr.Fnum_b3.push_back(ElemIndex("sd2"));
   // lat_constr.Fnum_b3.push_back(ElemIndex("sh2"));
 
@@ -2190,7 +2190,7 @@ void set_b3_constr_sp(constr_type &constr)
 
 void set_weights_sp(constr_type &constr)
 {
-  lat_constr.eps_x_scl             = 5e6;
+  lat_constr.eps_x_scl             = 1e2*5e6;
 
   lat_constr.ksi1_scl              = 1e0;
   lat_constr.drv_terms_simple_scl  = 5e-4;
@@ -2921,7 +2921,7 @@ int main(int argc, char *argv[])
   // Unbuffered output.
   setvbuf(stdout, buffer, _IONBF, BUFSIZ);
 
-  globval.mat_meth = false;
+  globval.mat_meth = !false;
 
   if (!true)
     Read_Lattice(argv[1]);
@@ -2940,7 +2940,7 @@ int main(int argc, char *argv[])
     Ring_GetTwiss(true, 0e0); printglob();
     dnu[X_] = 0.0; dnu[Y_] = 0.0;
     set_map(ElemIndex("ps_rot"), dnu);
-    dnu[X_] = 0.0; dnu[Y_] = -0.1;
+    dnu[X_] = 0.0; dnu[Y_] = -0.05;
     set_map(ElemIndex("ps_rot"), dnu);
     Ring_GetTwiss(true, 0e0); printglob();
   }

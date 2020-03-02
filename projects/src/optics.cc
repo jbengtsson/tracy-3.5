@@ -21,12 +21,13 @@ const int n_cell = 1;
 const double
 #if 1
   // nu[]     = {64.15, 20.35},
-  nu[]     = {64.15, 20.18},
+  // nu[]     = {64.15, 20.18},
   // nu[]     = {64.21, 20.26},
+  nu[]     = {64.21, 20.30},
 #else
   nu[]     = {0.0, 0.1},
 #endif
-  dnu_mI[] = {0.02, 0.0},
+  dnu_mI[] = {0.2, 0.0},
   nu_HOA[] = {19.0/8.0, 15.0/16.0};
 
 
@@ -1630,18 +1631,12 @@ int main(int argc, char *argv[])
   }
 
   if (mI_rot) {
-    dnu[X_] = 0.0; dnu[Y_] = 0.0;
-    set_map(ElemIndex("mI_1_rot"), dnu);
-    set_map(ElemIndex("mI_2_rot"), dnu);
+    dnu[X_] = 0.0; dnu[Y_] = 0.;
+    set_map(ElemIndex("mI_rot"), dnu);
     Ring_GetTwiss(true, 0e0); printglob();
     for (k = 0; k < 2; k++)
       dnu[k] = dnu_mI[k];
-    set_map(ElemIndex("mI_1_rot"), dnu);
-    Ring_GetTwiss(true, 0e0); printglob();
-    for (k = 0; k < 2; k++)
-      dnu[k] = -dnu_mI[k];
-    set_map(ElemIndex("mI_2_rot"), dnu);
-    printf("\nmI & Cell Tune set to:\n");
+    set_map(ElemIndex("mI_rot"), dnu);
     Ring_GetTwiss(true, 0e0); printglob();
   }
 
@@ -1651,6 +1646,7 @@ int main(int argc, char *argv[])
 
     prt_lat("linlat1.out", globval.bpm, true);
     prt_lat("linlat.out", globval.bpm, true, 10);
+    prt_chrom_lat();
     prtmfile("flat_file.dat");
 
     if (false) prt_lat_param();
