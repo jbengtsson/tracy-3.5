@@ -1064,10 +1064,18 @@ double constr_type::get_chi2(const param_type &prms, double *bn,
     }
   }
 
-  if (alpha_c_scl != 0) {
-    dchi2[0] = alpha_c_scl*sqr(1e0/globval.Alphac);
+  if (ksi2_scl != 0) {
+    for (k = 0; k < 2; k++) {
+      dksi2[0] = ksi2_scl*sqr(ksi2);
     chi2 += dchi2[0];
-    if (prt) printf("\n  alpha_c_scl:       %10.3e\n", dchi2[0]);
+    }
+    if (prt) printf("\n  ksi2:               [%10.3e, %10.3e]\n", ksi2[0]);
+  }
+
+  if (eps_x_scl != 0e0) {
+    dchi2[X_] = eps_x_scl*sqr(eps_x-eps0_x);
+    chi2 += dchi2[X_];
+    if (prt) printf("  eps_x:             %10.3e\n", dchi2[X_]);
   }
 
   return chi2;
