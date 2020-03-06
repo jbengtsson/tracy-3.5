@@ -4,6 +4,8 @@
 
 #include "Powell/src/newuoa.h"
 
+#include "sxt.h"
+
 int no_tps = NO;
 
 
@@ -38,9 +40,18 @@ const double
 
 const double
 #if LAT_CASE == 1
+// M-H6BA-18-99pm-01.14-01.
   eps0_x             = 0.097,
   dnu[]              = {0.0/6.0, 0.0/6.0},
   high_ord_achr_nu[] = {11.0/4.0, 7.0/8.0},
+  beta_inj[]         = {10.7, 6.5},
+  A_max[]            = {3.5e-3, 1.5e-3},
+  delta_max          = 2e-2,
+  A_delta_max[]      = {2e-3, 0.1e-3},
+  twoJ[]             =
+    {sqr(A_max[X_])/beta_inj[X_], sqr(A_max[Y_])/beta_inj[Y_]},
+  twoJ_delta[]       =
+    {sqr(A_delta_max[X_])/beta_inj[X_], sqr(A_delta_max[Y_])/beta_inj[Y_]},
 #elif LAT_CASE == 2
   eps0_x             = 0.147,
   high_ord_achr_nu[] = {9.0/4.0, 7.0/8.0},
@@ -138,6 +149,8 @@ public:
     mI0[2],              // -I Transformer.
     alpha_c_scl,         // alpha_c.
     L_scl,
+    ksi2[2],
+    ksi2_scl,
     L0;                  // Cell length.
   std::vector<double> 
     ksi1_ctrl;
@@ -169,6 +182,7 @@ public:
     high_ord_achr_scl[X_] = high_ord_achr_scl[Y_] = 0e0;
     mI_scl[X_] = mI_scl[Y_] = 0e0;
     L_scl = 0e0;
+    ksi2_scl = 0e0;
   }
 
   void add_constr(const int loc,
@@ -178,7 +192,7 @@ public:
 		  const double v4, const double v5, const double v6);
   void ini_constr(const bool ring);
   void get_Jacobian(param_type &lat_prms);
-  double get_chi2(const param_type &prms, double *bn, const bool prt) const;
+  double get_chi2(const param_type &prms, double *bn, const bool prt);
   void get_dchi2(double *bn, double *df) const;
   void prt_Jacobian(const int n) const;
   void prt_constr(const double chi2);
@@ -873,6 +887,65 @@ void constr_type::prt_Jacobian(const int n) const
 }
 
 
+void get_ksi1_ctrl(constr_type &constr)
+{
+  int k, loc;
+
+  constr.ksi1_ctrl.clear();
+  for (k = 0; k < 3; k++) {
+    loc = Elem_GetPos(constr.Fnum_b3[k], 1);
+    constr.ksi1_ctrl.push_back((Cell[loc].Beta[Y_]-Cell[loc].Beta[X_])
+			       *Cell[loc].Eta[X_]);
+  }
+}
+
+
+void get_drv_terms(constr_type &constr)
+{
+  int    j, k, n_kid;
+  double b3L, a3L;
+
+  for (k = 0; k < 2; k++)
+    constr.drv_terms_simple[k] = 0e0;
+  for (k = 0; k < constr.n_b3; k++) {
+    get_bnL_design_elem(constr.Fnum_b3[k], 1, Sext, b3L, a3L);
+    n_kid = GetnKid(constr.Fnum_b3[k]);
+    for (j = 0; j < 2; j++) {
+      constr.drv_terms_simple[j] +=
+	n_kid*sqr(b3L*Cell[Elem_GetPos(constr.Fnum_b3[k], 1)].Beta[j]);
+    }
+  }
+}
+
+
+void get_high_ord_achr(constr_type &constr)
+{
+  int j, k;
+
+  for (j = 1; j < (int)constr.high_ord_achr_Fnum.size(); j++)
+    for (k = 0; k < 2; k++)
+      constr.high_ord_achr_dnu[j-1][k] =
+	Cell[constr.high_ord_achr_Fnum[j]].Nu[k]
+	- Cell[constr.high_ord_achr_Fnum[j-1]].Nu[k];
+}
+
+
+void get_mI(constr_type &constr)
+{
+  int                 j, k;
+  std::vector<double> dnu;
+
+  constr.mI.clear();
+  for (j = 0; j < (int)constr.mI_loc.size(); j++) {
+    for (k = 0; k < 2; k++)
+      dnu.push_back(Cell[lat_constr.mI_loc[j][1]].Nu[k]
+		    -Cell[lat_constr.mI_loc[j][0]].Nu[k]);
+    constr.mI.push_back(dnu);
+    dnu.clear();
+  }
+}
+
+
 double arccos_(double x)
 {
   double y;
@@ -927,13 +1000,13 @@ void get_ksi2_(const double delta, double ksi2[])
 
 
 double constr_type::get_chi2(const param_type &prms, double *bn,
-			     const bool prt) const
+			     const bool prt)
 {
   int    j, k;
   double chi2, dchi2[3], mean, geom_mean, bn_ext;
 
-  const bool   extra     = false;
-  const double scl_extra = 1e8;
+  const bool   extra = false;
+  const double delta = 1e-6, scl_extra = 1e8;
 
   if (prt) printf("\nget_chi2:\n");
 
@@ -1015,6 +1088,7 @@ double constr_type::get_chi2(const param_type &prms, double *bn,
   }
 
   if (drv_terms_simple_scl != 0e0) {
+    get_drv_terms(lat_constr);
     for (k = 0; k < 2; k++) {
       dchi2[k] = drv_terms_simple_scl*drv_terms_simple[k];
       chi2 += dchi2[k];
@@ -1025,6 +1099,7 @@ double constr_type::get_chi2(const param_type &prms, double *bn,
 
   if ((ksi1_ctrl_scl[0] != 0e0) || (ksi1_ctrl_scl[1] != 0e0)
       || (ksi1_ctrl_scl[2] != 0e0)) {
+    get_ksi1_ctrl(lat_constr);
     for (k = 0; k < 3; k++) {
       dchi2[k] = ksi1_ctrl_scl[k]/sqr(ksi1_ctrl[k]);
       chi2 += dchi2[k];
@@ -1041,7 +1116,18 @@ double constr_type::get_chi2(const param_type &prms, double *bn,
     if (prt) printf("  ksi1_svd:         %10.3e\n", dchi2[0]);
   }
 
+  if (ksi2_scl != 0e0) {
+    get_ksi2_(delta, ksi2);
+    for (k = 0; k < 2; k++) {
+      dchi2[k] = ksi2_scl*sqr(ksi2[k]);
+      chi2 += dchi2[k];
+    }
+    if (prt) printf("  ksi2:             [%10.3e, %10.3e]\n",
+		    ksi2[X_], ksi2[Y_]);
+  }
+
   if ((mI_scl[X_] != 0e0) || (mI_scl[Y_] != 0e0)) {
+    get_mI(lat_constr);
     for (j = 0; j < (int)mI.size(); j++) {
       for (k = 0; k < 2; k++) {
 	dchi2[k] = mI_scl[k]*sqr(mI[j][k]-mI0[k]);
@@ -1053,6 +1139,7 @@ double constr_type::get_chi2(const param_type &prms, double *bn,
   }
 
   if ((high_ord_achr_scl[X_] != 0e0) || (high_ord_achr_scl[Y_] != 0e0)) {
+    get_high_ord_achr(lat_constr);
     for (j = 0; j < (int)high_ord_achr_dnu.size(); j++) {
       for (k = 0; k < 2; k++) {
 	dchi2[k] =
@@ -1062,20 +1149,6 @@ double constr_type::get_chi2(const param_type &prms, double *bn,
       if (prt) printf("  high_ord_achr:    [%10.3e, %10.3e]\n",
 		      dchi2[X_], dchi2[Y_]);
     }
-  }
-
-  if (ksi2_scl != 0) {
-    for (k = 0; k < 2; k++) {
-      dksi2[0] = ksi2_scl*sqr(ksi2);
-    chi2 += dchi2[0];
-    }
-    if (prt) printf("\n  ksi2:               [%10.3e, %10.3e]\n", ksi2[0]);
-  }
-
-  if (eps_x_scl != 0e0) {
-    dchi2[X_] = eps_x_scl*sqr(eps_x-eps0_x);
-    chi2 += dchi2[X_];
-    if (prt) printf("  eps_x:             %10.3e\n", dchi2[X_]);
   }
 
   return chi2;
@@ -1151,7 +1224,8 @@ void prt_h(const constr_type &constr)
 
   printf("    drv. terms   = [%9.3e, %9.3e]\n",
 	 sqrt(constr.drv_terms_simple[X_]), sqrt(constr.drv_terms_simple[Y_]));
-
+  printf("    ksi2         = [%10.3e, %10.3e]\n\n",
+	 constr.ksi2[X_], constr.ksi2[Y_]);
   printf("    b_3L         = [");
   for (k = 0; k < constr.n_b3; k++) {
     get_bnL_design_elem(constr.Fnum_b3[k], 1, Sext, b3L, a3L);
@@ -1533,24 +1607,6 @@ double h_abs_ijklm(const tps &h_re, const tps &h_im, const int i, const int j,
 }
 
 
-void get_drv_terms(constr_type &constr)
-{
-  int    j, k, n_kid;
-  double b3L, a3L;
-
-  for (k = 0; k < 2; k++)
-    constr.drv_terms_simple[k] = 0e0;
-  for (k = 0; k < constr.n_b3; k++) {
-    get_bnL_design_elem(constr.Fnum_b3[k], 1, Sext, b3L, a3L);
-    n_kid = GetnKid(constr.Fnum_b3[k]);
-    for (j = 0; j < 2; j++) {
-      constr.drv_terms_simple[j] +=
-	n_kid*sqr(b3L*Cell[Elem_GetPos(constr.Fnum_b3[k], 1)].Beta[j]);
-    }
-  }
-}
-
-
 void fit_powell(param_type &lat_prms, const double eps, double (*f)(double *))
 {
   const int
@@ -1720,47 +1776,6 @@ void prt_f(double *b2, const double chi2, constr_type &lat_constr,
 }
 
 
-void get_high_ord_achr(constr_type &constr)
-{
-  int j, k;
-
-  for (j = 1; j < (int)constr.high_ord_achr_Fnum.size(); j++)
-    for (k = 0; k < 2; k++)
-      constr.high_ord_achr_dnu[j-1][k] =
-	Cell[constr.high_ord_achr_Fnum[j]].Nu[k]
-	- Cell[constr.high_ord_achr_Fnum[j-1]].Nu[k];
-}
-
-
-void get_mI(constr_type &constr)
-{
-  int                 j, k;
-  std::vector<double> dnu;
-
-  constr.mI.clear();
-  for (j = 0; j < (int)constr.mI_loc.size(); j++) {
-    for (k = 0; k < 2; k++)
-      dnu.push_back(Cell[lat_constr.mI_loc[j][1]].Nu[k]
-		    -Cell[lat_constr.mI_loc[j][0]].Nu[k]);
-    constr.mI.push_back(dnu);
-    dnu.clear();
-  }
-}
-
-
-void get_ksi1_ctrl(constr_type &constr)
-{
-  int k, loc;
-
-  constr.ksi1_ctrl.clear();
-  for (k = 0; k < 3; k++) {
-    loc = Elem_GetPos(constr.Fnum_b3[k], 1);
-    constr.ksi1_ctrl.push_back((Cell[loc].Beta[Y_]-Cell[loc].Beta[X_])
-			       *Cell[loc].Eta[X_]);
-  }
-}
-
-
 double f_match(double *b2)
 {
   double      chi2;
@@ -1811,20 +1826,6 @@ double f_achrom(double *b2)
     eps_x = get_lin_opt(lat_constr);
 
     fit_ksi1(lat_constr.Fnum_b3, 0e0, 0e0, 1e1, lat_constr.ksi1_svd);
-
-    if (lat_constr.drv_terms_simple_scl != 0e0) get_drv_terms(lat_constr);
-
-    if ((lat_constr.high_ord_achr_scl[X_] != 0e0)
-	|| (lat_constr.high_ord_achr_scl[Y_] != 0e0))
-      get_high_ord_achr(lat_constr);
-
-    if ((lat_constr.mI_scl[X_] != 0e0) || (lat_constr.mI_scl[Y_] != 0e0))
-      get_mI(lat_constr);
-
-    if ((lat_constr.ksi1_ctrl_scl[0] != 0e0)
-	|| (lat_constr.ksi1_ctrl_scl[1] != 0e0)
-	|| (lat_constr.ksi1_ctrl_scl[2] != 0e0))
-      get_ksi1_ctrl(lat_constr);
 
     chi2 = lat_constr.get_chi2(lat_prms, b2, false);
 
@@ -2251,7 +2252,7 @@ void set_b3_constr_sp(constr_type &constr)
 
 void set_weights_sp(constr_type &constr)
 {
-  lat_constr.eps_x_scl             = 1e2*5e6;
+  lat_constr.eps_x_scl             = 1e7;
 
   lat_constr.ksi1_scl              = 1e0;
   lat_constr.drv_terms_simple_scl  = 5e-4;
@@ -2262,8 +2263,9 @@ void set_weights_sp(constr_type &constr)
   lat_constr.ksi1_svd_scl          = 0e3;
   lat_constr.mI_scl[X_]            = 1e6;
   lat_constr.mI_scl[Y_]            = 1e6;
-  lat_constr.high_ord_achr_scl[X_] = 1e6;
+  lat_constr.high_ord_achr_scl[X_] = 1e-2*1e6;
   lat_constr.high_ord_achr_scl[Y_] = 0e6;
+  lat_constr.ksi2_scl              = 5e0;
 
   lat_constr.alpha_c_scl           = 5e-7;
 
@@ -2973,7 +2975,7 @@ void fit_ksi1(const double ksi_x, const double ksi_y)
 int main(int argc, char *argv[])
 {
   char   buffer[BUFSIZ];
-  double eps_x, dnu[2], ksi2[2];
+  double eps_x, dnu[2];
 
   reverse_elem = !false;
 
@@ -2982,13 +2984,13 @@ int main(int argc, char *argv[])
   // Unbuffered output.
   setvbuf(stdout, buffer, _IONBF, BUFSIZ);
 
-  globval.mat_meth = !false;
+  globval.mat_meth = false;
 
   if (!true)
     Read_Lattice(argv[1]);
   else {
     rdmfile(argv[1]);
-    globval.dPcommon = 1e-10;
+    globval.dPcommon = 1e-6;
   }
 
   globval.H_exact        = false;  globval.quad_fringe = false;
@@ -3022,6 +3024,18 @@ int main(int argc, char *argv[])
   }
 
   if (false) fit_ksi1(0e0, 0e0);
+
+  if (!false) {
+    Ring_GetTwiss(true, 0e0); printglob();
+    // sext_terms(twoJ[X_], twoJ[Y_]);
+    int n;
+    printf("\n");
+    for (n = 0; n <= globval.Cell_nLoc; n++)
+      printf("  %10s\n", Cell[n].Elem.PName);
+
+    // sext_terms(1e0, 1e0);
+    exit(0);
+  }
 
   switch (opt_case) {
   case 1:

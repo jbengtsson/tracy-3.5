@@ -1,47 +1,40 @@
 /* Author:       Johan Bengtsson
 
-   Module:       Control of dynamic aperture.
-
    Description:
 
-   Procedures to compute and minimize the sextupolar driving terms to second
-   order, amplitude dependent tune shifts(, and second order chromaticity).
+   Control of on & off-momentum dynamic aperture.
+   Evaluates & minimized the Lie generators to 2n order in the sextupole
+   strengths.
+   Initially coded in Pascal and ported to OPA (for the conceptual design of
+   SLS). The latter is based on OPTIK by K. Wille, DELTA, Dortmund Univ.
+   (interactive linear optics design tool; coded in Pascal).
 
    References:
 
    [1] J. Bengtsson "The sextupole scheme for the Swiss Light Source (SLS):
        An Analytic Approach" SLS Note 9/97.
+   [2] A. Streun OPA.
 
 */
 
-#define ORDER 1
-
 #include "tracy_lib.h"
 
-int no_tps = ORDER;
-
-#define N_COEFF  3    // no of terms to optimize
-
-// spatial components
-//enum spatial_index { X_ = 0, Y_ = 1, Z_ = 2 };
-
-// phase space components
-//enum ps_index { x_ = 0, px_ = 1, y_ = 2, py_ = 3, delta_ = 4, ct_ = 5 };
+#define N_COEFF 3    // no of terms to optimize
 
 // 2.5 degrees of freedom, i.e. delta is treated as a parameter
 const int  ps_dim = 4+1;
 
 typedef double sp_vec[2], ps_vec[ps_dim], mat[ps_dim][ps_dim];
 
-const int  n_b3_max = 50;
+const int n_b3_max_ = 50;
 
-int     iter, n_b3, b3s[n_b3_max];
-double  twoJx, twoJy;
+int    iter, n_b3, b3s[n_b3_max_];
+double twoJx_, twoJy_;
 
 
 double get_bn(CellType &Cell, long int Order)
 {
-  double  bn;
+  double bn;
 
   if (Cell.Elem.Pkind == Mpole)
     bn = Cell.Elem.M->PBpar[Order+HOMmax];
@@ -70,7 +63,7 @@ double get_bnL(CellType &Cell, long int Order)
 
 void cpy_mat(const mat A, mat B)
 {
-  int  i, j;
+  int i, j;
 
   for (i = 0; i < ps_dim; i++)
     for (j = 0; j < ps_dim; j++)
@@ -81,9 +74,9 @@ void cpy_mat(const mat A, mat B)
 void get_Ascr(const sp_vec alpha, const sp_vec beta,
 	      const sp_vec eta, const sp_vec etap, mat A)
 {
-  /* Transformation to Floquet space. */
+  // Transformation to Floquet space.
 
-  int  i, j;
+  int i, j;
 
   for (i = 0; i < ps_dim; i++)
     for (j = 0; j < ps_dim; j++)
@@ -104,9 +97,9 @@ void get_Ascr(const sp_vec alpha, const sp_vec beta,
 void get_Twiss(const mat A0, const mat A1,
 	       sp_vec alpha, sp_vec beta, sp_vec nu, sp_vec eta, sp_vec etap)
 {
-  /* Compute Twiss parameters. */
+  // Compute Twiss parameters.
 
-  int  k;
+  int k;
 
   for (k = 0; k <= 1; k++) {
     alpha[k] = -A1[2*k][2*k]*A1[2*k+1][2*k] - A1[2*k][2*k+1]*A1[2*k+1][2*k+1];
@@ -120,10 +113,10 @@ void get_Twiss(const mat A0, const mat A1,
 
 void propagate_drift(const double L, mat A)
 {
-  /* Drift propagator. */
+  // Drift propagator.
 
-  int  i, j, k;
-  mat  M, A1;
+  int i, j, k;
+  mat M, A1;
 
   for (j = 0; j < ps_dim; j++)
     for (k = 0; k < ps_dim; k++)
@@ -148,10 +141,10 @@ void propagate_drift(const double L, mat A)
 void propagate_thin_kick(const double L, const double rho_inv,
 			 const double b2, mat A)
 {
-  /* Thin-kick propagator. */
+  // Thin-kick propagator.
 
-  int  i, j, k;
-  mat  M, A1;
+  int i, j, k;
+  mat M, A1;
 
   for (j = 0; j < ps_dim; j++)
     for (k = 0; k < ps_dim; k++)
@@ -177,9 +170,9 @@ void propagate_thin_kick(const double L, const double rho_inv,
 void propagate_fringe_field(const double L,
 			    const double rho_inv, const double phi, mat A)
 {
-  /* Dipole harde-edge fringe field propagator. */
+  // Dipole harde-edge fringe field propagator.
 
-  int  k;
+  int k;
 
   if (phi != 0.0)
     for (k = 0; k < ps_dim; k++) {
@@ -197,16 +190,16 @@ void get_quad(const double L,
 	      const int m_x, const int m_y, const int n_x, const int n_y,
 	      const int m, double &h_c, double &h_s)
 {
-  /* Quad propagator: second order symplectic integrator.
-     Use Simpson's rule to integrate for thick magnets. */
+  // Quad propagator: second order symplectic integrator.
+  // Use Simpson's rule to integrate for thick magnets.
 
-  int     j, k;
-  double  h, r, phi;
-  sp_vec  alpha, beta, nu, eta, etap;
-  mat     A0, A1;
+  int    j, k;
+  double h, r, phi;
+  sp_vec alpha, beta, nu, eta, etap;
+  mat    A0, A1;
 
-  const bool  prt = false;
-  const int   n_step = 25;
+  const bool prt    = false;
+  const int  n_step = 25;
 
   for (k = 0; k <= 1; k++) {
     alpha[k] = alpha0[k]; beta[k] = beta0[k]; nu[k] = nu0[k];
@@ -288,10 +281,10 @@ void get_quad1(const double L,
 	      const int m_x, const int m_y, const int n_x, const int n_y,
 	      const int m, double &h_c, double &h_s)
 {
-  /* Use Simpson's Rule for quadrupoles */
+  // Use Simpson's Rule for quadrupoles.
 
-  int      k;
-  double   A, phi;
+  int    k;
+  double A, phi;
 
 //  get_Twiss3(L, rho_inv, phi1, phi2, b2, alpha3, beta3, nu3, eta3, etap3);
     
@@ -330,15 +323,19 @@ void sxt_1(const double scl,
 	   const int i, const int j, const int k, const int l, const int m,
 	   double &h_c, double &h_s)
 {
-  /* First order generators. */
+  // First order generators.
 
-  int       n, k1, m_x, m_y, n_x, n_y;
-  double    c, s, b3L, A, phi;
-  sp_vec   alpha0, beta0, nu0, eta0, etap0, beta, nu, eta;
+  int    n, k1, m_x, m_y, n_x, n_y;
+  double c, s, b3L, A, phi;
+  sp_vec alpha0, beta0, nu0, eta0, etap0, beta, nu, eta;
+
+  const bool prt = !false;
 
   h_c = 0.0; h_s = 0.0;
   m_x = i + j; m_y = k + l; n_x = i - j; n_y = k - l;
+  if (prt) printf("sxt_1:\n");
   for (n = 0; n <= globval.Cell_nLoc; n++) {
+    // if (prt) printf("  %10s\n", Cell[n].Elem.PName);
     if (Cell[n].Elem.Pkind == Mpole) {
       if (((Cell[n].Elem.M->Pirho != 0.0) ||
 	   (Cell[n].Elem.M->Porder == Quad)) && (m >= 1)) {
@@ -356,6 +353,7 @@ void sxt_1(const double scl,
 		 m_x, m_y, n_x, n_y, m, c, s);
 	h_c += scl*c; h_s += scl*s;
       } else if (Cell[n].Elem.M->Porder >= Sext) {
+	if (prt) printf("\nsxt_1: sext %10s\n", Cell[n].Elem.PName);
 	for (k1 = 0; k1 <= 1; k1++) {
 	  alpha0[k1] = Cell[ind(n-1)].Alpha[k1];
 	  beta0[k1] = Cell[ind(n-1)].Beta[k1];
@@ -380,17 +378,17 @@ void sxt_1(const double scl,
 }
 
 
-void sxt_2(const double scl,
+void sxt_2(const double twoJx, const double twoJy, const double scl,
 	   const int i1, const int j1, const int k1, const int l1,
 	   const int i2, const int j2, const int k2, const int l2,
 	   double &h_c, double &h_s)
 {
-  /* Second order generators. */
+  // Second order generators.
 
-  long int  n1, n2, k;
-  double    b3L1, b3L2, dnu, A1, A, phi;
-  Vector2   alpha0, beta0, nu0, eta0, etap0;
-  Vector2   beta1, nu1, beta2, nu2;
+  long int n1, n2, k;
+  double   b3L1, b3L2, dnu, A1, A, phi;
+  Vector2  alpha0, beta0, nu0, eta0, etap0;
+  Vector2  beta1, nu1, beta2, nu2;
 
   h_c = 0.0; h_s = 0.0;
   for (n1 = 0; n1 <= globval.Cell_nLoc; n1++) {
@@ -435,16 +433,17 @@ void sxt_2(const double scl,
 }
 
 
-void K(const double nu_x, const double nu_y, double a[])
+void K(const double nu_x, const double nu_y,
+       const double twoJx, const double twoJy, double a[])
 {
-  /* Amplitude dependent tune shifts. */
+  // Amplitude dependent tune shifts.
 
-  long int  k, n1, n2;
-  double    b3L1, b3L2, pi_1x, pi_3x, pi_1xm2y, pi_1xp2y;
-  double    s_1x, s_3x, s_1xm2y, s_1xp2y, c_1x, c_3x, c_1xm2y, c_1xp2y;
-  double    dmu_x, dmu_y, A;
-  Vector2   alpha0, beta0, nu0, eta0, etap0;
-  Vector2   beta1, nu1, beta2, nu2;
+  long int k, n1, n2;
+  double   b3L1, b3L2, pi_1x, pi_3x, pi_1xm2y, pi_1xp2y;
+  double   s_1x, s_3x, s_1xm2y, s_1xp2y, c_1x, c_3x, c_1xm2y, c_1xp2y;
+  double   dmu_x, dmu_y, A;
+  Vector2  alpha0, beta0, nu0, eta0, etap0;
+  Vector2  beta1, nu1, beta2, nu2;
 
   pi_1x = M_PI*nu_x; pi_3x = 3.0*M_PI*nu_x; pi_1xm2y = M_PI*(nu_x-2.0*nu_y);
   pi_1xp2y = M_PI*(nu_x+2.0*nu_y);
@@ -503,7 +502,7 @@ void K(const double nu_x, const double nu_y, double a[])
 
 void sext_terms(const double twoJx, const double twoJy)
 {
-  double  h_c, h_s, c, s, a[3];
+  double h_c, h_s, c, s, a[3];
 
   printf("\n");
   printf("First order chromatic terms:\n");
@@ -543,93 +542,93 @@ void sext_terms(const double twoJx, const double twoJy)
 
   printf("\n");
   printf("Second order geometric terms:\n");
-  sxt_2(-1.0/32.0, 2, 1, 0, 0, 3, 0, 0, 0, h_c, h_s);
+  sxt_2(twoJx, twoJy, -1.0/32.0, 2, 1, 0, 0, 3, 0, 0, 0, h_c, h_s);
   h_c *= sqr(twoJx); h_s *= sqr(twoJx);
   printf("  h_40000: %23.16e %23.16e\n", h_c/2.0, h_s/2.0);
   
-  sxt_2(-1.0/16.0, 1, 2, 0, 0, 3, 0, 0, 0, h_c, h_s);
+  sxt_2(twoJx, twoJy, -1.0/16.0, 1, 2, 0, 0, 3, 0, 0, 0, h_c, h_s);
   h_c *= sqr(twoJx); h_s *= sqr(twoJx);
   printf("  h_31000: %23.16e %23.16e\n", h_c/2.0, h_s/2.0);
 
-  sxt_2(-1.0/16.0, 3, 0, 0, 0, 0, 1, 1, 1, c, s);
+  sxt_2(twoJx, twoJy, -1.0/16.0, 3, 0, 0, 0, 0, 1, 1, 1, c, s);
   h_c = c; h_s = s;
-  sxt_2(-1.0/16.0, 1, 0, 1, 1, 2, 1, 0, 0, c, s);
+  sxt_2(twoJx, twoJy, -1.0/16.0, 1, 0, 1, 1, 2, 1, 0, 0, c, s);
   h_c += c; h_s += s;
-  sxt_2(-1.0/8.0, 1, 0, 0, 2, 1, 0, 2, 0, c, s);
+  sxt_2(twoJx, twoJy, -1.0/8.0, 1, 0, 0, 2, 1, 0, 2, 0, c, s);
   h_c += c; h_s += s;
   h_c *= twoJx*twoJy; h_s *= twoJx*twoJy;
   printf("  h_20110: %23.16e %23.16e\n", h_c/2.0, h_s/2.0);
   
-  sxt_2(-1.0/32.0, 1, 0, 0, 2, 2, 1, 0, 0, c, s);
+  sxt_2(twoJx, twoJy, -1.0/32.0, 1, 0, 0, 2, 2, 1, 0, 0, c, s);
   h_c = c; h_s = s;
-  sxt_2(-1.0/32.0, 3, 0, 0, 0, 0, 1, 0, 2, c, s);
+  sxt_2(twoJx, twoJy, -1.0/32.0, 3, 0, 0, 0, 0, 1, 0, 2, c, s);
   h_c += c; h_s += s;
-  sxt_2(-4.0/32.0, 1, 0, 0, 2, 1, 0, 1, 1, c, s);
+  sxt_2(twoJx, twoJy, -4.0/32.0, 1, 0, 0, 2, 1, 0, 1, 1, c, s);
   h_c += c; h_s += s;
   h_c *= twoJx*twoJy; h_s *= twoJx*twoJy;
   printf("  h_20020: %23.16e %23.16e\n", h_c/2.0, h_s/2.0);
 
-  sxt_2(-1.0/32.0, 3, 0, 0, 0, 0, 1, 2, 0, c, s);
+  sxt_2(twoJx, twoJy, -1.0/32.0, 3, 0, 0, 0, 0, 1, 2, 0, c, s);
   h_c = c; h_s = s;
-  sxt_2(-1.0/32.0, 1, 0, 2, 0, 2, 1, 0, 0, c, s);
+  sxt_2(twoJx, twoJy, -1.0/32.0, 1, 0, 2, 0, 2, 1, 0, 0, c, s);
   h_c += c; h_s += s;
-  sxt_2(-4.0/32.0, 1, 0, 1, 1, 1, 0, 2, 0, c, s);
+  sxt_2(twoJx, twoJy, -4.0/32.0, 1, 0, 1, 1, 1, 0, 2, 0, c, s);
   h_c += c; h_s += s;
   h_c *= twoJx*twoJy; h_s *= twoJx*twoJy;
   printf("  h_20200: %23.16e %23.16e\n", h_c/2.0, h_s/2.0);
   
-  sxt_2(-1.0/16.0, 1, 0, 2, 0, 1, 2, 0, 0, c, s);
+  sxt_2(twoJx, twoJy, -1.0/16.0, 1, 0, 2, 0, 1, 2, 0, 0, c, s);
   h_c = c; h_s = s;
-  sxt_2(-1.0/16.0, 2, 1, 0, 0, 0, 1, 2, 0, c, s);
+  sxt_2(twoJx, twoJy, -1.0/16.0, 2, 1, 0, 0, 0, 1, 2, 0, c, s);
   h_c += c; h_s += s;
-  sxt_2(-2.0/16.0, 0, 1, 1, 1, 1, 0, 2, 0, c, s);
+  sxt_2(twoJx, twoJy, -2.0/16.0, 0, 1, 1, 1, 1, 0, 2, 0, c, s);
   h_c += c; h_s += s;
-  sxt_2(-2.0/16.0, 1, 0, 1, 1, 0, 1, 2, 0, c, s);
+  sxt_2(twoJx, twoJy, -2.0/16.0, 1, 0, 1, 1, 0, 1, 2, 0, c, s);
   h_c += c; h_s += s;
   h_c *= twoJx*twoJy; h_s *= twoJx*twoJy;
   printf("  h_11200: %23.16e %23.16e\n", h_c/2.0, h_s/2.0);
     
-  sxt_2(-1.0/16.0, 0, 1, 2, 0, 1, 0, 1, 1, c, s);
+  sxt_2(twoJx, twoJy, -1.0/16.0, 0, 1, 2, 0, 1, 0, 1, 1, c, s);
   h_c = c; h_s = s;
-  sxt_2(-1.0/16.0, 0, 1, 1, 1, 1, 0, 2, 0, c, s);
+  sxt_2(twoJx, twoJy, -1.0/16.0, 0, 1, 1, 1, 1, 0, 2, 0, c, s);
   h_c += c; h_s += s;
   h_c *= sqr(twoJy); h_s *= sqr(twoJy);
   printf("  h_00310: %23.16e %23.16e\n", h_c/2.0, h_s/2.0);
   
-  sxt_2(-1.0/32.0, 0, 1, 2, 0, 1, 0, 2, 0, h_c, h_s);
+  sxt_2(twoJx, twoJy, -1.0/32.0, 0, 1, 2, 0, 1, 0, 2, 0, h_c, h_s);
   h_c *= sqr(twoJy); h_s *= sqr(twoJy);
   printf("  h_00400: %23.16e %23.16e\n", h_c/2.0, h_s/2.0);
 
   printf("\n");
   printf("Second order tune shifts (driving terms):\n");
-  sxt_2(-1.0/32.0, 0, 3, 0, 0, 3, 0, 0, 0, c, s);
+  sxt_2(twoJx, twoJy, -1.0/32.0, 0, 3, 0, 0, 3, 0, 0, 0, c, s);
   h_c = c; h_s = s;
-  sxt_2(-3.0/32.0, 1, 2, 0, 0, 2, 1, 0, 0, c, s);
+  sxt_2(twoJx, twoJy, -3.0/32.0, 1, 2, 0, 0, 2, 1, 0, 0, c, s);
   h_c += c; h_s += s;
   h_c *= sqr(twoJx); h_s *= sqr(twoJx);
   printf("  h_22000: %23.16e %23.16e\n", h_c/2.0, h_s/2.0);
   
-  sxt_2(-1.0/8.0, 1, 0, 1, 1, 1, 2, 0, 0, c, s);
+  sxt_2(twoJx, twoJy, -1.0/8.0, 1, 0, 1, 1, 1, 2, 0, 0, c, s);
   h_c = c; h_s = s;
-  sxt_2(-1.0/8.0, 2, 1, 0, 0, 0, 1, 1, 1, c, s);
+  sxt_2(twoJx, twoJy, -1.0/8.0, 2, 1, 0, 0, 0, 1, 1, 1, c, s);
   h_c += c; h_s += s;
-  sxt_2(-1.0/8.0, 0, 1, 0, 2, 1, 0, 2, 0, c, s);
+  sxt_2(twoJx, twoJy, -1.0/8.0, 0, 1, 0, 2, 1, 0, 2, 0, c, s);
   h_c += c; h_s += s;
-  sxt_2(-1.0/8.0, 1, 0, 0, 2, 0, 1, 2, 0, c, s);
+  sxt_2(twoJx, twoJy, -1.0/8.0, 1, 0, 0, 2, 0, 1, 2, 0, c, s);
   h_c += c; h_s += s;
   h_c *= twoJx*twoJy; h_s *= twoJx*twoJy;
   printf("  h_11110: %23.16e %23.16e\n", h_c/2.0, h_s/2.0);
   
-  sxt_2(-1.0/8.0, 0, 1, 1, 1, 1, 0, 1, 1, c, s);
+  sxt_2(twoJx, twoJy, -1.0/8.0, 0, 1, 1, 1, 1, 0, 1, 1, c, s);
   h_c = c; h_s = s;
-  sxt_2(-1.0/32.0, 0, 1, 0, 2, 1, 0, 2, 0, c, s);
+  sxt_2(twoJx, twoJy, -1.0/32.0, 0, 1, 0, 2, 1, 0, 2, 0, c, s);
   h_c += c; h_s += s;
-  sxt_2(-1.0/32.0, 0, 1, 2, 0, 1, 0, 0, 2, c, s);
+  sxt_2(twoJx, twoJy, -1.0/32.0, 0, 1, 2, 0, 1, 0, 0, 2, c, s);
   h_c += c; h_s += s;
   h_c *= sqr(twoJy); h_s *= sqr(twoJy);
   printf("  h_00220: %23.16e %23.16e\n", h_c/2.0, h_s/2.0);
 
-  K(globval.TotalTune[X_], globval.TotalTune[Y_], a);
+  K(globval.TotalTune[X_], globval.TotalTune[Y_], twoJx, twoJy, a);
   printf("\n");
   printf("Amplitude dependent tune shifts\n");
   printf("  a_xx = %23.16e\n", a[0]);
@@ -638,13 +637,13 @@ void sext_terms(const double twoJx, const double twoJy)
 }
 
 
-float f_sxt(float p[])
+double f_sxt(double p[])
 {
-  int     i;
-  double  f, h_c, h_s, c, s;
+  int    i;
+  double f, h_c, h_s, c, s;
 
   const int    n_prt = 100;
-  const float  scl_ksi1 = 1e3, scl_geom = 1e0, scl_dnu = 1.0, b3L_max = 3.5;
+  const double scl_ksi1 = 1e3, scl_geom = 1e0, scl_dnu = 1.0, b3L_max = 3.5;
 
   iter++;
 
@@ -675,103 +674,103 @@ float f_sxt(float p[])
 
   // h_21000
   sxt_1(-1.0/4.0, 2, 1, 0, 0, 0, h_c, h_s);
-  f += scl_geom*pow(twoJx, 3.0/2.0)*sqr(h_c);
+  f += scl_geom*pow(twoJx_, 3.0/2.0)*sqr(h_c);
   // h_30000
   sxt_1(-1.0/12.0, 3, 0, 0, 0, 0, h_c, h_s);
-  f += scl_geom*pow(twoJx, 3.0/2.0)*sqr(h_c);
+  f += scl_geom*pow(twoJx_, 3.0/2.0)*sqr(h_c);
   // h_10110
   sxt_1(1.0/2.0, 1, 0, 1, 1, 0, h_c, h_s);
-  f += scl_geom*sqrt(twoJx)*twoJy*sqr(h_c);
+  f += scl_geom*sqrt(twoJx_)*twoJy_*sqr(h_c);
   // h_10020
   sxt_1(1.0/4.0, 1, 0, 0, 2, 0, h_c, h_s);
-  f += scl_geom*sqrt(twoJx)*twoJy*sqr(h_c);
+  f += scl_geom*sqrt(twoJx_)*twoJy_*sqr(h_c);
   // h_10200
   sxt_1(1.0/4.0, 1, 0, 2, 0, 0, h_c, h_s);
-  f += scl_geom*sqrt(twoJx)*twoJy*sqr(h_c);
+  f += scl_geom*sqrt(twoJx_)*twoJy_*sqr(h_c);
 
   // h_40000
-  sxt_2(-1.0/32.0, 2, 1, 0, 0, 3, 0, 0, 0, h_c, h_s);
-  f += scl_geom*sqr(twoJx)*sqr(h_c);
+  sxt_2(twoJx_, twoJy_, -1.0/32.0, 2, 1, 0, 0, 3, 0, 0, 0, h_c, h_s);
+  f += scl_geom*sqr(twoJx_)*sqr(h_c);
   
   // h_31000
-  sxt_2(-1.0/16.0, 1, 2, 0, 0, 3, 0, 0, 0, h_c, h_s);
-  f += scl_geom*sqr(twoJx)*sqr(h_c);
+  sxt_2(twoJx_, twoJy_, -1.0/16.0, 1, 2, 0, 0, 3, 0, 0, 0, h_c, h_s);
+  f += scl_geom*sqr(twoJx_)*sqr(h_c);
 
   // h_20110
-  sxt_2(-1.0/16.0, 3, 0, 0, 0, 0, 1, 1, 1, c, s);
+  sxt_2(twoJx_, twoJy_, -1.0/16.0, 3, 0, 0, 0, 0, 1, 1, 1, c, s);
   h_c = c; h_s = s;
-  sxt_2(-1.0/16.0, 1, 0, 1, 1, 2, 1, 0, 0, c, s);
+  sxt_2(twoJx_, twoJy_, -1.0/16.0, 1, 0, 1, 1, 2, 1, 0, 0, c, s);
   h_c += c; h_s += s;
-  sxt_2(-1.0/8.0, 1, 0, 0, 2, 1, 0, 2, 0, c, s);
+  sxt_2(twoJx_, twoJy_, -1.0/8.0, 1, 0, 0, 2, 1, 0, 2, 0, c, s);
   h_c += c; h_s += s;
-  f += scl_geom*twoJx*twoJy*sqr(h_c);
+  f += scl_geom*twoJx_*twoJy_*sqr(h_c);
   
   // h_20020
-  sxt_2(-1.0/32.0, 1, 0, 0, 2, 2, 1, 0, 0, c, s);
+  sxt_2(twoJx_, twoJy_, -1.0/32.0, 1, 0, 0, 2, 2, 1, 0, 0, c, s);
   h_c = c; h_s = s;
-  sxt_2(-1.0/32.0, 3, 0, 0, 0, 0, 1, 0, 2, c, s);
+  sxt_2(twoJx_, twoJy_, -1.0/32.0, 3, 0, 0, 0, 0, 1, 0, 2, c, s);
   h_c += c; h_s += s;
-  sxt_2(-4.0/32.0, 1, 0, 0, 2, 1, 0, 1, 1, c, s);
+  sxt_2(twoJx_, twoJy_, -4.0/32.0, 1, 0, 0, 2, 1, 0, 1, 1, c, s);
   h_c += c; h_s += s;
-  f += scl_geom*twoJx*twoJy*sqr(h_c);
+  f += scl_geom*twoJx_*twoJy_*sqr(h_c);
 
   // h_20200
-  sxt_2(-1.0/32.0, 3, 0, 0, 0, 0, 1, 2, 0, c, s);
+  sxt_2(twoJx_, twoJy_, -1.0/32.0, 3, 0, 0, 0, 0, 1, 2, 0, c, s);
   h_c = c; h_s = s;
-  sxt_2(-1.0/32.0, 1, 0, 2, 0, 2, 1, 0, 0, c, s);
+  sxt_2(twoJx_, twoJy_, -1.0/32.0, 1, 0, 2, 0, 2, 1, 0, 0, c, s);
   h_c += c; h_s += s;
-  sxt_2(-4.0/32.0, 1, 0, 1, 1, 1, 0, 2, 0, c, s);
+  sxt_2(twoJx_, twoJy_, -4.0/32.0, 1, 0, 1, 1, 1, 0, 2, 0, c, s);
   h_c += c; h_s += s;
-  f += scl_geom*twoJx*twoJy*sqr(h_c);
+  f += scl_geom*twoJx_*twoJy_*sqr(h_c);
   
   // h_11200
-  sxt_2(-1.0/16.0, 1, 0, 2, 0, 1, 2, 0, 0, c, s);
+  sxt_2(twoJx_, twoJy_, -1.0/16.0, 1, 0, 2, 0, 1, 2, 0, 0, c, s);
   h_c = c; h_s = s;
-  sxt_2(-1.0/16.0, 2, 1, 0, 0, 0, 1, 2, 0, c, s);
+  sxt_2(twoJx_, twoJy_, -1.0/16.0, 2, 1, 0, 0, 0, 1, 2, 0, c, s);
   h_c += c; h_s += s;
-  sxt_2(-2.0/16.0, 0, 1, 1, 1, 1, 0, 2, 0, c, s);
+  sxt_2(twoJx_, twoJy_, -2.0/16.0, 0, 1, 1, 1, 1, 0, 2, 0, c, s);
   h_c += c; h_s += s;
-  sxt_2(-2.0/16.0, 1, 0, 1, 1, 0, 1, 2, 0, c, s);
+  sxt_2(twoJx_, twoJy_, -2.0/16.0, 1, 0, 1, 1, 0, 1, 2, 0, c, s);
   h_c += c; h_s += s;
-  f += scl_geom*twoJx*twoJy*sqr(h_c);
+  f += scl_geom*twoJx_*twoJy_*sqr(h_c);
     
   // h_00310
-  sxt_2(-1.0/16.0, 0, 1, 2, 0, 1, 0, 1, 1, c, s);
+  sxt_2(twoJx_, twoJy_, -1.0/16.0, 0, 1, 2, 0, 1, 0, 1, 1, c, s);
   h_c = c; h_s = s;
-  sxt_2(-1.0/16.0, 0, 1, 1, 1, 1, 0, 2, 0, c, s);
+  sxt_2(twoJx_, twoJy_, -1.0/16.0, 0, 1, 1, 1, 1, 0, 2, 0, c, s);
   h_c += c; h_s += s;
-  f += scl_geom*sqr(twoJy)*sqr(h_c);
+  f += scl_geom*sqr(twoJy_)*sqr(h_c);
   
   // h_00400
-  sxt_2(-1.0/32.0, 0, 1, 2, 0, 1, 0, 2, 0, h_c, h_s);
-  f += scl_geom*twoJx*twoJy*sqr(h_c);
+  sxt_2(twoJx_, twoJy_, -1.0/32.0, 0, 1, 2, 0, 1, 0, 2, 0, h_c, h_s);
+  f += scl_geom*twoJx_*twoJy_*sqr(h_c);
 
   // h_22000
-  sxt_2(-1.0/32.0, 0, 3, 0, 0, 3, 0, 0, 0, c, s);
+  sxt_2(twoJx_, twoJy_, -1.0/32.0, 0, 3, 0, 0, 3, 0, 0, 0, c, s);
   h_c = c; h_s = s;
-  sxt_2(-3.0/32.0, 1, 2, 0, 0, 2, 1, 0, 0, c, s);
+  sxt_2(twoJx_, twoJy_, -3.0/32.0, 1, 2, 0, 0, 2, 1, 0, 0, c, s);
   h_c += c; h_s += s;
-  f += scl_dnu*sqr(twoJx)*sqr(h_c);
+  f += scl_dnu*sqr(twoJx_)*sqr(h_c);
   
   // h_11110
-  sxt_2(-1.0/8.0, 1, 0, 1, 1, 1, 2, 0, 0, c, s);
+  sxt_2(twoJx_, twoJy_, -1.0/8.0, 1, 0, 1, 1, 1, 2, 0, 0, c, s);
   h_c = c; h_s = s;
-  sxt_2(-1.0/8.0, 2, 1, 0, 0, 0, 1, 1, 1, c, s);
+  sxt_2(twoJx_, twoJy_, -1.0/8.0, 2, 1, 0, 0, 0, 1, 1, 1, c, s);
   h_c += c; h_s += s;
-  sxt_2(-1.0/8.0, 0, 1, 0, 2, 1, 0, 2, 0, c, s);
+  sxt_2(twoJx_, twoJy_, -1.0/8.0, 0, 1, 0, 2, 1, 0, 2, 0, c, s);
   h_c += c; h_s += s;
-  sxt_2(-1.0/8.0, 1, 0, 0, 2, 0, 1, 2, 0, c, s);
+  sxt_2(twoJx_, twoJy_, -1.0/8.0, 1, 0, 0, 2, 0, 1, 2, 0, c, s);
   h_c += c; h_s += s;
-  f += scl_dnu*twoJx*twoJy*sqr(h_c);
+  f += scl_dnu*twoJx_*twoJy_*sqr(h_c);
   
   // h_00220
-  sxt_2(-1.0/8.0, 0, 1, 1, 1, 1, 0, 1, 1, c, s);
+  sxt_2(twoJx_, twoJy_, -1.0/8.0, 0, 1, 1, 1, 1, 0, 1, 1, c, s);
   h_c = c; h_s = s;
-  sxt_2(-1.0/32.0, 0, 1, 0, 2, 1, 0, 2, 0, c, s);
+  sxt_2(twoJx_, twoJy_, -1.0/32.0, 0, 1, 0, 2, 1, 0, 2, 0, c, s);
   h_c += c; h_s += s;
-  sxt_2(-1.0/32.0, 0, 1, 2, 0, 1, 0, 0, 2, c, s);
+  sxt_2(twoJx_, twoJy_, -1.0/32.0, 0, 1, 2, 0, 1, 0, 0, 2, c, s);
   h_c += c; h_s += s;
-  f += scl_dnu*sqr(twoJy)*sqr(h_c);
+  f += scl_dnu*sqr(twoJy_)*sqr(h_c);
 
   if (iter % n_prt == 0) {
     printf("\n");
@@ -785,15 +784,17 @@ float f_sxt(float p[])
 }
 
 
-void h_min(void)
+void h_min(const double twoJx, const double twoJy)
 {
   int    i, j, n_iter;
-  float  *p, **xi, fret;
+  double *p, **xi, fret;
 
-  const float  ftol = 1e-6;
+  const double ftol = 1e-6;
 
-  p = vector(1, n_b3_max); xi = matrix(1, n_b3_max, 1, n_b3_max);
+  p = dvector(1, n_b3_max_); xi = dmatrix(1, n_b3_max_, 1, n_b3_max_);
   
+  twoJx_ = twoJx; twoJy_ = twoJy;
+
   n_b3 = 0;
   b3s[n_b3++] = ElemIndex("s4");  b3s[n_b3++] = ElemIndex("s6");
   b3s[n_b3++] = ElemIndex("s13"); b3s[n_b3++] = ElemIndex("s19");
@@ -809,48 +810,7 @@ void h_min(void)
   }
 
   iter = 0;
-  powell(p, xi, n_b3, ftol, &n_iter, &fret, f_sxt); f_sxt(p);
+  dpowell(p, xi, n_b3, ftol, &n_iter, &fret, f_sxt); f_sxt(p);
 
-  free_vector(p, 1, n_b3_max); free_matrix(xi, 1, n_b3_max, 1, n_b3_max);
-}
-
-
-int main(int argc, char *argv[])
-{
-  const int  n_aper = 25;
-
-  double    x_aper[n_aper], y_aper[n_aper];
-  FILE      *fp;
-
-  const double  Ax = 30e-3, Ay = 10e-3, betax = 18.150, betay = 3.090;
-
-  Read_Lattice(argv[1]);
-
-  globval.H_exact   = false; globval.quad_fringe = false;
-  globval.Cavity_on = false; globval.radiation   = false;
-  globval.emittance = false; globval.pathlength  = false;
-
-  Ring_GetTwiss(true, 0.0); printglob();
-
-  prt_lat("linlat.out", globval.bpm, true);
-
-  twoJx = 1.0; twoJy = 1.0;
-
-  sext_terms(twoJx, twoJy);
-
-  if (false) {
-    no_sxt();
-
-    twoJx = sqr(Ax)/betax; twoJy = sqr(Ay)/betay;
-
-    h_min();
-
-    sext_terms(twoJx, twoJy);
-  }
-
-  if (false) {
-    fp = file_write("dynap.out");
-    dynap(fp, 5e-3, 0.0, 0.1e-3, n_aper, 512, x_aper, y_aper, false, true);
-    fclose(fp);
-  }
+  free_dvector(p, 1, n_b3_max_); free_dmatrix(xi, 1, n_b3_max_, 1, n_b3_max_);
 }

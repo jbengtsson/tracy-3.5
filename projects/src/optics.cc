@@ -1563,6 +1563,34 @@ void reality_check()
 }
 
 
+void chk_traj(void)
+{
+  long int lastpos;
+  int      k;
+  ofstream  outf;
+
+  ss_vect<double> M;
+
+  file_wr(outf, "beampos.out");
+
+  globval.Cavity_on = false; globval.radiation = !false;
+
+  if (false) no_sxt();
+
+  M.zero();
+  Cell_Pass(0, globval.Cell_nLoc, M, lastpos);
+  for (k = 0; k <= globval.Cell_nLoc; k++)
+    outf << setw(4) << k << " "
+	 << setw(15) << Cell[k].Elem.PName
+	 << fixed << setprecision(2) << setw(7) << Cell[k].S
+	 << setprecision(1) << setw(5) << get_code(Cell[k])
+	 << scientific << setprecision(15) << setw(23) << Cell[k].BeamPos
+	 << "\n";
+
+  outf.close();
+}
+
+
 int main(int argc, char *argv[])
 {
   bool             tweak;
@@ -1596,7 +1624,7 @@ int main(int argc, char *argv[])
 
   trace = false;
 
-  globval.mat_meth = !false;
+  globval.mat_meth = false;
 
   if (true)
     Read_Lattice(argv[1]);
@@ -1613,6 +1641,8 @@ int main(int argc, char *argv[])
 
   globval.Cavity_on = false; globval.radiation = false;
   Ring_GetTwiss(true, 0e0); printglob();
+
+  if (false) chk_traj();
 
   if (set_dnu) {
     dnu[X_] = 0.0; dnu[Y_] = 0.0;
