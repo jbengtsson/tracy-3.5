@@ -329,49 +329,49 @@ void sxt_1(const double scl,
   double c, s, b3L, A, phi;
   sp_vec alpha0, beta0, nu0, eta0, etap0, beta, nu, eta;
 
-  const bool prt = !false;
+  const bool prt = false;
 
-  h_c = 0.0; h_s = 0.0;
+  h_c = 0e0; h_s = 0e0;
   m_x = i + j; m_y = k + l; n_x = i - j; n_y = k - l;
   if (prt) printf("sxt_1:\n");
   for (n = 0; n <= globval.Cell_nLoc; n++) {
-    // if (prt) printf("  %10s\n", Cell[n].Elem.PName);
     if (Cell[n].Elem.Pkind == Mpole) {
-      if (((Cell[n].Elem.M->Pirho != 0.0) ||
-	   (Cell[n].Elem.M->Porder == Quad)) && (m >= 1)) {
-	for (k1 = 0; k1 <= 1; k1++) {
-	  alpha0[k1] = Cell[ind(n-1)].Alpha[k1];
-	  beta0[k1] = Cell[ind(n-1)].Beta[k1];
-	  nu0[k1] = Cell[ind(n-1)].Nu[k1];
-	  eta0[k1] = Cell[ind(n-1)].Eta[k1];
-	  etap0[k1] = Cell[ind(n-1)].Etap[k1];
-	}
-	get_quad(Cell[n].Elem.PL, Cell[n].Elem.M->Pirho,
-		 Cell[n].Elem.M->PTx1, Cell[n].Elem.M->PTx2,
-		 get_bn(Cell[n], Quad),
-		 alpha0, beta0, nu0, eta0, etap0,
-		 m_x, m_y, n_x, n_y, m, c, s);
-	h_c += scl*c; h_s += scl*s;
+      if (((Cell[n].Elem.M->Pirho != 0e0) ||
+    	   (Cell[n].Elem.M->Porder == Quad)) && (m >= 1)) {
+	if (prt) printf("  %4d %10s quad\n", n, Cell[n].Elem.PName);
+    	for (k1 = 0; k1 <= 1; k1++) {
+    	  alpha0[k1] = Cell[ind(n-1)].Alpha[k1];
+    	  beta0[k1] = Cell[ind(n-1)].Beta[k1];
+    	  nu0[k1] = Cell[ind(n-1)].Nu[k1];
+    	  eta0[k1] = Cell[ind(n-1)].Eta[k1];
+    	  etap0[k1] = Cell[ind(n-1)].Etap[k1];
+    	}
+    	get_quad(Cell[n].Elem.PL, Cell[n].Elem.M->Pirho,
+    		 Cell[n].Elem.M->PTx1, Cell[n].Elem.M->PTx2,
+    		 get_bn(Cell[n], Quad),
+    		 alpha0, beta0, nu0, eta0, etap0,
+    		 m_x, m_y, n_x, n_y, m, c, s);
+    	h_c += scl*c; h_s += scl*s;
       } else if (Cell[n].Elem.M->Porder >= Sext) {
-	if (prt) printf("\nsxt_1: sext %10s\n", Cell[n].Elem.PName);
-	for (k1 = 0; k1 <= 1; k1++) {
-	  alpha0[k1] = Cell[ind(n-1)].Alpha[k1];
-	  beta0[k1] = Cell[ind(n-1)].Beta[k1];
-	  nu0[k1] = Cell[ind(n-1)].Nu[k1];
-	  eta0[k1] = Cell[ind(n-1)].Eta[k1];
-	  etap0[k1] = Cell[ind(n-1)].Etap[k1];
-	}
-	for (k1 = 0; k1 <= 1; k1++) {
-	  beta[k1] = beta0[k1]; nu[k1] = nu0[k1];
-	  eta[k1] = eta0[k1];
-	}
-	b3L = get_bnL(Cell[n], Sext); phi = 2.0*M_PI*(n_x*nu[X_]+n_y*nu[Y_]); 
-	A = scl*b3L*pow(beta[X_], m_x/2.0)*pow(beta[Y_], m_y/2.0);
-	if (m >= 1) {
-	  A *= -pow(eta[X_], m);
-	  if (m == 1) A *= 2.0;
-	}
-	h_c += A*cos(phi); h_s -= A*sin(phi);
+    	if (prt) printf("  %4d %10s sext\n", n, Cell[n].Elem.PName);
+    	for (k1 = 0; k1 <= 1; k1++) {
+    	  alpha0[k1] = Cell[ind(n-1)].Alpha[k1];
+    	  beta0[k1] = Cell[ind(n-1)].Beta[k1];
+    	  nu0[k1] = Cell[ind(n-1)].Nu[k1];
+    	  eta0[k1] = Cell[ind(n-1)].Eta[k1];
+    	  etap0[k1] = Cell[ind(n-1)].Etap[k1];
+    	}
+    	for (k1 = 0; k1 <= 1; k1++) {
+    	  beta[k1] = beta0[k1]; nu[k1] = nu0[k1];
+    	  eta[k1] = eta0[k1];
+    	}
+    	b3L = get_bnL(Cell[n], Sext); phi = 2.0*M_PI*(n_x*nu[X_]+n_y*nu[Y_]); 
+    	A = scl*b3L*pow(beta[X_], m_x/2.0)*pow(beta[Y_], m_y/2.0);
+    	if (m >= 1) {
+    	  A *= -pow(eta[X_], m);
+    	  if (m == 1) A *= 2.0;
+    	}
+    	h_c += A*cos(phi); h_s -= A*sin(phi);
       }
     }
   }

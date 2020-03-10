@@ -4,7 +4,7 @@
 
 #include "Powell/src/newuoa.h"
 
-#include "sxt.h"
+#include "sxt.cc"
 
 int no_tps = NO;
 
@@ -3027,13 +3027,7 @@ int main(int argc, char *argv[])
 
   if (!false) {
     Ring_GetTwiss(true, 0e0); printglob();
-    // sext_terms(twoJ[X_], twoJ[Y_]);
-    int n;
-    printf("\n");
-    for (n = 0; n <= globval.Cell_nLoc; n++)
-      printf("  %10s\n", Cell[n].Elem.PName);
-
-    // sext_terms(1e0, 1e0);
+    sext_terms(twoJ[X_], twoJ[Y_]);
     exit(0);
   }
 
