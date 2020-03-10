@@ -4,13 +4,13 @@
 
 #include "Powell/src/newuoa.h"
 
-#include "sxt.cc"
+#include "drv_terms.cc"
 
 int no_tps = NO;
 
 
 const bool
-  ps_rot          = !false, // Note, needs to be zeroed; after use.
+  ps_rot          = false, // Note, needs to be zeroed; after use.
   qf6_rb          = false,
   sp_short        = false,
   sp_std          = true,
@@ -3027,7 +3027,8 @@ int main(int argc, char *argv[])
 
   if (!false) {
     Ring_GetTwiss(true, 0e0); printglob();
-    sext_terms(twoJ[X_], twoJ[Y_]);
+    // drv_terms(twoJ[X_], twoJ[Y_]);
+    drv_terms(1e0, 1e0);
     exit(0);
   }
 
