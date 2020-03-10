@@ -2,6 +2,9 @@
 
    Definitions:  Polymorphic number class.              */
 
+#ifndef TPSA_LIN_H
+#define TPSA_LIN_H
+
 void daeps_(const double eps);
 
 void danot_(const long int no);
@@ -97,3 +100,5 @@ void Rotmap(const long int n, ss_vect<tps> &map, const Matrix &R);
 void daabs_(const tps_buf &x, double &r);
 
 void daabs2_(const tps_buf &x, double &r);
+
+#endif

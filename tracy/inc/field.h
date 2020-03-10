@@ -2,6 +2,8 @@
 
    Definitions:  Polymorphic number class.              */
 
+#ifndef FIELD_H
+#define FIELD_H
 
 const int  max_str = 132;
 
@@ -437,3 +439,5 @@ inline ss_vect<T>::ss_vect(const ss_vect<U> &a)
   for (i = 0; i < ss_dim; i++)
     ss[i] = a[i];
  }
+
+#endif

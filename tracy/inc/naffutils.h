@@ -6,6 +6,9 @@
     email                : nadolski@synchrotron-soleil.fr
  ***************************************************************************/
 
+#ifndef NAFFUTILS_H
+#define NAFFUTILS_H
+
 /* definition form old soleilcommon.h */
 #define NTURN 10000  // 2*NTURN for diffusion
 #define DIM   6
@@ -26,3 +29,4 @@ void GetTuneTrac(long Nbtour, double emax, double *nux, double *nuz);
 void Trac_Simple(double x, double px, double y, double py, double dp,
 		 double ctau, long nmax, double Tx[][NTURN], bool *status);
 
+#endif

@@ -26,6 +26,9 @@
 
 /* Fin ajout */
 
+#ifndef COMPLEXE_NAFF_H
+#define COMPLEXE_NAFF_H
+
 /*----------------IMPLEMENTATION--------------------------------*/
 
 /*----------------i_compl_cmplx---------------------------------*/
@@ -513,3 +516,5 @@ t_complexe i_compl_log10(t_complexe c1)
  c.imag = i_compl_angle(c1)/norm;
  return c;
 }
+
+#endif

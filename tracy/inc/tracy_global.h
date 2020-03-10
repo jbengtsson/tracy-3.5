@@ -1,3 +1,6 @@
+#ifndef TRACY_GLOBAL_H
+#define TRACY_GLOBAL_H
+
 #define PLANES 2
 
 typedef struct globvalrec {
@@ -357,3 +360,5 @@ struct CellType {
     curly_dH_x,      // Contribution to curly_H_x.
     dI[6];           // Contribution to I[2..5].
 };
+
+#endif

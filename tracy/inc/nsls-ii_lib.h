@@ -1,5 +1,8 @@
 // global params
 
+#ifndef NSLS_II_LIB_H
+#define NSLS_II_LIB_H
+
 const int           max_elem = Cell_nLocMax;
 
 extern ss_vect<tps> map;
@@ -318,3 +321,5 @@ void set_map_per(const int Fnum,
 void set_map_reversal(CellType &Cell);
 
 void set_map_reversal(const long int Fnum);
+
+#endif

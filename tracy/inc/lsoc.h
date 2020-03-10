@@ -8,6 +8,9 @@
 
 */
 
+#ifndef LSOC_H
+#define LSOC_H
+
 extern int                n_bpm_[2], n_corr_[2];
 extern long unsigned int  *bpms_[2], *corrs_[2];
 
@@ -33,3 +36,4 @@ void gtcmat(const int n_bpm, const long int bpms[],
 
 void lstc(const int plane, const double scl);
 
+#endif

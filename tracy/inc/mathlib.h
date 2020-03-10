@@ -8,6 +8,9 @@
 
 */
 
+#ifndef MATHLIB_H
+#define MATHLIB_H
+
 // macros
 
 #define sqr(x)   ((x)*(x))
@@ -54,3 +57,5 @@ void TpMat(const int n, Matrix &a);
 double DetMat(const int n, const Matrix &a);
 bool InvMat(const int n, Matrix &a);
 void prtmat(const int n, const Matrix &a);
+
+#endif

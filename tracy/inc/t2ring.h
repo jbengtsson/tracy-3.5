@@ -6,6 +6,9 @@
    L. Nadolski   SOLEIL        2002          Link to NAFF, Radia field maps
    J. Bengtsson  NSLS-II, BNL  2004 -                                         */
 
+#ifndef T2RING_H
+#define T2RING_H
+
 void GetNu(Vector2 &nu, Matrix &M);
 
 void Cell_GetABGN(Matrix &M,
@@ -19,3 +22,5 @@ void Cell_Twiss(long i0, long i1, ss_vect<tps> &Ascr, bool chroma, bool ring,
 void Ring_Getchrom(double dP);
 
 void Ring_GetTwiss(bool chroma, double dP);
+
+#endif

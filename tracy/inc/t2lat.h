@@ -8,7 +8,11 @@
 
 */
 
+#ifndef T2LAT_H
+#define T2LAT_H
 
 long ElemIndex(const std::string &name1);
 
 bool Lattice_Read(FILE **fi_, FILE **fo_);
+
+#endif

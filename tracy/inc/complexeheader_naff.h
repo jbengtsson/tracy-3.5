@@ -9,6 +9,9 @@
 
  ***************************************************************************/
 
+#ifndef COMPLEXEHEADER_NAFF_H
+#define COMPLEXEHEADER_NAFF_H
+
 /* prototypes des fonctions publiques */
 double     i_compl_module(t_complexe c);              /* niveau 1 */
 double     i_compl_angle(t_complexe c);               /* niveau 1 */
@@ -47,3 +50,5 @@ t_complexe i_compl_tanh(t_complexe c1);              /* niveau 2 */
 t_complexe i_compl_log(t_complexe c1);               /* niveau 2 */
 t_complexe i_compl_log10(t_complexe c1);             /* niveau 2 */
 /* v0.97 M. GASTINEAU 15/02/99: fin ajout */
+
+#endif

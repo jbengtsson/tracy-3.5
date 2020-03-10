@@ -7,8 +7,6 @@ int no_tps = NO;
 const char home_dir[] = "/home/simon";
 
 
-
-
 //copied here from old 2011 nsls-ii_lib.cc because no longer included in 2017 version
 void LoadAlignTol(const char *AlignFile, const bool Scale_it,
 		  const double Scale, const bool new_rnd, const int seed)

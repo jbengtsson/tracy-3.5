@@ -8,6 +8,8 @@
 
 */
 
+#ifndef TRACY_H
+#define TRACY_H
 
 #define DOF    (ss_dim/2)
  
@@ -141,3 +143,5 @@ extern void lsoc(int niter, int bpm, int corr, int plane);
 /**** same as asctime in C without the \n at the end****/
 char *asctime2(const struct tm *timeptr);
 struct tm* GetTime();
+
+#endif

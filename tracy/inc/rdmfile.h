@@ -8,4 +8,9 @@
 
 */
 
+#ifndef RDMFILE_H
+#define RDMFILE_H
+
 void rdmfile(const char *mfile_dat);
+
+#endif

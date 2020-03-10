@@ -8,7 +8,9 @@
 
 */
 
-  
+#ifndef NUM_REC_H
+#define NUM_REC_H
+
 extern "C" {
   // Interface to Numerical Recipes.
 
@@ -684,3 +686,5 @@ extern "C" {
   float zriddr(float (*func)(float), float x1, float x2, float xacc);
   void zroots(fcomplex a[], int m, fcomplex roots[], int polish);
 }
+
+#endif

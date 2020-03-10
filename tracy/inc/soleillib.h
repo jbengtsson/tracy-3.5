@@ -8,7 +8,10 @@
 
 */
 
- /**** Protypes ****/
+#ifndef SOLEILLIB_H
+#define SOLEILLIB_H
+
+/**** Protypes ****/
 void SetErr(void);
 void InducedAmplitude(long spos);
 void Hfonction(long pos, double dP,Vector2 H);
@@ -74,3 +77,5 @@ void fmapfull(long Nbx, long Nbz, long Nbtour, double xmax, double zmax,
               double energy, bool diffusion);
 void spectrum(long Nbx, long Nbz, long Nbtour, double xmax, double zmax,
               double energy, bool diffusion);
+
+#endif

@@ -8,6 +8,9 @@
 
 */
 
+#ifndef PHYSLIB_H
+#define PHYSLIB_H
+
 /* For tune fitting */
 #define nueps           1e-6      //precision
 #define nudkL           0.01   //step
@@ -268,3 +271,4 @@ int Newton_Raphson(int n, psVector &x, int ntrial, double tolx);
 void PrintCh(void);
 void ChamberOff(void);
 
+#endif

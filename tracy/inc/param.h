@@ -1,3 +1,6 @@
+#ifndef PARAM_H
+#define PARAM_H
+
 const int N_Fam_max = 20, max_corr = 100, max_bpm = 200;
 
 // Computation result files
@@ -139,3 +142,5 @@ class param_data_type {
 
 void get_bn2(const string file_name1, const string file_name2, int n,
 	     const bool prt);
+
+#endif

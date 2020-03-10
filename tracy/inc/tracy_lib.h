@@ -7,6 +7,9 @@
 
 */
 
+#ifndef TRACY_LIB_H
+#define TRACY_LIB_H
+
 // C standard library
 #include <stdio.h>
 #include <stddef.h>
@@ -95,3 +98,5 @@ extern ElemFamType ElemFam[];
 extern CellType Cell[];
 
 extern globvalrec globval;
+
+#endif

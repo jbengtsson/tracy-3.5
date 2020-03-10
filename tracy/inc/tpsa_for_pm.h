@@ -7,6 +7,9 @@
 
 */
 
+#ifndef TPSA_FOR_PM_H
+#define TPSA_FOR_PM_H
+
 extern int  bufsize;  // Note, max no of monomials is (no+nv)!/(nv!*no!)
  
 
@@ -25,3 +28,5 @@ void putlinmat(const int nv, const Matrix &mat, ss_vect<tps> &map);
 void idprset(const int level);
 
 tps atan2(const tps &b,const tps &a);
+
+#endif

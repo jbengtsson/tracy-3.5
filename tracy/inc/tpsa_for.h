@@ -2,6 +2,8 @@
 
    Definitions:  Interface to Fortran TPSA- and Lie library.  */
 
+#ifndef TPSA_FOR_H
+#define TPSA_FOR_H
 
 extern "C" {
   // Interface to FORTRAN TPSA-library
@@ -82,3 +84,5 @@ extern "C" {
   void etmtree_(const long int [], long int []);
   void etppush2_(const long int [], const ss_vect<double> &, ss_vect<double> &);
 }
+
+#endif

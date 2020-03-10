@@ -8,6 +8,11 @@
 
 */
 
+#ifndef PASCALIO_H
+#define PASCALIO_H
+
 void t2init(void);
 
 void exit_(int exit_code);
+
+#endif

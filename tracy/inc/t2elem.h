@@ -4,6 +4,9 @@
 
 */
 
+#ifndef T2ELEM_H
+#define T2ELEM_H
+
 extern bool   sympl;
 extern int    FieldMap_filetype;
 extern double C_u, C_gamma, C_q, cl_rad, q_fluct;
@@ -164,3 +167,5 @@ double Elem_GetKval(int Fnum1, int Knum1, int Order);
 void Mpole_SetdS(int Fnum1, int Knum1);
 
 void Mpole_SetdT(int Fnum1, int Knum1);
+
+#endif

@@ -1,3 +1,6 @@
+#ifndef ORB_CORR_H
+#define ORB_CORR_H
+
 
 class orb_corr_type {
 private:
@@ -39,3 +42,5 @@ void cod_ini(const std::vector<string> &bpm_Fam_names,
 
 bool cod_correct(const int n_orbit, const double scl,
 		 orb_corr_type orb_corr[]);
+
+#endif

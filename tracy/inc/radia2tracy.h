@@ -8,6 +8,9 @@
 
 */
 
+#ifndef RADIA2TRACY_H
+#define RADIA2TRACY_H
+
 void Read_IDfile(char *fic_radia, double &L, int &pnx, int &pnz,
                  double tabx[IDXMAX],  double tabz[IDZMAX],
                  double thetax[IDZMAX][IDXMAX], double thetaz[IDZMAX][IDXMAX],
@@ -38,3 +41,5 @@ void splin2(const double x1a[], const double x2a[],
 
 void splie2(double x1a[], double x2a[], double **ya,
 	    int m, int n, double **y2a);
+
+#endif
