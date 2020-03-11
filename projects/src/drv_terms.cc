@@ -17,165 +17,56 @@
 
 #include "tracy_lib.h"
 
-#define N_COEFF 3    // no of terms to optimize
-
-// 2.5 degrees of freedom, i.e. delta is treated as a parameter
-const int  ps_dim = 4+1;
-
-typedef double mat[ps_dim][ps_dim];
-
 int              iter, n_b3;
-double           twoJx_, twoJy_;
+double           twoJ_[2];
 std::vector<int> b3s;
 
 
-double get_bn(CellType &Cell, long int Order)
-{
-  double bn;
-
-  if (Cell.Elem.Pkind == Mpole)
-    bn = Cell.Elem.M->PBpar[Order+HOMmax];
-  else
-    bn = 0e0;
-
-  return(bn);
-}
-
-
-double get_bnL(CellType &Cell, long int Order)
-{
-  double bnL;
-
-  if (Cell.Elem.Pkind == Mpole)
-    if (Cell.Elem.M->Pthick == thick)
-      bnL = Cell.Elem.M->PBpar[Order+HOMmax]*Cell.Elem.PL;
-    else
-      bnL = Cell.Elem.M->PBpar[Order+HOMmax];
-  else
-    bnL = 0e0;
-
-  return(bnL);
-}
-
-
-void cpy_mat(const mat A, mat B)
-{
-  int i, j;
-
-  for (i = 0; i < ps_dim; i++)
-    for (j = 0; j < ps_dim; j++)
-      B[i][j] = A[i][j];
-}
-
-
-void get_Ascr(const double alpha[], const double beta[],
-	      const double eta[], const double etap[], mat A)
-{
-  // Transformation to Floquet space.
-
-  int i, j;
-
-  for (i = 0; i < ps_dim; i++)
-    for (j = 0; j < ps_dim; j++)
-      A[i][j] = 0e0;
-
-  A[delta_][delta_] = 1e0;
-
-  for (i = 0; i <= 1; i++) {
-    A[2*i][2*i] = sqrt(beta[i]);
-    A[2*i][2*i+1] = 0e0;
-    A[2*i+1][2*i] = -alpha[i]/sqrt(beta[i]);
-    A[2*i+1][2*i+1] = 1e0/sqrt(beta[i]);
-    A[2*i][delta_] = eta[i]; A[2*i+1][delta_] = etap[i];
-  }
-}
-
-
-void get_Twiss(const mat A0, const mat A1,
-	       double alpha[], double beta[], double nu[],
-	       double eta[], double etap[])
-{
-  // Compute Twiss parameters.
-
-  int k;
-
-  for (k = 0; k <= 1; k++) {
-    alpha[k] = -A1[2*k][2*k]*A1[2*k+1][2*k] - A1[2*k][2*k+1]*A1[2*k+1][2*k+1];
-    beta[k] = sqr(A1[2*k][2*k]) + sqr(A1[2*k][2*k+1]);
-    nu[k] += (atan2(A1[2*k][2*k+1], A1[2*k][2*k])
-             -atan2(A0[2*k][2*k+1], A0[2*k][2*k]))/(2e0*M_PI);
-    eta[k] = A1[2*k][delta_]; etap[k] = A1[2*k+1][delta_];
-  }
-}
-
-
-void propagate_drift(const double L, mat A)
+void propagate_drift(const double L, ss_vect<tps> &A)
 {
   // Drift propagator.
 
-  int i, j, k;
-  mat M, A1;
+  ss_vect<tps> Id, M;
 
-  for (j = 0; j < ps_dim; j++)
-    for (k = 0; k < ps_dim; k++)
-      if (j == k)
-	M[j][k] = 1e0;
-      else
-	M[j][k] = 0e0;
+  Id.identity();
 
-  M[x_][px_] = L; M[y_][py_] = L;
-
-  for (i = 0; i < ps_dim; i++)
-    for (j = 0; j < ps_dim; j++) {
-      A1[i][j] = 0e0;
-      for (k = 0; k < ps_dim; k++)
-	A1[i][j] += M[i][k]*A[k][j];
-    }
-
-  cpy_mat(A1, A);
+  M.identity();
+  M[x_] += L*Id[px_]; M[y_] += L*Id[py_];
+  A = M*A;
 }
 
 
 void propagate_thin_kick(const double L, const double rho_inv,
-			 const double b2, mat A)
+			 const double b2, ss_vect<tps> &A)
 {
   // Thin-kick propagator.
 
-  int i, j, k;
-  mat M, A1;
+  ss_vect<tps> Id, M, A1;
 
-  for (j = 0; j < ps_dim; j++)
-    for (k = 0; k < ps_dim; k++)
-      if (j == k)
-	M[j][k] = 1e0;
-      else
-	M[j][k] = 0e0;
+  Id.identity();
 
-  M[px_][x_] = -(b2+sqr(rho_inv))*L; M[py_][y_] = b2*L;
-  M[px_][delta_] = rho_inv*L;
+  M.identity();
+  M[px_] += -(b2+sqr(rho_inv))*L*Id[x_]; M[py_] += b2*L*Id[y_];
+  M[px_] += rho_inv*L*Id[delta_];
 
-  for (i = 0; i < ps_dim; i++)
-    for (j = 0; j < ps_dim; j++) {
-      A1[i][j] = 0e0;
-      for (k = 0; k < ps_dim; k++)
-	A1[i][j] += M[i][k]*A[k][j];
-    }
-
-  cpy_mat(A1, A);
+  A = M*A;
 }
 
 
-void propagate_fringe_field(const double L,
-			    const double rho_inv, const double phi, mat A)
+void propagate_fringe_field(const double L, const double rho_inv,
+			    const double phi, ss_vect<tps> &A)
 {
   // Dipole harde-edge fringe field propagator.
 
-  int k;
+  int          k;
+  ss_vect<tps> Id;
+
+  Id.identity();
 
   if (phi != 0e0)
-    for (k = 0; k < ps_dim; k++) {
-      A[px_][k] += rho_inv*tan(phi*M_PI/180e0)*A[x_][k];
-      A[py_][k] -= rho_inv*tan(phi*M_PI/180e0)*A[y_][k];
+    for (k = 0; k < 4; k++) {
+      A[px_] += rho_inv*tan(phi*M_PI/180e0)*A[x_][k]*Id[k];
+      A[py_] -= rho_inv*tan(phi*M_PI/180e0)*A[y_][k]*Id[k];
     }
 }
 
@@ -191,10 +82,10 @@ void get_quad(const double L,
   // Quad propagator: second order symplectic integrator.
   // Use Simpson's rule to integrate for thick magnets.
 
-  int    j, k;
-  double h, r, phi;
-  double alpha[2], beta[2], nu[2], eta[2], etap[2];
-  mat    A0, A1;
+  int          j, k;
+  double       h, r, phi;
+  double       alpha[2], beta[2], nu[2], eta[2], etap[2], dnu[2];
+  ss_vect<tps> A1;
 
   const bool prt    = false;
   const int  n_step = 25;
@@ -205,19 +96,22 @@ void get_quad(const double L,
   }
 
   if (prt) {
-    printf("\n");
-    printf("%6.3f %6.3f %5.3f %6.3f %6.3f %6.3f %6.3f %5.3f\n",
+    printf("\n  %7.3f %6.3f %5.3f %6.3f %6.3f %7.3f %6.3f %5.3f\n",
 	   alpha[X_], beta[X_], nu[X_], eta[X_], etap[X_],
 	   alpha[Y_], beta[Y_], nu[Y_]);
   }
 
-  get_Ascr(alpha, beta, eta, etap, A0); cpy_mat(A0, A1);
+  A1 = get_A(alpha, beta, eta, etap);
+  A1 = get_A_CS(2, A1, dnu);
 
   propagate_fringe_field(L, rho_inv, phi1, A1);
 
   h = L/n_step; h_c = 0e0; h_s = 0e0;
   for (j = 1; j <= n_step; j++) {
-    get_Twiss(A0, A1, alpha, beta, nu, eta, etap); cpy_mat(A1, A0);
+    get_ab(A1, alpha, beta, dnu, eta, etap);
+    for (k = 0; k <= 1; k++)
+      nu[k] += dnu[k];
+    A1 = get_A_CS(2, A1, dnu);
 
     phi = 2e0*M_PI*(n_x*nu[X_]+n_y*nu[Y_]);
     r = pow(beta[X_], m_x/2e0)*pow(beta[Y_], m_y/2e0)*pow(eta[X_], m-1);
@@ -226,14 +120,18 @@ void get_quad(const double L,
     propagate_drift(h/2e0, A1);
     
     if ((rho_inv != 0e0) || (b2 != 0e0)) {
-      if (prt) printf("1/rho^2 = %5.3f, b2 = %5.3f\n", sqr(rho_inv), b2);
+      if (!true && prt)
+	printf("     1/rho^2 = %5.3f, b2 = %5.3f\n", sqr(rho_inv), b2);
       propagate_thin_kick(h, rho_inv, b2, A1);
     }
 
-    get_Twiss(A0, A1, alpha, beta, nu, eta, etap); cpy_mat(A1, A0);
+    get_ab(A1, alpha, beta, dnu, eta, etap);
+    for (k = 0; k <= 1; k++)
+      nu[k] += dnu[k];
+    A1 = get_A_CS(2, A1, dnu);
     
     if (prt) {
-      printf("%6.3f %6.3f %5.3f %6.3f %6.3f %6.3f %6.3f %5.3f\n",
+      printf("  %7.3f %6.3f %5.3f %6.3f %6.3f %7.3f %6.3f %5.3f\n",
 	     alpha[X_], beta[X_], nu[X_], eta[X_], etap[X_],
 	     alpha[Y_], beta[Y_], nu[Y_]);
       }
@@ -244,10 +142,13 @@ void get_quad(const double L,
 
     propagate_drift(h/2e0, A1);
 
-    get_Twiss(A0, A1, alpha, beta, nu, eta, etap); cpy_mat(A1, A0);
+    get_ab(A1, alpha, beta, dnu, eta, etap);
+    for (k = 0; k <= 1; k++)
+      nu[k] += dnu[k];
+    A1 = get_A_CS(2, A1, dnu);
     
     if (prt) {
-      printf("%6.3f %6.3f %5.3f %6.3f %6.3f %6.3f %6.3f %5.3f\n",
+      printf("  %7.3f %6.3f %5.3f %6.3f %6.3f %7.3f %6.3f %5.3f\n",
 	     alpha[X_], beta[X_], nu[X_], eta[X_], etap[X_],
 	     alpha[Y_], beta[Y_], nu[Y_]);
       }
@@ -262,9 +163,12 @@ void get_quad(const double L,
 
   propagate_fringe_field(L, rho_inv, phi2, A1);
 
-  get_Twiss(A0, A1, alpha, beta, nu, eta, etap);
+  get_ab(A1, alpha, beta, dnu, eta, etap);
+  for (k = 0; k <= 1; k++)
+    nu[k] += dnu[k];
+  A1 = get_A_CS(2, A1, dnu);
   if (prt) {
-    printf("%6.3f %6.3f %5.3f %6.3f %6.3f %6.3f %6.3f %5.3f\n",
+    printf("  %7.3f %6.3f %5.3f %6.3f %6.3f %7.3f %6.3f %5.3f\n",
 	   alpha[X_], beta[X_], nu[X_], eta[X_], etap[X_],
 	   alpha[Y_], beta[Y_], nu[Y_]);
   }
@@ -324,7 +228,7 @@ void sxt_1(const double scl,
   // First order generators.
 
   int    n, k1, m_x, m_y, n_x, n_y;
-  double c, s, b3L, A, phi;
+  double c, s, b3, a3, b3L, a3L, A, phi;
   double alpha0[2], beta0[2], nu0[2], eta0[2], etap0[2], beta[2], nu[2], eta[2];
 
   const bool prt = false;
@@ -344,10 +248,11 @@ void sxt_1(const double scl,
     	  eta0[k1] = Cell[ind(n-1)].Eta[k1];
     	  etap0[k1] = Cell[ind(n-1)].Etap[k1];
     	}
+	
+	get_bn_design_elem(Cell[n].Fnum, 1, Quad, b3, a3);
     	get_quad(Cell[n].Elem.PL, Cell[n].Elem.M->Pirho,
     		 Cell[n].Elem.M->PTx1, Cell[n].Elem.M->PTx2,
-    		 get_bn(Cell[n], Quad),
-    		 alpha0, beta0, nu0, eta0, etap0,
+    		 b3, alpha0, beta0, nu0, eta0, etap0,
     		 m_x, m_y, n_x, n_y, m, c, s);
     	h_c += scl*c; h_s += scl*s;
       } else if (Cell[n].Elem.M->Porder >= Sext) {
@@ -363,7 +268,8 @@ void sxt_1(const double scl,
     	  beta[k1] = beta0[k1]; nu[k1] = nu0[k1];
     	  eta[k1] = eta0[k1];
     	}
-    	b3L = get_bnL(Cell[n], Sext); phi = 2e0*M_PI*(n_x*nu[X_]+n_y*nu[Y_]); 
+	get_bnL_design_elem(Cell[n].Fnum, 1, Sext, b3L, a3L);
+	phi = 2e0*M_PI*(n_x*nu[X_]+n_y*nu[Y_]); 
     	A = scl*b3L*pow(beta[X_], m_x/2e0)*pow(beta[Y_], m_y/2e0);
     	if (m >= 1) {
     	  A *= -pow(eta[X_], m);
@@ -384,7 +290,7 @@ void sxt_2(const double twoJx, const double twoJy, const double scl,
   // Second order generators.
 
   long int n1, n2, k;
-  double   b3L1, b3L2, dnu, A1, A, phi;
+  double   b3L1, a3L1, b3L2, a3L2, dnu, A1, A, phi;
   double   alpha0[2], beta0[2], nu0[2], eta0[2], etap0[2];
   double   beta1[2], nu1[2], beta2[2], nu2[2];
 
@@ -401,7 +307,8 @@ void sxt_2(const double twoJx, const double twoJy, const double scl,
       for (k = 0; k <= 1; k++) {
 	beta1[k] = beta0[k]; nu1[k] = nu0[k];
       }
-      b3L1 = get_bnL(Cell[n1], Sext); dnu = (i1-j1)*nu1[X_] + (k1-l1)*nu1[Y_]; 
+      get_bnL_design_elem(Cell[n1].Fnum, 1, Sext, b3L1, a3L1);
+      dnu = (i1-j1)*nu1[X_] + (k1-l1)*nu1[Y_]; 
       A1 = b3L1*pow(beta1[X_], (i1+j1)/2e0)*pow(twoJy*beta1[Y_], (k1+l1)/2e0);
       for (n2 = 0; n2 <= globval.Cell_nLoc; n2++) {
 	if ((Cell[n2].Elem.Pkind == Mpole) &&
@@ -414,7 +321,7 @@ void sxt_2(const double twoJx, const double twoJy, const double scl,
 	  for (k = 0; k <= 1; k++) {
 	    beta2[k] = beta0[k]; nu2[k] = nu0[k];
 	  }
-	  b3L2 = get_bnL(Cell[n2], Sext);
+	  get_bnL_design_elem(Cell[n2].Fnum, 1, Sext, b3L2, a3L2);
 	  phi = 2e0*M_PI*(dnu+(i2-j2)*nu2[X_]+(k2-l2)*nu2[Y_]);
 	  A = scl*A1*b3L2*pow(beta2[X_], (i2+j2)/2e0)
 		 *pow(beta2[Y_], (k2+l2)/2e0);
@@ -437,7 +344,7 @@ void K(const double nu_x, const double nu_y,
   // Amplitude dependent tune shifts.
 
   long int k, n1, n2;
-  double   b3L1, b3L2, pi_1x, pi_3x, pi_1xm2y, pi_1xp2y;
+  double   b3L1, a3L1, b3L2, a3L2, pi_1x, pi_3x, pi_1xm2y, pi_1xp2y;
   double   s_1x, s_3x, s_1xm2y, s_1xp2y, c_1x, c_3x, c_1xm2y, c_1xp2y;
   double   dmu_x, dmu_y, A;
   double   alpha0[2], beta0[2], nu0[2], eta0[2], etap0[2];
@@ -464,7 +371,7 @@ void K(const double nu_x, const double nu_y,
       for (k = 0; k <= 1; k++) {
 	beta1[k] = beta0[k]; nu1[k] = nu0[k];
       }
-      b3L1 = get_bnL(Cell[n1], Sext);
+      get_bnL_design_elem(Cell[n1].Fnum, 1, Sext, b3L1, a3L1);
 
       for (n2 = 0; n2 <= globval.Cell_nLoc; n2++) {
 	if ((Cell[n2].Elem.Pkind == Mpole) &&
@@ -477,7 +384,7 @@ void K(const double nu_x, const double nu_y,
 	  for (k = 0; k <= 1; k++) {
 	    beta2[k] = beta0[k]; nu2[k] = nu0[k];
 	  }
-	  b3L2 = get_bnL(Cell[n2], Sext);
+	  get_bnL_design_elem(Cell[n2].Fnum, 1, Sext, b3L2, a3L2);
 	  dmu_x = 2e0*M_PI*fabs(nu1[X_]-nu2[X_]);
 	  dmu_y = 2e0*M_PI*fabs(nu1[Y_]-nu2[Y_]);
 	  A = b3L1*b3L2*sqrt(beta1[X_]*beta2[X_]);
@@ -730,103 +637,103 @@ double f_sxt(double p[])
 
   // h_21000
   sxt_1(-1e0/4e0, 2, 1, 0, 0, 0, h_c, h_s);
-  f += scl_geom*pow(twoJx_, 3e0/2e0)*sqr(h_c);
+  f += scl_geom*pow(twoJ_[X_], 3e0/2e0)*sqr(h_c);
   // h_30000
   sxt_1(-1e0/12e0, 3, 0, 0, 0, 0, h_c, h_s);
-  f += scl_geom*pow(twoJx_, 3e0/2e0)*sqr(h_c);
+  f += scl_geom*pow(twoJ_[X_], 3e0/2e0)*sqr(h_c);
   // h_10110
   sxt_1(1e0/2e0, 1, 0, 1, 1, 0, h_c, h_s);
-  f += scl_geom*sqrt(twoJx_)*twoJy_*sqr(h_c);
+  f += scl_geom*sqrt(twoJ_[X_])*twoJ_[Y_]*sqr(h_c);
   // h_10020
   sxt_1(1e0/4e0, 1, 0, 0, 2, 0, h_c, h_s);
-  f += scl_geom*sqrt(twoJx_)*twoJy_*sqr(h_c);
+  f += scl_geom*sqrt(twoJ_[X_])*twoJ_[Y_]*sqr(h_c);
   // h_10200
   sxt_1(1e0/4e0, 1, 0, 2, 0, 0, h_c, h_s);
-  f += scl_geom*sqrt(twoJx_)*twoJy_*sqr(h_c);
+  f += scl_geom*sqrt(twoJ_[X_])*twoJ_[Y_]*sqr(h_c);
 
   // h_40000
-  sxt_2(twoJx_, twoJy_, -1e0/32e0, 2, 1, 0, 0, 3, 0, 0, 0, h_c, h_s);
-  f += scl_geom*sqr(twoJx_)*sqr(h_c);
+  sxt_2(twoJ_[X_], twoJ_[Y_], -1e0/32e0, 2, 1, 0, 0, 3, 0, 0, 0, h_c, h_s);
+  f += scl_geom*sqr(twoJ_[X_])*sqr(h_c);
   
   // h_31000
-  sxt_2(twoJx_, twoJy_, -1e0/16e0, 1, 2, 0, 0, 3, 0, 0, 0, h_c, h_s);
-  f += scl_geom*sqr(twoJx_)*sqr(h_c);
+  sxt_2(twoJ_[X_], twoJ_[Y_], -1e0/16e0, 1, 2, 0, 0, 3, 0, 0, 0, h_c, h_s);
+  f += scl_geom*sqr(twoJ_[X_])*sqr(h_c);
 
   // h_20110
-  sxt_2(twoJx_, twoJy_, -1e0/16e0, 3, 0, 0, 0, 0, 1, 1, 1, c, s);
+  sxt_2(twoJ_[X_], twoJ_[Y_], -1e0/16e0, 3, 0, 0, 0, 0, 1, 1, 1, c, s);
   h_c = c; h_s = s;
-  sxt_2(twoJx_, twoJy_, -1e0/16e0, 1, 0, 1, 1, 2, 1, 0, 0, c, s);
+  sxt_2(twoJ_[X_], twoJ_[Y_], -1e0/16e0, 1, 0, 1, 1, 2, 1, 0, 0, c, s);
   h_c += c; h_s += s;
-  sxt_2(twoJx_, twoJy_, -1e0/8e0, 1, 0, 0, 2, 1, 0, 2, 0, c, s);
+  sxt_2(twoJ_[X_], twoJ_[Y_], -1e0/8e0, 1, 0, 0, 2, 1, 0, 2, 0, c, s);
   h_c += c; h_s += s;
-  f += scl_geom*twoJx_*twoJy_*sqr(h_c);
+  f += scl_geom*twoJ_[X_]*twoJ_[Y_]*sqr(h_c);
   
   // h_20020
-  sxt_2(twoJx_, twoJy_, -1e0/32e0, 1, 0, 0, 2, 2, 1, 0, 0, c, s);
+  sxt_2(twoJ_[X_], twoJ_[Y_], -1e0/32e0, 1, 0, 0, 2, 2, 1, 0, 0, c, s);
   h_c = c; h_s = s;
-  sxt_2(twoJx_, twoJy_, -1e0/32e0, 3, 0, 0, 0, 0, 1, 0, 2, c, s);
+  sxt_2(twoJ_[X_], twoJ_[Y_], -1e0/32e0, 3, 0, 0, 0, 0, 1, 0, 2, c, s);
   h_c += c; h_s += s;
-  sxt_2(twoJx_, twoJy_, -4e0/32e0, 1, 0, 0, 2, 1, 0, 1, 1, c, s);
+  sxt_2(twoJ_[X_], twoJ_[Y_], -4e0/32e0, 1, 0, 0, 2, 1, 0, 1, 1, c, s);
   h_c += c; h_s += s;
-  f += scl_geom*twoJx_*twoJy_*sqr(h_c);
+  f += scl_geom*twoJ_[X_]*twoJ_[Y_]*sqr(h_c);
 
   // h_20200
-  sxt_2(twoJx_, twoJy_, -1e0/32e0, 3, 0, 0, 0, 0, 1, 2, 0, c, s);
+  sxt_2(twoJ_[X_], twoJ_[Y_], -1e0/32e0, 3, 0, 0, 0, 0, 1, 2, 0, c, s);
   h_c = c; h_s = s;
-  sxt_2(twoJx_, twoJy_, -1e0/32e0, 1, 0, 2, 0, 2, 1, 0, 0, c, s);
+  sxt_2(twoJ_[X_], twoJ_[Y_], -1e0/32e0, 1, 0, 2, 0, 2, 1, 0, 0, c, s);
   h_c += c; h_s += s;
-  sxt_2(twoJx_, twoJy_, -4e0/32e0, 1, 0, 1, 1, 1, 0, 2, 0, c, s);
+  sxt_2(twoJ_[X_], twoJ_[Y_], -4e0/32e0, 1, 0, 1, 1, 1, 0, 2, 0, c, s);
   h_c += c; h_s += s;
-  f += scl_geom*twoJx_*twoJy_*sqr(h_c);
+  f += scl_geom*twoJ_[X_]*twoJ_[Y_]*sqr(h_c);
   
   // h_11200
-  sxt_2(twoJx_, twoJy_, -1e0/16e0, 1, 0, 2, 0, 1, 2, 0, 0, c, s);
+  sxt_2(twoJ_[X_], twoJ_[Y_], -1e0/16e0, 1, 0, 2, 0, 1, 2, 0, 0, c, s);
   h_c = c; h_s = s;
-  sxt_2(twoJx_, twoJy_, -1e0/16e0, 2, 1, 0, 0, 0, 1, 2, 0, c, s);
+  sxt_2(twoJ_[X_], twoJ_[Y_], -1e0/16e0, 2, 1, 0, 0, 0, 1, 2, 0, c, s);
   h_c += c; h_s += s;
-  sxt_2(twoJx_, twoJy_, -2e0/16e0, 0, 1, 1, 1, 1, 0, 2, 0, c, s);
+  sxt_2(twoJ_[X_], twoJ_[Y_], -2e0/16e0, 0, 1, 1, 1, 1, 0, 2, 0, c, s);
   h_c += c; h_s += s;
-  sxt_2(twoJx_, twoJy_, -2e0/16e0, 1, 0, 1, 1, 0, 1, 2, 0, c, s);
+  sxt_2(twoJ_[X_], twoJ_[Y_], -2e0/16e0, 1, 0, 1, 1, 0, 1, 2, 0, c, s);
   h_c += c; h_s += s;
-  f += scl_geom*twoJx_*twoJy_*sqr(h_c);
+  f += scl_geom*twoJ_[X_]*twoJ_[Y_]*sqr(h_c);
     
   // h_00310
-  sxt_2(twoJx_, twoJy_, -1e0/16e0, 0, 1, 2, 0, 1, 0, 1, 1, c, s);
+  sxt_2(twoJ_[X_], twoJ_[Y_], -1e0/16e0, 0, 1, 2, 0, 1, 0, 1, 1, c, s);
   h_c = c; h_s = s;
-  sxt_2(twoJx_, twoJy_, -1e0/16e0, 0, 1, 1, 1, 1, 0, 2, 0, c, s);
+  sxt_2(twoJ_[X_], twoJ_[Y_], -1e0/16e0, 0, 1, 1, 1, 1, 0, 2, 0, c, s);
   h_c += c; h_s += s;
-  f += scl_geom*sqr(twoJy_)*sqr(h_c);
+  f += scl_geom*sqr(twoJ_[Y_])*sqr(h_c);
   
   // h_00400
-  sxt_2(twoJx_, twoJy_, -1e0/32e0, 0, 1, 2, 0, 1, 0, 2, 0, h_c, h_s);
-  f += scl_geom*twoJx_*twoJy_*sqr(h_c);
+  sxt_2(twoJ_[X_], twoJ_[Y_], -1e0/32e0, 0, 1, 2, 0, 1, 0, 2, 0, h_c, h_s);
+  f += scl_geom*twoJ_[X_]*twoJ_[Y_]*sqr(h_c);
 
   // h_22000
-  sxt_2(twoJx_, twoJy_, -1e0/32e0, 0, 3, 0, 0, 3, 0, 0, 0, c, s);
+  sxt_2(twoJ_[X_], twoJ_[Y_], -1e0/32e0, 0, 3, 0, 0, 3, 0, 0, 0, c, s);
   h_c = c; h_s = s;
-  sxt_2(twoJx_, twoJy_, -3e0/32e0, 1, 2, 0, 0, 2, 1, 0, 0, c, s);
+  sxt_2(twoJ_[X_], twoJ_[Y_], -3e0/32e0, 1, 2, 0, 0, 2, 1, 0, 0, c, s);
   h_c += c; h_s += s;
-  f += scl_dnu*sqr(twoJx_)*sqr(h_c);
+  f += scl_dnu*sqr(twoJ_[X_])*sqr(h_c);
   
   // h_11110
-  sxt_2(twoJx_, twoJy_, -1e0/8e0, 1, 0, 1, 1, 1, 2, 0, 0, c, s);
+  sxt_2(twoJ_[X_], twoJ_[Y_], -1e0/8e0, 1, 0, 1, 1, 1, 2, 0, 0, c, s);
   h_c = c; h_s = s;
-  sxt_2(twoJx_, twoJy_, -1e0/8e0, 2, 1, 0, 0, 0, 1, 1, 1, c, s);
+  sxt_2(twoJ_[X_], twoJ_[Y_], -1e0/8e0, 2, 1, 0, 0, 0, 1, 1, 1, c, s);
   h_c += c; h_s += s;
-  sxt_2(twoJx_, twoJy_, -1e0/8e0, 0, 1, 0, 2, 1, 0, 2, 0, c, s);
+  sxt_2(twoJ_[X_], twoJ_[Y_], -1e0/8e0, 0, 1, 0, 2, 1, 0, 2, 0, c, s);
   h_c += c; h_s += s;
-  sxt_2(twoJx_, twoJy_, -1e0/8e0, 1, 0, 0, 2, 0, 1, 2, 0, c, s);
+  sxt_2(twoJ_[X_], twoJ_[Y_], -1e0/8e0, 1, 0, 0, 2, 0, 1, 2, 0, c, s);
   h_c += c; h_s += s;
-  f += scl_dnu*twoJx_*twoJy_*sqr(h_c);
+  f += scl_dnu*twoJ_[X_]*twoJ_[Y_]*sqr(h_c);
   
   // h_00220
-  sxt_2(twoJx_, twoJy_, -1e0/8e0, 0, 1, 1, 1, 1, 0, 1, 1, c, s);
+  sxt_2(twoJ_[X_], twoJ_[Y_], -1e0/8e0, 0, 1, 1, 1, 1, 0, 1, 1, c, s);
   h_c = c; h_s = s;
-  sxt_2(twoJx_, twoJy_, -1e0/32e0, 0, 1, 0, 2, 1, 0, 2, 0, c, s);
+  sxt_2(twoJ_[X_], twoJ_[Y_], -1e0/32e0, 0, 1, 0, 2, 1, 0, 2, 0, c, s);
   h_c += c; h_s += s;
-  sxt_2(twoJx_, twoJy_, -1e0/32e0, 0, 1, 2, 0, 1, 0, 0, 2, c, s);
+  sxt_2(twoJ_[X_], twoJ_[Y_], -1e0/32e0, 0, 1, 2, 0, 1, 0, 0, 2, c, s);
   h_c += c; h_s += s;
-  f += scl_dnu*sqr(twoJy_)*sqr(h_c);
+  f += scl_dnu*sqr(twoJ_[Y_])*sqr(h_c);
 
   if (iter % n_prt == 0) {
     printf("\n");
@@ -854,7 +761,7 @@ void h_min(const double twoJx, const double twoJy)
 
   p = dvector(1, n_b3); xi = dmatrix(1, n_b3, 1, n_b3);
   
-  twoJx_ = twoJx; twoJy_ = twoJy;
+  twoJ_[X_] = twoJx; twoJ_[Y_] = twoJy;
 
   for (i = 1; i <= n_b3; i++) {
     p[i] = GetKpar(b3s[i-1], 1, Sext);

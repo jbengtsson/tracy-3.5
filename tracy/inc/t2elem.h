@@ -155,6 +155,14 @@ void Recombiner_Init(int Fnum1);
 void Solenoid_Init(int Fnum1);
 
 
+ss_vect<tps> get_edge_lin_map(const double h, const double phi,
+			      const double gap, const double delta);
+
+ss_vect<tps> get_sbend_lin_map(const double L, const double h, const double b2,
+			       const double delta);
+
+ss_vect<tps> get_thin_kick_lin_map(const double b2L, const double delta);
+
 ss_vect<tps> get_lin_map(elemtype &Elem, const double delta);
 
 void get_lin_maps(const double delta);
