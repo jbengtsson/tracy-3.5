@@ -45,7 +45,7 @@
 		     n   n
 		    ...
 
-     wiggler:    L [m], lambda [m]
+     wiggler:    L [m], Lambda [m]
                  no of harmonics
                  harm no, kxV [1/m], BoBrhoV [1/m], kxH, BoBrhoH, phi
                     ...
@@ -148,7 +148,7 @@ void prtmfile(const char mfile_dat[])
     case Wigl:
       prtName(mfile, i, wiggler_, Cell[i].Elem.W->Pmethod, Cell[i].Elem.W->PN);
       fprintf(mfile, " %23.16e %23.16e\n",
-	      Cell[i].Elem.PL, Cell[i].Elem.W->lambda);
+	      Cell[i].Elem.PL, Cell[i].Elem.W->Lambda);
       fprintf(mfile, "%2d\n", Cell[i].Elem.W->n_harm);
       for (j = 0; j < Cell[i].Elem.W->n_harm; j++) {
 	fprintf(mfile, "%2d %23.16e %23.16e %23.16e %23.16e %23.16e\n",

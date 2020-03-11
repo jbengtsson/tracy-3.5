@@ -45,7 +45,7 @@
 		     .
 		     .
 
-     wiggler:    L [m], lambda [m]
+     wiggler:    L [m], Lambda [m]
                  no of harmonics
                  harm no, kxV [1/m], BoBrhoV [1/m], kxH, BoBrhoH, phi
                     ...
@@ -269,7 +269,7 @@ void rdmfile(const char *mfile_dat)
 
       inf.getline(line, line_max);
       if (prt) printf("%s\n", line);
-      sscanf(line, "%lf %lf", &Cell[i].Elem.PL, &Cell[i].Elem.W->lambda);
+      sscanf(line, "%lf %lf", &Cell[i].Elem.PL, &Cell[i].Elem.W->Lambda);
 
       inf.getline(line, line_max);
       if (prt) printf("%s\n", line);

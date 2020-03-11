@@ -1746,7 +1746,7 @@ static bool Lat_CheckWiggler(FILE **fo, long i, struct LOC_Lattice_Read *LINK)
   WigglerType  *WITH2;
 
   WITH = &ElemFam[i-1]; WITH1 = &WITH->ElemF; WITH2 = WITH1->W;
-  Lambda = WITH2->lambda;
+  Lambda = WITH2->Lambda;
   L = WITH1->PL; a = L/Lambda;
   NN = (long)floor(a+0.01+0.5);
   diff = fabs((L-NN*Lambda)/L);
@@ -3110,7 +3110,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       WITH4->Pmethod = k2; WITH4->PN = k1;
       WITH4->PdTpar = dt;
       SetDBN(&V);
-      WITH4->lambda = QKS; WITH4->n_harm = 1; WITH4->harm[0] = 1;
+      WITH4->Lambda = QKS; WITH4->n_harm = 1; WITH4->harm[0] = 1;
       WITH4->kxV[0] = QKxV; WITH4->BoBrhoV[0] = QKV;
       WITH4->kxH[0] = QKxH; WITH4->BoBrhoH[0] = QKH;
       WITH4->phi[0] = QPhi;

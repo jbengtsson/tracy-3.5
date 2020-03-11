@@ -135,7 +135,7 @@ struct WigglerType {
     PdTsys,              // Systematic [deg].
     PdTrms,              // RMS [deg].
     PdTrnd,              // Random number.
-    lambda;              // lambda.
+    Lambda;              // lambda.
   int
     n_harm,              // No of harmonics.
     harm[n_harm_max];    // Harmonic number.

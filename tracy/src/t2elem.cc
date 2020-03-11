@@ -886,7 +886,7 @@ void Cav_Pass(CellType &Cell, ss_vect<T> &ps)
 
   elemtype   *elemp;
   CavityType *C;
-  double     L, lambda, phi;
+  double     L, Lambda, phi;
   double     dgammaMax, dgamma, gamma, gamma1;
   double     sf1, f2, f2s;
   double     f5, sf5, dpr, dct, p_t1;
@@ -896,7 +896,7 @@ void Cav_Pass(CellType &Cell, ss_vect<T> &ps)
   const bool RandS = false;
  
   elemp = &Cell.Elem; C = elemp->C; L = elemp->PL; phi = C->phi;
-  lambda = c0/C->Pfreq;
+  Lambda = c0/C->Pfreq;
 
   p_t = is_double<T>::cst(ps[delta_]);
   delta = sqrt(1e0+2e0*p_t/globval.beta0+sqr(p_t)) - 1e0;
@@ -926,7 +926,7 @@ void Cav_Pass(CellType &Cell, ss_vect<T> &ps)
     ps[x_] += dct*ps[px_]; ps[px_] = dpr*ps[px_];
     ps[y_] += dct*ps[py_]; ps[py_] = dpr*ps[py_];
     ps[delta_] =
-      (2e0*dgammaMax*M_PI*cos(phi)*f2)/(lambda*f5)*ps[ct_]
+      (2e0*dgammaMax*M_PI*cos(phi)*f2)/(Lambda*f5)*ps[ct_]
       + sqr(p0)*f2/(sf1*f5)*ps[delta_];
   } else {
     if (fabs(sin(phi)) > 1e-6)
@@ -1050,7 +1050,7 @@ inline void get_Axy(const WigglerType *W, const double z,
   }
 
   for (i = 0; i < W->n_harm; i ++) {
-    kz_n = W->harm[i]*2e0*M_PI/W->lambda; ky = sqrt(sqr(W->kxV[i])+sqr(kz_n));
+    kz_n = W->harm[i]*2e0*M_PI/W->Lambda; ky = sqrt(sqr(W->kxV[i])+sqr(kz_n));
     cx = cos(W->kxV[i]*x[x_]); sx = sin(W->kxV[i]*x[x_]);
     chy = cosh(ky*x[y_]); shy = sinh(ky*x[y_]); sz = sin(kz_n*z);
 
@@ -1335,7 +1335,7 @@ inline void get_Axy_EF3(const WigglerType *W, const double z,
     dAoBrho[i] = 0e0;
 
   for (i = 0; i < W->n_harm; i++) {
-    kz_n = W->harm[i]*2e0*M_PI/W->lambda; ky = sqrt(sqr(W->kxV[i])+sqr(kz_n));
+    kz_n = W->harm[i]*2e0*M_PI/W->Lambda; ky = sqrt(sqr(W->kxV[i])+sqr(kz_n));
 
     cx  = cos(W->kxV[i]*ps[x_]); sx = sin(W->kxV[i]*ps[x_]);
     chy = cosh(ky*ps[y_]); shy = sinh(ky*ps[y_]); sz = sin(kz_n*z);
@@ -1506,7 +1506,7 @@ void Wiggler_Pass(CellType &Cell, ss_vect<T> &ps)
 	Wiggler_pass_EF(Cell.Elem, ps);
       else {
 	Wiggler_pass_EF2(W->PN, elemp->PL, W->kxV[0], W->kxH[0],
-		2e0*M_PI/W->lambda, W->BoBrhoV[0], W->BoBrhoH[0],
+		2e0*M_PI/W->Lambda, W->BoBrhoV[0], W->BoBrhoH[0],
 		W->phi[0], ps);
       }
     } else
@@ -2646,7 +2646,7 @@ void Wiggler_Alloc(elemtype *Elem)
   W->PdTpar = 0e0; W->PdTsys = 0e0; W->PdTrnd = 0e0;
   W->n_harm = 0;
   // 2/21/12 J.B. & J.C.
-  W->lambda = 0e0;
+  W->Lambda = 0e0;
   for (j = 0; j < n_harm_max; j++) {
     W->BoBrhoV[j] = 0e0; W->BoBrhoH[j] = 0e0; W->kxV[j] = 0e0; W->kxH[j] = 0e0;
     W->phi[j] = 0e0;
