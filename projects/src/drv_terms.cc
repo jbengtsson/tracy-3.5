@@ -22,9 +22,7 @@
 // 2.5 degrees of freedom, i.e. delta is treated as a parameter
 const int  ps_dim = 4+1;
 
-typedef double sp_vec[2], ps_vec[ps_dim], mat[ps_dim][ps_dim];
-
-const int n_b3_max_ = 50;
+typedef double mat[ps_dim][ps_dim];
 
 int              iter, n_b3;
 double           twoJx_, twoJy_;
@@ -70,8 +68,8 @@ void cpy_mat(const mat A, mat B)
 }
 
 
-void get_Ascr(const sp_vec alpha, const sp_vec beta,
-	      const sp_vec eta, const sp_vec etap, mat A)
+void get_Ascr(const double alpha[], const double beta[],
+	      const double eta[], const double etap[], mat A)
 {
   // Transformation to Floquet space.
 
@@ -94,7 +92,8 @@ void get_Ascr(const sp_vec alpha, const sp_vec beta,
 
 
 void get_Twiss(const mat A0, const mat A1,
-	       sp_vec alpha, sp_vec beta, sp_vec nu, sp_vec eta, sp_vec etap)
+	       double alpha[], double beta[], double nu[],
+	       double eta[], double etap[])
 {
   // Compute Twiss parameters.
 
@@ -184,8 +183,8 @@ void propagate_fringe_field(const double L,
 void get_quad(const double L,
 	      const double rho_inv, const double phi1, const double phi2,
 	      const double b2,
-	      const sp_vec alpha0, const sp_vec beta0, const sp_vec nu0,
-	      const sp_vec eta0, const sp_vec etap0,
+	      const double alpha0[], const double beta0[], const double nu0[],
+	      const double eta0[], const double etap0[],
 	      const int m_x, const int m_y, const int n_x, const int n_y,
 	      const int m, double &h_c, double &h_s)
 {
@@ -194,7 +193,7 @@ void get_quad(const double L,
 
   int    j, k;
   double h, r, phi;
-  sp_vec alpha, beta, nu, eta, etap;
+  double alpha[2], beta[2], nu[2], eta[2], etap[2];
   mat    A0, A1;
 
   const bool prt    = false;
@@ -275,8 +274,8 @@ void get_quad(const double L,
 void get_quad1(const double L,
 	      const double rho_inv, const double phi1, const double phi2, 
 	      const double b2,
-	      sp_vec alpha3[], sp_vec beta3[], sp_vec nu3[],
-	      sp_vec eta3[], sp_vec etap3[],
+	      double alpha3[][2], double beta3[][2], double nu3[][2],
+	      double eta3[][2], double etap3[][2],
 	      const int m_x, const int m_y, const int n_x, const int n_y,
 	      const int m, double &h_c, double &h_s)
 {
@@ -326,7 +325,7 @@ void sxt_1(const double scl,
 
   int    n, k1, m_x, m_y, n_x, n_y;
   double c, s, b3L, A, phi;
-  sp_vec alpha0, beta0, nu0, eta0, etap0, beta, nu, eta;
+  double alpha0[2], beta0[2], nu0[2], eta0[2], etap0[2], beta[2], nu[2], eta[2];
 
   const bool prt = false;
 
@@ -386,8 +385,8 @@ void sxt_2(const double twoJx, const double twoJy, const double scl,
 
   long int n1, n2, k;
   double   b3L1, b3L2, dnu, A1, A, phi;
-  Vector2  alpha0, beta0, nu0, eta0, etap0;
-  Vector2  beta1, nu1, beta2, nu2;
+  double   alpha0[2], beta0[2], nu0[2], eta0[2], etap0[2];
+  double   beta1[2], nu1[2], beta2[2], nu2[2];
 
   h_c = 0e0; h_s = 0e0;
   for (n1 = 0; n1 <= globval.Cell_nLoc; n1++) {
@@ -441,8 +440,8 @@ void K(const double nu_x, const double nu_y,
   double   b3L1, b3L2, pi_1x, pi_3x, pi_1xm2y, pi_1xp2y;
   double   s_1x, s_3x, s_1xm2y, s_1xp2y, c_1x, c_3x, c_1xm2y, c_1xp2y;
   double   dmu_x, dmu_y, A;
-  Vector2  alpha0, beta0, nu0, eta0, etap0;
-  Vector2  beta1, nu1, beta2, nu2;
+  double   alpha0[2], beta0[2], nu0[2], eta0[2], etap0[2];
+  double   beta1[2], nu1[2], beta2[2], nu2[2];
 
   pi_1x = M_PI*nu_x; pi_3x = 3e0*M_PI*nu_x; pi_1xm2y = M_PI*(nu_x-2e0*nu_y);
   pi_1xp2y = M_PI*(nu_x+2e0*nu_y);
@@ -499,9 +498,63 @@ void K(const double nu_x, const double nu_y,
 }
 
 
-void drv_terms(const double twoJx, const double twoJy)
+void get_nu_(Matrix &M, double nu[])
 {
-  double h_c, h_s, c, s, a[3];
+  int    k;
+  double tr2;
+
+  const bool prt = false;
+
+  for (k = 0; k < 2; k++) {
+    tr2 = globval.OneTurnMat[2*k][2*k] + globval.OneTurnMat[2*k+1][2*k+1];
+    nu[k] = acos(tr2/2e0)/(2e0*M_PI);
+    if (globval.OneTurnMat[2*k][2*k+1] < 0e0) nu[k] = 1e0 - nu[k];
+  }
+
+  if (prt) printf("\nget_nu: [%10.8f, %10.8f]\n", nu[X_], nu[Y_]);
+}
+
+
+void get_ksi2_(const double delta, double ksi2[])
+{
+  long int lastpos;
+  int      k;
+  double   nu[3][2];
+
+  const bool prt = false;
+
+  getcod(-delta, lastpos);
+  get_nu_(globval.OneTurnMat, nu[0]);
+  getcod(0e0, lastpos);
+  get_nu_(globval.OneTurnMat, nu[1]);
+  getcod(delta, lastpos);
+  get_nu_(globval.OneTurnMat, nu[2]);
+  for (k = 0; k < 2; k++)
+    ksi2[k] = (nu[2][k]-2e0*nu[1][k]+nu[0][k])/(2e0*sqr(delta));
+
+  if (prt) printf("\nget_ksi2_: [%10.8f, %10.8f]\n", ksi2[X_], ksi2[Y_]);
+}
+
+
+void get_cross_terms(const double delta, const double twoJx, const double twoJy,
+		     double ad[])
+{
+  int    k;
+  double a[2][3];
+
+  Ring_GetTwiss(false, -delta);
+  K(globval.TotalTune[X_], globval.TotalTune[Y_], twoJx, twoJy, a[0]);
+  Ring_GetTwiss(false, delta);
+  K(globval.TotalTune[X_], globval.TotalTune[Y_], twoJx, twoJy, a[1]);
+
+  for (k = 0; k < 3; k++)
+    ad[k] = (a[1][k]-a[0][k])/(2e0*delta);
+}
+
+
+void drv_terms(const double delta, const double twoJx, const double twoJy)
+{
+  double h_c, h_s, c, s, a[3], ksi2[2];
 
   printf("\nFirst order chromatic terms:\n");
   sxt_1(1e0/2e0, 1, 1, 0, 0, 1, h_c, h_s);
@@ -626,6 +679,17 @@ void drv_terms(const double twoJx, const double twoJy)
   printf("  k_22000 = %12.5e\n", a[0]);
   printf("  k_11110 = %12.5e\n", a[1]);
   printf("  k_00220 = %12.5e\n", a[2]);
+
+  get_ksi2_(delta, ksi2);
+  printf("\nSecond order chromaticity:\n");
+  printf("  k_11002 = %12.5e\n", -M_PI*ksi2[X_]);
+  printf("  k_00112 = %12.5e\n", -M_PI*ksi2[Y_]);
+
+  get_cross_terms(delta, twoJx, twoJy, a);
+  printf("\nSecond order cross terms:\n");
+  printf("  k_22001 = %12.5e\n", a[0]);
+  printf("  k_11111 = %12.5e\n", a[1]);
+  printf("  k_00221 = %12.5e\n", a[2]);
 }
 
 
@@ -783,26 +847,23 @@ void h_min(const double twoJx, const double twoJy)
 
   const double ftol = 1e-6;
 
-  p = dvector(1, n_b3_max_); xi = dmatrix(1, n_b3_max_, 1, n_b3_max_);
-  
-  twoJx_ = twoJx; twoJy_ = twoJy;
-
   b3s.push_back(ElemIndex("s4"));  b3s.push_back(ElemIndex("s6"));
   b3s.push_back(ElemIndex("s13")); b3s.push_back(ElemIndex("s19"));
   b3s.push_back(ElemIndex("s22")); b3s.push_back(ElemIndex("s24"));
   n_b3 = b3s.size();
 
+  p = dvector(1, n_b3); xi = dmatrix(1, n_b3, 1, n_b3);
+  
+  twoJx_ = twoJx; twoJy_ = twoJy;
+
   for (i = 1; i <= n_b3; i++) {
     p[i] = GetKpar(b3s[i-1], 1, Sext);
     for (j = 1; j <= n_b3; j++)
-      if (i == j)
-	xi[i][j] = 1e-3;
-      else
-	xi[i][j] = 0e0;
+      xi[i][j] = (i == j)? 1e-3 : 0e0;
   }
 
   iter = 0;
   dpowell(p, xi, n_b3, ftol, &n_iter, &fret, f_sxt); f_sxt(p);
 
-  free_dvector(p, 1, n_b3_max_); free_dmatrix(xi, 1, n_b3_max_, 1, n_b3_max_);
+  free_dvector(p, 1, n_b3); free_dmatrix(xi, 1, n_b3, 1, n_b3);
 }

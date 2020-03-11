@@ -946,59 +946,6 @@ void get_mI(constr_type &constr)
 }
 
 
-double arccos_(double x)
-{
-  double y;
-
-  if (x == 0e0)
-    y = 1e0;
-  else if (x >= 0e0)
-    y = atan(sqrt(1e0/(x*x)-1e0));
-  else
-    y = (pi-atan(sqrt(1e0/(sqr(x))-1e0)));
-
-  return y;
-}
-
-
-void get_nu(Matrix &M, double nu[])
-{
-  int    k;
-  double tr2;
-
-  const bool prt = false;
-
-  for (k = 0; k < 2; k++) {
-    tr2 = globval.OneTurnMat[2*k][2*k] + globval.OneTurnMat[2*k+1][2*k+1];
-    nu[k] = arccos_(tr2/2e0)/(2e0*M_PI);
-    if (globval.OneTurnMat[2*k][2*k+1] < 0e0) nu[k] = 1e0 - nu[k];
-  }
-
-  if (prt) printf("\nget_nu: [%10.8f, %10.8f]\n", nu[X_], nu[Y_]);
-}
-
-
-void get_ksi2_(const double delta, double ksi2[])
-{
-  long int lastpos;
-  int      k;
-  double   nu[3][2];
-
-  const bool prt = false;
-
-  getcod(-delta, lastpos);
-  get_nu(globval.OneTurnMat, nu[0]);
-  getcod(0e0, lastpos);
-  get_nu(globval.OneTurnMat, nu[1]);
-  getcod(delta, lastpos);
-  get_nu(globval.OneTurnMat, nu[2]);
-  for (k = 0; k < 2; k++)
-    ksi2[k] = (nu[2][k]-2e0*nu[1][k]+nu[0][k])/(2e0*sqr(delta));
-
-  if (prt) printf("\nget_ksi2_: [%10.8f, %10.8f]\n", ksi2[X_], ksi2[Y_]);
-}
-
-
 double constr_type::get_chi2(const param_type &prms, double *bn,
 			     const bool prt)
 {
@@ -2984,7 +2931,7 @@ int main(int argc, char *argv[])
   // Unbuffered output.
   setvbuf(stdout, buffer, _IONBF, BUFSIZ);
 
-  globval.mat_meth = false;
+  globval.mat_meth = !false;
 
   if (!true)
     Read_Lattice(argv[1]);
@@ -3027,8 +2974,8 @@ int main(int argc, char *argv[])
 
   if (!false) {
     Ring_GetTwiss(true, 0e0); printglob();
-    // drv_terms(twoJ[X_], twoJ[Y_]);
-    drv_terms(1e0, 1e0);
+    // drv_terms(1e-6, twoJ[X_], twoJ[Y_]);
+    drv_terms(1e-6, 1e0, 1e0);
     exit(0);
   }
 
