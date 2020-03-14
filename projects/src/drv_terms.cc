@@ -206,6 +206,79 @@ void get_quad1(const double L,
 }
 
 
+void get_lin_map(const int n_step, const double delta, const elemtype &Elem, 
+		 ss_vect<tps> &M1, ss_vect<tps> &M2, ss_vect<tps> &M)
+{
+
+  if (Elem.PL != 0e0) {
+    M1 = get_edge_lin_map(Elem.M->Pirho, Elem.M->PTx1, Elem.M->Pgap, delta);
+    M2 = get_edge_lin_map(Elem.M->Pirho, Elem.M->PTx2, Elem.M->Pgap, delta);
+    M =
+      get_sbend_lin_map(Elem.PL/n_step, Elem.M->Pirho, Elem.M->PB[Quad+HOMmax],
+			delta);
+  } else {
+    M1.identity(); M2.identity();
+    M = get_thin_kick_lin_map(Elem.PL*Elem.M->PB[Quad+HOMmax], delta);
+  }
+}
+
+
+void get_h_ijklm(const int i, const int j, const int k, const int l,
+		 const int m, ss_vect<tps> &A, double nu[], double &c,
+		 double &s)
+{
+  int    k1;
+  double alpha[2], beta[2], dnu[2], eta[2], etap[2], phi, ampl;
+
+  const bool prt = false;
+
+  get_ab(A, alpha, beta, dnu, eta, etap);
+  A = get_A_CS(2, A, dnu);
+  for (k1 = 0; k1 < 2; k1++)
+    nu[k1] += dnu[k1];
+  if (prt)
+    printf("  %7.3f %6.3f %5.3f %6.3f %6.3f %7.3f %6.3f %5.3f\n",
+	   alpha[X_], beta[X_], nu[X_], eta[X_], etap[X_],
+	   alpha[Y_], beta[Y_], nu[Y_]);
+
+  phi = 2e0*M_PI*((i-j)*nu[X_]+(k-l)*nu[Y_]); 
+  ampl = pow(beta[X_], (i+j)/2e0)*pow(beta[Y_], (k+l)/2e0)*pow(eta[X_], m-1);
+
+  c += ampl*cos(phi); s -= ampl*sin(phi);
+}
+
+
+void get_mult(const int loc, const double scl, const int n_step,
+	      const double delta, const int i, const int j, const int k,
+	      const int l, const int m, double &c, double &s)
+{
+  int          k1;
+  double       nu[2];
+  ss_vect<tps> M1, M2, M, A;
+
+  const bool prt = false;
+
+  A = get_A(Cell[loc-1].Alpha, Cell[loc-1].Beta, Cell[loc-1].Eta,
+	    Cell[loc-1].Etap);
+  for (k1 = 0; k1 < 2; k1++)
+    nu[k1] = Cell[loc-1].Nu[k1];
+
+  get_lin_map(n_step-1, delta, Cell[loc].Elem, M1, M2, M);
+
+  if (prt) printf("\n");
+  get_h_ijklm(i, j, k, l, m, A, nu, c, s);
+  A = M1*A;
+  for (k1 = 0; k1 < n_step-2; k1++) {
+    A = M*A;
+    get_h_ijklm(i, j, k, l, m, A, nu, c, s);
+  }
+  A = M2*M*A;
+  get_h_ijklm(i, j, k, l, m, A, nu, c, s);
+
+  c *= scl; s *= scl;
+}
+
+
 long int ind(long int k)
 {
   long int n = 0;
@@ -221,9 +294,9 @@ long int ind(long int k)
 }
 
 
-void sxt_1(const double scl,
-	   const int i, const int j, const int k, const int l, const int m,
-	   double &h_c, double &h_s)
+void sxt_1_(const double scl,
+	    const int i, const int j, const int k, const int l, const int m,
+	    double &h_c, double &h_s)
 {
   // First order generators.
 
@@ -276,6 +349,51 @@ void sxt_1(const double scl,
     	  if (m == 1) A *= 2e0;
     	}
     	h_c += A*cos(phi); h_s -= A*sin(phi);
+      }
+    }
+  }
+}
+
+
+void sxt_1(const double scl,
+	   const int i, const int j, const int k, const int l, const int m,
+	   double &h_c, double &h_s)
+{
+  // First order generators.
+
+  int    n, k1, m_x, m_y, n_x, n_y;
+  double c, s, b3, a3, b3L, a3L, A, phi;
+  double alpha0[2], beta0[2], nu0[2], eta0[2], etap0[2], beta[2], nu[2], eta[2];
+
+  const bool prt    = false;
+  const int  n_step = 3;
+
+  h_c = h_s = 0e0;
+  m_x = i + j; m_y = k + l; n_x = i - j; n_y = k - l;
+  if (prt) printf("sxt_1:\n");
+  for (n = 0; n <= globval.Cell_nLoc; n++) {
+    if (Cell[n].Elem.Pkind == Mpole) {
+      if (((Cell[n].Elem.M->Pirho != 0e0) ||
+    	   (Cell[n].Elem.M->Porder == Quad)) && (m >= 1)) {
+	// if (prt) printf("  %4d %10s quad\n", n, Cell[n].Elem.PName);
+    	// for (k1 = 0; k1 <= 1; k1++) {
+    	//   alpha0[k1] = Cell[ind(n-1)].Alpha[k1];
+    	//   beta0[k1] = Cell[ind(n-1)].Beta[k1];
+    	//   nu0[k1] = Cell[ind(n-1)].Nu[k1];
+    	//   eta0[k1] = Cell[ind(n-1)].Eta[k1];
+    	//   etap0[k1] = Cell[ind(n-1)].Etap[k1];
+    	// }
+	
+	// get_bn_design_elem(Cell[n].Fnum, 1, Quad, b3, a3);
+    	// get_quad(Cell[n].Elem.PL, Cell[n].Elem.M->Pirho,
+    	// 	 Cell[n].Elem.M->PTx1, Cell[n].Elem.M->PTx2,
+    	// 	 b3, alpha0, beta0, nu0, eta0, etap0,
+    	// 	 m_x, m_y, n_x, n_y, m, c, s);
+    	// h_c += scl*c; h_s += scl*s;
+      } else if (Cell[n].Elem.M->Porder >= Sext) {
+    	if (prt) printf("  %4d %10s sext\n", n, Cell[n].Elem.PName);
+	get_bnL_design_elem(Cell[n].Fnum, 1, Sext, b3L, a3L);
+	get_mult(n, scl*b3L/n_step, n_step, 0e0, i, j, k, l, m, h_c, h_s);
       }
     }
   }

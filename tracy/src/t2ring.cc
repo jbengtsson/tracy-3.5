@@ -328,3 +328,276 @@ void Ring_GetTwiss(bool chroma, double dP)
   globval.Alphac = globval.OneTurnMat[ct_][delta_]/Cell[globval.Cell_nLoc].S;
   if (trace) printf("exit Ring_GetTwiss\n");
 }
+
+
+/* Local variables for Ring_Fittune: */
+struct LOC_Ring_Fittune
+{
+  jmp_buf _JL999;
+};
+
+
+void shiftk(long Elnum, double dk, struct LOC_Ring_Fittune *LINK)
+{
+  CellType   *cellp;
+  elemtype   *elemp;
+  MpoleType  *M;
+
+  cellp = &Cell[Elnum]; elemp = &cellp->Elem; M = elemp->M;
+  M->PBpar[Quad+HOMmax] += dk;
+  Mpole_SetPB(cellp->Fnum, cellp->Knum, (long)Quad);
+}
+
+
+void checkifstable(struct LOC_Ring_Fittune *LINK)
+{
+  if (!globval.stable) {
+    printf("  lattice is unstable\n");
+    longjmp(LINK->_JL999, 1);
+  }
+}
+
+
+void Ring_Fittune(Vector2 &nu, double eps, iVector2 &nq, long qf[], long qd[],
+                  double dkL, long imax)
+{
+  struct LOC_Ring_Fittune V;
+
+  int      i, j, k;
+  Vector2  nu0, nu1;
+  psVector  dkL1, dnu;
+  Matrix A;
+
+  const double dP = 0e0;
+
+  if (setjmp(V._JL999)) return;
+
+  if (trace)
+    printf("  Tune fit, nux =%10.5f, nuy =%10.5f, eps =% .3E,"
+	   " imax =%4ld, dkL = % .5E\n", nu[0], nu[1], eps, imax, dkL);
+  Ring_GetTwiss(false, dP); checkifstable(&V);
+  memcpy(nu0, globval.TotalTune, sizeof(Vector2));
+  i = 0;
+  do {
+    i++;
+    /* First vary kf then kd */
+    for (j = 1; j <= 2L; j++) {
+      for (k = 0; k < nq[j-1]; k++) {
+        if (j == 1)
+          shiftk(qf[k], dkL, &V); // new value for qf
+        else
+          shiftk(qd[k], dkL, &V); // new value for qd
+      }
+      Ring_GetTwiss(false, dP);
+      nu1[0] = globval.TotalTune[0]; nu1[1] = globval.TotalTune[1];
+//      GetCOD(globval.CODimax, globval.CODeps, dP, lastpos);
+//      Cell_GetABGN(globval.OneTurnMat, alpha, beta, gamma, nu1);
+      checkifstable(&V);
+      for (k = 0; k <= 1; k++) {
+        dnu[k] = nu1[k] - (long)nu1[k] - nu0[k] + (long)nu0[k];
+        if (fabs(dnu[k]) > 0.5) dnu[k] = 1 - fabs(dnu[k]);
+        A[k][j-1] = dnu[k]/dkL;
+      }
+
+      /* Restore strength */
+      for (k = 0; k < nq[j-1]; k++) {
+        if (j == 1)
+          shiftk(qf[k], -dkL, &V);
+        else
+          shiftk(qd[k], -dkL, &V);
+        }
+      }
+
+    if (!InvMat(2L, A)) {
+      printf("  A is singular\n");
+      return;
+    }
+
+    for (j = 0; j <= 1; j++)
+      dkL1[j] = nu[j] - nu0[j];
+    LinTrans(2L, A, dkL1);
+    for (j = 1; j <= 2; j++) {
+      for (k = 0; k < nq[j-1]; k++) {
+	if (j == 1)
+	  shiftk(qf[k], dkL1[j-1], &V);
+	else
+	  shiftk(qd[k], dkL1[j-1], &V);
+      }
+    }
+    Ring_GetTwiss(false, dP); checkifstable(&V);
+    memcpy(nu0, globval.TotalTune, sizeof(Vector2));
+    if (trace)
+      printf("  Nux = %10.6f%10.6f, Nuy = %10.6f%10.6f,"
+	     " QF*L = % .5E, QD*L = % .5E @%3d\n",
+	     nu0[0], nu1[0], nu0[1], nu1[1],
+	     Elem_GetKval(Cell[qf[0]].Fnum, 1, (long)Quad),
+	     Elem_GetKval(Cell[qd[0]].Fnum, 1, (long)Quad), i);
+  } while (sqrt(sqr(nu[0]-nu0[0])+sqr(nu[1]-nu0[1])) >= eps && i != imax);
+}
+
+
+void shiftkp(long Elnum, double dkp)
+{
+  CellType  *cellp;
+  elemtype  *elemp;
+  MpoleType *M;
+
+  cellp = &Cell[Elnum]; elemp = &cellp->Elem; M = elemp->M;
+  M->PBpar[Sext+HOMmax] += dkp;
+  Mpole_SetPB(cellp->Fnum, cellp->Knum, (long)Sext);
+}
+
+
+void Ring_Fitchrom(Vector2 &ksi, double eps, iVector2 &ns,
+		   long sf[], long sd[], double dkpL, long imax)
+{
+  bool      rad;
+  long int  lastpos;
+  int       i, j, k;
+  Vector2   ksi0;
+  psVector    dkpL1, dksi;
+  Matrix    A;
+
+  const double dP = 0e0;
+
+  if (trace)
+    printf("  Chromaticity fit, ksix =%10.5f, ksiy =%10.5f, eps =% .3E"
+	   ", imax =%4ld, dkpL =%10.5f\n", ksi[0], ksi[1], eps, imax, dkpL);
+
+  /* Turn off radiation */
+  rad = globval.radiation; globval.radiation = false;
+  GetCOD(globval.CODimax, globval.CODeps, dP, lastpos); Ring_Getchrom(dP);
+  for (j = 0; j <= 1; j++)
+    ksi0[j] = globval.Chrom[j];
+  i = 0;
+  do {
+    i++;
+    /* First vary sf then sd */
+    for (j = 1; j <= 2; j++) {
+      for (k = 0; k < ns[j-1]; k++) {
+	if (j == 1)
+	  shiftkp(sf[k], dkpL);
+	else
+	  shiftkp(sd[k], dkpL);
+      }
+      GetCOD(globval.CODimax, globval.CODeps, dP, lastpos); Ring_Getchrom(dP);
+      for (k = 0; k <= 1; k++) {
+	dksi[k] = globval.Chrom[k] - ksi0[k];
+	A[k][j-1] = dksi[k] / dkpL;
+      }
+      /* Restore strength */
+      for (k = 0; k < ns[j-1]; k++) {
+	if (j == 1)
+	  shiftkp(sf[k], -dkpL);
+	else
+	  shiftkp(sd[k], -dkpL);
+      }
+    }
+    if (!InvMat(2L, A)) {
+      printf("  A is singular\n");
+      goto _L999;
+    }
+    for (j = 0; j <= 1; j++)
+      dkpL1[j] = ksi[j] - ksi0[j];
+    LinTrans(2L, A, dkpL1);
+    for (j = 1; j <= 2; j++) {
+      for (k = 0; k < ns[j-1]; k++) {
+	if (j == 1)
+	  shiftkp(sf[k], dkpL1[j-1]);
+	else
+	  shiftkp(sd[k], dkpL1[j-1]);
+      }
+    }
+    GetCOD(globval.CODimax, globval.CODeps, dP, lastpos); Ring_Getchrom(dP);
+    for (j = 0; j <= 1; j++)
+      ksi0[j] = globval.Chrom[j];
+    if (trace)
+      printf("  ksix =%10.6f, ksiy =%10.6f, SF = % .5E, SD = % .5E @%3d\n",
+	     ksi0[0], ksi0[1], Elem_GetKval(Cell[sf[0]].Fnum, 1, (long)Sext),
+	     Elem_GetKval(Cell[sd[0]].Fnum, 1, (long)Sext), i);
+  } while (sqrt(sqr(ksi[0]-ksi0[0])+sqr(ksi[1]-ksi0[1])) >= eps && i != imax);
+_L999:
+  /* Restore radiation */
+  globval.radiation = rad;
+}
+
+
+/* Local variables for Ring_FitDisp: */
+struct LOC_Ring_FitDisp
+{
+  jmp_buf _JL999;
+};
+
+
+static void shiftk_(long Elnum, double dk, struct LOC_Ring_FitDisp *LINK)
+{
+  CellType *cellp;
+  elemtype *elemp;
+  MpoleType *M;
+
+  cellp = &Cell[Elnum];
+  elemp = &cellp->Elem;
+  M = elemp->M;
+  M->PBpar[Quad+HOMmax] += dk;
+  Mpole_SetPB(cellp->Fnum, cellp->Knum, (long)Quad);
+}
+
+
+void checkifstable_(struct LOC_Ring_FitDisp *LINK)
+{
+  if (!globval.stable) {
+    printf("  lattice is unstable\n");
+    longjmp(LINK->_JL999, 1);
+  }
+}
+
+
+void Ring_FitDisp(long pos, double eta, double eps, long nq, long q[],
+                  double dkL, long imax)
+{
+  /*pos : integer; eta, eps : double;
+                         nq : integer; var q : fitvect;
+                         dkL : double; imax : integer*/
+  struct LOC_Ring_FitDisp V;
+
+  int     i, j;
+  double  dkL1, Eta0, deta;
+  bool    rad = false;
+
+  const double dP = 0e0;
+
+  if (setjmp(V._JL999)) goto _L999;
+
+  if (trace)
+    printf("  Dispersion fit, etax =%10.5f, eps =% .3E"
+	   ", imax =%4ld, dkL =%10.5f\n",
+	   eta, eps, imax, dkL);
+  /* Turn off radiation */
+  rad = globval.radiation; globval.radiation = false;
+  Ring_GetTwiss(true, dP); checkifstable_(&V);
+  Eta0 = Cell[pos].Eta[0];
+  i = 0;
+  while (fabs(eta-Eta0) > eps && i < imax) {
+    i++;
+    for (j = 0; j < nq; j++)
+      shiftk_(q[j], dkL, &V);
+    Ring_GetTwiss(true, dP); checkifstable_(&V);
+    deta = Cell[pos].Eta[0] - Eta0;
+    if (deta == 0.0) {
+      printf("  deta is 0\n");
+      goto _L999;
+    }
+    dkL1 = (eta-Eta0)*dkL/deta - dkL;
+    for (j = 0; j < nq; j++)
+      shiftk_(q[j], dkL1, &V);
+    Ring_GetTwiss(true, dP); checkifstable_(&V);
+    Eta0 = Cell[pos].Eta[0];
+    if (trace)
+      printf("  Dispersion = % .5E, kL =% .5E @%3d\n",
+	     Eta0, Elem_GetKval(Cell[q[0]].Fnum, 1, (long)Quad), i);
+  }
+_L999:
+  /* Restore radiation */
+  globval.radiation = rad;
+}
+

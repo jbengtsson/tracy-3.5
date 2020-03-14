@@ -77,6 +77,8 @@ void prt_chrom_lat(void);
 
 void prt_cod(const char *file_name, const int Fnum, const bool all);
 
+void printcod(const char *file_name);
+
 void prt_beampos(const char *file_name);
 
 void CheckAlignTol(const char *OutputFile);
@@ -231,7 +233,7 @@ void SetFieldErrors(const char *name, const bool rms, const double r0,
 
 bool CorrectCOD(const int n_orbit, const double scl);
 
-void prt_beamsizes();
+void prt_beamsizes(const int cnt);
 
 double Touschek(const double Qb, const double delta_RF,
 		const double eps_x, const double eps_y,
@@ -241,7 +243,7 @@ double Touschek(const double Qb, const double delta_RF,const bool consistent,
 		const double eps_x, const double eps_y,
 		const double sigma_delta, double sigma_s,
 		const int n_turn, const bool aper_on,
-		double sum_delta[][2], double sum2_delta[][2]);
+		double sum_delta[][2], double sum2_delta[][2], double cheps);
 
 double f_IBS(const double chi_m);
 
@@ -321,5 +323,9 @@ void set_map_per(const int Fnum,
 void set_map_reversal(CellType &Cell);
 
 void set_map_reversal(const long int Fnum);
+
+void setmp(long ilat, long m, long n, double rr, double bnoff, double cmn);
+
+void setmpall (double rref);
 
 #endif

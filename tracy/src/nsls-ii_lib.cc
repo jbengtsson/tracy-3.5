@@ -917,6 +917,38 @@ void prt_chrom_lat(void)
 }
 
 
+void printcod(const char *fname)
+{
+  long i;
+  CellType cell;
+  FILE *outf;
+  long FORLIM;
+
+  outf = file_write(fname);
+
+fprintf(outf,
+"#       name             s    betax   nux   betay   nuy      posx          posy          dSx          dSy         dipx         dipy      posx-dSx     posy-dSy\n");
+fprintf(outf,
+"#                       [m]    [m]           [m]             [m]           [m]           [m]          [m]         [rad]        [rad]       [um]         [um]\n#\n");
+
+  FORLIM = globval.Cell_nLoc;
+  for (i = 1; i <= FORLIM; i++) {
+    getelem(i, &cell);
+
+    /* COD is in local coordinates */
+    fprintf(outf, "%4ld:%15s ", i, cell.Elem.PName);
+    fprintf(outf, "%6.2f%7.3f%7.3f%7.3f%7.3f % .5E % .5E % .5E % .5E % .5E % .5E % .5E % .5E\n",
+	    cell.S, cell.Beta[X_], cell.Nu[X_], cell.Beta[Y_], cell.Nu[Y_],
+	    cell.BeamPos[x_], cell.BeamPos[y_], cell.dS[X_], cell.dS[Y_],
+	    -Elem_GetKval(cell.Fnum, cell.Knum, (long)Dip),
+	     Elem_GetKval(cell.Fnum, cell.Knum, (long)(-Dip)),
+	    (cell.BeamPos[x_]-cell.dS[X_])*1.e6, (cell.BeamPos[y_]-cell.dS[Y_])*1.e6);
+  }
+  if (outf != NULL)
+    fclose(outf);
+}
+
+
 void prt_cod(const char *file_name, const int Fnum, const bool all)
 {
   long      i;
@@ -2060,27 +2092,52 @@ bool CorrectCOD(const int n_orbit, const double scl)
 }
 
 
-void prt_beamsizes()
+void write_misalignments(const char* filename) {
+  FILE* fp = fopen(filename, "w");
+  fprintf(fp, "# misalignment file");
+  CellType* clp;
+  for (long int n=0; n<globval.Cell_nLoc; n++) {
+    clp = &Cell[n];
+    fprintf(fp, "\n%li %i %.8e %.8e %.8e %.8e", n, clp->Elem.Pkind, clp->dS[X_], clp->dS[Y_], clp->dT[X_], clp->dT[Y_]); 
+    
+    switch(clp->Elem.Pkind) {
+      case 2: // multipole
+        fprintf(fp, " %i", clp->Elem.M->Porder);
+        for (long int j=0; j<2*HOMmax+1; j++)
+          fprintf(fp, " %.8e", clp->Elem.M->PB[j]);
+        break;
+      default:
+        break;  
+    }
+  }
+  fclose(fp);
+}
+
+void prt_beamsizes(const int cnt)
 {
-  int  k;
-  FILE *fp;
+  int   k;
+  FILE  *fp;
+  char fname [30];
 
-  fp = file_write(beam_envelope_file);
+  sprintf(fname,"%s_%d.out",beam_envelope_file, cnt);
+  fp = file_write(fname);
 
-  fprintf(fp,
-	  "# k    name    s    s_xx    s_pxpx    s_xpx    s_yy"
-	  "    s_pypy    s_ypy    theta_xy\n");
+  fprintf(fp,"# k    name    s    s_xx    s_pxpx    s_xpx    s_yy    s_pypy    s_ypy    theta_xy    s_xy\n");
   for(k = 0; k <= globval.Cell_nLoc; k++)
-    fprintf(fp,"%4d %10s %e %e %e %e %e %e %e %e\n",
+    fprintf(fp,"%4d %10s %e %e %e %e %e %e %e %e %e\n",
 	    k, Cell[k].Elem.PName, Cell[k].S,
 	    Cell[k].sigma[x_][x_], Cell[k].sigma[px_][px_],
 	    Cell[k].sigma[x_][px_],
 	    Cell[k].sigma[y_][y_], Cell[k].sigma[py_][py_],
 	    Cell[k].sigma[y_][py_],
 	    atan2(2e0*Cell[k].sigma[x_][y_],
-		  Cell[k].sigma[x_][x_]-Cell[k].sigma[y_][y_])/2e0*180.0/M_PI);
+		  Cell[k].sigma[x_][x_]-Cell[k].sigma[y_][y_])/2e0*180.0/M_PI,
+	    Cell[k].sigma[x_][y_]);
 
   fclose(fp);
+
+  sprintf(fname,"%s_%d.out","misalignments", cnt);
+  write_misalignments(fname);
 }
 
 
@@ -3654,4 +3711,102 @@ void set_map_reversal(const long int Fnum)
 
   for (j = 1; j <= GetnKid(Fnum); j++)
     set_map_reversal(Cell[Elem_GetPos(Fnum, j)]);
+}
+
+
+void setmp(long ilat, long m, long n, double rr, double bnoff, double cmn)
+{
+  // ilat index of element in lattice
+  // m multipole to be set 
+  // n base multipole for which the coefficient is defined
+  //     ! n or m < 0 means skew!
+  // rr reference radius for definition of coefficient
+  // bnoff offset for base multipole 
+  // cmn coefficient from magnet group in "units". normalization:
+  // base multipole=10000
+  //    cmn = (nAn/r) from magnet group
+  // ==> bm = cmn*1e-4 / rr^(|m|-|n|) * (bn-bnoff)
+
+  CellType cell;
+  elemtype elem;
+
+  long i;
+  double bn, dbn, mp;
+
+  mp = cmn * 1e-4;
+  for (i=abs(n); i<abs(m); i++) {mp/=rr;}
+
+  //--> get multipole n of element at position ilat
+  getelem(ilat, &cell);
+  elem = cell.Elem;
+  bn = elem.M->PBpar[n+HOMmax];
+
+  if (bn>0) {dbn=bn-bnoff;} else {dbn=bn+bnoff;}
+
+  mp=mp*dbn;
+  //-->save mp as multipole m, skew if m<0
+  elem.M->PBpar[m+HOMmax] = mp;
+  elem.M->PB[m+HOMmax] =
+    elem.M->PBpar[m+HOMmax] + elem.M->PBsys[m+HOMmax] +
+    elem.M->PBrms[m+HOMmax]*elem.M->PBrnd[m+HOMmax];
+  if (abs(m) > elem.M->Porder && elem.M->PB[m+HOMmax] != 0e0)
+    elem.M->Porder = abs(m);
+}
+
+
+void setmpall (double rref)
+{
+  CellType cell;
+  long i;
+  bool mset;
+  
+  if (true) {
+    for (i = 0; i <= globval.Cell_nLoc; i++) {
+      getelem(i, &cell);
+      mset=false;
+      if (cell.Elem.Pkind == Mpole) {
+	if (strncmp(cell.Elem.PName,"bn",2) == 0) {
+	  // BN magnet
+	  setmp(i, 3, 1, rref , 0.0, 2.0940E1) ;
+	  setmp(i, 5, 1, rref , 0.0, 1.1376E1) ;
+          mset=true;       
+	}
+	if (strncmp(cell.Elem.PName,"vb",2) == 0) {
+	  //VB magnet (mirrorplate version) 
+	  setmp(i, 3, 1, rref , 0.0, -39.86) ;
+	  setmp(i, 4, 2, rref , 0.0, -90.93) ;
+	  setmp(i, 5, 1, rref , 0.0, -3.17) ;
+	  setmp(i, 6, 2, rref , 0.0, -22.10) ;
+          mset=true;       
+	}
+	if (strncmp(cell.Elem.PName,"qp",2) == 0) {
+	  //QP main quads
+	  setmp(i, 6, 2, rref , 6.75, -26) ; //dodeka suppressed at 55 T/m
+	  setmp(i,10, 2, rref , 0.0 ,-1.65) ;
+          mset=true;       
+	}
+	if (strncmp(cell.Elem.PName,"s",1) == 0) {
+	  //S sextupole
+	  setmp(i, 9, 3, rref , 0.0, -8.1);
+	  setmp(i,15, 3, rref , 0.0, -24.9);
+          mset=true;       
+	}
+	if (strncmp(cell.Elem.PName,"qa",2) == 0) {
+	  //QA tuning quads and skew quads
+	  setmp(i, 6, 2, rref , 0.0, 1435);
+	  setmp(i,-6,-2, rref , 0.0,-1435);
+          mset=true;       
+	}
+	if (strncmp(cell.Elem.PName,"cs",2) == 0) {
+	  //CS skew quads
+	  setmp(i, 6, 2, rref , 0.0, 1435);
+	  setmp(i,-6,-2, rref , 0.0,-1435);
+          mset=true;
+	}
+        if (mset) {
+	  printf("%s systematic multipoles defined\n",cell.Elem.PName);
+	}
+      }
+    }
+  }
 }

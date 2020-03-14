@@ -27,16 +27,16 @@ void err_and_corr(const string &param_file, const int mode)
     // Load misalignments; set seed, no scaling of rms errors.
     params.LoadAlignTol(false, 1e0, true, 1);
     // Beam based alignment.
-    if (params.bba) params.Align_BPMs(Quad);
+    if (params.bba) params.Align_BPMs(Quad, -1e0, -1e0, -1e0);
 
-    cod = params.cod_corr(1e0, orb_corr);
+    cod = params.cod_corr(params.n_cell, 1e0, 1e30, 1e30, 1024, orb_corr);
   } else
     cod = getcod(0e0, lastpos);
 
   params.Orb_and_Trim_Stat();
 
   if (params.N_calls > 0) {
-    params.ID_corr(false, orb_corr);
+    params.ID_corr(params.N_calls, params.N_steps, false, 1);
     // cod = params.cod_corr(params.n_cell, 1e0, orb_corr);
   }
 

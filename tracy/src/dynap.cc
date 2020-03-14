@@ -102,8 +102,7 @@ double DA_data_type::get_dynap(param_data_type &params,
      Assumes mid-plane symmetry.                                              */
 
   int    i, j;
-  double r1, phi, x0[2] = {0e0, 0e0}, x1[2] = {0e0, 0e0}, x2[2] = {0e0, 0e0};
-  double DA;
+  double r1, phi, x0[2] = {0e0, 0e0}, x1[2] = {0e0, 0e0}, x2[2] = {0e0, 0e0}, DA;
 
   fprintf(fp, "\n");
   fprintf(fp, "# Dynamic Aperture:\n");
@@ -206,8 +205,32 @@ void DA_data_type::get_DA_real(param_data_type &params,
   double   DA, x_min[2], x_max[2], d[params.n_delta_DA+1], x_hat;
   double   DA_m[params.n_delta_DA+1], DA_s[params.n_delta_DA+1];
   double   x_hat_m[params.n_delta_DA+1][2], x_hat_s[params.n_delta_DA+1][2];
+  long i;
+  double gdxrms, gdzrms, gdarms, jdxrms, jdzrms, edxrms, edzrms, edarms, bdxrms, bdzrms, bdarms;
+  double rancutx, rancuty, rancutt;
+  long iseednr, iseed[iseednrmax]={0L};
+  char fname[30];
 
+  fitvect  qfbuf, qdbuf;
+  iVector2 nq;
+  Vector2 nu;
+  double dk;
+  double TotalTuneX,TotalTuneY;
+
+  fitvect  sfbuf, sdbuf;
+  iVector2 ns;
+  Vector2 si;
+  double dks;
+  double ChromaX,ChromaY;
+
+  CellType *WITH;
+
+  const int    n_cell = 20;
+
+  gdxrms=gdzrms=gdarms=jdxrms=jdzrms=edxrms=edzrms=edarms=bdxrms=bdzrms=bdarms=0.;
+  
   FILE *DA_real = NULL, *fp[params.n_delta_DA+1];
+  CellType cell;
 
   for (j = 0; j <= params.n_delta_DA; j++) {
     d[j] = (params.n_delta_DA > 0)?
@@ -233,26 +256,46 @@ void DA_data_type::get_DA_real(param_data_type &params,
   fprintf(DA_real, "#   %%          mm^2              mm              mm"
 	    "            mm              mm\n");
 
+  if (params.n_meth == 1) {
+    printf("Entering GirderSetup\n");
+    params.GirderSetup();
+  }
+
   for (j = 1; j <= params.n_stat; j++) {
     globval.Cavity_on = false;
 
     if (params.fe_file != "") params.LoadFieldErr(false, 1e0, true);
     if (params.ae_file != "") {
       // Load misalignments; set seed, no scaling of rms errors.
-      params.LoadAlignTol(false, 1e0, true, j);
-      // Beam based alignment.
-      if (params.bba) params.Align_BPMs(Quad);
+      if (params.n_meth == 0) {
+        printf("entering LoadAlignTol\n");
+        params.LoadAlignTol(false, 1e0, true, j);
+	bdxrms=bdzrms=bdarms=-1.;
+      } else if (params.n_meth == 1) {
+	// printf("entering ReadCormis\n");
+	// params.ReadCorMis(false,1e0);
+	printf("Entering CorMis_in\n");
+	params.CorMis_in(&gdxrms, &gdzrms, &gdarms, &jdxrms, &jdzrms, &edxrms, &edzrms, &edarms, &bdxrms, &bdzrms, &bdarms, &rancutx, &rancuty, &rancutt, iseed, &iseednr);
+	if (params.n_stat > iseednr) {
+	  printf("n_stat %d exceeds iseednr %ld\n", params.n_stat, iseednr); exit(1);
+	}
+	printf("Entering SetCorMis\n");
+	params.SetCorMis(gdxrms, gdzrms, gdarms, jdxrms, jdzrms, edxrms, edzrms, edarms, rancutx, rancuty, rancutt, iseed[j-1]);
+      }
 
-      cod = params.cod_corr(1e0, orb_corr);
+      // Beam based alignment with respect to sextupoles with errors bdxrms, bdzrms, bdarms
+      if (params.bba) {
+        params.Align_BPMs(Sext, bdxrms, bdzrms, bdarms);
+      }
+      cod = params.cod_corr(n_cell, 1e0, params.h_maxkick, params.v_maxkick, params.n_bits, orb_corr);
     } else
       cod = getcod(0e0, lastpos);
 
     params.Orb_and_Trim_Stat();
 
     if (params.N_calls > 0) {
-      params.ID_corr(false, orb_corr);
-      // Orbit must be corrected for each iteration.
-      // cod = params.cod_corr(1e0, orb_corr);
+      params.ID_corr(params.N_calls, params.N_steps, false, j);
+      cod = params.cod_corr(n_cell, 1e0, params.h_maxkick, params.v_maxkick, params.n_bits, orb_corr);
     }
 
     params.Orb_and_Trim_Stat();
@@ -260,23 +303,113 @@ void DA_data_type::get_DA_real(param_data_type &params,
     printf("\n");
     if (cod) {
       printf("err_and_corr: orbit correction completed\n");
-      if (j == 1) prt_cod("cod.out", globval.bpm, true);
+
+      sprintf(fname,"linlat_%d.out",j); prt_lat(fname, globval.bpm, true);
+      sprintf(fname,"cod_%d.out",j);    prt_cod(fname, globval.bpm, true);
+      sprintf(fname,"cod_%d.dat",j);    printcod(fname);
+      if (j == 1) {
+	orb_corr[X_].prt_svdmat();
+	orb_corr[Y_].prt_svdmat();
+      }
  
       Ring_GetTwiss(true, 0.0); printglob();
 
       GetEmittance(ElemIndex("cav"), true);
 
       if (params.n_lin > 0) {
-	params.corr_eps_y();
+	params.corr_eps_y(j);
+	if (params.N_calls > 0) {
+	  params.ID_corr(params.N_calls, params.N_steps, false, j);
+	  params.cod_corr(n_cell, 1e0, params.h_maxkick, params.v_maxkick, params.n_bits, orb_corr);
+	}
+ 	Ring_GetTwiss(true, 0.0); printglob();
+	GetEmittance(ElemIndex("cav"), true);
+      }
+
+      ///////////////////////////////
+      // Fit tunes to TuneX and TuneY
+      
+      if (params.TuneX*params.TuneY > 0) {
+	dk=1e-3;
+	nq[0]=nq[1]=0;
+	nu[0]=params.TuneX;
+	nu[1]=params.TuneY;
+	for (i = 0; i <= globval.Cell_nLoc; i++) {
+	  WITH = &Cell[i];
+	  if ( WITH->Elem.Pkind == Mpole ) {
+	    if (strncmp(Cell[i].Elem.PName,"qax",3) == 0){
+	      qfbuf[nq[0]]=i;
+	      nq[0]++;
+	    }
+	    if (strncmp(Cell[i].Elem.PName,"qay",3) == 0){
+	      qdbuf[nq[1]]=i;
+	      nq[1]++;
+	    }
+	  }
+	}
+
+	printf("Fittune: nq[0]=%ld nq[1]=%ld\n",nq[0],nq[1]);
+	TotalTuneX=globval.TotalTune[0];
+	TotalTuneY=globval.TotalTune[1];
+	Ring_Fittune(nu, (double)1e-4, nq, qfbuf, qdbuf, dk, 50L);
+	printf("Fittune: nux= %f dnux= %f nuy= %f dnuy= %f\n",globval.TotalTune[0], globval.TotalTune[0]-TotalTuneX, globval.TotalTune[1], globval.TotalTune[1]-TotalTuneY);
+
 	Ring_GetTwiss(true, 0.0); printglob();
 	GetEmittance(ElemIndex("cav"), true);
       }
 
-      prt_beamsizes();
+      // Fit chromaticities to ChromX and ChromY
+
+      if (params.ChromX*params.ChromY < 1e6) {
+	dks=1e-3;
+	ns[0]=ns[1]=0;
+	si[0]=params.ChromX;
+	si[1]=params.ChromY;
+	for (i = 0; i <= globval.Cell_nLoc; i++) {
+	  WITH = &Cell[i];
+	  if ( WITH->Elem.Pkind == Mpole ) {
+	    if (strncmp(Cell[i].Elem.PName,"sf",2) == 0){
+	      sfbuf[ns[0]]=i;
+	      ns[0]++;
+	    }
+	    if (strncmp(Cell[i].Elem.PName,"sd",2) == 0){
+	      sdbuf[ns[1]]=i;
+	      ns[1]++;
+	    }
+	  }
+	}
+
+	printf("Fitchrom: ns[0]=%ld ns[1]=%ld\n",ns[0],ns[1]);
+	ChromaX=globval.Chrom[0];
+	ChromaY=globval.Chrom[1];
+	Ring_Fitchrom(si, (double)1e-4, ns, sfbuf, sdbuf, dks, 50L);
+	printf("Fitchrom: six= %f dsix= %f siy= %f dsiy= %f\n",globval.Chrom[0], globval.Chrom[0]-ChromaX, globval.Chrom[1], globval.Chrom[1]-ChromaY);
+
+	Ring_GetTwiss(true, 0.0); printglob();
+	GetEmittance(ElemIndex("cav"), true);
+      }
+      
+      // End of tune and chromaticity fit
+      ///////////////////////////////////
+      
+      prt_beamsizes(j);
 
       if (params.ap_file != "") params.LoadApers(1.0, 1.0);
 
       globval.Cavity_on = true;
+
+      /* define multipoles */
+      setmpall(0.01);
+
+      for (i = 0; i <= globval.Cell_nLoc; i++)
+	{
+	  getelem(i, &cell);
+	  if (cell.Elem.Pkind == Mpole)
+	  {
+	    printf("%ld %lf %lf %lf %s \n", i, cell.dS[0]*1e6, cell.dS[1]*1e6, cell.dT[1]*1e6, cell.Elem.PName);
+	  }
+	}
+
       for (k = 0; k <= params.n_delta_DA; k++) {
 	DA = get_dynap(params, fp[k], 10e-3, d[k], 0.1e-3, x_min, x_max);
 	DA_m[k] += DA; DA_s[k] += sqr(DA);
@@ -286,10 +419,11 @@ void DA_data_type::get_DA_real(param_data_type &params,
 	x_hat_m[k][Y_] += x_hat; x_hat_s[k][Y_] += sqr(x_hat);
       }
 
-     if (params.n_lin > 0)
+      if (params.n_lin > 0) {
 	// reset skew quads
-	// set_bn_design_fam(globval.qt, Quad, 0.0, 0.0);
-
+	printf("resetting skew quad family: %s\n", Cell[Elem_GetPos(globval.qt,1)].Elem.PName);
+        set_bnL_design_fam(globval.qt, Quad, 0.0, 0.0);
+      }
       if (params.N_calls > 0) params.reset_quads();  
     } else
       chk_cod(cod, "err_and_corr");

@@ -1,40 +1,568 @@
 
-bool        param_data_type::DA_bare       = false;
-bool        param_data_type::freq_map      = false;
-int         param_data_type::n_orbit       = 5;
-int         param_data_type::n_scale       = 1;
-std::string param_data_type::loc_Fam_name  = "";
-int         param_data_type::n_cell        = -1;
-int         param_data_type::n_thread      = -1;
+bool        param_data_type::DA_bare      = false;
+bool        param_data_type::freq_map     = false;
+int         param_data_type::n_orbit      = 5;
+int         param_data_type::n_scale      = 1;
+std::string param_data_type::loc_Fam_name = "";
+int         param_data_type::n_cell       = -1;
+int         param_data_type::n_thread     = -1;
 
-int         param_data_type::n_lin         =  3;
-int         param_data_type::SQ_per_scell  =  2;
-int         param_data_type::BPM_per_scell = 12;
-int         param_data_type::HCM_per_scell = 12;
-int         param_data_type::VCM_per_scell = 12;
+int param_data_type::n_lin         =  3;
+int param_data_type::SQ_per_scell  =  1;
+int param_data_type::BPM_per_scell = 10;
+int param_data_type::HCM_per_scell = 10;
+int param_data_type::VCM_per_scell = 10;
 
-double      param_data_type::kick          = 0.01e-3;
-int         param_data_type::n_stat        = 1;
+double param_data_type::kick       = 0.01e-3;
+double param_data_type::v_maxkick  = 1.0e-3;
+double param_data_type::h_maxkick  = 1.0e-3;
+double param_data_type::h_cut      = 1.0e-4;
+double param_data_type::v_cut      = 1.0e-4;
+int    param_data_type::n_stat     = 1;
+int    param_data_type::n_meth     = 0;
+int    param_data_type::n_bits     = 20;
 
-double      param_data_type::VDweight      = 1e3,
-            param_data_type::HVweight      = 1e0,
-            param_data_type::VHweight      = 1e0;
+double param_data_type::ID_s_cut    = 1e1;
+  
+double param_data_type::VDweight    = 1e3,
+       param_data_type::HVweight    = 1e0,
+       param_data_type::VHweight    = 1e0,
+       param_data_type::qt_s_cut    = 1e0,
+       param_data_type::disp_wave_y = 0e0,
+       param_data_type::disp_wave_o = 0e0;
+int    param_data_type::qt_from_file = 0;
 
-int         param_data_type::n_track_DA    = 512,
-            param_data_type::n_aper_DA     = 15,
-            param_data_type::n_delta_DA    = 12;
-double      param_data_type::delta_DA      = 3e-2;
+double param_data_type::TuneX       = 0.,
+       param_data_type::TuneY       = 0.,
+       param_data_type::ChromX      = 1e6,
+       param_data_type::ChromY      = 1e6;
 
-int         param_data_type::n_x           = 50,
-            param_data_type::n_y           = 30,
-            param_data_type::n_dp          = 25,
-            param_data_type::n_tr          = 2064;
-double      param_data_type::x_max_FMA     = 20e-3,
-            param_data_type::y_max_FMA     = 6e-3,
-            param_data_type::delta_FMA     = 3e-2;
+int    param_data_type::n_track_DA = 512,
+       param_data_type::n_aper_DA  = 15,
+       param_data_type::n_delta_DA = 12;
 
-bool        param_data_type::bba           = false;
+double param_data_type::delta_DA   = 3e-2;
 
+int    param_data_type::n_x        = 50,
+       param_data_type::n_y        = 30,
+       param_data_type::n_dp       = 25,
+       param_data_type::n_tr       = 2064;
+double param_data_type::x_max_FMA  = 20e-3,
+       param_data_type::y_max_FMA  = 6e-3,
+       param_data_type::delta_FMA  = 3e-2;
+
+bool   param_data_type::bba        = false;
+
+//>>>> string copy functions
+void TracyStrcpy (char *elem, char *pname) {
+  long i;
+  strncpy(elem, pname, NameLength); elem[NameLength]='\0';
+  i = NameLength-1; // remove trailing spaces
+  while ( elem[i] == ' ' ) {
+     elem[i] = '\0';
+     i--;
+  }
+}
+
+void MyStrcpy (char *elem, char *pname, long leng) {
+  long i;
+  strncpy(elem, pname, leng); elem[leng]='\0';
+  i = leng-1; // remove trailing spaces
+  while ( elem[i] == ' ' ) {
+     elem[i] = '\0';
+     i--;
+  }
+}
+
+#define seps 1E-6
+
+void param_data_type::GirderSetup() {
+  bool  giropen, ismag;
+  double  s0, s1, s2, circ;
+  long  ngir, i0, ic, i, countmag;
+  CellType cell;
+  char elem[NameLength+1];
+  FILE *outf;
+  char fname[30];
+
+  printf("Girder Setup \n");
+
+
+// allocate the girders (if any)
+// also enter mid pos and angle in lattice structure}
+  ngir=0;
+  circ=0; giropen=false;  
+  for (i = 0; i <= globval.Cell_nLoc; i++) {
+ 
+    if (i == ilatmax)  {
+      printf("i %ld exceeds %d\n", i, ilatmax-1); exit(1);
+    }
+
+    Lattice[i].igir=-1;
+ 
+    getelem(i, &cell);
+    
+    circ=circ+cell.Elem.PL;
+
+    if ((cell.Elem.PName[0]=='g') && (cell.Elem.PName[1]=='t') && (cell.Elem.PName[2]=='y')
+    && (cell.Elem.PName[3]=='p') && ((cell.Elem.PName[4]=='0')||(cell.Elem.PName[4]=='1'))) {
+      if (giropen) {
+// if girder is open, close it:
+        giropen=false;
+        if (cell.Elem.PName[4]=='0') {Girder[ngir-1].gco[1]=0;} else {Girder[ngir-1].gco[1]=1;}
+        Girder[ngir-1].gsp[1]=circ;  
+        Girder[ngir-1].ilat[1]=i;
+      } else {
+// if girder is not open, open a new girder:
+        ngir++;
+	if (ngir == igrmax)  {
+          printf("ngir %ld exceeds %d\n", ngir, igrmax-1); exit(1);
+        }
+        giropen=true;
+        Girder[ngir-1].gdx[0]=0; 
+        Girder[ngir-1].gdx[1]=0; 
+        Girder[ngir-1].gdy[0]=0; 
+        Girder[ngir-1].gdy[1]=0; 
+        Girder[ngir-1].gdt=0;
+        if (cell.Elem.PName[4]=='0') {Girder[ngir-1].gco[0]=0;} else {Girder[ngir-1].gco[0]=1;}
+        Girder[ngir-1].gsp[0]=circ;  
+        Girder[ngir-1].ilat[0]=i;
+        Girder[ngir-1].igir[0]=-1; 
+        Girder[ngir-1].igir[1]=-1;
+        Girder[ngir-1].level=1;
+      }
+    }
+    Lattice[i].smid=circ-cell.Elem.PL/2;
+  }//for
+
+  for (i=0;i<ngir;i++){
+    for (ic=Girder[i].ilat[0]; ic<=Girder[i].ilat[1]; ic++) {Lattice[ic].igir=i;}
+  }
+
+
+
+  NGirderLevel[0]=ngir;
+
+// find compounds, i.e. elements which are to be treated as one block w.r.t. misalignment
+// two types: bracketed by girder type 2,3 or series of magnets w/o space between.
+//   first select all compound elements, defined by bracket of type 2,3 girders:
+   
+  s1=0; s2=0; giropen=false;
+  for (i = 0; i <= globval.Cell_nLoc; i++) {
+
+    getelem(i, &cell);
+    s2=s1+cell.Elem.PL;
+    if ((cell.Elem.PName[0]=='g') && (cell.Elem.PName[1]=='t') && (cell.Elem.PName[2]=='y')
+    && (cell.Elem.PName[3]=='p') && ((cell.Elem.PName[4]=='2')||(cell.Elem.PName[4]=='3'))) {
+
+      if (giropen){
+// if compound is open, close it:
+        giropen=false;
+        Girder[ngir-1].gsp[1]=s2;
+        Girder[ngir-1].ilat[1]=i;
+        Girder[ngir-1].igir[1]=Lattice[i].igir; 
+        if (cell.Elem.PName[4]=='2') {Girder[ngir-1].gco[1]=2;} else {Girder[ngir-1].gco[1]=3;} 
+      } else {
+// if compound is not open, open a new one:
+        ngir++;
+        giropen=true;
+        Girder[ngir-1].gsp[0]=s2;
+        Girder[ngir-1].ilat[0]=i;
+        Girder[ngir-1].igir[0]=Lattice[i].igir; 
+        Girder[ngir-1].gco[0]=0;
+        Girder[ngir-1].level=2;
+        if (cell.Elem.PName[4]=='2') {Girder[ngir-1].gco[0]=2;} else {Girder[ngir-1].gco[0]=3;} 
+      }
+    }
+    s1=s2;
+  }//for
+
+
+  for (i=NGirderLevel[0];i<ngir;i++){
+    for (ic=Girder[i].ilat[0];ic<=Girder[i].ilat[1];ic++){Lattice[ic].igir=i;}
+  }
+  NGirderLevel[1]=ngir;
+
+// make a compound element if we have a series of magnets with no gap between, i.e. sext|ch|cv|sext
+  s0=0; s1=0; s2=0; i0=0;
+  giropen=false; countmag=0;
+  for (i = 0; i <= globval.Cell_nLoc; i++) {
+    getelem(i, &cell);
+    s2=s1+cell.Elem.PL;
+ 
+    ismag= (cell.Elem.Pkind==Mpole);
+
+    if (giropen) {
+      // keep s0, was set when merging started
+      if  ((ismag) || (fabs(cell.Elem.PL)< seps) ) {  // continue merge
+        if (ismag) { countmag++;};
+      } else { //stop merge
+        if (countmag>1) {
+          ngir++;
+          Girder[ngir-1].gsp[0]=s0;
+          Girder[ngir-1].ilat[0]=i0;
+          Girder[ngir-1].igir[0]=Lattice[i0].igir;
+          Girder[ngir-1].gco[0]=0;
+          Girder[ngir-1].gsp[1]=s1;
+          Girder[ngir-1].ilat[1]=i-1;
+          Girder[ngir-1].igir[1]=Lattice[i-1].igir;
+          Girder[ngir-1].gco[1]=0;
+          Girder[ngir-1].level=3;
+	  //          countmag=0;
+        } 
+        countmag=0;
+        giropen=false;
+      } 
+    } else {
+      if (ismag) {
+        giropen=true; //start a new merge
+        s0=s1; i0=i;
+        countmag=1;
+      }
+    }
+    s1=s2;
+  }//for
+
+
+  for (i=NGirderLevel[1];i<ngir;i++){
+    for (ic=Girder[i].ilat[0];ic<=Girder[i].ilat[1];ic++){Lattice[ic].igir=i;}
+  }
+  NGirderLevel[2]=ngir;
+
+  for (i = 0; i <= globval.Cell_nLoc; i++) {
+    getelem(i, &cell);
+    if (!(cell.Elem.Pkind==Mpole)) { Lattice[i].igir=-1;}
+  }
+
+  if (reportflag) {
+    if (ngir>0) {
+      for (i=0;i<ngir;i++) {
+        printf( "gir %ld lev %ld igir %ld %ld co %ld %ld sp %f %f \n", 
+        i, Girder[i].level,Girder[i].igir[0],Girder[i].igir[1],Girder[i].gco[0],Girder[i].gco[1],Girder[i].gsp[0],Girder[i].gsp[1]);
+      }
+    } 
+    for (i = 0; i <= globval.Cell_nLoc; i++) {
+      getelem(i, &cell);
+      TracyStrcpy( elem, cell.Elem.PName);
+     if (Lattice[i].igir > -1){
+       printf("pos %ld %s %f gir %ld lev %ld", i, elem, Lattice[i].smid, Lattice[i].igir, Girder[Lattice[i].igir].level);
+        if (Girder[Lattice[i].igir].level >=2){ 
+          printf(" --> %ld %ld \n", Girder[Lattice[i].igir].igir[0], Girder[Lattice[i].igir].igir[1]);
+        } else { printf("\n");}
+      } else {printf("pos %ld %s --- ---- \n", i,elem);}
+    }
+
+
+    if (plotflag) {
+      strcpy(fname, "gsetup.plt");
+      outf = fopen(fname,"w" );
+ 
+      if (ngir>0) {
+        fprintf(outf, "%ld %ld %ld %ld %f3 \n", globval.Cell_nLoc, NGirderLevel[0], NGirderLevel[1], NGirderLevel[2], s2);
+        for (i=0;i<ngir;i++) {
+          fprintf(outf, "%ld %ld %ld %ld %ld %ld %f3 %f3 \n", 
+          i, Girder[i].level, Girder[i].igir[0],Girder[i].igir[1],Girder[i].gco[0],Girder[i].gco[1],Girder[i].gsp[0],Girder[i].gsp[1]);
+        }
+      } 
+
+      s1=0;
+      for (i = 0; i <= globval.Cell_nLoc; i++) {
+        getelem(i, &cell);
+        s2=s1+cell.Elem.PL;
+        ismag= (cell.Elem.Pkind==Mpole);
+        if (ismag) {
+          TracyStrcpy( elem, cell.Elem.PName);
+          fprintf(outf, "%ld %ld %f3 %f3 %s\n", i, Lattice[i].igir, s1, s2, elem);
+        } 
+      s1=s2;
+      }
+      if (outf != NULL) fclose(outf);
+      outf = NULL;
+    }
+  }
+
+}
+
+void param_data_type::SetCorMis(double gxrms, double gyrms, double gtrms, double jxrms, double jyrms, double exrms, double eyrms, double etrms, double rancutx, double rancuty, double rancutt, long iseed)
+{
+  double jdx, jdy, ggxrms, ggyrms, r, g3dx, g3dy, g3dt, gelatt, att, dx, dy, dt, s1, s2;
+  long i, isup;
+  CellType cell;
+  char elem[NameLength+1];
+  FILE *outf;
+  char fname[30];
+
+  printf("SetCorMis: initializing seed %ld\n", iseed);
+  iniranf(iseed);
+
+  /*
+     set misalignments to girder ends:
+     simple shortcut for joints: just use prev girder and add +/- joint play 
+     if prev-girder-end and this-girder-start both have link flag gco=1
+     no further options like in OPA
+  */
+
+  for (i=0;i< NGirderLevel[0];i++){
+
+    setrancut(rancutx);
+    Girder[i].gdx[0] = gxrms*normranf();
+    Girder[i].gdx[1] = gxrms*normranf();
+    setrancut(rancuty);
+    Girder[i].gdy[0] = gyrms*normranf();
+    Girder[i].gdy[1] = gyrms*normranf();
+    setrancut(rancutt);
+    Girder[i].gdt    = gtrms*normranf();
+    if ((Girder[i].gco[0]==1) && (i>0)) {
+      if (Girder[i-1].gco[1]==1) {
+        setrancut(rancutx);
+        jdx=jxrms*normranf();
+        setrancut(rancuty);
+        jdy=jyrms*normranf();
+        Girder[i].gdx[0] = Girder[i-1].gdx[1]+jdx;
+        Girder[i].gdy[0] = Girder[i-1].gdy[1]+jdy;
+        Girder[i-1].gdx[1] -= jdx;
+        Girder[i-1].gdy[1] -= jdy;
+      }
+    }
+  }
+
+/*
+set misalignment for level 2 girder, which are supported by other girder.
+no, use joint play for connection of level 2 girder to level 1 girder
+[no further error applied for level 2, since the error is given by the supporting girders,
+and elements may receive additional individual errors later]
+*/
+  ggxrms=jxrms; 
+  ggyrms=jyrms;
+
+  for (i=NGirderLevel[0]; i<NGirderLevel[1];i++) {
+    isup= Girder[i].igir[0]; 
+    if (isup > -1) {
+      r = (Girder[i].gsp[0]-Girder[isup].gsp[0])/(Girder[isup].gsp[1]-Girder[isup].gsp[0]);
+      setrancut(rancutx);
+      Girder[i].gdx[0] = Girder[isup].gdx[0]*(1-r)+Girder[isup].gdx[1]*r + ggxrms*normranf();
+      setrancut(rancuty);
+      Girder[i].gdy[0] = Girder[isup].gdy[0]*(1-r)+Girder[isup].gdy[1]*r + ggyrms*normranf();
+      if (Girder[i].gco[0]==3) { Girder[i].gdt=Girder[isup].gdt;} else {setrancut(rancutt);Girder[i].gdt=gtrms*normranf();}
+      //      printf("\nGir up %ld %f %f %f %f %f \n", i, Girder[i].gsp[0], Girder[i].gsp[1], Girder[i].gdx[0]*1e6, Girder[i].gdx[1]*1e6, r);
+      //      printf("  supp %ld %f %f %f %f \n", isup, Girder[isup].gsp[0], Girder[isup].gsp[1], Girder[isup].gdx[0]*1e6, Girder[isup].gdx[1]*1e6);
+
+ /* 
+contact 3 (2-point) transmits roll error from supporting girder, contact 2 (1-point) is free.
+ if contact 2 -> set gdt, but will be overwritten if other end is contact 3
+ if other end is also contact 2, this value is taken, because gdt then is arbitrary
+ if ends are free, treat like contact 0
+ if end 1 only is free, then check if gdt may have been set at end 0
+ */
+    } else {
+      setrancut(rancutx);
+      Girder[i].gdx[0] = gxrms*normranf();
+      setrancut(rancuty);
+      Girder[i].gdy[0] = gyrms*normranf();
+      setrancut(rancutt);
+      Girder[i].gdt    = gtrms*normranf();
+    }
+    isup= Girder[i].igir[1]; 
+    if (isup > -1) {
+      r=(Girder[i].gsp[1]-Girder[isup].gsp[0])/(Girder[isup].gsp[1]-Girder[isup].gsp[0]);
+      setrancut(rancutx);
+      Girder[i].gdx[1] = Girder[isup].gdx[0]*(1-r)+Girder[isup].gdx[1]*r + ggxrms*normranf();
+      setrancut(rancuty);
+      Girder[i].gdy[1] = Girder[isup].gdy[0]*(1-r)+Girder[isup].gdy[1]*r + ggyrms*normranf();
+      if (Girder[i].gco[1] ==3) {Girder[i].gdt = Girder[isup].gdt;}
+      //      printf("Gir dn %ld %f %f %f %f %f \n", i, Girder[i].gsp[0], Girder[i].gsp[1], Girder[i].gdx[0]*1e6, Girder[i].gdx[1]*1e6, r);
+      //      printf("  supp %ld %f %f %f %f \n", isup, Girder[isup].gsp[0], Girder[isup].gsp[1], Girder[isup].gdx[0]*1e6, Girder[isup].gdx[1]*1e6);
+    } else {
+      setrancut(rancutx);
+      Girder[i].gdx[1] = gxrms*normranf();
+      setrancut(rancuty);
+      Girder[i].gdy[1] = gyrms*normranf();
+      if (Girder[i].igir[0] == -1) {setrancut(rancutt);Girder[i].gdt =gtrms*normranf();}
+    }
+  }
+
+ // set misalignment for level 3 girder, which are compound elements, which have common element displacement error.
+  
+  gelatt=1.0;
+
+  for (i=NGirderLevel[1]; i< NGirderLevel[2];i++) {
+    setrancut(rancutx);
+    g3dx = exrms*normranf()*gelatt;
+    setrancut(rancuty);
+    g3dy = eyrms*normranf()*gelatt;
+    setrancut(rancutt);
+    g3dt = etrms*normranf()*gelatt;
+    isup= Girder[i].igir[0]; 
+    if (isup > -1) {
+      r=(Girder[i].gsp[0]-Girder[isup].gsp[0])/(Girder[isup].gsp[1]-Girder[isup].gsp[0]);
+      Girder[i].gdx[0] =Girder[isup].gdx[0]*(1-r)+Girder[isup].gdx[1]*r + g3dx;
+      Girder[i].gdy[0] =Girder[isup].gdy[0]*(1-r)+Girder[isup].gdy[1]*r + g3dy;
+      Girder[i].gdt    =Girder[isup].gdt+g3dt; //presume contact 3, rigid connection
+    } else {
+      setrancut(rancutx);
+      Girder[i].gdx[0] =exrms*normranf();
+      setrancut(rancuty);
+      Girder[i].gdy[0] =eyrms*normranf();
+      setrancut(rancutt);
+      Girder[i].gdt    =etrms*normranf();
+    }
+    isup= Girder[i].igir[1]; 
+    if (isup > -1) {
+      r =(Girder[i].gsp[1]-Girder[isup].gsp[0])/(Girder[isup].gsp[1]-Girder[isup].gsp[0]);
+      Girder[i].gdx[1] =Girder[isup].gdx[0]*(1-r)+Girder[isup].gdx[1]*r + g3dx;
+      Girder[i].gdy[1] =Girder[isup].gdy[0]*(1-r)+Girder[isup].gdy[1]*r + g3dy;
+      Girder[i].gdt    =Girder[isup].gdt+g3dt; //should be on same girder and give same result
+    } else {
+      setrancut(rancutx);
+      Girder[i].gdx[1] =exrms*normranf();
+      setrancut(rancuty);
+      Girder[i].gdy[1] =eyrms*normranf();
+      if (isup ==-1) {setrancut(rancutt);Girder[i].gdt =etrms*normranf();}
+    }
+  }
+
+
+// set misalignments of elements on girders:
+  for (i = 0; i <= globval.Cell_nLoc; i++) {
+    getelem(i, &cell);
+      
+    if (cell.Elem.Pkind==Mpole) {
+      if ((cell.Fnum != globval.hcorr) && (cell.Fnum != globval.vcorr)) {
+        setrancut(rancutx);
+	dx =exrms*normranf();
+        setrancut(rancuty);
+	dy =eyrms*normranf();
+        setrancut(rancutt);
+	dt =etrms*normranf();
+	isup=Lattice[i].igir;
+
+	if (isup > -1) {
+	  if (Girder[isup].level >= 2) {att=0;} else {att=gelatt;}
+	  r =(Lattice[i].smid-Girder[isup].gsp[0])/(Girder[isup].gsp[1]-Girder[isup].gsp[0]);
+	  dx =dx*att+Girder[isup].gdx[0]*(1-r)+Girder[isup].gdx[1]*r;
+	  dy =dy*att+Girder[isup].gdy[0]*(1-r)+Girder[isup].gdy[1]*r;
+	  dt =dt*att+Girder[isup].gdt;
+	}
+
+	cell.Elem.M->PdSsys[0] = dx;
+	cell.Elem.M->PdSsys[1] = dy;
+	cell.Elem.M->PdTsys    = dt;
+
+	putelem(i, &cell);
+
+	Mpole_SetdS(cell.Fnum, cell.Knum);
+	Mpole_SetdT(cell.Fnum, cell.Knum);
+      }
+    }
+  }
+
+  if (plotflag) {
+
+    sprintf(fname,"cormis_%ld.plt",iseed);
+    outf = fopen(fname,"w" );
+
+    if (NGirderLevel[2] > 0) {
+      fprintf(outf, "%ld %ld %ld %ld \n", globval.Cell_nLoc, NGirderLevel[0], NGirderLevel[1], NGirderLevel[2]);
+      for (i=0;i<NGirderLevel[2];i++) {
+        fprintf(outf, "%ld %f %f %f %f %f %f %f  \n", 
+         Girder[i].level, Girder[i].gsp[0],Girder[i].gsp[1], Girder[i].gdx[0]*1e6,Girder[i].gdx[1]*1e6, Girder[i].gdy[0]*1e6,Girder[i].gdy[1]*1e6, Girder[i].gdt*1e6);
+      }
+    } 
+
+
+    s1=0;
+    for (i = 0; i <= globval.Cell_nLoc; i++) {
+      getelem(i, &cell);
+      s2=s1+cell.Elem.PL;
+      if (cell.Elem.Pkind==Mpole) {
+        dx = cell.dS[0];
+        dy = cell.dS[1];
+        dt = atan(cell.dT[1]/cell.dT[0]);
+        TracyStrcpy( elem, cell.Elem.PName);
+        fprintf(outf,"%ld %f %f %f %f %f %s \n", i,  s1, s2, dx*1e6, dy*1e6, dt*1e6, elem); 
+      }
+      s1=s2;
+    }
+    if (outf != NULL) fclose(outf);
+    outf = NULL;
+  }
+}
+
+void param_data_type::CorMis_in(double *gdxrms, double *gdzrms, double *gdarms, double *jdxrms, double *jdzrms, double *edxrms, double *edzrms, double *edarms, double *bdxrms, double *bdzrms, double *bdarms, double *rancutx, double *rancuty, double *rancutt, long *iseed, long *iseednr)
+{
+  char a;
+  long i;
+  bool includeMON;
+  FILE *cinf;
+  
+  cinf = fopen( "cormis.dat" , "r");
+
+  printf("Apply errors also to BPMs (name=MON)? (Y/n) \n");
+  fscanf(cinf, "%c%*[^\n]", &a);
+  getc(cinf);
+  if (a == '\n')
+    a = ' ';
+  includeMON = (a != 'n' && a != 'N');
+  if (includeMON)
+    printf("BPMs with errors\n");
+  else
+    printf("BPMs without errors\n");
+
+  printf("\nInput of error amplitudes for gaussian errors\n");
+  printf("----------------------------------------------------------\n");
+  printf("Give rms errors for displacements in micron, horizontal and vertical:\n");
+  printf("__ Absolute displacement of girder joints and ends :\n");
+  fscanf(cinf, "%lg%lg%lg%*[^\n]", gdxrms, gdzrms, gdarms);
+  getc(cinf);
+  printf("% .5E% .5E% .5E\n", *gdxrms, *gdzrms, *gdarms);
+  printf("__ Relative displacement WITHIN girder joints (joint play):\n");
+  fscanf(cinf, "%lg%lg%*[^\n]", jdxrms, jdzrms);
+  getc(cinf);
+  printf("% .5E% .5E\n", *jdxrms, *jdzrms);
+  printf("__ Relative displacement of elements ON a girder:\n");
+  fscanf(cinf, "%lg%lg%lg%*[^\n]", edxrms, edzrms, edarms);
+  getc(cinf);
+  printf("% .5E% .5E% .5E\n", *edxrms, *edzrms, *edarms);
+  if (includeMON) {
+    printf("__ Relative displacement of BPMs:\n");
+    fscanf(cinf, "%lg%lg%lg%*[^\n]", bdxrms, bdzrms, bdarms);
+    getc(cinf);
+    printf("% .5E% .5E% .5E\n", *bdxrms, *bdzrms, *bdarms);
+  } else {
+    (*bdxrms)=(*bdzrms)=(*bdarms)=0.;
+  }
+  printf("__ Gaussian cut:\n");
+  fscanf(cinf, "%lg%lg%lg%*[^\n]", rancutx, rancuty, rancutt);
+  getc(cinf);
+  printf("% .5E% .5E% .5E\n", *rancutx, *rancuty, *rancutt);
+  printf("__ init seed values:\n");
+  fscanf(cinf, "%ld", iseednr);
+  if (*iseednr > iseednrmax) {
+    printf("Iseednr %ld exceeds %d\n", *iseednr, iseednrmax); exit(1);
+  }
+  for (i=0; i<*iseednr; i++) {
+    fscanf(cinf, "%ld", &iseed[i]);
+    printf("%ld ", iseed[i]);
+  }
+  fscanf(cinf,"%*[^\n]"); printf("\n\n");
+  getc(cinf);
+
+  printf("rms Girder error  : dx=%5.0f um, dz=%5.0f um, da=%5.0f udeg\n", *gdxrms, *gdzrms, *gdarms);
+  printf("rms Joint  error  : dx=%5.0f um, dz=%5.0f um\n", *jdxrms, *jdzrms);
+  printf("rms Element error : dx=%5.0f um, dz=%5.0f um, da=%5.0f udeg\n", *edxrms, *edzrms, *edarms);
+  if (includeMON) printf("rms BBA error     : dx=%5.0f um, dz=%5.0f um, da=%5.0f udeg\n", *bdxrms, *bdzrms, *bdarms);
+  printf("\n");
+  printf("Gaussian cut      : cutx=%5.0f, cuty=%5.0f, cutt=%5.0f sigma\n", *rancutx, *rancuty, *rancutt);
+  printf("init seed values  : %ld seeds= ", *iseednr);
+  for (i=0; i<*iseednr; i++)
+    printf("%ld ",iseed[i]);
+  printf("\n\n");
+
+  *gdxrms=(*gdxrms)*1E-6;  *gdzrms=(*gdzrms)*1E-6; *gdarms=(*gdarms)*1E-6;
+  *jdxrms=(*jdxrms)*1E-6;  *jdzrms=(*jdzrms)*1E-6;
+  *edxrms=(*edxrms)*1E-6;  *edzrms=(*edzrms)*1E-6; *edarms=(*edarms)*1E-6;
+  *bdxrms=(*bdxrms)*1E-6;  *bdzrms=(*bdzrms)*1E-6; *bdarms=(*bdarms)*1E-6;
+}
 
 void param_data_type::get_param(const string &param_file)
 {
@@ -96,6 +624,18 @@ void param_data_type::get_param(const string &param_file)
 	setrancut(f_prm);
       } else if (strcmp("n_stat", name) == 0)
 	sscanf(line, "%*s %d", &n_stat);
+        else if (strcmp("n_meth", name) == 0)
+	sscanf(line, "%*s %d", &n_meth);
+        else if (strcmp("n_bits", name) == 0)
+	sscanf(line, "%*s %d", &n_bits);
+        else if (strcmp("h_maxkick", name) == 0)
+	sscanf(line, "%*s %lf", &h_maxkick);
+        else if (strcmp("v_maxkick", name) == 0)
+	sscanf(line, "%*s %lf", &v_maxkick);
+        else if (strcmp("h_cut", name) == 0)
+	sscanf(line, "%*s %lf", &h_cut);
+        else if (strcmp("v_cut", name) == 0)
+	sscanf(line, "%*s %lf", &v_cut);
       else if (strcmp("n_aper", name) == 0)
 	sscanf(line, "%*s %d", &n_aper_DA);
       else if (strcmp("loc_name", name) == 0) {
@@ -144,11 +684,34 @@ void param_data_type::get_param(const string &param_file)
 	       str, &n_x, &n_y, &n_dp, &n_tr,
 	       &x_max_FMA, &y_max_FMA, &delta_FMA);
 	freq_map = (strcmp(str, "true") == 0)? true : false;
+      } else if (strcmp("bpm", name) == 0) {
+	sscanf(line, "%*s %s", str);
+	globval.bpm = ElemIndex(str);
+      } else if (strcmp("hcorr", name) == 0) {
+	sscanf(line, "%*s %s", str);
+	globval.hcorr = ElemIndex(str);
+      } else if (strcmp("vcorr", name) == 0) {
+	sscanf(line, "%*s %s", str);
+	globval.vcorr = ElemIndex(str);
       } else if (strcmp("qt", name) == 0) {
 	sscanf(line, "%*s %s", str);
 	globval.qt = ElemIndex(str);
-      } else if (strcmp("disp_wave_y", name) == 0)
+      } else if (strcmp("nux", name) == 0)
+	sscanf(line, "%*s %le", &TuneX);
+      else if (strcmp("nuy", name) == 0)
+	sscanf(line, "%*s %le", &TuneY);
+      else if (strcmp("six", name) == 0)
+	sscanf(line, "%*s %le", &ChromX);
+      else if (strcmp("siy", name) == 0)
+	sscanf(line, "%*s %le", &ChromY);
+      else if (strcmp("qt_s_cut", name) == 0)
+	sscanf(line, "%*s %le", &qt_s_cut);
+      else if (strcmp("disp_wave_y", name) == 0)
 	sscanf(line, "%*s %lf", &disp_wave_y);
+      else if (strcmp("disp_wave_o", name) == 0)
+	sscanf(line, "%*s %lf", &disp_wave_o);
+      else if (strcmp("qt_from_file", name) == 0)
+	sscanf(line, "%*s %d", &qt_from_file);
       else if (strcmp("n_lin", name) == 0)
 	sscanf(line, "%*s %d", &n_lin);
       else if (strcmp("VDweight", name) == 0)
@@ -242,9 +805,6 @@ void param_data_type::FindSQ_SVDmat(double **SkewRespMat, double **U,
 {
   int i, j;
 
-  const int    n_prt = 6;
-  const double cut   = 1e-10; // cut value for SVD singular values
-
   for (i = 1; i <= N_COUPLE; i++)
     for (j = 1; j <= N_SKEW; j++)
       U[i][j] = SkewRespMat[i][j];
@@ -252,28 +812,68 @@ void param_data_type::FindSQ_SVDmat(double **SkewRespMat, double **U,
   // prepare matrices for SVD
   dsvdcmp(U, N_COUPLE, N_SKEW, w, V);
 
+  printf("\n");
+  printf("singular values: s_cut = %10.3e\n", qt_s_cut);
+  printf("\n");
+
   // zero singular values
   printf("\n");
   printf("singular values:\n");
   printf("\n");
   for (i = 1; i <= N_SKEW; i++) {
     printf("%11.3e", w[i]);
-    if (w[i] < cut ) {
+    if (w[i] < qt_s_cut) {
       w[i] = 0.0;
       printf(" (zeroed)");
-      if (i % n_prt == 0) printf("\n");
+      if (i % 8 == 0) printf("\n");
     }
   }
-  if (N_SKEW % n_prt != 0) printf("\n");
+  if (i % 8 != 0) printf("\n");
 }
 
+// Read eta values from the file
+void param_data_type::ReadEta(const char *TolFileName) 
+{
+  char    line[128], Name[32];
+  int     j;
+  double  dx, dr;
+  FILE    *tolfile;
 
-void param_data_type::FindMatrix(double **SkewRespMat, const double deta_y_max)
+  tolfile = file_read(TolFileName);
+
+  do
+    fgets(line, 128, tolfile);
+  while (strstr(line, "#") != NULL);
+  
+  printf("\nReading target eta values from file %s:\n",TolFileName);
+  j=1;
+  do {
+    if (strstr(line, "#") == NULL) {
+      sscanf(line,"%s %lf %lf", Name, &dx, &dr);
+      if (j <= N_BPM) {
+	eta_y[j]=dr/1e3;
+	printf("%d %s %f %f\n", j, Name, dx, dr);
+      } else {
+	printf("GetEta: number of BPMs exceeded %d %d\n",N_BPM,j);
+	exit_(1);
+      }
+      j++;
+    }
+  } while (fgets(line, 128, tolfile) != NULL);
+  if (j <= N_BPM) {
+    printf("GetEta: number of BPMs too small %d %d\n",N_BPM,j);
+    exit_(1);
+  }
+  fclose(tolfile);
+  printf("\n");
+}
+
+void param_data_type::FindMatrix(double **SkewRespMat, const double deta_y_max,  const double deta_y_offset)
 {
   //  Ring_GetTwiss(true, 0.0) should be called in advance
   int      i, j, k;
   long int loc;
-  double   nuX, nuY, alpha, eta_y_max;
+  double   nuX, nuY, alpha, eta_y_min, eta_y_max;
   double   *etaSQ;
   double   **betaSQ, **nuSQ, **betaBPM, **nuBPM;
   double   **betaHC, **nuHC, **betaVC, **nuVC;
@@ -329,7 +929,7 @@ void param_data_type::FindMatrix(double **SkewRespMat, const double deta_y_max)
 	*cos(twopi*fabs(nuSQ[i][Yi]-nuBPM[j][Yi])-pi*nuY)/sin(pi*nuY);
     } // for (j=1; j<=N_BPM; j++)
 
-    // loking for coupling of horizontal trim to vertical BPM
+    // looking for coupling of horizontal trim to vertical BPM
     for (k = 1; k <= N_HCOR; k++) {
       // find v-kick by i-th skew quad due to the k-th h-trim
       alpha = 0.5*sqrt(betaSQ[i][Xi]*betaHC[k][Xi])*
@@ -354,7 +954,6 @@ void param_data_type::FindMatrix(double **SkewRespMat, const double deta_y_max)
     } //for (k=1; k<=N_VCOR; k++)
   } // for i=1..N_SKEW
 
-
   SkewMatFile = file_write(SkewMatFileName);
   for (i = 1; i <= N_SKEW; i++) {
     for (j = 1; j <= N_COUPLE; j++)
@@ -364,21 +963,32 @@ void param_data_type::FindMatrix(double **SkewRespMat, const double deta_y_max)
   fclose(SkewMatFile);
 
   fp = file_write(deta_y_FileName);
-  eta_y_max = 0.0;
-  for (j = 1; j <= N_BPM; j++) {
-    eta_y[j] = 0.0;
-    for (i = 1; i <= N_SKEW; i++)
-      if (i % SQ_per_scell == 0) {
-	eta_y[j] += 0.5*etaSQ[i]*sqrt(betaSQ[i][Yi]*betaBPM[j][Yi])
-	    *cos(twopi*fabs(nuSQ[i][Yi]-nuBPM[j][Yi])-pi*nuY)/sin(pi*nuY);
-      }
-    eta_y_max = max(fabs(eta_y[j]), eta_y_max);
-  }
-  for (j = 1; j <= N_BPM; j++)
-    eta_y[j] /= eta_y_max;
 
+  if (deta_y_max < 0.) {
+    ReadEta("eta_file.dat");
+  }
+  eta_y_max = -1e8;
+  eta_y_min =  1e8;
   for (j = 1; j <= N_BPM; j++) {
-    eta_y[j] *= deta_y_max;
+    if (deta_y_max > 0.) {
+      eta_y[j] = 0.0;
+      for (i = 1; i <= N_SKEW; i++)
+	if (i % SQ_per_scell == 0) {
+	  eta_y[j] += 0.5*etaSQ[i]*sqrt(betaSQ[i][Yi]*betaBPM[j][Yi])
+	      *cos(twopi*fabs(nuSQ[i][Yi]-nuBPM[j][Yi])-pi*nuY)/sin(pi*nuY);
+	}
+    }
+    eta_y_max = max(eta_y[j], eta_y_max);
+    eta_y_min = min(eta_y[j], eta_y_min);
+  }
+  for (j = 1; j <= N_BPM; j++) {
+    eta_y[j] = (eta_y[j] - eta_y_min)/(eta_y_max - eta_y_min);
+    eta_y[j]+=deta_y_offset;
+  }
+  
+  fprintf(fp, "# nbpm %d SQ_per_scell %d etaymin %10.3e mm etaymax %10.3e mm detaymax %10.3e mm detayoffset %10.3e mm\n", N_BPM, SQ_per_scell, 1e3*eta_y_min, 1e3*eta_y_max, 1e3*deta_y_max, 1e3*deta_y_max*deta_y_offset);
+  for (j = 1; j <= N_BPM; j++) {
+    eta_y[j] *= fabs(deta_y_max);
     fprintf(fp, "%6.3f %10.3e\n", Cell[bpm_loc[j-1]].S, 1e3*eta_y[j]);
   }
   fclose(fp);
@@ -391,12 +1001,9 @@ void param_data_type::FindMatrix(double **SkewRespMat, const double deta_y_max)
 } // FindMatrix
 
 
-void param_data_type::ini_skew_cor(const double deta_y_max)
+void param_data_type::ini_skew_cor(const double deta_y_max, const double deta_y_offset)
 {
   int k;
-
-  std::cout << "ini_skew_cor: out-of-date (globval.hcorr...)" << std::endl;
-  exit(1);
 
   // No of skew quads, BPMs, and correctors
   N_SKEW = GetnKid(globval.qt);
@@ -445,7 +1052,7 @@ void param_data_type::ini_skew_cor(const double deta_y_max)
 
   printf("\n");
   printf("Looking for response matrix\n");
-  FindMatrix(SkewRespMat, deta_y_max);
+  FindMatrix(SkewRespMat, deta_y_max, deta_y_offset);
 
   printf("Looking for SVD matrices\n");
   FindSQ_SVDmat(SkewRespMat, U, V, w, N_COUPLE, N_SKEW);
@@ -517,57 +1124,86 @@ void param_data_type::FindCoupVector(double *VertCouple)
 } // FindCoupVector
 
 
-void param_data_type::SkewStat(double VertCouple[])
+void param_data_type::SkewStat(double VertCouple[], const int cnt)
 {
   int    i;
-  double max, rms, sk;
+  FILE *outf;
+  char fname[30];
 
+  double max, mean, rms, sk;
+
+  if (cnt>=0) {
+    sprintf(fname,"%s_%d.out",skew_FileName,cnt);
+    outf = file_write(fname);
+    fprintf(outf, "# qt s [m] etax [m] name kl [1/m]\n");
+  }
+  
   // statistics for skew quadrupoles
-  max = 0.0; rms = 0.0;
+  max = 0.0; rms = mean = 0.0;
   for(i = 1; i <= N_SKEW; i++) {
     sk = GetKLpar(globval.qt, i, -Quad);
+    if (cnt>=0) {fprintf(outf, "%4d %7.3f %12.5e %s %12.5e\n",i,Cell[Elem_GetPos(globval.qt,i)].S,Cell[Elem_GetPos(globval.qt,i)].Eta[X_],Cell[Elem_GetPos(globval.qt,i)].Elem.PName,sk);}
     if (fabs(sk) > max) max = fabs(sk);
     rms += sqr(sk);
+    mean += sk;
   }
-  rms = sqrt(rms/N_SKEW);
-  printf("Rms skew strength:       %8.2e+/-%8.2e\n", max, rms);
-
+  mean = mean/N_SKEW;
+  rms = sqrt(-mean*mean+rms/N_SKEW);
+    
+  if (cnt>=0) {fprintf(outf,"# Max Mean Rms skew strength: %8.2e/%8.2e+/-%8.2e 1/m\n", max, mean, rms);} else {printf("Max Mean Rms skew strength: %8.2e/%8.2e+/-%8.2e 1/m\n", max, mean, rms);}
+  
   // statistics for vertical dispersion function
-  max = 0.0; rms = 0.0;
+  max = 0.0; rms = mean = 0.0;
   for(i = 1; i <= N_BPM; i++) {
-    if (fabs(VertCouple[i]) > max) max = fabs(VertCouple[i]/VDweight);
+    if (fabs(VertCouple[i]/VDweight) > max) max = fabs(VertCouple[i]/VDweight);
     rms += sqr(VertCouple[i]/VDweight);
+    mean += VertCouple[i]/VDweight;
   }
-  rms = sqrt(rms/N_BPM);
-  printf("Max vertical dispersion: %8.2e+/-%8.2e mm\n", 1e3*max, 1e3*rms);
-
+  mean = mean/N_BPM;
+  rms = sqrt(-mean*mean+rms/N_BPM);
+  if (cnt>=0) {fprintf(outf, "# Max Mean Rms vertical dispersion: %8.2e/%8.2e+/-%8.2e mm\n", 1e3*max, 1e3*mean, 1e3*rms);} else {printf("Max Mean Rms vertical dispersion: %8.2e/%8.2e+/-%8.2e mm\n", 1e3*max, 1e3*mean,1e3*rms);}
+  
   // statistics for off diagonal terms of response matrix (trims->bpms)
-  max = 0.0; rms = 0.0;
+  max = 0.0; rms = mean = 0.0;
   for(i = N_BPM+1; i <= N_BPM*(1+N_HCOR); i++) {
-    if (fabs(VertCouple[i]) > max) max = fabs(VertCouple[i]/HVweight);
+    if (fabs(VertCouple[i]/HVweight) > max) max = fabs(VertCouple[i]/HVweight);
     rms += sqr(VertCouple[i]/HVweight);
+    mean += VertCouple[i]/HVweight;
   }
-  rms = sqrt(rms/(N_HCOR*N_BPM));
-  printf("Max horizontal coupling: %8.2e+/-%8.2e mm/mrad\n", max, rms);
+  mean = mean/(N_HCOR*N_BPM);
+  rms = sqrt(-mean*mean+rms/(N_HCOR*N_BPM));
+  if (cnt>=0) {fprintf(outf, "# Max Mean Rms horizontal coupling: %8.2e/%8.2e+/-%8.2e mm/mrad\n", max, mean, rms);} else{printf("Max Mean Rms horizontal coupling: %8.2e/%8.2e+/-%8.2e mm/mrad\n", max, mean, rms);}
 
-  max = 0.0; rms = 0.0;
+  max = 0.0; rms = mean = 0.0;
   for(i = N_BPM*(1+N_HCOR)+1; i <= N_COUPLE; i++) {
-    if (fabs(VertCouple[i]) > max) max = fabs(VertCouple[i]/VHweight);
+    if (fabs(VertCouple[i]/VHweight) > max) max = fabs(VertCouple[i]/VHweight);
     rms += sqr(VertCouple[i]/VHweight);
+    mean += VertCouple[i]/VHweight;
   }
-  rms = sqrt(rms/(N_VCOR*N_BPM));
-  printf("Max vertical coupling:   %8.2e+/-%8.2e mm/mrad\n", max, rms);
+  mean = mean/(N_VCOR*N_BPM);
+  rms = sqrt(-mean*mean+rms/(N_VCOR*N_BPM));
+  if (cnt>=0) {
+    fprintf(outf,"# Max Mean Rms vertical coupling: %8.2e/%8.2e+/-%8.2e mm/mrad\n", max, mean, rms);
+    fclose(outf);
+  } else
+    printf("Max Mean Rms vertical coupling: %8.2e/%8.2e+/-%8.2e mm/mrad\n", max, mean, rms);
 }
 
 
-void param_data_type::corr_eps_y(void)
+void param_data_type::corr_eps_y(const int cnt)
 {
   int  i, j;
   FILE *outf;
-
+  char fname[30];
+  int qtnr;
+  double qtpos, qtkl, qteta;
+  char qtnam[20];
+  FILE *cinf;
+  int loc;
+  
   // Clear skew quad setpoints
   set_bnL_design_fam(globval.qt, Quad, 0.0, 0.0);
-
+  
   // Find coupling vector
   printf("\n");
   printf("Looking for coupling error\n");
@@ -576,7 +1212,7 @@ void param_data_type::corr_eps_y(void)
   //Find and print coupling statistics
   printf("\n");
   printf("Before correction\n");
-  SkewStat(VertCouple);
+  SkewStat(VertCouple, -1);
 
   // Coupling Correction
   printf("\n");
@@ -605,10 +1241,41 @@ void param_data_type::corr_eps_y(void)
     printf("\n");
     printf("After run %d of correction\n", i);
     // Find and print coupling statistics
-    SkewStat(VertCouple);
+    SkewStat(VertCouple, -1);
+
   } // End of coupling Correction
 
-  outf = file_write(eta_y_FileName);
+  if (qt_from_file) {
+    printf("\n");
+    printf("Reading skew quad values from file 'qt_file.dat':\n");
+    printf("\n");
+    cinf = fopen("qt_file.dat" , "r");
+    for(j = 1; j <= N_SKEW; j++) {
+      fscanf(cinf, "%d %lg %lg %s %lg", &qtnr, &qtpos, &qteta, qtnam, &qtkl);
+      printf("%d %d %s %f\n", j, qtnr, qtnam, qtkl);
+      loc = Elem_GetPos(globval.qt, j);
+      printf("%d %e %e %e %e\n",loc, Cell[loc].Elem.PL, qtkl,Cell[loc].Elem.M->PBpar[-Quad + HOMmax],Cell[loc].Elem.M->PBpar[Quad + HOMmax]);
+      SetdKLpar(globval.qt, j, -Quad, qtkl);
+      loc = Elem_GetPos(globval.qt, j);
+      printf("%d %e %e %e %e\n",loc, Cell[loc].Elem.PL, qtkl,Cell[loc].Elem.M->PBpar[-Quad + HOMmax],Cell[loc].Elem.M->PBpar[Quad + HOMmax]);
+    }
+    printf("\n");
+    Ring_GetTwiss(true, 0.0); printglob();
+    printf("\n");
+    printf("Looking for coupling error\n");
+    // Find coupling vector
+    FindCoupVector(VertCouple);
+    printf("\n");
+    printf("After application of skew values from file 'qt_file.dat'\n");
+    SkewStat(VertCouple, -1);
+  }
+      
+  SkewStat(VertCouple, cnt);
+
+  sprintf(fname,"%s_%d.out",eta_y_FileName,cnt);
+  outf = file_write(fname);
+
+  fprintf(outf, "# nr s [m] name nuy etay [mm] etapy [mrad]\n");
   for (i = 0; i <= globval.Cell_nLoc; i++)
     fprintf(outf, "%4d %7.3f %s %6.3f %10.3e %10.3e\n",
 	    i, Cell[i].S, Cell[i].Elem.PName,
@@ -952,7 +1619,7 @@ void param_data_type::A_matrix(void)
     A1[4*Nsext+2][j] =  scl_nu*qb0[Y_][j-1]/(4.0*M_PI);
   }
 
-  if (false && trace) {
+  if (trace) {
     printf("\n");
     printf("AA:\n");
     printf("\n");
@@ -991,7 +1658,7 @@ void param_data_type::X_vector(const bool first)
     Xsext[4*Nsext+2] = scl_nu*(Nu_Y0-globval.TotalTune[Y_]);
   }
 
-  if (false && trace) {
+  if (trace) {
     printf("\n");
     printf("X:\n");
     printf("\n");
@@ -1085,18 +1752,23 @@ void param_data_type::W_diag(void)
 }
 
 
-bool param_data_type::ID_corr(const bool IDs, orb_corr_type orb_corr[])
+bool param_data_type::ID_corr(const int N_calls, const int N_steps,
+			      const bool IDs, const int cnt)
 {
-  bool   cod;
   int    i, j, k, Fnum;
   double b2L, a2L, L;
   FILE   *outf;
+  char fname[30];
 
-  const bool cod_corr = false;
+  a2L=b2L=L=0.;
+  
+  printf("\n");
+  printf("ID matching begins!\n");
 
-  printf("\nID_corr: %d %d:\n", N_calls, N_steps);
 
-  outf = file_write("ID_corr.out");
+  sprintf(fname,"ID_corr_%d.out",cnt);
+  outf = file_write(fname);
+  
   for (i = 1; i <= N_steps; i++) { //This brings ID strength in steps
     if (IDs) set_IDs((double)i/(double)N_steps);
 
@@ -1125,11 +1797,6 @@ bool param_data_type::ID_corr(const bool IDs, orb_corr_type orb_corr[])
 		  Cell[quad_prms[k-1]].Elem.PName, Cell[quad_prms[k-1]].S, k,
 		  b2L);
 	}
-	fflush(outf);
-	if (cod_corr) {
-	  cod = this->cod_corr(1e0, orb_corr);
-	  if (!cod) printf("*** ID_corr: cod_correct failed\n");
-	}
       }
 
       printf("\n");
@@ -1150,7 +1817,9 @@ bool param_data_type::ID_corr(const bool IDs, orb_corr_type orb_corr[])
   }
   fclose(outf);
 
-  outf = file_write("ID_corr_res.out");
+  sprintf(fname,"ID_corr_res_%d.out",cnt);
+  outf = file_write(fname);
+
   fprintf(outf, "# dbeta_x/beta_x  dbeta_y/beta_y  dnu_x  dnu_y\n");
   fprintf(outf, "#      [%%]             [%%]\n");
   fprintf(outf, "#\n");
@@ -1189,6 +1858,64 @@ char* get_prm(char **p)
   return prm;
 }
 
+void param_data_type::ReadCorMis(const bool Scale_it, const double Scale) const
+{
+  FILE *fi,*fo;
+  const char cormisin[] = "cormis.txt";
+  const char cormisout[] = "cormis.out";
+  long i,ii;
+  CellType Cell;
+  double s1, s2, dx, dy, dt;
+  char elem[8];
+  double dxbn06, dybn06, dtbn06;
+
+  dxbn06=dybn06=dtbn06=0.;
+  
+  /* Opening file */
+  if ((fo = fopen(cormisout, "w")) == NULL) {
+    fprintf(stdout, "cormisout: error while opening file %s\n", cormisout);
+    exit_(1);
+  }
+  /* Opening file */
+  if ((fi = fopen(cormisin, "r")) == NULL) {
+    fprintf(stdout, "cormisin: error while opening file %s\n", cormisin);
+    exit_(1);
+  }
+  
+  for (i = 0; i <= globval.Cell_nLoc; i++)
+  {
+    getelem(i, &Cell);
+    if (Cell.Elem.Pkind == Mpole)
+    {
+      fscanf(fi, "%ld %lf %lf %lf %lf %lf %s \n", &ii, &s1, &s2, &dx, &dy, &dt, elem);
+      dx/=1e6; dy/=1e6; dt/=1e6;
+
+      if (i == ii) {
+	if (Scale_it) {
+	  dx *= Scale; dy *= Scale; dt *= Scale;
+	}
+
+	if (strcmp("bn06",elem) == 0) {
+	  dxbn06=dx; dybn06=dy; dtbn06=dt;
+	}
+	if ((strcmp("vb",elem) == 0) || (strcmp("vbm",elem)) ==0 ) {
+	  dx=dxbn06; dy=dybn06; dt=dtbn06;
+	}
+	
+        Cell.Elem.M->PdSsys[0] = dx;
+        Cell.Elem.M->PdSsys[1] = dy;
+        Cell.Elem.M->PdTsys    = dt;
+
+        putelem(ii, &Cell);
+	Mpole_SetdS(Cell.Fnum, Cell.Knum);
+	Mpole_SetdT(Cell.Fnum, Cell.Knum);
+
+        fprintf(fo, "%ld %lf %lf %lf %lf %lf %s \n", ii,  s1, s2, dx*1e6, dy*1e6, dt*1e6, Cell.Elem.PName);
+      }
+    }
+  }
+  fclose(fo);
+}
 
 void param_data_type::LoadAlignTol(const bool Scale_it, const double Scale,
 				   const bool new_rnd, const int seed) const
@@ -1326,10 +2053,8 @@ void param_data_type::LoadAlignTol(const bool Scale_it, const double Scale,
 void param_data_type::LoadFieldErr(const bool Scale_it, const double Scale,
 				   const bool new_rnd) const
 {
-  const int line_max = 500;
-
   bool          rms, set_rnd;
-  char          line[line_max], name[max_str], type[max_str], *prm, *p;
+  char          line[max_str], name[max_str], type[max_str], *prm, *p;
   int           k, n, seed_val;
   double        Bn, An, r0;
   std::ifstream inf;
@@ -1338,7 +2063,7 @@ void param_data_type::LoadFieldErr(const bool Scale_it, const double Scale,
 
   set_rnd = false;
   std::cout << std::endl;
-  while (!inf.getline(line, line_max).eof()) {
+  while (!inf.getline(line, max_str).eof()) {
     if (strstr(line, "#") == NULL) {
       // New seed?
       sscanf(line, "%s", name);
@@ -1437,7 +2162,8 @@ void param_data_type::LoadApers(const double scl_x, const double scl_y) const
 }
 
 
-void param_data_type::Align_BPMs(const int n) const
+void param_data_type::Align_BPMs(const int n, const double bdxrms,
+				 const double bdzrms, const double bdarms) const
 {
   // Align BPMs to adjacent multipoles.
 
@@ -1445,9 +2171,11 @@ void param_data_type::Align_BPMs(const int n) const
   int      i, j, k;
   long int loc;
 
-  const int n_step = 5;
+  const int n_step = 25;
 
+  // printf("Align_BPMs entered %d\n", GetnKid(globval.bpm));
   printf("\n");
+
   for (i = 1; i <= GetnKid(globval.bpm); i++) {
     loc = Elem_GetPos(globval.bpm, i);
 
@@ -1462,22 +2190,59 @@ void param_data_type::Align_BPMs(const int n) const
 	  (Cell[loc-j].Elem.M->n_design == n)) {
 	for (k = 0; k <= 1; k++)
 	  Cell[loc].Elem.M->PdSsys[k] = Cell[loc-j].dS[k];
-	printf("aligned BPM no %1d to %s\n", i, Cell[loc-j].Elem.PName);
+	if (bdxrms >=0.) {
+	  Cell[loc].Elem.M->PdSrms[0] = bdxrms;
+	  Cell[loc].Elem.M->PdSrnd[0] = normranf();
+	} 
+	if (bdzrms >=0.) {
+	  Cell[loc].Elem.M->PdSrms[1] = bdzrms;
+	  Cell[loc].Elem.M->PdSrnd[1] = normranf();
+	}
+	if (bdarms >=0.) {
+	  Cell[loc].Elem.M->PdTrms = bdarms;
+	  Cell[loc].Elem.M->PdTrnd = normranf();
+	}
+	printf("aligned BPM no %1d to %s with BBA"
+	       " error x= %f um z= %f um dt= %f urad\n",
+	       i, Cell[loc-j].Elem.PName,
+	       Cell[loc].Elem.M->PdSrms[0]*Cell[loc].Elem.M->PdSrnd[0]*1e6,
+	       Cell[loc].Elem.M->PdSrms[1]*Cell[loc].Elem.M->PdSrnd[0]*1e6,
+	       dtor(Cell[loc].Elem.M->PdTrms*Cell[loc].Elem.M->PdTrnd*1e6));
 	aligned = true; break;
       } else if ((Cell[loc+j].Elem.Pkind == Mpole) &&
 		 (Cell[loc+j].Elem.M->n_design == n)) {
 	for (k = 0; k <= 1; k++)
 	  Cell[loc].Elem.M->PdSsys[k] = Cell[loc+j].dS[k];
-	printf("aligned BPM no %1d to %s\n", i, Cell[loc+j].Elem.PName);
-	aligned = true; break;
+	if (bdxrms >=0.) {
+	  Cell[loc].Elem.M->PdSrms[0] = bdxrms;
+	  Cell[loc].Elem.M->PdSrnd[0] = normranf();
+	} 
+	if (bdzrms >=0.) {
+	  Cell[loc].Elem.M->PdSrms[1] = bdzrms;
+	  Cell[loc].Elem.M->PdSrnd[1] = normranf();
+	}
+	if (bdarms >=0.) {
+	  Cell[loc].Elem.M->PdTrms = bdarms;
+	  Cell[loc].Elem.M->PdTrnd = normranf();
+	}
+	printf("aligned BPM no %1d to %s with BBA"
+	       " error x= %f um z= %f um dt= %f urad\n",
+	       i,
+	       Cell[loc+j].Elem.PName,Cell[loc].Elem.M->PdSrms[0]
+	       *Cell[loc].Elem.M->PdSrnd[0]*1e6,
+	       Cell[loc].Elem.M->PdSrms[1]*Cell[loc].Elem.M->PdSrnd[0]*1e6,
+	       dtor(Cell[loc].Elem.M->PdTrms*Cell[loc].Elem.M->PdTrnd*1e6));
+	aligned = true;
+	break;
       }
 
       j++;
     } while (j <= n_step);
 
-    if (aligned)
+    if (aligned) {
       Mpole_SetdS(globval.bpm, i);
-    else
+      Mpole_SetdT(globval.bpm, i);
+    } else
       printf("Align_BPMs: no multipole adjacent to BPM no %d\n", i);
   }
 }
@@ -1505,7 +2270,7 @@ bool param_data_type::CorrectCOD_N(const int n_orbit, const int k)
 
     if (bba) {
       // Beam based alignment
-      Align_BPMs(Quad);
+      Align_BPMs(Quad,-1.,-1.,-1.);
     }
 
     // get_traject();
@@ -1585,29 +2350,49 @@ void param_data_type::ini_COD_corr(const int n_bpm_Fam,
 }
 
 
-bool param_data_type::cod_corr(const double scl, orb_corr_type orb_corr[])
+bool param_data_type::cod_corr(const int n_cell, const double scl,
+			       const double h_maxkick, const double v_maxkick,
+			       const long n_bits, orb_corr_type orb_corr[])
 {
   bool            cod = false;
-  long int        lastpos;
+  long int        lastpos,i;
   double          m_dbeta[2], s_dbeta[2], m_dnu[2], s_dnu[2];
+  double sexred=0.75;
   ss_vect<double> ps;
 
   orb_corr[X_].clr_trims(); orb_corr[Y_].clr_trims();
+
+  /* reduce sextupole strength by -sexred*strength */
+  printf("\n  *** Reduce sextupole strength by %f\n",sexred*100.);
+  for (i=0; i<globval.Elem_nFam; i++) {
+    if(ElemFam[i].ElemF.PName[0] == 's' && ElemFam[i].ElemF.Pkind == Mpole) {
+      Setbnr(ElemIndex(ElemFam[i].ElemF.PName),3L,-sexred);
+    }
+  }
+
+  cod = getcod(0e0, lastpos);
+
+  if (!cod) {
+    printf("\ncould not find closed orbit; threading beam\n");
+
+    orb_corr[X_].clr_trims(); orb_corr[Y_].clr_trims();
+    thread_beam(n_cell, loc_Fam_name, bpm_Fam_names, corr_Fam_names,
+		n_orbit, scl, h_maxkick, v_maxkick, n_bits, 1e-4, 1e-4);
+    //prt_cod("codt.out", globval.bpm, true);
+  }
+
+  cod = cod_correct(n_orbit, scl, h_maxkick, v_maxkick, n_bits, orb_corr);
+
+  /* restore sextupole strength after first niter iterations */
+  printf("\n  *** Restore sextupole strength\n");
+  for (i=0; i<globval.Elem_nFam; i++) {
+    if(ElemFam[i].ElemF.PName[0] == 's' && ElemFam[i].ElemF.Pkind == Mpole) {
+      Setbnr(ElemIndex(ElemFam[i].ElemF.PName),3L,1./(1.-sexred)-1.);
+    }
+  }
+
+  cod = cod_correct(n_orbit, scl, h_maxkick, v_maxkick, n_bits, orb_corr);
   
-  // cod = getcod(0e0, lastpos);
-  // if (!cod) {
-  //   printf("\ncould not find closed orbit; threading beam\n");
-  //   thread_beam(n_cell, loc_Fam_name, bpm_Fam_names, corr_Fam_names,
-  // 		n_thread, scl);
-  // }
-
-  printf("\nthreading beam\n");
-  thread_beam(n_cell, loc_Fam_name, bpm_Fam_names, corr_Fam_names,
-	      n_thread, scl);
-
-  cod = cod_correct(n_orbit, scl, orb_corr);
-  Ring_GetTwiss(false, 0e0); printglob();
-
   get_dbeta_dnu(m_dbeta, s_dbeta, m_dnu, s_dnu);
   printf("\ncod_corr: rms dbeta_x/beta_x = %4.2f%%"
 	 ",   dbeta_y/beta_y = %4.2f%%\n",
@@ -1714,18 +2499,92 @@ void param_data_type::prt_cod_corr_lat(void)
 void param_data_type::err_and_corr_init(const string &param_file,
 					orb_corr_type orb_corr[])
 {
+  double TotalTuneX,TotalTuneY;
+  double dk;
+  iVector2 nq;
+  Vector2 nu;
+  fitvect qfbuf, qdbuf;
+
+  double ChromaX,ChromaY;
+  double dks;
+  iVector2 ns;
+  Vector2 si;
+  fitvect  sfbuf, sdbuf;
+
+  long i;
+  
   globval.Cavity_on   = false; globval.radiation = false;
   globval.Aperture_on = false;
 
+  get_param(param_file);
+
+  Ring_GetTwiss(true, 0.0); printglob();
+
+  // Fit tunes to TuneX and TuneY
+  if (TuneX*TuneY > 0) {
+    dk=1e-3;
+    nq[0]=nq[1]=0;
+    nu[0]=TuneX;
+    nu[1]=TuneY;
+    for (i = 0; i <= globval.Cell_nLoc; i++) {
+      if ( Cell[i].Elem.Pkind == Mpole ) {
+	if (strncmp(Cell[i].Elem.PName,"qax",3) == 0){
+	  qfbuf[nq[0]]=i;
+	  nq[0]++;
+	}
+	if (strncmp(Cell[i].Elem.PName,"qay",3) == 0){
+	  qdbuf[nq[1]]=i;
+	  nq[1]++;
+	}
+      }
+    }
+
+    printf("Fittune: nq[0]=%ld nq[1]=%ld\n",nq[0],nq[1]);
+    TotalTuneX=globval.TotalTune[0];
+    TotalTuneY=globval.TotalTune[1];
+    Ring_Fittune(nu, (double)1e-4, nq, qfbuf, qdbuf, dk, 50L);
+    printf("Fittune: nux= %f dnux= %f nuy= %f dnuy= %f\n",globval.TotalTune[0], globval.TotalTune[0]-TotalTuneX, globval.TotalTune[1], globval.TotalTune[1]-TotalTuneY);
+
+    Ring_GetTwiss(true, 0.0); printglob();
+  }
+
+  // Fit chromaticities to ChromX and ChromY
+  if (ChromX*ChromY < 1e6) {
+    dks=1e-3;
+    ns[0]=ns[1]=0;
+    si[0]=ChromX;
+    si[1]=ChromY;
+    for (i = 0; i <= globval.Cell_nLoc; i++) {
+      if ( Cell[i].Elem.Pkind == Mpole ) {
+	if (strncmp(Cell[i].Elem.PName,"sf",2) == 0){
+	  sfbuf[ns[0]]=i;
+	  ns[0]++;
+	}
+	if (strncmp(Cell[i].Elem.PName,"sd",2) == 0){
+	  sdbuf[ns[1]]=i;
+	  ns[1]++;
+	}
+      }
+    }
+
+    printf("Fitchrom: ns[0]=%ld ns[1]=%ld\n",ns[0],ns[1]);
+    ChromaX=globval.Chrom[0];
+    ChromaY=globval.Chrom[1];
+    Ring_Fitchrom(si, (double)1e-4, ns, sfbuf, sdbuf, dks, 50L);
+    printf("Fitchrom: six= %f dsix= %f siy= %f dsiy= %f\n",globval.Chrom[0], globval.Chrom[0]-ChromaX, globval.Chrom[1], globval.Chrom[1]-ChromaY);
+
+    Ring_GetTwiss(true, 0.0); printglob();
+  }
+
   get_bare();
 
-  cod_ini(bpm_Fam_names, corr_Fam_names, orb_corr);
+  cod_ini(bpm_Fam_names, corr_Fam_names, h_cut, v_cut, orb_corr);
 
-  if ((ae_file != "") && bba) Align_BPMs(Quad);
+  if ((ae_file != "") && bba) Align_BPMs(Sext,-1.,-1.,-1.);
 
   if (N_calls > 0) ini_ID_corr(false);
 
-  if (n_lin > 0) ini_skew_cor(disp_wave_y);
+  if (n_lin > 0) ini_skew_cor(disp_wave_y, disp_wave_o);
 }
 
 

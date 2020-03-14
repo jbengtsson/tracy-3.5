@@ -23,4 +23,13 @@ void Ring_Getchrom(double dP);
 
 void Ring_GetTwiss(bool chroma, double dP);
 
+void Ring_Fittune(Vector2 &nu, double eps, iVector2 &nq, long qf[], long qd[],
+                  double dkL, long imax);
+
+void Ring_Fitchrom(Vector2 &ksi, double eps, iVector2 &ns,
+		   long sf[], long sd[], double dkpL, long imax);
+
+void Ring_FitDisp(long pos, double eta, double eps, long nq, long q[],
+                  double dkL, long imax);
+
 #endif
