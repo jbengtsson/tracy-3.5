@@ -2,6 +2,8 @@
 
 #include "tracy_lib.h"
 
+#include "get_Poincare_Map.cc"
+
 int no_tps = NO;
 
 
@@ -1201,78 +1203,23 @@ void get_disp(void)
 
 void get_Poincare_Map(void)
 {
-  int          k;
-  double       C, mu[3], alpha[3], beta[3], gamma[3], tau[3];
-  ss_vect<tps> Id, M, M_rad;
 
   if (false) no_sxt();
 
-  Id.identity();
+  printf("\nNo Cavity, No Radiation:\n");
+  prt_lin_map(3, get_Poincare_Map(false, false));
+
+  globval.Cavity_on = true; globval.radiation = false;
+  Ring_GetTwiss(true, 0e0); printglob();
+
+  printf("\nCavity, No Radiation:\n");
+  prt_lin_map(3, get_Poincare_Map(true, false));
 
   globval.Cavity_on = true; globval.radiation = true;
   Ring_GetTwiss(true, 0e0); printglob();
 
-  C = Cell[globval.Cell_nLoc].S;
-  mu[Z_] = -2e0*M_PI*globval.Omega;
-  alpha[Z_] =
-    -globval.Ascr[ct_][ct_]*globval.Ascr[delta_][ct_]
-    - globval.Ascr[ct_][delta_]*globval.Ascr[delta_][delta_];
-  beta[Z_] = sqr(globval.Ascr[ct_][ct_]) + sqr(globval.Ascr[ct_][delta_]);
-  gamma[Z_] = (1e0+sqr(alpha[Z_]))/beta[Z_];
-
-  printf("\n  %12.5e %12.5e %12.5e\n", -globval.Omega, alpha[Z_], beta[Z_]);
-  printf("  %12.5e %12.5e\n",
-	 -globval.Ascr[ct_][ct_]*globval.Ascr[delta_][ct_],
-	 -globval.Ascr[ct_][delta_]*globval.Ascr[delta_][delta_]);
-
-  for (k = 0; k < 2; k++) {
-    mu[k] = 2e0*M_PI*globval.TotalTune[k];
-    alpha[k] = Cell[0].Alpha[k]; beta[k] = Cell[0].Beta[k];
-    gamma[k] = (1e0+sqr(alpha[k]))/beta[k];
-  }
-
-  M.zero();
-  for (k = 0; k < 3; k++) {
-    if (k < 2) {
-      M[2*k] =
-	(cos(mu[k])+alpha[k]*sin(mu[k]))*Id[2*k] + beta[k]*sin(mu[k])*Id[2*k+1];
-      M[2*k+1] =
-	-gamma[k]*sin(mu[k])*Id[2*k]
-	+ (cos(mu[k])-alpha[k]*sin(mu[k]))*Id[2*k+1];
-    } else {
-#if 1
-      M[2*k+1] =
-	(cos(mu[k])+alpha[k]*sin(mu[k]))*Id[2*k+1] + beta[k]*sin(mu[k])*Id[2*k];
-      M[2*k] =
-	-gamma[k]*sin(mu[k])*Id[2*k+1]
-	+ (cos(mu[k])-alpha[k]*sin(mu[k]))*Id[2*k];
-#else
-      M[2*k+1] = Id[2*k+1] + globval.OneTurnMat[ct_][delta_]*Id[2*k];
-      M[2*k] =
-	-sqr(mu[Z_])/globval.OneTurnMat[ct_][delta_]*Id[2*k+1]
-	+ (1e0-sqr(mu[Z_]))*Id[2*k];
-#endif
-    }
-  }
-  M[x_] += globval.OneTurnMat[x_][delta_]* Id[delta_];
-  M[px_] += globval.OneTurnMat[px_][delta_]*Id[delta_];
-  M[ct_] +=
-    (M[x_][x_]*M[px_][delta_]-M[px_][x_]*M[x_][delta_])*Id[x_]
-    +(M[x_][px_]*M[px_][delta_]-M[px_][px_]*M[x_][delta_])*Id[px_];
-  M[delta_] +=
-    -sqr(mu[Z_])*M[ct_][x_]/M[ct_][delta_]*Id[x_]
-    -sqr(mu[Z_])*M[ct_][px_]/M[ct_][delta_]*Id[px_];
-
-  M_rad.zero();
-  for (k = 0; k < 3; k++) {
-    tau[k] = -C/(c0*globval.alpha_rad[k]);
-    M_rad[2*k] = exp(-C/(c0*tau[k]))*Id[2*k];
-    M_rad[2*k+1] = exp(-C/(c0*tau[k]))*Id[2*k+1];
-  }
-  M = M_rad*M;
-  printf("\n  %12.5e %12.5e %12.5e\n", tau[X_], tau[Y_], tau[Z_]);
-
-  prt_lin_map(3, M);
+  printf("\nCavity, Radiation:\n");
+  prt_lin_map(3, get_Poincare_Map(true, true));
 }
 
 
@@ -1670,7 +1617,7 @@ int main(int argc, char *argv[])
     Ring_GetTwiss(true, 0e0); printglob();
   }
 
-  if (!false) {
+  if (false) {
     get_eps_x();
     if (false) get_I(I, true);
 
@@ -1690,8 +1637,10 @@ int main(int argc, char *argv[])
     exit(0);
   }
 
-  if (false) {
+  if (!false) {
     get_Poincare_Map();
+    prt_lat("linlat1.out", globval.bpm, true);
+    prt_lat("linlat.out", globval.bpm, true, 10);
     exit(0);
   }
 
