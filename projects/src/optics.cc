@@ -1211,13 +1211,11 @@ void get_Poincare_Map(void)
 
   globval.Cavity_on = true; globval.radiation = false;
   Ring_GetTwiss(true, 0e0); printglob();
-
   printf("\nCavity, No Radiation:\n");
   prt_lin_map(3, get_Poincare_Map(true, false));
 
   globval.Cavity_on = true; globval.radiation = true;
   Ring_GetTwiss(true, 0e0); printglob();
-
   printf("\nCavity, Radiation:\n");
   prt_lin_map(3, get_Poincare_Map(true, true));
 }
