@@ -1201,23 +1201,6 @@ void get_disp(void)
 }
 
 
-void get_Poincare_Map(void)
-{
-  PoincareMap map;
-
-  if (false) no_sxt();
-
-  map.GetM(false, false);
-  map.GetA(2);
-
-  map.GetM(true, false);
-  map.GetA(3);
-
-  map.GetM(true, true);
-  map.GetA(3);
-}
-
-
 void get_matrix(const string &name, const double delta)
 {
   int          k;
