@@ -1203,35 +1203,18 @@ void get_disp(void)
 
 void get_Poincare_Map(void)
 {
-  int long     lastpos;
-  ss_vect<tps> M;
-  PoincareMap  map;
+  PoincareMap map;
 
-  if (!false) no_sxt();
+  if (false) no_sxt();
 
-  printf("\nNo Cavity, No Radiation:\n");
-  globval.Cavity_on = false; globval.radiation = false;
-  getcod(0e0, lastpos);
-  M.identity(); M += globval.CODvect;
-  Cell_Pass(0, globval.Cell_nLoc, M, lastpos);
-  M -= globval.CODvect;
-  map.GetA(2, Cell[globval.Cell_nLoc].S, M);
+  map.GetM(false, false);
+  map.GetA(2);
 
-  printf("\nCavity, No Radiation:\n");
-  globval.Cavity_on = true; globval.radiation = false;
-  getcod(0e0, lastpos);
-  M.identity(); M += globval.CODvect;
-  Cell_Pass(0, globval.Cell_nLoc, M, lastpos);
-  M -= globval.CODvect;
-  map.GetA(3, Cell[globval.Cell_nLoc].S, M);
+  map.GetM(true, false);
+  map.GetA(3);
 
-  printf("\nCavity, Radiation:\n");
-  globval.Cavity_on = true; globval.radiation = true;
-  getcod(0e0, lastpos);
-  M.identity(); M += globval.CODvect;
-  Cell_Pass(0, globval.Cell_nLoc, M, lastpos);
-  M -= globval.CODvect;
-  map.GetA(3, Cell[globval.Cell_nLoc].S, M);
+  map.GetM(true, true);
+  map.GetA(3);
 }
 
 
