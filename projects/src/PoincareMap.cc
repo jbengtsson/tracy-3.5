@@ -6,35 +6,38 @@
 struct PoincareMap {
 
 private:
-public:
-  int n_DOF;      // Degrees-of-Freedom.
-  double
-    C,            // Circumference.
-    nu[3],        // Tunes; in Floquet Space.
-    ksi_1[2],     // Linear Chromaticity.
-    ksi_2[2],     // Second Order Chromaticity.
-    dnu_dJ[3],    // Anharmonic terms.
-    D[3];         // Diffusion Coefficients.
-  ss_vect<double>
-  ps_cod;         // Fixed Point.
-  ss_vect<tps>
-    M_lat,        // Linear map.
-    A,            // Transformation to Floquet Space.
-    A_tp,         // Transpose ditto.
-    R,            // Floquet Space Rotation.
-    M_diff,       // Diffusion Matrix.
-    M_Chol_tp;    // Cholesky Decomposition of Diffusion Matrix.
 
-  void GetM(const bool cav, const bool rad);
+public:
+  int n_DOF;           // Degrees-of-Freedom.
+  bool
+    cav_on,            // RF Cavity on/off.
+    rad_on;            // Classical Radiation on/off.
+  double
+    C,                 // Circumference.
+    nu[3],             // Tunes; in Floquet Space.
+    ksi_1[2],          // Linear Chromaticity.
+    ksi_2[2],          // Second Order Chromaticity.
+    dnu_dJ[3],         // Anharmonic terms.
+    D[3];              // Diffusion Coefficients.
+  ss_vect<double>
+  ps_cod;              // Fixed Point.
+  ss_vect<tps>
+    M_lat,             // Linear map.
+    A, A_tp,           // Transformation to Floquet Space and transpose.
+    R,                 // Floquet Space Rotation.
+    M_diff, M_Chol_tp; // Diffusion Matrix & Cholesky Decomposition.
+
+  void GetM_lat(const bool cav, const bool rad);
   void GetA(void);
   void GetM_diff(void);
   void GetM_Chol(void);
+  void print(void);
 };
 
 
 void PrtMap(const double n_DOF, ss_vect<tps> map)
 {
-  int    i, j;
+  int i, j;
 
   const int    n_dec = 6;
   const double eps   = 1e-20;
@@ -52,13 +55,13 @@ void PrtMap(const double n_DOF, ss_vect<tps> map)
 }
 
 
-void PoincareMap::GetM(const bool cav, const bool rad)
+void PoincareMap::GetM_lat(const bool cav, const bool rad)
 {
   int long lastpos;
-    
-  const bool prt = !false;
-
-  globval.Cavity_on = cav; globval.radiation = rad;
+  
+  cav_on = cav; this->rad_on = rad;
+  
+  globval.Cavity_on = cav_on; globval.radiation = rad_on;
 
   C = Cell[globval.Cell_nLoc].S;
 
@@ -71,14 +74,6 @@ void PoincareMap::GetM(const bool cav, const bool rad)
   Cell_Pass(0, globval.Cell_nLoc, M_lat, lastpos);
   M_lat -= globval.CODvect;
 
-  if (prt) {
-    printf("\nCavity %d, Radiation %d\n", cav, rad);
-    cout << scientific << setprecision(6)
-	 << "\nCOD:\n" << setw(14) << ps_cod << "\n";
-    printf("\nM:\n");
-    PrtMap(3, M_lat);
-  }
-
   GetA();
 
   if (rad) GetM_diff();
@@ -90,8 +85,6 @@ void PoincareMap::GetA(void)
   int    k;
   double alpha_c, dnu[3];
   Matrix M_mat, A_mat, A_inv_mat, A_tp_mat, R_mat;
-
-  const bool prt = !false;
 
   getlinmat(2*n_DOF, M_lat, M_mat);
   GDiag(2*n_DOF, C, A_mat, A_inv_mat, R_mat, M_mat, nu[Z_], alpha_c);
@@ -106,19 +99,6 @@ void PoincareMap::GetA(void)
   R = putlinmat(2*n_DOF, R_mat);
   for (k = 0; k < 2; k++)
     nu[k] = atan2(R[2*k][2*k+1], R[2*k][2*k])/(2e0*M_PI);
-
-  if (prt) {
-    printf("\nnu = [");
-    for (k = 0; k < n_DOF; k++) {
-      printf("%7.5f", nu[k]);
-      if (k < n_DOF-1) printf(", ");
-    }
-    printf("]\n");
-    printf("\nA:\n");
-    PrtMap(n_DOF, A);
-    printf("\nR:\n");
-    PrtMap(n_DOF, R);
-  }
 }
 
 
@@ -128,32 +108,17 @@ void PoincareMap::GetM_diff(void)
   int          k;
   ss_vect<tps> A1;
 
-  const bool prt = !false;
-
   globval.emittance = true;
-
   A1 = A + globval.CODvect;
   Cell_Pass(0, globval.Cell_nLoc, A1, lastpos);
   for (k = 0; k < DOF; k++)
     D[k] = globval.D_rad[k];
-
   globval.emittance = false;
 
   M_diff.identity();
   for (k = 0; k < 2*n_DOF; k++)
     M_diff[k] *= D[k/2];
   M_diff = M_diff*A*A_tp;
-
-  if (prt) {
-    printf("\nD = [");
-    for (k = 0; k < n_DOF; k++) {
-      printf("%9.3e", D[k]);
-      if (k < n_DOF-1) printf(", ");
-    }
-    printf("]\n");
-    printf("\nM_diff:\n");
-    PrtMap(n_DOF, M_diff);
-  }
 
   GetM_Chol();
 }
@@ -178,8 +143,7 @@ void PoincareMap::GetM_Chol(void)
   double *diag, **d1, **d2, **d2_tp;
   ss_vect<tps> L, L_tp;
 
-  const bool prt = !false;
-  const int  n   = 2*n_DOF;
+  const int n = 2*n_DOF;
 
   diag = dvector(1, n); d1 = dmatrix(1, n, 1, n);
   d2 = dmatrix(1, n, 1, n); d2_tp = dmatrix(1, n, 1, n);
@@ -188,22 +152,50 @@ void PoincareMap::GetM_Chol(void)
     for (k = 1; k <= n; k++) {
       d1[j][k] = M_diff[j-1][k-1];
     }
-
   dcholdc(d1, n, diag);
   for (j = 1; j <= n; j++)
     for (k = 1; k <= j; k++)
       d2[j][k] = (j == k)? diag[j] : d1[j][k];
   dmtranspose(d2, n, n, d2_tp);
-
   M_Chol_tp = Mat2Map(n, d2_tp);
-
-  if (prt) {
-  printf("\nM_Chol_tp:\n");
-  PrtMap(n_DOF, M_Chol_tp);
-  }
 
   free_dvector(diag, 1, n); free_dmatrix(d1, 1, n, 1, n);
   free_dmatrix(d2, 1, n, 1, n); free_dmatrix(d2_tp, 1, n, 1, n);
+}
+
+
+void PoincareMap::print(void)
+{
+  int k;
+
+  printf("\nCavity %d, Radiation %d\n", cav_on, rad_on);
+  cout << scientific << setprecision(6)
+       << "\nCOD:\n" << setw(14) << ps_cod << "\n";
+  printf("\nM:\n");
+  PrtMap(3, M_lat);
+
+  printf("\nnu = [");
+  for (k = 0; k < n_DOF; k++) {
+    printf("%7.5f", nu[k]);
+    if (k < n_DOF-1) printf(", ");
+  }
+  printf("]\n");
+  printf("\nA:\n");
+  PrtMap(n_DOF, A);
+  printf("\nR:\n");
+  PrtMap(n_DOF, R);
+
+  printf("\nD = [");
+  for (k = 0; k < n_DOF; k++) {
+    printf("%9.3e", D[k]);
+    if (k < n_DOF-1) printf(", ");
+  }
+  printf("]\n");
+  printf("\nM_diff:\n");
+  PrtMap(n_DOF, M_diff);
+
+  printf("\nM_Chol_tp:\n");
+  PrtMap(n_DOF, M_Chol_tp);
 }
 
 
@@ -214,10 +206,11 @@ void get_Poincare_Map(void)
   if (!false) no_sxt();
 
   if (false) {
-    map.GetM(false, false);
-    map.GetM(true, false);
-    map.GetM(true, true);
+    map.GetM_lat(false, false);
+    map.GetM_lat(true, false);
+    map.GetM_lat(true, true);
   }
 
-  map.GetM(true, true);
+  map.GetM_lat(true, true);
+  map.print();
 }
