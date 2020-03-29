@@ -1203,24 +1203,35 @@ void get_disp(void)
 
 void get_Poincare_Map(void)
 {
-  PoincareMap map;
+  int long     lastpos;
+  ss_vect<tps> M;
+  PoincareMap  map;
 
   if (!false) no_sxt();
 
-  printf("\nNo Cavity, No Radiation:\n\nTracy-2:");
+  printf("\nNo Cavity, No Radiation:\n");
   globval.Cavity_on = false; globval.radiation = false;
-  Ring_GetTwiss(true, 0e0); printglob();
-  map.GetA(2, Cell[globval.Cell_nLoc].S, globval.OneTurnMat);
+  getcod(0e0, lastpos);
+  M.identity(); M += globval.CODvect;
+  Cell_Pass(0, globval.Cell_nLoc, M, lastpos);
+  M -= globval.CODvect;
+  map.GetA(2, Cell[globval.Cell_nLoc].S, M);
 
-  printf("\nCavity, No Radiation:\n\nTracy-2:");
+  printf("\nCavity, No Radiation:\n");
   globval.Cavity_on = true; globval.radiation = false;
-  Ring_GetTwiss(true, 0e0); printglob();
-  map.GetA(3, Cell[globval.Cell_nLoc].S, globval.OneTurnMat);
+  getcod(0e0, lastpos);
+  M.identity(); M += globval.CODvect;
+  Cell_Pass(0, globval.Cell_nLoc, M, lastpos);
+  M -= globval.CODvect;
+  map.GetA(3, Cell[globval.Cell_nLoc].S, M);
 
-  printf("\nCavity, Radiation:\n\nTracy-2:");
+  printf("\nCavity, Radiation:\n");
   globval.Cavity_on = true; globval.radiation = true;
-  Ring_GetTwiss(true, 0e0); printglob();
-  map.GetA(3, Cell[globval.Cell_nLoc].S, globval.OneTurnMat);
+  getcod(0e0, lastpos);
+  M.identity(); M += globval.CODvect;
+  Cell_Pass(0, globval.Cell_nLoc, M, lastpos);
+  M -= globval.CODvect;
+  map.GetA(3, Cell[globval.Cell_nLoc].S, M);
 }
 
 

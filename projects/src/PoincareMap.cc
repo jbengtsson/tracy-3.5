@@ -19,7 +19,7 @@ public:
     A,                   // Transformation to Floquet Space.
     R;                   // Floquet Space Rotation.
 
-  void GetA(const int n_DOF, const double S, Matrix &M);
+  void GetA(const int n_DOF, const double S, ss_vect<tps> &M);
 };
 
 
@@ -31,39 +31,50 @@ void PrtMap(const double n_DOF, ss_vect<tps> map)
   const int    n_dec = 6;
   const double eps   = 1e-15;
 
-  cout << endl;
-  for (i = 1; i <= 2*n_DOF; i++) {
-    for (j = 1; j <= 2*n_DOF; j++) {
+  for (i = 0; i < 2*n_DOF; i++) {
+    for (j = 0; j < 2*n_DOF; j++) {
       val = map[i][j];
-      cout << scientific << setprecision(n_dec)
-	   << setw(n_dec+8) << ((fabs(val) > eps)? val : 0e0);
+      printf("%*.*e", n_dec+8, n_dec, (fabs(val) > eps)? val : 0e0);
     }
-    cout << endl;
+    printf("\n");
   }
 }
 
 
-void PoincareMap::GetA(const int n_DOF, const double S, Matrix &M)
+void PoincareMap::GetA(const int n_DOF, const double S, ss_vect<tps> &map)
 {
   int    k;
-  double alpha_c, nu[3];
-  Matrix A, A_inv, R;
+  double alpha_c, dnu[3];
+  Matrix M_mat, A_mat, A_inv_mat, R_mat;
 
   const bool prt = !false;
 
-  this->M = putlinmat(2*n_DOF, M);
+  M = map;
 
-  GDiag(2*n_DOF, S, A, A_inv, R, M, this->nu[Z_], alpha_c);
-  this->A.identity();
-  this->A = get_A_CS(n_DOF, putlinmat(2*n_DOF, A), nu);
-  this->R = putlinmat(2*n_DOF, R);
+  getlinmat(2*n_DOF, M, M_mat);
+  GDiag(2*n_DOF, S, A_mat, A_inv_mat, R_mat, M_mat, nu[Z_], alpha_c);
+
+  A = get_A_CS(n_DOF, putlinmat(2*n_DOF, A_mat), dnu);
+  if (n_DOF < 3) {
+    A[ct_] = tps(0e0, ct_+1);
+    A[delta_] = tps(0e0, delta_+1);
+  }
+  R = putlinmat(2*n_DOF, R_mat);
   for (k = 0; k < 2; k++)
-    this->nu[k] = globval.TotalTune[k];
+    nu[k] = globval.TotalTune[k];
 
   if (prt) {
-    printf("\nGetA:\n  nu:");
-    for (k = 0; k < n_DOF; k++)
-      printf(" %7.5f", this->nu[k]);
-    printf("\n");
+    printf("\nnu = [");
+    for (k = 0; k < n_DOF; k++) {
+      printf("%7.5f", nu[k]);
+      if (k < n_DOF-1) printf(", ");
+    }
+    printf("]\n");
+    printf("M:\n");
+    PrtMap(n_DOF, M);
+    printf("A:\n");
+    PrtMap(n_DOF, A);
+    printf("R:\n");
+    PrtMap(n_DOF, R);
   }
 }
