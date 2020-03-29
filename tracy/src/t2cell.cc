@@ -145,7 +145,7 @@ void Cell_Pass(const long i0, const long i1, tps &sigma, long &lastpos)
 	jj[3][y_]  = 2; jj[4][y_]  = 1; jj[4][py_]    = 1; jj[5][py_]    = 2;
 	jj[6][ct_] = 2; jj[7][ct_] = 1; jj[7][delta_] = 1; jj[8][delta_] = 2;
 
-	putlinmat(6, globval.Ascr, A); sigma = sigma*A;
+	A = putlinmat(6, globval.Ascr); sigma = sigma*A;
 
 	for (i = 0; i < 3; i++) {
 	  if (globval.eps[i] > deps) {

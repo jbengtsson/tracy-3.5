@@ -91,10 +91,11 @@ void getlinmat(const int nv, const ss_vect<tps> &map, Matrix &mat)
 }
 
 
-void putlinmat(const int nv, const Matrix &mat, ss_vect<tps> &map)
+ss_vect<tps> putlinmat(const int nv, const Matrix &mat)
 {
   /* Puts zeroes in constant part of da map */
-  int j, k;
+  int          j, k;
+  ss_vect<tps> map;
 
   for (j = 1; j <= nv; j++) {
     for (k = 0; k <= nv; k++) {
@@ -104,6 +105,7 @@ void putlinmat(const int nv, const Matrix &mat, ss_vect<tps> &map)
         putmat(map, j, k, mat[j-1][k-1]);
     }
   }
+  return map;
 }
 
 #endif

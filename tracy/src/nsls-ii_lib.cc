@@ -427,7 +427,7 @@ double get_eps_x(void)
 
   Ring_GetTwiss(false, 0.0);
 
-  putlinmat(6, globval.Ascr, A); A += globval.CODvect;
+  A = putlinmat(6, globval.Ascr); A += globval.CODvect;
 
   globval.emittance = true;
 
@@ -492,7 +492,7 @@ void GetEmittance(const int Fnum, const bool prt)
     *tan(M_PI-phi0))/(fabs(globval.Alphac)*M_PI*h_RF*1e9*globval.Energy));
 
   // Compute diffusion coeffs. for eigenvectors [sigma_xx, sigma_yy, sigma_zz]
-  putlinmat(6, globval.Ascr, Ascr_map); Ascr_map += globval.CODvect;
+  Ascr_map = putlinmat(6, globval.Ascr); Ascr_map += globval.CODvect;
 
   Cell_Pass(0, globval.Cell_nLoc, Ascr_map, lastpos);
 
@@ -712,7 +712,7 @@ void Cell_Twiss(const long int i0, const long int i1) {
     nu_int[k] = 0;
 
   for (i = i0; i <= i1; i++) {
-    putlinmat(6, Cell[i].A, A);
+    A = putlinmat(6, Cell[i].A);
     get_ab(A, alpha, beta, dnu, eta, etap);
 
     for (k = 0; k < 2; k++) {

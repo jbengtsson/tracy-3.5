@@ -23,7 +23,7 @@ void putmat(ss_vect<tps> &map, const int i, const int j, const double r);
 
 void getlinmat(const int nv, const ss_vect<tps> &map, Matrix &mat);
 
-void putlinmat(const int nv, const Matrix &mat, ss_vect<tps> &map);
+ss_vect<tps> putlinmat(const int nv, const Matrix &mat);
 
 void idprset(const int level);
 

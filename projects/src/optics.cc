@@ -2,7 +2,7 @@
 
 #include "tracy_lib.h"
 
-#include "get_Poincare_Map.cc"
+#include "PoincareMap.cc"
 
 int no_tps = NO;
 
@@ -854,7 +854,7 @@ void A_At_pass(void)
   int          i;
   ss_vect<tps> A, A_Atp;
 
-  A.identity(); putlinmat(4, globval.Ascr, A);
+  A.identity(); A = putlinmat(4, globval.Ascr);
   A_Atp = A*tp_S(2, A);
   printf("\n    alpha_x  beta_x    alpha_y  beta_y:\n"
 	 "  %9.5f %8.5f %9.5f %8.5f\n",
@@ -882,7 +882,7 @@ void curly_H_s(void)
   outf = file_write("curly_H_s.out");
   printf("\n");
   eta.zero(); eta[0] = Cell[0].Eta[X_]; eta[1] = Cell[0].Etap[X_];
-  A.identity(); putlinmat(2, globval.Ascr, A);
+  A.identity(); A = putlinmat(2, globval.Ascr);
   for (i = 0; i <= globval.Cell_nLoc; i++) {
     eta.zero(); eta[0] = Cell[i].Eta[X_]; eta[1] = Cell[i].Etap[X_];
     Cell_Pass(i, i, A, lastpos); A = get_A_CS(2, A, dnu);
@@ -920,7 +920,7 @@ void prt_eta_Fl(void)
 
   outf = file_write("eta_Fl.out");
 
-  A.identity(); putlinmat(2, globval.Ascr, A);
+  A.identity(); A = putlinmat(2, globval.Ascr);
 
   eta0.zero(); eta0[x_] = Cell[0].Eta[X_]; eta0[px_] = Cell[0].Etap[X_];
   eta_Fl0 = (Inv(A)*eta0).cst();
@@ -1066,7 +1066,7 @@ void get_disp(void)
   globval.Cavity_on = false; globval.radiation = false;
   Ring_GetTwiss(true, 0e0); printglob();
 
-  putlinmat(6, globval.OneTurnMat, M);
+  M = putlinmat(6, globval.OneTurnMat);
   D[x_] = M[x_][x_]*M[px_][delta_] - M[px_][x_]*M[x_][delta_];
   D[px_] = M[x_][px_]*M[px_][delta_] - M[px_][px_]*M[x_][delta_];
   printf("\n  m_51, m_52 = %13.6e %13.6e\n", D[x_], D[px_]);
@@ -1076,7 +1076,7 @@ void get_disp(void)
   A.zero();
   A[x_] = 10e-6; A[px_] = 0e-6; A[y_] = 0e-6; A[py_] = 0e-6; A[delta_] = 0e-3;
   Ascr.zero();
-  putlinmat(4, globval.Ascr, Ascr);
+  Ascr = putlinmat(4, globval.Ascr);
   get_twoJ(2, A, Ascr, twoJ);
 
   eta.zero();
@@ -1203,21 +1203,24 @@ void get_disp(void)
 
 void get_Poincare_Map(void)
 {
+  PoincareMap map;
 
-  if (false) no_sxt();
+  if (!false) no_sxt();
 
-  printf("\nNo Cavity, No Radiation:\n");
-  prt_lin_map(3, get_Poincare_Map(false, false));
+  printf("\nNo Cavity, No Radiation:\n\nTracy-2:");
+  globval.Cavity_on = false; globval.radiation = false;
+  Ring_GetTwiss(true, 0e0); printglob();
+  map.GetA(2, Cell[globval.Cell_nLoc].S, globval.OneTurnMat);
 
+  printf("\nCavity, No Radiation:\n\nTracy-2:");
   globval.Cavity_on = true; globval.radiation = false;
   Ring_GetTwiss(true, 0e0); printglob();
-  printf("\nCavity, No Radiation:\n");
-  prt_lin_map(3, get_Poincare_Map(true, false));
+  map.GetA(3, Cell[globval.Cell_nLoc].S, globval.OneTurnMat);
 
+  printf("\nCavity, Radiation:\n\nTracy-2:");
   globval.Cavity_on = true; globval.radiation = true;
   Ring_GetTwiss(true, 0e0); printglob();
-  printf("\nCavity, Radiation:\n");
-  prt_lin_map(3, get_Poincare_Map(true, true));
+  map.GetA(3, Cell[globval.Cell_nLoc].S, globval.OneTurnMat);
 }
 
 
@@ -1300,7 +1303,7 @@ void get_eta(void)
   for (k = 0; k < ss_dim; k++)
     jj[k] = 0;
   jj[x_] = 1; jj[px_] = 1;
-  putlinmat(2, globval.OneTurnMat, M);
+  M = putlinmat(2, globval.OneTurnMat);
   prt_lin_map(1, PInv(Id-M, jj));
 
   M[x_] =
@@ -2017,7 +2020,7 @@ int main(int argc, char *argv[])
 	   Ms[x_][x_]*Ms[px_][px_]-Ms[x_][px_]*Ms[px_][x_]);
 
     // Variables needs to be changed too.
-    // putlinmat(6, globval.Ascr, Ascr);
+    // Ascr = putlinmat(6, globval.Ascr);
     // a = Ascr[delta_]; Ascr[delta_] = Ascr[ct_]; Ascr[ct_] = a;
     // Ascr = get_A_CS(3, Ascr, dnu);
     // A_Atp = Ascr*tp_S(3, Ascr);

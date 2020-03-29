@@ -581,7 +581,7 @@ double get_eps_x1(const bool track)
   if (track) {
     globval.emittance = true;
     // A = get_A(ic[0], ic[1], ic[2], ic[3]);
-    putlinmat(6, globval.Ascr, A);
+    A = putlinmat(6, globval.Ascr);
     Cell_Pass(0, globval.Cell_nLoc, A, lastpos);
     // Cell_Twiss(0, globval.Cell_nLoc, A, false, false, 0e0);
     globval.emittance = false;
@@ -1330,7 +1330,7 @@ void get_h(const double twoJ[], const double delta, constr_type &constr)
   danot_(no_tps-1);
   get_map(false);
   danot_(no_tps);
-  putlinmat(6, globval.Ascr, MNF.A1);
+  MNF.A1 = putlinmat(6, globval.Ascr);
   CtoR(get_h_local(Inv(MNF.A1)*map*MNF.A1)*Id_scl, h_re, h_im);
 
   // 1st order chromatic.
