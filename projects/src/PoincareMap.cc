@@ -3,10 +3,23 @@
 // Johan Bengtsson 29/03/20.
 
 
-struct PoincareMap {
-
+struct BeamType {
 private:
+public:
+  int                            n_part;
+  std::vector< ss_vect<double> > ps;
+  ss_vect<double>                mean;
+  ss_vect<tps>                   sigma;
 
+  void BeamInit(const int n_part, const double eps_x, const double eps_y,
+		const double sigma_delta);
+  void BeamStats(void);
+  void print(void);
+};
+
+
+struct PoincareMap {
+private:
 public:
   int n_DOF;           // Degrees-of-Freedom.
   bool
@@ -31,9 +44,9 @@ public:
   void GetA(void);
   void GetM_diff(void);
   void GetM_Chol(void);
+  void propagate(const int n, BeamType &beam);
   void print(void);
 };
-
 
 void PrtMap(const double n_DOF, ss_vect<tps> map)
 {
@@ -139,9 +152,8 @@ ss_vect<tps> Mat2Map(const int n, double **M)
 
 void PoincareMap::GetM_Chol(void)
 {
-  int    j, k;
-  double *diag, **d1, **d2, **d2_tp;
-  ss_vect<tps> L, L_tp;
+  int          j, k;
+  double       *diag, **d1, **d2, **d2_tp;
 
   const int n = 2*n_DOF;
 
@@ -161,6 +173,44 @@ void PoincareMap::GetM_Chol(void)
 
   free_dvector(diag, 1, n); free_dmatrix(d1, 1, n, 1, n);
   free_dmatrix(d2, 1, n, 1, n); free_dmatrix(d2_tp, 1, n, 1, n);
+}
+
+
+void PoincareMap::propagate(const int n, BeamType &beam)
+{
+  int             i, j, k;
+  ss_vect<double> X;
+  ofstream        outf;
+
+  const int    n_prt     = 10;
+  const string file_name = "propagate.out";
+
+  file_wr(outf, file_name.c_str());
+
+  for (i = 1; i <= n; i++) {
+    for (j = 0; j < (int)beam.ps.size(); j++) {
+      for (k = 0; k < 6; k++)
+	X[k] = normranf();
+      beam.ps[j] = (M_lat*beam.ps[j]+M_Chol_tp*X).cst();
+    }
+
+    beam.BeamStats();
+
+    if (i % n_prt == 0) {
+      outf << setw(7) << i;
+      for (j = 0; j < 6; j++)
+	outf << scientific << setprecision(5) << setw(13) << beam.sigma[j][j];
+      outf << "\n";
+    }
+  }
+  if (n % n_prt != 0) {
+    outf << setw(7) << n;
+    for (j = 0; j < 6; j++)
+      outf << scientific << setprecision(5) << setw(13) << beam.sigma[j][j];
+    outf << "\n";
+  }
+
+  outf.close();
 }
 
 
@@ -199,9 +249,80 @@ void PoincareMap::print(void)
 }
 
 
+void BeamType::BeamInit(const int n_part, const double eps_x,
+			const double eps_y, const double sigma_s)
+{
+  int             j, k;
+  double          phi;
+  ss_vect<double> ps;
+
+  this->n_part = n_part;
+
+  globval.Cavity_on = false; globval.radiation = false;
+  Ring_GetTwiss(true, 0e0);
+
+  const double
+    eps[]   = {eps_x, eps_y},
+    alpha[] = {Cell[0].Alpha[X_], Cell[0].Alpha[Y_]},
+    beta[]  = {Cell[0].Beta[X_], Cell[0].Beta[Y_]};
+
+  for (j = 0; j < n_part; j++) {
+    ps.zero();
+    for (k = 0; k < 2; k++) {
+      phi = 2e0*M_PI*ranf();
+      ps[2*k] = sqrt(beta[k]*eps[k])*cos(phi);
+      ps[2*k+1] = -sqrt(eps[k]/beta[k])*(sin(phi)-alpha[k]*cos(phi));
+      ps[ct_] = sigma_s*(2e0*ranf()-1e0);
+    }
+    this->ps.push_back(ps);
+  }
+}
+
+
+void BeamType::BeamStats(void)
+{
+  int             i, j, k;
+  double          val;
+  ss_vect<double> sum;
+  ss_vect<tps>    sum2;
+
+  sum.zero(); sum2.zero();
+  for (i = 0; i < n_part; i++) {
+    sum += ps[i];
+    for (j = 0; j < 6; j++)
+      for (k = 0; k < 6; k++)
+	sum2[j] += ps[i][j]*ps[i][k]*tps(0e0, k+1);
+  }
+
+  sigma.zero();
+  for (j = 0; j < 6; j++) {
+    mean[j] = sum[j]/n_part;
+    for (k = 0; k < 6; k++) {
+      val = (n_part*sum2[j][k]-sum[j]*sum[k])/(n_part*(n_part-1e0));
+      if (val >= 0e0) sigma[j] += sqrt(val)*tps(0e0, k+1);
+    }
+  }
+}
+
+void BeamType::print(void)
+{
+  int k;
+
+  printf("\nmean: ");
+  cout << scientific << setprecision(5) << setw(13) << mean << "\n";
+  printf("sigma:");
+  for (k = 0; k < 6; k++)
+    printf(" %12.5e", sigma[k][k]);
+  printf("\n");
+}
+
+
 void get_Poincare_Map(void)
 {
   PoincareMap map;
+  BeamType    beam;
+
+  const int long seed = 1121;
 
   if (!false) no_sxt();
 
@@ -212,5 +333,18 @@ void get_Poincare_Map(void)
   }
 
   map.GetM_lat(true, true);
-  map.print();
+  if (false) map.print();
+
+  iniranf(seed); setrancut(5e0);
+
+  printf("\ntracking:\n");
+  beam.BeamInit(100, 27e-9, 80e-12, 32e-3);
+  beam.BeamStats(); beam.print();
+  map.propagate(20000, beam);
+  beam.BeamStats(); beam.print();
+  printf("\nsigma_x, sigma_px: %12.5e %12.5e\n",
+	 sqrt(sqr(beam.sigma[x_][x_])
+	      +sqr(map.M_lat[x_][delta_]*beam.sigma[delta_][delta_])),
+	 sqrt(sqr(beam.sigma[px_][px_])
+	      +sqr(map.M_lat[px_][delta_]*beam.sigma[delta_][delta_])));
 }

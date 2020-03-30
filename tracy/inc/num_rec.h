@@ -261,6 +261,7 @@ extern "C" {
   float dawson(float x);
   float dbrent(float ax, float bx, float cx,
 	       float (*f)(float), float (*df)(float), float tol, float *xmin);
+  void dcholdc(double **a, int n, double p[]);
   void ddpoly(float c[], int nc, float x, float pd[], int nd);
   int decchk(char string[], int n, char *ch);
   void derivs(float x, float y[], float dydx[]);
