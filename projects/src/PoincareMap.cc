@@ -27,6 +27,7 @@ public:
     rad_on;            // Classical Radiation on/off.
   double
     C,                 // Circumference.
+    alpha_c,           // Linear Momentum Compaction.
     nu[3],             // Tunes; in Floquet Space.
     ksi_1[2],          // Linear Chromaticity.
     ksi_2[2],          // Second Order Chromaticity.
@@ -264,7 +265,7 @@ void BeamType::BeamInit(const int n_part, const double eps_x,
   const double
     eps[]   = {eps_x, eps_y},
     alpha[] = {Cell[0].Alpha[X_], Cell[0].Alpha[Y_]},
-    beta[]  = {Cell[0].Beta[X_], Cell[0].Beta[Y_]};
+    beta[]  = {Cell[0].Beta[X_],  Cell[0].Beta[Y_]};
 
   for (j = 0; j < n_part; j++) {
     ps.zero();
@@ -273,6 +274,7 @@ void BeamType::BeamInit(const int n_part, const double eps_x,
       ps[2*k] = sqrt(beta[k]*eps[k])*cos(phi);
       ps[2*k+1] = -sqrt(eps[k]/beta[k])*(sin(phi)-alpha[k]*cos(phi));
       ps[ct_] = sigma_s*(2e0*ranf()-1e0);
+      // ps_delta = ;
     }
     this->ps.push_back(ps);
   }
@@ -319,6 +321,7 @@ void BeamType::print(void)
 
 void get_Poincare_Map(void)
 {
+  double      eps_x, sigma_delta, U_0, J[3]; 
   PoincareMap map;
   BeamType    beam;
 
@@ -338,13 +341,14 @@ void get_Poincare_Map(void)
   iniranf(seed); setrancut(5e0);
 
   printf("\ntracking:\n");
-  beam.BeamInit(100, 27e-9, 80e-12, 32e-3);
+  beam.BeamInit(1000, 0e-9, 6e-9, 0e-3);
   beam.BeamStats(); beam.print();
   map.propagate(20000, beam);
   beam.BeamStats(); beam.print();
+  get_eps_x(eps_x, sigma_delta, U_0, J);
   printf("\nsigma_x, sigma_px: %12.5e %12.5e\n",
-	 sqrt(sqr(beam.sigma[x_][x_])
-	      +sqr(map.M_lat[x_][delta_]*beam.sigma[delta_][delta_])),
-	 sqrt(sqr(beam.sigma[px_][px_])
-	      +sqr(map.M_lat[px_][delta_]*beam.sigma[delta_][delta_])));
+	 sqrt(Cell[0].Beta[X_]*eps_x
+	      +sqr(map.M_lat[x_][delta_]*sigma_delta)),
+	 sqrt((1e0+sqr(Cell[0].Alpha[X_]))/Cell[0].Beta[X_]*eps_x
+	      +sqr(map.M_lat[px_][delta_]*sigma_delta)));
 }

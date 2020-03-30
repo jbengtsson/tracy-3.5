@@ -1522,6 +1522,7 @@ int main(int argc, char *argv[])
   long int         lastn, lastpos, loc, loc2;
   int              k, b2_fam[2], b3_fam[2], lat_case;
   double           b2[2], a2, b3[2], b3L[2], a3, a3L, f_rf, dx, dnu[3], I[6];
+  double           eps_x, sigma_delta, U_0, J[3];
   tps              a;
   Matrix           M;
   std::vector<int> Fam;
@@ -1596,7 +1597,7 @@ int main(int argc, char *argv[])
   }
 
   if (false) {
-    get_eps_x();
+    get_eps_x(eps_x, sigma_delta, U_0, J);
     if (false) get_I(I, true);
 
     prt_lat("linlat1.out", globval.bpm, true);

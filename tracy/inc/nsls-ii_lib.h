@@ -57,7 +57,7 @@ double get_curly_H(const double alpha_x, const double beta_x,
 
 void get_I(double I[], const bool prt);
 
-double get_eps_x(void);
+void get_eps_x(double &eps_x, double &sigma_delta, double &U_0, double J[]);
 
 void GetEmittance(const int Fnum, const bool prt);
 

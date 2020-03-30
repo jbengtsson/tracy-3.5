@@ -392,12 +392,12 @@ void get_I(double I[], const bool prt)
 }
 
 
-double get_eps_x(void)
+void get_eps_x(double &eps_x, double &sigma_delta, double &U_0, double J[])
 {
   bool         cav, emit;
   long int     lastpos;
   int          k;
-  double       I[6], U_0, eps_x, sigma_delta, J[3];
+  double       I[6];
   ss_vect<tps> A;
 
   const double C_q_scl = 1e18*C_q/sqr(m_e);
@@ -451,8 +451,6 @@ double get_eps_x(void)
   printf("  J              = [%5.3f, %5.3f, %5.3f]\n", J[X_], J[Y_], J[Z_]);
 
   globval.Cavity_on = cav; globval.emittance = emit;
-
-  return eps_x;
 }
 
 
