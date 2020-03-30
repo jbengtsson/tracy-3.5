@@ -345,6 +345,7 @@ void get_Poincare_Map(void)
   beam.BeamStats(); beam.print();
   map.propagate(20000, beam);
   beam.BeamStats(); beam.print();
+
   get_eps_x(eps_x, sigma_delta, U_0, J);
   printf("\nsigma_x, sigma_px: %12.5e %12.5e\n",
 	 sqrt(Cell[0].Beta[X_]*eps_x
