@@ -2,7 +2,12 @@
 
 #include "tracy_lib.h"
 
+#define PM 1
+#if PM
 #include "PoincareMap.cc"
+#else
+#include "get_Poincare_Map.cc"
+#endif
 
 int no_tps = NO;
 
@@ -1565,7 +1570,19 @@ int main(int argc, char *argv[])
 
   if (false) no_sxt();
 
-  globval.Cavity_on = false; globval.radiation = false;
+  if (false) {
+    ss_vect<tps> M1, M2, M3;
+    globval.Cavity_on = false; globval.radiation = false;
+    M1.identity();
+    Cell_Pass(0, globval.Cell_nLoc, M1, lastpos);
+    globval.Cavity_on = false; globval.radiation = !false;
+    M2.identity();
+    Cell_Pass(0, globval.Cell_nLoc, M2, lastpos);
+    prt_lin_map(3, M2*Inv(M1));
+    exit(0);
+  }
+
+  globval.Cavity_on = !false; globval.radiation = !false;
   Ring_GetTwiss(true, 0e0); printglob();
 
   if (false) chk_traj();
@@ -1617,7 +1634,15 @@ int main(int argc, char *argv[])
   }
 
   if (!false) {
+#if PM
     get_Poincare_Map();
+#else
+      no_sxt();
+      globval.Cavity_on = true; globval.radiation = true;
+      Ring_GetTwiss(true, 0e0); printglob();
+      PoincareMap map;
+      prt_lin_map(3, map.GetMap(true, true));
+#endif
     prt_lat("linlat1.out", globval.bpm, true);
     prt_lat("linlat.out", globval.bpm, true, 10);
     exit(0);

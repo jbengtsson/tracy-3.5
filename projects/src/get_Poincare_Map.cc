@@ -22,7 +22,7 @@ ss_vect<tps> PoincareMap::GetLat(void)
   double       mu[2], alpha[2], beta[2], gamma[2];
   ss_vect<tps> Id, M;
 
-  const bool prt = false;
+  const bool prt = !false;
   const double
     C       = Cell[globval.Cell_nLoc].S,
     alpha_c = globval.Alphac;
@@ -65,7 +65,7 @@ ss_vect<tps> PoincareMap::GetDelta(const double delta)
 {
   ss_vect<tps> Id, M;
 
-  const bool prt = false;
+  const bool prt = !false;
 
   Id.identity();
 
@@ -86,7 +86,7 @@ ss_vect<tps> PoincareMap::GetCav(void)
 {
   ss_vect<tps> Id, M;
 
-  const bool prt = false;
+  const bool prt = !false;
   const int  loc = Elem_GetPos(ElemIndex("cav"), 1);
   const double
     V_RF = Cell[loc].Elem.C->Pvolt,
@@ -114,7 +114,7 @@ ss_vect<tps> PoincareMap::GetRad(void)
   double       tau[3];
   ss_vect<tps> Id, M;
 
-  const bool   prt = false;
+  const bool   prt = !false;
   const double C   = Cell[globval.Cell_nLoc].S;
 
   Id.identity();
@@ -152,6 +152,7 @@ ss_vect<tps> PoincareMap::GetMap(const bool cav, const bool rad)
   // 	 delta_rad, delta_rad2, globval.CODvect[delta_]);
 
   M = GetLat();
+  
   if (rad) M = GetDelta(delta_rad)*M;
   if (cav) M = GetCav()*M;
   if (rad) M = GetRad()*M;
