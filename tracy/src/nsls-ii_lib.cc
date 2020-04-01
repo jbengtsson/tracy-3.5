@@ -517,7 +517,7 @@ void GetEmittance(const int Fnum, const bool prt)
   }
 
   // undamped system
-  globval.radiation = false; globval.emittance = false;
+  globval.radiation = !false; globval.emittance = false;
 
   Ring_GetTwiss(false, 0.0);
 

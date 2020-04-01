@@ -1570,19 +1570,7 @@ int main(int argc, char *argv[])
 
   if (false) no_sxt();
 
-  if (false) {
-    ss_vect<tps> M1, M2, M3;
-    globval.Cavity_on = false; globval.radiation = false;
-    M1.identity();
-    Cell_Pass(0, globval.Cell_nLoc, M1, lastpos);
-    globval.Cavity_on = false; globval.radiation = !false;
-    M2.identity();
-    Cell_Pass(0, globval.Cell_nLoc, M2, lastpos);
-    prt_lin_map(3, M2*Inv(M1));
-    exit(0);
-  }
-
-  globval.Cavity_on = !false; globval.radiation = !false;
+  globval.Cavity_on = false; globval.radiation = false;
   Ring_GetTwiss(true, 0e0); printglob();
 
   if (false) chk_traj();
