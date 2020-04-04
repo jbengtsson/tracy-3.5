@@ -245,7 +245,10 @@ void get_dnu(const int n, const ss_vect<tps> &A, double dnu[])
   const double eps = 1e-15;
 
   for (k = 0; k < n; k++) {
-    dnu[k] = atan2(A[2*k][2*k+1], A[2*k][2*k])/(2.0*M_PI);
+    if (k < 2)
+      dnu[k] = atan2(A[2*k][2*k+1], A[2*k][2*k])/(2e0*M_PI);
+    else
+      dnu[k] = -atan2(A[ct_][delta_], A[ct_][ct_])/(2e0*M_PI);
     if (dnu[k] < -eps) dnu[k] += 1e0;
   }
 }

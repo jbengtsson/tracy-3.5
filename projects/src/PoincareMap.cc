@@ -54,10 +54,10 @@ public:
   ss_vect<double>
     ps_cod;            // Fixed Point.
   ss_vect<tps>
-    M_num,           // numerical Poincare Map.
+    M_num,             // numerical Poincare Map.
     M_lat,             // Linear Map for Lattice.
     M_cav,             // Linear Map for RF Cavity.
-    A,                 // Transformation to Floquet Space.
+    A,                // Transformation to Floquet Space.
     R,                 // Phase Space Rotation.
     M_delta,           // Radiation Loss Map.
     M_tau,             // Radiation Damping Map.
@@ -77,6 +77,7 @@ public:
   void propagate(const int n, BeamType &beam) const;
   void print(void);
 };
+
 
 void PrtMap(const string &str, const double n_DOF, ss_vect<tps> map)
 {
@@ -118,19 +119,85 @@ ss_vect<tps> TpMap(const int n, ss_vect<tps> A)
 }
 
 
+ss_vect<tps> GetA0(const double eta[])
+{
+  // Canonical Transfomation to delta dependent Fixed Point.
+  int          k;
+  ss_vect<tps> Id, A0;
+
+  Id.identity(); A0.identity();
+  for (k = 0; k < 2; k++)
+    A0[k] += eta[k]*Id[delta_];
+  // Symplectic flow.
+  A0[ct_] += eta[px_]*Id[x_] - eta[x_]*Id[px_];
+  return A0;
+}
+
+
+ss_vect<tps> GetA1(const double alpha[], const double beta[])
+{
+  // Canonical Transformation to Floquet Space.
+  int          k;
+  ss_vect<tps> Id, A;
+
+  Id.identity(); A.zero();
+  for (k = 0; k < 3; k++) {
+    if (k < 2) {
+      A[2*k] += sqrt(beta[k])*Id[2*k];
+      A[2*k+1] += -alpha[k]/sqrt(beta[k])*Id[2*k] + 1e0/sqrt(beta[k])*Id[2*k+1];
+    } else {
+      A[ct_] += sqrt(beta[Z_])*Id[ct_];
+      A[delta_] +=
+	-alpha[Z_]/sqrt(beta[Z_])*Id[ct_] + 1e0/sqrt(beta[Z_])*Id[delta_];
+    }
+  }
+  return A;
+}
+
+
+ss_vect<tps> GetR(const double nu[])
+{
+  int          k;
+  ss_vect<tps> Id, R;
+
+  Id.identity(); R.zero();
+  for (k = 0; k < 3; k++) {
+    R[2*k] = cos(2e0*M_PI*nu[k])*Id[2*k] + sin(2e0*M_PI*nu[k])*Id[2*k+1];
+    R[2*k+1] = -sin(2e0*M_PI*nu[k])*Id[2*k] + cos(2e0*M_PI*nu[k])*Id[2*k+1];
+  }
+  R[ct_] = cos(2e0*M_PI*nu[Z_])*Id[ct_] + sin(2e0*M_PI*nu[Z_])*Id[delta_];
+  R[delta_] = -sin(2e0*M_PI*nu[Z_])*Id[ct_] + cos(2e0*M_PI*nu[Z_])*Id[delta_];
+  return R;
+}
+
+
 void GetTwiss(const ss_vect<tps> &A, const ss_vect<tps> &R,
 	      double alpha[], double beta[], double eta[], double nu[])
 {
   int          k;
-  ss_vect<tps> A_A_tp;
+  ss_vect<tps> Id, A_t, scr, A0, A_A_tp;
+
+  Id.identity();
+
+  A_t.identity();
+  for (k = 4; k < 6; k++)
+    A_t[k] = A[k][ct_]*Id[ct_] + A[k][delta_]*Id[delta_];
+  scr = A*Inv(A_t);
+  for (k = 0; k < 4; k++)
+    eta[k] = scr[k][delta_];
 
   for (k = 0; k < 3; k++) {
-    // Phase space rotation by betatron motion.
-    alpha[k] = -(A[2*k][2*k]*A[2*k+1][2*k] + A[2*k][2*k+1]*A[2*k+1][2*k+1]);
-    beta[k] = sqr(A[2*k][2*k]) + sqr(A[2*k][2*k+1]);
-    nu[k] = atan2(R[2*k][2*k+1], R[2*k][2*k])/(2e0*M_PI);
-    // Phase space rotation by synchrotron oscillations.
-    if (k < 2) eta[k] = A[k][delta_]*A[ct_][ct_] - A[k][ct_]*A[ct_][delta_];
+    if (k < 2) {
+      // Phase space rotation by betatron motion.
+      alpha[k] = -(A[2*k][2*k]*A[2*k+1][2*k] + A[2*k][2*k+1]*A[2*k+1][2*k+1]);
+      beta[k] = sqr(A[2*k][2*k]) + sqr(A[2*k][2*k+1]);
+      nu[k] = atan2(R[2*k][2*k+1], R[2*k][2*k])/(2e0*M_PI);
+    } else {
+      alpha[Z_] =
+	-(A[ct_][ct_]*A[delta_][ct_] + A[ct_][delta_]*A[delta_][delta_]);
+      beta[Z_] = sqr(A[ct_][ct_]) + sqr(A[ct_][delta_]);
+      nu[Z_] = atan2(R[ct_][delta_], R[ct_][ct_])/(2e0*M_PI);
+    }
   }
 }
 
@@ -138,7 +205,7 @@ void GetTwiss(const ss_vect<tps> &A, const ss_vect<tps> &R,
 void PoincareMapType::GetA(void)
 {
   int    k;
-  double nu_z, a_c;
+  double nu_z, a_c, dnu[3];
   Matrix M_mat, A_mat, A_inv_mat, R_mat;
 
   getlinmat(6, M_num, M_mat);
@@ -149,8 +216,11 @@ void PoincareMapType::GetA(void)
 
   A = putlinmat(2*n_DOF, A_mat);
   if (n_DOF < 3) {
-    A[ct_] = tps(0e0, ct_+1); A[delta_] = tps(0e0, delta_+1);
+    // Coasting longitudinal plane.
+    A[ct_] = tps(0e0, ct_+1);
+    A[delta_] = tps(0e0, delta_+1);
   }
+  A = get_A_CS(n_DOF, A, dnu);
   R = putlinmat(2*n_DOF, R_mat);
 }
 
@@ -194,24 +264,6 @@ void PoincareMapType::GetM_tau(void)
     M_tau[2*k] = exp(-C/(c0*tau[k]))*Id[2*k];
     M_tau[2*k+1] = exp(-C/(c0*tau[k]))*Id[2*k+1];
   }
-}
-
-
-ss_vect<tps> GetA1(const double alpha[], const double beta[],
-		   const double eta[])
-{
-  int          k;
-  ss_vect<tps> Id, A;
-
-  Id.identity();
-  for (k = 0; k < 3; k++) {
-    A[2*k] += sqrt(beta[k])*Id[2*k];
-    A[2*k+1] += -alpha[k]/sqrt(beta[k])*Id[2*k] + 1e0/sqrt(beta[k])*Id[2*k+1];
-  }
-  A[x_] += eta[x_]*Id[delta_];
-  A[px_] += eta[px_]*Id[delta_];
-  PrtMap("\nA:", 3, A);
-  return A;
 }
 
 
@@ -371,72 +423,33 @@ void PoincareMapType::propagate(const int n, BeamType &beam) const
 }
 
 
-ss_vect<tps> GetM_track(const ss_vect<tps> &ps_cod)
+ss_vect<tps> GetM_track(const bool cav_on, const bool rad_on,
+			const ss_vect<tps> &ps_cod)
 {
   int long     lastpos;
   ss_vect<tps> M;
 
-  globval.Cavity_on = false; globval.radiation = !false;
+  globval.Cavity_on = cav_on; globval.radiation = rad_on;
   M.identity(); M += ps_cod;
   Cell_Pass(0, globval.Cell_nLoc, M, lastpos);
   return M;
 }
 
 
-ss_vect<tps> GetA_CS(const double alpha[], const double beta[])
+ss_vect<tps> GetMTwiss(const double alpha[], const double beta[],
+		       const double eta[], const double nu[])
 {
-  int          k;
-  ss_vect<tps> Id, A;
-
-  Id.identity(); A.zero();
-  for (k = 0; k < 3; k++) {
-    A[2*k] = sqrt(beta[k])*Id[2*k];
-    A[2*k+1] =
-      -alpha[k]/sqrt(beta[k])*Id[2*k] + 1e0/sqrt(beta[k])*Id[2*k+1];
-  }
-  return A;
-}
-
-
-ss_vect<tps> GetR(const double nu[])
-{
-  int          k;
-  ss_vect<tps> Id, R;
-
-  Id.identity(); R.zero();
-  for (k = 0; k < 3; k++) {
-    R[2*k] = cos(2e0*M_PI*nu[k])*Id[2*k] + sin(2e0*M_PI*nu[k])*Id[2*k+1];
-    R[2*k+1] = -sin(2e0*M_PI*nu[k])*Id[2*k] + cos(2e0*M_PI*nu[k])*Id[2*k+1];
-  }
-  R[ct_] = cos(2e0*M_PI*nu[Z_])*Id[ct_] - sin(2e0*M_PI*nu[Z_])*Id[delta_];
-  R[delta_] = sin(2e0*M_PI*nu[Z_])*Id[ct_] + cos(2e0*M_PI*nu[Z_])*Id[delta_];
-  return R;
-}
-
-
-ss_vect<tps> GetM_CS(const PoincareMapType &map)
-{
-  int          k;
   ss_vect<tps> Id, A, M;
 
   Id.identity();
-  A = GetA_CS(map.alpha, map.beta);
-  M = A*GetR(map.nu)*Inv(A);
-  for (k = 0; k < 2; k++)
-    M[k] += map.M_num[k][delta_]*Id[delta_];
-  M[ct_] +=
-    (M[x_][x_]*M[px_][delta_]-M[px_][x_]*M[x_][delta_])*Id[x_]
-    + (M[x_][px_]*M[px_][delta_]-M[px_][px_]*M[x_][delta_])*Id[px_];
-  M = map.M_tau*M;
+  A = GetA0(eta)*GetA1(alpha, beta);
+  M = A*GetR(nu)*Inv(A);
   return M;
 }
 
 
 void PoincareMapType::print(void)
 {
-  double       dnu[3];
-  ss_vect<tps> A_CS;
-
   printf("\nCavity %d, Radiation %d\n", cav_on, rad_on);
   printf("\nC [m]      = %7.5f\n", C);
 
@@ -467,13 +480,12 @@ void PoincareMapType::print(void)
   PrtMap("\nM = A*R*A^-1:", 3, A*R*Inv(A));
   printf("\nDet{A*R*A^-1}-1 = %10.3e\n", DetMap(n_DOF, A*R*Inv(A))-1e0);
 
-  A_CS = get_A_CS(3, A, dnu);
-  PrtMap("\nA:", 3, A_CS);
-  printf("\nDet{A}-1 = %10.3e\n", DetMap(n_DOF, A_CS)-1e0);
+  PrtMap("\nA:", 3, A);
+  printf("\nDet{A}-1 = %10.3e\n", DetMap(n_DOF, A)-1e0);
 
   if (!false) {
     ss_vect<tps> M1;
-    M1 = GetM_CS(*this);
+    M1 = M_tau*GetMTwiss(alpha, beta, eta, nu);
     PrtMap("\nM = A*R*A^-1; from Twiss Parameters:", 3, M1);
     printf("\nDet{A*R*A^-1}-1 = %10.3e\n", DetMap(n_DOF, M1)-1e0);
   }
@@ -483,7 +495,7 @@ void PoincareMapType::print(void)
 
   if (!false) {
     ss_vect<tps> M1;
-    M1 = GetM_track(ps_cod);
+    M1 = GetM_track(false, true, ps_cod);
     PrtMap("\nM_lat; cross check from tracking:", 3, M1);
     printf("\nDet{M_lat}-1 = %10.3e\n", DetMap(n_DOF, M1)-1e0);
   }
@@ -561,8 +573,6 @@ void BeamType::BeamStats(void)
 
 void BeamType::print(void)
 {
-  int k;
-
   printf("\nmean: ");
   cout << scientific << setprecision(5) << setw(13) << mean << "\n";
   PrtMap("\nsigma:", 3, sigma);
@@ -621,7 +631,7 @@ void get_Poincare_Map(void)
 
   map.GetM(true, true); map.print();
 
-  if (!false) {
+  if (false) {
     Matrix       L_tp_mat;
     ss_vect<tps> L, L_tp, Id;
     Id.identity();
