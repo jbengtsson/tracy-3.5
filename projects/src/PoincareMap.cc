@@ -121,7 +121,8 @@ ss_vect<tps> TpMap(const int n, ss_vect<tps> A)
 void GetTwiss(const ss_vect<tps> &A, const ss_vect<tps> &R,
 	      double alpha[], double beta[], double eta[], double nu[])
 {
-  int k;
+  int          k;
+  ss_vect<tps> A_A_tp;
 
   for (k = 0; k < 3; k++) {
     // Phase space rotation by betatron motion.
@@ -196,11 +197,29 @@ void PoincareMapType::GetM_tau(void)
 }
 
 
+ss_vect<tps> GetA1(const double alpha[], const double beta[],
+		   const double eta[])
+{
+  int          k;
+  ss_vect<tps> Id, A;
+
+  Id.identity();
+  for (k = 0; k < 3; k++) {
+    A[2*k] += sqrt(beta[k])*Id[2*k];
+    A[2*k+1] += -alpha[k]/sqrt(beta[k])*Id[2*k] + 1e0/sqrt(beta[k])*Id[2*k+1];
+  }
+  A[x_] += eta[x_]*Id[delta_];
+  A[px_] += eta[px_]*Id[delta_];
+  PrtMap("\nA:", 3, A);
+  return A;
+}
+
+
 void PoincareMapType::GetM_diff(void)
 {
   int long     lastpos;
   int          k;
-  ss_vect<tps> Id, As, D_diag, A_A_tp;
+  ss_vect<tps> Id, As, D_diag;
 
   Id.identity();
 
@@ -215,9 +234,11 @@ void PoincareMapType::GetM_diff(void)
   for (k = 0; k < n_DOF; k++)
     D[k] = globval.D_rad[k];
 
+  D_diag.zero();
   for (k = 0; k < 2*n_DOF; k++)
-    D_diag[k] = sqrt(2e0*D[k/2])*Id[k];
+    D_diag[k] = sqrt(D[k/2])*Id[k];
   M_diff = D_diag*A*TpMap(n_DOF, A)*D_diag;
+
   GetM_Chol();
 }
 
@@ -327,7 +348,7 @@ void PoincareMapType::propagate(const int n, BeamType &beam) const
     for (j = 0; j < (int)beam.ps.size(); j++) {
       for (k = 0; k < 6; k++)
 	X[k] = normranf();
-      beam.ps[j] = (M_lat*beam.ps[j]+M_Chol*X).cst();
+      beam.ps[j] = (M*beam.ps[j]+M_Chol*X).cst();
     }
 
     beam.BeamStats();
@@ -413,6 +434,9 @@ ss_vect<tps> GetM_CS(const PoincareMapType &map)
 
 void PoincareMapType::print(void)
 {
+  double       dnu[3];
+  ss_vect<tps> A_CS;
+
   printf("\nCavity %d, Radiation %d\n", cav_on, rad_on);
   printf("\nC [m]      = %7.5f\n", C);
 
@@ -443,12 +467,9 @@ void PoincareMapType::print(void)
   PrtMap("\nM = A*R*A^-1:", 3, A*R*Inv(A));
   printf("\nDet{A*R*A^-1}-1 = %10.3e\n", DetMap(n_DOF, A*R*Inv(A))-1e0);
 
-  if (!false) {
-    double nus[3];
-    A = get_A_CS(3, A, nus);
-  }
-  PrtMap("\nA:", 3, A);
-  printf("\nDet{A}-1 = %10.3e\n", DetMap(n_DOF, A)-1e0);
+  A_CS = get_A_CS(3, A, dnu);
+  PrtMap("\nA:", 3, A_CS);
+  printf("\nDet{A}-1 = %10.3e\n", DetMap(n_DOF, A_CS)-1e0);
 
   if (!false) {
     ss_vect<tps> M1;
@@ -462,7 +483,6 @@ void PoincareMapType::print(void)
 
   if (!false) {
     ss_vect<tps> M1;
-
     M1 = GetM_track(ps_cod);
     PrtMap("\nM_lat; cross check from tracking:", 3, M1);
     printf("\nDet{M_lat}-1 = %10.3e\n", DetMap(n_DOF, M1)-1e0);
@@ -538,27 +558,42 @@ void BeamType::BeamStats(void)
   }
 }
 
+
 void BeamType::print(void)
 {
   int k;
 
   printf("\nmean: ");
   cout << scientific << setprecision(5) << setw(13) << mean << "\n";
-  printf("sigma:");
-  for (k = 0; k < 6; k++)
-    printf(" %12.5e", sigma[k][k]);
-  printf("\n");
+  PrtMap("\nsigma:", 3, sigma);
 }
 
 
-void GetSigma_eff(const double alpha[], const double beta[], const double eta[])
+void GetSigma(const double C, const double tau[], const double D[],
+	      ss_vect<tps> &A)
 {
-  double eps_x, sigma_delta, U_0, J[3];
+  int          j, k;
+  double       eps[3];
+  ss_vect<tps> Id, var, sigma;
 
-  get_eps_x(eps_x, sigma_delta, U_0, J);
+  Id.identity();
+
+  for (k = 0; k < 3; k++)
+    eps[k] = D[k]*tau[k]*c0/(2e0*C);
+  printf("\neps = [%10.3e, %10.3e, %10.3e]\n", eps[X_], eps[Y_], eps[Z_]);
+  for (k = 0; k < 6; k++)
+    var[k] = sqrt(eps[k/2])*Id[k];
+  var = var*A*TpMap(3, A)*var;
+
+  sigma.zero();
+  for (j = 0; j < 6; j++)
+    for (k = 0; k < 6; k++)
+      sigma[j] += sqrt((var[j][k] > 0e0)? var[j][k] : 0e0)*Id[k];
+
+  PrtMap("\nsigma:", 3, sigma);
   printf("\nsigma_x, sigma_px: %12.5e %12.5e\n",
-	 sqrt(beta[X_]*eps_x+sqr(eta[x_]*sigma_delta)),
-	 sqrt((1e0+sqr(alpha[X_]))/beta[X_]*eps_x+sqr(eta[px_]*sigma_delta)));
+	 sqrt(sqr(sigma[x_][x_])+sqr(sigma[x_][delta_])),
+	 sqrt(sqr(sigma[px_][x_])+sqr(sigma[px_][delta_])));
 }
 
 
@@ -605,5 +640,8 @@ void get_Poincare_Map(void)
     PrtMap("\nL*L_tp:", 3, L*L_tp);
   }
 
-  if (false) BenchMark(map, 1000, 10000);
+  if (false) {
+    BenchMark(map, 1000, 10000);
+    GetSigma(map.C, map.tau, map.D, map.A);
+  }
 }
