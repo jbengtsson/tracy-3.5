@@ -360,24 +360,23 @@ ss_vect<tps> Inv(const ss_vect<tps> &x)
 
 ss_vect<tps> PInv(const ss_vect<tps> &x, const long int jj[])
 {
-  int           k, n;
-  ss_vect<tps>  y, z;
+  int           j, k, n;
+  ss_vect<tps>  Id, y, z;
 
-  n = 0;
-  for (k = 0; k < ss_dim; k++) {
-    if (jj[k] != 0) {
-      n++; y[n-1] = x[k];
-    }
-  }
+  Id.identity(); y.zero(); n = 0;
+  for (j = 0; j < ss_dim; j++)
+    if (jj[j] != 0) {
+      n++;
+      for (k = 0; k < ss_dim; k++)
+	y[j] += jj[k]*x[j][k]*Id[k];
+    } else
+      y[j] = Id[j];
 
-  dainv_(y, n, z, n);
+  dainv_(y, nv_tps, z, nv_tps);
 
-  n = 0; y.zero();
-  for (k = 0; k < ss_dim; k++) {
-    if (jj[k] != 0) {
-      n++; y[n-1] = z[k];
-    }
-  }
+  y.zero();
+  for (j = 0; j < ss_dim; j++)
+    if (jj[j] != 0) y[j] = z[j];
 
   return y;
 }

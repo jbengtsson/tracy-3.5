@@ -38,7 +38,6 @@ public:
     C,                 // Circumference.
     E0,                // Beam Energy.
     alpha[3], beta[3], // Twiss Parameters.
-    eta[2],            // Linear Dispersion.
     nu[3],             // Tunes; in Floquet Space.
     ksi1[2],           // Linear Chromaticity.
     ksi2[2],           // Second Order Chromaticity.
@@ -52,13 +51,14 @@ public:
     tau[3],            // Damping times.
     D[3];              // Diffusion Coefficients.
   ss_vect<double>
-    ps_cod;            // Fixed Point.
+    ps_cod,            // Fixed Point.
+    eta;               // Linear Dispersion.
   ss_vect<tps>
     M_num,             // numerical Poincare Map.
     M_lat,             // Linear Map for Lattice.
     M_cav,             // Linear Map for RF Cavity.
-    A,                // Transformation to Floquet Space.
-    R,                 // Phase Space Rotation.
+    A,                 // Transformation to Floquet Space.
+    M_Fl,              // Map in Floquet Space.
     M_delta,           // Radiation Loss Map.
     M_tau,             // Radiation Damping Map.
     M,                 // Poincare Map.
@@ -66,7 +66,6 @@ public:
 
   void GetMap(void);
   void GetDisp(void);
-  void GetA(void);
   void GetM_cav(void);
   void GetM_delta(void);
   void GetM_tau(void);
@@ -119,7 +118,31 @@ ss_vect<tps> TpMap(const int n, ss_vect<tps> A)
 }
 
 
-ss_vect<tps> GetA0(const double eta[])
+void GetA(const int n_DOF, const double C, const ss_vect<tps> &M,
+	  ss_vect<tps> &A, ss_vect<tps> &R, double tau[])
+{
+  int    k;
+  double nu_z, alpha_c, dnu[3];
+  Matrix M_mat, A_mat, A_inv_mat, R_mat;
+
+  getlinmat(6, M, M_mat);
+  GDiag(2*n_DOF, C, A_mat, A_inv_mat, R_mat, M_mat, nu_z, alpha_c);
+
+  for (k = 0; k < n_DOF; k++)
+    tau[k] = -C/(c0*globval.alpha_rad[k]);
+
+  A = putlinmat(2*n_DOF, A_mat);
+  if (n_DOF < 3) {
+    // Coasting longitudinal plane.
+    A[ct_] = tps(0e0, ct_+1);
+    A[delta_] = tps(0e0, delta_+1);
+  }
+  A = get_A_CS(n_DOF, A, dnu);
+  R = putlinmat(2*n_DOF, R_mat);
+}
+
+
+ss_vect<tps> GetA0(const ss_vect<double> &eta)
 {
   // Canonical Transfomation to delta dependent Fixed Point.
   int          k;
@@ -171,20 +194,51 @@ ss_vect<tps> GetR(const double nu[])
 }
 
 
-void GetTwiss(const ss_vect<tps> &A, const ss_vect<tps> &R,
-	      double alpha[], double beta[], double eta[], double nu[])
+void GetEta(const ss_vect<tps> &M, ss_vect<double> &eta)
 {
+  long int     jj[ss_dim];
+  int          k;
+  ss_vect<tps> Id, Id_x, M_x;
+
+  Id.identity();
+  Id_x.identity(); Id_x[y_] = Id_x[py_] = Id_x[ct_] = Id_x[delta_] = 0e0;
+  M_x = M*Id_x;
+  for (k = 0; k < ss_dim; k++)
+    jj[k] = 0;
+  jj[x_] = 1; jj[px_] = 1;
+  for (k = 0; k < 2; k++)
+    eta[k] = M[k][delta_];
+  eta = (PInv(Id-M_x, jj)*eta).cst();
+}
+
+
+void GetTwiss(const ss_vect<tps> &A, const ss_vect<tps> &R,
+	      double alpha[], double beta[], ss_vect<double> &eta, double nu[])
+{
+  long int     jj[ss_dim];
   int          k;
   ss_vect<tps> Id, A_t, scr, A0, A_A_tp;
 
   Id.identity();
 
-  A_t.identity();
+  A_t.zero();
   for (k = 4; k < 6; k++)
     A_t[k] = A[k][ct_]*Id[ct_] + A[k][delta_]*Id[delta_];
-  scr = A*Inv(A_t);
+  for (k = 0; k < ss_dim; k++)
+    jj[k] = 0;
+  jj[ct_] = 1; jj[delta_] = 1;
+  scr = A*PInv(A_t, jj);
+  eta.zero();
   for (k = 0; k < 4; k++)
     eta[k] = scr[k][delta_];
+ 
+  // A_t.identity();
+  // for (k = 4; k < 6; k++)
+  //   A_t[k] = A[k][ct_]*Id[ct_] + A[k][delta_]*Id[delta_];
+  // scr = A*Inv(A_t);
+  // eta.zero();
+  // for (k = 0; k < 4; k++)
+  //   eta[k] = scr[k][delta_];
 
   for (k = 0; k < 3; k++) {
     if (k < 2) {
@@ -199,29 +253,6 @@ void GetTwiss(const ss_vect<tps> &A, const ss_vect<tps> &R,
       nu[Z_] = atan2(R[ct_][delta_], R[ct_][ct_])/(2e0*M_PI);
     }
   }
-}
-
-
-void PoincareMapType::GetA(void)
-{
-  int    k;
-  double nu_z, a_c, dnu[3];
-  Matrix M_mat, A_mat, A_inv_mat, R_mat;
-
-  getlinmat(6, M_num, M_mat);
-  GDiag(2*n_DOF, C, A_mat, A_inv_mat, R_mat, M_mat, nu_z, a_c);
-
-  for (k = 0; k < n_DOF; k++)
-    tau[k] = -C/(c0*globval.alpha_rad[k]);
-
-  A = putlinmat(2*n_DOF, A_mat);
-  if (n_DOF < 3) {
-    // Coasting longitudinal plane.
-    A[ct_] = tps(0e0, ct_+1);
-    A[delta_] = tps(0e0, delta_+1);
-  }
-  A = get_A_CS(n_DOF, A, dnu);
-  R = putlinmat(2*n_DOF, R_mat);
 }
 
 
@@ -369,17 +400,25 @@ void PoincareMapType::GetM(const bool cav, const bool rad)
   n_DOF = (!cav_on)? 2 : 3;
 
   GetMap();
-  GetA();
+  GetA(n_DOF, C, M_num, A, M_Fl, tau);
   GetM_tau();
   GetM_delta();
   GetM_cav();
 
-  M = M_num;
-  M_lat = Inv(M_cav)*M;
-
   // Nota Bene: the Twiss parameters are not used; i.e., included for
   // convenience, e.g. cross checks, etc.
-  GetTwiss(A, Inv(M_tau)*R, alpha, beta, eta, nu);
+  GetA(n_DOF, C, M_num, A, M_Fl, tau);
+  GetTwiss(A, M_Fl, alpha, beta, eta, nu);
+  cout << scientific << setprecision(6)
+       << "\neta:\n" << setw(14) << eta << "\n";
+  GetEta(Inv(M_tau)*M_num, eta);
+  cout << scientific << setprecision(6)
+       << "\neta:\n" << setw(14) << eta << "\n";
+  cout << scientific << setprecision(6)
+       << "eta:\n" << setw(14) << (M_num*eta).cst() << "\n";
+
+  M = M_num;
+  M_lat = Inv(M_cav)*M;
 
   if (rad) GetM_diff();
 }
@@ -437,7 +476,7 @@ ss_vect<tps> GetM_track(const bool cav_on, const bool rad_on,
 
 
 ss_vect<tps> GetMTwiss(const double alpha[], const double beta[],
-		       const double eta[], const double nu[])
+		       const ss_vect<double> eta, const double nu[])
 {
   ss_vect<tps> Id, A, M;
 
@@ -477,17 +516,36 @@ void PoincareMapType::print(void)
   PrtMap("\nM_num (input map):", 3, M_num);
   printf("\nDet{M_num}-1 = %10.3e\n", DetMap(n_DOF, M_num)-1e0);
 
-  PrtMap("\nM = A*R*A^-1:", 3, A*R*Inv(A));
-  printf("\nDet{A*R*A^-1}-1 = %10.3e\n", DetMap(n_DOF, A*R*Inv(A))-1e0);
+  PrtMap("\nM = A*M_Fl*A^-1:", 3, A*M_Fl*Inv(A));
+  printf("\nDet{A*M_Fl*A^-1}-1 = %10.3e\n",
+	 DetMap(n_DOF, A*M_Fl*Inv(A))-1e0);
 
   PrtMap("\nA:", 3, A);
   printf("\nDet{A}-1 = %10.3e\n", DetMap(n_DOF, A)-1e0);
 
   if (!false) {
-    ss_vect<tps> M1;
-    M1 = M_tau*GetMTwiss(alpha, beta, eta, nu);
-    PrtMap("\nM = A*R*A^-1; from Twiss Parameters:", 3, M1);
-    printf("\nDet{A*R*A^-1}-1 = %10.3e\n", DetMap(n_DOF, M1)-1e0);
+    ss_vect<double> eta1;
+    ss_vect<tps> Id, A0, A1, M1, A_t;
+
+    Id.identity();
+
+    M1 = Inv(M_delta)*Inv(M_cav)*Inv(A*M_tau*Inv(A))*M_num;
+    PrtMap("\nM1:", 3, M1);
+    printf("\nDet{M1}-1 = %10.3e\n", DetMap(n_DOF, M1)-1e0);
+    GetEta(M1, eta1); eta1[delta_] = 1e0;
+    cout << scientific << setprecision(6)
+	 << "\neta:\n" << setw(14) << eta1 << "\n";
+    cout << scientific << setprecision(6)
+	 << setw(14) << (M1*eta1).cst() << "\n";
+   
+    A0 = GetA0(eta1);
+    PrtMap("\nA0:", 3, A0);
+    printf("\nDet{A0}-1 = %10.3e\n", DetMap(n_DOF, A0)-1e0);
+    M1 = Inv(A0)*M1*A0;
+    PrtMap("\nM1:", 3, M1);
+    printf("\nDet{M1}-1 = %10.3e\n", DetMap(n_DOF, M1)-1e0);
+
+    // exit(0);
   }
 
   PrtMap("\nM_lat (w/o Cavity):", 3, M_lat);
