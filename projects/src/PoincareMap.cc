@@ -198,14 +198,15 @@ void GetEta(const ss_vect<tps> &M, ss_vect<double> &eta)
 {
   long int     jj[ss_dim];
   int          k;
-  ss_vect<tps> Id, Id_x, M_x;
+  ss_vect<tps> Id, M_x;
 
   Id.identity();
-  Id_x.identity(); Id_x[y_] = Id_x[py_] = Id_x[ct_] = Id_x[delta_] = 0e0;
-  M_x = M*Id_x;
+  for (k = 0; k < 2; k++)
+    M_x[k] = M[k][x_]*Id[x_] + M[k][px_]*Id[px_];
   for (k = 0; k < ss_dim; k++)
     jj[k] = 0;
   jj[x_] = 1; jj[px_] = 1;
+  eta.zero();
   for (k = 0; k < 2; k++)
     eta[k] = M[k][delta_];
   eta = (PInv(Id-M_x, jj)*eta).cst();
@@ -229,7 +230,7 @@ void GetTwiss(const ss_vect<tps> &A, const ss_vect<tps> &R,
   jj[ct_] = 1; jj[delta_] = 1;
   scr = A*PInv(A_t, jj);
   eta.zero();
-  for (k = 0; k < 4; k++)
+  for (k = 0; k < 2; k++)
     eta[k] = scr[k][delta_];
  
   // A_t.identity();
@@ -408,14 +409,27 @@ void PoincareMapType::GetM(const bool cav, const bool rad)
   // Nota Bene: the Twiss parameters are not used; i.e., included for
   // convenience, e.g. cross checks, etc.
   GetA(n_DOF, C, M_num, A, M_Fl, tau);
+  // GetTwiss(A, M_Fl, alpha, beta, eta, nu);
+  M = Inv(M_cav)*Inv(M_tau)*Inv(M_delta)*M_num;
+  PrtMap("\nM:", 3, M);
+  GetA(n_DOF, C, M, A, M_Fl, tau);
   GetTwiss(A, M_Fl, alpha, beta, eta, nu);
   cout << scientific << setprecision(6)
        << "\neta:\n" << setw(14) << eta << "\n";
-  GetEta(Inv(M_tau)*M_num, eta);
+  GetEta(M, eta); eta[delta_] = 1e0;
   cout << scientific << setprecision(6)
        << "\neta:\n" << setw(14) << eta << "\n";
   cout << scientific << setprecision(6)
-       << "eta:\n" << setw(14) << (M_num*eta).cst() << "\n";
+       << "eta:\n" << setw(14) << (M*eta).cst() << "\n";
+  ss_vect<tps> A0, Id;
+  Id.identity();
+  A0.identity(); A0[x_] += eta[x_]*Id[delta_]; A0[px_] += eta[px_]*Id[delta_];
+  A = Inv(A0)*A;
+  M = Inv(A0)*M*A0;
+  PrtMap("\nA0:", 3, A0);
+  PrtMap("\nM:", 3, M);
+  PrtMap("\nA*R*Inv(A):", 3, A*M_Fl*Inv(A));
+  exit(0);
 
   M = M_num;
   M_lat = Inv(M_cav)*M;
@@ -545,7 +559,7 @@ void PoincareMapType::print(void)
     PrtMap("\nM1:", 3, M1);
     printf("\nDet{M1}-1 = %10.3e\n", DetMap(n_DOF, M1)-1e0);
 
-    // exit(0);
+    exit(0);
   }
 
   PrtMap("\nM_lat (w/o Cavity):", 3, M_lat);

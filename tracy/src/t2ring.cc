@@ -224,12 +224,20 @@ void Cell_Twiss(long i0, long i1, ss_vect<tps> &Ascr, bool chroma, bool ring,
       nu1[k-1] += dnu[k-1];
 
       cellp->Nu[k-1] = nu1[k-1];
-      // cellp->Eta[k-1] = getmat(Ascr1, k, 5)*getmat(Ascr1, 6, 6) -
-      //                getmat(Ascr1, k, 6)*getmat(Ascr1, 6, 5);
-      // cellp->Etap[k-1] = getmat(Ascr1, 2*k, 5)*getmat(Ascr1, 6, 6) -
-      //                 getmat(Ascr1, 2*k, 6)*getmat(Ascr1, 6, 5);
+#if 0
+      // Approximate:
+      //   A = A0*A1 => [a_16, a_26] = [eta_x, eta_px]*A_long^-1
+      // i.e., [a_15, a_25] != [0, 0].
+      cellp->Eta[k-1] =
+	getmat(Ascr1, k, 5)*getmat(Ascr1, 6, 6) -
+	getmat(Ascr1, k, 6)*getmat(Ascr1, 6, 5);
+      cellp->Etap[k-1] =
+	getmat(Ascr1, 2*k, 5)*getmat(Ascr1, 6, 6) -
+	getmat(Ascr1, 2*k, 6)*getmat(Ascr1, 6, 5);
+#else
       cellp->Eta[k-1] = getmat(Ascr1, 2*k-1, 5);
       cellp->Etap[k-1] = getmat(Ascr1, 2*k, 5);
+#endif
     }
     Ascr0 = Ascr1;
   }
