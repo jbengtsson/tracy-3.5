@@ -12,16 +12,19 @@
 // Johan Bengtsson 29/03/20.
 
 
+struct PoincareMapType;
+
+
 struct BeamType {
 private:
 public:
   int                            n_part;
   std::vector< ss_vect<double> > ps;
   ss_vect<double>                mean;
-  ss_vect<tps>                   sigma;
+  ss_vect<tps>                   Sigma;
 
-  void BeamInit(const int n_part, const double eps_x, const double eps_y,
-		const double sigma_delta);
+  void BeamInit_dist(const int n_part, const double eps_x, const double eps_y,
+		     const double sigma_delta);
   void BeamStats(void);
   void print(void);
 };
@@ -74,6 +77,7 @@ public:
   void GetM_rad(void);
   void GetM(const bool cav, const bool rad);
   void propagate(const int n, BeamType &beam) const;
+  void propagate(const int n, ss_vect<tps> &Sigma) const;
   void print(void);
 };
 
@@ -115,6 +119,62 @@ ss_vect<tps> TpMap(const int n, ss_vect<tps> A)
   getlinmat(2*n, A, A_mat);
   TpMat(2*n, A_mat);
   return putlinmat(2*n, A_mat);
+}
+
+
+ss_vect<tps>  GetSigma(const ss_vect<tps> &var)
+{
+  int          j, k;
+  ss_vect<tps> Id, Sigma;
+
+  Id.identity(); Sigma.zero();
+  for (j = 0; j < 6; j++)
+    for (k = 0; k < 6; k++)
+      Sigma[j] += ((var[j][k] >= 0e0)? sqrt(var[j][k]) : 0e0)*Id[k];
+
+  return Sigma;
+}
+
+
+ss_vect<tps> GetVar(const ss_vect<tps> &Sigma)
+{
+  int          j, k;
+  ss_vect<tps> Id, var;
+
+  Id.identity(); var.zero();
+  for (j = 0; j < 6; j++)
+    for (k = 0; k < 6; k++)
+      var[j] += sqr(Sigma[j][k])*Id[k];
+
+  return var;
+}
+
+
+void GetSigma(const double C, const double tau[], const double D[],
+	      ss_vect<tps> &A)
+{
+  int          j, k;
+  double       eps[3];
+  ss_vect<tps> Id, var, sigma;
+
+  Id.identity();
+
+  for (k = 0; k < 3; k++)
+    eps[k] = D[k]*tau[k]*c0/(2e0*C);
+  printf("\neps = [%10.3e, %10.3e, %10.3e]\n", eps[X_], eps[Y_], eps[Z_]);
+  for (k = 0; k < 6; k++)
+    var[k] = sqrt(eps[k/2])*Id[k];
+  var = var*A*TpMap(3, A)*var;
+
+  sigma.zero();
+  for (j = 0; j < 6; j++)
+    for (k = 0; k < 6; k++)
+      sigma[j] += sqrt((var[j][k] > 0e0)? var[j][k] : 0e0)*Id[k];
+
+  PrtMap("\nsigma:", 3, sigma);
+  printf("\nsigma_x, sigma_px: %12.5e %12.5e\n",
+	 sqrt(sqr(sigma[x_][x_])+sqr(sigma[x_][delta_])),
+	 sqrt(sqr(sigma[px_][x_])+sqr(sigma[px_][delta_])));
 }
 
 
@@ -406,33 +466,21 @@ void PoincareMapType::GetM(const bool cav, const bool rad)
   GetM_delta();
   GetM_cav();
 
+  M = M_num;
+
   // Nota Bene: the Twiss parameters are not used; i.e., included for
   // convenience, e.g. cross checks, etc.
   GetA(n_DOF, C, M_num, A, M_Fl, tau);
-  // GetTwiss(A, M_Fl, alpha, beta, eta, nu);
-  M = Inv(M_cav)*Inv(M_tau)*Inv(M_delta)*M_num;
-  PrtMap("\nM:", 3, M);
-  GetA(n_DOF, C, M, A, M_Fl, tau);
   GetTwiss(A, M_Fl, alpha, beta, eta, nu);
-  cout << scientific << setprecision(6)
-       << "\neta:\n" << setw(14) << eta << "\n";
-  GetEta(M, eta); eta[delta_] = 1e0;
-  cout << scientific << setprecision(6)
-       << "\neta:\n" << setw(14) << eta << "\n";
-  cout << scientific << setprecision(6)
-       << "eta:\n" << setw(14) << (M*eta).cst() << "\n";
-  ss_vect<tps> A0, Id;
-  Id.identity();
-  A0.identity(); A0[x_] += eta[x_]*Id[delta_]; A0[px_] += eta[px_]*Id[delta_];
-  A = Inv(A0)*A;
-  M = Inv(A0)*M*A0;
-  PrtMap("\nA0:", 3, A0);
-  PrtMap("\nM:", 3, M);
-  PrtMap("\nA*R*Inv(A):", 3, A*M_Fl*Inv(A));
-  exit(0);
+  GetEta(M, eta);
 
-  M = M_num;
-  M_lat = Inv(M_cav)*M;
+  // M = Inv(M_cav)*Inv(M_tau)*Inv(M_delta)*M_num;
+  // PrtMap("\nM:", 3, M);
+  // GetA(n_DOF, C, M, A, M_Fl, tau);
+  // GetTwiss(A, M_Fl, alpha, beta, eta, nu);
+  // cout << scientific << setprecision(6)
+  //      << "\neta:\n" << setw(14) << eta << "\n";
+  // GetEta(M, eta); eta[delta_] = 1e0;
 
   if (rad) GetM_diff();
 }
@@ -440,7 +488,7 @@ void PoincareMapType::GetM(const bool cav, const bool rad)
 
 void PoincareMapType::propagate(const int n, BeamType &beam) const
 {
-  int             i, j, k;
+  int             i, j = 0, k;
   ss_vect<double> X;
   ofstream        outf;
 
@@ -467,8 +515,46 @@ void PoincareMapType::propagate(const int n, BeamType &beam) const
   }
   if (n % n_prt != 0) {
     outf << setw(7) << n;
-    for (j = 0; j < 6; j++)
+    for (k = 0; k < 6; k++)
       outf << scientific << setprecision(5) << setw(13) << beam.sigma[j][j];
+    outf << "\n";
+  }
+
+  outf.close();
+}
+
+
+void PoincareMapType::propagate(const int n, ss_vect<tps> &var) const
+{
+  int          j, k;
+  ss_vect<tps> Id, X, sigma;
+  ofstream     outf;
+
+  const int    n_prt     = 1;
+  const string file_name = "propagate.out";
+
+  file_wr(outf, file_name.c_str());
+
+  Id.identity();
+
+  for (j = 1; j <= n; j++) {
+    for (k = 0; k < 6; k++)
+      X[k] = sqrt(fabs(normranf()))*Id[k];
+    var = M*TpMap(3, M*var) + X*M_diff*X;
+
+    if (j % n_prt == 0) {
+      sigma = GetSigma(var);
+
+      outf << setw(7) << j;
+      for (k = 0; k < 6; k++)
+	outf << scientific << setprecision(5) << setw(13) << sigma[k][k];
+      outf << "\n";
+    }
+  }
+  if (n % n_prt != 0) {
+    outf << setw(7) << n;
+    for (k = 0; k < 6; k++)
+      outf << scientific << setprecision(5) << setw(13) << sigma[k][k];
     outf << "\n";
   }
 
@@ -537,31 +623,6 @@ void PoincareMapType::print(void)
   PrtMap("\nA:", 3, A);
   printf("\nDet{A}-1 = %10.3e\n", DetMap(n_DOF, A)-1e0);
 
-  if (!false) {
-    ss_vect<double> eta1;
-    ss_vect<tps> Id, A0, A1, M1, A_t;
-
-    Id.identity();
-
-    M1 = Inv(M_delta)*Inv(M_cav)*Inv(A*M_tau*Inv(A))*M_num;
-    PrtMap("\nM1:", 3, M1);
-    printf("\nDet{M1}-1 = %10.3e\n", DetMap(n_DOF, M1)-1e0);
-    GetEta(M1, eta1); eta1[delta_] = 1e0;
-    cout << scientific << setprecision(6)
-	 << "\neta:\n" << setw(14) << eta1 << "\n";
-    cout << scientific << setprecision(6)
-	 << setw(14) << (M1*eta1).cst() << "\n";
-   
-    A0 = GetA0(eta1);
-    PrtMap("\nA0:", 3, A0);
-    printf("\nDet{A0}-1 = %10.3e\n", DetMap(n_DOF, A0)-1e0);
-    M1 = Inv(A0)*M1*A0;
-    PrtMap("\nM1:", 3, M1);
-    printf("\nDet{M1}-1 = %10.3e\n", DetMap(n_DOF, M1)-1e0);
-
-    exit(0);
-  }
-
   PrtMap("\nM_lat (w/o Cavity):", 3, M_lat);
   printf("\nDet{M_lat}-1 = %10.3e\n", DetMap(n_DOF, M_lat)-1e0);
 
@@ -586,8 +647,8 @@ void PoincareMapType::print(void)
 }
 
 
-void BeamType::BeamInit(const int n_part, const double eps_x,
-			const double eps_y, const double sigma_s)
+void BeamType::BeamInit_dist(const int n_part, const double eps_x,
+			     const double eps_y, const double sigma_s)
 {
   int             j, k;
   double          phi;
@@ -614,6 +675,33 @@ void BeamType::BeamInit(const int n_part, const double eps_x,
     }
     this->ps.push_back(ps);
   }
+}
+
+
+ss_vect<tps> BeamInit_var(const PoincareMapType &map, const double eps_x,
+			  const double eps_y, const double eps_z)
+{
+  int          k;
+  double       gamma[3];
+  ss_vect<tps> Id, var;
+
+  const double eps[] = {eps_x, eps_y, eps_y};
+
+  Id.identity();
+
+  globval.Cavity_on = false; globval.radiation = false;
+  Ring_GetTwiss(true, 0e0);
+
+  for (k = 0; k < 3; k++)
+    gamma[k] = (1e0+sqr(map.alpha[k]))/map.beta[k];
+
+  var.zero();
+  for (k = 0; k < 3; k++) {
+    var[2*k] += map.beta[k]*eps[k]*Id[2*k] - map.alpha[k]*eps[k]*Id[2*k+1];
+    var[2*k+1] += -map.alpha[k]*eps[k]*Id[2*k] + gamma[k]*eps[k]*Id[2*k+1];
+  }
+
+  return var;
 }
 
 
@@ -651,34 +739,6 @@ void BeamType::print(void)
 }
 
 
-void GetSigma(const double C, const double tau[], const double D[],
-	      ss_vect<tps> &A)
-{
-  int          j, k;
-  double       eps[3];
-  ss_vect<tps> Id, var, sigma;
-
-  Id.identity();
-
-  for (k = 0; k < 3; k++)
-    eps[k] = D[k]*tau[k]*c0/(2e0*C);
-  printf("\neps = [%10.3e, %10.3e, %10.3e]\n", eps[X_], eps[Y_], eps[Z_]);
-  for (k = 0; k < 6; k++)
-    var[k] = sqrt(eps[k/2])*Id[k];
-  var = var*A*TpMap(3, A)*var;
-
-  sigma.zero();
-  for (j = 0; j < 6; j++)
-    for (k = 0; k < 6; k++)
-      sigma[j] += sqrt((var[j][k] > 0e0)? var[j][k] : 0e0)*Id[k];
-
-  PrtMap("\nsigma:", 3, sigma);
-  printf("\nsigma_x, sigma_px: %12.5e %12.5e\n",
-	 sqrt(sqr(sigma[x_][x_])+sqr(sigma[x_][delta_])),
-	 sqrt(sqr(sigma[px_][x_])+sqr(sigma[px_][delta_])));
-}
-
-
 void BenchMark(const PoincareMapType &map, const int n_part, const int n_turn)
 {
   BeamType beam;
@@ -688,20 +748,60 @@ void BenchMark(const PoincareMapType &map, const int n_part, const int n_turn)
   iniranf(seed); setrancut(5e0);
 
   printf("\nBenchMark:\n");
-  beam.BeamInit(n_part, 0e-9, 6e-9, 0e-3);
+  beam.BeamInit_dist(n_part, 0e-9, 6e-9, 0e-3);
   beam.BeamStats(); beam.print();
   map.propagate(n_turn, beam);
   beam.BeamStats(); beam.print();
 }
 
 
+void BenchMark(const PoincareMapType &map, const int n_turn)
+{
+  BeamType     beam;
+  ss_vect<tps> var;
+
+  const int long seed = 1121;
+
+  iniranf(seed); setrancut(5e0);
+
+  printf("\nBenchMark:\n");
+  var = BeamInit_var(map, 0e-9, 6e-9, 0e-9);
+  PrtMap("\nsigma:", 3, GetSigma(var));
+  map.propagate(n_turn, var);
+  PrtMap("\nsigma:", 3, GetSigma(var));
+}
+
+
 void get_Poincare_Map(void)
 {
+  ss_vect<double> eta1;
+  ss_vect<tps>    Id, M, A0;
   PoincareMapType map;
 
   if (!false) no_sxt();
 
+  Id.identity();
+
   map.GetM(true, true); map.print();
+
+  // PrtMap("\nM_num:", 3, map.M_num);
+  // M = Inv(map.M_tau*map.M_cav*map.M_delta)*map.M_num;
+
+  if (false) {
+    eta1 =  map.eta;
+    cout << scientific << setprecision(16) << "\neta:  \n" << setw(14) << eta1
+	 << "\n";
+    cout << scientific << setprecision(6) << "M*eta:\n"
+	 << setw(14) << (M*eta1).cst() << "\n";
+
+    A0.identity();
+    A0[x_] += map.eta[x_]*Id[delta_]; A0[px_] += map.eta[px_]*Id[delta_];
+    PrtMap("\nA0:", 3, A0);
+    map.A = Inv(A0)*map.A;
+    PrtMap("\nA1:", 3, map.A);
+    M = Inv(A0*map.A)*M*A0*map.A;
+    PrtMap("\nR = (A_0*A_1)^-1*M*A_1*A_0:", 3, M);
+  }
 
   if (false) {
     Matrix       L_tp_mat;
@@ -722,8 +822,9 @@ void get_Poincare_Map(void)
     PrtMap("\nL*L_tp:", 3, L*L_tp);
   }
 
-  if (false) {
-    BenchMark(map, 1000, 10000);
+  if (!false) {
+    // BenchMark(map, 1000, 10000);
+    BenchMark(map, 10000);
     GetSigma(map.C, map.tau, map.D, map.A);
   }
 }
