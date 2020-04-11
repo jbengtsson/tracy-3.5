@@ -138,15 +138,15 @@ void prt_vec(const string &str, const int n, double *a)
 }
 
 
-void prt_Sigma(ss_vect<tps> &Sigma)
+void prt_Sigma(const ss_vect<tps> &Sigma)
 {
   int k;
 
-  PrtMap("\nSigma (get_emit):", Sigma);
+  PrtMap("\nSigma:", Sigma);
   printf("\nsigma_kk:\n ");
   for (k = 0; k < 2*n_DOF; k++)
     printf(" %11.5e", sqrt(Sigma[k][k]));
-  printf("\n ");
+  printf("\nwith dispersion contrib.:\n ");
   for (k = 0; k < 2; k++)
     printf(" %11.5e", sqrt(Sigma[k][k]+Sigma[k][delta_]));
   printf("\n");
@@ -176,66 +176,87 @@ void get_mat(const ss_vect<tps> &A, double **B)
 }
 
 
-void symm_mat2vec(const ss_vect<tps> &M, double *M_vec)
+void map2vec(const ss_vect<tps> &M, double *M_vec)
 {
+  // Matrix vectorization.
   int i, j, k;
 
   k = 0;
   for (i = 0; i < 2*n_DOF; i++)
-    for (j = 0; j <= i; j++) {
+    for (j = 0; j < 2*n_DOF; j++) {
       k++;
-      M_vec[k] = (i == j)? M[i][j] : 2e0*M[i][j];
+      M_vec[k] = M[j][i];
     }
 }
 
 
-ss_vect<tps> symm_mat2vec_inv(double *M_vec)
+ss_vect<tps> vec2map(double *M_vec)
 {
+  // Inverse matrix vectorization.
   int          i, j, k;
   ss_vect<tps> Id, M;
 
   Id.identity();
   M.zero(); k = 0;
   for (i = 0; i < 2*n_DOF; i++)
-    for (j = 0; j <= i; j++) {
+    for (j = 0; j < 2*n_DOF; j++) {
       k++;
-      if (i == j)
-	M[i] += M_vec[k]*Id[j];
-      else {
-	M[i] += M_vec[k]*Id[j]/2e0; M[j] += M_vec[k]*Id[i]/2e0;
-      }
+      M[j] += M_vec[k]*Id[i];
     }
   return M;
 }
 
 
-void get_emit(double **M_M_tp_vec, double *D_vec)
+void Kronecker_prod(const int n, double **A, double **B, double **C)
+{
+  int i, j, k, l;
+
+  for (i = 1; i <= n; i++)
+    for (j = 1; j <= n; j++)
+      for (k = 1; k <= n; k++)
+	for (l = 1; l <= n; l++)
+	  C[(i-1)*n+k][(j-1)*n+l] = A[i][j]*B[k][l];
+}
+
+
+void get_emit(ss_vect<tps> &M, ss_vect<tps> &D)
 {
   int          i, j;
-  double       *sigma_vec, **Id, **MmI, **MmI_inv;
-  ss_vect<tps> sigma;
+  double       *D_vec, *Sigma_vec, **M_mat, **M_M_mat, **Id, **MmI, **MmI_inv;
+  ss_vect<tps> Sigma;
 
   const int
     mat_dim     = 2*n_DOF,
-    mat_vec_dim = mat_dim*(mat_dim-1)/2 + mat_dim;
+    mat_vec_dim = sqr(mat_dim);
 
-  sigma_vec = dvector(1, mat_vec_dim);
+  D_vec = dvector(1, mat_vec_dim);
+  Sigma_vec = dvector(1, mat_vec_dim);
+  M_mat = dmatrix(1, mat_dim, 1, mat_dim);
+  M_M_mat = dmatrix(1, mat_vec_dim, 1, mat_vec_dim);
   Id = dmatrix(1, mat_vec_dim, 1, mat_vec_dim);
   MmI = dmatrix(1, mat_vec_dim, 1, mat_vec_dim);
   MmI_inv = dmatrix(1, mat_vec_dim, 1, mat_vec_dim);
+
+  map2vec(D, D_vec);
+  get_mat(M, M_mat);
+
+  Kronecker_prod(mat_dim, M_mat, M_mat, M_M_mat);
 
   for (i = 1; i <= mat_vec_dim; i++)
     for (j = 1; j <= mat_vec_dim; j++)
       Id[i][j] = (i == j)? 1e0 : 0e0;
  
-  dmsub(Id, mat_vec_dim, mat_vec_dim, M_M_tp_vec, MmI);
+  dmsub(Id, mat_vec_dim, mat_vec_dim, M_M_mat, MmI);
   dinverse(MmI, mat_vec_dim, MmI_inv);  
-  dmvmult(MmI_inv, mat_vec_dim, mat_vec_dim, D_vec, mat_vec_dim, sigma_vec);
-  // sigma = inv_vech(sigma_vec);
+  dmvmult(MmI_inv, mat_vec_dim, mat_vec_dim, D_vec, mat_vec_dim, Sigma_vec);
+  Sigma = vec2map(Sigma_vec);
 
-  prt_Sigma(sigma);
+  prt_Sigma(Sigma);
 
-  free_dvector(sigma_vec, 1, mat_vec_dim);
+  free_dvector(D_vec, 1, mat_vec_dim);
+  free_dvector(Sigma_vec, 1, mat_vec_dim);
+  free_dmatrix(M_mat, 1, mat_dim, 1, mat_dim);
+  free_dmatrix(M_M_mat, 1, mat_vec_dim, 1, mat_vec_dim);
   free_dmatrix(Id, 1, mat_vec_dim, 1, mat_vec_dim);
   free_dmatrix(MmI, 1, mat_vec_dim, 1, mat_vec_dim);
   free_dmatrix(MmI_inv, 1, mat_vec_dim, 1, mat_vec_dim);
@@ -255,10 +276,8 @@ void GetSigma(const double C, const double tau[], const double D[],
     eps[k] = D[k]*tau[k]*c0/(2e0*C);
   printf("\neps = [%10.3e, %10.3e, %10.3e]\n", eps[X_], eps[Y_], eps[Z_]);
   for (k = 0; k < 2*n_DOF; k++)
-    Sigma[k] = sqrt(eps[k/2])*Id[k];
-  Sigma = Sigma*A*TpMap(A)*Sigma;
-
-  prt_Sigma(Sigma);
+    Sigma[k] = eps[k/2]*Id[k];
+  prt_Sigma(A*Sigma*TpMap(A));
 }
 
 
@@ -430,6 +449,7 @@ void PoincareMapType::GetM_delta(void)
 }
 
 
+
 void PoincareMapType::GetM_tau(void)
 {
   int          k;
@@ -464,8 +484,8 @@ void PoincareMapType::GetM_diff(void)
 
   D_diag.zero();
   for (k = 0; k < 2*n_DOF; k++)
-    D_diag[k] = sqrt(D[k/2])*Id[k];
-  M_diff = D_diag*A*TpMap(A)*D_diag;
+    D_diag[k] = D[k/2]*Id[k];
+  M_diff = A*D_diag*TpMap(A);
 
   GetM_Chol();
 }
@@ -595,14 +615,16 @@ void PoincareMapType::propagate(const int n, BeamType &beam) const
     if (i % n_prt == 0) {
       outf << setw(7) << i;
       for (j = 0; j < 2*n_DOF; j++)
-	outf << scientific << setprecision(5) << setw(13) << beam.Sigma[j][j];
+	outf << scientific << setprecision(5)
+	     << setw(13) << sqrt(beam.Sigma[j][j]);
       outf << "\n";
     }
   }
   if (n % n_prt != 0) {
     outf << setw(7) << n;
     for (k = 0; k < 2*n_DOF; k++)
-      outf << scientific << setprecision(5) << setw(13) << beam.Sigma[j][j];
+      outf << scientific << setprecision(5)
+	   << setw(13) << sqrt(beam.Sigma[j][j]);
     outf << "\n";
   }
 
@@ -631,14 +653,14 @@ void PoincareMapType::propagate(const int n, ss_vect<tps> &Sigma) const
     if (j % n_prt == 0) {
       outf << setw(7) << j;
       for (k = 0; k < 2*n_DOF; k++)
-	outf << scientific << setprecision(5) << setw(13) << Sigma[k][k];
+	outf << scientific << setprecision(5) << setw(13) << sqrt(Sigma[k][k]);
       outf << "\n";
     }
   }
   if (n % n_prt != 0) {
     outf << setw(7) << n;
     for (k = 0; k < 2*n_DOF; k++)
-      outf << scientific << setprecision(5) << setw(13) << Sigma[k][k];
+      outf << scientific << setprecision(5) << setw(13) << sqrt(Sigma[k][k]);
     outf << "\n";
   }
 
@@ -849,30 +871,6 @@ void BenchMark(const PoincareMapType &map, const int n_turn)
 }
 
 
-void get_emit(PoincareMapType &map)
-{
-  double       *D_vec, **M_M_tp_vec;
-  ss_vect<tps> M_M_tp;
-
-  const int
-    mat_dim     = 2*n_DOF,
-    mat_vec_dim = mat_dim*(mat_dim-1)/2 + mat_dim;
-
-  D_vec = dvector(1, mat_vec_dim);
-  M_M_tp_vec = dmatrix(1, mat_vec_dim, 1, mat_vec_dim);
-
-  PrtMap("\nM_M_tp:", get_map(M_M_tp_vec));
-  PrtMap("\nM_M_tp:", map.M*TpMap(map.M));
-  exit(0);
-  // vech(map.M_diff, D_vec);
-  
-  get_emit(M_M_tp_vec, D_vec);
-
-  free_dvector(D_vec, 1, mat_vec_dim);
-  free_dmatrix(M_M_tp_vec, 1, mat_vec_dim, 1, mat_vec_dim);
-}
-
-
 void get_Poincare_Map(void)
 {
   ss_vect<double> eta1;
@@ -924,26 +922,7 @@ void get_Poincare_Map(void)
   }
 
   if (!false) {
-    double       *M_M_tp_vec;
-    ss_vect<tps> M_M_tp;
-
-    const int
-      mat_dim     = 2*n_DOF,
-      mat_vec_dim = mat_dim*(mat_dim-1)/2 + mat_dim;
-
-    M_M_tp_vec = dvector(1, mat_vec_dim);
-
-    M_M_tp = map.M*TpMap(map.M);
-    symm_mat2vec(M_M_tp, M_M_tp_vec);
-    prt_vec("\nM_M_tp_vec:", mat_vec_dim, M_M_tp_vec);
-    PrtMap("\nM_M_tp:", symm_mat2vec_inv(M_M_tp_vec)); 
-    PrtMap("\nM_M_tp:", M_M_tp); 
-
-    free_dvector(M_M_tp_vec, 1, mat_vec_dim);
-
-    exit(0);
-
-    get_emit(map);
+    get_emit(map.M, map.M_diff);
     GetSigma(map.C, map.tau, map.D, map.A);
   }
 
@@ -951,7 +930,7 @@ void get_Poincare_Map(void)
     if (!true)
       BenchMark(map, 1000, 10000);
     else
-      BenchMark(map, 25000);
+      BenchMark(map, 10000);
     GetSigma(map.C, map.tau, map.D, map.A);
   }
 }
