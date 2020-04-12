@@ -30,7 +30,7 @@ public:
   void BeamInit_Sigma(const double eps_x, const double eps_y,
 		      const double eps_z, const ss_vect<tps> &A);
   void BeamStats(void);
-  void print(void);
+  void print(const ss_vect<double> eta);
 };
 
 
@@ -148,9 +148,18 @@ void prt_Sigma(const ss_vect<tps> &Sigma)
   printf("\nsigma_kk:\n ");
   for (k = 0; k < 2*n_DOF; k++)
     printf(" %11.5e", sqrt(Sigma[k][k]));
-  printf("\nwith dispersion contrib.:\n ");
+  printf("\n");
+}
+
+
+void prt_Sigma_eta(const ss_vect<tps> &Sigma, const ss_vect<double> &eta,
+		   const int sgn)
+{
+  int k;
+
+  printf("with dispersion contrib.:\n ");
   for (k = 0; k < 2; k++)
-    printf(" %11.5e", sqrt(Sigma[k][k]+Sigma[k][delta_]));
+    printf(" %11.5e", sqrt(Sigma[k][k]+sgn*sqr(eta[k])*Sigma[delta_][delta_]));
   printf("\n");
 }
 
@@ -221,7 +230,7 @@ void Kronecker_prod(const int n, double **A, double **B, double **C)
 }
 
 
-void get_emit(ss_vect<tps> &M, ss_vect<tps> &D)
+ss_vect<tps> get_emit(ss_vect<tps> &M, ss_vect<tps> &D)
 {
   int          i, j;
   double       *D_vec, *Sigma_vec, **M_mat, **M_M_mat, **Id, **MmI, **MmI_inv;
@@ -253,8 +262,6 @@ void get_emit(ss_vect<tps> &M, ss_vect<tps> &D)
   dmvmult(MmI_inv, mat_vec_dim, mat_vec_dim, D_vec, mat_vec_dim, Sigma_vec);
   Sigma = vec2map(Sigma_vec);
 
-  prt_Sigma(Sigma);
-
   free_dvector(D_vec, 1, mat_vec_dim);
   free_dvector(Sigma_vec, 1, mat_vec_dim);
   free_dmatrix(M_mat, 1, mat_dim, 1, mat_dim);
@@ -262,10 +269,12 @@ void get_emit(ss_vect<tps> &M, ss_vect<tps> &D)
   free_dmatrix(Id, 1, mat_vec_dim, 1, mat_vec_dim);
   free_dmatrix(MmI, 1, mat_vec_dim, 1, mat_vec_dim);
   free_dmatrix(MmI_inv, 1, mat_vec_dim, 1, mat_vec_dim);
+
+  return Sigma;
 }
 
 
-void GetSigma(const double C, const double tau[], const double D[],
+ss_vect<tps> GetSigma(const double C, const double tau[], const double D[],
 	      ss_vect<tps> &A)
 {
   int          k;
@@ -277,7 +286,8 @@ void GetSigma(const double C, const double tau[], const double D[],
   printf("\neps = [%10.3e, %10.3e, %10.3e]\n", eps[X_], eps[Y_], eps[Z_]);
   for (k = 0; k < 2*n_DOF; k++)
     Sigma[k] = eps[k/2]*tps(0e0, k+1);
-  prt_Sigma(A*Sigma*TpMap(A));
+
+  return A*Sigma*TpMap(A);
 }
 
 
@@ -842,7 +852,11 @@ void BeamType::BeamStats(void)
 }
 
 
-void BeamType::print(void) { prt_Sigma(Sigma); }
+void BeamType::print(const ss_vect<double> eta)
+{
+  prt_Sigma(Sigma);
+  prt_Sigma_eta(Sigma, eta, -1);
+}
 
 
 void BenchMark(const int n_part, const int n_turn, const PoincareMapType &map)
@@ -855,9 +869,9 @@ void BenchMark(const int n_part, const int n_turn, const PoincareMapType &map)
 
   printf("\nBenchMark:\n");
   beam.BeamInit_dist(n_part, 0e-9, 6e-9, 0e-3, map.A);
-  beam.BeamStats(); beam.print();
+  beam.BeamStats(); beam.print(map.eta);
   map.propagate(n_turn, beam);
-  beam.BeamStats(); beam.print();
+  beam.BeamStats(); beam.print(map.eta);
 }
 
 
@@ -871,16 +885,16 @@ void BenchMark(const int n_turn, const PoincareMapType &map)
 
   printf("\nBenchMark:\n");
   beam.BeamInit_Sigma(0e-9, 6e-9, 0e-9, map.A);
-  beam.print();
+  beam.print(map.eta);
   map.propagate(n_turn, beam.Sigma);
-  beam.print();
+  beam.print(map.eta);
 }
 
 
 void get_Poincare_Map(void)
 {
   ss_vect<double> eta1;
-  ss_vect<tps>    Id, M, A0;
+  ss_vect<tps>    Id, M, A0, Sigma;
   PoincareMapType map;
 
   if (!false) no_sxt();
@@ -927,16 +941,22 @@ void get_Poincare_Map(void)
     PrtMap("\nL*L_tp:", L*L_tp);
   }
 
-  if (!false) {
-    get_emit(map.M, map.M_diff);
-    GetSigma(map.C, map.tau, map.D, map.A);
+  if (false) {
+    Sigma = get_emit(map.M, map.M_diff);
+    prt_Sigma(Sigma);
+    prt_Sigma_eta(Sigma, map.eta, 1);
+    Sigma = GetSigma(map.C, map.tau, map.D, map.A);
+    prt_Sigma(Sigma);
+    prt_Sigma_eta(Sigma, map.eta, 1);
   }
 
-  if (false) {
+  if (!false) {
     if (true)
-      BenchMark(1000, 10000, map);
-    else
       BenchMark(10000, map);
-    GetSigma(map.C, map.tau, map.D, map.A);
+    else
+      BenchMark(1000, 10000, map);
+    Sigma = GetSigma(map.C, map.tau, map.D, map.A);
+    prt_Sigma(Sigma);
+    prt_Sigma_eta(Sigma, map.eta, 1);
   }
 }
