@@ -26,7 +26,9 @@ public:
   ss_vect<tps>                   Sigma;
 
   void BeamInit_dist(const int n_part, const double eps_x, const double eps_y,
-		     const double sigma_delta);
+		     const double eps_z, const ss_vect<tps> &A);
+  void BeamInit_Sigma(const double eps_x, const double eps_y,
+		      const double eps_z, const ss_vect<tps> &A);
   void BeamStats(void);
   void print(void);
 };
@@ -268,15 +270,13 @@ void GetSigma(const double C, const double tau[], const double D[],
 {
   int          k;
   double       eps[3];
-  ss_vect<tps> Id, Sigma;
-
-  Id.identity();
+  ss_vect<tps> Sigma;
 
   for (k = 0; k < n_DOF; k++)
     eps[k] = D[k]*tau[k]*c0/(2e0*C);
   printf("\neps = [%10.3e, %10.3e, %10.3e]\n", eps[X_], eps[Y_], eps[Z_]);
   for (k = 0; k < 2*n_DOF; k++)
-    Sigma[k] = eps[k/2]*Id[k];
+    Sigma[k] = eps[k/2]*tps(0e0, k+1);
   prt_Sigma(A*Sigma*TpMap(A));
 }
 
@@ -595,7 +595,8 @@ void PoincareMapType::GetM(const bool cav, const bool rad)
 void PoincareMapType::propagate(const int n, BeamType &beam) const
 {
   int             i, j = 0, k;
-  ss_vect<double> X;
+  double          rnd;
+  ss_vect<double> X, sum, sum2, m, s;
   ofstream        outf;
 
   const int    n_prt     = 10;
@@ -603,10 +604,13 @@ void PoincareMapType::propagate(const int n, BeamType &beam) const
 
   file_wr(outf, file_name.c_str());
 
+  sum.zero(); sum2.zero();
   for (i = 1; i <= n; i++) {
     for (j = 0; j < (int)beam.ps.size(); j++) {
-      for (k = 0; k < 2*n_DOF; k++)
-	X[k] = normranf();
+      for (k = 0; k < 2*n_DOF; k++) {
+	rnd = normranf(); sum[k] += rnd; sum2[k] += sqr(rnd);
+	X[k] = rnd;
+      }
       beam.ps[j] = (M*beam.ps[j]+M_Chol*X).cst();
     }
 
@@ -629,14 +633,25 @@ void PoincareMapType::propagate(const int n, BeamType &beam) const
   }
 
   outf.close();
+
+  for (k = 0; k < 2*n_DOF; k++) {
+    m[k] = sum[k]/n;
+    s[k] = (n*sum2[k]-sqr(sum[k]))/(n*(n-1e0));
+  }
+  cout << scientific << setprecision(3)
+       << "\nmean_X: " << setw(11) << m << "\n";
+  cout << scientific << setprecision(3)
+       << "sigma_X:" << setw(11) << s << "\n";
 }
 
 
 void PoincareMapType::propagate(const int n, ss_vect<tps> &Sigma) const
 {
-  int          j, k;
-  ss_vect<tps> Id, X;
-  ofstream     outf;
+  int             j, k;
+  double          rnd;
+  ss_vect<double> sum, sum2, m, s;
+  ss_vect<tps>    Id, X;
+  ofstream        outf;
 
   const int    n_prt     = 1;
   const string file_name = "propagate.out";
@@ -646,8 +661,10 @@ void PoincareMapType::propagate(const int n, ss_vect<tps> &Sigma) const
   Id.identity();
 
   for (j = 1; j <= n; j++) {
-    for (k = 0; k < 2*n_DOF; k++)
-      X[k] = sqrt(fabs(normranf()))*Id[k];
+    for (k = 0; k < 2*n_DOF; k++) {
+      rnd = normranf(); sum[k] += rnd; sum2[k] += sqr(rnd);
+      X[k] = rnd*Id[k];
+    }
     Sigma = M*TpMap(M*Sigma) + X*M_diff*X;
 
     if (j % n_prt == 0) {
@@ -665,6 +682,15 @@ void PoincareMapType::propagate(const int n, ss_vect<tps> &Sigma) const
   }
 
   outf.close();
+
+  for (k = 0; k < 2*n_DOF; k++) {
+    m[k] = sum[k]/n;
+    s[k] = (n*sum2[k]-sqr(sum[k]))/(n*(n-1e0));
+  }
+  cout << scientific << setprecision(3)
+       << "\nmean_X: " << setw(11) << m << "\n";
+  cout << scientific << setprecision(3)
+       << "sigma_X:" << setw(11) << s << "\n";
 }
 
 
@@ -754,60 +780,40 @@ void PoincareMapType::print(void)
 
 
 void BeamType::BeamInit_dist(const int n_part, const double eps_x,
-			     const double eps_y, const double sigma_s)
+			     const double eps_y, const double eps_z,
+			     const ss_vect<tps> &A)
 {
   int             j, k;
   double          phi;
-  ss_vect<double> ps;
+  ss_vect<double> ps_Fl;
 
   this->n_part = n_part;
 
-  globval.Cavity_on = false; globval.radiation = false;
-  Ring_GetTwiss(true, 0e0);
-
-  const double
-    eps[]   = {eps_x, eps_y},
-    alpha[] = {Cell[0].Alpha[X_], Cell[0].Alpha[Y_]},
-    beta[]  = {Cell[0].Beta[X_],  Cell[0].Beta[Y_]};
+  const double eps[] = {eps_x, eps_y, eps_z};
 
   for (j = 0; j < n_part; j++) {
-    ps.zero();
-    for (k = 0; k < 2; k++) {
+    ps_Fl.zero();
+    for (k = 0; k < n_DOF; k++) {
       phi = 2e0*M_PI*ranf();
-      ps[2*k] = sqrt(beta[k]*eps[k])*cos(phi);
-      ps[2*k+1] = -sqrt(eps[k]/beta[k])*(sin(phi)-alpha[k]*cos(phi));
-      ps[ct_] = sigma_s*(2e0*ranf()-1e0);
-      // ps_delta = ;
+      ps_Fl[2*k] = sqrt(eps[k])*cos(phi);
+      ps_Fl[2*k+1] = -sqrt(eps[k])*sin(phi);
     }
-    this->ps.push_back(ps);
+    this->ps.push_back((A*ps_Fl).cst());
   }
 }
 
 
-ss_vect<tps> BeamInit_Sigma(const PoincareMapType &map, const double eps_x,
-			    const double eps_y, const double eps_z)
+void BeamType::BeamInit_Sigma(const double eps_x, const double eps_y,
+			      const double eps_z, const ss_vect<tps> &A)
 {
   int          k;
-  double       gamma[3];
-  ss_vect<tps> Id, Sigma;
 
-  const double eps[] = {eps_x, eps_y, eps_y};
-
-  Id.identity();
-
-  globval.Cavity_on = false; globval.radiation = false;
-  Ring_GetTwiss(true, 0e0);
-
-  for (k = 0; k < n_DOF; k++)
-    gamma[k] = (1e0+sqr(map.alpha[k]))/map.beta[k];
+  const double eps[] = {eps_x, eps_y, eps_z};
 
   Sigma.zero();
-  for (k = 0; k < n_DOF; k++) {
-    Sigma[2*k] += map.beta[k]*eps[k]*Id[2*k] - map.alpha[k]*eps[k]*Id[2*k+1];
-    Sigma[2*k+1] += -map.alpha[k]*eps[k]*Id[2*k] + gamma[k]*eps[k]*Id[2*k+1];
-  }
-
-  return Sigma;
+  for (k = 0; k < 2*n_DOF; k++)
+    Sigma[k] += eps[k/2]*tps(1e0, k+1);
+  Sigma = A*Sigma*TpMap(A);
 }
 
 
@@ -839,7 +845,7 @@ void BeamType::BeamStats(void)
 void BeamType::print(void) { prt_Sigma(Sigma); }
 
 
-void BenchMark(const PoincareMapType &map, const int n_part, const int n_turn)
+void BenchMark(const int n_part, const int n_turn, const PoincareMapType &map)
 {
   BeamType beam;
 
@@ -848,14 +854,14 @@ void BenchMark(const PoincareMapType &map, const int n_part, const int n_turn)
   iniranf(seed); setrancut(5e0);
 
   printf("\nBenchMark:\n");
-  beam.BeamInit_dist(n_part, 0e-9, 6e-9, 0e-3);
+  beam.BeamInit_dist(n_part, 0e-9, 6e-9, 0e-3, map.A);
   beam.BeamStats(); beam.print();
   map.propagate(n_turn, beam);
   beam.BeamStats(); beam.print();
 }
 
 
-void BenchMark(const PoincareMapType &map, const int n_turn)
+void BenchMark(const int n_turn, const PoincareMapType &map)
 {
   BeamType beam;
  
@@ -864,7 +870,7 @@ void BenchMark(const PoincareMapType &map, const int n_turn)
   iniranf(seed); setrancut(5e0);
 
   printf("\nBenchMark:\n");
-  beam.Sigma = BeamInit_Sigma(map, 0e-9, 6e-9, 0e-9);
+  beam.BeamInit_Sigma(0e-9, 6e-9, 0e-9, map.A);
   beam.print();
   map.propagate(n_turn, beam.Sigma);
   beam.print();
@@ -927,10 +933,10 @@ void get_Poincare_Map(void)
   }
 
   if (false) {
-    if (!true)
-      BenchMark(map, 1000, 10000);
+    if (true)
+      BenchMark(1000, 10000, map);
     else
-      BenchMark(map, 10000);
+      BenchMark(10000, map);
     GetSigma(map.C, map.tau, map.D, map.A);
   }
 }
