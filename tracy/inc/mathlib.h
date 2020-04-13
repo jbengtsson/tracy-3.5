@@ -19,8 +19,9 @@
 #define fract(x) ((x)-(int)(x))
 #define nint(x) ((x) < 0 ? ((long)(x-0.5)) : ((long)(x+0.5))) 
 
-#define min(a, b) ((a) < (b) ? (a) : (b))
-#define max(a, b) ((a) > (b) ? (a) : (b))
+// The functions std::min & std::max are defined in <algorithm>.
+/* #define min(a, b) ((a) < (b) ? (a) : (b)) */
+/* #define max(a, b) ((a) > (b) ? (a) : (b)) */
 
 #define sgn(n) ((n > 0) ? 1 : ((n < 0) ? -1 : 0)) 
 

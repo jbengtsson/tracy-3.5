@@ -31,6 +31,7 @@
 #include <iomanip>
 #include <fstream>
 #include <string>
+#include <algorithm>
 
 //#undef max
 #include <vector>

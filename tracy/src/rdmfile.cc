@@ -164,7 +164,7 @@ void rdmfile(const char *mfile_dat)
 
     if (Cell[i].Knum == 1) {
       strcpy(ElemFam[Cell[i].Fnum-1].ElemF.PName, Cell[i].Elem.PName);
-      globval.Elem_nFam = max(Cell[i].Fnum, globval.Elem_nFam);
+      globval.Elem_nFam = max((long)Cell[i].Fnum, globval.Elem_nFam);
     }
 
     if (i > 0) {

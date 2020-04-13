@@ -1890,7 +1890,7 @@ static void AssignHOM(long elem, struct LOC_Lat_DealElement *LINK)
   for (i = -HOMmax; i <= HOMmax; i++) {
     if (LINK->BA[i+HOMmax]) {
       M->PBpar[i+HOMmax] = LINK->B[i+HOMmax];
-      M->Porder = max(abs(i), M->Porder);
+      M->Porder = max(abs(i), (long)M->Porder);
     }
   }
 }

@@ -11,6 +11,8 @@
 //
 // Johan Bengtsson 29/03/20.
 
+#include <random>
+
 
 const int n_DOF = 3;
 
@@ -20,17 +22,21 @@ struct PoincareMapType;
 struct BeamType {
 private:
 public:
-  int                            n_part;
-  std::vector< ss_vect<double> > ps;
-  ss_vect<double>                mean;
-  ss_vect<tps>                   Sigma;
+  int
+    n_part;            // No of particles.
+  std::vector< ss_vect<double> >
+    ps;                // Phase space coordinates. 
+  ss_vect<double>
+    mean;              // Average.
+  ss_vect<tps>
+    Sigma;             // Variances.
 
   void BeamInit_dist(const int n_part, const double eps_x, const double eps_y,
 		     const double eps_z, const ss_vect<tps> &A);
   void BeamInit_Sigma(const double eps_x, const double eps_y,
 		      const double eps_z, const ss_vect<tps> &A);
   void BeamStats(void);
-  void print(const ss_vect<double> eta);
+  void print(const PoincareMapType &map);
 };
 
 
@@ -55,7 +61,8 @@ public:
     f_RF,              // RF frequency.
     phi0,              // Synchronous phase.
     tau[3],            // Damping times.
-    D[3];              // Diffusion Coefficients.
+    D[3],              // Diffusion Coefficients.
+    eps[3];            // Emittance.
   ss_vect<double>
     ps_cod,            // Fixed Point.
     eta;               // Linear Dispersion.
@@ -68,7 +75,7 @@ public:
     M_delta,           // Radiation Loss Map.
     M_tau,             // Radiation Damping Map.
     M,                 // Poincare Map.
-    M_diff, M_Chol;    // Diffusion Matrix & Cholesky Decomposition.
+    M_diff, M_Chol_tp;    // Diffusion Matrix & Cholesky Decomposition.
 
   void GetMap(void);
   void GetDisp(void);
@@ -76,7 +83,7 @@ public:
   void GetM_delta(void);
   void GetM_tau(void);
   void GetM_diff(void);
-  void GetM_Chol(void);
+  void GetM_Chol_tp(void);
   void GetM_rad(void);
   void GetM(const bool cav, const bool rad);
   void propagate(const int n, BeamType &beam) const;
@@ -101,6 +108,24 @@ ss_vect<tps> TpMap(ss_vect<tps> A)
   getlinmat(2*n_DOF, A, A_mat);
   TpMat(2*n_DOF, A_mat);
   return putlinmat(2*n_DOF, A_mat);
+}
+
+
+void PrtVec(const string &str, ss_vect<double> vec)
+{
+  int k;
+
+  const int    n_dec = 6;
+  const double eps   = 1e-20;
+
+  printf("%s\n", str.c_str());
+  for (k = 0; k < 2*n_DOF; k++) {
+    if (!true)
+      printf("%*.*e", n_dec+8, n_dec, vec[k]);
+    else
+      printf("%*.*e", n_dec+8, n_dec, (fabs(vec[k]) > eps)? vec[k] : 0e0);
+  }
+  printf("\n");
 }
 
 
@@ -140,26 +165,53 @@ void prt_vec(const string &str, const int n, double *a)
 }
 
 
-void prt_Sigma(const ss_vect<tps> &Sigma)
+double get_curly_H_x(const double alpha_x, const double beta_x,
+		     const ss_vect<double> &eta)
 {
-  int k;
+  double gamma_x;
 
+  gamma_x = (1e0+sqr(alpha_x))/beta_x;
+  return
+    gamma_x*sqr(eta[x_])+2e0*alpha_x*eta[x_]*eta[px_]*beta_x*sqr(eta[px_]);
+}
+
+
+ss_vect<double> get_eps(const ss_vect<tps> Sigma, const ss_vect<tps> A)
+{
+  int             k;
+  ss_vect<double> eps;
+  ss_vect<tps>    diag;
+
+  diag = Inv(A)*Sigma*Inv(TpMap(A));
+  for (k = 0; k < 2*n_DOF; k++) {
+    eps[k] = diag[k][k];
+  }
+  return eps;
+}
+
+
+void prt_Sigma(const ss_vect<tps> &Sigma, const PoincareMapType &map,
+	       const int sgn)
+{
+  int             k;
+  ss_vect<double> eps;
+
+  eps = get_eps(Sigma, map.A);
+
+  PrtVec("\neps:", eps);
   PrtMap("\nSigma:", Sigma);
   printf("\nsigma_kk:\n ");
   for (k = 0; k < 2*n_DOF; k++)
     printf(" %11.5e", sqrt(Sigma[k][k]));
   printf("\n");
-}
 
-
-void prt_Sigma_eta(const ss_vect<tps> &Sigma, const ss_vect<double> &eta,
-		   const int sgn)
-{
-  int k;
-
-  printf("with dispersion contrib.:\n ");
+  if (sgn > 0)
+    printf("with dispersion contrib.:\n ");
+  else
+    printf("without dispersion contrib.:\n ");
   for (k = 0; k < 2; k++)
-    printf(" %11.5e", sqrt(Sigma[k][k]+sgn*sqr(eta[k])*Sigma[delta_][delta_]));
+    printf(" %11.5e",
+	   sqrt(Sigma[k][k]+sgn*sqr(map.eta[k])*Sigma[delta_][delta_]));
   printf("\n");
 }
 
@@ -283,7 +335,6 @@ ss_vect<tps> GetSigma(const double C, const double tau[], const double D[],
 
   for (k = 0; k < n_DOF; k++)
     eps[k] = D[k]*tau[k]*c0/(2e0*C);
-  printf("\neps = [%10.3e, %10.3e, %10.3e]\n", eps[X_], eps[Y_], eps[Z_]);
   for (k = 0; k < 2*n_DOF; k++)
     Sigma[k] = eps[k/2]*tps(0e0, k+1);
 
@@ -446,10 +497,7 @@ void PoincareMapType::GetM_cav(void)
 
 void PoincareMapType::GetM_delta(void)
 {
-  int          k;
-  ss_vect<tps> Id;
-
-  Id.identity();
+  int k;
 
   M_delta.identity();
   for (k = 0; k < n_DOF; k++) {
@@ -459,16 +507,14 @@ void PoincareMapType::GetM_delta(void)
 }
 
 
-
 void PoincareMapType::GetM_tau(void)
 {
-  int          k;
-  ss_vect<tps> Id;
-
-  Id.identity(); M_tau.zero();
+  int k;
+ 
+  M_tau.zero();
   for (k = 0; k < n_DOF; k++) {
-    M_tau[2*k] = exp(-C/(c0*tau[k]))*Id[2*k];
-    M_tau[2*k+1] = exp(-C/(c0*tau[k]))*Id[2*k+1];
+    M_tau[2*k] = exp(-C/(c0*tau[k]))*tps(0e0, 2*k+1);
+    M_tau[2*k+1] = exp(-C/(c0*tau[k]))*tps(0e0, 2*k+2);
   }
 }
 
@@ -477,9 +523,7 @@ void PoincareMapType::GetM_diff(void)
 {
   int long     lastpos;
   int          k;
-  ss_vect<tps> Id, As, D_diag;
-
-  Id.identity();
+  ss_vect<tps> As, D_diag;
 
   globval.Cavity_on = true; globval.radiation = true;
   globval.emittance = true;
@@ -489,15 +533,17 @@ void PoincareMapType::GetM_diff(void)
 
   globval.emittance = false;
 
-  for (k = 0; k < n_DOF; k++)
+  for (k = 0; k < n_DOF; k++) {
     D[k] = globval.D_rad[k];
+    eps[k] = D[k]*tau[k]*c0/(2e0*C);
+  }
 
   D_diag.zero();
   for (k = 0; k < 2*n_DOF; k++)
-    D_diag[k] = D[k/2]*Id[k];
+    D_diag[k] = D[k/2]*tps(0e0, k+1);
   M_diff = A*D_diag*TpMap(A);
 
-  GetM_Chol();
+  GetM_Chol_tp();
 }
 
 
@@ -514,7 +560,7 @@ ss_vect<tps> Mat2Map(const int n, double **M)
 }
 
 
-void PoincareMapType::GetM_Chol(void)
+void PoincareMapType::GetM_Chol_tp(void)
 {
   int          j, k, j1, k1;
   double       *diag, **d1, **d2;
@@ -539,12 +585,12 @@ void PoincareMapType::GetM_Chol(void)
     for (k = 1; k <= j; k++)
       d2[j][k] = (j == k)? diag[j] : d1[j][k];
 
-  M_Chol.zero();
+  M_Chol_tp.zero();
   for (j = 1; j <= 4; j++) {
      j1 = (j < 3)? j : j+2;
      for (k = 1; k <= 4; k++) {
        k1 = (k < 3)? k : k+2;
-       M_Chol[j1-1] += d2[j][k]*tps(0e0, k1);
+       M_Chol_tp[j1-1] += d2[j][k]*tps(0e0, k1);
      }
   }
 
@@ -602,105 +648,109 @@ void PoincareMapType::GetM(const bool cav, const bool rad)
 }
 
 
-void PoincareMapType::propagate(const int n, BeamType &beam) const
+void get_stats(const int n, const ss_vect<double> &sum,
+	       const ss_vect<double> &sum2, ss_vect<double> &m,
+	       ss_vect<double> &s)
 {
-  int             i, j = 0, k;
-  double          rnd;
-  ss_vect<double> X, sum, sum2, m, s;
-  ofstream        outf;
-
-  const int    n_prt     = 10;
-  const string file_name = "propagate.out";
-
-  file_wr(outf, file_name.c_str());
-
-  sum.zero(); sum2.zero();
-  for (i = 1; i <= n; i++) {
-    for (j = 0; j < (int)beam.ps.size(); j++) {
-      for (k = 0; k < 2*n_DOF; k++) {
-	rnd = normranf(); sum[k] += rnd; sum2[k] += sqr(rnd);
-	X[k] = rnd;
-      }
-      beam.ps[j] = (M*beam.ps[j]+M_Chol*X).cst();
-    }
-
-    beam.BeamStats();
-
-    if (i % n_prt == 0) {
-      outf << setw(7) << i;
-      for (j = 0; j < 2*n_DOF; j++)
-	outf << scientific << setprecision(5)
-	     << setw(13) << sqrt(beam.Sigma[j][j]);
-      outf << "\n";
-    }
-  }
-  if (n % n_prt != 0) {
-    outf << setw(7) << n;
-    for (k = 0; k < 2*n_DOF; k++)
-      outf << scientific << setprecision(5)
-	   << setw(13) << sqrt(beam.Sigma[j][j]);
-    outf << "\n";
-  }
-
-  outf.close();
+  int k;
 
   for (k = 0; k < 2*n_DOF; k++) {
     m[k] = sum[k]/n;
     s[k] = (n*sum2[k]-sqr(sum[k]))/(n*(n-1e0));
   }
-  cout << scientific << setprecision(3)
-       << "\nmean_X: " << setw(11) << m << "\n";
-  cout << scientific << setprecision(3)
-       << "sigma_X:" << setw(11) << s << "\n";
+}
+
+
+void prt_eps(FILE *outf, const int n, const ss_vect<tps> Sigma,
+	     const PoincareMapType &map)
+{
+  int             k;
+  ss_vect<double> eps;
+
+  eps = get_eps(Sigma, map.A);
+  fprintf(outf, "%7d", n);
+  for (k = 0; k < 2*n_DOF; k++)
+    fprintf(outf, "%13.5e", eps[k]);
+  fprintf(outf, "%13.5e %13.5e\n",
+	  sqrt(Sigma[delta_][delta_]), sqrt(Sigma[ct_][ct_]));
+}
+
+
+void PoincareMapType::propagate(const int n, BeamType &beam) const
+{
+  int             i, j = 0, k, n_rnd;
+  double          rnd;
+  ss_vect<double> X, sum, sum2, m, s;
+  FILE            *outf;
+
+  std::default_random_engine       rand;
+  std::normal_distribution<double> norm_ranf(0e0, 1e0);
+
+  const int    n_prt     = 10;
+  const string file_name = "propagate.out";
+
+  outf = file_write(file_name.c_str());
+
+  sum.zero(); sum2.zero(); n_rnd = 0;
+  for (i = 1; i <= n; i++) {
+    for (j = 0; j < (int)beam.ps.size(); j++) {
+      n_rnd++;
+      for (k = 0; k < 2*n_DOF; k++) {
+	rnd = norm_ranf(rand); sum[k] += rnd; sum2[k] += sqr(rnd);
+	X[k] = rnd;
+      }
+      beam.ps[j] = (M*beam.ps[j]+M_Chol_tp*X).cst();
+    }
+
+    beam.BeamStats();
+
+    if (i % n_prt == 0) prt_eps(outf, i, beam.Sigma, *this);
+  }
+  if (n % n_prt != 0) prt_eps(outf, n, beam.Sigma, *this);
+
+  fclose(outf);
+
+  get_stats(n_rnd, sum, sum2, m, s);
+  PrtVec("\nmean_X:", m);
+  PrtVec("sigma_X:", s);
 }
 
 
 void PoincareMapType::propagate(const int n, ss_vect<tps> &Sigma) const
 {
-  int             j, k;
+  int             j, k, n_rnd;
   double          rnd;
   ss_vect<double> sum, sum2, m, s;
-  ss_vect<tps>    Id, X;
-  ofstream        outf;
+  ss_vect<tps>    X;
+  FILE            *outf;
 
-  const int    n_prt     = 1;
-  const string file_name = "propagate.out";
+  const int          n_prt     = 1;
+  const string       file_name = "propagate.out";
+  const ss_vect<tps> M_Chol    = TpMap(M_Chol_tp);
 
-  file_wr(outf, file_name.c_str());
+  std::default_random_engine       rand;
+  std::normal_distribution<double> norm_ranf(0e0, 1e0);
 
-  Id.identity();
+  outf = file_write(file_name.c_str());
 
+  n_rnd = 0;
   for (j = 1; j <= n; j++) {
+    n_rnd++;
     for (k = 0; k < 2*n_DOF; k++) {
-      rnd = normranf(); sum[k] += rnd; sum2[k] += sqr(rnd);
-      X[k] = rnd*Id[k];
+      rnd = norm_ranf(rand); sum[k] += rnd; sum2[k] += sqr(rnd);
+      X[k] = rnd*tps(0e0, k+1);
     }
-    Sigma = M*TpMap(M*Sigma) + X*M_diff*X;
+    Sigma = M*TpMap(M*Sigma) + M_Chol_tp*sqr(X)*M_Chol;
 
-    if (j % n_prt == 0) {
-      outf << setw(7) << j;
-      for (k = 0; k < 2*n_DOF; k++)
-	outf << scientific << setprecision(5) << setw(13) << sqrt(Sigma[k][k]);
-      outf << "\n";
-    }
+    if (j % n_prt == 0) prt_eps(outf, j, Sigma, *this);
   }
-  if (n % n_prt != 0) {
-    outf << setw(7) << n;
-    for (k = 0; k < 2*n_DOF; k++)
-      outf << scientific << setprecision(5) << setw(13) << sqrt(Sigma[k][k]);
-    outf << "\n";
-  }
+  if (n % n_prt != 0) prt_eps(outf, n, Sigma, *this);
 
-  outf.close();
+  fclose(outf);
 
-  for (k = 0; k < 2*n_DOF; k++) {
-    m[k] = sum[k]/n;
-    s[k] = (n*sum2[k]-sqr(sum[k]))/(n*(n-1e0));
-  }
-  cout << scientific << setprecision(3)
-       << "\nmean_X: " << setw(11) << m << "\n";
-  cout << scientific << setprecision(3)
-       << "sigma_X:" << setw(11) << s << "\n";
+  get_stats(n_rnd, sum, sum2, m, s);
+  PrtVec("\nmean_X:", m);
+  PrtVec("sigma_X:", s);
 }
 
 
@@ -751,6 +801,7 @@ void PoincareMapType::print(void)
   printf("alpha_c    = %11.5e\n", alpha_c);
   printf("tau        = [%11.5e, %11.5e, %11.5e]\n", tau[X_], tau[Y_], tau[Z_]);
   printf("D          = [%11.5e, %11.5e, %11.5e]\n", D[X_], D[Y_], D[Z_]);
+  printf("eps        = [%11.5e, %11.5e, %11.5e]\n", eps[X_], eps[Y_], eps[Z_]);
 
   cout << scientific << setprecision(6) << "\nCOD:\n" << setw(14) << ps_cod
        << "\n";
@@ -784,7 +835,7 @@ void PoincareMapType::print(void)
     printf("\nDet{M_tau}-1 = %10.3e\n", DetMap(M_tau)-1e0);
 
     PrtMap("\nM_diff:", M_diff);
-    PrtMap("\nM_Chol:", M_Chol);
+    PrtMap("\nM_Chol_tp:", M_Chol_tp);
   }
 }
 
@@ -805,8 +856,9 @@ void BeamType::BeamInit_dist(const int n_part, const double eps_x,
     ps_Fl.zero();
     for (k = 0; k < n_DOF; k++) {
       phi = 2e0*M_PI*ranf();
-      ps_Fl[2*k] = sqrt(eps[k])*cos(phi);
-      ps_Fl[2*k+1] = -sqrt(eps[k])*sin(phi);
+      // Single particle amplitude.
+      ps_Fl[2*k] = sqrt(2e0*eps[k])*cos(phi);
+      ps_Fl[2*k+1] = -sqrt(2e0*eps[k])*sin(phi);
     }
     this->ps.push_back((A*ps_Fl).cst());
   }
@@ -827,6 +879,22 @@ void BeamType::BeamInit_Sigma(const double eps_x, const double eps_y,
 }
 
 
+void get_stats(const int n, const ss_vect<double> &sum,
+	       const ss_vect<tps> &sum2, ss_vect<double> &mean,
+	       ss_vect<tps> &Sigma)
+{
+  int j, k;
+
+  Sigma.zero();
+  for (j = 0; j < 2*n_DOF; j++) {
+    mean[j] = sum[j]/n;
+    for (k = 0; k < 2*n_DOF; k++) {
+      Sigma[j] += (n*sum2[j][k]-sum[j]*sum[k])/(n*(n-1e0))*tps(0e0, k+1);
+    }
+  }
+}
+
+
 void BeamType::BeamStats(void)
 {
   int             i, j, k;
@@ -840,38 +908,22 @@ void BeamType::BeamStats(void)
       for (k = 0; k < 2*n_DOF; k++)
 	sum2[j] += ps[i][j]*ps[i][k]*tps(0e0, k+1);
   }
-
-  Sigma.zero();
-  for (j = 0; j < 2*n_DOF; j++) {
-    mean[j] = sum[j]/n_part;
-    for (k = 0; k < 2*n_DOF; k++) {
-      Sigma[j] +=
-	(n_part*sum2[j][k]-sum[j]*sum[k])/(n_part*(n_part-1e0))*tps(0e0, k+1);
-    }
-  }
+  get_stats(n_part, sum, sum2, mean, Sigma);
 }
 
 
-void BeamType::print(const ss_vect<double> eta)
-{
-  prt_Sigma(Sigma);
-  prt_Sigma_eta(Sigma, eta, -1);
-}
+void BeamType::print(const PoincareMapType &map) { prt_Sigma(Sigma, map, -1); }
 
 
 void BenchMark(const int n_part, const int n_turn, const PoincareMapType &map)
 {
   BeamType beam;
 
-  const int long seed = 1121;
-
-  iniranf(seed); setrancut(5e0);
-
   printf("\nBenchMark:\n");
-  beam.BeamInit_dist(n_part, 0e-9, 6e-9, 0e-3, map.A);
-  beam.BeamStats(); beam.print(map.eta);
+  beam.BeamInit_dist(n_part, 0e-9, 5e-9, 0e-3, map.A);
+  beam.BeamStats(); beam.print(map);
   map.propagate(n_turn, beam);
-  beam.BeamStats(); beam.print(map.eta);
+  beam.BeamStats(); beam.print(map);
 }
 
 
@@ -879,15 +931,62 @@ void BenchMark(const int n_turn, const PoincareMapType &map)
 {
   BeamType beam;
  
-  const int long seed = 1121;
-
-  iniranf(seed); setrancut(5e0);
-
   printf("\nBenchMark:\n");
-  beam.BeamInit_Sigma(0e-9, 6e-9, 0e-9, map.A);
-  beam.print(map.eta);
+  beam.BeamInit_Sigma(0e-9, 5e-9, 0e-9, map.A);
+  beam.print(map);
   map.propagate(n_turn, beam.Sigma);
-  beam.print(map.eta);
+  beam.print(map);
+}
+
+
+void tst_Chol_decomp(const PoincareMapType map)
+{
+  int             i, j, k;
+  double          rnd;
+  ss_vect<double> ps, X, sum, sum2_vec, m, s, mean;
+  ss_vect<tps>    sum2, Sigma;
+
+  std::default_random_engine       rand;
+  std::normal_distribution<double> norm_ranf(0e0, 1e0);
+
+  const int n_rnd = 10000;
+
+  if (false) {
+    PrtMap("\nL^T*L:", map.M_Chol_tp*TpMap(map.M_Chol_tp));
+    PrtMap("D:", map.M_diff);
+  }
+
+  X.zero(); sum.zero(); sum2_vec.zero();
+  for (j = 0; j < n_rnd; j++)
+    for (k = 0; k < 2*n_DOF; k++) {
+      rnd = norm_ranf(rand);
+      sum[k] += rnd; sum2_vec[k] += sqr(rnd);
+      X[k] += rnd;
+    }
+  for (k = 0; k < 2*n_DOF; k++)
+    X[k] /= n_rnd;
+
+  get_stats(n_rnd, sum, sum2_vec, m, s);
+  PrtVec("\nmean:", m);
+  PrtVec("sigma:", s);
+
+  sum.zero(); sum2.zero();
+  for (i = 0; i < n_rnd; i++) {
+    for (k = 0; k < 2*n_DOF; k++) {
+      rnd = norm_ranf(rand);
+      X[k] = rnd;
+    }
+    ps = (map.M_Chol_tp*X).cst();
+    sum += ps;
+    for (j = 0; j < 2*n_DOF; j++)
+      for (k = 0; k < 2*n_DOF; k++)
+	sum2[j] += ps[j]*ps[k]*tps(0e0, k+1);
+  }
+
+  get_stats(n_rnd, sum, sum2, mean, Sigma);
+  PrtVec("\nmean:", mean);
+  PrtMap("Sigma:", Sigma);
+  PrtMap("D:", map.M_diff);
 }
 
 
@@ -897,11 +996,15 @@ void get_Poincare_Map(void)
   ss_vect<tps>    Id, M, A0, Sigma;
   PoincareMapType map;
 
+  const int long seed = 1121;
+
   if (!false) no_sxt();
 
   Id.identity();
 
   map.GetM(true, true); map.print();
+
+  if (false) tst_Chol_decomp(map);
 
   // PrtMap("\nM_num:", map.M_num);
   // M = Inv(map.M_tau*map.M_cav*map.M_delta)*map.M_num;
@@ -943,20 +1046,20 @@ void get_Poincare_Map(void)
 
   if (false) {
     Sigma = get_emit(map.M, map.M_diff);
-    prt_Sigma(Sigma);
-    prt_Sigma_eta(Sigma, map.eta, 1);
+    prt_Sigma(Sigma, map, 1);
     Sigma = GetSigma(map.C, map.tau, map.D, map.A);
-    prt_Sigma(Sigma);
-    prt_Sigma_eta(Sigma, map.eta, 1);
+    prt_Sigma(Sigma, map, 1);
   }
 
   if (!false) {
-    if (true)
-      BenchMark(10000, map);
-    else
-      BenchMark(1000, 10000, map);
-    Sigma = GetSigma(map.C, map.tau, map.D, map.A);
-    prt_Sigma(Sigma);
-    prt_Sigma_eta(Sigma, map.eta, 1);
+    if (!true) {
+      BenchMark(25000, map);
+      Sigma = GetSigma(map.C, map.tau, map.D, map.A);
+      prt_Sigma(Sigma, map, -1);
+    } else {
+      BenchMark(10000, 30000, map);
+      Sigma = GetSigma(map.C, map.tau, map.D, map.A);
+      prt_Sigma(Sigma, map, 1);
+    }
   }
 }
