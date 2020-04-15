@@ -611,6 +611,7 @@ void PoincareMapType::GetM(const bool cav, const bool rad)
   GetA(n_DOF, C, M_num, A, M_Fl, tau);
   delta_tau = exp(-C/(c0*tau[Z_])) - 1e0;
   GetM_tau();
+  M_tau = A*M_tau*Inv(A);
   GetM_delta();
   GetM_cav();
 
@@ -973,7 +974,7 @@ void chk_map(const PoincareMapType &map)
 {
   double          tau[3], alpha[3], beta[3], nu[3], alpha_c;
   ss_vect<double> eta, eta1;
-  ss_vect<tps>    M, M_Fl, R, A, A0, A1;
+  ss_vect<tps>    M, M_Fl, A, A0, A1;
 
   M = map.M_num;
   PrtMap("\nM:", M);
@@ -986,22 +987,26 @@ void chk_map(const PoincareMapType &map)
   cout << scientific << setprecision(12)
        << "M*eta:\n" << setw(20) << (M*eta1).cst() << "\n";
   A0 = GetA0(eta);
-  PrtMap("\nA:", map.A);
-  PrtMap("\nInv(A0)*A:", Inv(A0)*map.A);
   M = Inv(A0)*M*A0;
-  PrtMap("\nInv(A0))*M*A0:", M);
+  PrtMap("\nInv(A0)*M*A0:", M);
 
   GetA(2, map.C, M, A, M_Fl, tau);
   GetTwiss(A, M_Fl, alpha, beta, eta1, nu);
   alpha_c = M[ct_][delta_]/map.C;
 
+  printf("\nReconstruct Lattice:\n");
   A0 = GetA0(eta);
   A1 = GetA1(alpha, beta);
-  R = GetR(nu);
-  M = A1*R*Inv(A1);
+  M = GetR(nu);
   M[ct_] += alpha_c*map.C*tps(0e0, delta_+1);
+  PrtMap("\nR:", M);
+  M = A1*M*Inv(A1);
+  PrtMap("\nInv(A1)*M*A1:", M);
   M = A0*M*Inv(A0);
-  PrtMap("\nA0*A1*R*Inv(A0*A1):", M);
+  PrtMap("\nA0*A1*M*Inv(A1)*Inv(A0):", M);
+  M = map.M_tau*map.M_cav*map.M_delta*M;
+  PrtMap("\nM_rec:", M);
+  PrtMap("\nM_num:", map.M_num);
 }
 
 
