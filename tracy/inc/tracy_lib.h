@@ -16,7 +16,8 @@
 #include <setjmp.h>
 #include <time.h>
 #include <memory.h>
-#include <malloc.h>
+// Depreciated; included in <stdlib.h>
+//#include <malloc.h>
 //#include <execinfo.h>
 
 

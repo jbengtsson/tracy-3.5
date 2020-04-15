@@ -1601,7 +1601,7 @@ int main(int argc, char *argv[])
     Ring_GetTwiss(true, 0e0); printglob();
   }
 
-  if (!false) {
+  if (false) {
     get_eps_x(eps_x, sigma_delta, U_0, J);
     if (false) get_I(I, true);
 
@@ -1621,7 +1621,7 @@ int main(int argc, char *argv[])
     exit(0);
   }
 
-  if (false) {
+  if (!false) {
 #if PM
     get_Poincare_Map();
 #else

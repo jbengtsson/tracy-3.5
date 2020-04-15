@@ -1,4 +1,4 @@
-SUBDIRS      = ptc
+#SUBDIRS      = ptc
 
 bin_PROGRAMS = optics dynap leac dnu touschek ibs vlad tbt \
                max_iv_1 max_iv_2 ibs_for_les delta bare_da match \
