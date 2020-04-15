@@ -327,7 +327,7 @@ void GetA(const int n_DOF, const double C, const ss_vect<tps> &M,
 	  ss_vect<tps> &A, ss_vect<tps> &R, double tau[])
 {
   int    k;
-  double nu_z, alpha_c, dnu[3];
+  double nu_z, alpha_c;
   Matrix M_mat, A_mat, A_inv_mat, R_mat;
 
   getlinmat(2*n_DOF, M, M_mat);
@@ -472,7 +472,7 @@ void PoincareMapType::GetM_cav(void)
 
   V_RF = Cell[loc].Elem.C->Pvolt;
   f_RF = Cell[loc].Elem.C->Pfreq;
-  phi0 = asin(U0/V_RF);
+  phi0 = asin(delta_cav*E0/V_RF);
 
   M_cav.identity();
   M_cav[delta_] -=
@@ -775,8 +775,8 @@ void PoincareMapType::print(void)
 
   printf("E0 [GeV]   = %7.5f\n", 1e-9*E0);
   printf("U0 [keV]   = %7.5f\n", 1e-3*U0);
-  printf("delta_cav  = %11.5e\n", delta_cav);
   printf("delta_tau  = %11.5e\n", delta_tau);
+  printf("delta_cav  = %11.5e\n", delta_cav);
   printf("alpha_c    = %11.5e\n", alpha_c);
   printf("tau        = [%11.5e, %11.5e, %11.5e]\n", tau[X_], tau[Y_], tau[Z_]);
   printf("D          = [%11.5e, %11.5e, %11.5e]\n", D[X_], D[Y_], D[Z_]);
@@ -1007,16 +1007,10 @@ void chk_map(const PoincareMapType &map)
 
 void get_Poincare_Map(void)
 {
-  double          dnu[3];
-  ss_vect<double> eta1;
-  ss_vect<tps>    Id, M, A1, Sigma;
+  ss_vect<tps>    Sigma;
   PoincareMapType map;
 
-  const int long seed = 1121;
-
   if (!false) no_sxt();
-
-  Id.identity();
 
   map.GetM(true, true); map.print();
 
@@ -1029,7 +1023,7 @@ void get_Poincare_Map(void)
     prt_Sigma(Sigma, map);
   }
 
-  if (false) chk_map(map);
+  if (!false) chk_map(map);
 
   if (false) {
     if (true)
