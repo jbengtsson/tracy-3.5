@@ -978,7 +978,11 @@ void chk_map(const PoincareMapType &map)
 
   M = map.M_num;
   PrtMap("\nM:", M);
-  M = Inv(map.M_delta)*Inv(map.M_cav)*Inv(map.M_tau)*M;
+  M = Inv(map.M_tau)*M;
+  PrtMap("\nInv(M_tau)*M:", M);
+  M = Inv(map.M_cav)*M;
+  PrtMap("\nInv(M_cav)*Inv(M_tau)*M:", M);
+  M = Inv(map.M_delta)*M;
   PrtMap("\nInv(M_delta)*Inv(M_cav)*Inv(M_tau)*M:", M);
   eta = GetEta(M);
   eta1 = eta; eta1[delta_] = 1e0;
