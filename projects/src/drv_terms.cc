@@ -1,19 +1,21 @@
-/* Author:       Johan Bengtsson
 
-   Description:
+/* Description:
 
    Control of on & off-momentum dynamic aperture.
    Evaluates & minimizes the Lie generators to 2nd order in the sextupole
    strengths.
    Initially coded in Pascal and ported to OPA (for the conceptual design of
-   SLS). The latter is based on OPTIK by K. Wille, DELTA, Dortmund Univ.
-   (interactive linear optics design tool; coded in Pascal).
+   SLS). The latter is a derivatvie of K. Wille's OPTIK, DELTA, Dortmund Univ.
+   (i.e., an interactive Linear Optics Design Tool; coded in Pascal).
 
    References:
 
    [1] J. Bengtsson "The sextupole scheme for the Swiss Light Source (SLS):
        An Analytic Approach" SLS Note 9/97.
-   [2] A. Streun OPA.                                                         */
+   [2] A. Streun OPA.
+
+   Johan Bengtsson                                                            */
+
 
 #include "tracy_lib.h"
 

@@ -1621,7 +1621,7 @@ int main(int argc, char *argv[])
     exit(0);
   }
 
-  if (!false) {
+  if (false) {
 #if PM
     get_Poincare_Map();
 #else
