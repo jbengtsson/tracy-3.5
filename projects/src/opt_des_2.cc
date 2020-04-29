@@ -2974,8 +2974,8 @@ int main(int argc, char *argv[])
 
   if (!false) {
     Ring_GetTwiss(true, 0e0); printglob();
-    // drv_terms(1e-6, twoJ[X_], twoJ[Y_]);
-    drv_terms(1e-6, 1e0, 1e0);
+    // drv_terms(twoJ[X_], twoJ[Y_], delta, 1e-6);
+    drv_terms(1e0, 1e0, 1e0, 1e-6);
     exit(0);
   }
 

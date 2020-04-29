@@ -10,7 +10,7 @@
 
    References:
 
-   [1] J. Bengtsson "The sextupole scheme for the Swiss Light Source (SLS):
+   [1] J. Bengtsson "The Sextupole Scheme for the Swiss Light Source (SLS):
        An Analytic Approach" SLS Note 9/97.
    [2] A. Streun OPA.
 
@@ -90,7 +90,7 @@ void get_quad(const double L,
   ss_vect<tps> A1;
 
   const bool prt    = false;
-  const int  n_step = 25;
+  const int  n_step = 5;
 
   for (k = 0; k <= 1; k++) {
     alpha[k] = alpha0[k]; beta[k] = beta0[k]; nu[k] = nu0[k];
@@ -266,59 +266,6 @@ void get_twiss(const int n, double alpha[], double beta[], double eta[],
 }
 
 
-void sxt_1_(const double scl,
-	   const int i, const int j, const int k, const int l, const int m,
-	   double &h_c, double &h_s)
-{
-  // First order generators.
-
-  int    n, k1;
-  double c, s, b2, a2, b3, a3, b3L, a3L, A, phi;
-  double alpha0[2], beta0[2], nu0[2], eta0[2], etap0[2], beta[2], nu[2], eta[2];
-
-  const bool
-    prt = false;
-  const int  
-    m_x = i+j,
-    m_y = k+l,
-    n_x = i-j,
-    n_y = k-l;
-
-  h_c = h_s = 0e0;
-  if (prt) printf("sxt_1:\n");
-  for (n = 0; n <= globval.Cell_nLoc; n++) {
-    if (Cell[n].Elem.Pkind == Mpole) {
-      if (((Cell[n].Elem.M->Pirho != 0e0) ||
-    	   (Cell[n].Elem.M->Porder == Quad)) && (m >= 1)) {
-	if (prt) printf("  %4d %10s quad\n", n, Cell[n].Elem.PName);
-	get_bn_design_elem(Cell[n].Fnum, 1, Quad, b2, a2);
-	get_twiss(ind(n-1), alpha0, beta0, eta0, etap0, nu0);
-    	get_quad(Cell[n].Elem.PL, Cell[n].Elem.M->Pirho,
-    		 Cell[n].Elem.M->PTx1, Cell[n].Elem.M->PTx2,
-    		 b2, alpha0, beta0, nu0, eta0, etap0,
-    		 m_x, m_y, n_x, n_y, m, c, s);
-    	h_c += scl*c; h_s += scl*s;
-      } else if (Cell[n].Elem.M->Porder >= Sext) {
-    	if (prt) printf("  %4d %10s sext\n", n, Cell[n].Elem.PName);
-	get_bnL_design_elem(Cell[n].Fnum, 1, Sext, b3L, a3L);
-	get_twiss(ind(n-1), alpha0, beta0, eta0, etap0, nu0);
-    	for (k1 = 0; k1 <= 1; k1++) {
-    	  beta[k1] = beta0[k1]; nu[k1] = nu0[k1];
-    	  eta[k1] = eta0[k1];
-    	}
-	phi = 2e0*M_PI*(n_x*nu[X_]+n_y*nu[Y_]); 
-    	A = scl*b3L*pow(beta[X_], m_x/2e0)*pow(beta[Y_], m_y/2e0);
-    	if (m >= 1) {
-    	  A *= -pow(eta[X_], m);
-    	  if (m == 1) A *= 2e0;
-    	}
-    	h_c += A*cos(phi); h_s -= A*sin(phi);
-      }
-    }
-  }
-}
-
-
 void get_lin_map(const int n_step, const double delta, const elemtype &Elem, 
 		 ss_vect<tps> &M1, ss_vect<tps> &M2, ss_vect<tps> &M)
 {
@@ -368,14 +315,14 @@ void get_mult(const int loc, const int n_step, const double delta,
 }
 
 
-void sxt_1(const double scl,
+void sxt_1(const double scl, const double twoJ[], const double delta, 
 	   const int i, const int j, const int k, const int l, const int m,
 	   double &h_c, double &h_s)
 {
   // First order generators.
 
-  int    n, k1;
-  double c, s, b2, a2, b3, a3, b3L, a3L, A, phi;
+  int    n;
+  double c, s, b2, a2, b3L, a3L, scl1;
   double alpha0[2], beta0[2], nu0[2], eta0[2], etap0[2];
 
   const bool
@@ -406,56 +353,48 @@ void sxt_1(const double scl,
     	if (prt) printf("  %4d %10s sext\n", n, Cell[n].Elem.PName);
 	get_bnL_design_elem(Cell[n].Fnum, 1, Sext, b3L, a3L);
 	get_mult(n, n_step, 0e0, i, j, k, l, m, c, s);
-    	h_c += scl*b3L*c; h_s += scl*b3L*s;
+	scl1 = scl*pow(twoJ[X_], m_x/2e0)*pow(twoJ[Y_], m_y/2e0)*pow(delta, m);
+    	h_c += scl1*b3L*c; h_s += scl1*b3L*s;
       }
     }
   }
 }
 
 
-void sxt_2(const double twoJx, const double twoJy, const double scl,
+void sxt_2(const double scl, const double twoJ[],
 	   const int i1, const int j1, const int k1, const int l1,
 	   const int i2, const int j2, const int k2, const int l2,
 	   double &h_c, double &h_s)
 {
   // Second order generators.
 
-  long int n1, n2, k;
+  long int n1, n2;
   double   b3L1, a3L1, b3L2, a3L2, dnu, A1, A, phi;
-  double   alpha0[2], beta0[2], nu0[2], eta0[2], etap0[2];
-  double   beta1[2], nu1[2], beta2[2], nu2[2];
+  CellType *cp;
 
-  h_c = 0e0; h_s = 0e0;
+  const int  
+    m_x[] = {i1+j1, i2+j2},
+    m_y[] = {k1+l1, k2+l2},
+    n_x[] = {i1-j1, i2-j2},
+    n_y[] = {k1-l1, k2-l2};
+
   for (n1 = 0; n1 <= globval.Cell_nLoc; n1++) {
     if ((Cell[n1].Elem.Pkind == Mpole) &&
 	(Cell[n1].Elem.M->Porder >= Sext)) {
-      for (k = 0; k <= 1; k++) {
-	alpha0[k] = Cell[ind(n1-1)].Alpha[k];
-	beta0[k] = Cell[ind(n1-1)].Beta[k];
-	nu0[k] = Cell[ind(n1-1)].Nu[k];
-	eta0[k] = Cell[ind(n1-1)].Eta[k]; etap0[k] = Cell[ind(n1-1)].Etap[k];
-      }
-      for (k = 0; k <= 1; k++) {
-	beta1[k] = beta0[k]; nu1[k] = nu0[k];
-      }
       get_bnL_design_elem(Cell[n1].Fnum, 1, Sext, b3L1, a3L1);
-      dnu = (i1-j1)*nu1[X_] + (k1-l1)*nu1[Y_]; 
-      A1 = b3L1*pow(beta1[X_], (i1+j1)/2e0)*pow(twoJy*beta1[Y_], (k1+l1)/2e0);
+      cp = &Cell[ind(n1-1)];
+      dnu = n_x[0]*cp->Nu[X_] + n_y[0]*cp->Nu[Y_]; 
+      A1 = scl*b3L1*pow(cp->Beta[X_], m_x[0]/2e0)*pow(cp->Beta[Y_], m_y[0]/2e0);
       for (n2 = 0; n2 <= globval.Cell_nLoc; n2++) {
-	if ((Cell[n2].Elem.Pkind == Mpole) &&
-	    (Cell[n2].Elem.M->Porder >= Sext)) {
-	  for (k = 0; k <= 1; k++) {
-	    alpha0[k] = Cell[n2-1].Alpha[k];
-	    beta0[k] = Cell[n2-1].Beta[k]; nu0[k] = Cell[n2-1].Nu[k];
-	    eta0[k] = Cell[n2-1].Eta[k]; etap0[k] = Cell[n2-1].Etap[k];
-	  }
-	  for (k = 0; k <= 1; k++) {
-	    beta2[k] = beta0[k]; nu2[k] = nu0[k];
-	  }
+	if ((Cell[n2].Elem.Pkind == Mpole)
+	    && (Cell[n2].Elem.M->Porder >= Sext)) {
 	  get_bnL_design_elem(Cell[n2].Fnum, 1, Sext, b3L2, a3L2);
-	  phi = 2e0*M_PI*(dnu+(i2-j2)*nu2[X_]+(k2-l2)*nu2[Y_]);
-	  A = scl*A1*b3L2*pow(beta2[X_], (i2+j2)/2e0)
-		 *pow(beta2[Y_], (k2+l2)/2e0);
+	  cp = &Cell[ind(n2-1)];
+	  phi = 2e0*M_PI*(dnu+n_x[1]*cp->Nu[X_]+n_y[1]*cp->Nu[Y_]);
+	  A =
+	    A1*b3L2*pow(cp->Beta[X_], m_x[1]/2e0)*pow(cp->Beta[Y_], m_y[1]/2e0)
+	    *pow(twoJ[X_], ((m_x[0]+m_x[1])-2e0)/2e0)
+	    *pow(twoJ[Y_], ((m_y[0]+m_y[1])-2e0)/2e0);
 	  // [..., ...] -> i*...
 	  if (n2 < n1) {
 	    h_s += A*cos(phi); h_c += A*sin(phi);
@@ -478,8 +417,7 @@ void K(const double nu_x, const double nu_y,
   double   b3L1, a3L1, b3L2, a3L2, pi_1x, pi_3x, pi_1xm2y, pi_1xp2y;
   double   s_1x, s_3x, s_1xm2y, s_1xp2y, c_1x, c_3x, c_1xm2y, c_1xp2y;
   double   dmu_x, dmu_y, A;
-  double   alpha0[2], beta0[2], nu0[2], eta0[2], etap0[2];
-  double   beta1[2], nu1[2], beta2[2], nu2[2];
+  CellType *cp1, *cp2;
 
   pi_1x = M_PI*nu_x; pi_3x = 3e0*M_PI*nu_x; pi_1xm2y = M_PI*(nu_x-2e0*nu_y);
   pi_1xp2y = M_PI*(nu_x+2e0*nu_y);
@@ -487,45 +425,30 @@ void K(const double nu_x, const double nu_y,
   s_1x = sin(pi_1x); s_3x = sin(pi_3x); s_1xm2y = sin(pi_1xm2y);
   s_1xp2y = sin(pi_1xp2y);
 
-  for (k = 0; k <= 2; k++)
+  for (k = 0; k < 3; k++)
     a[k] = 0e0;
 
   for (n1 = 0; n1 <= globval.Cell_nLoc; n1++) {
     if ((Cell[n1].Elem.Pkind == Mpole) && (Cell[n1].Elem.M->Porder >= Sext)) {
-      for (k = 0; k <= 1; k++) {
-	alpha0[k] = Cell[ind(n1-1)].Alpha[k];
-	beta0[k] = Cell[ind(n1-1)].Beta[k];
-	nu0[k] = Cell[ind(n1-1)].Nu[k];
-	eta0[k] = Cell[ind(n1-1)].Eta[k];
-	etap0[k] = Cell[ind(n1-1)].Etap[k];
-      }
-      for (k = 0; k <= 1; k++) {
-	beta1[k] = beta0[k]; nu1[k] = nu0[k];
-      }
       get_bnL_design_elem(Cell[n1].Fnum, 1, Sext, b3L1, a3L1);
-
+      cp1 = &Cell[ind(n1-1)];
       for (n2 = 0; n2 <= globval.Cell_nLoc; n2++) {
 	if ((Cell[n2].Elem.Pkind == Mpole) &&
 	    (Cell[n2].Elem.M->Porder >= Sext)) {
-	  for (k = 0; k <= 1; k++) {
-	    alpha0[k] = Cell[n2-1].Alpha[k];
-	    beta0[k] = Cell[n2-1].Beta[k]; nu0[k] = Cell[n2-1].Nu[k];
-	    eta0[k] = Cell[n2-1].Eta[k]; etap0[k] = Cell[n2-1].Etap[k];
-	  }
-	  for (k = 0; k <= 1; k++) {
-	    beta2[k] = beta0[k]; nu2[k] = nu0[k];
-	  }
 	  get_bnL_design_elem(Cell[n2].Fnum, 1, Sext, b3L2, a3L2);
-	  dmu_x = 2e0*M_PI*fabs(nu1[X_]-nu2[X_]);
-	  dmu_y = 2e0*M_PI*fabs(nu1[Y_]-nu2[Y_]);
-	  A = b3L1*b3L2*sqrt(beta1[X_]*beta2[X_]);
+	  cp2 = &Cell[ind(n2-1)];
+	  dmu_x = 2e0*M_PI*fabs(cp1->Nu[X_]-cp2->Nu[X_]);
+	  dmu_y = 2e0*M_PI*fabs(cp1->Nu[Y_]-cp2->Nu[Y_]);
+	  A = b3L1*b3L2*sqrt(cp1->Beta[X_]*cp2->Beta[X_]);
 	  c_1x = cos(dmu_x-pi_1x)/s_1x; c_3x = cos(3e0*dmu_x-pi_3x)/s_3x;
 	  c_1xm2y = cos(dmu_x-2e0*dmu_y-pi_1xm2y)/s_1xm2y;
 	  c_1xp2y = cos(dmu_x+2e0*dmu_y-pi_1xp2y)/s_1xp2y;
-	  a[0] += A*beta1[X_]*beta2[X_]*(3*c_1x+c_3x)/2e0;
-	  a[1] -= A*beta1[Y_]*(4e0*twoJx*beta2[X_]*c_1x+2e0*twoJy*beta2[Y_]
-		  *(c_1xm2y-c_1xp2y));
-	  a[2] += A*beta1[Y_]*beta2[Y_]*(4e0*c_1x+c_1xm2y+c_1xp2y)/2e0;
+	  a[0] += A*cp1->Beta[X_]*cp2->Beta[X_]*(3*c_1x+c_3x)/2e0;
+	  a[1] -=
+	    A*cp1->Beta[Y_]
+	    *(4e0*twoJx*cp2->Beta[X_]*c_1x+2e0*twoJy*cp2->Beta[Y_]
+	      *(c_1xm2y-c_1xp2y));
+	  a[2] += A*cp1->Beta[Y_]*cp2->Beta[Y_]*(4e0*c_1x+c_1xm2y+c_1xp2y)/2e0;
 	}
       }
     }
@@ -574,334 +497,157 @@ void get_ksi2_(const double delta, double ksi2[])
 }
 
 
-void get_cross_terms(const double delta, const double twoJx, const double twoJy,
-		     double ad[])
+void get_cross_terms(const double delta_eps, const double twoJx,
+		     const double twoJy, double ad[])
 {
   int    k;
   double a[2][3];
 
-  Ring_GetTwiss(false, -delta);
+  Ring_GetTwiss(false, -delta_eps);
   K(globval.TotalTune[X_], globval.TotalTune[Y_], twoJx, twoJy, a[0]);
-  Ring_GetTwiss(false, delta);
+  Ring_GetTwiss(false, delta_eps);
   K(globval.TotalTune[X_], globval.TotalTune[Y_], twoJx, twoJy, a[1]);
 
   for (k = 0; k < 3; k++)
-    ad[k] = (a[1][k]-a[0][k])/(2e0*delta);
+    ad[k] = (a[1][k]-a[0][k])/(2e0*delta_eps);
 }
 
 
-void drv_terms(const double delta, const double twoJx, const double twoJy)
+void drv_term_1(const double scl, const double twoJ[], const double delta,
+		const int i, const int j, const int k, const int l,
+		const int m, std::vector<string> &h_label,
+		std::vector<double> &h_c, std::vector<double> &h_s,
+		const bool ker)
 {
-  double h_c, h_s, c, s, a[3], ksi2[2];
+  double       c, s;
+  stringstream str;
+
+  sxt_1(scl, twoJ, delta, i, j, k, l, m, c, s);
+  if (!ker)
+    str << "h_" << i << j << k << l << m;
+  else
+    str << "k_" << i << j << k << l << m;
+  h_label.push_back(str.str());
+  h_c.push_back(c);
+  h_s.push_back(s);
+  printf("  %7s = [%12.5e, %12.5e]\n",
+	 h_label.back().c_str(), h_c.back()/2e0, h_s.back()/2e0);
+}
+
+
+void drv_term_2(const string &str, const double c, const double s,
+		std::vector<string> &h_label, std::vector<double> &h_c,
+		std::vector<double> &h_s)
+{
+  h_label.push_back(str);
+  h_c.push_back(c);
+  h_s.push_back(s);
+  printf("  %7s = [%12.5e, %12.5e]\n",
+	 h_label.back().c_str(), h_c.back()/2e0, h_s.back()/2e0);
+}
+
+
+void drv_terms(const double twoJ_x, const double twoJ_y, const double delta,
+	       const double delta_eps)
+{
+  double              c, s, a[3], ksi2[2];
+  std::vector<string> h_label;
+  std::vector<double> h_c, h_s;
+  stringstream        str;
+
+  const double twoJ[] = {twoJ_x, twoJ_y};
 
   printf("\nFirst order chromatic terms:\n");
-  sxt_1(1e0/2e0, 1, 1, 0, 0, 1, h_c, h_s);
-  printf("  h_11001 = %12.5e ksi_x = %7.3f\n", h_c/2e0, -h_c/(2e0*M_PI));
-  sxt_1(-1e0/2e0, 0, 0, 1, 1, 1, h_c, h_s);
-  printf("  h_00111 = %12.5e ksi_y = %7.3f\n", h_c/2e0, -h_c/(2e0*M_PI));
+  drv_term_1( 1e0,      twoJ, delta, 1, 1, 0, 0, 1, h_label, h_c, h_s, true);
+  drv_term_1(-1e0,      twoJ, delta, 0, 0, 1, 1, 1, h_label, h_c, h_s, true);
 
-  sxt_1(1e0/4e0, 2, 0, 0, 0, 1, h_c, h_s);
-  h_c *= twoJx; h_s *= twoJx;
-  printf("\n  h_20001 = [%12.5e, %12.5e]\n", h_c/2e0, h_s/2e0);
-  sxt_1(-1e0/4e0, 0, 0, 2, 0, 1, h_c, h_s);
-  h_c *= twoJy; h_s *= twoJy;
-  printf("  h_00201 = [%12.5e, %12.5e]\n", h_c/2e0, h_s/2e0);
-  sxt_1(1e0, 1, 0, 0, 0, 2, h_c, h_s);
-  h_c *= sqrt(twoJx); h_s *= sqrt(twoJx);
-  printf("  h_10002 = [%12.5e, %12.5e]\n", h_c/2e0, h_s/2e0);
+  printf("\n");
+  drv_term_1( 1e0/4e0,  twoJ, delta, 2, 0, 0, 0, 1, h_label, h_c, h_s, false);
+  drv_term_1(-1e0/4e0,  twoJ, delta, 0, 0, 2, 0, 1, h_label, h_c, h_s, false);
+  drv_term_1( 1e0,      twoJ, delta, 1, 0, 0, 0, 2, h_label, h_c, h_s, false);
 
   printf("\nFirst order geometric terms:\n");
-  sxt_1(-1e0/12e0, 3, 0, 0, 0, 0, h_c, h_s);
-  h_c *= pow(twoJx, 3e0/2e0); h_s *= pow(twoJx, 3e0/2e0);
-  printf("  h_30000 = [%12.5e, %12.5e]\n", h_c/2e0, h_s/2e0);
-  sxt_1(-1e0/4e0, 2, 1, 0, 0, 0, h_c, h_s);
-  h_c *= pow(twoJx, 3e0/2e0); h_s *= pow(twoJx, 3e0/2e0);
-  printf("  h_21000 = [%12.5e, %12.5e]\n", h_c/2e0, h_s/2e0);
-  sxt_1(1e0/4e0, 1, 0, 2, 0, 0, h_c, h_s);
-  h_c *= sqrt(twoJx)*twoJy; h_s *= sqrt(twoJx)*twoJy;
-  printf("  h_10200 = [%12.5e, %12.5e]\n", h_c/2e0, h_s/2e0);
-  sxt_1(1e0/2e0, 1, 0, 1, 1, 0, h_c, h_s);
-  h_c *= sqrt(twoJx)*twoJy; h_s *= sqrt(twoJx)*twoJy;
-  printf("  h_10110 = [%12.5e, %12.5e]\n", h_c/2e0, h_s/2e0);
-  sxt_1(1e0/4e0, 1, 0, 0, 2, 0, h_c, h_s);
-  h_c *= sqrt(twoJx)*twoJy; h_s *= sqrt(twoJx)*twoJy;
-  printf("  h_10020 = [%12.5e, %12.5e]\n", h_c/2e0, h_s/2e0);
+  drv_term_1(-1e0/12e0, twoJ, delta, 3, 0, 0, 0, 0, h_label, h_c, h_s, false);
+  drv_term_1(-1e0/4e0,  twoJ, delta, 2, 1, 0, 0, 0, h_label, h_c, h_s, false);
+  drv_term_1( 1e0/4e0,  twoJ, delta, 1, 0, 2, 0, 0, h_label, h_c, h_s, false);
+  drv_term_1( 1e0/2e0,  twoJ, delta, 1, 0, 1, 1, 0, h_label, h_c, h_s, false);
+  drv_term_1( 1e0/4e0,  twoJ, delta, 1, 0, 0, 2, 0, h_label, h_c, h_s, false);
  
   printf("\nSecond order geometric terms:\n");
-  sxt_2(twoJx, twoJy, -1e0/32e0, 2, 1, 0, 0, 3, 0, 0, 0, h_c, h_s);
-  h_c *= sqr(twoJx); h_s *= sqr(twoJx);
-  printf("  h_40000 = [%12.5e, %12.5e]\n", h_c/2e0, h_s/2e0);
+  c = s = 0e0;
+  sxt_2(-1e0/32e0, twoJ, 2, 1, 0, 0, 3, 0, 0, 0, c, s);
+  drv_term_2("h_40000", c, s, h_label, h_c, h_s);
   
-  sxt_2(twoJx, twoJy, -1e0/16e0, 1, 2, 0, 0, 3, 0, 0, 0, h_c, h_s);
-  h_c *= sqr(twoJx); h_s *= sqr(twoJx);
-  printf("  h_31000 = [%12.5e, %12.5e]\n", h_c/2e0, h_s/2e0);
+  c = s = 0e0;
+  sxt_2(-1e0/16e0, twoJ, 1, 2, 0, 0, 3, 0, 0, 0, c, s);
+  drv_term_2("h_31000", c, s, h_label, h_c, h_s);
 
-  sxt_2(twoJx, twoJy, -1e0/32e0, 0, 3, 0, 0, 3, 0, 0, 0, c, s);
-  h_c = c; h_s = s;
-  sxt_2(twoJx, twoJy, -3e0/32e0, 1, 2, 0, 0, 2, 1, 0, 0, c, s);
-  h_c += c; h_s += s;
-  h_c *= sqr(twoJx); h_s *= sqr(twoJx);
-  printf("  h_22000 = [%12.5e, %12.5e]\n", h_c/2e0, h_s/2e0);
+  c = s = 0e0;
+  sxt_2(-1e0/32e0, twoJ, 0, 3, 0, 0, 3, 0, 0, 0, c, s);
+  sxt_2(-3e0/32e0, twoJ, 1, 2, 0, 0, 2, 1, 0, 0, c, s);
+  drv_term_2("h_22000", c, s, h_label, h_c, h_s);
 
-  sxt_2(twoJx, twoJy, -1e0/32e0, 3, 0, 0, 0, 0, 1, 2, 0, c, s);
-  h_c = c; h_s = s;
-  sxt_2(twoJx, twoJy, -1e0/32e0, 1, 0, 2, 0, 2, 1, 0, 0, c, s);
-  h_c += c; h_s += s;
-  sxt_2(twoJx, twoJy, -4e0/32e0, 1, 0, 1, 1, 1, 0, 2, 0, c, s);
-  h_c += c; h_s += s;
-  h_c *= twoJx*twoJy; h_s *= twoJx*twoJy;
-  printf("  h_20200 = [%12.5e, %12.5e]\n", h_c/2e0, h_s/2e0);
+  c = s = 0e0;
+  sxt_2(-1e0/32e0, twoJ, 3, 0, 0, 0, 0, 1, 2, 0, c, s);
+  sxt_2(-1e0/32e0, twoJ, 1, 0, 2, 0, 2, 1, 0, 0, c, s);
+  sxt_2(-4e0/32e0, twoJ, 1, 0, 1, 1, 1, 0, 2, 0, c, s);
+  drv_term_2("h_20200", c, s, h_label, h_c, h_s);
   
-  sxt_2(twoJx, twoJy, -1e0/16e0, 1, 0, 2, 0, 1, 2, 0, 0, c, s);
-  h_c = c; h_s = s;
-  sxt_2(twoJx, twoJy, -1e0/16e0, 2, 1, 0, 0, 0, 1, 2, 0, c, s);
-  h_c += c; h_s += s;
-  sxt_2(twoJx, twoJy, -2e0/16e0, 0, 1, 1, 1, 1, 0, 2, 0, c, s);
-  h_c += c; h_s += s;
-  sxt_2(twoJx, twoJy, -2e0/16e0, 1, 0, 1, 1, 0, 1, 2, 0, c, s);
-  h_c += c; h_s += s;
-  h_c *= twoJx*twoJy; h_s *= twoJx*twoJy;
-  printf("  h_11200 = [%12.5e, %12.5e]\n", h_c/2e0, h_s/2e0);
+  c = s = 0e0;
+  sxt_2(-1e0/16e0, twoJ, 1, 0, 2, 0, 1, 2, 0, 0, c, s);
+  sxt_2(-1e0/16e0, twoJ, 2, 1, 0, 0, 0, 1, 2, 0, c, s);
+  sxt_2(-2e0/16e0, twoJ, 0, 1, 1, 1, 1, 0, 2, 0, c, s);
+  sxt_2(-2e0/16e0, twoJ, 1, 0, 1, 1, 0, 1, 2, 0, c, s);
+  drv_term_2("h_11200", c, s, h_label, h_c, h_s);
     
-  sxt_2(twoJx, twoJy, -1e0/16e0, 3, 0, 0, 0, 0, 1, 1, 1, c, s);
-  h_c = c; h_s = s;
-  sxt_2(twoJx, twoJy, -1e0/16e0, 1, 0, 1, 1, 2, 1, 0, 0, c, s);
-  h_c += c; h_s += s;
-  sxt_2(twoJx, twoJy, -1e0/8e0, 1, 0, 0, 2, 1, 0, 2, 0, c, s);
-  h_c += c; h_s += s;
-  h_c *= twoJx*twoJy; h_s *= twoJx*twoJy;
-  printf("  h_20110 = [%12.5e, %12.5e]\n", h_c/2e0, h_s/2e0);
+  c = s = 0e0;
+  sxt_2(-1e0/16e0, twoJ, 3, 0, 0, 0, 0, 1, 1, 1, c, s);
+  sxt_2(-1e0/16e0, twoJ, 1, 0, 1, 1, 2, 1, 0, 0, c, s);
+  sxt_2(-1e0/8e0, twoJ, 1, 0, 0, 2, 1, 0, 2, 0, c, s);
+  drv_term_2("h_20110", c, s, h_label, h_c, h_s);
   
-  sxt_2(twoJx, twoJy, -1e0/8e0, 1, 0, 1, 1, 1, 2, 0, 0, c, s);
-  h_c = c; h_s = s;
-  sxt_2(twoJx, twoJy, -1e0/8e0, 2, 1, 0, 0, 0, 1, 1, 1, c, s);
-  h_c += c; h_s += s;
-  sxt_2(twoJx, twoJy, -1e0/8e0, 0, 1, 0, 2, 1, 0, 2, 0, c, s);
-  h_c += c; h_s += s;
-  sxt_2(twoJx, twoJy, -1e0/8e0, 1, 0, 0, 2, 0, 1, 2, 0, c, s);
-  h_c += c; h_s += s;
-  h_c *= twoJx*twoJy; h_s *= twoJx*twoJy;
-  printf("  h_11110 = [%12.5e, %12.5e]\n", h_c/2e0, h_s/2e0);
+  c = s = 0e0;
+  sxt_2(-1e0/8e0, twoJ, 1, 0, 1, 1, 1, 2, 0, 0, c, s);
+  sxt_2(-1e0/8e0, twoJ, 2, 1, 0, 0, 0, 1, 1, 1, c, s);
+  sxt_2(-1e0/8e0, twoJ, 0, 1, 0, 2, 1, 0, 2, 0, c, s);
+  sxt_2(-1e0/8e0, twoJ, 1, 0, 0, 2, 0, 1, 2, 0, c, s);
+  drv_term_2("h_11110", c, s, h_label, h_c, h_s);
   
-  sxt_2(twoJx, twoJy, -1e0/16e0, 0, 1, 2, 0, 1, 0, 1, 1, c, s);
-  h_c = c; h_s = s;
-  sxt_2(twoJx, twoJy, -1e0/16e0, 0, 1, 1, 1, 1, 0, 2, 0, c, s);
-  h_c += c; h_s += s;
-  h_c *= sqr(twoJy); h_s *= sqr(twoJy);
-  printf("  h_00310 = [%12.5e, %12.5e]\n", h_c/2e0, h_s/2e0);
+  c = s = 0e0;
+  sxt_2(-1e0/16e0, twoJ, 0, 1, 2, 0, 1, 0, 1, 1, c, s);
+  sxt_2(-1e0/16e0, twoJ, 0, 1, 1, 1, 1, 0, 2, 0, c, s);
+  drv_term_2("h_00310", c, s, h_label, h_c, h_s);
   
-  sxt_2(twoJx, twoJy, -1e0/32e0, 1, 0, 0, 2, 2, 1, 0, 0, c, s);
-  h_c = c; h_s = s;
-  sxt_2(twoJx, twoJy, -1e0/32e0, 3, 0, 0, 0, 0, 1, 0, 2, c, s);
-  h_c += c; h_s += s;
-  sxt_2(twoJx, twoJy, -4e0/32e0, 1, 0, 0, 2, 1, 0, 1, 1, c, s);
-  h_c += c; h_s += s;
-  h_c *= twoJx*twoJy; h_s *= twoJx*twoJy;
-  printf("  h_20020 = [%12.5e, %12.5e]\n", h_c/2e0, h_s/2e0);
+  c = s = 0e0;
+  sxt_2(-1e0/32e0, twoJ, 1, 0, 0, 2, 2, 1, 0, 0, c, s);
+  sxt_2(-1e0/32e0, twoJ, 3, 0, 0, 0, 0, 1, 0, 2, c, s);
+  sxt_2(-4e0/32e0, twoJ, 1, 0, 0, 2, 1, 0, 1, 1, c, s);
+  drv_term_2("h_20020", c, s, h_label, h_c, h_s);
 
-  sxt_2(twoJx, twoJy, -1e0/32e0, 0, 1, 2, 0, 1, 0, 2, 0, h_c, h_s);
-  h_c *= sqr(twoJy); h_s *= sqr(twoJy);
-  printf("  h_00400 = [%12.5e, %12.5e]\n", h_c/2e0, h_s/2e0);
+  c = s = 0e0;
+  sxt_2(-1e0/32e0, twoJ, 0, 1, 2, 0, 1, 0, 2, 0, c, s);
+  drv_term_2("h_00400", c, s, h_label, h_c, h_s);
 
-  sxt_2(twoJx, twoJy, -1e0/8e0, 0, 1, 1, 1, 1, 0, 1, 1, c, s);
-  h_c = c; h_s = s;
-  sxt_2(twoJx, twoJy, -1e0/32e0, 0, 1, 0, 2, 1, 0, 2, 0, c, s);
-  h_c += c; h_s += s;
-  sxt_2(twoJx, twoJy, -1e0/32e0, 0, 1, 2, 0, 1, 0, 0, 2, c, s);
-  h_c += c; h_s += s;
-  h_c *= sqr(twoJy); h_s *= sqr(twoJy);
-  printf("  h_00220 = [%12.5e, %12.5e]\n", h_c/2e0, h_s/2e0);
+  c = s = 0e0;
+  sxt_2(-1e0/8e0, twoJ, 0, 1, 1, 1, 1, 0, 1, 1, c, s);
+  sxt_2(-1e0/32e0, twoJ, 0, 1, 0, 2, 1, 0, 2, 0, c, s);
+  sxt_2(-1e0/32e0, twoJ, 0, 1, 2, 0, 1, 0, 0, 2, c, s);
+  drv_term_2("h_00220", c, s, h_label, h_c, h_s);
 
-  K(globval.TotalTune[X_], globval.TotalTune[Y_], twoJx, twoJy, a);
+  K(globval.TotalTune[X_], globval.TotalTune[Y_], twoJ[X_], twoJ[Y_], a);
   printf("\nSecond order anharmonic terms:\n");
   printf("  k_22000 = %12.5e\n", a[0]);
   printf("  k_11110 = %12.5e\n", a[1]);
   printf("  k_00220 = %12.5e\n", a[2]);
 
-  get_ksi2_(delta, ksi2);
+  get_ksi2_(delta_eps, ksi2);
   printf("\nSecond order chromaticity:\n");
   printf("  k_11002 = %12.5e\n", -M_PI*ksi2[X_]);
   printf("  k_00112 = %12.5e\n", -M_PI*ksi2[Y_]);
 
-  get_cross_terms(delta, twoJx, twoJy, a);
+  get_cross_terms(delta_eps, twoJ[X_], twoJ[Y_], a);
   printf("\nSecond order cross terms:\n");
   printf("  k_22001 = %12.5e\n", a[0]);
   printf("  k_11111 = %12.5e\n", a[1]);
   printf("  k_00221 = %12.5e\n", a[2]);
-}
-
-
-double f_sxt(double p[])
-{
-  int    i;
-  double f, h_c, h_s, c, s;
-
-  const int    n_prt = 100;
-  const double scl_ksi1 = 1e3, scl_geom = 1e0, scl_dnu = 1e0, b3L_max = 3.5;
-
-  iter++;
-
-  for (i = 1; i <= n_b3; i++) {
-    Setbn(b3s[i-1], Sext, p[i]);
-    if (fabs(p[i]) > b3L_max) {
-      if (iter % n_prt == 0) {
-	printf("\n");
-	printf("%4d b3L_max exceeded: %9.6f\n", iter, p[i]);
-      }
-      return 1e30;
-    }
-  }
-
-  // h_11001
-  sxt_1(1e0/4e0, 1, 1, 0, 0, 1, h_c, h_s);
-  f = scl_ksi1*sqr(h_c);
-  // h_00111
-  sxt_1(-1e0/4e0, 0, 0, 1, 1, 1, h_c, h_s);
-  f += scl_ksi1*sqr(h_c);
-
-  // h_20001
-  sxt_1(1e0/4e0, 2, 0, 0, 0, 1, h_c, h_s);
-  // h_00201
-  sxt_1(-1e0/4e0, 0, 0, 2, 0, 1, h_c, h_s);
-  // h_10002
-  sxt_1(1e0, 1, 0, 0, 0, 2, h_c, h_s);
-
-  // h_21000
-  sxt_1(-1e0/4e0, 2, 1, 0, 0, 0, h_c, h_s);
-  f += scl_geom*pow(twoJ_[X_], 3e0/2e0)*sqr(h_c);
-  // h_30000
-  sxt_1(-1e0/12e0, 3, 0, 0, 0, 0, h_c, h_s);
-  f += scl_geom*pow(twoJ_[X_], 3e0/2e0)*sqr(h_c);
-  // h_10110
-  sxt_1(1e0/2e0, 1, 0, 1, 1, 0, h_c, h_s);
-  f += scl_geom*sqrt(twoJ_[X_])*twoJ_[Y_]*sqr(h_c);
-  // h_10020
-  sxt_1(1e0/4e0, 1, 0, 0, 2, 0, h_c, h_s);
-  f += scl_geom*sqrt(twoJ_[X_])*twoJ_[Y_]*sqr(h_c);
-  // h_10200
-  sxt_1(1e0/4e0, 1, 0, 2, 0, 0, h_c, h_s);
-  f += scl_geom*sqrt(twoJ_[X_])*twoJ_[Y_]*sqr(h_c);
-
-  // h_40000
-  sxt_2(twoJ_[X_], twoJ_[Y_], -1e0/32e0, 2, 1, 0, 0, 3, 0, 0, 0, h_c, h_s);
-  f += scl_geom*sqr(twoJ_[X_])*sqr(h_c);
-  
-  // h_31000
-  sxt_2(twoJ_[X_], twoJ_[Y_], -1e0/16e0, 1, 2, 0, 0, 3, 0, 0, 0, h_c, h_s);
-  f += scl_geom*sqr(twoJ_[X_])*sqr(h_c);
-
-  // h_20110
-  sxt_2(twoJ_[X_], twoJ_[Y_], -1e0/16e0, 3, 0, 0, 0, 0, 1, 1, 1, c, s);
-  h_c = c; h_s = s;
-  sxt_2(twoJ_[X_], twoJ_[Y_], -1e0/16e0, 1, 0, 1, 1, 2, 1, 0, 0, c, s);
-  h_c += c; h_s += s;
-  sxt_2(twoJ_[X_], twoJ_[Y_], -1e0/8e0, 1, 0, 0, 2, 1, 0, 2, 0, c, s);
-  h_c += c; h_s += s;
-  f += scl_geom*twoJ_[X_]*twoJ_[Y_]*sqr(h_c);
-  
-  // h_20020
-  sxt_2(twoJ_[X_], twoJ_[Y_], -1e0/32e0, 1, 0, 0, 2, 2, 1, 0, 0, c, s);
-  h_c = c; h_s = s;
-  sxt_2(twoJ_[X_], twoJ_[Y_], -1e0/32e0, 3, 0, 0, 0, 0, 1, 0, 2, c, s);
-  h_c += c; h_s += s;
-  sxt_2(twoJ_[X_], twoJ_[Y_], -4e0/32e0, 1, 0, 0, 2, 1, 0, 1, 1, c, s);
-  h_c += c; h_s += s;
-  f += scl_geom*twoJ_[X_]*twoJ_[Y_]*sqr(h_c);
-
-  // h_20200
-  sxt_2(twoJ_[X_], twoJ_[Y_], -1e0/32e0, 3, 0, 0, 0, 0, 1, 2, 0, c, s);
-  h_c = c; h_s = s;
-  sxt_2(twoJ_[X_], twoJ_[Y_], -1e0/32e0, 1, 0, 2, 0, 2, 1, 0, 0, c, s);
-  h_c += c; h_s += s;
-  sxt_2(twoJ_[X_], twoJ_[Y_], -4e0/32e0, 1, 0, 1, 1, 1, 0, 2, 0, c, s);
-  h_c += c; h_s += s;
-  f += scl_geom*twoJ_[X_]*twoJ_[Y_]*sqr(h_c);
-  
-  // h_11200
-  sxt_2(twoJ_[X_], twoJ_[Y_], -1e0/16e0, 1, 0, 2, 0, 1, 2, 0, 0, c, s);
-  h_c = c; h_s = s;
-  sxt_2(twoJ_[X_], twoJ_[Y_], -1e0/16e0, 2, 1, 0, 0, 0, 1, 2, 0, c, s);
-  h_c += c; h_s += s;
-  sxt_2(twoJ_[X_], twoJ_[Y_], -2e0/16e0, 0, 1, 1, 1, 1, 0, 2, 0, c, s);
-  h_c += c; h_s += s;
-  sxt_2(twoJ_[X_], twoJ_[Y_], -2e0/16e0, 1, 0, 1, 1, 0, 1, 2, 0, c, s);
-  h_c += c; h_s += s;
-  f += scl_geom*twoJ_[X_]*twoJ_[Y_]*sqr(h_c);
-    
-  // h_00310
-  sxt_2(twoJ_[X_], twoJ_[Y_], -1e0/16e0, 0, 1, 2, 0, 1, 0, 1, 1, c, s);
-  h_c = c; h_s = s;
-  sxt_2(twoJ_[X_], twoJ_[Y_], -1e0/16e0, 0, 1, 1, 1, 1, 0, 2, 0, c, s);
-  h_c += c; h_s += s;
-  f += scl_geom*sqr(twoJ_[Y_])*sqr(h_c);
-  
-  // h_00400
-  sxt_2(twoJ_[X_], twoJ_[Y_], -1e0/32e0, 0, 1, 2, 0, 1, 0, 2, 0, h_c, h_s);
-  f += scl_geom*twoJ_[X_]*twoJ_[Y_]*sqr(h_c);
-
-  // h_22000
-  sxt_2(twoJ_[X_], twoJ_[Y_], -1e0/32e0, 0, 3, 0, 0, 3, 0, 0, 0, c, s);
-  h_c = c; h_s = s;
-  sxt_2(twoJ_[X_], twoJ_[Y_], -3e0/32e0, 1, 2, 0, 0, 2, 1, 0, 0, c, s);
-  h_c += c; h_s += s;
-  f += scl_dnu*sqr(twoJ_[X_])*sqr(h_c);
-  
-  // h_11110
-  sxt_2(twoJ_[X_], twoJ_[Y_], -1e0/8e0, 1, 0, 1, 1, 1, 2, 0, 0, c, s);
-  h_c = c; h_s = s;
-  sxt_2(twoJ_[X_], twoJ_[Y_], -1e0/8e0, 2, 1, 0, 0, 0, 1, 1, 1, c, s);
-  h_c += c; h_s += s;
-  sxt_2(twoJ_[X_], twoJ_[Y_], -1e0/8e0, 0, 1, 0, 2, 1, 0, 2, 0, c, s);
-  h_c += c; h_s += s;
-  sxt_2(twoJ_[X_], twoJ_[Y_], -1e0/8e0, 1, 0, 0, 2, 0, 1, 2, 0, c, s);
-  h_c += c; h_s += s;
-  f += scl_dnu*twoJ_[X_]*twoJ_[Y_]*sqr(h_c);
-  
-  // h_00220
-  sxt_2(twoJ_[X_], twoJ_[Y_], -1e0/8e0, 0, 1, 1, 1, 1, 0, 1, 1, c, s);
-  h_c = c; h_s = s;
-  sxt_2(twoJ_[X_], twoJ_[Y_], -1e0/32e0, 0, 1, 0, 2, 1, 0, 2, 0, c, s);
-  h_c += c; h_s += s;
-  sxt_2(twoJ_[X_], twoJ_[Y_], -1e0/32e0, 0, 1, 2, 0, 1, 0, 0, 2, c, s);
-  h_c += c; h_s += s;
-  f += scl_dnu*sqr(twoJ_[Y_])*sqr(h_c);
-
-  if (iter % n_prt == 0) {
-    printf("\n");
-    printf("%4d %10.3e\n", iter, f);
-    for (i = 1; i <= n_b3; i++)
-      printf(" %9.6f", p[i]);
-    printf("\n");
-  }
-
-  return f;
-}
-
-
-void h_min(const double twoJx, const double twoJy)
-{
-  int    i, j, n_iter;
-  double *p, **xi, fret;
-
-  const double ftol = 1e-6;
-
-  b3s.push_back(ElemIndex("s4"));  b3s.push_back(ElemIndex("s6"));
-  b3s.push_back(ElemIndex("s13")); b3s.push_back(ElemIndex("s19"));
-  b3s.push_back(ElemIndex("s22")); b3s.push_back(ElemIndex("s24"));
-  n_b3 = b3s.size();
-
-  p = dvector(1, n_b3); xi = dmatrix(1, n_b3, 1, n_b3);
-  
-  twoJ_[X_] = twoJx; twoJ_[Y_] = twoJy;
-
-  for (i = 1; i <= n_b3; i++) {
-    p[i] = GetKpar(b3s[i-1], 1, Sext);
-    for (j = 1; j <= n_b3; j++)
-      xi[i][j] = (i == j)? 1e-3 : 0e0;
-  }
-
-  iter = 0;
-  dpowell(p, xi, n_b3, ftol, &n_iter, &fret, f_sxt); f_sxt(p);
-
-  free_dvector(p, 1, n_b3); free_dmatrix(xi, 1, n_b3, 1, n_b3);
 }
