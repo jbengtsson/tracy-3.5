@@ -952,8 +952,11 @@ double constr_type::get_chi2(const param_type &prms, double *bn,
   int    j, k;
   double chi2, dchi2[3], mean, geom_mean, bn_ext;
 
-  const bool   extra = false;
-  const double delta = 1e-6, scl_extra = 1e8;
+  const bool
+    extra     = false;
+  const double
+    delta_eps = 1e-6,
+    scl_extra = 1e8;
 
   if (prt) printf("\nget_chi2:\n");
 
@@ -1064,7 +1067,7 @@ double constr_type::get_chi2(const param_type &prms, double *bn,
   }
 
   if (ksi2_scl != 0e0) {
-    get_ksi2_(delta, ksi2);
+    get_ksi2_(delta_eps, ksi2);
     for (k = 0; k < 2; k++) {
       dchi2[k] = ksi2_scl*sqr(ksi2[k]);
       chi2 += dchi2[k];
@@ -1279,11 +1282,11 @@ void get_ksi1(ss_vect<tps> &A, double ksi1[])
   int    k;
   double nu0[2], nu1[2];
 
-  const double delta = 1e-8;
+  const double delta_eps = 1e-8;
 
-  get_nu(A, -delta, nu0); get_nu(A, delta, nu1);
+  get_nu(A, -delta_eps, nu0); get_nu(A, delta_eps, nu1);
   for (k = 0; k < 2; k++)
-    ksi1[k] = (nu1[k]-nu0[k])/(2e0*delta);
+    ksi1[k] = (nu1[k]-nu0[k])/(2e0*delta_eps);
 }
 
 
@@ -2974,8 +2977,12 @@ int main(int argc, char *argv[])
 
   if (!false) {
     Ring_GetTwiss(true, 0e0); printglob();
-    // drv_terms(twoJ[X_], twoJ[Y_], delta, 1e-6);
-    drv_terms(1e0, 1e0, 1e0, 1e-6);
+#if 1
+    const double
+      twoJ[] = {1e0, 1e0},
+      delta  = 1e0;
+#endif
+    drv_terms(twoJ, delta, 1e-6);
     exit(0);
   }
 

@@ -408,10 +408,9 @@ void sxt_2(const double scl, const double twoJ[],
 }
 
 
-void K(const double nu_x, const double nu_y,
-       const double twoJx, const double twoJy, double a[])
+void K(const double nu[], const double twoJ[], double a[])
 {
-  // Amplitude dependent tune shifts.
+  // Anharmonic terms.
 
   long int k, n1, n2;
   double   b3L1, a3L1, b3L2, a3L2, pi_1x, pi_3x, pi_1xm2y, pi_1xp2y;
@@ -419,8 +418,10 @@ void K(const double nu_x, const double nu_y,
   double   dmu_x, dmu_y, A;
   CellType *cp1, *cp2;
 
-  pi_1x = M_PI*nu_x; pi_3x = 3e0*M_PI*nu_x; pi_1xm2y = M_PI*(nu_x-2e0*nu_y);
-  pi_1xp2y = M_PI*(nu_x+2e0*nu_y);
+  pi_1x = M_PI*nu[X_];
+  pi_3x = 3e0*M_PI*nu[X_];
+  pi_1xm2y = M_PI*(nu[X_]-2e0*nu[Y_]);
+  pi_1xp2y = M_PI*(nu[X_]+2e0*nu[Y_]);
 
   s_1x = sin(pi_1x); s_3x = sin(pi_3x); s_1xm2y = sin(pi_1xm2y);
   s_1xp2y = sin(pi_1xp2y);
@@ -446,7 +447,7 @@ void K(const double nu_x, const double nu_y,
 	  a[0] += A*cp1->Beta[X_]*cp2->Beta[X_]*(3*c_1x+c_3x)/2e0;
 	  a[1] -=
 	    A*cp1->Beta[Y_]
-	    *(4e0*twoJx*cp2->Beta[X_]*c_1x+2e0*twoJy*cp2->Beta[Y_]
+	    *(4e0*twoJ[X_]*cp2->Beta[X_]*c_1x+2e0*twoJ[Y_]*cp2->Beta[Y_]
 	      *(c_1xm2y-c_1xp2y));
 	  a[2] += A*cp1->Beta[Y_]*cp2->Beta[Y_]*(4e0*c_1x+c_1xm2y+c_1xp2y)/2e0;
 	}
@@ -497,27 +498,26 @@ void get_ksi2_(const double delta, double ksi2[])
 }
 
 
-void get_cross_terms(const double delta_eps, const double twoJx,
-		     const double twoJy, double ad[])
+void cross_terms(const double delta_eps, const double nu[], const double twoJ[],
+		 double ad[])
 {
   int    k;
   double a[2][3];
 
   Ring_GetTwiss(false, -delta_eps);
-  K(globval.TotalTune[X_], globval.TotalTune[Y_], twoJx, twoJy, a[0]);
+  K(nu, twoJ, a[0]);
   Ring_GetTwiss(false, delta_eps);
-  K(globval.TotalTune[X_], globval.TotalTune[Y_], twoJx, twoJy, a[1]);
+  K(nu, twoJ, a[1]);
 
   for (k = 0; k < 3; k++)
     ad[k] = (a[1][k]-a[0][k])/(2e0*delta_eps);
 }
 
 
-void drv_term_1(const double scl, const double twoJ[], const double delta,
-		const int i, const int j, const int k, const int l,
-		const int m, std::vector<string> &h_label,
-		std::vector<double> &h_c, std::vector<double> &h_s,
-		const bool ker)
+void h_1(const double scl, const double twoJ[], const double delta,
+	 const int i, const int j, const int k, const int l,
+	 const int m, std::vector<string> &h_label,
+	 std::vector<double> &h_c, std::vector<double> &h_s, const bool ker)
 {
   double       c, s;
   stringstream str;
@@ -527,127 +527,185 @@ void drv_term_1(const double scl, const double twoJ[], const double delta,
     str << "h_" << i << j << k << l << m;
   else
     str << "k_" << i << j << k << l << m;
-  h_label.push_back(str.str());
-  h_c.push_back(c);
-  h_s.push_back(s);
-  printf("  %7s = [%12.5e, %12.5e]\n",
-	 h_label.back().c_str(), h_c.back()/2e0, h_s.back()/2e0);
+  h_label.push_back(str.str()); h_c.push_back(c); h_s.push_back(s);
 }
 
 
-void drv_term_2(const string &str, const double c, const double s,
-		std::vector<string> &h_label, std::vector<double> &h_c,
-		std::vector<double> &h_s)
+void h_2(const string &str, const double c, const double s,
+	 std::vector<string> &h_label, std::vector<double> &h_c,
+	 std::vector<double> &h_s)
 {
-  h_label.push_back(str);
-  h_c.push_back(c);
-  h_s.push_back(s);
-  printf("  %7s = [%12.5e, %12.5e]\n",
-	 h_label.back().c_str(), h_c.back()/2e0, h_s.back()/2e0);
+  h_label.push_back(str); h_c.push_back(c); h_s.push_back(s);
 }
 
 
-void drv_terms(const double twoJ_x, const double twoJ_y, const double delta,
-	       const double delta_eps)
+void first_order(const double twoJ[], const double delta,
+		 std::vector<string> &h_label, std::vector<double> &h_c,
+		 std::vector<double> &h_s)
 {
-  double              c, s, a[3], ksi2[2];
-  std::vector<string> h_label;
-  std::vector<double> h_c, h_s;
-  stringstream        str;
+  h_1( 1e0,      twoJ, delta, 1, 1, 0, 0, 1, h_label, h_c, h_s, true);
+  h_1(-1e0,      twoJ, delta, 0, 0, 1, 1, 1, h_label, h_c, h_s, true);
 
-  const double twoJ[] = {twoJ_x, twoJ_y};
+  h_1( 1e0/4e0,  twoJ, delta, 2, 0, 0, 0, 1, h_label, h_c, h_s, false);
+  h_1(-1e0/4e0,  twoJ, delta, 0, 0, 2, 0, 1, h_label, h_c, h_s, false);
+  h_1( 1e0,      twoJ, delta, 1, 0, 0, 0, 2, h_label, h_c, h_s, false);
 
-  printf("\nFirst order chromatic terms:\n");
-  drv_term_1( 1e0,      twoJ, delta, 1, 1, 0, 0, 1, h_label, h_c, h_s, true);
-  drv_term_1(-1e0,      twoJ, delta, 0, 0, 1, 1, 1, h_label, h_c, h_s, true);
+  h_1(-1e0/12e0, twoJ, delta, 3, 0, 0, 0, 0, h_label, h_c, h_s, false);
+  h_1(-1e0/4e0,  twoJ, delta, 2, 1, 0, 0, 0, h_label, h_c, h_s, false);
+  h_1( 1e0/4e0,  twoJ, delta, 1, 0, 2, 0, 0, h_label, h_c, h_s, false);
+  h_1( 1e0/2e0,  twoJ, delta, 1, 0, 1, 1, 0, h_label, h_c, h_s, false);
+  h_1( 1e0/4e0,  twoJ, delta, 1, 0, 0, 2, 0, h_label, h_c, h_s, false);
+}
 
-  printf("\n");
-  drv_term_1( 1e0/4e0,  twoJ, delta, 2, 0, 0, 0, 1, h_label, h_c, h_s, false);
-  drv_term_1(-1e0/4e0,  twoJ, delta, 0, 0, 2, 0, 1, h_label, h_c, h_s, false);
-  drv_term_1( 1e0,      twoJ, delta, 1, 0, 0, 0, 2, h_label, h_c, h_s, false);
 
-  printf("\nFirst order geometric terms:\n");
-  drv_term_1(-1e0/12e0, twoJ, delta, 3, 0, 0, 0, 0, h_label, h_c, h_s, false);
-  drv_term_1(-1e0/4e0,  twoJ, delta, 2, 1, 0, 0, 0, h_label, h_c, h_s, false);
-  drv_term_1( 1e0/4e0,  twoJ, delta, 1, 0, 2, 0, 0, h_label, h_c, h_s, false);
-  drv_term_1( 1e0/2e0,  twoJ, delta, 1, 0, 1, 1, 0, h_label, h_c, h_s, false);
-  drv_term_1( 1e0/4e0,  twoJ, delta, 1, 0, 0, 2, 0, h_label, h_c, h_s, false);
- 
-  printf("\nSecond order geometric terms:\n");
+void second_order(const double twoJ[], std::vector<string> &h_label,
+		  std::vector<double> &h_c, std::vector<double> &h_s)
+{
+  double c, s;
+
   c = s = 0e0;
   sxt_2(-1e0/32e0, twoJ, 2, 1, 0, 0, 3, 0, 0, 0, c, s);
-  drv_term_2("h_40000", c, s, h_label, h_c, h_s);
+  h_2("h_40000", c, s, h_label, h_c, h_s);
   
   c = s = 0e0;
   sxt_2(-1e0/16e0, twoJ, 1, 2, 0, 0, 3, 0, 0, 0, c, s);
-  drv_term_2("h_31000", c, s, h_label, h_c, h_s);
+  h_2("h_31000", c, s, h_label, h_c, h_s);
 
   c = s = 0e0;
   sxt_2(-1e0/32e0, twoJ, 0, 3, 0, 0, 3, 0, 0, 0, c, s);
   sxt_2(-3e0/32e0, twoJ, 1, 2, 0, 0, 2, 1, 0, 0, c, s);
-  drv_term_2("h_22000", c, s, h_label, h_c, h_s);
+  h_2("h_22000", c, s, h_label, h_c, h_s);
 
   c = s = 0e0;
   sxt_2(-1e0/32e0, twoJ, 3, 0, 0, 0, 0, 1, 2, 0, c, s);
   sxt_2(-1e0/32e0, twoJ, 1, 0, 2, 0, 2, 1, 0, 0, c, s);
   sxt_2(-4e0/32e0, twoJ, 1, 0, 1, 1, 1, 0, 2, 0, c, s);
-  drv_term_2("h_20200", c, s, h_label, h_c, h_s);
+  h_2("h_20200", c, s, h_label, h_c, h_s);
   
   c = s = 0e0;
   sxt_2(-1e0/16e0, twoJ, 1, 0, 2, 0, 1, 2, 0, 0, c, s);
   sxt_2(-1e0/16e0, twoJ, 2, 1, 0, 0, 0, 1, 2, 0, c, s);
   sxt_2(-2e0/16e0, twoJ, 0, 1, 1, 1, 1, 0, 2, 0, c, s);
   sxt_2(-2e0/16e0, twoJ, 1, 0, 1, 1, 0, 1, 2, 0, c, s);
-  drv_term_2("h_11200", c, s, h_label, h_c, h_s);
+  h_2("h_11200", c, s, h_label, h_c, h_s);
     
   c = s = 0e0;
   sxt_2(-1e0/16e0, twoJ, 3, 0, 0, 0, 0, 1, 1, 1, c, s);
   sxt_2(-1e0/16e0, twoJ, 1, 0, 1, 1, 2, 1, 0, 0, c, s);
   sxt_2(-1e0/8e0, twoJ, 1, 0, 0, 2, 1, 0, 2, 0, c, s);
-  drv_term_2("h_20110", c, s, h_label, h_c, h_s);
+  h_2("h_20110", c, s, h_label, h_c, h_s);
   
   c = s = 0e0;
   sxt_2(-1e0/8e0, twoJ, 1, 0, 1, 1, 1, 2, 0, 0, c, s);
   sxt_2(-1e0/8e0, twoJ, 2, 1, 0, 0, 0, 1, 1, 1, c, s);
   sxt_2(-1e0/8e0, twoJ, 0, 1, 0, 2, 1, 0, 2, 0, c, s);
   sxt_2(-1e0/8e0, twoJ, 1, 0, 0, 2, 0, 1, 2, 0, c, s);
-  drv_term_2("h_11110", c, s, h_label, h_c, h_s);
+  h_2("h_11110", c, s, h_label, h_c, h_s);
   
   c = s = 0e0;
   sxt_2(-1e0/16e0, twoJ, 0, 1, 2, 0, 1, 0, 1, 1, c, s);
   sxt_2(-1e0/16e0, twoJ, 0, 1, 1, 1, 1, 0, 2, 0, c, s);
-  drv_term_2("h_00310", c, s, h_label, h_c, h_s);
+  h_2("h_00310", c, s, h_label, h_c, h_s);
   
   c = s = 0e0;
   sxt_2(-1e0/32e0, twoJ, 1, 0, 0, 2, 2, 1, 0, 0, c, s);
   sxt_2(-1e0/32e0, twoJ, 3, 0, 0, 0, 0, 1, 0, 2, c, s);
   sxt_2(-4e0/32e0, twoJ, 1, 0, 0, 2, 1, 0, 1, 1, c, s);
-  drv_term_2("h_20020", c, s, h_label, h_c, h_s);
+  h_2("h_20020", c, s, h_label, h_c, h_s);
 
   c = s = 0e0;
   sxt_2(-1e0/32e0, twoJ, 0, 1, 2, 0, 1, 0, 2, 0, c, s);
-  drv_term_2("h_00400", c, s, h_label, h_c, h_s);
+  h_2("h_00400", c, s, h_label, h_c, h_s);
 
   c = s = 0e0;
   sxt_2(-1e0/8e0, twoJ, 0, 1, 1, 1, 1, 0, 1, 1, c, s);
   sxt_2(-1e0/32e0, twoJ, 0, 1, 0, 2, 1, 0, 2, 0, c, s);
   sxt_2(-1e0/32e0, twoJ, 0, 1, 2, 0, 1, 0, 0, 2, c, s);
-  drv_term_2("h_00220", c, s, h_label, h_c, h_s);
+  h_2("h_00220", c, s, h_label, h_c, h_s);
+}
 
-  K(globval.TotalTune[X_], globval.TotalTune[Y_], twoJ[X_], twoJ[Y_], a);
-  printf("\nSecond order anharmonic terms:\n");
-  printf("  k_22000 = %12.5e\n", a[0]);
-  printf("  k_11110 = %12.5e\n", a[1]);
-  printf("  k_00220 = %12.5e\n", a[2]);
+
+void anharm(const double twoJ[], std::vector<string> &h_label,
+	    std::vector<double> &h_c, std::vector<double> &h_s)
+{
+  double a[3];
+
+  K(globval.TotalTune, twoJ, a);
+  h_label.push_back("k_22000"); h_c.push_back(a[0]); h_s.push_back(0e0);
+  h_label.push_back("k_11110"); h_c.push_back(a[1]); h_s.push_back(0e0);
+  h_label.push_back("k_00220"); h_c.push_back(a[2]); h_s.push_back(0e0);
+}
+
+
+void ksi_2(const double delta_eps, const double twoJ[],
+	   std::vector<string> &h_label, std::vector<double> &h_c,
+	   std::vector<double> &h_s)
+{
+  double ksi2[2];
 
   get_ksi2_(delta_eps, ksi2);
-  printf("\nSecond order chromaticity:\n");
-  printf("  k_11002 = %12.5e\n", -M_PI*ksi2[X_]);
-  printf("  k_00112 = %12.5e\n", -M_PI*ksi2[Y_]);
+  h_label.push_back("k_11002"); h_c.push_back(ksi2[X_]); h_s.push_back(0e0);
+  h_label.push_back("k_00112"); h_c.push_back(ksi2[Y_]); h_s.push_back(0e0);
+}
 
-  get_cross_terms(delta_eps, twoJ[X_], twoJ[Y_], a);
+
+void cross_terms(const double delta_eps, const double twoJ[],
+		 std::vector<string> &h_label, std::vector<double> &h_c,
+		 std::vector<double> &h_s)
+{
+  double a[3];
+
+  cross_terms(delta_eps, globval.TotalTune, twoJ, a);
+  h_label.push_back("k_22001"); h_c.push_back(a[0]); h_s.push_back(0e0);
+  h_label.push_back("k_11111"); h_c.push_back(a[1]); h_s.push_back(0e0);
+  h_label.push_back("k_00221"); h_c.push_back(a[2]); h_s.push_back(0e0);
+}
+
+
+void prt_drv_terms(std::vector<string> &h_label, std::vector<double> &h_c,
+		   std::vector<double> &h_s)
+{
+  int k;
+
+  printf("\nFirst order chromatic terms:\n");
+  for (k = 0; k < 2; k++)
+    printf("  %7s = [%12.5e, %12.5e]\n",
+	   h_label[k].c_str(), h_c[k]/2e0, h_s[k]/2e0);
+  printf("\n");
+  for (k = 2; k < 5; k++)
+    printf("  %7s = [%12.5e, %12.5e]\n",
+	   h_label[k].c_str(), h_c[k]/2e0, h_s[k]/2e0);
+  printf("\nFirst order geometric terms:\n");
+  for (k = 5; k < 10; k++)
+    printf("  %7s = [%12.5e, %12.5e]\n",
+	   h_label[k].c_str(), h_c[k]/2e0, h_s[k]/2e0);
+  printf("\nSecond order geometric terms:\n");
+  for (k = 10; k < 21; k++)
+    printf("  %7s = [%12.5e, %12.5e]\n",
+	   h_label[k].c_str(), h_c[k]/2e0, h_s[k]/2e0);
+  printf("\nSecond order anharmonic terms:\n");
+  for (k = 21; k < 24; k++)
+    printf("  %7s = [%12.5e, %12.5e]\n", h_label[k].c_str(), h_c[k], h_s[k]);
+  printf("\nSecond order chromaticity:\n");
+  for (k = 24; k < 26; k++)
+    printf("  %7s = [%12.5e, %12.5e]\n",
+	   h_label[k].c_str(), -h_c[k]/M_PI, -h_s[k]/M_PI);
   printf("\nSecond order cross terms:\n");
-  printf("  k_22001 = %12.5e\n", a[0]);
-  printf("  k_11111 = %12.5e\n", a[1]);
-  printf("  k_00221 = %12.5e\n", a[2]);
+  for (k = 26; k < 29; k++)
+    printf("  %7s = [%12.5e, %12.5e]\n", h_label[k].c_str(), h_c[k], h_s[k]);
+}
+
+
+void drv_terms(const double twoJ[], const double delta, const double delta_eps)
+{
+  std::vector<string> h_label;
+  std::vector<double> h_c, h_s;
+
+  first_order(twoJ, delta, h_label, h_c, h_s);
+  second_order(twoJ, h_label, h_c, h_s);
+  anharm(twoJ, h_label, h_c, h_s);
+  ksi_2(delta_eps, twoJ, h_label, h_c, h_s);
+  cross_terms(delta_eps, twoJ, h_label, h_c, h_s);
+
+  prt_drv_terms(h_label, h_c, h_s);
 }
