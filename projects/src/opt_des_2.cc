@@ -135,6 +135,8 @@ public:
     eps0_x,              // Hor. emittance [nm.rad].
     drv_terms_simple_scl,
     drv_terms_simple[2],
+    k_J_delta_scl,
+    k_J_delta[2],
     nu[2],
     ksi1[2],
     ksi1_scl,
@@ -179,6 +181,7 @@ public:
     ksi1_ctrl_scl[0] = ksi1_ctrl_scl[1] = ksi1_ctrl_scl[2] = 0e0;
     ksi1_svd_scl = 0e0;
     drv_terms_simple_scl = 0e0;
+    k_J_delta_scl = 0e0;
     high_ord_achr_scl[X_] = high_ord_achr_scl[Y_] = 0e0;
     mI_scl[X_] = mI_scl[Y_] = 0e0;
     L_scl = 0e0;
@@ -918,6 +921,16 @@ void get_drv_terms(constr_type &constr)
 }
 
 
+void get_k_J_delta(constr_type &constr)
+{
+    const double
+      twoJ[] = {1e0, 1e0},
+      delta  = 1e0;
+
+    drv_terms(twoJ, delta, 1e-6, constr.k_J_delta);
+}
+
+
 void get_high_ord_achr(constr_type &constr)
 {
   int j, k;
@@ -1045,6 +1058,16 @@ double constr_type::get_chi2(const param_type &prms, double *bn,
     }
     if (prt) printf("  drv_terms_simple: [%10.3e, %10.3e]\n",
 		    dchi2[X_], dchi2[Y_]);
+  }
+
+  if (k_J_delta_scl != 0e0) {
+    get_k_J_delta(lat_constr);
+    for (k = 0; k < 3; k++) {
+      dchi2[k] = k_J_delta_scl*k_J_delta[k];
+      chi2 += dchi2[k];
+    }
+    if (prt) printf("  k_J_delta:        [%10.3e, %10.3e, %10.3e]\n",
+		    dchi2[0], dchi2[1], dchi2[2]);
   }
 
   if ((ksi1_ctrl_scl[0] != 0e0) || (ksi1_ctrl_scl[1] != 0e0)
@@ -2206,6 +2229,7 @@ void set_weights_sp(constr_type &constr)
 
   lat_constr.ksi1_scl              = 1e0;
   lat_constr.drv_terms_simple_scl  = 5e-4;
+  lat_constr.k_J_delta_scl         = 1e-4;
   lat_constr.ksi1_ctrl_scl[0]      = 0e-1;
   lat_constr.ksi1_ctrl_scl[1]      = 0e0;
   lat_constr.ksi1_ctrl_scl[2]      = 0e-1;
@@ -2974,17 +2998,6 @@ int main(int argc, char *argv[])
   }
 
   if (false) fit_ksi1(0e0, 0e0);
-
-  if (!false) {
-    Ring_GetTwiss(true, 0e0); printglob();
-#if 1
-    const double
-      twoJ[] = {1e0, 1e0},
-      delta  = 1e0;
-#endif
-    drv_terms(twoJ, delta, 1e-6);
-    exit(0);
-  }
 
   switch (opt_case) {
   case 1:

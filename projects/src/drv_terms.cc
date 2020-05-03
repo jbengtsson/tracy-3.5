@@ -17,8 +17,6 @@
    Johan Bengtsson                                                            */
 
 
-#include "tracy_lib.h"
-
 int              iter, n_b3;
 double           twoJ_[2];
 std::vector<int> b3s;
@@ -173,37 +171,6 @@ void get_quad(const double L,
     printf("  %7.3f %6.3f %5.3f %6.3f %6.3f %7.3f %6.3f %5.3f\n",
 	   alpha[X_], beta[X_], nu[X_], eta[X_], etap[X_],
 	   alpha[Y_], beta[Y_], nu[Y_]);
-  }
-}
-
-
-void get_quad1(const double L,
-	      const double rho_inv, const double phi1, const double phi2, 
-	      const double b2,
-	      double alpha3[][2], double beta3[][2], double nu3[][2],
-	      double eta3[][2], double etap3[][2],
-	      const int m_x, const int m_y, const int n_x, const int n_y,
-	      const int m, double &h_c, double &h_s)
-{
-  // Use Simpson's Rule for quadrupoles.
-
-  int    k;
-  double A, phi;
-
-//  get_Twiss3(L, rho_inv, phi1, phi2, b2, alpha3, beta3, nu3, eta3, etap3);
-    
-  h_c = 0e0; h_s = 0e0;
-  for (k = 0; k <= 2; k++) {
-    phi = 2e0*M_PI*(n_x*nu3[k][X_]+n_y*nu3[k][Y_]);
-    A = pow(beta3[k][X_], m_x/2e0)*pow(beta3[k][Y_], m_y/2e0)
-        *pow(eta3[k][X_], m-1);
-    if (k == 1) A *= 4e0;
-    h_c += A*cos(phi); h_s += -A*sin(phi);
-  }
-  if (m_x != 0) {
-    h_c *= (b2+sqr(rho_inv))*L/6e0; h_s *= (b2+sqr(rho_inv))*L/6e0;
-  } else {
-    h_c *= b2*L/6e0; h_s *= b2*L/6e0;
   }
 }
 
@@ -696,10 +663,14 @@ void prt_drv_terms(std::vector<string> &h_label, std::vector<double> &h_c,
 }
 
 
-void drv_terms(const double twoJ[], const double delta, const double delta_eps)
+void drv_terms(const double twoJ[], const double delta, const double delta_eps,
+	       double k_J_delta[])
 {
+  int                 k;
   std::vector<string> h_label;
   std::vector<double> h_c, h_s;
+
+  const bool prt = false;
 
   first_order(twoJ, delta, h_label, h_c, h_s);
   second_order(twoJ, h_label, h_c, h_s);
@@ -707,5 +678,8 @@ void drv_terms(const double twoJ[], const double delta, const double delta_eps)
   ksi_2(delta_eps, twoJ, h_label, h_c, h_s);
   cross_terms(delta_eps, twoJ, h_label, h_c, h_s);
 
-  prt_drv_terms(h_label, h_c, h_s);
+  if (prt) prt_drv_terms(h_label, h_c, h_s);
+
+  for (k = 0; k < 3; k++)
+    k_J_delta[k] = h_c[26+k];
 }

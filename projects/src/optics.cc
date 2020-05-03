@@ -2,6 +2,8 @@
 
 #include "tracy_lib.h"
 
+#include "prt_ZAP.cc"
+
 #define PM 1
 #if PM
 #include "PoincareMap.cc"
@@ -1614,6 +1616,11 @@ int main(int argc, char *argv[])
     if (false) reality_check();
 
    exit(0);
+  }
+
+  if (!false) {
+    prt_ZAP(6);
+    exit(0);
   }
 
   if (false) {
