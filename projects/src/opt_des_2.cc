@@ -1063,7 +1063,7 @@ double constr_type::get_chi2(const param_type &prms, double *bn,
   if (k_J_delta_scl != 0e0) {
     get_k_J_delta(lat_constr);
     for (k = 0; k < 3; k++) {
-      dchi2[k] = k_J_delta_scl*k_J_delta[k];
+      dchi2[k] = (k < 1)? k_J_delta_scl*k_J_delta[k] : 0e0;
       chi2 += dchi2[k];
     }
     if (prt) printf("  k_J_delta:        [%10.3e, %10.3e, %10.3e]\n",
@@ -2235,9 +2235,9 @@ void set_weights_sp(constr_type &constr)
   lat_constr.ksi1_ctrl_scl[2]      = 0e-1;
   // Not useful.
   lat_constr.ksi1_svd_scl          = 0e3;
-  lat_constr.mI_scl[X_]            = 1e6;
-  lat_constr.mI_scl[Y_]            = 1e6;
-  lat_constr.high_ord_achr_scl[X_] = 1e-2*1e6;
+  lat_constr.mI_scl[X_]            = 1e-1*1e6;
+  lat_constr.mI_scl[Y_]            = 1e-1*1e6;
+  lat_constr.high_ord_achr_scl[X_] = 1e-3*1e6;
   lat_constr.high_ord_achr_scl[Y_] = 0e6;
   lat_constr.ksi2_scl              = 5e0;
 
