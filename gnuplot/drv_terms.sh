@@ -10,7 +10,7 @@ file_name = "drv_terms.out";
 
 f_s = 24; l_w = 2;
 if (ps == 0) \
-  set terminal x11; \
+  set terminal qt 0 font "Sans, 9"; \
 else if (ps == 1) \
   set terminal postscript enhanced color solid lw l_w "Times-Roman" f_s; \
   ext = "ps"; \

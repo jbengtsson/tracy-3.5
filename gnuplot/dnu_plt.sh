@@ -13,10 +13,10 @@ home_dir = "$prm1"; N = $prm2; ps = $prm3; case = $prm4; pert = $prm5;
 # SLS-2        2,
 # ESRF-U       3, # 30 Std Cells; total is 32.
 # M-H6BAi      4,
-# M-H6BA-0-.-. 5,
-# DIAMOND      6,
-# ALS-U        7,
-# DELTA        8.
+# M-H6BA-0-.-. 5-6,
+# DIAMOND      7,
+# ALS-U        8,
+# DELTA        9.
 
 
 file1  = (home_dir)."dnu_dAx.out";
@@ -28,7 +28,7 @@ file32 = (home_dir)."chrom2_pert.out";
 
 f_s = 24; l_w = 2;
 if (ps == 0) \
-  set terminal x11; \
+  set terminal qt 0 font "Sans, 9"; \
 else if (ps == 1) \
   set terminal postscript enhanced color solid lw l_w "Times-Roman" f_s; \
   ext = "ps"; \
@@ -71,15 +71,13 @@ else if ((N == 6) && (case == 4)) \
   N_x = 9; N_y = 3; \
 else if ((N == 6) && (case == 5)) \
   N_x = 11; N_y = 3; \
-else if ((N == 24) && (case == 4)) \
+else if ((N == 6) && (case == 6)) \
+  N_x = 10; N_y = 3; \
+else if ((N == 6) && (case == 7)) \
+  N_x = 11; N_y = 3; \
+else if ((N == 12) && (case == 8)) \
   N_x = 2; N_y = 0; \
-else if ((N == 24) && (case == 5)) \
-  N_x = 2; N_y = 0; \
-else if ((N == 24) && (case == 6)) \
-  N_x = 2; N_y = 0; \
-else if ((N == 12) && (case == 7)) \
-  N_x = 2; N_y = 0; \
-else if ((N == 24) && (case == 8)) \
+else if ((N == 24) && (case == 9)) \
   N_x = 2; N_y = 0;
 
 if (case == 1) \
