@@ -132,11 +132,9 @@ public:
     ic[4][2],
     chi2, chi2_prt,
     eps_x_scl,
-    eps0_x,              // Hor. emittance [nm.rad].
+    eps0_x,               // Hor. emittance [nm.rad].
     drv_terms_simple_scl,
     drv_terms_simple[2],
-    k_J_delta_scl,
-    k_J_delta[2],
     nu[2],
     ksi1[2],
     ksi1_scl,
@@ -144,16 +142,16 @@ public:
     ksi1_svd_scl,
     ksi1_svd[2],
     phi_scl,
-    phi_tot, phi0,       // Cell bend angle.
+    phi_tot, phi0,        // Cell bend angle.
     high_ord_achr_scl[2],
-    high_ord_achr_nu[2], // Higher-Order-Achromat Phase Advance.
+    high_ord_achr_nu[2],  // Higher-Order-Achromat Phase Advance.
     mI_scl[2],
-    mI0[2],              // -I Transformer.
-    alpha_c_scl,         // alpha_c.
+    mI0[2],               // -I Transformer.
+    alpha_c_scl,          // alpha_c.
     L_scl,
     ksi2[2],
     ksi2_scl,
-    L0;                  // Cell length.
+    L0;                   // Cell length.
   std::vector<double> 
     ksi1_ctrl;
   std::vector< std::vector<double> >
@@ -172,7 +170,8 @@ public:
   std::vector< std::vector<int> >
     grad_dip_Fnum_b1,
     mI_loc;
-  
+  drv_terms_type
+    drv_terms;
 
   constr_type(void) {
     n_iter = 0; chi2 = 1e30; chi2_prt = 1e30;
@@ -181,7 +180,6 @@ public:
     ksi1_ctrl_scl[0] = ksi1_ctrl_scl[1] = ksi1_ctrl_scl[2] = 0e0;
     ksi1_svd_scl = 0e0;
     drv_terms_simple_scl = 0e0;
-    k_J_delta_scl = 0e0;
     high_ord_achr_scl[X_] = high_ord_achr_scl[Y_] = 0e0;
     mI_scl[X_] = mI_scl[Y_] = 0e0;
     L_scl = 0e0;
@@ -921,16 +919,6 @@ void get_drv_terms(constr_type &constr)
 }
 
 
-void get_k_J_delta(constr_type &constr)
-{
-    const double
-      twoJ[] = {1e0, 1e0},
-      delta  = 1e0;
-
-    drv_terms(twoJ, delta, 1e-6, constr.k_J_delta);
-}
-
-
 void get_high_ord_achr(constr_type &constr)
 {
   int j, k;
@@ -1060,14 +1048,17 @@ double constr_type::get_chi2(const param_type &prms, double *bn,
 		    dchi2[X_], dchi2[Y_]);
   }
 
-  if (k_J_delta_scl != 0e0) {
-    get_k_J_delta(lat_constr);
-    for (k = 0; k < 3; k++) {
-      dchi2[k] = (k < 1)? k_J_delta_scl*k_J_delta[k] : 0e0;
+  if (true) {
+    const double twoJ1[] = {1e0, 1e0}, delta1 = 1e0;
+
+    lat_constr.drv_terms.get_h(twoJ1, delta1, 1e-6);
+    lat_constr.drv_terms.print();
+
+    for (k = 0; k < (int)drv_terms.h.size(); k++) {
+      dchi2[k] = lat_constr.drv_terms.h_scl[k]*lat_constr.drv_terms.h[k];
       chi2 += dchi2[k];
+    if (prt) printf("  h[%2d]:        %10.3e\n", dchi2[k]);
     }
-    if (prt) printf("  k_J_delta:        [%10.3e, %10.3e, %10.3e]\n",
-		    dchi2[0], dchi2[1], dchi2[2]);
   }
 
   if ((ksi1_ctrl_scl[0] != 0e0) || (ksi1_ctrl_scl[1] != 0e0)
@@ -2229,7 +2220,6 @@ void set_weights_sp(constr_type &constr)
 
   lat_constr.ksi1_scl              = 1e0;
   lat_constr.drv_terms_simple_scl  = 5e-4;
-  lat_constr.k_J_delta_scl         = 1e-4;
   lat_constr.ksi1_ctrl_scl[0]      = 0e-1;
   lat_constr.ksi1_ctrl_scl[1]      = 0e0;
   lat_constr.ksi1_ctrl_scl[2]      = 0e-1;
@@ -2250,6 +2240,8 @@ void set_weights_sp(constr_type &constr)
     // Super Period with 1 Std Straight only.
     lat_constr.phi0 = 45.0;
   lat_constr.L_scl = 0e-10; lat_constr.L0 = 10.0;
+
+  lat_constr.drv_terms.get_h_scl(1e0, 1e0, 1e0, 1e0, 1e0, 1e0);
 }
 
 

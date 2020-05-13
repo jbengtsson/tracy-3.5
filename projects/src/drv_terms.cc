@@ -17,9 +17,18 @@
    Johan Bengtsson                                                            */
 
 
-int              iter, n_b3;
-double           twoJ_[2];
-std::vector<int> b3s;
+struct drv_terms_type {
+private:
+
+public:
+  std::vector<string> h_label;
+  std::vector<double> h_scl, h_c, h_s, h;
+
+  void get_h_scl(double scl_ksi_1, double scl_h_3, double scl_h_4,
+		 double scl_chi_2, double scl_ksi_2, double scl_chi_delta_2);
+  void get_h(const double twoJ[], const double delta, const double delta_eps);
+  void print(void);
+};
 
 
 void propagate_drift(const double L, ss_vect<tps> &A)
@@ -629,8 +638,7 @@ void cross_terms(const double delta_eps, const double twoJ[],
 }
 
 
-void prt_drv_terms(std::vector<string> &h_label, std::vector<double> &h_c,
-		   std::vector<double> &h_s)
+void drv_terms_type::print(void)
 {
   int k;
 
@@ -663,12 +671,41 @@ void prt_drv_terms(std::vector<string> &h_label, std::vector<double> &h_c,
 }
 
 
-void drv_terms(const double twoJ[], const double delta, const double delta_eps,
-	       double k_J_delta[])
+void drv_terms_type::get_h_scl(double scl_ksi_1, double scl_h_3,
+			       double scl_h_4, double scl_chi_2,
+			       double scl_ksi_2, double scl_chi_delta_2)
+{
+  int k;
+
+  h_scl.clear();
+  // Linear chromaticity.
+  for (k = 0; k < 2; k++)
+    h_scl.push_back(scl_ksi_1);
+  // 1st order chromatic terms.
+  for (k = 2; k < 5; k++)
+    h_scl.push_back(scl_h_3);
+  // 1st order geometric terms.
+  for (k = 5; k < 10; k++)
+    h_scl.push_back(scl_h_3);
+  // 2nd order geometric terms
+  for (k = 10; k < 21; k++)
+    h_scl.push_back(scl_h_4);
+  // 2nd order anharmonic terms.
+  for (k = 21; k < 24; k++)
+    h_scl.push_back(scl_chi_2);
+  // 2nd order chromaticity.
+  for (k = 24; k < 26; k++)
+    h_scl.push_back(scl_ksi_2);
+  // 2nd order cross terms.
+  for (k = 26; k < 29; k++)
+    h_scl.push_back(scl_chi_delta_2);
+}
+
+
+void drv_terms_type::get_h(const double twoJ[], const double delta,
+			   const double delta_eps)
 {
   int                 k;
-  std::vector<string> h_label;
-  std::vector<double> h_c, h_s;
 
   const bool prt = false;
 
@@ -678,8 +715,9 @@ void drv_terms(const double twoJ[], const double delta, const double delta_eps,
   ksi_2(delta_eps, twoJ, h_label, h_c, h_s);
   cross_terms(delta_eps, twoJ, h_label, h_c, h_s);
 
-  if (prt) prt_drv_terms(h_label, h_c, h_s);
+  if (prt) print();
 
-  for (k = 0; k < 3; k++)
-    k_J_delta[k] = h_c[26+k];
+  h.clear();
+  for (k = 0; k < (int)h_c.size(); k++)
+    h.push_back(sqrt(sqr(h_c[k])+sqr(h_s[k])));
 }
