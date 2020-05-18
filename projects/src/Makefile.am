@@ -53,6 +53,6 @@ LIBS	 = -L$(TRACY_LIB)/tracy/lib -ltracy \
 #INCLUDES = -I$(TRACY_LIB)/tracy/inc -I$(NUM_REC)/inc
 AM_CPPFLAGS = -I$(TRACY_LIB)/tracy/inc -I$(NUM_REC)/inc
 AM_FFLAGS   = -g -O0 -Wall -fbounds-check
-AM_CXXFLAGS = -g -O0 -Wall -Wno-non-template-friend
+AM_CXXFLAGS = -g -O0 -Wall
 #CXXFLAGS = -pg -O2 -Wall -Wno-non-template-friend
 FFLAGS      = -g -O2 -Wall -fbounds-check -fdefault-integer-8

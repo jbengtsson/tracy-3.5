@@ -1049,15 +1049,17 @@ double constr_type::get_chi2(const param_type &prms, double *bn,
   }
 
   if (true) {
-    const double twoJ1[] = {1e0, 1e0}, delta1 = 1e0;
+    const double twoJ1[] = {1e0, 1e0}, delta1_max = 1e0;
 
-    lat_constr.drv_terms.get_h(twoJ1, delta1, 1e-6);
-    lat_constr.drv_terms.print();
+    lat_constr.drv_terms.get_h(twoJ1, delta1_max, 1e-6);
+    exit(0);
 
+    printf("\n");
     for (k = 0; k < (int)drv_terms.h.size(); k++) {
       dchi2[k] = lat_constr.drv_terms.h_scl[k]*lat_constr.drv_terms.h[k];
       chi2 += dchi2[k];
-    if (prt) printf("  h[%2d]:        %10.3e\n", dchi2[k]);
+      if (prt && (dchi2[k] != 0e0))
+	printf("  h[%2d]          = %10.3e\n", k, dchi2[k]);
     }
   }
 
@@ -1086,7 +1088,7 @@ double constr_type::get_chi2(const param_type &prms, double *bn,
       dchi2[k] = ksi2_scl*sqr(ksi2[k]);
       chi2 += dchi2[k];
     }
-    if (prt) printf("  ksi2:             [%10.3e, %10.3e]\n",
+    if (prt) printf("  ksi2           =  [%10.3e, %10.3e]\n",
 		    ksi2[X_], ksi2[Y_]);
   }
 
@@ -1097,7 +1099,7 @@ double constr_type::get_chi2(const param_type &prms, double *bn,
 	dchi2[k] = mI_scl[k]*sqr(mI[j][k]-mI0[k]);
 	chi2 += dchi2[k];
       }
-      if (prt) printf("  mI:               [%10.3e, %10.3e]\n",
+      if (prt) printf("  mI             =  [%10.3e, %10.3e]\n",
 		      dchi2[X_], dchi2[Y_]);
     }
   }
@@ -1110,7 +1112,7 @@ double constr_type::get_chi2(const param_type &prms, double *bn,
 	  high_ord_achr_scl[k]*sqr(high_ord_achr_dnu[j][k]-high_ord_achr_nu[k]);
 	chi2 += dchi2[k];
       }
-      if (prt) printf("  high_ord_achr:    [%10.3e, %10.3e]\n",
+      if (prt) printf("  high_ord_achr  =  [%10.3e, %10.3e]\n",
 		      dchi2[X_], dchi2[Y_]);
     }
   }
@@ -1781,15 +1783,15 @@ double f_achrom(double *b2)
 
   const int n_prt = 5;
 
-  lat_prms.set_prm(b2);
-  if (lat_constr.phi_scl != 0e0) phi_corr(lat_constr);
+  // lat_prms.set_prm(b2);
+  // if (lat_constr.phi_scl != 0e0) phi_corr(lat_constr);
 
   if (lat_constr.ring) stable = get_nu(lat_constr.nu);
 
   if ((lat_constr.ring && stable) || !lat_constr.ring) {
     eps_x = get_lin_opt(lat_constr);
 
-    fit_ksi1(lat_constr.Fnum_b3, 0e0, 0e0, 1e1, lat_constr.ksi1_svd);
+    // fit_ksi1(lat_constr.Fnum_b3, 0e0, 0e0, 1e1, lat_constr.ksi1_svd);
 
     chi2 = lat_constr.get_chi2(lat_prms, b2, false);
 
@@ -2959,11 +2961,11 @@ int main(int argc, char *argv[])
     globval.dPcommon = 1e-6;
   }
 
-  globval.H_exact        = false;  globval.quad_fringe = false;
-  globval.Cavity_on      = false;  globval.radiation   = false;
-  globval.emittance      = false;  globval.IBS         = false;
-  globval.pathlength     = false;  globval.bpm         = 0;
-  globval.dip_edge_fudge = true;
+  globval.H_exact    = false; globval.quad_fringe    = false;
+  globval.Cavity_on  = false; globval.radiation      = false;
+  globval.emittance  = false; globval.IBS            = false;
+  globval.pathlength = false; globval.bpm            = 0;
+  globval.Cart_Bend  = false; globval.dip_edge_fudge = true;
 
   if (ps_rot) {
     Ring_GetTwiss(true, 0e0); printglob();
@@ -3008,7 +3010,7 @@ int main(int argc, char *argv[])
     break;
   case 3:
     opt_mI_sp(lat_prms, lat_constr);
-    no_sxt();
+    // no_sxt();
     fit_powell(lat_prms, 1e-3, f_achrom);
     // fit_sim_anneal(lat_prms, 1e-3, f_achrom);
     break;

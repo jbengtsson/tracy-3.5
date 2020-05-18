@@ -4,15 +4,24 @@
    Control of on & off-momentum dynamic aperture.
    Evaluates & minimizes the Lie generators to 2nd order in the sextupole
    strengths.
-   Initially coded in Pascal and ported to OPA (for the conceptual design of
-   SLS). The latter is a derivatvie of K. Wille's OPTIK, DELTA, Dortmund Univ.
-   (i.e., an interactive Linear Optics Design Tool; coded in Pascal).
+   Developed for a streamlined, systematic design process for numerical
+   optimizations for the first implementation of a Higher-Order-Achromat,
+   aka SLS (Swiss Light Source), i.e., a 3rd Order Achromat [1].
+
+   Initially coded in Pascal & ported to OPA. The latter a derivative of
+   OPTIK by K. Wille, DELTA, Dortmund Univ. A CAD tool for Linear Optics Design;
+   i.e., interactive, coded in Turbo Pascal. However, the underlying model had
+   to be corrected for 6D symplectic matrix formalism (phase space vs.
+   configuration space, p. 11 ref. [1]). Because, clearly, chromatic effects
+   beyond leading order must be evaluated for state-of-the-arts Linear Optics
+   Design.
 
    References:
 
    [1] J. Bengtsson "The Sextupole Scheme for the Swiss Light Source (SLS):
-       An Analytic Approach" SLS Note 9/97.
+       An Analytic Approach" SLS Note 9/97 (1997).
    [2] A. Streun OPA.
+   [3] D. Schirmer, K. Wille "DELTA Optics" PAC 1991.
 
    Johan Bengtsson                                                            */
 
@@ -27,6 +36,8 @@ public:
   void get_h_scl(double scl_ksi_1, double scl_h_3, double scl_h_4,
 		 double scl_chi_2, double scl_ksi_2, double scl_chi_delta_2);
   void get_h(const double twoJ[], const double delta, const double delta_eps);
+  void prt_h(FILE *outf, const double scl, const char *str, const int i0,
+	     const int i1);
   void print(void);
 };
 
@@ -97,7 +108,7 @@ void get_quad(const double L,
   ss_vect<tps> A1;
 
   const bool prt    = false;
-  const int  n_step = 5;
+  const int  n_step = 1;
 
   for (k = 0; k <= 1; k++) {
     alpha[k] = alpha0[k]; beta[k] = beta0[k]; nu[k] = nu0[k];
@@ -312,6 +323,7 @@ void sxt_1(const double scl, const double twoJ[], const double delta,
     n_y = k-l;
 
   h_c = h_s = 0e0;
+  scl1 = scl*pow(twoJ[X_], m_x/2e0)*pow(twoJ[Y_], m_y/2e0)*pow(delta, m);
   if (prt) printf("sxt_1:\n");
   for (n = 0; n <= globval.Cell_nLoc; n++) {
     if (Cell[n].Elem.Pkind == Mpole) {
@@ -324,12 +336,11 @@ void sxt_1(const double scl, const double twoJ[], const double delta,
     		 Cell[n].Elem.M->PTx1, Cell[n].Elem.M->PTx2,
     		 b2, alpha0, beta0, nu0, eta0, etap0,
     		 m_x, m_y, n_x, n_y, m, c, s);
-    	h_c += scl*c; h_s += scl*s;
+    	h_c += scl1*c; h_s += scl1*s;
       } else if (Cell[n].Elem.M->Porder >= Sext) {
     	if (prt) printf("  %4d %10s sext\n", n, Cell[n].Elem.PName);
 	get_bnL_design_elem(Cell[n].Fnum, 1, Sext, b3L, a3L);
 	get_mult(n, n_step, 0e0, i, j, k, l, m, c, s);
-	scl1 = scl*pow(twoJ[X_], m_x/2e0)*pow(twoJ[Y_], m_y/2e0)*pow(delta, m);
     	h_c += scl1*b3L*c; h_s += scl1*b3L*s;
       }
     }
@@ -360,7 +371,7 @@ void sxt_2(const double scl, const double twoJ[],
       get_bnL_design_elem(Cell[n1].Fnum, 1, Sext, b3L1, a3L1);
       cp = &Cell[ind(n1-1)];
       dnu = n_x[0]*cp->Nu[X_] + n_y[0]*cp->Nu[Y_]; 
-      A1 = scl*b3L1*pow(cp->Beta[X_], m_x[0]/2e0)*pow(cp->Beta[Y_], m_y[0]/2e0);
+      A1 = b3L1*pow(cp->Beta[X_], m_x[0]/2e0)*pow(cp->Beta[Y_], m_y[0]/2e0);
       for (n2 = 0; n2 <= globval.Cell_nLoc; n2++) {
 	if ((Cell[n2].Elem.Pkind == Mpole)
 	    && (Cell[n2].Elem.M->Porder >= Sext)) {
@@ -368,7 +379,7 @@ void sxt_2(const double scl, const double twoJ[],
 	  cp = &Cell[ind(n2-1)];
 	  phi = 2e0*M_PI*(dnu+n_x[1]*cp->Nu[X_]+n_y[1]*cp->Nu[Y_]);
 	  A =
-	    A1*b3L2*pow(cp->Beta[X_], m_x[1]/2e0)*pow(cp->Beta[Y_], m_y[1]/2e0)
+	    scl*A1*b3L2*pow(cp->Beta[X_], m_x[1]/2e0)*pow(cp->Beta[Y_], m_y[1]/2e0)
 	    *pow(twoJ[X_], ((m_x[0]+m_x[1])-2e0)/2e0)
 	    *pow(twoJ[Y_], ((m_y[0]+m_y[1])-2e0)/2e0);
 	  // [..., ...] -> i*...
@@ -519,8 +530,10 @@ void first_order(const double twoJ[], const double delta,
 		 std::vector<string> &h_label, std::vector<double> &h_c,
 		 std::vector<double> &h_s)
 {
-  h_1( 1e0,      twoJ, delta, 1, 1, 0, 0, 1, h_label, h_c, h_s, true);
-  h_1(-1e0,      twoJ, delta, 0, 0, 1, 1, 1, h_label, h_c, h_s, true);
+  const double twoJ1[] = {1e0, 1e0};
+
+  h_1( 1e0/2e0,  twoJ, delta, 1, 1, 0, 0, 1, h_label, h_c, h_s, true);
+  h_1(-1e0/2e0,  twoJ, delta, 0, 0, 1, 1, 1, h_label, h_c, h_s, true);
 
   h_1( 1e0/4e0,  twoJ, delta, 2, 0, 0, 0, 1, h_label, h_c, h_s, false);
   h_1(-1e0/4e0,  twoJ, delta, 0, 0, 2, 0, 1, h_label, h_c, h_s, false);
@@ -620,8 +633,10 @@ void ksi_2(const double delta_eps, const double twoJ[],
   double ksi2[2];
 
   get_ksi2_(delta_eps, ksi2);
-  h_label.push_back("k_11002"); h_c.push_back(ksi2[X_]); h_s.push_back(0e0);
-  h_label.push_back("k_00112"); h_c.push_back(ksi2[Y_]); h_s.push_back(0e0);
+  h_label.push_back("k_11002");
+  h_c.push_back(-M_PI*ksi2[X_]); h_s.push_back(0e0);
+  h_label.push_back("k_00112");
+  h_c.push_back(-M_PI*ksi2[Y_]); h_s.push_back(0e0);
 }
 
 
@@ -638,36 +653,27 @@ void cross_terms(const double delta_eps, const double twoJ[],
 }
 
 
-void drv_terms_type::print(void)
+void drv_terms_type::prt_h(FILE *outf, const double scl, const char *str,
+			   const int i0, const int i1)
 {
   int k;
 
-  printf("\nFirst order chromatic terms:\n");
-  for (k = 0; k < 2; k++)
-    printf("  %7s = [%12.5e, %12.5e]\n",
-	   h_label[k].c_str(), h_c[k]/2e0, h_s[k]/2e0);
-  printf("\n");
-  for (k = 2; k < 5; k++)
-    printf("  %7s = [%12.5e, %12.5e]\n",
-	   h_label[k].c_str(), h_c[k]/2e0, h_s[k]/2e0);
-  printf("\nFirst order geometric terms:\n");
-  for (k = 5; k < 10; k++)
-    printf("  %7s = [%12.5e, %12.5e]\n",
-	   h_label[k].c_str(), h_c[k]/2e0, h_s[k]/2e0);
-  printf("\nSecond order geometric terms:\n");
-  for (k = 10; k < 21; k++)
-    printf("  %7s = [%12.5e, %12.5e]\n",
-	   h_label[k].c_str(), h_c[k]/2e0, h_s[k]/2e0);
-  printf("\nSecond order anharmonic terms:\n");
-  for (k = 21; k < 24; k++)
-    printf("  %7s = [%12.5e, %12.5e]\n", h_label[k].c_str(), h_c[k], h_s[k]);
-  printf("\nSecond order chromaticity:\n");
-  for (k = 24; k < 26; k++)
-    printf("  %7s = [%12.5e, %12.5e]\n",
-	   h_label[k].c_str(), -h_c[k]/M_PI, -h_s[k]/M_PI);
-  printf("\nSecond order cross terms:\n");
-  for (k = 26; k < 29; k++)
-    printf("  %7s = [%12.5e, %12.5e]\n", h_label[k].c_str(), h_c[k], h_s[k]);
+  printf("\n%s\n", str);
+  for (k = i0-1; k < i1; k++)
+    printf("  %7s =  [%12.5e, %12.5e] %7.1e\n",
+	   h_label[k].c_str(), scl*h_c[k], scl*h_s[k], h_scl[k]);
+}
+
+
+void drv_terms_type::print(void)
+{
+  prt_h(stdout, 1e0/2e0, "First order chromatic terms:", 1, 2);
+  prt_h(stdout, 1e0/2e0, "", 3, 5);
+  prt_h(stdout, 1e0/2e0, "First order geometric terms:", 6, 10);
+  prt_h(stdout, 1e0/2e0, "Second order geometric terms:", 11, 21);
+  prt_h(stdout, 1e0, "Second order anharmonic terms:", 22, 24);
+  prt_h(stdout, 1e0, "Second order chromaticity:", 25, 26);
+  prt_h(stdout, 1e0, "Second order cross terms:", 27, 29);
 }
 
 
@@ -705,10 +711,11 @@ void drv_terms_type::get_h_scl(double scl_ksi_1, double scl_h_3,
 void drv_terms_type::get_h(const double twoJ[], const double delta,
 			   const double delta_eps)
 {
-  int                 k;
+  int k;
 
-  const bool prt = false;
+  const bool prt = !false;
 
+  h_c.clear(); h_s.clear();
   first_order(twoJ, delta, h_label, h_c, h_s);
   second_order(twoJ, h_label, h_c, h_s);
   anharm(twoJ, h_label, h_c, h_s);
