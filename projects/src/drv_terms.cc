@@ -108,7 +108,7 @@ void get_quad(const double L,
   ss_vect<tps> A1;
 
   const bool prt    = false;
-  const int  n_step = 1;
+  const int  n_step = 3;
 
   for (k = 0; k <= 1; k++) {
     alpha[k] = alpha0[k]; beta[k] = beta0[k]; nu[k] = nu0[k];
@@ -348,7 +348,7 @@ void sxt_1(const double scl, const double twoJ[], const double delta,
 }
 
 
-void sxt_2(const double scl, const double twoJ[],
+void sxt_2(const double scl,
 	   const int i1, const int j1, const int k1, const int l1,
 	   const int i2, const int j2, const int k2, const int l2,
 	   double &h_c, double &h_s)
@@ -356,7 +356,7 @@ void sxt_2(const double scl, const double twoJ[],
   // Second order generators.
 
   long int n1, n2;
-  double   b3L1, a3L1, b3L2, a3L2, dnu, A1, A, phi;
+  double   b3L1, a3L1, b3L2, a3L2, dnu, A1, A2, A, phi, c, s;
   CellType *cp;
 
   const int  
@@ -370,48 +370,48 @@ void sxt_2(const double scl, const double twoJ[],
 	(Cell[n1].Elem.M->Porder >= Sext)) {
       get_bnL_design_elem(Cell[n1].Fnum, 1, Sext, b3L1, a3L1);
       cp = &Cell[ind(n1-1)];
-      dnu = n_x[0]*cp->Nu[X_] + n_y[0]*cp->Nu[Y_]; 
-      A1 = b3L1*pow(cp->Beta[X_], m_x[0]/2e0)*pow(cp->Beta[Y_], m_y[0]/2e0);
+      dnu = n_x[0]*cp->Nu[X_] + n_y[0]*cp->Nu[Y_];
+      A1 = scl*b3L1*pow(cp->Beta[X_], m_x[0]/2e0)*pow(cp->Beta[Y_], m_y[0]/2e0);
+      c = s = 0e0;
       for (n2 = 0; n2 <= globval.Cell_nLoc; n2++) {
 	if ((Cell[n2].Elem.Pkind == Mpole)
 	    && (Cell[n2].Elem.M->Porder >= Sext)) {
 	  get_bnL_design_elem(Cell[n2].Fnum, 1, Sext, b3L2, a3L2);
 	  cp = &Cell[ind(n2-1)];
 	  phi = 2e0*M_PI*(dnu+n_x[1]*cp->Nu[X_]+n_y[1]*cp->Nu[Y_]);
-	  A =
-	    scl*A1*b3L2*pow(cp->Beta[X_], m_x[1]/2e0)*pow(cp->Beta[Y_], m_y[1]/2e0)
-	    *pow(twoJ[X_], ((m_x[0]+m_x[1])-2e0)/2e0)
-	    *pow(twoJ[Y_], ((m_y[0]+m_y[1])-2e0)/2e0);
+	  A2 = b3L2*pow(cp->Beta[X_], m_x[1]/2e0)*pow(cp->Beta[Y_], m_y[1]/2e0);
 	  // [..., ...] -> i*...
 	  if (n2 < n1) {
-	    h_s += A*cos(phi); h_c += A*sin(phi);
+	    s += A2*cos(phi); c += A2*sin(phi);
 	  } else if (n2 > n1) {
-	    h_s -= A*cos(phi); h_c -= A*sin(phi);
+	    s -= A2*cos(phi); c -= A2*sin(phi);
 	  }
 	}
       }
+      h_s += A1*s; h_c += A1*c;
     }
   }
 }
 
 
-void K(const double nu[], const double twoJ[], double a[])
+void get_K(const double nu[], double a[])
 {
   // Anharmonic terms.
 
   long int k, n1, n2;
-  double   b3L1, a3L1, b3L2, a3L2, pi_1x, pi_3x, pi_1xm2y, pi_1xp2y;
-  double   s_1x, s_3x, s_1xm2y, s_1xp2y, c_1x, c_3x, c_1xm2y, c_1xp2y;
+  double   b3L1, a3L1, b3L2, a3L2, c_1x, c_3x, c_1xm2y, c_1xp2y;
   double   dmu_x, dmu_y, A;
   CellType *cp1, *cp2;
 
-  pi_1x = M_PI*nu[X_];
-  pi_3x = 3e0*M_PI*nu[X_];
-  pi_1xm2y = M_PI*(nu[X_]-2e0*nu[Y_]);
-  pi_1xp2y = M_PI*(nu[X_]+2e0*nu[Y_]);
-
-  s_1x = sin(pi_1x); s_3x = sin(pi_3x); s_1xm2y = sin(pi_1xm2y);
-  s_1xp2y = sin(pi_1xp2y);
+const double
+  pi_1x    = M_PI*nu[X_],
+  pi_3x    = 3e0*M_PI*nu[X_],
+  pi_1xm2y = M_PI*(nu[X_]-2e0*nu[Y_]),
+  pi_1xp2y = M_PI*(nu[X_]+2e0*nu[Y_]),
+  s_1x     = sin(pi_1x),
+  s_3x     = sin(pi_3x),
+  s_1xm2y  = sin(pi_1xm2y),
+  s_1xp2y  = sin(pi_1xp2y);
 
   for (k = 0; k < 3; k++)
     a[k] = 0e0;
@@ -434,7 +434,7 @@ void K(const double nu[], const double twoJ[], double a[])
 	  a[0] += A*cp1->Beta[X_]*cp2->Beta[X_]*(3*c_1x+c_3x)/2e0;
 	  a[1] -=
 	    A*cp1->Beta[Y_]
-	    *(4e0*twoJ[X_]*cp2->Beta[X_]*c_1x+2e0*twoJ[Y_]*cp2->Beta[Y_]
+	    *(4e0*cp2->Beta[X_]*c_1x+2e0*cp2->Beta[Y_]
 	      *(c_1xm2y-c_1xp2y));
 	  a[2] += A*cp1->Beta[Y_]*cp2->Beta[Y_]*(4e0*c_1x+c_1xm2y+c_1xp2y)/2e0;
 	}
@@ -492,9 +492,9 @@ void cross_terms(const double delta_eps, const double nu[], const double twoJ[],
   double a[2][3];
 
   Ring_GetTwiss(false, -delta_eps);
-  K(nu, twoJ, a[0]);
+  get_K(nu, a[0]);
   Ring_GetTwiss(false, delta_eps);
-  K(nu, twoJ, a[1]);
+  get_K(nu, a[1]);
 
   for (k = 0; k < 3; k++)
     ad[k] = (a[1][k]-a[0][k])/(2e0*delta_eps);
@@ -553,63 +553,74 @@ void second_order(const double twoJ[], std::vector<string> &h_label,
   double c, s;
 
   c = s = 0e0;
-  sxt_2(-1e0/32e0, twoJ, 2, 1, 0, 0, 3, 0, 0, 0, c, s);
+  sxt_2(-1e0/32e0, 2, 1, 0, 0, 3, 0, 0, 0, c, s);
+  c *= sqr(twoJ[X_]); s *= sqr(twoJ[X_]);
   h_2("h_40000", c, s, h_label, h_c, h_s);
   
   c = s = 0e0;
-  sxt_2(-1e0/16e0, twoJ, 1, 2, 0, 0, 3, 0, 0, 0, c, s);
+  sxt_2(-1e0/16e0, 1, 2, 0, 0, 3, 0, 0, 0, c, s);
+  c *= sqr(twoJ[X_]); s *= sqr(twoJ[X_]);
   h_2("h_31000", c, s, h_label, h_c, h_s);
 
   c = s = 0e0;
-  sxt_2(-1e0/32e0, twoJ, 0, 3, 0, 0, 3, 0, 0, 0, c, s);
-  sxt_2(-3e0/32e0, twoJ, 1, 2, 0, 0, 2, 1, 0, 0, c, s);
+  sxt_2(-1e0/32e0, 0, 3, 0, 0, 3, 0, 0, 0, c, s);
+  sxt_2(-3e0/32e0, 1, 2, 0, 0, 2, 1, 0, 0, c, s);
+  c *= sqr(twoJ[X_]); s *= sqr(twoJ[X_]);
   h_2("h_22000", c, s, h_label, h_c, h_s);
 
   c = s = 0e0;
-  sxt_2(-1e0/32e0, twoJ, 3, 0, 0, 0, 0, 1, 2, 0, c, s);
-  sxt_2(-1e0/32e0, twoJ, 1, 0, 2, 0, 2, 1, 0, 0, c, s);
-  sxt_2(-4e0/32e0, twoJ, 1, 0, 1, 1, 1, 0, 2, 0, c, s);
+  sxt_2(-1e0/32e0, 3, 0, 0, 0, 0, 1, 2, 0, c, s);
+  sxt_2(-1e0/32e0, 1, 0, 2, 0, 2, 1, 0, 0, c, s);
+  sxt_2(-4e0/32e0, 1, 0, 1, 1, 1, 0, 2, 0, c, s);
+  c *= twoJ[X_]*twoJ[Y_]; s *= twoJ[X_]*twoJ[Y_];
   h_2("h_20200", c, s, h_label, h_c, h_s);
   
   c = s = 0e0;
-  sxt_2(-1e0/16e0, twoJ, 1, 0, 2, 0, 1, 2, 0, 0, c, s);
-  sxt_2(-1e0/16e0, twoJ, 2, 1, 0, 0, 0, 1, 2, 0, c, s);
-  sxt_2(-2e0/16e0, twoJ, 0, 1, 1, 1, 1, 0, 2, 0, c, s);
-  sxt_2(-2e0/16e0, twoJ, 1, 0, 1, 1, 0, 1, 2, 0, c, s);
+  sxt_2(-1e0/16e0, 1, 0, 2, 0, 1, 2, 0, 0, c, s);
+  sxt_2(-1e0/16e0, 2, 1, 0, 0, 0, 1, 2, 0, c, s);
+  sxt_2(-2e0/16e0, 0, 1, 1, 1, 1, 0, 2, 0, c, s);
+  sxt_2(-2e0/16e0, 1, 0, 1, 1, 0, 1, 2, 0, c, s);
+  c *= twoJ[X_]*twoJ[Y_]; s *= twoJ[X_]*twoJ[Y_];
   h_2("h_11200", c, s, h_label, h_c, h_s);
     
   c = s = 0e0;
-  sxt_2(-1e0/16e0, twoJ, 3, 0, 0, 0, 0, 1, 1, 1, c, s);
-  sxt_2(-1e0/16e0, twoJ, 1, 0, 1, 1, 2, 1, 0, 0, c, s);
-  sxt_2(-1e0/8e0, twoJ, 1, 0, 0, 2, 1, 0, 2, 0, c, s);
+  sxt_2(-1e0/16e0, 3, 0, 0, 0, 0, 1, 1, 1, c, s);
+  sxt_2(-1e0/16e0, 1, 0, 1, 1, 2, 1, 0, 0, c, s);
+  sxt_2(-1e0/8e0, 1, 0, 0, 2, 1, 0, 2, 0, c, s);
+  c *= twoJ[X_]*twoJ[Y_]; s *= twoJ[X_]*twoJ[Y_];
   h_2("h_20110", c, s, h_label, h_c, h_s);
   
   c = s = 0e0;
-  sxt_2(-1e0/8e0, twoJ, 1, 0, 1, 1, 1, 2, 0, 0, c, s);
-  sxt_2(-1e0/8e0, twoJ, 2, 1, 0, 0, 0, 1, 1, 1, c, s);
-  sxt_2(-1e0/8e0, twoJ, 0, 1, 0, 2, 1, 0, 2, 0, c, s);
-  sxt_2(-1e0/8e0, twoJ, 1, 0, 0, 2, 0, 1, 2, 0, c, s);
+  sxt_2(-1e0/8e0, 1, 0, 1, 1, 1, 2, 0, 0, c, s);
+  sxt_2(-1e0/8e0, 2, 1, 0, 0, 0, 1, 1, 1, c, s);
+  sxt_2(-1e0/8e0, 0, 1, 0, 2, 1, 0, 2, 0, c, s);
+  sxt_2(-1e0/8e0, 1, 0, 0, 2, 0, 1, 2, 0, c, s);
+  c *= twoJ[X_]*twoJ[Y_]; s *= twoJ[X_]*twoJ[Y_];
   h_2("h_11110", c, s, h_label, h_c, h_s);
   
   c = s = 0e0;
-  sxt_2(-1e0/16e0, twoJ, 0, 1, 2, 0, 1, 0, 1, 1, c, s);
-  sxt_2(-1e0/16e0, twoJ, 0, 1, 1, 1, 1, 0, 2, 0, c, s);
+  sxt_2(-1e0/16e0, 0, 1, 2, 0, 1, 0, 1, 1, c, s);
+  sxt_2(-1e0/16e0, 0, 1, 1, 1, 1, 0, 2, 0, c, s);
+  c *= sqr(twoJ[Y_]); s *= sqr(twoJ[Y_]);
   h_2("h_00310", c, s, h_label, h_c, h_s);
   
   c = s = 0e0;
-  sxt_2(-1e0/32e0, twoJ, 1, 0, 0, 2, 2, 1, 0, 0, c, s);
-  sxt_2(-1e0/32e0, twoJ, 3, 0, 0, 0, 0, 1, 0, 2, c, s);
-  sxt_2(-4e0/32e0, twoJ, 1, 0, 0, 2, 1, 0, 1, 1, c, s);
+  sxt_2(-1e0/32e0, 1, 0, 0, 2, 2, 1, 0, 0, c, s);
+  sxt_2(-1e0/32e0, 3, 0, 0, 0, 0, 1, 0, 2, c, s);
+  sxt_2(-4e0/32e0, 1, 0, 0, 2, 1, 0, 1, 1, c, s);
+  c *= twoJ[X_]*twoJ[Y_]; s *= twoJ[X_]*twoJ[Y_];
   h_2("h_20020", c, s, h_label, h_c, h_s);
 
   c = s = 0e0;
-  sxt_2(-1e0/32e0, twoJ, 0, 1, 2, 0, 1, 0, 2, 0, c, s);
+  sxt_2(-1e0/32e0, 0, 1, 2, 0, 1, 0, 2, 0, c, s);
+  c *= sqr(twoJ[Y_]); s *= sqr(twoJ[Y_]);
   h_2("h_00400", c, s, h_label, h_c, h_s);
 
   c = s = 0e0;
-  sxt_2(-1e0/8e0, twoJ, 0, 1, 1, 1, 1, 0, 1, 1, c, s);
-  sxt_2(-1e0/32e0, twoJ, 0, 1, 0, 2, 1, 0, 2, 0, c, s);
-  sxt_2(-1e0/32e0, twoJ, 0, 1, 2, 0, 1, 0, 0, 2, c, s);
+  sxt_2(-1e0/8e0, 0, 1, 1, 1, 1, 0, 1, 1, c, s);
+  sxt_2(-1e0/32e0, 0, 1, 0, 2, 1, 0, 2, 0, c, s);
+  sxt_2(-1e0/32e0, 0, 1, 2, 0, 1, 0, 0, 2, c, s);
+  c *= sqr(twoJ[Y_]); s *= sqr(twoJ[Y_]);
   h_2("h_00220", c, s, h_label, h_c, h_s);
 }
 
@@ -619,14 +630,17 @@ void anharm(const double twoJ[], std::vector<string> &h_label,
 {
   double a[3];
 
-  K(globval.TotalTune, twoJ, a);
-  h_label.push_back("k_22000"); h_c.push_back(a[0]); h_s.push_back(0e0);
-  h_label.push_back("k_11110"); h_c.push_back(a[1]); h_s.push_back(0e0);
-  h_label.push_back("k_00220"); h_c.push_back(a[2]); h_s.push_back(0e0);
+  get_K(globval.TotalTune, a);
+  h_label.push_back("k_22000");
+  h_c.push_back(sqr(twoJ[X_])*a[0]); h_s.push_back(0e0);
+  h_label.push_back("k_11110");
+  h_c.push_back(twoJ[X_]*twoJ[Y_]*a[1]); h_s.push_back(0e0);
+  h_label.push_back("k_00220");
+  h_c.push_back(sqr(twoJ[Y_])*a[2]); h_s.push_back(0e0);
 }
 
 
-void ksi_2(const double delta_eps, const double twoJ[],
+void ksi_2(const double delta_eps, const double twoJ[], const double delta,
 	   std::vector<string> &h_label, std::vector<double> &h_c,
 	   std::vector<double> &h_s)
 {
@@ -634,22 +648,25 @@ void ksi_2(const double delta_eps, const double twoJ[],
 
   get_ksi2_(delta_eps, ksi2);
   h_label.push_back("k_11002");
-  h_c.push_back(-M_PI*ksi2[X_]); h_s.push_back(0e0);
+  h_c.push_back(-M_PI*twoJ[X_]*sqr(delta)*ksi2[X_]); h_s.push_back(0e0);
   h_label.push_back("k_00112");
-  h_c.push_back(-M_PI*ksi2[Y_]); h_s.push_back(0e0);
+  h_c.push_back(-M_PI*twoJ[Y_]*sqr(delta)*ksi2[Y_]); h_s.push_back(0e0);
 }
 
 
 void cross_terms(const double delta_eps, const double twoJ[],
-		 std::vector<string> &h_label, std::vector<double> &h_c,
-		 std::vector<double> &h_s)
+		 const double delta, std::vector<string> &h_label,
+		 std::vector<double> &h_c, std::vector<double> &h_s)
 {
   double a[3];
 
   cross_terms(delta_eps, globval.TotalTune, twoJ, a);
-  h_label.push_back("k_22001"); h_c.push_back(a[0]); h_s.push_back(0e0);
-  h_label.push_back("k_11111"); h_c.push_back(a[1]); h_s.push_back(0e0);
-  h_label.push_back("k_00221"); h_c.push_back(a[2]); h_s.push_back(0e0);
+  h_label.push_back("k_22001");
+  h_c.push_back(sqr(twoJ[X_])*delta*a[0]); h_s.push_back(0e0);
+  h_label.push_back("k_11111");
+  h_c.push_back(twoJ[X_]*twoJ[Y_]*delta*a[1]); h_s.push_back(0e0);
+  h_label.push_back("k_00221");
+  h_c.push_back(sqr(twoJ[Y_])*delta*a[2]); h_s.push_back(0e0);
 }
 
 
@@ -719,8 +736,8 @@ void drv_terms_type::get_h(const double twoJ[], const double delta,
   first_order(twoJ, delta, h_label, h_c, h_s);
   second_order(twoJ, h_label, h_c, h_s);
   anharm(twoJ, h_label, h_c, h_s);
-  ksi_2(delta_eps, twoJ, h_label, h_c, h_s);
-  cross_terms(delta_eps, twoJ, h_label, h_c, h_s);
+  ksi_2(delta_eps, twoJ, delta, h_label, h_c, h_s);
+  cross_terms(delta_eps, twoJ, delta, h_label, h_c, h_s);
 
   if (prt) print();
 

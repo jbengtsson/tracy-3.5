@@ -1051,7 +1051,7 @@ double constr_type::get_chi2(const param_type &prms, double *bn,
   if (true) {
     const double twoJ1[] = {1e0, 1e0}, delta1_max = 1e0;
 
-    lat_constr.drv_terms.get_h(twoJ1, delta1_max, 1e-6);
+    lat_constr.drv_terms.get_h(twoJ, delta_max, 1e-6);
     exit(0);
 
     printf("\n");
