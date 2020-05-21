@@ -356,7 +356,7 @@ void sxt_2(const double scl,
   // Second order generators.
 
   long int n1, n2;
-  double   b3L1, a3L1, b3L2, a3L2, dnu, A1, A2, A, phi, c, s;
+  double   b3L1, a3L1, b3L2, a3L2, dnu, A1, A2, phi, c, s;
   CellType *cp;
 
   const int  
@@ -530,8 +530,6 @@ void first_order(const double twoJ[], const double delta,
 		 std::vector<string> &h_label, std::vector<double> &h_c,
 		 std::vector<double> &h_s)
 {
-  const double twoJ1[] = {1e0, 1e0};
-
   h_1( 1e0/2e0,  twoJ, delta, 1, 1, 0, 0, 1, h_label, h_c, h_s, true);
   h_1(-1e0/2e0,  twoJ, delta, 0, 0, 1, 1, 1, h_label, h_c, h_s, true);
 
@@ -675,7 +673,7 @@ void drv_terms_type::prt_h(FILE *outf, const double scl, const char *str,
 {
   int k;
 
-  printf("\n%s\n", str);
+  printf("%s", str);
   for (k = i0-1; k < i1; k++)
     printf("  %7s =  [%12.5e, %12.5e] %7.1e\n",
 	   h_label[k].c_str(), scl*h_c[k], scl*h_s[k], h_scl[k]);
@@ -684,13 +682,13 @@ void drv_terms_type::prt_h(FILE *outf, const double scl, const char *str,
 
 void drv_terms_type::print(void)
 {
-  prt_h(stdout, 1e0/2e0, "First order chromatic terms:", 1, 2);
-  prt_h(stdout, 1e0/2e0, "", 3, 5);
-  prt_h(stdout, 1e0/2e0, "First order geometric terms:", 6, 10);
-  prt_h(stdout, 1e0/2e0, "Second order geometric terms:", 11, 21);
-  prt_h(stdout, 1e0, "Second order anharmonic terms:", 22, 24);
-  prt_h(stdout, 1e0, "Second order chromaticity:", 25, 26);
-  prt_h(stdout, 1e0, "Second order cross terms:", 27, 29);
+  prt_h(stdout, 1e0/2e0, "\nFirst order chromatic terms:\n", 1, 2);
+  prt_h(stdout, 1e0/2e0, "\n", 3, 5);
+  prt_h(stdout, 1e0/2e0, "\nFirst order geometric terms:\n", 6, 10);
+  prt_h(stdout, 1e0/2e0, "\nSecond order geometric terms:\n", 11, 21);
+  prt_h(stdout, 1e0, "\nSecond order anharmonic terms:\n", 22, 24);
+  prt_h(stdout, 1e0, "\nSecond order chromaticity:\n", 25, 26);
+  prt_h(stdout, 1e0, "\nSecond order cross terms:\n", 27, 29);
 }
 
 
@@ -730,7 +728,7 @@ void drv_terms_type::get_h(const double twoJ[], const double delta,
 {
   int k;
 
-  const bool prt = !false;
+  const bool prt = false;
 
   h_c.clear(); h_s.clear();
   first_order(twoJ, delta, h_label, h_c, h_s);
