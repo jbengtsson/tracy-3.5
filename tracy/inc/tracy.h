@@ -50,9 +50,6 @@
 
 #define HOMmax          21
 
-#define maxtransfmat    2000
-#define maxkicks        5
-
 
 const double  c0    = 2.99792458e8;             // speed of light in vacuum
 const double  q_e   = 1.602e-19;                // electron charge

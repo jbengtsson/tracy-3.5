@@ -3136,7 +3136,7 @@ void pol_fit(int n, double x[], double y[], int order, psVector &b,
     if (prt) {
       printf("\n  n    Coeff.\n");
       for (i = 0; i <= order; i++)
-	printf("%3d %10.3e+/-%8.2e\n", i, b[i], sigma*sqrt(chi2*T1[i][i]));
+	printf("%3d %10.3e +/-%8.2e\n", i, b[i], sigma*sqrt(chi2*T1[i][i]));
     }
   } else {
     printf("pol_fit: Matrix is singular\n");

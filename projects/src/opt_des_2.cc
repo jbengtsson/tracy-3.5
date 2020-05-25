@@ -41,8 +41,8 @@ const double
   scl_h_3         = 1e0,
   scl_h_4         = 0e0,
   scl_chi_2       = 1e10,
-  scl_ksi_2       = 1e10,
-  scl_chi_delta_2 = 1e10;
+  scl_ksi_2       = 0e10,
+  scl_chi_delta_2 = 0e10;
 
 #define LAT_CASE 1
 
@@ -414,13 +414,27 @@ void set_dip_cell_sp(param_type &prms, constr_type &constr)
   prms.add_prm("qd3", 2, -15.0,  0.0, 1.0);
   prms.add_prm("qf4", 2,   0.0, 15.0, 1.0);
   prms.add_prm("qd5", 2, -15.0,  0.0, 1.0);
-  if (!true) {
+
+  switch (1) {
+  case 1:
     prms.add_prm("sh1", 3, -3e2,   3e2, 1.0);
     prms.add_prm("sh2", 3, -3e2,   3e2, 1.0);
     prms.add_prm("s",   3, -3e2,   3e2, 1.0);
+    break;
+  case 2:
+    prms.add_prm("sh1", 4, -1e5,   1e5, 1.0);
+    prms.add_prm("sh2", 4, -1e5,   1e5, 1.0);
+    prms.add_prm("s",   4, -1e5,   1e5, 1.0);
+    prms.add_prm("of1", 5, -1e8,   1e8, 1.0);
+    break;
+  case 3:
+    prms.add_prm("sh1", 4, -1e5,   1e5, 1.0);
+    prms.add_prm("sh2", 4, -1e5,   1e5, 1.0);
+    prms.add_prm("s",   4, -1e5,   1e5, 1.0);
     prms.add_prm("of1", 4, -1e5,   1e5, 1.0);
+    prms.add_prm("of1", 5, -1e8,   1e8, 1.0);
+    break;
   }
-  prms.add_prm("of1", 5, -1e6,   1e6, 1.0);
 
   lat_constr.phi_scl = (dphi)? 1e0 : 0e0;
 }
@@ -1334,7 +1348,7 @@ int main(int argc, char *argv[])
     break;
   case 3:
     opt_mI_sp(lat_prms, lat_constr);
-    no_sxt();
+    // no_sxt();
     fit_powell(lat_prms, 1e-3, f_achrom);
     // fit_sim_anneal(lat_prms, 1e-3, f_achrom);
     break;

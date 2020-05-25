@@ -1523,6 +1523,97 @@ void chk_traj(void)
 }
 
 
+double get_chi2_(const std::vector<double> &x, const std::vector<double> &y,
+		 const int n, double *b)
+{
+  int    i, j;
+  double sum, z;
+
+  const int n_pts = (int)x.size();
+
+  sum = 0e0;
+  for (i = 0; i < n_pts; i++) {
+    z = 0e0;
+    for (j = 0; j < n; j++)
+      z += b[j+1]*pow(x[i], j);
+    sum += sqr(y[i]-z);
+  }
+  return(sum/n_pts);
+}
+
+
+void pol_fit_(const std::vector<double> &x, const std::vector<double> &y,
+	      const int n, double *b, double &sigma)
+{
+  int    i, j, k;
+  double *b1, **T, **T_inv;
+
+  const int    n_pts = (int)x.size();
+  const	double sigma_k = 1e0, chi2 = 4e0;
+  const bool   prt     = !false;
+
+  b1 = dvector(1, n); T = dmatrix(1, n, 1, n); T_inv = dmatrix(1, n, 1, n);
+
+  for (i = 1; i <= n; i++) {
+    b[i] = 0e0;
+    for (j = 1; j <= n; j++)
+      T[i][j] = 0e0;
+  }
+
+  for (i = 0; i < n_pts; i++)
+    for (j = 0; j < n; j++) {
+      b[j+1] += y[i]*pow(x[i], j)/pow(sigma_k, 2e0);
+      for (k = 0; k < n; k++)
+	T[j+1][k+1] += pow(x[i], j+k)/pow(sigma_k, 2e0);
+    }
+
+  dinverse(T, n, T_inv);
+  dmvmult(T_inv, n, n, b, n, b1);
+  dvcopy(b1, n, b);
+  sigma = get_chi2_(x, y, n, b);
+  if (prt) {
+    printf("\n  n    Coeff.\n");
+    for (i = 0; i < n; i++)
+      printf("%3d %10.3e +/-%8.2e\n",
+	     i, b[i+1], sigma*sqrt(chi2*T_inv[i+1][i+1]));
+  }
+
+  free_dvector(b1, 1, n);
+  free_dmatrix(T, 1, n, 1, n); free_dmatrix(T_inv, 1, n, 1, n);
+}
+
+
+void get_ksi2_(const double delta)
+{
+  double *b, ksi2[2], ksi3[2];
+
+  const int n_pts = 3, order = 3;
+
+  int                 i, k;
+  double              sigma;
+  std::vector<double> delta_pts, nu_pts[2];
+
+  const int n = order + 1;
+
+  b = dvector(1, n);
+
+  for (i = -n_pts; i <= n_pts; i++) {
+    delta_pts.push_back(i*delta/n_pts);
+    Ring_GetTwiss(false, delta_pts.back());
+    for (k = 0; k < 2; k++)
+      nu_pts[k].push_back(globval.TotalTune[k]);
+  }
+  for (k = 0; k < 2; k++) {
+    pol_fit_(delta_pts, nu_pts[k], n, b, sigma);
+    ksi2[k] = b[3]; ksi3[k] = b[4];
+  }
+  printf("\n  ksi2 = [%10.3e, %10.3e]\n", ksi2[X_], ksi2[Y_]);
+  printf("  ksi3 = [%10.3e, %10.3e]\n", ksi3[X_], ksi3[Y_]);
+
+  free_dvector(b, 1, n);
+}
+
+
 int main(int argc, char *argv[])
 {
   bool             tweak;
@@ -1606,6 +1697,8 @@ int main(int argc, char *argv[])
   if (!false) {
     get_eps_x(eps_x, sigma_delta, U_0, J);
     if (false) get_I(I, true);
+
+    get_ksi2_(1e-2);
 
     prt_lat("linlat1.out", globval.bpm, true);
     prt_lat("linlat.out", globval.bpm, true, 10);

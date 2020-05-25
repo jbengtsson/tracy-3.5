@@ -461,7 +461,7 @@ void param_type::prt_prm(double *bn) const
   double bn_ext;
 
   const string
-    labels[] = {"phi", "L  ", "s  ", "   ", "   ", "b_2", "b_3", "b_4"};
+    labels[] = {"phi", "L  ", "s  ", "   ", "   ", "b_2", "b_3", "b_4", "b_5"};
   const int    labels_offset = 3;
 
   for (i = 1; i <= n_prm; i++) {
@@ -966,7 +966,7 @@ double constr_type::get_chi2(const double twoJ[], const double delta,
   }
 
   if (true) {
-    lat_constr.drv_terms.get_h(twoJ, delta, 1e-6);
+    lat_constr.drv_terms.get_h(twoJ, delta, delta_eps);
 
     if (prt) printf("\n");
     for (k = 0; k < (int)drv_terms.h.size(); k++) {
@@ -1243,7 +1243,7 @@ void fit_ksi1(const std::vector<int> &Fnum_b3,
   w = dvector(1, n_b3); b = dvector(1, m); x = dvector(1, n_b3);
 
   // Zero sextupoles to track linear chromaticity.
-  no_sxt();
+  // no_sxt();
 
   for (k = 1; k <= n_b3; k++) {
     set_dbnL_design_fam(Fnum_b3[k-1], Sext, db3L, 0e0);
