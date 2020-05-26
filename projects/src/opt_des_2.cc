@@ -38,10 +38,10 @@ const double
   beta_ls[]       = {10.0, 4.0},
   eta_ms_x        = 15e-3,
   scl_ksi_1       = 0e0,
-  scl_h_3         = 1e0,
+  scl_h_3         = 1e10,
   scl_h_4         = 0e0,
-  scl_chi_2       = 1e10,
-  scl_ksi_2       = 0e10,
+  scl_ksi_2       = 1e3,
+  scl_chi_2       = 0e10,
   scl_chi_delta_2 = 0e10;
 
 #define LAT_CASE 1
@@ -417,24 +417,19 @@ void set_dip_cell_sp(param_type &prms, constr_type &constr)
 
   switch (1) {
   case 1:
-    prms.add_prm("sh1", 3, -3e2,   3e2, 1.0);
-    prms.add_prm("sh2", 3, -3e2,   3e2, 1.0);
-    prms.add_prm("s",   3, -3e2,   3e2, 1.0);
     break;
   case 2:
-    prms.add_prm("sh1", 4, -1e5,   1e5, 1.0);
-    prms.add_prm("sh2", 4, -1e5,   1e5, 1.0);
-    prms.add_prm("s",   4, -1e5,   1e5, 1.0);
-    prms.add_prm("of1", 5, -1e8,   1e8, 1.0);
+    prms.add_prm("sh1", 3, -4e2,   4e2, 1.0);
+    prms.add_prm("sh2", 3, -4e2,   4e2, 1.0);
+    prms.add_prm("s",   3, -4e2,   4e2, 1.0);
     break;
   case 3:
     prms.add_prm("sh1", 4, -1e5,   1e5, 1.0);
     prms.add_prm("sh2", 4, -1e5,   1e5, 1.0);
     prms.add_prm("s",   4, -1e5,   1e5, 1.0);
-    prms.add_prm("of1", 4, -1e5,   1e5, 1.0);
-    prms.add_prm("of1", 5, -1e8,   1e8, 1.0);
+    prms.add_prm("of1", 4, -1e8,   1e8, 1.0);
     break;
-  }
+ }
 
   lat_constr.phi_scl = (dphi)? 1e0 : 0e0;
 }
@@ -475,7 +470,7 @@ void set_constr_sp(constr_type &constr)
 		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   // Include constraint on alpha; in case of using ps_rot.
   constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
-		    1e6, 1e6, 1e2,         1e3,         1e8,      1e8,
+		    1e6, 1e6, 1e2,         1e3,         0.1*1e8,      1e8,
 		    0.0, 0.0, beta_ms[X_], beta_ms[Y_], eta_ms_x, 0.0);
   for (k = 1; k <= 2; k++)
     constr.add_constr(Elem_GetPos(ElemIndex("ss"), k),
@@ -563,11 +558,10 @@ void set_weights_sp(constr_type &constr)
   lat_constr.ksi1_ctrl_scl[2]      = 0e-1;
   // Not useful.
   lat_constr.ksi1_svd_scl          = 0e3;
-  lat_constr.mI_scl[X_]            = 1e-1*1e6;
-  lat_constr.mI_scl[Y_]            = 1e-1*1e6;
-  lat_constr.high_ord_achr_scl[X_] = 1e-3*1e6;
+  lat_constr.mI_scl[X_]            = 1e-2*1e6;
+  lat_constr.mI_scl[Y_]            = 1e-2*1e6;
+  lat_constr.high_ord_achr_scl[X_] = 1e0*1e6;
   lat_constr.high_ord_achr_scl[Y_] = 0e6;
-  lat_constr.ksi2_scl              = 5e0;
 
   lat_constr.alpha_c_scl           = 5e-7;
 
@@ -579,8 +573,8 @@ void set_weights_sp(constr_type &constr)
     lat_constr.phi0 = 45.0;
   lat_constr.L_scl = 0e-10; lat_constr.L0 = 10.0;
 
-  lat_constr.drv_terms.get_h_scl(scl_ksi_1, scl_h_3, scl_h_4, scl_chi_2,
-				 scl_ksi_2, scl_chi_delta_2);
+  lat_constr.drv_terms.get_h_scl(scl_ksi_1, scl_h_3, scl_h_4, scl_ksi_2,
+				 scl_chi_2, scl_chi_delta_2);
 }
 
 

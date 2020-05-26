@@ -89,8 +89,6 @@ public:
     mI0[2],               // -I Transformer.
     alpha_c_scl,          // alpha_c.
     L_scl,
-    ksi2[2],
-    ksi2_scl,
     L0;                   // Cell length.
   std::vector<double> 
     ksi1_ctrl;
@@ -123,7 +121,6 @@ public:
     high_ord_achr_scl[X_] = high_ord_achr_scl[Y_] = 0e0;
     mI_scl[X_] = mI_scl[Y_] = 0e0;
     L_scl = 0e0;
-    ksi2_scl = 0e0;
   }
 
   void add_constr(const int loc,
@@ -966,16 +963,16 @@ double constr_type::get_chi2(const double twoJ[], const double delta,
   }
 
   if (true) {
-    lat_constr.drv_terms.get_h(twoJ, delta, delta_eps);
+    lat_constr.drv_terms.get_h(delta_eps, twoJ, delta);
 
     if (prt) printf("\n");
     for (k = 0; k < (int)drv_terms.h.size(); k++) {
       dchi2[k] = lat_constr.drv_terms.h_scl[k]*lat_constr.drv_terms.h[k];
       chi2 += dchi2[k];
       if (prt && (dchi2[k] != 0e0)) {
-	if ((k == 2) || (k == 5) || (k == 10) || (k == 21) || (k == 24)
-	    || (k == 26)) printf("\n");
-	printf("  h[%2d]          = %10.3e\n", k, dchi2[k]);
+	if ((k == 2) || (k == 5) || (k == 10) || (k == 21) || (k == 23)
+	    || (k == 26) || (k == 29)) printf("\n");
+	printf("  h[%2d] = %10.3e\n", k, dchi2[k]);
       }
     }
     if (prt) lat_constr.drv_terms.print();
@@ -998,16 +995,6 @@ double constr_type::get_chi2(const double twoJ[], const double delta,
     dchi2[0] = ksi1_svd_scl/sqr(geom_mean/mean);
     chi2 += dchi2[0];
     if (prt) printf("  ksi1_svd:         %10.3e\n", dchi2[0]);
-  }
-
-  if (ksi2_scl != 0e0) {
-    get_ksi2_(delta_eps, ksi2);
-    for (k = 0; k < 2; k++) {
-      dchi2[k] = ksi2_scl*sqr(ksi2[k]);
-      chi2 += dchi2[k];
-    }
-    if (prt) printf("\n  ksi2           =  [%10.3e, %10.3e]\n",
-		    ksi2[X_], ksi2[Y_]);
   }
 
   if ((mI_scl[X_] != 0e0) || (mI_scl[Y_] != 0e0)) {
@@ -1107,8 +1094,6 @@ void prt_h(const constr_type &constr)
   int    k;
   double b3L, a3L, b3, a3;
 
-  printf("    ksi2         = [%10.3e, %10.3e]\n\n",
-	 constr.ksi2[X_], constr.ksi2[Y_]);
   printf("    b_3L         = [");
   for (k = 0; k < constr.n_b3; k++) {
     get_bnL_design_elem(constr.Fnum_b3[k], 1, Sext, b3L, a3L);
