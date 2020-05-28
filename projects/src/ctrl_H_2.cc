@@ -77,10 +77,7 @@ public:
     eps0_x,               // Hor. emittance [nm.rad].
     nu[2],
     ksi1[2],
-    ksi1_scl,
     ksi1_ctrl_scl[3],
-    ksi1_svd_scl,
-    ksi1_svd[2],
     phi_scl,
     phi_tot, phi0,        // Cell bend angle.
     high_ord_achr_scl[2],
@@ -115,9 +112,7 @@ public:
   constr_type(void) {
     n_iter = 0; chi2 = 1e30; chi2_prt = 1e30;
     eps_x_scl = 0e0; phi_scl = 0e0;
-    ksi1_scl = 0e0;
     ksi1_ctrl_scl[0] = ksi1_ctrl_scl[1] = ksi1_ctrl_scl[2] = 0e0;
-    ksi1_svd_scl = 0e0;
     high_ord_achr_scl[X_] = high_ord_achr_scl[Y_] = 0e0;
     mI_scl[X_] = mI_scl[Y_] = 0e0;
     L_scl = 0e0;
@@ -476,7 +471,7 @@ void param_type::prt_prm(double *bn) const
       printf(" - ");
       prt_name(stdout, Cell[loc].Elem.PName, ":", 7);
     }
-    printf("   %3s %8.1e [%8.1e, %8.1e]",
+    printf("   %3s %10.3e [%10.3e, %10.3e]",
 	   labels[n[i-1]+labels_offset].c_str(),
 	   bn_ext, bn_min[i-1], bn_max[i-1]);
     if (n[i-1] == -1) {
@@ -952,16 +947,6 @@ double constr_type::get_chi2(const double twoJ[], const double delta,
     printf("\n  S-L0:            %10.3e\n", dchi2[0]);
   }
 
-  if (prt) printf("\n");
-  if (ksi1_scl != 0e0) {
-    for (k = 0; k < 2; k++) {
-      dchi2[k] = ksi1_scl*sqr(ksi1[k]);
-      chi2 += dchi2[k];
-    }
-    if (prt) printf("  ksi1:             [%10.3e, %10.3e]\n",
-		    dchi2[X_], dchi2[Y_]);
-  }
-
   if (true) {
     lat_constr.drv_terms.get_h(delta_eps, twoJ, delta);
 
@@ -989,16 +974,9 @@ double constr_type::get_chi2(const double twoJ[], const double delta,
 		    dchi2[0], dchi2[1], dchi2[2]);
   }
   
-  if (ksi1_svd_scl != 0) {
-    mean = (ksi1_svd[X_]+ksi1_svd[Y_])/2e0;
-    geom_mean = sqrt(ksi1_svd[X_]*ksi1_svd[Y_]);
-    dchi2[0] = ksi1_svd_scl/sqr(geom_mean/mean);
-    chi2 += dchi2[0];
-    if (prt) printf("  ksi1_svd:         %10.3e\n", dchi2[0]);
-  }
-
   if ((mI_scl[X_] != 0e0) || (mI_scl[Y_] != 0e0)) {
     get_mI(lat_constr);
+    if (prt) printf("\n");
     for (j = 0; j < (int)mI.size(); j++) {
       for (k = 0; k < 2; k++) {
 	dchi2[k] = mI_scl[k]*sqr(mI[j][k]-mI0[k]);
@@ -1126,10 +1104,8 @@ void prt_high_ord_achr(const constr_type &constr)
 void constr_type::prt_constr(const double chi2)
 {
   int    loc, k;
-  double phi, mean, geom_mean;
+  double phi;
 
-  mean = (ksi1_svd[X_]+ksi1_svd[Y_])/2e0;
-  geom_mean = sqrt(ksi1_svd[X_]*ksi1_svd[Y_]);
   printf("\n%3d chi2: %11.5e -> %11.5e\n", n_iter, this->chi2_prt, chi2);
   this->chi2_prt = chi2;
   printf("\n  Linear Optics:\n");
@@ -1141,8 +1117,6 @@ void constr_type::prt_constr(const double chi2)
     printf("    ksi1_ctrl    = [%5.3f, %5.3f, %5.3f]\n",
 	   lat_constr.ksi1_ctrl[0], lat_constr.ksi1_ctrl[1],
 	   lat_constr.ksi1_ctrl[2]);
-  printf("    svd          = [%9.3e, %9.3e] %6.4f\n",
-	 lat_constr.ksi1_svd[X_], lat_constr.ksi1_svd[Y_], geom_mean/mean);
   if (phi_scl != 0e0) {
     loc = Elem_GetPos(Fnum_b1[n_b1-1], 1);
     phi = rad2deg(Cell[loc].Elem.PL*Cell[loc].Elem.M->Pirho);
@@ -1195,22 +1169,8 @@ void get_nu(ss_vect<tps> &A, const double delta, double nu[])
 }
 
 
-void get_ksi1(ss_vect<tps> &A, double ksi1[])
-{
-  int    k;
-  double nu0[2], nu1[2];
-
-  const double delta_eps = 1e-8;
-
-  get_nu(A, -delta_eps, nu0); get_nu(A, delta_eps, nu1);
-  for (k = 0; k < 2; k++)
-    ksi1[k] = (nu1[k]-nu0[k])/(2e0*delta_eps);
-}
-
-
 void fit_ksi1(const std::vector<int> &Fnum_b3,
-	      const double ksi_x, const double ksi_y, const double db3L,
-	      double svd[])
+	      const double ksi_x, const double ksi_y, const double db3L)
 {
   int                 n_b3, j, k, n_svd;
   double              **A, **U, **V, *w, *b, *x, b3L, a3L;
@@ -1274,7 +1234,6 @@ void fit_ksi1(const std::vector<int> &Fnum_b3,
 	if (prt) printf("fit_ksi1: more than 2 non-zero singular values");
 	exit(1);
       }
-      svd[n_svd] = w[j];
       n_svd++;
     }
   }
@@ -1336,34 +1295,47 @@ void prt_grad_dip(FILE *outf, const std::vector<int> &Fnum)
 
 void prt_elem(FILE *outf, const param_type &lat_prms, const int n)
 {
-  int loc;
+  int      loc;
+  CellType *cellp;
 
-  const bool prt = false;
+ const bool prt = false;
 
   loc = Elem_GetPos(abs(lat_prms.Fnum[n-1]), 1);
+  cellp = &Cell[loc];
   if (prt) {
     printf("prt_elem:\n  ");
-    prt_name(stdout, Cell[loc].Elem.PName, "\n", 0);
+    prt_name(stdout, cellp->Elem.PName, "\n", 0);
   }
-  if (Cell[loc].Elem.Pkind == drift) {
-    prt_name(outf, Cell[loc].Elem.PName, ":", 8);
+  if (cellp->Elem.Pkind == drift) {
+    prt_name(outf, cellp->Elem.PName, ":", 8);
     prt_drift(outf, Cell[loc]);
-  } else if (Cell[loc].Elem.Pkind == Mpole) {
-    if (prt) printf("  n_design:     %1d\n", Cell[loc].Elem.M->n_design);
-    if (Cell[loc].Elem.M->n_design == Dip) {
+  } else if (cellp->Elem.Pkind == Mpole) {
+    if (prt) printf("  n_design:     %1d\n", cellp->Elem.M->n_design);
+    if (cellp->Elem.M->n_design == Dip) {
       if (lat_prms.Fnum[n-1] > 0) {
-	prt_name(outf, Cell[loc].Elem.PName, ":", 8);
+	prt_name(outf, cellp->Elem.PName, ":", 8);
 	prt_dip(outf, Cell[loc]);
       } else
       	prt_grad_dip(outf, lat_prms.grad_dip_Fnum[n-1]);
-    } else if (Cell[loc].Elem.M->n_design == Quad) {
-      prt_name(outf, Cell[loc].Elem.PName, ":", 8);
-      fprintf(outf, " quadrupole, l = %11.8f, k = %11.8f, n = nquad"
+    } else if (cellp->Elem.M->n_design == Quad) {
+      prt_name(outf, cellp->Elem.PName, ":", 8);
+      fprintf(outf, " quadrupole, l = %10.8f, k = %13.8f, n = nquad"
 	      ", method = 4;\n",
-	      Cell[loc].Elem.PL, Cell[loc].Elem.M->PBpar[Quad+HOMmax]);
+	      cellp->Elem.PL, cellp->Elem.M->PBpar[Quad+HOMmax]);
+    } else if (cellp->Elem.M->n_design == Sext) {
+      prt_name(outf, cellp->Elem.PName, ":", 8);
+      fprintf(outf, " sextupole,  l = %10.8f, k = %13.8f, n = nsext"
+	      ", method = 4;\n",
+	      cellp->Elem.PL, cellp->Elem.M->PBpar[Sext+HOMmax]);
+    } else if (cellp->Elem.M->Porder == Oct) {
+      prt_name(outf, cellp->Elem.PName, ":", 8);
+      fprintf(outf," multipole,  l = %10.8f, hom = (%d, %14.8e, 0.0),\n"
+	      "          n = nsext, method = 4;\n",
+	      cellp->Elem.PL, cellp->Elem.M->Porder,
+	      cellp->Elem.M->PBpar[Oct+HOMmax]);
     }
   } else {
-    printf("\nprt_elem: %s %d\n", Cell[loc].Elem.PName, Cell[loc].Elem.Pkind);
+    printf("\nprt_elem: %s %d\n", cellp->Elem.PName, cellp->Elem.Pkind);
     exit(1);
   }
 }
@@ -1380,16 +1352,11 @@ bool Fam_printed(const int Fnum, const std::vector<int> &Fam_prt)
 }
 
 
-void prt_b2(const param_type &lat_prms)
+void prt_bn(FILE *outf, const param_type &lat_prms)
 {
   long int         loc;
   int              k;
   std::vector<int> Fam_prt;
-  FILE             *outf;
-
-  std::string file_name = "opt_des_1_b2.out";
-
-  outf = file_write(file_name.c_str());
 
   for (k = 0; k < lat_prms.n_prm; k++) {
     if (!Fam_printed(abs(lat_prms.Fnum[k]), Fam_prt)) {
@@ -1408,30 +1375,21 @@ void prt_b2(const param_type &lat_prms)
     }
     Fam_prt.push_back(abs(lat_prms.Fnum[k]));
   }
-
-  fclose(outf);
 }
 
 
-void prt_b3(const std::vector<int> &Fnum)
+void prt_b3(FILE *outf, const std::vector<int> &Fnum)
 {
   long int loc;
   int      k;
-  FILE     *outf;
-
-  std::string file_name = "opt_des_1_b3.out";
-
-  outf = file_write(file_name.c_str());
 
   for (k = 0; k < (int)Fnum.size(); k++) {
     loc = Elem_GetPos(Fnum[k], 1);
     prt_name(outf, Cell[loc].Elem.PName, ":", 8);
-    fprintf(outf, " sextupole, l = %11.8f, k = %13.8f, n = nsext"
+    fprintf(outf, " sextupole,  l = %10.8f, k = %13.8f, n = nsext"
 	    ", method = 4;\n",
 	    Cell[loc].Elem.PL, Cell[loc].Elem.M->PBpar[Sext+HOMmax]);
   }
-
-  fclose(outf);
 }
 
 
@@ -1453,7 +1411,8 @@ bool get_nu(double nu[])
       if (ps[2*k][2*k+1] < 0e0) nu[k] = 1e0 - nu[k];
     } else {
       nu[X_] = NAN; nu[Y_] = NAN;
-      printf("\nget_nu: unstable in plane %d %10.3e\n", k, cosmu);
+      printf("\nget_nu: unstable in %s plane %10.3e\n",
+	     (k == 0)? "hor" : "ver", cosmu);
       return false;
     }
   }
@@ -1621,6 +1580,12 @@ void fit_conj_grad(param_type &lat_prms, double (*f)(double *))
 void prt_f(double *b2, const double chi2, constr_type &lat_constr,
 	   param_type &lat_prms, const bool chrom)
 {
+  FILE *outf;
+
+  const std::string file_name = "opt_des_2_bn.out";
+
+  outf = file_write(file_name.c_str());
+
   lat_constr.prt_constr(chi2);
 
   printf("\n  Parameters:\n");
@@ -1630,20 +1595,21 @@ void prt_f(double *b2, const double chi2, constr_type &lat_constr,
   prt_lat("linlat.out", globval.bpm, true, 10);
   if (chrom) prt_chrom_lat();
 
-  prt_b2(lat_prms);
-  prt_b3(lat_constr.Fnum_b3);
+  prt_bn(outf, lat_prms);
+  prt_b3(outf, lat_constr.Fnum_b3);
+
+  fclose(outf);
 }
 
 
 void prt_prms(constr_type &constr)
 {
   printf("\n  eps_x_scl            = %9.3e\n"
-	 "  ksi1_svd_scl         = %9.3e\n"
 	 "  mI_nu_ref            = [%7.5f, %7.5f]\n"
 	 "  mI_scl               = %9.3e %9.3e\n"
 	 "  high_ord_achr_scl    = [%9.3e, %9.3e]\n"
 	 "  phi_scl              = %9.3e\n",
-	 constr.eps_x_scl, constr.ksi1_svd_scl,
+	 constr.eps_x_scl,
 	 constr.mI0[X_], constr.mI0[Y_], constr.mI_scl[X_], constr.mI_scl[Y_],
 	 constr.high_ord_achr_scl[X_], constr.high_ord_achr_scl[Y_],
 	 constr.phi_scl);

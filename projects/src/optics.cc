@@ -28,13 +28,13 @@ const int n_cell = 1;
 #endif
 
 const double
-#if 1
+#if 0
   // nu[]     = {64.15, 20.35},
   // nu[]     = {64.15, 20.18},
   // nu[]     = {64.21, 20.26},
   nu[]     = {64.21, 20.30},
 #else
-  nu[]     = {0.0, 0.1},
+  nu[]     = {0.0, 0.05},
 #endif
   dnu_mI[] = {-0.017+0.125, -0.021},
   nu_HOA[] = {19.0/8.0, 15.0/16.0};
@@ -1582,7 +1582,7 @@ int main(int argc, char *argv[])
     set_map(ElemIndex("ps_rot"), dnu);
     Ring_GetTwiss(true, 0e0); printglob();
     for (k = 0; k < 2; k++)
-      if (true)
+      if (!true)
 	dnu[k] = nu[k]/n_cell - globval.TotalTune[k];
       else
 	dnu[k] = nu[k];

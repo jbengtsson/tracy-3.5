@@ -89,7 +89,7 @@ void GetNu(Vector2 &nu, Matrix &M)
       if (M1[2*i][2*i+1] < 0e0) nu[i] = 1e0 - nu[i];
     } else {
       globval.stable = false; nu[i] = NAN;
-      printf("\nGetNu: unstable plane %d %10.3e\n", i, x);
+      printf("\nGetNu: unstable %s plane %10.3e\n", (i == 0)? "hor" : "ver", x);
       return;
     }
   }

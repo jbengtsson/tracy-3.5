@@ -33,8 +33,9 @@ public:
   std::vector<string> h_label;
   std::vector<double> h_scl, h_c, h_s, h;
 
-  void get_h_scl(double scl_ksi_1, double scl_h_3, double scl_h_4,
-		 double scl_ksi_2, double scl_chi_2, double scl_chi_delta_2);
+  void get_h_scl(double scl_ksi_1, double scl_h_3, double scl_h_3_delta,
+		 double scl_h_4, double scl_ksi_2, double scl_chi_2,
+		 double scl_chi_delta_2, double scl_ksi_3);
   void get_h(const double delta_eps, const double twoJ[], const double delta);
   void prt_h(FILE *outf, const double scl, const char *str, const int i0,
 	     const int i1);
@@ -399,9 +400,9 @@ void get_K(const double nu[], double a[])
   // Anharmonic terms.
 
   long int k, n1, n2;
-  double   b3L1, a3L1, b3L2, a3L2, c_1x, c_3x, c_1xm2y, c_1xp2y;
+  double   b3L1, a3L1, b3L2, a3L2, b4L, a4L, c_1x, c_3x, c_1xm2y, c_1xp2y;
   double   dmu_x, dmu_y, A;
-  CellType *cp1, *cp2;
+  CellType *cellp1, *cellp2;
 
 const double
   pi_1x    = M_PI*nu[X_],
@@ -417,27 +418,36 @@ const double
     a[k] = 0e0;
 
   for (n1 = 0; n1 <= globval.Cell_nLoc; n1++) {
-    if ((Cell[n1].Elem.Pkind == Mpole) && (Cell[n1].Elem.M->Porder >= Sext)) {
-      get_bnL_design_elem(Cell[n1].Fnum, 1, Sext, b3L1, a3L1);
-      cp1 = &Cell[ind(n1-1)];
-      for (n2 = 0; n2 <= globval.Cell_nLoc; n2++) {
-	if ((Cell[n2].Elem.Pkind == Mpole) &&
-	    (Cell[n2].Elem.M->Porder >= Sext)) {
-	  get_bnL_design_elem(Cell[n2].Fnum, 1, Sext, b3L2, a3L2);
-	  cp2 = &Cell[ind(n2-1)];
-	  dmu_x = 2e0*M_PI*fabs(cp1->Nu[X_]-cp2->Nu[X_]);
-	  dmu_y = 2e0*M_PI*fabs(cp1->Nu[Y_]-cp2->Nu[Y_]);
-	  A = b3L1*b3L2*sqrt(cp1->Beta[X_]*cp2->Beta[X_]);
-	  c_1x = cos(dmu_x-pi_1x)/s_1x; c_3x = cos(3e0*dmu_x-pi_3x)/s_3x;
-	  c_1xm2y = cos(dmu_x-2e0*dmu_y-pi_1xm2y)/s_1xm2y;
-	  c_1xp2y = cos(dmu_x+2e0*dmu_y-pi_1xp2y)/s_1xp2y;
-	  a[0] += A*cp1->Beta[X_]*cp2->Beta[X_]*(3*c_1x+c_3x)/2e0;
-	  a[1] -=
-	    A*cp1->Beta[Y_]
-	    *(4e0*cp2->Beta[X_]*c_1x+2e0*cp2->Beta[Y_]
-	      *(c_1xm2y-c_1xp2y));
-	  a[2] += A*cp1->Beta[Y_]*cp2->Beta[Y_]*(4e0*c_1x+c_1xm2y+c_1xp2y)/2e0;
+    if (Cell[n1].Elem.Pkind == Mpole) {
+      if (Cell[n1].Elem.M->Porder == Sext) {
+	get_bnL_design_elem(Cell[n1].Fnum, 1, Sext, b3L1, a3L1);
+	cellp1 = &Cell[ind(n1-1)];
+	for (n2 = 0; n2 <= globval.Cell_nLoc; n2++) {
+	  if ((Cell[n2].Elem.Pkind == Mpole) &&
+	      (Cell[n2].Elem.M->Porder == Sext)) {
+	    get_bnL_design_elem(Cell[n2].Fnum, 1, Sext, b3L2, a3L2);
+	    cellp2 = &Cell[ind(n2-1)];
+	    dmu_x = 2e0*M_PI*fabs(cellp1->Nu[X_]-cellp2->Nu[X_]);
+	    dmu_y = 2e0*M_PI*fabs(cellp1->Nu[Y_]-cellp2->Nu[Y_]);
+	    A = b3L1*b3L2*sqrt(cellp1->Beta[X_]*cellp2->Beta[X_]);
+	    c_1x = cos(dmu_x-pi_1x)/s_1x; c_3x = cos(3e0*dmu_x-pi_3x)/s_3x;
+	    c_1xm2y = cos(dmu_x-2e0*dmu_y-pi_1xm2y)/s_1xm2y;
+	    c_1xp2y = cos(dmu_x+2e0*dmu_y-pi_1xp2y)/s_1xp2y;
+	    a[0] += A*cellp1->Beta[X_]*cellp2->Beta[X_]*(3*c_1x+c_3x)/2e0;
+	    a[1] -=
+	      A*cellp1->Beta[Y_]
+	      *(4e0*cellp2->Beta[X_]*c_1x+2e0*cellp2->Beta[Y_]
+		*(c_1xm2y-c_1xp2y));
+	    a[2] +=
+	      A*cellp1->Beta[Y_]*cellp2->Beta[Y_]*(4e0*c_1x+c_1xm2y+c_1xp2y)
+	      /2e0;
+	  }
 	}
+      } else if (Cell[n1].Elem.M->Porder == Oct) {
+	get_bnL_design_elem(Cell[n1].Fnum, 1, Oct, b4L, a4L);
+	a[0] -= 3e0*b4L*sqr(cellp1->Beta[X_]);
+	a[1] += 3e0*4e0*b4L*cellp1->Beta[X_]*cellp1->Beta[Y_];
+	a[2] -= 3e0*b4L*sqr(cellp1->Beta[Y_]);
       }
     }
   }
@@ -545,14 +555,11 @@ void pol_fit_(const std::vector<double> &x, const std::vector<double> &y,
 }
 
 
-void get_ksi2_(const double delta_rng, double ksi2[], double ksi3[])
+void get_ksi_(const double delta_rng, const int order, const int n_pts,
+	      double ksi[][2])
 {
-  double *b;
-
-  const int n_pts = 3, order = 3;
-
   int                 i, k;
-  double              sigma;
+  double              *b, sigma;
   std::vector<double> delta_pts, nu_pts[2];
 
   const int n = order + 1;
@@ -567,7 +574,8 @@ void get_ksi2_(const double delta_rng, double ksi2[], double ksi3[])
   }
   for (k = 0; k < 2; k++) {
     pol_fit_(delta_pts, nu_pts[k], n, b, sigma);
-    ksi2[k] = b[3]; ksi3[k] = b[4];
+    for (i = 0; i < n; i++)
+      ksi[i][k] = b[i+1];
   }
 
   free_dvector(b, 1, n);
@@ -716,22 +724,23 @@ void tune_fp(const double delta_eps, const double twoJ[], const double delta,
 	     std::vector<string> &h_label,
 	     std::vector<double> &h_c, std::vector<double> &h_s)
 {
-  double ksi2[2], a[3], a_delta[3];
-
+  const int    order = 3, n_pts = 3;
   const double delta_rng = 1e-2;
 
-#if 1
+  double ksi2[2], ksi[order+1][2], a[3], a_delta[3];
+
+#if 0
   get_ksi2_(delta_eps, ksi2);
 #else
-  get_ksi2_(delta_rng, ksi2, ksi3);
+  get_ksi_(delta_rng, order, n_pts, ksi);
 #endif
   get_K(globval.TotalTune, a);
   cross_terms(delta_eps, globval.TotalTune, twoJ, a_delta);
 
   h_label.push_back("ksi2_x ");
-  h_c.push_back(sqr(delta)*ksi2[X_]); h_s.push_back(0e0);
+  h_c.push_back(sqr(delta)*ksi[2][X_]); h_s.push_back(0e0);
   h_label.push_back("ksi2_y ");
-  h_c.push_back(sqr(delta)*ksi2[Y_]); h_s.push_back(0e0);
+  h_c.push_back(sqr(delta)*ksi[2][Y_]); h_s.push_back(0e0);
 
   h_label.push_back("k_22000");
   h_c.push_back(sqr(twoJ[X_])*a[0]); h_s.push_back(0e0);
@@ -746,6 +755,11 @@ void tune_fp(const double delta_eps, const double twoJ[], const double delta,
   h_c.push_back(twoJ[X_]*twoJ[Y_]*delta*a_delta[1]); h_s.push_back(0e0);
   h_label.push_back("k_00221");
   h_c.push_back(sqr(twoJ[Y_])*delta*a_delta[2]); h_s.push_back(0e0);
+
+  h_label.push_back("ksi3_x ");
+  h_c.push_back(cube(delta)*ksi[3][X_]); h_s.push_back(0e0);
+  h_label.push_back("ksi3_y ");
+  h_c.push_back(cube(delta)*ksi[3][Y_]); h_s.push_back(0e0);
 }
 
 
@@ -756,7 +770,7 @@ void drv_terms_type::prt_h(FILE *outf, const double scl, const char *str,
 
   printf("%s", str);
   for (k = i0-1; k < i1; k++)
-    printf("  %7s =  [%12.5e, %12.5e] %7.1e\n",
+    printf("  %7s =  [%10.3e, %10.3e] %7.1e\n",
 	   h_label[k].c_str(), scl*h_c[k], scl*h_s[k], h_scl[k]);
 }
 
@@ -770,12 +784,14 @@ void drv_terms_type::print(void)
   prt_h(stdout, 1e0, "\nSecond order chromaticity:\n", 22, 23);
   prt_h(stdout, 1e0, "\nAnharmonic terms:\n", 24, 26);
   prt_h(stdout, 1e0, "\nAnharmonic cross terms:\n", 27, 29);
+  prt_h(stdout, 1e0, "\nThird order chromaticity:\n", 30, 31);
 }
 
 
 void drv_terms_type::get_h_scl(double scl_ksi_1, double scl_h_3,
-			       double scl_h_4, double scl_ksi_2,
-			       double scl_chi_2, double scl_chi_delta_2)
+			       double scl_h_3_delta, double scl_h_4,
+			       double scl_ksi_2, double scl_chi_2,
+			       double scl_chi_delta_2, double scl_ksi_3)
 {
   int k;
 
@@ -785,7 +801,7 @@ void drv_terms_type::get_h_scl(double scl_ksi_1, double scl_h_3,
     h_scl.push_back(scl_ksi_1);
   // 1st order chromatic terms.
   for (k = 2; k <= 4; k++)
-    h_scl.push_back(scl_h_3);
+    h_scl.push_back(scl_h_3_delta);
   // 1st order geometric terms.
   for (k = 5; k <= 9; k++)
     h_scl.push_back(scl_h_3);
@@ -801,6 +817,8 @@ void drv_terms_type::get_h_scl(double scl_ksi_1, double scl_h_3,
   // 2nd order cross terms.
   for (k = 26; k <= 28; k++)
     h_scl.push_back(scl_chi_delta_2);
+  for (k = 29; k <= 30; k++)
+    h_scl.push_back(scl_ksi_3);
 }
 
 

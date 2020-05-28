@@ -12,7 +12,7 @@ int no_tps = NO;
 
 
 const bool
-  ps_rot          = false, // Note, needs to be zeroed; after use.
+  ps_rot          = !false, // Note, needs to be zeroed; after use.
   qf6_rb          = false,
   sp_short        = false,
   sp_std          = true,
@@ -38,11 +38,13 @@ const double
   beta_ls[]       = {10.0, 4.0},
   eta_ms_x        = 15e-3,
   scl_ksi_1       = 0e0,
-  scl_h_3         = 1e10,
+  scl_h_3         = 1e9,
+  scl_h_3_delta   = 1e10,
   scl_h_4         = 0e0,
-  scl_ksi_2       = 1e3,
-  scl_chi_2       = 0e10,
-  scl_chi_delta_2 = 0e10;
+  scl_ksi_2       = 1e5,
+  scl_chi_2       = 1e10,
+  scl_chi_delta_2 = 1e10,
+  scl_ksi_3       = 1e5;
 
 #define LAT_CASE 1
 
@@ -125,7 +127,7 @@ double f_achrom(double *b2)
   if ((lat_constr.ring && stable) || !lat_constr.ring) {
     eps_x = get_lin_opt(lat_constr);
 
-    fit_ksi1(lat_constr.Fnum_b3, 0e0, 0e0, 1e1, lat_constr.ksi1_svd);
+    fit_ksi1(lat_constr.Fnum_b3, 0e0, 0e0, 1e1);
 
     chi2 = lat_constr.get_chi2(twoJ, delta_max, lat_prms, b2, false);
 
@@ -307,12 +309,9 @@ void set_weights_std(constr_type &constr)
 {
   lat_constr.eps_x_scl             = 1e6;
 
-  lat_constr.ksi1_scl              = 1e1;
   lat_constr.ksi1_ctrl_scl[0]      = 1e-1;
   lat_constr.ksi1_ctrl_scl[1]      = 1e0*1e0;
   lat_constr.ksi1_ctrl_scl[2]      = 1e0*1e0;
-  // Not useful.
-  lat_constr.ksi1_svd_scl          = 0e3;
   lat_constr.mI_scl[X_]            = 5e6;
   lat_constr.mI_scl[Y_]            = 5e6;
   lat_constr.high_ord_achr_scl[X_] = 5e6;
@@ -415,22 +414,6 @@ void set_dip_cell_sp(param_type &prms, constr_type &constr)
   prms.add_prm("qf4", 2,   0.0, 15.0, 1.0);
   prms.add_prm("qd5", 2, -15.0,  0.0, 1.0);
 
-  switch (1) {
-  case 1:
-    break;
-  case 2:
-    prms.add_prm("sh1", 3, -4e2,   4e2, 1.0);
-    prms.add_prm("sh2", 3, -4e2,   4e2, 1.0);
-    prms.add_prm("s",   3, -4e2,   4e2, 1.0);
-    break;
-  case 3:
-    prms.add_prm("sh1", 4, -1e5,   1e5, 1.0);
-    prms.add_prm("sh2", 4, -1e5,   1e5, 1.0);
-    prms.add_prm("s",   4, -1e5,   1e5, 1.0);
-    prms.add_prm("of1", 4, -1e8,   1e8, 1.0);
-    break;
- }
-
   lat_constr.phi_scl = (dphi)? 1e0 : 0e0;
 }
 
@@ -502,6 +485,26 @@ void set_constr_sp(constr_type &constr)
 }
 
 
+void set_b3_Fam_sp(param_type &prms)
+{
+  switch (3) {
+  case 1:
+    break;
+  case 2:
+    prms.add_prm("sh1", 3, -4e2,   4e2, 1.0);
+    prms.add_prm("sh2", 3, -4e2,   4e2, 1.0);
+    prms.add_prm("s",   3, -4e2,   4e2, 1.0);
+    break;
+  case 3:
+    prms.add_prm("sh1", 3, -4e2,   4e2, 1.0);
+    prms.add_prm("sh2", 3, -4e2,   4e2, 1.0);
+    prms.add_prm("s",   3, -4e2,   4e2, 1.0);
+    prms.add_prm("of1", 4, -1e8,   1e8, 1.0);
+    break;
+  }
+}
+
+
 void set_b3_constr_sp(constr_type &constr)
 {
   int              k, n;
@@ -552,15 +555,12 @@ void set_weights_sp(constr_type &constr)
 {
   lat_constr.eps_x_scl             = 1e7;
 
-  lat_constr.ksi1_scl              = 1e0;
   lat_constr.ksi1_ctrl_scl[0]      = 0e-1;
   lat_constr.ksi1_ctrl_scl[1]      = 0e0;
   lat_constr.ksi1_ctrl_scl[2]      = 0e-1;
-  // Not useful.
-  lat_constr.ksi1_svd_scl          = 0e3;
   lat_constr.mI_scl[X_]            = 1e-2*1e6;
   lat_constr.mI_scl[Y_]            = 1e-2*1e6;
-  lat_constr.high_ord_achr_scl[X_] = 1e0*1e6;
+  lat_constr.high_ord_achr_scl[X_] = 1e-1*1e6;
   lat_constr.high_ord_achr_scl[Y_] = 0e6;
 
   lat_constr.alpha_c_scl           = 5e-7;
@@ -573,8 +573,9 @@ void set_weights_sp(constr_type &constr)
     lat_constr.phi0 = 45.0;
   lat_constr.L_scl = 0e-10; lat_constr.L0 = 10.0;
 
-  lat_constr.drv_terms.get_h_scl(scl_ksi_1, scl_h_3, scl_h_4, scl_ksi_2,
-				 scl_chi_2, scl_chi_delta_2);
+  lat_constr.drv_terms.get_h_scl(scl_ksi_1, scl_h_3, scl_h_3_delta, scl_h_4,
+				 scl_ksi_2, scl_chi_2, scl_chi_delta_2,
+				 scl_ksi_3);
 }
 
 
@@ -591,6 +592,7 @@ void opt_mI_sp(param_type &prms, constr_type &constr)
 
   set_dip_cell_sp(prms, constr);
   set_b2_ms_std_ls_sp(prms);
+  set_b3_Fam_sp(prms);
 
   lat_constr.eps0_x = eps0_x;
   set_constr_sp(constr);
@@ -807,7 +809,6 @@ void match_als_u(param_type &prms, constr_type &constr)
   for (k = 0; k < n; k++)
     lat_constr.high_ord_achr_dnu[k].resize(2, 0e0);
 
-  lat_constr.ksi1_svd_scl          = 0e0;
   lat_constr.high_ord_achr_scl[X_] = 0e0;
   lat_constr.high_ord_achr_scl[Y_] = 0e0;
 
@@ -1259,16 +1260,13 @@ void opt_short_cell(param_type &prms, constr_type &constr)
 
 void fit_ksi1(const double ksi_x, const double ksi_y)
 {
-  double           svd[2];
   std::vector<int> Fnum;
 
   Fnum.push_back(ElemIndex("sf1"));
   Fnum.push_back(ElemIndex("sd1"));
   Fnum.push_back(ElemIndex("sd2"));
 
-  fit_ksi1(Fnum, 0e0, 0e0, 1e1, svd);
-
-  prt_b3(Fnum);
+  fit_ksi1(Fnum, 0e0, 0e0, 1e1);
 }
 
 
@@ -1303,7 +1301,7 @@ int main(int argc, char *argv[])
     Ring_GetTwiss(true, 0e0); printglob();
     dnu[X_] = 0.0; dnu[Y_] = 0.0;
     set_map(ElemIndex("ps_rot"), dnu);
-    dnu[X_] = 0.0; dnu[Y_] = -0.05;
+    dnu[X_] = -0.1; dnu[Y_] = 0.0;
     set_map(ElemIndex("ps_rot"), dnu);
     Ring_GetTwiss(true, 0e0); printglob();
   }
