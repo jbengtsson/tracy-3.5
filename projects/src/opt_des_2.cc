@@ -37,14 +37,15 @@ const double
   beta_ss[]       = { 2.0, 1.5},
   beta_ls[]       = {10.0, 4.0},
   eta_ms_x        = 15e-3,
+  eta_sf1_x       = 9e-2,
   scl_ksi_1       = 0e0,
   scl_h_3         = 1e9,
-  scl_h_3_delta   = 1e10,
+  scl_h_3_delta   = 1e9,
   scl_h_4         = 0e0,
-  scl_ksi_2       = 1e5,
-  scl_chi_2       = 1e10,
-  scl_chi_delta_2 = 1e10,
-  scl_ksi_3       = 1e5;
+  scl_ksi_2       = 5*1e5,
+  scl_chi_2       = 5*1e10,
+  scl_chi_delta_2 = 0.1*1e10,
+  scl_ksi_3       = 5*1e5;
 
 #define LAT_CASE 1
 
@@ -53,7 +54,11 @@ const double
 // M-H6BA-18-99pm-01.14-01.
   eps0_x             = 0.097,
   dnu[]              = {0.0/6.0, 0.0/6.0},
-  high_ord_achr_nu[] = {11.0/4.0, 7.0/8.0},
+#if 1
+  high_ord_achr_nu[] = {11.0/4.0+0.01, 7.0/8.0-0.01},
+#else
+  high_ord_achr_nu[] = {23.0/8.0-0.01, 7.0/8.0+0.01},
+#endif
   beta_inj[]         = {10.7, 6.5},
   A_max[]            = {3.5e-3, 1.5e-3},
   delta_max          = 2e-2,
@@ -247,8 +252,8 @@ void set_constr_std(constr_type &constr)
 		    0e0, 0e0, 0e0, 0e0, 1e8, 1e7,
 		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
-		    1e7, 1e7, 1e2,         1e2,         1e7,   0e0,
-		    0.0, 0.0, beta_ms[X_], beta_ms[Y_], 0.018, 0.0);
+		    1e7, 1e7, 1e2,         1e2,         1e7,      0e0,
+		    0.0, 0.0, beta_ms[X_], beta_ms[Y_], eta_ms_x, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("ss"), 1),
 		    1e5, 1e5, 1e2,         1e2,         1e7, 1e7,
 		    0.0, 0.0, beta_ss[X_], beta_ss[Y_], 0.0, 0.0);
@@ -453,7 +458,7 @@ void set_constr_sp(constr_type &constr)
 		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   // Include constraint on alpha; in case of using ps_rot.
   constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
-		    1e6, 1e6, 1e2,         1e3,         0.1*1e8,      1e8,
+		    1e6, 1e6, 1e2,         1e3,         1e8,      1e8,
 		    0.0, 0.0, beta_ms[X_], beta_ms[Y_], eta_ms_x, 0.0);
   for (k = 1; k <= 2; k++)
     constr.add_constr(Elem_GetPos(ElemIndex("ss"), k),
@@ -462,10 +467,13 @@ void set_constr_sp(constr_type &constr)
   constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
 		    1e6, 1e6, 1e2,         1e0,         1e8, 1e8,
 		    0.0, 0.0, beta_ls[X_], beta_ls[Y_], 0.0, 0.0);
-  // Symmetry.
+  // Symmetry & peak dispersion.
   constr.add_constr(Elem_GetPos(ElemIndex("sf1"), 1),
-		    5e2, 1e3, 0e0, 0e0, 0e0, 0e0,
-		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+		    5e2, 1e3, 0e0, 0e0, 0e8,       0e0,
+		    0.0, 0.0, 0.0, 0.0, eta_sf1_x, 0.0);
+  // constr.add_constr(Elem_GetPos(ElemIndex("sf1"), 3),
+  // 		    5e2, 1e3, 0e0, 0e0, 0.1*1e8,       0e0,
+  // 		    0.0, 0.0, 0.0, 0.0, eta_sf1_x, 0.0);
 
   if (false)
     // Increase beta_x.
@@ -494,6 +502,7 @@ void set_b3_Fam_sp(param_type &prms)
     prms.add_prm("sh1", 3, -4e2,   4e2, 1.0);
     prms.add_prm("sh2", 3, -4e2,   4e2, 1.0);
     prms.add_prm("s",   3, -4e2,   4e2, 1.0);
+    set_bn_design_fam(ElemIndex("of1"), Oct, 0.0, 0.0);
     break;
   case 3:
     prms.add_prm("sh1", 3, -4e2,   4e2, 1.0);
@@ -1301,7 +1310,7 @@ int main(int argc, char *argv[])
     Ring_GetTwiss(true, 0e0); printglob();
     dnu[X_] = 0.0; dnu[Y_] = 0.0;
     set_map(ElemIndex("ps_rot"), dnu);
-    dnu[X_] = -0.1; dnu[Y_] = 0.0;
+    dnu[X_] = 0.0; dnu[Y_] = -0.1;
     set_map(ElemIndex("ps_rot"), dnu);
     Ring_GetTwiss(true, 0e0); printglob();
   }
@@ -1340,7 +1349,7 @@ int main(int argc, char *argv[])
     break;
   case 3:
     opt_mI_sp(lat_prms, lat_constr);
-    // no_sxt();
+    if (!true) no_sxt();
     fit_powell(lat_prms, 1e-3, f_achrom);
     // fit_sim_anneal(lat_prms, 1e-3, f_achrom);
     break;

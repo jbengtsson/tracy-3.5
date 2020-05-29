@@ -15,7 +15,7 @@ int no_tps = NO;
 
 
 const bool
-  set_dnu = false,
+  set_dnu = !false,
   mI_rot  = false,
   HOA_rot = false,
   prt_ms  = false,
@@ -34,7 +34,7 @@ const double
   // nu[]     = {64.21, 20.26},
   nu[]     = {64.21, 20.30},
 #else
-  nu[]     = {0.0, 0.05},
+  nu[]     = {0.0, -0.1},
 #endif
   dnu_mI[] = {-0.017+0.125, -0.021},
   nu_HOA[] = {19.0/8.0, 15.0/16.0};
@@ -1465,13 +1465,13 @@ void prt_lat_param()
 	 Cell[Elem_GetPos(ElemIndex("ls"), 1)].Beta[X_],
 	 Cell[Elem_GetPos(ElemIndex("ls"), 1)].Beta[Y_]);
   printf("SS:  L = %5.3f beta = [%5.3f, %5.3f]\n",
-	 Cell[Elem_GetPos(ElemIndex("bpm_01"), 2)].S
-	 -Cell[Elem_GetPos(ElemIndex("bpm_01"), 1)].S,
+	 Cell[Elem_GetPos(ElemIndex("bpm"), 12)].S
+	 -Cell[Elem_GetPos(ElemIndex("bpm"), 11)].S,
 	 Cell[Elem_GetPos(ElemIndex("ss"), 1)].Beta[X_],
 	 Cell[Elem_GetPos(ElemIndex("ss"), 1)].Beta[Y_]);
   printf("MS:  L = %5.3f beta = [%5.3f, %5.3f] eta_x = %6.4f\n",
-	 Cell[Elem_GetPos(ElemIndex("bpm_05"), 1)].S
-	 -Cell[Elem_GetPos(ElemIndex("bpm_06"), 1)].S,
+	 Cell[Elem_GetPos(ElemIndex("bpm"), 8)].S
+	 -Cell[Elem_GetPos(ElemIndex("bpm"), 7)].S,
 	 Cell[Elem_GetPos(ElemIndex("ms"), 1)].Beta[X_],
 	 Cell[Elem_GetPos(ElemIndex("ms"), 1)].Beta[Y_],
 	 Cell[Elem_GetPos(ElemIndex("ms"), 1)].Eta[X_]);
@@ -1612,8 +1612,8 @@ int main(int argc, char *argv[])
     prt_chrom_lat();
     prtmfile("flat_file.dat");
 
-    if (false) prt_lat_param();
-    if (false) reality_check();
+    if (!false) prt_lat_param();
+    if (!false) reality_check();
 
    exit(0);
   }
