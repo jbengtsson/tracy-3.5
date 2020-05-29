@@ -14,11 +14,11 @@ home_dir = "$prm1"; N = $prm2; ps = $prm3; case  = $prm4; scale = $prm5;
 # SLS-2      2,
 # ESRF-U     3, # 30 Std Cells; total is 32.
 # M-H6BAi    4,
-# M-H6BA-19  5-6,
-# M-H6BA-20  7,
-# DIAMOND    8,
-# ALS-U      9,
-# DELTA      10.
+# M-H6BA-18  5,
+# M-H6BA-20  6,
+# DIAMOND    7,
+# ALS-U      8,
+# DELTA      9.
 
 file1 = (home_dir)."fmap.out";
 file2 = (home_dir)."fmapdp.out";
@@ -74,16 +74,14 @@ else if ((N == 6) && (case == 4)) \
 else if ((N == 6) && (case == 5)) \
   N_x = 11; N_y = 3; sgn_x = -1; \
 else if ((N == 6) && (case == 6)) \
-  N_x = 11; N_y = 3; sgn_x = -1; \
-else if ((N == 6) && (case == 7)) \
   N_x = 11; N_y = 4; sgn_x = -1; sgn_y = -1; \
-else if ((N == 6) && (case == 8)) \
+else if ((N == 6) && (case == 7)) \
   N_x = 11; N_y = 3; sgn_x = -1; \
-else if ((N == 6) && (case == 9)) \
+else if ((N == 6) && (case == 8)) \
   N_x = 10; N_y = 4; sgn_y = -1; \
-else if ((N == 12) && (case == 10)) \
+else if ((N == 12) && (case == 9)) \
   N_x = 3; N_y = 2; sgn_y = -1; \
-else if ((N == 20) && (case == 10)) \
+else if ((N == 20) && (case == 9)) \
   N_x = 5; N_y = 3;
 
 # DELTA: del008.
@@ -102,15 +100,12 @@ else if (case == 4) \
   nu_x_min = 61.0; nu_x_max = 62.0; nu_y_min = 22.0; nu_y_max = 23.0; \
   x_max = 8.0; y_max = 5.0; delta_max = 4.0; \
 else if (case == 5) \
-  nu_x_min = 64.5; nu_x_max = 65.0; nu_y_min = 20.5; nu_y_max = 21.0; \
+  nu_x_min = 65.0; nu_x_max = 65.5; nu_y_min = 19.5; nu_y_max = 20.0; \
   x_max = 5.0; y_max = 3.0; delta_max = 4.0; \
 else if (case == 6) \
-  nu_x_min = 65.5; nu_x_max = 66.0; nu_y_min = 19.5; nu_y_max = 20.0; \
-  x_max = 5.0; y_max = 3.0; delta_max = 4.0; \
-else if (case == 7) \
   nu_x_min = 65.0; nu_x_max = 65.5; nu_y_min = 21.0; nu_y_max = 21.5; \
   x_max = 4.0; y_max = 3.0; delta_max = 3.0; \
-else if (case == 8) \
+else if (case == 7) \
   nu_x_min = 41.0; nu_x_max = 41.5; nu_y_min = 20.0; nu_y_max = 20.5; \
   x_max = 2.0; y_min = -2.0; y_max = 2.0; delta_max = 2.5;
 
