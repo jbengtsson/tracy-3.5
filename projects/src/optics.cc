@@ -15,7 +15,7 @@ int no_tps = NO;
 
 
 const bool
-  set_dnu = !false,
+  set_dnu = false,
   mI_rot  = false,
   HOA_rot = false,
   prt_ms  = false,
@@ -1557,7 +1557,7 @@ int main(int argc, char *argv[])
 
   trace = false;
 
-  globval.mat_meth = !false;
+  globval.mat_meth = false;
 
   if (true)
     Read_Lattice(argv[1]);
@@ -1612,8 +1612,8 @@ int main(int argc, char *argv[])
     prt_chrom_lat();
     prtmfile("flat_file.dat");
 
-    if (!false) prt_lat_param();
-    if (!false) reality_check();
+    if (false) prt_lat_param();
+    if (false) reality_check();
 
    exit(0);
   }

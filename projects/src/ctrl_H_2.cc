@@ -76,7 +76,6 @@ public:
     eps_x_scl,
     eps0_x,               // Hor. emittance [nm.rad].
     nu[2],
-    ksi1[2],
     ksi1_ctrl_scl[3],
     phi_scl,
     phi_tot, phi0,        // Cell bend angle.
@@ -126,10 +125,10 @@ public:
   void ini_constr(const bool ring);
   void get_Jacobian(param_type &lat_prms);
   double get_chi2(const double twoJ[], const double delta,
-		  const param_type &prms, double *bn,
+		  const double twoJ_delta[], const param_type &prms, double *bn,
 		  const bool prt);
-  void get_dchi2(const double twoJ[], const double delta, double *bn,
-		 double *df) const;
+  void get_dchi2(const double twoJ[], const double delta,
+		 const double twoJ_delta[], double *bn, double *df) const;
   void prt_Jacobian(const int n) const;
   void prt_constr(const double chi2);
 };
@@ -867,7 +866,8 @@ void get_mI(constr_type &constr)
 
 
 double constr_type::get_chi2(const double twoJ[], const double delta,
-			     const param_type &prms, double *bn, const bool prt)
+			     const double twoJ_delta[], const param_type &prms,
+			     double *bn, const bool prt)
 {
   int    j, k;
   double chi2, dchi2[3], mean, geom_mean, bn_ext;
@@ -906,7 +906,13 @@ double constr_type::get_chi2(const double twoJ[], const double delta,
   if (eps_x_scl != 0e0) {
     dchi2[X_] = eps_x_scl*sqr(eps_x-eps0_x);
     chi2 += dchi2[X_];
-    if (prt) printf("  eps_x:             %10.3e\n", dchi2[X_]);
+    if (prt) printf("  eps_x          =  %10.3e\n", dchi2[X_]);
+  }
+
+  if (alpha_c_scl != 0e0) {
+    dchi2[X_] = alpha_c_scl*sqr(1e0/globval.Alphac);
+    chi2 += dchi2[X_];
+    if (prt) printf("  alpha_c        =  %10.3e\n", dchi2[X_]);
   }
 
   if (prt) printf("\n"); 
@@ -921,7 +927,7 @@ double constr_type::get_chi2(const double twoJ[], const double delta,
 	dchi2[k] = value_scl[j][k]*sqr(Cell[loc[j]].Alpha[k]-value[j][k]);
 	chi2 += dchi2[k];
       }
-      if (prt) printf("    alpha:          [%10.3e, %10.3e]\n",
+      if (prt) printf("    alpha        = [%10.3e, %10.3e]\n",
 		      dchi2[X_], dchi2[Y_]);
     }
     if ((value_scl[j][2] != 0e0) || (value_scl[j][3] != 0e0)) {
@@ -929,14 +935,14 @@ double constr_type::get_chi2(const double twoJ[], const double delta,
 	dchi2[k] = value_scl[j][k+2]*sqr(Cell[loc[j]].Beta[k]-value[j][k+2]);
 	chi2 += dchi2[k];
       }
-      if (prt) printf("    beta:           [%10.3e, %10.3e]\n",
+      if (prt) printf("    beta         = [%10.3e, %10.3e]\n",
 		      dchi2[X_], dchi2[Y_]);
     }
     if ((value_scl[j][4] != 0e0) || (value_scl[j][5] != 0e0)) {
 	dchi2[0] = value_scl[j][4]*sqr(Cell[loc[j]].Eta[X_]-value[j][4]);
 	dchi2[1] = value_scl[j][5]*sqr(Cell[loc[j]].Etap[X_]-value[j][5]);
 	chi2 += dchi2[0]; chi2 += dchi2[1];
-	if (prt) printf("    eta_x eta'_x:   [%10.3e, %10.3e]\n",
+	if (prt) printf("    eta_x eta'_x = [%10.3e, %10.3e]\n",
 			dchi2[0], dchi2[1]);
     }
   }
@@ -944,19 +950,19 @@ double constr_type::get_chi2(const double twoJ[], const double delta,
   if (L_scl != 0e0) {
     dchi2[0] = L_scl*sqr(Cell[globval.Cell_nLoc].S-L0);
     chi2 += dchi2[0];
-    printf("\n  S-L0:            %10.3e\n", dchi2[0]);
+    printf("\n  S-L0           = %10.3e\n", dchi2[0]);
   }
 
   if (true) {
-    lat_constr.drv_terms.get_h(delta_eps, twoJ, delta);
+    lat_constr.drv_terms.get_h(delta_eps, twoJ, delta, twoJ_delta);
 
     if (prt) printf("\n");
     for (k = 0; k < (int)drv_terms.h.size(); k++) {
       dchi2[k] = lat_constr.drv_terms.h_scl[k]*lat_constr.drv_terms.h[k];
       chi2 += dchi2[k];
-      if (prt && (dchi2[k] != 0e0)) {
-	if ((k == 2) || (k == 5) || (k == 10) || (k == 21) || (k == 23)
-	    || (k == 26) || (k == 29)) printf("\n");
+      if (prt && (lat_constr.drv_terms.h_scl[k] != 0e0)) {
+	if ((k == 1) || (k == 4) || (k == 9) || (k == 20) || (k == 22)
+	    || (k == 24)) printf("\n");
 	printf("  h[%2d] = %10.3e\n", k, dchi2[k]);
       }
     }
@@ -970,7 +976,7 @@ double constr_type::get_chi2(const double twoJ[], const double delta,
       dchi2[k] = ksi1_ctrl_scl[k]/sqr(ksi1_ctrl[k]);
       chi2 += dchi2[k];
     }
-    if (prt) printf("  ksi1_ctrl:        [%10.3e, %10.3e, %10.3e]\n",
+    if (prt) printf("  ksi1_ctrl =       [%10.3e, %10.3e, %10.3e]\n",
 		    dchi2[0], dchi2[1], dchi2[2]);
   }
   
@@ -982,7 +988,7 @@ double constr_type::get_chi2(const double twoJ[], const double delta,
 	dchi2[k] = mI_scl[k]*sqr(mI[j][k]-mI0[k]);
 	chi2 += dchi2[k];
       }
-      if (prt) printf("  mI             =  [%10.3e, %10.3e]\n",
+      if (prt) printf("  mI              =  [%10.3e, %10.3e]\n",
 		      dchi2[X_], dchi2[Y_]);
     }
   }
@@ -995,7 +1001,7 @@ double constr_type::get_chi2(const double twoJ[], const double delta,
 	  high_ord_achr_scl[k]*sqr(high_ord_achr_dnu[j][k]-high_ord_achr_nu[k]);
 	chi2 += dchi2[k];
       }
-      if (prt) printf("  high_ord_achr  =  [%10.3e, %10.3e]\n",
+      if (prt) printf("  high_ord_achr   =  [%10.3e, %10.3e]\n",
 		      dchi2[X_], dchi2[Y_]);
     }
   }
@@ -1004,7 +1010,8 @@ double constr_type::get_chi2(const double twoJ[], const double delta,
 }
 
 
-void constr_type::get_dchi2(const double twoJ[], const double delta, double *bn,
+void constr_type::get_dchi2(const double twoJ[], const double delta,
+			    const double twoJ_delta[], double *bn,
 			    double *df) const
 {
   int    k, loc;
@@ -1024,11 +1031,12 @@ void constr_type::get_dchi2(const double twoJ[], const double delta, double *bn,
 
     constr_dparam(lat_prms.Fnum[k], lat_prms.n[k], eps);
     eps_x = get_lin_opt(lat_constr);
-    df[k+1] = lat_constr.get_chi2(twoJ, delta, lat_prms, bn, false);
+    df[k+1] = lat_constr.get_chi2(twoJ, delta, twoJ_delta, lat_prms, bn, false);
 
     constr_dparam(lat_prms.Fnum[k], lat_prms.n[k], -2e0*eps);
     eps_x = get_lin_opt(lat_constr);
-    df[k+1] -= lat_constr.get_chi2(twoJ, delta, lat_prms, bn, false);
+    df[k+1] -= lat_constr.get_chi2(twoJ, delta, twoJ_delta, lat_prms, bn,
+				   false);
     df[k+1] /= 2e0*eps;
 
     constr_dparam(lat_prms.Fnum[k], lat_prms.n[k], eps);
@@ -1072,14 +1080,14 @@ void prt_h(const constr_type &constr)
   int    k;
   double b3L, a3L, b3, a3;
 
-  printf("    b_3L         = [");
+  printf("    b_3L    = [");
   for (k = 0; k < constr.n_b3; k++) {
     get_bnL_design_elem(constr.Fnum_b3[k], 1, Sext, b3L, a3L);
     printf("%10.3e", b3L);
     if (k != constr.n_b3-1) printf(", ");
   }
   printf("]\n");
-  printf("    b_3          = [");
+  printf("    b_3     = [");
   for (k = 0; k < constr.n_b3; k++) {
     get_bn_design_elem(constr.Fnum_b3[k], 1, Sext, b3, a3);
     printf("%10.3e", b3);
@@ -1109,10 +1117,13 @@ void constr_type::prt_constr(const double chi2)
   printf("\n%3d chi2: %11.5e -> %11.5e\n", n_iter, this->chi2_prt, chi2);
   this->chi2_prt = chi2;
   printf("\n  Linear Optics:\n");
-  printf("    eps_x        = %5.3f (%5.3f)\n"
-	 "    nu           = [%5.3f, %5.3f]\n"
-	 "    ksi1         = [%5.3f, %5.3f]\n",
-	 eps_x, eps0_x, nu[X_], nu[Y_], ksi1[X_], ksi1[Y_]);
+  printf("    eps_x   = %5.3f (%5.3f)\n"
+	 "    nu      = [%5.3f, %5.3f]\n"
+	 "    ksi1    = [%5.3f, %5.3f]\n"
+	 "    alpha_c = %9.3e\n",
+	 eps_x, eps0_x, nu[X_], nu[Y_],
+	 lat_constr.drv_terms.h_c[0], lat_constr.drv_terms.h_c[0],
+	 globval.Alphac);
   if (lat_constr.ksi1_ctrl.size() != 0)
     printf("    ksi1_ctrl    = [%5.3f, %5.3f, %5.3f]\n",
 	   lat_constr.ksi1_ctrl[0], lat_constr.ksi1_ctrl[1],
@@ -1120,14 +1131,12 @@ void constr_type::prt_constr(const double chi2)
   if (phi_scl != 0e0) {
     loc = Elem_GetPos(Fnum_b1[n_b1-1], 1);
     phi = rad2deg(Cell[loc].Elem.PL*Cell[loc].Elem.M->Pirho);
-    printf("    phi          = %7.5f (%7.5f)\n    ", phi_tot, phi0);
-    prt_name(stdout, Cell[loc].Elem.PName, "_phi:", 7);
+    printf("    phi     = %7.5f (%7.5f)\n    ", phi_tot, phi0);
+    prt_name(stdout, Cell[loc].Elem.PName, "_phi", 3);
     printf(" = %7.5f\n", phi);
   }
-  if (alpha_c_scl != 0e0)
-    printf("    alpha_c      = %9.3e\n", globval.Alphac);
   if (L_scl != 0e0)
-    printf("    L            = %7.5f (%7.5f)\n", Cell[globval.Cell_nLoc].S, L0);
+    printf("    L       = %7.5f (%7.5f)\n", Cell[globval.Cell_nLoc].S, L0);
 
   prt_h(*this);
 
@@ -1215,10 +1224,8 @@ void fit_ksi1(const std::vector<int> &Fnum_b3,
   if (prt)
     printf("\nfit_ksi1: ksi1  = [%9.5f, %9.5f]\n",
 	   globval.Chrom[X_], globval.Chrom[Y_]);
-  for (j = 1; j <= 2; j++) {
+  for (j = 1; j <= 2; j++)
     b[j] = -(globval.Chrom[j-1]-ksi0[j-1]);
-    lat_constr.ksi1[j-1] = globval.Chrom[j-1];
-  }
 
   dmcopy(A, m, n_b3, U); dsvdcmp(U, m, n_b3, w, V);
 
@@ -1604,11 +1611,11 @@ void prt_f(double *b2, const double chi2, constr_type &lat_constr,
 
 void prt_prms(constr_type &constr)
 {
-  printf("\n  eps_x_scl            = %9.3e\n"
-	 "  mI_nu_ref            = [%7.5f, %7.5f]\n"
-	 "  mI_scl               = %9.3e %9.3e\n"
-	 "  high_ord_achr_scl    = [%9.3e, %9.3e]\n"
-	 "  phi_scl              = %9.3e\n",
+  printf("\n  eps_x_scl         =  %9.3e\n"
+	 "  mI_nu_ref         = [%7.5f,   %7.5f]\n"
+	 "  mI_scl            = [%9.3e, %9.3e]\n"
+	 "  high_ord_achr_scl = [%9.3e, %9.3e]\n"
+	 "  phi_scl           =  %9.3e\n",
 	 constr.eps_x_scl,
 	 constr.mI0[X_], constr.mI0[Y_], constr.mI_scl[X_], constr.mI_scl[Y_],
 	 constr.high_ord_achr_scl[X_], constr.high_ord_achr_scl[Y_],

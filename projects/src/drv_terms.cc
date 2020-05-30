@@ -36,8 +36,9 @@ public:
   void get_h_scl(double scl_ksi_1, double scl_h_3, double scl_h_3_delta,
 		 double scl_h_4, double scl_ksi_2, double scl_chi_2,
 		 double scl_chi_delta_2, double scl_ksi_3);
-  void get_h(const double delta_eps, const double twoJ[], const double delta);
-  void prt_h(FILE *outf, const double scl, const char *str, const int i0,
+  void get_h(const double delta_eps, const double twoJ[], const double delta,
+	     const double twoJ_delta[]);
+  void prt_h(FILE *outf, const char *str, const int i0,
 	     const int i1);
   void print(void);
 };
@@ -305,7 +306,7 @@ void get_mult(const int loc, const int n_step, const double delta,
 
 void sxt_1(const double scl, const double twoJ[], const double delta, 
 	   const int i, const int j, const int k, const int l, const int m,
-	   double &h_c, double &h_s)
+	   double &h_c, double &h_s, const bool incl_b3)
 {
   // First order generators.
 
@@ -338,7 +339,7 @@ void sxt_1(const double scl, const double twoJ[], const double delta,
     		 b2, alpha0, beta0, nu0, eta0, etap0,
     		 m_x, m_y, n_x, n_y, m, c, s);
     	h_c += scl1*c; h_s += scl1*s;
-      } else if (Cell[n].Elem.M->Porder >= Sext) {
+      } else if (incl_b3 && (Cell[n].Elem.M->Porder >= Sext)) {
     	if (prt) printf("  %4d %10s sext\n", n, Cell[n].Elem.PName);
 	get_bnL_design_elem(Cell[n].Fnum, 1, Sext, b3L, a3L);
 	get_mult(n, n_step, 0e0, i, j, k, l, m, c, s);
@@ -395,7 +396,7 @@ void sxt_2(const double scl,
 }
 
 
-void get_K(const double nu[], double a[])
+void get_anharm(const double nu[], double a[])
 {
   // Anharmonic terms.
 
@@ -589,9 +590,9 @@ void cross_terms(const double delta_eps, const double nu[], const double twoJ[],
   double a[2][3];
 
   Ring_GetTwiss(false, -delta_eps);
-  get_K(nu, a[0]);
+  get_anharm(nu, a[0]);
   Ring_GetTwiss(false, delta_eps);
-  get_K(nu, a[1]);
+  get_anharm(nu, a[1]);
 
   for (k = 0; k < 3; k++)
     ad[k] = (a[1][k]-a[0][k])/(2e0*delta_eps);
@@ -601,17 +602,12 @@ void cross_terms(const double delta_eps, const double nu[], const double twoJ[],
 void h_1(const double scl, const double twoJ[], const double delta,
 	 const int i, const int j, const int k, const int l,
 	 const int m, std::vector<string> &h_label,
-	 std::vector<double> &h_c, std::vector<double> &h_s, const bool ker)
+	 std::vector<double> &h_c, std::vector<double> &h_s, const string &str)
 {
-  double       c, s;
-  stringstream str;
+  double c, s;
 
-  sxt_1(scl, twoJ, delta, i, j, k, l, m, c, s);
-  if (!ker)
-    str << "h_" << i << j << k << l << m;
-  else
-    str << "k_" << i << j << k << l << m;
-  h_label.push_back(str.str()); h_c.push_back(c); h_s.push_back(s);
+  sxt_1(scl, twoJ, delta, i, j, k, l, m, c, s, true);
+  h_label.push_back(str.c_str()); h_c.push_back(c); h_s.push_back(s);
 }
 
 
@@ -627,18 +623,25 @@ void first_order(const double twoJ[], const double delta,
 		 std::vector<string> &h_label, std::vector<double> &h_c,
 		 std::vector<double> &h_s)
 {
-  h_1( 1e0/2e0,  twoJ, delta, 1, 1, 0, 0, 1, h_label, h_c, h_s, true);
-  h_1(-1e0/2e0,  twoJ, delta, 0, 0, 1, 1, 1, h_label, h_c, h_s, true);
+  double c, s, ksi1[2];
 
-  h_1( 1e0/4e0,  twoJ, delta, 2, 0, 0, 0, 1, h_label, h_c, h_s, false);
-  h_1(-1e0/4e0,  twoJ, delta, 0, 0, 2, 0, 1, h_label, h_c, h_s, false);
-  h_1( 1e0,      twoJ, delta, 1, 0, 0, 0, 2, h_label, h_c, h_s, false);
+  const double twoJ1[] = {1e0, 1e0};
 
-  h_1(-1e0/12e0, twoJ, delta, 3, 0, 0, 0, 0, h_label, h_c, h_s, false);
-  h_1(-1e0/4e0,  twoJ, delta, 2, 1, 0, 0, 0, h_label, h_c, h_s, false);
-  h_1( 1e0/4e0,  twoJ, delta, 1, 0, 2, 0, 0, h_label, h_c, h_s, false);
-  h_1( 1e0/2e0,  twoJ, delta, 1, 0, 1, 1, 0, h_label, h_c, h_s, false);
-  h_1( 1e0/4e0,  twoJ, delta, 1, 0, 0, 2, 0, h_label, h_c, h_s, false);
+  // Get linear chromaticity.
+  sxt_1(-1e0/(4e0*M_PI), twoJ1, 1e0, 1, 1, 0, 0, 1, ksi1[X_], s, false);
+  sxt_1(-1e0/(4e0*M_PI), twoJ1, 1e0, 0, 0, 1, 1, 1, ksi1[Y_], s, false);
+  h_label.push_back("ksi1   ");
+  h_c.push_back(ksi1[X_]); h_s.push_back(ksi1[Y_]);
+
+  h_1( 1e0/8e0,  twoJ, delta, 2, 0, 0, 0, 1, h_label, h_c, h_s, "h_20001");
+  h_1(-1e0/4e0,  twoJ, delta, 0, 0, 2, 0, 1, h_label, h_c, h_s, "h_00201");
+  h_1( 1e0/2e0,  twoJ, delta, 1, 0, 0, 0, 2, h_label, h_c, h_s, "h_10002");
+
+  h_1(-1e0/24e0, twoJ, delta, 3, 0, 0, 0, 0, h_label, h_c, h_s, "h_30000");
+  h_1(-1e0/8e0,  twoJ, delta, 2, 1, 0, 0, 0, h_label, h_c, h_s, "h_21000");
+  h_1( 1e0/8e0,  twoJ, delta, 1, 0, 2, 0, 0, h_label, h_c, h_s, "h_10200");
+  h_1( 1e0/4e0,  twoJ, delta, 1, 0, 1, 1, 0, h_label, h_c, h_s, "h_10110");
+  h_1( 1e0/8e0,  twoJ, delta, 1, 0, 0, 2, 0, h_label, h_c, h_s, "h_10020");
 }
 
 
@@ -648,7 +651,7 @@ void second_order(const double twoJ[], std::vector<string> &h_label,
   double c, s;
 
   c = s = 0e0;
-  sxt_2(-1e0/32e0, 2, 1, 0, 0, 3, 0, 0, 0, c, s);
+  sxt_2(-1e0/64e0, 2, 1, 0, 0, 3, 0, 0, 0, c, s);
   c *= sqr(twoJ[X_]); s *= sqr(twoJ[X_]);
   h_2("h_40000", c, s, h_label, h_c, h_s);
   
@@ -694,8 +697,8 @@ void second_order(const double twoJ[], std::vector<string> &h_label,
   h_2("h_11110", c, s, h_label, h_c, h_s);
   
   c = s = 0e0;
-  sxt_2(-1e0/16e0, 0, 1, 2, 0, 1, 0, 1, 1, c, s);
-  sxt_2(-1e0/16e0, 0, 1, 1, 1, 1, 0, 2, 0, c, s);
+  sxt_2(-1e0/32e0, 0, 1, 2, 0, 1, 0, 1, 1, c, s);
+  sxt_2(-1e0/32e0, 0, 1, 1, 1, 1, 0, 2, 0, c, s);
   c *= sqr(twoJ[Y_]); s *= sqr(twoJ[Y_]);
   h_2("h_00310", c, s, h_label, h_c, h_s);
   
@@ -707,21 +710,21 @@ void second_order(const double twoJ[], std::vector<string> &h_label,
   h_2("h_20020", c, s, h_label, h_c, h_s);
 
   c = s = 0e0;
-  sxt_2(-1e0/32e0, 0, 1, 2, 0, 1, 0, 2, 0, c, s);
+  sxt_2(-1e0/8e0, 0, 1, 2, 0, 1, 0, 2, 0, c, s);
   c *= sqr(twoJ[Y_]); s *= sqr(twoJ[Y_]);
   h_2("h_00400", c, s, h_label, h_c, h_s);
 
   c = s = 0e0;
-  sxt_2(-1e0/8e0, 0, 1, 1, 1, 1, 0, 1, 1, c, s);
-  sxt_2(-1e0/32e0, 0, 1, 0, 2, 1, 0, 2, 0, c, s);
-  sxt_2(-1e0/32e0, 0, 1, 2, 0, 1, 0, 0, 2, c, s);
+  sxt_2(-1e0/16e0, 0, 1, 1, 1, 1, 0, 1, 1, c, s);
+  sxt_2(-1e0/64e0, 0, 1, 0, 2, 1, 0, 2, 0, c, s);
+  sxt_2(-1e0/64e0, 0, 1, 2, 0, 1, 0, 0, 2, c, s);
   c *= sqr(twoJ[Y_]); s *= sqr(twoJ[Y_]);
   h_2("h_00220", c, s, h_label, h_c, h_s);
 }
 
 
 void tune_fp(const double delta_eps, const double twoJ[], const double delta,
-	     std::vector<string> &h_label,
+	     const double twoJ_delta[], std::vector<string> &h_label,
 	     std::vector<double> &h_c, std::vector<double> &h_s)
 {
   const int    order = 3, n_pts = 3;
@@ -734,57 +737,55 @@ void tune_fp(const double delta_eps, const double twoJ[], const double delta,
 #else
   get_ksi_(delta_rng, order, n_pts, ksi);
 #endif
-  get_K(globval.TotalTune, a);
-  cross_terms(delta_eps, globval.TotalTune, twoJ, a_delta);
+  get_anharm(globval.TotalTune, a);
+  cross_terms(delta_eps, globval.TotalTune, twoJ_delta, a_delta);
 
-  h_label.push_back("ksi2_x ");
-  h_c.push_back(sqr(delta)*ksi[2][X_]); h_s.push_back(0e0);
-  h_label.push_back("ksi2_y ");
-  h_c.push_back(sqr(delta)*ksi[2][Y_]); h_s.push_back(0e0);
+  h_label.push_back("nu(deltaˆ2)    ");
+  h_c.push_back(sqr(delta)*ksi[2][X_]);
+  h_s.push_back(sqr(delta)*ksi[2][Y_]);
 
-  h_label.push_back("k_22000");
-  h_c.push_back(sqr(twoJ[X_])*a[0]); h_s.push_back(0e0);
-  h_label.push_back("k_11110");
-  h_c.push_back(twoJ[X_]*twoJ[Y_]*a[1]); h_s.push_back(0e0);
-  h_label.push_back("k_00220");
-  h_c.push_back(sqr(twoJ[Y_])*a[2]); h_s.push_back(0e0);
+  h_label.push_back("nu(deltaˆ3)    ");
+  h_c.push_back(cube(delta)*ksi[3][X_]); 
+  h_s.push_back(cube(delta)*ksi[3][Y_]);
 
-  h_label.push_back("k_22001");
-  h_c.push_back(sqr(twoJ[X_])*delta*a_delta[0]); h_s.push_back(0e0);
-  h_label.push_back("k_11111");
-  h_c.push_back(twoJ[X_]*twoJ[Y_]*delta*a_delta[1]); h_s.push_back(0e0);
-  h_label.push_back("k_00221");
-  h_c.push_back(sqr(twoJ[Y_])*delta*a_delta[2]); h_s.push_back(0e0);
+  h_label.push_back("nu(2J_x)       ");
+  h_c.push_back(-2e0*a[0]*twoJ[X_]/M_PI);
+  h_s.push_back(-a[1]*twoJ[X_]/M_PI);
+  h_label.push_back("nu(2J_y)       ");
+  h_c.push_back(-a[1]*twoJ[Y_]/M_PI);
+  h_s.push_back(-2e0*a[2]*twoJ[Y_]/M_PI);
 
-  h_label.push_back("ksi3_x ");
-  h_c.push_back(cube(delta)*ksi[3][X_]); h_s.push_back(0e0);
-  h_label.push_back("ksi3_y ");
-  h_c.push_back(cube(delta)*ksi[3][Y_]); h_s.push_back(0e0);
+  h_label.push_back("nu(2J_x, delta)");
+  h_c.push_back(-2e0*a_delta[0]*twoJ_delta[X_]*delta/M_PI);
+  h_s.push_back(-a_delta[1]*twoJ_delta[X_]*delta/M_PI);
+  h_label.push_back("nu(2J_y, delta)");
+  h_c.push_back(-a_delta[1]*twoJ_delta[Y_]*delta/M_PI);
+  h_s.push_back(-2e0*a_delta[2]*twoJ_delta[Y_]*delta/M_PI);
 }
 
 
-void drv_terms_type::prt_h(FILE *outf, const double scl, const char *str,
-			   const int i0, const int i1)
+void drv_terms_type::prt_h(FILE *outf, const char *str, const int i0,
+			   const int i1)
 {
   int k;
 
   printf("%s", str);
   for (k = i0-1; k < i1; k++)
     printf("  %7s =  [%10.3e, %10.3e] %7.1e\n",
-	   h_label[k].c_str(), scl*h_c[k], scl*h_s[k], h_scl[k]);
+	   h_label[k].c_str(), h_c[k], h_s[k], h_scl[k]);
 }
 
 
 void drv_terms_type::print(void)
 {
-  prt_h(stdout, 1e0/2e0, "\nFirst order chromatic terms:\n", 1, 2);
-  prt_h(stdout, 1e0/2e0, "\n", 3, 5);
-  prt_h(stdout, 1e0/2e0, "\nFirst order geometric terms:\n", 6, 10);
-  prt_h(stdout, 1e0/2e0, "\nSecond order geometric terms:\n", 11, 21);
-  prt_h(stdout, 1e0, "\nSecond order chromaticity:\n", 22, 23);
-  prt_h(stdout, 1e0, "\nAnharmonic terms:\n", 24, 26);
-  prt_h(stdout, 1e0, "\nAnharmonic cross terms:\n", 27, 29);
-  prt_h(stdout, 1e0, "\nThird order chromaticity:\n", 30, 31);
+  prt_h(stdout,     "\nLinear chromaticity:\n", 1, 1);
+  prt_h(stdout, "\n3rd order chromatic terms\n", 2, 4);
+  prt_h(stdout, "\n3rd order geometric terms:\n", 5, 9);
+  prt_h(stdout, "\n4th order geometric terms:\n", 10, 20);
+  prt_h(stdout,     "\nTune footprint:\n", 21, 21);
+  prt_h(stdout,     "", 22, 22);
+  prt_h(stdout,     "\n", 23, 24);
+  prt_h(stdout,     "\n", 25, 26);
 }
 
 
@@ -797,33 +798,34 @@ void drv_terms_type::get_h_scl(double scl_ksi_1, double scl_h_3,
 
   h_scl.clear();
   // Linear chromaticity.
-  for (k = 0; k <= 1; k++)
+  for (k = 0; k <= 0; k++)
     h_scl.push_back(scl_ksi_1);
-  // 1st order chromatic terms.
-  for (k = 2; k <= 4; k++)
+  // 3rd order chromatic terms.
+  for (k = 1; k <= 3; k++)
     h_scl.push_back(scl_h_3_delta);
-  // 1st order geometric terms.
-  for (k = 5; k <= 9; k++)
+  // 3rd order geometric terms.
+  for (k = 4; k <= 8; k++)
     h_scl.push_back(scl_h_3);
-  // 2nd order geometric terms
-  for (k = 10; k <= 20; k++)
+  // 4th order geometric terms
+  for (k = 9; k <= 19; k++)
     h_scl.push_back(scl_h_4);
   // 2nd order chromaticity.
-  for (k = 21; k <= 22; k++)
+  for (k = 20; k <= 20; k++)
     h_scl.push_back(scl_ksi_2);
-  // 2nd order anharmonic terms.
-  for (k = 23; k <= 25; k++)
-    h_scl.push_back(scl_chi_2);
-  // 2nd order cross terms.
-  for (k = 26; k <= 28; k++)
-    h_scl.push_back(scl_chi_delta_2);
-  for (k = 29; k <= 30; k++)
+  // 3rd order chromaticity.
+  for (k = 21; k <= 21; k++)
     h_scl.push_back(scl_ksi_3);
+  // Anharmonic terms.
+  for (k = 22; k <= 23; k++)
+    h_scl.push_back(scl_chi_2);
+  // Anharmonic cross terms.
+  for (k = 24; k <= 25; k++)
+    h_scl.push_back(scl_chi_delta_2);
 }
 
 
 void drv_terms_type::get_h(const double delta_eps, const double twoJ[],
-			   const double delta)
+			   const double delta, const double twoJ_delta[])
 {
   int k;
 
@@ -832,7 +834,7 @@ void drv_terms_type::get_h(const double delta_eps, const double twoJ[],
   h_c.clear(); h_s.clear();
   first_order(twoJ, delta, h_label, h_c, h_s);
   second_order(twoJ, h_label, h_c, h_s);
-  tune_fp(delta_eps, twoJ, delta, h_label, h_c, h_s);
+  tune_fp(delta_eps, twoJ, delta, twoJ_delta, h_label, h_c, h_s);
 
   if (prt) print();
 
