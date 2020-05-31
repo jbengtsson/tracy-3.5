@@ -100,7 +100,7 @@ else if (case == 4) \
   nu_x_min = 61.0; nu_x_max = 62.0; nu_y_min = 22.0; nu_y_max = 23.0; \
   x_max = 8.0; y_max = 5.0; delta_max = 4.0; \
 else if (case == 5) \
-  nu_x_min = 65.0; nu_x_max = 65.5; nu_y_min = 19.5; nu_y_max = 20.0; \
+  nu_x_min = 65.0; nu_x_max = 65.5; nu_y_min = 19.2; nu_y_max = 20.0; \
   x_max = 5.0; y_max = 3.0; delta_max = 4.0; \
 else if (case == 6) \
   nu_x_min = 65.0; nu_x_max = 65.5; nu_y_min = 21.0; nu_y_max = 21.5; \
