@@ -126,7 +126,7 @@ public:
   void get_Jacobian(param_type &lat_prms);
   double get_chi2(const double twoJ[], const double delta,
 		  const double twoJ_delta[], const param_type &prms, double *bn,
-		  const bool prt);
+		  const bool comp_drv_terms, const bool prt);
   void get_dchi2(const double twoJ[], const double delta,
 		 const double twoJ_delta[], double *bn, double *df) const;
   void prt_Jacobian(const int n) const;
@@ -867,7 +867,8 @@ void get_mI(constr_type &constr)
 
 double constr_type::get_chi2(const double twoJ[], const double delta,
 			     const double twoJ_delta[], const param_type &prms,
-			     double *bn, const bool prt)
+			     double *bn, const bool comp_drv_terms,
+			     const bool prt)
 {
   int    j, k;
   double chi2, dchi2[3], mean, geom_mean, bn_ext;
@@ -953,7 +954,7 @@ double constr_type::get_chi2(const double twoJ[], const double delta,
     printf("\n  S-L0           = %10.3e\n", dchi2[0]);
   }
 
-  if (true) {
+  if (comp_drv_terms) {
     lat_constr.drv_terms.get_h(delta_eps, twoJ, delta, twoJ_delta);
 
     if (prt) printf("\n");
@@ -1031,12 +1032,13 @@ void constr_type::get_dchi2(const double twoJ[], const double delta,
 
     constr_dparam(lat_prms.Fnum[k], lat_prms.n[k], eps);
     eps_x = get_lin_opt(lat_constr);
-    df[k+1] = lat_constr.get_chi2(twoJ, delta, twoJ_delta, lat_prms, bn, false);
+    df[k+1] =
+      lat_constr.get_chi2(twoJ, delta, twoJ_delta, lat_prms, bn, true, false);
 
     constr_dparam(lat_prms.Fnum[k], lat_prms.n[k], -2e0*eps);
     eps_x = get_lin_opt(lat_constr);
-    df[k+1] -= lat_constr.get_chi2(twoJ, delta, twoJ_delta, lat_prms, bn,
-				   false);
+    df[k+1] -=
+      lat_constr.get_chi2(twoJ, delta, twoJ_delta, lat_prms, bn, true, false);
     df[k+1] /= 2e0*eps;
 
     constr_dparam(lat_prms.Fnum[k], lat_prms.n[k], eps);
@@ -1114,16 +1116,17 @@ void constr_type::prt_constr(const double chi2)
   int    loc, k;
   double phi;
 
-  printf("\n%3d chi2: %11.5e -> %11.5e\n", n_iter, this->chi2_prt, chi2);
+  printf("\n%3d chi2: %12.6e -> %12.6e\n", n_iter, this->chi2_prt, chi2);
   this->chi2_prt = chi2;
   printf("\n  Linear Optics:\n");
   printf("    eps_x   = %5.3f (%5.3f)\n"
-	 "    nu      = [%5.3f, %5.3f]\n"
-	 "    ksi1    = [%5.3f, %5.3f]\n"
-	 "    alpha_c = %9.3e\n",
-	 eps_x, eps0_x, nu[X_], nu[Y_],
-	 lat_constr.drv_terms.h_c[0], lat_constr.drv_terms.h_c[0],
-	 globval.Alphac);
+	 "    nu      = [%5.3f, %5.3f]\n",
+	 eps_x, eps0_x, nu[X_], nu[Y_]);
+  if (ring)
+    printf("    ksi1    = [%5.3f, %5.3f]\n"
+	   "    alpha_c = %9.3e\n",
+	   lat_constr.drv_terms.h_c[0], lat_constr.drv_terms.h_s[0],
+	   globval.Alphac);
   if (lat_constr.ksi1_ctrl.size() != 0)
     printf("    ksi1_ctrl    = [%5.3f, %5.3f, %5.3f]\n",
 	   lat_constr.ksi1_ctrl[0], lat_constr.ksi1_ctrl[1],

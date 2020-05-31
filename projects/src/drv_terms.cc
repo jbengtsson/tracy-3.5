@@ -420,9 +420,9 @@ const double
 
   for (n1 = 0; n1 <= globval.Cell_nLoc; n1++) {
     if (Cell[n1].Elem.Pkind == Mpole) {
+      cellp1 = &Cell[ind(n1-1)];
       if (Cell[n1].Elem.M->Porder == Sext) {
 	get_bnL_design_elem(Cell[n1].Fnum, 1, Sext, b3L1, a3L1);
-	cellp1 = &Cell[ind(n1-1)];
 	for (n2 = 0; n2 <= globval.Cell_nLoc; n2++) {
 	  if ((Cell[n2].Elem.Pkind == Mpole) &&
 	      (Cell[n2].Elem.M->Porder == Sext)) {
@@ -583,8 +583,7 @@ void get_ksi_(const double delta_rng, const int order, const int n_pts,
 }
 
 
-void cross_terms(const double delta_eps, const double nu[], const double twoJ[],
-		 double ad[])
+void cross_terms(const double delta_eps, const double nu[], double ad[])
 {
   int    k;
   double a[2][3];
@@ -629,7 +628,7 @@ void first_order(const double twoJ[], const double delta,
 
   // Get linear chromaticity.
   sxt_1(-1e0/(4e0*M_PI), twoJ1, 1e0, 1, 1, 0, 0, 1, ksi1[X_], s, false);
-  sxt_1(-1e0/(4e0*M_PI), twoJ1, 1e0, 0, 0, 1, 1, 1, ksi1[Y_], s, false);
+  sxt_1(1e0/(4e0*M_PI), twoJ1, 1e0, 0, 0, 1, 1, 1, ksi1[Y_], s, false);
   h_label.push_back("ksi1   ");
   h_c.push_back(ksi1[X_]); h_s.push_back(ksi1[Y_]);
 
@@ -737,8 +736,9 @@ void tune_fp(const double delta_eps, const double twoJ[], const double delta,
 #else
   get_ksi_(delta_rng, order, n_pts, ksi);
 #endif
+  Ring_GetTwiss(false, 0e0);
   get_anharm(globval.TotalTune, a);
-  cross_terms(delta_eps, globval.TotalTune, twoJ_delta, a_delta);
+  cross_terms(delta_eps, globval.TotalTune, a_delta);
 
   h_label.push_back("nu(deltaˆ2)    ");
   h_c.push_back(sqr(delta)*ksi[2][X_]);
@@ -791,8 +791,8 @@ void drv_terms_type::print(void)
 
 void drv_terms_type::get_h_scl(double scl_ksi_1, double scl_h_3,
 			       double scl_h_3_delta, double scl_h_4,
-			       double scl_ksi_2, double scl_chi_2,
-			       double scl_chi_delta_2, double scl_ksi_3)
+			       double scl_ksi_2, double scl_ksi_3,
+			       double scl_chi_2, double scl_chi_delta_2)
 {
   int k;
 

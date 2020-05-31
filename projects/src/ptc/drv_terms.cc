@@ -76,7 +76,6 @@ void prt_drv_terms(ofstream &outf, const int k,
   loc = k % (globval.Cell_nLoc+1);
   s = Cell[loc].S + k/(globval.Cell_nLoc+1)*Cell[globval.Cell_nLoc].S;
 
-  printf("%5d (%3ld)\n", k, n_cell*globval.Cell_nLoc);
   outf << fixed << setw(3) << k
        << setprecision(3) << setw(9) << s
        << setprecision(1) << setw(5) << get_code(Cell[loc])
@@ -150,8 +149,9 @@ void get_drv_terms(const double twoJ[], const double delta)
   map.identity();
   map[x_] += MNF.A0[x_][delta_]*Id[delta_];
   map[px_] += MNF.A0[px_][delta_]*Id[delta_];
-  for (k = 0; k <= n_cell*globval.Cell_nLoc; k++) {
+  for (k = 0; k < n_cell*(globval.Cell_nLoc+1); k++) {
     loc = k % (globval.Cell_nLoc+1);
+    printf("%5d (%3ld)\n", k, n_cell*globval.Cell_nLoc);
     Elem_Pass(loc, map);
     danot_(1);
     Elem_Pass(loc, A1);
