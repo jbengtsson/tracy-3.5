@@ -64,6 +64,8 @@ plot file_name using 2:3 axis x1y2 notitle with fsteps lt 1 lw 1 \
      file_name using 2:11 title "h_{10110}" with steps ls 5;
 if (!ps) pause mouse "click on graph to cont.\n";
 
+exit;
+
 if (ps) set output "drv_terms_3.".(ext);
 set title "3rd Order Geometric Terms";
 set xlabel "s [m]"; set ylabel "|h_{ijklm}|";
