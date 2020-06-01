@@ -841,11 +841,11 @@ void get_high_ord_achr(constr_type &constr)
 {
   int j, k;
 
-  for (j = 1; j < (int)constr.high_ord_achr_Fnum.size(); j++)
+  for (j = 0; j < (int)constr.high_ord_achr_Fnum.size()/2; j++)
     for (k = 0; k < 2; k++)
-      constr.high_ord_achr_dnu[j-1][k] =
-	Cell[constr.high_ord_achr_Fnum[j]].Nu[k]
-	- Cell[constr.high_ord_achr_Fnum[j-1]].Nu[k];
+      constr.high_ord_achr_dnu[j][k] =
+	Cell[constr.high_ord_achr_Fnum[2*j+1]].Nu[k]
+	- Cell[constr.high_ord_achr_Fnum[2*j]].Nu[k];
 }
 
 
@@ -996,7 +996,7 @@ double constr_type::get_chi2(const double twoJ[], const double delta,
 
   if ((high_ord_achr_scl[X_] != 0e0) || (high_ord_achr_scl[Y_] != 0e0)) {
     get_high_ord_achr(lat_constr);
-    for (j = 0; j < (int)high_ord_achr_dnu.size(); j++) {
+    for (j = 0; j < (int)high_ord_achr_dnu.size()/2; j++) {
       for (k = 0; k < 2; k++) {
 	dchi2[k] =
 	  high_ord_achr_scl[k]*sqr(high_ord_achr_dnu[j][k]-high_ord_achr_nu[k]);

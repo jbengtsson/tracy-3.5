@@ -1,4 +1,4 @@
-#define NO 5
+#define NO 3
 
 #include "tracy_lib.h"
 
@@ -127,47 +127,39 @@ void get_drv_terms(const double twoJ[], const double delta)
 {
   long int     lastpos;
   int          k, loc;
-  double       dnu[2];
-  ss_vect<tps> Id, map, map_Fl, A0, A1;
+  ss_vect<tps> Id, map, map_Fl, A_k;
   ofstream     outf;
 
-  const double eta0[]  = {0e0, 0e0},
-               etap0[] = {0e0, 0e0};
+  const string str = "drv_terms.out";
   
-  outf.open("drv_terms.out", ios::out);
+  outf.open(str.c_str(), ios::out);
 
   Id.identity();
 
-  // Get linear dispersion.
   danot_(2);
   map.identity();
   Cell_Pass(0, globval.Cell_nLoc, map, lastpos);
   MNF = MapNorm(map, 1);
-  danot_(no_tps);
 
-  A0 = MNF.A1; A1 = A0;
+  A_k = MNF.A0*MNF.A1;
+  prt_lin_map(3, map);
+  prt_lin_map(3, Inv(A_k)*map*A_k);
+
   map.identity();
   map[x_] += MNF.A0[x_][delta_]*Id[delta_];
   map[px_] += MNF.A0[px_][delta_]*Id[delta_];
   for (k = 0; k < n_cell*(globval.Cell_nLoc+1); k++) {
     loc = k % (globval.Cell_nLoc+1);
     printf("%5d (%3ld)\n", k, n_cell*globval.Cell_nLoc);
-    Elem_Pass(loc, map);
     danot_(1);
-    Elem_Pass(loc, A1);
+    Elem_Pass(loc, A_k);
     danot_(no_tps);
-    A1 = get_A_CS(2, A1, dnu);
-    map_Fl = map;
-    map_Fl[x_] -= map[x_][delta_]*Id[delta_];
-    map_Fl[px_] -= map[px_][delta_]*Id[delta_];
-    A1 = get_A(Cell[loc].Alpha, Cell[loc].Beta, eta0, etap0);
-    map_Fl = Inv(A1)*map_Fl*A0;
+    Elem_Pass(loc, map);
+    map_Fl = Inv(A_k)*map;
     prt_drv_terms(outf, k, twoJ, delta, map_Fl);
   }
 
   outf.close();
-
-  // cout << scientific << setprecision(3) << MNF.A0 << "\n";
 }
 
 
@@ -417,7 +409,7 @@ int main(int argc, char *argv[])
 
   if (false) chk_bend();
 
-  Ring_GetTwiss(true, 0e0); printglob();
+  // Ring_GetTwiss(true, 0e0); printglob();
 
   if (set_dnu) {
     set_map(ElemIndex("ps_rot"), dnu);

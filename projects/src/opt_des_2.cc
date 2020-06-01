@@ -31,22 +31,22 @@ const int opt_case = 3;
 const int    n_ic = 4;
 const double
   ic[n_ic][2] =
-  {{0.0000000001, 0.0000000083}, {2.2371061835, 0.7557165535},
-   {0.0163377825, 0.0000000000}, {0.0, 0.0}},
+  {{0.0000000758, 0.0000000120}, {2.2385175354, 0.7440330179},
+   {0.0178531908, 0.0000000000}, {-0.0, 0.0}},
   
   beta_ms[]       = { 2.0, 1.5},
   beta_ss[]       = { 2.0, 1.5},
   beta_ls[]       = {10.0, 4.0},
   eta_ms_x        = 15e-3,
   eta_sf1_x       = 9e-2,
-  scl_ksi_1       = 1e-1*1e1,
+  scl_ksi_1       = 1e0*1e1,
   scl_h_3         = 1e-1*1e10,
   scl_h_3_delta   = 1e-1*1e10,
   scl_h_4         = 1e0,
-  scl_ksi_2       = 1e1*1e5,
-  scl_ksi_3       = 1e1*1e5,
-  scl_chi_2       = 1e1*1e5,
-  scl_chi_delta_2 = 1e1*1e5;
+  scl_ksi_2       = 1e0*1e5,
+  scl_ksi_3       = 1e0*1e5,
+  scl_chi_2       = 1e0*1e5,
+  scl_chi_delta_2 = 1e0*1e5;
 
 #define LAT_CASE 1
 
@@ -55,11 +55,8 @@ const double
 // M-H6BA-18-99pm-01.14-01.
   eps0_x             = 0.097,
   dnu[]              = {0.0/6.0, 0.0/6.0},
-#if 1
-  high_ord_achr_nu[] = {11.0/4.0+0.01, 7.0/8.0-0.01},
-#else
-  high_ord_achr_nu[] = {10.0/4.0+0.01, 0.7-0.01},
-#endif
+  // high_ord_achr_nu[] = {22.0/8.0+0.01, 7.0/8.0-0.01},
+  high_ord_achr_nu[] = {5.0/8.0, 1.0/8.0},
   beta_inj[]         = {10.7, 6.5},
   A_max[]            = {3.5e-3, 1.5e-3},
   delta_max          = 2e-2,
@@ -288,23 +285,39 @@ void set_constr_std(constr_type &constr)
 
 void set_b3_Fam_std(param_type &prms)
 {
-  switch (3) {
+  std::vector<int> Fnum;
+
+  switch (1) {
   case 1:
     prms.add_prm("sd2", 3, -4e2,   4e2, 1.0);
     break;
   case 2:
     prms.add_prm("sd2", 3, -4e2,   4e2, 1.0);
     prms.add_prm("s",   3, -4e2,   4e2, 1.0);
-    prms.add_prm("sh1", 3, -4e2,   4e2, 1.0);
-    prms.add_prm("sh2", 3, -4e2,   4e2, 1.0);
     break;
   case 3:
     prms.add_prm("sd2", 3, -4e2,   4e2, 1.0);
     prms.add_prm("s",   3, -4e2,   4e2, 1.0);
     prms.add_prm("sh1", 3, -4e2,   4e2, 1.0);
     prms.add_prm("sh2", 3, -4e2,   4e2, 1.0);
+    break;
+  case 4:
+    prms.add_prm("sd2", 3, -4e2,   4e2, 1.0);
+    prms.add_prm("s",   3, -4e2,   4e2, 1.0);
+    prms.add_prm("sh1", 3, -4e2,   4e2, 1.0);
+    prms.add_prm("sh2", 3, -4e2,   4e2, 1.0);
     prms.add_prm("of1", 4, -1e8,   1e8, 1.0);
     break;
+  }
+
+  if (true) {
+    no_sxt();
+    set_bn_design_fam(ElemIndex("of1"), Oct, 0.0, 0.0);
+
+    Fnum.push_back(ElemIndex("sf1"));
+    Fnum.push_back(ElemIndex("sd1"));
+    Fnum.push_back(ElemIndex("sd2"));
+    fit_ksi1(Fnum, 0e0, 0e0, 1e1);
   }
 }
 
@@ -325,9 +338,9 @@ void set_b3_constr_std(constr_type &constr)
     lat_constr.high_ord_achr_nu[k] = high_ord_achr_nu[k];
 
   lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("ss"), 1));
-  lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("ss"), 2));
+  lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("sf1"), 1));
 
-  n = lat_constr.high_ord_achr_Fnum.size() - 1;
+  n = lat_constr.high_ord_achr_Fnum.size()/2;
   lat_constr.high_ord_achr_dnu.resize(n);
   for (k = 0; k < n; k++)
     lat_constr.high_ord_achr_dnu[k].resize(2, 0e0);
@@ -344,10 +357,10 @@ void set_weights_std(constr_type &constr)
   lat_constr.ksi1_ctrl_scl[0]      = 0e-1;
   lat_constr.ksi1_ctrl_scl[1]      = 0e0;
   lat_constr.ksi1_ctrl_scl[2]      = 0e0;
-  lat_constr.mI_scl[X_]            = 1e-6*1e6;
-  lat_constr.mI_scl[Y_]            = 1e-6*1e6;
-  lat_constr.high_ord_achr_scl[X_] = 1e-6*1e6;
-  lat_constr.high_ord_achr_scl[Y_] = 1e-6*1e6;
+  lat_constr.mI_scl[X_]            = 1e0*1e6;
+  lat_constr.mI_scl[Y_]            = 1e0*1e6;
+  lat_constr.high_ord_achr_scl[X_] = 1e0*1e6;
+  lat_constr.high_ord_achr_scl[Y_] = 1e0*1e6;
 
   lat_constr.alpha_c_scl           = 1e-6;
 
@@ -470,7 +483,7 @@ void set_b2_ms_std_ls_sp(param_type &prms)
   // Long Straight.
   if (pert_dip_cell)
     prms.add_prm("qd3_c1",   2, -15.0, 15.0, 1.0);
-  prms.add_prm("qd2_c1",   2, -15.0,  0.0, 1.0);
+  prms.add_prm("qd2_c1",   2, -15.0,  1.0, 1.0);
   prms.add_prm("qf1_c1",   2, -15.0,  0.0, 1.0);
   prms.add_prm("quad_add", 2,   0.0, 15.0, 1.0);
 }
@@ -527,15 +540,17 @@ void set_constr_sp(constr_type &constr)
 
 void set_b3_Fam_sp(param_type &prms)
 {
-  switch (3) {
+  std::vector<int> Fnum;
+
+  switch (1) {
   case 1:
     prms.add_prm("sd2", 3, -4e2,   4e2, 1.0);
     break;
   case 2:
     prms.add_prm("sd2", 3, -4e2,   4e2, 1.0);
+    prms.add_prm("s",   3, -4e2,   4e2, 1.0);
     prms.add_prm("sh1", 3, -4e2,   4e2, 1.0);
     prms.add_prm("sh2", 3, -4e2,   4e2, 1.0);
-    prms.add_prm("s",   3, -4e2,   4e2, 1.0);
     break;
   case 3:
     prms.add_prm("sd2", 3, -4e2,   4e2, 1.0);
@@ -544,6 +559,16 @@ void set_b3_Fam_sp(param_type &prms)
     prms.add_prm("sh2", 3, -4e2,   4e2, 1.0);
     prms.add_prm("of1", 4, -1e8,   1e8, 1.0);
     break;
+  }
+
+  if (true) {
+    no_sxt();
+    set_bn_design_fam(ElemIndex("of1"), Oct, 0.0, 0.0);
+
+    Fnum.push_back(ElemIndex("sf1"));
+    Fnum.push_back(ElemIndex("sd1"));
+    Fnum.push_back(ElemIndex("sd2"));
+    fit_ksi1(Fnum, 0e0, 0e0, 1e1);
   }
 }
 
@@ -577,12 +602,14 @@ void set_b3_constr_sp(constr_type &constr)
   for (k = 0; k < 2; k++)
     lat_constr.high_ord_achr_nu[k] = high_ord_achr_nu[k];
 
-  // lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("ls"), 1));
+  // 1st.
+  lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("ls"), 1));
+  lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("sf1"), 1));
+  // 2nd.
+  lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("sf1"), 3));
   lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("ss"), 1));
-  lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("ss"), 2));
-  lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("ss"), 3));
 
-  n = lat_constr.high_ord_achr_Fnum.size() - 1;
+  n = lat_constr.high_ord_achr_Fnum.size()/2;
   lat_constr.high_ord_achr_dnu.resize(n);
   for (k = 0; k < n; k++)
     lat_constr.high_ord_achr_dnu[k].resize(2, 0e0);
@@ -615,8 +642,8 @@ void set_weights_sp(constr_type &constr)
   lat_constr.L_scl = 0e-10; lat_constr.L0 = 10.0;
 
   lat_constr.drv_terms.get_h_scl(scl_ksi_1, scl_h_3, scl_h_3_delta, scl_h_4,
-				 scl_ksi_2, scl_chi_2, scl_chi_delta_2,
-				 scl_ksi_3);
+				 scl_ksi_2, scl_ksi_3, scl_chi_2,
+				 scl_chi_delta_2);
 }
 
 
@@ -1303,7 +1330,6 @@ int main(int argc, char *argv[])
 {
   char             buffer[BUFSIZ];
   double           eps_x, dnu[2];
-  std::vector<int> Fnum;
 
   reverse_elem = !false;
 
@@ -1355,17 +1381,6 @@ int main(int argc, char *argv[])
   case 1:
     // Optimize Standard Straight: mI & 2*nu.
     opt_mI_std(lat_prms, lat_constr);
-
-    if (!true) {
-      no_sxt();
-      set_bn_design_fam(ElemIndex("of1"), Oct, 0.0, 0.0);
-
-      Fnum.push_back(ElemIndex("sf1"));
-      Fnum.push_back(ElemIndex("sd1"));
-      Fnum.push_back(ElemIndex("sd2"));
-      fit_ksi1(Fnum, 0e0, 0e0, 1e1);
-    }
-
     fit_powell(lat_prms, 1e-3, f_achrom);
     // fit_sim_anneal(lat_prms, 1e-3, f_achrom);
     break;
@@ -1375,16 +1390,6 @@ int main(int argc, char *argv[])
     fit_powell(lat_prms, 1e-3, f_match);
     break;
   case 3:
-    if (!true) {
-      no_sxt();
-      set_bn_design_fam(ElemIndex("of1"), Oct, 0.0, 0.0);
-
-      Fnum.push_back(ElemIndex("sf1"));
-      Fnum.push_back(ElemIndex("sd1"));
-      Fnum.push_back(ElemIndex("sd2"));
-      fit_ksi1(Fnum, 0e0, 0e0, 1e1);
-    }
-
     opt_mI_sp(lat_prms, lat_constr);
     fit_powell(lat_prms, 1e-3, f_achrom);
     // fit_sim_anneal(lat_prms, 1e-3, f_achrom);

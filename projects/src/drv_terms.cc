@@ -38,8 +38,8 @@ public:
 		 double scl_chi_delta_2, double scl_ksi_3);
   void get_h(const double delta_eps, const double twoJ[], const double delta,
 	     const double twoJ_delta[]);
-  void prt_h(FILE *outf, const char *str, const int i0,
-	     const int i1);
+  void prt_h(FILE *outf, const char *str, const int i0, const int i1);
+  void prt_h_abs(FILE *outf, const char *str, const int i0, const int i1);
   void print(void);
 };
 
@@ -771,17 +771,28 @@ void drv_terms_type::prt_h(FILE *outf, const char *str, const int i0,
 
   printf("%s", str);
   for (k = i0-1; k < i1; k++)
-    printf("  %7s =  [%10.3e, %10.3e] %7.1e\n",
+    printf("  %7s =  [%10.3e, %10.3e] (%7.1e)\n",
 	   h_label[k].c_str(), h_c[k], h_s[k], h_scl[k]);
+}
+
+
+void drv_terms_type::prt_h_abs(FILE *outf, const char *str, const int i0,
+			       const int i1)
+{
+  int k;
+
+  printf("%s", str);
+  for (k = i0-1; k < i1; k++)
+    printf("  %7s =   %10.3e (%7.1e)\n", h_label[k].c_str(), h[k], h_scl[k]);
 }
 
 
 void drv_terms_type::print(void)
 {
   prt_h(stdout,     "\nLinear chromaticity:\n", 1, 1);
-  prt_h(stdout, "\n3rd order chromatic terms\n", 2, 4);
-  prt_h(stdout, "\n3rd order geometric terms:\n", 5, 9);
-  prt_h(stdout, "\n4th order geometric terms:\n", 10, 20);
+  prt_h_abs(stdout, "\n3rd order chromatic terms\n", 2, 4);
+  prt_h_abs(stdout, "\n3rd order geometric terms:\n", 5, 9);
+  prt_h_abs(stdout, "\n4th order geometric terms:\n", 10, 20);
   prt_h(stdout,     "\nTune footprint:\n", 21, 21);
   prt_h(stdout,     "", 22, 22);
   prt_h(stdout,     "\n", 23, 24);
@@ -836,9 +847,9 @@ void drv_terms_type::get_h(const double delta_eps, const double twoJ[],
   second_order(twoJ, h_label, h_c, h_s);
   tune_fp(delta_eps, twoJ, delta, twoJ_delta, h_label, h_c, h_s);
 
-  if (prt) print();
-
   h.clear();
   for (k = 0; k < (int)h_c.size(); k++)
     h.push_back(sqrt(sqr(h_c[k])+sqr(h_s[k])));
+
+  if (prt) print();
 }
