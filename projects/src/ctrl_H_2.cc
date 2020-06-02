@@ -80,7 +80,6 @@ public:
     phi_scl,
     phi_tot, phi0,        // Cell bend angle.
     high_ord_achr_scl[2],
-    high_ord_achr_nu[2],  // Higher-Order-Achromat Phase Advance.
     mI_scl[2],
     mI0[2],               // -I Transformer.
     alpha_c_scl,          // alpha_c.
@@ -92,6 +91,7 @@ public:
     value,
     value_scl,
     mI,
+    high_ord_achr_nu,  // Higher-Order-Achromat Phase Advance.
     high_ord_achr_dnu;
   double **Jacobian;
   std::vector<int>
@@ -871,7 +871,7 @@ double constr_type::get_chi2(const double twoJ[], const double delta,
 			     const bool prt)
 {
   int    j, k;
-  double chi2, dchi2[3], mean, geom_mean, bn_ext;
+  double chi2, dchi2[3], bn_ext;
 
   const bool
     extra     = false;
@@ -996,10 +996,11 @@ double constr_type::get_chi2(const double twoJ[], const double delta,
 
   if ((high_ord_achr_scl[X_] != 0e0) || (high_ord_achr_scl[Y_] != 0e0)) {
     get_high_ord_achr(lat_constr);
-    for (j = 0; j < (int)high_ord_achr_dnu.size()/2; j++) {
+    for (j = 0; j < (int)high_ord_achr_dnu.size(); j++) {
       for (k = 0; k < 2; k++) {
 	dchi2[k] =
-	  high_ord_achr_scl[k]*sqr(high_ord_achr_dnu[j][k]-high_ord_achr_nu[k]);
+	  high_ord_achr_scl[k]
+	  *sqr(high_ord_achr_dnu[j][k]-high_ord_achr_nu[j][k]);
 	chi2 += dchi2[k];
       }
       if (prt) printf("  high_ord_achr   =  [%10.3e, %10.3e]\n",
@@ -1101,11 +1102,15 @@ void prt_h(const constr_type &constr)
 
 void prt_high_ord_achr(const constr_type &constr)
 {
-  int j;
+  int j, n;
 
-  printf("\n  Higher-Order-Achromat:\n    [%7.5f, %7.5f]\n\n",
-	 constr.high_ord_achr_nu[X_], constr.high_ord_achr_nu[Y_]);
-  for (j = 0; j < (int)constr.high_ord_achr_dnu.size(); j++)
+  n = constr.high_ord_achr_nu.size();
+  printf("\n  Higher-Order-Achromat:\n");
+  for (j = 0; j < n; j++)
+    printf("    [%7.5f, %7.5f]\n",
+	   constr.high_ord_achr_nu[j][X_], constr.high_ord_achr_nu[j][Y_]);
+  printf("\n");
+  for (j = 0; j < n; j++)
     printf("    [%7.5f, %7.5f]\n",
 	   constr.high_ord_achr_dnu[j][X_], constr.high_ord_achr_dnu[j][Y_]);
 }

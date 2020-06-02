@@ -622,7 +622,7 @@ void first_order(const double twoJ[], const double delta,
 		 std::vector<string> &h_label, std::vector<double> &h_c,
 		 std::vector<double> &h_s)
 {
-  double c, s, ksi1[2];
+  double ksi1[2], s;
 
   const double twoJ1[] = {1e0, 1e0};
 
