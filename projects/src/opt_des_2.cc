@@ -39,12 +39,12 @@ const double
   beta_ls[]       = {10.0, 4.0},
   eta_ms_x        = 15e-3,
   eta_sf1_x       = 9e-2,
-  scl_ksi_1       = 1e0*1e1,
+  scl_ksi_1       = 1e0*5e0,
   scl_h_3         = 1e-1*1e10,
   scl_h_3_delta   = 1e-1*1e10,
   scl_h_4         = 1e0,
   scl_ksi_2       = 1e0*1e5,
-  scl_ksi_3       = 1e-2*1e5,
+  scl_ksi_3       = 1e0*1e5,
   scl_chi_2       = 1e0*1e5,
   scl_chi_delta_2 = 1e-1*1e5;
 
@@ -500,7 +500,7 @@ void set_constr_sp(constr_type &constr)
 		    0.0, 0.0, beta_ms[X_], beta_ms[Y_], eta_ms_x, 0.0);
   for (k = 1; k <= 2; k++)
     constr.add_constr(Elem_GetPos(ElemIndex("ss"), k),
-		      1e6, 1e6, 1e2,         1e1*1e3,         1e8, 1e8,
+		      1e6, 1e1*1e6, 1e2,         1e1*1e3,         1e8, 1e8,
 		      0.0, 0.0, beta_ss[X_], beta_ss[Y_], 0.0, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
 		    1e6, 1e6, 1e2,         1e2,         1e8, 1e8,
@@ -619,7 +619,7 @@ void set_weights_sp(constr_type &constr)
   lat_constr.ksi1_ctrl_scl[2]      = 0e-1;
   lat_constr.mI_scl[X_]            = 1e-1*1e6;
   lat_constr.mI_scl[Y_]            = 1e-1*1e6;
-  lat_constr.high_ord_achr_scl[X_] = 1e-1*1e6;
+  lat_constr.high_ord_achr_scl[X_] = 1e1*1e6;
   lat_constr.high_ord_achr_scl[Y_] = 1e-2*1e6;
 
   lat_constr.alpha_c_scl           = 5e-7;
