@@ -33,7 +33,7 @@ void err_and_corr(const string &param_file, const int mode)
   } else
     cod = getcod(0e0, lastpos);
 
-  params.Orb_and_Trim_Stat();
+  params.Orb_and_Trim_Stat(orb_corr);
 
   if (params.N_calls > 0) {
     params.ID_corr(params.N_calls, params.N_steps, false, 1);

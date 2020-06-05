@@ -1127,7 +1127,7 @@ void param_data_type::FindCoupVector(double *VertCouple)
 void param_data_type::SkewStat(double VertCouple[], const int cnt)
 {
   int    i;
-  FILE *outf;
+  FILE *outf = NULL;
   char fname[30];
 
   double max, mean, rms, sk;
