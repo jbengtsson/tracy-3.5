@@ -2355,20 +2355,11 @@ bool param_data_type::cod_corr(const int n_cell, const double scl,
 			       const long n_bits, orb_corr_type orb_corr[])
 {
   bool            cod = false;
-  long int        lastpos,i;
+  long int        lastpos, i;
   double          m_dbeta[2], s_dbeta[2], m_dnu[2], s_dnu[2];
-  double sexred=0.75;
   ss_vect<double> ps;
 
   orb_corr[X_].clr_trims(); orb_corr[Y_].clr_trims();
-
-  /* reduce sextupole strength by -sexred*strength */
-  printf("\n  *** Reduce sextupole strength by %f\n",sexred*100.);
-  for (i=0; i<globval.Elem_nFam; i++) {
-    if(ElemFam[i].ElemF.PName[0] == 's' && ElemFam[i].ElemF.Pkind == Mpole) {
-      Setbnr(ElemIndex(ElemFam[i].ElemF.PName),3L,-sexred);
-    }
-  }
 
   cod = getcod(0e0, lastpos);
 
@@ -2379,16 +2370,6 @@ bool param_data_type::cod_corr(const int n_cell, const double scl,
     thread_beam(n_cell, loc_Fam_name, bpm_Fam_names, corr_Fam_names,
 		n_orbit, scl, h_maxkick, v_maxkick, n_bits, 1e-4, 1e-4);
     //prt_cod("codt.out", globval.bpm, true);
-  }
-
-  cod = cod_correct(n_orbit, scl, h_maxkick, v_maxkick, n_bits, orb_corr);
-
-  /* restore sextupole strength after first niter iterations */
-  printf("\n  *** Restore sextupole strength\n");
-  for (i=0; i<globval.Elem_nFam; i++) {
-    if(ElemFam[i].ElemF.PName[0] == 's' && ElemFam[i].ElemF.Pkind == Mpole) {
-      Setbnr(ElemIndex(ElemFam[i].ElemF.PName),3L,1./(1.-sexred)-1.);
-    }
   }
 
   cod = cod_correct(n_orbit, scl, h_maxkick, v_maxkick, n_bits, orb_corr);
@@ -2455,11 +2436,12 @@ void param_data_type::Orb_and_Trim_Stat(void)
 	 1e3*Sext_max[Y_], 1e3*Sext_sigma[Y_]);
 
   for (i = 0; i < 4;  i++) {
-    printf("There are %3d sextupoles with offset between ", bins[i]);
-    printf(" %5.3f mm and %5.3f mm\n", i*bin*1e3, (i+1)*bin*1e3);
+    printf("There are %3d sextupoles with offset between  "
+	   " %5.3f mm and %5.3f mm\n",
+	   bins[i], i*bin*1e3, (i+1)*bin*1e3);
   }
-  printf("There are %3d sextupoles with offset ", bins[4]);
-  printf("more than %5.3f mm \n", 4e3*bin);
+  printf("There are %3d sextupoles with offset more than %5.3f mm \n",
+	 bins[4], 4e3*bin);
   printf("Maximal hcorr is %6.3f mrad, maximal vcorr is %6.3f mrad\n",
 	 1e3*TrimMax[X_], 1e3*TrimMax[Y_]);
 }

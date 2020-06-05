@@ -3728,11 +3728,10 @@ void setmp(long ilat, long m, long n, double rr, double bnoff, double cmn)
   //    cmn = (nAn/r) from magnet group
   // ==> bm = cmn*1e-4 / rr^(|m|-|n|) * (bn-bnoff)
 
+  long     i;
+  double   bn, dbn, mp;
   CellType cell;
   elemtype elem;
-
-  long i;
-  double bn, dbn, mp;
 
   mp = cmn * 1e-4;
   for (i=abs(n); i<abs(m); i++) {mp/=rr;}
@@ -3758,8 +3757,8 @@ void setmp(long ilat, long m, long n, double rr, double bnoff, double cmn)
 void setmpall (double rref)
 {
   CellType cell;
-  long i;
-  bool mset;
+  long     i;
+  bool     mset;
   
   if (true) {
     for (i = 0; i <= globval.Cell_nLoc; i++) {
@@ -3805,7 +3804,7 @@ void setmpall (double rref)
           mset=true;
 	}
         if (mset) {
-	  printf("%s systematic multipoles defined\n",cell.Elem.PName);
+	  printf("%s systematic multipoles defined\n", cell.Elem.PName);
 	}
       }
     }
