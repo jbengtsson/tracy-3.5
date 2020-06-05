@@ -4,12 +4,12 @@
 
 #include "prt_ZAP.cc"
 
-// #define PM 1
-// #if PM
-// #include "PoincareMap.cc"
-// #else
-// #include "get_Poincare_Map.cc"
-// #endif
+#define PM 1
+#if PM
+#include "PoincareMap.cc"
+#else
+#include "get_Poincare_Map.cc"
+#endif
 
 int no_tps = NO;
 
@@ -1625,20 +1625,20 @@ int main(int argc, char *argv[])
     exit(0);
   }
 
-//   if (false) {
-// #if PM
-//     get_Poincare_Map();
-// #else
-//       no_sxt();
-//       globval.Cavity_on = true; globval.radiation = true;
-//       Ring_GetTwiss(true, 0e0); printglob();
-//       PoincareMap map;
-//       prt_lin_map(3, map.GetMap(true, true));
-// #endif
-//     prt_lat("linlat1.out", globval.bpm, true);
-//     prt_lat("linlat.out", globval.bpm, true, 10);
-//     exit(0);
-//   }
+  if (false) {
+#if PM
+    get_Poincare_Map();
+#else
+      no_sxt();
+      globval.Cavity_on = true; globval.radiation = true;
+      Ring_GetTwiss(true, 0e0); printglob();
+      PoincareMap map;
+      prt_lin_map(3, map.GetMap(true, true));
+#endif
+    prt_lat("linlat1.out", globval.bpm, true);
+    prt_lat("linlat.out", globval.bpm, true, 10);
+    exit(0);
+  }
 
   if (false) {
     long int     lastpos;
