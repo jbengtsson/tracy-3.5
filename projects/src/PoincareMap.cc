@@ -662,8 +662,6 @@ void PoincareMapType::propagate(const int n, BeamType &beam) const
   ss_vect<double> X, sum, sum2, m, s;
   FILE            *outf;
 
-  typedef minstd_rand0 default_random_engine;
-
   std::default_random_engine       rand;
   std::normal_distribution<double> norm_ranf(0e0, 1e0);
 
