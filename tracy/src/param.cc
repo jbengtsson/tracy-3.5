@@ -2355,7 +2355,7 @@ bool param_data_type::cod_corr(const int n_cell, const double scl,
 			       const long n_bits, orb_corr_type orb_corr[])
 {
   bool            cod = false;
-  long int        lastpos, i;
+  long int        lastpos;
   double          m_dbeta[2], s_dbeta[2], m_dnu[2], s_dnu[2];
   ss_vect<double> ps;
 
@@ -2387,47 +2387,49 @@ bool param_data_type::cod_corr(const int n_cell, const double scl,
 }
 
 
-void param_data_type::Orb_and_Trim_Stat(void)
+void param_data_type::Orb_and_Trim_Stat(orb_corr_type orb_corr[])
 {
-  int     i, j, N;
+  int     i, j;
   int     SextCounter = 0;
-  int     bins[5] = { 0, 0, 0, 0, 0 };
-  double  bin = 40.0e-6; // bin size for stat
-  double  tr; // trim strength
+  int     bins[5]     = { 0, 0, 0, 0, 0 };
+  double  bin         = 40.0e-6;              // bin size for stat
+  double  tr;                                 // trim strength
   Vector2 Sext_max, Sext_sigma, TrimMax, orb;
 
-  Sext_max[X_] = 0.0; Sext_max[Y_] = 0.0;
-  Sext_sigma[X_] = 0.0; Sext_sigma[Y_] = 0.0;
-  TrimMax[X_] = 0.0; TrimMax[Y_] = 0.0;
-  N = globval.Cell_nLoc; SextCounter = 0;
-  for (i = 0; i <= N; i++) {
+  for (j = 0; j < 2; j++) {
+   Sext_max[j] = Sext_sigma[j] = TrimMax[j] = 0e0;
+  }
+  SextCounter = 0;
+  for (i = 0; i <= globval.Cell_nLoc; i++) {
     if ((Cell[i].Elem.Pkind == Mpole) && (Cell[i].Elem.M->n_design == Sext)) {
       SextCounter++;
-      orb[X_] = Cell[i].BeamPos[x_]; orb[Y_] = Cell[i].BeamPos[y_];
-      Sext_sigma[X_] += orb[X_]*orb[X_]; Sext_sigma[Y_] += orb[Y_]*orb[Y_];
-      if (fabs(orb[X_]) > Sext_max[X_]) Sext_max[X_] = fabs(orb[X_]);
-      if (fabs(orb[Y_]) > Sext_max[Y_]) Sext_max[Y_] = fabs(orb[Y_]);
-      j = (int) (sqrt(orb[X_]*orb[X_]+orb[Y_]*orb[Y_])/bin);
+      for (j = 0; j < 2; j++) {
+	orb[j] = Cell[i].BeamPos[2*j];
+	Sext_sigma[j] += sqr(orb[j]);
+	if (fabs(orb[j]) > Sext_max[j]) Sext_max[j] = fabs(orb[j]);
+      }
+      j = (int) (sqrt(sqr(orb[X_])+sqr(orb[Y_]))/bin);
       if (j > 4) j = 4;
       if (j >= 0)
 	bins[j]++;
       else
 	printf("\nOrb_and_Trim_Stat: negative bin %d\n", j);
     } // sextupole handling
-
-    if (Cell[i].Fnum == globval.hcorr) {
-      tr = Cell[i].Elem.M->PBpar[HOMmax+Dip];
-      if (fabs(tr) > TrimMax[X_]) TrimMax[X_] = fabs(tr);
-    } // horizontal trim handling
-    if (Cell[i].Fnum == globval.vcorr) {
-      tr = Cell[i].Elem.M->PBpar[HOMmax-Dip];
-      if (fabs(tr) > TrimMax[Y_]) TrimMax[Y_] = fabs(tr);
-    } // vertical trim handling
   } // looking throught the cells
 
-  Sext_sigma[X_] = sqrt(Sext_sigma[X_]/SextCounter);
-  Sext_sigma[Y_] = sqrt(Sext_sigma[Y_]/SextCounter);
+  // Trim handling.
+  for (j = 0; j < 2; j++)
+    for (i = 0; i < (int)orb_corr[j].corrs.size(); i++) {
+      if (j == 0)
+	tr = Cell[orb_corr[j].corrs[i]].Elem.M->PBpar[HOMmax+Dip];
+      else
+	tr = Cell[orb_corr[j].corrs[i]].Elem.M->PBpar[HOMmax-Dip];
+      TrimMax[j] = max(fabs(tr), TrimMax[j]);
+    }
 
+
+  for (j = 0; j < 2; j++)
+    Sext_sigma[j] = sqrt(Sext_sigma[j]/SextCounter);
   printf("In sextupoles maximal horizontal orbit is:"
 	 " %5.3f mm with sigma %5.3f mm\n",
           1e3*Sext_max[X_], 1e3*Sext_sigma[X_]);
@@ -2442,7 +2444,7 @@ void param_data_type::Orb_and_Trim_Stat(void)
   }
   printf("There are %3d sextupoles with offset more than %5.3f mm \n",
 	 bins[4], 4e3*bin);
-  printf("Maximal hcorr is %6.3f mrad, maximal vcorr is %6.3f mrad\n",
+  printf("Maximal hcorr is %5.3f mrad, maximal vcorr is %5.3f mrad\n",
 	 1e3*TrimMax[X_], 1e3*TrimMax[Y_]);
 }
 
@@ -2525,7 +2527,9 @@ void param_data_type::err_and_corr_init(const string &param_file,
     TotalTuneX=globval.TotalTune[0];
     TotalTuneY=globval.TotalTune[1];
     Ring_Fittune(nu, (double)1e-4, nq, qfbuf, qdbuf, dk, 50L);
-    printf("Fittune: nux= %f dnux= %f nuy= %f dnuy= %f\n",globval.TotalTune[0], globval.TotalTune[0]-TotalTuneX, globval.TotalTune[1], globval.TotalTune[1]-TotalTuneY);
+    printf("Fittune: nux= %f dnux= %f nuy= %f dnuy= %f\n",
+	   globval.TotalTune[0], globval.TotalTune[0]-TotalTuneX,
+	   globval.TotalTune[1], globval.TotalTune[1]-TotalTuneY);
 
     Ring_GetTwiss(true, 0.0); printglob();
   }
@@ -2552,8 +2556,9 @@ void param_data_type::err_and_corr_init(const string &param_file,
     printf("Fitchrom: ns[0]=%ld ns[1]=%ld\n",ns[0],ns[1]);
     ChromaX=globval.Chrom[0];
     ChromaY=globval.Chrom[1];
-    Ring_Fitchrom(si, (double)1e-4, ns, sfbuf, sdbuf, dks, 50L);
-    printf("Fitchrom: six= %f dsix= %f siy= %f dsiy= %f\n",globval.Chrom[0], globval.Chrom[0]-ChromaX, globval.Chrom[1], globval.Chrom[1]-ChromaY);
+    Ring_Fitchrom(si, 1e-4, ns, sfbuf, sdbuf, dks, 50L);
+    printf("Fitchrom: six= %f dsix= %f siy= %f dsiy= %f\n",
+	   globval.Chrom[0], globval.Chrom[0]-ChromaX, globval.Chrom[1], globval.Chrom[1]-ChromaY);
 
     Ring_GetTwiss(true, 0.0); printglob();
   }

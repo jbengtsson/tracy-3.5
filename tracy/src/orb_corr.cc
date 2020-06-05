@@ -49,7 +49,8 @@ void orb_corr_type::alloc(const long int i0, const long int i1,
 			  const double hcut, const double vcut,
 			  const double eps)
 {
-  this->hor = hor; this->periodic = periodic; this->eps = eps; this->hcut = hcut; this->vcut = vcut;
+  this->hor = hor; this->periodic = periodic; this->eps = eps;
+  this->hcut = hcut; this->vcut = vcut;
 
   bpms  = get_elem(i0, i2, bpm_Fam_names);
   corrs = get_elem(i0, i1, corr_Fam_names);
@@ -83,9 +84,10 @@ void orb_corr_type::alloc(const std::vector<string> &bpm_Fam_names,
 
 void orb_corr_type::dealloc(void)
 {
-  free_dmatrix(A, 1, m, 1, n); free_dmatrix(U, 1, m, 1, n); free_dmatrix(Ai, 1, n, 1, m);
-  free_dvector(w, 1, n);       free_dmatrix(V, 1, n, 1, n); free_dvector(bb, 1, m);
-  free_dvector(b, 1, m);       free_dvector(x, 1, n);       free_dvector(xx, 1, n);
+  free_dmatrix(A, 1, m, 1, n); free_dmatrix(U, 1, m, 1, n);
+  free_dmatrix(Ai, 1, n, 1, m);
+  free_dvector(w, 1, n); free_dmatrix(V, 1, n, 1, n); free_dvector(bb, 1, m);
+  free_dvector(b, 1, m); free_dvector(x, 1, n); free_dvector(xx, 1, n);
 
   printf("\ndealloc: n_bpm = %d, n_corr = %d\n", m, n);
 }
@@ -137,8 +139,8 @@ void orb_corr_type::get_orm_mat(void)
 
 void orb_corr_type::svd_decomp(void)
 {
-  int plane, i, j, k;
-  double cut = 0.;
+  int    plane, i, j, k;
+  double cut = 0e0;
   
   plane = (hor)? 0 : 1;
 
@@ -153,7 +155,7 @@ void orb_corr_type::svd_decomp(void)
 
   dsvdcmp(U, m, n, w, V);
 
-  printf("\ngtcmat singular values (cut %lf):\n",cut);
+  printf("\ngtcmat singular values (cut %lf):\n", cut);
   for (j = 1; j <= n; j++) {
     printf("%11.3e", w[j]);
     if (w[j] < cut || w[j] < eps) {
@@ -186,7 +188,7 @@ void orb_corr_type::svd_decomp(void)
 
 void orb_corr_type::prt_svdmat(void)
 {
-  int plane, i, j;
+  int  plane, i, j;
   FILE *outf;
 
   plane = (hor)? 0 : 1;
@@ -197,13 +199,14 @@ void orb_corr_type::prt_svdmat(void)
     outf=fopen("svdv.dat","w");
 
   fprintf(outf,"# total monitors: %d\n", GetnKid(globval.bpm));
-  fprintf(outf,"\n# total available monitors: %d\n",GetnKid(globval.bpm));
+  fprintf(outf,"\n# total available monitors: %d\n", GetnKid(globval.bpm));
 
   if (plane == 0)
     fprintf(outf,"# total horizontal correctors: %d\n", GetnKid(globval.hcorr));
   else
     fprintf(outf,"# total vertical correctors: %d\n", GetnKid(globval.vcorr));
-  fprintf(outf,"\n# total available correctors: %d\n#\n",GetnKid(globval.vcorr));
+  fprintf(outf,"\n# total available correctors: %d\n#\n",
+	  GetnKid(globval.vcorr));
 
   fprintf(outf, "#A [%d][%d]= \n",m,n);
   for (i = 0; i < m; i++) {
@@ -240,7 +243,8 @@ void orb_corr_type::prt_svdmat(void)
   fclose(outf);
 }
 
-void orb_corr_type::solve(const double scl, const double h_maxkick, const double v_maxkick, const long n_bits) const
+void orb_corr_type::solve(const double scl, const double h_maxkick,
+			  const double v_maxkick, const long n_bits) const
 {
   int      plane, j;
   long int loc;
@@ -354,7 +358,8 @@ void cod_ini(const std::vector<string> &bpm_Fam_names,
   const double eps = 1e-4;
 
   for (j = 0; j < 2; j++)
-    orb_corr[j].alloc(bpm_Fam_names, corr_Fam_names[j], j == 0, true, hcut, vcut, eps);
+    orb_corr[j].alloc(bpm_Fam_names, corr_Fam_names[j], j == 0, true, hcut,
+		      vcut, eps);
 
   printf("\ncod_ini:\n");
   printf("  no bpms %lu, no of hor corr. %lu, no of ver. corr. %lu\n",
@@ -367,7 +372,8 @@ void thread_beam(const int n_cell, const string &Fam_name,
 		 const std::vector<string> &bpm_Fam_names,
 		 const std::vector<string> corr_Fam_names[],
 		 const int n_orbit, const double scl,
-		 const double h_maxkick, const double v_maxkick, const long n_bits, const double hcut, const double vcut)
+		 const double h_maxkick, const double v_maxkick,
+		 const long n_bits, const double hcut, const double vcut)
 {
   // Thread beam one super period at the time.
   // Assumes a marker at entrance, center, and exit of each super period.
@@ -415,7 +421,8 @@ void thread_beam(const int n_cell, const string &Fam_name,
       ps.zero();
       Cell_Pass(0, globval.Cell_nLoc, ps, lastpos);
       if (i != n_cell-1) Cell_Pass(0, j2, ps, lastpos);
-      orb_corr[0].solve(scl, h_maxkick, v_maxkick, n_bits); orb_corr[1].solve(scl, h_maxkick, v_maxkick, n_bits);
+      orb_corr[0].solve(scl, h_maxkick, v_maxkick, n_bits);
+      orb_corr[1].solve(scl, h_maxkick, v_maxkick, n_bits);
     }
   }
 
@@ -430,7 +437,9 @@ void thread_beam(const int n_cell, const string &Fam_name,
 }
 
 
-bool cod_correct(const int n_orbit, const double scl, const double h_maxkick, const double v_maxkick, const long n_bits, orb_corr_type orb_corr[])
+bool cod_correct(const int n_orbit, const double scl, const double h_maxkick,
+		 const double v_maxkick, const long n_bits,
+		 orb_corr_type orb_corr[])
 {
   bool     cod = false;
   long int lastpos;
@@ -453,7 +462,8 @@ bool cod_correct(const int n_orbit, const double scl, const double h_maxkick, co
 	       1e3*sigma[X_], 1e3*sigma[Y_]);
       }
 
-      orb_corr[0].solve(scl, h_maxkick, v_maxkick, n_bits); orb_corr[1].solve(scl, h_maxkick, v_maxkick, n_bits);
+      orb_corr[0].solve(scl, h_maxkick, v_maxkick, n_bits);
+      orb_corr[1].solve(scl, h_maxkick, v_maxkick, n_bits);
 
       codstat(mean, sigma, max, globval.Cell_nLoc, false, orb_corr[X_].bpms);
       printf("Corrected rms orbit (bpms): x = %7.1e mm, y = %7.1e mm\n",

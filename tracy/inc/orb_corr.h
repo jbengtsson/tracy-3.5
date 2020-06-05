@@ -3,7 +3,7 @@
 
 class orb_corr_type {
 private:
-  double                **A, **Ai, *w, **U, **V, *b, *bb, *x, *xx, eps, hcut, vcut;
+  double **A, **Ai, *w, **U, **V, *b, *bb, *x, *xx, eps, hcut, vcut;
 
 public:
   bool                  hor, periodic;
@@ -13,17 +13,20 @@ public:
   void alloc(const long int i0, const long int i1, const long int i2,
 	     const std::vector<string> &bpm_Fam_names,
 	     const std::vector<string> &corr_Fam_names,
-	     const bool hor, const bool periodic, const double hcut, const double vcut, const double eps);
+	     const bool hor, const bool periodic, const double hcut,
+	     const double vcut, const double eps);
   void alloc(const std::vector<string> &bpm_Fam_names,
 	     const std::vector<string> &corr_Fam_names,
-	     const bool hor, const bool periodic, const double hcut, const double vcut, const double eps);
+	     const bool hor, const bool periodic, const double hcut,
+	     const double vcut, const double eps);
   void dealloc(void);
 
   void get_trm_mat(void);
   void get_orm_mat(void);
   void svd_decomp(void);
   void prt_svdmat(void);
-  void solve(const double scl, const double h_maxkick, const double v_maxkick, const long n_bits) const;
+  void solve(const double scl, const double h_maxkick, const double v_maxkick,
+	     const long n_bits) const;
   void clr_trims(void);
 };
 

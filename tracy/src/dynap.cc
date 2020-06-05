@@ -300,7 +300,7 @@ void DA_data_type::get_DA_real(param_data_type &params,
     } else
       cod = getcod(0e0, lastpos);
 
-    params.Orb_and_Trim_Stat();
+    params.Orb_and_Trim_Stat(orb_corr);
 
     if (params.N_calls > 0) {
       params.ID_corr(params.N_calls, params.N_steps, false, j);
@@ -308,7 +308,7 @@ void DA_data_type::get_DA_real(param_data_type &params,
 			    params.n_bits, orb_corr);
     }
 
-    params.Orb_and_Trim_Stat();
+    params.Orb_and_Trim_Stat(orb_corr);
 
     printf("\n");
     if (cod) {
@@ -317,7 +317,7 @@ void DA_data_type::get_DA_real(param_data_type &params,
       sprintf(fname,"linlat_%d.out",j); prt_lat(fname, globval.bpm, true);
       sprintf(fname,"cod_%d.out",j);    prt_cod(fname, globval.bpm, true);
       sprintf(fname,"cod_%d.dat",j);    printcod(fname);
-      if (j == 1) {
+      if (trace && (j == 1)) {
 	orb_corr[X_].prt_svdmat();
 	orb_corr[Y_].prt_svdmat();
       }

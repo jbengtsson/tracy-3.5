@@ -125,8 +125,14 @@ class param_data_type {
   latticetype Lattice[ilatmax];
 
   void GirderSetup();
-  void SetCorMis(double gxrms, double gyrms, double gtrms, double jxrms, double jyrms, double exrms, double eyrms, double etrms, double rancutx, double rancuty, double rancutt, long iseed);
-  void CorMis_in(double *gdxrms, double *gdzrms, double *gdarms, double *jdxrms, double *jdzrms, double *edxrms, double *edzrms, double *edarms, double *bdxrms, double *bdzrms, double *bdarms, double *rancutx, double *rancuty, double *rancutt, long *iseed, long *iseednr);
+  void SetCorMis(double gxrms, double gyrms, double gtrms, double jxrms,
+		 double jyrms, double exrms, double eyrms, double etrms,
+		 double rancutx, double rancuty, double rancutt, long iseed);
+  void CorMis_in(double *gdxrms, double *gdzrms, double *gdarms,
+		 double *jdxrms, double *jdzrms, double *edxrms,
+		 double *edzrms, double *edarms, double *bdxrms,
+		 double *bdzrms, double *bdarms, double *rancutx,
+		 double *rancuty, double *rancutt, long *iseed, long *iseednr);
   
   void get_param(const string &param_file);
   void get_bare(void);
@@ -136,7 +142,8 @@ class param_data_type {
 // Control of vertical beam size.
   void FindSQ_SVDmat(double **SkewRespMat, double **U, double **V, double *w,
 		     int N_COUPLE, int N_SKEW);
-  void FindMatrix(double **SkewRespMat, const double deta_y_max, const double deta_y_offset);
+  void FindMatrix(double **SkewRespMat, const double deta_y_max,
+		  const double deta_y_offset);
   void ini_skew_cor(const double deta_y_max, const double deta_y_offset);
   void FindCoupVector(double *VertCouple);
   void SkewStat(double VertCouple[], const int cnt);
@@ -157,25 +164,29 @@ class param_data_type {
   void X_vector(const bool first);
   void ini_ID_corr(const bool IDs);
   void W_diag(void);
-  bool ID_corr(const int N_calls, const int N_steps, const bool IDs, const int cnt);
+  bool ID_corr(const int N_calls, const int N_steps, const bool IDs,
+	       const int cnt);
   void ReadCorMis(const bool Scale_it, const double Scale) const;
-  void LoadAlignTol(const bool Scale_it, const double Scale, const bool new_rnd,
+  void LoadAlignTol(const bool Scale_it, const double Scale,
+		    const bool new_rnd,
 		    const int seed) const;
   void LoadFieldErr(const bool Scale_it, const double Scale,
 		    const bool new_rnd) const;
   void LoadApers(const double scl_x, const double scl_y) const;
 
-  void Align_BPMs(const int n, const double bdxrms, const double bdzrms, const double bdarms) const;
+  void Align_BPMs(const int n, const double bdxrms, const double bdzrms,
+		  const double bdarms) const;
   bool CorrectCOD_N(const int n_orbit, const int k);
   void ini_COD_corr(const int n_bpm_Fam, const std::string bpm_names[],
 		    const int n_hcorr_Fam, const std::string hcorr_names[],
 		    const int n_vcorr_Fam, const std::string vcorr_names[],
 		    const bool svd);
 
-  bool cod_corr(const int n_cell, const double scl, const double h_maxkick, const double v_maxkick, const long n_bits,
+  bool cod_corr(const int n_cell, const double scl, const double h_maxkick,
+		const double v_maxkick, const long n_bits,
 		orb_corr_type orb_corr[]);
 
-  void Orb_and_Trim_Stat(void);
+  void Orb_and_Trim_Stat(orb_corr_type orb_corr[]);
 
   void prt_cod_corr_lat(void);
 
