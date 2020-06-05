@@ -3,4 +3,4 @@
 # combine PBS standard output and error files
 #$ -j y
 
-$TRACY_DIR/projects/src/leac param.dat 1
+$TRACY_LIB/projects/src/leac param.dat 1
