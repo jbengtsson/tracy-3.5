@@ -8,7 +8,7 @@ ps = $prm1;
 
 f_s = 24; l_w = 2;
 if (ps == 0) \
-  set terminal x11; \
+  set terminal qt; \
 else if (ps == 1) \
   set terminal postscript enhanced color solid lw l_w "Times-Roman" f_s; \
   ext = "ps"; \
