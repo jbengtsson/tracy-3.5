@@ -164,6 +164,7 @@ i30_4  = floor(nu_x_min) + 4.0/3.0;
 i12_1  = floor(nu_x_min+2*nu_y_max) - 2.0;
 i12_2  = floor(nu_x_min+2*nu_y_max) - 1.0;
 i12_3  = floor(nu_x_min+2*nu_y_max);
+i12_4  = floor(nu_x_min+2*nu_y_max) + 1.0;
 i1m2_1 = floor(nu_x_min-2*nu_y_min) - 2.0;
 i1m2_2 = floor(nu_x_min-2*nu_y_min) - 1.0;
 i1m2_3 = floor(nu_x_min-2*nu_y_min);
@@ -189,6 +190,7 @@ i14_3  = floor(nu_x_min+4.0*nu_y_max) - 3.0;
 i14_4  = floor(nu_x_min+4.0*nu_y_max) - 2.0;
 i14_5  = floor(nu_x_min+4.0*nu_y_max) - 1.0;
 i14_6  = floor(nu_x_min+4.0*nu_y_max);
+i14_7  = floor(nu_x_min+4.0*nu_y_max) + 1.0;
 i32_1  = floor(3.0*nu_x_min+2.0*nu_y_max);
 i32_2  = floor(3.0*nu_x_min+2.0*nu_y_max) + 1.0;
 i32_3  = floor(3.0*nu_x_min+2.0*nu_y_max) + 2.0;
@@ -263,6 +265,7 @@ splot file1 using \
       u,     (i12_1-u)/2.0,      1.0 notitle with lines ls 1, \
       u,     (i12_2-u)/2.0,      1.0 notitle with lines ls 1, \
       u,     (i12_3-u)/2.0,      1.0 notitle with lines ls 1, \
+      u,     (i12_4-u)/2.0,      1.0 notitle with lines ls 1, \
       u,     (u-i1m2_1)/2.0,     1.0 notitle with lines ls 1, \
       u,     (u-i1m2_2)/2.0,     1.0 notitle with lines ls 1, \
       u,     (u-i1m2_3)/2.0,     1.0 notitle with lines ls 1, \
@@ -291,6 +294,7 @@ splot file1 using \
       u,     (i14_4-u)/4.0,      1.0 notitle with lines ls 4, \
       u,     (i14_5-u)/4.0,      1.0 notitle with lines ls 4, \
       u,     (i14_6-u)/4.0,      1.0 notitle with lines ls 4, \
+      u,     (i14_7-u)/4.0,      1.0 notitle with lines ls 4, \
       u,     (3.0*u-i3m2_1)/2.0, 1.0 notitle with lines ls 4, \
       u,     (3.0*u-i3m2_2)/2.0, 1.0 notitle with lines ls 4, \
       u,     (3.0*u-i3m2_3)/2.0, 1.0 notitle with lines ls 4, \
@@ -402,6 +406,7 @@ splot file2 using \
       u,     (i12_1-u)/2.0,      1.0 notitle with lines ls 1, \
       u,     (i12_2-u)/2.0,      1.0 notitle with lines ls 1, \
       u,     (i12_3-u)/2.0,      1.0 notitle with lines ls 1, \
+      u,     (i12_4-u)/2.0,      1.0 notitle with lines ls 1, \
       u,     (u-i1m2_1)/2.0,     1.0 notitle with lines ls 1, \
       u,     (u-i1m2_2)/2.0,     1.0 notitle with lines ls 1, \
       u,     (u-i1m2_3)/2.0,     1.0 notitle with lines ls 1, \
@@ -430,6 +435,7 @@ splot file2 using \
       u,     (i14_4-u)/4.0,      1.0 notitle with lines ls 4, \
       u,     (i14_5-u)/4.0,      1.0 notitle with lines ls 4, \
       u,     (i14_6-u)/4.0,      1.0 notitle with lines ls 4, \
+      u,     (i14_7-u)/4.0,      1.0 notitle with lines ls 4, \
       u,     (3.0*u-i3m2_1)/2.0, 1.0 notitle with lines ls 4, \
       u,     (3.0*u-i3m2_2)/2.0, 1.0 notitle with lines ls 4, \
       u,     (3.0*u-i3m2_3)/2.0, 1.0 notitle with lines ls 4, \
