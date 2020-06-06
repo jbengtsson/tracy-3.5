@@ -5,7 +5,6 @@ int         param_data_type::n_orbit      = 5;
 int         param_data_type::n_scale      = 1;
 std::string param_data_type::loc_Fam_name = "";
 int         param_data_type::n_cell       = -1;
-int         param_data_type::n_thread     = -1;
 
 int param_data_type::n_lin         =  3;
 int param_data_type::SQ_per_scell  =  1;
@@ -643,8 +642,6 @@ void param_data_type::get_param(const string &param_file)
 	sstr.clear(); sstr.str(""); sstr << str; loc_Fam_name = sstr.str();
       } else if (strcmp("n_cell", name) == 0)
 	sscanf(line, "%*s %d", &n_cell);
-      else if (strcmp("n_thread", name) == 0)
-	sscanf(line, "%*s %d", &n_thread);
       else if (strcmp("n_scale", name) == 0)
 	sscanf(line, "%*s %d", &n_scale);
       else if (strcmp("n_orbit", name) == 0)
@@ -2362,8 +2359,9 @@ bool param_data_type::cod_corr(const int n_cell, const double scl,
   orb_corr[X_].clr_trims(); orb_corr[Y_].clr_trims();
 
   cod = getcod(0e0, lastpos);
+  if (trace) printf("\ncod_corr: %d\n", cod);
 
-  if (!cod) {
+  if (false || !cod) {
     printf("\ncould not find closed orbit; threading beam\n");
 
     orb_corr[X_].clr_trims(); orb_corr[Y_].clr_trims();
@@ -2558,7 +2556,8 @@ void param_data_type::err_and_corr_init(const string &param_file,
     ChromaY=globval.Chrom[1];
     Ring_Fitchrom(si, 1e-4, ns, sfbuf, sdbuf, dks, 50L);
     printf("Fitchrom: six= %f dsix= %f siy= %f dsiy= %f\n",
-	   globval.Chrom[0], globval.Chrom[0]-ChromaX, globval.Chrom[1], globval.Chrom[1]-ChromaY);
+	   globval.Chrom[0], globval.Chrom[0]-ChromaX, globval.Chrom[1],
+	   globval.Chrom[1]-ChromaY);
 
     Ring_GetTwiss(true, 0.0); printglob();
   }

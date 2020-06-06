@@ -17,7 +17,6 @@ int no_tps = NO;
 const bool
   set_dnu = false,
   mI_rot  = false,
-  HOA_rot = false,
   prt_ms  = false,
   prt_dt  = false;
 
@@ -33,8 +32,7 @@ const double
 #else
   nu[]     = {0.15, -0.1},
 #endif
-  dnu_mI[] = {-0.017+0.125, -0.021},
-  nu_HOA[] = {19.0/8.0, 15.0/16.0};
+  dnu_mI[] = {-0.01, 0.02};
 
 
 double rad2deg(const double a) { return a*180e0/M_PI; }
@@ -1794,22 +1792,6 @@ int main(int argc, char *argv[])
     prt_lat("linlat.out", globval.bpm, true, 10);
 
     exit(0);
-  }
-
-  if (HOA_rot) {
-    loc = Elem_GetPos(ElemIndex("HOA_1_rot"), 1);
-    for (k = 0; k < 2; k++)
-      dnu[k] = fract(nu_HOA[k]) - fract(Cell[loc].Nu[k]);
-    printf("\ndnu HOA_1: [%7.5f %7.5f]\n", dnu[X_], dnu[Y_]);
-    set_map(ElemIndex("HOA_1_rot"), dnu);
-
-    loc2 = Elem_GetPos(ElemIndex("HOA_2_rot"), 1);
-    for (k = 0; k < 2; k++)
-      dnu[k] = fract(nu_HOA[k]) - fract(Cell[loc2].Nu[k]-Cell[loc].Nu[k]);
-    printf("\ndnu HOA_2: [%7.5f %7.5f]\n", dnu[X_], dnu[Y_]);
-    set_map(ElemIndex("HOA_2_rot"), dnu);
-
-    Ring_GetTwiss(true, 0e0); printglob();
   }
 
   prtmfile("flat_file.dat");

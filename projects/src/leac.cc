@@ -29,7 +29,9 @@ void err_and_corr(const string &param_file, const int mode)
     // Beam based alignment.
     if (params.bba) params.Align_BPMs(Quad, -1e0, -1e0, -1e0);
 
-    cod = params.cod_corr(params.n_cell, 1e0, 1e30, 1e30, 1024, orb_corr);
+    trace = true;
+    cod = params.cod_corr(params.n_cell, 1e0, params.h_maxkick,
+			  params.v_maxkick, params.n_bits, orb_corr);
   } else
     cod = getcod(0e0, lastpos);
 
@@ -40,7 +42,7 @@ void err_and_corr(const string &param_file, const int mode)
     // cod = params.cod_corr(params.n_cell, 1e0, orb_corr);
   }
 
-  prtmfile("flat_file.dat");
+  // prtmfile("flat_file.dat");
 
   if (cod) {
     if (mode == 1) {
