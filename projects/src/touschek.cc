@@ -38,8 +38,6 @@ void err_and_corr(const string &param_file)
 
   params.err_and_corr_init(param_file, orb_corr);
 
-  globval.Cavity_on = false;
-
   if (params.fe_file != "") params.LoadFieldErr(false, 1e0, true);
   if (params.ae_file != "") {
     // Load misalignments; set seed, no scaling of rms errors.
@@ -47,11 +45,12 @@ void err_and_corr(const string &param_file)
     // Beam based alignment.
     if (params.bba) params.Align_BPMs(Quad, -1e0, -1e0, -1e0);
 
-    cod = params.cod_corr(params.n_cell, 1e0, 1e30, 1e30, 1024, orb_corr);
+    cod = params.cod_corr(params.n_cell, 1e0, params.h_maxkick,
+			  params.v_maxkick, params.n_bits, orb_corr);
   } else
     cod = getcod(0e0, lastpos);
 
-  params.Orb_and_Trim_Stat();
+  params.Orb_and_Trim_Stat(orb_corr);
 
   if (params.N_calls > 0) {
     params.ID_corr(params.N_calls, params.N_steps, false, 1);

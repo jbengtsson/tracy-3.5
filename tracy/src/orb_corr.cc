@@ -446,7 +446,7 @@ bool cod_correct(const int n_orbit, const double scl, const double h_maxkick,
   int      j;
   Vector2  mean, sigma, max;
 
-  if (trace) printf("cod_correct:\n");
+  if (trace) printf("\ncod_correct:\n");
 
   for (j = 1; j <= n_orbit; j++) {
     cod = getcod(0e0, lastpos);

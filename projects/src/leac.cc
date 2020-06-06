@@ -42,7 +42,7 @@ void err_and_corr(const string &param_file, const int mode)
     // cod = params.cod_corr(params.n_cell, 1e0, orb_corr);
   }
 
-  // prtmfile("flat_file.dat");
+  prtmfile("flat_file.dat");
 
   if (cod) {
     if (mode == 1) {

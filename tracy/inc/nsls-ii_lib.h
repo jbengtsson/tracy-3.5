@@ -243,7 +243,7 @@ double Touschek(const double Qb, const double delta_RF,const bool consistent,
 		const double eps_x, const double eps_y,
 		const double sigma_delta, double sigma_s,
 		const int n_turn, const bool aper_on,
-		double sum_delta[][2], double sum2_delta[][2], double cheps);
+		double sum_delta[][2], double sum2_delta[][2]);
 
 double f_IBS(const double chi_m);
 
