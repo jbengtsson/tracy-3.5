@@ -9,11 +9,8 @@ queue="ap-high.q"
 t1="00:10:00"
 t2="00:30:00"
 
-#dir=`pwd`
-dir=$HOME/git_repos/tracy-3.5_temp/projects/src
+dir=$TRACY_DIR/projects/src
 
-#~/projects/src/main /home/bengtsson/projects/in/lattice/sls-2
-#wait
 
 #\rm dnu.cmd.o* fmap*.cmd.o*
 \rm dnu.cmd.o*
