@@ -4,6 +4,11 @@
 
 int no_tps = NO;
 
+const int n_cell = 6;
+
+// const double nu[] = {10.87, 3.29};
+const double nu[] = {64.90/n_cell, 19.67/n_cell};
+
 
 void prt_name(FILE *outf, const char *name, const string &str, const int len)
 {
@@ -139,8 +144,6 @@ void fit_nu(const std::vector<int> &Fnum_b2,
 int main(int argc, char *argv[])
 {
   std::vector<int> Fam_b2;
-
-  const double nu[] = {10.87, 3.29};
 
   reverse_elem = !false;
 
