@@ -270,10 +270,11 @@ void DA_data_type::get_DA_real(param_data_type &params,
     if (params.fe_file != "") params.LoadFieldErr(false, 1e0, true);
     if (params.ae_file != "") {
       // Load misalignments; set seed, no scaling of rms errors.
+      if (trace) printf("get_DA_real: n_meth = %d", params.n_meth);
       if (params.n_meth == 0) {
         printf("entering LoadAlignTol\n");
         params.LoadAlignTol(false, 1e0, true, j);
-	bdxrms=bdzrms=bdarms=-1.;
+	bdxrms = bdzrms = bdarms = -1e0;
       } else if (params.n_meth == 1) {
 	// printf("entering ReadCormis\n");
 	// params.ReadCorMis(false,1e0);

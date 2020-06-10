@@ -5,6 +5,7 @@ int         param_data_type::n_orbit      = 5;
 int         param_data_type::n_scale      = 1;
 std::string param_data_type::loc_Fam_name = "";
 int         param_data_type::n_cell       = -1;
+int         param_data_type::n_thread     = -1;
 
 int param_data_type::n_lin         =  3;
 int param_data_type::SQ_per_scell  =  1;
@@ -65,6 +66,7 @@ void TracyStrcpy (char *elem, char *pname) {
 
 void MyStrcpy (char *elem, char *pname, long leng) {
   long i;
+
   strncpy(elem, pname, leng); elem[leng]='\0';
   i = leng-1; // remove trailing spaces
   while ( elem[i] == ' ' ) {
@@ -76,25 +78,26 @@ void MyStrcpy (char *elem, char *pname, long leng) {
 #define seps 1E-6
 
 void param_data_type::GirderSetup() {
-  bool  giropen, ismag;
-  double  s0, s1, s2, circ;
-  long  ngir, i0, ic, i, countmag;
+  bool     giropen, ismag;
+  double   s0, s1, s2, circ;
+  long     ngir, i0, ic, i, countmag;
   CellType cell;
-  char elem[NameLength+1];
-  FILE *outf;
-  char fname[30];
+  char     elem[NameLength+1];
+  FILE     *outf;
+  char     fname[30];
 
   printf("Girder Setup \n");
 
 
 // allocate the girders (if any)
 // also enter mid pos and angle in lattice structure}
-  ngir=0;
-  circ=0; giropen=false;  
+  ngir = 0;
+  circ = 0; giropen=false;  
   for (i = 0; i <= globval.Cell_nLoc; i++) {
  
-    if (i == ilatmax)  {
-      printf("i %ld exceeds %d\n", i, ilatmax-1); exit(1);
+    if (i == ilatmax) {
+      printf("i %ld exceeds %d\n", i, ilatmax-1);
+      exit(1);
     }
 
     Lattice[i].igir=-1;
@@ -103,12 +106,17 @@ void param_data_type::GirderSetup() {
     
     circ=circ+cell.Elem.PL;
 
-    if ((cell.Elem.PName[0]=='g') && (cell.Elem.PName[1]=='t') && (cell.Elem.PName[2]=='y')
-    && (cell.Elem.PName[3]=='p') && ((cell.Elem.PName[4]=='0')||(cell.Elem.PName[4]=='1'))) {
+    if ((cell.Elem.PName[0] == 'g') && (cell.Elem.PName[1]=='t')
+	&& (cell.Elem.PName[2] == 'y')
+    && (cell.Elem.PName[3]=='p')
+	&& ((cell.Elem.PName[4] == '0') || (cell.Elem.PName[4]=='1'))) {
       if (giropen) {
 // if girder is open, close it:
-        giropen=false;
-        if (cell.Elem.PName[4]=='0') {Girder[ngir-1].gco[1]=0;} else {Girder[ngir-1].gco[1]=1;}
+        giropen = false;
+        if (cell.Elem.PName[4]=='0')
+	  Girder[ngir-1].gco[1]=0;
+	else
+	  {Girder[ngir-1].gco[1]=1;}
         Girder[ngir-1].gsp[1]=circ;  
         Girder[ngir-1].ilat[1]=i;
       } else {
@@ -123,7 +131,10 @@ void param_data_type::GirderSetup() {
         Girder[ngir-1].gdy[0]=0; 
         Girder[ngir-1].gdy[1]=0; 
         Girder[ngir-1].gdt=0;
-        if (cell.Elem.PName[4]=='0') {Girder[ngir-1].gco[0]=0;} else {Girder[ngir-1].gco[0]=1;}
+        if (cell.Elem.PName[4]=='0')
+	  Girder[ngir-1].gco[0]=0;
+	else
+	  Girder[ngir-1].gco[0]=1;
         Girder[ngir-1].gsp[0]=circ;  
         Girder[ngir-1].ilat[0]=i;
         Girder[ngir-1].igir[0]=-1; 
@@ -134,35 +145,38 @@ void param_data_type::GirderSetup() {
     Lattice[i].smid=circ-cell.Elem.PL/2;
   }//for
 
-  for (i=0;i<ngir;i++){
-    for (ic=Girder[i].ilat[0]; ic<=Girder[i].ilat[1]; ic++) {Lattice[ic].igir=i;}
-  }
-
-
+  for (i=0;i<ngir;i++)
+    for (ic=Girder[i].ilat[0]; ic<=Girder[i].ilat[1]; ic++)
+      Lattice[ic].igir=i;
 
   NGirderLevel[0]=ngir;
-
-// find compounds, i.e. elements which are to be treated as one block w.r.t. misalignment
-// two types: bracketed by girder type 2,3 or series of magnets w/o space between.
-//   first select all compound elements, defined by bracket of type 2,3 girders:
+  
+  // find compounds, i.e. elements which are to be treated as one block w.r.t.
+  // misalignment two types: bracketed by girder type 2,3 or series of magnets
+  // w/o space between. first select all compound elements, defined by bracket
+  // of type 2,3 girders:
    
   s1=0; s2=0; giropen=false;
   for (i = 0; i <= globval.Cell_nLoc; i++) {
 
     getelem(i, &cell);
     s2=s1+cell.Elem.PL;
-    if ((cell.Elem.PName[0]=='g') && (cell.Elem.PName[1]=='t') && (cell.Elem.PName[2]=='y')
-    && (cell.Elem.PName[3]=='p') && ((cell.Elem.PName[4]=='2')||(cell.Elem.PName[4]=='3'))) {
+    if ((cell.Elem.PName[0]=='g') && (cell.Elem.PName[1]=='t')
+	&& (cell.Elem.PName[2]=='y') && (cell.Elem.PName[3]=='p')
+	&& ((cell.Elem.PName[4]=='2')||(cell.Elem.PName[4]=='3'))) {
 
-      if (giropen){
-// if compound is open, close it:
+      if (giropen) {
+	// if compound is open, close it:
         giropen=false;
         Girder[ngir-1].gsp[1]=s2;
         Girder[ngir-1].ilat[1]=i;
         Girder[ngir-1].igir[1]=Lattice[i].igir; 
-        if (cell.Elem.PName[4]=='2') {Girder[ngir-1].gco[1]=2;} else {Girder[ngir-1].gco[1]=3;} 
+        if (cell.Elem.PName[4]=='2')
+	  Girder[ngir-1].gco[1]=2;
+	else
+	  Girder[ngir-1].gco[1]=3; 
       } else {
-// if compound is not open, open a new one:
+	// if compound is not open, open a new one:
         ngir++;
         giropen=true;
         Girder[ngir-1].gsp[0]=s2;
@@ -170,19 +184,23 @@ void param_data_type::GirderSetup() {
         Girder[ngir-1].igir[0]=Lattice[i].igir; 
         Girder[ngir-1].gco[0]=0;
         Girder[ngir-1].level=2;
-        if (cell.Elem.PName[4]=='2') {Girder[ngir-1].gco[0]=2;} else {Girder[ngir-1].gco[0]=3;} 
+        if (cell.Elem.PName[4]=='2')
+	  Girder[ngir-1].gco[0]=2;
+	else
+	  Girder[ngir-1].gco[0]=3; 
       }
     }
     s1=s2;
   }//for
 
 
-  for (i=NGirderLevel[0];i<ngir;i++){
-    for (ic=Girder[i].ilat[0];ic<=Girder[i].ilat[1];ic++){Lattice[ic].igir=i;}
-  }
+  for (i=NGirderLevel[0];i<ngir;i++)
+    for (ic=Girder[i].ilat[0];ic<=Girder[i].ilat[1];ic++)
+      Lattice[ic].igir=i;
   NGirderLevel[1]=ngir;
 
-// make a compound element if we have a series of magnets with no gap between, i.e. sext|ch|cv|sext
+  // make a compound element if we have a series of magnets with no gap between,
+  // i.e. sext|ch|cv|sext
   s0=0; s1=0; s2=0; i0=0;
   giropen=false; countmag=0;
   for (i = 0; i <= globval.Cell_nLoc; i++) {
@@ -237,31 +255,38 @@ void param_data_type::GirderSetup() {
     if (ngir>0) {
       for (i=0;i<ngir;i++) {
         printf( "gir %ld lev %ld igir %ld %ld co %ld %ld sp %f %f \n", 
-        i, Girder[i].level,Girder[i].igir[0],Girder[i].igir[1],Girder[i].gco[0],Girder[i].gco[1],Girder[i].gsp[0],Girder[i].gsp[1]);
+		i, Girder[i].level,Girder[i].igir[0],Girder[i].igir[1],
+		Girder[i].gco[0],Girder[i].gco[1],Girder[i].gsp[0],
+		Girder[i].gsp[1]);
       }
     } 
     for (i = 0; i <= globval.Cell_nLoc; i++) {
       getelem(i, &cell);
       TracyStrcpy( elem, cell.Elem.PName);
      if (Lattice[i].igir > -1){
-       printf("pos %ld %s %f gir %ld lev %ld", i, elem, Lattice[i].smid, Lattice[i].igir, Girder[Lattice[i].igir].level);
+       printf("pos %ld %s %f gir %ld lev %ld",
+	      i, elem, Lattice[i].smid, Lattice[i].igir,
+	      Girder[Lattice[i].igir].level);
         if (Girder[Lattice[i].igir].level >=2){ 
-          printf(" --> %ld %ld \n", Girder[Lattice[i].igir].igir[0], Girder[Lattice[i].igir].igir[1]);
+          printf(" --> %ld %ld \n", Girder[Lattice[i].igir].igir[0],
+		 Girder[Lattice[i].igir].igir[1]);
         } else { printf("\n");}
       } else {printf("pos %ld %s --- ---- \n", i,elem);}
     }
-
 
     if (plotflag) {
       strcpy(fname, "gsetup.plt");
       outf = fopen(fname,"w" );
  
       if (ngir>0) {
-        fprintf(outf, "%ld %ld %ld %ld %f3 \n", globval.Cell_nLoc, NGirderLevel[0], NGirderLevel[1], NGirderLevel[2], s2);
-        for (i=0;i<ngir;i++) {
+        fprintf(outf, "%ld %ld %ld %ld %f3 \n",
+		globval.Cell_nLoc, NGirderLevel[0], NGirderLevel[1],
+		NGirderLevel[2], s2);
+        for (i=0;i<ngir;i++)
           fprintf(outf, "%ld %ld %ld %ld %ld %ld %f3 %f3 \n", 
-          i, Girder[i].level, Girder[i].igir[0],Girder[i].igir[1],Girder[i].gco[0],Girder[i].gco[1],Girder[i].gsp[0],Girder[i].gsp[1]);
-        }
+		  i, Girder[i].level, Girder[i].igir[0],Girder[i].igir[1],
+		  Girder[i].gco[0],Girder[i].gco[1],Girder[i].gsp[0],
+		  Girder[i].gsp[1]);
       } 
 
       s1=0;
@@ -271,9 +296,10 @@ void param_data_type::GirderSetup() {
         ismag= (cell.Elem.Pkind==Mpole);
         if (ismag) {
           TracyStrcpy( elem, cell.Elem.PName);
-          fprintf(outf, "%ld %ld %f3 %f3 %s\n", i, Lattice[i].igir, s1, s2, elem);
+          fprintf(outf, "%ld %ld %f3 %f3 %s\n",
+		  i, Lattice[i].igir, s1, s2, elem);
         } 
-      s1=s2;
+	s1=s2;
       }
       if (outf != NULL) fclose(outf);
       outf = NULL;
@@ -282,14 +308,18 @@ void param_data_type::GirderSetup() {
 
 }
 
-void param_data_type::SetCorMis(double gxrms, double gyrms, double gtrms, double jxrms, double jyrms, double exrms, double eyrms, double etrms, double rancutx, double rancuty, double rancutt, long iseed)
+void param_data_type::SetCorMis(double gxrms, double gyrms, double gtrms,
+				double jxrms, double jyrms, double exrms,
+				double eyrms, double etrms, double rancutx,
+				double rancuty, double rancutt, long iseed)
 {
-  double jdx, jdy, ggxrms, ggyrms, r, g3dx, g3dy, g3dt, gelatt, att, dx, dy, dt, s1, s2;
-  long i, isup;
+  double   jdx, jdy, ggxrms, ggyrms, r, g3dx, g3dy, g3dt, gelatt, att, dx, dy;
+  double   dt, s1, s2;
+  long     i, isup;
   CellType cell;
-  char elem[NameLength+1];
-  FILE *outf;
-  char fname[30];
+  char     elem[NameLength+1];
+  FILE     *outf;
+  char     fname[30];
 
   printf("SetCorMis: initializing seed %ld\n", iseed);
   iniranf(iseed);
@@ -302,7 +332,6 @@ void param_data_type::SetCorMis(double gxrms, double gyrms, double gtrms, double
   */
 
   for (i=0;i< NGirderLevel[0];i++){
-
     setrancut(rancutx);
     Girder[i].gdx[0] = gxrms*normranf();
     Girder[i].gdx[1] = gxrms*normranf();
@@ -325,34 +354,48 @@ void param_data_type::SetCorMis(double gxrms, double gyrms, double gtrms, double
     }
   }
 
-/*
-set misalignment for level 2 girder, which are supported by other girder.
-no, use joint play for connection of level 2 girder to level 1 girder
-[no further error applied for level 2, since the error is given by the supporting girders,
-and elements may receive additional individual errors later]
-*/
+  /*
+  set misalignment for level 2 girder, which are supported by other girder.
+  no, use joint play for connection of level 2 girder to level 1 girder
+  [no further error applied for level 2, since the error is given by the
+  supporting girders,
+  and elements may receive additional individual errors later]
+  */
   ggxrms=jxrms; 
   ggyrms=jyrms;
 
   for (i=NGirderLevel[0]; i<NGirderLevel[1];i++) {
     isup= Girder[i].igir[0]; 
     if (isup > -1) {
-      r = (Girder[i].gsp[0]-Girder[isup].gsp[0])/(Girder[isup].gsp[1]-Girder[isup].gsp[0]);
+      r = (Girder[i].gsp[0]-Girder[isup].gsp[0])
+	/(Girder[isup].gsp[1]-Girder[isup].gsp[0]);
       setrancut(rancutx);
-      Girder[i].gdx[0] = Girder[isup].gdx[0]*(1-r)+Girder[isup].gdx[1]*r + ggxrms*normranf();
+      Girder[i].gdx[0] = Girder[isup].gdx[0]*(1-r)+Girder[isup].gdx[1]*r
+	+ ggxrms*normranf();
       setrancut(rancuty);
-      Girder[i].gdy[0] = Girder[isup].gdy[0]*(1-r)+Girder[isup].gdy[1]*r + ggyrms*normranf();
-      if (Girder[i].gco[0]==3) { Girder[i].gdt=Girder[isup].gdt;} else {setrancut(rancutt);Girder[i].gdt=gtrms*normranf();}
-      //      printf("\nGir up %ld %f %f %f %f %f \n", i, Girder[i].gsp[0], Girder[i].gsp[1], Girder[i].gdx[0]*1e6, Girder[i].gdx[1]*1e6, r);
-      //      printf("  supp %ld %f %f %f %f \n", isup, Girder[isup].gsp[0], Girder[isup].gsp[1], Girder[isup].gdx[0]*1e6, Girder[isup].gdx[1]*1e6);
+      Girder[i].gdy[0] = Girder[isup].gdy[0]*(1-r)+Girder[isup].gdy[1]*r
+	+ ggyrms*normranf();
+      if (Girder[i].gco[0]==3)
+	Girder[i].gdt=Girder[isup].gdt;
+      else
+	setrancut(rancutt);Girder[i].gdt=gtrms*normranf();
+      // printf("\nGir up %ld %f %f %f %f %f \n",
+      // 	     i, Girder[i].gsp[0], Girder[i].gsp[1], Girder[i].gdx[0]*1e6,
+      // 	     Girder[i].gdx[1]*1e6, r);
+      // printf("  supp %ld %f %f %f %f \n",
+      // 	     isup, Girder[isup].gsp[0], Girder[isup].gsp[1],
+      // 	     Girder[isup].gdx[0]*1e6, Girder[isup].gdx[1]*1e6);
 
- /* 
-contact 3 (2-point) transmits roll error from supporting girder, contact 2 (1-point) is free.
- if contact 2 -> set gdt, but will be overwritten if other end is contact 3
- if other end is also contact 2, this value is taken, because gdt then is arbitrary
- if ends are free, treat like contact 0
- if end 1 only is free, then check if gdt may have been set at end 0
- */
+      /* 
+	 contact 3 (2-point) transmits roll error from supporting girder,
+	 contact 2 (1-point) is free.
+	 if contact 2 -> set gdt, but will be overwritten if other end is
+	 contact 3
+	 if other end is also contact 2, this value is taken, because gdt then
+	 is arbitrary
+	 if ends are free, treat like contact 0
+	 if end 1 only is free, then check if gdt may have been set at end 0
+      */
     } else {
       setrancut(rancutx);
       Girder[i].gdx[0] = gxrms*normranf();
@@ -363,24 +406,34 @@ contact 3 (2-point) transmits roll error from supporting girder, contact 2 (1-po
     }
     isup= Girder[i].igir[1]; 
     if (isup > -1) {
-      r=(Girder[i].gsp[1]-Girder[isup].gsp[0])/(Girder[isup].gsp[1]-Girder[isup].gsp[0]);
+      r=(Girder[i].gsp[1]-Girder[isup].gsp[0])
+	/(Girder[isup].gsp[1]-Girder[isup].gsp[0]);
       setrancut(rancutx);
-      Girder[i].gdx[1] = Girder[isup].gdx[0]*(1-r)+Girder[isup].gdx[1]*r + ggxrms*normranf();
+      Girder[i].gdx[1] = Girder[isup].gdx[0]*(1-r)+Girder[isup].gdx[1]*r
+	+ ggxrms*normranf();
       setrancut(rancuty);
-      Girder[i].gdy[1] = Girder[isup].gdy[0]*(1-r)+Girder[isup].gdy[1]*r + ggyrms*normranf();
+      Girder[i].gdy[1] = Girder[isup].gdy[0]*(1-r)+Girder[isup].gdy[1]*r
+	+ ggyrms*normranf();
       if (Girder[i].gco[1] ==3) {Girder[i].gdt = Girder[isup].gdt;}
-      //      printf("Gir dn %ld %f %f %f %f %f \n", i, Girder[i].gsp[0], Girder[i].gsp[1], Girder[i].gdx[0]*1e6, Girder[i].gdx[1]*1e6, r);
-      //      printf("  supp %ld %f %f %f %f \n", isup, Girder[isup].gsp[0], Girder[isup].gsp[1], Girder[isup].gdx[0]*1e6, Girder[isup].gdx[1]*1e6);
+      // printf("Gir dn %ld %f %f %f %f %f \n",
+      // 	     i, Girder[i].gsp[0], Girder[i].gsp[1], Girder[i].gdx[0]*1e6,
+      // 	     Girder[i].gdx[1]*1e6, r);
+      // printf("  supp %ld %f %f %f %f \n", isup, Girder[isup].gsp[0],
+      // 	     Girder[isup].gsp[1], Girder[isup].gdx[0]*1e6,
+      // 	     Girder[isup].gdx[1]*1e6);
     } else {
       setrancut(rancutx);
       Girder[i].gdx[1] = gxrms*normranf();
       setrancut(rancuty);
       Girder[i].gdy[1] = gyrms*normranf();
-      if (Girder[i].igir[0] == -1) {setrancut(rancutt);Girder[i].gdt =gtrms*normranf();}
+      if (Girder[i].igir[0] == -1) {
+	setrancut(rancutt); Girder[i].gdt = gtrms*normranf();
+      }
     }
   }
 
- // set misalignment for level 3 girder, which are compound elements, which have common element displacement error.
+  // set misalignment for level 3 girder, which are compound elements, which
+  // have common element displacement error.
   
   gelatt=1.0;
 
@@ -393,10 +446,12 @@ contact 3 (2-point) transmits roll error from supporting girder, contact 2 (1-po
     g3dt = etrms*normranf()*gelatt;
     isup= Girder[i].igir[0]; 
     if (isup > -1) {
-      r=(Girder[i].gsp[0]-Girder[isup].gsp[0])/(Girder[isup].gsp[1]-Girder[isup].gsp[0]);
+      r=(Girder[i].gsp[0]-Girder[isup].gsp[0])
+	/(Girder[isup].gsp[1]-Girder[isup].gsp[0]);
       Girder[i].gdx[0] =Girder[isup].gdx[0]*(1-r)+Girder[isup].gdx[1]*r + g3dx;
       Girder[i].gdy[0] =Girder[isup].gdy[0]*(1-r)+Girder[isup].gdy[1]*r + g3dy;
-      Girder[i].gdt    =Girder[isup].gdt+g3dt; //presume contact 3, rigid connection
+      Girder[i].gdt    =Girder[isup].gdt+g3dt; // presume contact 3, rigid
+                                               // connection
     } else {
       setrancut(rancutx);
       Girder[i].gdx[0] =exrms*normranf();
@@ -407,10 +462,12 @@ contact 3 (2-point) transmits roll error from supporting girder, contact 2 (1-po
     }
     isup= Girder[i].igir[1]; 
     if (isup > -1) {
-      r =(Girder[i].gsp[1]-Girder[isup].gsp[0])/(Girder[isup].gsp[1]-Girder[isup].gsp[0]);
+      r =(Girder[i].gsp[1]-Girder[isup].gsp[0])
+	/(Girder[isup].gsp[1]-Girder[isup].gsp[0]);
       Girder[i].gdx[1] =Girder[isup].gdx[0]*(1-r)+Girder[isup].gdx[1]*r + g3dx;
       Girder[i].gdy[1] =Girder[isup].gdy[0]*(1-r)+Girder[isup].gdy[1]*r + g3dy;
-      Girder[i].gdt    =Girder[isup].gdt+g3dt; //should be on same girder and give same result
+      Girder[i].gdt    =Girder[isup].gdt+g3dt; // should be on same girder and
+                                               // give same result
     } else {
       setrancut(rancutx);
       Girder[i].gdx[1] =exrms*normranf();
@@ -437,7 +494,8 @@ contact 3 (2-point) transmits roll error from supporting girder, contact 2 (1-po
 
 	if (isup > -1) {
 	  if (Girder[isup].level >= 2) {att=0;} else {att=gelatt;}
-	  r =(Lattice[i].smid-Girder[isup].gsp[0])/(Girder[isup].gsp[1]-Girder[isup].gsp[0]);
+	  r =(Lattice[i].smid-Girder[isup].gsp[0])
+	    /(Girder[isup].gsp[1]-Girder[isup].gsp[0]);
 	  dx =dx*att+Girder[isup].gdx[0]*(1-r)+Girder[isup].gdx[1]*r;
 	  dy =dy*att+Girder[isup].gdy[0]*(1-r)+Girder[isup].gdy[1]*r;
 	  dt =dt*att+Girder[isup].gdt;
@@ -461,10 +519,14 @@ contact 3 (2-point) transmits roll error from supporting girder, contact 2 (1-po
     outf = fopen(fname,"w" );
 
     if (NGirderLevel[2] > 0) {
-      fprintf(outf, "%ld %ld %ld %ld \n", globval.Cell_nLoc, NGirderLevel[0], NGirderLevel[1], NGirderLevel[2]);
+      fprintf(outf, "%ld %ld %ld %ld \n",
+	      globval.Cell_nLoc, NGirderLevel[0], NGirderLevel[1],
+	      NGirderLevel[2]);
       for (i=0;i<NGirderLevel[2];i++) {
         fprintf(outf, "%ld %f %f %f %f %f %f %f  \n", 
-         Girder[i].level, Girder[i].gsp[0],Girder[i].gsp[1], Girder[i].gdx[0]*1e6,Girder[i].gdx[1]*1e6, Girder[i].gdy[0]*1e6,Girder[i].gdy[1]*1e6, Girder[i].gdt*1e6);
+         Girder[i].level, Girder[i].gsp[0],Girder[i].gsp[1],
+		Girder[i].gdx[0]*1e6,Girder[i].gdx[1]*1e6,
+		Girder[i].gdy[0]*1e6,Girder[i].gdy[1]*1e6, Girder[i].gdt*1e6);
       }
     } 
 
@@ -509,7 +571,8 @@ void param_data_type::CorMis_in(double *gdxrms, double *gdzrms, double *gdarms, 
 
   printf("\nInput of error amplitudes for gaussian errors\n");
   printf("----------------------------------------------------------\n");
-  printf("Give rms errors for displacements in micron, horizontal and vertical:\n");
+  printf("Give rms errors for displacements in micron, horizontal and"
+	 " vertical:\n");
   printf("__ Absolute displacement of girder joints and ends :\n");
   fscanf(cinf, "%lg%lg%lg%*[^\n]", gdxrms, gdzrms, gdarms);
   getc(cinf);
@@ -546,12 +609,17 @@ void param_data_type::CorMis_in(double *gdxrms, double *gdzrms, double *gdarms, 
   fscanf(cinf,"%*[^\n]"); printf("\n\n");
   getc(cinf);
 
-  printf("rms Girder error  : dx=%5.0f um, dz=%5.0f um, da=%5.0f udeg\n", *gdxrms, *gdzrms, *gdarms);
+  printf("rms Girder error  : dx=%5.0f um, dz=%5.0f um, da=%5.0f udeg\n",
+	 *gdxrms, *gdzrms, *gdarms);
   printf("rms Joint  error  : dx=%5.0f um, dz=%5.0f um\n", *jdxrms, *jdzrms);
-  printf("rms Element error : dx=%5.0f um, dz=%5.0f um, da=%5.0f udeg\n", *edxrms, *edzrms, *edarms);
-  if (includeMON) printf("rms BBA error     : dx=%5.0f um, dz=%5.0f um, da=%5.0f udeg\n", *bdxrms, *bdzrms, *bdarms);
+  printf("rms Element error : dx=%5.0f um, dz=%5.0f um, da=%5.0f udeg\n",
+	 *edxrms, *edzrms, *edarms);
+  if (includeMON)
+    printf("rms BBA error     : dx=%5.0f um, dz=%5.0f um, da=%5.0f udeg\n",
+	   *bdxrms, *bdzrms, *bdarms);
   printf("\n");
-  printf("Gaussian cut      : cutx=%5.0f, cuty=%5.0f, cutt=%5.0f sigma\n", *rancutx, *rancuty, *rancutt);
+  printf("Gaussian cut      : cutx=%5.0f, cuty=%5.0f, cutt=%5.0f sigma\n",
+	 *rancutx, *rancuty, *rancutt);
   printf("init seed values  : %ld seeds= ", *iseednr);
   for (i=0; i<*iseednr; i++)
     printf("%ld ",iseed[i]);
@@ -642,6 +710,8 @@ void param_data_type::get_param(const string &param_file)
 	sstr.clear(); sstr.str(""); sstr << str; loc_Fam_name = sstr.str();
       } else if (strcmp("n_cell", name) == 0)
 	sscanf(line, "%*s %d", &n_cell);
+      else if (strcmp("n_thread", name) == 0)
+	sscanf(line, "%*s %d", &n_thread);
       else if (strcmp("n_scale", name) == 0)
 	sscanf(line, "%*s %d", &n_scale);
       else if (strcmp("n_orbit", name) == 0)
@@ -865,7 +935,8 @@ void param_data_type::ReadEta(const char *TolFileName)
   printf("\n");
 }
 
-void param_data_type::FindMatrix(double **SkewRespMat, const double deta_y_max,  const double deta_y_offset)
+void param_data_type::FindMatrix(double **SkewRespMat, const double deta_y_max,
+				 const double deta_y_offset)
 {
   //  Ring_GetTwiss(true, 0.0) should be called in advance
   int      i, j, k;
@@ -983,7 +1054,10 @@ void param_data_type::FindMatrix(double **SkewRespMat, const double deta_y_max, 
     eta_y[j]+=deta_y_offset;
   }
   
-  fprintf(fp, "# nbpm %d SQ_per_scell %d etaymin %10.3e mm etaymax %10.3e mm detaymax %10.3e mm detayoffset %10.3e mm\n", N_BPM, SQ_per_scell, 1e3*eta_y_min, 1e3*eta_y_max, 1e3*deta_y_max, 1e3*deta_y_max*deta_y_offset);
+  fprintf(fp, "# nbpm %d SQ_per_scell %d etaymin %10.3e mm etaymax %10.3e mm"
+	  " detaymax %10.3e mm detayoffset %10.3e mm\n",
+	  N_BPM, SQ_per_scell, 1e3*eta_y_min, 1e3*eta_y_max, 1e3*deta_y_max,
+	  1e3*deta_y_max*deta_y_offset);
   for (j = 1; j <= N_BPM; j++) {
     eta_y[j] *= fabs(deta_y_max);
     fprintf(fp, "%6.3f %10.3e\n", Cell[bpm_loc[j-1]].S, 1e3*eta_y[j]);
@@ -998,7 +1072,8 @@ void param_data_type::FindMatrix(double **SkewRespMat, const double deta_y_max, 
 } // FindMatrix
 
 
-void param_data_type::ini_skew_cor(const double deta_y_max, const double deta_y_offset)
+void param_data_type::ini_skew_cor(const double deta_y_max,
+				   const double deta_y_offset)
 {
   int k;
 
@@ -1139,7 +1214,11 @@ void param_data_type::SkewStat(double VertCouple[], const int cnt)
   max = 0.0; rms = mean = 0.0;
   for(i = 1; i <= N_SKEW; i++) {
     sk = GetKLpar(globval.qt, i, -Quad);
-    if (cnt>=0) {fprintf(outf, "%4d %7.3f %12.5e %s %12.5e\n",i,Cell[Elem_GetPos(globval.qt,i)].S,Cell[Elem_GetPos(globval.qt,i)].Eta[X_],Cell[Elem_GetPos(globval.qt,i)].Elem.PName,sk);}
+    if (cnt>=0)
+      fprintf(outf, "%4d %7.3f %12.5e %s %12.5e\n",
+	       i,Cell[Elem_GetPos(globval.qt,i)].S,
+	       Cell[Elem_GetPos(globval.qt,i)].Eta[X_],
+	       Cell[Elem_GetPos(globval.qt,i)].Elem.PName,sk);
     if (fabs(sk) > max) max = fabs(sk);
     rms += sqr(sk);
     mean += sk;
@@ -1147,7 +1226,12 @@ void param_data_type::SkewStat(double VertCouple[], const int cnt)
   mean = mean/N_SKEW;
   rms = sqrt(-mean*mean+rms/N_SKEW);
     
-  if (cnt>=0) {fprintf(outf,"# Max Mean Rms skew strength: %8.2e/%8.2e+/-%8.2e 1/m\n", max, mean, rms);} else {printf("Max Mean Rms skew strength: %8.2e/%8.2e+/-%8.2e 1/m\n", max, mean, rms);}
+  if (cnt>=0)
+    fprintf(outf,"# Max Mean Rms skew strength: %8.2e/%8.2e+/-%8.2e 1/m\n",
+	    max, mean, rms);
+  else
+    printf("Max Mean Rms skew strength: %8.2e/%8.2e+/-%8.2e 1/m\n",
+	   max, mean, rms);
   
   // statistics for vertical dispersion function
   max = 0.0; rms = mean = 0.0;
@@ -1158,7 +1242,13 @@ void param_data_type::SkewStat(double VertCouple[], const int cnt)
   }
   mean = mean/N_BPM;
   rms = sqrt(-mean*mean+rms/N_BPM);
-  if (cnt>=0) {fprintf(outf, "# Max Mean Rms vertical dispersion: %8.2e/%8.2e+/-%8.2e mm\n", 1e3*max, 1e3*mean, 1e3*rms);} else {printf("Max Mean Rms vertical dispersion: %8.2e/%8.2e+/-%8.2e mm\n", 1e3*max, 1e3*mean,1e3*rms);}
+  if (cnt>=0)
+    fprintf(outf,
+	    "# Max Mean Rms vertical dispersion: %8.2e/%8.2e+/-%8.2e mm\n",
+	    1e3*max, 1e3*mean, 1e3*rms);
+  else
+    printf("Max Mean Rms vertical dispersion: %8.2e/%8.2e+/-%8.2e mm\n",
+	   1e3*max, 1e3*mean,1e3*rms);
   
   // statistics for off diagonal terms of response matrix (trims->bpms)
   max = 0.0; rms = mean = 0.0;
@@ -1169,7 +1259,13 @@ void param_data_type::SkewStat(double VertCouple[], const int cnt)
   }
   mean = mean/(N_HCOR*N_BPM);
   rms = sqrt(-mean*mean+rms/(N_HCOR*N_BPM));
-  if (cnt>=0) {fprintf(outf, "# Max Mean Rms horizontal coupling: %8.2e/%8.2e+/-%8.2e mm/mrad\n", max, mean, rms);} else{printf("Max Mean Rms horizontal coupling: %8.2e/%8.2e+/-%8.2e mm/mrad\n", max, mean, rms);}
+  if (cnt>=0)
+    fprintf(outf,
+	    "# Max Mean Rms horizontal coupling: %8.2e/%8.2e+/-%8.2e mm/mrad\n",
+	    max, mean, rms);
+  else
+    printf("Max Mean Rms horizontal coupling: %8.2e/%8.2e+/-%8.2e mm/mrad\n",
+	   max, mean, rms);
 
   max = 0.0; rms = mean = 0.0;
   for(i = N_BPM*(1+N_HCOR)+1; i <= N_COUPLE; i++) {
@@ -1180,10 +1276,13 @@ void param_data_type::SkewStat(double VertCouple[], const int cnt)
   mean = mean/(N_VCOR*N_BPM);
   rms = sqrt(-mean*mean+rms/(N_VCOR*N_BPM));
   if (cnt>=0) {
-    fprintf(outf,"# Max Mean Rms vertical coupling: %8.2e/%8.2e+/-%8.2e mm/mrad\n", max, mean, rms);
+    fprintf(outf,
+	    "# Max Mean Rms vertical coupling: %8.2e/%8.2e+/-%8.2e mm/mrad\n",
+	    max, mean, rms);
     fclose(outf);
   } else
-    printf("Max Mean Rms vertical coupling: %8.2e/%8.2e+/-%8.2e mm/mrad\n", max, mean, rms);
+    printf("Max Mean Rms vertical coupling: %8.2e/%8.2e+/-%8.2e mm/mrad\n",
+	   max, mean, rms);
 }
 
 
@@ -1251,10 +1350,16 @@ void param_data_type::corr_eps_y(const int cnt)
       fscanf(cinf, "%d %lg %lg %s %lg", &qtnr, &qtpos, &qteta, qtnam, &qtkl);
       printf("%d %d %s %f\n", j, qtnr, qtnam, qtkl);
       loc = Elem_GetPos(globval.qt, j);
-      printf("%d %e %e %e %e\n",loc, Cell[loc].Elem.PL, qtkl,Cell[loc].Elem.M->PBpar[-Quad + HOMmax],Cell[loc].Elem.M->PBpar[Quad + HOMmax]);
+      printf("%d %e %e %e %e\n",
+	     loc, Cell[loc].Elem.PL,
+	     qtkl,Cell[loc].Elem.M->PBpar[-Quad + HOMmax],
+	     Cell[loc].Elem.M->PBpar[Quad + HOMmax]);
       SetdKLpar(globval.qt, j, -Quad, qtkl);
       loc = Elem_GetPos(globval.qt, j);
-      printf("%d %e %e %e %e\n",loc, Cell[loc].Elem.PL, qtkl,Cell[loc].Elem.M->PBpar[-Quad + HOMmax],Cell[loc].Elem.M->PBpar[Quad + HOMmax]);
+      printf("%d %e %e %e %e\n",
+	     loc, Cell[loc].Elem.PL, qtkl,
+	     Cell[loc].Elem.M->PBpar[-Quad + HOMmax],
+	     Cell[loc].Elem.M->PBpar[Quad + HOMmax]);
     }
     printf("\n");
     Ring_GetTwiss(true, 0.0); printglob();
@@ -1884,7 +1989,8 @@ void param_data_type::ReadCorMis(const bool Scale_it, const double Scale) const
     getelem(i, &Cell);
     if (Cell.Elem.Pkind == Mpole)
     {
-      fscanf(fi, "%ld %lf %lf %lf %lf %lf %s \n", &ii, &s1, &s2, &dx, &dy, &dt, elem);
+      fscanf(fi, "%ld %lf %lf %lf %lf %lf %s \n",
+	     &ii, &s1, &s2, &dx, &dy, &dt, elem);
       dx/=1e6; dy/=1e6; dt/=1e6;
 
       if (i == ii) {
@@ -1907,7 +2013,8 @@ void param_data_type::ReadCorMis(const bool Scale_it, const double Scale) const
 	Mpole_SetdS(Cell.Fnum, Cell.Knum);
 	Mpole_SetdT(Cell.Fnum, Cell.Knum);
 
-        fprintf(fo, "%ld %lf %lf %lf %lf %lf %s \n", ii,  s1, s2, dx*1e6, dy*1e6, dt*1e6, Cell.Elem.PName);
+        fprintf(fo, "%ld %lf %lf %lf %lf %lf %s \n",
+		ii,  s1, s2, dx*1e6, dy*1e6, dt*1e6, Cell.Elem.PName);
       }
     }
   }
@@ -2361,16 +2468,16 @@ bool param_data_type::cod_corr(const int n_cell, const double scl,
   cod = getcod(0e0, lastpos);
   if (trace) printf("\ncod_corr: %d\n", cod);
 
-  if (false || !cod) {
+  if (!false || !cod) {
     printf("\ncould not find closed orbit; threading beam\n");
 
     orb_corr[X_].clr_trims(); orb_corr[Y_].clr_trims();
-    thread_beam(n_cell, loc_Fam_name, bpm_Fam_names, corr_Fam_names,
-		n_orbit, scl, h_maxkick, v_maxkick, n_bits, 1e-4, 1e-4);
+    thread_beam(n_cell, loc_Fam_name, bpm_Fam_names, corr_Fam_names, n_thread,
+		scl);
     //prt_cod("codt.out", globval.bpm, true);
   }
 
-  cod = cod_correct(n_orbit, scl, h_maxkick, v_maxkick, n_bits, orb_corr);
+  cod = cod_correct(n_orbit, scl, orb_corr);
   
   get_dbeta_dnu(m_dbeta, s_dbeta, m_dnu, s_dnu);
   printf("\ncod_corr: rms dbeta_x/beta_x = %4.2f%%"
@@ -2564,7 +2671,7 @@ void param_data_type::err_and_corr_init(const string &param_file,
 
   get_bare();
 
-  cod_ini(bpm_Fam_names, corr_Fam_names, h_cut, v_cut, orb_corr);
+  cod_ini(bpm_Fam_names, corr_Fam_names, orb_corr);
 
   if ((ae_file != "") && bba) Align_BPMs(Sext,-1.,-1.,-1.);
 

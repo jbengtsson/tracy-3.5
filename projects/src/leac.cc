@@ -29,7 +29,7 @@ void err_and_corr(const string &param_file, const int mode)
     // Beam based alignment.
     if (params.bba) params.Align_BPMs(Quad, -1e0, -1e0, -1e0);
 
-    trace = true;
+    trace = false;
     cod = params.cod_corr(params.n_cell, 1e0, params.h_maxkick,
 			  params.v_maxkick, params.n_bits, orb_corr);
   } else

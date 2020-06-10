@@ -25,6 +25,8 @@ void err_and_corr(const string &param_file)
 
   if (params.DA_bare) DA.get_DA_bare(params);
 
+  trace = false;
+
   DA.get_DA_real(params, orb_corr);
 
   params.err_and_corr_exit(orb_corr);

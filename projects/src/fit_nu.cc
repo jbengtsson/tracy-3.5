@@ -7,7 +7,7 @@ int no_tps = NO;
 const int n_cell = 6;
 
 // const double nu[] = {10.87, 3.29};
-const double nu[] = {64.90/n_cell, 19.67/n_cell};
+const double nu[] = {64.91/n_cell, 19.66/n_cell};
 
 
 void prt_name(FILE *outf, const char *name, const string &str, const int len)
