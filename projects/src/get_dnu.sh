@@ -9,7 +9,7 @@ queue="ap-high.q"
 t1="00:10:00"
 t2="00:30:00"
 
-dir=$TRACY_DIR/projects/src
+dir=$TRACY_LIB/projects/src
 
 
 #\rm dnu.cmd.o* fmap*.cmd.o*

@@ -1456,17 +1456,17 @@ void prt_lat_param()
 	 beta_max[X_], beta_max[Y_], eta_x_max);
 
   printf("\nLS:  L = %5.3f beta = [%5.3f, %5.3f]\n",
-	 2e0*Cell[Elem_GetPos(ElemIndex("dl_27"), 1)].S,
+	 2e0*Cell[Elem_GetPos(ElemIndex("quad_add"), 1)-1].S,
 	 Cell[Elem_GetPos(ElemIndex("ls"), 1)].Beta[X_],
 	 Cell[Elem_GetPos(ElemIndex("ls"), 1)].Beta[Y_]);
   printf("SS:  L = %5.3f beta = [%5.3f, %5.3f]\n",
-	 Cell[Elem_GetPos(ElemIndex("bpm"), 12)].S
-	 -Cell[Elem_GetPos(ElemIndex("bpm"), 11)].S,
+	 Cell[Elem_GetPos(ElemIndex("qf1"), 2)-1].S
+	 -Cell[Elem_GetPos(ElemIndex("qf1"), 1)].S,
 	 Cell[Elem_GetPos(ElemIndex("ss"), 1)].Beta[X_],
 	 Cell[Elem_GetPos(ElemIndex("ss"), 1)].Beta[Y_]);
   printf("MS:  L = %5.3f beta = [%5.3f, %5.3f] eta_x = %6.4f\n",
-	 Cell[Elem_GetPos(ElemIndex("bpm"), 8)].S
-	 -Cell[Elem_GetPos(ElemIndex("bpm"), 7)].S,
+	 Cell[Elem_GetPos(ElemIndex("sh2"), 2)-1].S
+	 -Cell[Elem_GetPos(ElemIndex("sh2"), 1)].S,
 	 Cell[Elem_GetPos(ElemIndex("ms"), 1)].Beta[X_],
 	 Cell[Elem_GetPos(ElemIndex("ms"), 1)].Beta[Y_],
 	 Cell[Elem_GetPos(ElemIndex("ms"), 1)].Eta[X_]);
@@ -1479,10 +1479,13 @@ void reality_check()
   FILE *fp;
 
   fp = file_write("reality_check.out");
+  fprintf(fp,
+	  "  No  Name              s[n-1]  s[n]    L   s[n]-s[n-1]"
+	  "  s[n+1]-s[n]\n");
   for (j = 0; j <= globval.Cell_nLoc; j++)
     if (Cell[j].Elem.Pkind == Mpole) {
-      fprintf(fp, "\n  %10s %7.3f %7.3f %5.3f %5.3f %5.3f",
-	      Cell[j].Elem.PName, Cell[j-1].S, Cell[j].S, Cell[j].Elem.PL,
+      fprintf(fp, "\n %3d  %10s %7.3f %7.3f %5.3f   %5.3f        %5.3f",
+	      j, Cell[j].Elem.PName, Cell[j-1].S, Cell[j].S, Cell[j].Elem.PL,
 	      Cell[j-1].S-Cell[j-2].S, Cell[j+1].S-Cell[j].S);
     }
   fprintf(fp, "\n");
@@ -1552,7 +1555,7 @@ int main(int argc, char *argv[])
 
   trace = false;
 
-  globval.mat_meth = false;
+  globval.mat_meth = !false;
 
   if (true)
     Read_Lattice(argv[1]);

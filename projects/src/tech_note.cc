@@ -17,7 +17,7 @@ double get_eps_x1(const bool track)
   if (track) {
     globval.emittance = true;
     // A = get_A(ic[0], ic[1], ic[2], ic[3]);
-    putlinmat(6, globval.Ascr, A);
+    A = putlinmat(6, globval.Ascr);
     Cell_Pass(0, globval.Cell_nLoc, A, lastpos);
     // Cell_Twiss(0, globval.Cell_nLoc, A, false, false, 0e0);
     globval.emittance = false;

@@ -165,7 +165,7 @@ void get_nu(const double delta, double nu[])
   long int     lastpos;
   ss_vect<tps> A;
 
-  A.zero(); putlinmat(4, Cell[0].A, A); A[delta_] += delta;
+  A.zero(); A = putlinmat(4, Cell[0].A); A[delta_] += delta;
   Cell_Pass(0, globval.Cell_nLoc, A, lastpos);
   A = get_A_CS(2, A, nu);
 }
@@ -292,7 +292,7 @@ void get_twoJ_phi(long int k, const ss_vect<double> &ps,
 
   const int n = 4;
 
-  A.identity(); putlinmat(n, Cell[k].A, A); ps_Fl = (Inv(A)*ps).cst();
+  A.identity(); A = putlinmat(n, Cell[k].A); ps_Fl = (Inv(A)*ps).cst();
   for (j = 0; j < 2; j++) {
     twoJ[j] = sqr(ps_Fl[2*j]) + sqr(ps_Fl[2*j+1]);
     phi[j] = -atan2(ps_Fl[2*j+1], ps_Fl[2*j]);
@@ -470,7 +470,7 @@ void prt_trsvrs(const int n, const double A[][2])
        << fixed << setprecision(5) << setw(9) << Cell[loc].S << endl;
 
   cout << endl;
-  n1 = 0; A0.identity(); putlinmat(4, Cell[0].A, A0);
+  n1 = 0; A0.identity(); A0 = putlinmat(4, Cell[0].A);
   for (j = 0; j < n; j++) {
     cout << scientific << setprecision(3)
 	 << "[" << setw(11) << A[j][X_] << ", " << setw(11) << A[j][Y_] << "]"
@@ -517,7 +517,7 @@ void prt_long(const int n, const double A[][2])
        << fixed << setprecision(5) << setw(9) << Cell[loc].S << endl;
 
   cout << endl;
-  n1 = 0; A0.identity(); putlinmat(4, Cell[0].A, A0);
+  n1 = 0; A0.identity(); A0 = putlinmat(4, Cell[0].A);
   for (j = 0; j < n; j++) {
     cout << scientific << setprecision(3)
 	 << "[" << setw(11) << A[j][X_] << ", " << setw(11) << A[j][Y_] << "]"

@@ -321,7 +321,7 @@ void prt_rad(const double E_0, const double rho)
 
   get_I(I, false);
 
-  get_eps_x();
+  get_eps_x(eps_x, sigma_delta, U_0, J);
 
   P_gamma_avg = 1e9*C_gamma*c0*pow(E_0, 4)*I[2]/(2e0*M_PI*C);
   U_0 = 1e9*C_gamma*pow(E_0, 4)*I[2]/(2e0*M_PI);
@@ -384,7 +384,7 @@ void get_lin_map()
 
   globval.Cavity_on = true; globval.radiation = rad;
   Ring_GetTwiss(true, 0e0); printglob();
-  putlinmat(6, globval.Ascr, A);
+  A = putlinmat(6, globval.Ascr);
 
   for (k = 0; k < 2; k++) {
     mu[k] = 2e0*M_PI*globval.TotalTune[k];
@@ -479,8 +479,8 @@ void get_sigma(void)
 
   globval.Cavity_on = true; globval.radiation = true;
   Ring_GetTwiss(true, 0e0);
-  putlinmat(ss_dim, globval.OneTurnMat, M);
-  putlinmat(6, globval.Ascr, A);
+  M = putlinmat(ss_dim, globval.OneTurnMat);
+  A = putlinmat(6, globval.Ascr);
   A_A_tp = A*lin_map_tp(3, A);
 
   printf("\n  tau   = [%10.3e, %10.3e, %10.3e]\n",
@@ -513,7 +513,7 @@ void get_sigma(void)
   exit(0);
 
   A.identity();
-  putlinmat(4, globval.Ascr, A);
+  A = putlinmat(4, globval.Ascr);
   A[ct_] = sqrt(globval.beta_z)*Id[ct_];
   A[delta_] =
     -globval.alpha_z/sqrt(globval.beta_z)*Id[ct_]

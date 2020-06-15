@@ -583,7 +583,7 @@ void get_cod_rms_scl_new(const int n_seed)
                               // use orb_corr_scl(3) to correct orbit in 3 iterations
     // get coupling, ver. disp., etc. BEFORE/after correction
     GetEmittance(ElemIndex("cav"), true);
-    prt_beamsizes(); // writes beam_envelope.out; contains sigmamatrix(s), theta(s)
+    prt_beamsizes(1); // writes beam_envelope.out; contains sigmamatrix(s), theta(s)
 
 
     /////////////////////////////////////////////////////////////////////

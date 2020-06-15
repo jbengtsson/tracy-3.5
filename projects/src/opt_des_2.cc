@@ -12,7 +12,7 @@ int no_tps = NO;
 
 
 const bool
-  ps_rot          = !false, // Note, needs to be zeroed; after use.
+  ps_rot          = false, // Note, needs to be zeroed; after use.
   qf6_rb          = false,
   sp_short        = false,
   sp_std          = true,
@@ -31,21 +31,21 @@ const int opt_case = 3;
 const int    n_ic = 4;
 const double
   ic[n_ic][2] =
-  {{-0.0000000151, 0.0000003835}, {1.2952874229, 0.9031468030},
-   {0.0127872452, 0.0000000000}, {-0.0, 0.0}},
+  {{0.0351876947, 0.0001721437}, {1.3652950621, 1.0487819417},
+   {0.0158197453, 0.0000000000}, {0.0, 0.0}},
   
-  beta_ms[]       = { 2.0, 2.0},
+  beta_ms[]       = { 4.0, 2.0},
   beta_ss[]       = { 2.0, 2.0},
-  beta_ls[]       = {10.0, 5.0},
+  beta_ls[]       = {12.0, 5.0},
   eta_ms_x        = 15e-3,
   eta_sf1_x       = 9e-2,
-  scl_ksi_1       = 1e-1*5e0,
+  scl_ksi_1       = 1e0*5e0,
   scl_h_3         = 1e-1*1e10,
   scl_h_3_delta   = 1e-1*1e10,
   scl_h_4         = 1e0,
   scl_ksi_2       = 5e0*1e5,
   scl_ksi_3       = 1e-5,
-  scl_chi_2       = 1e0*1e5,
+  scl_chi_2       = 1e-1*1e5,
   scl_chi_delta_2 = 1e-1*1e5;
 
 #define LAT_CASE 1
@@ -496,14 +496,14 @@ void set_constr_sp(constr_type &constr)
 		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   // Include constraint on alpha; in case of using ps_rot.
   constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
-		    1e6, 1e6, 1e2,         1e3,         1e8,      1e8,
+		    1e6, 1e6, 1e1*1e2,         1e3,         1e8,      1e8,
 		    0.0, 0.0, beta_ms[X_], beta_ms[Y_], eta_ms_x, 0.0);
   for (k = 1; k <= 2; k++)
     constr.add_constr(Elem_GetPos(ElemIndex("ss"), k),
-		      1e6, 1e6, 1e2,         1e3,         1e8, 1e8,
+		      1e6, 1e6, 1e1*1e2,         1e3,         1e8, 1e8,
 		      0.0, 0.0, beta_ss[X_], beta_ss[Y_], 0.0, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
-		    1e6, 1e6, 1e2,         1e2,         1e8, 1e8,
+		    1e6, 1e6, 1e1*1e2,         1e2,         1e8, 1e8,
 		    0.0, 0.0, beta_ls[X_], beta_ls[Y_], 0.0, 0.0);
   // Symmetry & peak dispersion.
   constr.add_constr(Elem_GetPos(ElemIndex("sf1"), 1),
@@ -535,7 +535,7 @@ void set_b3_Fam_sp(param_type &prms)
 {
   std::vector<int> Fnum;
 
-  switch (2) {
+  switch (1) {
   case 1:
     prms.add_prm("of1", 4, -1e8,   1e8, 1.0);
     prms.add_prm("sd2", 3, -4e2,   4e2, 1.0);

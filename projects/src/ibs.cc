@@ -26,7 +26,7 @@ double get_eps_x1(void)
 
   Ring_GetTwiss(false, 0e0);
 
-  putlinmat(6, globval.Ascr, A);
+  A = putlinmat(6, globval.Ascr);
 
   prt_lin_map(3, A);
 
