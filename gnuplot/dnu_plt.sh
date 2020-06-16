@@ -77,7 +77,7 @@ else if ((N == 6) && (case == 7)) \
   N_x = 11; N_y = 3; \
 else if ((N == 12) && (case == 8)) \
   N_x = 2; N_y = 0; \
-else if ((N == 24) && (case == 9)) \
+else if ((N == 24) && (case == 5)) \
   N_x = 2; N_y = 0;
 
 if (case == 1) \

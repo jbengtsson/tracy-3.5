@@ -10,6 +10,8 @@ gnuplot << EOP
 
 home_dir = "$prm1"; N = $prm2; ps = $prm3; case  = $prm4; scale = $prm5;
 
+nan = -2.0;
+
 # MAX-V      1,
 # SLS-2      2,
 # ESRF-U     3, # 30 Std Cells; total is 32.
@@ -58,7 +60,7 @@ else if ((N == 1) && (case == 2)) \
 else if ((N == 1) && (case == 4)) \
   N_x = 57; N_y = 20; \
 else if ((N == 1) && (case == 5)) \
-  N_x = 65; N_y = 20; sgn_y = -1; \
+  N_x = 65; N_y = 20; sgn_x = -1; sgn_y = -1; \
 else if ((N == 1) && (case == 6)) \
   N_x = 5; N_y = 21; sgn_x = -1; sgn_y = -1; \
 else if ((N == 1) && (case == 7)) \
@@ -100,7 +102,7 @@ else if (case == 4) \
   nu_x_min = 61.0; nu_x_max = 62.0; nu_y_min = 22.0; nu_y_max = 23.0; \
   x_max = 8.0; y_max = 5.0; delta_max = 4.0; \
 else if (case == 5) \
-  nu_x_min = 64.5; nu_x_max = 65.5; nu_y_min = 19.5; nu_y_max = 20.0; \
+  nu_x_min = 65.0; nu_x_max = 66.0; nu_y_min = 19.0; nu_y_max = 20.0; \
   x_max = 5.0; y_max = 3.0; delta_max = 4.0; \
 else if (case == 6) \
   nu_x_min = 65.0; nu_x_max = 65.5; nu_y_min = 21.0; nu_y_max = 21.5; \
@@ -126,7 +128,7 @@ file_name = "`echo $TRACY_LIB`/gnuplot/jet.dat";
 # Load 64-color palette for Jet
 set palette model RGB file file_name using (\$1/255):(\$2/255):(\$3/255);
 
-#set cbrange [-10:-2];
+set cbrange [-10:1];
 set noztics; unset clabel;
 set view map;
 # To set y-axis to left side and avoid compression of color box.
@@ -336,40 +338,11 @@ set size 1.0, 1.0; set origin 0.0, 0.0;
 set title "Diffusion Map";
 set xlabel "x [mm]"; set ylabel "y [mm]";
 if (scale) set xrange [-x_max:x_max]; set yrange [-y_max:y_max];
-splot file1 using 1:2:((\$7 != -2.0)? \$7 : NaN) notitle lt palette z;
+splot file1 using 1:2:((\$7 != nan)? \$7 : NaN) notitle lt palette z;
 
-#unset multiplot;
 if (!ps) pause mouse "click on graph to cont.\n";
 
-unset output;
-
-# Workaround bug for multiplot.
-reset;
-
-set grid;
-
-set style line 1 lw 1 lc rgb "red";
-set style line 2 lw 1 lc rgb "dark-orange";
-set style line 3 lw 1 lc rgb "blue";
-set style line 4 lw 1 lc rgb "dark-green";
-set style line 5 lw 1 lc rgb "purple";
-set style line 6 lw 1 lc rgb "cyan";
-
-file_name = "`echo $TRACY_LIB`/gnuplot/jet.dat";
-# Load 64-color palette for Jet
-set palette model RGB file file_name using (\$1/255):(\$2/255):(\$3/255);
-
-#set cbrange [-10:-2];
-set noztics; unset clabel;
-set view map;
-
-set parametric;
-
-set urange [nu_x_min:nu_x_max]; set vrange [nu_y_min:nu_y_max];
-
 if (ps) set output (home_dir)."fmap_3.".(ext);
-
-#set multiplot;
 
 unset contour;
 # To set y-axis to left side and avoid compression of color box.
@@ -476,7 +449,7 @@ set size 1.0, 1.0; set origin 0.0, 0.0;
 set title "Diffusion Map";
 set xlabel "{/Symbol d} [%]"; set ylabel "x [mm]";
 if (scale) set xrange [-delta_max:delta_max]; set yrange [-x_max:x_max];
-splot file2 using 1:2:((\$7 != -2.0)? \$7 : NaN) notitle lt palette z;
+splot file2 using 1:2:((\$7 != nan)? \$7 : NaN) notitle lt palette z;
 
 #unset multiplot;
 if (!ps) pause mouse "click on graph to cont.\n";
