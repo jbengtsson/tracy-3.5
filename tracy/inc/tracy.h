@@ -12,8 +12,9 @@
 #define TRACY_H
 
 #define DOF    (ss_dim/2)
- 
-#define M_PI   3.14159265358979323846  // pi
+
+// Defined in math.h.
+//#define M_PI   3.14159265358979323846  // pi
 
 #ifndef LONG_MAX
 # define LONG_MAX   ((long)(((unsigned long) -1) >> 1))

@@ -996,6 +996,7 @@ double constr_type::get_chi2(const double twoJ[], const double delta,
 
   if ((high_ord_achr_scl[X_] != 0e0) || (high_ord_achr_scl[Y_] != 0e0)) {
     get_high_ord_achr(lat_constr);
+    if (prt) printf("\n");
     for (j = 0; j < (int)high_ord_achr_dnu.size(); j++) {
       for (k = 0; k < 2; k++) {
 	dchi2[k] =
@@ -1153,8 +1154,9 @@ void constr_type::prt_constr(const double chi2)
 
   if ((mI_scl[X_] != 0e0) || (mI_scl[Y_] != 0e0)) {
     printf("\n  -I Transf.:\n");
+    printf("    [%8.5f, %8.5f]\n\n", mI0[X_], mI0[Y_]);
     for (k = 0; k < (int)mI.size(); k++)
-      printf("    [%7.5f, %7.5f] [%3d, %3d]\n",
+      printf("    [%8.5f, %8.5f] [%3d, %3d]\n",
 	     mI[k][X_], mI[k][Y_], mI_loc[k][0], mI_loc[k][1]);
   }
 

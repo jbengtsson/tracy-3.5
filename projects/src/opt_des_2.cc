@@ -31,22 +31,21 @@ const int opt_case = 3;
 const int    n_ic = 4;
 const double
   ic[n_ic][2] =
-  {{0.0351876947, 0.0001721437}, {1.3652950621, 1.0487819417},
-   {0.0158197453, 0.0000000000}, {0.0, 0.0}},
+  {{0.0000004297, -0.0000001526}, {3.5774796632, 3.7912591011},
+   {0.0148883522, 0.0000000000}, {0.0, 0.0}},
   
   beta_ms[]       = { 4.0, 2.0},
   beta_ss[]       = { 2.0, 2.0},
   beta_ls[]       = {12.0, 5.0},
   eta_ms_x        = 15e-3,
-  eta_sf1_x       = 9e-2,
-  scl_ksi_1       = 1e0*5e0,
-  scl_h_3         = 1e-1*1e10,
-  scl_h_3_delta   = 1e-1*1e10,
+  scl_ksi_1       = 1e0*5e1,
+  scl_h_3         = 1e-2*1e10,
+  scl_h_3_delta   = 1e-2*1e10,
   scl_h_4         = 1e0,
-  scl_ksi_2       = 5e0*1e5,
+  scl_ksi_2       = 1e-2*1e5,
   scl_ksi_3       = 1e-5,
-  scl_chi_2       = 1e-1*1e5,
-  scl_chi_delta_2 = 1e-1*1e5;
+  scl_chi_2       = 1e-2*1e5,
+  scl_chi_delta_2 = 1e-2*1e5;
 
 #define LAT_CASE 1
 
@@ -285,11 +284,20 @@ void set_b3_Fam_std(param_type &prms)
 {
   std::vector<int> Fnum;
 
-  switch (2) {
+  switch (1) {
   case 1:
-    prms.add_prm("of1", 4, -1e8,   1e8, 1.0);
+    prms.add_prm("sd2", 3, -4e2,   4e2, 1.0);
     break;
   case 2:
+    prms.add_prm("of1", 4, -1e8,   1e8, 1.0);
+    prms.add_prm("sd2", 3, -4e2,   4e2, 1.0);
+    break;
+  case 3:
+    prms.add_prm("of1", 4, -1e8,   1e8, 1.0);
+    prms.add_prm("sd2", 3, -4e2,   4e2, 1.0);
+    prms.add_prm("s",   3, -4e2,   4e2, 1.0);
+    break;
+  case 4:
     prms.add_prm("of1", 4, -1e8,   1e8, 1.0);
     prms.add_prm("sd2", 3, -4e2,   4e2, 1.0);
     prms.add_prm("s",   3, -4e2,   4e2, 1.0);
@@ -298,7 +306,7 @@ void set_b3_Fam_std(param_type &prms)
     break;
   }
 
-  if (!true) {
+  if (true) {
     no_sxt();
     set_bn_design_fam(ElemIndex("of1"), Oct, 0.0, 0.0);
 
@@ -348,10 +356,10 @@ void set_weights_std(constr_type &constr)
   lat_constr.ksi1_ctrl_scl[0]      = 0e-1;
   lat_constr.ksi1_ctrl_scl[1]      = 0e0;
   lat_constr.ksi1_ctrl_scl[2]      = 0e0;
-  lat_constr.mI_scl[X_]            = 1e-1*1e6;
-  lat_constr.mI_scl[Y_]            = 1e-1*1e6;
-  lat_constr.high_ord_achr_scl[X_] = 1e-1*1e6;
-  lat_constr.high_ord_achr_scl[Y_] = 1e-1*1e6;
+  lat_constr.mI_scl[X_]            = 1e3*1e6;
+  lat_constr.mI_scl[Y_]            = 1e3*1e6;
+  lat_constr.high_ord_achr_scl[X_] = 1e-10*1e6;
+  lat_constr.high_ord_achr_scl[Y_] = 1e-10*1e6;
 
   lat_constr.alpha_c_scl           = 1e-6;
 
@@ -474,9 +482,7 @@ void set_b2_ms_std_ls_sp(param_type &prms)
   // Long Straight.
   if (pert_dip_cell)
     prms.add_prm("qd3_c1",   2, -15.0, 15.0, 1.0);
-  // prms.add_prm("qd2_c1",   2, -15.0,  1.0, 1.0);
-  // prms.add_prm("qf1_c1",   2, -15.0,  0.0, 1.0);
-  prms.add_prm("qd2_c1",   2, -15.0, 15.0, 1.0);
+  prms.add_prm("qd2_c1",   2, -15.0,  0.0, 1.0);
   prms.add_prm("qf1_c1",   2, -15.0, 15.0, 1.0);
   prms.add_prm("quad_add", 2, -15.0, 15.0, 1.0);
 }
@@ -495,23 +501,24 @@ void set_constr_sp(constr_type &constr)
 		    0e0, 0e0, 0e0, 0e0, 1e8, 1e8,
 		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   // Include constraint on alpha; in case of using ps_rot.
-  constr.add_constr(Elem_GetPos(ElemIndex("ms"), 1),
-		    1e6, 1e6, 1e1*1e2,         1e3,         1e8,      1e8,
-		    0.0, 0.0, beta_ms[X_], beta_ms[Y_], eta_ms_x, 0.0);
+  for (k = 1; k <= 2; k++)
+    constr.add_constr(Elem_GetPos(ElemIndex("ms"), k),
+		      1e6, 1e6, 1e1*1e2,         1e1*1e3,         1e8,      1e8,
+		      0.0, 0.0, beta_ms[X_], beta_ms[Y_], eta_ms_x, 0.0);
   for (k = 1; k <= 2; k++)
     constr.add_constr(Elem_GetPos(ElemIndex("ss"), k),
-		      1e6, 1e6, 1e1*1e2,         1e3,         1e8, 1e8,
+		      1e6, 1e6, 1e1*1e2,         1e1*1e3,         1e8, 1e8,
 		      0.0, 0.0, beta_ss[X_], beta_ss[Y_], 0.0, 0.0);
   constr.add_constr(Elem_GetPos(ElemIndex("ls"), 1),
-		    1e6, 1e6, 1e1*1e2,         1e2,         1e8, 1e8,
+		    1e6, 1e6, 1e2*1e2,         1e2,         1e8, 1e8,
 		    0.0, 0.0, beta_ls[X_], beta_ls[Y_], 0.0, 0.0);
   // Symmetry & peak dispersion.
   constr.add_constr(Elem_GetPos(ElemIndex("sf1"), 1),
-		    5e2, 5e2, 0e0, 0e0, 0e8,       0e0,
-		    0.0, 0.0, 0.0, 0.0, eta_sf1_x, 0.0);
+		    5e2, 5e2, 0e0, 0e0, 0e0,       0e0,
+		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   // constr.add_constr(Elem_GetPos(ElemIndex("sf1"), 3),
-  // 		    5e2, 1e3, 0e0, 0e0, 0.1*1e8,       0e0,
-  // 		    0.0, 0.0, 0.0, 0.0, eta_sf1_x, 0.0);
+  // 		    5e2, 1e3, 0e0, 0e0, 0e0, 0e0,
+  // 		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 
   if (false)
     // Increase beta_x.
@@ -631,8 +638,8 @@ void set_weights_sp(constr_type &constr)
   lat_constr.ksi1_ctrl_scl[2]      = 0e-1;
   lat_constr.mI_scl[X_]            = 1e-1*1e6;
   lat_constr.mI_scl[Y_]            = 1e-1*1e6;
-  lat_constr.high_ord_achr_scl[X_] = 1e-2*1e6;
-  lat_constr.high_ord_achr_scl[Y_] = 1e-2*1e6;
+  lat_constr.high_ord_achr_scl[X_] = 1e-10*1e6;
+  lat_constr.high_ord_achr_scl[Y_] = 1e-10*1e6;
 
   lat_constr.alpha_c_scl           = 1e0*1e-6;
 
@@ -682,7 +689,7 @@ void set_b2_ls(param_type &prms)
   if (pert_dip_cell)
     prms.add_prm("qd3_c1", 2, -15.0, 15.0, 1.0);
   // Long Straight.
-  prms.add_prm("qd2_c1",   2, -15.0, 15.0, 1.0);
+  prms.add_prm("qd2_c1",   2, -15.0,  0.0, 1.0);
   prms.add_prm("qf1_c1",   2, -15.0, 15.0, 1.0);
   prms.add_prm("quad_add", 2, -15.0, 15.0, 1.0);
 
@@ -1366,9 +1373,11 @@ int main(int argc, char *argv[])
     Ring_GetTwiss(true, 0e0); printglob();
     dnu[X_] = 0.0; dnu[Y_] = 0.0;
     set_map(ElemIndex("ps_rot"), dnu);
-    dnu[X_] = 0.0; dnu[Y_] = 0.1;
-    set_map(ElemIndex("ps_rot"), dnu);
-    Ring_GetTwiss(true, 0e0); printglob();
+    if (!true) {
+      dnu[X_] = 0.1; dnu[Y_] = 0.2;
+      set_map(ElemIndex("ps_rot"), dnu);
+      Ring_GetTwiss(true, 0e0); printglob();
+    }
   }
 
   if (false) {

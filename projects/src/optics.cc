@@ -20,19 +20,19 @@ const bool
   prt_ms  = false,
   prt_dt  = false;
 
-#if 1
+#if 0
 const int n_cell = 6;
 #else
 const int n_cell = 1;
 #endif
 
 const double
-#if 1
-  nu[]     = {65.22, 19.74},
+#if 0
+  nu[]     = {65.37, 19.22},
 #else
-  nu[]     = {0.15, -0.1},
+  nu[]     = {-0.05, -0.09},
 #endif
-  dnu_mI[] = {-0.01, 0.02};
+  dnu_mI[] = {-0.21, -0.20};
 
 
 double rad2deg(const double a) { return a*180e0/M_PI; }
@@ -1580,7 +1580,7 @@ int main(int argc, char *argv[])
     set_map(ElemIndex("ps_rot"), dnu);
     Ring_GetTwiss(true, 0e0); printglob();
     for (k = 0; k < 2; k++)
-      if (true)
+      if (!true)
 	dnu[k] = nu[k]/n_cell - globval.TotalTune[k];
       else
 	dnu[k] = nu[k];
@@ -1592,7 +1592,7 @@ int main(int argc, char *argv[])
   }
 
   if (mI_rot) {
-    dnu[X_] = 0.0; dnu[Y_] = 0.;
+    dnu[X_] = 0.0; dnu[Y_] = 0.0;
     set_map(ElemIndex("mI_rot"), dnu);
     Ring_GetTwiss(true, 0e0); printglob();
     for (k = 0; k < 2; k++)

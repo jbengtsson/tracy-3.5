@@ -24,12 +24,16 @@ int main(int argc, char *argv[])
 
   reverse_elem = !false;
 
+  globval.mat_meth = !false;
+
   if (false)
     Read_Lattice(argv[1]);
   else
     rdmfile(argv[1]);
 
-  globval.EPU = false;
+  if (false) {
+    Ring_GetTwiss(true, 0e0); printglob();
+  }
 
   dnu_dA(A_max[X_], A_max[Y_], 0e0, 25);
   get_ksi2(delta_max);
