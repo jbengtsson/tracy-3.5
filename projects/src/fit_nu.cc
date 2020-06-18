@@ -6,8 +6,11 @@ int no_tps = NO;
 
 const int n_cell = 6;
 
-// const double nu[] = {10.87, 3.29};
+#if 1
+const double nu[] = {10.87, 3.29};
+#else
 const double nu[] = {64.91/n_cell, 19.66/n_cell};
+#endif
 
 
 void prt_name(FILE *outf, const char *name, const string &str, const int len)
@@ -141,9 +144,25 @@ void fit_nu(const std::vector<int> &Fnum_b2,
 }
 
 
-int main(int argc, char *argv[])
+void fit_nu(const double nu[])
 {
   std::vector<int> Fam_b2;
+
+  Fam_b2.push_back(ElemIndex("qf1"));
+  Fam_b2.push_back(ElemIndex("qd2"));
+
+  Fam_b2.push_back(ElemIndex("qf1_c1"));
+  Fam_b2.push_back(ElemIndex("qd2_c1"));
+  Fam_b2.push_back(ElemIndex("quad_add"));
+
+  fit_nu(Fam_b2, nu[X_], nu[Y_], 1e-3);
+
+  Ring_GetTwiss(true, 0e0); printglob();
+}
+
+
+int main(int argc, char *argv[])
+{
 
   reverse_elem = !false;
 
@@ -164,13 +183,4 @@ int main(int argc, char *argv[])
 
   Ring_GetTwiss(true, 0e0); printglob();
 
-  Fam_b2.push_back(ElemIndex("qf1"));
-  Fam_b2.push_back(ElemIndex("qd2"));
-  Fam_b2.push_back(ElemIndex("qf1_c1"));
-  Fam_b2.push_back(ElemIndex("qd2_c1"));
-  Fam_b2.push_back(ElemIndex("quad_add"));
-
-  fit_nu(Fam_b2, nu[X_], nu[Y_], 1e-3);
-
-  Ring_GetTwiss(true, 0e0); printglob();
 }

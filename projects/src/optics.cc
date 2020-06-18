@@ -1610,8 +1610,8 @@ int main(int argc, char *argv[])
     prt_chrom_lat();
     prtmfile("flat_file.dat");
 
-    if (false) prt_lat_param();
-    if (false) reality_check();
+    if (!false) prt_lat_param();
+    if (!false) reality_check();
 
    exit(0);
   }

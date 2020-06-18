@@ -421,11 +421,11 @@ const double
   for (n1 = 0; n1 <= globval.Cell_nLoc; n1++) {
     if (Cell[n1].Elem.Pkind == Mpole) {
       cellp1 = &Cell[ind(n1-1)];
-      if (Cell[n1].Elem.M->Porder == Sext) {
+      if (Cell[n1].Elem.M->Porder >= Sext) {
 	get_bnL_design_elem(Cell[n1].Fnum, 1, Sext, b3L1, a3L1);
 	for (n2 = 0; n2 <= globval.Cell_nLoc; n2++) {
 	  if ((Cell[n2].Elem.Pkind == Mpole) &&
-	      (Cell[n2].Elem.M->Porder == Sext)) {
+	      (Cell[n2].Elem.M->Porder >= Sext)) {
 	    get_bnL_design_elem(Cell[n2].Fnum, 1, Sext, b3L2, a3L2);
 	    cellp2 = &Cell[ind(n2-1)];
 	    dmu_x = 2e0*M_PI*fabs(cellp1->Nu[X_]-cellp2->Nu[X_]);
@@ -444,7 +444,9 @@ const double
 	      /2e0;
 	  }
 	}
-      } else if (Cell[n1].Elem.M->Porder == Oct) {
+      }
+
+      if (Cell[n1].Elem.M->Porder == Oct) {
 	get_bnL_design_elem(Cell[n1].Fnum, 1, Oct, b4L, a4L);
 	a[0] -= 3e0*b4L*sqr(cellp1->Beta[X_]);
 	a[1] += 3e0*4e0*b4L*cellp1->Beta[X_]*cellp1->Beta[Y_];

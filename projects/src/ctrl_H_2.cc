@@ -11,9 +11,10 @@ void get_S(void);
 double rad2deg(const double a) { return a*180e0/M_PI; }
 double deg2rad(const double a) { return a*M_PI/180e0; }
 
-void f_der(double *b2, double *df);
-double f_match(double *b2);
-double f_achrom(double *b2);
+void f_der(double *bn, double *df);
+double f_match(double *bn);
+double f_achrom(double *bn);
+double f_mult(double *bn);
 
 
 double eps_x, sigma_E;
@@ -1312,7 +1313,7 @@ void prt_grad_dip(FILE *outf, const std::vector<int> &Fnum)
 
 void prt_elem(FILE *outf, const param_type &lat_prms, const int n)
 {
-  int      loc;
+  int      k, loc;
   CellType *cellp;
 
  const bool prt = false;
@@ -1327,7 +1328,10 @@ void prt_elem(FILE *outf, const param_type &lat_prms, const int n)
     prt_name(outf, cellp->Elem.PName, ":", 8);
     prt_drift(outf, Cell[loc]);
   } else if (cellp->Elem.Pkind == Mpole) {
-    if (prt) printf("  n_design:     %1d\n", cellp->Elem.M->n_design);
+    if (prt) {
+      printf("  n_design:     %1d\n", cellp->Elem.M->n_design);
+      printf("  n:            %1d\n", cellp->Elem.M->Porder);
+    }
     if (cellp->Elem.M->n_design == Dip) {
       if (lat_prms.Fnum[n-1] > 0) {
 	prt_name(outf, cellp->Elem.PName, ":", 8);
@@ -1339,17 +1343,24 @@ void prt_elem(FILE *outf, const param_type &lat_prms, const int n)
       fprintf(outf, " quadrupole, l = %10.8f, k = %13.8f, n = nquad"
 	      ", method = 4;\n",
 	      cellp->Elem.PL, cellp->Elem.M->PBpar[Quad+HOMmax]);
-    } else if (cellp->Elem.M->n_design == Sext) {
+    } else if (cellp->Elem.M->Porder == Sext) {
       prt_name(outf, cellp->Elem.PName, ":", 8);
       fprintf(outf, " sextupole,  l = %10.8f, k = %13.8f, n = nsext"
 	      ", method = 4;\n",
 	      cellp->Elem.PL, cellp->Elem.M->PBpar[Sext+HOMmax]);
-    } else if (cellp->Elem.M->Porder == Oct) {
+    } else {
       prt_name(outf, cellp->Elem.PName, ":", 8);
-      fprintf(outf," multipole,  l = %10.8f, hom = (%d, %14.8e, 0.0),\n"
-	      "          n = nsext, method = 4;\n",
-	      cellp->Elem.PL, cellp->Elem.M->Porder,
-	      cellp->Elem.M->PBpar[Oct+HOMmax]);
+      fprintf(outf, " multipole,  l = %10.8f,\n          hom = (",
+	      cellp->Elem.PL);
+      for (k = Sext; k <= cellp->Elem.M->Porder; k++){
+	if (k > Sext) fprintf(outf, "                 ");
+	fprintf(outf, "%1d, %14.8e, 0.0", k, cellp->Elem.M->PBpar[k+HOMmax]);
+	if (k < cellp->Elem.M->Porder)
+	  fprintf(outf, ",\n");
+	else
+	  fprintf(outf, "),\n");
+      }
+      fprintf(outf, "          n = nsext, method = 4;\n");
     }
   } else {
     printf("\nprt_elem: %s %d\n", cellp->Elem.PName, cellp->Elem.Pkind);
@@ -1465,32 +1476,32 @@ void fit_powell(param_type &lat_prms, const double eps, double (*f)(double *))
     rho_beg = 1e-1,
     rho_end = 1e-6;
 
-  int          n_b2, i, j, iter;
-  double       *b2, **xi, fret, eps_x, w[n_w], x[n_prm];
+  int          n_bn, i, j, iter;
+  double       *bn, **xi, fret, eps_x, w[n_w], x[n_prm];
   ss_vect<tps> A;
 
   const double ftol = 1e-8;
 
-  n_b2 = lat_prms.n_prm;
+  n_bn = lat_prms.n_prm;
 
-  b2 = dvector(1, n_b2); xi = dmatrix(1, n_b2, 1, n_b2);
+  bn = dvector(1, n_bn); xi = dmatrix(1, n_bn, 1, n_bn);
 
-  lat_prms.ini_prm(b2);
-  f(b2);
+  lat_prms.ini_prm(bn);
+  f(bn);
 
   if (false) {
     lat_constr.get_Jacobian(lat_prms);
-    lat_constr.prt_Jacobian(n_b2);
+    lat_constr.prt_Jacobian(n_bn);
     exit(0);
   }
 
   if (true) {
     // Set initial directions (unit vectors).
-    for (i = 1; i <= n_b2; i++)
-      for (j = 1; j <= n_b2; j++)
+    for (i = 1; i <= n_bn; i++)
+      for (j = 1; j <= n_bn; j++)
 	xi[i][j] = (i == j)? eps : 0e0;
 
-    dpowell(b2, xi, n_b2, ftol, &iter, &fret, f);
+    dpowell(bn, xi, n_bn, ftol, &iter, &fret, f);
   } else {
     // for (i = 1; i <= n_prm; i++)
     //   x[i-1] = bn[i];
@@ -1498,13 +1509,13 @@ void fit_powell(param_type &lat_prms, const double eps, double (*f)(double *))
   }
 
   printf("\n  iter = %d fret = %12.5e\n", iter, fret);
-  printf("b2s:\n");
-  lat_prms.prt_prm(b2);
-  // lat_prms.set_prm(b2);
+  printf("bns:\n");
+  lat_prms.prt_prm(bn);
+  // lat_prms.set_prm(bn);
   // eps_x = get_lin_opt(false);
-  // f_prt(b2);
+  // f_prt(bn);
 
-  free_dvector(b2, 1, n_b2); free_dmatrix(xi, 1, n_b2, 1, n_b2);
+  free_dvector(bn, 1, n_bn); free_dmatrix(xi, 1, n_bn, 1, n_bn);
 }
 
 
@@ -1523,32 +1534,32 @@ void fit_sim_anneal(param_type &lat_prms, const double eps,
     rho_beg = 1e-1,
     rho_end = 1e-6;
 
-  int          n_b2, i, j, iter;
-  double       *b2, **xi, fret, eps_x, w[n_w], x[n_prm];
+  int          n_bn, i, j, iter;
+  double       *bn, **xi, fret, eps_x, w[n_w], x[n_prm];
   ss_vect<tps> A;
 
   const double ftol = 1e-8;
 
-  n_b2 = lat_prms.n_prm;
+  n_bn = lat_prms.n_prm;
 
-  b2 = dvector(1, n_b2); xi = dmatrix(1, n_b2, 1, n_b2);
+  bn = dvector(1, n_bn); xi = dmatrix(1, n_bn, 1, n_bn);
 
-  lat_prms.ini_prm(b2);
-  f(b2);
+  lat_prms.ini_prm(bn);
+  f(bn);
 
   if (false) {
     lat_constr.get_Jacobian(lat_prms);
-    lat_constr.prt_Jacobian(n_b2);
+    lat_constr.prt_Jacobian(n_bn);
     exit(0);
   }
 
   if (true) {
     // Set initial directions (unit vectors).
-    for (i = 1; i <= n_b2; i++)
-      for (j = 1; j <= n_b2; j++)
+    for (i = 1; i <= n_bn; i++)
+      for (j = 1; j <= n_bn; j++)
 	xi[i][j] = (i == j)? eps : 0e0;
 
-    dpowell(b2, xi, n_b2, ftol, &iter, &fret, f);
+    dpowell(bn, xi, n_bn, ftol, &iter, &fret, f);
   } else {
     // for (i = 1; i <= n_prm; i++)
     //   x[i-1] = bn[i];
@@ -1556,45 +1567,45 @@ void fit_sim_anneal(param_type &lat_prms, const double eps,
   }
 
   printf("\n  iter = %d fret = %12.5e\n", iter, fret);
-  printf("b2s:\n");
-  lat_prms.prt_prm(b2);
-  // lat_prms.set_prm(b2);
+  printf("bns:\n");
+  lat_prms.prt_prm(bn);
+  // lat_prms.set_prm(bn);
   // eps_x = get_lin_opt(false);
-  // f_prt(b2);
+  // f_prt(bn);
 
-  free_dvector(b2, 1, n_b2); free_dmatrix(xi, 1, n_b2, 1, n_b2);
+  free_dvector(bn, 1, n_bn); free_dmatrix(xi, 1, n_bn, 1, n_bn);
 }
 
 
 void fit_conj_grad(param_type &lat_prms, double (*f)(double *))
 {
-  int          n_b2, iter;
-  double       *b2, fret, eps_x;
+  int          n_bn, iter;
+  double       *bn, fret, eps_x;
   ss_vect<tps> A;
 
   const double ftol = 1e-8;
 
-  n_b2 = lat_prms.n_prm;
+  n_bn = lat_prms.n_prm;
 
-  b2 = dvector(1, n_b2);
+  bn = dvector(1, n_bn);
 
-  lat_prms.ini_prm(b2);
-  f(b2);
+  lat_prms.ini_prm(bn);
+  f(bn);
 
-  dfrprmn(b2, n_b2, ftol, &iter, &fret, f, f_der);
+  dfrprmn(bn, n_bn, ftol, &iter, &fret, f, f_der);
 
   printf("\n  iter = %d fret = %12.5e\n", iter, fret);
-  printf("b2s:\n");
-  lat_prms.prt_prm(b2);
-  // lat_prms.set_prm(b2);
+  printf("bns:\n");
+  lat_prms.prt_prm(bn);
+  // lat_prms.set_prm(bn);
   // eps_x = get_lin_opt(false);
-  // f_prt(b2);
+  // f_prt(bn);
 
-  free_dvector(b2, 1, n_b2);
+  free_dvector(bn, 1, n_bn);
 }
 
 
-void prt_f(double *b2, const double chi2, constr_type &lat_constr,
+void prt_f(double *bn, const double chi2, constr_type &lat_constr,
 	   param_type &lat_prms, const bool chrom)
 {
   FILE *outf;
@@ -1606,7 +1617,7 @@ void prt_f(double *b2, const double chi2, constr_type &lat_constr,
   lat_constr.prt_constr(chi2);
 
   printf("\n  Parameters:\n");
-  lat_prms.prt_prm(b2);
+  lat_prms.prt_prm(bn);
   prtmfile("flat_file.fit");
   prt_lat("linlat1.out", globval.bpm, true);
   prt_lat("linlat.out", globval.bpm, true, 10);
