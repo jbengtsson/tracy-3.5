@@ -1314,6 +1314,7 @@ void prt_grad_dip(FILE *outf, const std::vector<int> &Fnum)
 void prt_elem(FILE *outf, const param_type &lat_prms, const int n)
 {
   int      k, loc;
+  double   b_n_prev, b_n;
   CellType *cellp;
 
  const bool prt = false;
@@ -1353,12 +1354,18 @@ void prt_elem(FILE *outf, const param_type &lat_prms, const int n)
       fprintf(outf, " multipole,  l = %10.8f,\n          hom = (",
 	      cellp->Elem.PL);
       for (k = Sext; k <= cellp->Elem.M->Porder; k++){
-	if (k > Sext) fprintf(outf, "                 ");
-	fprintf(outf, "%1d, %14.8e, 0.0", k, cellp->Elem.M->PBpar[k+HOMmax]);
-	if (k < cellp->Elem.M->Porder)
-	  fprintf(outf, ",\n");
-	else
-	  fprintf(outf, "),\n");
+	b_n_prev = 0e0;
+	b_n = cellp->Elem.M->PBpar[k+HOMmax];
+	if (b_n != 0e0) {
+	  if ((k > Sext) && (b_n_prev != 0e0))
+	    fprintf(outf, "                 ");
+	  fprintf(outf, "%1d, %14.8e, 0.0", k, b_n);
+	  if (k < cellp->Elem.M->Porder)
+	    fprintf(outf, ",\n");
+	  else
+	    fprintf(outf, "),\n");
+	}
+	b_n_prev = b_n;
       }
       fprintf(outf, "          n = nsext, method = 4;\n");
     }

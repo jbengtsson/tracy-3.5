@@ -25,7 +25,7 @@ const bool
      opt_mi_sp   3,
      match_ss    4,
      opt_mult    5.                                                           */
-const int opt_case = 5;
+const int opt_case = 3;
 
 // From Center of Mid Straight: alpha, beta, eta, eta'.
 const int    n_ic = 5;
@@ -38,14 +38,14 @@ const double
   beta_ss[]       = { 2.0, 2.0},
   beta_ls[]       = {12.0, 5.0},
   eta_ms_x        = 19e-3,
-  scl_ksi_1       = 1e-5*1e1,
+  scl_ksi_1       = 1e0*1e1,
   scl_h_3         = 1e0*1e10,
   scl_h_3_delta   = 1e0*1e10,
   scl_h_4         = 1e0,
-  scl_ksi_2       = 1e2*1e5,
-  scl_ksi_3       = 1e2*1e5,
-  scl_chi_2       = 1e2*1e5,
-  scl_chi_delta_2 = 1e0*1e4;
+  scl_ksi_2       = 1e1*1e5,
+  scl_ksi_3       = 1e0*1e-5,
+  scl_chi_2       = 1e1*1e5,
+  scl_chi_delta_2 = 1e-1*1e5;
 
 #define LAT_CASE 1
 
@@ -318,25 +318,28 @@ void set_b3_Fam_std(param_type &prms)
 
   switch (2) {
   case 1:
-    prms.add_prm("sd2", 3, -6e2,   6e2, 1.0);
+    prms.add_prm("sd2", 3, -2e2, 2e2, 1.0);
     break;
   case 2:
-    prms.add_prm("of1", 4, -1e8,   1e8, 1.0);
-    prms.add_prm("sd2", 3, -6e2,   6e2, 1.0);
+    prms.add_prm("of1", 4, -1e4, 1e4, 1.0);
+    prms.add_prm("sd2", 3, -2e2, 2e2, 1.0);
     break;
   case 3:
-    prms.add_prm("of1", 4, -1e8,   1e8, 1.0);
-    prms.add_prm("sd2", 3, -6e2,   6e2, 1.0);
-    prms.add_prm("s",   3, -6e2,   6e2, 1.0);
+    prms.add_prm("of1", 4, -1e4, 1e4, 1.0);
+    prms.add_prm("sd2", 3, -2e2, 2e2, 1.0);
+    prms.add_prm("s",   3, -2e2, 2e2, 1.0);
     break;
   case 4:
-    prms.add_prm("of1", 4, -1e8,   1e8, 1.0);
-    prms.add_prm("sd2", 3, -6e2,   6e2, 1.0);
-    prms.add_prm("s",   3, -6e2,   6e2, 1.0);
-    prms.add_prm("sh1", 3, -6e2,   6e2, 1.0);
-    prms.add_prm("sh2", 3, -6e2,   6e2, 1.0);
+    prms.add_prm("of1", 4, -1e4, 1e4, 1.0);
+    prms.add_prm("sd2", 3, -2e2, 2e2, 1.0);
+    prms.add_prm("s",   3, -2e2, 2e2, 1.0);
+    prms.add_prm("sh1", 3, -2e2, 2e2, 1.0);
+    prms.add_prm("sh2", 3, -2e2, 2e2, 1.0);
     break;
   }
+
+  lat_constr.Fnum_b3.push_back(ElemIndex("sf1"));
+  lat_constr.Fnum_b3.push_back(ElemIndex("sd1"));
 
   if (true) {
     no_sxt();
@@ -354,9 +357,6 @@ void set_b3_constr_std(constr_type &constr)
 {
   int              k, n;
   std::vector<int> mI_loc;
-
-  lat_constr.Fnum_b3.push_back(ElemIndex("sf1"));
-  lat_constr.Fnum_b3.push_back(ElemIndex("sd1"));
 
   mI_loc.push_back(Elem_GetPos(ElemIndex("sf1"), 1));
   mI_loc.push_back(Elem_GetPos(ElemIndex("sf1"), 3));
@@ -571,24 +571,29 @@ void set_b3_Fam_sp(param_type &prms)
 
   switch (2) {
   case 1:
-    prms.add_prm("of1", 4, -1e8,   1e8, 1.0);
-    prms.add_prm("sd2", 3, -4e2,   4e2, 1.0);
+    // First control ksi2_x,y.
+    prms.add_prm("of1", 4, -1e4, 1e4, 1.0);
+
+    lat_constr.Fnum_b3.push_back(ElemIndex("sf1"));
+    lat_constr.Fnum_b3.push_back(ElemIndex("sd1"));
+    lat_constr.Fnum_b3.push_back(ElemIndex("sd2"));
     break;
   case 2:
-    prms.add_prm("sh1", 3, -4e2,   4e2, 1.0);
-    prms.add_prm("sh2", 3, -4e2,   4e2, 1.0);
-    prms.add_prm("s",   3, -4e2,   4e2, 1.0);
-    prms.add_prm("sd2", 3, -4e2,   4e2, 1.0);
+    // Control  [k_22000, k_11110, k_00220] & ksi2_x,y.
+    prms.add_prm("sh1", 3, -2e2, 2e2, 1.0);
+    prms.add_prm("sh2", 3, -2e2, 2e2, 1.0);
+    prms.add_prm("s",   3, -2e2, 2e2, 1.0);
+    prms.add_prm("sd2", 3, -2e2, 2e2, 1.0);
+    prms.add_prm("of1", 4, -1e4, 1e4, 1.0);
 
-    prms.add_prm("sf1", 4, -1e8,   1e8, 1.0);
-    prms.add_prm("sd1", 4, -1e8,   1e8, 1.0);
-    prms.add_prm("sd2", 4, -1e8,   1e8, 1.0);
+    lat_constr.Fnum_b3.push_back(ElemIndex("sf1"));
+    lat_constr.Fnum_b3.push_back(ElemIndex("sd1"));
     break;
-  }
+   }
 
   if (!true) {
     no_sxt();
-    set_bn_design_fam(ElemIndex("of1"), Oct, 0.0, 0.0);
+    if (!false) set_bn_design_fam(ElemIndex("of1"), Oct, 0.0, 0.0);
 
     Fnum.push_back(ElemIndex("sf1"));
     Fnum.push_back(ElemIndex("sd1"));
@@ -602,9 +607,6 @@ void set_b3_constr_sp(constr_type &constr)
 {
   int              j, k, n;
   std::vector<int> mI_loc;
-
-  lat_constr.Fnum_b3.push_back(ElemIndex("sf1"));
-  lat_constr.Fnum_b3.push_back(ElemIndex("sd1"));
 
   lat_constr.eps0_x = eps0_x;
 
@@ -650,15 +652,15 @@ void set_b3_constr_sp(constr_type &constr)
 
 void set_weights_sp(constr_type &constr)
 {
-  lat_constr.eps_x_scl             = 1e7;
+  lat_constr.eps_x_scl             = 1e0*1e7;
 
   lat_constr.ksi1_ctrl_scl[0]      = 0e-1;
   lat_constr.ksi1_ctrl_scl[1]      = 0e0;
   lat_constr.ksi1_ctrl_scl[2]      = 0e-1;
-  lat_constr.mI_scl[X_]            = 1e1*1e6;
-  lat_constr.mI_scl[Y_]            = 1e0*1e6;
-  lat_constr.high_ord_achr_scl[X_] = 1e0*1e6;
-  lat_constr.high_ord_achr_scl[Y_] = 1e-4*1e6;
+  lat_constr.mI_scl[X_]            = 1e-5*1e6;
+  lat_constr.mI_scl[Y_]            = 1e-5*1e6;
+  lat_constr.high_ord_achr_scl[X_] = 1e-5*1e6;
+  lat_constr.high_ord_achr_scl[Y_] = 1e-5*1e6;
 
   lat_constr.alpha_c_scl           = 1e0*1e-6;
 
@@ -867,46 +869,35 @@ void set_b3_Fam_mult(param_type &prms)
 {
   std::vector<int> Fnum;
 
-  switch (2) {
+  switch (1) {
   case 1:
-    prms.add_prm("sf1", 4, -1e8, 1e8, 1.0);
-    prms.add_prm("sd1", 4, -1e8, 1e8, 1.0);
-    prms.add_prm("sd2", 4, -1e8, 1e8, 1.0);
+    // Then control [k_22000, k_11110, k_00220].
+    prms.add_prm("sh1", 3, -2e2, 2e2, 1.0);
+    prms.add_prm("sh2", 3, -2e2, 2e2, 1.0);
+    prms.add_prm("s",   3, -2e2, 2e2, 1.0);
+    prms.add_prm("sd2", 3, -2e2, 2e2, 1.0);
     break;
   case 2:
-    prms.add_prm("sh1", 3, -4e2, 4e2, 1.0);
-    prms.add_prm("sh2", 3, -4e2, 4e2, 1.0);
-    prms.add_prm("s",   3, -4e2, 4e2, 1.0);
-    prms.add_prm("sd2", 3, -4e2, 4e2, 1.0);
-
-    prms.add_prm("sf1", 4, -1e8, 1e8, 1.0);
-    prms.add_prm("sd1", 4, -1e8, 1e8, 1.0);
-    prms.add_prm("sd2", 4, -1e8, 1e8, 1.0);
-    break;
+    prms.add_prm("of1", 4, -1e4, 1e4, 1.0);
+    prms.add_prm("sh1", 3, -2e2, 2e2, 1.0);
+    prms.add_prm("sh2", 3, -2e2, 2e2, 1.0);
+    prms.add_prm("s",   3, -2e2, 2e2, 1.0);
+    prms.add_prm("sd2", 3, -2e2, 2e2, 1.0);
   }
 
-  if (true) {
+  lat_constr.Fnum_b3.push_back(ElemIndex("sf1"));
+  lat_constr.Fnum_b3.push_back(ElemIndex("sd1"));
+
+  if (!true) {
     no_sxt();
 
-    if (!true) {
-      set_bn_design_fam(ElemIndex("of1"), Oct, 0.0, 0.0);
-      set_bn_design_fam(ElemIndex("sf1"), Oct, 0.0, 0.0);
-      set_bn_design_fam(ElemIndex("sd1"), Oct, 0.0, 0.0);
-      set_bn_design_fam(ElemIndex("sd2"), Oct, 0.0, 0.0);
-    }
+    set_bn_design_fam(ElemIndex("of1"), Oct, 0.0, 0.0);
 
     Fnum.push_back(ElemIndex("sf1"));
     Fnum.push_back(ElemIndex("sd1"));
     Fnum.push_back(ElemIndex("sd2"));
     fit_ksi1(Fnum, 0e0, 0e0, 1e1);
   }
-}
-
-
-void set_b3_constr_mult(constr_type &constr)
-{
-  lat_constr.Fnum_b3.push_back(ElemIndex("sf1"));
-  lat_constr.Fnum_b3.push_back(ElemIndex("sd1"));
 }
 
 
@@ -934,7 +925,6 @@ void opt_mult(param_type &prms, constr_type &constr)
   lat_prms.bn_tol = 1e-5; lat_prms.step = 1.0;
 
   set_b3_Fam_mult(prms);
-  set_b3_constr_mult(constr);
   set_weights_mult(constr);
 
   lat_constr.ini_constr(true);
@@ -1269,7 +1259,7 @@ int main(int argc, char *argv[])
     dnu[X_] = 0.0; dnu[Y_] = 0.0;
     set_map(ElemIndex("ps_rot"), dnu);
     if (true) {
-      dnu[X_] = 0.0; dnu[Y_] = 0.15;
+      dnu[X_] = -0.1; dnu[Y_] = 0.0;
       set_map(ElemIndex("ps_rot"), dnu);
       Ring_GetTwiss(true, 0e0); printglob();
     }

@@ -1418,33 +1418,55 @@ void prt_M_lin(void)
 }
 
 
-void prt_lat_param()
+void prt_quad(const int loc, const string &name)
 {
-  int    loc, k;
-  double L, rho_inv, phi, B, b_2, dx, beta_max[2], eta_x_max;
+  double L, b_2;
+
+  const
+    double
+      Brho    = globval.Energy*1e9/c0,
+      B_2_max = 0.90*85.0;
+
+  L = Cell[loc].Elem.PL; b_2 = Cell[loc].Elem.M->PBpar[Quad+HOMmax];
+  printf("\n%s:\n"
+         "  L [m]      = %6.3f -> %6.3f\n"
+	 "  b_2 [mˆ-2] = %6.3f (%5.1f T/m)\n",
+	 name.c_str(), L, L*Brho*fabs(b_2)/B_2_max, b_2, Brho*b_2);
+}
+
+
+void prt_RB(const int loc, const string &name, const bool rb)
+{
+  double L, rho_inv, phi, B, b_2, dx;
 
   const double Brho = globval.Energy*1e9/c0;
 
-  loc = Elem_GetPos(ElemIndex("dq1"), 1);
-  L = Cell[loc].Elem.PL; rho_inv = Cell[loc].Elem.M->Pirho;
-  b_2 = Cell[loc].Elem.M->PBpar[Quad+HOMmax];
-  phi = L*rho_inv; B = Brho*rho_inv;
-  printf("\nDQ:  L = %5.3f phi = %5.3f B = %5.3f b_2 = %5.3f\n",
-	 L, phi*180e0/M_PI, B, b_2);
-
-  loc = Elem_GetPos(ElemIndex("qf4"), 1);
   L = Cell[loc].Elem.PL; rho_inv = Cell[loc].Elem.M->Pirho;
   b_2 = Cell[loc].Elem.M->PBpar[Quad+HOMmax];
   phi = L*rho_inv; B = Brho*rho_inv; dx = rho_inv/b_2;
-  printf("\nqf4: L = %5.3f phi = %5.3f B = %5.3f b_2 = %5.3f dx = %6.4f\n",
-	 L, phi*180e0/M_PI, B, b_2, dx);
+  printf("\n%s:\n"
+         "  L [m]      = %6.3f\n"
+	 "  phi        = %6.3f\n"
+	 "  B [T]      = %6.3f\n"
+	 "  b_2 [mˆ-2] = %6.3f (%5.1f T/m)\n",
+	 name.c_str(), L, phi*180e0/M_PI, B, b_2, Brho*b_2);
+  if (rb) printf("  dx [mm]    = %4.1f\n", 1e3*dx);
+}
 
-  loc = Elem_GetPos(ElemIndex("qf8"), 1);
-  L = Cell[loc].Elem.PL; rho_inv = Cell[loc].Elem.M->Pirho;
-  b_2 = Cell[loc].Elem.M->PBpar[Quad+HOMmax];
-  phi = L*rho_inv; B = Brho*rho_inv; dx = rho_inv/b_2;
-  printf("qf8: L = %5.3f phi = %5.3f B = %5.3f b_2 = %5.3f dx = %6.4f\n",
-	 L, phi*180e0/M_PI, B, b_2, dx);
+
+void prt_lat_param()
+{
+  int    k;
+  double beta_max[2], eta_x_max;
+
+  prt_quad(Elem_GetPos(ElemIndex("qf1"), 1), "qf1");
+  prt_quad(Elem_GetPos(ElemIndex("qd2"), 1), "qd2");
+  prt_quad(Elem_GetPos(ElemIndex("qd5"), 1), "qd5");
+  prt_quad(Elem_GetPos(ElemIndex("qf6"), 1), "qf6");
+
+  prt_RB(Elem_GetPos(ElemIndex("dq1"), 1), "DQ", false);
+  prt_RB(Elem_GetPos(ElemIndex("qf4"), 1), "qf4", true);
+  prt_RB(Elem_GetPos(ElemIndex("qf8"), 1), "qf8", true);
 
   beta_max[X_] = beta_max[Y_] = eta_x_max = 0e0;
   for (k = 0; k <= globval.Cell_nLoc; k++) {
@@ -1610,8 +1632,10 @@ int main(int argc, char *argv[])
     prt_chrom_lat();
     prtmfile("flat_file.dat");
 
-    if (!false) prt_lat_param();
-    if (!false) reality_check();
+    if (false) {
+      prt_lat_param();
+      reality_check();
+    }
 
    exit(0);
   }
