@@ -42,10 +42,10 @@ const double
   scl_h_3         = 1e0*1e10,
   scl_h_3_delta   = 1e0*1e10,
   scl_h_4         = 1e0,
-  scl_ksi_2       = 1e1*1e5,
+  scl_ksi_2       = 1e0*1e5,
   scl_ksi_3       = 1e0*1e-5,
-  scl_chi_2       = 1e1*1e5,
-  scl_chi_delta_2 = 1e-1*1e5;
+  scl_chi_2       = 1e0*1e5,
+  scl_chi_delta_2 = 1e-2*1e5;
 
 #define LAT_CASE 1
 
@@ -662,7 +662,7 @@ void set_weights_sp(constr_type &constr)
   lat_constr.high_ord_achr_scl[X_] = 1e-5*1e6;
   lat_constr.high_ord_achr_scl[Y_] = 1e-5*1e6;
 
-  lat_constr.alpha_c_scl           = 1e0*1e-6;
+  lat_constr.alpha_c_scl           = 1e0*5e-7;
 
   lat_constr.phi0 = 60.0;
   lat_constr.L_scl = 0e-10; lat_constr.L0 = 10.0;
@@ -1239,7 +1239,7 @@ int main(int argc, char *argv[])
   // Unbuffered output.
   setvbuf(stdout, buffer, _IONBF, BUFSIZ);
 
-  globval.mat_meth = !false;
+  globval.mat_meth = false;
 
   if (!true)
     Read_Lattice(argv[1]);
@@ -1258,7 +1258,7 @@ int main(int argc, char *argv[])
     Ring_GetTwiss(true, 0e0); printglob();
     dnu[X_] = 0.0; dnu[Y_] = 0.0;
     set_map(ElemIndex("ps_rot"), dnu);
-    if (true) {
+    if (!true) {
       dnu[X_] = -0.1; dnu[Y_] = 0.0;
       set_map(ElemIndex("ps_rot"), dnu);
       Ring_GetTwiss(true, 0e0); printglob();

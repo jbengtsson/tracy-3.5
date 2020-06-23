@@ -1887,8 +1887,8 @@ int main(int argc, char *argv[])
   }
 
   if (false) {
-    chk_optics(0.00000, 22.29589, 0.00109, 0.00000, 0.00000, 3.47496,
-	       0.00000, 0.00000);
+    chk_optics(-0.0053535002, 12.1075976024, 0.0000110151, 0.0000000000,
+	       -0.0003741602, 4.9544873208, 0.00000, 0.00000);
     prt_lat("linlat1.out", globval.bpm, true);
     prt_lat("linlat.out", globval.bpm, true, 10);
     exit(0);

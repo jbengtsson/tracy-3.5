@@ -286,8 +286,13 @@ void set_phi(const int Fnum, const double phi,
   for (k = 1; k <= GetnKid(Fnum); k++) {
     loc = Elem_GetPos(Fnum, k);
     Cell[loc].Elem.M->Pirho = i_rho;
-    Cell[loc].Elem.M->PTx1 = phi0;
-    Cell[loc].Elem.M->PTx2 = phi1;
+    if (!Cell[loc].Elem.Reverse) {
+      Cell[loc].Elem.M->PTx1 = phi0;
+      Cell[loc].Elem.M->PTx2 = phi1;
+    } else {
+      Cell[loc].Elem.M->PTx1 = phi1;
+      Cell[loc].Elem.M->PTx2 = phi0;
+    }
   }
   set_lin_map(Fnum);
 }
@@ -1288,11 +1293,19 @@ void prt_dip(FILE *outf, CellType &Cell)
   double phi;
 
   phi = rad2deg(Cell.Elem.PL*Cell.Elem.M->Pirho);
-  fprintf(outf, " bending, l = %11.8f,"
-	  "\n    t = %11.8f, t1 = %11.8f, t2 = %11.8f, k = %11.8f,"
-	  "\n    n = nbend, method = 4;\n",
-	  Cell.Elem.PL, phi, Cell.Elem.M->PTx1,
-	  Cell.Elem.M->PTx2, Cell.Elem.M->PBpar[Quad+HOMmax]);
+  if (!Cell.Elem.Reverse)
+    fprintf(outf, " bending, l = %11.8f,"
+	    "\n    t = %11.8f, t1 = %11.8f, t2 = %11.8f, k = %11.8f,"
+	    "\n    n = nbend, method = 4;\n",
+	    Cell.Elem.PL, phi, Cell.Elem.M->PTx1,
+	    Cell.Elem.M->PTx2, Cell.Elem.M->PBpar[Quad+HOMmax]);
+  else {
+    fprintf(outf, " bending, l = %11.8f,"
+	    "\n    t = %11.8f, t1 = %11.8f, t2 = %11.8f, k = %11.8f,"
+	    "\n    n = nbend, method = 4;\n",
+	    Cell.Elem.PL, phi, Cell.Elem.M->PTx2,
+	    Cell.Elem.M->PTx1, Cell.Elem.M->PBpar[Quad+HOMmax]);
+  }
 }
 
 

@@ -27,7 +27,7 @@
    Format:
 
      name, family no, kid no, element no
-     type code, integration method, no of integration steps
+     type code, integration method, no of integration steps, reverse
      apertures: xmin, xmax, ymin, ymax
 
    The following lines follows depending on element type.
@@ -134,7 +134,7 @@ void rdmfile(const char *mfile_dat)
   const int  n_ps = 6;
 
   char         line[line_max], file_name[line_max];
-  int          j, k, nmpole, kind, method, n;
+  int          j, k, nmpole, kind, method, n, reverse;
   long int     i;
   double       dTerror, val[n_ps];
   ss_vect<tps> Id;
@@ -175,7 +175,7 @@ void rdmfile(const char *mfile_dat)
 
     inf.getline(line, line_max);
     if (prt) printf("%s\n", line);
-    sscanf(line, "%d %d %d", &kind, &method, &n);
+    sscanf(line, "%d %d %d %d", &kind, &method, &n, &reverse);
     get_kind(kind, Cell[i].Elem);
     if (i > 0)
       ElemFam[Cell[i].Fnum-1].ElemF.Pkind = Cell[i].Elem.Pkind;
@@ -187,6 +187,7 @@ void rdmfile(const char *mfile_dat)
 	   &Cell[i].maxampl[Y_][0], &Cell[i].maxampl[Y_][1]);
 
     Cell[i].Elem.PL = 0.0;
+    Cell[i].Elem.Reverse = (reverse == 1);
 
     switch (Cell[i].Elem.Pkind) {
     case undef:
