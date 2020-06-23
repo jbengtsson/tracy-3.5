@@ -1259,7 +1259,7 @@ int main(int argc, char *argv[])
     dnu[X_] = 0.0; dnu[Y_] = 0.0;
     set_map(ElemIndex("ps_rot"), dnu);
     if (!true) {
-      dnu[X_] = -0.1; dnu[Y_] = 0.0;
+      dnu[X_] = 0.0; dnu[Y_] = -0.1;
       set_map(ElemIndex("ps_rot"), dnu);
       Ring_GetTwiss(true, 0e0); printglob();
     }

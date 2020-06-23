@@ -81,7 +81,7 @@ void err_and_corr(const string &param_file)
 	     eps[X_], eps[Y_], sigma_delta, sigma_s,
 	     params.n_track_DA, false, sum_delta, sum2_delta);
 
-    fp = file_write((file_name).c_str()); 
+    fp = file_write(file_name.c_str()); 
     for(j = 0; j <= globval.Cell_nLoc; j++)
       fprintf(fp, "%4d %7.2f %5.3f %6.3f\n",
 	      j, Cell[j].S, 1e2*sum_delta[j][X_], 1e2*sum_delta[j][Y_]);

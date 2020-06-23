@@ -2319,8 +2319,10 @@ double Touschek(const double Qb, const double delta_RF, const bool consistent,
   long int k;
   double   tau_inv, delta_p, delta_m, curly_H0, curly_H1, L;
   double   sigma_x, sigma_y, sigma_xp;
+  FILE     *outf;
 
-  const bool prt = false;
+  const bool   prt       = false;
+  const string file_name = "Touschek.out";
 
   //  const char  file_name[] = "Touschek.out";
   const double eps = 1e-12, gamma = 1e9*globval.Energy/m_e, N_e = Qb/q_e;
@@ -2347,6 +2349,8 @@ double Touschek(const double Qb, const double delta_RF, const bool consistent,
   sum_delta[0][0] += delta_p; sum_delta[0][1] += delta_m;
   sum2_delta[0][0] += sqr(delta_p); sum2_delta[0][1] += sqr(delta_m);
 
+  outf = file_write(file_name.c_str());
+
   tau_inv = 0e0; curly_H0 = -1e30;
   for (k = 1; k <= globval.Cell_nLoc; k++) {
     L = Cell[k].Elem.PL;
@@ -2363,8 +2367,11 @@ double Touschek(const double Qb, const double delta_RF, const bool consistent,
       curly_H0 = curly_H1;
     }
 
-    sum_delta[k][0] += delta_p; sum_delta[k][1] += delta_m;
-    sum2_delta[k][0] += sqr(delta_p); sum2_delta[k][1] += sqr(delta_m);
+    sum_delta[k][X_] += delta_p; sum_delta[k][Y_] += delta_m;
+    sum2_delta[k][X_] += sqr(delta_p); sum2_delta[k][Y_] += sqr(delta_m);
+    fprintf(outf, "%4d %7.2f %5.3f %6.3f\n",
+	    k, Cell[k].S, 1e2*sum_delta[k][X_], 1e2*sum_delta[k][Y_]);
+    fflush(outf);
     if (prt)
       printf("%4ld %6.2f %3.2lf %3.2lf\n",
 	     k, Cell[k].S, 1e2*delta_p, 1e2*delta_m);
@@ -2389,8 +2396,10 @@ double Touschek(const double Qb, const double delta_RF, const bool consistent,
       dqromb(f_int_Touschek, 0e0, 1e0)
       /(sigma_x*sigma_xp*sigma_y*sqr(delta_p))*L;
 
-    fflush(stdout);
+    if (prt) fflush(stdout);
   }
+
+  fclose(outf);
 
   tau_inv *=
     N_e*sqr(r_e)*c0/(8.0*M_PI*cube(gamma)*sigma_s)/Cell[globval.Cell_nLoc].S;
