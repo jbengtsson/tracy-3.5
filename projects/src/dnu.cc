@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
 
   reverse_elem = !false;
 
-  globval.mat_meth = false;
+  globval.mat_meth = !false;
 
   if (false)
     Read_Lattice(argv[1]);
