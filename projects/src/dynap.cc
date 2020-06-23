@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
   globval.pathlength = false; globval.Aperture_on    = false;
   globval.Cart_Bend  = false; globval.dip_edge_fudge = true;
 
-  globval.mat_meth = !false;
+  globval.mat_meth = false;
 
   if (argc == 2)
     err_and_corr(argv[1]);

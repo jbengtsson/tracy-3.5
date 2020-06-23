@@ -30,6 +30,8 @@ int main(int argc, char *argv[])
   globval.pathlength = false; globval.bpm         = 0;
   globval.Cart_Bend  = false; globval.dip_edge_fudge = true;
 
+  globval.mat_meth = false;
+
   if (false)
     Read_Lattice(argv[1]);
   else
