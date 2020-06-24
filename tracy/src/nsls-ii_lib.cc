@@ -2322,10 +2322,11 @@ double Touschek(const double Qb, const double delta_RF, const bool consistent,
   FILE     *outf;
 
   const bool   prt       = false;
-  const string file_name = "Touschek.out";
-
-  //  const char  file_name[] = "Touschek.out";
-  const double eps = 1e-12, gamma = 1e9*globval.Energy/m_e, N_e = Qb/q_e;
+  const string file_name = "touschek.out";
+  const double
+    eps   = 1e-12,
+    gamma = 1e9*globval.Energy/m_e,
+    N_e   = Qb/q_e;
 
   cav = globval.Cavity_on; aper = globval.Aperture_on;
 

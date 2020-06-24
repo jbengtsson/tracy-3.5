@@ -76,7 +76,9 @@ public:
     chi2, chi2_prt,
     eps_x_scl,
     eps0_x,               // Hor. emittance [nm.rad].
-    nu[2],
+    nu[2],                // Cell tune.
+    nu_ref_scl,
+    nu_ref[2],            // Desired cell tune.
     ksi1_ctrl_scl[3],
     phi_scl,
     phi_tot, phi0,        // Cell bend angle.
@@ -110,8 +112,9 @@ public:
     drv_terms;
 
   constr_type(void) {
-    n_iter = 0; chi2 = 1e30; chi2_prt = 1e30;
-    eps_x_scl = 0e0; phi_scl = 0e0;
+    n_iter = 0;
+    chi2 = chi2_prt = 1e30;
+    eps_x_scl = nu_ref_scl = phi_scl = 0e0;
     ksi1_ctrl_scl[0] = ksi1_ctrl_scl[1] = ksi1_ctrl_scl[2] = 0e0;
     high_ord_achr_scl[X_] = high_ord_achr_scl[Y_] = 0e0;
     mI_scl[X_] = mI_scl[Y_] = 0e0;
@@ -877,7 +880,7 @@ double constr_type::get_chi2(const double twoJ[], const double delta,
 			     const bool prt)
 {
   int    j, k;
-  double chi2, dchi2[3], bn_ext;
+  double chi2, dchi2[3], dnu[2], bn_ext;
 
   const bool
     extra     = false;
@@ -974,6 +977,16 @@ double constr_type::get_chi2(const double twoJ[], const double delta,
       }
     }
     if (prt) lat_constr.drv_terms.print();
+  }
+
+  if (nu_ref_scl != 0e0) {
+    if (prt) printf("\n");
+    for (k = 0; k < 2; k++) {
+      dnu[k] = nu_ref_scl*sqr(nu[k]-nu_ref[k]);
+      chi2 += dnu[k];
+    }
+    if (prt) printf("  nu_ref          =  [%10.3e, %10.3e]\n",
+		    dnu[X_], dnu[Y_]);
   }
 
   if ((ksi1_ctrl_scl[0] != 0e0) || (ksi1_ctrl_scl[1] != 0e0)
@@ -1132,8 +1145,9 @@ void constr_type::prt_constr(const double chi2)
   this->chi2_prt = chi2;
   printf("\n  Linear Optics:\n");
   printf("    eps_x   = %5.3f (%5.3f)\n"
-	 "    nu      = [%5.3f, %5.3f]\n",
-	 eps_x, eps0_x, nu[X_], nu[Y_]);
+	 "    nu      = [%5.3f, %5.3f]\n"
+	 "    dnu     = [%5.3f, %5.3f]\n",
+	 eps_x, eps0_x, nu[X_], nu[Y_], nu[X_]-nu_ref[X_], nu[Y_]-nu_ref[Y_]);
   if (ring)
     printf("    ksi1    = [%5.3f, %5.3f]\n"
 	   "    alpha_c = %9.3e\n",

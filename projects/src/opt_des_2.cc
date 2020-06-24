@@ -45,15 +45,13 @@ const double
   scl_ksi_2       = 1e0*1e5,
   scl_ksi_3       = 1e0*1e-5,
   scl_chi_2       = 1e0*1e5,
-  scl_chi_delta_2 = 1e-2*1e5;
+  scl_chi_delta_2 = 1e-2*1e5,
+  nu_ref_scl      = 1e6;
 
-#define LAT_CASE 1
+const int n_cell = 6;
 
 const double
-#if LAT_CASE == 1
-// M-H6BA-18-99pm-01.14-01.
   eps0_x                = 0.097,
-  dnu[]                 = {0.0/6.0, 0.0/6.0},
 #if 1
   high_ord_achr_nu[][2] = {{5.0/8.0, 2.0/8.0}, {4.0/8.0, 1.0/8.0}},
 #else
@@ -67,11 +65,10 @@ const double
     {sqr(A_max[X_])/beta_inj[X_], sqr(A_max[Y_])/beta_inj[Y_]},
   twoJ_delta[]          =
     {sqr(A_delta_max[X_])/beta_inj[X_], sqr(A_delta_max[Y_])/beta_inj[Y_]},
-#elif LAT_CASE == 2
-  eps0_x                = 0.147,
-  high_ord_achr_nu[]    = {9.0/4.0, 7.0/8.0},
-#endif
-  mI_nu_ref[]           = {1.5, 0.5};
+  mI_nu_ref[]           = {1.5, 0.5},
+  dnu[]                 = {-0.2, -0.1},
+  nu[]                  = {65.90/n_cell+dnu[X_], 20.73/n_cell+dnu[Y_]},
+  nu_ref[]              = {nu[X_]-(int)nu[X_], nu[Y_]-(int)nu[Y_]};
 
 
 void f_der(double *bn, double *df)
@@ -254,8 +251,6 @@ void set_dip_cell_std(param_type &prms, constr_type &constr)
 
   // prms.add_prm("qd3", -1,  -0.4, -0.4, 1.0);
   // prms.add_prm("qd5", -1,  -0.4, -0.4, 1.0);
-
-  lat_constr.phi_scl = (dphi)? 1e0 : 0e0;
 }
 
 
@@ -396,8 +391,10 @@ void set_weights_std(constr_type &constr)
   lat_constr.alpha_c_scl           = 1e-6;
 
   // Super Period.
-  lat_constr.phi0 = 15.0;
-  lat_constr.L_scl = 0e-10; lat_constr.L0 = 10.0;
+  lat_constr.phi_scl               = ((dphi)? 1e0 : 0e0);
+  lat_constr.phi0                  = 15.0;
+  lat_constr.L_scl                 = 0e-10;
+  lat_constr.L0                    = 10.0;
 
   lat_constr.drv_terms.get_h_scl(scl_ksi_1, scl_h_3, scl_h_3_delta, scl_h_4,
 				 scl_ksi_2, scl_ksi_3, scl_chi_2,
@@ -494,8 +491,6 @@ void set_dip_cell_sp(param_type &prms, constr_type &constr)
   prms.add_prm("qd3", 2, -15.0,  0.0, 1.0);
   prms.add_prm("qf4", 2,   0.0, 15.0, 1.0);
   prms.add_prm("qd5", 2, -15.0,  0.0, 1.0);
-
-  lat_constr.phi_scl = (dphi)? 1e0 : 0e0;
 }
 
 
@@ -664,8 +659,14 @@ void set_weights_sp(constr_type &constr)
 
   lat_constr.alpha_c_scl           = 1e0*5e-7;
 
-  lat_constr.phi0 = 60.0;
-  lat_constr.L_scl = 0e-10; lat_constr.L0 = 10.0;
+  lat_constr.phi_scl               = ((dphi)? 1e0 : 0e0);
+  lat_constr.phi0                  = 60.0;
+  lat_constr.L_scl                 = 0e-10;
+  lat_constr.L0                    = 10.0;
+
+  lat_constr.nu_ref_scl            = nu_ref_scl;
+  lat_constr.nu_ref[X_]            = nu_ref[X_];
+  lat_constr.nu_ref[Y_]            = nu_ref[Y_];
 
   lat_constr.drv_terms.get_h_scl(scl_ksi_1, scl_h_3, scl_h_3_delta, scl_h_4,
 				 scl_ksi_2, scl_ksi_3, scl_chi_2,
@@ -1060,8 +1061,10 @@ void opt_tba(param_type &prms, constr_type &constr)
     lat_constr.mI0[k] = mI_nu_ref[k];
 
   // 2 TBA & 1 MS: phi = 7.5.
-  lat_constr.phi_scl = 1e0; lat_constr.phi0 = 7.5;
-  lat_constr.L_scl = 1e-10; lat_constr.L0 = 10.0;
+  lat_constr.phi_scl = 1e0;
+  lat_constr.phi0    = 7.5;
+  lat_constr.L_scl   = 1e-10;
+  lat_constr.L0      = 10.0;
 
   lat_constr.ini_constr(true);
 }
@@ -1219,9 +1222,10 @@ void opt_std_cell(param_type &prms, constr_type &constr)
   lat_constr.eps_x_scl = 1e3; lat_constr.eps0_x = 0.190;
 
   // 2 TBA: phi = 15.
-  lat_constr.phi_scl = 1e0; lat_constr.phi0 = 15.0;
-
-  lat_constr.L_scl = 1e-10; lat_constr.L0 = 10.0;
+  lat_constr.phi_scl = 1e0;
+  lat_constr.phi0    = 15.0;
+  lat_constr.L_scl   = 1e-10;
+  lat_constr.L0      = 10.0;
 
   lat_constr.ini_constr(true);
 }
@@ -1230,7 +1234,9 @@ void opt_std_cell(param_type &prms, constr_type &constr)
 int main(int argc, char *argv[])
 {
   char             buffer[BUFSIZ];
-  double           eps_x, dnu[2];
+  double           eps_x;
+
+  const double dnu0[] = {0.0, 0.0};
 
   reverse_elem = !false;
 
@@ -1239,7 +1245,7 @@ int main(int argc, char *argv[])
   // Unbuffered output.
   setvbuf(stdout, buffer, _IONBF, BUFSIZ);
 
-  globval.mat_meth = false;
+  globval.mat_meth = !false;
 
   if (!true)
     Read_Lattice(argv[1]);
@@ -1256,10 +1262,8 @@ int main(int argc, char *argv[])
 
   if (ps_rot) {
     Ring_GetTwiss(true, 0e0); printglob();
-    dnu[X_] = 0.0; dnu[Y_] = 0.0;
-    set_map(ElemIndex("ps_rot"), dnu);
-    if (!true) {
-      dnu[X_] = 0.0; dnu[Y_] = -0.1;
+    set_map(ElemIndex("ps_rot"), dnu0);
+    if (true) {
       set_map(ElemIndex("ps_rot"), dnu);
       Ring_GetTwiss(true, 0e0); printglob();
     }
