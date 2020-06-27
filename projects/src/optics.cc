@@ -1418,24 +1418,7 @@ void prt_M_lin(void)
 }
 
 
-void prt_quad(const int loc, const string &name)
-{
-  double L, b_2;
-
-  const
-    double
-      Brho    = globval.Energy*1e9/c0,
-      B_2_max = 0.90*85.0;
-
-  L = Cell[loc].Elem.PL; b_2 = Cell[loc].Elem.M->PBpar[Quad+HOMmax];
-  printf("\n%s:\n"
-         "  L [m]      = %6.3f -> %6.3f\n"
-	 "  b_2 [mˆ-2] = %6.3f (%5.1f T/m)\n",
-	 name.c_str(), L, L*Brho*fabs(b_2)/B_2_max, b_2, Brho*b_2);
-}
-
-
-void prt_RB(const int loc, const string &name, const bool rb)
+void prt_RB(const int loc, const string &name, const bool rb, const bool hdr)
 {
   double L, rho_inv, phi, B, b_2, dx;
 
@@ -1444,13 +1427,64 @@ void prt_RB(const int loc, const string &name, const bool rb)
   L = Cell[loc].Elem.PL; rho_inv = Cell[loc].Elem.M->Pirho;
   b_2 = Cell[loc].Elem.M->PBpar[Quad+HOMmax];
   phi = L*rho_inv; B = Brho*rho_inv; dx = rho_inv/b_2;
-  printf("\n%s:\n"
-         "  L [m]      = %6.3f\n"
-	 "  phi        = %6.3f\n"
-	 "  B [T]      = %6.3f\n"
-	 "  b_2 [mˆ-2] = %6.3f (%5.1f T/m)\n",
+  if (hdr) {
+    printf("\n  Name         L       phi       B       b_2      B_2      dx\n");
+    printf("              [m]      [°]      [T]     [mˆ-2]   [T/m]    [mm]\n");
+  }
+  printf("  %-8s  %6.3f  %7.3f  %7.3f    %6.3f    %5.1f",
 	 name.c_str(), L, phi*180e0/M_PI, B, b_2, Brho*b_2);
-  if (rb) printf("  dx [mm]    = %4.1f\n", 1e3*dx);
+  if (rb)
+    printf("  %4.1f\n", 1e3*dx);
+  else
+    printf("\n");
+}
+
+
+void prt_quad(const int loc, const string &name, const bool hdr)
+{
+  double L, b_2;
+
+  const double Brho = globval.Energy*1e9/c0;
+
+  L = Cell[loc].Elem.PL; b_2 = Cell[loc].Elem.M->PBpar[Quad+HOMmax];
+  if (hdr) {
+    printf("\n  Name         L                         b_2       B_2\n");
+    printf("              [m]                       [mˆ-2]    [T/m]\n");
+  }
+  printf("  %-8s  %6.3f                      %6.3f  %6.1f\n",
+	 name.c_str(), L, b_2, Brho*b_2);
+}
+
+
+void prt_sext(const int loc, const string &name, const bool hdr)
+{
+  double L, b_3;
+
+  const double Brho = globval.Energy*1e9/c0;
+
+  L = Cell[loc].Elem.PL; b_3 = Cell[loc].Elem.M->PBpar[Sext+HOMmax];
+  if (hdr) {
+    printf("\n  Name         L                         b_3       B_3\n");
+    printf("              [m]                       [mˆ-3]   [T/mˆ-2]\n");
+  }
+  printf("  %-8s  %6.3f                      %6.1f  %8.1f\n",
+	 name.c_str(), L, b_3, Brho*b_3);
+}
+
+
+void prt_oct(const int loc, const string &name, const bool hdr)
+{
+  double L, b_4;
+
+  const double Brho = globval.Energy*1e9/c0;
+
+  L = Cell[loc].Elem.PL; b_4 = Cell[loc].Elem.M->PBpar[Oct+HOMmax];
+  if (hdr) {
+    printf("\n  Name         L                         b_4       B_4\n");
+    printf("              [m]                       [mˆ-4]   [T/mˆ-2]\n");
+  }
+  printf("  %-8s  %6.3f                      %6.1f  %8.1f\n",
+	 name.c_str(), L, b_4, Brho*b_4);
 }
 
 
@@ -1459,14 +1493,27 @@ void prt_lat_param()
   int    k;
   double beta_max[2], eta_x_max;
 
-  prt_quad(Elem_GetPos(ElemIndex("qf1"), 1), "qf1");
-  prt_quad(Elem_GetPos(ElemIndex("qd2"), 1), "qd2");
-  prt_quad(Elem_GetPos(ElemIndex("qd5"), 1), "qd5");
-  prt_quad(Elem_GetPos(ElemIndex("qf6"), 1), "qf6");
+  prt_RB(Elem_GetPos(ElemIndex("dq1     "), 1), "DQ ", false, true);
+  prt_RB(Elem_GetPos(ElemIndex("qf4     "), 1), "qf4", true, false);
+  prt_RB(Elem_GetPos(ElemIndex("qf8     "), 1), "qf8", true, false);
 
-  prt_RB(Elem_GetPos(ElemIndex("dq1"), 1), "DQ", false);
-  prt_RB(Elem_GetPos(ElemIndex("qf4"), 1), "qf4", true);
-  prt_RB(Elem_GetPos(ElemIndex("qf8"), 1), "qf8", true);
+  prt_quad(Elem_GetPos(ElemIndex("qf1     "),  1), "qf1",     true);
+  prt_quad(Elem_GetPos(ElemIndex("qd2     "),  1), "qd2",     false);
+  prt_quad(Elem_GetPos(ElemIndex("qd3     "),  1), "qd3",     false);
+  prt_quad(Elem_GetPos(ElemIndex("qd5     "),  1), "qd5",     false);
+  prt_quad(Elem_GetPos(ElemIndex("qf6     "),  1), "qf6",     false);
+  prt_quad(Elem_GetPos(ElemIndex("qd2_c1  "),  1), "qd2_c1",  false);
+  prt_quad(Elem_GetPos(ElemIndex("qf1_c1  "),  1), "qf1_c1",  false);
+  prt_quad(Elem_GetPos(ElemIndex("quad_add"), 1), "qf1_add",  false);
+
+  prt_sext(Elem_GetPos(ElemIndex("sf1     "),  1), "sf1",     true);
+  prt_sext(Elem_GetPos(ElemIndex("sd1     "),  1), "sd1",     false);
+  prt_sext(Elem_GetPos(ElemIndex("sd2     "),  1), "sd2",     false);
+  prt_sext(Elem_GetPos(ElemIndex("sh1     "),  1), "sh1",     false);
+  prt_sext(Elem_GetPos(ElemIndex("sh2     "),  1), "sh2",     false);
+  prt_sext(Elem_GetPos(ElemIndex("s       "),  1), "s  ",     false);
+
+  prt_oct(Elem_GetPos( ElemIndex("of1     "),  1), "of1",     true);
 
   beta_max[X_] = beta_max[Y_] = eta_x_max = 0e0;
   for (k = 0; k <= globval.Cell_nLoc; k++) {

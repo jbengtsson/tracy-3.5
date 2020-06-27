@@ -874,19 +874,33 @@ void get_mI(constr_type &constr)
 }
 
 
+double quad_red(const param_type &prms, double *bn, const string &str,
+		const int k, const double b_2_ref, const bool prt)
+{
+  double bn_ext, dchi2;
+
+  bn_ext = bn_bounded(bn[k], prms.bn_min[k-1], prms.bn_max[k-1]);
+  dchi2 = scl_extra*sqr(bn_ext-b_2_ref);
+  if (prt)
+    printf("  %s:            %10.3e (%10.3e)\n", str.c_str(), dchi2, bn_ext);
+
+  return dchi2;
+}
+
+
 double constr_type::get_chi2(const double twoJ[], const double delta,
 			     const double twoJ_delta[], const param_type &prms,
 			     double *bn, const bool comp_drv_terms,
 			     const bool prt)
 {
   int    j, k;
-  double chi2, dchi2[3], dnu[2], bn_ext;
+  double chi2, dchi2[3], dnu[2];
 
   const bool
-    extra     = false;
+    extra     = !false;
   const double
     delta_eps = 1e-6,
-    scl_extra = 1e8;
+    b_2_ref   = 7.5e0;
 
   if (prt) printf("\nget_chi2:\n");
 
@@ -894,23 +908,10 @@ double constr_type::get_chi2(const double twoJ[], const double delta,
 
   if (extra) {
     if (prt) printf("\n  extra:\n");
-    if (!true) {
-      // Reduce QF1 #11.
-      k = 11;
-      bn_ext = bn_bounded(bn[k], prms.bn_min[k-1], prms.bn_max[k-1]);
-    } else {
-      // Tweak D_09.
-      bn_ext = get_L(ElemIndex("d_10_1"), 1); 
-      dchi2[0] = scl_extra*sqr(bn_ext+0.14);
-      chi2 += dchi2[0];
-      if (prt)
-	printf("  D_10_1:            %10.3e (%10.3e)\n", dchi2[0], bn_ext);
-      bn_ext = get_L(ElemIndex("d_10_2"), 1); 
-      dchi2[0] = scl_extra*sqr(bn_ext+0.14);
-      chi2 += dchi2[0];
-      if (prt)
-	printf("  D_10_2:            %10.3e (%10.3e)\n", dchi2[0], bn_ext);
-    }
+    chi2 += quad_red(prms, bn, "QD5", 10, b_2_ref, prt);
+    chi2 += quad_red(prms, bn, "QD2", 11, b_2_ref, prt);
+    chi2 += quad_red(prms, bn, "QF1", 12, b_2_ref, prt);
+    if (prt) printf("\n");
   }
 
   if (eps_x_scl != 0e0) {
@@ -985,8 +986,7 @@ double constr_type::get_chi2(const double twoJ[], const double delta,
       dnu[k] = nu_ref_scl*sqr(nu[k]-nu_ref[k]);
       chi2 += dnu[k];
     }
-    if (prt) printf("  nu_ref          =  [%10.3e, %10.3e]\n",
-		    dnu[X_], dnu[Y_]);
+    if (prt) printf("  nu_ref         = [%10.3e, %10.3e]\n", dnu[X_], dnu[Y_]);
   }
 
   if ((ksi1_ctrl_scl[0] != 0e0) || (ksi1_ctrl_scl[1] != 0e0)
@@ -1144,12 +1144,12 @@ void constr_type::prt_constr(const double chi2)
   printf("\n%3d chi2: %12.6e -> %12.6e\n", n_iter, this->chi2_prt, chi2);
   this->chi2_prt = chi2;
   printf("\n  Linear Optics:\n");
-  printf("    eps_x   = %5.3f (%5.3f)\n"
-	 "    nu      = [%5.3f, %5.3f]\n"
-	 "    dnu     = [%5.3f, %5.3f]\n",
+  printf("    eps_x   =  %7.3f (%7.3f)\n"
+	 "    nu      = [%7.3f, %7.3f]\n"
+	 "    dnu     = [%7.3f, %7.3f]\n",
 	 eps_x, eps0_x, nu[X_], nu[Y_], nu[X_]-nu_ref[X_], nu[Y_]-nu_ref[Y_]);
   if (ring)
-    printf("    ksi1    = [%5.3f, %5.3f]\n"
+    printf("    ksi1    = [%7.3f, %7.3f]\n"
 	   "    alpha_c = %9.3e\n",
 	   lat_constr.drv_terms.h_c[0], lat_constr.drv_terms.h_s[0],
 	   globval.Alphac);
