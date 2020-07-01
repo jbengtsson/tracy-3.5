@@ -875,12 +875,12 @@ void get_mI(constr_type &constr)
 
 
 double quad_red(const param_type &prms, double *bn, const string &str,
-		const int k, const double b_2_ref, const bool prt)
+		const int k, const bool prt)
 {
   double bn_ext, dchi2;
 
   bn_ext = bn_bounded(bn[k], prms.bn_min[k-1], prms.bn_max[k-1]);
-  dchi2 = scl_extra*sqr(bn_ext-b_2_ref);
+  dchi2 = scl_extra*sqr(bn_ext);
   if (prt)
     printf("  %s:            %10.3e (%10.3e)\n", str.c_str(), dchi2, bn_ext);
 
@@ -896,11 +896,9 @@ double constr_type::get_chi2(const double twoJ[], const double delta,
   int    j, k;
   double chi2, dchi2[3], dnu[2];
 
-  const bool
-    extra     = !false;
   const double
     delta_eps = 1e-6,
-    b_2_ref   = 7.5e0;
+    b_2_ref   = 0e0;
 
   if (prt) printf("\nget_chi2:\n");
 
@@ -908,9 +906,8 @@ double constr_type::get_chi2(const double twoJ[], const double delta,
 
   if (extra) {
     if (prt) printf("\n  extra:\n");
-    chi2 += quad_red(prms, bn, "QD5", 10, b_2_ref, prt);
-    chi2 += quad_red(prms, bn, "QD2", 11, b_2_ref, prt);
-    chi2 += quad_red(prms, bn, "QF1", 12, b_2_ref, prt);
+    chi2 += quad_red(prms, bn, "QD2", 11, prt);
+    chi2 += quad_red(prms, bn, "QF6", 12, prt);
     if (prt) printf("\n");
   }
 
@@ -1145,9 +1142,11 @@ void constr_type::prt_constr(const double chi2)
   this->chi2_prt = chi2;
   printf("\n  Linear Optics:\n");
   printf("    eps_x   =  %7.3f (%7.3f)\n"
-	 "    nu      = [%7.3f, %7.3f]\n"
-	 "    dnu     = [%7.3f, %7.3f]\n",
-	 eps_x, eps0_x, nu[X_], nu[Y_], nu[X_]-nu_ref[X_], nu[Y_]-nu_ref[Y_]);
+	 "    nu      = [%7.3f, %7.3f]\n",
+	 eps_x, eps0_x, nu[X_], nu[Y_]);
+  if (nu_ref_scl != 0e0)
+  printf("    dnu     = [%7.3f, %7.3f]\n",
+	 nu[X_]-nu_ref[X_], nu[Y_]-nu_ref[Y_]);
   if (ring)
     printf("    ksi1    = [%7.3f, %7.3f]\n"
 	   "    alpha_c = %9.3e\n",

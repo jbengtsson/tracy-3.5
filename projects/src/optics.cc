@@ -20,10 +20,10 @@ const bool
   prt_ms  = false,
   prt_dt  = false;
 
-#if 0
-const int n_cell = 6;
-#else
+#if 1
 const int n_cell = 1;
+#else
+const int n_cell = 6;
 #endif
 
 const double
@@ -1670,7 +1670,7 @@ int main(int argc, char *argv[])
     Ring_GetTwiss(true, 0e0); printglob();
   }
 
-  if (!false) {
+  if (globval.mat_meth) {
     get_eps_x(eps_x, sigma_delta, U_0, J);
     if (false) get_I(I, true);
 
@@ -2052,6 +2052,7 @@ int main(int argc, char *argv[])
   }
 
   if (true) GetEmittance(ElemIndex("cav"), true);
+  exit(0);
 
   if (false) {
     Id.identity();
