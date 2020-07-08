@@ -20,17 +20,16 @@ const bool
   prt_ms  = false,
   prt_dt  = false;
 
-#if 1
-const int n_cell = 1;
-#else
-const int n_cell = 6;
-#endif
+#define FULL_LAT 0
+#define SET_NU 1
 
+const int
+  n_cell = (FULL_LAT)? 1 : 6;
 const double
-#if 0
-  nu[]     = {65.37, 19.22},
+#if SET_NU
+nu[]     = {(64.38+0.5)/n_cell, 20.18/n_cell},
 #else
-  nu[]     = {-0.05, -0.09},
+  nu[]     = {0.15, 0.0},
 #endif
   dnu_mI[] = {-0.21, -0.20};
 
@@ -1649,12 +1648,8 @@ int main(int argc, char *argv[])
     set_map(ElemIndex("ps_rot"), dnu);
     Ring_GetTwiss(true, 0e0); printglob();
     for (k = 0; k < 2; k++)
-      if (!true)
-	dnu[k] = nu[k]/n_cell - globval.TotalTune[k];
-      else
-	dnu[k] = nu[k];
+      dnu[k] = (SET_NU)? nu[k] - globval.TotalTune[k] : nu[k];
     printf("\ntune set to:\n  dnu     = [%8.5f, %8.5f]\n", dnu[X_], dnu[Y_]);
-    printf("  nu_cell = [%8.5f, %8.5f]\n", nu[X_]/n_cell, nu[Y_]/n_cell);
     printf("  nu      = [%8.5f, %8.5f]\n", nu[X_], nu[Y_]);
     set_map(ElemIndex("ps_rot"), dnu);
     Ring_GetTwiss(true, 0e0); printglob();

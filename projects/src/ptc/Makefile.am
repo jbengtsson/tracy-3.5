@@ -12,7 +12,7 @@ opt_des_1_ptc_SOURCES = opt_des_1_ptc.cc
 opt_des_2_ptc_SOURCES = opt_des_2_ptc.cc
 
 LIBS     = -L$(TRACY_LIB)/tracy/lib -ltracy_ptc -lTPSALib -lLieLib \
-           -L$(NUM_REC)/lib -L/usr/local/Cellar/gcc/9.3.0/lib/gcc/9 \
+           -L$(NUM_REC)/lib -L/usr/local/Cellar/gcc/10.1.0/lib/gcc/10 \
            -lnum_rec \
 	   -lstdc++ \
            -lm \
