@@ -366,7 +366,7 @@ void get_I(double I[], const bool prt)
 {
   int j, k;
 
-  for (k = 2; k <= 5; k++)
+  for (k = 0; k <= 5; k++)
     I[k] = 0e0;
 
   if (prt) {
@@ -382,7 +382,7 @@ void get_I(double I[], const bool prt)
       if (prt)
 	printf("%5d %-10s %6.3f %10.3e",
 	       j, Cell[j].Elem.PName, Cell[j].S, Cell[j].curly_dH_x);
-      for (k = 2; k <= 5; k++) {
+      for (k = 0; k <= 5; k++) {
 	I[k] += Cell[j].dI[k];
 	if (prt) printf(" %10.3e", Cell[j].dI[k]);
       }
@@ -395,15 +395,19 @@ void get_I(double I[], const bool prt)
 }
 
 
-void get_eps_x(double &eps_x, double &sigma_delta, double &U_0, double J[])
+void get_eps_x(double &eps_x, double &sigma_delta, double &U_0, double J[],
+	       double tau[], double I[], const bool prt)
 {
   bool         cav, emit;
   long int     lastpos;
   int          k;
-  double       I[6];
   ss_vect<tps> A;
 
-  const double C_q_scl = 1e18*C_q/sqr(m_e);
+  const double
+    C_q_scl = 1e18*C_q/sqr(m_e),
+    E_0     = 1e9*globval.Energy,
+    C       = Cell[globval.Cell_nLoc].S,
+    T_0     = C/c0;
 
   /* Note:
 
@@ -443,15 +447,22 @@ void get_eps_x(double &eps_x, double &sigma_delta, double &U_0, double J[])
   sigma_delta = sqrt(C_q_scl*sqr(globval.Energy)*I[3]/(2e0*I[2]+I[4]));
   J[X_] = 1e0 - I[4]/I[2]; J[Z_] = 2e0 + I[4]/I[2]; J[Y_] = 4e0 - J[X_] - J[Z_];
 
-  printf("\n  I[2..5]:");
-  for (k = 2; k <= 5; k++)
-    printf(" %10.3e", I[k]);
-  printf("\n");
+  for (k = 0; k < 3; k++)
+    tau[k] = 4e0*M_PI*T_0/(C_gamma*cube(1e-9*E_0)*J[k]*I[2]);
 
-  printf("\n  U_0   [keV]    = %5.1f\n", 1e-3*U_0);
-  printf("  eps_x [nm.rad] = %6.4f\n", 1e9*eps_x);
-  printf("  sigma_delta    = %9.3e\n", sigma_delta);
-  printf("  J              = [%5.3f, %5.3f, %5.3f]\n", J[X_], J[Y_], J[Z_]);
+  if (prt) {
+    printf("\n  I[2..5]:");
+    for (k = 1; k <= 5; k++)
+      printf(" %10.3e", I[k]);
+    printf("\n");
+
+    printf("\n  U_0   [keV]    = %5.1f\n", 1e-3*U_0);
+    printf("  eps_x [nm.rad] = %6.4f\n", 1e9*eps_x);
+    printf("  sigma_delta    = %9.3e\n", sigma_delta);
+    printf("  J              = [%5.3f, %5.3f, %5.3f]\n", J[X_], J[Y_], J[Z_]);
+    printf("  tau   [msec]   = [%e, %e, %e]\n",
+	   1e3*tau[X_], 1e3*tau[Y_], 1e3*tau[Z_]);
+  }
 
   globval.Cavity_on = cav; globval.emittance = emit;
 }

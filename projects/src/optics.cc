@@ -11,6 +11,8 @@
 #include "get_Poincare_Map.cc"
 #endif
 
+#include "prt_lat_param.cc"
+
 int no_tps = NO;
 
 
@@ -1487,7 +1489,7 @@ void prt_oct(const int loc, const string &name, const bool hdr)
 }
 
 
-void prt_lat_param()
+void prt_lat_param1()
 {
   int    k;
   double beta_max[2], eta_x_max;
@@ -1595,7 +1597,7 @@ int main(int argc, char *argv[])
   long int         lastn, lastpos, loc, loc2;
   int              k, b2_fam[2], b3_fam[2], lat_case;
   double           b2[2], a2, b3[2], b3L[2], a3, a3L, f_rf, dx, dnu[3], I[6];
-  double           eps_x, sigma_delta, U_0, J[3];
+  double           eps_x, sigma_delta, U_0, J[3], tau[3];
   tps              a;
   Matrix           M;
   std::vector<int> Fam;
@@ -1666,16 +1668,19 @@ int main(int argc, char *argv[])
   }
 
   if (globval.mat_meth) {
-    get_eps_x(eps_x, sigma_delta, U_0, J);
-    if (false) get_I(I, true);
+    get_eps_x(eps_x, sigma_delta, U_0, J, tau, I, true);
 
     prt_lat("linlat1.out", globval.bpm, true);
     prt_lat("linlat.out", globval.bpm, true, 10);
     prt_chrom_lat();
     prtmfile("flat_file.dat");
 
-    if (false) {
-      prt_lat_param();
+    if (!false) {
+#if 1
+      prt_lat_param("lattice.txt", "cav", 3.225e-6, 3.155);
+#else
+      prt_lat_param("lattice.txt", "cav", 3.917e-6, 2.486);
+#endif
       reality_check();
     }
 

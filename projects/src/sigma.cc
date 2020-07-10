@@ -296,16 +296,16 @@ void get_emit(double **M_M_tp, double *D_vec)
 void prt_rad(const double E_0, const double rho)
 {
   int    k;
-  double C, gamma, U_0, P_gamma, P_gamma_avg, u_c, sigma_delta, eps_x, D[3];
-  double gamma_z, J[3], tau[3], N, N_u2_avg, Q_p_t, T_0, I[6];
+  double U_0, P_gamma_avg, sigma_delta, eps_x, D[3], gamma_z, J[3], tau[3];
+  double N_u2_avg, Q_p_t, I[6];
 
-  C = Cell[globval.Cell_nLoc].S;
-  T_0 = C/c0;
-
-  gamma = 1e9*E_0/m_e;
-  u_c = 3e0*h_bar*c0*cube(gamma)/(2e0*rho);
-  P_gamma = 1e9*C_gamma*c0*pow(E_0, 4)/(2e0*M_PI*sqr(rho));
-  N = 15e0*sqrt(3e0)*P_gamma/(8e0*u_c);
+  const double
+    C       = Cell[globval.Cell_nLoc].S,
+    T_0     = C/c0,
+    gamma   = 1e9*E_0/m_e,
+    u_c     = 3e0*h_bar*c0*cube(gamma)/(2e0*rho),
+    P_gamma = 1e9*C_gamma*c0*pow(E_0, 4)/(2e0*M_PI*sqr(rho)),
+    N       = 15e0*sqrt(3e0)*P_gamma/(8e0*u_c);
 
   printf("\n  m_e                  = %11.5e\n", m_e);
   printf("  r_e                  = %11.5e\n", r_e);
@@ -319,9 +319,7 @@ void prt_rad(const double E_0, const double rho)
   printf("  N [sec^-1]           = %11.5e\n", N);
   printf("  C_q [GeV^-2]         = %11.5e\n", 1e18*C_q/sqr(m_e));
 
-  get_I(I, false);
-
-  get_eps_x(eps_x, sigma_delta, U_0, J);
+  get_eps_x(eps_x, sigma_delta, U_0, J, tau, I, true);
 
   P_gamma_avg = 1e9*C_gamma*c0*pow(E_0, 4)*I[2]/(2e0*M_PI*C);
   U_0 = 1e9*C_gamma*pow(E_0, 4)*I[2]/(2e0*M_PI);
@@ -332,8 +330,6 @@ void prt_rad(const double E_0, const double rho)
   Q_p_t = 3e0*C_u*h_bar*c0*cube(gamma)*P_gamma_avg*I[3]/(2e0*I[2]);
 
   J[X_] = 1e0 - I[4]/I[2]; J[Z_] = 2e0 + I[4]/I[2]; J[Y_] = 4e0 - J[X_] - J[Z_];
-  for (k = 0; k < 3; k++)
-    tau[k] = 4e0*M_PI*T_0/(C_gamma*cube(E_0)*J[k]*I[2]);
   D[X_] = C_q*C_gamma*sqr(gamma)*cube(E_0)*I[5]/(2e0*M_PI);
   D[Y_] = 0e0;
   D[Z_] = C_q*C_gamma*sqr(gamma)*cube(E_0)*I[3]/(2e0*M_PI);

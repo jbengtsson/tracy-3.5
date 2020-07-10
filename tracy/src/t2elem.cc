@@ -272,10 +272,9 @@ class is_tps<double> {
       return 0e0;
     }
 
-  static inline double get_dI4(const double h, const double b2, const double L,
-			     const ss_vect<tps> &x)
+  static inline double get_dI_eta(const ss_vect<tps> &A)
     {
-      std::cout << "get_dI4: operation not defined for double" << std::endl;
+      std::cout << "get_dI_eta: operation not defined for double" << std::endl;
       exit_(1);
       return 0e0;
     }
@@ -315,7 +314,7 @@ class is_tps<tps> {
     return curly_H[X_];
   }
 
-  static inline double get_dI4(const ss_vect<tps> &A) { return A[x_][delta_]; }
+  static inline double get_dI_eta(const ss_vect<tps> &A) { return A[x_][delta_]; }
 
   static inline void emittance(const tps &B2_perp, const tps &ds,
 			       const tps &p_s0, const ss_vect<tps> &A) {
@@ -606,12 +605,11 @@ void quad_fringe(const double b2, ss_vect<T> &ps)
 }
 
 
-void get_dI4_5(CellType &Cell)
+void get_dI_eta_5(CellType &Cell)
 {
   double       L, K, h, b2, alpha, beta, gamma, psi, eta, etap;
   ss_vect<tps> Id;
   CellType     *Cellp;
-
 
   Id.identity();
 
@@ -625,6 +623,7 @@ void get_dI4_5(CellType &Cell)
   gamma = (1e0+sqr(alpha))/beta;
   eta = Cellp->Eta[X_]; etap = Cellp->Etap[X_];
 
+  Cell.dI[1] += L*eta*h;
   Cell.dI[2] += L*sqr(h);
   Cell.dI[3] += L*fabs(cube(h));
 
@@ -682,7 +681,7 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &ps)
   if (globval.emittance && !globval.Cavity_on) {
     // Needs A^-1.
     Cell.curly_dH_x = 0e0;
-    for (i = 2; i <= 5; i++)
+    for (i = 0; i <= 5; i++)
       Cell.dI[i] = 0e0;
   }
 
@@ -694,7 +693,7 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &ps)
 
       if (globval.emittance && !globval.Cavity_on)
 	if ((Cell.Elem.PL != 0e0) && (Cell.Elem.M->Pirho != 0e0))
-	  get_dI4_5(Cell);
+	  get_dI_eta_5(Cell);
     } else {
       // Fringe fields.
       if (globval.quad_fringe && (M->PB[Quad+HOMmax] != 0e0))
@@ -724,7 +723,7 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &ps)
 	  if (globval.emittance && !globval.Cavity_on) {
 	    // Needs A^-1.
 	    Cell.curly_dH_x += is_tps<tps>::get_curly_H(ps);
-	    Cell.dI[4] += is_tps<tps>::get_dI4(ps);
+	    Cell.dI[4] += is_tps<tps>::get_dI_eta(ps);
 	  }
 
 	  Drift(dL1, ps);
@@ -735,7 +734,7 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &ps)
 	  if (globval.emittance && !globval.Cavity_on) {
 	    // Needs A^-1.
 	    Cell.curly_dH_x += 4e0*is_tps<tps>::get_curly_H(ps);
-	    Cell.dI[4] += 4e0*is_tps<tps>::get_dI4(ps);
+	    Cell.dI[4] += 4e0*is_tps<tps>::get_dI_eta(ps);
 	  }
 
 	  Drift(dL2, ps);
@@ -745,13 +744,14 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &ps)
 	  if (globval.emittance && !globval.Cavity_on) {
 	    // Needs A^-1.
 	    Cell.curly_dH_x += is_tps<tps>::get_curly_H(ps);
-	    Cell.dI[4] += is_tps<tps>::get_dI4(ps);
+	    Cell.dI[4] += is_tps<tps>::get_dI_eta(ps);
 	  }
 	}
 
 	if (globval.emittance && !globval.Cavity_on) {
 	  // Needs A^-1.
 	  Cell.curly_dH_x /= 6e0*M->PN;
+	  Cell.dI[1] += elemp->PL*is_tps<tps>::get_dI_eta(ps)*M->Pirho;
 	  Cell.dI[2] += elemp->PL*sqr(M->Pirho);
 	  Cell.dI[3] += elemp->PL*fabs(cube(M->Pirho));
 	  Cell.dI[4] *=
@@ -976,7 +976,7 @@ void Cav_Pass(CellType &Cell, ss_vect<T> &ps)
 #endif
 
 
-void get_dI4_5_ID(CellType &Cell)
+void get_dI_eta_5_ID(CellType &Cell)
 {
   double       L, K, h, b2, alpha, beta, gamma, psi, eta, etap;
   ss_vect<tps> Id;
@@ -995,6 +995,7 @@ void get_dI4_5_ID(CellType &Cell)
   gamma = (1e0+sqr(alpha))/beta;
   eta = Cellp->Eta[X_]; etap = Cellp->Etap[X_];
 
+  Cell.dI[1] += L*eta*h;
   Cell.dI[2] += L*sqr(h);
   Cell.dI[3] += L*fabs(cube(h));
 
@@ -1397,7 +1398,7 @@ void Wiggler_pass_EF3(CellType &Cell, ss_vect<T> &ps)
   if (globval.emittance && !globval.Cavity_on) {
     // Needs A^-1.
     Cell.curly_dH_x = 0e0;
-    for (i = 2; i <= 5; i++)
+    for (i = 0; i <= 5; i++)
       Cell.dI[i] = 0e0;
   }
 
@@ -1465,9 +1466,10 @@ void Wiggler_pass_EF3(CellType &Cell, ss_vect<T> &ps)
       ps1[px_] = (ps[px_]-AxoBrho)/(1e0+ps[delta_]);
       curly_dH_x = is_tps<tps>::get_curly_H(ps1);
       Cell.curly_dH_x += curly_dH_x;
+      Cell.dI[1] += is_tps<tps>::get_dI_eta(ps)*irho;
       Cell.dI[2] += sqr(irho);
       Cell.dI[3] += fabs(cube(irho));
-      Cell.dI[4] += is_tps<tps>::get_dI4(ps)*cube(irho);
+      Cell.dI[4] += is_tps<tps>::get_dI_eta(ps)*cube(irho);
       Cell.dI[5] += curly_dH_x*fabs(cube(irho));
     }
   }
@@ -1475,7 +1477,7 @@ void Wiggler_pass_EF3(CellType &Cell, ss_vect<T> &ps)
   if (globval.emittance && !globval.Cavity_on) {
     // Needs A^-1.
     Cell.curly_dH_x /= W->PN;
-    for (i = 2; i <= 5; i++)
+    for (i = 0; i <= 5; i++)
       Cell.dI[i] *= elemp->PL/W->PN;
   }
 }

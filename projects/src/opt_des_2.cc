@@ -66,7 +66,7 @@ const double
   scl_ksi_2             = 1e0*1e5,
   scl_ksi_3             = 0*1e-5,
   scl_chi_2             = 1e0*1e5,
-  scl_chi_delta_2       = 1e-2*1e5,
+  scl_chi_delta_2       = 1e-3*1e5,
 
   scl_extra             = 1e2,
 
@@ -83,7 +83,7 @@ const double
 
   phi_rb_max            = 0.275,
   b_2_max               = 7.3,
-  b_3_max               = 3e2,
+  b_3_max               = 1.5e2,
   b_4_max               = 1e4;
 
 const bool extra = false;
@@ -633,7 +633,7 @@ void set_b3_Fam_sp(param_type &prms)
 {
   std::vector<int> Fnum;
 
-  switch (1) {
+  switch (3) {
   case 1:
     // 1: Control ksi^1_x,y.
     prms.add_prm("sd2", 3, -b_3_max, b_3_max, 1.0);
@@ -663,7 +663,7 @@ void set_b3_Fam_sp(param_type &prms)
     break;
   }
 
-  if (true) {
+  if (!true) {
     no_sxt();
     if (true) set_bn_design_fam(ElemIndex("of1"), Oct, 0.0, 0.0);
 
@@ -946,35 +946,40 @@ void set_b3_Fam_mult(param_type &prms)
 {
   std::vector<int> Fnum;
 
-  switch (3) {
+  switch (4) {
   case 1:
-    // 3: Control of: [k_22000, k_11110, k_00220].
-    prms.add_prm("sh1", 3, -b_3_max, b_3_max, 1.0);
-    prms.add_prm("sh2", 3, -b_3_max, b_3_max, 1.0);
-    prms.add_prm("s",   3, -b_3_max, b_3_max, 1.0);
-    prms.add_prm("sd2", 3, -b_3_max, b_3_max, 1.0);
+    // 3: Control of: ksi^2_x,y.
+    prms.add_prm("of1", 4, -b_4_max, b_4_max, 1.0);
+    prms.add_prm("sd2", 3, -3e2,     3e2, 1.0);
     break;
   case 2:
-    // 4: Control of: [k_22000, k_11110, k_00220] & ksi^2_x,y.
-    prms.add_prm("of1", 4, -b_4_max, b_4_max, 1.0);
+    // 4: Control of: [k_22000, k_11110, k_00220].
     prms.add_prm("sh1", 3, -b_3_max, b_3_max, 1.0);
     prms.add_prm("sh2", 3, -b_3_max, b_3_max, 1.0);
     prms.add_prm("s",   3, -b_3_max, b_3_max, 1.0);
-    prms.add_prm("sd2", 3, -b_3_max, b_3_max, 1.0);
+    prms.add_prm("sd2", 3, -3e2,     3e2, 1.0);
     break;
   case 3:
+    // 5: Control of: [k_22000, k_11110, k_00220] & ksi^2_x,y.
+    prms.add_prm("of1", 4, -b_4_max, b_4_max, 1.0);
     prms.add_prm("sh1", 3, -b_3_max, b_3_max, 1.0);
     prms.add_prm("sh2", 3, -b_3_max, b_3_max, 1.0);
+    prms.add_prm("sd2", 3, -3e2,     3e2,     1.0);
+    prms.add_prm("s",   3, -b_3_max, b_3_max, 1.0);
+    break;
+  case 4:
     prms.add_prm("of1", 4, -b_4_max, b_4_max, 1.0);
     prms.add_prm("s",   3, -b_3_max, b_3_max, 1.0);
-    prms.add_prm("sd2", 3, -b_3_max, b_3_max, 1.0);
+    prms.add_prm("sh1", 3, -b_3_max, b_3_max, 1.0);
+    prms.add_prm("sh2", 3, -b_3_max, b_3_max, 1.0);
+    prms.add_prm("sd2", 3, -3e2,     3e2,     1.0);
     break;
   }
 
   lat_constr.Fnum_b3.push_back(ElemIndex("sf1"));
   lat_constr.Fnum_b3.push_back(ElemIndex("sd1"));
 
-  if (true) {
+  if (!true) {
     no_sxt();
 
     set_bn_design_fam(ElemIndex("of1"), Oct, 0.0, 0.0);
