@@ -292,13 +292,6 @@
       return
       end subroutine
 
-      subroutine dadal1(x)
-      implicit none
-      integer x
-      call dadal(x,1)
-      return
-      end subroutine
-
       subroutine etppulnv(x,xi,xff)
       implicit none
       integer i,ndim,ndim2,ntt
@@ -542,8 +535,8 @@
         enddo
       enddo
 
-      call dadal(b2,1)
-      call dadal(b1,1)
+      call dadal1(b2)
+      call dadal1(b1)
       call dadal(ht,nd2)
       call dadal(yi,nd2)
       return
@@ -821,9 +814,9 @@
         endif
       endif
 
-      call dadal(b3,1)
-      call dadal(b2,1)
-      call dadal(b1,1)
+      call dadal1(b3)
+      call dadal1(b2)
+      call dadal1(b1)
       return
       end subroutine
 
@@ -855,8 +848,8 @@
         call take(h(i),m,ht(i))
       enddo
       call dadal(x,nd2)
-      call dadal(b2,1)
-      call dadal(b1,1)
+      call dadal1(b2)
+      call dadal1(b1)
       return
       end subroutine
 
@@ -1053,9 +1046,9 @@
         call dacop(b2,b1)
       enddo
       call dacop(b1,y)
-      call dadal(b3,1)
-      call dadal(b2,1)
-      call dadal(b1,1)
+      call dadal1(b3)
+      call dadal1(b2)
+      call dadal1(b1)
       return
       end subroutine
 
@@ -1130,10 +1123,10 @@
       enddo
       call dacop(b4,h)
       call dadal(x,nd2)
-      call dadal(b4,1)
-      call dadal(b3,1)
-      call dadal(b2,1)
-      call dadal(b1,1)
+      call dadal1(b4)
+      call dadal1(b3)
+      call dadal1(b2)
+      call dadal1(b1)
       return
       end subroutine
 
@@ -1159,8 +1152,8 @@
         call dader(2*i,h,b1)
         call   dacmu(b1,sca,v(2*i-1))
       enddo
-      call dadal(h,1)
-      call dadal(b1,1)
+      call dadal1(h)
+      call dadal1(b1)
       return
       end subroutine
 
@@ -1205,10 +1198,10 @@
         else
           if(r.ge.rbefore) then
             call dacop(b3,y)
-            call dadal(b4,1)
-            call dadal(b3,1)
-            call dadal(b2,1)
-            call dadal(b1,1)
+            call dadal1(b4)
+            call dadal1(b3)
+            call dadal1(b2)
+            call dadal1(b1)
             return
           endif
           rbefore=r
@@ -1222,10 +1215,10 @@
         read(5,*) idpr
       endif
       call dacop(b3,y)
-      call dadal(b4,1)
-      call dadal(b3,1)
-      call dadal(b2,1)
-      call dadal(b1,1)
+      call dadal1(b4)
+      call dadal1(b3)
+      call dadal1(b2)
+      call dadal1(b1)
       return
       end subroutine
 
@@ -1253,7 +1246,7 @@
       enddo
       call dacopd(v,w)
       call dadal(v,nd2)
-      call dadal(b0,1)
+      call dadal1(b0)
       return
       end subroutine
 
@@ -1303,7 +1296,7 @@
         enddo
       endif
       call dacop(v,w)
-      call dadal(v,1)
+      call dadal1(v)
       call dadal(b0,nd2)
       call dadal(bm,nd2)
       return
@@ -1390,8 +1383,8 @@
 
       call dacopd(t3,h)
 
-      call dadal(t1,1)
-      call dadal(t2,1)
+      call dadal1(t1)
+      call dadal1(t2)
       call dadal(t3,nd2)
       return
       end subroutine
@@ -1431,9 +1424,9 @@
 
       call dacop(t3,h)
 
-      call dadal(t1,1)
-      call dadal(t2,1)
-      call dadal(t3,1)
+      call dadal1(t1)
+      call dadal1(t2)
+      call dadal1(t3)
       return
       end subroutine
 
@@ -1491,7 +1484,7 @@
       enddo
       call dacopd(v,w)
       call dadal(v,nd2)
-      call dadal(b0,1)
+      call dadal1(b0)
       return
       end subroutine
 
@@ -2313,8 +2306,8 @@
         call dacop(b1(ndt),t(nd2))
       endif
 
-      call dadal(bb2,1)
-      call dadal(bb1,1)
+      call dadal1(bb2)
+      call dadal1(bb1)
       call dadal(b2,nd2)
       call dadal(b1,nd2)
       return
@@ -2365,10 +2358,10 @@
         call dader(ndpt,h,t(nd))
         call dader(ndpt,b1,t(nd2))
       endif
-      call dadal(bb2,1)
-      call dadal(bb1,1)
-      call dadal(b2,1)
-      call dadal(b1,1)
+      call dadal1(bb2)
+      call dadal1(bb1)
+      call dadal1(b2)
+      call dadal1(b1)
       return
       end subroutine
 
@@ -2589,8 +2582,8 @@
       call dalin(b1,.5d0,b2,.5d0,r2)
       call dalin(b1,.5d0,b2,-.5d0,i2)
       call dadal(x,nd2)
-      call dadal(b2,1)
-      call dadal(b1,1)
+      call dadal1(b2)
+      call dadal1(b1)
       return
       end subroutine
 
@@ -2612,7 +2605,7 @@
 
       call daadd(r1,i1,b1)
       call itoc(b1,c2)
-      call dadal(b1,1)
+      call dadal1(b1)
       return
       end subroutine
 
@@ -3457,7 +3450,7 @@
       call etctr(x)
       call trx(b1,f2,x)
       call dadal(x,nd2)
-      call dadal(b1,1)
+      call dadal1(b1)
       return
       end subroutine
 
@@ -3478,7 +3471,7 @@
       call trx(f1,b1,x)
       call cpart(b1,f2)
       call dadal(x,nd2)
-      call dadal(b1,1)
+      call dadal1(b1)
       return
       end subroutine
 
@@ -4432,8 +4425,8 @@
         call trx(f,f,a)
         call ctor(f,cosi,sine)
         call dacfu(cosi,avepol,fave)
-        call dadal(cosi,1)
-        call dadal(sine,1)
+        call dadal1(cosi)
+        call dadal1(sine)
       else
 
         call etall1(cosi)
@@ -4454,8 +4447,8 @@
         call ctor(f,cosi,sine)
         call dacfu(cosi,avepol,fave)
 
-        call dadal(cosi,1)
-        call dadal(sine,1)
+        call dadal1(cosi)
+        call dadal1(sine)
         call dadal(ftf,nd2)
         call dadal(hf,nd2)
         call dadal(a2,nd2)
@@ -4574,15 +4567,15 @@
       call etcct(a2,xy,map2)
       call etcct(a1,map2,map2)
 
-      call dadal(ftf,1)
-      call dadal(hf,1)
+      call dadal1(ftf)
+      call dadal1(hf)
       call dadal(a1,nd2)
       call dadal(a2,nd2)
       call dadal(m1,nd2)
       call dadal(m2,nd2)
       call dadal(xy,nd2)
-      call dadal(cs,1)
-      call dadal(h,1)
+      call dadal1(cs)
+      call dadal1(h)
 
       return
       end function

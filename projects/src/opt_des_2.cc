@@ -23,7 +23,7 @@ const bool
      opt_mi_sp   3,
      match_ss    4,
      opt_mult    5.                                                           */
-const int opt_case = 3;
+const int opt_case = 5;
 
 const int
   n_ic   = 5,
@@ -38,7 +38,7 @@ const double
                                    // alpha, beta, eta, eta'.
  
   eps0_x                = 0.087,
-  dnu[]                 = {0.0, 0.0},
+  dnu[]                 = {-0.05, 0.0},
 
   beta_inj[]            = {10.7, 6.5},
   A_max[]               = {3.5e-3, 1.5e-3},
@@ -59,16 +59,16 @@ const double
   mI_scl                = 1e-6,
   high_ord_achr_scl[]   = {1e0*1e-6, 1e-6},
 
-  scl_ksi_1             = 1e1,
+  scl_ksi_1             = 1e-1*1e1,
   scl_h_3               = 1e0*1e10,
-  scl_h_3_delta         = 1e0*1e10,
+  scl_h_3_delta         = 1e-1*1e10,
   scl_h_4               = 1e0,
   scl_ksi_2             = 1e0*1e5,
   scl_ksi_3             = 0*1e-5,
   scl_chi_2             = 1e0*1e5,
   scl_chi_delta_2       = 1e-3*1e5,
 
-  scl_extra             = 1e2,
+  scl_extra             = 0e2,
 
   twoJ[]                =
     {sqr(A_max[X_])/beta_inj[X_], sqr(A_max[Y_])/beta_inj[Y_]},
@@ -83,10 +83,10 @@ const double
 
   phi_rb_max            = 0.275,
   b_2_max               = 7.3,
+  b_2_dip_max           = 0.7,
   b_3_max               = 1.5e2,
   b_4_max               = 1e4;
 
-const bool extra = false;
 
 // Needs scl_extra.
 #include "ctrl_H_2.cc"
@@ -279,9 +279,11 @@ void set_dip_cell_std(param_type &prms, constr_type &constr)
   grad_dip_Fnum.push_back(ElemIndex("dl1a_4"));
   grad_dip_Fnum.push_back(ElemIndex("dl1a_5"));
   if (dphi)
-    prms.add_prm(grad_dip_Fnum, grad_dip_scl, -3, -b_2_max, b_2_max, 1.0);
+    prms.add_prm(grad_dip_Fnum, grad_dip_scl, -3, -b_2_dip_max, b_2_dip_max,
+		 1.0);
   if (long_grad_dip[0])
-    prms.add_prm(grad_dip_Fnum, grad_dip_scl,  2, -b_2_max, b_2_max, 1.0);
+    prms.add_prm(grad_dip_Fnum, grad_dip_scl,  2, -b_2_dip_max, b_2_dip_max,
+		 1.0);
 
   lat_constr.Fnum_b1.push_back(-ElemIndex("dl1a_1"));
   lat_constr.grad_dip_Fnum_b1.push_back(grad_dip_Fnum);
@@ -293,9 +295,11 @@ void set_dip_cell_std(param_type &prms, constr_type &constr)
   grad_dip_Fnum.push_back(ElemIndex("dl2a_4"));
   grad_dip_Fnum.push_back(ElemIndex("dl2a_5"));
   if (dphi)
-    prms.add_prm(grad_dip_Fnum, grad_dip_scl, -3, -b_2_max, b_2_max, 1.0);
+    prms.add_prm(grad_dip_Fnum, grad_dip_scl, -3, -b_2_dip_max, b_2_dip_max,
+		 1.0);
   if (long_grad_dip[1])
-    prms.add_prm(grad_dip_Fnum, grad_dip_scl,  2, -b_2_max, b_2_max, 1.0);
+    prms.add_prm(grad_dip_Fnum, grad_dip_scl,  2, -b_2_dip_max, b_2_dip_max,
+		 1.0);
 
   lat_constr.Fnum_b1.push_back(-ElemIndex("dl2a_1"));
   lat_constr.grad_dip_Fnum_b1.push_back(grad_dip_Fnum);
@@ -517,9 +521,11 @@ void set_dip_cell_sp(param_type &prms, constr_type &constr)
   grad_dip_Fnum.push_back(ElemIndex("dl1a_4"));
   grad_dip_Fnum.push_back(ElemIndex("dl1a_5"));
   if (dphi)
-    prms.add_prm(grad_dip_Fnum, grad_dip_scl, -3, -b_2_max, b_2_max, 1.0);
+    prms.add_prm(grad_dip_Fnum, grad_dip_scl, -3, -b_2_dip_max, b_2_dip_max,
+		 1.0);
   if (long_grad_dip[0])
-    prms.add_prm(grad_dip_Fnum, grad_dip_scl,  2, -b_2_max, b_2_max, 1.0);
+    prms.add_prm(grad_dip_Fnum, grad_dip_scl,  2, -b_2_dip_max, b_2_dip_max,
+		 1.0);
 
   lat_constr.Fnum_b1.push_back(-ElemIndex("dl1a_1"));
   lat_constr.grad_dip_Fnum_b1.push_back(grad_dip_Fnum);
@@ -533,9 +539,11 @@ void set_dip_cell_sp(param_type &prms, constr_type &constr)
     grad_dip_Fnum.push_back(ElemIndex("dl2a_4"));
     grad_dip_Fnum.push_back(ElemIndex("dl2a_5"));
     if (dphi)
-      prms.add_prm(grad_dip_Fnum, grad_dip_scl, -3, -b_2_max, b_2_max, 1.0);
+      prms.add_prm(grad_dip_Fnum, grad_dip_scl, -3, -b_2_dip_max, b_2_dip_max,
+		   1.0);
     if (long_grad_dip[1])
-      prms.add_prm(grad_dip_Fnum, grad_dip_scl,  2, -b_2_max, b_2_max, 1.0);
+      prms.add_prm(grad_dip_Fnum, grad_dip_scl,  2, -b_2_dip_max, b_2_dip_max,
+		   1.0);
 
     lat_constr.Fnum_b1.push_back(-ElemIndex("dl2a_1"));
     lat_constr.grad_dip_Fnum_b1.push_back(grad_dip_Fnum);
@@ -946,7 +954,7 @@ void set_b3_Fam_mult(param_type &prms)
 {
   std::vector<int> Fnum;
 
-  switch (4) {
+  switch (6) {
   case 1:
     // 3: Control of: ksi^2_x,y.
     prms.add_prm("of1", 4, -b_4_max, b_4_max, 1.0);
@@ -955,8 +963,8 @@ void set_b3_Fam_mult(param_type &prms)
   case 2:
     // 4: Control of: [k_22000, k_11110, k_00220].
     prms.add_prm("sh1", 3, -b_3_max, b_3_max, 1.0);
-    prms.add_prm("sh2", 3, -b_3_max, b_3_max, 1.0);
     prms.add_prm("s",   3, -b_3_max, b_3_max, 1.0);
+    prms.add_prm("sh2", 3, -b_3_max, b_3_max, 1.0);
     prms.add_prm("sd2", 3, -3e2,     3e2, 1.0);
     break;
   case 3:
@@ -973,6 +981,23 @@ void set_b3_Fam_mult(param_type &prms)
     prms.add_prm("sh1", 3, -b_3_max, b_3_max, 1.0);
     prms.add_prm("sh2", 3, -b_3_max, b_3_max, 1.0);
     prms.add_prm("sd2", 3, -3e2,     3e2,     1.0);
+    break;
+  case 5:
+    prms.add_prm("sf1", 4, -b_4_max, b_4_max, 1.0);
+    prms.add_prm("sd1", 4, -b_4_max, b_4_max, 1.0);
+    prms.add_prm("sd2", 4, -b_4_max, b_4_max, 1.0);
+
+    prms.add_prm("sd2", 3, -3e2,     3e2,     1.0);
+    break;
+  case 6:
+    prms.add_prm("sh1", 3, -b_3_max, b_3_max, 1.0);
+    prms.add_prm("s",   3, -b_3_max, b_3_max, 1.0);
+    prms.add_prm("sh2", 3, -b_3_max, b_3_max, 1.0);
+    prms.add_prm("sd2", 3, -3e2,     3e2,     1.0);
+
+    prms.add_prm("sf1", 4, -b_4_max, b_4_max, 1.0);
+    prms.add_prm("sd1", 4, -b_4_max, b_4_max, 1.0);
+    prms.add_prm("sd2", 4, -b_4_max, b_4_max, 1.0);
     break;
   }
 

@@ -49,6 +49,7 @@ fit_nu_SOURCES        = fit_nu.cc
 #LIBS     = -L$(TRACY_LIB)/tracy -ltracy
 # gfortran needs to be before stdc_++ for Fortran programs
 LIBS	 = -L$(TRACY_LIB)/tracy/lib -ltracy \
+           -L$(NUM_REC)/lib -L/usr/local/Cellar/gcc/10.1.0/lib/gcc/10 \
 	   -L$(NUM_REC)/lib -lnum_rec \
            -lstdc++ \
            -lm

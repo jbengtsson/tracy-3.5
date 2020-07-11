@@ -1675,12 +1675,8 @@ int main(int argc, char *argv[])
     prt_chrom_lat();
     prtmfile("flat_file.dat");
 
-    if (!false) {
-#if 1
+    if (false) {
       prt_lat_param("lattice.txt", "cav", 3.225e-6, 3.155);
-#else
-      prt_lat_param("lattice.txt", "cav", 3.917e-6, 2.486);
-#endif
       reality_check();
     }
 

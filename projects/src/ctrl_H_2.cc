@@ -904,7 +904,7 @@ double constr_type::get_chi2(const double twoJ[], const double delta,
 
   chi2 = 0e0;
 
-  if (extra) {
+  if (scl_extra) {
     if (prt) printf("\n  extra:\n");
     chi2 += quad_red(prms, bn, "QD2", 11, prt);
     chi2 += quad_red(prms, bn, "QF6", 12, prt);
