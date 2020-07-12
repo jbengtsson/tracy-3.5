@@ -5066,6 +5066,93 @@
       return
       end subroutine
 
+      subroutine dapriold(ina,iunit)
+      implicit none
+!     ***************************
+!       Frank
+!     THIS SUBROUTINE PRINTS THE DA VECTOR INA TO UNIT IUNIT.
+!
+!-----------------------------------------------------------------------------
+!
+      integer iii,illa,ilma,ina,inoa,inva,ioa,iout,iunit,j,k
+      integer(8) i, ii, ipoa
+!-----------------------------------------------------------------------------1
+      include "TPSALib_prm.f"
+!-----------------------------------------------------------------------------9
+      dimension j(lnv)
+      character daname(lda)*10
+      common / daname / daname
+!-----------------------------------------------------------------------------3
+!
+      if(ina.lt.1.or.ina.gt.nda) then
+         print*,'ERROR IN DAPRI, INA = ',ina
+      endif
+!
+      inoa = idano(ina)
+      inva = idanv(ina)
+      ipoa = idapo(ina)
+      ilma = idalm(ina)
+      illa = idall(ina)
+!
+      write(iunit,'(/1X,A,A,I5,A,I5,A,I5/1X,A/)')
+     &     daname(ina),', NO =',inoa,', NV =',inva,', INA =',ina,
+     &     '*********************************************'
+!
+      iout = 0
+      ioa = 0
+
+      if(inva.eq.0) then
+         write(iunit,'(A)') '    I  VALUE  '
+         do i = ipoa,ipoa+illa-1
+            write(iunit,'(I6,2X,G20.14)') i-ipoa, cc(i)
+         enddo
+      elseif(nomax.eq.1) then
+         if(illa.ne.0) write(iunit,'(A)')
+     &        '    I  COEFFICIENT          ORDER   EXPONENTS'
+         if(illa.eq.0) write(iunit,'(A)') '   ALL COMPONENTS ZERO '
+         do i=1,illa
+            do k=1,inva
+               j(k)=0
+            enddo
+            iout=iout+1
+            if(i.ne.1) then
+               j(i-1)=1
+               ioa=1
+            endif
+            write(iunit,'(I6,2X,G20.14,I5,4X,18(2I2,1X))')
+     &           iout,cc(ipoa+i-1),ioa,(j(iii),iii=1,nvmax)
+            write(iunit,*) cc(ipoa+i-1)
+         enddo
+      else
+         if(illa.ne.0) write(iunit,'(A)')
+     &        '    I  COEFFICIENT          ORDER   EXPONENTS'
+         if(illa.eq.0) write(iunit,'(A)') '   ALL COMPONENTS ZERO '
+         do ioa = 0,inoa
+            do ii=ipoa,ipoa+illa-1
+               if(ieo(ia1(i1(ii))+ia2(i2(ii))).ne.ioa) goto 100
+               call dancd(i1(ii),i2(ii),j)
+!ETIENNE
+               if(abs(cc(ii)).gt.eps) then
+!ETIENNE
+                  iout = iout+1
+                  write(iunit,'(I6,2X,G20.14,I5,4X,18(2I2,1X))')
+     &                 iout,cc(ii),ioa,(j(iii),iii=1,nvmax)
+!ETIENNE
+                  write(iunit,*) cc(ii)
+               endif
+!ETIENNE
+!
+ 100           continue
+            enddo
+         enddo
+!
+      endif
+
+      write(iunit,'(A)') '                                      '
+!
+      return
+      end subroutine
+
       subroutine dapri77(ina,iunit)
       implicit none
       integer i,ii,illa,ilma,ina,inoa,inva,ioa,iout,ipoa,iunit,j

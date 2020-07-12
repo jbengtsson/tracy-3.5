@@ -163,15 +163,16 @@ void param_type::add_prm(const std::string Fname, const int n,
 {
   const bool prt = false;
 
-  this->Fnum.push_back(ElemIndex(Fname.c_str()));
+  Fnum.push_back(ElemIndex(Fname.c_str()));
   this->n.push_back(n);
   this->bn_min.push_back(bn_min);
   this->bn_max.push_back(bn_max);
   this->bn_scl.push_back(bn_scl);
   this->l0.push_back(0e0);
   this->n_prm = this->Fnum.size();
-
-  if (prt) printf("add_prm: %2d\n", this->n_prm);
+  if (prt)
+    printf("\nadd_prm: %8s %3d %2d\n",
+	   Fname.c_str(), Fnum.back(), this->n.back());
 }
 
 
@@ -219,7 +220,7 @@ void param_type::ini_prm(double *bn)
   bool prt = false;
 
   for (i = 1; i <= n_prm; i++) {
-    if (prt) printf("ini_prm: %2d %3d %2d\n", i, Fnum[i-1], n[i-1]);
+    if (prt) printf("\nini_prm: %2d %3d %2d\n", i, Fnum[i-1], n[i-1]);
     if (n[i-1] > 0)
       // Multipole.
       get_bn_design_elem(abs(Fnum[i-1]), 1, n[i-1], bn[i], an);
@@ -254,7 +255,7 @@ void param_type::ini_prm(double *bn)
     if ((bn_min[i-1] <= bn[i]) && (bn[i] <= bn_max[i-1]))
       bn[i] = bn_internal(bn[i], bn_min[i-1], bn_max[i-1]);
     else {
-      loc = Elem_GetPos(Fnum[i-1], 1);
+      loc = Elem_GetPos(abs(Fnum[i-1]), 1);
       printf("\nini_prm:\n outside range ");
       prt_name(stdout, Cell[loc].Elem.PName, ":", 8);
       printf(" %10.3e [%10.3e, %10.3e]\n", bn[i], bn_min[i-1], bn_max[i-1]);
@@ -461,9 +462,12 @@ void param_type::prt_prm(double *bn) const
   double bn_ext;
 
   const string
-    labels[] = {"phi", "L  ", "s  ", "   ", "   ", "b_2", "b_3", "b_4", "b_5"};
-  const int    labels_offset = 3;
+    labels[]      =
+    {"phi", "L  ", "s  ", "   ", "   ", "b_2", "b_3", "b_4", "b_5"};
+  const int
+    labels_offset = 3;
 
+  printf("\n");
   for (i = 1; i <= n_prm; i++) {
     // Bounded.
     bn_ext = bn_bounded(bn[i], bn_min[i-1], bn_max[i-1]);
@@ -489,7 +493,7 @@ void param_type::prt_prm(double *bn) const
       prt_name(stdout, Cell[loc+1].Elem.PName, ":", 8);
       printf(" %7.5f", Cell[loc+1].Elem.PL);
     }
-    printf("\n");
+    printf(" %3d\n", Fnum[i-1]);
   }
 }
 
@@ -593,7 +597,9 @@ void constr_type::add_constr(const int loc,
   const double              val[] = {v1,   v2,   v3,   v4,   v5,   v6};
   const std::vector<double> vec1(scl, scl+n);
   const std::vector<double> vec2(val, val+n);
+  const bool                prt   = false;
 
+  if (prt) printf("\nadd_constr: %8s loc = %1d\n", Cell[loc].Elem.PName, loc);
   this->loc.push_back(loc);
   this->value_scl.push_back(vec1);
   this->value.push_back(vec2);
@@ -1503,11 +1509,12 @@ void fit_powell(param_type &lat_prms, const double eps, double (*f)(double *))
     n_w     = (n_pt+13)*(n_pt+n_prm)+3*n_prm*(n_prm+3)/2,
     n_prt   = 2,
     max_fun = 5000;
-
   const double
     // rho_beg = lat_prms.dbn[0],
     rho_beg = 1e-1,
     rho_end = 1e-6;
+  const bool
+    prt     = !false;
 
   int          n_bn, i, j, iter;
   double       *bn, **xi, fret, eps_x, w[n_w], x[n_prm];
@@ -1519,6 +1526,7 @@ void fit_powell(param_type &lat_prms, const double eps, double (*f)(double *))
 
   bn = dvector(1, n_bn); xi = dmatrix(1, n_bn, 1, n_bn);
 
+  if (prt) lat_prms.prt_prm(bn);
   lat_prms.ini_prm(bn);
   f(bn);
 

@@ -23,7 +23,7 @@ const bool
      opt_mi_sp   3,
      match_ss    4,
      opt_mult    5.                                                           */
-const int opt_case = 5;
+const int opt_case = 1;
 
 const int
   n_ic   = 5,
@@ -31,14 +31,14 @@ const int
 
 const double
   ic[n_ic][2] =
-  {{-0.0000000341, -0.0000000618},
-   {3.0700402841, 1.0738707850},
-   {0.0184747020, 0.0000000000},
+  {{0.0012608981, 0.0005601014},
+   {2.7080321068, 0.9364500224},
+   {0.0177886296, 0.0000000000},
    {0.0, 0.0}},                    // From Center of Mid Straight:
                                    // alpha, beta, eta, eta'.
  
   eps0_x                = 0.087,
-  dnu[]                 = {-0.05, 0.0},
+  dnu[]                 = {0.0, 0.0},
 
   beta_inj[]            = {10.7, 6.5},
   A_max[]               = {3.5e-3, 1.5e-3},
@@ -59,14 +59,14 @@ const double
   mI_scl                = 1e-6,
   high_ord_achr_scl[]   = {1e0*1e-6, 1e-6},
 
-  scl_ksi_1             = 1e-1*1e1,
-  scl_h_3               = 1e0*1e10,
-  scl_h_3_delta         = 1e-1*1e10,
-  scl_h_4               = 1e0,
+  scl_ksi_1             = 0e0*1e1,
+  scl_h_3               = 0e0*1e10,
+  scl_h_3_delta         = 0e-1*1e10,
+  scl_h_4               = 0e0,
   scl_ksi_2             = 1e0*1e5,
-  scl_ksi_3             = 0*1e-5,
+  scl_ksi_3             = 0e5,
   scl_chi_2             = 1e0*1e5,
-  scl_chi_delta_2       = 1e-3*1e5,
+  scl_chi_delta_2       = 0e-3*1e5,
 
   scl_extra             = 0e2,
 
@@ -81,11 +81,13 @@ const double
   high_ord_achr_nu[][2] = {{3.0/8.0, 2.0/8.0}, {4.0/8.0, 1.0/8.0}},
 #endif
 
+  phi_max               = 5.0,
   phi_rb_max            = 0.275,
   b_2_max               = 7.3,
   b_2_dip_max           = 0.7,
+  b_3_chrom_max         = 3e2,
   b_3_max               = 1.5e2,
-  b_4_max               = 1e4;
+  b_4_max               = 1e5;
 
 
 // Needs scl_extra.
@@ -279,7 +281,7 @@ void set_dip_cell_std(param_type &prms, constr_type &constr)
   grad_dip_Fnum.push_back(ElemIndex("dl1a_4"));
   grad_dip_Fnum.push_back(ElemIndex("dl1a_5"));
   if (dphi)
-    prms.add_prm(grad_dip_Fnum, grad_dip_scl, -3, -b_2_dip_max, b_2_dip_max,
+    prms.add_prm(grad_dip_Fnum, grad_dip_scl, -3, -phi_max, phi_max,
 		 1.0);
   if (long_grad_dip[0])
     prms.add_prm(grad_dip_Fnum, grad_dip_scl,  2, -b_2_dip_max, b_2_dip_max,
@@ -295,7 +297,7 @@ void set_dip_cell_std(param_type &prms, constr_type &constr)
   grad_dip_Fnum.push_back(ElemIndex("dl2a_4"));
   grad_dip_Fnum.push_back(ElemIndex("dl2a_5"));
   if (dphi)
-    prms.add_prm(grad_dip_Fnum, grad_dip_scl, -3, -b_2_dip_max, b_2_dip_max,
+    prms.add_prm(grad_dip_Fnum, grad_dip_scl, -3, -phi_max, phi_max,
 		 1.0);
   if (long_grad_dip[1])
     prms.add_prm(grad_dip_Fnum, grad_dip_scl,  2, -b_2_dip_max, b_2_dip_max,
@@ -388,23 +390,23 @@ void set_b3_Fam_std(param_type &prms)
 
   switch (1) {
   case 1:
-    prms.add_prm("sd2", 3, -b_3_max, b_3_max, 1.0);
+    prms.add_prm("sd2", 3, -b_3_chrom_max, b_3_chrom_max, 1.0);
     break;
   case 2:
-    prms.add_prm("of1", 4, -b_4_max, b_4_max, 1.0);
-    prms.add_prm("sd2", 3, -b_3_max, b_3_max, 1.0);
+    prms.add_prm("of1", 4, -b_4_max,       b_4_max,       1.0);
+    prms.add_prm("sd2", 3, -b_3_chrom_max, b_3_chrom_max, 1.0);
     break;
   case 3:
-    prms.add_prm("of1", 4, -b_4_max, b_4_max, 1.0);
-    prms.add_prm("sd2", 3, -b_3_max, b_3_max, 1.0);
-    prms.add_prm("s",   3, -b_3_max, b_3_max, 1.0);
+    prms.add_prm("of1", 4, -b_4_max,       b_4_max,       1.0);
+    prms.add_prm("sd2", 3, -b_3_max,       b_3_max,       1.0);
+    prms.add_prm("s",   3, -b_3_max,       b_3_max,       1.0);
     break;
   case 4:
-    prms.add_prm("of1", 4, -b_4_max, b_4_max, 1.0);
-    prms.add_prm("sd2", 3, -b_3_max, b_3_max, 1.0);
-    prms.add_prm("s",   3, -b_3_max, b_3_max, 1.0);
-    prms.add_prm("sh1", 3, -b_3_max, b_3_max, 1.0);
-    prms.add_prm("sh2", 3, -b_3_max, b_3_max, 1.0);
+    prms.add_prm("of1", 4, -b_4_max,       b_4_max,       1.0);
+    prms.add_prm("sd2", 3, -b_3_chrom_max, b_3_chrom_max, 1.0);
+    prms.add_prm("s",   3, -b_3_max,       b_3_max,       1.0);
+    prms.add_prm("sh1", 3, -b_3_max,       b_3_max,       1.0);
+    prms.add_prm("sh2", 3, -b_3_max,       b_3_max,       1.0);
     break;
   }
 
@@ -958,46 +960,48 @@ void set_b3_Fam_mult(param_type &prms)
   case 1:
     // 3: Control of: ksi^2_x,y.
     prms.add_prm("of1", 4, -b_4_max, b_4_max, 1.0);
-    prms.add_prm("sd2", 3, -3e2,     3e2, 1.0);
+    prms.add_prm("sd2", 3, -b_3_chrom_max,     b_3_chrom_max, 1.0);
     break;
   case 2:
     // 4: Control of: [k_22000, k_11110, k_00220].
-    prms.add_prm("sh1", 3, -b_3_max, b_3_max, 1.0);
-    prms.add_prm("s",   3, -b_3_max, b_3_max, 1.0);
-    prms.add_prm("sh2", 3, -b_3_max, b_3_max, 1.0);
-    prms.add_prm("sd2", 3, -3e2,     3e2, 1.0);
+    prms.add_prm("sh1", 3, -b_3_max,       b_3_max,       1.0);
+    prms.add_prm("s",   3, -b_3_max,       b_3_max,       1.0);
+    prms.add_prm("sh2", 3, -b_3_max,       b_3_max,       1.0);
+    prms.add_prm("sd2", 3, -b_3_chrom_max, b_3_chrom_max, 1.0);
     break;
   case 3:
     // 5: Control of: [k_22000, k_11110, k_00220] & ksi^2_x,y.
-    prms.add_prm("of1", 4, -b_4_max, b_4_max, 1.0);
-    prms.add_prm("sh1", 3, -b_3_max, b_3_max, 1.0);
-    prms.add_prm("sh2", 3, -b_3_max, b_3_max, 1.0);
-    prms.add_prm("sd2", 3, -3e2,     3e2,     1.0);
-    prms.add_prm("s",   3, -b_3_max, b_3_max, 1.0);
+    prms.add_prm("of1", 4, -b_4_max,       b_4_max,       1.0);
+    prms.add_prm("sh1", 3, -b_3_max,       b_3_max,       1.0);
+    prms.add_prm("sh2", 3, -b_3_max,       b_3_max,       1.0);
+    prms.add_prm("sd2", 3, -b_3_chrom_max, b_3_chrom_max, 1.0);
+    prms.add_prm("s",   3, -b_3_max,       b_3_max,       1.0);
     break;
   case 4:
-    prms.add_prm("of1", 4, -b_4_max, b_4_max, 1.0);
-    prms.add_prm("s",   3, -b_3_max, b_3_max, 1.0);
-    prms.add_prm("sh1", 3, -b_3_max, b_3_max, 1.0);
-    prms.add_prm("sh2", 3, -b_3_max, b_3_max, 1.0);
-    prms.add_prm("sd2", 3, -3e2,     3e2,     1.0);
+    prms.add_prm("of1", 4, -b_4_max,       b_4_max,       1.0);
+    prms.add_prm("s",   3, -b_3_max,       b_3_max,       1.0);
+    prms.add_prm("sh1", 3, -b_3_max,       b_3_max,       1.0);
+    prms.add_prm("sh2", 3, -b_3_max,       b_3_max,       1.0);
+    prms.add_prm("sd2", 3, -b_3_chrom_max, b_3_chrom_max, 1.0);
     break;
   case 5:
-    prms.add_prm("sf1", 4, -b_4_max, b_4_max, 1.0);
-    prms.add_prm("sd1", 4, -b_4_max, b_4_max, 1.0);
-    prms.add_prm("sd2", 4, -b_4_max, b_4_max, 1.0);
+    // 1: Control of: ksi^2_x,y.
+    prms.add_prm("sf1", 4, -b_4_max,       b_4_max,       1.0);
+    prms.add_prm("sd1", 4, -b_4_max,       b_4_max,       1.0);
+    prms.add_prm("sd2", 4, -b_4_max,       b_4_max,       1.0);
 
-    prms.add_prm("sd2", 3, -3e2,     3e2,     1.0);
+    prms.add_prm("sd2", 3, -b_3_chrom_max, b_3_chrom_max, 1.0);
     break;
   case 6:
-    prms.add_prm("sh1", 3, -b_3_max, b_3_max, 1.0);
-    prms.add_prm("s",   3, -b_3_max, b_3_max, 1.0);
-    prms.add_prm("sh2", 3, -b_3_max, b_3_max, 1.0);
-    prms.add_prm("sd2", 3, -3e2,     3e2,     1.0);
+    // 3: Control of: [k_22000, k_11110, k_00220] & ksi^2_x,y.
+    prms.add_prm("sh1", 3, -b_3_max,       b_3_max,       1.0);
+    prms.add_prm("sh2", 3, -b_3_max,       b_3_max,       1.0);
+    // prms.add_prm("s",   3, -b_3_max,       b_3_max, 1.0);
+    prms.add_prm("sd2", 3, -b_3_chrom_max, b_3_chrom_max, 1.0);
 
-    prms.add_prm("sf1", 4, -b_4_max, b_4_max, 1.0);
-    prms.add_prm("sd1", 4, -b_4_max, b_4_max, 1.0);
-    prms.add_prm("sd2", 4, -b_4_max, b_4_max, 1.0);
+    prms.add_prm("sf1", 4, -b_4_max,       b_4_max,       1.0);
+    prms.add_prm("sd1", 4, -b_4_max,       b_4_max,       1.0);
+    prms.add_prm("sd2", 4, -b_4_max,       b_4_max,       1.0);
     break;
   }
 
@@ -1423,7 +1427,7 @@ int main(int argc, char *argv[])
   case 5:
     // Optimize multipoles.
     opt_mult(lat_prms, lat_constr);
-    fit_powell(lat_prms, 1e-3, f_mult);
+    fit_powell(lat_prms, 1e-2, f_mult);
     break;
   default:
     printf("\nmain: unknown opt_case %d\n", opt_case);
