@@ -493,7 +493,7 @@ void param_type::prt_prm(double *bn) const
       prt_name(stdout, Cell[loc+1].Elem.PName, ":", 8);
       printf(" %7.5f", Cell[loc+1].Elem.PL);
     }
-    printf(" %3d\n", Fnum[i-1]);
+    printf("\n");
   }
 }
 
@@ -1514,7 +1514,7 @@ void fit_powell(param_type &lat_prms, const double eps, double (*f)(double *))
     rho_beg = 1e-1,
     rho_end = 1e-6;
   const bool
-    prt     = !false;
+    prt     = false;
 
   int          n_bn, i, j, iter;
   double       *bn, **xi, fret, eps_x, w[n_w], x[n_prm];

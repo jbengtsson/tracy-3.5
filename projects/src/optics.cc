@@ -1625,7 +1625,7 @@ int main(int argc, char *argv[])
 
   trace = false;
 
-  globval.mat_meth = !false;
+  globval.mat_meth = false;
 
   if (true)
     Read_Lattice(argv[1]);
@@ -1667,7 +1667,7 @@ int main(int argc, char *argv[])
     Ring_GetTwiss(true, 0e0); printglob();
   }
 
-  if (globval.mat_meth) {
+  if (globval.mat_meth && !prt_ms) {
     get_eps_x(eps_x, sigma_delta, U_0, J, tau, I, true);
 
     prt_lat("linlat1.out", globval.bpm, true);

@@ -47,6 +47,7 @@
       do i=1,100
         is(i)=0
       enddo
+      idpr=1
       write(*, *) "lieinit:", no, nv, nd, nd2, ndpt, idpr
       write(*, *) "lieinit: calling daini"
       call daini(no,nv,0)
@@ -2991,6 +2992,10 @@
      &    ' select ',nd-ndc,                                            &
      &    ' eigenplanes (odd integers <0 real axis)'
           read(5,*) (n(i),i=1,nd-ndc)
+        else
+          n(1) = 1
+          n(2) = 3
+          n(3) = 5
         endif
       elseif(idpr.eq.-100) then
         do i=1,nd-ndc
@@ -3005,18 +3010,9 @@
           endif
         enddo
       else
-!        do i=1,nd-ndc
-!          n(i)=2*i-1
-!        enddo
-        if (ndpt .eq. 5) then
-          n(1) = 1
-          n(2) = 3
-          n(3) = 5
-        else
-          n(1) = 1
-          n(2) = 5
-          n(3) = 3
-        endif
+        do i=1,nd-ndc
+          n(i)=2*i-1
+        enddo
       endif
       iunst=0
       do i=1,nd-ndc                  ! Frank NDC  kept
