@@ -15,7 +15,10 @@ const bool
   sp_std          = true,
   pert_dip_cell   = false,
   dphi            = true,
-  long_grad_dip[] = {true, true};
+  long_grad_dip[] = {true, true},
+  ksi_terms[]     = {false, !false},
+  drv_terms[]     = {false, false},
+  tune_fp_terms[] = {!false, !false, false};
 
 /* opt_case:
      opt_mI_std  1,
@@ -23,22 +26,22 @@ const bool
      opt_mi_sp   3,
      match_ss    4,
      opt_mult    5.                                                           */
-const int opt_case = 1;
+const int opt_case = 5;
 
 const int
-  n_ic   = 5,
-  n_cell = 6;
+  n_ic         = 5,
+  n_cell       = 6;
 
 const double
   ic[n_ic][2] =
-  {{0.0012608981, 0.0005601014},
-   {2.7080321068, 0.9364500224},
-   {0.0177886296, 0.0000000000},
-   {0.0, 0.0}},                    // From Center of Mid Straight:
+  {{0.0000000060, 0.0000000012},
+   {2.9231041387, 1.0504016656},
+   {0.0175560324, 0.0000000000},
+   {-0.0, 0.0}},                   // From Center of Mid Straight:
                                    // alpha, beta, eta, eta'.
  
   eps0_x                = 0.087,
-  dnu[]                 = {0.0, 0.0},
+  dnu[]                 = {-0.15, 0.0},
 
   beta_inj[]            = {10.7, 6.5},
   A_max[]               = {3.5e-3, 1.5e-3},
@@ -57,16 +60,16 @@ const double
   alpha_c_scl           = 1e0*5e-7,
 
   mI_scl                = 1e-6,
-  high_ord_achr_scl[]   = {1e0*1e-6, 1e-6},
+  high_ord_achr_scl[]   = {1e0*1e6, 1e-6},
 
-  scl_ksi_1             = 0e0*1e1,
-  scl_h_3               = 0e0*1e10,
-  scl_h_3_delta         = 0e-1*1e10,
+  scl_ksi_1             = (ksi_terms[0])? 1e0*1e1 : 0e0,
+  scl_h_3               = (drv_terms[0])? 1e0*1e10 : 0e0,
+  scl_h_3_delta         = (drv_terms[1])? 1e0*1e10 : 0e0,
   scl_h_4               = 0e0,
-  scl_ksi_2             = 1e0*1e5,
-  scl_ksi_3             = 0e5,
-  scl_chi_2             = 1e0*1e5,
-  scl_chi_delta_2       = 0e-3*1e5,
+  scl_ksi_2             = (tune_fp_terms[0])? 1e6 : 0e0,
+  scl_ksi_3             = (ksi_terms[1])? 1e0*1e6 : 0e0,
+  scl_chi_2             = (tune_fp_terms[1])? 1e6 : 0e0,
+  scl_chi_delta_2       = (tune_fp_terms[2])? 1e-1*1e6 : 0e0,
 
   scl_extra             = 0e2,
 
@@ -87,7 +90,7 @@ const double
   b_2_dip_max           = 0.7,
   b_3_chrom_max         = 3e2,
   b_3_max               = 1.5e2,
-  b_4_max               = 1e5;
+  b_4_max               = 1e4;
 
 
 // Needs scl_extra.
@@ -523,7 +526,7 @@ void set_dip_cell_sp(param_type &prms, constr_type &constr)
   grad_dip_Fnum.push_back(ElemIndex("dl1a_4"));
   grad_dip_Fnum.push_back(ElemIndex("dl1a_5"));
   if (dphi)
-    prms.add_prm(grad_dip_Fnum, grad_dip_scl, -3, -b_2_dip_max, b_2_dip_max,
+    prms.add_prm(grad_dip_Fnum, grad_dip_scl, -3, -phi_max, phi_max,
 		 1.0);
   if (long_grad_dip[0])
     prms.add_prm(grad_dip_Fnum, grad_dip_scl,  2, -b_2_dip_max, b_2_dip_max,
@@ -541,7 +544,7 @@ void set_dip_cell_sp(param_type &prms, constr_type &constr)
     grad_dip_Fnum.push_back(ElemIndex("dl2a_4"));
     grad_dip_Fnum.push_back(ElemIndex("dl2a_5"));
     if (dphi)
-      prms.add_prm(grad_dip_Fnum, grad_dip_scl, -3, -b_2_dip_max, b_2_dip_max,
+      prms.add_prm(grad_dip_Fnum, grad_dip_scl, -3, -phi_max, phi_max,
 		   1.0);
     if (long_grad_dip[1])
       prms.add_prm(grad_dip_Fnum, grad_dip_scl,  2, -b_2_dip_max, b_2_dip_max,
@@ -643,10 +646,10 @@ void set_b3_Fam_sp(param_type &prms)
 {
   std::vector<int> Fnum;
 
-  switch (3) {
+  switch (1) {
   case 1:
     // 1: Control ksi^1_x,y.
-    prms.add_prm("sd2", 3, -b_3_max, b_3_max, 1.0);
+    prms.add_prm("sd2", 3, -b_3_chrom_max, b_3_chrom_max, 1.0);
 
     lat_constr.Fnum_b3.push_back(ElemIndex("sf1"));
     lat_constr.Fnum_b3.push_back(ElemIndex("sd1"));
@@ -794,7 +797,7 @@ void set_b2_ls(param_type &prms)
   if (pert_dip_cell)
     prms.add_prm("qd3_c1", 2, -b_2_max, b_2_max, 1.0);
   // Long Straight.
-  prms.add_prm("qd2_c1",   2, -b_2_max,     3.0, 1.0);
+  prms.add_prm("qd2_c1",   2, -b_2_max, b_2_max, 1.0);
   prms.add_prm("qf1_c1",   2, -b_2_max, b_2_max, 1.0);
   prms.add_prm("quad_add", 2, -b_2_max, b_2_max, 1.0);
 
@@ -956,7 +959,7 @@ void set_b3_Fam_mult(param_type &prms)
 {
   std::vector<int> Fnum;
 
-  switch (6) {
+  switch (8) {
   case 1:
     // 3: Control of: ksi^2_x,y.
     prms.add_prm("of1", 4, -b_4_max, b_4_max, 1.0);
@@ -985,23 +988,32 @@ void set_b3_Fam_mult(param_type &prms)
     prms.add_prm("sd2", 3, -b_3_chrom_max, b_3_chrom_max, 1.0);
     break;
   case 5:
-    // 1: Control of: ksi^2_x,y.
-    prms.add_prm("sf1", 4, -b_4_max,       b_4_max,       1.0);
-    prms.add_prm("sd1", 4, -b_4_max,       b_4_max,       1.0);
-    prms.add_prm("sd2", 4, -b_4_max,       b_4_max,       1.0);
-
+    // 1: Minimize tune footprint.
     prms.add_prm("sd2", 3, -b_3_chrom_max, b_3_chrom_max, 1.0);
     break;
   case 6:
-    // 3: Control of: [k_22000, k_11110, k_00220] & ksi^2_x,y.
+    // 2: Control of: ksi^2_x,y.
+    prms.add_prm("sf1", 4, -b_4_max,       b_4_max,       1.0);
+    prms.add_prm("sd1", 4, -b_4_max,       b_4_max,       1.0);
+    prms.add_prm("sd2", 4, -b_4_max,       b_4_max,       1.0);
+    break;
+  case 7:
+    // 3: Control of: [k_22000, k_11110, k_00220].
     prms.add_prm("sh1", 3, -b_3_max,       b_3_max,       1.0);
     prms.add_prm("sh2", 3, -b_3_max,       b_3_max,       1.0);
-    // prms.add_prm("s",   3, -b_3_max,       b_3_max, 1.0);
+    prms.add_prm("s",   3, -b_3_max,       b_3_max,       1.0);
+    break;
+  case 8:
+    // 4: Control of: [k_22000, k_11110, k_00220] & ksi^2_x,y.
     prms.add_prm("sd2", 3, -b_3_chrom_max, b_3_chrom_max, 1.0);
 
     prms.add_prm("sf1", 4, -b_4_max,       b_4_max,       1.0);
     prms.add_prm("sd1", 4, -b_4_max,       b_4_max,       1.0);
     prms.add_prm("sd2", 4, -b_4_max,       b_4_max,       1.0);
+
+    prms.add_prm("sh1", 3, -b_3_max,       b_3_max,       1.0);
+    prms.add_prm("sh2", 3, -b_3_max,       b_3_max,       1.0);
+    prms.add_prm("s",   3, -b_3_max,       b_3_max,       1.0);
     break;
   }
 
@@ -1012,6 +1024,9 @@ void set_b3_Fam_mult(param_type &prms)
     no_sxt();
 
     set_bn_design_fam(ElemIndex("of1"), Oct, 0.0, 0.0);
+    set_bn_design_fam(ElemIndex("sf1"), Oct, 0.0, 0.0);
+    set_bn_design_fam(ElemIndex("sd1"), Oct, 0.0, 0.0);
+    set_bn_design_fam(ElemIndex("sd2"), Oct, 0.0, 0.0);
 
     Fnum.push_back(ElemIndex("sf1"));
     Fnum.push_back(ElemIndex("sd1"));

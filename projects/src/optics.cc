@@ -17,21 +17,21 @@ int no_tps = NO;
 
 
 const bool
-  set_dnu = false,
+  set_dnu = !false,
   mI_rot  = false,
   prt_ms  = false,
   prt_dt  = false;
 
 #define FULL_LAT 0
-#define SET_NU 1
+#define SET_NU   0
 
 const int
   n_cell = (FULL_LAT)? 1 : 6;
 const double
 #if SET_NU
-nu[]     = {(64.38+0.5)/n_cell, 20.18/n_cell},
+  nu[]     = {(64.38+0.5)/n_cell, 20.18/n_cell},
 #else
-  nu[]     = {0.15, 0.0},
+  nu[]     = {-0.15, 0.0},
 #endif
   dnu_mI[] = {-0.21, -0.20};
 
@@ -1625,7 +1625,7 @@ int main(int argc, char *argv[])
 
   trace = false;
 
-  globval.mat_meth = false;
+  globval.mat_meth = !false;
 
   if (true)
     Read_Lattice(argv[1]);

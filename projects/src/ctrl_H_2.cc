@@ -972,7 +972,7 @@ double constr_type::get_chi2(const double twoJ[], const double delta,
 
     if (prt) printf("\n");
     for (k = 0; k < (int)drv_terms.h.size(); k++) {
-      dchi2[k] = lat_constr.drv_terms.h_scl[k]*lat_constr.drv_terms.h[k];
+      dchi2[k] = lat_constr.drv_terms.h_scl[k]*sqr(lat_constr.drv_terms.h[k]);
       chi2 += dchi2[k];
       if (prt && (lat_constr.drv_terms.h_scl[k] != 0e0)) {
 	if ((k == 1) || (k == 4) || (k == 9) || (k == 20) || (k == 22)
