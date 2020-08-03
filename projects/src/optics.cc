@@ -23,7 +23,7 @@ const bool
   prt_dt  = false;
 
 #define FULL_LAT 0
-#define SET_NU   0
+#define SET_NU   1
 
 const int
   n_cell = (FULL_LAT)? 1 : 6;
@@ -1627,7 +1627,7 @@ int main(int argc, char *argv[])
 
   globval.mat_meth = !false;
 
-  if (true)
+  if (!true)
     Read_Lattice(argv[1]);
   else
     rdmfile(argv[1]);

@@ -1520,7 +1520,7 @@ void fit_powell(param_type &lat_prms, const double eps, double (*f)(double *))
   double       *bn, **xi, fret, eps_x, w[n_w], x[n_prm];
   ss_vect<tps> A;
 
-  const double ftol = 1e-8;
+  const double ftol = 1e-6;
 
   n_bn = lat_prms.n_prm;
 
