@@ -6,11 +6,12 @@ int no_tps = NO;
 
 
 const double
-  // DIAMOND.
-  // A_max[]   = {10e-3, 5e-3},
-  // delta_max = 4e-2;
-  A_max[]   = {4e-3, 2e-3},
-  delta_max = 2.5e-2;
+#if 1
+  A_max[]   = {2e-3, 2e-3},
+#else
+  A_max[]   = {6e-3, 3e-3},
+#endif
+  delta_max = 3e-2;
 
 
 int main(int argc, char *argv[])

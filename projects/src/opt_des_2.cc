@@ -29,22 +29,33 @@ const bool
 const int opt_case = 3;
 
 const int
-  n_ic         = 5,
-  n_cell       = 6;
+  n_ic   = 5,
+  n_cell = 6;
 
 const double
   ic[n_ic][2] =
-  {{0.0000000060, 0.0000000012},
-   {2.9231041387, 1.0504016656},
-   {0.0175560324, 0.0000000000},
-   {-0.0, 0.0}},                   // From Center of Mid Straight:
+  {{-0.0000000056, -0.0000000022},
+   {1.3966592246, 1.3574422223},
+   {0.0140286929, 0.0000000000},
+   {0.0, 0.0}},                    // From Center of Mid Straight:
                                    // alpha, beta, eta, eta'.
  
+#if 0
   eps0_x                = 0.087,
-  dnu[]                 = {0.0, 0.0},
+#else
+  eps0_x                = 0.147,
+#endif
+  dnu[]                 = {0.1, 0.0},
 
+#if 0
+// eps_x < 99 pm.rad.
   beta_inj[]            = {10.7, 6.5},
   A_max[]               = {3.5e-3, 1.5e-3},
+#else
+// eps_x < 150 pm.rad.
+  beta_inj[]            = {7.2, 4.7},
+  A_max[]               = {6e-3, 3e-3},
+#endif
   delta_max             = 2e-2,
   A_delta_max[]         = {2e-3, 0.1e-3},
 
@@ -62,13 +73,13 @@ const double
   mI_scl                = 1e-6,
   high_ord_achr_scl[]   = {1e-6, 1e-6},
 
-  scl_ksi_1             = (ksi_terms[0])?     5e-1 : 0e0,
+  scl_ksi_1             = (ksi_terms[0])?     1e0*5e-1 : 0e0,
   scl_h_3               = (drv_terms[0])?     1e18 : 0e0,
-  scl_h_3_delta         = (drv_terms[1])?     1e18 : 0e0,
+  scl_h_3_delta         = (drv_terms[1])?     1e-3*1e18 : 0e0,
   scl_h_4               = (drv_terms[2])?     1e18 : 0e0,
-  scl_ksi_2             = (ksi_terms[1])?     1e7  : 0e0,
-  scl_ksi_3             = (ksi_terms[2])?     1e7  : 0e0,
-  scl_chi_2             = (tune_fp_terms[0])? 1e7  : 0e0,
+  scl_ksi_2             = (ksi_terms[1])?     1e0*1e7  : 0e0,
+  scl_ksi_3             = (ksi_terms[2])?     1e0*1e7  : 0e0,
+  scl_chi_2             = (tune_fp_terms[0])? 1e0*1e7  : 0e0,
   scl_chi_delta_2       = (tune_fp_terms[1])? 1e5  : 0e0,
 
   scl_extra             = 0e2,
@@ -626,7 +637,7 @@ void set_constr_sp(constr_type &constr)
 		    0.0, 0.0, beta_ls[X_], beta_ls[Y_], 0.0, 0.0);
   // Symmetry & peak dispersion.
   constr.add_constr(Elem_GetPos(ElemIndex("sf1"), 1),
-		    5e2, 5e2, 0e3,  0e2, 0e0,       0e0,
+		    5e1*5e2, 1e1*5e2, 0e3,  0e2, 0e0,       0e0,
 		    0.0, 0.0, 10.0, 1.0, 0.0, 0.0);
 
   if (false)
@@ -666,7 +677,7 @@ void set_b3_Fam_sp(param_type &prms)
     // 5: Control of: ksi^1_x,y, ksi^2_x,y, [k_22000, k_11110, k_00220].
     prms.add_prm("sd2", 3, -b_3_chrom_max, b_3_chrom_max, 1.0);
 
-    if (!true)
+    if (true)
       prms.add_prm("of1", 4, -b_4_max, b_4_max, 1.0);
     else {
       prms.add_prm("sf1", 4, -b_4_max, b_4_max, 1.0);
@@ -674,16 +685,16 @@ void set_b3_Fam_sp(param_type &prms)
       prms.add_prm("sd2", 4, -b_4_max, b_4_max, 1.0);
     }
 
-    prms.add_prm("sh1", 3, -b_3_max, b_3_max, 1.0);
-    prms.add_prm("sh2", 3, -b_3_max, b_3_max, 1.0);
-    // prms.add_prm("s",   3, -b_3_max, b_3_max, 1.0);
+    prms.add_prm("sls", 3, -b_3_max, b_3_max, 1.0);
+    prms.add_prm("sss", 3, -b_3_max, b_3_max, 1.0);
+    prms.add_prm("sms", 3, -b_3_max, b_3_max, 1.0);
     break;
   }
 
   lat_constr.Fnum_b3.push_back(ElemIndex("sf1"));
   lat_constr.Fnum_b3.push_back(ElemIndex("sd1"));
 
-  if (true) {
+  if (!true) {
     no_sxt();
 
     set_bn_design_fam(ElemIndex("of1"), Oct, 0.0, 0.0);
@@ -970,7 +981,7 @@ void set_b3_Fam_mult(param_type &prms)
 {
   std::vector<int> Fnum;
 
-  switch (5) {
+  switch (3) {
   case 1:
     // 3: Control of: ksi^2_x,y.
     prms.add_prm("of1", 4, -b_4_max, b_4_max, 1.0);
@@ -978,18 +989,18 @@ void set_b3_Fam_mult(param_type &prms)
     break;
   case 2:
     // 4: Control of: [k_22000, k_11110, k_00220].
-    prms.add_prm("sh1", 3, -b_3_max,       b_3_max,       1.0);
-    prms.add_prm("s",   3, -b_3_max,       b_3_max,       1.0);
-    prms.add_prm("sh2", 3, -b_3_max,       b_3_max,       1.0);
+    prms.add_prm("sls", 3, -b_3_max,       b_3_max,       1.0);
+    prms.add_prm("sms",   3, -b_3_max,       b_3_max,       1.0);
+    prms.add_prm("sss", 3, -b_3_max,       b_3_max,       1.0);
     prms.add_prm("sd2", 3, -b_3_chrom_max, b_3_chrom_max, 1.0);
     break;
   case 3:
     // 5: Control of: [k_22000, k_11110, k_00220] & ksi^2_x,y.
     prms.add_prm("of1", 4, -b_4_max,       b_4_max,       1.0);
-    prms.add_prm("sh1", 3, -b_3_max,       b_3_max,       1.0);
-    prms.add_prm("sh2", 3, -b_3_max,       b_3_max,       1.0);
+    prms.add_prm("sls", 3, -b_3_max,       b_3_max,       1.0);
+    prms.add_prm("sms", 3, -b_3_max,       b_3_max,       1.0);
     prms.add_prm("sd2", 3, -b_3_chrom_max, b_3_chrom_max, 1.0);
-    prms.add_prm("s",   3, -b_3_max,       b_3_max,       1.0);
+    prms.add_prm("sss",   3, -b_3_max,       b_3_max,       1.0);
     break;
   case 4:
     prms.add_prm("of1", 4, -b_4_max,       b_4_max,       1.0);
@@ -1039,7 +1050,7 @@ void set_b3_Fam_mult(param_type &prms)
   lat_constr.Fnum_b3.push_back(ElemIndex("sf1"));
   lat_constr.Fnum_b3.push_back(ElemIndex("sd1"));
 
-  if (true) {
+  if (!true) {
     no_sxt();
 
     set_bn_design_fam(ElemIndex("of1"), Oct, 0.0, 0.0);

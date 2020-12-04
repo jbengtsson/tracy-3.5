@@ -17,7 +17,7 @@ int no_tps = NO;
 
 
 const bool
-  set_dnu = !false,
+  set_dnu = false,
   mI_rot  = false,
   prt_ms  = false,
   prt_dt  = false;
@@ -1606,7 +1606,7 @@ int main(int argc, char *argv[])
 
   const long   seed   = 1121;
   const int    n_turn = 2064;
-  const double delta  = 1.5e-2;
+  const double delta  = 2e-2;
   //                   nu[]    = { 102.18/20.0, 68.30/20.0 };
   // const std::string q_fam[] = { "qfe", "qde" }, s_fam[] = { "sfh", "sd" };
   //                   nu[]    = { 39.1/12.0, 15.25/12.0 };
@@ -1625,9 +1625,9 @@ int main(int argc, char *argv[])
 
   trace = false;
 
-  globval.mat_meth = !false;
+  globval.mat_meth = false;
 
-  if (!true)
+  if (true)
     Read_Lattice(argv[1]);
   else
     rdmfile(argv[1]);
@@ -2048,7 +2048,7 @@ int main(int argc, char *argv[])
   }
 
   if (true) GetEmittance(ElemIndex("cav"), true);
-  exit(0);
+  // exit(0);
 
   if (false) {
     Id.identity();
