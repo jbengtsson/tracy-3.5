@@ -52,7 +52,9 @@ else if ((N == 20) && (case == 1)) \
 else if ((N == 20) && (case == 2)) \
   N_x = 3; N_y = 1; sgn_x = -1; sgn_y = -1; \
 else if ((N == 20) && (case == 3)) \
-  N_x = 3; N_y = 1; sgn_x = -1; sgn_y = -1;
+  N_x = 3; N_y = 1; sgn_x = -1; sgn_y = -1; \
+else if ((N == 12) && (case == 4)) \
+  N_x = 3; N_y = 1;
 
 if (case == 1) \
   nu_x_min = 54.0; nu_x_max = 55.0; nu_y_min = 11.0; nu_y_max = 12.0; \
@@ -62,7 +64,10 @@ else if (case == 2) \
   x_max = 3.0; y_max = 3.0; delta_max = 3.5; \
 else if (case == 3) \
   nu_x_min = 52.0; nu_x_max = 53.0; nu_y_min = 16.0; nu_y_max = 17.0; \
-  x_max = 3.0; y_max = 3.0; delta_max = 3.5;
+  x_max = 3.0; y_max = 3.0; delta_max = 3.5; \
+else if (case == 4) \
+  nu_x_min = 40.0; nu_x_max = 41.0; nu_y_min = 14.0; nu_y_max = 15.0; \
+  x_max = 4.0; y_max = 4.0; delta_max = 4.0;
 
 # DELTA: del008 .
 #  nu_x_min = 9.0; nu_x_max = 9.3; nu_y_min = 3.1; nu_y_max = 3.4; 
