@@ -6,12 +6,13 @@ int no_tps = NO;
 
 
 const double
-#if 1
+#if 0
   A_max[]   = {2e-3, 2e-3},
-#else
-  A_max[]   = {6e-3, 3e-3},
-#endif
   delta_max = 3e-2;
+#else
+  A_max[]   = {3e-3, 3e-3},
+  delta_max = 3.5e-2;
+#endif
 
 
 int main(int argc, char *argv[])
