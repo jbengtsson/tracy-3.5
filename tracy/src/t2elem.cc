@@ -814,11 +814,13 @@ void Cav_Focus(const double L, const T delta, const bool entrance,
 template<typename T>
 void Cav_Pass(CellType &Cell, ss_vect<T> &ps)
 {
+  double     L;
   elemtype   *elemp;
   CavityType *C;
   T          delta;
 
-  elemp = &Cell.Elem; C = elemp->C;
+  elemp = &Cell.Elem; C = elemp->C; L = elemp->PL;
+  Drift(L/2e0, ps);
   if (globval.Cavity_on && C->Pvolt != 0e0) {
     delta = -C->Pvolt/(globval.Energy*1e9)
             *sin(2e0*M_PI*C->Pfreq/c0*ps[ct_]+C->phi);
@@ -828,6 +830,7 @@ void Cav_Pass(CellType &Cell, ss_vect<T> &ps)
 
     if (globval.pathlength) ps[ct_] -= C->Ph/C->Pfreq*c0;
   }
+  Drift(L/2e0, ps);
 }
 
 #else
