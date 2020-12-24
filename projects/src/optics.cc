@@ -1591,6 +1591,13 @@ void chk_traj(void)
 }
 
 
+ss_vect<tps> chk_sympl(ss_vect<tps> M)
+{
+  // Pass by value for function arguments.
+  return tp_S(3, M)*(get_sympl_form(3))*M;
+}
+
+
 int main(int argc, char *argv[])
 {
   bool             tweak;
@@ -1606,7 +1613,7 @@ int main(int argc, char *argv[])
 
   const long   seed   = 1121;
   const int    n_turn = 2064;
-  const double delta  = 3.5e-2;
+  const double delta  = 2.0e-2;
   //                   nu[]    = { 102.18/20.0, 68.30/20.0 };
   // const std::string q_fam[] = { "qfe", "qde" }, s_fam[] = { "sfh", "sd" };
   //                   nu[]    = { 39.1/12.0, 15.25/12.0 };
@@ -1640,8 +1647,31 @@ int main(int argc, char *argv[])
 
   if (false) no_sxt();
 
+  if (false) {
+    ss_vect<tps> map;
+    map.identity();
+    if (!false) no_sxt();
+    Cell_Pass(0, 12, map, lastpos);
+    prt_lin_map(3, map);
+    exit(0);
+  }
+
   globval.Cavity_on = false; globval.radiation = false;
   Ring_GetTwiss(true, 0e0); printglob();
+
+  if (false) {
+    prt_lin_map(3,
+		chk_sympl(putlinmat(6, globval.OneTurnMat))-get_sympl_form(3));
+    exit(0);
+  }
+
+  if (false) {
+    chk_optics(1.178856e-01, 1.813178e+01, -8.236462e-03, 3.617426e-04,
+	       -2.046559e-02, 3.603793e+00, 0.0, 0.0);
+    prt_lat("linlat1.out", globval.bpm, true);
+    prt_lat("linlat.out", globval.bpm, true, 10);
+    exit(0);
+  }
 
   if (false) chk_traj();
 
@@ -1680,7 +1710,7 @@ int main(int argc, char *argv[])
       reality_check();
     }
 
-   exit(0);
+    exit(0);
   }
 
   if (false) {
@@ -1926,14 +1956,6 @@ int main(int argc, char *argv[])
 
   if (false) {
     chk_dip();
-    exit(0);
-  }
-
-  if (false) {
-    chk_optics(-0.0053535002, 12.1075976024, 0.0000110151, 0.0000000000,
-	       -0.0003741602, 4.9544873208, 0.00000, 0.00000);
-    prt_lat("linlat1.out", globval.bpm, true);
-    prt_lat("linlat.out", globval.bpm, true, 10);
     exit(0);
   }
 
