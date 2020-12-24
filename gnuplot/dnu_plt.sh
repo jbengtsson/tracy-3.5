@@ -9,7 +9,9 @@ gnuplot << EOP
 
 home_dir = "$prm1"; N = $prm2; ps = $prm3; case = $prm4; pert = $prm5;
 
-# BESSY-III  1.
+# BESSY-III  1..3,
+# ALS-U      4,
+# SLS-2      5.
 
 file1  = (home_dir)."dnu_dAx.out";
 file12 = (home_dir)."dnu_dAx_pert.out"
@@ -39,11 +41,18 @@ else if (ps == 5) \
 
 if ((N == 1) && (case == 1)) \
   N_x = 54; N_y = 11; \
-else if (N == 12) \
-  N_x = 3; N_y = 1; \
-else if (N == 20) \
-  N_x = 2; N_y = 0;
+else if ((N == 20) && (case == 1)) \
+  N_x = 2; N_y = 0; \
+else if ((N == 20) && (case == 2)) \
+  N_x = 2; N_y = 0; \
+else if ((N == 20) && (case == 3)) \
+  N_x = 2; N_y = 0; \
+else if ((N == 12) && (case == 4)) \
+  N_x = 2; N_y = 0; \
+else if ((N == 12) && (case == 5)) \
+  N_x = 3; N_y = 1;
 
+# Only used for tune footprint, graph 4.
 if (case == 1) \
   nu_x_min = 54.0; nu_x_max = 54.5; nu_y_min = 11.0; nu_y_max = 11.5;
 
