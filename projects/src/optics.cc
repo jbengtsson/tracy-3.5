@@ -19,7 +19,7 @@ int no_tps = NO;
 const bool
   set_dnu = false,
   mI_rot  = false,
-  prt_ms  = false,
+  prt_s1  = false,
   prt_dt  = false;
 
 #define FULL_LAT 0
@@ -1632,7 +1632,7 @@ int main(int argc, char *argv[])
 
   trace = false;
 
-  globval.mat_meth = false;
+  globval.mat_meth = !false;
 
   if (true)
     Read_Lattice(argv[1]);
@@ -1697,7 +1697,7 @@ int main(int argc, char *argv[])
     Ring_GetTwiss(true, 0e0); printglob();
   }
 
-  if (globval.mat_meth && !prt_ms) {
+  if (globval.mat_meth && !prt_s1) {
     get_eps_x(eps_x, sigma_delta, U_0, J, tau, I, true);
 
     prt_lat("linlat1.out", globval.bpm, true);
@@ -1900,8 +1900,8 @@ int main(int argc, char *argv[])
   prt_lat("linlat.out", globval.bpm, true, 10);
   prt_chrom_lat();
 
-  if (prt_ms) {
-    loc = Elem_GetPos(ElemIndex("ms"), 1);
+  if (prt_s1) {
+    loc = Elem_GetPos(ElemIndex("s1"), 1);
     printf("\n%10s:\n  {{%12.10f, %12.10f}, {%12.10f, %12.10f},"
 	   " {%12.10f, %12.10f}, {%3.1f, %3.1f}};\n",
 	   Cell[loc].Elem.PName,

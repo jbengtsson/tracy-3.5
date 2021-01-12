@@ -10,7 +10,7 @@ int no_tps = NO;
 
 
 const bool
-  ps_rot          = !false, // Note, needs to be zeroed; after use.
+  ps_rot          = false, // Note, needs to be zeroed; after use.
   qf6_rb          = false,
   sp_std          = true,
   pert_dip_cell   = false,
@@ -26,7 +26,7 @@ const bool
      opt_mi_sp   3,
      match_ss    4,
      opt_mult    5.                                                           */
-const int opt_case = 3;
+const int opt_case = 1;
 
 const int
   n_ic   = 5,
