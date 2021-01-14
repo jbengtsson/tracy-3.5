@@ -19,23 +19,22 @@ const bool
   tune_fp_terms[] = {false, false};
 
 /* opt_case:
-     opt_unit_cell 1,
-     match_disp    2,
-     match_ss      3,
-     opt_mI        4.                                                         */
-const int opt_case = 2;
+     make_periodic 1,
+     opt_unit_cell 2,
+     match_disp    3,
+     opt_sup_per   4.                                                         */
+const int opt_case = 4;
 
 const int
   n_ic   = 5,
   n_cell = 6;
 
 const double
-  ic[n_ic][2] =
-  {{-0.0000000003, 0.0000000002},
-   {6.6214019255, 0.1814730089},
-   {0.0380192360, 0.0000000000},
-   {-0.0, 0.0}},                   // From Center of Mid Straight:
-                                   // alpha, beta, eta, eta'.
+  beta_ms[]             = {1.5, 1.5},
+
+// From the center of the straight: alpha, beta, eta, eta'.
+  ic[n_ic][2]           =
+  {{0.0, 0.0}, {beta_ms[X_], beta_ms[Y_]}, {0.0, 0.0}, {0.0, 0.0}},
  
   eps0_x                = 0.100,
   dnu[]                 = {0.1, 0.0},
@@ -47,7 +46,6 @@ const double
 
   nu[]                  = {65.90/n_cell+dnu[X_], 20.73/n_cell+dnu[Y_]},
   nu_ref[]              = {nu[X_]-(int)nu[X_], nu[Y_]-(int)nu[Y_]},
-  beta_ss[]             = {1.5, 1.5},
 
   scl_eps_x             = 5e7,
   nu_ref_scl            = 0*5e7,
@@ -56,7 +54,7 @@ const double
   mI_scl                = 1e-6,
   high_ord_achr_scl[]   = {0e-6, 0e-6},
 
-  scl_ksi_1             = (ksi_terms[0])?     1e0*5e-1 : 0e0,
+  scl_ksi_1             = (ksi_terms[0])?     1e0 : 0e0,
   scl_h_3               = (drv_terms[0])?     1e18 : 0e0,
   scl_h_3_delta         = (drv_terms[1])?     1e-3*1e18 : 0e0,
   scl_h_4               = (drv_terms[2])?     1e18 : 0e0,
@@ -256,6 +254,94 @@ double f_nu(double *bn)
 }
 
 
+void set_b2_per(param_type &prms)
+{
+  const double ds_max = 0.3;
+
+  prms.add_prm("q1",  2, -b_2_max, b_2_max, 1.0);
+  prms.add_prm("q2",  2, -b_2_max, b_2_max, 1.0);
+  prms.add_prm("q3",  2, -b_2_max, b_2_max, 1.0);
+
+  if (false) {
+    prms.add_prm("q1", -1, 0.1-ds_max, 0.1-ds_max, 1.0);
+    prms.add_prm("q2", -1, 0.1-ds_max, 0.1-ds_max, 1.0);
+    prms.add_prm("q3", -1, 0.1-ds_max, 2.5-ds_max, 1.0);
+  }
+
+  prms.add_prm("b1e",  2, -b_2_max, b_2_max, 1.0);
+  prms.add_prm("b1e", -2, 0.2,      1.0,     1.0);
+
+  prms.add_prm("b1c",  2, -b_2_max, b_2_max, 1.0);
+  prms.add_prm("b2",   2, -b_2_max, b_2_max, 1.0);
+
+  // Parameters are initialized in optimizer.
+}
+
+
+void set_constr_per(constr_type &constr)
+{
+  // Symmetry.
+  constr.add_constr(Elem_GetPos(ElemIndex("s1"), 1),
+		    1e5, 1e5, 0e0, 0e0, 0e0, 1e7,
+		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+  // Center of dipole.
+  constr.add_constr(Elem_GetPos(ElemIndex("b1c"), 1),
+		    1e5, 1e5, 0e0, 0e0, 0e0, 1e7,
+		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+}
+
+
+void set_b3_constr_per(constr_type &constr)
+{
+  int k, n;
+
+  lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("s1"), 1));
+  lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("s2"), 1));
+
+  n = lat_constr.high_ord_achr_Fnum.size()/2;
+  lat_constr.high_ord_achr_dnu.resize(n);
+  lat_constr.high_ord_achr_nu.resize(n);
+  for (k = 0; k < n; k++) {
+    lat_constr.high_ord_achr_dnu[k].resize(2, 0e0);
+    lat_constr.high_ord_achr_nu[k].resize(2, 0e0);
+  }
+
+  for (k = 0; k < 2; k++)
+    lat_constr.high_ord_achr_nu[0][k] = high_ord_achr_nu[0][k]/2e0;
+}
+
+
+void set_weights_per(constr_type &constr)
+{
+  lat_constr.high_ord_achr_scl[X_] = 0e0;
+  lat_constr.high_ord_achr_scl[Y_] = 0e0;
+}
+
+
+void make_periodic(param_type &prms, constr_type &constr)
+{
+  // Parameter Type:
+  //   Bend Angle  -3,
+  //   Length      -2,
+  //   Position    -1,
+  //   Quadrupole   2.
+  int j, k;
+
+  lat_prms.bn_tol = 1e-5; lat_prms.step = 1.0;
+  set_b2_per(prms);
+
+  set_constr_per(constr);
+  set_b3_constr_per(constr);
+  set_weights_per(constr);
+
+  lat_constr.ini_constr(false);
+
+  for (j = 0; j < n_ic; j++)
+    for (k = 0; k < 2; k++)
+      lat_constr.ic[j][k] = ic[j][k];
+}
+
+
 void set_unit_cell(param_type &prms, constr_type &constr)
 {
   std::vector<int>    grad_dip_Fnum, mI_loc;
@@ -315,14 +401,16 @@ void set_unit_cell(param_type &prms, constr_type &constr)
 }
 
 
-void set_unit_cell_b2(param_type &prms)
+void set_b2_unit_cell(param_type &prms)
 {
   // prms.add_prm("qf1",  2,      0.0, b_2_max, 1.0);
   // prms.add_prm("qd2",  2, -b_2_max,     0.0, 1.0);
+
+  // Parameters are initialized in optimizer.
 }
 
 
-void set_unit_cell_constr(constr_type &constr)
+void set_constr_unit_cell(constr_type &constr)
 {
   // constr.add_constr(Elem_GetPos(ElemIndex("qf1"), 1)-1,
   // 		    0e0, 0e0, 0e0, 0e0, 1e8, 1e7,
@@ -338,11 +426,11 @@ void set_unit_cell_constr(constr_type &constr)
   // 		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   // constr.add_constr(Elem_GetPos(ElemIndex("b0"), 2),
   // 		    1e5, 1e5, 1e2,         1e2,         1e7, 1e7,
-  // 		    0.0, 0.0, beta_ss[X_], beta_ss[Y_], 0.0, 0.0);
+  // 		    0.0, 0.0, beta_ms[X_], beta_ms[Y_], 0.0, 0.0);
 }
 
 
-void set_unit_cell_b3_Fam(param_type &prms)
+void set_b3_Fam_unit_cell(param_type &prms)
 {
   std::vector<int> Fnum;
 
@@ -362,7 +450,7 @@ void set_unit_cell_b3_Fam(param_type &prms)
 }
 
 
-void set_unit_cell_b3_constr(constr_type &constr)
+void set_b3_constr_unit_cell(constr_type &constr)
 {
   int              k, n;
   std::vector<int> mI_loc;
@@ -390,7 +478,7 @@ void set_unit_cell_b3_constr(constr_type &constr)
 }
 
 
-void set_unit_cell_weights(constr_type &constr)
+void set_weights_unit_cell(constr_type &constr)
 {
   lat_constr.eps_x_scl             = 1e7;
 
@@ -428,13 +516,13 @@ void opt_unit_cell(param_type &prms, constr_type &constr)
   lat_prms.bn_tol = 1e-5; lat_prms.step = 1e0;
 
   set_unit_cell(prms, constr);
-  set_unit_cell_b2(prms);
-  set_unit_cell_b3_Fam(prms);
+  set_b2_unit_cell(prms);
+  set_b3_Fam_unit_cell(prms);
 
   lat_constr.eps0_x = eps0_x;
-  set_unit_cell_constr(constr);
+  set_constr_unit_cell(constr);
   // set_unit_cell_b3_constr(constr);
-  set_unit_cell_weights(constr);
+  set_weights_unit_cell(constr);
 
   lat_constr.ini_constr(true);
 
@@ -442,136 +530,26 @@ void opt_unit_cell(param_type &prms, constr_type &constr)
 }
 
 
-void set_dip_cell_disp(param_type &prms, constr_type &constr)
+void set_b2_disp(param_type &prms)
 {
-  std::vector<int>    grad_dip_Fnum, mI_loc;
-  std::vector<double> grad_dip_scl;
+  prms.add_prm("b1e",  2, -b_2_max, b_2_max, 1.0);
+  prms.add_prm("b1e", -2, 0.2,      1.0,     1.0);
 
-  if (false) {
-    // Standard Cell.
-    grad_dip_scl.push_back(0.129665);
-    grad_dip_scl.push_back(0.149256);
-    grad_dip_scl.push_back(0.174737);
-    grad_dip_scl.push_back(0.216027);
-    grad_dip_scl.push_back(0.330314);
-
-    grad_dip_Fnum.push_back(ElemIndex("dl1a_1"));
-    grad_dip_Fnum.push_back(ElemIndex("dl1a_2"));
-    grad_dip_Fnum.push_back(ElemIndex("dl1a_3"));
-    grad_dip_Fnum.push_back(ElemIndex("dl1a_4"));
-    grad_dip_Fnum.push_back(ElemIndex("dl1a_5"));
-    if (dphi)
-      prms.add_prm(grad_dip_Fnum, grad_dip_scl, -3, -phi_max, phi_max,
-		   1.0);
-    if (long_grad_dip[0])
-      prms.add_prm(grad_dip_Fnum, grad_dip_scl,  2, -b_2_dip_max, b_2_dip_max,
-		   1.0);
-
-    lat_constr.Fnum_b1.push_back(-ElemIndex("dl1a_1"));
-    lat_constr.grad_dip_Fnum_b1.push_back(grad_dip_Fnum);
-
-    grad_dip_Fnum.clear();
-    grad_dip_Fnum.push_back(ElemIndex("dl2a_1"));
-    grad_dip_Fnum.push_back(ElemIndex("dl2a_2"));
-    grad_dip_Fnum.push_back(ElemIndex("dl2a_3"));
-    grad_dip_Fnum.push_back(ElemIndex("dl2a_4"));
-    grad_dip_Fnum.push_back(ElemIndex("dl2a_5"));
-    if (dphi)
-      prms.add_prm(grad_dip_Fnum, grad_dip_scl, -3, -phi_max, phi_max,
-		   1.0);
-    if (long_grad_dip[1])
-      prms.add_prm(grad_dip_Fnum, grad_dip_scl,  2, -b_2_dip_max, b_2_dip_max,
-		   1.0);
-
-    lat_constr.Fnum_b1.push_back(-ElemIndex("dl2a_1"));
-    lat_constr.grad_dip_Fnum_b1.push_back(grad_dip_Fnum);
-  }
-
-  if (dphi) {
-    // Dipole Cell.
-    prms.add_prm("b1c", -3, -phi_max, phi_max, 1.0);
-    lat_constr.Fnum_b1.push_back(ElemIndex("b1c"));
-    prms.add_prm("b1e", -3, -phi_max, phi_max, 1.0);
-    lat_constr.Fnum_b1.push_back(ElemIndex("b1e"));
-
-    // Commented out must be defined last.
-    // prms.add_prm("b2", -3, -5.0, 5.0,  1.0);
-    lat_constr.Fnum_b1.push_back(ElemIndex("b2"));
-  }
-
-  prms.add_prm("b1c", 2, -b_2_max, b_2_max, 1.0);
-  prms.add_prm("b1e", 2, -b_2_max, b_2_max, 1.0);
-  prms.add_prm("b2",  2, -b_2_max, b_2_max, 1.0);
+  // Parameters are initialized in optimizer.
 }
-
-
-void set_b2_disp(param_type &prms) { }
 
 
 void set_constr_disp(constr_type &constr)
 {
-  // constr.add_constr(Elem_GetPos(ElemIndex("qf1"), 1)-1,
-  // 		    0e0, 0e0, 0e0, 0e0, 1e8, 1e7,
-  // 		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-  // constr.add_constr(Elem_GetPos(ElemIndex("qf1"), 2),
-  // 		    0e0, 0e0, 0e0, 0e0, 1e8, 1e7,
-  // 		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-  // constr.add_constr(Elem_GetPos(ElemIndex("dl1a_5"), 1)-1,
-  // 		    0e0, 0e0, 0e0, 0e0, 1e8, 1e7,
-  // 		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-  // constr.add_constr(Elem_GetPos(ElemIndex("dl1a_5"), 2),
-  // 		    0e0, 0e0, 0e0, 0e0, 1e8, 1e7,
-  // 		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-  constr.add_constr(Elem_GetPos(ElemIndex("b1e"), 2),
-  		    1e5, 1e5, 0e2, 0e2, 1e8, 1e7,
-  		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-  // Symmetry.
-  // constr.add_constr(Elem_GetPos(ElemIndex("sf1"), 1),
-  // 		    5e2, 1e3, 0e1,  0e2, 0e0, 0e0,
-  // 		    0.0, 0.0, 10.0, 1.0, 0.0, 0.0);
-
-  if (false)
-    // Increase beta_y.
-    constr.add_constr(Elem_GetPos(ElemIndex("sd1"), 1),
-		      0e5, 0e5, 5e2, 5e3,  0e7, 0e7,
-		      0.0, 0.0, 5.0, 15.0, 0.0, 0.0);
-  if (false)
-    // Increase beta_y.
-    constr.add_constr(Elem_GetPos(ElemIndex("sd2"), 1),
-		      0e5, 0e5, 5e2, 5e3,  0e7, 0e7,
-		      0.0, 0.0, 5.0, 10.0, 0.0, 0.0);
-}
-
-
-void set_b3_Fam_disp(param_type &prms)
-{
-  std::vector<int> Fnum;
-
-  prms.add_prm("s1",  3, -b_3_chrom_max, b_3_chrom_max, 1.0);
-  prms.add_prm("s2",  3, -b_3_chrom_max, b_3_chrom_max, 1.0);
-
-  // For control of linear chromaticity.
-  lat_constr.Fnum_b3.push_back(ElemIndex("s1"));
-  lat_constr.Fnum_b3.push_back(ElemIndex("s2"));
-
-  if (true) {
-    no_sxt();
-
-    Fnum.push_back(ElemIndex("s1"));
-    Fnum.push_back(ElemIndex("s2"));
-    fit_ksi1(Fnum, 0e0, 0e0, 1e1);
-  }
+  constr.add_constr(Elem_GetPos(ElemIndex("b1e"), 1),
+		    0e0, 0e0, 0e0, 0e0, 1e6, 1e6,
+		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 }
 
 
 void set_b3_constr_disp(constr_type &constr)
 {
-  int              k, n;
-  std::vector<int> mI_loc;
-
-  // mI_loc.push_back(Elem_GetPos(ElemIndex("sf1"), 1));
-  // mI_loc.push_back(Elem_GetPos(ElemIndex("sf1"), 3));
-  // lat_constr.mI_loc.push_back(mI_loc);
+  int k, n;
 
   lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("s1"), 1));
   lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("s2"), 1));
@@ -585,62 +563,42 @@ void set_b3_constr_disp(constr_type &constr)
   }
 
   for (k = 0; k < 2; k++)
-    lat_constr.high_ord_achr_nu[0][k] = high_ord_achr_nu[0][k];
-
-  // for (k = 0; k < 2; k++)
-  //   lat_constr.mI0[k] = mI_nu_ref[k];
+    lat_constr.high_ord_achr_nu[0][k] = high_ord_achr_nu[0][k]/2e0;
 }
 
 
 void set_weights_disp(constr_type &constr)
 {
-  lat_constr.eps_x_scl             = 1e5;
-
-  lat_constr.ksi1_ctrl_scl[0]      = 0e-1;
-  lat_constr.ksi1_ctrl_scl[1]      = 0e0;
-  lat_constr.ksi1_ctrl_scl[2]      = 0e0;
-  lat_constr.mI_scl[X_]            = 0e6;
-  lat_constr.mI_scl[Y_]            = 0e6;
-  lat_constr.high_ord_achr_scl[X_] = high_ord_achr_scl[X_];
-  lat_constr.high_ord_achr_scl[Y_] = high_ord_achr_scl[Y_];
-
-  lat_constr.alpha_c_scl           = 1e-8;
-
-  // Super Period.
-  lat_constr.phi_scl               = ((dphi)? 1e0 : 0e0);
-  lat_constr.phi0                  = 18.0;
-  lat_constr.L_scl                 = 0e-10;
-  lat_constr.L0                    = 10.0;
-
-  lat_constr.drv_terms.get_h_scl(scl_ksi_1, scl_h_3, scl_h_3_delta, scl_h_4,
-				 scl_ksi_2, scl_ksi_3, scl_chi_2,
-				 scl_chi_delta_2);
+  lat_constr.high_ord_achr_scl[X_] = 0e0;
+  lat_constr.high_ord_achr_scl[Y_] = 0e0;
 }
 
 
-void opt_disp(param_type &prms, constr_type &constr)
+void match_disp(param_type &prms, constr_type &constr)
 {
   // Parameter Type:
   //   Bend Angle  -3,
   //   Length      -2,
   //   Position    -1,
   //   Quadrupole   2.
+  int j, k;
 
-  // Set parameters; initialized by optimizer.
-  lat_prms.bn_tol = 1e-5; lat_prms.step = 1e0;
-
-  set_dip_cell_disp(prms, constr);
+  // Perturbed symmetry at end of Dipole Cell: 
+  //   1. Initialize with: [Qf1, Qd2, Qd3].
+  //   2. Exclude for 1st pass: pert_dip_cell = false.
+  //   3. Include for fine tuning.
+  lat_prms.bn_tol = 1e-5; lat_prms.step = 1.0;
   set_b2_disp(prms);
-  set_b3_Fam_disp(prms);
 
-  lat_constr.eps0_x = eps0_x;
   set_constr_disp(constr);
-  // set_b3_constr(constr);
+  set_b3_constr_disp(constr);
   set_weights_disp(constr);
 
-  lat_constr.ini_constr(true);
+  lat_constr.ini_constr(false);
 
-  prt_prms(lat_constr);
+  for (j = 0; j < n_ic; j++)
+    for (k = 0; k < 2; k++)
+      lat_constr.ic[j][k] = ic[j][k];
 }
 
 
@@ -691,16 +649,21 @@ void set_dip_cell(param_type &prms, constr_type &constr)
 
   if (dphi) {
     // Dipole Cell.
-    prms.add_prm("b1", -3, -phi_max, phi_max, 1.0);
-    lat_constr.Fnum_b1.push_back(ElemIndex("b1"));
+    prms.add_prm("b1e", -3, -phi_max, phi_max, 1.0);
+    lat_constr.Fnum_b1.push_back(ElemIndex("b1e"));
+    prms.add_prm("b1c", -3, -phi_max, phi_max, 1.0);
+    lat_constr.Fnum_b1.push_back(ElemIndex("b1c"));
 
     // Commented out must be defined last.
-    // prms.add_prm("d2", -3, -5.0, 5.0,  1.0);
+    // prms.add_prm("b2", -3, -5.0, 5.0,  1.0);
     lat_constr.Fnum_b1.push_back(ElemIndex("b2"));
   }
 
-  prms.add_prm("b1", 2, -b_2_max, b_2_max, 1.0);
-  prms.add_prm("b2", 2, -b_2_max, b_2_max, 1.0);
+  prms.add_prm("b1e",  2, -b_2_max, b_2_max, 1.0);
+  prms.add_prm("b1e", -2, 0.2,      1.0,     1.0);
+
+  prms.add_prm("b1c",  2, -b_2_max, b_2_max, 1.0);
+  prms.add_prm("b2",   2, -b_2_max, b_2_max, 1.0);
 }
 
 
@@ -709,41 +672,25 @@ void set_b2(param_type &prms)
   prms.add_prm("q1",  2, -b_2_max, b_2_max, 1.0);
   prms.add_prm("q2",  2, -b_2_max, b_2_max, 1.0);
   prms.add_prm("q3",  2, -b_2_max, b_2_max, 1.0);
+
+  // Parameters are initialized in optimizer.
 }
 
 
 void set_constr(constr_type &constr)
 {
-  // constr.add_constr(Elem_GetPos(ElemIndex("qf1"), 1)-1,
-  // 		    0e0, 0e0, 0e0, 0e0, 1e8, 1e7,
-  // 		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-  // constr.add_constr(Elem_GetPos(ElemIndex("qf1"), 2),
-  // 		    0e0, 0e0, 0e0, 0e0, 1e8, 1e7,
-  // 		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-  // constr.add_constr(Elem_GetPos(ElemIndex("dl1a_5"), 1)-1,
-  // 		    0e0, 0e0, 0e0, 0e0, 1e8, 1e7,
-  // 		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-  // constr.add_constr(Elem_GetPos(ElemIndex("dl1a_5"), 2),
-  // 		    0e0, 0e0, 0e0, 0e0, 1e8, 1e7,
-  // 		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-  constr.add_constr(Elem_GetPos(ElemIndex("cav"), 1),
+  // Beta functions at center of straight
+  constr.add_constr(Elem_GetPos(ElemIndex("l9"), 2),
   		    1e5, 1e5, 1e2,         1e2,         1e7, 1e7,
-  		    0.0, 0.0, beta_ss[X_], beta_ss[Y_], 0.0, 0.0);
+  		    0.0, 0.0, beta_ms[X_], beta_ms[Y_], 0.0, 0.0);
   // Symmetry.
-  // constr.add_constr(Elem_GetPos(ElemIndex("sf1"), 1),
-  // 		    5e2, 1e3, 0e1,  0e2, 0e0, 0e0,
-  // 		    0.0, 0.0, 10.0, 1.0, 0.0, 0.0);
-
-  if (false)
-    // Increase beta_y.
-    constr.add_constr(Elem_GetPos(ElemIndex("sd1"), 1),
-		      0e5, 0e5, 5e2, 5e3,  0e7, 0e7,
-		      0.0, 0.0, 5.0, 15.0, 0.0, 0.0);
-  if (false)
-    // Increase beta_y.
-    constr.add_constr(Elem_GetPos(ElemIndex("sd2"), 1),
-		      0e5, 0e5, 5e2, 5e3,  0e7, 0e7,
-		      0.0, 0.0, 5.0, 10.0, 0.0, 0.0);
+  constr.add_constr(Elem_GetPos(ElemIndex("s1"), 1),
+		    1e5, 1e5, 0e0, 0e0, 0e0, 1e7,
+		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+  // Symmetry.
+  constr.add_constr(Elem_GetPos(ElemIndex("b1c"), 1),
+		    1e5, 1e5, 0e0, 0e0, 0e0, 1e7,
+		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 }
 
 
@@ -808,7 +755,7 @@ void set_weights(constr_type &constr)
   lat_constr.high_ord_achr_scl[X_] = high_ord_achr_scl[X_];
   lat_constr.high_ord_achr_scl[Y_] = high_ord_achr_scl[Y_];
 
-  lat_constr.alpha_c_scl           = 1e-6;
+  lat_constr.alpha_c_scl           = 1e-7;
 
   // Super Period.
   lat_constr.phi_scl               = ((dphi)? 1e0 : 0e0);
@@ -822,7 +769,7 @@ void set_weights(constr_type &constr)
 }
 
 
-void opt_mI(param_type &prms, constr_type &constr)
+void opt_sup_per(param_type &prms, constr_type &constr)
 {
   // Parameter Type:
   //   Bend Angle  -3,
@@ -845,83 +792,6 @@ void opt_mI(param_type &prms, constr_type &constr)
   lat_constr.ini_constr(true);
 
   prt_prms(lat_constr);
-}
-
-
-void set_b2_ss(param_type &prms)
-{
-  // Std Straight.
-  prms.add_prm("q1",  2, -b_2_max, b_2_max, 1.0);
-  prms.add_prm("q2",  2, -b_2_max, b_2_max, 1.0);
-  prms.add_prm("q3",  2, -b_2_max, b_2_max, 1.0);
-
-  // Parameters are initialized in optimizer.
-}
-
-
-void set_constr_ss(constr_type &constr)
-{
-  constr.add_constr(Elem_GetPos(ElemIndex("l2"), 1),
-		    1e2, 1e2, 1e-1,        1e-1,         1e-10, 1e-10,
-		    0.0, 0.0, beta_ss[X_], beta_ss[Y_],  0.0,   0.0);
-  constr.add_constr(Elem_GetPos(ElemIndex("q3"), 1),
-		    0e0, 0e0, 0e0, 0e0, 1e6, 1e6,
-		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-}
-
-
-void set_b3_constr_ss(constr_type &constr)
-{
-  int k, n;
-
-  lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("s1"), 1));
-  lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("s2"), 1));
-
-  n = lat_constr.high_ord_achr_Fnum.size()/2;
-  lat_constr.high_ord_achr_dnu.resize(n);
-  lat_constr.high_ord_achr_nu.resize(n);
-  for (k = 0; k < n; k++) {
-    lat_constr.high_ord_achr_dnu[k].resize(2, 0e0);
-    lat_constr.high_ord_achr_nu[k].resize(2, 0e0);
-  }
-
-  for (k = 0; k < 2; k++)
-    lat_constr.high_ord_achr_nu[0][k] = high_ord_achr_nu[0][k]/2e0;
-}
-
-
-void set_weights_ss(constr_type &constr)
-{
-  lat_constr.high_ord_achr_scl[X_] = 0e0;
-  lat_constr.high_ord_achr_scl[Y_] = 0e0;
-}
-
-
-void match_ss(param_type &prms, constr_type &constr)
-{
-  // Parameter Type:
-  //   Bend Angle  -3,
-  //   Length      -2,
-  //   Position    -1,
-  //   Quadrupole   2.
-  int j, k;
-
-  // Perturbed symmetry at end of Dipole Cell: 
-  //   1. Initialize with: [Qf1, Qd2, Qd3].
-  //   2. Exclude for 1st pass: pert_dip_cell = false.
-  //   3. Include for fine tuning.
-  lat_prms.bn_tol = 1e-5; lat_prms.step = 1.0;
-  set_b2_ss(prms);
-
-  set_constr_ss(constr);
-  set_b3_constr_ss(constr);
-  set_weights_ss(constr);
-
-  lat_constr.ini_constr(false);
-
-  for (j = 0; j < n_ic; j++)
-    for (k = 0; k < 2; k++)
-      lat_constr.ic[j][k] = ic[j][k];
 }
 
 
@@ -979,22 +849,22 @@ int main(int argc, char *argv[])
 
   switch (opt_case) {
   case 1:
+    make_periodic(lat_prms, lat_constr);
+    fit_powell(lat_prms, 1e-3, f_match);
+    break;
+  case 2:
     // Optimize Unit Cell.
     opt_unit_cell(lat_prms, lat_constr);
     fit_powell(lat_prms, 1e-3, f_achrom);
     // fit_sim_anneal(lat_prms, 1e-3, f_achrom);
     break;
-  case 2:
-    opt_disp(lat_prms, lat_constr);
-    fit_powell(lat_prms, 1e-3, f_achrom);
+  case 3:
+    match_disp(lat_prms, lat_constr);
+    fit_powell(lat_prms, 1e-3, f_match);
     // fit_sim_anneal(lat_prms, 1e-3, f_achrom);
     break;
-  case 3:
-    match_ss(lat_prms, lat_constr);
-    fit_powell(lat_prms, 1e-3, f_match);
-    break;
   case 4:
-    opt_mI(lat_prms, lat_constr);
+    opt_sup_per(lat_prms, lat_constr);
     fit_powell(lat_prms, 1e-3, f_achrom);
     // fit_sim_anneal(lat_prms, 1e-3, f_achrom);
     break;
