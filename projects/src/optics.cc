@@ -23,7 +23,7 @@ const bool
   prt_dt  = false;
 
 #define FULL_LAT 0
-#define SET_NU   1
+#define SET_NU   0
 
 const int
   n_cell = (FULL_LAT)? 1 : 6;
@@ -31,7 +31,7 @@ const double
 #if SET_NU
   nu[]     = {(64.38+0.5)/n_cell, 20.18/n_cell},
 #else
-  nu[]     = {-0.15, 0.0},
+  nu[]     = {0.0, 0.0},
 #endif
   dnu_mI[] = {-0.21, -0.20};
 
