@@ -994,7 +994,7 @@ double constr_type::get_chi2(const double twoJ[], const double delta,
       dnu[k] = nu_ref_scl*sqr(nu[k]-nu_ref[k]);
       chi2 += dnu[k];
     }
-    if (prt) printf("  nu_ref         = [%10.3e, %10.3e]\n", dnu[X_], dnu[Y_]);
+    if (prt) printf("  nu_ref          = [%10.3e, %10.3e]\n", dnu[X_], dnu[Y_]);
   }
 
   if (nu_cos_ref_scl[X_] != 0e0) {
