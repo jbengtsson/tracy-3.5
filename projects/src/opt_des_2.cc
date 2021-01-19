@@ -141,7 +141,7 @@ double f_match(double *bn)
       // Print dchi2.
       lat_constr.get_chi2(twoJ, delta_max, twoJ_delta, lat_prms, bn, false,
 			  true);
-      prt_f(bn, chi2, lat_constr, lat_prms, false);
+      prt_f(bn, chi2, lat_constr, lat_prms, true, false);
     }
     lat_constr.n_iter++;
     lat_constr.chi2 = chi2;
@@ -180,7 +180,7 @@ double f_achrom(double *bn)
 	// Print dchi2.
 	lat_constr.get_chi2(twoJ, delta_max, twoJ_delta, lat_prms, bn, true,
 			    true);
-	prt_f(bn, chi2, lat_constr, lat_prms, true);
+	prt_f(bn, chi2, lat_constr, lat_prms, true, true);
       }
 
       lat_constr.n_iter++;
@@ -214,7 +214,7 @@ double f_mult(double *bn)
       // Print dchi2.
       lat_constr.get_chi2(twoJ, delta_max, twoJ_delta, lat_prms, bn, true,
 			  true);
-      prt_f(bn, chi2, lat_constr, lat_prms, true);
+      prt_f(bn, chi2, lat_constr, lat_prms, true, true);
     }
 
     lat_constr.n_iter++;
@@ -264,7 +264,7 @@ double f_nu(double *bn)
 	// Print dchi2.
 	lat_constr.get_chi2(twoJ, delta_max, twoJ_delta, lat_prms, bn, false,
 			    true);
-	prt_f(bn, chi2, lat_constr, lat_prms, true);
+	prt_f(bn, chi2, lat_constr, lat_prms, true, true);
       }
 
       lat_constr.n_iter++;

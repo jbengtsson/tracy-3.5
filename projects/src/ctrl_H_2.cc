@@ -75,26 +75,30 @@ public:
     ic[4][2],
     chi2, chi2_prt,
     eps_x_scl,
-    eps0_x,               // Hor. emittance [nm.rad].
-    nu[2],                // Cell tune.
+    eps0_x,                        // Hor. emittance [nm.rad].
+    nu[2],                         // Cell tune.
     nu_ref_scl,
-    nu_ref[2],            // Desired cell tune.
+    nu_cos[2], nu_sin[2],
+    nu_ref[2],                     // Desired cell tune.
+    nu_cos_ref[2], nu_sin_ref[2],  // Matrix element.
+    nu_cos_ref_scl[2], 
+
     ksi1_ctrl_scl[3],
     phi_scl,
-    phi_tot, phi0,        // Cell bend angle.
+    phi_tot, phi0,                 // Cell bend angle.
     high_ord_achr_scl[2],
     mI_scl[2],
-    mI0[2],               // -I Transformer.
-    alpha_c_scl,          // alpha_c.
+    mI0[2],                        // -I Transformer.
+    alpha_c_scl,                   // alpha_c.
     L_scl,
-    L0;                   // Cell length.
+    L0;                            // Cell length.
   std::vector<double> 
     ksi1_ctrl;
   std::vector< std::vector<double> >
     value,
     value_scl,
     mI,
-    high_ord_achr_nu,  // Higher-Order-Achromat Phase Advance.
+    high_ord_achr_nu,              // Higher-Order-Achromat Phase Advance.
     high_ord_achr_dnu;
   double **Jacobian;
   std::vector<int>
@@ -115,6 +119,7 @@ public:
     n_iter = 0;
     chi2 = chi2_prt = 1e30;
     eps_x_scl = nu_ref_scl = phi_scl = 0e0;
+    nu_cos_ref_scl[X_] = nu_cos_ref_scl[Y_] = 0e0;
     ksi1_ctrl_scl[0] = ksi1_ctrl_scl[1] = ksi1_ctrl_scl[2] = 0e0;
     high_ord_achr_scl[X_] = high_ord_achr_scl[Y_] = 0e0;
     mI_scl[X_] = mI_scl[Y_] = 0e0;
@@ -900,7 +905,7 @@ double constr_type::get_chi2(const double twoJ[], const double delta,
 			     const bool prt)
 {
   int    j, k;
-  double chi2, dchi2[3], dnu[2];
+  double chi2, dchi2[3], dnu[2], dnu_cos[2], dnu_sin[2];
 
   const double
     delta_eps = 1e-6,
@@ -929,7 +934,7 @@ double constr_type::get_chi2(const double twoJ[], const double delta,
     if (prt) printf("  alpha_c        =  %10.3e\n", dchi2[X_]);
   }
 
-  if (prt) printf("\n"); 
+  if (prt && (n_loc > 0)) printf("\n"); 
   for (j = 0; j < n_loc; j++) {
     if (prt) {
       printf("  ");
@@ -981,15 +986,28 @@ double constr_type::get_chi2(const double twoJ[], const double delta,
       }
     }
     if (prt) lat_constr.drv_terms.print();
+    if (prt) printf("\n");
   }
 
   if (nu_ref_scl != 0e0) {
-    if (prt) printf("\n");
     for (k = 0; k < 2; k++) {
       dnu[k] = nu_ref_scl*sqr(nu[k]-nu_ref[k]);
       chi2 += dnu[k];
     }
     if (prt) printf("  nu_ref         = [%10.3e, %10.3e]\n", dnu[X_], dnu[Y_]);
+  }
+
+  if (nu_cos_ref_scl[X_] != 0e0) {
+    for (k = 0; k < 2; k++) {
+      dnu_cos[k] = nu_cos_ref_scl[k]*sqr(nu_cos[k]-nu_cos_ref[k]);
+      chi2 += dnu_cos[k];
+      dnu_sin[k] = nu_cos_ref_scl[k]*sqr(nu_sin[k]-nu_sin_ref[k]);
+      chi2 += dnu_sin[k];
+    }
+    if (prt) {
+      printf("  nu_ref_cos     = [%10.3e, %10.3e]\n", dnu_cos[X_], dnu_cos[Y_]);
+      printf("  nu_ref_sin     = [%10.3e, %10.3e]\n", dnu_sin[X_], dnu_sin[Y_]);
+    }
   }
 
   if ((ksi1_ctrl_scl[0] != 0e0) || (ksi1_ctrl_scl[1] != 0e0)
@@ -1147,19 +1165,32 @@ void constr_type::prt_constr(const double chi2)
   printf("\n%3d chi2: %12.6e -> %12.6e\n", n_iter, this->chi2_prt, chi2);
   this->chi2_prt = chi2;
   printf("\n  Linear Optics:\n");
-  printf("    eps_x   =  %7.3f (%7.3f)\n"
-	 "    nu      = [%7.3f, %7.3f]\n",
-	 eps_x, eps0_x, nu[X_], nu[Y_]);
-  if (nu_ref_scl != 0e0)
-  printf("    dnu     = [%7.3f, %7.3f]\n",
-	 nu[X_]-nu_ref[X_], nu[Y_]-nu_ref[Y_]);
-  if (ring)
-    printf("    ksi1    = [%7.3f, %7.3f]\n"
-	   "    alpha_c = %9.3e\n",
-	   lat_constr.drv_terms.h_c[0], lat_constr.drv_terms.h_s[0],
-	   globval.Alphac);
+  if (scl_eps_x != 0e0)
+    printf("    eps_x      =  %7.3f (%7.3f)\n", eps_x, eps0_x);
+  if (nu_ref_scl != 0e0) {
+    printf("    nu         = [%7.3f, %7.3f]\n", nu[X_], nu[Y_]);
+    printf("    dnu        = [%7.3f, %7.3f]\n",
+	   nu[X_]-nu_ref[X_], nu[Y_]-nu_ref[Y_]);
+  }
+  if (nu_cos_ref_scl[X_] != 0e0) {
+    printf("    nu_ref     = [%7.3f, %7.3f]\n", nu_ref[X_], nu_ref[Y_]);
+    printf("\n    nu_cos_ref = [%7.3f, %7.3f]\n",
+	   nu_cos_ref[X_], nu_cos_ref[Y_]);
+    printf("    nu_cos     = [%7.3f, %7.3f]\n", nu_cos[X_], nu_cos[Y_]);
+    printf("    dnu_cos    = [%7.3f, %7.3f]\n",
+	   nu_cos[X_]-nu_cos_ref[X_], nu_cos[Y_]-nu_cos_ref[Y_]);
+    printf("\n    nu_sin_ref = [%7.3f, %7.3f]\n",
+	   nu_sin_ref[X_], nu_sin_ref[Y_]);
+    printf("    nu_sin     = [%7.3f, %7.3f]\n", nu_sin[X_], nu_sin[Y_]);
+    printf("    dnu_sin    = [%7.3f, %7.3f]\n",
+	   nu_sin[X_]-nu_sin_ref[X_], nu_sin[Y_]-nu_sin_ref[Y_]);
+  }
+  if (scl_ksi_1) printf("    ksi1       = [%7.3f, %7.3f]\n",
+	   lat_constr.drv_terms.h_c[0], lat_constr.drv_terms.h_s[0]);
+  if (alpha_c_scl != 0e0)
+    printf( "    alpha_c = %9.3e\n", globval.Alphac);
   if (lat_constr.ksi1_ctrl.size() != 0)
-    printf("    ksi1_ctrl    = [%5.3f, %5.3f, %5.3f]\n",
+    printf("    ksi1_ctrl       = [%5.3f, %5.3f, %5.3f]\n",
 	   lat_constr.ksi1_ctrl[0], lat_constr.ksi1_ctrl[1],
 	   lat_constr.ksi1_ctrl[2]);
   if (phi_scl != 0e0) {
@@ -1170,9 +1201,9 @@ void constr_type::prt_constr(const double chi2)
     printf(" = %7.5f\n", phi);
   }
   if (L_scl != 0e0)
-    printf("    L       = %7.5f (%7.5f)\n", Cell[globval.Cell_nLoc].S, L0);
+    printf("    L          = %7.5f (%7.5f)\n", Cell[globval.Cell_nLoc].S, L0);
 
-  prt_h(*this);
+  if (scl_ksi_1) prt_h(*this);
 
   if ((high_ord_achr_scl[X_] != 0e0) || (high_ord_achr_scl[Y_] != 0e0))
     prt_high_ord_achr(*this);
@@ -1647,7 +1678,7 @@ void fit_conj_grad(param_type &lat_prms, double (*f)(double *))
 
 
 void prt_f(double *bn, const double chi2, constr_type &lat_constr,
-	   param_type &lat_prms, const bool chrom)
+	   param_type &lat_prms, const bool linlat, const bool chrom)
 {
   FILE *outf;
 
@@ -1660,8 +1691,10 @@ void prt_f(double *bn, const double chi2, constr_type &lat_constr,
   printf("\n  Parameters:\n");
   lat_prms.prt_prm(bn);
   prtmfile("flat_file.fit");
-  prt_lat("linlat1.out", globval.bpm, true);
-  prt_lat("linlat.out", globval.bpm, true, 10);
+  if (linlat) {
+    prt_lat("linlat1.out", globval.bpm, true);
+    prt_lat("linlat.out", globval.bpm, true, 10);
+  }
   if (chrom) prt_chrom_lat();
 
   prt_bn(outf, lat_prms);
@@ -1673,12 +1706,18 @@ void prt_f(double *bn, const double chi2, constr_type &lat_constr,
 
 void prt_prms(constr_type &constr)
 {
-  printf("\n  eps_x_scl         =  %9.3e\n"
-	 "  mI_nu_ref         = [%7.5f,   %7.5f]\n"
-	 "  mI_scl            = [%9.3e, %9.3e]\n"
-	 "  high_ord_achr_scl = [%9.3e, %9.3e]\n"
-	 "  phi_scl           =  %9.3e\n",
+  printf("\n  eps_x_scl         =  %10.3e\n"
+	 "  nu_ref            = [%8.5f,   %8.5f]\n"
+	 "  nu_cos_ref        = [%8.5f,   %8.5f]\n"
+	 "  nu_sin_ref        = [%8.5f,   %8.5f]\n"
+	 "  mI_nu_ref         = [%8.5f,   %8.5f]\n"
+	 "  mI_scl            = [%10.3e, %10.3e]\n"
+	 "  high_ord_achr_scl = [%10.3e, %10.3e]\n"
+	 "  phi_scl           =  %10.3e\n",
 	 constr.eps_x_scl,
+	 constr.nu_ref[X_], constr.nu_ref[Y_],
+	 constr.nu_cos_ref[X_], constr.nu_cos_ref[Y_],
+	 constr.nu_sin_ref[X_], constr.nu_sin_ref[Y_],
 	 constr.mI0[X_], constr.mI0[Y_], constr.mI_scl[X_], constr.mI_scl[Y_],
 	 constr.high_ord_achr_scl[X_], constr.high_ord_achr_scl[Y_],
 	 constr.phi_scl);
