@@ -99,7 +99,7 @@ public:
     value_scl,
     mI,
     high_ord_achr_nu,              // Higher-Order-Achromat Phase Advance.
-    high_ord_achr_dnu;
+    high_ord_achr_dnu;             // Deviation from ref.
   double **Jacobian;
   std::vector<int>
     Fnum,
@@ -915,7 +915,7 @@ double constr_type::get_chi2(const double twoJ[], const double delta,
 
   chi2 = 0e0;
 
-  if (scl_extra) {
+  if (false && scl_extra) {
     if (prt) printf("\n  extra:\n");
     chi2 += quad_red(prms, bn, "QD2", 11, prt);
     chi2 += quad_red(prms, bn, "QF6", 12, prt);
@@ -1124,14 +1124,14 @@ void prt_h(const constr_type &constr)
   int    k;
   double b3L, a3L, b3, a3;
 
-  printf("    b_3L    = [");
+  printf("    b_3L       = [");
   for (k = 0; k < constr.n_b3; k++) {
     get_bnL_design_elem(constr.Fnum_b3[k], 1, Sext, b3L, a3L);
     printf("%10.3e", b3L);
     if (k != constr.n_b3-1) printf(", ");
   }
   printf("]\n");
-  printf("    b_3     = [");
+  printf("    b_3        = [");
   for (k = 0; k < constr.n_b3; k++) {
     get_bn_design_elem(constr.Fnum_b3[k], 1, Sext, b3, a3);
     printf("%10.3e", b3);
@@ -1167,8 +1167,8 @@ void constr_type::prt_constr(const double chi2)
   printf("\n  Linear Optics:\n");
   if (scl_eps_x != 0e0)
     printf("    eps_x      =  %7.3f (%7.3f)\n", eps_x, eps0_x);
+  printf("    nu         = [%7.3f, %7.3f]\n", nu[X_], nu[Y_]);
   if (nu_ref_scl != 0e0) {
-    printf("    nu         = [%7.3f, %7.3f]\n", nu[X_], nu[Y_]);
     printf("    dnu        = [%7.3f, %7.3f]\n",
 	   nu[X_]-nu_ref[X_], nu[Y_]-nu_ref[Y_]);
   }
@@ -1187,8 +1187,7 @@ void constr_type::prt_constr(const double chi2)
   }
   if (scl_ksi_1) printf("    ksi1       = [%7.3f, %7.3f]\n",
 	   lat_constr.drv_terms.h_c[0], lat_constr.drv_terms.h_s[0]);
-  if (alpha_c_scl != 0e0)
-    printf( "    alpha_c = %9.3e\n", globval.Alphac);
+  printf( "    alpha_c =    %9.3e\n", globval.Alphac);
   if (lat_constr.ksi1_ctrl.size() != 0)
     printf("    ksi1_ctrl       = [%5.3f, %5.3f, %5.3f]\n",
 	   lat_constr.ksi1_ctrl[0], lat_constr.ksi1_ctrl[1],
@@ -1196,7 +1195,7 @@ void constr_type::prt_constr(const double chi2)
   if (phi_scl != 0e0) {
     loc = Elem_GetPos(Fnum_b1[n_b1-1], 1);
     phi = rad2deg(Cell[loc].Elem.PL*Cell[loc].Elem.M->Pirho);
-    printf("    phi     = %7.5f (%7.5f)\n    ", phi_tot, phi0);
+    printf("    phi        = %7.5f (%7.5f)\n    ", phi_tot, phi0);
     prt_name(stdout, Cell[loc].Elem.PName, "_phi", 3);
     printf(" = %7.5f\n", phi);
   }

@@ -14,18 +14,18 @@ const bool
   pert_dip_cell   = false,
   dphi            = true,
   long_grad_dip[] = {false, false},
-  ksi_terms[]     = {!false, false, false},
-  drv_terms[]     = {false, false, false},
+  ksi_terms[]     = {!false, !false, false},
+  drv_terms[]     = {!false, !false, false},
   tune_fp_terms[] = {false, false};
 
 /* opt_case:
-     make_uc       1,
-     cross_res     2,
-     opt_unit_cell 3,
-     match_disp    4,
-     match_disp    5,
-     opt_sp        6,
-     opt_sp_rb     7.                                                        */
+     make_uc        1,
+     cross_res      2,
+     opt_unit_cell  3,
+     match_disp     4,
+     match_straight 5,
+     opt_sp         6,
+     opt_sp_rb      7.                                                        */
 const int opt_case = 6;
 
 const int
@@ -41,7 +41,7 @@ const double
    {0.0, 0.0}},
 
  
-  eps0_x                = 0.120,
+  eps0_x                = 0.100,
 
   beta_inj[]            = {1.6, 1.6},
   A_max[]               = {6e-3, 3e-3},
@@ -49,24 +49,34 @@ const double
   A_delta_max[]         = {2e-3, 0.1e-3},
 
   dnu[]                 = {0.0, 0.0},
-  nu_ref[]              = {2.0/5.0, 1.0/10.0},
+#if 1
+  // 5 unit cells.
+  nu_ref[]              = {1.0/2.0, 1.0/2.0},
+  high_ord_achr_nu[][2] = {{2.0/5.0, 1.0/10.0}, {0.0, 0.0}},
+
+#else
+  // 4 unit cells.
+  nu_ref[]              = {3.0/8.0, 1.0/8.0},
+  high_ord_achr_nu[][2] = {3.0/8.0, 1.0/8.0}, {0.0, 0.0}},
+
+#endif
 
   scl_eps_x             = 5e7,
-  nu_ref_scl            = 0*1e7,
+  nu_ref_scl            = 1e-2*1e7,
   alpha_c_scl           = 1e0*5e-7,
 
   mI_scl                = 1e-6,
 
-  scl_ksi_1             = (ksi_terms[0])?     1e0 : 0e0,
-  scl_h_3               = (drv_terms[0])?     1e18 : 0e0,
-  scl_h_3_delta         = (drv_terms[1])?     1e-3*1e18 : 0e0,
+  scl_ksi_1             = (ksi_terms[0])?     1e1*1e0 : 0e0,
+  scl_h_3               = (drv_terms[0])?     1e-10*1e14 : 0e0,
+  scl_h_3_delta         = (drv_terms[1])?     1e14 : 0e0,
   scl_h_4               = (drv_terms[2])?     1e18 : 0e0,
-  scl_ksi_2             = (ksi_terms[1])?     1e0*1e7  : 0e0,
-  scl_ksi_3             = (ksi_terms[2])?     1e0*1e7  : 0e0,
-  scl_chi_2             = (tune_fp_terms[0])? 1e0*1e7  : 0e0,
-  scl_chi_delta_2       = (tune_fp_terms[1])? 1e5  : 0e0,
+  scl_ksi_2             = (ksi_terms[1])?     1e-1*1e7 : 0e0,
+  scl_ksi_3             = (ksi_terms[2])?     1e0*1e7 : 0e0,
+  scl_chi_2             = (tune_fp_terms[0])? 1e0*1e7 : 0e0,
+  scl_chi_delta_2       = (tune_fp_terms[1])? 1e5 : 0e0,
 
-  scl_extra             = 0e2,
+  scl_extra             = 0e4,
 
   twoJ[]                =
     {sqr(A_max[X_])/beta_inj[X_], sqr(A_max[Y_])/beta_inj[Y_]},
@@ -74,8 +84,6 @@ const double
     {sqr(A_delta_max[X_])/beta_inj[X_], sqr(A_delta_max[Y_])/beta_inj[Y_]},
 
   mI_nu_ref[]           = {1.5, 0.5},
-
-  high_ord_achr_nu[][2] = {{nu_ref[X_], nu_ref[Y_]}, {0.0, 0.0}},
 
   phi_max               = 3.0,
   b_2_max               = 15.0,
@@ -181,7 +189,7 @@ double f_res(double *bn)
 double f_achrom(double *bn)
 {
   bool        stable;
-  double      chi2;
+  double      chi2, L_b1e, L_b1c, dchi2;
   static bool first = true;
 
   const int n_prt = 5;
@@ -200,6 +208,14 @@ double f_achrom(double *bn)
     chi2 =
       lat_constr.get_chi2(twoJ, delta_max, twoJ_delta, lat_prms, bn, true,
 			  false);
+
+    if (false) {
+      L_b1e = get_L(ElemIndex("b1e"), 1);
+      L_b1c = get_L(ElemIndex("b1c"), 1);
+      dchi2 = scl_extra*sqr(L_b1e-L_b1c);
+      chi2 += dchi2;
+      printf("\n  L_b1e = %5.3f L_b1c = %5.3f (%9.3e)\n", L_b1e, L_b1c, dchi2);
+    }
 
     if (first || (chi2 < lat_constr.chi2)) {
       first = false;
@@ -620,7 +636,11 @@ void set_weights_unit_cell(constr_type &constr)
 
   // Super Period.
   lat_constr.phi_scl               = ((dphi)? 1e0 : 0e0);
+#if 0
   lat_constr.phi0                  = 4.5;
+#else
+  lat_constr.phi0                  = 3.6;
+#endif
   lat_constr.L_scl                 = 0e-10;
   lat_constr.L0                    = 10.0;
 
@@ -908,20 +928,30 @@ void set_b3_constr_sp(constr_type &constr)
 
 void set_weights_sp(constr_type &constr)
 {
-  lat_constr.eps_x_scl             = 1e7;
+  lat_constr.eps_x_scl             = 1e-2*1e7;
 
-  lat_constr.alpha_c_scl           = 1e-1*1e-6;
+  lat_constr.alpha_c_scl           = 1e1*1e-6;
 
   lat_constr.nu_ref_scl            = nu_ref_scl;
   lat_constr.nu_ref[X_]            = nu_ref[X_];
   lat_constr.nu_ref[Y_]            = nu_ref[Y_];
 
-  lat_constr.high_ord_achr_scl[X_] = 1e6;
-  lat_constr.high_ord_achr_scl[Y_] = 1e6;
+  lat_constr.high_ord_achr_scl[X_] = 1e1*1e6;
+  lat_constr.high_ord_achr_scl[Y_] = 1e1*1e6;
 
   // Super Period.
   lat_constr.phi_scl               = ((dphi)? 1e0 : 0e0);
-  lat_constr.phi0                  = 18.0;
+#define N_SP 18
+#if N_SP == 20
+  // 20 super periods 5-BA.
+  lat_constr.phi0                  = 2*18.0;
+#elif N_SP == 18
+  // 18 super periods 6-BA.
+  lat_constr.phi0                  = 2*20.0;
+#else
+  // 16 super periods 6-BA.
+  lat_constr.phi0                  = 2*22.5;
+#endif
   lat_constr.L_scl                 = 0e-10;
   lat_constr.L0                    = 10.0;
 
@@ -959,7 +989,7 @@ void opt_sp(param_type &prms, constr_type &constr)
 
 void set_dip_sp_rb(param_type &prms, constr_type &constr)
 {
-  std::vector<int>    grad_dip_Fnum, mI_loc;
+  std::vector<int>    grad_dip_Fnum;
   std::vector<double> grad_dip_scl;
 
   if (dphi) {
@@ -1027,18 +1057,33 @@ void set_b2_sp_rb(param_type &prms)
 
 void set_constr_sp_rb(constr_type &constr)
 {
+  int k;
+
   // Beta functions at center of straight
   constr.add_constr(Elem_GetPos(ElemIndex("l9"), 2),
   		    1e5, 1e5, 1e2,         1e2,         1e7, 1e7,
   		    0.0, 0.0, beta_ms[X_], beta_ms[Y_], 0.0, 0.0);
   // Symmetry.
   constr.add_constr(Elem_GetPos(ElemIndex("s1"), 1),
-		    1e5, 1e5, 0e0, 0e0, 0e0, 1e7,
+		    1e5, 1e5, 0e0, 0e0, 0e0, 1e8,
+		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+  constr.add_constr(Elem_GetPos(ElemIndex("s1"), 3),
+		    1e5, 1e5, 0e0, 0e0, 0e0, 1e8,
 		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   // Symmetry & dispersion at dipole centers.
   constr.add_constr(Elem_GetPos(ElemIndex("b1c1"), 1),
-		    1e5, 1e5, 0e0, 0e0, 1e7, 1e7,
+		    1e5, 1e5, 0e0, 0e0, 0e0, 1e8,
 		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+  // Dispersion at arc entrance.
+  constr.add_constr(Elem_GetPos(ElemIndex("b1e1"), 1)-1,
+		    0e0, 0e0, 0e0, 0e0, 1e6, 1e6,
+		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+
+  // Varying bend radious dipoles.
+  for (k = 1; k <= 5; k += 2)
+    constr.add_constr(Elem_GetPos(ElemIndex("b1c1"), k),
+		      0e0, 0e0, 0e0, 0e0, 1e9, 0e0,
+		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 }
 
 
@@ -1067,8 +1112,8 @@ void set_b3_constr_sp_rb(constr_type &constr)
 {
   int k, n;
 
-  lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("s1"), 1));
-  lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("s2"), 1));
+  lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("b1c1"), 1));
+  lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("b1c1"), 3));
 
   n = lat_constr.high_ord_achr_Fnum.size()/2;
   lat_constr.high_ord_achr_dnu.resize(n);
@@ -1087,14 +1132,24 @@ void set_weights_sp_rb(constr_type &constr)
 {
   lat_constr.eps_x_scl             = 1e7;
 
+  lat_constr.alpha_c_scl           = 1e-1*1e-6;
+
+  lat_constr.nu_ref_scl            = nu_ref_scl;
+  lat_constr.nu_ref[X_]            = nu_ref[X_];
+  lat_constr.nu_ref[Y_]            = nu_ref[Y_];
+
   lat_constr.high_ord_achr_scl[X_] = 1e6;
   lat_constr.high_ord_achr_scl[Y_] = 1e6;
 
-  lat_constr.alpha_c_scl           = 1e-1*1e-7;
-
   // Super Period.
   lat_constr.phi_scl               = ((dphi)? 1e0 : 0e0);
-  lat_constr.phi0                  = 4.5;
+  lat_constr.phi0                  = 18.0;
+  lat_constr.L_scl                 = 0e-10;
+  lat_constr.L0                    = 10.0;
+
+  lat_constr.drv_terms.get_h_scl(scl_ksi_1, scl_h_3, scl_h_3_delta, scl_h_4,
+				 scl_ksi_2, scl_ksi_3, scl_chi_2,
+				 scl_chi_delta_2);
 }
 
 

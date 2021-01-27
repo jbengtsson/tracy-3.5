@@ -17,7 +17,7 @@ int no_tps = NO;
 
 
 const bool
-  set_dnu = false,
+  set_dnu = !false,
   mI_rot  = false,
   prt_s1  = false,
   prt_dt  = false;
@@ -31,7 +31,7 @@ const double
 #if SET_NU
   nu[]     = {(64.38+0.5)/n_cell, 20.18/n_cell},
 #else
-  nu[]     = {0.0, 0.0},
+  nu[]     = {0.1, 0.0},
 #endif
   dnu_mI[] = {-0.21, -0.20};
 
@@ -1632,7 +1632,7 @@ int main(int argc, char *argv[])
 
   trace = false;
 
-  globval.mat_meth = false;
+  globval.mat_meth = !false;
 
   if (true)
     Read_Lattice(argv[1]);
