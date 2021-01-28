@@ -43,7 +43,7 @@ const double
  
   eps0_x                = 0.100,
 
-  beta_inj[]            = {1.6, 1.6},
+  beta_inj[]            = {2.0, 2.0},
   A_max[]               = {6e-3, 3e-3},
   delta_max             = 2e-2,
   A_delta_max[]         = {2e-3, 0.1e-3},
@@ -67,13 +67,13 @@ const double
 
   mI_scl                = 1e-6,
 
-  scl_ksi_1             = (ksi_terms[0])?     1e1*1e0 : 0e0,
+  scl_ksi_1             = (ksi_terms[0])?     1e0*1e0 : 0e0,
   scl_h_3               = (drv_terms[0])?     1e-10*1e14 : 0e0,
   scl_h_3_delta         = (drv_terms[1])?     1e14 : 0e0,
   scl_h_4               = (drv_terms[2])?     1e18 : 0e0,
-  scl_ksi_2             = (ksi_terms[1])?     1e-1*1e7 : 0e0,
+  scl_ksi_2             = (ksi_terms[1])?     1e0*1e7 : 0e0,
   scl_ksi_3             = (ksi_terms[2])?     1e0*1e7 : 0e0,
-  scl_chi_2             = (tune_fp_terms[0])? 1e0*1e7 : 0e0,
+  scl_chi_2             = (tune_fp_terms[0])? 1e1*1e4 : 0e0,
   scl_chi_delta_2       = (tune_fp_terms[1])? 1e5 : 0e0,
 
   scl_extra             = 0e4,
@@ -874,10 +874,16 @@ void set_constr_sp(constr_type &constr)
   constr.add_constr(Elem_GetPos(ElemIndex("s1"), 3),
 		    1e5, 1e5, 0e0, 0e0, 0e0, 1e8,
 		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+
   // Symmetry & dispersion at dipole centers.
   constr.add_constr(Elem_GetPos(ElemIndex("b1c"), 1),
 		    1e5, 1e5, 0e0, 0e0, 0e0, 1e8,
 		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+  // Symmetry & dispersion at dipole centers.
+  constr.add_constr(Elem_GetPos(ElemIndex("b1c"), 3),
+		    1e5, 1e5, 0e0, 0e0, 0e0, 1e8,
+		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+
   // Dispersion at arc entrance.
   constr.add_constr(Elem_GetPos(ElemIndex("b1e"), 1)-1,
 		    0e0, 0e0, 0e0, 0e0, 1e8, 1e8,
