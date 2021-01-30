@@ -24,7 +24,7 @@ struct param_type {
   // Parameter Type:
   //   Bend Angle  -3,
   //   Length      -2,
-  //   Position    -1,
+  //   Position    -1, min & max are min distance to next element,
   //   Quadrupole   2.
 private:
 
@@ -222,7 +222,8 @@ void param_type::ini_prm(double *bn)
   int    i, loc;
   double an;
 
-  bool prt = false;
+  const bool   prt = false;
+  const double eps = 1e-10;
 
   for (i = 1; i <= n_prm; i++) {
     if (prt) printf("\nini_prm: %2d %3d %2d\n", i, Fnum[i-1], n[i-1]);
@@ -243,8 +244,12 @@ void param_type::ini_prm(double *bn)
 	exit(1);
       }
       bn[i] = 0e0;
-      bn_min[i-1] = -(Cell[loc-1].Elem.PL-bn_min[i-1]);
-      bn_max[i-1] = Cell[loc+1].Elem.PL - bn_max[i-1];
+      // Avoid FP issues.
+      bn_min[i-1] = -(Cell[loc-1].Elem.PL-bn_min[i-1]+eps);
+      bn_max[i-1] = Cell[loc+1].Elem.PL - bn_max[i-1] + eps;
+      if (prt)
+	printf("  position: min = %8.1e max = %8.1e\n",
+	       bn_min[i-1], bn_max[i-1]);
     } else if (n[i-1] == -2)
       // Length.
       bn[i] = get_L(Fnum[i-1], 1);
