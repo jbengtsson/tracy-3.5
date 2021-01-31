@@ -79,8 +79,11 @@ typedef class globvalrec {
 
 // Beam line class.
 
-class DriftType {
+class CellType;
 
+class DriftType {
+  // virtual bool Elem_Pass(const long i, ss_vect<double> &) { Drift(L, x); };
+  // virtual bool Elem_Pass(const long i, ss_vect<tps> &) { Drift(L, x);
 };
 
 class MpoleType {
@@ -238,8 +241,6 @@ class FieldMapType {
     ***AoBrho2[2];           // [Ax(x, y, z), Ay(x, y, z)], spline info.
 };
 
-class CellType;
-
 class SpreaderType {
  public:
   double
@@ -318,6 +319,9 @@ class elemtype {
     MapType
       *Map;                    // Map.
   };
+
+  // virtual bool Elem_Pass(const long i, ss_vect<double> &) = 0;
+  // virtual bool Elem_Pass(const long i, ss_vect<tps> &) = 0;
 };
 
 // LEGO Block Structure for each Element of the Lattice.
@@ -349,6 +353,25 @@ class CellType {
     *next_ptr;                 // pointer to next cell (for tracking).
   elemtype
     Elem;                     // Structure (name, type).
+
+  template<typename T>
+  void Drift_Pass(ss_vect<T> &x);
+  template<typename T>
+  void Mpole_Pass(ss_vect<T> &x);
+  template<typename T>
+  void Cav_Pass(ss_vect<T> &x);
+  template<typename T>
+  void Marker_Pass(ss_vect<T> &x);
+  template<typename T>
+  void Wiggler_Pass(ss_vect<T> &x);
+  template<typename T>
+  void Insertion_Pass(ss_vect<T> &x);
+  template<typename T>
+  void FieldMap_Pass(ss_vect<T> &x);
+  template<typename T>
+  void Solenoid_Pass(ss_vect<T> &x);
+  void Map_Pass(ss_vect<double> &x);
+  void Map_Pass(ss_vect<tps> &x);
 };
 
 class ElemFamType {

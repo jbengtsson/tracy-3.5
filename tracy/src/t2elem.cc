@@ -430,13 +430,13 @@ void Drift(const double L, ss_vect<T> &ps)
 
 
 template<typename T>
-void Drift_Pass(CellType &Cell, ss_vect<T> &x)
+void CellType::Drift_Pass(ss_vect<T> &x)
 {
-  Drift(Cell.Elem.PL, x);
+  Drift(this->Elem.PL, x);
 
   if (globval.emittance && !globval.Cavity_on)
     // Needs A^-1.
-    Cell.curly_dH_x = is_tps<tps>::get_curly_H(x);
+    this->curly_dH_x = is_tps<tps>::get_curly_H(x);
 }
 
 
@@ -666,23 +666,23 @@ void get_dI_eta_5(CellType &Cell)
 
 
 template<typename T>
-void Mpole_Pass(CellType &Cell, ss_vect<T> &ps)
+void CellType::Mpole_Pass(ss_vect<T> &ps)
 {
-  int             seg = 0, i;
-  double          k = 0e0, dL = 0e0, dL1 = 0e0, dL2 = 0e0;
-  double          dkL1 = 0e0, dkL2 = 0e0, h_ref = 0e0;
-  elemtype        *elemp;
-  MpoleType       *M;
+  int       seg = 0, i;
+  double    k = 0e0, dL = 0e0, dL1 = 0e0, dL2 = 0e0;
+  double    dkL1 = 0e0, dkL2 = 0e0, h_ref = 0e0;
+  elemtype  *elemp;
+  MpoleType *M;
 
-  elemp = &Cell.Elem; M = elemp->M;
+  elemp = &this->Elem; M = elemp->M;
 
-  GtoL(ps, Cell.dS, Cell.dT, M->Pc0, M->Pc1, M->Ps1);
+  GtoL(ps, this->dS, this->dT, M->Pc0, M->Pc1, M->Ps1);
 
   if (globval.emittance && !globval.Cavity_on) {
     // Needs A^-1.
-    Cell.curly_dH_x = 0e0;
+    this->curly_dH_x = 0e0;
     for (i = 0; i <= 5; i++)
-      Cell.dI[i] = 0e0;
+      this->dI[i] = 0e0;
   }
 
   switch (M->Pmethod) {
@@ -692,8 +692,8 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &ps)
       ps = is_double< ss_vect<T> >::ps(M->M_lin*ps);
 
       if (globval.emittance && !globval.Cavity_on)
-	if ((Cell.Elem.PL != 0e0) && (Cell.Elem.M->Pirho != 0e0))
-	  get_dI_eta_5(Cell);
+	if ((this->Elem.PL != 0e0) && (this->Elem.M->Pirho != 0e0))
+	  get_dI_eta_5(*this);
     } else {
       // Fringe fields.
       if (globval.quad_fringe && (M->PB[Quad+HOMmax] != 0e0))
@@ -722,8 +722,8 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &ps)
 	for (seg = 1; seg <= M->PN; seg++) {
 	  if (globval.emittance && !globval.Cavity_on) {
 	    // Needs A^-1.
-	    Cell.curly_dH_x += is_tps<tps>::get_curly_H(ps);
-	    Cell.dI[4] += is_tps<tps>::get_dI_eta(ps);
+	    this->curly_dH_x += is_tps<tps>::get_curly_H(ps);
+	    this->dI[4] += is_tps<tps>::get_dI_eta(ps);
 	  }
 
 	  Drift(dL1, ps);
@@ -733,8 +733,8 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &ps)
 
 	  if (globval.emittance && !globval.Cavity_on) {
 	    // Needs A^-1.
-	    Cell.curly_dH_x += 4e0*is_tps<tps>::get_curly_H(ps);
-	    Cell.dI[4] += 4e0*is_tps<tps>::get_dI_eta(ps);
+	    this->curly_dH_x += 4e0*is_tps<tps>::get_curly_H(ps);
+	    this->dI[4] += 4e0*is_tps<tps>::get_dI_eta(ps);
 	  }
 
 	  Drift(dL2, ps);
@@ -743,21 +743,21 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &ps)
 
 	  if (globval.emittance && !globval.Cavity_on) {
 	    // Needs A^-1.
-	    Cell.curly_dH_x += is_tps<tps>::get_curly_H(ps);
-	    Cell.dI[4] += is_tps<tps>::get_dI_eta(ps);
+	    this->curly_dH_x += is_tps<tps>::get_curly_H(ps);
+	    this->dI[4] += is_tps<tps>::get_dI_eta(ps);
 	  }
 	}
 
 	if (globval.emittance && !globval.Cavity_on) {
 	  // Needs A^-1.
-	  Cell.curly_dH_x /= 6e0*M->PN;
-	  Cell.dI[1] += elemp->PL*is_tps<tps>::get_dI_eta(ps)*M->Pirho;
-	  Cell.dI[2] += elemp->PL*sqr(M->Pirho);
-	  Cell.dI[3] += elemp->PL*fabs(cube(M->Pirho));
-	  Cell.dI[4] *=
+	  this->curly_dH_x /= 6e0*M->PN;
+	  this->dI[1] += elemp->PL*is_tps<tps>::get_dI_eta(ps)*M->Pirho;
+	  this->dI[2] += elemp->PL*sqr(M->Pirho);
+	  this->dI[3] += elemp->PL*fabs(cube(M->Pirho));
+	  this->dI[4] *=
 	    elemp->PL*M->Pirho*(sqr(M->Pirho)+2e0*M->PBpar[Quad+HOMmax])
 	    /(6e0*M->PN);
-	  Cell.dI[5] += elemp->PL*fabs(cube(M->Pirho))*Cell.curly_dH_x;
+	  this->dI[5] += elemp->PL*fabs(cube(M->Pirho))*this->curly_dH_x;
 	}
       } else
 	thin_kick(M->Porder, M->PB, 1e0, 0e0, 0e0, ps);
@@ -775,25 +775,25 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &ps)
 
   default:
     printf("Mpole_Pass: Method not supported %10s %d\n",
-	   Cell.Elem.PName, M->Pmethod);
+	   this->Elem.PName, M->Pmethod);
     exit_(0);
     break;
   }
 
-  LtoG(ps, Cell.dS, Cell.dT, M->Pc0, M->Pc1, M->Ps1);
+  LtoG(ps, this->dS, this->dT, M->Pc0, M->Pc1, M->Ps1);
 }
 
 
 template<typename T>
-void Marker_Pass(CellType &Cell, ss_vect<T> &ps)
+void CellType::Marker_Pass(ss_vect<T> &ps)
 {
-  GtoL(ps, Cell.dS, Cell.dT, 0e0, 0e0, 0e0);
+  GtoL(ps, this->dS, this->dT, 0e0, 0e0, 0e0);
 
   if (globval.emittance && !globval.Cavity_on)
     // Needs A^-1.
-    Cell.curly_dH_x = is_tps<tps>::get_curly_H(ps);
+    this->curly_dH_x = is_tps<tps>::get_curly_H(ps);
 
-  LtoG(ps, Cell.dS, Cell.dT, 0e0, 0e0, 0e0);
+  LtoG(ps, this->dS, this->dT, 0e0, 0e0, 0e0);
 }
 
 
@@ -812,14 +812,14 @@ void Cav_Focus(const double L, const T delta, const bool entrance,
 #if 1
 
 template<typename T>
-void Cav_Pass(CellType &Cell, ss_vect<T> &ps)
+void CellType::Cav_Pass(ss_vect<T> &ps)
 {
   double     L;
   elemtype   *elemp;
   CavityType *C;
   T          delta;
 
-  elemp = &Cell.Elem; C = elemp->C; L = elemp->PL;
+  elemp = &this->Elem; C = elemp->C; L = elemp->PL;
   Drift(L/2e0, ps);
   if (globval.Cavity_on && C->Pvolt != 0e0) {
     delta = -C->Pvolt/(globval.Energy*1e9)
@@ -881,7 +881,7 @@ void Cav_Pass1(CellType &Cell, ss_vect<T> &ps)
 
 
 template<typename T>
-void Cav_Pass(CellType &Cell, ss_vect<T> &ps)
+void CellType::Cav_Pass(ss_vect<T> &ps)
 {
   /* J. Rosenzweig and L. Serafini "Transverse Particle Motion in
      Radio-Frequency Linear Accelerators" Phys. Rev. E 49(2),
@@ -898,7 +898,7 @@ void Cav_Pass(CellType &Cell, ss_vect<T> &ps)
 
   const bool RandS = false;
  
-  elemp = &Cell.Elem; C = elemp->C; L = elemp->PL; phi = C->phi;
+  elemp = &this->Elem; C = elemp->C; L = elemp->PL; phi = C->phi;
   Lambda = c0/C->Pfreq;
 
   p_t = is_double<T>::cst(ps[delta_]);
@@ -1487,7 +1487,7 @@ void Wiggler_pass_EF3(CellType &Cell, ss_vect<T> &ps)
 
 
 template<typename T>
-void Wiggler_Pass(CellType &Cell, ss_vect<T> &ps)
+void CellType::Wiggler_Pass(ss_vect<T> &ps)
 {
   int         seg;
   double      L, L1, L2, K1, K2;
@@ -1495,9 +1495,9 @@ void Wiggler_Pass(CellType &Cell, ss_vect<T> &ps)
   WigglerType *W;
   ss_vect<T>  ps1;
 
-  elemp = &Cell.Elem; W = elemp->W;
+  elemp = &this->Elem; W = elemp->W;
   // Global -> Local
-  GtoL(ps, Cell.dS, Cell.dT, 0e0, 0e0, 0e0);
+  GtoL(ps, this->dS, this->dT, 0e0, 0e0, 0e0);
   switch (W->Pmethod) {
 
   case Meth_Linear:
@@ -1508,7 +1508,7 @@ void Wiggler_Pass(CellType &Cell, ss_vect<T> &ps)
   case Meth_First:
     if ((W->BoBrhoV[0] != 0e0) || (W->BoBrhoH[0] != 0e0)) {
       if (!globval.EPU)
-	Wiggler_pass_EF(Cell.Elem, ps);
+	Wiggler_pass_EF(this->Elem, ps);
       else {
 	Wiggler_pass_EF2(W->PN, elemp->PL, W->kxV[0], W->kxH[0],
 		2e0*M_PI/W->Lambda, W->BoBrhoV[0], W->BoBrhoH[0],
@@ -1521,7 +1521,7 @@ void Wiggler_Pass(CellType &Cell, ss_vect<T> &ps)
 
   case Meth_Second:
     if ((W->BoBrhoV[0] != 0e0) || (W->BoBrhoH[0] != 0e0)) {
-      Wiggler_pass_EF3(Cell, ps);
+      Wiggler_pass_EF3(*this, ps);
     } else
       // drift if field = 0
       Drift(elemp->PL, ps);
@@ -1542,7 +1542,7 @@ void Wiggler_Pass(CellType &Cell, ss_vect<T> &ps)
     break;
   }
   // Local -> Global
-  LtoG(ps, Cell.dS, Cell.dT, 0e0, 0e0, 0e0);
+  LtoG(ps, this->dS, this->dT, 0e0, 0e0, 0e0);
 }
 
 #undef eps
@@ -2130,7 +2130,7 @@ template void FieldMap_pass_SI(CellType &, ss_vect<tps> &);
 
 
 template<typename T>
-void FieldMap_Pass(CellType &Cell, ss_vect<T> &ps)
+void CellType::FieldMap_Pass(ss_vect<T> &ps)
 {
   int          k;
   double       Ld;
@@ -2142,11 +2142,11 @@ void FieldMap_Pass(CellType &Cell, ss_vect<T> &ps)
     first_FM = false;
   }
 
-  FM = Cell.Elem.FM;
+  FM = this->Elem.FM;
 
-//  GtoL(ps, Cell.dS, Cell.dT, 0e0, 0e0, 0e0);
+//  GtoL(ps, this->dS, this->dT, 0e0, 0e0, 0e0);
 
-  Ld = (FM->Lr-Cell.Elem.PL)/2e0;
+  Ld = (FM->Lr-this->Elem.PL)/2e0;
   p_rot(FM->phi/2e0*180e0/M_PI, ps);
   printf("\nFieldMap_Pass:\n");
   printf("  phi = %12.5e\n  cut = %12d\n", FM->phi, FM->cut);
@@ -2156,23 +2156,23 @@ void FieldMap_Pass(CellType &Cell, ss_vect<T> &ps)
   // n_step: number of Field Map repetitions.
   for (k = 1; k <= FM->n_step; k++) {
     if (sympl)
-      FieldMap_pass_SI(Cell, ps);
+      FieldMap_pass_SI(*this, ps);
     else
-      FieldMap_pass_RK(Cell, ps);
+      FieldMap_pass_RK(*this, ps);
   }
 
   printf("  exit negative drift [m]     %12.5e\n", -Ld);
   Drift(-Ld, ps);
   p_rot(FM->phi/2e0*180e0/M_PI, ps);
 
-//  LtoG(ps, Cell.dS, Cell.dT, 0e0, 0e0, 0e0);
+//  LtoG(ps, this->dS, this->dT, 0e0, 0e0, 0e0);
 
 //  outf_.close();
 }
 
 
 template<typename T>
-void Insertion_Pass(CellType &Cell, ss_vect<T> &x)
+void CellType::Insertion_Pass(ss_vect<T> &x)
 {
   /* Purpose:
        Track vector x through a insertion
@@ -2212,7 +2212,7 @@ void Insertion_Pass(CellType &Cell, ss_vect<T> &x)
   int      i = 0;
   bool     outoftable = false;
 
-  elemp  = &Cell.Elem; Nslice = elemp->ID->PN;
+  elemp  = &this->Elem; Nslice = elemp->ID->PN;
 
   if (elemp->ID->linear) {
     alpha0 = c0/globval.Energy*1E-9*elemp->ID->scaling;
@@ -2221,7 +2221,7 @@ void Insertion_Pass(CellType &Cell, ss_vect<T> &x)
     alpha02 = 1e-6*elemp->ID->scaling;
 
 //  /* Global -> Local */
-//  GtoL(X, Cell->dS, Cell->dT, 0e0, 0e0, 0e0);
+//  GtoL(X, this->dS, this->dT, 0e0, 0e0, 0e0);
 
   p_rot(elemp->ID->phi/2e0*180e0/M_PI, x);
 
@@ -2241,9 +2241,9 @@ void Insertion_Pass(CellType &Cell, ss_vect<T> &x)
     // Second order kick
     if (elemp->ID->secondorder){
       // if (!elemp->ID->linear)
-      //   SplineInterpolation2(x[x_], x[y_], tx2, tz2, Cell, outoftable);
+      //   SplineInterpolation2(x[x_], x[y_], tx2, tz2, *this, outoftable);
       // else {
-        LinearInterpolation2(x[x_], x[y_], tx2, tz2, B2_perp, Cell,
+        LinearInterpolation2(x[x_], x[y_], tx2, tz2, B2_perp, *this,
 			     outoftable, 2);
 
 	// Scale locally with (Brho) (as above) instead of when the file
@@ -2266,10 +2266,10 @@ void Insertion_Pass(CellType &Cell, ss_vect<T> &x)
 
   p_rot(elemp->ID->phi/2e0*180e0/M_PI, x);
 
-//  CopyVec(6L, x, Cell->BeamPos);
+//  CopyVec(6L, x, this->BeamPos);
 
 //  /* Local -> Global */
-//  LtoG(X, Cell->dS, Cell->dT, 0e0, 0e0, 0e0);
+//  LtoG(X, this->dS, this->dT, 0e0, 0e0, 0e0);
 }
 
 
@@ -2349,25 +2349,28 @@ void sol_pass(const elemtype &elem, ss_vect<T> &x)
 
 
 template<typename T>
-void Solenoid_Pass(CellType &Cell, ss_vect<T> &ps)
+void CellType::Solenoid_Pass(ss_vect<T> &ps)
 {
-  GtoL(ps, Cell.dS, Cell.dT, 0e0, 0e0, 0e0);
+  GtoL(ps, this->dS, this->dT, 0e0, 0e0, 0e0);
 
-  sol_pass(Cell.Elem, ps);
+  sol_pass(this->Elem, ps);
 
-  LtoG(ps, Cell.dS, Cell.dT, 0e0, 0e0, 0e0);
+  LtoG(ps, this->dS, this->dT, 0e0, 0e0, 0e0);
 }
 
 
 // template<typename T>
 // void Map_Pass(CellType &Cell, ss_vect<T> &ps) { ps = Cell.Elem.Map->M*ps; }
 
-void Map_Pass(CellType &Cell, ss_vect<double> &ps)
+void CellType::Map_Pass(ss_vect<double> &ps) 
 {
-  ps = (Cell.Elem.Map->M*ps).cst();
+  ps = (this->Elem.Map->M*ps).cst();
 }
 
-void Map_Pass(CellType &Cell, ss_vect<tps> &ps) { ps = Cell.Elem.Map->M*ps; }
+void CellType::Map_Pass(ss_vect<tps> &ps)
+{
+  ps = this->Elem.Map->M*ps;
+}
 
 
 void getelem(long i, CellType *cellrec) { *cellrec = Cell[i]; }

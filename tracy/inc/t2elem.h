@@ -59,20 +59,11 @@ void quad_fringe(const double b2, ss_vect<T> &x);
 
 
 template<typename T>
-void Drift_Pass(CellType &Cell, ss_vect<T> &x);
-
-template<typename T>
 void thin_kick(const int Order, const double MB[], const double L,
 	       const double h_bend, const double h_ref, ss_vect<T> &x);
 
 template<typename T>
-void Mpole_Pass(CellType &Cell, ss_vect<T> &x);
-
-template<typename T>
 void Marker_Pass(CellType &Cell, ss_vect<T> &X);
-
-template<typename T>
-void Cav_Pass(CellType &Cell, ss_vect<T> &X);
 
 template<typename T>
 void Wiggler_pass_EF(const elemtype &elem, ss_vect<T> &x);
@@ -86,13 +77,7 @@ template<typename T>
 void Wiggler_pass_EF3(CellType &Cell, ss_vect<T> &x);
 
 template<typename T>
-void Wiggler_Pass(CellType &Cell, ss_vect<T> &X);
-
-template<typename T>
 void FieldMap_Pass(CellType &Cell, ss_vect<T> &X);
-
-template<typename T>
-void Insertion_Pass(CellType &Cell, ss_vect<T> &x);
 
 template<typename T>
 void sol_pass(const elemtype &elem, ss_vect<T> &x);

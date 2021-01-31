@@ -47,35 +47,35 @@ void Elem_Pass(const long i, ss_vect<T> &x)
 
   switch (Cell[i].Elem.Pkind) {
     case drift:
-      Drift_Pass(Cell[i], x);
+      Cell[i].Drift_Pass(x);
       break;
     case Mpole:
-      Mpole_Pass(Cell[i], x);
+      Cell[i].Mpole_Pass(x);
       break;
     case Wigl:
-      Wiggler_Pass(Cell[i], x);
+      Cell[i].Wiggler_Pass(x);
       break;
     case FieldMap:
-      FieldMap_Pass(Cell[i], x);
+      Cell[i].FieldMap_Pass(x);
       break;
     case Insertion:
-      Insertion_Pass(Cell[i], x);
+      Cell[i].Insertion_Pass(x);
       break;
     case Cavity:
-      Cav_Pass(Cell[i], x);
+      Cell[i].Cav_Pass(x);
       break;
     case marker:
-      Marker_Pass(Cell[i], x);
+      Cell[i].Marker_Pass(x);
       break;
     case Spreader:
       break;
     case Recombiner:
       break;
     case Solenoid:
-      Solenoid_Pass(Cell[i], x);
+      Cell[i].Solenoid_Pass(x);
       break;
     case Map:
-      Map_Pass(Cell[i], x);
+      Cell[i].Map_Pass(x);
       break;
     default:
       printf("Elem_Pass ** undefined type\n");
