@@ -223,7 +223,7 @@ void param_type::ini_prm(double *bn)
   double an;
 
   const bool   prt = false;
-  const double eps = 1e-10;
+  const double eps = 1e-8;
 
   for (i = 1; i <= n_prm; i++) {
     if (prt) printf("\nini_prm: %2d %3d %2d\n", i, Fnum[i-1], n[i-1]);
@@ -244,9 +244,16 @@ void param_type::ini_prm(double *bn)
 	exit(1);
       }
       bn[i] = 0e0;
-      // Avoid FP issues.
-      bn_min[i-1] = -(Cell[loc-1].Elem.PL-bn_min[i-1]+eps);
-      bn_max[i-1] = Cell[loc+1].Elem.PL - bn_max[i-1] + eps;
+      bn_min[i-1] = -(Cell[loc-1].Elem.PL-bn_min[i-1]);
+      bn_max[i-1] = Cell[loc+1].Elem.PL - bn_max[i-1];
+      // Avoid FP issues: add some margin.
+      if (fabs(bn_max[i-1]-bn_min[i-1]) < eps) {
+	// Introduce -eps - eps interval.
+	bn_min[i-1] = -eps;
+	bn_max[i-1] = eps;
+      }
+      bn[i] = min(bn[i], bn_max[i-1]);
+      bn[i] = max(bn[i], bn_min[i-1]);
       if (prt)
 	printf("  position: min = %8.1e max = %8.1e\n",
 	       bn_min[i-1], bn_max[i-1]);

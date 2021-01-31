@@ -56,8 +56,11 @@ LIBS	 = -L$(TRACY_LIB)/tracy/lib -ltracy \
            -lm
 #	   -lgfortran
 #INCLUDES = -I$(TRACY_LIB)/tracy/inc -I$(NUM_REC)/inc
+# C Preprocessor flags.
 AM_CPPFLAGS = -I$(TRACY_LIB)/tracy/inc -I$(NUM_REC)/inc
+# Fortan flags.
 AM_FFLAGS   = -g -O0 -Wall -fbounds-check
+# C++ flags.
 AM_CXXFLAGS = -g -O0 -Wall
 #CXXFLAGS = -pg -O2 -Wall -Wno-non-template-friend
 FFLAGS      = -g -O2 -Wall -fbounds-check -fdefault-integer-8

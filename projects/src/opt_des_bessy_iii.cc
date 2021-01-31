@@ -25,7 +25,8 @@ const bool
      match_disp     4, no ksi_terms & drv_terms, b1e single block dipole,
      match_straight 5,
      opt_sp         6.                                                        */
-const int opt_case = 3;
+const int opt_case = 6
+;
 
 const int
   n_ic   = 5,
@@ -36,13 +37,13 @@ const double
 
 // From the center of the straight: alpha, beta, eta, eta'.
   ic[n_ic][2]           =
-  {{-0.0000000000, -0.0000000000}, {3.6864515521, 1.8463650048},
-   {0.0139929491, 0.0000000000}, {-0.0, 0.0}},
+  {{-0.0000000000, -0.0000000000}, {3.2262890063, 2.4083826129},
+   {0.0306340488, 0.0000000000}, {0.0, 0.0}},
 
 #if 0
   eps0_x                = 0.100,
 #else
-  eps0_x                = 0.075,
+  eps0_x                = 0.050,
 #endif
 
   beta_inj[]            = {2.0, 2.0},
@@ -95,7 +96,7 @@ const double
 
   phi_max               = 3.0,
   b_2_max               = 15.0,
-  b_2_dip_max           = 3.0,
+  b_2_dip_max           = 4.0,
   b_3_chrom_max         = 2.5e3,
   b_3_max               = 2e3,
   b_4_max               = 1e4;
@@ -827,6 +828,7 @@ void set_b2_straight(param_type &prms)
 
   // Min & max are min distance to next element.
   if (!false) {
+    // Introduce a tiny interval.
     prms.add_prm("q1", -1, 0.1, 0.1, 1.0);
     prms.add_prm("q2", -1, 0.1, 0.1, 1.0);
     prms.add_prm("q3", -1, 0.1, 2.1, 1.0);
