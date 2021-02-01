@@ -79,8 +79,37 @@ typedef class globvalrec {
 
 // Beam line class.
 
+// LEGO lattice structure.
+class CellType {
+ public:
+  int
+    Fnum,                      // Element Family #.
+    Knum;                      // Element Kid #.
+  double
+    S,                         // Position in the ring.
+    curly_dH_x,                // Contribution to curly_H_x.
+    dI[6],                     // Contribution to I[2..5].
+    dS[2],                     // Transverse displacement.
+    dT[2],                     // dT = (cos(dT), sin(dT)).
+    Nu[2],                     // Phase advances.
+    Alpha[2],                  // Alpha functions (redundant).
+    Beta[2],                   // beta fonctions (redundant).
+    Eta[2],                    // dispersion and its derivative (redundant).
+    Etap[2],
+    maxampl[2][2];             /* Horizontal and vertical physical apertures:
+				  maxampl[X_][0] < x < maxampl[X_][1]
+				  maxampl[Y_][0] < y < maxampl[Y_][1].        */
+  psVector
+    BeamPos;                   // Last position of the beam this cell.
+  Matrix
+    A,                         // Floquet space to phase space transformation.
+    sigma;                     // sigma matrix (redundant).
+  CellType
+    *next_ptr;                 // pointer to next cell (for tracking).
+};
+
 // Element base class.
-class elemtype {
+class elemtype : public CellType {
  public:
   partsName
     PName;                     // Element name.
@@ -91,8 +120,21 @@ class elemtype {
   PartsKind
     Pkind;                     // Enumeration for magnet types.
 
-  virtual void Elem_Pass(ss_vect<double> &x) = 0;
-  virtual void Elem_Pass(ss_vect<tps> &x) = 0;
+  virtual void Elem_Pass(ss_vect<double> &x);
+  virtual void Elem_Pass(ss_vect<tps> &x);
+};
+
+// Index for lattice elements.
+class ElemFamType {
+ public:
+  int
+    nKid,                      // Kid number.
+    KidList[nKidMax],
+    NoDBN;
+  elemtype
+    *ElemF;                    // Structure (name, type).
+  DBNameType
+    DBNlist[nKidMax];
 };
 
 class DriftType : public elemtype {
@@ -144,16 +186,21 @@ class MpoleType : public elemtype {
 class CavityType : public elemtype {
  public:
   bool
-    entry_focus,             // Edge focusing at entry.
-    exit_focus;              // Edge focusing at exit.
+    entry_focus,               // Edge focusing at entry.
+    exit_focus;                // Edge focusing at exit.
   int
-    PN,                      // Number of integration steps.
-    Ph;                      // Harmonic number.
+    PN,                        // Number of integration steps.
+    Ph;                        // Harmonic number.
   double
-    Pvolt,                   // Vrf [V].
-    Pfreq,                   // Vrf [Hz].
-    phi;                     // RF phase.
+    Pvolt,                     // Vrf [V].
+    Pfreq,                     // Vrf [Hz].
+    phi;                       // RF phase.
 
+  template<typename T>
+  void Elem_Pass(ss_vect<T> &x);
+};
+
+class MarkerType : public elemtype {
   template<typename T>
   void Elem_Pass(ss_vect<T> &x);
 };
@@ -161,27 +208,27 @@ class CavityType : public elemtype {
 class WigglerType : public elemtype {
  public:
   int
-    Pmethod,                 // Integration Method.
-    PN,                      // number of integration steps.
-    n_harm,                  // No of harmonics.
-    harm[n_harm_max],        // Harmonic number.
-    Porder;                  // The highest order in PB.
+    Pmethod,                   // Integration Method.
+    PN,                        // number of integration steps.
+    n_harm,                    // No of harmonics.
+    harm[n_harm_max],          // Harmonic number.
+    Porder;                    // The highest order in PB.
   // Roll angle
   double
-    PdTpar,                  // Design [deg].
-    PdTsys,                  // Systematic [deg].
-    PdTrms,                  // RMS [deg].
-    PdTrnd,                  // Random number.
-    Lambda,                  // lambda.
+    PdTpar,                    // Design [deg].
+    PdTsys,                    // Systematic [deg].
+    PdTrms,                    // RMS [deg].
+    PdTrnd,                    // Random number.
+    Lambda,                    // lambda.
   // Displacement Error.
-    PdSsys[2],               // Systematic [m].
-    PdSrms[2],               // RMS [m].
-    PdSrnd[2],               // Random number.
-    BoBrhoV[n_harm_max],     // B/Brho vertical.
-    BoBrhoH[n_harm_max],     // B/Brho horizontal.
-    kxV[n_harm_max],         // kx.
-    kxH[n_harm_max],         // kx.
-    phi[n_harm_max];         // phi.
+    PdSsys[2],                 // Systematic [m].
+    PdSrms[2],                 // RMS [m].
+    PdSrnd[2],                 // Random number.
+    BoBrhoV[n_harm_max],       // B/Brho vertical.
+    BoBrhoH[n_harm_max],       // B/Brho horizontal.
+    kxV[n_harm_max],           // kx.
+    kxH[n_harm_max],           // kx.
+    phi[n_harm_max];           // phi.
   mpolArray
   PBW;
 
@@ -192,29 +239,29 @@ class WigglerType : public elemtype {
 class InsertionType : public elemtype {
  public:
   char
-    fname1[100],             // Filename for insertion description: 1st order.
-    fname2[100];             // Filename for insertion description: 2nd order.
+    fname1[100],               // Filename for insertion description: 1st order.
+    fname2[100];               // Filename for insertion description: 2nd order.
   bool
-    linear,                  // if true linear interpolation else spline.
-    firstorder,              // true if first order kick map loaded.
-    secondorder,             // true if second order kick map loaded.
-    long_comp;               // flag for longitudinal comp.
+    linear,                    // if true linear interpolation else spline.
+    firstorder,                // true if first order kick map loaded.
+    secondorder,               // true if second order kick map loaded.
+    long_comp;                 // flag for longitudinal comp.
   int
-    Pmethod,                 // Integration Method.
-    PN,                      // number of integration steps.
-    nx,                      // Horizontal point number.
-    nz,                      // Vertical point number.
-    Porder;                  // The highest order in PB.
+    Pmethod,                   // Integration Method.
+    PN,                        // number of integration steps.
+    nx,                        // Horizontal point number.
+    nz,                        // Vertical point number.
+    Porder;                    // The highest order in PB.
   double
-    scaling,                 // static scaling factor as in BETA ESRF.
-    phi,                     // Bend angle.
-    tabx[IDXMAX],            // spacing in H-plane.
-    tabz[IDZMAX],            // spacing in V-plane.
+    scaling,                   // static scaling factor as in BETA ESRF.
+    phi,                       // Bend angle.
+    tabx[IDXMAX],              // spacing in H-plane.
+    tabz[IDZMAX],              // spacing in V-plane.
     thetax[IDZMAX][IDXMAX],
-    thetax1[IDZMAX][IDXMAX], // 1 for first order.
+    thetax1[IDZMAX][IDXMAX],   // 1 for first order.
     thetaz[IDZMAX][IDXMAX],
     thetaz1[IDZMAX][IDXMAX],
-    B2[IDZMAX][IDXMAX],      // B^2_perp.
+    B2[IDZMAX][IDXMAX],        // B^2_perp.
     **tx,
     **tz,
     **f2x,
@@ -222,24 +269,24 @@ class InsertionType : public elemtype {
     **tx1,
     **tz1,
     **f2x1,
-    **f2z1,                  // a voir.
+    **f2z1,                    // a voir.
     *tab1,
-    *tab2,                   // tab of x and z meshes from Radia code.
+    *tab2,                     // tab of x and z meshes from Radia code.
   // Roll angle.
-    PdTpar,                  // design [deg].
-    PdTsys,                  // systematic [deg].
-    PdTrms,                  // rms [deg].
-    PdTrnd,                  // random number.
+    PdTpar,                    // design [deg].
+    PdTsys,                    // systematic [deg].
+    PdTrms,                    // rms [deg].
+    PdTrnd,                    // random number.
 //  Strength
-//  double Plperiod;         // Length Period [m].
-//  int Pnperiod;            // Number of periods.
-//  double PBoBrho;          // B/Brho.
-//  double PKx;              // kx.
+//  double Plperiod;           // Length Period [m].
+//  int Pnperiod;              // Number of periods.
+//  double PBoBrho;            // B/Brho.
+//  double PKx;                // kx.
 //  mpolArray PBW;
   // Displacement Error.
-    PdSsys[2],               // systematic [m].
-    PdSrms[2],               // rms [m].
-    PdSrnd[2];               // random number.
+    PdSsys[2],                 // systematic [m].
+    PdSrms[2],                 // rms [m].
+    PdSrnd[2];                 // random number.
 
   template<typename T>
   void Elem_Pass(ss_vect<T> &x);
@@ -248,9 +295,9 @@ class InsertionType : public elemtype {
 class FieldMapType : public elemtype {
  public:
   int
-    n_step,                  // number of integration steps.
-    n[3],                    // no of steps.
-    cut;                     // cut in z direction.
+    n_step,                    // number of integration steps.
+    n[3],                      // no of steps.
+    cut;                       // cut in z direction.
   double
     scl,
     phi,
@@ -260,11 +307,11 @@ class FieldMapType : public elemtype {
     Ld,
     L1,
     dx[3],
-    *x[3],                   // [dx, dy, dz], [x, y, z].
+    *x[3],                     // [dx, dy, dz], [x, y, z].
     ***BoBrho[3],
-    ***BoBrho2[3],           // [B_x, B_y, B_z].
+    ***BoBrho2[3],             // [B_x, B_y, B_z].
     ***AoBrho[2],
-    ***AoBrho2[2];           // [Ax(x, y, z), Ay(x, y, z)], spline info.
+    ***AoBrho2[2];             // [Ax(x, y, z), Ay(x, y, z)], spline info.
 
   template<typename T>
   void Elem_Pass(ss_vect<T> &x);
@@ -275,7 +322,7 @@ class CellType;
 class SpreaderType : public elemtype {
  public:
   double
-    E_max[Spreader_max];     // energy levels in increasing order.
+    E_max[Spreader_max];       // energy levels in increasing order.
   CellType
     *Cell_ptrs[Spreader_max];
 
@@ -296,18 +343,18 @@ class RecombinerType : public elemtype {
 class SolenoidType : public elemtype {
  public:
   int
-    N;                       // Number of integration steps.
+    N;                         // Number of integration steps.
   // Roll angle.
   double
-    dTpar,                   // design [deg].
-    dTsys,                   // systematic [deg].
-    dTrms,                   // rms [deg].
-    dTrnd,                   // random number.
-    BoBrho,                  // normalized field strength.
+    dTpar,                     // design [deg].
+    dTsys,                     // systematic [deg].
+    dTrms,                     // rms [deg].
+    dTrnd,                     // random number.
+    BoBrho,                    // normalized field strength.
   // Displacement Errors.
-    PdSsys[2],               // systematic [m].
-    PdSrms[2],               // rms [m].
-    PdSrnd[2];               // random number.
+    PdSsys[2],                 // systematic [m].
+    PdSrms[2],                 // rms [m].
+    PdSrnd[2];                 // random number.
 
   template<typename T>
   void Elem_Pass(ss_vect<T> &x);
@@ -324,51 +371,8 @@ class MapType : public elemtype {
   ss_vect<tps>
     M;
 
-  template<typename T>
-  void Elem_Pass(ss_vect<T> &x);
-};
-
-// LEGO Block Structure for each Element of the Lattice.
-class CellType : public elemtype {
- public:
-  int
-    Fnum,                      // Element Family #.
-    Knum;                      // Element Kid #.
-  double
-    S,                         // Position in the ring.
-    curly_dH_x,                // Contribution to curly_H_x.
-    dI[6],                     // Contribution to I[2..5].
-    dS[2],                     // Transverse displacement.
-    dT[2],                     // dT = (cos(dT), sin(dT)).
-    Nu[2],                     // Phase advances.
-    Alpha[2],                  // Alpha functions (redundant).
-    Beta[2],                   // beta fonctions (redundant).
-    Eta[2],                    // dispersion and its derivative (redundant).
-    Etap[2],
-    maxampl[2][2];             /* Horizontal and vertical physical apertures:
-				  maxampl[X_][0] < x < maxampl[X_][1]
-				  maxampl[Y_][0] < y < maxampl[Y_][1].        */
-  psVector
-    BeamPos;                   // Last position of the beam this cell.
-  Matrix
-    A,                         // Floquet space to phase space transformation.
-    sigma;                     // sigma matrix (redundant).
-  CellType
-    *next_ptr;                 // pointer to next cell (for tracking).
-  elemtype
-    *Elem;                     // Structure (name, type).
-};
-
-class ElemFamType {
- public:
-  int
-    nKid,                      // Kid number.
-    KidList[nKidMax],
-    NoDBN;
-  elemtype
-    *ElemF;                    // Structure (name, type).
-  DBNameType
-    DBNlist[nKidMax];
+  void Elem_Pass(ss_vect<double> &x);
+  void Elem_Pass(ss_vect<tps> &x);
 };
 
 #endif
