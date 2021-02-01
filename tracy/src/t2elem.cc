@@ -430,9 +430,9 @@ void Drift(const double L, ss_vect<T> &ps)
 
 
 template<typename T>
-void CellType::Drift_Pass(ss_vect<T> &x)
+void DriftType::Elem_Pass(ss_vect<T> &x)
 {
-  Drift(this->Elem.PL, x);
+  Drift(this->PL, x);
 
   if (globval.emittance && !globval.Cavity_on)
     // Needs A^-1.
@@ -666,7 +666,7 @@ void get_dI_eta_5(CellType &Cell)
 
 
 template<typename T>
-void CellType::Mpole_Pass(ss_vect<T> &ps)
+void MpoleType::Elem_Pass(ss_vect<T> &ps)
 {
   int       seg = 0, i;
   double    k = 0e0, dL = 0e0, dL1 = 0e0, dL2 = 0e0;
@@ -785,7 +785,7 @@ void CellType::Mpole_Pass(ss_vect<T> &ps)
 
 
 template<typename T>
-void CellType::Marker_Pass(ss_vect<T> &ps)
+void MarkerType::Elem_Pass(ss_vect<T> &ps)
 {
   GtoL(ps, this->dS, this->dT, 0e0, 0e0, 0e0);
 
@@ -812,7 +812,7 @@ void Cav_Focus(const double L, const T delta, const bool entrance,
 #if 1
 
 template<typename T>
-void CellType::Cav_Pass(ss_vect<T> &ps)
+void CavType::Elem_Pass(ss_vect<T> &ps)
 {
   double     L;
   elemtype   *elemp;
@@ -881,7 +881,7 @@ void Cav_Pass1(CellType &Cell, ss_vect<T> &ps)
 
 
 template<typename T>
-void CellType::Cav_Pass(ss_vect<T> &ps)
+void CavType::Elem_Pass(ss_vect<T> &ps)
 {
   /* J. Rosenzweig and L. Serafini "Transverse Particle Motion in
      Radio-Frequency Linear Accelerators" Phys. Rev. E 49(2),
@@ -1487,7 +1487,7 @@ void Wiggler_pass_EF3(CellType &Cell, ss_vect<T> &ps)
 
 
 template<typename T>
-void CellType::Wiggler_Pass(ss_vect<T> &ps)
+void WigglerType::Elem_Pass(ss_vect<T> &ps)
 {
   int         seg;
   double      L, L1, L2, K1, K2;
@@ -2130,7 +2130,7 @@ template void FieldMap_pass_SI(CellType &, ss_vect<tps> &);
 
 
 template<typename T>
-void CellType::FieldMap_Pass(ss_vect<T> &ps)
+void FieldMapType::Elem_Pass(ss_vect<T> &ps)
 {
   int          k;
   double       Ld;
@@ -2172,7 +2172,7 @@ void CellType::FieldMap_Pass(ss_vect<T> &ps)
 
 
 template<typename T>
-void CellType::Insertion_Pass(ss_vect<T> &x)
+void InsertionType::Elem_Pass(ss_vect<T> &x)
 {
   /* Purpose:
        Track vector x through a insertion
@@ -2349,7 +2349,7 @@ void sol_pass(const elemtype &elem, ss_vect<T> &x)
 
 
 template<typename T>
-void CellType::Solenoid_Pass(ss_vect<T> &ps)
+void SolenoidType::Elem_Pass(ss_vect<T> &ps)
 {
   GtoL(ps, this->dS, this->dT, 0e0, 0e0, 0e0);
 
@@ -2362,12 +2362,12 @@ void CellType::Solenoid_Pass(ss_vect<T> &ps)
 // template<typename T>
 // void Map_Pass(CellType &Cell, ss_vect<T> &ps) { ps = Cell.Elem.Map->M*ps; }
 
-void CellType::Map_Pass(ss_vect<double> &ps) 
+void MapType::Elem_Pass(ss_vect<double> &ps) 
 {
   ps = (this->Elem.Map->M*ps).cst();
 }
 
-void CellType::Map_Pass(ss_vect<tps> &ps)
+void MapType::Elem_Pass(ss_vect<tps> &ps)
 {
   ps = this->Elem.Map->M*ps;
 }
@@ -2592,7 +2592,7 @@ double Elem_GetKval(int Fnum1, int Knum1, int Order)
 
 void Drift_Alloc(elemtype *Elem)
 {
-  Elem->D = (DriftType *)malloc(sizeof(DriftType));
+  Elem = (DriftType *)malloc(sizeof(DriftType));
 }
 
 

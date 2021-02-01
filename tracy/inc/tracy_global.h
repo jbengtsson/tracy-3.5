@@ -79,14 +79,28 @@ typedef class globvalrec {
 
 // Beam line class.
 
-class CellType;
+// Element base class.
+class elemtype {
+ public:
+  partsName
+    PName;                     // Element name.
+  bool
+    Reverse;                   // Reverse element.
+  double
+    PL;                        // Length[m].
+  PartsKind
+    Pkind;                     // Enumeration for magnet types.
 
-class DriftType {
-  // virtual bool Elem_Pass(const long i, ss_vect<double> &) { Drift(L, x); };
-  // virtual bool Elem_Pass(const long i, ss_vect<tps> &) { Drift(L, x);
+  virtual void Elem_Pass(ss_vect<double> &x) = 0;
+  virtual void Elem_Pass(ss_vect<tps> &x) = 0;
 };
 
-class MpoleType {
+class DriftType : public elemtype {
+  template<typename T>
+  void Elem_Pass(ss_vect<T> &x);
+};
+
+class MpoleType : public elemtype {
  public:
   int
     Pmethod,                   // Integration Method.
@@ -122,9 +136,12 @@ class MpoleType {
     Pthick;
   ss_vect<tps>
     M_lin;                     // Linear Map for Element.
+
+  template<typename T>
+  void Elem_Pass(ss_vect<T> &x);
 };
 
-class CavityType {
+class CavityType : public elemtype {
  public:
   bool
     entry_focus,             // Edge focusing at entry.
@@ -136,9 +153,12 @@ class CavityType {
     Pvolt,                   // Vrf [V].
     Pfreq,                   // Vrf [Hz].
     phi;                     // RF phase.
+
+  template<typename T>
+  void Elem_Pass(ss_vect<T> &x);
 };
 
-class WigglerType {
+class WigglerType : public elemtype {
  public:
   int
     Pmethod,                 // Integration Method.
@@ -164,9 +184,12 @@ class WigglerType {
     phi[n_harm_max];         // phi.
   mpolArray
   PBW;
+
+  template<typename T>
+  void Elem_Pass(ss_vect<T> &x);
 };
 
-class InsertionType {
+class InsertionType : public elemtype {
  public:
   char
     fname1[100],             // Filename for insertion description: 1st order.
@@ -217,9 +240,12 @@ class InsertionType {
     PdSsys[2],               // systematic [m].
     PdSrms[2],               // rms [m].
     PdSrnd[2];               // random number.
+
+  template<typename T>
+  void Elem_Pass(ss_vect<T> &x);
 };
 
-class FieldMapType {
+class FieldMapType : public elemtype {
  public:
   int
     n_step,                  // number of integration steps.
@@ -239,24 +265,35 @@ class FieldMapType {
     ***BoBrho2[3],           // [B_x, B_y, B_z].
     ***AoBrho[2],
     ***AoBrho2[2];           // [Ax(x, y, z), Ay(x, y, z)], spline info.
+
+  template<typename T>
+  void Elem_Pass(ss_vect<T> &x);
 };
 
-class SpreaderType {
+class CellType;
+
+class SpreaderType : public elemtype {
  public:
   double
     E_max[Spreader_max];     // energy levels in increasing order.
   CellType
     *Cell_ptrs[Spreader_max];
+
+  template<typename T>
+  void Elem_Pass(ss_vect<T> &x);
 };
 
-class RecombinerType {
+class RecombinerType : public elemtype {
  public:
   double
     E_min,
     E_max;
+
+  template<typename T>
+  void Elem_Pass(ss_vect<T> &x);
 };
 
-class SolenoidType {
+class SolenoidType : public elemtype {
  public:
   int
     N;                       // Number of integration steps.
@@ -271,9 +308,12 @@ class SolenoidType {
     PdSsys[2],               // systematic [m].
     PdSrms[2],               // rms [m].
     PdSrnd[2];               // random number.
+
+  template<typename T>
+  void Elem_Pass(ss_vect<T> &x);
 };
 
-class MapType {
+class MapType : public elemtype {
  public:
   double
     dnu[2],
@@ -283,49 +323,13 @@ class MapType {
     etap_x;
   ss_vect<tps>
     M;
-};
 
-// Element base class.
-class elemtype {
- public:
-  partsName
-    PName;                     // Element name.
-  bool
-    Reverse;                   // Reverse element.
-  double
-    PL;                        // Length[m].
-  PartsKind
-    Pkind;                     // Enumeration for magnet types.
-  union
-  {
-    DriftType
-      *D;                      // Drift.
-    MpoleType
-      *M;                      // Multipole.
-    CavityType
-      *C;                      // Cavity.
-    WigglerType
-      *W;                      // Wiggler.
-    InsertionType
-      *ID;                     // Insertion.
-    FieldMapType
-      *FM;                     // Field Map.
-    SpreaderType
-      *Spr;                    // Spreader.
-    RecombinerType
-      *Rec;                    // Recombiner.
-    SolenoidType
-      *Sol;                    // Solenoid.
-    MapType
-      *Map;                    // Map.
-  };
-
-  // virtual bool Elem_Pass(const long i, ss_vect<double> &) = 0;
-  // virtual bool Elem_Pass(const long i, ss_vect<tps> &) = 0;
+  template<typename T>
+  void Elem_Pass(ss_vect<T> &x);
 };
 
 // LEGO Block Structure for each Element of the Lattice.
-class CellType {
+class CellType : public elemtype {
  public:
   int
     Fnum,                      // Element Family #.
@@ -352,26 +356,7 @@ class CellType {
   CellType
     *next_ptr;                 // pointer to next cell (for tracking).
   elemtype
-    Elem;                     // Structure (name, type).
-
-  template<typename T>
-  void Drift_Pass(ss_vect<T> &x);
-  template<typename T>
-  void Mpole_Pass(ss_vect<T> &x);
-  template<typename T>
-  void Cav_Pass(ss_vect<T> &x);
-  template<typename T>
-  void Marker_Pass(ss_vect<T> &x);
-  template<typename T>
-  void Wiggler_Pass(ss_vect<T> &x);
-  template<typename T>
-  void Insertion_Pass(ss_vect<T> &x);
-  template<typename T>
-  void FieldMap_Pass(ss_vect<T> &x);
-  template<typename T>
-  void Solenoid_Pass(ss_vect<T> &x);
-  void Map_Pass(ss_vect<double> &x);
-  void Map_Pass(ss_vect<tps> &x);
+    *Elem;                     // Structure (name, type).
 };
 
 class ElemFamType {
@@ -381,7 +366,7 @@ class ElemFamType {
     KidList[nKidMax],
     NoDBN;
   elemtype
-    ElemF;                     // Structure (name, type).
+    *ElemF;                    // Structure (name, type).
   DBNameType
     DBNlist[nKidMax];
 };

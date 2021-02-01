@@ -221,7 +221,7 @@ static long CheckElementtable(const char *name, struct LOC_Lattice_Read *LINK)
 
   FORLIM = globval.Elem_nFam;
   for (i = 1; i <= FORLIM; i++) {
-    if (!strncmp(ElemFam[i-1].ElemF.PName, name, sizeof(partsName)))
+    if (!strncmp(ElemFam[i-1].ElemF->PName, name, sizeof(partsName)))
       j = i;
   }
   return j;
@@ -962,7 +962,7 @@ static double BlockLength(long ii, struct LOC_Lat_EVAL *LINK)
   k2 = LINK->LINK->BlockS[ii-1].BSTART;
   k3 = LINK->LINK->BlockS[ii-1].BOWARI;
   for (k1 = k2 - 1; k1 < k3; k1++)
-    S += ElemFam[LINK->LINK->Bstack[k1]-1].ElemF.PL;
+    S += ElemFam[LINK->LINK->Bstack[k1]-1].ElemF->PL;
   return S;
 }
 
@@ -998,11 +998,15 @@ static double GetKparm(long direction, struct LOC_Factor *LINK)
   test(P_expset(SET, 1 << ((long)rbrack)), "<]> expected",
        LINK->LINK->LINK->LINK);
   if (direction == 1)
-    Result = ElemFam[LINK->i-1].ElemF.M->PBpar[(long)((long)LINK->
-	     LINK->LINK->LINK->S[LINK->LINK->LINK->LINK->t])+HOMmax];
+    Result =
+      dynamic_cast<MpoleType*>(ElemFam[LINK->i-1].ElemF)
+      ->PBpar[(long)((long)LINK->LINK->LINK->LINK
+		     ->S[LINK->LINK->LINK->LINK->t])+HOMmax];
   else
-    Result = ElemFam[LINK->i-1].ElemF.M->PBpar[HOMmax-(long)LINK->
-            LINK->LINK->LINK->S[LINK->LINK->LINK->LINK->t]];
+    Result =
+      dynamic_cast<MpoleType*>(ElemFam[LINK->i-1].ElemF)
+      ->PBpar[HOMmax-(long)LINK->LINK->LINK->LINK
+	      ->S[LINK->LINK->LINK->LINK->t]];
   LINK->LINK->LINK->LINK->t--;
   /* GetSym;*/
   return Result;
@@ -1886,7 +1890,7 @@ static void AssignHOM(long elem, struct LOC_Lat_DealElement *LINK)
   long       i;
   MpoleType  *M;
 
-  M = ElemFam[elem-1].ElemF.M;
+  M = ElemFam[elem-1].ElemF->M;
   for (i = -HOMmax; i <= HOMmax; i++) {
     if (LINK->BA[i+HOMmax]) {
       M->PBpar[i+HOMmax] = LINK->B[i+HOMmax];
@@ -1931,7 +1935,7 @@ static void AssignHarm(long elem, struct LOC_Lat_DealElement *LINK)
   long         i;
   WigglerType  *W;
 
-  W = ElemFam[elem-1].ElemF.W; W->n_harm += LINK->n_harm;
+  W = ElemFam[elem-1].ElemF->W; W->n_harm += LINK->n_harm;
   // the fundamental is stored in harm[0], etc.
   for (i = 1; i < W->n_harm; i++) {
     W->harm[i] = LINK->harm[i-1];
@@ -3915,12 +3919,12 @@ static void DealWithDefns(struct LOC_Lattice_Read *LINK)
 	      sym1:=sym;
 	      getest([eql], '<=> expected');
 	      case sym1 of
-	      lsym:  ElemFam[i].ElemF.PL :=Eval;
-	      ksym:  ElemFam[i].ElemF.Pk :=Eval;
-	      tsym:  ElemFam[i].ElemF.Pt :=Eval;
-	      t1sym: ElemFam[i].ElemF.Pt1:=Eval;
-	      t2sym: ElemFam[i].ElemF.Pt2:=Eval;
-	      gapsym: ElemFam[i].ElemF.Pgap:=Eval;
+	      lsym:  ElemFam[i].ElemF->PL :=Eval;
+	      ksym:  ElemFam[i].ElemF->Pk :=Eval;
+	      tsym:  ElemFam[i].ElemF->Pt :=Eval;
+	      t1sym: ElemFam[i].ElemF->Pt1:=Eval;
+	      t2sym: ElemFam[i].ElemF->Pt2:=Eval;
+	      gapsym: ElemFam[i].ElemF->Pgap:=Eval;
 	      END;
 	      test([semicolon], '<;> expected');
 	      GetSym;
@@ -4153,7 +4157,7 @@ static double Circumference(struct LOC_Lattice_Read *LINK)
   S = 0.0;
   FORLIM = globval.Cell_nLoc;
   for (i = 1; i <= FORLIM; i++)
-    S += ElemFam[Cell[i].Fnum-1].ElemF.PL;
+    S += ElemFam[Cell[i].Fnum-1].ElemF->PL;
   return S;
 }
 
@@ -4170,7 +4174,7 @@ static void RegisterKids(struct LOC_Lattice_Read *LINK)
     for (i = 0; i < FORLIM; i++) {
       ElemFam[i].nKid = 0;
       if (debug_lat)
-	printf("  RegisterKids: %2ld %8s\n", i+1, ElemFam[i].ElemF.PName);
+	printf("  RegisterKids: %2ld %8s\n", i+1, ElemFam[i].ElemF->PName);
     }
   } else {
     printf("Elem_nFamMax exceeded: %ld(%d)\n",
@@ -4269,19 +4273,19 @@ long ElemIndex(const std::string &name)
   i = 1;
   while (i <= globval.Elem_nFam) {
     if (prt) {
-      std::cout << std::setw(2) << (name1 == ElemFam[i-1].ElemF.PName)
-	   << " " << name1 << " " << ElemFam[i-1].ElemF.PName << " (";
+      std::cout << std::setw(2) << (name1 == ElemFam[i-1].ElemF->PName)
+	   << " " << name1 << " " << ElemFam[i-1].ElemF->PName << " (";
       for (j = 0; j < SymbolLength; j++)
-	std::cout << std::setw(4) << (int)ElemFam[i-1].ElemF.PName[j];
+	std::cout << std::setw(4) << (int)ElemFam[i-1].ElemF->PName[j];
       std::cout  << " )" << std::endl;
     }
 
-    if (name1 == ElemFam[i-1].ElemF.PName) break;
+    if (name1 == ElemFam[i-1].ElemF->PName) break;
 
     i++;
   }
 
-  if (name1 != ElemFam[i-1].ElemF.PName) {
+  if (name1 != ElemFam[i-1].ElemF->PName) {
     std::cout << "ElemIndex: undefined element " << name << std::endl;
     exit_(1);
   }
