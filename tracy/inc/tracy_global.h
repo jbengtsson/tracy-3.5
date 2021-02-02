@@ -131,10 +131,10 @@ class ElemFamType {
     nKid,                      // Kid number.
     KidList[nKidMax],
     NoDBN;
-  elemtype
-    ElemF;                     // Structure (name, type).
   DBNameType
+    // Real-time database name (for control system).
     DBNlist[nKidMax];
+  elemtype ElemF;
 };
 
 class DriftType : public elemtype {
@@ -150,12 +150,12 @@ class MpoleType : public elemtype {
     Porder,                    // The highest order in PB.
     n_design;                  // multipole order (design).
   double
-  // Roll angle.
+    // Roll angle.
     PdTpar,                    // design [deg].
     PdTsys,                    // systematic [deg].
     PdTrms,                    // rms [deg].
     PdTrnd,                    // random number.
-  // Bending Angles.
+    // Bending Angles.
     PTx1,                      // horizontal entrance angle [deg].
     PTx2,                      // horizontal exit angle [deg].
     Pgap,                      // total magnet gap [m].
@@ -163,12 +163,12 @@ class MpoleType : public elemtype {
     Pc0,                       // corrections for roll error of bend.
     Pc1,
     Ps1,
-  // Displacement Errors.
+    // Displacement Errors.
     PdSsys[2],                 // systematic [m].
     PdSrms[2],                 // rms [m].
     PdSrnd[2];                 // random number.
   mpolArray
-  // Multipole strengths.
+    // Multipole strengths.
     PBpar,                     // design.
     PBsys,                     // systematic.
     PBrms,                     // rms.
@@ -213,14 +213,14 @@ class WigglerType : public elemtype {
     n_harm,                    // No of harmonics.
     harm[n_harm_max],          // Harmonic number.
     Porder;                    // The highest order in PB.
-  // Roll angle
+    // Roll angle
   double
     PdTpar,                    // Design [deg].
     PdTsys,                    // Systematic [deg].
     PdTrms,                    // RMS [deg].
     PdTrnd,                    // Random number.
     Lambda,                    // lambda.
-  // Displacement Error.
+    // Displacement Error.
     PdSsys[2],                 // Systematic [m].
     PdSrms[2],                 // RMS [m].
     PdSrnd[2],                 // Random number.
@@ -272,7 +272,7 @@ class InsertionType : public elemtype {
     **f2z1,                    // a voir.
     *tab1,
     *tab2,                     // tab of x and z meshes from Radia code.
-  // Roll angle.
+    // Roll angle.
     PdTpar,                    // design [deg].
     PdTsys,                    // systematic [deg].
     PdTrms,                    // rms [deg].
@@ -342,14 +342,14 @@ class SolenoidType : public elemtype {
  public:
   int
     N;                         // Number of integration steps.
-  // Roll angle.
   double
+    BoBrho,                    // normalized field strength.
+    // Roll angle.
     dTpar,                     // design [deg].
     dTsys,                     // systematic [deg].
     dTrms,                     // rms [deg].
     dTrnd,                     // random number.
-    BoBrho,                    // normalized field strength.
-  // Displacement Errors.
+    // Displacement Errors.
     PdSsys[2],                 // systematic [m].
     PdSrms[2],                 // rms [m].
     PdSrnd[2];                 // random number.

@@ -1745,11 +1745,10 @@ static bool Lat_CheckWiggler(FILE **fo, long i, struct LOC_Lattice_Read *LINK)
 {
   double       a, Lambda, L, diff;
   long         NN;
-  ElemFamType  *WITH;
   elemtype     *WITH1;
   WigglerType  *WITH2;
 
-  WITH = &ElemFam[i-1]; WITH1 = &WITH->ElemF;
+  WITH1 = &ElemFam[i-1].ElemF;
   WITH2 = static_cast<WigglerType*>(WITH1);
   Lambda = WITH2->Lambda;
   L = WITH1->PL; a = L/Lambda;
@@ -2053,7 +2052,6 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
   Lat_symbol     sym1;
   symset         mysys, SET;
   long           SET1[(long)lsym / 32 + 2];
-  ElemFamType    *WITH;
   elemtype       *WITH1;
   MpoleType      *WITH2;
   symset         SET2;
