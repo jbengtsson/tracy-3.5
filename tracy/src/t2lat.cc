@@ -74,7 +74,7 @@ typedef  Lat_symbol  Lat_spstype[256];
 typedef struct _REC_BlockStype
 {
   partsName Bname;   /* name of a beam line */
-  long  BSTART, BOWARI;
+  long      BSTART, BOWARI;
 } _REC_BlockStype;
 
 typedef _REC_BlockStype BlockStype[NoBmax];

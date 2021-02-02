@@ -13,7 +13,6 @@ double        C_u, C_gamma, C_q, cl_rad, q_fluct, I[6];
 double        c_1, d_1, c_2, d_2;
 double        s_FM;
 ElemFamType   ElemFam[Elem_nFamMax];
-//elemtype       Cell[Cell_nLocMax+1];
 elemtype      Cell[Cell_nLocMax+1];
 std::ofstream outf_;
 
