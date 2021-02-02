@@ -32,14 +32,6 @@
 /* #define Cell_nLocMax    5000 */
 #define Cell_nLocMax    20000
 
-// maximum number of families for Elem_NFam
-#define Elem_nFamMax    3000
-
-// maximum number of kids */
-#define nKidMax         5000
-
-#define DBNameLen       39
-
 #define NameLength      150  // maximum length of identifiers (e.g. file names)
 #define SymbolLength    15   // maximum length of element name
 
@@ -48,8 +40,6 @@
 #define maxincl         5
 #define maxfil          10
 #define bigvectmax      4096
-
-#define HOMmax          21
 
 
 const double  c0    = 2.99792458e8;             // speed of light in vacuum
@@ -62,19 +52,6 @@ const double  h_bar = 6.58211899e-16;           // reduced Planck constant [eV s
 
 const double  max_ampl = 10.0; // [m]
 
-
-enum pthicktype { thick = 0, thin = 1 };
-
-enum PartsKind { drift = 0, Wigl = 1, Mpole = 2, Cavity = 3, marker = 4,
-		 undef = 5, Insertion = 6, FieldMap = 7,
-                 Spreader = 8, Recombiner = 9, Solenoid = 10, Map = 11 };
-
-enum { All = 0, Dip = 1, Quad = 2, Sext = 3, Oct = 4, Dec = 5, Dodec = 6 };
-
-enum { Horizontal = 1, Vertical = 2 };
-
-enum { Meth_Linear = 0, Meth_First = 1, Meth_Second = 2, Meth_Fourth = 4 };
-
 typedef char str80[80];
 
 typedef char alfa_[NameLength];
@@ -85,13 +62,6 @@ typedef double Vector3[3];
 
 #define fitvectmax      200
 typedef long   fitvect[fitvectmax];
-
-typedef char partsName[NameLength];
-
-typedef char DBNameType[DBNameLen];
-
-typedef double mpolArray[HOMmax+HOMmax+1];
-
 
 typedef struct statusrec{
   bool tuneflag, chromflag, codflag, mapflag, passflag, overflag, chambre;

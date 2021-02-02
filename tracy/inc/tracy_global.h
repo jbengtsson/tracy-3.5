@@ -2,13 +2,35 @@
 #define TRACY_GLOBAL_H
 
 // ID Laurent
-#define IDXMAX 200
-#define IDZMAX 100
+#define IDXMAX       200
+#define IDZMAX       100
+
+#define HOMmax       21
+#define DBNameLen    39
+#define Elem_nFamMax 3000   // maximum number of families for Elem_NFam.
+#define nKidMax      5000   // maximum number of kids.
+
+
+typedef char   DBNameType[DBNameLen];
+typedef char   partsName[NameLength];
+typedef double mpolArray[HOMmax+HOMmax+1];
+
+enum PartsKind
+  { drift = 0, Wigl = 1, Mpole = 2, Cavity = 3, marker = 4,
+    undef = 5, Insertion = 6, FieldMap = 7,
+    Spreader = 8, Recombiner = 9, Solenoid = 10, Map = 11 };
+
+enum pthicktype { thick = 0, thin = 1 };
+
+enum { All = 0, Dip = 1, Quad = 2, Sext = 3, Oct = 4, Dec = 5, Dodec = 6 };
+
+enum { Horizontal = 1, Vertical = 2 };
+
+enum { Meth_Linear = 0, Meth_First = 1, Meth_Second = 2, Meth_Fourth = 4 };
 
 const int
   n_harm_max   = 10,
   Spreader_max = 10;
-
 
 
 typedef class globvalrec {
@@ -128,12 +150,11 @@ class elemtype : public CellType {
 class ElemFamType {
  public:
   int
-    nKid,                      // Kid number.
+    nKid,                      // No of kids.
     KidList[nKidMax],
     NoDBN;
   DBNameType
-    // Real-time database name (for control system).
-    DBNlist[nKidMax];
+    DBNlist[nKidMax];          // For control system.
   elemtype ElemF;
 };
 
