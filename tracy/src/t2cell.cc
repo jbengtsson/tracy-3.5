@@ -44,45 +44,7 @@ inline bool CheckAmpl(const ss_vect<T> &x, const long int loc)
 template<typename T>
 void Elem_Pass(const long i, ss_vect<T> &x)
 {
-
-  switch (Cell[i].Elem.Pkind) {
-    case drift:
-      Cell[i].Drift_Pass(x);
-      break;
-    case Mpole:
-      Cell[i].Mpole_Pass(x);
-      break;
-    case Wigl:
-      Cell[i].Wiggler_Pass(x);
-      break;
-    case FieldMap:
-      Cell[i].FieldMap_Pass(x);
-      break;
-    case Insertion:
-      Cell[i].Insertion_Pass(x);
-      break;
-    case Cavity:
-      Cell[i].Cav_Pass(x);
-      break;
-    case marker:
-      Cell[i].Marker_Pass(x);
-      break;
-    case Spreader:
-      break;
-    case Recombiner:
-      break;
-    case Solenoid:
-      Cell[i].Solenoid_Pass(x);
-      break;
-    case Map:
-      Cell[i].Map_Pass(x);
-      break;
-    default:
-      printf("Elem_Pass ** undefined type\n");
-      exit(1);
-      break;
-  }
-
+  Cell[i].Elem_Pass(x);
   is_tps<T>::get_ps(x, Cell[i]);
 }
 
@@ -262,12 +224,12 @@ void Cell_Init(void)
 
   SI_init();  /* Initializes the constants for symplectic integrator */
 
-  memcpy(Cell[0].Elem.PName, first_name, sizeof(first_name));
+  memcpy(Cell[0].PName, first_name, sizeof(first_name));
 
   for (i = 1; i <= globval.Elem_nFam; i++) {
     elemfamp  = &ElemFam[i-1]; /* Get 1 of all elements stored in ElemFam
 				  array */
-    elemp = &elemfamp->ElemF; // For switch structure: choice on element type
+    elemp = elemfamp->ElemF; // For switch structure: choice on element type
     if (debug)
       printf("Cell_Init, i:=%3ld: %*s\n", i, SymbolLength, elemp->PName);
 
@@ -315,6 +277,6 @@ void Cell_Init(void)
   /* Computes s-location of each element in the structure */
   Stotal = 0e0;
   for (i = 0; i <= globval.Cell_nLoc; i++) {
-    Stotal += Cell[i].Elem.PL; Cell[i].S = Stotal;
+    Stotal += Cell[i].PL; Cell[i].S = Stotal;
   }
 }

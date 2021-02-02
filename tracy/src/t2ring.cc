@@ -125,7 +125,7 @@ void Cell_Geteta(long i0, long i1, bool ring, double dP)
   int      k;
   psVector xref;
   psVector codbuf[Cell_nLocMax+1];
-  CellType *cellp;
+  CellType *elemp;
 
   const int n = 4;
 
@@ -147,11 +147,11 @@ void Cell_Geteta(long i0, long i1, bool ring, double dP)
   }
 
   for (i = i0; i <= i1; i++) {
-    cellp = &Cell[i];
+    elemp = &Cell[i];
     for (k = 0; k < 2; k++) {
-      cellp->Eta[k] = (cellp->BeamPos[2*k]-codbuf[i][2*k])/globval.dPcommon;
-      cellp->Etap[k] =
-	(cellp->BeamPos[2*k+1]-codbuf[i][2*k+1])/globval.dPcommon;
+      elemp->Eta[k] = (elemp->BeamPos[2*k]-codbuf[i][2*k])/globval.dPcommon;
+      elemp->Etap[k] =
+	(elemp->BeamPos[2*k+1]-codbuf[i][2*k+1])/globval.dPcommon;
     }
   }
 }
@@ -188,7 +188,7 @@ void Cell_Twiss(long i0, long i1, ss_vect<tps> &Ascr, bool chroma, bool ring,
   int          k;
   Vector2      nu1, dnu;
   ss_vect<tps> Ascr0, Ascr1;
-  CellType     *cellp;
+  elemtype     *elemp;
 
   const int n = 4;
 
@@ -198,9 +198,9 @@ void Cell_Twiss(long i0, long i1, ss_vect<tps> &Ascr, bool chroma, bool ring,
 
   if (globval.radiation) globval.dE = 0e0;
 
-  cellp = &Cell[i0];
-  dagetprm(Ascr, cellp->Alpha, cellp->Beta);
-  memcpy(cellp->Nu, nu1, sizeof(Vector2));
+  elemp = &Cell[i0];
+  dagetprm(Ascr, elemp->Alpha, elemp->Beta);
+  memcpy(elemp->Nu, nu1, sizeof(Vector2));
 
   Ascr0 = Ascr;
   for (k = 0; k < n+2; k++)
@@ -208,35 +208,35 @@ void Cell_Twiss(long i0, long i1, ss_vect<tps> &Ascr, bool chroma, bool ring,
 
   Ascr1 = Ascr0;
   for (i = i0; i <= i1; i++) {
-    Elem_Pass(i, Ascr1); cellp = &Cell[i];
-    dagetprm(Ascr1, cellp->Alpha, cellp->Beta);
+    Elem_Pass(i, Ascr1); elemp = &Cell[i];
+    dagetprm(Ascr1, elemp->Alpha, elemp->Beta);
     for (k = 1; k <= 2; k++) {
       dnu[k-1] =
 	(GetAngle(getmat(Ascr1, 2*k-1, 2*k-1), getmat(Ascr1, 2*k-1, 2*k)) -
 	 GetAngle(getmat(Ascr0, 2*k-1, 2*k-1), getmat(Ascr0, 2*k-1, 2*k)))
 	/(2e0*M_PI);
 
-      if ((cellp->Elem.PL >= 0e0) && (dnu[k-1] < -1e-16))
+      if ((elemp->PL >= 0e0) && (dnu[k-1] < -1e-16))
 	dnu[k-1] += 1e0;
-      else if ((cellp->Elem.PL < 0e0) && (dnu[k-1] > 1e-16))
+      else if ((elemp->PL < 0e0) && (dnu[k-1] > 1e-16))
 	dnu[k-1] -= 1e0;
 
       nu1[k-1] += dnu[k-1];
 
-      cellp->Nu[k-1] = nu1[k-1];
+      elemp->Nu[k-1] = nu1[k-1];
 #if 0
       // Approximate:
       //   A = A0*A1 => [a_16, a_26] = [eta_x, eta_px]*A_long^-1
       // i.e., [a_15, a_25] != [0, 0].
-      cellp->Eta[k-1] =
+      elemp->Eta[k-1] =
 	getmat(Ascr1, k, 5)*getmat(Ascr1, 6, 6) -
 	getmat(Ascr1, k, 6)*getmat(Ascr1, 6, 5);
-      cellp->Etap[k-1] =
+      elemp->Etap[k-1] =
 	getmat(Ascr1, 2*k, 5)*getmat(Ascr1, 6, 6) -
 	getmat(Ascr1, 2*k, 6)*getmat(Ascr1, 6, 5);
 #else
-      cellp->Eta[k-1] = getmat(Ascr1, 2*k-1, 5);
-      cellp->Etap[k-1] = getmat(Ascr1, 2*k, 5);
+      elemp->Eta[k-1] = getmat(Ascr1, 2*k-1, 5);
+      elemp->Etap[k-1] = getmat(Ascr1, 2*k, 5);
 #endif
     }
     Ascr0 = Ascr1;
@@ -347,13 +347,13 @@ struct LOC_Ring_Fittune
 
 void shiftk(long Elnum, double dk, struct LOC_Ring_Fittune *LINK)
 {
-  CellType   *cellp;
-  elemtype   *elemp;
-  MpoleType  *M;
+  elemtype  *elemp;
+  MpoleType *M;
 
-  cellp = &Cell[Elnum]; elemp = &cellp->Elem; M = elemp->M;
+  elemp = &Cell[Elnum];
+  M = dynamic_cast<MpoleType*>(elemp);
   M->PBpar[Quad+HOMmax] += dk;
-  Mpole_SetPB(cellp->Fnum, cellp->Knum, (long)Quad);
+  Mpole_SetPB(elemp->Fnum, elemp->Knum, (long)Quad);
 }
 
 
@@ -446,13 +446,13 @@ void Ring_Fittune(Vector2 &nu, double eps, iVector2 &nq, long qf[], long qd[],
 
 void shiftkp(long Elnum, double dkp)
 {
-  CellType  *cellp;
   elemtype  *elemp;
   MpoleType *M;
 
-  cellp = &Cell[Elnum]; elemp = &cellp->Elem; M = elemp->M;
+  elemp = &Cell[Elnum];
+  M = dynamic_cast<MpoleType*>(elemp);
   M->PBpar[Sext+HOMmax] += dkp;
-  Mpole_SetPB(cellp->Fnum, cellp->Knum, (long)Sext);
+  Mpole_SetPB(elemp->Fnum, elemp->Knum, (long)Sext);
 }
 
 
@@ -539,15 +539,13 @@ struct LOC_Ring_FitDisp
 
 static void shiftk_(long Elnum, double dk, struct LOC_Ring_FitDisp *LINK)
 {
-  CellType *cellp;
-  elemtype *elemp;
+  elemtype  *elemp;
   MpoleType *M;
 
-  cellp = &Cell[Elnum];
-  elemp = &cellp->Elem;
-  M = elemp->M;
+  elemp = &Cell[Elnum];
+  M = dynamic_cast<MpoleType*>(elemp);
   M->PBpar[Quad+HOMmax] += dk;
-  Mpole_SetPB(cellp->Fnum, cellp->Knum, (long)Quad);
+  Mpole_SetPB(elemp->Fnum, elemp->Knum, (long)Quad);
 }
 
 

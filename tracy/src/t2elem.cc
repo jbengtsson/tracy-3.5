@@ -3999,7 +3999,6 @@ void Mpole_DefdTpar(int Fnum1, int Knum1, double PdTpar)
 
   elemp = &Cell[ElemFam[Fnum1-1].KidList[Knum1-1]];
   M = dynamic_cast<MpoleType*>(elemp);
-
   M->PdTpar = PdTpar;
 }
 
@@ -4011,7 +4010,6 @@ void Mpole_DefdTsys(int Fnum1, int Knum1, double PdTsys)
 
   elemp = &Cell[ElemFam[Fnum1-1].KidList[Knum1-1]];
   M = dynamic_cast<MpoleType*>(elemp);
-
   M->PdTsys=PdTsys;
 }
 

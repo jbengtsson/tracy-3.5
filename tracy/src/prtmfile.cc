@@ -83,7 +83,7 @@ void prtName(FILE *fp, const int i,
 	     const int type, const int method, const int N, const bool reverse)
 {
   fprintf(fp, "%-15s %4d %4d %4d\n",
-	  Cell[i].Elem.PName, Cell[i].Fnum, Cell[i].Knum, i);
+	  Cell[i].PName, Cell[i].Fnum, Cell[i].Knum, i);
   fprintf(fp, " %3d %3d %3d %4d\n", type, method, N, reverse);
   fprintf(fp, " %23.16e %23.16e %23.16e %23.16e\n",
 	  Cell[i].maxampl[X_][0], Cell[i].maxampl[X_][1],
@@ -108,88 +108,81 @@ void prtHOM(FILE *fp, const int n_design, const mpolArray PB, const int Order)
 
 void prtmfile(const char mfile_dat[])
 {
-  int  i, j, k;
-  FILE *mfile;
+  int           i, j, k;
+  MpoleType     *M;
+  WigglerType   *W;
+  CavityType    *C;
+  InsertionType *ID;
+  MapType       *Map;
+  FILE          *mfile;
 
   const int n_ps = 6;
 
   mfile = file_write(mfile_dat);
   for (i = 0; i <= globval.Cell_nLoc; i++) {
-    switch (Cell[i].Elem.Pkind) {
+    switch (Cell[i].Pkind) {
     case drift:
       prtName(mfile, i, drift_, 0, 0, 0);
-      fprintf(mfile, " %23.16e\n", Cell[i].Elem.PL);
+      fprintf(mfile, " %23.16e\n", Cell[i].PL);
       break;
     case Mpole:
-      if (Cell[i].Elem.PL != 0.0) {
-	prtName(mfile, i, mpole_, Cell[i].Elem.M->Pmethod, Cell[i].Elem.M->PN,
-		Cell[i].Elem.Reverse);
+      M = dynamic_cast<MpoleType*>(&Cell[i]);
+      if (Cell[i].PL != 0.0) {
+	prtName(mfile, i, mpole_, M->Pmethod, M->PN,
+		Cell[i].Reverse);
 	fprintf(mfile, " %23.16e %23.16e %23.16e %23.16e\n",
 		Cell[i].dS[X_], Cell[i].dS[Y_],
-		Cell[i].Elem.M->PdTpar,
-		Cell[i].Elem.M->PdTsys
-		+Cell[i].Elem.M->PdTrms*Cell[i].Elem.M->PdTrnd);
+		M->PdTpar, M->PdTsys+M->PdTrms*M->PdTrnd);
 	fprintf(mfile, " %23.16e %23.16e %23.16e %23.16e %23.16e\n",
-		Cell[i].Elem.PL, Cell[i].Elem.M->Pirho,
-		Cell[i].Elem.M->PTx1, Cell[i].Elem.M->PTx2,
-		Cell[i].Elem.M->Pgap);
-	prtHOM(mfile, Cell[i].Elem.M->n_design, Cell[i].Elem.M->PB,
-	       Cell[i].Elem.M->Porder);
+		Cell[i].PL, M->Pirho, M->PTx1, M->PTx2, M->Pgap);
+	prtHOM(mfile, M->n_design, M->PB, M->Porder);
       } else {
-	prtName(mfile, i, thinkick_, Cell[i].Elem.M->Pmethod,
-		Cell[i].Elem.M->PN, Cell[i].Elem.Reverse);
+	prtName(mfile, i, thinkick_, M->Pmethod, M->PN, Cell[i].Reverse);
 	fprintf(mfile, " %23.16e %23.16e %23.16e\n",
-		Cell[i].dS[X_], Cell[i].dS[Y_],
-		Cell[i].Elem.M->PdTsys
-		+Cell[i].Elem.M->PdTrms*Cell[i].Elem.M->PdTrnd);
-	prtHOM(mfile, Cell[i].Elem.M->n_design, Cell[i].Elem.M->PB,
-	       Cell[i].Elem.M->Porder);
+		Cell[i].dS[X_], Cell[i].dS[Y_], M->PdTsys +M->PdTrms*M->PdTrnd);
+	prtHOM(mfile, M->n_design, M->PB, M->Porder);
       }
       break;
     case Wigl:
-      prtName(mfile, i, wiggler_, Cell[i].Elem.W->Pmethod, Cell[i].Elem.W->PN,
-	      Cell[i].Elem.Reverse);
-      fprintf(mfile, " %23.16e %23.16e\n",
-	      Cell[i].Elem.PL, Cell[i].Elem.W->Lambda);
-      fprintf(mfile, "%2d\n", Cell[i].Elem.W->n_harm);
-      for (j = 0; j < Cell[i].Elem.W->n_harm; j++) {
+      W = dynamic_cast<WigglerType*>(&Cell[i]);
+      prtName(mfile, i, wiggler_, W->Pmethod, W->PN, Cell[i].Reverse);
+      fprintf(mfile, " %23.16e %23.16e\n", Cell[i].PL, W->Lambda);
+      fprintf(mfile, "%2d\n", W->n_harm);
+      for (j = 0; j < W->n_harm; j++) {
 	fprintf(mfile, "%2d %23.16e %23.16e %23.16e %23.16e %23.16e\n",
-		Cell[i].Elem.W->harm[j],
-		Cell[i].Elem.W->kxV[j], Cell[i].Elem.W->BoBrhoV[j],
-		Cell[i].Elem.W->kxH[j], Cell[i].Elem.W->BoBrhoH[j],
-		Cell[i].Elem.W->phi[j]);
+		W->harm[j], W->kxV[j], W->BoBrhoV[j], W->kxH[j], W->BoBrhoH[j],
+		W->phi[j]);
       }
       break;
     case Cavity:
+      C = dynamic_cast<CavityType*>(&Cell[i]);
       prtName(mfile, i, cavity_, 0, 0, 0);
       fprintf(mfile, " %23.16e %23.16e %d %23.16e %23.16e\n",
-	      Cell[i].Elem.C->Pvolt/(1e9*globval.Energy),
-	      2.0*M_PI*Cell[i].Elem.C->Pfreq/c0, Cell[i].Elem.C->Ph,
-	      1e9*globval.Energy, Cell[i].Elem.C->phi);
+	      C->Pvolt/(1e9*globval.Energy), 2.0*M_PI*C->Pfreq/c0, C->Ph,
+	      1e9*globval.Energy, C->phi);
       break;
     case marker:
       prtName(mfile, i, marker_, 0, 0, 0);
       break;
     case Insertion:
-      prtName(mfile, i, kick_map_, Cell[i].Elem.ID->Pmethod,
-	      Cell[i].Elem.ID->PN, Cell[i].Elem.Reverse);
-      if (Cell[i].Elem.ID->firstorder)
-	fprintf(mfile, " %3.1lf %1d %s\n",
-		Cell[i].Elem.ID->scaling, 1, Cell[i].Elem.ID->fname1);
+      ID = dynamic_cast<InsertionType*>(&Cell[i]);
+      prtName(mfile, i, kick_map_, ID->Pmethod, ID->PN, Cell[i].Reverse);
+      if (ID->firstorder)
+	fprintf(mfile, " %3.1lf %1d %s\n", ID->scaling, 1, ID->fname1);
       else
-	fprintf(mfile, " %3.1lf %1d %s\n",
-		Cell[i].Elem.ID->scaling, 2, Cell[i].Elem.ID->fname2);
+	fprintf(mfile, " %3.1lf %1d %s\n", ID->scaling, 2, ID->fname2);
       break;
     case Map:
+      Map = dynamic_cast<MapType*>(&Cell[i]);
       prtName(mfile, i, map_, 0, 0, 0);
       for (j = 0; j < n_ps; j++) {
 	for (k = 0; k < n_ps; k++)
-	  fprintf(mfile, " %23.16le", Cell[i].Elem.Map->M[j][k]);
+	  fprintf(mfile, " %23.16le", Map->M[j][k]);
 	fprintf(mfile, "\n");
       }
       break;
     default:
-      printf("prtmfile: unknown type %d\n", Cell[i].Elem.Pkind);
+      printf("prtmfile: unknown type %d\n", Cell[i].Pkind);
       exit(1);
       break;
     }
