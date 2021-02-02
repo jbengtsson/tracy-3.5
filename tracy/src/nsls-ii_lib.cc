@@ -153,12 +153,15 @@ void chk_cod(const bool cod, const char *proc_name)
 
 void no_sxt(void)
 {
-  int k;
+  int       k;
+  MpoleType *M;
 
   // printf("\nzeroing sextupoles\n");
-  for (k = 0; k <= globval.Cell_nLoc; k++)
-    if ((Cell[k].Elem.Pkind == Mpole) && (Cell[k].Elem.M->Porder >= Sext))
+  for (k = 0; k <= globval.Cell_nLoc; k++) {
+    M = dynamic_cast<MpoleType*>(&Cell[k]);
+    if ((Cell[k].Pkind == Mpole) && (M->Porder >= Sext))
       SetKpar(Cell[k].Fnum, Cell[k].Knum, Sext, 0.0);
+  }
 }
 
 
@@ -376,12 +379,12 @@ void get_I(double I[], const bool prt)
 	   "     eta_x      eta'_x     alpha_y    beta_y\n\n");
   }
   for (j = 0; j <= globval.Cell_nLoc; j++)
-    if ((Cell[j].Elem.Pkind == drift) || (Cell[j].Elem.Pkind == Mpole) ||
-	(Cell[j].Elem.Pkind == Wigl) ||
-	(Cell[j].Elem.Pkind == marker)) {
+    if ((Cell[j].Pkind == drift) || (Cell[j].Pkind == Mpole) ||
+	(Cell[j].Pkind == Wigl) ||
+	(Cell[j].Pkind == marker)) {
       if (prt)
 	printf("%5d %-10s %6.3f %10.3e",
-	       j, Cell[j].Elem.PName, Cell[j].S, Cell[j].curly_dH_x);
+	       j, Cell[j].PName, Cell[j].S, Cell[j].curly_dH_x);
       for (k = 0; k <= 5; k++) {
 	I[k] += Cell[j].dI[k];
 	if (prt) printf(" %10.3e", Cell[j].dI[k]);
@@ -480,6 +483,7 @@ void GetEmittance(const int Fnum, const bool prt)
   Vector3      nu;
   Matrix       Ascr;
   ss_vect<tps> Ascr_map;
+  CavityType   *Cp;
 
   // save state
   rad = globval.radiation; emit = globval.emittance;
@@ -495,9 +499,12 @@ void GetEmittance(const int Fnum, const bool prt)
 
   // radiation loss is computed in Cav_Pass
 
+  loc = Elem_GetPos(Fnum, 1);
+  Cp = dynamic_cast<CavityType*>(&Cell[loc]);
+
   globval.U0 = globval.dE*1e9*globval.Energy;
-  V_RF = Cell[Elem_GetPos(Fnum, 1)].Elem.C->Pvolt;
-  h_RF = Cell[Elem_GetPos(Fnum, 1)].Elem.C->Ph;
+  V_RF = Cp->Pvolt;
+  h_RF = Cp->Ph;
   phi0 = fabs(asin(globval.U0/V_RF));
   globval.delta_RF =
     sqrt(-V_RF*cos(M_PI-phi0)*(2.0-(M_PI-2.0*(M_PI-phi0))
@@ -634,27 +641,29 @@ void GetEmittance(const int Fnum, const bool prt)
 
 // output
 
-double get_code(CellType &Cell)
+double get_code(elemtype &Cell)
 {
-  double code;
+  double    code;
+  MpoleType *M;
 
-  switch (Cell.Elem.Pkind) {
+  switch (Cell.Pkind) {
   case drift:
     code = 0.0;
     break;
   case Mpole:
-    if (Cell.Elem.M->Pirho != 0.0)
-      code = sgn(Cell.Elem.M->Pirho)*0.5;
-    else if (Cell.Elem.M->PBpar[Quad+HOMmax] != 0)
-      code = sgn(Cell.Elem.M->PBpar[Quad+HOMmax]);
-    else if (Cell.Elem.M->PBpar[Sext+HOMmax] != 0)
-      code = 1.5*sgn(Cell.Elem.M->PBpar[Sext+HOMmax]);
-    else if (Cell.Elem.M->PBpar[Oct+HOMmax] != 0)
-      code = 1.75*sgn(Cell.Elem.M->PBpar[Oct+HOMmax]);
-    else if (Cell.Elem.M->PBpar[Dec+HOMmax] != 0)
-      code = 1.75*sgn(Cell.Elem.M->PBpar[Dec+HOMmax]);
-    else if (Cell.Elem.M->PBpar[Dodec+HOMmax] != 0)
-      code = 1.75*sgn(Cell.Elem.M->PBpar[Dodec+HOMmax]);
+    M = dynamic_cast<MpoleType*>(&Cell);
+    if (M->Pirho != 0.0)
+      code = sgn(M->Pirho)*0.5;
+    else if (M->PBpar[Quad+HOMmax] != 0)
+      code = sgn(M->PBpar[Quad+HOMmax]);
+    else if (M->PBpar[Sext+HOMmax] != 0)
+      code = 1.5*sgn(M->PBpar[Sext+HOMmax]);
+    else if (M->PBpar[Oct+HOMmax] != 0)
+      code = 1.75*sgn(M->PBpar[Oct+HOMmax]);
+    else if (M->PBpar[Dec+HOMmax] != 0)
+      code = 1.75*sgn(M->PBpar[Dec+HOMmax]);
+    else if (M->PBpar[Dodec+HOMmax] != 0)
+      code = 1.75*sgn(M->PBpar[Dodec+HOMmax]);
     else if (Cell.Fnum == globval.bpm)
       code = 2.0;
     else
@@ -693,7 +702,7 @@ void prt_lat(const int loc1, const int loc2, const char *fname, const int Fnum,
       fprintf(outf,
 	      "%4ld %15s %9.5f %4.1f %9.5f %8.5f %8.5f %8.5f %8.5f"
 	      " %9.5f %8.5f %8.5f %8.5f %8.5f  %8.2e\n",
-	      i, Cell[i].Elem.PName, Cell[i].S, get_code(Cell[i]),
+	      i, Cell[i].PName, Cell[i].S, get_code(Cell[i]),
 	      Cell[i].Alpha[X_], Cell[i].Beta[X_], Cell[i].Nu[X_],
 	      Cell[i].Eta[X_], Cell[i].Etap[X_],
 	      Cell[i].Alpha[Y_], Cell[i].Beta[Y_], Cell[i].Nu[Y_],
@@ -732,10 +741,10 @@ void Cell_Twiss(const long int i0, const long int i1) {
       Cell[i].Nu[k] = nu_int[k] + dnu[k];
 
       if (i > i0) {
-	if((Cell[i].Nu[k] < Cell[i-1].Nu[k]) && (Cell[i].Elem.PL >= 0e0)) {
+	if((Cell[i].Nu[k] < Cell[i-1].Nu[k]) && (Cell[i].PL >= 0e0)) {
 	  Cell[i].Nu[k] += 1e0; nu_int[k] += 1;
 	} else if((Cell[i].Nu[k] > Cell[i-1].Nu[k]) &&
-		  (Cell[i].Elem.PL < 0e0))
+		  (Cell[i].PL < 0e0))
 	  nu_int[k] -= 1;
       }
 
@@ -773,9 +782,9 @@ void prt_lat(const int loc1, const int loc2, const char *fname, const int Fnum,
   for (i = loc1; i <= loc2; i++) {
     if (all || (Cell[i].Fnum == Fnum)) {
       if ((i != 0) &&
-	  ((Cell[i].Elem.Pkind == drift) ||
-	   ((Cell[i].Elem.Pkind == Mpole) && (Cell[i].Elem.PL != 0e0)))) {
-	Mp = Cell[i].Elem.M;
+	  ((Cell[i].Pkind == drift) ||
+	   ((Cell[i].Pkind == Mpole) && (Cell[i].PL != 0e0)))) {
+	Mp = dynamic_cast<MpoleType*>(&Cell[i]);
 
 	for (k = 0; k < 2; k++) {
 	  alpha[k] = Cell[i-1].Alpha[k]; beta[k] = Cell[i-1].Beta[k];
@@ -785,14 +794,14 @@ void prt_lat(const int loc1, const int loc2, const char *fname, const int Fnum,
 
 	A = get_A(alpha, beta, eta, etap);
 
-	s = Cell[i].S - Cell[i].Elem.PL; h = Cell[i].Elem.PL/n;
+	s = Cell[i].S - Cell[i].PL; h = Cell[i].PL/n;
 
 	for (j = 1; j <= n; j++) {
 	  s += h;
 
-	  if (Cell[i].Elem.Pkind == drift)
+	  if (Cell[i].Pkind == drift)
 	    Drift(h, A);
-	  else if (Cell[i].Elem.Pkind == Mpole) {
+	  else if (Cell[i].Pkind == Mpole) {
 	    if ((j == 1) && (Mp->Pirho != 0e0))
 	      EdgeFocus(Mp->Pirho, Mp->PTx1, Mp->Pgap, A);
 
@@ -810,7 +819,7 @@ void prt_lat(const int loc1, const int loc2, const char *fname, const int Fnum,
 
 	  get_ab(A, alpha, beta, dnu, eta, etap);
 
-	  if(Cell[i].Elem.PL < 0e0)
+	  if(Cell[i].PL < 0e0)
 	    for (k = 0; k < 2; k++)
 	      dnu[k] -= 1e0;
 
@@ -826,7 +835,7 @@ void prt_lat(const int loc1, const int loc2, const char *fname, const int Fnum,
 	  fprintf(outf, "%4ld %15s %6.2f %4.1f"
 		  " %9.5f %8.5f %8.5f %11.8f %11.8f"
 		  " %9.5f %8.5f %8.5f %8.5f %8.5f %10.3e %10.3e %10.3e\n",
-		  i, Cell[i].Elem.PName, s, get_code(Cell[i]),
+		  i, Cell[i].PName, s, get_code(Cell[i]),
 		  alpha[X_], beta[X_], nu[X_]+dnu[X_], eta[X_], etap[X_],
 		  alpha[Y_], beta[Y_], nu[Y_]+dnu[Y_], eta[Y_], etap[Y_],
 		  eta_Fl[x_], eta_Fl[px_], curly_H);
@@ -844,7 +853,7 @@ void prt_lat(const int loc1, const int loc2, const char *fname, const int Fnum,
 	fprintf(outf, "%4ld %15s %6.2f %4.1f"
 		" %9.5f %8.5f %8.5f %11.8f %11.8f"
 		" %9.5f %8.5f %8.5f %8.5f %8.5f %10.3e %10.3e %10.3e\n",
-		i, Cell[i].Elem.PName, Cell[i].S, get_code(Cell[i]),
+		i, Cell[i].PName, Cell[i].S, get_code(Cell[i]),
 		Cell[i].Alpha[X_], Cell[i].Beta[X_], Cell[i].Nu[X_],
 		Cell[i].Eta[X_], Cell[i].Etap[X_],
 		Cell[i].Alpha[Y_], Cell[i].Beta[Y_], Cell[i].Nu[Y_],
@@ -866,10 +875,11 @@ void prt_lat(const char *fname, const int Fnum, const bool all, const int n)
 
 void prt_chrom_lat(void)
 {
-  long int i;
-  double   dbeta_ddelta[Cell_nLocMax][2], detax_ddelta[Cell_nLocMax];
-  double   ksi[Cell_nLocMax][2];
-  FILE     *outf;
+  long int  i;
+  double    dbeta_ddelta[Cell_nLocMax][2], detax_ddelta[Cell_nLocMax];
+  double    ksi[Cell_nLocMax][2];
+  MpoleType *M;
+  FILE      *outf;
 
   printf("\nprt_chrom_lat:\n  calling Ring_GetTwiss with delta != 0\n");
   Ring_GetTwiss(true, globval.dPcommon);
@@ -891,13 +901,12 @@ void prt_chrom_lat(void)
     if (i != 0) {
       ksi[i][X_] = ksi[i-1][X_]; ksi[i][Y_] = ksi[i-1][Y_];
     }
-    if (Cell[i].Elem.Pkind == Mpole) {
+    if (Cell[i].Pkind == Mpole) {
+      M = dynamic_cast<MpoleType*>(&Cell[i]);
       ksi[i][X_] -=
-	Cell[i].Elem.M->PBpar[Quad+HOMmax]
-	*Cell[i].Elem.PL*Cell[i].Beta[X_]/(4.0*M_PI);
+	M->PBpar[Quad+HOMmax]*Cell[i].PL*Cell[i].Beta[X_]/(4.0*M_PI);
       ksi[i][Y_] +=
-	Cell[i].Elem.M->PBpar[Quad+HOMmax]
-	*Cell[i].Elem.PL*Cell[i].Beta[Y_]/(4.0*M_PI);
+	M->PBpar[Quad+HOMmax]*Cell[i].PL*Cell[i].Beta[Y_]/(4.0*M_PI);
     }
   }
 
@@ -914,7 +923,7 @@ void prt_chrom_lat(void)
     fprintf(outf,
 	    "%4ld %15s %6.2f %4.1f  %6.3f  %8.3f    %8.3f   %8.3f"
 	    "   %6.3f %8.3f   %8.3f  %5.2f  %5.2f  %6.3f  %6.3f  %6.3f\n",
-	    i, Cell[i].Elem.PName, Cell[i].S, get_code(Cell[i]),
+	    i, Cell[i].PName, Cell[i].S, get_code(Cell[i]),
 	    Cell[i].Beta[X_]*Cell[i].Eta[X_],
 	    sqrt(Cell[i].Beta[X_]*Cell[i].Beta[Y_]),
 	    dbeta_ddelta[i][X_]*Cell[i].Eta[X_],
@@ -931,30 +940,36 @@ void prt_chrom_lat(void)
 
 void printcod(const char *fname)
 {
-  long i;
-  CellType cell;
-  FILE *outf;
-  long FORLIM;
+  long     i;
+  elemtype cell;
+  FILE     *outf;
+  long     FORLIM;
 
   outf = file_write(fname);
 
 fprintf(outf,
-"#       name             s    betax   nux   betay   nuy      posx          posy          dSx          dSy         dipx         dipy      posx-dSx     posy-dSy\n");
+	"#       name             s    betax   nux   betay   nuy      posx"
+	"          posy          dSx          dSy         dipx         dipy"
+	"      posx-dSx     posy-dSy\n");
 fprintf(outf,
-"#                       [m]    [m]           [m]             [m]           [m]           [m]          [m]         [rad]        [rad]       [um]         [um]\n#\n");
+	"#                       [m]    [m]           [m]             [m]"
+	"           [m]           [m]          [m]         [rad]        [rad]"
+	"       [um]         [um]\n#\n");
 
   FORLIM = globval.Cell_nLoc;
   for (i = 1; i <= FORLIM; i++) {
     getelem(i, &cell);
 
     /* COD is in local coordinates */
-    fprintf(outf, "%4ld:%15s ", i, cell.Elem.PName);
-    fprintf(outf, "%6.2f%7.3f%7.3f%7.3f%7.3f % .5E % .5E % .5E % .5E % .5E % .5E % .5E % .5E\n",
+    fprintf(outf, "%4ld:%15s ", i, cell.PName);
+    fprintf(outf, "%6.2f%7.3f%7.3f%7.3f%7.3f % .5E % .5E % .5E % .5E % .5E"
+	    " % .5E % .5E % .5E\n",
 	    cell.S, cell.Beta[X_], cell.Nu[X_], cell.Beta[Y_], cell.Nu[Y_],
 	    cell.BeamPos[x_], cell.BeamPos[y_], cell.dS[X_], cell.dS[Y_],
 	    -Elem_GetKval(cell.Fnum, cell.Knum, (long)Dip),
 	     Elem_GetKval(cell.Fnum, cell.Knum, (long)(-Dip)),
-	    (cell.BeamPos[x_]-cell.dS[X_])*1.e6, (cell.BeamPos[y_]-cell.dS[Y_])*1.e6);
+	    (cell.BeamPos[x_]-cell.dS[X_])*1.e6,
+	    (cell.BeamPos[y_]-cell.dS[Y_])*1.e6);
   }
   if (outf != NULL)
     fclose(outf);
@@ -989,7 +1004,7 @@ void prt_cod(const char *file_name, const int Fnum, const bool all)
       fprintf(outf,
 	      "%4ld %.*s %6.2f %4.1f %6.3f %6.3f %6.3f %6.3f"
 	      " %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f\n",
-	      i, SymbolLength, Cell[i].Elem.PName, Cell[i].S,
+	      i, SymbolLength, Cell[i].PName, Cell[i].S,
 	      get_code(Cell[i]),
 	      Cell[i].Beta[X_], Cell[i].Nu[X_],
 	      Cell[i].Beta[Y_], Cell[i].Nu[Y_],
@@ -1016,7 +1031,7 @@ void prt_beampos(const char *file_name)
 
   for (k = 0; k <= globval.Cell_nLoc; k++)
     fprintf(outf, "%4ld %.*s %6.2f %4.1f %12.5e %12.5e\n",
-	    k, SymbolLength, Cell[k].Elem.PName, Cell[k].S, get_code(Cell[k]),
+	    k, SymbolLength, Cell[k].PName, Cell[k].S, get_code(Cell[k]),
 	    Cell[k].BeamPos[x_], Cell[k].BeamPos[y_]);
 
   fclose(outf);
@@ -1038,6 +1053,7 @@ void CheckAlignTol(const char *OutputFile)
   char         *name;
   double       s;
   double       PdSsys[2], PdSrms[2], PdSrnd[2], dS[2], dT[2];
+  MpoleType    *M;
   std::fstream fout;
 
   gs_Fnum = globval.gs;   gs_nKid = GetnKid(gs_Fnum);
@@ -1061,64 +1077,66 @@ void CheckAlignTol(const char *OutputFile)
     loc_gs = Elem_GetPos(gs_Fnum, i); loc_ge = Elem_GetPos(ge_Fnum, i);
 
     loc = loc_gs;
-    PdSsys[X_] = Cell[loc].Elem.M->PdSsys[X_];
-    PdSsys[Y_] = Cell[loc].Elem.M->PdSsys[Y_];
-    PdSrms[X_] = Cell[loc].Elem.M->PdSrms[X_];
-    PdSrms[Y_] = Cell[loc].Elem.M->PdSrms[Y_];
-    PdSrnd[X_] = Cell[loc].Elem.M->PdSrnd[X_];
-    PdSrnd[Y_] = Cell[loc].Elem.M->PdSrnd[Y_];
+    M = dynamic_cast<MpoleType*>(&Cell[loc]);
+    PdSsys[X_] = M->PdSsys[X_];
+    PdSsys[Y_] = M->PdSsys[Y_];
+    PdSrms[X_] = M->PdSrms[X_];
+    PdSrms[Y_] = M->PdSrms[Y_];
+    PdSrnd[X_] = M->PdSrnd[X_];
+    PdSrnd[Y_] = M->PdSrnd[Y_];
     dS[X_] = Cell[loc].dS[X_]; dS[Y_] = Cell[loc].dS[Y_];
     dT[0] = Cell[loc].dT[0]; dT[1] = Cell[loc].dT[1];
-    s = Cell[loc].S; name = Cell[loc].Elem.PName;
+    s = Cell[loc].S; name = Cell[loc].PName;
     fout << "  " << name << "  " << loc << "   " << s
 	 << "  " <<  PdSsys[X_] << "  " <<  PdSsys[Y_]
 	 << "   " << PdSrms[X_] << "  " <<  PdSrms[Y_]
 	 << "   " << PdSrnd[X_] << "  " <<  PdSrnd[Y_]
-         << "   " << Cell[loc].Elem.M->PdTrms << "  "
-	 << Cell[loc].Elem.M->PdTrnd << "   " << dS[X_]     << "  " <<  dS[Y_]
+         << "   " << M->PdTrms << "  "
+	 << M->PdTrnd << "   " << dS[X_]     << "  " <<  dS[Y_]
 	 << "   " << atan2( dT[1], dT[0] )  << std::endl;
 
     for (j = loc_gs+1; j < loc_ge; j++) {
-      if ((Cell[j].Elem.Pkind == Mpole) &&
-	  (Cell[j].Elem.M->n_design >= Quad ||
-	   Cell[j].Elem.M->n_design >= Sext)) {
-        loc = j;
-	PdSsys[X_] = Cell[loc].Elem.M->PdSsys[X_];
-	PdSsys[Y_] = Cell[loc].Elem.M->PdSsys[Y_];
-	PdSrms[X_] = Cell[loc].Elem.M->PdSrms[X_];
-	PdSrms[Y_] = Cell[loc].Elem.M->PdSrms[Y_];
-	PdSrnd[X_] = Cell[loc].Elem.M->PdSrnd[X_];
-	PdSrnd[Y_] = Cell[loc].Elem.M->PdSrnd[Y_];
+      loc = j;
+      M = dynamic_cast<MpoleType*>(&Cell[loc]);
+      if ((Cell[j].Pkind == Mpole) &&
+	  (M->n_design >= Quad || M->n_design >= Sext)) {
+	PdSsys[X_] = M->PdSsys[X_];
+	PdSsys[Y_] = M->PdSsys[Y_];
+	PdSrms[X_] = M->PdSrms[X_];
+	PdSrms[Y_] = M->PdSrms[Y_];
+	PdSrnd[X_] = M->PdSrnd[X_];
+	PdSrnd[Y_] = M->PdSrnd[Y_];
 	dS[X_] = Cell[loc].dS[X_]; dS[Y_] = Cell[loc].dS[Y_];
 	dT[0] = Cell[loc].dT[0];   dT[1] = Cell[loc].dT[1];
-	s = Cell[loc].S; name=Cell[loc].Elem.PName;
+	s = Cell[loc].S; name=Cell[loc].PName;
 	fout << "  " << name << "  " << loc << "   " << s
 	     << "  " <<  PdSsys[X_] << "  " <<  PdSsys[Y_]
 	     << "   " << PdSrms[X_] << "  " <<  PdSrms[Y_]
 	     << "   " << PdSrnd[X_] << "  " <<  PdSrnd[Y_]
-	     << "   " << Cell[loc].Elem.M->PdTrms << "  "
-	     << Cell[loc].Elem.M->PdTrnd
+	     << "   " << M->PdTrms << "  "
+	     << M->PdTrnd
 	     << "   " << dS[X_] << "  " <<  dS[Y_]
 	     << "   " << atan2( dT[1], dT[0] )  << std::endl;
       }
     }
 
     loc = loc_ge;
-    PdSsys[X_] = Cell[loc].Elem.M->PdSsys[X_];
-    PdSsys[Y_] = Cell[loc].Elem.M->PdSsys[Y_];
-    PdSrms[X_] = Cell[loc].Elem.M->PdSrms[X_];
-    PdSrms[Y_] = Cell[loc].Elem.M->PdSrms[Y_];
-    PdSrnd[X_] = Cell[loc].Elem.M->PdSrnd[X_];
-    PdSrnd[Y_] = Cell[loc].Elem.M->PdSrnd[Y_];
+    M = dynamic_cast<MpoleType*>(&Cell[loc]);
+    PdSsys[X_] = M->PdSsys[X_];
+    PdSsys[Y_] = M->PdSsys[Y_];
+    PdSrms[X_] = M->PdSrms[X_];
+    PdSrms[Y_] = M->PdSrms[Y_];
+    PdSrnd[X_] = M->PdSrnd[X_];
+    PdSrnd[Y_] = M->PdSrnd[Y_];
     dS[X_] = Cell[loc].dS[X_]; dS[Y_] = Cell[loc].dS[Y_];
     dT[0] = Cell[loc].dT[0]; dT[1] = Cell[loc].dT[1];
-    s=Cell[loc].S; name=Cell[loc].Elem.PName;
+    s=Cell[loc].S; name=Cell[loc].PName;
     fout << "  " << name << "  " << loc << "   " << s
 	 << "  " <<  PdSsys[X_] << "  " <<  PdSsys[Y_]
 	 << "   " << PdSrms[X_] << "  " <<  PdSrms[Y_]
 	 << "   " << PdSrnd[X_] << "  " <<  PdSrnd[Y_]
-         << "   " << Cell[loc].Elem.M->PdTrms
-	 << "  " << Cell[loc].Elem.M->PdTrnd
+         << "   " << M->PdTrms
+	 << "  " << M->PdTrnd
          << "   " << dS[X_]     << "  " <<  dS[Y_]
 	 << "   " << atan2( dT[1], dT[0] )  << std::endl;
 
@@ -1129,21 +1147,22 @@ void CheckAlignTol(const char *OutputFile)
   dip_Fnum = ElemIndex("B1"); dip_nKid = GetnKid(dip_Fnum);
   for (i = 1; i <= dip_nKid; i++){
     loc = Elem_GetPos(dip_Fnum, i);
-    PdSsys[X_] = Cell[loc].Elem.M->PdSsys[X_];
-    PdSsys[Y_] = Cell[loc].Elem.M->PdSsys[Y_];
-    PdSrms[X_] = Cell[loc].Elem.M->PdSrms[X_];
-    PdSrms[Y_] = Cell[loc].Elem.M->PdSrms[Y_];
-    PdSrnd[X_] = Cell[loc].Elem.M->PdSrnd[X_];
-    PdSrnd[Y_] = Cell[loc].Elem.M->PdSrnd[Y_];
+    M = dynamic_cast<MpoleType*>(&Cell[loc]);
+    PdSsys[X_] = M->PdSsys[X_];
+    PdSsys[Y_] = M->PdSsys[Y_];
+    PdSrms[X_] = M->PdSrms[X_];
+    PdSrms[Y_] = M->PdSrms[Y_];
+    PdSrnd[X_] = M->PdSrnd[X_];
+    PdSrnd[Y_] = M->PdSrnd[Y_];
     dS[X_] = Cell[loc].dS[X_]; dS[Y_] = Cell[loc].dS[Y_];
     dT[0] = Cell[loc].dT[0]; dT[1] = Cell[loc].dT[1];
-    s = Cell[loc].S; name = Cell[loc].Elem.PName;
+    s = Cell[loc].S; name = Cell[loc].PName;
     fout << "  " << name << "  " << loc << "   " << s
 	 << "  " <<  PdSsys[X_] << "  " <<  PdSsys[Y_]
 	 << "   " << PdSrms[X_] << "  " <<  PdSrms[Y_]
 	 << "   " << PdSrnd[X_] << "  " <<  PdSrnd[Y_]
-	 << "   " << Cell[loc].Elem.M->PdTrms
-	 << "  " << Cell[loc].Elem.M->PdTrnd
+	 << "   " << M->PdTrms
+	 << "  " << M->PdTrnd
 	 << "   " << dS[X_]     << "  " <<  dS[Y_]
 	 << "   " << atan2( dT[1], dT[0] )  << std::endl;
   }
@@ -1156,10 +1175,11 @@ void misalign_rms_elem(const int Fnum, const int Knum,
 		       const double dx_rms, const double dy_rms,
 		       const double dr_rms, const bool new_rnd)
 {
-  long int   loc;
-  MpoleType  *mp;
+  long int  loc;
+  MpoleType *mp;
 
-  loc = Elem_GetPos(Fnum, Knum); mp = Cell[loc].Elem.M;
+  loc = Elem_GetPos(Fnum, Knum);
+  mp = dynamic_cast<MpoleType*>(&Cell[loc]);
 
   mp->PdSrms[X_] = dx_rms; mp->PdSrms[Y_] = dy_rms; mp->PdTrms = dr_rms;
   if (new_rnd) {
@@ -1179,10 +1199,11 @@ void misalign_sys_elem(const int Fnum, const int Knum,
 		       const double dx_sys, const double dy_sys,
 		       const double dr_sys)
 {
-  long int   loc;
-  MpoleType  *mp;
+  long int  loc;
+  MpoleType *mp;
 
-  loc = Elem_GetPos(Fnum, Knum); mp = Cell[loc].Elem.M;
+  loc = Elem_GetPos(Fnum, Knum);
+  mp  = dynamic_cast<MpoleType*>(&Cell[loc]);
 
   mp->PdSsys[X_] = dx_sys; mp->PdSsys[Y_] = dy_sys; mp->PdTsys = dr_sys;
 
@@ -1213,13 +1234,14 @@ void misalign_rms_type(const int type,
 		       const double dx_rms, const double dy_rms,
 		       const double dr_rms, const bool new_rnd)
 {
-  long int k;
+  long int  k;
+  MpoleType *M;
 
   if ((type >= All) && (type <= HOMmax)) {
     for (k = 1; k <= globval.Cell_nLoc; k++) {
-      if ((Cell[k].Elem.Pkind == Mpole) &&
-	  ((type == Cell[k].Elem.M->n_design) ||
-	  ((type == All) &&
+      M = dynamic_cast<MpoleType*>(&Cell[k]);
+      if ((Cell[k].Pkind == Mpole) &&
+	  ((type == M->n_design) || ((type == All) &&
 	   ((Cell[k].Fnum != globval.gs) && (Cell[k].Fnum != globval.ge))))) {
 	// if all: skip girders
 	misalign_rms_elem(Cell[k].Fnum, Cell[k].Knum,
@@ -1235,13 +1257,14 @@ void misalign_sys_type(const int type,
 		       const double dx_sys, const double dy_sys,
 		       const double dr_sys)
 {
-  long int k;
+  long int  k;
+  MpoleType *M;
 
   if ((type >= All) && (type <= HOMmax)) {
     for (k = 1; k <= globval.Cell_nLoc; k++) {
-      if ((Cell[k].Elem.Pkind == Mpole) &&
-	  ((type == Cell[k].Elem.M->n_design) ||
-	  ((type == All) &&
+      M = dynamic_cast<MpoleType*>(&Cell[k]);
+      if ((Cell[k].Pkind == Mpole) &&
+	  ((type == M->n_design) || ((type == All) &&
 	   ((Cell[k].Fnum != globval.gs) && (Cell[k].Fnum != globval.ge))))) {
 	// if all: skip girders
 	misalign_sys_elem(Cell[k].Fnum, Cell[k].Knum,
@@ -1257,9 +1280,10 @@ void misalign_rms_girders(const int gs, const int ge,
 			  const double dx_rms, const double dy_rms,
 			  const double dr_rms, const bool new_rnd)
 {
-  int      i, k, n_girders, n_ge, n_gs;
-  long int loc_gs, loc_ge, j;
-  double   s_gs, s_ge, dx_gs[2], dx_ge[2], s;
+  int       i, k, n_girders, n_ge, n_gs;
+  long int  loc_gs, loc_ge, j;
+  double    s_gs, s_ge, dx_gs[2], dx_ge[2], s;
+  MpoleType *Mgs, *Mge, *Mj;
 
   n_gs = GetnKid(gs); n_ge = GetnKid(ge);
 
@@ -1274,12 +1298,16 @@ void misalign_rms_girders(const int gs, const int ge,
   misalign_rms_fam(ge, dx_rms, dy_rms, dr_rms, new_rnd);
 
   for (i = 1; i <= n_girders; i++) {
-    loc_gs = Elem_GetPos(gs, i); loc_ge = Elem_GetPos(ge, i);
-    s_gs = Cell[loc_gs].S; s_ge = Cell[loc_ge].S;
+    loc_gs = Elem_GetPos(gs, i);
+    loc_ge = Elem_GetPos(ge, i);
+    s_gs = Cell[loc_gs].S;
+    s_ge = Cell[loc_ge].S;
 
     // roll for a rigid boby
     // Note, girders needs to be introduced as gs->ge pairs
-    Cell[loc_ge].Elem.M->PdTrnd = Cell[loc_gs].Elem.M->PdTrnd;
+    Mgs = dynamic_cast<MpoleType*>(&Cell[loc_gs]);
+    Mge = dynamic_cast<MpoleType*>(&Cell[loc_ge]);
+    Mge->PdTrnd = Mgs->PdTrnd;
     Mpole_SetdT(ge, i);
 
     for (k = 0; k <= 1; k++) {
@@ -1288,13 +1316,12 @@ void misalign_rms_girders(const int gs, const int ge,
 
     // move elements onto mis-aligned girder
     for (j = loc_gs+1; j < loc_ge; j++) {
-      if ((Cell[j].Elem.Pkind == Mpole) || (Cell[j].Fnum == globval.bpm)) {
+      if ((Cell[j].Pkind == Mpole) || (Cell[j].Fnum == globval.bpm)) {
+	Mj = dynamic_cast<MpoleType*>(&Cell[j]);
         s = Cell[j].S;
 	for (k = 0; k <= 1; k++)
-	  Cell[j].Elem.M->PdSsys[k]
-	    = dx_gs[k] + (dx_ge[k]-dx_gs[k])*(s-s_gs)/(s_ge-s_gs);
-	Cell[j].Elem.M->PdTsys =
-	  Cell[loc_gs].Elem.M->PdTrms*Cell[loc_gs].Elem.M->PdTrnd;
+	  Mj->PdSsys[k] = dx_gs[k] + (dx_ge[k]-dx_gs[k])*(s-s_gs)/(s_ge-s_gs);
+	Mj->PdTsys = Mgs->PdTrms*Mgs->PdTrnd;
       }
     }
   }
@@ -1305,9 +1332,10 @@ void misalign_sys_girders(const int gs, const int ge,
 			  const double dx_sys, const double dy_sys,
 			  const double dr_sys)
 {
-  int      i, k, n_girders, n_ge, n_gs;
-  long int loc_gs, loc_ge, j;
-  double   s_gs, s_ge, dx_gs[2], dx_ge[2], s;
+  int       i, k, n_girders, n_ge, n_gs;
+  long int  loc_gs, loc_ge, j;
+  double    s_gs, s_ge, dx_gs[2], dx_ge[2], s;
+  MpoleType *Mgs, *Mge, *Mj;
 
   n_gs = GetnKid(gs); n_ge = GetnKid(ge);
 
@@ -1327,7 +1355,9 @@ void misalign_sys_girders(const int gs, const int ge,
 
     // roll for a rigid boby
     // Note, girders needs to be introduced as gs->ge pairs
-    Cell[loc_ge].Elem.M->PdTrnd = Cell[loc_gs].Elem.M->PdTrnd;
+    Mgs = dynamic_cast<MpoleType*>(&Cell[loc_gs]);
+    Mge = dynamic_cast<MpoleType*>(&Cell[loc_ge]);
+    Mge->PdTrnd = Mgs->PdTrnd;
     Mpole_SetdT(ge, i);
 
     for (k = 0; k <= 1; k++) {
@@ -1336,13 +1366,12 @@ void misalign_sys_girders(const int gs, const int ge,
 
     // move elements onto mis-aligned girder
     for (j = loc_gs+1; j < loc_ge; j++) {
-      if ((Cell[j].Elem.Pkind == Mpole) || (Cell[j].Fnum == globval.bpm)) {
+      if ((Cell[j].Pkind == Mpole) || (Cell[j].Fnum == globval.bpm)) {
+	Mj = dynamic_cast<MpoleType*>(&Cell[j]);
         s = Cell[j].S;
 	for (k = 0; k <= 1; k++)
-	  Cell[j].Elem.M->PdSsys[k]
-	    = dx_gs[k] + (dx_ge[k]-dx_gs[k])*(s-s_gs)/(s_ge-s_gs);
-	Cell[j].Elem.M->PdTsys =
-	  Cell[loc_gs].Elem.M->PdTrms*Cell[loc_gs].Elem.M->PdTrnd;
+	  Mj->PdSsys[k] = dx_gs[k] + (dx_ge[k]-dx_gs[k])*(s-s_gs)/(s_ge-s_gs);
+	Mj->PdTsys = Mgs->PdTrms*Mgs->PdTrnd;
       }
     }
   }
@@ -1375,13 +1404,15 @@ void set_aper_fam(const int Fnum,
 void set_aper_type(const int type, const double Dxmin, const double Dxmax,
 		   const double Dymin, const double Dymax)
 {
-  long int k;
+  long int  k;
+  MpoleType *M;
 
   if (type >= All && type <= HOMmax) {
-    for(k = 1; k <= globval.Cell_nLoc; k++)
-      if (((Cell[k].Elem.Pkind == Mpole) &&
-	   (Cell[k].Elem.M->n_design == type)) || (type == All))
+    for(k = 1; k <= globval.Cell_nLoc; k++) {
+      M = dynamic_cast<MpoleType*>(&Cell[k]);
+      if (((Cell[k].Pkind == Mpole) && (M->n_design == type)) || (type == All))
 	set_aper_elem(Cell[k].Fnum, Cell[k].Knum, Dxmin, Dxmax, Dymin, Dymax);
+    }
   } else
     printf("set_aper_type: bad design type %d\n", type);
 }
@@ -1389,7 +1420,7 @@ void set_aper_type(const int type, const double Dxmin, const double Dxmax,
 
 double get_L(const int Fnum, const int Knum)
 {
-  return Cell[Elem_GetPos(Fnum, Knum)].Elem.PL;
+  return Cell[Elem_GetPos(Fnum, Knum)].PL;
 }
 
 
@@ -1401,9 +1432,9 @@ void set_L(const int Fnum, const int Knum, const double L)
   MpoleType *M;
 
   loc = Elem_GetPos(Fnum, Knum);
-  elemp = &Cell[loc].Elem;
+  elemp = &Cell[loc];
   if (elemp->Pkind == Mpole) {
-    M = elemp->M;
+    M = dynamic_cast<MpoleType*>(elemp);
     if (M->Pirho != 0e0) {
       // Phi is constant.
       phi = elemp->PL*M->Pirho; M->Pirho = phi/L;
@@ -1425,7 +1456,7 @@ void set_L(const int Fnum, const double L)
 
 void set_dL(const int Fnum, const int Knum, const double dL)
 {
-  Cell[Elem_GetPos(Fnum, Knum)].Elem.PL += dL;
+  Cell[Elem_GetPos(Fnum, Knum)].PL += dL;
 }
 
 
@@ -1443,32 +1474,36 @@ void set_dL(const int Fnum, const double dL)
 void get_bn_design_elem(const int Fnum, const int Knum,
 			const int n, double &bn, double &an)
 {
-  elemtype elem;
+  elemtype  elem;
+  MpoleType *M;
 
   if (n < 1) {
     std::cout << "get_bn_design_elem: n < 1 (" << n << ")" << std::endl;
     exit(1);
   }
 
-  elem = Cell[Elem_GetPos(Fnum, Knum)].Elem;
+  elem = Cell[Elem_GetPos(Fnum, Knum)];
+  M = dynamic_cast<MpoleType*>(&elem);
 
-  bn = elem.M->PBpar[HOMmax+n]; an = elem.M->PBpar[HOMmax-n];
+  bn = M->PBpar[HOMmax+n]; an = M->PBpar[HOMmax-n];
 }
 
 
 void get_bnL_design_elem(const int Fnum, const int Knum,
 			 const int n, double &bnL, double &anL)
 {
-  elemtype elem;
+  elemtype  elem;
+  MpoleType *M;
 
   if (n < 1) {
     std::cout << "get_bnL_design_elem: n < 1 (" << n << ")" << std::endl;
     exit(1);
   }
 
-  elem = Cell[Elem_GetPos(Fnum, Knum)].Elem;
+  elem = Cell[Elem_GetPos(Fnum, Knum)];
+  M = dynamic_cast<MpoleType*>(&elem);
 
-  bnL = elem.M->PBpar[HOMmax+n]; anL = elem.M->PBpar[HOMmax-n];
+  bnL = M->PBpar[HOMmax+n]; anL = M->PBpar[HOMmax-n];
 
   if (elem.PL != 0.0) {
     bnL *= elem.PL; anL *= elem.PL;
@@ -1480,15 +1515,17 @@ void set_bn_design_elem(const int Fnum, const int Knum,
 			const int n, const double bn, const double an)
 {
   elemtype  elem;
+  MpoleType *M;
 
   if (n < 1) {
     std::cout << "set_bn_design_elem: n < 1 (" << n << ")" << std::endl;
     exit(1);
   }
 
-  elem = Cell[Elem_GetPos(Fnum, Knum)].Elem;
+  elem = Cell[Elem_GetPos(Fnum, Knum)];
+  M = dynamic_cast<MpoleType*>(&elem);
 
-  elem.M->PBpar[HOMmax+n] = bn; elem.M->PBpar[HOMmax-n] = an;
+  M->PBpar[HOMmax+n] = bn; M->PBpar[HOMmax-n] = an;
 
   Mpole_SetPB(Fnum, Knum, n); Mpole_SetPB(Fnum, Knum, -n);
 }
@@ -1497,16 +1534,18 @@ void set_bn_design_elem(const int Fnum, const int Knum,
 void set_dbn_design_elem(const int Fnum, const int Knum,
 			 const int n, const double dbn, const double dan)
 {
-  elemtype elem;
+  elemtype  elem;
+  MpoleType *M;
 
   if (n < 1) {
     std::cout << "set_dbn_design_elem: n < 1 (" << n << ")" << std::endl;
     exit(1);
   }
 
-  elem = Cell[Elem_GetPos(Fnum, Knum)].Elem;
+  elem = Cell[Elem_GetPos(Fnum, Knum)];
+  M = dynamic_cast<MpoleType*>(&elem);
 
-  elem.M->PBpar[HOMmax+n] += dbn; elem.M->PBpar[HOMmax-n] += dan;
+  M->PBpar[HOMmax+n] += dbn; M->PBpar[HOMmax-n] += dan;
 
   Mpole_SetPB(Fnum, Knum, n); Mpole_SetPB(Fnum, Knum, -n);
 }
@@ -1545,21 +1584,23 @@ void set_dbn_design_fam(const int Fnum,
 void set_bnL_design_elem(const int Fnum, const int Knum,
 			 const int n, const double bnL, const double anL)
 {
-  elemtype elem;
+  elemtype  elem;
+  MpoleType *M;
 
   if (n < 1) {
     std::cout << "set_bnL_design_elem: n < 1 (" << n << ")" << std::endl;
     exit(1);
   }
 
-  elem = Cell[Elem_GetPos(Fnum, Knum)].Elem;
+  elem = Cell[Elem_GetPos(Fnum, Knum)];
+  M = dynamic_cast<MpoleType*>(&elem);
 
   if (elem.PL != 0.0) {
-    elem.M->PBpar[HOMmax+n] = bnL/elem.PL;
-    elem.M->PBpar[HOMmax-n] = anL/elem.PL;
+    M->PBpar[HOMmax+n] = bnL/elem.PL;
+    M->PBpar[HOMmax-n] = anL/elem.PL;
   } else {
     // thin kick
-    elem.M->PBpar[HOMmax+n] = bnL; elem.M->PBpar[HOMmax-n] = anL;
+    M->PBpar[HOMmax+n] = bnL; M->PBpar[HOMmax-n] = anL;
   }
 
   Mpole_SetPB(Fnum, Knum, n); Mpole_SetPB(Fnum, Knum, -n);
@@ -1569,21 +1610,23 @@ void set_bnL_design_elem(const int Fnum, const int Knum,
 void set_dbnL_design_elem(const int Fnum, const int Knum,
 			  const int n, const double dbnL, const double danL)
 {
-  elemtype elem;
+  elemtype  elem;
+  MpoleType *M;
 
   if (n < 1) {
     std::cout << "set_dbnL_design_elem: n < 1 (" << n << ")" << std::endl;
     exit(1);
   }
 
-  elem = Cell[Elem_GetPos(Fnum, Knum)].Elem;
+  elem = Cell[Elem_GetPos(Fnum, Knum)];
+  M = dynamic_cast<MpoleType*>(&elem);
 
   if (elem.PL != 0.0) {
-    elem.M->PBpar[HOMmax+n] += dbnL/elem.PL;
-    elem.M->PBpar[HOMmax-n] += danL/elem.PL;
+    M->PBpar[HOMmax+n] += dbnL/elem.PL;
+    M->PBpar[HOMmax-n] += danL/elem.PL;
   } else {
     // thin kick
-    elem.M->PBpar[HOMmax+n] += dbnL; elem.M->PBpar[HOMmax-n] += danL;
+    M->PBpar[HOMmax+n] += dbnL; M->PBpar[HOMmax-n] += danL;
   }
 
   Mpole_SetPB(Fnum, Knum, n); Mpole_SetPB(Fnum, Knum, -n);
@@ -1623,7 +1666,8 @@ void set_bnL_design_fam(const int Fnum,
 void set_bnL_design_type(const int type,
 			 const int n, const double bnL, const double anL)
 {
-  long int k;
+  long int  k;
+  MpoleType *M;
 
   if (n < 1) {
     std::cout << "set_bnL_design_type: n < 1 (" << n << ")" << std::endl;
@@ -1631,9 +1675,11 @@ void set_bnL_design_type(const int type,
   }
 
   if ((type >= Dip) && (type <= HOMmax)) {
-    for (k = 1; k <= globval.Cell_nLoc; k++)
-      if ((Cell[k].Elem.Pkind == Mpole) && (Cell[k].Elem.M->n_design == type))
+    for (k = 1; k <= globval.Cell_nLoc; k++) {
+      M = dynamic_cast<MpoleType*>(&Cell[k]);
+      if ((Cell[k].Pkind == Mpole) && (M->n_design == type))
 	set_bnL_design_elem(Cell[k].Fnum, Cell[k].Knum, n, bnL, anL);
+    }
   } else
     printf("Bad type argument to set_bnL_design_type()\n");
 }
@@ -1642,30 +1688,32 @@ void set_bnL_design_type(const int type,
 void set_bnL_sys_elem(const int Fnum, const int Knum,
 		      const int n, const double bnL, const double anL)
 {
-  elemtype elem;
+  elemtype  elem;
+  MpoleType *M;
 
   if (n < 1) {
     std::cout << "set_bnL_sys_elem: n < 1 (" << n << ")" << std::endl;
     exit(1);
   }
 
-  elem = Cell[Elem_GetPos(Fnum, Knum)].Elem;
+  elem = Cell[Elem_GetPos(Fnum, Knum)];
+  M = dynamic_cast<MpoleType*>(&elem);
 
   if (elem.PL != 0.0) {
-    elem.M->PBsys[HOMmax+n] = bnL/elem.PL;
-    elem.M->PBsys[HOMmax-n] = anL/elem.PL;
+    M->PBsys[HOMmax+n] = bnL/elem.PL;
+    M->PBsys[HOMmax-n] = anL/elem.PL;
   } else {
     // thin kick
-    elem.M->PBsys[HOMmax+n] = bnL; elem.M->PBsys[HOMmax-n] = anL;
+    M->PBsys[HOMmax+n] = bnL; M->PBsys[HOMmax-n] = anL;
   }
 
   Mpole_SetPB(Fnum, Knum, n); Mpole_SetPB(Fnum, Knum, -n);
 
   if (trace) {
     printf("set_bnL_sys_elem: %s %3d %e %e\n",
-	   elem.PName, n, elem.M->PBsys[HOMmax+n], elem.M->PBsys[HOMmax-n]);
+	   elem.PName, n, M->PBsys[HOMmax+n], M->PBsys[HOMmax-n]);
     printf("                                      %e %e\n",
-	   elem.M->PB[HOMmax+n], elem.M->PB[HOMmax-n]);
+	   M->PB[HOMmax+n], M->PB[HOMmax-n]);
   }
 }
 
@@ -1688,7 +1736,8 @@ void set_bnL_sys_fam(const int Fnum,
 void set_bnL_sys_type(const int type,
 		      const int n, const double bnL, const double anL)
 {
-  long int k;
+  long int  k;
+  MpoleType *M;
 
   if (n < 1) {
     std::cout << "set_bnL_sys_type: n < 1 (" << n << ")" << std::endl;
@@ -1696,9 +1745,11 @@ void set_bnL_sys_type(const int type,
   }
 
   if (type >= Dip && type <= HOMmax) {
-    for(k = 1; k <= globval.Cell_nLoc; k++)
-      if ((Cell[k].Elem.Pkind == Mpole) && (Cell[k].Elem.M->n_design == type))
+    for(k = 1; k <= globval.Cell_nLoc; k++) {
+      M = dynamic_cast<MpoleType*>(&Cell[k]);
+      if ((Cell[k].Pkind == Mpole) && (M->n_design == type))
 	set_bnL_sys_elem(Cell[k].Fnum, Cell[k].Knum, n, bnL, anL);
+    }
   } else
     printf("Bad type argument to set_bnL_sys_type()\n");
 }
@@ -1708,7 +1759,8 @@ void set_bnL_rms_elem(const int Fnum, const int Knum,
 		      const int n, const double bnL, const double anL,
 		      const bool new_rnd)
 {
-  elemtype elem;
+  elemtype  elem;
+  MpoleType *M;
 
   bool prt = false;
 
@@ -1717,22 +1769,23 @@ void set_bnL_rms_elem(const int Fnum, const int Knum,
     exit(1);
   }
 
-  elem = Cell[Elem_GetPos(Fnum, Knum)].Elem;
+  elem = Cell[Elem_GetPos(Fnum, Knum)];
+  M = dynamic_cast<MpoleType*>(&elem);
 
   if (elem.PL != 0.0) {
-    elem.M->PBrms[HOMmax+n] = bnL/elem.PL;
-    elem.M->PBrms[HOMmax-n] = anL/elem.PL;
+    M->PBrms[HOMmax+n] = bnL/elem.PL;
+    M->PBrms[HOMmax-n] = anL/elem.PL;
   } else {
     // thin kick
-    elem.M->PBrms[HOMmax+n] = bnL; elem.M->PBrms[HOMmax-n] = anL;
+    M->PBrms[HOMmax+n] = bnL; M->PBrms[HOMmax-n] = anL;
   }
 
   if(new_rnd){
     if (normal) {
-      elem.M->PBrnd[HOMmax+n] = normranf();
-      elem.M->PBrnd[HOMmax-n] = normranf();
+      M->PBrnd[HOMmax+n] = normranf();
+      M->PBrnd[HOMmax-n] = normranf();
     } else {
-      elem.M->PBrnd[HOMmax+n] = ranf(); elem.M->PBrnd[HOMmax-n] = ranf();
+      M->PBrnd[HOMmax+n] = ranf(); M->PBrnd[HOMmax-n] = ranf();
     }
   }
 
@@ -1740,7 +1793,7 @@ void set_bnL_rms_elem(const int Fnum, const int Knum,
     printf("set_bnL_rms_elem:  Fnum = %d, Knum = %d"
 	   ", bnL = %e, anL = %e %e %e\n",
 	   Fnum, Knum, bnL, anL,
-	   elem.M->PBrms[HOMmax+n], elem.M->PBrms[HOMmax-n]);
+	   M->PBrms[HOMmax+n], M->PBrms[HOMmax-n]);
 
   Mpole_SetPB(Fnum, Knum, n); Mpole_SetPB(Fnum, Knum, -n);
 }
@@ -1766,7 +1819,8 @@ void set_bnL_rms_type(const int type,
 		      const int n, const double bnL, const double anL,
 		      const bool new_rnd)
 {
-  long int k;
+  long int  k;
+  MpoleType *M;
 
   if (n < 1) {
     std::cout << "get_bnL_rms_type: n < 1 (" << n << ")" << std::endl;
@@ -1774,9 +1828,11 @@ void set_bnL_rms_type(const int type,
   }
 
   if (type >= Dip && type <= HOMmax) {
-    for(k = 1; k <= globval.Cell_nLoc; k++)
-      if ((Cell[k].Elem.Pkind == Mpole) && (Cell[k].Elem.M->n_design == type))
+    for(k = 1; k <= globval.Cell_nLoc; k++) {
+      M = dynamic_cast<MpoleType*>(&Cell[k]);
+      if ((Cell[k].Pkind == Mpole) && (M->n_design == type))
 	set_bnL_rms_elem(Cell[k].Fnum, Cell[k].Knum, n, bnL, anL, new_rnd);
+    }
   } else
     printf("Bad type argument to set_bnL_rms_type()\n");
 }
@@ -1786,7 +1842,7 @@ void set_bnr_sys_elem(const int Fnum, const int Knum,
 		      const int n, const double bnr, const double anr)
 {
   int       nd;
-  MpoleType *mp;
+  MpoleType *M;
   bool      prt = false;
 
   if (n < 1) {
@@ -1794,17 +1850,18 @@ void set_bnr_sys_elem(const int Fnum, const int Knum,
     exit(1);
   }
 
-  mp = Cell[Elem_GetPos(Fnum, Knum)].Elem.M; nd = mp->n_design;
+  M = dynamic_cast<MpoleType*>(&Cell[Elem_GetPos(Fnum, Knum)]);
+  nd = M->n_design;
   // errors are relative to design values for (Dip, Quad, Sext, ...)
-  mp->PBsys[HOMmax+n] = bnr*mp->PBpar[HOMmax+nd];
-  mp->PBsys[HOMmax-n] = anr*mp->PBpar[HOMmax+nd];
+  M->PBsys[HOMmax+n] = bnr*M->PBpar[HOMmax+nd];
+  M->PBsys[HOMmax-n] = anr*M->PBpar[HOMmax+nd];
 
   Mpole_SetPB(Fnum, Knum, n); Mpole_SetPB(Fnum, Knum, -n);
 
   if (prt)
     printf("set the n=%d component of %s to %e %e %e\n",
-	   n, Cell[Elem_GetPos(Fnum, Knum)].Elem.PName,
-	   bnr, mp->PBpar[HOMmax+nd], mp->PBsys[HOMmax+n]);
+	   n, Cell[Elem_GetPos(Fnum, Knum)].PName,
+	   bnr, M->PBpar[HOMmax+nd], M->PBsys[HOMmax+n]);
 }
 
 
@@ -1826,7 +1883,8 @@ void set_bnr_sys_fam(const int Fnum,
 void set_bnr_sys_type(const int type,
 		      const int n, const double bnr, const double anr)
 {
-  long int k;
+  long int  k;
+  MpoleType *M;
 
   if (n < 1) {
     std::cout << "set_bnr_sys_type: n < 1 (" << n << ")" << std::endl;
@@ -1834,9 +1892,11 @@ void set_bnr_sys_type(const int type,
   }
 
   if (type >= Dip && type <= HOMmax) {
-    for(k = 1; k <= globval.Cell_nLoc; k++)
-      if ((Cell[k].Elem.Pkind == Mpole) && (Cell[k].Elem.M->n_design == type))
+    for(k = 1; k <= globval.Cell_nLoc; k++) {
+      M = dynamic_cast<MpoleType*>(&Cell[k]);
+      if ((Cell[k].Pkind == Mpole) && (M->n_design == type))
 	set_bnr_sys_elem(Cell[k].Fnum, Cell[k].Knum, n, bnr, anr);
+    }
   } else
     printf("Bad type argument to set_bnr_sys_type()\n");
 }
@@ -1847,7 +1907,7 @@ void set_bnr_rms_elem(const int Fnum, const int Knum,
 		      const bool new_rnd)
 {
   int       nd;
-  MpoleType *mp;
+  MpoleType *M;
 
   bool prt = false;
 
@@ -1856,20 +1916,21 @@ void set_bnr_rms_elem(const int Fnum, const int Knum,
     exit(1);
   }
 
-  mp = Cell[Elem_GetPos(Fnum, Knum)].Elem.M; nd = mp->n_design;
+  M = dynamic_cast<MpoleType*>(&Cell[Elem_GetPos(Fnum, Knum)]);
+  nd = M->n_design;
   // errors are relative to design values for (Dip, Quad, Sext, ...)
   if (nd == Dip) {
-    mp->PBrms[HOMmax+n] = bnr*mp->Pirho; mp->PBrms[HOMmax-n] = anr*mp->Pirho;
+    M->PBrms[HOMmax+n] = bnr*M->Pirho; M->PBrms[HOMmax-n] = anr*M->Pirho;
   } else {
-    mp->PBrms[HOMmax+n] = bnr*mp->PBpar[HOMmax+nd];
-    mp->PBrms[HOMmax-n] = anr*mp->PBpar[HOMmax+nd];
+    M->PBrms[HOMmax+n] = bnr*M->PBpar[HOMmax+nd];
+    M->PBrms[HOMmax-n] = anr*M->PBpar[HOMmax+nd];
   }
 
   if(new_rnd){
     if (normal) {
-      mp->PBrnd[HOMmax+n] = normranf(); mp->PBrnd[HOMmax-n] = normranf();
+      M->PBrnd[HOMmax+n] = normranf(); M->PBrnd[HOMmax-n] = normranf();
     } else {
-      mp->PBrnd[HOMmax+n] = ranf(); mp->PBrnd[HOMmax-n] = ranf();
+      M->PBrnd[HOMmax+n] = ranf(); M->PBrnd[HOMmax-n] = ranf();
     }
   }
 
@@ -1879,10 +1940,10 @@ void set_bnr_rms_elem(const int Fnum, const int Knum,
     printf("set_bnr_rms_elem:  Fnum = %d, Knum = %d, n = %d, n_design = %d"
 	   ", new_rnd = %d, r_# = (%e, %e)\n",
 	   Fnum, Knum, n, nd, new_rnd,
-	   mp->PBrnd[HOMmax+n], mp->PBrnd[HOMmax-n]);
+	   M->PBrnd[HOMmax+n], M->PBrnd[HOMmax-n]);
     printf("  (bnr, anr) = (%e, %e), PBrms = (%e, %e), PB = (%e, %e)\n",
-	 bnr, anr, mp->PBrms[HOMmax+n], mp->PBrms[HOMmax-n],
-	 mp->PB[HOMmax+n], mp->PB[HOMmax-n]);
+	   bnr, anr, M->PBrms[HOMmax+n], M->PBrms[HOMmax-n],
+	   M->PB[HOMmax+n], M->PB[HOMmax-n]);
   }
 }
 
@@ -1907,7 +1968,8 @@ void set_bnr_rms_type(const int type,
 		      const int n, const double bnr, const double anr,
 		      const bool new_rnd)
 {
-  long int k;
+  long int  k;
+  MpoleType *M;
 
   if (n < 1) {
     std::cout << "set_bnr_rms_type: n < 1 (" << n << ")" << std::endl;
@@ -1915,9 +1977,11 @@ void set_bnr_rms_type(const int type,
   }
 
   if (type >= Dip && type <= HOMmax) {
-    for(k = 1; k <= globval.Cell_nLoc; k++)
-      if ((Cell[k].Elem.Pkind == Mpole) && (Cell[k].Elem.M->n_design == type))
+    for(k = 1; k <= globval.Cell_nLoc; k++) {
+      M = dynamic_cast<MpoleType*>(&Cell[k]);
+      if ((Cell[k].Pkind == Mpole) && (M->n_design == type))
 	set_bnr_rms_elem(Cell[k].Fnum, Cell[k].Knum, n, bnr, anr, new_rnd);
+    }
   } else
     printf("Bad type argument to set_bnr_rms_type()\n");
 }
@@ -1925,14 +1989,20 @@ void set_bnr_rms_type(const int type,
 
 double get_Wiggler_BoBrho(const int Fnum, const int Knum)
 {
-  return Cell[Elem_GetPos(Fnum, Knum)].Elem.W->BoBrhoV[0];
+  WigglerType *W;
+
+  W = dynamic_cast<WigglerType*>(&Cell[Elem_GetPos(Fnum, Knum)]);
+  return W->BoBrhoV[0];
 }
 
 
 void set_Wiggler_BoBrho(const int Fnum, const int Knum, const double BoBrhoV)
 {
-  Cell[Elem_GetPos(Fnum, Knum)].Elem.W->BoBrhoV[0] = BoBrhoV;
-  Cell[Elem_GetPos(Fnum, Knum)].Elem.W->PBW[HOMmax+Quad] = -sqr(BoBrhoV)/2.0;
+  WigglerType *W;
+
+  W = dynamic_cast<WigglerType*>(&Cell[Elem_GetPos(Fnum, Knum)]);
+  W->BoBrhoV[0] = BoBrhoV;
+  W->PBW[HOMmax+Quad] = -sqr(BoBrhoV)/2.0;
   Wiggler_SetPB(Fnum, Knum, Quad);
 }
 
@@ -1948,23 +2018,28 @@ void set_Wiggler_BoBrho(const int Fnum, const double BoBrhoV)
 
 void set_ID_scl(const int Fnum, const int Knum, const double scl)
 {
-  int          k;
-  WigglerType* W;
+  int           k;
+  WigglerType   *W, *Wp;
+  InsertionType *ID;
+  FieldMapType  *FM;
 
-  switch (Cell[Elem_GetPos(Fnum, Knum)].Elem.Pkind) {
+  switch (Cell[Elem_GetPos(Fnum, Knum)].Pkind) {
   case Wigl:
     // scale the ID field
-    W = Cell[Elem_GetPos(Fnum, Knum)].Elem.W;
+    W = dynamic_cast<WigglerType*>(&Cell[Elem_GetPos(Fnum, Knum)]);
+    Wp = dynamic_cast<WigglerType*>(ElemFam[Fnum-1].ElemF);
     for (k = 0; k < W->n_harm; k++) {
-      W->BoBrhoH[k] = scl*ElemFam[Fnum-1].ElemF.W->BoBrhoH[k];
-      W->BoBrhoV[k] = scl*ElemFam[Fnum-1].ElemF.W->BoBrhoV[k];
+      W->BoBrhoH[k] = scl*Wp->BoBrhoH[k];
+      W->BoBrhoV[k] = scl*Wp->BoBrhoV[k];
     }
     break;
   case Insertion:
-    Cell[Elem_GetPos(Fnum, Knum)].Elem.ID->scaling = scl;
+    ID = dynamic_cast<InsertionType*>(&Cell[Elem_GetPos(Fnum, Knum)]);
+    ID->scaling = scl;
     break;
   case FieldMap:
-    Cell[Elem_GetPos(Fnum, Knum)].Elem.FM->scl = scl;
+    FM = dynamic_cast<FieldMapType*>(&Cell[Elem_GetPos(Fnum, Knum)]);
+    FM->scl = scl;
     break;
   default:
     std::cout << "set_ID_scl: unknown element type" << std::endl;
@@ -1987,10 +2062,12 @@ void SetFieldValues_fam(const int Fnum, const bool rms, const double r0,
 			const int n, const double Bn, const double An,
 			const bool new_rnd)
 {
-  int    N;
-  double bnr, anr;
+  int       N;
+  double    bnr, anr;
+  MpoleType *M;
 
-  N = Cell[Elem_GetPos(Fnum, 1)].Elem.M->n_design;
+  M = dynamic_cast<MpoleType*>(&Cell[Elem_GetPos(Fnum, 1)]);
+  N = M->n_design;
   if (r0 == 0.0) {
     // input is: (b_n L), (a_n L)
     if(rms)
@@ -2105,18 +2182,27 @@ bool CorrectCOD(const int n_orbit, const double scl)
 
 
 void write_misalignments(const char* filename) {
-  FILE* fp = fopen(filename, "w");
+  int       j;
+  elemtype  *clp;
+  MpoleType *M;
+  FILE      *fp;
+
+  fp = fopen(filename, "w");
+
   fprintf(fp, "# misalignment file");
-  CellType* clp;
+
   for (long int n=0; n<globval.Cell_nLoc; n++) {
     clp = &Cell[n];
-    fprintf(fp, "\n%li %i %.8e %.8e %.8e %.8e", n, clp->Elem.Pkind, clp->dS[X_], clp->dS[Y_], clp->dT[X_], clp->dT[Y_]); 
+    fprintf(fp, "\n%li %i %.8e %.8e %.8e %.8e",
+	    n, clp->Pkind, clp->dS[X_], clp->dS[Y_], clp->dT[X_],
+	    clp->dT[Y_]); 
     
-    switch(clp->Elem.Pkind) {
+    switch(clp->Pkind) {
       case 2: // multipole
-        fprintf(fp, " %i", clp->Elem.M->Porder);
-        for (long int j=0; j<2*HOMmax+1; j++)
-          fprintf(fp, " %.8e", clp->Elem.M->PB[j]);
+	M = dynamic_cast<MpoleType*>(clp);
+         fprintf(fp, " %i", M->Porder);
+        for (j = 0; j < 2*HOMmax+1; j++)
+          fprintf(fp, " %.8e", M->PB[j]);
         break;
       default:
         break;  
@@ -2137,7 +2223,7 @@ void prt_beamsizes(const int cnt)
   fprintf(fp,"# k    name    s    s_xx    s_pxpx    s_xpx    s_yy    s_pypy    s_ypy    theta_xy    s_xy\n");
   for(k = 0; k <= globval.Cell_nLoc; k++)
     fprintf(fp,"%4d %10s %e %e %e %e %e %e %e %e %e\n",
-	    k, Cell[k].Elem.PName, Cell[k].S,
+	    k, Cell[k].PName, Cell[k].S,
 	    Cell[k].sigma[x_][x_], Cell[k].sigma[px_][px_],
 	    Cell[k].sigma[x_][px_],
 	    Cell[k].sigma[y_][y_], Cell[k].sigma[py_][py_],
@@ -2254,7 +2340,7 @@ double Touschek(const double Qb, const double delta_RF,
     else
       dtau_inv = p2;
 
-    tau_inv += dtau_inv*Cell[i].Elem.PL; p1 = p2;
+    tau_inv += dtau_inv*Cell[i].PL; p1 = p2;
 
     if (false) {
       dtau_inv *=
@@ -2365,7 +2451,7 @@ double Touschek(const double Qb, const double delta_RF, const bool consistent,
 
   tau_inv = 0e0; curly_H0 = -1e30;
   for (k = 1; k <= globval.Cell_nLoc; k++) {
-    L = Cell[k].Elem.PL;
+    L = Cell[k].PL;
 
     curly_H1 = get_curly_H(Cell[k].Alpha[X_], Cell[k].Beta[X_],
 			   Cell[k].Eta[X_], Cell[k].Etap[X_]);
@@ -2381,7 +2467,7 @@ double Touschek(const double Qb, const double delta_RF, const bool consistent,
 
     sum_delta[k][X_] += delta_p; sum_delta[k][Y_] += delta_m;
     sum2_delta[k][X_] += sqr(delta_p); sum2_delta[k][Y_] += sqr(delta_m);
-    fprintf(outf, "%4d %7.2f %5.3f %6.3f\n",
+    fprintf(outf, "%4ld %7.2f %5.3f %6.3f\n",
 	    k, Cell[k].S, 1e2*sum_delta[k][X_], 1e2*sum_delta[k][Y_]);
     fflush(outf);
     if (prt)
@@ -2539,7 +2625,7 @@ void IBS(const double Qb, const double eps_SR[], double eps[],
 
   D_delta = 0.0; D_x = 0.0;
   for(k = 0; k <= globval.Cell_nLoc; k++) {
-    L = Cell[k].Elem.PL;
+    L = Cell[k].PL;
 
     curly_H = get_curly_H(Cell[k].Alpha[X_], Cell[k].Beta[X_],
 			  Cell[k].Eta[X_], Cell[k].Etap[X_]);
@@ -2689,7 +2775,7 @@ void IBS_BM(const double Qb, const double eps_SR[], double eps[],
 
   for(k = 0; k <= globval.Cell_nLoc; k++)
     for (i = 0; i < 2; i++)
-      beta_m[i] += Cell[k].Beta[i]*Cell[k].Elem.PL;
+      beta_m[i] += Cell[k].Beta[i]*Cell[k].PL;
 
   for (i = 0; i < 2; i++) {
     beta_m[i] /= Cell[globval.Cell_nLoc].S;
@@ -2733,7 +2819,7 @@ void IBS_BM(const double Qb, const double eps_SR[], double eps[],
     tau_inv[i] = 0e0;
 
   for(k = 1; k <= globval.Cell_nLoc; k++) {
-    L = Cell[k].Elem.PL;
+    L = Cell[k].PL;
 
     for (i = 0; i < 2; i++){
       if (!ZAP_BS) {
@@ -3413,7 +3499,7 @@ bool orb_corr(const int n_orbit)
 
 void get_alphac(void)
 {
-  CellType Cell;
+  elemtype Cell;
 
   getelem(globval.Cell_nLoc, &Cell);
   globval.Alphac = globval.OneTurnMat[ct_][delta_]/Cell.S;
@@ -3432,7 +3518,7 @@ void get_alphac2(void)
   long int lastpos;
   double   delta[2*n_points+1], alphac[2*n_points+1], sigma;
   psVector x, b;
-  CellType Cell;
+  elemtype Cell;
 
   globval.pathlength = false;
   getelem(globval.Cell_nLoc, &Cell); n = 0;
@@ -3491,7 +3577,7 @@ void bend_cal_Fam(const int Fnum)
   b0L = dvector(1, n_prm); xi = dmatrix(1, n_prm, 1, n_prm);
 
   std::cout << std::endl;
-  std::cout << "bend_cal: " << ElemFam[Fnum-1].ElemF.PName << ":" << std::endl;
+  std::cout << "bend_cal: " << ElemFam[Fnum-1].ElemF->PName << ":" << std::endl;
 
   Fnum_Cart = Fnum;  b0L[1] = 0.0; xi[1][1] = 1e-3;
 
@@ -3505,13 +3591,15 @@ void bend_cal_Fam(const int Fnum)
 
 void bend_cal(void)
 {
-  long int k;
+  long int  k;
+  MpoleType *M;
 
-  for (k = 1; k <= globval.Elem_nFam; k++)
-    if ((ElemFam[k-1].ElemF.Pkind == Mpole) &&
-	(ElemFam[k-1].ElemF.M->Pirho != 0.0) &&
-	(ElemFam[k-1].ElemF.M->PBpar[Quad+HOMmax] != 0.0))
+  for (k = 1; k <= globval.Elem_nFam; k++) {
+    M = dynamic_cast<MpoleType*>(ElemFam[k-1].ElemF);
+    if ((ElemFam[k-1].ElemF->Pkind == Mpole) &&
+	(M->Pirho != 0.0) && (M->PBpar[Quad+HOMmax] != 0.0))
       if (ElemFam[k-1].nKid > 0) bend_cal_Fam(k);
+  }
 }
 
 
@@ -3582,7 +3670,7 @@ void set_tune(const char file_name1[], const char file_name2[], const int n)
 
 	fprintf(fp_lat, "%s: Quadrupole, L = %8.6f, K = %10.6f, N = Nquad"
 		", Method = Meth;\n",
-		names[k], ElemFam[Fnum-1].ElemF.PL, b2s[k]);
+		names[k], ElemFam[Fnum-1].ElemF->PL, b2s[k]);
       }
       break;
     }
@@ -3666,18 +3754,20 @@ void set_map(const int Fnum, const double dnu[])
 {
   long int loc;
   int      j, k;
+  MapType  *Map;
 
   for (j = 1; j <= GetnKid(Fnum); j++) {
     loc = Elem_GetPos(Fnum, j);
+    Map = dynamic_cast<MapType*>(&Cell[loc]);
     for (k = 0; k < 2; k++) {
-      Cell[loc].Elem.Map->dnu[k]   = dnu[k];
-      Cell[loc].Elem.Map->alpha[k] = Cell[loc].Alpha[k];
-      Cell[loc].Elem.Map->beta[k]  = Cell[loc].Beta[k];
+      Map->dnu[k]   = dnu[k];
+      Map->alpha[k] = Cell[loc].Alpha[k];
+      Map->beta[k]  = Cell[loc].Beta[k];
     }
-    Cell[loc].Elem.Map->eta_x  = Cell[loc].Eta[X_];
-    Cell[loc].Elem.Map->etap_x = Cell[loc].Etap[X_];
+    Map->eta_x  = Cell[loc].Eta[X_];
+    Map->etap_x = Cell[loc].Etap[X_];
 
-    set_map(Cell[loc].Elem.Map);
+    set_map(Map);
   }
 }
 
@@ -3705,21 +3795,23 @@ void set_map_per(const int Fnum,
 		 const double alpha0[], const double beta0[],
 		 const double eta0[], const double etap0[])
 {
-  int j;
+  int     j;
+  MapType *Map;
 
-  for (j = 1; j <= GetnKid(Fnum); j++)
-    set_map_per(Cell[Elem_GetPos(Fnum, j)].Elem.Map,
-		alpha0, beta0, eta0, etap0);
+  for (j = 1; j <= GetnKid(Fnum); j++) {
+    Map = dynamic_cast<MapType*>(&Cell[Elem_GetPos(Fnum, j)]);
+    set_map_per(Map, alpha0, beta0, eta0, etap0);
+  }
 }
 
 
-void set_map_reversal(CellType &Cell)
+void set_map_reversal(elemtype &Cell)
 {
   long int loc, lastpos;
   MapType  *Map;
 
   danot_(1);
-  Map = Cell.Elem.Map;
+  Map = dynamic_cast<MapType*>(&Cell);
   Map->M.identity();
   loc = Elem_GetPos(Cell.Fnum, Cell.Knum);
   Cell_Pass(0, loc-1, Map->M, lastpos);
@@ -3749,35 +3841,35 @@ void setmp(long ilat, long m, long n, double rr, double bnoff, double cmn)
   //    cmn = (nAn/r) from magnet group
   // ==> bm = cmn*1e-4 / rr^(|m|-|n|) * (bn-bnoff)
 
-  long     i;
-  double   bn, dbn, mp;
-  CellType cell;
-  elemtype elem;
+  long      i;
+  double    bn, dbn, mp;
+  elemtype  elem;
+  MpoleType *M;
 
   mp = cmn * 1e-4;
   for (i=abs(n); i<abs(m); i++) {mp/=rr;}
 
   //--> get multipole n of element at position ilat
-  getelem(ilat, &cell);
-  elem = cell.Elem;
-  bn = elem.M->PBpar[n+HOMmax];
+  getelem(ilat, &elem);
+  M = dynamic_cast<MpoleType*>(&elem);
+  bn = M->PBpar[n+HOMmax];
 
   if (bn>0) {dbn=bn-bnoff;} else {dbn=bn+bnoff;}
 
   mp=mp*dbn;
   //-->save mp as multipole m, skew if m<0
-  elem.M->PBpar[m+HOMmax] = mp;
-  elem.M->PB[m+HOMmax] =
-    elem.M->PBpar[m+HOMmax] + elem.M->PBsys[m+HOMmax] +
-    elem.M->PBrms[m+HOMmax]*elem.M->PBrnd[m+HOMmax];
-  if (abs(m) > elem.M->Porder && elem.M->PB[m+HOMmax] != 0e0)
-    elem.M->Porder = abs(m);
+  M->PBpar[m+HOMmax] = mp;
+  M->PB[m+HOMmax] =
+    M->PBpar[m+HOMmax] + M->PBsys[m+HOMmax] +
+    M->PBrms[m+HOMmax]*M->PBrnd[m+HOMmax];
+  if (abs(m) > M->Porder && M->PB[m+HOMmax] != 0e0)
+    M->Porder = abs(m);
 }
 
 
 void setmpall (double rref)
 {
-  CellType cell;
+  elemtype cell;
   long     i;
   bool     mset;
   
@@ -3785,14 +3877,14 @@ void setmpall (double rref)
     for (i = 0; i <= globval.Cell_nLoc; i++) {
       getelem(i, &cell);
       mset=false;
-      if (cell.Elem.Pkind == Mpole) {
-	if (strncmp(cell.Elem.PName,"bn",2) == 0) {
+      if (cell.Pkind == Mpole) {
+	if (strncmp(cell.PName,"bn",2) == 0) {
 	  // BN magnet
 	  setmp(i, 3, 1, rref , 0.0, 2.0940E1) ;
 	  setmp(i, 5, 1, rref , 0.0, 1.1376E1) ;
           mset=true;       
 	}
-	if (strncmp(cell.Elem.PName,"vb",2) == 0) {
+	if (strncmp(cell.PName,"vb",2) == 0) {
 	  //VB magnet (mirrorplate version) 
 	  setmp(i, 3, 1, rref , 0.0, -39.86) ;
 	  setmp(i, 4, 2, rref , 0.0, -90.93) ;
@@ -3800,32 +3892,32 @@ void setmpall (double rref)
 	  setmp(i, 6, 2, rref , 0.0, -22.10) ;
           mset=true;       
 	}
-	if (strncmp(cell.Elem.PName,"qp",2) == 0) {
+	if (strncmp(cell.PName,"qp",2) == 0) {
 	  //QP main quads
 	  setmp(i, 6, 2, rref , 6.75, -26) ; //dodeka suppressed at 55 T/m
 	  setmp(i,10, 2, rref , 0.0 ,-1.65) ;
           mset=true;       
 	}
-	if (strncmp(cell.Elem.PName,"s",1) == 0) {
+	if (strncmp(cell.PName,"s",1) == 0) {
 	  //S sextupole
 	  setmp(i, 9, 3, rref , 0.0, -8.1);
 	  setmp(i,15, 3, rref , 0.0, -24.9);
           mset=true;       
 	}
-	if (strncmp(cell.Elem.PName,"qa",2) == 0) {
+	if (strncmp(cell.PName,"qa",2) == 0) {
 	  //QA tuning quads and skew quads
 	  setmp(i, 6, 2, rref , 0.0, 1435);
 	  setmp(i,-6,-2, rref , 0.0,-1435);
           mset=true;       
 	}
-	if (strncmp(cell.Elem.PName,"cs",2) == 0) {
+	if (strncmp(cell.PName,"cs",2) == 0) {
 	  //CS skew quads
 	  setmp(i, 6, 2, rref , 0.0, 1435);
 	  setmp(i,-6,-2, rref , 0.0,-1435);
           mset=true;
 	}
         if (mset) {
-	  printf("%s systematic multipoles defined\n", cell.Elem.PName);
+	  printf("%s systematic multipoles defined\n", cell.PName);
 	}
       }
     }
