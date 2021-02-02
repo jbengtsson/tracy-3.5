@@ -126,7 +126,7 @@ void prtmfile(const char mfile_dat[])
       fprintf(mfile, " %23.16e\n", Cell[i].PL);
       break;
     case Mpole:
-      M = dynamic_cast<MpoleType*>(&Cell[i]);
+      M = static_cast<MpoleType*>(&Cell[i]);
       if (Cell[i].PL != 0.0) {
 	prtName(mfile, i, mpole_, M->Pmethod, M->PN,
 		Cell[i].Reverse);
@@ -144,7 +144,7 @@ void prtmfile(const char mfile_dat[])
       }
       break;
     case Wigl:
-      W = dynamic_cast<WigglerType*>(&Cell[i]);
+      W = static_cast<WigglerType*>(&Cell[i]);
       prtName(mfile, i, wiggler_, W->Pmethod, W->PN, Cell[i].Reverse);
       fprintf(mfile, " %23.16e %23.16e\n", Cell[i].PL, W->Lambda);
       fprintf(mfile, "%2d\n", W->n_harm);
@@ -155,7 +155,7 @@ void prtmfile(const char mfile_dat[])
       }
       break;
     case Cavity:
-      C = dynamic_cast<CavityType*>(&Cell[i]);
+      C = static_cast<CavityType*>(&Cell[i]);
       prtName(mfile, i, cavity_, 0, 0, 0);
       fprintf(mfile, " %23.16e %23.16e %d %23.16e %23.16e\n",
 	      C->Pvolt/(1e9*globval.Energy), 2.0*M_PI*C->Pfreq/c0, C->Ph,
@@ -165,7 +165,7 @@ void prtmfile(const char mfile_dat[])
       prtName(mfile, i, marker_, 0, 0, 0);
       break;
     case Insertion:
-      ID = dynamic_cast<InsertionType*>(&Cell[i]);
+      ID = static_cast<InsertionType*>(&Cell[i]);
       prtName(mfile, i, kick_map_, ID->Pmethod, ID->PN, Cell[i].Reverse);
       if (ID->firstorder)
 	fprintf(mfile, " %3.1lf %1d %s\n", ID->scaling, 1, ID->fname1);
@@ -173,7 +173,7 @@ void prtmfile(const char mfile_dat[])
 	fprintf(mfile, " %3.1lf %1d %s\n", ID->scaling, 2, ID->fname2);
       break;
     case Map:
-      Mapp = dynamic_cast<MapType*>(&Cell[i]);
+      Mapp = static_cast<MapType*>(&Cell[i]);
       prtName(mfile, i, map_, 0, 0, 0);
       for (j = 0; j < n_ps; j++) {
 	for (k = 0; k < n_ps; k++)

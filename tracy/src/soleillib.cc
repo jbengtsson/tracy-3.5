@@ -334,7 +334,7 @@ void SetErr(void)
     getelem(i, &Cell);
     if (Cell.Pkind == 2L)
     {
-      M = dynamic_cast<MpoleType*>(&Cell);
+      M = static_cast<MpoleType*>(&Cell);
       if (M->Porder == 2L && Cell.dT[1] == 0)
       {
         if ((pair%2)==0) theta = fac*normranf(); /* random error every 2
@@ -1611,7 +1611,7 @@ void Multipole(void)
 
     if (Cell.Pkind == Mpole)
     {
-      M = dynamic_cast<MpoleType*>(&Cell);
+      M = static_cast<MpoleType*>(&Cell);
       if (fabs(M->Pirho) > 0.0)
       {
         dlist[ndip] = i;
@@ -1680,7 +1680,7 @@ void Multipole(void)
  for (i = 0; i < ndip; i++)
  {
    getelem(dlist[i], &Cell);
-   M = dynamic_cast<MpoleType*>(&Cell);
+   M = static_cast<MpoleType*>(&Cell);
    theta = Cell.PL*M->Pirho;
 
    /* gradient error */
@@ -2026,7 +2026,7 @@ void SetSkewQuad(void)
 
     if (Cell.Pkind == Mpole)
     {
-      M = dynamic_cast<MpoleType*>(&Cell);
+      M = static_cast<MpoleType*>(&Cell);
       if (fabs(M->PBpar[2L + HOMmax]) > 0.0)
       {
         qlist[nquad] = i;
@@ -2058,7 +2058,7 @@ void SetSkewQuad(void)
     if (trace) fprintf(stdout,"%le \n", theta[i]);
 
     getelem(qlist[i], &Cell);
-    M = dynamic_cast<MpoleType*>(&Cell);
+    M = static_cast<MpoleType*>(&Cell);
 
     /* Get KL for a quadrupole */
     b2 = Cell.PL*GetKpar(Cell.Fnum, Cell.Knum, 2L);
@@ -2777,7 +2777,7 @@ void getA4antidamping()
     {
       if (fabs(M->PBpar[2L+HOMmax]) > 0.0)
       {
-	M = dynamic_cast<MpoleType*>(&Cell);
+	M = static_cast<MpoleType*>(&Cell);
         qlist[nquad] = i;
         nquad++;
         if (!trace) printf("%s % f\n", Cell.PName, M->PBpar[2L+HOMmax]);
@@ -2790,7 +2790,7 @@ void getA4antidamping()
   for (i = 0; i < nquad; i++)
   {
     getelem(qlist[i],&Cell);
-    M = dynamic_cast<MpoleType*>(&Cell);
+    M = static_cast<MpoleType*>(&Cell);
     fprintf(stdout,"%d Name = %s L=%g A= %g etax=%g \n",
 	    i, Cell.PName, Cell.PL, A,Cell.Eta[0]);
     A +=

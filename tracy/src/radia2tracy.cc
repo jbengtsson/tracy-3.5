@@ -257,7 +257,7 @@ void LinearInterpolation2(T &X, T &Z, T &TX, T &TZ, T &B2,
   int            nx = 0, nz = 0;
   InsertionType  *WITH;
   
-  WITH = dynamic_cast<InsertionType*>(&Cell);
+  WITH = static_cast<InsertionType*>(&Cell);
   nx = WITH->nx; nz = WITH->nz;
   
   xstep = WITH->tabx[1]-WITH->tabx[0]; /* increasing values */
@@ -425,7 +425,7 @@ void SplineInterpolation2(T &X, T &Z, T &thetax, T &thetaz,
     InsertionType  *WITH;
 //    int kx, kz;
 
-    WITH = dynamic_cast<InsertionType*>(&Cell);
+    WITH = static_cast<InsertionType*>(&Cell);
     nx = WITH->nx; nz = WITH->nz;
 
     /* test wether X and Z within the transverse map area */

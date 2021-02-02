@@ -93,35 +93,35 @@ void get_kind(const int kind, elemtype &Elem)
     break;
   case drift_:
     Elem.Pkind = PartsKind(drift);
-    Drift_Alloc(&Elem);
+    Drift_Alloc(Elem);
     break;
   case mpole_:
     Elem.Pkind = PartsKind(Mpole);
-    Mpole_Alloc(&Elem);
-    M = dynamic_cast<MpoleType*>(&Elem);
+    Mpole_Alloc(Elem);
+    M = static_cast<MpoleType*>(&Elem);
     M->Pthick = pthicktype(thick);
     break;
   case cavity_:
     Elem.Pkind = PartsKind(Cavity);
-    Cav_Alloc(&Elem);
+    Cav_Alloc(Elem);
     break;
   case thinkick_:
     Elem.Pkind = PartsKind(Mpole);
-    Mpole_Alloc(&Elem);
-    M = dynamic_cast<MpoleType*>(&Elem);
+    Mpole_Alloc(Elem);
+    M = static_cast<MpoleType*>(&Elem);
     M->Pthick = pthicktype(thin);
     break;
   case wiggler_:
     Elem.Pkind = PartsKind(Wigl);
-    Wiggler_Alloc(&Elem);
+    Wiggler_Alloc(Elem);
     break;
   case kick_map:
     Elem.Pkind = PartsKind(Insertion);
-    Insertion_Alloc(&Elem);
+    Insertion_Alloc(Elem);
     break;
   case map_:
     Elem.Pkind = PartsKind(Map);
-    Map_Alloc(&Elem);
+    Map_Alloc(Elem);
     break;
   default:
     std::cout << "get_kind: unknown type " << kind << " " << Elem.PName
@@ -211,7 +211,7 @@ void rdmfile(const char *mfile_dat)
       sscanf(line, "%lf", &Cell[i].PL);
       break;
     case Cavity:
-      C = dynamic_cast<CavityType&>(Cell[i]);
+      C = static_cast<CavityType&>(Cell[i]);
       inf.getline(line, line_max);
       if (prt) printf("%s\n", line);
       sscanf(line, "%lf %lf %d %lf %lf",
@@ -221,7 +221,7 @@ void rdmfile(const char *mfile_dat)
       C.Pfreq *= c0/(2.0*M_PI);
      break;
     case Mpole:
-      M = dynamic_cast<MpoleType&>(Cell[i]);
+      M = static_cast<MpoleType&>(Cell[i]);
       M.Pmethod = method; M.PN = n;
 
       if (M.Pthick == thick) {
@@ -271,7 +271,7 @@ void rdmfile(const char *mfile_dat)
 	M.M_lin = get_lin_map(Cell[i], 0e0);
       break;
     case Wigl:
-      W = dynamic_cast<WigglerType&>(Cell[i]);
+      W = static_cast<WigglerType&>(Cell[i]);
       W.Pmethod = method; W.PN = n;
 
       inf.getline(line, line_max);
@@ -284,8 +284,8 @@ void rdmfile(const char *mfile_dat)
 
       if (Cell[i].Knum == 1) {
 	elemfamp = &ElemFam[Cell[i].Fnum-1];
-	Wiggler_Alloc(&elemfamp->ElemF);
-	Wp = dynamic_cast<WigglerType&>(elemfamp->ElemF);
+	Wiggler_Alloc(elemfamp->ElemF);
+	Wp = static_cast<WigglerType&>(elemfamp->ElemF);
       }
       for (j = 0; j < W.n_harm; j++) {
 	inf.getline(line, line_max);
@@ -298,7 +298,7 @@ void rdmfile(const char *mfile_dat)
       }
       break;
     case Insertion:
-      ID = dynamic_cast<InsertionType&>(Cell[i]);
+      ID = static_cast<InsertionType&>(Cell[i]);
       ID.Pmethod = method; ID.PN = n;
 
       inf.getline(line, line_max);
@@ -350,7 +350,7 @@ void rdmfile(const char *mfile_dat)
     case FieldMap:
       break;
     case Map:
-      Mapp = dynamic_cast<MapType&>(Cell[i]);
+      Mapp = static_cast<MapType&>(Cell[i]);
       Id.identity(); Mapp.M.zero();
       for (j = 0; j < n_ps; j++) {
 	inf.getline(line, line_max);

@@ -482,7 +482,7 @@ void param_data_type::SetCorMis(double gxrms, double gyrms, double gtrms,
 // set misalignments of elements on girders:
   for (i = 0; i <= globval.Cell_nLoc; i++) {
     getelem(i, &cell);
-    M = dynamic_cast<MpoleType*>(&cell);
+    M = static_cast<MpoleType*>(&cell);
       
     if (cell.Pkind==Mpole) {
       if ((cell.Fnum != globval.hcorr) && (cell.Fnum != globval.vcorr)) {
@@ -825,7 +825,7 @@ void param_data_type::get_bare(void)
 
   n_sext = 0;
   for (j = 0; j <= globval.Cell_nLoc; j++) {
-    M = dynamic_cast<MpoleType*>(&Cell[j]);
+    M = static_cast<MpoleType*>(&Cell[j]);
     if ((Cell[j].Pkind == Mpole) && (M->n_design >= Sext)) {
       n_sext++; sexts[n_sext-1] = j;
       for (k = 0; k < 2; k++) {
@@ -1352,7 +1352,7 @@ void param_data_type::corr_eps_y(const int cnt)
       fscanf(cinf, "%d %lg %lg %s %lg", &qtnr, &qtpos, &qteta, qtnam, &qtkl);
       printf("%d %d %s %f\n", j, qtnr, qtnam, qtkl);
       loc = Elem_GetPos(globval.qt, j);
-      M = dynamic_cast<MpoleType*>(&Cell[loc]);
+      M = static_cast<MpoleType*>(&Cell[loc]);
      printf("%d %e %e %e %e\n",
 	     loc, Cell[loc].PL,
 	     qtkl, M->PBpar[-Quad+HOMmax],
@@ -1403,13 +1403,13 @@ void param_data_type::get_IDs(void)
   for (k = 0; k < globval.Elem_nFam; k++)
     switch (ElemFam[k].ElemF.Pkind) {
     case Wigl:
-      W = dynamic_cast<WigglerType&>(ElemFam[k].ElemF);
+      W = static_cast<WigglerType&>(ElemFam[k].ElemF);
       printf("found ID family:   %s %12.5e\n",
 	     ElemFam[k].ElemF.PName, W.BoBrhoV[0]);
       n_ID_Fams++; ID_Fams[n_ID_Fams-1] = k + 1;
       break;
     case Insertion:
-     ID = dynamic_cast<InsertionType&>(ElemFam[k].ElemF);
+     ID = static_cast<InsertionType&>(ElemFam[k].ElemF);
       printf("found ID family:   %s %12.5e",
 	     ElemFam[k].ElemF.PName, ID.scaling);
       if (ID.scaling != 0e0) {
@@ -1419,7 +1419,7 @@ void param_data_type::get_IDs(void)
 	printf("  not included\n");
       break;
     case FieldMap:
-      FM = dynamic_cast<FieldMapType&>(ElemFam[k].ElemF);
+      FM = static_cast<FieldMapType&>(ElemFam[k].ElemF);
       printf("found ID family:   %s %12.5e\n",
 	     ElemFam[k].ElemF.PName, FM.scl);
       n_ID_Fams++; ID_Fams[n_ID_Fams-1] = k + 1;
@@ -1442,7 +1442,7 @@ void param_data_type::set_IDs(const double scl)
   for (k = 0; k < n_ID_Fams; k++) {
     switch (ElemFam[ID_Fams[k]-1].ElemF.Pkind) {
     case Wigl:
-      W = dynamic_cast<WigglerType&>(ElemFam[ID_Fams[k]-1].ElemF);
+      W = static_cast<WigglerType&>(ElemFam[ID_Fams[k]-1].ElemF);
       printf("setting ID family: %s %12.5e\n",
 	     ElemFam[ID_Fams[k]-1].ElemF.PName, scl*W.BoBrhoV[0]);
 
@@ -1600,7 +1600,7 @@ bool param_data_type::get_SQ(void)
 
   Nsext = 0;
   for (k = 0; k < globval.Cell_nLoc; k++) {
-    M = dynamic_cast<MpoleType*>(&Cell[k]);
+    M = static_cast<MpoleType*>(&Cell[k]);
     if ((Cell[k].Pkind == Mpole) && (M->n_design == Sext)) {
       Nsext++;
 
@@ -2002,7 +2002,7 @@ void param_data_type::ReadCorMis(const bool Scale_it, const double Scale) const
     getelem(i, &Cell);
     if (Cell.Pkind == Mpole)
     {
-      M = dynamic_cast<MpoleType*>(&Cell);
+      M = static_cast<MpoleType*>(&Cell);
       fscanf(fi, "%ld %lf %lf %lf %lf %lf %s \n",
 	     &ii, &s1, &s2, &dx, &dy, &dt, elem);
       dx/=1e6; dy/=1e6; dt/=1e6;
@@ -2297,7 +2297,7 @@ void param_data_type::Align_BPMs(const int n, const double bdxrms,
 
   for (i = 1; i <= GetnKid(globval.bpm); i++) {
     loc = Elem_GetPos(globval.bpm, i);
-    M = dynamic_cast<MpoleType*>(&Cell[loc]);
+    M = static_cast<MpoleType*>(&Cell[loc]);
 
     if ((loc == 1) || (loc == globval.Cell_nLoc)) {
       printf("Align_BPMs: BPM at entrance or exit of lattice: %ld\n", loc);
@@ -2307,7 +2307,7 @@ void param_data_type::Align_BPMs(const int n, const double bdxrms,
     j = 1; aligned = false;
     do {
       if ((Cell[loc-j].Pkind == Mpole) &&
-	  (dynamic_cast<MpoleType*>(&Cell[loc-j])->n_design == n)) {
+	  (static_cast<MpoleType*>(&Cell[loc-j])->n_design == n)) {
 	for (k = 0; k <= 1; k++)
 	  M->PdSsys[k] = Cell[loc-j].dS[k];
 	if (bdxrms >=0.) {
@@ -2330,7 +2330,7 @@ void param_data_type::Align_BPMs(const int n, const double bdxrms,
 	       dtor(M->PdTrms*M->PdTrnd*1e6));
 	aligned = true; break;
       } else if ((Cell[loc+j].Pkind == Mpole) &&
-		 (dynamic_cast<MpoleType*>(&Cell[loc+j])->n_design == n)) {
+		 (static_cast<MpoleType*>(&Cell[loc+j])->n_design == n)) {
 	for (k = 0; k <= 1; k++)
 	  M->PdSsys[k] = Cell[loc+j].dS[k];
 	if (bdxrms >=0.) {
@@ -2523,7 +2523,7 @@ void param_data_type::Orb_and_Trim_Stat(orb_corr_type orb_corr[])
   }
   SextCounter = 0;
   for (i = 0; i <= globval.Cell_nLoc; i++) {
-    M = dynamic_cast<MpoleType*>(&Cell[i]);
+    M = static_cast<MpoleType*>(&Cell[i]);
     if ((Cell[i].Pkind == Mpole) && (M->n_design == Sext)) {
       SextCounter++;
       for (j = 0; j < 2; j++) {
@@ -2543,7 +2543,7 @@ void param_data_type::Orb_and_Trim_Stat(orb_corr_type orb_corr[])
   // Trim handling.
   for (j = 0; j < 2; j++)
     for (i = 0; i < (int)orb_corr[j].corrs.size(); i++) {
-      M = dynamic_cast<MpoleType*>(&Cell[orb_corr[j].corrs[i]]);
+      M = static_cast<MpoleType*>(&Cell[orb_corr[j].corrs[i]]);
       if (j == 0)
 	tr = M->PBpar[HOMmax+Dip];
       else

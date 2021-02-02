@@ -1,4 +1,5 @@
-lib_LIBRARIES          = libtracy.a libtracy_ptc.a
+#lib_LIBRARIES          = libtracy.a libtracy_ptc.a
+lib_LIBRARIES          = libtracy.a
 
 libtracy_a_SOURCES     = tracy_lib.cc
 

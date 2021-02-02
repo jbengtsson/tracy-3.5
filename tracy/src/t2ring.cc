@@ -351,7 +351,7 @@ void shiftk(long Elnum, double dk, struct LOC_Ring_Fittune *LINK)
   MpoleType *M;
 
   elemp = &Cell[Elnum];
-  M = dynamic_cast<MpoleType*>(elemp);
+  M = static_cast<MpoleType*>(elemp);
   M->PBpar[Quad+HOMmax] += dk;
   Mpole_SetPB(elemp->Fnum, elemp->Knum, (long)Quad);
 }
@@ -450,7 +450,7 @@ void shiftkp(long Elnum, double dkp)
   MpoleType *M;
 
   elemp = &Cell[Elnum];
-  M = dynamic_cast<MpoleType*>(elemp);
+  M = static_cast<MpoleType*>(elemp);
   M->PBpar[Sext+HOMmax] += dkp;
   Mpole_SetPB(elemp->Fnum, elemp->Knum, (long)Sext);
 }
@@ -543,7 +543,7 @@ static void shiftk_(long Elnum, double dk, struct LOC_Ring_FitDisp *LINK)
   MpoleType *M;
 
   elemp = &Cell[Elnum];
-  M = dynamic_cast<MpoleType*>(elemp);
+  M = static_cast<MpoleType*>(elemp);
   M->PBpar[Quad+HOMmax] += dk;
   Mpole_SetPB(elemp->Fnum, elemp->Knum, (long)Quad);
 }

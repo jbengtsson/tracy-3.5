@@ -96,25 +96,25 @@ void Mpole_SetPB(int Fnum1, int Knum1, int Order);
 void Wiggler_SetPB(int Fnum1, int Knum1, int Order);
 
 
-void Drift_Alloc(elemtype *Elem);
+void Drift_Alloc(elemtype &Elem);
 
-void Mpole_Alloc(elemtype *Elem);
+void Mpole_Alloc(elemtype &Elem);
 
-void Cav_Alloc(elemtype *Elem);
+void Cav_Alloc(elemtype &Elem);
 
-void Wiggler_Alloc(elemtype *Elem);
+void Wiggler_Alloc(elemtype &Elem);
 
-void FieldMap_Alloc(elemtype *Elem);
+void FieldMap_Alloc(elemtype &Elem);
 
-void Insertion_Alloc(elemtype *Elem);
+void Insertion_Alloc(elemtype &Elem);
 
-void Spreader_Alloc(elemtype *Elem);
+void Spreader_Alloc(elemtype &Elem);
 
-void Recombiner_Alloc(elemtype *Elem);
+void Recombiner_Alloc(elemtype &Elem);
 
-void Solenoid_Alloc(elemtype *Elem);
+void Solenoid_Alloc(elemtype &Elem);
 
-void Map_Alloc(elemtype *Elem);
+void Map_Alloc(elemtype &Elem);
 
 
 void SI_init(void);

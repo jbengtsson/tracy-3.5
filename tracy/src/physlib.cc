@@ -108,7 +108,7 @@ void prt_sigma(void)
       code = 0.0;
       break;
     case Mpole:
-      M = dynamic_cast<MpoleType*>(&Cell[i]);
+      M = static_cast<MpoleType*>(&Cell[i]);
       if (M->Pirho != 0)
 	code = 0.5;
       else if (M->PBpar[Quad+HOMmax] != 0)
@@ -1333,7 +1333,7 @@ void SetTol(int Fnum, double dxrms, double dyrms, double drrms)
 
   for (i = 1; i <= GetnKid(Fnum); i++) {
     k = Elem_GetPos(Fnum, i);
-    M = dynamic_cast<MpoleType*>(&Cell[k]);
+    M = static_cast<MpoleType*>(&Cell[k]);
     M->PdSrms[X_] = dxrms;
     M->PdSrnd[X_] = normranf();
     M->PdSrms[Y_] = dyrms;
@@ -1353,7 +1353,7 @@ void Scale_Tol(int Fnum, double dxrms, double dyrms, double drrms)
 
   for (Knum = 1; Knum <= GetnKid(Fnum); Knum++) {
     loc = Elem_GetPos(Fnum, Knum);
-    M = dynamic_cast<MpoleType*>(&Cell[loc]);
+    M = static_cast<MpoleType*>(&Cell[loc]);
     M->PdSrms[X_] = dxrms; M->PdSrms[Y_] = dyrms;
     M->PdTrms    = drrms;
     Mpole_SetdS(Fnum, Knum); Mpole_SetdT(Fnum, Knum);
@@ -1392,7 +1392,7 @@ void SetaTol(int Fnum, int Knum, double dx, double dy, double dr)
   MpoleType *M;
 
   loc = Elem_GetPos(Fnum, Knum);
-  M = dynamic_cast<MpoleType*>(&Cell[loc]);
+  M = static_cast<MpoleType*>(&Cell[loc]);
   M->PdSrms[0] = dx; M->PdSrnd[0] = 1e0;
   M->PdSrms[1] = dy; M->PdSrnd[1] = 1e0;
   M->PdTrms    = dr; M->PdTrnd    = 1e0;
@@ -1515,7 +1515,7 @@ void SetKpar(int Fnum, int Knum, int Order, double k)
   MpoleType *M;
 
   loc = Elem_GetPos(Fnum, Knum);
-  M = dynamic_cast<MpoleType*>(&Cell[loc]);
+  M = static_cast<MpoleType*>(&Cell[loc]);
   M->PBpar[Order+HOMmax] = k;
   Mpole_SetPB(Fnum, Knum, Order);
 }
@@ -1543,7 +1543,7 @@ void SetdKpar(int Fnum, int Knum, int Order, double dk)
   MpoleType *M;
 
   loc = Elem_GetPos(Fnum, Knum);
-  M = dynamic_cast<MpoleType*>(&Cell[loc]);
+  M = static_cast<MpoleType*>(&Cell[loc]);
   M->PBpar[Order+HOMmax] += dk;
   Mpole_SetPB(Fnum, Knum, Order);
 }
@@ -1555,7 +1555,7 @@ void SetKLpar(int Fnum, int Knum, int Order, double kL)
   MpoleType *M;
 
   loc = Elem_GetPos(Fnum, Knum);
-  M = dynamic_cast<MpoleType*>(&Cell[loc]);
+  M = static_cast<MpoleType*>(&Cell[loc]);
   if (Cell[loc].PL != 0e0)
     M->PBpar[Order+HOMmax] = kL/Cell[loc].PL;
   else
@@ -1570,7 +1570,7 @@ void SetdKLpar(int Fnum, int Knum, int Order, double dkL)
   MpoleType *M;
 
   loc = Elem_GetPos(Fnum, Knum);
-  M = dynamic_cast<MpoleType*>(&Cell[loc]);
+  M = static_cast<MpoleType*>(&Cell[loc]);
   if (Cell[loc].PL != 0e0)
     M->PBpar[Order + HOMmax] += dkL/Cell[loc].PL;
   else
@@ -1585,7 +1585,7 @@ void SetdKrpar(int Fnum, int Knum, int Order, double dkrel)
   MpoleType *M;
 
   loc = Elem_GetPos(Fnum, Knum);
-  M = dynamic_cast<MpoleType*>(&Cell[loc]);
+  M = static_cast<MpoleType*>(&Cell[loc]);
   if (Order == Dip && M->Pthick == thick)
     M->PBpar[Dip+HOMmax] += dkrel*M->Pirho;
   else
@@ -1648,7 +1648,7 @@ void SetbnL_sys(int Fnum, int Order, double bnL_sys)
 
   for (Knum = 1; Knum <= GetnKid(Fnum); Knum++) {
     loc = Elem_GetPos(Fnum, Knum);
-    M = dynamic_cast<MpoleType*>(&Cell[loc]);
+    M = static_cast<MpoleType*>(&Cell[loc]);
     if (Cell[loc].PL != 0.0)
       M->PBsys[Order+HOMmax] = bnL_sys/Cell[loc].PL;
     else
@@ -1668,7 +1668,7 @@ void set_dbn_rel(const int type, const int n, const double dbn_rel)
   printf("Setting Db_%d/b_%d = %6.1e for:\n", n, type, dbn_rel);
   printf("\n");
   for (j = 0; j <= globval.Cell_nLoc; j++)
-    M = dynamic_cast<MpoleType*>(&Cell[j]);
+    M = static_cast<MpoleType*>(&Cell[j]);
     if ((Cell[j].Pkind == Mpole) && (M->n_design == type)) {
       printf("%s\n", Cell[j].PName);
       dbn = dbn_rel*M->PBpar[type+HOMmax];
@@ -1686,7 +1686,7 @@ double GetKpar(int Fnum, int Knum, int Order)
 
 
   loc = Elem_GetPos(Fnum, Knum);
-  M = dynamic_cast<MpoleType*>(&Cell[loc]);
+  M = static_cast<MpoleType*>(&Cell[loc]);
   return M->PBpar[Order+HOMmax];
 }
 
@@ -1703,7 +1703,7 @@ double GetKLpar(int Fnum, int Knum, int Order)
   MpoleType *M;
 
   loc = Elem_GetPos(Fnum, Knum);
-  M = dynamic_cast<MpoleType*>(&Cell[loc]);
+  M = static_cast<MpoleType*>(&Cell[loc]);
   if (Cell[loc].PL != 0e0)
     return (M->PBpar[Order+HOMmax]*Cell[loc].PL);
   else
@@ -1718,7 +1718,7 @@ void SetdKLrms(int Fnum, int Order, double dkLrms)
 
   for (Knum = 1; Knum <= GetnKid(Fnum); Knum++) {
     loc = Elem_GetPos(Fnum, Knum);
-    M = dynamic_cast<MpoleType*>(&Cell[loc]);
+    M = static_cast<MpoleType*>(&Cell[loc]);
     if (Cell[loc].PL != 0e0)
       M->PBrms[Order+HOMmax] = dkLrms/Cell[loc].PL;
     else
@@ -1736,7 +1736,7 @@ void Setdkrrms(int Fnum, int Order, double dkrrms)
 
   for (Knum = 1; Knum <= GetnKid(Fnum); Knum++) {
     loc = Elem_GetPos(Fnum, Knum);
-    M = dynamic_cast<MpoleType*>(&Cell[loc]);
+    M = static_cast<MpoleType*>(&Cell[loc]);
     if (Order == Dip && M->Pthick == thick)
       M->PBrms[Dip+HOMmax] = dkrrms*M->Pirho;
     else
@@ -1767,7 +1767,7 @@ void set_dx(const int type, const double sigma_x, const double sigma_y)
 	 sigma_x, sigma_y, type);
   printf("\n");
   for (j = 0; j <= globval.Cell_nLoc; j++)
-    M = dynamic_cast<MpoleType*>(&Cell[j]);
+    M = static_cast<MpoleType*>(&Cell[j]);
     if ((Cell[j].Pkind == Mpole) && (M->n_design == type)) {
       printf("%s\n", Cell[j].PName);
       M->PdSrms[X_] = sigma_x;
