@@ -28,14 +28,14 @@ void prt_bpm_corr(const int m, const int n, const std::vector<long int> &bpms,
 
   printf("\nbpms:\n  ");
   for (k = 0; k < m; k++) {
-    printf("%8s", Cell[bpms[k]].Elem.PName);
+    printf("%8s", Cell[bpms[k]].PName);
     if ((k+1) % n_prt == 0) printf("\n  ");
   }
   if (m % n_prt != 0) printf("\n");
 
   printf("\ncorrs:\n  ");
   for (k = 0; k < n; k++) {
-    printf("%8s", Cell[corrs[k]].Elem.PName);
+    printf("%8s", Cell[corrs[k]].PName);
     if ((k+1) % n_prt == 0) printf("\n  ");
   }
   if (n % n_prt != 0) printf("\n");

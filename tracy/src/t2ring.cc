@@ -125,7 +125,7 @@ void Cell_Geteta(long i0, long i1, bool ring, double dP)
   int      k;
   psVector xref;
   psVector codbuf[Cell_nLocMax+1];
-  CellType *elemp;
+  elemtype *elemp;
 
   const int n = 4;
 
@@ -208,7 +208,7 @@ void Cell_Twiss(long i0, long i1, ss_vect<tps> &Ascr, bool chroma, bool ring,
 
   Ascr1 = Ascr0;
   for (i = i0; i <= i1; i++) {
-    Elem_Pass(i, Ascr1); elemp = &Cell[i];
+    Cell[i].Elem_Pass(Ascr1); elemp = &Cell[i];
     dagetprm(Ascr1, elemp->Alpha, elemp->Beta);
     for (k = 1; k <= 2; k++) {
       dnu[k-1] =

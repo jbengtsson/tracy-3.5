@@ -391,7 +391,7 @@ void LinearInterpolation2(T &X, T &Z, T &TX, T &TZ, T &B2,
 
 /****************************************************************************/
 /* void SplineInterpolation2(double X, double Z, double &TX, double &TZ,
-                             CellType &Cell, bool &out)
+                             elemtype &Cell, bool &out)
  
    Purpose:
         Computes thx and thz in X and Z values using a bilinear interpolation

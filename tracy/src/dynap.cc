@@ -223,18 +223,16 @@ void DA_data_type::get_DA_real(param_data_type &params,
   iVector2 ns;
   Vector2  si;
   double   dks;
-  double   ChromaX,ChromaY;
+  double   ChromaX, ChromaY;
 
-  CellType *WITH;
+  elemtype cell, *WITH;
+  FILE     *DA_real = NULL, *fp[params.n_delta_DA+1];
 
-  const int    n_cell = 20;
+  const int n_cell = 20;
 
   gdxrms = gdzrms = gdarms = jdxrms = jdzrms = edxrms = edzrms = edarms
          = bdxrms = bdzrms = bdarms = 0e0;
   
-  FILE     *DA_real = NULL, *fp[params.n_delta_DA+1];
-  CellType cell;
-
   for (j = 0; j <= params.n_delta_DA; j++) {
     d[j] = (params.n_delta_DA > 0)?
       (double)j/(double)params.n_delta_DA*params.delta_DA : 0.0;
@@ -348,12 +346,12 @@ void DA_data_type::get_DA_real(param_data_type &params,
 	nu[1]=params.TuneY;
 	for (i = 0; i <= globval.Cell_nLoc; i++) {
 	  WITH = &Cell[i];
-	  if ( WITH->Elem.Pkind == Mpole ) {
-	    if (strncmp(Cell[i].Elem.PName,"qax",3) == 0){
+	  if ( WITH->Pkind == Mpole ) {
+	    if (strncmp(Cell[i].PName,"qax",3) == 0){
 	      qfbuf[nq[0]]=i;
 	      nq[0]++;
 	    }
-	    if (strncmp(Cell[i].Elem.PName,"qay",3) == 0){
+	    if (strncmp(Cell[i].PName,"qay",3) == 0){
 	      qdbuf[nq[1]]=i;
 	      nq[1]++;
 	    }
@@ -381,12 +379,12 @@ void DA_data_type::get_DA_real(param_data_type &params,
 	si[1]=params.ChromY;
 	for (i = 0; i <= globval.Cell_nLoc; i++) {
 	  WITH = &Cell[i];
-	  if ( WITH->Elem.Pkind == Mpole ) {
-	    if (strncmp(Cell[i].Elem.PName,"sf",2) == 0){
+	  if ( WITH->Pkind == Mpole ) {
+	    if (strncmp(Cell[i].PName,"sf",2) == 0){
 	      sfbuf[ns[0]]=i;
 	      ns[0]++;
 	    }
-	    if (strncmp(Cell[i].Elem.PName,"sd",2) == 0){
+	    if (strncmp(Cell[i].PName,"sd",2) == 0){
 	      sdbuf[ns[1]]=i;
 	      ns[1]++;
 	    }
@@ -419,10 +417,10 @@ void DA_data_type::get_DA_real(param_data_type &params,
 
       for (i = 0; i <= globval.Cell_nLoc; i++)
 	getelem(i, &cell);
-      if (cell.Elem.Pkind == Mpole)
+      if (cell.Pkind == Mpole)
 	printf("%ld %lf %lf %lf %s \n",
 	       i, cell.dS[0]*1e6, cell.dS[1]*1e6, cell.dT[1]*1e6,
-	       cell.Elem.PName);
+	       cell.PName);
 
       for (k = 0; k <= params.n_delta_DA; k++) {
 	DA = get_dynap(params, fp[k], 10e-3, d[k], 0.1e-3, x_min, x_max);
@@ -436,7 +434,7 @@ void DA_data_type::get_DA_real(param_data_type &params,
       if (params.n_lin > 0) {
 	// reset skew quads
 	printf("resetting skew quad family: %s\n",
-	       Cell[Elem_GetPos(globval.qt,1)].Elem.PName);
+	       Cell[Elem_GetPos(globval.qt,1)].PName);
         set_bnL_design_fam(globval.qt, Quad, 0.0, 0.0);
       }
       if (params.N_calls > 0) params.reset_quads();  

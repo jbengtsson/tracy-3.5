@@ -152,25 +152,25 @@ template void Wiggler_pass_EF2(int nstep, double L,
 			       double BoBrhoV, double BoBrhoH, double phi,
 			       ss_vect<tps> &x);
 
-template void Wiggler_pass_EF3(CellType &Cell, ss_vect<double> &x);
+template void Wiggler_pass_EF3(elemtype &Cell, ss_vect<double> &x);
 
-template void Wiggler_pass_EF3(CellType &Cell, ss_vect<tps> &x);
+template void Wiggler_pass_EF3(elemtype &Cell, ss_vect<tps> &x);
 
 template void sol_pass(const elemtype &, ss_vect<double> &);
 
 template void sol_pass(const elemtype &, ss_vect<tps> &);
 
 template void LinearInterpolation2(double &, double &, double &, double &,
-				   double &, CellType &, bool &, int);
+				   double &, elemtype &, bool &, int);
 
 template void LinearInterpolation2(tps &, tps &, tps &, tps &, tps &,
-				   CellType &, bool &, int);
+				   elemtype &, bool &, int);
 
 template void SplineInterpolation2(double &, double &, double &, double &,
-				   CellType &, bool &);
+				   elemtype &, bool &);
 
 template void SplineInterpolation2(tps &, tps &, tps &, tps &,
-				   CellType &, bool &);
+				   elemtype &, bool &);
 
 template void spline(const double [], const double [], int const,
 		     double const, const double, double []);

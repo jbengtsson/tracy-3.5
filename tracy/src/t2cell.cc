@@ -65,7 +65,7 @@ void Cell_Pass(const long i0, const long i1, ss_vect<T> &x, long &lastpos)
   else {
     lastpos = i1;
     for (i = i0; i <= i1; i++) {
-      Elem_Pass(i, x);
+      Cell[i].Elem_Pass(x);
       if (!CheckAmpl(x, i)) { lastpos = i; break; }
     }
   }

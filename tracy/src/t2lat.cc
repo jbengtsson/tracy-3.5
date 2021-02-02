@@ -134,7 +134,7 @@ struct LOC_Lattice_Read
 
 bool reverse_elem = false; // Beam Dynamics or Software Engineering reverse.
 
-const bool debug_lat = false;
+const bool debug_lat = !false;
 
 // Set operations
 
@@ -2583,7 +2583,9 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     if (globval.Elem_nFam <= Elem_nFamMax) {
       WITH = &ElemFam[globval.Elem_nFam-1];
       WITH1 = WITH->ElemF;
-      memcpy(WITH1->PName, ElementName, sizeof(partsName));
+      printf("\n%s\n", ElementName);
+      *WITH1->PName = *ElementName;
+      // memcpy(WITH1->PName, ElementName, sizeof(partsName));
       WITH1->PL = QL;
       WITH1->Pkind = Cavity;
       Cav_Alloc(WITH->ElemF);

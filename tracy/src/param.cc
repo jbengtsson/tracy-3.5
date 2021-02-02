@@ -81,7 +81,7 @@ void param_data_type::GirderSetup() {
   bool     giropen, ismag;
   double   s0, s1, s2, circ;
   long     ngir, i0, ic, i, countmag;
-  CellType cell;
+  elemtype cell;
   char     elem[NameLength+1];
   FILE     *outf;
   char     fname[30];
@@ -104,16 +104,16 @@ void param_data_type::GirderSetup() {
  
     getelem(i, &cell);
     
-    circ=circ+cell.Elem.PL;
+    circ=circ+cell.PL;
 
-    if ((cell.Elem.PName[0] == 'g') && (cell.Elem.PName[1]=='t')
-	&& (cell.Elem.PName[2] == 'y')
-    && (cell.Elem.PName[3]=='p')
-	&& ((cell.Elem.PName[4] == '0') || (cell.Elem.PName[4]=='1'))) {
+    if ((cell.PName[0] == 'g') && (cell.PName[1]=='t')
+	&& (cell.PName[2] == 'y')
+    && (cell.PName[3]=='p')
+	&& ((cell.PName[4] == '0') || (cell.PName[4]=='1'))) {
       if (giropen) {
 // if girder is open, close it:
         giropen = false;
-        if (cell.Elem.PName[4]=='0')
+        if (cell.PName[4]=='0')
 	  Girder[ngir-1].gco[1]=0;
 	else
 	  {Girder[ngir-1].gco[1]=1;}
@@ -131,7 +131,7 @@ void param_data_type::GirderSetup() {
         Girder[ngir-1].gdy[0]=0; 
         Girder[ngir-1].gdy[1]=0; 
         Girder[ngir-1].gdt=0;
-        if (cell.Elem.PName[4]=='0')
+        if (cell.PName[4]=='0')
 	  Girder[ngir-1].gco[0]=0;
 	else
 	  Girder[ngir-1].gco[0]=1;
@@ -142,7 +142,7 @@ void param_data_type::GirderSetup() {
         Girder[ngir-1].level=1;
       }
     }
-    Lattice[i].smid=circ-cell.Elem.PL/2;
+    Lattice[i].smid=circ-cell.PL/2;
   }//for
 
   for (i=0;i<ngir;i++)
@@ -160,10 +160,10 @@ void param_data_type::GirderSetup() {
   for (i = 0; i <= globval.Cell_nLoc; i++) {
 
     getelem(i, &cell);
-    s2=s1+cell.Elem.PL;
-    if ((cell.Elem.PName[0]=='g') && (cell.Elem.PName[1]=='t')
-	&& (cell.Elem.PName[2]=='y') && (cell.Elem.PName[3]=='p')
-	&& ((cell.Elem.PName[4]=='2')||(cell.Elem.PName[4]=='3'))) {
+    s2=s1+cell.PL;
+    if ((cell.PName[0]=='g') && (cell.PName[1]=='t')
+	&& (cell.PName[2]=='y') && (cell.PName[3]=='p')
+	&& ((cell.PName[4]=='2')||(cell.PName[4]=='3'))) {
 
       if (giropen) {
 	// if compound is open, close it:
@@ -171,7 +171,7 @@ void param_data_type::GirderSetup() {
         Girder[ngir-1].gsp[1]=s2;
         Girder[ngir-1].ilat[1]=i;
         Girder[ngir-1].igir[1]=Lattice[i].igir; 
-        if (cell.Elem.PName[4]=='2')
+        if (cell.PName[4]=='2')
 	  Girder[ngir-1].gco[1]=2;
 	else
 	  Girder[ngir-1].gco[1]=3; 
@@ -184,7 +184,7 @@ void param_data_type::GirderSetup() {
         Girder[ngir-1].igir[0]=Lattice[i].igir; 
         Girder[ngir-1].gco[0]=0;
         Girder[ngir-1].level=2;
-        if (cell.Elem.PName[4]=='2')
+        if (cell.PName[4]=='2')
 	  Girder[ngir-1].gco[0]=2;
 	else
 	  Girder[ngir-1].gco[0]=3; 
@@ -205,13 +205,13 @@ void param_data_type::GirderSetup() {
   giropen=false; countmag=0;
   for (i = 0; i <= globval.Cell_nLoc; i++) {
     getelem(i, &cell);
-    s2=s1+cell.Elem.PL;
+    s2=s1+cell.PL;
  
-    ismag= (cell.Elem.Pkind==Mpole);
+    ismag= (cell.Pkind==Mpole);
 
     if (giropen) {
       // keep s0, was set when merging started
-      if  ((ismag) || (fabs(cell.Elem.PL)< seps) ) {  // continue merge
+      if  ((ismag) || (fabs(cell.PL)< seps) ) {  // continue merge
         if (ismag) { countmag++;};
       } else { //stop merge
         if (countmag>1) {
@@ -248,7 +248,7 @@ void param_data_type::GirderSetup() {
 
   for (i = 0; i <= globval.Cell_nLoc; i++) {
     getelem(i, &cell);
-    if (!(cell.Elem.Pkind==Mpole)) { Lattice[i].igir=-1;}
+    if (!(cell.Pkind==Mpole)) { Lattice[i].igir=-1;}
   }
 
   if (reportflag) {
@@ -262,7 +262,7 @@ void param_data_type::GirderSetup() {
     } 
     for (i = 0; i <= globval.Cell_nLoc; i++) {
       getelem(i, &cell);
-      TracyStrcpy( elem, cell.Elem.PName);
+      TracyStrcpy( elem, cell.PName);
      if (Lattice[i].igir > -1){
        printf("pos %ld %s %f gir %ld lev %ld",
 	      i, elem, Lattice[i].smid, Lattice[i].igir,
@@ -292,10 +292,10 @@ void param_data_type::GirderSetup() {
       s1=0;
       for (i = 0; i <= globval.Cell_nLoc; i++) {
         getelem(i, &cell);
-        s2=s1+cell.Elem.PL;
-        ismag= (cell.Elem.Pkind==Mpole);
+        s2=s1+cell.PL;
+        ismag= (cell.Pkind==Mpole);
         if (ismag) {
-          TracyStrcpy( elem, cell.Elem.PName);
+          TracyStrcpy( elem, cell.PName);
           fprintf(outf, "%ld %ld %f3 %f3 %s\n",
 		  i, Lattice[i].igir, s1, s2, elem);
         } 
@@ -313,13 +313,14 @@ void param_data_type::SetCorMis(double gxrms, double gyrms, double gtrms,
 				double eyrms, double etrms, double rancutx,
 				double rancuty, double rancutt, long iseed)
 {
-  double   jdx, jdy, ggxrms, ggyrms, r, g3dx, g3dy, g3dt, gelatt, att, dx, dy;
-  double   dt, s1, s2;
-  long     i, isup;
-  CellType cell;
-  char     elem[NameLength+1];
-  FILE     *outf;
-  char     fname[30];
+  char      fname[30];
+  char      elem[NameLength+1];
+  long      i, isup;
+  double    jdx, jdy, ggxrms, ggyrms, r, g3dx, g3dy, g3dt, gelatt, att, dx, dy;
+  double    dt, s1, s2;
+  elemtype  cell;
+  MpoleType *M;
+  FILE      *outf;
 
   printf("SetCorMis: initializing seed %ld\n", iseed);
   iniranf(iseed);
@@ -481,8 +482,9 @@ void param_data_type::SetCorMis(double gxrms, double gyrms, double gtrms,
 // set misalignments of elements on girders:
   for (i = 0; i <= globval.Cell_nLoc; i++) {
     getelem(i, &cell);
+    M = dynamic_cast<MpoleType*>(&cell);
       
-    if (cell.Elem.Pkind==Mpole) {
+    if (cell.Pkind==Mpole) {
       if ((cell.Fnum != globval.hcorr) && (cell.Fnum != globval.vcorr)) {
         setrancut(rancutx);
 	dx =exrms*normranf();
@@ -501,9 +503,9 @@ void param_data_type::SetCorMis(double gxrms, double gyrms, double gtrms,
 	  dt =dt*att+Girder[isup].gdt;
 	}
 
-	cell.Elem.M->PdSsys[0] = dx;
-	cell.Elem.M->PdSsys[1] = dy;
-	cell.Elem.M->PdTsys    = dt;
+	M->PdSsys[0] = dx;
+	M->PdSsys[1] = dy;
+	M->PdTsys    = dt;
 
 	putelem(i, &cell);
 
@@ -534,12 +536,12 @@ void param_data_type::SetCorMis(double gxrms, double gyrms, double gtrms,
     s1=0;
     for (i = 0; i <= globval.Cell_nLoc; i++) {
       getelem(i, &cell);
-      s2=s1+cell.Elem.PL;
-      if (cell.Elem.Pkind==Mpole) {
+      s2=s1+cell.PL;
+      if (cell.Pkind==Mpole) {
         dx = cell.dS[0];
         dy = cell.dS[1];
         dt = atan(cell.dT[1]/cell.dT[0]);
-        TracyStrcpy( elem, cell.Elem.PName);
+        TracyStrcpy( elem, cell.PName);
         fprintf(outf,"%ld %f %f %f %f %f %s \n", i,  s1, s2, dx*1e6, dy*1e6, dt*1e6, elem); 
       }
       s1=s2;
@@ -818,11 +820,13 @@ void param_data_type::get_param(const string &param_file)
 void param_data_type::get_bare(void)
 {
   // Store optics function values at the sextupoles.
-  long int j, k;
+  long int  j, k;
+  MpoleType *M;
 
   n_sext = 0;
   for (j = 0; j <= globval.Cell_nLoc; j++) {
-    if ((Cell[j].Elem.Pkind == Mpole) && (Cell[j].Elem.M->n_design >= Sext)) {
+    M = dynamic_cast<MpoleType*>(&Cell[j]);
+    if ((Cell[j].Pkind == Mpole) && (M->n_design >= Sext)) {
       n_sext++; sexts[n_sext-1] = j;
       for (k = 0; k < 2; k++) {
 	betas0_[n_sext-1][k] = Cell[j].Beta[k];
@@ -1218,7 +1222,7 @@ void param_data_type::SkewStat(double VertCouple[], const int cnt)
       fprintf(outf, "%4d %7.3f %12.5e %s %12.5e\n",
 	       i,Cell[Elem_GetPos(globval.qt,i)].S,
 	       Cell[Elem_GetPos(globval.qt,i)].Eta[X_],
-	       Cell[Elem_GetPos(globval.qt,i)].Elem.PName,sk);
+	       Cell[Elem_GetPos(globval.qt,i)].PName,sk);
     if (fabs(sk) > max) max = fabs(sk);
     rms += sqr(sk);
     mean += sk;
@@ -1288,14 +1292,12 @@ void param_data_type::SkewStat(double VertCouple[], const int cnt)
 
 void param_data_type::corr_eps_y(const int cnt)
 {
-  int  i, j;
-  FILE *outf;
-  char fname[30];
-  int qtnr;
-  double qtpos, qtkl, qteta;
-  char qtnam[20];
-  FILE *cinf;
-  int loc;
+  int       i, j;
+  char      fname[30], qtnam[20];
+  int       loc, qtnr;
+  double    qtpos, qtkl, qteta;
+  MpoleType *M;
+  FILE      *cinf, *outf;
   
   // Clear skew quad setpoints
   set_bnL_design_fam(globval.qt, Quad, 0.0, 0.0);
@@ -1350,16 +1352,17 @@ void param_data_type::corr_eps_y(const int cnt)
       fscanf(cinf, "%d %lg %lg %s %lg", &qtnr, &qtpos, &qteta, qtnam, &qtkl);
       printf("%d %d %s %f\n", j, qtnr, qtnam, qtkl);
       loc = Elem_GetPos(globval.qt, j);
-      printf("%d %e %e %e %e\n",
-	     loc, Cell[loc].Elem.PL,
-	     qtkl,Cell[loc].Elem.M->PBpar[-Quad + HOMmax],
-	     Cell[loc].Elem.M->PBpar[Quad + HOMmax]);
+      M = dynamic_cast<MpoleType*>(&Cell[loc]);
+     printf("%d %e %e %e %e\n",
+	     loc, Cell[loc].PL,
+	     qtkl, M->PBpar[-Quad+HOMmax],
+	     M->PBpar[Quad+HOMmax]);
       SetdKLpar(globval.qt, j, -Quad, qtkl);
       loc = Elem_GetPos(globval.qt, j);
       printf("%d %e %e %e %e\n",
-	     loc, Cell[loc].Elem.PL, qtkl,
-	     Cell[loc].Elem.M->PBpar[-Quad + HOMmax],
-	     Cell[loc].Elem.M->PBpar[Quad + HOMmax]);
+	     loc, Cell[loc].PL, qtkl,
+	     M->PBpar[-Quad+HOMmax],
+	     M->PBpar[Quad+HOMmax]);
     }
     printf("\n");
     Ring_GetTwiss(true, 0.0); printglob();
@@ -1380,7 +1383,7 @@ void param_data_type::corr_eps_y(const int cnt)
   fprintf(outf, "# nr s [m] name nuy etay [mm] etapy [mrad]\n");
   for (i = 0; i <= globval.Cell_nLoc; i++)
     fprintf(outf, "%4d %7.3f %s %6.3f %10.3e %10.3e\n",
-	    i, Cell[i].S, Cell[i].Elem.PName,
+	    i, Cell[i].S, Cell[i].PName,
 	    Cell[i].Nu[Y_], 1e3*Cell[i].Eta[Y_], 1e3*Cell[i].Etap[Y_]);
   fclose(outf);
 
@@ -1390,29 +1393,35 @@ void param_data_type::corr_eps_y(const int cnt)
 
 void param_data_type::get_IDs(void)
 {
-  int k;
+  int           k;
+  WigglerType   *W;
+  InsertionType *ID;
+  FieldMapType  *FM;
 
   printf("\n");
   n_ID_Fams = 0;
   for (k = 0; k < globval.Elem_nFam; k++)
-    switch (ElemFam[k].ElemF.Pkind) {
+    switch (ElemFam[k].ElemF->Pkind) {
     case Wigl:
+      W = dynamic_cast<WigglerType*>(ElemFam[k].ElemF);
       printf("found ID family:   %s %12.5e\n",
-	     ElemFam[k].ElemF.PName, ElemFam[k].ElemF.W->BoBrhoV[0]);
+	     ElemFam[k].ElemF->PName, W->BoBrhoV[0]);
       n_ID_Fams++; ID_Fams[n_ID_Fams-1] = k + 1;
       break;
     case Insertion:
+     ID = dynamic_cast<InsertionType*>(ElemFam[k].ElemF);
       printf("found ID family:   %s %12.5e",
-	     ElemFam[k].ElemF.PName, ElemFam[k].ElemF.ID->scaling);
-      if (ElemFam[k].ElemF.ID->scaling != 0e0) {
+	     ElemFam[k].ElemF->PName, ID->scaling);
+      if (ID->scaling != 0e0) {
 	printf("\n");
 	n_ID_Fams++; ID_Fams[n_ID_Fams-1] = k + 1;
       } else
 	printf("  not included\n");
       break;
     case FieldMap:
+      FM = dynamic_cast<FieldMapType*>(ElemFam[k].ElemF);
       printf("found ID family:   %s %12.5e\n",
-	     ElemFam[k].ElemF.PName, ElemFam[k].ElemF.FM->scl);
+	     ElemFam[k].ElemF->PName, FM->scl);
       n_ID_Fams++; ID_Fams[n_ID_Fams-1] = k + 1;
       break;
     default:
@@ -1426,28 +1435,28 @@ void set_ID_scl(const int Fnum, const double scl);
 
 void param_data_type::set_IDs(const double scl)
 {
-  int k;
+  int         k;
+  WigglerType *W;
 
   printf("\n");
   for (k = 0; k < n_ID_Fams; k++) {
-    switch (ElemFam[ID_Fams[k]-1].ElemF.Pkind) {
+    switch (ElemFam[ID_Fams[k]-1].ElemF->Pkind) {
     case Wigl:
+      W = dynamic_cast<WigglerType*>(ElemFam[ID_Fams[k]-1].ElemF);
       printf("setting ID family: %s %12.5e\n",
-	     ElemFam[ID_Fams[k]-1].ElemF.PName,
-	     scl*ElemFam[ID_Fams[k]-1].ElemF.W->BoBrhoV[0]);
+	     ElemFam[ID_Fams[k]-1].ElemF->PName, scl*W->BoBrhoV[0]);
 
-      set_Wiggler_BoBrho(ID_Fams[k],
-			 scl*ElemFam[ID_Fams[k]-1].ElemF.W->BoBrhoV[0]);
+      set_Wiggler_BoBrho(ID_Fams[k], scl*W->BoBrhoV[0]);
       break;
     case Insertion:
       printf("setting ID family: %s %12.5e\n",
-	     ElemFam[ID_Fams[k]-1].ElemF.PName, scl);
+	     ElemFam[ID_Fams[k]-1].ElemF->PName, scl);
 
       set_ID_scl(ID_Fams[k], scl);
       break;
     case FieldMap:
       printf("setting ID family: %s %12.5e\n",
-	     ElemFam[ID_Fams[k]-1].ElemF.PName, scl);
+	     ElemFam[ID_Fams[k]-1].ElemF->PName, scl);
 
       set_ID_scl(ID_Fams[k], scl);
       break;
@@ -1472,14 +1481,14 @@ void param_data_type::reset_quads(void)
   for (k = 0; k < N_Fam; k++) {
     // Note, actual values can differ from the original values
 /*    printf("setting quad family: %s %12.5e\n",
-	   ElemFam[Q_Fam[k]-1].ElemF.PName,
-	   ElemFam[Q_Fam[k]-1].ElemF.M->PBpar[HOMmax+Quad]);
+	   ElemFam[Q_Fam[k]-1].ElemF->PName,
+	   ElemFam[Q_Fam[k]-1].ElemF->M->PBpar[HOMmax+Quad]);
 
     set_bn_design_fam(Q_Fam[k], Quad,
-		       ElemFam[Q_Fam[k]-1].ElemF.M->PBpar[HOMmax+Quad], 0.0);*/
+		       ElemFam[Q_Fam[k]-1].ElemF->M->PBpar[HOMmax+Quad], 0.0);*/
 
     printf("setting quad family: %s %12.5e\n",
-	   ElemFam[Q_Fam[k]-1].ElemF.PName, b2[k]);
+	   ElemFam[Q_Fam[k]-1].ElemF->PName, b2[k]);
 
     set_bn_design_fam(Q_Fam[k], Quad, b2[k], 0.0);
   }
@@ -1558,9 +1567,10 @@ void param_data_type::quad_config()
 
 bool param_data_type::get_SQ(void)
 {
-  int  j, k;
+  int        j, k;
 //  Vector2  alpha3[3], beta3[3], nu3[3], eta3[3], etap3[3];
-  FILE *outf = NULL;
+  MpoleType *M;
+  FILE      *outf = NULL;
 
   /* Note, IDs are split for evaluation of the driving terms at the center:
        id1  1, 2
@@ -1590,7 +1600,8 @@ bool param_data_type::get_SQ(void)
 
   Nsext = 0;
   for (k = 0; k < globval.Cell_nLoc; k++) {
-    if ((Cell[k].Elem.Pkind == Mpole) && (Cell[k].Elem.M->n_design == Sext)) {
+    M = dynamic_cast<MpoleType*>(&Cell[k]);
+    if ((Cell[k].Pkind == Mpole) && (M->n_design == Sext)) {
       Nsext++;
 
       if (Nsext > n_b3_max) {
@@ -1608,11 +1619,11 @@ bool param_data_type::get_SQ(void)
 
       if (trace) {
 	printf("%-8s %7.3f %8.5f %8.5f %8.5f %8.5f\n",
-	       Cell[k].Elem.PName, Ss[Nsext-1],
+	       Cell[k].PName, Ss[Nsext-1],
 	       sb[X_][Nsext-1], sNu[X_][Nsext-1]-nu_0[X_],
 	       sb[Y_][Nsext-1], sNu[Y_][Nsext-1]-nu_0[Y_]);
 	fprintf(outf, "%-8s %7.3f %8.5f %8.5f %8.5f %8.5f\n",
-		Cell[k].Elem.PName, Ss[Nsext-1],
+		Cell[k].PName, Ss[Nsext-1],
 		sb[X_][Nsext-1], sNu[X_][Nsext-1]-nu_0[X_],
 		sb[Y_][Nsext-1], sNu[Y_][Nsext-1]-nu_0[Y_]);
       }
@@ -1638,7 +1649,7 @@ bool param_data_type::get_SQ(void)
     Sq[k] = Cell[quad_prms[k]].S;
     for (j = 0; j <= 1; j++) {
       // does not work for machine file (get_twiss_3)...
-//       if (Cell[quad_prms[k]].Elem.M->Pthick == thick) {
+//       if (Cell[quad_prms[k]].M->Pthick == thick) {
 // 	get_twiss3(quad_prms[k], alpha3, beta3, nu3, eta3, etap3);
 // 	qb[j][k] = beta3[Y_][j]; qNu[j][k] = nu3[Y_][j] - nu_0[j];
 //       } else {
@@ -1649,11 +1660,11 @@ bool param_data_type::get_SQ(void)
 
     if (trace) {
       printf("%-8s %7.3f %8.5f %8.5f %8.5f %8.5f\n",
-	     Cell[quad_prms[k]].Elem.PName, Sq[k], qb[X_][k],
+	     Cell[quad_prms[k]].PName, Sq[k], qb[X_][k],
 	     qNu[X_][k], qb[Y_][k], qNu[Y_][k]);
 
       fprintf(outf, "%-8s %7.3f %8.5f %8.5f %8.5f %8.5f\n",
-	      Cell[quad_prms[k]].Elem.PName, Sq[k], qb[X_][k],
+	      Cell[quad_prms[k]].PName, Sq[k], qb[X_][k],
 	      qNu[X_][k], qb[Y_][k], qNu[Y_][k]);
     }
   }
@@ -1889,14 +1900,14 @@ bool param_data_type::ID_corr(const int N_calls, const int N_steps,
 			     -ID_step*b2Ls_[k], 0.0);
 
 	if ((i == N_steps) && (j == N_calls)) {
-	  Fnum = Cell[quad_prms[k-1]].Fnum; L = Cell[quad_prms[k-1]].Elem.PL;
+	  Fnum = Cell[quad_prms[k-1]].Fnum; L = Cell[quad_prms[k-1]].PL;
 	  get_bnL_design_elem(Fnum, Cell[quad_prms[k-1]].Knum, Quad, b2L, a2L);
 	  // ElemFam not defined for flat file.
 	  // fprintf(outf, "%10s %6.2f %3d %8.5f\n",
-	  // 	  Cell[quad_prms[k-1]].Elem.PName, Cell[quad_prms[k-1]].S, k,
-	  // 	  b2L-ElemFam[Fnum-1].ElemF.M->PBpar[HOMmax+Quad]*L);
+	  // 	  Cell[quad_prms[k-1]].PName, Cell[quad_prms[k-1]].S, k,
+	  // 	  b2L-ElemFam[Fnum-1].ElemF->M->PBpar[HOMmax+Quad]*L);
 	  fprintf(outf, "%10s %6.2f %3d %8.5f\n",
-		  Cell[quad_prms[k-1]].Elem.PName, Cell[quad_prms[k-1]].S, k,
+		  Cell[quad_prms[k-1]].PName, Cell[quad_prms[k-1]].S, k,
 		  b2L);
 	}
       }
@@ -1962,14 +1973,16 @@ char* get_prm(char **p)
 
 void param_data_type::ReadCorMis(const bool Scale_it, const double Scale) const
 {
-  FILE *fi,*fo;
+  char      elem[8];
+  long      i,ii;
+  double    s1, s2, dx, dy, dt;
+  double    dxbn06, dybn06, dtbn06;
+  elemtype  Cell;
+  MpoleType *M;
+  FILE      *fi, *fo;
+
   const char cormisin[] = "cormis.txt";
   const char cormisout[] = "cormis.out";
-  long i,ii;
-  CellType Cell;
-  double s1, s2, dx, dy, dt;
-  char elem[8];
-  double dxbn06, dybn06, dtbn06;
 
   dxbn06=dybn06=dtbn06=0.;
   
@@ -1987,8 +2000,9 @@ void param_data_type::ReadCorMis(const bool Scale_it, const double Scale) const
   for (i = 0; i <= globval.Cell_nLoc; i++)
   {
     getelem(i, &Cell);
-    if (Cell.Elem.Pkind == Mpole)
+    if (Cell.Pkind == Mpole)
     {
+      M = dynamic_cast<MpoleType*>(&Cell);
       fscanf(fi, "%ld %lf %lf %lf %lf %lf %s \n",
 	     &ii, &s1, &s2, &dx, &dy, &dt, elem);
       dx/=1e6; dy/=1e6; dt/=1e6;
@@ -2005,16 +2019,16 @@ void param_data_type::ReadCorMis(const bool Scale_it, const double Scale) const
 	  dx=dxbn06; dy=dybn06; dt=dtbn06;
 	}
 	
-        Cell.Elem.M->PdSsys[0] = dx;
-        Cell.Elem.M->PdSsys[1] = dy;
-        Cell.Elem.M->PdTsys    = dt;
+        M->PdSsys[0] = dx;
+        M->PdSsys[1] = dy;
+        M->PdTsys    = dt;
 
         putelem(ii, &Cell);
 	Mpole_SetdS(Cell.Fnum, Cell.Knum);
 	Mpole_SetdT(Cell.Fnum, Cell.Knum);
 
         fprintf(fo, "%ld %lf %lf %lf %lf %lf %s \n",
-		ii,  s1, s2, dx*1e6, dy*1e6, dt*1e6, Cell.Elem.PName);
+		ii,  s1, s2, dx*1e6, dy*1e6, dt*1e6, Cell.PName);
       }
     }
   }
@@ -2271,9 +2285,10 @@ void param_data_type::Align_BPMs(const int n, const double bdxrms,
 {
   // Align BPMs to adjacent multipoles.
 
-  bool     aligned;
-  int      i, j, k;
-  long int loc;
+  bool      aligned;
+  int       i, j, k;
+  long int  loc;
+  MpoleType *M;
 
   const int n_step = 25;
 
@@ -2282,6 +2297,7 @@ void param_data_type::Align_BPMs(const int n, const double bdxrms,
 
   for (i = 1; i <= GetnKid(globval.bpm); i++) {
     loc = Elem_GetPos(globval.bpm, i);
+    M = dynamic_cast<MpoleType*>(&Cell[loc]);
 
     if ((loc == 1) || (loc == globval.Cell_nLoc)) {
       printf("Align_BPMs: BPM at entrance or exit of lattice: %ld\n", loc);
@@ -2290,52 +2306,52 @@ void param_data_type::Align_BPMs(const int n, const double bdxrms,
 
     j = 1; aligned = false;
     do {
-      if ((Cell[loc-j].Elem.Pkind == Mpole) &&
-	  (Cell[loc-j].Elem.M->n_design == n)) {
+      if ((Cell[loc-j].Pkind == Mpole) &&
+	  (dynamic_cast<MpoleType*>(&Cell[loc-j])->n_design == n)) {
 	for (k = 0; k <= 1; k++)
-	  Cell[loc].Elem.M->PdSsys[k] = Cell[loc-j].dS[k];
+	  M->PdSsys[k] = Cell[loc-j].dS[k];
 	if (bdxrms >=0.) {
-	  Cell[loc].Elem.M->PdSrms[0] = bdxrms;
-	  Cell[loc].Elem.M->PdSrnd[0] = normranf();
+	  M->PdSrms[0] = bdxrms;
+	  M->PdSrnd[0] = normranf();
 	} 
 	if (bdzrms >=0.) {
-	  Cell[loc].Elem.M->PdSrms[1] = bdzrms;
-	  Cell[loc].Elem.M->PdSrnd[1] = normranf();
+	  M->PdSrms[1] = bdzrms;
+	  M->PdSrnd[1] = normranf();
 	}
 	if (bdarms >=0.) {
-	  Cell[loc].Elem.M->PdTrms = bdarms;
-	  Cell[loc].Elem.M->PdTrnd = normranf();
+	  M->PdTrms = bdarms;
+	  M->PdTrnd = normranf();
 	}
 	printf("aligned BPM no %1d to %s with BBA"
 	       " error x= %f um z= %f um dt= %f urad\n",
-	       i, Cell[loc-j].Elem.PName,
-	       Cell[loc].Elem.M->PdSrms[0]*Cell[loc].Elem.M->PdSrnd[0]*1e6,
-	       Cell[loc].Elem.M->PdSrms[1]*Cell[loc].Elem.M->PdSrnd[0]*1e6,
-	       dtor(Cell[loc].Elem.M->PdTrms*Cell[loc].Elem.M->PdTrnd*1e6));
+	       i, Cell[loc-j].PName,
+	       M->PdSrms[0]*M->PdSrnd[0]*1e6,
+	       M->PdSrms[1]*M->PdSrnd[0]*1e6,
+	       dtor(M->PdTrms*M->PdTrnd*1e6));
 	aligned = true; break;
-      } else if ((Cell[loc+j].Elem.Pkind == Mpole) &&
-		 (Cell[loc+j].Elem.M->n_design == n)) {
+      } else if ((Cell[loc+j].Pkind == Mpole) &&
+		 (dynamic_cast<MpoleType*>(&Cell[loc+j])->n_design == n)) {
 	for (k = 0; k <= 1; k++)
-	  Cell[loc].Elem.M->PdSsys[k] = Cell[loc+j].dS[k];
+	  M->PdSsys[k] = Cell[loc+j].dS[k];
 	if (bdxrms >=0.) {
-	  Cell[loc].Elem.M->PdSrms[0] = bdxrms;
-	  Cell[loc].Elem.M->PdSrnd[0] = normranf();
+	  M->PdSrms[0] = bdxrms;
+	  M->PdSrnd[0] = normranf();
 	} 
 	if (bdzrms >=0.) {
-	  Cell[loc].Elem.M->PdSrms[1] = bdzrms;
-	  Cell[loc].Elem.M->PdSrnd[1] = normranf();
+	  M->PdSrms[1] = bdzrms;
+	  M->PdSrnd[1] = normranf();
 	}
 	if (bdarms >=0.) {
-	  Cell[loc].Elem.M->PdTrms = bdarms;
-	  Cell[loc].Elem.M->PdTrnd = normranf();
+	  M->PdTrms = bdarms;
+	  M->PdTrnd = normranf();
 	}
 	printf("aligned BPM no %1d to %s with BBA"
 	       " error x= %f um z= %f um dt= %f urad\n",
 	       i,
-	       Cell[loc+j].Elem.PName,Cell[loc].Elem.M->PdSrms[0]
-	       *Cell[loc].Elem.M->PdSrnd[0]*1e6,
-	       Cell[loc].Elem.M->PdSrms[1]*Cell[loc].Elem.M->PdSrnd[0]*1e6,
-	       dtor(Cell[loc].Elem.M->PdTrms*Cell[loc].Elem.M->PdTrnd*1e6));
+	       Cell[loc+j].PName,M->PdSrms[0]
+	       *M->PdSrnd[0]*1e6,
+	       M->PdSrms[1]*M->PdSrnd[0]*1e6,
+	       dtor(M->PdTrms*M->PdTrnd*1e6));
 	aligned = true;
 	break;
       }
@@ -2494,19 +2510,21 @@ bool param_data_type::cod_corr(const int n_cell, const double scl,
 
 void param_data_type::Orb_and_Trim_Stat(orb_corr_type orb_corr[])
 {
-  int     i, j;
-  int     SextCounter = 0;
-  int     bins[5]     = { 0, 0, 0, 0, 0 };
-  double  bin         = 40.0e-6;              // bin size for stat
-  double  tr;                                 // trim strength
-  Vector2 Sext_max, Sext_sigma, TrimMax, orb;
+  int       i, j;
+  int       SextCounter = 0;
+  int       bins[5]     = { 0, 0, 0, 0, 0 };
+  double    bin         = 40.0e-6;              // bin size for stat
+  double    tr;                                 // trim strength
+  Vector2   Sext_max, Sext_sigma, TrimMax, orb;
+  MpoleType *M;
 
   for (j = 0; j < 2; j++) {
    Sext_max[j] = Sext_sigma[j] = TrimMax[j] = 0e0;
   }
   SextCounter = 0;
   for (i = 0; i <= globval.Cell_nLoc; i++) {
-    if ((Cell[i].Elem.Pkind == Mpole) && (Cell[i].Elem.M->n_design == Sext)) {
+    M = dynamic_cast<MpoleType*>(&Cell[i]);
+    if ((Cell[i].Pkind == Mpole) && (M->n_design == Sext)) {
       SextCounter++;
       for (j = 0; j < 2; j++) {
 	orb[j] = Cell[i].BeamPos[2*j];
@@ -2525,10 +2543,11 @@ void param_data_type::Orb_and_Trim_Stat(orb_corr_type orb_corr[])
   // Trim handling.
   for (j = 0; j < 2; j++)
     for (i = 0; i < (int)orb_corr[j].corrs.size(); i++) {
+      M = dynamic_cast<MpoleType*>(&Cell[orb_corr[j].corrs[i]]);
       if (j == 0)
-	tr = Cell[orb_corr[j].corrs[i]].Elem.M->PBpar[HOMmax+Dip];
+	tr = M->PBpar[HOMmax+Dip];
       else
-	tr = Cell[orb_corr[j].corrs[i]].Elem.M->PBpar[HOMmax-Dip];
+	tr = M->PBpar[HOMmax-Dip];
       TrimMax[j] = max(fabs(tr), TrimMax[j]);
     }
 
@@ -2572,7 +2591,7 @@ void param_data_type::prt_cod_corr_lat(void)
     if (i == 0)
       fprintf(CodCorLatFile, "%.*s", 6, "begin ");
     else
-      fprintf(CodCorLatFile, "%.*s", 6, Cell[i].Elem.PName);
+      fprintf(CodCorLatFile, "%.*s", 6, Cell[i].PName);
 
     fprintf(CodCorLatFile, "%7.3f  %5.2f    %5.2f  %7.4f  %5.2f  %7.4f"
 	    "  %6.3f  %6.3f  %6.3f\n",
@@ -2616,12 +2635,12 @@ void param_data_type::err_and_corr_init(const string &param_file,
     nu[0]=TuneX;
     nu[1]=TuneY;
     for (i = 0; i <= globval.Cell_nLoc; i++) {
-      if ( Cell[i].Elem.Pkind == Mpole ) {
-	if (strncmp(Cell[i].Elem.PName,"qax",3) == 0){
+      if ( Cell[i].Pkind == Mpole ) {
+	if (strncmp(Cell[i].PName,"qax",3) == 0){
 	  qfbuf[nq[0]]=i;
 	  nq[0]++;
 	}
-	if (strncmp(Cell[i].Elem.PName,"qay",3) == 0){
+	if (strncmp(Cell[i].PName,"qay",3) == 0){
 	  qdbuf[nq[1]]=i;
 	  nq[1]++;
 	}
@@ -2646,12 +2665,12 @@ void param_data_type::err_and_corr_init(const string &param_file,
     si[0]=ChromX;
     si[1]=ChromY;
     for (i = 0; i <= globval.Cell_nLoc; i++) {
-      if ( Cell[i].Elem.Pkind == Mpole ) {
-	if (strncmp(Cell[i].Elem.PName,"sf",2) == 0){
+      if ( Cell[i].Pkind == Mpole ) {
+	if (strncmp(Cell[i].PName,"sf",2) == 0){
 	  sfbuf[ns[0]]=i;
 	  ns[0]++;
 	}
-	if (strncmp(Cell[i].Elem.PName,"sd",2) == 0){
+	if (strncmp(Cell[i].PName,"sd",2) == 0){
 	  sdbuf[ns[1]]=i;
 	  ns[1]++;
 	}

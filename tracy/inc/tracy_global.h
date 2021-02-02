@@ -120,8 +120,8 @@ class elemtype : public CellType {
   PartsKind
     Pkind;                     // Enumeration for magnet types.
 
-  virtual void Elem_Pass(ss_vect<double> &x);
-  virtual void Elem_Pass(ss_vect<tps> &x);
+  virtual void Elem_Pass(ss_vect<double> &x) {};
+  virtual void Elem_Pass(ss_vect<tps> &x) {};
 };
 
 // Index for lattice elements.
@@ -316,8 +316,6 @@ class FieldMapType : public elemtype {
   template<typename T>
   void Elem_Pass(ss_vect<T> &x);
 };
-
-class CellType;
 
 class SpreaderType : public elemtype {
  public:
