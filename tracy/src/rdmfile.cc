@@ -85,6 +85,7 @@ const int line_max = 200;
 
 void get_kind(const int kind, elemtype &Elem)
 {
+  MpoleType *M;
 
   switch (kind) {
   case marker_:
@@ -97,7 +98,8 @@ void get_kind(const int kind, elemtype &Elem)
   case mpole_:
     Elem.Pkind = PartsKind(Mpole);
     Mpole_Alloc(&Elem);
-    Elem.M->Pthick = pthicktype(thick);
+    M = dynamic_cast<MpoleType*>(&Elem);
+    M->Pthick = pthicktype(thick);
     break;
   case cavity_:
     Elem.Pkind = PartsKind(Cavity);
@@ -106,7 +108,8 @@ void get_kind(const int kind, elemtype &Elem)
   case thinkick_:
     Elem.Pkind = PartsKind(Mpole);
     Mpole_Alloc(&Elem);
-    Elem.M->Pthick = pthicktype(thin);
+    M = dynamic_cast<MpoleType*>(&Elem);
+    M->Pthick = pthicktype(thin);
     break;
   case wiggler_:
     Elem.Pkind = PartsKind(Wigl);
@@ -131,13 +134,19 @@ void get_kind(const int kind, elemtype &Elem)
 
 void rdmfile(const char *mfile_dat)
 {
-  const int  n_ps = 6;
+  const int n_ps = 6;
 
-  char         line[line_max], file_name[line_max];
-  int          j, k, nmpole, kind, method, n, reverse;
-  long int     i;
-  double       dTerror, val[n_ps];
-  ss_vect<tps> Id;
+  char          line[line_max], file_name[line_max];
+  int           j, k, nmpole, kind, method, n, reverse;
+  long int      i;
+  double        dTerror, val[n_ps];
+  ss_vect<tps>  Id;
+  MpoleType     *M;
+  CavityType    *C;
+  WigglerType   *W, *Wp;
+  InsertionType *ID;
+  MapType       *Mapp;
+  ElemFamType   *elemfamp;
 
   const bool prt = false;
 
@@ -153,17 +162,17 @@ void rdmfile(const char *mfile_dat)
     Cell[i].dS[X_] = 0.0; Cell[i].dS[Y_] = 0.0;
     Cell[i].dT[X_] = 1.0; Cell[i].dT[Y_] = 0.0;
 
-    sscanf(line, "%s %d %d", Cell[i].Elem.PName, &Cell[i].Fnum, &Cell[i].Knum);
+    sscanf(line, "%s %d %d", Cell[i].PName, &Cell[i].Fnum, &Cell[i].Knum);
 
     // For compability with lattice parser.
     k = 0;
-    while (Cell[i].Elem.PName[k] != '\0')
+    while (Cell[i].PName[k] != '\0')
       k++;
     for (j = k; j < SymbolLength; j++)
-      Cell[i].Elem.PName[j] = ' ';
+      Cell[i].PName[j] = ' ';
 
     if (Cell[i].Knum == 1) {
-      strcpy(ElemFam[Cell[i].Fnum-1].ElemF.PName, Cell[i].Elem.PName);
+      strcpy(ElemFam[Cell[i].Fnum-1].ElemF->PName, Cell[i].PName);
       globval.Elem_nFam = max((long)Cell[i].Fnum, globval.Elem_nFam);
     }
 
@@ -176,9 +185,9 @@ void rdmfile(const char *mfile_dat)
     inf.getline(line, line_max);
     if (prt) printf("%s\n", line);
     sscanf(line, "%d %d %d %d", &kind, &method, &n, &reverse);
-    get_kind(kind, Cell[i].Elem);
+    get_kind(kind, Cell[i]);
     if (i > 0)
-      ElemFam[Cell[i].Fnum-1].ElemF.Pkind = Cell[i].Elem.Pkind;
+      ElemFam[Cell[i].Fnum-1].ElemF->Pkind = Cell[i].Pkind;
 
     inf.getline(line, line_max);
     if (prt) printf("%s\n", line);
@@ -186,10 +195,10 @@ void rdmfile(const char *mfile_dat)
 	   &Cell[i].maxampl[X_][0], &Cell[i].maxampl[X_][1],
 	   &Cell[i].maxampl[Y_][0], &Cell[i].maxampl[Y_][1]);
 
-    Cell[i].Elem.PL = 0.0;
-    Cell[i].Elem.Reverse = (reverse == 1);
+    Cell[i].PL = 0.0;
+    Cell[i].Reverse = (reverse == 1);
 
-    switch (Cell[i].Elem.Pkind) {
+    switch (Cell[i].Pkind) {
     case undef:
       std::cout << "rdmfile: unknown type " << i << std::endl;
       exit_(1);
@@ -199,39 +208,38 @@ void rdmfile(const char *mfile_dat)
     case drift:
       inf.getline(line, line_max);
       if (prt) printf("%s\n", line);
-      sscanf(line, "%lf", &Cell[i].Elem.PL);
+      sscanf(line, "%lf", &Cell[i].PL);
       break;
     case Cavity:
+      C = dynamic_cast<CavityType*>(&Cell[i]);
       inf.getline(line, line_max);
       if (prt) printf("%s\n", line);
       sscanf(line, "%lf %lf %d %lf %lf",
-	     &Cell[i].Elem.C->Pvolt, &Cell[i].Elem.C->Pfreq,
-	     &Cell[i].Elem.C->Ph, &globval.Energy, &Cell[i].Elem.C->phi);
+	     &C->Pvolt, &C->Pfreq, &C->Ph, &globval.Energy, &C->phi);
       globval.Energy *= 1e-9;
-      Cell[i].Elem.C->Pvolt *= globval.Energy*1e9;
-      Cell[i].Elem.C->Pfreq *= c0/(2.0*M_PI);
+      C->Pvolt *= globval.Energy*1e9;
+      C->Pfreq *= c0/(2.0*M_PI);
      break;
     case Mpole:
-      Cell[i].Elem.M->Pmethod = method; Cell[i].Elem.M->PN = n;
+      M = dynamic_cast<MpoleType*>(&Cell[i]);
+      M->Pmethod = method; M->PN = n;
 
-      if (Cell[i].Elem.M->Pthick == thick) {
+      if (M->Pthick == thick) {
 	inf.getline(line, line_max);
 	if (prt) printf("%s\n", line);
 	sscanf(line, "%lf %lf %lf %lf",
 	       &Cell[i].dS[X_], &Cell[i].dS[Y_],
-	       &Cell[i].Elem.M->PdTpar, &dTerror);
-	Cell[i].dT[X_] = cos(dtor(dTerror+Cell[i].Elem.M->PdTpar));
-	Cell[i].dT[Y_] = sin(dtor(dTerror+Cell[i].Elem.M->PdTpar));
-	Cell[i].Elem.M->PdTrms = dTerror - Cell[i].Elem.M->PdTpar;
-	Cell[i].Elem.M->PdTrnd = 1e0;
+	       &M->PdTpar, &dTerror);
+	Cell[i].dT[X_] = cos(dtor(dTerror+M->PdTpar));
+	Cell[i].dT[Y_] = sin(dtor(dTerror+M->PdTpar));
+	M->PdTrms = dTerror - M->PdTpar;
+	M->PdTrnd = 1e0;
 
 	inf.getline(line, line_max);
 	if (prt) printf("%s\n", line);
 	sscanf(line, "%lf %lf %lf %lf %lf",
-	       &Cell[i].Elem.PL, &Cell[i].Elem.M->Pirho,
-	       &Cell[i].Elem.M->PTx1, &Cell[i].Elem.M->PTx2,
-	       &Cell[i].Elem.M->Pgap);
-	if (Cell[i].Elem.M->Pirho != 0.0) Cell[i].Elem.M->Porder = 1;
+	       &Cell[i].PL, &M->Pirho, &M->PTx1, &M->PTx2, &M->Pgap);
+	if (M->Pirho != 0.0) M->Porder = 1;
       } else {
 	inf.getline(line, line_max);
 	if (prt) printf("%s\n", line);
@@ -239,108 +247,100 @@ void rdmfile(const char *mfile_dat)
 	       &Cell[i].dS[X_], &Cell[i].dS[Y_], &dTerror); 
 	Cell[i].dT[X_] = cos(dtor(dTerror));
 	Cell[i].dT[Y_] = sin(dtor(dTerror));
-	Cell[i].Elem.M->PdTrms = dTerror; Cell[i].Elem.M->PdTrnd = 1e0;
+	M->PdTrms = dTerror; M->PdTrnd = 1e0;
       }
 
-      Cell[i].Elem.M->Pc0 = sin(Cell[i].Elem.PL*Cell[i].Elem.M->Pirho/2.0);
-      Cell[i].Elem.M->Pc1 = cos(dtor(Cell[i].Elem.M->PdTpar))
-	                    *Cell[i].Elem.M->Pc0;
-      Cell[i].Elem.M->Ps1 = sin(dtor(Cell[i].Elem.M->PdTpar))
-	                    *Cell[i].Elem.M->Pc0;
+      M->Pc0 = sin(Cell[i].PL*M->Pirho/2.0);
+      M->Pc1 = cos(dtor(M->PdTpar))*M->Pc0;
+      M->Ps1 = sin(dtor(M->PdTpar))*M->Pc0;
 
       inf.getline(line, line_max);
       if (prt) printf("%s\n", line);
-      sscanf(line, "%d %d", &nmpole, &Cell[i].Elem.M->n_design);
+      sscanf(line, "%d %d", &nmpole, &M->n_design);
       for (j = 1; j <= nmpole; j++) {
 	inf.getline(line, line_max);
 	if (prt) printf("%s\n", line);
 	sscanf(line, "%d", &n);
-	sscanf(line, "%*d %lf %lf",
-	       &Cell[i].Elem.M->PB[HOMmax+n], &Cell[i].Elem.M->PB[HOMmax-n]);
-	Cell[i].Elem.M->PBpar[HOMmax+n] = Cell[i].Elem.M->PB[HOMmax+n];
-	Cell[i].Elem.M->PBpar[HOMmax-n] = Cell[i].Elem.M->PB[HOMmax-n];
-	Cell[i].Elem.M->Porder = max(n, Cell[i].Elem.M->Porder);
+	sscanf(line, "%*d %lf %lf", &M->PB[HOMmax+n], &M->PB[HOMmax-n]);
+	M->PBpar[HOMmax+n] = M->PB[HOMmax+n];
+	M->PBpar[HOMmax-n] = M->PB[HOMmax-n];
+	M->Porder = max(n, M->Porder);
       }
 
-      if (globval.mat_meth && (Cell[i].Elem.M->Pthick == thick))
-	Cell[i].Elem.M->M_lin = get_lin_map(Cell[i].Elem, 0e0);
+      if (globval.mat_meth && (M->Pthick == thick))
+	M->M_lin = get_lin_map(Cell[i], 0e0);
       break;
     case Wigl:
-      Cell[i].Elem.W->Pmethod = method; Cell[i].Elem.W->PN = n;
+      W = dynamic_cast<WigglerType*>(&Cell[i]);
+      W->Pmethod = method; W->PN = n;
 
       inf.getline(line, line_max);
       if (prt) printf("%s\n", line);
-      sscanf(line, "%lf %lf", &Cell[i].Elem.PL, &Cell[i].Elem.W->Lambda);
+      sscanf(line, "%lf %lf", &Cell[i].PL, &W->Lambda);
 
       inf.getline(line, line_max);
       if (prt) printf("%s\n", line);
-      sscanf(line, "%d", &Cell[i].Elem.W->n_harm);
+      sscanf(line, "%d", &W->n_harm);
 
-      if (Cell[i].Knum == 1) Wiggler_Alloc(&ElemFam[Cell[i].Fnum-1].ElemF);
-      for (j = 0; j < Cell[i].Elem.W->n_harm; j++) {
+      if (Cell[i].Knum == 1) {
+	elemfamp = &ElemFam[Cell[i].Fnum-1];
+	Wiggler_Alloc(elemfamp->ElemF);
+	Wp = dynamic_cast<WigglerType*>(elemfamp->ElemF);
+      }
+      for (j = 0; j < W->n_harm; j++) {
 	inf.getline(line, line_max);
 	if (prt) printf("%s\n", line);
-	sscanf(line, "%d %lf %lf %lf %lf %lf", &Cell[i].Elem.W->harm[j],
-	       &Cell[i].Elem.W->kxV[j], &Cell[i].Elem.W->BoBrhoV[j],
-	       &Cell[i].Elem.W->kxH[j], &Cell[i].Elem.W->BoBrhoH[j],
-	       &Cell[i].Elem.W->phi[j]);
-	ElemFam[Cell[i].Fnum-1].ElemF.W->BoBrhoV[j]
-	  = Cell[i].Elem.W->BoBrhoV[j];
-	ElemFam[Cell[i].Fnum-1].ElemF.W->BoBrhoH[j]
-	  = Cell[i].Elem.W->BoBrhoH[j];
+	sscanf(line, "%d %lf %lf %lf %lf %lf", &W->harm[j],
+	       &W->kxV[j], &W->BoBrhoV[j], &W->kxH[j], &W->BoBrhoH[j],
+	       &W->phi[j]);
+	Wp->BoBrhoV[j] = W->BoBrhoV[j];
+	Wp->BoBrhoH[j] = W->BoBrhoH[j];
       }
       break;
     case Insertion:
-      Cell[i].Elem.ID->Pmethod = method; Cell[i].Elem.ID->PN = n;
+      ID = dynamic_cast<InsertionType*>(&Cell[i]);
+      ID->Pmethod = method; ID->PN = n;
 
       inf.getline(line, line_max);
       if (prt) printf("%s\n", line);
-      sscanf(line, "%lf %d %s", &Cell[i].Elem.ID->scaling, &n, file_name);
+      sscanf(line, "%lf %d %s", &ID->scaling, &n, file_name);
 
       if (n == 1) {
-	Cell[i].Elem.ID->firstorder = true;
-	Cell[i].Elem.ID->secondorder = false;
+	ID->firstorder = true;
+	ID->secondorder = false;
 
-	strcpy(Cell[i].Elem.ID->fname1, file_name);
-	Read_IDfile(Cell[i].Elem.ID->fname1, Cell[i].Elem.PL,
-		    Cell[i].Elem.ID->nx, Cell[i].Elem.ID->nz,
-		    Cell[i].Elem.ID->tabx, Cell[i].Elem.ID->tabz,
-		    Cell[i].Elem.ID->thetax1, Cell[i].Elem.ID->thetaz1,
-		    Cell[i].Elem.ID->long_comp, Cell[i].Elem.ID->B2);
+	strcpy(ID->fname1, file_name);
+	Read_IDfile(ID->fname1, Cell[i].PL, ID->nx, ID->nz,
+		    ID->tabx, ID->tabz, ID->thetax1, ID->thetaz1,
+		    ID->long_comp, ID->B2);
       } else if (n == 2) {
-	Cell[i].Elem.ID->firstorder = false;
-	Cell[i].Elem.ID->secondorder = true;
+	ID->firstorder = false;
+	ID->secondorder = true;
 
-	strcpy(Cell[i].Elem.ID->fname2, file_name);
-	Read_IDfile(Cell[i].Elem.ID->fname2, Cell[i].Elem.PL,
-		    Cell[i].Elem.ID->nx, Cell[i].Elem.ID->nz,
-		    Cell[i].Elem.ID->tabx, Cell[i].Elem.ID->tabz,
-		    Cell[i].Elem.ID->thetax, Cell[i].Elem.ID->thetaz,
-		    Cell[i].Elem.ID->long_comp, Cell[i].Elem.ID->B2);
+	strcpy(ID->fname2, file_name);
+	Read_IDfile(ID->fname2, Cell[i].PL, ID->nx, ID->nz,
+		    ID->tabx, ID->tabz, ID->thetax, ID->thetaz,
+		    ID->long_comp, ID->B2);
       } else {
 	std::cout << "rdmfile: undef order " << n << std::endl;
 	exit_(1);
       }
 
-      if (Cell[i].Elem.ID->Pmethod == 1)
-	Cell[i].Elem.ID->linear = true;
+      if (ID->Pmethod == 1)
+	ID->linear = true;
       else
-	Cell[i].Elem.ID->linear = false;
+	ID->linear = false;
 
-      if (!Cell[i].Elem.ID->linear) {
-	Cell[i].Elem.ID->tx = dmatrix(1, Cell[i].Elem.ID->nz,
-				      1, Cell[i].Elem.ID->nx);
-	Cell[i].Elem.ID->tz = dmatrix(1, Cell[i].Elem.ID->nz,
-				      1, Cell[i].Elem.ID->nx);
-	Cell[i].Elem.ID->tab1 = (double *)malloc((Cell[i].Elem.ID->nx)
-						 *sizeof(double));
-	Cell[i].Elem.ID->tab2 = (double *)malloc((Cell[i].Elem.ID->nz)
-						 *sizeof(double));
-	Cell[i].Elem.ID->f2x = dmatrix(1, Cell[i].Elem.ID->nz,
-				       1, Cell[i].Elem.ID->nx);
-	Cell[i].Elem.ID->f2z = dmatrix(1, Cell[i].Elem.ID->nz,
-				       1, Cell[i].Elem.ID->nx);
-	Matrices4Spline(Cell[i].Elem.ID);
+      if (!ID->linear) {
+	ID->tx = dmatrix(1, ID->nz,
+				      1, ID->nx);
+	ID->tz = dmatrix(1, ID->nz,
+				      1, ID->nx);
+	ID->tab1 = (double *)malloc((ID->nx)*sizeof(double));
+	ID->tab2 = (double *)malloc((ID->nz)*sizeof(double));
+	ID->f2x = dmatrix(1, ID->nz, 1, ID->nx);
+	ID->f2z = dmatrix(1, ID->nz, 1, ID->nx);
+	Matrices4Spline(ID);
       }
 
 /*      free_matrix(tx, 1, nz, 1, nx); free_matrix(tz, 1, nz, 1, nx);
@@ -350,14 +350,15 @@ void rdmfile(const char *mfile_dat)
     case FieldMap:
       break;
     case Map:
-      Id.identity(); Cell[i].Elem.Map->M.zero();
+      Mapp = dynamic_cast<MapType*>(&Cell[i]);
+      Id.identity(); Mapp->M.zero();
       for (j = 0; j < n_ps; j++) {
 	inf.getline(line, line_max);
 	if (prt) printf("%s\n", line);
 	sscanf(line, "%lf %lf %lf %lf %lf %lf",
 	       &val[0], &val[1], &val[2], &val[3], &val[4], &val[5]);
 	for (k = 0; k < n_ps; k++)
-	  Cell[i].Elem.Map->M[j] += val[k]*Id[k];
+	  Mapp->M[j] += val[k]*Id[k];
       }
       break;
     default:
@@ -369,7 +370,7 @@ void rdmfile(const char *mfile_dat)
     if (i == 0)
       Cell[i].S = 0.0;
     else
-      Cell[i].S = Cell[i-1].S + Cell[i].Elem.PL;
+      Cell[i].S = Cell[i-1].S + Cell[i].PL;
   }
   
   globval.Cell_nLoc = i;

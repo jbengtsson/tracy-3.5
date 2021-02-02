@@ -113,7 +113,7 @@ void prtmfile(const char mfile_dat[])
   WigglerType   *W;
   CavityType    *C;
   InsertionType *ID;
-  MapType       *Map;
+  MapType       *Mapp;
   FILE          *mfile;
 
   const int n_ps = 6;
@@ -173,11 +173,11 @@ void prtmfile(const char mfile_dat[])
 	fprintf(mfile, " %3.1lf %1d %s\n", ID->scaling, 2, ID->fname2);
       break;
     case Map:
-      Map = dynamic_cast<MapType*>(&Cell[i]);
+      Mapp = dynamic_cast<MapType*>(&Cell[i]);
       prtName(mfile, i, map_, 0, 0, 0);
       for (j = 0; j < n_ps; j++) {
 	for (k = 0; k < n_ps; k++)
-	  fprintf(mfile, " %23.16le", Map->M[j][k]);
+	  fprintf(mfile, " %23.16le", Mapp->M[j][k]);
 	fprintf(mfile, "\n");
       }
       break;
