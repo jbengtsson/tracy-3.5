@@ -229,7 +229,7 @@ void Cell_Init(void)
   for (i = 1; i <= globval.Elem_nFam; i++) {
     elemfamp  = &ElemFam[i-1]; /* Get 1 of all elements stored in ElemFam
 				  array */
-    elemp = elemfamp->ElemF; // For switch structure: choice on element type
+    elemp = &elemfamp->ElemF; // For switch structure: choice on element type
     if (debug)
       printf("Cell_Init, i:=%3ld: %*s\n", i, SymbolLength, elemp->PName);
 

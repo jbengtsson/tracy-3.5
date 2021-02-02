@@ -1394,34 +1394,34 @@ void param_data_type::corr_eps_y(const int cnt)
 void param_data_type::get_IDs(void)
 {
   int           k;
-  WigglerType   *W;
-  InsertionType *ID;
-  FieldMapType  *FM;
+  WigglerType   W;
+  InsertionType ID;
+  FieldMapType  FM;
 
   printf("\n");
   n_ID_Fams = 0;
   for (k = 0; k < globval.Elem_nFam; k++)
-    switch (ElemFam[k].ElemF->Pkind) {
+    switch (ElemFam[k].ElemF.Pkind) {
     case Wigl:
-      W = dynamic_cast<WigglerType*>(ElemFam[k].ElemF);
+      W = dynamic_cast<WigglerType&>(ElemFam[k].ElemF);
       printf("found ID family:   %s %12.5e\n",
-	     ElemFam[k].ElemF->PName, W->BoBrhoV[0]);
+	     ElemFam[k].ElemF.PName, W.BoBrhoV[0]);
       n_ID_Fams++; ID_Fams[n_ID_Fams-1] = k + 1;
       break;
     case Insertion:
-     ID = dynamic_cast<InsertionType*>(ElemFam[k].ElemF);
+     ID = dynamic_cast<InsertionType&>(ElemFam[k].ElemF);
       printf("found ID family:   %s %12.5e",
-	     ElemFam[k].ElemF->PName, ID->scaling);
-      if (ID->scaling != 0e0) {
+	     ElemFam[k].ElemF.PName, ID.scaling);
+      if (ID.scaling != 0e0) {
 	printf("\n");
 	n_ID_Fams++; ID_Fams[n_ID_Fams-1] = k + 1;
       } else
 	printf("  not included\n");
       break;
     case FieldMap:
-      FM = dynamic_cast<FieldMapType*>(ElemFam[k].ElemF);
+      FM = dynamic_cast<FieldMapType&>(ElemFam[k].ElemF);
       printf("found ID family:   %s %12.5e\n",
-	     ElemFam[k].ElemF->PName, FM->scl);
+	     ElemFam[k].ElemF.PName, FM.scl);
       n_ID_Fams++; ID_Fams[n_ID_Fams-1] = k + 1;
       break;
     default:
@@ -1436,27 +1436,27 @@ void set_ID_scl(const int Fnum, const double scl);
 void param_data_type::set_IDs(const double scl)
 {
   int         k;
-  WigglerType *W;
+  WigglerType W;
 
   printf("\n");
   for (k = 0; k < n_ID_Fams; k++) {
-    switch (ElemFam[ID_Fams[k]-1].ElemF->Pkind) {
+    switch (ElemFam[ID_Fams[k]-1].ElemF.Pkind) {
     case Wigl:
-      W = dynamic_cast<WigglerType*>(ElemFam[ID_Fams[k]-1].ElemF);
+      W = dynamic_cast<WigglerType&>(ElemFam[ID_Fams[k]-1].ElemF);
       printf("setting ID family: %s %12.5e\n",
-	     ElemFam[ID_Fams[k]-1].ElemF->PName, scl*W->BoBrhoV[0]);
+	     ElemFam[ID_Fams[k]-1].ElemF.PName, scl*W.BoBrhoV[0]);
 
-      set_Wiggler_BoBrho(ID_Fams[k], scl*W->BoBrhoV[0]);
+      set_Wiggler_BoBrho(ID_Fams[k], scl*W.BoBrhoV[0]);
       break;
     case Insertion:
       printf("setting ID family: %s %12.5e\n",
-	     ElemFam[ID_Fams[k]-1].ElemF->PName, scl);
+	     ElemFam[ID_Fams[k]-1].ElemF.PName, scl);
 
       set_ID_scl(ID_Fams[k], scl);
       break;
     case FieldMap:
       printf("setting ID family: %s %12.5e\n",
-	     ElemFam[ID_Fams[k]-1].ElemF->PName, scl);
+	     ElemFam[ID_Fams[k]-1].ElemF.PName, scl);
 
       set_ID_scl(ID_Fams[k], scl);
       break;
@@ -1481,14 +1481,14 @@ void param_data_type::reset_quads(void)
   for (k = 0; k < N_Fam; k++) {
     // Note, actual values can differ from the original values
 /*    printf("setting quad family: %s %12.5e\n",
-	   ElemFam[Q_Fam[k]-1].ElemF->PName,
-	   ElemFam[Q_Fam[k]-1].ElemF->M->PBpar[HOMmax+Quad]);
+	   ElemFam[Q_Fam[k]-1].ElemF.PName,
+	   ElemFam[Q_Fam[k]-1].ElemF.M->PBpar[HOMmax+Quad]);
 
     set_bn_design_fam(Q_Fam[k], Quad,
-		       ElemFam[Q_Fam[k]-1].ElemF->M->PBpar[HOMmax+Quad], 0.0);*/
+		       ElemFam[Q_Fam[k]-1].ElemF.M->PBpar[HOMmax+Quad], 0.0);*/
 
     printf("setting quad family: %s %12.5e\n",
-	   ElemFam[Q_Fam[k]-1].ElemF->PName, b2[k]);
+	   ElemFam[Q_Fam[k]-1].ElemF.PName, b2[k]);
 
     set_bn_design_fam(Q_Fam[k], Quad, b2[k], 0.0);
   }
@@ -1905,7 +1905,7 @@ bool param_data_type::ID_corr(const int N_calls, const int N_steps,
 	  // ElemFam not defined for flat file.
 	  // fprintf(outf, "%10s %6.2f %3d %8.5f\n",
 	  // 	  Cell[quad_prms[k-1]].PName, Cell[quad_prms[k-1]].S, k,
-	  // 	  b2L-ElemFam[Fnum-1].ElemF->M->PBpar[HOMmax+Quad]*L);
+	  // 	  b2L-ElemFam[Fnum-1].ElemF.M->PBpar[HOMmax+Quad]*L);
 	  fprintf(outf, "%10s %6.2f %3d %8.5f\n",
 		  Cell[quad_prms[k-1]].PName, Cell[quad_prms[k-1]].S, k,
 		  b2L);

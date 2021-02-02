@@ -141,11 +141,11 @@ void rdmfile(const char *mfile_dat)
   long int      i;
   double        dTerror, val[n_ps];
   ss_vect<tps>  Id;
-  MpoleType     *M;
-  CavityType    *C;
-  WigglerType   *W, *Wp;
-  InsertionType *ID;
-  MapType       *Mapp;
+  MpoleType     M;
+  CavityType    C;
+  WigglerType   W, Wp;
+  InsertionType ID;
+  MapType       Mapp;
   ElemFamType   *elemfamp;
 
   const bool prt = false;
@@ -172,7 +172,7 @@ void rdmfile(const char *mfile_dat)
       Cell[i].PName[j] = ' ';
 
     if (Cell[i].Knum == 1) {
-      strcpy(ElemFam[Cell[i].Fnum-1].ElemF->PName, Cell[i].PName);
+      strcpy(ElemFam[Cell[i].Fnum-1].ElemF.PName, Cell[i].PName);
       globval.Elem_nFam = max((long)Cell[i].Fnum, globval.Elem_nFam);
     }
 
@@ -187,7 +187,7 @@ void rdmfile(const char *mfile_dat)
     sscanf(line, "%d %d %d %d", &kind, &method, &n, &reverse);
     get_kind(kind, Cell[i]);
     if (i > 0)
-      ElemFam[Cell[i].Fnum-1].ElemF->Pkind = Cell[i].Pkind;
+      ElemFam[Cell[i].Fnum-1].ElemF.Pkind = Cell[i].Pkind;
 
     inf.getline(line, line_max);
     if (prt) printf("%s\n", line);
@@ -211,35 +211,35 @@ void rdmfile(const char *mfile_dat)
       sscanf(line, "%lf", &Cell[i].PL);
       break;
     case Cavity:
-      C = dynamic_cast<CavityType*>(&Cell[i]);
+      C = dynamic_cast<CavityType&>(Cell[i]);
       inf.getline(line, line_max);
       if (prt) printf("%s\n", line);
       sscanf(line, "%lf %lf %d %lf %lf",
-	     &C->Pvolt, &C->Pfreq, &C->Ph, &globval.Energy, &C->phi);
+	     &C.Pvolt, &C.Pfreq, &C.Ph, &globval.Energy, &C.phi);
       globval.Energy *= 1e-9;
-      C->Pvolt *= globval.Energy*1e9;
-      C->Pfreq *= c0/(2.0*M_PI);
+      C.Pvolt *= globval.Energy*1e9;
+      C.Pfreq *= c0/(2.0*M_PI);
      break;
     case Mpole:
-      M = dynamic_cast<MpoleType*>(&Cell[i]);
-      M->Pmethod = method; M->PN = n;
+      M = dynamic_cast<MpoleType&>(Cell[i]);
+      M.Pmethod = method; M.PN = n;
 
-      if (M->Pthick == thick) {
+      if (M.Pthick == thick) {
 	inf.getline(line, line_max);
 	if (prt) printf("%s\n", line);
 	sscanf(line, "%lf %lf %lf %lf",
 	       &Cell[i].dS[X_], &Cell[i].dS[Y_],
-	       &M->PdTpar, &dTerror);
-	Cell[i].dT[X_] = cos(dtor(dTerror+M->PdTpar));
-	Cell[i].dT[Y_] = sin(dtor(dTerror+M->PdTpar));
-	M->PdTrms = dTerror - M->PdTpar;
-	M->PdTrnd = 1e0;
+	       &M.PdTpar, &dTerror);
+	Cell[i].dT[X_] = cos(dtor(dTerror+M.PdTpar));
+	Cell[i].dT[Y_] = sin(dtor(dTerror+M.PdTpar));
+	M.PdTrms = dTerror - M.PdTpar;
+	M.PdTrnd = 1e0;
 
 	inf.getline(line, line_max);
 	if (prt) printf("%s\n", line);
 	sscanf(line, "%lf %lf %lf %lf %lf",
-	       &Cell[i].PL, &M->Pirho, &M->PTx1, &M->PTx2, &M->Pgap);
-	if (M->Pirho != 0.0) M->Porder = 1;
+	       &Cell[i].PL, &M.Pirho, &M.PTx1, &M.PTx2, &M.Pgap);
+	if (M.Pirho != 0.0) M.Porder = 1;
       } else {
 	inf.getline(line, line_max);
 	if (prt) printf("%s\n", line);
@@ -247,100 +247,100 @@ void rdmfile(const char *mfile_dat)
 	       &Cell[i].dS[X_], &Cell[i].dS[Y_], &dTerror); 
 	Cell[i].dT[X_] = cos(dtor(dTerror));
 	Cell[i].dT[Y_] = sin(dtor(dTerror));
-	M->PdTrms = dTerror; M->PdTrnd = 1e0;
+	M.PdTrms = dTerror; M.PdTrnd = 1e0;
       }
 
-      M->Pc0 = sin(Cell[i].PL*M->Pirho/2.0);
-      M->Pc1 = cos(dtor(M->PdTpar))*M->Pc0;
-      M->Ps1 = sin(dtor(M->PdTpar))*M->Pc0;
+      M.Pc0 = sin(Cell[i].PL*M.Pirho/2.0);
+      M.Pc1 = cos(dtor(M.PdTpar))*M.Pc0;
+      M.Ps1 = sin(dtor(M.PdTpar))*M.Pc0;
 
       inf.getline(line, line_max);
       if (prt) printf("%s\n", line);
-      sscanf(line, "%d %d", &nmpole, &M->n_design);
+      sscanf(line, "%d %d", &nmpole, &M.n_design);
       for (j = 1; j <= nmpole; j++) {
 	inf.getline(line, line_max);
 	if (prt) printf("%s\n", line);
 	sscanf(line, "%d", &n);
-	sscanf(line, "%*d %lf %lf", &M->PB[HOMmax+n], &M->PB[HOMmax-n]);
-	M->PBpar[HOMmax+n] = M->PB[HOMmax+n];
-	M->PBpar[HOMmax-n] = M->PB[HOMmax-n];
-	M->Porder = max(n, M->Porder);
+	sscanf(line, "%*d %lf %lf", &M.PB[HOMmax+n], &M.PB[HOMmax-n]);
+	M.PBpar[HOMmax+n] = M.PB[HOMmax+n];
+	M.PBpar[HOMmax-n] = M.PB[HOMmax-n];
+	M.Porder = max(n, M.Porder);
       }
 
-      if (globval.mat_meth && (M->Pthick == thick))
-	M->M_lin = get_lin_map(Cell[i], 0e0);
+      if (globval.mat_meth && (M.Pthick == thick))
+	M.M_lin = get_lin_map(Cell[i], 0e0);
       break;
     case Wigl:
-      W = dynamic_cast<WigglerType*>(&Cell[i]);
-      W->Pmethod = method; W->PN = n;
+      W = dynamic_cast<WigglerType&>(Cell[i]);
+      W.Pmethod = method; W.PN = n;
 
       inf.getline(line, line_max);
       if (prt) printf("%s\n", line);
-      sscanf(line, "%lf %lf", &Cell[i].PL, &W->Lambda);
+      sscanf(line, "%lf %lf", &Cell[i].PL, &W.Lambda);
 
       inf.getline(line, line_max);
       if (prt) printf("%s\n", line);
-      sscanf(line, "%d", &W->n_harm);
+      sscanf(line, "%d", &W.n_harm);
 
       if (Cell[i].Knum == 1) {
 	elemfamp = &ElemFam[Cell[i].Fnum-1];
-	Wiggler_Alloc(elemfamp->ElemF);
-	Wp = dynamic_cast<WigglerType*>(elemfamp->ElemF);
+	Wiggler_Alloc(&elemfamp->ElemF);
+	Wp = dynamic_cast<WigglerType&>(elemfamp->ElemF);
       }
-      for (j = 0; j < W->n_harm; j++) {
+      for (j = 0; j < W.n_harm; j++) {
 	inf.getline(line, line_max);
 	if (prt) printf("%s\n", line);
-	sscanf(line, "%d %lf %lf %lf %lf %lf", &W->harm[j],
-	       &W->kxV[j], &W->BoBrhoV[j], &W->kxH[j], &W->BoBrhoH[j],
-	       &W->phi[j]);
-	Wp->BoBrhoV[j] = W->BoBrhoV[j];
-	Wp->BoBrhoH[j] = W->BoBrhoH[j];
+	sscanf(line, "%d %lf %lf %lf %lf %lf", &W.harm[j],
+	       &W.kxV[j], &W.BoBrhoV[j], &W.kxH[j], &W.BoBrhoH[j],
+	       &W.phi[j]);
+	Wp.BoBrhoV[j] = W.BoBrhoV[j];
+	Wp.BoBrhoH[j] = W.BoBrhoH[j];
       }
       break;
     case Insertion:
-      ID = dynamic_cast<InsertionType*>(&Cell[i]);
-      ID->Pmethod = method; ID->PN = n;
+      ID = dynamic_cast<InsertionType&>(Cell[i]);
+      ID.Pmethod = method; ID.PN = n;
 
       inf.getline(line, line_max);
       if (prt) printf("%s\n", line);
-      sscanf(line, "%lf %d %s", &ID->scaling, &n, file_name);
+      sscanf(line, "%lf %d %s", &ID.scaling, &n, file_name);
 
       if (n == 1) {
-	ID->firstorder = true;
-	ID->secondorder = false;
+	ID.firstorder = true;
+	ID.secondorder = false;
 
-	strcpy(ID->fname1, file_name);
-	Read_IDfile(ID->fname1, Cell[i].PL, ID->nx, ID->nz,
-		    ID->tabx, ID->tabz, ID->thetax1, ID->thetaz1,
-		    ID->long_comp, ID->B2);
+	strcpy(ID.fname1, file_name);
+	Read_IDfile(ID.fname1, Cell[i].PL, ID.nx, ID.nz,
+		    ID.tabx, ID.tabz, ID.thetax1, ID.thetaz1,
+		    ID.long_comp, ID.B2);
       } else if (n == 2) {
-	ID->firstorder = false;
-	ID->secondorder = true;
+	ID.firstorder = false;
+	ID.secondorder = true;
 
-	strcpy(ID->fname2, file_name);
-	Read_IDfile(ID->fname2, Cell[i].PL, ID->nx, ID->nz,
-		    ID->tabx, ID->tabz, ID->thetax, ID->thetaz,
-		    ID->long_comp, ID->B2);
+	strcpy(ID.fname2, file_name);
+	Read_IDfile(ID.fname2, Cell[i].PL, ID.nx, ID.nz,
+		    ID.tabx, ID.tabz, ID.thetax, ID.thetaz,
+		    ID.long_comp, ID.B2);
       } else {
 	std::cout << "rdmfile: undef order " << n << std::endl;
 	exit_(1);
       }
 
-      if (ID->Pmethod == 1)
-	ID->linear = true;
+      if (ID.Pmethod == 1)
+	ID.linear = true;
       else
-	ID->linear = false;
+	ID.linear = false;
 
-      if (!ID->linear) {
-	ID->tx = dmatrix(1, ID->nz,
-				      1, ID->nx);
-	ID->tz = dmatrix(1, ID->nz,
-				      1, ID->nx);
-	ID->tab1 = (double *)malloc((ID->nx)*sizeof(double));
-	ID->tab2 = (double *)malloc((ID->nz)*sizeof(double));
-	ID->f2x = dmatrix(1, ID->nz, 1, ID->nx);
-	ID->f2z = dmatrix(1, ID->nz, 1, ID->nx);
-	Matrices4Spline(ID);
+      if (!ID.linear) {
+	ID.tx = dmatrix(1, ID.nz,
+				      1, ID.nx);
+	ID.tz = dmatrix(1, ID.nz,
+				      1, ID.nx);
+	ID.tab1 = (double *)malloc((ID.nx)*sizeof(double));
+	ID.tab2 = (double *)malloc((ID.nz)*sizeof(double));
+	ID.f2x = dmatrix(1, ID.nz, 1, ID.nx);
+	ID.f2z = dmatrix(1, ID.nz, 1, ID.nx);
+	Matrices4Spline(&ID);
       }
 
 /*      free_matrix(tx, 1, nz, 1, nx); free_matrix(tz, 1, nz, 1, nx);
@@ -350,15 +350,15 @@ void rdmfile(const char *mfile_dat)
     case FieldMap:
       break;
     case Map:
-      Mapp = dynamic_cast<MapType*>(&Cell[i]);
-      Id.identity(); Mapp->M.zero();
+      Mapp = dynamic_cast<MapType&>(Cell[i]);
+      Id.identity(); Mapp.M.zero();
       for (j = 0; j < n_ps; j++) {
 	inf.getline(line, line_max);
 	if (prt) printf("%s\n", line);
 	sscanf(line, "%lf %lf %lf %lf %lf %lf",
 	       &val[0], &val[1], &val[2], &val[3], &val[4], &val[5]);
 	for (k = 0; k < n_ps; k++)
-	  Mapp->M[j] += val[k]*Id[k];
+	  Mapp.M[j] += val[k]*Id[k];
       }
       break;
     default:

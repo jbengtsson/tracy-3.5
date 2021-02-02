@@ -2019,27 +2019,27 @@ void set_Wiggler_BoBrho(const int Fnum, const double BoBrhoV)
 void set_ID_scl(const int Fnum, const int Knum, const double scl)
 {
   int           k;
-  WigglerType   *W, *Wp;
-  InsertionType *ID;
-  FieldMapType  *FM;
+  WigglerType   W, Wp;
+  InsertionType ID;
+  FieldMapType  FM;
 
   switch (Cell[Elem_GetPos(Fnum, Knum)].Pkind) {
   case Wigl:
     // scale the ID field
-    W = dynamic_cast<WigglerType*>(&Cell[Elem_GetPos(Fnum, Knum)]);
-    Wp = dynamic_cast<WigglerType*>(ElemFam[Fnum-1].ElemF);
-    for (k = 0; k < W->n_harm; k++) {
-      W->BoBrhoH[k] = scl*Wp->BoBrhoH[k];
-      W->BoBrhoV[k] = scl*Wp->BoBrhoV[k];
+    W = dynamic_cast<WigglerType&>(Cell[Elem_GetPos(Fnum, Knum)]);
+    Wp = dynamic_cast<WigglerType&>(ElemFam[Fnum-1].ElemF);
+    for (k = 0; k < W.n_harm; k++) {
+      W.BoBrhoH[k] = scl*Wp.BoBrhoH[k];
+      W.BoBrhoV[k] = scl*Wp.BoBrhoV[k];
     }
     break;
   case Insertion:
-    ID = dynamic_cast<InsertionType*>(&Cell[Elem_GetPos(Fnum, Knum)]);
-    ID->scaling = scl;
+    ID = dynamic_cast<InsertionType&>(Cell[Elem_GetPos(Fnum, Knum)]);
+    ID.scaling = scl;
     break;
   case FieldMap:
-    FM = dynamic_cast<FieldMapType*>(&Cell[Elem_GetPos(Fnum, Knum)]);
-    FM->scl = scl;
+    FM = dynamic_cast<FieldMapType&>(Cell[Elem_GetPos(Fnum, Knum)]);
+    FM.scl = scl;
     break;
   default:
     std::cout << "set_ID_scl: unknown element type" << std::endl;
@@ -3577,7 +3577,7 @@ void bend_cal_Fam(const int Fnum)
   b0L = dvector(1, n_prm); xi = dmatrix(1, n_prm, 1, n_prm);
 
   std::cout << std::endl;
-  std::cout << "bend_cal: " << ElemFam[Fnum-1].ElemF->PName << ":" << std::endl;
+  std::cout << "bend_cal: " << ElemFam[Fnum-1].ElemF.PName << ":" << std::endl;
 
   Fnum_Cart = Fnum;  b0L[1] = 0.0; xi[1][1] = 1e-3;
 
@@ -3592,12 +3592,12 @@ void bend_cal_Fam(const int Fnum)
 void bend_cal(void)
 {
   long int  k;
-  MpoleType *M;
+  MpoleType M;
 
   for (k = 1; k <= globval.Elem_nFam; k++) {
-    M = dynamic_cast<MpoleType*>(ElemFam[k-1].ElemF);
-    if ((ElemFam[k-1].ElemF->Pkind == Mpole) &&
-	(M->Pirho != 0.0) && (M->PBpar[Quad+HOMmax] != 0.0))
+    M = dynamic_cast<MpoleType&>(ElemFam[k-1].ElemF);
+    if ((ElemFam[k-1].ElemF.Pkind == Mpole) &&
+	(M.Pirho != 0.0) && (M.PBpar[Quad+HOMmax] != 0.0))
       if (ElemFam[k-1].nKid > 0) bend_cal_Fam(k);
   }
 }
@@ -3670,7 +3670,7 @@ void set_tune(const char file_name1[], const char file_name2[], const int n)
 
 	fprintf(fp_lat, "%s: Quadrupole, L = %8.6f, K = %10.6f, N = Nquad"
 		", Method = Meth;\n",
-		names[k], ElemFam[Fnum-1].ElemF->PL, b2s[k]);
+		names[k], ElemFam[Fnum-1].ElemF.PL, b2s[k]);
       }
       break;
     }

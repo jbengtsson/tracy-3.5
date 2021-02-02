@@ -132,7 +132,7 @@ class ElemFamType {
     KidList[nKidMax],
     NoDBN;
   elemtype
-    *ElemF;                    // Structure (name, type).
+    ElemF;                     // Structure (name, type).
   DBNameType
     DBNlist[nKidMax];
 };
