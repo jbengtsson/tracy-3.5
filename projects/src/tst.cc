@@ -4,7 +4,7 @@
 
 int no_tps = NO;
 
-const int    n_turn    = 2064;
+const int    n_turn = 2064;
 const double delta_max = 2e-2;
 
 
