@@ -61,7 +61,7 @@ void printglob(void)
          globval.dPcommon, globval.dPparticle, globval.Energy);
   printf("  MaxAmplx [m] = %9.3e  MaxAmply [m] = %9.3e"
 	 "  RFAccept [%%] = %4.2f\n",
-         Cell[0].maxampl[X_][0], Cell[0].maxampl[Y_][0],
+         Cell[0]->maxampl[X_][0], Cell[0]->maxampl[Y_][0],
 	 globval.delta_RF*1e2);
   printf(" Cavity_On    =  %s    ", globval.Cavity_on ? "TRUE " : "FALSE");
   printf("  Radiation_On = %s     \n",
@@ -103,19 +103,19 @@ void prt_sigma(void)
   fprintf(outf, "#\n");
 
   for (i = 0; i <= globval.Cell_nLoc; i++) {
-    switch (Cell[i].Pkind) {
+    switch (Cell[i]->Pkind) {
     case drift:
       code = 0.0;
       break;
     case Mpole:
-      M = static_cast<MpoleType*>(&Cell[i]);
+      M = dynamic_cast<MpoleType*>(Cell[i]);
       if (M->Pirho != 0)
 	code = 0.5;
       else if (M->PBpar[Quad+HOMmax] != 0)
 	code = sgn(M->PBpar[Quad+HOMmax]);
       else if (M->PBpar[Sext+HOMmax] != 0)
 	code = 1.5*sgn(M->PBpar[Sext+HOMmax]);
-      else if (Cell[i].Fnum == globval.bpm)
+      else if (Cell[i]->Fnum == globval.bpm)
 	code = 2.0;
       else
 	code = 0.0;
@@ -125,11 +125,11 @@ void prt_sigma(void)
       break;
     }
     fprintf(outf, "%4ld %.*s %6.2f %4.1f %9.3e %9.3e %9.3e %9.3e\n",
-            i, SymbolLength, Cell[i].PName, Cell[i].S, code,
-            1e3*sqrt(Cell[i].sigma[x_][x_]),
-	    1e3*sqrt(fabs(Cell[i].sigma[x_][px_])),
-	    1e3*sqrt(Cell[i].sigma[y_][y_]),
-	    1e3*sqrt(fabs(Cell[i].sigma[y_][py_])));
+            i, SymbolLength, Cell[i]->PName, Cell[i]->S, code,
+            1e3*sqrt(Cell[i]->sigma[x_][x_]),
+	    1e3*sqrt(fabs(Cell[i]->sigma[x_][px_])),
+	    1e3*sqrt(Cell[i]->sigma[y_][y_]),
+	    1e3*sqrt(fabs(Cell[i]->sigma[y_][py_])));
   }
 
   fclose(outf);
@@ -143,7 +143,7 @@ void recalc_S(void)
 
   S_tot = 0.0;
   for (k = 0; k <= globval.Cell_nLoc; k++) {
-    S_tot += Cell[k].PL; Cell[k].S = S_tot;
+    S_tot += Cell[k]->PL; Cell[k]->S = S_tot;
   }
 }
 
@@ -1333,7 +1333,7 @@ void SetTol(int Fnum, double dxrms, double dyrms, double drrms)
 
   for (i = 1; i <= GetnKid(Fnum); i++) {
     k = Elem_GetPos(Fnum, i);
-    M = static_cast<MpoleType*>(&Cell[k]);
+    M = dynamic_cast<MpoleType*>(Cell[k]);
     M->PdSrms[X_] = dxrms;
     M->PdSrnd[X_] = normranf();
     M->PdSrms[Y_] = dyrms;
@@ -1353,7 +1353,7 @@ void Scale_Tol(int Fnum, double dxrms, double dyrms, double drrms)
 
   for (Knum = 1; Knum <= GetnKid(Fnum); Knum++) {
     loc = Elem_GetPos(Fnum, Knum);
-    M = static_cast<MpoleType*>(&Cell[loc]);
+    M = dynamic_cast<MpoleType*>(Cell[loc]);
     M->PdSrms[X_] = dxrms; M->PdSrms[Y_] = dyrms;
     M->PdTrms    = drrms;
     Mpole_SetdS(Fnum, Knum); Mpole_SetdT(Fnum, Knum);
@@ -1392,7 +1392,7 @@ void SetaTol(int Fnum, int Knum, double dx, double dy, double dr)
   MpoleType *M;
 
   loc = Elem_GetPos(Fnum, Knum);
-  M = static_cast<MpoleType*>(&Cell[loc]);
+  M = dynamic_cast<MpoleType*>(Cell[loc]);
   M->PdSrms[0] = dx; M->PdSrnd[0] = 1e0;
   M->PdSrms[1] = dy; M->PdSrnd[1] = 1e0;
   M->PdTrms    = dr; M->PdTrnd    = 1e0;
@@ -1406,8 +1406,8 @@ void ini_aper(const double Dxmin, const double Dxmax,
   int  k; 
  
   for (k = 0; k <= globval.Cell_nLoc; k++) { 
-    Cell[k].maxampl[X_][0] = Dxmin; Cell[k].maxampl[X_][1] = Dxmax; 
-    Cell[k].maxampl[Y_][0] = Dymin; Cell[k].maxampl[Y_][1] = Dymax; 
+    Cell[k]->maxampl[X_][0] = Dxmin; Cell[k]->maxampl[X_][1] = Dxmax; 
+    Cell[k]->maxampl[Y_][0] = Dymin; Cell[k]->maxampl[Y_][1] = Dymax; 
   } 
 } 
  
@@ -1419,8 +1419,8 @@ void set_aper(const int Fnum, const double Dxmin, const double Dxmax,
 
   for (i = 1; i <= GetnKid(Fnum); i++) {
     loc = Elem_GetPos(Fnum, i);
-    Cell[loc].maxampl[X_][0] = Dxmin; Cell[loc].maxampl[X_][1] = Dxmax;
-    Cell[loc].maxampl[Y_][0] = Dymin; Cell[loc].maxampl[Y_][1] = Dymax;
+    Cell[loc]->maxampl[X_][0] = Dxmin; Cell[loc]->maxampl[X_][1] = Dxmax;
+    Cell[loc]->maxampl[Y_][0] = Dymin; Cell[loc]->maxampl[Y_][1] = Dymax;
   }
 }
 
@@ -1515,7 +1515,7 @@ void SetKpar(int Fnum, int Knum, int Order, double k)
   MpoleType *M;
 
   loc = Elem_GetPos(Fnum, Knum);
-  M = static_cast<MpoleType*>(&Cell[loc]);
+  M = dynamic_cast<MpoleType*>(Cell[loc]);
   M->PBpar[Order+HOMmax] = k;
   Mpole_SetPB(Fnum, Knum, Order);
 }
@@ -1524,7 +1524,7 @@ void SetKpar(int Fnum, int Knum, int Order, double k)
 void SetL(int Fnum, int Knum, double L)
 {
 
-  Cell[Elem_GetPos(Fnum, Knum)].PL = L;
+  Cell[Elem_GetPos(Fnum, Knum)]->PL = L;
 }
 
 
@@ -1533,7 +1533,7 @@ void SetL(int Fnum, double L)
   int  i;
 
   for (i = 1; i <= GetnKid(Fnum); i++)
-    Cell[Elem_GetPos(Fnum, i)].PL = L;
+    Cell[Elem_GetPos(Fnum, i)]->PL = L;
 }
 
 
@@ -1543,7 +1543,7 @@ void SetdKpar(int Fnum, int Knum, int Order, double dk)
   MpoleType *M;
 
   loc = Elem_GetPos(Fnum, Knum);
-  M = static_cast<MpoleType*>(&Cell[loc]);
+  M = dynamic_cast<MpoleType*>(Cell[loc]);
   M->PBpar[Order+HOMmax] += dk;
   Mpole_SetPB(Fnum, Knum, Order);
 }
@@ -1555,9 +1555,9 @@ void SetKLpar(int Fnum, int Knum, int Order, double kL)
   MpoleType *M;
 
   loc = Elem_GetPos(Fnum, Knum);
-  M = static_cast<MpoleType*>(&Cell[loc]);
-  if (Cell[loc].PL != 0e0)
-    M->PBpar[Order+HOMmax] = kL/Cell[loc].PL;
+  M = dynamic_cast<MpoleType*>(Cell[loc]);
+  if (Cell[loc]->PL != 0e0)
+    M->PBpar[Order+HOMmax] = kL/Cell[loc]->PL;
   else
     M->PBpar[Order+HOMmax] = kL;
   Mpole_SetPB(Fnum, Knum, Order);
@@ -1570,9 +1570,9 @@ void SetdKLpar(int Fnum, int Knum, int Order, double dkL)
   MpoleType *M;
 
   loc = Elem_GetPos(Fnum, Knum);
-  M = static_cast<MpoleType*>(&Cell[loc]);
-  if (Cell[loc].PL != 0e0)
-    M->PBpar[Order + HOMmax] += dkL/Cell[loc].PL;
+  M = dynamic_cast<MpoleType*>(Cell[loc]);
+  if (Cell[loc]->PL != 0e0)
+    M->PBpar[Order + HOMmax] += dkL/Cell[loc]->PL;
   else
     M->PBpar[Order + HOMmax] += dkL;
   Mpole_SetPB(Fnum, Knum, Order);
@@ -1585,7 +1585,7 @@ void SetdKrpar(int Fnum, int Knum, int Order, double dkrel)
   MpoleType *M;
 
   loc = Elem_GetPos(Fnum, Knum);
-  M = static_cast<MpoleType*>(&Cell[loc]);
+  M = dynamic_cast<MpoleType*>(Cell[loc]);
   if (Order == Dip && M->Pthick == thick)
     M->PBpar[Dip+HOMmax] += dkrel*M->Pirho;
   else
@@ -1648,9 +1648,9 @@ void SetbnL_sys(int Fnum, int Order, double bnL_sys)
 
   for (Knum = 1; Knum <= GetnKid(Fnum); Knum++) {
     loc = Elem_GetPos(Fnum, Knum);
-    M = static_cast<MpoleType*>(&Cell[loc]);
-    if (Cell[loc].PL != 0.0)
-      M->PBsys[Order+HOMmax] = bnL_sys/Cell[loc].PL;
+    M = dynamic_cast<MpoleType*>(Cell[loc]);
+    if (Cell[loc]->PL != 0.0)
+      M->PBsys[Order+HOMmax] = bnL_sys/Cell[loc]->PL;
     else
       M->PBsys[Order+HOMmax] = bnL_sys;
     Mpole_SetPB(Fnum, Knum, Order);
@@ -1668,13 +1668,13 @@ void set_dbn_rel(const int type, const int n, const double dbn_rel)
   printf("Setting Db_%d/b_%d = %6.1e for:\n", n, type, dbn_rel);
   printf("\n");
   for (j = 0; j <= globval.Cell_nLoc; j++)
-    M = static_cast<MpoleType*>(&Cell[j]);
-    if ((Cell[j].Pkind == Mpole) && (M->n_design == type)) {
-      printf("%s\n", Cell[j].PName);
+    M = dynamic_cast<MpoleType*>(Cell[j]);
+    if ((Cell[j]->Pkind == Mpole) && (M->n_design == type)) {
+      printf("%s\n", Cell[j]->PName);
       dbn = dbn_rel*M->PBpar[type+HOMmax];
       M->PBrms[n+HOMmax] = dbn;
       M->PBrnd[n+HOMmax] = normranf();
-      Mpole_SetPB(Cell[j].Fnum, Cell[j].Knum, n);
+      Mpole_SetPB(Cell[j]->Fnum, Cell[j]->Knum, n);
     }
 }
 
@@ -1686,14 +1686,14 @@ double GetKpar(int Fnum, int Knum, int Order)
 
 
   loc = Elem_GetPos(Fnum, Knum);
-  M = static_cast<MpoleType*>(&Cell[loc]);
+  M = dynamic_cast<MpoleType*>(Cell[loc]);
   return M->PBpar[Order+HOMmax];
 }
 
 
 double GetL(int Fnum, int Knum)
 {
-  return (Cell[Elem_GetPos(Fnum, Knum)].PL);
+  return (Cell[Elem_GetPos(Fnum, Knum)]->PL);
 }
 
 
@@ -1703,9 +1703,9 @@ double GetKLpar(int Fnum, int Knum, int Order)
   MpoleType *M;
 
   loc = Elem_GetPos(Fnum, Knum);
-  M = static_cast<MpoleType*>(&Cell[loc]);
-  if (Cell[loc].PL != 0e0)
-    return (M->PBpar[Order+HOMmax]*Cell[loc].PL);
+  M = dynamic_cast<MpoleType*>(Cell[loc]);
+  if (Cell[loc]->PL != 0e0)
+    return (M->PBpar[Order+HOMmax]*Cell[loc]->PL);
   else
     return (M->PBpar[Order+HOMmax]);
 }
@@ -1718,9 +1718,9 @@ void SetdKLrms(int Fnum, int Order, double dkLrms)
 
   for (Knum = 1; Knum <= GetnKid(Fnum); Knum++) {
     loc = Elem_GetPos(Fnum, Knum);
-    M = static_cast<MpoleType*>(&Cell[loc]);
-    if (Cell[loc].PL != 0e0)
-      M->PBrms[Order+HOMmax] = dkLrms/Cell[loc].PL;
+    M = dynamic_cast<MpoleType*>(Cell[loc]);
+    if (Cell[loc]->PL != 0e0)
+      M->PBrms[Order+HOMmax] = dkLrms/Cell[loc]->PL;
     else
       M->PBrms[Order+HOMmax] = dkLrms;
     M->PBrnd[Order+HOMmax] = normranf();
@@ -1736,7 +1736,7 @@ void Setdkrrms(int Fnum, int Order, double dkrrms)
 
   for (Knum = 1; Knum <= GetnKid(Fnum); Knum++) {
     loc = Elem_GetPos(Fnum, Knum);
-    M = static_cast<MpoleType*>(&Cell[loc]);
+    M = dynamic_cast<MpoleType*>(Cell[loc]);
     if (Order == Dip && M->Pthick == thick)
       M->PBrms[Dip+HOMmax] = dkrrms*M->Pirho;
     else
@@ -1767,14 +1767,14 @@ void set_dx(const int type, const double sigma_x, const double sigma_y)
 	 sigma_x, sigma_y, type);
   printf("\n");
   for (j = 0; j <= globval.Cell_nLoc; j++)
-    M = static_cast<MpoleType*>(&Cell[j]);
-    if ((Cell[j].Pkind == Mpole) && (M->n_design == type)) {
-      printf("%s\n", Cell[j].PName);
+    M = dynamic_cast<MpoleType*>(Cell[j]);
+    if ((Cell[j]->Pkind == Mpole) && (M->n_design == type)) {
+      printf("%s\n", Cell[j]->PName);
       M->PdSrms[X_] = sigma_x;
       M->PdSrms[Y_] = sigma_y;
       M->PdSrnd[X_] = normranf();
       M->PdSrnd[Y_] = normranf();
-      Mpole_SetdS(Cell[j].Fnum, Cell[j].Knum);
+      Mpole_SetdS(Cell[j]->Fnum, Cell[j]->Knum);
     }
 }
 
@@ -1785,7 +1785,7 @@ void SetBpmdS(int Fnum, double dxrms, double dyrms)
 
   for (Knum = 1; Knum <= GetnKid(Fnum); Knum++) {
     loc = Elem_GetPos(Fnum, Knum);
-    Cell[loc].dS[X_] = normranf()*dxrms; Cell[loc].dS[Y_] = normranf()*dyrms;
+    Cell[loc]->dS[X_] = normranf()*dxrms; Cell[loc]->dS[Y_] = normranf()*dyrms;
   }
 }
 
@@ -1811,9 +1811,9 @@ void codstat(double *mean, double *sigma, double *xmax, long lastpos, bool all)
     for (i = 0; i < lastpos; i++) {
       n++;
       for (j = 0; j < 2; j++) {
-	sum[j] += Cell[i].BeamPos[j*2];
-	sum2[j] += sqr(Cell[i].BeamPos[j*2]);
-	xmax[j] = max(xmax[j], fabs(Cell[i].BeamPos[j*2]));
+	sum[j] += Cell[i]->BeamPos[j*2];
+	sum2[j] += sqr(Cell[i]->BeamPos[j*2]);
+	xmax[j] = max(xmax[j], fabs(Cell[i]->BeamPos[j*2]));
       }
     }
   } else {
@@ -1821,9 +1821,9 @@ void codstat(double *mean, double *sigma, double *xmax, long lastpos, bool all)
       n++;
       for (j = 0; j < 2; j++) {
 	loc = bpms_[j][i];
-	sum[j] += Cell[loc].BeamPos[j*2];
-	sum2[j] += sqr(Cell[loc].BeamPos[j*2]);
-	xmax[j] = max(xmax[j], fabs(Cell[loc].BeamPos[j*2]));
+	sum[j] += Cell[loc]->BeamPos[j*2];
+	sum2[j] += sqr(Cell[loc]->BeamPos[j*2]);
+	xmax[j] = max(xmax[j], fabs(Cell[loc]->BeamPos[j*2]));
       }
     }
   }
@@ -1883,13 +1883,13 @@ void CodStatBpm(double *mean, double *sigma, double *xmax, long lastpos,
   }
 
   for (i = 0; i <= lastpos; i++) {
-    if (Cell[i].Fnum == globval.bpm) {
+    if (Cell[i]->Fnum == globval.bpm) {
       if (! bpmdis[m]) {
 	for (j = 1; j <= 2; j++) {
-	  sum[j - 1] += Cell[i].BeamPos[j * 2 - 2];
-	  TEMP = Cell[i].BeamPos[j * 2 - 2];
+	  sum[j - 1] += Cell[i]->BeamPos[j * 2 - 2];
+	  TEMP = Cell[i]->BeamPos[j * 2 - 2];
 	  sum2[j - 1] += TEMP * TEMP;
-	  xmax[j - 1] = max(xmax[j - 1], fabs(Cell[i].BeamPos[j * 2 - 2]));
+	  xmax[j - 1] = max(xmax[j - 1], fabs(Cell[i]->BeamPos[j * 2 - 2]));
 	}
         n++;
       }
@@ -2124,8 +2124,8 @@ void ChamberOff(void)
   int i;
 
   for (i = 0; i <= globval.Cell_nLoc; i++) {
-    Cell[i].maxampl[X_][0] = -max_ampl; Cell[i].maxampl[X_][1] = max_ampl;
-    Cell[i].maxampl[Y_][0] = -max_ampl; Cell[i].maxampl[Y_][1] = max_ampl;
+    Cell[i]->maxampl[X_][0] = -max_ampl; Cell[i]->maxampl[X_][1] = max_ampl;
+    Cell[i]->maxampl[Y_][0] = -max_ampl; Cell[i]->maxampl[Y_][1] = max_ampl;
   }
   status.chambre = false;
 }
@@ -2149,9 +2149,9 @@ void PrintCh(void)
 
   for (i = 0; i <= globval.Cell_nLoc; i++)
     fprintf(f, "%4ld %15s  %6.2f  %7.3f  %7.3f  %7.3f\n",
-	    i, Cell[i].PName, Cell[i].S,
-	    Cell[i].maxampl[X_][0]*1E3, Cell[i].maxampl[X_][1]*1E3,
-	    Cell[i].maxampl[Y_][1]*1E3);
+	    i, Cell[i]->PName, Cell[i]->S,
+	    Cell[i]->maxampl[X_][0]*1E3, Cell[i]->maxampl[X_][1]*1E3,
+	    Cell[i]->maxampl[Y_][1]*1E3);
 
   fclose(f);
 }
@@ -2476,8 +2476,8 @@ void findcodS(double dP)
   }
     else{
       dim = 4; /* 4D tracking */
-      vcod[1] = Cell[0].Eta[0]*dP; vcod[2] = Cell[0].Etap[0]*dP;
-      vcod[3] = Cell[0].Eta[1]*dP; vcod[4] = Cell[0].Etap[1]*dP;
+      vcod[1] = Cell[0]->Eta[0]*dP; vcod[2] = Cell[0]->Etap[0]*dP;
+      vcod[3] = Cell[0]->Eta[1]*dP; vcod[4] = Cell[0]->Etap[1]*dP;
   }
   
   Newton_RaphsonS(ntrial, vcod, dim, tolx);
@@ -2551,8 +2551,8 @@ void findcod(double dP)
     dim = 6;
   } else{ // starting point linear closed orbit
     dim = 4;
-    vcod[0] = Cell[0].Eta[0]*dP; vcod[1] = Cell[0].Etap[0]*dP;
-    vcod[2] = Cell[0].Eta[1]*dP; vcod[3] = Cell[0].Etap[1]*dP;
+    vcod[0] = Cell[0]->Eta[0]*dP; vcod[1] = Cell[0]->Etap[0]*dP;
+    vcod[2] = Cell[0]->Eta[1]*dP; vcod[3] = Cell[0]->Etap[1]*dP;
     vcod[4] = dP;  // energy offset 
   }
   

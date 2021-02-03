@@ -40,7 +40,7 @@ void Get_Disp_dp(void)
 //  long lastpos = 0;
   FILE     *outf;
   double   dP = 0e0;
-  elemtype Cell;
+  ElemType Cell;
 
   const char nomfic[] = "dispersion.out";
 
@@ -99,7 +99,7 @@ void InducedAmplitude(long spos)
   FILE *     outf;
   double     dP = 0.0, dP20 = 0.0, dpmax = 0.06;
   Vector2    H = {0.0, 0.0};
-  elemtype   Celldebut, Cell;
+  ElemType   Celldebut, Cell;
   psVector   codvector[Cell_nLocMax];
 
   const char nomfic[] = "amp_ind.out";
@@ -195,7 +195,7 @@ void InducedAmplitude(long spos)
 void Hfonction(long pos, double dP,Vector2 H)
 {
   long     i;
-  elemtype Cell;
+  ElemType Cell;
 
   Ring_GetTwiss(pos, dP); /* Compute and get Twiss parameters */
   getelem(pos, &Cell);    /* Position sur l'element pos */
@@ -245,7 +245,7 @@ void Hcofonction(long pos, double dP,Vector2 H)
 {
   long     i;
   long     lastpos = 1;
-  elemtype Cell;
+  ElemType Cell;
 
   //~ getcod(dP, lastpos);   /* determine closed orbit */
   findcod(dP);
@@ -307,7 +307,7 @@ void SetErr(void)
   double    fac = 0.0, normcut = 0.0;
 //  long    seed = 0L;
   long      i = 0L;
-  elemtype  Cell;
+  ElemType  Cell;
   double    theta = 0.0;
   int       pair = 0;
   MpoleType *M;
@@ -334,7 +334,7 @@ void SetErr(void)
     getelem(i, &Cell);
     if (Cell.Pkind == 2L)
     {
-      M = static_cast<MpoleType*>(&Cell);
+      M = dynamic_cast<MpoleType*>(&Cell);
       if (M->Porder == 2L && Cell.dT[1] == 0)
       {
         if ((pair%2)==0) theta = fac*normranf(); /* random error every 2
@@ -395,40 +395,40 @@ void DefineCh(void)
 
   /* Look for indices for defining the vaccum pipe*/
   for (i = 0; i <= globval.Cell_nLoc; i++) {
-    if (Cell[i].Pkind == marker){
-      if (strncmp(Cell[i].PName,"ssep",4) == 0){
+    if (Cell[i]->Pkind == marker){
+      if (strncmp(Cell[i]->PName,"ssep",4) == 0){
         if (trace) fprintf(stdout,"trouve %s Element numero %ld \n",
-			   Cell[i].PName,i);
+			   Cell[i]->PName,i);
         isep1 = i;
       }
-      if (strncmp(Cell[i].PName,"esep",4) == 0) {
+      if (strncmp(Cell[i]->PName,"esep",4) == 0) {
         if (trace) fprintf(stdout,"trouve %s Element numero %ld \n",
-			   Cell[i].PName,i-1);
+			   Cell[i]->PName,i-1);
         isep2 = i-1;
       }
-      if (strncmp(Cell[i].PName,"ehu600",6) == 0) {
+      if (strncmp(Cell[i]->PName,"ehu600",6) == 0) {
         if (trace) fprintf(stdout,"trouve %s Element numero %ld \n",
-			   Cell[i].PName,i-1);
+			   Cell[i]->PName,i-1);
         hu600 = i-1;
       }
-      if (strncmp(Cell[i].PName,"ssdm",4) == 0) {
+      if (strncmp(Cell[i]->PName,"ssdm",4) == 0) {
          if (trace) fprintf(stdout,"trouve %s Element numero %ld \n",
-			    Cell[i].PName,i);
+			    Cell[i]->PName,i);
          isdm1 = i;
       }
-      if (strncmp(Cell[i].PName,"esdm",4) == 0) {
+      if (strncmp(Cell[i]->PName,"esdm",4) == 0) {
         if (trace) fprintf(stdout,"trouve %s Element numero %ld \n",
-			   Cell[i].PName,i);
+			   Cell[i]->PName,i);
         isdm2 = i;
       }
-      if (strncmp(Cell[i].PName,"ssdac",5) == 0) {
+      if (strncmp(Cell[i]->PName,"ssdac",5) == 0) {
         if (trace) fprintf(stdout,"trouve %s Element numero %ld \n",
-			   Cell[i].PName,i);
+			   Cell[i]->PName,i);
         isdac1 = i;
       }
-      if (strncmp(Cell[i].PName,"esdac",5) == 0) {
+      if (strncmp(Cell[i]->PName,"esdac",5) == 0) {
         if (trace) fprintf(stdout,"trouve %s Element numero %ld \n",
-			   Cell[i].PName,i-1);
+			   Cell[i]->PName,i-1);
         isdac2 = i-1;
       }
     }
@@ -441,28 +441,28 @@ void DefineCh(void)
     if  ((i < isep1) || ((i > isep2) && (i < isdm1)) ||
     ((i > isdm2) && (i < isdac1)) || (i > isdac2)) {
       /* ch normale */
-      Cell[i].maxampl[X_][0] = -35.e-3;
-      Cell[i].maxampl[X_][1] =  35.e-3;
-      Cell[i].maxampl[Y_][1] =  12.5e-3;
+      Cell[i]->maxampl[X_][0] = -35.e-3;
+      Cell[i]->maxampl[X_][1] =  35.e-3;
+      Cell[i]->maxampl[Y_][1] =  12.5e-3;
     } else if ((i >= isdm1) && (i <= isdm2)) {
       /* SD13 */
-      Cell[i].maxampl[X_][0] = -21e-3;
-      Cell[i].maxampl[X_][1] =  21e-3;
-      Cell[i].maxampl[Y_][1] =   5e-3;
+      Cell[i]->maxampl[X_][0] = -21e-3;
+      Cell[i]->maxampl[X_][1] =  21e-3;
+      Cell[i]->maxampl[Y_][1] =   5e-3;
     } else if ((i >= isep1) && (i <= isep2)) {
       /* septum */
-      Cell[i].maxampl[X_][0] = -25e-3;
-      Cell[i].maxampl[X_][1] =  25e-3;
-      Cell[i].maxampl[Y_][1] =  12.5e-3;
+      Cell[i]->maxampl[X_][0] = -25e-3;
+      Cell[i]->maxampl[X_][1] =  25e-3;
+      Cell[i]->maxampl[Y_][1] =  12.5e-3;
     } else if ((i >= isdac1) && (i <= isdac2)) {
       /*  minigap */
-      Cell[i].maxampl[X_][0] = -35e-3;
-      Cell[i].maxampl[X_][1] =  35e-3;
-      Cell[i].maxampl[Y_][1] =  2.5e-3;
+      Cell[i]->maxampl[X_][0] = -35e-3;
+      Cell[i]->maxampl[X_][1] =  35e-3;
+      Cell[i]->maxampl[Y_][1] =  2.5e-3;
     }
     if  (i <= hu600) {
       /* HU640 */
-      Cell[i].maxampl[Y_][1] =  7.0e-3;
+      Cell[i]->maxampl[Y_][1] =  7.0e-3;
     }
   }
 
@@ -1487,7 +1487,7 @@ void Enveloppe(double x, double px, double y, double py, double dp, double nturn
   long      lastpos = globval.Cell_nLoc;
   FILE      *outf;
   int       i,j ;
-  elemtype  Cell;
+  ElemType  Cell;
 
   const char fic[] = "enveloppe.out";
 
@@ -1574,7 +1574,7 @@ void Multipole(void)
   int      vcorrlist[120]; /* vertical corrector list */
   int      qcorrlist[120]; /* skew quad list */
 
-  elemtype Cell;
+  ElemType Cell;
 
   int       mOrder = 0;     /* multipole order */
   double    mKL = 0.0 ;     /* multipole integrated strength */
@@ -1611,7 +1611,7 @@ void Multipole(void)
 
     if (Cell.Pkind == Mpole)
     {
-      M = static_cast<MpoleType*>(&Cell);
+      M = dynamic_cast<MpoleType*>(&Cell);
       if (fabs(M->Pirho) > 0.0)
       {
         dlist[ndip] = i;
@@ -1680,7 +1680,7 @@ void Multipole(void)
  for (i = 0; i < ndip; i++)
  {
    getelem(dlist[i], &Cell);
-   M = static_cast<MpoleType*>(&Cell);
+   M = dynamic_cast<MpoleType*>(&Cell);
    theta = Cell.PL*M->Pirho;
 
    /* gradient error */
@@ -2011,7 +2011,7 @@ void SetSkewQuad(void)
   int       i;
   double    theta[500]; /* array for skew quad tilt*/
   double    b2, mKL;
-  elemtype  Cell;
+  ElemType  Cell;
   long      mOrder;
   int       nquad = 0;  /* Number of skew quadrupoles */
   int       qlist[500];  /* Quadrupole list */
@@ -2026,7 +2026,7 @@ void SetSkewQuad(void)
 
     if (Cell.Pkind == Mpole)
     {
-      M = static_cast<MpoleType*>(&Cell);
+      M = dynamic_cast<MpoleType*>(&Cell);
       if (fabs(M->PBpar[2L + HOMmax]) > 0.0)
       {
         qlist[nquad] = i;
@@ -2058,7 +2058,7 @@ void SetSkewQuad(void)
     if (trace) fprintf(stdout,"%le \n", theta[i]);
 
     getelem(qlist[i], &Cell);
-    M = static_cast<MpoleType*>(&Cell);
+    M = dynamic_cast<MpoleType*>(&Cell);
 
     /* Get KL for a quadrupole */
     b2 = Cell.PL*GetKpar(Cell.Fnum, Cell.Knum, 2L);
@@ -2128,7 +2128,7 @@ void MomentumAcceptance(long deb, long fin, double ep_min, double ep_max,
   double        dP = 0.0, dp1 = 0.0, dp2 = 0.0;
   long          lastpos = 0L,lastn = 0L;
   long          i = 0L, j = 0L, pos = 0L;
-  elemtype      Cell, Clost;
+  ElemType      Cell, Clost;
   double        x = 0.0, px = 0.0, z = 0.0, pz = 0.0, ctau0 = 0.0, delta = 0.0;
   psVector         x0;
   const long    nturn = 1000L;
@@ -2493,7 +2493,7 @@ void MomentumAcceptance(long deb, long fin, double ep_min, double ep_max,
 void set_vectorcod(psVector  codvector[], double dP)
 {
   long     k = 0;
-  elemtype Cell;
+  ElemType Cell;
   psVector zerovector;
 
   zerovector.zero();
@@ -2689,7 +2689,7 @@ void TracCO(double x, double px, double y, double py, double dp, double ctau,
 	    long nmax, long pos, long &lastn, long &lastpos, FILE *outf1)
 {
   psVector x1;     /* tracking coordinates */
-  elemtype Cell;
+  ElemType Cell;
 
   /* Get closed orbit */
   Ring_GetTwiss(true, 0.0);
@@ -2763,7 +2763,7 @@ void getA4antidamping()
   /* function to get A for anti damping condition */
   /* See publication at ALS for off momentum particle dynamics */
 
-  elemtype  Cell;
+  ElemType  Cell;
   int       qlist[320];
   int       nquad=0, i;
   double    A = 0.0;
@@ -2777,7 +2777,7 @@ void getA4antidamping()
     {
       if (fabs(M->PBpar[2L+HOMmax]) > 0.0)
       {
-	M = static_cast<MpoleType*>(&Cell);
+	M = dynamic_cast<MpoleType*>(&Cell);
         qlist[nquad] = i;
         nquad++;
         if (!trace) printf("%s % f\n", Cell.PName, M->PBpar[2L+HOMmax]);
@@ -2790,7 +2790,7 @@ void getA4antidamping()
   for (i = 0; i < nquad; i++)
   {
     getelem(qlist[i],&Cell);
-    M = static_cast<MpoleType*>(&Cell);
+    M = dynamic_cast<MpoleType*>(&Cell);
     fprintf(stdout,"%d Name = %s L=%g A= %g etax=%g \n",
 	    i, Cell.PName, Cell.PL, A,Cell.Eta[0]);
     A +=
@@ -3520,7 +3520,7 @@ void Enveloppe2(double x, double px, double y, double py, double dp,
   long     lastpos = globval.Cell_nLoc;
   FILE     *outf;
   int      i,j ;
-  elemtype Cell;
+  ElemType Cell;
   /* Array for Enveloppes */
   double    Envxp[Cell_nLocMax], Envxm[Cell_nLocMax];
   double    Envzp[Cell_nLocMax], Envzm[Cell_nLocMax];

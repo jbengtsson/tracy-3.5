@@ -98,7 +98,7 @@ extern double     eps_tps;
 extern ElemFamType ElemFam[];
 
 // extern CellType Cell[];
-extern elemtype Cell[];
+extern ElemType *Cell[];
 
 extern globvalrec globval;
 

@@ -16,9 +16,8 @@ typedef char   partsName[NameLength];
 typedef double mpolArray[HOMmax+HOMmax+1];
 
 enum PartsKind
-  { drift = 0, Wigl = 1, Mpole = 2, Cavity = 3, marker = 4,
-    undef = 5, Insertion = 6, FieldMap = 7,
-    Spreader = 8, Recombiner = 9, Solenoid = 10, Map = 11 };
+  { drift = 0, Wigl = 1, Mpole = 2, Cavity = 3, marker = 4, undef = 5,
+    Insertion = 6, FieldMap = 7, Spreader = 8, Recombiner = 9, Solenoid = 10, Map = 11 };
 
 enum pthicktype { thick = 0, thin = 1 };
 
@@ -131,7 +130,7 @@ class CellType {
 };
 
 // Element base class.
-class elemtype : public CellType {
+class ElemType : public CellType {
  public:
   partsName
     PName;                     // Element name.
@@ -142,28 +141,35 @@ class elemtype : public CellType {
   PartsKind
     Pkind;                     // Enumeration for magnet types.
 
-  virtual void Elem_Pass(ss_vect<double> &x) {};
-  virtual void Elem_Pass(ss_vect<tps> &x) {};
+  virtual void Elem_Pass(ss_vect<double> &ps) {};
+  virtual void Elem_Pass(ss_vect<tps> &ps) {};
+
+  template<typename T>
+  static void get_ps(const ss_vect<T> &ps);
+
+  template<typename T>
+  void Cell_Pass(ss_vect<T> &ps);
 };
 
 // Index for lattice elements.
 class ElemFamType {
  public:
+  ElemType
+    *ElemF;
   int
     nKid,                      // No of kids.
     KidList[nKidMax],
     NoDBN;
   DBNameType
     DBNlist[nKidMax];          // For control system.
-  elemtype ElemF;
 };
 
-class DriftType : public elemtype {
+class DriftType : public ElemType {
   template<typename T>
   void Elem_Pass(ss_vect<T> &x);
 };
 
-class MpoleType : public elemtype {
+class MpoleType : public ElemType {
  public:
   int
     Pmethod,                   // Integration Method.
@@ -204,7 +210,7 @@ class MpoleType : public elemtype {
   void Elem_Pass(ss_vect<T> &x);
 };
 
-class CavityType : public elemtype {
+class CavityType : public ElemType {
  public:
   bool
     entry_focus,               // Edge focusing at entry.
@@ -221,12 +227,12 @@ class CavityType : public elemtype {
   void Elem_Pass(ss_vect<T> &x);
 };
 
-class MarkerType : public elemtype {
+class MarkerType : public ElemType {
   template<typename T>
   void Elem_Pass(ss_vect<T> &x);
 };
 
-class WigglerType : public elemtype {
+class WigglerType : public ElemType {
  public:
   int
     Pmethod,                   // Integration Method.
@@ -257,7 +263,7 @@ class WigglerType : public elemtype {
   void Elem_Pass(ss_vect<T> &x);
 };
 
-class InsertionType : public elemtype {
+class InsertionType : public ElemType {
  public:
   char
     fname1[100],               // Filename for insertion description: 1st order.
@@ -313,7 +319,7 @@ class InsertionType : public elemtype {
   void Elem_Pass(ss_vect<T> &x);
 };
 
-class FieldMapType : public elemtype {
+class FieldMapType : public ElemType {
  public:
   int
     n_step,                    // number of integration steps.
@@ -338,7 +344,7 @@ class FieldMapType : public elemtype {
   void Elem_Pass(ss_vect<T> &x);
 };
 
-class SpreaderType : public elemtype {
+class SpreaderType : public ElemType {
  public:
   double
     E_max[Spreader_max];       // energy levels in increasing order.
@@ -349,7 +355,7 @@ class SpreaderType : public elemtype {
   void Elem_Pass(ss_vect<T> &x);
 };
 
-class RecombinerType : public elemtype {
+class RecombinerType : public ElemType {
  public:
   double
     E_min,
@@ -359,7 +365,7 @@ class RecombinerType : public elemtype {
   void Elem_Pass(ss_vect<T> &x);
 };
 
-class SolenoidType : public elemtype {
+class SolenoidType : public ElemType {
  public:
   int
     N;                         // Number of integration steps.
@@ -379,7 +385,7 @@ class SolenoidType : public elemtype {
   void Elem_Pass(ss_vect<T> &x);
 };
 
-class MapType : public elemtype {
+class MapType : public ElemType {
  public:
   double
     dnu[2],

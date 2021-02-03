@@ -125,7 +125,7 @@ void Cell_Geteta(long i0, long i1, bool ring, double dP)
   int      k;
   psVector xref;
   psVector codbuf[Cell_nLocMax+1];
-  elemtype *elemp;
+  ElemType *elemp;
 
   const int n = 4;
 
@@ -137,7 +137,7 @@ void Cell_Geteta(long i0, long i1, bool ring, double dP)
   }
 
   for (i = i0; i <= i1; i++)
-    CopyVec(n+2, Cell[i].BeamPos, codbuf[i]);
+    CopyVec(n+2, Cell[i]->BeamPos, codbuf[i]);
 
   if (ring)
     GetCOD(globval.CODimax, globval.CODeps, dP+globval.dPcommon/2e0, lastpos);
@@ -147,7 +147,7 @@ void Cell_Geteta(long i0, long i1, bool ring, double dP)
   }
 
   for (i = i0; i <= i1; i++) {
-    elemp = &Cell[i];
+    elemp = Cell[i];
     for (k = 0; k < 2; k++) {
       elemp->Eta[k] = (elemp->BeamPos[2*k]-codbuf[i][2*k])/globval.dPcommon;
       elemp->Etap[k] =
@@ -188,7 +188,7 @@ void Cell_Twiss(long i0, long i1, ss_vect<tps> &Ascr, bool chroma, bool ring,
   int          k;
   Vector2      nu1, dnu;
   ss_vect<tps> Ascr0, Ascr1;
-  elemtype     *elemp;
+  ElemType     *elemp;
 
   const int n = 4;
 
@@ -198,7 +198,7 @@ void Cell_Twiss(long i0, long i1, ss_vect<tps> &Ascr, bool chroma, bool ring,
 
   if (globval.radiation) globval.dE = 0e0;
 
-  elemp = &Cell[i0];
+  elemp = Cell[i0];
   dagetprm(Ascr, elemp->Alpha, elemp->Beta);
   memcpy(elemp->Nu, nu1, sizeof(Vector2));
 
@@ -208,7 +208,7 @@ void Cell_Twiss(long i0, long i1, ss_vect<tps> &Ascr, bool chroma, bool ring,
 
   Ascr1 = Ascr0;
   for (i = i0; i <= i1; i++) {
-    Cell[i].Elem_Pass(Ascr1); elemp = &Cell[i];
+    Cell[i]->Elem_Pass(Ascr1); elemp = Cell[i];
     dagetprm(Ascr1, elemp->Alpha, elemp->Beta);
     for (k = 1; k <= 2; k++) {
       dnu[k-1] =
@@ -307,7 +307,7 @@ void Ring_Twiss(bool chroma, double dP)
     return;
   }
   // Get eigenvalues and eigenvectors for the one turn transfer matrix
-  GDiag(n, Cell[globval.Cell_nLoc].S, globval.Ascr, globval.Ascrinv, R,
+  GDiag(n, Cell[globval.Cell_nLoc]->S, globval.Ascr, globval.Ascrinv, R,
         globval.OneTurnMat, globval.Omega, globval.Alphac);
 
   // AScr = putlinmat(n, globval.Ascr);
@@ -319,7 +319,7 @@ void Ring_Twiss(bool chroma, double dP)
 
   Cell_Twiss(0, globval.Cell_nLoc, AScr, chroma, true, dP);
 
-  memcpy(globval.TotalTune, Cell[globval.Cell_nLoc].Nu, sizeof(Vector2));
+  memcpy(globval.TotalTune, Cell[globval.Cell_nLoc]->Nu, sizeof(Vector2));
   status.tuneflag = true;
 
   if (chroma && !globval.Cavity_on) {
@@ -333,7 +333,7 @@ void Ring_GetTwiss(bool chroma, double dP)
 
   if (trace) printf("enter Ring_GetTwiss\n");
   Ring_Twiss(chroma, dP);
-  globval.Alphac = globval.OneTurnMat[ct_][delta_]/Cell[globval.Cell_nLoc].S;
+  globval.Alphac = globval.OneTurnMat[ct_][delta_]/Cell[globval.Cell_nLoc]->S;
   if (trace) printf("exit Ring_GetTwiss\n");
 }
 
@@ -347,11 +347,11 @@ struct LOC_Ring_Fittune
 
 void shiftk(long Elnum, double dk, struct LOC_Ring_Fittune *LINK)
 {
-  elemtype  *elemp;
+  ElemType  *elemp;
   MpoleType *M;
 
-  elemp = &Cell[Elnum];
-  M = static_cast<MpoleType*>(elemp);
+  elemp = Cell[Elnum];
+  M = dynamic_cast<MpoleType*>(elemp);
   M->PBpar[Quad+HOMmax] += dk;
   Mpole_SetPB(elemp->Fnum, elemp->Knum, (long)Quad);
 }
@@ -438,19 +438,19 @@ void Ring_Fittune(Vector2 &nu, double eps, iVector2 &nq, long qf[], long qd[],
       printf("  Nux = %10.6f%10.6f, Nuy = %10.6f%10.6f,"
 	     " QF*L = % .5E, QD*L = % .5E @%3d\n",
 	     nu0[0], nu1[0], nu0[1], nu1[1],
-	     Elem_GetKval(Cell[qf[0]].Fnum, 1, (long)Quad),
-	     Elem_GetKval(Cell[qd[0]].Fnum, 1, (long)Quad), i);
+	     Elem_GetKval(Cell[qf[0]]->Fnum, 1, (long)Quad),
+	     Elem_GetKval(Cell[qd[0]]->Fnum, 1, (long)Quad), i);
   } while (sqrt(sqr(nu[0]-nu0[0])+sqr(nu[1]-nu0[1])) >= eps && i != imax);
 }
 
 
 void shiftkp(long Elnum, double dkp)
 {
-  elemtype  *elemp;
+  ElemType  *elemp;
   MpoleType *M;
 
-  elemp = &Cell[Elnum];
-  M = static_cast<MpoleType*>(elemp);
+  elemp = Cell[Elnum];
+  M = dynamic_cast<MpoleType*>(elemp);
   M->PBpar[Sext+HOMmax] += dkp;
   Mpole_SetPB(elemp->Fnum, elemp->Knum, (long)Sext);
 }
@@ -521,8 +521,8 @@ void Ring_Fitchrom(Vector2 &ksi, double eps, iVector2 &ns,
       ksi0[j] = globval.Chrom[j];
     if (trace)
       printf("  ksix =%10.6f, ksiy =%10.6f, SF = % .5E, SD = % .5E @%3d\n",
-	     ksi0[0], ksi0[1], Elem_GetKval(Cell[sf[0]].Fnum, 1, (long)Sext),
-	     Elem_GetKval(Cell[sd[0]].Fnum, 1, (long)Sext), i);
+	     ksi0[0], ksi0[1], Elem_GetKval(Cell[sf[0]]->Fnum, 1, (long)Sext),
+	     Elem_GetKval(Cell[sd[0]]->Fnum, 1, (long)Sext), i);
   } while (sqrt(sqr(ksi[0]-ksi0[0])+sqr(ksi[1]-ksi0[1])) >= eps && i != imax);
 _L999:
   /* Restore radiation */
@@ -539,11 +539,11 @@ struct LOC_Ring_FitDisp
 
 static void shiftk_(long Elnum, double dk, struct LOC_Ring_FitDisp *LINK)
 {
-  elemtype  *elemp;
+  ElemType  *elemp;
   MpoleType *M;
 
-  elemp = &Cell[Elnum];
-  M = static_cast<MpoleType*>(elemp);
+  elemp = Cell[Elnum];
+  M = dynamic_cast<MpoleType*>(elemp);
   M->PBpar[Quad+HOMmax] += dk;
   Mpole_SetPB(elemp->Fnum, elemp->Knum, (long)Quad);
 }
@@ -581,14 +581,14 @@ void Ring_FitDisp(long pos, double eta, double eps, long nq, long q[],
   /* Turn off radiation */
   rad = globval.radiation; globval.radiation = false;
   Ring_GetTwiss(true, dP); checkifstable_(&V);
-  Eta0 = Cell[pos].Eta[0];
+  Eta0 = Cell[pos]->Eta[0];
   i = 0;
   while (fabs(eta-Eta0) > eps && i < imax) {
     i++;
     for (j = 0; j < nq; j++)
       shiftk_(q[j], dkL, &V);
     Ring_GetTwiss(true, dP); checkifstable_(&V);
-    deta = Cell[pos].Eta[0] - Eta0;
+    deta = Cell[pos]->Eta[0] - Eta0;
     if (deta == 0.0) {
       printf("  deta is 0\n");
       goto _L999;
@@ -597,10 +597,10 @@ void Ring_FitDisp(long pos, double eta, double eps, long nq, long q[],
     for (j = 0; j < nq; j++)
       shiftk_(q[j], dkL1, &V);
     Ring_GetTwiss(true, dP); checkifstable_(&V);
-    Eta0 = Cell[pos].Eta[0];
+    Eta0 = Cell[pos]->Eta[0];
     if (trace)
       printf("  Dispersion = % .5E, kL =% .5E @%3d\n",
-	     Eta0, Elem_GetKval(Cell[q[0]].Fnum, 1, (long)Quad), i);
+	     Eta0, Elem_GetKval(Cell[q[0]]->Fnum, 1, (long)Quad), i);
   }
 _L999:
   /* Restore radiation */

@@ -138,8 +138,8 @@ double DA_data_type::get_dynap(param_data_type &params,
   }
   DA += x2[X_]*x0[Y_] - x0[X_]*x2[Y_];
   // x2 from mid-plane symmetry
-  DA = fabs(DA)/sqrt(Cell[globval.Cell_nLoc].Beta[X_]
-       *Cell[globval.Cell_nLoc].Beta[Y_]);
+  DA = fabs(DA)/sqrt(Cell[globval.Cell_nLoc]->Beta[X_]
+       *Cell[globval.Cell_nLoc]->Beta[Y_]);
 
   fprintf(fp, "\n");
   fprintf(fp, "# DA^ = %6.1f mm^2"
@@ -164,7 +164,7 @@ void DA_data_type::get_DA_bare(param_data_type &params)
   DA_bare = file_write("DA_bare.out");
 
   fprintf(DA_bare, "# beta_x = %4.2f, beta_y = %5.2f\n",
-	  Cell[globval.Cell_nLoc].Beta[X_], Cell[globval.Cell_nLoc].Beta[Y_]);
+	  Cell[globval.Cell_nLoc]->Beta[X_], Cell[globval.Cell_nLoc]->Beta[Y_]);
   fprintf(DA_bare, "#\n");
   fprintf(DA_bare, "# Ideal lattice\n");
   fprintf(DA_bare, "#\n");
@@ -185,8 +185,8 @@ void DA_data_type::get_DA_bare(param_data_type &params)
 
     fprintf(DA_bare, "  %5.2f %6.1f   %4.1f      %4.1f   %4.1f  %4.1f\n", 
 	    1e2*d, 1e6*DA,
-	    1e6*sqr(x_hat[X_])/Cell[globval.Cell_nLoc].Beta[X_],
-	    1e6*sqr(x_hat[Y_])/Cell[globval.Cell_nLoc].Beta[Y_],
+	    1e6*sqr(x_hat[X_])/Cell[globval.Cell_nLoc]->Beta[X_],
+	    1e6*sqr(x_hat[Y_])/Cell[globval.Cell_nLoc]->Beta[Y_],
 	    1e3*x_hat[X_], 1e3*x_hat[Y_]);
   
     fflush(DA_bare);
@@ -225,7 +225,7 @@ void DA_data_type::get_DA_real(param_data_type &params,
   double   dks;
   double   ChromaX, ChromaY;
 
-  elemtype cell, *WITH;
+  ElemType cell, *WITH;
   FILE     *DA_real = NULL, *fp[params.n_delta_DA+1];
 
   const int n_cell = 20;
@@ -247,8 +247,8 @@ void DA_data_type::get_DA_real(param_data_type &params,
 
   DA_real = file_write("DA_real.out");
   fprintf(DA_real, "# beta_x = %4.2f, beta_y = %5.2f\n",
-	  Cell[globval.Cell_nLoc].Beta[X_],
-	  Cell[globval.Cell_nLoc].Beta[Y_]);
+	  Cell[globval.Cell_nLoc]->Beta[X_],
+	  Cell[globval.Cell_nLoc]->Beta[Y_]);
   fprintf(DA_real, "#\n");
   fprintf(DA_real, "# Real lattice\n");
   fprintf(DA_real, "#\n");
@@ -345,13 +345,13 @@ void DA_data_type::get_DA_real(param_data_type &params,
 	nu[0]=params.TuneX;
 	nu[1]=params.TuneY;
 	for (i = 0; i <= globval.Cell_nLoc; i++) {
-	  WITH = &Cell[i];
+	  WITH = Cell[i];
 	  if ( WITH->Pkind == Mpole ) {
-	    if (strncmp(Cell[i].PName,"qax",3) == 0){
+	    if (strncmp(Cell[i]->PName,"qax",3) == 0){
 	      qfbuf[nq[0]]=i;
 	      nq[0]++;
 	    }
-	    if (strncmp(Cell[i].PName,"qay",3) == 0){
+	    if (strncmp(Cell[i]->PName,"qay",3) == 0){
 	      qdbuf[nq[1]]=i;
 	      nq[1]++;
 	    }
@@ -378,13 +378,13 @@ void DA_data_type::get_DA_real(param_data_type &params,
 	si[0]=params.ChromX;
 	si[1]=params.ChromY;
 	for (i = 0; i <= globval.Cell_nLoc; i++) {
-	  WITH = &Cell[i];
+	  WITH = Cell[i];
 	  if ( WITH->Pkind == Mpole ) {
-	    if (strncmp(Cell[i].PName,"sf",2) == 0){
+	    if (strncmp(Cell[i]->PName,"sf",2) == 0){
 	      sfbuf[ns[0]]=i;
 	      ns[0]++;
 	    }
-	    if (strncmp(Cell[i].PName,"sd",2) == 0){
+	    if (strncmp(Cell[i]->PName,"sd",2) == 0){
 	      sdbuf[ns[1]]=i;
 	      ns[1]++;
 	    }
@@ -434,7 +434,7 @@ void DA_data_type::get_DA_real(param_data_type &params,
       if (params.n_lin > 0) {
 	// reset skew quads
 	printf("resetting skew quad family: %s\n",
-	       Cell[Elem_GetPos(globval.qt,1)].PName);
+	       Cell[Elem_GetPos(globval.qt,1)]->PName);
         set_bnL_design_fam(globval.qt, Quad, 0.0, 0.0);
       }
       if (params.N_calls > 0) params.reset_quads();  
@@ -454,10 +454,10 @@ void DA_data_type::get_DA_real(param_data_type &params,
 	    "   %5.2f \xB1 %6.3f     %5.2f \xB1 %6.3f\n", 
 	    d[j]*1e2,
 	    1e6*DA_m[j], 1e6*DA_s[j],
-	    1e6*sqr(x_hat_m[j][X_])/Cell[globval.Cell_nLoc].Beta[X_],
-	    1e6*sqr(x_hat_s[j][X_])/Cell[globval.Cell_nLoc].Beta[X_],
-	    1e6*sqr(x_hat_m[j][Y_])/Cell[globval.Cell_nLoc].Beta[Y_],
-	    1e6*sqr(x_hat_s[j][Y_])/Cell[globval.Cell_nLoc].Beta[Y_],
+	    1e6*sqr(x_hat_m[j][X_])/Cell[globval.Cell_nLoc]->Beta[X_],
+	    1e6*sqr(x_hat_s[j][X_])/Cell[globval.Cell_nLoc]->Beta[X_],
+	    1e6*sqr(x_hat_m[j][Y_])/Cell[globval.Cell_nLoc]->Beta[Y_],
+	    1e6*sqr(x_hat_s[j][Y_])/Cell[globval.Cell_nLoc]->Beta[Y_],
 	    1e3*x_hat_m[j][X_], 1e3*x_hat_s[j][X_],
 	    1e3*x_hat_m[j][Y_], 1e3*x_hat_s[j][Y_]);
   }

@@ -15,25 +15,25 @@ inline bool CheckAmpl(const ss_vect<T> &x, const long int loc)
   bool not_lost;
 
   if (globval.Aperture_on)
-    not_lost = is_double<T>::cst(x[x_]) > Cell[loc].maxampl[X_][0] &&
-               is_double<T>::cst(x[x_]) < Cell[loc].maxampl[X_][1] && 
-               fabs(is_double<T>::cst(x[y_])) < Cell[loc].maxampl[Y_][1];
+    not_lost = is_double<T>::cst(x[x_]) > Cell[loc]->maxampl[X_][0] &&
+               is_double<T>::cst(x[x_]) < Cell[loc]->maxampl[X_][1] && 
+               fabs(is_double<T>::cst(x[y_])) < Cell[loc]->maxampl[Y_][1];
   else
     not_lost = is_double<T>::cst(x[x_]) > -max_ampl &&
                is_double<T>::cst(x[x_]) < max_ampl &&
                fabs(is_double<T>::cst(x[y_])) < max_ampl;
 
   if (!not_lost) {
-    if (is_double<T>::cst(x[x_]) < Cell[loc].maxampl[X_][0] ||
-        is_double<T>::cst(x[x_]) > Cell[loc].maxampl[X_][1])
+    if (is_double<T>::cst(x[x_]) < Cell[loc]->maxampl[X_][0] ||
+        is_double<T>::cst(x[x_]) > Cell[loc]->maxampl[X_][1])
       status.lossplane = 1;
-    else if (fabs(is_double<T>::cst(x[y_])) > Cell[loc].maxampl[Y_][1])
+    else if (fabs(is_double<T>::cst(x[y_])) > Cell[loc]->maxampl[Y_][1])
       status.lossplane = 2;
 	    
     if (trace)
       printf("CheckAmpl: Particle lost in plane %d at element:"
 	     " %5ld s = %10.5f, x = %12.5e, z= %12.5e\n",
-	     status.lossplane, loc, Cell[loc].S,
+	     status.lossplane, loc, Cell[loc]->S,
 	     is_double<T>::cst(x[x_]), is_double<T>::cst(x[y_]));
   }
 
@@ -42,15 +42,16 @@ inline bool CheckAmpl(const ss_vect<T> &x, const long int loc)
 
 
 template<typename T>
-void Elem_Pass(const long i, ss_vect<T> &x)
+void ElemType::Cell_Pass(ss_vect<T> &ps)
 {
-  Cell[i].Elem_Pass(x);
-  is_tps<T>::get_ps(x, Cell[i]);
+  this->Elem_Pass(ps);
+
+  is_tps<T>::get_ps(ps, *this);
 }
 
 
 template<typename T>
-void Cell_Pass(const long i0, const long i1, ss_vect<T> &x, long &lastpos)
+void Cell_Pass(const long i0, const long i1, ss_vect<T> &ps, long &lastpos)
 {
   long int i = 0;
 
@@ -60,13 +61,13 @@ void Cell_Pass(const long i0, const long i1, ss_vect<T> &x, long &lastpos)
     for (i = 0; i < DOF; i++)
       globval.D_rad[i] = 0e0;
 
-  if (!CheckAmpl(x, i0))
+  if (!CheckAmpl(ps, i0))
     lastpos = i0;
   else {
     lastpos = i1;
     for (i = i0; i <= i1; i++) {
-      Cell[i].Elem_Pass(x);
-      if (!CheckAmpl(x, i)) { lastpos = i; break; }
+      Cell[i]->Elem_Pass(ps);
+      if (!CheckAmpl(ps, i)) { lastpos = i; break; }
     }
   }
 }
@@ -146,8 +147,8 @@ bool Cell_getCOD(long imax, double eps, double dP, long &lastpos)
 
   // if (n == 4) {
   //   // For 2 1/2 D.O.F.: eta*dP. 
-  //   x0[x_] = Cell[0].Eta[X_]*dP; x0[px_] = Cell[0].Etap[X_]*dP;
-  //   x0[y_] = Cell[0].Eta[Y_]*dP; x0[py_] = Cell[0].Etap[Y_]*dP;
+  //   x0[x_] = Cell[0]->Eta[X_]*dP; x0[px_] = Cell[0]->Etap[X_]*dP;
+  //   x0[y_] = Cell[0]->Eta[Y_]*dP; x0[py_] = Cell[0]->Etap[Y_]*dP;
   // }
 
   for (j = 0; j < ss_dim; j++)
@@ -194,7 +195,8 @@ bool Cell_getCOD(long imax, double eps, double dP, long &lastpos)
 	      << std::scientific << std::setprecision(5)
 	      << "  x_0   =" << std::setw(13) << x0 << "\n"
 	      << std::scientific << std::setprecision(5)
-	      << "  x_k-1 =" << std::setw(13) << Cell[lastpos-1].BeamPos << "\n"
+	      << "  x_k-1 =" << std::setw(13) << Cell[lastpos-1]->BeamPos
+	      << "\n"
 	      << std::scientific << std::setprecision(5)
 	      << "  x_k   =" << std::setw(13) << map.cst() << "\n";
 
@@ -215,7 +217,7 @@ void Cell_Init(void)
   long        i;
   double      Stotal;
   ElemFamType *elemfamp;
-  elemtype    *elemp;
+  ElemType    *elemp;
 
   char first_name[] = "begin          ";
 
@@ -224,12 +226,12 @@ void Cell_Init(void)
 
   SI_init();  /* Initializes the constants for symplectic integrator */
 
-  memcpy(Cell[0].PName, first_name, sizeof(first_name));
+  memcpy(Cell[0]->PName, first_name, sizeof(first_name));
 
   for (i = 1; i <= globval.Elem_nFam; i++) {
     elemfamp  = &ElemFam[i-1]; /* Get 1 of all elements stored in ElemFam
 				  array */
-    elemp = &elemfamp->ElemF; // For switch structure: choice on element type
+    elemp = elemfamp->ElemF; // For switch structure: choice on element type
     if (debug)
       printf("Cell_Init, i:=%3ld: %*s\n", i, SymbolLength, elemp->PName);
 
@@ -277,6 +279,6 @@ void Cell_Init(void)
   /* Computes s-location of each element in the structure */
   Stotal = 0e0;
   for (i = 0; i <= globval.Cell_nLoc; i++) {
-    Stotal += Cell[i].PL; Cell[i].S = Stotal;
+    Stotal += Cell[i]->PL; Cell[i]->S = Stotal;
   }
 }

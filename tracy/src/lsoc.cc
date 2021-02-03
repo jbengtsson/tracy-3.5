@@ -24,7 +24,7 @@ void zero_trims(void)
   for (k = 0; k < 2; k++)
     for (j = 1; j <= n_corr_[k]; j++) {
       loc = corrs_[k][j];
-      set_bn_design_elem(Cell[loc].Fnum, Cell[loc].Knum, Dip, 0e0, 0e0);
+      set_bn_design_elem(Cell[loc]->Fnum, Cell[loc]->Knum, Dip, 0e0, 0e0);
     }
 }
 
@@ -109,9 +109,9 @@ void gcmat(const int plane)
   nu = globval.TotalTune[k]; spiq = sin(M_PI*nu);
 
   for (i = 1; i <= n_bpm_[k]; i++) {
-    loc = bpms_[k][i]; betai = Cell[loc].Beta[k]; nui = Cell[loc].Nu[k];
+    loc = bpms_[k][i]; betai = Cell[loc]->Beta[k]; nui = Cell[loc]->Nu[k];
     for (j = 1; j <= n_corr_[k]; j++) {
-      loc = corrs_[k][j]; betaj = Cell[loc].Beta[k]; nuj = Cell[loc].Nu[k];
+      loc = corrs_[k][j]; betaj = Cell[loc]->Beta[k]; nuj = Cell[loc]->Nu[k];
       A_lsoc[k][i][j] =
 	sqrt(betai*betaj)/(2.0*spiq)*cos(nu*M_PI-fabs(2.0*M_PI*(nui-nuj)));
     }
@@ -205,7 +205,7 @@ void lsoc(const int plane, const double scl)
 
   for (j = 1; j <= n_bpm_[k]; j++) {
     loc = bpms_[k][j];
-    b[j] = -Cell[loc].BeamPos[2*k] + Cell[loc].dS[k];
+    b[j] = -Cell[loc]->BeamPos[2*k] + Cell[loc]->dS[k];
   }
       
   dsvbksb(U_lsoc[k], w_lsoc[k], V_lsoc[k], n_bpm_[k], n_corr_[k], b, x);
@@ -213,9 +213,9 @@ void lsoc(const int plane, const double scl)
   for (j = 1; j <= n_corr_[k]; j++) {
     loc = corrs_[k][j];
     if (plane == 1)
-      set_dbnL_design_elem(Cell[loc].Fnum, Cell[loc].Knum, Dip, -scl*x[j], 0e0);
+      set_dbnL_design_elem(Cell[loc]->Fnum, Cell[loc]->Knum, Dip, -scl*x[j], 0e0);
     else
-      set_dbnL_design_elem(Cell[loc].Fnum, Cell[loc].Knum, Dip, 0e0, scl*x[j]);
+      set_dbnL_design_elem(Cell[loc]->Fnum, Cell[loc]->Knum, Dip, 0e0, scl*x[j]);
   }
 
   free_dvector(b, 1, n_bpm_[k]); free_dvector(x, 1, n_corr_[k]);
@@ -242,10 +242,10 @@ void gtcmat(const int plane)
 
   for (i = 1; i <= n_bpm_[k]; i++) {
     loc_bpm = bpms_[k][i];
-    betai = Cell[loc_bpm].Beta[k]; nui = Cell[loc_bpm].Nu[k];
+    betai = Cell[loc_bpm]->Beta[k]; nui = Cell[loc_bpm]->Nu[k];
     for (j = 1; j <= n_corr_[k]; j++) {
       loc_corr = corrs_[k][j];
-      betaj = Cell[loc_corr].Beta[k]; nuj = Cell[loc_corr].Nu[k];
+      betaj = Cell[loc_corr]->Beta[k]; nuj = Cell[loc_corr]->Nu[k];
       if (loc_bpm > loc_corr)
 	A_lstc[k][i][j] = sqrt(betai*betaj)*sin(2.0*M_PI*(nui-nuj));
       else
@@ -323,7 +323,7 @@ void lstc(const int plane, const double scl)
 
   for (j = 1; j <= n_bpm_[k]; j++) {
     loc = bpms_[k][j];
-    b[j] = -Cell[loc].BeamPos[2*k] + Cell[loc].dS[k];
+    b[j] = -Cell[loc]->BeamPos[2*k] + Cell[loc]->dS[k];
 
     if (trace) std::cout << std::scientific << std::setprecision(5)
 		    << "b[" << std::setw(3) << j << "] = "
@@ -339,14 +339,14 @@ void lstc(const int plane, const double scl)
 		      << "(b_1L)[" << std::setw(3) << j << "] = "
 		      << std::setw(12)<< -x[j] << std::endl;
 
-      set_dbnL_design_elem(Cell[loc].Fnum, Cell[loc].Knum, Dip,
+      set_dbnL_design_elem(Cell[loc]->Fnum, Cell[loc]->Knum, Dip,
 			   -scl*x[j], 0e0);
     } else {
       if (trace) std::cout << std::scientific << std::setprecision(5)
 		      << "(a_1L)[" << std::setw(3) << j << "] = "
 		      << std::setw(12)<< x[j] << std::endl;
 
-      set_dbnL_design_elem(Cell[loc].Fnum, Cell[loc].Knum, Dip,
+      set_dbnL_design_elem(Cell[loc]->Fnum, Cell[loc]->Knum, Dip,
 			   0e0, scl*x[j]);
     }
   }

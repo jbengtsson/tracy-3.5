@@ -28,14 +28,14 @@ void prt_bpm_corr(const int m, const int n, const std::vector<long int> &bpms,
 
   printf("\nbpms:\n  ");
   for (k = 0; k < m; k++) {
-    printf("%8s", Cell[bpms[k]].PName);
+    printf("%8s", Cell[bpms[k]]->PName);
     if ((k+1) % n_prt == 0) printf("\n  ");
   }
   if (m % n_prt != 0) printf("\n");
 
   printf("\ncorrs:\n  ");
   for (k = 0; k < n; k++) {
-    printf("%8s", Cell[corrs[k]].PName);
+    printf("%8s", Cell[corrs[k]]->PName);
     if ((k+1) % n_prt == 0) printf("\n  ");
   }
   if (n % n_prt != 0) printf("\n");
@@ -102,10 +102,10 @@ void orb_corr_type::get_trm_mat(void)
 
   for (i = 0; i < m; i++) {
     loc_bpm = bpms[i];
-    betai = Cell[loc_bpm].Beta[plane]; nui = Cell[loc_bpm].Nu[plane];
+    betai = Cell[loc_bpm]->Beta[plane]; nui = Cell[loc_bpm]->Nu[plane];
     for (j = 0; j < n; j++) {
       loc_corr = corrs[j];
-      betaj = Cell[loc_corr].Beta[plane]; nuj = Cell[loc_corr].Nu[plane];
+      betaj = Cell[loc_corr]->Beta[plane]; nuj = Cell[loc_corr]->Nu[plane];
       A[i+1][j+1] = (loc_bpm > loc_corr)?
 	sqrt(betai*betaj)*sin(2.0*M_PI*(nui-nuj)) : 0e0;
     }
@@ -125,10 +125,10 @@ void orb_corr_type::get_orm_mat(void)
 
   for (i = 0; i < m; i++) {
     loc_bpm = bpms[i];
-    betai = Cell[loc_bpm].Beta[plane]; nui = Cell[loc_bpm].Nu[plane];
+    betai = Cell[loc_bpm]->Beta[plane]; nui = Cell[loc_bpm]->Nu[plane];
     for (j = 0; j < n; j++) {
       loc_corr = corrs[j];
-      betaj = Cell[loc_corr].Beta[plane]; nuj = Cell[loc_corr].Nu[plane];
+      betaj = Cell[loc_corr]->Beta[plane]; nuj = Cell[loc_corr]->Nu[plane];
       A[i+1][j+1] = 
 	sqrt(betai*betaj)/(2.0*spiq)*cos(nu*M_PI-fabs(2.0*M_PI*(nui-nuj)));
     }
@@ -228,7 +228,7 @@ void orb_corr_type::solve(const double scl) const
 
   for (j = 0; j < m; j++) {
     loc = bpms[j];
-    b[j+1] = -Cell[loc].BeamPos[2*plane] + Cell[loc].dS[plane];
+    b[j+1] = -Cell[loc]->BeamPos[2*plane] + Cell[loc]->dS[plane];
   }
       
   dsvbksb(U, w, V, m, n, b, x);
@@ -236,10 +236,10 @@ void orb_corr_type::solve(const double scl) const
   for (j = 0; j < n; j++) {
     loc = corrs[j];
     if (plane == 0)
-      set_dbnL_design_elem(Cell[loc].Fnum, Cell[loc].Knum, Dip,
+      set_dbnL_design_elem(Cell[loc]->Fnum, Cell[loc]->Knum, Dip,
 			   -scl*x[j+1], 0e0);
     else
-      set_dbnL_design_elem(Cell[loc].Fnum, Cell[loc].Knum, Dip,
+      set_dbnL_design_elem(Cell[loc]->Fnum, Cell[loc]->Knum, Dip,
 			   0e0, scl*x[j+1]);
   }
 }
@@ -252,7 +252,7 @@ void orb_corr_type::clr_trims(void)
 
   for (j = 0; j < n; j++) {
     loc = corrs[j];
-    set_bnL_design_elem(Cell[loc].Fnum, Cell[loc].Knum, Dip, 0e0, 0e0);
+    set_bnL_design_elem(Cell[loc]->Fnum, Cell[loc]->Knum, Dip, 0e0, 0e0);
   }
 }
 
@@ -273,9 +273,9 @@ void codstat(double mean[], double sigma[], double xmax[], const long lastpos,
     for (i = 0; i < lastpos; i++) {
       n++;
       for (j = 0; j < 2; j++) {
-	sum[j]  += Cell[i].BeamPos[j*2];
-	sum2[j] += sqr(Cell[i].BeamPos[j*2]);
-	xmax[j] =  max(xmax[j], fabs(Cell[i].BeamPos[j*2]));
+	sum[j]  += Cell[i]->BeamPos[j*2];
+	sum2[j] += sqr(Cell[i]->BeamPos[j*2]);
+	xmax[j] =  max(xmax[j], fabs(Cell[i]->BeamPos[j*2]));
       }
     }
   } else {
@@ -283,9 +283,9 @@ void codstat(double mean[], double sigma[], double xmax[], const long lastpos,
       n++;
       for (j = 0; j < 2; j++) {
 	loc = bpms[i];
-	sum[j]  += Cell[loc].BeamPos[j*2];
-	sum2[j] += sqr(Cell[loc].BeamPos[j*2]);
-	xmax[j] =  max(xmax[j], fabs(Cell[loc].BeamPos[j*2]));
+	sum[j]  += Cell[loc]->BeamPos[j*2];
+	sum2[j] += sqr(Cell[loc]->BeamPos[j*2]);
+	xmax[j] =  max(xmax[j], fabs(Cell[loc]->BeamPos[j*2]));
       }
     }
   }
@@ -357,7 +357,7 @@ void thread_beam(const int n_cell, const string &Fam_name,
 			j == 0, false, eps);
     if (trace)
       printf("\n  i = %d (%d) i0 = %ld i1 = %ld (s = %5.3f)\n",
-	     i+1, n_cell, i0, i1, Cell[i1].S);
+	     i+1, n_cell, i0, i1, Cell[i1]->S);
     for (j = 0; j < 2; j++) {
       orb_corr[j].corrs = get_elem(i0, i1, corr_Fam_names[j]);
       orb_corr[j].bpms = get_elem(i0, i1, bpm_Fam_names);
