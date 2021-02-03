@@ -136,7 +136,7 @@ struct LOC_Lattice_Read
 
 
 struct CellListType {
-  int  Fnum, Knum;
+  int  Fnum;
   bool Reverse;
 };
 
@@ -4173,7 +4173,8 @@ static void RegisterKids(struct LOC_Lattice_Read *LINK)
     WITH->nKid++;
     if (WITH->nKid <= nKidMax) {
       WITH->KidList[WITH->nKid-1] = i;
-      Cell_List[i].Knum = WITH->nKid;
+      // Flag reverse element by negative kid number.
+      if (Cell_List[i].Reverse) WITH->KidList[WITH->nKid-1] *= -1;
     } else
       printf("nKidMax exceeded: %d(%d)\n", WITH->nKid, nKidMax);
   }
