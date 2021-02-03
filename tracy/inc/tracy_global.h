@@ -146,6 +146,7 @@ class ElemType : public CellType {
 
   virtual void Elem_Pass(ss_vect<double> &ps) {};
   virtual void Elem_Pass(ss_vect<tps> &ps) {};
+  virtual void print(void) {};
 
   template<typename T>
   void Cell_Pass(ss_vect<T> &ps);
@@ -167,6 +168,7 @@ class ElemFamType {
 class DriftType : public ElemType {
   template<typename T>
   void Elem_Pass(ss_vect<T> &x);
+  void print(void);
 };
 
 class MpoleType : public ElemType {
@@ -208,6 +210,7 @@ class MpoleType : public ElemType {
 
   template<typename T>
   void Elem_Pass(ss_vect<T> &x);
+  void print(void);
 };
 
 class CavityType : public ElemType {
@@ -225,11 +228,13 @@ class CavityType : public ElemType {
 
   template<typename T>
   void Elem_Pass(ss_vect<T> &x);
+  void print(void);
 };
 
 class MarkerType : public ElemType {
   template<typename T>
   void Elem_Pass(ss_vect<T> &x);
+  void print(void);
 };
 
 class WigglerType : public ElemType {
@@ -261,6 +266,7 @@ class WigglerType : public ElemType {
 
   template<typename T>
   void Elem_Pass(ss_vect<T> &x);
+  void print(void);
 };
 
 class InsertionType : public ElemType {
@@ -317,6 +323,7 @@ class InsertionType : public ElemType {
 
   template<typename T>
   void Elem_Pass(ss_vect<T> &x);
+  void print(void);
 };
 
 class FieldMapType : public ElemType {
@@ -342,6 +349,7 @@ class FieldMapType : public ElemType {
 
   template<typename T>
   void Elem_Pass(ss_vect<T> &x);
+  void print(void);
 };
 
 class SpreaderType : public ElemType {
@@ -353,6 +361,7 @@ class SpreaderType : public ElemType {
 
   template<typename T>
   void Elem_Pass(ss_vect<T> &x);
+  void print(void);
 };
 
 class RecombinerType : public ElemType {
@@ -363,6 +372,7 @@ class RecombinerType : public ElemType {
 
   template<typename T>
   void Elem_Pass(ss_vect<T> &x);
+  void print(void);
 };
 
 class SolenoidType : public ElemType {
@@ -383,6 +393,7 @@ class SolenoidType : public ElemType {
 
   template<typename T>
   void Elem_Pass(ss_vect<T> &x);
+  void print(void);
 };
 
 class MapType : public ElemType {
@@ -398,6 +409,7 @@ class MapType : public ElemType {
 
   void Elem_Pass(ss_vect<double> &x);
   void Elem_Pass(ss_vect<tps> &x);
+  void print(void);
 };
 
 #endif

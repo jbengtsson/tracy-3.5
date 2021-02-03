@@ -33,6 +33,9 @@ J. Bengtsson  NSLS-II, BNL  2004 -
 #define tmax         100
 
 
+const bool debug_lat = false;
+
+
 typedef char Latlinetype[LatLLng];
 
 typedef enum
@@ -140,8 +143,6 @@ struct CellListType {
 CellListType   Cell_List[Cell_nLocMax+1];
 
 bool reverse_elem = false; // Beam Dynamics or Software Engineering reverse.
-
-const bool debug_lat = !false;
 
 // Set operations
 
@@ -2476,7 +2477,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       WITH2->PdTpar = dt; WITH2->n_design = Sext;
       AssignHOM(globval.Elem_nFam, &V);
       SetDBN(&V);
-      WITH2->PBpar[HOMmax + 3] = QK;
+      WITH2->PBpar[HOMmax+3] = QK;
       ElemFam[globval.Elem_nFam-1].ElemF = WITH2;
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
@@ -4148,7 +4149,7 @@ static double Circumference(struct LOC_Lattice_Read *LINK)
 
 static void RegisterKids(struct LOC_Lattice_Read *LINK)
 {
-  long i, FORLIM;
+  long        i, FORLIM;
   ElemFamType *WITH;
 
   if (debug_lat) printf("\nRegisterKids:\n");

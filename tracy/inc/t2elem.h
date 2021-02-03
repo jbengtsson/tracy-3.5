@@ -106,9 +106,9 @@ CavityType* Cav_Alloc(void);
 
 WigglerType* Wiggler_Alloc(void);
 
-FieldMapType* FieldMap_Alloc(void);
-
 InsertionType* Insertion_Alloc(void);
+
+FieldMapType* FieldMap_Alloc(void);
 
 SpreaderType* Spreader_Alloc(void);
 

@@ -226,7 +226,10 @@ void Cell_Init(void)
 
   SI_init();  /* Initializes the constants for symplectic integrator */
 
+  // Allocate element 0.
+  Cell[0] = Marker_Alloc();
   memcpy(Cell[0]->PName, first_name, sizeof(first_name));
+  Cell[0]->PL = 0e0; Cell[0]->Fnum = 0; Cell[0]->Knum = 0;
 
   for (i = 1; i <= globval.Elem_nFam; i++) {
     elemfamp  = &ElemFam[i-1]; /* Get 1 of all elements stored in ElemFam

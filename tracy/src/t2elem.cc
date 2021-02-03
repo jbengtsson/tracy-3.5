@@ -314,7 +314,10 @@ class is_tps<tps> {
     return curly_H[X_];
   }
 
-  static inline double get_dI_eta(const ss_vect<tps> &A) { return A[x_][delta_]; }
+  static inline double get_dI_eta(const ss_vect<tps> &A)
+  {
+    return A[x_][delta_];
+  }
 
   static inline void emittance(const tps &B2_perp, const tps &ds,
 			       const tps &p_s0, const ss_vect<tps> &A) {
@@ -2397,97 +2400,104 @@ void SI_init(void)
 }
 
 
-static void Mpole_Print(FILE *f, int Fnum1)
+void prt_name(const char *name, const int len)
 {
-  ElemType  *Cellp;
-  MpoleType *M;
+  int j, k;
 
-  Cellp = ElemFam[Fnum1-1].ElemF;
-  M = dynamic_cast<MpoleType*>(Cellp);
-  fprintf(f, "Element[%3d ] \n", Fnum1);
-  fprintf(f, "   Name: %.*s,  Kind:   mpole,  L=% .8E\n",
-          SymbolLength, Cellp->PName, Cellp->PL);
-  fprintf(f, "   Method: %d, N=%4d\n", M->Pmethod, M->PN);
+  j = 0;
+  do {
+    printf("%c", name[j]);
+    j++;
+  } while (name[j] != ' ');
+  for (k = j; k < len; k++)
+    printf(" ");
 }
 
 
-static void Drift_Print(FILE *f, int Fnum1)
+void prt_elem(ElemType *elem)
 {
-  ElemFamType *elemfamp;
-  ElemType    *Cellp;
-
-  elemfamp = &ElemFam[Fnum1-1]; Cellp = elemfamp->ElemF;
-  fprintf(f, "Element[%3d ] \n", Fnum1);
-  fprintf(f, "   Name: %.*s,  Kind:   drift,  L=% .8E\n",
-          SymbolLength, Cellp->PName, Cellp->PL);
-  fprintf(f, "   nKid:%3d\n\n", elemfamp->nKid);
+  printf("  ");
+  prt_name(elem->PName, 7);
+  printf(" %6.3f %2d %6.3f %2d %2d",
+	 elem->S, elem->Pkind, elem->PL, elem->Fnum, elem->Knum);
 }
 
 
-static void Wiggler_Print(FILE *f, int Fnum1)
+void DriftType::print(void)
 {
-  ElemType *Cellp;
-
-  Cellp = ElemFam[Fnum1-1].ElemF;
-  fprintf(f, "Element[%3d ] \n", Fnum1);
-  fprintf(f, "   Name: %.*s,  Kind:   wiggler,  L=% .8E\n\n",
-          NameLength, Cellp->PName, Cellp->PL);
+  prt_elem(this);
+  printf("\n");
 }
 
 
-static void Insertion_Print(FILE *f, int Fnum1)
+void MpoleType::print(void)
 {
-  ElemType *Cellp;
-
-  Cellp = ElemFam[Fnum1-1].ElemF;
-  fprintf(f, "Element[%3d ] \n", Fnum1);
-  fprintf(f, "   Name: %.*s,  Kind:   wiggler,  L=% .8E\n\n",
-          SymbolLength, Cellp->PName, Cellp->PL);
+  prt_elem(this);
+  printf("    method %1d n_step %2d n_max %2d, n_design %2d\n",
+	 Pmethod, PN, Porder, n_design);
 }
 
 
-void Elem_Print(FILE *f, int Fnum1)
+void CavityType::print(void)
 {
-  int i;
+  prt_elem(this);
+  printf("\n");
+}
 
-  if (Fnum1 == 0) {
-    // print all elements
-    for (i = 1; i <= globval.Elem_nFam; i++)
-      Elem_Print(f, i);
-    return;
-  }
 
-  switch (ElemFam[Fnum1-1].ElemF->Pkind) {
-  case drift:
-    Drift_Print(f, Fnum1);
-    break;
+void MarkerType::print(void)
+{
+  prt_elem(this);
+  printf("\n");
+}
 
-  case Mpole:
-    Mpole_Print(f, Fnum1);
-    break;
-  case Wigl:
-    Wiggler_Print(f, Fnum1);
-    break;
-  case FieldMap:
-    break;
-  case Insertion:
-    Insertion_Print(f, Fnum1);
-    break;
-  case Cavity:
-    break;
-  case marker:
-    break;
-  case Spreader:
-    break;
-  case Recombiner:
-    break;
-  case Solenoid:
-    break;
-  case Map:
-    break;
-  case undef:
-    break;
-  }
+
+void WigglerType::print(void)
+{
+  prt_elem(this);
+  printf("\n");
+}
+
+
+void InsertionType::print(void)
+{
+  prt_elem(this);
+  printf("\n");
+}
+
+
+void FieldMapType::print(void)
+{
+  prt_elem(this);
+  printf("\n");
+}
+
+
+void SpreaderType::print(void)
+{
+  prt_elem(this);
+  printf("\n");
+}
+
+
+void RecombinerType::print(void)
+{
+  prt_elem(this);
+  printf("\n");
+}
+
+
+void SolenoidType::print(void)
+{
+  prt_elem(this);
+  printf("\n");
+}
+
+
+void MapType::print(void)
+{
+  prt_elem(this);
+  printf("\n");
 }
 
 
@@ -2635,17 +2645,6 @@ WigglerType* Wiggler_Alloc(void)
 }
 
 
-FieldMapType* FieldMap_Alloc(void)
-{
-  FieldMapType *FM = new FieldMapType;
-
-  FM->n_step = 0; FM->n[X_] = 0; FM->n[Y_] = 0; FM->n[Z_] = 0; FM->scl = 1e0;
-  FM->phi = 0e0; FM->Ld = 0e0; FM->L1 = 0e0; FM->cut = 0; FM->x0 = 0e0;
-
-  return FM;
-}
-
-
 InsertionType* Insertion_Alloc(void)
 {
   int           i = 0, j = 0;
@@ -2697,6 +2696,17 @@ InsertionType* Insertion_Alloc(void)
 }
 
 
+FieldMapType* FieldMap_Alloc(void)
+{
+  FieldMapType *FM = new FieldMapType;
+
+  FM->n_step = 0; FM->n[X_] = 0; FM->n[Y_] = 0; FM->n[Z_] = 0; FM->scl = 1e0;
+  FM->phi = 0e0; FM->Ld = 0e0; FM->L1 = 0e0; FM->cut = 0; FM->x0 = 0e0;
+
+  return FM;
+}
+
+
 SpreaderType* Spreader_Alloc(void)
 {
   int          k;
@@ -2737,22 +2747,24 @@ MapType* Map_Alloc(void)
 }
 
 
-void Drift_Init(int Fnum1)
+void Drift_Init(int Fnum)
 {
   int         i;
   ElemFamType *elemfamp;
   DriftType   *D, *Dp;
 
-  elemfamp = &ElemFam[Fnum1-1];
+  elemfamp = &ElemFam[Fnum-1];
   D = dynamic_cast<DriftType*>(elemfamp->ElemF);
+  D->dT[X_] = 1e0; /* cos = 1 */
+  D->dT[Y_] = 0e0; /* sin = 0 */
+  D->dS[X_] = 0e0; /* no H displacement */
+  D->dS[Y_] = 0e0; /* no V displacement */
   for (i = 1; i <= elemfamp->nKid; i++) {
     Dp = Drift_Alloc();
     *Dp = *D;
-    Dp->dT[X_] = 1e0; /* cos = 1 */
-    Dp->dT[Y_] = 0e0; /* sin = 0 */
-    Dp->dS[X_] = 0e0; /* no H displacement */
-    Dp->dS[Y_] = 0e0; /* no V displacement */
-    *Cell[elemfamp->KidList[i-1]] = *Dp;
+    Dp->Fnum = Fnum;
+    Dp->Knum = i;
+    Cell[elemfamp->KidList[i-1]] = Dp;
   }
 }
 
@@ -2894,7 +2906,7 @@ void get_lin_maps(const double delta)
 }
 
 
-void Mpole_Init(int Fnum1)
+void Mpole_Init(int Fnum)
 {
   static bool first = true;
   int         i;
@@ -2902,15 +2914,40 @@ void Mpole_Init(int Fnum1)
   ElemFamType *elemfamp;
   MpoleType   *M, *Mp;
 
-  elemfamp = &ElemFam[Fnum1-1];
+  elemfamp = &ElemFam[Fnum-1];
   M = dynamic_cast<MpoleType*>(elemfamp->ElemF);
 
   memcpy(M->PB, M->PBpar, sizeof(mpolArray)); M->Porder = UpdatePorder(M);
 
+  /* set entrance and exit angles */
+  M->dT[X_] = cos(dtor(M->PdTpar));
+  M->dT[Y_] = sin(dtor(M->PdTpar));
+
+  /* set displacement to zero */
+  M->dS[X_] = 0e0;
+  M->dS[Y_] = 0e0;
+
+  if (M->PL != 0e0 || M->Pirho != 0e0) {
+    /* Thick element or radius non zero element */
+    M->Pthick = pthicktype(thick);
+    /* sin(L*irho/2) =sin(theta/2) half the angle */
+    M->Pc0 = sin(M->PL*M->Pirho/2e0);
+    /* cos roll: sin(theta/2)*cos(dT) */
+    M->Pc1 = M->dT[X_]*M->Pc0;
+    /* sin roll: sin(theta/2)*cos(dT) */
+    M->Ps1 = M->dT[Y_]*M->Pc0;
+  } else /* element as thin lens */
+    M->Pthick = pthicktype(thin);
+
+  // Allocate TPSA vector.
+  if (globval.mat_meth && (M->Pthick == thick))
+    M->M_lin = get_lin_map(*M, 0e0);
+
   for (i = 1; i <= elemfamp->nKid; i++) {
     Mp = Mpole_Alloc();
     *Mp = *M;
-
+    Mp->Fnum = Fnum;
+    Mp->Knum = i;
     if (reverse_elem && (Mp->Reverse == true)) {
       // Swap entrance and exit angles.
       if (first) {
@@ -2921,51 +2958,67 @@ void Mpole_Init(int Fnum1)
       }
       phi = Mp->PTx1; Mp->PTx1 = Mp->PTx2; Mp->PTx2 = phi; 
     }
-
-    /* set entrance and exit angles */
-    Mp->dT[X_] = cos(dtor(Mp->PdTpar));
-    Mp->dT[Y_] = sin(dtor(Mp->PdTpar));
-
-    /* set displacement to zero */
-    Mp->dS[X_] = 0e0; Mp->dS[Y_] = 0e0;
-
-    if (Mp->PL != 0e0 || Mp->Pirho != 0e0) {
-      /* Thick element or radius non zero element */
-      Mp->Pthick = pthicktype(thick);
-      /* sin(L*irho/2) =sin(theta/2) half the angle */
-      Mp->Pc0 = sin(Mp->PL*Mp->Pirho/2e0);
-      /* cos roll: sin(theta/2)*cos(dT) */
-      Mp->Pc1 = Mp->dT[X_]*Mp->Pc0;
-      /* sin roll: sin(theta/2)*cos(dT) */
-      Mp->Ps1 = Mp->dT[Y_]*Mp->Pc0;
-    } else /* element as thin lens */
-      Mp->Pthick = pthicktype(thin);
-
-    // Allocate TPSA vector.
-    if (globval.mat_meth && (Mp->Pthick == thick))
-      Mp->M_lin = get_lin_map(*Mp, 0e0);
-
-    *Cell[elemfamp->KidList[i-1]] = *Mp;
+    Cell[elemfamp->KidList[i-1]] = Mp;
   }
 }
 
 
-void Wiggler_Init(int Fnum1)
+void Cav_Init(int Fnum)
+{
+  int         i;
+  ElemFamType *elemfamp;
+  CavityType  *C, *Cp;
+
+  elemfamp = &ElemFam[Fnum-1];
+  C = dynamic_cast<CavityType*>(elemfamp->ElemF);
+  for (i = 1; i <= elemfamp->nKid; i++) {
+    Cp = dynamic_cast<CavityType*>(Cell[elemfamp->KidList[i-1]]);
+    Cp = Cav_Alloc();
+    *Cp = *C;
+    Cp->Fnum = Fnum;
+    Cp->Knum = i;
+    Cell[elemfamp->KidList[i-1]] = Cp;
+  }
+}
+
+
+void Marker_Init(int Fnum)
+{
+  int         i;
+  ElemFamType *elemfamp;
+  MarkerType  *Mk, *Mkp;
+
+  elemfamp = &ElemFam[Fnum-1];
+  Mk = dynamic_cast<MarkerType*>(elemfamp->ElemF);
+  for (i = 1; i <= elemfamp->nKid; i++) {
+    Mkp = Marker_Alloc();
+    *Mkp = *Mk;
+    Mkp->Fnum = Fnum;
+    Mkp->Knum = i;
+    Cell[elemfamp->KidList[i-1]] = Mkp;
+  }
+}
+
+
+void Wiggler_Init(int Fnum)
 {
   int         i;
   ElemFamType *elemfamp;
   WigglerType *W, *Wp;
 
-  elemfamp = &ElemFam[Fnum1-1];
+  elemfamp = &ElemFam[Fnum-1];
   W = dynamic_cast<WigglerType*>(elemfamp->ElemF);
   W->Porder = Quad;
+  W->dT[X_] = cos(dtor(W->PdTpar));
+  W->dT[Y_] = sin(dtor(W->PdTpar));
+  W->dS[X_] = 0e0;
+  W->dS[Y_] = 0e0;
   for (i = 1; i <= elemfamp->nKid; i++) {
     Wp = Wiggler_Alloc();
     *Wp = *W;
-    Wp->dT[X_] = cos(dtor(W->PdTpar));
-    Wp->dT[Y_] = sin(dtor(W->PdTpar));
-    Wp->dS[X_] = 0e0; Wp->dS[Y_] = 0e0;
-    *Cell[elemfamp->KidList[i-1]] = *Wp;
+    Wp->Fnum = Fnum;
+    Wp->Knum = i;
+    Cell[elemfamp->KidList[i-1]] = Wp;
   }
 }
 
@@ -3721,150 +3774,128 @@ void get_B(const char *filename, FieldMapType *FM)
 }
 
 
-void FieldMap_Init(int Fnum1)
+void FieldMap_Init(int Fnum)
 {
   int          i;
   ElemFamType  *elemfamp;
   FieldMapType *FM, *FMp;
 
-  elemfamp = &ElemFam[Fnum1-1];
+  elemfamp = &ElemFam[Fnum-1];
   FM = dynamic_cast<FieldMapType*>(elemfamp->ElemF);
+  FM->dT[X_] = 1e0; FM->dT[Y_] = 0e0;
+  FM->dS[X_] = 0e0; FM->dS[Y_] = 0e0;
   for (i = 1; i <= elemfamp->nKid; i++) {
     FMp = FieldMap_Alloc();
     *FMp = *FM;
-    FMp->dT[X_] = 1e0; FMp->dT[Y_] = 0e0;
-    FMp->dS[X_] = 0e0; FMp->dS[Y_] = 0e0;
-    *Cell[elemfamp->KidList[i-1]] = *FMp;
+    FMp->Fnum = Fnum;
+    FMp->Knum = i;
+    Cell[elemfamp->KidList[i-1]] = FMp;
   }
 }
 
 
-void Cav_Init(int Fnum1)
-{
-  int         i;
-  ElemFamType *elemfamp;
-  CavityType  *C, *Cp;
-
-  elemfamp = &ElemFam[Fnum1-1];
-  C = dynamic_cast<CavityType*>(elemfamp->ElemF);
-  for (i = 0; i < elemfamp->nKid; i++) {
-    Cp = Cav_Alloc();
-    *Cp = *C;
-    *Cell[elemfamp->KidList[i-1]] = *Cp;
-   }
-}
-
-
-void Marker_Init(int Fnum1)
-{
-  int         i;
-  ElemFamType *elemfamp;
-  MarkerType  *Mk, *Mkp;
-
-  elemfamp = &ElemFam[Fnum1-1];
-  Mk = dynamic_cast<MarkerType*>(elemfamp->ElemF);
-  for (i = 0; i < elemfamp->nKid; i++) {
-    Mkp = Marker_Alloc();
-    *Mkp = *Mk;
-    *Cell[elemfamp->KidList[i-1]] = *Mkp;
-  }
-}
-
-
-void Insertion_Init(int Fnum1)
+void Insertion_Init(int Fnum)
 {
   int           i;
   ElemFamType   *elemfamp;
   InsertionType *ID, *IDp;
 
-  elemfamp = &ElemFam[Fnum1-1];
+  elemfamp = &ElemFam[Fnum-1];
   ID = dynamic_cast<InsertionType*>(elemfamp->ElemF);
-//  elemfamp->ElemF->ID->Porder = order;
-//  x = elemfamp->ElemF->ID->PBW[Quad+HOMmax];
+//  ID->Porder = order;
+//  x = ID->PBW[Quad+HOMmax];
+  ID->dT[X_] = cos(dtor(ID->PdTpar));
+  ID->dT[Y_] = sin(dtor(ID->PdTpar));
+  ID->dS[X_] = 0e0; ID->dS[Y_] = 0e0;
   for (i = 1; i <= elemfamp->nKid; i++) {
     IDp = Insertion_Alloc();
     *IDp = *ID;
-    IDp->dT[X_] = cos(dtor(IDp->PdTpar));
-    IDp->dT[Y_] = sin(dtor(IDp->PdTpar));
-    IDp->dS[X_] = 0e0; IDp->dS[Y_] = 0e0;
-    *Cell[elemfamp->KidList[i-1]] = *IDp;
+    IDp->Fnum = Fnum;
+    IDp->Knum = i;
+    Cell[elemfamp->KidList[i-1]] = IDp;
   }
 }
 
 
-void Spreader_Init(int Fnum1)
+void Spreader_Init(int Fnum)
 {
   int          i;
   ElemFamType  *elemfamp;
   SpreaderType *Spr, *Sprp;
 
-  elemfamp = &ElemFam[Fnum1-1];
+  elemfamp = &ElemFam[Fnum-1];
   Spr = dynamic_cast<SpreaderType*>(elemfamp->ElemF);
+  Spr->dT[X_] = 1e0; /* cos = 1 */
+  Spr->dT[Y_] = 0e0; /* sin = 0 */
+  Spr->dS[X_] = 0e0; /* no H displacement */
+  Spr->dS[Y_] = 0e0; /* no V displacement */
   for (i = 1; i <= elemfamp->nKid; i++) {
     Sprp = Spreader_Alloc();
     *Sprp = *Spr;
-    Sprp->dT[X_] = 1e0; /* cos = 1 */
-    Sprp->dT[Y_] = 0e0; /* sin = 0 */
-    Sprp->dS[X_] = 0e0; /* no H displacement */
-    Sprp->dS[Y_] = 0e0; /* no V displacement */
-    *Cell[elemfamp->KidList[i-1]] = *Sprp;
+    Sprp->Fnum = Fnum;
+    Sprp->Knum = i;
+    Cell[elemfamp->KidList[i-1]] = Sprp;
   }
 }
 
 
-void Recombiner_Init(int Fnum1)
+void Recombiner_Init(int Fnum)
 {
   int            i;
   ElemFamType    *elemfamp;
   RecombinerType *Rec, *Recp;
 
-  elemfamp = &ElemFam[Fnum1-1];
+  elemfamp = &ElemFam[Fnum-1];
   Rec = dynamic_cast<RecombinerType*>(elemfamp->ElemF);
+  Rec->dT[X_] = 1e0; /* cos = 1 */
+  Rec->dT[Y_] = 0e0; /* sin = 0 */
+  Rec->dS[X_] = 0e0; /* no H displacement */
+  Rec->dS[Y_] = 0e0; /* no V displacement */
   for (i = 1; i <= elemfamp->nKid; i++) {
     Recp = Recombiner_Alloc();
     *Recp = *Rec;
-    Recp->dT[X_] = 1e0; /* cos = 1 */
-    Recp->dT[Y_] = 0e0; /* sin = 0 */
-    Recp->dS[X_] = 0e0; /* no H displacement */
-    Recp->dS[Y_] = 0e0; /* no V displacement */
-    *Cell[elemfamp->KidList[i-1]] = *Recp;
+    Recp->Fnum = Fnum;
+    Recp->Knum = i;
+    Cell[elemfamp->KidList[i-1]] = Recp;
   }
 }
 
 
-void Solenoid_Init(int Fnum1)
+void Solenoid_Init(int Fnum)
 {
   int          i;
   ElemFamType  *elemfamp;
   SolenoidType *Sol, *Solp;
 
-  elemfamp = &ElemFam[Fnum1-1];
+  elemfamp = &ElemFam[Fnum-1];
   Sol = dynamic_cast<SolenoidType*>(elemfamp->ElemF);
+  Sol->dT[X_] = 1e0; Sol->dT[Y_] = 0e0;
+  Sol->dS[X_] = 0e0; Sol->dS[Y_] = 0e0;
   for (i = 1; i <= elemfamp->nKid; i++) {
     Solp = Solenoid_Alloc();
     *Solp = *Sol;
-    Solp->dT[X_] = 1e0; Solp->dT[Y_] = 0e0;
-    Solp->dS[X_] = 0e0; Solp->dS[Y_] = 0e0;
-    *Cell[elemfamp->KidList[i-1]] = *Solp;
+    Solp->Fnum = Fnum;
+    Solp->Knum = i;
+    Cell[elemfamp->KidList[i-1]] = Solp;
   }
 }
 
 
-void Map_Init(int Fnum1)
+void Map_Init(int Fnum)
 {
   int         i;
   ElemFamType *elemfamp;
   MapType     *Map, *Mapp;
 
-  elemfamp = &ElemFam[Fnum1-1];
+  elemfamp = &ElemFam[Fnum-1];
   Map = dynamic_cast<MapType*>(elemfamp->ElemF);
+  Map->dT[X_] = 1e0; Map->dT[Y_] = 0e0;
+  Map->dS[X_] = 0e0; Map->dS[Y_] = 0e0;
   for (i = 1; i <= elemfamp->nKid; i++) {
     Mapp = Map_Alloc();
     *Mapp = *Map;
     Mapp->M.identity();
-    Mapp->dT[X_] = 1e0; Mapp->dT[Y_] = 0e0;
-    Mapp->dS[X_] = 0e0; Mapp->dS[Y_] = 0e0;
-    Map[elemfamp->KidList[i-1]] = *Mapp;
+    Cell[elemfamp->KidList[i-1]] = Mapp;
   }
 }
 
