@@ -433,8 +433,9 @@ void Drift(const double L, ss_vect<T> &ps)
 
 
 template<typename T>
-void DriftType::Elem_Pass(ss_vect<T> &ps)
+void DriftType::Drift_Pass(ss_vect<T> &ps)
 {
+  printf("\nDriftType::Elem_Pass\n");
   Drift(PL, ps);
 
   if (globval.emittance && !globval.Cavity_on)
@@ -669,12 +670,13 @@ void get_dI_eta_5(MpoleType &Elem)
 
 
 template<typename T>
-void MpoleType::Elem_Pass(ss_vect<T> &ps)
+void MpoleType::Mpole_Pass(ss_vect<T> &ps)
 {
   int       seg = 0, i;
   double    dL = 0e0, dL1 = 0e0, dL2 = 0e0;
   double    dkL1 = 0e0, dkL2 = 0e0, h_ref = 0e0;
 
+  printf("\nMpoleType::Elem_Pass\n");
   GtoL(ps, dS, dT, Pc0, Pc1, Ps1);
 
   if (globval.emittance && !globval.Cavity_on) {
@@ -788,6 +790,7 @@ void MpoleType::Elem_Pass(ss_vect<T> &ps)
 template<typename T>
 void MarkerType::Elem_Pass(ss_vect<T> &ps)
 {
+  printf("\nMarkerType::Elem_Pass\n");
   GtoL(ps, dS, dT, 0e0, 0e0, 0e0);
 
   if (globval.emittance && !globval.Cavity_on)
@@ -818,6 +821,7 @@ void CavityType::Elem_Pass(ss_vect<T> &ps)
   double     L;
   T          delta;
 
+  printf("\nCavityType::Elem_Pass\n");
   L = PL;
   Drift(L/2e0, ps);
   if (globval.Cavity_on && Pvolt != 0e0) {
@@ -2430,11 +2434,18 @@ void DriftType::print(void)
 }
 
 
+double get_phi(MpoleType *elem)
+{
+  return (elem->Pirho != 0e0)? elem->Pirho*elem->PL*180e0/M_PI : 0e0;
+}
+
 void MpoleType::print(void)
 {
   prt_elem(this);
-  printf("    method %1d n_step %2d n_max %2d, n_design %2d reverse %1d\n",
-	 Pmethod, PN, Porder, n_design, Reverse);
+  printf("    method %1d n_step %2d n_max %2d, n_design %2d reverse %1d"
+	 " %10.3e %10.3e %10.3e\n",
+	 Pmethod, PN, Porder, n_design, Reverse,
+	 get_phi(this), PB[Quad+HOMmax], PB[Sext+HOMmax]);
 }
 
 

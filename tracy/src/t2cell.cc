@@ -44,7 +44,8 @@ inline bool CheckAmpl(const ss_vect<T> &x, const long int loc)
 template<typename T>
 void ElemType::Cell_Pass(ss_vect<T> &ps)
 {
-  this->Elem_Pass(ps);
+  printf("\nElemType::Cell_Pass\n");
+  Elem_Pass(ps);
 
   is_tps<T>::get_ps(ps, *this);
 }
@@ -55,17 +56,20 @@ void Cell_Pass(const long i0, const long i1, ss_vect<T> &ps, long &lastpos)
 {
   long int i = 0;
 
+  printf("\nCell_Pass\n");
   if (globval.radiation) globval.dE = 0e0;
 
   if (globval.emittance)
     for (i = 0; i < DOF; i++)
       globval.D_rad[i] = 0e0;
 
-  if (!CheckAmpl(ps, i0))
+  if (!CheckAmpl(ps, i0)) {
     lastpos = i0;
-  else {
+    printf("\nCell_Pass: particle lost at loc %ld\n", i0);
+  } else {
     lastpos = i1;
     for (i = i0; i <= i1; i++) {
+      printf("Cell_Pass: i = %2ld (%2ld) %s\n", i, i1, typeid(Cell[i]).name());
       Cell[i]->Elem_Pass(ps);
       if (!CheckAmpl(ps, i)) { lastpos = i; break; }
     }

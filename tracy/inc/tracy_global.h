@@ -1,3 +1,4 @@
+
 #ifndef TRACY_GLOBAL_H
 #define TRACY_GLOBAL_H
 
@@ -144,9 +145,12 @@ class ElemType : public CellType {
   PartsKind
     Pkind;                     // Enumeration for magnet types.
 
-  virtual void Elem_Pass(ss_vect<double> &ps) {};
-  virtual void Elem_Pass(ss_vect<tps> &ps) {};
-  virtual void print(void) {};
+  // Wrapper functions; becuase C++ does not support templates for virtual
+  // functions.
+  virtual void Elem_Pass(ss_vect<double> &ps) { };
+  virtual void Elem_Pass(ss_vect<tps> &ps) { };
+
+  virtual void print(void) { };
 
   template<typename T>
   void Cell_Pass(ss_vect<T> &ps);
@@ -167,7 +171,10 @@ class ElemFamType {
 
 class DriftType : public ElemType {
   template<typename T>
-  void Elem_Pass(ss_vect<T> &x);
+  void Drift_Pass(ss_vect<T> &ps);
+
+  void Elem_Pass(ss_vect<double> &ps) { Drift_Pass(ps); };
+  void Elem_Pass(ss_vect<tps> &ps) { Drift_Pass(ps); };
   void print(void);
 };
 
@@ -209,7 +216,11 @@ class MpoleType : public ElemType {
     M_lin;                     // Linear Map for Element.
 
   template<typename T>
-  void Elem_Pass(ss_vect<T> &x);
+  void Mpole_Pass(ss_vect<T> &ps);
+
+  void Elem_Pass(ss_vect<double> &ps) { Mpole_Pass(ps); };
+  void Elem_Pass(ss_vect<tps> &ps) { Mpole_Pass(ps); };
+
   void print(void);
 };
 
@@ -227,13 +238,13 @@ class CavityType : public ElemType {
     phi;                       // RF phase.
 
   template<typename T>
-  void Elem_Pass(ss_vect<T> &x);
+  void Elem_Pass(ss_vect<T> &ps);
   void print(void);
 };
 
 class MarkerType : public ElemType {
   template<typename T>
-  void Elem_Pass(ss_vect<T> &x);
+  void Elem_Pass(ss_vect<T> &ps);
   void print(void);
 };
 
@@ -265,7 +276,7 @@ class WigglerType : public ElemType {
   PBW;
 
   template<typename T>
-  void Elem_Pass(ss_vect<T> &x);
+  void Elem_Pass(ss_vect<T> &ps);
   void print(void);
 };
 
@@ -322,7 +333,7 @@ class InsertionType : public ElemType {
     PdSrnd[2];                 // random number.
 
   template<typename T>
-  void Elem_Pass(ss_vect<T> &x);
+  void Elem_Pass(ss_vect<T> &ps);
   void print(void);
 };
 
@@ -348,7 +359,7 @@ class FieldMapType : public ElemType {
     ***AoBrho2[2];             // [Ax(x, y, z), Ay(x, y, z)], spline info.
 
   template<typename T>
-  void Elem_Pass(ss_vect<T> &x);
+  void Elem_Pass(ss_vect<T> &ps);
   void print(void);
 };
 
@@ -360,7 +371,7 @@ class SpreaderType : public ElemType {
     *Cell_ptrs[Spreader_max];
 
   template<typename T>
-  void Elem_Pass(ss_vect<T> &x);
+  void Elem_Pass(ss_vect<T> &ps);
   void print(void);
 };
 
@@ -371,7 +382,7 @@ class RecombinerType : public ElemType {
     E_max;
 
   template<typename T>
-  void Elem_Pass(ss_vect<T> &x);
+  void Elem_Pass(ss_vect<T> &ps);
   void print(void);
 };
 
@@ -392,7 +403,7 @@ class SolenoidType : public ElemType {
     PdSrnd[2];                 // random number.
 
   template<typename T>
-  void Elem_Pass(ss_vect<T> &x);
+  void Elem_Pass(ss_vect<T> &ps);
   void print(void);
 };
 
@@ -407,8 +418,8 @@ class MapType : public ElemType {
   ss_vect<tps>
     M;
 
-  void Elem_Pass(ss_vect<double> &x);
-  void Elem_Pass(ss_vect<tps> &x);
+  void Elem_Pass(ss_vect<double> &ps);
+  void Elem_Pass(ss_vect<tps> &ps);
   void print(void);
 };
 
