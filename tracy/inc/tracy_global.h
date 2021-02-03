@@ -1,14 +1,16 @@
 #ifndef TRACY_GLOBAL_H
 #define TRACY_GLOBAL_H
 
-// ID Laurent
-#define IDXMAX       200
-#define IDZMAX       100
+#define Cell_nLocMax 20000  // maximum number of LEGO blocks (Cell_nLoc).
 
 #define HOMmax       21
 #define DBNameLen    39
 #define Elem_nFamMax 3000   // maximum number of families for Elem_NFam.
 #define nKidMax      5000   // maximum number of kids.
+
+// ID Laurent
+#define IDXMAX       200
+#define IDZMAX       100
 
 
 typedef char   DBNameType[DBNameLen];
@@ -17,7 +19,8 @@ typedef double mpolArray[HOMmax+HOMmax+1];
 
 enum PartsKind
   { drift = 0, Wigl = 1, Mpole = 2, Cavity = 3, marker = 4, undef = 5,
-    Insertion = 6, FieldMap = 7, Spreader = 8, Recombiner = 9, Solenoid = 10, Map = 11 };
+    Insertion = 6, FieldMap = 7, Spreader = 8, Recombiner = 9, Solenoid = 10,
+    Map = 11 };
 
 enum pthicktype { thick = 0, thin = 1 };
 
@@ -143,9 +146,6 @@ class ElemType : public CellType {
 
   virtual void Elem_Pass(ss_vect<double> &ps) {};
   virtual void Elem_Pass(ss_vect<tps> &ps) {};
-
-  template<typename T>
-  static void get_ps(const ss_vect<T> &ps);
 
   template<typename T>
   void Cell_Pass(ss_vect<T> &ps);

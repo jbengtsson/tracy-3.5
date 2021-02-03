@@ -132,6 +132,13 @@ struct LOC_Lattice_Read
 };
 
 
+struct CellListType {
+  int  Fnum, Knum;
+  bool Reverse;
+};
+
+CellListType   Cell_List[Cell_nLocMax+1];
+
 bool reverse_elem = false; // Beam Dynamics or Software Engineering reverse.
 
 const bool debug_lat = !false;
@@ -3956,10 +3963,12 @@ static void DealWithDefns(struct LOC_Lattice_Read *LINK)
 	      exit(1);
 	    }
 	    if (k <= Cell_nLocMax) {
-	      Cell[k]->Fnum = k1; Cell[k]->Reverse = LINK->Reverse_stack[j];
+	      Cell_List[k].Fnum = k1;
+	      Cell_List[k].Reverse = LINK->Reverse_stack[j];
 	      if (debug_lat)
-		printf("  Cell definition: |%s| %2ld %3ld %2d %1d\n",
-		       WITH->Bname, i, k, Cell[k]->Fnum, Cell[k]->Reverse);
+	      	printf("  Cell definition: |%s| %2ld %3ld %2d %1d\n",
+	      	       WITH->Bname, i, k, Cell_List[k].Fnum,
+		       Cell_List[k].Reverse);
 	    } else {
 	      printf("** Cell_nLocMax exhausted: %ld(%ld)\n",
 		     k, (long)Cell_nLocMax);
@@ -4132,7 +4141,7 @@ static double Circumference(struct LOC_Lattice_Read *LINK)
   S = 0.0;
   FORLIM = globval.Cell_nLoc;
   for (i = 1; i <= FORLIM; i++)
-    S += ElemFam[Cell[i]->Fnum-1].ElemF->PL;
+    S += ElemFam[Cell_List[i].Fnum-1].ElemF->PL;
   return S;
 }
 
@@ -4159,11 +4168,11 @@ static void RegisterKids(struct LOC_Lattice_Read *LINK)
 
   FORLIM = globval.Cell_nLoc;
   for (i = 1; i <= FORLIM; i++) {
-    WITH = &ElemFam[Cell[i]->Fnum-1];
+    WITH = &ElemFam[Cell_List[i].Fnum-1];
     WITH->nKid++;
     if (WITH->nKid <= nKidMax) {
       WITH->KidList[WITH->nKid-1] = i;
-      Cell[i]->Knum = WITH->nKid;
+      Cell_List[i].Knum = WITH->nKid;
     } else
       printf("nKidMax exceeded: %d(%d)\n", WITH->nKid, nKidMax);
   }

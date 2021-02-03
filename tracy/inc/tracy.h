@@ -27,11 +27,6 @@
 
 #define nv_             6
 
-// maximum number of LEGO blocks (Cell_nLoc)
-//#define Cell_nLocMax    25000
-/* #define Cell_nLocMax    5000 */
-#define Cell_nLocMax    20000
-
 #define NameLength      150  // maximum length of identifiers (e.g. file names)
 #define SymbolLength    15   // maximum length of element name
 

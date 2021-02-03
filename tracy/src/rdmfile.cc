@@ -105,7 +105,7 @@ void get_kind(const int kind, ElemType &Elem)
   case cavity_:
     Elem.Pkind = PartsKind(Cavity);
     C = dynamic_cast<CavityType*>(&Elem);
-    // Cav_Alloc(C);
+    // Cav_Alloc();
     break;
   case thinkick_:
     Elem.Pkind = PartsKind(Mpole);
