@@ -46,7 +46,7 @@ void ElemType::Cell_Pass(ss_vect<T> &ps)
 {
   Elem_Pass(ps);
 
-  is_tps<T>::get_ps(ps, *this);
+  is_tps<T>::get_ps(ps, this);
 }
 
 
@@ -66,7 +66,7 @@ void Cell_Pass(const long i0, const long i1, ss_vect<T> &ps, long &lastpos)
   else {
     lastpos = i1;
     for (i = i0; i <= i1; i++) {
-      Cell[i]->Elem_Pass(ps);
+      Cell[i]->Cell_Pass(ps);
       if (!CheckAmpl(ps, i)) { lastpos = i; break; }
     }
   }

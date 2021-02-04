@@ -129,6 +129,8 @@ void Cell_Geteta(long i0, long i1, bool ring, double dP)
 
   const int n = 4;
 
+  if (trace) printf("\nCell_Geteta: ring = %d\n", ring);
+
   if (ring)
     GetCOD(globval.CODimax, globval.CODeps, dP-globval.dPcommon/2e0, lastpos);
   else {

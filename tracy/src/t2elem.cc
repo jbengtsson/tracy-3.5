@@ -260,8 +260,8 @@ class is_tps { };
 template<>
 class is_tps<double> {
  public:
-  static inline void get_ps(const ss_vect<double> &x, CellType &Cell)
-  { Cell.BeamPos = x; }
+  static inline void get_ps(const ss_vect<double> &x, CellType *Cell)
+  { Cell->BeamPos = x; }
 
   static inline double set_prm(const int k) { return 1e0; }
 
@@ -292,9 +292,9 @@ class is_tps<double> {
 template<>
 class is_tps<tps> {
  public:
-  static inline void get_ps(const ss_vect<tps> &x, CellType &Cell)
+  static inline void get_ps(const ss_vect<tps> &x, CellType *Cell)
   {
-    Cell.BeamPos = x.cst(); getlinmat(6, x, Cell.A);
+    Cell->BeamPos = x.cst(); getlinmat(6, x, Cell->A);
   }
 
   static inline tps set_prm(const int k) { return tps(0e0, k); }
