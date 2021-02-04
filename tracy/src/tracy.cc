@@ -139,8 +139,8 @@ template void Wiggler_pass_EF2(int nstep, double L,
 template void Wiggler_pass_EF3(ElemType &Cell, ss_vect<double> &x);
 template void Wiggler_pass_EF3(ElemType &Cell, ss_vect<tps> &x);
 
-template void sol_pass(const ElemType &, ss_vect<double> &);
-template void sol_pass(const ElemType &, ss_vect<tps> &);
+template void sol_pass(const ElemType *, ss_vect<double> &);
+template void sol_pass(const ElemType *, ss_vect<tps> &);
 
 template void LinearInterpolation2(double &, double &, double &, double &,
 				   double &, ElemType &, bool &, int);

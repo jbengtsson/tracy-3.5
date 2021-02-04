@@ -80,7 +80,7 @@ template<typename T>
 void FieldMap_Pass(CellType &Cell, ss_vect<T> &X);
 
 template<typename T>
-void sol_pass(const ElemType &elem, ss_vect<T> &x);
+void sol_pass(const ElemType *elem, ss_vect<T> &x);
 
 template<typename T>
 void Solenoid_Pass(CellType &Cell, ss_vect<T> &x);

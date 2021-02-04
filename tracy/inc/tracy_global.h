@@ -175,6 +175,7 @@ class DriftType : public ElemType {
 
   void Elem_Pass(ss_vect<double> &ps) { Drift_Pass(ps); };
   void Elem_Pass(ss_vect<tps> &ps) { Drift_Pass(ps); };
+
   void print(void);
 };
 
@@ -238,13 +239,21 @@ class CavityType : public ElemType {
     phi;                       // RF phase.
 
   template<typename T>
-  void Elem_Pass(ss_vect<T> &ps);
+  void Cavity_Pass(ss_vect<T> &ps);
+
+  void Elem_Pass(ss_vect<double> &ps) { Cavity_Pass(ps); };
+  void Elem_Pass(ss_vect<tps> &ps) { Cavity_Pass(ps); };
+
   void print(void);
 };
 
 class MarkerType : public ElemType {
   template<typename T>
-  void Elem_Pass(ss_vect<T> &ps);
+  void Marker_Pass(ss_vect<T> &ps);
+
+  void Elem_Pass(ss_vect<double> &ps) { Marker_Pass(ps); };
+  void Elem_Pass(ss_vect<tps> &ps) { Marker_Pass(ps); };
+
   void print(void);
 };
 
@@ -276,7 +285,11 @@ class WigglerType : public ElemType {
   PBW;
 
   template<typename T>
-  void Elem_Pass(ss_vect<T> &ps);
+  void Wiggler_Pass(ss_vect<T> &ps);
+
+  void Elem_Pass(ss_vect<double> &ps) { Wiggler_Pass(ps); };
+  void Elem_Pass(ss_vect<tps> &ps) { Wiggler_Pass(ps); };
+
   void print(void);
 };
 
@@ -333,8 +346,12 @@ class InsertionType : public ElemType {
     PdSrnd[2];                 // random number.
 
   template<typename T>
-  void Elem_Pass(ss_vect<T> &ps);
-  void print(void);
+  void Insertion_Pass(ss_vect<T> &ps);
+
+  void Elem_Pass(ss_vect<double> &ps) { Insertion_Pass(ps); };
+  void Elem_Pass(ss_vect<tps> &ps) { Insertion_Pass(ps); };
+
+   void print(void);
 };
 
 class FieldMapType : public ElemType {
@@ -359,7 +376,11 @@ class FieldMapType : public ElemType {
     ***AoBrho2[2];             // [Ax(x, y, z), Ay(x, y, z)], spline info.
 
   template<typename T>
-  void Elem_Pass(ss_vect<T> &ps);
+  void FieldMap_Pass(ss_vect<T> &ps);
+
+  void Elem_Pass(ss_vect<double> &ps) { FieldMap_Pass(ps); };
+  void Elem_Pass(ss_vect<tps> &ps) { FieldMap_Pass(ps); };
+
   void print(void);
 };
 
@@ -371,7 +392,11 @@ class SpreaderType : public ElemType {
     *Cell_ptrs[Spreader_max];
 
   template<typename T>
-  void Elem_Pass(ss_vect<T> &ps);
+  void Spreader_Pass(ss_vect<T> &ps);
+
+  void Elem_Pass(ss_vect<double> &ps) { Spreader_Pass(ps); };
+  void Elem_Pass(ss_vect<tps> &ps) { Spreader_Pass(ps); };
+
   void print(void);
 };
 
@@ -382,7 +407,11 @@ class RecombinerType : public ElemType {
     E_max;
 
   template<typename T>
-  void Elem_Pass(ss_vect<T> &ps);
+  void Recombiner_Pass(ss_vect<T> &ps);
+
+  void Elem_Pass(ss_vect<double> &ps) { Recombiner_Pass(ps); };
+  void Elem_Pass(ss_vect<tps> &ps) { Recombiner_Pass(ps); };
+
   void print(void);
 };
 
@@ -403,7 +432,11 @@ class SolenoidType : public ElemType {
     PdSrnd[2];                 // random number.
 
   template<typename T>
-  void Elem_Pass(ss_vect<T> &ps);
+  void Solenoid_Pass(ss_vect<T> &ps);
+
+  void Elem_Pass(ss_vect<double> &ps) { Solenoid_Pass(ps); };
+  void Elem_Pass(ss_vect<tps> &ps) { Solenoid_Pass(ps); };
+
   void print(void);
 };
 

@@ -435,7 +435,6 @@ void Drift(const double L, ss_vect<T> &ps)
 template<typename T>
 void DriftType::Drift_Pass(ss_vect<T> &ps)
 {
-  printf("\nDriftType::Elem_Pass\n");
   Drift(PL, ps);
 
   if (globval.emittance && !globval.Cavity_on)
@@ -676,7 +675,6 @@ void MpoleType::Mpole_Pass(ss_vect<T> &ps)
   double    dL = 0e0, dL1 = 0e0, dL2 = 0e0;
   double    dkL1 = 0e0, dkL2 = 0e0, h_ref = 0e0;
 
-  printf("\nMpoleType::Elem_Pass\n");
   GtoL(ps, dS, dT, Pc0, Pc1, Ps1);
 
   if (globval.emittance && !globval.Cavity_on) {
@@ -788,16 +786,15 @@ void MpoleType::Mpole_Pass(ss_vect<T> &ps)
 
 
 template<typename T>
-void MarkerType::Elem_Pass(ss_vect<T> &ps)
+void MarkerType::Marker_Pass(ss_vect<T> &ps)
 {
-  printf("\nMarkerType::Elem_Pass\n");
-  GtoL(ps, dS, dT, 0e0, 0e0, 0e0);
+  // GtoL(ps, dS, dT, 0e0, 0e0, 0e0);
 
-  if (globval.emittance && !globval.Cavity_on)
-    // Needs A^-1.
-    curly_dH_x = is_tps<tps>::get_curly_H(ps);
+  // if (globval.emittance && !globval.Cavity_on)
+  //   // Needs A^-1.
+  //   curly_dH_x = is_tps<tps>::get_curly_H(ps);
 
-  LtoG(ps, dS, dT, 0e0, 0e0, 0e0);
+  // LtoG(ps, dS, dT, 0e0, 0e0, 0e0);
 }
 
 
@@ -816,12 +813,11 @@ void Cav_Focus(const double L, const T delta, const bool entrance,
 #if 1
 
 template<typename T>
-void CavityType::Elem_Pass(ss_vect<T> &ps)
+void CavityType::Cavity_Pass(ss_vect<T> &ps)
 {
   double     L;
   T          delta;
 
-  printf("\nCavityType::Elem_Pass\n");
   L = PL;
   Drift(L/2e0, ps);
   if (globval.Cavity_on && Pvolt != 0e0) {
@@ -881,7 +877,7 @@ void Cav_Pass1(CellType &Cell, ss_vect<T> &ps)
 
 
 template<typename T>
-void CavityType::Elem_Pass(ss_vect<T> &ps)
+void CavityType::Cavity_Pass(ss_vect<T> &ps)
 {
   /* J. Rosenzweig and L. Serafini "Transverse Particle Motion in
      Radio-Frequency Linear Accelerators" Phys. Rev. E 49(2),
@@ -1485,7 +1481,7 @@ void Wiggler_pass_EF3(ElemType &elem, ss_vect<T> &ps)
 
 
 template<typename T>
-void WigglerType::Elem_Pass(ss_vect<T> &ps)
+void WigglerType::Wiggler_Pass(ss_vect<T> &ps)
 {
   int         seg;
   double      L, L1, L2, K1, K2;
@@ -2130,7 +2126,7 @@ template void FieldMap_pass_SI(ElemType &, ss_vect<tps> &);
 
 
 template<typename T>
-void FieldMapType::Elem_Pass(ss_vect<T> &ps)
+void FieldMapType::FieldMap_Pass(ss_vect<T> &ps)
 {
   int          k;
   double       Ld;
@@ -2168,7 +2164,7 @@ void FieldMapType::Elem_Pass(ss_vect<T> &ps)
 
 
 template<typename T>
-void InsertionType::Elem_Pass(ss_vect<T> &x)
+void InsertionType::Insertion_Pass(ss_vect<T> &x)
 {
   double        LN = 0e0;
   T             tx2, tz2;      /* thetax and thetaz retrieved from
@@ -2238,90 +2234,90 @@ void InsertionType::Elem_Pass(ss_vect<T> &x)
 }
 
 template<typename T>
-void SpreaderType::Elem_Pass(ss_vect<T> &ps) { }
+void SpreaderType::Spreader_Pass(ss_vect<T> &ps) { }
 
 template<typename T>
-void RecombinerType::Elem_Pass(ss_vect<T> &ps) { }
+void RecombinerType::Recombiner_Pass(ss_vect<T> &ps) { }
 
 template<typename T>
-void sol_pass(const ElemType &elem, ss_vect<T> &x)
+void sol_pass(const ElemType *elem, ss_vect<T> &ps)
 {
   int          i;
   double       h, z;
   T            hd, AxoBrho, AyoBrho, dAxoBrho[3], dAyoBrho[3], dpy, dpx, B[3];
 
-  const SolenoidType &Sol = dynamic_cast<const SolenoidType&>(elem);
+  const SolenoidType *Sol = dynamic_cast<const SolenoidType*>(elem);
 
-  h = elem.PL/Sol.N; z = 0e0;
+  h = elem->PL/Sol->N; z = 0e0;
 
-  for (i = 1; i <= Sol.N; i++) {
-    hd = h/(1e0+x[delta_]);
+  for (i = 1; i <= Sol->N; i++) {
+    hd = h/(1e0+ps[delta_]);
 
     // 1: half step in z
     z += 0.5*h;
 
     // 2: half drift in y
-    AyoBrho = Sol.BoBrho*x[x_]/2e0; dpx = Sol.BoBrho*x[y_]/2e0;
-//    get_Axy_EF3(elem.W, z, x, AyoBrho, dAyoBrho, dpx, false);
+    AyoBrho = Sol->BoBrho*ps[x_]/2e0; dpx = Sol->BoBrho*ps[y_]/2e0;
+//    get_Axy_EF3(elem->W, z, x, AyoBrho, dAyoBrho, dpx, false);
 
-    x[px_] -= dpx; x[py_] -= AyoBrho;
-    x[y_] += 0.5*hd*x[py_];
-    x[ct_] += sqr(0.5)*hd*sqr(x[py_])/(1e0+x[delta_]);
+    ps[px_] -= dpx; ps[py_] -= AyoBrho;
+    ps[y_] += 0.5*hd*ps[py_];
+    ps[ct_] += sqr(0.5)*hd*sqr(ps[py_])/(1e0+ps[delta_]);
 
-    AyoBrho = Sol.BoBrho*x[x_]/2e0; dpx = Sol.BoBrho*x[y_]/2e0;
-//    get_Axy_EF3(elem.W, z, x, AyoBrho, dAyoBrho, dpx, false);
+    AyoBrho = Sol->BoBrho*ps[x_]/2e0; dpx = Sol->BoBrho*ps[y_]/2e0;
+//    get_Axy_EF3(elem->W, z, x, AyoBrho, dAyoBrho, dpx, false);
 
-    x[px_] += dpx; x[py_] += AyoBrho;
+    ps[px_] += dpx; ps[py_] += AyoBrho;
 
     // 3: full drift in x
-    AxoBrho = -Sol.BoBrho*x[y_]/2e0; dpy = -Sol.BoBrho*x[x_]/2e0;
-//    get_Axy_EF3(elem.W, z, x, AxoBrho, dAxoBrho, dpy, true);
+    AxoBrho = -Sol->BoBrho*ps[y_]/2e0; dpy = -Sol->BoBrho*ps[x_]/2e0;
+//    get_Axy_EF3(elem->W, z, x, AxoBrho, dAxoBrho, dpy, true);
 
-    x[px_] -= AxoBrho; x[py_] -= dpy; x[x_] += hd*x[px_];
-    x[ct_] += 0.5*hd*sqr(x[px_])/(1e0+x[delta_]);
+    ps[px_] -= AxoBrho; ps[py_] -= dpy; ps[x_] += hd*ps[px_];
+    ps[ct_] += 0.5*hd*sqr(ps[px_])/(1e0+ps[delta_]);
 
-    if (globval.pathlength) x[ct_] += h;
+    if (globval.pathlength) ps[ct_] += h;
 
-    AxoBrho = -Sol.BoBrho*x[y_]/2e0; dpy = -Sol.BoBrho*x[x_]/2e0;
-//    get_Axy_EF3(elem.W, z, x, AxoBrho, dAxoBrho, dpy, true);
+    AxoBrho = -Sol->BoBrho*ps[y_]/2e0; dpy = -Sol->BoBrho*ps[x_]/2e0;
+//    get_Axy_EF3(elem->W, z, x, AxoBrho, dAxoBrho, dpy, true);
 
-    x[px_] += AxoBrho; x[py_] += dpy;
+    ps[px_] += AxoBrho; ps[py_] += dpy;
 
     // 4: a half drift in y
-    AyoBrho = Sol.BoBrho*x[x_]/2e0; dpx = Sol.BoBrho*x[y_]/2e0;
-//    get_Axy_EF3(elem.W, z, x, AyoBrho, dAyoBrho, dpx, false);
+    AyoBrho = Sol->BoBrho*ps[x_]/2e0; dpx = Sol->BoBrho*ps[y_]/2e0;
+//    get_Axy_EF3(elem->W, z, x, AyoBrho, dAyoBrho, dpx, false);
 
-    x[px_] -= dpx; x[py_] -= AyoBrho;
-    x[y_] += 0.5*hd*x[py_];
-    x[ct_] += sqr(0.5)*hd*sqr(x[py_])/(1e0+x[delta_]);
+    ps[px_] -= dpx; ps[py_] -= AyoBrho;
+    ps[y_] += 0.5*hd*ps[py_];
+    ps[ct_] += sqr(0.5)*hd*sqr(ps[py_])/(1e0+ps[delta_]);
 
-    AyoBrho = Sol.BoBrho*x[x_]/2e0; dpx = Sol.BoBrho*x[y_]/2e0;
-//    get_Axy_EF3(elem.W, z, x, AyoBrho, dAyoBrho, dpx, false);
+    AyoBrho = Sol->BoBrho*ps[x_]/2e0; dpx = Sol->BoBrho*ps[y_]/2e0;
+//    get_Axy_EF3(elem->W, z, x, AyoBrho, dAyoBrho, dpx, false);
 
-    x[px_] += dpx; x[py_] += AyoBrho;
+    ps[px_] += dpx; ps[py_] += AyoBrho;
 
     // 5: half step in z
     z += 0.5*h;
 
     if (globval.radiation || globval.emittance) {
       dAxoBrho[X_] = 0e0;
-      dAxoBrho[Y_] = -Sol.BoBrho/2e0;
+      dAxoBrho[Y_] = -Sol->BoBrho/2e0;
       dAxoBrho[Z_] = 0e0;
-      dAyoBrho[X_] = Sol.BoBrho/2e0;
+      dAyoBrho[X_] = Sol->BoBrho/2e0;
       dAyoBrho[Y_] = 0e0;
       dAyoBrho[Z_] = 0e0;
-//      get_Axy_EF3(elem.W, z, x, AyoBrho, dAyoBrho, dpx, false);
-//      get_Axy_EF3(elem.W, z, x, AxoBrho, dAxoBrho, dpy, true);
+//      get_Axy_EF3(elem->W, z, x, AyoBrho, dAyoBrho, dpx, false);
+//      get_Axy_EF3(elem->W, z, x, AxoBrho, dAxoBrho, dpy, true);
       B[X_] = -dAyoBrho[Z_]; B[Y_] = dAxoBrho[Z_];
       B[Z_] = dAyoBrho[X_] - dAxoBrho[Y_];
-      radiate(x, h, 0e0, B);
+      radiate(ps, h, 0e0, B);
     }
   }
 }
 
 
 template<typename T>
-void SolenoidType::Elem_Pass(ss_vect<T> &ps)
+void SolenoidType::Solenoid_Pass(ss_vect<T> &ps)
 {
   GtoL(ps, dS, dT, 0e0, 0e0, 0e0);
 
@@ -2893,6 +2889,10 @@ void Marker_Init(int Fnum)
 
   elemfamp = &ElemFam[Fnum-1];
   Mk = dynamic_cast<MarkerType*>(elemfamp->ElemF);
+  Mk->dT[X_] = 1e0; /* cos = 1 */
+  Mk->dT[Y_] = 0e0; /* sin = 0 */
+  Mk->dS[X_] = 0e0; /* no H displacement */
+  Mk->dS[Y_] = 0e0; /* no V displacement */
   for (i = 1; i <= elemfamp->nKid; i++) {
     Mkp = Marker_Alloc();
     *Mkp = *Mk;
