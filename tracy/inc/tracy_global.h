@@ -9,10 +9,11 @@
 #define Elem_nFamMax 3000   // maximum number of families for Elem_NFam.
 #define nKidMax      5000   // maximum number of kids.
 
-// ID Laurent
 #define IDXMAX       200
 #define IDZMAX       100
 
+#define DOF          (ss_dim/2)
+#define nv_          6
 
 typedef char   DBNameType[DBNameLen];
 typedef char   partsName[NameLength];
@@ -22,14 +23,14 @@ enum PartsKind
   { drift = 0, Wigl = 1, Mpole = 2, Cavity = 3, marker = 4, undef = 5,
     Insertion = 6, FieldMap = 7, Spreader = 8, Recombiner = 9, Solenoid = 10,
     Map = 11 };
-
-enum pthicktype { thick = 0, thin = 1 };
-
-enum { All = 0, Dip = 1, Quad = 2, Sext = 3, Oct = 4, Dec = 5, Dodec = 6 };
-
-enum { Horizontal = 1, Vertical = 2 };
-
-enum { Meth_Linear = 0, Meth_First = 1, Meth_Second = 2, Meth_Fourth = 4 };
+enum pthicktype
+  { thick = 0, thin = 1 };
+enum
+  { All = 0, Dip = 1, Quad = 2, Sext = 3, Oct = 4, Dec = 5, Dodec = 6 };
+enum
+  { Horizontal = 1, Vertical = 2 };
+enum
+  { Meth_Linear = 0, Meth_First = 1, Meth_Second = 2, Meth_Fourth = 4 };
 
 const int
   n_harm_max   = 10,
