@@ -2616,7 +2616,7 @@ MpoleType* Mpole_Alloc(void)
 }
 
 
-CavityType* Cav_Alloc(void)
+CavityType* Cavity_Alloc(void)
 {
   CavityType *C = new CavityType;
 
@@ -2861,7 +2861,7 @@ void Mpole_Init(int Fnum)
 }
 
 
-void Cav_Init(int Fnum)
+void Cavity_Init(int Fnum)
 {
   int         i;
   ElemFamType *elemfamp;
@@ -2871,7 +2871,7 @@ void Cav_Init(int Fnum)
   C = dynamic_cast<CavityType*>(elemfamp->ElemF);
   for (i = 1; i <= elemfamp->nKid; i++) {
     Cp = dynamic_cast<CavityType*>(Cell[abs(elemfamp->KidList[i-1])]);
-    Cp = Cav_Alloc();
+    Cp = Cavity_Alloc();
     *Cp = *C;
     Cp->Fnum = Fnum;
     Cp->Knum = i;

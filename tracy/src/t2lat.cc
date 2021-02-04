@@ -2061,7 +2061,9 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
   symset         mysys, SET;
   long           SET1[(long)lsym / 32 + 2];
   ElemType       *WITH1;
+  DriftType      *WITHD;
   MpoleType      *WITH2;
+  MarkerType     *WITHMk;
   symset         SET2;
   CavityType     *WITH3;
   long           SET3[(long)possym / 32 + 2];
@@ -2070,6 +2072,8 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
   FieldMapType   *WITH6;
   /* ID Laurent */
   InsertionType  *WITH5;
+  SpreaderType   *WITHSpr;
+  RecombinerType *WITHRec;
   SolenoidType   *WITH7;
   MapType        *WITH8;
   char str1[100] = "";
@@ -2118,11 +2122,11 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     GetSym__(&V);
     globval.Elem_nFam++;
     if (globval.Elem_nFam <= Elem_nFamMax) {
-      WITH1 = Drift_Alloc();
-      memcpy(WITH1->PName, ElementName, sizeof(partsName));
-      WITH1->PL = *V.rnum;
-      WITH1->Pkind = PartsKind(drift);
-      ElemFam[globval.Elem_nFam-1].ElemF = WITH1;
+      WITHD = Drift_Alloc();
+      memcpy(WITHD->PName, ElementName, sizeof(partsName));
+      WITHD->PL = *V.rnum;
+      WITHD->Pkind = PartsKind(drift);
+      ElemFam[globval.Elem_nFam-1].ElemF = WITHD;
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
 	     globval.Elem_nFam, (long)Elem_nFamMax);
@@ -2580,7 +2584,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     GetSym__(&V);
     globval.Elem_nFam++;
     if (globval.Elem_nFam <= Elem_nFamMax) {
-      WITH3 = Cav_Alloc();
+      WITH3 = Cavity_Alloc();
       memcpy(WITH3->PName, ElementName, sizeof(partsName));
       WITH3->PL = QL;
       WITH3->Pkind = Cavity;
@@ -2788,12 +2792,12 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     GetSym__(&V);
     globval.Elem_nFam++;
     if (globval.Elem_nFam <= Elem_nFamMax) {
-      WITH1 = Marker_Alloc();
-      memcpy(WITH1->PName, ElementName, sizeof(partsName));
-      WITH1->PL = 0.0;
-      WITH1->Pkind = PartsKind(marker);
+      WITHMk = Marker_Alloc();
+      memcpy(WITHMk->PName, ElementName, sizeof(partsName));
+      WITHMk->PL = 0.0;
+      WITHMk->Pkind = PartsKind(marker);
       SetDBN(&V);
-      ElemFam[globval.Elem_nFam-1].ElemF = WITH1;
+      ElemFam[globval.Elem_nFam-1].ElemF = WITHMk;
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
 	     globval.Elem_nFam, (long)Elem_nFamMax);
@@ -3423,11 +3427,11 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     GetSym__(&V);
     globval.Elem_nFam++;
     if (globval.Elem_nFam <= Elem_nFamMax) {
-      WITH1 = Spreader_Alloc();
-      memcpy(WITH1->PName, ElementName, sizeof(partsName));
-      WITH1->PL = *V.rnum;
-      WITH1->Pkind = PartsKind(Spreader);
-      ElemFam[globval.Elem_nFam-1].ElemF = WITH1;
+      WITHSpr = Spreader_Alloc();
+      memcpy(WITHSpr->PName, ElementName, sizeof(partsName));
+      WITHSpr->PL = *V.rnum;
+      WITHSpr->Pkind = PartsKind(Spreader);
+      ElemFam[globval.Elem_nFam-1].ElemF = WITHSpr;
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
 	     globval.Elem_nFam, (long)Elem_nFamMax);
@@ -3462,11 +3466,11 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     GetSym__(&V);
     globval.Elem_nFam++;
     if (globval.Elem_nFam <= Elem_nFamMax) {
-      WITH1 = Recombiner_Alloc();
-      memcpy(WITH1->PName, ElementName, sizeof(partsName));
-      WITH1->PL = *V.rnum;
-      WITH1->Pkind = PartsKind(Recombiner);
-      ElemFam[globval.Elem_nFam-1].ElemF = WITH1;
+      WITHRec = Recombiner_Alloc();
+      memcpy(WITHRec->PName, ElementName, sizeof(partsName));
+      WITHRec->PL = *V.rnum;
+      WITHRec->Pkind = PartsKind(Recombiner);
+      ElemFam[globval.Elem_nFam-1].ElemF = WITHRec;
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
 	     globval.Elem_nFam, (long)Elem_nFamMax);

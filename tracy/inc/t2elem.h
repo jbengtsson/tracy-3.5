@@ -11,6 +11,8 @@ extern bool   sympl;
 extern int    FieldMap_filetype;
 extern double C_u, C_gamma, C_q, cl_rad, q_fluct;
 
+void SI_init(void);
+
 double det_mat(const int n, double **A);
 
 template<typename T>
@@ -102,7 +104,7 @@ MarkerType* Marker_Alloc(void);
 
 MpoleType* Mpole_Alloc(void);
 
-CavityType* Cav_Alloc(void);
+CavityType* Cavity_Alloc(void);
 
 WigglerType* Wiggler_Alloc(void);
 
@@ -119,8 +121,6 @@ SolenoidType* Solenoid_Alloc(void);
 MapType* Map_Alloc(void);
 
 
-void SI_init(void);
-
 void Drift_Init(int Fnum1);
 
 void Mpole_Init(int Fnum1);
@@ -129,7 +129,7 @@ void Wiggler_Init(int Fnum1);
 
 void FieldMap_Init(int Fnum1);
 
-void Cav_Init(int Fnum1);
+void Cavity_Init(int Fnum1);
 
 void Marker_Init(int Fnum1);
 

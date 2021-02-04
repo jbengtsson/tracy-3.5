@@ -147,10 +147,10 @@ class ElemType : public CellType {
 
   // Wrapper functions; becuase C++ does not support templates for virtual
   // functions.
-  virtual void Elem_Pass(ss_vect<double> &ps) { };
-  virtual void Elem_Pass(ss_vect<tps> &ps) { };
+  virtual void Elem_Pass(ss_vect<double> &ps) {};
+  virtual void Elem_Pass(ss_vect<tps> &ps) {};
 
-  virtual void print(void) { };
+  virtual void print(void) {};
 
   template<typename T>
   void Cell_Pass(ss_vect<T> &ps);
@@ -170,6 +170,7 @@ class ElemFamType {
 };
 
 class DriftType : public ElemType {
+ public:
   template<typename T>
   void Drift_Pass(ss_vect<T> &ps);
 
@@ -216,6 +217,8 @@ class MpoleType : public ElemType {
   ss_vect<tps>
     M_lin;                     // Linear Map for Element.
 
+  ElemType* Elem_Alloc(void);
+
   template<typename T>
   void Mpole_Pass(ss_vect<T> &ps);
 
@@ -238,6 +241,8 @@ class CavityType : public ElemType {
     Pfreq,                     // Vrf [Hz].
     phi;                       // RF phase.
 
+  ElemType* Elem_Alloc(void);
+
   template<typename T>
   void Cavity_Pass(ss_vect<T> &ps);
 
@@ -248,6 +253,9 @@ class CavityType : public ElemType {
 };
 
 class MarkerType : public ElemType {
+ public:
+  ElemType* Elem_Alloc(void);
+
   template<typename T>
   void Marker_Pass(ss_vect<T> &ps);
 
@@ -283,6 +291,8 @@ class WigglerType : public ElemType {
     phi[n_harm_max];           // phi.
   mpolArray
   PBW;
+
+  ElemType* Elem_Alloc(void);
 
   template<typename T>
   void Wiggler_Pass(ss_vect<T> &ps);
@@ -345,6 +355,8 @@ class InsertionType : public ElemType {
     PdSrms[2],                 // rms [m].
     PdSrnd[2];                 // random number.
 
+  ElemType* Elem_Alloc(void);
+
   template<typename T>
   void Insertion_Pass(ss_vect<T> &ps);
 
@@ -375,6 +387,8 @@ class FieldMapType : public ElemType {
     ***AoBrho[2],
     ***AoBrho2[2];             // [Ax(x, y, z), Ay(x, y, z)], spline info.
 
+  ElemType* Elem_Alloc(void);
+
   template<typename T>
   void FieldMap_Pass(ss_vect<T> &ps);
 
@@ -391,6 +405,8 @@ class SpreaderType : public ElemType {
   CellType
     *Cell_ptrs[Spreader_max];
 
+  ElemType* Elem_Alloc(void);
+
   template<typename T>
   void Spreader_Pass(ss_vect<T> &ps);
 
@@ -405,6 +421,8 @@ class RecombinerType : public ElemType {
   double
     E_min,
     E_max;
+
+  ElemType* Elem_Alloc(void);
 
   template<typename T>
   void Recombiner_Pass(ss_vect<T> &ps);
@@ -431,6 +449,8 @@ class SolenoidType : public ElemType {
     PdSrms[2],                 // rms [m].
     PdSrnd[2];                 // random number.
 
+  ElemType* Elem_Alloc(void);
+
   template<typename T>
   void Solenoid_Pass(ss_vect<T> &ps);
 
@@ -450,6 +470,8 @@ class MapType : public ElemType {
     etap_x;
   ss_vect<tps>
     M;
+
+  ElemType* Elem_Alloc(void);
 
   void Elem_Pass(ss_vect<double> &ps);
   void Elem_Pass(ss_vect<tps> &ps);

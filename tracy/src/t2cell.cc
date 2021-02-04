@@ -55,7 +55,6 @@ void Cell_Pass(const long i0, const long i1, ss_vect<T> &ps, long &lastpos)
 {
   long int i = 0;
 
-  printf("\nCell_Pass\n");
   if (globval.radiation) globval.dE = 0e0;
 
   if (globval.emittance)
@@ -256,7 +255,7 @@ void Cell_Init(void)
       Insertion_Init(i);
       break;
     case Cavity:
-      Cav_Init(i);
+      Cavity_Init(i);
       break;
     case marker:
       Marker_Init(i);
