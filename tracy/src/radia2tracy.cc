@@ -248,7 +248,7 @@ void Read_IDfile(char *fic_radia, double &L, int &nx, int &nz,
 
 template<typename T>
 void LinearInterpolation2(T &X, T &Z, T &TX, T &TZ, T &B2,
-			  ElemType &Cell, bool &out, int order)
+			  ElemType *Cell, bool &out, int order)
 {
   int            i, ix = 0, iz = 0;
   T              T1, U, THX = 0.0, THZ = 0.0;
@@ -257,7 +257,7 @@ void LinearInterpolation2(T &X, T &Z, T &TX, T &TZ, T &B2,
   int            nx = 0, nz = 0;
   InsertionType  *WITH;
   
-  WITH = dynamic_cast<InsertionType*>(&Cell);
+  WITH = dynamic_cast<InsertionType*>(Cell);
   nx = WITH->nx; nz = WITH->nz;
   
   xstep = WITH->tabx[1]-WITH->tabx[0]; /* increasing values */
@@ -391,7 +391,7 @@ void LinearInterpolation2(T &X, T &Z, T &TX, T &TZ, T &B2,
 
 /****************************************************************************/
 /* void SplineInterpolation2(double X, double Z, double &TX, double &TZ,
-                             ElemType &Cell, bool &out)
+                             ElemType *Cell, bool &out)
  
    Purpose:
         Computes thx and thz in X and Z values using a bilinear interpolation
@@ -419,20 +419,20 @@ void LinearInterpolation2(T &X, T &Z, T &TX, T &TZ, T &B2,
 ****************************************************************************/
 template<typename T>
 void SplineInterpolation2(T &X, T &Z, T &thetax, T &thetaz,
-			  ElemType &Cell, bool &out)
+			  ElemType *Cell, bool &out)
 {
     int            nx, nz;
     InsertionType  *WITH;
 //    int kx, kz;
 
-    WITH = dynamic_cast<InsertionType*>(&Cell);
+    WITH = dynamic_cast<InsertionType*>(Cell);
     nx = WITH->nx; nz = WITH->nz;
 
     /* test wether X and Z within the transverse map area */
     if (X < WITH->tabx[0] || X > WITH->tabx[nx-1] ||
 	Z > WITH->tabz[0] || Z < WITH->tabz[nz-1]) {
         printf("SplineInterpDeriv2: out of borders in element s= %4.2f %*s\n",
-	       Cell.S, 5, Cell.PName);
+	       Cell->S, 5, Cell->PName);
         printf("X = % lf but tabx[0] = % lf and tabx[nx-1] = % lf\n",
 	       is_double<T>::cst(X), WITH->tabx[0], WITH->tabx[nx-1]);
         printf("Z = % lf but tabz[0] = % lf and tabz[nz-1] = % lf\n",

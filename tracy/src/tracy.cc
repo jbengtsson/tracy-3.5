@@ -124,8 +124,8 @@ template void Cav_Focus(const double L, const double delta, const bool entrance,
 template void Cav_Focus(const double L, const tps delta, const bool entrance,
             ss_vect<tps> &ps);
 
-template void Wiggler_pass_EF(const ElemType &elem, ss_vect<double> &x);
-template void Wiggler_pass_EF(const ElemType &elem, ss_vect<tps> &x);
+template void Wiggler_pass_EF(const ElemType *elem, ss_vect<double> &x);
+template void Wiggler_pass_EF(const ElemType *elem, ss_vect<tps> &x);
 
 template void Wiggler_pass_EF2(int nstep, double L,
 			       double kxV, double kxH, double kz,
@@ -136,21 +136,21 @@ template void Wiggler_pass_EF2(int nstep, double L,
 			       double BoBrhoV, double BoBrhoH, double phi,
 			       ss_vect<tps> &x);
 
-template void Wiggler_pass_EF3(ElemType &Cell, ss_vect<double> &x);
-template void Wiggler_pass_EF3(ElemType &Cell, ss_vect<tps> &x);
+template void Wiggler_pass_EF3(ElemType *Cell, ss_vect<double> &x);
+template void Wiggler_pass_EF3(ElemType *Cell, ss_vect<tps> &x);
 
 template void sol_pass(const ElemType *, ss_vect<double> &);
 template void sol_pass(const ElemType *, ss_vect<tps> &);
 
 template void LinearInterpolation2(double &, double &, double &, double &,
-				   double &, ElemType &, bool &, int);
+				   double &, ElemType *, bool &, int);
 template void LinearInterpolation2(tps &, tps &, tps &, tps &, tps &,
-				   ElemType &, bool &, int);
+				   ElemType *, bool &, int);
 
 template void SplineInterpolation2(double &, double &, double &, double &,
-				   ElemType &, bool &);
+				   ElemType *, bool &);
 template void SplineInterpolation2(tps &, tps &, tps &, tps &,
-				   ElemType &, bool &);
+				   ElemType *, bool &);
 
 template void spline(const double [], const double [], int const,
 		     double const, const double, double []);

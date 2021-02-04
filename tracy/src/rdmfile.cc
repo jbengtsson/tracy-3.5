@@ -257,7 +257,7 @@ void get_elem(std::ifstream &inf, char *line, long int &i, int &kind)
     }
 
     if (globval.mat_meth && (M->Pthick == thick))
-      M->M_lin = get_lin_map(*Cell[i], 0e0);
+      M->M_lin = get_lin_map(Cell[i], 0e0);
     break;
   case Wigl:
     W = dynamic_cast<WigglerType*>(Cell[i]);
@@ -395,7 +395,7 @@ void rdmfile(const char *mfile_dat)
 
   SI_init();
 
-  printf("\nrdmfile: read %d elements, C = %7.5f\n",
+  printf("\nrdmfile: read %ld elements, C = %7.5f\n",
 	 globval.Cell_nLoc, Cell[globval.Cell_nLoc]->S);
 
   inf.close();

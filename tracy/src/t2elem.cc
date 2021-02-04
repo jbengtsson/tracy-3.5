@@ -608,7 +608,7 @@ void quad_fringe(const double b2, ss_vect<T> &ps)
 }
 
 
-void get_dI_eta_5(MpoleType &Elem)
+void get_dI_eta_5(MpoleType *Elem)
 {
   double       L, K, h, b2, alpha, beta, gamma, psi, eta, etap;
   ss_vect<tps> Id;
@@ -616,27 +616,27 @@ void get_dI_eta_5(MpoleType &Elem)
 
   Id.identity();
 
-  L = Elem.PL;
-  h = Elem.Pirho;
-  b2 = Elem.PBpar[Quad+HOMmax];
-  K = b2 + sqr(Elem.Pirho);
+  L = Elem->PL;
+  h = Elem->Pirho;
+  b2 = Elem->PBpar[Quad+HOMmax];
+  K = b2 + sqr(Elem->Pirho);
   psi = sqrt(fabs(K))*L;
-  Elemp = &Elem - 1;
+  Elemp = Elem - 1;
   alpha = Elemp->Alpha[X_]; beta = Elemp->Beta[X_];
   gamma = (1e0+sqr(alpha))/beta;
   eta = Elemp->Eta[X_]; etap = Elemp->Etap[X_];
 
-  Elem.dI[1] += L*eta*h;
-  Elem.dI[2] += L*sqr(h);
-  Elem.dI[3] += L*fabs(cube(h));
+  Elem->dI[1] += L*eta*h;
+  Elem->dI[2] += L*sqr(h);
+  Elem->dI[3] += L*fabs(cube(h));
 
   if (K > 0e0) {
-    Elem.dI[4] +=
+    Elem->dI[4] +=
       h/K*(2e0*b2+sqr(h))
       *((eta*sqrt(K)*sin(psi)+etap*(1e0-cos(psi)))
 	+ h/sqrt(K)*(psi-sin(psi)));
 
-    Elem.dI[5] +=
+    Elem->dI[5] +=
       L*fabs(cube(h))
       *(gamma*sqr(eta)+2e0*alpha*eta*etap+beta*sqr(etap))
       - 2e0*pow(h, 4)/(pow(K, 3e0/2e0))
@@ -649,12 +649,12 @@ void get_dI_eta_5(MpoleType &Elem)
   } else {
     K = fabs(K);
 
-    Elem.dI[4] +=
+    Elem->dI[4] +=
       h/K*(2e0*b2+sqr(h))
       *((eta*sqrt(K)*sinh(psi)-etap*(1e0-cosh(psi)))
 	- h/sqrt(K)*(psi-sinh(psi)));
 
-    Elem.dI[5] +=
+    Elem->dI[5] +=
       L*fabs(cube(h))*
       (gamma*sqr(eta)+2e0*alpha*eta*etap+beta*sqr(etap))
       + 2e0*pow(h, 4)/(pow(K, 3e0/2e0))
@@ -692,7 +692,7 @@ void MpoleType::Mpole_Pass(ss_vect<T> &ps)
 
       if (globval.emittance && !globval.Cavity_on)
 	if ((PL != 0e0) && (Pirho != 0e0))
-	  get_dI_eta_5(*this);
+	  get_dI_eta_5(this);
     } else {
       // Fringe fields.
       if (globval.quad_fringe && (PB[Quad+HOMmax] != 0e0))
@@ -1150,7 +1150,7 @@ inline void get_Axy_map(const FieldMapType *FM, const double z,
 */
 
 template<typename T>
-void Wiggler_pass_EF(const ElemType &elem, ss_vect<T> &ps)
+void Wiggler_pass_EF(const ElemType *elem, ss_vect<T> &ps)
 {
   // First order symplectic integrator for wiggler using expanded Hamiltonian
 
@@ -1161,12 +1161,12 @@ void Wiggler_pass_EF(const ElemType &elem, ss_vect<T> &ps)
   T            psi, hodp, a12, a21, a22, det;
   T            d1, d2, a11, c11, c12, c21, c22, x2, B[3];
 
-  switch (elem.Pkind) {
+  switch (elem->Pkind) {
   case Wigl:
-    nstep = dynamic_cast<const WigglerType&>(elem).PN;
+    nstep = dynamic_cast<const WigglerType*>(elem)->PN;
     break;
   case FieldMap:
-    nstep = dynamic_cast<const FieldMapType&>(elem).n_step;
+    nstep = dynamic_cast<const FieldMapType*>(elem)->n_step;
     break;
   default:
     std::cout << "Wiggler_pass_EF: unknown element type" << std::endl;
@@ -1174,11 +1174,11 @@ void Wiggler_pass_EF(const ElemType &elem, ss_vect<T> &ps)
     break;
   }
 
-  h = elem.PL/nstep; z = 0e0;
+  h = elem->PL/nstep; z = 0e0;
   for (i = 1; i <= nstep; ++i) {
-    switch (elem.Pkind) {
+    switch (elem->Pkind) {
     case Wigl:
-      get_Axy(dynamic_cast<const WigglerType*>(&elem), z, ps, AxoBrho, AyoBrho);
+      get_Axy(dynamic_cast<const WigglerType*>(elem), z, ps, AxoBrho, AyoBrho);
       break;
     // case FieldMap:
     //   get_Axy_map(FM, z, ps, AxoBrho, AyoBrho);
@@ -1321,7 +1321,7 @@ void Wiggler_pass_EF2(int nstep, double L, double kxV, double kxH, double kz,
 
 
 template<typename T>
-inline void get_Axy_EF3(const WigglerType &W, const double z,
+inline void get_Axy_EF3(const WigglerType *W, const double z,
 			const ss_vect<T> &ps,
 			T &AoBrho, T dAoBrho[], T &dp, const bool hor)
 {
@@ -1334,72 +1334,72 @@ inline void get_Axy_EF3(const WigglerType &W, const double z,
   for (i = 0; i < 3; i++)
     dAoBrho[i] = 0e0;
 
-  for (i = 0; i < W.n_harm; i++) {
-    kz_n = W.harm[i]*2e0*M_PI/W.Lambda; ky = sqrt(sqr(W.kxV[i])+sqr(kz_n));
+  for (i = 0; i < W->n_harm; i++) {
+    kz_n = W->harm[i]*2e0*M_PI/W->Lambda; ky = sqrt(sqr(W->kxV[i])+sqr(kz_n));
 
-    cx  = cos(W.kxV[i]*ps[x_]); sx = sin(W.kxV[i]*ps[x_]);
+    cx  = cos(W->kxV[i]*ps[x_]); sx = sin(W->kxV[i]*ps[x_]);
     chy = cosh(ky*ps[y_]); shy = sinh(ky*ps[y_]); sz = sin(kz_n*z);
 
     if (hor) {
       // A_x/Brho
-      AoBrho += W.BoBrhoV[i]/kz_n*cx*chy*sz;
+      AoBrho += W->BoBrhoV[i]/kz_n*cx*chy*sz;
 
       if (globval.radiation || (globval.emittance && !globval.Cavity_on)) {
 	cz = cos(kz_n*z);
-	dAoBrho[X_] -= W.BoBrhoV[i]*W.kxV[i]/kz_n*sx*chy*sz;
-	dAoBrho[Y_] += W.BoBrhoV[i]*ky/kz_n*cx*shy*sz;
-	dAoBrho[Z_] += W.BoBrhoV[i]*cx*chy*cz;
+	dAoBrho[X_] -= W->BoBrhoV[i]*W->kxV[i]/kz_n*sx*chy*sz;
+	dAoBrho[Y_] += W->BoBrhoV[i]*ky/kz_n*cx*shy*sz;
+	dAoBrho[Z_] += W->BoBrhoV[i]*cx*chy*cz;
       }
 
       // dp_y
-      if (W.kxV[i] == 0e0)
-	dp += W.BoBrhoV[i]/kz_n*ky*ps[x_]*shy*sz;
+      if (W->kxV[i] == 0e0)
+	dp += W->BoBrhoV[i]/kz_n*ky*ps[x_]*shy*sz;
       else
-	dp += W.BoBrhoV[i]/(W.kxV[i]*kz_n)*ky*sx*shy*sz;
+	dp += W->BoBrhoV[i]/(W->kxV[i]*kz_n)*ky*sx*shy*sz;
     } else {
       // A_y/Brho
-      AoBrho += W.BoBrhoV[i]*W.kxV[i]/(ky*kz_n)*sx*shy*sz;
+      AoBrho += W->BoBrhoV[i]*W->kxV[i]/(ky*kz_n)*sx*shy*sz;
 
       if (globval.radiation || (globval.emittance && !globval.Cavity_on)) {
 	cz = cos(kz_n*z);
 	dAoBrho[X_] +=
-	  W.BoBrhoV[i]*sqr(W.kxV[i])/(ky*kz_n)*cx*shy*sz;
-	dAoBrho[Y_] += W.BoBrhoV[i]*W.kxV[i]/kz_n*sx*chy*sz;
-	dAoBrho[Z_] += W.BoBrhoV[i]*W.kxV[i]/ky*sx*shy*cz;
+	  W->BoBrhoV[i]*sqr(W->kxV[i])/(ky*kz_n)*cx*shy*sz;
+	dAoBrho[Y_] += W->BoBrhoV[i]*W->kxV[i]/kz_n*sx*chy*sz;
+	dAoBrho[Z_] += W->BoBrhoV[i]*W->kxV[i]/ky*sx*shy*cz;
       }
 
       // dp_x
-      dp += W.BoBrhoV[i]/kz_n*sqr(W.kxV[i]/ky)*cx*chy*sz;
+      dp += W->BoBrhoV[i]/kz_n*sqr(W->kxV[i]/ky)*cx*chy*sz;
     }
   }
 }
 
 
 template<typename T>
-void Wiggler_pass_EF3(ElemType &elem, ss_vect<T> &ps)
+void Wiggler_pass_EF3(ElemType *elem, ss_vect<T> &ps)
 {
   /* Symplectic integrator (2nd order) for Insertion Devices based on:
 
        E. Forest, et al "Explicit Symplectic Integrator for s-dependent
        Static Magnetic Field" Phys. Rev. E 68,  046502 (2003)                 */
 
-  int         i;
-  double      h, z, irho, curly_dH_x;
-  T           hd, AxoBrho, AyoBrho, dAxoBrho[3], dAyoBrho[3], dpy, dpx, B[3];
-  ss_vect<T>  ps1;
+  int        i;
+  double     h, z, irho, curly_dH_x;
+  T          hd, AxoBrho, AyoBrho, dAxoBrho[3], dAyoBrho[3], dpy, dpx, B[3];
+  ss_vect<T> ps1;
  
-  const WigglerType &W = dynamic_cast<const WigglerType&>(elem);
+  const WigglerType *W = dynamic_cast<const WigglerType*>(elem);
 
-  h = elem.PL/W.PN; z = 0e0;
+  h = elem->PL/W->PN; z = 0e0;
 
   if (globval.emittance && !globval.Cavity_on) {
     // Needs A^-1.
-    elem.curly_dH_x = 0e0;
+    elem->curly_dH_x = 0e0;
     for (i = 0; i <= 5; i++)
-      elem.dI[i] = 0e0;
+      elem->dI[i] = 0e0;
   }
 
-  for (i = 1; i <= W.PN; i++) {
+  for (i = 1; i <= W->PN; i++) {
     hd = h/(1e0+ps[delta_]);
 
     // 1: half step in z
@@ -1462,20 +1462,20 @@ void Wiggler_pass_EF3(ElemType &elem, ss_vect<T> &ps)
       ps1 = ps;
       ps1[px_] = (ps[px_]-AxoBrho)/(1e0+ps[delta_]);
       curly_dH_x = is_tps<tps>::get_curly_H(ps1);
-      elem.curly_dH_x += curly_dH_x;
-      elem.dI[1] += is_tps<tps>::get_dI_eta(ps)*irho;
-      elem.dI[2] += sqr(irho);
-      elem.dI[3] += fabs(cube(irho));
-      elem.dI[4] += is_tps<tps>::get_dI_eta(ps)*cube(irho);
-      elem.dI[5] += curly_dH_x*fabs(cube(irho));
+      elem->curly_dH_x += curly_dH_x;
+      elem->dI[1] += is_tps<tps>::get_dI_eta(ps)*irho;
+      elem->dI[2] += sqr(irho);
+      elem->dI[3] += fabs(cube(irho));
+      elem->dI[4] += is_tps<tps>::get_dI_eta(ps)*cube(irho);
+      elem->dI[5] += curly_dH_x*fabs(cube(irho));
     }
   }
 
   if (globval.emittance && !globval.Cavity_on) {
     // Needs A^-1.
-    elem.curly_dH_x /= W.PN;
+    elem->curly_dH_x /= W->PN;
     for (i = 0; i <= 5; i++)
-      elem.dI[i] *= elem.PL/W.PN;
+      elem->dI[i] *= elem->PL/W->PN;
   }
 }
 
@@ -1483,15 +1483,15 @@ void Wiggler_pass_EF3(ElemType &elem, ss_vect<T> &ps)
 template<typename T>
 void WigglerType::Wiggler_Pass(ss_vect<T> &ps)
 {
-  int         seg;
-  double      L, L1, L2, K1, K2;
-  ss_vect<T>  ps1;
+  int        seg;
+  double     L, L1, L2, K1, K2;
+  ss_vect<T> ps1;
 
-  const WigglerType &W = dynamic_cast<const WigglerType&>(*this);
+  const WigglerType *W = dynamic_cast<const WigglerType*>(this);
 
   // Global -> Local
   GtoL(ps, dS, dT, 0e0, 0e0, 0e0);
-  switch (W.Pmethod) {
+  switch (W->Pmethod) {
 
   case Meth_Linear:
     std::cout << "Wiggler_Pass: Meth_Linear not supported" << std::endl;
@@ -1499,13 +1499,13 @@ void WigglerType::Wiggler_Pass(ss_vect<T> &ps)
     break;
 
   case Meth_First:
-    if ((W.BoBrhoV[0] != 0e0) || (W.BoBrhoH[0] != 0e0)) {
+    if ((W->BoBrhoV[0] != 0e0) || (W->BoBrhoH[0] != 0e0)) {
       if (!globval.EPU)
-	Wiggler_pass_EF(*this, ps);
+	Wiggler_pass_EF(this, ps);
       else {
-	Wiggler_pass_EF2(W.PN, PL, W.kxV[0], W.kxH[0],
-		2e0*M_PI/W.Lambda, W.BoBrhoV[0], W.BoBrhoH[0],
-		W.phi[0], ps);
+	Wiggler_pass_EF2(W->PN, PL, W->kxV[0], W->kxH[0],
+		2e0*M_PI/W->Lambda, W->BoBrhoV[0], W->BoBrhoH[0],
+		W->phi[0], ps);
       }
     } else
       // drift if field = 0
@@ -1513,23 +1513,23 @@ void WigglerType::Wiggler_Pass(ss_vect<T> &ps)
     break;
 
   case Meth_Second:
-    if ((W.BoBrhoV[0] != 0e0) || (W.BoBrhoH[0] != 0e0)) {
-      Wiggler_pass_EF3(*this, ps);
+    if ((W->BoBrhoV[0] != 0e0) || (W->BoBrhoH[0] != 0e0)) {
+      Wiggler_pass_EF3(this, ps);
     } else
       // drift if field = 0
       Drift(PL, ps);
     break;
 
   case Meth_Fourth:  /* 4-th order integrator */
-    L = PL/W.PN;
+    L = PL/W->PN;
     L1 = c_1*L; L2 = c_2*L; K1 = d_1*L; K2 = d_2*L;
-    for (seg = 1; seg <= W.PN; seg++) {
+    for (seg = 1; seg <= W->PN; seg++) {
       Drift(L1, ps); ps1 = ps;
-      thin_kick(W.Porder, W.PBW, K1, 0e0, 0e0, ps1);
+      thin_kick(W->Porder, W->PBW, K1, 0e0, 0e0, ps1);
       ps[py_] = ps1[py_]; Drift(L2, ps); ps1 = ps;
-      thin_kick(W.Porder, W.PBW, K2, 0e0, 0e0, ps1);
+      thin_kick(W->Porder, W->PBW, K2, 0e0, 0e0, ps1);
       ps[py_] = ps1[py_]; Drift(L2, ps); ps1 = ps;
-      thin_kick(W.Porder, W.PBW, K1, 0e0, 0e0, ps1);
+      thin_kick(W->Porder, W->PBW, K1, 0e0, 0e0, ps1);
       ps[py_] = ps1[py_]; Drift(L1, ps);
     }
     break;
@@ -1622,9 +1622,9 @@ bool get_BoBrho(const FieldMapType *FM, const double z, const ss_vect<T> &cs,
 
 
 template<typename T>
-void rk4_(const ElemType &elem, const ss_vect<T> &y, const ss_vect<T> &dydx,
+void rk4_(const ElemType *elem, const ss_vect<T> &y, const ss_vect<T> &dydx,
 	  const double x, const double h, ss_vect<T> &cs, const double z,
-	  void (*derivs)(const ElemType &, const double, const ss_vect<T> &,
+	  void (*derivs)(const ElemType *, const double, const ss_vect<T> &,
 			 ss_vect<T> &))
 {
   int        j;
@@ -1632,7 +1632,7 @@ void rk4_(const ElemType &elem, const ss_vect<T> &y, const ss_vect<T> &dydx,
   T          BoBrho[3], p_s;
   ss_vect<T> dym, dyt, yt;
 
-  const FieldMapType &FM = dynamic_cast<const FieldMapType&>(elem);
+  const FieldMapType *FM = dynamic_cast<const FieldMapType*>(elem);
 
   hh = h*0.5; h6 = h/6e0;
   xh = x + hh; yt = y + hh*dydx;
@@ -1642,7 +1642,7 @@ void rk4_(const ElemType &elem, const ss_vect<T> &y, const ss_vect<T> &dydx,
   cs = y + h6*(dydx+dyt+2e0*dym);
 
   if (globval.radiation || globval.emittance) {
-    if (!get_BoBrho(&FM, z, cs, BoBrho)) {
+    if (!get_BoBrho(FM, z, cs, BoBrho)) {
       for (j = 0; j < ss_dim; j++)
 	cs[j] = NAN;
       return;
@@ -1654,7 +1654,7 @@ void rk4_(const ElemType &elem, const ss_vect<T> &y, const ss_vect<T> &dydx,
 
 
 template<typename T>
-void f_FM(const ElemType &elem, const double z, const ss_vect<T> &cs,
+void f_FM(const ElemType *elem, const double z, const ss_vect<T> &cs,
 	  ss_vect<T> &Dcs)
 {
   // Coordinates are: [x, x', y, y', -ct, delta].
@@ -1662,9 +1662,9 @@ void f_FM(const ElemType &elem, const double z, const ss_vect<T> &cs,
   int j;
   T   BoBrho[3], p_s;
 
-  const FieldMapType &FM = dynamic_cast<const FieldMapType&>(elem);
+  const FieldMapType *FM = dynamic_cast<const FieldMapType*>(elem);
 
-  if (!get_BoBrho(&FM, z, cs, BoBrho)) {
+  if (!get_BoBrho(FM, z, cs, BoBrho)) {
     for (j = 0; j < ss_dim; j++)
       Dcs[j] = NAN;
     return;
@@ -1689,17 +1689,16 @@ void f_FM(const ElemType &elem, const double z, const ss_vect<T> &cs,
 
 
 template<typename T>
-void FieldMap_pass_RK(ElemType &elem, ss_vect<T> &ps)
+void FieldMap_pass_RK(ElemType *elem, ss_vect<T> &ps)
 {
-  int          i;
-  double       h, z;
-  T            p_s;
-  ss_vect<T>   Dps;
-  FieldMapType FM;
+  int        i;
+  double     h, z;
+  T          p_s;
+  ss_vect<T> Dps;
 
   const int n_step = 2; // Each step needs: f(z_n), f(z_n+h), f(z_n+2h)
 
-  FM = dynamic_cast<FieldMapType&>(elem);
+  FieldMapType *FM = dynamic_cast<FieldMapType*>(elem);
 
   switch (FieldMap_filetype) {
   case 1:
@@ -1718,13 +1717,13 @@ void FieldMap_pass_RK(ElemType &elem, ss_vect<T> &ps)
   // [x, px, y, py, -ct, delta] -> [x, x', y, y', -ct, delta], A_x,y,z = 0.
   p_s = get_p_s(ps); ps[px_] /= p_s; ps[py_] /= p_s;
 
-  h = n_step*FM.dx[Z_]; z = FM.x[Z_][1]; FM.Lr = 0e0;
+  h = n_step*FM->dx[Z_]; z = FM->x[Z_][1]; FM->Lr = 0e0;
   if (trace)
     outf_ << std::scientific << std::setprecision(3)
 	  << std::setw(5) << 0 << std::setw(11) << s_FM
 	  << std::setw(11) << is_double< ss_vect<T> >::cst(ps) << "\n";
-  for(i = 1+FM.cut; i < FM.n[Z_]-FM.cut; i += n_step) {
-    if (i <= FM.n[Z_]-FM.cut-2) {
+  for(i = 1+FM->cut; i < FM->n[Z_]-FM->cut; i += n_step) {
+    if (i <= FM->n[Z_]-FM->cut-2) {
       f_FM(elem, z, ps, Dps);
 
       if (Dps[x_] == NAN) {
@@ -1733,9 +1732,9 @@ void FieldMap_pass_RK(ElemType &elem, ss_vect<T> &ps)
 	return;
       }
 
-      rk4_(elem, ps, Dps, FM.x[Z_][i], h, ps, z, f_FM);
+      rk4_(elem, ps, Dps, FM->x[Z_][i], h, ps, z, f_FM);
 
-      z += h; FM.Lr += h; s_FM += h;
+      z += h; FM->Lr += h; s_FM += h;
     } else {
       // Use 2nd order Runge-Kutta (aka Midpoint Method).
       f_FM(elem, z, ps, Dps);
@@ -1748,7 +1747,7 @@ void FieldMap_pass_RK(ElemType &elem, ss_vect<T> &ps)
 
       ps += h/2e0*Dps;
 
-      z += h/2e0; FM.Lr += h/2e0; s_FM += h/2e0;
+      z += h/2e0; FM->Lr += h/2e0; s_FM += h/2e0;
     }
 
     if (trace)
@@ -1777,7 +1776,7 @@ void FieldMap_pass_RK(ElemType &elem, ss_vect<T> &ps)
 
 
 template<typename T>
-void FieldMap_pass_SI(ElemType &elem, ss_vect<T> &ps)
+void FieldMap_pass_SI(ElemType *elem, ss_vect<T> &ps)
 {
   /* E. Chacon-Golcher, F. Neri "A Symplectic Integrator with Arbitrary
      Vector and Scalar Potentials" Phys. Lett. A 372 p. 4661-4666 (2008).    */
@@ -1786,12 +1785,11 @@ void FieldMap_pass_SI(ElemType &elem, ss_vect<T> &ps)
   double       h, z;
   T            hd, AoBrho[2], dAoBrho[2], AoBrho_int;
   ss_vect<T>   ps1;
-  FieldMapType FM;
 
-  const int          n_step = 2;
-  const double       d_diff = 1e0;
+  const int    n_step = 2;
+  const double d_diff = 1e0;
 
-  FM = dynamic_cast<FieldMapType&>(elem);
+  FieldMapType *FM = dynamic_cast<FieldMapType*>(elem);
 
   switch (FieldMap_filetype) {
   case 1:
@@ -1807,12 +1805,12 @@ void FieldMap_pass_SI(ElemType &elem, ss_vect<T> &ps)
     break;
   }
 
-  h = n_step*FM.dx[Z_]; z = 0e0; FM.Lr = 0e0;
+  h = n_step*FM->dx[Z_]; z = 0e0; FM->Lr = 0e0;
   if (trace)
     outf_ << std::scientific << std::setprecision(3)
 	  << std::setw(5) << 0 << std::setw(11) << s_FM
 	  << std::setw(11) << is_double< ss_vect<T> >::cst(ps) << "\n";
-  for (i = 1+FM.cut; i < FM.n[Z_]-FM.cut; i += n_step) {
+  for (i = 1+FM->cut; i < FM->n[Z_]-FM->cut; i += n_step) {
     hd = h/(1e0+ps[delta_]);
 
     // 1. Half step in z.
@@ -1821,8 +1819,8 @@ void FieldMap_pass_SI(ElemType &elem, ss_vect<T> &ps)
     // 2. Half drift in y.
     ps1 = ps;
 
-    splin2_(FM.x[X_], FM.x[Y_], FM.AoBrho[Y_][j], FM.AoBrho2[Y_][j],
-	    FM.n[X_], FM.n[Y_], ps[x_], ps[y_], AoBrho[0]);
+    splin2_(FM->x[X_], FM->x[Y_], FM->AoBrho[Y_][j], FM->AoBrho2[Y_][j],
+	    FM->n[X_], FM->n[Y_], ps[x_], ps[y_], AoBrho[0]);
 
     if (AoBrho[0] == NAN) {
       for (j = 0; j < ss_dim; j++)
@@ -1833,8 +1831,8 @@ void FieldMap_pass_SI(ElemType &elem, ss_vect<T> &ps)
     ps1[y_] += (ps[py_]-AoBrho[0])*0.5*hd;
     ps1[ct_] += sqr(0.5)*hd*sqr(ps[py_]-AoBrho[0])/(1e0+ps[delta_]);
 
-    splin2_(FM.x[X_], FM.x[Y_], FM.AoBrho[Y_][j], FM.AoBrho2[Y_][j],
-	    FM.n[X_], FM.n[Y_], ps[x_]+d_diff*FM.dx[X_], ps[y_],
+    splin2_(FM->x[X_], FM->x[Y_], FM->AoBrho[Y_][j], FM->AoBrho2[Y_][j],
+	    FM->n[X_], FM->n[Y_], ps[x_]+d_diff*FM->dx[X_], ps[y_],
 	    dAoBrho[1]);
 
     if (dAoBrho[1] == NAN) {
@@ -1843,8 +1841,8 @@ void FieldMap_pass_SI(ElemType &elem, ss_vect<T> &ps)
       return;
     }
 
-    splin2_(FM.x[X_], FM.x[Y_], FM.AoBrho[Y_][j], FM.AoBrho2[Y_][j],
-	    FM.n[X_], FM.n[Y_], ps[x_]-d_diff*FM.dx[X_], ps[y_],
+    splin2_(FM->x[X_], FM->x[Y_], FM->AoBrho[Y_][j], FM->AoBrho2[Y_][j],
+	    FM->n[X_], FM->n[Y_], ps[x_]-d_diff*FM->dx[X_], ps[y_],
 	    dAoBrho[0]);
 
     if (dAoBrho[0] == NAN) {
@@ -1853,10 +1851,10 @@ void FieldMap_pass_SI(ElemType &elem, ss_vect<T> &ps)
       return;
     }
 
-    AoBrho_int = (dAoBrho[1]-dAoBrho[0])/(2e0*d_diff*FM.dx[X_]);
+    AoBrho_int = (dAoBrho[1]-dAoBrho[0])/(2e0*d_diff*FM->dx[X_]);
 
-    splin2_(FM.x[X_], FM.x[Y_], FM.AoBrho[Y_][j], FM.AoBrho2[Y_][j],
-	    FM.n[X_], FM.n[Y_], ps1[x_]+d_diff*FM.dx[X_], ps1[y_],
+    splin2_(FM->x[X_], FM->x[Y_], FM->AoBrho[Y_][j], FM->AoBrho2[Y_][j],
+	    FM->n[X_], FM->n[Y_], ps1[x_]+d_diff*FM->dx[X_], ps1[y_],
 	    dAoBrho[1]);
 
     if (dAoBrho[1] == NAN) {
@@ -1865,8 +1863,8 @@ void FieldMap_pass_SI(ElemType &elem, ss_vect<T> &ps)
       return;
     }
 
-    splin2_(FM.x[X_], FM.x[Y_], FM.AoBrho[Y_][j], FM.AoBrho2[Y_][j],
-	    FM.n[X_], FM.n[Y_], ps1[x_]-d_diff*FM.dx[X_], ps1[y_],
+    splin2_(FM->x[X_], FM->x[Y_], FM->AoBrho[Y_][j], FM->AoBrho2[Y_][j],
+	    FM->n[X_], FM->n[Y_], ps1[x_]-d_diff*FM->dx[X_], ps1[y_],
 	    dAoBrho[0]);
 
     if (dAoBrho[0] == NAN) {
@@ -1875,14 +1873,14 @@ void FieldMap_pass_SI(ElemType &elem, ss_vect<T> &ps)
       return;
     }
 
-    AoBrho_int += (dAoBrho[1]-dAoBrho[0])/(2e0*d_diff*FM.dx[X_]);
+    AoBrho_int += (dAoBrho[1]-dAoBrho[0])/(2e0*d_diff*FM->dx[X_]);
 
     // Trapezoidal rule
     ps1[px_] +=
       AoBrho_int*(is_double<T>::cst(ps1[y_])-is_double<T>::cst(ps[y_]))/2e0;
 
-    splin2_(FM.x[X_], FM.x[Y_], FM.AoBrho[Y_][j], FM.AoBrho2[Y_][j],
-	    FM.n[X_], FM.n[Y_], ps1[x_], ps1[y_], AoBrho[1]);
+    splin2_(FM->x[X_], FM->x[Y_], FM->AoBrho[Y_][j], FM->AoBrho2[Y_][j],
+	    FM->n[X_], FM->n[Y_], ps1[x_], ps1[y_], AoBrho[1]);
 
     if (AoBrho[1] == NAN) {
       for (j = 0; j < ss_dim; j++)
@@ -1897,8 +1895,8 @@ void FieldMap_pass_SI(ElemType &elem, ss_vect<T> &ps)
     // 3. Full drift in x.
     ps1 = ps;
 
-    splin2_(FM.x[X_], FM.x[Y_], FM.AoBrho[X_][j], FM.AoBrho2[X_][j],
-	    FM.n[X_], FM.n[Y_], ps[x_], ps[y_], AoBrho[0]);
+    splin2_(FM->x[X_], FM->x[Y_], FM->AoBrho[X_][j], FM->AoBrho2[X_][j],
+	    FM->n[X_], FM->n[Y_], ps[x_], ps[y_], AoBrho[0]);
 
     if (AoBrho[0] == NAN) {
       for (j = 0; j < ss_dim; j++)
@@ -1909,8 +1907,8 @@ void FieldMap_pass_SI(ElemType &elem, ss_vect<T> &ps)
     ps1[x_] += (ps[px_]-AoBrho[0])*hd;
     ps1[ct_] += 0.5*hd*sqr(ps[px_]-AoBrho[0])/(1e0+ps[delta_]);
 
-    splin2_(FM.x[X_], FM.x[Y_], FM.AoBrho[X_][j], FM.AoBrho2[X_][j],
-	    FM.n[X_], FM.n[Y_], ps1[x_], ps1[y_], AoBrho[1]);
+    splin2_(FM->x[X_], FM->x[Y_], FM->AoBrho[X_][j], FM->AoBrho2[X_][j],
+	    FM->n[X_], FM->n[Y_], ps1[x_], ps1[y_], AoBrho[1]);
 
     if (AoBrho[1] == NAN) {
       for (j = 0; j < ss_dim; j++)
@@ -1920,8 +1918,8 @@ void FieldMap_pass_SI(ElemType &elem, ss_vect<T> &ps)
 
     ps1[px_] += AoBrho[1] - AoBrho[0];
 
-    splin2_(FM.x[X_], FM.x[Y_], FM.AoBrho[X_][j], FM.AoBrho2[X_][j],
-	    FM.n[X_], FM.n[Y_], ps[x_], ps[y_]+d_diff*FM.dx[Y_],
+    splin2_(FM->x[X_], FM->x[Y_], FM->AoBrho[X_][j], FM->AoBrho2[X_][j],
+	    FM->n[X_], FM->n[Y_], ps[x_], ps[y_]+d_diff*FM->dx[Y_],
 	    dAoBrho[1]);
 
     if (dAoBrho[1] == NAN) {
@@ -1930,8 +1928,8 @@ void FieldMap_pass_SI(ElemType &elem, ss_vect<T> &ps)
       return;
     }
 
-    splin2_(FM.x[X_], FM.x[Y_], FM.AoBrho[X_][j], FM.AoBrho2[X_][j],
-	    FM.n[X_], FM.n[Y_], ps[x_], ps[y_]-d_diff*FM.dx[Y_],
+    splin2_(FM->x[X_], FM->x[Y_], FM->AoBrho[X_][j], FM->AoBrho2[X_][j],
+	    FM->n[X_], FM->n[Y_], ps[x_], ps[y_]-d_diff*FM->dx[Y_],
 	    dAoBrho[0]);
 
     if (dAoBrho[0] == NAN) {
@@ -1940,10 +1938,10 @@ void FieldMap_pass_SI(ElemType &elem, ss_vect<T> &ps)
       return;
     }
 
-    AoBrho_int = (dAoBrho[1]-dAoBrho[0])/(2e0*d_diff*FM.dx[Y_]);
+    AoBrho_int = (dAoBrho[1]-dAoBrho[0])/(2e0*d_diff*FM->dx[Y_]);
 
-    splin2_(FM.x[X_], FM.x[Y_], FM.AoBrho[X_][j], FM.AoBrho2[X_][j],
-	    FM.n[X_], FM.n[Y_], ps1[x_], ps1[y_]+d_diff*FM.dx[Y_],
+    splin2_(FM->x[X_], FM->x[Y_], FM->AoBrho[X_][j], FM->AoBrho2[X_][j],
+	    FM->n[X_], FM->n[Y_], ps1[x_], ps1[y_]+d_diff*FM->dx[Y_],
 	    dAoBrho[1]);
 
     if (dAoBrho[1] == NAN) {
@@ -1952,8 +1950,8 @@ void FieldMap_pass_SI(ElemType &elem, ss_vect<T> &ps)
       return;
     }
 
-    splin2_(FM.x[X_], FM.x[Y_], FM.AoBrho[X_][j], FM.AoBrho2[X_][j],
-	    FM.n[X_], FM.n[Y_], ps1[x_], ps1[y_]-d_diff*FM.dx[Y_],
+    splin2_(FM->x[X_], FM->x[Y_], FM->AoBrho[X_][j], FM->AoBrho2[X_][j],
+	    FM->n[X_], FM->n[Y_], ps1[x_], ps1[y_]-d_diff*FM->dx[Y_],
 	    dAoBrho[0]);
 
     if (dAoBrho[0] == NAN) {
@@ -1962,7 +1960,7 @@ void FieldMap_pass_SI(ElemType &elem, ss_vect<T> &ps)
       return;
     }
 
-    AoBrho_int += (dAoBrho[1]-dAoBrho[0])/(2e0*d_diff*FM.dx[Y_]);
+    AoBrho_int += (dAoBrho[1]-dAoBrho[0])/(2e0*d_diff*FM->dx[Y_]);
 
     // Trapezoidal rule
     ps1[py_] +=
@@ -1973,8 +1971,8 @@ void FieldMap_pass_SI(ElemType &elem, ss_vect<T> &ps)
     // 4. Half drift in y.
     ps1 = ps;
 
-    splin2_(FM.x[X_], FM.x[Y_], FM.AoBrho[Y_][j], FM.AoBrho2[Y_][j],
-	    FM.n[X_], FM.n[Y_], ps[x_], ps[y_], AoBrho[0]);
+    splin2_(FM->x[X_], FM->x[Y_], FM->AoBrho[Y_][j], FM->AoBrho2[Y_][j],
+	    FM->n[X_], FM->n[Y_], ps[x_], ps[y_], AoBrho[0]);
 
     if (AoBrho[0] == NAN) {
       for (j = 0; j < ss_dim; j++)
@@ -1985,8 +1983,8 @@ void FieldMap_pass_SI(ElemType &elem, ss_vect<T> &ps)
     ps1[y_] += (ps[py_]-AoBrho[0])*0.5*hd;
     ps1[ct_] += sqr(0.5)*hd*sqr(ps[py_]-AoBrho[0])/(1e0+ps[delta_]);
 
-    splin2_(FM.x[X_], FM.x[Y_], FM.AoBrho[Y_][j], FM.AoBrho2[Y_][j],
-	    FM.n[X_], FM.n[Y_], ps[x_]+d_diff*FM.dx[X_], ps[y_],
+    splin2_(FM->x[X_], FM->x[Y_], FM->AoBrho[Y_][j], FM->AoBrho2[Y_][j],
+	    FM->n[X_], FM->n[Y_], ps[x_]+d_diff*FM->dx[X_], ps[y_],
 	    dAoBrho[1]);
 
     if (dAoBrho[1] == NAN) {
@@ -1995,8 +1993,8 @@ void FieldMap_pass_SI(ElemType &elem, ss_vect<T> &ps)
       return;
     }
 
-    splin2_(FM.x[X_], FM.x[Y_], FM.AoBrho[Y_][j], FM.AoBrho2[Y_][j],
-	    FM.n[X_], FM.n[Y_], ps[x_]-d_diff*FM.dx[X_], ps[y_],
+    splin2_(FM->x[X_], FM->x[Y_], FM->AoBrho[Y_][j], FM->AoBrho2[Y_][j],
+	    FM->n[X_], FM->n[Y_], ps[x_]-d_diff*FM->dx[X_], ps[y_],
 	    dAoBrho[0]);
 
     if (dAoBrho[0] == NAN) {
@@ -2005,10 +2003,10 @@ void FieldMap_pass_SI(ElemType &elem, ss_vect<T> &ps)
       return;
     }
 
-    AoBrho_int = (dAoBrho[1]-dAoBrho[0])/(2e0*d_diff*FM.dx[X_]);
+    AoBrho_int = (dAoBrho[1]-dAoBrho[0])/(2e0*d_diff*FM->dx[X_]);
 
-    splin2_(FM.x[X_], FM.x[Y_], FM.AoBrho[Y_][j], FM.AoBrho2[Y_][j],
-	    FM.n[X_], FM.n[Y_], ps1[x_]+d_diff*FM.dx[X_], ps1[y_],
+    splin2_(FM->x[X_], FM->x[Y_], FM->AoBrho[Y_][j], FM->AoBrho2[Y_][j],
+	    FM->n[X_], FM->n[Y_], ps1[x_]+d_diff*FM->dx[X_], ps1[y_],
 	    dAoBrho[1]);
 
     if (dAoBrho[1] == NAN) {
@@ -2017,8 +2015,8 @@ void FieldMap_pass_SI(ElemType &elem, ss_vect<T> &ps)
       return;
     }
 
-    splin2_(FM.x[X_], FM.x[Y_], FM.AoBrho[Y_][j], FM.AoBrho2[Y_][j],
-	    FM.n[X_], FM.n[Y_], ps1[x_]-d_diff*FM.dx[X_], ps1[y_],
+    splin2_(FM->x[X_], FM->x[Y_], FM->AoBrho[Y_][j], FM->AoBrho2[Y_][j],
+	    FM->n[X_], FM->n[Y_], ps1[x_]-d_diff*FM->dx[X_], ps1[y_],
 	    dAoBrho[0]);
 
     if (dAoBrho[0] == NAN) {
@@ -2027,14 +2025,14 @@ void FieldMap_pass_SI(ElemType &elem, ss_vect<T> &ps)
       return;
     }
 
-    AoBrho_int += (dAoBrho[1]-dAoBrho[0])/(2e0*d_diff*FM.dx[X_]);
+    AoBrho_int += (dAoBrho[1]-dAoBrho[0])/(2e0*d_diff*FM->dx[X_]);
 
     // Trapezoidal rule
     ps1[px_] +=
       AoBrho_int*(is_double<T>::cst(ps1[y_])-is_double<T>::cst(ps[y_]))/2e0;
 
-    splin2_(FM.x[X_], FM.x[Y_], FM.AoBrho[Y_][j], FM.AoBrho2[Y_][j],
-	    FM.n[X_], FM.n[Y_], ps1[x_], ps1[y_], AoBrho[1]);
+    splin2_(FM->x[X_], FM->x[Y_], FM->AoBrho[Y_][j], FM->AoBrho2[Y_][j],
+	    FM->n[X_], FM->n[Y_], ps1[x_], ps1[y_], AoBrho[1]);
 
     if (AoBrho[1] == NAN) {
       for (j = 0; j < ss_dim; j++)
@@ -2051,7 +2049,7 @@ void FieldMap_pass_SI(ElemType &elem, ss_vect<T> &ps)
 
     if (globval.pathlength) ps[ct_] += h;
 
-    FM.Lr += h;
+    FM->Lr += h;
 
     if (globval.radiation || globval.emittance) {
 //      B[X_] = -AoBrhoy[3]; B[Y_] = AoBrho[X_][3];
@@ -2066,8 +2064,8 @@ void FieldMap_pass_SI(ElemType &elem, ss_vect<T> &ps)
   }
 
   // Change of gauge
-  splin2_(FM.x[X_], FM.x[Y_], FM.AoBrho[X_][j], FM.AoBrho2[X_][j],
-	  FM.n[X_], FM.n[Y_], ps[x_], ps[y_], AoBrho[0]);
+  splin2_(FM->x[X_], FM->x[Y_], FM->AoBrho[X_][j], FM->AoBrho2[X_][j],
+	  FM->n[X_], FM->n[Y_], ps[x_], ps[y_], AoBrho[0]);
 
   if (AoBrho[0] == NAN) {
     for (j = 0; j < ss_dim; j++)
@@ -2077,8 +2075,8 @@ void FieldMap_pass_SI(ElemType &elem, ss_vect<T> &ps)
 
   ps[px_] -= AoBrho[0];
 
-  splin2_(FM.x[X_], FM.x[Y_], FM.AoBrho[Y_][j], FM.AoBrho2[Y_][j],
-	  FM.n[X_], FM.n[Y_], ps[x_], ps[y_], AoBrho[0]);
+  splin2_(FM->x[X_], FM->x[Y_], FM->AoBrho[Y_][j], FM->AoBrho2[Y_][j],
+	  FM->n[X_], FM->n[Y_], ps[x_], ps[y_], AoBrho[0]);
 
   if (AoBrho[0] == NAN) {
     for (j = 0; j < ss_dim; j++)
@@ -2105,24 +2103,24 @@ void FieldMap_pass_SI(ElemType &elem, ss_vect<T> &ps)
 
 
 // Instantiate
-template void f_FM(const ElemType &, const double, const ss_vect<double> &,
+template void f_FM(const ElemType *, const double, const ss_vect<double> &,
 		   ss_vect<double> &);
-template void f_FM(const ElemType &, const double, const ss_vect<tps> &,
+template void f_FM(const ElemType *, const double, const ss_vect<tps> &,
 		   ss_vect<tps> &);
-template void rk4_(const ElemType &, const ss_vect<double> &,
+template void rk4_(const ElemType *, const ss_vect<double> &,
 		   const ss_vect<double> &, const double, const double,
 		   ss_vect<double> &, const double,
-		   void (*derivs)(const ElemType &, const double,
+		   void (*derivs)(const ElemType *, const double,
 				  const ss_vect<double> &, ss_vect<double> &));
-template void rk4_(const ElemType &, const ss_vect<tps> &,
+template void rk4_(const ElemType *, const ss_vect<tps> &,
 		   const ss_vect<tps> &, const double, const double,
 		   ss_vect<tps> &, const double,
-		   void (*derivs)(const ElemType &, const double,
+		   void (*derivs)(const ElemType *, const double,
 				  const ss_vect<tps> &, ss_vect<tps> &));
-template void FieldMap_pass_RK(ElemType &, ss_vect<double> &);
-template void FieldMap_pass_RK(ElemType &, ss_vect<tps> &);
-template void FieldMap_pass_SI(ElemType &, ss_vect<double> &);
-template void FieldMap_pass_SI(ElemType &, ss_vect<tps> &);
+template void FieldMap_pass_RK(ElemType *, ss_vect<double> &);
+template void FieldMap_pass_RK(ElemType *, ss_vect<tps> &);
+template void FieldMap_pass_SI(ElemType *, ss_vect<double> &);
+template void FieldMap_pass_SI(ElemType *, ss_vect<tps> &);
 
 
 template<typename T>
@@ -2130,9 +2128,8 @@ void FieldMapType::FieldMap_Pass(ss_vect<T> &ps)
 {
   int          k;
   double       Ld;
-  FieldMapType *FM;
 
-  FM = dynamic_cast<FieldMapType*>(this);
+  const FieldMapType *FM = dynamic_cast<const FieldMapType*>(this);
 
   if (trace & first_FM) {
     file_wr(outf_, "FieldMap_pass.dat");
@@ -2150,9 +2147,9 @@ void FieldMapType::FieldMap_Pass(ss_vect<T> &ps)
   // n_step: number of Field Map repetitions.
   for (k = 1; k <= FM->n_step; k++) {
     if (sympl)
-      FieldMap_pass_SI(*this, ps);
+      FieldMap_pass_SI(this, ps);
     else
-      FieldMap_pass_RK(*this, ps);
+      FieldMap_pass_RK(this, ps);
   }
 
   printf("  exit negative drift [m]     %12.5e\n", -Ld);
@@ -2168,16 +2165,15 @@ void InsertionType::Insertion_Pass(ss_vect<T> &x)
 {
   double        LN = 0e0;
   T             tx2, tz2;      /* thetax and thetaz retrieved from
-			     interpolation routine */
+				  interpolation routine */
   T             d, B2_perp;
   double        alpha0 = 0e0;  // 1/ brh0
   double        alpha02= 0e0;  // alpha square
   int           Nslice = 0;
   int           i = 0;
   bool          outoftable = false;
-  InsertionType *ID;
 
-  ID = dynamic_cast<InsertionType*>(this);
+  const InsertionType *ID = dynamic_cast<const InsertionType*>(this);
 
   Nslice = ID->PN;
 
@@ -2207,7 +2203,7 @@ void InsertionType::Insertion_Pass(ss_vect<T> &x)
       // if (!ID->linear)
       //   SplineInterpolation2(x[x_], x[y_], tx2, tz2, *this, outoftable);
       // else {
-        LinearInterpolation2(x[x_], x[y_], tx2, tz2, B2_perp, *this,
+        LinearInterpolation2(x[x_], x[y_], tx2, tz2, B2_perp, this,
 			     outoftable, 2);
 
 	// Scale locally with (Brho) (as above) instead of when the file
@@ -2328,7 +2324,7 @@ void SolenoidType::Solenoid_Pass(ss_vect<T> &ps)
 
 
 // template<typename T>
-// void Map_Pass(ElemType &Cell, ss_vect<T> &ps) { ps = Cell.Map->M*ps; }
+// void Map_Pass(ElemType *Cell, ss_vect<T> &ps) { ps = Cell.Map->M*ps; }
 
 void MapType::Elem_Pass(ss_vect<double> &ps) { ps = (M*ps).cst(); }
 
@@ -2837,7 +2833,7 @@ void Mpole_Init(int Fnum)
 
   // Allocate TPSA vector.
   if (globval.mat_meth && (M->Pthick == thick))
-    M->M_lin = get_lin_map(*M, 0e0);
+    M->M_lin = get_lin_map(M, 0e0);
 
   for (i = 1; i <= elemfamp->nKid; i++) {
     Mp = Mpole_Alloc();
@@ -3152,20 +3148,20 @@ ss_vect<tps> get_thin_kick_lin_map(const double b2L, const double delta)
 }
 
 
-ss_vect<tps> get_lin_map(ElemType &Elem, const double delta)
+ss_vect<tps> get_lin_map(ElemType *Elem, const double delta)
 {
   ss_vect<tps> M0, M1, M2;
   MpoleType    *M;
 
-  M = dynamic_cast<MpoleType*>(&Elem);
-  if (Elem.PL != 0e0) {
+  M = dynamic_cast<MpoleType*>(Elem);
+  if (Elem->PL != 0e0) {
     M0 =
-      get_sbend_lin_map(Elem.PL, M->Pirho, M->PB[Quad+HOMmax], delta);
+      get_sbend_lin_map(Elem->PL, M->Pirho, M->PB[Quad+HOMmax], delta);
     M1 = get_edge_lin_map(M->Pirho, M->PTx1, M->Pgap, delta);
     M2 = get_edge_lin_map(M->Pirho, M->PTx2, M->Pgap, delta);
     M0 = M2*M0*M1;
   } else
-    M0 = get_thin_kick_lin_map(Elem.PL*M->PB[Quad+HOMmax], delta);
+    M0 = get_thin_kick_lin_map(Elem->PL*M->PB[Quad+HOMmax], delta);
 
   return M0;
 }
@@ -3179,7 +3175,7 @@ void get_lin_maps(const double delta)
   for (k = 0; k <= globval.Cell_nLoc; k++) {
     M = dynamic_cast<MpoleType*>(Cell[k]);
     if ((Cell[k]->Pkind == Mpole) && (M->Pthick == thick))
-      M->M_lin = get_lin_map(*Cell[k], delta);
+      M->M_lin = get_lin_map(Cell[k], delta);
   }
 }
 

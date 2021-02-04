@@ -65,27 +65,7 @@ void thin_kick(const int Order, const double MB[], const double L,
 	       const double h_bend, const double h_ref, ss_vect<T> &x);
 
 template<typename T>
-void Marker_Pass(CellType &Cell, ss_vect<T> &X);
-
-template<typename T>
-void Wiggler_pass_EF(const ElemType &elem, ss_vect<T> &x);
-
-template<typename T>
-void Wiggler_pass_EF2(int nstep, double L, double kxV, double kxH, double kz, 
-		      double BoBrhoV, double BoBrhoH, double phi,
-		      ss_vect<T> &x);
-
-template<typename T>
-void Wiggler_pass_EF3(CellType &Cell, ss_vect<T> &x);
-
-template<typename T>
-void FieldMap_Pass(CellType &Cell, ss_vect<T> &X);
-
-template<typename T>
 void sol_pass(const ElemType *elem, ss_vect<T> &x);
-
-template<typename T>
-void Solenoid_Pass(CellType &Cell, ss_vect<T> &x);
 
 /* template<typename T> */
 /* void Map_Pass(CellType &Cell, ss_vect<T> &x); */
@@ -150,7 +130,7 @@ ss_vect<tps> get_sbend_lin_map(const double L, const double h, const double b2,
 
 ss_vect<tps> get_thin_kick_lin_map(const double b2L, const double delta);
 
-ss_vect<tps> get_lin_map(ElemType &Elem, const double delta);
+ss_vect<tps> get_lin_map(ElemType *Elem, const double delta);
 
 void get_lin_maps(const double delta);
 
