@@ -19,6 +19,6 @@ void Cell_Pass(const long i0, const long i1, ss_vect<T> &x, long &lastpos);
 
 void Cell_Pass(const long i0, const long i1, tps &sigma, long &lastpos);
 
-void Cell_Init(void);
+void Cell_Init(ElemFamType ElemFam[], ElemType *Cell[]);
 
 #endif

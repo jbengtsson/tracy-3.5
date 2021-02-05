@@ -173,14 +173,6 @@ template void splin2(const double [], const double [],
 		     const tps &, const tps &, tps &);
 
 
-// template void Elem_Pass(ss_vect<double> &);
-// template void Elem_Pass(ss_vect<tps> &);
-
-
-template void Cell_Pass(const long, const long, ss_vect<double> &, long &);
-template void Cell_Pass(const long, const long, ss_vect<tps> &, long &);
-
-
 /* Global variable used through the code */
 globvalrec globval;
 

@@ -170,24 +170,24 @@ void get_elem(std::ifstream &inf, char *line, long int &i, int &kind)
   if (prt) printf("%s\n", line);
   sscanf(line, "%d %d %d %d", &kind, &method, &n, &reverse);
 
-  Cell[i] = get_kind(kind);
+  lat.elems[i] = get_kind(kind);
  
-  memcpy(Cell[i]->PName, name, sizeof(partsName));
-  Cell[i]->Fnum = Fnum; Cell[i]->Knum = Knum;
+  memcpy(lat.elems[i]->PName, name, sizeof(partsName));
+  lat.elems[i]->Fnum = Fnum; lat.elems[i]->Knum = Knum;
 
-  Cell[i]->dS[X_] = 0e0; Cell[i]->dS[Y_] = 0e0;
-  Cell[i]->dT[X_] = 1e0; Cell[i]->dT[Y_] = 0e0;
+  lat.elems[i]->dS[X_] = 0e0; lat.elems[i]->dS[Y_] = 0e0;
+  lat.elems[i]->dT[X_] = 1e0; lat.elems[i]->dT[Y_] = 0e0;
 
   inf.getline(line, line_max);
   if (prt) printf("%s\n", line);
   sscanf(line, "%lf %lf %lf %lf",
-	 &Cell[i]->maxampl[X_][0], &Cell[i]->maxampl[X_][1],
-	 &Cell[i]->maxampl[Y_][0], &Cell[i]->maxampl[Y_][1]);
+	 &lat.elems[i]->maxampl[X_][0], &lat.elems[i]->maxampl[X_][1],
+	 &lat.elems[i]->maxampl[Y_][0], &lat.elems[i]->maxampl[Y_][1]);
 
-  Cell[i]->PL = 0e0;
-  Cell[i]->Reverse = (reverse == 1);
+  lat.elems[i]->PL = 0e0;
+  lat.elems[i]->Reverse = (reverse == 1);
 
-  switch (Cell[i]->Pkind) {
+  switch (lat.elems[i]->Pkind) {
   case undef:
     std::cout << "rdmfile: unknown type " << i << std::endl;
     exit_(1);
@@ -197,10 +197,10 @@ void get_elem(std::ifstream &inf, char *line, long int &i, int &kind)
   case drift:
     inf.getline(line, line_max);
     if (prt) printf("%s\n", line);
-    sscanf(line, "%lf", &Cell[i]->PL);
+    sscanf(line, "%lf", &lat.elems[i]->PL);
     break;
   case Cavity:
-    C = dynamic_cast<CavityType*>(Cell[i]);
+    C = dynamic_cast<CavityType*>(lat.elems[i]);
     inf.getline(line, line_max);
     if (prt) printf("%s\n", line);
     sscanf(line, "%lf %lf %d %lf %lf",
@@ -210,36 +210,36 @@ void get_elem(std::ifstream &inf, char *line, long int &i, int &kind)
     C->Pfreq *= c0/(2.0*M_PI);
     break;
   case Mpole:
-    M = dynamic_cast<MpoleType*>(Cell[i]);
+    M = dynamic_cast<MpoleType*>(lat.elems[i]);
     M->Pmethod = method; M->PN = n;
 
     if (M->Pthick == thick) {
       inf.getline(line, line_max);
       if (prt) printf("%s\n", line);
       sscanf(line, "%lf %lf %lf %lf",
-	     &Cell[i]->dS[X_], &Cell[i]->dS[Y_],
+	     &lat.elems[i]->dS[X_], &lat.elems[i]->dS[Y_],
 	     &M->PdTpar, &dTerror);
-      Cell[i]->dT[X_] = cos(dtor(dTerror+M->PdTpar));
-      Cell[i]->dT[Y_] = sin(dtor(dTerror+M->PdTpar));
+      lat.elems[i]->dT[X_] = cos(dtor(dTerror+M->PdTpar));
+      lat.elems[i]->dT[Y_] = sin(dtor(dTerror+M->PdTpar));
       M->PdTrms = dTerror - M->PdTpar;
       M->PdTrnd = 1e0;
 
       inf.getline(line, line_max);
       if (prt) printf("%s\n", line);
       sscanf(line, "%lf %lf %lf %lf %lf",
-	     &Cell[i]->PL, &M->Pirho, &M->PTx1, &M->PTx2, &M->Pgap);
+	     &lat.elems[i]->PL, &M->Pirho, &M->PTx1, &M->PTx2, &M->Pgap);
       if (M->Pirho != 0e0) M->Porder = 1;
     } else {
       inf.getline(line, line_max);
       if (prt) printf("%s\n", line);
       sscanf(line, "%lf %lf %lf",
-	     &Cell[i]->dS[X_], &Cell[i]->dS[Y_], &dTerror); 
-      Cell[i]->dT[X_] = cos(dtor(dTerror));
-      Cell[i]->dT[Y_] = sin(dtor(dTerror));
+	     &lat.elems[i]->dS[X_], &lat.elems[i]->dS[Y_], &dTerror); 
+      lat.elems[i]->dT[X_] = cos(dtor(dTerror));
+      lat.elems[i]->dT[Y_] = sin(dtor(dTerror));
       M->PdTrms = dTerror; M->PdTrnd = 1e0;
     }
 
-    M->Pc0 = sin(Cell[i]->PL*M->Pirho/2.0);
+    M->Pc0 = sin(lat.elems[i]->PL*M->Pirho/2.0);
     M->Pc1 = cos(dtor(M->PdTpar))*M->Pc0;
     M->Ps1 = sin(dtor(M->PdTpar))*M->Pc0;
 
@@ -257,15 +257,15 @@ void get_elem(std::ifstream &inf, char *line, long int &i, int &kind)
     }
 
     if (globval.mat_meth && (M->Pthick == thick))
-      M->M_lin = get_lin_map(Cell[i], 0e0);
+      M->M_lin = get_lin_map(lat.elems[i], 0e0);
     break;
   case Wigl:
-    W = dynamic_cast<WigglerType*>(Cell[i]);
+    W = dynamic_cast<WigglerType*>(lat.elems[i]);
     W->Pmethod = method; W->PN = n;
 
     inf.getline(line, line_max);
     if (prt) printf("%s\n", line);
-    sscanf(line, "%lf %lf", &Cell[i]->PL, &W->Lambda);
+    sscanf(line, "%lf %lf", &lat.elems[i]->PL, &W->Lambda);
 
     inf.getline(line, line_max);
     if (prt) printf("%s\n", line);
@@ -280,7 +280,7 @@ void get_elem(std::ifstream &inf, char *line, long int &i, int &kind)
     }
     break;
   case Insertion:
-    ID = dynamic_cast<InsertionType*>(Cell[i]);
+    ID = dynamic_cast<InsertionType*>(lat.elems[i]);
     ID->Pmethod = method; ID->PN = n;
 
     inf.getline(line, line_max);
@@ -292,7 +292,7 @@ void get_elem(std::ifstream &inf, char *line, long int &i, int &kind)
       ID->secondorder = false;
 
       strcpy(ID->fname1, file_name);
-      Read_IDfile(ID->fname1, Cell[i]->PL, ID->nx, ID->nz,
+      Read_IDfile(ID->fname1, lat.elems[i]->PL, ID->nx, ID->nz,
 		  ID->tabx, ID->tabz, ID->thetax1, ID->thetaz1,
 		  ID->long_comp, ID->B2);
     } else if (n == 2) {
@@ -300,7 +300,7 @@ void get_elem(std::ifstream &inf, char *line, long int &i, int &kind)
       ID->secondorder = true;
 
       strcpy(ID->fname2, file_name);
-      Read_IDfile(ID->fname2, Cell[i]->PL, ID->nx, ID->nz,
+      Read_IDfile(ID->fname2, lat.elems[i]->PL, ID->nx, ID->nz,
 		  ID->tabx, ID->tabz, ID->thetax, ID->thetaz,
 		  ID->long_comp, ID->B2);
     } else {
@@ -332,7 +332,7 @@ void get_elem(std::ifstream &inf, char *line, long int &i, int &kind)
   case FieldMap:
     break;
   case Map:
-    Mapp = dynamic_cast<MapType*>(Cell[i]);
+    Mapp = dynamic_cast<MapType*>(lat.elems[i]);
     Id.identity(); Mapp->M.zero();
     for (j = 0; j < n_ps; j++) {
       inf.getline(line, line_max);
@@ -354,20 +354,21 @@ void get_elem(std::ifstream &inf, char *line, long int &i, int &kind)
 void get_elemf(const int i, const int kind)
 {
   if (i == 0)
-    Cell[i]->S = 0e0;
+    lat.elems[i]->S = 0e0;
   else
-    Cell[i]->S = Cell[i-1]->S + Cell[i]->PL;
+    lat.elems[i]->S = lat.elems[i-1]->S + lat.elems[i]->PL;
 
   if (i > 0) {
-    ElemFam[Cell[i]->Fnum-1].ElemF = get_kind(kind);
+    lat.elemf[lat.elems[i]->Fnum-1].ElemF = get_kind(kind);
 
-    if (Cell[i]->Knum == 1) *ElemFam[Cell[i]->Fnum-1].ElemF = *Cell[i];
+    if (lat.elems[i]->Knum == 1)
+      *lat.elemf[lat.elems[i]->Fnum-1].ElemF = *lat.elems[i];
 
-    ElemFam[Cell[i]->Fnum-1].KidList[Cell[i]->Knum-1] = i;
-    ElemFam[Cell[i]->Fnum-1].nKid =
-      max(Cell[i]->Knum, ElemFam[Cell[i]->Fnum-1].nKid);
+    lat.elemf[lat.elems[i]->Fnum-1].KidList[lat.elems[i]->Knum-1] = i;
+    lat.elemf[lat.elems[i]->Fnum-1].nKid =
+      max(lat.elems[i]->Knum, lat.elemf[lat.elems[i]->Fnum-1].nKid);
 
-    globval.Elem_nFam = max((long)Cell[i]->Fnum, globval.Elem_nFam);
+    globval.Elem_nFam = max((long)lat.elems[i]->Fnum, globval.Elem_nFam);
   }
 }
 
@@ -396,7 +397,7 @@ void rdmfile(const char *mfile_dat)
   SI_init();
 
   printf("\nrdmfile: read %ld elements, C = %7.5f\n",
-	 globval.Cell_nLoc, Cell[globval.Cell_nLoc]->S);
+	 globval.Cell_nLoc, lat.elems[globval.Cell_nLoc]->S);
 
   inf.close();
 }

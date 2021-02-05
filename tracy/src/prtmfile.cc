@@ -83,11 +83,11 @@ void prtName(FILE *fp, const int i,
 	     const int type, const int method, const int N, const bool reverse)
 {
   fprintf(fp, "%-15s %4d %4d %4d\n",
-	  Cell[i]->PName, Cell[i]->Fnum, Cell[i]->Knum, i);
+	  lat.elems[i]->PName, lat.elems[i]->Fnum, lat.elems[i]->Knum, i);
   fprintf(fp, " %3d %3d %3d %4d\n", type, method, N, reverse);
   fprintf(fp, " %23.16e %23.16e %23.16e %23.16e\n",
-	  Cell[i]->maxampl[X_][0], Cell[i]->maxampl[X_][1],
-	  Cell[i]->maxampl[Y_][0], Cell[i]->maxampl[Y_][1]);
+	  lat.elems[i]->maxampl[X_][0], lat.elems[i]->maxampl[X_][1],
+	  lat.elems[i]->maxampl[Y_][0], lat.elems[i]->maxampl[Y_][1]);
 }
 
 
@@ -120,34 +120,34 @@ void prtmfile(const char mfile_dat[])
 
   mfile = file_write(mfile_dat);
   for (i = 0; i <= globval.Cell_nLoc; i++) {
-    switch (Cell[i]->Pkind) {
+    switch (lat.elems[i]->Pkind) {
     case drift:
       prtName(mfile, i, drift_, 0, 0, 0);
-      fprintf(mfile, " %23.16e\n", Cell[i]->PL);
+      fprintf(mfile, " %23.16e\n", lat.elems[i]->PL);
       break;
     case Mpole:
-      M = dynamic_cast<MpoleType*>(Cell[i]);
-      if (Cell[i]->PL != 0.0) {
+      M = dynamic_cast<MpoleType*>(lat.elems[i]);
+      if (lat.elems[i]->PL != 0.0) {
 	prtName(mfile, i, mpole_, M->Pmethod, M->PN,
-		Cell[i]->Reverse);
+		lat.elems[i]->Reverse);
 	fprintf(mfile, " %23.16e %23.16e %23.16e %23.16e\n",
-		Cell[i]->dS[X_], Cell[i]->dS[Y_],
+		lat.elems[i]->dS[X_], lat.elems[i]->dS[Y_],
 		M->PdTpar, M->PdTsys+M->PdTrms*M->PdTrnd);
 	fprintf(mfile, " %23.16e %23.16e %23.16e %23.16e %23.16e\n",
-		Cell[i]->PL, M->Pirho, M->PTx1, M->PTx2, M->Pgap);
+		lat.elems[i]->PL, M->Pirho, M->PTx1, M->PTx2, M->Pgap);
 	prtHOM(mfile, M->n_design, M->PB, M->Porder);
       } else {
-	prtName(mfile, i, thinkick_, M->Pmethod, M->PN, Cell[i]->Reverse);
+	prtName(mfile, i, thinkick_, M->Pmethod, M->PN, lat.elems[i]->Reverse);
 	fprintf(mfile, " %23.16e %23.16e %23.16e\n",
-		Cell[i]->dS[X_], Cell[i]->dS[Y_],
+		lat.elems[i]->dS[X_], lat.elems[i]->dS[Y_],
 		M->PdTsys+M->PdTrms*M->PdTrnd);
 	prtHOM(mfile, M->n_design, M->PB, M->Porder);
       }
       break;
     case Wigl:
-      W = dynamic_cast<WigglerType*>(Cell[i]);
-      prtName(mfile, i, wiggler_, W->Pmethod, W->PN, Cell[i]->Reverse);
-      fprintf(mfile, " %23.16e %23.16e\n", Cell[i]->PL, W->Lambda);
+      W = dynamic_cast<WigglerType*>(lat.elems[i]);
+      prtName(mfile, i, wiggler_, W->Pmethod, W->PN, lat.elems[i]->Reverse);
+      fprintf(mfile, " %23.16e %23.16e\n", lat.elems[i]->PL, W->Lambda);
       fprintf(mfile, "%2d\n", W->n_harm);
       for (j = 0; j < W->n_harm; j++) {
 	fprintf(mfile, "%2d %23.16e %23.16e %23.16e %23.16e %23.16e\n",
@@ -156,7 +156,7 @@ void prtmfile(const char mfile_dat[])
       }
       break;
     case Cavity:
-      C = dynamic_cast<CavityType*>(Cell[i]);
+      C = dynamic_cast<CavityType*>(lat.elems[i]);
       prtName(mfile, i, cavity_, 0, 0, 0);
       fprintf(mfile, " %23.16e %23.16e %d %23.16e %23.16e\n",
 	      C->Pvolt/(1e9*globval.Energy), 2.0*M_PI*C->Pfreq/c0, C->Ph,
@@ -166,15 +166,15 @@ void prtmfile(const char mfile_dat[])
       prtName(mfile, i, marker_, 0, 0, 0);
       break;
     case Insertion:
-      ID = dynamic_cast<InsertionType*>(Cell[i]);
-      prtName(mfile, i, kick_map_, ID->Pmethod, ID->PN, Cell[i]->Reverse);
+      ID = dynamic_cast<InsertionType*>(lat.elems[i]);
+      prtName(mfile, i, kick_map_, ID->Pmethod, ID->PN, lat.elems[i]->Reverse);
       if (ID->firstorder)
 	fprintf(mfile, " %3.1lf %1d %s\n", ID->scaling, 1, ID->fname1);
       else
 	fprintf(mfile, " %3.1lf %1d %s\n", ID->scaling, 2, ID->fname2);
       break;
     case Map:
-      Mapp = dynamic_cast<MapType*>(Cell[i]);
+      Mapp = dynamic_cast<MapType*>(lat.elems[i]);
       prtName(mfile, i, map_, 0, 0, 0);
       for (j = 0; j < n_ps; j++) {
 	for (k = 0; k < n_ps; k++)
@@ -183,7 +183,7 @@ void prtmfile(const char mfile_dat[])
       }
       break;
     default:
-      printf("prtmfile: unknown type %d\n", Cell[i]->Pkind);
+      printf("prtmfile: unknown type %d\n", lat.elems[i]->Pkind);
       exit(1);
       break;
     }

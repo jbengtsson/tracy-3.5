@@ -119,7 +119,7 @@ void Cell_GetABGN(Matrix &M,
 }
 
 
-void Cell_Geteta(long i0, long i1, bool ring, double dP)
+void LatticeType::Cell_Geteta(long i0, long i1, bool ring, double dP)
 {
   long int i, lastpos;
   int      k;
@@ -139,7 +139,7 @@ void Cell_Geteta(long i0, long i1, bool ring, double dP)
   }
 
   for (i = i0; i <= i1; i++)
-    CopyVec(n+2, Cell[i]->BeamPos, codbuf[i]);
+    CopyVec(n+2, elems[i]->BeamPos, codbuf[i]);
 
   if (ring)
     GetCOD(globval.CODimax, globval.CODeps, dP+globval.dPcommon/2e0, lastpos);
@@ -149,7 +149,7 @@ void Cell_Geteta(long i0, long i1, bool ring, double dP)
   }
 
   for (i = i0; i <= i1; i++) {
-    elemp = Cell[i];
+    elemp = elems[i];
     for (k = 0; k < 2; k++) {
       elemp->Eta[k] = (elemp->BeamPos[2*k]-codbuf[i][2*k])/globval.dPcommon;
       elemp->Etap[k] =
@@ -183,8 +183,8 @@ void dagetprm(ss_vect<tps> &Ascr, Vector2 &alpha, Vector2 &beta)
 }
 
 
-void Cell_Twiss(long i0, long i1, ss_vect<tps> &Ascr, bool chroma, bool ring,
-		double dP)
+void LatticeType::Cell_Twiss(long i0, long i1, ss_vect<tps> &Ascr, bool chroma,
+			     bool ring, double dP)
 {
   long int     i;
   int          k;
@@ -200,7 +200,7 @@ void Cell_Twiss(long i0, long i1, ss_vect<tps> &Ascr, bool chroma, bool ring,
 
   if (globval.radiation) globval.dE = 0e0;
 
-  elemp = Cell[i0];
+  elemp = elems[i0];
   dagetprm(Ascr, elemp->Alpha, elemp->Beta);
   memcpy(elemp->Nu, nu1, sizeof(Vector2));
 
@@ -210,7 +210,7 @@ void Cell_Twiss(long i0, long i1, ss_vect<tps> &Ascr, bool chroma, bool ring,
 
   Ascr1 = Ascr0;
   for (i = i0; i <= i1; i++) {
-    Cell[i]->Elem_Pass(Ascr1); elemp = Cell[i];
+    elems[i]->Elem_Pass(Ascr1); elemp = elems[i];
     dagetprm(Ascr1, elemp->Alpha, elemp->Beta);
     for (k = 1; k <= 2; k++) {
       dnu[k-1] =
@@ -248,7 +248,7 @@ void Cell_Twiss(long i0, long i1, ss_vect<tps> &Ascr, bool chroma, bool ring,
 }
 
 
-void Ring_Getchrom(double dP)
+void LatticeType::Ring_Getchrom(double dP)
 {
   long int lastpos;
   int      k;
@@ -287,7 +287,7 @@ void Ring_Getchrom(double dP)
 }
 
 
-void Ring_Twiss(bool chroma, double dP)
+void LatticeType::Ring_Twiss(bool chroma, double dP)
 {
   long int      lastpos = 0;
   int           n = 0;
@@ -309,7 +309,7 @@ void Ring_Twiss(bool chroma, double dP)
     return;
   }
   // Get eigenvalues and eigenvectors for the one turn transfer matrix
-  GDiag(n, Cell[globval.Cell_nLoc]->S, globval.Ascr, globval.Ascrinv, R,
+  GDiag(n, elems[globval.Cell_nLoc]->S, globval.Ascr, globval.Ascrinv, R,
         globval.OneTurnMat, globval.Omega, globval.Alphac);
 
   // AScr = putlinmat(n, globval.Ascr);
@@ -321,7 +321,7 @@ void Ring_Twiss(bool chroma, double dP)
 
   Cell_Twiss(0, globval.Cell_nLoc, AScr, chroma, true, dP);
 
-  memcpy(globval.TotalTune, Cell[globval.Cell_nLoc]->Nu, sizeof(Vector2));
+  memcpy(globval.TotalTune, elems[globval.Cell_nLoc]->Nu, sizeof(Vector2));
   status.tuneflag = true;
 
   if (chroma && !globval.Cavity_on) {
@@ -330,13 +330,52 @@ void Ring_Twiss(bool chroma, double dP)
 }
 
 
-void Ring_GetTwiss(bool chroma, double dP)
+void LatticeType::Ring_GetTwiss(bool chroma, double dP)
 {
 
   if (trace) printf("enter Ring_GetTwiss\n");
   Ring_Twiss(chroma, dP);
-  globval.Alphac = globval.OneTurnMat[ct_][delta_]/Cell[globval.Cell_nLoc]->S;
+  globval.Alphac = globval.OneTurnMat[ct_][delta_]/elems[globval.Cell_nLoc]->S;
   if (trace) printf("exit Ring_GetTwiss\n");
+}
+
+
+void LatticeType::TraceABN(long i0, long i1, const Vector2 &alpha,
+			   const Vector2 &beta, const Vector2 &eta,
+			   const Vector2 &etap, const double dP)
+{
+  long          i, j;
+  double        sb;
+  ss_vect<tps>  Ascr;
+
+  UnitMat(6, globval.Ascr);
+  for (i = 1; i <= 2; i++) {
+    sb = sqrt(beta[i-1]); j = i*2 - 1;
+    globval.Ascr[j-1][j-1] = sb;               globval.Ascr[j-1][j] = 0.0;
+    globval.Ascr[j][j - 1] = -(alpha[i-1]/sb); globval.Ascr[j][j] = 1/sb;
+  }
+  globval.Ascr[0][4] = eta[0]; globval.Ascr[1][4] = etap[0];
+  globval.Ascr[2][4] = eta[1]; globval.Ascr[3][4] = etap[1];
+
+  for (i = 0; i < 6; i++)
+    globval.CODvect[i] = 0.0;
+  globval.CODvect[4] = dP;
+
+  for (i = 0; i <= 5; i++) {
+    Ascr[i] = tps(globval.CODvect[i]);
+    for (j = 0; j <= 5; j++)
+      Ascr[i] += globval.Ascr[i][j]*tps(0.0, j+1);
+    Cell_Twiss(i0, i1, Ascr, false, false, dP);
+  }
+
+}
+
+
+void LatticeType::ttwiss(const Vector2 &alpha, const Vector2 &beta,
+			 const Vector2 &eta, const Vector2 &etap,
+			 const double dP)
+{
+  TraceABN(0, globval.Cell_nLoc, alpha, beta, eta, etap, dP);
 }
 
 
@@ -347,15 +386,15 @@ struct LOC_Ring_Fittune
 };
 
 
-void shiftk(long Elnum, double dk, struct LOC_Ring_Fittune *LINK)
+void LatticeType::shiftk(long Elnum, double dk, struct LOC_Ring_Fittune *LINK)
 {
   ElemType  *elemp;
   MpoleType *M;
 
-  elemp = Cell[Elnum];
+  elemp = elems[Elnum];
   M = dynamic_cast<MpoleType*>(elemp);
   M->PBpar[Quad+HOMmax] += dk;
-  Mpole_SetPB(elemp->Fnum, elemp->Knum, (long)Quad);
+  lat.Mpole_SetPB(elemp->Fnum, elemp->Knum, (long)Quad);
 }
 
 
@@ -368,8 +407,8 @@ void checkifstable(struct LOC_Ring_Fittune *LINK)
 }
 
 
-void Ring_Fittune(Vector2 &nu, double eps, iVector2 &nq, long qf[], long qd[],
-                  double dkL, long imax)
+void LatticeType::Ring_Fittune(Vector2 &nu, double eps, iVector2 &nq, long qf[],
+			       long qd[], double dkL, long imax)
 {
   struct LOC_Ring_Fittune V;
 
@@ -440,26 +479,26 @@ void Ring_Fittune(Vector2 &nu, double eps, iVector2 &nq, long qf[], long qd[],
       printf("  Nux = %10.6f%10.6f, Nuy = %10.6f%10.6f,"
 	     " QF*L = % .5E, QD*L = % .5E @%3d\n",
 	     nu0[0], nu1[0], nu0[1], nu1[1],
-	     Elem_GetKval(Cell[qf[0]]->Fnum, 1, (long)Quad),
-	     Elem_GetKval(Cell[qd[0]]->Fnum, 1, (long)Quad), i);
+	     lat.Elem_GetKval(elems[qf[0]]->Fnum, 1, (long)Quad),
+	     lat.Elem_GetKval(elems[qd[0]]->Fnum, 1, (long)Quad), i);
   } while (sqrt(sqr(nu[0]-nu0[0])+sqr(nu[1]-nu0[1])) >= eps && i != imax);
 }
 
 
-void shiftkp(long Elnum, double dkp)
+void LatticeType::shiftkp(long Elnum, double dkp)
 {
   ElemType  *elemp;
   MpoleType *M;
 
-  elemp = Cell[Elnum];
+  elemp = elems[Elnum];
   M = dynamic_cast<MpoleType*>(elemp);
   M->PBpar[Sext+HOMmax] += dkp;
-  Mpole_SetPB(elemp->Fnum, elemp->Knum, (long)Sext);
+  lat.Mpole_SetPB(elemp->Fnum, elemp->Knum, (long)Sext);
 }
 
 
-void Ring_Fitchrom(Vector2 &ksi, double eps, iVector2 &ns,
-		   long sf[], long sd[], double dkpL, long imax)
+void LatticeType::Ring_Fitchrom(Vector2 &ksi, double eps, iVector2 &ns,
+				long sf[], long sd[], double dkpL, long imax)
 {
   bool      rad;
   long int  lastpos;
@@ -523,8 +562,8 @@ void Ring_Fitchrom(Vector2 &ksi, double eps, iVector2 &ns,
       ksi0[j] = globval.Chrom[j];
     if (trace)
       printf("  ksix =%10.6f, ksiy =%10.6f, SF = % .5E, SD = % .5E @%3d\n",
-	     ksi0[0], ksi0[1], Elem_GetKval(Cell[sf[0]]->Fnum, 1, (long)Sext),
-	     Elem_GetKval(Cell[sd[0]]->Fnum, 1, (long)Sext), i);
+	     ksi0[0], ksi0[1], lat.Elem_GetKval(elems[sf[0]]->Fnum, 1, (long)Sext),
+	     lat.Elem_GetKval(elems[sd[0]]->Fnum, 1, (long)Sext), i);
   } while (sqrt(sqr(ksi[0]-ksi0[0])+sqr(ksi[1]-ksi0[1])) >= eps && i != imax);
 _L999:
   /* Restore radiation */
@@ -539,15 +578,15 @@ struct LOC_Ring_FitDisp
 };
 
 
-static void shiftk_(long Elnum, double dk, struct LOC_Ring_FitDisp *LINK)
+void LatticeType::shiftk_(long Elnum, double dk, struct LOC_Ring_FitDisp *LINK)
 {
   ElemType  *elemp;
   MpoleType *M;
 
-  elemp = Cell[Elnum];
+  elemp = elems[Elnum];
   M = dynamic_cast<MpoleType*>(elemp);
   M->PBpar[Quad+HOMmax] += dk;
-  Mpole_SetPB(elemp->Fnum, elemp->Knum, (long)Quad);
+  lat.Mpole_SetPB(elemp->Fnum, elemp->Knum, (long)Quad);
 }
 
 
@@ -560,8 +599,8 @@ void checkifstable_(struct LOC_Ring_FitDisp *LINK)
 }
 
 
-void Ring_FitDisp(long pos, double eta, double eps, long nq, long q[],
-                  double dkL, long imax)
+void LatticeType::Ring_FitDisp(long pos, double eta, double eps, long nq,
+			       long q[], double dkL, long imax)
 {
   /*pos : integer; eta, eps : double;
                          nq : integer; var q : fitvect;
@@ -583,14 +622,14 @@ void Ring_FitDisp(long pos, double eta, double eps, long nq, long q[],
   /* Turn off radiation */
   rad = globval.radiation; globval.radiation = false;
   Ring_GetTwiss(true, dP); checkifstable_(&V);
-  Eta0 = Cell[pos]->Eta[0];
+  Eta0 = elems[pos]->Eta[0];
   i = 0;
   while (fabs(eta-Eta0) > eps && i < imax) {
     i++;
     for (j = 0; j < nq; j++)
       shiftk_(q[j], dkL, &V);
     Ring_GetTwiss(true, dP); checkifstable_(&V);
-    deta = Cell[pos]->Eta[0] - Eta0;
+    deta = elems[pos]->Eta[0] - Eta0;
     if (deta == 0.0) {
       printf("  deta is 0\n");
       goto _L999;
@@ -599,13 +638,132 @@ void Ring_FitDisp(long pos, double eta, double eps, long nq, long q[],
     for (j = 0; j < nq; j++)
       shiftk_(q[j], dkL1, &V);
     Ring_GetTwiss(true, dP); checkifstable_(&V);
-    Eta0 = Cell[pos]->Eta[0];
+    Eta0 = elems[pos]->Eta[0];
     if (trace)
       printf("  Dispersion = % .5E, kL =% .5E @%3d\n",
-	     Eta0, Elem_GetKval(Cell[q[0]]->Fnum, 1, (long)Quad), i);
+	     Eta0, lat.Elem_GetKval(elems[q[0]]->Fnum, 1, (long)Quad), i);
   }
 _L999:
   /* Restore radiation */
   globval.radiation = rad;
 }
 
+
+double get_curly_H(const double alpha_x, const double beta_x,
+		   const double eta_x, const double etap_x)
+{
+  double curly_H, gamma_x;
+
+  gamma_x = (1.0+sqr(alpha_x))/beta_x;
+
+  curly_H = gamma_x*sqr(eta_x) + 2.0*alpha_x*eta_x*etap_x + beta_x*sqr(etap_x);
+
+  return curly_H;
+}
+
+
+void LatticeType::get_I(double I[], const bool prt)
+{
+  int j, k;
+
+  for (k = 0; k <= 5; k++)
+    I[k] = 0e0;
+
+  if (prt) {
+    printf("\nget_I:\n");
+    printf("\n      name               s     curly_H      I_1        I_2"
+	   "        I_3        I_4        I_5      alpha_x    beta_x"
+	   "     eta_x      eta'_x     alpha_y    beta_y\n\n");
+  }
+  for (j = 0; j <= globval.Cell_nLoc; j++)
+    if ((elems[j]->Pkind == drift) || (elems[j]->Pkind == Mpole) ||
+	(elems[j]->Pkind == Wigl) ||
+	(elems[j]->Pkind == marker)) {
+      if (prt)
+	printf("%5d %-10s %6.3f %10.3e",
+	       j, elems[j]->PName, elems[j]->S,
+	       elems[j]->curly_dH_x);
+      for (k = 1; k <= 5; k++) {
+	I[k] += elems[j]->dI[k];
+	if (prt) printf(" %10.3e", elems[j]->dI[k]);
+      }
+      if (prt)
+	printf(" %10.3e %10.3e %10.3e %10.3e %10.3e %10.3e\n",
+	       elems[j]->Alpha[X_], elems[j]->Beta[X_],
+	       elems[j]->Eta[X_], elems[j]->Etap[X_],
+	       elems[j]->Alpha[Y_], elems[j]->Beta[Y_]);
+    }
+}
+
+
+void LatticeType::get_eps_x(double &eps_x, double &sigma_delta, double &U_0,
+			double J[], double tau[], double I[], const bool prt)
+{
+  bool         cav, emit;
+  long int     lastpos;
+  int          k;
+  ss_vect<tps> A;
+
+  const double
+    C_q_scl = 1e18*C_q/sqr(m_e),
+    E_0     = 1e9*globval.Energy,
+    C       = elems[globval.Cell_nLoc]->S,
+    T_0     = C/c0;
+
+  /* Note:
+
+        T
+       M  J M = J,
+
+        -1       T           |  0  I |        T   | beta   -alpha |
+       A   = -J A  J,    J = |       |,    A A  = |               |
+                             | -I  0 |            | -alpha  gamma |
+
+     Transform to Floquet Space:
+
+        -1           T
+       A   eta = -J A  J eta,
+
+               -1      T  -1                T    T
+       H~ = ( A   eta )  A   eta = ( J eta )  A A  ( J eta )
+
+  */
+
+  cav = globval.Cavity_on; emit = globval.emittance;
+
+  globval.Cavity_on = false; globval.emittance = false;
+
+  Ring_GetTwiss(false, 0.0);
+
+  A = putlinmat(6, globval.Ascr); A += globval.CODvect;
+
+  globval.emittance = true;
+
+  Cell_Pass(0, globval.Cell_nLoc, A, lastpos);
+
+  get_I(I, false);
+
+  U_0 = 1e9*C_gamma*pow(globval.Energy, 4)*I[2]/(2e0*M_PI);
+  eps_x = C_q_scl*sqr(globval.Energy)*I[5]/(I[2]-I[4]);
+  sigma_delta = sqrt(C_q_scl*sqr(globval.Energy)*I[3]/(2e0*I[2]+I[4]));
+  J[X_] = 1e0 - I[4]/I[2]; J[Z_] = 2e0 + I[4]/I[2]; J[Y_] = 4e0 - J[X_] - J[Z_];
+
+  for (k = 0; k < 3; k++)
+    tau[k] = 4e0*M_PI*T_0/(C_gamma*cube(1e-9*E_0)*J[k]*I[2]);
+
+  if (prt) {
+    printf("\n  I[1..5]:");
+    for (k = 1; k <= 5; k++)
+      printf(" %10.3e", I[k]);
+    printf("\n");
+
+    printf("\n  U_0   [keV]    = %5.1f\n", 1e-3*U_0);
+    printf("  eps_x [nm.rad] = %6.4f\n", 1e9*eps_x);
+    printf("  sigma_delta    = %9.3e\n", sigma_delta);
+    printf("  J              = [%5.3f, %5.3f, %5.3f]\n", J[X_], J[Y_], J[Z_]);
+    printf("  tau   [msec]   = [%e, %e, %e]\n",
+	   1e3*tau[X_], 1e3*tau[Y_], 1e3*tau[Z_]);
+  }
+
+  globval.Cavity_on = cav; globval.emittance = emit;
+}

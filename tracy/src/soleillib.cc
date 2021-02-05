@@ -28,7 +28,7 @@
        trace
 
    specific functions:
-       getcod, Ring_GetTwiss, getelem
+       lat.getcod, lat.Ring_GetTwiss, lat.getelem
 
    Comments:
        none
@@ -54,10 +54,10 @@ void Get_Disp_dp(void)
 
   for (i = 1; i <= 20; i++) {
     dP = -0.003 + 1e-6 + i*0.0006;
-    //~ getcod(dP, lastpos);
+    //~ lat.getcod(dP, lastpos);
     findcod(dP);
-    Ring_GetTwiss(true, dP);  /* Compute and get Twiss parameters */
-    getelem(0, &Cell);
+    lat.Ring_GetTwiss(true, dP);  /* Compute and get Twiss parameters */
+    lat.getelem(0, &Cell);
     fprintf(outf,"%+e %+e %+e\n", dP, Cell.BeamPos[0], Cell.Eta[0]);
   }
 
@@ -127,9 +127,9 @@ void InducedAmplitude(long spos)
 
     /* Computes closed orbit and store it in a vector */
     set_vectorcod(codvector, dP) ;
-    Ring_GetTwiss(false, dP);  /* Compute and get Twiss parameters */
-    getelem(1L, &Celldebut);
-    getelem(spos, &Cell);
+    lat.Ring_GetTwiss(false, dP);  /* Compute and get Twiss parameters */
+    lat.getelem(1L, &Celldebut);
+    lat.getelem(spos, &Cell);
 
     /* compute H at s =spos */
     dP20 = ((dP == 0) ? 1.0 : dP*dP);
@@ -184,8 +184,8 @@ void InducedAmplitude(long spos)
        none
 
    specific functions:
-       Ring_GetTwiss
-       getelem
+       lat.Ring_GetTwiss
+       lat.getelem
 
    Comments:
        none
@@ -197,8 +197,8 @@ void Hfonction(long pos, double dP,Vector2 H)
   long     i;
   ElemType Cell;
 
-  Ring_GetTwiss(pos, dP); /* Compute and get Twiss parameters */
-  getelem(pos, &Cell);    /* Position sur l'element pos */
+  lat.Ring_GetTwiss(pos, dP); /* Compute and get Twiss parameters */
+  lat.getelem(pos, &Cell);    /* Position sur l'element pos */
 
   i = 0; /* Horizontal */
   H[i] = (1+Cell.Alpha[i]*Cell.Alpha[i])/Cell.Beta[i]*Cell.Eta[i]*Cell.Eta[i]+
@@ -233,9 +233,9 @@ void Hfonction(long pos, double dP,Vector2 H)
        none
 
    specific functions:
-       getcod
-       Ring_GetTwiss
-       getelem
+       lat.getcod
+       lat.Ring_GetTwiss
+       lat.getelem
 
    Comments:
        Bug: Cell.BeamPos does not give closed orbit !!!
@@ -247,12 +247,12 @@ void Hcofonction(long pos, double dP,Vector2 H)
   long     lastpos = 1;
   ElemType Cell;
 
-  //~ getcod(dP, lastpos);   /* determine closed orbit */
+  //~ lat.getcod(dP, lastpos);   /* determine closed orbit */
   findcod(dP);
   if (lastpos != globval.Cell_nLoc) printf("Ring unstable for dp=%+e @ pos=%ld\n", dP, lastpos);
 
-  Ring_GetTwiss(pos, dP); /* Compute and get Twiss parameters */
-  getelem(pos, &Cell);    /* Position sur l'element pos */
+  lat.Ring_GetTwiss(pos, dP); /* Compute and get Twiss parameters */
+  lat.getelem(pos, &Cell);    /* Position sur l'element pos */
 
   i = 0; /* Horizontal */
   H[i] =
@@ -293,8 +293,8 @@ void Hcofonction(long pos, double dP,Vector2 H)
 
    specific functions:
        setrandcut, initranf
-       getelem, putelem
-       Mpole_SetPB
+       lat.getelem, putelem
+       lat.Mpole_SetPB
 
    Comments:
        Only valid if quad split into two part (cf pair variable)
@@ -331,7 +331,7 @@ void SetErr(void)
 
   for (i = 1L; i <= globval.Cell_nLoc; i++)
   {
-    getelem(i, &Cell);
+    lat.getelem(i, &Cell);
     if (Cell.Pkind == 2L)
     {
       M = dynamic_cast<MpoleType*>(&Cell);
@@ -347,9 +347,9 @@ void SetErr(void)
 	  printf("%6s % .5e % .5e % .5e\n",Cell.PName,
 		 M->PBpar[HOMmax-2L], M->PBpar[HOMmax+2L], theta);
 
-        putelem(i, &Cell);
-        Mpole_SetPB(Cell.Fnum, Cell.Knum, -2L);
-        Mpole_SetPB(Cell.Fnum, Cell.Knum, 2L);
+        lat.putelem(i, &Cell);
+        lat.Mpole_SetPB(Cell.Fnum, Cell.Knum, -2L);
+        lat.Mpole_SetPB(Cell.Fnum, Cell.Knum, 2L);
       }
     }
   }
@@ -395,40 +395,40 @@ void DefineCh(void)
 
   /* Look for indices for defining the vaccum pipe*/
   for (i = 0; i <= globval.Cell_nLoc; i++) {
-    if (Cell[i]->Pkind == marker){
-      if (strncmp(Cell[i]->PName,"ssep",4) == 0){
+    if (lat.elems[i]->Pkind == marker){
+      if (strncmp(lat.elems[i]->PName,"ssep",4) == 0){
         if (trace) fprintf(stdout,"trouve %s Element numero %ld \n",
-			   Cell[i]->PName,i);
+			   lat.elems[i]->PName,i);
         isep1 = i;
       }
-      if (strncmp(Cell[i]->PName,"esep",4) == 0) {
+      if (strncmp(lat.elems[i]->PName,"esep",4) == 0) {
         if (trace) fprintf(stdout,"trouve %s Element numero %ld \n",
-			   Cell[i]->PName,i-1);
+			   lat.elems[i]->PName,i-1);
         isep2 = i-1;
       }
-      if (strncmp(Cell[i]->PName,"ehu600",6) == 0) {
+      if (strncmp(lat.elems[i]->PName,"ehu600",6) == 0) {
         if (trace) fprintf(stdout,"trouve %s Element numero %ld \n",
-			   Cell[i]->PName,i-1);
+			   lat.elems[i]->PName,i-1);
         hu600 = i-1;
       }
-      if (strncmp(Cell[i]->PName,"ssdm",4) == 0) {
+      if (strncmp(lat.elems[i]->PName,"ssdm",4) == 0) {
          if (trace) fprintf(stdout,"trouve %s Element numero %ld \n",
-			    Cell[i]->PName,i);
+			    lat.elems[i]->PName,i);
          isdm1 = i;
       }
-      if (strncmp(Cell[i]->PName,"esdm",4) == 0) {
+      if (strncmp(lat.elems[i]->PName,"esdm",4) == 0) {
         if (trace) fprintf(stdout,"trouve %s Element numero %ld \n",
-			   Cell[i]->PName,i);
+			   lat.elems[i]->PName,i);
         isdm2 = i;
       }
-      if (strncmp(Cell[i]->PName,"ssdac",5) == 0) {
+      if (strncmp(lat.elems[i]->PName,"ssdac",5) == 0) {
         if (trace) fprintf(stdout,"trouve %s Element numero %ld \n",
-			   Cell[i]->PName,i);
+			   lat.elems[i]->PName,i);
         isdac1 = i;
       }
-      if (strncmp(Cell[i]->PName,"esdac",5) == 0) {
+      if (strncmp(lat.elems[i]->PName,"esdac",5) == 0) {
         if (trace) fprintf(stdout,"trouve %s Element numero %ld \n",
-			   Cell[i]->PName,i-1);
+			   lat.elems[i]->PName,i-1);
         isdac2 = i-1;
       }
     }
@@ -441,28 +441,28 @@ void DefineCh(void)
     if  ((i < isep1) || ((i > isep2) && (i < isdm1)) ||
     ((i > isdm2) && (i < isdac1)) || (i > isdac2)) {
       /* ch normale */
-      Cell[i]->maxampl[X_][0] = -35.e-3;
-      Cell[i]->maxampl[X_][1] =  35.e-3;
-      Cell[i]->maxampl[Y_][1] =  12.5e-3;
+      lat.elems[i]->maxampl[X_][0] = -35.e-3;
+      lat.elems[i]->maxampl[X_][1] =  35.e-3;
+      lat.elems[i]->maxampl[Y_][1] =  12.5e-3;
     } else if ((i >= isdm1) && (i <= isdm2)) {
       /* SD13 */
-      Cell[i]->maxampl[X_][0] = -21e-3;
-      Cell[i]->maxampl[X_][1] =  21e-3;
-      Cell[i]->maxampl[Y_][1] =   5e-3;
+      lat.elems[i]->maxampl[X_][0] = -21e-3;
+      lat.elems[i]->maxampl[X_][1] =  21e-3;
+      lat.elems[i]->maxampl[Y_][1] =   5e-3;
     } else if ((i >= isep1) && (i <= isep2)) {
       /* septum */
-      Cell[i]->maxampl[X_][0] = -25e-3;
-      Cell[i]->maxampl[X_][1] =  25e-3;
-      Cell[i]->maxampl[Y_][1] =  12.5e-3;
+      lat.elems[i]->maxampl[X_][0] = -25e-3;
+      lat.elems[i]->maxampl[X_][1] =  25e-3;
+      lat.elems[i]->maxampl[Y_][1] =  12.5e-3;
     } else if ((i >= isdac1) && (i <= isdac2)) {
       /*  minigap */
-      Cell[i]->maxampl[X_][0] = -35e-3;
-      Cell[i]->maxampl[X_][1] =  35e-3;
-      Cell[i]->maxampl[Y_][1] =  2.5e-3;
+      lat.elems[i]->maxampl[X_][0] = -35e-3;
+      lat.elems[i]->maxampl[X_][1] =  35e-3;
+      lat.elems[i]->maxampl[Y_][1] =  2.5e-3;
     }
     if  (i <= hu600) {
       /* HU640 */
-      Cell[i]->maxampl[Y_][1] =  7.0e-3;
+      lat.elems[i]->maxampl[Y_][1] =  7.0e-3;
     }
   }
 
@@ -550,7 +550,7 @@ void Trac_Tab(double x, double px, double y, double py, double dp,
   lastn = 0;
   (lastpos)=pos;
 
-  Cell_Pass(pos -1, globval.Cell_nLoc, x1, lastpos);
+  lat.Cell_Pass(pos -1, globval.Cell_nLoc, x1, lastpos);
 
   if(trace) fprintf(outf1, "\n");
 
@@ -560,7 +560,7 @@ void Trac_Tab(double x, double px, double y, double py, double dp,
         (fabs(x1[0]) < aperture[0]) && (fabs(x1[2]) < aperture[1]))
      /* tracking entre debut anneau et element */
     {
-     Cell_Pass(0,globval.Cell_nLoc, x1, lastpos);
+     lat.Cell_Pass(0,globval.Cell_nLoc, x1, lastpos);
      if(trace) fprintf(outf1, "%6ld %+10.5e %+10.5e %+10.5e %+10.5e"
 		       " %+10.5e %+10.5e \n",
 		       lastn, x1[0], x1[1], x1[2], x1[3], x1[4], x1[5]);
@@ -1112,7 +1112,7 @@ void NuDp(long Nb, long Nbtour, double emax)
        status = true;
     }
     
-    //~ getcod(dp, lastpos); // get cod for printout
+    //~ lat.getcod(dp, lastpos); // get cod for printout
     findcod(dp);
 
     fprintf(outf,"%14.6e %14.6e %14.6e %14.6e %14.6e %14.6e %14.6e\n",
@@ -1448,7 +1448,7 @@ void Check_Trac(double x, double px, double y, double py, double dp)
 
   for (i = 1; i<= globval.Cell_nLoc; i++)
   {
-    Cell_Pass(i,i+1, x1, lastpos);
+    lat.Cell_Pass(i,i+1, x1, lastpos);
     fprintf(outf,"%4d % .5e % .5e % .5e % .5e % .5e % .5e\n",
             i, x1[0],x1[1],x1[2],x1[3],x1[4],x1[5]);
   }
@@ -1492,7 +1492,7 @@ void Enveloppe(double x, double px, double y, double py, double dp, double nturn
   const char fic[] = "enveloppe.out";
 
   /* Get cod the delta = energy*/
-  //~ getcod(dp, lastpos);
+  //~ lat.getcod(dp, lastpos);
   findcod(dp);
 
   printf("xcod=%.5e mm zcod=% .5e mm \n", globval.CODvect[0]*1e3, globval.CODvect[2]*1e3);
@@ -1514,8 +1514,8 @@ void Enveloppe(double x, double px, double y, double py, double dp, double nturn
     for (i = 0; i< globval.Cell_nLoc; i++)
     {/* loop over full ring */
 
-      getelem(i, &Cell);
-      Cell_Pass(i,i+1, x1, lastpos);
+      lat.getelem(i, &Cell);
+      lat.Cell_Pass(i,i+1, x1, lastpos);
       if (lastpos != i+1)
       {
        printf("Unstable motion ...\n"); exit_(1);
@@ -1548,7 +1548,7 @@ void Enveloppe(double x, double px, double y, double py, double dp, double nturn
        trace
 
    Specific functions:
-       getelem, SetKLpar, GetKpar
+       lat.getelem, SetKLpar, GetKpar
 
    Comments:
        Test for short and long quadrupole could be changed using the length
@@ -1607,7 +1607,7 @@ void Multipole(void)
 /* Make lists of dipoles, quadrupoles and  sextupoles */
   for (i = 0; i <= globval.Cell_nLoc; i++)
   {
-    getelem(i, &Cell); /* get element */
+    lat.getelem(i, &Cell); /* get element */
 
     if (Cell.Pkind == Mpole)
     {
@@ -1679,7 +1679,7 @@ void Multipole(void)
 
  for (i = 0; i < ndip; i++)
  {
-   getelem(dlist[i], &Cell);
+   lat.getelem(dlist[i], &Cell);
    M = dynamic_cast<MpoleType*>(&Cell);
    theta = Cell.PL*M->Pirho;
 
@@ -1735,7 +1735,7 @@ void Multipole(void)
 
  for (i = 0; i < nquad; i++)
  {
-   getelem(qlist[i], &Cell);
+   lat.getelem(qlist[i], &Cell);
    b2 = Cell.PL*GetKpar(Cell.Fnum, Cell.Knum, 2L);
 
    /* 12-pole multipole error */
@@ -1790,7 +1790,7 @@ void Multipole(void)
 
  for (i = 0; i < nsext; i++)
  {
-   getelem(slist[i], &Cell);
+   lat.getelem(slist[i], &Cell);
    b3 = GetKpar(Cell.Fnum, Cell.Knum, 3L);
 
    /* 18-pole multipole error */
@@ -1854,7 +1854,7 @@ void Multipole(void)
 
  for (i = 0; i < nhcorr; i++)
  {
-   getelem(hcorrlist[i], &Cell);
+   lat.getelem(hcorrlist[i], &Cell);
    corr_strength = hcorr[i]/brho;
 
    /* gradient error */
@@ -1915,7 +1915,7 @@ void Multipole(void)
 
  for (i = 0; i < nvcorr; i++)
  {
-   getelem(vcorrlist[i], &Cell);
+   lat.getelem(vcorrlist[i], &Cell);
    corr_strength = vcorr[i]/brho;
 
    /* skew decapole error */
@@ -1968,7 +1968,7 @@ void Multipole(void)
 
  for (i = 0; i < nqcorr; i++)
  {
-   getelem(qcorrlist[i], &Cell);
+   lat.getelem(qcorrlist[i], &Cell);
 
    /* skew octupole */
    mKL = dBoB4*qcorr[i]*x02i;
@@ -1999,7 +1999,7 @@ void Multipole(void)
        trace
 
    Specific functions:
-       GetElem, SetKLpar, GetKpar
+       Lat.Getelem, SetKLpar, GetKpar
 
    Comments:
        none
@@ -2022,7 +2022,7 @@ void SetSkewQuad(void)
   /* make quadrupole list */
   for (i = 0; i <= globval.Cell_nLoc; i++)
   {
-    getelem(i, &Cell); /* get element */
+    lat.getelem(i, &Cell); /* get element */
 
     if (Cell.Pkind == Mpole)
     {
@@ -2057,7 +2057,7 @@ void SetSkewQuad(void)
   {
     if (trace) fprintf(stdout,"%le \n", theta[i]);
 
-    getelem(qlist[i], &Cell);
+    lat.getelem(qlist[i], &Cell);
     M = dynamic_cast<MpoleType*>(&Cell);
 
     /* Get KL for a quadrupole */
@@ -2213,7 +2213,7 @@ void MomentumAcceptance(long deb, long fin, double ep_min, double ep_max,
     // Store vertical initial conditions
     // case where deb is not element 1
     if (deb > 1L){
-       Cell_Pass(1L, deb - 1L, x0, lastpos); // track from 1 to deb-1L element
+       lat.Cell_Pass(1L, deb - 1L, x0, lastpos); // track from 1 to deb-1L element
        j = deb -1L;
        if (lastpos != j){ // look if stable
          tabz0 [i- 1L][j] = 1.0;
@@ -2231,7 +2231,7 @@ void MomentumAcceptance(long deb, long fin, double ep_min, double ep_max,
    }
 
     for (j = deb; j < fin; j++){ // loop over elements
-      Cell_Pass(j -1L, j, x0, lastpos);
+      lat.Cell_Pass(j -1L, j, x0, lastpos);
       if (lastpos != j){ // look if stable
         tabz0 [i - 1L][j] = 1.0;
         tabpz0[i - 1L][j] = 1.0;
@@ -2253,9 +2253,9 @@ void MomentumAcceptance(long deb, long fin, double ep_min, double ep_max,
 
   do
   {
-    //~ getcod(dP=0.0, lastpos);       /* determine closed orbit */
+    //~ lat.getcod(dP=0.0, lastpos);       /* determine closed orbit */
     findcod(dP=0.0);
-  getelem(pos,&Cell);
+  lat.getelem(pos,&Cell);
     // coordinates around closed orbit which is non zero for 6D tracking
     x     = Cell.BeamPos[0];
     px    = Cell.BeamPos[1];
@@ -2290,8 +2290,8 @@ void MomentumAcceptance(long deb, long fin, double ep_min, double ep_max,
     
     if ((lastn) == nturn) dp1 = dp2;
 
-    getelem(lastpos, &Clost);
-    getelem(pos, &Cell);
+    lat.getelem(lastpos, &Clost);
+    lat.getelem(pos, &Cell);
     fprintf(stdout, "pos=%4ld z0 =% 10.5f  pz0 =% 10.5f  \n",
 	    pos, tabz0[i-1L][pos-1L], tabpz0[i-1L][pos-1L]);
     fprintf(stdout, "%4ld %10.5f %10.5f %10.5f %*s\n",
@@ -2366,7 +2366,7 @@ void MomentumAcceptance(long deb, long fin, double ep_min, double ep_max,
     // Store vertical initial conditions
     // case where deb is not element 1
     if (deb > 1L){
-       Cell_Pass(1L, deb - 1L, x0, lastpos); // track from 1 to deb-1L element
+       lat.Cell_Pass(1L, deb - 1L, x0, lastpos); // track from 1 to deb-1L element
        j = deb -1L;
        if (lastpos != j){ // look if stable
          tabz0 [i- 1L][j] = 1.0;
@@ -2385,7 +2385,7 @@ void MomentumAcceptance(long deb, long fin, double ep_min, double ep_max,
    }
 
     for (j = deb; j < fin; j++){ // loop over elements
-      Cell_Pass(j -1L, j, x0, lastpos);
+      lat.Cell_Pass(j -1L, j, x0, lastpos);
       if (lastpos != j){ // look if stable
         tabz0 [i - 1L][j] = 1.0;
         tabpz0[i - 1L][j] = 1.0;
@@ -2406,9 +2406,9 @@ void MomentumAcceptance(long deb, long fin, double ep_min, double ep_max,
   /***************************************************************/
     
   do {
-    //~ getcod(dP=0.0, lastpos);       /* determine closed orbit */
+    //~ lat.getcod(dP=0.0, lastpos);       /* determine closed orbit */
     findcod(dP=0.0);
-  getelem(pos,&Cell);
+  lat.getelem(pos,&Cell);
     // coordinates around closed orbit which is non zero for 6D tracking
     x     = Cell.BeamPos[0];
     px    = Cell.BeamPos[1];
@@ -2442,8 +2442,8 @@ void MomentumAcceptance(long deb, long fin, double ep_min, double ep_max,
 
     if ((lastn) == nturn) dp1 = dp2;
 
-    getelem(lastpos,&Clost);
-    getelem(pos,&Cell);
+    lat.getelem(lastpos,&Clost);
+    lat.getelem(pos,&Cell);
     if (!trace)  printf("i=%4ld pos=%4ld dp=%6.4g\n",i,pos,dp2);
     fprintf(stdout,"pos=%4ld z0 =% 10.5f  pz0 =% 10.5f  \n", pos, tabz0[i-1L][pos-1L], tabpz0[i-1L][pos-1L]);
     fprintf(stdout,"%4ld %10.5f %10.5f %10.5f %*s\n", pos,Cell.S,dp1,Clost.S, 5, Clost.PName);
@@ -2484,7 +2484,7 @@ void MomentumAcceptance(long deb, long fin, double ep_min, double ep_max,
        status
 
    Specific functions:
-       getcod
+       lat.getcod
 
    Comments:
        Does not work for a transfer line
@@ -2498,12 +2498,12 @@ void set_vectorcod(psVector  codvector[], double dP)
 
   zerovector.zero();
   
-  //~ getcod(dP, lastpos);  /* determine closed orbit */
+  //~ lat.getcod(dP, lastpos);  /* determine closed orbit */
   findcod(dP);
   
   if (status.codflag == 1) { /* cod exists */
     for (k = 1L; k <= globval.Cell_nLoc; k++){
-      getelem(k,&Cell);
+      lat.getelem(k,&Cell);
       codvector[k] = Cell.BeamPos;
     }
     // cod at entrance of the ring is the one at the exit (1-periodicity)
@@ -2692,9 +2692,9 @@ void TracCO(double x, double px, double y, double py, double dp, double ctau,
   ElemType Cell;
 
   /* Get closed orbit */
-  Ring_GetTwiss(true, 0.0);
-  getcod(dp, lastpos);
-  getelem(pos-1,&Cell);
+  lat.Ring_GetTwiss(true, 0.0);
+  lat.getcod(dp, lastpos);
+  lat.getelem(pos-1,&Cell);
 
   if (!trace) printf("dp= % .5e %% xcod= % .5e mm zcod= % .5e mm \n",
              dp*1e2, Cell.BeamPos[0]*1e3, Cell.BeamPos[2]*1e3);
@@ -2720,8 +2720,8 @@ void TracCO(double x, double px, double y, double py, double dp, double ctau,
 		lastn, x1[0], x1[1], x1[2], x1[3], x1[4], x1[5]);
       }
 
-      Cell_Pass(pos-1L, globval.Cell_nLoc, x1, lastpos);
-      Cell_Pass(0,pos-1L, x1, lastpos);
+      lat.Cell_Pass(pos-1L, globval.Cell_nLoc, x1, lastpos);
+      lat.Cell_Pass(0,pos-1L, x1, lastpos);
     }
     while (((lastn) < nmax) && ((lastpos) == pos-1L));
 
@@ -2771,7 +2771,7 @@ void getA4antidamping()
 
   for (i = 0; i <= globval.Cell_nLoc; i++)
   {
-    getelem(i, &Cell); /* get element */
+    lat.getelem(i, &Cell); /* get element */
 
     if (Cell.Pkind == Mpole)
     {
@@ -2786,10 +2786,10 @@ void getA4antidamping()
   }
   fprintf(stdout,"Nombre de quadrupoles %d\n", nquad);
 
-  Ring_GetTwiss(true, 0.0);
+  lat.Ring_GetTwiss(true, 0.0);
   for (i = 0; i < nquad; i++)
   {
-    getelem(qlist[i],&Cell);
+    lat.getelem(qlist[i],&Cell);
     M = dynamic_cast<MpoleType*>(&Cell);
     fprintf(stdout,"%d Name = %s L=%g A= %g etax=%g \n",
 	    i, Cell.PName, Cell.PL, A,Cell.Eta[0]);
@@ -3204,7 +3204,7 @@ void Phase3(long pos, double x,double px,double y, double py,double energy,
   trace = true;
   x1[0] = x;   x1[1] = px;     x1[2] = y;
   x1[3] = py;  x1[4] = energy; x1[5] = ctau;  
-  Cell_Pass(0L, pos-1L, x1, lastpos);
+  lat.Cell_Pass(0L, pos-1L, x1, lastpos);
 
   x  = x1[0];       px= x1[1];   y = x1[2];
   py = x1[3];  energy = x1[4]; ctau =x1[5];
@@ -3528,11 +3528,11 @@ void Enveloppe2(double x, double px, double y, double py, double dp,
   const char fic[] = "enveloppe2.out";
 
   /* Get cod the delta = energy*/
-  getcod(dp, lastpos);
+  lat.getcod(dp, lastpos);
 //  /* initialization to chromatic closed orbit */
 //  for (i = 0; i<= globval.Cell_nLoc; i++)
 //  {
-//   getelem(i, &Cell);
+//   lat.getelem(i, &Cell);
 //   Envxm[i] = Cell.BeamPos[0];   Envxp[i] = Cell.BeamPos[0];
 //   Envzm[i] = Cell.BeamPos[2];   Envzp[i] = Cell.BeamPos[2];
 //  }
@@ -3554,8 +3554,8 @@ void Enveloppe2(double x, double px, double y, double py, double dp,
   for (i = 0; i< globval.Cell_nLoc; i++)
   {/* loop over full ring: one turn for intialization */
 
-    getelem(i,&Cell);
-    Cell_Pass(i,i+1, x1, lastpos);
+    lat.getelem(i,&Cell);
+    lat.Cell_Pass(i,i+1, x1, lastpos);
     if (lastpos != i+1)
     {
      printf("Unstable motion ...\n"); exit_(1);
@@ -3568,8 +3568,8 @@ void Enveloppe2(double x, double px, double y, double py, double dp,
     /* loop over full ring */
    for (i = 0; i<= globval.Cell_nLoc; i++) {
  
-      getelem(i, &Cell);
-      Cell_Pass(i, i+1, x1, lastpos);
+      lat.getelem(i, &Cell);
+      lat.Cell_Pass(i, i+1, x1, lastpos);
       if (lastpos != i+1)
       {
        printf("Unstable motion ...\n"); exit_(1);
@@ -3583,7 +3583,7 @@ void Enveloppe2(double x, double px, double y, double py, double dp,
 
   for (i = 0; i<= globval.Cell_nLoc; i++)
   {
-    getelem(i,&Cell);
+    lat.getelem(i,&Cell);
     fprintf(outf,"%6.2f % .5e % .5e % .5e % .5e % .5e\n",
             Cell.S, Envxp[i],Envxm[i],Envzp[i],Envzm[i],dp);
   }

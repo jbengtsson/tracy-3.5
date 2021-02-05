@@ -4,7 +4,7 @@ bin_PROGRAMS = optics dynap leac dnu touschek ibs vlad tbt \
                max_iv_1 max_iv_2 ibs_for_les delta bare_da match \
                carbon_map dls 6BA track_fft m4 m4_mod dls_ii track opt_des_1 \
 	       opt_des_2 id_model sigma tech_note dx_dj tune_scan sxt \
-               chk_drv_terms fit_nu opt_des_bessy_iii
+               chk_drv_terms fit_nu opt_des_bessy_iii tst_it
 
 #sc_f_LINK    = gfortran -g -O0 -Wall -fbounds-check -o sc_f
 
@@ -43,6 +43,7 @@ sxt_SOURCES               = sxt.cc
 chk_drv_terms_SOURCES     = chk_drv_terms.cc
 fit_nu_SOURCES            = fit_nu.cc
 opt_des_bessy_iii_SOURCES = opt_des_bessy_iii.cc
+tst_it_SOURCES            = tst_it.cc
 
 #opt_des_2_LDADD = -L/usr/lib/x86_64-linux-gnu \
 #	  	  -lgfortran

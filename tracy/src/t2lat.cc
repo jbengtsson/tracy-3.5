@@ -35,6 +35,8 @@ J. Bengtsson  NSLS-II, BNL  2004 -
 
 const bool debug_lat = false;
 
+// C wrapper for Pascal global variable.
+static ElemFamType *ElemFam_;
 
 typedef char Latlinetype[LatLLng];
 
@@ -229,7 +231,7 @@ static long CheckElementtable(const char *name, struct LOC_Lattice_Read *LINK)
 
   FORLIM = globval.Elem_nFam;
   for (i = 1; i <= FORLIM; i++) {
-    if (!strncmp(ElemFam[i-1].ElemF->PName, name, sizeof(partsName)))
+    if (!strncmp(ElemFam_[i-1].ElemF->PName, name, sizeof(partsName)))
       j = i;
   }
   return j;
@@ -970,7 +972,7 @@ static double BlockLength(long ii, struct LOC_Lat_EVAL *LINK)
   k2 = LINK->LINK->BlockS[ii-1].BSTART;
   k3 = LINK->LINK->BlockS[ii-1].BOWARI;
   for (k1 = k2 - 1; k1 < k3; k1++)
-    S += ElemFam[LINK->LINK->Bstack[k1]-1].ElemF->PL;
+    S += ElemFam_[LINK->LINK->Bstack[k1]-1].ElemF->PL;
   return S;
 }
 
@@ -1007,12 +1009,12 @@ static double GetKparm(long direction, struct LOC_Factor *LINK)
        LINK->LINK->LINK->LINK);
   if (direction == 1)
     Result =
-      dynamic_cast<MpoleType*>(ElemFam[LINK->i-1].ElemF)
+      dynamic_cast<MpoleType*>(ElemFam_[LINK->i-1].ElemF)
       ->PBpar[(long)((long)LINK->LINK->LINK->LINK
 		    ->S[LINK->LINK->LINK->LINK->t])+HOMmax];
   else
     Result =
-      dynamic_cast<MpoleType*>(ElemFam[LINK->i-1].ElemF)
+      dynamic_cast<MpoleType*>(ElemFam_[LINK->i-1].ElemF)
       ->PBpar[HOMmax-(long)LINK->LINK->LINK->LINK
 	      ->S[LINK->LINK->LINK->LINK->t]];
   LINK->LINK->LINK->LINK->t--;
@@ -1053,7 +1055,7 @@ static void Factor(struct LOC_Term *LINK)
 	memcpy(fname, LINK->LINK->LINK->id, sizeof(alfa_));
 	memset(fname + sizeof(alfa_), ' ',
 	       sizeof(partsName) - sizeof(alfa_));
-	WITH = ElemFam[V.i-1].ElemF;
+	WITH = ElemFam_[V.i-1].ElemF;
 	WITH1 = dynamic_cast<MpoleType*>(WITH);
 	if (!strncmp(fname, "l              ", sizeof(partsName)))
 	  x = WITH->PL;
@@ -1756,7 +1758,7 @@ static bool Lat_CheckWiggler(FILE **fo, long i, struct LOC_Lattice_Read *LINK)
   ElemType     *WITH1;
   WigglerType  *WITH2;
 
-  WITH1 = ElemFam[i-1].ElemF;
+  WITH1 = ElemFam_[i-1].ElemF;
   WITH2 = dynamic_cast<WigglerType*>(WITH1);
   Lambda = WITH2->Lambda;
   L = WITH1->PL; a = L/Lambda;
@@ -1898,7 +1900,7 @@ static void AssignHOM(long elem, struct LOC_Lat_DealElement *LINK)
   long      i;
   MpoleType *M;
 
-  M = dynamic_cast<MpoleType*>(ElemFam[elem-1].ElemF);
+  M = dynamic_cast<MpoleType*>(ElemFam_[elem-1].ElemF);
   for (i = -HOMmax; i <= HOMmax; i++) {
     if (LINK->BA[i+HOMmax]) {
       M->PBpar[i+HOMmax] = LINK->B[i+HOMmax];
@@ -1943,7 +1945,7 @@ static void AssignHarm(long elem, struct LOC_Lat_DealElement *LINK)
   long         i;
   WigglerType  *W;
 
-  W = dynamic_cast<WigglerType*>(ElemFam[elem-1].ElemF);
+  W = dynamic_cast<WigglerType*>(ElemFam_[elem-1].ElemF);
   W->n_harm += LINK->n_harm;
   // the fundamental is stored in harm[0], etc.
   for (i = 1; i < W->n_harm; i++) {
@@ -2031,7 +2033,7 @@ static void SetDBN(struct LOC_Lat_DealElement *LINK)
 	   globval.Elem_nFam, (long)Elem_nFamMax);
     exit_(1);
   }
-  WITH = &ElemFam[globval.Elem_nFam-1]; WITH->NoDBN = LINK->DBNsavemax;
+  WITH = &ElemFam_[globval.Elem_nFam-1]; WITH->NoDBN = LINK->DBNsavemax;
   if (WITH->NoDBN > 0) {
     FORLIM = WITH->NoDBN;
     for (i = 0; i < FORLIM; i++)
@@ -2126,7 +2128,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       memcpy(WITHD->PName, ElementName, sizeof(partsName));
       WITHD->PL = *V.rnum;
       WITHD->Pkind = PartsKind(drift);
-      ElemFam[globval.Elem_nFam-1].ElemF = WITHD;
+      ElemFam_[globval.Elem_nFam-1].ElemF = WITHD;
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
 	     globval.Elem_nFam, (long)Elem_nFamMax);
@@ -2268,7 +2270,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       AssignHOM(globval.Elem_nFam, &V);
       SetDBN(&V);
       WITH2->PBpar[HOMmax+2] = QK; WITH2->PdTpar = dt;
-      ElemFam[globval.Elem_nFam-1].ElemF = WITH2;
+      ElemFam_[globval.Elem_nFam-1].ElemF = WITH2;
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
 	     globval.Elem_nFam, (long)Elem_nFamMax);
@@ -2369,7 +2371,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       AssignHOM(globval.Elem_nFam, &V);
       SetDBN(&V);
       WITH2->n_design = Quad; WITH2->PBpar[HOMmax+2] = QK;
-      ElemFam[globval.Elem_nFam-1].ElemF = WITH2;
+      ElemFam_[globval.Elem_nFam-1].ElemF = WITH2;
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
 	     globval.Elem_nFam, (long)Elem_nFamMax);
@@ -2482,7 +2484,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       AssignHOM(globval.Elem_nFam, &V);
       SetDBN(&V);
       WITH2->PBpar[HOMmax+3] = QK;
-      ElemFam[globval.Elem_nFam-1].ElemF = WITH2;
+      ElemFam_[globval.Elem_nFam-1].ElemF = WITH2;
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
 	     globval.Elem_nFam, (long)Elem_nFamMax);
@@ -2596,7 +2598,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       WITH3->entry_focus = entryf == 1;
       WITH3->exit_focus = exitf == 1;
       SetDBN(&V);
-      ElemFam[globval.Elem_nFam-1].ElemF = WITH3;
+      ElemFam_[globval.Elem_nFam-1].ElemF = WITH3;
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
 	     globval.Elem_nFam, (long)Elem_nFamMax);
@@ -2705,7 +2707,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       WITH2->Pmethod = k2;
       WITH2->PN = k1;
       WITH2->PdTpar = dt;
-      ElemFam[globval.Elem_nFam-1].ElemF = WITH2;
+      ElemFam_[globval.Elem_nFam-1].ElemF = WITH2;
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
 	     globval.Elem_nFam, (long)Elem_nFamMax);
@@ -2752,7 +2754,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       WITH2->Pkind = Mpole;
       WITH2->Pthick = pthicktype(thin);
       SetDBN(&V);
-      ElemFam[globval.Elem_nFam-1].ElemF = WITH2;
+      ElemFam_[globval.Elem_nFam-1].ElemF = WITH2;
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
 	     globval.Elem_nFam, (long)Elem_nFamMax);
@@ -2797,7 +2799,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       WITHMk->PL = 0.0;
       WITHMk->Pkind = PartsKind(marker);
       SetDBN(&V);
-      ElemFam[globval.Elem_nFam-1].ElemF = WITHMk;
+      ElemFam_[globval.Elem_nFam-1].ElemF = WITHMk;
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
 	     globval.Elem_nFam, (long)Elem_nFamMax);
@@ -2979,7 +2981,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       AssignHOM(globval.Elem_nFam, &V);
       WITH2->n_design = WITH2->Porder;
       SetDBN(&V);
-      ElemFam[globval.Elem_nFam-1].ElemF = WITH2;
+      ElemFam_[globval.Elem_nFam-1].ElemF = WITH2;
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
 	     globval.Elem_nFam, (long)Elem_nFamMax);
@@ -3118,7 +3120,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       /* Equivalent vertically focusing gradient */
 //       WITH4->PBW[HOMmax+2] = -QK*QK/2e0;
       CheckWiggler(globval.Elem_nFam, &V);
-      ElemFam[globval.Elem_nFam-1].ElemF = WITH4;
+      ElemFam_[globval.Elem_nFam-1].ElemF = WITH4;
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
 	     globval.Elem_nFam, (long)Elem_nFamMax);
@@ -3204,7 +3206,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       if (CheckUDItable("energy         ", LINK) != 0) {
 	RefUDItable("energy         ", &globval.Energy, LINK);
 	if (strcmp(str1, "") != 0) get_B(str1, WITH6);
-	ElemFam[globval.Elem_nFam-1].ElemF = WITH6;
+	ElemFam_[globval.Elem_nFam-1].ElemF = WITH6;
       } else {
 	std::cout << "Fieldmap: energy not defined" << std::endl;
 	exit_(1);
@@ -3316,7 +3318,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       WITH5->Pmethod = k2;
       WITH5->PN = k1;
       WITH5->scaling = scaling;
-      ElemFam[globval.Elem_nFam-1].ElemF = WITH5;
+      ElemFam_[globval.Elem_nFam-1].ElemF = WITH5;
      if (CheckUDItable("energy         ", LINK) != 0) {
 	RefUDItable("energy         ", &globval.Energy, LINK);
 // 	if (strcmp(str1, "") != 0) get_B(str1, WITH6);
@@ -3431,7 +3433,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       memcpy(WITHSpr->PName, ElementName, sizeof(partsName));
       WITHSpr->PL = *V.rnum;
       WITHSpr->Pkind = PartsKind(Spreader);
-      ElemFam[globval.Elem_nFam-1].ElemF = WITHSpr;
+      ElemFam_[globval.Elem_nFam-1].ElemF = WITHSpr;
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
 	     globval.Elem_nFam, (long)Elem_nFamMax);
@@ -3470,7 +3472,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       memcpy(WITHRec->PName, ElementName, sizeof(partsName));
       WITHRec->PL = *V.rnum;
       WITHRec->Pkind = PartsKind(Recombiner);
-      ElemFam[globval.Elem_nFam-1].ElemF = WITHRec;
+      ElemFam_[globval.Elem_nFam-1].ElemF = WITHRec;
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
 	     globval.Elem_nFam, (long)Elem_nFamMax);
@@ -3539,7 +3541,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       memcpy(WITH7->PName, ElementName, sizeof(partsName));
       WITH7->Pkind = Solenoid;
       WITH7->PL = QL; WITH7->N = k1; WITH7->BoBrho = QK;
-      ElemFam[globval.Elem_nFam-1].ElemF = WITH7;
+      ElemFam_[globval.Elem_nFam-1].ElemF = WITH7;
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
 	     globval.Elem_nFam, (long)Elem_nFamMax);
@@ -3567,7 +3569,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       WITH8 = Map_Alloc();
       memcpy(WITH8->PName, ElementName, sizeof(partsName));
       WITH8->Pkind = Map;
-      ElemFam[globval.Elem_nFam-1].ElemF = WITH8;
+      ElemFam_[globval.Elem_nFam-1].ElemF = WITH8;
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
 	     globval.Elem_nFam, (long)Elem_nFamMax);
@@ -4146,7 +4148,7 @@ static double Circumference(struct LOC_Lattice_Read *LINK)
   S = 0.0;
   FORLIM = globval.Cell_nLoc;
   for (i = 1; i <= FORLIM; i++)
-    S += ElemFam[Cell_List[i].Fnum-1].ElemF->PL;
+    S += ElemFam_[Cell_List[i].Fnum-1].ElemF->PL;
   return S;
 }
 
@@ -4161,9 +4163,9 @@ static void RegisterKids(struct LOC_Lattice_Read *LINK)
   if (globval.Elem_nFam <= Elem_nFamMax) {
     FORLIM = globval.Elem_nFam;
     for (i = 0; i < FORLIM; i++) {
-      ElemFam[i].nKid = 0;
+      ElemFam_[i].nKid = 0;
       if (debug_lat)
-	printf("  RegisterKids: %2ld %8s\n", i+1, ElemFam[i].ElemF->PName);
+	printf("  RegisterKids: %2ld %8s\n", i+1, ElemFam_[i].ElemF->PName);
     }
   } else {
     printf("Elem_nFamMax exceeded: %ld(%d)\n",
@@ -4173,7 +4175,7 @@ static void RegisterKids(struct LOC_Lattice_Read *LINK)
 
   FORLIM = globval.Cell_nLoc;
   for (i = 1; i <= FORLIM; i++) {
-    WITH = &ElemFam[Cell_List[i].Fnum-1];
+    WITH = &ElemFam_[Cell_List[i].Fnum-1];
     WITH->nKid++;
     if (WITH->nKid <= nKidMax) {
       WITH->KidList[WITH->nKid-1] = i;
@@ -4210,8 +4212,8 @@ void PrintResult(struct LOC_Lattice_Read *LINK)
   nKid = 0L;
   FORLIM = globval.Elem_nFam;
   for (j = 0L; j < FORLIM; j++) {
-    if (ElemFam[j].nKid > nKid)
-      nKid = ElemFam[j].nKid;
+    if (ElemFam_[j].nKid > nKid)
+      nKid = ElemFam_[j].nKid;
   }
   printf("  Max number of Kids : nKidMax              =%5ld"
 	 ", nKidMax         =%5d\n",
@@ -4264,19 +4266,19 @@ long ElemIndex(const std::string &name)
   i = 1;
   while (i <= globval.Elem_nFam) {
     if (prt) {
-      std::cout << std::setw(2) << (name1 == ElemFam[i-1].ElemF->PName)
-	   << " " << name1 << " " << ElemFam[i-1].ElemF->PName << " (";
+      std::cout << std::setw(2) << (name1 == ElemFam_[i-1].ElemF->PName)
+	   << " " << name1 << " " << ElemFam_[i-1].ElemF->PName << " (";
       for (j = 0; j < SymbolLength; j++)
-	std::cout << std::setw(4) << (int)ElemFam[i-1].ElemF->PName[j];
+	std::cout << std::setw(4) << (int)ElemFam_[i-1].ElemF->PName[j];
       std::cout  << " )" << std::endl;
     }
 
-    if (name1 == ElemFam[i-1].ElemF->PName) break;
+    if (name1 == ElemFam_[i-1].ElemF->PName) break;
 
     i++;
   }
 
-  if (name1 != ElemFam[i-1].ElemF->PName) {
+  if (name1 != ElemFam_[i-1].ElemF->PName) {
     std::cout << "ElemIndex: undefined element " << name << std::endl;
     exit_(1);
   }
@@ -4285,7 +4287,7 @@ long ElemIndex(const std::string &name)
 }
 
 
-bool Lattice_Read(FILE **fi_, FILE **fo_)
+bool Lattice_Read(FILE *fi_, FILE *fo_, ElemFamType ElemFam[])
 {
   struct LOC_Lattice_Read V;
 
@@ -4293,8 +4295,10 @@ bool Lattice_Read(FILE **fi_, FILE **fo_)
     printf("t2lat: dndsym = %d, solsym = %d, max_set = %d, SETBITS = %u\n",
 	   bndsym, solsym, max_set, (unsigned)(4*sizeof(long int)));
 
-  V.fi = fi_; /* input lattice file */
-  V.fo = fo_; /* output lattice file */
+  ElemFam_ = ElemFam;
+
+  V.fi = &fi_; /* input lattice file */
+  V.fo = &fo_; /* output lattice file */
   if (setjmp(V._JL9999))
     goto _L9999;
   V.UDIC = 0; globval.Cell_nLoc = 0; globval.Elem_nFam = 0; V.NoB = 0;

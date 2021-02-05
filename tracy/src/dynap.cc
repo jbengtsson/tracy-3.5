@@ -42,7 +42,7 @@ bool DA_data_type::track(const param_data_type &params,
   }
 
   for (i = 1; i <= params.n_track_DA; i++) {
-    Cell_Pass(0, globval.Cell_nLoc, ps, lastpos);
+    lat.Cell_Pass(0, globval.Cell_nLoc, ps, lastpos);
     if (lastpos == globval.Cell_nLoc) {
       if (prt) {
 	if (f_rf == 0.0)
@@ -138,8 +138,8 @@ double DA_data_type::get_dynap(param_data_type &params,
   }
   DA += x2[X_]*x0[Y_] - x0[X_]*x2[Y_];
   // x2 from mid-plane symmetry
-  DA = fabs(DA)/sqrt(Cell[globval.Cell_nLoc]->Beta[X_]
-       *Cell[globval.Cell_nLoc]->Beta[Y_]);
+  DA = fabs(DA)/sqrt(lat.elems[globval.Cell_nLoc]->Beta[X_]
+       *lat.elems[globval.Cell_nLoc]->Beta[Y_]);
 
   fprintf(fp, "\n");
   fprintf(fp, "# DA^ = %6.1f mm^2"
@@ -164,7 +164,7 @@ void DA_data_type::get_DA_bare(param_data_type &params)
   DA_bare = file_write("DA_bare.out");
 
   fprintf(DA_bare, "# beta_x = %4.2f, beta_y = %5.2f\n",
-	  Cell[globval.Cell_nLoc]->Beta[X_], Cell[globval.Cell_nLoc]->Beta[Y_]);
+	  lat.elems[globval.Cell_nLoc]->Beta[X_], lat.elems[globval.Cell_nLoc]->Beta[Y_]);
   fprintf(DA_bare, "#\n");
   fprintf(DA_bare, "# Ideal lattice\n");
   fprintf(DA_bare, "#\n");
@@ -185,8 +185,8 @@ void DA_data_type::get_DA_bare(param_data_type &params)
 
     fprintf(DA_bare, "  %5.2f %6.1f   %4.1f      %4.1f   %4.1f  %4.1f\n", 
 	    1e2*d, 1e6*DA,
-	    1e6*sqr(x_hat[X_])/Cell[globval.Cell_nLoc]->Beta[X_],
-	    1e6*sqr(x_hat[Y_])/Cell[globval.Cell_nLoc]->Beta[Y_],
+	    1e6*sqr(x_hat[X_])/lat.elems[globval.Cell_nLoc]->Beta[X_],
+	    1e6*sqr(x_hat[Y_])/lat.elems[globval.Cell_nLoc]->Beta[Y_],
 	    1e3*x_hat[X_], 1e3*x_hat[Y_]);
   
     fflush(DA_bare);
@@ -247,8 +247,8 @@ void DA_data_type::get_DA_real(param_data_type &params,
 
   DA_real = file_write("DA_real.out");
   fprintf(DA_real, "# beta_x = %4.2f, beta_y = %5.2f\n",
-	  Cell[globval.Cell_nLoc]->Beta[X_],
-	  Cell[globval.Cell_nLoc]->Beta[Y_]);
+	  lat.elems[globval.Cell_nLoc]->Beta[X_],
+	  lat.elems[globval.Cell_nLoc]->Beta[Y_]);
   fprintf(DA_real, "#\n");
   fprintf(DA_real, "# Real lattice\n");
   fprintf(DA_real, "#\n");
@@ -297,7 +297,7 @@ void DA_data_type::get_DA_real(param_data_type &params,
       cod = params.cod_corr(n_cell, 1e0, params.h_maxkick, params.v_maxkick,
 			    params.n_bits, orb_corr);
     } else
-      cod = getcod(0e0, lastpos);
+      cod = lat.getcod(0e0, lastpos);
 
     params.Orb_and_Trim_Stat(orb_corr);
 
@@ -321,7 +321,7 @@ void DA_data_type::get_DA_real(param_data_type &params,
 	orb_corr[Y_].prt_svdmat();
       }
  
-      Ring_GetTwiss(true, 0.0); printglob();
+      lat.Ring_GetTwiss(true, 0.0); printglob(lat.elems[0]);
 
       GetEmittance(ElemIndex("cav"), true);
 
@@ -332,7 +332,7 @@ void DA_data_type::get_DA_real(param_data_type &params,
 	  params.cod_corr(n_cell, 1e0, params.h_maxkick, params.v_maxkick,
 			  params.n_bits, orb_corr);
 	}
- 	Ring_GetTwiss(true, 0.0); printglob();
+ 	lat.Ring_GetTwiss(true, 0.0); printglob(lat.elems[0]);
 	GetEmittance(ElemIndex("cav"), true);
       }
 
@@ -345,13 +345,13 @@ void DA_data_type::get_DA_real(param_data_type &params,
 	nu[0]=params.TuneX;
 	nu[1]=params.TuneY;
 	for (i = 0; i <= globval.Cell_nLoc; i++) {
-	  WITH = Cell[i];
+	  WITH = lat.elems[i];
 	  if ( WITH->Pkind == Mpole ) {
-	    if (strncmp(Cell[i]->PName,"qax",3) == 0){
+	    if (strncmp(lat.elems[i]->PName,"qax",3) == 0){
 	      qfbuf[nq[0]]=i;
 	      nq[0]++;
 	    }
-	    if (strncmp(Cell[i]->PName,"qay",3) == 0){
+	    if (strncmp(lat.elems[i]->PName,"qay",3) == 0){
 	      qdbuf[nq[1]]=i;
 	      nq[1]++;
 	    }
@@ -361,12 +361,12 @@ void DA_data_type::get_DA_real(param_data_type &params,
 	printf("Fittune: nq[0]=%ld nq[1]=%ld\n",nq[0],nq[1]);
 	TotalTuneX=globval.TotalTune[0];
 	TotalTuneY=globval.TotalTune[1];
-	Ring_Fittune(nu, (double)1e-4, nq, qfbuf, qdbuf, dk, 50L);
+	lat.Ring_Fittune(nu, (double)1e-4, nq, qfbuf, qdbuf, dk, 50L);
 	printf("Fittune: nux= %f dnux= %f nuy= %f dnuy= %f\n",
 	       globval.TotalTune[0], globval.TotalTune[0]-TotalTuneX,
 	       globval.TotalTune[1], globval.TotalTune[1]-TotalTuneY);
 
-	Ring_GetTwiss(true, 0.0); printglob();
+	lat.Ring_GetTwiss(true, 0.0); printglob(lat.elems[0]);
 	GetEmittance(ElemIndex("cav"), true);
       }
 
@@ -378,13 +378,13 @@ void DA_data_type::get_DA_real(param_data_type &params,
 	si[0]=params.ChromX;
 	si[1]=params.ChromY;
 	for (i = 0; i <= globval.Cell_nLoc; i++) {
-	  WITH = Cell[i];
+	  WITH = lat.elems[i];
 	  if ( WITH->Pkind == Mpole ) {
-	    if (strncmp(Cell[i]->PName,"sf",2) == 0){
+	    if (strncmp(lat.elems[i]->PName,"sf",2) == 0){
 	      sfbuf[ns[0]]=i;
 	      ns[0]++;
 	    }
-	    if (strncmp(Cell[i]->PName,"sd",2) == 0){
+	    if (strncmp(lat.elems[i]->PName,"sd",2) == 0){
 	      sdbuf[ns[1]]=i;
 	      ns[1]++;
 	    }
@@ -394,12 +394,12 @@ void DA_data_type::get_DA_real(param_data_type &params,
 	printf("Fitchrom: ns[0]=%ld ns[1]=%ld\n",ns[0],ns[1]);
 	ChromaX=globval.Chrom[0];
 	ChromaY=globval.Chrom[1];
-	Ring_Fitchrom(si, (double)1e-4, ns, sfbuf, sdbuf, dks, 50L);
+	lat.Ring_Fitchrom(si, (double)1e-4, ns, sfbuf, sdbuf, dks, 50L);
 	printf("Fitchrom: six= %f dsix= %f siy= %f dsiy= %f\n",
 	       globval.Chrom[0], globval.Chrom[0]-ChromaX, globval.Chrom[1],
 	       globval.Chrom[1]-ChromaY);
 
-	Ring_GetTwiss(true, 0.0); printglob();
+	lat.Ring_GetTwiss(true, 0.0); printglob(lat.elems[0]);
 	GetEmittance(ElemIndex("cav"), true);
       }
       
@@ -416,7 +416,7 @@ void DA_data_type::get_DA_real(param_data_type &params,
       // setmpall(0.01);
 
       for (i = 0; i <= globval.Cell_nLoc; i++)
-	getelem(i, &cell);
+	lat.getelem(i, &cell);
       if (cell.Pkind == Mpole)
 	printf("%ld %lf %lf %lf %s \n",
 	       i, cell.dS[0]*1e6, cell.dS[1]*1e6, cell.dT[1]*1e6,
@@ -434,7 +434,7 @@ void DA_data_type::get_DA_real(param_data_type &params,
       if (params.n_lin > 0) {
 	// reset skew quads
 	printf("resetting skew quad family: %s\n",
-	       Cell[Elem_GetPos(globval.qt,1)]->PName);
+	       lat.elems[lat.Elem_GetPos(globval.qt,1)]->PName);
         set_bnL_design_fam(globval.qt, Quad, 0.0, 0.0);
       }
       if (params.N_calls > 0) params.reset_quads();  
@@ -454,10 +454,10 @@ void DA_data_type::get_DA_real(param_data_type &params,
 	    "   %5.2f \xB1 %6.3f     %5.2f \xB1 %6.3f\n", 
 	    d[j]*1e2,
 	    1e6*DA_m[j], 1e6*DA_s[j],
-	    1e6*sqr(x_hat_m[j][X_])/Cell[globval.Cell_nLoc]->Beta[X_],
-	    1e6*sqr(x_hat_s[j][X_])/Cell[globval.Cell_nLoc]->Beta[X_],
-	    1e6*sqr(x_hat_m[j][Y_])/Cell[globval.Cell_nLoc]->Beta[Y_],
-	    1e6*sqr(x_hat_s[j][Y_])/Cell[globval.Cell_nLoc]->Beta[Y_],
+	    1e6*sqr(x_hat_m[j][X_])/lat.elems[globval.Cell_nLoc]->Beta[X_],
+	    1e6*sqr(x_hat_s[j][X_])/lat.elems[globval.Cell_nLoc]->Beta[X_],
+	    1e6*sqr(x_hat_m[j][Y_])/lat.elems[globval.Cell_nLoc]->Beta[Y_],
+	    1e6*sqr(x_hat_s[j][Y_])/lat.elems[globval.Cell_nLoc]->Beta[Y_],
 	    1e3*x_hat_m[j][X_], 1e3*x_hat_s[j][X_],
 	    1e3*x_hat_m[j][Y_], 1e3*x_hat_s[j][Y_]);
   }

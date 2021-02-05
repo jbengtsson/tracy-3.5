@@ -12,9 +12,9 @@ bool          first_FM = true;
 double        C_u, C_gamma, C_q, cl_rad, q_fluct, I[6];
 double        c_1, d_1, c_2, d_2;
 double        s_FM;
-ElemFamType   ElemFam[Elem_nFamMax];
-ElemType      *Cell[Cell_nLocMax+1];
 std::ofstream outf_;
+
+LatticeType lat;
 
 // for FieldMap
 bool  sympl             = true;
@@ -622,8 +622,8 @@ void get_dI_eta_5(MpoleType *Elem)
   b2 = Elem->PBpar[Quad+HOMmax];
   K = b2 + sqr(Elem->Pirho);
   psi = sqrt(fabs(K))*L;
-  loc = Elem_GetPos(Elem->Fnum, Elem->Knum);
-  Elemp = Cell[loc-1];
+  loc = lat.Elem_GetPos(Elem->Fnum, Elem->Knum);
+  Elemp = lat.elems[loc-1];
   alpha = Elemp->Alpha[X_]; beta = Elemp->Beta[X_];
   gamma = (1e0+sqr(alpha))/beta;
   eta = Elemp->Eta[X_]; etap = Elemp->Etap[X_];
@@ -2333,24 +2333,24 @@ void MapType::Elem_Pass(ss_vect<double> &ps) { ps = (M*ps).cst(); }
 void MapType::Elem_Pass(ss_vect<tps> &ps) { ps = M*ps; }
 
 
-void getelem(long i, ElemType *cellrec) { *cellrec = *Cell[i]; }
+void LatticeType::getelem(long i, ElemType *cellrec) { cellrec = elems[i]; }
 
-void putelem(long i, ElemType *cellrec) { *Cell[i] = *cellrec; }
-
-
-int GetnKid(const int Fnum1) { return (ElemFam[Fnum1-1].nKid); }
+void LatticeType::putelem(long i, ElemType *cellrec) { elems[i] = cellrec; }
 
 
-long Elem_GetPos(const int Fnum1, const int Knum1)
+int LatticeType::GetnKid(const int Fnum1) { return (elemf[Fnum1-1].nKid); }
+
+
+long LatticeType::Elem_GetPos(const int Fnum1, const int Knum1)
 {
   long int  loc;
 
-  if (ElemFam[Fnum1-1].nKid != 0)
-    loc = ElemFam[Fnum1-1].KidList[Knum1-1];
+  if (elemf[Fnum1-1].nKid != 0)
+    loc = elemf[Fnum1-1].KidList[Knum1-1];
   else {
     loc = -1;
     printf("Elem_GetPos: there are no kids in family %d (%s)\n",
-	   Fnum1, ElemFam[Fnum1-1].ElemF->PName);
+	   Fnum1, elemf[Fnum1-1].ElemF->PName);
     exit_(0);
   }
 
@@ -2506,16 +2506,13 @@ void MapType::print(void)
 }
 
 
-double Mpole_GetPB(int Fnum1, int Knum1, int Order);
-
-
-double Elem_GetKval(int Fnum1, int Knum1, int Order)
+double LatticeType::Elem_GetKval(int Fnum1, int Knum1, int Order)
 {
   double    Result = 0e0;
   ElemType  *Cellp;
 
   if (Fnum1 > 0) {
-    Cellp = Cell[ElemFam[Fnum1-1].KidList[Knum1-1]];
+    Cellp = elems[elemf[Fnum1-1].KidList[Knum1-1]];
     switch (Cellp->Pkind) {
     case drift:
       Result = 0e0;
@@ -2536,7 +2533,8 @@ double Elem_GetKval(int Fnum1, int Knum1, int Order)
       Result =
 	Cellp->PL
 	*sqrt(2e0*dynamic_cast<WigglerType*>
-	      (Cell[ElemFam[Fnum1-1].KidList[Knum1-1]])->PBW[Order+HOMmax]);
+	      (elems[elemf[Fnum1-1].KidList[Knum1-1]])
+	      ->PBW[Order+HOMmax]);
       break;
     case FieldMap:
       Result = 0e0;
@@ -2761,7 +2759,7 @@ void Elem_Init(ElemType *Elem)
 }
 
 
-void Drift_Init(int Fnum)
+void Drift_Init(int Fnum, ElemFamType ElemFam[], ElemType *Cell[])
 {
   int         i;
   ElemFamType *elemfamp;
@@ -2792,7 +2790,7 @@ static int UpdatePorder(MpoleType *M)
 }
 
 
-void Mpole_Init(int Fnum)
+void Mpole_Init(int Fnum, ElemFamType ElemFam[], ElemType *Cell[])
 {
   static bool first = true;
   int         i;
@@ -2853,7 +2851,7 @@ void Mpole_Init(int Fnum)
 }
 
 
-void Cavity_Init(int Fnum)
+void Cavity_Init(int Fnum, ElemFamType ElemFam[], ElemType *Cell[])
 {
   int         i;
   ElemFamType *elemfamp;
@@ -2874,7 +2872,7 @@ void Cavity_Init(int Fnum)
 }
 
 
-void Marker_Init(int Fnum)
+void Marker_Init(int Fnum, ElemFamType ElemFam[], ElemType *Cell[])
 {
   int         i;
   ElemFamType *elemfamp;
@@ -2896,7 +2894,7 @@ void Marker_Init(int Fnum)
 }
 
 
-void Wiggler_Init(int Fnum)
+void Wiggler_Init(int Fnum, ElemFamType ElemFam[], ElemType *Cell[])
 {
   int         i;
   ElemFamType *elemfamp;
@@ -2918,7 +2916,7 @@ void Wiggler_Init(int Fnum)
 }
 
 
-void FieldMap_Init(int Fnum)
+void FieldMap_Init(int Fnum, ElemFamType ElemFam[], ElemType *Cell[])
 {
   int          i;
   ElemFamType  *elemfamp;
@@ -2940,7 +2938,7 @@ void FieldMap_Init(int Fnum)
 }
 
 
-void Insertion_Init(int Fnum)
+void Insertion_Init(int Fnum, ElemFamType ElemFam[], ElemType *Cell[])
 {
   int           i;
   ElemFamType   *elemfamp;
@@ -2965,7 +2963,7 @@ void Insertion_Init(int Fnum)
 }
 
 
-void Spreader_Init(int Fnum)
+void Spreader_Init(int Fnum, ElemFamType ElemFam[], ElemType *Cell[])
 {
   int          i;
   ElemFamType  *elemfamp;
@@ -2988,7 +2986,7 @@ void Spreader_Init(int Fnum)
 }
 
 
-void Recombiner_Init(int Fnum)
+void Recombiner_Init(int Fnum, ElemFamType ElemFam[], ElemType *Cell[])
 {
   int            i;
   ElemFamType    *elemfamp;
@@ -3011,7 +3009,7 @@ void Recombiner_Init(int Fnum)
 }
 
 
-void Solenoid_Init(int Fnum)
+void Solenoid_Init(int Fnum, ElemFamType ElemFam[], ElemType *Cell[])
 {
   int          i;
   ElemFamType  *elemfamp;
@@ -3034,7 +3032,7 @@ void Solenoid_Init(int Fnum)
 }
 
 
-void Map_Init(int Fnum)
+void Map_Init(int Fnum, ElemFamType ElemFam[], ElemType *Cell[])
 {
   int         i;
   ElemFamType *elemfamp;
@@ -3167,15 +3165,15 @@ ss_vect<tps> get_lin_map(ElemType *Elem, const double delta)
 }
 
 
-void get_lin_maps(const double delta)
+void LatticeType::get_lin_maps(const double delta)
 {
   long int  k;
   MpoleType *M;
 
   for (k = 0; k <= globval.Cell_nLoc; k++) {
-    M = dynamic_cast<MpoleType*>(Cell[k]);
-    if ((Cell[k]->Pkind == Mpole) && (M->Pthick == thick))
-      M->M_lin = get_lin_map(Cell[k], delta);
+    M = dynamic_cast<MpoleType*>(elems[k]);
+    if ((elems[k]->Pkind == Mpole) && (M->Pthick == thick))
+      M->M_lin = get_lin_map(elems[k], delta);
   }
 }
 
@@ -3931,7 +3929,7 @@ void get_B(const char *filename, FieldMapType *FM)
 }
 
 
-void Mpole_SetPB(int Fnum1, int Knum1, int Order)
+void LatticeType::Mpole_SetPB(int Fnum1, int Knum1, int Order)
 {
   /* Compute full multipole composent as sum of design, systematic
      and random part
@@ -3941,7 +3939,7 @@ void Mpole_SetPB(int Fnum1, int Knum1, int Order)
   ElemType  *Cellp;
   MpoleType *M;
 
-  Cellp = Cell[ElemFam[Fnum1-1].KidList[Knum1-1]];
+  Cellp = elems[elemf[Fnum1-1].KidList[Knum1-1]];
   M = dynamic_cast<MpoleType*>(Cellp);
   M->PB[Order+HOMmax] =
     M->PBpar[Order+HOMmax] + M->PBsys[Order+HOMmax] +
@@ -3951,7 +3949,7 @@ void Mpole_SetPB(int Fnum1, int Knum1, int Order)
 }
 
 
-double Mpole_GetPB(int Fnum1, int Knum1, int Order)
+double LatticeType::Mpole_GetPB(int Fnum1, int Knum1, int Order)
 {
   /*  Return multipole strength (of order Order) for Knum1 element of
       family Fnum1
@@ -3960,47 +3958,47 @@ double Mpole_GetPB(int Fnum1, int Knum1, int Order)
 
   MpoleType *M;
 
-  M = dynamic_cast<MpoleType*>(Cell[ElemFam[Fnum1-1].KidList[Knum1-1]]);
+  M = dynamic_cast<MpoleType*>(elems[elemf[Fnum1-1].KidList[Knum1-1]]);
   return M->PB[Order+HOMmax];
 }
 
 
-void Mpole_DefPBpar(int Fnum1, int Knum1, int Order, double PBpar)
+void LatticeType::Mpole_DefPBpar(int Fnum1, int Knum1, int Order, double PBpar)
 {
   MpoleType *M;
 
-  M = dynamic_cast<MpoleType*>(Cell[ElemFam[Fnum1-1].KidList[Knum1-1]]);
+  M = dynamic_cast<MpoleType*>(elems[elemf[Fnum1-1].KidList[Knum1-1]]);
   M->PBpar[Order+HOMmax] = PBpar;
 }
 
 
-void Mpole_DefPBsys(int Fnum1, int Knum1, int Order, double PBsys)
+void LatticeType::Mpole_DefPBsys(int Fnum1, int Knum1, int Order, double PBsys)
 {
   MpoleType *M;
 
-  M = dynamic_cast<MpoleType*>(Cell[ElemFam[Fnum1-1].KidList[Knum1-1]]);
+  M = dynamic_cast<MpoleType*>(elems[elemf[Fnum1-1].KidList[Knum1-1]]);
   M->PBsys[Order+HOMmax] = PBsys;
 }
 
 
-void Mpole_SetdS(int Fnum1, int Knum1)
+void LatticeType::Mpole_SetdS(int Fnum1, int Knum1)
 {
   int       j;
   ElemType  *Cellp;
   MpoleType *M;
 
-  Cellp = Cell[ElemFam[Fnum1-1].KidList[Knum1-1]];
+  Cellp = elems[elemf[Fnum1-1].KidList[Knum1-1]];
   M = dynamic_cast<MpoleType*>(Cellp);
   for (j = 0; j <= 1; j++)
     Cellp->dS[j] = M->PdSsys[j] + M->PdSrms[j]*M->PdSrnd[j];
 }
 
-void Mpole_SetdT(int Fnum1, int Knum1)
+void LatticeType::Mpole_SetdT(int Fnum1, int Knum1)
 {
   ElemType  *Cellp;
   MpoleType *M;
 
-  Cellp = Cell[ElemFam[Fnum1-1].KidList[Knum1-1]];
+  Cellp = elems[elemf[Fnum1-1].KidList[Knum1-1]];
   M = dynamic_cast<MpoleType*>(Cellp);
   Cellp->dT[X_] =
     cos(dtor(M->PdTpar + M->PdTsys + M->PdTrms*M->PdTrnd));
@@ -4013,70 +4011,70 @@ void Mpole_SetdT(int Fnum1, int Knum1)
 }
 
 
-double Mpole_GetdT(int Fnum1, int Knum1)
+double LatticeType::Mpole_GetdT(int Fnum1, int Knum1)
 {
   ElemType  *Cellp;
   MpoleType *M;
 
-  Cellp = Cell[ElemFam[Fnum1-1].KidList[Knum1-1]];
+  Cellp = elems[elemf[Fnum1-1].KidList[Knum1-1]];
   M = dynamic_cast<MpoleType*>(Cellp);
 
   return M->PdTpar+M->PdTsys+M->PdTrms*M->PdTrnd;
 }
 
 
-void Mpole_DefdTpar(int Fnum1, int Knum1, double PdTpar)
+void LatticeType::Mpole_DefdTpar(int Fnum1, int Knum1, double PdTpar)
 {
   ElemType  *Cellp;
   MpoleType *M;
 
-  Cellp = Cell[ElemFam[Fnum1-1].KidList[Knum1-1]];
+  Cellp = elems[elemf[Fnum1-1].KidList[Knum1-1]];
   M = dynamic_cast<MpoleType*>(Cellp);
   M->PdTpar = PdTpar;
 }
 
 
-void Mpole_DefdTsys(int Fnum1, int Knum1, double PdTsys)
+void LatticeType::Mpole_DefdTsys(int Fnum1, int Knum1, double PdTsys)
 {
   ElemType  *Cellp;
   MpoleType *M;
 
-  Cellp = Cell[ElemFam[Fnum1-1].KidList[Knum1-1]];
+  Cellp = elems[elemf[Fnum1-1].KidList[Knum1-1]];
   M = dynamic_cast<MpoleType*>(Cellp);
   M->PdTsys=PdTsys;
 }
 
 
-void Wiggler_SetPB(int Fnum1, int Knum1, int Order)
+void LatticeType::Wiggler_SetPB(int Fnum1, int Knum1, int Order)
 {
   ElemType    *Cellp;
   WigglerType *W;
 
-  Cellp = Cell[ElemFam[Fnum1-1].KidList[Knum1-1]];
+  Cellp = elems[elemf[Fnum1-1].KidList[Knum1-1]];
   W = dynamic_cast<WigglerType*>(Cellp);
   if (abs(Order) > W->Porder)
     W->Porder = abs(Order);
 }
 
 
-void Wiggler_SetdS(int Fnum1, int Knum1)
+void LatticeType::Wiggler_SetdS(int Fnum1, int Knum1)
 {
   int         j;
   ElemType    *Cellp;
   WigglerType *W;
 
-  Cellp = Cell[ElemFam[Fnum1-1].KidList[Knum1-1]];
+  Cellp = elems[elemf[Fnum1-1].KidList[Knum1-1]];
   W = dynamic_cast<WigglerType*>(Cellp);
   for (j = 0; j <= 1; j++)
     Cellp->dS[j] = W->PdSsys[j] + W->PdSrms[j]*W->PdSrnd[j];
 }
 
-void Wiggler_SetdT(int Fnum1, int Knum1)
+void LatticeType::Wiggler_SetdT(int Fnum1, int Knum1)
 {
   ElemType    *Cellp;
   WigglerType *W;
 
-  Cellp = Cell[ElemFam[Fnum1-1].KidList[Knum1-1]];
+  Cellp = elems[elemf[Fnum1-1].KidList[Knum1-1]];
   W = dynamic_cast<WigglerType*>(Cellp);
   Cellp->dT[X_] = cos(dtor(W->PdTpar+W->PdTsys+W->PdTrms*W->PdTrnd));
   Cellp->dT[Y_] = sin(dtor(W->PdTpar+W->PdTsys+W->PdTrms*W->PdTrnd));

@@ -10,31 +10,25 @@
 
 
 template<typename T>
-inline bool CheckAmpl(const ss_vect<T> &x, const long int loc)
+inline bool ElemType::CheckAmpl(const ss_vect<T> &ps)
 {
   bool not_lost;
 
   if (globval.Aperture_on)
-    not_lost = is_double<T>::cst(x[x_]) > Cell[loc]->maxampl[X_][0] &&
-               is_double<T>::cst(x[x_]) < Cell[loc]->maxampl[X_][1] && 
-               fabs(is_double<T>::cst(x[y_])) < Cell[loc]->maxampl[Y_][1];
+    not_lost = is_double<T>::cst(ps[x_]) > maxampl[X_][0] &&
+               is_double<T>::cst(ps[x_]) < maxampl[X_][1] && 
+               fabs(is_double<T>::cst(ps[y_])) < maxampl[Y_][1];
   else
-    not_lost = is_double<T>::cst(x[x_]) > -max_ampl &&
-               is_double<T>::cst(x[x_]) < max_ampl &&
-               fabs(is_double<T>::cst(x[y_])) < max_ampl;
+    not_lost = is_double<T>::cst(ps[x_]) > -max_ampl &&
+               is_double<T>::cst(ps[x_]) < max_ampl &&
+               fabs(is_double<T>::cst(ps[y_])) < max_ampl;
 
   if (!not_lost) {
-    if (is_double<T>::cst(x[x_]) < Cell[loc]->maxampl[X_][0] ||
-        is_double<T>::cst(x[x_]) > Cell[loc]->maxampl[X_][1])
+    if (is_double<T>::cst(ps[x_]) < maxampl[X_][0] ||
+        is_double<T>::cst(ps[x_]) > maxampl[X_][1])
       status.lossplane = 1;
-    else if (fabs(is_double<T>::cst(x[y_])) > Cell[loc]->maxampl[Y_][1])
+    else if (fabs(is_double<T>::cst(ps[y_])) > maxampl[Y_][1])
       status.lossplane = 2;
-	    
-    if (trace)
-      printf("CheckAmpl: Particle lost in plane %d at element:"
-	     " %5ld s = %10.5f, x = %12.5e, z= %12.5e\n",
-	     status.lossplane, loc, Cell[loc]->S,
-	     is_double<T>::cst(x[x_]), is_double<T>::cst(x[y_]));
   }
 
   return not_lost;
@@ -51,7 +45,8 @@ void ElemType::Cell_Pass(ss_vect<T> &ps)
 
 
 template<typename T>
-void Cell_Pass(const long i0, const long i1, ss_vect<T> &ps, long &lastpos)
+void LatticeType::Cell_Pass(const long i0, const long i1, ss_vect<T> &ps,
+			    long &lastpos)
 {
   long int i = 0;
 
@@ -61,19 +56,28 @@ void Cell_Pass(const long i0, const long i1, ss_vect<T> &ps, long &lastpos)
     for (i = 0; i < DOF; i++)
       globval.D_rad[i] = 0e0;
 
-  if (!CheckAmpl(ps, i0))
+  if (!elems[i0]->CheckAmpl(ps))
     lastpos = i0;
   else {
     lastpos = i1;
     for (i = i0; i <= i1; i++) {
-      Cell[i]->Cell_Pass(ps);
-      if (!CheckAmpl(ps, i)) { lastpos = i; break; }
+      elems[i]->Cell_Pass(ps);
+      if (!elems[i]->CheckAmpl(ps)) {
+	if (trace)
+	  printf("CheckAmpl: Particle lost in plane %d at element:"
+		 " %5ld s = %10.5f, x = %12.5e, z= %12.5e\n",
+		 status.lossplane, i, elems[i]->S,
+		 is_double<T>::cst(ps[x_]), is_double<T>::cst(ps[y_]));
+	lastpos = i;
+	break;
+      }
     }
   }
 }
 
 
-void Cell_Pass(const long i0, const long i1, tps &sigma, long &lastpos)
+void LatticeType::Cell_Pass(const long i0, const long i1, tps &sigma,
+			    long &lastpos)
 {
   // Note: Sigma_k+1 = M_k Sigma_k M_k^T = (M_k (M_k Sigma_k)^T)^T
   const int  n = 9;
@@ -124,7 +128,7 @@ void Cell_Pass(const long i0, const long i1, tps &sigma, long &lastpos)
 }
 
 
-bool Cell_getCOD(long imax, double eps, double dP, long &lastpos)
+bool LatticeType::Cell_getCOD(long imax, double eps, double dP, long &lastpos)
 {
   long            j, n, n_iter;
   int             no;
@@ -147,8 +151,8 @@ bool Cell_getCOD(long imax, double eps, double dP, long &lastpos)
 
   // if (n == 4) {
   //   // For 2 1/2 D.O.F.: eta*dP. 
-  //   x0[x_] = Cell[0]->Eta[X_]*dP; x0[px_] = Cell[0]->Etap[X_]*dP;
-  //   x0[y_] = Cell[0]->Eta[Y_]*dP; x0[py_] = Cell[0]->Etap[Y_]*dP;
+  //   x0[x_] = elems[0]->Eta[X_]*dP; x0[px_] = elems[0]->Etap[X_]*dP;
+  //   x0[y_] = elems[0]->Eta[Y_]*dP; x0[py_] = elems[0]->Etap[Y_]*dP;
   // }
 
   for (j = 0; j < ss_dim; j++)
@@ -195,7 +199,7 @@ bool Cell_getCOD(long imax, double eps, double dP, long &lastpos)
 	      << std::scientific << std::setprecision(5)
 	      << "  x_0   =" << std::setw(13) << x0 << "\n"
 	      << std::scientific << std::setprecision(5)
-	      << "  x_k-1 =" << std::setw(13) << Cell[lastpos-1]->BeamPos
+	      << "  x_k-1 =" << std::setw(13) << elems[lastpos-1]->BeamPos
 	      << "\n"
 	      << std::scientific << std::setprecision(5)
 	      << "  x_k   =" << std::setw(13) << map.cst() << "\n";
@@ -206,13 +210,19 @@ bool Cell_getCOD(long imax, double eps, double dP, long &lastpos)
 }
 
 
-bool GetCOD(long imax, double eps, double dP, long &lastpos)
+bool LatticeType::GetCOD(long imax, double eps, double dP, long &lastpos)
 {
   return Cell_getCOD(imax, eps, dP, lastpos);
 }
 
 
-void Cell_Init(void)
+bool LatticeType::getcod(double dP, long &lastpos)
+{
+  return GetCOD(globval.CODimax, globval.CODeps, dP, lastpos);
+}
+
+
+void Cell_Init(ElemFamType ElemFam[], ElemType *Cell[])
 {
   long int    i;
   double      Stotal;
@@ -242,37 +252,37 @@ void Cell_Init(void)
 
     switch (elemp->Pkind) {
     case drift:
-      Drift_Init(i);
+      Drift_Init(i, ElemFam, Cell);
       break;
     case Mpole:
-      Mpole_Init(i);
+      Mpole_Init(i, ElemFam, Cell);
       break;
     case Wigl:
-      Wiggler_Init(i);
+      Wiggler_Init(i, ElemFam, Cell);
       break;
     case FieldMap:
-      FieldMap_Init(i);
+      FieldMap_Init(i, ElemFam, Cell);
       break;
     case Insertion:
-      Insertion_Init(i);
+      Insertion_Init(i, ElemFam, Cell);
       break;
     case Cavity:
-      Cavity_Init(i);
+      Cavity_Init(i, ElemFam, Cell);
       break;
     case marker:
-      Marker_Init(i);
+      Marker_Init(i, ElemFam, Cell);
       break;
     case Spreader:
-      Spreader_Init(i);
+      Spreader_Init(i, ElemFam, Cell);
       break;
     case Recombiner:
-      Recombiner_Init(i);
+      Recombiner_Init(i, ElemFam, Cell);
       break;
     case Solenoid:
-      Solenoid_Init(i);
+      Solenoid_Init(i, ElemFam, Cell);
       break;
     case Map:
-      Map_Init(i);
+      Map_Init(i, ElemFam, Cell);
       break;
     default:
       printf("Cell_Init: undefined type\n");

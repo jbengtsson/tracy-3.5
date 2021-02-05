@@ -95,10 +95,9 @@ extern const int  nv_tps, nd_tps, iref_tps;
 extern int        no_tps, ndpt_tps;
 extern double     eps_tps;
 
-extern ElemFamType ElemFam[];
-
-// extern CellType Cell[];
-extern ElemType *Cell[];
+// extern ElemFamType ElemFam[];
+// extern ElemType *Cell[];
+extern LatticeType lat;
 
 extern globvalrec globval;
 

@@ -53,7 +53,7 @@ double int_curly_H(long int n);
 
 void rm_mean(long int n, double x[]);
 
-void printglob(void);
+void printglob(ElemType *elem);
 
 void printlatt(void);
 

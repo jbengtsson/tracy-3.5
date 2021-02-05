@@ -6,8 +6,10 @@
 
 #define HOMmax       21
 #define DBNameLen    39
-#define Elem_nFamMax 3000   // maximum number of families for Elem_NFam.
-#define nKidMax      5000   // maximum number of kids.
+// #define Elem_nFamMax 3000   // maximum number of families for Elem_NFam.
+// #define nKidMax      5000   // maximum number of kids.
+#define Elem_nFamMax 100     // maximum number of families for Elem_NFam.
+#define nKidMax      1000    // maximum number of kids.
 
 #define IDXMAX       200
 #define IDZMAX       100
@@ -154,6 +156,8 @@ class ElemType : public CellType {
   virtual void print(void) {};
 
   template<typename T>
+  bool CheckAmpl(const ss_vect<T> &x);
+  template<typename T>
   void Cell_Pass(ss_vect<T> &ps);
 };
 
@@ -168,6 +172,69 @@ class ElemFamType {
     NoDBN;
   DBNameType
     DBNlist[nKidMax];          // For control system.
+};
+
+class MpoleType;
+
+class LatticeType {
+ public:
+  ElemFamType elemf[Elem_nFamMax];
+  ElemType    *elems[Cell_nLocMax+1];
+
+  // t2elem.
+  void getelem(long i, ElemType *cellrec);
+  void putelem(long i, ElemType *cellrec);
+  int GetnKid(const int Fnum1);
+  long Elem_GetPos(const int Fnum1, const int Knum1);
+  double Elem_GetKval(int Fnum1, int Knum1, int Order);
+  void get_lin_maps(const double delta);
+  void Mpole_SetPB(int Fnum1, int Knum1, int Order);
+  double Mpole_GetPB(int Fnum1, int Knum1, int Order);
+  void Mpole_DefPBpar(int Fnum1, int Knum1, int Order, double PBpar);
+  void Mpole_DefPBsys(int Fnum1, int Knum1, int Order, double PBsys);
+  void Mpole_SetdS(int Fnum1, int Knum1);
+  void Mpole_SetdT(int Fnum1, int Knum1);
+  double Mpole_GetdT(int Fnum1, int Knum1);
+  void Mpole_DefdTpar(int Fnum1, int Knum1, double PdTpar);
+  void Mpole_DefdTsys(int Fnum1, int Knum1, double PdTsys);
+  void Wiggler_SetPB(int Fnum1, int Knum1, int Order);
+  void Wiggler_SetdS(int Fnum1, int Knum1);
+  void Wiggler_SetdT(int Fnum1, int Knum1);
+
+  // t2cell.
+  template<typename T>
+  void Cell_Pass(const long i0, const long i1, ss_vect<T> &ps, long &lastpos);
+  void Cell_Pass(const long i0, const long i1, tps &sigma, long &lastpos);
+  bool Cell_getCOD(long imax, double eps, double dP, long &lastpos);
+  bool GetCOD(long imax, double eps, double dP, long &lastpos);
+  bool getcod(double dP, long &lastpos);
+
+  // t2ring.
+  void shiftk(long Elnum, double dk, struct LOC_Ring_Fittune *LINK);
+  void shiftkp(long Elnum, double dkp);
+  void shiftk_(long Elnum, double dk, struct LOC_Ring_FitDisp *LINK);
+
+  void Cell_Geteta(long i0, long i1, bool ring, double dP);
+  void Cell_Twiss(long i0, long i1, ss_vect<tps> &Ascr, bool chroma, bool ring,
+		  double dp);
+  void TraceABN(long i0, long i1, const Vector2 &alpha, const Vector2 &beta,
+		const Vector2 &eta, const Vector2 &etap, const double dP);
+  void ttwiss(const Vector2 &alpha, const Vector2 &beta, const Vector2 &eta,
+	      const Vector2 &etap, const double dP);
+  void Ring_Twiss(bool chroma, double dp);
+  void Ring_GetTwiss(bool chroma, double dp);
+  void Ring_Getchrom(double dP);
+
+  void Ring_Fittune(Vector2 &nu, double eps, iVector2 &nq, long qf[], long qd[],
+		    double dkL, long imax);
+  void Ring_Fitchrom(Vector2 &ksi, double eps, iVector2 &ns, long sf[],
+		     long sd[], double dkpL, long imax);
+  void Ring_FitDisp(long pos, double eta, double eps, long nq, long q[],
+		    double dkL, long imax);
+
+  void get_I(double I[], const bool prt);
+  void get_eps_x(double &eps_x, double &sigma_delta, double &U_0,
+		 double J[], double tau[], double I[], const bool prt);
 };
 
 class DriftType : public ElemType {

@@ -13,6 +13,6 @@
 
 long ElemIndex(const std::string &name1);
 
-bool Lattice_Read(FILE **fi_, FILE **fo_);
+bool Lattice_Read(FILE *fi_, FILE *fo_, ElemFamType ElemFam[]);
 
 #endif

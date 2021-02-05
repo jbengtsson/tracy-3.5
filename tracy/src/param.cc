@@ -102,7 +102,7 @@ void param_data_type::GirderSetup() {
 
     Lattice[i].igir=-1;
  
-    getelem(i, &cell);
+    lat.getelem(i, &cell);
     
     circ=circ+cell.PL;
 
@@ -159,7 +159,7 @@ void param_data_type::GirderSetup() {
   s1=0; s2=0; giropen=false;
   for (i = 0; i <= globval.Cell_nLoc; i++) {
 
-    getelem(i, &cell);
+    lat.getelem(i, &cell);
     s2=s1+cell.PL;
     if ((cell.PName[0]=='g') && (cell.PName[1]=='t')
 	&& (cell.PName[2]=='y') && (cell.PName[3]=='p')
@@ -204,7 +204,7 @@ void param_data_type::GirderSetup() {
   s0=0; s1=0; s2=0; i0=0;
   giropen=false; countmag=0;
   for (i = 0; i <= globval.Cell_nLoc; i++) {
-    getelem(i, &cell);
+    lat.getelem(i, &cell);
     s2=s1+cell.PL;
  
     ismag= (cell.Pkind==Mpole);
@@ -247,7 +247,7 @@ void param_data_type::GirderSetup() {
   NGirderLevel[2]=ngir;
 
   for (i = 0; i <= globval.Cell_nLoc; i++) {
-    getelem(i, &cell);
+    lat.getelem(i, &cell);
     if (!(cell.Pkind==Mpole)) { Lattice[i].igir=-1;}
   }
 
@@ -261,7 +261,7 @@ void param_data_type::GirderSetup() {
       }
     } 
     for (i = 0; i <= globval.Cell_nLoc; i++) {
-      getelem(i, &cell);
+      lat.getelem(i, &cell);
       TracyStrcpy( elem, cell.PName);
      if (Lattice[i].igir > -1){
        printf("pos %ld %s %f gir %ld lev %ld",
@@ -291,7 +291,7 @@ void param_data_type::GirderSetup() {
 
       s1=0;
       for (i = 0; i <= globval.Cell_nLoc; i++) {
-        getelem(i, &cell);
+        lat.getelem(i, &cell);
         s2=s1+cell.PL;
         ismag= (cell.Pkind==Mpole);
         if (ismag) {
@@ -481,7 +481,7 @@ void param_data_type::SetCorMis(double gxrms, double gyrms, double gtrms,
 
 // set misalignments of elements on girders:
   for (i = 0; i <= globval.Cell_nLoc; i++) {
-    getelem(i, &cell);
+    lat.getelem(i, &cell);
     M = dynamic_cast<MpoleType*>(&cell);
       
     if (cell.Pkind==Mpole) {
@@ -507,10 +507,10 @@ void param_data_type::SetCorMis(double gxrms, double gyrms, double gtrms,
 	M->PdSsys[1] = dy;
 	M->PdTsys    = dt;
 
-	putelem(i, &cell);
+	lat.putelem(i, &cell);
 
-	Mpole_SetdS(cell.Fnum, cell.Knum);
-	Mpole_SetdT(cell.Fnum, cell.Knum);
+	lat.Mpole_SetdS(cell.Fnum, cell.Knum);
+	lat.Mpole_SetdT(cell.Fnum, cell.Knum);
       }
     }
   }
@@ -535,7 +535,7 @@ void param_data_type::SetCorMis(double gxrms, double gyrms, double gtrms,
 
     s1=0;
     for (i = 0; i <= globval.Cell_nLoc; i++) {
-      getelem(i, &cell);
+      lat.getelem(i, &cell);
       s2=s1+cell.PL;
       if (cell.Pkind==Mpole) {
         dx = cell.dS[0];
@@ -551,7 +551,10 @@ void param_data_type::SetCorMis(double gxrms, double gyrms, double gtrms,
   }
 }
 
-void param_data_type::CorMis_in(double *gdxrms, double *gdzrms, double *gdarms, double *jdxrms, double *jdzrms, double *edxrms, double *edzrms, double *edarms, double *bdxrms, double *bdzrms, double *bdarms, double *rancutx, double *rancuty, double *rancutt, long *iseed, long *iseednr)
+void param_data_type::CorMis_in(double *gdxrms, double *gdzrms, double *gdarms,
+				double *jdxrms, double *jdzrms, double *edxrms,
+				double *edzrms, double *edarms, double *bdxrms, double *bdzrms, double *bdarms, double *rancutx, double *rancuty,
+				double *rancutt, long *iseed, long *iseednr)
 {
   char a;
   long i;
@@ -825,12 +828,12 @@ void param_data_type::get_bare(void)
 
   n_sext = 0;
   for (j = 0; j <= globval.Cell_nLoc; j++) {
-    M = dynamic_cast<MpoleType*>(Cell[j]);
-    if ((Cell[j]->Pkind == Mpole) && (M->n_design >= Sext)) {
+    M = dynamic_cast<MpoleType*>(lat.elems[j]);
+    if ((lat.elems[j]->Pkind == Mpole) && (M->n_design >= Sext)) {
       n_sext++; sexts[n_sext-1] = j;
       for (k = 0; k < 2; k++) {
-	betas0_[n_sext-1][k] = Cell[j]->Beta[k];
-	nus0_[n_sext-1][k] = Cell[j]->Nu[k];
+	betas0_[n_sext-1][k] = lat.elems[j]->Beta[k];
+	nus0_[n_sext-1][k] = lat.elems[j]->Nu[k];
       }
     }
   }
@@ -846,7 +849,7 @@ void param_data_type::get_dbeta_dnu(double m_dbeta[], double s_dbeta[],
   long int  j, ind;
   double    dbeta, dnu;
 
-  Ring_GetTwiss(false, 0.0);
+  lat.Ring_GetTwiss(false, 0.0);
 
   for (k = 0; k <= 1; k++) {
     m_dbeta[k] = 0.0; s_dbeta[k] = 0.0; m_dnu[k] = 0.0; s_dnu[k] = 0.0;
@@ -855,9 +858,9 @@ void param_data_type::get_dbeta_dnu(double m_dbeta[], double s_dbeta[],
   for (j = 0; j < n_sext; j++) {
     ind = sexts[j];
     for (k = 0; k <= 1; k++) {
-      dbeta = (Cell[ind]->Beta[k]-betas0_[j][k])/betas0_[j][k];
+      dbeta = (lat.elems[ind]->Beta[k]-betas0_[j][k])/betas0_[j][k];
       m_dbeta[k] += dbeta; s_dbeta[k] += sqr(dbeta);
-      dnu = Cell[ind]->Nu[k] - nus0_[j][k];
+      dnu = lat.elems[ind]->Nu[k] - nus0_[j][k];
       m_dnu[k] += dnu; s_dnu[k] += sqr(dnu);
     }
   }
@@ -942,7 +945,7 @@ void param_data_type::ReadEta(const char *TolFileName)
 void param_data_type::FindMatrix(double **SkewRespMat, const double deta_y_max,
 				 const double deta_y_offset)
 {
-  //  Ring_GetTwiss(true, 0.0) should be called in advance
+  //  lat.Ring_GetTwiss(true, 0.0) should be called in advance
   int      i, j, k;
   long int loc;
   double   nuX, nuY, alpha, eta_y_min, eta_y_max;
@@ -964,31 +967,32 @@ void param_data_type::FindMatrix(double **SkewRespMat, const double deta_y_max,
   nuX = globval.TotalTune[X_]; nuY = globval.TotalTune[Y_];
 
   for (i = 1; i <= N_SKEW; i++) {
-    loc = Elem_GetPos(globval.qt, i);
-    etaSQ[i] = Cell[loc]->Eta[X_];
-    betaSQ[i][Xi] = Cell[loc]->Beta[X_]; betaSQ[i][Yi] = Cell[loc]->Beta[Y_];
-    nuSQ[i][Xi] = Cell[loc]->Nu[X_]; nuSQ[i][Yi] = Cell[loc]->Nu[Y_];
+    loc = lat.Elem_GetPos(globval.qt, i);
+    etaSQ[i] = lat.elems[loc]->Eta[X_];
+    betaSQ[i][Xi] = lat.elems[loc]->Beta[X_];
+    betaSQ[i][Yi] = lat.elems[loc]->Beta[Y_];
+    nuSQ[i][Xi] = lat.elems[loc]->Nu[X_]; nuSQ[i][Yi] = lat.elems[loc]->Nu[Y_];
   } // for i=1..N_SKEW
 
   for (i = 1; i <= N_BPM; i++) {
-    betaBPM[i][Xi] = Cell[bpm_loc[i-1]]->Beta[X_];
-    betaBPM[i][Yi] = Cell[bpm_loc[i-1]]->Beta[Y_];
-    nuBPM[i][Xi] = Cell[bpm_loc[i-1]]->Nu[X_];
-    nuBPM[i][Yi] = Cell[bpm_loc[i-1]]->Nu[Y_];
+    betaBPM[i][Xi] = lat.elems[bpm_loc[i-1]]->Beta[X_];
+    betaBPM[i][Yi] = lat.elems[bpm_loc[i-1]]->Beta[Y_];
+    nuBPM[i][Xi] = lat.elems[bpm_loc[i-1]]->Nu[X_];
+    nuBPM[i][Yi] = lat.elems[bpm_loc[i-1]]->Nu[Y_];
   } // for i=1..N_BPM
 
   for (i = 1; i <= N_HCOR; i++) {
-    betaHC[i][Xi] = Cell[h_corr[i-1]]->Beta[X_];
-    betaHC[i][Yi] = Cell[h_corr[i-1]]->Beta[Y_];
-    nuHC[i][Xi] = Cell[h_corr[i-1]]->Nu[X_];
-    nuHC[i][Yi] = Cell[h_corr[i-1]]->Nu[Y_];
+    betaHC[i][Xi] = lat.elems[h_corr[i-1]]->Beta[X_];
+    betaHC[i][Yi] = lat.elems[h_corr[i-1]]->Beta[Y_];
+    nuHC[i][Xi] = lat.elems[h_corr[i-1]]->Nu[X_];
+    nuHC[i][Yi] = lat.elems[h_corr[i-1]]->Nu[Y_];
   } // for i=1..N_HCOR
 
   for (i = 1; i <= N_VCOR; i++) {
-    betaVC[i][Xi] = Cell[v_corr[i-1]]->Beta[X_];
-    betaVC[i][Yi] = Cell[v_corr[i-1]]->Beta[Y_];
-    nuVC[i][Xi] = Cell[v_corr[i-1]]->Nu[X_];
-    nuVC[i][Yi] = Cell[v_corr[i-1]]->Nu[Y_];
+    betaVC[i][Xi] = lat.elems[v_corr[i-1]]->Beta[X_];
+    betaVC[i][Yi] = lat.elems[v_corr[i-1]]->Beta[Y_];
+    nuVC[i][Xi] = lat.elems[v_corr[i-1]]->Nu[X_];
+    nuVC[i][Yi] = lat.elems[v_corr[i-1]]->Nu[Y_];
   } // for i=1..N_VCOR
 
 
@@ -1064,7 +1068,7 @@ void param_data_type::FindMatrix(double **SkewRespMat, const double deta_y_max,
 	  1e3*deta_y_max*deta_y_offset);
   for (j = 1; j <= N_BPM; j++) {
     eta_y[j] *= fabs(deta_y_max);
-    fprintf(fp, "%6.3f %10.3e\n", Cell[bpm_loc[j-1]]->S, 1e3*eta_y[j]);
+    fprintf(fp, "%6.3f %10.3e\n", lat.elems[bpm_loc[j-1]]->S, 1e3*eta_y[j]);
   }
   fclose(fp);
 
@@ -1082,10 +1086,10 @@ void param_data_type::ini_skew_cor(const double deta_y_max,
   int k;
 
   // No of skew quads, BPMs, and correctors
-  N_SKEW = GetnKid(globval.qt);
+  N_SKEW = lat.GetnKid(globval.qt);
 
   N_BPM = 0;
-  for (k = 1; k <= GetnKid(globval.bpm); k++) {
+  for (k = 1; k <= lat.GetnKid(globval.bpm); k++) {
     N_BPM++;
 
     if (N_BPM > max_bpm) {
@@ -1094,18 +1098,18 @@ void param_data_type::ini_skew_cor(const double deta_y_max,
       exit_(1);
     }
 
-    bpm_loc[N_BPM-1] = Elem_GetPos(globval.bpm, k);
+    bpm_loc[N_BPM-1] = lat.Elem_GetPos(globval.bpm, k);
   }
 
   N_HCOR = 0;
-  h_corr[N_HCOR++] = Elem_GetPos(globval.hcorr, 1);
-  h_corr[N_HCOR++] = Elem_GetPos(globval.hcorr, GetnKid(globval.hcorr)/3);
-  h_corr[N_HCOR++] = Elem_GetPos(globval.hcorr, 2*GetnKid(globval.hcorr)/3);
+  h_corr[N_HCOR++] = lat.Elem_GetPos(globval.hcorr, 1);
+  h_corr[N_HCOR++] = lat.Elem_GetPos(globval.hcorr, lat.GetnKid(globval.hcorr)/3);
+  h_corr[N_HCOR++] = lat.Elem_GetPos(globval.hcorr, 2*lat.GetnKid(globval.hcorr)/3);
 
   N_VCOR = 0;
-  v_corr[N_VCOR++] = Elem_GetPos(globval.vcorr, 1);
-  v_corr[N_VCOR++] = Elem_GetPos(globval.vcorr, GetnKid(globval.vcorr)/3);
-  v_corr[N_VCOR++] = Elem_GetPos(globval.vcorr, 2*GetnKid(globval.vcorr)/3);
+  v_corr[N_VCOR++] = lat.Elem_GetPos(globval.vcorr, 1);
+  v_corr[N_VCOR++] = lat.Elem_GetPos(globval.vcorr, lat.GetnKid(globval.vcorr)/3);
+  v_corr[N_VCOR++] = lat.Elem_GetPos(globval.vcorr, 2*lat.GetnKid(globval.vcorr)/3);
 
   N_COUPLE = N_BPM*(1+N_HCOR+N_VCOR);
 
@@ -1124,7 +1128,7 @@ void param_data_type::ini_skew_cor(const double deta_y_max,
   printf("Number of elements in skew vector: %6d\n", N_COUPLE);
 
   // find matrix
-  Ring_GetTwiss(true, 0.0);
+  lat.Ring_GetTwiss(true, 0.0);
 
   printf("\n");
   printf("Looking for response matrix\n");
@@ -1145,28 +1149,30 @@ void param_data_type::FindCoupVector(double *VertCouple)
   orbitP = dvector(1, N_BPM); orbitN = dvector(1, N_BPM);
 
   // Find vertical dispersion
-  Cell_Geteta(0, globval.Cell_nLoc, true, 0e0);
+  lat.Cell_Geteta(0, globval.Cell_nLoc, true, 0e0);
 
   for (i = 1; i <= N_BPM; i++)
-    VertCouple[i] = VDweight*Cell[bpm_loc[i-1]]->Eta[Y_];
+    VertCouple[i] = VDweight*lat.elems[bpm_loc[i-1]]->Eta[Y_];
   // Finished finding vertical dispersion
 
   // Find off diagonal terms for horizontal trims
   for (j = 1; j <= N_HCOR; j++) {
     // positive kick: "+Dip" for horizontal
-    SetdKLpar(Cell[h_corr[j-1]]->Fnum, Cell[h_corr[j-1]]->Knum, +Dip, kick);
-    cod = getcod(0.0, lastpos); chk_cod(cod, "FindCoupVector");
+    SetdKLpar(lat.elems[h_corr[j-1]]->Fnum, lat.elems[h_corr[j-1]]->Knum, +Dip,
+	      kick);
+    cod = lat.getcod(0.0, lastpos); chk_cod(cod, "FindCoupVector");
     for (i = 1; i <= N_BPM; i++)
-      orbitP[i] = Cell[bpm_loc[i-1]]->BeamPos[y_];
+      orbitP[i] = lat.elems[bpm_loc[i-1]]->BeamPos[y_];
 
     //negative kick: "+Dip" for horizontal
-    SetdKLpar(Cell[h_corr[j-1]]->Fnum, Cell[h_corr[j-1]]->Knum, +Dip, -2*kick);
-    cod = getcod(0.0, lastpos); chk_cod(cod, "FindCoupVector");
+    SetdKLpar(lat.elems[h_corr[j-1]]->Fnum, lat.elems[h_corr[j-1]]->Knum, +Dip,
+	      -2*kick);
+    cod = lat.getcod(0.0, lastpos); chk_cod(cod, "FindCoupVector");
     for (i = 1; i <= N_BPM; i++)
-      orbitN[i] = Cell[bpm_loc[i-1]]->BeamPos[y_];
+      orbitN[i] = lat.elems[bpm_loc[i-1]]->BeamPos[y_];
 
     // restore trim valueL: "+Dip" for horizontal
-    SetdKLpar(Cell[h_corr[j-1]]->Fnum, Cell[h_corr[j-1]]->Knum, +Dip, kick);
+    SetdKLpar(lat.elems[h_corr[j-1]]->Fnum, lat.elems[h_corr[j-1]]->Knum, +Dip, kick);
 
     for (i = 1; i <= N_BPM; i++)
       VertCouple[N_BPM+(j-1)*N_HCOR+i] =
@@ -1177,19 +1183,22 @@ void param_data_type::FindCoupVector(double *VertCouple)
   // Find off diagonal terms for vertical trims
   for (j = 1; j <= N_VCOR; j++){
     // positive kick: "-Dip" for vertical
-    SetdKLpar(Cell[v_corr[j-1]]->Fnum, Cell[v_corr[j-1]]->Knum, -Dip, kick);
-    cod = getcod(0.0, lastpos); chk_cod(cod, "FindCoupVector");
+    SetdKLpar(lat.elems[v_corr[j-1]]->Fnum, lat.elems[v_corr[j-1]]->Knum, -Dip,
+	      kick);
+    cod = lat.getcod(0.0, lastpos); chk_cod(cod, "FindCoupVector");
     for (i = 1;  i <= N_BPM; i++)
-      orbitP[i] = Cell[bpm_loc[i-1]]->BeamPos[x_];
+      orbitP[i] = lat.elems[bpm_loc[i-1]]->BeamPos[x_];
 
     // negative kick: "-Dip" for vertical
-    SetdKLpar(Cell[v_corr[j-1]]->Fnum, Cell[v_corr[j-1]]->Knum, -Dip, -2*kick);
-    cod = getcod(0.0, lastpos); chk_cod(cod, "FindCoupVector");
+    SetdKLpar(lat.elems[v_corr[j-1]]->Fnum, lat.elems[v_corr[j-1]]->Knum, -Dip,
+	      -2*kick);
+    cod = lat.getcod(0.0, lastpos); chk_cod(cod, "FindCoupVector");
     for (i = 1; i <= N_BPM; i++)
-      orbitN[i] = Cell[bpm_loc[i-1]]->BeamPos[x_];
+      orbitN[i] = lat.elems[bpm_loc[i-1]]->BeamPos[x_];
 
     // restore corrector: "-Dip" for vertical
-    SetdKLpar(Cell[v_corr[j-1]]->Fnum, Cell[v_corr[j-1]]->Knum, -Dip, kick);
+    SetdKLpar(lat.elems[v_corr[j-1]]->Fnum, lat.elems[v_corr[j-1]]->Knum, -Dip,
+	      kick);
 
     for (i = 1; i <= N_BPM; i++)
       VertCouple[N_BPM+N_BPM*N_HCOR+(j-1)*N_VCOR+i] =
@@ -1220,9 +1229,9 @@ void param_data_type::SkewStat(double VertCouple[], const int cnt)
     sk = GetKLpar(globval.qt, i, -Quad);
     if (cnt>=0)
       fprintf(outf, "%4d %7.3f %12.5e %s %12.5e\n",
-	       i,Cell[Elem_GetPos(globval.qt,i)]->S,
-	       Cell[Elem_GetPos(globval.qt,i)]->Eta[X_],
-	       Cell[Elem_GetPos(globval.qt,i)]->PName,sk);
+	       i,lat.elems[lat.Elem_GetPos(globval.qt,i)]->S,
+	       lat.elems[lat.Elem_GetPos(globval.qt,i)]->Eta[X_],
+	       lat.elems[lat.Elem_GetPos(globval.qt,i)]->PName,sk);
     if (fabs(sk) > max) max = fabs(sk);
     rms += sqr(sk);
     mean += sk;
@@ -1351,21 +1360,21 @@ void param_data_type::corr_eps_y(const int cnt)
     for(j = 1; j <= N_SKEW; j++) {
       fscanf(cinf, "%d %lg %lg %s %lg", &qtnr, &qtpos, &qteta, qtnam, &qtkl);
       printf("%d %d %s %f\n", j, qtnr, qtnam, qtkl);
-      loc = Elem_GetPos(globval.qt, j);
-      M = dynamic_cast<MpoleType*>(Cell[loc]);
+      loc = lat.Elem_GetPos(globval.qt, j);
+      M = dynamic_cast<MpoleType*>(lat.elems[loc]);
      printf("%d %e %e %e %e\n",
-	     loc, Cell[loc]->PL,
+	     loc, lat.elems[loc]->PL,
 	     qtkl, M->PBpar[-Quad+HOMmax],
 	     M->PBpar[Quad+HOMmax]);
       SetdKLpar(globval.qt, j, -Quad, qtkl);
-      loc = Elem_GetPos(globval.qt, j);
+      loc = lat.Elem_GetPos(globval.qt, j);
       printf("%d %e %e %e %e\n",
-	     loc, Cell[loc]->PL, qtkl,
+	     loc, lat.elems[loc]->PL, qtkl,
 	     M->PBpar[-Quad+HOMmax],
 	     M->PBpar[Quad+HOMmax]);
     }
     printf("\n");
-    Ring_GetTwiss(true, 0.0); printglob();
+    lat.Ring_GetTwiss(true, 0.0); printglob(lat.elems[0]);
     printf("\n");
     printf("Looking for coupling error\n");
     // Find coupling vector
@@ -1383,8 +1392,9 @@ void param_data_type::corr_eps_y(const int cnt)
   fprintf(outf, "# nr s [m] name nuy etay [mm] etapy [mrad]\n");
   for (i = 0; i <= globval.Cell_nLoc; i++)
     fprintf(outf, "%4d %7.3f %s %6.3f %10.3e %10.3e\n",
-	    i, Cell[i]->S, Cell[i]->PName,
-	    Cell[i]->Nu[Y_], 1e3*Cell[i]->Eta[Y_], 1e3*Cell[i]->Etap[Y_]);
+	    i, lat.elems[i]->S, lat.elems[i]->PName,
+	    lat.elems[i]->Nu[Y_], 1e3*lat.elems[i]->Eta[Y_],
+	    1e3*lat.elems[i]->Etap[Y_]);
   fclose(outf);
 
   FindCoupVector(VertCouple);
@@ -1401,17 +1411,17 @@ void param_data_type::get_IDs(void)
   printf("\n");
   n_ID_Fams = 0;
   for (k = 0; k < globval.Elem_nFam; k++)
-    switch (ElemFam[k].ElemF->Pkind) {
+    switch (lat.elemf[k].ElemF->Pkind) {
     case Wigl:
-      W = dynamic_cast<WigglerType*>(ElemFam[k].ElemF);
+      W = dynamic_cast<WigglerType*>(lat.elemf[k].ElemF);
       printf("found ID family:   %s %12.5e\n",
-	     ElemFam[k].ElemF->PName, W->BoBrhoV[0]);
+	     lat.elemf[k].ElemF->PName, W->BoBrhoV[0]);
       n_ID_Fams++; ID_Fams[n_ID_Fams-1] = k + 1;
       break;
     case Insertion:
-     ID = dynamic_cast<InsertionType*>(ElemFam[k].ElemF);
+     ID = dynamic_cast<InsertionType*>(lat.elemf[k].ElemF);
       printf("found ID family:   %s %12.5e",
-	     ElemFam[k].ElemF->PName, ID->scaling);
+	     lat.elemf[k].ElemF->PName, ID->scaling);
       if (ID->scaling != 0e0) {
 	printf("\n");
 	n_ID_Fams++; ID_Fams[n_ID_Fams-1] = k + 1;
@@ -1419,9 +1429,9 @@ void param_data_type::get_IDs(void)
 	printf("  not included\n");
       break;
     case FieldMap:
-      FM = dynamic_cast<FieldMapType*>(ElemFam[k].ElemF);
+      FM = dynamic_cast<FieldMapType*>(lat.elemf[k].ElemF);
       printf("found ID family:   %s %12.5e\n",
-	     ElemFam[k].ElemF->PName, FM->scl);
+	     lat.elemf[k].ElemF->PName, FM->scl);
       n_ID_Fams++; ID_Fams[n_ID_Fams-1] = k + 1;
       break;
     default:
@@ -1440,23 +1450,23 @@ void param_data_type::set_IDs(const double scl)
 
   printf("\n");
   for (k = 0; k < n_ID_Fams; k++) {
-    switch (ElemFam[ID_Fams[k]-1].ElemF->Pkind) {
+    switch (lat.elemf[ID_Fams[k]-1].ElemF->Pkind) {
     case Wigl:
-      W = dynamic_cast<WigglerType*>(ElemFam[ID_Fams[k]-1].ElemF);
+      W = dynamic_cast<WigglerType*>(lat.elemf[ID_Fams[k]-1].ElemF);
       printf("setting ID family: %s %12.5e\n",
-	     ElemFam[ID_Fams[k]-1].ElemF->PName, scl*W->BoBrhoV[0]);
+	     lat.elemf[ID_Fams[k]-1].ElemF->PName, scl*W->BoBrhoV[0]);
 
       set_Wiggler_BoBrho(ID_Fams[k], scl*W->BoBrhoV[0]);
       break;
     case Insertion:
       printf("setting ID family: %s %12.5e\n",
-	     ElemFam[ID_Fams[k]-1].ElemF->PName, scl);
+	     lat.elemf[ID_Fams[k]-1].ElemF->PName, scl);
 
       set_ID_scl(ID_Fams[k], scl);
       break;
     case FieldMap:
       printf("setting ID family: %s %12.5e\n",
-	     ElemFam[ID_Fams[k]-1].ElemF->PName, scl);
+	     lat.elemf[ID_Fams[k]-1].ElemF->PName, scl);
 
       set_ID_scl(ID_Fams[k], scl);
       break;
@@ -1481,14 +1491,14 @@ void param_data_type::reset_quads(void)
   for (k = 0; k < N_Fam; k++) {
     // Note, actual values can differ from the original values
 /*    printf("setting quad family: %s %12.5e\n",
-	   ElemFam[Q_Fam[k]-1].ElemF->PName,
-	   ElemFam[Q_Fam[k]-1].ElemF->M->PBpar[HOMmax+Quad]);
+	   lat.elemf[Q_Fam[k]-1].ElemF->PName,
+	   lat.elemf[Q_Fam[k]-1].ElemF->M->PBpar[HOMmax+Quad]);
 
     set_bn_design_fam(Q_Fam[k], Quad,
-		       ElemFam[Q_Fam[k]-1].ElemF->M->PBpar[HOMmax+Quad], 0.0);*/
+		       lat.elemf[Q_Fam[k]-1].ElemF->M->PBpar[HOMmax+Quad], 0.0);*/
 
     printf("setting quad family: %s %12.5e\n",
-	   ElemFam[Q_Fam[k]-1].ElemF->PName, b2[k]);
+	   lat.elemf[Q_Fam[k]-1].ElemF->PName, b2[k]);
 
     set_bn_design_fam(Q_Fam[k], Quad, b2[k], 0.0);
   }
@@ -1545,7 +1555,7 @@ void param_data_type::quad_config()
 
   Nquad = 0;
   for (i = 0; i < N_Fam; i++) {
-    for (j = 1; j <= GetnKid(Q_Fam[i]); j++) {
+    for (j = 1; j <= lat.GetnKid(Q_Fam[i]); j++) {
       Nquad++;
 
       if (Nquad > n_b2_max) {
@@ -1554,7 +1564,7 @@ void param_data_type::quad_config()
         exit_(1);
       }
 
-      quad_prms[Nquad-1] = Elem_GetPos(Q_Fam[i], j);
+      quad_prms[Nquad-1] = lat.Elem_GetPos(Q_Fam[i], j);
 
       if (j == 1) get_bn_design_elem(Q_Fam[i], j, Quad, b2[i], an);
     }
@@ -1578,7 +1588,7 @@ bool param_data_type::get_SQ(void)
        ...                                                                  */
 
   // Get Twiss params, no dispersion
-  Ring_GetTwiss(false, 0e0);
+  lat.Ring_GetTwiss(false, 0e0);
 
   if (!status.codflag || !globval.stable) return false;
 
@@ -1600,8 +1610,8 @@ bool param_data_type::get_SQ(void)
 
   Nsext = 0;
   for (k = 0; k < globval.Cell_nLoc; k++) {
-    M = dynamic_cast<MpoleType*>(Cell[k]);
-    if ((Cell[k]->Pkind == Mpole) && (M->n_design == Sext)) {
+    M = dynamic_cast<MpoleType*>(lat.elems[k]);
+    if ((lat.elems[k]->Pkind == Mpole) && (M->n_design == Sext)) {
       Nsext++;
 
       if (Nsext > n_b3_max) {
@@ -1610,20 +1620,20 @@ bool param_data_type::get_SQ(void)
         exit_(1);
       }
 
-      Ss[Nsext-1] = Cell[k]->S; S_locs[Nsext-1] = k;
+      Ss[Nsext-1] = lat.elems[k]->S; S_locs[Nsext-1] = k;
 
       for (j = 0; j <= 1; j++) {
-	sb[j][Nsext-1] = Cell[k]->Beta[j];
-	sNu[j][Nsext-1] = Cell[k]->Nu[j] - nu_0[j];
+	sb[j][Nsext-1] = lat.elems[k]->Beta[j];
+	sNu[j][Nsext-1] = lat.elems[k]->Nu[j] - nu_0[j];
       }
 
       if (trace) {
 	printf("%-8s %7.3f %8.5f %8.5f %8.5f %8.5f\n",
-	       Cell[k]->PName, Ss[Nsext-1],
+	       lat.elems[k]->PName, Ss[Nsext-1],
 	       sb[X_][Nsext-1], sNu[X_][Nsext-1]-nu_0[X_],
 	       sb[Y_][Nsext-1], sNu[Y_][Nsext-1]-nu_0[Y_]);
 	fprintf(outf, "%-8s %7.3f %8.5f %8.5f %8.5f %8.5f\n",
-		Cell[k]->PName, Ss[Nsext-1],
+		lat.elems[k]->PName, Ss[Nsext-1],
 		sb[X_][Nsext-1], sNu[X_][Nsext-1]-nu_0[X_],
 		sb[Y_][Nsext-1], sNu[Y_][Nsext-1]-nu_0[Y_]);
       }
@@ -1646,25 +1656,25 @@ bool param_data_type::get_SQ(void)
   }
 
   for (k = 0; k < Nquad; k++) {
-    Sq[k] = Cell[quad_prms[k]]->S;
+    Sq[k] = lat.elems[quad_prms[k]]->S;
     for (j = 0; j <= 1; j++) {
       // does not work for machine file (get_twiss_3)...
-//       if (Cell[quad_prms[k]]->M->Pthick == thick) {
+//       if (lat.elems[quad_prms[k]]->M->Pthick == thick) {
 // 	get_twiss3(quad_prms[k], alpha3, beta3, nu3, eta3, etap3);
 // 	qb[j][k] = beta3[Y_][j]; qNu[j][k] = nu3[Y_][j] - nu_0[j];
 //       } else {
-	qb[j][k] = Cell[quad_prms[k]]->Beta[j];
-	qNu[j][k] = Cell[quad_prms[k]]->Nu[j] - nu_0[j];
+	qb[j][k] = lat.elems[quad_prms[k]]->Beta[j];
+	qNu[j][k] = lat.elems[quad_prms[k]]->Nu[j] - nu_0[j];
 //       }
     }
 
     if (trace) {
       printf("%-8s %7.3f %8.5f %8.5f %8.5f %8.5f\n",
-	     Cell[quad_prms[k]]->PName, Sq[k], qb[X_][k],
+	     lat.elems[quad_prms[k]]->PName, Sq[k], qb[X_][k],
 	     qNu[X_][k], qb[Y_][k], qNu[Y_][k]);
 
       fprintf(outf, "%-8s %7.3f %8.5f %8.5f %8.5f %8.5f\n",
-	      Cell[quad_prms[k]]->PName, Sq[k], qb[X_][k],
+	      lat.elems[quad_prms[k]]->PName, Sq[k], qb[X_][k],
 	      qNu[X_][k], qb[Y_][k], qNu[Y_][k]);
     }
   }
@@ -1821,7 +1831,7 @@ void param_data_type::ini_ID_corr(const bool IDs)
     b2Ls_[k] = 0.0;
 
   // shift zero point to center of ID
-//  nu_0[X_] = Cell[id_loc]->Nu[X_]; nu_0[Y_] = Cell[id_loc]->Nu[Y_];
+//  nu_0[X_] = lat.elems[id_loc]->Nu[X_]; nu_0[Y_] = lat.elems[id_loc]->Nu[Y_];
   nu_0[X_] = 0.0; nu_0[Y_] = 0.0;
 
   // Defining undisturbed tunes
@@ -1895,20 +1905,22 @@ bool param_data_type::ID_corr(const int N_calls, const int N_steps,
 
       // add quad strengths (db2Ls_)
       for (k = 1; k <= Nquad; k++) {
-	set_dbnL_design_elem(Cell[quad_prms[k-1]]->Fnum,
-			     Cell[quad_prms[k-1]]->Knum, Quad,
+	set_dbnL_design_elem(lat.elems[quad_prms[k-1]]->Fnum,
+			     lat.elems[quad_prms[k-1]]->Knum, Quad,
 			     -ID_step*b2Ls_[k], 0.0);
 
 	if ((i == N_steps) && (j == N_calls)) {
-	  Fnum = Cell[quad_prms[k-1]]->Fnum; L = Cell[quad_prms[k-1]]->PL;
-	  get_bnL_design_elem(Fnum, Cell[quad_prms[k-1]]->Knum, Quad, b2L, a2L);
+	  Fnum = lat.elems[quad_prms[k-1]]->Fnum;
+	  L = lat.elems[quad_prms[k-1]]->PL;
+	  get_bnL_design_elem(Fnum, lat.elems[quad_prms[k-1]]->Knum, Quad, b2L,
+			      a2L);
 	  // ElemFam not defined for flat file.
 	  // fprintf(outf, "%10s %6.2f %3d %8.5f\n",
-	  // 	  Cell[quad_prms[k-1]]->PName, Cell[quad_prms[k-1]]->S, k,
-	  // 	  b2L-ElemFam[Fnum-1]->ElemF->M->PBpar[HOMmax+Quad]*L);
+	  // 	  lat.elems[quad_prms[k-1]]->PName, lat.elems[quad_prms[k-1]]->S, k,
+	  // 	  b2L-lat.elemf[Fnum-1]->ElemF->M->PBpar[HOMmax+Quad]*L);
 	  fprintf(outf, "%10s %6.2f %3d %8.5f\n",
-		  Cell[quad_prms[k-1]]->PName, Cell[quad_prms[k-1]]->S, k,
-		  b2L);
+		  lat.elems[quad_prms[k-1]]->PName,
+		  lat.elems[quad_prms[k-1]]->S, k, b2L);
 	}
       }
 
@@ -1918,7 +1930,7 @@ bool param_data_type::ID_corr(const int N_calls, const int N_steps,
 	X_vector(false);                    // Fill in dX in dX=A*db2Ls_
 	W_diag();                           // Get statistics
 
-	printglob();
+	printglob(lat.elems[0]);
       } else {
 	printf("ID_corr: correction failed\n");
 	// restore lattice
@@ -1999,7 +2011,7 @@ void param_data_type::ReadCorMis(const bool Scale_it, const double Scale) const
   
   for (i = 0; i <= globval.Cell_nLoc; i++)
   {
-    getelem(i, &Cell);
+    lat.getelem(i, &Cell);
     if (Cell.Pkind == Mpole)
     {
       M = dynamic_cast<MpoleType*>(&Cell);
@@ -2023,9 +2035,9 @@ void param_data_type::ReadCorMis(const bool Scale_it, const double Scale) const
         M->PdSsys[1] = dy;
         M->PdTsys    = dt;
 
-        putelem(ii, &Cell);
-	Mpole_SetdS(Cell.Fnum, Cell.Knum);
-	Mpole_SetdT(Cell.Fnum, Cell.Knum);
+        lat.putelem(ii, &Cell);
+	lat.Mpole_SetdS(Cell.Fnum, Cell.Knum);
+	lat.Mpole_SetdT(Cell.Fnum, Cell.Knum);
 
         fprintf(fo, "%ld %lf %lf %lf %lf %lf %s \n",
 		ii,  s1, s2, dx*1e6, dy*1e6, dt*1e6, Cell.PName);
@@ -2141,10 +2153,10 @@ void param_data_type::LoadAlignTol(const bool Scale_it, const double Scale,
 	    for (j = 1; j <= n_bpm_[k]; j++) {
 	      loc = bpms_[k][j];
 	      if (rms)
-		misalign_rms_elem(Cell[loc]->Fnum, Cell[loc]->Knum,
+		misalign_rms_elem(lat.elems[loc]->Fnum, lat.elems[loc]->Knum,
 				  dx, dy, dr_deg, new_rnd);
 	      else
-		misalign_sys_elem(Cell[loc]->Fnum, Cell[loc]->Knum,
+		misalign_sys_elem(lat.elems[loc]->Fnum, lat.elems[loc]->Knum,
 				  dx, dy, dr_deg);
 	    }
 	} else {
@@ -2292,12 +2304,12 @@ void param_data_type::Align_BPMs(const int n, const double bdxrms,
 
   const int n_step = 25;
 
-  // printf("Align_BPMs entered %d\n", GetnKid(globval.bpm));
+  // printf("Align_BPMs entered %d\n", lat.GetnKid(globval.bpm));
   printf("\n");
 
-  for (i = 1; i <= GetnKid(globval.bpm); i++) {
-    loc = Elem_GetPos(globval.bpm, i);
-    M = dynamic_cast<MpoleType*>(Cell[loc]);
+  for (i = 1; i <= lat.GetnKid(globval.bpm); i++) {
+    loc = lat.Elem_GetPos(globval.bpm, i);
+    M = dynamic_cast<MpoleType*>(lat.elems[loc]);
 
     if ((loc == 1) || (loc == globval.Cell_nLoc)) {
       printf("Align_BPMs: BPM at entrance or exit of lattice: %ld\n", loc);
@@ -2306,10 +2318,10 @@ void param_data_type::Align_BPMs(const int n, const double bdxrms,
 
     j = 1; aligned = false;
     do {
-      if ((Cell[loc-j]->Pkind == Mpole) &&
-	  (dynamic_cast<MpoleType*>(Cell[loc-j])->n_design == n)) {
+      if ((lat.elems[loc-j]->Pkind == Mpole) &&
+	  (dynamic_cast<MpoleType*>(lat.elems[loc-j])->n_design == n)) {
 	for (k = 0; k <= 1; k++)
-	  M->PdSsys[k] = Cell[loc-j]->dS[k];
+	  M->PdSsys[k] = lat.elems[loc-j]->dS[k];
 	if (bdxrms >=0.) {
 	  M->PdSrms[0] = bdxrms;
 	  M->PdSrnd[0] = normranf();
@@ -2324,15 +2336,15 @@ void param_data_type::Align_BPMs(const int n, const double bdxrms,
 	}
 	printf("aligned BPM no %1d to %s with BBA"
 	       " error x= %f um z= %f um dt= %f urad\n",
-	       i, Cell[loc-j]->PName,
+	       i, lat.elems[loc-j]->PName,
 	       M->PdSrms[0]*M->PdSrnd[0]*1e6,
 	       M->PdSrms[1]*M->PdSrnd[0]*1e6,
 	       dtor(M->PdTrms*M->PdTrnd*1e6));
 	aligned = true; break;
-      } else if ((Cell[loc+j]->Pkind == Mpole) &&
-		 (dynamic_cast<MpoleType*>(Cell[loc+j])->n_design == n)) {
+      } else if ((lat.elems[loc+j]->Pkind == Mpole) &&
+		 (dynamic_cast<MpoleType*>(lat.elems[loc+j])->n_design == n)) {
 	for (k = 0; k <= 1; k++)
-	  M->PdSsys[k] = Cell[loc+j]->dS[k];
+	  M->PdSsys[k] = lat.elems[loc+j]->dS[k];
 	if (bdxrms >=0.) {
 	  M->PdSrms[0] = bdxrms;
 	  M->PdSrnd[0] = normranf();
@@ -2348,7 +2360,7 @@ void param_data_type::Align_BPMs(const int n, const double bdxrms,
 	printf("aligned BPM no %1d to %s with BBA"
 	       " error x= %f um z= %f um dt= %f urad\n",
 	       i,
-	       Cell[loc+j]->PName,M->PdSrms[0]
+	       lat.elems[loc+j]->PName,M->PdSrms[0]
 	       *M->PdSrnd[0]*1e6,
 	       M->PdSrms[1]*M->PdSrnd[0]*1e6,
 	       dtor(M->PdTrms*M->PdTrnd*1e6));
@@ -2360,8 +2372,8 @@ void param_data_type::Align_BPMs(const int n, const double bdxrms,
     } while (j <= n_step);
 
     if (aligned) {
-      Mpole_SetdS(globval.bpm, i);
-      Mpole_SetdT(globval.bpm, i);
+      lat.Mpole_SetdS(globval.bpm, i);
+      lat.Mpole_SetdT(globval.bpm, i);
     } else
       printf("Align_BPMs: no multipole adjacent to BPM no %d\n", i);
   }
@@ -2379,7 +2391,7 @@ bool param_data_type::CorrectCOD_N(const int n_orbit, const int k)
   for (j = 0; j < 2; j++)
     for (i = 1; i <= n_corr_[j]; i++) {
       loc = corrs_[j][i];
-      set_bnL_design_elem(Cell[loc]->Fnum, Cell[loc]->Knum, Dip, 0.0, 0.0);
+      set_bnL_design_elem(lat.elems[loc]->Fnum, lat.elems[loc]->Knum, Dip, 0.0, 0.0);
     }
 
   // load misalignments
@@ -2423,37 +2435,37 @@ void param_data_type::ini_COD_corr(const int n_bpm_Fam,
 
   n_bpm = 0;
   for (i = 0; i < n_bpm_Fam; i++)
-    n_bpm += GetnKid(ElemIndex(bpm_names[i]));
+    n_bpm += lat.GetnKid(ElemIndex(bpm_names[i]));
 
   n_hcorr = 0;
   for (i = 0; i < n_hcorr_Fam; i++)
-    n_hcorr += GetnKid(ElemIndex(hcorr_names[i]));
+    n_hcorr += lat.GetnKid(ElemIndex(hcorr_names[i]));
 
   n_vcorr = 0;
   for (i = 0; i < n_vcorr_Fam; i++)
-    n_vcorr += GetnKid(ElemIndex(vcorr_names[i]));
+    n_vcorr += lat.GetnKid(ElemIndex(vcorr_names[i]));
 
   long int  bpms[n_bpm], hcorrs[n_hcorr], vcorrs[n_vcorr];
 
   n_bpm = 0;
   for (i = 0; i < n_bpm_Fam; i++) {
     Fnum = ElemIndex(bpm_names[i]);
-    for (j = 1; j <= GetnKid(Fnum); j++)
-      bpms[n_bpm++] = Elem_GetPos(Fnum, j);
+    for (j = 1; j <= lat.GetnKid(Fnum); j++)
+      bpms[n_bpm++] = lat.Elem_GetPos(Fnum, j);
   }
 
   n_hcorr = 0;
   for (i = 0; i < n_hcorr_Fam; i++) {
     Fnum = ElemIndex(hcorr_names[i]);
-    for (j = 1; j <= GetnKid(Fnum); j++)
-      hcorrs[n_hcorr++] = Elem_GetPos(Fnum, j);
+    for (j = 1; j <= lat.GetnKid(Fnum); j++)
+      hcorrs[n_hcorr++] = lat.Elem_GetPos(Fnum, j);
   }
 
   n_vcorr = 0;
   for (i = 0; i < n_vcorr_Fam; i++) {
     Fnum = ElemIndex(vcorr_names[i]);
-    for (j = 1; j <= GetnKid(Fnum); j++)
-      vcorrs[n_vcorr++] = Elem_GetPos(Fnum, j);
+    for (j = 1; j <= lat.GetnKid(Fnum); j++)
+      vcorrs[n_vcorr++] = lat.Elem_GetPos(Fnum, j);
   }
 
   std::cout << std::endl;
@@ -2481,7 +2493,7 @@ bool param_data_type::cod_corr(const int n_cell, const double scl,
 
   orb_corr[X_].clr_trims(); orb_corr[Y_].clr_trims();
 
-  cod = getcod(0e0, lastpos);
+  cod = lat.getcod(0e0, lastpos);
   if (trace) printf("\ncod_corr: %d\n", cod);
 
   if (!false || !cod) {
@@ -2523,11 +2535,11 @@ void param_data_type::Orb_and_Trim_Stat(orb_corr_type orb_corr[])
   }
   SextCounter = 0;
   for (i = 0; i <= globval.Cell_nLoc; i++) {
-    M = dynamic_cast<MpoleType*>(Cell[i]);
-    if ((Cell[i]->Pkind == Mpole) && (M->n_design == Sext)) {
+    M = dynamic_cast<MpoleType*>(lat.elems[i]);
+    if ((lat.elems[i]->Pkind == Mpole) && (M->n_design == Sext)) {
       SextCounter++;
       for (j = 0; j < 2; j++) {
-	orb[j] = Cell[i]->BeamPos[2*j];
+	orb[j] = lat.elems[i]->BeamPos[2*j];
 	Sext_sigma[j] += sqr(orb[j]);
 	if (fabs(orb[j]) > Sext_max[j]) Sext_max[j] = fabs(orb[j]);
       }
@@ -2543,7 +2555,7 @@ void param_data_type::Orb_and_Trim_Stat(orb_corr_type orb_corr[])
   // Trim handling.
   for (j = 0; j < 2; j++)
     for (i = 0; i < (int)orb_corr[j].corrs.size(); i++) {
-      M = dynamic_cast<MpoleType*>(Cell[orb_corr[j].corrs[i]]);
+      M = dynamic_cast<MpoleType*>(lat.elems[orb_corr[j].corrs[i]]);
       if (j == 0)
 	tr = M->PBpar[HOMmax+Dip];
       else
@@ -2591,15 +2603,15 @@ void param_data_type::prt_cod_corr_lat(void)
     if (i == 0)
       fprintf(CodCorLatFile, "%.*s", 6, "begin ");
     else
-      fprintf(CodCorLatFile, "%.*s", 6, Cell[i]->PName);
+      fprintf(CodCorLatFile, "%.*s", 6, lat.elems[i]->PName);
 
     fprintf(CodCorLatFile, "%7.3f  %5.2f    %5.2f  %7.4f  %5.2f  %7.4f"
 	    "  %6.3f  %6.3f  %6.3f\n",
-	    Cell[i]->S, sqrt(Cell[i]->Beta[X_]*Cell[i]->Beta[Y_]),
-            Cell[i]->Beta[X_], Cell[i]->Nu[X_], Cell[i]->Beta[Y_],
-	    Cell[i]->Nu[Y_],
-	    Cell[i]->Eta[X_], Cell[i]->Eta[X_]*Cell[i]->Beta[Y_],
-            Cell[i]->Nu[X_]-Cell[i]->Nu[Y_]);
+	    lat.elems[i]->S, sqrt(lat.elems[i]->Beta[X_]*lat.elems[i]->Beta[Y_]),
+            lat.elems[i]->Beta[X_], lat.elems[i]->Nu[X_], lat.elems[i]->Beta[Y_],
+	    lat.elems[i]->Nu[Y_],
+	    lat.elems[i]->Eta[X_], lat.elems[i]->Eta[X_]*lat.elems[i]->Beta[Y_],
+            lat.elems[i]->Nu[X_]-lat.elems[i]->Nu[Y_]);
   }
   fclose(CodCorLatFile);
 }
@@ -2627,7 +2639,7 @@ void param_data_type::err_and_corr_init(const string &param_file,
 
   get_param(param_file);
 
-  Ring_GetTwiss(true, 0.0); printglob();
+  lat.Ring_GetTwiss(true, 0.0); printglob(lat.elems[0]);
 
   // Fit tunes to TuneX and TuneY
   if (TuneX*TuneY > 0) {
@@ -2636,12 +2648,12 @@ void param_data_type::err_and_corr_init(const string &param_file,
     nu[0]=TuneX;
     nu[1]=TuneY;
     for (i = 0; i <= globval.Cell_nLoc; i++) {
-      if ( Cell[i]->Pkind == Mpole ) {
-	if (strncmp(Cell[i]->PName,"qax",3) == 0){
+      if ( lat.elems[i]->Pkind == Mpole ) {
+	if (strncmp(lat.elems[i]->PName,"qax",3) == 0){
 	  qfbuf[nq[0]]=i;
 	  nq[0]++;
 	}
-	if (strncmp(Cell[i]->PName,"qay",3) == 0){
+	if (strncmp(lat.elems[i]->PName,"qay",3) == 0){
 	  qdbuf[nq[1]]=i;
 	  nq[1]++;
 	}
@@ -2651,12 +2663,12 @@ void param_data_type::err_and_corr_init(const string &param_file,
     printf("Fittune: nq[0]=%ld nq[1]=%ld\n",nq[0],nq[1]);
     TotalTuneX=globval.TotalTune[0];
     TotalTuneY=globval.TotalTune[1];
-    Ring_Fittune(nu, (double)1e-4, nq, qfbuf, qdbuf, dk, 50L);
+    lat.Ring_Fittune(nu, (double)1e-4, nq, qfbuf, qdbuf, dk, 50L);
     printf("Fittune: nux= %f dnux= %f nuy= %f dnuy= %f\n",
 	   globval.TotalTune[0], globval.TotalTune[0]-TotalTuneX,
 	   globval.TotalTune[1], globval.TotalTune[1]-TotalTuneY);
 
-    Ring_GetTwiss(true, 0.0); printglob();
+    lat.Ring_GetTwiss(true, 0.0); printglob(lat.elems[0]);
   }
 
   // Fit chromaticities to ChromX and ChromY
@@ -2666,12 +2678,12 @@ void param_data_type::err_and_corr_init(const string &param_file,
     si[0]=ChromX;
     si[1]=ChromY;
     for (i = 0; i <= globval.Cell_nLoc; i++) {
-      if ( Cell[i]->Pkind == Mpole ) {
-	if (strncmp(Cell[i]->PName,"sf",2) == 0){
+      if ( lat.elems[i]->Pkind == Mpole ) {
+	if (strncmp(lat.elems[i]->PName,"sf",2) == 0){
 	  sfbuf[ns[0]]=i;
 	  ns[0]++;
 	}
-	if (strncmp(Cell[i]->PName,"sd",2) == 0){
+	if (strncmp(lat.elems[i]->PName,"sd",2) == 0){
 	  sdbuf[ns[1]]=i;
 	  ns[1]++;
 	}
@@ -2681,12 +2693,12 @@ void param_data_type::err_and_corr_init(const string &param_file,
     printf("Fitchrom: ns[0]=%ld ns[1]=%ld\n",ns[0],ns[1]);
     ChromaX=globval.Chrom[0];
     ChromaY=globval.Chrom[1];
-    Ring_Fitchrom(si, 1e-4, ns, sfbuf, sdbuf, dks, 50L);
+    lat.Ring_Fitchrom(si, 1e-4, ns, sfbuf, sdbuf, dks, 50L);
     printf("Fitchrom: six= %f dsix= %f siy= %f dsiy= %f\n",
 	   globval.Chrom[0], globval.Chrom[0]-ChromaX, globval.Chrom[1],
 	   globval.Chrom[1]-ChromaY);
 
-    Ring_GetTwiss(true, 0.0); printglob();
+    lat.Ring_GetTwiss(true, 0.0); printglob(lat.elems[0]);
   }
 
   get_bare();
@@ -2788,9 +2800,9 @@ void get_bn2(const string file_name1, const string file_name2, int n,
   }
   if (prt) printf("\n");
 
-  C = Cell[globval.Cell_nLoc]->S; recalc_S();
+  C = lat.elems[globval.Cell_nLoc]->S; recalc_S();
   if (prt)
-    printf("New Cell Length: %5.3f (%5.3f)\n", Cell[globval.Cell_nLoc]->S, C);
+    printf("New Cell Length: %5.3f (%5.3f)\n", lat.elems[globval.Cell_nLoc]->S, C);
 
   fclose(inf); fclose(fp_lat);
 }
