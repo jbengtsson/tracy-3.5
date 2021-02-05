@@ -114,7 +114,7 @@ class CellType {
   double
     S,                         // Position in the ring.
     curly_dH_x,                // Contribution to curly_H_x.
-    dI[6],                     // Contribution to I[2..5].
+    dI[6],                     // Contribution to I[1..5].
     dS[2],                     // Transverse displacement.
     dT[2],                     // dT = (cos(dT), sin(dT)).
     Nu[2],                     // Phase advances.

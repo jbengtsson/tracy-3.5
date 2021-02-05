@@ -214,29 +214,31 @@ bool GetCOD(long imax, double eps, double dP, long &lastpos)
 
 void Cell_Init(void)
 {
-  long        i;
+  long int    i;
   double      Stotal;
   ElemFamType *elemfamp;
   ElemType    *elemp;
 
   char first_name[] = "begin          ";
 
-  if (debug)
-    printf("**  Cell_Init\n");
+  if (debug) printf("**  Cell_Init\n");
 
   SI_init();  /* Initializes the constants for symplectic integrator */
 
-  // Allocate element 0.
+  // Allocate element 0 ("begin").
   Cell[0] = Marker_Alloc();
   memcpy(Cell[0]->PName, first_name, sizeof(first_name));
   Cell[0]->PL = 0e0; Cell[0]->Fnum = 0; Cell[0]->Knum = 0;
+  Cell[0]->Pkind = marker;
+  Cell[0]->dT[X_] = 1e0; Cell[0]->dT[Y_] = 0e0;
+  Cell[0]->dS[X_] = 0e0; Cell[0]->dS[Y_] = 0e0;
 
   for (i = 1; i <= globval.Elem_nFam; i++) {
     elemfamp  = &ElemFam[i-1]; /* Get 1 of all elements stored in ElemFam
 				  array */
     elemp = elemfamp->ElemF; // For switch structure: choice on element type
     if (debug)
-      printf("Cell_Init, i:=%3ld: %*s\n", i, SymbolLength, elemp->PName);
+      printf("\nCell_Init i = %3ld %*s\n", i, SymbolLength, elemp->PName);
 
     switch (elemp->Pkind) {
     case drift:

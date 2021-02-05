@@ -4178,7 +4178,8 @@ static void RegisterKids(struct LOC_Lattice_Read *LINK)
     if (WITH->nKid <= nKidMax) {
       WITH->KidList[WITH->nKid-1] = i;
       // Flag reverse element by negative kid number.
-      if (Cell_List[i].Reverse) WITH->KidList[WITH->nKid-1] *= -1;
+      if ((WITH->ElemF->Pkind == Mpole) && Cell_List[i].Reverse)
+	WITH->KidList[WITH->nKid-1] *= -1;
     } else
       printf("nKidMax exceeded: %d(%d)\n", WITH->nKid, nKidMax);
   }
