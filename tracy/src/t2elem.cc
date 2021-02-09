@@ -2510,13 +2510,6 @@ DriftType* Drift_Alloc(void)
 }
 
 
-MarkerType* Marker_Alloc(void)
-{
-  MarkerType *Mk = new MarkerType;
-  return Mk;
-}
-
-
 MpoleType* Mpole_Alloc(void)
 {
   int       j;
@@ -2559,6 +2552,13 @@ CavityType* Cavity_Alloc(void)
   C->entry_focus = false; C->exit_focus = false;
 
   return C;
+}
+
+
+MarkerType* Marker_Alloc(void)
+{
+  MarkerType *Mk = new MarkerType;
+  return Mk;
 }
 
 
@@ -2855,28 +2855,6 @@ void Wiggler_Init(int Fnum, ElemFamType ElemFam[], ElemType *Cell[])
 }
 
 
-void FieldMap_Init(int Fnum, ElemFamType ElemFam[], ElemType *Cell[])
-{
-  int          i;
-  ElemFamType  *elemfamp;
-  ElemType    *elemp;
-  FieldMapType *FM, *FMp;
-
-  elemfamp = &ElemFam[Fnum-1]; elemp = elemfamp->ElemF; 
-  Elem_Init(elemp);
-  FM = dynamic_cast<FieldMapType*>(elemfamp->ElemF);
-  for (i = 1; i <= elemfamp->nKid; i++) {
-    FMp = FieldMap_Alloc();
-    *FMp = *FM;
-    FMp->Fnum = Fnum; FMp->Knum = i;
-    Cell[elemfamp->KidList[i-1]] = FMp;
-    if (debug)
-      printf("FieldMap_Init:   Fnum = %2d Knum = %2d loc = %3d\n",
-	     FMp->Fnum, FMp->Knum, elemfamp->KidList[i-1]);
-  }
-}
-
-
 void Insertion_Init(int Fnum, ElemFamType ElemFam[], ElemType *Cell[])
 {
   int           i;
@@ -2898,6 +2876,28 @@ void Insertion_Init(int Fnum, ElemFamType ElemFam[], ElemType *Cell[])
     if (debug)
       printf("Insertion_Init:  Fnum = %2d Knum = %2d loc = %3d\n",
 	     IDp->Fnum, IDp->Knum, elemfamp->KidList[i-1]);
+  }
+}
+
+
+void FieldMap_Init(int Fnum, ElemFamType ElemFam[], ElemType *Cell[])
+{
+  int          i;
+  ElemFamType  *elemfamp;
+  ElemType    *elemp;
+  FieldMapType *FM, *FMp;
+
+  elemfamp = &ElemFam[Fnum-1]; elemp = elemfamp->ElemF; 
+  Elem_Init(elemp);
+  FM = dynamic_cast<FieldMapType*>(elemfamp->ElemF);
+  for (i = 1; i <= elemfamp->nKid; i++) {
+    FMp = FieldMap_Alloc();
+    *FMp = *FM;
+    FMp->Fnum = Fnum; FMp->Knum = i;
+    Cell[elemfamp->KidList[i-1]] = FMp;
+    if (debug)
+      printf("FieldMap_Init:   Fnum = %2d Knum = %2d loc = %3d\n",
+	     FMp->Fnum, FMp->Knum, elemfamp->KidList[i-1]);
   }
 }
 
