@@ -662,6 +662,67 @@ double get_curly_H(const double alpha_x, const double beta_x,
 }
 
 
+void get_dI_eta_5(const int k, ElemType *Elem[])
+{
+  double       L, K, h, b2, alpha, beta, gamma, psi, eta, etap;
+  ss_vect<tps> Id;
+  MpoleType    *Mp;
+
+  Id.identity();
+
+  Mp = dynamic_cast<MpoleType*>(Elem[k]);
+
+  L = Elem[k]->PL;
+  h = Mp->Pirho;
+  b2 = Mp->PBpar[Quad+HOMmax];
+  K = b2 + sqr(Mp->Pirho);
+  psi = sqrt(fabs(K))*L;
+  alpha = Elem[k-1]->Alpha[X_]; beta = Elem[k-1]->Beta[X_];
+  gamma = (1e0+sqr(alpha))/beta;
+  eta = Elem[k-1]->Eta[X_]; etap = Elem[k-1]->Etap[X_];
+
+  Elem[k]->dI[1] += L*eta*h;
+  Elem[k]->dI[2] += L*sqr(h);
+  Elem[k]->dI[3] += L*fabs(cube(h));
+
+  if (K > 0e0) {
+    Elem[k]->dI[4] +=
+      h/K*(2e0*b2+sqr(h))
+      *((eta*sqrt(K)*sin(psi)+etap*(1e0-cos(psi)))
+	+ h/sqrt(K)*(psi-sin(psi)));
+
+    Elem[k]->dI[5] +=
+      L*fabs(cube(h))
+      *(gamma*sqr(eta)+2e0*alpha*eta*etap+beta*sqr(etap))
+      - 2e0*pow(h, 4)/(pow(K, 3e0/2e0))
+      *(sqrt(K)*(alpha*eta+beta*etap)*(cos(psi)-1e0)
+	+(gamma*eta+alpha*etap)*(psi-sin(psi)))
+      + fabs(pow(h, 5))/(4e0*pow(K, 5e0/2e0))
+      *(2e0*alpha*sqrt(K)*(4e0*cos(psi)-cos(2e0*psi)-3e0)
+	+beta*K*(2e0*psi-sin(2e0*psi))
+	+gamma*(6e0*psi-8e0*sin(psi)+sin(2e0*psi)));
+  } else {
+    K = fabs(K);
+
+    Elem[k]->dI[4] +=
+      h/K*(2e0*b2+sqr(h))
+      *((eta*sqrt(K)*sinh(psi)-etap*(1e0-cosh(psi)))
+	- h/sqrt(K)*(psi-sinh(psi)));
+
+    Elem[k]->dI[5] +=
+      L*fabs(cube(h))*
+      (gamma*sqr(eta)+2e0*alpha*eta*etap+beta*sqr(etap))
+      + 2e0*pow(h, 4)/(pow(K, 3e0/2e0))
+      *(sqrt(K)*(alpha*eta+beta*etap)*(cosh(psi)-1e0)
+	+(gamma*eta+alpha*etap)*(psi-sinh(psi)))
+      + fabs(pow(h, 5))/(4e0*pow(K, 5e0/2e0))
+      *(2e0*alpha*sqrt(K)*(4e0*cosh(psi)-cosh(2e0*psi)-3e0)
+	-beta*K*(2e0*psi-sinh(2e0*psi))
+	+gamma*(6e0*psi-8e0*sinh(psi)+sinh(2e0*psi)));
+  }
+}
+
+
 void LatticeType::get_I(double I[], const bool prt)
 {
   int j, k;

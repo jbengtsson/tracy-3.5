@@ -59,7 +59,6 @@ void EdgeFocus(const double irho, double phi, double gap, ss_vect<T> &x);
 template<typename T>
 void quad_fringe(const double b2, ss_vect<T> &x);
 
-
 template<typename T>
 void thin_kick(const int Order, const double MB[], const double L,
 	       const double h_bend, const double h_ref, ss_vect<T> &x);

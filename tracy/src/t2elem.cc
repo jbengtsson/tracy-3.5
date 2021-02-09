@@ -608,68 +608,6 @@ void quad_fringe(const double b2, ss_vect<T> &ps)
 }
 
 
-void get_dI_eta_5(MpoleType *Elem)
-{
-  long int     loc;
-  double       L, K, h, b2, alpha, beta, gamma, psi, eta, etap;
-  ss_vect<tps> Id;
-  ElemType     *Elemp;
-
-  Id.identity();
-
-  L = Elem->PL;
-  h = Elem->Pirho;
-  b2 = Elem->PBpar[Quad+HOMmax];
-  K = b2 + sqr(Elem->Pirho);
-  psi = sqrt(fabs(K))*L;
-  loc = lat.Elem_GetPos(Elem->Fnum, Elem->Knum);
-  Elemp = lat.elems[loc-1];
-  alpha = Elemp->Alpha[X_]; beta = Elemp->Beta[X_];
-  gamma = (1e0+sqr(alpha))/beta;
-  eta = Elemp->Eta[X_]; etap = Elemp->Etap[X_];
-
-  Elem->dI[1] += L*eta*h;
-  Elem->dI[2] += L*sqr(h);
-  Elem->dI[3] += L*fabs(cube(h));
-
-  if (K > 0e0) {
-    Elem->dI[4] +=
-      h/K*(2e0*b2+sqr(h))
-      *((eta*sqrt(K)*sin(psi)+etap*(1e0-cos(psi)))
-	+ h/sqrt(K)*(psi-sin(psi)));
-
-    Elem->dI[5] +=
-      L*fabs(cube(h))
-      *(gamma*sqr(eta)+2e0*alpha*eta*etap+beta*sqr(etap))
-      - 2e0*pow(h, 4)/(pow(K, 3e0/2e0))
-      *(sqrt(K)*(alpha*eta+beta*etap)*(cos(psi)-1e0)
-	+(gamma*eta+alpha*etap)*(psi-sin(psi)))
-      + fabs(pow(h, 5))/(4e0*pow(K, 5e0/2e0))
-      *(2e0*alpha*sqrt(K)*(4e0*cos(psi)-cos(2e0*psi)-3e0)
-	+beta*K*(2e0*psi-sin(2e0*psi))
-	+gamma*(6e0*psi-8e0*sin(psi)+sin(2e0*psi)));
-  } else {
-    K = fabs(K);
-
-    Elem->dI[4] +=
-      h/K*(2e0*b2+sqr(h))
-      *((eta*sqrt(K)*sinh(psi)-etap*(1e0-cosh(psi)))
-	- h/sqrt(K)*(psi-sinh(psi)));
-
-    Elem->dI[5] +=
-      L*fabs(cube(h))*
-      (gamma*sqr(eta)+2e0*alpha*eta*etap+beta*sqr(etap))
-      + 2e0*pow(h, 4)/(pow(K, 3e0/2e0))
-      *(sqrt(K)*(alpha*eta+beta*etap)*(cosh(psi)-1e0)
-	+(gamma*eta+alpha*etap)*(psi-sinh(psi)))
-      + fabs(pow(h, 5))/(4e0*pow(K, 5e0/2e0))
-      *(2e0*alpha*sqrt(K)*(4e0*cosh(psi)-cosh(2e0*psi)-3e0)
-	-beta*K*(2e0*psi-sinh(2e0*psi))
-	+gamma*(6e0*psi-8e0*sinh(psi)+sinh(2e0*psi)));
-  }
-}
-
-
 template<typename T>
 void MpoleType::Mpole_Pass(ss_vect<T> &ps)
 {
@@ -692,9 +630,9 @@ void MpoleType::Mpole_Pass(ss_vect<T> &ps)
     if (globval.mat_meth && (Pthick == thick) && (Porder <= Quad)) {
       ps = is_double< ss_vect<T> >::ps(M_lin*ps);
 
-      if (globval.emittance && !globval.Cavity_on)
-	if ((PL != 0e0) && (Pirho != 0e0))
-	  get_dI_eta_5(this);
+      // if (globval.emittance && !globval.Cavity_on)
+      // 	if ((PL != 0e0) && (Pirho != 0e0))
+      // 	  get_dI_eta_5(this);
     } else {
       // Fringe fields.
       if (globval.quad_fringe && (PB[Quad+HOMmax] != 0e0))
@@ -990,6 +928,7 @@ void get_dI_eta_5_ID(MpoleType *Cell)
   b2 = Cell->PBpar[Quad+HOMmax];
   K = b2 + sqr(Cell->Pirho);
   psi = sqrt(fabs(K))*L;
+  // *** No pointer arithmetic for C++ polymorphic class.
   Cellp = Cell - 1;
   alpha = Cellp->Alpha[X_]; beta = Cellp->Beta[X_];
   gamma = (1e0+sqr(alpha))/beta;

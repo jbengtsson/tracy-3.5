@@ -32,4 +32,6 @@ void Ring_Fitchrom(Vector2 &ksi, double eps, iVector2 &ns,
 void Ring_FitDisp(long pos, double eta, double eps, long nq, long q[],
                   double dkL, long imax);
 
+void get_dI_eta_5(const int k, ElemType *Elem[]);
+
 #endif

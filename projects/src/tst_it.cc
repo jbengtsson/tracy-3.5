@@ -51,6 +51,73 @@ void tst_lat(LatticeType &lat)
 }
 
 
+template<typename T>
+void Elem_Pass_Lin(LatticeType &lat, ss_vect<T> ps)
+{
+  long int  k;
+  MpoleType *Mp;
+
+  for (k = 0; k <= globval.Cell_nLoc; k++) {
+    if (lat.elems[k]->Pkind == Mpole) { 
+      Mp = dynamic_cast<MpoleType*>(lat.elems[k]);
+      if ((Mp->Pthick == thick) && (Mp->Porder <= Quad)) {
+	ps =
+	  is_double<ss_vect<T> >::ps(Mp->M_lin*ps);
+	
+	if (globval.emittance && !globval.Cavity_on
+	    && (lat.elems[k]->PL != 0e0) && (Mp->Pirho != 0e0))
+	  get_dI_eta_5(k, lat.elems);
+      }
+    } else
+      lat.elems[k]->Elem_Pass(ps);
+  }
+}
+
+
+void get_eps_x(LatticeType &lat, double &eps_x, double &sigma_delta,
+	       double &U_0, double J[], double tau[], double I[],
+	       const bool prt)
+{
+  int          k;
+  ss_vect<tps> A;
+
+  const double
+    C_q_scl = 1e18*C_q/sqr(m_e),
+    E_0     = 1e9*globval.Energy,
+    C       = lat.elems[globval.Cell_nLoc]->S,
+    T_0     = C/c0;
+
+  globval.Cavity_on = false; globval.emittance = false;
+  lat.Ring_GetTwiss(false, 0.0);
+  A = putlinmat(6, globval.Ascr); A += globval.CODvect;
+  globval.emittance = true;
+  Elem_Pass_Lin(lat, A);
+  lat.get_I(I, false);
+
+  U_0 = 1e9*C_gamma*pow(globval.Energy, 4)*I[2]/(2e0*M_PI);
+  eps_x = C_q_scl*sqr(globval.Energy)*I[5]/(I[2]-I[4]);
+  sigma_delta = sqrt(C_q_scl*sqr(globval.Energy)*I[3]/(2e0*I[2]+I[4]));
+  J[X_] = 1e0 - I[4]/I[2]; J[Z_] = 2e0 + I[4]/I[2]; J[Y_] = 4e0 - J[X_] - J[Z_];
+
+  for (k = 0; k < 3; k++)
+    tau[k] = 4e0*M_PI*T_0/(C_gamma*cube(1e-9*E_0)*J[k]*I[2]);
+
+  if (prt) {
+    printf("\n  I[1..5]:");
+    for (k = 1; k <= 5; k++)
+      printf(" %10.3e", I[k]);
+    printf("\n");
+
+    printf("\n  U_0   [keV]    = %5.1f\n", 1e-3*U_0);
+    printf("  eps_x [nm.rad] = %6.4f\n", 1e9*eps_x);
+    printf("  sigma_delta    = %9.3e\n", sigma_delta);
+    printf("  J              = [%5.3f, %5.3f, %5.3f]\n", J[X_], J[Y_], J[Z_]);
+    printf("  tau   [msec]   = [%e, %e, %e]\n",
+	   1e3*tau[X_], 1e3*tau[Y_], 1e3*tau[Z_]);
+  }
+}
+
+
 void get_lat(const char *file_name)
 {
   LatticeType lat;
@@ -72,7 +139,7 @@ void get_lat(const char *file_name)
 
   lat.Ring_GetTwiss(true, 0e0); printglob(lat.elems[0]);
   if (globval.mat_meth)
-    lat.get_eps_x(eps_x, sigma_delta, U_0, J, tau, I, true);
+    get_eps_x(lat, eps_x, sigma_delta, U_0, J, tau, I, true);
 
   if (false) tst_lat(lat);
 }
@@ -91,7 +158,7 @@ int main(int argc, char *argv[])
 
   reverse_elem = !false;
 
-  trace = !false;
+  trace = false;
 
   globval.mat_meth = !false;
 
@@ -101,8 +168,8 @@ int main(int argc, char *argv[])
     else
       rdmfile(argv[1]);
     lat.Ring_GetTwiss(true, 0e0); printglob(lat.elems[0]);
-    if (globval.mat_meth)
-      lat.get_eps_x(eps_x, sigma_delta, U_0, J, tau, I, true);
+    // if (globval.mat_meth)
+    //   lat.get_eps_x(eps_x, sigma_delta, U_0, J, tau, I, true);
   } else
     get_lat(argv[1]);
 

@@ -584,9 +584,11 @@ void prt_lat(const int loc1, const int loc2, const char *fname, const int Fnum,
 	      "%4ld %15s %9.5f %4.1f %9.5f %8.5f %8.5f %8.5f %8.5f"
 	      " %9.5f %8.5f %8.5f %8.5f %8.5f  %8.2e\n",
 	      i, lat.elems[i]->PName, lat.elems[i]->S, get_code(*lat.elems[i]),
-	      lat.elems[i]->Alpha[X_], lat.elems[i]->Beta[X_], lat.elems[i]->Nu[X_],
+	      lat.elems[i]->Alpha[X_], lat.elems[i]->Beta[X_],
+	      lat.elems[i]->Nu[X_],
 	      lat.elems[i]->Eta[X_], lat.elems[i]->Etap[X_],
-	      lat.elems[i]->Alpha[Y_], lat.elems[i]->Beta[Y_], lat.elems[i]->Nu[Y_],
+	      lat.elems[i]->Alpha[Y_], lat.elems[i]->Beta[Y_],
+	      lat.elems[i]->Nu[Y_],
 	      lat.elems[i]->Eta[Y_], lat.elems[i]->Etap[Y_], I5);
     }
   }

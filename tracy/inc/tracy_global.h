@@ -174,8 +174,6 @@ class ElemFamType {
     DBNlist[nKidMax];          // For control system.
 };
 
-class MpoleType;
-
 class LatticeType {
  public:
   ElemFamType elemf[Elem_nFamMax];
@@ -205,25 +203,25 @@ class LatticeType {
   template<typename T>
   void Cell_Pass(const long i0, const long i1, ss_vect<T> &ps, long &lastpos);
   void Cell_Pass(const long i0, const long i1, tps &sigma, long &lastpos);
-  bool Cell_getCOD(long imax, double eps, double dP, long &lastpos);
-  bool GetCOD(long imax, double eps, double dP, long &lastpos);
-  bool getcod(double dP, long &lastpos);
+  bool Cell_getCOD(long imax, double eps, double dp, long &lastpos);
+  bool GetCOD(long imax, double eps, double dp, long &lastpos);
+  bool getcod(double dp, long &lastpos);
 
   // t2ring.
   void shiftk(long Elnum, double dk, struct LOC_Ring_Fittune *LINK);
   void shiftkp(long Elnum, double dkp);
   void shiftk_(long Elnum, double dk, struct LOC_Ring_FitDisp *LINK);
 
-  void Cell_Geteta(long i0, long i1, bool ring, double dP);
+  void Cell_Geteta(long i0, long i1, bool ring, double dp);
   void Cell_Twiss(long i0, long i1, ss_vect<tps> &Ascr, bool chroma, bool ring,
 		  double dp);
   void TraceABN(long i0, long i1, const Vector2 &alpha, const Vector2 &beta,
-		const Vector2 &eta, const Vector2 &etap, const double dP);
+		const Vector2 &eta, const Vector2 &etap, const double dp);
   void ttwiss(const Vector2 &alpha, const Vector2 &beta, const Vector2 &eta,
-	      const Vector2 &etap, const double dP);
+	      const Vector2 &etap, const double dp);
   void Ring_Twiss(bool chroma, double dp);
   void Ring_GetTwiss(bool chroma, double dp);
-  void Ring_Getchrom(double dP);
+  void Ring_Getchrom(double dp);
 
   void Ring_Fittune(Vector2 &nu, double eps, iVector2 &nq, long qf[], long qd[],
 		    double dkL, long imax);
@@ -235,10 +233,14 @@ class LatticeType {
   void get_I(double I[], const bool prt);
   void get_eps_x(double &eps_x, double &sigma_delta, double &U_0,
 		 double J[], double tau[], double I[], const bool prt);
+
+  friend void get_dI_eta_5(const int k, ElemType *Elem[]);
 };
 
 class DriftType : public ElemType {
  public:
+  friend DriftType* Drift_Alloc(void);
+
   template<typename T>
   void Drift_Pass(ss_vect<T> &ps);
 
