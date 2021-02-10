@@ -130,7 +130,7 @@ void get_lat(const char *file_name)
   outf = file_write((str + ".lax").c_str());
 
   Lattice_Read(inf, outf, lat.elemf);
-  Cell_Init(lat.elemf, lat.elems);
+  lat.Lat_Init();
 
   printf("\n%s\n", lat.elems[0]->PName);
 

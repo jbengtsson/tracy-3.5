@@ -2698,22 +2698,20 @@ void Elem_Init(ElemType *Elem)
 }
 
 
-void Drift_Init(int Fnum, ElemFamType ElemFam[], ElemType *Cell[])
+void LatticeType::Drift_Init(const int Fnum)
 {
-  int         i;
-  ElemFamType *elemfamp;
-  DriftType   *D, *Dp;
+  int        i;
+  DriftType  *D, *Dp;
 
-  elemfamp = &ElemFam[Fnum-1];
-  D = dynamic_cast<DriftType*>(elemfamp->ElemF);
-  for (i = 1; i <= elemfamp->nKid; i++) {
+  D = dynamic_cast<DriftType*>(elemf[Fnum-1].ElemF);
+  for (i = 1; i <= elemf[Fnum-1].nKid; i++) {
     Dp = Drift_Alloc();
     *Dp = *D;
     Dp->Fnum = Fnum; Dp->Knum = i;
-    Cell[elemfamp->KidList[i-1]] = Dp;
+    elems[elemf[Fnum-1].KidList[i-1]] = Dp;
     if (debug)
       printf("Drift_Init:      Fnum = %2d Knum = %2d loc = %3d\n",
-	     Dp->Fnum, Dp->Knum, elemfamp->KidList[i-1]);
+	     Dp->Fnum, Dp->Knum, elemf[Fnum-1].KidList[i-1]);
   }
 }
 
@@ -2729,16 +2727,14 @@ static int UpdatePorder(MpoleType *M)
 }
 
 
-void Mpole_Init(int Fnum, ElemFamType ElemFam[], ElemType *Cell[])
+void LatticeType::Mpole_Init(const int Fnum)
 {
   static bool first = true;
   int         i;
   double      phi;
-  ElemFamType *elemfamp;
   MpoleType   *M, *Mp;
 
-  elemfamp = &ElemFam[Fnum-1];
-  M = dynamic_cast<MpoleType*>(elemfamp->ElemF);
+  M = dynamic_cast<MpoleType*>(elemf[Fnum-1].ElemF);
 
   memcpy(M->PB, M->PBpar, sizeof(mpolArray)); M->Porder = UpdatePorder(M);
 
@@ -2764,11 +2760,11 @@ void Mpole_Init(int Fnum, ElemFamType ElemFam[], ElemType *Cell[])
   if (globval.mat_meth && (M->Pthick == thick))
     M->M_lin = get_lin_map(M, 0e0);
 
-  for (i = 1; i <= elemfamp->nKid; i++) {
+  for (i = 1; i <= elemf[Fnum-1].nKid; i++) {
     Mp = Mpole_Alloc();
     *Mp = *M;
     Mp->Fnum = Fnum; Mp->Knum = i;
-    Mp->Reverse = elemfamp->KidList[i-1] < 0;
+    Mp->Reverse = elemf[Fnum-1].KidList[i-1] < 0;
     if (reverse_elem && (Mp->Reverse == true)) {
       // Swap entrance and exit angles.
       if (!debug && first) {
@@ -2780,217 +2776,207 @@ void Mpole_Init(int Fnum, ElemFamType ElemFam[], ElemType *Cell[])
 	printf("\nSwapping entrance and exit angles for %8s %2d\n",
 	       Mp->PName, i);
       phi = Mp->PTx1; Mp->PTx1 = Mp->PTx2; Mp->PTx2 = phi;
-      elemfamp->KidList[i-1] *= -1;
+      elemf[Fnum-1].KidList[i-1] *= -1;
     }
-    Cell[elemfamp->KidList[i-1]] = Mp;
+    elems[elemf[Fnum-1].KidList[i-1]] = Mp;
     if (debug)
       printf("Mpole_Init:      Fnum = %2d Knum = %2d loc = %3d\n",
-	     Mp->Fnum, Mp->Knum, elemfamp->KidList[i-1]);
+	     Mp->Fnum, Mp->Knum, elemf[Fnum-1].KidList[i-1]);
   }
 }
 
 
-void Cavity_Init(int Fnum, ElemFamType ElemFam[], ElemType *Cell[])
+void LatticeType::Cavity_Init(const int Fnum)
 {
   int         i;
-  ElemFamType *elemfamp;
   CavityType  *C, *Cp;
 
-  elemfamp = &ElemFam[Fnum-1];
-  C = dynamic_cast<CavityType*>(elemfamp->ElemF);
-  for (i = 1; i <= elemfamp->nKid; i++) {
-    Cp = dynamic_cast<CavityType*>(Cell[elemfamp->KidList[i-1]]);
+  C = dynamic_cast<CavityType*>(elemf[Fnum-1].ElemF);
+  for (i = 1; i <= elemf[Fnum-1].nKid; i++) {
+    Cp = dynamic_cast<CavityType*>(elems[elemf[Fnum-1].KidList[i-1]]);
     Cp = Cavity_Alloc();
     *Cp = *C;
     Cp->Fnum = Fnum; Cp->Knum = i;
-    Cell[elemfamp->KidList[i-1]] = Cp;
+    elems[elemf[Fnum-1].KidList[i-1]] = Cp;
     if (debug)
       printf("Cavity_Init:     Fnum = %2d Knum = %2d loc = %3d\n",
-	     Cp->Fnum, Cp->Knum, elemfamp->KidList[i-1]);
+	     Cp->Fnum, Cp->Knum, elemf[Fnum-1].KidList[i-1]);
   }
 }
 
 
-void Marker_Init(int Fnum, ElemFamType ElemFam[], ElemType *Cell[])
+void LatticeType::Marker_Init(const int Fnum)
 {
-  int         i;
-  ElemFamType *elemfamp;
-  ElemType    *elemp;
-  MarkerType  *Mk, *Mkp;
+  int        i;
+  ElemType   *elemp;
+  MarkerType *Mk, *Mkp;
 
-  elemfamp = &ElemFam[Fnum-1]; elemp = elemfamp->ElemF; 
+  elemp = elemf[Fnum-1].ElemF; 
   Elem_Init(elemp);
   Mk = dynamic_cast<MarkerType*>(elemp);
-  for (i = 1; i <= elemfamp->nKid; i++) {
+  for (i = 1; i <= elemf[Fnum-1].nKid; i++) {
     Mkp = Marker_Alloc();
     *Mkp = *Mk;
     Mkp->Fnum = Fnum; Mkp->Knum = i;
-    Cell[elemfamp->KidList[i-1]] = Mkp;
+    elems[elemf[Fnum-1].KidList[i-1]] = Mkp;
     if (debug)
       printf("Marker_Init:     Fnum = %2d Knum = %2d loc = %3d\n",
-	     Mkp->Fnum, Mkp->Knum, elemfamp->KidList[i-1]);
+	     Mkp->Fnum, Mkp->Knum, elemf[Fnum-1].KidList[i-1]);
   }
 }
 
 
-void Wiggler_Init(int Fnum, ElemFamType ElemFam[], ElemType *Cell[])
+void LatticeType::Wiggler_Init(const int Fnum)
 {
   int         i;
-  ElemFamType *elemfamp;
   ElemType    *elemp;
   WigglerType *W, *Wp;
 
-  elemfamp = &ElemFam[Fnum-1]; elemp = elemfamp->ElemF; 
+  elemp = elemf[Fnum-1].ElemF; 
   Elem_Init(elemp);
   W = dynamic_cast<WigglerType*>(elemp);
-  for (i = 1; i <= elemfamp->nKid; i++) {
+  for (i = 1; i <= elemf[Fnum-1].nKid; i++) {
     Wp = Wiggler_Alloc();
     *Wp = *W;
     Wp->Fnum = Fnum; Wp->Knum = i;
-    Cell[elemfamp->KidList[i-1]] = Wp;
+    elems[elemf[Fnum-1].KidList[i-1]] = Wp;
     if (debug)
       printf("Wiggler_Init:    Fnum = %2d Knum = %2d loc = %3d\n",
-	     Wp->Fnum, Wp->Knum, elemfamp->KidList[i-1]);
+	     Wp->Fnum, Wp->Knum, elemf[Fnum-1].KidList[i-1]);
   }
 }
 
 
-void Insertion_Init(int Fnum, ElemFamType ElemFam[], ElemType *Cell[])
+void LatticeType::Insertion_Init(const int Fnum)
 {
   int           i;
-  ElemFamType   *elemfamp;
   ElemType      *elemp;
   InsertionType *ID, *IDp;
 
-  elemfamp = &ElemFam[Fnum-1]; elemp = elemfamp->ElemF; 
+  elemp = elemf[Fnum-1].ElemF; 
   Elem_Init(elemp);
-  ID = dynamic_cast<InsertionType*>(elemfamp->ElemF);
+  ID = dynamic_cast<InsertionType*>(elemf[Fnum-1].ElemF);
 //  ID->Porder = order;
 //  x = ID->PBW[Quad+HOMmax];
-  for (i = 1; i <= elemfamp->nKid; i++) {
+  for (i = 1; i <= elemf[Fnum-1].nKid; i++) {
     IDp = Insertion_Alloc();
     *IDp = *ID;
     IDp->Fnum = Fnum;
     IDp->Knum = i;
-    Cell[elemfamp->KidList[i-1]] = IDp;
+    elems[elemf[Fnum-1].KidList[i-1]] = IDp;
     if (debug)
       printf("Insertion_Init:  Fnum = %2d Knum = %2d loc = %3d\n",
-	     IDp->Fnum, IDp->Knum, elemfamp->KidList[i-1]);
+	     IDp->Fnum, IDp->Knum, elemf[Fnum-1].KidList[i-1]);
   }
 }
 
 
-void FieldMap_Init(int Fnum, ElemFamType ElemFam[], ElemType *Cell[])
+void LatticeType::FieldMap_Init(const int Fnum)
 {
   int          i;
-  ElemFamType  *elemfamp;
-  ElemType    *elemp;
+  ElemType     *elemp;
   FieldMapType *FM, *FMp;
 
-  elemfamp = &ElemFam[Fnum-1]; elemp = elemfamp->ElemF; 
+  elemp = elemf[Fnum-1].ElemF; 
   Elem_Init(elemp);
-  FM = dynamic_cast<FieldMapType*>(elemfamp->ElemF);
-  for (i = 1; i <= elemfamp->nKid; i++) {
+  FM = dynamic_cast<FieldMapType*>(elemf[Fnum-1].ElemF);
+  for (i = 1; i <= elemf[Fnum-1].nKid; i++) {
     FMp = FieldMap_Alloc();
     *FMp = *FM;
     FMp->Fnum = Fnum; FMp->Knum = i;
-    Cell[elemfamp->KidList[i-1]] = FMp;
+    elems[elemf[Fnum-1].KidList[i-1]] = FMp;
     if (debug)
       printf("FieldMap_Init:   Fnum = %2d Knum = %2d loc = %3d\n",
-	     FMp->Fnum, FMp->Knum, elemfamp->KidList[i-1]);
+	     FMp->Fnum, FMp->Knum, elemf[Fnum-1].KidList[i-1]);
   }
 }
 
 
-void Spreader_Init(int Fnum, ElemFamType ElemFam[], ElemType *Cell[])
+void LatticeType::Spreader_Init(const int Fnum)
 {
   int          i;
-  ElemFamType  *elemfamp;
   ElemType     *elemp;
   SpreaderType *Spr, *Sprp;
 
-  elemfamp = &ElemFam[Fnum-1]; elemp = elemfamp->ElemF; 
+  elemp = elemf[Fnum-1].ElemF; 
   Elem_Init(elemp);
-  Spr = dynamic_cast<SpreaderType*>(elemfamp->ElemF);
-  for (i = 1; i <= elemfamp->nKid; i++) {
+  Spr = dynamic_cast<SpreaderType*>(elemf[Fnum-1].ElemF);
+  for (i = 1; i <= elemf[Fnum-1].nKid; i++) {
     Sprp = Spreader_Alloc();
     *Sprp = *Spr;
     Sprp->Fnum = Fnum;
     Sprp->Knum = i;
-    Cell[elemfamp->KidList[i-1]] = Sprp;
+    elems[elemf[Fnum-1].KidList[i-1]] = Sprp;
     if (debug)
       printf("Spreader_Init:   Fnum = %2d Knum = %2d loc = %3d\n",
-	     Sprp->Fnum, Sprp->Knum, elemfamp->KidList[i-1]);
+	     Sprp->Fnum, Sprp->Knum, elemf[Fnum-1].KidList[i-1]);
   }
 }
 
 
-void Recombiner_Init(int Fnum, ElemFamType ElemFam[], ElemType *Cell[])
+void LatticeType::Recombiner_Init(const int Fnum)
 {
   int            i;
-  ElemFamType    *elemfamp;
   ElemType       *elemp;
   RecombinerType *Rec, *Recp;
 
-  elemfamp = &ElemFam[Fnum-1]; elemp = elemfamp->ElemF; 
+  elemp = elemf[Fnum-1].ElemF; 
   Elem_Init(elemp);
-  Rec = dynamic_cast<RecombinerType*>(elemfamp->ElemF);
-  for (i = 1; i <= elemfamp->nKid; i++) {
+  Rec = dynamic_cast<RecombinerType*>(elemf[Fnum-1].ElemF);
+  for (i = 1; i <= elemf[Fnum-1].nKid; i++) {
     Recp = Recombiner_Alloc();
     *Recp = *Rec;
     Recp->Fnum = Fnum;
     Recp->Knum = i;
-    Cell[elemfamp->KidList[i-1]] = Recp;
+    elems[elemf[Fnum-1].KidList[i-1]] = Recp;
     if (debug)
       printf("Recombiner_Init: Fnum = %2d Knum = %2d loc = %3d\n",
-	     Recp->Fnum, Recp->Knum, elemfamp->KidList[i-1]);
+	     Recp->Fnum, Recp->Knum, elemf[Fnum-1].KidList[i-1]);
   }
 }
 
 
-void Solenoid_Init(int Fnum, ElemFamType ElemFam[], ElemType *Cell[])
+void LatticeType::Solenoid_Init(const int Fnum)
 {
   int          i;
-  ElemFamType  *elemfamp;
   ElemType     *elemp;
   SolenoidType *Sol, *Solp;
 
-  elemfamp = &ElemFam[Fnum-1]; elemp = elemfamp->ElemF; 
+  elemp = elemf[Fnum-1].ElemF; 
   Elem_Init(elemp);
-  Sol = dynamic_cast<SolenoidType*>(elemfamp->ElemF);
-  for (i = 1; i <= elemfamp->nKid; i++) {
+  Sol = dynamic_cast<SolenoidType*>(elemf[Fnum-1].ElemF);
+  for (i = 1; i <= elemf[Fnum-1].nKid; i++) {
     Solp = Solenoid_Alloc();
     *Solp = *Sol;
     Solp->Fnum = Fnum;
     Solp->Knum = i;
-    Cell[elemfamp->KidList[i-1]] = Solp;
+    elems[elemf[Fnum-1].KidList[i-1]] = Solp;
     if (debug)
       printf("Solenoid_Init:    Fnum = %2d Knum = %2d loc = %3d\n",
-	     Solp->Fnum, Solp->Knum, elemfamp->KidList[i-1]);
+	     Solp->Fnum, Solp->Knum, elemf[Fnum-1].KidList[i-1]);
   }
 }
 
 
-void Map_Init(int Fnum, ElemFamType ElemFam[], ElemType *Cell[])
+void LatticeType::Map_Init(const int Fnum)
 {
   int         i;
-  ElemFamType *elemfamp;
   ElemType    *elemp;
   MapType     *Map, *Mapp;
 
-  elemfamp = &ElemFam[Fnum-1]; elemp = elemfamp->ElemF; 
+  elemp = elemf[Fnum-1].ElemF; 
   Elem_Init(elemp);
-  Map = dynamic_cast<MapType*>(elemfamp->ElemF);
-  for (i = 1; i <= elemfamp->nKid; i++) {
+  Map = dynamic_cast<MapType*>(elemf[Fnum-1].ElemF);
+  for (i = 1; i <= elemf[Fnum-1].nKid; i++) {
     Mapp = Map_Alloc();
     *Mapp = *Map;
     Mapp->Fnum = Fnum;
     Mapp->Knum = i;
     Mapp->M.identity();
-    Cell[elemfamp->KidList[i-1]] = Mapp;
+    elems[elemf[Fnum-1].KidList[i-1]] = Mapp;
     if (debug)
       printf("Map_Init:        Fnum = %2d Knum = %2d loc = %3d\n",
-	     Mapp->Fnum, Mapp->Knum, elemfamp->KidList[i-1]);
+	     Mapp->Fnum, Mapp->Knum, elemf[Fnum-1].KidList[i-1]);
   }
 }
 

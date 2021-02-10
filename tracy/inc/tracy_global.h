@@ -179,6 +179,19 @@ class LatticeType {
   ElemFamType elemf[Elem_nFamMax];
   ElemType    *elems[Cell_nLocMax+1];
 
+  void Drift_Init(const int Fnum);
+  void Mpole_Init(const int Fnum);
+  void Cavity_Init(const int Fnum);
+  void Marker_Init(const int Fnum);
+  void Wiggler_Init(const int Fnum);
+  void Insertion_Init(const int Fnum);
+  void FieldMap_Init(const int Fnum);
+  void Spreader_Init(const int Fnum);
+  void Recombiner_Init(const int Fnum);
+  void Solenoid_Init(const int Fnum);
+  void Map_Init(const int Fnum);
+  void Lat_Init(void);
+
   // t2elem.
   void getelem(long i, ElemType *cellrec);
   void putelem(long i, ElemType *cellrec);
@@ -240,7 +253,6 @@ class LatticeType {
 class DriftType : public ElemType {
  public:
   friend DriftType* Drift_Alloc(void);
-  friend void Drift_Init(int Fnum, ElemFamType ElemFam[], ElemType *Cell[]);
 
   template<typename T>
   void Drift_Pass(ss_vect<T> &ps);
@@ -289,7 +301,6 @@ class MpoleType : public ElemType {
     M_lin;                     // Linear Map for Element.
 
   friend MpoleType* Mpole_Alloc(void);
-  friend void Mpole_Init(int Fnum, ElemFamType ElemFam[], ElemType *Cell[]);
 
   template<typename T>
   void Mpole_Pass(ss_vect<T> &ps);
@@ -314,7 +325,6 @@ class CavityType : public ElemType {
     phi;                       // RF phase.
 
   friend CavityType* Cavity_Alloc(void);
-  friend void Cavity_Init(int Fnum, ElemFamType ElemFam[], ElemType *Cell[]);
 
   template<typename T>
   void Cavity_Pass(ss_vect<T> &ps);
@@ -328,7 +338,6 @@ class CavityType : public ElemType {
 class MarkerType : public ElemType {
  public:
   friend MarkerType* Marker_Alloc(void);
-  friend void Marker_Init(int Fnum, ElemFamType ElemFam[], ElemType *Cell[]);
 
   template<typename T>
   void Marker_Pass(ss_vect<T> &ps);
@@ -367,7 +376,6 @@ class WigglerType : public ElemType {
   PBW;
 
   friend WigglerType* Wiggler_Alloc(void);
-  friend void Wiggler_Init(int Fnum, ElemFamType ElemFam[], ElemType *Cell[]);
 
   template<typename T>
   void Wiggler_Pass(ss_vect<T> &ps);
@@ -431,7 +439,6 @@ class InsertionType : public ElemType {
     PdSrnd[2];                 // random number.
 
   friend InsertionType* Insertion_Alloc(void);
-  friend void Insertion_Init(int Fnum, ElemFamType ElemFam[], ElemType *Cell[]);
 
   template<typename T>
   void Insertion_Pass(ss_vect<T> &ps);
@@ -464,7 +471,6 @@ class FieldMapType : public ElemType {
     ***AoBrho2[2];             // [Ax(x, y, z), Ay(x, y, z)], spline info.
 
   friend FieldMapType* FieldMap_Alloc(void);
-  friend void FieldMap_Init(int Fnum, ElemFamType ElemFam[], ElemType *Cell[]);
 
   template<typename T>
   void FieldMap_Pass(ss_vect<T> &ps);
@@ -483,7 +489,6 @@ class SpreaderType : public ElemType {
     *Cell_ptrs[Spreader_max];
 
   friend SpreaderType* Spreader_Alloc(void);
-  friend void Spreader_Init(int Fnum, ElemFamType ElemFam[], ElemType *Cell[]);
 
   template<typename T>
   void Spreader_Pass(ss_vect<T> &ps);
@@ -501,7 +506,6 @@ class RecombinerType : public ElemType {
     E_max;
 
   friend RecombinerType* Recombiner_Alloc(void);
-  friend void Recombiner_Init(int Fnum, ElemFamType ElemFam[], ElemType *Cell[]);
 
   template<typename T>
   void Recombiner_Pass(ss_vect<T> &ps);
@@ -529,7 +533,6 @@ class SolenoidType : public ElemType {
     PdSrnd[2];                 // random number.
 
   friend SolenoidType* Solenoid_Alloc(void);
-  friend void Solenoid_Init(int Fnum, ElemFamType ElemFam[], ElemType *Cell[]);
 
   template<typename T>
   void Solenoid_Pass(ss_vect<T> &ps);
@@ -552,7 +555,6 @@ class MapType : public ElemType {
     M;
 
   friend MapType* Map_Alloc(void);
-  friend void Map_Init(int Fnum, ElemFamType ElemFam[], ElemType *Cell[]);
 
   void Elem_Pass(ss_vect<double> &ps);
   void Elem_Pass(ss_vect<tps> &ps);

@@ -222,7 +222,7 @@ bool LatticeType::getcod(double dP, long &lastpos)
 }
 
 
-void Cell_Init(ElemFamType ElemFam[], ElemType *Cell[])
+void LatticeType::Lat_Init(void)
 {
   long int    i;
   double      Stotal;
@@ -236,15 +236,15 @@ void Cell_Init(ElemFamType ElemFam[], ElemType *Cell[])
   SI_init();  /* Initializes the constants for symplectic integrator */
 
   // Allocate element 0 ("begin").
-  Cell[0] = Marker_Alloc();
-  memcpy(Cell[0]->PName, first_name, sizeof(first_name));
-  Cell[0]->PL = 0e0; Cell[0]->Fnum = 0; Cell[0]->Knum = 0;
-  Cell[0]->Pkind = marker;
-  Cell[0]->dT[X_] = 1e0; Cell[0]->dT[Y_] = 0e0;
-  Cell[0]->dS[X_] = 0e0; Cell[0]->dS[Y_] = 0e0;
+  elems[0] = Marker_Alloc();
+  memcpy(elems[0]->PName, first_name, sizeof(first_name));
+  elems[0]->PL = 0e0; elems[0]->Fnum = 0; elems[0]->Knum = 0;
+  elems[0]->Pkind = marker;
+  elems[0]->dT[X_] = 1e0; elems[0]->dT[Y_] = 0e0;
+  elems[0]->dS[X_] = 0e0; elems[0]->dS[Y_] = 0e0;
 
   for (i = 1; i <= globval.Elem_nFam; i++) {
-    elemfamp  = &ElemFam[i-1]; /* Get 1 of all elements stored in ElemFam
+    elemfamp  = &elemf[i-1]; /* Get 1 of all elements stored in ElemFam
 				  array */
     elemp = elemfamp->ElemF; // For switch structure: choice on element type
     if (debug)
@@ -252,37 +252,37 @@ void Cell_Init(ElemFamType ElemFam[], ElemType *Cell[])
 
     switch (elemp->Pkind) {
     case drift:
-      Drift_Init(i, ElemFam, Cell);
+      Drift_Init(i);
       break;
     case Mpole:
-      Mpole_Init(i, ElemFam, Cell);
+      Mpole_Init(i);
       break;
     case Wigl:
-      Wiggler_Init(i, ElemFam, Cell);
+      Wiggler_Init(i);
       break;
     case FieldMap:
-      FieldMap_Init(i, ElemFam, Cell);
+      FieldMap_Init(i);
       break;
     case Insertion:
-      Insertion_Init(i, ElemFam, Cell);
+      Insertion_Init(i);
       break;
     case Cavity:
-      Cavity_Init(i, ElemFam, Cell);
+      Cavity_Init(i);
       break;
     case marker:
-      Marker_Init(i, ElemFam, Cell);
+      Marker_Init(i);
       break;
     case Spreader:
-      Spreader_Init(i, ElemFam, Cell);
+      Spreader_Init(i);
       break;
     case Recombiner:
-      Recombiner_Init(i, ElemFam, Cell);
+      Recombiner_Init(i);
       break;
     case Solenoid:
-      Solenoid_Init(i, ElemFam, Cell);
+      Solenoid_Init(i);
       break;
     case Map:
-      Map_Init(i, ElemFam, Cell);
+      Map_Init(i);
       break;
     default:
       printf("Cell_Init: undefined type\n");
@@ -294,6 +294,6 @@ void Cell_Init(ElemFamType ElemFam[], ElemType *Cell[])
   /* Computes s-location of each element in the structure */
   Stotal = 0e0;
   for (i = 0; i <= globval.Cell_nLoc; i++) {
-    Stotal += Cell[i]->PL; Cell[i]->S = Stotal;
+    Stotal += elems[i]->PL; elems[i]->S = Stotal;
   }
 }

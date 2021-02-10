@@ -82,7 +82,7 @@
 const int line_max = 200;
 
 
-ElemType* get_kind(const int kind)
+ElemType* elem_alloc(const int kind)
 {
   ElemType   *Elem;
   MpoleType  *M;
@@ -127,7 +127,7 @@ ElemType* get_kind(const int kind)
     Elem->Pkind = PartsKind(Map);
     break;
   default:
-    printf("get_kind: unknown type %d", kind);
+    printf("elem_alloc: unknown type %d", kind);
     Elem = NULL;
     exit_(1);
     break;
@@ -170,7 +170,7 @@ void get_elem(std::ifstream &inf, char *line, long int &i, int &kind)
   if (prt) printf("%s\n", line);
   sscanf(line, "%d %d %d %d", &kind, &method, &n, &reverse);
 
-  lat.elems[i] = get_kind(kind);
+  lat.elems[i] = elem_alloc(kind);
  
   memcpy(lat.elems[i]->PName, name, sizeof(partsName));
   lat.elems[i]->Fnum = Fnum; lat.elems[i]->Knum = Knum;
@@ -359,7 +359,7 @@ void get_elemf(const int i, const int kind)
     lat.elems[i]->S = lat.elems[i-1]->S + lat.elems[i]->PL;
 
   if (i > 0) {
-    lat.elemf[lat.elems[i]->Fnum-1].ElemF = get_kind(kind);
+    lat.elemf[lat.elems[i]->Fnum-1].ElemF = elem_alloc(kind);
 
     if (lat.elems[i]->Knum == 1)
       *lat.elemf[lat.elems[i]->Fnum-1].ElemF = *lat.elems[i];

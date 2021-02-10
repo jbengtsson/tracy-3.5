@@ -2172,7 +2172,7 @@ void Read_Lattice(const char *fic)
 
   /* initializes cell structure: construction of the RING */
   /* Creator of all the matrices for each element         */
-  Cell_Init(lat.elemf, lat.elems);
+  lat.Lat_Init();
 
   globval.H_exact        = false; // Small Ring Hamiltonian
   globval.Cart_Bend      = false; // Cartesian Bend
