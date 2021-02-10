@@ -112,10 +112,10 @@ template void quad_fringe(const double, ss_vect<double> &);
 template void quad_fringe(const double, ss_vect<tps> &);
 
 
-template void thin_kick(const int, const double [], const double, const double,
-			const double, ss_vect<double> &);
-template void thin_kick(const int, const double [], const double, const double,
-			const double, ss_vect<tps> &);
+template void thin_kick(const int, const MpoleArray &, const double,
+			const double, const double, ss_vect<double> &);
+template void thin_kick(const int, const MpoleArray &, const double,
+			const double, const double, ss_vect<tps> &);
 
 template void Cav_Focus(const double L, const double delta, const bool entrance,
             ss_vect<double> &ps);

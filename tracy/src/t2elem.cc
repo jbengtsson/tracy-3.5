@@ -474,7 +474,7 @@ static double get_psi(double irho, double phi, double gap)
 
 
 template<typename T>
-void thin_kick(const int Order, const double MB[], const double L,
+void thin_kick(const int Order, const MpoleArray &MB, const double L,
 	       const double h_bend, const double h_ref, ss_vect<T> &ps)
 {
   // The vector potential for the combined-function sector bend is from:
@@ -2515,6 +2515,14 @@ MpoleType* Mpole_Alloc(void)
   int       j;
   MpoleType *M = new MpoleType;
 
+  for (j = -HOMmax; j <= HOMmax; j++) {
+    M->PBpar.push_back(0e0);
+    M->PBsys.push_back(0e0);
+    M->PBrms.push_back(0e0);
+    M->PBrnd.push_back(0e0);
+    M->PB.push_back(0e0);
+  }
+  
   M->Pmethod = Meth_Fourth; M->PN = 0;
   /* Displacement errors */
   for (j = 0; j <= 1; j++) {
@@ -2736,7 +2744,7 @@ void LatticeType::Mpole_Init(const int Fnum)
 
   M = dynamic_cast<MpoleType*>(elemf[Fnum-1].ElemF);
 
-  memcpy(M->PB, M->PBpar, sizeof(mpolArray)); M->Porder = UpdatePorder(M);
+  M->PB = M->PBpar; M->Porder = UpdatePorder(M);
 
   /* set entrance and exit angles */
   M->dT[X_] = cos(dtor(M->PdTpar)); M->dT[Y_] = sin(dtor(M->PdTpar));
@@ -2835,6 +2843,8 @@ void LatticeType::Wiggler_Init(const int Fnum)
   elemp = elemf[Fnum-1].ElemF; 
   Elem_Init(elemp);
   W = dynamic_cast<WigglerType*>(elemp);
+  for (i = -HOMmax; i <= HOMmax; i++)
+    W->PBW.push_back(0e0);
   for (i = 1; i <= elemf[Fnum-1].nKid; i++) {
     Wp = Wiggler_Alloc();
     *Wp = *W;

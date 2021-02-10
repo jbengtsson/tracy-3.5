@@ -5,7 +5,6 @@
 #define Cell_nLocMax 20000  // maximum number of LEGO blocks (Cell_nLoc).
 
 #define HOMmax       21
-#define DBNameLen    39
 // #define Elem_nFamMax 3000   // maximum number of families for Elem_NFam.
 // #define nKidMax      5000   // maximum number of kids.
 #define Elem_nFamMax 100     // maximum number of families for Elem_NFam.
@@ -17,9 +16,8 @@
 #define DOF          (ss_dim/2)
 #define nv_          6
 
-typedef char   DBNameType[DBNameLen];
-typedef char   partsName[NameLength];
-typedef double mpolArray[HOMmax+HOMmax+1];
+typedef char                partsName[NameLength];
+typedef std::vector<double> MpoleArray;
 
 enum PartsKind
   { drift = 0, Wigl = 1, Mpole = 2, Cavity = 3, marker = 4, undef = 5,
@@ -170,8 +168,8 @@ class ElemFamType {
     nKid,                      // No of kids.
     KidList[nKidMax],
     NoDBN;
-  DBNameType
-    DBNlist[nKidMax];          // For control system.
+  std::vector<string>
+    DBNlist;                   // For control system.
 };
 
 class LatticeType {
@@ -288,7 +286,7 @@ class MpoleType : public ElemType {
     PdSsys[2],                 // systematic [m].
     PdSrms[2],                 // rms [m].
     PdSrnd[2];                 // random number.
-  mpolArray
+  MpoleArray
     // Multipole strengths.
     PBpar,                     // design.
     PBsys,                     // systematic.
@@ -372,8 +370,8 @@ class WigglerType : public ElemType {
     kxV[n_harm_max],           // kx.
     kxH[n_harm_max],           // kx.
     phi[n_harm_max];           // phi.
-  mpolArray
-  PBW;
+  MpoleArray
+    PBW;
 
   friend WigglerType* Wiggler_Alloc(void);
 

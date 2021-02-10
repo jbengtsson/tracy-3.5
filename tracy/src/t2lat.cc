@@ -1989,44 +1989,10 @@ static void GetDBN_(struct LOC_Lat_DealElement *LINK)
 }
 
 
-static void adjdbname(char *DBname1, char *DBname2)
-{
-  long i, j, k, offset;
-  bool first, blank;
-
-  blank = true;
-  for (j = 0; j < DBNameLen; j++) {
-    if (DBname1[j] != ' ')
-      blank = false;
-  }
-  first = true;
-  j = 0;
-  offset = 0;
-  if (blank)
-    return;
-  do {
-    j++;
-    DBname2[j + offset-1] = DBname1[j-1];
-    if (first && DBname1[j-1] == ' ') {
-      first = false;
-      k = -1;
-      do {
-	k++;
-      } while (DBname1[j+k] == ' ' && j+k+1 != DBNameLen);
-      for (i = j+k; i <= 7; i++)
-	DBname2[i] = ' ';
-      offset = 8 - j;
-    }
-  }
-  while (j < DBNameLen-offset);
-}
-
-
 static void SetDBN(struct LOC_Lat_DealElement *LINK)
 {
-  long         i;
-  ElemFamType  *WITH;
-  long         FORLIM;
+  long        i, j;
+  ElemFamType *WITH;
 
   if (globval.Elem_nFam > Elem_nFamMax) {
     printf("Elem_nFamMax exceeded: %ld(%ld)\n",
@@ -2035,9 +2001,14 @@ static void SetDBN(struct LOC_Lat_DealElement *LINK)
   }
   WITH = &ElemFam_[globval.Elem_nFam-1]; WITH->NoDBN = LINK->DBNsavemax;
   if (WITH->NoDBN > 0) {
-    FORLIM = WITH->NoDBN;
-    for (i = 0; i < FORLIM; i++)
-      adjdbname(LINK->DBNsave[i], WITH->DBNlist[i]);
+    WITH->DBNlist.push_back("");
+    for (i = 0; i < WITH->NoDBN; i++) {
+      j = 0;
+      do {
+	WITH->DBNlist.back().push_back(LINK->DBNsave[i][j]);
+	j++;
+      } while(LINK->DBNsave[i][j] != ' ');
+    }
   }
 }
 

@@ -91,7 +91,7 @@ void prtName(FILE *fp, const int i,
 }
 
 
-void prtHOM(FILE *fp, const int n_design, const mpolArray PB, const int Order)
+void prtHOM(FILE *fp, const int n_design, const MpoleArray PB, const int Order)
 {
   int i, nmpole;
   
