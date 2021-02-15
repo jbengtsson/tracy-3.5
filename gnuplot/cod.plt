@@ -2,7 +2,7 @@ ps = 0;
 
 font_size = 30; line_width = 2;
 if (ps == 0) \
-  set terminal x11 enhanced lw line_width "Times-Roman"; \
+  set terminal qt 0 font "Sans, 9"; \
 else if (ps == 1) \
   set terminal postscript enhanced color solid \
   lw line_width "Times-Roman" font_size; \
