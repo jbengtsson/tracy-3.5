@@ -34,4 +34,8 @@ void Ring_FitDisp(long pos, double eta, double eps, long nq, long q[],
 
 void get_dI_eta_5(const int k, std::vector<ElemType*> Elem);
 
+double get_code(CellType &Cell);
+
+void Cell_Twiss(const long int i0, const long int i1);
+
 #endif

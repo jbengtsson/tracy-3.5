@@ -191,7 +191,13 @@ class LatticeType {
   void Lat_Init(void);
 
   bool Lattice_Read(FILE *inf, FILE *outf);
+
+  void prtName(FILE *fp, const int i, const int type, const int method,
+	       const int N, const bool reverse);
+  void prtmfile(const char mfile_dat[]);
+
   friend long int ElemIndex(const std::string &name1);
+
   void prt_fam(void);
   void prt_elem(void);
 
@@ -257,6 +263,15 @@ class LatticeType {
 		 double J[], double tau[], double I[], const bool prt);
 
   friend void get_dI_eta_5(const int k, ElemType *Elem[]);
+
+  void prt_lat(const int loc1, const int loc2, const char *fname,
+	       const int Fnum, const bool all);
+  void prt_lat(const char *fname, const int Fnum, const bool all);
+  void prt_lat(const int loc1, const int loc2, const char *fname,
+	       const int Fnum, const bool all, const int n);
+  void prt_lat(const char *fname, const int Fnum, const bool all, const int n);
+  void prt_chrom_lat(void);
+
 };
 
 class DriftType : public ElemType {

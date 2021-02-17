@@ -885,3 +885,307 @@ void LatticeType::get_eps_x(double &eps_x, double &sigma_delta, double &U_0,
 
   globval.Cavity_on = cav; globval.emittance = emit;
 }
+
+
+double get_code(ElemType &Cell)
+{
+  double    code;
+  MpoleType *M;
+
+  switch (Cell.Pkind) {
+  case drift:
+    code = 0.0;
+    break;
+  case Mpole:
+    M = dynamic_cast<MpoleType*>(&Cell);
+    if (M->Pirho != 0.0)
+      code = sgn(M->Pirho)*0.5;
+    else if (M->PBpar[Quad+HOMmax] != 0)
+      code = sgn(M->PBpar[Quad+HOMmax]);
+    else if (M->PBpar[Sext+HOMmax] != 0)
+      code = 1.5*sgn(M->PBpar[Sext+HOMmax]);
+    else if (M->PBpar[Oct+HOMmax] != 0)
+      code = 1.75*sgn(M->PBpar[Oct+HOMmax]);
+    else if (M->PBpar[Dec+HOMmax] != 0)
+      code = 1.75*sgn(M->PBpar[Dec+HOMmax]);
+    else if (M->PBpar[Dodec+HOMmax] != 0)
+      code = 1.75*sgn(M->PBpar[Dodec+HOMmax]);
+    else if (Cell.Fnum == globval.bpm)
+      code = 2.0;
+    else
+      code = 0.0;
+    break;
+  default:
+    code = 0.0;
+    break;
+  }
+
+  return code;
+}
+
+
+void LatticeType::prt_lat(const int loc1, const int loc2, const char *fname,
+			  const int Fnum, const bool all)
+{
+  long int i = 0;
+  double   I5 = 0e0;
+  FILE     *outf;
+
+  outf = file_write(fname);
+  fprintf(outf,
+	  "#        name             s     code"
+	  "   alphax   betax     nux      etax    etapx");
+  fprintf(outf,
+	  "     alphay   betay     nuy      etay    etapy      I5\n");
+  fprintf(outf,
+	  "#                        [m]"
+	  "                     [m]                [m]");
+  fprintf(outf, "                        [m]                [m]\n");
+  fprintf(outf, "#\n");
+
+  for (i = loc1; i <= loc2; i++) {
+    if (all || (elems[i]->Fnum == Fnum)) {
+      fprintf(outf,
+	      "%4ld %15s %9.5f %4.1f %9.5f %8.5f %8.5f %8.5f %8.5f"
+	      " %9.5f %8.5f %8.5f %8.5f %8.5f  %8.2e\n",
+	      i, elems[i]->PName, elems[i]->S, get_code(*elems[i]),
+	      elems[i]->Alpha[X_], elems[i]->Beta[X_], elems[i]->Nu[X_],
+	      elems[i]->Eta[X_], elems[i]->Etap[X_], elems[i]->Alpha[Y_],
+	      elems[i]->Beta[Y_], elems[i]->Nu[Y_], elems[i]->Eta[Y_],
+	      elems[i]->Etap[Y_], I5);
+    }
+  }
+
+//  fprintf(outf, "\n");
+//  fprintf(outf, "# emittance: %5.3f nm.rad\n", get_eps_x());
+
+  fclose(outf);
+}
+
+
+void LatticeType::prt_lat(const char *fname, const int Fnum, const bool all)
+{
+  prt_lat(0, globval.Cell_nLoc, fname, Fnum, all);
+}
+
+
+void Cell_Twiss(const long int i0, const long int i1) {
+  long int     i;
+  int          k, nu_int[2];
+  double       alpha[2], beta[2], dnu[2], eta[2], etap[2];
+  ss_vect<tps> A;
+
+  for (k = 0; k < 2; k++)
+    nu_int[k] = 0;
+
+  for (i = i0; i <= i1; i++) {
+    A = putlinmat(6, lat.elems[i]->A);
+    get_ab(A, alpha, beta, dnu, eta, etap);
+
+    for (k = 0; k < 2; k++) {
+      lat.elems[i]->Alpha[k] = alpha[k]; lat.elems[i]->Beta[k] = beta[k];
+      lat.elems[i]->Nu[k] = nu_int[k] + dnu[k];
+
+      if (i > i0) {
+	if((lat.elems[i]->Nu[k] < lat.elems[i-1]->Nu[k])
+	   && (lat.elems[i]->PL >= 0e0)) {
+	  lat.elems[i]->Nu[k] += 1e0; nu_int[k] += 1;
+	} else if((lat.elems[i]->Nu[k] > lat.elems[i-1]->Nu[k]) &&
+		  (lat.elems[i]->PL < 0e0))
+	  nu_int[k] -= 1;
+      }
+
+      lat.elems[i]->Eta[k] = eta[k]; lat.elems[i]->Etap[k] = etap[k];
+    }
+  }
+}
+
+
+void LatticeType::prt_lat(const int loc1, const int loc2, const char *fname,
+			  const int Fnum, const bool all, const int n)
+{
+  long int        i = 0;
+  int             j, k;
+  double          s, h;
+  double          alpha[2], beta[2], nu[2], dnu[2], eta[2], etap[2], dnu1[2];
+  double          curly_H;
+  MpoleType       *Mp;
+  ss_vect<double> eta_Fl;
+  ss_vect<tps>    A, A_CS;
+  FILE            *outf;
+
+  const double  c1 = 1e0/(2e0*(2e0-pow(2e0, 1e0/3e0))), c2 = 0.5e0-c1;
+  const double  d1 = 2e0*c1, d2 = 1e0-2e0*d1;
+
+  outf = file_write(fname);
+  fprintf(outf, "#        name           s   code"
+	        "    alphax   betax     nux       etax       etapx");
+  fprintf(outf, "       alphay   betay     nuy      etay    etapy\n");
+  fprintf(outf, "#                      [m]"
+	        "                    [m]                 [m]");
+  fprintf(outf, "                             [m]                [m]\n");
+  fprintf(outf, "#\n");
+
+  for (i = loc1; i <= loc2; i++) {
+    if (all || (elems[i]->Fnum == Fnum)) {
+      if ((i != 0) &&
+	  ((elems[i]->Pkind == drift) ||
+	   ((elems[i]->Pkind == Mpole) && (elems[i]->PL != 0e0)))) {
+	Mp = dynamic_cast<MpoleType*>(elems[i]);
+
+	for (k = 0; k < 2; k++) {
+	  alpha[k] = elems[i-1]->Alpha[k];
+	  beta[k] = elems[i-1]->Beta[k];
+	  nu[k] = elems[i-1]->Nu[k];
+	  eta[k] = elems[i-1]->Eta[k]; etap[k] = elems[i-1]->Etap[k];
+	}
+
+	A = get_A(alpha, beta, eta, etap);
+
+	s = elems[i]->S - elems[i]->PL; h = elems[i]->PL/n;
+
+	for (j = 1; j <= n; j++) {
+	  s += h;
+
+	  if (elems[i]->Pkind == drift)
+	    Drift(h, A);
+	  else if (elems[i]->Pkind == Mpole) {
+	    if ((j == 1) && (Mp->Pirho != 0e0))
+	      EdgeFocus(Mp->Pirho, Mp->PTx1, Mp->Pgap, A);
+
+	    Drift(c1*h, A);
+	    thin_kick(Quad, Mp->PBpar, d1*h, Mp->Pirho, Mp->Pirho, A);
+	    Drift(c2*h, A);
+	    thin_kick(Quad, Mp->PBpar, d2*h, Mp->Pirho, Mp->Pirho, A);
+	    Drift(c2*h, A);
+	    thin_kick(Quad, Mp->PBpar, d1*h, Mp->Pirho, Mp->Pirho, A);
+	    Drift(c1*h, A);
+
+	    if ((j == n) && (Mp->Pirho != 0e0))
+	      EdgeFocus(Mp->Pirho, Mp->PTx2, Mp->Pgap, A);
+	  }
+
+	  get_ab(A, alpha, beta, dnu, eta, etap);
+
+	  if(elems[i]->PL < 0e0)
+	    for (k = 0; k < 2; k++)
+	      dnu[k] -= 1e0;
+
+	  A_CS = get_A_CS(2, A, dnu1);
+
+	  eta_Fl.zero();
+	  for (k = 0; k < 2; k++) {
+	    eta_Fl[2*k] = eta[k]; eta_Fl[2*k+1] = etap[k];
+	  }
+	  eta_Fl = (Inv(A_CS)*eta_Fl).cst();
+	  curly_H = sqr(eta_Fl[x_]) + sqr(eta_Fl[px_]);
+
+	  fprintf(outf, "%4ld %15s %6.2f %4.1f"
+		  " %9.5f %8.5f %8.5f %11.8f %11.8f"
+		  " %9.5f %8.5f %8.5f %8.5f %8.5f %10.3e %10.3e %10.3e\n",
+		  i, elems[i]->PName, s, get_code(*elems[i]),
+		  alpha[X_], beta[X_], nu[X_]+dnu[X_], eta[X_], etap[X_],
+		  alpha[Y_], beta[Y_], nu[Y_]+dnu[Y_], eta[Y_], etap[Y_],
+		  eta_Fl[x_], eta_Fl[px_], curly_H);
+	}
+      } else {
+	A = get_A(elems[i]->Alpha, elems[i]->Beta, elems[i]->Eta,
+		  elems[i]->Etap);
+
+	eta_Fl.zero();
+	for (k = 0; k < 2; k++) {
+	  eta_Fl[2*k] = elems[i]->Eta[k];
+	  eta_Fl[2*k+1] = elems[i]->Etap[k];
+	}
+	eta_Fl = (Inv(A)*eta_Fl).cst();
+	curly_H = sqr(eta_Fl[x_]) + sqr(eta_Fl[px_]);
+
+	fprintf(outf, "%4ld %15s %6.2f %4.1f"
+		" %9.5f %8.5f %8.5f %11.8f %11.8f"
+		" %9.5f %8.5f %8.5f %8.5f %8.5f %10.3e %10.3e %10.3e\n",
+		i, elems[i]->PName, elems[i]->S, get_code(*elems[i]),
+		elems[i]->Alpha[X_], elems[i]->Beta[X_], elems[i]->Nu[X_],
+		elems[i]->Eta[X_], elems[i]->Etap[X_],
+		elems[i]->Alpha[Y_], elems[i]->Beta[Y_], elems[i]->Nu[Y_],
+		elems[i]->Eta[Y_], elems[i]->Etap[Y_],
+		eta_Fl[x_], eta_Fl[px_], curly_H);
+      }
+    }
+  }
+
+  fclose(outf);
+}
+
+
+void LatticeType::prt_lat(const char *fname, const int Fnum, const bool all,
+			  const int n)
+{
+  prt_lat(0, globval.Cell_nLoc, fname, Fnum, all, n);
+}
+
+
+void LatticeType::prt_chrom_lat(void)
+{
+  long int  i;
+  double    dbeta_ddelta[Cell_nLocMax][2], detax_ddelta[Cell_nLocMax];
+  double    ksi[Cell_nLocMax][2];
+  MpoleType *M;
+  FILE      *outf;
+
+  printf("\nprt_chrom_lat:\n  calling Ring_GetTwiss with delta != 0\n");
+  Ring_GetTwiss(true, globval.dPcommon);
+  for (i = 0; i <= globval.Cell_nLoc; i++) {
+    dbeta_ddelta[i][X_] = elems[i]->Beta[X_];
+    dbeta_ddelta[i][Y_] = elems[i]->Beta[Y_];
+    detax_ddelta[i] = elems[i]->Eta[X_];
+  }
+  printf("  calling Ring_GetTwiss with delta != 0\n");
+  Ring_GetTwiss(true, -globval.dPcommon);
+  ksi[0][X_] = 0.0; ksi[0][Y_] = 0.0;
+  for (i = 0; i <= globval.Cell_nLoc; i++) {
+    dbeta_ddelta[i][X_] -= elems[i]->Beta[X_];
+    dbeta_ddelta[i][Y_] -= elems[i]->Beta[Y_];
+    detax_ddelta[i] -= elems[i]->Eta[X_];
+    dbeta_ddelta[i][X_] /= 2.0*globval.dPcommon;
+    dbeta_ddelta[i][Y_] /= 2.0*globval.dPcommon;
+    detax_ddelta[i] /= 2.0*globval.dPcommon;
+    if (i != 0) {
+      ksi[i][X_] = ksi[i-1][X_]; ksi[i][Y_] = ksi[i-1][Y_];
+    }
+    if (elems[i]->Pkind == Mpole) {
+      M = dynamic_cast<MpoleType*>(elems[i]);
+      ksi[i][X_] -=
+	M->PBpar[Quad+HOMmax]*elems[i]->PL*elems[i]->Beta[X_]
+	/(4.0*M_PI);
+      ksi[i][Y_] +=
+	M->PBpar[Quad+HOMmax]*elems[i]->PL*elems[i]->Beta[Y_]
+	/(4.0*M_PI);
+    }
+  }
+
+  outf = file_write("chromout");
+  fprintf(outf, "#     name              s    code"
+	        "  bx*ex  sqrt(bx*by)  dbx/dd*ex  bx*dex/dd"
+	        "  by*ex  dby/dd*ex by*dex/dd  ksix  ksiy"
+	        "  dbx/dd  bx/dd dex/dd\n");
+  fprintf(outf, "#                      [m]          [m]"
+	        "      [m]          [m]       [m]");
+  fprintf(outf, "       [m]      [m]       [m]\n");
+  fprintf(outf, "#\n");
+  for (i = 0; i <= globval.Cell_nLoc; i++) {
+    fprintf(outf,
+	    "%4ld %15s %6.2f %4.1f  %6.3f  %8.3f    %8.3f   %8.3f"
+	    "   %6.3f %8.3f   %8.3f  %5.2f  %5.2f  %6.3f  %6.3f  %6.3f\n",
+	    i, elems[i]->PName, elems[i]->S, get_code(*elems[i]),
+	    elems[i]->Beta[X_]*elems[i]->Eta[X_],
+	    sqrt(elems[i]->Beta[X_]*elems[i]->Beta[Y_]),
+	    dbeta_ddelta[i][X_]*elems[i]->Eta[X_],
+	    detax_ddelta[i]*elems[i]->Beta[X_],
+	    elems[i]->Beta[Y_]*elems[i]->Eta[X_],
+	    dbeta_ddelta[i][Y_]*elems[i]->Eta[X_],
+	    detax_ddelta[i]*elems[i]->Beta[Y_],
+	    ksi[i][X_], ksi[i][Y_],
+	    dbeta_ddelta[i][X_], dbeta_ddelta[i][Y_], detax_ddelta[i]);
+  }
+  fclose(outf);
+}

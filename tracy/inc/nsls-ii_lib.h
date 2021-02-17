@@ -57,20 +57,6 @@ double get_curly_H(const double alpha_x, const double beta_x,
 
 void GetEmittance(const int Fnum, const bool prt);
 
-void prt_lat(const int loc1, const int loc2, const char *fname, const int Fnum,
-	     const bool all);
-
-void prt_lat(const char *fname, const int Fnum, const bool all);
-
-void Cell_Twiss(const long int i0, const long int i1);
-
-void prt_lat(const int loc1, const int loc2, const char *fname, const int Fnum,
-	     const bool all, const int n);
-
-void prt_lat(const char *fname, const int Fnum, const bool all, const int n);
-
-void prt_chrom_lat(void);
-
 void prt_cod(const char *file_name, const int Fnum, const bool all);
 
 void printcod(const char *file_name);
@@ -274,8 +260,6 @@ void dnu_dA(const double Ax_max, const double Ay_max, const double delta,
 	    const int n_ampl);
 
 bool orb_corr(const int n_orbit);
-
-double get_code(CellType &Cell);
 
 void get_alphac(void);
 

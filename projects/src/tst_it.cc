@@ -46,6 +46,10 @@ void get_lat(const char *file_name)
     lat.get_eps_x(eps_x, sigma_delta, U_0, J, tau, I, true);
 
   if (false) tst_lat(lat);
+
+  lat.prt_lat("linlat1.out", globval.bpm, true);
+  lat.prt_lat("linlat.out", globval.bpm, true, 10);
+  lat.prtmfile("flat_file.dat");
 }
 
 
@@ -77,9 +81,6 @@ int main(int argc, char *argv[])
   } else
     get_lat(argv[1]);
 
-  prt_lat("linlat1.out", globval.bpm, true);
-  prt_lat("linlat.out", globval.bpm, true, 10);
-  prtmfile("flat_file.dat");
   exit(0);
 
   if (true) GetEmittance(ElemIndex("cav"), true);

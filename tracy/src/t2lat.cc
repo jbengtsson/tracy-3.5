@@ -4093,7 +4093,7 @@ void PrintResult(struct LOC_Lattice_Read *LINK)
     if ((*ElemFam_)[j].nKid > nKid)
       nKid = (*ElemFam_)[j].nKid;
   }
-  printf("  Max number of Kids : nKid                 =%5d\n", nKid);
+  printf("  Max number of Kids : nKid                 =%5ld\n", nKid);
   printf("  Number of Blocks   : NoB                  =%5ld"
 	 ", NoBmax          =%5d\n",
 	 LINK->NoB, NoBmax);
