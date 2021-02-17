@@ -2462,7 +2462,7 @@ void LatticeType::prt_elem(void)
 {
   int k;
 
-  printf("\nLattice: %d\n", elems.size());
+  printf("\nLattice: %lu\n", elems.size());
   for (k = 0; k < elems.size(); k++) {
     printf("  %3d ", k);
     elems[k]->print();

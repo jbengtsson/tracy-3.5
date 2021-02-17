@@ -2,16 +2,15 @@
 #ifndef TRACY_GLOBAL_H
 #define TRACY_GLOBAL_H
 
-#define HOMmax          21     // [a_n, b_n] <=> [-HOMmax..HOMmax].
-#define nKidMax       1000     // maximum number of kids.
+#define HOMmax   21     // [a_n, b_n] <=> [-HOMmax..HOMmax].
 
-#define IDXMAX         200
-#define IDZMAX         100
+#define IDXMAX  200
+#define IDZMAX  100
 
 #define DOF     (ss_dim/2)
-#define nv_              6
+#define nv_     6
 
-#define debug        false
+#define debug   false
 
 typedef char                partsName[NameLength];
 typedef std::vector<double> MpoleArray;
@@ -167,10 +166,8 @@ class ElemFamType {
   int
     nKid,                      // No of kids.
     NoDBN;
-  // std::vector<int>
-  //   KidList;
-  int
-    KidList[nKidMax];
+  std::vector<int>
+    KidList;
   std::vector<string>
     DBNlist;                   // For control system.
 };

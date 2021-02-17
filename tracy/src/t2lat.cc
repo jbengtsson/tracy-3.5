@@ -36,6 +36,7 @@ static std::vector<ElemFamType> *ElemFam_;
 #define nn           3
 #define tmax         100
 
+#define nKidMax      5     // maximum number of kids.
 
 typedef char Latlinetype[LatLLng];
 
@@ -1888,12 +1889,10 @@ static void ClearHOMandDBN(struct LOC_Lat_DealElement *LINK)
 }
 
 
-static void AssignHOM(long elem, struct LOC_Lat_DealElement *LINK)
+static void AssignHOM(MpoleType *M, struct LOC_Lat_DealElement *LINK)
 {
-  long      i;
-  MpoleType *M;
+  long i;
 
-  M = dynamic_cast<MpoleType*>((*ElemFam_)[elem-1].ElemF);
   for (i = -HOMmax; i <= HOMmax; i++) {
     if (LINK->BA[i+HOMmax]) {
       M->PBpar[i+HOMmax] = LINK->B[i+HOMmax];
@@ -1982,22 +1981,20 @@ static void GetDBN_(struct LOC_Lat_DealElement *LINK)
 }
 
 
-static void SetDBN(struct LOC_Lat_DealElement *LINK)
+static void SetDBN(ElemFamType &elemf, struct LOC_Lat_DealElement *LINK)
 {
-  long        i, j;
-  ElemFamType *WITH;
+  long i, j;
 
-  // WITH = &(*ElemFam_)[globval.Elem_nFam-1]; WITH->NoDBN = LINK->DBNsavemax;
-  // if (WITH->NoDBN > 0) {
-  //   WITH->DBNlist.push_back("");
-  //   for (i = 0; i < WITH->NoDBN; i++) {
-  //     j = 0;
-  //     do {
-  // 	WITH->DBNlist.back().push_back(LINK->DBNsave[i][j]);
-  // 	j++;
-  //     } while(LINK->DBNsave[i][j] != ' ');
-  //   }
-  // }
+  if (elemf.NoDBN > 0) {
+    elemf.DBNlist.push_back("");
+    for (i = 0; i < elemf.NoDBN; i++) {
+      j = 0;
+      do {
+  	elemf.DBNlist.back().push_back(LINK->DBNsave[i][j]);
+  	j++;
+      } while(LINK->DBNsave[i][j] != ' ');
+    }
+  }
 }
 
 
@@ -2221,12 +2218,12 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       WITH2->Pirho = t * M_PI / 180.0;
     WITH2->PTx1 = t1; WITH2->PTx2 = t2; WITH2->Pgap = gap;
     WITH2->n_design = Dip;
-    AssignHOM(globval.Elem_nFam, &V);
-    SetDBN(&V);
+    AssignHOM(WITH2, &V);
     WITH2->PBpar[HOMmax+2] = QK; WITH2->PdTpar = dt;
-    // Add family to lattice object.
+    // Allocate family to lattice object.
     (*ElemFam_).emplace_back();
     (*ElemFam_)[globval.Elem_nFam-1].ElemF = WITH2;
+    SetDBN((*ElemFam_)[globval.Elem_nFam-1], &V);
     break;
 
     /**************************************************************************
@@ -2318,12 +2315,12 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     memcpy(WITH2->PName, ElementName, sizeof(partsName));
     WITH2->PL = QL; WITH2->Pkind = Mpole;
     WITH2->Pmethod = k2; WITH2->PN = k1; WITH2->PdTpar = dt;
-    AssignHOM(globval.Elem_nFam, &V);
-    SetDBN(&V);
+    AssignHOM(WITH2, &V);
     WITH2->n_design = Quad; WITH2->PBpar[HOMmax+2] = QK;
-    // Add family to lattice object.
+    // Allocate family to lattice object.
     (*ElemFam_).emplace_back();
     (*ElemFam_)[globval.Elem_nFam-1].ElemF = WITH2;
+    SetDBN((*ElemFam_)[globval.Elem_nFam-1], &V);
     break;
 
     /**************************************************************************
@@ -2427,12 +2424,12 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     else
       WITH2->Pthick = pthicktype(thin);
     WITH2->PdTpar = dt; WITH2->n_design = Sext;
-    AssignHOM(globval.Elem_nFam, &V);
-    SetDBN(&V);
+    AssignHOM(WITH2, &V);
     WITH2->PBpar[HOMmax+3] = QK;
-    // Add family to lattice object.
+    // Allocate family to lattice object.
     (*ElemFam_).emplace_back();
     (*ElemFam_)[globval.Elem_nFam-1].ElemF = WITH2;
+    SetDBN((*ElemFam_)[globval.Elem_nFam-1], &V);
     break;
 
     /**************************************************************************
@@ -2539,10 +2536,10 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     WITH3->PN = k1;
     WITH3->entry_focus = entryf == 1;
     WITH3->exit_focus = exitf == 1;
-    SetDBN(&V);
-    // Add family to lattice object.
+    // Allocate family to lattice object.
     (*ElemFam_).emplace_back();
     (*ElemFam_)[globval.Elem_nFam-1].ElemF = WITH3;
+    SetDBN((*ElemFam_)[globval.Elem_nFam-1], &V);
     break;
 
 
@@ -2637,7 +2634,6 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     memcpy(WITH2->PName, ElementName, sizeof(partsName));
     WITH2->PL = QL;
     WITH2->Pkind = Mpole;
-    SetDBN(&V);
     if (WITH2->PL != 0.0)
       WITH2->Pthick = pthicktype(thick);
     else
@@ -2645,9 +2641,10 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     WITH2->Pmethod = k2;
     WITH2->PN = k1;
     WITH2->PdTpar = dt;
-    // Add family to lattice object.
+    // Allocate family to lattice object.
     (*ElemFam_).emplace_back();
     (*ElemFam_)[globval.Elem_nFam-1].ElemF = WITH2;
+    SetDBN((*ElemFam_)[globval.Elem_nFam-1], &V);
     break;
 
     /**************************************************************************
@@ -2687,10 +2684,10 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     memcpy(WITH2->PName, ElementName, sizeof(partsName));
     WITH2->Pkind = Mpole;
     WITH2->Pthick = pthicktype(thin);
-    SetDBN(&V);
-    // Add family to lattice object.
+    // Allocate family to lattice object.
     (*ElemFam_).emplace_back();
     (*ElemFam_)[globval.Elem_nFam-1].ElemF = WITH2;
+    SetDBN((*ElemFam_)[globval.Elem_nFam-1], &V);
     break;
 
 
@@ -2728,10 +2725,10 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     memcpy(WITHMk->PName, ElementName, sizeof(partsName));
     WITHMk->PL = 0.0;
     WITHMk->Pkind = PartsKind(marker);
-    SetDBN(&V);
-    // Add family to lattice object.
+    // Allocate family to lattice object.
     (*ElemFam_).emplace_back();
     (*ElemFam_)[globval.Elem_nFam-1].ElemF = WITHMk;
+    SetDBN((*ElemFam_)[globval.Elem_nFam-1], &V);
     break;
 
 
@@ -2904,12 +2901,12 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     WITH2->PN = k1; WITH2->Pmethod = k2;
     WITH2->PTx1 = t1; WITH2->PTx2 = t2; WITH2->Pgap = gap;
     WITH2->PdTpar = dt;
-    AssignHOM(globval.Elem_nFam, &V);
+    AssignHOM(WITH2, &V);
     WITH2->n_design = WITH2->Porder;
-    SetDBN(&V);
-    // Add family to lattice object.
+    // Allocate family to lattice object.
     (*ElemFam_).emplace_back();
     (*ElemFam_)[globval.Elem_nFam-1].ElemF = WITH2;
+    SetDBN((*ElemFam_)[globval.Elem_nFam-1], &V);
     break;
 
     /************************************************************************
@@ -3033,7 +3030,6 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     WITH4->PL = QL; WITH4->Pkind = Wigl;
     WITH4->Pmethod = k2; WITH4->PN = k1;
     WITH4->PdTpar = dt;
-    SetDBN(&V);
     WITH4->Lambda = QKS; WITH4->n_harm = 1; WITH4->harm[0] = 1;
     WITH4->kxV[0] = QKxV; WITH4->BoBrhoV[0] = QKV;
     WITH4->kxH[0] = QKxH; WITH4->BoBrhoH[0] = QKH;
@@ -3042,9 +3038,10 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     /* Equivalent vertically focusing gradient */
     //       WITH4->PBW[HOMmax+2] = -QK*QK/2e0;
     CheckWiggler(globval.Elem_nFam, &V);
-    // Add family to lattice object.
+    // Allocate family to lattice object.
     (*ElemFam_).emplace_back();
     (*ElemFam_)[globval.Elem_nFam-1].ElemF = WITH4;
+    SetDBN((*ElemFam_)[globval.Elem_nFam-1], &V);
     break;
 
     /************************************************************************
@@ -3124,7 +3121,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     if (CheckUDItable("energy         ", LINK) != 0) {
       RefUDItable("energy         ", &globval.Energy, LINK);
       if (strcmp(str1, "") != 0) get_B(str1, WITH6);
-      // Add family to lattice object.
+      // Allocate family to lattice object.
       (*ElemFam_).emplace_back();
       (*ElemFam_)[globval.Elem_nFam-1].ElemF = WITH6;
     } else {
@@ -3231,7 +3228,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     WITH5->Pmethod = k2;
     WITH5->PN = k1;
     WITH5->scaling = scaling;
-    // Add family to lattice object.
+    // Allocate family to lattice object.
     (*ElemFam_).emplace_back();
     (*ElemFam_)[globval.Elem_nFam-1].ElemF = WITH5;
     if (CheckUDItable("energy         ", LINK) != 0) {
@@ -3338,7 +3335,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     memcpy(WITHSpr->PName, ElementName, sizeof(partsName));
     WITHSpr->PL = *V.rnum;
     WITHSpr->Pkind = PartsKind(Spreader);
-    // Add family to lattice object.
+    // Allocate family to lattice object.
     (*ElemFam_).emplace_back();
     (*ElemFam_)[globval.Elem_nFam-1].ElemF = WITHSpr;
     break;
@@ -3373,7 +3370,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     memcpy(WITHRec->PName, ElementName, sizeof(partsName));
     WITHRec->PL = *V.rnum;
     WITHRec->Pkind = PartsKind(Recombiner);
-    // Add family to lattice object.
+    // Allocate family to lattice object.
     (*ElemFam_).emplace_back();
     (*ElemFam_)[globval.Elem_nFam-1].ElemF = WITHRec;
     break;
@@ -3438,7 +3435,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     memcpy(WITH7->PName, ElementName, sizeof(partsName));
     WITH7->Pkind = Solenoid;
     WITH7->PL = QL; WITH7->N = k1; WITH7->BoBrho = QK;
-    // Add family to lattice object.
+    // Allocate family to lattice object.
     (*ElemFam_).emplace_back();
     (*ElemFam_)[globval.Elem_nFam-1].ElemF = WITH7;
     break;
@@ -3462,7 +3459,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     WITH8 = Map_Alloc();
     memcpy(WITH8->PName, ElementName, sizeof(partsName));
     WITH8->Pkind = Map;
-    // Add family to lattice object.
+    // Allocate family to lattice object.
     (*ElemFam_).emplace_back();
     (*ElemFam_)[globval.Elem_nFam-1].ElemF = WITH8;
     break;
@@ -3861,7 +3858,7 @@ static void DealWithDefns(struct LOC_Lattice_Read *LINK)
 	      exit(1);
 	    }
 	    if (k <= Cell_nLocMax) {
-	      // Add family to local list.
+	      // Allocate family for local list.
 	      Cell_List.emplace_back();
 	      Cell_List[k].Fnum = k1;
 	      Cell_List[k].Reverse = LINK->Reverse_stack[j];
@@ -4062,9 +4059,8 @@ static void RegisterKids(struct LOC_Lattice_Read *LINK)
   for (i = 1; i <= globval.Cell_nLoc; i++) {
     WITH = &(*ElemFam_)[Cell_List[i].Fnum-1];
     WITH->nKid++;
-    // Allocate.
-    // WITH->KidList.push_back(i);
-    WITH->KidList[WITH->nKid-1] = i;
+    // Allocate Kid Number.
+    WITH->KidList.push_back(i);
     // Flag reverse element by negative kid number.
     if ((WITH->ElemF->Pkind == Mpole) && Cell_List[i].Reverse)
       WITH->KidList[WITH->nKid-1] *= -1;
@@ -4097,9 +4093,7 @@ void PrintResult(struct LOC_Lattice_Read *LINK)
     if ((*ElemFam_)[j].nKid > nKid)
       nKid = (*ElemFam_)[j].nKid;
   }
-  printf("  Max number of Kids : nKidMax              =%5ld"
-	 ", nKidMax         =%5d\n",
-	 nKid, nKidMax);
+  printf("  Max number of Kids : nKid                 =%5d\n", nKid);
   printf("  Number of Blocks   : NoB                  =%5ld"
 	 ", NoBmax          =%5d\n",
 	 LINK->NoB, NoBmax);
@@ -4184,7 +4178,7 @@ bool LatticeType::Lattice_Read(FILE *fi_, FILE *fo_)
 
   init_reserved_words(&V);
 
-  // Add element 0 to local list.
+  // Allocate element 0 to local list: Cell_List[0..Cell_nLoc].
   Cell_List.emplace_back();
 
   GetSym___(&V);

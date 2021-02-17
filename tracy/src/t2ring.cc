@@ -807,8 +807,7 @@ void LatticeType::Elem_Pass_Lin(ss_vect<T> ps)
     if (elems[k]->Pkind == Mpole) { 
       Mp = dynamic_cast<MpoleType*>(elems[k]);
       if ((Mp->Pthick == thick) && (Mp->Porder <= Quad)) {
-	ps =
-	  is_double<ss_vect<T> >::ps(Mp->M_lin*ps);
+	ps = is_double<ss_vect<T> >::ps(Mp->M_lin*ps);
 	
 	if (globval.emittance && !globval.Cavity_on
 	    && (elems[k]->PL != 0e0) && (Mp->Pirho != 0e0))
@@ -825,7 +824,6 @@ void LatticeType::get_eps_x(double &eps_x, double &sigma_delta, double &U_0,
 			    const bool prt)
 {
   bool         cav, emit;
-  long int     lastpos;
   int          k;
   ss_vect<tps> A;
 
