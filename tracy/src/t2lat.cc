@@ -4062,13 +4062,12 @@ static void RegisterKids(struct LOC_Lattice_Read *LINK)
   for (i = 1; i <= globval.Cell_nLoc; i++) {
     WITH = &(*ElemFam_)[Cell_List[i].Fnum-1];
     WITH->nKid++;
-    if (WITH->nKid <= nKidMax) {
-      WITH->KidList[WITH->nKid-1] = i;
-      // Flag reverse element by negative kid number.
-      if ((WITH->ElemF->Pkind == Mpole) && Cell_List[i].Reverse)
-	WITH->KidList[WITH->nKid-1] *= -1;
-    } else
-      printf("\nRegisterKids: KidMax exceeded: %d(%d)\n", WITH->nKid, nKidMax);
+    // Allocate.
+    // WITH->KidList.push_back(i);
+    WITH->KidList[WITH->nKid-1] = i;
+    // Flag reverse element by negative kid number.
+    if ((WITH->ElemF->Pkind == Mpole) && Cell_List[i].Reverse)
+      WITH->KidList[WITH->nKid-1] *= -1;
   }
 }
 

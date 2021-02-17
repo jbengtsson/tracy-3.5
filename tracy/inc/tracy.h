@@ -39,9 +39,6 @@ const double  eps_0 = 1.0/(sqr(c0)*mu_0);       // permeability of free space
 const double  r_e   = q_e/(4.0*M_PI*eps_0*m_e); // classical electron radius
 const double  h_bar = 6.58211899e-16;           /* reduced Planck constant
 						   [eV s] */
-
-const double  max_ampl = 10.0; // [m]
-
 typedef char str80[80];
 
 typedef char alfa_[NameLength];

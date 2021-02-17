@@ -9,6 +9,46 @@
    t2ring.c: Functions for rings.                                             */
 
 
+void LatticeType::ChamberOff(void)
+{
+  int i;
+
+  for (i = 0; i <= globval.Cell_nLoc; i++) {
+    elems[i]->maxampl[X_][0] = -max_ampl;
+    elems[i]->maxampl[X_][1] = max_ampl;
+    elems[i]->maxampl[Y_][0] = -max_ampl;
+    elems[i]->maxampl[Y_][1] = max_ampl;
+  }
+  status.chambre = false;
+}
+
+
+void LatticeType::PrintCh(void)
+{
+  long       i = 0;
+  struct tm  *newtime;
+  FILE       *f;
+
+  const  char  *fic    = "chambre.out";
+
+  newtime = GetTime();
+
+  f = file_write(fic);
+  fprintf(f, "# TRACY II v.2.6 -- %s -- %s \n", fic, asctime2(newtime));
+  fprintf(f, "#    name                s      -xch     +xch     zch\n");
+  fprintf(f, "#                               [mm]     [mm]     [mm]\n");
+  fprintf(f, "#\n");
+
+  for (i = 0; i <= globval.Cell_nLoc; i++)
+    fprintf(f, "%4ld %15s  %6.2f  %7.3f  %7.3f  %7.3f\n",
+	    i, elems[i]->PName, elems[i]->S,
+	    elems[i]->maxampl[X_][0]*1E3, elems[i]->maxampl[X_][1]*1E3,
+	    elems[i]->maxampl[Y_][1]*1E3);
+
+  fclose(f);
+}
+
+
 void GetNu(Vector2 &nu, Matrix &M)
 {
   /* Not assuming mid-plane symmetry, the charachteristic polynomial for a
@@ -394,7 +434,7 @@ void LatticeType::shiftk(long Elnum, double dk, struct LOC_Ring_Fittune *LINK)
   elemp = elems[Elnum];
   M = dynamic_cast<MpoleType*>(elemp);
   M->PBpar[Quad+HOMmax] += dk;
-  lat.Mpole_SetPB(elemp->Fnum, elemp->Knum, (long)Quad);
+  Mpole_SetPB(elemp->Fnum, elemp->Knum, (long)Quad);
 }
 
 
@@ -479,8 +519,8 @@ void LatticeType::Ring_Fittune(Vector2 &nu, double eps, iVector2 &nq, long qf[],
       printf("  Nux = %10.6f%10.6f, Nuy = %10.6f%10.6f,"
 	     " QF*L = % .5E, QD*L = % .5E @%3d\n",
 	     nu0[0], nu1[0], nu0[1], nu1[1],
-	     lat.Elem_GetKval(elems[qf[0]]->Fnum, 1, (long)Quad),
-	     lat.Elem_GetKval(elems[qd[0]]->Fnum, 1, (long)Quad), i);
+	     Elem_GetKval(elems[qf[0]]->Fnum, 1, (long)Quad),
+	     Elem_GetKval(elems[qd[0]]->Fnum, 1, (long)Quad), i);
   } while (sqrt(sqr(nu[0]-nu0[0])+sqr(nu[1]-nu0[1])) >= eps && i != imax);
 }
 
@@ -493,7 +533,7 @@ void LatticeType::shiftkp(long Elnum, double dkp)
   elemp = elems[Elnum];
   M = dynamic_cast<MpoleType*>(elemp);
   M->PBpar[Sext+HOMmax] += dkp;
-  lat.Mpole_SetPB(elemp->Fnum, elemp->Knum, (long)Sext);
+  Mpole_SetPB(elemp->Fnum, elemp->Knum, (long)Sext);
 }
 
 
@@ -562,8 +602,8 @@ void LatticeType::Ring_Fitchrom(Vector2 &ksi, double eps, iVector2 &ns,
       ksi0[j] = globval.Chrom[j];
     if (trace)
       printf("  ksix =%10.6f, ksiy =%10.6f, SF = % .5E, SD = % .5E @%3d\n",
-	     ksi0[0], ksi0[1], lat.Elem_GetKval(elems[sf[0]]->Fnum, 1, (long)Sext),
-	     lat.Elem_GetKval(elems[sd[0]]->Fnum, 1, (long)Sext), i);
+	     ksi0[0], ksi0[1], Elem_GetKval(elems[sf[0]]->Fnum, 1, (long)Sext),
+	     Elem_GetKval(elems[sd[0]]->Fnum, 1, (long)Sext), i);
   } while (sqrt(sqr(ksi[0]-ksi0[0])+sqr(ksi[1]-ksi0[1])) >= eps && i != imax);
 _L999:
   /* Restore radiation */
@@ -586,7 +626,7 @@ void LatticeType::shiftk_(long Elnum, double dk, struct LOC_Ring_FitDisp *LINK)
   elemp = elems[Elnum];
   M = dynamic_cast<MpoleType*>(elemp);
   M->PBpar[Quad+HOMmax] += dk;
-  lat.Mpole_SetPB(elemp->Fnum, elemp->Knum, (long)Quad);
+  Mpole_SetPB(elemp->Fnum, elemp->Knum, (long)Quad);
 }
 
 
@@ -641,7 +681,7 @@ void LatticeType::Ring_FitDisp(long pos, double eta, double eps, long nq,
     Eta0 = elems[pos]->Eta[0];
     if (trace)
       printf("  Dispersion = % .5E, kL =% .5E @%3d\n",
-	     Eta0, lat.Elem_GetKval(elems[q[0]]->Fnum, 1, (long)Quad), i);
+	     Eta0, Elem_GetKval(elems[q[0]]->Fnum, 1, (long)Quad), i);
   }
 _L999:
   /* Restore radiation */
@@ -757,8 +797,32 @@ void LatticeType::get_I(double I[], const bool prt)
 }
 
 
+template<typename T>
+void LatticeType::Elem_Pass_Lin(ss_vect<T> ps)
+{
+  long int  k;
+  MpoleType *Mp;
+
+  for (k = 0; k <= globval.Cell_nLoc; k++) {
+    if (elems[k]->Pkind == Mpole) { 
+      Mp = dynamic_cast<MpoleType*>(elems[k]);
+      if ((Mp->Pthick == thick) && (Mp->Porder <= Quad)) {
+	ps =
+	  is_double<ss_vect<T> >::ps(Mp->M_lin*ps);
+	
+	if (globval.emittance && !globval.Cavity_on
+	    && (elems[k]->PL != 0e0) && (Mp->Pirho != 0e0))
+	  get_dI_eta_5(k, elems);
+      }
+    } else
+      elems[k]->Elem_Pass(ps);
+  }
+}
+
+
 void LatticeType::get_eps_x(double &eps_x, double &sigma_delta, double &U_0,
-			double J[], double tau[], double I[], const bool prt)
+			    double J[], double tau[], double I[],
+			    const bool prt)
 {
   bool         cav, emit;
   long int     lastpos;
@@ -793,15 +857,10 @@ void LatticeType::get_eps_x(double &eps_x, double &sigma_delta, double &U_0,
   cav = globval.Cavity_on; emit = globval.emittance;
 
   globval.Cavity_on = false; globval.emittance = false;
-
   Ring_GetTwiss(false, 0.0);
-
   A = putlinmat(6, globval.Ascr); A += globval.CODvect;
-
   globval.emittance = true;
-
-  Cell_Pass(0, globval.Cell_nLoc, A, lastpos);
-
+  Elem_Pass_Lin(A);
   get_I(I, false);
 
   U_0 = 1e9*C_gamma*pow(globval.Energy, 4)*I[2]/(2e0*M_PI);

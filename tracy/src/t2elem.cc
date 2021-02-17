@@ -2741,10 +2741,10 @@ void LatticeType::Drift_Init(const int Fnum)
     Dp = Drift_Alloc();
     *Dp = *D;
     Dp->Fnum = Fnum; Dp->Knum = i;
+    elems[elemf[Fnum-1].KidList[i-1]] = Dp;
     if (debug)
       printf("Drift_Init:      Fnum = %2d Knum = %2d loc = %3d\n",
 	     Dp->Fnum, Dp->Knum, elemf[Fnum-1].KidList[i-1]);
-    elems[elemf[Fnum-1].KidList[i-1]] = Dp;
   }
 }
 

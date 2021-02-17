@@ -31,29 +31,6 @@ void tst_lat(LatticeType &lat)
 }
 
 
-template<typename T>
-void Elem_Pass_Lin(LatticeType &lat, ss_vect<T> ps)
-{
-  long int  k;
-  MpoleType *Mp;
-
-  for (k = 0; k <= globval.Cell_nLoc; k++) {
-    if (lat.elems[k]->Pkind == Mpole) { 
-      Mp = dynamic_cast<MpoleType*>(lat.elems[k]);
-      if ((Mp->Pthick == thick) && (Mp->Porder <= Quad)) {
-	ps =
-	  is_double<ss_vect<T> >::ps(Mp->M_lin*ps);
-	
-	if (globval.emittance && !globval.Cavity_on
-	    && (lat.elems[k]->PL != 0e0) && (Mp->Pirho != 0e0))
-	  get_dI_eta_5(k, lat.elems);
-      }
-    } else
-      lat.elems[k]->Elem_Pass(ps);
-  }
-}
-
-
 void get_eps_x(LatticeType &lat, double &eps_x, double &sigma_delta,
 	       double &U_0, double J[], double tau[], double I[],
 	       const bool prt)
@@ -71,7 +48,7 @@ void get_eps_x(LatticeType &lat, double &eps_x, double &sigma_delta,
   lat.Ring_GetTwiss(false, 0.0);
   A = putlinmat(6, globval.Ascr); A += globval.CODvect;
   globval.emittance = true;
-  Elem_Pass_Lin(lat, A);
+  lat.Elem_Pass_Lin(A);
   lat.get_I(I, false);
 
   U_0 = 1e9*C_gamma*pow(globval.Energy, 4)*I[2]/(2e0*M_PI);
@@ -111,15 +88,17 @@ void get_lat(const char *file_name)
 
   lat.Lattice_Read(inf, outf);
   lat.Lat_Init();
+  lat.ChamberOff();
 
-  if (!false) {
+  if (false) {
     lat.prt_fam();
     lat.prt_elem();
   }
 
   lat.Ring_GetTwiss(true, 0e0); printglob(lat.elems[0]);
   if (globval.mat_meth)
-    get_eps_x(lat, eps_x, sigma_delta, U_0, J, tau, I, true);
+    lat.get_eps_x(eps_x, sigma_delta, U_0, J, tau, I, true);
+  exit(0);
 
   if (false) tst_lat(lat);
 }

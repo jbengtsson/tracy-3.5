@@ -267,8 +267,4 @@ void findcod(double dP);
 void computeFandJ(int n, double *x, psVector *fjac, double *fvect);
 int Newton_Raphson(int n, psVector &x, int ntrial, double tolx);
 
-/* Vacuum chamber */
-void PrintCh(void);
-void ChamberOff(void);
-
 #endif

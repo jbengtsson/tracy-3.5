@@ -2083,44 +2083,6 @@ double Sgn (double x)
 }
 
 
-void ChamberOff(void)
-{
-  int i;
-
-  for (i = 0; i <= globval.Cell_nLoc; i++) {
-    lat.elems[i]->maxampl[X_][0] = -max_ampl; lat.elems[i]->maxampl[X_][1] = max_ampl;
-    lat.elems[i]->maxampl[Y_][0] = -max_ampl; lat.elems[i]->maxampl[Y_][1] = max_ampl;
-  }
-  status.chambre = false;
-}
-
-
-void PrintCh(void)
-{
-  long       i = 0;
-  struct tm  *newtime;
-  FILE       *f;
-
-  const  char  *fic    = "chambre.out";
-
-  newtime = GetTime();
-
-  f = file_write(fic);
-  fprintf(f, "# TRACY II v.2.6 -- %s -- %s \n", fic, asctime2(newtime));
-  fprintf(f, "#    name                s      -xch     +xch     zch\n");
-  fprintf(f, "#                               [mm]     [mm]     [mm]\n");
-  fprintf(f, "#\n");
-
-  for (i = 0; i <= globval.Cell_nLoc; i++)
-    fprintf(f, "%4ld %15s  %6.2f  %7.3f  %7.3f  %7.3f\n",
-	    i, lat.elems[i]->PName, lat.elems[i]->S,
-	    lat.elems[i]->maxampl[X_][0]*1E3, lat.elems[i]->maxampl[X_][1]*1E3,
-	    lat.elems[i]->maxampl[Y_][1]*1E3);
-
-  fclose(f);
-}
-
-
 /** function from soleilcommon.c **/
 
 void Read_Lattice(const char *fic)
@@ -2180,7 +2142,7 @@ void Read_Lattice(const char *fic)
 
   if (globval.RingType == 1) { // for a ring
     /* define x/y physical aperture  */
-    ChamberOff();
+    lat.ChamberOff();
 
     /* Defines global variables for Tracy code */
     globval.quad_fringe    = false; // quadrupole fringe fields on/off
@@ -2215,7 +2177,7 @@ void Read_Lattice(const char *fic)
                                             for SOLEIL */
     globval.dPparticle = dP;
 
-    ChamberOff();
+    lat.ChamberOff();
 
     lat.ttwiss(alpha, beta, eta, etap, dP);
   }

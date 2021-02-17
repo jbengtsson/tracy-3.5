@@ -11,7 +11,7 @@
 #define DOF     (ss_dim/2)
 #define nv_              6
 
-#define debug       false
+#define debug        false
 
 typedef char                partsName[NameLength];
 typedef std::vector<double> MpoleArray;
@@ -32,6 +32,9 @@ enum
 const int
   n_harm_max   = 10,
   Spreader_max = 10;
+
+const double
+  max_ampl = 10.0; // [m]
 
 
 typedef class globvalrec {
@@ -163,8 +166,11 @@ class ElemFamType {
     *ElemF;
   int
     nKid,                      // No of kids.
-    KidList[nKidMax],
     NoDBN;
+  // std::vector<int>
+  //   KidList;
+  int
+    KidList[nKidMax];
   std::vector<string>
     DBNlist;                   // For control system.
 };
@@ -221,6 +227,10 @@ class LatticeType {
   bool getcod(double dp, long &lastpos);
 
   // t2ring.
+  // Vacuum chamber.
+  void ChamberOff(void);
+  void PrintCh(void);
+
   void shiftk(long Elnum, double dk, struct LOC_Ring_Fittune *LINK);
   void shiftkp(long Elnum, double dkp);
   void shiftk_(long Elnum, double dk, struct LOC_Ring_FitDisp *LINK);
@@ -244,6 +254,8 @@ class LatticeType {
 		    double dkL, long imax);
 
   void get_I(double I[], const bool prt);
+  template<typename T>
+  void Elem_Pass_Lin(ss_vect<T> ps);
   void get_eps_x(double &eps_x, double &sigma_delta, double &U_0,
 		 double J[], double tau[], double I[], const bool prt);
 
