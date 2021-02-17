@@ -11,12 +11,11 @@
 #ifndef T2LAT_H
 #define T2LAT_H
 
-#define DBNameLen 39
+#define Cell_nLocMax 20000  // maximum number of LEGO blocks (Cell_nLoc).
+#define DBNameLen    39
 
 typedef char   DBNameType[DBNameLen];
 
-long ElemIndex(const std::string &name1);
-
-bool Lattice_Read(FILE *fi_, FILE *fo_, ElemFamType ElemFam[]);
+long int ElemIndex(const std::string &name1);
 
 #endif

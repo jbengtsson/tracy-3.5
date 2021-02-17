@@ -26,8 +26,8 @@ void       i_compl_pdivdoubl(t_complexe *c2, double *c1); /* niveau 2 */
 void       i_compl_cmplx(t_complexe *c, double a,double b);         /* niveau 2 */ 
 void       i_compl_pdiv(t_complexe* const c1,const t_complexe * const c2); /* niveau 2 */ 
 t_complexe i_compl_div2d(const double c1, const double  c2_r, const double c2_i); /* niveau 2 */ 
-t_complexe i_compl_div4d(register const double c1_r, register const double c1_i,
-                                       register const double  c2_r, register const double c2_i); /* niveau 2 */ 
+t_complexe i_compl_div4d(const double c1_r, const double c1_i,
+                                       const double  c2_r, const double c2_i); /* niveau 2 */ 
 t_complexe i_compl_conj(t_complexe *c1);             /* niveau 2 */
 t_complexe i_compl_pow(const t_complexe z,int k);          /* niveau 2 */
 /* v0.97 M. GASTINEAU 22/03/99: ajout de i_compl_powreel        */

@@ -2161,7 +2161,7 @@ void Read_Lattice(const char *fic)
    * Energy CODeps and energy offset
    * print statistics
    */
-  status = Lattice_Read(fi, fo, lat.elemf);
+  status = lat.Lattice_Read(fi, fo);
 
   if (status == false) {
     std::cout << "Lattice_Read function has returned false" << std::endl;

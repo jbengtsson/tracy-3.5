@@ -662,7 +662,7 @@ double get_curly_H(const double alpha_x, const double beta_x,
 }
 
 
-void get_dI_eta_5(const int k, ElemType *Elem[])
+void get_dI_eta_5(const int k, std::vector<ElemType*> Elem)
 {
   double       L, K, h, b2, alpha, beta, gamma, psi, eta, etap;
   ss_vect<tps> Id;

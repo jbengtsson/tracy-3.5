@@ -194,7 +194,7 @@ double d_sign(double a, double b)
 
 int P_eof(FILE *f)
 {
-  register int ch;
+  int ch;
 
   if (feof(f)) return 1;
   if (f == stdin) return 0; /* not safe to look-ahead on the keyboard! */
@@ -210,7 +210,7 @@ int P_eof(FILE *f)
 
 int P_eoln(FILE *f)
 {
-  register int ch;
+  int ch;
 
   ch = getc(f);
   if (ch == EOF) return 1;

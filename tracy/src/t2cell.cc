@@ -231,11 +231,14 @@ void LatticeType::Lat_Init(void)
 
   char first_name[] = "begin          ";
 
-  if (debug) printf("**  Cell_Init\n");
+  if (debug) printf("Lat_Init: Cell_nLoc = %d\n", globval.Cell_nLoc);
 
   SI_init();  /* Initializes the constants for symplectic integrator */
 
-  // Allocate element 0 ("begin").
+  // Allocate space for lattice.
+  elems.resize(globval.Cell_nLoc+1);
+
+  // Assign element 0 ("begin").
   elems[0] = Marker_Alloc();
   memcpy(elems[0]->PName, first_name, sizeof(first_name));
   elems[0]->PL = 0e0; elems[0]->Fnum = 0; elems[0]->Knum = 0;
@@ -244,11 +247,12 @@ void LatticeType::Lat_Init(void)
   elems[0]->dS[X_] = 0e0; elems[0]->dS[Y_] = 0e0;
 
   for (i = 1; i <= globval.Elem_nFam; i++) {
+    // Allocate element.
     elemfamp  = &elemf[i-1]; /* Get 1 of all elements stored in ElemFam
-				  array */
+				array */
     elemp = elemfamp->ElemF; // For switch structure: choice on element type
     if (debug)
-      printf("\nCell_Init i = %3ld %*s\n", i, SymbolLength, elemp->PName);
+      printf("\nLat_Init i = %3ld %*s\n", i, SymbolLength, elemp->PName);
 
     switch (elemp->Pkind) {
     case drift:
@@ -285,7 +289,7 @@ void LatticeType::Lat_Init(void)
       Map_Init(i);
       break;
     default:
-      printf("Cell_Init: undefined type\n");
+      printf("Lat_Init: undefined type\n");
       exit(1);
       break;
     }
@@ -296,4 +300,6 @@ void LatticeType::Lat_Init(void)
   for (i = 0; i <= globval.Cell_nLoc; i++) {
     Stotal += elems[i]->PL; elems[i]->S = Stotal;
   }
+
+  if (debug) prt_elem();
 }

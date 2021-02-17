@@ -18,26 +18,6 @@ void prt_kids(const int Fnum, ElemFamType elemf[])
 }
 
 
-void prt_fam(ElemFamType elemf[])
-{
-  int k;
-
-  printf("\nFamilies:\n");
-  for (k = 0; k < globval.Elem_nFam; k++)
-    elemf[k].ElemF->print();
-}
-
-
-void prt_lat(ElemType *elems[])
-{
-  int k;
-
-  printf("\nLattice:\n");
-  for (k = 0; k <= globval.Cell_nLoc; k++)
-    elems[k]->print();
-}
-
-
 void tst_lat(LatticeType &lat)
 {
   int          k;
@@ -129,13 +109,13 @@ void get_lat(const char *file_name)
   inf  = file_read((str + ".lat").c_str());
   outf = file_write((str + ".lax").c_str());
 
-  Lattice_Read(inf, outf, lat.elemf);
+  lat.Lattice_Read(inf, outf);
   lat.Lat_Init();
 
-  printf("\n%s\n", lat.elems[0]->PName);
-
-  if (false) prt_fam(lat.elemf);
-  if (false) prt_lat(lat.elems);
+  if (!false) {
+    lat.prt_fam();
+    lat.prt_elem();
+  }
 
   lat.Ring_GetTwiss(true, 0e0); printglob(lat.elems[0]);
   if (globval.mat_meth)

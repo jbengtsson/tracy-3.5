@@ -2,19 +2,16 @@
 #ifndef TRACY_GLOBAL_H
 #define TRACY_GLOBAL_H
 
-#define Cell_nLocMax 20000  // maximum number of LEGO blocks (Cell_nLoc).
+#define HOMmax          21     // [a_n, b_n] <=> [-HOMmax..HOMmax].
+#define nKidMax       1000     // maximum number of kids.
 
-#define HOMmax       21
-// #define Elem_nFamMax 3000   // maximum number of families for Elem_NFam.
-// #define nKidMax      5000   // maximum number of kids.
-#define Elem_nFamMax 100     // maximum number of families for Elem_NFam.
-#define nKidMax      1000    // maximum number of kids.
+#define IDXMAX         200
+#define IDZMAX         100
 
-#define IDXMAX       200
-#define IDZMAX       100
+#define DOF     (ss_dim/2)
+#define nv_              6
 
-#define DOF          (ss_dim/2)
-#define nv_          6
+#define debug       false
 
 typedef char                partsName[NameLength];
 typedef std::vector<double> MpoleArray;
@@ -174,8 +171,8 @@ class ElemFamType {
 
 class LatticeType {
  public:
-  ElemFamType elemf[Elem_nFamMax];
-  ElemType    *elems[Cell_nLocMax+1];
+  std::vector<ElemFamType> elemf;
+  std::vector<ElemType*>   elems;
 
   void Drift_Init(const int Fnum);
   void Mpole_Init(const int Fnum);
@@ -189,6 +186,11 @@ class LatticeType {
   void Solenoid_Init(const int Fnum);
   void Map_Init(const int Fnum);
   void Lat_Init(void);
+
+  bool Lattice_Read(FILE *inf, FILE *outf);
+  friend long int ElemIndex(const std::string &name1);
+  void prt_fam(void);
+  void prt_elem(void);
 
   // t2elem.
   void getelem(long i, ElemType *cellrec);
@@ -444,7 +446,7 @@ class InsertionType : public ElemType {
   void Elem_Pass(ss_vect<double> &ps) { Insertion_Pass(ps); };
   void Elem_Pass(ss_vect<tps> &ps) { Insertion_Pass(ps); };
 
-   void print(void);
+  void print(void);
 };
 
 class FieldMapType : public ElemType {
