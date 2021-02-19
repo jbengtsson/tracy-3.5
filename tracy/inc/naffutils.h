@@ -22,11 +22,8 @@ void Get_Tabshift(double Tab[DIM][NTURN], double Tab0[DIM][NTURN],
 
 void Get_freq(double *fx, double *fz, double *nux, double *nuz);
 
-void GetChromTrac(long Nb, long Nbtour, double emax, double *xix, double *xiz);
-
-void GetTuneTrac(long Nbtour, double emax, double *nux, double *nuz);
-
-void Trac_Simple(double x, double px, double y, double py, double dp,
-		 double ctau, long nmax, double Tx[][NTURN], bool *status);
+void Trac_Simple(LatticeType &lat, double x, double px, double y, double py,
+		 double dp, double ctau, long nmax, double Tx[][NTURN],
+		 bool *status);
 
 #endif

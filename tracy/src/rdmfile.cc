@@ -136,7 +136,8 @@ ElemType* elem_alloc(const int kind)
 }
 
 
-void get_elem(std::ifstream &inf, char *line, long int &i, int &kind)
+void get_elem(std::ifstream &inf, std::vector<ElemType*> &elems,
+	      ConfigType &conf, char *line, long int &i, int &kind)
 {
   char file_name[line_max];
 
@@ -170,24 +171,24 @@ void get_elem(std::ifstream &inf, char *line, long int &i, int &kind)
   if (prt) printf("%s\n", line);
   sscanf(line, "%d %d %d %d", &kind, &method, &n, &reverse);
 
-  lat.elems[i] = elem_alloc(kind);
+  elems[i] = elem_alloc(kind);
  
-  memcpy(lat.elems[i]->PName, name, sizeof(partsName));
-  lat.elems[i]->Fnum = Fnum; lat.elems[i]->Knum = Knum;
+  memcpy(elems[i]->PName, name, sizeof(partsName));
+  elems[i]->Fnum = Fnum; elems[i]->Knum = Knum;
 
-  lat.elems[i]->dS[X_] = 0e0; lat.elems[i]->dS[Y_] = 0e0;
-  lat.elems[i]->dT[X_] = 1e0; lat.elems[i]->dT[Y_] = 0e0;
+  elems[i]->dS[X_] = 0e0; elems[i]->dS[Y_] = 0e0;
+  elems[i]->dT[X_] = 1e0; elems[i]->dT[Y_] = 0e0;
 
   inf.getline(line, line_max);
   if (prt) printf("%s\n", line);
   sscanf(line, "%lf %lf %lf %lf",
-	 &lat.elems[i]->maxampl[X_][0], &lat.elems[i]->maxampl[X_][1],
-	 &lat.elems[i]->maxampl[Y_][0], &lat.elems[i]->maxampl[Y_][1]);
+	 &elems[i]->maxampl[X_][0], &elems[i]->maxampl[X_][1],
+	 &elems[i]->maxampl[Y_][0], &elems[i]->maxampl[Y_][1]);
 
-  lat.elems[i]->PL = 0e0;
-  lat.elems[i]->Reverse = (reverse == 1);
+  elems[i]->PL = 0e0;
+  elems[i]->Reverse = (reverse == 1);
 
-  switch (lat.elems[i]->Pkind) {
+  switch (elems[i]->Pkind) {
   case undef:
     std::cout << "rdmfile: unknown type " << i << std::endl;
     exit_(1);
@@ -197,49 +198,49 @@ void get_elem(std::ifstream &inf, char *line, long int &i, int &kind)
   case drift:
     inf.getline(line, line_max);
     if (prt) printf("%s\n", line);
-    sscanf(line, "%lf", &lat.elems[i]->PL);
+    sscanf(line, "%lf", &elems[i]->PL);
     break;
   case Cavity:
-    C = dynamic_cast<CavityType*>(lat.elems[i]);
+    C = dynamic_cast<CavityType*>(elems[i]);
     inf.getline(line, line_max);
     if (prt) printf("%s\n", line);
     sscanf(line, "%lf %lf %d %lf %lf",
-	   &C->Pvolt, &C->Pfreq, &C->Ph, &globval.Energy, &C->phi);
-    globval.Energy *= 1e-9;
-    C->Pvolt *= globval.Energy*1e9;
+	   &C->Pvolt, &C->Pfreq, &C->Ph, &conf.Energy, &C->phi);
+    conf.Energy *= 1e-9;
+    C->Pvolt *= conf.Energy*1e9;
     C->Pfreq *= c0/(2.0*M_PI);
     break;
   case Mpole:
-    M = dynamic_cast<MpoleType*>(lat.elems[i]);
+    M = dynamic_cast<MpoleType*>(elems[i]);
     M->Pmethod = method; M->PN = n;
 
     if (M->Pthick == thick) {
       inf.getline(line, line_max);
       if (prt) printf("%s\n", line);
       sscanf(line, "%lf %lf %lf %lf",
-	     &lat.elems[i]->dS[X_], &lat.elems[i]->dS[Y_],
+	     &elems[i]->dS[X_], &elems[i]->dS[Y_],
 	     &M->PdTpar, &dTerror);
-      lat.elems[i]->dT[X_] = cos(dtor(dTerror+M->PdTpar));
-      lat.elems[i]->dT[Y_] = sin(dtor(dTerror+M->PdTpar));
+      elems[i]->dT[X_] = cos(dtor(dTerror+M->PdTpar));
+      elems[i]->dT[Y_] = sin(dtor(dTerror+M->PdTpar));
       M->PdTrms = dTerror - M->PdTpar;
       M->PdTrnd = 1e0;
 
       inf.getline(line, line_max);
       if (prt) printf("%s\n", line);
       sscanf(line, "%lf %lf %lf %lf %lf",
-	     &lat.elems[i]->PL, &M->Pirho, &M->PTx1, &M->PTx2, &M->Pgap);
+	     &elems[i]->PL, &M->Pirho, &M->PTx1, &M->PTx2, &M->Pgap);
       if (M->Pirho != 0e0) M->Porder = 1;
     } else {
       inf.getline(line, line_max);
       if (prt) printf("%s\n", line);
       sscanf(line, "%lf %lf %lf",
-	     &lat.elems[i]->dS[X_], &lat.elems[i]->dS[Y_], &dTerror); 
-      lat.elems[i]->dT[X_] = cos(dtor(dTerror));
-      lat.elems[i]->dT[Y_] = sin(dtor(dTerror));
+	     &elems[i]->dS[X_], &elems[i]->dS[Y_], &dTerror); 
+      elems[i]->dT[X_] = cos(dtor(dTerror));
+      elems[i]->dT[Y_] = sin(dtor(dTerror));
       M->PdTrms = dTerror; M->PdTrnd = 1e0;
     }
 
-    M->Pc0 = sin(lat.elems[i]->PL*M->Pirho/2.0);
+    M->Pc0 = sin(elems[i]->PL*M->Pirho/2.0);
     M->Pc1 = cos(dtor(M->PdTpar))*M->Pc0;
     M->Ps1 = sin(dtor(M->PdTpar))*M->Pc0;
 
@@ -256,16 +257,16 @@ void get_elem(std::ifstream &inf, char *line, long int &i, int &kind)
       M->Porder = max(n, M->Porder);
     }
 
-    if (globval.mat_meth && (M->Pthick == thick))
-      M->M_lin = get_lin_map(lat.elems[i], 0e0);
+    if (conf.mat_meth && (M->Pthick == thick))
+      M->M_lin = get_lin_map(elems[i], 0e0);
     break;
   case Wigl:
-    W = dynamic_cast<WigglerType*>(lat.elems[i]);
+    W = dynamic_cast<WigglerType*>(elems[i]);
     W->Pmethod = method; W->PN = n;
 
     inf.getline(line, line_max);
     if (prt) printf("%s\n", line);
-    sscanf(line, "%lf %lf", &lat.elems[i]->PL, &W->Lambda);
+    sscanf(line, "%lf %lf", &elems[i]->PL, &W->Lambda);
 
     inf.getline(line, line_max);
     if (prt) printf("%s\n", line);
@@ -280,7 +281,7 @@ void get_elem(std::ifstream &inf, char *line, long int &i, int &kind)
     }
     break;
   case Insertion:
-    ID = dynamic_cast<InsertionType*>(lat.elems[i]);
+    ID = dynamic_cast<InsertionType*>(elems[i]);
     ID->Pmethod = method; ID->PN = n;
 
     inf.getline(line, line_max);
@@ -292,17 +293,13 @@ void get_elem(std::ifstream &inf, char *line, long int &i, int &kind)
       ID->secondorder = false;
 
       strcpy(ID->fname1, file_name);
-      Read_IDfile(ID->fname1, lat.elems[i]->PL, ID->nx, ID->nz,
-		  ID->tabx, ID->tabz, ID->thetax1, ID->thetaz1,
-		  ID->long_comp, ID->B2);
+      Read_IDfile(ID->fname1, conf, ID);
     } else if (n == 2) {
       ID->firstorder = false;
       ID->secondorder = true;
 
       strcpy(ID->fname2, file_name);
-      Read_IDfile(ID->fname2, lat.elems[i]->PL, ID->nx, ID->nz,
-		  ID->tabx, ID->tabz, ID->thetax, ID->thetaz,
-		  ID->long_comp, ID->B2);
+      Read_IDfile(ID->fname2, conf, ID);
     } else {
       std::cout << "rdmfile: undef order " << n << std::endl;
       exit_(1);
@@ -332,7 +329,7 @@ void get_elem(std::ifstream &inf, char *line, long int &i, int &kind)
   case FieldMap:
     break;
   case Map:
-    Mapp = dynamic_cast<MapType*>(lat.elems[i]);
+    Mapp = dynamic_cast<MapType*>(elems[i]);
     Id.identity(); Mapp->M.zero();
     for (j = 0; j < n_ps; j++) {
       inf.getline(line, line_max);
@@ -351,29 +348,30 @@ void get_elem(std::ifstream &inf, char *line, long int &i, int &kind)
 }
 
 
-void get_elemf(const int i, const int kind)
+void get_elemf(std::vector<ElemFamType> &elemf, std::vector<ElemType*> &elems,
+	       ConfigType &conf, const int i, const int kind)
 {
   if (i == 0)
-    lat.elems[i]->S = 0e0;
+    elems[i]->S = 0e0;
   else
-    lat.elems[i]->S = lat.elems[i-1]->S + lat.elems[i]->PL;
+    elems[i]->S = elems[i-1]->S + elems[i]->PL;
 
   if (i > 0) {
-    lat.elemf[lat.elems[i]->Fnum-1].ElemF = elem_alloc(kind);
+    elemf[elems[i]->Fnum-1].ElemF = elem_alloc(kind);
 
-    if (lat.elems[i]->Knum == 1)
-      *lat.elemf[lat.elems[i]->Fnum-1].ElemF = *lat.elems[i];
+    if (elems[i]->Knum == 1)
+      *elemf[elems[i]->Fnum-1].ElemF = *elems[i];
 
-    lat.elemf[lat.elems[i]->Fnum-1].KidList[lat.elems[i]->Knum-1] = i;
-    lat.elemf[lat.elems[i]->Fnum-1].nKid =
-      max(lat.elems[i]->Knum, lat.elemf[lat.elems[i]->Fnum-1].nKid);
+    elemf[elems[i]->Fnum-1].KidList[elems[i]->Knum-1] = i;
+    elemf[elems[i]->Fnum-1].nKid =
+      max(elems[i]->Knum, elemf[elems[i]->Fnum-1].nKid);
 
-    globval.Elem_nFam = max((long)lat.elems[i]->Fnum, globval.Elem_nFam);
+    conf.Elem_nFam = max((long)elems[i]->Fnum, conf.Elem_nFam);
   }
 }
 
 
-void rdmfile(const char *mfile_dat)
+void LatticeType::rdmfile(const char *mfile_dat)
 {
   char          line[line_max];
   long int      i;
@@ -386,18 +384,18 @@ void rdmfile(const char *mfile_dat)
   file_rd(inf, mfile_dat);
 
   while (inf.getline(line, line_max)) {
-    get_elem(inf, line, i, kind);
-    get_elemf(i, kind);
+    get_elem(inf, elems, conf, line, i, kind);
+    get_elemf(elemf, elems, conf, i, kind);
   }
   
-  globval.Cell_nLoc = i;
+  conf.Cell_nLoc = i;
  
-  globval.dPcommon = 1e-8; globval.CODeps = 1e-14; globval.CODimax = 40;
+  conf.dPcommon = 1e-8; conf.CODeps = 1e-14; conf.CODimax = 40;
 
   SI_init();
 
   printf("\nrdmfile: read %ld elements, C = %7.5f\n",
-	 globval.Cell_nLoc, lat.elems[globval.Cell_nLoc]->S);
+	 conf.Cell_nLoc, elems[conf.Cell_nLoc]->S);
 
   inf.close();
 }

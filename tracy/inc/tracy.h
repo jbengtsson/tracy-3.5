@@ -50,14 +50,6 @@ typedef double Vector3[3];
 #define fitvectmax      200
 typedef long   fitvect[fitvectmax];
 
-typedef struct statusrec{
-  bool tuneflag, chromflag, codflag, mapflag, passflag, overflag, chambre;
-  int lossplane; /* lost in: horizontal    1
-		             vertical      2
-			     longitudinal  3 */
-} statusrec;
-
-
 extern bool  stable;
 extern bool  ErrFlag;
 extern bool  trace, traceID;
@@ -73,8 +65,6 @@ extern FILE  *fi,       /* lattice input  file  */
              *psin[],   /* program input file */
              *psout,              /* program output file*/
              *prr[];   /* prr[1] : input, prr[2] : output */
-
-extern statusrec status;
 
 extern bool reverse_elem;
 

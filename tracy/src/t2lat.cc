@@ -9,8 +9,9 @@ J. Bengtsson  NSLS-II, BNL  2004 -
 */
 
 
-// C wrapper for Pascal global variable.
+// C wrapper for Pascal global variablse.
 static std::vector<ElemFamType> *ElemFam_;
+static LatticeType               *Lat_;
 
 
 #define NoBmax       300          // maximum number of blocks (NoB)
@@ -217,13 +218,13 @@ long *P_setunion(long *d, long *s1, long *s2)
 
 static long CheckElementtable(const char *name, struct LOC_Lattice_Read *LINK)
 {
-  /* globval.Elem_nFam = Number of parts in a Element */
+  /* Lat_->conf.Elem_nFam = Number of parts in a Element */
   long  i, j;
 
   j = 0;
   //  if (strstr(LINK->line,"insertion") != NULL) return 0;
 
-  for (i = 1; i <= globval.Elem_nFam; i++) {
+  for (i = 1; i <= Lat_->conf.Elem_nFam; i++) {
     if (!strncmp((*ElemFam_)[i-1].ElemF->PName, name, sizeof(partsName)))
       j = i;
   }
@@ -2078,14 +2079,14 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     *V.rnum = EVAL_(&V);
     test__(P_expset(SET, 1 << ((long)semicolon)), "<;> expected", &V);
     GetSym__(&V);
-    globval.Elem_nFam++;
+    Lat_->conf.Elem_nFam++;
     WITHD = Drift_Alloc();
     memcpy(WITHD->PName, ElementName, sizeof(partsName));
     WITHD->PL = *V.rnum;
     WITHD->Pkind = PartsKind(drift);
     // Add family to lattice object.
     (*ElemFam_).emplace_back();
-    (*ElemFam_)[globval.Elem_nFam-1].ElemF = WITHD;
+    (*ElemFam_)[Lat_->conf.Elem_nFam-1].ElemF = WITHD;
     break;
 
     /**************************************************************************
@@ -2205,7 +2206,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     } while (P_inset(*V.sym, mysys));
     test__(P_expset(SET, 1 << ((long)semicolon)), "<;> expected.", &V);
     GetSym__(&V);
-    globval.Elem_nFam++;
+    Lat_->conf.Elem_nFam++;
     WITH2 = Mpole_Alloc();
     memcpy(WITH2->PName, ElementName, sizeof(partsName));
     WITH2->PL = QL;
@@ -2222,8 +2223,8 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     WITH2->PBpar[HOMmax+2] = QK; WITH2->PdTpar = dt;
     // Allocate family to lattice object.
     (*ElemFam_).emplace_back();
-    (*ElemFam_)[globval.Elem_nFam-1].ElemF = WITH2;
-    SetDBN((*ElemFam_)[globval.Elem_nFam-1], &V);
+    (*ElemFam_)[Lat_->conf.Elem_nFam-1].ElemF = WITH2;
+    SetDBN((*ElemFam_)[Lat_->conf.Elem_nFam-1], &V);
     break;
 
     /**************************************************************************
@@ -2310,7 +2311,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     } while (P_inset(*V.sym, mysys));   /*5*/
     test__(P_expset(SET, 1 << ((long)semicolon)), "<;> expected.", &V);
     GetSym__(&V);
-    globval.Elem_nFam++;
+    Lat_->conf.Elem_nFam++;
     WITH2 = Mpole_Alloc();
     memcpy(WITH2->PName, ElementName, sizeof(partsName));
     WITH2->PL = QL; WITH2->Pkind = Mpole;
@@ -2319,8 +2320,8 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     WITH2->n_design = Quad; WITH2->PBpar[HOMmax+2] = QK;
     // Allocate family to lattice object.
     (*ElemFam_).emplace_back();
-    (*ElemFam_)[globval.Elem_nFam-1].ElemF = WITH2;
-    SetDBN((*ElemFam_)[globval.Elem_nFam-1], &V);
+    (*ElemFam_)[Lat_->conf.Elem_nFam-1].ElemF = WITH2;
+    SetDBN((*ElemFam_)[Lat_->conf.Elem_nFam-1], &V);
     break;
 
     /**************************************************************************
@@ -2412,7 +2413,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       test__(P_expset(SET, 1 << ((long)semicolon)), "<;> expected.", &V);
     }
     GetSym__(&V);
-    globval.Elem_nFam++;
+    Lat_->conf.Elem_nFam++;
     WITH2 = Mpole_Alloc();
     memcpy(WITH2->PName, ElementName, sizeof(partsName));
     WITH2->PL = QL;
@@ -2428,8 +2429,8 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     WITH2->PBpar[HOMmax+3] = QK;
     // Allocate family to lattice object.
     (*ElemFam_).emplace_back();
-    (*ElemFam_)[globval.Elem_nFam-1].ElemF = WITH2;
-    SetDBN((*ElemFam_)[globval.Elem_nFam-1], &V);
+    (*ElemFam_)[Lat_->conf.Elem_nFam-1].ElemF = WITH2;
+    SetDBN((*ElemFam_)[Lat_->conf.Elem_nFam-1], &V);
     break;
 
     /**************************************************************************
@@ -2524,7 +2525,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     } while (P_inset(*V.sym, mysys));
     test__(P_expset(SET, 1 << ((long)semicolon)), "<;> expected.", &V);
     GetSym__(&V);
-    globval.Elem_nFam++;
+    Lat_->conf.Elem_nFam++;
     WITH3 = Cavity_Alloc();
     memcpy(WITH3->PName, ElementName, sizeof(partsName));
     WITH3->PL = QL;
@@ -2538,8 +2539,8 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     WITH3->exit_focus = exitf == 1;
     // Allocate family to lattice object.
     (*ElemFam_).emplace_back();
-    (*ElemFam_)[globval.Elem_nFam-1].ElemF = WITH3;
-    SetDBN((*ElemFam_)[globval.Elem_nFam-1], &V);
+    (*ElemFam_)[Lat_->conf.Elem_nFam-1].ElemF = WITH3;
+    SetDBN((*ElemFam_)[Lat_->conf.Elem_nFam-1], &V);
     break;
 
 
@@ -2629,7 +2630,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       test__(P_expset(SET, 1 << ((long)semicolon)), "<;> expected.", &V);
     }
     GetSym__(&V);
-    globval.Elem_nFam++;
+    Lat_->conf.Elem_nFam++;
     WITH2 = Mpole_Alloc();
     memcpy(WITH2->PName, ElementName, sizeof(partsName));
     WITH2->PL = QL;
@@ -2643,8 +2644,8 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     WITH2->PdTpar = dt;
     // Allocate family to lattice object.
     (*ElemFam_).emplace_back();
-    (*ElemFam_)[globval.Elem_nFam-1].ElemF = WITH2;
-    SetDBN((*ElemFam_)[globval.Elem_nFam-1], &V);
+    (*ElemFam_)[Lat_->conf.Elem_nFam-1].ElemF = WITH2;
+    SetDBN((*ElemFam_)[Lat_->conf.Elem_nFam-1], &V);
     break;
 
     /**************************************************************************
@@ -2679,15 +2680,15 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       test__(P_expset(SET, 1 << ((long)semicolon)), "<;> expected", &V);
     }
     GetSym__(&V);
-    globval.Elem_nFam++;
+    Lat_->conf.Elem_nFam++;
     WITH2 = Mpole_Alloc();
     memcpy(WITH2->PName, ElementName, sizeof(partsName));
     WITH2->Pkind = Mpole;
     WITH2->Pthick = pthicktype(thin);
     // Allocate family to lattice object.
     (*ElemFam_).emplace_back();
-    (*ElemFam_)[globval.Elem_nFam-1].ElemF = WITH2;
-    SetDBN((*ElemFam_)[globval.Elem_nFam-1], &V);
+    (*ElemFam_)[Lat_->conf.Elem_nFam-1].ElemF = WITH2;
+    SetDBN((*ElemFam_)[Lat_->conf.Elem_nFam-1], &V);
     break;
 
 
@@ -2720,15 +2721,15 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       test__(P_expset(SET, 1 << ((long)semicolon)), "<;> expected", &V);
     }
     GetSym__(&V);
-    globval.Elem_nFam++;
+    Lat_->conf.Elem_nFam++;
     WITHMk = Marker_Alloc();
     memcpy(WITHMk->PName, ElementName, sizeof(partsName));
     WITHMk->PL = 0.0;
     WITHMk->Pkind = PartsKind(marker);
     // Allocate family to lattice object.
     (*ElemFam_).emplace_back();
-    (*ElemFam_)[globval.Elem_nFam-1].ElemF = WITHMk;
-    SetDBN((*ElemFam_)[globval.Elem_nFam-1], &V);
+    (*ElemFam_)[Lat_->conf.Elem_nFam-1].ElemF = WITHMk;
+    SetDBN((*ElemFam_)[Lat_->conf.Elem_nFam-1], &V);
     break;
 
 
@@ -2755,18 +2756,18 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       test([semicolon], '<;> expected');
       getsym;
       if sym=DBNsym then GetDBN;
-      globval.Elem_nFam := globval.Elem_nFam + 1;
-      if globval.Elem_nFam <= Elem_nFamMax then
+      Lat_->conf.Elem_nFam := Lat_->conf.Elem_nFam + 1;
+      if Lat_->conf.Elem_nFam <= Elem_nFamMax then
       begin
-      with ElemFam[globval.Elem_nFam].ElemF do
-      with ElementT[globval.Elem_nFam] do
+      with ElemFam[Lat_->conf.Elem_nFam].ElemF do
+      with ElementT[Lat_->conf.Elem_nFam] do
       BEGIN
       Pname:=ElementName; Pkind:=Ghost; PN:=round(QL);
       SetDBN;
       END;
       end
       else
-      writeln('Elem_nFamMax exceeded: ', globval.Elem_nFam:1,
+      writeln('Elem_nFamMax exceeded: ', Lat_->conf.Elem_nFam:1,
       '(', Elem_nFamMax:1, ')');
       END;
       <<-----------------------------*/
@@ -2886,7 +2887,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     } while (P_inset(*V.sym, mysys));
     test__(P_expset(SET, 1 << ((long)semicolon)), "<;> expected.", &V);
     GetSym__(&V);
-    globval.Elem_nFam++;
+    Lat_->conf.Elem_nFam++;
     WITH2 = Mpole_Alloc();
     memcpy(WITH2->PName, ElementName, sizeof(partsName));
     WITH2->Pkind = Mpole;
@@ -2905,8 +2906,8 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     WITH2->n_design = WITH2->Porder;
     // Allocate family to lattice object.
     (*ElemFam_).emplace_back();
-    (*ElemFam_)[globval.Elem_nFam-1].ElemF = WITH2;
-    SetDBN((*ElemFam_)[globval.Elem_nFam-1], &V);
+    (*ElemFam_)[Lat_->conf.Elem_nFam-1].ElemF = WITH2;
+    SetDBN((*ElemFam_)[Lat_->conf.Elem_nFam-1], &V);
     break;
 
     /************************************************************************
@@ -3024,7 +3025,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     } while (P_inset(*V.sym, mysys));   /*5*/
     test__(P_expset(SET, 1 << ((long)semicolon)), "<;> expected", &V);
     GetSym__(&V);
-    globval.Elem_nFam++;
+    Lat_->conf.Elem_nFam++;
     WITH4 = Wiggler_Alloc();
     memcpy(WITH4->PName, ElementName, sizeof(partsName));
     WITH4->PL = QL; WITH4->Pkind = Wigl;
@@ -3034,14 +3035,14 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     WITH4->kxV[0] = QKxV; WITH4->BoBrhoV[0] = QKV;
     WITH4->kxH[0] = QKxH; WITH4->BoBrhoH[0] = QKH;
     WITH4->phi[0] = QPhi;
-    AssignHarm(globval.Elem_nFam, &V);
+    AssignHarm(Lat_->conf.Elem_nFam, &V);
     /* Equivalent vertically focusing gradient */
     //       WITH4->PBW[HOMmax+2] = -QK*QK/2e0;
-    CheckWiggler(globval.Elem_nFam, &V);
+    CheckWiggler(Lat_->conf.Elem_nFam, &V);
     // Allocate family to lattice object.
     (*ElemFam_).emplace_back();
-    (*ElemFam_)[globval.Elem_nFam-1].ElemF = WITH4;
-    SetDBN((*ElemFam_)[globval.Elem_nFam-1], &V);
+    (*ElemFam_)[Lat_->conf.Elem_nFam-1].ElemF = WITH4;
+    SetDBN((*ElemFam_)[Lat_->conf.Elem_nFam-1], &V);
     break;
 
     /************************************************************************
@@ -3113,17 +3114,17 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     } while (P_inset(*V.sym, mysys));   /*5*/
     test__(P_expset(SET, 1 << ((long)semicolon)), "<;> expected", &V);
     GetSym__(&V);
-    globval.Elem_nFam++;
+    Lat_->conf.Elem_nFam++;
     WITH6 = FieldMap_Alloc();
     memcpy(WITH6->PName, ElementName, sizeof(partsName));
     WITH6->PL = QL; WITH6->Pkind = FieldMap;
     WITH6->phi = t*M_PI/180.0; WITH6->n_step = k1; WITH6->scl = scaling;
     if (CheckUDItable("energy         ", LINK) != 0) {
-      RefUDItable("energy         ", &globval.Energy, LINK);
-      if (strcmp(str1, "") != 0) get_B(str1, WITH6);
+      RefUDItable("energy         ", &Lat_->conf.Energy, LINK);
+      if (strcmp(str1, "") != 0) get_B(Lat_->conf, str1, WITH6);
       // Allocate family to lattice object.
       (*ElemFam_).emplace_back();
-      (*ElemFam_)[globval.Elem_nFam-1].ElemF = WITH6;
+      (*ElemFam_)[Lat_->conf.Elem_nFam-1].ElemF = WITH6;
     } else {
       std::cout << "Fieldmap: energy not defined" << std::endl;
       exit_(1);
@@ -3219,7 +3220,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 	GetSym__(&V);
     } while (P_inset(*V.sym, mysys));   /*5*/
     GetSym__(&V);
-    globval.Elem_nFam++;
+    Lat_->conf.Elem_nFam++;
     /* Fills up the ID */
     WITH5 = Insertion_Alloc();
     memcpy(WITH5->PName, ElementName, sizeof(partsName));
@@ -3230,9 +3231,9 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     WITH5->scaling = scaling;
     // Allocate family to lattice object.
     (*ElemFam_).emplace_back();
-    (*ElemFam_)[globval.Elem_nFam-1].ElemF = WITH5;
+    (*ElemFam_)[Lat_->conf.Elem_nFam-1].ElemF = WITH5;
     if (CheckUDItable("energy         ", LINK) != 0) {
-      RefUDItable("energy         ", &globval.Energy, LINK);
+      RefUDItable("energy         ", &Lat_->conf.Energy, LINK);
       // 	if (strcmp(str1, "") != 0) get_B(str1, WITH6);
 
       // Check if filename given for first order kicks
@@ -3242,9 +3243,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 	strcpy(WITH5->fname1,str1);
 	// Read Id file for first order kicks
 	WITH5->firstorder = true;
-	Read_IDfile(WITH5->fname1, WITH1->PL, WITH5->nx, WITH5->nz,
-		    WITH5->tabx, WITH5->tabz, WITH5->thetax1, WITH5->thetaz1,
-		    WITH5->long_comp, WITH5->B2);
+	Read_IDfile(WITH5->fname1, Lat_->conf, WITH5);
 	// scale factor from Radia: Tmm to get Tm.
 	for (kx = 0; kx < WITH5->nx; kx++) {
 	  for (kz = 0; kz < WITH5->nz; kz++) {
@@ -3263,9 +3262,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 	strcpy(WITH5->fname2,str2);
 	WITH5->secondorder = secondflag;
 	// Read Id file for second order kicks
-	Read_IDfile(WITH5->fname2, WITH1->PL, WITH5->nx, WITH5->nz,
-		    WITH5->tabx, WITH5->tabz, WITH5->thetax, WITH5->thetaz,
-		    WITH5->long_comp, WITH5->B2);
+	Read_IDfile(WITH5->fname2, Lat_->conf, WITH5);
       } else {
 	strcpy(WITH5->fname2,"/*No_Filename2_Given*/");
       }
@@ -3330,14 +3327,14 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       test__(P_expset(SET, 1 << ((long)semicolon)), "<;> expected", &V);
     }
     GetSym__(&V);
-    globval.Elem_nFam++;
+    Lat_->conf.Elem_nFam++;
     WITHSpr = Spreader_Alloc();
     memcpy(WITHSpr->PName, ElementName, sizeof(partsName));
     WITHSpr->PL = *V.rnum;
     WITHSpr->Pkind = PartsKind(Spreader);
     // Allocate family to lattice object.
     (*ElemFam_).emplace_back();
-    (*ElemFam_)[globval.Elem_nFam-1].ElemF = WITHSpr;
+    (*ElemFam_)[Lat_->conf.Elem_nFam-1].ElemF = WITHSpr;
     break;
 
     /**************************************************************************
@@ -3365,14 +3362,14 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       test__(P_expset(SET, 1 << ((long)semicolon)), "<;> expected", &V);
     }
     GetSym__(&V);
-    globval.Elem_nFam++;
+    Lat_->conf.Elem_nFam++;
     WITHRec = Recombiner_Alloc();
     memcpy(WITHRec->PName, ElementName, sizeof(partsName));
     WITHRec->PL = *V.rnum;
     WITHRec->Pkind = PartsKind(Recombiner);
     // Allocate family to lattice object.
     (*ElemFam_).emplace_back();
-    (*ElemFam_)[globval.Elem_nFam-1].ElemF = WITHRec;
+    (*ElemFam_)[Lat_->conf.Elem_nFam-1].ElemF = WITHRec;
     break;
 
     /**************************************************************************
@@ -3430,14 +3427,14 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     } while (P_inset(*V.sym, mysys));
     test__(P_expset(SET, 1 << ((long)semicolon)), "<;> expected.", &V);
     GetSym__(&V);
-    globval.Elem_nFam++;
+    Lat_->conf.Elem_nFam++;
     WITH7 = Solenoid_Alloc();
     memcpy(WITH7->PName, ElementName, sizeof(partsName));
     WITH7->Pkind = Solenoid;
     WITH7->PL = QL; WITH7->N = k1; WITH7->BoBrho = QK;
     // Allocate family to lattice object.
     (*ElemFam_).emplace_back();
-    (*ElemFam_)[globval.Elem_nFam-1].ElemF = WITH7;
+    (*ElemFam_)[Lat_->conf.Elem_nFam-1].ElemF = WITH7;
     break;
 
     /**************************************************************************
@@ -3455,13 +3452,13 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
   case mapsym:
     getest__(P_expset(SET, 1 << ((long)semicolon)), "<;> expected", &V);
     GetSym__(&V);
-    globval.Elem_nFam++;
+    Lat_->conf.Elem_nFam++;
     WITH8 = Map_Alloc();
     memcpy(WITH8->PName, ElementName, sizeof(partsName));
     WITH8->Pkind = Map;
     // Allocate family to lattice object.
     (*ElemFam_).emplace_back();
-    (*ElemFam_)[globval.Elem_nFam-1].ElemF = WITH8;
+    (*ElemFam_)[Lat_->conf.Elem_nFam-1].ElemF = WITH8;
     break;
 
     /**************************************************************************
@@ -3876,7 +3873,7 @@ static void DealWithDefns(struct LOC_Lattice_Read *LINK)
 	}
 	/*4*/
 	if (k <= Cell_nLocMax)
-	  globval.Cell_nLoc = k;   /*number of Elements in a cell*/
+	  Lat_->conf.Cell_nLoc = k;   /*number of Elements in a cell*/
 	else {
 	  printf("\nDealWithDefns: ** Cell_nLocMax exhausted: %ld(%ld)\n",
 		 k, (long)Cell_nLocMax);
@@ -3967,11 +3964,11 @@ void GetEnergy(struct LOC_Lattice_Read *LINK)
   if (k == 0) {
     printf("\nGetEnergy: beam energy is not defined.\n");
     printf("  Input beam energy in [GeV] := ");
-    scanf("%lg%*[^\n]", &globval.Energy);
+    scanf("%lg%*[^\n]", &Lat_->conf.Energy);
     getchar();
-    EnterUDItable("energy         ", globval.Energy, LINK);
+    EnterUDItable("energy         ", Lat_->conf.Energy, LINK);
   } else
-    RefUDItable("energy         ", &globval.Energy, LINK);
+    RefUDItable("energy         ", &Lat_->conf.Energy, LINK);
 }
 
 
@@ -3982,10 +3979,10 @@ void GetRingType(struct LOC_Lattice_Read *LINK)
   k = CheckUDItable("ringtype       ", LINK);
   if (k == 0L) {
     printf("\nGetRingType: RingType not defined, default is ring.\n");
-    globval.RingType = 1;
+    Lat_->conf.RingType = 1;
   } else {
-    globval.RingType = (int) LINK->UDItable[k - 1L].Uvalue;
-    if (globval.RingType != 1 && globval.RingType != 0) {
+    Lat_->conf.RingType = (int) LINK->UDItable[k - 1L].Uvalue;
+    if (Lat_->conf.RingType != 1 && Lat_->conf.RingType != 0) {
       printf("GetEnergy: ringtype variable is not defined"
 	      " properly in the lattice file\n");
       printf("  ringtype set to 1 means ring\n");
@@ -4002,14 +3999,14 @@ static void GetDP(struct LOC_Lattice_Read *LINK)
 
   k = CheckUDItable("dp             ", LINK);
   if (k != 0) {
-      RefUDItable("dp             ", &globval.dPcommon, LINK);
+      RefUDItable("dp             ", &Lat_->conf.dPcommon, LINK);
       return;
   }
   printf("\nGetDP: dP/P is not defined.\n");
   printf("  Input dP/P := ");
-  scanf("%lg%*[^\n]", &globval.dPcommon);
+  scanf("%lg%*[^\n]", &Lat_->conf.dPcommon);
   getchar();
-  EnterUDItable("dp             ", globval.dPcommon, LINK);
+  EnterUDItable("dp             ", Lat_->conf.dPcommon, LINK);
 }
 
 static void GetCODEPS(struct LOC_Lattice_Read *LINK)
@@ -4018,14 +4015,14 @@ static void GetCODEPS(struct LOC_Lattice_Read *LINK)
 
   k = CheckUDItable("codeps         ", LINK);
   if (k != 0) {
-    RefUDItable("codeps         ", &globval.CODeps, LINK);
+    RefUDItable("codeps         ", &Lat_->conf.CODeps, LINK);
     return;
   }
   printf("\nGetCODEPS: CODeps is not defined.\n");
   printf("  Input CODEPS := ");
-  scanf("%lg%*[^\n]", &globval.CODeps);
+  scanf("%lg%*[^\n]", &Lat_->conf.CODeps);
   getchar();
-  EnterUDItable("codeps         ", globval.Energy, LINK);
+  EnterUDItable("codeps         ", Lat_->conf.Energy, LINK);
 }
 
 
@@ -4036,7 +4033,7 @@ static double Circumference(struct LOC_Lattice_Read *LINK)
   long FORLIM;
 
   S = 0.0;
-  FORLIM = globval.Cell_nLoc;
+  FORLIM = Lat_->conf.Cell_nLoc;
   for (i = 1; i <= FORLIM; i++)
     S += (*ElemFam_)[Cell_List[i].Fnum-1].ElemF->PL;
   return S;
@@ -4050,13 +4047,13 @@ static void RegisterKids(struct LOC_Lattice_Read *LINK)
 
   if (debug) printf("\nRegisterKids:\n");
 
-  for (i = 0; i < globval.Elem_nFam; i++) {
+  for (i = 0; i < Lat_->conf.Elem_nFam; i++) {
     (*ElemFam_)[i].nKid = 0;
     if (debug)
       printf("  RegisterKids: %2ld %8s\n", i+1, (*ElemFam_)[i].ElemF->PName);
   }
 
-  for (i = 1; i <= globval.Cell_nLoc; i++) {
+  for (i = 1; i <= Lat_->conf.Cell_nLoc; i++) {
     WITH = &(*ElemFam_)[Cell_List[i].Fnum-1];
     WITH->nKid++;
     // Allocate Kid Number.
@@ -4086,10 +4083,10 @@ void PrintResult(struct LOC_Lattice_Read *LINK)
   printf("  Number of keywords : nkw                  =%5ld"
 	 ", Lat_nkw_max     =%5d\n",
 	 LINK->nkw, Lat_nkw_max);
-  printf("  Number of Families : globval.Elem_nFam    =%5ld\n",
-	 globval.Elem_nFam);
+  printf("  Number of Families : Lat_->conf.Elem_nFam    =%5ld\n",
+	 Lat_->conf.Elem_nFam);
   nKid = 0L;
-  for (j = 0L; j < globval.Elem_nFam; j++) {
+  for (j = 0L; j < Lat_->conf.Elem_nFam; j++) {
     if ((*ElemFam_)[j].nKid > nKid)
       nKid = (*ElemFam_)[j].nKid;
   }
@@ -4100,9 +4097,9 @@ void PrintResult(struct LOC_Lattice_Read *LINK)
   printf("  Max Block size     : NoBE                 =%5ld"
 	 ", NoBEmax         =%5d\n",
 	 LINK->Bpointer, NoBEmax);
-  printf("  Number of Elements : globval.Cell_nLoc    =%5ld"
+  printf("  Number of Elements : Lat_->conf.Cell_nLoc    =%5ld"
 	 ", Cell_nLocmax    =%5d\n",
-	 globval.Cell_nLoc, Cell_nLocMax);
+	 Lat_->conf.Cell_nLoc, Cell_nLocMax);
   printf("  Circumference      : %12.7f [m]\n\n\n", Circumference(LINK));
 }
 
@@ -4132,7 +4129,7 @@ long ElemIndex(const std::string &name)
   }
 
   i = 1;
-  while (i <= globval.Elem_nFam) {
+  while (i <= Lat_->conf.Elem_nFam) {
     if (prt) {
       std::cout << std::setw(2) << (name1 == (*ElemFam_)[i-1].ElemF->PName)
 	   << " " << name1 << " " << (*ElemFam_)[i-1].ElemF->PName << " (";
@@ -4165,14 +4162,15 @@ bool LatticeType::Lattice_Read(FILE *fi_, FILE *fo_)
 	   bndsym, solsym, max_set, (unsigned)(4*sizeof(long int)));
 
   ElemFam_ = &elemf;
+  Lat_     = this;
 
   V.fi = &fi_; /* input lattice file */
   V.fo = &fo_; /* output lattice file */
   if (setjmp(V._JL9999)) goto _L9999;
-  V.UDIC = 0; globval.Cell_nLoc = 0; globval.Elem_nFam = 0; V.NoB = 0;
+  V.UDIC = 0; Lat_->conf.Cell_nLoc = 0; Lat_->conf.Elem_nFam = 0; V.NoB = 0;
   V.Symmetry = 0; V.Bpointer = 0;
 
-  globval.CODeps = 0e0; globval.dPcommon = 0e0; globval.Energy = 0e0;
+  Lat_->conf.CODeps = 0e0; Lat_->conf.dPcommon = 0e0; Lat_->conf.Energy = 0e0;
 
   ErrFlag = false;
 

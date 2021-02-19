@@ -151,31 +151,31 @@ void chk_cod(const bool cod, const char *proc_name)
 }
 
 
-void no_sxt(void)
+void no_sxt(LatticeType &lat)
 {
   int       k;
   MpoleType *M;
 
   // printf("\nzeroing sextupoles\n");
-  for (k = 0; k <= globval.Cell_nLoc; k++) {
+  for (k = 0; k <= lat.conf.Cell_nLoc; k++) {
     M = dynamic_cast<MpoleType*>(lat.elems[k]);
     if ((lat.elems[k]->Pkind == Mpole) && (M->Porder >= Sext))
-      SetKpar(lat.elems[k]->Fnum, lat.elems[k]->Knum, Sext, 0.0);
+      SetKpar(lat, lat.elems[k]->Fnum, lat.elems[k]->Knum, Sext, 0.0);
   }
 }
 
 
-void get_map(const bool cod)
+void get_map(LatticeType &lat, const bool cod)
 {
   long int lastpos;
 
   map.identity();
   if (cod) {
     lat.getcod(0e0, lastpos);
-    map += globval.CODvect;
+    map += lat.conf.CODvect;
   }
-  lat.Cell_Pass(0, globval.Cell_nLoc, map, lastpos);
-  if (cod) map -= globval.CODvect;
+  lat.Cell_Pass(0, lat.conf.Cell_nLoc, map, lastpos);
+  if (cod) map -= lat.conf.CODvect;
 }
 
 
@@ -352,7 +352,7 @@ void get_twoJ(const int n_DOF, const ss_vect<double> &ps,
 }
 
 
-void GetEmittance(const int Fnum, const bool prt)
+void GetEmittance(LatticeType &lat, const int Fnum, const bool prt)
 {
   // A. Chao "Evaluation of Beam Distribution Parameters in an Electron
   // Storage Ring" J. Appl. Phys 50 (2), 595-598.
@@ -367,14 +367,14 @@ void GetEmittance(const int Fnum, const bool prt)
   CavityType   *Cp;
 
   // save state
-  rad = globval.radiation; emit = globval.emittance;
-  cav = globval.Cavity_on; path = globval.pathlength;
+  rad = lat.conf.radiation; emit = lat.conf.emittance;
+  cav = lat.conf.Cavity_on; path = lat.conf.pathlength;
 
-  C = lat.elems[globval.Cell_nLoc]->S;
+  C = lat.elems[lat.conf.Cell_nLoc]->S;
 
   // damped system
-  globval.radiation = true; globval.emittance  = true;
-  globval.Cavity_on = true; globval.pathlength = false;
+  lat.conf.radiation = true; lat.conf.emittance  = true;
+  lat.conf.Cavity_on = true; lat.conf.pathlength = false;
 
   lat.Ring_GetTwiss(false, 0.0);
 
@@ -383,18 +383,18 @@ void GetEmittance(const int Fnum, const bool prt)
   loc = lat.Elem_GetPos(Fnum, 1);
   Cp = dynamic_cast<CavityType*>(lat.elems[loc]);
 
-  globval.U0 = globval.dE*1e9*globval.Energy;
+  lat.conf.U0 = lat.conf.dE*1e9*lat.conf.Energy;
   V_RF = Cp->Pvolt;
   h_RF = Cp->Ph;
-  phi0 = fabs(asin(globval.U0/V_RF));
-  globval.delta_RF =
+  phi0 = fabs(asin(lat.conf.U0/V_RF));
+  lat.conf.delta_RF =
     sqrt(-V_RF*cos(M_PI-phi0)*(2.0-(M_PI-2.0*(M_PI-phi0))
-    *tan(M_PI-phi0))/(fabs(globval.Alphac)*M_PI*h_RF*1e9*globval.Energy));
+    *tan(M_PI-phi0))/(fabs(lat.conf.Alphac)*M_PI*h_RF*1e9*lat.conf.Energy));
 
   // Compute diffusion coeffs. for eigenvectors [sigma_xx, sigma_yy, sigma_zz]
-  Ascr_map = putlinmat(6, globval.Ascr); Ascr_map += globval.CODvect;
+  Ascr_map = putlinmat(6, lat.conf.Ascr); Ascr_map += lat.conf.CODvect;
 
-  lat.Cell_Pass(0, globval.Cell_nLoc, Ascr_map, lastpos);
+  lat.Cell_Pass(0, lat.conf.Cell_nLoc, Ascr_map, lastpos);
 
   // K. Robinson "Radiation Effects in Circular Electron Accelerators"
   // Phys. Rev. 111 (2), 373-380.
@@ -407,32 +407,32 @@ void GetEmittance(const int Fnum, const bool prt)
 
   for (i = 0; i < DOF; i++) {
     // partition numbers
-    globval.J[i] =
-      2.0*(1.0+globval.CODvect[delta_])*globval.alpha_rad[i]/globval.dE;
+    lat.conf.J[i] =
+      2.0*(1.0+lat.conf.CODvect[delta_])*lat.conf.alpha_rad[i]/lat.conf.dE;
     // damping times
-    globval.tau[i] = -C/(c0*globval.alpha_rad[i]);
+    lat.conf.tau[i] = -C/(c0*lat.conf.alpha_rad[i]);
     // diffusion coeff. and emittance (alpha is for betatron amplitudes)
-    globval.eps[i] = -globval.D_rad[i]/(2.0*globval.alpha_rad[i]);
+    lat.conf.eps[i] = -lat.conf.D_rad[i]/(2.0*lat.conf.alpha_rad[i]);
     // fractional tunes
-    nu[i]  = atan2(globval.wi[i*2], globval.wr[i*2])/(2.0*M_PI);
+    nu[i]  = atan2(lat.conf.wi[i*2], lat.conf.wr[i*2])/(2.0*M_PI);
     if (nu[i] < 0.0) nu[i] = 1.0 + nu[i];
   }
 
   // undamped system
-  globval.radiation = !false; globval.emittance = false;
+  lat.conf.radiation = !false; lat.conf.emittance = false;
 
   lat.Ring_GetTwiss(false, 0.0);
 
   // Compute sigmas arround the lattice:
   //   Sigma = A diag[J_1, J_1, J_2, J_2, J_3, J_3] A^T
   for (i = 0; i < 6; i++) {
-    Ascr_map[i] = tps(globval.CODvect[i]);
+    Ascr_map[i] = tps(lat.conf.CODvect[i]);
     for (j = 0; j < 6; j++)
-      Ascr_map[i] += globval.Ascr[i][j]*sqrt(globval.eps[j/2])*tps(0.0, j+1);
+      Ascr_map[i] += lat.conf.Ascr[i][j]*sqrt(lat.conf.eps[j/2])*tps(0.0, j+1);
   }
   // prt_lin_map(3, Ascr_map);
-  for (loc = 0; loc <= globval.Cell_nLoc; loc++) {
-    lat.elems[loc]->Elem_Pass(Ascr_map);
+  for (loc = 0; loc <= lat.conf.Cell_nLoc; loc++) {
+    lat.elems[loc]->Elem_Pass(lat.conf, Ascr_map);
     // sigma = A x A^tp
     getlinmat(6, Ascr_map, lat.elems[loc]->sigma);
     TpMat(6, lat.elems[loc]->sigma);
@@ -446,51 +446,51 @@ void GetEmittance(const int Fnum, const bool prt)
 	  (lat.elems[0]->sigma[x_][x_]-lat.elems[0]->sigma[y_][y_]))/2e0;
 
   // longitudinal alpha and beta
-  globval.alpha_z =
-    -globval.Ascr[ct_][ct_]*globval.Ascr[delta_][ct_]
-    - globval.Ascr[ct_][delta_]*globval.Ascr[delta_][delta_];
-  globval.beta_z = sqr(globval.Ascr[ct_][ct_]) + sqr(globval.Ascr[ct_][delta_]);
-  gamma_z = (1.0+sqr(globval.alpha_z))/globval.beta_z;
+  lat.conf.alpha_z =
+    -lat.conf.Ascr[ct_][ct_]*lat.conf.Ascr[delta_][ct_]
+    - lat.conf.Ascr[ct_][delta_]*lat.conf.Ascr[delta_][delta_];
+  lat.conf.beta_z = sqr(lat.conf.Ascr[ct_][ct_]) + sqr(lat.conf.Ascr[ct_][delta_]);
+  gamma_z = (1.0+sqr(lat.conf.alpha_z))/lat.conf.beta_z;
 
   // bunch size
-  sigma_s = sqrt(globval.beta_z*globval.eps[Z_]);
-  sigma_delta = sqrt(gamma_z*globval.eps[Z_]);
+  sigma_s = sqrt(lat.conf.beta_z*lat.conf.eps[Z_]);
+  sigma_delta = sqrt(gamma_z*lat.conf.eps[Z_]);
 
   if (prt) {
     printf("\nEmittance:\n");
     printf("\nBeam energy [GeV]:              "
-	   "Eb          = %4.2f\n", globval.Energy);
+	   "Eb          = %4.2f\n", lat.conf.Energy);
     printf("Energy loss per turn [keV]:     "
 	   "U0          = %3.1f\n",
-	   1e-3*globval.U0);
+	   1e-3*lat.conf.U0);
     printf("Synchronous phase [deg]:        "
 	   "phi0        = 180 - %4.2f\n",
 	   phi0*180.0/M_PI);
     printf("RF bucket height [%%]:           "
-	   "delta_RF    = %4.2f\n", 1e2*globval.delta_RF);
+	   "delta_RF    = %4.2f\n", 1e2*lat.conf.delta_RF);
     printf("\n");
     printf("Equilibrium emittance [m.rad]:  "
 	   "eps         =  [%9.3e, %9.3e, %9.3e]\n",
-            globval.eps[X_], globval.eps[Y_], globval.eps[Z_]);
+            lat.conf.eps[X_], lat.conf.eps[Y_], lat.conf.eps[Z_]);
     printf("Bunch length [mm]:              "
 	   "sigma_s     =  %5.3f\n", 1e3*sigma_s);
     printf("Momentum spread:                "
 	   "sigma_delta =  %9.3e\n", sigma_delta);
     printf("Longitudinal phase space:       "
 	   "alpha_z     = %10.3e, beta_z = %9.3e\n",
-	   globval.alpha_z, globval.beta_z);
+	   lat.conf.alpha_z, lat.conf.beta_z);
      printf("Partition numbers:              "
 	   "J           =  [%5.3f, %5.3f, %5.3f]\n",
-            globval.J[X_], globval.J[Y_], globval.J[Z_]);
+            lat.conf.J[X_], lat.conf.J[Y_], lat.conf.J[Z_]);
     printf("Damping times [msec]:           "
 	   "tau         =  [%3.1f, %3.1f, %3.1f]\n",
-	   1e3*globval.tau[X_], 1e3*globval.tau[Y_], 1e3*globval.tau[Z_]);
+	   1e3*lat.conf.tau[X_], 1e3*lat.conf.tau[Y_], 1e3*lat.conf.tau[Z_]);
     printf("Diffusion coeffs:               "
 	   "D           =  [%7.1e, %7.1e, %7.1e]\n",
-	   globval.D_rad[X_], globval.D_rad[Y_], globval.D_rad[Z_]);
+	   lat.conf.D_rad[X_], lat.conf.D_rad[Y_], lat.conf.D_rad[Z_]);
     printf("\n");
     printf("alphac:                         "
-	   "alphac      = %11.3e\n", globval.Alphac);
+	   "alphac      = %11.3e\n", lat.conf.Alphac);
     printf("\n");
     printf("Fractional tunes:               "
 	   "nu_x        =  [%7.5f, %7.5f, %12.5e]\n", nu[X_], nu[Y_], nu[Z_]);
@@ -518,14 +518,14 @@ void GetEmittance(const int Fnum, const bool prt)
   }
 
   // restore state
-  globval.radiation = rad; globval.emittance  = emit;
-  globval.Cavity_on = cav; globval.pathlength = path;
+  lat.conf.radiation = rad; lat.conf.emittance  = emit;
+  lat.conf.Cavity_on = cav; lat.conf.pathlength = path;
 }
 
 
 // output
 
-void printcod(const char *fname)
+void printcod(LatticeType &lat, const char *fname)
 {
   long     i;
   ElemType cell;
@@ -534,16 +534,16 @@ void printcod(const char *fname)
 
   outf = file_write(fname);
 
-fprintf(outf,
-	"#       name             s    betax   nux   betay   nuy      posx"
-	"          posy          dSx          dSy         dipx         dipy"
-	"      posx-dSx     posy-dSy\n");
-fprintf(outf,
-	"#                       [m]    [m]           [m]             [m]"
-	"           [m]           [m]          [m]         [rad]        [rad]"
-	"       [um]         [um]\n#\n");
+  fprintf(outf,
+	  "#       name             s    betax   nux   betay   nuy      posx"
+	  "          posy          dSx          dSy         dipx         dipy"
+	  "      posx-dSx     posy-dSy\n");
+  fprintf(outf,
+	  "#                       [m]    [m]           [m]             [m]"
+	  "           [m]           [m]          [m]         [rad]        [rad]"
+	  "       [um]         [um]\n#\n");
 
-  FORLIM = globval.Cell_nLoc;
+  FORLIM = lat.conf.Cell_nLoc;
   for (i = 1; i <= FORLIM; i++) {
     lat.getelem(i, &cell);
 
@@ -563,7 +563,7 @@ fprintf(outf,
 }
 
 
-void prt_cod(const char *file_name, const int Fnum, const bool all)
+void prt_cod(LatticeType &lat, const char *file_name, const bool all)
 {
   long      i;
   FILE      *outf;
@@ -584,15 +584,15 @@ void prt_cod(const char *file_name, const int Fnum, const bool all)
 	  "   [mm]   [mm]    [mm]   [mm] [mrad]  [mrad]\n");
   fprintf(outf, "#\n");
 
-  FORLIM = globval.Cell_nLoc;
+  FORLIM = lat.conf.Cell_nLoc;
   for (i = 0L; i <= FORLIM; i++) {
-    if (all || (lat.elems[i]->Fnum == Fnum)) {
+    if (all || (lat.elems[i]->Fnum == lat.conf.bpm)) {
       /* COD is in local coordinates */
       fprintf(outf,
 	      "%4ld %.*s %6.2f %4.1f %6.3f %6.3f %6.3f %6.3f"
 	      " %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f\n",
 	      i, SymbolLength, lat.elems[i]->PName, lat.elems[i]->S,
-	      get_code(*lat.elems[i]),
+	      get_code(lat.conf, *lat.elems[i]),
 	      lat.elems[i]->Beta[X_], lat.elems[i]->Nu[X_],
 	      lat.elems[i]->Beta[Y_], lat.elems[i]->Nu[Y_],
 	      1e3*lat.elems[i]->BeamPos[x_], 1e3*lat.elems[i]->BeamPos[y_],
@@ -607,7 +607,7 @@ void prt_cod(const char *file_name, const int Fnum, const bool all)
 }
 
 
-void prt_beampos(const char *file_name)
+void prt_beampos(LatticeType &lat, const char *file_name)
 {
   long int k;
   FILE     *outf;
@@ -618,10 +618,10 @@ void prt_beampos(const char *file_name)
   fprintf(outf, "#                       [m]          [m]     [m]\n");
   fprintf(outf, "#\n");
 
-  for (k = 0; k <= globval.Cell_nLoc; k++)
+  for (k = 0; k <= lat.conf.Cell_nLoc; k++)
     fprintf(outf, "%4ld %.*s %6.2f %4.1f %12.5e %12.5e\n",
 	    k, SymbolLength, lat.elems[k]->PName, lat.elems[k]->S,
-	    get_code(*lat.elems[k]), lat.elems[k]->BeamPos[x_],
+	    get_code(lat.conf, *lat.elems[k]), lat.elems[k]->BeamPos[x_],
 	    lat.elems[k]->BeamPos[y_]);
 
   fclose(outf);
@@ -630,7 +630,7 @@ void prt_beampos(const char *file_name)
 
 // misalignments
 
-void CheckAlignTol(const char *OutputFile)
+void CheckAlignTol(LatticeType &lat, const char *OutputFile)
   // check aligment errors of individual magnets on giders
   // the dT and roll angle are all printed out
 {
@@ -646,8 +646,8 @@ void CheckAlignTol(const char *OutputFile)
   MpoleType    *M;
   std::fstream fout;
 
-  gs_Fnum = globval.gs;   gs_nKid = lat.GetnKid(gs_Fnum);
-  ge_Fnum = globval.ge;   ge_nKid = lat.GetnKid(ge_Fnum);
+  gs_Fnum = lat.conf.gs;   gs_nKid = lat.GetnKid(gs_Fnum);
+  ge_Fnum = lat.conf.ge;   ge_nKid = lat.GetnKid(ge_Fnum);
   if (gs_nKid == ge_nKid)
     n_girders= gs_nKid;
   else {
@@ -761,7 +761,7 @@ void CheckAlignTol(const char *OutputFile)
 }
 
 
-void misalign_rms_elem(const int Fnum, const int Knum,
+void misalign_rms_elem(LatticeType &lat, const int Fnum, const int Knum,
 		       const double dx_rms, const double dy_rms,
 		       const double dr_rms, const bool new_rnd)
 {
@@ -785,7 +785,7 @@ void misalign_rms_elem(const int Fnum, const int Knum,
   lat.Mpole_SetdS(Fnum, Knum); lat.Mpole_SetdT(Fnum, Knum);
 }
 
-void misalign_sys_elem(const int Fnum, const int Knum,
+void misalign_sys_elem(LatticeType &lat, const int Fnum, const int Knum,
 		       const double dx_sys, const double dy_sys,
 		       const double dr_sys)
 {
@@ -800,27 +800,27 @@ void misalign_sys_elem(const int Fnum, const int Knum,
   lat.Mpole_SetdS(Fnum, Knum); lat.Mpole_SetdT(Fnum, Knum);
 }
 
-void misalign_rms_fam(const int Fnum,
+void misalign_rms_fam(LatticeType &lat, const int Fnum,
 		      const double dx_rms, const double dy_rms,
 		      const double dr_rms, const bool new_rnd)
 {
   int  i;
 
   for (i = 1; i <= lat.GetnKid(Fnum); i++)
-    misalign_rms_elem(Fnum, i, dx_rms, dy_rms, dr_rms, new_rnd);
+    misalign_rms_elem(lat, Fnum, i, dx_rms, dy_rms, dr_rms, new_rnd);
 }
 
-void misalign_sys_fam(const int Fnum,
+void misalign_sys_fam(LatticeType &lat, const int Fnum,
 		      const double dx_sys, const double dy_sys,
 		      const double dr_sys)
 {
   int  i;
 
   for (i = 1; i <= lat.GetnKid(Fnum); i++)
-    misalign_sys_elem(Fnum, i, dx_sys, dy_sys, dr_sys);
+    misalign_sys_elem(lat, Fnum, i, dx_sys, dy_sys, dr_sys);
 }
 
-void misalign_rms_type(const int type,
+void misalign_rms_type(LatticeType &lat, const int type,
 		       const double dx_rms, const double dy_rms,
 		       const double dr_rms, const bool new_rnd)
 {
@@ -828,13 +828,14 @@ void misalign_rms_type(const int type,
   MpoleType *M;
 
   if ((type >= All) && (type <= HOMmax)) {
-    for (k = 1; k <= globval.Cell_nLoc; k++) {
+    for (k = 1; k <= lat.conf.Cell_nLoc; k++) {
       M = dynamic_cast<MpoleType*>(lat.elems[k]);
       if ((lat.elems[k]->Pkind == Mpole) &&
 	  ((type == M->n_design) || ((type == All) &&
-	   ((lat.elems[k]->Fnum != globval.gs) && (lat.elems[k]->Fnum != globval.ge))))) {
+	   ((lat.elems[k]->Fnum != lat.conf.gs)
+	    && (lat.elems[k]->Fnum != lat.conf.ge))))) {
 	// if all: skip girders
-	misalign_rms_elem(lat.elems[k]->Fnum, lat.elems[k]->Knum,
+	misalign_rms_elem(lat, lat.elems[k]->Fnum, lat.elems[k]->Knum,
 			  dx_rms, dy_rms, dr_rms, new_rnd);
       }
     }
@@ -843,7 +844,7 @@ void misalign_rms_type(const int type,
   }
 }
 
-void misalign_sys_type(const int type,
+void misalign_sys_type(LatticeType &lat, const int type,
 		       const double dx_sys, const double dy_sys,
 		       const double dr_sys)
 {
@@ -851,13 +852,14 @@ void misalign_sys_type(const int type,
   MpoleType *M;
 
   if ((type >= All) && (type <= HOMmax)) {
-    for (k = 1; k <= globval.Cell_nLoc; k++) {
+    for (k = 1; k <= lat.conf.Cell_nLoc; k++) {
       M = dynamic_cast<MpoleType*>(lat.elems[k]);
       if ((lat.elems[k]->Pkind == Mpole) &&
 	  ((type == M->n_design) || ((type == All) &&
-	   ((lat.elems[k]->Fnum != globval.gs) && (lat.elems[k]->Fnum != globval.ge))))) {
+	   ((lat.elems[k]->Fnum != lat.conf.gs)
+	    && (lat.elems[k]->Fnum != lat.conf.ge))))) {
 	// if all: skip girders
-	misalign_sys_elem(lat.elems[k]->Fnum, lat.elems[k]->Knum,
+	misalign_sys_elem(lat, lat.elems[k]->Fnum, lat.elems[k]->Knum,
 			  dx_sys, dy_sys, dr_sys);
       }
     }
@@ -866,7 +868,7 @@ void misalign_sys_type(const int type,
   }
 }
 
-void misalign_rms_girders(const int gs, const int ge,
+void misalign_rms_girders(LatticeType &lat, const int gs, const int ge,
 			  const double dx_rms, const double dy_rms,
 			  const double dr_rms, const bool new_rnd)
 {
@@ -884,8 +886,8 @@ void misalign_rms_girders(const int gs, const int ge,
     exit (1);
   }
 
-  misalign_rms_fam(gs, dx_rms, dy_rms, dr_rms, new_rnd);
-  misalign_rms_fam(ge, dx_rms, dy_rms, dr_rms, new_rnd);
+  misalign_rms_fam(lat, gs, dx_rms, dy_rms, dr_rms, new_rnd);
+  misalign_rms_fam(lat, ge, dx_rms, dy_rms, dr_rms, new_rnd);
 
   for (i = 1; i <= n_girders; i++) {
     loc_gs = lat.Elem_GetPos(gs, i);
@@ -906,7 +908,8 @@ void misalign_rms_girders(const int gs, const int ge,
 
     // move elements onto mis-aligned girder
     for (j = loc_gs+1; j < loc_ge; j++) {
-      if ((lat.elems[j]->Pkind == Mpole) || (lat.elems[j]->Fnum == globval.bpm)) {
+      if ((lat.elems[j]->Pkind == Mpole)
+	  || (lat.elems[j]->Fnum == lat.conf.bpm)) {
 	Mj = dynamic_cast<MpoleType*>(lat.elems[j]);
         s = lat.elems[j]->S;
 	for (k = 0; k <= 1; k++)
@@ -918,7 +921,7 @@ void misalign_rms_girders(const int gs, const int ge,
 }
 
 
-void misalign_sys_girders(const int gs, const int ge,
+void misalign_sys_girders(LatticeType &lat, const int gs, const int ge,
 			  const double dx_sys, const double dy_sys,
 			  const double dr_sys)
 {
@@ -936,8 +939,8 @@ void misalign_sys_girders(const int gs, const int ge,
     exit (1);
   }
 
-  misalign_sys_fam(gs, dx_sys, dy_sys, dr_sys);
-  misalign_sys_fam(ge, dx_sys, dy_sys, dr_sys);
+  misalign_sys_fam(lat, gs, dx_sys, dy_sys, dr_sys);
+  misalign_sys_fam(lat, ge, dx_sys, dy_sys, dr_sys);
 
   for (i = 1; i <= n_girders; i++) {
     loc_gs = lat.Elem_GetPos(gs, i); loc_ge = lat.Elem_GetPos(ge, i);
@@ -956,7 +959,8 @@ void misalign_sys_girders(const int gs, const int ge,
 
     // move elements onto mis-aligned girder
     for (j = loc_gs+1; j < loc_ge; j++) {
-      if ((lat.elems[j]->Pkind == Mpole) || (lat.elems[j]->Fnum == globval.bpm)) {
+      if ((lat.elems[j]->Pkind == Mpole)
+	  || (lat.elems[j]->Fnum == lat.conf.bpm)) {
 	Mj = dynamic_cast<MpoleType*>(lat.elems[j]);
         s = lat.elems[j]->S;
 	for (k = 0; k <= 1; k++)
@@ -970,7 +974,7 @@ void misalign_sys_girders(const int gs, const int ge,
 
 // apertures
 
-void set_aper_elem(const int Fnum, const int Knum,
+void set_aper_elem(LatticeType &lat, const int Fnum, const int Knum,
 		   const double Dxmin, const double Dxmax,
 		   const double Dymin, const double Dymax)
 {
@@ -981,40 +985,42 @@ void set_aper_elem(const int Fnum, const int Knum,
     lat.elems[k]->maxampl[Y_][0] = Dymin; lat.elems[k]->maxampl[Y_][1] = Dymax;
  }
 
-void set_aper_fam(const int Fnum,
+void set_aper_fam(LatticeType &lat, const int Fnum,
 		  const double Dxmin, const double Dxmax,
 		  const double Dymin, const double Dymax)
 {
   int k;
 
   for (k = 1; k <= lat.GetnKid(Fnum); k++)
-    set_aper_elem(Fnum, k, Dxmin, Dxmax, Dymin, Dymax);
+    set_aper_elem(lat, Fnum, k, Dxmin, Dxmax, Dymin, Dymax);
 }
 
-void set_aper_type(const int type, const double Dxmin, const double Dxmax,
-		   const double Dymin, const double Dymax)
+void set_aper_type(LatticeType &lat, const int type, const double Dxmin,
+		   const double Dxmax, const double Dymin, const double Dymax)
 {
   long int  k;
   MpoleType *M;
 
   if (type >= All && type <= HOMmax) {
-    for(k = 1; k <= globval.Cell_nLoc; k++) {
+    for(k = 1; k <= lat.conf.Cell_nLoc; k++) {
       M = dynamic_cast<MpoleType*>(lat.elems[k]);
-      if (((lat.elems[k]->Pkind == Mpole) && (M->n_design == type)) || (type == All))
-	set_aper_elem(lat.elems[k]->Fnum, lat.elems[k]->Knum, Dxmin, Dxmax, Dymin, Dymax);
+      if (((lat.elems[k]->Pkind == Mpole) && (M->n_design == type))
+	  || (type == All))
+	set_aper_elem(lat, lat.elems[k]->Fnum, lat.elems[k]->Knum, Dxmin, Dxmax,
+		      Dymin, Dymax);
     }
   } else
     printf("set_aper_type: bad design type %d\n", type);
 }
 
 
-double get_L(const int Fnum, const int Knum)
+double get_L(LatticeType &lat, const int Fnum, const int Knum)
 {
   return lat.elems[lat.Elem_GetPos(Fnum, Knum)]->PL;
 }
 
 
-void set_L(const int Fnum, const int Knum, const double L)
+void set_L(LatticeType &lat, const int Fnum, const int Knum, const double L)
 {
   long int  loc;
   double    phi;
@@ -1035,33 +1041,33 @@ void set_L(const int Fnum, const int Knum, const double L)
 }
 
 
-void set_L(const int Fnum, const double L)
+void set_L(LatticeType &lat, const int Fnum, const double L)
 {
   int k;
 
   for (k = 1; k <= lat.GetnKid(Fnum); k++)
-    set_L(Fnum, k, L);
+    set_L(lat, Fnum, k, L);
 }
 
 
-void set_dL(const int Fnum, const int Knum, const double dL)
+void set_dL(LatticeType &lat, const int Fnum, const int Knum, const double dL)
 {
   lat.elems[lat.Elem_GetPos(Fnum, Knum)]->PL += dL;
 }
 
 
-void set_dL(const int Fnum, const double dL)
+void set_dL(LatticeType &lat, const int Fnum, const double dL)
 {
   int k;
 
   for (k = 1; k <= lat.GetnKid(Fnum); k++)
-    set_dL(Fnum, k, dL);
+    set_dL(lat, Fnum, k, dL);
 }
 
 
 // Multipole Components.
 
-void get_bn_design_elem(const int Fnum, const int Knum,
+void get_bn_design_elem(LatticeType &lat, const int Fnum, const int Knum,
 			const int n, double &bn, double &an)
 {
   ElemType  *elem;
@@ -1079,7 +1085,7 @@ void get_bn_design_elem(const int Fnum, const int Knum,
 }
 
 
-void get_bnL_design_elem(const int Fnum, const int Knum,
+void get_bnL_design_elem(LatticeType &lat, const int Fnum, const int Knum,
 			 const int n, double &bnL, double &anL)
 {
   ElemType  *elem;
@@ -1101,7 +1107,7 @@ void get_bnL_design_elem(const int Fnum, const int Knum,
 }
 
 
-void set_bn_design_elem(const int Fnum, const int Knum,
+void set_bn_design_elem(LatticeType &lat, const int Fnum, const int Knum,
 			const int n, const double bn, const double an)
 {
   ElemType  *elem;
@@ -1121,7 +1127,7 @@ void set_bn_design_elem(const int Fnum, const int Knum,
 }
 
 
-void set_dbn_design_elem(const int Fnum, const int Knum,
+void set_dbn_design_elem(LatticeType &lat, const int Fnum, const int Knum,
 			 const int n, const double dbn, const double dan)
 {
   ElemType  *elem;
@@ -1141,8 +1147,8 @@ void set_dbn_design_elem(const int Fnum, const int Knum,
 }
 
 
-void set_bn_design_fam(const int Fnum,
-		       const int n, const double bn, const double an)
+void set_bn_design_fam(LatticeType &lat, const int Fnum, const int n,
+		       const double bn, const double an)
 {
   int k;
 
@@ -1152,12 +1158,12 @@ void set_bn_design_fam(const int Fnum,
   }
 
   for (k = 1; k <= lat.GetnKid(Fnum); k++)
-    set_bn_design_elem(Fnum, k, n, bn, an);
+    set_bn_design_elem(lat, Fnum, k, n, bn, an);
 }
 
 
-void set_dbn_design_fam(const int Fnum,
-			const int n, const double dbn, const double dan)
+void set_dbn_design_fam(LatticeType &lat, const int Fnum, const int n,
+			const double dbn, const double dan)
 {
   int k;
 
@@ -1167,11 +1173,11 @@ void set_dbn_design_fam(const int Fnum,
   }
 
   for (k = 1; k <= lat.GetnKid(Fnum); k++)
-    set_dbn_design_elem(Fnum, k, n, dbn, dan);
+    set_dbn_design_elem(lat, Fnum, k, n, dbn, dan);
 }
 
 
-void set_bnL_design_elem(const int Fnum, const int Knum,
+void set_bnL_design_elem(LatticeType &lat, const int Fnum, const int Knum,
 			 const int n, const double bnL, const double anL)
 {
   ElemType  *elem;
@@ -1197,7 +1203,7 @@ void set_bnL_design_elem(const int Fnum, const int Knum,
 }
 
 
-void set_dbnL_design_elem(const int Fnum, const int Knum,
+void set_dbnL_design_elem(LatticeType &lat, const int Fnum, const int Knum,
 			  const int n, const double dbnL, const double danL)
 {
   ElemType  *elem;
@@ -1223,8 +1229,8 @@ void set_dbnL_design_elem(const int Fnum, const int Knum,
 }
 
 
-void set_dbnL_design_fam(const int Fnum,
-			 const int n, const double dbnL, const double danL)
+void set_dbnL_design_fam(LatticeType &lat, const int Fnum, const int n,
+			 const double dbnL, const double danL)
 {
   int k;
 
@@ -1234,12 +1240,12 @@ void set_dbnL_design_fam(const int Fnum,
   }
 
   for (k = 1; k <= lat.GetnKid(Fnum); k++)
-    set_dbnL_design_elem(Fnum, k, n, dbnL, danL);
+    set_dbnL_design_elem(lat, Fnum, k, n, dbnL, danL);
 }
 
 
-void set_bnL_design_fam(const int Fnum,
-			const int n, const double bnL, const double anL)
+void set_bnL_design_fam(LatticeType &lat, const int Fnum, const int n,
+			const double bnL, const double anL)
 {
   int k;
 
@@ -1249,12 +1255,12 @@ void set_bnL_design_fam(const int Fnum,
   }
 
   for (k = 1; k <= lat.GetnKid(Fnum); k++)
-    set_bnL_design_elem(Fnum, k, n, bnL, anL);
+    set_bnL_design_elem(lat, Fnum, k, n, bnL, anL);
 }
 
 
-void set_bnL_design_type(const int type,
-			 const int n, const double bnL, const double anL)
+void set_bnL_design_type(LatticeType &lat, const int type, const int n,
+			 const double bnL, const double anL)
 {
   long int  k;
   MpoleType *M;
@@ -1265,17 +1271,18 @@ void set_bnL_design_type(const int type,
   }
 
   if ((type >= Dip) && (type <= HOMmax)) {
-    for (k = 1; k <= globval.Cell_nLoc; k++) {
+    for (k = 1; k <= lat.conf.Cell_nLoc; k++) {
       M = dynamic_cast<MpoleType*>(lat.elems[k]);
       if ((lat.elems[k]->Pkind == Mpole) && (M->n_design == type))
-	set_bnL_design_elem(lat.elems[k]->Fnum, lat.elems[k]->Knum, n, bnL, anL);
+	set_bnL_design_elem(lat, lat.elems[k]->Fnum, lat.elems[k]->Knum, n, bnL,
+			    anL);
     }
   } else
     printf("Bad type argument to set_bnL_design_type()\n");
 }
 
 
-void set_bnL_sys_elem(const int Fnum, const int Knum,
+void set_bnL_sys_elem(LatticeType &lat, const int Fnum, const int Knum,
 		      const int n, const double bnL, const double anL)
 {
   ElemType  *elem;
@@ -1308,8 +1315,8 @@ void set_bnL_sys_elem(const int Fnum, const int Knum,
 }
 
 
-void set_bnL_sys_fam(const int Fnum,
-		     const int n, const double bnL, const double anL)
+void set_bnL_sys_fam(LatticeType &lat, const int Fnum, const int n,
+		     const double bnL, const double anL)
 {
   int k;
 
@@ -1319,12 +1326,12 @@ void set_bnL_sys_fam(const int Fnum,
   }
 
   for (k = 1; k <= lat.GetnKid(Fnum); k++)
-    set_bnL_sys_elem(Fnum, k, n, bnL, anL);
+    set_bnL_sys_elem(lat, Fnum, k, n, bnL, anL);
 }
 
 
-void set_bnL_sys_type(const int type,
-		      const int n, const double bnL, const double anL)
+void set_bnL_sys_type(LatticeType &lat, const int type, const int n,
+		      const double bnL, const double anL)
 {
   long int  k;
   MpoleType *M;
@@ -1335,17 +1342,18 @@ void set_bnL_sys_type(const int type,
   }
 
   if (type >= Dip && type <= HOMmax) {
-    for(k = 1; k <= globval.Cell_nLoc; k++) {
+    for(k = 1; k <= lat.conf.Cell_nLoc; k++) {
       M = dynamic_cast<MpoleType*>(lat.elems[k]);
       if ((lat.elems[k]->Pkind == Mpole) && (M->n_design == type))
-	set_bnL_sys_elem(lat.elems[k]->Fnum, lat.elems[k]->Knum, n, bnL, anL);
+	set_bnL_sys_elem(lat, lat.elems[k]->Fnum, lat.elems[k]->Knum, n, bnL,
+			 anL);
     }
   } else
     printf("Bad type argument to set_bnL_sys_type()\n");
 }
 
 
-void set_bnL_rms_elem(const int Fnum, const int Knum,
+void set_bnL_rms_elem(LatticeType &lat, const int Fnum, const int Knum,
 		      const int n, const double bnL, const double anL,
 		      const bool new_rnd)
 {
@@ -1389,9 +1397,8 @@ void set_bnL_rms_elem(const int Fnum, const int Knum,
 }
 
 
-void set_bnL_rms_fam(const int Fnum,
-		     const int n, const double bnL, const double anL,
-		     const bool new_rnd)
+void set_bnL_rms_fam(LatticeType &lat, const int Fnum, const int n,
+		     const double bnL, const double anL, const bool new_rnd)
 {
   int k;
 
@@ -1401,13 +1408,12 @@ void set_bnL_rms_fam(const int Fnum,
   }
 
   for (k = 1; k <= lat.GetnKid(Fnum); k++)
-    set_bnL_rms_elem(Fnum, k, n, bnL, anL, new_rnd);
+    set_bnL_rms_elem(lat, Fnum, k, n, bnL, anL, new_rnd);
 }
 
 
-void set_bnL_rms_type(const int type,
-		      const int n, const double bnL, const double anL,
-		      const bool new_rnd)
+void set_bnL_rms_type(LatticeType &lat, const int type, const int n,
+		      const double bnL, const double anL, const bool new_rnd)
 {
   long int  k;
   MpoleType *M;
@@ -1418,17 +1424,18 @@ void set_bnL_rms_type(const int type,
   }
 
   if (type >= Dip && type <= HOMmax) {
-    for(k = 1; k <= globval.Cell_nLoc; k++) {
+    for(k = 1; k <= lat.conf.Cell_nLoc; k++) {
       M = dynamic_cast<MpoleType*>(lat.elems[k]);
       if ((lat.elems[k]->Pkind == Mpole) && (M->n_design == type))
-	set_bnL_rms_elem(lat.elems[k]->Fnum, lat.elems[k]->Knum, n, bnL, anL, new_rnd);
+	set_bnL_rms_elem(lat, lat.elems[k]->Fnum, lat.elems[k]->Knum, n, bnL,
+			 anL, new_rnd);
     }
   } else
     printf("Bad type argument to set_bnL_rms_type()\n");
 }
 
 
-void set_bnr_sys_elem(const int Fnum, const int Knum,
+void set_bnr_sys_elem(LatticeType &lat, const int Fnum, const int Knum,
 		      const int n, const double bnr, const double anr)
 {
   int       nd;
@@ -1455,8 +1462,8 @@ void set_bnr_sys_elem(const int Fnum, const int Knum,
 }
 
 
-void set_bnr_sys_fam(const int Fnum,
-		     const int n, const double bnr, const double anr)
+void set_bnr_sys_fam(LatticeType &lat, const int Fnum, const int n,
+		     const double bnr, const double anr)
 {
   int k;
 
@@ -1466,12 +1473,12 @@ void set_bnr_sys_fam(const int Fnum,
   }
 
   for (k = 1; k <= lat.GetnKid(Fnum); k++)
-    set_bnr_sys_elem(Fnum, k, n, bnr, anr);
+    set_bnr_sys_elem(lat, Fnum, k, n, bnr, anr);
 }
 
 
-void set_bnr_sys_type(const int type,
-		      const int n, const double bnr, const double anr)
+void set_bnr_sys_type(LatticeType &lat, const int type, const int n,
+		      const double bnr, const double anr)
 {
   long int  k;
   MpoleType *M;
@@ -1482,17 +1489,18 @@ void set_bnr_sys_type(const int type,
   }
 
   if (type >= Dip && type <= HOMmax) {
-    for(k = 1; k <= globval.Cell_nLoc; k++) {
+    for(k = 1; k <= lat.conf.Cell_nLoc; k++) {
       M = dynamic_cast<MpoleType*>(lat.elems[k]);
       if ((lat.elems[k]->Pkind == Mpole) && (M->n_design == type))
-	set_bnr_sys_elem(lat.elems[k]->Fnum, lat.elems[k]->Knum, n, bnr, anr);
+	set_bnr_sys_elem(lat, lat.elems[k]->Fnum, lat.elems[k]->Knum, n, bnr,
+			 anr);
     }
   } else
     printf("Bad type argument to set_bnr_sys_type()\n");
 }
 
 
-void set_bnr_rms_elem(const int Fnum, const int Knum,
+void set_bnr_rms_elem(LatticeType &lat, const int Fnum, const int Knum,
 		      const int n, const double bnr, const double anr,
 		      const bool new_rnd)
 {
@@ -1538,9 +1546,8 @@ void set_bnr_rms_elem(const int Fnum, const int Knum,
 }
 
 
-void set_bnr_rms_fam(const int Fnum,
-		     const int n, const double bnr, const double anr,
-		     const bool new_rnd)
+void set_bnr_rms_fam(LatticeType &lat, const int Fnum, const int n,
+		     const double bnr, const double anr, const bool new_rnd)
 {
   int k;
 
@@ -1550,13 +1557,12 @@ void set_bnr_rms_fam(const int Fnum,
   }
 
   for (k = 1; k <= lat.GetnKid(Fnum); k++)
-    set_bnr_rms_elem(Fnum, k, n, bnr, anr, new_rnd);
+    set_bnr_rms_elem(lat, Fnum, k, n, bnr, anr, new_rnd);
 }
 
 
-void set_bnr_rms_type(const int type,
-		      const int n, const double bnr, const double anr,
-		      const bool new_rnd)
+void set_bnr_rms_type(LatticeType &lat, const int type, const int n,
+		      const double bnr, const double anr, const bool new_rnd)
 {
   long int  k;
   MpoleType *M;
@@ -1567,17 +1573,18 @@ void set_bnr_rms_type(const int type,
   }
 
   if (type >= Dip && type <= HOMmax) {
-    for(k = 1; k <= globval.Cell_nLoc; k++) {
+    for(k = 1; k <= lat.conf.Cell_nLoc; k++) {
       M = dynamic_cast<MpoleType*>(lat.elems[k]);
       if ((lat.elems[k]->Pkind == Mpole) && (M->n_design == type))
-	set_bnr_rms_elem(lat.elems[k]->Fnum, lat.elems[k]->Knum, n, bnr, anr, new_rnd);
+	set_bnr_rms_elem(lat, lat.elems[k]->Fnum, lat.elems[k]->Knum, n, bnr,
+			 anr, new_rnd);
     }
   } else
     printf("Bad type argument to set_bnr_rms_type()\n");
 }
 
 
-double get_Wiggler_BoBrho(const int Fnum, const int Knum)
+double get_Wiggler_BoBrho(LatticeType &lat, const int Fnum, const int Knum)
 {
   WigglerType *W;
 
@@ -1586,7 +1593,8 @@ double get_Wiggler_BoBrho(const int Fnum, const int Knum)
 }
 
 
-void set_Wiggler_BoBrho(const int Fnum, const int Knum, const double BoBrhoV)
+void set_Wiggler_BoBrho(LatticeType &lat, const int Fnum, const int Knum,
+			const double BoBrhoV)
 {
   WigglerType *W;
 
@@ -1597,16 +1605,17 @@ void set_Wiggler_BoBrho(const int Fnum, const int Knum, const double BoBrhoV)
 }
 
 
-void set_Wiggler_BoBrho(const int Fnum, const double BoBrhoV)
+void set_Wiggler_BoBrho(LatticeType &lat, const int Fnum, const double BoBrhoV)
 {
   int k;
 
   for (k = 1; k <= lat.GetnKid(Fnum); k++)
-    set_Wiggler_BoBrho(Fnum, k, BoBrhoV);
+    set_Wiggler_BoBrho(lat, Fnum, k, BoBrhoV);
 }
 
 
-void set_ID_scl(const int Fnum, const int Knum, const double scl)
+void set_ID_scl(LatticeType &lat, const int Fnum, const int Knum,
+		const double scl)
 {
   int           k;
   WigglerType   *W, *Wp;
@@ -1639,18 +1648,18 @@ void set_ID_scl(const int Fnum, const int Knum, const double scl)
 }
 
 
-void set_ID_scl(const int Fnum, const double scl)
+void set_ID_scl(LatticeType &lat, const int Fnum, const double scl)
 {
   int  k;
 
   for (k = 1; k <= lat.GetnKid(Fnum); k++)
-    set_ID_scl(Fnum, k, scl);
+    set_ID_scl(lat, Fnum, k, scl);
 }
 
 
-void SetFieldValues_fam(const int Fnum, const bool rms, const double r0,
-			const int n, const double Bn, const double An,
-			const bool new_rnd)
+void SetFieldValues_fam(LatticeType &lat, const int Fnum, const bool rms,
+			const double r0, const int n, const double Bn,
+			const double An, const bool new_rnd)
 {
   int       N;
   double    bnr, anr;
@@ -1661,59 +1670,59 @@ void SetFieldValues_fam(const int Fnum, const bool rms, const double r0,
   if (r0 == 0.0) {
     // input is: (b_n L), (a_n L)
     if(rms)
-      set_bnL_rms_fam(Fnum, n, Bn, An, new_rnd);
+      set_bnL_rms_fam(lat, Fnum, n, Bn, An, new_rnd);
     else
-      set_bnL_sys_fam(Fnum, n, Bn, An);
+      set_bnL_sys_fam(lat, Fnum, n, Bn, An);
   } else {
     bnr = Bn/pow(r0, (double)(n-N)); anr = An/pow(r0, (double)(n-N));
     if(rms)
-      set_bnr_rms_fam(Fnum, n, bnr, anr, new_rnd);
+      set_bnr_rms_fam(lat, Fnum, n, bnr, anr, new_rnd);
     else
-      set_bnr_sys_fam(Fnum, n, bnr, anr);
+      set_bnr_sys_fam(lat, Fnum, n, bnr, anr);
   }
 }
 
 
-void SetFieldValues_type(const int N, const bool rms, const double r0,
-			 const int n, const double Bn, const double An,
-			 const bool new_rnd)
+void SetFieldValues_type(LatticeType &lat, const int N, const bool rms,
+			 const double r0, const int n, const double Bn,
+			 const double An, const bool new_rnd)
 {
   double bnr, anr;
 
   if (r0 == 0.0) {
     // input is: (b_n L), (a_n L)
     if(rms)
-      set_bnL_rms_type(N, n, Bn, An, new_rnd);
+      set_bnL_rms_type(lat, N, n, Bn, An, new_rnd);
     else
-      set_bnL_sys_type(N, n, Bn, An);
+      set_bnL_sys_type(lat, N, n, Bn, An);
   } else {
     bnr = Bn/pow(r0, (double)(n-N)); anr = An/pow(r0, (double)(n-N));
     if(rms)
-      set_bnr_rms_type(N, n, bnr, anr, new_rnd);
+      set_bnr_rms_type(lat, N, n, bnr, anr, new_rnd);
     else
-      set_bnr_sys_type(N, n, bnr, anr);
+      set_bnr_sys_type(lat, N, n, bnr, anr);
   }
 }
 
 
-void SetFieldErrors(const char *name, const bool rms, const double r0,
-		    const int n, const double Bn, const double An,
-		    const bool new_rnd)
+void SetFieldErrors(LatticeType &lat, const char *name, const bool rms,
+		    const double r0, const int n, const double Bn,
+		    const double An, const bool new_rnd)
 {
   int Fnum;
 
   if (strcmp("all", name) == 0) {
     printf("all: not yet implemented\n");
   } else if (strcmp("dip", name) == 0) {
-    SetFieldValues_type(Dip, rms, r0, n, Bn, An, new_rnd);
+    SetFieldValues_type(lat, Dip, rms, r0, n, Bn, An, new_rnd);
   } else if (strcmp("quad", name) == 0) {
-    SetFieldValues_type(Quad, rms, r0, n, Bn, An, new_rnd);
+    SetFieldValues_type(lat, Quad, rms, r0, n, Bn, An, new_rnd);
   } else if (strcmp("sext", name) == 0) {
-    SetFieldValues_type(Sext, rms, r0, n, Bn, An, new_rnd);
+    SetFieldValues_type(lat, Sext, rms, r0, n, Bn, An, new_rnd);
   } else {
     Fnum = ElemIndex(name);
     if(Fnum > 0)
-      SetFieldValues_fam(Fnum, rms, r0, n, Bn, An, new_rnd);
+      SetFieldValues_fam(lat, Fnum, rms, r0, n, Bn, An, new_rnd);
     else
       printf("SetFieldErrors: undefined element %s\n", name);
   }
@@ -1721,7 +1730,7 @@ void SetFieldErrors(const char *name, const bool rms, const double r0,
 
 
 // closed orbit correction by n_orbit iterations
-bool CorrectCOD(const int n_orbit, const double scl)
+bool CorrectCOD(LatticeType &lat, const int n_orbit, const double scl)
 {
   bool            cod;
   int             i;
@@ -1729,36 +1738,36 @@ bool CorrectCOD(const int n_orbit, const double scl)
   Vector2         mean, sigma, max;
   ss_vect<double> ps;
 
-  // ps.zero(); lat.Cell_Pass(0, globval.Cell_nLoc, ps, lastpos);
+  // ps.zero(); lat.Cell_Pass(0, conf.Cell_nLoc, ps, lastpos);
   // for (i = 1; i <= n_orbit; i++) {
   //   lstc(1, lastpos); lstc(2, lastpos);
 
-  //   ps.zero(); lat.Cell_Pass(0, globval.Cell_nLoc, ps, lastpos);
+  //   ps.zero(); lat.Cell_Pass(0, conf.Cell_nLoc, ps, lastpos);
   // }
-  // if (false) prt_cod("cod.out", globval.bpm, true);
+  // if (false) prt_cod("cod.out", conf.bpm, true);
  
   cod = lat.getcod(0e0, lastpos);
   if (cod) {
-    codstat(mean, sigma, max, globval.Cell_nLoc, true);
+    codstat(lat, mean, sigma, max, lat.conf.Cell_nLoc, true);
     printf("\n");
     printf("Initial RMS orbit (all):    x = %7.1e mm, y = %7.1e mm\n",
 	   1e3*sigma[X_], 1e3*sigma[Y_]);
-    codstat(mean, sigma, max, globval.Cell_nLoc, false);
+    codstat(lat, mean, sigma, max, lat.conf.Cell_nLoc, false);
     printf("\n");
     printf("Initial RMS orbit (BPMs):   x = %7.1e mm, y = %7.1e mm\n",
 	   1e3*sigma[X_], 1e3*sigma[Y_]);
 
     for (i = 1; i <= n_orbit; i++){
-      lsoc(1, scl); lsoc(2, scl);
+      lsoc(lat, 1, scl); lsoc(lat, 2, scl);
       cod = lat.getcod(0e0, lastpos);
       if (!cod) break;
 
       if (cod) {
-	codstat(mean, sigma, max, globval.Cell_nLoc, false);
+	codstat(lat, mean, sigma, max, lat.conf.Cell_nLoc, false);
 	printf("Corrected RMS orbit (BPMs): x = %7.1e mm, y = %7.1e mm\n",
 	       1e3*sigma[X_], 1e3*sigma[Y_]);
 	if (i == n_orbit) {
-	  codstat(mean, sigma, max, globval.Cell_nLoc, true);
+	  codstat(lat, mean, sigma, max, lat.conf.Cell_nLoc, true);
 	  printf("\n");
 	  printf("Corrected RMS orbit (all):  x = %7.1e mm, y = %7.1e mm\n",
 		 1e3*sigma[X_], 1e3*sigma[Y_]);
@@ -1771,7 +1780,7 @@ bool CorrectCOD(const int n_orbit, const double scl)
 }
 
 
-void write_misalignments(const char* filename) {
+void write_misalignments(LatticeType &lat, const char* filename) {
   int       j;
   ElemType  *clp;
   MpoleType *M;
@@ -1781,7 +1790,7 @@ void write_misalignments(const char* filename) {
 
   fprintf(fp, "# misalignment file");
 
-  for (long int n=0; n<globval.Cell_nLoc; n++) {
+  for (long int n = 0; n < lat.conf.Cell_nLoc; n++) {
     clp = lat.elems[n];
     fprintf(fp, "\n%li %i %.8e %.8e %.8e %.8e",
 	    n, clp->Pkind, clp->dS[X_], clp->dS[Y_], clp->dT[X_],
@@ -1801,17 +1810,19 @@ void write_misalignments(const char* filename) {
   fclose(fp);
 }
 
-void prt_beamsizes(const int cnt)
+void prt_beamsizes(LatticeType &lat, const int cnt)
 {
   int   k;
   FILE  *fp;
   char fname [30];
 
-  sprintf(fname,"%s_%d.out",beam_envelope_file, cnt);
+  sprintf(fname,"%s_%d.out", beam_envelope_file, cnt);
   fp = file_write(fname);
 
-  fprintf(fp,"# k    name    s    s_xx    s_pxpx    s_xpx    s_yy    s_pypy    s_ypy    theta_xy    s_xy\n");
-  for(k = 0; k <= globval.Cell_nLoc; k++)
+  fprintf(fp,
+	  "# k    name    s    s_xx    s_pxpx    s_xpx    s_yy    s_pypy"
+	  "    s_ypy    theta_xy    s_xy\n");
+  for(k = 0; k <= lat.conf.Cell_nLoc; k++)
     fprintf(fp,"%4d %10s %e %e %e %e %e %e %e %e %e\n",
 	    k, lat.elems[k]->PName, lat.elems[k]->S,
 	    lat.elems[k]->sigma[x_][x_], lat.elems[k]->sigma[px_][px_],
@@ -1819,13 +1830,14 @@ void prt_beamsizes(const int cnt)
 	    lat.elems[k]->sigma[y_][y_], lat.elems[k]->sigma[py_][py_],
 	    lat.elems[k]->sigma[y_][py_],
 	    atan2(2e0*lat.elems[k]->sigma[x_][y_],
-		  lat.elems[k]->sigma[x_][x_]-lat.elems[k]->sigma[y_][y_])/2e0*180.0/M_PI,
+		  lat.elems[k]->sigma[x_][x_]-lat.elems[k]->sigma[y_][y_])
+	    /2e0*180.0/M_PI,
 	    lat.elems[k]->sigma[x_][y_]);
 
   fclose(fp);
 
   sprintf(fname,"%s_%d.out","misalignments", cnt);
-  write_misalignments(fname);
+  write_misalignments(lat, fname);
 }
 
 
@@ -1842,7 +1854,7 @@ double f_int_Touschek(const double u)
 }
 
 
-double Touschek_loc(const long int i, const double gamma,
+double Touschek_loc(LatticeType &lat, const long int i, const double gamma,
 		    const double delta_RF,
 		    const double eps_x, const double eps_y,
 		    const double sigma_delta, const double sigma_s,
@@ -1852,7 +1864,7 @@ double Touschek_loc(const long int i, const double gamma,
   double sigma_x, sigma_y, sigma_xp, curly_H, dtau_inv;
   double alpha[2], beta[2], eta[2], etap[2];
 
-  if ((i < 0) || (i > globval.Cell_nLoc)) {
+  if ((i < 0) || (i > lat.conf.Cell_nLoc)) {
     std::cout << "Touschek_loc: undefined location " << i << std::endl;
     exit(1);
   }
@@ -1863,7 +1875,8 @@ double Touschek_loc(const long int i, const double gamma,
 
     // Compute beam sizes for given hor/ver emittance, sigma_s,
     // and sigma_delta (for x ~ 0): sigma_x0' = sqrt(eps_x/beta_x).
-    sigma_x = sqrt(lat.elems[i]->Beta[X_]*eps_x+sqr(lat.elems[i]->Eta[X_]*sigma_delta));
+    sigma_x =
+      sqrt(lat.elems[i]->Beta[X_]*eps_x+sqr(lat.elems[i]->Eta[X_]*sigma_delta));
     sigma_y = sqrt(lat.elems[i]->Beta[Y_]*eps_y);
     sigma_xp = (eps_x/sigma_x)*sqrt(1e0+curly_H*sqr(sigma_delta)/eps_x);
   } else {
@@ -1894,7 +1907,7 @@ double Touschek_loc(const long int i, const double gamma,
 }
 
 
-double Touschek(const double Qb, const double delta_RF,
+double Touschek(LatticeType &lat, const double Qb, const double delta_RF,
 		const double eps_x, const double eps_y,
 		const double sigma_delta, const double sigma_s)
 {
@@ -1906,7 +1919,7 @@ double Touschek(const double Qb, const double delta_RF,
   double   p1, p2, dtau_inv, tau_inv;
 
   const bool   ZAP_BS = false;
-  const double gamma = 1e9*globval.Energy/m_e, N_e = Qb/q_e;
+  const double gamma  = 1e9*lat.conf.Energy/m_e, N_e = Qb/q_e;
 
   printf("\n");
   printf("Qb = %4.2f nC, delta_RF = %4.2f%%"
@@ -1917,12 +1930,13 @@ double Touschek(const double Qb, const double delta_RF,
 
   // Integrate around the lattice with Trapezoidal rule; for nonequal steps.
 
-  p1 = Touschek_loc(0, gamma, delta_RF, eps_x, eps_y, sigma_delta, sigma_s,
+  p1 = Touschek_loc(lat, 0, gamma, delta_RF, eps_x, eps_y, sigma_delta, sigma_s,
 		    ZAP_BS);
 
   tau_inv = 0e0;
-  for(i = 1; i <= globval.Cell_nLoc; i++) {
-    p2 = Touschek_loc(i, gamma, delta_RF, eps_x, eps_y, sigma_delta, sigma_s,
+  for(i = 1; i <= lat.conf.Cell_nLoc; i++) {
+    p2 = Touschek_loc(lat, i, gamma, delta_RF, eps_x, eps_y, sigma_delta,
+		      sigma_s,
 		      ZAP_BS);
 
     if (!ZAP_BS)
@@ -1942,7 +1956,7 @@ double Touschek(const double Qb, const double delta_RF,
 
   tau_inv *=
     N_e*sqr(r_e)*c0/(8.0*M_PI*cube(gamma)*sigma_s)
-    /(sqr(delta_RF)*lat.elems[globval.Cell_nLoc]->S);
+    /(sqr(delta_RF)*lat.elems[lat.conf.Cell_nLoc]->S);
 
   printf("\n");
   printf("Touschek lifetime [hrs]: %10.3e\n", 1e0/(3600e0*tau_inv));
@@ -1951,8 +1965,8 @@ double Touschek(const double Qb, const double delta_RF,
 }
 
 
-void mom_aper(double &delta, double delta_RF, const long int k,
-	      const int n_turn, const bool positive)
+void mom_aper(LatticeType &lat, double &delta, double delta_RF,
+	      const long int k, const int n_turn, const bool positive)
 {
   // Binary search to determine momentum aperture at location k.
   int      j;
@@ -1967,28 +1981,28 @@ void mom_aper(double &delta, double delta_RF, const long int k,
     delta = (delta_max+delta_min)/2.0;
 
     // propagate initial conditions
-    CopyVec(6, globval.CODvect, x); lat.Cell_Pass(0, k, x, lastpos);
+    CopyVec(6, lat.conf.CODvect, x); lat.Cell_Pass(0, k, x, lastpos);
     // generate Touschek event
     x[delta_] += delta;
 
     // complete one turn
-    lat.Cell_Pass(k+1, globval.Cell_nLoc, x, lastpos);
-    if (lastpos < globval.Cell_nLoc)
+    lat.Cell_Pass(k+1, lat.conf.Cell_nLoc, x, lastpos);
+    if (lastpos < lat.conf.Cell_nLoc)
       // particle lost
       delta_max = delta;
     else {
       // track
       for(j = 0; j < n_turn; j++) {
-	lat.Cell_Pass(0, globval.Cell_nLoc, x, lastpos);
+	lat.Cell_Pass(0, lat.conf.Cell_nLoc, x, lastpos);
 
-	if ((delta_max > delta_RF) || (lastpos < globval.Cell_nLoc)) {
+	if ((delta_max > delta_RF) || (lastpos < lat.conf.Cell_nLoc)) {
 	  // particle lost
 	  delta_max = delta;
 	  break;
 	}
       }
 
-      if ((delta_max <= delta_RF) && (lastpos == globval.Cell_nLoc))
+      if ((delta_max <= delta_RF) && (lastpos == lat.conf.Cell_nLoc))
 	// particle not lost
 	delta_min = delta;
     }
@@ -1996,11 +2010,11 @@ void mom_aper(double &delta, double delta_RF, const long int k,
 }
 
 
-double Touschek(const double Qb, const double delta_RF, const bool consistent,
-		const double eps_x, const double eps_y,
-		const double sigma_delta, double sigma_s,
-		const int n_turn, const bool aper_on,
-		double sum_delta[][2], double sum2_delta[][2])
+double Touschek(LatticeType &lat, const double Qb, const double delta_RF,
+		const bool consistent,const double eps_x, const double eps_y,
+		const double sigma_delta, double sigma_s, const int n_turn,
+		const bool aper_on, double sum_delta[][2],
+		double sum2_delta[][2])
 {
   bool     cav, aper;
   long int k;
@@ -2012,16 +2026,16 @@ double Touschek(const double Qb, const double delta_RF, const bool consistent,
   const string file_name = "touschek.out";
   const double
     eps   = 1e-12,
-    gamma = 1e9*globval.Energy/m_e,
+    gamma = 1e9*lat.conf.Energy/m_e,
     N_e   = Qb/q_e;
 
-  cav = globval.Cavity_on; aper = globval.Aperture_on;
+  cav = lat.conf.Cavity_on; aper = lat.conf.Aperture_on;
 
-  globval.Cavity_on = true;
+  lat.conf.Cavity_on = true;
 
   lat.Ring_GetTwiss(true, 0.0);
 
-  globval.Aperture_on = aper_on;
+  lat.conf.Aperture_on = aper_on;
 
   printf("\nQb = %4.2f nC, delta_RF = %4.2f%%"
 	 ", eps_x = %9.3e m.rad, eps_y = %9.3e m.rad\n",
@@ -2031,8 +2045,8 @@ double Touschek(const double Qb, const double delta_RF, const bool consistent,
 
   printf("\nMomentum aperture:\n");
 
-  delta_p = delta_RF; mom_aper(delta_p, delta_RF, 0, n_turn, true);
-  delta_m = -delta_RF; mom_aper(delta_m, delta_RF, 0, n_turn, false);
+  delta_p = delta_RF; mom_aper(lat, delta_p, delta_RF, 0, n_turn, true);
+  delta_m = -delta_RF; mom_aper(lat, delta_m, delta_RF, 0, n_turn, false);
   delta_p = min(delta_RF, delta_p); delta_m = max(-delta_RF, delta_m);
   sum_delta[0][0] += delta_p; sum_delta[0][1] += delta_m;
   sum2_delta[0][0] += sqr(delta_p); sum2_delta[0][1] += sqr(delta_m);
@@ -2040,15 +2054,15 @@ double Touschek(const double Qb, const double delta_RF, const bool consistent,
   outf = file_write(file_name.c_str());
 
   tau_inv = 0e0; curly_H0 = -1e30;
-  for (k = 1; k <= globval.Cell_nLoc; k++) {
+  for (k = 1; k <= lat.conf.Cell_nLoc; k++) {
     L = lat.elems[k]->PL;
 
     curly_H1 = get_curly_H(lat.elems[k]->Alpha[X_], lat.elems[k]->Beta[X_],
 			   lat.elems[k]->Eta[X_], lat.elems[k]->Etap[X_]);
 
     if (fabs(curly_H0-curly_H1) > eps) {
-      mom_aper(delta_p, delta_RF, k, n_turn, true);
-      delta_m = -delta_p; mom_aper(delta_m, delta_RF, k, n_turn, false);
+      mom_aper(lat, delta_p, delta_RF, k, n_turn, true);
+      delta_m = -delta_p; mom_aper(lat, delta_m, delta_RF, k, n_turn, false);
       delta_p = min(delta_RF, delta_p); delta_m = max(-delta_RF, delta_m);
       printf("%4ld %6.2f %3.2lf%% %3.2lf%%\n",
 	     k, lat.elems[k]->S, 1e2*delta_p, 1e2*delta_m);
@@ -2067,7 +2081,9 @@ double Touschek(const double Qb, const double delta_RF, const bool consistent,
     if (!consistent) {
       // Compute beam sizes for given hor/ver emittance, sigma_s,
       // and sigma_delta (for x ~ 0): sigma_x0' = sqrt(eps_x/beta_x).
-      sigma_x = sqrt(lat.elems[k]->Beta[X_]*eps_x+sqr(sigma_delta*lat.elems[k]->Eta[X_]));
+      sigma_x =
+	sqrt(lat.elems[k]->Beta[X_]*eps_x
+	     +sqr(sigma_delta*lat.elems[k]->Eta[X_]));
       sigma_y = sqrt(lat.elems[k]->Beta[Y_]*eps_y);
       sigma_xp = (eps_x/sigma_x)*sqrt(1e0+curly_H1*sqr(sigma_delta)/eps_x);
     } else {
@@ -2090,12 +2106,13 @@ double Touschek(const double Qb, const double delta_RF, const bool consistent,
   fclose(outf);
 
   tau_inv *=
-    N_e*sqr(r_e)*c0/(8.0*M_PI*cube(gamma)*sigma_s)/lat.elems[globval.Cell_nLoc]->S;
+    N_e*sqr(r_e)*c0/(8.0*M_PI*cube(gamma)*sigma_s)
+    /lat.elems[lat.conf.Cell_nLoc]->S;
 
   printf("\n");
   printf("Touschek lifetime [hrs]: %4.2f\n", 1e0/(3600e0*tau_inv));
 
-  globval.Cavity_on = cav; globval.Aperture_on = aper;
+  lat.conf.Cavity_on = cav; lat.conf.Aperture_on = aper;
 
   return 1/tau_inv;
 }
@@ -2143,7 +2160,7 @@ double get_int_IBS(void)
 }
 
 
-void IBS(const double Qb, const double eps_SR[], double eps[],
+void IBS(LatticeType &lat, const double Qb, const double eps_SR[], double eps[],
 	 const bool prt1, const bool prt2)
 {
   /* J. Le Duff "Single and Multiple Touschek Effects" (e.g. CERN 89-01)
@@ -2186,15 +2203,15 @@ void IBS(const double Qb, const double eps_SR[], double eps[],
   double   sigma_s_SR, sigma_delta_SR;
 
   const bool   integrate = false;
-  const double gamma = 1e9*globval.Energy/m_e, N_b = Qb/q_e;
+  const double gamma = 1e9*lat.conf.Energy/m_e, N_b = Qb/q_e;
 
   // bunch size
-  gamma_z = (1.0+sqr(globval.alpha_z))/globval.beta_z;
+  gamma_z = (1.0+sqr(lat.conf.alpha_z))/lat.conf.beta_z;
 
-  sigma_s_SR = sqrt(globval.beta_z*eps_SR[Z_]);
+  sigma_s_SR = sqrt(lat.conf.beta_z*eps_SR[Z_]);
   sigma_delta_SR = sqrt(gamma_z*eps_SR[Z_]);
 
-  sigma_s = sqrt(globval.beta_z*eps[Z_]); sigma_delta = sqrt(gamma_z*eps[Z_]);
+  sigma_s = sqrt(lat.conf.beta_z*eps[Z_]); sigma_delta = sqrt(gamma_z*eps[Z_]);
 
   if (prt1) {
     printf("\nQb             = %4.2f nC,        Nb          = %9.3e\n",
@@ -2206,7 +2223,7 @@ void IBS(const double Qb, const double eps_SR[], double eps[],
     printf("eps_z_SR       = %9.3e,      eps_z       = %9.3e\n",
 	   eps_SR[Z_], eps[Z_]);
     printf("alpha_z        = %9.3e,      beta_z      = %9.3e\n",
-	   globval.alpha_z, globval.beta_z);
+	   lat.conf.alpha_z, lat.conf.beta_z);
     printf("sigma_s_SR     = %9.3e mm,   sigma_s     = %9.3e mm\n",
 	   1e3*sigma_s_SR, 1e3*sigma_s);
     printf("sigma_delta_SR = %9.3e,      sigma_delta = %9.3e\n",
@@ -2214,7 +2231,7 @@ void IBS(const double Qb, const double eps_SR[], double eps[],
   }
 
   D_delta = 0.0; D_x = 0.0;
-  for(k = 0; k <= globval.Cell_nLoc; k++) {
+  for(k = 0; k <= lat.conf.Cell_nLoc; k++) {
     L = lat.elems[k]->PL;
 
     curly_H = get_curly_H(lat.elems[k]->Alpha[X_], lat.elems[k]->Beta[X_],
@@ -2222,7 +2239,9 @@ void IBS(const double Qb, const double eps_SR[], double eps[],
 
     // Compute beam sizes for given hor/ver emittance, sigma_s,
     // and sigma_delta (for x ~ 0): sigma_x0' = sqrt(eps_x/beta_x).
-    sigma_x = sqrt(lat.elems[k]->Beta[X_]*eps[X_]+sqr(lat.elems[k]->Eta[X_]*sigma_delta));
+    sigma_x =
+      sqrt(lat.elems[k]->Beta[X_]*eps[X_]
+	   +sqr(lat.elems[k]->Eta[X_]*sigma_delta));
     sigma_xp = (eps[X_]/sigma_x)*sqrt(1.0+curly_H*sqr(sigma_delta)/eps[X_]);
     sigma_y = sqrt(lat.elems[k]->Beta[Y_]*eps[Y_]);
 
@@ -2239,12 +2258,13 @@ void IBS(const double Qb, const double eps_SR[], double eps[],
   }
 
   a =
-    N_b*sqr(r_e)*c0/(32.0*M_PI*cube(gamma)*sigma_s*lat.elems[globval.Cell_nLoc]->S);
+    N_b*sqr(r_e)*c0
+    /(32.0*M_PI*cube(gamma)*sigma_s*lat.elems[lat.conf.Cell_nLoc]->S);
 
   // eps_x*D_X
   D_x *= a;
   // Compute eps_IBS.
-  eps_IBS[X_] = sqrt(D_x*globval.tau[X_]/2e0);
+  eps_IBS[X_] = sqrt(D_x*lat.conf.tau[X_]/2e0);
   // Solve for eps_x
   eps[X_] = eps_SR[X_]*(1.0+sqrt(1.0+4.0*sqr(eps_IBS[X_]/eps_SR[X_])))/2.0;
 
@@ -2253,10 +2273,10 @@ void IBS(const double Qb, const double eps_SR[], double eps[],
 
   eps[Y_] = eps_SR[Y_]/eps_SR[X_]*eps[X_];
 
-  sigma_delta = sqrt(sqr(sigma_delta_SR)+D_delta*globval.tau[Z_]/2e0);
+  sigma_delta = sqrt(sqr(sigma_delta_SR)+D_delta*lat.conf.tau[Z_]/2e0);
   eps[Z_] = sqr(sigma_delta)/gamma_z;
 
-  sigma_s = sqrt(globval.beta_z*eps[Z_]);
+  sigma_s = sqrt(lat.conf.beta_z*eps[Z_]);
 
   if (prt2) {
     printf("\nD_x         = %9.3e\n", D_x);
@@ -2304,8 +2324,8 @@ double get_int_IBS_BM(void)
 }
 
 
-void IBS_BM(const double Qb, const double eps_SR[], double eps[],
-	    const bool prt1, const bool prt2)
+void IBS_BM(LatticeType &lat, const double Qb, const double eps_SR[],
+	    double eps[], const bool prt1, const bool prt2)
 {
   // J. Bjorken, S. K. Mtingwa "Intrabeam Scattering" Part. Accel. 13, 115-143
   // (1983).
@@ -2329,17 +2349,17 @@ void IBS_BM(const double Qb, const double eps_SR[], double eps[],
 
   const bool   ZAP_BS = true;
   const int    model = 2; // 1: Bjorken-Mtingwa, 2: Conte-Martini, 3: MAD-X
-  const double gamma = 1e9*globval.Energy/m_e;
+  const double gamma = 1e9*lat.conf.Energy/m_e;
   const double beta_rel = sqrt(1e0-1e0/sqr(gamma));
   const double N_b = Qb/q_e, q_i = 1e0;
 
   // bunch size
-  gamma_z = (1e0+sqr(globval.alpha_z))/globval.beta_z;
+  gamma_z = (1e0+sqr(lat.conf.alpha_z))/lat.conf.beta_z;
 
-  sigma_s_SR = sqrt(globval.beta_z*eps_SR[Z_]);
+  sigma_s_SR = sqrt(lat.conf.beta_z*eps_SR[Z_]);
   sigma_delta_SR = sqrt(gamma_z*eps_SR[Z_]);
 
-  sigma_s = sqrt(globval.beta_z*eps[Z_]); sigma_delta = sqrt(gamma_z*eps[Z_]);
+  sigma_s = sqrt(lat.conf.beta_z*eps[Z_]); sigma_delta = sqrt(gamma_z*eps[Z_]);
 
   if (prt1) {
     printf("\nQb             = %4.2f nC,        Nb          = %9.3e\n",
@@ -2351,7 +2371,7 @@ void IBS_BM(const double Qb, const double eps_SR[], double eps[],
     printf("eps_z_SR       = %9.3e,      eps_z       = %9.3e\n",
 	   eps_SR[Z_], eps[Z_]);
     printf("alpha_z        = %9.3e,      beta_z      = %9.3e\n",
-	   globval.alpha_z, globval.beta_z);
+	   lat.conf.alpha_z, lat.conf.beta_z);
     printf("sigma_s_SR     = %9.3e mm,   sigma_s     = %9.3e mm\n",
 	   1e3*sigma_s_SR, 1e3*sigma_s);
     printf("sigma_delta_SR = %9.3e,      sigma_delta = %9.3e\n",
@@ -2363,12 +2383,12 @@ void IBS_BM(const double Qb, const double eps_SR[], double eps[],
   for (i = 0; i < 2; i++)
     beta_m[i] = 0e0;
 
-  for(k = 0; k <= globval.Cell_nLoc; k++)
+  for(k = 0; k <= lat.conf.Cell_nLoc; k++)
     for (i = 0; i < 2; i++)
       beta_m[i] += lat.elems[k]->Beta[i]*lat.elems[k]->PL;
 
   for (i = 0; i < 2; i++) {
-    beta_m[i] /= lat.elems[globval.Cell_nLoc]->S;
+    beta_m[i] /= lat.elems[lat.conf.Cell_nLoc]->S;
     sigma_m[i] = sqrt(beta_m[i]*eps[i]);
   }
 
@@ -2376,7 +2396,7 @@ void IBS_BM(const double Qb, const double eps_SR[], double eps[],
   rho = N_b/V;
   // Transverse temperature (p. 171, "ZAP User's Manual"):
   //   T_trans [eV] = 2*E_kin_trans [eV]->
-  T_trans = (gamma*1e9*globval.Energy-m_e)*eps[X_]/beta_m[X_];
+  T_trans = (gamma*1e9*lat.conf.Energy-m_e)*eps[X_]/beta_m[X_];
   lambda_D = 743.4e-2/q_i*sqrt(T_trans/(1e-6*rho));
   r_max = min(sigma_m[X_], lambda_D);
 
@@ -2408,7 +2428,7 @@ void IBS_BM(const double Qb, const double eps_SR[], double eps[],
   for (i = 0; i < 3; i++)
     tau_inv[i] = 0e0;
 
-  for(k = 1; k <= globval.Cell_nLoc; k++) {
+  for(k = 1; k <= lat.conf.Cell_nLoc; k++) {
     L = lat.elems[k]->PL;
 
     for (i = 0; i < 2; i++){
@@ -2615,14 +2635,15 @@ void IBS_BM(const double Qb, const double eps_SR[], double eps[],
   for (i = 0; i < 3; i++)
     tau_inv[i] *=
       sqr(r_e)*c0*N_b*log_Coulomb
-      /(M_PI*cube(2e0*beta_rel)*pow(gamma, 4e0)*lat.elems[globval.Cell_nLoc]->S);
+      /(M_PI*cube(2e0*beta_rel)*pow(gamma, 4e0)
+	*lat.elems[lat.conf.Cell_nLoc]->S);
 
   D_x = eps[X_]*tau_inv[X_]; D_delta = eps[Z_]*tau_inv[Z_];
 
   // eps_x*D_x
   D_x *= eps[X_];
   // Compute eps_IBS.
-  eps_IBS[X_] = sqrt(D_x*globval.tau[X_]/2e0);
+  eps_IBS[X_] = sqrt(D_x*lat.conf.tau[X_]/2e0);
   // Solve for eps_x
   eps[X_] = eps_SR[X_]*(1e0+sqrt(1e0+4e0*sqr(eps_IBS[X_]/eps_SR[X_])))/2e0;
   // Compute D_x.
@@ -2632,11 +2653,11 @@ void IBS_BM(const double Qb, const double eps_SR[], double eps[],
 
   D_delta = tau_inv[Z_]*sqr(sigma_delta);
   sigma_delta =
-    sqrt((D_delta+2e0/globval.tau[Z_]*sqr(sigma_delta_SR))
-	 *globval.tau[Z_]/2e0);
+    sqrt((D_delta+2e0/lat.conf.tau[Z_]*sqr(sigma_delta_SR))
+	 *lat.conf.tau[Z_]/2e0);
   eps[Z_] = sqr(sigma_delta)/gamma_z;
 
-  sigma_s = sqrt(globval.beta_z*eps[Z_]);
+  sigma_s = sqrt(lat.conf.beta_z*eps[Z_]);
 
   if (prt2) {
     printf("\nCoulomb Log = %6.3f\n", log_Coulomb);
@@ -2665,7 +2686,7 @@ void rm_space(char *name)
 }
 
 
-void get_bn(const char file_name[], int n, const bool prt)
+void get_bn(LatticeType &lat, const char file_name[], int n, const bool prt)
 {
   char   line[max_str], str[max_str], str1[max_str], *token, *name, *p;
   int    n_prm, Fnum, Knum, order;
@@ -2674,7 +2695,7 @@ void get_bn(const char file_name[], int n, const bool prt)
 
   inf = file_read(file_name); fp_lat = file_write("get_bn.lat");
 
-  no_sxt();
+  no_sxt(lat);
 
   // if n = 0: go to last data set
   if (n == 0) {
@@ -2710,11 +2731,11 @@ void get_bn(const char file_name[], int n, const bool prt)
     if (prt) printf("%6s(%2d) = %10.6f %d\n", name, Knum, bnL, order);
    if (Fnum != 0) {
       if (order == 0)
-        SetL(Fnum, bnL);
+        SetL(lat, Fnum, bnL);
       else
-        SetbnL(Fnum, order, bnL);
+        SetbnL(lat, Fnum, order, bnL);
 
-      L = GetL(Fnum, 1);
+      L = GetL(lat, Fnum, 1);
       if (Knum == 1) {
 	if (order == 0)
 	  fprintf(fp_lat, "%s: Drift, L = %8.6f;\n", str1, bnL);
@@ -2741,16 +2762,17 @@ void get_bn(const char file_name[], int n, const bool prt)
   }
   if (prt) printf("\n");
 
-  C = lat.elems[globval.Cell_nLoc]->S; recalc_S();
+  C = lat.elems[lat.conf.Cell_nLoc]->S; recalc_S(lat);
   if (prt)
-    printf("New Cell Length: %5.3f (%5.3f)\n", lat.elems[globval.Cell_nLoc]->S, C);
+    printf("New Cell Length: %5.3f (%5.3f)\n",
+	   lat.elems[lat.conf.Cell_nLoc]->S, C);
 
   fclose(inf); fclose(fp_lat);
 }
 
 
-double get_dynap(const double delta, const int n_aper, const int n_track,
-		 const bool cod)
+double get_dynap(LatticeType &lat, const double delta, const int n_aper,
+		 const int n_track, const bool cod)
 {
   char   str[max_str];
   int    i;
@@ -2760,7 +2782,7 @@ double get_dynap(const double delta, const int n_aper, const int n_track,
   const int prt = true;
 
   fp = file_write("dynap.out");
-  dynap(fp, 5e-3, 0.0, 0.1e-3, n_aper, n_track, x_aper, y_aper, false, cod,
+  dynap(fp, lat, 5e-3, 0.0, 0.1e-3, n_aper, n_track, x_aper, y_aper, false, cod,
 	prt);
   fclose(fp);
   DA = get_aper(n_aper, x_aper, y_aper);
@@ -2768,16 +2790,16 @@ double get_dynap(const double delta, const int n_aper, const int n_track,
   if (true) {
     sprintf(str, "dynap_dp%3.1f.out", 1e2*delta);
     fp = file_write(str);
-    dynap(fp, 5e-3, delta, 0.1e-3, n_aper, n_track,
+    dynap(fp, lat, 5e-3, delta, 0.1e-3, n_aper, n_track,
       x_aper, y_aper, false, cod, prt);
     fclose(fp);
     DA += get_aper(n_aper, x_aper, y_aper);
 
     for (i = 0; i < nv_; i++)
-      globval.CODvect[i] = 0.0;
+      lat.conf.CODvect[i] = 0.0;
     sprintf(str, "dynap_dp%3.1f.out", -1e2*delta);
     fp = file_write(str);
-    dynap(fp, 5e-3, -delta, 0.1e-3, n_aper,
+    dynap(fp, lat, 5e-3, -delta, 0.1e-3, n_aper,
       n_track, x_aper, y_aper, false, cod, prt);
     fclose(fp);
     DA += get_aper(n_aper, x_aper, y_aper);
@@ -2842,7 +2864,7 @@ void pol_fit(int n, double x[], double y[], int order, psVector &b,
 }
 
 
-void get_ksi2(const double d_delta)
+void get_ksi2(LatticeType &lat, const double d_delta)
 {
   const int n_points = 20, order = 5;
 
@@ -2856,7 +2878,7 @@ void get_ksi2(const double d_delta)
   for (i = -n_points; i <= n_points; i++) {
     n++; delta[n-1] = i*(double)d_delta/(double)n_points;
     lat.Ring_GetTwiss(false, delta[n-1]);
-    nu[0][n-1] = globval.TotalTune[X_]; nu[1][n-1] = globval.TotalTune[Y_];
+    nu[0][n-1] = lat.conf.TotalTune[X_]; nu[1][n-1] = lat.conf.TotalTune[Y_];
     fprintf(fp, "%5.2f %8.5f %8.5f\n", 1e2*delta[n-1], nu[0][n-1], nu[1][n-1]);
   }
   printf("\n");
@@ -2893,8 +2915,8 @@ bool find_nu(const int n, const double nus[], const double eps, double &nu)
 }
 
 
-bool get_nu(const double Ax, const double Ay, const double delta,
-	    const double eps, double &nu_x, double &nu_y)
+bool get_nu(LatticeType &lat, const double Ax, const double Ay,
+	    const double delta,const double eps, double &nu_x, double &nu_y)
 {
   const int n_turn = 512, n_peaks = 5;
 
@@ -2912,8 +2934,8 @@ bool get_nu(const double Ax, const double Ay, const double delta,
 
   // complex FFT in Floquet space
   x0[x_] = Ax; x0[px_] = 0.0; x0[y_] = Ay; x0[py_] = 0.0;
-  LinTrans(4, globval.Ascrinv, x0);
-  track(file_name, x0[x_], x0[px_], x0[y_], x0[py_], delta,
+  LinTrans(4, lat.conf.Ascrinv, x0);
+  track(file_name, lat, x0[x_], x0[px_], x0[y_], x0[py_], delta,
 	n_turn, lastn, lastpos, 1, 0.0);
   if (lastn == n_turn) {
     GetTrack(file_name, &n, x, px, y, py);
@@ -2942,8 +2964,8 @@ bool get_nu(const double Ax, const double Ay, const double delta,
 }
 
 
-void dnu_dA(const double Ax_max, const double Ay_max, const double delta,
-	    const int n_ampl)
+void dnu_dA(LatticeType &lat, const double Ax_max, const double Ay_max,
+	    const double delta, const int n_ampl)
 {
   bool     ok;
   int      i;
@@ -2961,7 +2983,7 @@ void dnu_dA(const double Ax_max, const double Ay_max, const double delta,
 
   if (trace) printf("dnu_dAx\n");
 
-  nu_x = fract(globval.TotalTune[X_]); nu_y = fract(globval.TotalTune[Y_]);
+  nu_x = fract(lat.conf.TotalTune[X_]); nu_y = fract(lat.conf.TotalTune[Y_]);
 
   fp = file_write("dnu_dAx.out");
   fprintf(fp, "#   A_x        A_y        J_x        J_y      nu_x    nu_y\n");
@@ -2972,9 +2994,10 @@ void dnu_dA(const double Ax_max, const double Ay_max, const double delta,
   Ay = A_min;
   for (i = 1; i <= n_ampl; i++) {
     Ax = -i*Ax_max/n_ampl;
-    ps[x_] = Ax; ps[px_] = 0e0; ps[y_] = Ay; ps[py_] = 0e0; getfloqs(ps);
+    ps[x_] = Ax; ps[px_] = 0e0; ps[y_] = Ay; ps[py_] = 0e0;
+    getfloqs(lat, ps);
     Jx = (sqr(ps[x_])+sqr(ps[px_]))/2.0; Jy = (sqr(ps[y_])+sqr(ps[py_]))/2.0;
-    ok = get_nu(Ax, Ay, delta, eps, nu_x, nu_y);
+    ok = get_nu(lat, Ax, Ay, delta, eps, nu_x, nu_y);
     if (ok)
       fprintf(fp, "%10.3e %10.3e %10.3e %10.3e %8.6f %8.6f\n",
 	      1e3*Ax, 1e3*Ay, 1e6*Jx, 1e6*Jy, fract(nu_x), fract(nu_y));
@@ -2984,7 +3007,7 @@ void dnu_dA(const double Ax_max, const double Ay_max, const double delta,
 
   if (trace) printf("\n");
 
-  nu_x = fract(globval.TotalTune[X_]); nu_y = fract(globval.TotalTune[Y_]);
+  nu_x = fract(lat.conf.TotalTune[X_]); nu_y = fract(lat.conf.TotalTune[Y_]);
 
   fprintf(fp, "\n");
   fprintf(fp, "%10.3e %10.3e %10.3e %10.3e %8.6f %8.6f\n",
@@ -2993,9 +3016,10 @@ void dnu_dA(const double Ax_max, const double Ay_max, const double delta,
   Ay = A_min;
   for (i = 0; i <= n_ampl; i++) {
     Ax = i*Ax_max/n_ampl;
-    ps[x_] = Ax; ps[px_] = 0e0; ps[y_] = Ay; ps[py_] = 0e0; getfloqs(ps);
+    ps[x_] = Ax; ps[px_] = 0e0; ps[y_] = Ay; ps[py_] = 0e0;
+    getfloqs(lat, ps);
     Jx = (sqr(ps[x_])+sqr(ps[px_]))/2.0; Jy = (sqr(ps[y_])+sqr(ps[py_]))/2.0;
-    ok = get_nu(Ax, Ay, delta, eps, nu_x, nu_y);
+    ok = get_nu(lat, Ax, Ay, delta, eps, nu_x, nu_y);
     if (ok)
       fprintf(fp, "%10.3e %10.3e %10.3e %10.3e %8.6f %8.6f\n",
 	      1e3*Ax, 1e3*Ay, 1e6*Jx, 1e6*Jy, fract(nu_x), fract(nu_y));
@@ -3007,7 +3031,7 @@ void dnu_dA(const double Ax_max, const double Ay_max, const double delta,
 
   if (trace) printf("dnu_dAy\n");
 
-  nu_x = fract(globval.TotalTune[X_]); nu_y = fract(globval.TotalTune[Y_]);
+  nu_x = fract(lat.conf.TotalTune[X_]); nu_y = fract(lat.conf.TotalTune[Y_]);
 
   fp = file_write("dnu_dAy.out");
   fprintf(fp, "#   A_x        A_y      nu_x    nu_y\n");
@@ -3018,9 +3042,9 @@ void dnu_dA(const double Ax_max, const double Ay_max, const double delta,
   Ax = A_min;
   for (i = 1; i <= n_ampl; i++) {
     Ay = -i*Ay_max/n_ampl;
-    Jx = pow(Ax, 2.0)/(2.0*lat.elems[globval.Cell_nLoc]->Beta[X_]);
-    Jy = pow(Ay, 2.0)/(2.0*lat.elems[globval.Cell_nLoc]->Beta[Y_]);
-    ok = get_nu(Ax, Ay, delta, eps, nu_x, nu_y);
+    Jx = pow(Ax, 2.0)/(2.0*lat.elems[lat.conf.Cell_nLoc]->Beta[X_]);
+    Jy = pow(Ay, 2.0)/(2.0*lat.elems[lat.conf.Cell_nLoc]->Beta[Y_]);
+    ok = get_nu(lat, Ax, Ay, delta, eps, nu_x, nu_y);
     if (ok)
       fprintf(fp, "%10.3e %10.3e %10.3e %10.3e %8.6f %8.6f\n",
 	      1e3*Ax, 1e3*Ay, 1e6*Jx, 1e6*Jy, fract(nu_x), fract(nu_y));
@@ -3030,7 +3054,7 @@ void dnu_dA(const double Ax_max, const double Ay_max, const double delta,
 
   if (trace) printf("\n");
 
-  nu_x = fract(globval.TotalTune[X_]); nu_y = fract(globval.TotalTune[Y_]);
+  nu_x = fract(lat.conf.TotalTune[X_]); nu_y = fract(lat.conf.TotalTune[Y_]);
 
   fprintf(fp, "\n");
   fprintf(fp, "%10.3e %10.3e %10.3e %10.3e %8.6f %8.6f\n",
@@ -3039,9 +3063,9 @@ void dnu_dA(const double Ax_max, const double Ay_max, const double delta,
   Ax = A_min;
   for (i = 0; i <= n_ampl; i++) {
     Ay = i*Ay_max/n_ampl;
-    Jx = pow(Ax, 2.0)/(2.0*lat.elems[globval.Cell_nLoc]->Beta[X_]);
-    Jy = pow(Ay, 2.0)/(2.0*lat.elems[globval.Cell_nLoc]->Beta[Y_]);
-    ok = get_nu(Ax, Ay, delta, eps, nu_x, nu_y);
+    Jx = pow(Ax, 2.0)/(2.0*lat.elems[lat.conf.Cell_nLoc]->Beta[X_]);
+    Jy = pow(Ay, 2.0)/(2.0*lat.elems[lat.conf.Cell_nLoc]->Beta[Y_]);
+    ok = get_nu(lat, Ax, Ay, delta, eps, nu_x, nu_y);
     if (ok)
       fprintf(fp, "%10.3e %10.3e %10.3e %10.3e %8.6f %8.6f\n",
 	      1e3*Ax, 1e3*Ay, 1e6*Jx, 1e6*Jy, fract(nu_x), fract(nu_y));
@@ -3053,7 +3077,7 @@ void dnu_dA(const double Ax_max, const double Ay_max, const double delta,
 }
 
 
-bool orb_corr(const int n_orbit)
+bool orb_corr(LatticeType &lat, const int n_orbit)
 {
   bool    cod = false;
   int     i;
@@ -3061,18 +3085,18 @@ bool orb_corr(const int n_orbit)
   Vector2 xmean, xsigma, xmax;
 
   printf("\n");
-  globval.CODvect.zero();
+  lat.conf.CODvect.zero();
   for (i = 1; i <= n_orbit; i++) {
     cod = lat.getcod(0.0, lastpos);
     if (cod) {
-      codstat(xmean, xsigma, xmax, globval.Cell_nLoc, false);
+      codstat(lat, xmean, xsigma, xmax, lat.conf.Cell_nLoc, false);
       printf("\n");
       printf("RMS orbit [mm]: (%8.1e+/-%7.1e, %8.1e+/-%7.1e)\n",
 	     1e3*xmean[X_], 1e3*xsigma[X_], 1e3*xmean[Y_], 1e3*xsigma[Y_]);
-      lsoc(1, 1e0); lsoc(2, 1e0);
+      lsoc(lat, 1, 1e0); lsoc(lat, 2, 1e0);
       cod = lat.getcod(0.0, lastpos);
       if (cod) {
-	codstat(xmean, xsigma, xmax, globval.Cell_nLoc, false);
+	codstat(lat, xmean, xsigma, xmax, lat.conf.Cell_nLoc, false);
 	printf("RMS orbit [mm]: (%8.1e+/-%7.1e, %8.1e+/-%7.1e)\n",
 	       1e3*xmean[X_], 1e3*xsigma[X_], 1e3*xmean[Y_], 1e3*xsigma[Y_]);
       } else
@@ -3081,22 +3105,22 @@ bool orb_corr(const int n_orbit)
       printf("orb_corr: failed\n");
   }
 
-  prt_cod("orb_corr.out", globval.bpm, true);
+  prt_cod(lat, "orb_corr.out", true);
 
   return cod;
 }
 
 
-void get_alphac(void)
+void get_alphac(LatticeType &lat)
 {
   ElemType Cell;
 
-  lat.getelem(globval.Cell_nLoc, &Cell);
-  globval.Alphac = globval.OneTurnMat[ct_][delta_]/Cell.S;
+  lat.getelem(lat.conf.Cell_nLoc, &Cell);
+  lat.conf.Alphac = lat.conf.OneTurnMat[ct_][delta_]/Cell.S;
 }
 
 
-void get_alphac2(void)
+void get_alphac2(LatticeType &lat)
 {
   /* Note, do not extract from M[5][4], i.e. around delta
      dependent fixed point.                                */
@@ -3110,14 +3134,14 @@ void get_alphac2(void)
   psVector x, b;
   ElemType Cell;
 
-  globval.pathlength = false;
-  lat.getelem(globval.Cell_nLoc, &Cell); n = 0;
+  lat.conf.pathlength = false;
+  lat.getelem(lat.conf.Cell_nLoc, &Cell); n = 0;
   for (i = -n_points; i <= n_points; i++) {
     n++; delta[n-1] = i*(double)d_delta/(double)n_points;
     for (j = 0; j < nv_; j++)
       x[j] = 0.0;
     x[delta_] = delta[n-1];
-    lat.Cell_Pass(0, globval.Cell_nLoc, x, lastpos);
+    lat.Cell_Pass(0, lat.conf.Cell_nLoc, x, lastpos);
     alphac[n-1] = x[ct_]/Cell.S;
   }
   pol_fit(n, delta, alphac, 3, b, sigma, true);
@@ -3126,6 +3150,8 @@ void get_alphac2(void)
 	 b[1], b[2], b[3]);
 }
 
+
+#if 0
 
 double f_bend(double b0L[])
 {
@@ -3136,18 +3162,18 @@ double f_bend(double b0L[])
 
   n_iter_Cart++;
 
-  SetbnL_sys(Fnum_Cart, Dip, b0L[1]);
+  SetbnL_sys(lat, Fnum_Cart, Dip, b0L[1]);
 
   ps.zero();
   lat.Cell_Pass(lat.Elem_GetPos(Fnum_Cart, 1)-1, lat.Elem_GetPos(Fnum_Cart, 1),
-	    ps, lastpos);
+  	    ps, lastpos);
 
   if (n_iter_Cart % n_prt == 0)
     std::cout << std::scientific << std::setprecision(3)
-	      << std::setw(4) << n_iter_Cart
-	      << std::setw(11) << ps[x_] << std::setw(11) << ps[px_]
-	      << std::setw(11) << ps[ct_]
-	      << std::setw(11) << b0L[1] << std::endl;
+  	      << std::setw(4) << n_iter_Cart
+  	      << std::setw(11) << ps[x_] << std::setw(11) << ps[px_]
+  	      << std::setw(11) << ps[ct_]
+  	      << std::setw(11) << b0L[1] << std::endl;
 
   return sqr(ps[x_]) + sqr(ps[px_]);
 }
@@ -3167,7 +3193,8 @@ void bend_cal_Fam(const int Fnum)
   b0L = dvector(1, n_prm); xi = dmatrix(1, n_prm, 1, n_prm);
 
   std::cout << std::endl;
-  std::cout << "bend_cal: " << lat.elemf[Fnum-1].ElemF->PName << ":" << std::endl;
+  std::cout << "bend_cal: " << lat.elemf[Fnum-1].ElemF->PName << ":"
+	    << std::endl;
 
   Fnum_Cart = Fnum;  b0L[1] = 0.0; xi[1][1] = 1e-3;
 
@@ -3184,7 +3211,7 @@ void bend_cal(void)
   long int  k;
   MpoleType *M;
 
-  for (k = 1; k <= globval.Elem_nFam; k++) {
+  for (k = 1; k <= lat.conf.Elem_nFam; k++) {
     M = dynamic_cast<MpoleType*>(lat.elemf[k-1].ElemF);
     if ((lat.elemf[k-1].ElemF->Pkind == Mpole) &&
 	(M->Pirho != 0.0) && (M->PBpar[Quad+HOMmax] != 0.0))
@@ -3192,6 +3219,7 @@ void bend_cal(void)
   }
 }
 
+#endif
 
 double h_ijklm(const tps &h, const int i, const int j, const int k,
 	       const int l, const int m)
@@ -3206,7 +3234,8 @@ double h_ijklm(const tps &h, const int i, const int j, const int k,
 }
 
 
-void set_tune(const char file_name1[], const char file_name2[], const int n)
+void set_tune(LatticeType &lat, const char file_name1[],
+	      const char file_name2[], const int n)
 {
   const int n_b2 = 8;
 
@@ -3256,7 +3285,7 @@ void set_tune(const char file_name1[], const char file_name2[], const int n)
 
       for (k = 0; k <  n_b2; k++) {
 	Fnum = ElemIndex(names[k]);
-	set_bn_design_fam(Fnum, Quad, b2s[k], 0.0);
+	set_bn_design_fam(lat, Fnum, Quad, b2s[k], 0.0);
 
 	fprintf(fp_lat, "%s: Quadrupole, L = %8.6f, K = %10.6f, N = Nquad"
 		", Method = Meth;\n",
@@ -3340,7 +3369,7 @@ void set_map(MapType *Map)
 }
 
 
-void set_map(const int Fnum, const double dnu[])
+void set_map(LatticeType &lat, const int Fnum, const double dnu[])
 {
   long int loc;
   int      j, k;
@@ -3381,9 +3410,9 @@ void set_map_per(MapType *Map,
 }
 
 
-void set_map_per(const int Fnum,
-		 const double alpha0[], const double beta0[],
-		 const double eta0[], const double etap0[])
+void set_map_per(LatticeType &lat, const int Fnum, const double alpha0[],
+		 const double beta0[], const double eta0[],
+		 const double etap0[])
 {
   int     j;
   MapType *Map;
@@ -3395,7 +3424,7 @@ void set_map_per(const int Fnum,
 }
 
 
-void set_map_reversal(ElemType *Cell)
+void set_map_reversal(LatticeType &lat, ElemType *Cell)
 {
   long int loc, lastpos;
   MapType  *Map;
@@ -3409,12 +3438,12 @@ void set_map_reversal(ElemType *Cell)
 }
 
 
-void set_map_reversal(const long int Fnum)
+void set_map_reversal(LatticeType &lat, const long int Fnum)
 {
   int j;
 
   for (j = 1; j <= lat.GetnKid(Fnum); j++)
-    set_map_reversal(lat.elems[lat.Elem_GetPos(Fnum, j)]);
+    set_map_reversal(lat, lat.elems[lat.Elem_GetPos(Fnum, j)]);
 }
 
 
@@ -3457,14 +3486,14 @@ void setmp(long ilat, long m, long n, double rr, double bnoff, double cmn)
 }
 
 
-void setmpall (double rref)
+void setmpall(LatticeType &lat, double rref)
 {
   ElemType cell;
   long     i;
   bool     mset;
   
   if (true) {
-    for (i = 0; i <= globval.Cell_nLoc; i++) {
+    for (i = 0; i <= lat.conf.Cell_nLoc; i++) {
       lat.getelem(i, &cell);
       mset=false;
       if (cell.Pkind == Mpole) {

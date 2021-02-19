@@ -124,78 +124,82 @@ class param_data_type {
 
   latticetype Lattice[ilatmax];
 
-  void GirderSetup();
-  void SetCorMis(double gxrms, double gyrms, double gtrms, double jxrms,
-		 double jyrms, double exrms, double eyrms, double etrms,
-		 double rancutx, double rancuty, double rancutt, long iseed);
+  void GirderSetup(LatticeType &lat);
+  void SetCorMis(LatticeType &lat, double gxrms, double gyrms, double gtrms,
+		 double jxrms, double jyrms, double exrms, double eyrms,
+		 double etrms, double rancutx, double rancuty, double rancutt,
+		 long iseed);
   void CorMis_in(double *gdxrms, double *gdzrms, double *gdarms,
 		 double *jdxrms, double *jdzrms, double *edxrms,
 		 double *edzrms, double *edarms, double *bdxrms,
 		 double *bdzrms, double *bdarms, double *rancutx,
 		 double *rancuty, double *rancutt, long *iseed, long *iseednr);
   
-  void get_param(const string &param_file);
-  void get_bare(void);
-  void get_dbeta_dnu(double m_dbeta[], double s_dbeta[], double m_dnu[],
-		     double s_dnu[]);
+  void get_param(LatticeType &lat, const string &param_file);
+  void get_bare(LatticeType &lat);
+  void get_dbeta_dnu(LatticeType &lat, double m_dbeta[], double s_dbeta[],
+		     double m_dnu[], double s_dnu[]);
   
 // Control of vertical beam size.
   void FindSQ_SVDmat(double **SkewRespMat, double **U, double **V, double *w,
 		     int N_COUPLE, int N_SKEW);
-  void FindMatrix(double **SkewRespMat, const double deta_y_max,
-		  const double deta_y_offset);
-  void ini_skew_cor(const double deta_y_max, const double deta_y_offset);
-  void FindCoupVector(double *VertCouple);
-  void SkewStat(double VertCouple[], const int cnt);
-  void corr_eps_y(const int cnt);
+  void FindMatrix(LatticeType &lat, double **SkewRespMat,
+		  const double deta_y_max, const double deta_y_offset);
+  void ini_skew_cor(LatticeType &lat, const double deta_y_max,
+		    const double deta_y_offset);
+  void FindCoupVector(LatticeType &lat, double *VertCouple);
+  void SkewStat(LatticeType &lat, double VertCouple[], const int cnt);
+  void corr_eps_y(LatticeType &lat, const int cnt);
   void ReadEta(const char *TolFileName);
 
   // Control of IDs.
-  void get_IDs(void);
-  void set_IDs(const double scl);
-  void reset_quads(void);
+  void get_IDs(LatticeType &lat);
+  void set_IDs(LatticeType &lat, const double scl);
+  void reset_quads(LatticeType &lat);
   void SVD(const int m, const int n, double **M, double beta_nu[],
 	   double b2Ls_[], const bool first);
-  void quad_config();
-  bool get_SQ(void);
+  void quad_config(LatticeType &lat);
+  bool get_SQ(LatticeType &lat);
   double Bet(double bq, double nus, double nuq, double NuQ);
   double Nus(double bq, double nus, double nuq, double NuQ);
   void A_matrix(void);
-  void X_vector(const bool first);
-  void ini_ID_corr(const bool IDs);
-  void W_diag(void);
-  bool ID_corr(const int N_calls, const int N_steps, const bool IDs,
-	       const int cnt);
-  void ReadCorMis(const bool Scale_it, const double Scale) const;
-  void LoadAlignTol(const bool Scale_it, const double Scale,
-		    const bool new_rnd,
-		    const int seed) const;
-  void LoadFieldErr(const bool Scale_it, const double Scale,
+  void X_vector(LatticeType &lat, const bool first);
+  void ini_ID_corr(LatticeType &lat, const bool IDs);
+  void W_diag(LatticeType &lat);
+  bool ID_corr(LatticeType &lat, const int N_calls, const int N_steps,
+	       const bool IDs, const int cnt);
+  void ReadCorMis(LatticeType &lat, const bool Scale_it, const double Scale)
+    const;
+  void LoadAlignTol(LatticeType &lat, const bool Scale_it, const double Scale,
+		    const bool new_rnd, const int seed) const;
+  void LoadFieldErr(LatticeType &lat, const bool Scale_it, const double Scale,
 		    const bool new_rnd) const;
-  void LoadApers(const double scl_x, const double scl_y) const;
+  void LoadApers(LatticeType &lat, const double scl_x, const double scl_y)
+    const;
 
-  void Align_BPMs(const int n, const double bdxrms, const double bdzrms,
-		  const double bdarms) const;
-  bool CorrectCOD_N(const int n_orbit, const int k);
-  void ini_COD_corr(const int n_bpm_Fam, const std::string bpm_names[],
-		    const int n_hcorr_Fam, const std::string hcorr_names[],
-		    const int n_vcorr_Fam, const std::string vcorr_names[],
-		    const bool svd);
+  void Align_BPMs(LatticeType &lat, const int n, const double bdxrms,
+		  const double bdzrms, const double bdarms) const;
+  bool CorrectCOD_N(LatticeType &lat, const int n_orbit, const int k);
+  void ini_COD_corr(LatticeType &lat, const int n_bpm_Fam,
+		    const std::string bpm_names[], const int n_hcorr_Fam,
+		    const std::string hcorr_names[], const int n_vcorr_Fam,
+		    const std::string vcorr_names[], const bool svd);
 
-  bool cod_corr(const int n_cell, const double scl, const double h_maxkick,
-		const double v_maxkick, const long n_bits,
-		orb_corr_type orb_corr[]);
+  bool cod_corr(LatticeType &lat, const int n_cell, const double scl,
+		const double h_maxkick, const double v_maxkick,
+		const long n_bits, orb_corr_type orb_corr[]);
 
-  void Orb_and_Trim_Stat(orb_corr_type orb_corr[]);
+  void Orb_and_Trim_Stat(LatticeType &lat, orb_corr_type orb_corr[]);
 
-  void prt_cod_corr_lat(void);
+  void prt_cod_corr_lat(LatticeType &lat);
 
-  void err_and_corr_init(const string &param_file, orb_corr_type orb_corr[]);
+  void err_and_corr_init(LatticeType &lat, const string &param_file,
+			 orb_corr_type orb_corr[]);
 
   void err_and_corr_exit(orb_corr_type orb_corr[]);
 };
 
-void get_bn2(const string file_name1, const string file_name2, int n,
-	     const bool prt);
+void get_bn2(LatticeType &lat, const string file_name1,
+	     const string file_name2, int n, const bool prt);
 
 #endif

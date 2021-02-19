@@ -77,7 +77,7 @@ void MyStrcpy (char *elem, char *pname, long leng) {
 
 #define seps 1E-6
 
-void param_data_type::GirderSetup() {
+void param_data_type::GirderSetup(LatticeType &lat) {
   bool     giropen, ismag;
   double   s0, s1, s2, circ;
   long     ngir, i0, ic, i, countmag;
@@ -93,7 +93,7 @@ void param_data_type::GirderSetup() {
 // also enter mid pos and angle in lattice structure}
   ngir = 0;
   circ = 0; giropen=false;  
-  for (i = 0; i <= globval.Cell_nLoc; i++) {
+  for (i = 0; i <= lat.conf.Cell_nLoc; i++) {
  
     if (i == ilatmax) {
       printf("i %ld exceeds %d\n", i, ilatmax-1);
@@ -157,7 +157,7 @@ void param_data_type::GirderSetup() {
   // of type 2,3 girders:
    
   s1=0; s2=0; giropen=false;
-  for (i = 0; i <= globval.Cell_nLoc; i++) {
+  for (i = 0; i <= lat.conf.Cell_nLoc; i++) {
 
     lat.getelem(i, &cell);
     s2=s1+cell.PL;
@@ -203,7 +203,7 @@ void param_data_type::GirderSetup() {
   // i.e. sext|ch|cv|sext
   s0=0; s1=0; s2=0; i0=0;
   giropen=false; countmag=0;
-  for (i = 0; i <= globval.Cell_nLoc; i++) {
+  for (i = 0; i <= lat.conf.Cell_nLoc; i++) {
     lat.getelem(i, &cell);
     s2=s1+cell.PL;
  
@@ -246,7 +246,7 @@ void param_data_type::GirderSetup() {
   }
   NGirderLevel[2]=ngir;
 
-  for (i = 0; i <= globval.Cell_nLoc; i++) {
+  for (i = 0; i <= lat.conf.Cell_nLoc; i++) {
     lat.getelem(i, &cell);
     if (!(cell.Pkind==Mpole)) { Lattice[i].igir=-1;}
   }
@@ -260,7 +260,7 @@ void param_data_type::GirderSetup() {
 		Girder[i].gsp[1]);
       }
     } 
-    for (i = 0; i <= globval.Cell_nLoc; i++) {
+    for (i = 0; i <= lat.conf.Cell_nLoc; i++) {
       lat.getelem(i, &cell);
       TracyStrcpy( elem, cell.PName);
      if (Lattice[i].igir > -1){
@@ -280,7 +280,7 @@ void param_data_type::GirderSetup() {
  
       if (ngir>0) {
         fprintf(outf, "%ld %ld %ld %ld %f3 \n",
-		globval.Cell_nLoc, NGirderLevel[0], NGirderLevel[1],
+		lat.conf.Cell_nLoc, NGirderLevel[0], NGirderLevel[1],
 		NGirderLevel[2], s2);
         for (i=0;i<ngir;i++)
           fprintf(outf, "%ld %ld %ld %ld %ld %ld %f3 %f3 \n", 
@@ -290,7 +290,7 @@ void param_data_type::GirderSetup() {
       } 
 
       s1=0;
-      for (i = 0; i <= globval.Cell_nLoc; i++) {
+      for (i = 0; i <= lat.conf.Cell_nLoc; i++) {
         lat.getelem(i, &cell);
         s2=s1+cell.PL;
         ismag= (cell.Pkind==Mpole);
@@ -308,10 +308,11 @@ void param_data_type::GirderSetup() {
 
 }
 
-void param_data_type::SetCorMis(double gxrms, double gyrms, double gtrms,
-				double jxrms, double jyrms, double exrms,
-				double eyrms, double etrms, double rancutx,
-				double rancuty, double rancutt, long iseed)
+void param_data_type::SetCorMis(LatticeType &lat, double gxrms, double gyrms,
+				double gtrms, double jxrms, double jyrms,
+				double exrms, double eyrms, double etrms,
+				double rancutx, double rancuty, double rancutt,
+				long iseed)
 {
   char      fname[30];
   char      elem[NameLength+1];
@@ -480,12 +481,12 @@ void param_data_type::SetCorMis(double gxrms, double gyrms, double gtrms,
 
 
 // set misalignments of elements on girders:
-  for (i = 0; i <= globval.Cell_nLoc; i++) {
+  for (i = 0; i <= lat.conf.Cell_nLoc; i++) {
     lat.getelem(i, &cell);
     M = dynamic_cast<MpoleType*>(&cell);
       
     if (cell.Pkind==Mpole) {
-      if ((cell.Fnum != globval.hcorr) && (cell.Fnum != globval.vcorr)) {
+      if ((cell.Fnum != lat.conf.hcorr) && (cell.Fnum != lat.conf.vcorr)) {
         setrancut(rancutx);
 	dx =exrms*normranf();
         setrancut(rancuty);
@@ -522,7 +523,7 @@ void param_data_type::SetCorMis(double gxrms, double gyrms, double gtrms,
 
     if (NGirderLevel[2] > 0) {
       fprintf(outf, "%ld %ld %ld %ld \n",
-	      globval.Cell_nLoc, NGirderLevel[0], NGirderLevel[1],
+	      lat.conf.Cell_nLoc, NGirderLevel[0], NGirderLevel[1],
 	      NGirderLevel[2]);
       for (i=0;i<NGirderLevel[2];i++) {
         fprintf(outf, "%ld %f %f %f %f %f %f %f  \n", 
@@ -534,7 +535,7 @@ void param_data_type::SetCorMis(double gxrms, double gyrms, double gtrms,
 
 
     s1=0;
-    for (i = 0; i <= globval.Cell_nLoc; i++) {
+    for (i = 0; i <= lat.conf.Cell_nLoc; i++) {
       lat.getelem(i, &cell);
       s2=s1+cell.PL;
       if (cell.Pkind==Mpole) {
@@ -542,7 +543,8 @@ void param_data_type::SetCorMis(double gxrms, double gyrms, double gtrms,
         dy = cell.dS[1];
         dt = atan(cell.dT[1]/cell.dT[0]);
         TracyStrcpy( elem, cell.PName);
-        fprintf(outf,"%ld %f %f %f %f %f %s \n", i,  s1, s2, dx*1e6, dy*1e6, dt*1e6, elem); 
+        fprintf(outf,"%ld %f %f %f %f %f %s \n", i,  s1, s2, dx*1e6, dy*1e6,
+		dt*1e6, elem); 
       }
       s1=s2;
     }
@@ -553,8 +555,10 @@ void param_data_type::SetCorMis(double gxrms, double gyrms, double gtrms,
 
 void param_data_type::CorMis_in(double *gdxrms, double *gdzrms, double *gdarms,
 				double *jdxrms, double *jdzrms, double *edxrms,
-				double *edzrms, double *edarms, double *bdxrms, double *bdzrms, double *bdarms, double *rancutx, double *rancuty,
-				double *rancutt, long *iseed, long *iseednr)
+				double *edzrms, double *edarms, double *bdxrms,
+				double *bdzrms, double *bdarms, double *rancutx,
+				double *rancuty, double *rancutt, long *iseed,
+				long *iseednr)
 {
   char a;
   long i;
@@ -636,7 +640,7 @@ void param_data_type::CorMis_in(double *gdxrms, double *gdzrms, double *gdarms,
   *bdxrms=(*bdxrms)*1E-6;  *bdzrms=(*bdzrms)*1E-6; *bdarms=(*bdarms)*1E-6;
 }
 
-void param_data_type::get_param(const string &param_file)
+void param_data_type::get_param(LatticeType &lat, const string &param_file)
 {
   char              *s, name[max_str], line[max_str], str[max_str], *p;
   string            lat_file, flat_file;
@@ -665,7 +669,7 @@ void param_data_type::get_param(const string &param_file)
       sscanf(line, "%s", name);
 
       if (strcmp("energy", name) == 0) {
-	sscanf(line, "%*s %lf", &globval.Energy);
+	sscanf(line, "%*s %lf", &lat.conf.Energy);
       } else if (strcmp("in_dir", name) == 0){
         sscanf(line, "%*s %s", str);
 	in_dir = str;
@@ -685,12 +689,12 @@ void param_data_type::get_param(const string &param_file)
         sscanf(line, "%*s %s", str);
         sstr.clear(); sstr.str("");
 	sstr << in_dir << str; lat_FileName = sstr.str();
-        Read_Lattice(lat_FileName.c_str());
+        Read_Lattice(lat, lat_FileName.c_str());
       } else if (strcmp("flat_file", name) == 0) {
 	sscanf(line, "%*s %s", str);
 	sstr.clear(); sstr.str("");
 	sstr << str << "flat_file.dat"; flat_file = sstr.str();
-	rdmfile(flat_file.c_str());
+	lat.rdmfile(flat_file.c_str());
       } else if (strcmp("s_cut", name) == 0) {
 	sscanf(line, "%*s %lf", &f_prm);
 	setrancut(f_prm);
@@ -738,10 +742,10 @@ void param_data_type::get_param(const string &param_file)
 	}
       } else if (strcmp("gs", name) == 0) {
 	sscanf(line, "%*s %s", str);
-	globval.gs = ElemIndex(str);
+	lat.conf.gs = ElemIndex(str);
       } else if (strcmp("ge", name) == 0) {
 	sscanf(line, "%*s %s", str);
-	globval.ge = ElemIndex(str);
+	lat.conf.ge = ElemIndex(str);
       } else if (strcmp("DA_bare", name) == 0) {
 	sscanf(line, "%*s %s", str);
 	DA_bare = (strcmp(str, "true") == 0)? true : false;
@@ -758,16 +762,16 @@ void param_data_type::get_param(const string &param_file)
 	freq_map = (strcmp(str, "true") == 0)? true : false;
       } else if (strcmp("bpm", name) == 0) {
 	sscanf(line, "%*s %s", str);
-	globval.bpm = ElemIndex(str);
+	lat.conf.bpm = ElemIndex(str);
       } else if (strcmp("hcorr", name) == 0) {
 	sscanf(line, "%*s %s", str);
-	globval.hcorr = ElemIndex(str);
+	lat.conf.hcorr = ElemIndex(str);
       } else if (strcmp("vcorr", name) == 0) {
 	sscanf(line, "%*s %s", str);
-	globval.vcorr = ElemIndex(str);
+	lat.conf.vcorr = ElemIndex(str);
       } else if (strcmp("qt", name) == 0) {
 	sscanf(line, "%*s %s", str);
-	globval.qt = ElemIndex(str);
+	lat.conf.qt = ElemIndex(str);
       } else if (strcmp("nux", name) == 0)
 	sscanf(line, "%*s %le", &TuneX);
       else if (strcmp("nuy", name) == 0)
@@ -820,14 +824,14 @@ void param_data_type::get_param(const string &param_file)
 }
 
 
-void param_data_type::get_bare(void)
+void param_data_type::get_bare(LatticeType &lat)
 {
   // Store optics function values at the sextupoles.
   long int  j, k;
   MpoleType *M;
 
   n_sext = 0;
-  for (j = 0; j <= globval.Cell_nLoc; j++) {
+  for (j = 0; j <= lat.conf.Cell_nLoc; j++) {
     M = dynamic_cast<MpoleType*>(lat.elems[j]);
     if ((lat.elems[j]->Pkind == Mpole) && (M->n_design >= Sext)) {
       n_sext++; sexts[n_sext-1] = j;
@@ -838,12 +842,13 @@ void param_data_type::get_bare(void)
     }
   }
 
-  nu0_[X_] = globval.TotalTune[X_]; nu0_[Y_] = globval.TotalTune[Y_];
+  nu0_[X_] = lat.conf.TotalTune[X_]; nu0_[Y_] = lat.conf.TotalTune[Y_];
 }
 
 
-void param_data_type::get_dbeta_dnu(double m_dbeta[], double s_dbeta[],
-				    double m_dnu[], double s_dnu[])
+void param_data_type::get_dbeta_dnu(LatticeType &lat, double m_dbeta[],
+				    double s_dbeta[], double m_dnu[],
+				    double s_dnu[])
 {
   int       k;
   long int  j, ind;
@@ -942,7 +947,8 @@ void param_data_type::ReadEta(const char *TolFileName)
   printf("\n");
 }
 
-void param_data_type::FindMatrix(double **SkewRespMat, const double deta_y_max,
+void param_data_type::FindMatrix(LatticeType &lat, double **SkewRespMat,
+				 const double deta_y_max,
 				 const double deta_y_offset)
 {
   //  lat.Ring_GetTwiss(true, 0.0) should be called in advance
@@ -964,10 +970,10 @@ void param_data_type::FindMatrix(double **SkewRespMat, const double deta_y_max,
   betaHC = dmatrix(1, N_HCOR, 1, 2); nuHC = dmatrix(1, N_HCOR, 1, 2);
   betaVC = dmatrix(1, N_VCOR, 1, 2); nuVC = dmatrix(1, N_VCOR, 1, 2);
 
-  nuX = globval.TotalTune[X_]; nuY = globval.TotalTune[Y_];
+  nuX = lat.conf.TotalTune[X_]; nuY = lat.conf.TotalTune[Y_];
 
   for (i = 1; i <= N_SKEW; i++) {
-    loc = lat.Elem_GetPos(globval.qt, i);
+    loc = lat.Elem_GetPos(lat.conf.qt, i);
     etaSQ[i] = lat.elems[loc]->Eta[X_];
     betaSQ[i][Xi] = lat.elems[loc]->Beta[X_];
     betaSQ[i][Yi] = lat.elems[loc]->Beta[Y_];
@@ -1080,16 +1086,16 @@ void param_data_type::FindMatrix(double **SkewRespMat, const double deta_y_max,
 } // FindMatrix
 
 
-void param_data_type::ini_skew_cor(const double deta_y_max,
+void param_data_type::ini_skew_cor(LatticeType &lat, const double deta_y_max,
 				   const double deta_y_offset)
 {
   int k;
 
   // No of skew quads, BPMs, and correctors
-  N_SKEW = lat.GetnKid(globval.qt);
+  N_SKEW = lat.GetnKid(lat.conf.qt);
 
   N_BPM = 0;
-  for (k = 1; k <= lat.GetnKid(globval.bpm); k++) {
+  for (k = 1; k <= lat.GetnKid(lat.conf.bpm); k++) {
     N_BPM++;
 
     if (N_BPM > max_bpm) {
@@ -1098,18 +1104,18 @@ void param_data_type::ini_skew_cor(const double deta_y_max,
       exit_(1);
     }
 
-    bpm_loc[N_BPM-1] = lat.Elem_GetPos(globval.bpm, k);
+    bpm_loc[N_BPM-1] = lat.Elem_GetPos(lat.conf.bpm, k);
   }
 
   N_HCOR = 0;
-  h_corr[N_HCOR++] = lat.Elem_GetPos(globval.hcorr, 1);
-  h_corr[N_HCOR++] = lat.Elem_GetPos(globval.hcorr, lat.GetnKid(globval.hcorr)/3);
-  h_corr[N_HCOR++] = lat.Elem_GetPos(globval.hcorr, 2*lat.GetnKid(globval.hcorr)/3);
+  h_corr[N_HCOR++] = lat.Elem_GetPos(lat.conf.hcorr, 1);
+  h_corr[N_HCOR++] = lat.Elem_GetPos(lat.conf.hcorr, lat.GetnKid(lat.conf.hcorr)/3);
+  h_corr[N_HCOR++] = lat.Elem_GetPos(lat.conf.hcorr, 2*lat.GetnKid(lat.conf.hcorr)/3);
 
   N_VCOR = 0;
-  v_corr[N_VCOR++] = lat.Elem_GetPos(globval.vcorr, 1);
-  v_corr[N_VCOR++] = lat.Elem_GetPos(globval.vcorr, lat.GetnKid(globval.vcorr)/3);
-  v_corr[N_VCOR++] = lat.Elem_GetPos(globval.vcorr, 2*lat.GetnKid(globval.vcorr)/3);
+  v_corr[N_VCOR++] = lat.Elem_GetPos(lat.conf.vcorr, 1);
+  v_corr[N_VCOR++] = lat.Elem_GetPos(lat.conf.vcorr, lat.GetnKid(lat.conf.vcorr)/3);
+  v_corr[N_VCOR++] = lat.Elem_GetPos(lat.conf.vcorr, 2*lat.GetnKid(lat.conf.vcorr)/3);
 
   N_COUPLE = N_BPM*(1+N_HCOR+N_VCOR);
 
@@ -1132,14 +1138,14 @@ void param_data_type::ini_skew_cor(const double deta_y_max,
 
   printf("\n");
   printf("Looking for response matrix\n");
-  FindMatrix(SkewRespMat, deta_y_max, deta_y_offset);
+  FindMatrix(lat, SkewRespMat, deta_y_max, deta_y_offset);
 
   printf("Looking for SVD matrices\n");
   FindSQ_SVDmat(SkewRespMat, U, V, w, N_COUPLE, N_SKEW);
 }
 
 
-void param_data_type::FindCoupVector(double *VertCouple)
+void param_data_type::FindCoupVector(LatticeType &lat, double *VertCouple)
 {
   bool   cod;
   long   i, j;
@@ -1149,7 +1155,7 @@ void param_data_type::FindCoupVector(double *VertCouple)
   orbitP = dvector(1, N_BPM); orbitN = dvector(1, N_BPM);
 
   // Find vertical dispersion
-  lat.Cell_Geteta(0, globval.Cell_nLoc, true, 0e0);
+  lat.Cell_Geteta(0, lat.conf.Cell_nLoc, true, 0e0);
 
   for (i = 1; i <= N_BPM; i++)
     VertCouple[i] = VDweight*lat.elems[bpm_loc[i-1]]->Eta[Y_];
@@ -1158,21 +1164,22 @@ void param_data_type::FindCoupVector(double *VertCouple)
   // Find off diagonal terms for horizontal trims
   for (j = 1; j <= N_HCOR; j++) {
     // positive kick: "+Dip" for horizontal
-    SetdKLpar(lat.elems[h_corr[j-1]]->Fnum, lat.elems[h_corr[j-1]]->Knum, +Dip,
-	      kick);
+    SetdKLpar(lat, lat.elems[h_corr[j-1]]->Fnum, lat.elems[h_corr[j-1]]->Knum,
+	      +Dip, kick);
     cod = lat.getcod(0.0, lastpos); chk_cod(cod, "FindCoupVector");
     for (i = 1; i <= N_BPM; i++)
       orbitP[i] = lat.elems[bpm_loc[i-1]]->BeamPos[y_];
 
     //negative kick: "+Dip" for horizontal
-    SetdKLpar(lat.elems[h_corr[j-1]]->Fnum, lat.elems[h_corr[j-1]]->Knum, +Dip,
-	      -2*kick);
+    SetdKLpar(lat, lat.elems[h_corr[j-1]]->Fnum, lat.elems[h_corr[j-1]]->Knum,
+	      +Dip, -2*kick);
     cod = lat.getcod(0.0, lastpos); chk_cod(cod, "FindCoupVector");
     for (i = 1; i <= N_BPM; i++)
       orbitN[i] = lat.elems[bpm_loc[i-1]]->BeamPos[y_];
 
     // restore trim valueL: "+Dip" for horizontal
-    SetdKLpar(lat.elems[h_corr[j-1]]->Fnum, lat.elems[h_corr[j-1]]->Knum, +Dip, kick);
+    SetdKLpar(lat, lat.elems[h_corr[j-1]]->Fnum, lat.elems[h_corr[j-1]]->Knum,
+	      +Dip, kick);
 
     for (i = 1; i <= N_BPM; i++)
       VertCouple[N_BPM+(j-1)*N_HCOR+i] =
@@ -1183,22 +1190,22 @@ void param_data_type::FindCoupVector(double *VertCouple)
   // Find off diagonal terms for vertical trims
   for (j = 1; j <= N_VCOR; j++){
     // positive kick: "-Dip" for vertical
-    SetdKLpar(lat.elems[v_corr[j-1]]->Fnum, lat.elems[v_corr[j-1]]->Knum, -Dip,
-	      kick);
+    SetdKLpar(lat, lat.elems[v_corr[j-1]]->Fnum, lat.elems[v_corr[j-1]]->Knum,
+	      -Dip, kick);
     cod = lat.getcod(0.0, lastpos); chk_cod(cod, "FindCoupVector");
     for (i = 1;  i <= N_BPM; i++)
       orbitP[i] = lat.elems[bpm_loc[i-1]]->BeamPos[x_];
 
     // negative kick: "-Dip" for vertical
-    SetdKLpar(lat.elems[v_corr[j-1]]->Fnum, lat.elems[v_corr[j-1]]->Knum, -Dip,
-	      -2*kick);
+    SetdKLpar(lat, lat.elems[v_corr[j-1]]->Fnum, lat.elems[v_corr[j-1]]->Knum,
+	      -Dip, -2*kick);
     cod = lat.getcod(0.0, lastpos); chk_cod(cod, "FindCoupVector");
     for (i = 1; i <= N_BPM; i++)
       orbitN[i] = lat.elems[bpm_loc[i-1]]->BeamPos[x_];
 
     // restore corrector: "-Dip" for vertical
-    SetdKLpar(lat.elems[v_corr[j-1]]->Fnum, lat.elems[v_corr[j-1]]->Knum, -Dip,
-	      kick);
+    SetdKLpar(lat, lat.elems[v_corr[j-1]]->Fnum, lat.elems[v_corr[j-1]]->Knum,
+	      -Dip, kick);
 
     for (i = 1; i <= N_BPM; i++)
       VertCouple[N_BPM+N_BPM*N_HCOR+(j-1)*N_VCOR+i] =
@@ -1209,7 +1216,8 @@ void param_data_type::FindCoupVector(double *VertCouple)
 } // FindCoupVector
 
 
-void param_data_type::SkewStat(double VertCouple[], const int cnt)
+void param_data_type::SkewStat(LatticeType &lat, double VertCouple[],
+			       const int cnt)
 {
   int    i;
   FILE *outf = NULL;
@@ -1226,12 +1234,12 @@ void param_data_type::SkewStat(double VertCouple[], const int cnt)
   // statistics for skew quadrupoles
   max = 0.0; rms = mean = 0.0;
   for(i = 1; i <= N_SKEW; i++) {
-    sk = GetKLpar(globval.qt, i, -Quad);
+    sk = GetKLpar(lat, lat.conf.qt, i, -Quad);
     if (cnt>=0)
       fprintf(outf, "%4d %7.3f %12.5e %s %12.5e\n",
-	       i,lat.elems[lat.Elem_GetPos(globval.qt,i)]->S,
-	       lat.elems[lat.Elem_GetPos(globval.qt,i)]->Eta[X_],
-	       lat.elems[lat.Elem_GetPos(globval.qt,i)]->PName,sk);
+	       i,lat.elems[lat.Elem_GetPos(lat.conf.qt,i)]->S,
+	       lat.elems[lat.Elem_GetPos(lat.conf.qt,i)]->Eta[X_],
+	       lat.elems[lat.Elem_GetPos(lat.conf.qt,i)]->PName,sk);
     if (fabs(sk) > max) max = fabs(sk);
     rms += sqr(sk);
     mean += sk;
@@ -1299,7 +1307,7 @@ void param_data_type::SkewStat(double VertCouple[], const int cnt)
 }
 
 
-void param_data_type::corr_eps_y(const int cnt)
+void param_data_type::corr_eps_y(LatticeType &lat, const int cnt)
 {
   int       i, j;
   char      fname[30], qtnam[20];
@@ -1309,17 +1317,17 @@ void param_data_type::corr_eps_y(const int cnt)
   FILE      *cinf, *outf;
   
   // Clear skew quad setpoints
-  set_bnL_design_fam(globval.qt, Quad, 0.0, 0.0);
+  set_bnL_design_fam(lat, lat.conf.qt, Quad, 0.0, 0.0);
   
   // Find coupling vector
   printf("\n");
   printf("Looking for coupling error\n");
-  FindCoupVector(VertCouple);
+  FindCoupVector(lat, VertCouple);
 
   //Find and print coupling statistics
   printf("\n");
   printf("Before correction\n");
-  SkewStat(VertCouple, -1);
+  SkewStat(lat, VertCouple, -1);
 
   // Coupling Correction
   printf("\n");
@@ -1338,17 +1346,17 @@ void param_data_type::corr_eps_y(const int cnt)
     printf("Applying correction\n");
     // Add correction
     for (j = 1; j <= N_SKEW; j++)
-      SetdKLpar(globval.qt, j, -Quad, SkewStrengthCorr[j]);
+      SetdKLpar(lat, lat.conf.qt, j, -Quad, SkewStrengthCorr[j]);
 
     printf("\n");
     printf("Looking for coupling error\n");
     // Find coupling vector
-    FindCoupVector(VertCouple);
+    FindCoupVector(lat, VertCouple);
 
     printf("\n");
     printf("After run %d of correction\n", i);
     // Find and print coupling statistics
-    SkewStat(VertCouple, -1);
+    SkewStat(lat, VertCouple, -1);
 
   } // End of coupling Correction
 
@@ -1360,48 +1368,48 @@ void param_data_type::corr_eps_y(const int cnt)
     for(j = 1; j <= N_SKEW; j++) {
       fscanf(cinf, "%d %lg %lg %s %lg", &qtnr, &qtpos, &qteta, qtnam, &qtkl);
       printf("%d %d %s %f\n", j, qtnr, qtnam, qtkl);
-      loc = lat.Elem_GetPos(globval.qt, j);
+      loc = lat.Elem_GetPos(lat.conf.qt, j);
       M = dynamic_cast<MpoleType*>(lat.elems[loc]);
      printf("%d %e %e %e %e\n",
 	     loc, lat.elems[loc]->PL,
 	     qtkl, M->PBpar[-Quad+HOMmax],
 	     M->PBpar[Quad+HOMmax]);
-      SetdKLpar(globval.qt, j, -Quad, qtkl);
-      loc = lat.Elem_GetPos(globval.qt, j);
+      SetdKLpar(lat, lat.conf.qt, j, -Quad, qtkl);
+      loc = lat.Elem_GetPos(lat.conf.qt, j);
       printf("%d %e %e %e %e\n",
 	     loc, lat.elems[loc]->PL, qtkl,
 	     M->PBpar[-Quad+HOMmax],
 	     M->PBpar[Quad+HOMmax]);
     }
     printf("\n");
-    lat.Ring_GetTwiss(true, 0.0); printglob(lat.elems[0]);
+    lat.Ring_GetTwiss(true, 0.0); printglob(lat);
     printf("\n");
     printf("Looking for coupling error\n");
     // Find coupling vector
-    FindCoupVector(VertCouple);
+    FindCoupVector(lat, VertCouple);
     printf("\n");
     printf("After application of skew values from file 'qt_file.dat'\n");
-    SkewStat(VertCouple, -1);
+    SkewStat(lat, VertCouple, -1);
   }
       
-  SkewStat(VertCouple, cnt);
+  SkewStat(lat, VertCouple, cnt);
 
   sprintf(fname,"%s_%d.out",eta_y_FileName,cnt);
   outf = file_write(fname);
 
   fprintf(outf, "# nr s [m] name nuy etay [mm] etapy [mrad]\n");
-  for (i = 0; i <= globval.Cell_nLoc; i++)
+  for (i = 0; i <= lat.conf.Cell_nLoc; i++)
     fprintf(outf, "%4d %7.3f %s %6.3f %10.3e %10.3e\n",
 	    i, lat.elems[i]->S, lat.elems[i]->PName,
 	    lat.elems[i]->Nu[Y_], 1e3*lat.elems[i]->Eta[Y_],
 	    1e3*lat.elems[i]->Etap[Y_]);
   fclose(outf);
 
-  FindCoupVector(VertCouple);
+  FindCoupVector(lat, VertCouple);
 }
 
 
-void param_data_type::get_IDs(void)
+void param_data_type::get_IDs(LatticeType &lat)
 {
   int           k;
   WigglerType   *W;
@@ -1410,7 +1418,7 @@ void param_data_type::get_IDs(void)
 
   printf("\n");
   n_ID_Fams = 0;
-  for (k = 0; k < globval.Elem_nFam; k++)
+  for (k = 0; k < lat.conf.Elem_nFam; k++)
     switch (lat.elemf[k].ElemF->Pkind) {
     case Wigl:
       W = dynamic_cast<WigglerType*>(lat.elemf[k].ElemF);
@@ -1440,10 +1448,7 @@ void param_data_type::get_IDs(void)
 }
 
 
-void set_ID_scl(const int Fnum, const double scl);
-
-
-void param_data_type::set_IDs(const double scl)
+void param_data_type::set_IDs(LatticeType &lat, const double scl)
 {
   int         k;
   WigglerType *W;
@@ -1456,19 +1461,19 @@ void param_data_type::set_IDs(const double scl)
       printf("setting ID family: %s %12.5e\n",
 	     lat.elemf[ID_Fams[k]-1].ElemF->PName, scl*W->BoBrhoV[0]);
 
-      set_Wiggler_BoBrho(ID_Fams[k], scl*W->BoBrhoV[0]);
+      set_Wiggler_BoBrho(lat, ID_Fams[k], scl*W->BoBrhoV[0]);
       break;
     case Insertion:
       printf("setting ID family: %s %12.5e\n",
 	     lat.elemf[ID_Fams[k]-1].ElemF->PName, scl);
 
-      set_ID_scl(ID_Fams[k], scl);
+      set_ID_scl(lat, ID_Fams[k], scl);
       break;
     case FieldMap:
       printf("setting ID family: %s %12.5e\n",
 	     lat.elemf[ID_Fams[k]-1].ElemF->PName, scl);
 
-      set_ID_scl(ID_Fams[k], scl);
+      set_ID_scl(lat, ID_Fams[k], scl);
       break;
     default:
       std::cout << "set_IDs: unknown element type" << std::endl;
@@ -1479,7 +1484,7 @@ void param_data_type::set_IDs(const double scl)
 }
 
 
-void param_data_type::reset_quads(void)
+void param_data_type::reset_quads(LatticeType &lat)
 {
   int k;
 
@@ -1500,7 +1505,7 @@ void param_data_type::reset_quads(void)
     printf("setting quad family: %s %12.5e\n",
 	   lat.elemf[Q_Fam[k]-1].ElemF->PName, b2[k]);
 
-    set_bn_design_fam(Q_Fam[k], Quad, b2[k], 0.0);
+    set_bn_design_fam(lat, Q_Fam[k], Quad, b2[k], 0.0);
   }
 }
 
@@ -1543,7 +1548,7 @@ void param_data_type::SVD(const int m, const int n, double **M,
 }
 
 
-void param_data_type::quad_config()
+void param_data_type::quad_config(LatticeType &lat)
 {
   int    i, j;
   double an;
@@ -1566,7 +1571,7 @@ void param_data_type::quad_config()
 
       quad_prms[Nquad-1] = lat.Elem_GetPos(Q_Fam[i], j);
 
-      if (j == 1) get_bn_design_elem(Q_Fam[i], j, Quad, b2[i], an);
+      if (j == 1) get_bn_design_elem(lat, Q_Fam[i], j, Quad, b2[i], an);
     }
   }
 
@@ -1575,7 +1580,7 @@ void param_data_type::quad_config()
 }
 
 
-bool param_data_type::get_SQ(void)
+bool param_data_type::get_SQ(LatticeType &lat)
 {
   int        j, k;
 //  Vector2  alpha3[3], beta3[3], nu3[3], eta3[3], etap3[3];
@@ -1590,10 +1595,10 @@ bool param_data_type::get_SQ(void)
   // Get Twiss params, no dispersion
   lat.Ring_GetTwiss(false, 0e0);
 
-  if (!status.codflag || !globval.stable) return false;
+  if (!lat.conf.codflag || !lat.conf.stable) return false;
 
   // Get global tunes
-  Nu_X = globval.TotalTune[X_]; Nu_Y = globval.TotalTune[Y_];
+  Nu_X = lat.conf.TotalTune[X_]; Nu_Y = lat.conf.TotalTune[Y_];
 
   if (trace) {
     printf("\n");
@@ -1609,7 +1614,7 @@ bool param_data_type::get_SQ(void)
   }
 
   Nsext = 0;
-  for (k = 0; k < globval.Cell_nLoc; k++) {
+  for (k = 0; k < lat.conf.Cell_nLoc; k++) {
     M = dynamic_cast<MpoleType*>(lat.elems[k]);
     if ((lat.elems[k]->Pkind == Mpole) && (M->n_design == Sext)) {
       Nsext++;
@@ -1755,12 +1760,12 @@ void param_data_type::A_matrix(void)
 }
 
 
-void param_data_type::X_vector(const bool first)
+void param_data_type::X_vector(LatticeType &lat, const bool first)
 {
   int k;
 
-  dnu0[X_] = globval.TotalTune[X_] - Nu_X0;
-  dnu0[Y_] = globval.TotalTune[Y_] - Nu_Y0;
+  dnu0[X_] = lat.conf.TotalTune[X_] - Nu_X0;
+  dnu0[Y_] = lat.conf.TotalTune[Y_] - Nu_Y0;
 
   if (first) {
     // Initial fill of X
@@ -1777,8 +1782,8 @@ void param_data_type::X_vector(const bool first)
       Xsext[k+2*Nsext] = scl_dnu*(Xsext0[k+2*Nsext]-sNu[X_][k-1]+dnu0[X_]/2.0);
       Xsext[k+3*Nsext] = scl_dnu*(Xsext0[k+3*Nsext]-sNu[Y_][k-1]+dnu0[Y_]/2.0);
     }
-    Xsext[4*Nsext+1] = scl_nu*(Nu_X0-globval.TotalTune[X_]);
-    Xsext[4*Nsext+2] = scl_nu*(Nu_Y0-globval.TotalTune[Y_]);
+    Xsext[4*Nsext+1] = scl_nu*(Nu_X0-lat.conf.TotalTune[X_]);
+    Xsext[4*Nsext+2] = scl_nu*(Nu_Y0-lat.conf.TotalTune[Y_]);
   }
 
   if (trace) {
@@ -1802,24 +1807,24 @@ void param_data_type::X_vector(const bool first)
 }
 
 
-void param_data_type::ini_ID_corr(const bool IDs)
+void param_data_type::ini_ID_corr(LatticeType &lat, const bool IDs)
 {
   int k;
 
   if (IDs) {
     // store ID families
-    get_IDs();
+    get_IDs(lat);
 
     // zero ID's
-    set_IDs(0.0);
+    set_IDs(lat, 0.0);
   }
 
   // Configuring quads (1 --> C means thin quads located in the middle of 1s)
-  quad_config();
+  quad_config(lat);
 
   // Configuring quads (1 --> C means thin quads located in the middle of 1s)
   // Read Betas and Nus
-  get_SQ(); Nconstr = 4*Nsext + 2;
+  get_SQ(lat); Nconstr = 4*Nsext + 2;
 
   // Note, allocated vectors and matrices are deallocated in ID_corr
   Xsext = dvector(1, Nconstr); Xsext0 = dvector(1, Nconstr);
@@ -1835,17 +1840,17 @@ void param_data_type::ini_ID_corr(const bool IDs)
   nu_0[X_] = 0.0; nu_0[Y_] = 0.0;
 
   // Defining undisturbed tunes
-  Nu_X0 = globval.TotalTune[X_]; Nu_Y0 = globval.TotalTune[Y_];
+  Nu_X0 = lat.conf.TotalTune[X_]; Nu_Y0 = lat.conf.TotalTune[Y_];
 
   // Set-up matrix A in X=A*b2Ls_
   A_matrix();
 
   // Now fill the X in X=A*b2Ls_
-  X_vector(true);
+  X_vector(lat, true);
 }
 
 
-void param_data_type::W_diag(void)
+void param_data_type::W_diag(LatticeType &lat)
 {
   double bxf, byf, nxf, nyf, b2Lsum;
   int    k;
@@ -1858,8 +1863,8 @@ void param_data_type::W_diag(void)
     nyf += sqr(Xsext[k+3*Nsext]);
   }
 
-  dnu0[X_] = globval.TotalTune[X_] - Nu_X0;
-  dnu0[Y_] = globval.TotalTune[Y_] - Nu_Y0;
+  dnu0[X_] = lat.conf.TotalTune[X_] - Nu_X0;
+  dnu0[Y_] = lat.conf.TotalTune[Y_] - Nu_Y0;
 
   b2Lsum = 0.0;
   for (k = 1; k <= Nquad; k++)
@@ -1875,8 +1880,8 @@ void param_data_type::W_diag(void)
 }
 
 
-bool param_data_type::ID_corr(const int N_calls, const int N_steps,
-			      const bool IDs, const int cnt)
+bool param_data_type::ID_corr(LatticeType &lat, const int N_calls,
+			      const int N_steps, const bool IDs, const int cnt)
 {
   int    i, j, k, Fnum;
   double b2L, a2L, L;
@@ -1893,11 +1898,11 @@ bool param_data_type::ID_corr(const int N_calls, const int N_steps,
   outf = file_write(fname);
   
   for (i = 1; i <= N_steps; i++) { //This brings ID strength in steps
-    if (IDs) set_IDs((double)i/(double)N_steps);
+    if (IDs) set_IDs(lat, (double)i/(double)N_steps);
 
-    get_SQ();                               // Read Betas and Nus
-    X_vector(false);                        // Fill in dX in dX=A*db2Ls_
-    W_diag();                               // Get statistics
+    get_SQ(lat);                            // Read Betas and Nus
+    X_vector(lat, false);                   // Fill in dX in dX=A*db2Ls_
+    W_diag(lat);                            // Get statistics
     for (j = 1; j <= N_calls; j++) {
       SVD(Nconstr, Nquad, A1, Xsext, b2Ls_, j == 1);
 
@@ -1905,18 +1910,19 @@ bool param_data_type::ID_corr(const int N_calls, const int N_steps,
 
       // add quad strengths (db2Ls_)
       for (k = 1; k <= Nquad; k++) {
-	set_dbnL_design_elem(lat.elems[quad_prms[k-1]]->Fnum,
+	set_dbnL_design_elem(lat, lat.elems[quad_prms[k-1]]->Fnum,
 			     lat.elems[quad_prms[k-1]]->Knum, Quad,
 			     -ID_step*b2Ls_[k], 0.0);
 
 	if ((i == N_steps) && (j == N_calls)) {
 	  Fnum = lat.elems[quad_prms[k-1]]->Fnum;
 	  L = lat.elems[quad_prms[k-1]]->PL;
-	  get_bnL_design_elem(Fnum, lat.elems[quad_prms[k-1]]->Knum, Quad, b2L,
-			      a2L);
+	  get_bnL_design_elem(lat, Fnum, lat.elems[quad_prms[k-1]]->Knum, Quad,
+			      b2L, a2L);
 	  // ElemFam not defined for flat file.
 	  // fprintf(outf, "%10s %6.2f %3d %8.5f\n",
-	  // 	  lat.elems[quad_prms[k-1]]->PName, lat.elems[quad_prms[k-1]]->S, k,
+	  // 	  lat.elems[quad_prms[k-1]]->PName,
+	  // 	  lat.elems[quad_prms[k-1]]->S, k,
 	  // 	  b2L-lat.elemf[Fnum-1]->ElemF->M->PBpar[HOMmax+Quad]*L);
 	  fprintf(outf, "%10s %6.2f %3d %8.5f\n",
 		  lat.elems[quad_prms[k-1]]->PName,
@@ -1926,16 +1932,16 @@ bool param_data_type::ID_corr(const int N_calls, const int N_steps,
 
       printf("\n");
       printf("Iteration: %2d\n", j);
-      if (get_SQ()) {
-	X_vector(false);                    // Fill in dX in dX=A*db2Ls_
-	W_diag();                           // Get statistics
+      if (get_SQ(lat)) {
+	X_vector(lat, false);               // Fill in dX in dX=A*db2Ls_
+	W_diag(lat);                        // Get statistics
 
-	printglob(lat.elems[0]);
+	printglob(lat);
       } else {
 	printf("ID_corr: correction failed\n");
 	// restore lattice
-	if (IDs) set_IDs(0.0);
-	reset_quads();
+	if (IDs) set_IDs(lat, 0.0);
+	reset_quads(lat);
 	return false;
       }
     }
@@ -1983,7 +1989,8 @@ char* get_prm(char **p)
   return prm;
 }
 
-void param_data_type::ReadCorMis(const bool Scale_it, const double Scale) const
+void param_data_type::ReadCorMis(LatticeType &lat, const bool Scale_it,
+				 const double Scale) const
 {
   char      elem[8];
   long      i,ii;
@@ -2009,7 +2016,7 @@ void param_data_type::ReadCorMis(const bool Scale_it, const double Scale) const
     exit_(1);
   }
   
-  for (i = 0; i <= globval.Cell_nLoc; i++)
+  for (i = 0; i <= lat.conf.Cell_nLoc; i++)
   {
     lat.getelem(i, &Cell);
     if (Cell.Pkind == Mpole)
@@ -2047,8 +2054,9 @@ void param_data_type::ReadCorMis(const bool Scale_it, const double Scale) const
   fclose(fo);
 }
 
-void param_data_type::LoadAlignTol(const bool Scale_it, const double Scale,
-				   const bool new_rnd, const int seed) const
+void param_data_type::LoadAlignTol(LatticeType &lat, const bool Scale_it,
+				   const double Scale, const bool new_rnd,
+				   const int seed) const
 {
   char     line[max_str], Name[max_str],  type[max_str];
   int      j, k, Fnum, seed_val;
@@ -2114,38 +2122,38 @@ void param_data_type::LoadAlignTol(const bool Scale_it, const double Scale,
 	  printf("misaligning all:         dx = %e, dy = %e, dr = %e\n",
 		 dx, dy, dr);
 	  if(rms)
-	    misalign_rms_type(All, dx, dy, dr_deg, new_rnd);
+	    misalign_rms_type(lat, All, dx, dy, dr_deg, new_rnd);
 	  else
-	    misalign_sys_type(All, dx, dy, dr_deg);
+	    misalign_sys_type(lat, All, dx, dy, dr_deg);
 	} else if (strcmp("girder", Name) == 0) {
 	  printf("misaligning girders:     dx = %e, dy = %e, dr = %e\n",
 		 dx, dy, dr);
 	  if (rms)
-	    misalign_rms_girders(globval.gs, globval.ge, dx, dy, dr_deg,
+	    misalign_rms_girders(lat, lat.conf.gs, lat.conf.ge, dx, dy, dr_deg,
 				 new_rnd);
 	  else
-	    misalign_sys_girders(globval.gs, globval.ge, dx, dy, dr_deg);
+	    misalign_sys_girders(lat, lat.conf.gs, lat.conf.ge, dx, dy, dr_deg);
 	} else if (strcmp("dipole", Name) == 0) {
 	  printf("misaligning dipoles:     dx = %e, dy = %e, dr = %e\n",
 		 dx, dy, dr);
 	  if (rms)
-	    misalign_rms_type(Dip, dx, dy, dr_deg, new_rnd);
+	    misalign_rms_type(lat, Dip, dx, dy, dr_deg, new_rnd);
 	  else
-	    misalign_sys_type(Dip, dx, dy, dr_deg);
+	    misalign_sys_type(lat, Dip, dx, dy, dr_deg);
 	} else if (strcmp("quad", Name) == 0) {
 	  printf("misaligning quadrupoles: dx = %e, dy = %e, dr = %e\n",
 		 dx, dy, dr);
 	  if (rms)
-	    misalign_rms_type(Quad, dx, dy, dr_deg, new_rnd);
+	    misalign_rms_type(lat, Quad, dx, dy, dr_deg, new_rnd);
 	  else
-	    misalign_sys_type(Quad, dx, dy, dr_deg);
+	    misalign_sys_type(lat, Quad, dx, dy, dr_deg);
 	} else if (strcmp("sext", Name) == 0) {
 	  printf("misaligning sextupoles:  dx = %e, dy = %e, dr = %e\n",
 		 dx, dy, dr);
 	  if (rms)
-	    misalign_rms_type(Sext, dx, dy, dr_deg, new_rnd);
+	    misalign_rms_type(lat, Sext, dx, dy, dr_deg, new_rnd);
 	  else
-	    misalign_sys_type(Sext, dx, dy, dr_deg);
+	    misalign_sys_type(lat, Sext, dx, dy, dr_deg);
 	} else if (strcmp("bpm", Name) == 0) {
 	  printf("misaligning bpms:        dx = %e, dy = %e, dr = %e\n",
 		 dx, dy, dr);
@@ -2153,11 +2161,12 @@ void param_data_type::LoadAlignTol(const bool Scale_it, const double Scale,
 	    for (j = 1; j <= n_bpm_[k]; j++) {
 	      loc = bpms_[k][j];
 	      if (rms)
-		misalign_rms_elem(lat.elems[loc]->Fnum, lat.elems[loc]->Knum,
-				  dx, dy, dr_deg, new_rnd);
+		misalign_rms_elem(lat, lat.elems[loc]->Fnum,
+				  lat.elems[loc]->Knum, dx, dy, dr_deg,
+				  new_rnd);
 	      else
-		misalign_sys_elem(lat.elems[loc]->Fnum, lat.elems[loc]->Knum,
-				  dx, dy, dr_deg);
+		misalign_sys_elem(lat, lat.elems[loc]->Fnum,
+				  lat.elems[loc]->Knum, dx, dy, dr_deg);
 	    }
 	} else {
 	  Fnum = ElemIndex(Name);
@@ -2165,9 +2174,9 @@ void param_data_type::LoadAlignTol(const bool Scale_it, const double Scale,
 	    printf("misaligning all %s:  dx = %e, dy = %e, dr = %e\n",
 		   Name, dx, dy, dr);
 	    if (rms)
-	      misalign_rms_fam(Fnum, dx, dy, dr_deg, new_rnd);
+	      misalign_rms_fam(lat, Fnum, dx, dy, dr_deg, new_rnd);
 	    else
-	      misalign_sys_fam(Fnum, dx, dy, dr_deg);
+	      misalign_sys_fam(lat, Fnum, dx, dy, dr_deg);
 	  } else
 	    printf("LoadAlignTol: undefined element %s\n", Name);
 	}
@@ -2180,8 +2189,8 @@ void param_data_type::LoadAlignTol(const bool Scale_it, const double Scale,
 }
 
 
-void param_data_type::LoadFieldErr(const bool Scale_it, const double Scale,
-				   const bool new_rnd) const
+void param_data_type::LoadFieldErr(LatticeType &lat, const bool Scale_it,
+				   const double Scale, const bool new_rnd) const
 {
   bool          rms, set_rnd;
   char          line[max_str], name[max_str], type[max_str], *prm, *p;
@@ -2224,7 +2233,7 @@ void param_data_type::LoadFieldErr(const bool Scale_it, const double Scale,
 	  }
 	  printf(" %2d %9.1e %9.1e\n", n, Bn, An);
 	  // convert to normalized multipole components
-	  SetFieldErrors(name, rms, r0, n, Bn, An, true);
+	  SetFieldErrors(lat, name, rms, r0, n, Bn, An, true);
 	}
       }
     } else
@@ -2235,7 +2244,8 @@ void param_data_type::LoadFieldErr(const bool Scale_it, const double Scale,
 }
 
 
-void param_data_type::LoadApers(const double scl_x, const double scl_y) const
+void param_data_type::LoadApers(LatticeType &lat, const double scl_x,
+				const double scl_y) const
 {
   char   line[max_str], Name[max_str];
   int    Fnum;
@@ -2259,20 +2269,20 @@ void param_data_type::LoadApers(const double scl_x, const double scl_y) const
 	  printf("setting all apertures to"
 		 " dxmin = %e, dxmax = %e, dymin = %e, dymax = %e\n",
 		 dxmin, dxmax, dymin, dymax);
-	set_aper_type(All, dxmin, dxmax, dymin, dymax);
+	set_aper_type(lat, All, dxmin, dxmax, dymin, dymax);
 	//	ini_aper(dxmin, dxmax, dymin, dymax);
       } else if (strcmp("quad", Name)==0) {
 	if(prt)
 	  printf("setting apertures at all quads to"
 		 " dxmin = %e, dxmax = %e, dymin = %e, dymax = %e\n",
 		 dxmin, dxmax, dymin, dymax);
-	set_aper_type(Quad, dxmin, dxmax, dymin, dymax);
+	set_aper_type(lat, Quad, dxmin, dxmax, dymin, dymax);
       } else if (strcmp("sext", Name) == 0) {
 	if(prt)
 	  printf("setting apertures at all sextupoles to"
 		 " dxmin = %e, dxmax = %e, dymin = %e, dymax = %e\n",
 		 dxmin, dxmax, dymin, dymax);
-	set_aper_type(Sext, dxmin, dxmax, dymin, dymax);
+	set_aper_type(lat, Sext, dxmin, dxmax, dymin, dymax);
       } else {
 	Fnum = ElemIndex(Name);
 	if(Fnum > 0) {
@@ -2280,7 +2290,7 @@ void param_data_type::LoadApers(const double scl_x, const double scl_y) const
 	    printf("setting apertures at all %s to"
 		   " dxmin = %e, dxmax = %e, dymin = %e, dymax = %e\n",
 		   Name, dxmin, dxmax, dymin, dymax);
-	  set_aper_fam(Fnum, dxmin, dxmax, dymin, dymax);
+	  set_aper_fam(lat, Fnum, dxmin, dxmax, dymin, dymax);
 	} else
 	  printf("LoadApers: lattice does not contain element %s\n", Name);
       }
@@ -2292,8 +2302,9 @@ void param_data_type::LoadApers(const double scl_x, const double scl_y) const
 }
 
 
-void param_data_type::Align_BPMs(const int n, const double bdxrms,
-				 const double bdzrms, const double bdarms) const
+void param_data_type::Align_BPMs(LatticeType &lat, const int n,
+				 const double bdxrms, const double bdzrms,
+				 const double bdarms) const
 {
   // Align BPMs to adjacent multipoles.
 
@@ -2304,14 +2315,14 @@ void param_data_type::Align_BPMs(const int n, const double bdxrms,
 
   const int n_step = 25;
 
-  // printf("Align_BPMs entered %d\n", lat.GetnKid(globval.bpm));
+  // printf("Align_BPMs entered %d\n", lat.GetnKid(lat.conf.bpm));
   printf("\n");
 
-  for (i = 1; i <= lat.GetnKid(globval.bpm); i++) {
-    loc = lat.Elem_GetPos(globval.bpm, i);
+  for (i = 1; i <= lat.GetnKid(lat.conf.bpm); i++) {
+    loc = lat.Elem_GetPos(lat.conf.bpm, i);
     M = dynamic_cast<MpoleType*>(lat.elems[loc]);
 
-    if ((loc == 1) || (loc == globval.Cell_nLoc)) {
+    if ((loc == 1) || (loc == lat.conf.Cell_nLoc)) {
       printf("Align_BPMs: BPM at entrance or exit of lattice: %ld\n", loc);
       exit_(1);
     }
@@ -2372,15 +2383,16 @@ void param_data_type::Align_BPMs(const int n, const double bdxrms,
     } while (j <= n_step);
 
     if (aligned) {
-      lat.Mpole_SetdS(globval.bpm, i);
-      lat.Mpole_SetdT(globval.bpm, i);
+      lat.Mpole_SetdS(lat.conf.bpm, i);
+      lat.Mpole_SetdT(lat.conf.bpm, i);
     } else
       printf("Align_BPMs: no multipole adjacent to BPM no %d\n", i);
   }
 }
 
 
-bool param_data_type::CorrectCOD_N(const int n_orbit, const int k)
+bool param_data_type::CorrectCOD_N(LatticeType &lat, const int n_orbit,
+				   const int k)
 {
   bool     cod = false;
   int      i, j;
@@ -2391,27 +2403,28 @@ bool param_data_type::CorrectCOD_N(const int n_orbit, const int k)
   for (j = 0; j < 2; j++)
     for (i = 1; i <= n_corr_[j]; i++) {
       loc = corrs_[j][i];
-      set_bnL_design_elem(lat.elems[loc]->Fnum, lat.elems[loc]->Knum, Dip, 0.0, 0.0);
+      set_bnL_design_elem(lat, lat.elems[loc]->Fnum, lat.elems[loc]->Knum, Dip,
+			  0.0, 0.0);
     }
 
   // load misalignments
-  LoadAlignTol(true, 1.0, true, k);
+  LoadAlignTol(lat, true, 1.0, true, k);
   for (i = 1; i <= n_scale; i++) {
     // Scale the rms values
-    LoadAlignTol(true, (double)i/(double)n_scale, false, k);
+    LoadAlignTol(lat, true, (double)i/(double)n_scale, false, k);
 
     if (bba) {
       // Beam based alignment
-      Align_BPMs(Quad,-1.,-1.,-1.);
+      Align_BPMs(lat, Quad, -1.0, -1.0, -1.0);
     }
 
     // get_traject();
     
-    cod = CorrectCOD(n_orbit, 1e0);
+    cod = CorrectCOD(lat, n_orbit, 1e0);
 
     if (!cod) break;
 
-    get_dbeta_dnu(m_dbeta, s_dbeta, m_dnu, s_dnu);
+    get_dbeta_dnu(lat, m_dbeta, s_dbeta, m_dnu, s_dnu);
     printf("\n");
     printf("RMS dbeta_x/beta_x = %4.2f%%,   dbeta_y/beta_y = %4.2f%%\n",
 	   1e2*s_dbeta[X_], 1e2*s_dbeta[Y_]);
@@ -2423,7 +2436,7 @@ bool param_data_type::CorrectCOD_N(const int n_orbit, const int k)
 }
 
 
-void param_data_type::ini_COD_corr(const int n_bpm_Fam,
+void param_data_type::ini_COD_corr(LatticeType &lat, const int n_bpm_Fam,
 				   const std::string bpm_names[],
 				   const int n_hcorr_Fam,
 				   const std::string hcorr_names[],
@@ -2472,26 +2485,27 @@ void param_data_type::ini_COD_corr(const int n_bpm_Fam,
   std::cout << "ini_COD_corr: n_bpm = " << n_bpm << ", n_hcorr = " << n_hcorr
        << ", n_vcorr = " << n_vcorr << std::endl;
 
-  gcmat(n_bpm, bpms, n_hcorr, hcorrs, 1, svd);
-  gcmat(n_bpm, bpms, n_vcorr, vcorrs, 2, svd);
+  gcmat(lat, n_bpm, bpms, n_hcorr, hcorrs, 1, svd);
+  gcmat(lat, n_bpm, bpms, n_vcorr, vcorrs, 2, svd);
 
   if (true) {
-    gtcmat(n_bpm, bpms, n_hcorr, hcorrs, 1, svd);
-    gtcmat(n_bpm, bpms, n_vcorr, vcorrs, 2, svd);
+    gtcmat(lat, n_bpm, bpms, n_hcorr, hcorrs, 1, svd);
+    gtcmat(lat, n_bpm, bpms, n_vcorr, vcorrs, 2, svd);
   }
 }
 
 
-bool param_data_type::cod_corr(const int n_cell, const double scl,
-			       const double h_maxkick, const double v_maxkick,
-			       const long n_bits, orb_corr_type orb_corr[])
+bool param_data_type::cod_corr(LatticeType &lat, const int n_cell,
+			       const double scl, const double h_maxkick,
+			       const double v_maxkick, const long n_bits,
+			       orb_corr_type orb_corr[])
 {
   bool            cod = false;
   long int        lastpos;
   double          m_dbeta[2], s_dbeta[2], m_dnu[2], s_dnu[2];
   ss_vect<double> ps;
 
-  orb_corr[X_].clr_trims(); orb_corr[Y_].clr_trims();
+  orb_corr[X_].clr_trims(lat); orb_corr[Y_].clr_trims(lat);
 
   cod = lat.getcod(0e0, lastpos);
   if (trace) printf("\ncod_corr: %d\n", cod);
@@ -2499,28 +2513,29 @@ bool param_data_type::cod_corr(const int n_cell, const double scl,
   if (!false || !cod) {
     printf("\ncould not find closed orbit; threading beam\n");
 
-    orb_corr[X_].clr_trims(); orb_corr[Y_].clr_trims();
-    thread_beam(n_cell, loc_Fam_name, bpm_Fam_names, corr_Fam_names, n_thread,
-		scl);
-    //prt_cod("codt.out", globval.bpm, true);
+    orb_corr[X_].clr_trims(lat); orb_corr[Y_].clr_trims(lat);
+    thread_beam(lat, n_cell, loc_Fam_name, bpm_Fam_names, corr_Fam_names,
+		n_thread, scl);
+    //prt_cod("codt.out", lat.conf.bpm, true);
   }
 
-  cod = cod_correct(n_orbit, scl, orb_corr);
+  cod = cod_correct(lat, n_orbit, scl, orb_corr);
   
-  get_dbeta_dnu(m_dbeta, s_dbeta, m_dnu, s_dnu);
+  get_dbeta_dnu(lat, m_dbeta, s_dbeta, m_dnu, s_dnu);
   printf("\ncod_corr: rms dbeta_x/beta_x = %4.2f%%"
 	 ",   dbeta_y/beta_y = %4.2f%%\n",
 	 1e2*s_dbeta[X_], 1e2*s_dbeta[Y_]);
   printf("          rms dnu_x          = %7.5f, dnu_y          = %7.5f\n",
 	 s_dnu[X_], s_dnu[Y_]);
 
-  prt_cod("cod.out", globval.bpm, true);    
+  prt_cod(lat, "cod.out", true);    
 
   return cod;
 }
 
 
-void param_data_type::Orb_and_Trim_Stat(orb_corr_type orb_corr[])
+void param_data_type::Orb_and_Trim_Stat(LatticeType &lat,
+					orb_corr_type orb_corr[])
 {
   int       i, j;
   int       SextCounter = 0;
@@ -2534,7 +2549,7 @@ void param_data_type::Orb_and_Trim_Stat(orb_corr_type orb_corr[])
    Sext_max[j] = Sext_sigma[j] = TrimMax[j] = 0e0;
   }
   SextCounter = 0;
-  for (i = 0; i <= globval.Cell_nLoc; i++) {
+  for (i = 0; i <= lat.conf.Cell_nLoc; i++) {
     M = dynamic_cast<MpoleType*>(lat.elems[i]);
     if ((lat.elems[i]->Pkind == Mpole) && (M->n_design == Sext)) {
       SextCounter++;
@@ -2585,7 +2600,7 @@ void param_data_type::Orb_and_Trim_Stat(orb_corr_type orb_corr[])
 }
 
 
-void param_data_type::prt_cod_corr_lat(void)
+void param_data_type::prt_cod_corr_lat(LatticeType &lat)
 {
   int  i;
   FILE *CodCorLatFile;
@@ -2597,7 +2612,7 @@ void param_data_type::prt_cod_corr_lat(void)
   fprintf(CodCorLatFile, "#            [m]     [m]      [m]             [m]"
 	  "              [m]     [m*m] \n");
 
-  for (i = 0; i <= globval.Cell_nLoc; i++){
+  for (i = 0; i <= lat.conf.Cell_nLoc; i++){
     fprintf(CodCorLatFile, "%4d:", i);
 
     if (i == 0)
@@ -2607,8 +2622,10 @@ void param_data_type::prt_cod_corr_lat(void)
 
     fprintf(CodCorLatFile, "%7.3f  %5.2f    %5.2f  %7.4f  %5.2f  %7.4f"
 	    "  %6.3f  %6.3f  %6.3f\n",
-	    lat.elems[i]->S, sqrt(lat.elems[i]->Beta[X_]*lat.elems[i]->Beta[Y_]),
-            lat.elems[i]->Beta[X_], lat.elems[i]->Nu[X_], lat.elems[i]->Beta[Y_],
+	    lat.elems[i]->S,
+	    sqrt(lat.elems[i]->Beta[X_]*lat.elems[i]->Beta[Y_]),
+            lat.elems[i]->Beta[X_],
+	    lat.elems[i]->Nu[X_], lat.elems[i]->Beta[Y_],
 	    lat.elems[i]->Nu[Y_],
 	    lat.elems[i]->Eta[X_], lat.elems[i]->Eta[X_]*lat.elems[i]->Beta[Y_],
             lat.elems[i]->Nu[X_]-lat.elems[i]->Nu[Y_]);
@@ -2617,7 +2634,8 @@ void param_data_type::prt_cod_corr_lat(void)
 }
 
 
-void param_data_type::err_and_corr_init(const string &param_file,
+void param_data_type::err_and_corr_init(LatticeType &lat,
+					const string &param_file,
 					orb_corr_type orb_corr[])
 {
   double TotalTuneX,TotalTuneY;
@@ -2634,12 +2652,12 @@ void param_data_type::err_and_corr_init(const string &param_file,
 
   long i;
   
-  globval.Cavity_on   = false; globval.radiation = false;
-  globval.Aperture_on = false;
+  lat.conf.Cavity_on   = false; lat.conf.radiation = false;
+  lat.conf.Aperture_on = false;
 
-  get_param(param_file);
+  get_param(lat, param_file);
 
-  lat.Ring_GetTwiss(true, 0.0); printglob(lat.elems[0]);
+  lat.Ring_GetTwiss(true, 0.0); printglob(lat);
 
   // Fit tunes to TuneX and TuneY
   if (TuneX*TuneY > 0) {
@@ -2647,7 +2665,7 @@ void param_data_type::err_and_corr_init(const string &param_file,
     nq[0]=nq[1]=0;
     nu[0]=TuneX;
     nu[1]=TuneY;
-    for (i = 0; i <= globval.Cell_nLoc; i++) {
+    for (i = 0; i <= lat.conf.Cell_nLoc; i++) {
       if ( lat.elems[i]->Pkind == Mpole ) {
 	if (strncmp(lat.elems[i]->PName,"qax",3) == 0){
 	  qfbuf[nq[0]]=i;
@@ -2661,14 +2679,14 @@ void param_data_type::err_and_corr_init(const string &param_file,
     }
 
     printf("Fittune: nq[0]=%ld nq[1]=%ld\n",nq[0],nq[1]);
-    TotalTuneX=globval.TotalTune[0];
-    TotalTuneY=globval.TotalTune[1];
+    TotalTuneX=lat.conf.TotalTune[0];
+    TotalTuneY=lat.conf.TotalTune[1];
     lat.Ring_Fittune(nu, (double)1e-4, nq, qfbuf, qdbuf, dk, 50L);
     printf("Fittune: nux= %f dnux= %f nuy= %f dnuy= %f\n",
-	   globval.TotalTune[0], globval.TotalTune[0]-TotalTuneX,
-	   globval.TotalTune[1], globval.TotalTune[1]-TotalTuneY);
+	   lat.conf.TotalTune[0], lat.conf.TotalTune[0]-TotalTuneX,
+	   lat.conf.TotalTune[1], lat.conf.TotalTune[1]-TotalTuneY);
 
-    lat.Ring_GetTwiss(true, 0.0); printglob(lat.elems[0]);
+    lat.Ring_GetTwiss(true, 0.0); printglob(lat);
   }
 
   // Fit chromaticities to ChromX and ChromY
@@ -2677,7 +2695,7 @@ void param_data_type::err_and_corr_init(const string &param_file,
     ns[0]=ns[1]=0;
     si[0]=ChromX;
     si[1]=ChromY;
-    for (i = 0; i <= globval.Cell_nLoc; i++) {
+    for (i = 0; i <= lat.conf.Cell_nLoc; i++) {
       if ( lat.elems[i]->Pkind == Mpole ) {
 	if (strncmp(lat.elems[i]->PName,"sf",2) == 0){
 	  sfbuf[ns[0]]=i;
@@ -2691,25 +2709,25 @@ void param_data_type::err_and_corr_init(const string &param_file,
     }
 
     printf("Fitchrom: ns[0]=%ld ns[1]=%ld\n",ns[0],ns[1]);
-    ChromaX=globval.Chrom[0];
-    ChromaY=globval.Chrom[1];
+    ChromaX=lat.conf.Chrom[0];
+    ChromaY=lat.conf.Chrom[1];
     lat.Ring_Fitchrom(si, 1e-4, ns, sfbuf, sdbuf, dks, 50L);
     printf("Fitchrom: six= %f dsix= %f siy= %f dsiy= %f\n",
-	   globval.Chrom[0], globval.Chrom[0]-ChromaX, globval.Chrom[1],
-	   globval.Chrom[1]-ChromaY);
+	   lat.conf.Chrom[0], lat.conf.Chrom[0]-ChromaX, lat.conf.Chrom[1],
+	   lat.conf.Chrom[1]-ChromaY);
 
-    lat.Ring_GetTwiss(true, 0.0); printglob(lat.elems[0]);
+    lat.Ring_GetTwiss(true, 0.0); printglob(lat);
   }
 
-  get_bare();
+  get_bare(lat);
 
-  cod_ini(bpm_Fam_names, corr_Fam_names, orb_corr);
+  cod_ini(lat, bpm_Fam_names, corr_Fam_names, orb_corr);
 
-  if ((ae_file != "") && bba) Align_BPMs(Sext,-1.,-1.,-1.);
+  if ((ae_file != "") && bba) Align_BPMs(lat, Sext, -1., -1., -1.);
 
-  if (N_calls > 0) ini_ID_corr(false);
+  if (N_calls > 0) ini_ID_corr(lat, false);
 
-  if (n_lin > 0) ini_skew_cor(disp_wave_y, disp_wave_o);
+  if (n_lin > 0) ini_skew_cor(lat, disp_wave_y, disp_wave_o);
 }
 
 
@@ -2724,8 +2742,8 @@ void param_data_type::err_and_corr_exit(orb_corr_type orb_corr[])
 }
 
 
-void get_bn2(const string file_name1, const string file_name2, int n,
-	     const bool prt)
+void get_bn2(LatticeType &lat, const string file_name1,
+	     const string file_name2, int n, const bool prt)
 {
   char   line[max_str], str[max_str], str1[max_str], *token, *name, *p;
   int    n_prm, Fnum, Knum, order;
@@ -2769,11 +2787,11 @@ void get_bn2(const string file_name1, const string file_name2, int n,
 
     if (Fnum != 0) {
       if (order == 0)
-        SetL(Fnum, bnL);
+        SetL(lat, Fnum, bnL);
       else
-        SetbnL(Fnum, order, bnL);
+        SetbnL(lat, Fnum, order, bnL);
 
-      L = GetL(Fnum, 1);
+      L = GetL(lat, Fnum, 1);
       if (Knum == 1) {
 	if (order == 0)
 	  fprintf(fp_lat, "%s: Drift, L = %8.6f;\n", str1, bnL);
@@ -2800,9 +2818,10 @@ void get_bn2(const string file_name1, const string file_name2, int n,
   }
   if (prt) printf("\n");
 
-  C = lat.elems[globval.Cell_nLoc]->S; recalc_S();
+  C = lat.elems[lat.conf.Cell_nLoc]->S; recalc_S(lat);
   if (prt)
-    printf("New Cell Length: %5.3f (%5.3f)\n", lat.elems[globval.Cell_nLoc]->S, C);
+    printf("New Cell Length: %5.3f (%5.3f)\n",
+	   lat.elems[lat.conf.Cell_nLoc]->S, C);
 
   fclose(inf); fclose(fp_lat);
 }

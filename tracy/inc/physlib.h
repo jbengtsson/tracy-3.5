@@ -53,7 +53,7 @@ double int_curly_H(long int n);
 
 void rm_mean(long int n, double x[]);
 
-void printglob(ElemType *elem);
+void printglob(LatticeType &lat);
 
 void printlatt(void);
 
@@ -61,7 +61,7 @@ void PrintMat(long n, psVector *A);
 
 void PrintVec(long n, double *X);
 
-void recalc_S();
+void recalc_S(LatticeType &lat);
 
 double Circumference(void);
 
@@ -69,7 +69,7 @@ void GetMean(long n, double *x);
 
 bool getcod(double dP, long &lastpos);
 
-void getabn(double *alpha, double *beta, double *nu);
+void getabn(LatticeType &lat, double *alpha, double *beta, double *nu);
 
 void TraceABN(long i0, long i1, const Vector2 &alpha, const Vector2 &beta,
 	      const Vector2 &eta, const Vector2 &etap, const double dP);
@@ -77,16 +77,15 @@ void TraceABN(long i0, long i1, const Vector2 &alpha, const Vector2 &beta,
 void ttwiss(const Vector2 &alpha, const Vector2 &beta,
                    const Vector2 &eta, const Vector2 &etap, const double dP);
 
-void prt_sigma(void);
+void prt_sigma(LatticeType &lat);
 
 void inibump(long coh, long cov);
 
-void getfloqs(psVector &x);
+void getfloqs(LatticeType &lat, psVector &x);
 
-void track(const char* file_name,
-	   double ic1, double ic2, double ic3, double ic4, double dp,
-	   long int nmax, long int &lastn, long int &lastpos, int floqs,
-	   double f_rf);
+void track(const char* file_name, LatticeType &lat, double ic1, double ic2,
+	   double ic3, double ic4, double dp, long int nmax, long int &lastn,
+	   long int &lastpos, int floqs, double f_rf);
 
 struct LOC_getdynap {
   double phi, delta;
@@ -94,16 +93,16 @@ struct LOC_getdynap {
   bool floqs, lost;
 } ;
 
-void track_(double r, struct LOC_getdynap *LINK);
+void track_(LatticeType &lat, double r, struct LOC_getdynap *LINK);
 
-void getdynap(double &r, double phi, double delta, double eps,
+void getdynap(LatticeType &lat, double &r, double phi, double delta, double eps,
 	      int nturn, bool floqs);
 
-void getcsAscr(void);
+void getcsAscr(LatticeType &lat);
 
-void dynap(FILE *fp, double r, const double delta,
-	   const double eps, const int npoint, const int nturn,
-       double x[], double y[], const bool floqs, const bool cod, const bool print);
+void dynap(FILE *fp, LatticeType &lat, double r, const double delta,
+	   const double eps, const int npoint, const int nturn,double x[],
+	   double y[], const bool floqs, const bool cod, const bool print);
 
 double get_aper(int n, double x[], double y[]);
 
@@ -116,7 +115,8 @@ double Fract(double x);
 
 double GetArg(double x, double px, double nu);
 
-void GetPhi(long n, double *x, double *px, double *y, double *py);
+void GetPhi(LatticeType &lat, long n, double *x, double *px, double *y,
+	    double *py);
 
 void Sinfft(int n, double *xr);
 
@@ -160,75 +160,81 @@ void GetPeaks(int n, double *x, int nf, double *nu, double *A);
 
 void GetPeaks1(int n, double *x, int nf, double *nu, double *A);
 
-void SetTol(int Fnum, double dxrms, double dyrms, double drrms);
+void SetTol(LatticeType &lat, int Fnum, double dxrms, double dyrms,
+	      double drrms);
 
-void Scale_Tol(int Fnum, double dxrms, double dyrms, double drrms);
+void Scale_Tol(LatticeType &lat, int Fnum, double dxrms, double dyrms,
+	       double drrms);
 
-void SetaTol(int Fnum, int Knum, double dx, double dy, double dr);
+void SetaTol(LatticeType &lat, int Fnum, int Knum, double dx, double dy,
+	     double dr);
 
-void ini_aper(const double Dxmin, const double Dxmax, 
+void ini_aper(LatticeType &lat, const double Dxmin, const double Dxmax, 
               const double Dymin, const double Dymax);
 
-void set_aper(const int Fnum, const double Dxmin, const double Dxmax,
-		     const double Dymin, const double Dymax);
+void set_aper(LatticeType &lat, const int Fnum, const double Dxmin,
+	      const double Dxmax, const double Dymin, const double Dymax);
 
-void LoadApertures(const char *ChamberFileName);
+void LoadApertures(LatticeType &lat, const char *ChamberFileName);
 
-void LoadTolerances(const char *TolFileName);
+void LoadTolerances(LatticeType &lat, const char *TolFileName);
 
-void ScaleTolerances(const char *TolFileName, const double scl);
+void ScaleTolerances(LatticeType &lat, const char *TolFileName,
+		     const double scl);
 
-void SetKpar(int Fnum, int Knum, int Order, double k);
+void SetKpar(LatticeType &lat, int Fnum, int Knum, int Order, double k);
 
-void SetdKpar(int Fnum, int Knum, int Order, double k);
+void SetdKpar(LatticeType &lat, int Fnum, int Knum, int Order, double k);
 
-void SetL(int Fnum, int Knum, double L);
+void SetL(LatticeType &lat, int Fnum, int Knum, double L);
 
-void SetL(int Fnum, double L);
+void SetL(LatticeType &lat, int Fnum, double L);
 
-void SetKLpar(int Fnum, int Knum, int Order, double kL);
+void SetKLpar(LatticeType &lat, int Fnum, int Knum, int Order, double kL);
 
-void SetdKLpar(int Fnum, int Knum, int Order, double dkL);
+void SetdKLpar(LatticeType &lat, int Fnum, int Knum, int Order, double dkL);
 
-void SetdKrpar(int Fnum, int Knum, int Order, double dkrel);
+void SetdKrpar(LatticeType &lat, int Fnum, int Knum, int Order, double dkrel);
 
-void Setbn(int Fnum, int order, double bn);
+void Setbn(LatticeType &lat, int Fnum, int order, double bn);
 
-void SetbnL(int Fnum, int order, double bnL);
+void SetbnL(LatticeType &lat, int Fnum, int order, double bnL);
 
-void Setdbn(int Fnum, int order, double dbn);
+void Setdbn(LatticeType &lat, int Fnum, int order, double dbn);
 
-void SetdbnL(int Fnum, int order, double dbnL);
+void SetdbnL(LatticeType &lat, int Fnum, int order, double dbnL);
 
-void Setbnr(int Fnum, int order, double bnr);
+void Setbnr(LatticeType &lat, int Fnum, int order, double bnr);
 
-void SetbnL_sys(int Fnum, int Order, double bnL_sys);
+void SetbnL_sys(LatticeType &lat, int Fnum, int Order, double bnL_sys);
 
-void set_dbn_rel(const int type, const int n, const double dbn_rel);
+void set_dbn_rel(LatticeType &lat, const int type, const int n,
+		 const double dbn_rel);
 
-double GetKpar(int Fnum, int Knum, int Order);
+double GetKpar(LatticeType &lat, int Fnum, int Knum, int Order);
 
-double GetL(int Fnum, int Knum);
+double GetL(LatticeType &lat, int Fnum, int Knum);
 
-double GetKLpar(int Fnum, int Knum, int Order);
+double GetKLpar(LatticeType &lat, int Fnum, int Knum, int Order);
 
-void SetdKLsys(int Fnum, int Order, double dkLsys);
+void SetdKLsys(LatticeType &lat, int Fnum, int Order, double dkLsys);
 
-void SetdKLrms(int Fnum, int Order, double dkLrms);
+void SetdKLrms(LatticeType &lat, int Fnum, int Order, double dkLrms);
 
-void Setdkrrms(int Fnum, int Order, double dkrrms);
+void Setdkrrms(LatticeType &lat, int Fnum, int Order, double dkrrms);
 
-void SetKL(int Fnum, int Order);
+void SetKL(LatticeType &lat, int Fnum, int Order);
 
-void set_dx(const int type, const double sigma_x, const double sigma_y);
+void set_dx(LatticeType &lat, const int type, const double sigma_x,
+	    const double sigma_y);
 
-void SetBpmdS(int Fnum, double dxrms, double dyrms);
+void SetBpmdS(LatticeType &lat, int Fnum, double dxrms, double dyrms);
 
-void codstat(double *mean, double *sigma, double *xmax, long lastpos,
-		    bool all);
+void codstat(LatticeType &lat, double *mean, double *sigma, double *xmax,
+	     long lastpos, bool all);
 
-void CodStatBpm(double *mean, double *sigma, double *xmax, long lastpos,
-                long bpmdis[]);
+void CodStatBpm(LatticeType &lat, double *mean, double *sigma, double *xmax,
+		long lastpos, long bpmdis[]);
                 
 double Sgn (double x);
 
@@ -244,7 +250,7 @@ void Dis_In(long *bpmdis, long *vcorrdis, long *hcorrdis,
 
 
 /* high level functions for reading lattice file*/  
-void Read_Lattice(const char *fic);
+void Read_Lattice(LatticeType &lat, const char *fic);
 long get_bpm_number(void);
 long get_hcorr_number(void);
 long get_vcorr_number(void);
@@ -252,19 +258,26 @@ long get_qt_number(void);
 
 
 /* tracking */
-void GetChromTrac(long Nb, long Nbtour, double emax, double *xix, double *xiz);
-void GetTuneTrac(long Nbtour, double emax, double *nux, double *nuz);
-void Trac(double x, double px, double y, double py, double dp, double ctau,
-                 long nmax, long pos, long &lastn, long &lastpos, FILE *outf1);
+void GetChromTrac(LatticeType &lat, long Nb, long Nbtour, double emax,
+		  double *xix, double *xiz);
+void GetTuneTrac(LatticeType &lat, long Nbtour, double emax, double *nux,
+		 double *nuz);
+void Trac(LatticeType &lat, double x, double px, double y, double py, double dp,
+	  double ctau, long nmax, long pos, long &lastn, long &lastpos,
+	  FILE *outf1);
 
 /* close orbit */
 // simple precision
-void findcodS(double dP);
-void computeFandJS(double *x, int n, double **fjac, double *fvect);
-void Newton_RaphsonS(int ntrial, double x[], int n, double tolx);
+void findcodS(LatticeType &lat, double dP);
+void computeFandJS(LatticeType &lat, double *x, int n, double **fjac,
+		   double *fvect);
+void Newton_RaphsonS(LatticeType &lat, int ntrial, double x[], int n,
+		     double tolx);
 // double precision
-void findcod(double dP);
-void computeFandJ(int n, double *x, psVector *fjac, double *fvect);
-int Newton_Raphson(int n, psVector &x, int ntrial, double tolx);
+void findcod(LatticeType &lat, double dP);
+void computeFandJ(LatticeType &lat, int n, double *x, psVector *fjac,
+		  double *fvect);
+int Newton_Raphson(LatticeType &lat, int n, psVector &x, int ntrial,
+		   double tolx);
 
 #endif

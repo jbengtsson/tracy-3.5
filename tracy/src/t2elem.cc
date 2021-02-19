@@ -14,8 +14,6 @@ double        c_1, d_1, c_2, d_2;
 double        s_FM;
 std::ofstream outf_;
 
-LatticeType lat;
-
 // for FieldMap
 bool  sympl             = true;
 int   FieldMap_filetype = 2;
@@ -181,11 +179,11 @@ void LtoG(ss_vect<T> &ps, Vector2 &S, Vector2 &R,
 
 
 template<typename T>
-inline T get_p_s(const ss_vect<T> &ps)
+inline T get_p_s(ConfigType &conf, const ss_vect<T> &ps)
 {
   T p_s, p_s2;
 
-  if (!globval.H_exact)
+  if (!conf.H_exact)
     // Small angle axproximation.
     p_s = 1e0 + ps[delta_];
   else {
@@ -279,8 +277,9 @@ class is_tps<double> {
       return 0e0;
     }
 
-  static inline void emittance(const double B2, const double u,
-			       const double ps0, const ss_vect<double> &xp) { }
+  static inline void emittance(ConfigType &conf, const double B2,
+			       const double u, const double ps0,
+			       const ss_vect<double> &xp) { }
 
   static inline void diff_mat(const double B2, const double u,
 			      const double ps0, const ss_vect<double> &xp) { }
@@ -319,8 +318,10 @@ class is_tps<tps> {
     return A[x_][delta_];
   }
 
-  static inline void emittance(const tps &B2_perp, const tps &ds,
-			       const tps &p_s0, const ss_vect<tps> &A) {
+  static inline void emittance(ConfigType &conf, const tps &B2_perp,
+			       const tps &ds, const tps &p_s0,
+			       const ss_vect<tps> &A)
+  {
     // M. Sands "The Physics of Electron Storage Rings" SLAC-121, Eq. (5.20),
     // p. 118:
     //   dN<u^2>/E^2 =
@@ -337,7 +338,7 @@ class is_tps<tps> {
       // D_11 = D_22 = curly_H_x,y * B_66 / 2,
       // curly_H_x,y = eta_Fl^2 + etap_Fl^2
       for (j = 0; j < 3; j++)
-	globval.D_rad[j] +=
+	conf.D_rad[j] +=
 	  (sqr(A_inv[j*2][delta_])+sqr(A_inv[j*2+1][delta_]))*B_66/2e0;
     }
   }
@@ -369,7 +370,8 @@ void get_B2(const double h_ref, const T B[], const ss_vect<T> &xp,
 
 
 template<typename T>
-void radiate(ss_vect<T> &ps, const double L, const double h_ref, const T B[])
+void radiate(ConfigType &conf, ss_vect<T> &ps, const double L,
+	     const double h_ref, const T B[])
 {
   // M. Sands "The Physics of Electron Storage Rings" SLAC-121, p. 98.
   // ddelta/d(ds) = -C_gamma*E_0^3*(1+delta)^2*(B_perp/(Brho))^2/(2*pi)
@@ -377,67 +379,68 @@ void radiate(ss_vect<T> &ps, const double L, const double h_ref, const T B[])
   ss_vect<T> cs;
 
   // Large ring: x' and y' unchanged.
-  p_s0 = get_p_s(ps); cs = ps; cs[px_] /= p_s0; cs[py_] /= p_s0;
+  p_s0 = get_p_s(conf, ps); cs = ps; cs[px_] /= p_s0; cs[py_] /= p_s0;
 
   // H = -p_s => ds = H*L.
   ds = (1e0+cs[x_]*h_ref+(sqr(cs[px_])+sqr(cs[py_]))/2e0)*L;
   get_B2(h_ref, B, cs, B2_perp, B2_par);
 
-  if (globval.radiation) {
+  if (conf.radiation) {
     ps[delta_] -= cl_rad*sqr(p_s0)*B2_perp*ds;
-    p_s1 = get_p_s(ps); ps[px_] = cs[px_]*p_s1; ps[py_] = cs[py_]*p_s1;
+    p_s1 = get_p_s(conf, ps); ps[px_] = cs[px_]*p_s1; ps[py_] = cs[py_]*p_s1;
   }
 
-  if (globval.emittance) is_tps<T>::emittance(B2_perp, ds, p_s0, cs);
+  if (conf.emittance) is_tps<T>::emittance(conf, B2_perp, ds, p_s0, cs);
 }
 
 
 template<typename T>
-void radiate_ID(ss_vect<T> &ps, const double L, const T &B2_perp)
+void radiate_ID(ConfigType &conf, ss_vect<T> &ps, const double L,
+		const T &B2_perp)
 {
   T          p_s0, p_s1, ds;
   ss_vect<T> cs;
 
   // Large ring: x' and y' unchanged.
-  cs = ps; p_s0 = get_p_s(ps); cs[px_] /= p_s0; cs[py_] /= p_s0;
+  cs = ps; p_s0 = get_p_s(conf, ps); cs[px_] /= p_s0; cs[py_] /= p_s0;
 
   // H = -p_s => ds = H*L.
   ds = (1e0+(sqr(cs[px_])+sqr(cs[py_]))/2e0)*L;
 
-  if (globval.radiation) {
+  if (conf.radiation) {
     ps[delta_] -= cl_rad*sqr(p_s0)*B2_perp*ds;
-    p_s1 = get_p_s(ps); ps[px_] = cs[px_]*p_s1; ps[py_] = cs[py_]*p_s1;
+    p_s1 = get_p_s(conf, ps); ps[px_] = cs[px_]*p_s1; ps[py_] = cs[py_]*p_s1;
   }
 
-  if (globval.emittance) is_tps<T>::emittance(B2_perp, ds, p_s0, cs);
+  if (conf.emittance) is_tps<T>::emittance(conf, B2_perp, ds, p_s0, cs);
 }
 
 
 template<typename T>
-void Drift(const double L, ss_vect<T> &ps)
+void Drift(ConfigType &conf, const double L, ss_vect<T> &ps)
 {
   T u;
 
-  if (!globval.H_exact) {
+  if (!conf.H_exact) {
     // Small angle axproximation.
     u = L/(1e0+ps[delta_]);
     ps[x_]  += u*ps[px_]; ps[y_] += u*ps[py_];
     ps[ct_] += u*(sqr(ps[px_])+sqr(ps[py_]))/(2e0*(1e0+ps[delta_]));
   } else {
-    u = L/get_p_s(ps);
+    u = L/get_p_s(conf, ps);
     ps[x_]  += u*ps[px_]; ps[y_] += u*ps[py_];
     ps[ct_] += u*(1e0+ps[delta_]) - L;
   }
-  if (globval.pathlength) ps[ct_] += L;
+  if (conf.pathlength) ps[ct_] += L;
 }
 
 
 template<typename T>
-void DriftType::Drift_Pass(ss_vect<T> &ps)
+void DriftType::Drift_Pass(ConfigType &conf, ss_vect<T> &ps)
 {
-  Drift(PL, ps);
+  Drift(conf, PL, ps);
 
-  if (globval.emittance && !globval.Cavity_on)
+  if (conf.emittance && !conf.Cavity_on)
     // Needs A^-1.
     curly_dH_x = is_tps<tps>::get_curly_H(ps);
 }
@@ -474,8 +477,9 @@ static double get_psi(double irho, double phi, double gap)
 
 
 template<typename T>
-void thin_kick(const int Order, const MpoleArray &MB, const double L,
-	       const double h_bend, const double h_ref, ss_vect<T> &ps)
+void thin_kick(ConfigType &conf, const int Order, const MpoleArray &MB,
+	       const double L, const double h_bend, const double h_ref,
+	       ss_vect<T> &ps)
 {
   // The vector potential for the combined-function sector bend is from:
   // C. Iselin "Lie Transformations and Transport Equations for Combined-
@@ -494,9 +498,9 @@ void thin_kick(const int Order, const MpoleArray &MB, const double L,
       ByoBrho  = ByoBrho1;
     }
 
-    if (globval.radiation || globval.emittance) {
+    if (conf.radiation || conf.emittance) {
       B[X_] = BxoBrho; B[Y_] = ByoBrho + h_bend; B[Z_] = 0e0;
-      radiate(ps, L, h_ref, B);
+      radiate(conf, ps, L, h_ref, B);
     }
 
     if (h_ref != 0e0) {
@@ -507,7 +511,7 @@ void thin_kick(const int Order, const MpoleArray &MB, const double L,
 	ps[ct_] += L*h_ref*ps0[x_];
       } else {
 	// The Hamiltonian is split into: H_d + H_k; with [H_d, H_d] = 0.
-	p_s = get_p_s(ps0); u = L*h_ref*ps0[x_]/p_s;
+	p_s = get_p_s(conf, ps0); u = L*h_ref*ps0[x_]/p_s;
 	ps[x_]  += u*ps0[px_];
 	ps[y_]  += u*ps0[py_];
 	ps[ct_] += u*(1e0+ps0[delta_]);
@@ -526,11 +530,11 @@ void thin_kick(const int Order, const MpoleArray &MB, const double L,
 
 
 template<typename T>
-void EdgeFocus(const double irho, const double phi, const double gap,
-		      ss_vect<T> &ps)
+void EdgeFocus(ConfigType &conf, const double irho, const double phi,
+	       const double gap, ss_vect<T> &ps)
 {
   ps[px_] += irho*tan(dtor(phi))*ps[x_];
-  if (!globval.dip_edge_fudge) {
+  if (!conf.dip_edge_fudge) {
     // warning: => diverging Taylor map (see SSC-141)
     // ps[py_] -=
     //   irho*tan(dtor(phi)-get_psi(irho, phi, gap))*ps[y_]/(1e0+ps[delta_]);
@@ -543,14 +547,17 @@ void EdgeFocus(const double irho, const double phi, const double gap,
 
 
 template<typename T>
-void p_rot(double phi, ss_vect<T> &ps)
+void p_rot(ConfigType &conf, double phi, ss_vect<T> &ps)
 {
   T          c, s, t, pz, p, val;
   ss_vect<T> ps1;
 
-  c = cos(dtor(phi)); s = sin(dtor(phi)); t = tan(dtor(phi)); pz = get_p_s(ps);
+  c = cos(dtor(phi));
+  s = sin(dtor(phi));
+  t = tan(dtor(phi));
+  pz = get_p_s(conf, ps);
 
-  if (!globval.H_exact && !globval.Cart_Bend) {
+  if (!conf.H_exact && !conf.Cart_Bend) {
      ps[px_] = s*pz + c*ps[px_];
   } else {
     // ps1 = ps; p = c*pz - s*ps1[px_];
@@ -568,12 +575,15 @@ void p_rot(double phi, ss_vect<T> &ps)
 
 
 template<typename T>
-void bend_fringe(const double hb, ss_vect<T> &ps)
+void bend_fringe(ConfigType &conf, const double hb, ss_vect<T> &ps)
 {
   T          coeff, u, pz, pz2, pz3;
   ss_vect<T> ps1;
 
-  coeff = -hb/2e0; ps1 = ps; pz = get_p_s(ps); pz2 = sqr(pz); pz3 = pz*pz2;
+  coeff = -hb/2e0;
+  ps1 = ps;
+  pz = get_p_s(conf, ps);
+  pz2 = sqr(pz); pz3 = pz*pz2;
   u = 1e0 + 4e0*coeff*ps1[px_]*ps1[y_]*ps1[py_]/pz3;
   if (u >= 0e0) {
     ps[y_]  = 2e0*ps1[y_]/(1e0+sqrt(u));
@@ -589,27 +599,27 @@ void bend_fringe(const double hb, ss_vect<T> &ps)
 
 
 template<typename T>
-void quad_fringe(const double b2, ss_vect<T> &ps)
+void quad_fringe(ConfigType &conf, const double b2, ss_vect<T> &ps)
 {
   T u, p_s;
 
   u = b2/(12e0*(1e0+ps[delta_])); p_s = u/(1e0+ps[delta_]);
   ps[py_] /= 1e0 - 3e0*u*sqr(ps[y_]); ps[y_] -= u*cube(ps[y_]);
-  if (globval.Cavity_on) ps[ct_] -= p_s*cube(ps[y_])*ps[py_];
+  if (conf.Cavity_on) ps[ct_] -= p_s*cube(ps[y_])*ps[py_];
   ps[px_] /= 1e0 + 3e0*u*sqr(ps[x_]);
-  if (globval.Cavity_on) ps[ct_] += p_s*cube(ps[x_])*ps[px_];
+  if (conf.Cavity_on) ps[ct_] += p_s*cube(ps[x_])*ps[px_];
   ps[x_] += u*cube(ps[x_]); u = u*3e0; p_s = p_s*3e0;
   ps[y_] = exp(-u*sqr(ps[x_]))*ps[y_]; ps[py_] = exp(u*sqr(ps[x_]))*ps[py_];
   ps[px_] += 2e0*u*ps[x_]*ps[y_]*ps[py_];
-  if (globval.Cavity_on) ps[ct_] -= p_s*sqr(ps[x_])*ps[y_]*ps[py_];
+  if (conf.Cavity_on) ps[ct_] -= p_s*sqr(ps[x_])*ps[y_]*ps[py_];
   ps[x_] = exp(u*sqr(ps[y_]))*ps[x_]; ps[px_] = exp(-u*sqr(ps[y_]))*ps[px_];
   ps[py_] -= 2e0*u*ps[y_]*ps[x_]*ps[px_];
-  if (globval.Cavity_on) ps[ct_] += p_s*sqr(ps[y_])*ps[x_]*ps[px_];
+  if (conf.Cavity_on) ps[ct_] += p_s*sqr(ps[y_])*ps[x_]*ps[px_];
 }
 
 
 template<typename T>
-void MpoleType::Mpole_Pass(ss_vect<T> &ps)
+void MpoleType::Mpole_Pass(ConfigType &conf, ss_vect<T> &ps)
 {
   int       seg = 0, i;
   double    dL = 0e0, dL1 = 0e0, dL2 = 0e0;
@@ -617,7 +627,7 @@ void MpoleType::Mpole_Pass(ss_vect<T> &ps)
 
   GtoL(ps, dS, dT, Pc0, Pc1, Ps1);
 
-  if (globval.emittance && !globval.Cavity_on) {
+  if (conf.emittance && !conf.Cavity_on) {
     // Needs A^-1.
     curly_dH_x = 0e0;
     for (i = 0; i <= 5; i++)
@@ -627,25 +637,25 @@ void MpoleType::Mpole_Pass(ss_vect<T> &ps)
   switch (Pmethod) {
 
   case Meth_Fourth:
-    if (globval.mat_meth && (Pthick == thick) && (Porder <= Quad)) {
+    if (conf.mat_meth && (Pthick == thick) && (Porder <= Quad)) {
       ps = is_double< ss_vect<T> >::ps(M_lin*ps);
 
-      // if (globval.emittance && !globval.Cavity_on)
+      // if (emittance && !Cavity_on)
       // 	if ((PL != 0e0) && (Pirho != 0e0))
       // 	  get_dI_eta_5(this);
     } else {
       // Fringe fields.
-      if (globval.quad_fringe && (PB[Quad+HOMmax] != 0e0))
-	quad_fringe(PB[Quad+HOMmax], ps);
-      if (!globval.Cart_Bend) {
+      if (conf.quad_fringe && (PB[Quad+HOMmax] != 0e0))
+	quad_fringe(conf, PB[Quad+HOMmax], ps);
+      if (!conf.Cart_Bend) {
 	if (Pirho != 0e0)
-	  EdgeFocus(Pirho, PTx1, Pgap, ps);
+	  EdgeFocus(conf, Pirho, PTx1, Pgap, ps);
       } else {
-	p_rot(PTx1, ps); bend_fringe(Pirho, ps);
+	p_rot(conf, PTx1, ps); bend_fringe(conf, Pirho, ps);
       }
 
       if (Pthick == thick) {
-	if (!globval.Cart_Bend) {
+	if (!conf.Cart_Bend) {
 	  // Polar coordinates.
 	  h_ref = Pirho; dL = PL/PN;
 	} else {
@@ -660,35 +670,35 @@ void MpoleType::Mpole_Pass(ss_vect<T> &ps)
 	dL1 = c_1*dL; dL2 = c_2*dL; dkL1 = d_1*dL; dkL2 = d_2*dL;
 
 	for (seg = 1; seg <= PN; seg++) {
-	  if (globval.emittance && !globval.Cavity_on) {
+	  if (conf.emittance && !conf.Cavity_on) {
 	    // Needs A^-1.
 	    curly_dH_x += is_tps<tps>::get_curly_H(ps);
 	    dI[4] += is_tps<tps>::get_dI_eta(ps);
 	  }
 
-	  Drift(dL1, ps);
-	  thin_kick(Porder, PB, dkL1, Pirho, h_ref, ps);
-	  Drift(dL2, ps);
-	  thin_kick(Porder, PB, dkL2, Pirho, h_ref, ps);
+	  Drift(conf, dL1, ps);
+	  thin_kick(conf, Porder, PB, dkL1, Pirho, h_ref, ps);
+	  Drift(conf, dL2, ps);
+	  thin_kick(conf, Porder, PB, dkL2, Pirho, h_ref, ps);
 
-	  if (globval.emittance && !globval.Cavity_on) {
+	  if (conf.emittance && !conf.Cavity_on) {
 	    // Needs A^-1.
 	    curly_dH_x += 4e0*is_tps<tps>::get_curly_H(ps);
 	    dI[4] += 4e0*is_tps<tps>::get_dI_eta(ps);
 	  }
 
-	  Drift(dL2, ps);
-	  thin_kick(Porder, PB, dkL1, Pirho, h_ref, ps);
-	  Drift(dL1, ps);
+	  Drift(conf, dL2, ps);
+	  thin_kick(conf, Porder, PB, dkL1, Pirho, h_ref, ps);
+	  Drift(conf, dL1, ps);
 
-	  if (globval.emittance && !globval.Cavity_on) {
+	  if (conf.emittance && !conf.Cavity_on) {
 	    // Needs A^-1.
 	    curly_dH_x += is_tps<tps>::get_curly_H(ps);
 	    dI[4] += is_tps<tps>::get_dI_eta(ps);
 	  }
 	}
 
-	if (globval.emittance && !globval.Cavity_on) {
+	if (conf.emittance && !conf.Cavity_on) {
 	  // Needs A^-1.
 	  curly_dH_x /= 6e0*PN;
 	  dI[1] += PL*is_tps<tps>::get_dI_eta(ps)*Pirho;
@@ -700,17 +710,17 @@ void MpoleType::Mpole_Pass(ss_vect<T> &ps)
 	  dI[5] += PL*fabs(cube(Pirho))*curly_dH_x;
 	}
       } else
-	thin_kick(Porder, PB, 1e0, 0e0, 0e0, ps);
+	thin_kick(conf, Porder, PB, 1e0, 0e0, 0e0, ps);
 
       // Fringe fields.
-      if (!globval.Cart_Bend) {
+      if (!conf.Cart_Bend) {
 	if (Pirho != 0e0)
-	  EdgeFocus(Pirho, PTx2, Pgap, ps);
+	  EdgeFocus(conf, Pirho, PTx2, Pgap, ps);
       } else {
-	bend_fringe(-Pirho, ps); p_rot(PTx2, ps);
+	bend_fringe(conf, -Pirho, ps); p_rot(conf, PTx2, ps);
       }
-      if (globval.quad_fringe && (PB[Quad+HOMmax] != 0e0))
-	quad_fringe(-PB[Quad+HOMmax], ps);
+      if (conf.quad_fringe && (PB[Quad+HOMmax] != 0e0))
+	quad_fringe(conf, -PB[Quad+HOMmax], ps);
     }
     break;
 
@@ -726,11 +736,11 @@ void MpoleType::Mpole_Pass(ss_vect<T> &ps)
 
 
 template<typename T>
-void MarkerType::Marker_Pass(ss_vect<T> &ps)
+void MarkerType::Marker_Pass(ConfigType &conf, ss_vect<T> &ps)
 {
   GtoL(ps, dS, dT, 0e0, 0e0, 0e0);
 
-  if (globval.emittance && !globval.Cavity_on)
+  if (conf.emittance && !conf.Cavity_on)
     // Needs A^-1.
     curly_dH_x = is_tps<tps>::get_curly_H(ps);
 
@@ -753,29 +763,29 @@ void Cav_Focus(const double L, const T delta, const bool entrance,
 #if 1
 
 template<typename T>
-void CavityType::Cavity_Pass(ss_vect<T> &ps)
+void CavityType::Cavity_Pass(ConfigType &conf, ss_vect<T> &ps)
 {
   double     L;
   T          delta;
 
   L = PL;
-  Drift(L/2e0, ps);
-  if (globval.Cavity_on && Pvolt != 0e0) {
-    delta = -Pvolt/(globval.Energy*1e9)
+  Drift(conf, L/2e0, ps);
+  if (conf.Cavity_on && Pvolt != 0e0) {
+    delta = -Pvolt/(conf.Energy*1e9)
             *sin(2e0*M_PI*Pfreq/c0*ps[ct_]+phi);
     ps[delta_] += delta;
 
-    if (globval.radiation) globval.dE -= is_double<T>::cst(delta);
+    if (conf.radiation) conf.dE -= is_double<T>::cst(delta);
 
-    if (globval.pathlength) ps[ct_] -= Ph/Pfreq*c0;
+    if (conf.pathlength) ps[ct_] -= Ph/Pfreq*c0;
   }
-  Drift(L/2e0, ps);
+  Drift(conf, L/2e0, ps);
 }
 
 #else
 
 template<typename T>
-void Cav_Pass1(CellType &Cell, ss_vect<T> &ps)
+void Cav_Pass1(ConfigType &conf, CellType &Cell, ss_vect<T> &ps)
 {
   /* J. Rosenzweig and L. Serafini "Transverse Particle Motion in
      Radio-Frequency Linear Accelerators" Phys. Rev. E 49(2),
@@ -787,31 +797,31 @@ void Cav_Pass1(CellType &Cell, ss_vect<T> &ps)
 
   L = PL;
   h = L/(PN+1e0);
-  // globval.Energy contains p_0.
-  delta_max = Pvolt/(1e9*globval.Energy); ddelta = delta_max/PN;
+  // Energy contains p_0.
+  delta_max = Pvolt/(1e9*Energy); ddelta = delta_max/PN;
   delta = delta_max*sin(2e0*M_PI*Pfreq*ps[ct_]/c0+phi);
   if (entry_focus) Cav_Focus(L, delta, true, ps);
   for (k = 0; k < PN; k++) {
-    Drift(h, ps);
+    Drift(conf, h, ps);
 
     ps[delta_] -= ddelta*sin(2e0*M_PI*Pfreq*(ps[ct_]-k*h)/c0+phi);
 
-    if (globval.radiation) globval.dE -= is_double<T>::cst(ddelta);
-    if (globval.pathlength) ps[ct_] -= Ph/Pfreq*c0;
+    if (conf.radiation) conf.dE -= is_double<T>::cst(ddelta);
+    if (conf.pathlength) ps[ct_] -= Ph/Pfreq*c0;
   }
-  Drift(h, ps);
+  Drift(conf, h, ps);
   if (exit_focus) Cav_Focus(L, delta, false, ps);
 
   if (false) {
     // Update p_0.
     p_t1 = is_double<T>::cst(ps[delta_]);
     ps[delta_] -= p_t1;
-    // globval.Energy contains p_0.
-    globval.Energy *= sqrt(1e0+2e0*p_t1/globval.beta0+sqr(p_t1));
-    globval.gamma0 = sqrt(sqr(m_e)+sqr(1e9*globval.Energy))/m_e;
-    globval.beta0  = sqrt(1e0-1e0/sqr(globval.gamma0));
+    // Energy contains p_0.
+    Energy *= sqrt(1e0+2e0*p_t1/beta0+sqr(p_t1));
+    gamma0 = sqrt(sqr(m_e)+sqr(1e9*Energy))/m_e;
+    beta0  = sqrt(1e0-1e0/sqr(gamma0));
     printf("\np0 = %12.5e, beta0 = %12.5e, gamma0 = %12.5e\n",
-	   globval.Energy, globval.beta0, globval.gamma0);
+	   Energy, beta0, gamma0);
   }
 }
 
@@ -837,9 +847,9 @@ void CavityType::Cavity_Pass(ss_vect<T> &ps)
   Lambda = c0/Pfreq;
 
   p_t = is_double<T>::cst(ps[delta_]);
-  delta = sqrt(1e0+2e0*p_t/globval.beta0+sqr(p_t)) - 1e0;
-  // globval.Energy contains p_0 [GeV].
-  p0 = 1e9*globval.Energy/m_e;
+  delta = sqrt(1e0+2e0*p_t/beta0+sqr(p_t)) - 1e0;
+  // Energy contains p_0 [GeV].
+  p0 = 1e9*Energy/m_e;
   gamma = sqrt(1e0+sqr(p0));
   dgammaMax = Pvolt/m_e; dgamma = dgammaMax*sin(phi);
   gamma1 = gamma + dgamma;
@@ -890,7 +900,7 @@ void CavityType::Cavity_Pass(ss_vect<T> &ps)
       -dgammaMax/(2e0*sqrt(2e0)*L*gamma1)*sin(alpha)*(1e0+ps0[delta_])*ps0[y_]
       + gamma/gamma1*cos(alpha)*ps0[py_];
 
-   // globval.Energy contains p_0 [GeV].
+   // Energy contains p_0 [GeV].
     ps[delta_] =
       2e0*M_PI*Pfreq*dgammaMax*cos(phi)/(c0*gamma1)*ps0[ct_]
       + 1e0/(1e0+dp/p0)*ps0[delta_];
@@ -902,12 +912,12 @@ void CavityType::Cavity_Pass(ss_vect<T> &ps)
     // Update p_0.
     p_t1 = is_double<T>::cst(ps[delta_]);
     ps[delta_] -= p_t1;
-    // globval.Energy contains p_0.
-    globval.Energy *= sqrt(1e0+2e0*p_t1/globval.beta0+sqr(p_t1));
-    globval.gamma0 = sqrt(sqr(m_e)+sqr(p0))/m_e;
-    globval.beta0  = sqrt(1e0-1e0/sqr(globval.gamma0));
+    // Energy contains p_0.
+    Energy *= sqrt(1e0+2e0*p_t1/beta0+sqr(p_t1));
+    gamma0 = sqrt(sqr(m_e)+sqr(p0))/m_e;
+    beta0  = sqrt(1e0-1e0/sqr(gamma0));
     printf("\np0 = %12.5e, beta0 = %12.5e, gamma0 = %12.5e\n",
-	   globval.Energy, globval.beta0, globval.gamma0);
+	   Energy, beta0, gamma0);
   }
 }
 
@@ -977,9 +987,8 @@ void get_dI_eta_5_ID(MpoleType *Cell)
 
 
 template<typename T>
-inline void get_Axy(const WigglerType *W, const double z,
-		    ss_vect<T> &x, T AxoBrho[], T AyoBrho[])
-
+inline void get_Axy(ConfigType &conf, const WigglerType *W,
+		    const double z, ss_vect<T> &x, T AxoBrho[], T AyoBrho[])
 {
   int     i;
   double  ky, kz_n;
@@ -1005,7 +1014,7 @@ inline void get_Axy(const WigglerType *W, const double z,
     AxoBrho[2] += W->BoBrhoV[i]*ky/kz_n*cx*shy*sz;
     AyoBrho[2] += W->BoBrhoV[i]*W->kxV[i]/kz_n*sx*chy*sz;
 
-    if (globval.radiation) {
+    if (conf.radiation) {
       cz = cos(kz_n*z);
       // derivatives with respect to z
       AxoBrho[3] += W->BoBrhoV[i]*cx*chy*cz;
@@ -1069,7 +1078,7 @@ inline void get_Axy_map(const FieldMapType *FM, const double z,
     (ay2-ay1)/(2e0*dy) + (ay2+ay1-2e0*ay0)/sqr(dy)*is_tps<T>::set_prm(y_+1);
   AyoBrho[2] *= FM->scl;
 
-  if (globval.radiation) {
+  if (radiation) {
     // derivatives with respect to z
     splin2(FM->y_pos, FM->s_pos, FM->AxoBrho, FM->AxoBrho2, FM->m_y, FM->n_s,
 	   y, z+dz, &ax2);
@@ -1091,7 +1100,8 @@ inline void get_Axy_map(const FieldMapType *FM, const double z,
 */
 
 template<typename T>
-void Wiggler_pass_EF(const ElemType *elem, ss_vect<T> &ps)
+void Wiggler_pass_EF(ConfigType &conf, const ElemType *elem,
+		     ss_vect<T> &ps)
 {
   // First order symplectic integrator for wiggler using expanded Hamiltonian
 
@@ -1119,7 +1129,8 @@ void Wiggler_pass_EF(const ElemType *elem, ss_vect<T> &ps)
   for (i = 1; i <= nstep; ++i) {
     switch (elem->Pkind) {
     case Wigl:
-      get_Axy(dynamic_cast<const WigglerType*>(elem), z, ps, AxoBrho, AyoBrho);
+      get_Axy(conf, dynamic_cast<const WigglerType*>(elem), z, ps, AxoBrho,
+	      AyoBrho);
       break;
     // case FieldMap:
     //   get_Axy_map(FM, z, ps, AxoBrho, AyoBrho);
@@ -1152,11 +1163,11 @@ void Wiggler_pass_EF(const ElemType *elem, ss_vect<T> &ps)
 	   << std::setw(11) << is_double<T>::cst(ps[py_])
 	   << std::endl;
 
-    if (globval.pathlength) ps[ct_] += h;
+    if (conf.pathlength) ps[ct_] += h;
 
-    if (globval.radiation || globval.emittance) {
+    if (conf.radiation || conf.emittance) {
       B[X_] = -AyoBrho[3]; B[Y_] = AxoBrho[3]; B[Z_] = AyoBrho[1] - AxoBrho[2];
-      radiate(ps, h, 0e0, B);
+      radiate(conf, ps, h, 0e0, B);
     }
 
     z += h;
@@ -1165,11 +1176,10 @@ void Wiggler_pass_EF(const ElemType *elem, ss_vect<T> &ps)
 
 
 template<typename T>
-inline void get_Axy2(const double z,
-		     const double kxV, const double kxH, const double kz,
-		     const double BoBrhoV, const double BoBrhoH,
-		     const double phi,
-		     ss_vect<T> &x, T AxoBrho[], T AyoBrho[])
+inline void get_Axy2(ConfigType &conf, const double z,const double kxV,
+		     const double kxH, const double kz, const double BoBrhoV,
+		     const double BoBrhoH, const double phi, ss_vect<T> &x,
+		     T AxoBrho[], T AyoBrho[])
 {
   int i;
   T   cx, sx, cz1, cz2, sz1, sz2, chy, shy, kyH, kyV, chx, shx, cy, sy;
@@ -1202,7 +1212,7 @@ inline void get_Axy2(const double z,
   AyoBrho[2] += BoBrhoV*kxV/kz*sx*chy*sz1;
   AyoBrho[2] += BoBrhoH*kxH/kz*chx*sy*sz2;
 
-  if (globval.radiation) {
+  if (conf.radiation) {
     cz1 = cos(kz*z); cz2=cos(kz*z+phi);
     /* derivatives with respect to z */
     AxoBrho[3] += BoBrhoV*cx*chy*cz1;
@@ -1214,9 +1224,9 @@ inline void get_Axy2(const double z,
 
 
 template<typename T>
-void Wiggler_pass_EF2(int nstep, double L, double kxV, double kxH, double kz,
-		      double BoBrhoV, double BoBrhoH, double phi,
-		      ss_vect<T> &x)
+void Wiggler_pass_EF2(ConfigType &conf, int nstep, double L, double kxV,
+		      double kxH, double kz, double BoBrhoV, double BoBrhoH,
+		      double phi, ss_vect<T> &x)
 {
   // First order symplectic integrator for wiggler using expanded Hamiltonian
 
@@ -1227,7 +1237,7 @@ void Wiggler_pass_EF2(int nstep, double L, double kxV, double kxH, double kz,
 
   h = L/nstep; z = 0e0;
   for (i = 1; i <= nstep; ++i) {
-    get_Axy2(z, kxV, kxH, kz, BoBrhoV, BoBrhoH, phi, x, AxoBrho, AyoBrho);
+    get_Axy2(conf, z, kxV, kxH, kz, BoBrhoV, BoBrhoH, phi, x, AxoBrho, AyoBrho);
 
     psi = 1e0 + x[delta_]; hodp = h/psi;
 
@@ -1247,11 +1257,11 @@ void Wiggler_pass_EF2(int nstep, double L, double kxV, double kxH, double kz,
     x[x_] += hodp*(px-AxoBrho[0]); x[y_] += hodp*(py-AyoBrho[0]);
     x[ct_] += h*(sqr((px-AxoBrho[0])/psi) + sqr((py-AyoBrho[0])/psi))/2e0;
 
-    if (globval.pathlength) x[ct_] += h;
+    if (conf.pathlength) x[ct_] += h;
 
-    if (globval.radiation || globval.emittance) {
+    if (conf.radiation || conf.emittance) {
       B[X_] = -AyoBrho[3]; B[Y_] = AxoBrho[3]; B[Z_] = AyoBrho[1] - AxoBrho[2];
-      radiate(x, h, 0e0, B);
+      radiate(conf, x, h, 0e0, B);
     }
 
     z += h;
@@ -1262,9 +1272,9 @@ void Wiggler_pass_EF2(int nstep, double L, double kxV, double kxH, double kz,
 
 
 template<typename T>
-inline void get_Axy_EF3(const WigglerType *W, const double z,
-			const ss_vect<T> &ps,
-			T &AoBrho, T dAoBrho[], T &dp, const bool hor)
+inline void get_Axy_EF3(ConfigType &conf, const WigglerType *W,
+			const double z, const ss_vect<T> &ps, T &AoBrho,
+			T dAoBrho[], T &dp, const bool hor)
 {
   int    i;
   double ky, kz_n;
@@ -1285,7 +1295,7 @@ inline void get_Axy_EF3(const WigglerType *W, const double z,
       // A_x/Brho
       AoBrho += W->BoBrhoV[i]/kz_n*cx*chy*sz;
 
-      if (globval.radiation || (globval.emittance && !globval.Cavity_on)) {
+      if (conf.radiation || (conf.emittance && !conf.Cavity_on)) {
 	cz = cos(kz_n*z);
 	dAoBrho[X_] -= W->BoBrhoV[i]*W->kxV[i]/kz_n*sx*chy*sz;
 	dAoBrho[Y_] += W->BoBrhoV[i]*ky/kz_n*cx*shy*sz;
@@ -1301,7 +1311,7 @@ inline void get_Axy_EF3(const WigglerType *W, const double z,
       // A_y/Brho
       AoBrho += W->BoBrhoV[i]*W->kxV[i]/(ky*kz_n)*sx*shy*sz;
 
-      if (globval.radiation || (globval.emittance && !globval.Cavity_on)) {
+      if (conf.radiation || (conf.emittance && !conf.Cavity_on)) {
 	cz = cos(kz_n*z);
 	dAoBrho[X_] +=
 	  W->BoBrhoV[i]*sqr(W->kxV[i])/(ky*kz_n)*cx*shy*sz;
@@ -1317,7 +1327,7 @@ inline void get_Axy_EF3(const WigglerType *W, const double z,
 
 
 template<typename T>
-void Wiggler_pass_EF3(ElemType *elem, ss_vect<T> &ps)
+void Wiggler_pass_EF3(ConfigType &conf, ElemType *elem, ss_vect<T> &ps)
 {
   /* Symplectic integrator (2nd order) for Insertion Devices based on:
 
@@ -1333,7 +1343,7 @@ void Wiggler_pass_EF3(ElemType *elem, ss_vect<T> &ps)
 
   h = elem->PL/W->PN; z = 0e0;
 
-  if (globval.emittance && !globval.Cavity_on) {
+  if (conf.emittance && !conf.Cavity_on) {
     // Needs A^-1.
     elem->curly_dH_x = 0e0;
     for (i = 0; i <= 5; i++)
@@ -1347,57 +1357,57 @@ void Wiggler_pass_EF3(ElemType *elem, ss_vect<T> &ps)
     z += 0.5*h;
 
     // 2: half drift in y
-    get_Axy_EF3(W, z, ps, AyoBrho, dAyoBrho, dpx, false);
+    get_Axy_EF3(conf, W, z, ps, AyoBrho, dAyoBrho, dpx, false);
 
     ps[px_] -= dpx; ps[py_] -= AyoBrho;
     ps[y_] += 0.5*hd*ps[py_];
     ps[ct_] += sqr(0.5)*hd*sqr(ps[py_])/(1e0+ps[delta_]);
 
-    get_Axy_EF3(W, z, ps, AyoBrho, dAyoBrho, dpx, false);
+    get_Axy_EF3(conf, W, z, ps, AyoBrho, dAyoBrho, dpx, false);
 
     ps[px_] += dpx; ps[py_] += AyoBrho;
 
     // 3: full drift in x
-    get_Axy_EF3(W, z, ps, AxoBrho, dAxoBrho, dpy, true);
+    get_Axy_EF3(conf, W, z, ps, AxoBrho, dAxoBrho, dpy, true);
 
     ps[px_] -= AxoBrho; ps[py_] -= dpy; ps[x_] += hd*ps[px_];
     ps[ct_] += 0.5*hd*sqr(ps[px_])/(1e0+ps[delta_]);
 
-    if (globval.pathlength) ps[ct_] += h;
+    if (conf.pathlength) ps[ct_] += h;
 
-    get_Axy_EF3(W, z, ps, AxoBrho, dAxoBrho, dpy, true);
+    get_Axy_EF3(conf, W, z, ps, AxoBrho, dAxoBrho, dpy, true);
 
     ps[px_] += AxoBrho; ps[py_] += dpy;
 
     // 4: a half drift in y
-    get_Axy_EF3(W, z, ps, AyoBrho, dAyoBrho, dpx, false);
+    get_Axy_EF3(conf, W, z, ps, AyoBrho, dAyoBrho, dpx, false);
 
     ps[px_] -= dpx; ps[py_] -= AyoBrho;
     ps[y_] += 0.5*hd*ps[py_];
     ps[ct_] += sqr(0.5)*hd*sqr(ps[py_])/(1e0+ps[delta_]);
 
-    get_Axy_EF3(W, z, ps, AyoBrho, dAyoBrho, dpx, false);
+    get_Axy_EF3(conf, W, z, ps, AyoBrho, dAyoBrho, dpx, false);
 
     ps[px_] += dpx; ps[py_] += AyoBrho;
 
     // 5: half step in z
     z += 0.5*h;
 
-    if (globval.radiation || globval.emittance) {
-      get_Axy_EF3(W, z, ps, AyoBrho, dAyoBrho, dpx, false);
-      get_Axy_EF3(W, z, ps, AxoBrho, dAxoBrho, dpy, true);
+    if (conf.radiation || conf.emittance) {
+      get_Axy_EF3(conf, W, z, ps, AyoBrho, dAyoBrho, dpx, false);
+      get_Axy_EF3(conf, W, z, ps, AxoBrho, dAxoBrho, dpy, true);
       B[X_] = -dAyoBrho[Z_]; B[Y_] = dAxoBrho[Z_];
       B[Z_] = dAyoBrho[X_] - dAxoBrho[Y_];
       // Tranform from Conjugate to Kinematic Momenta.
       ps[px_] -= AxoBrho; ps[py_] -= AyoBrho;
-      radiate(ps, h, 0e0, B);
+      radiate(conf, ps, h, 0e0, B);
       // Tranform from Kinematic to Conjugate Momenta.
       ps[px_] += AxoBrho; ps[py_] += AyoBrho;
     }
 
-    if (globval.emittance && !globval.Cavity_on) {
+    if (conf.emittance && !conf.Cavity_on) {
       // Needs A^-1.
-      get_Axy_EF3(W, z, ps, AxoBrho, dAxoBrho, dpy, true);
+      get_Axy_EF3(conf, W, z, ps, AxoBrho, dAxoBrho, dpy, true);
       irho = is_double<T>::cst(dAxoBrho[Z_]);
       // Tranform to Configuration Space.
       ps1 = ps;
@@ -1412,7 +1422,7 @@ void Wiggler_pass_EF3(ElemType *elem, ss_vect<T> &ps)
     }
   }
 
-  if (globval.emittance && !globval.Cavity_on) {
+  if (conf.emittance && !conf.Cavity_on) {
     // Needs A^-1.
     elem->curly_dH_x /= W->PN;
     for (i = 0; i <= 5; i++)
@@ -1422,7 +1432,7 @@ void Wiggler_pass_EF3(ElemType *elem, ss_vect<T> &ps)
 
 
 template<typename T>
-void WigglerType::Wiggler_Pass(ss_vect<T> &ps)
+void WigglerType::Wiggler_Pass(ConfigType &conf, ss_vect<T> &ps)
 {
   int        seg;
   double     L, L1, L2, K1, K2;
@@ -1441,37 +1451,42 @@ void WigglerType::Wiggler_Pass(ss_vect<T> &ps)
 
   case Meth_First:
     if ((W->BoBrhoV[0] != 0e0) || (W->BoBrhoH[0] != 0e0)) {
-      if (!globval.EPU)
-	Wiggler_pass_EF(this, ps);
+      if (!conf.EPU)
+	Wiggler_pass_EF(conf, this, ps);
       else {
-	Wiggler_pass_EF2(W->PN, PL, W->kxV[0], W->kxH[0],
+	Wiggler_pass_EF2(conf, W->PN, PL, W->kxV[0], W->kxH[0],
 		2e0*M_PI/W->Lambda, W->BoBrhoV[0], W->BoBrhoH[0],
 		W->phi[0], ps);
       }
     } else
       // drift if field = 0
-      Drift(PL, ps);
+      Drift(conf, PL, ps);
     break;
 
   case Meth_Second:
     if ((W->BoBrhoV[0] != 0e0) || (W->BoBrhoH[0] != 0e0)) {
-      Wiggler_pass_EF3(this, ps);
+      Wiggler_pass_EF3(conf, this, ps);
     } else
       // drift if field = 0
-      Drift(PL, ps);
+      Drift(conf, PL, ps);
     break;
 
   case Meth_Fourth:  /* 4-th order integrator */
     L = PL/W->PN;
     L1 = c_1*L; L2 = c_2*L; K1 = d_1*L; K2 = d_2*L;
     for (seg = 1; seg <= W->PN; seg++) {
-      Drift(L1, ps); ps1 = ps;
-      thin_kick(W->Porder, W->PBW, K1, 0e0, 0e0, ps1);
-      ps[py_] = ps1[py_]; Drift(L2, ps); ps1 = ps;
-      thin_kick(W->Porder, W->PBW, K2, 0e0, 0e0, ps1);
-      ps[py_] = ps1[py_]; Drift(L2, ps); ps1 = ps;
-      thin_kick(W->Porder, W->PBW, K1, 0e0, 0e0, ps1);
-      ps[py_] = ps1[py_]; Drift(L1, ps);
+      Drift(conf, L1, ps); ps1 = ps;
+      thin_kick(conf, W->Porder, W->PBW, K1, 0e0, 0e0, ps1);
+      ps[py_] = ps1[py_];
+      Drift(conf, L2, ps);
+      ps1 = ps;
+      thin_kick(conf, W->Porder, W->PBW, K2, 0e0, 0e0, ps1);
+      ps[py_] = ps1[py_];
+      Drift(conf, L2, ps);
+      ps1 = ps;
+      thin_kick(conf, W->Porder, W->PBW, K1, 0e0, 0e0, ps1);
+      ps[py_] = ps1[py_];
+      Drift(conf, L1, ps);
     }
     break;
   }
@@ -1505,7 +1520,8 @@ inline T get_p_s_cs(const ss_vect<T> &cs)
 
 
 template<typename T>
-void radiate_cs(ss_vect<T> &cs, const double L, const T B[])
+void radiate_cs(ConfigType &conf, ss_vect<T> &cs, const double L,
+		const T B[])
 {
   // M. Sands "The Physics of Electron Storage Rings" SLAC-121, p. 98.
   // ddelta/d(ds) = -C_gamma*E_0^3*(1+delta)^2*(B_perp/(Brho))^2/(2*pi)
@@ -1517,9 +1533,9 @@ void radiate_cs(ss_vect<T> &cs, const double L, const T B[])
 
   p_s = get_p_s_cs(cs);
 
-  if (globval.radiation) cs[delta_] -= cl_rad*sqr(p_s)*B2_perp*ds;
+  if (conf.radiation) cs[delta_] -= cl_rad*sqr(p_s)*B2_perp*ds;
 
-  if (globval.emittance) is_tps<T>::emittance(B2_perp, ds, p_s, cs);
+  if (conf.emittance) is_tps<T>::emittance(conf, B2_perp, ds, p_s, cs);
 }
 
 
@@ -1563,10 +1579,11 @@ bool get_BoBrho(const FieldMapType *FM, const double z, const ss_vect<T> &cs,
 
 
 template<typename T>
-void rk4_(const ElemType *elem, const ss_vect<T> &y, const ss_vect<T> &dydx,
-	  const double x, const double h, ss_vect<T> &cs, const double z,
-	  void (*derivs)(const ElemType *, const double, const ss_vect<T> &,
-			 ss_vect<T> &))
+void rk4_(ConfigType &conf, const ElemType *elem, const ss_vect<T> &y,
+	  const ss_vect<T> &dydx, const double x, const double h,
+	  ss_vect<T> &cs, const double z,
+	  void (*derivs)(ConfigType &conf, const ElemType *,
+			 const double, const ss_vect<T> &, ss_vect<T> &))
 {
   int        j;
   double     xh, hh, h6;
@@ -1577,26 +1594,26 @@ void rk4_(const ElemType *elem, const ss_vect<T> &y, const ss_vect<T> &dydx,
 
   hh = h*0.5; h6 = h/6e0;
   xh = x + hh; yt = y + hh*dydx;
-  (*derivs)(elem, xh, yt, dyt); yt = y + hh*dyt;
-  (*derivs)(elem, xh, yt, dym); yt = y + h*dym; dym += dyt;
-  (*derivs)(elem, x+h, yt, dyt);
+  (*derivs)(conf, elem, xh, yt, dyt); yt = y + hh*dyt;
+  (*derivs)(conf, elem, xh, yt, dym); yt = y + h*dym; dym += dyt;
+  (*derivs)(conf, elem, x+h, yt, dyt);
   cs = y + h6*(dydx+dyt+2e0*dym);
 
-  if (globval.radiation || globval.emittance) {
+  if (conf.radiation || conf.emittance) {
     if (!get_BoBrho(FM, z, cs, BoBrho)) {
       for (j = 0; j < ss_dim; j++)
 	cs[j] = NAN;
       return;
     }
 
-    radiate_cs(cs, h, BoBrho);
+    radiate_cs(conf, cs, h, BoBrho);
   }
 }
 
 
 template<typename T>
-void f_FM(const ElemType *elem, const double z, const ss_vect<T> &cs,
-	  ss_vect<T> &Dcs)
+void f_FM(ConfigType &conf, const ElemType *elem, const double z,
+	  const ss_vect<T> &cs, ss_vect<T> &Dcs)
 {
   // Coordinates are: [x, x', y, y', -ct, delta].
 
@@ -1623,14 +1640,14 @@ void f_FM(const ElemType *elem, const double z, const ss_vect<T> &cs,
   Dcs[py_] = -((1e0+sqr(cs[py_]))*BoBrho[X_]-cs[px_]*cs[py_]*BoBrho[Y_]
              - cs[px_]*BoBrho[Z_])/p_s;
 
-  Dcs[ct_] = (1e0+cs[delta_])/p_s - ((!globval.pathlength)? 1e0 : 0e0);
+  Dcs[ct_] = (1e0+cs[delta_])/p_s - ((!conf.pathlength)? 1e0 : 0e0);
 
   Dcs[delta_] = 0e0;
 }
 
 
 template<typename T>
-void FieldMap_pass_RK(ElemType *elem, ss_vect<T> &ps)
+void FieldMap_pass_RK(ConfigType &conf, ElemType *elem, ss_vect<T> &ps)
 {
   int        i;
   double     h, z;
@@ -1656,7 +1673,7 @@ void FieldMap_pass_RK(ElemType *elem, ss_vect<T> &ps)
   }
 
   // [x, px, y, py, -ct, delta] -> [x, x', y, y', -ct, delta], A_x,y,z = 0.
-  p_s = get_p_s(ps); ps[px_] /= p_s; ps[py_] /= p_s;
+  p_s = get_p_s(conf, ps); ps[px_] /= p_s; ps[py_] /= p_s;
 
   h = n_step*FM->dx[Z_]; z = FM->x[Z_][1]; FM->Lr = 0e0;
   if (trace)
@@ -1665,7 +1682,7 @@ void FieldMap_pass_RK(ElemType *elem, ss_vect<T> &ps)
 	  << std::setw(11) << is_double< ss_vect<T> >::cst(ps) << "\n";
   for(i = 1+FM->cut; i < FM->n[Z_]-FM->cut; i += n_step) {
     if (i <= FM->n[Z_]-FM->cut-2) {
-      f_FM(elem, z, ps, Dps);
+      f_FM(conf, elem, z, ps, Dps);
 
       if (Dps[x_] == NAN) {
 	std::cout << "FieldMap_pass_RK: particle lost" << std::endl;
@@ -1673,12 +1690,12 @@ void FieldMap_pass_RK(ElemType *elem, ss_vect<T> &ps)
 	return;
       }
 
-      rk4_(elem, ps, Dps, FM->x[Z_][i], h, ps, z, f_FM);
+      rk4_(conf, elem, ps, Dps, FM->x[Z_][i], h, ps, z, f_FM);
 
       z += h; FM->Lr += h; s_FM += h;
     } else {
       // Use 2nd order Runge-Kutta (aka Midpoint Method).
-      f_FM(elem, z, ps, Dps);
+      f_FM(conf, elem, z, ps, Dps);
 
       if (Dps[x_] == NAN) {
 	std::cout << "FieldMap_pass_RK: particle lost" << std::endl;
@@ -1717,7 +1734,7 @@ void FieldMap_pass_RK(ElemType *elem, ss_vect<T> &ps)
 
 
 template<typename T>
-void FieldMap_pass_SI(ElemType *elem, ss_vect<T> &ps)
+void FieldMap_pass_SI(ConfigType &conf, ElemType *elem, ss_vect<T> &ps)
 {
   /* E. Chacon-Golcher, F. Neri "A Symplectic Integrator with Arbitrary
      Vector and Scalar Potentials" Phys. Lett. A 372 p. 4661-4666 (2008).    */
@@ -1988,14 +2005,14 @@ void FieldMap_pass_SI(ElemType *elem, ss_vect<T> &ps)
     // 5. Half step in z.
     z += 0.5*h; j = i + 2; s_FM += 0.5*h;
 
-    if (globval.pathlength) ps[ct_] += h;
+    if (conf.pathlength) ps[ct_] += h;
 
     FM->Lr += h;
 
-    if (globval.radiation || globval.emittance) {
+    if (conf.radiation || conf.emittance) {
 //      B[X_] = -AoBrhoy[3]; B[Y_] = AoBrho[X_][3];
 //      B[Z_] = AoBrhoy[1] - AoBrho[X_][2];
-//      radiate(ps, h, 0e0, B);
+//      radiate(conf, ps, h, 0e0, B);
     }
 
     if (trace)
@@ -2044,28 +2061,32 @@ void FieldMap_pass_SI(ElemType *elem, ss_vect<T> &ps)
 
 
 // Instantiate
-template void f_FM(const ElemType *, const double, const ss_vect<double> &,
-		   ss_vect<double> &);
-template void f_FM(const ElemType *, const double, const ss_vect<tps> &,
-		   ss_vect<tps> &);
-template void rk4_(const ElemType *, const ss_vect<double> &,
-		   const ss_vect<double> &, const double, const double,
-		   ss_vect<double> &, const double,
-		   void (*derivs)(const ElemType *, const double,
-				  const ss_vect<double> &, ss_vect<double> &));
-template void rk4_(const ElemType *, const ss_vect<tps> &,
-		   const ss_vect<tps> &, const double, const double,
-		   ss_vect<tps> &, const double,
-		   void (*derivs)(const ElemType *, const double,
-				  const ss_vect<tps> &, ss_vect<tps> &));
-template void FieldMap_pass_RK(ElemType *, ss_vect<double> &);
-template void FieldMap_pass_RK(ElemType *, ss_vect<tps> &);
-template void FieldMap_pass_SI(ElemType *, ss_vect<double> &);
-template void FieldMap_pass_SI(ElemType *, ss_vect<tps> &);
+template void f_FM(ConfigType &, const ElemType *, const double,
+		   const ss_vect<double> &, ss_vect<double> &);
+template void f_FM(ConfigType &, const ElemType *, const double,
+		   const ss_vect<tps> &, ss_vect<tps> &);
+template void rk4_(ConfigType &, const ElemType *,
+		   const ss_vect<double> &, const ss_vect<double> &,
+		   const double, const double, ss_vect<double> &, const double,
+		   void (*derivs)(ConfigType &, const ElemType *,
+				  const double, const ss_vect<double> &,
+				  ss_vect<double> &));
+template void rk4_(ConfigType &, const ElemType *,
+		   const ss_vect<tps> &, const ss_vect<tps> &, const double,
+		   const double,ss_vect<tps> &, const double,
+		   void (*derivs)(ConfigType &, const ElemType *,
+				  const double, const ss_vect<tps> &,
+				  ss_vect<tps> &));
+template void FieldMap_pass_RK(ConfigType &conf, ElemType *,
+			       ss_vect<double> &);
+template void FieldMap_pass_RK(ConfigType &conf, ElemType *,
+			       ss_vect<tps> &);
+template void FieldMap_pass_SI(ConfigType &conf, ElemType *, ss_vect<double> &);
+template void FieldMap_pass_SI(ConfigType &conf, ElemType *, ss_vect<tps> &);
 
 
 template<typename T>
-void FieldMapType::FieldMap_Pass(ss_vect<T> &ps)
+void FieldMapType::FieldMap_Pass(ConfigType &conf, ss_vect<T> &ps)
 {
   int          k;
   double       Ld;
@@ -2079,30 +2100,30 @@ void FieldMapType::FieldMap_Pass(ss_vect<T> &ps)
   }
 
   Ld = (FM->Lr-PL)/2e0;
-  p_rot(FM->phi/2e0*180e0/M_PI, ps);
+  p_rot(conf, FM->phi/2e0*180e0/M_PI, ps);
   printf("\nFieldMap_Pass:\n");
   printf("  phi = %12.5e\n  cut = %12d\n", FM->phi, FM->cut);
   printf("  entrance negative drift [m] %12.5e\n", -Ld);
-  Drift(-Ld, ps);
+  Drift(conf, -Ld, ps);
 
   // n_step: number of Field Map repetitions.
   for (k = 1; k <= FM->n_step; k++) {
     if (sympl)
-      FieldMap_pass_SI(this, ps);
+      FieldMap_pass_SI(conf, this, ps);
     else
-      FieldMap_pass_RK(this, ps);
+      FieldMap_pass_RK(conf, this, ps);
   }
 
   printf("  exit negative drift [m]     %12.5e\n", -Ld);
-  Drift(-Ld, ps);
-  p_rot(FM->phi/2e0*180e0/M_PI, ps);
+  Drift(conf, -Ld, ps);
+  p_rot(conf, FM->phi/2e0*180e0/M_PI, ps);
 
 //  outf_.close();
 }
 
 
 template<typename T>
-void InsertionType::Insertion_Pass(ss_vect<T> &x)
+void InsertionType::Insertion_Pass(ConfigType &conf, ss_vect<T> &x)
 {
   double        LN = 0e0;
   T             tx2, tz2;      /* thetax and thetaz retrieved from
@@ -2119,19 +2140,19 @@ void InsertionType::Insertion_Pass(ss_vect<T> &x)
   Nslice = ID->PN;
 
   if (ID->linear) {
-    alpha0 = c0/globval.Energy*1E-9*ID->scaling;
+    alpha0 = c0/conf.Energy*1E-9*ID->scaling;
     alpha02 = sgn(ID->scaling)*alpha0*alpha0;
   } else
     alpha02 = 1e-6*ID->scaling;
 
-  p_rot(ID->phi/2e0*180e0/M_PI, x);
+  p_rot(conf, ID->phi/2e0*180e0/M_PI, x);
 
   // (Nslice+1) drifts, nslice kicks
   // LN = PL/(Nslice+1);
 
   // Nslice drifts and kicks.
   LN = PL/Nslice;
-  Drift(LN/2e0, x);
+  Drift(conf, LN/2e0, x);
 
   for (i = 1; i <= Nslice; i++) {
     // printf("%3d %2d %2d %5.3f %11.3e %11.3e %11.3e %11.3e %11.3e %11.3e\n",
@@ -2149,8 +2170,8 @@ void InsertionType::Insertion_Pass(ss_vect<T> &x)
 
 	// Scale locally with (Brho) (as above) instead of when the file
 	// is read; since the beam energy might not be known at that time.
-	if (globval.radiation || globval.emittance)
-	  radiate_ID(x, LN, ID->scaling*B2_perp);
+	if (conf.radiation || conf.emittance)
+	  radiate_ID(conf, x, LN, ID->scaling*B2_perp);
       // }
 
       if (outoftable) {
@@ -2160,24 +2181,24 @@ void InsertionType::Insertion_Pass(ss_vect<T> &x)
 
       d = alpha02/Nslice/(1e0+x[delta_]); x[px_] += d*tx2; x[py_] += d*tz2;
     }
-    if (i != Nslice) Drift(LN, x);
+    if (i != Nslice) Drift(conf, LN, x);
   }
 
-  Drift(LN/2e0, x);
+  Drift(conf, LN/2e0, x);
 
-  p_rot(ID->phi/2e0*180e0/M_PI, x);
+  p_rot(conf, ID->phi/2e0*180e0/M_PI, x);
 
 //  CopyVec(6L, x, BeamPos);
 }
 
 template<typename T>
-void SpreaderType::Spreader_Pass(ss_vect<T> &ps) { }
+void SpreaderType::Spreader_Pass(ConfigType &conf, ss_vect<T> &ps) { }
 
 template<typename T>
-void RecombinerType::Recombiner_Pass(ss_vect<T> &ps) { }
+void RecombinerType::Recombiner_Pass(ConfigType &conf, ss_vect<T> &ps) { }
 
 template<typename T>
-void sol_pass(const ElemType *elem, ss_vect<T> &ps)
+void sol_pass(ConfigType &conf, const ElemType *elem, ss_vect<T> &ps)
 {
   int          i;
   double       h, z;
@@ -2213,7 +2234,7 @@ void sol_pass(const ElemType *elem, ss_vect<T> &ps)
     ps[px_] -= AxoBrho; ps[py_] -= dpy; ps[x_] += hd*ps[px_];
     ps[ct_] += 0.5*hd*sqr(ps[px_])/(1e0+ps[delta_]);
 
-    if (globval.pathlength) ps[ct_] += h;
+    if (conf.pathlength) ps[ct_] += h;
 
     AxoBrho = -Sol->BoBrho*ps[y_]/2e0; dpy = -Sol->BoBrho*ps[x_]/2e0;
 //    get_Axy_EF3(elem->W, z, x, AxoBrho, dAxoBrho, dpy, true);
@@ -2236,7 +2257,7 @@ void sol_pass(const ElemType *elem, ss_vect<T> &ps)
     // 5: half step in z
     z += 0.5*h;
 
-    if (globval.radiation || globval.emittance) {
+    if (conf.radiation || conf.emittance) {
       dAxoBrho[X_] = 0e0;
       dAxoBrho[Y_] = -Sol->BoBrho/2e0;
       dAxoBrho[Z_] = 0e0;
@@ -2247,18 +2268,18 @@ void sol_pass(const ElemType *elem, ss_vect<T> &ps)
 //      get_Axy_EF3(elem->W, z, x, AxoBrho, dAxoBrho, dpy, true);
       B[X_] = -dAyoBrho[Z_]; B[Y_] = dAxoBrho[Z_];
       B[Z_] = dAyoBrho[X_] - dAxoBrho[Y_];
-      radiate(ps, h, 0e0, B);
+      radiate(conf, ps, h, 0e0, B);
     }
   }
 }
 
 
 template<typename T>
-void SolenoidType::Solenoid_Pass(ss_vect<T> &ps)
+void SolenoidType::Solenoid_Pass(ConfigType &conf, ss_vect<T> &ps)
 {
   GtoL(ps, dS, dT, 0e0, 0e0, 0e0);
 
-  sol_pass(this, ps);
+  sol_pass(conf, this, ps);
 
   LtoG(ps, dS, dT, 0e0, 0e0, 0e0);
 }
@@ -2267,9 +2288,11 @@ void SolenoidType::Solenoid_Pass(ss_vect<T> &ps)
 // template<typename T>
 // void Map_Pass(ElemType *Cell, ss_vect<T> &ps) { ps = Cell->Map->M*ps; }
 
-void MapType::Elem_Pass(ss_vect<double> &ps) { ps = (M*ps).cst(); }
+void MapType::Elem_Pass(ConfigType &conf, ss_vect<double> &ps)
+{ ps = (M*ps).cst(); }
 
-void MapType::Elem_Pass(ss_vect<tps> &ps) { ps = M*ps; }
+void MapType::Elem_Pass(ConfigType &conf, ss_vect<tps> &ps)
+{ ps = M*ps; }
 
 
 void LatticeType::getelem(long i, ElemType *cellrec) { cellrec = elems[i]; }
@@ -2311,10 +2334,10 @@ static double thirdroot(double a)
 }
 
 
-void SI_init(void)
+void LatticeType::SI_init()
 {
   // SI units are used internally
-  // apart from globval.energy [GeV]
+  // apart from energy [GeV]
   /*  c_1 = 1/(2*(2-2^(1/3))),    c_2 = (1-2^(1/3))/(2*(2-2^(1/3)))
       d_1 = 1/(2-2^(1/3)),        d_2 = -2^(1/3)/(2-2^(1/3))                 */
 
@@ -2327,13 +2350,13 @@ void SI_init(void)
   C_gamma = 4e0*M_PI*r_e/(3e0*cube(1e-9*m_e));
   // P_gamma = e^2*c^3/(2*pi)*C_gamma*(E [GeV])^2*(B [T])^2
   // p_s = P_s/P, E = P*c, B/(Brho) = p/e
-  cl_rad = C_gamma*cube(globval.Energy)/(2e0*M_PI);
+  cl_rad = C_gamma*cube(conf.Energy)/(2e0*M_PI);
 
   // eletron rest mass [GeV]: slightly off???
 //  m_e_ = 0.5110034e-03;
   // quantum fluctuations
   C_q = 3e0*C_u*h_bar*c0/(4e0*m_e);
-  q_fluct = C_q*C_gamma/(M_PI*sqr(1e-9*m_e))*pow(globval.Energy, 5e0);
+  q_fluct = C_q*C_gamma/(M_PI*sqr(1e-9*m_e))*pow(conf.Energy, 5e0);
 }
 
 
@@ -2791,7 +2814,7 @@ void LatticeType::Mpole_Init(const int Fnum)
     M->Pthick = pthicktype(thin);
 
   // Allocate TPSA vector.
-  if (globval.mat_meth && (M->Pthick == thick))
+  if (conf.mat_meth && (M->Pthick == thick))
     M->M_lin = get_lin_map(M, 0e0);
 
   for (i = 1; i <= elemf[Fnum-1].nKid; i++) {
@@ -3149,7 +3172,7 @@ void LatticeType::get_lin_maps(const double delta)
   long int  k;
   MpoleType *M;
 
-  for (k = 0; k <= globval.Cell_nLoc; k++) {
+  for (k = 0; k <= conf.Cell_nLoc; k++) {
     M = dynamic_cast<MpoleType*>(elems[k]);
     if ((elems[k]->Pkind == Mpole) && (M->Pthick == thick))
       M->M_lin = get_lin_map(elems[k], delta);
@@ -3181,7 +3204,8 @@ template void splin2_(const double [], const double [], double **, double **,
 		      const int, const int, const tps &, const tps &, tps &);
 
 
-void get_B_DIAMOND(const char *filename, FieldMapType *FM)
+void get_B_DIAMOND(ConfigType &conf, const char *filename,
+		   FieldMapType *FM)
 {
   char          line[max_str];
   int           i, j, n, ny;
@@ -3190,7 +3214,7 @@ void get_B_DIAMOND(const char *filename, FieldMapType *FM)
   std::ofstream outf;
 
   const int     skip = 8;
-  const double  Brho = globval.Energy*1e9/c0;
+  const double  Brho = conf.Energy*1e9/c0;
 
   std::cout << std::endl;
   std::cout << "get_B_DIAMOND: loading field map: " << filename << std::endl;
@@ -3350,14 +3374,15 @@ void get_B_DIAMOND(const char *filename, FieldMapType *FM)
 }
 
 
-void get_B_NSLS_II(const char *filename, FieldMapType *FM)
+void get_B_NSLS_II(ConfigType &conf, const char *filename,
+		   FieldMapType *FM)
 {
   char          line[max_str];
   int           i, j, n;
   double        x_min[3], x_max[3];
   std::ifstream inf;
 
-  const double  Brho = globval.Energy*1e9/c0;
+  const double  Brho = conf.Energy*1e9/c0;
 
   std::cout << std::endl;
   std::cout << "get_B_NSLS_II: loading field map: " << filename << std::endl;
@@ -3481,14 +3506,14 @@ void get_B_NSLS_II(const char *filename, FieldMapType *FM)
 }
 
 
-void get_B_Oleg1(const char *filename, FieldMapType *FM)
+void get_B_Oleg1(ConfigType &conf, const char *filename, FieldMapType *FM)
 {
   char          line[max_str];
   int           i, j, n;
   double        x_min[3], x_max[3];
   std::ifstream inf;
 
-  const double Brho = globval.Energy*1e9/c0;
+  const double Brho = conf.Energy*1e9/c0;
 
   std::cout << std::endl;
   std::cout << "get_B_Oleg1: loading field map: " << filename << std::endl;
@@ -3612,14 +3637,14 @@ void get_B_Oleg1(const char *filename, FieldMapType *FM)
 }
 
 
-void get_B_Oleg2(const char *filename, FieldMapType *FM)
+void get_B_Oleg2(ConfigType &conf, const char *filename, FieldMapType *FM)
 {
   char          line[max_str];
   int           i, j, n;
   double        x_min[3];
   std::ifstream inf;
 
-  const double Brho = globval.Energy*1e9/c0;
+  const double Brho = conf.Energy*1e9/c0;
 
   std::cout << std::endl;
   std::cout << "get_B_Oleg2: loading field map: " << filename << std::endl;
@@ -3751,14 +3776,14 @@ void get_B_Oleg2(const char *filename, FieldMapType *FM)
 }
 
 
-void get_B_SRW(const char *filename, FieldMapType *FM)
+void get_B_SRW(ConfigType &conf, const char *filename, FieldMapType *FM)
 {
   char          line[max_str];
   int           i, j, n;
   double        x_min[3];
   std::ifstream inf;
 
-  const double Brho = globval.Energy*1e9/c0;
+  const double Brho = conf.Energy*1e9/c0;
 
   printf("\nget_B_SRW: loading field map: %s\n", filename);
 
@@ -3879,26 +3904,26 @@ void get_B_SRW(const char *filename, FieldMapType *FM)
 }
 
 
-void get_B(const char *filename, FieldMapType *FM)
+void get_B(ConfigType &conf, const char *filename, FieldMapType *FM)
 {
   // Do not scale fieldmaps only Hamiltonians, i.e., the kick.  Note that RADIA
   // (2nd order) kick maps are quadratic in the field, and 1st order linear.
 
   switch (FieldMap_filetype) {
   case 1:
-    get_B_DIAMOND(filename, FM);
+    get_B_DIAMOND(conf, filename, FM);
     break;
   case 2:
-    get_B_NSLS_II(filename, FM);
+    get_B_NSLS_II(conf, filename, FM);
     break;
   case 3:
-    get_B_Oleg1(filename, FM);
+    get_B_Oleg1(conf, filename, FM);
     break;
   case 4:
-    get_B_Oleg2(filename, FM);
+    get_B_Oleg2(conf, filename, FM);
     break;
   case 5:
-    get_B_SRW(filename, FM);
+    get_B_SRW(conf, filename, FM);
     break;
   default:
     printf("\nget_B: unknown FieldMap type %d", FieldMap_filetype);

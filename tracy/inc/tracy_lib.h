@@ -99,6 +99,4 @@ extern double     eps_tps;
 // extern ElemType *Cell[];
 extern LatticeType lat;
 
-extern globvalrec globval;
-
 #endif

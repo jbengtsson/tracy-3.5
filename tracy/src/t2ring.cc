@@ -13,13 +13,13 @@ void LatticeType::ChamberOff(void)
 {
   int i;
 
-  for (i = 0; i <= globval.Cell_nLoc; i++) {
+  for (i = 0; i <= conf.Cell_nLoc; i++) {
     elems[i]->maxampl[X_][0] = -max_ampl;
     elems[i]->maxampl[X_][1] = max_ampl;
     elems[i]->maxampl[Y_][0] = -max_ampl;
     elems[i]->maxampl[Y_][1] = max_ampl;
   }
-  status.chambre = false;
+  conf.chambre = false;
 }
 
 
@@ -39,7 +39,7 @@ void LatticeType::PrintCh(void)
   fprintf(f, "#                               [mm]     [mm]     [mm]\n");
   fprintf(f, "#\n");
 
-  for (i = 0; i <= globval.Cell_nLoc; i++)
+  for (i = 0; i <= conf.Cell_nLoc; i++)
     fprintf(f, "%4ld %15s  %6.2f  %7.3f  %7.3f  %7.3f\n",
 	    i, elems[i]->PName, elems[i]->S,
 	    elems[i]->maxampl[X_][0]*1E3, elems[i]->maxampl[X_][1]*1E3,
@@ -114,7 +114,7 @@ void GetNu(Vector2 &nu, Matrix &M)
   b2mc = sqr(b) - c;
 
   if (b2mc < 0e0) {
-    globval.stable = false; nu[X_] = NAN; nu[Y_] = NAN;
+    stable = false; nu[X_] = NAN; nu[Y_] = NAN;
     printf("\nGetNu: unstable\n");
     return;
   }
@@ -128,7 +128,7 @@ void GetNu(Vector2 &nu, Matrix &M)
       nu[i] = acos(x)/(2e0*M_PI);
       if (M1[2*i][2*i+1] < 0e0) nu[i] = 1e0 - nu[i];
     } else {
-      globval.stable = false; nu[i] = NAN;
+      stable = false; nu[i] = NAN;
       printf("\nGetNu: unstable %s plane %10.3e\n", (i == 0)? "hor" : "ver", x);
       return;
     }
@@ -138,24 +138,27 @@ void GetNu(Vector2 &nu, Matrix &M)
 }
 
 
-void Cell_GetABGN(Matrix &M,
-		  Vector2 &alpha, Vector2 &beta, Vector2 &gamma, Vector2 &nu)
+bool Cell_GetABGN(Matrix &M, Vector2 &alpha, Vector2 &beta, Vector2 &gamma,
+		  Vector2 &nu)
 {
+  bool   stable;
   int    k;
   double c = 0e0, s = 0e0;
 
-  globval.stable = true;
+  stable = true;
   for (k = 0; k < 2; k++) {
     c = (M[2*k][2*k]+M[2*k+1][2*k+1])/2e0;
-    globval.stable = (fabs(c) < 1e0);
-    if (globval.stable) {
+    stable = (fabs(c) < 1e0);
+    if (stable) {
       s = sqrt(1e0-sqr(c))*sgn(M[2*k][2*k+1]);
       alpha[k] = (M[2*k][2*k]-M[2*k+1][2*k+1])/(2e0*s);
-      beta[k] = M[2*k][2*k+1]/s; gamma[k] = -M[2*k+1][2*k]/s;
+      beta[k] = M[2*k][2*k+1]/s;
+      gamma[k] = -M[2*k+1][2*k]/s;
     }
   }
   GetNu(nu, M);
-  if (!globval.stable) printf("Cell_GetABGN: unstable\n");
+  if (!stable) printf("Cell_GetABGN: unstable\n");
+  return stable;
 }
 
 
@@ -172,9 +175,9 @@ void LatticeType::Cell_Geteta(long i0, long i1, bool ring, double dP)
   if (trace) printf("\nCell_Geteta: ring = %d\n", ring);
 
   if (ring)
-    GetCOD(globval.CODimax, globval.CODeps, dP-globval.dPcommon/2e0, lastpos);
+    GetCOD(conf.CODimax, conf.CODeps, dP-conf.dPcommon/2e0, lastpos);
   else {
-    CopyVec(n+2, globval.CODvect, xref); xref[4] = dP - globval.dPcommon/2e0;
+    CopyVec(n+2, conf.CODvect, xref); xref[4] = dP - conf.dPcommon/2e0;
     Cell_Pass(i0, i1, xref, lastpos);
   }
 
@@ -182,18 +185,18 @@ void LatticeType::Cell_Geteta(long i0, long i1, bool ring, double dP)
     CopyVec(n+2, elems[i]->BeamPos, codbuf[i]);
 
   if (ring)
-    GetCOD(globval.CODimax, globval.CODeps, dP+globval.dPcommon/2e0, lastpos);
+    GetCOD(conf.CODimax, conf.CODeps, dP+conf.dPcommon/2e0, lastpos);
   else {
-    CopyVec(n+2, globval.CODvect, xref); xref[4] = dP + globval.dPcommon/2e0;
+    CopyVec(n+2, conf.CODvect, xref); xref[4] = dP + conf.dPcommon/2e0;
     Cell_Pass(i0, i1, xref, lastpos);
   }
 
   for (i = i0; i <= i1; i++) {
     elemp = elems[i];
     for (k = 0; k < 2; k++) {
-      elemp->Eta[k] = (elemp->BeamPos[2*k]-codbuf[i][2*k])/globval.dPcommon;
+      elemp->Eta[k] = (elemp->BeamPos[2*k]-codbuf[i][2*k])/conf.dPcommon;
       elemp->Etap[k] =
-	(elemp->BeamPos[2*k+1]-codbuf[i][2*k+1])/globval.dPcommon;
+	(elemp->BeamPos[2*k+1]-codbuf[i][2*k+1])/conf.dPcommon;
     }
   }
 }
@@ -238,7 +241,7 @@ void LatticeType::Cell_Twiss(long i0, long i1, ss_vect<tps> &Ascr, bool chroma,
     nu1[k] = 0e0; dnu[k] = 0e0; 
   }
 
-  if (globval.radiation) globval.dE = 0e0;
+  if (conf.radiation) conf.dE = 0e0;
 
   elemp = elems[i0];
   dagetprm(Ascr, elemp->Alpha, elemp->Beta);
@@ -246,11 +249,11 @@ void LatticeType::Cell_Twiss(long i0, long i1, ss_vect<tps> &Ascr, bool chroma,
 
   Ascr0 = Ascr;
   for (k = 0; k < n+2; k++)
-    Ascr0[k] += tps(globval.CODvect[k]);
+    Ascr0[k] += tps(conf.CODvect[k]);
 
   Ascr1 = Ascr0;
   for (i = i0; i <= i1; i++) {
-    elems[i]->Elem_Pass(Ascr1); elemp = elems[i];
+    elems[i]->Elem_Pass(conf, Ascr1); elemp = elems[i];
     dagetprm(Ascr1, elemp->Alpha, elemp->Beta);
     for (k = 1; k <= 2; k++) {
       dnu[k-1] =
@@ -284,7 +287,7 @@ void LatticeType::Cell_Twiss(long i0, long i1, ss_vect<tps> &Ascr, bool chroma,
     Ascr0 = Ascr1;
   }
 
-  if (chroma && !globval.Cavity_on) Cell_Geteta(i0, i1, ring, dP);
+  if (chroma && !conf.Cavity_on) Cell_Geteta(i0, i1, ring, dP);
 }
 
 
@@ -298,74 +301,74 @@ void LatticeType::Ring_Getchrom(double dP)
   if (dP != 0e0)
     printf("\nRing_Getchrom: linear chromaticity for delta = %e\n", dP);
   
-  GetCOD(globval.CODimax, globval.CODeps, dP-globval.dPcommon*0.5, lastpos);
-  if (!status.codflag) {
+  GetCOD(conf.CODimax, conf.CODeps, dP-conf.dPcommon*0.5, lastpos);
+  if (!conf.codflag) {
     printf("\nRing_Getchrom: closed orbit finder failed\n");
     return;
   }
-  Cell_GetABGN(globval.OneTurnMat, alpha, beta, gamma, nu0);
-  if (!globval.stable) {
+  conf.stable = Cell_GetABGN(conf.OneTurnMat, alpha, beta, gamma, nu0);
+  if (!stable) {
     printf("\nRing_Getchrom: unstable\n");
     return;
   }
   
-  GetCOD(globval.CODimax, globval.CODeps, dP+globval.dPcommon*0.5, lastpos);
-  if (!status.codflag) {
+  GetCOD(conf.CODimax, conf.CODeps, dP+conf.dPcommon*0.5, lastpos);
+  if (!conf.codflag) {
     printf("\nRing_Getchrom: closed orbit finder failed");
     return;
   }
-  Cell_GetABGN(globval.OneTurnMat, alpha, beta, gamma, nu);
-  if (!globval.stable) {
+  Cell_GetABGN(conf.OneTurnMat, alpha, beta, gamma, nu);
+  if (!conf.stable) {
     printf("\nRing_Getchrom: unstable\n");
     return;
   }
 
   for (k = 0; k < 2; k++)
-    globval.Chrom[k] = (nu[k]-nu0[k])/globval.dPcommon;
+    conf.Chrom[k] = (nu[k]-nu0[k])/conf.dPcommon;
   
-  status.chromflag = true;
+  conf.chromflag = true;
 }
 
 
 void LatticeType::Ring_Twiss(bool chroma, double dP)
 {
-  long int      lastpos = 0;
-  int           n = 0;
-  Vector2       alpha={0.0, 0.0}, beta={0.0, 0.0};
-  Vector2       gamma={0.0, 0.0}, nu={0.0, 0.0};
-  Matrix        R;
-  ss_vect<tps>  AScr;
+  long int     lastpos = 0;
+  int          n = 0;
+  Vector2      alpha={0.0, 0.0}, beta={0.0, 0.0};
+  Vector2      gamma={0.0, 0.0}, nu={0.0, 0.0};
+  Matrix       R;
+  ss_vect<tps> AScr;
 
-  n = (globval.Cavity_on)? 6 : 4;
+  n = (conf.Cavity_on)? 6 : 4;
 
-  GetCOD(globval.CODimax, globval.CODeps, dP, lastpos);
+  GetCOD(conf.CODimax, conf.CODeps, dP, lastpos);
 
-  if (!status.codflag) return;
+  if (!conf.codflag) return;
 
   // Check if stable
-  Cell_GetABGN(globval.OneTurnMat, alpha, beta, gamma, nu);
-  if (!globval.stable) {
+  stable = Cell_GetABGN(conf.OneTurnMat, alpha, beta, gamma, nu);
+  if (!stable) {
     printf("Ring_Twiss: unstable\n");
     return;
   }
   // Get eigenvalues and eigenvectors for the one turn transfer matrix
-  GDiag(n, elems[globval.Cell_nLoc]->S, globval.Ascr, globval.Ascrinv, R,
-        globval.OneTurnMat, globval.Omega, globval.Alphac);
+  GDiag(n, elems[conf.Cell_nLoc]->S, conf.Ascr, conf.Ascrinv, R,
+	conf.OneTurnMat, conf.Omega, conf.Alphac);
 
-  // AScr = putlinmat(n, globval.Ascr);
-  AScr = putlinmat(6, globval.Ascr);
-  if (!globval.Cavity_on) {
+  // AScr = putlinmat(n, conf.Ascr);
+  AScr = putlinmat(6, conf.Ascr);
+  if (!conf.Cavity_on) {
     // AScr[delta_] = 0.0; AScr[ct_] = 0.0;
     AScr[delta_] = tps(0e0, delta_+1); AScr[ct_] = 0e0;
   }
 
-  Cell_Twiss(0, globval.Cell_nLoc, AScr, chroma, true, dP);
+  Cell_Twiss(0, conf.Cell_nLoc, AScr, chroma, true, dP);
 
-  memcpy(globval.TotalTune, elems[globval.Cell_nLoc]->Nu, sizeof(Vector2));
-  status.tuneflag = true;
+  memcpy(conf.TotalTune, elems[conf.Cell_nLoc]->Nu, sizeof(Vector2));
+  conf.tuneflag = true;
 
-  if (chroma && !globval.Cavity_on) {
-    Ring_Getchrom(dP); GetCOD(globval.CODimax, globval.CODeps, dP, lastpos);
+  if (chroma && !conf.Cavity_on) {
+    Ring_Getchrom(dP); GetCOD(conf.CODimax, conf.CODeps, dP, lastpos);
   }
 }
 
@@ -375,7 +378,7 @@ void LatticeType::Ring_GetTwiss(bool chroma, double dP)
 
   if (trace) printf("enter Ring_GetTwiss\n");
   Ring_Twiss(chroma, dP);
-  globval.Alphac = globval.OneTurnMat[ct_][delta_]/elems[globval.Cell_nLoc]->S;
+  conf.Alphac = conf.OneTurnMat[ct_][delta_]/elems[conf.Cell_nLoc]->S;
   if (trace) printf("exit Ring_GetTwiss\n");
 }
 
@@ -388,23 +391,23 @@ void LatticeType::TraceABN(long i0, long i1, const Vector2 &alpha,
   double        sb;
   ss_vect<tps>  Ascr;
 
-  UnitMat(6, globval.Ascr);
+  UnitMat(6, conf.Ascr);
   for (i = 1; i <= 2; i++) {
     sb = sqrt(beta[i-1]); j = i*2 - 1;
-    globval.Ascr[j-1][j-1] = sb;               globval.Ascr[j-1][j] = 0.0;
-    globval.Ascr[j][j - 1] = -(alpha[i-1]/sb); globval.Ascr[j][j] = 1/sb;
+    conf.Ascr[j-1][j-1] = sb;               conf.Ascr[j-1][j] = 0.0;
+    conf.Ascr[j][j - 1] = -(alpha[i-1]/sb); conf.Ascr[j][j] = 1/sb;
   }
-  globval.Ascr[0][4] = eta[0]; globval.Ascr[1][4] = etap[0];
-  globval.Ascr[2][4] = eta[1]; globval.Ascr[3][4] = etap[1];
+  conf.Ascr[0][4] = eta[0]; conf.Ascr[1][4] = etap[0];
+  conf.Ascr[2][4] = eta[1]; conf.Ascr[3][4] = etap[1];
 
   for (i = 0; i < 6; i++)
-    globval.CODvect[i] = 0.0;
-  globval.CODvect[4] = dP;
+    conf.CODvect[i] = 0.0;
+  conf.CODvect[4] = dP;
 
   for (i = 0; i <= 5; i++) {
-    Ascr[i] = tps(globval.CODvect[i]);
+    Ascr[i] = tps(conf.CODvect[i]);
     for (j = 0; j <= 5; j++)
-      Ascr[i] += globval.Ascr[i][j]*tps(0.0, j+1);
+      Ascr[i] += conf.Ascr[i][j]*tps(0.0, j+1);
     Cell_Twiss(i0, i1, Ascr, false, false, dP);
   }
 
@@ -415,7 +418,7 @@ void LatticeType::ttwiss(const Vector2 &alpha, const Vector2 &beta,
 			 const Vector2 &eta, const Vector2 &etap,
 			 const double dP)
 {
-  TraceABN(0, globval.Cell_nLoc, alpha, beta, eta, etap, dP);
+  TraceABN(0, conf.Cell_nLoc, alpha, beta, eta, etap, dP);
 }
 
 
@@ -438,9 +441,9 @@ void LatticeType::shiftk(long Elnum, double dk, struct LOC_Ring_Fittune *LINK)
 }
 
 
-void checkifstable(struct LOC_Ring_Fittune *LINK)
+void LatticeType::checkifstable(struct LOC_Ring_Fittune *LINK)
 {
-  if (!globval.stable) {
+  if (!stable) {
     printf("  lattice is unstable\n");
     longjmp(LINK->_JL999, 1);
   }
@@ -465,7 +468,7 @@ void LatticeType::Ring_Fittune(Vector2 &nu, double eps, iVector2 &nq, long qf[],
     printf("  Tune fit, nux =%10.5f, nuy =%10.5f, eps =% .3E,"
 	   " imax =%4ld, dkL = % .5E\n", nu[0], nu[1], eps, imax, dkL);
   Ring_GetTwiss(false, dP); checkifstable(&V);
-  memcpy(nu0, globval.TotalTune, sizeof(Vector2));
+  memcpy(nu0, conf.TotalTune, sizeof(Vector2));
   i = 0;
   do {
     i++;
@@ -478,9 +481,9 @@ void LatticeType::Ring_Fittune(Vector2 &nu, double eps, iVector2 &nq, long qf[],
           shiftk(qd[k], dkL, &V); // new value for qd
       }
       Ring_GetTwiss(false, dP);
-      nu1[0] = globval.TotalTune[0]; nu1[1] = globval.TotalTune[1];
-//      GetCOD(globval.CODimax, globval.CODeps, dP, lastpos);
-//      Cell_GetABGN(globval.OneTurnMat, alpha, beta, gamma, nu1);
+      nu1[0] = conf.TotalTune[0]; nu1[1] = conf.TotalTune[1];
+//      GetCOD(conf.CODimax, conf.CODeps, dP, lastpos);
+//      Cell_GetABGN(conf.OneTurnMat, alpha, beta, gamma, nu1);
       checkifstable(&V);
       for (k = 0; k <= 1; k++) {
         dnu[k] = nu1[k] - (long)nu1[k] - nu0[k] + (long)nu0[k];
@@ -514,7 +517,7 @@ void LatticeType::Ring_Fittune(Vector2 &nu, double eps, iVector2 &nq, long qf[],
       }
     }
     Ring_GetTwiss(false, dP); checkifstable(&V);
-    memcpy(nu0, globval.TotalTune, sizeof(Vector2));
+    memcpy(nu0, conf.TotalTune, sizeof(Vector2));
     if (trace)
       printf("  Nux = %10.6f%10.6f, Nuy = %10.6f%10.6f,"
 	     " QF*L = % .5E, QD*L = % .5E @%3d\n",
@@ -554,10 +557,10 @@ void LatticeType::Ring_Fitchrom(Vector2 &ksi, double eps, iVector2 &ns,
 	   ", imax =%4ld, dkpL =%10.5f\n", ksi[0], ksi[1], eps, imax, dkpL);
 
   /* Turn off radiation */
-  rad = globval.radiation; globval.radiation = false;
-  GetCOD(globval.CODimax, globval.CODeps, dP, lastpos); Ring_Getchrom(dP);
+  rad = conf.radiation; conf.radiation = false;
+  GetCOD(conf.CODimax, conf.CODeps, dP, lastpos); Ring_Getchrom(dP);
   for (j = 0; j <= 1; j++)
-    ksi0[j] = globval.Chrom[j];
+    ksi0[j] = conf.Chrom[j];
   i = 0;
   do {
     i++;
@@ -569,9 +572,9 @@ void LatticeType::Ring_Fitchrom(Vector2 &ksi, double eps, iVector2 &ns,
 	else
 	  shiftkp(sd[k], dkpL);
       }
-      GetCOD(globval.CODimax, globval.CODeps, dP, lastpos); Ring_Getchrom(dP);
+      GetCOD(conf.CODimax, conf.CODeps, dP, lastpos); Ring_Getchrom(dP);
       for (k = 0; k <= 1; k++) {
-	dksi[k] = globval.Chrom[k] - ksi0[k];
+	dksi[k] = conf.Chrom[k] - ksi0[k];
 	A[k][j-1] = dksi[k] / dkpL;
       }
       /* Restore strength */
@@ -597,9 +600,9 @@ void LatticeType::Ring_Fitchrom(Vector2 &ksi, double eps, iVector2 &ns,
 	  shiftkp(sd[k], dkpL1[j-1]);
       }
     }
-    GetCOD(globval.CODimax, globval.CODeps, dP, lastpos); Ring_Getchrom(dP);
+    GetCOD(conf.CODimax, conf.CODeps, dP, lastpos); Ring_Getchrom(dP);
     for (j = 0; j <= 1; j++)
-      ksi0[j] = globval.Chrom[j];
+      ksi0[j] = conf.Chrom[j];
     if (trace)
       printf("  ksix =%10.6f, ksiy =%10.6f, SF = % .5E, SD = % .5E @%3d\n",
 	     ksi0[0], ksi0[1], Elem_GetKval(elems[sf[0]]->Fnum, 1, (long)Sext),
@@ -607,7 +610,7 @@ void LatticeType::Ring_Fitchrom(Vector2 &ksi, double eps, iVector2 &ns,
   } while (sqrt(sqr(ksi[0]-ksi0[0])+sqr(ksi[1]-ksi0[1])) >= eps && i != imax);
 _L999:
   /* Restore radiation */
-  globval.radiation = rad;
+  conf.radiation = rad;
 }
 
 
@@ -630,9 +633,9 @@ void LatticeType::shiftk_(long Elnum, double dk, struct LOC_Ring_FitDisp *LINK)
 }
 
 
-void checkifstable_(struct LOC_Ring_FitDisp *LINK)
+void LatticeType::checkifstable_(struct LOC_Ring_FitDisp *LINK)
 {
-  if (!globval.stable) {
+  if (!stable) {
     printf("  lattice is unstable\n");
     longjmp(LINK->_JL999, 1);
   }
@@ -660,7 +663,7 @@ void LatticeType::Ring_FitDisp(long pos, double eta, double eps, long nq,
 	   ", imax =%4ld, dkL =%10.5f\n",
 	   eta, eps, imax, dkL);
   /* Turn off radiation */
-  rad = globval.radiation; globval.radiation = false;
+  rad = conf.radiation; conf.radiation = false;
   Ring_GetTwiss(true, dP); checkifstable_(&V);
   Eta0 = elems[pos]->Eta[0];
   i = 0;
@@ -685,7 +688,7 @@ void LatticeType::Ring_FitDisp(long pos, double eta, double eps, long nq,
   }
 _L999:
   /* Restore radiation */
-  globval.radiation = rad;
+  conf.radiation = rad;
 }
 
 
@@ -776,7 +779,7 @@ void LatticeType::get_I(double I[], const bool prt)
 	   "        I_3        I_4        I_5      alpha_x    beta_x"
 	   "     eta_x      eta'_x     alpha_y    beta_y\n\n");
   }
-  for (j = 0; j <= globval.Cell_nLoc; j++)
+  for (j = 0; j <= conf.Cell_nLoc; j++)
     if ((elems[j]->Pkind == drift) || (elems[j]->Pkind == Mpole) ||
 	(elems[j]->Pkind == Wigl) ||
 	(elems[j]->Pkind == marker)) {
@@ -803,18 +806,18 @@ void LatticeType::Elem_Pass_Lin(ss_vect<T> ps)
   long int  k;
   MpoleType *Mp;
 
-  for (k = 0; k <= globval.Cell_nLoc; k++) {
+  for (k = 0; k <= conf.Cell_nLoc; k++) {
     if (elems[k]->Pkind == Mpole) { 
       Mp = dynamic_cast<MpoleType*>(elems[k]);
       if ((Mp->Pthick == thick) && (Mp->Porder <= Quad)) {
 	ps = is_double<ss_vect<T> >::ps(Mp->M_lin*ps);
 	
-	if (globval.emittance && !globval.Cavity_on
+	if (conf.emittance && !conf.Cavity_on
 	    && (elems[k]->PL != 0e0) && (Mp->Pirho != 0e0))
 	  get_dI_eta_5(k, elems);
       }
     } else
-      elems[k]->Elem_Pass(ps);
+      elems[k]->Elem_Pass(conf, ps);
   }
 }
 
@@ -829,8 +832,8 @@ void LatticeType::get_eps_x(double &eps_x, double &sigma_delta, double &U_0,
 
   const double
     C_q_scl = 1e18*C_q/sqr(m_e),
-    E_0     = 1e9*globval.Energy,
-    C       = elems[globval.Cell_nLoc]->S,
+    E_0     = 1e9*conf.Energy,
+    C       = elems[conf.Cell_nLoc]->S,
     T_0     = C/c0;
 
   /* Note:
@@ -852,18 +855,18 @@ void LatticeType::get_eps_x(double &eps_x, double &sigma_delta, double &U_0,
 
   */
 
-  cav = globval.Cavity_on; emit = globval.emittance;
+  cav = conf.Cavity_on; emit = conf.emittance;
 
-  globval.Cavity_on = false; globval.emittance = false;
+  conf.Cavity_on = false; conf.emittance = false;
   Ring_GetTwiss(false, 0.0);
-  A = putlinmat(6, globval.Ascr); A += globval.CODvect;
-  globval.emittance = true;
+  A = putlinmat(6, conf.Ascr); A += conf.CODvect;
+  conf.emittance = true;
   Elem_Pass_Lin(A);
   get_I(I, false);
 
-  U_0 = 1e9*C_gamma*pow(globval.Energy, 4)*I[2]/(2e0*M_PI);
-  eps_x = C_q_scl*sqr(globval.Energy)*I[5]/(I[2]-I[4]);
-  sigma_delta = sqrt(C_q_scl*sqr(globval.Energy)*I[3]/(2e0*I[2]+I[4]));
+  U_0 = 1e9*C_gamma*pow(conf.Energy, 4)*I[2]/(2e0*M_PI);
+  eps_x = C_q_scl*sqr(conf.Energy)*I[5]/(I[2]-I[4]);
+  sigma_delta = sqrt(C_q_scl*sqr(conf.Energy)*I[3]/(2e0*I[2]+I[4]));
   J[X_] = 1e0 - I[4]/I[2]; J[Z_] = 2e0 + I[4]/I[2]; J[Y_] = 4e0 - J[X_] - J[Z_];
 
   for (k = 0; k < 3; k++)
@@ -883,11 +886,11 @@ void LatticeType::get_eps_x(double &eps_x, double &sigma_delta, double &U_0,
 	   1e3*tau[X_], 1e3*tau[Y_], 1e3*tau[Z_]);
   }
 
-  globval.Cavity_on = cav; globval.emittance = emit;
+  conf.Cavity_on = cav; conf.emittance = emit;
 }
 
 
-double get_code(ElemType &Cell)
+double get_code(const ConfigType &conf, ElemType &Cell)
 {
   double    code;
   MpoleType *M;
@@ -910,7 +913,7 @@ double get_code(ElemType &Cell)
       code = 1.75*sgn(M->PBpar[Dec+HOMmax]);
     else if (M->PBpar[Dodec+HOMmax] != 0)
       code = 1.75*sgn(M->PBpar[Dodec+HOMmax]);
-    else if (Cell.Fnum == globval.bpm)
+    else if (Cell.Fnum == conf.bpm)
       code = 2.0;
     else
       code = 0.0;
@@ -925,7 +928,7 @@ double get_code(ElemType &Cell)
 
 
 void LatticeType::prt_lat(const int loc1, const int loc2, const char *fname,
-			  const int Fnum, const bool all)
+			  const bool all)
 {
   long int i = 0;
   double   I5 = 0e0;
@@ -944,11 +947,11 @@ void LatticeType::prt_lat(const int loc1, const int loc2, const char *fname,
   fprintf(outf, "#\n");
 
   for (i = loc1; i <= loc2; i++) {
-    if (all || (elems[i]->Fnum == Fnum)) {
+    if (all || (elems[i]->Fnum == conf.bpm)) {
       fprintf(outf,
 	      "%4ld %15s %9.5f %4.1f %9.5f %8.5f %8.5f %8.5f %8.5f"
 	      " %9.5f %8.5f %8.5f %8.5f %8.5f  %8.2e\n",
-	      i, elems[i]->PName, elems[i]->S, get_code(*elems[i]),
+	      i, elems[i]->PName, elems[i]->S, get_code(conf, *elems[i]),
 	      elems[i]->Alpha[X_], elems[i]->Beta[X_], elems[i]->Nu[X_],
 	      elems[i]->Eta[X_], elems[i]->Etap[X_], elems[i]->Alpha[Y_],
 	      elems[i]->Beta[Y_], elems[i]->Nu[Y_], elems[i]->Eta[Y_],
@@ -963,13 +966,14 @@ void LatticeType::prt_lat(const int loc1, const int loc2, const char *fname,
 }
 
 
-void LatticeType::prt_lat(const char *fname, const int Fnum, const bool all)
+void LatticeType::prt_lat(const char *fname, const bool all)
 {
-  prt_lat(0, globval.Cell_nLoc, fname, Fnum, all);
+  prt_lat(0, conf.Cell_nLoc, fname, all);
 }
 
 
-void Cell_Twiss(const long int i0, const long int i1) {
+void LatticeType::Cell_Twiss(const long int i0, const long int i1)
+{
   long int     i;
   int          k, nu_int[2];
   double       alpha[2], beta[2], dnu[2], eta[2], etap[2];
@@ -979,30 +983,30 @@ void Cell_Twiss(const long int i0, const long int i1) {
     nu_int[k] = 0;
 
   for (i = i0; i <= i1; i++) {
-    A = putlinmat(6, lat.elems[i]->A);
+    A = putlinmat(6, elems[i]->A);
     get_ab(A, alpha, beta, dnu, eta, etap);
 
     for (k = 0; k < 2; k++) {
-      lat.elems[i]->Alpha[k] = alpha[k]; lat.elems[i]->Beta[k] = beta[k];
-      lat.elems[i]->Nu[k] = nu_int[k] + dnu[k];
+      elems[i]->Alpha[k] = alpha[k]; elems[i]->Beta[k] = beta[k];
+      elems[i]->Nu[k] = nu_int[k] + dnu[k];
 
       if (i > i0) {
-	if((lat.elems[i]->Nu[k] < lat.elems[i-1]->Nu[k])
-	   && (lat.elems[i]->PL >= 0e0)) {
-	  lat.elems[i]->Nu[k] += 1e0; nu_int[k] += 1;
-	} else if((lat.elems[i]->Nu[k] > lat.elems[i-1]->Nu[k]) &&
-		  (lat.elems[i]->PL < 0e0))
+	if((elems[i]->Nu[k] < elems[i-1]->Nu[k])
+	   && (elems[i]->PL >= 0e0)) {
+	  elems[i]->Nu[k] += 1e0; nu_int[k] += 1;
+	} else if((elems[i]->Nu[k] > elems[i-1]->Nu[k]) &&
+		  (elems[i]->PL < 0e0))
 	  nu_int[k] -= 1;
       }
 
-      lat.elems[i]->Eta[k] = eta[k]; lat.elems[i]->Etap[k] = etap[k];
+      elems[i]->Eta[k] = eta[k]; elems[i]->Etap[k] = etap[k];
     }
   }
 }
 
 
 void LatticeType::prt_lat(const int loc1, const int loc2, const char *fname,
-			  const int Fnum, const bool all, const int n)
+			  const bool all, const int n)
 {
   long int        i = 0;
   int             j, k;
@@ -1027,7 +1031,7 @@ void LatticeType::prt_lat(const int loc1, const int loc2, const char *fname,
   fprintf(outf, "#\n");
 
   for (i = loc1; i <= loc2; i++) {
-    if (all || (elems[i]->Fnum == Fnum)) {
+    if (all || (elems[i]->Fnum == conf.bpm)) {
       if ((i != 0) &&
 	  ((elems[i]->Pkind == drift) ||
 	   ((elems[i]->Pkind == Mpole) && (elems[i]->PL != 0e0)))) {
@@ -1048,21 +1052,21 @@ void LatticeType::prt_lat(const int loc1, const int loc2, const char *fname,
 	  s += h;
 
 	  if (elems[i]->Pkind == drift)
-	    Drift(h, A);
+	    Drift(conf, h, A);
 	  else if (elems[i]->Pkind == Mpole) {
 	    if ((j == 1) && (Mp->Pirho != 0e0))
-	      EdgeFocus(Mp->Pirho, Mp->PTx1, Mp->Pgap, A);
+	      EdgeFocus(conf, Mp->Pirho, Mp->PTx1, Mp->Pgap, A);
 
-	    Drift(c1*h, A);
-	    thin_kick(Quad, Mp->PBpar, d1*h, Mp->Pirho, Mp->Pirho, A);
-	    Drift(c2*h, A);
-	    thin_kick(Quad, Mp->PBpar, d2*h, Mp->Pirho, Mp->Pirho, A);
-	    Drift(c2*h, A);
-	    thin_kick(Quad, Mp->PBpar, d1*h, Mp->Pirho, Mp->Pirho, A);
-	    Drift(c1*h, A);
+	    Drift(conf, c1*h, A);
+	    thin_kick(conf, Quad, Mp->PBpar, d1*h, Mp->Pirho, Mp->Pirho, A);
+	    Drift(conf, c2*h, A);
+	    thin_kick(conf, Quad, Mp->PBpar, d2*h, Mp->Pirho, Mp->Pirho, A);
+	    Drift(conf, c2*h, A);
+	    thin_kick(conf, Quad, Mp->PBpar, d1*h, Mp->Pirho, Mp->Pirho, A);
+	    Drift(conf, c1*h, A);
 
 	    if ((j == n) && (Mp->Pirho != 0e0))
-	      EdgeFocus(Mp->Pirho, Mp->PTx2, Mp->Pgap, A);
+	      EdgeFocus(conf, Mp->Pirho, Mp->PTx2, Mp->Pgap, A);
 	  }
 
 	  get_ab(A, alpha, beta, dnu, eta, etap);
@@ -1083,7 +1087,7 @@ void LatticeType::prt_lat(const int loc1, const int loc2, const char *fname,
 	  fprintf(outf, "%4ld %15s %6.2f %4.1f"
 		  " %9.5f %8.5f %8.5f %11.8f %11.8f"
 		  " %9.5f %8.5f %8.5f %8.5f %8.5f %10.3e %10.3e %10.3e\n",
-		  i, elems[i]->PName, s, get_code(*elems[i]),
+		  i, elems[i]->PName, s, get_code(conf, *elems[i]),
 		  alpha[X_], beta[X_], nu[X_]+dnu[X_], eta[X_], etap[X_],
 		  alpha[Y_], beta[Y_], nu[Y_]+dnu[Y_], eta[Y_], etap[Y_],
 		  eta_Fl[x_], eta_Fl[px_], curly_H);
@@ -1103,7 +1107,7 @@ void LatticeType::prt_lat(const int loc1, const int loc2, const char *fname,
 	fprintf(outf, "%4ld %15s %6.2f %4.1f"
 		" %9.5f %8.5f %8.5f %11.8f %11.8f"
 		" %9.5f %8.5f %8.5f %8.5f %8.5f %10.3e %10.3e %10.3e\n",
-		i, elems[i]->PName, elems[i]->S, get_code(*elems[i]),
+		i, elems[i]->PName, elems[i]->S, get_code(conf, *elems[i]),
 		elems[i]->Alpha[X_], elems[i]->Beta[X_], elems[i]->Nu[X_],
 		elems[i]->Eta[X_], elems[i]->Etap[X_],
 		elems[i]->Alpha[Y_], elems[i]->Beta[Y_], elems[i]->Nu[Y_],
@@ -1117,10 +1121,9 @@ void LatticeType::prt_lat(const int loc1, const int loc2, const char *fname,
 }
 
 
-void LatticeType::prt_lat(const char *fname, const int Fnum, const bool all,
-			  const int n)
+void LatticeType::prt_lat(const char *fname, const bool all, const int n)
 {
-  prt_lat(0, globval.Cell_nLoc, fname, Fnum, all, n);
+  prt_lat(0, conf.Cell_nLoc, fname, all, n);
 }
 
 
@@ -1133,22 +1136,22 @@ void LatticeType::prt_chrom_lat(void)
   FILE      *outf;
 
   printf("\nprt_chrom_lat:\n  calling Ring_GetTwiss with delta != 0\n");
-  Ring_GetTwiss(true, globval.dPcommon);
-  for (i = 0; i <= globval.Cell_nLoc; i++) {
+  Ring_GetTwiss(true, conf.dPcommon);
+  for (i = 0; i <= conf.Cell_nLoc; i++) {
     dbeta_ddelta[i][X_] = elems[i]->Beta[X_];
     dbeta_ddelta[i][Y_] = elems[i]->Beta[Y_];
     detax_ddelta[i] = elems[i]->Eta[X_];
   }
   printf("  calling Ring_GetTwiss with delta != 0\n");
-  Ring_GetTwiss(true, -globval.dPcommon);
+  Ring_GetTwiss(true, -conf.dPcommon);
   ksi[0][X_] = 0.0; ksi[0][Y_] = 0.0;
-  for (i = 0; i <= globval.Cell_nLoc; i++) {
+  for (i = 0; i <= conf.Cell_nLoc; i++) {
     dbeta_ddelta[i][X_] -= elems[i]->Beta[X_];
     dbeta_ddelta[i][Y_] -= elems[i]->Beta[Y_];
     detax_ddelta[i] -= elems[i]->Eta[X_];
-    dbeta_ddelta[i][X_] /= 2.0*globval.dPcommon;
-    dbeta_ddelta[i][Y_] /= 2.0*globval.dPcommon;
-    detax_ddelta[i] /= 2.0*globval.dPcommon;
+    dbeta_ddelta[i][X_] /= 2.0*conf.dPcommon;
+    dbeta_ddelta[i][Y_] /= 2.0*conf.dPcommon;
+    detax_ddelta[i] /= 2.0*conf.dPcommon;
     if (i != 0) {
       ksi[i][X_] = ksi[i-1][X_]; ksi[i][Y_] = ksi[i-1][Y_];
     }
@@ -1172,11 +1175,11 @@ void LatticeType::prt_chrom_lat(void)
 	        "      [m]          [m]       [m]");
   fprintf(outf, "       [m]      [m]       [m]\n");
   fprintf(outf, "#\n");
-  for (i = 0; i <= globval.Cell_nLoc; i++) {
+  for (i = 0; i <= conf.Cell_nLoc; i++) {
     fprintf(outf,
 	    "%4ld %15s %6.2f %4.1f  %6.3f  %8.3f    %8.3f   %8.3f"
 	    "   %6.3f %8.3f   %8.3f  %5.2f  %5.2f  %6.3f  %6.3f  %6.3f\n",
-	    i, elems[i]->PName, elems[i]->S, get_code(*elems[i]),
+	    i, elems[i]->PName, elems[i]->S, get_code(conf, *elems[i]),
 	    elems[i]->Beta[X_]*elems[i]->Eta[X_],
 	    sqrt(elems[i]->Beta[X_]*elems[i]->Beta[Y_]),
 	    dbeta_ddelta[i][X_]*elems[i]->Eta[X_],

@@ -16,7 +16,7 @@ void tst_lat(LatticeType &lat)
   printf("\ntst_lat\n");
   map.identity();
   for (k = 0; k <= 10; k++)
-    lat.elems[k]->Elem_Pass(map);
+    lat.elems[k]->Elem_Pass(lat.conf, map);
   prt_lin_map(3, map);
 }
 
@@ -28,6 +28,18 @@ void get_lat(const char *file_name)
   FILE        *inf, *outf;
 
   const string str = file_name;
+
+  lat.conf.H_exact    = false; lat.conf.quad_fringe = false;
+  lat.conf.Cavity_on  = false; lat.conf.radiation   = false;
+  lat.conf.emittance  = false; lat.conf.IBS         = false;
+  lat.conf.pathlength = false; lat.conf.bpm         = 0;
+  lat.conf.Cart_Bend  = false; lat.conf.dip_edge_fudge = true;
+
+  reverse_elem = !false;
+
+  trace = false;
+
+  lat.conf.mat_meth = !false;
 
   inf  = file_read((str + ".lat").c_str());
   outf = file_write((str + ".lax").c_str());
@@ -41,15 +53,24 @@ void get_lat(const char *file_name)
     lat.prt_elem();
   }
 
-  lat.Ring_GetTwiss(true, 0e0); printglob(lat.elems[0]);
-  if (globval.mat_meth)
+  lat.Ring_GetTwiss(true, 0e0); printglob(lat);
+  if (lat.conf.mat_meth)
     lat.get_eps_x(eps_x, sigma_delta, U_0, J, tau, I, true);
 
   if (false) tst_lat(lat);
 
-  lat.prt_lat("linlat1.out", globval.bpm, true);
-  lat.prt_lat("linlat.out", globval.bpm, true, 10);
+  lat.prt_lat("linlat1.out", true);
+  lat.prt_lat("linlat.out", true, 10);
   lat.prtmfile("flat_file.dat");
+
+  exit(0);
+
+  if (true) GetEmittance(lat, ElemIndex("cav"), true);
+
+  if (true) {
+    lat.conf.Cavity_on = true;
+    get_dynap(lat, delta_max, 25, n_turn, false);
+  }
 }
 
 
@@ -58,35 +79,5 @@ int main(int argc, char *argv[])
   string file_name;
   double eps_x, sigma_delta, U_0, J[3], tau[3], I[6];
 
-  globval.H_exact    = false; globval.quad_fringe = false;
-  globval.Cavity_on  = false; globval.radiation   = false;
-  globval.emittance  = false; globval.IBS         = false;
-  globval.pathlength = false; globval.bpm         = 0;
-  globval.Cart_Bend  = false; globval.dip_edge_fudge = true;
-
-  reverse_elem = !false;
-
-  trace = false;
-
-  globval.mat_meth = !false;
-
-  if (!true) {
-    if (true)
-      Read_Lattice(argv[1]);
-    else
-      rdmfile(argv[1]);
-    lat.Ring_GetTwiss(true, 0e0); printglob(lat.elems[0]);
-    // if (globval.mat_meth)
-    //   lat.get_eps_x(eps_x, sigma_delta, U_0, J, tau, I, true);
-  } else
-    get_lat(argv[1]);
-
-  exit(0);
-
-  if (true) GetEmittance(ElemIndex("cav"), true);
-
-  if (true) {
-    globval.Cavity_on = true;
-    get_dynap(delta_max, 25, n_turn, false);
-  }
+  get_lat(argv[1]);
 }

@@ -47,12 +47,13 @@ double  pi = M_PI;
        19/01/03 tracking around the closed orbit
        20/03/04 closed orbit searched w/ findcod (Newton-Raphson numerical method)
 ****************************************************************************/
-void Trac_Simple(double x, double px, double y, double py, double dp, 
-                 double ctau, long nmax, double Tx[][NTURN], bool *status2)
+void Trac_Simple(LatticeType &lat, double x, double px, double y, double py,
+		 double dp, double ctau, long nmax, double Tx[][NTURN],
+		 bool *status2)
 {
   bool             lostF = false; /* Lost particle Flag */
   ss_vect<double>  x1;  /* Tracking coordinates */
-  long             lastpos = globval.Cell_nLoc;
+  long             lastpos = lat.conf.Cell_nLoc;
   long             lastn = 0;
   Vector2          aperture = {1.0, 1.0};
 
@@ -64,15 +65,15 @@ void Trac_Simple(double x, double px, double y, double py, double dp,
     // printf("Trac_Simple: relative (to COD)\n");
     /* Get closed orbit */
     //~ lat.getcod(dp, lastpos);
-    findcod(dp);
+    findcod(lat, dp);
   
-    if (trace && status.codflag) 
+    if (trace && lat.conf.codflag) 
       printf("dp= % .5e %% xcod= % .5e mm zcod= % .5e mm \n",
-             dp*1e2, globval.CODvect[0]*1e3, globval.CODvect[2]*1e3);
+             dp*1e2, lat.conf.CODvect[0]*1e3, lat.conf.CODvect[2]*1e3);
 
     /* Tracking coordinates around the closed orbit */
-    x1[0] =  x + globval.CODvect[0]; x1[1] = px + globval.CODvect[1];
-    x1[2] =  y + globval.CODvect[2]; x1[3] = py + globval.CODvect[3];
+    x1[0] =  x + lat.conf.CODvect[0]; x1[1] = px + lat.conf.CODvect[1];
+    x1[2] =  y + lat.conf.CODvect[2]; x1[3] = py + lat.conf.CODvect[3];
   } else {
     // printf("Trac_Simple: absolute\n");
     x1[0] = x; x1[1] = px; x1[2] = y; x1[3] = py;
@@ -87,10 +88,11 @@ void Trac_Simple(double x, double px, double y, double py, double dp,
 
   do
   { /* tracking through the ring */
-    if ((lastpos == globval.Cell_nLoc) &&
-        (fabs(x1[0]) < aperture[0]) && (fabs(x1[2]) < aperture[1]) && status.codflag)
+    if ((lastpos == lat.conf.Cell_nLoc) &&
+        (fabs(x1[0]) < aperture[0])
+	&& (fabs(x1[2]) < aperture[1]) && lat.conf.codflag)
     {
-      lat.Cell_Pass(0, globval.Cell_nLoc, x1, lastpos);
+      lat.Cell_Pass(0, lat.conf.Cell_nLoc, x1, lastpos);
       Tx[0][lastn] = x1[0]; Tx[1][lastn] = x1[1];
       Tx[2][lastn] = x1[2]; Tx[3][lastn] = x1[3];
       Tx[4][lastn] = x1[4]; Tx[5][lastn] = x1[5];
@@ -100,22 +102,22 @@ void Trac_Simple(double x, double px, double y, double py, double dp,
       // printf("Trac_Simple: Particle lost \n");
       // printf("%6ld plane:"
       // 	     " %1d %+10.5g %+10.5g %+10.5g %+10.5g %+10.5g %+10.5g \n", 
-      // 	     lastn, status.lossplane,
+      // 	     lastn, lat.conf.lossplane,
       // 	     x1[0], x1[1], x1[2], x1[3], x1[4], x1[5]);
       lostF = true;
       *status2 = false;
     }
     lastn++;
-  } while ((lastn < nmax) && (lastpos == globval.Cell_nLoc)
+  } while ((lastn < nmax) && (lastpos == lat.conf.Cell_nLoc)
 	   && (lostF == false));
 
-  if (lastpos != globval.Cell_nLoc)
+  if (lastpos != lat.conf.Cell_nLoc)
   { /* Particle lost: Error message section */
     *status2 = false;
     // printf("Trac_Simple: Particle lost \n");
     // printf("turn=%5ld plane= %1d"
     // 	   " %+10.5g %+10.5g %+10.5g %+10.5g %+10.5g %+10.5g \n",
-    // 	   lastn-1, status.lossplane,
+    // 	   lastn-1, lat.conf.lossplane,
     // 	   x1[0], x1[1], x1[2], x1[3], x1[4], x1[5]);
   }
 }

@@ -16,7 +16,7 @@ static double            *w_lsoc[2], **A_lsoc[2], **U_lsoc[2], **V_lsoc[2];
 static double            *w_lstc[2], **A_lstc[2], **U_lstc[2], **V_lstc[2];
 
 
-void zero_trims(void)
+void zero_trims(LatticeType &lat)
 {
   int      j, k;
   long int loc;
@@ -24,8 +24,8 @@ void zero_trims(void)
   for (k = 0; k < 2; k++)
     for (j = 1; j <= n_corr_[k]; j++) {
       loc = corrs_[k][j];
-      set_bn_design_elem(lat.elems[loc]->Fnum, lat.elems[loc]->Knum, Dip, 0e0,
-			 0e0);
+      set_bn_design_elem(lat, lat.elems[loc]->Fnum, lat.elems[loc]->Knum, Dip,
+			 0e0, 0e0);
     }
 }
 
@@ -87,7 +87,7 @@ void prt_gcmat(const int plane)
 }
 
 
-void gcmat(const int plane)
+void gcmat(LatticeType &lat, const int plane)
 {
   /* Get orbit response matrix
 
@@ -107,12 +107,14 @@ void gcmat(const int plane)
 
   k = plane - 1;
 
-  nu = globval.TotalTune[k]; spiq = sin(M_PI*nu);
+  nu = lat.conf.TotalTune[k]; spiq = sin(M_PI*nu);
 
   for (i = 1; i <= n_bpm_[k]; i++) {
-    loc = bpms_[k][i]; betai = lat.elems[loc]->Beta[k]; nui = lat.elems[loc]->Nu[k];
+    loc = bpms_[k][i]; betai = lat.elems[loc]->Beta[k];
+    nui = lat.elems[loc]->Nu[k];
     for (j = 1; j <= n_corr_[k]; j++) {
-      loc = corrs_[k][j]; betaj = lat.elems[loc]->Beta[k]; nuj = lat.elems[loc]->Nu[k];
+      loc = corrs_[k][j]; betaj = lat.elems[loc]->Beta[k];
+      nuj = lat.elems[loc]->Nu[k];
       A_lsoc[k][i][j] =
 	sqrt(betai*betaj)/(2.0*spiq)*cos(nu*M_PI-fabs(2.0*M_PI*(nui-nuj)));
     }
@@ -140,7 +142,7 @@ void gcmat(const int plane)
 }
 
 
-void gcmat(const int n_bpm, const long int bpms[],
+void gcmat(LatticeType &lat, const int n_bpm, const long int bpms[],
 	   const int n_corr, const long int corrs[], const int plane,
 	   const bool svd)
 {
@@ -172,11 +174,12 @@ void gcmat(const int n_bpm, const long int bpms[],
 
   n_bpm_[k] = n_bpm; n_corr_[k] = n_corr;
 
-  if (svd) gcmat(plane);
+  if (svd) gcmat(lat, plane);
 }
 
 
-void gcmat(const int bpm, const int corr, const int plane)
+void gcmat(LatticeType &lat, const int bpm, const int corr,
+	   const int plane)
 {
   int i, k;
 
@@ -190,11 +193,11 @@ void gcmat(const int bpm, const int corr, const int plane)
   for (i = 1; i <= n_corr_[k]; i++)
     corrs[i-1] = lat.Elem_GetPos(corr, i);
 
-  gcmat(n_bpm_[k], bpms, n_corr_[k], corrs, plane, true);
+  gcmat(lat, n_bpm_[k], bpms, n_corr_[k], corrs, plane, true);
 }
 
 
-void lsoc(const int plane, const double scl)
+void lsoc(LatticeType &lat, const int plane, const double scl)
 {
   int      j, k;
   long int loc;
@@ -214,16 +217,18 @@ void lsoc(const int plane, const double scl)
   for (j = 1; j <= n_corr_[k]; j++) {
     loc = corrs_[k][j];
     if (plane == 1)
-      set_dbnL_design_elem(lat.elems[loc]->Fnum, lat.elems[loc]->Knum, Dip, -scl*x[j], 0e0);
+      set_dbnL_design_elem(lat, lat.elems[loc]->Fnum, lat.elems[loc]->Knum, Dip,
+			   -scl*x[j], 0e0);
     else
-      set_dbnL_design_elem(lat.elems[loc]->Fnum, lat.elems[loc]->Knum, Dip, 0e0, scl*x[j]);
+      set_dbnL_design_elem(lat, lat.elems[loc]->Fnum, lat.elems[loc]->Knum, Dip,
+			   0e0, scl*x[j]);
   }
 
   free_dvector(b, 1, n_bpm_[k]); free_dvector(x, 1, n_corr_[k]);
 }
 
 
-void gtcmat(const int plane)
+void gtcmat(LatticeType &lat, const int plane)
 {
   /* Get trajectory response matrix
 
@@ -276,7 +281,7 @@ void gtcmat(const int plane)
 }
 
 
-void gtcmat(const int n_bpm, const long int bpms[],
+void gtcmat(LatticeType &lat, const int n_bpm, const long int bpms[],
 	    const int n_corr, const long int corrs[], const int plane,
 	    const bool svd)
 {
@@ -308,11 +313,11 @@ void gtcmat(const int n_bpm, const long int bpms[],
 
   n_bpm_[k] = n_bpm; n_corr_[k] = n_corr;
 
-  if (svd) gtcmat(plane);
+  if (svd) gtcmat(lat, plane);
 }
 
 
-void lstc(const int plane, const double scl)
+void lstc(LatticeType &lat, const int plane, const double scl)
 {
   int      j, k;
   long int loc;
@@ -340,14 +345,14 @@ void lstc(const int plane, const double scl)
 		      << "(b_1L)[" << std::setw(3) << j << "] = "
 		      << std::setw(12)<< -x[j] << std::endl;
 
-      set_dbnL_design_elem(lat.elems[loc]->Fnum, lat.elems[loc]->Knum, Dip,
+      set_dbnL_design_elem(lat, lat.elems[loc]->Fnum, lat.elems[loc]->Knum, Dip,
 			   -scl*x[j], 0e0);
     } else {
       if (trace) std::cout << std::scientific << std::setprecision(5)
 		      << "(a_1L)[" << std::setw(3) << j << "] = "
 		      << std::setw(12)<< x[j] << std::endl;
 
-      set_dbnL_design_elem(lat.elems[loc]->Fnum, lat.elems[loc]->Knum, Dip,
+      set_dbnL_design_elem(lat, lat.elems[loc]->Fnum, lat.elems[loc]->Knum, Dip,
 			   0e0, scl*x[j]);
     }
   }

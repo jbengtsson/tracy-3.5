@@ -10,11 +10,11 @@
 
 
 template<typename T>
-inline bool ElemType::CheckAmpl(const ss_vect<T> &ps)
+inline bool ElemType::CheckAmpl(ConfigType &conf, const ss_vect<T> &ps)
 {
   bool not_lost;
 
-  if (globval.Aperture_on)
+  if (conf.Aperture_on)
     not_lost = is_double<T>::cst(ps[x_]) > maxampl[X_][0] &&
                is_double<T>::cst(ps[x_]) < maxampl[X_][1] && 
                fabs(is_double<T>::cst(ps[y_])) < maxampl[Y_][1];
@@ -26,9 +26,9 @@ inline bool ElemType::CheckAmpl(const ss_vect<T> &ps)
   if (!not_lost) {
     if (is_double<T>::cst(ps[x_]) < maxampl[X_][0] ||
         is_double<T>::cst(ps[x_]) > maxampl[X_][1])
-      status.lossplane = 1;
+      conf.lossplane = 1;
     else if (fabs(is_double<T>::cst(ps[y_])) > maxampl[Y_][1])
-      status.lossplane = 2;
+      conf.lossplane = 2;
   }
 
   return not_lost;
@@ -36,9 +36,9 @@ inline bool ElemType::CheckAmpl(const ss_vect<T> &ps)
 
 
 template<typename T>
-void ElemType::Cell_Pass(ss_vect<T> &ps)
+void ElemType::Cell_Pass(ConfigType &conf, ss_vect<T> &ps)
 {
-  Elem_Pass(ps);
+  Elem_Pass(conf, ps);
 
   is_tps<T>::get_ps(ps, this);
 }
@@ -50,23 +50,23 @@ void LatticeType::Cell_Pass(const long i0, const long i1, ss_vect<T> &ps,
 {
   long int i = 0;
 
-  if (globval.radiation) globval.dE = 0e0;
+  if (conf.radiation) conf.dE = 0e0;
 
-  if (globval.emittance)
+  if (conf.emittance)
     for (i = 0; i < DOF; i++)
-      globval.D_rad[i] = 0e0;
+      conf.D_rad[i] = 0e0;
 
-  if (!elems[i0]->CheckAmpl(ps))
+  if (!elems[i0]->CheckAmpl(conf, ps))
     lastpos = i0;
   else {
     lastpos = i1;
     for (i = i0; i <= i1; i++) {
-      elems[i]->Cell_Pass(ps);
-      if (!elems[i]->CheckAmpl(ps)) {
+      elems[i]->Cell_Pass(conf, ps);
+      if (!elems[i]->CheckAmpl(conf, ps)) {
 	if (trace)
 	  printf("CheckAmpl: Particle lost in plane %d at element:"
 		 " %5ld s = %10.5f, x = %12.5e, z= %12.5e\n",
-		 status.lossplane, i, elems[i]->S,
+		 conf.lossplane, i, elems[i]->S,
 		 is_double<T>::cst(ps[x_]), is_double<T>::cst(ps[y_]));
 	lastpos = i;
 	break;
@@ -90,7 +90,7 @@ void LatticeType::Cell_Pass(const long i0, const long i1, tps &sigma,
 
   Id.identity();
 
-  map = Id + globval.CODvect; Cell_Pass(0, i0, map, lastpos);
+  map = Id + conf.CODvect; Cell_Pass(0, i0, map, lastpos);
 
   if (lastpos == i0) {
     map = Id + map.cst(); Cell_Pass(i0, i1, map, lastpos);
@@ -101,7 +101,7 @@ void LatticeType::Cell_Pass(const long i0, const long i1, tps &sigma,
       // deterministic part
       sigma = sigma*Inv(map-map.cst());
 
-      if (globval.emittance) {
+      if (conf.emittance) {
 	// stochastic part
 
 	for (i = 0; i < n; i++)
@@ -112,12 +112,12 @@ void LatticeType::Cell_Pass(const long i0, const long i1, tps &sigma,
 	jj[3][y_]  = 2; jj[4][y_]  = 1; jj[4][py_]    = 1; jj[5][py_]    = 2;
 	jj[6][ct_] = 2; jj[7][ct_] = 1; jj[7][delta_] = 1; jj[8][delta_] = 2;
 
-	A = putlinmat(6, globval.Ascr); sigma = sigma*A;
+	A = putlinmat(6, conf.Ascr); sigma = sigma*A;
 
 	for (i = 0; i < 3; i++) {
-	  if (globval.eps[i] > deps) {
-	    sigma.pook(jj[3*i], sigma[jj[3*i]]-globval.D_rad[i]/2.0);
-	    sigma.pook(jj[3*i+2], sigma[jj[3*i+2]]-globval.D_rad[i]/2.0);
+	  if (conf.eps[i] > deps) {
+	    sigma.pook(jj[3*i], sigma[jj[3*i]]-conf.D_rad[i]/2.0);
+	    sigma.pook(jj[3*i+2], sigma[jj[3*i+2]]-conf.D_rad[i]/2.0);
 	  }
 	}
 
@@ -139,13 +139,13 @@ bool LatticeType::Cell_getCOD(long imax, double eps, double dP, long &lastpos)
 
   no = no_tps; danot_(1);
   
-  if (globval.mat_meth && (dP != globval.dPparticle))
+  if (conf.mat_meth && (dP != conf.dPparticle))
     // Recompute transport matrices.
     get_lin_maps(dP);
 
-  globval.dPparticle = dP;
+  conf.dPparticle = dP;
 
-  n = (globval.Cavity_on)? 6 : 4;
+  n = (conf.Cavity_on)? 6 : 4;
 
   x0.zero(); x0[delta_] = dP;
 
@@ -168,9 +168,9 @@ bool LatticeType::Cell_getCOD(long imax, double eps, double dP, long &lastpos)
   do {
     n_iter++; map.identity(); map += x0;
 
-    Cell_Pass(0, globval.Cell_nLoc, map, lastpos); 
+    Cell_Pass(0, conf.Cell_nLoc, map, lastpos); 
 
-    if (lastpos == globval.Cell_nLoc) {
+    if (lastpos == conf.Cell_nLoc) {
       x1 = map.cst(); dx = x0 - x1; dx0 = PInv(map-I-x1, jj)*dx;
       dxabs = xabs(n, dx); x0 += dx0.cst();
     } else {
@@ -185,11 +185,11 @@ bool LatticeType::Cell_getCOD(long imax, double eps, double dP, long &lastpos)
 	<< std::setprecision(5)	<< "  x0 =" << std::setw(13) << x0 << "\n";
   } while ((dxabs >= eps) && (n_iter <= imax));
 
-  status.codflag = dxabs < eps;
+  conf.codflag = dxabs < eps;
 
-  if (status.codflag) {
-    globval.CODvect = x0; getlinmat(6, map, globval.OneTurnMat);
-    Cell_Pass(0, globval.Cell_nLoc, x0, lastpos);
+  if (conf.codflag) {
+    conf.CODvect = x0; getlinmat(6, map, conf.OneTurnMat);
+    Cell_Pass(0, conf.Cell_nLoc, x0, lastpos);
   } else
     std::cout << std::scientific << std::setprecision(5)
 	      << "\nCell_getCOD: failed to converge after " << n_iter
@@ -206,7 +206,7 @@ bool LatticeType::Cell_getCOD(long imax, double eps, double dP, long &lastpos)
 
   danot_(no);
   
-  return status.codflag;
+  return conf.codflag;
 }
 
 
@@ -218,7 +218,7 @@ bool LatticeType::GetCOD(long imax, double eps, double dP, long &lastpos)
 
 bool LatticeType::getcod(double dP, long &lastpos)
 {
-  return GetCOD(globval.CODimax, globval.CODeps, dP, lastpos);
+  return GetCOD(conf.CODimax, conf.CODeps, dP, lastpos);
 }
 
 
@@ -231,12 +231,12 @@ void LatticeType::Lat_Init(void)
 
   char first_name[] = "begin          ";
 
-  if (debug) printf("Lat_Init: Cell_nLoc = %d\n", globval.Cell_nLoc);
+  if (debug) printf("Lat_Init: Cell_nLoc = %ld\n", conf.Cell_nLoc);
 
   SI_init();  /* Initializes the constants for symplectic integrator */
 
   // Allocate space for lattice.
-  elems.resize(globval.Cell_nLoc+1);
+  elems.resize(conf.Cell_nLoc+1);
 
   // Assign element 0 ("begin").
   elems[0] = Marker_Alloc();
@@ -246,7 +246,7 @@ void LatticeType::Lat_Init(void)
   elems[0]->dT[X_] = 1e0; elems[0]->dT[Y_] = 0e0;
   elems[0]->dS[X_] = 0e0; elems[0]->dS[Y_] = 0e0;
 
-  for (i = 1; i <= globval.Elem_nFam; i++) {
+  for (i = 1; i <= conf.Elem_nFam; i++) {
     // Allocate element.
     elemfamp  = &elemf[i-1]; /* Get 1 of all elements stored in ElemFam
 				array */
@@ -297,7 +297,7 @@ void LatticeType::Lat_Init(void)
 
   /* Computes s-location of each element in the structure */
   Stotal = 0e0;
-  for (i = 0; i <= globval.Cell_nLoc; i++) {
+  for (i = 0; i <= conf.Cell_nLoc; i++) {
     Stotal += elems[i]->PL; elems[i]->S = Stotal;
   }
 

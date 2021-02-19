@@ -11,10 +11,7 @@
 #ifndef RADIA2TRACY_H
 #define RADIA2TRACY_H
 
-void Read_IDfile(char *fic_radia, double &L, int &pnx, int &pnz,
-                 double tabx[IDXMAX],  double tabz[IDZMAX],
-                 double thetax[IDZMAX][IDXMAX], double thetaz[IDZMAX][IDXMAX],
-		 bool &long_comp, double B2[IDZMAX][IDXMAX]);
+void Read_IDfile(char *fic_radia, const ConfigType &conf, InsertionType *ID);
 
 template<typename T>
 void LinearInterpolation2(T &X, T &Z, T &TX, T &TZ, T &B2, CellType &Cell,

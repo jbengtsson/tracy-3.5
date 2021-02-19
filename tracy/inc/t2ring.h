@@ -11,8 +11,8 @@
 
 void GetNu(Vector2 &nu, Matrix &M);
 
-void Cell_GetABGN(Matrix &M,
-		  Vector2 &alpha, Vector2 &beta, Vector2 &gamma, Vector2 &nu);
+bool Cell_GetABGN(Matrix &M, Vector2 &alpha, Vector2 &beta, Vector2 &gamma,
+		  Vector2 &nu);
 
 void Cell_Geteta(long i0, long i1, bool ring, double dP);
 
@@ -34,7 +34,7 @@ void Ring_FitDisp(long pos, double eta, double eps, long nq, long q[],
 
 void get_dI_eta_5(const int k, std::vector<ElemType*> Elem);
 
-double get_code(CellType &Cell);
+double get_code(const ConfigType &conf, CellType &Cell);
 
 void Cell_Twiss(const long int i0, const long int i1);
 

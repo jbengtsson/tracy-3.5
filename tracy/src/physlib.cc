@@ -51,45 +51,45 @@ struct tm* GetTime()
 }
 
 
-void printglob(ElemType *elem)
+void printglob(LatticeType &lat)
 {
   printf("\n***************************************************************"
 	 "***************\n");
   printf("\n");
   printf("  dPcommon     =  %9.3e  dPparticle   =  %9.3e"
 	 "  Energy [GeV] = %.3f\n",
-         globval.dPcommon, globval.dPparticle, globval.Energy);
+         lat.conf.dPcommon, lat.conf.dPparticle, lat.conf.Energy);
   printf("  MaxAmplx [m] = %9.3e  MaxAmply [m] = %9.3e"
 	 "  RFAccept [%%] = %4.2f\n",
-         elem->maxampl[X_][0], elem->maxampl[Y_][0],
-	 globval.delta_RF*1e2);
-  printf(" Cavity_On    =  %s    ", globval.Cavity_on ? "TRUE " : "FALSE");
+         lat.elems[0]->maxampl[X_][0], lat.elems[0]->maxampl[Y_][0],
+	 lat.conf.delta_RF*1e2);
+  printf(" Cavity_On    =  %s    ", lat.conf.Cavity_on ? "TRUE " : "FALSE");
   printf("  Radiation_On = %s     \n",
-	 globval.radiation ? "TRUE " : "FALSE");
+	 lat.conf.radiation ? "TRUE " : "FALSE");
   printf("  bpm          =  %3d        qt           = %3d        ",
-	 globval.bpm, globval.qt);
-  printf(" Chambre_On   = %s     \n", status.chambre ? "TRUE " : "FALSE");
+	 lat.conf.bpm, lat.conf.qt);
+  printf(" Chambre_On   = %s     \n", lat.conf.chambre ? "TRUE " : "FALSE");
   printf("  hcorr        =  %3d        vcorr        = %3d\n\n",
-	 globval.hcorr, globval.vcorr);
-  printf("  alphac       =   %22.16e\n", globval.Alphac); 
+	 lat.conf.hcorr, lat.conf.vcorr);
+  printf("  alphac       =   %22.16e\n", lat.conf.Alphac); 
   printf("  nux          =  %19.16f      nuz  =  %19.16f",
-         globval.TotalTune[X_], globval.TotalTune[Y_]);
-  if (globval.Cavity_on)
-    printf("  omega  = %11.9f\n", globval.Omega);
+         lat.conf.TotalTune[X_], lat.conf.TotalTune[Y_]);
+  if (lat.conf.Cavity_on)
+    printf("  omega  = %11.9f\n", lat.conf.Omega);
   else {
     printf("\n");
     printf("  ksix         = %10.6f                ksiz = %10.6f\n",
-            globval.Chrom[X_], globval.Chrom[Y_]);
+            lat.conf.Chrom[X_], lat.conf.Chrom[Y_]);
   }
   printf("\n");
   printf("  OneTurn matrix:\n");
   printf("\n");
-  prtmat(2*DOF, globval.OneTurnMat);
+  prtmat(2*DOF, lat.conf.OneTurnMat);
   fflush(stdout);
 }
 
 
-void prt_sigma(void)
+void prt_sigma(LatticeType &lat)
 {
   long int  i;
   double    code = 0.0;
@@ -102,7 +102,7 @@ void prt_sigma(void)
   fprintf(outf, "#           [m]   [mm]       [mrad]     [mm]     [mrad]\n");
   fprintf(outf, "#\n");
 
-  for (i = 0; i <= globval.Cell_nLoc; i++) {
+  for (i = 0; i <= lat.conf.Cell_nLoc; i++) {
     switch (lat.elems[i]->Pkind) {
     case drift:
       code = 0.0;
@@ -115,7 +115,7 @@ void prt_sigma(void)
 	code = sgn(M->PBpar[Quad+HOMmax]);
       else if (M->PBpar[Sext+HOMmax] != 0)
 	code = 1.5*sgn(M->PBpar[Sext+HOMmax]);
-      else if (lat.elems[i]->Fnum == globval.bpm)
+      else if (lat.elems[i]->Fnum == lat.conf.bpm)
 	code = 2.0;
       else
 	code = 0.0;
@@ -136,44 +136,44 @@ void prt_sigma(void)
 }
 
 
-void recalc_S(void)
+void recalc_S(LatticeType &lat)
 {
   long int  k;
   double    S_tot;
 
   S_tot = 0.0;
-  for (k = 0; k <= globval.Cell_nLoc; k++) {
+  for (k = 0; k <= lat.conf.Cell_nLoc; k++) {
     S_tot += lat.elems[k]->PL; lat.elems[k]->S = S_tot;
   }
 }
 
 
-void getabn(Vector2 &alpha, Vector2 &beta, Vector2 &nu)
+void getabn(LatticeType &lat, Vector2 &alpha, Vector2 &beta, Vector2 &nu)
 {
   Vector2 gamma;
-  Cell_GetABGN(globval.OneTurnMat, alpha, beta, gamma, nu);
+
+  Cell_GetABGN(lat.conf.OneTurnMat, alpha, beta, gamma, nu);
 }
 
 
-#define nfloq           4
+#define nfloq 4
 
-void getfloqs(psVector &x)
+void getfloqs(LatticeType &lat, psVector &x)
 {
   // Transform to Floquet space
-  LinTrans(nfloq, globval.Ascrinv, x);
+  LinTrans(nfloq, lat.conf.Ascrinv, x);
 }
 
 #undef nfloq
 
 
-#define ntrack          4
+#define ntrack 4
 
 // 4D tracking in normal or Floquet space over nmax turns
 
-void track(const char *file_name,
-	   double ic1, double ic2, double ic3, double ic4, double dp,
-	   long int nmax, long int &lastn, long int &lastpos, int floqs,
-	   double f_rf)
+void track(const char *file_name, LatticeType &lat, double ic1, double ic2,
+	   double ic3, double ic4, double dp, long int nmax, long int &lastn,
+	   long int &lastpos, int floqs, double f_rf)
 {
   /* Single particle tracking around closed orbit:
 
@@ -184,10 +184,10 @@ void track(const char *file_name,
 	Action-Angle Variables    2     [2Jx, phx, 2Jy, phiy, delta, ct]
 
   */
-  long int   i;
-  double     twoJx, twoJy, phix, phiy, scl_1 = 1.0, scl_2 = 1.0;
-  psVector     x0, x1, x2, xf;
-  FILE       *outf;
+  long int i;
+  double   twoJx, twoJy, phix, phiy, scl_1 = 1.0, scl_2 = 1.0;
+  psVector x0, x1, x2, xf;
+  FILE     *outf;
 
   bool  prt = false;
 
@@ -197,12 +197,12 @@ void track(const char *file_name,
   } else if (floqs == 1) {
     scl_1 = 1.0; scl_2 = 1.0;
     x0[x_] = ic1; x0[px_] = ic2; x0[y_] = ic3; x0[py_] = ic4;
-    LinTrans(4, globval.Ascr, x0);
+    LinTrans(4, lat.conf.Ascr, x0);
   } else if (floqs == 2) {
     scl_1 = 1e6; scl_2 = 1.0;
     x0[x_] = sqrt(ic1)*cos(ic2); x0[px_] = -sqrt(ic1)*sin(ic2);
     x0[y_] = sqrt(ic3)*cos(ic4); x0[py_] = -sqrt(ic3)*sin(ic4);
-    LinTrans(4, globval.Ascr, x0);
+    LinTrans(4, lat.conf.Ascr, x0);
   }
 
   outf = file_write(file_name);
@@ -219,8 +219,8 @@ void track(const char *file_name,
   }
   fprintf(outf, "#\n");
   fprintf(outf, "#%3d%6ld% .1E% .1E% .1E% .1E% 7.5f% 7.5f\n",
-	  1, nmax, 1e0, 1e0, 0e0, 0e0, globval.TotalTune[0],
-	  globval.TotalTune[1]);
+	  1, nmax, 1e0, 1e0, 0e0, 0e0, lat.conf.TotalTune[0],
+	  lat.conf.TotalTune[1]);
   if (floqs == 0) {
     fprintf(outf, "#    N       x            p_x            y            p_y");
     fprintf(outf, "          delta          cdt\n");
@@ -242,20 +242,20 @@ void track(const char *file_name,
     fprintf(outf, "#\n");
     fprintf(outf, "%4d %23.16e %23.16e %23.16e %23.16e %23.16e %23.16e\n",
 	    0, scl_1*ic1, scl_2*ic2, scl_1*ic3, scl_2*ic4, 1e2*dp, 
-	    0*1e3*globval.CODvect[ct_]);
+	    0*1e3*lat.conf.CODvect[ct_]);
   } else {
     fprintf(outf, "         [%%]           [deg]\n");
     fprintf(outf, "#\n");
     fprintf(outf, "%4d %23.16e %23.16e %23.16e %23.16e %23.16e %23.16e\n",
 	    0, scl_1*ic1, scl_2*ic2, scl_1*ic3, scl_2*ic4, 1e2*dp, 
-	    2.0*f_rf*180.0*globval.CODvect[ct_]/c0);
+	    2.0*f_rf*180.0*lat.conf.CODvect[ct_]/c0);
   }
-  x2[x_] = x0[x_] + globval.CODvect[x_];
-  x2[px_] = x0[px_] + globval.CODvect[px_];
-  x2[y_] = x0[y_] + globval.CODvect[y_];
-  x2[py_] = x0[py_] + globval.CODvect[py_];
-  if (globval.Cavity_on) {
-    x2[delta_] = dp + globval.CODvect[delta_]; x2[ct_] = globval.CODvect[ct_];
+  x2[x_] = x0[x_] + lat.conf.CODvect[x_];
+  x2[px_] = x0[px_] + lat.conf.CODvect[px_];
+  x2[y_] = x0[y_] + lat.conf.CODvect[y_];
+  x2[py_] = x0[py_] + lat.conf.CODvect[py_];
+  if (lat.conf.Cavity_on) {
+    x2[delta_] = dp + lat.conf.CODvect[delta_]; x2[ct_] = lat.conf.CODvect[ct_];
   } else {
     x2[delta_] = dp; x2[ct_] = 0.0;
   }
@@ -275,21 +275,21 @@ void track(const char *file_name,
     for (i = 0; i < nv_; i++)
       x1[i] = x2[i];
 
-    lat.Cell_Pass(0, globval.Cell_nLoc, x2, lastpos);
+    lat.Cell_Pass(0, lat.conf.Cell_nLoc, x2, lastpos);
 
     for (i = x_; i <= py_; i++)
-      xf[i] = x2[i] - globval.CODvect[i];
+      xf[i] = x2[i] - lat.conf.CODvect[i];
 
     for (i = delta_; i <= ct_; i++)
-      if (globval.Cavity_on && (i != ct_)) 
-	xf[i] = x2[i] - globval.CODvect[i];
+      if (lat.conf.Cavity_on && (i != ct_)) 
+	xf[i] = x2[i] - lat.conf.CODvect[i];
       else
 	xf[i] = x2[i];
 
     if (floqs == 1)
-      getfloqs(xf);
+      getfloqs(lat, xf);
     else if (floqs == 2) {
-      getfloqs(xf);
+      getfloqs(lat, xf);
       twoJx = pow(xf[x_], 2.0) + pow(xf[px_], 2.0);
       twoJy = pow(xf[y_], 2.0) + pow(xf[py_], 2.0);
       phix = atan2(xf[px_], xf[x_]);
@@ -300,13 +300,13 @@ void track(const char *file_name,
       fprintf(outf,
 	      "%4ld %23.16le %23.16le %23.16le %23.16le %23.16le %23.16le\n",
 	      lastn, scl_1*xf[0], scl_2*xf[1], scl_1*xf[2], scl_2*xf[3],
-	      1e2*xf[4], 1e3*(xf[5]-globval.CODvect[ct_]));
+	      1e2*xf[4], 1e3*(xf[5]-lat.conf.CODvect[ct_]));
     else
       fprintf(outf,
 	      "%4ld %23.16le %23.16le %23.16le %23.16le %23.16le %23.16le\n",
 	      lastn, scl_1*xf[0], scl_2*xf[1], scl_1*xf[2], scl_2*xf[3],
 	      1e2*xf[4], 2.0*f_rf*180.0*xf[5]/c0);
-  } while ((lastn != nmax) && (lastpos == globval.Cell_nLoc));
+  } while ((lastn != nmax) && (lastpos == lat.conf.Cell_nLoc));
 
   fclose(outf);
 }
@@ -317,7 +317,8 @@ void track(const char *file_name,
 #define step            0.1
 #define px              0.0
 #define py              0.0
-void track_(double r, struct LOC_getdynap *LINK)
+
+void track_(LatticeType &lat, double r, struct LOC_getdynap *LINK)
 {
   long i, lastn, lastpos;
   psVector x;
@@ -330,17 +331,18 @@ void track_(double r, struct LOC_getdynap *LINK)
   x[5] = 0.0;
   /* transform to phase space */
   if (LINK->floqs) {
-    LinTrans(5, globval.Ascr, x);
+    LinTrans(5, lat.conf.Ascr, x);
   }
   for (i = 0; i <= 3; i++)
-    x[i] += globval.CODvect[i];
+    x[i] += lat.conf.CODvect[i];
   lastn = 0;
   do {
     lastn++;
-    lat.Cell_Pass(0, globval.Cell_nLoc, x, lastpos);
-  } while (lastn != LINK->nturn && lastpos == globval.Cell_nLoc);
+    lat.Cell_Pass(0, lat.conf.Cell_nLoc, x, lastpos);
+  } while (lastn != LINK->nturn && lastpos == lat.conf.Cell_nLoc);
   LINK->lost = (lastn != LINK->nturn);
 }
+
 #undef step
 #undef px
 #undef py
@@ -383,8 +385,9 @@ void track_(double r, struct LOC_getdynap *LINK)
        (wrong observation point)
 
 ****************************************************************************/
-void Trac(double x, double px, double y, double py, double dp, double ctau,
-          long nmax, long pos, long &lastn, long &lastpos, FILE *outf1)
+void Trac(LatticeType &lat, double x, double px, double y, double py, double dp,
+	  double ctau, long nmax, long pos, long &lastn, long &lastpos,
+	  FILE *outf1)
 {
   psVector x1;     /* tracking coordinates */
 
@@ -400,9 +403,9 @@ void Trac(double x, double px, double y, double py, double dp, double ctau,
   if(trace) fprintf(outf1, "\n");
   fprintf(outf1, "%6ld %+10.5e %+10.5e %+10.5e %+10.5e %+10.5e %+10.5e \n",
 	  lastn, x1[0], x1[1], x1[2], x1[3], x1[4], x1[5]);
-  lat.Cell_Pass(pos -1L, globval.Cell_nLoc, x1, lastpos);
+  lat.Cell_Pass(pos -1L, lat.conf.Cell_nLoc, x1, lastpos);
 
-  if (lastpos == globval.Cell_nLoc)
+  if (lastpos == lat.conf.Cell_nLoc)
   do {
     (lastn)++;
     lat.Cell_Pass(0L, pos-1L, x1, lastpos);
@@ -410,17 +413,17 @@ void Trac(double x, double px, double y, double py, double dp, double ctau,
       fprintf(outf1, "%6ld %+10.5e %+10.5e %+10.5e %+10.5e %+10.5e %+10.5e \n",
 	      lastn, x1[0], x1[1], x1[2], x1[3], x1[4], x1[5]);
     }
-    if (lastpos == pos-1L) lat.Cell_Pass(pos-1L,globval.Cell_nLoc, x1, lastpos);
+    if (lastpos == pos-1L) lat.Cell_Pass(pos-1L,lat.conf.Cell_nLoc, x1, lastpos);
   }
-  while (((lastn) < nmax) && ((lastpos) == globval.Cell_nLoc));
+  while (((lastn) < nmax) && ((lastpos) == lat.conf.Cell_nLoc));
 
-  if (lastpos == globval.Cell_nLoc) lat.Cell_Pass(0L,pos, x1, lastpos);
+  if (lastpos == lat.conf.Cell_nLoc) lat.Cell_Pass(0L,pos, x1, lastpos);
 
   if (lastpos != pos) {
     printf("Trac: Particle lost \n");
     fprintf(stdout, "turn:%6ld plane: %1d"
 	    " %+10.5g %+10.5g %+10.5g %+10.5g %+10.5g %+10.5g \n", 
-	    lastn, status.lossplane, x1[0], x1[1], x1[2], x1[3], x1[4], x1[5]);
+	    lastn, lat.conf.lossplane, x1[0], x1[1], x1[2], x1[3], x1[4], x1[5]);
   }
 }
 
@@ -452,7 +455,7 @@ void Trac(double x, double px, double y, double py, double dp, double ctau,
 ****************************************************************************/
 
 #define nfloq     4
-bool chk_if_lost(double x0, double y0, double delta,
+bool chk_if_lost(LatticeType &lat, double x0, double y0, double delta,
 		 long int nturn, bool floqs)
 {
   long int  i, lastn, lastpos;
@@ -464,9 +467,9 @@ bool chk_if_lost(double x0, double y0, double delta,
   x[delta_] = delta; x[ct_] = 0.0;
   if (floqs)
     // transform to phase space
-    LinTrans(nfloq, globval.Ascr, x);  
+    LinTrans(nfloq, lat.conf.Ascr, x);  
   for (i = 0; i <= 3; i++)  
-    x[i] += globval.CODvect[i];
+    x[i] += lat.conf.CODvect[i];
 
   lastn = 0;
   if (prt) {
@@ -478,12 +481,12 @@ bool chk_if_lost(double x0, double y0, double delta,
   }
   do {
     lastn++;
-    lat.Cell_Pass(0, globval.Cell_nLoc, x, lastpos);
+    lat.Cell_Pass(0, lat.conf.Cell_nLoc, x, lastpos);
     if (prt)
       printf("%4ld %7.3f %7.3f %7.3f %7.3f %7.3f %7.3f\n",
 	     lastn, 1e3*x[x_], 1e3*x[px_], 1e3*x[y_], 1e3*x[py_],
 	     1e2*x[delta_], 1e3*x[ct_]);
-  } while ((lastn != nturn) && (lastpos == globval.Cell_nLoc));
+  } while ((lastn != nturn) && (lastpos == lat.conf.Cell_nLoc));
   return(lastn != nturn);
 }
 #undef nfloq
@@ -515,7 +518,7 @@ bool chk_if_lost(double x0, double y0, double delta,
        none
 
 ****************************************************************************/
-void getdynap(double &r, double phi, double delta, double eps,
+void getdynap(LatticeType &lat, double &r, double phi, double delta, double eps,
 	      int nturn, bool floqs)
 {
   /* Determine dynamical aperture by binary search. */
@@ -526,7 +529,7 @@ void getdynap(double &r, double phi, double delta, double eps,
 
   if (prt) printf("\n");
 
-  while (!chk_if_lost(rmax*cos(phi), rmax*sin(phi), delta, nturn, floqs)) {
+  while (!chk_if_lost(lat, rmax*cos(phi), rmax*sin(phi), delta, nturn, floqs)) {
     if (rmax < r_reset) rmax = r0;
     rmax *= 2.0;
   }
@@ -534,7 +537,7 @@ void getdynap(double &r, double phi, double delta, double eps,
     r = rmin + (rmax-rmin)/2.0;
     if (prt) printf("getdynap: %6.3f %6.3f %6.3f\n",
 		    1e3*rmin, 1e3*rmax, 1e3*r);
-    if (! chk_if_lost(r*cos(phi), r*sin(phi), delta, nturn, floqs) )
+    if (!chk_if_lost(lat, r*cos(phi), r*sin(phi), delta, nturn, floqs) )
       rmin = r;
     else
       rmax = r;
@@ -575,7 +578,7 @@ void getdynap(double &r, double phi, double delta, double eps,
        none
 
 ****************************************************************************/
-void getcsAscr(void)
+void getcsAscr(LatticeType &lat)
 {
   long i, j;
   double phi;
@@ -583,23 +586,23 @@ void getcsAscr(void)
 
   UnitMat(6, R);
   for (i = 1; i <= 2; i++) {
-    phi = -atan2(globval.Ascr[i * 2 - 2][i * 2 - 1], globval.Ascr[i * 2 - 2]
+    phi = -atan2(lat.conf.Ascr[i * 2 - 2][i * 2 - 1], lat.conf.Ascr[i * 2 - 2]
 		[i * 2 - 2]);
     R[i * 2 - 2][i * 2 - 2] = cos(phi);
     R[i * 2 - 1][i * 2 - 1] = R[i * 2 - 2][i * 2 - 2];
     R[i * 2 - 2][i * 2 - 1] = sin(phi);
     R[i * 2 - 1][i * 2 - 2] = -R[i * 2 - 2][i * 2 - 1];
   }
-  MulRMat(6, globval.Ascr, R);
+  MulRMat(6, lat.conf.Ascr, R);
   for (i = 1; i <= 2; i++) {
-    if (globval.Ascr[i * 2 - 2][i * 2 - 2] < 0.0) {
+    if (lat.conf.Ascr[i * 2 - 2][i * 2 - 2] < 0.0) {
       for (j = 0; j <= 5; j++) {
-	globval.Ascr[j][i * 2 - 2] = -globval.Ascr[j][i * 2 - 2];
-	globval.Ascr[j][i * 2 - 1] = -globval.Ascr[j][i * 2 - 1];
+	lat.conf.Ascr[j][i * 2 - 2] = -lat.conf.Ascr[j][i * 2 - 2];
+	lat.conf.Ascr[j][i * 2 - 1] = -lat.conf.Ascr[j][i * 2 - 1];
       }
     }
   }
-  if (!InvMat(6, globval.Ascrinv))
+  if (!InvMat(6, lat.conf.Ascrinv))
     printf("  *** Ascr is singular\n");
 }
 
@@ -639,9 +642,9 @@ void getcsAscr(void)
        none
 
 ****************************************************************************/
-void dynap(FILE *fp, double r, const double delta,
-	   const double eps, const int npoint, const int nturn,
-       double x[], double y[], const bool floqs, const bool cod, const bool print)
+void dynap(FILE *fp, LatticeType &lat, double r, const double delta,
+	   const double eps, const int npoint, const int nturn, double x[],
+	   double y[], const bool floqs, const bool cod, const bool print)
 
 {
   /* Determine the dynamical aperture by tracking.
@@ -653,7 +656,7 @@ void dynap(FILE *fp, double r, const double delta,
   if (cod)
     lat.getcod(delta, lastpos);
   else
-    globval.CODvect.zero();
+    lat.conf.CODvect.zero();
   if (floqs) {
     lat.Ring_GetTwiss(false, delta);
     if (print) {
@@ -686,7 +689,7 @@ void dynap(FILE *fp, double r, const double delta,
       phi = 1e-3;
     else if (i == npoint-1)
       phi -= 1e-3;
-    getdynap(r, phi, delta, eps, nturn, floqs);
+    getdynap(lat, r, phi, delta, eps, nturn, floqs);
     x[i] = r*cos(phi); y[i] = r*sin(phi);
     x_min = min(x[i], x_min); x_max = max(x[i], x_max);
     y_min = min(y[i], y_min); y_max = max(y[i], y_max);
@@ -876,14 +879,15 @@ double GetArg(double x, double px, double nu)
        none
 
 ****************************************************************************/
-void GetPhi(long n, double *x, double *px, double *y, double *py)
+void GetPhi(LatticeType &lat, long n, double *x, double *px, double *y,
+	    double *py)
 {
   /* Calculates the linear phase */
   long i;
 
   for (i = 1; i <= n; i++) {
-    x[i - 1] = GetArg(x[i - 1], px[i - 1], i * globval.TotalTune[0]);
-    y[i - 1] = GetArg(y[i - 1], py[i - 1], i * globval.TotalTune[1]);
+    x[i - 1] = GetArg(x[i - 1], px[i - 1], i * lat.conf.TotalTune[0]);
+    y[i - 1] = GetArg(y[i - 1], py[i - 1], i * lat.conf.TotalTune[1]);
   }
 }
 
@@ -1289,7 +1293,8 @@ void GetPeaks1(int n, double *x, int nf, double *nu, double *A)
 /* Routines for magnetic error */
 /*******************************/
 
-void SetTol(int Fnum, double dxrms, double dyrms, double drrms)
+void SetTol(LatticeType &lat, int Fnum, double dxrms, double dyrms,
+	    double drrms)
 {
   int       i;
   long      k;
@@ -1309,7 +1314,8 @@ void SetTol(int Fnum, double dxrms, double dyrms, double drrms)
 }
 
 
-void Scale_Tol(int Fnum, double dxrms, double dyrms, double drrms)
+void Scale_Tol(LatticeType &lat, int Fnum, double dxrms, double dyrms,
+	       double drrms)
 {
   int       Knum;
   long int  loc;
@@ -1350,7 +1356,8 @@ void Scale_Tol(int Fnum, double dxrms, double dyrms, double drrms)
        none
 
 ****************************************************************************/
-void SetaTol(int Fnum, int Knum, double dx, double dy, double dr)
+void SetaTol(LatticeType &lat, int Fnum, int Knum, double dx, double dy,
+	     double dr)
 {
   long int  loc;
   MpoleType *M;
@@ -1364,32 +1371,36 @@ void SetaTol(int Fnum, int Knum, double dx, double dy, double dr)
 }
 
 
-void ini_aper(const double Dxmin, const double Dxmax, 
+void ini_aper(LatticeType &lat, const double Dxmin, const double Dxmax, 
               const double Dymin, const double Dymax) 
 { 
   int  k; 
  
-  for (k = 0; k <= globval.Cell_nLoc; k++) { 
-    lat.elems[k]->maxampl[X_][0] = Dxmin; lat.elems[k]->maxampl[X_][1] = Dxmax; 
-    lat.elems[k]->maxampl[Y_][0] = Dymin; lat.elems[k]->maxampl[Y_][1] = Dymax; 
+  for (k = 0; k <= lat.conf.Cell_nLoc; k++) { 
+    lat.elems[k]->maxampl[X_][0] = Dxmin;
+    lat.elems[k]->maxampl[X_][1] = Dxmax; 
+    lat.elems[k]->maxampl[Y_][0] = Dymin;
+    lat.elems[k]->maxampl[Y_][1] = Dymax; 
   } 
 } 
  
-void set_aper(const int Fnum, const double Dxmin, const double Dxmax,
-	      const double Dymin, const double Dymax)
+void set_aper(LatticeType &lat, const int Fnum, const double Dxmin,
+	      const double Dxmax, const double Dymin, const double Dymax)
 {
   int       i;
   long int  loc;
 
   for (i = 1; i <= lat.GetnKid(Fnum); i++) {
     loc = lat.Elem_GetPos(Fnum, i);
-    lat.elems[loc]->maxampl[X_][0] = Dxmin; lat.elems[loc]->maxampl[X_][1] = Dxmax;
-    lat.elems[loc]->maxampl[Y_][0] = Dymin; lat.elems[loc]->maxampl[Y_][1] = Dymax;
+    lat.elems[loc]->maxampl[X_][0] = Dxmin;
+    lat.elems[loc]->maxampl[X_][1] = Dxmax;
+    lat.elems[loc]->maxampl[Y_][0] = Dymin;
+    lat.elems[loc]->maxampl[Y_][1] = Dymax;
   }
 }
 
 
-void LoadApertures(const char *ChamberFileName)
+void LoadApertures(LatticeType &lat, const char *ChamberFileName)
 {
   char    line[128], FamName[32];
   long    Fnum;
@@ -1405,7 +1416,7 @@ void LoadApertures(const char *ChamberFileName)
   do {
     sscanf(line,"%s %lf %lf %lf %lf", FamName,&Xmin, &Xmax, &Ymin,&Ymax);
       Fnum = ElemIndex(FamName);
-      if (Fnum > 0) set_aper(Fnum, Xmin, Xmax, Ymin, Ymax);
+      if (Fnum > 0) set_aper(lat, Fnum, Xmin, Xmax, Ymin, Ymax);
   } while (fgets(line, 128, ChamberFile ) != NULL);
 
   fclose(ChamberFile);
@@ -1413,7 +1424,7 @@ void LoadApertures(const char *ChamberFileName)
 
 
 // Load tolerances from the file
-void LoadTolerances(const char *TolFileName) 
+void LoadTolerances(LatticeType &lat, const char *TolFileName) 
 {
   char    line[128], FamName[32];
   int     Fnum;
@@ -1431,7 +1442,7 @@ void LoadTolerances(const char *TolFileName)
       sscanf(line,"%s %lf %lf %lf", FamName, &dx, &dy, &dr);
       Fnum = ElemIndex(FamName);
       if (Fnum > 0) {
-	SetTol(Fnum, dx, dy, dr);
+	SetTol(lat, Fnum, dx, dy, dr);
       } else {
 	printf("LoadTolerances: undefined element %s\n", FamName);
 	exit_(1);
@@ -1444,7 +1455,8 @@ void LoadTolerances(const char *TolFileName)
 
 
 // Load tolerances from the file
-void ScaleTolerances(const char *TolFileName, const double scl) 
+void ScaleTolerances(LatticeType &lat, const char *TolFileName,
+		     const double scl) 
 {
   char    line[128], FamName[32];
   int     Fnum;
@@ -1462,7 +1474,7 @@ void ScaleTolerances(const char *TolFileName, const double scl)
       sscanf(line,"%s %lf %lf %lf", FamName, &dx, &dy, &dr);
       Fnum = ElemIndex(FamName);
       if (Fnum > 0) {
-	Scale_Tol(Fnum, scl*dx, scl*dy, scl*dr);
+	Scale_Tol(lat, Fnum, scl*dx, scl*dy, scl*dr);
       } else {
 	printf("ScaleTolerances: undefined element %s\n", FamName);
 	exit_(1);
@@ -1473,7 +1485,7 @@ void ScaleTolerances(const char *TolFileName, const double scl)
 }
 
 
-void SetKpar(int Fnum, int Knum, int Order, double k)
+void SetKpar(LatticeType &lat, int Fnum, int Knum, int Order, double k)
 {
   long int  loc;
   MpoleType *M;
@@ -1485,14 +1497,14 @@ void SetKpar(int Fnum, int Knum, int Order, double k)
 }
 
 
-void SetL(int Fnum, int Knum, double L)
+void SetL(LatticeType &lat, int Fnum, int Knum, double L)
 {
 
   lat.elems[lat.Elem_GetPos(Fnum, Knum)]->PL = L;
 }
 
 
-void SetL(int Fnum, double L)
+void SetL(LatticeType &lat, int Fnum, double L)
 {
   int  i;
 
@@ -1501,7 +1513,7 @@ void SetL(int Fnum, double L)
 }
 
 
-void SetdKpar(int Fnum, int Knum, int Order, double dk)
+void SetdKpar(LatticeType &lat, int Fnum, int Knum, int Order, double dk)
 {
   long int  loc;
   MpoleType *M;
@@ -1513,7 +1525,7 @@ void SetdKpar(int Fnum, int Knum, int Order, double dk)
 }
 
 
-void SetKLpar(int Fnum, int Knum, int Order, double kL)
+void SetKLpar(LatticeType &lat, int Fnum, int Knum, int Order, double kL)
 {
   long int  loc;
   MpoleType *M;
@@ -1528,7 +1540,7 @@ void SetKLpar(int Fnum, int Knum, int Order, double kL)
 }
 
 
-void SetdKLpar(int Fnum, int Knum, int Order, double dkL)
+void SetdKLpar(LatticeType &lat, int Fnum, int Knum, int Order, double dkL)
 {
   long int  loc;
   MpoleType *M;
@@ -1543,7 +1555,7 @@ void SetdKLpar(int Fnum, int Knum, int Order, double dkL)
 }
 
 
-void SetdKrpar(int Fnum, int Knum, int Order, double dkrel)
+void SetdKrpar(LatticeType &lat, int Fnum, int Knum, int Order, double dkrel)
 {
   long int  loc;
   MpoleType *M;
@@ -1558,53 +1570,53 @@ void SetdKrpar(int Fnum, int Knum, int Order, double dkrel)
 }
 
 
-void Setbn(int Fnum, int order, double bn)
+void Setbn(LatticeType &lat, int Fnum, int order, double bn)
 {
   int i;
 
   for (i = 1; i <=  lat.GetnKid(Fnum); i++)
-    SetKpar(Fnum, i, order, bn);
+    SetKpar(lat, Fnum, i, order, bn);
 }
 
 
-void SetbnL(int Fnum, int order, double bnL)
+void SetbnL(LatticeType &lat, int Fnum, int order, double bnL)
 {
   int i;
 
   for (i = 1; i <= lat.GetnKid(Fnum); i++)
-    SetKLpar(Fnum, i, order, bnL);
+    SetKLpar(lat, Fnum, i, order, bnL);
 }
 
 
-void Setdbn(int Fnum, int order, double dbn)
+void Setdbn(LatticeType &lat, int Fnum, int order, double dbn)
 {
   int i;
 
   for (i = 1; i <= lat.GetnKid(Fnum); i++)
-    SetdKpar(Fnum, i, order, dbn);
+    SetdKpar(lat, Fnum, i, order, dbn);
 }
 
 
-void SetdbnL(int Fnum, int order, double dbnL)
+void SetdbnL(LatticeType &lat, int Fnum, int order, double dbnL)
 {
   int i;
 
   for (i = 1; i <= lat.GetnKid(Fnum); i++) {
-    SetdKLpar(Fnum, i, order, dbnL);
+    SetdKLpar(lat, Fnum, i, order, dbnL);
   }
 }
 
 
-void Setbnr(int Fnum, long order, double bnr)
+void Setbnr(LatticeType &lat, int Fnum, long order, double bnr)
 {
   int  i;
 
   for (i = 1; i <= lat.GetnKid(Fnum); i++)
-    SetdKrpar(Fnum, i, order, bnr);
+    SetdKrpar(lat, Fnum, i, order, bnr);
 }
 
 
-void SetbnL_sys(int Fnum, int Order, double bnL_sys)
+void SetbnL_sys(LatticeType &lat, int Fnum, int Order, double bnL_sys)
 {
   int       Knum;
   long int  loc;
@@ -1622,7 +1634,8 @@ void SetbnL_sys(int Fnum, int Order, double bnL_sys)
 }
 
 
-void set_dbn_rel(const int type, const int n, const double dbn_rel)
+void set_dbn_rel(LatticeType &lat, const int type, const int n,
+		 const double dbn_rel)
 {
   long int  j;
   double    dbn;
@@ -1631,7 +1644,7 @@ void set_dbn_rel(const int type, const int n, const double dbn_rel)
   printf("\n");
   printf("Setting Db_%d/b_%d = %6.1e for:\n", n, type, dbn_rel);
   printf("\n");
-  for (j = 0; j <= globval.Cell_nLoc; j++)
+  for (j = 0; j <= lat.conf.Cell_nLoc; j++)
     M = dynamic_cast<MpoleType*>(lat.elems[j]);
     if ((lat.elems[j]->Pkind == Mpole) && (M->n_design == type)) {
       printf("%s\n", lat.elems[j]->PName);
@@ -1643,7 +1656,7 @@ void set_dbn_rel(const int type, const int n, const double dbn_rel)
 }
 
 
-double GetKpar(int Fnum, int Knum, int Order)
+double GetKpar(LatticeType &lat, int Fnum, int Knum, int Order)
 {
   long int  loc;
   MpoleType *M;
@@ -1655,13 +1668,13 @@ double GetKpar(int Fnum, int Knum, int Order)
 }
 
 
-double GetL(int Fnum, int Knum)
+double GetL(LatticeType &lat, int Fnum, int Knum)
 {
   return (lat.elems[lat.Elem_GetPos(Fnum, Knum)]->PL);
 }
 
 
-double GetKLpar(int Fnum, int Knum, int Order)
+double GetKLpar(LatticeType &lat, int Fnum, int Knum, int Order)
 {
   long int  loc;
   MpoleType *M;
@@ -1675,7 +1688,7 @@ double GetKLpar(int Fnum, int Knum, int Order)
 }
 
 
-void SetdKLrms(int Fnum, int Order, double dkLrms)
+void SetdKLrms(LatticeType &lat, int Fnum, int Order, double dkLrms)
 {
   long int  Knum, loc;
   MpoleType *M;
@@ -1693,7 +1706,7 @@ void SetdKLrms(int Fnum, int Order, double dkLrms)
 }
 
 
-void Setdkrrms(int Fnum, int Order, double dkrrms)
+void Setdkrrms(LatticeType &lat, int Fnum, int Order, double dkrrms)
 {
   long int  Knum, loc;
   MpoleType *M;
@@ -1712,7 +1725,7 @@ void Setdkrrms(int Fnum, int Order, double dkrrms)
 }
 
 
-void SetKL(int Fnum, int Order)
+void SetKL(LatticeType &lat, int Fnum, int Order)
 {
   long int  Knum;
 
@@ -1721,7 +1734,8 @@ void SetKL(int Fnum, int Order)
 }
 
 
-void set_dx(const int type, const double sigma_x, const double sigma_y)
+void set_dx(LatticeType &lat, const int type, const double sigma_x,
+	    const double sigma_y)
 {
   long int  j;
   MpoleType *M;
@@ -1730,7 +1744,7 @@ void set_dx(const int type, const double sigma_x, const double sigma_y)
   printf("Setting sigma_x,y = (%6.1e, %6.1e) for b_%d:\n",
 	 sigma_x, sigma_y, type);
   printf("\n");
-  for (j = 0; j <= globval.Cell_nLoc; j++)
+  for (j = 0; j <= lat.conf.Cell_nLoc; j++)
     M = dynamic_cast<MpoleType*>(lat.elems[j]);
     if ((lat.elems[j]->Pkind == Mpole) && (M->n_design == type)) {
       printf("%s\n", lat.elems[j]->PName);
@@ -1743,13 +1757,14 @@ void set_dx(const int type, const double sigma_x, const double sigma_y)
 }
 
 
-void SetBpmdS(int Fnum, double dxrms, double dyrms)
+void SetBpmdS(LatticeType &lat, int Fnum, double dxrms, double dyrms)
 {
   long int  Knum, loc;
 
   for (Knum = 1; Knum <= lat.GetnKid(Fnum); Knum++) {
     loc = lat.Elem_GetPos(Fnum, Knum);
-    lat.elems[loc]->dS[X_] = normranf()*dxrms; lat.elems[loc]->dS[Y_] = normranf()*dyrms;
+    lat.elems[loc]->dS[X_] = normranf()*dxrms;
+    lat.elems[loc]->dS[Y_] = normranf()*dyrms;
   }
 }
 
@@ -1760,7 +1775,8 @@ void SetBpmdS(int Fnum, double dxrms, double dyrms)
 
 
 /****************************************************************************/
-void codstat(double *mean, double *sigma, double *xmax, long lastpos, bool all)
+void codstat(LatticeType &lat, double *mean, double *sigma, double *xmax,
+	     long lastpos, bool all)
 {
   long    i, n, loc;
   int     j;
@@ -1834,8 +1850,8 @@ void codstat(double *mean, double *sigma, double *xmax, long lastpos, bool all)
        none
 
 ****************************************************************************/
-void CodStatBpm(double *mean, double *sigma, double *xmax, long lastpos,
-                long bpmdis[])
+void CodStatBpm(LatticeType &lat, double *mean, double *sigma, double *xmax,
+		long lastpos, long bpmdis[])
 {
   long     i, j, m, n;
   Vector2  sum, sum2;
@@ -1847,13 +1863,14 @@ void CodStatBpm(double *mean, double *sigma, double *xmax, long lastpos,
   }
 
   for (i = 0; i <= lastpos; i++) {
-    if (lat.elems[i]->Fnum == globval.bpm) {
+    if (lat.elems[i]->Fnum == lat.conf.bpm) {
       if (! bpmdis[m]) {
 	for (j = 1; j <= 2; j++) {
 	  sum[j - 1] += lat.elems[i]->BeamPos[j * 2 - 2];
 	  TEMP = lat.elems[i]->BeamPos[j * 2 - 2];
 	  sum2[j - 1] += TEMP * TEMP;
-	  xmax[j - 1] = max(xmax[j - 1], fabs(lat.elems[i]->BeamPos[j * 2 - 2]));
+	  xmax[j - 1] =
+	    max(xmax[j - 1], fabs(lat.elems[i]->BeamPos[j * 2 - 2]));
 	}
         n++;
       }
@@ -2085,7 +2102,7 @@ double Sgn (double x)
 
 /** function from soleilcommon.c **/
 
-void Read_Lattice(const char *fic)
+void Read_Lattice(LatticeType &lat, const char *fic)
 {
   bool     status;
   char     fic_maille[S_SIZE+4] = "", fic_erreur[S_SIZE+4] = "";
@@ -2136,25 +2153,25 @@ void Read_Lattice(const char *fic)
   /* Creator of all the matrices for each element         */
   lat.Lat_Init();
 
-  globval.H_exact        = false; // Small Ring Hamiltonian
-  globval.Cart_Bend      = false; // Cartesian Bend
-  globval.dip_edge_fudge = true;
+  lat.conf.H_exact        = false; // Small Ring Hamiltonian
+  lat.conf.Cart_Bend      = false; // Cartesian Bend
+  lat.conf.dip_edge_fudge = true;
 
-  if (globval.RingType == 1) { // for a ring
+  if (lat.conf.RingType == 1) { // for a ring
     /* define x/y physical aperture  */
     lat.ChamberOff();
 
     /* Defines global variables for Tracy code */
-    globval.quad_fringe    = false; // quadrupole fringe fields on/off
-    globval.EPU            = false; // Elliptically Polarizing Undulator
-    globval.Cavity_on      = false; /* Cavity on/off */
-    globval.radiation      = false; /* radiation on/off */
-    globval.IBS            = false; /* diffusion on/off */
-    globval.emittance      = false; /* emittance  on/off */
-    globval.pathlength     = false; /* Path lengthening computation */
-    globval.CODimax        = 40;    /* maximum number of iterations for COD
+    lat.conf.quad_fringe    = false; // quadrupole fringe fields on/off
+    lat.conf.EPU            = false; // Elliptically Polarizing Undulator
+    lat.conf.Cavity_on      = false; /* Cavity on/off */
+    lat.conf.radiation      = false; /* radiation on/off */
+    lat.conf.IBS            = false; /* diffusion on/off */
+    lat.conf.emittance      = false; /* emittance  on/off */
+    lat.conf.pathlength     = false; /* Path lengthening computation */
+    lat.conf.CODimax        = 40;    /* maximum number of iterations for COD
 				    algo */
-    globval.delta_RF = RFacceptance;/* energy acceptance for SOLEIL */
+    lat.conf.delta_RF = RFacceptance;/* energy acceptance for SOLEIL */
   } else {   
     // for transfer lines
     /* Initial settings : */
@@ -2162,20 +2179,20 @@ void Read_Lattice(const char *fic)
     eta[X_] = 0.0; etap[X_] = 0.0; eta[Y_] = 0.0; etap[Y_] = 0.0;
 
     for (i = 0; i < ss_dim; i++) {
-      codvect[i] = 0.0; globval.CODvect[i] = codvect[i];
+      codvect[i] = 0.0; lat.conf.CODvect[i] = codvect[i];
     }
     dP = codvect[delta_];
 
     /* Defines global variables for Tracy code */
-    globval.Cavity_on    = false; /* Cavity on/off */
-    globval.radiation    = false; /* radiation on/off */
-    globval.emittance    = false; /* emittance  on/off */
-    globval.pathlength   = false; /* Path lengthening computation */
-    globval.CODimax      = 10;    /* maximum number of iterations for COD
+    lat.conf.Cavity_on    = false; /* Cavity on/off */
+    lat.conf.radiation    = false; /* radiation on/off */
+    lat.conf.emittance    = false; /* emittance  on/off */
+    lat.conf.pathlength   = false; /* Path lengthening computation */
+    lat.conf.CODimax      = 10;    /* maximum number of iterations for COD
 				     algo */
-    globval.delta_RF = RFacceptance; /* 6% + epsilon energy acceptance
+    lat.conf.delta_RF = RFacceptance; /* 6% + epsilon energy acceptance
                                             for SOLEIL */
-    globval.dPparticle = dP;
+    lat.conf.dPparticle = dP;
 
     lat.ChamberOff();
 
@@ -2213,8 +2230,9 @@ void Read_Lattice(const char *fic)
        27/04/03 chromaticities are now output arguments
 
 ****************************************************************************/
-#define nterm  2
-void GetChromTrac(long Nb, long Nbtour, double emax, double *xix, double *xiz)
+#define nterm 2
+void GetChromTrac(LatticeType &lat, long Nb, long Nbtour, double emax,
+		  double *xix, double *xiz)
 {
   bool    status = true;
   int     nb_freq[2] = { 0, 0 };  /* frequency number to look for */
@@ -2233,7 +2251,7 @@ void GetChromTrac(long Nb, long Nbtour, double emax, double *xix, double *xiz)
   /* Tracking for delta = emax and computing tunes */
   x = x0; xp = xp0; z = z0; zp = zp0;
 
-  Trac_Simple(x, xp, z, zp, emax, 0.0, Nbtour, Tab, &status);
+  Trac_Simple(lat, x, xp, z, zp, emax, 0.0, Nbtour, Tab, &status);
   Get_NAFF(nterm, Nbtour, Tab, fx, fz, nb_freq);
 
   nux1 = (fabs (fx[0]) > 1e-8 ? fx[0] : fx[1]); nuz1 = fz[0];
@@ -2248,7 +2266,7 @@ void GetChromTrac(long Nb, long Nbtour, double emax, double *xix, double *xiz)
   /* Tracking for delta = -emax and computing tunes */
   x = x0; xp = xp0; z = z0; zp = zp0;
 
-  Trac_Simple(x, xp, z, zp, -emax, 0.0, Nbtour, Tab, &status);
+  Trac_Simple(lat, x, xp, z, zp, -emax, 0.0, Nbtour, Tab, &status);
   Get_NAFF(nterm, Nbtour, Tab, fx, fz, nb_freq);
 
   if (trace)
@@ -2301,7 +2319,8 @@ void GetChromTrac(long Nb, long Nbtour, double emax, double *xix, double *xiz)
 
 ****************************************************************************/
 #define nterm  2
-void GetTuneTrac(long Nbtour, double emax, double *nux, double *nuz)
+void GetTuneTrac(LatticeType &lat, long Nbtour, double emax, double *nux,
+		 double *nuz)
 {
   double Tab[6][NTURN], fx[nterm], fz[nterm];
   int nb_freq[2];
@@ -2309,7 +2328,7 @@ void GetTuneTrac(long Nbtour, double emax, double *nux, double *nuz)
 
   double x = 1e-6, xp = 0.0, z = 1e-6, zp = 0.0;
 
-  Trac_Simple(x, xp, z, zp, emax, 0.0, Nbtour, Tab, &status);
+  Trac_Simple(lat, x, xp, z, zp, emax, 0.0, Nbtour, Tab, &status);
   Get_NAFF(nterm, Nbtour, Tab, fx, fz, nb_freq);
 
   *nux = (fabs (fx[0]) > 1e-8 ? fx[0] : fx[1]);
@@ -2347,7 +2366,7 @@ void GetTuneTrac(long Nbtour, double emax, double *nux, double *nuz)
        Method introduced because of bad convergence of da for ID using RADIA maps
 
 ****************************************************************************/
-void findcodS(double dP)
+void findcodS(LatticeType &lat, double dP)
 {
   double        *vcod;
   psVector       x0;
@@ -2365,7 +2384,7 @@ void findcodS(double dP)
   
   vcod[5] = dP;  // energy offset 
     
-  if (globval.Cavity_on){
+  if (lat.conf.Cavity_on){
       dim = 6;   /* 6D tracking*/
     fprintf(stdout,"Error looking for cod in 6D\n");
     exit_(1);
@@ -2376,19 +2395,19 @@ void findcodS(double dP)
       vcod[3] = lat.elems[0]->Eta[1]*dP; vcod[4] = lat.elems[0]->Etap[1]*dP;
   }
   
-  Newton_RaphsonS(ntrial, vcod, dim, tolx);
+  Newton_RaphsonS(lat, ntrial, vcod, dim, tolx);
 
-  if (status.codflag == false)
+  if (lat.conf.codflag == false)
     fprintf(stdout, "Error No COD found\n");
   if (trace) {
     for (k = 1; k <= 6; k++)
       x0[k-1] = vcod[k];
     fprintf(stdout, "Before cod % .5e % .5e % .5e % .5e % .5e % .5e \n",
 	    x0[0], x0[1], x0[2], x0[3], x0[4], x0[5]);
-    lat.Cell_Pass(0, globval.Cell_nLoc, x0, lastpos);
+    lat.Cell_Pass(0, lat.conf.Cell_nLoc, x0, lastpos);
     fprintf(stdout, "After  cod % .5e % .5e % .5e % .5e % .5e % .5e \n",
 	    x0[0], x0[1], x0[2], x0[3], x0[4], x0[5]);
-    lat.Cell_Pass(0, globval.Cell_nLoc, x0, lastpos);
+    lat.Cell_Pass(0, lat.conf.Cell_nLoc, x0, lastpos);
   }
   free_dvector(vcod,1,6);
 }
@@ -2430,7 +2449,7 @@ void findcodS(double dP)
        using RADIA maps
 
 ****************************************************************************/
-void findcod(double dP)
+void findcod(LatticeType &lat, double dP)
 {
   psVector        vcod;
   const int     ntrial = 40;  // maximum number of trials for closed orbit
@@ -2442,7 +2461,7 @@ void findcod(double dP)
   for (k = 0; k <= 5; k++)
     vcod[k] = 0.0;  
     
-  if (globval.Cavity_on){
+  if (lat.conf.Cavity_on){
     fprintf(stdout,"warning looking for cod in 6D\n");
     dim = 6;
   } else{ // starting point linear closed orbit
@@ -2452,19 +2471,19 @@ void findcod(double dP)
     vcod[4] = dP;  // energy offset 
   }
   
-  Newton_Raphson(dim, vcod, ntrial, tolx);
+  Newton_Raphson(lat, dim, vcod, ntrial, tolx);
 
-  if (status.codflag == false)
+  if (lat.conf.codflag == false)
     fprintf(stdout, "Error No COD found\n");
   
-  CopyVec(6, vcod, globval.CODvect); // save closed orbit at the ring entrance
+  CopyVec(6, vcod, lat.conf.CODvect); // save closed orbit at the ring entrance
 
   if (trace)
   {
     fprintf(stdout,
        "Before cod2 % .5e % .5e % .5e % .5e % .5e % .5e \n",
        vcod[0], vcod[1], vcod[2], vcod[3], vcod[4], vcod[5]);
-    lat.Cell_Pass(0, globval.Cell_nLoc, vcod, lastpos);
+    lat.Cell_Pass(0, lat.conf.Cell_nLoc, vcod, lastpos);
     fprintf(stdout,
        "After  cod2 % .5e % .5e % .5e % .5e % .5e % .5e \n",
        vcod[0], vcod[1], vcod[2], vcod[3], vcod[4], vcod[5]);
@@ -2502,7 +2521,8 @@ void findcod(double dP)
 
 ****************************************************************************/
 
-void computeFandJS(double *x, int n, double **fjac, double *fvect)
+void computeFandJS(LatticeType &lat, double *x, int n, double **fjac,
+		   double *fvect)
 {
   int     i, k;
   long    lastpos = 0L;
@@ -2513,7 +2533,7 @@ void computeFandJS(double *x, int n, double **fjac, double *fvect)
   for (i = 1; i <= 6; i++)
     x0[i - 1] = x[i];
   
-  lat.Cell_Pass(0, globval.Cell_nLoc, x0, lastpos);
+  lat.Cell_Pass(0, lat.conf.Cell_nLoc, x0, lastpos);
 
   for (i = 1; i <= n; i++)
   {
@@ -2528,7 +2548,7 @@ void computeFandJS(double *x, int n, double **fjac, double *fvect)
       x0[i - 1] = x[i];
     x0[k] += deps;  // differential step in coordinate k
 
-    lat.Cell_Pass(0, globval.Cell_nLoc, x0, lastpos);  // tracking along the ring
+    lat.Cell_Pass(0, lat.conf.Cell_nLoc, x0, lastpos);  // tracking along the ring
     for (i = 1; i <= 6; i++)
       fx1[i - 1] = x0[i - 1];
 
@@ -2537,7 +2557,7 @@ void computeFandJS(double *x, int n, double **fjac, double *fvect)
     x0[5] = 0.0;
     x0[k] -= deps;  // differential step in coordinate k
 
-    lat.Cell_Pass(0, globval.Cell_nLoc, x0, lastpos);  // tracking along the ring
+    lat.Cell_Pass(0, lat.conf.Cell_nLoc, x0, lastpos);  // tracking along the ring
     for (i = 1; i <= 6; i++)
       fx2[i - 1] = x0[i - 1];
 
@@ -2577,7 +2597,8 @@ void computeFandJS(double *x, int n, double **fjac, double *fvect)
        none
 
 ****************************************************************************/
-void computeFandJ(int n, psVector &x, Matrix &fjac, psVector &fvect)
+void computeFandJ(LatticeType &lat, int n, psVector &x, Matrix &fjac,
+		  psVector &fvect)
 {
   int     i, k;
   long    lastpos = 0;
@@ -2587,7 +2608,7 @@ void computeFandJ(int n, psVector &x, Matrix &fjac, psVector &fvect)
 
   CopyVec(6, x, x0);
   
-  lat.Cell_Pass(0, globval.Cell_nLoc, x0, lastpos);
+  lat.Cell_Pass(0, lat.conf.Cell_nLoc, x0, lastpos);
   CopyVec(n, x0, fvect);
   
   // compute Jacobian matrix by numerical differentiation
@@ -2595,13 +2616,13 @@ void computeFandJ(int n, psVector &x, Matrix &fjac, psVector &fvect)
     CopyVec(6L, x, x0);
     x0[k] += deps;  // differential step in coordinate k
 
-    lat.Cell_Pass(0, globval.Cell_nLoc, x0, lastpos);  // tracking along the ring
+    lat.Cell_Pass(0, lat.conf.Cell_nLoc, x0, lastpos);  // tracking along the ring
       CopyVec(6L, x0, fx1);
 
       CopyVec(6L, x, x0);
     x0[k] -= deps;  // differential step in coordinate k
 
-    lat.Cell_Pass(0, globval.Cell_nLoc, x0, lastpos);  // tracking along the ring
+    lat.Cell_Pass(0, lat.conf.Cell_nLoc, x0, lastpos);  // tracking along the ring
       CopyVec(6L, x0, fx2);
 
     for (i = 0; i < n; i++)  // symmetric difference formula
@@ -2660,7 +2681,8 @@ void computeFandJ(int n, psVector &x, Matrix &fjac, psVector &fvect)
 
 ****************************************************************************/
 
-void Newton_RaphsonS(int ntrial, double x[], int n, double tolx)
+void Newton_RaphsonS(LatticeType &lat, int ntrial, double x[], int n,
+		     double tolx)
 {
   int    k, i, *indx;
   double  errx, d, *bet, *fvect, **alpha;
@@ -2674,7 +2696,7 @@ void Newton_RaphsonS(int ntrial, double x[], int n, double tolx)
 
   for (k = 1; k <= ntrial; k++) {      // loop over number of iterations
     // supply function values at x in fvect and Jacobian matrix in fjac
-    computeFandJS(x, n, alpha, fvect);
+    computeFandJS(lat, x, n, alpha, fvect);
 
     // Jacobian -Id
     for (i = 1; i <= n; i++)
@@ -2695,12 +2717,12 @@ void Newton_RaphsonS(int ntrial, double x[], int n, double tolx)
          "%02d: cod % .5e % .5e % .5e % .5e % .5e % .5e  errx =% .5e\n",
          k, x[1], x[2], x[3], x[4], x[5], x[6], errx);
     if (errx <= tolx) {
-      status.codflag = true;
+      lat.conf.codflag = true;
       break;
     }
   }
   // check whever closed orbit found out
-  if ((k >= ntrial) && (errx >= tolx * 100)) status.codflag = false;
+  if ((k >= ntrial) && (errx >= tolx * 100)) lat.conf.codflag = false;
 
   free_dmatrix(alpha,1,n,1,n); free_dvector(bet,1,n); free_dvector(fvect,1,n);
   free_ivector(indx,1,n);
@@ -2756,7 +2778,8 @@ void Newton_RaphsonS(int ntrial, double x[], int n, double tolx)
        none
 
 ****************************************************************************/
-int Newton_Raphson (int n, psVector &x, int ntrial, double tolx)
+int Newton_Raphson(LatticeType &lat, int n, psVector &x, int ntrial,
+		   double tolx)
 {
   int k,  i;
   double  errx;
@@ -2767,7 +2790,7 @@ int Newton_Raphson (int n, psVector &x, int ntrial, double tolx)
 
   for (k = 1; k <= ntrial; k++) {  // loop over number of iterations
     // supply function values at x in fvect and Jacobian matrix in fjac
-    computeFandJ(n, x, alpha, fvect);
+    computeFandJ(lat, n, x, alpha, fvect);
 
     // Jacobian - Id
     for (i = 0; i < n; i++)
@@ -2791,14 +2814,14 @@ int Newton_Raphson (int n, psVector &x, int ntrial, double tolx)
          k, x[0], x[1], x[2], x[3], x[4], x[5], errx);
     if (errx <= tolx)
     {
-      status.codflag = true;
+      lat.conf.codflag = true;
         return 1;
     }
   }
   // check whever closed orbit found out
   if ((k >= ntrial) && (errx >= tolx))
   {
-    status.codflag = false;
+    lat.conf.codflag = false;
       return 1;
   }
   return 0;

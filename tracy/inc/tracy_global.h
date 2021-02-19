@@ -36,7 +36,7 @@ const double
   max_ampl = 10.0; // [m]
 
 
-typedef class globvalrec {
+class ConfigType {
  public:
   bool
     Cavity_on,                 // if true, cavity turned on
@@ -51,7 +51,14 @@ typedef class globvalrec {
     Aperture_on,
     EPU,
     mat_meth,                  // Matrix method.
-    IBS;                       // Intrabeam Scattering.
+    IBS,                       // Intrabeam Scattering.
+    tuneflag,
+    chromflag,
+    codflag,
+    mapflag,
+    passflag,
+    overflag,
+    chambre;
   long int
     Cell_nLoc,                 // Number of Elements.
     Elem_nFam,                 // Number of Families.
@@ -63,7 +70,10 @@ typedef class globvalrec {
     qt,                        // Vertical corrector number.
     gs,                        // Girder: start marker,
     ge,                        //         end marker.
-    RingType;                  // 1 if a ring (0 if transfer line).
+    RingType,                  // 1 if a ring (0 if transfer line).
+    lossplane;                 /* lost in: horizontal    1
+		                           vertical      2
+			                   longitudinal  3 */
   double
     dPcommon,                  // dp for numerical differentiation.
     dPparticle,                // Energy deviation.
@@ -98,8 +108,7 @@ typedef class globvalrec {
     Ascrinv,
     Vr,                        // Eigenvectors: Real part, 
     Vi;                        //               Imaginary part.
-} globvalrec;
-
+};
 
 
 // Beam line class.
@@ -147,15 +156,15 @@ class ElemType : public CellType {
 
   // Wrapper functions; becuase C++ does not support templates for virtual
   // functions.
-  virtual void Elem_Pass(ss_vect<double> &ps) {};
-  virtual void Elem_Pass(ss_vect<tps> &ps) {};
+  virtual void Elem_Pass(ConfigType &conf, ss_vect<double> &ps) {};
+  virtual void Elem_Pass(ConfigType &conf, ss_vect<tps> &ps) {};
 
   virtual void print(void) {};
 
   template<typename T>
-  bool CheckAmpl(const ss_vect<T> &x);
+  bool CheckAmpl(ConfigType &conf, const ss_vect<T> &x);
   template<typename T>
-  void Cell_Pass(ss_vect<T> &ps);
+  void Cell_Pass(ConfigType &conf, ss_vect<T> &ps);
 };
 
 // Index for lattice elements.
@@ -176,6 +185,7 @@ class LatticeType {
  public:
   std::vector<ElemFamType> elemf;
   std::vector<ElemType*>   elems;
+  ConfigType               conf;
 
   void Drift_Init(const int Fnum);
   void Mpole_Init(const int Fnum);
@@ -190,11 +200,14 @@ class LatticeType {
   void Map_Init(const int Fnum);
   void Lat_Init(void);
 
+  void SI_init();
+
   bool Lattice_Read(FILE *inf, FILE *outf);
 
   void prtName(FILE *fp, const int i, const int type, const int method,
 	       const int N, const bool reverse);
   void prtmfile(const char mfile_dat[]);
+  void rdmfile(const char *mfile_dat);
 
   friend long int ElemIndex(const std::string &name1);
 
@@ -204,10 +217,26 @@ class LatticeType {
   // t2elem.
   void getelem(long i, ElemType *cellrec);
   void putelem(long i, ElemType *cellrec);
+
   int GetnKid(const int Fnum1);
+
   long Elem_GetPos(const int Fnum1, const int Knum1);
-  double Elem_GetKval(int Fnum1, int Knum1, int Order);
+
   void get_lin_maps(const double delta);
+
+  template<typename T>
+  friend T get_p_s(const ConfigType &conf, const ss_vect<T> &ps);
+  template<typename T>
+  friend void radiate(const ConfigType &conf, ss_vect<T> &ps, const double L,
+		      const double h_ref, const T B[]);
+  template<typename T>
+  void radiate_ID(const ConfigType &conf, ss_vect<T> &ps, const double L,
+		  const T &B2_perp);
+  friend void emittance(ConfigType &conf, const tps &B2_perp, const tps &ds,
+			const tps &p_s0, const ss_vect<tps> &A);
+
+  double Elem_GetKval(int Fnum1, int Knum1, int Order);
+
   void Mpole_SetPB(int Fnum1, int Knum1, int Order);
   double Mpole_GetPB(int Fnum1, int Knum1, int Order);
   void Mpole_DefPBpar(int Fnum1, int Knum1, int Order, double PBpar);
@@ -217,6 +246,7 @@ class LatticeType {
   double Mpole_GetdT(int Fnum1, int Knum1);
   void Mpole_DefdTpar(int Fnum1, int Knum1, double PdTpar);
   void Mpole_DefdTsys(int Fnum1, int Knum1, double PdTsys);
+
   void Wiggler_SetPB(int Fnum1, int Knum1, int Order);
   void Wiggler_SetdS(int Fnum1, int Knum1);
   void Wiggler_SetdT(int Fnum1, int Knum1);
@@ -230,17 +260,13 @@ class LatticeType {
   bool getcod(double dp, long &lastpos);
 
   // t2ring.
-  // Vacuum chamber.
-  void ChamberOff(void);
-  void PrintCh(void);
-
-  void shiftk(long Elnum, double dk, struct LOC_Ring_Fittune *LINK);
-  void shiftkp(long Elnum, double dkp);
-  void shiftk_(long Elnum, double dk, struct LOC_Ring_FitDisp *LINK);
+  void GDiag(int n_, double C, Matrix &A, Matrix &Ainv_, Matrix &R,
+	     Matrix &M, double &Omega, double &alphac);
 
   void Cell_Geteta(long i0, long i1, bool ring, double dp);
   void Cell_Twiss(long i0, long i1, ss_vect<tps> &Ascr, bool chroma, bool ring,
 		  double dp);
+  void Cell_Twiss(const long int i0, const long int i1);
   void TraceABN(long i0, long i1, const Vector2 &alpha, const Vector2 &beta,
 		const Vector2 &eta, const Vector2 &etap, const double dp);
   void ttwiss(const Vector2 &alpha, const Vector2 &beta, const Vector2 &eta,
@@ -265,13 +291,23 @@ class LatticeType {
   friend void get_dI_eta_5(const int k, ElemType *Elem[]);
 
   void prt_lat(const int loc1, const int loc2, const char *fname,
-	       const int Fnum, const bool all);
-  void prt_lat(const char *fname, const int Fnum, const bool all);
+	       const bool all);
+  void prt_lat(const char *fname, const bool all);
   void prt_lat(const int loc1, const int loc2, const char *fname,
-	       const int Fnum, const bool all, const int n);
-  void prt_lat(const char *fname, const int Fnum, const bool all, const int n);
+	       const bool all, const int n);
+  void prt_lat(const char *fname, const bool all, const int n);
   void prt_chrom_lat(void);
 
+  void checkifstable_(struct LOC_Ring_FitDisp *LINK);
+  void checkifstable(struct LOC_Ring_Fittune *LINK);
+
+  // Vacuum chamber.
+  void ChamberOff(void);
+  void PrintCh(void);
+
+  void shiftk(long Elnum, double dk, struct LOC_Ring_Fittune *LINK);
+  void shiftk_(long Elnum, double dk, struct LOC_Ring_FitDisp *LINK);
+  void shiftkp(long Elnum, double dkp);
 };
 
 class DriftType : public ElemType {
@@ -279,10 +315,12 @@ class DriftType : public ElemType {
   friend DriftType* Drift_Alloc(void);
 
   template<typename T>
-  void Drift_Pass(ss_vect<T> &ps);
+  void Drift_Pass(ConfigType &conf, ss_vect<T> &ps);
 
-  void Elem_Pass(ss_vect<double> &ps) { Drift_Pass(ps); };
-  void Elem_Pass(ss_vect<tps> &ps) { Drift_Pass(ps); };
+  void Elem_Pass(ConfigType &conf, ss_vect<double> &ps)
+  { Drift_Pass(conf, ps); };
+  void Elem_Pass(ConfigType &conf, ss_vect<tps> &ps)
+  { Drift_Pass(conf, ps); };
 
   void print(void);
 };
@@ -327,10 +365,12 @@ class MpoleType : public ElemType {
   friend MpoleType* Mpole_Alloc(void);
 
   template<typename T>
-  void Mpole_Pass(ss_vect<T> &ps);
+  void Mpole_Pass(ConfigType &conf, ss_vect<T> &ps);
 
-  void Elem_Pass(ss_vect<double> &ps) { Mpole_Pass(ps); };
-  void Elem_Pass(ss_vect<tps> &ps) { Mpole_Pass(ps); };
+  void Elem_Pass(ConfigType &conf, ss_vect<double> &ps)
+  { Mpole_Pass(conf, ps); };
+  void Elem_Pass(ConfigType &conf, ss_vect<tps> &ps)
+  { Mpole_Pass(conf, ps); };
 
   void print(void);
 };
@@ -351,10 +391,12 @@ class CavityType : public ElemType {
   friend CavityType* Cavity_Alloc(void);
 
   template<typename T>
-  void Cavity_Pass(ss_vect<T> &ps);
+  void Cavity_Pass(ConfigType &conf, ss_vect<T> &ps);
 
-  void Elem_Pass(ss_vect<double> &ps) { Cavity_Pass(ps); };
-  void Elem_Pass(ss_vect<tps> &ps) { Cavity_Pass(ps); };
+  void Elem_Pass(ConfigType &conf, ss_vect<double> &ps)
+  { Cavity_Pass(conf, ps); };
+  void Elem_Pass(ConfigType &conf, ss_vect<tps> &ps)
+  { Cavity_Pass(conf, ps); };
 
   void print(void);
 };
@@ -364,10 +406,12 @@ class MarkerType : public ElemType {
   friend MarkerType* Marker_Alloc(void);
 
   template<typename T>
-  void Marker_Pass(ss_vect<T> &ps);
+  void Marker_Pass(ConfigType &conf, ss_vect<T> &ps);
 
-  void Elem_Pass(ss_vect<double> &ps) { Marker_Pass(ps); };
-  void Elem_Pass(ss_vect<tps> &ps) { Marker_Pass(ps); };
+  void Elem_Pass(ConfigType &conf, ss_vect<double> &ps)
+  { Marker_Pass(conf, ps); };
+  void Elem_Pass(ConfigType &conf, ss_vect<tps> &ps)
+  { Marker_Pass(conf, ps); };
 
   void print(void);
 };
@@ -402,10 +446,12 @@ class WigglerType : public ElemType {
   friend WigglerType* Wiggler_Alloc(void);
 
   template<typename T>
-  void Wiggler_Pass(ss_vect<T> &ps);
+  void Wiggler_Pass(ConfigType &conf, ss_vect<T> &ps);
 
-  void Elem_Pass(ss_vect<double> &ps) { Wiggler_Pass(ps); };
-  void Elem_Pass(ss_vect<tps> &ps) { Wiggler_Pass(ps); };
+  void Elem_Pass(ConfigType &conf, ss_vect<double> &ps)
+  { Wiggler_Pass(conf, ps); };
+  void Elem_Pass(ConfigType &conf, ss_vect<tps> &ps)
+  { Wiggler_Pass(conf, ps); };
 
   void print(void);
 };
@@ -465,10 +511,12 @@ class InsertionType : public ElemType {
   friend InsertionType* Insertion_Alloc(void);
 
   template<typename T>
-  void Insertion_Pass(ss_vect<T> &ps);
+  void Insertion_Pass(ConfigType &conf, ss_vect<T> &ps);
 
-  void Elem_Pass(ss_vect<double> &ps) { Insertion_Pass(ps); };
-  void Elem_Pass(ss_vect<tps> &ps) { Insertion_Pass(ps); };
+  void Elem_Pass(ConfigType &conf, ss_vect<double> &ps)
+  { Insertion_Pass(conf, ps); };
+  void Elem_Pass(ConfigType &conf, ss_vect<tps> &ps)
+  { Insertion_Pass(conf, ps); };
 
   void print(void);
 };
@@ -497,10 +545,12 @@ class FieldMapType : public ElemType {
   friend FieldMapType* FieldMap_Alloc(void);
 
   template<typename T>
-  void FieldMap_Pass(ss_vect<T> &ps);
+  void FieldMap_Pass(ConfigType &conf, ss_vect<T> &ps);
 
-  void Elem_Pass(ss_vect<double> &ps) { FieldMap_Pass(ps); };
-  void Elem_Pass(ss_vect<tps> &ps) { FieldMap_Pass(ps); };
+  void Elem_Pass(ConfigType &conf, ss_vect<double> &ps)
+  { FieldMap_Pass(conf, ps); };
+  void Elem_Pass(ConfigType &conf, ss_vect<tps> &ps)
+  { FieldMap_Pass(conf, ps); };
 
   void print(void);
 };
@@ -515,10 +565,12 @@ class SpreaderType : public ElemType {
   friend SpreaderType* Spreader_Alloc(void);
 
   template<typename T>
-  void Spreader_Pass(ss_vect<T> &ps);
+  void Spreader_Pass(ConfigType &conf, ss_vect<T> &ps);
 
-  void Elem_Pass(ss_vect<double> &ps) { Spreader_Pass(ps); };
-  void Elem_Pass(ss_vect<tps> &ps) { Spreader_Pass(ps); };
+  void Elem_Pass(ConfigType &conf, ss_vect<double> &ps)
+  { Spreader_Pass(conf, ps); };
+  void Elem_Pass(ConfigType &conf, ss_vect<tps> &ps)
+  { Spreader_Pass(conf, ps); };
 
   void print(void);
 };
@@ -532,10 +584,12 @@ class RecombinerType : public ElemType {
   friend RecombinerType* Recombiner_Alloc(void);
 
   template<typename T>
-  void Recombiner_Pass(ss_vect<T> &ps);
+  void Recombiner_Pass(ConfigType &conf, ss_vect<T> &ps);
 
-  void Elem_Pass(ss_vect<double> &ps) { Recombiner_Pass(ps); };
-  void Elem_Pass(ss_vect<tps> &ps) { Recombiner_Pass(ps); };
+  void Elem_Pass(ConfigType &conf, ss_vect<double> &ps)
+  { Recombiner_Pass(conf, ps); };
+  void Elem_Pass(ConfigType &conf, ss_vect<tps> &ps)
+  { Recombiner_Pass(conf, ps); };
 
   void print(void);
 };
@@ -559,10 +613,12 @@ class SolenoidType : public ElemType {
   friend SolenoidType* Solenoid_Alloc(void);
 
   template<typename T>
-  void Solenoid_Pass(ss_vect<T> &ps);
+  void Solenoid_Pass(ConfigType &conf, ss_vect<T> &ps);
 
-  void Elem_Pass(ss_vect<double> &ps) { Solenoid_Pass(ps); };
-  void Elem_Pass(ss_vect<tps> &ps) { Solenoid_Pass(ps); };
+  void Elem_Pass(ConfigType &conf, ss_vect<double> &ps)
+  { Solenoid_Pass(conf, ps); };
+  void Elem_Pass(ConfigType &conf, ss_vect<tps> &ps)
+  { Solenoid_Pass(conf, ps); };
 
   void print(void);
 };
@@ -580,8 +636,8 @@ class MapType : public ElemType {
 
   friend MapType* Map_Alloc(void);
 
-  void Elem_Pass(ss_vect<double> &ps);
-  void Elem_Pass(ss_vect<tps> &ps);
+  void Elem_Pass(ConfigType &conf, ss_vect<double> &ps);
+  void Elem_Pass(ConfigType &conf, ss_vect<tps> &ps);
   void print(void);
 };
 

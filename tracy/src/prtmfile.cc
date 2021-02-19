@@ -120,7 +120,7 @@ void LatticeType::prtmfile(const char mfile_dat[])
   const int n_ps = 6;
 
   mfile = file_write(mfile_dat);
-  for (i = 0; i <= globval.Cell_nLoc; i++) {
+  for (i = 0; i <= conf.Cell_nLoc; i++) {
     switch (elems[i]->Pkind) {
     case drift:
       prtName(mfile, i, drift_, 0, 0, 0);
@@ -160,8 +160,8 @@ void LatticeType::prtmfile(const char mfile_dat[])
       C = dynamic_cast<CavityType*>(elems[i]);
       prtName(mfile, i, cavity_, 0, 0, 0);
       fprintf(mfile, " %23.16e %23.16e %d %23.16e %23.16e\n",
-	      C->Pvolt/(1e9*globval.Energy), 2.0*M_PI*C->Pfreq/c0, C->Ph,
-	      1e9*globval.Energy, C->phi);
+	      C->Pvolt/(1e9*conf.Energy), 2.0*M_PI*C->Pfreq/c0, C->Ph,
+	      1e9*conf.Energy, C->phi);
       break;
     case marker:
       prtName(mfile, i, marker_, 0, 0, 0);

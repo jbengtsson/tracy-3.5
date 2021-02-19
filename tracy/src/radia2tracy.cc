@@ -100,18 +100,15 @@ void splie2(double x1a[], double x2a[], double **ya,
 
 #define ZERO_RADIA 1e-7
 
-void Read_IDfile(char *fic_radia, double &L, int &nx, int &nz,
-                 double tabx[IDXMAX],  double tabz[IDZMAX],
-                 double thetax[IDZMAX][IDXMAX], double thetaz[IDZMAX][IDXMAX],
-		 bool &long_comp, double B2[IDZMAX][IDXMAX])
+void Read_IDfile(char *fic_radia, const ConfigType &conf, InsertionType *ID)
 {
-  FILE *fi;
   char dummy[5000];
   int  i, j;
+  FILE *fi;
 
   traceID = false;
 
-  const double  Brho = globval.Energy*1e9/c0;
+  const double Brho = conf.Energy*1e9/c0;
 
   /* open radia text file */
   if ((fi = fopen(fic_radia,"r")) == NULL) {
@@ -121,7 +118,7 @@ void Read_IDfile(char *fic_radia, double &L, int &nx, int &nz,
   
   printf("\n");
   printf("Reading ID filename %s \n", fic_radia);
-  printf("E      = %6.3f GeV\n", globval.Energy);
+  printf("E      = %6.3f GeV\n", conf.Energy);
   printf("(Brho) = %6.3f\n", Brho);
   
   /* first line */
@@ -134,26 +131,26 @@ void Read_IDfile(char *fic_radia, double &L, int &nx, int &nz,
   fscanf(fi, "%[^\n]\n", dummy);
   printf("%s\n", dummy);
   /* fourth line : Undulator length */
-  fscanf(fi, "%lf\n", &L);
-  printf("Insertion de longueur L = %lf m\n",L);
+  fscanf(fi, "%lf\n", &ID->PL);
+  printf("Insertion de longueur L = %lf m\n", ID->PL);
   /* fifth line */
   fscanf(fi, "%[^\n]\n", dummy);
   printf("%s\n", dummy);
   /* sisxth line : Number of Horizontal points */
-  fscanf(fi, "%d\n", &nx);
-  printf("nx = %d\n", nx);
+  fscanf(fi, "%d\n", &ID->nx);
+  printf("nx = %d\n", ID->nx);
   /* seventh line */
   fscanf(fi, "%[^\n]\n", dummy);
   printf("%s\n", dummy);
   /* Number of Vertical points */
-  fscanf(fi, "%d\n", &nz);
-  printf("nz = %d\n", nz);
+  fscanf(fi, "%d\n", &ID->nz);
+  printf("nz = %d\n", ID->nz);
   
   /* Check dimensions */
-  if (nx > IDXMAX || nz > IDZMAX) {
+  if (ID->nx > IDXMAX || ID->nz > IDZMAX) {
     printf("Read_IDfile:  Increase the size of insertion tables \n");
     printf("nx = % d (IDXmax = %d) and nz = %d (IDZMAX = % d) \n",
-	   nx, IDXMAX, nz, IDZMAX);
+	   ID->nx, IDXMAX, ID->nz, IDZMAX);
     exit_(1);
   }
   
@@ -164,19 +161,19 @@ void Read_IDfile(char *fic_radia, double &L, int &nx, int &nz,
   fscanf(fi, "%[^\n]\n", dummy);
 //   printf("%s\n", dummy);
   
-  for (j = 0; j < nx; j++)
-    fscanf(fi, "%lf", &tabx[j]);
+  for (j = 0; j < ID->nx; j++)
+    fscanf(fi, "%lf", &ID->tabx[j]);
   fscanf(fi, "%[^\n]\n", dummy);
   
   /* Array creation for thetax */
-  for (i = 0; i < nz; i++) {
-    fscanf(fi, "%lf", &tabz[i]);
+  for (i = 0; i < ID->nz; i++) {
+    fscanf(fi, "%lf", &ID->tabz[i]);
     
-    for (j = 0; j < nx; j++) {
-      fscanf(fi, "%lf", &thetax[i][j]);
-      if (fabs(thetax[i][j]) < ZERO_RADIA)
-	thetax[i][j] = 0.0;
-      if (traceID) printf("%+12.8lf ", thetax[i][j]);
+    for (j = 0; j < ID->nx; j++) {
+      fscanf(fi, "%lf", &ID->thetax[i][j]);
+      if (fabs(ID->thetax[i][j]) < ZERO_RADIA)
+	ID->thetax[i][j] = 0.0;
+      if (traceID) printf("%+12.8lf ", ID->thetax[i][j]);
     }
     fscanf(fi, "\n");
     if (traceID) printf("\n");
@@ -186,19 +183,19 @@ void Read_IDfile(char *fic_radia, double &L, int &nx, int &nz,
   printf("%s\n", dummy);
   fscanf(fi, "%[^\n]\n", dummy);
 //   printf("%s\n", dummy);
-  for (j = 0; j < nx; j++) {
-    fscanf(fi, "%lf", &tabx[j]);
+  for (j = 0; j < ID->nx; j++) {
+    fscanf(fi, "%lf", &ID->tabx[j]);
   }
   
   /* Array creation for thetaz */
-  for (i = 0; i < nz; i++) {
+  for (i = 0; i < ID->nz; i++) {
     fscanf(fi, "%*f");
-    for (j = 0; j < nx; j++) {
-      fscanf(fi, "%lf", &thetaz[i][j]);
-      if (fabs(thetaz[i][j]) < ZERO_RADIA)
-	thetaz[i][j] = 0.0;
+    for (j = 0; j < ID->nx; j++) {
+      fscanf(fi, "%lf", &ID->thetaz[i][j]);
+      if (fabs(ID->thetaz[i][j]) < ZERO_RADIA)
+	ID->thetaz[i][j] = 0.0;
       if (traceID)
-	printf("%+12.8lf ", thetaz[i][j]);
+	printf("%+12.8lf ", ID->thetaz[i][j]);
     }
     fscanf(fi, "\n");
     if (traceID) printf("\n");
@@ -211,23 +208,23 @@ void Read_IDfile(char *fic_radia, double &L, int &nx, int &nz,
   fscanf(fi, "%[^\n]\n", dummy);
 //  printf("%s\n", dummy);
   if (strstr(dummy, "START") == NULL) {
-    long_comp = false;
+    ID->long_comp = false;
     printf("no longitudinal component\n");
   } else {
-    long_comp = true;
+    ID->long_comp = true;
     printf("read longitudinal component\n");
 
-    for (j = 0; j < nx; j++)
-      fscanf(fi, "%lf", &tabx[j]);
+    for (j = 0; j < ID->nx; j++)
+      fscanf(fi, "%lf", &ID->tabx[j]);
   
-    for (i = 0; i < nz; i++) {
+    for (i = 0; i < ID->nz; i++) {
       fscanf(fi, "%*f");
-      for (j = 0; j < nx; j++) {
-	fscanf(fi, "%lf", &B2[i][j]);
-	B2[i][j] /= L*sqr(Brho);
-	if (fabs(B2[i][j]) < ZERO_RADIA)
-	  B2[i][j] = 0e0;
-	if (traceID) printf("%+12.8lf ", B2[i][j]);
+      for (j = 0; j < ID->nx; j++) {
+	fscanf(fi, "%lf", &ID->B2[i][j]);
+	ID->B2[i][j] /= ID->PL*sqr(Brho);
+	if (fabs(ID->B2[i][j]) < ZERO_RADIA)
+	  ID->B2[i][j] = 0e0;
+	if (traceID) printf("%+12.8lf ", ID->B2[i][j]);
       }
       fscanf(fi, "\n");
       if (traceID) printf("\n");
@@ -235,11 +232,11 @@ void Read_IDfile(char *fic_radia, double &L, int &nx, int &nz,
   }
   
   if (traceID)
-    for (j = 0; j < nx; j++)
-      printf("tabx[%d] =% lf\n", j, tabx[j]);
+    for (j = 0; j < ID->nx; j++)
+      printf("tabx[%d] =% lf\n", j, ID->tabx[j]);
   if (traceID)
-    for (j = 0; j < nz; j++)
-      printf("tabz[%d] =% lf\n", j, tabz[j]);
+    for (j = 0; j < ID->nz; j++)
+      printf("tabz[%d] =% lf\n", j, ID->tabz[j]);
   
   fclose(fi);
 }

@@ -80,8 +80,8 @@ template void LtoG(ss_vect<tps> &, Vector2 &, Vector2 &,
 template void LtoG(ss_vect<double> &, Vector2 &, Vector2 &,
 		   double, double, double);
 
-template void p_rot(double, ss_vect<double> &);
-template void p_rot(double, ss_vect<tps> &);
+template void p_rot(ConfigType &conf, double, ss_vect<double> &);
+template void p_rot(ConfigType &conf, double, ss_vect<tps> &);
 
 
 template void get_B2(const double, const double [], const ss_vect<double> &,
@@ -89,58 +89,66 @@ template void get_B2(const double, const double [], const ss_vect<double> &,
 template void get_B2(const double, const tps [], const ss_vect<tps> &,
 		     tps &, tps &);
 
-template void radiate(ss_vect<double> &, const double, const double,
-		      const double []);
-template void radiate(ss_vect<tps> &, const double, const double,
-		      const tps []);
+template void radiate(ConfigType &conf, ss_vect<double> &, const double,
+		      const double, const double []);
+template void radiate(ConfigType &conf, ss_vect<tps> &, const double,
+		      const double, const tps []);
 
-template void radiate_ID(ss_vect<double> &, const double, const double &);
-template void radiate_ID(ss_vect<tps> &, const double, const tps &);
+template void radiate_ID(ConfigType &conf, ss_vect<double> &,
+			 const double, const double &);
+template void radiate_ID(ConfigType &conf, ss_vect<tps> &,
+			 const double, const tps &);
 
-template void Drift(const double, ss_vect<double> &);
-template void Drift(const double, ss_vect<tps> &);
+template void Drift(ConfigType &conf, const double, ss_vect<double> &);
+template void Drift(ConfigType &conf, const double, ss_vect<tps> &);
 
-template void bend_fringe(const double, ss_vect<double> &);
-template void bend_fringe(const double, ss_vect<tps> &);
+template void bend_fringe(ConfigType &conf, const double, ss_vect<double> &);
+template void bend_fringe(ConfigType &conf, const double, ss_vect<tps> &);
 
-template void EdgeFocus(const double, const double, const double,
+template void EdgeFocus(ConfigType &conf, const double, const double,
+			const double, ss_vect<double> &);
+template void EdgeFocus(ConfigType &conf, const double, const double,
+			const double, ss_vect<tps> &);
+
+template void quad_fringe(ConfigType &conf, const double, ss_vect<double> &);
+template void quad_fringe(ConfigType &conf, const double, ss_vect<tps> &);
+
+
+template void thin_kick(ConfigType &conf, const int, const MpoleArray &,
+			const double, const double, const double,
 			ss_vect<double> &);
-template void EdgeFocus(const double, const double, const double,
+template void thin_kick(ConfigType &conf, const int, const MpoleArray &,
+			const double, const double, const double,
 			ss_vect<tps> &);
 
-template void quad_fringe(const double, ss_vect<double> &);
-template void quad_fringe(const double, ss_vect<tps> &);
-
-
-template void thin_kick(const int, const MpoleArray &, const double,
-			const double, const double, ss_vect<double> &);
-template void thin_kick(const int, const MpoleArray &, const double,
-			const double, const double, ss_vect<tps> &);
-
 template void Cav_Focus(const double L, const double delta, const bool entrance,
-            ss_vect<double> &ps);
+			ss_vect<double> &ps);
 template void Cav_Focus(const double L, const double delta, const bool entrance,
-            ss_vect<tps> &ps);
+			ss_vect<tps> &ps);
 template void Cav_Focus(const double L, const tps delta, const bool entrance,
-            ss_vect<tps> &ps);
+			ss_vect<tps> &ps);
 
-template void Wiggler_pass_EF(const ElemType *elem, ss_vect<double> &x);
-template void Wiggler_pass_EF(const ElemType *elem, ss_vect<tps> &x);
+template void Wiggler_pass_EF(ConfigType &conf, const ElemType *elem,
+			      ss_vect<double> &x);
+template void Wiggler_pass_EF(ConfigType &conf, const ElemType *elem,
+			      ss_vect<tps> &x);
 
-template void Wiggler_pass_EF2(int nstep, double L,
+template void Wiggler_pass_EF2(ConfigType &conf, int nstep, double L,
 			       double kxV, double kxH, double kz,
 			       double BoBrhoV, double BoBrhoH, double phi,
 			       ss_vect<double> &x);
-template void Wiggler_pass_EF2(int nstep, double L,
+template void Wiggler_pass_EF2(ConfigType &conf, int nstep, double L,
 			       double kxV, double kxH, double kz,
 			       double BoBrhoV, double BoBrhoH, double phi,
 			       ss_vect<tps> &x);
 
-template void Wiggler_pass_EF3(ElemType *Cell, ss_vect<double> &x);
-template void Wiggler_pass_EF3(ElemType *Cell, ss_vect<tps> &x);
+template void Wiggler_pass_EF3(ConfigType &conf, ElemType *Cell,
+			       ss_vect<double> &x);
+template void Wiggler_pass_EF3(ConfigType &conf, ElemType *Cell,
+			       ss_vect<tps> &x);
 
-template void sol_pass(const ElemType *, ss_vect<double> &);
-template void sol_pass(const ElemType *, ss_vect<tps> &);
+template void sol_pass(ConfigType &conf, const ElemType *, ss_vect<double> &);
+template void sol_pass(ConfigType &conf, const ElemType *, ss_vect<tps> &);
 
 template void LinearInterpolation2(double &, double &, double &, double &,
 				   double &, ElemType *, bool &, int);
@@ -173,10 +181,6 @@ template void splin2(const double [], const double [],
 		     const tps &, const tps &, tps &);
 
 
-/* Global variable used through the code */
-globvalrec globval;
-
-statusrec status;
 bool trace, traceID;
 bool cellconcat;
 

@@ -157,8 +157,8 @@ static void Swap(double *x, double *y)
        17/07/03 use M_PI instead of pi
 
 ****************************************************************************/
-void geigen(int n, Matrix &fm, Matrix &Vre, Matrix &Vim,
-	    psVector &wr, psVector &wi)
+bool geigen(int n, Matrix &fm, Matrix &Vre, Matrix &Vim, psVector &wr,
+	    psVector &wi)
 {
   int      info, i, j, k, c;
   psVector ort, cosfm, sinfm, nufm1, nufm2, nu1, nu2;
@@ -176,9 +176,9 @@ void geigen(int n, Matrix &fm, Matrix &Vre, Matrix &Vim,
   ETYT(n, 1, n, aa, ort, vv);
   ety2(n, 1, n, aa, wr, wi, vv, info);
   if (info != 0) {
-    printf("  Error in eig\n");
+    printf("geigen: error\n");
 //    goto _L999;
-    return;
+    return false;
   }
   for (i = 1; i <= n / 2; i++) {
     for (j = 0; j < n; j++) {
@@ -194,9 +194,7 @@ void geigen(int n, Matrix &fm, Matrix &Vre, Matrix &Vim,
     if (fabs(cosfm[i]) > (double)1.0) {
       printf("geigen: unstable |cosfm[nu_%d]-1e0| = %10.3e\n",
 	     i+1, fabs(cosfm[i]-1e0));
-      globval.stable = false;
-//      goto _L999;
-      // return;
+      return false;
     }
     TEMP     = cosfm[i];
     sinfm[i] = sgn(fm[j-1][j])*sqrt(1.0-TEMP*TEMP);
@@ -234,6 +232,7 @@ void geigen(int n, Matrix &fm, Matrix &Vre, Matrix &Vim,
       SwapMat(n, Vim, j, j+1); Swap(&wi[j-1], &wi[j]);
     }
   }
+  return true;
 //_L999: ;
 }
 
@@ -494,8 +493,8 @@ void GenB(int k, Matrix &B, Matrix &BInv, psVector &Eta, struct LOC_GDiag &LINK)
        none
 
 ****************************************************************************/
-void GDiag(int n_, double C, Matrix &A, Matrix &Ainv_, Matrix &R,
-           Matrix &M, double &Omega, double &alphac)
+void LatticeType::GDiag(int n_, double C, Matrix &A, Matrix &Ainv_, Matrix &R,
+			Matrix &M, double &Omega, double &alphac)
 {
   struct LOC_GDiag V;
   int      j;
@@ -507,21 +506,21 @@ void GDiag(int n_, double C, Matrix &A, Matrix &Ainv_, Matrix &R,
   CopyMat(V.n, M, fm); /* fm<-M */
   TpMat(V.n, fm);  /* fm <- transpose(fm) */
   /* look for eigenvalues and eigenvectors of fm */
-  geigen(V.n, fm, V.Vre, V.Vim, wr, wi);
-  if (globval.radiation)
+  stable = geigen(V.n, fm, V.Vre, V.Vim, wr, wi);
+  if (conf.radiation)
     for (j = 1; j <=  V.n/2; j++) {
       x1 = sqrt(sqr(wr[j*2-2])+sqr(wi[j*2-2]));
       x2 = sqrt(sqr(wr[j*2-1])+sqr(wi[j*2-1]));
-      globval.alpha_rad[j-1] = log(sqrt(x1*x2));
+      conf.alpha_rad[j-1] = log(sqrt(x1*x2));
     }
 
   CopyMat(V.n, M, fm);
-  geigen(V.n, fm, globval.Vr, globval.Vi, globval.wr, globval.wi);
+  stable = geigen(V.n, fm, this->conf.Vr, this->conf.Vi, wr, wi);
 
-  /*  CopyVec(6,wr,globval.wr);
-  CopyVec(6,wi,globval.wi);
-  CopyMat(6,V.Vre,globval.Vr);
-  CopyMat(6,V.Vim,globval.Vi); */
+  /*  CopyVec(6,wr,wr);
+  CopyVec(6,wi,wi);
+  CopyMat(6,V.Vre,Vr);
+  CopyMat(6,V.Vim,Vi); */
 
   UnitMat(6, *V.Ainv); GetAinv(V); CopyMat(6, *V.Ainv, A);
   if (!InvMat(6, A)) printf("A^-1 script is singular\n");
@@ -535,7 +534,7 @@ void GDiag(int n_, double C, Matrix &A, Matrix &Ainv_, Matrix &R,
     Omega = 0.0; alphac = R[5][4]/C;
   }
   if (V.n != 6) return;
-  if (globval.Cavity_on) {
+  if (conf.Cavity_on) {
     Omega = GetAngle(R[4][4], R[4][5])/(2.0*M_PI);
     alphac = 0.0;
   } else {

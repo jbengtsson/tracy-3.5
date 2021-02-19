@@ -1,10 +1,9 @@
 
 
-bool DA_data_type::track(const param_data_type &params,
-			 const double x, const double px,
-			 const double y, const double py,
-			 const double delta,
-			 const double f_rf, const bool prt)
+bool DA_data_type::track(LatticeType &lat, const param_data_type &params,
+			 const double x, const double px, const double y,
+			 const double py, const double delta, const double f_rf,
+			 const bool prt)
 {
   long int        i, lastpos;
   ss_vect<double> ps;
@@ -42,8 +41,8 @@ bool DA_data_type::track(const param_data_type &params,
   }
 
   for (i = 1; i <= params.n_track_DA; i++) {
-    lat.Cell_Pass(0, globval.Cell_nLoc, ps, lastpos);
-    if (lastpos == globval.Cell_nLoc) {
+    lat.Cell_Pass(0, lat.conf.Cell_nLoc, ps, lastpos);
+    if (lastpos == lat.conf.Cell_nLoc) {
       if (prt) {
 	if (f_rf == 0.0)
 	  os << std::scientific << std::setprecision(16)
@@ -69,7 +68,7 @@ bool DA_data_type::track(const param_data_type &params,
 }
 
 
-void DA_data_type::get_r_stable(const param_data_type &params,
+void DA_data_type::get_r_stable(LatticeType &lat, const param_data_type &params,
 				double &r, const double phi,
 				const double delta, const double eps)
 {
@@ -78,13 +77,14 @@ void DA_data_type::get_r_stable(const param_data_type &params,
   double r_min = 0.0, r_max = r;
 
   while (!lost ) {
-    lost = ! track(params, r_max*cos(phi), 0.0, r_max*sin(phi), 0.0, delta,
+    lost = ! track(lat, params, r_max*cos(phi), 0.0, r_max*sin(phi), 0.0, delta,
 		   0, false);
     r_max *= 2.0;
   }
   while (r_max-r_min >= eps) {
     r = r_min + (r_max-r_min)/2.0;
-    lost = !track(params, r*cos(phi), 0.0, r*sin(phi), 0.0, delta, 0, false);
+    lost = !track(lat, params, r*cos(phi), 0.0, r*sin(phi), 0.0, delta, 0,
+		  false);
     if (!lost)
       r_min = r;
     else
@@ -94,7 +94,7 @@ void DA_data_type::get_r_stable(const param_data_type &params,
 }
 
 
-double DA_data_type::get_dynap(param_data_type &params,
+double DA_data_type::get_dynap(LatticeType &lat, param_data_type &params,
 			       FILE *fp, const double r, const double delta,
 			       const double eps, double x_min[], double x_max[])
 {
@@ -122,7 +122,7 @@ double DA_data_type::get_dynap(param_data_type &params,
       phi = 1e-3;
     else if (i == params.n_aper_DA-1)
       phi -= 1e-3;
-    get_r_stable(params, r1, phi, delta, eps);
+    get_r_stable(lat, params, r1, phi, delta, eps);
     x2[X_] = r1*cos(phi); x2[Y_] = r1*sin(phi);
     for (j = 0; j <= 1; j++) {
       x_min[j] = min(x2[j], x_min[j]); x_max[j] = max(x2[j], x_max[j]);
@@ -138,8 +138,8 @@ double DA_data_type::get_dynap(param_data_type &params,
   }
   DA += x2[X_]*x0[Y_] - x0[X_]*x2[Y_];
   // x2 from mid-plane symmetry
-  DA = fabs(DA)/sqrt(lat.elems[globval.Cell_nLoc]->Beta[X_]
-       *lat.elems[globval.Cell_nLoc]->Beta[Y_]);
+  DA = fabs(DA)/sqrt(lat.elems[lat.conf.Cell_nLoc]->Beta[X_]
+       *lat.elems[lat.conf.Cell_nLoc]->Beta[Y_]);
 
   fprintf(fp, "\n");
   fprintf(fp, "# DA^ = %6.1f mm^2"
@@ -152,19 +152,19 @@ double DA_data_type::get_dynap(param_data_type &params,
 } 
 
 
-void DA_data_type::get_DA_bare(param_data_type &params)
+void DA_data_type::get_DA_bare(LatticeType &lat, param_data_type &params)
 {
   char   str[max_str];
   int    j;
   double DA, x_min[2], x_max[2], x_hat[2], d;
   FILE   *DA_bare, *fp;
 
-  globval.Cavity_on = true;
+  lat.conf.Cavity_on = true;
 
   DA_bare = file_write("DA_bare.out");
 
   fprintf(DA_bare, "# beta_x = %4.2f, beta_y = %5.2f\n",
-	  lat.elems[globval.Cell_nLoc]->Beta[X_], lat.elems[globval.Cell_nLoc]->Beta[Y_]);
+	  lat.elems[lat.conf.Cell_nLoc]->Beta[X_], lat.elems[lat.conf.Cell_nLoc]->Beta[Y_]);
   fprintf(DA_bare, "#\n");
   fprintf(DA_bare, "# Ideal lattice\n");
   fprintf(DA_bare, "#\n");
@@ -177,7 +177,7 @@ void DA_data_type::get_DA_bare(param_data_type &params)
 
     sprintf(str, "DA_bare_%4.2f.out", 1e2*d); fp = file_write(str);
 
-    DA = get_dynap(params, fp, 10e-3, d, 0.1e-3, x_min, x_max); 
+    DA = get_dynap(lat, params, fp, 10e-3, d, 0.1e-3, x_min, x_max); 
 
     fclose(fp);
 
@@ -185,8 +185,8 @@ void DA_data_type::get_DA_bare(param_data_type &params)
 
     fprintf(DA_bare, "  %5.2f %6.1f   %4.1f      %4.1f   %4.1f  %4.1f\n", 
 	    1e2*d, 1e6*DA,
-	    1e6*sqr(x_hat[X_])/lat.elems[globval.Cell_nLoc]->Beta[X_],
-	    1e6*sqr(x_hat[Y_])/lat.elems[globval.Cell_nLoc]->Beta[Y_],
+	    1e6*sqr(x_hat[X_])/lat.elems[lat.conf.Cell_nLoc]->Beta[X_],
+	    1e6*sqr(x_hat[Y_])/lat.elems[lat.conf.Cell_nLoc]->Beta[Y_],
 	    1e3*x_hat[X_], 1e3*x_hat[Y_]);
   
     fflush(DA_bare);
@@ -196,7 +196,7 @@ void DA_data_type::get_DA_bare(param_data_type &params)
 }
 
 
-void DA_data_type::get_DA_real(param_data_type &params,
+void DA_data_type::get_DA_real(LatticeType &lat, param_data_type &params,
 			       orb_corr_type orb_corr[])
 {
   bool     cod = false;
@@ -247,8 +247,8 @@ void DA_data_type::get_DA_real(param_data_type &params,
 
   DA_real = file_write("DA_real.out");
   fprintf(DA_real, "# beta_x = %4.2f, beta_y = %5.2f\n",
-	  lat.elems[globval.Cell_nLoc]->Beta[X_],
-	  lat.elems[globval.Cell_nLoc]->Beta[Y_]);
+	  lat.elems[lat.conf.Cell_nLoc]->Beta[X_],
+	  lat.elems[lat.conf.Cell_nLoc]->Beta[Y_]);
   fprintf(DA_real, "#\n");
   fprintf(DA_real, "# Real lattice\n");
   fprintf(DA_real, "#\n");
@@ -259,19 +259,19 @@ void DA_data_type::get_DA_real(param_data_type &params,
 
   if (params.n_meth == 1) {
     printf("Entering GirderSetup\n");
-    params.GirderSetup();
+    params.GirderSetup(lat);
   }
 
   for (j = 1; j <= params.n_stat; j++) {
-    globval.Cavity_on = false;
+    lat.conf.Cavity_on = false;
 
-    if (params.fe_file != "") params.LoadFieldErr(false, 1e0, true);
+    if (params.fe_file != "") params.LoadFieldErr(lat, false, 1e0, true);
     if (params.ae_file != "") {
       // Load misalignments; set seed, no scaling of rms errors.
       if (trace) printf("get_DA_real: n_meth = %d", params.n_meth);
       if (params.n_meth == 0) {
         printf("entering LoadAlignTol\n");
-        params.LoadAlignTol(false, 1e0, true, j);
+        params.LoadAlignTol(lat, false, 1e0, true, j);
 	bdxrms = bdzrms = bdarms = -1e0;
       } else if (params.n_meth == 1) {
 	// printf("entering ReadCormis\n");
@@ -285,58 +285,58 @@ void DA_data_type::get_DA_real(param_data_type &params,
 	  exit(1);
 	}
 	printf("Entering SetCorMis\n");
-	params.SetCorMis(gdxrms, gdzrms, gdarms, jdxrms, jdzrms, edxrms,
+	params.SetCorMis(lat, gdxrms, gdzrms, gdarms, jdxrms, jdzrms, edxrms,
 			 edzrms, edarms, rancutx, rancuty, rancutt, iseed[j-1]);
       }
 
       // Beam based alignment with respect to sextupoles with errors bdxrms,
       // bdzrms, bdarms
       if (params.bba) {
-        params.Align_BPMs(Sext, bdxrms, bdzrms, bdarms);
+        params.Align_BPMs(lat, Sext, bdxrms, bdzrms, bdarms);
       }
-      cod = params.cod_corr(n_cell, 1e0, params.h_maxkick, params.v_maxkick,
-			    params.n_bits, orb_corr);
+      cod = params.cod_corr(lat, n_cell, 1e0, params.h_maxkick,
+			    params.v_maxkick, params.n_bits, orb_corr);
     } else
       cod = lat.getcod(0e0, lastpos);
 
-    params.Orb_and_Trim_Stat(orb_corr);
+    params.Orb_and_Trim_Stat(lat, orb_corr);
 
     if (params.N_calls > 0) {
-      params.ID_corr(params.N_calls, params.N_steps, false, j);
-      cod = params.cod_corr(n_cell, 1e0, params.h_maxkick, params.v_maxkick,
-			    params.n_bits, orb_corr);
+      params.ID_corr(lat, params.N_calls, params.N_steps, false, j);
+      cod = params.cod_corr(lat, n_cell, 1e0, params.h_maxkick,
+			    params.v_maxkick, params.n_bits, orb_corr);
     }
 
-    params.Orb_and_Trim_Stat(orb_corr);
+    params.Orb_and_Trim_Stat(lat, orb_corr);
 
     printf("\n");
     if (cod) {
       printf("err_and_corr: orbit correction completed\n");
 
       sprintf(fname,"linlat_%d.out",j);
-      lat.prt_lat(fname, globval.bpm, true);
+      lat.prt_lat(fname, true);
       sprintf(fname,"cod_%d.out",j);
-      prt_cod(fname, globval.bpm, true);
+      prt_cod(lat, fname, true);
       sprintf(fname,"cod_%d.dat",j);
-      printcod(fname);
+      printcod(lat, fname);
       if (trace && (j == 1)) {
-	orb_corr[X_].prt_svdmat();
-	orb_corr[Y_].prt_svdmat();
+	orb_corr[X_].prt_svdmat(lat);
+	orb_corr[Y_].prt_svdmat(lat);
       }
  
-      lat.Ring_GetTwiss(true, 0.0); printglob(lat.elems[0]);
+      lat.Ring_GetTwiss(true, 0.0); printglob(lat);
 
-      GetEmittance(ElemIndex("cav"), true);
+      GetEmittance(lat, ElemIndex("cav"), true);
 
       if (params.n_lin > 0) {
-	params.corr_eps_y(j);
+	params.corr_eps_y(lat, j);
 	if (params.N_calls > 0) {
-	  params.ID_corr(params.N_calls, params.N_steps, false, j);
-	  params.cod_corr(n_cell, 1e0, params.h_maxkick, params.v_maxkick,
+	  params.ID_corr(lat, params.N_calls, params.N_steps, false, j);
+	  params.cod_corr(lat, n_cell, 1e0, params.h_maxkick, params.v_maxkick,
 			  params.n_bits, orb_corr);
 	}
- 	lat.Ring_GetTwiss(true, 0.0); printglob(lat.elems[0]);
-	GetEmittance(ElemIndex("cav"), true);
+ 	lat.Ring_GetTwiss(true, 0.0); printglob(lat);
+	GetEmittance(lat, ElemIndex("cav"), true);
       }
 
       ///////////////////////////////
@@ -347,7 +347,7 @@ void DA_data_type::get_DA_real(param_data_type &params,
 	nq[0]=nq[1]=0;
 	nu[0]=params.TuneX;
 	nu[1]=params.TuneY;
-	for (i = 0; i <= globval.Cell_nLoc; i++) {
+	for (i = 0; i <= lat.conf.Cell_nLoc; i++) {
 	  WITH = lat.elems[i];
 	  if ( WITH->Pkind == Mpole ) {
 	    if (strncmp(lat.elems[i]->PName,"qax",3) == 0){
@@ -362,15 +362,15 @@ void DA_data_type::get_DA_real(param_data_type &params,
 	}
 
 	printf("Fittune: nq[0]=%ld nq[1]=%ld\n",nq[0],nq[1]);
-	TotalTuneX=globval.TotalTune[0];
-	TotalTuneY=globval.TotalTune[1];
+	TotalTuneX=lat.conf.TotalTune[0];
+	TotalTuneY=lat.conf.TotalTune[1];
 	lat.Ring_Fittune(nu, (double)1e-4, nq, qfbuf, qdbuf, dk, 50L);
 	printf("Fittune: nux= %f dnux= %f nuy= %f dnuy= %f\n",
-	       globval.TotalTune[0], globval.TotalTune[0]-TotalTuneX,
-	       globval.TotalTune[1], globval.TotalTune[1]-TotalTuneY);
+	       lat.conf.TotalTune[0], lat.conf.TotalTune[0]-TotalTuneX,
+	       lat.conf.TotalTune[1], lat.conf.TotalTune[1]-TotalTuneY);
 
-	lat.Ring_GetTwiss(true, 0.0); printglob(lat.elems[0]);
-	GetEmittance(ElemIndex("cav"), true);
+	lat.Ring_GetTwiss(true, 0.0); printglob(lat);
+	GetEmittance(lat, ElemIndex("cav"), true);
       }
 
       // Fit chromaticities to ChromX and ChromY
@@ -380,7 +380,7 @@ void DA_data_type::get_DA_real(param_data_type &params,
 	ns[0]=ns[1]=0;
 	si[0]=params.ChromX;
 	si[1]=params.ChromY;
-	for (i = 0; i <= globval.Cell_nLoc; i++) {
+	for (i = 0; i <= lat.conf.Cell_nLoc; i++) {
 	  WITH = lat.elems[i];
 	  if ( WITH->Pkind == Mpole ) {
 	    if (strncmp(lat.elems[i]->PName,"sf",2) == 0){
@@ -395,30 +395,30 @@ void DA_data_type::get_DA_real(param_data_type &params,
 	}
 
 	printf("Fitchrom: ns[0]=%ld ns[1]=%ld\n",ns[0],ns[1]);
-	ChromaX=globval.Chrom[0];
-	ChromaY=globval.Chrom[1];
+	ChromaX=lat.conf.Chrom[0];
+	ChromaY=lat.conf.Chrom[1];
 	lat.Ring_Fitchrom(si, (double)1e-4, ns, sfbuf, sdbuf, dks, 50L);
 	printf("Fitchrom: six= %f dsix= %f siy= %f dsiy= %f\n",
-	       globval.Chrom[0], globval.Chrom[0]-ChromaX, globval.Chrom[1],
-	       globval.Chrom[1]-ChromaY);
+	       lat.conf.Chrom[0], lat.conf.Chrom[0]-ChromaX, lat.conf.Chrom[1],
+	       lat.conf.Chrom[1]-ChromaY);
 
-	lat.Ring_GetTwiss(true, 0.0); printglob(lat.elems[0]);
-	GetEmittance(ElemIndex("cav"), true);
+	lat.Ring_GetTwiss(true, 0.0); printglob(lat);
+	GetEmittance(lat, ElemIndex("cav"), true);
       }
       
       // End of tune and chromaticity fit
       ///////////////////////////////////
       
-      prt_beamsizes(j);
+      prt_beamsizes(lat, j);
 
-      if (params.ap_file != "") params.LoadApers(1.0, 1.0);
+      if (params.ap_file != "") params.LoadApers(lat, 1.0, 1.0);
 
-      globval.Cavity_on = true;
+      lat.conf.Cavity_on = true;
 
       // Define multipoles.
       // setmpall(0.01);
 
-      for (i = 0; i <= globval.Cell_nLoc; i++)
+      for (i = 0; i <= lat.conf.Cell_nLoc; i++)
 	lat.getelem(i, &cell);
       if (cell.Pkind == Mpole)
 	printf("%ld %lf %lf %lf %s \n",
@@ -426,7 +426,7 @@ void DA_data_type::get_DA_real(param_data_type &params,
 	       cell.PName);
 
       for (k = 0; k <= params.n_delta_DA; k++) {
-	DA = get_dynap(params, fp[k], 10e-3, d[k], 0.1e-3, x_min, x_max);
+	DA = get_dynap(lat, params, fp[k], 10e-3, d[k], 0.1e-3, x_min, x_max);
 	DA_m[k] += DA; DA_s[k] += sqr(DA);
 	x_hat = (x_max[X_]-x_min[X_])/2.0;
 	x_hat_m[k][X_] += x_hat; x_hat_s[k][X_] += sqr(x_hat);
@@ -437,10 +437,10 @@ void DA_data_type::get_DA_real(param_data_type &params,
       if (params.n_lin > 0) {
 	// reset skew quads
 	printf("resetting skew quad family: %s\n",
-	       lat.elems[lat.Elem_GetPos(globval.qt,1)]->PName);
-        set_bnL_design_fam(globval.qt, Quad, 0.0, 0.0);
+	       lat.elems[lat.Elem_GetPos(lat.conf.qt,1)]->PName);
+        set_bnL_design_fam(lat, lat.conf.qt, Quad, 0.0, 0.0);
       }
-      if (params.N_calls > 0) params.reset_quads();  
+      if (params.N_calls > 0) params.reset_quads(lat);  
     } else
       chk_cod(cod, "err_and_corr");
   }
@@ -457,10 +457,10 @@ void DA_data_type::get_DA_real(param_data_type &params,
 	    "   %5.2f \xB1 %6.3f     %5.2f \xB1 %6.3f\n", 
 	    d[j]*1e2,
 	    1e6*DA_m[j], 1e6*DA_s[j],
-	    1e6*sqr(x_hat_m[j][X_])/lat.elems[globval.Cell_nLoc]->Beta[X_],
-	    1e6*sqr(x_hat_s[j][X_])/lat.elems[globval.Cell_nLoc]->Beta[X_],
-	    1e6*sqr(x_hat_m[j][Y_])/lat.elems[globval.Cell_nLoc]->Beta[Y_],
-	    1e6*sqr(x_hat_s[j][Y_])/lat.elems[globval.Cell_nLoc]->Beta[Y_],
+	    1e6*sqr(x_hat_m[j][X_])/lat.elems[lat.conf.Cell_nLoc]->Beta[X_],
+	    1e6*sqr(x_hat_s[j][X_])/lat.elems[lat.conf.Cell_nLoc]->Beta[X_],
+	    1e6*sqr(x_hat_m[j][Y_])/lat.elems[lat.conf.Cell_nLoc]->Beta[Y_],
+	    1e6*sqr(x_hat_s[j][Y_])/lat.elems[lat.conf.Cell_nLoc]->Beta[Y_],
 	    1e3*x_hat_m[j][X_], 1e3*x_hat_s[j][X_],
 	    1e3*x_hat_m[j][Y_], 1e3*x_hat_s[j][Y_]);
   }

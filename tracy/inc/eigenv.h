@@ -11,7 +11,7 @@
 #ifndef EIGENV_H
 #define EIGENV_H
 
-void geigen(int n, Matrix &fm, Matrix &Vre, Matrix &Vim,
-	    psVector &wr, psVector &wi);
+bool geigen(int n, Matrix &fm, Matrix &Vre, Matrix &Vim, psVector &wr,
+	    psVector &wi);
 
 #endif
