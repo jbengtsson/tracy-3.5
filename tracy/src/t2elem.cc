@@ -2285,14 +2285,9 @@ void SolenoidType::Solenoid_Pass(ConfigType &conf, ss_vect<T> &ps)
 }
 
 
-// template<typename T>
-// void Map_Pass(ElemType *Cell, ss_vect<T> &ps) { ps = Cell->Map->M*ps; }
-
-void MapType::Elem_Pass(ConfigType &conf, ss_vect<double> &ps)
-{ ps = (M*ps).cst(); }
-
-void MapType::Elem_Pass(ConfigType &conf, ss_vect<tps> &ps)
-{ ps = M*ps; }
+template<typename T>
+void MapType::Map_Pass(ConfigType &conf, ss_vect<T> &ps)
+{ ps = is_double<ss_vect<T>>::ps(M*ps); }
 
 
 void LatticeType::getelem(long i, ElemType *cellrec) { cellrec = elems[i]; }
@@ -2313,7 +2308,7 @@ long LatticeType::Elem_GetPos(const int Fnum1, const int Knum1)
     loc = -1;
     printf("Elem_GetPos: there are no kids in family %d (%s)\n",
 	   Fnum1, elemf[Fnum1-1].ElemF->PName);
-    exit_(0);
+    exit_(1);
   }
 
   return loc;

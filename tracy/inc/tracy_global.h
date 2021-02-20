@@ -198,19 +198,19 @@ class LatticeType {
   void Recombiner_Init(const int Fnum);
   void Solenoid_Init(const int Fnum);
   void Map_Init(const int Fnum);
+
   void Lat_Init(void);
 
   void SI_init();
 
-  bool Lattice_Read(FILE *inf, FILE *outf);
+  friend long int ElemIndex(const std::string &name1);
 
-  void prtName(FILE *fp, const int i, const int type, const int method,
-	       const int N, const bool reverse);
+  bool Lattice_Read(FILE *inf, FILE *outf);
   void prtmfile(const char mfile_dat[]);
   void rdmfile(const char *mfile_dat);
 
-  friend long int ElemIndex(const std::string &name1);
-
+  void prtName(FILE *fp, const int i, const int type, const int method,
+	       const int N, const bool reverse);
   void prt_fam(void);
   void prt_elem(void);
 
@@ -301,13 +301,14 @@ class LatticeType {
   void checkifstable_(struct LOC_Ring_FitDisp *LINK);
   void checkifstable(struct LOC_Ring_Fittune *LINK);
 
-  // Vacuum chamber.
-  void ChamberOff(void);
-  void PrintCh(void);
-
+  // Lattice.
   void shiftk(long Elnum, double dk, struct LOC_Ring_Fittune *LINK);
   void shiftk_(long Elnum, double dk, struct LOC_Ring_FitDisp *LINK);
   void shiftkp(long Elnum, double dkp);
+
+  // Vacuum chamber.
+  void ChamberOff(void);
+  void PrintCh(void);
 };
 
 class DriftType : public ElemType {
@@ -636,8 +637,14 @@ class MapType : public ElemType {
 
   friend MapType* Map_Alloc(void);
 
-  void Elem_Pass(ConfigType &conf, ss_vect<double> &ps);
-  void Elem_Pass(ConfigType &conf, ss_vect<tps> &ps);
+  template<typename T>
+  void Map_Pass(ConfigType &conf, ss_vect<T> &ps);
+
+  void Elem_Pass(ConfigType &conf, ss_vect<double> &ps)
+  { Map_Pass(conf, ps); };
+  void Elem_Pass(ConfigType &conf, ss_vect<tps> &ps)
+  { Map_Pass(conf, ps); };
+
   void print(void);
 };
 
