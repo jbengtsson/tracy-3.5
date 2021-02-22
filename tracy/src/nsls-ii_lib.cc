@@ -1067,6 +1067,48 @@ void set_dL(LatticeType &lat, const int Fnum, const double dL)
 
 // Multipole Components.
 
+void LatticeType::set_b_n(const set_mpole set_, const int Fnum, const int Knum,
+			 const int n, const double b_n)
+{
+  //       / b_n, n > 0 
+  // : set |
+  //       \ a_n, n < 0
+
+  ElemType  *elemp;
+  MpoleType *M;
+
+  if ((-HOMmax <= n) && (n <= HOMmax)) {
+    elemp = elems[Elem_GetPos(Fnum, Knum)];
+    M = dynamic_cast<MpoleType*>(elemp);
+
+    switch (set_) {
+    case set_mpole(b_n_):
+      M->PBpar[HOMmax+n] = b_n;
+      break;
+    case set_mpole(db_n_):
+      M->PBpar[HOMmax+n] += b_n;
+      break;
+    case set_mpole(b_nL_):
+      M->PBpar[HOMmax+n] = (elemp->PL != 0e0)? b_n/elemp->PL : b_n;
+      break;
+    case set_mpole(db_nL_):
+      M->PBpar[HOMmax+n] += (elemp->PL != 0e0)? b_n/elemp->PL : b_n;
+      break;
+    default:
+      printf("\nset_b_n: unknown set_ %d\n", set_);
+      exit(1);
+      break;
+    }
+
+    Mpole_SetPB(Fnum, Knum, n);
+  } else {
+    printf("set_b_n: n < 1 (%d)\n", n);
+    exit(1);
+  }
+}
+
+//------------------------------------------------------------------------------
+
 void get_bn_design_elem(LatticeType &lat, const int Fnum, const int Knum,
 			const int n, double &bn, double &an)
 {
@@ -1127,6 +1169,21 @@ void set_bn_design_elem(LatticeType &lat, const int Fnum, const int Knum,
 }
 
 
+void set_bn_design_fam(LatticeType &lat, const int Fnum, const int n,
+		       const double bn, const double an)
+{
+  int k;
+
+  if (n < 1) {
+    std::cout << "set_bn_design_fam: n < 1 (" << n << ")" << std::endl;
+    exit(1);
+  }
+
+  for (k = 1; k <= lat.GetnKid(Fnum); k++)
+    set_bn_design_elem(lat, Fnum, k, n, bn, an);
+}
+
+
 void set_dbn_design_elem(LatticeType &lat, const int Fnum, const int Knum,
 			 const int n, const double dbn, const double dan)
 {
@@ -1144,21 +1201,6 @@ void set_dbn_design_elem(LatticeType &lat, const int Fnum, const int Knum,
   M->PBpar[HOMmax+n] += dbn; M->PBpar[HOMmax-n] += dan;
 
   lat.Mpole_SetPB(Fnum, Knum, n); lat.Mpole_SetPB(Fnum, Knum, -n);
-}
-
-
-void set_bn_design_fam(LatticeType &lat, const int Fnum, const int n,
-		       const double bn, const double an)
-{
-  int k;
-
-  if (n < 1) {
-    std::cout << "set_bn_design_fam: n < 1 (" << n << ")" << std::endl;
-    exit(1);
-  }
-
-  for (k = 1; k <= lat.GetnKid(Fnum); k++)
-    set_bn_design_elem(lat, Fnum, k, n, bn, an);
 }
 
 
@@ -1258,6 +1300,7 @@ void set_bnL_design_fam(LatticeType &lat, const int Fnum, const int n,
     set_bnL_design_elem(lat, Fnum, k, n, bnL, anL);
 }
 
+//------------------------------------------------------------------------------
 
 void set_bnL_design_type(LatticeType &lat, const int type, const int n,
 			 const double bnL, const double anL)
@@ -1281,6 +1324,7 @@ void set_bnL_design_type(LatticeType &lat, const int type, const int n,
     printf("Bad type argument to set_bnL_design_type()\n");
 }
 
+//------------------------------------------------------------------------------
 
 void set_bnL_sys_elem(LatticeType &lat, const int Fnum, const int Knum,
 		      const int n, const double bnL, const double anL)
@@ -1583,6 +1627,7 @@ void set_bnr_rms_type(LatticeType &lat, const int type, const int n,
     printf("Bad type argument to set_bnr_rms_type()\n");
 }
 
+//------------------------------------------------------------------------------
 
 double get_Wiggler_BoBrho(LatticeType &lat, const int Fnum, const int Knum)
 {

@@ -3930,21 +3930,22 @@ void get_B(ConfigType &conf, const char *filename, FieldMapType *FM)
 
 void LatticeType::Mpole_SetPB(int Fnum1, int Knum1, int Order)
 {
-  /* Compute full multipole composent as sum of design, systematic
-     and random part
-     Compute transport matrix if quadrupole (Order=2)
-     Set multipole order to Order if multipole (Order >2)                  */
+  /* Compute full multipole composent as sum of design, systematic, and
+     random part.                                                             */
 
-  ElemType  *Cellp;
   MpoleType *M;
 
-  Cellp = elems[elemf[Fnum1-1].KidList[Knum1-1]];
-  M = dynamic_cast<MpoleType*>(Cellp);
-  M->PB[Order+HOMmax] =
-    M->PBpar[Order+HOMmax] + M->PBsys[Order+HOMmax] +
-    M->PBrms[Order+HOMmax]*M->PBrnd[Order+HOMmax];
-  if (abs(Order) > M->Porder && M->PB[Order+HOMmax] != 0e0)
-    M->Porder = abs(Order);
+  if ((1 <= Order) && (Order <= HOMmax)) {
+    M = dynamic_cast<MpoleType*>(elems[elemf[Fnum1-1].KidList[Knum1-1]]);
+    M->PB[Order+HOMmax] =
+      M->PBpar[Order+HOMmax] + M->PBsys[Order+HOMmax] +
+      M->PBrms[Order+HOMmax]*M->PBrnd[Order+HOMmax];
+    if (abs(Order) > M->Porder && M->PB[Order+HOMmax] != 0e0)
+      M->Porder = abs(Order);
+  } else {
+    printf("set_bn: n < 1 (%d)\n", Order);
+    exit(1);
+  }
 }
 
 

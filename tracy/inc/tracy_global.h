@@ -27,6 +27,8 @@ enum
   { Horizontal = 1, Vertical = 2 };
 enum
   { Meth_Linear = 0, Meth_First = 1, Meth_Second = 2, Meth_Fourth = 4 };
+enum set_mpole { b_n_ = 0, db_n_ = 1, b_nL_ = 2, db_nL_ = 3 };
+
 
 const int
   n_harm_max   = 10,
@@ -238,18 +240,23 @@ class LatticeType {
   double Elem_GetKval(int Fnum1, int Knum1, int Order);
 
   void Mpole_SetPB(int Fnum1, int Knum1, int Order);
-  double Mpole_GetPB(int Fnum1, int Knum1, int Order);
-  void Mpole_DefPBpar(int Fnum1, int Knum1, int Order, double PBpar);
-  void Mpole_DefPBsys(int Fnum1, int Knum1, int Order, double PBsys);
   void Mpole_SetdS(int Fnum1, int Knum1);
   void Mpole_SetdT(int Fnum1, int Knum1);
-  double Mpole_GetdT(int Fnum1, int Knum1);
-  void Mpole_DefdTpar(int Fnum1, int Knum1, double PdTpar);
-  void Mpole_DefdTsys(int Fnum1, int Knum1, double PdTsys);
 
   void Wiggler_SetPB(int Fnum1, int Knum1, int Order);
   void Wiggler_SetdS(int Fnum1, int Knum1);
   void Wiggler_SetdT(int Fnum1, int Knum1);
+
+  double Mpole_GetPB(int Fnum1, int Knum1, int Order);
+
+  void Mpole_DefPBpar(int Fnum1, int Knum1, int Order, double PBpar);
+  void Mpole_DefPBsys(int Fnum1, int Knum1, int Order, double PBsys);
+  double Mpole_GetdT(int Fnum1, int Knum1);
+  void Mpole_DefdTpar(int Fnum1, int Knum1, double PdTpar);
+  void Mpole_DefdTsys(int Fnum1, int Knum1, double PdTsys);
+
+  void set_b_n(const set_mpole set_, const int Fnum, const int Knum,
+	       const int n, const double b_n);
 
   // t2cell.
   template<typename T>
