@@ -773,7 +773,7 @@ void drv_terms_type::prt_h(FILE *outf, const char *str, const int i0,
 
   printf("%s", str);
   for (k = i0-1; k < i1; k++)
-    printf("  %7s =  [%10.3e, %10.3e] (%7.1e)\n",
+    printf("  %7s = [%10.3e, %10.3e] (%7.1e)\n",
 	   h_label[k].c_str(), h_c[k], h_s[k], h_scl[k]);
 }
 

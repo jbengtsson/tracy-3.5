@@ -651,13 +651,15 @@ double get_eps_x1(const bool track, double &eps_x, double &sigma_E)
 
   if (prt) {
     printf("\nget_eps_x1:\n");
-    printf("  I[2..5]:");
+    printf("  E [GeV]          = %9.3e\n", globval.Energy);
+    printf("  I[2..5]          = [");
     for (k = 2; k <= 5; k++)
-      printf(" %10.3e", I[k]);
+      printf("%9.3e%s", I[k], (k < 5)? ", " : "]");
     printf("\n");
-    printf("  eps_x   = %9.3f nm.rad\n", eps_x);
-    printf("  sigma_E = %9.3e nm.rad\n", sigma_E);
-    printf("  J_x     = %9.3f, J_z = %5.3f\n", 1.0-I[4]/I[2], 2.0+I[4]/I[2]);
+    printf("  eps_x [nm.rad]   = %5.3f\n", eps_x);
+    printf("  sigma_E [nm.rad] = %9.3e\n", sigma_E);
+    printf("  [J_x, J_z]       = [%5.3f, %5.3f]\n",
+	   1.0-I[4]/I[2], 2.0+I[4]/I[2]);
   }
 
   return eps_x;
@@ -669,9 +671,13 @@ double get_lin_opt(constr_type &constr)
   double       eps_x;
   ss_vect<tps> A;
 
+  const bool prt = false;
+
+  if (prt) printf("\nget_lin_opt: ring = %d\n", lat_constr.ring);
   if (lat_constr.ring) {
     Ring_GetTwiss(true, 0e0);
     eps_x = get_eps_x1(true, eps_x, sigma_E);
+    if (prt) printf("  eps_x = %9.3e\n", eps_x);
   } else {
     globval.emittance = true;
     A = get_A(constr.ic[0], constr.ic[1], constr.ic[2], constr.ic[3]);
@@ -1029,7 +1035,7 @@ double constr_type::get_chi2(const double twoJ[], const double delta,
       dchi2[k] = ksi1_ctrl_scl[k]/sqr(ksi1_ctrl[k]);
       chi2 += dchi2[k];
     }
-    if (prt) printf("  ksi1_ctrl =       [%10.3e, %10.3e, %10.3e]\n",
+    if (prt) printf("  ksi1_ctrl       = [%10.3e, %10.3e, %10.3e]\n",
 		    dchi2[0], dchi2[1], dchi2[2]);
   }
   
@@ -1041,7 +1047,7 @@ double constr_type::get_chi2(const double twoJ[], const double delta,
 	dchi2[k] = mI_scl[k]*sqr(mI[j][k]-mI0[k]);
 	chi2 += dchi2[k];
       }
-      if (prt) printf("  mI              =  [%10.3e, %10.3e]\n",
+      if (prt) printf("  mI              = [%10.3e, %10.3e]\n",
 		      dchi2[X_], dchi2[Y_]);
     }
   }
@@ -1056,7 +1062,7 @@ double constr_type::get_chi2(const double twoJ[], const double delta,
 	  *sqr(high_ord_achr_dnu[j][k]-high_ord_achr_nu[j][k]);
 	chi2 += dchi2[k];
       }
-      if (prt) printf("  high_ord_achr   =  [%10.3e, %10.3e]\n",
+      if (prt) printf("  high_ord_achr   = [%10.3e, %10.3e]\n",
 		      dchi2[X_], dchi2[Y_]);
     }
   }

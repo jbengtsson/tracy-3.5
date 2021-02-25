@@ -41,7 +41,7 @@ const double
    {0.0306340488, 0.0000000000}, {0.0, 0.0}},
 
 #if 1
-  eps0_x                = 0.100,
+  eps0_x                = 0.125,
 #else
   eps0_x                = 0.050,
 #endif
@@ -97,7 +97,7 @@ const double
   phi_max               = 3.0,
   b_2_max               = 15.0,
   b_2_dip_max           = 4.0,
-  b_3_chrom_max         = 5e3,
+  b_3_chrom_max         = 1.5e3,
   b_3_max               = 2e3,
   b_4_max               = 1e4;
 
@@ -988,10 +988,10 @@ void set_constr_sp(constr_type &constr)
   		    1e5, 1e5, 1e2,         1e2,         1e7, 1e7,
   		    0.0, 0.0, beta_ms[X_], beta_ms[Y_], 0.0, 0.0);
   // Symmetry.
-  constr.add_constr(Elem_GetPos(ElemIndex("ms0"), 1),
+  constr.add_constr(Elem_GetPos(ElemIndex("s0"), 1),
 		    1e5, 1e5, 0e0, 0e0, 0e0, 1e8,
 		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-  constr.add_constr(Elem_GetPos(ElemIndex("ms0"), 3),
+  constr.add_constr(Elem_GetPos(ElemIndex("s0"), 3),
 		    1e5, 1e5, 0e0, 0e0, 0e0, 1e8,
 		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 
@@ -1035,18 +1035,18 @@ void set_b3_Fam_sp(param_type &prms)
 {
   std::vector<int> Fnum;
 
-  prms.add_prm("ms0", 3, -b_3_chrom_max, b_3_chrom_max, 1.0);
-  prms.add_prm("ms1",  3, -b_3_chrom_max, b_3_chrom_max, 1.0);
+  prms.add_prm("s0",  3, -b_3_chrom_max, b_3_chrom_max, 1.0);
+  prms.add_prm("s1",  3, -b_3_chrom_max, b_3_chrom_max, 1.0);
 
   // For control of linear chromaticity.
-  lat_constr.Fnum_b3.push_back(ElemIndex("ms0"));
-  lat_constr.Fnum_b3.push_back(ElemIndex("ms1"));
+  lat_constr.Fnum_b3.push_back(ElemIndex("s0"));
+  lat_constr.Fnum_b3.push_back(ElemIndex("s1"));
 
   if (true) {
     no_sxt();
 
-    Fnum.push_back(ElemIndex("ms0"));
-    Fnum.push_back(ElemIndex("ms1"));
+    Fnum.push_back(ElemIndex("s0"));
+    Fnum.push_back(ElemIndex("s1"));
     fit_ksi1(Fnum, 0e0, 0e0, 1e1);
   }
 }
