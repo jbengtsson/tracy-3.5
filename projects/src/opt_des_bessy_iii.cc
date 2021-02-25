@@ -10,10 +10,10 @@ int no_tps = NO;
 
 
 const bool
-  ps_rot          = false, // Note, needs to be zeroed; after use.
+  ps_rot          = !false, // Note, needs to be zeroed; after use.
   pert_dip_cell   = false,
   dphi            = true,
-  long_grad_dip   = !false,
+  long_grad_dip   = false,
   ksi_terms[]     = {!false, !false, false},
   drv_terms[]     = {!false, !false, false},
   tune_fp_terms[] = {false, false};
@@ -40,7 +40,7 @@ const double
   {{-0.0000000000, -0.0000000000}, {3.2262890063, 2.4083826129},
    {0.0306340488, 0.0000000000}, {0.0, 0.0}},
 
-#if 0
+#if 1
   eps0_x                = 0.100,
 #else
   eps0_x                = 0.050,
@@ -51,13 +51,13 @@ const double
   delta_max             = 2e-2,
   A_delta_max[]         = {2e-3, 0.1e-3},
 
-  dnu[]                 = {0.03, -0.03},
+  dnu[]                 = {0.0, -0.1},
 
 // 3 for opt_unit_cell.
 #define NU 1
 #if NU == 1
   // 5 unit cells.
-  nu_ref[]              = {1.0/2.0+dnu[X_], 1.0/2.0+dnu[Y_]},
+  nu_ref[]              = {1.0/2.0, 1.0/2.0},
   high_ord_achr_nu[][2] = {{2.0/5.0, 1.0/10.0}, {0.0, 0.0}},
 
 #elif NU == 2
@@ -97,7 +97,7 @@ const double
   phi_max               = 3.0,
   b_2_max               = 15.0,
   b_2_dip_max           = 4.0,
-  b_3_chrom_max         = 2.5e3,
+  b_3_chrom_max         = 5e3,
   b_3_max               = 2e3,
   b_4_max               = 1e4;
 
@@ -201,13 +201,15 @@ double f_achrom(double *bn)
   double      chi2, L_b1e, L_b1c, dchi2;
   static bool first = true;
 
-  const int n_prt = 5;
+  const bool prt   = false;
+  const int  n_prt = 5;
 
   lat_prms.set_prm(bn);
 
   if (lat_constr.phi_scl != 0e0) phi_corr(lat_constr);
 
   if (lat_constr.ring) stable = get_nu(lat_constr.nu);
+  if (prt) printf("\nf_achrom: stable = %d\n", stable);
 
   if ((lat_constr.ring && stable) || !lat_constr.ring) {
     eps_x = get_lin_opt(lat_constr);
@@ -904,22 +906,24 @@ void set_dip_sp(param_type &prms, constr_type &constr)
 {
   if (dphi) {
     if (!long_grad_dip) {
-      prms.add_prm("b1e", -3, -phi_max, phi_max, 1.0);
-      lat_constr.Fnum_b1.push_back(ElemIndex("b1e"));
+      prms.add_prm("b0", -3, -phi_max, phi_max, 1.0);
+      lat_constr.Fnum_b1.push_back(ElemIndex("b0"));
 
-      prms.add_prm("b1c", -3, -phi_max, phi_max, 1.0);
-      lat_constr.Fnum_b1.push_back(ElemIndex("b1c"));
+      prms.add_prm("b1", -3, -phi_max, phi_max, 1.0);
+      lat_constr.Fnum_b1.push_back(ElemIndex("b1"));
 
+      prms.add_prm("mb0", -3, -5.0, 5.0,  1.0);
+      lat_constr.Fnum_b1.push_back(ElemIndex("mb0"));
       // Commented out must be defined last.
-      // prms.add_prm("b2", -3, -5.0, 5.0,  1.0);
-      lat_constr.Fnum_b1.push_back(ElemIndex("b2"));
+      prms.add_prm("mb1", -3, -5.0, 5.0,  1.0);
+      lat_constr.Fnum_b1.push_back(ElemIndex("mb1"));
 
-      prms.add_prm("b1e",  2, -b_2_dip_max, b_2_dip_max, 1.0);
-      if (!false) prms.add_prm("b1e", -2, 0.3, 0.7, 1.0);
+      prms.add_prm("b0",  2, -b_2_dip_max, b_2_dip_max, 1.0);
+      if (false) prms.add_prm("b0", -2, 0.3, 0.7, 1.0);
+      prms.add_prm("b1",  2, -b_2_max,     b_2_max,     1.0);
 
-      prms.add_prm("b1c",  2, -b_2_dip_max, b_2_dip_max, 1.0);
-
-      prms.add_prm("b2",   2, -b_2_max, b_2_max, 1.0);
+      prms.add_prm("mb0", 2, -b_2_max, b_2_max, 1.0);
+      prms.add_prm("mb1", 2, -b_2_max, b_2_max, 1.0);
     } else {
       prms.add_prm("b1e1", -3, -phi_max, phi_max, 1.0);
       lat_constr.Fnum_b1.push_back(ElemIndex("b1e1"));
@@ -967,9 +971,9 @@ void set_dip_sp(param_type &prms, constr_type &constr)
 
 void set_b2_sp(param_type &prms)
 {
-  prms.add_prm("q1",  2, -b_2_max, b_2_max, 1.0);
-  prms.add_prm("q2",  2, -b_2_max, b_2_max, 1.0);
-  prms.add_prm("q3",  2, -b_2_max, b_2_max, 1.0);
+  prms.add_prm("uq1",  2, -b_2_max, b_2_max, 1.0);
+  prms.add_prm("uq2",  2, -b_2_max, b_2_max, 1.0);
+  prms.add_prm("uq3",  2, -b_2_max, b_2_max, 1.0);
 
   // Parameters are initialized in optimizer.
 }
@@ -980,28 +984,28 @@ void set_constr_sp(constr_type &constr)
   int k;
 
   // Beta functions at center of straight
-  constr.add_constr(Elem_GetPos(ElemIndex("l7"), 2),
+  constr.add_constr(Elem_GetPos(ElemIndex("ul4"), 2),
   		    1e5, 1e5, 1e2,         1e2,         1e7, 1e7,
   		    0.0, 0.0, beta_ms[X_], beta_ms[Y_], 0.0, 0.0);
   // Symmetry.
-  constr.add_constr(Elem_GetPos(ElemIndex("s1"), 1),
+  constr.add_constr(Elem_GetPos(ElemIndex("ms0"), 1),
 		    1e5, 1e5, 0e0, 0e0, 0e0, 1e8,
 		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-  constr.add_constr(Elem_GetPos(ElemIndex("s1"), 3),
+  constr.add_constr(Elem_GetPos(ElemIndex("ms0"), 3),
 		    1e5, 1e5, 0e0, 0e0, 0e0, 1e8,
 		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 
   if (!long_grad_dip) {
     // Symmetry & eta' at dipole centers.
-    constr.add_constr(Elem_GetPos(ElemIndex("b1c"), 1),
+    constr.add_constr(Elem_GetPos(ElemIndex("b0"), 1),
 		      1e5, 1e5, 0e0, 0e0, 0e0, 1e8,
 		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-    constr.add_constr(Elem_GetPos(ElemIndex("b1c"), 3),
+    constr.add_constr(Elem_GetPos(ElemIndex("b0"), 3),
 		      1e5, 1e5, 0e0, 0e0, 0e0, 1e8,
 		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 
     // Eta & eta' at arc entrance.
-    constr.add_constr(Elem_GetPos(ElemIndex("b1e"), 1)-1,
+    constr.add_constr(Elem_GetPos(ElemIndex("mb0"), 1)-1,
 		      0e0, 0e0, 0e0, 0e0, 1e8, 1e8,
 		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   } else {
@@ -1031,18 +1035,18 @@ void set_b3_Fam_sp(param_type &prms)
 {
   std::vector<int> Fnum;
 
-  prms.add_prm("s1",  3, -b_3_chrom_max, b_3_chrom_max, 1.0);
-  prms.add_prm("s2",  3, -b_3_chrom_max, b_3_chrom_max, 1.0);
+  prms.add_prm("ms0", 3, -b_3_chrom_max, b_3_chrom_max, 1.0);
+  prms.add_prm("ms1",  3, -b_3_chrom_max, b_3_chrom_max, 1.0);
 
   // For control of linear chromaticity.
-  lat_constr.Fnum_b3.push_back(ElemIndex("s1"));
-  lat_constr.Fnum_b3.push_back(ElemIndex("s2"));
+  lat_constr.Fnum_b3.push_back(ElemIndex("ms0"));
+  lat_constr.Fnum_b3.push_back(ElemIndex("ms1"));
 
   if (true) {
     no_sxt();
 
-    Fnum.push_back(ElemIndex("s1"));
-    Fnum.push_back(ElemIndex("s2"));
+    Fnum.push_back(ElemIndex("ms0"));
+    Fnum.push_back(ElemIndex("ms1"));
     fit_ksi1(Fnum, 0e0, 0e0, 1e1);
   }
 }
@@ -1053,8 +1057,8 @@ void set_b3_constr_sp(constr_type &constr)
   int k, n;
 
   if (!long_grad_dip) {
-    lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("b1c"), 1));
-    lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("b1c"), 3));
+    lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("b0"), 1));
+    lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("b0"), 3));
   } else {
     lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("b1c1"), 1));
     lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("b1c1"), 3));
@@ -1077,18 +1081,18 @@ void set_weights_sp(constr_type &constr)
 {
   lat_constr.eps_x_scl             = 1e-3*1e7;
 
-  lat_constr.alpha_c_scl           = 0e1*1e-6;
+  lat_constr.alpha_c_scl           = 1e1*1e-6;
 
   lat_constr.nu_ref_scl            = nu_ref_scl;
-  lat_constr.nu_ref[X_]            = nu_ref[X_];
-  lat_constr.nu_ref[Y_]            = nu_ref[Y_];
+  lat_constr.nu_ref[X_]            = 2*nu_ref[X_];
+  lat_constr.nu_ref[Y_]            = 2*nu_ref[Y_];
 
   lat_constr.high_ord_achr_scl[X_] = 1e1*1e6;
   lat_constr.high_ord_achr_scl[Y_] = 1e1*1e6;
 
   // Super Period.
   lat_constr.phi_scl               = ((dphi)? 1e0 : 0e0);
-#define N_SP 18
+#define N_SP 16
 #if N_SP == 20
   // 20 super periods 5-BA.
   lat_constr.phi0                  = 2*18.0;

@@ -371,8 +371,8 @@ void get_I(double I[], const bool prt)
 
   if (prt) {
     printf("\nget_I:\n");
-    printf("\n      name               s     curly_H      I_2        I_3"
-	   "        I_4        I_5      alpha_x    beta_x"
+    printf("\n      name               s     curly_H      I_1        I_2"
+	   "        I_3        I_4        I_5      alpha_x    beta_x"
 	   "     eta_x      eta'_x     alpha_y    beta_y\n\n");
   }
   for (j = 0; j <= globval.Cell_nLoc; j++)
@@ -382,7 +382,7 @@ void get_I(double I[], const bool prt)
       if (prt)
 	printf("%5d %-10s %6.3f %10.3e",
 	       j, Cell[j].Elem.PName, Cell[j].S, Cell[j].curly_dH_x);
-      for (k = 0; k <= 5; k++) {
+      for (k = 1; k <= 5; k++) {
 	I[k] += Cell[j].dI[k];
 	if (prt) printf(" %10.3e", Cell[j].dI[k]);
       }
@@ -451,7 +451,7 @@ void get_eps_x(double &eps_x, double &sigma_delta, double &U_0, double J[],
     tau[k] = 4e0*M_PI*T_0/(C_gamma*cube(1e-9*E_0)*J[k]*I[2]);
 
   if (prt) {
-    printf("\n  I[2..5]:");
+    printf("\n  I[1..5]:");
     for (k = 1; k <= 5; k++)
       printf(" %10.3e", I[k]);
     printf("\n");

@@ -1628,7 +1628,7 @@ int main(int argc, char *argv[])
   // 1: DIAMOND, 2: NSLS-II, 3: Oleg I, 4: Oleg II.
   FieldMap_filetype = 4; sympl = !false;
 
-  reverse_elem = !false;
+  reverse_elem = false;
 
   trace = false;
 
@@ -1644,6 +1644,9 @@ int main(int argc, char *argv[])
   globval.emittance  = false; globval.IBS            = false;
   globval.pathlength = false; globval.bpm            = 0;
   globval.Cart_Bend  = false; globval.dip_edge_fudge = true;
+
+  getcod(1e-1, lastpos);
+  prt_cod("cod.out", globval.bpm, true);
 
   if (false) no_sxt();
 
