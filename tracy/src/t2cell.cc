@@ -224,10 +224,8 @@ bool LatticeType::getcod(double dP, long &lastpos)
 
 void LatticeType::Lat_Init(void)
 {
-  long int    i;
-  double      Stotal;
-  ElemFamType *elemfamp;
-  ElemType    *elemp;
+  long int i;
+  double   Stotal;
 
   char first_name[] = "begin          ";
 
@@ -248,51 +246,10 @@ void LatticeType::Lat_Init(void)
 
   for (i = 1; i <= conf.Elem_nFam; i++) {
     // Allocate element.
-    elemfamp  = &elemf[i-1]; /* Get 1 of all elements stored in ElemFam
-				array */
-    elemp = elemfamp->ElemF; // For switch structure: choice on element type
+    elemf[i-1].ElemF->Elem_Init(*this, i);
     if (debug)
-      printf("\nLat_Init i = %3ld %*s\n", i, SymbolLength, elemp->PName);
-
-    switch (elemp->Pkind) {
-    case drift:
-      Drift_Init(i);
-      break;
-    case Mpole:
-      Mpole_Init(i);
-      break;
-    case Wigl:
-      Wiggler_Init(i);
-      break;
-    case FieldMap:
-      FieldMap_Init(i);
-      break;
-    case Insertion:
-      Insertion_Init(i);
-      break;
-    case Cavity:
-      Cavity_Init(i);
-      break;
-    case marker:
-      Marker_Init(i);
-      break;
-    case Spreader:
-      Spreader_Init(i);
-      break;
-    case Recombiner:
-      Recombiner_Init(i);
-      break;
-    case Solenoid:
-      Solenoid_Init(i);
-      break;
-    case Map:
-      Map_Init(i);
-      break;
-    default:
-      printf("Lat_Init: undefined type\n");
-      exit(1);
-      break;
-    }
+      printf("\nLat_Init i = %3ld %*s\n",
+	     i, SymbolLength, elemf[i-1].ElemF->PName);
   }
 
   /* Computes s-location of each element in the structure */

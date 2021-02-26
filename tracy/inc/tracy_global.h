@@ -144,6 +144,8 @@ class CellType {
     *next_ptr;                 // pointer to next cell (for tracking).
 };
 
+class LatticeType;
+
 // Element base class.
 class ElemType : public CellType {
  public:
@@ -160,6 +162,8 @@ class ElemType : public CellType {
   // functions.
   virtual void Elem_Pass(ConfigType &conf, ss_vect<double> &ps) {};
   virtual void Elem_Pass(ConfigType &conf, ss_vect<tps> &ps) {};
+
+  virtual void Elem_Init(LatticeType &lat, const int Fnum) {};
 
   virtual void print(void) {};
 
@@ -188,18 +192,6 @@ class LatticeType {
   std::vector<ElemFamType> elemf;
   std::vector<ElemType*>   elems;
   ConfigType               conf;
-
-  void Drift_Init(const int Fnum);
-  void Mpole_Init(const int Fnum);
-  void Cavity_Init(const int Fnum);
-  void Marker_Init(const int Fnum);
-  void Wiggler_Init(const int Fnum);
-  void Insertion_Init(const int Fnum);
-  void FieldMap_Init(const int Fnum);
-  void Spreader_Init(const int Fnum);
-  void Recombiner_Init(const int Fnum);
-  void Solenoid_Init(const int Fnum);
-  void Map_Init(const int Fnum);
 
   void Lat_Init(void);
 
@@ -321,6 +313,7 @@ class LatticeType {
 class DriftType : public ElemType {
  public:
   friend DriftType* Drift_Alloc(void);
+  void Elem_Init(LatticeType &lat, const int Fnum);
 
   template<typename T>
   void Drift_Pass(ConfigType &conf, ss_vect<T> &ps);
@@ -371,6 +364,7 @@ class MpoleType : public ElemType {
     M_lin;                     // Linear Map for Element.
 
   friend MpoleType* Mpole_Alloc(void);
+  void Elem_Init(LatticeType &lat, const int Fnum);
 
   template<typename T>
   void Mpole_Pass(ConfigType &conf, ss_vect<T> &ps);
@@ -397,6 +391,7 @@ class CavityType : public ElemType {
     phi;                       // RF phase.
 
   friend CavityType* Cavity_Alloc(void);
+  void Elem_Init(LatticeType &lat, const int Fnum);
 
   template<typename T>
   void Cavity_Pass(ConfigType &conf, ss_vect<T> &ps);
@@ -412,6 +407,7 @@ class CavityType : public ElemType {
 class MarkerType : public ElemType {
  public:
   friend MarkerType* Marker_Alloc(void);
+  void Elem_Init(LatticeType &lat, const int Fnum);
 
   template<typename T>
   void Marker_Pass(ConfigType &conf, ss_vect<T> &ps);
@@ -452,6 +448,7 @@ class WigglerType : public ElemType {
     PBW;
 
   friend WigglerType* Wiggler_Alloc(void);
+  void Elem_Init(LatticeType &lat, const int Fnum);
 
   template<typename T>
   void Wiggler_Pass(ConfigType &conf, ss_vect<T> &ps);
@@ -517,6 +514,7 @@ class InsertionType : public ElemType {
     PdSrnd[2];                 // random number.
 
   friend InsertionType* Insertion_Alloc(void);
+  void Elem_Init(LatticeType &lat, const int Fnum);
 
   template<typename T>
   void Insertion_Pass(ConfigType &conf, ss_vect<T> &ps);
@@ -551,6 +549,7 @@ class FieldMapType : public ElemType {
     ***AoBrho2[2];             // [Ax(x, y, z), Ay(x, y, z)], spline info.
 
   friend FieldMapType* FieldMap_Alloc(void);
+  void Elem_Init(LatticeType &lat, const int Fnum);
 
   template<typename T>
   void FieldMap_Pass(ConfigType &conf, ss_vect<T> &ps);
@@ -571,6 +570,7 @@ class SpreaderType : public ElemType {
     *Cell_ptrs[Spreader_max];
 
   friend SpreaderType* Spreader_Alloc(void);
+  void Elem_Init(LatticeType &lat, const int Fnum);
 
   template<typename T>
   void Spreader_Pass(ConfigType &conf, ss_vect<T> &ps);
@@ -590,6 +590,7 @@ class RecombinerType : public ElemType {
     E_max;
 
   friend RecombinerType* Recombiner_Alloc(void);
+  void Elem_Init(LatticeType &lat, const int Fnum);
 
   template<typename T>
   void Recombiner_Pass(ConfigType &conf, ss_vect<T> &ps);
@@ -619,6 +620,7 @@ class SolenoidType : public ElemType {
     PdSrnd[2];                 // random number.
 
   friend SolenoidType* Solenoid_Alloc(void);
+  void Elem_Init(LatticeType &lat, const int Fnum);
 
   template<typename T>
   void Solenoid_Pass(ConfigType &conf, ss_vect<T> &ps);
@@ -643,6 +645,7 @@ class MapType : public ElemType {
     M;
 
   friend MapType* Map_Alloc(void);
+  void Elem_Init(LatticeType &lat, const int Fnum);
 
   template<typename T>
   void Map_Pass(ConfigType &conf, ss_vect<T> &ps);
