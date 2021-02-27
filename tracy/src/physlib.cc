@@ -1309,7 +1309,7 @@ void SetTol(LatticeType &lat, int Fnum, double dxrms, double dyrms,
     M->PdSrnd[Y_] = normranf();
     M->PdTrms = drrms;
     M->PdTrnd = normranf();
-    lat.Mpole_SetdS(Fnum, i); lat.Mpole_SetdT(Fnum, i);
+    lat.SetdS(Fnum, i); lat.SetdT(Fnum, i);
   }
 }
 
@@ -1326,7 +1326,7 @@ void Scale_Tol(LatticeType &lat, int Fnum, double dxrms, double dyrms,
     M = dynamic_cast<MpoleType*>(lat.elems[loc]);
     M->PdSrms[X_] = dxrms; M->PdSrms[Y_] = dyrms;
     M->PdTrms    = drrms;
-    lat.Mpole_SetdS(Fnum, Knum); lat.Mpole_SetdT(Fnum, Knum);
+    lat.SetdS(Fnum, Knum); lat.SetdT(Fnum, Knum);
   }
 }
 
@@ -1367,7 +1367,7 @@ void SetaTol(LatticeType &lat, int Fnum, int Knum, double dx, double dy,
   M->PdSrms[0] = dx; M->PdSrnd[0] = 1e0;
   M->PdSrms[1] = dy; M->PdSrnd[1] = 1e0;
   M->PdTrms    = dr; M->PdTrnd    = 1e0;
-  lat.Mpole_SetdS(Fnum, Knum); lat.Mpole_SetdT(Fnum, Knum);
+  lat.SetdS(Fnum, Knum); lat.SetdT(Fnum, Knum);
 }
 
 
@@ -1493,7 +1493,7 @@ void SetKpar(LatticeType &lat, int Fnum, int Knum, int Order, double k)
   loc = lat.Elem_GetPos(Fnum, Knum);
   M = dynamic_cast<MpoleType*>(lat.elems[loc]);
   M->PBpar[Order+HOMmax] = k;
-  lat.Mpole_SetPB(Fnum, Knum, Order);
+  lat.SetPB(Fnum, Knum, Order);
 }
 
 
@@ -1521,7 +1521,7 @@ void SetdKpar(LatticeType &lat, int Fnum, int Knum, int Order, double dk)
   loc = lat.Elem_GetPos(Fnum, Knum);
   M = dynamic_cast<MpoleType*>(lat.elems[loc]);
   M->PBpar[Order+HOMmax] += dk;
-  lat.Mpole_SetPB(Fnum, Knum, Order);
+  lat.SetPB(Fnum, Knum, Order);
 }
 
 
@@ -1536,7 +1536,7 @@ void SetKLpar(LatticeType &lat, int Fnum, int Knum, int Order, double kL)
     M->PBpar[Order+HOMmax] = kL/lat.elems[loc]->PL;
   else
     M->PBpar[Order+HOMmax] = kL;
-  lat.Mpole_SetPB(Fnum, Knum, Order);
+  lat.SetPB(Fnum, Knum, Order);
 }
 
 
@@ -1551,7 +1551,7 @@ void SetdKLpar(LatticeType &lat, int Fnum, int Knum, int Order, double dkL)
     M->PBpar[Order + HOMmax] += dkL/lat.elems[loc]->PL;
   else
     M->PBpar[Order + HOMmax] += dkL;
-  lat.Mpole_SetPB(Fnum, Knum, Order);
+  lat.SetPB(Fnum, Knum, Order);
 }
 
 
@@ -1566,7 +1566,7 @@ void SetdKrpar(LatticeType &lat, int Fnum, int Knum, int Order, double dkrel)
     M->PBpar[Dip+HOMmax] += dkrel*M->Pirho;
   else
     M->PBpar[Order+HOMmax] += dkrel*M->PBpar[Order+HOMmax];
-  lat.Mpole_SetPB(Fnum, Knum, Order);
+  lat.SetPB(Fnum, Knum, Order);
 }
 
 
@@ -1629,7 +1629,7 @@ void SetbnL_sys(LatticeType &lat, int Fnum, int Order, double bnL_sys)
       M->PBsys[Order+HOMmax] = bnL_sys/lat.elems[loc]->PL;
     else
       M->PBsys[Order+HOMmax] = bnL_sys;
-    lat.Mpole_SetPB(Fnum, Knum, Order);
+    lat.SetPB(Fnum, Knum, Order);
   }
 }
 
@@ -1651,7 +1651,7 @@ void set_dbn_rel(LatticeType &lat, const int type, const int n,
       dbn = dbn_rel*M->PBpar[type+HOMmax];
       M->PBrms[n+HOMmax] = dbn;
       M->PBrnd[n+HOMmax] = normranf();
-      lat.Mpole_SetPB(lat.elems[j]->Fnum, lat.elems[j]->Knum, n);
+      lat.SetPB(lat.elems[j]->Fnum, lat.elems[j]->Knum, n);
     }
 }
 
@@ -1701,7 +1701,7 @@ void SetdKLrms(LatticeType &lat, int Fnum, int Order, double dkLrms)
     else
       M->PBrms[Order+HOMmax] = dkLrms;
     M->PBrnd[Order+HOMmax] = normranf();
-    lat.Mpole_SetPB(Fnum, Knum, Order);
+    lat.SetPB(Fnum, Knum, Order);
   }
 }
 
@@ -1720,7 +1720,7 @@ void Setdkrrms(LatticeType &lat, int Fnum, int Order, double dkrrms)
       M->PBrms[Order+HOMmax]
 	= dkrrms*M->PBpar[Order+HOMmax];
     M->PBrnd[Order+HOMmax] = normranf();
-    lat.Mpole_SetPB(Fnum, Knum, Order);
+    lat.SetPB(Fnum, Knum, Order);
   }
 }
 
@@ -1730,7 +1730,7 @@ void SetKL(LatticeType &lat, int Fnum, int Order)
   long int  Knum;
 
   for (Knum = 1; Knum <= lat.GetnKid(Fnum); Knum++)
-    lat.Mpole_SetPB(Fnum, Knum, Order);
+    lat.SetPB(Fnum, Knum, Order);
 }
 
 
@@ -1752,7 +1752,7 @@ void set_dx(LatticeType &lat, const int type, const double sigma_x,
       M->PdSrms[Y_] = sigma_y;
       M->PdSrnd[X_] = normranf();
       M->PdSrnd[Y_] = normranf();
-      lat.Mpole_SetdS(lat.elems[j]->Fnum, lat.elems[j]->Knum);
+      lat.SetdS(lat.elems[j]->Fnum, lat.elems[j]->Knum);
     }
 }
 

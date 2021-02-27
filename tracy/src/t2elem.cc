@@ -2294,20 +2294,19 @@ void LatticeType::getelem(long i, ElemType *cellrec) { cellrec = elems[i]; }
 
 void LatticeType::putelem(long i, ElemType *cellrec) { elems[i] = cellrec; }
 
+int LatticeType::GetnKid(const int Fnum) { return (elemf[Fnum-1].nKid); }
 
-int LatticeType::GetnKid(const int Fnum1) { return (elemf[Fnum1-1].nKid); }
 
-
-long LatticeType::Elem_GetPos(const int Fnum1, const int Knum1)
+long LatticeType::Elem_GetPos(const int Fnum, const int Knum)
 {
   long int  loc;
 
-  if (elemf[Fnum1-1].nKid != 0)
-    loc = elemf[Fnum1-1].KidList[Knum1-1];
+  if (elemf[Fnum-1].nKid != 0)
+    loc = elemf[Fnum-1].KidList[Knum-1];
   else {
     loc = -1;
     printf("Elem_GetPos: there are no kids in family %d (%s)\n",
-	   Fnum1, elemf[Fnum1-1].ElemF->PName);
+	   Fnum, elemf[Fnum-1].ElemF->PName);
     exit_(1);
   }
 
@@ -2488,67 +2487,19 @@ void LatticeType::prt_elem(void)
 }
 
 
-double LatticeType::Elem_GetKval(int Fnum1, int Knum1, int Order)
+void Init_Euclid(ElemType *elem)
 {
-  double   Result = 0e0;
-  ElemType *Cellp;
-
-  if (Fnum1 > 0) {
-    Cellp = elems[elemf[Fnum1-1].KidList[Knum1-1]];
-    switch (Cellp->Pkind) {
-    case drift:
-      Result = 0e0;
-      break;
-    case marker:
-      Result = 0e0;
-      break;
-    case Cavity:
-      Result = 0e0;
-      break;
-    case Mpole: /* KL*/
-      if (dynamic_cast<MpoleType*>(Cellp)->Pthick == thick)
-	Result = Cellp->PL*Mpole_GetPB(Fnum1, Knum1, Order);
-      else
-	Result = Mpole_GetPB(Fnum1, Knum1, Order);
-      break;
-    case Wigl:
-      Result =
-	Cellp->PL
-	*sqrt(2e0*dynamic_cast<WigglerType*>
-	      (elems[elemf[Fnum1-1].KidList[Knum1-1]])
-	      ->PBW[Order+HOMmax]);
-      break;
-    case FieldMap:
-      Result = 0e0;
-      break;
-    case Insertion:
-      Result = 0e0;
-      break;
-    case Spreader:
-      Result = 0e0;
-      break;
-    case Recombiner:
-      Result = 0e0;
-      break;
-    case Solenoid:
-      Result = 0e0;
-      break;
-    case Map:
-      Result = 0e0;
-      break;
-    case undef:
-      break;
-    }
-  } else
-    Result = 0e0;
-
-  return Result;
+  elem->dT[X_] = 1e0; // cos = 1.
+  elem->dT[Y_] = 0e0; // sin = 0.
+  elem->dS[X_] = 0e0; // no hor displacement.
+  elem->dS[Y_] = 0e0; // no ver displacement.
 }
 
 
 DriftType* Drift_Alloc(void)
 {
   DriftType *D = new DriftType;
+  Init_Euclid(D);
   return D;
 }
 
@@ -2558,6 +2509,7 @@ MpoleType* Mpole_Alloc(void)
   int       j;
   MpoleType *M = new MpoleType;
 
+  Init_Euclid(M);
   for (j = -HOMmax; j <= HOMmax; j++) {
     M->PBpar.push_back(0e0);
     M->PBsys.push_back(0e0);
@@ -2599,6 +2551,7 @@ CavityType* Cavity_Alloc(void)
 {
   CavityType *C = new CavityType;
 
+  Init_Euclid(C);
   C->Pvolt = 0e0; C->Pfreq = 0e0; C->phi = 0e0; C->Ph = 0;
   C->entry_focus = false; C->exit_focus = false;
 
@@ -2609,6 +2562,8 @@ CavityType* Cavity_Alloc(void)
 MarkerType* Marker_Alloc(void)
 {
   MarkerType *Mk = new MarkerType;
+
+  Init_Euclid(Mk);
   return Mk;
 }
 
@@ -2618,6 +2573,7 @@ WigglerType* Wiggler_Alloc(void)
   int         j;
   WigglerType *W = new WigglerType;
 
+  Init_Euclid(W);
   W->Pmethod = Meth_Linear; W->PN = 0;
   for (j = 0; j <= 1; j++) {
     W->PdSsys[j] = 0e0; W->PdSrnd[j] = 0e0;
@@ -2643,6 +2599,7 @@ InsertionType* Insertion_Alloc(void)
   int           i = 0, j = 0;
   InsertionType *ID = new InsertionType;
 
+  Init_Euclid(ID);
   ID->Pmethod = Meth_Linear; ID->PN = 0;
   ID->nx = 0; ID->nz = 0;
 
@@ -2693,6 +2650,7 @@ FieldMapType* FieldMap_Alloc(void)
 {
   FieldMapType *FM = new FieldMapType;
 
+  Init_Euclid(FM);
   FM->n_step = 0; FM->n[X_] = 0; FM->n[Y_] = 0; FM->n[Z_] = 0; FM->scl = 1e0;
   FM->phi = 0e0; FM->Ld = 0e0; FM->L1 = 0e0; FM->cut = 0; FM->x0 = 0e0;
 
@@ -2705,6 +2663,7 @@ SpreaderType* Spreader_Alloc(void)
   int          k;
   SpreaderType *Spr = new SpreaderType;
 
+  Init_Euclid(Spr);
   for (k = 0; k < Spreader_max; k++)
     Spr->Cell_ptrs[k] = NULL;
 
@@ -2715,6 +2674,8 @@ SpreaderType* Spreader_Alloc(void)
 RecombinerType* Recombiner_Alloc(void)
 {
   RecombinerType *Rec = new RecombinerType;
+
+  Init_Euclid(Rec);
   return Rec;
 }
 
@@ -2724,6 +2685,7 @@ SolenoidType* Solenoid_Alloc(void)
   int          j;
   SolenoidType *Sol = new SolenoidType;
 
+  Init_Euclid(Sol);
   Sol->N = 0;
   for (j = 0; j <= 1; j++) {
     Sol->PdSsys[j] = 0e0; Sol->PdSrms[j] = 0e0; Sol->PdSrnd[j] = 0e0;
@@ -2736,35 +2698,21 @@ SolenoidType* Solenoid_Alloc(void)
 MapType* Map_Alloc(void)
 {
   MapType *Map = new MapType;
+
+  Init_Euclid(Map);
   return Map;
 }
 
 
-void Elem_Init(ElemType *Elem, const int Fnum)
+ElemType* DriftType::Elem_Init(const bool reverse)
 {
-  Elem->dT[X_] = 1e0; // cos = 1.
-  Elem->dT[Y_] = 0e0; // sin = 0.
-  Elem->dS[X_] = 0e0; // no hor displacement.
-  Elem->dS[Y_] = 0e0; // no ver displacement.
-}
-
-
-void DriftType::Elem_Init(LatticeType &lat, const int Fnum)
-{
-  int       i;
   DriftType *Dp;
 
-  const DriftType* D = dynamic_cast<const DriftType*>(lat.elemf[Fnum-1].ElemF);
+  const DriftType* D = dynamic_cast<const DriftType*>(this);
 
-  for (i = 1; i <= lat.elemf[Fnum-1].nKid; i++) {
-    Dp = Drift_Alloc();
-    *Dp = *D;
-    Dp->Fnum = Fnum; Dp->Knum = i;
-    lat.elems[lat.elemf[Fnum-1].KidList[i-1]] = Dp;
-    if (debug)
-      printf("Init:      Fnum = %2d Knum = %2d loc = %3d\n",
-	     Dp->Fnum, Dp->Knum, lat.elemf[Fnum-1].KidList[i-1]);
-  }
+  Dp = Drift_Alloc();
+  *Dp = *D;
+  return Dp;
 }
 
 
@@ -2779,15 +2727,12 @@ static int UpdatePorder(MpoleType *M)
 }
 
 
-void MpoleType::Elem_Init(LatticeType &lat, const int Fnum)
+ElemType* MpoleType::Elem_Init(const bool reverse)
 {
-  static bool first = true;
-  int                              i;
-  double                           phi;
-  MpoleType                        *Mp;
-  std::vector<ElemType*>::iterator it;
+  double     phi;
+  MpoleType  *Mp;
 
-  MpoleType* M = dynamic_cast<MpoleType*>(lat.elemf[Fnum-1].ElemF);
+  MpoleType* M = dynamic_cast<MpoleType*>(this);
 
   M->PB = M->PBpar; M->Porder = UpdatePorder(M);
 
@@ -2809,261 +2754,140 @@ void MpoleType::Elem_Init(LatticeType &lat, const int Fnum)
   } else /* element as thin lens */
     M->Pthick = pthicktype(thin);
 
-  // Allocate TPSA vector.
-  if (lat.conf.mat_meth && (M->Pthick == thick))
-    M->M_lin = get_lin_map(M, 0e0);
+  // Allocate transport matrix.
+  if (M->Pthick == thick) M->M_lin = get_lin_map(M, 0e0);
 
-  for (i = 1; i <= lat.elemf[Fnum-1].nKid; i++) {
-    it = lat.elems.begin();
-    Mp = Mpole_Alloc();
-    *Mp = *M;
-    Mp->Fnum = Fnum; Mp->Knum = i;
-    Mp->Reverse = lat.elemf[Fnum-1].KidList[i-1] < 0;
-    if (reverse_elem && (Mp->Reverse == true)) {
-      // Swap entrance and exit angles.
-      if (!debug && first) {
-	printf("\nSwapping entrance and exit angles for %8s %2d\n",
-	       Mp->PName, i);
-	printf("...\n");
-	first = false;
-      } else if (debug)
-	printf("\nSwapping entrance and exit angles for %8s %2d\n",
-	       Mp->PName, i);
-      phi = Mp->PTx1; Mp->PTx1 = Mp->PTx2; Mp->PTx2 = phi;
-      lat.elemf[Fnum-1].KidList[i-1] *= -1;
-    }
-    lat.elems[lat.elemf[Fnum-1].KidList[i-1]] = Mp;
-    if (debug)
-      printf("Init:      Fnum = %2d Knum = %2d loc = %3d\n",
-	     Mp->Fnum, Mp->Knum, lat.elemf[Fnum-1].KidList[i-1]);
+  Mp = Mpole_Alloc();
+  *Mp = *M;
+
+  Mp->Reverse = reverse;
+  if (reverse_elem && (Mp->Reverse == true)) {
+    // Swap entrance and exit angles.
+    phi = Mp->PTx1; Mp->PTx1 = Mp->PTx2; Mp->PTx2 = phi;
   }
+
+  return Mp;
 }
 
 
-void CavityType::Elem_Init(LatticeType &lat, const int Fnum)
+ElemType* CavityType::Elem_Init(const bool reverse)
 {
-  int                              i;
-  CavityType                       *Cp;
-  std::vector<ElemType*>::iterator it;
+  CavityType *Cp;
 
   const CavityType* C =
-    dynamic_cast<const CavityType*>(lat.elemf[Fnum-1].ElemF);
+    dynamic_cast<const CavityType*>(this);
 
-  for (i = 1; i <= lat.elemf[Fnum-1].nKid; i++) {
-    it = lat.elems.begin();
-    Cp = Cavity_Alloc();
-    *Cp = *C;
-    Cp->Fnum = Fnum; Cp->Knum = i;
-    lat.elems[lat.elemf[Fnum-1].KidList[i-1]] = Cp;
-    if (debug)
-      printf("Init:     Fnum = %2d Knum = %2d loc = %3d\n",
-	     Cp->Fnum, Cp->Knum, lat.elemf[Fnum-1].KidList[i-1]);
-  }
+  Cp = Cavity_Alloc();
+  *Cp = *C;
+  return Cp;
 }
 
 
-void MarkerType::Elem_Init(LatticeType &lat, const int Fnum)
+ElemType* MarkerType::Elem_Init(const bool reverse)
 {
-  int                              i;
-  ElemType                         *elemp;
-  MarkerType                       *Mkp;
-  std::vector<ElemType*>::iterator it;
+  MarkerType *Mkp;
 
-  const MarkerType* Mk = dynamic_cast<const MarkerType*>(elemp);
+  const MarkerType* Mk =
+    dynamic_cast<const MarkerType*>(this);
 
-  elemp = lat.elemf[Fnum-1].ElemF; 
-  Elem_Init(lat, Fnum);
-  for (i = 1; i <= lat.elemf[Fnum-1].nKid; i++) {
-    it = lat.elems.begin();
-    Mkp = Marker_Alloc();
-    *Mkp = *Mk;
-    Mkp->Fnum = Fnum; Mkp->Knum = i;
-    lat.elems[lat.elemf[Fnum-1].KidList[i-1]] = Mkp;
-    if (debug)
-      printf("Init:     Fnum = %2d Knum = %2d loc = %3d\n",
-	     Mkp->Fnum, Mkp->Knum, lat.elemf[Fnum-1].KidList[i-1]);
-  }
+  Mkp = Marker_Alloc();
+  *Mkp = *Mk;
+  return Mkp;
 }
 
 
-void WigglerType::Elem_Init(LatticeType &lat, const int Fnum)
+ElemType* WigglerType::Elem_Init(const bool reverse)
 {
-  int                              i;
-  ElemType                         *elemp;
-  WigglerType                      *Wp;
-  std::vector<ElemType*>::iterator it;
+  int         i;
+  WigglerType *Wp;
 
-  WigglerType* W = dynamic_cast<WigglerType*>(elemp);
+  WigglerType* W = dynamic_cast<WigglerType*>(this);
 
-  elemp = lat.elemf[Fnum-1].ElemF; 
-  Elem_Init(lat, Fnum);
   for (i = -HOMmax; i <= HOMmax; i++)
     W->PBW.push_back(0e0);
-  for (i = 1; i <= lat.elemf[Fnum-1].nKid; i++) {
-    it = lat.elems.begin();
-    Wp = Wiggler_Alloc();
-    *Wp = *W;
-    Wp->Fnum = Fnum; Wp->Knum = i;
-    lat.elems[lat.elemf[Fnum-1].KidList[i-1]] = Wp;
-    if (debug)
-      printf("Init:    Fnum = %2d Knum = %2d loc = %3d\n",
-	     Wp->Fnum, Wp->Knum, lat.elemf[Fnum-1].KidList[i-1]);
-  }
+  Wp = Wiggler_Alloc();
+  *Wp = *W;
+  return Wp;
 }
 
 
-void InsertionType::Elem_Init(LatticeType &lat, const int Fnum)
+ElemType* InsertionType::Elem_Init(const bool reverse)
 {
-  int                              i;
-  ElemType                         *elemp;
-  InsertionType                    *IDp;
-  std::vector<ElemType*>::iterator it;
+  InsertionType *IDp;
 
   const InsertionType* ID =
-    dynamic_cast<const InsertionType*>(lat.elemf[Fnum-1].ElemF);
+    dynamic_cast<const InsertionType*>(this);
 
-  elemp = lat.elemf[Fnum-1].ElemF; 
-  Elem_Init(lat, Fnum);
 //  ID->Porder = order;
 //  x = ID->PBW[Quad+HOMmax];
-  for (i = 1; i <= lat.elemf[Fnum-1].nKid; i++) {
-    it = lat.elems.begin();
-    IDp = Insertion_Alloc();
-    *IDp = *ID;
-    IDp->Fnum = Fnum;
-    IDp->Knum = i;
-    lat.elems[lat.elemf[Fnum-1].KidList[i-1]] = IDp;
-    if (debug)
-      printf("Init:  Fnum = %2d Knum = %2d loc = %3d\n",
-	     IDp->Fnum, IDp->Knum, lat.elemf[Fnum-1].KidList[i-1]);
-  }
+  IDp = Insertion_Alloc();
+  *IDp = *ID;
+  return IDp;
 }
 
 
-void FieldMapType::Elem_Init(LatticeType &lat, const int Fnum)
+ElemType* FieldMapType::Elem_Init(const bool reverse)
 {
-  int                              i;
-  ElemType                         *elemp;
-  FieldMapType                     *FM, *FMp;
-  std::vector<ElemType*>::iterator it;
+  FieldMapType *FMp;
 
-  elemp = lat.elemf[Fnum-1].ElemF; 
-  Elem_Init(lat, Fnum);
-  FM = dynamic_cast<FieldMapType*>(lat.elemf[Fnum-1].ElemF);
-  for (i = 1; i <= lat.elemf[Fnum-1].nKid; i++) {
-    it = lat.elems.begin();
-    FMp = FieldMap_Alloc();
-    *FMp = *FM;
-    FMp->Fnum = Fnum; FMp->Knum = i;
-    lat.elems[lat.elemf[Fnum-1].KidList[i-1]] = FMp;
-    if (debug)
-      printf("Init:   Fnum = %2d Knum = %2d loc = %3d\n",
-	     FMp->Fnum, FMp->Knum, lat.elemf[Fnum-1].KidList[i-1]);
-  }
+  const FieldMapType *FM =
+    dynamic_cast<const FieldMapType*>(this);
+
+  FMp = FieldMap_Alloc();
+  *FMp = *FM;
+  return FMp;
 }
 
 
-void SpreaderType::Elem_Init(LatticeType &lat, const int Fnum)
+ElemType* SpreaderType::Elem_Init(const bool reverse)
 {
-  int                              i;
-  ElemType                         *elemp;
-  SpreaderType                     *Sprp;
-  std::vector<ElemType*>::iterator it;
+  SpreaderType *Sprp;
 
   const SpreaderType* Spr =
-    dynamic_cast<const SpreaderType*>(lat.elemf[Fnum-1].ElemF);
+    dynamic_cast<const SpreaderType*>(this);
 
-  elemp = lat.elemf[Fnum-1].ElemF; 
-  Elem_Init(lat, Fnum);
-  for (i = 1; i <= lat.elemf[Fnum-1].nKid; i++) {
-    it = lat.elems.begin();
-    Sprp = Spreader_Alloc();
-    *Sprp = *Spr;
-    Sprp->Fnum = Fnum;
-    Sprp->Knum = i;
-    lat.elems[lat.elemf[Fnum-1].KidList[i-1]] = Sprp;
-    if (debug)
-      printf("Init:   Fnum = %2d Knum = %2d loc = %3d\n",
-	     Sprp->Fnum, Sprp->Knum, lat.elemf[Fnum-1].KidList[i-1]);
-  }
+  Sprp = Spreader_Alloc();
+  *Sprp = *Spr;
+  return Sprp;
 }
 
 
-void RecombinerType::Elem_Init(LatticeType &lat, const int Fnum)
+ElemType* RecombinerType::Elem_Init(const bool reverse)
 {
-  int                              i;
-  ElemType                         *elemp;
-  RecombinerType                   *Recp;
-  std::vector<ElemType*>::iterator it;
+  RecombinerType *Recp;
 
   const RecombinerType* Rec =
-    dynamic_cast<const RecombinerType*>(lat.elemf[Fnum-1].ElemF);
+    dynamic_cast<const RecombinerType*>(this);
 
-  elemp = lat.elemf[Fnum-1].ElemF; 
-  Elem_Init(lat, Fnum);
-  for (i = 1; i <= lat.elemf[Fnum-1].nKid; i++) {
-    it = lat.elems.begin();
-    Recp = Recombiner_Alloc();
-    *Recp = *Rec;
-    Recp->Fnum = Fnum;
-    Recp->Knum = i;
-    lat.elems[lat.elemf[Fnum-1].KidList[i-1]] = Recp;
-    if (debug)
-      printf("Init: Fnum = %2d Knum = %2d loc = %3d\n",
-	     Recp->Fnum, Recp->Knum, lat.elemf[Fnum-1].KidList[i-1]);
-  }
+  Recp = Recombiner_Alloc();
+  *Recp = *Rec;
+  return Recp;
 }
 
 
-void SolenoidType::Elem_Init(LatticeType &lat, const int Fnum)
+ElemType* SolenoidType::Elem_Init(const bool reverse)
 {
-  int                              i;
-  ElemType                         *elemp;
-  SolenoidType                     *Solp;
-  std::vector<ElemType*>::iterator it;
+  SolenoidType *Solp;
 
   const SolenoidType* Sol =
-    dynamic_cast<const SolenoidType*>(lat.elemf[Fnum-1].ElemF);
+    dynamic_cast<const SolenoidType*>(this);
 
-  elemp = lat.elemf[Fnum-1].ElemF; 
-  Elem_Init(lat, Fnum);
-  for (i = 1; i <= lat.elemf[Fnum-1].nKid; i++) {
-    it = lat.elems.begin();
-    Solp = Solenoid_Alloc();
-    *Solp = *Sol;
-    Solp->Fnum = Fnum;
-    Solp->Knum = i;
-    lat.elems[lat.elemf[Fnum-1].KidList[i-1]] = Solp;
-    if (debug)
-      printf("Init:    Fnum = %2d Knum = %2d loc = %3d\n",
-	     Solp->Fnum, Solp->Knum, lat.elemf[Fnum-1].KidList[i-1]);
-  }
+  Solp = Solenoid_Alloc();
+  *Solp = *Sol;
+  return Solp;
 }
 
 
-void MapType::Elem_Init(LatticeType &lat, const int Fnum)
+ElemType* MapType::Elem_Init(const bool reverse)
 {
-  int                              i;
-  ElemType                         *elemp;
-  MapType                          *Mapp;
-  std::vector<ElemType*>::iterator it;
+  MapType *Mapp;
 
-  const MapType* Map = dynamic_cast<const MapType*>(lat.elemf[Fnum-1].ElemF);
+  const MapType* Map = dynamic_cast<const MapType*>(this);
 
-  elemp = lat.elemf[Fnum-1].ElemF; 
-  Elem_Init(lat, Fnum);
-  for (i = 1; i <= lat.elemf[Fnum-1].nKid; i++) {
-    it = lat.elems.begin();
-    Mapp = Map_Alloc();
-    *Mapp = *Map;
-    Mapp->Fnum = Fnum;
-    Mapp->Knum = i;
-    Mapp->M.identity();
-    lat.elems[lat.elemf[Fnum-1].KidList[i-1]] = Mapp;
-    if (debug)
-      printf("Init:        Fnum = %2d Knum = %2d loc = %3d\n",
-	     Mapp->Fnum, Mapp->Knum, lat.elemf[Fnum-1].KidList[i-1]);
-  }
+  Mapp = Map_Alloc();
+  *Mapp = *Map;
+  Mapp->M.identity();
+  return Mapp;
 }
 
 
@@ -3941,8 +3765,37 @@ void get_B(ConfigType &conf, const char *filename, FieldMapType *FM)
   }
 }
 
+void LatticeType::SetdS(int Fnum, int Knum)
+{
+  int       j;
+  ElemType  *elemp;
+  MpoleType *M;
 
-void LatticeType::Mpole_SetPB(int Fnum1, int Knum1, int Order)
+  elemp = elems[elemf[Fnum-1].KidList[Knum-1]];
+  M = dynamic_cast<MpoleType*>(elemp);
+  for (j = 0; j <= 1; j++)
+    elemp->dS[j] = M->PdSsys[j] + M->PdSrms[j]*M->PdSrnd[j];
+}
+
+void LatticeType::SetdT(int Fnum, int Knum)
+{
+  ElemType  *elemp;
+  MpoleType *M;
+
+  elemp = elems[elemf[Fnum-1].KidList[Knum-1]];
+  M = dynamic_cast<MpoleType*>(elemp);
+  elemp->dT[X_] =
+    cos(dtor(M->PdTpar + M->PdTsys + M->PdTrms*M->PdTrnd));
+  elemp->dT[Y_] = sin(
+      dtor(M->PdTpar + M->PdTsys + M->PdTrms*M->PdTrnd));
+  /* Calculate simplified p_rots */
+  M->Pc0 = sin(elemp->PL*M->Pirho/2e0);
+  M->Pc1 = cos(dtor(M->PdTpar))*M->Pc0;
+  M->Ps1 = sin(dtor(M->PdTpar))*M->Pc0;
+}
+
+
+void LatticeType::SetPB(int Fnum, int Knum, int Order)
 {
   /* Compute full multipole composent as sum of design, systematic, and
      random part.                                                             */
@@ -3950,7 +3803,7 @@ void LatticeType::Mpole_SetPB(int Fnum1, int Knum1, int Order)
   MpoleType *M;
 
   if ((1 <= Order) && (Order <= HOMmax)) {
-    M = dynamic_cast<MpoleType*>(elems[elemf[Fnum1-1].KidList[Knum1-1]]);
+    M = dynamic_cast<MpoleType*>(elems[elemf[Fnum-1].KidList[Knum-1]]);
     M->PB[Order+HOMmax] =
       M->PBpar[Order+HOMmax] + M->PBsys[Order+HOMmax] +
       M->PBrms[Order+HOMmax]*M->PBrnd[Order+HOMmax];
@@ -3963,133 +3816,143 @@ void LatticeType::Mpole_SetPB(int Fnum1, int Knum1, int Order)
 }
 
 
-double LatticeType::Mpole_GetPB(int Fnum1, int Knum1, int Order)
+void LatticeType::Wiggler_SetPB(int Fnum, int Knum, int Order)
 {
-  /*  Return multipole strength (of order Order) for Knum1 element of
-      family Fnum1
-       Order =  2 for normal quadrupole
-             = -2 for skew quadrupole                                        */
-
-  MpoleType *M;
-
-  M = dynamic_cast<MpoleType*>(elems[elemf[Fnum1-1].KidList[Knum1-1]]);
-  return M->PB[Order+HOMmax];
-}
-
-
-void LatticeType::Mpole_DefPBpar(int Fnum1, int Knum1, int Order, double PBpar)
-{
-  MpoleType *M;
-
-  M = dynamic_cast<MpoleType*>(elems[elemf[Fnum1-1].KidList[Knum1-1]]);
-  M->PBpar[Order+HOMmax] = PBpar;
-}
-
-
-void LatticeType::Mpole_DefPBsys(int Fnum1, int Knum1, int Order, double PBsys)
-{
-  MpoleType *M;
-
-  M = dynamic_cast<MpoleType*>(elems[elemf[Fnum1-1].KidList[Knum1-1]]);
-  M->PBsys[Order+HOMmax] = PBsys;
-}
-
-
-void LatticeType::Mpole_SetdS(int Fnum1, int Knum1)
-{
-  int       j;
-  ElemType  *Cellp;
-  MpoleType *M;
-
-  Cellp = elems[elemf[Fnum1-1].KidList[Knum1-1]];
-  M = dynamic_cast<MpoleType*>(Cellp);
-  for (j = 0; j <= 1; j++)
-    Cellp->dS[j] = M->PdSsys[j] + M->PdSrms[j]*M->PdSrnd[j];
-}
-
-void LatticeType::Mpole_SetdT(int Fnum1, int Knum1)
-{
-  ElemType  *Cellp;
-  MpoleType *M;
-
-  Cellp = elems[elemf[Fnum1-1].KidList[Knum1-1]];
-  M = dynamic_cast<MpoleType*>(Cellp);
-  Cellp->dT[X_] =
-    cos(dtor(M->PdTpar + M->PdTsys + M->PdTrms*M->PdTrnd));
-  Cellp->dT[Y_] = sin(
-      dtor(M->PdTpar + M->PdTsys + M->PdTrms*M->PdTrnd));
-  /* Calculate simplified p_rots */
-  M->Pc0 = sin(Cellp->PL*M->Pirho/2e0);
-  M->Pc1 = cos(dtor(M->PdTpar))*M->Pc0;
-  M->Ps1 = sin(dtor(M->PdTpar))*M->Pc0;
-}
-
-
-double LatticeType::Mpole_GetdT(int Fnum1, int Knum1)
-{
-  ElemType  *Cellp;
-  MpoleType *M;
-
-  Cellp = elems[elemf[Fnum1-1].KidList[Knum1-1]];
-  M = dynamic_cast<MpoleType*>(Cellp);
-
-  return M->PdTpar+M->PdTsys+M->PdTrms*M->PdTrnd;
-}
-
-
-void LatticeType::Mpole_DefdTpar(int Fnum1, int Knum1, double PdTpar)
-{
-  ElemType  *Cellp;
-  MpoleType *M;
-
-  Cellp = elems[elemf[Fnum1-1].KidList[Knum1-1]];
-  M = dynamic_cast<MpoleType*>(Cellp);
-  M->PdTpar = PdTpar;
-}
-
-
-void LatticeType::Mpole_DefdTsys(int Fnum1, int Knum1, double PdTsys)
-{
-  ElemType  *Cellp;
-  MpoleType *M;
-
-  Cellp = elems[elemf[Fnum1-1].KidList[Knum1-1]];
-  M = dynamic_cast<MpoleType*>(Cellp);
-  M->PdTsys=PdTsys;
-}
-
-
-void LatticeType::Wiggler_SetPB(int Fnum1, int Knum1, int Order)
-{
-  ElemType    *Cellp;
+  ElemType    *elemp;
   WigglerType *W;
 
-  Cellp = elems[elemf[Fnum1-1].KidList[Knum1-1]];
-  W = dynamic_cast<WigglerType*>(Cellp);
+  elemp = elems[elemf[Fnum-1].KidList[Knum-1]];
+  W = dynamic_cast<WigglerType*>(elemp);
   if (abs(Order) > W->Porder)
     W->Porder = abs(Order);
 }
 
 
-void LatticeType::Wiggler_SetdS(int Fnum1, int Knum1)
+void LatticeType::Wiggler_SetdS(int Fnum, int Knum)
 {
   int         j;
-  ElemType    *Cellp;
+  ElemType    *elemp;
   WigglerType *W;
 
-  Cellp = elems[elemf[Fnum1-1].KidList[Knum1-1]];
-  W = dynamic_cast<WigglerType*>(Cellp);
+  elemp = elems[elemf[Fnum-1].KidList[Knum-1]];
+  W = dynamic_cast<WigglerType*>(elemp);
   for (j = 0; j <= 1; j++)
-    Cellp->dS[j] = W->PdSsys[j] + W->PdSrms[j]*W->PdSrnd[j];
+    elemp->dS[j] = W->PdSsys[j] + W->PdSrms[j]*W->PdSrnd[j];
 }
 
-void LatticeType::Wiggler_SetdT(int Fnum1, int Knum1)
+
+void LatticeType::Wiggler_SetdT(int Fnum, int Knum)
 {
-  ElemType    *Cellp;
+  ElemType    *elemp;
   WigglerType *W;
 
-  Cellp = elems[elemf[Fnum1-1].KidList[Knum1-1]];
-  W = dynamic_cast<WigglerType*>(Cellp);
-  Cellp->dT[X_] = cos(dtor(W->PdTpar+W->PdTsys+W->PdTrms*W->PdTrnd));
-  Cellp->dT[Y_] = sin(dtor(W->PdTpar+W->PdTsys+W->PdTrms*W->PdTrnd));
+  elemp = elems[elemf[Fnum-1].KidList[Knum-1]];
+  W = dynamic_cast<WigglerType*>(elemp);
+  elemp->dT[X_] = cos(dtor(W->PdTpar+W->PdTsys+W->PdTrms*W->PdTrnd));
+  elemp->dT[Y_] = sin(dtor(W->PdTpar+W->PdTsys+W->PdTrms*W->PdTrnd));
+}
+
+
+double LatticeType::Mpole_GetPB(int Fnum, int Knum, int Order)
+{
+  /*  Return multipole strength (of order Order) for Knum element of
+      family Fnum
+       Order =  2 for normal quadrupole
+             = -2 for skew quadrupole                                        */
+
+  MpoleType *M;
+
+  M = dynamic_cast<MpoleType*>(elems[elemf[Fnum-1].KidList[Knum-1]]);
+  return M->PB[Order+HOMmax];
+}
+
+
+void LatticeType::Mpole_DefPBpar(int Fnum, int Knum, int Order, double PBpar)
+{
+  MpoleType *M;
+
+  M = dynamic_cast<MpoleType*>(elems[elemf[Fnum-1].KidList[Knum-1]]);
+  M->PBpar[Order+HOMmax] = PBpar;
+}
+
+
+void LatticeType::Mpole_DefPBsys(int Fnum, int Knum, int Order, double PBsys)
+{
+  MpoleType *M;
+
+  M = dynamic_cast<MpoleType*>(elems[elemf[Fnum-1].KidList[Knum-1]]);
+  M->PBsys[Order+HOMmax] = PBsys;
+}
+
+
+double LatticeType::Mpole_GetdT(int Fnum, int Knum)
+{
+  ElemType  *elemp;
+  MpoleType *M;
+
+  elemp = elems[elemf[Fnum-1].KidList[Knum-1]];
+  M = dynamic_cast<MpoleType*>(elemp);
+
+  return M->PdTpar+M->PdTsys+M->PdTrms*M->PdTrnd;
+}
+
+
+void LatticeType::Mpole_DefdTpar(int Fnum, int Knum, double PdTpar)
+{
+  ElemType  *elemp;
+  MpoleType *M;
+
+  elemp = elems[elemf[Fnum-1].KidList[Knum-1]];
+  M = dynamic_cast<MpoleType*>(elemp);
+  M->PdTpar = PdTpar;
+}
+
+
+void LatticeType::Mpole_DefdTsys(int Fnum, int Knum, double PdTsys)
+{
+  ElemType  *elemp;
+  MpoleType *M;
+
+  elemp = elems[elemf[Fnum-1].KidList[Knum-1]];
+  M = dynamic_cast<MpoleType*>(elemp);
+  M->PdTsys=PdTsys;
+}
+
+
+double LatticeType::Elem_GetKval(int Fnum, int Knum, int Order)
+{
+  ElemType *elemp;
+
+  if ((1 <= Fnum) && (Fnum <= elemf.size()+1) &&
+      (1 <= Knum) && (Knum < GetnKid(Fnum))) {
+    elemp = elems[elemf[Fnum-1].KidList[Knum-1]];
+    if (dynamic_cast<MpoleType*>(elemp)->Pthick == thick)
+      return elemp->PL*Mpole_GetPB(Fnum, Knum, Order);
+    else
+      return Mpole_GetPB(Fnum, Knum, Order);
+  } else {
+    printf("\nElem_GetKval: Fnum = %d (%lu) Knum = %d (%d)\n",
+	   Fnum, elemf.size()+1, Knum, GetnKid(Fnum));
+    exit(1);
+    return 0e0;
+  }
+}
+
+
+double LatticeType::Wiggler_GetKval(int Fnum, int Knum, int Order)
+{
+  ElemType *elemp;
+
+  if ((1 <= Fnum) && (Fnum <= elemf.size()+1) &&
+      (1 <= Knum) && (Knum < GetnKid(Fnum))) {
+    elemp = elems[elemf[Fnum-1].KidList[Knum-1]];
+    return elemp->PL*sqrt(2e0*dynamic_cast<WigglerType*>
+			  (elems[elemf[Fnum-1].KidList[Knum-1]])
+			  ->PBW[Order+HOMmax]);
+  } else {
+    printf("\nElem_GetKval: Fnum = %d (%lu) Knum = %d (%d)\n",
+	   Fnum,  elemf.size()+1, Knum, GetnKid(Fnum));
+    exit(1);
+    return 0e0;
+  }
 }

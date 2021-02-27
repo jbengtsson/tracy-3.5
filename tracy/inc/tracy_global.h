@@ -144,8 +144,6 @@ class CellType {
     *next_ptr;                 // pointer to next cell (for tracking).
 };
 
-class LatticeType;
-
 // Element base class.
 class ElemType : public CellType {
  public:
@@ -158,14 +156,12 @@ class ElemType : public CellType {
   PartsKind
     Pkind;                     // Enumeration for magnet types.
 
-  // Wrapper functions; becuase C++ does not support templates for virtual
-  // functions.
+  virtual ElemType* Elem_Init(const bool reverse) { return NULL; };
+  virtual void print(void) {};
+
+  // C++ templates not supported for virtual functions.
   virtual void Elem_Pass(ConfigType &conf, ss_vect<double> &ps) {};
   virtual void Elem_Pass(ConfigType &conf, ss_vect<tps> &ps) {};
-
-  virtual void Elem_Init(LatticeType &lat, const int Fnum) {};
-
-  virtual void print(void) {};
 
   template<typename T>
   bool CheckAmpl(ConfigType &conf, const ss_vect<T> &x);
@@ -173,7 +169,7 @@ class ElemType : public CellType {
   void Cell_Pass(ConfigType &conf, ss_vect<T> &ps);
 };
 
-// Index for lattice elements.
+// Index for lattice families & elements.
 class ElemFamType {
  public:
   ElemType
@@ -194,27 +190,52 @@ class LatticeType {
   ConfigType               conf;
 
   void Lat_Init(void);
-
   void SI_init();
-
-  friend long int ElemIndex(const std::string &name1);
-
-  bool Lattice_Read(FILE *inf, FILE *outf);
-  void prtmfile(const char mfile_dat[]);
-  void rdmfile(const char *mfile_dat);
 
   void prtName(FILE *fp, const int i, const int type, const int method,
 	       const int N, const bool reverse);
   void prt_fam(void);
   void prt_elem(void);
 
+  friend long int ElemIndex(const std::string &name);
+
+  void SetdS(int Fnum, int Knum);
+  void SetdT(int Fnum, int Knum);
+  void SetPB(int Fnum, int Knum, int Order);
+
+  double Elem_GetKval(int Fnum, int Knum, int Order);
+
+  double Wiggler_GetKval(int Fnum, int Knum, int Order);
+  void Wiggler_SetdS(int Fnum, int Knum);
+  void Wiggler_SetdT(int Fnum, int Knum);
+  void Wiggler_SetPB(int Fnum, int Knum, int Order);
+
+
+  double Mpole_GetPB(int Fnum, int Knum, int Order);
+
+  void Mpole_DefPBpar(int Fnum, int Knum, int Order,
+		      double PBpar);
+  void Mpole_DefPBsys(int Fnum, int Knum, int Order,
+		      double PBsys);
+  double Mpole_GetdT(int Fnum, int Knum);
+  void Mpole_DefdTpar(int Fnum, int Knum, double PdTpar);
+  void Mpole_DefdTsys(int Fnum, int Knum, double PdTsys);
+
+  // nsls-ii_lib.
+  void set_b_n(const set_mpole set_, const int Fnum, const int Knum,
+	       const int n, const double b_n);
+
+  bool Lattice_Read(FILE *inf, FILE *outf);
+  void prtmfile(const char mfile_dat[]);
+  void rdmfile(const char *mfile_dat);
+
   // t2elem.
+  // Obsolete.
   void getelem(long i, ElemType *cellrec);
   void putelem(long i, ElemType *cellrec);
 
-  int GetnKid(const int Fnum1);
-
-  long Elem_GetPos(const int Fnum1, const int Knum1);
+  int GetnKid(const int Fnum);
+  long Elem_GetPos(const int Fnum, const int Knum);
 
   void get_lin_maps(const double delta);
 
@@ -228,27 +249,6 @@ class LatticeType {
 		  const T &B2_perp);
   friend void emittance(ConfigType &conf, const tps &B2_perp, const tps &ds,
 			const tps &p_s0, const ss_vect<tps> &A);
-
-  double Elem_GetKval(int Fnum1, int Knum1, int Order);
-
-  void Mpole_SetPB(int Fnum1, int Knum1, int Order);
-  void Mpole_SetdS(int Fnum1, int Knum1);
-  void Mpole_SetdT(int Fnum1, int Knum1);
-
-  void Wiggler_SetPB(int Fnum1, int Knum1, int Order);
-  void Wiggler_SetdS(int Fnum1, int Knum1);
-  void Wiggler_SetdT(int Fnum1, int Knum1);
-
-  double Mpole_GetPB(int Fnum1, int Knum1, int Order);
-
-  void Mpole_DefPBpar(int Fnum1, int Knum1, int Order, double PBpar);
-  void Mpole_DefPBsys(int Fnum1, int Knum1, int Order, double PBsys);
-  double Mpole_GetdT(int Fnum1, int Knum1);
-  void Mpole_DefdTpar(int Fnum1, int Knum1, double PdTpar);
-  void Mpole_DefdTsys(int Fnum1, int Knum1, double PdTsys);
-
-  void set_b_n(const set_mpole set_, const int Fnum, const int Knum,
-	       const int n, const double b_n);
 
   // t2cell.
   template<typename T>
@@ -313,17 +313,15 @@ class LatticeType {
 class DriftType : public ElemType {
  public:
   friend DriftType* Drift_Alloc(void);
-  void Elem_Init(LatticeType &lat, const int Fnum);
+  ElemType* Elem_Init(const bool reverse);
+  void print(void);
 
   template<typename T>
   void Drift_Pass(ConfigType &conf, ss_vect<T> &ps);
-
   void Elem_Pass(ConfigType &conf, ss_vect<double> &ps)
   { Drift_Pass(conf, ps); };
   void Elem_Pass(ConfigType &conf, ss_vect<tps> &ps)
   { Drift_Pass(conf, ps); };
-
-  void print(void);
 };
 
 class MpoleType : public ElemType {
@@ -364,17 +362,15 @@ class MpoleType : public ElemType {
     M_lin;                     // Linear Map for Element.
 
   friend MpoleType* Mpole_Alloc(void);
-  void Elem_Init(LatticeType &lat, const int Fnum);
+  ElemType* Elem_Init(const bool reverse);
+  void print(void);
 
   template<typename T>
   void Mpole_Pass(ConfigType &conf, ss_vect<T> &ps);
-
   void Elem_Pass(ConfigType &conf, ss_vect<double> &ps)
   { Mpole_Pass(conf, ps); };
   void Elem_Pass(ConfigType &conf, ss_vect<tps> &ps)
   { Mpole_Pass(conf, ps); };
-
-  void print(void);
 };
 
 class CavityType : public ElemType {
@@ -391,33 +387,29 @@ class CavityType : public ElemType {
     phi;                       // RF phase.
 
   friend CavityType* Cavity_Alloc(void);
-  void Elem_Init(LatticeType &lat, const int Fnum);
+  ElemType* Elem_Init(const bool reverse);
+  void print(void);
 
   template<typename T>
   void Cavity_Pass(ConfigType &conf, ss_vect<T> &ps);
-
   void Elem_Pass(ConfigType &conf, ss_vect<double> &ps)
   { Cavity_Pass(conf, ps); };
   void Elem_Pass(ConfigType &conf, ss_vect<tps> &ps)
   { Cavity_Pass(conf, ps); };
-
-  void print(void);
 };
 
 class MarkerType : public ElemType {
  public:
   friend MarkerType* Marker_Alloc(void);
-  void Elem_Init(LatticeType &lat, const int Fnum);
+  ElemType* Elem_Init(const bool reverse);
+  void print(void);
 
   template<typename T>
   void Marker_Pass(ConfigType &conf, ss_vect<T> &ps);
-
   void Elem_Pass(ConfigType &conf, ss_vect<double> &ps)
   { Marker_Pass(conf, ps); };
   void Elem_Pass(ConfigType &conf, ss_vect<tps> &ps)
   { Marker_Pass(conf, ps); };
-
-  void print(void);
 };
 
 class WigglerType : public ElemType {
@@ -448,17 +440,15 @@ class WigglerType : public ElemType {
     PBW;
 
   friend WigglerType* Wiggler_Alloc(void);
-  void Elem_Init(LatticeType &lat, const int Fnum);
+  ElemType* Elem_Init(const bool reverse);
+  void print(void);
 
   template<typename T>
   void Wiggler_Pass(ConfigType &conf, ss_vect<T> &ps);
-
   void Elem_Pass(ConfigType &conf, ss_vect<double> &ps)
   { Wiggler_Pass(conf, ps); };
   void Elem_Pass(ConfigType &conf, ss_vect<tps> &ps)
   { Wiggler_Pass(conf, ps); };
-
-  void print(void);
 };
 
 class InsertionType : public ElemType {
@@ -514,17 +504,15 @@ class InsertionType : public ElemType {
     PdSrnd[2];                 // random number.
 
   friend InsertionType* Insertion_Alloc(void);
-  void Elem_Init(LatticeType &lat, const int Fnum);
+  ElemType* Elem_Init(const bool reverse);
+  void print(void);
 
   template<typename T>
   void Insertion_Pass(ConfigType &conf, ss_vect<T> &ps);
-
   void Elem_Pass(ConfigType &conf, ss_vect<double> &ps)
   { Insertion_Pass(conf, ps); };
   void Elem_Pass(ConfigType &conf, ss_vect<tps> &ps)
   { Insertion_Pass(conf, ps); };
-
-  void print(void);
 };
 
 class FieldMapType : public ElemType {
@@ -549,17 +537,15 @@ class FieldMapType : public ElemType {
     ***AoBrho2[2];             // [Ax(x, y, z), Ay(x, y, z)], spline info.
 
   friend FieldMapType* FieldMap_Alloc(void);
-  void Elem_Init(LatticeType &lat, const int Fnum);
+  ElemType* Elem_Init(const bool reverse);
+  void print(void);
 
   template<typename T>
   void FieldMap_Pass(ConfigType &conf, ss_vect<T> &ps);
-
   void Elem_Pass(ConfigType &conf, ss_vect<double> &ps)
   { FieldMap_Pass(conf, ps); };
   void Elem_Pass(ConfigType &conf, ss_vect<tps> &ps)
   { FieldMap_Pass(conf, ps); };
-
-  void print(void);
 };
 
 class SpreaderType : public ElemType {
@@ -570,17 +556,15 @@ class SpreaderType : public ElemType {
     *Cell_ptrs[Spreader_max];
 
   friend SpreaderType* Spreader_Alloc(void);
-  void Elem_Init(LatticeType &lat, const int Fnum);
+  ElemType* Elem_Init(const bool reverse);
+  void print(void);
 
   template<typename T>
   void Spreader_Pass(ConfigType &conf, ss_vect<T> &ps);
-
   void Elem_Pass(ConfigType &conf, ss_vect<double> &ps)
   { Spreader_Pass(conf, ps); };
   void Elem_Pass(ConfigType &conf, ss_vect<tps> &ps)
   { Spreader_Pass(conf, ps); };
-
-  void print(void);
 };
 
 class RecombinerType : public ElemType {
@@ -590,17 +574,15 @@ class RecombinerType : public ElemType {
     E_max;
 
   friend RecombinerType* Recombiner_Alloc(void);
-  void Elem_Init(LatticeType &lat, const int Fnum);
+  ElemType* Elem_Init(const bool reverse);
+  void print(void);
 
   template<typename T>
   void Recombiner_Pass(ConfigType &conf, ss_vect<T> &ps);
-
   void Elem_Pass(ConfigType &conf, ss_vect<double> &ps)
   { Recombiner_Pass(conf, ps); };
   void Elem_Pass(ConfigType &conf, ss_vect<tps> &ps)
   { Recombiner_Pass(conf, ps); };
-
-  void print(void);
 };
 
 class SolenoidType : public ElemType {
@@ -620,17 +602,15 @@ class SolenoidType : public ElemType {
     PdSrnd[2];                 // random number.
 
   friend SolenoidType* Solenoid_Alloc(void);
-  void Elem_Init(LatticeType &lat, const int Fnum);
+  ElemType* Elem_Init(const bool reverse);
+  void print(void);
 
   template<typename T>
   void Solenoid_Pass(ConfigType &conf, ss_vect<T> &ps);
-
   void Elem_Pass(ConfigType &conf, ss_vect<double> &ps)
   { Solenoid_Pass(conf, ps); };
   void Elem_Pass(ConfigType &conf, ss_vect<tps> &ps)
   { Solenoid_Pass(conf, ps); };
-
-  void print(void);
 };
 
 class MapType : public ElemType {
@@ -645,17 +625,15 @@ class MapType : public ElemType {
     M;
 
   friend MapType* Map_Alloc(void);
-  void Elem_Init(LatticeType &lat, const int Fnum);
+  ElemType* Elem_Init(const bool reverse);
+  void print(void);
 
   template<typename T>
   void Map_Pass(ConfigType &conf, ss_vect<T> &ps);
-
   void Elem_Pass(ConfigType &conf, ss_vect<double> &ps)
   { Map_Pass(conf, ps); };
   void Elem_Pass(ConfigType &conf, ss_vect<tps> &ps)
   { Map_Pass(conf, ps); };
-
-  void print(void);
 };
 
 #endif

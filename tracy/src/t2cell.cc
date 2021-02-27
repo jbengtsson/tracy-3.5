@@ -224,7 +224,9 @@ bool LatticeType::getcod(double dP, long &lastpos)
 
 void LatticeType::Lat_Init(void)
 {
-  long int i;
+  bool     first = true, reverse;
+  long int loc;
+  int      i, j;
   double   Stotal;
 
   char first_name[] = "begin          ";
@@ -241,15 +243,26 @@ void LatticeType::Lat_Init(void)
   memcpy(elems[0]->PName, first_name, sizeof(first_name));
   elems[0]->PL = 0e0; elems[0]->Fnum = 0; elems[0]->Knum = 0;
   elems[0]->Pkind = marker;
-  elems[0]->dT[X_] = 1e0; elems[0]->dT[Y_] = 0e0;
-  elems[0]->dS[X_] = 0e0; elems[0]->dS[Y_] = 0e0;
 
   for (i = 1; i <= conf.Elem_nFam; i++) {
-    // Allocate element.
-    elemf[i-1].ElemF->Elem_Init(*this, i);
+    for (j = 1; j <= elemf[i-1].nKid; j++) {
+      // For each elements, allocate kids.
+      reverse = elemf[i-1].KidList[j-1] < 0;
+      if (reverse) elemf[i-1].KidList[j-1] *= -1;
+      loc = elemf[i-1].KidList[j-1];
+      elems[loc] = elemf[i-1].ElemF->Elem_Init(reverse);
+      elems[loc]->Fnum = i; elems[loc]->Knum = j;
+    }
+    if (first)
+      if (elems[loc]->Pkind == Mpole) {
+	first = false;
+	printf("\nSwapping entrance and exit angles for %8s %2d\n",
+	       elems[loc]->PName, i);
+	printf("...\n");
+      }
     if (debug)
-      printf("\nLat_Init i = %3ld %*s\n",
-	     i, SymbolLength, elemf[i-1].ElemF->PName);
+      printf("\nLat_Init: Fnum = %2d Knum = %2d loc = %3d %*s\n",
+	     i, j, loc, SymbolLength, elems[loc]->PName);
   }
 
   /* Computes s-location of each element in the structure */

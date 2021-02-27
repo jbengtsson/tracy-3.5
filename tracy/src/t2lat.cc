@@ -4097,7 +4097,7 @@ void PrintResult(struct LOC_Lattice_Read *LINK)
   printf("  Max Block size     : NoBE                 =%5ld"
 	 ", NoBEmax         =%5d\n",
 	 LINK->Bpointer, NoBEmax);
-  printf("  Number of Elements : Lat_->conf.Cell_nLoc    =%5ld"
+  printf("  Number of Elements : Lat_->conf.Cell_nLoc =%5ld"
 	 ", Cell_nLocmax    =%5d\n",
 	 Lat_->conf.Cell_nLoc, Cell_nLocMax);
   printf("  Circumference      : %12.7f [m]\n\n\n", Circumference(LINK));

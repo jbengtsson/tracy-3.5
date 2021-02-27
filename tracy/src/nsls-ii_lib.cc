@@ -782,7 +782,7 @@ void misalign_rms_elem(LatticeType &lat, const int Fnum, const int Knum,
     }
   }
 
-  lat.Mpole_SetdS(Fnum, Knum); lat.Mpole_SetdT(Fnum, Knum);
+  lat.SetdS(Fnum, Knum); lat.SetdT(Fnum, Knum);
 }
 
 void misalign_sys_elem(LatticeType &lat, const int Fnum, const int Knum,
@@ -797,7 +797,7 @@ void misalign_sys_elem(LatticeType &lat, const int Fnum, const int Knum,
 
   mp->PdSsys[X_] = dx_sys; mp->PdSsys[Y_] = dy_sys; mp->PdTsys = dr_sys;
 
-  lat.Mpole_SetdS(Fnum, Knum); lat.Mpole_SetdT(Fnum, Knum);
+  lat.SetdS(Fnum, Knum); lat.SetdT(Fnum, Knum);
 }
 
 void misalign_rms_fam(LatticeType &lat, const int Fnum,
@@ -900,7 +900,7 @@ void misalign_rms_girders(LatticeType &lat, const int gs, const int ge,
     Mgs = dynamic_cast<MpoleType*>(lat.elems[loc_gs]);
     Mge = dynamic_cast<MpoleType*>(lat.elems[loc_ge]);
     Mge->PdTrnd = Mgs->PdTrnd;
-    lat.Mpole_SetdT(ge, i);
+    lat.SetdT(ge, i);
 
     for (k = 0; k <= 1; k++) {
       dx_gs[k] = lat.elems[loc_gs]->dS[k]; dx_ge[k] = lat.elems[loc_ge]->dS[k];
@@ -951,7 +951,7 @@ void misalign_sys_girders(LatticeType &lat, const int gs, const int ge,
     Mgs = dynamic_cast<MpoleType*>(lat.elems[loc_gs]);
     Mge = dynamic_cast<MpoleType*>(lat.elems[loc_ge]);
     Mge->PdTrnd = Mgs->PdTrnd;
-    lat.Mpole_SetdT(ge, i);
+    lat.SetdT(ge, i);
 
     for (k = 0; k <= 1; k++) {
       dx_gs[k] = lat.elems[loc_gs]->dS[k]; dx_ge[k] = lat.elems[loc_ge]->dS[k];
@@ -1100,7 +1100,7 @@ void LatticeType::set_b_n(const set_mpole set_, const int Fnum, const int Knum,
       break;
     }
 
-    Mpole_SetPB(Fnum, Knum, n);
+   SetPB(Fnum, Knum, n);
   } else {
     printf("set_b_n: n < 1 (%d)\n", n);
     exit(1);
@@ -1165,7 +1165,7 @@ void set_bn_design_elem(LatticeType &lat, const int Fnum, const int Knum,
 
   M->PBpar[HOMmax+n] = bn; M->PBpar[HOMmax-n] = an;
 
-  lat.Mpole_SetPB(Fnum, Knum, n); lat.Mpole_SetPB(Fnum, Knum, -n);
+  lat.SetPB(Fnum, Knum, n); lat.SetPB(Fnum, Knum, -n);
 }
 
 
@@ -1200,7 +1200,7 @@ void set_dbn_design_elem(LatticeType &lat, const int Fnum, const int Knum,
 
   M->PBpar[HOMmax+n] += dbn; M->PBpar[HOMmax-n] += dan;
 
-  lat.Mpole_SetPB(Fnum, Knum, n); lat.Mpole_SetPB(Fnum, Knum, -n);
+  lat.SetPB(Fnum, Knum, n); lat.SetPB(Fnum, Knum, -n);
 }
 
 
@@ -1241,7 +1241,7 @@ void set_bnL_design_elem(LatticeType &lat, const int Fnum, const int Knum,
     M->PBpar[HOMmax+n] = bnL; M->PBpar[HOMmax-n] = anL;
   }
 
-  lat.Mpole_SetPB(Fnum, Knum, n); lat.Mpole_SetPB(Fnum, Knum, -n);
+  lat.SetPB(Fnum, Knum, n); lat.SetPB(Fnum, Knum, -n);
 }
 
 
@@ -1267,7 +1267,7 @@ void set_dbnL_design_elem(LatticeType &lat, const int Fnum, const int Knum,
     M->PBpar[HOMmax+n] += dbnL; M->PBpar[HOMmax-n] += danL;
   }
 
-  lat.Mpole_SetPB(Fnum, Knum, n); lat.Mpole_SetPB(Fnum, Knum, -n);
+  lat.SetPB(Fnum, Knum, n); lat.SetPB(Fnum, Knum, -n);
 }
 
 
@@ -1348,7 +1348,7 @@ void set_bnL_sys_elem(LatticeType &lat, const int Fnum, const int Knum,
     M->PBsys[HOMmax+n] = bnL; M->PBsys[HOMmax-n] = anL;
   }
 
-  lat.Mpole_SetPB(Fnum, Knum, n); lat.Mpole_SetPB(Fnum, Knum, -n);
+  lat.SetPB(Fnum, Knum, n); lat.SetPB(Fnum, Knum, -n);
 
   if (trace) {
     printf("set_bnL_sys_elem: %s %3d %e %e\n",
@@ -1437,7 +1437,7 @@ void set_bnL_rms_elem(LatticeType &lat, const int Fnum, const int Knum,
 	   Fnum, Knum, bnL, anL,
 	   M->PBrms[HOMmax+n], M->PBrms[HOMmax-n]);
 
-  lat.Mpole_SetPB(Fnum, Knum, n); lat.Mpole_SetPB(Fnum, Knum, -n);
+  lat.SetPB(Fnum, Knum, n); lat.SetPB(Fnum, Knum, -n);
 }
 
 
@@ -1497,7 +1497,7 @@ void set_bnr_sys_elem(LatticeType &lat, const int Fnum, const int Knum,
   M->PBsys[HOMmax+n] = bnr*M->PBpar[HOMmax+nd];
   M->PBsys[HOMmax-n] = anr*M->PBpar[HOMmax+nd];
 
-  lat.Mpole_SetPB(Fnum, Knum, n); lat.Mpole_SetPB(Fnum, Knum, -n);
+  lat.SetPB(Fnum, Knum, n); lat.SetPB(Fnum, Knum, -n);
 
   if (prt)
     printf("set the n=%d component of %s to %e %e %e\n",
@@ -1576,7 +1576,7 @@ void set_bnr_rms_elem(LatticeType &lat, const int Fnum, const int Knum,
     }
   }
 
-  lat.Mpole_SetPB(Fnum, Knum, n); lat.Mpole_SetPB(Fnum, Knum, -n);
+  lat.SetPB(Fnum, Knum, n); lat.SetPB(Fnum, Knum, -n);
 
   if (prt) {
     printf("set_bnr_rms_elem:  Fnum = %d, Knum = %d, n = %d, n_design = %d"

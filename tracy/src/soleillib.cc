@@ -349,8 +349,8 @@ void SetErr(LatticeType &lat)
 		       M->PBpar[HOMmax-2L], M->PBpar[HOMmax+2L], theta);
 
 	      lat.putelem(i, &Cell);
-	      lat.Mpole_SetPB(Cell.Fnum, Cell.Knum, -2L);
-	      lat.Mpole_SetPB(Cell.Fnum, Cell.Knum, 2L);
+	      lat.SetPB(Cell.Fnum, Cell.Knum, -2L);
+	      lat.SetPB(Cell.Fnum, Cell.Knum, 2L);
 	    }
 	}
     }

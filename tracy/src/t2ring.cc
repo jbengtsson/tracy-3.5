@@ -422,276 +422,6 @@ void LatticeType::ttwiss(const Vector2 &alpha, const Vector2 &beta,
 }
 
 
-/* Local variables for Ring_Fittune: */
-struct LOC_Ring_Fittune
-{
-  jmp_buf _JL999;
-};
-
-
-void LatticeType::shiftk(long Elnum, double dk, struct LOC_Ring_Fittune *LINK)
-{
-  ElemType  *elemp;
-  MpoleType *M;
-
-  elemp = elems[Elnum];
-  M = dynamic_cast<MpoleType*>(elemp);
-  M->PBpar[Quad+HOMmax] += dk;
-  Mpole_SetPB(elemp->Fnum, elemp->Knum, (long)Quad);
-}
-
-
-void LatticeType::checkifstable(struct LOC_Ring_Fittune *LINK)
-{
-  if (!stable) {
-    printf("  lattice is unstable\n");
-    longjmp(LINK->_JL999, 1);
-  }
-}
-
-
-void LatticeType::Ring_Fittune(Vector2 &nu, double eps, iVector2 &nq, long qf[],
-			       long qd[], double dkL, long imax)
-{
-  struct LOC_Ring_Fittune V;
-
-  int      i, j, k;
-  Vector2  nu0, nu1;
-  psVector  dkL1, dnu;
-  Matrix A;
-
-  const double dP = 0e0;
-
-  if (setjmp(V._JL999)) return;
-
-  if (trace)
-    printf("  Tune fit, nux =%10.5f, nuy =%10.5f, eps =% .3E,"
-	   " imax =%4ld, dkL = % .5E\n", nu[0], nu[1], eps, imax, dkL);
-  Ring_GetTwiss(false, dP); checkifstable(&V);
-  memcpy(nu0, conf.TotalTune, sizeof(Vector2));
-  i = 0;
-  do {
-    i++;
-    /* First vary kf then kd */
-    for (j = 1; j <= 2L; j++) {
-      for (k = 0; k < nq[j-1]; k++) {
-        if (j == 1)
-          shiftk(qf[k], dkL, &V); // new value for qf
-        else
-          shiftk(qd[k], dkL, &V); // new value for qd
-      }
-      Ring_GetTwiss(false, dP);
-      nu1[0] = conf.TotalTune[0]; nu1[1] = conf.TotalTune[1];
-//      GetCOD(conf.CODimax, conf.CODeps, dP, lastpos);
-//      Cell_GetABGN(conf.OneTurnMat, alpha, beta, gamma, nu1);
-      checkifstable(&V);
-      for (k = 0; k <= 1; k++) {
-        dnu[k] = nu1[k] - (long)nu1[k] - nu0[k] + (long)nu0[k];
-        if (fabs(dnu[k]) > 0.5) dnu[k] = 1 - fabs(dnu[k]);
-        A[k][j-1] = dnu[k]/dkL;
-      }
-
-      /* Restore strength */
-      for (k = 0; k < nq[j-1]; k++) {
-        if (j == 1)
-          shiftk(qf[k], -dkL, &V);
-        else
-          shiftk(qd[k], -dkL, &V);
-        }
-      }
-
-    if (!InvMat(2L, A)) {
-      printf("  A is singular\n");
-      return;
-    }
-
-    for (j = 0; j <= 1; j++)
-      dkL1[j] = nu[j] - nu0[j];
-    LinTrans(2L, A, dkL1);
-    for (j = 1; j <= 2; j++) {
-      for (k = 0; k < nq[j-1]; k++) {
-	if (j == 1)
-	  shiftk(qf[k], dkL1[j-1], &V);
-	else
-	  shiftk(qd[k], dkL1[j-1], &V);
-      }
-    }
-    Ring_GetTwiss(false, dP); checkifstable(&V);
-    memcpy(nu0, conf.TotalTune, sizeof(Vector2));
-    if (trace)
-      printf("  Nux = %10.6f%10.6f, Nuy = %10.6f%10.6f,"
-	     " QF*L = % .5E, QD*L = % .5E @%3d\n",
-	     nu0[0], nu1[0], nu0[1], nu1[1],
-	     Elem_GetKval(elems[qf[0]]->Fnum, 1, (long)Quad),
-	     Elem_GetKval(elems[qd[0]]->Fnum, 1, (long)Quad), i);
-  } while (sqrt(sqr(nu[0]-nu0[0])+sqr(nu[1]-nu0[1])) >= eps && i != imax);
-}
-
-
-void LatticeType::shiftkp(long Elnum, double dkp)
-{
-  ElemType  *elemp;
-  MpoleType *M;
-
-  elemp = elems[Elnum];
-  M = dynamic_cast<MpoleType*>(elemp);
-  M->PBpar[Sext+HOMmax] += dkp;
-  Mpole_SetPB(elemp->Fnum, elemp->Knum, (long)Sext);
-}
-
-
-void LatticeType::Ring_Fitchrom(Vector2 &ksi, double eps, iVector2 &ns,
-				long sf[], long sd[], double dkpL, long imax)
-{
-  bool      rad;
-  long int  lastpos;
-  int       i, j, k;
-  Vector2   ksi0;
-  psVector    dkpL1, dksi;
-  Matrix    A;
-
-  const double dP = 0e0;
-
-  if (trace)
-    printf("  Chromaticity fit, ksix =%10.5f, ksiy =%10.5f, eps =% .3E"
-	   ", imax =%4ld, dkpL =%10.5f\n", ksi[0], ksi[1], eps, imax, dkpL);
-
-  /* Turn off radiation */
-  rad = conf.radiation; conf.radiation = false;
-  GetCOD(conf.CODimax, conf.CODeps, dP, lastpos); Ring_Getchrom(dP);
-  for (j = 0; j <= 1; j++)
-    ksi0[j] = conf.Chrom[j];
-  i = 0;
-  do {
-    i++;
-    /* First vary sf then sd */
-    for (j = 1; j <= 2; j++) {
-      for (k = 0; k < ns[j-1]; k++) {
-	if (j == 1)
-	  shiftkp(sf[k], dkpL);
-	else
-	  shiftkp(sd[k], dkpL);
-      }
-      GetCOD(conf.CODimax, conf.CODeps, dP, lastpos); Ring_Getchrom(dP);
-      for (k = 0; k <= 1; k++) {
-	dksi[k] = conf.Chrom[k] - ksi0[k];
-	A[k][j-1] = dksi[k] / dkpL;
-      }
-      /* Restore strength */
-      for (k = 0; k < ns[j-1]; k++) {
-	if (j == 1)
-	  shiftkp(sf[k], -dkpL);
-	else
-	  shiftkp(sd[k], -dkpL);
-      }
-    }
-    if (!InvMat(2L, A)) {
-      printf("  A is singular\n");
-      goto _L999;
-    }
-    for (j = 0; j <= 1; j++)
-      dkpL1[j] = ksi[j] - ksi0[j];
-    LinTrans(2L, A, dkpL1);
-    for (j = 1; j <= 2; j++) {
-      for (k = 0; k < ns[j-1]; k++) {
-	if (j == 1)
-	  shiftkp(sf[k], dkpL1[j-1]);
-	else
-	  shiftkp(sd[k], dkpL1[j-1]);
-      }
-    }
-    GetCOD(conf.CODimax, conf.CODeps, dP, lastpos); Ring_Getchrom(dP);
-    for (j = 0; j <= 1; j++)
-      ksi0[j] = conf.Chrom[j];
-    if (trace)
-      printf("  ksix =%10.6f, ksiy =%10.6f, SF = % .5E, SD = % .5E @%3d\n",
-	     ksi0[0], ksi0[1], Elem_GetKval(elems[sf[0]]->Fnum, 1, (long)Sext),
-	     Elem_GetKval(elems[sd[0]]->Fnum, 1, (long)Sext), i);
-  } while (sqrt(sqr(ksi[0]-ksi0[0])+sqr(ksi[1]-ksi0[1])) >= eps && i != imax);
-_L999:
-  /* Restore radiation */
-  conf.radiation = rad;
-}
-
-
-/* Local variables for Ring_FitDisp: */
-struct LOC_Ring_FitDisp
-{
-  jmp_buf _JL999;
-};
-
-
-void LatticeType::shiftk_(long Elnum, double dk, struct LOC_Ring_FitDisp *LINK)
-{
-  ElemType  *elemp;
-  MpoleType *M;
-
-  elemp = elems[Elnum];
-  M = dynamic_cast<MpoleType*>(elemp);
-  M->PBpar[Quad+HOMmax] += dk;
-  Mpole_SetPB(elemp->Fnum, elemp->Knum, (long)Quad);
-}
-
-
-void LatticeType::checkifstable_(struct LOC_Ring_FitDisp *LINK)
-{
-  if (!stable) {
-    printf("  lattice is unstable\n");
-    longjmp(LINK->_JL999, 1);
-  }
-}
-
-
-void LatticeType::Ring_FitDisp(long pos, double eta, double eps, long nq,
-			       long q[], double dkL, long imax)
-{
-  /*pos : integer; eta, eps : double;
-                         nq : integer; var q : fitvect;
-                         dkL : double; imax : integer*/
-  struct LOC_Ring_FitDisp V;
-
-  int     i, j;
-  double  dkL1, Eta0, deta;
-  bool    rad = false;
-
-  const double dP = 0e0;
-
-  if (setjmp(V._JL999)) goto _L999;
-
-  if (trace)
-    printf("  Dispersion fit, etax =%10.5f, eps =% .3E"
-	   ", imax =%4ld, dkL =%10.5f\n",
-	   eta, eps, imax, dkL);
-  /* Turn off radiation */
-  rad = conf.radiation; conf.radiation = false;
-  Ring_GetTwiss(true, dP); checkifstable_(&V);
-  Eta0 = elems[pos]->Eta[0];
-  i = 0;
-  while (fabs(eta-Eta0) > eps && i < imax) {
-    i++;
-    for (j = 0; j < nq; j++)
-      shiftk_(q[j], dkL, &V);
-    Ring_GetTwiss(true, dP); checkifstable_(&V);
-    deta = elems[pos]->Eta[0] - Eta0;
-    if (deta == 0.0) {
-      printf("  deta is 0\n");
-      goto _L999;
-    }
-    dkL1 = (eta-Eta0)*dkL/deta - dkL;
-    for (j = 0; j < nq; j++)
-      shiftk_(q[j], dkL1, &V);
-    Ring_GetTwiss(true, dP); checkifstable_(&V);
-    Eta0 = elems[pos]->Eta[0];
-    if (trace)
-      printf("  Dispersion = % .5E, kL =% .5E @%3d\n",
-	     Eta0, Elem_GetKval(elems[q[0]]->Fnum, 1, (long)Quad), i);
-  }
-_L999:
-  /* Restore radiation */
-  conf.radiation = rad;
-}
-
-
 double get_curly_H(const double alpha_x, const double beta_x,
 		   const double eta_x, const double etap_x)
 {
@@ -1192,3 +922,277 @@ void LatticeType::prt_chrom_lat(void)
   }
   fclose(outf);
 }
+
+#if 0
+
+/* Local variables for Ring_Fittune: */
+
+struct LOC_Ring_Fittune
+{
+  jmp_buf _JL999;
+};
+
+
+void LatticeType::checkifstable_(struct LOC_Ring_FitDisp *LINK)
+{
+  if (!stable) {
+    printf("  lattice is unstable\n");
+    longjmp(LINK->_JL999, 1);
+  }
+}
+
+
+void LatticeType::shiftk(long Elnum, double dk, struct LOC_Ring_Fittune *LINK)
+{
+  ElemType  *elemp;
+  MpoleType *M;
+
+  elemp = elems[Elnum];
+  M = dynamic_cast<MpoleType*>(elemp);
+  M->PBpar[Quad+HOMmax] += dk;
+  M->Mpole_SetPB(lat, elemp->Fnum, elemp->Knum, (long)Quad);
+}
+
+
+void LatticeType::checkifstable(struct LOC_Ring_Fittune *LINK)
+{
+  if (!stable) {
+    printf("  lattice is unstable\n");
+    longjmp(LINK->_JL999, 1);
+  }
+}
+
+
+void LatticeType::Ring_Fittune(Vector2 &nu, double eps, iVector2 &nq, long qf[],
+			       long qd[], double dkL, long imax)
+{
+  struct LOC_Ring_Fittune V;
+
+  int      i, j, k;
+  Vector2  nu0, nu1;
+  psVector  dkL1, dnu;
+  Matrix A;
+
+  const double dP = 0e0;
+
+  if (setjmp(V._JL999)) return;
+
+  if (trace)
+    printf("  Tune fit, nux =%10.5f, nuy =%10.5f, eps =% .3E,"
+	   " imax =%4ld, dkL = % .5E\n", nu[0], nu[1], eps, imax, dkL);
+  Ring_GetTwiss(false, dP); checkifstable(&V);
+  memcpy(nu0, conf.TotalTune, sizeof(Vector2));
+  i = 0;
+  do {
+    i++;
+    /* First vary kf then kd */
+    for (j = 1; j <= 2L; j++) {
+      for (k = 0; k < nq[j-1]; k++) {
+        if (j == 1)
+          shiftk(qf[k], dkL, &V); // new value for qf
+        else
+          shiftk(qd[k], dkL, &V); // new value for qd
+      }
+      Ring_GetTwiss(false, dP);
+      nu1[0] = conf.TotalTune[0]; nu1[1] = conf.TotalTune[1];
+//      GetCOD(conf.CODimax, conf.CODeps, dP, lastpos);
+//      Cell_GetABGN(conf.OneTurnMat, alpha, beta, gamma, nu1);
+      checkifstable(&V);
+      for (k = 0; k <= 1; k++) {
+        dnu[k] = nu1[k] - (long)nu1[k] - nu0[k] + (long)nu0[k];
+        if (fabs(dnu[k]) > 0.5) dnu[k] = 1 - fabs(dnu[k]);
+        A[k][j-1] = dnu[k]/dkL;
+      }
+
+      /* Restore strength */
+      for (k = 0; k < nq[j-1]; k++) {
+        if (j == 1)
+          shiftk(qf[k], -dkL, &V);
+        else
+          shiftk(qd[k], -dkL, &V);
+        }
+      }
+
+    if (!InvMat(2L, A)) {
+      printf("  A is singular\n");
+      return;
+    }
+
+    for (j = 0; j <= 1; j++)
+      dkL1[j] = nu[j] - nu0[j];
+    LinTrans(2L, A, dkL1);
+    for (j = 1; j <= 2; j++) {
+      for (k = 0; k < nq[j-1]; k++) {
+	if (j == 1)
+	  shiftk(qf[k], dkL1[j-1], &V);
+	else
+	  shiftk(qd[k], dkL1[j-1], &V);
+      }
+    }
+    Ring_GetTwiss(false, dP); checkifstable(&V);
+    memcpy(nu0, conf.TotalTune, sizeof(Vector2));
+    if (trace)
+      printf("  Nux = %10.6f%10.6f, Nuy = %10.6f%10.6f,"
+	     " QF*L = % .5E, QD*L = % .5E @%3d\n",
+	     nu0[0], nu1[0], nu0[1], nu1[1],
+	     Elem_GetKval(elems[qf[0]]->Fnum, 1, (long)Quad),
+	     Elem_GetKval(elems[qd[0]]->Fnum, 1, (long)Quad), i);
+  } while (sqrt(sqr(nu[0]-nu0[0])+sqr(nu[1]-nu0[1])) >= eps && i != imax);
+}
+
+
+void LatticeType::shiftkp(long Elnum, double dkp)
+{
+  ElemType  *elemp;
+  MpoleType *M;
+
+  elemp = elems[Elnum];
+  M = dynamic_cast<MpoleType*>(elemp);
+  M->PBpar[Sext+HOMmax] += dkp;
+  M->Mpole_SetPB(lat, elemp->Fnum, elemp->Knum, (long)Sext);
+}
+
+
+void LatticeType::Ring_Fitchrom(Vector2 &ksi, double eps, iVector2 &ns,
+				long sf[], long sd[], double dkpL, long imax)
+{
+  bool      rad;
+  long int  lastpos;
+  int       i, j, k;
+  Vector2   ksi0;
+  psVector    dkpL1, dksi;
+  Matrix    A;
+
+  const double dP = 0e0;
+
+  if (trace)
+    printf("  Chromaticity fit, ksix =%10.5f, ksiy =%10.5f, eps =% .3E"
+	   ", imax =%4ld, dkpL =%10.5f\n", ksi[0], ksi[1], eps, imax, dkpL);
+
+  /* Turn off radiation */
+  rad = conf.radiation; conf.radiation = false;
+  GetCOD(conf.CODimax, conf.CODeps, dP, lastpos); Ring_Getchrom(dP);
+  for (j = 0; j <= 1; j++)
+    ksi0[j] = conf.Chrom[j];
+  i = 0;
+  do {
+    i++;
+    /* First vary sf then sd */
+    for (j = 1; j <= 2; j++) {
+      for (k = 0; k < ns[j-1]; k++) {
+	if (j == 1)
+	  shiftkp(sf[k], dkpL);
+	else
+	  shiftkp(sd[k], dkpL);
+      }
+      GetCOD(conf.CODimax, conf.CODeps, dP, lastpos); Ring_Getchrom(dP);
+      for (k = 0; k <= 1; k++) {
+	dksi[k] = conf.Chrom[k] - ksi0[k];
+	A[k][j-1] = dksi[k] / dkpL;
+      }
+      /* Restore strength */
+      for (k = 0; k < ns[j-1]; k++) {
+	if (j == 1)
+	  shiftkp(sf[k], -dkpL);
+	else
+	  shiftkp(sd[k], -dkpL);
+      }
+    }
+    if (!InvMat(2L, A)) {
+      printf("  A is singular\n");
+      goto _L999;
+    }
+    for (j = 0; j <= 1; j++)
+      dkpL1[j] = ksi[j] - ksi0[j];
+    LinTrans(2L, A, dkpL1);
+    for (j = 1; j <= 2; j++) {
+      for (k = 0; k < ns[j-1]; k++) {
+	if (j == 1)
+	  shiftkp(sf[k], dkpL1[j-1]);
+	else
+	  shiftkp(sd[k], dkpL1[j-1]);
+      }
+    }
+    GetCOD(conf.CODimax, conf.CODeps, dP, lastpos); Ring_Getchrom(dP);
+    for (j = 0; j <= 1; j++)
+      ksi0[j] = conf.Chrom[j];
+    if (trace)
+      printf("  ksix =%10.6f, ksiy =%10.6f, SF = % .5E, SD = % .5E @%3d\n",
+	     ksi0[0], ksi0[1], Elem_GetKval(elems[sf[0]]->Fnum, 1, (long)Sext),
+	     Elem_GetKval(elems[sd[0]]->Fnum, 1, (long)Sext), i);
+  } while (sqrt(sqr(ksi[0]-ksi0[0])+sqr(ksi[1]-ksi0[1])) >= eps && i != imax);
+_L999:
+  /* Restore radiation */
+  conf.radiation = rad;
+}
+
+
+/* Local variables for Ring_FitDisp: */
+struct LOC_Ring_FitDisp
+{
+  jmp_buf _JL999;
+};
+
+
+void LatticeType::shiftk_(long Elnum, double dk, struct LOC_Ring_FitDisp *LINK)
+{
+  ElemType  *elemp;
+  MpoleType *M;
+
+  elemp = elems[Elnum];
+  M = dynamic_cast<MpoleType*>(elemp);
+  M->PBpar[Quad+HOMmax] += dk;
+  M->Mpole_SetPB(lat, elemp->Fnum, elemp->Knum, (long)Quad);
+}
+
+
+void LatticeType::Ring_FitDisp(long pos, double eta, double eps, long nq,
+			       long q[], double dkL, long imax)
+{
+  /*pos : integer; eta, eps : double;
+                         nq : integer; var q : fitvect;
+                         dkL : double; imax : integer*/
+  struct LOC_Ring_FitDisp V;
+
+  int     i, j;
+  double  dkL1, Eta0, deta;
+  bool    rad = false;
+
+  const double dP = 0e0;
+
+  if (setjmp(V._JL999)) goto _L999;
+
+  if (trace)
+    printf("  Dispersion fit, etax =%10.5f, eps =% .3E"
+	   ", imax =%4ld, dkL =%10.5f\n",
+	   eta, eps, imax, dkL);
+  /* Turn off radiation */
+  rad = conf.radiation; conf.radiation = false;
+  Ring_GetTwiss(true, dP); checkifstable_(&V);
+  Eta0 = elems[pos]->Eta[0];
+  i = 0;
+  while (fabs(eta-Eta0) > eps && i < imax) {
+    i++;
+    for (j = 0; j < nq; j++)
+      shiftk_(q[j], dkL, &V);
+    Ring_GetTwiss(true, dP); checkifstable_(&V);
+    deta = elems[pos]->Eta[0] - Eta0;
+    if (deta == 0.0) {
+      printf("  deta is 0\n");
+      goto _L999;
+    }
+    dkL1 = (eta-Eta0)*dkL/deta - dkL;
+    for (j = 0; j < nq; j++)
+      shiftk_(q[j], dkL1, &V);
+    Ring_GetTwiss(true, dP); checkifstable_(&V);
+    Eta0 = elems[pos]->Eta[0];
+    if (trace)
+      printf("  Dispersion = % .5E, kL =% .5E @%3d\n",
+	     Eta0, Elem_GetKval(elems[q[0]]->Fnum, 1, (long)Quad), i);
+  }
+_L999:
+  /* Restore radiation */
+  conf.radiation = rad;
+}
+
+#endif
