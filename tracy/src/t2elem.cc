@@ -2297,20 +2297,16 @@ void LatticeType::putelem(long i, ElemType *cellrec) { elems[i] = cellrec; }
 int LatticeType::GetnKid(const int Fnum) { return (elemf[Fnum-1].nKid); }
 
 
-long LatticeType::Elem_GetPos(const int Fnum, const int Knum)
+inline long LatticeType::Elem_GetPos(const int Fnum, const int Knum)
 {
-  long int  loc;
-
-  if (elemf[Fnum-1].nKid != 0)
-    loc = elemf[Fnum-1].KidList[Knum-1];
+  if (elemf[Fnum-1].nKid > 0)
+    return elemf[Fnum-1].KidList[Knum-1];
   else {
-    loc = -1;
-    printf("Elem_GetPos: there are no kids in family %d (%s)\n",
-	   Fnum, elemf[Fnum-1].ElemF->PName);
+    printf("Elem_GetPos: there are no kids in family %d %s (%d)\n",
+	   Fnum, elemf[Fnum-1].ElemF->PName, elemf[Fnum-1].nKid);
     exit_(1);
+    return -1;
   }
-
-  return loc;
 }
 
 
@@ -3765,194 +3761,163 @@ void get_B(ConfigType &conf, const char *filename, FieldMapType *FM)
   }
 }
 
-void LatticeType::SetdS(int Fnum, int Knum)
+
+void MpoleType::SetdS(void)
 {
-  int       j;
-  ElemType  *elemp;
-  MpoleType *M;
+  int k;
 
-  elemp = elems[elemf[Fnum-1].KidList[Knum-1]];
-  M = dynamic_cast<MpoleType*>(elemp);
-  for (j = 0; j <= 1; j++)
-    elemp->dS[j] = M->PdSsys[j] + M->PdSrms[j]*M->PdSrnd[j];
-}
-
-void LatticeType::SetdT(int Fnum, int Knum)
-{
-  ElemType  *elemp;
-  MpoleType *M;
-
-  elemp = elems[elemf[Fnum-1].KidList[Knum-1]];
-  M = dynamic_cast<MpoleType*>(elemp);
-  elemp->dT[X_] =
-    cos(dtor(M->PdTpar + M->PdTsys + M->PdTrms*M->PdTrnd));
-  elemp->dT[Y_] = sin(
-      dtor(M->PdTpar + M->PdTsys + M->PdTrms*M->PdTrnd));
-  /* Calculate simplified p_rots */
-  M->Pc0 = sin(elemp->PL*M->Pirho/2e0);
-  M->Pc1 = cos(dtor(M->PdTpar))*M->Pc0;
-  M->Ps1 = sin(dtor(M->PdTpar))*M->Pc0;
+  for (k = 0; k < 2; k++)
+    dS[k] = PdSsys[k] + PdSrms[k]*PdSrnd[k];
 }
 
 
-void LatticeType::SetPB(int Fnum, int Knum, int Order)
+void MpoleType::SetdT(void)
 {
-  /* Compute full multipole composent as sum of design, systematic, and
-     random part.                                                             */
+  dT[X_] = cos(dtor(PdTpar + PdTsys + PdTrms*PdTrnd));
+  dT[Y_] = sin(dtor(PdTpar + PdTsys + PdTrms*PdTrnd));
+  // Simplified p_rot.
+  Pc0 = sin(PL*Pirho/2e0);
+  Pc1 = cos(dtor(PdTpar))*Pc0;
+  Ps1 = sin(dtor(PdTpar))*Pc0;
+}
 
-  MpoleType *M;
 
-  if ((1 <= Order) && (Order <= HOMmax)) {
-    M = dynamic_cast<MpoleType*>(elems[elemf[Fnum-1].KidList[Knum-1]]);
-    M->PB[Order+HOMmax] =
-      M->PBpar[Order+HOMmax] + M->PBsys[Order+HOMmax] +
-      M->PBrms[Order+HOMmax]*M->PBrnd[Order+HOMmax];
-    if (abs(Order) > M->Porder && M->PB[Order+HOMmax] != 0e0)
-      M->Porder = abs(Order);
+double MpoleType::GetdT(void)
+{
+  return PdTpar+PdTsys+PdTrms*PdTrnd;
+}
+
+
+void MpoleType::SetPB(const int n)
+{
+  // Compute full multipole composent as sum of design, systematic, and
+  // random part.
+
+  if ((1 <= n) && (n <= HOMmax)) {
+    PB[n+HOMmax] =
+      PBpar[n+HOMmax] + PBsys[n+HOMmax] + PBrms[n+HOMmax]*PBrnd[n+HOMmax];
+    if (abs(n) > Porder && PB[n+HOMmax] != 0e0)
+      Porder = abs(n);
   } else {
-    printf("set_bn: n < 1 (%d)\n", Order);
+    printf("SetPB: n < 1 (%d)\n", n);
     exit(1);
   }
 }
 
 
-void LatticeType::Wiggler_SetPB(int Fnum, int Knum, int Order)
+double MpoleType::GetPB(const int n)
 {
-  ElemType    *elemp;
-  WigglerType *W;
+  //  Return multipole strength of order n:
+  //        /  2, normal quadrupole
+  //    n = |
+  //        \ -2, skew quadrupole                                      
 
-  elemp = elems[elemf[Fnum-1].KidList[Knum-1]];
-  W = dynamic_cast<WigglerType*>(elemp);
-  if (abs(Order) > W->Porder)
-    W->Porder = abs(Order);
+  return PB[n+HOMmax];
 }
 
 
-void LatticeType::Wiggler_SetdS(int Fnum, int Knum)
+void WigglerType::SetdS(void)
 {
-  int         j;
-  ElemType    *elemp;
-  WigglerType *W;
+  int k;
 
-  elemp = elems[elemf[Fnum-1].KidList[Knum-1]];
-  W = dynamic_cast<WigglerType*>(elemp);
-  for (j = 0; j <= 1; j++)
-    elemp->dS[j] = W->PdSsys[j] + W->PdSrms[j]*W->PdSrnd[j];
+  for (k = 0; k <= 1; k++)
+    dS[k] = PdSsys[k] + PdSrms[k]*PdSrnd[k];
 }
 
 
-void LatticeType::Wiggler_SetdT(int Fnum, int Knum)
+void WigglerType::SetdT(void)
 {
-  ElemType    *elemp;
-  WigglerType *W;
 
-  elemp = elems[elemf[Fnum-1].KidList[Knum-1]];
-  W = dynamic_cast<WigglerType*>(elemp);
-  elemp->dT[X_] = cos(dtor(W->PdTpar+W->PdTsys+W->PdTrms*W->PdTrnd));
-  elemp->dT[Y_] = sin(dtor(W->PdTpar+W->PdTsys+W->PdTrms*W->PdTrnd));
+  dT[X_] = cos(dtor(PdTpar+PdTsys+PdTrms*PdTrnd));
+  dT[Y_] = sin(dtor(PdTpar+PdTsys+PdTrms*PdTrnd));
 }
 
 
-double LatticeType::Mpole_GetPB(int Fnum, int Knum, int Order)
+double WigglerType::GetdT(void)
 {
-  /*  Return multipole strength (of order Order) for Knum element of
-      family Fnum
-       Order =  2 for normal quadrupole
-             = -2 for skew quadrupole                                        */
-
-  MpoleType *M;
-
-  M = dynamic_cast<MpoleType*>(elems[elemf[Fnum-1].KidList[Knum-1]]);
-  return M->PB[Order+HOMmax];
+  return PdTpar+PdTsys+PdTrms*PdTrnd;
 }
 
 
-void LatticeType::Mpole_DefPBpar(int Fnum, int Knum, int Order, double PBpar)
+double WigglerType::GetPB(const int n)
 {
-  MpoleType *M;
+  //  Return multipole strength of order n:
+  //        /  2, normal quadrupole
+  //    n = |
+  //        \ -2, skew quadrupole                                      
 
-  M = dynamic_cast<MpoleType*>(elems[elemf[Fnum-1].KidList[Knum-1]]);
-  M->PBpar[Order+HOMmax] = PBpar;
+  return sqrt(2e0*PBW[n+HOMmax]);
 }
 
 
-void LatticeType::Mpole_DefPBsys(int Fnum, int Knum, int Order, double PBsys)
+void LatticeType::SetdS(const int Fnum, const int Knum)
 {
-  MpoleType *M;
-
-  M = dynamic_cast<MpoleType*>(elems[elemf[Fnum-1].KidList[Knum-1]]);
-  M->PBsys[Order+HOMmax] = PBsys;
+  elems[Elem_GetPos(Fnum, Knum)]->SetdS();
 }
 
 
-double LatticeType::Mpole_GetdT(int Fnum, int Knum)
+void LatticeType::SetdT(const int Fnum, const int Knum)
 {
-  ElemType  *elemp;
-  MpoleType *M;
-
-  elemp = elems[elemf[Fnum-1].KidList[Knum-1]];
-  M = dynamic_cast<MpoleType*>(elemp);
-
-  return M->PdTpar+M->PdTsys+M->PdTrms*M->PdTrnd;
+  elems[Elem_GetPos(Fnum, Knum)]->SetdT();
 }
 
 
-void LatticeType::Mpole_DefdTpar(int Fnum, int Knum, double PdTpar)
+double LatticeType::GetdT(const int Fnum, const int Knum)
 {
-  ElemType  *elemp;
-  MpoleType *M;
+  return elems[Elem_GetPos(Fnum, Knum)]->GetdT();
+}
 
-  elemp = elems[elemf[Fnum-1].KidList[Knum-1]];
-  M = dynamic_cast<MpoleType*>(elemp);
+
+void LatticeType::SetPB(const int Fnum, const int Knum, const int n)
+{
+  elems[Elem_GetPos(Fnum, Knum)]->SetPB(n);
+}
+
+double LatticeType::GetPB(const int Fnum, const int Knum, const int n)
+{
+  return elems[Elem_GetPos(Fnum, Knum)]->GetPB(n);
+}
+
+
+
+void LatticeType::Mpole_DefPBpar(const int Fnum, const int Knum, const int n,
+				 const double PBpar)
+{
+  MpoleType* M = dynamic_cast<MpoleType*>(elems[Elem_GetPos(Fnum, Knum)]);
+  M->PBpar[n+HOMmax] = PBpar;
+}
+
+
+void LatticeType::Mpole_DefPBsys(const int Fnum, const int Knum, const int n,
+				 const double PBsys)
+{
+  MpoleType* M = dynamic_cast<MpoleType*>(elems[Elem_GetPos(Fnum, Knum)]);
+  M->PBsys[n+HOMmax] = PBsys;
+}
+
+
+void LatticeType::Mpole_DefdTpar(const int Fnum, const int Knum,
+				 const double PdTpar)
+{
+  MpoleType* M = dynamic_cast<MpoleType*>(elems[Elem_GetPos(Fnum, Knum)]);
   M->PdTpar = PdTpar;
 }
 
 
-void LatticeType::Mpole_DefdTsys(int Fnum, int Knum, double PdTsys)
+void LatticeType::Mpole_DefdTsys(const int Fnum, const int Knum,
+				 const double PdTsys)
 {
-  ElemType  *elemp;
-  MpoleType *M;
-
-  elemp = elems[elemf[Fnum-1].KidList[Knum-1]];
-  M = dynamic_cast<MpoleType*>(elemp);
+  MpoleType* M = dynamic_cast<MpoleType*>(elems[Elem_GetPos(Fnum, Knum)]);
   M->PdTsys=PdTsys;
 }
 
 
-double LatticeType::Elem_GetKval(int Fnum, int Knum, int Order)
+double LatticeType::Elem_GetKval(const int Fnum, const int Knum, const int n)
 {
   ElemType *elemp;
+  double   b_2;
 
-  if ((1 <= Fnum) && (Fnum <= elemf.size()+1) &&
-      (1 <= Knum) && (Knum < GetnKid(Fnum))) {
-    elemp = elems[elemf[Fnum-1].KidList[Knum-1]];
-    if (dynamic_cast<MpoleType*>(elemp)->Pthick == thick)
-      return elemp->PL*Mpole_GetPB(Fnum, Knum, Order);
-    else
-      return Mpole_GetPB(Fnum, Knum, Order);
-  } else {
-    printf("\nElem_GetKval: Fnum = %d (%lu) Knum = %d (%d)\n",
-	   Fnum, elemf.size()+1, Knum, GetnKid(Fnum));
-    exit(1);
-    return 0e0;
-  }
-}
-
-
-double LatticeType::Wiggler_GetKval(int Fnum, int Knum, int Order)
-{
-  ElemType *elemp;
-
-  if ((1 <= Fnum) && (Fnum <= elemf.size()+1) &&
-      (1 <= Knum) && (Knum < GetnKid(Fnum))) {
-    elemp = elems[elemf[Fnum-1].KidList[Knum-1]];
-    return elemp->PL*sqrt(2e0*dynamic_cast<WigglerType*>
-			  (elems[elemf[Fnum-1].KidList[Knum-1]])
-			  ->PBW[Order+HOMmax]);
-  } else {
-    printf("\nElem_GetKval: Fnum = %d (%lu) Knum = %d (%d)\n",
-	   Fnum,  elemf.size()+1, Knum, GetnKid(Fnum));
-    exit(1);
-    return 0e0;
-  }
+  elemp = elems[Elem_GetPos(Fnum, Knum)];
+  b_2 = GetPB(Fnum, Knum, n);
+  return (elemp->PL != 0e0)? elemp->PL*b_2 : b_2;
 }

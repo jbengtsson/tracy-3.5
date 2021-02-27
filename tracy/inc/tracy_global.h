@@ -159,6 +159,12 @@ class ElemType : public CellType {
   virtual ElemType* Elem_Init(const bool reverse) { return NULL; };
   virtual void print(void) {};
 
+  virtual void SetdS(void) {};
+  virtual void SetdT(void) {};
+  virtual void SetPB(const int n) {};
+  virtual double GetdT(void) {};
+  virtual double GetPB(const int n) {};
+
   // C++ templates not supported for virtual functions.
   virtual void Elem_Pass(ConfigType &conf, ss_vect<double> &ps) {};
   virtual void Elem_Pass(ConfigType &conf, ss_vect<tps> &ps) {};
@@ -199,27 +205,21 @@ class LatticeType {
 
   friend long int ElemIndex(const std::string &name);
 
-  void SetdS(int Fnum, int Knum);
-  void SetdT(int Fnum, int Knum);
-  void SetPB(int Fnum, int Knum, int Order);
+  void SetdS(const int Fnum, const int Knum);
+  void SetdT(const int Fnum, const int Knum);
+  void SetPB(const int Fnum, const int Knum, const int Order);
+  double GetdT(const int Fnum, const int Knum);
+  double GetPB(const int Fnum, const int Knum, const int Order);
 
-  double Elem_GetKval(int Fnum, int Knum, int Order);
-
-  double Wiggler_GetKval(int Fnum, int Knum, int Order);
-  void Wiggler_SetdS(int Fnum, int Knum);
-  void Wiggler_SetdT(int Fnum, int Knum);
-  void Wiggler_SetPB(int Fnum, int Knum, int Order);
+  double Elem_GetKval(const int Fnum, const int Knum, const int Order);
 
 
-  double Mpole_GetPB(int Fnum, int Knum, int Order);
-
-  void Mpole_DefPBpar(int Fnum, int Knum, int Order,
-		      double PBpar);
-  void Mpole_DefPBsys(int Fnum, int Knum, int Order,
-		      double PBsys);
-  double Mpole_GetdT(int Fnum, int Knum);
-  void Mpole_DefdTpar(int Fnum, int Knum, double PdTpar);
-  void Mpole_DefdTsys(int Fnum, int Knum, double PdTsys);
+  void Mpole_DefPBpar(const int Fnum, const int Knum, const int Order,
+		      const double PBpar);
+  void Mpole_DefPBsys(const int Fnum, const int Knum, const int Order,
+		      const double PBsys);
+  void Mpole_DefdTpar(const int Fnum, const int Knum, const double PdTpar);
+  void Mpole_DefdTsys(const int Fnum, const int Knum, const double PdTsys);
 
   // nsls-ii_lib.
   void set_b_n(const set_mpole set_, const int Fnum, const int Knum,
@@ -316,6 +316,12 @@ class DriftType : public ElemType {
   ElemType* Elem_Init(const bool reverse);
   void print(void);
 
+  void SetdS(void) {};
+  void SetdT(void) {};
+  void SetPB(const int n) {};
+  double GetdT(void) { return 0e0; };
+  double GetPB(const int n) { return 0e0; };
+
   template<typename T>
   void Drift_Pass(ConfigType &conf, ss_vect<T> &ps);
   void Elem_Pass(ConfigType &conf, ss_vect<double> &ps)
@@ -365,6 +371,12 @@ class MpoleType : public ElemType {
   ElemType* Elem_Init(const bool reverse);
   void print(void);
 
+  void SetdS(void);
+  void SetdT(void);
+  void SetPB(const int n);
+  double GetdT(void);
+  double GetPB(const int n);
+
   template<typename T>
   void Mpole_Pass(ConfigType &conf, ss_vect<T> &ps);
   void Elem_Pass(ConfigType &conf, ss_vect<double> &ps)
@@ -390,6 +402,12 @@ class CavityType : public ElemType {
   ElemType* Elem_Init(const bool reverse);
   void print(void);
 
+  void SetdS(void) {};
+  void SetdT(void) {};
+  void SetPB(const int n) {};
+  double GetdT(void) { return 0e0; };
+  double GetPB(const int n) { return 0e0; };
+
   template<typename T>
   void Cavity_Pass(ConfigType &conf, ss_vect<T> &ps);
   void Elem_Pass(ConfigType &conf, ss_vect<double> &ps)
@@ -403,6 +421,12 @@ class MarkerType : public ElemType {
   friend MarkerType* Marker_Alloc(void);
   ElemType* Elem_Init(const bool reverse);
   void print(void);
+
+  void SetdS(void) {};
+  void SetdT(void) {};
+  void SetPB(const int n) {};
+  double GetdT(void) { return 0e0; };
+  double GetPB(const int n) { return 0e0; };
 
   template<typename T>
   void Marker_Pass(ConfigType &conf, ss_vect<T> &ps);
@@ -442,6 +466,12 @@ class WigglerType : public ElemType {
   friend WigglerType* Wiggler_Alloc(void);
   ElemType* Elem_Init(const bool reverse);
   void print(void);
+
+  void SetdS(void);
+  void SetdT(void);
+  void SetPB(const int n) {};
+  double GetdT(void);
+  double GetPB(const int n);
 
   template<typename T>
   void Wiggler_Pass(ConfigType &conf, ss_vect<T> &ps);
@@ -507,6 +537,12 @@ class InsertionType : public ElemType {
   ElemType* Elem_Init(const bool reverse);
   void print(void);
 
+  void SetdS(void) {};
+  void SetdT(void) {};
+  void SetPB(const int n) {};
+  double GetdT(void) { return 0e0; };
+  double GetPB(const int n) { return 0e0; };
+
   template<typename T>
   void Insertion_Pass(ConfigType &conf, ss_vect<T> &ps);
   void Elem_Pass(ConfigType &conf, ss_vect<double> &ps)
@@ -540,6 +576,12 @@ class FieldMapType : public ElemType {
   ElemType* Elem_Init(const bool reverse);
   void print(void);
 
+  void SetdS(void) {};
+  void SetdT(void) {};
+  void SetPB(const int n) {};
+  double GetdT(void) { return 0e0; };
+  double GetPB(const int n) { return 0e0; };
+
   template<typename T>
   void FieldMap_Pass(ConfigType &conf, ss_vect<T> &ps);
   void Elem_Pass(ConfigType &conf, ss_vect<double> &ps)
@@ -559,6 +601,12 @@ class SpreaderType : public ElemType {
   ElemType* Elem_Init(const bool reverse);
   void print(void);
 
+  void SetdS(void) {};
+  void SetdT(void) {};
+  void SetPB(const int n) {};
+  double GetdT(void) { return 0e0; };
+  double GetPB(const int n) { return 0e0; };
+
   template<typename T>
   void Spreader_Pass(ConfigType &conf, ss_vect<T> &ps);
   void Elem_Pass(ConfigType &conf, ss_vect<double> &ps)
@@ -576,6 +624,12 @@ class RecombinerType : public ElemType {
   friend RecombinerType* Recombiner_Alloc(void);
   ElemType* Elem_Init(const bool reverse);
   void print(void);
+
+  void SetdS(void) {};
+  void SetdT(void) {};
+  void SetPB(const int n) {};
+  double GetdT(void) { return 0e0; };
+  double GetPB(const int n) { return 0e0; };
 
   template<typename T>
   void Recombiner_Pass(ConfigType &conf, ss_vect<T> &ps);
@@ -605,6 +659,12 @@ class SolenoidType : public ElemType {
   ElemType* Elem_Init(const bool reverse);
   void print(void);
 
+  void SetdS(void) {};
+  void SetdT(void) {};
+  void SetPB(const int n) {};
+  double GetdT(void) { return 0e0; };
+  double GetPB(const int n) { return 0e0; };
+
   template<typename T>
   void Solenoid_Pass(ConfigType &conf, ss_vect<T> &ps);
   void Elem_Pass(ConfigType &conf, ss_vect<double> &ps)
@@ -627,6 +687,12 @@ class MapType : public ElemType {
   friend MapType* Map_Alloc(void);
   ElemType* Elem_Init(const bool reverse);
   void print(void);
+
+  void SetdS(void) {};
+  void SetdT(void) {};
+  void SetPB(const int n) {};
+  double GetdT(void) { return 0e0; };
+  double GetPB(const int n) { return 0e0; };
 
   template<typename T>
   void Map_Pass(ConfigType &conf, ss_vect<T> &ps);

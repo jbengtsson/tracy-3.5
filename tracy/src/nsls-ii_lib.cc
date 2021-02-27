@@ -1646,7 +1646,7 @@ void set_Wiggler_BoBrho(LatticeType &lat, const int Fnum, const int Knum,
   W = dynamic_cast<WigglerType*>(lat.elems[lat.Elem_GetPos(Fnum, Knum)]);
   W->BoBrhoV[0] = BoBrhoV;
   W->PBW[HOMmax+Quad] = -sqr(BoBrhoV)/2.0;
-  lat.Wiggler_SetPB(Fnum, Knum, Quad);
+  lat.SetPB(Fnum, Knum, Quad);
 }
 
 
