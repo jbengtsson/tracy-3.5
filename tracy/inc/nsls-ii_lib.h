@@ -3,31 +3,12 @@
 #ifndef NSLS_II_LIB_H
 #define NSLS_II_LIB_H
 
-const int           max_elem = Cell_nLocMax;
-
-extern ss_vect<tps> map;
-extern MNF_struct   MNF;
-
-extern double       chi_m;
-
 
 void lwr_case(char str[]);
 
 void upr_case(char str[]);
 
 //void prt_trace (void);
-
-void file_rd(std::ifstream &inf, const string &file_name);
-
-void file_wr(std::ofstream &outf, const string &file_name);
-
-void file_rd(std::ifstream &inf, const char file_name[]);
-
-void file_wr(std::ofstream &outf, const char file_name[]);
-
-FILE* file_read(const char file_name[]);
-
-FILE* file_write(const char file_name[]);
 
 void chk_cod(const bool cod, const char *proc_name);
 
@@ -39,23 +20,8 @@ tps get_h(void);
 
 void get_m2(const ss_vect<tps> &ps, tps m2[]);
 
-ss_vect<tps> get_S(const int n_DOF);
-
-ss_vect<tps> tp_S(const int n_DOF, const ss_vect<tps> &A);
-
-void get_dnu(const int n, const ss_vect<tps> &A, double dnu[]);
-
-ss_vect<tps> get_A_CS(const int n, const ss_vect<tps> &A, double dnu[]);
-
-void prt_lin_map(const int n_DOF, const ss_vect<tps> &map);
-
-void get_twoJ(const int n_DOF, const ss_vect<double> &ps,
-	      const ss_vect<tps> &A, double twoJ[]);
-
 double get_curly_H(const double alpha_x, const double beta_x,
 		   const double eta_x, const double etap_x);
-
-void GetEmittance(LatticeType &lat, const int Fnum, const bool prt);
 
 void prt_cod(LatticeType &lat, const char *file_name, const bool all);
 
@@ -229,9 +195,6 @@ void rm_space(char *name);
 
 void get_bn(LatticeType &lat, const char file_name[], int n, const bool prt);
 
-double get_dynap(LatticeType &lat, const double delta, const int n_aper,
-		 const int n_track, const bool cod);
-
 double get_chi2(long int n, double x[], double y[], long int m, psVector b);
 
 void pol_fit(int n, double x[], double y[], int order, psVector &b,
@@ -259,14 +222,6 @@ void get_alphac2(LatticeType &lat);
 
 double h_ijklm(const tps &h, const int i, const int j, const int k,
 	       const int l, const int m);
-
-ss_vect<tps> get_A(const double alpha[], const double beta[],
-		   const double eta[], const double etap[]);
-
-
-void get_ab(const ss_vect<tps> &A,
-	    double alpha[], double beta[], double nu[],
-	    double eta[], double etap[]);
 
 void set_tune(LatticeType &lat, const char file_name1[],
 	      const char file_name2[], const int n);

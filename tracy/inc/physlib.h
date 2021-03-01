@@ -27,10 +27,6 @@
 #define dispimax        10
 #define npeakmax        10
 
-// Dynamical aperture
-#define px_0      0.0
-#define py_0      0.0
-
 /* 80% sigma coupling */
 #define sigma_eps        sqrt((25.0/16.0-1.0)/(25.0/16.0+1.0))
 
@@ -52,8 +48,6 @@ typedef double peakbuf[npeakmax];
 double int_curly_H(long int n);
 
 void rm_mean(long int n, double x[]);
-
-void printglob(LatticeType &lat);
 
 void printlatt(void);
 
@@ -95,16 +89,7 @@ struct LOC_getdynap {
 
 void track_(LatticeType &lat, double r, struct LOC_getdynap *LINK);
 
-void getdynap(LatticeType &lat, double &r, double phi, double delta, double eps,
-	      int nturn, bool floqs);
-
 void getcsAscr(LatticeType &lat);
-
-void dynap(FILE *fp, LatticeType &lat, double r, const double delta,
-	   const double eps, const int npoint, const int nturn,double x[],
-	   double y[], const bool floqs, const bool cod, const bool print);
-
-double get_aper(int n, double x[], double y[]);
 
 void GetTrack(const char *file_name,
 		     long *n, double *x, double *px, double *y, double *py);
@@ -190,8 +175,6 @@ void SetL(LatticeType &lat, int Fnum, int Knum, double L);
 
 void SetL(LatticeType &lat, int Fnum, double L);
 
-void SetKLpar(LatticeType &lat, int Fnum, int Knum, int Order, double kL);
-
 void SetdKLpar(LatticeType &lat, int Fnum, int Knum, int Order, double dkL);
 
 void SetdKrpar(LatticeType &lat, int Fnum, int Knum, int Order, double dkrel);
@@ -210,8 +193,6 @@ void SetbnL_sys(LatticeType &lat, int Fnum, int Order, double bnL_sys);
 
 void set_dbn_rel(LatticeType &lat, const int type, const int n,
 		 const double dbn_rel);
-
-double GetKpar(LatticeType &lat, int Fnum, int Knum, int Order);
 
 double GetL(LatticeType &lat, int Fnum, int Knum);
 
@@ -262,10 +243,6 @@ void GetChromTrac(LatticeType &lat, long Nb, long Nbtour, double emax,
 		  double *xix, double *xiz);
 void GetTuneTrac(LatticeType &lat, long Nbtour, double emax, double *nux,
 		 double *nuz);
-void Trac(LatticeType &lat, double x, double px, double y, double py, double dp,
-	  double ctau, long nmax, long pos, long &lastn, long &lastpos,
-	  FILE *outf1);
-
 /* close orbit */
 // simple precision
 void findcodS(LatticeType &lat, double dP);
@@ -273,11 +250,5 @@ void computeFandJS(LatticeType &lat, double *x, int n, double **fjac,
 		   double *fvect);
 void Newton_RaphsonS(LatticeType &lat, int ntrial, double x[], int n,
 		     double tolx);
-// double precision
-void findcod(LatticeType &lat, double dP);
-void computeFandJ(LatticeType &lat, int n, double *x, psVector *fjac,
-		  double *fvect);
-int Newton_Raphson(LatticeType &lat, int n, psVector &x, int ntrial,
-		   double tolx);
 
 #endif

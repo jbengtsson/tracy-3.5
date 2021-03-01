@@ -2,9 +2,11 @@
 #ifndef TRACY_H
 #define TRACY_H
 
+#define Cell_nLocMax    20000 // maximum number of LEGO blocks (Cell_nLoc).
+
 #ifndef LONG_MAX
-# define LONG_MAX   ((long)(((unsigned long) -1) >> 1))
-# define LONG_MIN   (~LONG_MAX)
+# define LONG_MAX       ((long)(((unsigned long) -1) >> 1))
+# define LONG_MIN       (~LONG_MAX)
 #endif
 
 #define S_SIZE          200  // max size for file name of a lattice file
@@ -17,6 +19,21 @@
 #define maxincl         5
 #define maxfil          10
 #define bigvectmax      4096
+
+// Dynamic aperture (chk_if_lost).
+#define px_0            0.0
+#define py_0            0.0
+
+
+typedef char str80[80];
+
+
+const int max_elem = Cell_nLocMax;
+
+extern ss_vect<tps> map;
+extern MNF_struct   MNF;
+
+extern double       chi_m;
 
 
 #define HOMmax   21     // [a_n, b_n] <=> [-HOMmax..HOMmax].
@@ -38,8 +55,6 @@ const double  eps_0 = 1.0/(sqr(c0)*mu_0);       // permeability of free space
 const double  r_e   = q_e/(4.0*M_PI*eps_0*m_e); // classical electron radius
 const double  h_bar = 6.58211899e-16;           /* reduced Planck constant
 						   [eV s] */
-typedef char str80[80];
-
 typedef char alfa_[NameLength];
 
 typedef long   iVector2[2];
@@ -83,10 +98,6 @@ extern void prt_gcmat(int bpm, int corr, int plane);
 extern void gcmat(int bpm, int corr, int plane);
 
 extern void lsoc(int niter, int bpm, int corr, int plane);
-
-/**** same as asctime in C without the \n at the end ****/
-char *asctime2(const struct tm *timeptr);
-struct tm* GetTime();
 
 
 typedef char                partsName[NameLength];
@@ -239,8 +250,8 @@ class ElemType : public CellType {
   virtual void SetdS(void) {};
   virtual void SetdT(void) {};
   virtual void SetPB(const int n) {};
-  virtual double GetdT(void) {};
-  virtual double GetPB(const int n) {};
+  virtual double GetdT(void) { return 0e0; };
+  virtual double GetPB(const int n) { return 0e0; };
 
   // C++ templates not supported for virtual functions.
   virtual void Elem_Pass(ConfigType &conf, ss_vect<double> &ps) {};
@@ -778,5 +789,23 @@ class MapType : public ElemType {
   void Elem_Pass(ConfigType &conf, ss_vect<tps> &ps)
   { Map_Pass(conf, ps); };
 };
+
+
+void file_rd(std::ifstream &inf, const string &file_name);
+
+void file_wr(std::ofstream &outf, const string &file_name);
+
+void file_rd(std::ifstream &inf, const char file_name[]);
+
+void file_wr(std::ofstream &outf, const char file_name[]);
+
+FILE* file_read(const char file_name[]);
+
+FILE* file_write(const char file_name[]);
+
+
+void t2init(void);
+
+void exit_(int exit_code);
 
 #endif

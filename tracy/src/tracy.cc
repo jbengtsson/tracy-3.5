@@ -30,18 +30,16 @@
 #include "t2elem.cc"
 #include "t2cell.cc"
 #include "t2ring.cc"
-#include "sigma_track.cc"
+// #include "sigma_track.cc"
 
-#include "pascalio.cc"
-
-#include "lsoc.cc"
+//#include "lsoc.cc"
 
 #include "prtmfile.cc"
 #include "rdmfile.cc"
 
-#include "fft.cc"
+// #include "fft.cc"
 
-#include "physlib.cc"
+// #include "physlib.cc"
 
 #include "naffutils.cc"
 
@@ -49,13 +47,43 @@
 #include "radia2tracy.cc"
 #include "soleillib.cc"
 
-#include "nsls-ii_lib.cc"
-#if 0
-#include "orb_corr.cc"
-#include "param.cc"
-#include "dynap.cc"
+// #include "nsls-ii_lib.cc"
+// #include "orb_corr.cc"
+// #include "param.cc"
+// #include "dynap.cc"
 
-#endif
+
+bool ErrFlag;
+
+str80 finame;                // input data file.
+str80 foname;                // output data file.
+str80 fname;                 // temp file name.
+
+FILE *fi;                    // lattice input  file.
+FILE *fo;                    // lattice output file.
+FILE *psin[maxincl + 1];     // program input file.
+FILE *psout;                 // program output file.
+FILE *prr[maxfil - 2];       // prr[1] : input, prr[2] : output.
+
+
+const bool normal = true; // Normal or rectangular distribution
+
+int    Fnum_Cart, n_iter_Cart;
+
+double u_Touschek;  // argument for Touschek D(ksi)
+double chi_m;       // argument for IBS D(ksi)
+
+// IBS (Bjorken-Mtingwa)
+double a_IBS, b_IBS, c_IBS, a_k_IBS, b_k_IBS;
+
+// for IBS
+int    i_, j_;
+double **C_;
+
+ss_vect<tps> map;
+MNF_struct   MNF;
+
+
 
 
 // Truncated Power Series Algebra (TPSA)
@@ -199,6 +227,8 @@ double d_sign(double a, double b)
   return( b >= 0 ? x : -x);
 }
 
+// Pascal file I/O (legacy).
+
 int P_eof(FILE *f)
 {
   int ch;
@@ -223,4 +253,93 @@ int P_eoln(FILE *f)
   if (ch == EOF) return 1;
   ungetc(ch, f);
   return (ch == '\n');
+}
+
+
+// C++ file I/O.
+
+void file_rd(std::ifstream &inf, const string &file_name)
+{
+  inf.open(file_name.c_str(), std::ios::in);
+  if (!inf.is_open()) {
+    cout << "File not found: " << file_name << "\n";
+    exit_(-1);
+  }
+}
+
+
+void file_wr(std::ofstream &outf, const string &file_name)
+{
+  outf.open(file_name.c_str(), std::ios::out);
+  if (!outf.is_open()) {
+    cout << "Could not create file: " << file_name << "\n";
+    exit_(-1);
+  }
+}
+
+
+void file_rd(std::ifstream &inf, const char file_name[])
+{
+  inf.open(file_name, std::ios::in);
+  if (!inf.is_open()) {
+    printf("File not found: %s\n", file_name);
+    exit_(-1);
+  }
+}
+
+
+void file_wr(std::ofstream &outf, const char file_name[])
+{
+  outf.open(file_name, std::ios::out);
+  if (!outf.is_open()) {
+    printf("Could not create file: %s\n", file_name);
+    exit_(-1);
+  }
+}
+
+
+// C file I/O.
+
+FILE* file_read(const char file_name[])
+{
+  FILE *fp;
+  fp = fopen(file_name, "r");
+  if (fp == NULL) {
+    printf("File not found: %s\n", file_name);
+    exit_(-1);
+  }
+  return(fp);
+}
+
+
+FILE* file_write(const char file_name[])
+{
+  FILE *fp;
+  fp = fopen(file_name, "w");
+  if (fp == NULL) {
+    printf("Could not create file: %s\n", file_name);
+    exit_(-1);
+  }
+  return(fp);
+}
+
+void t2init(void)
+{
+//  iniranf(0); /* initialise le generateur aleatoire: graine 0 */
+
+//  fprintf(stdout,"pi = %20.16e \n",pi);
+
+//  daini((long)no_, (long)nv_, 0);
+
+//  lieini((long)no_, (long)nv_, (long)nd2_);
+}
+
+
+// Matlab BS
+void exit_(int exit_code)
+{
+
+  printf("fatal error, <ret> to continue "); std::cin.ignore(1, '\n');
+
+  exit(exit_code);
 }

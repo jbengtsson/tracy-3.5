@@ -1196,3 +1196,785 @@ _L999:
 }
 
 #endif
+
+
+void findcod(LatticeType &lat, double dP)
+{
+  psVector        vcod;
+  const int     ntrial = 40;  // maximum number of trials for closed orbit
+  const double  tolx = 1e-10;  // numerical precision
+  int           k, dim = 0;
+  long          lastpos;
+
+  // initializations
+  for (k = 0; k <= 5; k++)
+    vcod[k] = 0.0;  
+    
+  if (lat.conf.Cavity_on){
+    fprintf(stdout,"warning looking for cod in 6D\n");
+    dim = 6;
+  } else{ // starting point linear closed orbit
+    dim = 4;
+    vcod[0] = lat.elems[0]->Eta[0]*dP; vcod[1] = lat.elems[0]->Etap[0]*dP;
+    vcod[2] = lat.elems[0]->Eta[1]*dP; vcod[3] = lat.elems[0]->Etap[1]*dP;
+    vcod[4] = dP;  // energy offset 
+  }
+  
+  Newton_Raphson(lat, dim, vcod, ntrial, tolx);
+
+  if (lat.conf.codflag == false)
+    fprintf(stdout, "Error No COD found\n");
+  
+  CopyVec(6, vcod, lat.conf.CODvect); // save closed orbit at the ring entrance
+
+  if (trace)
+  {
+    fprintf(stdout,
+       "Before cod2 % .5e % .5e % .5e % .5e % .5e % .5e \n",
+       vcod[0], vcod[1], vcod[2], vcod[3], vcod[4], vcod[5]);
+    lat.Cell_Pass(0, lat.conf.Cell_nLoc, vcod, lastpos);
+    fprintf(stdout,
+       "After  cod2 % .5e % .5e % .5e % .5e % .5e % .5e \n",
+       vcod[0], vcod[1], vcod[2], vcod[3], vcod[4], vcod[5]);
+  }
+}
+
+
+void prt_lin_map(const int n_DOF, const ss_vect<tps> &map)
+{
+  int i, j;
+
+  std::cout << std::endl;
+  for (i = 1; i <= 2*n_DOF; i++) {
+    for (j = 1; j <= 2*n_DOF; j++)
+      if (true)
+	std::cout << std::scientific << std::setprecision(6)
+	     << std::setw(14) << getmat(map, i, j);
+      else
+	std::cout << std::scientific << std::setprecision(16)
+	     << std::setw(24) << getmat(map, i, j);
+    std::cout << std::endl;
+  }
+}
+
+
+ss_vect<tps> get_A(const double alpha[], const double beta[],
+		   const double eta[], const double etap[])
+{
+  int          k;
+  ss_vect<tps> A, Id;
+
+  Id.identity();
+
+  A.identity();
+  for (k = 0; k < 2; k++) {
+    A[2*k]  = sqrt(beta[k])*Id[2*k];
+    A[2*k+1] = -alpha[k]/sqrt(beta[k])*Id[2*k] + 1.0/sqrt(beta[k])*Id[2*k+1];
+
+    A[2*k] += eta[k]*Id[delta_]; A[2*k+1] += etap[k]*Id[delta_];
+  }
+
+  return A;
+}
+
+
+ss_vect<tps> get_A_CS(const int n, const ss_vect<tps> &A, double dnu[])
+{
+  int          k;
+  double       c, s;
+  ss_vect<tps> Id, R;
+
+  Id.identity(); R.identity(); get_dnu(n, A, dnu);
+  for (k = 0; k < n; k++) {
+    c = cos(2.0*M_PI*dnu[k]); s = sin(2.0*M_PI*dnu[k]);
+    R[2*k] = c*Id[2*k] - s*Id[2*k+1]; R[2*k+1] = s*Id[2*k] + c*Id[2*k+1];
+  }
+
+  return A*R;
+}
+
+
+void get_ab(const ss_vect<tps> &A,
+	    double alpha[], double beta[], double dnu[],
+	    double eta[], double etap[])
+{
+  int          k;
+  ss_vect<tps> A_Atp;
+
+  A_Atp = A*tp_S(2, A);
+
+  for (k = 0; k <= 1; k++) {
+    eta[k] = A[2*k][delta_]; etap[k] = A[2*k+1][delta_];
+
+    alpha[k] = -A_Atp[2*k][2*k+1]; beta[k] = A_Atp[2*k][2*k];
+  }
+
+  get_dnu(2, A, dnu);
+}
+
+
+void get_twoJ(const int n_DOF, const ss_vect<double> &ps,
+	      const ss_vect<tps> &A, double twoJ[])
+{
+  int             j, no;
+  long int        jj[ss_dim];
+  ss_vect<double> z;
+
+  no = no_tps;
+  danot_(1);
+
+  for (j = 0; j < nv_tps; j++)
+    jj[j] = (j < 2*n_DOF)? 1 : 0;
+
+  z = (PInv(A, jj)*ps).cst();
+
+  for (j = 0; j < n_DOF; j++)
+    twoJ[j] = sqr(z[2*j]) + sqr(z[2*j+1]);
+
+  danot_(no);
+}
+
+
+void SetKLpar(LatticeType &lat, int Fnum, int Knum, int Order, double kL)
+{
+  long int  loc;
+  MpoleType *M;
+
+  loc = lat.Elem_GetPos(Fnum, Knum);
+  M = dynamic_cast<MpoleType*>(lat.elems[loc]);
+  if (lat.elems[loc]->PL != 0e0)
+    M->PBpar[Order+HOMmax] = kL/lat.elems[loc]->PL;
+  else
+    M->PBpar[Order+HOMmax] = kL;
+  lat.SetPB(Fnum, Knum, Order);
+}
+
+
+double GetKpar(LatticeType &lat, int Fnum, int Knum, int Order)
+{
+  long int  loc;
+  MpoleType *M;
+
+
+  loc = lat.Elem_GetPos(Fnum, Knum);
+  M = dynamic_cast<MpoleType*>(lat.elems[loc]);
+  return M->PBpar[Order+HOMmax];
+}
+
+
+void Trac(LatticeType &lat, double x, double px, double y, double py, double dp,
+	  double ctau, long nmax, long pos, long &lastn, long &lastpos,
+	  FILE *outf1)
+{
+  /* Compute closed orbit : usefull if insertion devices */
+
+  psVector x1;     /* tracking coordinates */
+
+  x1[0] = x; x1[1] = px;
+  x1[2] = y; x1[3] = py;
+  x1[4] =dp; x1[5] = ctau;
+
+  lastn = 0L;
+
+  (lastpos)=pos;
+  if(trace) fprintf(outf1, "\n");
+  fprintf(outf1, "%6ld %+10.5e %+10.5e %+10.5e %+10.5e %+10.5e %+10.5e \n",
+	  lastn, x1[0], x1[1], x1[2], x1[3], x1[4], x1[5]);
+  lat.Cell_Pass(pos -1L, lat.conf.Cell_nLoc, x1, lastpos);
+
+  if (lastpos == lat.conf.Cell_nLoc)
+  do {
+    (lastn)++;
+    lat.Cell_Pass(0L, pos-1L, x1, lastpos);
+    if(!trace) {
+      fprintf(outf1, "%6ld %+10.5e %+10.5e %+10.5e %+10.5e %+10.5e %+10.5e \n",
+	      lastn, x1[0], x1[1], x1[2], x1[3], x1[4], x1[5]);
+    }
+    if (lastpos == pos-1L)
+      lat.Cell_Pass(pos-1L,lat.conf.Cell_nLoc, x1, lastpos);
+  }
+  while (((lastn) < nmax) && ((lastpos) == lat.conf.Cell_nLoc));
+
+  if (lastpos == lat.conf.Cell_nLoc) lat.Cell_Pass(0L,pos, x1, lastpos);
+
+  if (lastpos != pos) {
+    printf("Trac: Particle lost \n");
+    fprintf(stdout, "turn:%6ld plane: %1d"
+	    " %+10.5g %+10.5g %+10.5g %+10.5g %+10.5g %+10.5g \n", 
+	    lastn, lat.conf.lossplane, x1[0], x1[1], x1[2], x1[3], x1[4],
+	    x1[5]);
+  }
+}
+
+
+void printglob(LatticeType &lat)
+{
+  printf("\n***************************************************************"
+	 "***************\n");
+  printf("\n");
+  printf("  dPcommon     =  %9.3e  dPparticle   =  %9.3e"
+	 "  Energy [GeV] = %.3f\n",
+         lat.conf.dPcommon, lat.conf.dPparticle, lat.conf.Energy);
+  printf("  MaxAmplx [m] = %9.3e  MaxAmply [m] = %9.3e"
+	 "  RFAccept [%%] = %4.2f\n",
+         lat.elems[0]->maxampl[X_][0], lat.elems[0]->maxampl[Y_][0],
+	 lat.conf.delta_RF*1e2);
+  printf(" Cavity_On    =  %s    ", lat.conf.Cavity_on ? "TRUE " : "FALSE");
+  printf("  Radiation_On = %s     \n",
+	 lat.conf.radiation ? "TRUE " : "FALSE");
+  printf("  bpm          =  %3d        qt           = %3d        ",
+	 lat.conf.bpm, lat.conf.qt);
+  printf(" Chambre_On   = %s     \n", lat.conf.chambre ? "TRUE " : "FALSE");
+  printf("  hcorr        =  %3d        vcorr        = %3d\n\n",
+	 lat.conf.hcorr, lat.conf.vcorr);
+  printf("  alphac       =   %22.16e\n", lat.conf.Alphac); 
+  printf("  nux          =  %19.16f      nuz  =  %19.16f",
+         lat.conf.TotalTune[X_], lat.conf.TotalTune[Y_]);
+  if (lat.conf.Cavity_on)
+    printf("  omega  = %11.9f\n", lat.conf.Omega);
+  else {
+    printf("\n");
+    printf("  ksix         = %10.6f                ksiz = %10.6f\n",
+            lat.conf.Chrom[X_], lat.conf.Chrom[Y_]);
+  }
+  printf("\n");
+  printf("  OneTurn matrix:\n");
+  printf("\n");
+  prtmat(2*DOF, lat.conf.OneTurnMat);
+  fflush(stdout);
+}
+
+
+void GetEmittance(LatticeType &lat, const int Fnum, const bool prt)
+{
+  // A. Chao "Evaluation of Beam Distribution Parameters in an Electron
+  // Storage Ring" J. Appl. Phys 50 (2), 595-598.
+  bool         emit, rad, cav, path;
+  int          i, j, h_RF;
+  long int     lastpos, loc;
+  double       C, theta, V_RF, phi0, gamma_z;
+  double       sigma_s, sigma_delta;
+  Vector3      nu;
+  Matrix       Ascr;
+  ss_vect<tps> Ascr_map;
+  CavityType   *Cp;
+
+  // save state
+  rad = lat.conf.radiation; emit = lat.conf.emittance;
+  cav = lat.conf.Cavity_on; path = lat.conf.pathlength;
+
+  C = lat.elems[lat.conf.Cell_nLoc]->S;
+
+  // damped system
+  lat.conf.radiation = true; lat.conf.emittance  = true;
+  lat.conf.Cavity_on = true; lat.conf.pathlength = false;
+
+  lat.Ring_GetTwiss(false, 0.0);
+
+  // radiation loss is computed in Cav_Pass
+
+  loc = lat.Elem_GetPos(Fnum, 1);
+  Cp = dynamic_cast<CavityType*>(lat.elems[loc]);
+
+  lat.conf.U0 = lat.conf.dE*1e9*lat.conf.Energy;
+  V_RF = Cp->Pvolt;
+  h_RF = Cp->Ph;
+  phi0 = fabs(asin(lat.conf.U0/V_RF));
+  lat.conf.delta_RF =
+    sqrt(-V_RF*cos(M_PI-phi0)*(2.0-(M_PI-2.0*(M_PI-phi0))
+    *tan(M_PI-phi0))/(fabs(lat.conf.Alphac)*M_PI*h_RF*1e9*lat.conf.Energy));
+
+  // Compute diffusion coeffs. for eigenvectors [sigma_xx, sigma_yy, sigma_zz]
+  Ascr_map = putlinmat(6, lat.conf.Ascr); Ascr_map += lat.conf.CODvect;
+
+  lat.Cell_Pass(0, lat.conf.Cell_nLoc, Ascr_map, lastpos);
+
+  // K. Robinson "Radiation Effects in Circular Electron Accelerators"
+  // Phys. Rev. 111 (2), 373-380.
+  // Iu.F. Orlov, E.K. Tarasov "Damping of Oscillations in a Cyclic Electron
+  // Accelerator" J. Exptl. Theoret. Phys. 34, 651-657 (1958).
+  // To leading order:
+  //   Sum_k(alpha_k) = 2*U_0/E
+  // or
+  //   J_x + J_y + J_z = 4.
+
+  for (i = 0; i < DOF; i++) {
+    // partition numbers
+    lat.conf.J[i] =
+      2.0*(1.0+lat.conf.CODvect[delta_])*lat.conf.alpha_rad[i]/lat.conf.dE;
+    // damping times
+    lat.conf.tau[i] = -C/(c0*lat.conf.alpha_rad[i]);
+    // diffusion coeff. and emittance (alpha is for betatron amplitudes)
+    lat.conf.eps[i] = -lat.conf.D_rad[i]/(2.0*lat.conf.alpha_rad[i]);
+    // fractional tunes
+    nu[i]  = atan2(lat.conf.wi[i*2], lat.conf.wr[i*2])/(2.0*M_PI);
+    if (nu[i] < 0.0) nu[i] = 1.0 + nu[i];
+  }
+
+  // undamped system
+  lat.conf.radiation = !false; lat.conf.emittance = false;
+
+  lat.Ring_GetTwiss(false, 0.0);
+
+  // Compute sigmas arround the lattice:
+  //   Sigma = A diag[J_1, J_1, J_2, J_2, J_3, J_3] A^T
+  for (i = 0; i < 6; i++) {
+    Ascr_map[i] = tps(lat.conf.CODvect[i]);
+    for (j = 0; j < 6; j++)
+      Ascr_map[i] += lat.conf.Ascr[i][j]*sqrt(lat.conf.eps[j/2])*tps(0.0, j+1);
+  }
+  // prt_lin_map(3, Ascr_map);
+  for (loc = 0; loc <= lat.conf.Cell_nLoc; loc++) {
+    lat.elems[loc]->Elem_Pass(lat.conf, Ascr_map);
+    // sigma = A x A^tp
+    getlinmat(6, Ascr_map, lat.elems[loc]->sigma);
+    TpMat(6, lat.elems[loc]->sigma);
+    getlinmat(6, Ascr_map, Ascr); MulLMat(6, Ascr, lat.elems[loc]->sigma);
+  }
+
+  // A. W. Chao, M. J. Lee "Particle Distribution Parameters in an Electron
+  // Storage Ring" J. Appl. Phys. 47 (10), 4453-4456 (1976).
+  // observable tilt angle
+  theta = atan2(2e0*lat.elems[0]->sigma[x_][y_],
+	  (lat.elems[0]->sigma[x_][x_]-lat.elems[0]->sigma[y_][y_]))/2e0;
+
+  // longitudinal alpha and beta
+  lat.conf.alpha_z =
+    -lat.conf.Ascr[ct_][ct_]*lat.conf.Ascr[delta_][ct_]
+    - lat.conf.Ascr[ct_][delta_]*lat.conf.Ascr[delta_][delta_];
+  lat.conf.beta_z =
+    sqr(lat.conf.Ascr[ct_][ct_]) + sqr(lat.conf.Ascr[ct_][delta_]);
+  gamma_z = (1.0+sqr(lat.conf.alpha_z))/lat.conf.beta_z;
+
+  // bunch size
+  sigma_s = sqrt(lat.conf.beta_z*lat.conf.eps[Z_]);
+  sigma_delta = sqrt(gamma_z*lat.conf.eps[Z_]);
+
+  if (prt) {
+    printf("\nEmittance:\n");
+    printf("\nBeam energy [GeV]:              "
+	   "Eb          = %4.2f\n", lat.conf.Energy);
+    printf("Energy loss per turn [keV]:     "
+	   "U0          = %3.1f\n",
+	   1e-3*lat.conf.U0);
+    printf("Synchronous phase [deg]:        "
+	   "phi0        = 180 - %4.2f\n",
+	   phi0*180.0/M_PI);
+    printf("RF bucket height [%%]:           "
+	   "delta_RF    = %4.2f\n", 1e2*lat.conf.delta_RF);
+    printf("\n");
+    printf("Equilibrium emittance [m.rad]:  "
+	   "eps         =  [%9.3e, %9.3e, %9.3e]\n",
+            lat.conf.eps[X_], lat.conf.eps[Y_], lat.conf.eps[Z_]);
+    printf("Bunch length [mm]:              "
+	   "sigma_s     =  %5.3f\n", 1e3*sigma_s);
+    printf("Momentum spread:                "
+	   "sigma_delta =  %9.3e\n", sigma_delta);
+    printf("Longitudinal phase space:       "
+	   "alpha_z     = %10.3e, beta_z = %9.3e\n",
+	   lat.conf.alpha_z, lat.conf.beta_z);
+     printf("Partition numbers:              "
+	   "J           =  [%5.3f, %5.3f, %5.3f]\n",
+            lat.conf.J[X_], lat.conf.J[Y_], lat.conf.J[Z_]);
+    printf("Damping times [msec]:           "
+	   "tau         =  [%3.1f, %3.1f, %3.1f]\n",
+	   1e3*lat.conf.tau[X_], 1e3*lat.conf.tau[Y_], 1e3*lat.conf.tau[Z_]);
+    printf("Diffusion coeffs:               "
+	   "D           =  [%7.1e, %7.1e, %7.1e]\n",
+	   lat.conf.D_rad[X_], lat.conf.D_rad[Y_], lat.conf.D_rad[Z_]);
+    printf("\n");
+    printf("alphac:                         "
+	   "alphac      = %11.3e\n", lat.conf.Alphac);
+    printf("\n");
+    printf("Fractional tunes:               "
+	   "nu_x        =  [%7.5f, %7.5f, %12.5e]\n", nu[X_], nu[Y_], nu[Z_]);
+    printf("                                "
+	   "1-nu_x      =  [%7.5f, %7.5f, %12.5e]\n",
+	   1e0-nu[X_], 1e0-nu[Y_], 1e0-nu[Z_]);
+    printf("\n");
+    printf("sigmas:                         "
+	   "sigma_x     =  %5.1f  microns, sigma_px    = %5.1f urad\n",
+	   1e6*sqrt(lat.elems[0]->sigma[x_][x_]),
+	   1e6*sqrt(lat.elems[0]->sigma[px_][px_]));
+    printf("                                "
+	   "sigma_y     =  %5.1f  microns, sigma_py    = %5.1f urad\n",
+	   1e6*sqrt(lat.elems[0]->sigma[y_][y_]),
+	   1e6*sqrt(lat.elems[0]->sigma[py_][py_]));
+    printf("                                "
+	   "sigma_s     =  %6.2f mm,      sigma_delta = %8.2e\n",
+	   1e3*sqrt(lat.elems[0]->sigma[ct_][ct_]),
+	   sqrt(lat.elems[0]->sigma[delta_][delta_]));
+
+    printf("\n");
+    printf("Beam ellipse twist [rad]:       tw      = %5.3f\n", theta);
+    printf("                   [deg]:       tw      = %5.3f\n",
+	   theta*180.0/M_PI);
+  }
+
+  // restore state
+  lat.conf.radiation = rad; lat.conf.emittance  = emit;
+  lat.conf.Cavity_on = cav; lat.conf.pathlength = path;
+}
+
+
+double get_dynap(LatticeType &lat, const double delta, const int n_aper,
+		 const int n_track, const bool cod)
+{
+  char   str[max_str];
+  int    i;
+  double x_aper[n_aper], y_aper[n_aper], DA;
+  FILE   *fp;
+
+  const int prt = true;
+
+  fp = file_write("dynap.out");
+  dynap(fp, lat, 5e-3, 0.0, 0.1e-3, n_aper, n_track, x_aper, y_aper, false, cod,
+	prt);
+  fclose(fp);
+  DA = get_aper(n_aper, x_aper, y_aper);
+
+  if (true) {
+    sprintf(str, "dynap_dp%3.1f.out", 1e2*delta);
+    fp = file_write(str);
+    dynap(fp, lat, 5e-3, delta, 0.1e-3, n_aper, n_track,
+      x_aper, y_aper, false, cod, prt);
+    fclose(fp);
+    DA += get_aper(n_aper, x_aper, y_aper);
+
+    for (i = 0; i < nv_; i++)
+      lat.conf.CODvect[i] = 0.0;
+    sprintf(str, "dynap_dp%3.1f.out", -1e2*delta);
+    fp = file_write(str);
+    dynap(fp, lat, 5e-3, -delta, 0.1e-3, n_aper,
+      n_track, x_aper, y_aper, false, cod, prt);
+    fclose(fp);
+    DA += get_aper(n_aper, x_aper, y_aper);
+  }
+
+  return DA/3.0;
+}
+
+
+struct tm* GetTime()
+{
+  struct tm *whattime;
+  /* Get time and date */
+  time_t aclock;
+  time(&aclock);                 /* Get time in seconds */
+  whattime = localtime(&aclock);  /* Convert time to struct */
+  return whattime;
+}
+
+
+void computeFandJ(LatticeType &lat, int n, psVector &x, Matrix &fjac,
+		  psVector &fvect)
+{
+  int     i, k;
+  long    lastpos = 0;
+  psVector  x0, fx1, fx2;
+
+  //stepsize for numerical differentiation
+  const double deps = 1e-8;
+
+  CopyVec(6, x, x0);
+  
+  lat.Cell_Pass(0, lat.conf.Cell_nLoc, x0, lastpos);
+  CopyVec(n, x0, fvect);
+  
+  // compute Jacobian matrix by numerical differentiation
+  for (k = 0; k < n; k++) {
+    CopyVec(6L, x, x0);
+    x0[k] += deps;  // differential step in coordinate k
+
+    // tracking along the ring
+    lat.Cell_Pass(0, lat.conf.Cell_nLoc, x0, lastpos);
+    CopyVec(6L, x0, fx1);
+
+    CopyVec(6L, x, x0);
+    // differential step in coordinate k
+    x0[k] -= deps;
+
+    // tracking along the ring
+    lat.Cell_Pass(0, lat.conf.Cell_nLoc, x0, lastpos);
+    CopyVec(6L, x0, fx2);
+
+    // symmetric difference formula
+    for (i = 0; i < n; i++)
+      fjac[i][k] = 0.5 * (fx1[i] - fx2[i]) / deps;
+  }
+}
+int Newton_Raphson(LatticeType &lat, int n, psVector &x, int ntrial,
+		   double tolx)
+{
+  int k,  i;
+  double  errx;
+  psVector  bet, fvect;
+  Matrix  alpha;
+
+  errx = 0.0;
+
+  for (k = 1; k <= ntrial; k++) {  // loop over number of iterations
+    // supply function values at x in fvect and Jacobian matrix in fjac
+    computeFandJ(lat, n, x, alpha, fvect);
+
+    // Jacobian - Id
+    for (i = 0; i < n; i++)
+      alpha[i][i] -= 1.0;
+    for (i = 0; i < n; i++)
+      bet[i] = x[i] - fvect[i];  // right side of linear equation
+    // inverse matrix using gauss jordan method from Tracy (from NR)
+    if (!InvMat((long) n,alpha))
+      fprintf(stdout,"Matrix non inversible ...\n");    
+    LinTrans((long) n, alpha, bet); // bet = alpha*bet
+        errx = 0.0;  // check root convergence
+    for (i = 0; i < n; i++)
+    {    // update solution
+      errx += fabs(bet[i]);
+      x[i] += bet[i]; 
+    }
+    
+    if (trace)
+      fprintf(stdout,
+         "%02d: cod2 % .5e % .5e % .5e % .5e % .5e % .5e  errx =% .5e\n",
+         k, x[0], x[1], x[2], x[3], x[4], x[5], errx);
+    if (errx <= tolx)
+    {
+      lat.conf.codflag = true;
+        return 1;
+    }
+  }
+  // check whever closed orbit found out
+  if ((k >= ntrial) && (errx >= tolx))
+  {
+    lat.conf.codflag = false;
+      return 1;
+  }
+  return 0;
+}
+
+
+void get_dnu(const int n, const ss_vect<tps> &A, double dnu[])
+{
+  int k;
+
+  const double eps = 1e-15;
+
+  for (k = 0; k < n; k++) {
+    if (k < 2)
+      dnu[k] = atan2(A[2*k][2*k+1], A[2*k][2*k])/(2e0*M_PI);
+    else
+      dnu[k] = -atan2(A[ct_][delta_], A[ct_][ct_])/(2e0*M_PI);
+    if (dnu[k] < -eps) dnu[k] += 1e0;
+  }
+}
+
+
+ss_vect<tps> tp_S(const int n_DOF, const ss_vect<tps> &A)
+{
+  int          j;
+  long int     jj[ss_dim];
+  ss_vect<tps> S;
+
+  for (j = 1; j <= ss_dim; j++)
+    jj[j-1] = (j <= 2*n_DOF)? 1 : 0;
+
+  S = get_S(n_DOF);
+
+  return -S*PInv(A, jj)*S;
+}
+
+
+void dynap(FILE *fp, LatticeType &lat, double r, const double delta,
+	   const double eps, const int npoint, const int nturn, double x[],
+	   double y[], const bool floqs, const bool cod, const bool print)
+
+{
+  /* Determine the dynamical aperture by tracking.
+     Assumes mid-plane symmetry.                    */
+
+  long int  i, lastpos;
+  double    phi, x_min, x_max, y_min, y_max;
+
+  if (cod)
+    lat.getcod(delta, lastpos);
+  else
+    lat.conf.CODvect.zero();
+  if (floqs) {
+    lat.Ring_GetTwiss(false, delta);
+    if (print) {
+      printf("\n");
+      printf("Dynamical Aperture (Floquet space):\n");
+      printf("     x^         y^\n");
+      printf("\n");
+    }
+    fprintf(fp, "# Dynamical Aperture (Floquet space):\n");
+    fprintf(fp, "#      x^         y^\n");
+    fprintf(fp, "#\n");
+  } else {
+    if (print) {
+      printf("\n");
+      printf("Dynamical Aperture:\n");
+      printf("     x      y\n");
+      printf("    [mm]   [mm]\n");
+      printf("\n");
+    }
+    fprintf(fp, "# Dynamical Aperture:\n");
+    fprintf(fp, "#    x      y\n");
+    fprintf(fp, "#   [mm]   [mm]\n");
+    fprintf(fp, "#\n");
+  }
+
+  x_min = 0.0; x_max = 0.0; y_min = 0.0; y_max = 0.0;
+  for (i = 0; i < npoint; i++) {
+    phi = i*M_PI/(npoint-1);
+    if (i == 0) 
+      phi = 1e-3;
+    else if (i == npoint-1)
+      phi -= 1e-3;
+    getdynap(lat, r, phi, delta, eps, nturn, floqs);
+    x[i] = r*cos(phi); y[i] = r*sin(phi);
+    x_min = min(x[i], x_min); x_max = max(x[i], x_max);
+    y_min = min(y[i], y_min); y_max = max(y[i], y_max);
+    if (!floqs) {
+      if (print)
+        printf("  %6.2f %6.2f\n", 1e3*x[i], 1e3*y[i]);
+      fprintf(fp, "  %6.2f %6.2f\n", 1e3*x[i], 1e3*y[i]);
+    } else {
+      if (print)
+        printf("  %10.3e %10.3e\n", x[i], y[i]);
+      fprintf(fp, "  %10.3e %10.3e\n", x[i], y[i]);
+    }
+    fflush(fp);
+  }
+
+  if (print) {
+    printf("\n");
+    printf("  x^: %6.2f - %5.2f y^: %6.2f - %5.2f mm\n",
+	   1e3*x_min, 1e3*x_max, 1e3*y_min, 1e3*y_max);
+  }
+}
+
+
+double get_aper(int n, double x[], double y[])
+{
+  int     i;
+  double  A;
+
+  A = 0.0;
+  for (i = 2; i <= n; i++)
+    A += x[i-2]*y[i-1] - x[i-1]*y[i-2];
+  A += x[n-1]*y[0] - x[0]*y[n-1];
+// x2 from mid-plane symmetry
+  A = fabs(A);
+//  printf("\n");
+//  printf("  Dyn. Aper.: %5.1f mm^2\n", 1e6*A);
+  return(A);
+}
+
+
+ss_vect<tps> get_S(const int n_DOF)
+{
+  int          j;
+  ss_vect<tps> S;
+
+  S.zero();
+  for (j = 0; j < n_DOF; j++) {
+    S[2*j] = tps(0.0, 2*j+2); S[2*j+1] = -tps(0.0, 2*j+1);
+  }
+
+  return S;
+}
+
+
+char *asctime2(const struct tm *timeptr)
+{
+    // terminated with \0.
+    static char wday_name[7][4] = {
+        "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
+    };
+    // terminated with \0.
+    static char mon_name[12][4] = {
+        "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+    };
+    static char result[26];
+
+    sprintf(result, "%.3s %.3s%3d %.2d:%.2d:%.2d %d",
+        wday_name[timeptr->tm_wday],
+        mon_name[timeptr->tm_mon],
+        timeptr->tm_mday, timeptr->tm_hour,
+        timeptr->tm_min, timeptr->tm_sec,
+        1900 + timeptr->tm_year);
+    return result;
+}
+
+
+#define nfloq     4
+bool chk_if_lost(LatticeType &lat, double x0, double y0, double delta,
+		 long int nturn, bool floqs)
+{
+  long int  i, lastn, lastpos;
+  psVector    x;
+
+  bool  prt = false;
+
+  x[x_] = x0; x[px_] = px_0; x[y_] = y0; x[py_] = py_0;
+  x[delta_] = delta; x[ct_] = 0.0;
+  if (floqs)
+    // transform to phase space
+    LinTrans(nfloq, lat.conf.Ascr, x);  
+  for (i = 0; i <= 3; i++)  
+    x[i] += lat.conf.CODvect[i];
+
+  lastn = 0;
+  if (prt) {
+    printf("\n");
+    printf("chk_if_lost:\n");
+    printf("%4ld %7.3f %7.3f %7.3f %7.3f %7.3f %7.3f\n",
+	   lastn, 1e3*x[x_], 1e3*x[px_], 1e3*x[y_], 1e3*x[py_],
+	   1e2*x[delta_], 1e3*x[ct_]);
+  }
+  do {
+    lastn++;
+    lat.Cell_Pass(0, lat.conf.Cell_nLoc, x, lastpos);
+    if (prt)
+      printf("%4ld %7.3f %7.3f %7.3f %7.3f %7.3f %7.3f\n",
+	     lastn, 1e3*x[x_], 1e3*x[px_], 1e3*x[y_], 1e3*x[py_],
+	     1e2*x[delta_], 1e3*x[ct_]);
+  } while ((lastn != nturn) && (lastpos == lat.conf.Cell_nLoc));
+  return(lastn != nturn);
+}
+#undef nfloq
+
+
+void getdynap(LatticeType &lat, double &r, double phi, double delta, double eps,
+	      int nturn, bool floqs)
+{
+  /* Determine dynamical aperture by binary search. */
+  double  rmin = 0.0, rmax = r;
+
+  const bool    prt   = false;
+  const double  r_reset = 1e-3, r0 = 10e-3;
+
+  if (prt) printf("\n");
+
+  while (!chk_if_lost(lat, rmax*cos(phi), rmax*sin(phi), delta, nturn, floqs)) {
+    if (rmax < r_reset) rmax = r0;
+    rmax *= 2.0;
+  }
+  while (rmax-rmin >= eps) {
+    r = rmin + (rmax-rmin)/2.0;
+    if (prt) printf("getdynap: %6.3f %6.3f %6.3f\n",
+		    1e3*rmin, 1e3*rmax, 1e3*r);
+    if (!chk_if_lost(lat, r*cos(phi), r*sin(phi), delta, nturn, floqs) )
+      rmin = r;
+    else
+      rmax = r;
+    if (rmin > rmax) {
+      printf("getdynap: rmin > rmax\n");
+      exit_(0);
+    }
+
+  }
+  r = rmin;
+}

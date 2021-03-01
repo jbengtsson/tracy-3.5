@@ -11,10 +11,9 @@
 #ifndef T2LAT_H
 #define T2LAT_H
 
-#define Cell_nLocMax 20000  // maximum number of LEGO blocks (Cell_nLoc).
 #define DBNameLen    39
 
-typedef char   DBNameType[DBNameLen];
+typedef char DBNameType[DBNameLen];
 
 long int ElemIndex(const std::string &name1);
 

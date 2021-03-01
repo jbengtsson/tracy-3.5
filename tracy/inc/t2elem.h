@@ -76,7 +76,4 @@ void get_lin_maps(const double delta);
 void get_B(ConfigType &conf, const char *file_name, FieldMapType *FM);
 double Elem_GetKval(int Fnum1, int Knum1, int Order);
 
-void Mpole_SetdS(int Fnum1, int Knum1);
-void Mpole_SetdT(int Fnum1, int Knum1);
-
 #endif

@@ -60,23 +60,25 @@ using namespace std;
 #include "num_rec.h"
 
 #include "radia2tracy.h"
-#include "pascalio.h"
 
 #include "t2elem.h"
 #include "t2cell.h"
 #include "t2lat.h"
 #include "t2ring.h"
-#include "sigma_track.h"
+// #include "sigma_track.h"
 
-#include "fft.h"
+// #include "lsoc.h"
 
-#include "physlib.h"
-#include "nsls-ii_lib.h"
-#include "orb_corr.h"
-#include "param.h"
-#include "dynap.h"
+#include "rdmfile.h"
+#include "prtmfile.h"
 
-#include "lsoc.h"
+// #include "fft.h"
+
+// #include "physlib.h"
+// #include "nsls-ii_lib.h"
+// #include "orb_corr.h"
+// #include "param.h"
+// #include "dynap.h"
 
 #include "modnaff.h"
 
@@ -85,17 +87,12 @@ using namespace std;
 
 #include "soleillib.h"
 
-#include "rdmfile.h"
-#include "prtmfile.h"
-
 
 // Truncated Power Series Algebra (TPSA)
 extern const int  nv_tps, nd_tps, iref_tps;
 extern int        no_tps, ndpt_tps;
 extern double     eps_tps;
 
-// extern ElemFamType ElemFam[];
-// extern ElemType *Cell[];
 extern LatticeType lat;
 
 #endif
