@@ -54,7 +54,6 @@ using namespace std;
 #endif
 
 #include "tracy.h"
-#include "tracy_global.h"
 #include "ety.h"
 #include "eigenv.h"
 
