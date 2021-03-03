@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
   globval.pathlength = false; globval.bpm         = 0;
   globval.Cart_Bend  = false; globval.dip_edge_fudge = true;
 
-  trace = !false;
+  trace = false;
 
   globval.mat_meth = false;
 
@@ -30,7 +30,6 @@ int main(int argc, char *argv[])
   prt_lat("linlat1.out", globval.bpm, true);
   prt_lat("linlat.out", globval.bpm, true, 10);
   prtmfile("flat_file.dat");
-  exit(0);
 
   if (true) GetEmittance(ElemIndex("cav"), true);
 
