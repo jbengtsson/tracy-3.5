@@ -17,19 +17,19 @@ int no_tps = NO;
 
 
 const bool
-  set_dnu = false,
+  set_dnu = !false,
   mI_rot  = false,
   prt_s1  = false,
   prt_dt  = false;
 
 #define FULL_LAT 0
-#define SET_NU   0
+#define SET_NU   1
 
 const int
-  n_cell = (FULL_LAT)? 1 : 6;
+  n_cell = (FULL_LAT)? 1 : 16;
 const double
 #if SET_NU
-  nu[]     = {(64.38+0.5)/n_cell, 20.18/n_cell},
+  nu[]     = {44.38/n_cell, 12.18/n_cell},
 #else
   nu[]     = {0.1, 0.0},
 #endif
@@ -1613,7 +1613,7 @@ int main(int argc, char *argv[])
 
   const long   seed   = 1121;
   const int    n_turn = 2064;
-  const double delta  = 2.0e-2;
+  const double delta  = 2e-2;
   //                   nu[]    = { 102.18/20.0, 68.30/20.0 };
   // const std::string q_fam[] = { "qfe", "qde" }, s_fam[] = { "sfh", "sd" };
   //                   nu[]    = { 39.1/12.0, 15.25/12.0 };
@@ -1632,7 +1632,7 @@ int main(int argc, char *argv[])
 
   trace = false;
 
-  globval.mat_meth = !false;
+  globval.mat_meth = false;
 
   if (true)
     Read_Lattice(argv[1]);
