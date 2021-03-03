@@ -48,8 +48,8 @@ else if (ps == 5) \
 
 sgn_x = 1; sgn_y = 1;
 if ((N == 1) && (case == 1)) \
-  N_x = 54; N_y = 11; \
-else if ((N == 20) && (case == 1)) \
+  N_x = 44; N_y = 12; \
+else if ((N == 16) && (case == 1)) \
   N_x = 3; N_y = 1; sgn_x = -1; sgn_y = -1; \
 else if ((N == 20) && (case == 2)) \
   N_x = 3; N_y = 1; sgn_x = -1; sgn_y = -1; \
@@ -61,8 +61,8 @@ else if ((N == 12) && (case == 5)) \
   N_x = 3; N_y = 1;
 
 if (case == 1) \
-  nu_x_min = 54.0; nu_x_max = 55.0; nu_y_min = 11.0; nu_y_max = 12.0; \
-  x_max = 3.0; y_max = 3.0; delta_max = 3.5; \
+  nu_x_min = 43.5; nu_x_max = 44.5; nu_y_min = 11.5; nu_y_max = 12.5; \
+  x_max = 3.0; y_max = 3.0; delta_max = 3.0; \
 else if (case == 2) \
   nu_x_min = 53.0; nu_x_max = 54.0; nu_y_min = 11.0; nu_y_max = 12.0; \
   x_max = 3.0; y_max = 3.0; delta_max = 3.5; \
