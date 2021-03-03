@@ -10,7 +10,7 @@ int no_tps = NO;
 
 
 const bool
-  ps_rot          = !false, // Note, needs to be zeroed; after use.
+  ps_rot          = false, // Note, needs to be zeroed; after use.
   pert_dip_cell   = false,
   dphi            = true,
   long_grad_dip   = false,
@@ -25,8 +25,7 @@ const bool
      match_disp     4, no ksi_terms & drv_terms, b1e single block dipole,
      match_straight 5,
      opt_sp         6.                                                        */
-const int opt_case = 6
-;
+const int opt_case = 6;
 
 const int
   n_ic   = 5,
@@ -80,7 +79,7 @@ const double
   scl_h_3               = (drv_terms[0])?     1e-10*1e14 : 0e0,
   scl_h_3_delta         = (drv_terms[1])?     1e14 : 0e0,
   scl_h_4               = (drv_terms[2])?     1e18 : 0e0,
-  scl_ksi_2             = (ksi_terms[1])?     1e-1*1e7 : 0e0,
+  scl_ksi_2             = (ksi_terms[1])?     1e-2*1e7 : 0e0,
   scl_ksi_3             = (ksi_terms[2])?     1e0*1e7 : 0e0,
   scl_chi_2             = (tune_fp_terms[0])? 1e1*1e4 : 0e0,
   scl_chi_delta_2       = (tune_fp_terms[1])? 1e5 : 0e0,
@@ -1079,7 +1078,7 @@ void set_b3_constr_sp(constr_type &constr)
 
 void set_weights_sp(constr_type &constr)
 {
-  lat_constr.eps_x_scl             = 1e-3*1e7;
+  lat_constr.eps_x_scl             = 1e-2*1e7;
 
   lat_constr.alpha_c_scl           = 1e1*1e-6;
 
@@ -1168,8 +1167,8 @@ int main(int argc, char *argv[])
   globval.Cart_Bend  = false; globval.dip_edge_fudge = true;
 
   if (ps_rot) {
-    // Ring_GetTwiss(true, 0e0); printglob();
-    // set_map(ElemIndex("ps_rot"), dnu0);
+    Ring_GetTwiss(true, 0e0); printglob();
+    set_map(ElemIndex("ps_rot"), dnu0);
     Ring_GetTwiss(true, 0e0); printglob();
     set_map(ElemIndex("ps_rot"), dnu);
     Ring_GetTwiss(true, 0e0); printglob();
