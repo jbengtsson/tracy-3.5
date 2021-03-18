@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
 
   globval.mat_meth = false;
 
-  if (true)
+  if (false)
     Read_Lattice(argv[1]);
   else
     rdmfile(argv[1]);
@@ -29,7 +29,6 @@ int main(int argc, char *argv[])
 
   prt_lat("linlat1.out", globval.bpm, true);
   prt_lat("linlat.out", globval.bpm, true, 10);
-  prtmfile("flat_file.dat");
 
   if (true) GetEmittance(ElemIndex("cav"), true);
 

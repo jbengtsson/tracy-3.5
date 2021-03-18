@@ -17,12 +17,12 @@ int no_tps = NO;
 
 
 const bool
-  set_dnu = !false,
+  set_dnu = false,
   mI_rot  = false,
   prt_s1  = false,
   prt_dt  = false;
 
-#define FULL_LAT 0
+#define FULL_LAT 1
 #define SET_NU   1
 
 const int
@@ -1613,7 +1613,7 @@ int main(int argc, char *argv[])
 
   const long   seed   = 1121;
   const int    n_turn = 2064;
-  const double delta  = 2.5e-2;
+  const double delta  = 2e-2;
   //                   nu[]    = { 102.18/20.0, 68.30/20.0 };
   // const std::string q_fam[] = { "qfe", "qde" }, s_fam[] = { "sfh", "sd" };
   //                   nu[]    = { 39.1/12.0, 15.25/12.0 };
@@ -1985,17 +1985,14 @@ int main(int argc, char *argv[])
 
   if (false) {
     iniranf(seed); setrancut(1e0);
-    // globval.bpm = ElemIndex("mon");
+
     globval.bpm = ElemIndex("bpm");
-    globval.hcorr = ElemIndex("ch"); globval.vcorr = ElemIndex("cv");
-    // ALS-U.
-    // globval.bpm = ElemIndex("bpm_m");
-    // globval.hcorr = ElemIndex("corr_h"); globval.vcorr = ElemIndex("corr_v");
+    globval.hcorr = ElemIndex("chv"); globval.vcorr = ElemIndex("chv");
 
     gcmat(globval.bpm, globval.hcorr, 1);
     gcmat(globval.bpm, globval.vcorr, 2);
 
-    get_cod_rms(50e-6, 50e-6, 100, true);
+    get_cod_rms(100e-6, 100e-6, 100, true);
 
     exit(0);
   }
