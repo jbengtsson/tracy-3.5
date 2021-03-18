@@ -40,7 +40,7 @@ else if (ps == 5) \
   ext = "svg";
 
 if ((N == 1) && (case == 1)) \
-  N_x = 54; N_y = 11; \
+  N_x = 44; N_y = 12; \
 else if ((N == 16) && (case == 1)) \
   N_x = 2; N_y = 0; \
 else if ((N == 18) && (case == 1)) \
