@@ -10,8 +10,7 @@ gnuplot << EOP
 home_dir = "$prm1"; N = $prm2; ps = $prm3; case = $prm4; pert = $prm5;
 
 # BESSY-III  1,
-# ALS-U      2,
-# SLS-2      3.
+# BESSY-II   2.
 
 file1  = (home_dir)."dnu_dAx.out";
 file12 = (home_dir)."dnu_dAx_pert.out"
@@ -43,17 +42,10 @@ if ((N == 1) && (case == 1)) \
   N_x = 44; N_y = 12; \
 else if ((N == 16) && (case == 1)) \
   N_x = 2; N_y = 0; \
-else if ((N == 18) && (case == 1)) \
-  N_x = 2; N_y = 0; \
-else if ((N == 20) && (case == 1)) \
-  N_x = 2; N_y = 0; \
-else if ((N == 12) && (case == 2)) \
-  N_x = 2; N_y = 0; \
-else if ((N == 12) && (case == 3)) \
-  N_x = 3; N_y = 1;
+else if ((N == 1) && (case == 2)) \
+  N_x = 17; N_y = 6;
 
 # Only used for tune footprint, graph 4.
-if (case == 1) \
   nu_x_min = 54.0; nu_x_max = 54.5; nu_y_min = 11.0; nu_y_max = 11.5;
 
 # left adjusted labels
@@ -83,8 +75,8 @@ if (!pert) \
 else \
   plot file1 using 1:(N*(N_x+\$5)) title "A_x" with lines ls 1, \
        file2 using 2:(N*(N_x+\$5)) title "A_y" with lines ls 3, \
-       file12 using 1:(N*(N_x+\$3)) title "A_x (pert)" with lines ls 2, \
-       file22 using 2:(N*(N_x+\$3)) title "A_y (pert)" with lines ls 4;
+       "ptc/".file12 using 1:(N*(N_x+\$3)) title "A_x (pert)" with lines ls 2, \
+       "ptc/".file22 using 2:(N*(N_x+\$3)) title "A_y (pert)" with lines ls 4;
 if (!ps) pause mouse "click on graph to cont.\n";
 
 if (ps) set output (home_dir)."dnu_2.".(ext);
@@ -98,8 +90,8 @@ if (!pert) \
 else \
   plot file1 using 1:(N*(N_y+\$6)) title "A_x" with lines ls 1, \
        file2 using 2:(N*(N_y+\$6)) title "A_y" with lines ls 3, \
-       file12 using 1:(N*(N_y+\$4)) title "A_x (pert)" with lines ls 2, \
-       file22 using 2:(N*(N_y+\$4)) title "A_y (pert)" with lines ls 4;
+       "ptc/".file12 using 1:(N*(N_y+\$4)) title "A_x (pert)" with lines ls 2, \
+       "ptc/".file22 using 2:(N*(N_y+\$4)) title "A_y (pert)" with lines ls 4;
 if (!ps) pause mouse "click on graph to cont.\n";
 
 if (ps) set output (home_dir)."dnu_3.".(ext);
@@ -115,9 +107,9 @@ if (!pert) \
 else \
   plot file3 using 1:(N*\$2) title "{/Symbol n}_x" with lines ls 1, \
        file3 using 1:(N*\$3) axis x1y2 title "{/Symbol n}_y" with lines ls 3, \
-       file32 using 1:(N*(N_x+\$2)) title "{/Symbol n}_x (pert)" \
+       "ptc/".file32 using 1:(N*(N_x+\$2)) title "{/Symbol n}_x (pert)" \
        with lines ls 2, \
-       file32 using 1:(N*(N_y+\$3)) axis x1y2 title "{/Symbol n}_y" \
+       "ptc/".file32 using 1:(N*(N_y+\$3)) axis x1y2 title "{/Symbol n}_y" \
        with lines ls 4;
 if (!ps) pause mouse "click on graph to cont.\n";
 
