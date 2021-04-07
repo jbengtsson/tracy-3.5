@@ -77,7 +77,7 @@ public:
     eps_x_scl,
     eps0_x,                        // Hor. emittance [nm.rad].
     nu[2],                         // Cell tune.
-    nu_ref_scl,
+    nu_ref_scl[2],
     nu_cos[2], nu_sin[2],
     nu_ref[2],                     // Desired cell tune.
     nu_cos_ref[2], nu_sin_ref[2],  // Matrix element.
@@ -118,7 +118,7 @@ public:
   constr_type(void) {
     n_iter = 0;
     chi2 = chi2_prt = 1e30;
-    eps_x_scl = nu_ref_scl = phi_scl = 0e0;
+    eps_x_scl = nu_ref_scl[X_] = nu_ref_scl[Y_] = phi_scl = 0e0;
     nu_cos_ref_scl[X_] = nu_cos_ref_scl[Y_] = 0e0;
     ksi1_ctrl_scl[0] = ksi1_ctrl_scl[1] = ksi1_ctrl_scl[2] = 0e0;
     high_ord_achr_scl[X_] = high_ord_achr_scl[Y_] = 0e0;
@@ -1007,9 +1007,9 @@ double constr_type::get_chi2(const double twoJ[], const double delta,
     if (prt) printf("\n");
   }
 
-  if (nu_ref_scl != 0e0) {
+  if ((nu_ref_scl[X_] != 0e0) || (nu_ref_scl[Y_] != 0e0)) {
     for (k = 0; k < 2; k++) {
-      dnu[k] = nu_ref_scl*sqr(nu[k]-nu_ref[k]);
+      dnu[k] = nu_ref_scl[k]*sqr(nu[k]-nu_ref[k]);
       chi2 += dnu[k];
     }
     if (prt) printf("  nu_ref          = [%10.3e, %10.3e]\n", dnu[X_], dnu[Y_]);
@@ -1186,10 +1186,9 @@ void constr_type::prt_constr(const double chi2)
   if (scl_eps_x != 0e0)
     printf("    eps_x      =  %7.3f (%7.3f)\n", eps_x, eps0_x);
   printf("    nu         = [%7.3f, %7.3f]\n", nu[X_], nu[Y_]);
-  if (nu_ref_scl != 0e0) {
+  if ((nu_ref_scl[X_] != 0e0) || (nu_ref_scl[Y_] != 0e0))
     printf("    dnu        = [%7.3f, %7.3f]\n",
 	   nu[X_]-nu_ref[X_], nu[Y_]-nu_ref[Y_]);
-  }
   if (nu_cos_ref_scl[X_] != 0e0) {
     printf("    nu_ref     = [%7.3f, %7.3f]\n", nu_ref[X_], nu_ref[Y_]);
     printf("\n    nu_cos_ref = [%7.3f, %7.3f]\n",

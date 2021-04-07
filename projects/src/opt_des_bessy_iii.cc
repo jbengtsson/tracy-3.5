@@ -40,7 +40,7 @@ const double
    {0.0306340488, 0.0000000000}, {0.0, 0.0}},
 
 #if 1
-  eps0_x                = 0.125,
+  eps0_x                = 0.150,
 #else
   eps0_x                = 0.050,
 #endif
@@ -56,7 +56,7 @@ const double
 #define NU 1
 #if NU == 1
   // 5 unit cells.
-  nu_ref[]              = {1.0/2.0, 1.0/2.0},
+  nu_ref[]              = {1.0/4.0, 1.0/4.0},
   high_ord_achr_nu[][2] = {{2.0/5.0, 1.0/10.0}, {0.0, 0.0}},
 
 #elif NU == 2
@@ -70,7 +70,7 @@ const double
 #endif
 
   scl_eps_x             = 5e7,
-  nu_ref_scl            = 1e-2*1e7,
+  nu_ref_scl[]          = {1e-2*1e7, 1e-3*1e7},
   alpha_c_scl           = 1e0*5e-7,
 
   mI_scl                = 1e-6,
@@ -504,7 +504,8 @@ void set_weights_res(constr_type &constr)
   lat_constr.nu_cos_ref_scl[Y_] = 1e1;
   lat_constr.alpha_c_scl        = 1e-9;
 
-  lat_constr.nu_ref_scl         = nu_ref_scl;
+  lat_constr.nu_ref_scl[X_]     = nu_ref_scl[X_];
+  lat_constr.nu_ref_scl[Y_]     = nu_ref_scl[Y_];
 
   for (k = 0; k < 2; k++) {
     lat_constr.nu_ref[k] = nu_ref[k];
@@ -665,7 +666,8 @@ void set_weights_unit_cell(constr_type &constr)
 
   lat_constr.alpha_c_scl           = 1e-3*1e-6;
 
-  lat_constr.nu_ref_scl            = nu_ref_scl;
+  lat_constr.nu_ref_scl[X_]        = nu_ref_scl[X_];
+  lat_constr.nu_ref_scl[Y_]        = nu_ref_scl[Y_];
   lat_constr.nu_ref[X_]            = nu_ref[X_];
   lat_constr.nu_ref[Y_]            = nu_ref[Y_];
 
@@ -1082,7 +1084,8 @@ void set_weights_sp(constr_type &constr)
 
   lat_constr.alpha_c_scl           = 1e1*1e-6;
 
-  lat_constr.nu_ref_scl            = nu_ref_scl;
+  lat_constr.nu_ref_scl[X_]        = nu_ref_scl[X_];
+  lat_constr.nu_ref_scl[Y_]        = nu_ref_scl[Y_];
   lat_constr.nu_ref[X_]            = 2*nu_ref[X_];
   lat_constr.nu_ref[Y_]            = 2*nu_ref[Y_];
 

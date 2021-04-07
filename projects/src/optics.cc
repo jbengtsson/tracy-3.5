@@ -22,14 +22,15 @@ const bool
   prt_s1  = false,
   prt_dt  = false;
 
-#define FULL_LAT 1
+#define FULL_LAT 0
 #define SET_NU   1
 
 const int
   n_cell = (FULL_LAT)? 1 : 16;
 const double
 #if SET_NU
-  nu[]     = {44.38/n_cell, 12.18/n_cell},
+  // nu[]     = {44.38/n_cell, 12.18/n_cell},
+  nu[]     = {40.38/n_cell, 13.18/n_cell},
 #else
   nu[]     = {0.1, 0.0},
 #endif
@@ -1628,11 +1629,11 @@ int main(int argc, char *argv[])
   // 1: DIAMOND, 2: NSLS-II, 3: Oleg I, 4: Oleg II.
   FieldMap_filetype = 4; sympl = !false;
 
-  reverse_elem = false;
+  reverse_elem = !false;
 
   trace = false;
 
-  globval.mat_meth = false;
+  globval.mat_meth = !false;
 
   if (true)
     Read_Lattice(argv[1]);
@@ -1644,9 +1645,6 @@ int main(int argc, char *argv[])
   globval.emittance  = false; globval.IBS            = false;
   globval.pathlength = false; globval.bpm            = 0;
   globval.Cart_Bend  = false; globval.dip_edge_fudge = true;
-
-  getcod(1e-1, lastpos);
-  prt_cod("cod.out", globval.bpm, true);
 
   if (false) no_sxt();
 

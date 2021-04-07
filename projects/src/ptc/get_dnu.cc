@@ -7,15 +7,9 @@ int no_tps   = NO,
 
 
 const double
-  // beta_inj[] = {8.7, 2.1},
-  // A_max[]    = {5e-3, 1.5e-3},
-  // delta_max  = 3e-2,
-  beta_inj[] = {9.7, 5.9},
-  A_max[]    = {5e-3, 1.5e-3},
-  delta_max  = 3.5e-2,
-  // beta_inj[] = {4.1, 1.8},
-  // A_max[]    = {4e-3, 2.5e-3},
-  // delta_max  = 4e-2,
+  beta_inj[] = {16.5, 3.7},
+  A_max[]    = {15e-3, 8e-3},
+  delta_max  = 3e-2,
   twoJ[]     = {sqr(A_max[X_])/beta_inj[X_], sqr(A_max[Y_])/beta_inj[Y_]};
 
 const char home_dir[] = "/home/bengtsson";

@@ -583,7 +583,7 @@ void GetEmittance(const int Fnum, const bool prt)
     printf("Equilibrium emittance [m.rad]:  "
 	   "eps         =  [%9.3e, %9.3e, %9.3e]\n",
             globval.eps[X_], globval.eps[Y_], globval.eps[Z_]);
-   printf("Bunch length [mm]:              "
+    printf("Bunch length [mm]:              "
 	   "sigma_s     =  %5.3f\n", 1e3*sigma_s);
     printf("Momentum spread:                "
 	   "sigma_delta =  %9.3e\n", sigma_delta);
@@ -594,7 +594,7 @@ void GetEmittance(const int Fnum, const bool prt)
 	   "J           =  [%5.3f, %5.3f, %5.3f]\n",
             globval.J[X_], globval.J[Y_], globval.J[Z_]);
     printf("Damping times [msec]:           "
-	   "tau         =  [%3.1f, %3.1f, %3.1f]\n",
+	   "tau         =  [%5.3f, %5.3f, %5.3f]\n",
 	   1e3*globval.tau[X_], 1e3*globval.tau[Y_], 1e3*globval.tau[Z_]);
     printf("Diffusion coeffs:               "
 	   "D           =  [%7.1e, %7.1e, %7.1e]\n",

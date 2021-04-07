@@ -10,8 +10,8 @@ const double
   A_max[]   = {2e-3, 2e-3},
   delta_max = 3e-2;
 #else
-  A_max[]   = {8e-3, 8e-3},
-  delta_max = 4e-2;
+  A_max[]   = {15e-3, 10e-3},
+  delta_max = 3e-2;
 #endif
 
 

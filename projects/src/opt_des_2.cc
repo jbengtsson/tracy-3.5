@@ -67,7 +67,7 @@ const double
   eta_x_ms              = 15e-3,
 
   scl_eps_x             = 5e7,
-  nu_ref_scl            = 0*5e7,
+  nu_ref_scl[]          = {0*5e7, 0*5e7},
   alpha_c_scl           = 1e0*5e-7,
 
   mI_scl                = 1e-6,
@@ -777,7 +777,8 @@ void set_weights_sp(constr_type &constr)
   lat_constr.L_scl                 = 0e-10;
   lat_constr.L0                    = 10.0;
 
-  lat_constr.nu_ref_scl            = nu_ref_scl;
+  lat_constr.nu_ref_scl[X_]        = nu_ref_scl[X_];
+  lat_constr.nu_ref_scl[Y_]        = nu_ref_scl[Y_];
   lat_constr.nu_ref[X_]            = nu_ref[X_];
   lat_constr.nu_ref[Y_]            = nu_ref[Y_];
 
