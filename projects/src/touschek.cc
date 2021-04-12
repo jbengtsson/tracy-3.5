@@ -14,18 +14,18 @@ void err_and_corr(const string &param_file)
   orb_corr_type   orb_corr[2];
   FILE            *fp;
 
-  // DIAMOND-II: I_b = 300 mA, h = 934.
+  // BESSY-III: I_b = 500 mA, h = 538.
   const int 
-    Nb          = 934;
+    Nb          = 538;
   const double
-    C           = 560.571,
+    C           = 323.193,
     T0          = C/c0,
-    Ib          = 300e-3,
+    Ib          = 500e-3,
     Qb          = Ib*T0/Nb,
-    eps[]       = {99e-12, 8e-12},
-    sigma_s     = 3.0e-3,
-    sigma_delta = 1.1e-3,
-    delta_RF    = 4.0e-2;
+    eps[]       = {150e-12, 8e-12},
+    sigma_s     = 3.5e-3,
+    sigma_delta = 0.8e-3,
+    delta_RF    = 3e-2;
 
   const string file_name = "mom_aper.out";
 

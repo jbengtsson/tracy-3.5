@@ -17,20 +17,20 @@ int no_tps = NO;
 
 
 const bool
-  set_dnu = false,
+  set_dnu = !false,
   mI_rot  = false,
   prt_s1  = false,
   prt_dt  = false;
 
-#define FULL_LAT 0
+#define FULL_LAT 1
 #define SET_NU   1
 
 const int
-  n_cell = (FULL_LAT)? 1 : 16;
+  n_cell = 16;
 const double
 #if SET_NU
-  // nu[]     = {44.38/n_cell, 12.18/n_cell},
-  nu[]     = {40.38/n_cell, 13.18/n_cell},
+  nu[]     = {44.38/n_cell, 12.18/n_cell},
+  // nu[]     = {40.38/n_cell, 13.18/n_cell},
 #else
   nu[]     = {0.1, 0.0},
 #endif
@@ -1633,7 +1633,7 @@ int main(int argc, char *argv[])
 
   trace = false;
 
-  globval.mat_meth = !false;
+  globval.mat_meth = false;
 
   if (true)
     Read_Lattice(argv[1]);
@@ -1681,7 +1681,10 @@ int main(int argc, char *argv[])
     set_map(ElemIndex("ps_rot"), dnu);
     Ring_GetTwiss(true, 0e0); printglob();
     for (k = 0; k < 2; k++)
-      dnu[k] = (SET_NU)? nu[k] - globval.TotalTune[k] : nu[k];
+      if (!FULL_LAT)
+	dnu[k] = (SET_NU)? nu[k] - globval.TotalTune[k] : nu[k];
+      else
+	dnu[k] = (SET_NU)? nu[k] - globval.TotalTune[k]/n_cell : nu[k];
     printf("\ntune set to:\n  dnu     = [%8.5f, %8.5f]\n", dnu[X_], dnu[Y_]);
     printf("  nu      = [%8.5f, %8.5f]\n", nu[X_], nu[Y_]);
     set_map(ElemIndex("ps_rot"), dnu);
@@ -2137,5 +2140,4 @@ int main(int argc, char *argv[])
     globval.Cavity_on = true;
     get_dynap(delta, 25, n_turn, false);
   }
-
 }
