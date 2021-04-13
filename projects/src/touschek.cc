@@ -23,9 +23,9 @@ void err_and_corr(const string &param_file)
     Ib          = 500e-3,
     Qb          = Ib*T0/Nb,
     eps[]       = {150e-12, 8e-12},
-    sigma_s     = 3.5e-3,
+    sigma_s     = 2.5e-3,
     sigma_delta = 0.8e-3,
-    delta_RF    = 3e-2;
+    delta_RF    = 5e-2;
 
   const string file_name = "mom_aper.out";
 
