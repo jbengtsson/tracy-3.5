@@ -4,7 +4,7 @@ prm1=${1-0}
 
 gnuplot << EOP
 
-ps = $prm1; plt_I5 = 1;
+ps = $prm1;
 
 file_name = "cod_rms.out";
 
