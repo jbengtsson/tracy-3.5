@@ -1,4 +1,12 @@
-ps = 0;
+#!/bin/sh
+
+prm1=${1-0}
+
+gnuplot << EOP
+
+ps = $prm1; plt_I5 = 1;
+
+file_name = "cod_rms.out";
 
 f_s = 24; l_w = 2;
 if (ps == 0) \
@@ -28,9 +36,9 @@ set title "Horizontal RMS Orbit \n \
 set xlabel "s [m]"; set ylabel "[mm]";
 #set yrange [-0.004:*];
 set y2range [-1.5:20];
-plot "cod_rms.out" using 1:2 axis x1y2 notitle with fsteps lt 1 lw 1 \
+plot file_name using 1:2 axis x1y2 notitle with fsteps lt 1 lw 1 \
      lc rgb "black", \
-     "cod_rms.out" using 1:3:3:5 notitle with errorbars ls 1;
+     file_name using 1:3:3:5 notitle with errorbars ls 1;
 if (!ps) pause mouse "click on graph to cont.\n";
 
 if (ps) set output "cod_rms_2.".(ext)
@@ -39,7 +47,9 @@ set title "Vertical RMS Orbit \n \
 set xlabel "s [m]"; set ylabel "[mm]";
 #set yrange [-0.015:*];
 set y2range [-1.5:20];
-plot "cod_rms.out" using 1:2 axis x1y2 notitle with fsteps lt 1 lw 1 \
+plot file_name using 1:2 axis x1y2 notitle with fsteps lt 1 lw 1 \
      lc rgb "black", \
-     "cod_rms.out" using 1:6:6:8 notitle with errorbars ls 3;
+     file_name using 1:6:6:8 notitle with errorbars ls 3;
 if (!ps) pause mouse "click on graph to cont.\n";
+
+EOP
