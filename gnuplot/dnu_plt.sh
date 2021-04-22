@@ -75,8 +75,8 @@ if (!pert) \
 else \
   plot file1 using 1:(N*(N_x+\$5)) title "A_x" with lines ls 1, \
        file2 using 2:(N*(N_x+\$5)) title "A_y" with lines ls 3, \
-       "ptc/".file12 using 1:(N*(N_x+\$3)) title "A_x (pert)" with lines ls 2, \
-       "ptc/".file22 using 2:(N*(N_x+\$3)) title "A_y (pert)" with lines ls 4;
+       file12 using 1:(N*(N_x+\$3)) title "A_x (pert)" with lines ls 2, \
+       file22 using 2:(N*(N_x+\$3)) title "A_y (pert)" with lines ls 4;
 if (!ps) pause mouse "click on graph to cont.\n";
 
 if (ps) set output (home_dir)."dnu_2.".(ext);
@@ -90,8 +90,8 @@ if (!pert) \
 else \
   plot file1 using 1:(N*(N_y+\$6)) title "A_x" with lines ls 1, \
        file2 using 2:(N*(N_y+\$6)) title "A_y" with lines ls 3, \
-       "ptc/".file12 using 1:(N*(N_y+\$4)) title "A_x (pert)" with lines ls 2, \
-       "ptc/".file22 using 2:(N*(N_y+\$4)) title "A_y (pert)" with lines ls 4;
+       file12 using 1:(N*(N_y+\$4)) title "A_x (pert)" with lines ls 2, \
+       file22 using 2:(N*(N_y+\$4)) title "A_y (pert)" with lines ls 4;
 if (!ps) pause mouse "click on graph to cont.\n";
 
 if (ps) set output (home_dir)."dnu_3.".(ext);
@@ -107,9 +107,9 @@ if (!pert) \
 else \
   plot file3 using 1:(N*\$2) title "{/Symbol n}_x" with lines ls 1, \
        file3 using 1:(N*\$3) axis x1y2 title "{/Symbol n}_y" with lines ls 3, \
-       "ptc/".file32 using 1:(N*(N_x+\$2)) title "{/Symbol n}_x (pert)" \
+       file32 using 1:(N*(N_x+\$2)) title "{/Symbol n}_x (pert)" \
        with lines ls 2, \
-       "ptc/".file32 using 1:(N*(N_y+\$3)) axis x1y2 title "{/Symbol n}_y" \
+       file32 using 1:(N*(N_y+\$3)) axis x1y2 title "{/Symbol n}_y" \
        with lines ls 4;
 if (!ps) pause mouse "click on graph to cont.\n";
 
