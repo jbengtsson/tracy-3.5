@@ -23,7 +23,7 @@ const bool
      cross_res      2,
      opt_unit_cell  3,
      match_disp     4, no ksi_terms & drv_terms, b1e single block dipole,
-     match_straight 5,
+     match_straight 5, no ksi_terms & drv_terms, b1e single block dipole,
      opt_sp         6.                                                        */
 const int opt_case = 6;
 
@@ -36,28 +36,26 @@ const double
 
 // From the center of the straight: alpha, beta, eta, eta'.
   ic[n_ic][2]           =
-  {{-0.0000000000, -0.0000000000}, {3.2262890063, 2.4083826129},
-   {0.0306340488, 0.0000000000}, {0.0, 0.0}},
+  {{-0.0114433644, -0.0125080189}, {6.0835321179, 2.6975935689},
+   {0.0613130109, 0.0000000000}, {0.0001292022, 0.0000000000}},
 
-#if 1
   eps0_x                = 0.150,
-#else
-  eps0_x                = 0.050,
-#endif
 
   beta_inj[]            = {2.0, 2.0},
   A_max[]               = {6e-3, 3e-3},
   delta_max             = 2e-2,
   A_delta_max[]         = {2e-3, 0.1e-3},
 
-  dnu[]                 = {0.0, -0.1},
+  dnu[]                 = {0.0, 0.1},
 
 // 3 for opt_unit_cell.
 #define NU 1
 #if NU == 1
   // 5 unit cells.
   nu_ref[]              = {1.0/4.0, 1.0/4.0},
-  high_ord_achr_nu[][2] = {{2.0/5.0, 1.0/10.0}, {0.0, 0.0}},
+  high_ord_achr_nu[][2] = {{2.0/5.0, 1.0/10.0}, {2.0/5.0, 1.0/10.0},
+			   {2.0/5.0, 1.0/10.0}, {2.0/5.0, 1.0/10.0},
+			   {2.0/5.0, 1.0/10.0}},
 
 #elif NU == 2
   // 4 unit cells.
@@ -70,7 +68,7 @@ const double
 #endif
 
   scl_eps_x             = 5e7,
-  nu_ref_scl[]          = {1e-2*1e7, 1e-3*1e7},
+  nu_ref_scl[]          = {1e-3*1e7, 1e-4*1e7},
   alpha_c_scl           = 1e0*5e-7,
 
   mI_scl                = 1e-6,
@@ -84,7 +82,7 @@ const double
   scl_chi_2             = (tune_fp_terms[0])? 1e1*1e4 : 0e0,
   scl_chi_delta_2       = (tune_fp_terms[1])? 1e5 : 0e0,
 
-  scl_extra             = 0e4,
+  scl_extra             = 0e0,
 
   twoJ[]                =
     {sqr(A_max[X_])/beta_inj[X_], sqr(A_max[Y_])/beta_inj[Y_]},
@@ -95,8 +93,8 @@ const double
 
   phi_max               = 3.0,
   b_2_max               = 15.0,
-  b_2_dip_max           = 4.0,
-  b_3_chrom_max         = 1.5e3,
+  b_2_dip_max           = 15.0,
+  b_3_chrom_max         = 2e3,
   b_3_max               = 2e3,
   b_4_max               = 1e4;
 
@@ -197,7 +195,7 @@ double f_res(double *bn)
 double f_achrom(double *bn)
 {
   bool        stable;
-  double      chi2, L_b1e, L_b1c, dchi2;
+  double      chi2, dchi2, b2_uq1, b2_uq2, b2_uq3;
   static bool first = true;
 
   const bool prt   = false;
@@ -219,12 +217,14 @@ double f_achrom(double *bn)
       lat_constr.get_chi2(twoJ, delta_max, twoJ_delta, lat_prms, bn, true,
 			  false);
 
-    if (false) {
-      L_b1e = get_L(ElemIndex("b1e"), 1);
-      L_b1c = get_L(ElemIndex("b1c"), 1);
-      dchi2 = scl_extra*sqr(L_b1e-L_b1c);
+    if (scl_extra != 0e0) {
+      b2_uq1 = GetKpar(ElemIndex("uq1"), 1, Quad);
+      b2_uq2 = GetKpar(ElemIndex("uq2"), 1, Quad);
+      b2_uq3 = GetKpar(ElemIndex("uq3"), 1, Quad);
+      dchi2 = scl_extra*(sqr(b2_uq1)+sqr(b2_uq2)+sqr(b2_uq3));
       chi2 += dchi2;
-      printf("\n  L_b1e = %5.3f L_b1c = %5.3f (%9.3e)\n", L_b1e, L_b1c, dchi2);
+      printf("\n  b2_uq = [%5.3f, %5.3f, %5.3f] (%9.3e)\n",
+	     b2_uq1, b2_uq2, b2_uq3, dchi2);
     }
 
     if (first || (chi2 < lat_constr.chi2)) {
@@ -825,16 +825,26 @@ void set_dip_straight(param_type &prms, constr_type &constr)
 
 void set_b2_straight(param_type &prms)
 {
-  prms.add_prm("q1",  2, -b_2_max, 0.0,     1.0);
-  prms.add_prm("q2",  2,  0.0,     b_2_max, 1.0);
-  prms.add_prm("q3",  2, -b_2_max, 0.0,     1.0);
+  prms.add_prm("uq1",  2,  -b_2_max, b_2_max, 1.0);
+  prms.add_prm("uq2",  2,  -b_2_max, b_2_max, 1.0);
+  prms.add_prm("uq3",  2,  -b_2_max, b_2_max, 1.0);
+
+  if (!false) {
+    prms.add_prm("b0_m",  2, -b_2_max, 0*b_2_max, 1.0);
+    prms.add_prm("b1_m",  2, -b_2_max, b_2_max, 1.0);
+    prms.add_prm("q0_m",  2, -b_2_max, b_2_max, 1.0);
+
+    prms.add_prm("d1", -2, 0.0, 0.3, 1.0);
+
+  if (false) prms.add_prm("b0_m", -2, 0.2, 1.0, 1.0);
+  }
 
   // Min & max are min distance to next element.
-  if (!false) {
+  if (false) {
     // Introduce a tiny interval.
-    prms.add_prm("q1", -1, 0.1, 0.1, 1.0);
-    prms.add_prm("q2", -1, 0.1, 0.1, 1.0);
-    prms.add_prm("q3", -1, 0.1, 2.1, 1.0);
+    prms.add_prm("uq1", -1, 0.1, 0.1, 1.0);
+    prms.add_prm("uq2", -1, 0.1, 0.1, 1.0);
+    prms.add_prm("uq3", -1, 0.1, 0.5, 1.0);
   }
 
   // Parameters are initialized in optimizer.
@@ -843,9 +853,14 @@ void set_b2_straight(param_type &prms)
 
 void set_constr_straight(constr_type &constr)
 {
-  constr.add_constr(Elem_GetPos(ElemIndex("l7"), 1),
-  		    1e5, 1e5, 0e0, 0e0, 0e0, 0e0,
-  		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+  if (!false)
+    constr.add_constr(Elem_GetPos(ElemIndex("b0_m"), 1),
+		      0e0, 0e0, 0e0, 0e0, 1e8, 1e8,
+		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+
+  constr.add_constr(Elem_GetPos(ElemIndex("ul4"), 1),
+		    1e5, 1e5, 1e0,         1e0,         0e0, 0e0,
+		    0.0, 0.0, beta_ms[X_], beta_ms[Y_], 0.0, 0.0);
 }
 
 
@@ -853,8 +868,8 @@ void set_b3_constr_straight(constr_type &constr)
 {
   int k, n;
 
+  lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("s0"), 1));
   lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("s1"), 1));
-  lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("s2"), 1));
 
   n = lat_constr.high_ord_achr_Fnum.size()/2;
   lat_constr.high_ord_achr_dnu.resize(n);
@@ -913,18 +928,22 @@ void set_dip_sp(param_type &prms, constr_type &constr)
       prms.add_prm("b1", -3, -phi_max, phi_max, 1.0);
       lat_constr.Fnum_b1.push_back(ElemIndex("b1"));
 
-      prms.add_prm("mb0", -3, -5.0, 5.0,  1.0);
-      lat_constr.Fnum_b1.push_back(ElemIndex("mb0"));
+      prms.add_prm("b0_m", -3, -phi_max, phi_max, 1.0);
+      lat_constr.Fnum_b1.push_back(ElemIndex("b0_m"));
+
       // Commented out must be defined last.
-      prms.add_prm("mb1", -3, -5.0, 5.0,  1.0);
-      lat_constr.Fnum_b1.push_back(ElemIndex("mb1"));
+      // prms.add_prm("b1_m", -3, -5.0, 5.0,  1.0);
+      lat_constr.Fnum_b1.push_back(ElemIndex("b1_m"));
 
-      prms.add_prm("b0",  2, -b_2_dip_max, b_2_dip_max, 1.0);
-      if (false) prms.add_prm("b0", -2, 0.3, 0.7, 1.0);
-      prms.add_prm("b1",  2, -b_2_max,     b_2_max,     1.0);
+      // prms.add_prm("b0",   2, -b_2_dip_max, b_2_dip_max, 1.0);
+      // prms.add_prm("b0_m", 2, -b_2_dip_max, b_2_dip_max, 1.0);
+      prms.add_prm("b1",   2, -b_2_max, b_2_max, 1.0);
+      prms.add_prm("b1_m", 2, -b_2_max, b_2_max, 1.0);
 
-      prms.add_prm("mb0", 2, -b_2_max, b_2_max, 1.0);
-      prms.add_prm("mb1", 2, -b_2_max, b_2_max, 1.0);
+      if (false) prms.add_prm("b0_m", -2, 0.4, 0.8, 1.0);
+
+      prms.add_prm("q0",   2, -b_2_max, b_2_max, 1.0);
+      prms.add_prm("q0_m", 2, -b_2_max, b_2_max, 1.0);
     } else {
       prms.add_prm("b1e1", -3, -phi_max, phi_max, 1.0);
       lat_constr.Fnum_b1.push_back(ElemIndex("b1e1"));
@@ -976,6 +995,8 @@ void set_b2_sp(param_type &prms)
   prms.add_prm("uq2",  2, -b_2_max, b_2_max, 1.0);
   prms.add_prm("uq3",  2, -b_2_max, b_2_max, 1.0);
 
+  prms.add_prm("d1", -2, 0.0, 0.3, 1.0);
+
   // Parameters are initialized in optimizer.
 }
 
@@ -996,6 +1017,15 @@ void set_constr_sp(constr_type &constr)
 		    1e5, 1e5, 0e0, 0e0, 0e0, 1e8,
 		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 
+  constr.add_constr(Elem_GetPos(ElemIndex("ps_rot"), 1),
+		    1e5, 1e5, 0e0, 0e0, 0e0, 1e7,
+		    0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+
+  // Beta_y at centre of sf.
+  // constr.add_constr(Elem_GetPos(ElemIndex("s0"), 1),
+  // 		    0e0, 0e0, 0e0, 1e2, 0e0, 0e0,
+  // 		    0.0, 0.0, 0.0, 3.0, 0.0, 0.0);
+
   if (!long_grad_dip) {
     // Symmetry & eta' at dipole centers.
     constr.add_constr(Elem_GetPos(ElemIndex("b0"), 1),
@@ -1006,7 +1036,7 @@ void set_constr_sp(constr_type &constr)
 		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 
     // Eta & eta' at arc entrance.
-    constr.add_constr(Elem_GetPos(ElemIndex("mb0"), 1)-1,
+    constr.add_constr(Elem_GetPos(ElemIndex("b0_m"), 1)-1,
 		      0e0, 0e0, 0e0, 0e0, 1e8, 1e8,
 		      0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
   } else {
@@ -1055,11 +1085,24 @@ void set_b3_Fam_sp(param_type &prms)
 
 void set_b3_constr_sp(constr_type &constr)
 {
-  int k, n;
+  int j, k, n;
 
   if (!long_grad_dip) {
+    lat_constr.
+      high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("b0_m"), 1)-1);
+    lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("b0"), 1));
+
     lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("b0"), 1));
     lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("b0"), 3));
+
+    lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("b0"), 3));
+    lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("b0"), 5));
+
+    lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("b0"), 5));
+    lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("b0"), 7));
+
+    lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("b0"), 7));
+    lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("b0_m"), 2));
   } else {
     lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("b1c1"), 1));
     lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("b1c1"), 3));
@@ -1073,14 +1116,15 @@ void set_b3_constr_sp(constr_type &constr)
     lat_constr.high_ord_achr_nu[k].resize(2, 0e0);
   }
 
-  for (k = 0; k < 2; k++)
-    lat_constr.high_ord_achr_nu[0][k] = high_ord_achr_nu[0][k];
+  for (j = 0; j < lat_constr.high_ord_achr_nu.size(); j++)
+    for (k = 0; k < 2; k++)
+      lat_constr.high_ord_achr_nu[j][k] = high_ord_achr_nu[j][k];
 }
 
 
 void set_weights_sp(constr_type &constr)
 {
-  lat_constr.eps_x_scl             = 1e-2*1e7;
+  lat_constr.eps_x_scl             = 1e0*1e7;
 
   lat_constr.alpha_c_scl           = 1e1*1e-6;
 
@@ -1089,8 +1133,8 @@ void set_weights_sp(constr_type &constr)
   lat_constr.nu_ref[X_]            = 2*nu_ref[X_];
   lat_constr.nu_ref[Y_]            = 2*nu_ref[Y_];
 
-  lat_constr.high_ord_achr_scl[X_] = 1e1*1e6;
-  lat_constr.high_ord_achr_scl[Y_] = 1e1*1e6;
+  lat_constr.high_ord_achr_scl[X_] = 1e0*1e6;
+  lat_constr.high_ord_achr_scl[Y_] = 1e0*1e6;
 
   // Super Period.
   lat_constr.phi_scl               = ((dphi)? 1e0 : 0e0);
@@ -1101,7 +1145,7 @@ void set_weights_sp(constr_type &constr)
 #elif N_SP == 18
   // 18 super periods 6-BA.
   lat_constr.phi0                  = 2*20.0;
-#else
+#elif N_SP == 16
   // 16 super periods 6-BA.
   lat_constr.phi0                  = 2*22.5;
 #endif

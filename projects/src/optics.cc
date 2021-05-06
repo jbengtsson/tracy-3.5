@@ -17,20 +17,19 @@ int no_tps = NO;
 
 
 const bool
-  set_dnu = !false,
+  set_dnu = false,
   mI_rot  = false,
   prt_s1  = false,
   prt_dt  = false;
 
-#define FULL_LAT 1
+#define FULL_LAT 0
 #define SET_NU   1
 
 const int
   n_cell = 16;
 const double
 #if SET_NU
-  nu[]     = {44.38/n_cell, 12.18/n_cell},
-  // nu[]     = {40.38/n_cell, 13.18/n_cell},
+  nu[]     = {42.38/n_cell, 14.18/n_cell},
 #else
   nu[]     = {0.1, 0.0},
 #endif
@@ -1629,11 +1628,11 @@ int main(int argc, char *argv[])
   // 1: DIAMOND, 2: NSLS-II, 3: Oleg I, 4: Oleg II.
   FieldMap_filetype = 4; sympl = !false;
 
-  reverse_elem = !false;
+  reverse_elem = true;
 
   trace = false;
 
-  globval.mat_meth = false;
+  globval.mat_meth = !false;
 
   if (true)
     Read_Lattice(argv[1]);
@@ -1643,7 +1642,7 @@ int main(int argc, char *argv[])
   globval.H_exact    = false; globval.quad_fringe    = false;
   globval.Cavity_on  = false; globval.radiation      = false;
   globval.emittance  = false; globval.IBS            = false;
-  globval.pathlength = false; globval.bpm            = 0;
+  globval.pathlength = false; globval.Aperture_on    = false;
   globval.Cart_Bend  = false; globval.dip_edge_fudge = true;
 
   if (false) no_sxt();
@@ -1658,6 +1657,13 @@ int main(int argc, char *argv[])
   }
 
   globval.Cavity_on = false; globval.radiation = false;
+  globval.pathlength = false;
+
+  if (false) {
+    getcod(0.0, lastpos);
+    exit(0);
+  }
+
   Ring_GetTwiss(true, 0e0); printglob();
 
   if (false) {
@@ -1667,10 +1673,16 @@ int main(int argc, char *argv[])
   }
 
   if (false) {
-    chk_optics(1.178856e-01, 1.813178e+01, -8.236462e-03, 3.617426e-04,
-	       -2.046559e-02, 3.603793e+00, 0.0, 0.0);
+    chk_phi();
+    // exit(0);
+  }
+
+  if (false) {
+    chk_optics(-0.0000000002, 5.8603517371, 0.0606139854, 0.0000000130,
+	       -0.0000000001, 2.8107227635, 0.0, 0.0);
     prt_lat("linlat1.out", globval.bpm, true);
     prt_lat("linlat.out", globval.bpm, true, 10);
+    prtmfile("flat_file.dat");
     exit(0);
   }
 
@@ -1856,11 +1868,6 @@ int main(int argc, char *argv[])
   }
 
   if (false) {
-    chk_phi();
-    // exit(0);
-  }
-
-  if (false) {
     dpath_length();
     exit(0);
   }
@@ -1905,9 +1912,10 @@ int main(int argc, char *argv[])
   prt_chrom_lat();
 
   if (prt_s1) {
-    loc = Elem_GetPos(ElemIndex("s1"), 1);
+    // loc = Elem_GetPos(ElemIndex("s1"), 1);
+    loc = Elem_GetPos(ElemIndex("s0"), 2);
     printf("\n%10s:\n  {{%12.10f, %12.10f}, {%12.10f, %12.10f},"
-	   " {%12.10f, %12.10f}, {%3.1f, %3.1f}};\n",
+	   " {%12.10f, %12.10f}, {%12.10f, %12.10f}}\n",
 	   Cell[loc].Elem.PName,
 	   Cell[loc].Alpha[X_], Cell[loc].Alpha[Y_],
 	   Cell[loc].Beta[X_], Cell[loc].Beta[Y_],
@@ -1917,8 +1925,8 @@ int main(int argc, char *argv[])
 	   "\n  %12.10f, %12.10f, %3.1f, %3.1f)\n",
 	   Cell[loc].Elem.PName,
 	   Cell[loc].Alpha[X_], Cell[loc].Beta[X_],
-	   Cell[loc].Alpha[Y_], Cell[loc].Beta[Y_],
 	   Cell[loc].Eta[X_], Cell[loc].Etap[X_], 
+	   Cell[loc].Alpha[Y_], Cell[loc].Beta[Y_],
 	   Cell[loc].Eta[Y_], Cell[loc].Etap[Y_]);
     exit(0);
   }
