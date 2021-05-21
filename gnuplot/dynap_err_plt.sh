@@ -12,7 +12,7 @@ file2 = (home_dir)."DA_real_0.00.out";
 file3 = (home_dir)."DA_bare.out";
 file4 = (home_dir)."DA_real.out";
 
-f_s = 24; l_w = 2;
+f_s = 36; l_w = 2;
 if (ps == 0) \
   set terminal qt; \
 else if (ps == 1) \

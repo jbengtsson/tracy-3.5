@@ -19,7 +19,7 @@ file22 = (home_dir)."dnu_dAy_pert.out";
 file3  = (home_dir)."chrom2.out";
 file32 = (home_dir)."chrom2_pert.out";
 
-f_s = 24; l_w = 2;
+f_s = 36; l_w = 2;
 if (ps == 0) \
   set terminal qt 0 font "Sans, 9"; \
 else if (ps == 1) \

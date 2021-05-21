@@ -22,7 +22,7 @@ file2 = (home_dir)."fmapdp.out";
 # Only works for postscript terminal.
 #set fontpath "/usr/share/fonts/msttcore"
 
-f_s = 24; l_w = 2;
+f_s = 36; l_w = 2;
 if (ps == 0) \
   set terminal qt 0 font "Sans, 9"; \
 else if (ps == 1) \
