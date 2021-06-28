@@ -55,23 +55,26 @@
 // #include "nsls-ii_lib.cc"
 
 
-bool   ErrFlag;
+str80
+  finame,               // input data file.
+  foname,               // output data file.
+  fname;                // temp file name.
 
-str80  finame;               // input data file.
-str80  foname;               // output data file.
-str80  fname;                // temp file name.
-
-FILE   *fi;                  // lattice input  file.
-FILE   *fo;                  // lattice output file.
-FILE   *psin[maxincl + 1];   // program input file.
-FILE   *psout;               // program output file.
-FILE   *prr[maxfil - 2];     // prr[1] : input, prr[2] : output.
+FILE
+  *fi,                  // lattice input  file.
+  *fo,                  // lattice output file.
+  *psin[maxincl + 1],   // program input file.
+  *psout,               // program output file.
+  *prr[maxfil - 2];     // prr[1] : input, prr[2] : output.
 
 
-int    Fnum_Cart, n_iter_Cart;
+int
+  Fnum_Cart,
+  n_iter_Cart;
 
-double u_Touschek;           // argument for Touschek D(ksi)
-double chi_m;                // argument for IBS D(ksi)
+double
+  u_Touschek,           // argument for Touschek D(ksi)
+  chi_m;                // argument for IBS D(ksi)
 
 // IBS (Bjorken-Mtingwa)
 double a_IBS, b_IBS, c_IBS, a_k_IBS, b_k_IBS;

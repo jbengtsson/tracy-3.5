@@ -64,8 +64,6 @@ typedef double Vector3[3];
 #define fitvectmax      200
 typedef long   fitvect[fitvectmax];
 
-extern bool  ErrFlag;
-
 extern double Fdrift1, Fkick1, Fdrift2, Fkick2, crad, cfluc;
 
 extern str80 finame,           // input  data file
@@ -129,6 +127,7 @@ class ConfigType {
   bool
     trace,
     stable,
+    ErrFlag,
     Cavity_on,                 // if true, cavity turned on
     radiation,                 // if true, radiation turned on
     emittance,

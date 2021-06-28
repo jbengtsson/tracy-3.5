@@ -369,7 +369,7 @@ static void abort_(struct LOC_Lattice_Read *LINK)
   for (i = 1; i <= nn; i++)
     putchar('\007');
   printf("\nabort_: >>>>> error detected in the lattice file <<<<<<\n\n");
-  ErrFlag = true;
+  Lat_->conf.ErrFlag = true;
   /*goto 9999*/
 //  printf("% .5E\n", sqrt(-1.0));
   exit_(1);
@@ -472,7 +472,7 @@ static void Lat_errorm(const char *cmnt, FILE **fi, FILE **fo, long *cc,
   }
   while (!P_eof(*fi))
     Lat_Nextch(fi, fo, cc, ll, errpos, lc, chin, skipflag, line, LINK);
-  ErrFlag = true;
+  Lat_->conf.ErrFlag = true;
   abort_(LINK);
 }
 
@@ -1307,7 +1307,7 @@ static double Lat_EVAL(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
   goto _L888;
 
  _L999:
-  ErrFlag = true;
+  Lat_->conf.ErrFlag = true;
   test(P_expset(SET, 0), "** Lat_Eval: error",
        &V);
  _L888:   /* exit */
@@ -3494,7 +3494,7 @@ static void errorm___(const char *cmnt, struct LOC_Lattice_Read *LINK)
   while (!P_eof(*LINK->fi))
     Lat_Nextch(LINK->fi, LINK->fo, &LINK->cc, &LINK->ll, &LINK->errpos,
 	       &LINK->lc, &LINK->chin, &LINK->skipflag, LINK->line, LINK);
-  ErrFlag = true;
+  Lat_->conf.ErrFlag = true;
   longjmp(LINK->_JL9999, 1);
 }
 
@@ -4172,7 +4172,7 @@ bool LatticeType::Lattice_Read(FILE *fi_, FILE *fo_)
 
   Lat_->conf.CODeps = 0e0; Lat_->conf.dPcommon = 0e0; Lat_->conf.Energy = 0e0;
 
-  ErrFlag = false;
+  Lat_->conf.ErrFlag = false;
 
   init_reserved_words(&V);
 
@@ -4201,7 +4201,7 @@ bool LatticeType::Lattice_Read(FILE *fi_, FILE *fo_)
   PrintResult(&V);                  /* Print lattice statistics */
 
  _L9999:
-  return (!ErrFlag);
+  return (!Lat_->conf.ErrFlag);
 }
 
 #undef NoBmax
