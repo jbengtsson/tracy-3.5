@@ -1676,7 +1676,7 @@ void FieldMap_pass_RK(ConfigType &conf, ElemType *elem, ss_vect<T> &ps)
   p_s = get_p_s(conf, ps); ps[px_] /= p_s; ps[py_] /= p_s;
 
   h = n_step*FM->dx[Z_]; z = FM->x[Z_][1]; FM->Lr = 0e0;
-  if (trace)
+  if (conf.trace)
     outf_ << std::scientific << std::setprecision(3)
 	  << std::setw(5) << 0 << std::setw(11) << s_FM
 	  << std::setw(11) << is_double< ss_vect<T> >::cst(ps) << "\n";
@@ -1708,7 +1708,7 @@ void FieldMap_pass_RK(ConfigType &conf, ElemType *elem, ss_vect<T> &ps)
       z += h/2e0; FM->Lr += h/2e0; s_FM += h/2e0;
     }
 
-    if (trace)
+    if (conf.trace)
       outf_ << std::scientific << std::setprecision(3)
 	    << std::setw(5) << i << std::setw(11) << s_FM
 	    << std::setw(11) << is_double< ss_vect<T> >::cst(ps) << "\n";
@@ -1764,7 +1764,7 @@ void FieldMap_pass_SI(ConfigType &conf, ElemType *elem, ss_vect<T> &ps)
   }
 
   h = n_step*FM->dx[Z_]; z = 0e0; FM->Lr = 0e0;
-  if (trace)
+  if (conf.trace)
     outf_ << std::scientific << std::setprecision(3)
 	  << std::setw(5) << 0 << std::setw(11) << s_FM
 	  << std::setw(11) << is_double< ss_vect<T> >::cst(ps) << "\n";
@@ -2015,7 +2015,7 @@ void FieldMap_pass_SI(ConfigType &conf, ElemType *elem, ss_vect<T> &ps)
 //      radiate(conf, ps, h, 0e0, B);
     }
 
-    if (trace)
+    if (conf.trace)
       outf_ << std::scientific << std::setprecision(3)
 	    << std::setw(5) << 0 << std::setw(11) << s_FM
 	    << std::setw(11) << is_double< ss_vect<T> >::cst(ps) << "\n";
@@ -2093,7 +2093,7 @@ void FieldMapType::FieldMap_Pass(ConfigType &conf, ss_vect<T> &ps)
 
   const FieldMapType *FM = dynamic_cast<const FieldMapType*>(this);
 
-  if (trace & first_FM) {
+  if (conf.trace & first_FM) {
     file_wr(outf_, "FieldMap_pass.dat");
     s_FM = 0e0;
     first_FM = false;
@@ -3793,13 +3793,13 @@ void MpoleType::SetPB(const int n)
   // Compute full multipole composent as sum of design, systematic, and
   // random part.
 
-  if ((1 <= n) && (n <= HOMmax)) {
+  if ((1 <= abs(n)) && (abs(n) <= HOMmax)) {
     PB[n+HOMmax] =
       PBpar[n+HOMmax] + PBsys[n+HOMmax] + PBrms[n+HOMmax]*PBrnd[n+HOMmax];
     if (abs(n) > Porder && PB[n+HOMmax] != 0e0)
       Porder = abs(n);
   } else {
-    printf("SetPB: n < 1 (%d)\n", n);
+    printf("SetPB: |n| < 1 (%d)\n", n);
     exit(1);
   }
 }

@@ -63,7 +63,7 @@ void LatticeType::Cell_Pass(const long i0, const long i1, ss_vect<T> &ps,
     for (i = i0; i <= i1; i++) {
       elems[i]->Cell_Pass(conf, ps);
       if (!elems[i]->CheckAmpl(conf, ps)) {
-	if (trace)
+	if (conf.trace)
 	  printf("CheckAmpl: Particle lost in plane %d at element:"
 		 " %5ld s = %10.5f, x = %12.5e, z= %12.5e\n",
 		 conf.lossplane, i, elems[i]->S,
@@ -158,9 +158,11 @@ bool LatticeType::Cell_getCOD(long imax, double eps, double dP, long &lastpos)
   for (j = 0; j < ss_dim; j++)
     jj[j] = (j < n)? 1 : 0;
 
-  if (trace) {
-    std::cout << "\nCell_getCOD:" << "\n";
-    std::cout << std::scientific << std::setprecision(5)
+  if (conf.trace) {
+    std::cout << std::scientific << std::setprecision(1)
+	      << "\nCell_getCOD: " << setw(1) << imax
+	      << setw(8) << eps << setw(8) << dP << "\n"
+	      << std::scientific << std::setprecision(5)
 	      << "  0                        x0 ="
 	      << std::setw(13) << x0 << "\n";
   }
@@ -177,7 +179,7 @@ bool LatticeType::Cell_getCOD(long imax, double eps, double dP, long &lastpos)
       dxabs = NAN; break;
     }
 
-    if (trace)
+    if (conf.trace)
       std::cout
 	<< std::scientific << std::setprecision(1)
 	<< std::setw(3) << n_iter

@@ -172,7 +172,7 @@ void LatticeType::Cell_Geteta(long i0, long i1, bool ring, double dP)
 
   const int n = 4;
 
-  if (trace) printf("\nCell_Geteta: ring = %d\n", ring);
+  if (conf.trace) printf("\nCell_Geteta: ring = %d\n", ring);
 
   if (ring)
     GetCOD(conf.CODimax, conf.CODeps, dP-conf.dPcommon/2e0, lastpos);
@@ -376,10 +376,10 @@ void LatticeType::Ring_Twiss(bool chroma, double dP)
 void LatticeType::Ring_GetTwiss(bool chroma, double dP)
 {
 
-  if (trace) printf("enter Ring_GetTwiss\n");
+  if (conf.trace) printf("enter Ring_GetTwiss\n");
   Ring_Twiss(chroma, dP);
   conf.Alphac = conf.OneTurnMat[ct_][delta_]/elems[conf.Cell_nLoc]->S;
-  if (trace) printf("exit Ring_GetTwiss\n");
+  if (conf.trace) printf("exit Ring_GetTwiss\n");
 }
 
 
@@ -620,17 +620,17 @@ void LatticeType::get_eps_x(double &eps_x, double &sigma_delta, double &U_0,
 }
 
 
-double get_code(const ConfigType &conf, ElemType &Cell)
+double get_code(const ConfigType &conf, const ElemType &Cell)
 {
   double    code;
-  MpoleType *M;
 
   switch (Cell.Pkind) {
   case drift:
     code = 0.0;
     break;
   case Mpole:
-    M = dynamic_cast<MpoleType*>(&Cell);
+    // Declare static to avoid compiler error.
+    const static MpoleType *M = dynamic_cast<const MpoleType*>(&Cell);
     if (M->Pirho != 0.0)
       code = sgn(M->Pirho)*0.5;
     else if (M->PBpar[Quad+HOMmax] != 0)
@@ -854,6 +854,128 @@ void LatticeType::prt_lat(const int loc1, const int loc2, const char *fname,
 void LatticeType::prt_lat(const char *fname, const bool all, const int n)
 {
   prt_lat(0, conf.Cell_nLoc, fname, all, n);
+}
+
+
+void LatticeType::prt_cod(const char *file_name, const bool all)
+{
+  long      i;
+  FILE      *outf;
+  struct tm *newtime;
+
+  outf = file_write(file_name);
+
+  /* Get time and date */
+  newtime = GetTime();
+
+  fprintf(outf,"# TRACY II v.2.6 -- %s -- %s \n",
+	  file_name, asctime2(newtime));
+
+  fprintf(outf, "#       name             s  code  betax   nux   betay   nuy"
+	  "   xcod   ycod    dSx    dSy   dipx   dipy\n");
+  fprintf(outf, "#                       [m]        [m]           [m]       "
+	  "   [mm]   [mm]    [mm]   [mm] [mrad]  [mrad]\n");
+  fprintf(outf, "#\n");
+
+  for (i = 0; i <= conf.Cell_nLoc; i++) {
+    if (all || (elems[i]->Fnum == conf.bpm)) {
+      /* COD is in local coordinates */
+      fprintf(outf,
+	      "%4ld %.*s %6.2f %4.1f %6.3f %6.3f %6.3f %6.3f"
+	      " %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f\n",
+	      i, SymbolLength, elems[i]->PName, elems[i]->S,
+	      get_code(conf, *elems[i]),
+	      elems[i]->Beta[X_], elems[i]->Nu[X_],
+	      elems[i]->Beta[Y_], elems[i]->Nu[Y_],
+	      1e3*elems[i]->BeamPos[x_], 1e3*elems[i]->BeamPos[y_],
+	      1e3*elems[i]->dS[X_], 1e3*elems[i]->dS[Y_],
+	      -1e3*Elem_GetKval(elems[i]->Fnum, elems[i]->Knum, Dip),
+	      1e3*Elem_GetKval(elems[i]->Fnum, elems[i]->Knum, -Dip));
+    }
+  }
+  fclose(outf);
+}
+
+
+void LatticeType::prt_beampos(const char *file_name)
+{
+  long int k;
+  FILE     *outf;
+
+  outf = file_write(file_name);
+
+  fprintf(outf, "#       name             s  code    xcod   ycod\n");
+  fprintf(outf, "#                       [m]          [m]     [m]\n");
+  fprintf(outf, "#\n");
+
+  for (k = 0; k <= conf.Cell_nLoc; k++)
+    fprintf(outf, "%4ld %.*s %6.2f %4.1f %12.5e %12.5e\n",
+	    k, SymbolLength, elems[k]->PName, elems[k]->S,
+	    get_code(conf, *elems[k]), elems[k]->BeamPos[x_],
+	    elems[k]->BeamPos[y_]);
+
+  fclose(outf);
+}
+
+
+void write_misalignments(const LatticeType &lat, const char* filename) {
+  int       j;
+  ElemType  *clp;
+  MpoleType *M;
+  FILE      *fp;
+
+  fp = fopen(filename, "w");
+
+  fprintf(fp, "# misalignment file");
+
+  for (long int n = 0; n < lat.conf.Cell_nLoc; n++) {
+    clp = lat.elems[n];
+    fprintf(fp, "\n%li %i %.8e %.8e %.8e %.8e",
+	    n, clp->Pkind, clp->dS[X_], clp->dS[Y_], clp->dT[X_],
+	    clp->dT[Y_]); 
+    
+    switch(clp->Pkind) {
+      case 2: // multipole
+	M = dynamic_cast<MpoleType*>(clp);
+         fprintf(fp, " %i", M->Porder);
+        for (j = 0; j < 2*HOMmax+1; j++)
+          fprintf(fp, " %.8e", M->PB[j]);
+        break;
+      default:
+        break;  
+    }
+  }
+  fclose(fp);
+}
+
+
+void LatticeType::prt_beamsizes(const int cnt)
+{
+  int   k;
+  FILE  *fp;
+  char fname [30];
+
+  sprintf(fname,"%s_%d.out", beam_envelope_file, cnt);
+  fp = file_write(fname);
+
+  fprintf(fp,
+	  "# k    name    s    s_xx    s_pxpx    s_xpx    s_yy    s_pypy"
+	  "    s_ypy    theta_xy    s_xy\n");
+  for(k = 0; k <= conf.Cell_nLoc; k++)
+    fprintf(fp,"%4d %10s %e %e %e %e %e %e %e %e %e\n",
+	    k, elems[k]->PName, elems[k]->S,
+	    elems[k]->sigma[x_][x_], elems[k]->sigma[px_][px_],
+	    elems[k]->sigma[x_][px_],
+	    elems[k]->sigma[y_][y_], elems[k]->sigma[py_][py_],
+	    elems[k]->sigma[y_][py_],
+	    atan2(2e0*elems[k]->sigma[x_][y_],
+		  elems[k]->sigma[x_][x_]-elems[k]->sigma[y_][y_])
+	    /2e0*180.0/M_PI, elems[k]->sigma[x_][y_]);
+
+  fclose(fp);
+
+  sprintf(fname,"%s_%d.out","misalignments", cnt);
+  write_misalignments(*this, fname);
 }
 
 
@@ -1227,8 +1349,7 @@ void findcod(LatticeType &lat, double dP)
   
   CopyVec(6, vcod, lat.conf.CODvect); // save closed orbit at the ring entrance
 
-  if (trace)
-  {
+  if (lat.conf.trace) {
     fprintf(stdout,
        "Before cod2 % .5e % .5e % .5e % .5e % .5e % .5e \n",
        vcod[0], vcod[1], vcod[2], vcod[3], vcod[4], vcod[5]);
@@ -1377,7 +1498,7 @@ void Trac(LatticeType &lat, double x, double px, double y, double py, double dp,
   lastn = 0L;
 
   (lastpos)=pos;
-  if(trace) fprintf(outf1, "\n");
+  if(lat.conf.trace) fprintf(outf1, "\n");
   fprintf(outf1, "%6ld %+10.5e %+10.5e %+10.5e %+10.5e %+10.5e %+10.5e \n",
 	  lastn, x1[0], x1[1], x1[2], x1[3], x1[4], x1[5]);
   lat.Cell_Pass(pos -1L, lat.conf.Cell_nLoc, x1, lastpos);
@@ -1386,7 +1507,7 @@ void Trac(LatticeType &lat, double x, double px, double y, double py, double dp,
   do {
     (lastn)++;
     lat.Cell_Pass(0L, pos-1L, x1, lastpos);
-    if(!trace) {
+    if(!lat.conf.trace) {
       fprintf(outf1, "%6ld %+10.5e %+10.5e %+10.5e %+10.5e %+10.5e %+10.5e \n",
 	      lastn, x1[0], x1[1], x1[2], x1[3], x1[4], x1[5]);
     }
@@ -1733,7 +1854,7 @@ int Newton_Raphson(LatticeType &lat, int n, psVector &x, int ntrial,
       x[i] += bet[i]; 
     }
     
-    if (trace)
+    if (lat.conf.trace)
       fprintf(stdout,
          "%02d: cod2 % .5e % .5e % .5e % .5e % .5e % .5e  errx =% .5e\n",
          k, x[0], x[1], x[2], x[3], x[4], x[5], errx);

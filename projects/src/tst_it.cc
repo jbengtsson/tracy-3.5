@@ -21,9 +21,8 @@ void tst_lat(LatticeType &lat)
 }
 
 
-void get_lat(const char *file_name)
+void get_lat(const char *file_name, LatticeType &lat)
 {
-  LatticeType lat;
   double      eps_x, sigma_delta, U_0, J[3], tau[3], I[6];
   FILE        *inf, *outf;
 
@@ -37,9 +36,9 @@ void get_lat(const char *file_name)
 
   reverse_elem = !false;
 
-  trace = false;
+  lat.conf.trace = false;
 
-  lat.conf.mat_meth = !false;
+  lat.conf.mat_meth = false;
 
   inf  = file_read((str + ".lat").c_str());
   outf = file_write((str + ".lax").c_str());
@@ -47,6 +46,8 @@ void get_lat(const char *file_name)
   lat.Lattice_Read(inf, outf);
   lat.Lat_Init();
   lat.ChamberOff();
+
+  lat.conf.CODimax = 10;
 
   if (false) {
     lat.prt_fam();
@@ -63,21 +64,132 @@ void get_lat(const char *file_name)
   lat.prt_lat("linlat.out", true, 10);
   lat.prtmfile("flat_file.dat");
 
-  exit(0);
+  if (!true) GetEmittance(lat, ElemIndex("cav"), true);
 
-  if (true) GetEmittance(lat, ElemIndex("cav"), true);
-
-  if (true) {
+  if (!true) {
     lat.conf.Cavity_on = true;
     get_dynap(lat, delta_max, 25, n_turn, false);
   }
 }
 
 
+void cod_stat(LatticeType &lat, double *mean, double *sigma, double *xmax,
+	     long lastpos, bool all)
+{
+  long    i, n, loc;
+  int     j;
+  Vector2 sum, sum2;
+
+  for (j = 0; j < 2; j++) {
+    sum[j] = 0e0; sum2[j] = 0e0; xmax[j] = 0e0;
+  }
+
+  n = 0;
+  if (all) {
+    for (i = 0; i < lastpos; i++) {
+      n++;
+      for (j = 0; j < 2; j++) {
+	sum[j] += lat.elems[i]->BeamPos[j*2];
+	sum2[j] += sqr(lat.elems[i]->BeamPos[j*2]);
+	xmax[j] = max(xmax[j], fabs(lat.elems[i]->BeamPos[j*2]));
+      }
+    }
+  } else {
+    for (i = 1; i <= n_bpm_[X_]; i++) {
+      n++;
+      for (j = 0; j < 2; j++) {
+	loc = bpms_[j][i];
+	sum[j] += lat.elems[loc]->BeamPos[j*2];
+	sum2[j] += sqr(lat.elems[loc]->BeamPos[j*2]);
+	xmax[j] = max(xmax[j], fabs(lat.elems[loc]->BeamPos[j*2]));
+      }
+    }
+  }
+
+  for (j = 0; j < 2; j++) {
+    if (n != 0)
+      mean[j] = sum[j] / n;
+    else
+      mean[j] = -1e0;
+    if (n != 0 && n != 1) {
+      sigma[j] = (n*sum2[j]-sqr(sum[j]))/(n*(n-1e0));
+    } else
+      sigma[j] = 0e0;
+    if (sigma[j] >= 0e0)
+      sigma[j] = sqrt(sigma[j]);
+    else
+      sigma[j] = -1e0;
+  }
+}
+
+
+bool orb_corr(LatticeType &lat, const int n_orbit)
+{
+  bool    cod = false;
+  int     i;
+  long    lastpos;
+  Vector2 xmean, xsigma, xmax;
+
+  printf("\n");
+  lat.conf.CODvect.zero();
+  for (i = 1; i <= n_orbit; i++) {
+    cod = lat.getcod(0e0, lastpos);
+    if (cod) {
+      cod_stat(lat, xmean, xsigma, xmax, lat.conf.Cell_nLoc, false);
+      printf("\n");
+      printf("RMS orbit [mm]: (%8.1e +/- %7.1e, %8.1e +/- %7.1e)\n",
+	     1e3*xmean[X_], 1e3*xsigma[X_], 1e3*xmean[Y_], 1e3*xsigma[Y_]);
+      lsoc(lat, 1, 1e0); lsoc(lat, 2, 1e0);
+      cod = lat.getcod(0e0, lastpos);
+      if (cod) {
+	cod_stat(lat, xmean, xsigma, xmax, lat.conf.Cell_nLoc, false);
+	printf("RMS orbit [mm]: (%8.1e +/- %7.1e, %8.1e +/- %7.1e)\n",
+	       1e3*xmean[X_], 1e3*xsigma[X_], 1e3*xmean[Y_], 1e3*xsigma[Y_]);
+      } else
+	printf("orb_corr: failed\n");
+    } else {
+      printf("orb_corr: failed\n");
+      break;
+    }
+  }
+
+  // lat.prt_cod("orb_corr.out", true);
+
+  return cod;
+}
+
+
+void tst_lsoc(LatticeType &lat)
+{
+
+  const long   seed   = 1121;
+  const int    n_corr = 5;
+  const double dx[]   = {100e-6, 100e-6};
+
+  const int
+    bpm   = ElemIndex("bpm"),
+    hcorr = ElemIndex("chv"),
+    vcorr = ElemIndex("chv");
+
+  lat.conf.trace = !true;
+
+  iniranf(seed); setrancut(1e0);
+
+  gcmat(lat, bpm, hcorr, 1); gcmat(lat, bpm, vcorr, 2);
+
+  misalign_rms_type(lat, Quad, dx[X_], dx[Y_], 0e0, true);
+    
+  orb_corr(lat, n_corr);
+}
+
+
 int main(int argc, char *argv[])
 {
-  string file_name;
-  double eps_x, sigma_delta, U_0, J[3], tau[3], I[6];
+  string      file_name;
+  double      eps_x, sigma_delta, U_0, J[3], tau[3], I[6];
+  LatticeType lat;
 
-  get_lat(argv[1]);
+  get_lat(argv[1], lat);
+
+  if (!false) tst_lsoc(lat);
 }

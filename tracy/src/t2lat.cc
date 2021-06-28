@@ -3616,7 +3616,7 @@ static void init_reserved_words(struct LOC_Lattice_Read *LINK)
   Reg("voltage        ", vrfsym, &V);
   Reg("wiggler        ", wglsym, &V);
 
-  if (trace)
+  if (Lat_->conf.trace)
     printf("\ninit_reserved_words: no of keywords = %ld (%d)\n",
 	   LINK->nkw, Lat_nkw_max);
 
@@ -3634,7 +3634,7 @@ static void init_reserved_words(struct LOC_Lattice_Read *LINK)
   LINK->sps[(int)'/'] = rdiv;
   LINK->sps[(int)':'] = colon;
 
-  if (trace)
+  if (Lat_->conf.trace)
     printf("%d %d %d %d %d %d %d %d %d %d %d %d %d %d \n",
 	   (int)'+', (int)'-', (int)'(', (int)')', (int)'=',
 	   (int)',', (int)'[', (int)'[', (int)']', (int)'\'',
@@ -4156,13 +4156,13 @@ bool LatticeType::Lattice_Read(FILE *fi_, FILE *fo_)
 {
   struct LOC_Lattice_Read V;
 
-  if (trace)
+  ElemFam_ = &elemf;
+  Lat_     = this;
+
+  if (Lat_->conf.trace)
     printf("\nLattice_Read: dndsym = %d, solsym = %d, max_set = %d"
 	   ", SETBITS = %u\n",
 	   bndsym, solsym, max_set, (unsigned)(4*sizeof(long int)));
-
-  ElemFam_ = &elemf;
-  Lat_     = this;
 
   V.fi = &fi_; /* input lattice file */
   V.fo = &fo_; /* output lattice file */

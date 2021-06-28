@@ -9,6 +9,10 @@
 #ifndef T2RING_H
 #define T2RING_H
 
+// Computation result files
+const char beam_envelope_file[] = "beam_envelope";
+
+
 void GetNu(Vector2 &nu, Matrix &M);
 
 bool Cell_GetABGN(Matrix &M, Vector2 &alpha, Vector2 &beta, Vector2 &gamma,
@@ -34,7 +38,7 @@ void Ring_GetTwiss(bool chroma, double dP);
 
 void get_dI_eta_5(const int k, std::vector<ElemType*> Elem);
 
-double get_code(const ConfigType &conf, CellType &Cell);
+double get_code(const ConfigType &conf, const ElemType &Cell);
 
 void Cell_Twiss(const long int i0, const long int i1);
 

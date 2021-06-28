@@ -3,9 +3,6 @@
 
 const int N_Fam_max = 25, max_corr = 150, max_bpm = 150;
 
-// Computation result files
-const char beam_envelope_file[] = "beam_envelope";
-
 // Lattice error and correction files
 const char CodCorLatFileName[]  = "codcorlat.out";
 

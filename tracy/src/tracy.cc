@@ -22,56 +22,56 @@
 #endif
 
 #include "mathlib.cc"
-
 #include "ety.cc"
 #include "eigenv.cc"
 
-#include "t2lat.cc"
 #include "t2elem.cc"
 #include "t2cell.cc"
 #include "t2ring.cc"
 // #include "sigma_track.cc"
 
-//#include "lsoc.cc"
-
+#include "t2lat.cc"
 #include "prtmfile.cc"
 #include "rdmfile.cc"
 
-// #include "fft.cc"
+#include "set_errors.cc"
+#include "lsoc.cc"
 
-// #include "physlib.cc"
-
-#include "naffutils.cc"
-
-#include "modnaff.cc"
-#include "radia2tracy.cc"
-#include "soleillib.cc"
-
-// #include "nsls-ii_lib.cc"
 // #include "orb_corr.cc"
 // #include "param.cc"
 // #include "dynap.cc"
 
+// ALS.
+// #include "physlib.cc"
+// #include "fft.cc"
 
-bool ErrFlag;
+// Soleil.
+#include "radia2tracy.cc"
+// #include "naffutils.cc"
+// #include "modnaff.cc"
+// #include "soleillib.cc"
 
-str80 finame;                // input data file.
-str80 foname;                // output data file.
-str80 fname;                 // temp file name.
-
-FILE *fi;                    // lattice input  file.
-FILE *fo;                    // lattice output file.
-FILE *psin[maxincl + 1];     // program input file.
-FILE *psout;                 // program output file.
-FILE *prr[maxfil - 2];       // prr[1] : input, prr[2] : output.
+// NSLS-II.
+// #include "nsls-ii_lib.cc"
 
 
-const bool normal = true; // Normal or rectangular distribution
+bool   ErrFlag;
+
+str80  finame;               // input data file.
+str80  foname;               // output data file.
+str80  fname;                // temp file name.
+
+FILE   *fi;                  // lattice input  file.
+FILE   *fo;                  // lattice output file.
+FILE   *psin[maxincl + 1];   // program input file.
+FILE   *psout;               // program output file.
+FILE   *prr[maxfil - 2];     // prr[1] : input, prr[2] : output.
+
 
 int    Fnum_Cart, n_iter_Cart;
 
-double u_Touschek;  // argument for Touschek D(ksi)
-double chi_m;       // argument for IBS D(ksi)
+double u_Touschek;           // argument for Touschek D(ksi)
+double chi_m;                // argument for IBS D(ksi)
 
 // IBS (Bjorken-Mtingwa)
 double a_IBS, b_IBS, c_IBS, a_k_IBS, b_k_IBS;
@@ -83,9 +83,6 @@ double **C_;
 ss_vect<tps> map;
 MNF_struct   MNF;
 
-
-
-
 // Truncated Power Series Algebra (TPSA)
 const int     nv_tps   = ss_dim, // no of variables
               nd_tps   = 3,      // no of degrees of freedom
@@ -93,6 +90,10 @@ const int     nv_tps   = ss_dim, // no of variables
 				    the map normal form: fort.7 */
 
 double        eps_tps  = 1e-25;  // floating point truncation
+
+/* Random stuff */
+long rseed0, rseed;
+double normcut_;
 
 
 // instantiate templates
@@ -211,13 +212,6 @@ template void splin2(const double [], const double [],
 		     double **, double **, const int, const int,
 		     const tps &, const tps &, tps &);
 
-
-bool trace, traceID;
-bool cellconcat;
-
-/* Random stuff */
-long rseed0, rseed;
-double normcut_;
 
 double d_sign(double a, double b)
 {

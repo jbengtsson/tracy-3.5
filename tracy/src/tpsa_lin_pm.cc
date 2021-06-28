@@ -12,7 +12,7 @@
 
 extern const int  nv_tps, nd_tps, iref_tps;
 extern int        no_tps, ndpt_tps;
-extern double     eps_tps, pi;
+extern double     eps_tps;
 
 bool    ini_tps = false, header = false, res_basis = false, stable = false;
 
@@ -267,23 +267,23 @@ tps atan(const tps &a)
 }
 
 
-tps atan2(const tps &b,const tps &a) {
+tps atan2(const tps &b, const tps &a) {
   tps  c;
 
   if (a.cst() > 0.0)
     c = atan(b/a);
   else if (a.cst() == 0.0)
     if (b.cst() != 0.0)
-      c = sgn(b.cst())*pi/2.0;
+      c = sgn(b.cst())*M_PI/2.0;
     else {
       std::cout << "atan2: 0/0 undefined" << std::endl;
       exit_(1);
     }
   else
     if (b.cst() >= 0.0)
-      c = atan(b/a) + pi;
+      c = atan(b/a) + M_PI;
     else
-      c = atan(b/a) - pi;
+      c = atan(b/a) - M_PI;
   return c;
 }
 

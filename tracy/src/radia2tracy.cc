@@ -9,6 +9,9 @@
 */
 
 
+const static bool traceID = false;
+
+
 template<typename T>
 void spline(const double x[], const T y[], int const n,
 	    double const yp1, const double ypn, T y2[])
@@ -105,8 +108,6 @@ void Read_IDfile(char *fic_radia, const ConfigType &conf, InsertionType *ID)
   char dummy[5000];
   int  i, j;
   FILE *fi;
-
-  traceID = false;
 
   const double Brho = conf.Energy*1e9/c0;
 

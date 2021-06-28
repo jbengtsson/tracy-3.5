@@ -961,7 +961,7 @@ void param_data_type::FindMatrix(LatticeType &lat, double **SkewRespMat,
   FILE     *SkewMatFile, *fp;
 
   const int    Xi = 1, Yi = 2;
-  const double pi = M_PI, twopi = 2.0*M_PI;
+  const double twopi = 2.0*M_PI;
 
 
   etaSQ = dvector(1, N_SKEW); betaSQ = dmatrix(1, N_SKEW, 1, 2);

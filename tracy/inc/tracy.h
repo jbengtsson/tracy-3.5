@@ -64,9 +64,7 @@ typedef double Vector3[3];
 #define fitvectmax      200
 typedef long   fitvect[fitvectmax];
 
-extern bool  stable;
 extern bool  ErrFlag;
-extern bool  trace, traceID;
 
 extern double Fdrift1, Fkick1, Fdrift2, Fkick2, crad, cfluc;
 
@@ -129,6 +127,8 @@ const double
 class ConfigType {
  public:
   bool
+    trace,
+    stable,
     Cavity_on,                 // if true, cavity turned on
     radiation,                 // if true, radiation turned on
     emittance,
@@ -137,7 +137,6 @@ class ConfigType {
     Cart_Bend,
     dip_edge_fudge,            // Dipole Edge fudge.
     pathlength,                // Absolute Path Length.
-    stable,
     Aperture_on,
     EPU,
     mat_meth,                  // Matrix method.
@@ -384,6 +383,9 @@ class LatticeType {
 	       const bool all, const int n);
   void prt_lat(const char *fname, const bool all, const int n);
   void prt_chrom_lat(void);
+  void prt_cod(const char *file_name, const bool all);
+  void prt_beampos(const char *file_name);
+  void prt_beamsizes(const int cnt);
 
   void checkifstable_(struct LOC_Ring_FitDisp *LINK);
   void checkifstable(struct LOC_Ring_Fittune *LINK);

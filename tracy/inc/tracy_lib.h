@@ -3,7 +3,7 @@
    J. Bengtsson, BNL 2007
 
    NO   1   link to the linear TPSA (nv_tps = 1)
-          >1   link to Berz' TPSA
+       >1   link to Berz' TPSA
 
 */
 
@@ -41,7 +41,6 @@ using namespace std;
 
 // Tracy-3
 #include "field.h"
-#include "mathlib.h"
 
 #if NO == 1
   // linear TPSA
@@ -53,39 +52,40 @@ using namespace std;
   #include "tpsa_for_pm.h"
 #endif
 
-#include "tracy.h"
+#include "mathlib.h"
 #include "ety.h"
 #include "eigenv.h"
 
 #include "num_rec.h"
 
-#include "radia2tracy.h"
+#include "tracy.h"
 
 #include "t2elem.h"
 #include "t2cell.h"
-#include "t2lat.h"
 #include "t2ring.h"
 // #include "sigma_track.h"
 
-// #include "lsoc.h"
-
+#include "t2lat.h"
 #include "rdmfile.h"
 #include "prtmfile.h"
 
-// #include "fft.h"
+#include "set_errors.h"
+#include "lsoc.h"
 
-// #include "physlib.h"
-// #include "nsls-ii_lib.h"
 // #include "orb_corr.h"
 // #include "param.h"
 // #include "dynap.h"
 
-#include "modnaff.h"
+// #include "physlib.h"
+// #include "fft.h"
 
-#include "naffutils.h"
-#include "complexeheader_naff.h"
+#include "radia2tracy.h"
+// #include "modnaff.h"
+// #include "naffutils.h"
+// #include "complexeheader_naff.h"
+// #include "soleillib.h"
 
-#include "soleillib.h"
+// #include "nsls-ii_lib.h"
 
 
 // Truncated Power Series Algebra (TPSA)

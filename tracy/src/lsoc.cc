@@ -138,7 +138,7 @@ void gcmat(LatticeType &lat, const int plane)
   }
   if (n_corr_[k] % 5 != 0) printf("\n");
 
-  if (trace) prt_gcmat(plane);
+  if (lat.conf.trace) prt_gcmat(plane);
 }
 
 
@@ -277,7 +277,7 @@ void gtcmat(LatticeType &lat, const int plane)
   }
   if (n_corr_[k] % 5 != 0) printf("\n");
 
-  if (trace) prt_gcmat(plane);
+  if (lat.conf.trace) prt_gcmat(plane);
 }
 
 
@@ -331,7 +331,7 @@ void lstc(LatticeType &lat, const int plane, const double scl)
     loc = bpms_[k][j];
     b[j] = -lat.elems[loc]->BeamPos[2*k] + lat.elems[loc]->dS[k];
 
-    if (trace) std::cout << std::scientific << std::setprecision(5)
+    if (lat.conf.trace) std::cout << std::scientific << std::setprecision(5)
 		    << "b[" << std::setw(3) << j << "] = "
 		    << std::setw(12) << b[j] << std::endl;
   }
@@ -341,14 +341,14 @@ void lstc(LatticeType &lat, const int plane, const double scl)
   for (j = 1; j <= n_corr_[k]; j++) {
     loc = corrs_[k][j];
     if (plane == 1) {
-      if (trace) std::cout << std::scientific << std::setprecision(5)
+      if (lat.conf.trace) std::cout << std::scientific << std::setprecision(5)
 		      << "(b_1L)[" << std::setw(3) << j << "] = "
 		      << std::setw(12)<< -x[j] << std::endl;
 
       set_dbnL_design_elem(lat, lat.elems[loc]->Fnum, lat.elems[loc]->Knum, Dip,
 			   -scl*x[j], 0e0);
     } else {
-      if (trace) std::cout << std::scientific << std::setprecision(5)
+      if (lat.conf.trace) std::cout << std::scientific << std::setprecision(5)
 		      << "(a_1L)[" << std::setw(3) << j << "] = "
 		      << std::setw(12)<< x[j] << std::endl;
 
