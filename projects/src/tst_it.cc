@@ -28,17 +28,15 @@ void get_lat(const char *file_name, LatticeType &lat)
 
   const string str = file_name;
 
+  lat.conf.trace = false;
+  lat.conf.reverse_elem = !false;
+  lat.conf.mat_meth = false;
+
   lat.conf.H_exact    = false; lat.conf.quad_fringe = false;
   lat.conf.Cavity_on  = false; lat.conf.radiation   = false;
   lat.conf.emittance  = false; lat.conf.IBS         = false;
   lat.conf.pathlength = false; lat.conf.bpm         = 0;
   lat.conf.Cart_Bend  = false; lat.conf.dip_edge_fudge = true;
-
-  reverse_elem = !false;
-
-  lat.conf.trace = false;
-
-  lat.conf.mat_meth = false;
 
   inf  = file_read((str + ".lat").c_str());
   outf = file_write((str + ".lax").c_str());
@@ -153,7 +151,7 @@ bool orb_corr(LatticeType &lat, const int n_orbit)
     }
   }
 
-  // lat.prt_cod("orb_corr.out", true);
+  lat.prt_cod("orb_corr.out", true);
 
   return cod;
 }
@@ -171,7 +169,7 @@ void tst_lsoc(LatticeType &lat)
     hcorr = ElemIndex("chv"),
     vcorr = ElemIndex("chv");
 
-  lat.conf.trace = !true;
+  lat.conf.trace = true;
 
   iniranf(seed); setrancut(1e0);
 

@@ -252,7 +252,7 @@ void LatticeType::Lat_Init(void)
       reverse = elemf[i-1].KidList[j-1] < 0;
       if (reverse) elemf[i-1].KidList[j-1] *= -1;
       loc = elemf[i-1].KidList[j-1];
-      elems[loc] = elemf[i-1].ElemF->Elem_Init(reverse);
+      elems[loc] = elemf[i-1].ElemF->Elem_Init(this->conf, reverse);
       elems[loc]->Fnum = i; elems[loc]->Knum = j;
     }
     if (first)
@@ -263,7 +263,7 @@ void LatticeType::Lat_Init(void)
 	printf("...\n");
       }
     if (debug)
-      printf("\nLat_Init: Fnum = %2d Knum = %2d loc = %3d %*s\n",
+      printf("\nLat_Init: Fnum = %2d Knum = %2d loc = %3ld %*s\n",
 	     i, j, loc, SymbolLength, elems[loc]->PName);
   }
 

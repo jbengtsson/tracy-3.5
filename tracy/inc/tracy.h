@@ -76,10 +76,7 @@ extern FILE  *fi,              // lattice input  file
              *psout,           // program output file
              *prr[];           // prr[1] : input, prr[2] : output
 
-extern bool reverse_elem;
-
 extern int P_eof(FILE *f);
-
 extern int P_eoln(FILE *f);
 
 extern void GDiag(int n, double C, Matrix &A, Matrix &Ainv, Matrix &R,
@@ -126,6 +123,7 @@ class ConfigType {
  public:
   bool
     trace,
+    reverse_elem,
     stable,
     ErrFlag,
     Cavity_on,                 // if true, cavity turned on
@@ -242,7 +240,8 @@ class ElemType : public CellType {
   PartsKind
     Pkind;                     // Enumeration for magnet types.
 
-  virtual ElemType* Elem_Init(const bool reverse) { return NULL; };
+  virtual ElemType* Elem_Init(const ConfigType &conf, const bool reverse)
+  { return NULL; };
   virtual void print(void) {};
 
   virtual void SetdS(void) {};
@@ -402,7 +401,7 @@ class LatticeType {
 class DriftType : public ElemType {
  public:
   friend DriftType* Drift_Alloc(void);
-  ElemType* Elem_Init(const bool reverse);
+  ElemType* Elem_Init(const ConfigType &conf, const bool reverse);
   void print(void);
 
   void SetdS(void) {};
@@ -457,7 +456,7 @@ class MpoleType : public ElemType {
     M_lin;                     // Linear Map for Element.
 
   friend MpoleType* Mpole_Alloc(void);
-  ElemType* Elem_Init(const bool reverse);
+  ElemType* Elem_Init(const ConfigType &conf, const bool reverse);
   void print(void);
 
   void SetdS(void);
@@ -488,7 +487,7 @@ class CavityType : public ElemType {
     phi;                       // RF phase.
 
   friend CavityType* Cavity_Alloc(void);
-  ElemType* Elem_Init(const bool reverse);
+  ElemType* Elem_Init(const ConfigType &conf, const bool reverse);
   void print(void);
 
   void SetdS(void) {};
@@ -508,7 +507,7 @@ class CavityType : public ElemType {
 class MarkerType : public ElemType {
  public:
   friend MarkerType* Marker_Alloc(void);
-  ElemType* Elem_Init(const bool reverse);
+  ElemType* Elem_Init(const ConfigType &conf, const bool reverse);
   void print(void);
 
   void SetdS(void) {};
@@ -553,7 +552,7 @@ class WigglerType : public ElemType {
     PBW;
 
   friend WigglerType* Wiggler_Alloc(void);
-  ElemType* Elem_Init(const bool reverse);
+  ElemType* Elem_Init(const ConfigType &conf, const bool reverse);
   void print(void);
 
   void SetdS(void);
@@ -623,7 +622,7 @@ class InsertionType : public ElemType {
     PdSrnd[2];                 // random number.
 
   friend InsertionType* Insertion_Alloc(void);
-  ElemType* Elem_Init(const bool reverse);
+  ElemType* Elem_Init(const ConfigType &conf, const bool reverse);
   void print(void);
 
   void SetdS(void) {};
@@ -662,7 +661,7 @@ class FieldMapType : public ElemType {
     ***AoBrho2[2];             // [Ax(x, y, z), Ay(x, y, z)], spline info.
 
   friend FieldMapType* FieldMap_Alloc(void);
-  ElemType* Elem_Init(const bool reverse);
+  ElemType* Elem_Init(const ConfigType &conf, const bool reverse);
   void print(void);
 
   void SetdS(void) {};
@@ -687,7 +686,7 @@ class SpreaderType : public ElemType {
     *Cell_ptrs[Spreader_max];
 
   friend SpreaderType* Spreader_Alloc(void);
-  ElemType* Elem_Init(const bool reverse);
+  ElemType* Elem_Init(const ConfigType &conf, const bool reverse);
   void print(void);
 
   void SetdS(void) {};
@@ -711,7 +710,7 @@ class RecombinerType : public ElemType {
     E_max;
 
   friend RecombinerType* Recombiner_Alloc(void);
-  ElemType* Elem_Init(const bool reverse);
+  ElemType* Elem_Init(const ConfigType &conf, const bool reverse);
   void print(void);
 
   void SetdS(void) {};
@@ -745,7 +744,7 @@ class SolenoidType : public ElemType {
     PdSrnd[2];                 // random number.
 
   friend SolenoidType* Solenoid_Alloc(void);
-  ElemType* Elem_Init(const bool reverse);
+  ElemType* Elem_Init(const ConfigType &conf, const bool reverse);
   void print(void);
 
   void SetdS(void) {};
@@ -774,7 +773,7 @@ class MapType : public ElemType {
     M;
 
   friend MapType* Map_Alloc(void);
-  ElemType* Elem_Init(const bool reverse);
+  ElemType* Elem_Init(const ConfigType &conf, const bool reverse);
   void print(void);
 
   void SetdS(void) {};

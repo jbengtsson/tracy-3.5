@@ -8,12 +8,13 @@
 
 */
 
-
-static bool              first_h[] = {true, true}, first_v[] = {true, true};
-       int               n_bpm_[2], n_corr_[2];
-       long unsigned int *bpms_[2], *corrs_[2];
-static double            *w_lsoc[2], **A_lsoc[2], **U_lsoc[2], **V_lsoc[2];
-static double            *w_lstc[2], **A_lstc[2], **U_lstc[2], **V_lstc[2];
+  
+static bool       first_h[] = {true, true}, first_v[] = {true, true};
+int               n_bpm_[2], n_corr_[2];
+std::vector<int>  bpms_[2], corrs_[2];
+static gsl_vector *w_lsoc[2], *w_lstc[2];
+static gsl_matrix *A_lsoc[2], *U_lsoc[2], *V_lsoc[2],
+                  *A_lstc[2], *U_lstc[2], *V_lstc[2];
 
 
 void zero_trims(LatticeType &lat)
@@ -22,7 +23,7 @@ void zero_trims(LatticeType &lat)
   long int loc;
 
   for (k = 0; k < 2; k++)
-    for (j = 1; j <= n_corr_[k]; j++) {
+    for (j = 0; j < n_corr_[k]; j++) {
       loc = corrs_[k][j];
       set_bn_design_elem(lat, lat.elems[loc]->Fnum, lat.elems[loc]->Knum, Dip,
 			 0e0, 0e0);
@@ -32,13 +33,12 @@ void zero_trims(LatticeType &lat)
 
 void prt_gcmat(const int plane)
 {
-  int  i, j, k;
+  int  i, j;
   FILE *outf = NULL;
 
-  k = plane - 1;
+  const int k = plane - 1;
 
-  printf("\n");
-  printf("no of bpms = %d, no of corrs = %d, plane = %d\n",
+  printf("\nno of bpms = %d, no of corrs = %d, plane = %d\n",
 	 n_bpm_[k], n_corr_[k], plane);
 
   if (plane == 1)
@@ -58,28 +58,27 @@ void prt_gcmat(const int plane)
     fprintf(outf,"# total no of vertical correctors:   %d\n", n_corr_[k]);
 
   fprintf(outf, "# A[%d][%d] = \n", n_bpm_[k], n_corr_[k]);
-  for (i = 1; i <= n_bpm_[k]; i++) {
-    for (j = 1; j <= n_corr_[k]; j++)
-      fprintf(outf, "% .13e ", A_lsoc[k][i][j]);
+  for (i = 0; i < n_bpm_[k]; i++) {
+    for (j = 0; j < n_corr_[k]; j++)
+      fprintf(outf, "% .13e ", gsl_matrix_get(A_lsoc[k], i, j));
     fprintf(outf, "\n");
   }
 
   fprintf(outf, "# U[%d][%d] = \n", n_bpm_[k], n_corr_[k]);
-  for (i = 1; i <= n_bpm_[k]; i++) {
-    for (j = 1; j <= n_corr_[k]; j++)
-      fprintf(outf, "% .13e ", U_lsoc[k][i][j]);
+  for (i = 0; i < n_bpm_[k]; i++) {
+    for (j = 0; j < n_corr_[k]; j++)
+      fprintf(outf, "% .13e ", gsl_matrix_get(U_lsoc[k], i, j));
     fprintf(outf, "\n");
   }
 
   fprintf(outf, "# w[%d]    = \n", n_corr_[k]);
-  for (j = 1; j <= n_corr_[k]; j++)
-    fprintf(outf, "% .13e ", w_lsoc[k][j]);
-  fprintf(outf, "\n");
-  fprintf(outf, "# V[%d][%d] = \n", n_bpm_[k], n_corr_[k]);
+  for (j = 0; j < n_corr_[k]; j++)
+    fprintf(outf, "% .13e ", gsl_vector_get(w_lsoc[k], j));
+  fprintf(outf, "\n# V[%d][%d] = \n", n_bpm_[k], n_corr_[k]);
 
-  for (i = 1; i <= n_corr_[k]; i++) {
-    for (j = 1; j <= n_corr_[k]; j++)
-      fprintf(outf, "% .13e ", V_lsoc[k][i][j]);
+  for (i = 0; i < n_corr_[k]; i++) {
+    for (j = 0; j < n_corr_[k]; j++)
+      fprintf(outf, "% .13e ", gsl_matrix_get(V_lsoc[k], i, j));
     fprintf(outf, "\n");
   }
 
@@ -99,79 +98,80 @@ void gcmat(LatticeType &lat, const int plane)
 
   */
 
-  int      i, j, k;
+  int      i, j;
   long int loc;
   double   nu, betai, betaj, nui, nuj, spiq;
 
+  const int    k   = plane - 1;
   const double eps = 1e-4;
 
-  k = plane - 1;
+  gsl_vector *work = gsl_vector_alloc(n_corr_[k]);
 
   nu = lat.conf.TotalTune[k]; spiq = sin(M_PI*nu);
 
-  for (i = 1; i <= n_bpm_[k]; i++) {
+  for (i = 0; i < n_bpm_[k]; i++) {
     loc = bpms_[k][i]; betai = lat.elems[loc]->Beta[k];
     nui = lat.elems[loc]->Nu[k];
-    for (j = 1; j <= n_corr_[k]; j++) {
+    for (j = 0; j < n_corr_[k]; j++) {
       loc = corrs_[k][j]; betaj = lat.elems[loc]->Beta[k];
       nuj = lat.elems[loc]->Nu[k];
-      A_lsoc[k][i][j] =
-	sqrt(betai*betaj)/(2.0*spiq)*cos(nu*M_PI-fabs(2.0*M_PI*(nui-nuj)));
+      gsl_matrix_set
+	(A_lsoc[k], i, j,
+	 sqrt(betai*betaj)/(2.0*spiq)*cos(nu*M_PI-fabs(2.0*M_PI*(nui-nuj))));
     }
   }
 
-  for (i = 1; i <= n_bpm_[k]; i++)
-    for (j = 1; j <= n_corr_[k]; j++)
-      U_lsoc[k][i][j] = A_lsoc[k][i][j];
+  gsl_matrix_memcpy(U_lsoc[k], A_lsoc[k]);
+  gsl_linalg_SV_decomp(U_lsoc[k], V_lsoc[k], w_lsoc[k], work);
 
-  dsvdcmp(U_lsoc[k], n_bpm_[k], n_corr_[k], w_lsoc[k], V_lsoc[k]);
-
-  printf("\n");
-  printf("gcmat singular values:\n");
-  for (j = 1; j <= n_corr_[k]; j++) {
-    printf("%11.3e", w_lsoc[k][j]);
-    if (w_lsoc[k][j] < eps) {
-      w_lsoc[k][j] = 0e0;
+  printf("\ngcmat singular values:\n");
+  for (j = 0; j < n_corr_[k]; j++) {
+    printf("%11.3e", gsl_vector_get(w_lsoc[k], j));
+    if (gsl_vector_get(w_lsoc[k], j) < eps) {
+      gsl_vector_set(w_lsoc[k], j, 0e0);
       printf(" (zeroed)");
     }
-    if (j % 5 == 0) printf("\n");
+    if ((j+1) % 5 == 0) printf("\n");
   }
   if (n_corr_[k] % 5 != 0) printf("\n");
 
   if (lat.conf.trace) prt_gcmat(plane);
+
+  gsl_vector_free(work);
 }
 
 
-void gcmat(LatticeType &lat, const int n_bpm, const long int bpms[],
-	   const int n_corr, const long int corrs[], const int plane,
+void gcmat(LatticeType &lat, const int n_bpm, const std::vector<int> bpms,
+	   const int n_corr, const std::vector<int> corrs, const int plane,
 	   const bool svd)
 {
-  bool first;
-  int  i, k;
+  int  i;
 
-  k = plane - 1;
+  const bool first = (plane == 1)? first_h[0] : first_v[0];
+  const int  k     = plane - 1;
 
-  first = (plane == 1)? first_h[0] : first_v[0];
   if (first) {
     if (plane == 1)
       first_h[0] = false;
     else
       first_v[0] = false;
 
-    bpms_[k] = lvector(1, n_bpm); corrs_[k] = lvector(1, n_corr);
-
-    A_lsoc[k] = dmatrix(1, n_bpm, 1, n_corr);
-    U_lsoc[k] = dmatrix(1, n_bpm, 1, n_corr);
-    w_lsoc[k] = dvector(1, n_corr);
-    V_lsoc[k] = dmatrix(1, n_corr, 1, n_corr);
+    gsl_matrix *A = gsl_matrix_alloc(n_bpm, n_corr);
+    A_lsoc[k] = A;
+    gsl_matrix *U = gsl_matrix_alloc(n_bpm, n_corr);
+    U_lsoc[k] = U;
+    gsl_vector *w = gsl_vector_alloc(n_corr);
+    w_lsoc[k] = w;
+    gsl_matrix *V = gsl_matrix_alloc(n_corr, n_corr);
+    V_lsoc[k] = V;
   }
 
-  for (i = 1; i <= n_bpm; i++)
-    bpms_[k][i] = bpms[i-1];
-
-  for (i = 1; i <= n_corr; i++)
-    corrs_[k][i] = corrs[i-1];
-
+  bpms_[k].clear();
+  corrs_[k].clear();
+  for (i = 0; i < n_bpm; i++)
+    bpms_[k].push_back(bpms[i]);
+  for (i = 0; i < n_corr; i++)
+    corrs_[k].push_back(corrs[i]);
   n_bpm_[k] = n_bpm; n_corr_[k] = n_corr;
 
   if (svd) gcmat(lat, plane);
@@ -181,17 +181,20 @@ void gcmat(LatticeType &lat, const int n_bpm, const long int bpms[],
 void gcmat(LatticeType &lat, const int bpm, const int corr,
 	   const int plane)
 {
-  int i, k;
+  int              i;
+  std::vector<int> bpms, corrs;
 
-  k = plane - 1; n_bpm_[k] = lat.GetnKid(bpm); n_corr_[k] = lat.GetnKid(corr);
+  const int k = plane - 1;
 
-  long int bpms[n_bpm_[k]], corrs[n_corr_[k]];
+  n_bpm_[k]  = lat.GetnKid(bpm);
+  n_corr_[k] = lat.GetnKid(corr);
 
-  for (i = 1; i <= n_bpm_[k]; i++)
-    bpms[i-1] = lat.Elem_GetPos(bpm, i);
-
-  for (i = 1; i <= n_corr_[k]; i++)
-    corrs[i-1] = lat.Elem_GetPos(corr, i);
+  bpms_[k].clear();
+  corrs_[k].clear();
+  for (i = 0; i < n_bpm_[k]; i++)
+    bpms.push_back(lat.Elem_GetPos(bpm, i+1));
+  for (i = 0; i < n_corr_[k]; i++)
+    corrs.push_back(lat.Elem_GetPos(corr, i+1));
 
   gcmat(lat, n_bpm_[k], bpms, n_corr_[k], corrs, plane, true);
 }
@@ -199,32 +202,34 @@ void gcmat(LatticeType &lat, const int bpm, const int corr,
 
 void lsoc(LatticeType &lat, const int plane, const double scl)
 {
-  int      j, k;
+  int      j;
   long int loc;
-  double   *b, *x;
 
-  k = plane - 1;
+  const int k = plane - 1;
 
-  b = dvector(1, n_bpm_[k]); x = dvector(1, n_corr_[k]);
+  gsl_vector *b = gsl_vector_alloc(n_bpm_[k]);
+  gsl_vector *x = gsl_vector_alloc(n_corr_[k]);
 
-  for (j = 1; j <= n_bpm_[k]; j++) {
+  for (j = 0; j < n_bpm_[k]; j++) {
     loc = bpms_[k][j];
-    b[j] = -lat.elems[loc]->BeamPos[2*k] + lat.elems[loc]->dS[k];
+    gsl_vector_set(b, j, -lat.elems[loc]->BeamPos[2*k]+lat.elems[loc]->dS[k]);
   }
       
-  dsvbksb(U_lsoc[k], w_lsoc[k], V_lsoc[k], n_bpm_[k], n_corr_[k], b, x);
+  gsl_linalg_SV_solve(U_lsoc[k], V_lsoc[k], w_lsoc[k], b, x);
+  // dsvbksb(U_lsoc[k], w_lsoc[k], V_lsoc[k], n_bpm_[k], n_corr_[k], b, x);
 
-  for (j = 1; j <= n_corr_[k]; j++) {
+  for (j = 0; j < n_corr_[k]; j++) {
     loc = corrs_[k][j];
     if (plane == 1)
       set_dbnL_design_elem(lat, lat.elems[loc]->Fnum, lat.elems[loc]->Knum, Dip,
-			   -scl*x[j], 0e0);
+			   -scl*gsl_vector_get(x, j), 0e0);
     else
       set_dbnL_design_elem(lat, lat.elems[loc]->Fnum, lat.elems[loc]->Knum, Dip,
-			   0e0, scl*x[j]);
+			   0e0, scl*gsl_vector_get(x, j));
   }
 
-  free_dvector(b, 1, n_bpm_[k]); free_dvector(x, 1, n_corr_[k]);
+  gsl_vector_free(b);
+  gsl_vector_free(x);
 }
 
 
@@ -238,42 +243,40 @@ void gtcmat(LatticeType &lat, const int plane)
 
   */
 
-  int      i, j, k;
+  int      i, j;
   long int loc_bpm, loc_corr;
   double   betai, betaj, nui, nuj;
 
+  const int    k   = plane - 1;
   const double eps = 1e-4;
 
-  k = plane - 1;
+  gsl_vector *work = gsl_vector_alloc(n_corr_[k]);
 
-  for (i = 1; i <= n_bpm_[k]; i++) {
+  for (i = 0; i < n_bpm_[k]; i++) {
     loc_bpm = bpms_[k][i];
     betai = lat.elems[loc_bpm]->Beta[k]; nui = lat.elems[loc_bpm]->Nu[k];
-    for (j = 1; j <= n_corr_[k]; j++) {
+    for (j = 0; j < n_corr_[k]; j++) {
       loc_corr = corrs_[k][j];
       betaj = lat.elems[loc_corr]->Beta[k]; nuj = lat.elems[loc_corr]->Nu[k];
       if (loc_bpm > loc_corr)
-	A_lstc[k][i][j] = sqrt(betai*betaj)*sin(2.0*M_PI*(nui-nuj));
+	gsl_matrix_set(A_lstc[k], i, j,
+		       sqrt(betai*betaj)*sin(2.0*M_PI*(nui-nuj)));
       else
-	A_lstc[k][i][j] = 0e0;
+	gsl_matrix_set(A_lstc[k], i, j, 0e0);
     }
   }
 
-  for (i = 1; i <= n_bpm_[k]; i++)
-    for (j = 1; j <= n_corr_[k]; j++)
-      U_lstc[k][i][j] = A_lstc[k][i][j];
+  gsl_matrix_memcpy(U_lsoc[k], A_lsoc[k]);
+  gsl_linalg_SV_decomp(U_lstc[k], V_lstc[k], w_lstc[k], work);
 
-  dsvdcmp(U_lstc[k], n_bpm_[k], n_corr_[k], w_lstc[k], V_lstc[k]);
-
-  printf("\n");
-  printf("gtcmat singular values:\n");
-  for (j = 1; j <= n_corr_[k]; j++) {
-    printf("%11.3e", w_lstc[k][j]);
-    if (w_lstc[k][j] < eps) {
-      w_lstc[k][j] = 0e0;
+  printf("\ngtcmat singular values:\n");
+  for (j = 0; j < n_corr_[k]; j++) {
+    printf("%11.3e", gsl_vector_get(w_lstc[k], j));
+    if (gsl_vector_get(w_lstc[k], j) < eps) {
+      gsl_vector_set(w_lstc[k], j, 0e0);
       printf(" (zeroed)");
     }
-    if (j % 5 == 0) printf("\n");
+    if ((j+1) % 5 == 0) printf("\n");
   }
   if (n_corr_[k] % 5 != 0) printf("\n");
 
@@ -281,36 +284,37 @@ void gtcmat(LatticeType &lat, const int plane)
 }
 
 
-void gtcmat(LatticeType &lat, const int n_bpm, const long int bpms[],
-	    const int n_corr, const long int corrs[], const int plane,
+void gtcmat(LatticeType &lat, const int n_bpm, const std::vector<int> bpms,
+	    const int n_corr, const std::vector<int> corrs, const int plane,
 	    const bool svd)
 {
-  bool first;
-  int  i, k;
+  int  i;
 
-  k = plane - 1;
+  const bool first = (plane == 1)? first_h[1] : first_v[1];
+  const int  k     = plane - 1;
 
-  first = (plane == 1)? first_h[1] : first_v[1];
   if (first) {
     if (plane == 1)
       first_h[1] = false;
     else
       first_v[1] = false;
 
-    bpms_[k] = lvector(1, n_bpm); corrs_[k] = lvector(1, n_corr);
-
-    A_lstc[k] = dmatrix(1, n_bpm, 1, n_corr);
-    U_lstc[k] = dmatrix(1, n_bpm, 1, n_corr);
-    w_lstc[k] = dvector(1, n_corr);
-    V_lstc[k] = dmatrix(1, n_corr, 1, n_corr);
+    gsl_matrix *A = gsl_matrix_alloc(n_bpm, n_corr);
+    A_lstc[k] = A;
+    gsl_matrix *U = gsl_matrix_alloc(n_bpm, n_corr);
+    U_lstc[k] = U;
+    gsl_vector *w = gsl_vector_alloc(n_corr);
+    w_lstc[k] = w;
+    gsl_matrix *V = gsl_matrix_alloc(n_corr, n_corr);
+    V_lstc[k] = V;
   }
 
-  for (i = 1; i <= n_bpm; i++)
-    bpms_[k][i] = bpms[i-1];
-
-  for (i = 1; i <= n_corr; i++)
-    corrs_[k][i] = corrs[i-1];
-
+  bpms_[k].clear();
+  corrs_[k].clear();
+  for (i = 0; i < n_bpm; i++)
+    bpms_[k].push_back(bpms[i]);
+  for (i = 0; i < n_corr; i++)
+    corrs_[k].push_back(corrs[i]);
   n_bpm_[k] = n_bpm; n_corr_[k] = n_corr;
 
   if (svd) gtcmat(lat, plane);
@@ -319,43 +323,47 @@ void gtcmat(LatticeType &lat, const int n_bpm, const long int bpms[],
 
 void lstc(LatticeType &lat, const int plane, const double scl)
 {
-  int      j, k;
+  int      j;
   long int loc;
-  double   *b, *x;
 
-  k = plane - 1;
+  const int k = plane - 1;
 
-  b = dvector(1, n_bpm_[k]); x = dvector(1, n_corr_[k]);
+  gsl_vector *b = gsl_vector_alloc(n_bpm_[k]);
+  gsl_vector *x = gsl_vector_alloc(n_corr_[k]);
 
-  for (j = 1; j <= n_bpm_[k]; j++) {
+  for (j = 0; j < n_bpm_[k]; j++) {
     loc = bpms_[k][j];
-    b[j] = -lat.elems[loc]->BeamPos[2*k] + lat.elems[loc]->dS[k];
+    gsl_vector_set(b, j, -lat.elems[loc]->BeamPos[2*k]+lat.elems[loc]->dS[k]);
 
-    if (lat.conf.trace) std::cout << std::scientific << std::setprecision(5)
-		    << "b[" << std::setw(3) << j << "] = "
-		    << std::setw(12) << b[j] << std::endl;
+    if (lat.conf.trace)
+      std::cout << std::scientific << std::setprecision(5)
+		<< "b[" << std::setw(3) << j << "] = "
+		<< std::setw(12) << gsl_vector_get(b, j) << std::endl;
   }
-      
-  dsvbksb(U_lstc[k], w_lstc[k], V_lstc[k], n_bpm_[k], n_corr_[k], b, x);
 
-  for (j = 1; j <= n_corr_[k]; j++) {
+  gsl_linalg_SV_solve(U_lstc[k], V_lstc[k], w_lstc[k], b, x);
+
+  for (j = 0; j < n_corr_[k]; j++) {
     loc = corrs_[k][j];
     if (plane == 1) {
-      if (lat.conf.trace) std::cout << std::scientific << std::setprecision(5)
-		      << "(b_1L)[" << std::setw(3) << j << "] = "
-		      << std::setw(12)<< -x[j] << std::endl;
+      if (lat.conf.trace)
+	std::cout << std::scientific << std::setprecision(5)
+		  << "(b_1L)[" << std::setw(3) << j << "] = "
+		  << std::setw(12)<< -gsl_vector_get(x, j) << std::endl;
 
       set_dbnL_design_elem(lat, lat.elems[loc]->Fnum, lat.elems[loc]->Knum, Dip,
-			   -scl*x[j], 0e0);
+			   -scl*gsl_vector_get(x, j), 0e0);
     } else {
-      if (lat.conf.trace) std::cout << std::scientific << std::setprecision(5)
-		      << "(a_1L)[" << std::setw(3) << j << "] = "
-		      << std::setw(12)<< x[j] << std::endl;
+      if (lat.conf.trace)
+	std::cout << std::scientific << std::setprecision(5)
+		  << "(a_1L)[" << std::setw(3) << j << "] = "
+		  << std::setw(12) << gsl_vector_get(x, j) << std::endl;
 
       set_dbnL_design_elem(lat, lat.elems[loc]->Fnum, lat.elems[loc]->Knum, Dip,
-			   0e0, scl*x[j]);
+			   0e0, scl*gsl_vector_get(x, j));
     }
   }
 
-  free_dvector(b, 1, n_bpm_[k]); free_dvector(x, 1, n_corr_[k]);
+  gsl_vector_free(b);
+  gsl_vector_free(x);
 }

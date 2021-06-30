@@ -145,7 +145,6 @@ struct CellListType {
 
 std::vector<CellListType> Cell_List;
 
-bool reverse_elem = false; // Beam Dynamics or Software Engineering reverse.
 
 // Set operations
 
@@ -2019,7 +2018,6 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
   Lat_symbol     sym1;
   symset         mysys, SET;
   long           SET1[(long)lsym / 32 + 2];
-  ElemType       *WITH1;
   DriftType      *WITHD;
   MpoleType      *WITH2;
   MarkerType     *WITHMk;

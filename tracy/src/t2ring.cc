@@ -860,6 +860,7 @@ void LatticeType::prt_lat(const char *fname, const bool all, const int n)
 void LatticeType::prt_cod(const char *file_name, const bool all)
 {
   long      i;
+  double    b0, a0;
   FILE      *outf;
   struct tm *newtime;
 
@@ -879,6 +880,13 @@ void LatticeType::prt_cod(const char *file_name, const bool all)
 
   for (i = 0; i <= conf.Cell_nLoc; i++) {
     if (all || (elems[i]->Fnum == conf.bpm)) {
+      if (elems[i]->Pkind == Mpole) {
+	b0 = Elem_GetKval(elems[i]->Fnum, elems[i]->Knum, Dip);
+	a0 = Elem_GetKval(elems[i]->Fnum, elems[i]->Knum, -Dip);
+      } else {
+	b0 = 0e0;
+	a0 = 0e0;
+      }
       /* COD is in local coordinates */
       fprintf(outf,
 	      "%4ld %.*s %6.2f %4.1f %6.3f %6.3f %6.3f %6.3f"
@@ -888,9 +896,7 @@ void LatticeType::prt_cod(const char *file_name, const bool all)
 	      elems[i]->Beta[X_], elems[i]->Nu[X_],
 	      elems[i]->Beta[Y_], elems[i]->Nu[Y_],
 	      1e3*elems[i]->BeamPos[x_], 1e3*elems[i]->BeamPos[y_],
-	      1e3*elems[i]->dS[X_], 1e3*elems[i]->dS[Y_],
-	      -1e3*Elem_GetKval(elems[i]->Fnum, elems[i]->Knum, Dip),
-	      1e3*Elem_GetKval(elems[i]->Fnum, elems[i]->Knum, -Dip));
+	      1e3*elems[i]->dS[X_], 1e3*elems[i]->dS[Y_], -1e3*b0, 1e3*a0);
     }
   }
   fclose(outf);

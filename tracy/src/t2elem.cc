@@ -1587,7 +1587,7 @@ void rk4_(ConfigType &conf, const ElemType *elem, const ss_vect<T> &y,
 {
   int        j;
   double     xh, hh, h6;
-  T          BoBrho[3], p_s;
+  T          BoBrho[3];
   ss_vect<T> dym, dyt, yt;
 
   const FieldMapType *FM = dynamic_cast<const FieldMapType*>(elem);
@@ -2700,7 +2700,7 @@ MapType* Map_Alloc(void)
 }
 
 
-ElemType* DriftType::Elem_Init(const bool reverse)
+ElemType* DriftType::Elem_Init(const ConfigType &conf, const bool reverse)
 {
   DriftType *Dp;
 
@@ -2723,7 +2723,7 @@ static int UpdatePorder(MpoleType *M)
 }
 
 
-ElemType* MpoleType::Elem_Init(const bool reverse)
+ElemType* MpoleType::Elem_Init(const ConfigType &conf, const bool reverse)
 {
   double     phi;
   MpoleType  *Mp;
@@ -2757,7 +2757,7 @@ ElemType* MpoleType::Elem_Init(const bool reverse)
   *Mp = *M;
 
   Mp->Reverse = reverse;
-  if (reverse_elem && (Mp->Reverse == true)) {
+  if (conf.reverse_elem && (Mp->Reverse == true)) {
     // Swap entrance and exit angles.
     phi = Mp->PTx1; Mp->PTx1 = Mp->PTx2; Mp->PTx2 = phi;
   }
@@ -2766,7 +2766,7 @@ ElemType* MpoleType::Elem_Init(const bool reverse)
 }
 
 
-ElemType* CavityType::Elem_Init(const bool reverse)
+ElemType* CavityType::Elem_Init(const ConfigType &conf, const bool reverse)
 {
   CavityType *Cp;
 
@@ -2779,7 +2779,7 @@ ElemType* CavityType::Elem_Init(const bool reverse)
 }
 
 
-ElemType* MarkerType::Elem_Init(const bool reverse)
+ElemType* MarkerType::Elem_Init(const ConfigType &conf, const bool reverse)
 {
   MarkerType *Mkp;
 
@@ -2792,7 +2792,7 @@ ElemType* MarkerType::Elem_Init(const bool reverse)
 }
 
 
-ElemType* WigglerType::Elem_Init(const bool reverse)
+ElemType* WigglerType::Elem_Init(const ConfigType &conf, const bool reverse)
 {
   int         i;
   WigglerType *Wp;
@@ -2807,7 +2807,7 @@ ElemType* WigglerType::Elem_Init(const bool reverse)
 }
 
 
-ElemType* InsertionType::Elem_Init(const bool reverse)
+ElemType* InsertionType::Elem_Init(const ConfigType &conf, const bool reverse)
 {
   InsertionType *IDp;
 
@@ -2822,7 +2822,7 @@ ElemType* InsertionType::Elem_Init(const bool reverse)
 }
 
 
-ElemType* FieldMapType::Elem_Init(const bool reverse)
+ElemType* FieldMapType::Elem_Init(const ConfigType &conf, const bool reverse)
 {
   FieldMapType *FMp;
 
@@ -2835,7 +2835,7 @@ ElemType* FieldMapType::Elem_Init(const bool reverse)
 }
 
 
-ElemType* SpreaderType::Elem_Init(const bool reverse)
+ElemType* SpreaderType::Elem_Init(const ConfigType &conf, const bool reverse)
 {
   SpreaderType *Sprp;
 
@@ -2848,7 +2848,7 @@ ElemType* SpreaderType::Elem_Init(const bool reverse)
 }
 
 
-ElemType* RecombinerType::Elem_Init(const bool reverse)
+ElemType* RecombinerType::Elem_Init(const ConfigType &conf, const bool reverse)
 {
   RecombinerType *Recp;
 
@@ -2861,7 +2861,7 @@ ElemType* RecombinerType::Elem_Init(const bool reverse)
 }
 
 
-ElemType* SolenoidType::Elem_Init(const bool reverse)
+ElemType* SolenoidType::Elem_Init(const ConfigType &conf, const bool reverse)
 {
   SolenoidType *Solp;
 
@@ -2874,7 +2874,7 @@ ElemType* SolenoidType::Elem_Init(const bool reverse)
 }
 
 
-ElemType* MapType::Elem_Init(const bool reverse)
+ElemType* MapType::Elem_Init(const ConfigType &conf, const bool reverse)
 {
   MapType *Mapp;
 
@@ -3008,6 +3008,8 @@ void LatticeType::get_lin_maps(const double delta)
   }
 }
 
+
+#if 0
 
 // instantiate
 template void spline_(const double [], const double [], const int,
@@ -3732,6 +3734,8 @@ void get_B_SRW(ConfigType &conf, const char *filename, FieldMapType *FM)
   free_df3tensor(FM->AoBrho2[Y_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);*/
 }
 
+#endif
+
 
 void get_B(ConfigType &conf, const char *filename, FieldMapType *FM)
 {
@@ -3740,19 +3744,19 @@ void get_B(ConfigType &conf, const char *filename, FieldMapType *FM)
 
   switch (FieldMap_filetype) {
   case 1:
-    get_B_DIAMOND(conf, filename, FM);
+    // get_B_DIAMOND(conf, filename, FM);
     break;
   case 2:
-    get_B_NSLS_II(conf, filename, FM);
+    // get_B_NSLS_II(conf, filename, FM);
     break;
   case 3:
-    get_B_Oleg1(conf, filename, FM);
+    // get_B_Oleg1(conf, filename, FM);
     break;
   case 4:
-    get_B_Oleg2(conf, filename, FM);
+    // get_B_Oleg2(conf, filename, FM);
     break;
   case 5:
-    get_B_SRW(conf, filename, FM);
+    // get_B_SRW(conf, filename, FM);
     break;
   default:
     printf("\nget_B: unknown FieldMap type %d", FieldMap_filetype);
@@ -3760,7 +3764,6 @@ void get_B(ConfigType &conf, const char *filename, FieldMapType *FM)
     break;
   }
 }
-
 
 void MpoleType::SetdS(void)
 {

@@ -11,8 +11,8 @@
 #ifndef LSOC_H
 #define LSOC_H
 
-extern int               n_bpm_[2], n_corr_[2];
-extern long unsigned int *bpms_[2], *corrs_[2];
+extern int              n_bpm_[2], n_corr_[2];
+extern std::vector<int> bpms_[2], corrs_[2];
 
 void zero_trims(LatticeType &lat);
 
@@ -20,8 +20,8 @@ void prt_gcmat(const int plane);
 
 void gcmat(LatticeType &lat, const int plane);
 
-void gcmat(LatticeType &lat, const int n_bpm, const long int bpms[],
-	   const int n_corr, const long int corrs[], const int plane,
+void gcmat(LatticeType &lat, const int n_bpm, const std::vector<int> bpms,
+	   const int n_corr, const std::vector<int> corrs, const int plane,
 	   const bool svd);
 
 void gcmat(LatticeType &lat, const int bpm, const int corr,
@@ -31,8 +31,8 @@ void lsoc(LatticeType &lat, const int plane, const double scl);
 
 void gtcmat(LatticeType &lat, const int plane);
 
-void gtcmat(LatticeType &lat, const int n_bpm, const long int bpms[],
-	    const int n_corr, const long int corrs[], const int plane,
+void gtcmat(LatticeType &lat, const int n_bpm, const std::vector<int> bpms,
+	    const int n_corr, const std::vector<int> corrs, const int plane,
 	    const bool svd);
 
 void lstc(LatticeType &lat, const int plane, const double scl);

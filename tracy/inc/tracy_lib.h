@@ -33,6 +33,8 @@
 #include <fstream>
 #include <string>
 #include <algorithm>
+// #include <gsl/gsl_matrix.h>
+#include <gsl/gsl_linalg.h>
 
 //#undef max
 #include <vector>

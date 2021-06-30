@@ -54,7 +54,7 @@ LIBS	 = -L$(TRACY_LIB)/tracy/lib -ltracy \
            -L$(NUM_REC)/lib -L/usr/local/Cellar/gcc/10.1.0/lib/gcc/10 \
 	   -L$(NUM_REC)/lib -lnum_rec \
            -lstdc++ \
-           -lm
+           -lgsl -lgslcblas -lm
 #	   -lgfortran
 #INCLUDES = -I$(TRACY_LIB)/tracy/inc -I$(NUM_REC)/inc
 # C Preprocessor flags.
