@@ -311,15 +311,15 @@ void get_elem(std::ifstream &inf, std::vector<ElemType*> &elems,
       ID->linear = false;
 
     if (!ID->linear) {
-      ID->tx = dmatrix(1, ID->nz,
-		       1, ID->nx);
-      ID->tz = dmatrix(1, ID->nz,
-		       1, ID->nx);
-      ID->tab1 = (double *)malloc((ID->nx)*sizeof(double));
-      ID->tab2 = (double *)malloc((ID->nz)*sizeof(double));
-      ID->f2x = dmatrix(1, ID->nz, 1, ID->nx);
-      ID->f2z = dmatrix(1, ID->nz, 1, ID->nx);
-      Matrices4Spline(ID);
+      // ID->tx = dmatrix(1, ID->nz,
+      // 		       1, ID->nx);
+      // ID->tz = dmatrix(1, ID->nz,
+      // 		       1, ID->nx);
+      // ID->tab1 = (double *)malloc((ID->nx)*sizeof(double));
+      // ID->tab2 = (double *)malloc((ID->nz)*sizeof(double));
+      // ID->f2x = dmatrix(1, ID->nz, 1, ID->nx);
+      // ID->f2z = dmatrix(1, ID->nz, 1, ID->nx);
+      // Matrices4Spline(ID);
     }
 
     /*      free_matrix(tx, 1, nz, 1, nx); free_matrix(tz, 1, nz, 1, nx);

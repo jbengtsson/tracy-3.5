@@ -3280,13 +3280,13 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 
       // stuff for spline interpolation
       if (!WITH5->linear) {
-	WITH5->tx = dmatrix(1,WITH5->nz,1,WITH5->nx);
-	WITH5->tz = dmatrix(1,WITH5->nz,1,WITH5->nx);
-	WITH5->tab1 = (double *)malloc((WITH5->nx)*sizeof(double));
-	WITH5->tab2 = (double *)malloc((WITH5->nz)*sizeof(double));
-	WITH5->f2x = dmatrix(1,WITH5->nz,1,WITH5->nx);
-	WITH5->f2z = dmatrix(1,WITH5->nz,1,WITH5->nx);
-	Matrices4Spline(WITH5);
+	// WITH5->tx = dmatrix(1,WITH5->nz,1,WITH5->nx);
+	// WITH5->tz = dmatrix(1,WITH5->nz,1,WITH5->nx);
+	// WITH5->tab1 = (double *)malloc((WITH5->nx)*sizeof(double));
+	// WITH5->tab2 = (double *)malloc((WITH5->nz)*sizeof(double));
+	// WITH5->f2x = dmatrix(1,WITH5->nz,1,WITH5->nx);
+	// WITH5->f2z = dmatrix(1,WITH5->nz,1,WITH5->nx);
+	// Matrices4Spline(WITH5);
       }
       // to put somewhere
       //      /** Free memory **/

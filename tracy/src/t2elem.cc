@@ -19,6 +19,8 @@ bool  sympl             = true;
 int   FieldMap_filetype = 2;
 
 
+#if 0
+
 template<typename T>
 void spline_(const double x[], const T y[], const int n, const double yp1,
 	     const double ypn, T y2[])
@@ -131,6 +133,8 @@ void splin2_(const double x1a[], const double x2a[], double **ya, double **y2a,
   delete [] ytmp; delete [] yytmp;
 }
 
+#endif
+
 
 template<typename T>
 void GtoL(ss_vect<T> &ps, Vector2 &S, Vector2 &R,
@@ -199,6 +203,8 @@ inline T get_p_s(ConfigType &conf, const ss_vect<T> &ps)
 }
 
 
+#if 0
+
 void zero_mat(const int n, double** A)
 {
   int i, j;
@@ -248,6 +254,9 @@ double trace_mat(const int n, double **A)
 
   return d;
 }
+
+#endif
+
 
 // partial template-class specialization
 // primary version
@@ -1539,6 +1548,8 @@ void radiate_cs(ConfigType &conf, ss_vect<T> &cs, const double L,
 }
 
 
+#if 0
+
 template<typename T>
 bool get_BoBrho(const FieldMapType *FM, const double z, const ss_vect<T> &cs,
 		T BoBrho[])
@@ -2084,6 +2095,8 @@ template void FieldMap_pass_RK(ConfigType &conf, ElemType *,
 template void FieldMap_pass_SI(ConfigType &conf, ElemType *, ss_vect<double> &);
 template void FieldMap_pass_SI(ConfigType &conf, ElemType *, ss_vect<tps> &);
 
+#endif
+
 
 template<typename T>
 void FieldMapType::FieldMap_Pass(ConfigType &conf, ss_vect<T> &ps)
@@ -2108,10 +2121,10 @@ void FieldMapType::FieldMap_Pass(ConfigType &conf, ss_vect<T> &ps)
 
   // n_step: number of Field Map repetitions.
   for (k = 1; k <= FM->n_step; k++) {
-    if (sympl)
-      FieldMap_pass_SI(conf, this, ps);
-    else
-      FieldMap_pass_RK(conf, this, ps);
+    // if (sympl)
+    //   FieldMap_pass_SI(conf, this, ps);
+    // else
+    //   FieldMap_pass_RK(conf, this, ps);
   }
 
   printf("  exit negative drift [m]     %12.5e\n", -Ld);
