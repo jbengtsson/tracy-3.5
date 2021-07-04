@@ -9,7 +9,7 @@ const int  max_str = 132;
 
 const int  n_m2    = 21;  // no of 2nd moments
 
-#if NO == 1
+#if NO_TPSA == 1
 const int  ss_dim  = 6;   // state space dimension
 #else
 const int  ss_dim  = 6+1; /* state space dimension:
@@ -23,8 +23,8 @@ enum spatial_index { X_ = 0, Y_ = 1, Z_ = 2 };
 // (Note, e.g. spin components should be added here)
 enum ps_index { x_ = 0, px_ = 1, y_ = 2, py_ = 3, delta_ = 4, ct_ = 5 };
 
-#if NO == 1
-typedef double  tps_buf[ss_dim+1]; // const. and linear terms
+#if NO_TPSA == 1
+typedef double tps_buf[ss_dim+1]; // const. and linear terms
 #endif
 
 template<typename T> class ss_vect;
@@ -70,7 +70,7 @@ class tps {
   friend double getmat(const ss_vect<tps> &map, const int i, const int j);
   friend void putmat(ss_vect<tps> &map, const int i, const int j,
                      const double r);
-#if NO == 1
+#if NO_TPSA == 1
   friend void dacct_(const ss_vect<tps> &x, const int i,
                      const ss_vect<tps> &y, const int j,
                      ss_vect<tps> &z, const int k);
@@ -134,7 +134,7 @@ class tps {
   friend ss_vect<tps> Difd(const tps &, const double);
   friend ss_vect<tps> Taked(const ss_vect<tps> &, const int);
  private:
-#if NO == 1
+#if NO_TPSA == 1
   tps_buf  ltps;  // linear TPSA
 #else
   long int intptr; // index used by Fortran implementation
@@ -156,6 +156,8 @@ template<typename T> class ss_vect {
   typedef T value_type;
 
   ss_vect(void);
+  ss_vect(const double x, const double px, const double y, const double py,
+	  const double ct, const double delta);
 // Let's the compiler synthetize the copy constructor
 //  ss_vect(const T &a) { }
 //  ss_vect(const ss_vect<T> &a) { }
@@ -243,10 +245,6 @@ template<typename T> class ss_vect {
   // (Note, e.g. spin components should be added here)
   T  ss[ss_dim];
 };
-
-
-typedef ss_vect<double>  psVector;
-typedef psVector         Matrix[ss_dim];
 
 
 typedef struct MNF_struct
@@ -424,6 +422,14 @@ inline ss_vect<T>::ss_vect(void)
 
   for (i = 0; i < ss_dim; i++)
     ss[i] = T();
+}
+
+template<typename T>
+inline ss_vect<T>::ss_vect(const double x, const double px, const double y,
+			   const double py, const double ct, const double delta)
+{
+  ss[x_] = x; ss[px_] = px; ss[y_] = y; ss[py_] = py; ss[ct_] = ct;
+  ss[delta_] = delta;
 }
 
 template<typename T>

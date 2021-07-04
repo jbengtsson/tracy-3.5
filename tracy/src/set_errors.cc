@@ -3,6 +3,20 @@
 const static bool normal = true; // Normal or rectangular distribution.
 
 
+double ranf()
+{
+  printf("\nranf: not implemented\n");
+  exit(1);
+}
+
+
+double normranf()
+{
+  printf("\nnormranf: not implemented\n");
+  exit(1);
+}
+
+
 // Misalignments.
 
 void CheckAlignTol(LatticeType &lat, const char *OutputFile)

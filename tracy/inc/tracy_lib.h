@@ -33,7 +33,7 @@
 #include <fstream>
 #include <string>
 #include <algorithm>
-// #include <gsl/gsl_matrix.h>
+#include <armadillo>
 #include <gsl/gsl_linalg.h>
 
 //#undef max
@@ -44,7 +44,7 @@ using namespace std;
 // Tracy-3
 #include "field.h"
 
-#if NO == 1
+#if NO_TPSA == 1
   // linear TPSA
   #include "tpsa_lin.h"
   #include "tpsa_lin_pm.h"
@@ -54,7 +54,7 @@ using namespace std;
   #include "tpsa_for_pm.h"
 #endif
 
-#include "mathlib.h"
+// #include "mathlib.h"
 #include "ety.h"
 #include "eigenv.h"
 

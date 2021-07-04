@@ -91,7 +91,7 @@ void get_map(LatticeType &lat, const bool cod)
 }
 
 
-#if NO > 1
+#if NO_TPSA > 1
 
 tps get_h(void)
 {

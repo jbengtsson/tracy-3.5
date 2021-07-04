@@ -51,9 +51,12 @@ tst_it_SOURCES            = tst_it.cc
 #LIBS     = -L$(TRACY_LIB)/tracy -ltracy
 # gfortran needs to be before stdc_++ for Fortran programs
 LIBS	 = -L$(TRACY_LIB)/tracy/lib -ltracy \
-           -L/usr/local/Cellar/gcc/10.1.0/lib/gcc/10 \
            -lstdc++ \
-           -lgsl -lgslcblas -lm
+           -lgsl \
+           -larmadillo -llapack -lblas \
+           -lm
+#           -L/usr/local/Cellar/gcc/10.1.0/lib/gcc/10 \
+#	   -lgslcblas
 #	   -lgfortran
 #INCLUDES = -I$(TRACY_LIB)/tracy/inc -I$(NUM_REC)/inc
 # C Preprocessor flags.
@@ -61,6 +64,6 @@ AM_CPPFLAGS = -I$(TRACY_LIB)/tracy/inc -I$(NUM_REC)/inc
 # Fortan flags.
 AM_FFLAGS   = -g -O0 -Wall -fbounds-check
 # C++ flags.
-AM_CXXFLAGS = -g -O0 -Wall
+AM_CXXFLAGS = -g -O0 -Wall -std=c++11
 #CXXFLAGS = -pg -O2 -Wall -Wno-non-template-friend
 FFLAGS      = -g -O2 -Wall -fbounds-check -fdefault-integer-8

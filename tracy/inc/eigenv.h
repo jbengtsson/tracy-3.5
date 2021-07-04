@@ -11,7 +11,7 @@
 #ifndef EIGENV_H
 #define EIGENV_H
 
-bool geigen(int n, Matrix &fm, Matrix &Vre, Matrix &Vim, psVector &wr,
-	    psVector &wi);
+bool geigen(int n, arma::mat &fm, arma::mat &Vre, arma::mat &Vim, arma::vec &wr,
+	    arma::vec &wi);
 
 #endif

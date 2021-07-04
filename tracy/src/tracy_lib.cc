@@ -8,6 +8,6 @@
 
 */
 
-#define NO 1
+#define NO_TPSA 1
 
 #include "tracy.cc"

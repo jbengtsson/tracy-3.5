@@ -52,7 +52,7 @@ double dsign(double x, double y)
 /* Implementation */
 
 /****************************************************************************/
-/* void ETY(int n, int low, int high, Matrix &a, psVector &ort)
+/* void ETY(int n, int low, int high, arma::mat &a, arma::vec &ort)
 
    Purpose:
         this subroutine is a translation of the algol procedure orthes,
@@ -107,7 +107,7 @@ double dsign(double x, double y)
        none
 
 ****************************************************************************/
-void ETY(int n, int low, int high, Matrix &a, psVector &ort)
+void ETY(int n, int low, int high, arma::mat &a, arma::vec &ort)
 {
   int    i, j, m, ii, jj, la, mp, kp1;
   double  f, g, h, scale;
@@ -119,13 +119,13 @@ void ETY(int n, int low, int high, Matrix &a, psVector &ort)
     return;
   for (m = kp1; m <= la; m++) {
     h = 0.0;
-    ort[m - 1] = 0.0;
+    ort(m-1) = 0.0;
     scale = 0.0;   /*90*/
 
     /*     ********** scale column (algol tol then not needed] ***********/
 
-    for (i = m - 1; i < high; i++)
-      scale += fabs(a[i][m - 2]);
+    for (i = m-1; i < high; i++)
+      scale += fabs(a(i, m-2));
 
     /* if scale = 0.0 goto 180 */
 
@@ -135,29 +135,29 @@ void ETY(int n, int low, int high, Matrix &a, psVector &ort)
 
       for (ii = m; ii <= high; ii++) {
 	i = mp - ii;
-	ort[i - 1] = a[i - 1][m - 2] / scale;
-	h += ort[i - 1] * ort[i - 1];
+	ort(i-1) = a(i-1, m-2) / scale;
+	h += ort(i-1)*ort(i-1);
 	/*100*/
       }
 
-      g = -dsign(sqrt(h), ort[m - 1]);
-      h -= ort[m - 1] * g;
-      ort[m - 1] -= g;   /*130*/
+      g = -dsign(sqrt(h), ort(m-1));
+      h -= ort(m-1) * g;
+      ort(m-1) -= g;   /*130*/
       /*     ********** form (i-(u*ut]/h]*a ***********/
-      for (j = m - 1; j < n; j++) {   /*160*/
+      for (j = m-1; j < n; j++) {   /*160*/
 	f = 0.0;   /*110*/
 	/*     ********** for i:=igh step -1 until m for -- ***********/
 	for (ii = m; ii <= high; ii++) {
-	  i = mp - ii;
-	  f += ort[i - 1] * a[i - 1][j];
+	  i = mp-ii;
+	  f += ort(i-1) * a(i-1, j);
 	  /*110*/
 	}
 
 	f /= h;   /*120*/
 
-	for (i = m - 1; i < high; i++) {
+	for (i = m-1; i < high; i++) {
 	  /*120*/
-	  a[i][j] -= f * ort[i];
+	  a(i, j) -= f * ort(i);
 	}
 
 	/*130*/
@@ -168,21 +168,21 @@ void ETY(int n, int low, int high, Matrix &a, psVector &ort)
 	f = 0.0;   /*140*/
 	/*     ********** for j:=igh step -1 until m for -- ***********/
 	for (jj = m; jj <= high; jj++) {
-	  j = mp - jj;
-	  f += ort[j - 1] * a[i][j - 1];
+	  j = mp-jj;
+	  f += ort(j-1) * a(i, j-1);
 	  /*140*/
 	}
 
 	f /= h;
 
-	for (j = m - 1; j < high; j++)
-	  a[i][j] -= f * ort[j];
+	for (j = m-1; j < high; j++)
+	  a(i, j) -= f * ort(j);
 
 	/*160*/
       }
 
-      ort[m - 1] = scale * ort[m - 1];
-      a[m - 1][m - 2] = scale * g;
+      ort(m-1) = scale * ort(m-1);
+      a(m-1, m-2) = scale * g;
     }
     /*180*/
   }
@@ -190,7 +190,8 @@ void ETY(int n, int low, int high, Matrix &a, psVector &ort)
 
 
 /****************************************************************************/
-/* void ETYT(int n, int low, int high, Matrix &a, psVector &ort, Matrix &z)
+/* void ETYT(int n, int low, int high, arma::mat &a, arma::vec &ort,
+             arma::mat &z)
 
    Purpose:
         this subroutine is a translation of the algol procedure ortrans,
@@ -250,7 +251,7 @@ void ETY(int n, int low, int high, Matrix &a, psVector &ort)
        none
 
 ****************************************************************************/
-void ETYT(int n, int low, int high, Matrix &a, psVector &ort, Matrix &z)
+void ETYT(int n, int low, int high, arma::mat &a, arma::vec &ort, arma::mat &z)
 {
   int i, j, kl, mm, mp, mp1;
   double g;
@@ -258,28 +259,28 @@ void ETYT(int n, int low, int high, Matrix &a, psVector &ort, Matrix &z)
 
   for (i = 0; i < n; i++) {
     for (j = 0; j < n; j++)
-      z[i][j] = 0.0;
-    z[i][i] = 1.0;
+      z(i, j) = 0.0;
+    z(i, i) = 1.0;
   }
 
-  kl = high - low - 1;
+  kl = high-low-1;
   if (kl < 1)
     return;
   for (mm = 1; mm <= kl; mm++) {
-    mp = high - mm;
-    if (a[mp - 1][mp - 2] != 0.0) {
+    mp = high-mm;
+    if (a(mp-1, mp-2) != 0.0) {
       mp1 = mp + 1;
-      for (i = mp1 - 1; i < high; i++)
-	ort[i] = a[i][mp - 2];
-      for (j = mp - 1; j < high; j++) {
+      for (i = mp1-1; i < high; i++)
+	ort(i) = a(i, mp-2);
+      for (j = mp-1; j < high; j++) {
 	g = 0.0;
-	for (i = mp - 1; i < high; i++)
-	  g += ort[i] * z[i][j];
+	for (i = mp-1; i < high; i++)
+	  g += ort(i) * z(i, j);
 	/*     ********** divisor below is negative of h formed in orthes.
 	                 double division avoids possible underflow ***********/
-	g = g / ort[mp - 1] / a[mp - 1][mp - 2];
-	for (i = mp - 1; i < high; i++)
-	  z[i][j] += g * ort[i];
+	g = g / ort(mp-1) / a(mp-1, mp-2);
+	for (i = mp-1; i < high; i++)
+	  z(i, j) += g * ort(i);
       }
     }
   }
@@ -322,8 +323,8 @@ int min0(int i, int j)
 }
 
 /****************************************************************************/
-/* void etdiv(psVector &a, psVector &b, double c, double d,
-                 double e, double f)
+/* void etdiv(arma::vec &a, arma::vec &b, double c, double d, double e,
+              double f)
 
    Purpose:
        computes the complex division
@@ -389,11 +390,11 @@ void etdiv(double *a, double *b, double c, double d, double e, double f)
     *a = t * (cc + ff * s * dd);
 
   if (fabs(cc) >= fabs(s))
-    *b = t * (dd - s * cc * ff);
+    *b = t * (dd-s * cc * ff);
   else if (fabs(cc) >= fabs(ff))
-    *b = t * (dd - cc * s * ff);
+    *b = t * (dd-cc * s * ff);
   else
-    *b = t * (dd - ff * s * cc);
+    *b = t * (dd-ff * s * cc);
 
   if (flip != 0)
     *b = -*b;
@@ -402,8 +403,8 @@ void etdiv(double *a, double *b, double c, double d, double e, double f)
 
 
 /****************************************************************************/
-/* void ety2(int n, int low, int high, Matrix &h, psVector &wr,
-          psVector &wi, Matrix &z, int *ierr)
+/* void ety2(int n, int low, int high, arma::mat &h, arma::vec &wr,
+             arma::vec &wi, arma::mat &z, int *ierr)
 
    Purpose:
         this subroutine is a translation of the algol procedure hqr2,
@@ -489,14 +490,15 @@ void etdiv(double *a, double *b, double c, double d, double e, double f)
        none
 
 ****************************************************************************/
-void ety2(int n, int low, int high, Matrix &h, psVector &wr,
-          psVector &wi, Matrix &z, int &ierr)
+void ety2(int n, int low, int high, arma::mat &h, arma::vec &wr, arma::vec &wi,
+	  arma::mat &z, int &ierr)
 {
-  int i, j, k, l = 0, m = 0, en, ii, jj, ll, mm, na, nn, its, mp2, enm2;
-  double p = 0.0, q = 0.0, r = 0.0, s = 0.0, t, w, x, y, ra, sa, vi, vr, zz = 0.0, norm;
-  bool notlas;
+  int    i, j, k, l = 0, m = 0, en, ii, jj, ll, mm, na, nn, its, mp2, enm2;
+  double p = 0.0, q = 0.0, r = 0.0, s = 0.0, t, w, x, y, ra, sa, vi, vr;
+  double zz = 0.0, norm;
+  bool   notlas;
   double z3r, z3i;
-  int FORLIM;
+  int    FORLIM;
 
   ierr = 0;
   norm = 0.0;
@@ -504,14 +506,14 @@ void ety2(int n, int low, int high, Matrix &h, psVector &wr,
   /*     ********** store roots isolated by balanc
                    and compute matrix norm ********** */
   for (i = 0; i < n; i++) {   /*40*/
-    for (j = k - 1; j < n; j++) {
+    for (j = k-1; j < n; j++) {
       /*40*/
-      norm += fabs(h[i][j]);
+      norm += fabs(h(i, j));
     }
     k = i + 1;
     /*   if (i >= low) and (i <= high) goto 50*/
     if (i + 1 < low || i + 1 > high) {
-      wr[i] = h[i][i];
+      wr[i] = h(i, i);
       wi[i] = 0.0;
     }
     /*50*/
@@ -525,19 +527,19 @@ _L60:
   if (en < low)
     goto _L340;
   its = 0;
-  na = en - 1;
-  enm2 = na - 1;
+  na = en-1;
+  enm2 = na-1;
   /*     ********** lookfor{single small sub-diagonal element*/
 
 _L70:   /*80*/
   for (ll = low; ll <= en; ll++) {
-    l = en + low - ll;
+    l = en + low-ll;
     if (l == low)
       goto _L100;
-    s = fabs(h[l - 2][l - 2]) + fabs(h[l - 1][l - 1]);
+    s = fabs(h(l-2, l-2)) + fabs(h(l-1, l-1));
     if (s == 0.0)
       s = norm;
-    if (fabs(h[l - 1][l - 2]) <= machep * s)
+    if (fabs(h(l-1, l-2)) <= machep*s)
       goto _L100;
     /*80*/
   }
@@ -546,11 +548,11 @@ _L70:   /*80*/
   /*     ********** form shift ***********/
 
 _L100:
-  x = h[en - 1][en - 1];
+  x = h(en-1, en-1);
   if (l == en)
     goto _L270;
-  y = h[na - 1][na - 1];
-  w = h[en - 1][na - 1] * h[na - 1][en - 1];
+  y = h(na-1, na-1);
+  w = h(en-1, na-1)*h(na-1, en-1);
   if (l == na)
     goto _L280;
   if (its == 30) {
@@ -563,12 +565,12 @@ _L100:
     /*     ********** form exceptional shift ***********/
     t += x;   /*120*/
 
-    for (i = low - 1; i < en; i++) {
+    for (i = low-1; i < en; i++) {
       /*120*/
-      h[i][i] -= x;
+      h(i, i) -= x;
     }
 
-    s = fabs(h[en - 1][na - 1]) + fabs(h[na - 1][enm2 - 1]);
+    s = fabs(h(en-1, na-1)) + fabs(h(na-1, enm2-1));
     x = 0.75 * s;
     y = x;
     w = -0.4375 * s * s;
@@ -580,21 +582,21 @@ _L100:
                    sub-diagonal elements.*/
 
   for (mm = l; mm <= enm2; mm++) {
-    m = enm2 + l - mm;
-    zz = h[m - 1][m - 1];
-    r = x - zz;
-    s = y - zz;
-    p = (r * s - w) / h[m][m - 1] + h[m - 1][m];
-    q = h[m][m] - zz - r - s;
-    r = h[m + 1][m];
+    m = enm2 + l-mm;
+    zz = h(m-1, m-1);
+    r = x-zz;
+    s = y-zz;
+    p = (r * s-w) / h(m, m-1) + h(m-1, m);
+    q = h(m, m)-zz-r-s;
+    r = h(m+1, m);
     s = fabs(p) + fabs(q) + fabs(r);
     p /= s;
     q /= s;
     r /= s;
     if (m == l)
       goto _L150;
-    if (fabs(h[m - 1][m - 2]) * (fabs(q) + fabs(r)) <=
-	machep * fabs(p) * (fabs(h[m - 2][m - 2]) + fabs(zz) + fabs(h[m][m])))
+    if (fabs(h(m-1, m-2)) * (fabs(q) + fabs(r)) <=
+	machep * fabs(p) * (fabs(h(m-2, m-2)) + fabs(zz) + fabs(h(m, m))))
       goto _L150;
     /*140*/
   }
@@ -603,10 +605,10 @@ _L150:
   mp2 = m + 2;   /*160*/
 
   for (i = mp2; i <= en; i++) {   /*260*/
-    h[i - 1][i - 3] = 0.0;
+    h(i-1, i-3) = 0.0;
     /* if i = mp2 goto 160;*/
     if (i != mp2)
-      h[i - 1][i - 4] = 0.0;
+      h(i-1, i-4) = 0.0;
     /*160*/
   }
 
@@ -617,11 +619,11 @@ _L150:
     notlas = (k != na);
     /* if k = m goto 170*/
     if (k != m) {  /*b*/
-      p = h[k - 1][k - 2];
-      q = h[k][k - 2];
+      p = h(k-1, k-2);
+      q = h(k, k-2);
       r = 0.0;
       if (notlas)
-	r = h[k + 1][k - 2];
+	r = h(k + 1, k-2);
       x = fabs(p) + fabs(q) + fabs(r);
       if (x == 0.0)
 	goto _L260;
@@ -632,9 +634,9 @@ _L150:
 
     s = dsign(sqrt(p * p + q * q + r * r), p);
     if (k != m)
-      h[k - 1][k - 2] = -s * x;
+      h(k-1, k-2) = -s * x;
     else if (l != m)
-      h[k - 1][k - 2] = -h[k - 1][k - 2];
+      h(k-1, k-2) = -h(k-1, k-2);
 
     p += s;
     x = p / s;
@@ -645,14 +647,14 @@ _L150:
 
     /*     ********** row modification ***********/
 
-    for (j = k - 1; j < n; j++) {  /*d*/
-      p = h[k - 1][j] + q * h[k][j];
+    for (j = k-1; j < n; j++) {  /*d*/
+      p = h(k-1, j) + q * h(k, j);
       if (notlas) {  /*e*/
-	p += r * h[k + 1][j];
-	h[k + 1][j] -= p * zz;
+	p += r * h(k + 1, j);
+	h(k + 1, j) -= p * zz;
       }  /*e*/
-      h[k][j] -= p * y;
-      h[k - 1][j] -= p * x;
+      h(k, j) -= p * y;
+      h(k-1, j) -= p * x;
       /*210*/
     }  /*d*/
 
@@ -662,25 +664,25 @@ _L150:
 
     for (i = 0; i < j; i++)   /*250*/
     {  /*d*/
-      p = x * h[i][k - 1] + y * h[i][k];
+      p = x * h(i, k-1) + y * h(i, k);
       if (notlas) {  /*e*/
-	p += zz * h[i][k + 1];
-	h[i][k + 1] -= p * r;
+	p += zz * h(i, k + 1);
+	h(i, k + 1) -= p * r;
       }  /*e*/
-      h[i][k] -= p * q;
-      h[i][k - 1] -= p;
+      h(i, k) -= p * q;
+      h(i, k-1) -= p;
     }  /*d*/
 
     /*     ********** accumulate transformations ***********/
 
-    for (i = low - 1; i < high; i++) {  /*d*/
-      p = x * z[i][k - 1] + y * z[i][k];
+    for (i = low-1; i < high; i++) {  /*d*/
+      p = x * z(i, k-1) + y * z(i, k);
       if (notlas) {  /*e*/
-	p += zz * z[i][k + 1];
-	z[i][k + 1] -= p * r;
+	p += zz * z(i, k + 1);
+	z(i, k + 1) -= p * r;
       }  /*e*/
-      z[i][k] -= p * q;
-      z[i][k - 1] -= p;
+      z(i, k) -= p * q;
+      z(i, k-1) -= p;
       /*250*/
     }  /*d*/
 _L260: ;
@@ -689,30 +691,30 @@ _L260: ;
   goto _L70;
   /*     ********** one root found ***********/
 _L270:
-  h[en - 1][en - 1] = x + t;
-  wr[en - 1] = h[en - 1][en - 1];
-  wi[en - 1] = 0.0;
+  h(en-1, en-1) = x + t;
+  wr[en-1] = h(en-1, en-1);
+  wi[en-1] = 0.0;
   en = na;
   goto _L60;
   /*     ********** two roots found ***********/
 _L280:
-  p = (y - x) / 2.0;
+  p = (y-x) / 2.0;
   q = p * p + w;
   zz = sqrt(fabs(q));
-  h[en - 1][en - 1] = x + t;
-  x = h[en - 1][en - 1];
-  h[na - 1][na - 1] = y + t;
+  h(en-1, en-1) = x + t;
+  x = h(en-1, en-1);
+  h(na-1, na-1) = y + t;
   if (q < 0.0)
     goto _L320;
   /*     ********** real pair ***********/
   zz = p + dsign(zz, p);
-  wr[na - 1] = x + zz;
-  wr[en - 1] = wr[na - 1];
+  wr[na-1] = x + zz;
+  wr[en-1] = wr[na-1];
   if (zz != 0.0)
-    wr[en - 1] = x - w / zz;
-  wi[na - 1] = 0.0;
-  wi[en - 1] = 0.0;
-  x = h[en - 1][na - 1];
+    wr[en-1] = x-w / zz;
+  wi[na-1] = 0.0;
+  wi[en-1] = 0.0;
+  x = h(en-1, na-1);
   s = fabs(x) + fabs(zz);
   p = x / s;
   q = zz / s;
@@ -720,34 +722,34 @@ _L280:
   p /= r;
   q /= r;   /*290*/
   /*     ********** row modification ***********/
-  for (j = na - 1; j < n; j++) {   /*300*/
-    zz = h[na - 1][j];
-    h[na - 1][j] = q * zz + p * h[en - 1][j];
-    h[en - 1][j] = q * h[en - 1][j] - p * zz;
+  for (j = na-1; j < n; j++) {   /*300*/
+    zz = h(na-1, j);
+    h(na-1, j) = q * zz + p * h(en-1, j);
+    h(en-1, j) = q * h(en-1, j)-p * zz;
     /*290*/
   }
   /*     ********** column modification ***********/
   for (i = 0; i < en; i++) {   /*310*/
-    zz = h[i][na - 1];
-    h[i][na - 1] = q * zz + p * h[i][en - 1];
-    h[i][en - 1] = q * h[i][en - 1] - p * zz;
+    zz = h(i, na-1);
+    h(i, na-1) = q * zz + p * h(i, en-1);
+    h(i, en-1) = q * h(i, en-1)-p * zz;
     /*300*/
   }
   /*     ********** accumulate transformations ***********/
-  for (i = low - 1; i < high; i++) {
-    zz = z[i][na - 1];
-    z[i][na - 1] = q * zz + p * z[i][en - 1];
-    z[i][en - 1] = q * z[i][en - 1] - p * zz;
+  for (i = low-1; i < high; i++) {
+    zz = z(i, na-1);
+    z(i, na-1) = q * zz + p * z(i, en-1);
+    z(i, en-1) = q * z(i, en-1)-p * zz;
     /*310*/
   }
 
   goto _L330;
   /*     ********** complex pair ***********/
 _L320:
-  wr[na - 1] = x + p;
-  wr[en - 1] = x + p;
-  wi[na - 1] = zz;
-  wi[en - 1] = -zz;
+  wr[na-1] = x + p;
+  wr[en-1] = x + p;
+  wi[na-1] = zz;
+  wi[en-1] = -zz;
 _L330:
   en = enm2;
   goto _L60;
@@ -757,51 +759,51 @@ _L330:
 _L340:
   if (norm != 0.0) {  /*0.5*/
     for (nn = 1; nn <= n; nn++) {  /*1*/
-      en = n - nn + 1;
-      p = wr[en - 1];
-      q = wi[en - 1];
-      na = en - 1;
+      en = n-nn + 1;
+      p = wr[en-1];
+      q = wi[en-1];
+      na = en-1;
       if (q == 0) {   /*2*/
 	m = en;
-	h[en - 1][en - 1] = 1.0;
+	h(en-1, en-1) = 1.0;
 	if (na != 0) {  /*3*/
 	  for (ii = 1; ii <= na; ii++)   /*4*/
 	  {  /*4*/
-	    i = en - ii;
+	    i = en-ii;
 
-	    w = h[i - 1][i - 1] - p;
-	    r = h[i - 1][en - 1];
+	    w = h(i-1, i-1)-p;
+	    r = h(i-1, en-1);
 
 	    if (m <= na) {
-	      for (j = m - 1; j < na; j++)
-		r += h[i - 1][j] * h[j][en - 1];
+	      for (j = m-1; j < na; j++)
+		r += h(i-1, j) * h(j, en-1);
 	    }
 
-	    if (wi[i - 1] < 0.0)   /*5*/
+	    if (wi[i-1] < 0.0)   /*5*/
 	    {  /*5*/
 	      zz = w;
 	      s = r;
 	    } else   /*5*/
 	    {  /*5*/
 	      m = i;
-	      if (wi[i - 1] == 0.0)   /*6*/
+	      if (wi[i-1] == 0.0)   /*6*/
 	      {  /*6*/
 		t = w;
 		if (w == 0.0)
 		  t = machep * norm;
-		h[i - 1][en - 1] = -(r / t);
+		h(i-1, en-1) = -(r / t);
 	      } else   /*6*/
 	      {  /*6*/
 		/* ********** solve double equations ***********/
-		x = h[i - 1][i];
-		y = h[i][i - 1];
-		q = (wr[i - 1] - p) * (wr[i - 1] - p) + wi[i - 1] * wi[i - 1];
-		t = (x * s - zz * r) / q;
-		h[i - 1][en - 1] = t;
+		x = h(i-1, i);
+		y = h(i, i-1);
+		q = (wr[i-1]-p) * (wr[i-1]-p) + wi[i-1] * wi[i-1];
+		t = (x * s-zz * r) / q;
+		h(i-1, en-1) = t;
 		if (fabs(x) <= fabs(zz))
-		  h[i][en - 1] = (-s - y * t) / zz;
+		  h(i, en-1) = (-s-y * t) / zz;
 		else
-		  h[i][en - 1] = (-r - w * t) / x;
+		  h(i, en-1) = (-r-w * t) / x;
 	      }
 	    }
 	  }
@@ -812,78 +814,73 @@ _L340:
 	  m = na;
 	  /*  last vector component chosen imaginary so that
 	      eigenvector matrix is triangular */
-	  /* if Abs(h[en,na))<=Abs(h[na,en)) then  720 */
+	  /* if Abs(h(en,na))<=Abs(h(na,en)) then  720 */
 	  if (na != 0) {  /*2.5*/
-	    if (fabs(h[en - 1][na - 1]) > fabs(h[na - 1][en - 1]))   /*3*/
+	    if (fabs(h(en-1, na-1)) > fabs(h(na-1, en-1)))   /*3*/
 	    {  /*3*/
-	      h[na - 1][na - 1] = q / h[en - 1][na - 1];
-	      h[na - 1][en - 1] = (p - h[en - 1][en - 1]) / h[en - 1][na - 1];
+	      h(na-1, na-1) = q / h(en-1, na-1);
+	      h(na-1, en-1) = (p-h(en-1, en-1)) / h(en-1, na-1);
 	    } else {  /*3*/
-	      etdiv(&z3r, &z3i, 0.0, -h[na - 1]
-		    [en - 1], h[na - 1][na - 1] - p, q);
-	      h[na - 1][na - 1] = z3r;
-	      h[na - 1][en - 1] = z3i;
+	      etdiv(&z3r, &z3i, 0.0, -h(na-1, en-1), h(na-1, na-1)-p, q);
+	      h(na-1, na-1) = z3r;
+	      h(na-1, en-1) = z3i;
 	    }  /*3*/
-	    h[en - 1][na - 1] = 0.0;
-	    h[en - 1][en - 1] = 1.0;
-	    enm2 = na - 1;
+	    h(en-1, na-1) = 0.0;
+	    h(en-1, en-1) = 1.0;
+	    enm2 = na-1;
 
 	    /*if enm2 =0 then  800*/
 	    if (enm2 != 0)   /*3*/
 	    {  /*3*/
 	      for (ii = 1; ii <= enm2; ii++) {  /*4*/
-		i = na - ii;
-		w = h[i - 1][i - 1] - p;
+		i = na-ii;
+		w = h(i-1, i-1)-p;
 		ra = 0.0;
-		sa = h[i - 1][en - 1];
+		sa = h(i-1, en-1);
 
-		for (j = m - 1; j < na; j++) {  /*5*/
-		  ra += h[i - 1][j] * h[j][na - 1];
-		  sa += h[i - 1][j] * h[j][en - 1];
+		for (j = m-1; j < na; j++) {  /*5*/
+		  ra += h(i-1, j) * h(j, na-1);
+		  sa += h(i-1, j) * h(j, en-1);
 		}  /*5*/
 
-		if (wi[i - 1] < 0.0)   /*5*/
+		if (wi[i-1] < 0.0)   /*5*/
 		{  /*5*/
 		  zz = w;
 		  r = ra;
 		  s = sa;
 		} else {  /*5*/
 		  m = i;
-		  if (wi[i - 1] == 0.0) {  /*6*/
+		  if (wi[i-1] == 0.0) {  /*6*/
 		    etdiv(&z3r, &z3i, -ra, -sa, w, q);
-		    h[i - 1][na - 1] = z3r;
-		    h[i - 1][en - 1] = z3i;
+		    h(i-1, na-1) = z3r;
+		    h(i-1, en-1) = z3i;
 		  }  /*6*/
 		  else {  /*6*/
-		    x = h[i - 1][i];
-		    y = h[i][i - 1];
-		    vr = (wr[i - 1] - p) * (wr[i - 1] - p) +
-			 wi[i - 1] * wi[i - 1] - q * q;
-		    vi = (wr[i - 1] - p) * 2.0 * q;
+		    x = h(i-1, i);
+		    y = h(i, i-1);
+		    vr = (wr[i-1]-p) * (wr[i-1]-p) +
+			 wi[i-1] * wi[i-1]-q * q;
+		    vi = (wr[i-1]-p) * 2.0 * q;
 
 		    if (vr == 0.0 && vi == 0.0)
 		      vr = machep * norm *
 			   (fabs(w) + fabs(q) + fabs(x) + fabs(y) + fabs(zz));
 
-		    etdiv(&z3r, &z3i, x * r - zz * ra + q * sa,
-			  x * s - zz * sa - q * ra, vr, vi);
+		    etdiv(&z3r, &z3i, x * r-zz * ra + q * sa,
+			  x * s-zz * sa-q * ra, vr, vi);
 
-		    h[i - 1][na - 1] = z3r;
-		    h[i - 1][en - 1] = z3i;
+		    h(i-1, na-1) = z3r;
+		    h(i-1, en-1) = z3i;
 
 		    if (fabs(x) <= fabs(zz) + fabs(q))   /*7*/
 		    {  /*7*/
-		      etdiv(&z3r, &z3i, -r - y * h[i - 1][na - 1],
-			    -s - y * h[i - 1][en - 1], zz, q);
-		      h[i][na - 1] = z3r;
-		      h[i][en - 1] = z3i;
+		      etdiv(&z3r, &z3i, -r-y * h(i-1, na-1),
+			    -s-y * h(i-1, en-1), zz, q);
+		      h(i, na-1) = z3r;
+		      h(i, en-1) = z3i;
 		    } else {  /*7*/
-		      h[i]
-			[na - 1] = (q * h[i - 1][en - 1] - w * h[i - 1]
-							   [na - 1] - ra) / x;
-		      h[i]
-			[en - 1] = (-sa - w * h[i - 1][en - 1] - q * h[i - 1]
-				      [na - 1]) / x;
+		      h(i, na-1) = (q * h(i-1, en-1)-w * h(i-1, na-1)-ra) / x;
+		      h(i, en-1) = (-sa-w * h(i-1, en-1)-q * h(i-1, na-1)) / x;
 		    }  /*7*/
 		  }  /*6*/
 		}  /*4*/
@@ -902,7 +899,7 @@ _L340:
     for (i = 0; i < n; i++) {
       if (i + 1 < low || i + 1 > high) {
 	for (j = i; j < n; j++)
-	  z[i][j] = h[i][j];
+	  z(i, j) = h(i, j);
       }
     }
 
@@ -912,13 +909,13 @@ _L340:
 
 
     for (jj = low; jj <= n; jj++) {  /*1*/
-      j = n + low - jj;
+      j = n + low-jj;
       m = min0(j, high);
-      for (i = low - 1; i < high; i++) {  /*2*/
+      for (i = low-1; i < high; i++) {  /*2*/
 	zz = 0.0;
-	for (k = low - 1; k < m; k++)
-	  zz += z[i][k] * h[k][j - 1];
-	z[i][j - 1] = zz;
+	for (k = low-1; k < m; k++)
+	  zz += z(i, k) * h(k, j-1);
+	z(i, j-1) = zz;
       }  /*2*/
     }  /*1*/
   }  /*0.5*/

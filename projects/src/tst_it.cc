@@ -1,12 +1,18 @@
-#define NO 1
+#define NO_TPS 1
 
 #include "tracy_lib.h"
 
-int no_tps = NO;
+int no_tps = NO_TPS;
 
 const int    n_turn    = 2064;
 const double delta_max = 2e-2;
 
+
+long int rseed0, rseed;
+double   normcut_;
+
+const long int k = 19, c = 656329L, m = 100000001;
+   
 
 void tst_lat(LatticeType &lat)
 {
@@ -23,8 +29,9 @@ void tst_lat(LatticeType &lat)
 
 void get_lat(const char *file_name, LatticeType &lat)
 {
-  double      eps_x, sigma_delta, U_0, J[3], tau[3], I[6];
-  FILE        *inf, *outf;
+  int    k;
+  double eps_x, sigma_delta, U_0, J[3], tau[3], I[6];
+  FILE   *inf, *outf;
 
   const string str = file_name;
 
@@ -51,6 +58,14 @@ void get_lat(const char *file_name, LatticeType &lat)
     lat.prt_fam();
     lat.prt_elem();
   }
+
+  long int lastpos;
+  ss_vect<tps> ps;
+  ps.identity();
+  // lat.Cell_Pass(0, lat.conf.Cell_nLoc, ps, lastpos);
+  lat.Cell_Pass(0, 0, ps, lastpos);
+  cout << scientific << setprecision(3) << setw(11) << ps << "\n";
+  // exit(0);
 
   lat.Ring_GetTwiss(true, 0e0); printglob(lat);
   if (lat.conf.mat_meth)
@@ -154,6 +169,27 @@ bool orb_corr(LatticeType &lat, const int n_orbit)
   lat.prt_cod("orb_corr.out", true);
 
   return cod;
+}
+
+
+void iniranf(const long i) { rseed0 = i; rseed = i; }
+
+void newseed(void) { rseed0 = (k*rseed0+c) % m; rseed = (rseed0+54321) % m; }
+
+double ranf_(void)
+{
+  /* Generate random number with rectangular distribution */
+  rseed = (k*rseed+c) % m; return (rseed/1e8);
+}
+
+
+void setrancut(const double cut)
+{
+
+  printf("\n");
+  printf("setrancut: cut set to %3.1f\n", cut);
+
+  normcut_ = cut;
 }
 
 

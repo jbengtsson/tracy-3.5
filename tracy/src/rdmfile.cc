@@ -220,8 +220,8 @@ void get_elem(std::ifstream &inf, std::vector<ElemType*> &elems,
       sscanf(line, "%lf %lf %lf %lf",
 	     &elems[i]->dS[X_], &elems[i]->dS[Y_],
 	     &M->PdTpar, &dTerror);
-      elems[i]->dT[X_] = cos(dtor(dTerror+M->PdTpar));
-      elems[i]->dT[Y_] = sin(dtor(dTerror+M->PdTpar));
+      elems[i]->dT[X_] = cos(degtorad(dTerror+M->PdTpar));
+      elems[i]->dT[Y_] = sin(degtorad(dTerror+M->PdTpar));
       M->PdTrms = dTerror - M->PdTpar;
       M->PdTrnd = 1e0;
 
@@ -235,14 +235,14 @@ void get_elem(std::ifstream &inf, std::vector<ElemType*> &elems,
       if (prt) printf("%s\n", line);
       sscanf(line, "%lf %lf %lf",
 	     &elems[i]->dS[X_], &elems[i]->dS[Y_], &dTerror); 
-      elems[i]->dT[X_] = cos(dtor(dTerror));
-      elems[i]->dT[Y_] = sin(dtor(dTerror));
+      elems[i]->dT[X_] = cos(degtorad(dTerror));
+      elems[i]->dT[Y_] = sin(degtorad(dTerror));
       M->PdTrms = dTerror; M->PdTrnd = 1e0;
     }
 
     M->Pc0 = sin(elems[i]->PL*M->Pirho/2.0);
-    M->Pc1 = cos(dtor(M->PdTpar))*M->Pc0;
-    M->Ps1 = sin(dtor(M->PdTpar))*M->Pc0;
+    M->Pc1 = cos(degtorad(M->PdTpar))*M->Pc0;
+    M->Ps1 = sin(degtorad(M->PdTpar))*M->Pc0;
 
     inf.getline(line, line_max);
     if (prt) printf("%s\n", line);
@@ -258,7 +258,7 @@ void get_elem(std::ifstream &inf, std::vector<ElemType*> &elems,
     }
 
     if (conf.mat_meth && (M->Pthick == thick))
-      M->M_lin = get_lin_map(elems[i], 0e0);
+      M->M_lin = get_mat(elems[i], 0e0);
     break;
   case Wigl:
     W = dynamic_cast<WigglerType*>(elems[i]);

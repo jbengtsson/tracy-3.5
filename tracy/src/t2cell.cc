@@ -84,7 +84,7 @@ void LatticeType::Cell_Pass(const long i0, const long i1, tps &sigma,
 
   int           i, j;
   long int      jj[n][nv_tps];
-  ss_vect<tps>  Id, A;
+  ss_vect<tps>  Id, map, A;
 
   const double  deps = 1e-20;
 
@@ -141,7 +141,7 @@ bool LatticeType::Cell_getCOD(long imax, double eps, double dP, long &lastpos)
   
   if (conf.mat_meth && (dP != conf.dPparticle))
     // Recompute transport matrices.
-    get_lin_maps(dP);
+    get_mats(dP);
 
   conf.dPparticle = dP;
 

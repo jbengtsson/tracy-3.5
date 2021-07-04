@@ -2093,7 +2093,7 @@ void param_data_type::LoadAlignTol(LatticeType &lat, const bool Scale_it,
 	iniranf(seed_val);
       } else {
 	sscanf(line,"%*s %s %lf %lf %lf", type, &dx, &dy, &dr);
-	dr_deg = dr*180.0/M_PI;
+	dr_deg = radtodeg(dr);
 
 	if (strcmp(type, "rms") == 0){
 	  rms = true;

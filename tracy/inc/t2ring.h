@@ -13,9 +13,9 @@
 const char beam_envelope_file[] = "beam_envelope";
 
 
-void GetNu(Vector2 &nu, Matrix &M);
+void GetNu(Vector2 &nu, arma::mat &M);
 
-bool Cell_GetABGN(Matrix &M, Vector2 &alpha, Vector2 &beta, Vector2 &gamma,
+bool Cell_GetABGN(arma::mat &M, Vector2 &alpha, Vector2 &beta, Vector2 &gamma,
 		  Vector2 &nu);
 
 void Cell_Geteta(long i0, long i1, bool ring, double dP);
@@ -77,9 +77,9 @@ double get_dynap(LatticeType &lat, const double delta, const int n_aper,
 char *asctime2(const struct tm *timeptr);
 struct tm* GetTime();
 
-void computeFandJ(LatticeType &lat, int n, double *x, psVector *fjac,
+void computeFandJ(LatticeType &lat, int n, double *x, ss_vect<double> *fjac,
 		  double *fvect);
-int Newton_Raphson(LatticeType &lat, int n, psVector &x, int ntrial,
+int Newton_Raphson(LatticeType &lat, int n, ss_vect<double> &x, int ntrial,
 		   double tolx);
 
 void get_dnu(const int n, const ss_vect<tps> &A, double dnu[]);

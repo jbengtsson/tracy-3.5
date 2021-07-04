@@ -12,7 +12,7 @@
 
 #include "field.cc"
 
-#if NO == 1
+#if NO_TPSA == 1
   // linear TPSA
   #include "tpsa_lin.cc"
   #include "tpsa_lin_pm.cc"
@@ -21,7 +21,7 @@
   #include "tpsa_for_pm.cc"
 #endif
 
-#include "mathlib.cc"
+// #include "mathlib.cc"
 #include "ety.cc"
 #include "eigenv.cc"
 
@@ -83,7 +83,7 @@ double a_IBS, b_IBS, c_IBS, a_k_IBS, b_k_IBS;
 int    i_, j_;
 double **C_;
 
-ss_vect<tps> map;
+// ss_vect<tps> map;
 MNF_struct   MNF;
 
 // Truncated Power Series Algebra (TPSA)
@@ -93,10 +93,6 @@ const int     nv_tps   = ss_dim, // no of variables
 				    the map normal form: fort.7 */
 
 double        eps_tps  = 1e-25;  // floating point truncation
-
-/* Random stuff */
-long rseed0, rseed;
-double normcut_;
 
 
 // instantiate templates
@@ -339,4 +335,17 @@ void exit_(int exit_code)
   printf("fatal error, <ret> to continue "); std::cin.ignore(1, '\n');
 
   exit(exit_code);
+}
+
+
+double xabs(long n, ss_vect<double> &x)
+{
+  long    i;
+  double  sum;
+
+  sum = 0.0;
+  for (i = 0; i < n; i++)
+    sum += sqr(x[i]);
+
+  return sqrt(sum);
 }

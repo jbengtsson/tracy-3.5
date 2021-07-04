@@ -145,17 +145,17 @@ void putmat(ss_vect<tps> &map, const int i, const int j, const double r)
 }
 
 
-void getlinmat(const int nv, const ss_vect<tps> &map, Matrix &mat)
+void getlinmat(const int nv, const ss_vect<tps> &map, arma::mat &mat)
 {
   int  j, k;
 
   for (j = 1; j <= nv; j++)
     for (k = 1; k <= nv; k++)
-      mat[j-1][k-1] = getmat(map, j, k);
+      mat(j-1, k-1) = getmat(map, j, k);
 }
 
 
-ss_vect<tps> putlinmat(const int nv, const Matrix &mat)
+ss_vect<tps> putlinmat(const int nv, const arma::mat &mat)
 {
   /* Puts zeroes in constant part of da map */
   int          j, k;
@@ -164,9 +164,9 @@ ss_vect<tps> putlinmat(const int nv, const Matrix &mat)
   for (j = 1; j <= nv; j++) {
     for (k = 0; k <= nv; k++) {
       if (k == 0)
-        putmat(map, j, k, 0.0);
+        putmat(map, j, k, 0e0);
       else
-        putmat(map, j, k, mat[j-1][k-1]);
+        putmat(map, j, k, mat(j-1, k-1));
     }
   }
   return map;
@@ -459,21 +459,19 @@ void dacct_(const ss_vect<tps> &x, const int i,
 
 void dainv_(const ss_vect<tps> &x, const int i, ss_vect<tps> &z, const int k)
 {
-  Matrix  mat;
+  arma::mat mat(ss_dim, ss_dim);
 
-  getlinmat(i, x, mat);    /* gets linear matrix from x */
-  if (InvMat(i, mat))      /* inverses matrix of rank i */
-    z = putlinmat(k, mat); /* puts linear matrix into z */
-  else
-    printf("dainv: map is singular\n");
+  getlinmat(i, x, mat);
+  mat = inv(mat);
+  z = putlinmat(k, mat); /* puts linear matrix into z */
 }
 
 
-void Rotmap(const int n, ss_vect<tps> &map, const Matrix &R)
+void Rotmap(const int n, ss_vect<tps> &map, const arma::mat &R)
 {
-  Matrix  mat;
+  arma::mat mat(ss_dim, ss_dim);
 
-  getlinmat(n, map, mat); MulRMat(n, mat, R); map = putlinmat(n, mat);
+  getlinmat(n, map, mat); mat = mat*R; map = putlinmat(n, mat);
 }
 
 

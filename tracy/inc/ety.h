@@ -11,12 +11,11 @@
 #ifndef ETY_H
 #define ETY_H
 
-void ETY(int n, int low, int high, Matrix &a, psVector &ort);
+void ETY(int n, int low, int high, arma::mat &a, arma::vec &ort);
 
-void ETYT(int n, int low, int high, Matrix &a, psVector &ort,
-                 Matrix &z);
+void ETYT(int n, int low, int high, arma::mat &a, arma::vec &ort, arma::mat &z);
 
-void ety2(int n, int low, int high, Matrix &h, psVector &wr,
-	  psVector &wi, Matrix &z, int &ierr);
+void ety2(int n, int low, int high, arma::mat &h, arma::vec &wr, arma::vec &wi,
+	  arma::mat &z, int &ierr);
 
 #endif

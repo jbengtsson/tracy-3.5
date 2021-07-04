@@ -31,9 +31,9 @@ double getmat(const ss_vect<tps> &map, const long int i, const long int j);
 void putmat(ss_vect<tps> &map, const long int i, const long int j,
 	    const double r);
 
-void getlinmat(const int nv, const ss_vect<tps> &map, Matrix &mat);
+void getlinmat(const int nv, const ss_vect<tps> &map, arma::mat &mat);
 
-ss_vect<tps> putlinmat(const int nv, const Matrix &mat);
+ss_vect<tps> putlinmat(const int nv, const arma::mat &mat);
 
 void dacop_(const tps_buf &x, tps_buf &z);
 
@@ -95,7 +95,7 @@ void dacct_(const ss_vect<tps> &x, const long int i,
 void dainv_(const ss_vect<tps> &x, const long int i, ss_vect<tps> &z,
 	    const long int k);
 
-void Rotmap(const long int n, ss_vect<tps> &map, const Matrix &R);
+void Rotmap(const long int n, ss_vect<tps> &map, const arma::mat &R);
 
 void daabs_(const tps_buf &x, double &r);
 

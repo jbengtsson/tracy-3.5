@@ -394,7 +394,7 @@ std::istream& operator>>(std::istream &is, tps &a)
   std::cout << "not implemented" << std::endl; exit_(1);
 
   is.getline(line, max_str); is.getline(line, max_str);
-  sscanf(line, "tpsa, NO =%d, NV =%d", &no1, &nv1);
+  sscanf(line, "tpsa, NO_TPSA =%d, NV =%d", &no1, &nv1);
   if (prt) std::cout << "no = " << no1 << ", nv = " << nv1 << std::endl;
 //  ibuf1[0] = no_tps; ibuf2[0] = ss_dim;
 
@@ -441,7 +441,7 @@ std::ostream& operator<<(std::ostream &os, const tps &a)
   std::ostringstream s;
 
   s << std::endl;
-  s << "NO = " << no_tps << ", NV = " << nv_tps << std::endl;
+  s << "NO_TPSA = " << no_tps << ", NV = " << nv_tps << std::endl;
 
   for (i = 1; i <= 66; i++)
     s << "-"; 

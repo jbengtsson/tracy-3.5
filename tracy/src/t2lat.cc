@@ -1054,9 +1054,9 @@ static void Factor(struct LOC_Term *LINK)
 	  x = WITH->PL;
 	else if (!strncmp(fname, "t              ", sizeof(partsName))) {
 	  if (WITH->PL != 0.0)
-	    x = WITH1->Pirho * WITH->PL * 180.0 / M_PI;
+	    x = radtodeg(WITH1->Pirho*WITH->PL);
 	  else
-	    x = WITH1->Pirho * 180.0 / M_PI;
+	    x = radtodeg(WITH1->Pirho);
 	} else if (!strncmp(fname, "t1             ", sizeof(partsName)))
 	  x = WITH1->PTx1;
 	else if (!strncmp(fname, "t2             ", sizeof(partsName)))
@@ -2212,9 +2212,9 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     WITH2->Pmethod = k2;
     WITH2->PN = k1;
     if (WITH2->PL != 0.0)
-      WITH2->Pirho = t * M_PI / 180.0 / WITH2->PL;
+      WITH2->Pirho = degtorad(t)/WITH2->PL;
     else
-      WITH2->Pirho = t * M_PI / 180.0;
+      WITH2->Pirho = degtorad(t);
     WITH2->PTx1 = t1; WITH2->PTx2 = t2; WITH2->Pgap = gap;
     WITH2->n_design = Dip;
     AssignHOM(WITH2, &V);
@@ -2530,7 +2530,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     WITH3->Pkind = Cavity;
     WITH3->Pvolt = Vrf;   /* Voltage [V] */
     WITH3->Pfreq = Frf;   /* Frequency in Hz */
-    WITH3->phi = QPhi*M_PI/180.0;
+    WITH3->phi = degtorad(QPhi);
     WITH3->Ph = harnum;
     WITH3->PN = k1;
     WITH3->entry_focus = entryf == 1;
@@ -2892,10 +2892,10 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     WITH2->PL = QL;
     if (WITH2->PL != 0e0) {
       WITH2->Pthick = pthicktype(thick);
-      WITH2->Pirho = t * M_PI / 180.0 / WITH2->PL;
+      WITH2->Pirho = degtorad(t)/WITH2->PL;
     } else {
       WITH2->Pthick = pthicktype(thin);
-      WITH2->Pirho = t * M_PI / 180.0;
+      WITH2->Pirho = degtorad(t);
     }
     WITH2->PN = k1; WITH2->Pmethod = k2;
     WITH2->PTx1 = t1; WITH2->PTx2 = t2; WITH2->Pgap = gap;
@@ -3116,7 +3116,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     WITH6 = FieldMap_Alloc();
     memcpy(WITH6->PName, ElementName, sizeof(partsName));
     WITH6->PL = QL; WITH6->Pkind = FieldMap;
-    WITH6->phi = t*M_PI/180.0; WITH6->n_step = k1; WITH6->scl = scaling;
+    WITH6->phi = degtorad(t); WITH6->n_step = k1; WITH6->scl = scaling;
     if (CheckUDItable("energy         ", LINK) != 0) {
       RefUDItable("energy         ", &Lat_->conf.Energy, LINK);
       if (strcmp(str1, "") != 0) get_B(Lat_->conf, str1, WITH6);
@@ -3223,7 +3223,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     WITH5 = Insertion_Alloc();
     memcpy(WITH5->PName, ElementName, sizeof(partsName));
     WITH5->Pkind = Insertion;
-    WITH5->phi = t*M_PI/180.0;
+    WITH5->phi = degtorad(t);
     WITH5->Pmethod = k2;
     WITH5->PN = k1;
     WITH5->scaling = scaling;

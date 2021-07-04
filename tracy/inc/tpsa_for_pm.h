@@ -21,9 +21,9 @@ double getmat(const ss_vect<tps> &map, const int i, const int j);
 
 void putmat(ss_vect<tps> &map, const int i, const int j, const double r);
 
-void getlinmat(const int nv, const ss_vect<tps> &map, Matrix &mat);
+void getlinmat(const int nv, const ss_vect<tps> &map, arma::mat &mat);
 
-ss_vect<tps> putlinmat(const int nv, const Matrix &mat);
+ss_vect<tps> putlinmat(const int nv, const arma::mat &mat);
 
 void idprset(const int level);
 

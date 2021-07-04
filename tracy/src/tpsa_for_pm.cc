@@ -48,7 +48,7 @@ long int nok(long int n, long int k)
 }
 
 
-#if NO > 1
+#if NO_TPSA > 1
 
 double getmat(const ss_vect<tps> &map, const int i, const int j)
 {
@@ -81,7 +81,7 @@ void putmat(ss_vect<tps> &map, const int i, const int j, const double r)
 }
 
 
-void getlinmat(const int nv, const ss_vect<tps> &map, Matrix &mat)
+void getlinmat(const int nv, const ss_vect<tps> &map, arma::mat &mat)
 {
   int  j, k;
 
@@ -91,7 +91,7 @@ void getlinmat(const int nv, const ss_vect<tps> &map, Matrix &mat)
 }
 
 
-ss_vect<tps> putlinmat(const int nv, const Matrix &mat)
+ss_vect<tps> putlinmat(const int nv, const arma::mat &mat)
 {
   /* Puts zeroes in constant part of da map */
   int          j, k;
@@ -132,7 +132,7 @@ void TPSA_Ini(void)
   // Initialize Fortran I/O
 //  f_init();
 
-#if NO > 1
+#if NO_TPSA > 1
   // Initialize Lie-lib
   lieinit_(no_tps, nv_tps, nd_tps, ndpt_tps, iref_tps, 0);
 #endif
@@ -576,7 +576,7 @@ double abs2(const tps &a)
 }
 
 
-#if NO > 1
+#if NO_TPSA > 1
 
 void idprset(const int level)
 {
@@ -753,7 +753,7 @@ ss_vect<tps> operator*(const ss_vect<tps> &x, const ss_vect<tps> &y)
     xintptrs[i] = x[i].intptr; yintptrs[i] = y[i].intptr;
     zintptrs[i] = z[i].intptr;
   }
-#if NO == 1
+#if NO_TPSA == 1
   dacct_(x, nv_tps, y, nv_tps, z, nv_tps);
 #else
   etcct_(xintptrs, yintptrs, zintptrs);
@@ -771,7 +771,7 @@ ss_vect<tps> Inv(const ss_vect<tps> &x)
   for (i = 0; i < nv_tps; i++) {
     xintptrs[i] = x[i].intptr; yintptrs[i] = y[i].intptr;
   }
-#if NO == 1
+#if NO_TPSA == 1
   dainv_(x, nv_tps, y, nv_tps);
 #else
   etinv_(xintptrs, yintptrs);
@@ -780,7 +780,7 @@ ss_vect<tps> Inv(const ss_vect<tps> &x)
 }
 
 
-#if NO == 1
+#if NO_TPSA == 1
 
 ss_vect<tps> PInv(const ss_vect<tps> &x, const long int jj[])
 {
@@ -1021,7 +1021,7 @@ std::istream& operator>>(std::istream &is, tps &a)
   }
 
   is.getline(line, max_str); is.getline(line, max_str);
-  sscanf(line, "tpsa, NO =%d, NV =%d", &no1, &nv1);
+  sscanf(line, "tpsa, NO_TPSA =%d, NV =%d", &no1, &nv1);
   if (prt) std::cout << "no = " << no1 << ", nv = " << nv1 << std::endl;
   ibuf1[0] = no_tps; ibuf2[0] = ss_dim;
 
@@ -1107,7 +1107,7 @@ std::ostream& operator<<(std::ostream &os, const tps &a)
     s << name[i]; i++;
   }
   n = (int) rbuf[0];
-  s << ", NO = " << no_tps
+  s << ", NO_TPSA = " << no_tps
     << ", NV = " << nv_tps << ", INA = " << a.intptr << "\n";
 
   for (i = 1; i <= 66; i++)

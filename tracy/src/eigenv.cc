@@ -46,7 +46,7 @@ static int closest(double x, double x1, double x2, double x3)
 }
 
 /****************************************************************************/
-/* Local void SwapMat(int n, Matrix &A, int i, int j)
+/* Local void SwapMat(int n, arma::mat &A, int i, int j)
 
    Purpose: called by geigen
        A[*, i] <==> A[*, j]
@@ -72,13 +72,13 @@ static int closest(double x, double x1, double x2, double x3)
        none
 
 ****************************************************************************/
-static void SwapMat(int n, Matrix &A, int i, int j)
+static void SwapMat(int n, arma::mat &A, int i, int j)
 {
   double x;
   int    k;
 
   for (k = 0; k < n; k++) {
-    x = A[k][i-1]; A[k][i-1] = A[k][j-1]; A[k][j-1] = x;
+    x = A(k, i-1); A(k, i-1) = A(k, j-1); A(k, j-1) = x;
   }
 }
 
@@ -118,8 +118,8 @@ static void Swap(double *x, double *y)
 /* Implementation */
 
 /****************************************************************************/
-/* static void geigen(int n, Matrix &fm, Matrix &Vre, Matrix &Vim,
-                   psVector &wr, psVector &wi)
+/* static void geigen(int n, arma::mat &fm, arma::mat &Vre, arma::mat &Vim,
+                      arma::vec &wr, arma::vec &wi)
 
    Purpose:  called by GDiag
       This routine finds the eigenvalues and eigenvectors of the full matrix fm 
@@ -157,18 +157,19 @@ static void Swap(double *x, double *y)
        17/07/03 use M_PI instead of pi
 
 ****************************************************************************/
-bool geigen(int n, Matrix &fm, Matrix &Vre, Matrix &Vim, psVector &wr,
-	    psVector &wi)
+bool geigen(int n, arma::mat &fm, arma::mat &Vre, arma::mat &Vim, arma::vec &wr,
+	    arma::vec &wi)
 {
-  int      info, i, j, k, c;
-  psVector ort, cosfm, sinfm, nufm1, nufm2, nu1, nu2;
-  Matrix   aa, vv;
-  double   TEMP;
+  int       info, i, j, k, c;
+  double    TEMP;
+  arma::vec ort(ss_dim), cosfm(ss_dim), sinfm(ss_dim), nufm1(ss_dim),
+            nufm2(ss_dim), nu1(ss_dim), nu2(ss_dim);
+  arma::mat aa(ss_dim, ss_dim), vv(ss_dim, ss_dim);
 
   /* copy matrix to temporary storage [the matrix aa is destroyed]*/
   for (i = 0; i < n; i++) {
     for (j = 0; j < n; j++)
-      aa[i][j] = fm[i][j];
+      aa(i, j) = fm(i, j);
   }
   /* Compute eigenvalues and eigenvectors using double
   precision Eispack routines: */
@@ -182,38 +183,38 @@ bool geigen(int n, Matrix &fm, Matrix &Vre, Matrix &Vim, psVector &wr,
   }
   for (i = 1; i <= n / 2; i++) {
     for (j = 0; j < n; j++) {
-      Vre[j][i*2-2] =  vv[j][i*2-2];
-      Vim[j][i*2-2] =  vv[j][i*2-1];
-      Vre[j][i*2-1] =  vv[j][i*2-2];
-      Vim[j][i*2-1] = -vv[j][i*2-1];
+      Vre(j, i*2-2) =  vv(j, i*2-2);
+      Vim(j, i*2-2) =  vv(j, i*2-1);
+      Vre(j, i*2-1) =  vv(j, i*2-2);
+      Vim(j, i*2-1) = -vv(j, i*2-1);
     }
   }
   for (i = 0; i < n/2; i++) {
     j = (i+1)*2 - 1;
-    cosfm[i] = (fm[j-1][j-1]+fm[j][j])/2;
-    if (fabs(cosfm[i]) > (double)1.0) {
+    cosfm(i) = (fm(j-1, j-1)+fm(j, j))/2;
+    if (fabs(cosfm(i)) > (double)1.0) {
       printf("geigen: unstable |cosfm[nu_%d]-1e0| = %10.3e\n",
-	     i+1, fabs(cosfm[i]-1e0));
+	     i+1, fabs(cosfm(i)-1e0));
       return false;
     }
-    TEMP     = cosfm[i];
-    sinfm[i] = sgn(fm[j-1][j])*sqrt(1.0-TEMP*TEMP);
-    nufm1[i] = GetAngle(cosfm[i], sinfm[i])/(2.0*M_PI);
-    if (nufm1[i] < 0.0) nufm1[i]++;
-    if (nufm1[i] <= 0.5)
-      nufm2[i] = nufm1[i];
+    TEMP     = cosfm(i);
+    sinfm(i) = sgn(fm(j-1, j))*sqrt(1.0-TEMP*TEMP);
+    nufm1(i) = atan2(sinfm(i), cosfm(i))/(2.0*M_PI);
+    if (nufm1(i) < 0.0) nufm1(i)++;
+    if (nufm1(i) <= 0.5)
+      nufm2(i) = nufm1(i);
     else
-      nufm2[i] = 1.0 - nufm1[i];
-    nu1[i] = GetAngle(wr[j-1], wi[j-1])/(2.0*M_PI);
-    if (nu1[i] < 0.0) nu1[i]++;
-    if (nu1[i] <= 0.5)
-      nu2[i] = nu1[i];
+      nufm2(i) = 1.0 - nufm1(i);
+    nu1(i) = atan2(wi[j-1], wr[j-1])/(2.0*M_PI);
+    if (nu1(i) < 0.0) nu1(i)++;
+    if (nu1(i) <= 0.5)
+      nu2(i) = nu1(i);
     else
-      nu2[i] = 1.0 - nu1[i];
-    // printf("nu: %7.5f %7.5f\n", nufm2[i], nu2[i]);
+      nu2(i) = 1.0 - nu1(i);
+    // printf("nu: %7.5f %7.5f\n", nufm2[i), nu2(i));
   }
   for (i = 1; i <= n/2; i++) {
-    c = closest(nufm2[i-1], nu2[0], nu2[1], nu2[2]);
+    c = closest(nufm2(i-1), nu2(0), nu2(1), nu2(2));
     if (c != i) {
       j = c*2 - 1; k = i*2 - 1;
       /*          writeln(' swapping ', j:0, ' with ', k:0);*/
@@ -223,11 +224,11 @@ bool geigen(int n, Matrix &fm, Matrix &Vre, Matrix &Vim, psVector &wr,
       Swap(&wr[j-1], &wr[k-1]);  Swap(&wi[j-1], &wi[k-1]);
       Swap(&wr[j], &wr[k]);      Swap(&wi[j], &wi[k]);
 
-      Swap(&nu1[i-1], &nu1[c-1]); Swap(&nu2[i-1], &nu2[c-1]);
+      Swap(&nu1(i-1), &nu1(c-1)); Swap(&nu2(i-1), &nu2(c-1));
     }
   }
   for (i = 1; i <= n/2; i++) {
-    if ((0.5-nufm1[i-1])*(0.5-nu1[i-1]) < 0.0) {
+    if ((0.5-nufm1(i-1))*(0.5-nu1(i-1)) < 0.0) {
       j = i*2 - 1;
       SwapMat(n, Vim, j, j+1); Swap(&wi[j-1], &wi[j]);
     }
@@ -239,10 +240,14 @@ bool geigen(int n, Matrix &fm, Matrix &Vre, Matrix &Vim, psVector &wr,
 
 /* Local variables for GDiag: */
 struct LOC_GDiag {
-  int     n;
-  Matrix  *Ainv;
-  Matrix  JJ, Vre, Vim;
-} ;
+  int
+    n;
+  arma::mat
+    Ainv = arma::mat(ss_dim, ss_dim),
+    JJ   = arma::mat(ss_dim, ss_dim),
+    Vre  = arma::mat(ss_dim, ss_dim),
+    Vim  = arma::mat(ss_dim, ss_dim);
+};
 
 /****************************************************************************/
 /* void InitJJ(struct LOC_GDiag &LINK)
@@ -281,12 +286,12 @@ static void InitJJ(struct LOC_GDiag &LINK)
   for (i = 0; i < FORLIM; i++) {
 //    FORLIM1 = LINK.n;
     for (j = 0; j < FORLIM1; j++)
-      LINK.JJ[i][j] = 0.0;
+      LINK.JJ(i, j) = 0.0;
   }
 //  FORLIM = LINK.n;
   for (j = 1; j <= FORLIM; j++) {
     if (j & 1) {
-      LINK.JJ[j - 1][j] = 1.0; LINK.JJ[j][j - 1] = -1.0;
+      LINK.JJ(j - 1, j) = 1.0; LINK.JJ(j, j - 1) = -1.0;
     }
   }
 }
@@ -330,32 +335,32 @@ static void GetAinv(struct LOC_GDiag &LINK)
       for (j = 0; j < FORLIM1; j++) {
         FORLIM2 = LINK.n;
         for (k = 0; k < FORLIM2; k++)
-          z += LINK.Vre[j][i] * LINK.JJ[j][k] * LINK.Vim[k][i];
+          z += LINK.Vre(j, i) * LINK.JJ(j, k) * LINK.Vim(k, i);
       }
       sgn = sgn(z);
       z = sqrt(fabs(1.0 / z));
       FORLIM1 = LINK.n;
       for (j = 0; j < FORLIM1; j++) {
-        LINK.Vre[j][i] *= z;
-        LINK.Vim[j][i] = sgn * LINK.Vim[j][i] * z;
+        LINK.Vre(j, i) *= z;
+        LINK.Vim(j, i) = sgn * LINK.Vim(j, i) * z;
       }
     }
   }
   FORLIM = LINK.n;
   for (i = 0; i < FORLIM; i++) {
-    (*LINK.Ainv)[0][i] = sgn(LINK.Vre[0][0]) * LINK.Vre[i][0];
-    (*LINK.Ainv)[1][i] = sgn(LINK.Vre[0][0]) * LINK.Vim[i][0];
-    (*LINK.Ainv)[2][i] = sgn(LINK.Vre[2][2]) * LINK.Vre[i][2];
-    (*LINK.Ainv)[3][i] = sgn(LINK.Vre[2][2]) * LINK.Vim[i][2];
+    (LINK.Ainv)(0, i) = sgn(LINK.Vre(0, 0)) * LINK.Vre(i, 0);
+    (LINK.Ainv)(1, i) = sgn(LINK.Vre(0, 0)) * LINK.Vim(i, 0);
+    (LINK.Ainv)(2, i) = sgn(LINK.Vre(2, 2)) * LINK.Vre(i, 2);
+    (LINK.Ainv)(3, i) = sgn(LINK.Vre(2, 2)) * LINK.Vim(i, 2);
     if (LINK.n > 4) {
-      (*LINK.Ainv)[4][i] = sgn(LINK.Vre[4][4]) * LINK.Vre[i][4];
-      (*LINK.Ainv)[5][i] = sgn(LINK.Vre[4][4]) * LINK.Vim[i][4];
+      (LINK.Ainv)(4, i) = sgn(LINK.Vre(4, 4)) * LINK.Vre(i, 4);
+      (LINK.Ainv)(5, i) = sgn(LINK.Vre(4, 4)) * LINK.Vim(i, 4);
     }
   }
 }
 
 /****************************************************************************/
-/* void GetEta(int k, Matrix &M, psVector &Eta, struct LOC_GDiag &LINK)
+/* void GetEta(int k, arma::mat &M, arma::vec &Eta, struct LOC_GDiag &LINK)
 
    Purpose: called by GDiag
          Find dispersion and momentum compaction of the map M where
@@ -391,20 +396,20 @@ static void GetAinv(struct LOC_GDiag &LINK)
        none
 
 ****************************************************************************/
-static void GetEta(int k, Matrix &M, psVector &Eta, struct LOC_GDiag &LINK)
+static void GetEta(int k, arma::mat &M, arma::vec &Eta, struct LOC_GDiag &LINK)
 {
-  psVector SmallM;
-  Matrix IMinNInv, I;
-  int j;
+  int       j;
+  arma::mat IMinNInv(ss_dim, ss_dim), I(ss_dim, ss_dim);
+  arma::vec SmallM(ss_dim);
 
   /* k = 6 in tracy */
-  UnitMat(k, I); CopyMat(k, I, IMinNInv); SubMat(k, M, IMinNInv);
-  if (!InvMat(k - 2, IMinNInv)) printf("(I-N) is singular\n");
-  for (j = 0; j <= k-3; j++)
-    SmallM[j] = M[j][k-2];
-  SmallM[4] = 0.0e0; SmallM[5] = 0.0e0;
-  CopyVec(k, SmallM, Eta);
-  LinTrans(k - 2, IMinNInv, Eta);
+  I.eye(k, k);
+  IMinNInv = I - M;
+  IMinNInv = inv(IMinNInv(arma::span(0, k-3), arma::span(0, k-3)));
+  for (j = 0; j < k-2; j++)
+    SmallM[j] = M(j, k-2);
+  SmallM[4] = 0e0; SmallM[5] = 0e0;
+  Eta = IMinNInv*SmallM;
   /*   Alpha := 0.0d0;
        for j:= 1 TO (k-2) DO
          Alpha := Alpha + M[6,j]*Eta[j];
@@ -412,7 +417,8 @@ static void GetEta(int k, Matrix &M, psVector &Eta, struct LOC_GDiag &LINK)
 }
 
 /****************************************************************************/
-/* void GenB(int k, Matrix &B, Matrix &BInv, psVector &Eta, struct LOC_GDiag &LINK)
+/* void GenB(int k, arma::mat &B, arma::mat &BInv, arma::vec &Eta,
+             struct LOC_GDiag &LINK)
 
    Purpose: called by GDiag
 
@@ -435,22 +441,22 @@ static void GetEta(int k, Matrix &M, psVector &Eta, struct LOC_GDiag &LINK)
        none
 
 ****************************************************************************/
-void GenB(int k, Matrix &B, Matrix &BInv, psVector &Eta, struct LOC_GDiag &LINK)
+void GenB(int k, arma::mat &B, arma::mat &BInv, arma::vec &Eta,
+	  struct LOC_GDiag &LINK)
 {
   int j;
 
-  UnitMat(k, B);
+  B.eye(k, k);
   for (j = 0; j <= k - 3; j++)
-    B[j][k - 2] = Eta[j];
-  B[5][0] = Eta[1]; B[5][1] = -Eta[0]; B[5][2] = Eta[3]; B[5][3] = -Eta[2];
-  CopyMat(k, B, BInv);
-  if (!InvMat(k, BInv)) printf("B is singular\n");
+    B(j, k-2) = Eta[j];
+  B(5, 0) = Eta[1]; B(5, 1) = -Eta[0]; B(5, 2) = Eta[3]; B(5, 3) = -Eta[2];
+  BInv = inv(B);
 }
 
 
 /****************************************************************************/
-/* void GDiag(int n_, double C, Matrix &A, Matrix &Ainv_, Matrix &R,
-           Matrix &M, double *Omega, double *alphac)
+/* void GDiag(int n_, double C, arma::mat &A, arma::mat &Ainv_, arma::mat &R,
+              arma::mat &M, double *Omega, double *alphac)
 
    Purpose: called by Ring_MatTwiss, Ring_DATwiss
    
@@ -458,7 +464,7 @@ void GenB(int k, Matrix &B, Matrix &BInv, psVector &Eta, struct LOC_GDiag &LINK)
 
       Output A
 
-                                 [ c  s  0  0 ]
+                                 [ c  s  0  0 )
                   -1             [-s  c  0  0 ]
            M  -> A   M A = R =   [ 0  0  c  s ]
                                  [ 0  0 -s  c ]
@@ -493,18 +499,19 @@ void GenB(int k, Matrix &B, Matrix &BInv, psVector &Eta, struct LOC_GDiag &LINK)
        none
 
 ****************************************************************************/
-void LatticeType::GDiag(int n_, double C, Matrix &A, Matrix &Ainv_, Matrix &R,
-			Matrix &M, double &Omega, double &alphac)
+void LatticeType::GDiag(int n_, double C, arma::mat &A, arma::mat &Ainv_,
+			arma::mat &R, arma::mat &M, double &Omega,
+			double &alphac)
 {
   struct LOC_GDiag V;
-  int      j;
-  double   x1, x2;
-  psVector wr, wi, eta;
-  Matrix   fm, B, Binv;
+  int              j;
+  double           x1, x2;
+  arma::vec        wr(ss_dim), wi(ss_dim), eta(ss_dim);
+  arma::mat        fm(ss_dim, ss_dim), B(ss_dim, ss_dim), Binv(ss_dim, ss_dim);
 
-  V.n = n_; V.Ainv = &Ainv_; InitJJ(V);
-  CopyMat(V.n, M, fm); /* fm<-M */
-  TpMat(V.n, fm);  /* fm <- transpose(fm) */
+  V.n = n_; V.Ainv = Ainv_; InitJJ(V);
+  fm = M(arma::span(0, V.n-1), arma::span(0, V.n-1));
+  fm = trans(fm);  /* fm <- transpose(fm) */
   /* look for eigenvalues and eigenvectors of fm */
   stable = geigen(V.n, fm, V.Vre, V.Vim, wr, wi);
   if (conf.radiation)
@@ -514,7 +521,7 @@ void LatticeType::GDiag(int n_, double C, Matrix &A, Matrix &Ainv_, Matrix &R,
       conf.alpha_rad[j-1] = log(sqrt(x1*x2));
     }
 
-  CopyMat(V.n, M, fm);
+  fm = M;
   stable = geigen(V.n, fm, this->conf.Vr, this->conf.Vi, wr, wi);
 
   /*  CopyVec(6,wr,wr);
@@ -522,29 +529,30 @@ void LatticeType::GDiag(int n_, double C, Matrix &A, Matrix &Ainv_, Matrix &R,
   CopyMat(6,V.Vre,Vr);
   CopyMat(6,V.Vim,Vi); */
 
-  UnitMat(6, *V.Ainv); GetAinv(V); CopyMat(6, *V.Ainv, A);
-  if (!InvMat(6, A)) printf("A^-1 script is singular\n");
+  V.Ainv.eye(ss_dim, ss_dim);
+  GetAinv(V); A = V.Ainv;
+  A = inv(A);
   if (V.n == 4) {
-    GetEta(6, M, eta, V); GenB(6, B, Binv, eta, V);
-    MulLMat(6, B, A); MulLMat(6, *V.Ainv, Binv);
-    CopyMat(6, Binv, *V.Ainv);
+    GetEta(ss_dim, M, eta, V); GenB(ss_dim, B, Binv, eta, V);
+    A = B*A; Binv = V.Ainv*Binv;
+    V.Ainv = Binv;
   }
-  CopyMat(6, A, R); MulLMat(6, M, R); MulLMat(6, *V.Ainv, R);
+  R = A; R = M*R; R = V.Ainv*R;
   if (V.n == 4) {
-    Omega = 0.0; alphac = R[5][4]/C;
+    Omega = 0.0; alphac = R(5, 4)/C;
   }
-  if (V.n != 6) return;
+  if (V.n != ss_dim) return;
   if (conf.Cavity_on) {
-    Omega = GetAngle(R[4][4], R[4][5])/(2.0*M_PI);
+    Omega = atan2(R(4, 5), R(4, 4))/(2.0*M_PI);
     alphac = 0.0;
   } else {
-    Omega = 0.0; alphac = R[5][4]/C;
+    Omega = 0.0; alphac = R(5, 4)/C;
   }
 }
 
 /****************************************************************************/
-/* Local void eswap(Matrix &t6a, psVector &lamr, psVector &lami, Matrix &r,
-                 int i3, int j3)
+/* Local void eswap(arma::mat &t6a, arma::vec &lamr, arma::vec &lami,
+                    arma::mat &r, int i3, int j3)
 
    Purpose: called by NormEigenVec
 
@@ -568,8 +576,8 @@ void LatticeType::GDiag(int n_, double C, Matrix &A, Matrix &Ainv_, Matrix &R,
        none
 
 ****************************************************************************/
-static void eswap(Matrix &t6a, psVector &lamr, psVector &lami, Matrix &r,
-                  int i3, int j3)
+static void eswap(arma::mat &t6a, arma::vec &lamr, arma::vec &lami,
+		  arma::mat &r, int i3, int j3)
 {
   double xx;
   int i,i1,i2,j1,j2;
@@ -577,28 +585,29 @@ static void eswap(Matrix &t6a, psVector &lamr, psVector &lami, Matrix &r,
   i2 = 2*i3; i1 = i2-1; j2 = 2*j3; j1 = j2-1;
 
   for (i = 1; i <= ss_dim/2; i++) {
-    xx=r[i-1][i3-1];
-    r[i-1][i3-1]=r[i-1][j3-1];
-    r[i-1][j3-1]=xx;
+    xx=r(i-1, i3-1);
+    r(i-1, i3-1)=r(i-1, j3-1);
+    r(i-1, j3-1)=xx;
   }
 
   for (i = 1; i <= ss_dim; i++) {
-    xx=t6a[i-1][i1-1];
-    t6a[i-1][i1-1]=t6a[i-1][j1-1];
-    t6a[i-1][j1-1]=xx;
-    xx=t6a[i-1][i2-1];
-    t6a[i-1][i2-1]=t6a[i-1][j2-1];
-    t6a[i-1][j2-1]=xx;
+    xx=t6a(i-1, i1-1);
+    t6a(i-1, i1-1)=t6a(i-1, j1-1);
+    t6a(i-1, j1-1)=xx;
+    xx=t6a(i-1, i2-1);
+    t6a(i-1, i2-1)=t6a(i-1, j2-1);
+    t6a(i-1, j2-1)=xx;
   }
 
-  xx = lamr[i1-1]; lamr[i1-1] = lamr[j1-1]; lamr[j1-1] = xx;
-  xx = lamr[i2-1]; lamr[i2-1] = lamr[j2-1]; lamr[j2-1] = xx;
-  xx = lami[i1-1]; lami[i1-1] = lami[j1-1]; lami[j1-1] = xx;
-  xx = lami[i2-1]; lami[i2-1] = lami[j2-1]; lami[j2-1] = xx;
+  xx = lamr(i1-1); lamr(i1-1) = lamr(j1-1); lamr(j1-1) = xx;
+  xx = lamr(i2-1); lamr(i2-1) = lamr(j2-1); lamr(j2-1) = xx;
+  xx = lami(i1-1); lami(i1-1) = lami(j1-1); lami(j1-1) = xx;
+  xx = lami(i2-1); lami(i2-1) = lami(j2-1); lami(j2-1) = xx;
 }
 
 /*****************************************************************************/
-/* void NormEigenVec(Matrix &Vr, Matrix &Vi, psVector &wr, psVector &wi, Matrix &t6a)
+/* void NormEigenVec(arma::mat &Vr, arma::mat &Vi, arma::vec &wr, arma::vec &wi,
+                     arma::mat &t6a)
 
    Purpose:  called by GetEmittance
        Sort and normalize complex eigenvectors (Vr, Vi)
@@ -626,16 +635,17 @@ static void eswap(Matrix &t6a, psVector &lamr, psVector &lami, Matrix &r,
        30/12/02 label 150 removed
 
 ****************************************************************************/
-void NormEigenVec(Matrix &Vr,Matrix &Vi, psVector &wr, psVector &wi, Matrix &t6a)
+void NormEigenVec(arma::mat &Vr,arma::mat &Vi, arma::vec &wr, arma::vec &wi,
+		  arma::mat &t6a)
 {
-  Matrix r;
-  double rn,sqrn;
-  int i,i1,i2,i3,j1,j2,j3;
+  arma::mat r;
+  double    rn, sqrn;
+  int       i, i1, i2, i3, j1, j2, j3;
 
   for (i = 0; i < ss_dim; i++) {
-    t6a[i][0] = Vr[i][0]; t6a[i][1] = Vi[i][0];
-    t6a[i][2] = Vr[i][2]; t6a[i][3] = Vi[i][2];
-    t6a[i][4] = Vr[i][4]; t6a[i][5] = Vi[i][4];
+    t6a(i, 0) = Vr(i, 0); t6a(i, 1) = Vi(i, 0);
+    t6a(i, 2) = Vr(i, 2); t6a(i, 3) = Vi(i, 2);
+    t6a(i, 4) = Vr(i, 4); t6a(i, 5) = Vi(i, 4);
   }
 
   /* normierung der eigenvektoren */
@@ -645,30 +655,31 @@ void NormEigenVec(Matrix &Vr,Matrix &Vi, psVector &wr, psVector &wi, Matrix &t6a
     rn = 0e0;
     for (i1 = 1; i1 <= ss_dim; i1+= 2) {
       i2 = i1 + 1; i3 = i2 / 2;
-      r[i3-1][j3-1] = t6a[i1-1][j1-1]*t6a[i2-1][j2-1]-t6a[i2-1][j1-1]*t6a[i1-1][j2-1];
-      rn += r[i3-1][j3-1];
+      r(i3-1, j3-1) = t6a(i1-1, j1-1)*t6a(i2-1, j2-1)-t6a(i2-1, j1-1)
+	*t6a(i1-1, j2-1);
+      rn += r(i3-1, j3-1);
     }
 
     for (i = 1; i <= ss_dim/3; i++) {
-      r[i-1][j3-1] = fabs(r[i-1][j3-1]/rn);
+      r(i-1, j3-1) = fabs(r(i-1, j3-1)/rn);
     }
 
     if (rn < 0) {
       for (i = 1; i <= ss_dim; i++) {
-        t6a[i-1][j2-1] = -t6a[i-1][j2-1];
+        t6a(i-1, j2-1) = -t6a(i-1, j2-1);
       }
     }
  
     sqrn = sqrt(fabs(rn)); /* take the norm of rn */
  
     for (i = 1; i <= ss_dim; i++) {
-      t6a[i-1][j1-1]=t6a[i-1][j1-1]/sqrn; t6a[i-1][j2-1]=t6a[i-1][j2-1]/sqrn;
+      t6a(i-1, j1-1)=t6a(i-1, j1-1)/sqrn; t6a(i-1, j2-1)=t6a(i-1, j2-1)/sqrn;
     }
 
   }
 
-  if ((r[0][0] > r[1][0]) && (r[0][0] > r[2][0])) goto L140;
-  if ((r[0][1] > r[1][1]) && (r[0][1] > r[2][1])) goto L130;
+  if ((r(0, 0) > r(1, 0)) && (r(0, 0) > r(2, 0))) goto L140;
+  if ((r(0, 1) > r(1, 1)) && (r(0, 1) > r(2, 1))) goto L130;
   eswap(t6a,wr,wi,r,1,3);
   goto L140;
 
@@ -676,8 +687,8 @@ L130:
   eswap(t6a,wr,wi,r,1,2);
 
 L140:
-//  if ((r[1][1] > r[0][1]) && (r[1][1] > r[2][1])) goto L150;
-  if ((r[1][1] > r[0][1]) && (r[1][1] > r[2][1]))  return;
+//  if ((r[1, 1] > r[0, 1]) && (r[1, 1] > r[2, 1])) goto L150;
+  if ((r(1, 1) > r(0, 1)) && (r(1, 1) > r(2, 1)))  return;
   eswap(t6a,wr,wi,r,2,3);
 
 //L150:

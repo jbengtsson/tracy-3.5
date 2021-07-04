@@ -30,10 +30,39 @@ typedef char str80[80];
 
 const int max_elem = Cell_nLocMax;
 
-extern ss_vect<tps> map;
+// extern ss_vect<tps> map;
 extern MNF_struct   MNF;
 
 extern double       chi_m;
+
+
+// Macros.
+
+#define degtorad(x) ((x)*M_PI/180.0)
+#define radtodeg(x) ((x)*180.0/M_PI)
+
+#define sqr(x)   ((x)*(x))
+#define cube(x)  ((x)*(x)*(x))
+
+#define fract(x) ((x)-(int)(x))
+#define nint(x) ((x) < 0 ? ((long)(x-0.5)) : ((long)(x+0.5))) 
+
+#define sgn(n) ((n > 0) ? 1 : ((n < 0) ? -1 : 0)) 
+
+
+// Inline.
+inline arma::vec pstoarma(ss_vect<double> &ps)
+{
+  arma::vec ps_vec = {ps[x_], ps[px_], ps[y_], ps[py_], ps[ct_], ps[delta_]};
+  return ps_vec;
+}
+
+inline ss_vect<double> armatops(arma::vec &ps_vec)
+{
+  ss_vect<double> ps(ps_vec[x_], ps_vec[px_], ps_vec[y_], ps_vec[py_],
+		     ps_vec[ct_], ps_vec[delta_]);
+  return ps;
+}
 
 
 #define HOMmax   21     // [a_n, b_n] <=> [-HOMmax..HOMmax].
@@ -79,10 +108,8 @@ extern FILE  *fi,              // lattice input  file
 extern int P_eof(FILE *f);
 extern int P_eoln(FILE *f);
 
-extern void GDiag(int n, double C, Matrix &A, Matrix &Ainv, Matrix &R,
-		  Matrix &M, double &Omega, double &Yalphac);
-extern void NormEigenVec(Matrix &Vr, Matrix &Vi, double *wr, double *wi,
-			 Matrix &t6a);
+extern void NormEigenVec(arma::mat &Vr, arma::mat &Vi, double *wr, double *wi,
+			 arma::mat &t6a);
 
 extern void t2init(void);
 
@@ -184,16 +211,16 @@ class ConfigType {
     beta0,                     // Relativistic factors.
     gamma0,
     Chrom[2];                  // Linear Chromaticities.
-  psVector
+  ss_vect<double>
     CODvect,                   // Closed Orbit.
     wr,
     wi;                        // Eigenvalues: Real and Imaginary part.
-  Matrix
-    OneTurnMat,                // Linear Poincare Map.
-    Ascr,
-    Ascrinv,
-    Vr,                        // Eigenvectors: Real part, 
-    Vi;                        //               Imaginary part.
+  arma::mat
+    OneTurnMat = arma::mat(ss_dim, ss_dim), // Linear Poincare Map.
+    Ascr = arma::mat(ss_dim, ss_dim),
+    Ascrinv = arma::mat(ss_dim, ss_dim),
+    Vr = arma::mat(ss_dim, ss_dim),         // Eigenvectors: Real part, 
+    Vi = arma::mat(ss_dim, ss_dim);         //               Imaginary part.
 };
 
 
@@ -219,13 +246,14 @@ class CellType {
     maxampl[2][2];             /* Horizontal and vertical physical apertures:
 				  maxampl[X_][0] < x < maxampl[X_][1]
 				  maxampl[Y_][0] < y < maxampl[Y_][1].        */
-  psVector
+  ss_vect<double>
     BeamPos;                   // Last position of the beam this cell.
-  Matrix
-    A,                         // Floquet space to phase space transformation.
-    sigma;                     // sigma matrix (redundant).
+  arma::mat
+    A = arma::mat(ss_dim, ss_dim),     // Floquet space to phase space
+                                       // transformation.
+    sigma = arma::mat(ss_dim, ss_dim); // sigma matrix (redundant).
   CellType
-    *next_ptr;                 // pointer to next cell (for tracking).
+    *next_ptr;                         // pointer to next cell (for tracking).
 };
 
 // Element base class.
@@ -322,7 +350,7 @@ class LatticeType {
   int GetnKid(const int Fnum);
   long Elem_GetPos(const int Fnum, const int Knum);
 
-  void get_lin_maps(const double delta);
+  void get_mats(const double delta);
 
   template<typename T>
   friend T get_p_s(const ConfigType &conf, const ss_vect<T> &ps);
@@ -344,8 +372,8 @@ class LatticeType {
   bool getcod(double dp, long &lastpos);
 
   // t2ring.
-  void GDiag(int n_, double C, Matrix &A, Matrix &Ainv_, Matrix &R,
-	     Matrix &M, double &Omega, double &alphac);
+  void GDiag(int n_, double C, arma::mat &A, arma::mat &Ainv_, arma::mat &R,
+	     arma::mat &M, double &Omega, double &alphac);
 
   void Cell_Geteta(long i0, long i1, bool ring, double dp);
   void Cell_Twiss(long i0, long i1, ss_vect<tps> &Ascr, bool chroma, bool ring,
@@ -452,8 +480,8 @@ class MpoleType : public ElemType {
     PB;                        // total.
   pthicktype
     Pthick;
-  ss_vect<tps>
-    M_lin;                     // Linear Map for Element.
+  arma::mat
+    M_lin = arma::mat(ss_dim, ss_dim); // Linear Map for Element.
 
   friend MpoleType* Mpole_Alloc(void);
   ElemType* Elem_Init(const ConfigType &conf, const bool reverse);
@@ -807,5 +835,7 @@ FILE* file_write(const char file_name[]);
 void t2init(void);
 
 void exit_(int exit_code);
+
+double xabs(long n, ss_vect<double> &x);
 
 #endif

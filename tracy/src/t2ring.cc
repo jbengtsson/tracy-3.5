@@ -49,7 +49,7 @@ void LatticeType::PrintCh(void)
 }
 
 
-void GetNu(Vector2 &nu, Matrix &M)
+void GetNu(Vector2 &nu, arma::mat &M)
 {
   /* Not assuming mid-plane symmetry, the charachteristic polynomial for a
      symplectic periodic matrix is given by
@@ -90,24 +90,24 @@ void GetNu(Vector2 &nu, Matrix &M)
 
        nu_x = arccos((m11+m22)/2)/(2 pi)                                      */
 
-  int    i;
-  double sgn, detp, detm, b, c, tr[2], b2mc, x;
-  Matrix M1;
+  int       i;
+  double    sgn, detp, detm, b, c, tr[2], b2mc, x;
+  arma::mat M1(ss_dim, ss_dim);
 
   const int n = 4;
 
-  CopyMat(n, M, M1);
+  M1 = M;
   for (i = 0; i < n; i++)
-    M1[i][i] -= 1e0;   
-  detp = DetMat(n, M1);
+    M1(i, i) -= 1e0;   
+  detp = det(M1);
   for (i = 0; i < n; i++)
-    M1[i][i] += 2e0;
-  detm = DetMat(n, M1);
+    M1(i, i) += 2e0;
+  detm = det(M1);
   for (i = 0; i < n; i++)
-    M1[i][i] -= 1e0;
+    M1(i, i) -= 1e0;
 
   for (i = 0; i < 2; i++)
-    tr[i] = (M1[2*i][2*i]+M1[2*i+1][2*i+1]);
+    tr[i] = (M1(2*i, 2*i)+M1(2*i+1, 2*i+1));
   sgn = (tr[X_] > tr[Y_])? 1e0 : -1e0;
 
   b = (detp-detm)/16e0; c = (detp+detm)/8e0 - 1e0;
@@ -126,7 +126,7 @@ void GetNu(Vector2 &nu, Matrix &M)
       x = -b - sgn*sqrt(b2mc);
     if (fabs(x) <= 1e0) {
       nu[i] = acos(x)/(2e0*M_PI);
-      if (M1[2*i][2*i+1] < 0e0) nu[i] = 1e0 - nu[i];
+      if (M1(2*i, 2*i+1) < 0e0) nu[i] = 1e0 - nu[i];
     } else {
       stable = false; nu[i] = NAN;
       printf("\nGetNu: unstable %s plane %10.3e\n", (i == 0)? "hor" : "ver", x);
@@ -138,7 +138,7 @@ void GetNu(Vector2 &nu, Matrix &M)
 }
 
 
-bool Cell_GetABGN(Matrix &M, Vector2 &alpha, Vector2 &beta, Vector2 &gamma,
+bool Cell_GetABGN(arma::mat &M, Vector2 &alpha, Vector2 &beta, Vector2 &gamma,
 		  Vector2 &nu)
 {
   bool   stable;
@@ -147,13 +147,13 @@ bool Cell_GetABGN(Matrix &M, Vector2 &alpha, Vector2 &beta, Vector2 &gamma,
 
   stable = true;
   for (k = 0; k < 2; k++) {
-    c = (M[2*k][2*k]+M[2*k+1][2*k+1])/2e0;
+    c = (M(2*k, 2*k)+M(2*k+1, 2*k+1))/2e0;
     stable = (fabs(c) < 1e0);
     if (stable) {
-      s = sqrt(1e0-sqr(c))*sgn(M[2*k][2*k+1]);
-      alpha[k] = (M[2*k][2*k]-M[2*k+1][2*k+1])/(2e0*s);
-      beta[k] = M[2*k][2*k+1]/s;
-      gamma[k] = -M[2*k+1][2*k]/s;
+      s = sqrt(1e0-sqr(c))*sgn(M(2*k, 2*k+1));
+      alpha[k] = (M(2*k, 2*k)-M(2*k+1, 2*k+1))/(2e0*s);
+      beta[k] = M(2*k, 2*k+1)/s;
+      gamma[k] = -M(2*k+1, 2*k)/s;
     }
   }
   GetNu(nu, M);
@@ -164,30 +164,28 @@ bool Cell_GetABGN(Matrix &M, Vector2 &alpha, Vector2 &beta, Vector2 &gamma,
 
 void LatticeType::Cell_Geteta(long i0, long i1, bool ring, double dP)
 {
-  long int i, lastpos;
-  int      k;
-  psVector xref;
-  psVector codbuf[Cell_nLocMax+1];
-  ElemType *elemp;
-
-  const int n = 4;
+  long int        i, lastpos;
+  int             k;
+  ss_vect<double> xref;
+  ss_vect<double> codbuf[Cell_nLocMax+1];
+  ElemType        *elemp;
 
   if (conf.trace) printf("\nCell_Geteta: ring = %d\n", ring);
 
   if (ring)
     GetCOD(conf.CODimax, conf.CODeps, dP-conf.dPcommon/2e0, lastpos);
   else {
-    CopyVec(n+2, conf.CODvect, xref); xref[4] = dP - conf.dPcommon/2e0;
+    xref = conf.CODvect; xref[4] = dP - conf.dPcommon/2e0;
     Cell_Pass(i0, i1, xref, lastpos);
   }
 
   for (i = i0; i <= i1; i++)
-    CopyVec(n+2, elems[i]->BeamPos, codbuf[i]);
+    codbuf[i] = elems[i]->BeamPos;
 
   if (ring)
     GetCOD(conf.CODimax, conf.CODeps, dP+conf.dPcommon/2e0, lastpos);
   else {
-    CopyVec(n+2, conf.CODvect, xref); xref[4] = dP + conf.dPcommon/2e0;
+    xref = conf.CODvect; xref[4] = dP + conf.dPcommon/2e0;
     Cell_Pass(i0, i1, xref, lastpos);
   }
 
@@ -202,14 +200,14 @@ void LatticeType::Cell_Geteta(long i0, long i1, bool ring, double dP)
 }
 
 
-void getprm(Matrix &Ascr, Vector2 &alpha, Vector2 &beta)
+void getprm(arma::mat &Ascr, Vector2 &alpha, Vector2 &beta)
 {
   int k;
 
   for (k = 0; k < 2; k++) {
     alpha[k] =
-      -(Ascr[2*k][2*k]*Ascr[2*k+1][2*k] + Ascr[2*k][2*k+1]*Ascr[2*k+1][2*k+1]);
-    beta[k] = sqr(Ascr[2*k][2*k]) + sqr(Ascr[2*k][2*k+1]);
+      -(Ascr(2*k, 2*k)*Ascr(2*k+1, 2*k) + Ascr(2*k, 2*k+1)*Ascr(2*k+1, 2*k+1));
+    beta[k] = sqr(Ascr(2*k, 2*k)) + sqr(Ascr(2*k, 2*k+1));
   }
 }
 
@@ -257,8 +255,8 @@ void LatticeType::Cell_Twiss(long i0, long i1, ss_vect<tps> &Ascr, bool chroma,
     dagetprm(Ascr1, elemp->Alpha, elemp->Beta);
     for (k = 1; k <= 2; k++) {
       dnu[k-1] =
-	(GetAngle(getmat(Ascr1, 2*k-1, 2*k-1), getmat(Ascr1, 2*k-1, 2*k)) -
-	 GetAngle(getmat(Ascr0, 2*k-1, 2*k-1), getmat(Ascr0, 2*k-1, 2*k)))
+	(atan2(getmat(Ascr1, 2*k-1, 2*k), getmat(Ascr1, 2*k-1, 2*k-1)) -
+	 atan2(getmat(Ascr0, 2*k-1, 2*k), getmat(Ascr0, 2*k-1, 2*k-1)))
 	/(2e0*M_PI);
 
       if ((elemp->PL >= 0e0) && (dnu[k-1] < -1e-16))
@@ -334,9 +332,9 @@ void LatticeType::Ring_Twiss(bool chroma, double dP)
 {
   long int     lastpos = 0;
   int          n = 0;
-  Vector2      alpha={0.0, 0.0}, beta={0.0, 0.0};
-  Vector2      gamma={0.0, 0.0}, nu={0.0, 0.0};
-  Matrix       R;
+  Vector2      alpha = {0.0, 0.0}, beta = {0.0, 0.0},
+               gamma = {0.0, 0.0}, nu = {0.0, 0.0};
+  arma::mat    R(ss_dim, ss_dim);
   ss_vect<tps> AScr;
 
   n = (conf.Cavity_on)? 6 : 4;
@@ -378,7 +376,7 @@ void LatticeType::Ring_GetTwiss(bool chroma, double dP)
 
   if (conf.trace) printf("enter Ring_GetTwiss\n");
   Ring_Twiss(chroma, dP);
-  conf.Alphac = conf.OneTurnMat[ct_][delta_]/elems[conf.Cell_nLoc]->S;
+  conf.Alphac = conf.OneTurnMat(ct_, delta_)/elems[conf.Cell_nLoc]->S;
   if (conf.trace) printf("exit Ring_GetTwiss\n");
 }
 
@@ -391,14 +389,14 @@ void LatticeType::TraceABN(long i0, long i1, const Vector2 &alpha,
   double        sb;
   ss_vect<tps>  Ascr;
 
-  UnitMat(6, conf.Ascr);
+  conf.Ascr = arma::eye(ss_dim, ss_dim);
   for (i = 1; i <= 2; i++) {
     sb = sqrt(beta[i-1]); j = i*2 - 1;
-    conf.Ascr[j-1][j-1] = sb;               conf.Ascr[j-1][j] = 0.0;
-    conf.Ascr[j][j - 1] = -(alpha[i-1]/sb); conf.Ascr[j][j] = 1/sb;
+    conf.Ascr(j-1, j-1) = sb;               conf.Ascr(j-1, j) = 0.0;
+    conf.Ascr(j, j - 1) = -(alpha[i-1]/sb); conf.Ascr(j, j) = 1/sb;
   }
-  conf.Ascr[0][4] = eta[0]; conf.Ascr[1][4] = etap[0];
-  conf.Ascr[2][4] = eta[1]; conf.Ascr[3][4] = etap[1];
+  conf.Ascr(0, 4) = eta[0]; conf.Ascr(1, 4) = etap[0];
+  conf.Ascr(2, 4) = eta[1]; conf.Ascr(3, 4) = etap[1];
 
   for (i = 0; i < 6; i++)
     conf.CODvect[i] = 0.0;
@@ -407,7 +405,7 @@ void LatticeType::TraceABN(long i0, long i1, const Vector2 &alpha,
   for (i = 0; i <= 5; i++) {
     Ascr[i] = tps(conf.CODvect[i]);
     for (j = 0; j <= 5; j++)
-      Ascr[i] += conf.Ascr[i][j]*tps(0.0, j+1);
+      Ascr[i] += conf.Ascr(i, j)*tps(0.0, j+1);
     Cell_Twiss(i0, i1, Ascr, false, false, dP);
   }
 
@@ -533,18 +531,22 @@ void LatticeType::get_I(double I[], const bool prt)
 template<typename T>
 void LatticeType::Elem_Pass_Lin(ss_vect<T> ps)
 {
-  long int  k;
-  MpoleType *Mp;
+  long int        k;
+  MpoleType       *Mp;
+  ss_vect<double> ps1;
+  arma::vec       ps_vec = arma::vec(ss_dim);
 
   for (k = 0; k <= conf.Cell_nLoc; k++) {
     if (elems[k]->Pkind == Mpole) { 
       Mp = dynamic_cast<MpoleType*>(elems[k]);
       if ((Mp->Pthick == thick) && (Mp->Porder <= Quad)) {
-	ps = is_double<ss_vect<T> >::ps(Mp->M_lin*ps);
+      ps1 = is_double< ss_vect<double> >::ps(ps);
+      ps_vec = Mp->M_lin*pstoarma(ps1);
+      ps = armatops(ps_vec);
 	
-	if (conf.emittance && !conf.Cavity_on
-	    && (elems[k]->PL != 0e0) && (Mp->Pirho != 0e0))
-	  get_dI_eta_5(k, elems);
+      if (conf.emittance && !conf.Cavity_on
+	  && (elems[k]->PL != 0e0) && (Mp->Pirho != 0e0))
+	get_dI_eta_5(k, elems);
       }
     } else
       elems[k]->Elem_Pass(conf, ps);
@@ -970,13 +972,13 @@ void LatticeType::prt_beamsizes(const int cnt)
   for(k = 0; k <= conf.Cell_nLoc; k++)
     fprintf(fp,"%4d %10s %e %e %e %e %e %e %e %e %e\n",
 	    k, elems[k]->PName, elems[k]->S,
-	    elems[k]->sigma[x_][x_], elems[k]->sigma[px_][px_],
-	    elems[k]->sigma[x_][px_],
-	    elems[k]->sigma[y_][y_], elems[k]->sigma[py_][py_],
-	    elems[k]->sigma[y_][py_],
-	    atan2(2e0*elems[k]->sigma[x_][y_],
-		  elems[k]->sigma[x_][x_]-elems[k]->sigma[y_][y_])
-	    /2e0*180.0/M_PI, elems[k]->sigma[x_][y_]);
+	    elems[k]->sigma(x_, x_), elems[k]->sigma(px_, px_),
+	    elems[k]->sigma(x_, px_),
+	    elems[k]->sigma(y_, y_), elems[k]->sigma(py_, py_),
+	    elems[k]->sigma(y_, py_),
+	    radtodeg(atan2(2e0*elems[k]->sigma(x_, y_),
+			   elems[k]->sigma(x_, x_)-elems[k]->sigma(y_, y_))
+		     /2e0), elems[k]->sigma(x_, y_));
 
   fclose(fp);
 
@@ -1096,10 +1098,10 @@ void LatticeType::Ring_Fittune(Vector2 &nu, double eps, iVector2 &nq, long qf[],
 {
   struct LOC_Ring_Fittune V;
 
-  int      i, j, k;
-  Vector2  nu0, nu1;
-  psVector  dkL1, dnu;
-  Matrix A;
+  int             i, j, k;
+  Vector2         nu0, nu1;
+  ss_vect<double> dkL1, dnu;
+  arma::mat       A(ss_dim, ss_dim);
 
   const double dP = 0e0;
 
@@ -1184,12 +1186,12 @@ void LatticeType::shiftkp(long Elnum, double dkp)
 void LatticeType::Ring_Fitchrom(Vector2 &ksi, double eps, iVector2 &ns,
 				long sf[], long sd[], double dkpL, long imax)
 {
-  bool      rad;
-  long int  lastpos;
-  int       i, j, k;
-  Vector2   ksi0;
-  psVector    dkpL1, dksi;
-  Matrix    A;
+  bool            rad;
+  long int        lastpos;
+  int             i, j, k;
+  Vector2         ksi0;
+  ss_vect<double> dkpL1, dksi;
+  arma::mat       A(ss_dim, ss_dim);
 
   const double dP = 0e0;
 
@@ -1328,11 +1330,11 @@ _L999:
 
 void findcod(LatticeType &lat, double dP)
 {
-  psVector        vcod;
-  const int     ntrial = 40;  // maximum number of trials for closed orbit
-  const double  tolx = 1e-10;  // numerical precision
-  int           k, dim = 0;
-  long          lastpos;
+  ss_vect<double> vcod;
+  const int       ntrial = 40;  // maximum number of trials for closed orbit
+  const double    tolx = 1e-10;  // numerical precision
+  int             k, dim = 0;
+  long            lastpos;
 
   // initializations
   for (k = 0; k <= 5; k++)
@@ -1353,7 +1355,7 @@ void findcod(LatticeType &lat, double dP)
   if (lat.conf.codflag == false)
     fprintf(stdout, "Error No COD found\n");
   
-  CopyVec(6, vcod, lat.conf.CODvect); // save closed orbit at the ring entrance
+  lat.conf.CODvect = vcod; // save closed orbit at the ring entrance
 
   if (lat.conf.trace) {
     fprintf(stdout,
@@ -1440,8 +1442,8 @@ void get_ab(const ss_vect<tps> &A,
 }
 
 
-void get_twoJ(const int n_DOF, const ss_vect<double> &ps,
-	      const ss_vect<tps> &A, double twoJ[])
+void get_twoJ(const int n_DOF, const ss_vect<double> &ps, const ss_vect<tps> &A,
+	      double twoJ[])
 {
   int             j, no;
   long int        jj[ss_dim];
@@ -1495,7 +1497,7 @@ void Trac(LatticeType &lat, double x, double px, double y, double py, double dp,
 {
   /* Compute closed orbit : usefull if insertion devices */
 
-  psVector x1;     /* tracking coordinates */
+  ss_vect<double> x1;     /* tracking coordinates */
 
   x1[0] = x; x1[1] = px;
   x1[2] = y; x1[3] = py;
@@ -1567,7 +1569,7 @@ void printglob(LatticeType &lat)
   printf("\n");
   printf("  OneTurn matrix:\n");
   printf("\n");
-  prtmat(2*DOF, lat.conf.OneTurnMat);
+  lat.conf.OneTurnMat.print();
   fflush(stdout);
 }
 
@@ -1582,7 +1584,7 @@ void GetEmittance(LatticeType &lat, const int Fnum, const bool prt)
   double       C, theta, V_RF, phi0, gamma_z;
   double       sigma_s, sigma_delta;
   Vector3      nu;
-  Matrix       Ascr;
+  arma::mat    Ascr(ss_dim, ss_dim);
   ss_vect<tps> Ascr_map;
   CavityType   *Cp;
 
@@ -1648,29 +1650,30 @@ void GetEmittance(LatticeType &lat, const int Fnum, const bool prt)
   for (i = 0; i < 6; i++) {
     Ascr_map[i] = tps(lat.conf.CODvect[i]);
     for (j = 0; j < 6; j++)
-      Ascr_map[i] += lat.conf.Ascr[i][j]*sqrt(lat.conf.eps[j/2])*tps(0.0, j+1);
+      Ascr_map[i] += lat.conf.Ascr(i, j)*sqrt(lat.conf.eps[j/2])*tps(0.0, j+1);
   }
   // prt_lin_map(3, Ascr_map);
   for (loc = 0; loc <= lat.conf.Cell_nLoc; loc++) {
     lat.elems[loc]->Elem_Pass(lat.conf, Ascr_map);
     // sigma = A x A^tp
     getlinmat(6, Ascr_map, lat.elems[loc]->sigma);
-    TpMat(6, lat.elems[loc]->sigma);
-    getlinmat(6, Ascr_map, Ascr); MulLMat(6, Ascr, lat.elems[loc]->sigma);
+    lat.elems[loc]->sigma = trans(lat.elems[loc]->sigma);
+    getlinmat(6, Ascr_map, Ascr);
+    lat.elems[loc]->sigma = Ascr*lat.elems[loc]->sigma;
   }
 
   // A. W. Chao, M. J. Lee "Particle Distribution Parameters in an Electron
   // Storage Ring" J. Appl. Phys. 47 (10), 4453-4456 (1976).
   // observable tilt angle
-  theta = atan2(2e0*lat.elems[0]->sigma[x_][y_],
-	  (lat.elems[0]->sigma[x_][x_]-lat.elems[0]->sigma[y_][y_]))/2e0;
+  theta = atan2(2e0*lat.elems[0]->sigma(x_, y_),
+		(lat.elems[0]->sigma(x_, x_)-lat.elems[0]->sigma(y_, y_)))/2e0;
 
   // longitudinal alpha and beta
   lat.conf.alpha_z =
-    -lat.conf.Ascr[ct_][ct_]*lat.conf.Ascr[delta_][ct_]
-    - lat.conf.Ascr[ct_][delta_]*lat.conf.Ascr[delta_][delta_];
+    -lat.conf.Ascr(ct_, ct_)*lat.conf.Ascr(delta_, ct_)
+    - lat.conf.Ascr(ct_, delta_)*lat.conf.Ascr(delta_, delta_);
   lat.conf.beta_z =
-    sqr(lat.conf.Ascr[ct_][ct_]) + sqr(lat.conf.Ascr[ct_][delta_]);
+    sqr(lat.conf.Ascr(ct_, ct_)) + sqr(lat.conf.Ascr(ct_, delta_));
   gamma_z = (1.0+sqr(lat.conf.alpha_z))/lat.conf.beta_z;
 
   // bunch size
@@ -1686,7 +1689,7 @@ void GetEmittance(LatticeType &lat, const int Fnum, const bool prt)
 	   1e-3*lat.conf.U0);
     printf("Synchronous phase [deg]:        "
 	   "phi0        = 180 - %4.2f\n",
-	   phi0*180.0/M_PI);
+	   radtodeg(phi0));
     printf("RF bucket height [%%]:           "
 	   "delta_RF    = %4.2f\n", 1e2*lat.conf.delta_RF);
     printf("\n");
@@ -1721,21 +1724,21 @@ void GetEmittance(LatticeType &lat, const int Fnum, const bool prt)
     printf("\n");
     printf("sigmas:                         "
 	   "sigma_x     =  %5.1f  microns, sigma_px    = %5.1f urad\n",
-	   1e6*sqrt(lat.elems[0]->sigma[x_][x_]),
-	   1e6*sqrt(lat.elems[0]->sigma[px_][px_]));
+	   1e6*sqrt(lat.elems[0]->sigma(x_, x_)),
+	   1e6*sqrt(lat.elems[0]->sigma(px_, px_)));
     printf("                                "
 	   "sigma_y     =  %5.1f  microns, sigma_py    = %5.1f urad\n",
-	   1e6*sqrt(lat.elems[0]->sigma[y_][y_]),
-	   1e6*sqrt(lat.elems[0]->sigma[py_][py_]));
+	   1e6*sqrt(lat.elems[0]->sigma(y_, y_)),
+	   1e6*sqrt(lat.elems[0]->sigma(py_, py_)));
     printf("                                "
 	   "sigma_s     =  %6.2f mm,      sigma_delta = %8.2e\n",
-	   1e3*sqrt(lat.elems[0]->sigma[ct_][ct_]),
-	   sqrt(lat.elems[0]->sigma[delta_][delta_]));
+	   1e3*sqrt(lat.elems[0]->sigma(ct_, ct_)),
+	   sqrt(lat.elems[0]->sigma(delta_, delta_)));
 
     printf("\n");
     printf("Beam ellipse twist [rad]:       tw      = %5.3f\n", theta);
     printf("                   [deg]:       tw      = %5.3f\n",
-	   theta*180.0/M_PI);
+	   radtodeg(theta));
   }
 
   // restore state
@@ -1793,69 +1796,72 @@ struct tm* GetTime()
 }
 
 
-void computeFandJ(LatticeType &lat, int n, psVector &x, Matrix &fjac,
-		  psVector &fvect)
+void computeFandJ(LatticeType &lat, int n, ss_vect<double> &x, arma::mat &fjac,
+		  ss_vect<double> &fvect)
 {
-  int     i, k;
-  long    lastpos = 0;
-  psVector  x0, fx1, fx2;
+  int             i, k;
+  long            lastpos = 0;
+  ss_vect<double> x0, fx1, fx2;
 
   //stepsize for numerical differentiation
   const double deps = 1e-8;
 
-  CopyVec(6, x, x0);
+  x0 = x;
   
   lat.Cell_Pass(0, lat.conf.Cell_nLoc, x0, lastpos);
-  CopyVec(n, x0, fvect);
+  fvect = x0;
   
   // compute Jacobian matrix by numerical differentiation
   for (k = 0; k < n; k++) {
-    CopyVec(6L, x, x0);
+    x0 = x;
     x0[k] += deps;  // differential step in coordinate k
 
     // tracking along the ring
     lat.Cell_Pass(0, lat.conf.Cell_nLoc, x0, lastpos);
-    CopyVec(6L, x0, fx1);
+    fx1 = x0;
 
-    CopyVec(6L, x, x0);
+    x0 = x;
     // differential step in coordinate k
     x0[k] -= deps;
 
     // tracking along the ring
     lat.Cell_Pass(0, lat.conf.Cell_nLoc, x0, lastpos);
-    CopyVec(6L, x0, fx2);
+    fx2 = x0;
 
     // symmetric difference formula
     for (i = 0; i < n; i++)
-      fjac[i][k] = 0.5 * (fx1[i] - fx2[i]) / deps;
+      fjac(i, k) = 0.5 * (fx1[i] - fx2[i]) / deps;
   }
 }
-int Newton_Raphson(LatticeType &lat, int n, psVector &x, int ntrial,
+
+
+int Newton_Raphson(LatticeType &lat, int n, ss_vect<double> &x, int ntrial,
 		   double tolx)
 {
-  int k,  i;
-  double  errx;
-  psVector  bet, fvect;
-  Matrix  alpha;
+  int             k, i;
+  double          errx;
+  ss_vect<double> bet, fvect;
+  arma::mat       alpha   = arma::mat(ss_dim, ss_dim);
+  arma::vec       bet_vec = arma::vec(ss_dim);
 
   errx = 0.0;
 
-  for (k = 1; k <= ntrial; k++) {  // loop over number of iterations
+  for (k = 1; k <= ntrial; k++) {    // loop over number of iterations
     // supply function values at x in fvect and Jacobian matrix in fjac
     computeFandJ(lat, n, x, alpha, fvect);
 
     // Jacobian - Id
     for (i = 0; i < n; i++)
-      alpha[i][i] -= 1.0;
+      alpha(i, i) -= 1.0;
     for (i = 0; i < n; i++)
-      bet[i] = x[i] - fvect[i];  // right side of linear equation
+      bet[i] = x[i] - fvect[i];      // right side of linear equation
     // inverse matrix using gauss jordan method from Tracy (from NR)
-    if (!InvMat((long) n,alpha))
-      fprintf(stdout,"Matrix non inversible ...\n");    
-    LinTrans((long) n, alpha, bet); // bet = alpha*bet
-        errx = 0.0;  // check root convergence
-    for (i = 0; i < n; i++)
-    {    // update solution
+    alpha = inv(alpha);
+    bet_vec = alpha*pstoarma(bet);
+    bet = armatops(bet_vec);         // bet = alpha*bet
+    errx = 0.0;                      // check root convergence
+    for (i = 0; i < n; i++) {
+      // update solution
       errx += fabs(bet[i]);
       x[i] += bet[i]; 
     }
@@ -2040,34 +2046,37 @@ char *asctime2(const struct tm *timeptr)
 bool chk_if_lost(LatticeType &lat, double x0, double y0, double delta,
 		 long int nturn, bool floqs)
 {
-  long int  i, lastn, lastpos;
-  psVector    x;
+  long int        i, lastn, lastpos;
+  ss_vect<double> ps;
+  arma::vec       ps_vec = arma::vec(ss_dim);
 
-  bool  prt = false;
+  bool prt = false;
 
-  x[x_] = x0; x[px_] = px_0; x[y_] = y0; x[py_] = py_0;
-  x[delta_] = delta; x[ct_] = 0.0;
-  if (floqs)
-    // transform to phase space
-    LinTrans(nfloq, lat.conf.Ascr, x);  
-  for (i = 0; i <= 3; i++)  
-    x[i] += lat.conf.CODvect[i];
+  ps[x_] = x0; ps[px_] = px_0; ps[y_] = y0; ps[py_] = py_0;
+  ps[delta_] = delta; ps[ct_] = 0.0;
+  if (floqs) {
+    // Transform to phase space.
+    ps_vec = lat.conf.Ascr*pstoarma(ps);
+    ps = armatops(ps_vec);
+  }
+  for (i = 0; i <= 3; i++)
+    ps[i] += lat.conf.CODvect[i];
 
   lastn = 0;
   if (prt) {
     printf("\n");
     printf("chk_if_lost:\n");
     printf("%4ld %7.3f %7.3f %7.3f %7.3f %7.3f %7.3f\n",
-	   lastn, 1e3*x[x_], 1e3*x[px_], 1e3*x[y_], 1e3*x[py_],
-	   1e2*x[delta_], 1e3*x[ct_]);
+	   lastn, 1e3*ps[x_], 1e3*ps[px_], 1e3*ps[y_], 1e3*ps[py_],
+	   1e2*ps[delta_], 1e3*ps[ct_]);
   }
   do {
     lastn++;
-    lat.Cell_Pass(0, lat.conf.Cell_nLoc, x, lastpos);
+    lat.Cell_Pass(0, lat.conf.Cell_nLoc, ps, lastpos);
     if (prt)
       printf("%4ld %7.3f %7.3f %7.3f %7.3f %7.3f %7.3f\n",
-	     lastn, 1e3*x[x_], 1e3*x[px_], 1e3*x[y_], 1e3*x[py_],
-	     1e2*x[delta_], 1e3*x[ct_]);
+	     lastn, 1e3*ps[x_], 1e3*ps[px_], 1e3*ps[y_], 1e3*ps[py_],
+	     1e2*ps[delta_], 1e3*ps[ct_]);
   } while ((lastn != nturn) && (lastpos == lat.conf.Cell_nLoc));
   return(lastn != nturn);
 }

@@ -203,61 +203,6 @@ inline T get_p_s(ConfigType &conf, const ss_vect<T> &ps)
 }
 
 
-#if 0
-
-void zero_mat(const int n, double** A)
-{
-  int i, j;
-
-  for (i = 1; i <= n; i++)
-    for (j = 1; j <= n; j++)
-      A[i][j] = 0e0;
-}
-
-
-void identity_mat(const int n, double** A)
-{
-  int i, j;
-
-  for (i = 1; i <= n; i++)
-    for (j = 1; j <= n; j++)
-      A[i][j] = (i == j)? 1e0 : 0e0;
-}
-
-
-double det_mat(const int n, double **A)
-{
-  int    i, *indx;
-  double **U, d;
-
-  indx = ivector(1, n); U = dmatrix(1, n, 1, n);
-
-  dmcopy(A, n, n, U); dludcmp(U, n, indx, &d);
-
-  for (i = 1; i <= n; i++)
-    d *= U[i][i];
-
-  free_dmatrix(U, 1, n, 1, n); free_ivector(indx, 1, n);
-
-  return d;
-}
-
-
-double trace_mat(const int n, double **A)
-{
-  int    i;
-  double d;
-
-  d = 0e0;
-  for (i = 1; i <= n; i++)
-    d += A[i][i];
-
-  return d;
-}
-
-#endif
-
-
 // partial template-class specialization
 // primary version
 template<typename T>
@@ -478,8 +423,8 @@ static double get_psi(double irho, double phi, double gap)
   if (phi == 0e0)
     psi = 0e0;
   else
-    psi = k1*gap*irho*(1e0+sqr(sin(dtor(phi))))/cos(dtor(phi))
-          *(1e0 - k2*gap*irho*tan(dtor(phi)));
+    psi = k1*gap*irho*(1e0+sqr(sin(degtorad(phi))))/cos(degtorad(phi))
+          *(1e0 - k2*gap*irho*tan(degtorad(phi)));
 
   return psi;
 }
@@ -542,16 +487,16 @@ template<typename T>
 void EdgeFocus(ConfigType &conf, const double irho, const double phi,
 	       const double gap, ss_vect<T> &ps)
 {
-  ps[px_] += irho*tan(dtor(phi))*ps[x_];
+  ps[px_] += irho*tan(degtorad(phi))*ps[x_];
   if (!conf.dip_edge_fudge) {
     // warning: => diverging Taylor map (see SSC-141)
     // ps[py_] -=
-    //   irho*tan(dtor(phi)-get_psi(irho, phi, gap))*ps[y_]/(1e0+ps[delta_]);
+    //   irho*tan(degtorad(phi)-get_psi(irho, phi, gap))*ps[y_]/(1e0+ps[delta_]);
     // Leading order correction.
     ps[py_] -=
-      irho*tan(dtor(phi)-get_psi(irho, phi, gap))*ps[y_]*(1e0-ps[delta_]);
+      irho*tan(degtorad(phi)-get_psi(irho, phi, gap))*ps[y_]*(1e0-ps[delta_]);
   } else
-    ps[py_] -= irho*tan(dtor(phi)-get_psi(irho, phi, gap))*ps[y_];
+    ps[py_] -= irho*tan(degtorad(phi)-get_psi(irho, phi, gap))*ps[y_];
 }
 
 
@@ -561,9 +506,9 @@ void p_rot(ConfigType &conf, double phi, ss_vect<T> &ps)
   T          c, s, t, pz, p, val;
   ss_vect<T> ps1;
 
-  c = cos(dtor(phi));
-  s = sin(dtor(phi));
-  t = tan(dtor(phi));
+  c = cos(degtorad(phi));
+  s = sin(degtorad(phi));
+  t = tan(degtorad(phi));
   pz = get_p_s(conf, ps);
 
   if (!conf.H_exact && !conf.Cart_Bend) {
@@ -630,9 +575,11 @@ void quad_fringe(ConfigType &conf, const double b2, ss_vect<T> &ps)
 template<typename T>
 void MpoleType::Mpole_Pass(ConfigType &conf, ss_vect<T> &ps)
 {
-  int       seg = 0, i;
-  double    dL = 0e0, dL1 = 0e0, dL2 = 0e0;
-  double    dkL1 = 0e0, dkL2 = 0e0, h_ref = 0e0;
+  int             seg = 0, i;
+  double          dL = 0e0, dL1 = 0e0, dL2 = 0e0,
+                  dkL1 = 0e0, dkL2 = 0e0, h_ref = 0e0;
+  ss_vect<double> ps1;
+  arma::vec       ps_vec = arma::vec(ss_dim);
 
   GtoL(ps, dS, dT, Pc0, Pc1, Ps1);
 
@@ -647,7 +594,9 @@ void MpoleType::Mpole_Pass(ConfigType &conf, ss_vect<T> &ps)
 
   case Meth_Fourth:
     if (conf.mat_meth && (Pthick == thick) && (Porder <= Quad)) {
-      ps = is_double< ss_vect<T> >::ps(M_lin*ps);
+      ps1 = is_double< ss_vect<double> >::ps(ps);
+      ps_vec = M_lin*pstoarma(ps1);
+      ps = armatops(ps_vec);
 
       // if (emittance && !Cavity_on)
       // 	if ((PL != 0e0) && (Pirho != 0e0))
@@ -2113,7 +2062,7 @@ void FieldMapType::FieldMap_Pass(ConfigType &conf, ss_vect<T> &ps)
   }
 
   Ld = (FM->Lr-PL)/2e0;
-  p_rot(conf, FM->phi/2e0*180e0/M_PI, ps);
+  p_rot(conf, radtodeg(FM->phi/2e0), ps);
   printf("\nFieldMap_Pass:\n");
   printf("  phi = %12.5e\n  cut = %12d\n", FM->phi, FM->cut);
   printf("  entrance negative drift [m] %12.5e\n", -Ld);
@@ -2129,7 +2078,7 @@ void FieldMapType::FieldMap_Pass(ConfigType &conf, ss_vect<T> &ps)
 
   printf("  exit negative drift [m]     %12.5e\n", -Ld);
   Drift(conf, -Ld, ps);
-  p_rot(conf, FM->phi/2e0*180e0/M_PI, ps);
+  p_rot(conf, radtodeg(FM->phi/2e0), ps);
 
 //  outf_.close();
 }
@@ -2158,7 +2107,7 @@ void InsertionType::Insertion_Pass(ConfigType &conf, ss_vect<T> &x)
   } else
     alpha02 = 1e-6*ID->scaling;
 
-  p_rot(conf, ID->phi/2e0*180e0/M_PI, x);
+  p_rot(conf, radtodeg(ID->phi/2e0), x);
 
   // (Nslice+1) drifts, nslice kicks
   // LN = PL/(Nslice+1);
@@ -2199,7 +2148,7 @@ void InsertionType::Insertion_Pass(ConfigType &conf, ss_vect<T> &x)
 
   Drift(conf, LN/2e0, x);
 
-  p_rot(conf, ID->phi/2e0*180e0/M_PI, x);
+  p_rot(conf, radtodeg(ID->phi/2e0), x);
 
 //  CopyVec(6L, x, BeamPos);
 }
@@ -2395,7 +2344,7 @@ void DriftType::print(void)
 
 double get_phi(MpoleType *elem)
 {
-  return (elem->Pirho != 0e0)? elem->Pirho*elem->PL*180e0/M_PI : 0e0;
+  return (elem->Pirho != 0e0)? radtodeg(elem->Pirho*elem->PL) : 0e0;
 }
 
 void MpoleType::print(void)
@@ -2736,6 +2685,130 @@ static int UpdatePorder(MpoleType *M)
 }
 
 
+arma::mat get_edge_mat(const double h, const double phi, const double gap,
+		       const double delta)
+{
+  arma::mat
+    Id = arma::mat(ss_dim, ss_dim),
+    M  = arma::mat(ss_dim, ss_dim);
+
+  M.eye(ss_dim, ss_dim);
+  M(px_, x_) += h*tan(degtorad(phi));
+  M(py_, y_) -= h*tan(degtorad(phi)-get_psi(h, phi, gap));
+
+  return M;
+}
+
+
+arma::mat get_sbend_mat(const double L, const double h, const double b2,
+			const double delta)
+{
+  double K_x, K_y, psi_x, psi_y;
+  arma::mat
+    Id = arma::mat(ss_dim, ss_dim),
+    M  = arma::mat(ss_dim, ss_dim);
+
+  K_x = b2 + sqr(h);
+  K_y = fabs(b2);
+  psi_x = sqrt(fabs(K_x)/(1e0+delta))*L;
+  psi_y = sqrt(K_y/(1e0+delta))*L;
+
+  M.eye(ss_dim, ss_dim);
+  if (K_x > 0e0) {
+    M(x_, x_)      = cos(psi_x);
+    M(x_, px_)     = sin(psi_x)/sqrt(K_x*(1e0+delta));
+    M(x_, delta_)  = (1e0-cos(psi_x))*h/K_x;
+    M(px_, x_)     = -sqrt(K_x*(1e0+delta))*sin(psi_x);
+    M(px_, px_)    = cos(psi_x);
+    M(px_, delta_) = sin(psi_x)*sqrt(1e0+delta)*h/sqrt(K_x);
+
+    if (psi_y != 0e0) {
+      M(y_, y_)   = cosh(psi_y);
+      M(y_, py_)  = sinh(psi_y)/sqrt(K_y*(1e0+delta));
+      M(py_, y_)  = sqrt(K_y*(1e0+delta))*sinh(psi_y);
+      M(py_, py_) = cosh(psi_y);
+    } else
+      M(y_, py_)  += L/(1e0+delta);
+ 
+    M(ct_, x_)     = sin(psi_x)*sqrt(1e0+delta)*h/sqrt(K_x);
+    M(ct_, px_)    = (1e0-cos(psi_x))*h/K_x;
+    M(ct_, delta_) =
+      (psi_x-sin(psi_x))*sqrt(1e0+delta)*sqr(h)/pow(K_x, 3e0/2e0);
+  } else if (K_x < 0e0) {
+    K_x = fabs(K_x);
+    M(x_, x_)      = cosh(psi_x);
+    M(x_, px_)     = sinh(psi_x)/sqrt(K_x*(1e0+delta));
+    M(x_, delta_)  = -(1e0-cosh(psi_x))*h/K_x;
+    M(px_, x_)     = sqrt(K_x*(1e0+delta))*sinh(psi_x);
+    M(px_, px_)    = cosh(psi_x);
+    M(px_, delta_) = sinh(psi_x)*sqrt(1e0+delta)*h/sqrt(K_x);
+
+    if (psi_y != 0e0) {
+      M(y_, y_)    = cos(psi_y);
+      M(y_, py_)   = sin(psi_y)/sqrt(K_y*(1e0+delta));
+      M(py_, y_)   = -sqrt(K_y*(1e0+delta))*sin(psi_y);
+      M(py_, py_)  = cos(psi_y);
+   } else
+      M(y_, py_)   = L/(1e0+delta);
+
+    M(ct_, x_)     = sinh(psi_x)*sqrt(1e0+delta)*h/sqrt(K_x);
+    M(ct_, px_)    = -(1e0-cosh(psi_x))*h/K_x;
+    M(ct_, delta_) =
+      - (psi_x-sinh(psi_x))*sqrt(1e0+delta)*sqr(h)/pow(K_x, 3e0/2e0);
+  } else {
+    // K_x = 0.
+    M(x_, px_) = L/(1e0+delta);
+    M(y_, py_) = L/(1e0+delta);
+  }
+
+  return M;
+}
+
+
+arma::mat get_thin_kick_mat(const double b2L, const double delta)
+{
+  arma::mat M(ss_dim, ss_dim);
+
+  M.eye(ss_dim, ss_dim);
+  M(px_, px_) -= b2L;
+  M(py_, py_) += b2L;
+
+  return M;
+}
+
+
+arma::mat get_mat(ElemType *elem, const double delta)
+{
+  arma::mat M0, M1, M2;
+
+  const MpoleType* M = dynamic_cast<const MpoleType*>(elem);
+
+  if (elem->PL != 0e0) {
+    M0 = get_sbend_mat(elem->PL, M->Pirho, M->PB[Quad+HOMmax], delta);
+    M1 = get_edge_mat(M->Pirho, M->PTx1, M->Pgap, delta);
+    M2 = get_edge_mat(M->Pirho, M->PTx2, M->Pgap, delta);
+    M0 = M2*M0*M1;
+  } else
+    M0 = get_thin_kick_mat(elem->PL*M->PB[Quad+HOMmax], delta);
+  printf("\nget_mats: %8s %1d\n", elem->PName, elem->Pkind);
+  M0.print();
+
+  return M0;
+}
+
+
+void LatticeType::get_mats(const double delta)
+{
+  long int  k;
+  MpoleType *M;
+
+  for (k = 0; k <= conf.Cell_nLoc; k++) {
+    M = dynamic_cast<MpoleType*>(elems[k]);
+    if (elems[k]->Pkind == Mpole) M->M_lin = get_mat(elems[k], delta);
+  }
+}
+
+
 ElemType* MpoleType::Elem_Init(const ConfigType &conf, const bool reverse)
 {
   double     phi;
@@ -2746,7 +2819,7 @@ ElemType* MpoleType::Elem_Init(const ConfigType &conf, const bool reverse)
   M->PB = M->PBpar; M->Porder = UpdatePorder(M);
 
   /* set entrance and exit angles */
-  M->dT[X_] = cos(dtor(M->PdTpar)); M->dT[Y_] = sin(dtor(M->PdTpar));
+  M->dT[X_] = cos(degtorad(M->PdTpar)); M->dT[Y_] = sin(degtorad(M->PdTpar));
 
   /* set displacement to zero */
   M->dS[X_] = 0e0; M->dS[Y_] = 0e0;
@@ -2764,7 +2837,7 @@ ElemType* MpoleType::Elem_Init(const ConfigType &conf, const bool reverse)
     M->Pthick = pthicktype(thin);
 
   // Allocate transport matrix.
-  if (M->Pthick == thick) M->M_lin = get_lin_map(M, 0e0);
+  if (M->Pthick == thick) M->M_lin = get_mat(this, 0e0);
 
   Mp = Mpole_Alloc();
   *Mp = *M;
@@ -2774,6 +2847,8 @@ ElemType* MpoleType::Elem_Init(const ConfigType &conf, const bool reverse)
     // Swap entrance and exit angles.
     phi = Mp->PTx1; Mp->PTx1 = Mp->PTx2; Mp->PTx2 = phi;
   }
+
+  get_mat(this, 0e0);
 
   return Mp;
 }
@@ -2897,128 +2972,6 @@ ElemType* MapType::Elem_Init(const ConfigType &conf, const bool reverse)
   *Mapp = *Map;
   Mapp->M.identity();
   return Mapp;
-}
-
-
-ss_vect<tps> get_edge_lin_map(const double h, const double phi,
-			      const double gap, const double delta)
-{
-  ss_vect<tps> Id, M;
-
-  Id.identity();
-
-  M.identity();
-  M[px_] += h*tan(dtor(phi))*Id[x_];
-  M[py_] -= h*tan(dtor(phi)-get_psi(h, phi, gap))*Id[y_];
-
-  return M;
-}
-
-
-ss_vect<tps> get_sbend_lin_map(const double L, const double h, const double b2,
-			       const double delta)
-{
-  double       K_x, K_y, psi_x, psi_y;
-  ss_vect<tps> Id, M;
-
-  Id.identity();
-
-  K_x = b2 + sqr(h);
-  K_y = fabs(b2);
-  psi_x = sqrt(fabs(K_x)/(1e0+delta))*L;
-  psi_y = sqrt(K_y/(1e0+delta))*L;
-
-  M.identity();
-  if (K_x > 0e0) {
-    M[x_] =
-      cos(psi_x)*Id[x_] + sin(psi_x)/sqrt(K_x*(1e0+delta))*Id[px_]
-      + (1e0-cos(psi_x))*h/K_x*Id[delta_];
-    M[px_] =
-      -sqrt(K_x*(1e0+delta))*sin(psi_x)*Id[x_] + cos(psi_x)*Id[px_]
-      + sin(psi_x)*sqrt(1e0+delta)*h/sqrt(K_x)*Id[delta_];
-
-    if (psi_y != 0e0) {
-      M[y_]  = cosh(psi_y)*Id[y_] + sinh(psi_y)/sqrt(K_y*(1e0+delta))*Id[py_];
-      M[py_] = sqrt(K_y*(1e0+delta))*sinh(psi_y)*Id[y_] + cosh(psi_y)*Id[py_];
-    } else
-      M[y_]  += L/(1e0+delta)*Id[py_];
- 
-    M[ct_] +=
-      sin(psi_x)*sqrt(1e0+delta)*h/sqrt(K_x)*Id[x_]
-      + (1e0-cos(psi_x))*h/K_x*Id[px_]
-      + (psi_x-sin(psi_x))*sqrt(1e0+delta)*sqr(h)/pow(K_x, 3e0/2e0)*Id[delta_];
-  } else if (K_x < 0e0) {
-    K_x = fabs(K_x);
-    M[x_] =
-      cosh(psi_x)*Id[x_] + sinh(psi_x)/sqrt(K_x*(1e0+delta))*Id[px_]
-      -(1e0-cosh(psi_x))*h/K_x*Id[delta_];
-    M[px_] =
-      sqrt(K_x*(1e0+delta))*sinh(psi_x)*Id[x_] + cosh(psi_x)*Id[px_]
-      + sinh(psi_x)*sqrt(1e0+delta)*h/sqrt(K_x)*Id[delta_];
-
-    if (psi_y != 0e0) {
-      M[y_]  = cos(psi_y)*Id[y_] + sin(psi_y)/sqrt(K_y*(1e0+delta))*Id[py_];
-      M[py_] = -sqrt(K_y*(1e0+delta))*sin(psi_y)*Id[y_] + cos(psi_y)*Id[py_];
-   } else
-      M[y_]  += L/(1e0+delta)*Id[py_];
-
-    M[ct_] +=
-      sinh(psi_x)*sqrt(1e0+delta)*h/sqrt(K_x)*Id[x_]
-      - (1e0-cosh(psi_x))*h/K_x*Id[px_]
-      - (psi_x-sinh(psi_x))*sqrt(1e0+delta)*sqr(h)/pow(K_x, 3e0/2e0)*Id[delta_];
-  } else {
-    // K_x = 0.
-    M[x_] += L/(1e0+delta)*Id[px_];
-    M[y_] += L/(1e0+delta)*Id[py_];
-  }
-
-  return M;
-}
-
-
-ss_vect<tps> get_thin_kick_lin_map(const double b2L, const double delta)
-{
-  ss_vect<tps> Id, M;
-
-  Id.identity();
-
-  M.identity();
-  M[px_] -= b2L*Id[px_];
-  M[py_] += b2L*Id[py_];
-
-  return M;
-}
-
-
-ss_vect<tps> get_lin_map(ElemType *Elem, const double delta)
-{
-  ss_vect<tps> M0, M1, M2;
-  MpoleType    *M;
-
-  M = dynamic_cast<MpoleType*>(Elem);
-  if (Elem->PL != 0e0) {
-    M0 =
-      get_sbend_lin_map(Elem->PL, M->Pirho, M->PB[Quad+HOMmax], delta);
-    M1 = get_edge_lin_map(M->Pirho, M->PTx1, M->Pgap, delta);
-    M2 = get_edge_lin_map(M->Pirho, M->PTx2, M->Pgap, delta);
-    M0 = M2*M0*M1;
-  } else
-    M0 = get_thin_kick_lin_map(Elem->PL*M->PB[Quad+HOMmax], delta);
-
-  return M0;
-}
-
-
-void LatticeType::get_lin_maps(const double delta)
-{
-  long int  k;
-  MpoleType *M;
-
-  for (k = 0; k <= conf.Cell_nLoc; k++) {
-    M = dynamic_cast<MpoleType*>(elems[k]);
-    if ((elems[k]->Pkind == Mpole) && (M->Pthick == thick))
-      M->M_lin = get_lin_map(elems[k], delta);
-  }
 }
 
 
@@ -3789,12 +3742,12 @@ void MpoleType::SetdS(void)
 
 void MpoleType::SetdT(void)
 {
-  dT[X_] = cos(dtor(PdTpar + PdTsys + PdTrms*PdTrnd));
-  dT[Y_] = sin(dtor(PdTpar + PdTsys + PdTrms*PdTrnd));
+  dT[X_] = cos(degtorad(PdTpar + PdTsys + PdTrms*PdTrnd));
+  dT[Y_] = sin(degtorad(PdTpar + PdTsys + PdTrms*PdTrnd));
   // Simplified p_rot.
   Pc0 = sin(PL*Pirho/2e0);
-  Pc1 = cos(dtor(PdTpar))*Pc0;
-  Ps1 = sin(dtor(PdTpar))*Pc0;
+  Pc1 = cos(degtorad(PdTpar))*Pc0;
+  Ps1 = sin(degtorad(PdTpar))*Pc0;
 }
 
 
@@ -3844,8 +3797,8 @@ void WigglerType::SetdS(void)
 void WigglerType::SetdT(void)
 {
 
-  dT[X_] = cos(dtor(PdTpar+PdTsys+PdTrms*PdTrnd));
-  dT[Y_] = sin(dtor(PdTpar+PdTsys+PdTrms*PdTrnd));
+  dT[X_] = cos(degtorad(PdTpar+PdTsys+PdTrms*PdTrnd));
+  dT[Y_] = sin(degtorad(PdTpar+PdTsys+PdTrms*PdTrnd));
 }
 
 

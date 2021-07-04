@@ -11,8 +11,6 @@ extern bool   sympl;
 extern int    FieldMap_filetype;
 extern double C_u, C_gamma, C_q, cl_rad, q_fluct;
 
-double det_mat(const int n, double **A);
-
 template<typename T>
 T get_p_s(ConfigType &conf, const ss_vect<T> &);
 
@@ -65,13 +63,13 @@ RecombinerType* Recombiner_Alloc(void);
 SolenoidType* Solenoid_Alloc(void);
 MapType* Map_Alloc(void);
 
-ss_vect<tps> get_edge_lin_map(const double h, const double phi,
-			      const double gap, const double delta);
-ss_vect<tps> get_sbend_lin_map(const double L, const double h, const double b2,
-			       const double delta);
-ss_vect<tps> get_thin_kick_lin_map(const double b2L, const double delta);
-ss_vect<tps> get_lin_map(ElemType *Elem, const double delta);
-void get_lin_maps(const double delta);
+arma::mat get_edge_lin_map(const double h, const double phi,
+			   const double gap, const double delta);
+arma::mat get_sbend_lin_map(const double L, const double h, const double b2,
+			    const double delta);
+arma::mat get_thin_kick_lin_map(const double b2L, const double delta);
+arma::mat get_lin_mat(ElemType *Elem, const double delta);
+void get_lin_mats(const double delta);
 
 void get_B(ConfigType &conf, const char *file_name, FieldMapType *FM);
 double Elem_GetKval(int Fnum1, int Knum1, int Order);
