@@ -90,7 +90,7 @@ void LatticeType::Cell_Pass(const long i0, const long i1, tps &sigma,
 
   Id.identity();
 
-  map = Id + conf.CODvect; Cell_Pass(0, i0, map, lastpos);
+  map = Id + vectops(conf.CODvect); Cell_Pass(0, i0, map, lastpos);
 
   if (lastpos == i0) {
     map = Id + map.cst(); Cell_Pass(i0, i1, map, lastpos);
@@ -190,7 +190,7 @@ bool LatticeType::Cell_getCOD(long imax, double eps, double dP, long &lastpos)
   conf.codflag = dxabs < eps;
 
   if (conf.codflag) {
-    conf.CODvect = x0; getlinmat(6, map, conf.OneTurnMat);
+    conf.CODvect = pstovec(x0); getlinmat(6, map, conf.OneTurnMat);
     Cell_Pass(0, conf.Cell_nLoc, x0, lastpos);
   } else
     std::cout << std::scientific << std::setprecision(5)

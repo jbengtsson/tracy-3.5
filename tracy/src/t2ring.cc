@@ -175,7 +175,7 @@ void LatticeType::Cell_Geteta(long i0, long i1, bool ring, double dP)
   if (ring)
     GetCOD(conf.CODimax, conf.CODeps, dP-conf.dPcommon/2e0, lastpos);
   else {
-    xref = conf.CODvect; xref[4] = dP - conf.dPcommon/2e0;
+    xref = vectops(conf.CODvect); xref[4] = dP - conf.dPcommon/2e0;
     Cell_Pass(i0, i1, xref, lastpos);
   }
 
@@ -185,7 +185,7 @@ void LatticeType::Cell_Geteta(long i0, long i1, bool ring, double dP)
   if (ring)
     GetCOD(conf.CODimax, conf.CODeps, dP+conf.dPcommon/2e0, lastpos);
   else {
-    xref = conf.CODvect; xref[4] = dP + conf.dPcommon/2e0;
+    xref = vectops(conf.CODvect); xref[4] = dP + conf.dPcommon/2e0;
     Cell_Pass(i0, i1, xref, lastpos);
   }
 
@@ -541,8 +541,8 @@ void LatticeType::Elem_Pass_Lin(ss_vect<T> ps)
       Mp = dynamic_cast<MpoleType*>(elems[k]);
       if ((Mp->Pthick == thick) && (Mp->Porder <= Quad)) {
       ps1 = is_double< ss_vect<double> >::ps(ps);
-      ps_vec = Mp->M_lin*pstoarma(ps1);
-      ps = armatops(ps_vec);
+      ps_vec = Mp->M_lin*pstovec(ps1);
+      ps = vectops(ps_vec);
 	
       if (conf.emittance && !conf.Cavity_on
 	  && (elems[k]->PL != 0e0) && (Mp->Pirho != 0e0))
@@ -591,7 +591,7 @@ void LatticeType::get_eps_x(double &eps_x, double &sigma_delta, double &U_0,
 
   conf.Cavity_on = false; conf.emittance = false;
   Ring_GetTwiss(false, 0.0);
-  A = putlinmat(6, conf.Ascr); A += conf.CODvect;
+  A = putlinmat(6, conf.Ascr); A += vectops(conf.CODvect);
   conf.emittance = true;
   Elem_Pass_Lin(A);
   get_I(I, false);
@@ -1355,7 +1355,7 @@ void findcod(LatticeType &lat, double dP)
   if (lat.conf.codflag == false)
     fprintf(stdout, "Error No COD found\n");
   
-  lat.conf.CODvect = vcod; // save closed orbit at the ring entrance
+  lat.conf.CODvect = pstovec(vcod); // save closed orbit at the ring entrance
 
   if (lat.conf.trace) {
     fprintf(stdout,
@@ -1614,7 +1614,7 @@ void GetEmittance(LatticeType &lat, const int Fnum, const bool prt)
     *tan(M_PI-phi0))/(fabs(lat.conf.Alphac)*M_PI*h_RF*1e9*lat.conf.Energy));
 
   // Compute diffusion coeffs. for eigenvectors [sigma_xx, sigma_yy, sigma_zz]
-  Ascr_map = putlinmat(6, lat.conf.Ascr); Ascr_map += lat.conf.CODvect;
+  Ascr_map = putlinmat(6, lat.conf.Ascr); Ascr_map += vectops(lat.conf.CODvect);
 
   lat.Cell_Pass(0, lat.conf.Cell_nLoc, Ascr_map, lastpos);
 
@@ -1857,8 +1857,8 @@ int Newton_Raphson(LatticeType &lat, int n, ss_vect<double> &x, int ntrial,
       bet[i] = x[i] - fvect[i];      // right side of linear equation
     // inverse matrix using gauss jordan method from Tracy (from NR)
     alpha = inv(alpha);
-    bet_vec = alpha*pstoarma(bet);
-    bet = armatops(bet_vec);         // bet = alpha*bet
+    bet_vec = alpha*pstovec(bet);
+    bet = vectops(bet_vec);         // bet = alpha*bet
     errx = 0.0;                      // check root convergence
     for (i = 0; i < n; i++) {
       // update solution
@@ -1931,7 +1931,7 @@ void dynap(FILE *fp, LatticeType &lat, double r, const double delta,
   if (cod)
     lat.getcod(delta, lastpos);
   else
-    lat.conf.CODvect.zero();
+    lat.conf.CODvect.zeros();
   if (floqs) {
     lat.Ring_GetTwiss(false, delta);
     if (print) {
@@ -2056,8 +2056,8 @@ bool chk_if_lost(LatticeType &lat, double x0, double y0, double delta,
   ps[delta_] = delta; ps[ct_] = 0.0;
   if (floqs) {
     // Transform to phase space.
-    ps_vec = lat.conf.Ascr*pstoarma(ps);
-    ps = armatops(ps_vec);
+    ps_vec = lat.conf.Ascr*pstovec(ps);
+    ps = vectops(ps_vec);
   }
   for (i = 0; i <= 3; i++)
     ps[i] += lat.conf.CODvect[i];

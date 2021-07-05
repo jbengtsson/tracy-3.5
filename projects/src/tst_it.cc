@@ -1,8 +1,8 @@
-#define NO_TPS 1
+#define NO_TPSA 1
 
 #include "tracy_lib.h"
 
-int no_tps = NO_TPS;
+int no_tps = NO_TPSA;
 
 const int    n_turn    = 2064;
 const double delta_max = 2e-2;
@@ -59,13 +59,13 @@ void get_lat(const char *file_name, LatticeType &lat)
     lat.prt_elem();
   }
 
-  long int lastpos;
-  ss_vect<tps> ps;
-  ps.identity();
-  // lat.Cell_Pass(0, lat.conf.Cell_nLoc, ps, lastpos);
-  lat.Cell_Pass(0, 0, ps, lastpos);
-  cout << scientific << setprecision(3) << setw(11) << ps << "\n";
-  // exit(0);
+  if (!false) {
+    long int lastpos;
+    ss_vect<tps> ps;
+    ps.identity();
+    lat.Cell_Pass(0, lat.conf.Cell_nLoc, ps, lastpos);
+    prt_lin_map(3, ps);
+  }
 
   lat.Ring_GetTwiss(true, 0e0); printglob(lat);
   if (lat.conf.mat_meth)
@@ -144,7 +144,7 @@ bool orb_corr(LatticeType &lat, const int n_orbit)
   Vector2 xmean, xsigma, xmax;
 
   printf("\n");
-  lat.conf.CODvect.zero();
+  lat.conf.CODvect.zeros();
   for (i = 1; i <= n_orbit; i++) {
     cod = lat.getcod(0e0, lastpos);
     if (cod) {

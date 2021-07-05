@@ -579,7 +579,7 @@ void MpoleType::Mpole_Pass(ConfigType &conf, ss_vect<T> &ps)
   double          dL = 0e0, dL1 = 0e0, dL2 = 0e0,
                   dkL1 = 0e0, dkL2 = 0e0, h_ref = 0e0;
   ss_vect<double> ps1;
-  arma::vec       ps_vec = arma::vec(ss_dim);
+  arma::vec       ps_vec(ss_dim);
 
   GtoL(ps, dS, dT, Pc0, Pc1, Ps1);
 
@@ -593,10 +593,10 @@ void MpoleType::Mpole_Pass(ConfigType &conf, ss_vect<T> &ps)
   switch (Pmethod) {
 
   case Meth_Fourth:
-    if (conf.mat_meth && (Pthick == thick) && (Porder <= Quad)) {
+    if (conf.mat_meth && (Porder <= Quad)) {
       ps1 = is_double< ss_vect<double> >::ps(ps);
-      ps_vec = M_lin*pstoarma(ps1);
-      ps = armatops(ps_vec);
+      ps_vec = M_lin*pstovec(ps1);
+      ps = vectops(ps_vec);
 
       // if (emittance && !Cavity_on)
       // 	if ((PL != 0e0) && (Pirho != 0e0))
@@ -2770,8 +2770,8 @@ arma::mat get_thin_kick_mat(const double b2L, const double delta)
   arma::mat M(ss_dim, ss_dim);
 
   M.eye(ss_dim, ss_dim);
-  M(px_, px_) -= b2L;
-  M(py_, py_) += b2L;
+  M(x_, px_) = b2L;
+  M(y_, py_) = b2L;
 
   return M;
 }
@@ -2779,7 +2779,7 @@ arma::mat get_thin_kick_mat(const double b2L, const double delta)
 
 arma::mat get_mat(ElemType *elem, const double delta)
 {
-  arma::mat M0, M1, M2;
+  arma::mat M0(ss_dim, ss_dim), M1(ss_dim, ss_dim), M2(ss_dim, ss_dim);
 
   const MpoleType* M = dynamic_cast<const MpoleType*>(elem);
 
@@ -2790,8 +2790,6 @@ arma::mat get_mat(ElemType *elem, const double delta)
     M0 = M2*M0*M1;
   } else
     M0 = get_thin_kick_mat(elem->PL*M->PB[Quad+HOMmax], delta);
-  printf("\nget_mats: %8s %1d\n", elem->PName, elem->Pkind);
-  M0.print();
 
   return M0;
 }
@@ -2837,7 +2835,7 @@ ElemType* MpoleType::Elem_Init(const ConfigType &conf, const bool reverse)
     M->Pthick = pthicktype(thin);
 
   // Allocate transport matrix.
-  if (M->Pthick == thick) M->M_lin = get_mat(this, 0e0);
+  M->M_lin = get_mat(this, 0e0);
 
   Mp = Mpole_Alloc();
   *Mp = *M;
@@ -2847,8 +2845,6 @@ ElemType* MpoleType::Elem_Init(const ConfigType &conf, const bool reverse)
     // Swap entrance and exit angles.
     phi = Mp->PTx1; Mp->PTx1 = Mp->PTx2; Mp->PTx2 = phi;
   }
-
-  get_mat(this, 0e0);
 
   return Mp;
 }

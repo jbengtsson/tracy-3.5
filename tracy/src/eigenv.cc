@@ -360,7 +360,7 @@ static void GetAinv(struct LOC_GDiag &LINK)
 }
 
 /****************************************************************************/
-/* void GetEta(int k, arma::mat &M, arma::vec &Eta, struct LOC_GDiag &LINK)
+/* void GetEta(arma::mat &M, arma::vec &Eta, struct LOC_GDiag &LINK)
 
    Purpose: called by GDiag
          Find dispersion and momentum compaction of the map M where
@@ -396,28 +396,20 @@ static void GetAinv(struct LOC_GDiag &LINK)
        none
 
 ****************************************************************************/
-static void GetEta(int k, arma::mat &M, arma::vec &Eta, struct LOC_GDiag &LINK)
+static void GetEta(arma::mat &M, arma::vec &Eta, struct LOC_GDiag &LINK)
 {
-  int       j;
-  arma::mat IMinNInv(ss_dim, ss_dim), I(ss_dim, ss_dim);
-  arma::vec SmallM(ss_dim);
+  arma::mat IMinNInv(ss_dim-2, ss_dim-2), I(ss_dim, ss_dim);
+  arma::vec SmallM(ss_dim-2);
 
-  /* k = 6 in tracy */
-  I.eye(k, k);
+  I.eye(ss_dim, ss_dim);
   IMinNInv = I - M;
-  IMinNInv = inv(IMinNInv(arma::span(0, k-3), arma::span(0, k-3)));
-  for (j = 0; j < k-2; j++)
-    SmallM[j] = M(j, k-2);
-  SmallM[4] = 0e0; SmallM[5] = 0e0;
+  IMinNInv = inv(IMinNInv(arma::span(0, ss_dim-3), arma::span(0, ss_dim-3)));
+  SmallM = M(arma::span(0, ss_dim-3), ss_dim-2);
   Eta = IMinNInv*SmallM;
-  /*   Alpha := 0.0d0;
-       for j:= 1 TO (k-2) DO
-         Alpha := Alpha + M[6,j]*Eta[j];
-       Alpha := Alpha + M[6,5]; */
 }
 
 /****************************************************************************/
-/* void GenB(int k, arma::mat &B, arma::mat &BInv, arma::vec &Eta,
+/* void GenB(arma::mat &B, arma::mat &BInv, arma::vec &Eta,
              struct LOC_GDiag &LINK)
 
    Purpose: called by GDiag
@@ -441,14 +433,14 @@ static void GetEta(int k, arma::mat &M, arma::vec &Eta, struct LOC_GDiag &LINK)
        none
 
 ****************************************************************************/
-void GenB(int k, arma::mat &B, arma::mat &BInv, arma::vec &Eta,
+void GenB(arma::mat &B, arma::mat &BInv, arma::vec &Eta,
 	  struct LOC_GDiag &LINK)
 {
   int j;
 
-  B.eye(k, k);
-  for (j = 0; j <= k - 3; j++)
-    B(j, k-2) = Eta[j];
+  B.eye(ss_dim, ss_dim);
+  for (j = 0; j <= ss_dim - 3; j++)
+    B(j, ss_dim-2) = Eta[j];
   B(5, 0) = Eta[1]; B(5, 1) = -Eta[0]; B(5, 2) = Eta[3]; B(5, 3) = -Eta[2];
   BInv = inv(B);
 }
@@ -533,7 +525,7 @@ void LatticeType::GDiag(int n_, double C, arma::mat &A, arma::mat &Ainv_,
   GetAinv(V); A = V.Ainv;
   A = inv(A);
   if (V.n == 4) {
-    GetEta(ss_dim, M, eta, V); GenB(ss_dim, B, Binv, eta, V);
+    GetEta(M, eta, V); GenB(B, Binv, eta, V);
     A = B*A; Binv = V.Ainv*Binv;
     V.Ainv = Binv;
   }

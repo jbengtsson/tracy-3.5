@@ -51,13 +51,13 @@ extern double       chi_m;
 
 
 // Inline.
-inline arma::vec pstoarma(ss_vect<double> &ps)
+inline arma::vec pstovec(ss_vect<double> &ps)
 {
   arma::vec ps_vec = {ps[x_], ps[px_], ps[y_], ps[py_], ps[ct_], ps[delta_]};
   return ps_vec;
 }
 
-inline ss_vect<double> armatops(arma::vec &ps_vec)
+inline ss_vect<double> vectops(arma::vec &ps_vec)
 {
   ss_vect<double> ps(ps_vec[x_], ps_vec[px_], ps_vec[y_], ps_vec[py_],
 		     ps_vec[ct_], ps_vec[delta_]);
@@ -211,10 +211,10 @@ class ConfigType {
     beta0,                     // Relativistic factors.
     gamma0,
     Chrom[2];                  // Linear Chromaticities.
-  ss_vect<double>
-    CODvect,                   // Closed Orbit.
-    wr,
-    wi;                        // Eigenvalues: Real and Imaginary part.
+  arma::vec
+    CODvect = arma::vec(ss_dim), // Closed Orbit.
+    wr = arma::vec(ss_dim),
+    wi = arma::vec(ss_dim);      // Eigenvalues: Real and Imaginary part.
   arma::mat
     OneTurnMat = arma::mat(ss_dim, ss_dim), // Linear Poincare Map.
     Ascr = arma::mat(ss_dim, ss_dim),
