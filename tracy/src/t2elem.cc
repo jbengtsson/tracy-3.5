@@ -688,7 +688,7 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &ps)
   switch (M->Pmethod) {
 
   case Meth_Fourth:
-    if (globval.mat_meth && (M->Pthick == thick) && (M->Porder <= Quad)) {
+    if (globval.mat_meth && (M->Porder <= Quad)) {
       ps = is_double< ss_vect<T> >::ps(M->M_lin*ps);
 
       if (globval.emittance && !globval.Cavity_on)
@@ -2892,8 +2892,8 @@ ss_vect<tps> get_thin_kick_lin_map(const double b2L, const double delta)
   Id.identity();
 
   M.identity();
-  M[px_] -= b2L*Id[px_];
-  M[py_] += b2L*Id[py_];
+  M[px_] -= b2L*Id[x_];
+  M[py_] += b2L*Id[y_];
 
   return M;
 }
@@ -2910,7 +2910,7 @@ ss_vect<tps> get_lin_map(elemtype &Elem, const double delta)
     M2 = get_edge_lin_map(Elem.M->Pirho, Elem.M->PTx2, Elem.M->Pgap, delta);
     M = M2*M*M1;
   } else
-    M = get_thin_kick_lin_map(Elem.PL*Elem.M->PB[Quad+HOMmax], delta);
+    M = get_thin_kick_lin_map(Elem.M->PB[Quad+HOMmax], delta);
 
   return M;
 }
@@ -2921,7 +2921,7 @@ void get_lin_maps(const double delta)
   long int k;
 
   for (k = 0; k <= globval.Cell_nLoc; k++)
-    if ((Cell[k].Elem.Pkind == Mpole) && (Cell[k].Elem.M->Pthick == thick))
+    if (Cell[k].Elem.Pkind == Mpole)
       Cell[k].Elem.M->M_lin = get_lin_map(Cell[k].Elem, delta);
 }
 
@@ -2984,7 +2984,7 @@ void Mpole_Init(int Fnum1)
       elemp->M->Pthick = pthicktype(thin);
 
     // Allocate TPSA vector.
-    if (globval.mat_meth && (elemp->M->Pthick == thick))
+    if (globval.mat_meth)
       elemp->M->M_lin = get_lin_map(*elemp, 0e0);
   }
 }

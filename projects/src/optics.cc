@@ -22,7 +22,7 @@ const bool
   prt_s1  = false,
   prt_dt  = false;
 
-#define FULL_LAT 0
+#define FULL_LAT 1
 #define SET_NU   1
 
 const int
