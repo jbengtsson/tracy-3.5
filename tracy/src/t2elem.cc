@@ -2892,8 +2892,8 @@ ss_vect<tps> get_thin_kick_lin_map(const double b2L, const double delta)
   Id.identity();
 
   M.identity();
-  M[px_] -= b2L*Id[x_];
-  M[py_] += b2L*Id[y_];
+  M[x_] -= b2L*Id[x_];
+  M[y_] += b2L*Id[y_];
 
   return M;
 }
