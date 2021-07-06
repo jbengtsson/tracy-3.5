@@ -64,9 +64,9 @@ class tps {
   tps& operator*=(const tps &);
   tps& operator/=(const tps &);
 
-  friend double get_mat_elem(const ss_vect<tps> &map, const int i, const int j);
-  friend void put_mat_elem(ss_vect<tps> &map, const int i, const int j,
-			   const double r);
+  friend double get_m_ij(const ss_vect<tps> &map, const int i, const int j);
+  friend void put_m_ij(ss_vect<tps> &map, const int i, const int j,
+		       const double r);
 #if NO_TPSA == 1
   friend void dacct_(const ss_vect<tps> &x, const int i,
                      const ss_vect<tps> &y, const int j,
@@ -132,11 +132,11 @@ class tps {
   friend ss_vect<tps> Taked(const ss_vect<tps> &, const int);
  private:
 #if NO_TPSA == 1
-  tps_buf  ltps;  // linear TPSA
+  tps_buf ltps;    // Linear TPSA.
 #else
-  long int intptr; // index used by Fortran implementation
+  long int intptr; // Index used by Fortran implementation.
 #endif
-  double   r;      // floating-point calc. if intptr = 0
+  double r;        // Floating-point calc. if intptr = 0.
 };
 
 

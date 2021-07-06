@@ -218,11 +218,11 @@ void dagetprm(ss_vect<tps> &Ascr, Vector2 &alpha, Vector2 &beta)
 
   for (k = 1; k <= 2; k++) {
     alpha[k-1] =
-      -(get_mat_elem(Ascr, 2*k-1, 2*k-1)*get_mat_elem(Ascr, 2*k, 2*k-1)
-	+ get_mat_elem(Ascr, 2*k-1, 2*k)*get_mat_elem(Ascr, 2*k, 2*k));
+      -(get_m_ij(Ascr, 2*k-1, 2*k-1)*get_m_ij(Ascr, 2*k, 2*k-1)
+	+ get_m_ij(Ascr, 2*k-1, 2*k)*get_m_ij(Ascr, 2*k, 2*k));
     beta[k-1] =
-      sqr(get_mat_elem(Ascr, 2*k-1, 2*k-1))
-      + sqr(get_mat_elem(Ascr, 2*k-1, 2*k));
+      sqr(get_m_ij(Ascr, 2*k-1, 2*k-1))
+      + sqr(get_m_ij(Ascr, 2*k-1, 2*k));
   }
 }
 
@@ -258,10 +258,10 @@ void LatticeType::Cell_Twiss(long i0, long i1, ss_vect<tps> &Ascr, bool chroma,
     dagetprm(Ascr1, elemp->Alpha, elemp->Beta);
     for (k = 1; k <= 2; k++) {
       dnu[k-1] =
-	(atan2(get_mat_elem(Ascr1, 2*k-1, 2*k),
-	       get_mat_elem(Ascr1, 2*k-1, 2*k-1)) -
-	 atan2(get_mat_elem(Ascr0, 2*k-1, 2*k),
-	       get_mat_elem(Ascr0, 2*k-1, 2*k-1)))
+	(atan2(get_m_ij(Ascr1, 2*k-1, 2*k),
+	       get_m_ij(Ascr1, 2*k-1, 2*k-1)) -
+	 atan2(get_m_ij(Ascr0, 2*k-1, 2*k),
+	       get_m_ij(Ascr0, 2*k-1, 2*k-1)))
 	/(2e0*M_PI);
 
       if ((elemp->PL >= 0e0) && (dnu[k-1] < -1e-16))
@@ -277,14 +277,14 @@ void LatticeType::Cell_Twiss(long i0, long i1, ss_vect<tps> &Ascr, bool chroma,
       //   A = A0*A1 => [a_16, a_26] = [eta_x, eta_px]*A_long^-1
       // i.e., [a_15, a_25] != [0, 0].
       elemp->Eta[k-1] =
-	get_mat_elem(Ascr1, k, 5)*get_mat_elem(Ascr1, 6, 6) -
-	get_mat_elem(Ascr1, k, 6)*get_mat_elem(Ascr1, 6, 5);
+	get_m_ij(Ascr1, k, 5)*get_m_ij(Ascr1, 6, 6) -
+	get_m_ij(Ascr1, k, 6)*get_m_ij(Ascr1, 6, 5);
       elemp->Etap[k-1] =
-	get_mat_elem(Ascr1, 2*k, 5)*get_mat_elem(Ascr1, 6, 6) -
-	get_mat_elem(Ascr1, 2*k, 6)*get_mat_elem(Ascr1, 6, 5);
+	get_m_ij(Ascr1, 2*k, 5)*get_m_ij(Ascr1, 6, 6) -
+	get_m_ij(Ascr1, 2*k, 6)*get_m_ij(Ascr1, 6, 5);
 #else
-      elemp->Eta[k-1] = get_mat_elem(Ascr1, 2*k-1, 5);
-      elemp->Etap[k-1] = get_mat_elem(Ascr1, 2*k, 5);
+      elemp->Eta[k-1] = get_m_ij(Ascr1, 2*k-1, 5);
+      elemp->Etap[k-1] = get_m_ij(Ascr1, 2*k, 5);
 #endif
     }
     Ascr0 = Ascr1;
@@ -1383,10 +1383,10 @@ void prt_lin_map(const int n_DOF, const ss_vect<tps> &map)
     for (j = 1; j <= 2*n_DOF; j++)
       if (true)
 	std::cout << std::scientific << std::setprecision(6)
-	     << std::setw(14) << get_mat_elem(map, i, j);
+	     << std::setw(14) << get_m_ij(map, i, j);
       else
 	std::cout << std::scientific << std::setprecision(16)
-	     << std::setw(24) << get_mat_elem(map, i, j);
+	     << std::setw(24) << get_m_ij(map, i, j);
     std::cout << std::endl;
   }
 }

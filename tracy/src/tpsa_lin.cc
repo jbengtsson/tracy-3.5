@@ -131,16 +131,14 @@ void dapok_(tps_buf &x, const long int jj[], const double r)
 }
 
 
-double get_mat_elem(const ss_vect<tps> &map, const int i, const int j)
+double get_m_ij(const ss_vect<tps> &map, const int i, const int j)
 {
-
   return map[i-1].ltps[j];
 }
 
 
-void put_mat_elem(ss_vect<tps> &map, const int i, const int j, const double r)
+void put_m_ij(ss_vect<tps> &map, const int i, const int j, const double r)
 {
-
   map[i-1].ltps[j] = r;
 }
 
@@ -150,9 +148,9 @@ arma::mat get_mat(const ss_vect<tps> &map)
   int       j, k;
   arma::mat mat(tps_dim, tps_dim);
 
-  for (j = 1; j <= tps_dim; j++)
-    for (k = 1; k <= tps_dim; k++)
-      mat(j-1, k-1) = get_mat_elem(map, j, k);
+  for (j = 0; j < tps_dim; j++)
+    for (k = 0; k < tps_dim; k++)
+      mat(j, k) = get_m_ij(map, j+1, k+1);
   return mat;
 }
 
@@ -166,9 +164,9 @@ ss_vect<tps> put_mat(const arma::mat &mat)
   for (j = 1; j <= tps_dim; j++) {
     for (k = 0; k <= tps_dim; k++) {
       if (k == 0)
-        put_mat_elem(map, j, k, 0e0);
+        put_m_ij(map, j, k, 0e0);
       else
-        put_mat_elem(map, j, k, mat(j-1, k-1));
+        put_m_ij(map, j, k, mat(j-1, k-1));
     }
   }
   return map;

@@ -26,11 +26,11 @@ void dapek_(const tps_buf &x, const long int jj[], double &r);
 
 void dapok_(tps_buf &x, const long int jj[], const double r);
 
-double get_mat_elem(const ss_vect<tps> &map, const long int i,
+double get_m_ij(const ss_vect<tps> &map, const long int i,
 		    const long int j);
 
-void put_mat_elem(ss_vect<tps> &map, const long int i, const long int j,
-		  const double r);
+void put_m_ij(ss_vect<tps> &map, const long int i, const long int j,
+	      const double r);
 
 arma::mat get_mat(const ss_vect<tps> &map);
 
