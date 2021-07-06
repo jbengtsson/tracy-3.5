@@ -43,16 +43,16 @@ void daini_(int no, int nv, int fio)
     printf("daini_: max order exceeded %d (%d)\n", no, 1);
     exit_(1);
   }
-  if ((nv < 1) || (nv > ss_dim))
-    printf("daini_: to many dimensions %d(%d)\n", nv, ss_dim);
+  if ((nv < 1) || (nv > tps_dim))
+    printf("daini_: to many dimensions %d(%d)\n", nv, tps_dim);
 }
 
 
 void lieini(const int no, const int nv, const int nd2i)
 {
 
-  if ((nv < 1) || (nv > ss_dim))
-    printf("lieini: max dim exceeded %d (%d)\n", nv, ss_dim);
+  if ((nv < 1) || (nv > tps_dim))
+    printf("lieini: max dim exceeded %d (%d)\n", nv, tps_dim);
 }
 
 
@@ -61,12 +61,12 @@ void daall_(tps_buf &x, const int nd2, const char *daname,
 {
   int  j;
 
-  for (j = 0; j <= ss_dim; j++)
+  for (j = 0; j <= tps_dim; j++)
     x[j] = 0.0;
 }
 
 
-void dadal_(tps_buf &x, const int ss_dim) { }
+void dadal_(tps_buf &x, const int tps_dim) { }
 
 
 void davar_(tps_buf &x, const double r, const int i)
@@ -74,7 +74,7 @@ void davar_(tps_buf &x, const double r, const int i)
   int  j;
 
   x[0] = r;
-  for (j = 1; j <= ss_dim; j++)
+  for (j = 1; j <= tps_dim; j++)
     x[j] = 0.0;
   x[i] = 1.0;
 }
@@ -85,7 +85,7 @@ void dacon_(tps_buf &x, const double r)
   int  j;
 
   x[0] = r;
-  for (j = 1; j <= ss_dim; j++)
+  for (j = 1; j <= tps_dim; j++)
     x[j] = 0.0;
 }
 
@@ -95,7 +95,7 @@ void dapek_(const tps_buf &x, const long int jj[], double &r)
   int  i, nzero;
 
   nzero  = 0;
-  for (i = 0; i < ss_dim; i++) {
+  for (i = 0; i < tps_dim; i++) {
     if (jj[i] == 0)
       nzero++;
     else if (jj[i] == 1)
@@ -104,9 +104,9 @@ void dapek_(const tps_buf &x, const long int jj[], double &r)
       printf("Invalid jj in dapek\n");
   }
 
-  if (nzero == ss_dim)
+  if (nzero == tps_dim)
     r = x[0];
-  else if (nzero < ss_dim-1)
+  else if (nzero < tps_dim-1)
     printf("Invalid jj in dapek\n");
 }
 
@@ -116,7 +116,7 @@ void dapok_(tps_buf &x, const long int jj[], const double r)
   int  i, nzero;
 
   nzero = 0;
-  for (i = 0; i < ss_dim; i++) {
+  for (i = 0; i < tps_dim; i++) {
     if (jj[i] == 0)
       nzero++;
     else if (jj[i] == 1)
@@ -124,51 +124,51 @@ void dapok_(tps_buf &x, const long int jj[], const double r)
     else
       printf("Invalid jj in dapek\n");
   }
-  if (nzero == ss_dim)
+  if (nzero == tps_dim)
     x[0] = r;
-  else if (nzero < ss_dim-1)
+  else if (nzero < tps_dim-1)
     printf("Invalid jj in dapek\n");
 }
 
 
-double getmat(const ss_vect<tps> &map, const int i, const int j)
+double get_mat_elem(const ss_vect<tps> &map, const int i, const int j)
 {
 
   return map[i-1].ltps[j];
 }
 
 
-void putmat(ss_vect<tps> &map, const int i, const int j, const double r)
+void put_mat_elem(ss_vect<tps> &map, const int i, const int j, const double r)
 {
 
   map[i-1].ltps[j] = r;
 }
 
 
-arma::mat get_mat(const int nv, const ss_vect<tps> &map)
+arma::mat get_mat(const ss_vect<tps> &map)
 {
   int       j, k;
-  arma::mat mat(ss_dim, ss_dim);
+  arma::mat mat(tps_dim, tps_dim);
 
-  for (j = 1; j <= nv; j++)
-    for (k = 1; k <= nv; k++)
-      mat(j-1, k-1) = getmat(map, j, k);
+  for (j = 1; j <= tps_dim; j++)
+    for (k = 1; k <= tps_dim; k++)
+      mat(j-1, k-1) = get_mat_elem(map, j, k);
   return mat;
 }
 
 
-ss_vect<tps> putlinmat(const int nv, const arma::mat &mat)
+ss_vect<tps> put_mat(const arma::mat &mat)
 {
   /* Puts zeroes in constant part of da map */
   int          j, k;
   ss_vect<tps> map;
 
-  for (j = 1; j <= nv; j++) {
-    for (k = 0; k <= nv; k++) {
+  for (j = 1; j <= tps_dim; j++) {
+    for (k = 0; k <= tps_dim; k++) {
       if (k == 0)
-        putmat(map, j, k, 0e0);
+        put_mat_elem(map, j, k, 0e0);
       else
-        putmat(map, j, k, mat(j-1, k-1));
+        put_mat_elem(map, j, k, mat(j-1, k-1));
     }
   }
   return map;
@@ -179,7 +179,7 @@ void dacop_(const tps_buf &x, tps_buf &z)
 {
   int  i;
 
-  for (i = 0; i <= ss_dim; i++)
+  for (i = 0; i <= tps_dim; i++)
     z[i] = x[i];
 }
 
@@ -188,7 +188,7 @@ void daadd_(const tps_buf &x, const tps_buf &y, tps_buf &z)
 {
   int  i;
 
-  for (i = 0; i <= ss_dim; i++)
+  for (i = 0; i <= tps_dim; i++)
     z[i] = x[i] + y[i];
 }
 
@@ -197,7 +197,7 @@ void dasub_(const tps_buf &x, const tps_buf &y, tps_buf &z)
 {
   int  i;
 
-  for (i = 0; i <= ss_dim; i++)
+  for (i = 0; i <= tps_dim; i++)
     z[i] = x[i] - y[i];
 }
 
@@ -208,7 +208,7 @@ void damul_(const tps_buf &x, const tps_buf &y, tps_buf &z)
   tps_buf  u;
 
   u[0] = x[0]*y[0];
-  for (i = 1; i <= ss_dim; i++)
+  for (i = 1; i <= tps_dim; i++)
     u[i] = x[0]*y[i] + x[i]*y[0];
   dacop_(u, z);
 }
@@ -229,7 +229,7 @@ void dacad_(const tps_buf &x, const double y, tps_buf &z)
   int  i;
 
   z[0] = x[0] + y;
-  for (i = 1; i <= ss_dim; i++)
+  for (i = 1; i <= tps_dim; i++)
     z[i] = x[i];
 }
 
@@ -245,7 +245,7 @@ void dacmu_(const tps_buf &x, const double y, tps_buf &z)
 {
   int  i;
 
-  for (i = 0; i <= ss_dim; i++)
+  for (i = 0; i <= tps_dim; i++)
     z[i] = x[i]*y;
 }
 
@@ -307,7 +307,7 @@ void dainv_(const tps_buf &x, tps_buf &z)
   double  a;
 
   a = -1.0/sqr(x[0]); z[0] = 1.0/x[0];
-  for (i = 1; i <= ss_dim; i++)
+  for (i = 1; i <= tps_dim; i++)
     z[i] = a*x[i];
 }
 
@@ -318,7 +318,7 @@ void dasqrt(const tps_buf &x, tps_buf &z)
   double  a;
 
   a = sqrt(x[0]); z[0] = a; a = 0.5/a;
-  for (i = 1; i <= ss_dim; i++)
+  for (i = 1; i <= tps_dim; i++)
     z[i] = a*x[i];
 }
 
@@ -329,7 +329,7 @@ void daexp(const tps_buf &x, tps_buf &z)
   double  a;
 
   a = exp(x[0]); z[0] = a;
-  for (i = 1; i <= ss_dim; i++)
+  for (i = 1; i <= tps_dim; i++)
     z[i] = a*x[i];
 }
 
@@ -339,7 +339,7 @@ void dalog(const tps_buf &x, tps_buf &z)
   int i;
 
   z[0] = log(x[0]);
-  for (i = 1; i <= ss_dim; i++)
+  for (i = 1; i <= tps_dim; i++)
     z[i] = x[i]/x[0];
 }
 
@@ -350,7 +350,7 @@ void dasin(const tps_buf &x, tps_buf &z)
   double  a;
 
   z[0] = sin(x[0]); a = cos(x[0]);
-  for (i = 1; i <= ss_dim; i++)
+  for (i = 1; i <= tps_dim; i++)
     z[i] = a*x[i];
 }
 
@@ -361,7 +361,7 @@ void dacos(const tps_buf &x, tps_buf &z)
   double  a;
 
   z[0] = cos(x[0]); a = -sin(x[0]);
-  for (i = 1; i <= ss_dim; i++)
+  for (i = 1; i <= tps_dim; i++)
     z[i] = a*x[i];
 }
 
@@ -372,7 +372,7 @@ void dasinh(const tps_buf &x, tps_buf &z)
   double  a;
 
   z[0] = sinh(x[0]); a = cosh(x[0]);
-  for (i = 1; i <= ss_dim; i++)
+  for (i = 1; i <= tps_dim; i++)
     z[i] = a*x[i];
 }
 
@@ -383,7 +383,7 @@ void dacosh(const tps_buf &x, tps_buf &z)
   double  a;
 
   z[0] = cos(x[0]); a = sinh(x[0]);
-  for (i = 1; i <= ss_dim; i++)
+  for (i = 1; i <= tps_dim; i++)
     z[i] = a*x[i];
 }
 
@@ -402,7 +402,7 @@ void daarctan(const tps_buf &x, tps_buf &z)
   double  a;
 
   a = x[0]; z[0] = atan(a); a = 1.0/(1.0+sqr(a));
-  for (i = 1; i <= ss_dim; i++)
+  for (i = 1; i <= tps_dim; i++)
     z[i] = a*x[i];
 }
 
@@ -461,13 +461,13 @@ void dacct_(const ss_vect<tps> &x, const int i,
 
 void dainv_(const ss_vect<tps> &x, const int i, ss_vect<tps> &z, const int k)
 {
-  z = putlinmat(k, inv(get_mat(i, x)));
+  z = put_mat(inv(get_mat(x)));
 }
 
 
 void Rotmap(const int n, ss_vect<tps> &map, const arma::mat &R)
 {
-  map = putlinmat(n, get_mat(n, map)*R);
+  map = put_mat(get_mat(map)*R);
 }
 
 
@@ -476,7 +476,7 @@ void daabs_(const tps_buf &x, double &r)
   int     k;
 
   r = 0.0;
-  for (k = 0; k <= ss_dim; k++)
+  for (k = 0; k <= tps_dim; k++)
     r += fabs(x[k]);
 }
 
@@ -486,6 +486,6 @@ void daabs2_(const tps_buf &x, double &r)
   int     k;
 
   r = 0.0;
-  for (k = 0; k <= ss_dim; k++)
+  for (k = 0; k <= tps_dim; k++)
     r += sqr(x[k]);
 }

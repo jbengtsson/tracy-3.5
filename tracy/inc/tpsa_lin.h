@@ -26,14 +26,15 @@ void dapek_(const tps_buf &x, const long int jj[], double &r);
 
 void dapok_(tps_buf &x, const long int jj[], const double r);
 
-double getmat(const ss_vect<tps> &map, const long int i, const long int j);
+double get_mat_elem(const ss_vect<tps> &map, const long int i,
+		    const long int j);
 
-void putmat(ss_vect<tps> &map, const long int i, const long int j,
-	    const double r);
+void put_mat_elem(ss_vect<tps> &map, const long int i, const long int j,
+		  const double r);
 
-arma::mat getlinmat(const int nv, const ss_vect<tps> &map);
+arma::mat get_mat(const ss_vect<tps> &map);
 
-ss_vect<tps> putlinmat(const int nv, const arma::mat &mat);
+ss_vect<tps> put_mat(const arma::mat &mat);
 
 void dacop_(const tps_buf &x, tps_buf &z);
 

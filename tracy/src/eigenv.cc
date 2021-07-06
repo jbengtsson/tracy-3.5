@@ -162,9 +162,9 @@ bool geigen(int n, arma::mat &fm, arma::mat &Vre, arma::mat &Vim, arma::vec &wr,
 {
   int       info, i, j, k, c;
   double    TEMP;
-  arma::vec ort(ss_dim), cosfm(ss_dim), sinfm(ss_dim), nufm1(ss_dim),
-            nufm2(ss_dim), nu1(ss_dim), nu2(ss_dim);
-  arma::mat aa(ss_dim, ss_dim), vv(ss_dim, ss_dim);
+  arma::vec ort(ps_dim), cosfm(ps_dim), sinfm(ps_dim), nufm1(ps_dim),
+            nufm2(ps_dim), nu1(ps_dim), nu2(ps_dim);
+  arma::mat aa(ps_dim, ps_dim), vv(ps_dim, ps_dim);
 
   /* copy matrix to temporary storage [the matrix aa is destroyed]*/
   for (i = 0; i < n; i++) {
@@ -243,10 +243,10 @@ struct LOC_GDiag {
   int
     n;
   arma::mat
-    Ainv = arma::mat(ss_dim, ss_dim),
-    JJ   = arma::mat(ss_dim, ss_dim),
-    Vre  = arma::mat(ss_dim, ss_dim),
-    Vim  = arma::mat(ss_dim, ss_dim);
+    Ainv = arma::mat(ps_dim, ps_dim),
+    JJ   = arma::mat(ps_dim, ps_dim),
+    Vre  = arma::mat(ps_dim, ps_dim),
+    Vim  = arma::mat(ps_dim, ps_dim);
 };
 
 /****************************************************************************/
@@ -398,13 +398,15 @@ static void GetAinv(struct LOC_GDiag &LINK)
 ****************************************************************************/
 static void GetEta(arma::mat &M, arma::vec &Eta, struct LOC_GDiag &LINK)
 {
-  arma::mat IMinNInv(ss_dim-2, ss_dim-2), I(ss_dim, ss_dim);
-  arma::vec SmallM(ss_dim-2);
+  arma::mat I(tps_dim, tps_dim), IMinNInv(ps_tr_dim, ps_tr_dim);
+  arma::vec SmallM(ps_tr_dim);
 
-  I.eye(ss_dim, ss_dim);
+  I.eye(tps_dim, tps_dim);
   IMinNInv = I - M;
-  IMinNInv = inv(IMinNInv(arma::span(0, ss_dim-3), arma::span(0, ss_dim-3)));
-  SmallM = M(arma::span(0, ss_dim-3), ss_dim-2);
+  IMinNInv =
+    inv(IMinNInv(arma::span(0, ps_tr_dim-1), arma::span(0, ps_tr_dim-1)));
+  SmallM = M(arma::span(0, ps_tr_dim-1), ps_tr_dim);
+  Eta.zeros();
   Eta = IMinNInv*SmallM;
 }
 
@@ -438,9 +440,9 @@ void GenB(arma::mat &B, arma::mat &BInv, arma::vec &Eta,
 {
   int j;
 
-  B.eye(ss_dim, ss_dim);
-  for (j = 0; j <= ss_dim - 3; j++)
-    B(j, ss_dim-2) = Eta[j];
+  B.eye(ps_dim, ps_dim);
+  for (j = 0; j <= ps_dim - 3; j++)
+    B(j, ps_tr_dim) = Eta[j];
   B(5, 0) = Eta[1]; B(5, 1) = -Eta[0]; B(5, 2) = Eta[3]; B(5, 3) = -Eta[2];
   BInv = inv(B);
 }
@@ -498,8 +500,8 @@ void LatticeType::GDiag(int n_, double C, arma::mat &A, arma::mat &Ainv_,
   struct LOC_GDiag V;
   int              j;
   double           x1, x2;
-  arma::vec        wr(ss_dim), wi(ss_dim), eta(ss_dim);
-  arma::mat        fm(ss_dim, ss_dim), B(ss_dim, ss_dim), Binv(ss_dim, ss_dim);
+  arma::vec        wr(ps_dim), wi(ps_dim), eta(ps_dim);
+  arma::mat        fm(ps_dim, ps_dim), B(ps_dim, ps_dim), Binv(ps_dim, ps_dim);
 
   V.n = n_; V.Ainv = Ainv_; InitJJ(V);
   fm = M(arma::span(0, V.n-1), arma::span(0, V.n-1));
@@ -516,24 +518,26 @@ void LatticeType::GDiag(int n_, double C, arma::mat &A, arma::mat &Ainv_,
   fm = M;
   stable = geigen(V.n, fm, this->conf.Vr, this->conf.Vi, wr, wi);
 
-  /*  CopyVec(6,wr,wr);
-  CopyVec(6,wi,wi);
-  CopyMat(6,V.Vre,Vr);
-  CopyMat(6,V.Vim,Vi); */
-
-  V.Ainv.eye(ss_dim, ss_dim);
-  GetAinv(V); A = V.Ainv;
+  V.Ainv.eye(ps_dim, ps_dim);
+  GetAinv(V);
+  A.eye(tps_dim, tps_dim);
+  A(arma::span(0, ps_dim-1), arma::span(0, ps_dim-1)) = V.Ainv;
   A = inv(A);
-  if (V.n == 4) {
+  if (V.n == ps_tr_dim) {
     GetEta(M, eta, V); GenB(B, Binv, eta, V);
-    A = B*A; Binv = V.Ainv*Binv;
+    A(arma::span(0, ps_dim-1), arma::span(0, ps_dim-1)) =
+      B*A(arma::span(0, ps_dim-1), arma::span(0, ps_dim-1));
+    Binv = V.Ainv*Binv;
     V.Ainv = Binv;
   }
-  R = A; R = M*R; R = V.Ainv*R;
-  if (V.n == 4) {
+  R = A;
+  R = M*R;
+  R(arma::span(0, ps_dim-1), arma::span(0, ps_dim-1)) =
+    V.Ainv*R(arma::span(0, ps_dim-1), arma::span(0, ps_dim-1));
+  if (V.n == ps_tr_dim) {
     Omega = 0.0; alphac = R(5, 4)/C;
   }
-  if (V.n != ss_dim) return;
+  if (V.n != ps_dim) return;
   if (conf.Cavity_on) {
     Omega = atan2(R(4, 5), R(4, 4))/(2.0*M_PI);
     alphac = 0.0;
@@ -576,13 +580,13 @@ static void eswap(arma::mat &t6a, arma::vec &lamr, arma::vec &lami,
 
   i2 = 2*i3; i1 = i2-1; j2 = 2*j3; j1 = j2-1;
 
-  for (i = 1; i <= ss_dim/2; i++) {
+  for (i = 1; i <= ps_dim/2; i++) {
     xx=r(i-1, i3-1);
     r(i-1, i3-1)=r(i-1, j3-1);
     r(i-1, j3-1)=xx;
   }
 
-  for (i = 1; i <= ss_dim; i++) {
+  for (i = 1; i <= ps_dim; i++) {
     xx=t6a(i-1, i1-1);
     t6a(i-1, i1-1)=t6a(i-1, j1-1);
     t6a(i-1, j1-1)=xx;
@@ -634,7 +638,7 @@ void NormEigenVec(arma::mat &Vr,arma::mat &Vi, arma::vec &wr, arma::vec &wi,
   double    rn, sqrn;
   int       i, i1, i2, i3, j1, j2, j3;
 
-  for (i = 0; i < ss_dim; i++) {
+  for (i = 0; i < ps_dim; i++) {
     t6a(i, 0) = Vr(i, 0); t6a(i, 1) = Vi(i, 0);
     t6a(i, 2) = Vr(i, 2); t6a(i, 3) = Vi(i, 2);
     t6a(i, 4) = Vr(i, 4); t6a(i, 5) = Vi(i, 4);
@@ -642,29 +646,29 @@ void NormEigenVec(arma::mat &Vr,arma::mat &Vi, arma::vec &wr, arma::vec &wi,
 
   /* normierung der eigenvektoren */
 
-  for (j1 = 1; j1 <= ss_dim; j1 += 2) {
+  for (j1 = 1; j1 <= ps_dim; j1 += 2) {
     j2 = j1 + 1; j3 = j2 / 2;
     rn = 0e0;
-    for (i1 = 1; i1 <= ss_dim; i1+= 2) {
+    for (i1 = 1; i1 <= ps_dim; i1+= 2) {
       i2 = i1 + 1; i3 = i2 / 2;
       r(i3-1, j3-1) = t6a(i1-1, j1-1)*t6a(i2-1, j2-1)-t6a(i2-1, j1-1)
 	*t6a(i1-1, j2-1);
       rn += r(i3-1, j3-1);
     }
 
-    for (i = 1; i <= ss_dim/3; i++) {
+    for (i = 1; i <= ps_dim/3; i++) {
       r(i-1, j3-1) = fabs(r(i-1, j3-1)/rn);
     }
 
     if (rn < 0) {
-      for (i = 1; i <= ss_dim; i++) {
+      for (i = 1; i <= ps_dim; i++) {
         t6a(i-1, j2-1) = -t6a(i-1, j2-1);
       }
     }
  
     sqrn = sqrt(fabs(rn)); /* take the norm of rn */
  
-    for (i = 1; i <= ss_dim; i++) {
+    for (i = 1; i <= ps_dim; i++) {
       t6a(i-1, j1-1)=t6a(i-1, j1-1)/sqrn; t6a(i-1, j2-1)=t6a(i-1, j2-1)/sqrn;
     }
 

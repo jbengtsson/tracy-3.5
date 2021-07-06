@@ -112,7 +112,7 @@ void LatticeType::Cell_Pass(const long i0, const long i1, tps &sigma,
 	jj[3][y_]  = 2; jj[4][y_]  = 1; jj[4][py_]    = 1; jj[5][py_]    = 2;
 	jj[6][ct_] = 2; jj[7][ct_] = 1; jj[7][delta_] = 1; jj[8][delta_] = 2;
 
-	A = putlinmat(6, conf.Ascr); sigma = sigma*A;
+	A = put_mat(conf.Ascr); sigma = sigma*A;
 
 	for (i = 0; i < 3; i++) {
 	  if (conf.eps[i] > deps) {
@@ -132,7 +132,7 @@ bool LatticeType::Cell_getCOD(long imax, double eps, double dP, long &lastpos)
 {
   long            j, n, n_iter;
   int             no;
-  long int        jj[ss_dim];
+  long int        jj[tps_dim];
   double          dxabs;
   ss_vect<double> x0, x1, dx;
   ss_vect<tps>    I, dx0, map;
@@ -145,7 +145,7 @@ bool LatticeType::Cell_getCOD(long imax, double eps, double dP, long &lastpos)
 
   conf.dPparticle = dP;
 
-  n = (conf.Cavity_on)? 6 : 4;
+  n = (conf.Cavity_on)? ps_dim : ps_tr_dim;
 
   x0.zero(); x0[delta_] = dP;
 
@@ -155,7 +155,7 @@ bool LatticeType::Cell_getCOD(long imax, double eps, double dP, long &lastpos)
   //   x0[y_] = elems[0]->Eta[Y_]*dP; x0[py_] = elems[0]->Etap[Y_]*dP;
   // }
 
-  for (j = 0; j < ss_dim; j++)
+  for (j = 0; j < tps_dim; j++)
     jj[j] = (j < n)? 1 : 0;
 
   if (conf.trace)
@@ -190,7 +190,7 @@ bool LatticeType::Cell_getCOD(long imax, double eps, double dP, long &lastpos)
   conf.codflag = dxabs < eps;
 
   if (conf.codflag) {
-    conf.CODvect = pstovec(x0); conf.OneTurnMat = get_mat(6, map);
+    conf.CODvect = pstovec(x0); conf.OneTurnMat = get_mat(map);
     Cell_Pass(0, conf.Cell_nLoc, x0, lastpos);
   } else
     std::cout << std::scientific << std::setprecision(5)

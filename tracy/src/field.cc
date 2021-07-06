@@ -7,7 +7,7 @@ ss_vect<T>& ss_vect<T>::operator=(const ss_vect<T> &x)
 {
   int  i;
 
-  for (i = 0; i < ss_dim; i++)
+  for (i = 0; i < tps_dim; i++)
     (*this)[i] = x[i];
   return *this;
 }
@@ -17,7 +17,7 @@ ss_vect<T>& ss_vect<T>::operator+=(const ss_vect<T> &a)
 {
   int  i;
 
-  for (i = 0; i < ss_dim; i++)
+  for (i = 0; i < tps_dim; i++)
     ss[i] += a[i];
   return *this;
 }
@@ -27,7 +27,7 @@ ss_vect<T>& ss_vect<T>::operator-=(const ss_vect<T> &a)
 {
   int  i;
 
-  for (i = 0; i < ss_dim; i++)
+  for (i = 0; i < tps_dim; i++)
     ss[i] -= a[i];
   return *this;
 }
@@ -37,7 +37,7 @@ ss_vect<T>& ss_vect<T>::operator*=(const double a)
 {
   int  i;
 
-  for (i = 0; i < ss_dim; i++)
+  for (i = 0; i < tps_dim; i++)
     ss[i] *= a;
   return *this;
 }
@@ -47,7 +47,7 @@ ss_vect<tps>& ss_vect<tps>::operator*=(const tps &a)
 {
   int  i;
 
-  for (i = 0; i < ss_dim; i++)
+  for (i = 0; i < tps_dim; i++)
     ss[i] *= a;
   return *this;
 }
@@ -105,7 +105,7 @@ ss_vect<T> ss_vect<T>::zero(void)
 {
   int         i;
 
-  for (i = 0; i < ss_dim; i++)
+  for (i = 0; i < tps_dim; i++)
     ss[i] = 0.0;
   return *this;
 }
@@ -115,7 +115,7 @@ ss_vect<tps> ss_vect<tps>::identity(void)
 {
   int           i;
 
-  for (i = 0; i < ss_dim; i++)
+  for (i = 0; i < tps_dim; i++)
    ss[i] = tps(0.0, i+1);
   return *this;
 }

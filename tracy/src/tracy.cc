@@ -87,12 +87,12 @@ double **C_;
 MNF_struct   MNF;
 
 // Truncated Power Series Algebra (TPSA)
-const int     nv_tps   = ss_dim, // no of variables
-              nd_tps   = 3,      // no of degrees of freedom
-              iref_tps = 0;      /* file with resonances to be excluded from
-				    the map normal form: fort.7 */
+const int     nv_tps   = tps_dim, // no of variables
+              nd_tps   = 3,       // no of degrees of freedom
+              iref_tps = 0;       /* file with resonances to be excluded from
+				     the map normal form: fort.7 */
 
-double        eps_tps  = 1e-25;  // floating point truncation
+double        eps_tps  = 1e-25;   // floating point truncation
 
 
 // instantiate templates

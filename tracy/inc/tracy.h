@@ -53,14 +53,16 @@ extern double       chi_m;
 // Inline.
 inline arma::vec pstovec(ss_vect<double> ps)
 {
-  arma::vec ps_vec = {ps[x_], ps[px_], ps[y_], ps[py_], ps[ct_], ps[delta_]};
+  arma::vec ps_vec =
+    {ps[x_], ps[px_], ps[y_], ps[py_], ps[delta_], ps[ct_], 0e0};
   return ps_vec;
 }
 
 inline ss_vect<double> vectops(arma::vec ps_vec)
 {
-  ss_vect<double> ps(ps_vec[x_], ps_vec[px_], ps_vec[y_], ps_vec[py_],
-		     ps_vec[ct_], ps_vec[delta_]);
+  ss_vect<double>
+    ps(ps_vec[x_], ps_vec[px_], ps_vec[y_], ps_vec[py_], ps_vec[delta_],
+       ps_vec[ct_], ps_vec[tps_dim-1]);
   return ps;
 }
 
@@ -70,7 +72,7 @@ inline ss_vect<double> vectops(arma::vec ps_vec)
 #define IDXMAX  200
 #define IDZMAX  100
 
-#define DOF     (ss_dim/2)
+#define DOF     (ps_dim/2)
 #define nv_     6
 
 #define debug   false
@@ -212,15 +214,15 @@ class ConfigType {
     gamma0,
     Chrom[2];                  // Linear Chromaticities.
   arma::vec
-    CODvect = arma::vec(ss_dim), // Closed Orbit.
-    wr = arma::vec(ss_dim),
-    wi = arma::vec(ss_dim);      // Eigenvalues: Real and Imaginary part.
+    CODvect = arma::vec(tps_dim), // Closed Orbit.
+    wr = arma::vec(tps_dim),
+    wi = arma::vec(tps_dim);      // Eigenvalues: Real and Imaginary part.
   arma::mat
-    OneTurnMat = arma::mat(ss_dim, ss_dim), // Linear Poincare Map.
-    Ascr = arma::mat(ss_dim, ss_dim),
-    Ascrinv = arma::mat(ss_dim, ss_dim),
-    Vr = arma::mat(ss_dim, ss_dim),         // Eigenvectors: Real part, 
-    Vi = arma::mat(ss_dim, ss_dim);         //               Imaginary part.
+    OneTurnMat = arma::mat(tps_dim, tps_dim), // Linear Poincare Map.
+    Ascr       = arma::mat(tps_dim, tps_dim),
+    Ascrinv    = arma::mat(tps_dim, tps_dim),
+    Vr         = arma::mat(tps_dim, tps_dim), // Eigenvectors: Real part, 
+    Vi         = arma::mat(tps_dim, tps_dim); //               Imaginary part.
 };
 
 
@@ -249,11 +251,11 @@ class CellType {
   ss_vect<double>
     BeamPos;                   // Last position of the beam this cell.
   arma::mat
-    A = arma::mat(ss_dim, ss_dim),     // Floquet space to phase space
-                                       // transformation.
-    sigma = arma::mat(ss_dim, ss_dim); // sigma matrix (redundant).
+    A = arma::mat(tps_dim, tps_dim),     // Floquet space to phase space
+                                         // transformation.
+    sigma = arma::mat(tps_dim, tps_dim); // sigma matrix (redundant).
   CellType
-    *next_ptr;                         // pointer to next cell (for tracking).
+    *next_ptr;                           // pointer to next cell (for tracking).
 };
 
 // Element base class.
@@ -481,7 +483,7 @@ class MpoleType : public ElemType {
   pthicktype
     Pthick;
   arma::mat
-    M_lin = arma::mat(ss_dim, ss_dim); // Linear Map for Element.
+    M_lin = arma::mat(tps_dim, tps_dim); // Linear Map for Element.
 
   friend MpoleType* Mpole_Alloc(void);
   ElemType* Elem_Init(const ConfigType &conf, const bool reverse);

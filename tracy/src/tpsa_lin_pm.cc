@@ -129,9 +129,9 @@ tps::~tps(void)
 
 double tps::operator[](const int k) const
 {
-  int     i;
-  long int jj[ss_dim];
-  double  r;
+  int      i;
+  long int jj[tps_dim];
+  double   r;
 
   for (i = 0; i < nv_tps; i++)
     jj[i] = 0;
@@ -307,7 +307,7 @@ tps cosh(const tps &a)
 const double tps::cst(void) const
 {
   int      i;
-  long int jj[ss_dim];
+  long int jj[tps_dim];
   double   r;
 
   for (i = 0; i < nv_tps; i++)
@@ -364,10 +364,10 @@ ss_vect<tps> PInv(const ss_vect<tps> &x, const long int jj[])
   ss_vect<tps>  Id, y, z;
 
   Id.identity(); y.zero(); n = 0;
-  for (j = 0; j < ss_dim; j++)
+  for (j = 0; j < tps_dim; j++)
     if (jj[j] != 0) {
       n++;
-      for (k = 0; k < ss_dim; k++)
+      for (k = 0; k < tps_dim; k++)
 	y[j] += jj[k]*x[j][k]*Id[k];
     } else
       y[j] = Id[j];
@@ -375,7 +375,7 @@ ss_vect<tps> PInv(const ss_vect<tps> &x, const long int jj[])
   dainv_(y, nv_tps, z, nv_tps);
 
   y.zero();
-  for (j = 0; j < ss_dim; j++)
+  for (j = 0; j < tps_dim; j++)
     if (jj[j] != 0) y[j] = z[j];
 
   return y;
@@ -386,7 +386,7 @@ std::istream& operator>>(std::istream &is, tps &a)
   char	  line[max_str], *token;
   int     i, n, no1, nv1;
 //  int     ibuf1[bufsize], ibuf2[bufsize];
-  int     jj[ss_dim];
+  int     jj[tps_dim];
   double  rbuf[bufsize];
 
   const bool  prt = false;
@@ -396,9 +396,9 @@ std::istream& operator>>(std::istream &is, tps &a)
   is.getline(line, max_str); is.getline(line, max_str);
   sscanf(line, "tpsa, NO_TPSA =%d, NV =%d", &no1, &nv1);
   if (prt) std::cout << "no = " << no1 << ", nv = " << nv1 << std::endl;
-//  ibuf1[0] = no_tps; ibuf2[0] = ss_dim;
+//  ibuf1[0] = no_tps; ibuf2[0] = tps_dim;
 
-  if ((no1 <= no_tps) && (nv1 <= ss_dim)) {
+  if ((no1 <= no_tps) && (nv1 <= tps_dim)) {
     for (i = 1; i <= 5; i++)
       is.getline(line, max_str);
 
@@ -408,25 +408,25 @@ std::istream& operator>>(std::istream &is, tps &a)
       is.getline(line, max_str);
       token = strtok(line, " "); sscanf(token, "%d", &no1);
       token = strtok(NULL, " "); sscanf(token, "%le", &rbuf[n]);
-      for (i = 0; i < ss_dim; i++) {
+      for (i = 0; i < tps_dim; i++) {
 	token = strtok(NULL, " "); sscanf(token, "%d", &jj[i]);
       }
       if (prt) {
 	std::cout << std::scientific << std::setprecision(3)
 	     << no1 << std::setw(11) << rbuf[n];
-	for (i = 0; i < ss_dim; i++)
+	for (i = 0; i < tps_dim; i++)
 	  std::cout << std::setw(3) << jj[i];
 	std::cout << std::endl; 
       }
 
-//      hash_(no_tps, ss_dim, jj, ibuf1[n-1], ibuf2[n-1]);
+//      hash_(no_tps, tps_dim, jj, ibuf1[n-1], ibuf2[n-1]);
     } while (no1 >= 0);
 
     rbuf[0] = -no1;
 //    daimp_(rbuf, ibuf1, ibuf2, a.intptr);
   } else {
     std::cout << "*** illegal no (" << no_tps << ") or nv ("
-	 << ss_dim << ")" << std::endl;
+	 << tps_dim << ")" << std::endl;
     exit_(1);
   }
 
@@ -437,7 +437,7 @@ std::istream& operator>>(std::istream &is, tps &a)
 std::ostream& operator<<(std::ostream &os, const tps &a)
 {
   int                i, j, n;
-  long int           jj[ss_dim];
+  long int           jj[tps_dim];
   std::ostringstream s;
 
   s << std::endl;

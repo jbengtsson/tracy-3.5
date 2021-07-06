@@ -247,7 +247,7 @@ class is_tps<tps> {
  public:
   static inline void get_ps(const ss_vect<tps> &x, CellType *Cell)
   {
-    Cell->BeamPos = x.cst(); Cell->A = get_mat(ss_dim, x);
+    Cell->BeamPos = x.cst(); Cell->A = get_mat(x);
   }
 
   static inline tps set_prm(const int k) { return tps(0e0, k); }
@@ -580,7 +580,7 @@ inline ss_vect<double> mat_pass(arma::mat &M, ss_vect<double> &ps)
 
 inline ss_vect<tps> mat_pass(arma::mat &M, ss_vect<tps> &ps)
 {
-  return putlinmat(ss_dim, M*get_mat(ss_dim, ps));
+  return put_mat(M*get_mat(ps));
 }
 
 
@@ -2696,9 +2696,9 @@ static int UpdatePorder(MpoleType *M)
 arma::mat get_edge_mat(const double h, const double phi, const double gap,
 		       const double delta)
 {
-  arma::mat M  = arma::mat(ss_dim, ss_dim);
+  arma::mat M = arma::mat(tps_dim, tps_dim);
 
-  M.eye(ss_dim, ss_dim);
+  M.eye(tps_dim, tps_dim);
   M(px_, x_) =  h*tan(degtorad(phi));
   M(py_, y_) = -h*tan(degtorad(phi)-get_psi(h, phi, gap));
 
@@ -2709,15 +2709,15 @@ arma::mat get_edge_mat(const double h, const double phi, const double gap,
 arma::mat get_sbend_mat(const double L, const double h, const double b2,
 			const double delta)
 {
-  double K_x, K_y, psi_x, psi_y;
-  arma::mat M  = arma::mat(ss_dim, ss_dim);
+  double    K_x, K_y, psi_x, psi_y;
+  arma::mat M = arma::mat(tps_dim, tps_dim);
 
   K_x = b2 + sqr(h);
   K_y = fabs(b2);
   psi_x = sqrt(fabs(K_x)/(1e0+delta))*L;
   psi_y = sqrt(K_y/(1e0+delta))*L;
 
-  M.eye(ss_dim, ss_dim);
+  M.eye(tps_dim, tps_dim);
   if (K_x > 0e0) {
     M(x_, x_)      = cos(psi_x);
     M(x_, px_)     = sin(psi_x)/sqrt(K_x*(1e0+delta));
@@ -2771,9 +2771,9 @@ arma::mat get_sbend_mat(const double L, const double h, const double b2,
 
 arma::mat get_thin_kick_mat(const double b2L, const double delta)
 {
-  arma::mat M(ss_dim, ss_dim);
+  arma::mat M(tps_dim, tps_dim);
 
-  M.eye(ss_dim, ss_dim);
+  M.eye(tps_dim, tps_dim);
   M(px_, x_) = -b2L*(1e0+delta);
   M(py_, y_) = b2L*(1e0+delta);
 
@@ -2783,7 +2783,7 @@ arma::mat get_thin_kick_mat(const double b2L, const double delta)
 
 arma::mat get_transp_mat(ElemType *elem, const double delta)
 {
-  arma::mat M0(ss_dim, ss_dim), M1(ss_dim, ss_dim), M2(ss_dim, ss_dim);
+  arma::mat M0(tps_dim, tps_dim), M1(tps_dim, tps_dim), M2(tps_dim, tps_dim);
 
   const MpoleType* M = dynamic_cast<const MpoleType*>(elem);
 

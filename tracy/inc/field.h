@@ -5,26 +5,23 @@
 #ifndef FIELD_H
 #define FIELD_H
 
-const int  max_str = 132;
+const int
+  max_str   = 132,
+  n_m2      = 21,       // No of 2nd moments.
+  ps_tr_dim = 4,        // Phase-space dim
+  ps_dim    = 6,        // Phase-space dim
+  tps_dim   = ps_dim+1; /* TPSA dim:
+			   phase space and parameter dependance */
 
-const int  n_m2    = 21;  // no of 2nd moments
-
-#if NO_TPSA == 1
-const int  ss_dim  = 6;   // state space dimension
-#else
-const int  ss_dim  = 6+1; /* state space dimension:
-			     phase space and parameter dependance */
-#endif
-
-// spatial components
+// Spatial components.
 enum spatial_index { X_ = 0, Y_ = 1, Z_ = 2 };
 
-// phase space components
+// Phase-space components.
 // (Note, e.g. spin components should be added here)
 enum ps_index { x_ = 0, px_ = 1, y_ = 2, py_ = 3, delta_ = 4, ct_ = 5 };
 
 #if NO_TPSA == 1
-typedef double tps_buf[ss_dim+1]; // const. and linear terms
+typedef double tps_buf[tps_dim]; // Const. and linear terms.
 #endif
 
 template<typename T> class ss_vect;
@@ -67,9 +64,9 @@ class tps {
   tps& operator*=(const tps &);
   tps& operator/=(const tps &);
 
-  friend double getmat(const ss_vect<tps> &map, const int i, const int j);
-  friend void putmat(ss_vect<tps> &map, const int i, const int j,
-                     const double r);
+  friend double get_mat_elem(const ss_vect<tps> &map, const int i, const int j);
+  friend void put_mat_elem(ss_vect<tps> &map, const int i, const int j,
+			   const double r);
 #if NO_TPSA == 1
   friend void dacct_(const ss_vect<tps> &x, const int i,
                      const ss_vect<tps> &y, const int j,
@@ -157,7 +154,7 @@ template<typename T> class ss_vect {
 
   ss_vect(void);
   ss_vect(const double x, const double px, const double y, const double py,
-	  const double ct, const double delta);
+	  const double ct, const double delta, const double prm);
 // Let's the compiler synthetize the copy constructor
 //  ss_vect(const T &a) { }
 //  ss_vect(const ss_vect<T> &a) { }
@@ -243,7 +240,7 @@ template<typename T> class ss_vect {
   friend ss_vect<tps> Taked(const ss_vect<tps> &, const int);
  private:
   // (Note, e.g. spin components should be added here)
-  T  ss[ss_dim];
+  T ss[tps_dim];
 };
 
 
@@ -264,7 +261,7 @@ inline ss_vect<double> ss_vect<tps>::cst(void) const
   int             i;
   ss_vect<double> x;
 
-  for (i = 0; i < ss_dim; i++)
+  for (i = 0; i < tps_dim; i++)
     x[i] = (*this)[i].cst();
   return x;
 }
@@ -420,16 +417,17 @@ inline ss_vect<T>::ss_vect(void)
 {
   int  i;
 
-  for (i = 0; i < ss_dim; i++)
+  for (i = 0; i < tps_dim; i++)
     ss[i] = T();
 }
 
 template<typename T>
 inline ss_vect<T>::ss_vect(const double x, const double px, const double y,
-			   const double py, const double ct, const double delta)
+			   const double py, const double delta, const double ct,
+			   const double prm)
 {
-  ss[x_] = x; ss[px_] = px; ss[y_] = y; ss[py_] = py; ss[ct_] = ct;
-  ss[delta_] = delta;
+  ss[x_] = x; ss[px_] = px; ss[y_] = y; ss[py_] = py; ss[delta_] = delta;
+  ss[ct_] = ct; ss[tps_dim-1] = prm;
 }
 
 template<typename T>
@@ -442,7 +440,7 @@ inline ss_vect<T>::ss_vect(const ss_vect<U> &a)
 {
   int              i;
 
-  for (i = 0; i < ss_dim; i++)
+  for (i = 0; i < tps_dim; i++)
     ss[i] = a[i];
  }
 

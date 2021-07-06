@@ -92,7 +92,7 @@ void GetNu(Vector2 &nu, arma::mat &M)
 
   int       i;
   double    sgn, detp, detm, b, c, tr[2], b2mc, x;
-  arma::mat M1(ss_dim, ss_dim);
+  arma::mat M1(tps_dim, tps_dim);
 
   const int n = 4;
 
@@ -217,9 +217,12 @@ void dagetprm(ss_vect<tps> &Ascr, Vector2 &alpha, Vector2 &beta)
   int k;
 
   for (k = 1; k <= 2; k++) {
-    alpha[k-1] = -(getmat(Ascr, 2*k-1, 2*k-1)*getmat(Ascr, 2*k, 2*k-1)
-                 + getmat(Ascr, 2*k-1, 2*k)*getmat(Ascr, 2*k, 2*k));
-    beta[k-1] = sqr(getmat(Ascr, 2*k-1, 2*k-1)) + sqr(getmat(Ascr, 2*k-1, 2*k));
+    alpha[k-1] =
+      -(get_mat_elem(Ascr, 2*k-1, 2*k-1)*get_mat_elem(Ascr, 2*k, 2*k-1)
+	+ get_mat_elem(Ascr, 2*k-1, 2*k)*get_mat_elem(Ascr, 2*k, 2*k));
+    beta[k-1] =
+      sqr(get_mat_elem(Ascr, 2*k-1, 2*k-1))
+      + sqr(get_mat_elem(Ascr, 2*k-1, 2*k));
   }
 }
 
@@ -255,8 +258,10 @@ void LatticeType::Cell_Twiss(long i0, long i1, ss_vect<tps> &Ascr, bool chroma,
     dagetprm(Ascr1, elemp->Alpha, elemp->Beta);
     for (k = 1; k <= 2; k++) {
       dnu[k-1] =
-	(atan2(getmat(Ascr1, 2*k-1, 2*k), getmat(Ascr1, 2*k-1, 2*k-1)) -
-	 atan2(getmat(Ascr0, 2*k-1, 2*k), getmat(Ascr0, 2*k-1, 2*k-1)))
+	(atan2(get_mat_elem(Ascr1, 2*k-1, 2*k),
+	       get_mat_elem(Ascr1, 2*k-1, 2*k-1)) -
+	 atan2(get_mat_elem(Ascr0, 2*k-1, 2*k),
+	       get_mat_elem(Ascr0, 2*k-1, 2*k-1)))
 	/(2e0*M_PI);
 
       if ((elemp->PL >= 0e0) && (dnu[k-1] < -1e-16))
@@ -272,14 +277,14 @@ void LatticeType::Cell_Twiss(long i0, long i1, ss_vect<tps> &Ascr, bool chroma,
       //   A = A0*A1 => [a_16, a_26] = [eta_x, eta_px]*A_long^-1
       // i.e., [a_15, a_25] != [0, 0].
       elemp->Eta[k-1] =
-	getmat(Ascr1, k, 5)*getmat(Ascr1, 6, 6) -
-	getmat(Ascr1, k, 6)*getmat(Ascr1, 6, 5);
+	get_mat_elem(Ascr1, k, 5)*get_mat_elem(Ascr1, 6, 6) -
+	get_mat_elem(Ascr1, k, 6)*get_mat_elem(Ascr1, 6, 5);
       elemp->Etap[k-1] =
-	getmat(Ascr1, 2*k, 5)*getmat(Ascr1, 6, 6) -
-	getmat(Ascr1, 2*k, 6)*getmat(Ascr1, 6, 5);
+	get_mat_elem(Ascr1, 2*k, 5)*get_mat_elem(Ascr1, 6, 6) -
+	get_mat_elem(Ascr1, 2*k, 6)*get_mat_elem(Ascr1, 6, 5);
 #else
-      elemp->Eta[k-1] = getmat(Ascr1, 2*k-1, 5);
-      elemp->Etap[k-1] = getmat(Ascr1, 2*k, 5);
+      elemp->Eta[k-1] = get_mat_elem(Ascr1, 2*k-1, 5);
+      elemp->Etap[k-1] = get_mat_elem(Ascr1, 2*k, 5);
 #endif
     }
     Ascr0 = Ascr1;
@@ -334,7 +339,7 @@ void LatticeType::Ring_Twiss(bool chroma, double dP)
   int          n = 0;
   Vector2      alpha = {0.0, 0.0}, beta = {0.0, 0.0},
                gamma = {0.0, 0.0}, nu = {0.0, 0.0};
-  arma::mat    R(ss_dim, ss_dim);
+  arma::mat    R(tps_dim, tps_dim);
   ss_vect<tps> AScr;
 
   n = (conf.Cavity_on)? 6 : 4;
@@ -353,8 +358,8 @@ void LatticeType::Ring_Twiss(bool chroma, double dP)
   GDiag(n, elems[conf.Cell_nLoc]->S, conf.Ascr, conf.Ascrinv, R,
 	conf.OneTurnMat, conf.Omega, conf.Alphac);
 
-  // AScr = putlinmat(n, conf.Ascr);
-  AScr = putlinmat(6, conf.Ascr);
+  // AScr = put_mat(n, conf.Ascr);
+  AScr = put_mat(conf.Ascr);
   if (!conf.Cavity_on) {
     // AScr[delta_] = 0.0; AScr[ct_] = 0.0;
     AScr[delta_] = tps(0e0, delta_+1); AScr[ct_] = 0e0;
@@ -389,7 +394,7 @@ void LatticeType::TraceABN(long i0, long i1, const Vector2 &alpha,
   double        sb;
   ss_vect<tps>  Ascr;
 
-  conf.Ascr = arma::eye(ss_dim, ss_dim);
+  conf.Ascr = arma::eye(tps_dim, tps_dim);
   for (i = 1; i <= 2; i++) {
     sb = sqrt(beta[i-1]); j = i*2 - 1;
     conf.Ascr(j-1, j-1) = sb;               conf.Ascr(j-1, j) = 0.0;
@@ -534,7 +539,7 @@ void LatticeType::Elem_Pass_Lin(ss_vect<T> ps)
   long int        k;
   MpoleType       *Mp;
   ss_vect<double> ps1;
-  arma::vec       ps_vec = arma::vec(ss_dim);
+  arma::vec       ps_vec = arma::vec(tps_dim);
 
   for (k = 0; k <= conf.Cell_nLoc; k++) {
     if (elems[k]->Pkind == Mpole) { 
@@ -591,7 +596,7 @@ void LatticeType::get_eps_x(double &eps_x, double &sigma_delta, double &U_0,
 
   conf.Cavity_on = false; conf.emittance = false;
   Ring_GetTwiss(false, 0.0);
-  A = putlinmat(6, conf.Ascr); A += vectops(conf.CODvect);
+  A = put_mat(conf.Ascr); A += vectops(conf.CODvect);
   conf.emittance = true;
   Elem_Pass_Lin(A);
   get_I(I, false);
@@ -715,7 +720,7 @@ void LatticeType::Cell_Twiss(const long int i0, const long int i1)
     nu_int[k] = 0;
 
   for (i = i0; i <= i1; i++) {
-    A = putlinmat(6, elems[i]->A);
+    A = put_mat(elems[i]->A);
     get_ab(A, alpha, beta, dnu, eta, etap);
 
     for (k = 0; k < 2; k++) {
@@ -1101,7 +1106,7 @@ void LatticeType::Ring_Fittune(Vector2 &nu, double eps, iVector2 &nq, long qf[],
   int             i, j, k;
   Vector2         nu0, nu1;
   ss_vect<double> dkL1, dnu;
-  arma::mat       A(ss_dim, ss_dim);
+  arma::mat       A(tps_dim, tps_dim);
 
   const double dP = 0e0;
 
@@ -1191,7 +1196,7 @@ void LatticeType::Ring_Fitchrom(Vector2 &ksi, double eps, iVector2 &ns,
   int             i, j, k;
   Vector2         ksi0;
   ss_vect<double> dkpL1, dksi;
-  arma::mat       A(ss_dim, ss_dim);
+  arma::mat       A(tps_dim, tps_dim);
 
   const double dP = 0e0;
 
@@ -1378,10 +1383,10 @@ void prt_lin_map(const int n_DOF, const ss_vect<tps> &map)
     for (j = 1; j <= 2*n_DOF; j++)
       if (true)
 	std::cout << std::scientific << std::setprecision(6)
-	     << std::setw(14) << getmat(map, i, j);
+	     << std::setw(14) << get_mat_elem(map, i, j);
       else
 	std::cout << std::scientific << std::setprecision(16)
-	     << std::setw(24) << getmat(map, i, j);
+	     << std::setw(24) << get_mat_elem(map, i, j);
     std::cout << std::endl;
   }
 }
@@ -1446,7 +1451,7 @@ void get_twoJ(const int n_DOF, const ss_vect<double> &ps, const ss_vect<tps> &A,
 	      double twoJ[])
 {
   int             j, no;
-  long int        jj[ss_dim];
+  long int        jj[tps_dim];
   ss_vect<double> z;
 
   no = no_tps;
@@ -1583,7 +1588,7 @@ void GetEmittance(LatticeType &lat, const int Fnum, const bool prt)
   double       C, theta, V_RF, phi0, gamma_z;
   double       sigma_s, sigma_delta;
   Vector3      nu;
-  arma::mat    Ascr(ss_dim, ss_dim);
+  arma::mat    Ascr(tps_dim, tps_dim);
   ss_vect<tps> Ascr_map;
   CavityType   *Cp;
 
@@ -1613,7 +1618,8 @@ void GetEmittance(LatticeType &lat, const int Fnum, const bool prt)
     *tan(M_PI-phi0))/(fabs(lat.conf.Alphac)*M_PI*h_RF*1e9*lat.conf.Energy));
 
   // Compute diffusion coeffs. for eigenvectors [sigma_xx, sigma_yy, sigma_zz]
-  Ascr_map = putlinmat(6, lat.conf.Ascr); Ascr_map += vectops(lat.conf.CODvect);
+  Ascr_map =
+    put_mat(lat.conf.Ascr); Ascr_map += vectops(lat.conf.CODvect);
 
   lat.Cell_Pass(0, lat.conf.Cell_nLoc, Ascr_map, lastpos);
 
@@ -1655,9 +1661,9 @@ void GetEmittance(LatticeType &lat, const int Fnum, const bool prt)
   for (loc = 0; loc <= lat.conf.Cell_nLoc; loc++) {
     lat.elems[loc]->Elem_Pass(lat.conf, Ascr_map);
     // sigma = A x A^tp
-    lat.elems[loc]->sigma = get_mat(6, Ascr_map);
+    lat.elems[loc]->sigma = get_mat(Ascr_map);
     lat.elems[loc]->sigma = trans(lat.elems[loc]->sigma);
-    Ascr = get_mat(6, Ascr_map);
+    Ascr = get_mat(Ascr_map);
     lat.elems[loc]->sigma = Ascr*lat.elems[loc]->sigma;
   }
 
@@ -1840,8 +1846,8 @@ int Newton_Raphson(LatticeType &lat, int n, ss_vect<double> &x, int ntrial,
   int             k, i;
   double          errx;
   ss_vect<double> bet, fvect;
-  arma::mat       alpha   = arma::mat(ss_dim, ss_dim);
-  arma::vec       bet_vec = arma::vec(ss_dim);
+  arma::mat       alpha   = arma::mat(tps_dim, tps_dim);
+  arma::vec       bet_vec = arma::vec(tps_dim);
 
   errx = 0.0;
 
@@ -1904,10 +1910,10 @@ void get_dnu(const int n, const ss_vect<tps> &A, double dnu[])
 ss_vect<tps> tp_S(const int n_DOF, const ss_vect<tps> &A)
 {
   int          j;
-  long int     jj[ss_dim];
+  long int     jj[tps_dim];
   ss_vect<tps> S;
 
-  for (j = 1; j <= ss_dim; j++)
+  for (j = 1; j <= tps_dim; j++)
     jj[j-1] = (j <= 2*n_DOF)? 1 : 0;
 
   S = get_S(n_DOF);
@@ -2047,7 +2053,7 @@ bool chk_if_lost(LatticeType &lat, double x0, double y0, double delta,
 {
   long int        i, lastn, lastpos;
   ss_vect<double> ps;
-  arma::vec       ps_vec = arma::vec(ss_dim);
+  arma::vec       ps_vec = arma::vec(tps_dim);
 
   bool prt = false;
 
