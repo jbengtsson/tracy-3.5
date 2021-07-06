@@ -31,7 +31,7 @@ double getmat(const ss_vect<tps> &map, const long int i, const long int j);
 void putmat(ss_vect<tps> &map, const long int i, const long int j,
 	    const double r);
 
-void getlinmat(const int nv, const ss_vect<tps> &map, arma::mat &mat);
+arma::mat getlinmat(const int nv, const ss_vect<tps> &map);
 
 ss_vect<tps> putlinmat(const int nv, const arma::mat &mat);
 

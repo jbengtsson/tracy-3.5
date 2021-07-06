@@ -158,14 +158,14 @@ bool LatticeType::Cell_getCOD(long imax, double eps, double dP, long &lastpos)
   for (j = 0; j < ss_dim; j++)
     jj[j] = (j < n)? 1 : 0;
 
-  if (conf.trace) {
+  if (conf.trace)
     std::cout << std::scientific << std::setprecision(1)
-	      << "\nCell_getCOD: " << setw(1) << imax
-	      << setw(8) << eps << setw(8) << dP << "\n"
+	      << "\nCell_getCOD: imax = " << setw(1) << imax
+	      << " eps = " << setw(7) << eps
+	      << " dP =" << setw(7) << dP << "\n"
 	      << std::scientific << std::setprecision(5)
 	      << "  0                        x0 ="
 	      << std::setw(13) << x0 << "\n";
-  }
   n_iter = 0; I.identity();
   do {
     n_iter++; map.identity(); map += x0;
@@ -190,7 +190,7 @@ bool LatticeType::Cell_getCOD(long imax, double eps, double dP, long &lastpos)
   conf.codflag = dxabs < eps;
 
   if (conf.codflag) {
-    conf.CODvect = pstovec(x0); getlinmat(6, map, conf.OneTurnMat);
+    conf.CODvect = pstovec(x0); conf.OneTurnMat = getlinmat(6, map);
     Cell_Pass(0, conf.Cell_nLoc, x0, lastpos);
   } else
     std::cout << std::scientific << std::setprecision(5)

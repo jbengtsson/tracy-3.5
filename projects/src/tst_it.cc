@@ -51,6 +51,7 @@ void get_lat(const char *file_name, LatticeType &lat)
   lat.Lattice_Read(inf, outf);
   lat.Lat_Init();
   lat.ChamberOff();
+  printf("\ndPparticle = %9.3e\n", lat.conf.dPparticle);
 
   lat.conf.CODimax = 10;
 
@@ -59,26 +60,22 @@ void get_lat(const char *file_name, LatticeType &lat)
     lat.prt_elem();
   }
 
-  if (!false) {
-    // for (k = 0; k <= lat.conf.Cell_nLoc; k++)
-    //   if (lat.elems[k]->Pkind == Mpole) {
-    //   MpoleType *M = dynamic_cast<MpoleType*>(lat.elems[k]);
-    //   char str[20];
-    //   sprintf(str, "\n%2d: %8s", k, lat.elems[k]->PName);
-    //   M->M_lin.print(str);
-    // }
-
+  if (false) {
     long int     lastpos;
     ss_vect<tps> ps;
     ps.identity();
+    lat.get_mats(1e-3);
     lat.Cell_Pass(0, lat.conf.Cell_nLoc, ps, lastpos);
     prt_lin_map(3, ps);
+    exit(0);
   }
 
-  lat.Ring_GetTwiss(true, 0e0); printglob(lat);
+  lat.conf.trace = true;
+  lat.Ring_GetTwiss(true, 0e-3); printglob(lat);
+  // if (lat.conf.mat_meth)
+  //   lat.get_eps_x(eps_x, sigma_delta, U_0, J, tau, I, true);
+
   exit(0);
-  if (lat.conf.mat_meth)
-    lat.get_eps_x(eps_x, sigma_delta, U_0, J, tau, I, true);
 
   if (false) tst_lat(lat);
 
@@ -86,9 +83,9 @@ void get_lat(const char *file_name, LatticeType &lat)
   lat.prt_lat("linlat.out", true, 10);
   lat.prtmfile("flat_file.dat");
 
-  if (true) GetEmittance(lat, ElemIndex("cav"), true);
+  if (!lat.conf.mat_meth) GetEmittance(lat, ElemIndex("cav"), true);
 
-  if (!true) {
+  if (false) {
     lat.conf.Cavity_on = true;
     get_dynap(lat, delta_max, 25, n_turn, false);
   }

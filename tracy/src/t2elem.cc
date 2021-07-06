@@ -247,7 +247,7 @@ class is_tps<tps> {
  public:
   static inline void get_ps(const ss_vect<tps> &x, CellType *Cell)
   {
-    Cell->BeamPos = x.cst(); getlinmat(ss_dim, x, Cell->A);
+    Cell->BeamPos = x.cst(); Cell->A = getlinmat(ss_dim, x);
   }
 
   static inline tps set_prm(const int k) { return tps(0e0, k); }
@@ -574,24 +574,13 @@ void quad_fringe(ConfigType &conf, const double b2, ss_vect<T> &ps)
 
 inline ss_vect<double> mat_pass(arma::mat &M, ss_vect<double> &ps)
 {
-  ss_vect<double> ps1;
-  arma::vec       ps_vec(ss_dim);
-
-  ps1 = is_double< ss_vect<double> >::ps(ps);
-  ps_vec = M*pstovec(ps1);
-  return vectops(ps_vec);
+  return vectops(M*pstovec(ps));
 }
 
 
 inline ss_vect<tps> mat_pass(arma::mat &M, ss_vect<tps> &ps)
 {
-  ss_vect<tps> ps1;
-  arma::mat    ps_mat(ss_dim, ss_dim);
-
-  ps1 = is_double< ss_vect<tps> >::ps(ps);
-  getlinmat(ss_dim, ps1, ps_mat);
-  ps_mat = M*ps_mat;
-  return putlinmat(ss_dim, ps_mat);
+  return putlinmat(ss_dim, M*getlinmat(ss_dim, ps));
 }
 
 
@@ -2707,13 +2696,11 @@ static int UpdatePorder(MpoleType *M)
 arma::mat get_edge_mat(const double h, const double phi, const double gap,
 		       const double delta)
 {
-  arma::mat
-    Id = arma::mat(ss_dim, ss_dim),
-    M  = arma::mat(ss_dim, ss_dim);
+  arma::mat M  = arma::mat(ss_dim, ss_dim);
 
   M.eye(ss_dim, ss_dim);
-  M(px_, x_) += h*tan(degtorad(phi));
-  M(py_, y_) -= h*tan(degtorad(phi)-get_psi(h, phi, gap));
+  M(px_, x_) =  h*tan(degtorad(phi));
+  M(py_, y_) = -h*tan(degtorad(phi)-get_psi(h, phi, gap));
 
   return M;
 }
@@ -2723,9 +2710,7 @@ arma::mat get_sbend_mat(const double L, const double h, const double b2,
 			const double delta)
 {
   double K_x, K_y, psi_x, psi_y;
-  arma::mat
-    Id = arma::mat(ss_dim, ss_dim),
-    M  = arma::mat(ss_dim, ss_dim);
+  arma::mat M  = arma::mat(ss_dim, ss_dim);
 
   K_x = b2 + sqr(h);
   K_y = fabs(b2);
@@ -2742,12 +2727,12 @@ arma::mat get_sbend_mat(const double L, const double h, const double b2,
     M(px_, delta_) = sin(psi_x)*sqrt(1e0+delta)*h/sqrt(K_x);
 
     if (psi_y != 0e0) {
-      M(y_, y_)   = cosh(psi_y);
-      M(y_, py_)  = sinh(psi_y)/sqrt(K_y*(1e0+delta));
-      M(py_, y_)  = sqrt(K_y*(1e0+delta))*sinh(psi_y);
-      M(py_, py_) = cosh(psi_y);
+      M(y_, y_)    = cosh(psi_y);
+      M(y_, py_)   = sinh(psi_y)/sqrt(K_y*(1e0+delta));
+      M(py_, y_)   = sqrt(K_y*(1e0+delta))*sinh(psi_y);
+      M(py_, py_)  = cosh(psi_y);
     } else
-      M(y_, py_)  += L/(1e0+delta);
+      M(y_, py_)   = L/(1e0+delta);
  
     M(ct_, x_)     = sin(psi_x)*sqrt(1e0+delta)*h/sqrt(K_x);
     M(ct_, px_)    = (1e0-cos(psi_x))*h/K_x;
@@ -2789,8 +2774,8 @@ arma::mat get_thin_kick_mat(const double b2L, const double delta)
   arma::mat M(ss_dim, ss_dim);
 
   M.eye(ss_dim, ss_dim);
-  M(x_, px_) = b2L;
-  M(y_, py_) = b2L;
+  M(px_, x_) = -b2L*(1e0+delta);
+  M(py_, y_) = b2L*(1e0+delta);
 
   return M;
 }
@@ -2819,6 +2804,7 @@ void LatticeType::get_mats(const double delta)
   long int  k;
   MpoleType *M;
 
+  printf("\nget_mats = %9.3e\n", delta);
   for (k = 0; k <= conf.Cell_nLoc; k++) {
     M = dynamic_cast<MpoleType*>(elems[k]);
     if (elems[k]->Pkind == Mpole) M->M_lin = get_mat(elems[k], delta);
