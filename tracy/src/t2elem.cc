@@ -247,7 +247,7 @@ class is_tps<tps> {
  public:
   static inline void get_ps(const ss_vect<tps> &x, CellType *Cell)
   {
-    Cell->BeamPos = x.cst(); getlinmat(6, x, Cell->A);
+    Cell->BeamPos = x.cst(); getlinmat(ss_dim, x, Cell->A);
   }
 
   static inline tps set_prm(const int k) { return tps(0e0, k); }
@@ -572,14 +572,35 @@ void quad_fringe(ConfigType &conf, const double b2, ss_vect<T> &ps)
 }
 
 
+inline ss_vect<double> mat_pass(arma::mat &M, ss_vect<double> &ps)
+{
+  ss_vect<double> ps1;
+  arma::vec       ps_vec(ss_dim);
+
+  ps1 = is_double< ss_vect<double> >::ps(ps);
+  ps_vec = M*pstovec(ps1);
+  return vectops(ps_vec);
+}
+
+
+inline ss_vect<tps> mat_pass(arma::mat &M, ss_vect<tps> &ps)
+{
+  ss_vect<tps> ps1;
+  arma::mat    ps_mat(ss_dim, ss_dim);
+
+  ps1 = is_double< ss_vect<tps> >::ps(ps);
+  getlinmat(ss_dim, ps1, ps_mat);
+  ps_mat = M*ps_mat;
+  return putlinmat(ss_dim, ps_mat);
+}
+
+
 template<typename T>
 void MpoleType::Mpole_Pass(ConfigType &conf, ss_vect<T> &ps)
 {
-  int             seg = 0, i;
-  double          dL = 0e0, dL1 = 0e0, dL2 = 0e0,
-                  dkL1 = 0e0, dkL2 = 0e0, h_ref = 0e0;
-  ss_vect<double> ps1;
-  arma::vec       ps_vec(ss_dim);
+  int          seg = 0, i;
+  double       dL = 0e0, dL1 = 0e0, dL2 = 0e0,
+               dkL1 = 0e0, dkL2 = 0e0, h_ref = 0e0;
 
   GtoL(ps, dS, dT, Pc0, Pc1, Ps1);
 
@@ -594,9 +615,7 @@ void MpoleType::Mpole_Pass(ConfigType &conf, ss_vect<T> &ps)
 
   case Meth_Fourth:
     if (conf.mat_meth && (Porder <= Quad)) {
-      ps1 = is_double< ss_vect<double> >::ps(ps);
-      ps_vec = M_lin*pstovec(ps1);
-      ps = vectops(ps_vec);
+      ps = mat_pass(M_lin, ps);
 
       // if (emittance && !Cavity_on)
       // 	if ((PL != 0e0) && (Pirho != 0e0))

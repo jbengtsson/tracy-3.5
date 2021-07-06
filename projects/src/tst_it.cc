@@ -37,7 +37,7 @@ void get_lat(const char *file_name, LatticeType &lat)
 
   lat.conf.trace = false;
   lat.conf.reverse_elem = !false;
-  lat.conf.mat_meth = false;
+  lat.conf.mat_meth = !false;
 
   lat.conf.H_exact    = false; lat.conf.quad_fringe = false;
   lat.conf.Cavity_on  = false; lat.conf.radiation   = false;
@@ -60,7 +60,15 @@ void get_lat(const char *file_name, LatticeType &lat)
   }
 
   if (!false) {
-    long int lastpos;
+    // for (k = 0; k <= lat.conf.Cell_nLoc; k++)
+    //   if (lat.elems[k]->Pkind == Mpole) {
+    //   MpoleType *M = dynamic_cast<MpoleType*>(lat.elems[k]);
+    //   char str[20];
+    //   sprintf(str, "\n%2d: %8s", k, lat.elems[k]->PName);
+    //   M->M_lin.print(str);
+    // }
+
+    long int     lastpos;
     ss_vect<tps> ps;
     ps.identity();
     lat.Cell_Pass(0, lat.conf.Cell_nLoc, ps, lastpos);
@@ -68,6 +76,7 @@ void get_lat(const char *file_name, LatticeType &lat)
   }
 
   lat.Ring_GetTwiss(true, 0e0); printglob(lat);
+  exit(0);
   if (lat.conf.mat_meth)
     lat.get_eps_x(eps_x, sigma_delta, U_0, J, tau, I, true);
 
@@ -77,7 +86,7 @@ void get_lat(const char *file_name, LatticeType &lat)
   lat.prt_lat("linlat.out", true, 10);
   lat.prtmfile("flat_file.dat");
 
-  if (!true) GetEmittance(lat, ElemIndex("cav"), true);
+  if (true) GetEmittance(lat, ElemIndex("cav"), true);
 
   if (!true) {
     lat.conf.Cavity_on = true;

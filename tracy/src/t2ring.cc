@@ -1566,10 +1566,9 @@ void printglob(LatticeType &lat)
     printf("  ksix         = %10.6f                ksiz = %10.6f\n",
             lat.conf.Chrom[X_], lat.conf.Chrom[Y_]);
   }
-  printf("\n");
-  printf("  OneTurn matrix:\n");
-  printf("\n");
-  lat.conf.OneTurnMat.print();
+
+  cout << scientific << setprecision(6) << setw(14);
+  lat.conf.OneTurnMat.raw_print(cout, "\n  OneTurn matrix:\n");
   fflush(stdout);
 }
 
