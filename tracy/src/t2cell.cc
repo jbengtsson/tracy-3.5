@@ -141,7 +141,7 @@ bool LatticeType::Cell_getCOD(long imax, double eps, double dP, long &lastpos)
   
   if (conf.mat_meth && (dP != conf.dPparticle))
     // Recompute transport matrices.
-    get_mats(dP);
+    get_transp_mats(dP);
 
   conf.dPparticle = dP;
 
@@ -190,7 +190,7 @@ bool LatticeType::Cell_getCOD(long imax, double eps, double dP, long &lastpos)
   conf.codflag = dxabs < eps;
 
   if (conf.codflag) {
-    conf.CODvect = pstovec(x0); conf.OneTurnMat = getlinmat(6, map);
+    conf.CODvect = pstovec(x0); conf.OneTurnMat = get_mat(6, map);
     Cell_Pass(0, conf.Cell_nLoc, x0, lastpos);
   } else
     std::cout << std::scientific << std::setprecision(5)

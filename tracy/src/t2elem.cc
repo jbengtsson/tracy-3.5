@@ -247,7 +247,7 @@ class is_tps<tps> {
  public:
   static inline void get_ps(const ss_vect<tps> &x, CellType *Cell)
   {
-    Cell->BeamPos = x.cst(); Cell->A = getlinmat(ss_dim, x);
+    Cell->BeamPos = x.cst(); Cell->A = get_mat(ss_dim, x);
   }
 
   static inline tps set_prm(const int k) { return tps(0e0, k); }
@@ -580,7 +580,7 @@ inline ss_vect<double> mat_pass(arma::mat &M, ss_vect<double> &ps)
 
 inline ss_vect<tps> mat_pass(arma::mat &M, ss_vect<tps> &ps)
 {
-  return putlinmat(ss_dim, M*getlinmat(ss_dim, ps));
+  return putlinmat(ss_dim, M*get_mat(ss_dim, ps));
 }
 
 
@@ -2781,7 +2781,7 @@ arma::mat get_thin_kick_mat(const double b2L, const double delta)
 }
 
 
-arma::mat get_mat(ElemType *elem, const double delta)
+arma::mat get_transp_mat(ElemType *elem, const double delta)
 {
   arma::mat M0(ss_dim, ss_dim), M1(ss_dim, ss_dim), M2(ss_dim, ss_dim);
 
@@ -2799,15 +2799,15 @@ arma::mat get_mat(ElemType *elem, const double delta)
 }
 
 
-void LatticeType::get_mats(const double delta)
+void LatticeType::get_transp_mats(const double delta)
 {
   long int  k;
   MpoleType *M;
 
-  printf("\nget_mats = %9.3e\n", delta);
+  printf("\nget_transp_mats = %9.3e\n", delta);
   for (k = 0; k <= conf.Cell_nLoc; k++) {
     M = dynamic_cast<MpoleType*>(elems[k]);
-    if (elems[k]->Pkind == Mpole) M->M_lin = get_mat(elems[k], delta);
+    if (elems[k]->Pkind == Mpole) M->M_lin = get_transp_mat(elems[k], delta);
   }
 }
 
@@ -2840,7 +2840,7 @@ ElemType* MpoleType::Elem_Init(const ConfigType &conf, const bool reverse)
     M->Pthick = pthicktype(thin);
 
   // Allocate transport matrix.
-  M->M_lin = get_mat(this, 0e0);
+  M->M_lin = get_transp_mat(this, 0e0);
 
   Mp = Mpole_Alloc();
   *Mp = *M;

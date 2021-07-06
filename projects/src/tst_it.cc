@@ -64,7 +64,7 @@ void get_lat(const char *file_name, LatticeType &lat)
     long int     lastpos;
     ss_vect<tps> ps;
     ps.identity();
-    lat.get_mats(1e-3);
+    lat.get_transp_mats(1e-3);
     lat.Cell_Pass(0, lat.conf.Cell_nLoc, ps, lastpos);
     prt_lin_map(3, ps);
     exit(0);

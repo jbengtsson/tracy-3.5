@@ -145,7 +145,7 @@ void putmat(ss_vect<tps> &map, const int i, const int j, const double r)
 }
 
 
-arma::mat getlinmat(const int nv, const ss_vect<tps> &map)
+arma::mat get_mat(const int nv, const ss_vect<tps> &map)
 {
   int       j, k;
   arma::mat mat(ss_dim, ss_dim);
@@ -461,13 +461,13 @@ void dacct_(const ss_vect<tps> &x, const int i,
 
 void dainv_(const ss_vect<tps> &x, const int i, ss_vect<tps> &z, const int k)
 {
-  z = putlinmat(k, inv(getlinmat(i, x)));
+  z = putlinmat(k, inv(get_mat(i, x)));
 }
 
 
 void Rotmap(const int n, ss_vect<tps> &map, const arma::mat &R)
 {
-  map = putlinmat(n, getlinmat(n, map)*R);
+  map = putlinmat(n, get_mat(n, map)*R);
 }
 
 

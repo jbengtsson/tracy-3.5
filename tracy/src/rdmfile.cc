@@ -258,7 +258,7 @@ void get_elem(std::ifstream &inf, std::vector<ElemType*> &elems,
     }
 
     if (conf.mat_meth && (M->Pthick == thick))
-      M->M_lin = get_mat(elems[i], 0e0);
+      M->M_lin = get_transp_mat(elems[i], 0e0);
     break;
   case Wigl:
     W = dynamic_cast<WigglerType*>(elems[i]);

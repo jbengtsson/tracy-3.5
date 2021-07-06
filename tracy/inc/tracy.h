@@ -350,7 +350,7 @@ class LatticeType {
   int GetnKid(const int Fnum);
   long Elem_GetPos(const int Fnum, const int Knum);
 
-  void get_mats(const double delta);
+  void get_transp_mats(const double delta);
 
   template<typename T>
   friend T get_p_s(const ConfigType &conf, const ss_vect<T> &ps);

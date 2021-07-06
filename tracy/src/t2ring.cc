@@ -1655,9 +1655,9 @@ void GetEmittance(LatticeType &lat, const int Fnum, const bool prt)
   for (loc = 0; loc <= lat.conf.Cell_nLoc; loc++) {
     lat.elems[loc]->Elem_Pass(lat.conf, Ascr_map);
     // sigma = A x A^tp
-    lat.elems[loc]->sigma = getlinmat(6, Ascr_map);
+    lat.elems[loc]->sigma = get_mat(6, Ascr_map);
     lat.elems[loc]->sigma = trans(lat.elems[loc]->sigma);
-    Ascr = getlinmat(6, Ascr_map);
+    Ascr = get_mat(6, Ascr_map);
     lat.elems[loc]->sigma = Ascr*lat.elems[loc]->sigma;
   }
 
