@@ -60,10 +60,9 @@ void get_lat(const char *file_name, LatticeType &lat)
     lat.prt_elem();
   }
 
-  lat.conf.trace = true;
   lat.Ring_GetTwiss(true, 0e-3); printglob(lat);
-  // if (lat.conf.mat_meth)
-  //   lat.get_eps_x(eps_x, sigma_delta, U_0, J, tau, I, true);
+  if (lat.conf.mat_meth)
+    lat.get_eps_x(eps_x, sigma_delta, U_0, J, tau, I, true);
 
   if (false) tst_lat(lat);
 

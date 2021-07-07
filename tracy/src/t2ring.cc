@@ -438,7 +438,7 @@ double get_curly_H(const double alpha_x, const double beta_x,
 }
 
 
-void get_dI_eta_5(const int k, std::vector<ElemType*> Elem)
+void get_dI_eta_5( std::vector<ElemType*> elems, const int k)
 {
   double       L, K, h, b2, alpha, beta, gamma, psi, eta, etap;
   ss_vect<tps> Id;
@@ -446,28 +446,28 @@ void get_dI_eta_5(const int k, std::vector<ElemType*> Elem)
 
   Id.identity();
 
-  Mp = dynamic_cast<MpoleType*>(Elem[k]);
+  Mp = dynamic_cast<MpoleType*>(elems[k]);
 
-  L = Elem[k]->PL;
+  L = elems[k]->PL;
   h = Mp->Pirho;
   b2 = Mp->PBpar[Quad+HOMmax];
   K = b2 + sqr(Mp->Pirho);
   psi = sqrt(fabs(K))*L;
-  alpha = Elem[k-1]->Alpha[X_]; beta = Elem[k-1]->Beta[X_];
+  alpha = elems[k-1]->Alpha[X_]; beta = elems[k-1]->Beta[X_];
   gamma = (1e0+sqr(alpha))/beta;
-  eta = Elem[k-1]->Eta[X_]; etap = Elem[k-1]->Etap[X_];
+  eta = elems[k-1]->Eta[X_]; etap = elems[k-1]->Etap[X_];
 
-  Elem[k]->dI[1] += L*eta*h;
-  Elem[k]->dI[2] += L*sqr(h);
-  Elem[k]->dI[3] += L*fabs(cube(h));
+  elems[k]->dI[1] += L*eta*h;
+  elems[k]->dI[2] += L*sqr(h);
+  elems[k]->dI[3] += L*fabs(cube(h));
 
   if (K > 0e0) {
-    Elem[k]->dI[4] +=
+    elems[k]->dI[4] +=
       h/K*(2e0*b2+sqr(h))
       *((eta*sqrt(K)*sin(psi)+etap*(1e0-cos(psi)))
 	+ h/sqrt(K)*(psi-sin(psi)));
 
-    Elem[k]->dI[5] +=
+    elems[k]->dI[5] +=
       L*fabs(cube(h))
       *(gamma*sqr(eta)+2e0*alpha*eta*etap+beta*sqr(etap))
       - 2e0*pow(h, 4)/(pow(K, 3e0/2e0))
@@ -480,12 +480,12 @@ void get_dI_eta_5(const int k, std::vector<ElemType*> Elem)
   } else {
     K = fabs(K);
 
-    Elem[k]->dI[4] +=
+    elems[k]->dI[4] +=
       h/K*(2e0*b2+sqr(h))
       *((eta*sqrt(K)*sinh(psi)-etap*(1e0-cosh(psi)))
 	- h/sqrt(K)*(psi-sinh(psi)));
 
-    Elem[k]->dI[5] +=
+    elems[k]->dI[5] +=
       L*fabs(cube(h))*
       (gamma*sqr(eta)+2e0*alpha*eta*etap+beta*sqr(etap))
       + 2e0*pow(h, 4)/(pow(K, 3e0/2e0))
@@ -536,23 +536,17 @@ void LatticeType::get_I(double I[], const bool prt)
 template<typename T>
 void LatticeType::Elem_Pass_Lin(ss_vect<T> ps)
 {
-  long int        k;
-  MpoleType       *Mp;
-  ss_vect<double> ps1;
-  arma::vec       ps_vec = arma::vec(tps_dim);
+  long int  k;
+  MpoleType *Mp;
 
   for (k = 0; k <= conf.Cell_nLoc; k++) {
     if (elems[k]->Pkind == Mpole) { 
       Mp = dynamic_cast<MpoleType*>(elems[k]);
-      if ((Mp->Pthick == thick) && (Mp->Porder <= Quad)) {
-      ps1 = is_double< ss_vect<double> >::ps(ps);
-      ps_vec = Mp->M_transp*pstovec(ps1);
-      ps = vectops(ps_vec);
-	
+      ps = mat_pass(Mp->M_transp, ps);
+
       if (conf.emittance && !conf.Cavity_on
 	  && (elems[k]->PL != 0e0) && (Mp->Pirho != 0e0))
-	get_dI_eta_5(k, elems);
-      }
+	get_dI_eta_5(elems, k);
     } else
       elems[k]->Elem_Pass(conf, ps);
   }

@@ -606,9 +606,8 @@ void MpoleType::Mpole_Pass(ConfigType &conf, ss_vect<T> &ps)
     if (conf.mat_meth && (Porder <= Quad)) {
       ps = mat_pass(M_transp, ps);
 
-      // if (emittance && !Cavity_on)
-      // 	if ((PL != 0e0) && (Pirho != 0e0))
-      // 	  get_dI_eta_5(this);
+      // if (conf.emittance && !conf.Cavity_on) &&
+      // 	(PL != 0e0) && (Pirho != 0e0)) get_dI_eta_5(this);
     } else {
       // Fringe fields.
       if (conf.quad_fringe && (PB[Quad+HOMmax] != 0e0))
