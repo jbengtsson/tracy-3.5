@@ -604,7 +604,7 @@ void MpoleType::Mpole_Pass(ConfigType &conf, ss_vect<T> &ps)
 
   case Meth_Fourth:
     if (conf.mat_meth && (Porder <= Quad)) {
-      ps = mat_pass(M_lin, ps);
+      ps = mat_pass(M_transp, ps);
 
       // if (emittance && !Cavity_on)
       // 	if ((PL != 0e0) && (Pirho != 0e0))
@@ -2507,7 +2507,7 @@ MpoleType* Mpole_Alloc(void)
 
   M->Pc0 = 0e0; M->Pc1 = 0e0; M->Ps1 = 0e0;
 
-  // M_lin is allocated in Mpole_Init.
+  // M_transp is allocated in Mpole_Init.
 
   return M;
 }
@@ -2807,7 +2807,7 @@ void LatticeType::get_transp_mats(const double delta)
   printf("\nget_transp_mats = %9.3e\n", delta);
   for (k = 0; k <= conf.Cell_nLoc; k++) {
     M = dynamic_cast<MpoleType*>(elems[k]);
-    if (elems[k]->Pkind == Mpole) M->M_lin = get_transp_mat(elems[k], delta);
+    if (elems[k]->Pkind == Mpole) M->M_transp = get_transp_mat(elems[k], delta);
   }
 }
 
@@ -2840,7 +2840,7 @@ ElemType* MpoleType::Elem_Init(const ConfigType &conf, const bool reverse)
     M->Pthick = pthicktype(thin);
 
   // Allocate transport matrix.
-  M->M_lin = get_transp_mat(this, 0e0);
+  M->M_transp = get_transp_mat(this, 0e0);
 
   Mp = Mpole_Alloc();
   *Mp = *M;

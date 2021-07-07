@@ -546,7 +546,7 @@ void LatticeType::Elem_Pass_Lin(ss_vect<T> ps)
       Mp = dynamic_cast<MpoleType*>(elems[k]);
       if ((Mp->Pthick == thick) && (Mp->Porder <= Quad)) {
       ps1 = is_double< ss_vect<double> >::ps(ps);
-      ps_vec = Mp->M_lin*pstovec(ps1);
+      ps_vec = Mp->M_transp*pstovec(ps1);
       ps = vectops(ps_vec);
 	
       if (conf.emittance && !conf.Cavity_on

@@ -60,22 +60,10 @@ void get_lat(const char *file_name, LatticeType &lat)
     lat.prt_elem();
   }
 
-  if (false) {
-    long int     lastpos;
-    ss_vect<tps> ps;
-    ps.identity();
-    lat.get_transp_mats(0e-3);
-    lat.Cell_Pass(0, lat.conf.Cell_nLoc, ps, lastpos);
-    prt_lin_map(3, ps);
-    exit(0);
-  }
-
   lat.conf.trace = true;
   lat.Ring_GetTwiss(true, 0e-3); printglob(lat);
   // if (lat.conf.mat_meth)
   //   lat.get_eps_x(eps_x, sigma_delta, U_0, J, tau, I, true);
-
-  exit(0);
 
   if (false) tst_lat(lat);
 

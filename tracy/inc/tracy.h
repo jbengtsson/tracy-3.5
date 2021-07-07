@@ -54,7 +54,7 @@ extern double       chi_m;
 inline arma::vec pstovec(ss_vect<double> ps)
 {
   arma::vec ps_vec =
-    {ps[x_], ps[px_], ps[y_], ps[py_], ps[delta_], ps[ct_], 0e0};
+    {ps[x_], ps[px_], ps[y_], ps[py_], ps[delta_], ps[ct_], ps[tps_dim-1]};
   return ps_vec;
 }
 
@@ -483,7 +483,7 @@ class MpoleType : public ElemType {
   pthicktype
     Pthick;
   arma::mat
-    M_lin = arma::mat(tps_dim, tps_dim); // Linear Map for Element.
+    M_transp = arma::mat(tps_dim, tps_dim); // Transport matrix.
 
   friend MpoleType* Mpole_Alloc(void);
   ElemType* Elem_Init(const ConfigType &conf, const bool reverse);

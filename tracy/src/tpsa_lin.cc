@@ -148,26 +148,24 @@ arma::mat get_mat(const ss_vect<tps> &map)
   int       j, k;
   arma::mat mat(tps_dim, tps_dim);
 
-  for (j = 0; j < tps_dim; j++)
+  for (j = 0; j < tps_dim; j++) {
     for (k = 0; k < tps_dim; k++)
       mat(j, k) = get_m_ij(map, j+1, k+1);
+    if (j < ps_dim) mat(j, tps_dim-1) = get_m_ij(map, j+1, 0);
+  }
   return mat;
 }
 
 
 ss_vect<tps> put_mat(const arma::mat &mat)
 {
-  /* Puts zeroes in constant part of da map */
   int          j, k;
   ss_vect<tps> map;
 
-  for (j = 1; j <= tps_dim; j++) {
-    for (k = 0; k <= tps_dim; k++) {
-      if (k == 0)
-        put_m_ij(map, j, k, 0e0);
-      else
-        put_m_ij(map, j, k, mat(j-1, k-1));
-    }
+  for (j = 0; j < tps_dim; j++) {
+    for (k = 0; k < tps_dim; k++)
+      put_m_ij(map, j+1, k+1, mat(j, k));
+    if (j < ps_dim) put_m_ij(map, j+1, 0, mat(j, tps_dim-1));
   }
   return map;
 }
