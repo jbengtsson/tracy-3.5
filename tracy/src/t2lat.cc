@@ -4042,6 +4042,20 @@ static double Circumference(struct LOC_Lattice_Read *LINK)
 }
 
 
+void fixedtostr(std::string &str)
+{
+  int         j = 0;
+  std::string str1 = str;
+
+  str = "";
+  printf("\n|%s|\n", str.c_str());
+  while (str1[j] != ' ') {
+    str += str1[j];
+    j++;
+  }
+}
+
+
 static void RegisterKids(struct LOC_Lattice_Read *LINK)
 {
   long        i;
@@ -4050,6 +4064,8 @@ static void RegisterKids(struct LOC_Lattice_Read *LINK)
   if (debug) printf("\nRegisterKids:\n");
 
   for (i = 0; i < Lat_->conf.Elem_nFam; i++) {
+    fixedtostr((*ElemFam_)[i].ElemF->Name);
+
     (*ElemFam_)[i].nKid = 0;
     if (debug)
       printf("  RegisterKids: %2ld %8s\n", i+1,
