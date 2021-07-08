@@ -100,7 +100,7 @@ void get_lat(const char *file_name, LatticeType &lat)
 
   lat.conf.CODimax = 10;
 
-  if (!false) {
+  if (false) {
     lat.prt_elems();
     lat.prt_fams();
   }

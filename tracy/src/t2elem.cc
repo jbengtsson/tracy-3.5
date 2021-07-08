@@ -2433,9 +2433,13 @@ void LatticeType::prt_fams(void)
 
   printf("\nFamilies:\n");
   for (k = 0; k < elemf.size(); k++) {
-    printf("  %3d ", k+1);
-    prt_name(elemf[k].ElemF->PName, 7);
-    printf(" %2d %6.3f\n", elemf[k].ElemF->Pkind, elemf[k].ElemF->PL);
+    if (elemf[k].ElemF != NULL) {
+      // Family numbers may not be contigues for machine file.
+      printf("  %3d ", k+1);
+      prt_name(elemf[k].ElemF->PName, 7);
+      printf(" %2d %6.3f\n", elemf[k].ElemF->Pkind, elemf[k].ElemF->PL);
+    } else
+      printf("  %3d undef.\n", k+1);
   }
 }
 
