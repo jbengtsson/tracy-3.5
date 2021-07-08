@@ -122,7 +122,7 @@ extern void gcmat(int bpm, int corr, int plane);
 extern void lsoc(int niter, int bpm, int corr, int plane);
 
 
-typedef char                partsName[SymbolLength];
+typedef char                partsName[NameLength];
 typedef std::vector<double> MpoleArray;
 
 enum PartsKind
@@ -261,8 +261,8 @@ class CellType {
 // Element base class.
 class ElemType : public CellType {
  public:
-  partsName
-    PName;                     // Element name.
+  std::string
+    Name;                      // Element name.
   bool
     Reverse;                   // Reverse element.
   double
@@ -318,7 +318,7 @@ class LatticeType {
   void prt_fams(void);
   void prt_elems(void);
 
-  friend long int ElemIndex(const std::string &name);
+  long int ElemIndex(const std::string &name);
 
   void SetdS(const int Fnum, const int Knum);
   void SetdT(const int Fnum, const int Knum);

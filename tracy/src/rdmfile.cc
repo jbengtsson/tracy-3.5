@@ -149,13 +149,6 @@ void get_elem(std::ifstream &inf, LatticeType *lat, char *line, long int &i,
   sscanf(line, "%*s %*d %*d %ld", &i);
   sscanf(line, "%s %d %d", name, &Fnum, &Knum);
 
-  // For compability with lattice parser.
-  k = 0;
-  while (name[k] != '\0')
-    k++;
-  for (j = k+1; j < SymbolLength; j++)
-    name[j] = ' ';
-
   if (prt) printf("|%s| %2d %2d\n", name, Fnum, Knum);
 
   inf.getline(line, line_max);
@@ -164,10 +157,10 @@ void get_elem(std::ifstream &inf, LatticeType *lat, char *line, long int &i,
 
   lat->elems.push_back(elem_alloc(kind));
  
-  memcpy(lat->elems[i]->PName, name, sizeof(partsName));
+  lat->elems[i]->Name = name;
   lat->elems[i]->Fnum = Fnum; lat->elems[i]->Knum = Knum;
   if (prt)
-    printf("%s %2d %2d\n", lat->elems[i]->PName, lat->elems[i]->Fnum,
+    printf("|%s| %2d %2d\n", lat->elems[i]->Name.c_str(), lat->elems[i]->Fnum,
 	   lat->elems[i]->Knum);
 
   lat->elems[i]->dS[X_] = 0e0; lat->elems[i]->dS[Y_] = 0e0;
@@ -379,12 +372,16 @@ void chk_Fam(std::vector<ElemFamType> &elemf)
 {
   int k;
 
-  printf("\n");
-  for (k = 0; k < (int)elemf.size(); k++)
-    if (elemf[k].ElemF != NULL) 
-      printf("  %3d %-8s\n", k+1, elemf[k].ElemF->PName);
-    else
-      printf("  %3d undef.\n", k+1);
+  const bool prt = false;
+
+  if (prt) printf("\nchk_Fam:\n");
+  for (k = 0; k < (int)elemf.size(); k++) {
+    if (elemf[k].ElemF == NULL) {
+      elemf[k].ElemF = elem_alloc(marker_);
+      elemf[k].ElemF->Name = "undef.";
+    }
+    if (prt) printf("  %3d %-8s\n", k+1, elemf[k].ElemF->Name.c_str());
+  }
 }
 
 
@@ -404,7 +401,8 @@ void LatticeType::rdmfile(const char *mfile_dat)
     get_elem(inf, this, line, i, kind);
     get_elemf(this, i, kind);
   }
-  // chk_Fam(elemf);
+  // Families may not be contigues.
+  chk_Fam(elemf);
   conf.Cell_nLoc = i;
   get_transp_mats(0e0);
  

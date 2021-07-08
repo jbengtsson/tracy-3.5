@@ -67,7 +67,7 @@ void CheckAlignTol(LatticeType &lat, const char *OutputFile)
   int          gs_nKid, ge_nKid;
   int          dip_Fnum,dip_nKid;
   int          loc, loc_gs, loc_ge;
-  char         *name;
+  std::string  name;
   double       s;
   double       PdSsys[2], PdSrms[2], PdSrnd[2], dS[2], dT[2];
   MpoleType    *M;
@@ -103,7 +103,7 @@ void CheckAlignTol(LatticeType &lat, const char *OutputFile)
     PdSrnd[Y_] = M->PdSrnd[Y_];
     dS[X_] = lat.elems[loc]->dS[X_]; dS[Y_] = lat.elems[loc]->dS[Y_];
     dT[0] = lat.elems[loc]->dT[0]; dT[1] = lat.elems[loc]->dT[1];
-    s = lat.elems[loc]->S; name = lat.elems[loc]->PName;
+    s = lat.elems[loc]->S; name = lat.elems[loc]->Name;
     fout << "  " << name << "  " << loc << "   " << s
 	 << "  " <<  PdSsys[X_] << "  " <<  PdSsys[Y_]
 	 << "   " << PdSrms[X_] << "  " <<  PdSrms[Y_]
@@ -125,7 +125,7 @@ void CheckAlignTol(LatticeType &lat, const char *OutputFile)
 	PdSrnd[Y_] = M->PdSrnd[Y_];
 	dS[X_] = lat.elems[loc]->dS[X_]; dS[Y_] = lat.elems[loc]->dS[Y_];
 	dT[0] = lat.elems[loc]->dT[0];   dT[1] = lat.elems[loc]->dT[1];
-	s = lat.elems[loc]->S; name=lat.elems[loc]->PName;
+	s = lat.elems[loc]->S; name = lat.elems[loc]->Name;
 	fout << "  " << name << "  " << loc << "   " << s
 	     << "  " <<  PdSsys[X_] << "  " <<  PdSsys[Y_]
 	     << "   " << PdSrms[X_] << "  " <<  PdSrms[Y_]
@@ -147,7 +147,7 @@ void CheckAlignTol(LatticeType &lat, const char *OutputFile)
     PdSrnd[Y_] = M->PdSrnd[Y_];
     dS[X_] = lat.elems[loc]->dS[X_]; dS[Y_] = lat.elems[loc]->dS[Y_];
     dT[0] = lat.elems[loc]->dT[0]; dT[1] = lat.elems[loc]->dT[1];
-    s=lat.elems[loc]->S; name=lat.elems[loc]->PName;
+    s=lat.elems[loc]->S; name = lat.elems[loc]->Name;
     fout << "  " << name << "  " << loc << "   " << s
 	 << "  " <<  PdSsys[X_] << "  " <<  PdSsys[Y_]
 	 << "   " << PdSrms[X_] << "  " <<  PdSrms[Y_]
@@ -161,7 +161,7 @@ void CheckAlignTol(LatticeType &lat, const char *OutputFile)
 
   fout << "  " << std::endl;
   fout << "Dipoles:  " << std::endl;
-  dip_Fnum = ElemIndex("B1"); dip_nKid = lat.GetnKid(dip_Fnum);
+  dip_Fnum = lat.ElemIndex("B1"); dip_nKid = lat.GetnKid(dip_Fnum);
   for (i = 1; i <= dip_nKid; i++){
     loc = lat.Elem_GetPos(dip_Fnum, i);
     M = dynamic_cast<MpoleType*>(lat.elems[loc]);
@@ -173,7 +173,7 @@ void CheckAlignTol(LatticeType &lat, const char *OutputFile)
     PdSrnd[Y_] = M->PdSrnd[Y_];
     dS[X_] = lat.elems[loc]->dS[X_]; dS[Y_] = lat.elems[loc]->dS[Y_];
     dT[0] = lat.elems[loc]->dT[0]; dT[1] = lat.elems[loc]->dT[1];
-    s = lat.elems[loc]->S; name = lat.elems[loc]->PName;
+    s = lat.elems[loc]->S; name = lat.elems[loc]->Name;
     fout << "  " << name << "  " << loc << "   " << s
 	 << "  " <<  PdSsys[X_] << "  " <<  PdSsys[Y_]
 	 << "   " << PdSrms[X_] << "  " <<  PdSrms[Y_]
@@ -923,7 +923,7 @@ void set_bnr_sys_elem(LatticeType &lat, const int Fnum, const int Knum,
 
   if (prt)
     printf("set the n=%d component of %s to %e %e %e\n",
-	   n, lat.elems[lat.Elem_GetPos(Fnum, Knum)]->PName,
+	   n, lat.elems[lat.Elem_GetPos(Fnum, Knum)]->Name.c_str(),
 	   bnr, M->PBpar[HOMmax+nd], M->PBsys[HOMmax+n]);
 }
 

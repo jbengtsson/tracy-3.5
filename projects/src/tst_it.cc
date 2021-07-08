@@ -78,9 +78,9 @@ void get_lat(const char *file_name, LatticeType &lat)
 
   const string str = file_name;
 
-  lat.conf.trace        = false;
+  lat.conf.trace        = !false;
   lat.conf.reverse_elem = !false;
-  lat.conf.mat_meth     = !false;
+  lat.conf.mat_meth     = false;
 
   lat.conf.H_exact    = false; lat.conf.quad_fringe = false;
   lat.conf.Cavity_on  = false; lat.conf.radiation   = false;
@@ -88,7 +88,7 @@ void get_lat(const char *file_name, LatticeType &lat)
   lat.conf.pathlength = false; lat.conf.bpm         = 0;
   lat.conf.Cart_Bend  = false; lat.conf.dip_edge_fudge = true;
 
-  if (!true) {
+  if (true) {
     inf  = file_read((str+".lat").c_str());
     outf = file_write((str+".lax").c_str());
     lat.Lattice_Read(inf, outf);
@@ -113,6 +113,7 @@ void get_lat(const char *file_name, LatticeType &lat)
     printf("\n");
     printf("RMS orbit [mm]: (%8.1e +/- %7.1e, %8.1e +/- %7.1e)\n",
 	   1e3*xmean[X_], 1e3*xsigma[X_], 1e3*xmean[Y_], 1e3*xsigma[Y_]);
+    exit(0);
   }
 
   lat.prtmfile("flat_file.dat");
@@ -127,7 +128,7 @@ void get_lat(const char *file_name, LatticeType &lat)
   lat.prt_lat("linlat.out", true, 10);
   lat.prtmfile("flat_file.dat");
 
-  if (!lat.conf.mat_meth) GetEmittance(lat, ElemIndex("cav"), true);
+  if (!lat.conf.mat_meth) GetEmittance(lat, lat.ElemIndex("cav"), true);
 
   if (false) {
     lat.conf.Cavity_on = true;
@@ -180,9 +181,9 @@ void tst_lsoc(LatticeType &lat)
   const double dx[]   = {100e-6, 100e-6};
 
   const int
-    bpm   = ElemIndex("bpm"),
-    hcorr = ElemIndex("chv"),
-    vcorr = ElemIndex("chv");
+    bpm   = lat.ElemIndex("bpm"),
+    hcorr = lat.ElemIndex("chv"),
+    vcorr = lat.ElemIndex("chv");
 
   // lat.conf.trace = true;
 

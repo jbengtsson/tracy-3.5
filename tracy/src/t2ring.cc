@@ -41,7 +41,7 @@ void LatticeType::PrintCh(void)
 
   for (i = 0; i <= conf.Cell_nLoc; i++)
     fprintf(f, "%4ld %15s  %6.2f  %7.3f  %7.3f  %7.3f\n",
-	    i, elems[i]->PName, elems[i]->S,
+	    i, elems[i]->Name.c_str(), elems[i]->S,
 	    elems[i]->maxampl[X_][0]*1E3, elems[i]->maxampl[X_][1]*1E3,
 	    elems[i]->maxampl[Y_][1]*1E3);
 
@@ -518,7 +518,7 @@ void LatticeType::get_I(double I[], const bool prt)
 	(elems[j]->Pkind == marker)) {
       if (prt)
 	printf("%5d %-10s %6.3f %10.3e",
-	       j, elems[j]->PName, elems[j]->S,
+	       j, elems[j]->Name.c_str(), elems[j]->S,
 	       elems[j]->curly_dH_x);
       for (k = 1; k <= 5; k++) {
 	I[k] += elems[j]->dI[k];
@@ -682,7 +682,7 @@ void LatticeType::prt_lat(const int loc1, const int loc2, const char *fname,
       fprintf(outf,
 	      "%4ld %15s %9.5f %4.1f %9.5f %8.5f %8.5f %8.5f %8.5f"
 	      " %9.5f %8.5f %8.5f %8.5f %8.5f  %8.2e\n",
-	      i, elems[i]->PName, elems[i]->S, get_code(conf, *elems[i]),
+	      i, elems[i]->Name.c_str(), elems[i]->S, get_code(conf, *elems[i]),
 	      elems[i]->Alpha[X_], elems[i]->Beta[X_], elems[i]->Nu[X_],
 	      elems[i]->Eta[X_], elems[i]->Etap[X_], elems[i]->Alpha[Y_],
 	      elems[i]->Beta[Y_], elems[i]->Nu[Y_], elems[i]->Eta[Y_],
@@ -818,7 +818,7 @@ void LatticeType::prt_lat(const int loc1, const int loc2, const char *fname,
 	  fprintf(outf, "%4ld %15s %6.2f %4.1f"
 		  " %9.5f %8.5f %8.5f %11.8f %11.8f"
 		  " %9.5f %8.5f %8.5f %8.5f %8.5f %10.3e %10.3e %10.3e\n",
-		  i, elems[i]->PName, s, get_code(conf, *elems[i]),
+		  i, elems[i]->Name.c_str(), s, get_code(conf, *elems[i]),
 		  alpha[X_], beta[X_], nu[X_]+dnu[X_], eta[X_], etap[X_],
 		  alpha[Y_], beta[Y_], nu[Y_]+dnu[Y_], eta[Y_], etap[Y_],
 		  eta_Fl[x_], eta_Fl[px_], curly_H);
@@ -838,11 +838,11 @@ void LatticeType::prt_lat(const int loc1, const int loc2, const char *fname,
 	fprintf(outf, "%4ld %15s %6.2f %4.1f"
 		" %9.5f %8.5f %8.5f %11.8f %11.8f"
 		" %9.5f %8.5f %8.5f %8.5f %8.5f %10.3e %10.3e %10.3e\n",
-		i, elems[i]->PName, elems[i]->S, get_code(conf, *elems[i]),
-		elems[i]->Alpha[X_], elems[i]->Beta[X_], elems[i]->Nu[X_],
-		elems[i]->Eta[X_], elems[i]->Etap[X_],
-		elems[i]->Alpha[Y_], elems[i]->Beta[Y_], elems[i]->Nu[Y_],
-		elems[i]->Eta[Y_], elems[i]->Etap[Y_],
+		i, elems[i]->Name.c_str(), elems[i]->S,
+		get_code(conf, *elems[i]), elems[i]->Alpha[X_],
+		elems[i]->Beta[X_], elems[i]->Nu[X_], elems[i]->Eta[X_],
+		elems[i]->Etap[X_], elems[i]->Alpha[Y_], elems[i]->Beta[Y_],
+		elems[i]->Nu[Y_], elems[i]->Eta[Y_], elems[i]->Etap[Y_],
 		eta_Fl[x_], eta_Fl[px_], curly_H);
       }
     }
@@ -892,7 +892,7 @@ void LatticeType::prt_cod(const char *file_name, const bool all)
       fprintf(outf,
 	      "%4ld %.*s %6.2f %4.1f %6.3f %6.3f %6.3f %6.3f"
 	      " %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f\n",
-	      i, SymbolLength, elems[i]->PName, elems[i]->S,
+	      i, SymbolLength, elems[i]->Name.c_str(), elems[i]->S,
 	      get_code(conf, *elems[i]),
 	      elems[i]->Beta[X_], elems[i]->Nu[X_],
 	      elems[i]->Beta[Y_], elems[i]->Nu[Y_],
@@ -917,7 +917,7 @@ void LatticeType::prt_beampos(const char *file_name)
 
   for (k = 0; k <= conf.Cell_nLoc; k++)
     fprintf(outf, "%4ld %.*s %6.2f %4.1f %12.5e %12.5e\n",
-	    k, SymbolLength, elems[k]->PName, elems[k]->S,
+	    k, SymbolLength, elems[k]->Name.c_str(), elems[k]->S,
 	    get_code(conf, *elems[k]), elems[k]->BeamPos[x_],
 	    elems[k]->BeamPos[y_]);
 
@@ -970,7 +970,7 @@ void LatticeType::prt_beamsizes(const int cnt)
 	  "    s_ypy    theta_xy    s_xy\n");
   for(k = 0; k <= conf.Cell_nLoc; k++)
     fprintf(fp,"%4d %10s %e %e %e %e %e %e %e %e %e\n",
-	    k, elems[k]->PName, elems[k]->S,
+	    k, elems[k]->Name.c_str(), elems[k]->S,
 	    elems[k]->sigma(x_, x_), elems[k]->sigma(px_, px_),
 	    elems[k]->sigma(x_, px_),
 	    elems[k]->sigma(y_, y_), elems[k]->sigma(py_, py_),
@@ -1038,7 +1038,7 @@ void LatticeType::prt_chrom_lat(void)
     fprintf(outf,
 	    "%4ld %15s %6.2f %4.1f  %6.3f  %8.3f    %8.3f   %8.3f"
 	    "   %6.3f %8.3f   %8.3f  %5.2f  %5.2f  %6.3f  %6.3f  %6.3f\n",
-	    i, elems[i]->PName, elems[i]->S, get_code(conf, *elems[i]),
+	    i, elems[i]->Name.c_str(), elems[i]->S, get_code(conf, *elems[i]),
 	    elems[i]->Beta[X_]*elems[i]->Eta[X_],
 	    sqrt(elems[i]->Beta[X_]*elems[i]->Beta[Y_]),
 	    dbeta_ddelta[i][X_]*elems[i]->Eta[X_],

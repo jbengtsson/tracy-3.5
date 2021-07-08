@@ -98,7 +98,8 @@ void prtHOM(FILE *fp, MpoleType *elem)
 void prtName(FILE *fp, ElemType *elem, const int i, const int type,
 	     const int method, const int N, const bool reverse)
 {
-  fprintf(fp, "%-15s %4d %4d %4d\n", elem->PName, elem->Fnum, elem->Knum, i);
+  fprintf(fp, "%-15s %4d %4d %4d\n", elem->Name.c_str(), elem->Fnum,
+	  elem->Knum, i);
   fprintf(fp, " %3d %3d %3d %4d\n", type, method, N, reverse);
   fprintf(fp, " %23.16e %23.16e %23.16e %23.16e\n",
 	  elem->maxampl[X_][0], elem->maxampl[X_][1], elem->maxampl[Y_][0],

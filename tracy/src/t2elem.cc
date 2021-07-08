@@ -691,8 +691,7 @@ void MpoleType::Mpole_Pass(ConfigType &conf, ss_vect<T> &ps)
     break;
 
   default:
-    printf("Mpole_Pass: Method not supported %10s %d\n",
-	   PName, Pmethod);
+    printf("Mpole_Pass: Method not supported %10s %d\n", Name.c_str(), Pmethod);
     exit_(0);
     break;
   }
@@ -2273,7 +2272,7 @@ inline long LatticeType::Elem_GetPos(const int Fnum, const int Knum)
     return elemf[Fnum-1].KidList[Knum-1];
   else {
     printf("Elem_GetPos: there are no kids in family %d %s (%d)\n",
-	   Fnum, elemf[Fnum-1].ElemF->PName, elemf[Fnum-1].nKid);
+	   Fnum, elemf[Fnum-1].ElemF->Name.c_str(), elemf[Fnum-1].nKid);
     exit_(1);
     return -1;
   }
@@ -2320,7 +2319,7 @@ void LatticeType::SI_init()
 }
 
 
-void prt_name(const char *name, const int len)
+void prt_name(const std::string &name, const int len)
 {
   int j, k;
 
@@ -2337,7 +2336,7 @@ void prt_name(const char *name, const int len)
 void ElemType::prt_elem(void)
 {
   printf("  ");
-  prt_name(PName, 7);
+  prt_name(Name, 7);
   printf(" %6.3f %2d %6.3f %2d %2d", S, Pkind, PL, Fnum, Knum);
 }
 
@@ -2436,7 +2435,7 @@ void LatticeType::prt_fams(void)
     if (elemf[k].ElemF != NULL) {
       // Family numbers may not be contigues for machine file.
       printf("  %3d ", k+1);
-      prt_name(elemf[k].ElemF->PName, 7);
+      prt_name(elemf[k].ElemF->Name, 7);
       printf(" %2d %6.3f\n", elemf[k].ElemF->Pkind, elemf[k].ElemF->PL);
     } else
       printf("  %3d undef.\n", k+1);

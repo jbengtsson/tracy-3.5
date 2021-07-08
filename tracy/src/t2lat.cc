@@ -224,7 +224,7 @@ static long CheckElementtable(const char *name, struct LOC_Lattice_Read *LINK)
   //  if (strstr(LINK->line,"insertion") != NULL) return 0;
 
   for (i = 1; i <= Lat_->conf.Elem_nFam; i++) {
-    if (!strncmp((*ElemFam_)[i-1].ElemF->PName, name, sizeof(partsName)))
+    if (!strncmp((*ElemFam_)[i-1].ElemF->Name.c_str(), name, sizeof(partsName)))
       j = i;
   }
   return j;
@@ -265,7 +265,8 @@ static long CheckUDItable(const char *name, struct LOC_Lattice_Read *LINK)
 
   j = 0;
   if (LINK->UDIC > UDImax) {
-    printf("\nCheckUDItable: ** UDImax exhausted: %ld(%d)\n", LINK->UDIC, UDImax);
+    printf("\nCheckUDItable: ** UDImax exhausted: %ld(%d)\n",
+	   LINK->UDIC, UDImax);
     exit_(1);
     return j;
   }
@@ -278,13 +279,15 @@ static long CheckUDItable(const char *name, struct LOC_Lattice_Read *LINK)
 }
 
 
-static void EnterUDItable(const char *name, double X, struct LOC_Lattice_Read *LINK)
+static void EnterUDItable(const char *name, double X,
+			  struct LOC_Lattice_Read *LINK)
 {
   _REC_UDItable  *WITH;
 
   LINK->UDIC++;
   if (LINK->UDIC > UDImax) {
-    printf("\nEnterUDItable: ** UDImax exhausted: %ld(%d)\n", LINK->UDIC, UDImax);
+    printf("\nEnterUDItable: ** UDImax exhausted: %ld(%d)\n",
+	   LINK->UDIC, UDImax);
     exit_(1);
     return;
   }
@@ -303,7 +306,8 @@ static void ModUDItable(long N, double X, struct LOC_Lattice_Read *LINK)
 }
 
 
-static void RefUDItable(const char *name, double *X, struct LOC_Lattice_Read *LINK)
+static void RefUDItable(const char *name, double *X,
+			struct LOC_Lattice_Read *LINK)
 {
   long k;
 
@@ -1760,7 +1764,7 @@ static bool Lat_CheckWiggler(FILE **fo, long i, struct LOC_Lattice_Read *LINK)
   diff = fabs((L-NN*Lambda)/L);
   if (diff < 1e-5) return true;
   printf("\nLat_CheckWiggler: >>> Incorrect definition of %.*s\n\n",
-	 NameLength, WITH1->PName);
+	 NameLength, WITH1->Name.c_str());
   printf("    L      ( total length ) =%20.12f [m]\n", L);
   printf("    Lambda ( wave  length ) =%20.12f [m]\n", Lambda);
   printf("    # of Period = L/Lambda  =%20.12f ?????\n\n", L / Lambda);
@@ -2079,7 +2083,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     GetSym__(&V);
     Lat_->conf.Elem_nFam++;
     WITHD = Drift_Alloc();
-    memcpy(WITHD->PName, ElementName, sizeof(partsName));
+    WITHD->Name = ElementName;
     WITHD->PL = *V.rnum;
     WITHD->Pkind = PartsKind(drift);
     // Add family to lattice object.
@@ -2206,7 +2210,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     GetSym__(&V);
     Lat_->conf.Elem_nFam++;
     WITH2 = Mpole_Alloc();
-    memcpy(WITH2->PName, ElementName, sizeof(partsName));
+    WITH2->Name = ElementName;
     WITH2->PL = QL;
     WITH2->Pkind = Mpole;
     WITH2->Pmethod = k2;
@@ -2311,7 +2315,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     GetSym__(&V);
     Lat_->conf.Elem_nFam++;
     WITH2 = Mpole_Alloc();
-    memcpy(WITH2->PName, ElementName, sizeof(partsName));
+    WITH2->Name = ElementName;
     WITH2->PL = QL; WITH2->Pkind = Mpole;
     WITH2->Pmethod = k2; WITH2->PN = k1; WITH2->PdTpar = dt;
     AssignHOM(WITH2, &V);
@@ -2413,7 +2417,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     GetSym__(&V);
     Lat_->conf.Elem_nFam++;
     WITH2 = Mpole_Alloc();
-    memcpy(WITH2->PName, ElementName, sizeof(partsName));
+    WITH2->Name = ElementName;
     WITH2->PL = QL;
     WITH2->Pkind = Mpole;
     WITH2->Pmethod = k2;
@@ -2525,7 +2529,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     GetSym__(&V);
     Lat_->conf.Elem_nFam++;
     WITH3 = Cavity_Alloc();
-    memcpy(WITH3->PName, ElementName, sizeof(partsName));
+    WITH3->Name = ElementName;
     WITH3->PL = QL;
     WITH3->Pkind = Cavity;
     WITH3->Pvolt = Vrf;   /* Voltage [V] */
@@ -2630,7 +2634,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     GetSym__(&V);
     Lat_->conf.Elem_nFam++;
     WITH2 = Mpole_Alloc();
-    memcpy(WITH2->PName, ElementName, sizeof(partsName));
+    WITH2->Name = ElementName;
     WITH2->PL = QL;
     WITH2->Pkind = Mpole;
     if (WITH2->PL != 0.0)
@@ -2680,7 +2684,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     GetSym__(&V);
     Lat_->conf.Elem_nFam++;
     WITH2 = Mpole_Alloc();
-    memcpy(WITH2->PName, ElementName, sizeof(partsName));
+    WITH2->Name = ElementName;
     WITH2->Pkind = Mpole;
     WITH2->Pthick = pthicktype(thin);
     // Allocate family to lattice object.
@@ -2721,7 +2725,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     GetSym__(&V);
     Lat_->conf.Elem_nFam++;
     WITHMk = Marker_Alloc();
-    memcpy(WITHMk->PName, ElementName, sizeof(partsName));
+    WITHMk->Name = ElementName;
     WITHMk->PL = 0.0;
     WITHMk->Pkind = PartsKind(marker);
     // Allocate family to lattice object.
@@ -2887,7 +2891,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     GetSym__(&V);
     Lat_->conf.Elem_nFam++;
     WITH2 = Mpole_Alloc();
-    memcpy(WITH2->PName, ElementName, sizeof(partsName));
+    WITH2->Name = ElementName;
     WITH2->Pkind = Mpole;
     WITH2->PL = QL;
     if (WITH2->PL != 0e0) {
@@ -3025,7 +3029,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     GetSym__(&V);
     Lat_->conf.Elem_nFam++;
     WITH4 = Wiggler_Alloc();
-    memcpy(WITH4->PName, ElementName, sizeof(partsName));
+    WITH4->Name = ElementName;
     WITH4->PL = QL; WITH4->Pkind = Wigl;
     WITH4->Pmethod = k2; WITH4->PN = k1;
     WITH4->PdTpar = dt;
@@ -3114,7 +3118,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     GetSym__(&V);
     Lat_->conf.Elem_nFam++;
     WITH6 = FieldMap_Alloc();
-    memcpy(WITH6->PName, ElementName, sizeof(partsName));
+    WITH6->Name = ElementName;
     WITH6->PL = QL; WITH6->Pkind = FieldMap;
     WITH6->phi = degtorad(t); WITH6->n_step = k1; WITH6->scl = scaling;
     if (CheckUDItable("energy         ", LINK) != 0) {
@@ -3221,7 +3225,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     Lat_->conf.Elem_nFam++;
     /* Fills up the ID */
     WITH5 = Insertion_Alloc();
-    memcpy(WITH5->PName, ElementName, sizeof(partsName));
+    WITH5->Name = ElementName;
     WITH5->Pkind = Insertion;
     WITH5->phi = degtorad(t);
     WITH5->Pmethod = k2;
@@ -3327,7 +3331,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     GetSym__(&V);
     Lat_->conf.Elem_nFam++;
     WITHSpr = Spreader_Alloc();
-    memcpy(WITHSpr->PName, ElementName, sizeof(partsName));
+    WITHSpr->Name = ElementName;
     WITHSpr->PL = *V.rnum;
     WITHSpr->Pkind = PartsKind(Spreader);
     // Allocate family to lattice object.
@@ -3362,7 +3366,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     GetSym__(&V);
     Lat_->conf.Elem_nFam++;
     WITHRec = Recombiner_Alloc();
-    memcpy(WITHRec->PName, ElementName, sizeof(partsName));
+    WITHRec->Name = ElementName;
     WITHRec->PL = *V.rnum;
     WITHRec->Pkind = PartsKind(Recombiner);
     // Allocate family to lattice object.
@@ -3427,7 +3431,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     GetSym__(&V);
     Lat_->conf.Elem_nFam++;
     WITH7 = Solenoid_Alloc();
-    memcpy(WITH7->PName, ElementName, sizeof(partsName));
+    WITH7->Name = ElementName;
     WITH7->Pkind = Solenoid;
     WITH7->PL = QL; WITH7->N = k1; WITH7->BoBrho = QK;
     // Allocate family to lattice object.
@@ -3452,7 +3456,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     GetSym__(&V);
     Lat_->conf.Elem_nFam++;
     WITH8 = Map_Alloc();
-    memcpy(WITH8->PName, ElementName, sizeof(partsName));
+    WITH8->Name = ElementName;
     WITH8->Pkind = Map;
     // Allocate family to lattice object.
     (*ElemFam_).emplace_back();
@@ -4048,7 +4052,8 @@ static void RegisterKids(struct LOC_Lattice_Read *LINK)
   for (i = 0; i < Lat_->conf.Elem_nFam; i++) {
     (*ElemFam_)[i].nKid = 0;
     if (debug)
-      printf("  RegisterKids: %2ld %8s\n", i+1, (*ElemFam_)[i].ElemF->PName);
+      printf("  RegisterKids: %2ld %8s\n", i+1,
+	     (*ElemFam_)[i].ElemF->Name.c_str());
   }
 
   for (i = 1; i <= Lat_->conf.Cell_nLoc; i++) {
@@ -4099,54 +4104,6 @@ void PrintResult(struct LOC_Lattice_Read *LINK)
 	 ", Cell_nLocmax    =%5d\n",
 	 Lat_->conf.Cell_nLoc, Cell_nLocMax);
   printf("  Circumference      : %12.7f [m]\n\n\n", Circumference(LINK));
-}
-
-
-long ElemIndex(const std::string &name)
-{
-  long        i, j;
-  std::string name1;
-
-  const bool prt = false;
-
-  name1 = name;
-  j = (signed)name.length();
-  for (i = 0; i < j; i++)
-    name1[i] = tolower(name1[i]);
-  for (i = j; i < SymbolLength; i++)
-    name1 += ' ';
-
-  if (prt) {
-    std::cout << std::endl;
-    std::cout << "ElemIndex: " << name << " (";
-    for (i = 0; i < (signed)name1.length(); i++)
-      std::cout << std::setw(4) << (int)name1[i];
-    std::cout << std::setw(4) << (int)name1[name1.length()] << " )"
-	      << std::endl;
-    std::cout << std::endl;
-  }
-
-  i = 1;
-  while (i <= Lat_->conf.Elem_nFam) {
-    if (prt) {
-      std::cout << std::setw(2) << (name1 == (*ElemFam_)[i-1].ElemF->PName)
-	   << " " << name1 << " " << (*ElemFam_)[i-1].ElemF->PName << " (";
-      for (j = 0; j < SymbolLength; j++)
-	std::cout << std::setw(4) << (int)(*ElemFam_)[i-1].ElemF->PName[j];
-      std::cout  << " )" << std::endl;
-    }
-
-    if (name1 == (*ElemFam_)[i-1].ElemF->PName) break;
-
-    i++;
-  }
-
-  if (name1 != (*ElemFam_)[i-1].ElemF->PName) {
-    std::cout << "ElemIndex: undefined element " << name << std::endl;
-    exit_(1);
-  }
-
-  return i;
 }
 
 

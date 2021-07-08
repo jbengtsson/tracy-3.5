@@ -232,7 +232,7 @@ void LatticeType::Lat_Init(void)
   int      i, j;
   double   Stotal;
 
-  char first_name[] = "begin          ";
+  const std::string first_name = "begin";
 
   if (debug) printf("Lat_Init: Cell_nLoc = %ld\n", conf.Cell_nLoc);
 
@@ -243,7 +243,7 @@ void LatticeType::Lat_Init(void)
 
   // Assign element 0 ("begin").
   elems[0] = Marker_Alloc();
-  memcpy(elems[0]->PName, first_name, sizeof(first_name));
+  elems[0]->Name = first_name;
   elems[0]->PL = 0e0; elems[0]->Fnum = 0; elems[0]->Knum = 0;
   elems[0]->Pkind = marker;
 
@@ -260,12 +260,12 @@ void LatticeType::Lat_Init(void)
       if (elems[loc]->Pkind == Mpole) {
 	first = false;
 	printf("\nSwapping entrance and exit angles for %8s %2d\n",
-	       elems[loc]->PName, i);
+	       elems[loc]->Name.c_str(), i);
 	printf("...\n");
       }
     if (debug)
       printf("\nLat_Init: Fnum = %2d Knum = %2d loc = %3ld %*s\n",
-	     i, j, loc, SymbolLength, elems[loc]->PName);
+	     i, j, loc, SymbolLength, elems[loc]->Name.c_str());
   }
 
   /* Computes s-location of each element in the structure */

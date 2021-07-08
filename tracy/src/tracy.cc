@@ -349,3 +349,42 @@ double xabs(long n, ss_vect<double> &x)
 
   return sqrt(sum);
 }
+
+
+long LatticeType::ElemIndex(const std::string &name)
+{
+  long        i, j;
+  std::string name1 = name;
+
+  const bool prt = !false;
+
+  for (i = 0; i < (int)name1.length(); i++)
+    name1[i] = tolower(name1[i]);
+
+  if (prt) {
+    printf("\nElemIndex:  %-8s (", name.c_str());
+    for (i = 0; i < (int)name1.length(); i++)
+      printf(" %3d", (int)name1[i]);
+    printf(" )\n");
+  }
+
+  for (i = 1; i <= (int)elemf.size(); i++) {
+    if (prt) {
+      printf("%2d %-8s %-8s (",
+      	     name1 == elemf[i-1].ElemF->Name, name1.c_str(),
+      	     elemf[i-1].ElemF->Name.c_str());
+      for (j = 0; j < elemf[i-1].ElemF->Name.length(); j++)
+	printf(" %3d", (int)elemf[i-1].ElemF->Name[j]);
+      printf(" )\n");
+    }
+
+    if (name1 == elemf[i-1].ElemF->Name) break;
+  }
+
+  if (name1 != elemf[i-1].ElemF->Name) {
+    printf("ElemIndex: undefined element\n");
+    exit_(1);
+  }
+
+  return i;
+}
