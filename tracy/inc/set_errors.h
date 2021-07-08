@@ -2,6 +2,16 @@
 #ifndef SET_ERRORS
 #define SET_ERRORS
 
+void iniranf(const long i);
+
+void newseed(void);
+
+double ranf(void);
+
+void setrancut(const double cut);
+
+double normranf(void);
+
 void CheckAlignTol(LatticeType &lat, const char *OutputFile);
 
 void misalign_rms_elem(LatticeType &lat, const int Fnum, const int Knum,

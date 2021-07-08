@@ -173,7 +173,8 @@ bool LatticeType::Cell_getCOD(long imax, double eps, double dP, long &lastpos)
     Cell_Pass(0, conf.Cell_nLoc, map, lastpos); 
 
     if (lastpos == conf.Cell_nLoc) {
-      x1 = map.cst(); dx = x0 - x1; dx0 = PInv(map-I-x1, jj)*dx;
+      x1 = map.cst(); dx = x0 - x1;
+      dx0 = PInv(map-I-x1, jj)*dx;
       dxabs = xabs(n, dx); x0 += dx0.cst();
     } else {
       dxabs = NAN; break;
@@ -273,5 +274,5 @@ void LatticeType::Lat_Init(void)
     Stotal += elems[i]->PL; elems[i]->S = Stotal;
   }
 
-  if (debug) prt_elem();
+  if (debug) prt_elems();
 }

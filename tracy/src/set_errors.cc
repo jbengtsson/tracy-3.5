@@ -2,18 +2,56 @@
 
 const static bool normal = true; // Normal or rectangular distribution.
 
+const static long int
+  k_ = 19,
+  c_ = 656329L,
+  m_ = 100000001;
 
-double ranf()
+const static int
+  maxiter = 100;
+
+static long int
+  rseed0,
+  rseed;
+static double
+  normcut_;
+
+void iniranf(const long i) { rseed0 = i; rseed = i; }
+
+void newseed(void)
 {
-  printf("\nranf: not implemented\n");
-  exit(1);
+  rseed0 = (k_*rseed0+c_) % m_; rseed = (rseed0+54321) % m_;
 }
 
+// Random number generator with rectangular distribution.
+double ranf(void) { rseed = (k_*rseed+c_) % m_; return (rseed/1e8); }
 
-double normranf()
+void setrancut(const double cut)
 {
-  printf("\nnormranf: not implemented\n");
-  exit(1);
+  printf("\nsetrancut: cut set to %3.1f\n", cut);
+  normcut_ = cut;
+}
+
+double normranf(void)
+{  
+  int    i, j;
+  double f, w;
+
+  j = 0;
+  do {
+    j++;
+    w = 0.0;
+    for (i = 1; i <= 12; i++)
+      w += ranf();
+    f = w - 6.0;
+  }
+  while (fabs(f) > fabs(normcut_) && j <= maxiter);
+
+  if (j > maxiter) {
+    printf("normranf: algorithm did not converge\n");
+    exit(1);
+  }
+  return f;
 }
 
 

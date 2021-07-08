@@ -489,9 +489,10 @@ void EdgeFocus(ConfigType &conf, const double irho, const double phi,
 {
   ps[px_] += irho*tan(degtorad(phi))*ps[x_];
   if (!conf.dip_edge_fudge) {
-    // warning: => diverging Taylor map (see SSC-141)
+    // Remark: Leads to a diverging Taylor map (see SSC-141).
     // ps[py_] -=
-    //   irho*tan(degtorad(phi)-get_psi(irho, phi, gap))*ps[y_]/(1e0+ps[delta_]);
+    //   irho*tan(degtorad(phi)-get_psi(irho, phi, gap))
+    //   *ps[y_]/(1e0+ps[delta_]);
     // Leading order correction.
     ps[py_] -=
       irho*tan(degtorad(phi)-get_psi(irho, phi, gap))*ps[y_]*(1e0-ps[delta_]);
@@ -603,7 +604,7 @@ void MpoleType::Mpole_Pass(ConfigType &conf, ss_vect<T> &ps)
   switch (Pmethod) {
 
   case Meth_Fourth:
-    if (conf.mat_meth && (Porder <= Quad)) {
+    if (conf.mat_meth && (Pthick = pthicktype(thick)) && (Porder <= Quad)) {
       ps = mat_pass(M_transp, ps);
 
       // if (conf.emittance && !conf.Cavity_on) &&
@@ -2333,18 +2334,17 @@ void prt_name(const char *name, const int len)
 }
 
 
-void prt_elem(ElemType *elem)
+void ElemType::prt_elem(void)
 {
   printf("  ");
-  prt_name(elem->PName, 7);
-  printf(" %6.3f %2d %6.3f %2d %2d",
-	 elem->S, elem->Pkind, elem->PL, elem->Fnum, elem->Knum);
+  prt_name(PName, 7);
+  printf(" %6.3f %2d %6.3f %2d %2d", S, Pkind, PL, Fnum, Knum);
 }
 
 
 void DriftType::print(void)
 {
-  prt_elem(this);
+  prt_elem();
   printf(" drift \n");
 }
 
@@ -2356,7 +2356,7 @@ double get_phi(MpoleType *elem)
 
 void MpoleType::print(void)
 {
-  prt_elem(this);
+  prt_elem();
   printf(" mpole  method %1d n_step %2d n_max %2d, n_design %2d reverse %1d"
 	 " phi %10.3e phi_1 %10.3e phi_2 %10.3e b_2 %10.3e b_3 %10.3e\n",
 	 Pmethod, PN, Porder, n_design, Reverse,
@@ -2366,68 +2366,68 @@ void MpoleType::print(void)
 
 void CavityType::print(void)
 {
-  prt_elem(this);
+  prt_elem();
   printf(" cavity\n");
 }
 
 
 void MarkerType::print(void)
 {
-  prt_elem(this);
+  prt_elem();
   printf(" marker\n");
 }
 
 
 void WigglerType::print(void)
 {
-  prt_elem(this);
+  prt_elem();
   printf(" wiggl \n");
 }
 
 
 void InsertionType::print(void)
 {
-  prt_elem(this);
+  prt_elem();
   printf(" ID    \n");
 }
 
 
 void FieldMapType::print(void)
 {
-  prt_elem(this);
+  prt_elem();
   printf(" FM    \n");
 }
 
 
 void SpreaderType::print(void)
 {
-  prt_elem(this);
+  prt_elem();
   printf(" spread\n");
 }
 
 
 void RecombinerType::print(void)
 {
-  prt_elem(this);
+  prt_elem();
   printf(" recomb\n");
 }
 
 
 void SolenoidType::print(void)
 {
-  prt_elem(this);
+  prt_elem();
   printf(" sol   \n");
 }
 
 
 void MapType::print(void)
 {
-  prt_elem(this);
+  prt_elem();
   printf(" map   \n");
 }
 
 
-void LatticeType::prt_fam(void)
+void LatticeType::prt_fams(void)
 {
   int k;
 
@@ -2440,7 +2440,7 @@ void LatticeType::prt_fam(void)
 }
 
 
-void LatticeType::prt_elem(void)
+void LatticeType::prt_elems(void)
 {
   int k;
 
@@ -2803,7 +2803,6 @@ void LatticeType::get_transp_mats(const double delta)
   long int  k;
   MpoleType *M;
 
-  printf("\nget_transp_mats = %9.3e\n", delta);
   for (k = 0; k <= conf.Cell_nLoc; k++) {
     M = dynamic_cast<MpoleType*>(elems[k]);
     if (elems[k]->Pkind == Mpole) M->M_transp = get_transp_mat(elems[k], delta);

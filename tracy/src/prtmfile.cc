@@ -79,18 +79,6 @@
 #define map_       7
 
 
-void LatticeType::prtName(FILE *fp, const int i, const int type,
-			  const int method, const int N, const bool reverse)
-{
-  fprintf(fp, "%-15s %4d %4d %4d\n",
-	  elems[i]->PName, elems[i]->Fnum, elems[i]->Knum, i);
-  fprintf(fp, " %3d %3d %3d %4d\n", type, method, N, reverse);
-  fprintf(fp, " %23.16e %23.16e %23.16e %23.16e\n",
-	  elems[i]->maxampl[X_][0], elems[i]->maxampl[X_][1],
-	  elems[i]->maxampl[Y_][0], elems[i]->maxampl[Y_][1]);
-}
-
-
 void prtHOM(FILE *fp, MpoleType *elem)
 {
   int i, nmpole;
@@ -104,6 +92,17 @@ void prtHOM(FILE *fp, MpoleType *elem)
       fprintf(fp, "%3d %23.16e %23.16e\n",
 	      i, elem->PB[HOMmax+i], elem->PB[HOMmax-i]);
   }
+}
+
+
+void prtName(FILE *fp, ElemType *elem, const int i, const int type,
+	     const int method, const int N, const bool reverse)
+{
+  fprintf(fp, "%-15s %4d %4d %4d\n", elem->PName, elem->Fnum, elem->Knum, i);
+  fprintf(fp, " %3d %3d %3d %4d\n", type, method, N, reverse);
+  fprintf(fp, " %23.16e %23.16e %23.16e %23.16e\n",
+	  elem->maxampl[X_][0], elem->maxampl[X_][1], elem->maxampl[Y_][0],
+	  elem->maxampl[Y_][1]);
 }
 
 
@@ -123,13 +122,13 @@ void LatticeType::prtmfile(const char mfile_dat[])
   for (i = 0; i <= conf.Cell_nLoc; i++) {
     switch (elems[i]->Pkind) {
     case drift:
-      prtName(mfile, i, drift_, 0, 0, 0);
+      prtName(mfile, elems[i], i, drift_, 0, 0, 0);
       fprintf(mfile, " %23.16e\n", elems[i]->PL);
       break;
     case Mpole:
       M = dynamic_cast<MpoleType*>(elems[i]);
       if (elems[i]->PL != 0.0) {
-	prtName(mfile, i, mpole_, M->Pmethod, M->PN,
+	prtName(mfile, elems[i], i, mpole_, M->Pmethod, M->PN,
 		elems[i]->Reverse);
 	fprintf(mfile, " %23.16e %23.16e %23.16e %23.16e\n",
 		elems[i]->dS[X_], elems[i]->dS[Y_],
@@ -138,7 +137,8 @@ void LatticeType::prtmfile(const char mfile_dat[])
 		elems[i]->PL, M->Pirho, M->PTx1, M->PTx2, M->Pgap);
 	prtHOM(mfile, M);
       } else {
-	prtName(mfile, i, thinkick_, M->Pmethod, M->PN, elems[i]->Reverse);
+	prtName(mfile, elems[i], i, thinkick_, M->Pmethod, M->PN,
+		elems[i]->Reverse);
 	fprintf(mfile, " %23.16e %23.16e %23.16e\n",
 		elems[i]->dS[X_], elems[i]->dS[Y_],
 		M->PdTsys+M->PdTrms*M->PdTrnd);
@@ -147,7 +147,8 @@ void LatticeType::prtmfile(const char mfile_dat[])
       break;
     case Wigl:
       W = dynamic_cast<WigglerType*>(elems[i]);
-      prtName(mfile, i, wiggler_, W->Pmethod, W->PN, elems[i]->Reverse);
+      prtName(mfile, elems[i], i, wiggler_, W->Pmethod, W->PN,
+	      elems[i]->Reverse);
       fprintf(mfile, " %23.16e %23.16e\n", elems[i]->PL, W->Lambda);
       fprintf(mfile, "%2d\n", W->n_harm);
       for (j = 0; j < W->n_harm; j++) {
@@ -158,17 +159,18 @@ void LatticeType::prtmfile(const char mfile_dat[])
       break;
     case Cavity:
       C = dynamic_cast<CavityType*>(elems[i]);
-      prtName(mfile, i, cavity_, 0, 0, 0);
+      prtName(mfile, elems[i], i, cavity_, 0, 0, 0);
       fprintf(mfile, " %23.16e %23.16e %d %23.16e %23.16e\n",
 	      C->Pvolt/(1e9*conf.Energy), 2.0*M_PI*C->Pfreq/c0, C->Ph,
 	      1e9*conf.Energy, C->phi);
       break;
     case marker:
-      prtName(mfile, i, marker_, 0, 0, 0);
+      prtName(mfile, elems[i], i, marker_, 0, 0, 0);
       break;
     case Insertion:
       ID = dynamic_cast<InsertionType*>(elems[i]);
-      prtName(mfile, i, kick_map_, ID->Pmethod, ID->PN, elems[i]->Reverse);
+      prtName(mfile, elems[i], i, kick_map_, ID->Pmethod, ID->PN,
+	      elems[i]->Reverse);
       if (ID->firstorder)
 	fprintf(mfile, " %3.1lf %1d %s\n", ID->scaling, 1, ID->fname1);
       else
@@ -176,7 +178,7 @@ void LatticeType::prtmfile(const char mfile_dat[])
       break;
     case Map:
       Mapp = dynamic_cast<MapType*>(elems[i]);
-      prtName(mfile, i, map_, 0, 0, 0);
+      prtName(mfile, elems[i], i, map_, 0, 0, 0);
       for (j = 0; j < n_ps; j++) {
 	for (k = 0; k < n_ps; k++)
 	  fprintf(mfile, " %23.16le", Mapp->M[j][k]);

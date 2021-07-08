@@ -11,15 +11,15 @@ J. Bengtsson  NSLS-II, BNL  2004 -
 
 // C wrapper for Pascal global variablse.
 static std::vector<ElemFamType> *ElemFam_;
-static LatticeType               *Lat_;
+static LatticeType              *Lat_;
 
 
 #define NoBmax       300          // maximum number of blocks (NoB)
-//#define NoBEmax      25000        /* maximum number of elements in
+//#define NoBEmax      25000      /* maximum number of elements in
 //				     a block (Elem_NFam) */
 #define NoBEmax      200000       /* maximum number of elements in
 				     a block (Elem_NFam) */
-//#define UDImax       100          // max number of user defined constants
+//#define UDImax       100        // max number of user defined constants
 #define UDImax       500          // max number of user defined constants
 //#define LatLLng      (132+1)
 // #define LatLLng      (1000+1)
@@ -37,7 +37,7 @@ static LatticeType               *Lat_;
 #define nn           3
 #define tmax         100
 
-#define nKidMax      5     // maximum number of kids.
+#define nKidMax      5            // maximum number of kids.
 
 typedef char Latlinetype[LatLLng];
 
@@ -4195,7 +4195,7 @@ bool LatticeType::Lattice_Read(FILE *fi_, FILE *fo_)
 
   RegisterKids(&V);                 /* Check wether too many elements */
 
-  if (debug) this->prt_fam();
+  if (debug) this->prt_fams();
   PrintResult(&V);                  /* Print lattice statistics */
 
  _L9999:

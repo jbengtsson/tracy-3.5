@@ -122,7 +122,7 @@ extern void gcmat(int bpm, int corr, int plane);
 extern void lsoc(int niter, int bpm, int corr, int plane);
 
 
-typedef char                partsName[NameLength];
+typedef char                partsName[SymbolLength];
 typedef std::vector<double> MpoleArray;
 
 enum PartsKind
@@ -270,6 +270,8 @@ class ElemType : public CellType {
   PartsKind
     Pkind;                     // Enumeration for magnet types.
 
+  void prt_elem(void);
+
   virtual ElemType* Elem_Init(const ConfigType &conf, const bool reverse)
   { return NULL; };
   virtual void print(void) {};
@@ -313,10 +315,8 @@ class LatticeType {
   void Lat_Init(void);
   void SI_init();
 
-  void prtName(FILE *fp, const int i, const int type, const int method,
-	       const int N, const bool reverse);
-  void prt_fam(void);
-  void prt_elem(void);
+  void prt_fams(void);
+  void prt_elems(void);
 
   friend long int ElemIndex(const std::string &name);
 
