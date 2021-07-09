@@ -10,18 +10,16 @@
 #ifndef TRACY_LIB_H
 #define TRACY_LIB_H
 
-// C standard library
+#define _GLIBCXX_DEBUG 1
+
+// C standard library.
 #include <stdio.h>
 #include <stddef.h>
 #include <setjmp.h>
 #include <time.h>
 #include <memory.h>
-// Depreciated; included in <stdlib.h>
-//#include <malloc.h>
-//#include <execinfo.h>
 
-
-// C++ standard library
+// C++ standard library.
 #include <cstdlib>
 #include <cfloat>
 #include <cctype>
@@ -33,10 +31,10 @@
 #include <fstream>
 #include <string>
 #include <algorithm>
+
 #include <armadillo>
 #include <gsl/gsl_linalg.h>
 
-//#undef max
 #include <vector>
 
 using namespace std;
@@ -54,11 +52,8 @@ using namespace std;
   #include "tpsa_for_pm.h"
 #endif
 
-// #include "mathlib.h"
 #include "ety.h"
 #include "eigenv.h"
-
-// #include "num_rec.h"
 
 #include "tracy.h"
 
@@ -91,9 +86,9 @@ using namespace std;
 
 
 // Truncated Power Series Algebra (TPSA)
-extern const int  nv_tps, nd_tps, iref_tps;
-extern int        no_tps, ndpt_tps;
-extern double     eps_tps;
+extern const int nv_tps, nd_tps, iref_tps;
+extern int       no_tps, ndpt_tps;
+extern double    eps_tps;
 
 extern LatticeType lat;
 

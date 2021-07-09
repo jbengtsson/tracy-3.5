@@ -54,7 +54,7 @@ extern double       chi_m;
 inline arma::vec pstovec(ss_vect<double> ps)
 {
   arma::vec ps_vec =
-    {ps[x_], ps[px_], ps[y_], ps[py_], ps[delta_], ps[ct_], ps[tps_dim-1]};
+    {ps[x_], ps[px_], ps[y_], ps[py_], ps[delta_], ps[ct_], 1e0};
   return ps_vec;
 }
 
@@ -318,7 +318,11 @@ class LatticeType {
   void prt_fams(void);
   void prt_elems(void);
 
+  int GetnKid(const int Fnum);
   long int ElemIndex(const std::string &name);
+  long int Elem_GetPos(const int Fnum, const int Knum);
+
+  void get_transp_mats(const double delta);
 
   void SetdS(const int Fnum, const int Knum);
   void SetdT(const int Fnum, const int Knum);
@@ -348,11 +352,6 @@ class LatticeType {
   // Obsolete.
   void getelem(long i, ElemType *cellrec);
   void putelem(long i, ElemType *cellrec);
-
-  int GetnKid(const int Fnum);
-  long Elem_GetPos(const int Fnum, const int Knum);
-
-  void get_transp_mats(const double delta);
 
   template<typename T>
   friend T get_p_s(const ConfigType &conf, const ss_vect<T> &ps);

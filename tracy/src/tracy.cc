@@ -351,31 +351,37 @@ double xabs(long n, ss_vect<double> &x)
 }
 
 
+void prt_name_ascii(string &name)
+{
+  int i;
+
+  printf("  %-8s (", name.c_str());
+  for (i = 0; i < (int)name.length(); i++)
+    printf(" %3d", (int)name[i]);
+  printf(" )\n");
+}
+
+
 long LatticeType::ElemIndex(const std::string &name)
 {
-  long        i, j;
+  long        i;
   std::string name1 = name;
 
-  const bool prt = !false;
+  const bool prt = false;
 
   for (i = 0; i < (int)name1.length(); i++)
     name1[i] = tolower(name1[i]);
 
   if (prt) {
-    printf("\nElemIndex:  %-8s (", name.c_str());
-    for (i = 0; i < (int)name1.length(); i++)
-      printf(" %3d", (int)name1[i]);
-    printf(" )\n");
+    printf("\nElemIndex:\n     ");
+    prt_name_ascii(name1); 
+    printf("\n");
   }
 
   for (i = 1; i <= (int)elemf.size(); i++) {
     if (prt) {
-      printf("%2d %-8s %-8s (",
-      	     name1 == elemf[i-1].ElemF->Name, name1.c_str(),
-      	     elemf[i-1].ElemF->Name.c_str());
-      for (j = 0; j < elemf[i-1].ElemF->Name.length(); j++)
-	printf(" %3d", (int)elemf[i-1].ElemF->Name[j]);
-      printf(" )\n");
+      printf("  %3ld", i);
+      prt_name_ascii(elemf[i-1].ElemF->Name);
     }
 
     if (name1 == elemf[i-1].ElemF->Name) break;

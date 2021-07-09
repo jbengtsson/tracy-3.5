@@ -13,7 +13,8 @@ AM_CPPFLAGS = -I../inc -I$(NUM_REC)/inc
 # Fortan flags.
 FFLAGS      = -g -O2 -Wall -fbounds-check -fdefault-integer-8 -mcmodel=large
 # C++ flags.
-AM_CXXFLAGS = -std=c++11 -g -O0 -Wall -Wno-error=all -fPIC
+AM_CXXFLAGS = -g -O0 -Wall -Wno-error=all -std=c++11 -D_GLIBCXX_DEBUG \
+              -D_GLIBCXX_DEBUG_PEDANTIC -fPIC
 # AM_CXXFLAGS = -g -O0 -Wall -Wno-error=all -fno-implicit-templates -fPIC
 #CXXFLAGS = -pg -O2 -Wall -fno-implicit-templates -fPIC
 #CXXFLAGS = -g -O2 -Wall -frepo

@@ -1,3 +1,5 @@
+#define _GLIBCXX_DEBUG 1
+
 #define NO_TPSA 1
 
 #include "tracy_lib.h"
@@ -28,6 +30,8 @@ void cod_stat(const LatticeType &lat, double mean[], double sigma[],
   int    j;
   double sum[2], sum2[2];
 
+  // printf("  %2d %3d", (int)bpms_[0].size(), bpms_[2][15]);
+
   for (j = 0; j < 2; j++) {
     sum[j] = 0e0; sum2[j] = 0e0; xmax[j] = 0e0;
   }
@@ -43,7 +47,7 @@ void cod_stat(const LatticeType &lat, double mean[], double sigma[],
       }
     }
   } else {
-    for (i = 1; i <= n_bpm_[X_]; i++) {
+    for (i = 0; i < n_bpm_[X_]; i++) {
       n++;
       for (j = 0; j < 2; j++) {
 	loc = bpms_[j][i];
@@ -71,6 +75,61 @@ void cod_stat(const LatticeType &lat, double mean[], double sigma[],
 }
 
 
+bool orb_corr(LatticeType &lat, const int n_orbit)
+{
+  bool   cod = false;
+  int    i;
+  long   lastpos;
+  double xmean[2], xsigma[2], xmax[2];
+
+  lat.conf.CODvect.zeros();
+  for (i = 1; i <= n_orbit; i++) {
+    cod = lat.getcod(0e0, lastpos);
+    if (cod) {
+      cod_stat(lat, xmean, xsigma, xmax, lat.conf.Cell_nLoc, true);
+      printf("\nRMS orbit [mm]: (%8.1e +/- %7.1e, %8.1e +/- %7.1e)\n",
+	     1e3*xmean[X_], 1e3*xsigma[X_], 1e3*xmean[Y_], 1e3*xsigma[Y_]);
+      lsoc(lat, 1, 1e0); lsoc(lat, 2, 1e0);
+
+      cod = lat.getcod(0e0, lastpos);
+      if (cod) {
+	cod_stat(lat, xmean, xsigma, xmax, lat.conf.Cell_nLoc, true);
+	printf("RMS orbit [mm]: (%8.1e +/- %7.1e, %8.1e +/- %7.1e)\n",
+	       1e3*xmean[X_], 1e3*xsigma[X_], 1e3*xmean[Y_], 1e3*xsigma[Y_]);
+      } else
+	printf("orb_corr: failed\n");
+    } else {
+      printf("orb_corr: failed\n");
+      break;
+    }
+  }
+
+  lat.prt_cod("orb_corr.out", true);
+
+  return cod;
+}
+
+
+void tst_lsoc(LatticeType &lat)
+{
+  const long
+    seed   = 1121;
+  const int
+    n_corr = 5,
+    bpm    = lat.ElemIndex("bpm"),
+    hcorr  = lat.ElemIndex("chv"),
+    vcorr  = lat.ElemIndex("chv");
+  const
+    double dx[]   = {100e-6, 100e-6};
+
+  iniranf(seed); setrancut(1e0);
+  gcmat(lat, bpm, hcorr, 1); gcmat(lat, bpm, vcorr, 2);
+  misalign_rms_type(lat, Quad, dx[X_], dx[Y_], 0e0, true);
+  orb_corr(lat, n_corr);
+  lat.prtmfile("flat_file_err.dat");
+}
+
+
 void get_lat(const char *file_name, LatticeType &lat)
 {
   double eps_x, sigma_delta, U_0, J[3], tau[3], I[6];
@@ -78,7 +137,7 @@ void get_lat(const char *file_name, LatticeType &lat)
 
   const string str = file_name;
 
-  lat.conf.trace        = !false;
+  lat.conf.trace        = false;
   lat.conf.reverse_elem = !false;
   lat.conf.mat_meth     = false;
 
@@ -108,15 +167,20 @@ void get_lat(const char *file_name, LatticeType &lat)
   if (false) {
     long int lastpos;
     double   xmean[2], xsigma[2], xmax[2];
+
     lat.getcod(0e0, lastpos);
-    cod_stat(lat, xmean, xsigma, xmax, lat.conf.Cell_nLoc, false);
-    printf("\n");
+    cod_stat(lat, xmean, xsigma, xmax, lat.conf.Cell_nLoc, true);
+    printf("\nRMS orbit [mm]: (%8.1e +/- %7.1e, %8.1e +/- %7.1e)\n",
+	   1e3*xmean[X_], 1e3*xsigma[X_], 1e3*xmean[Y_], 1e3*xsigma[Y_]);
+
+    lat.getcod(0e0, lastpos);
+
+    cod_stat(lat, xmean, xsigma, xmax, lat.conf.Cell_nLoc, true);
     printf("RMS orbit [mm]: (%8.1e +/- %7.1e, %8.1e +/- %7.1e)\n",
 	   1e3*xmean[X_], 1e3*xsigma[X_], 1e3*xmean[Y_], 1e3*xsigma[Y_]);
+
     exit(0);
   }
-
-  lat.prtmfile("flat_file.dat");
 
   lat.Ring_GetTwiss(true, 0e-3); printglob(lat);
   if (lat.conf.mat_meth)
@@ -134,66 +198,6 @@ void get_lat(const char *file_name, LatticeType &lat)
     lat.conf.Cavity_on = true;
     get_dynap(lat, delta_max, 25, n_turn, false);
   }
-}
-
-
-bool orb_corr(LatticeType &lat, const int n_orbit)
-{
-  bool   cod = false;
-  int    i;
-  long   lastpos;
-  double xmean[2], xsigma[2], xmax[2];
-
-  printf("\n");
-  lat.conf.CODvect.zeros();
-  for (i = 1; i <= n_orbit; i++) {
-    cod = lat.getcod(0e0, lastpos);
-    if (cod) {
-      cod_stat(lat, xmean, xsigma, xmax, lat.conf.Cell_nLoc, false);
-      printf("\n");
-      printf("RMS orbit [mm]: (%8.1e +/- %7.1e, %8.1e +/- %7.1e)\n",
-	     1e3*xmean[X_], 1e3*xsigma[X_], 1e3*xmean[Y_], 1e3*xsigma[Y_]);
-      lsoc(lat, 1, 1e0); lsoc(lat, 2, 1e0);
-      cod = lat.getcod(0e0, lastpos);
-      if (cod) {
-	cod_stat(lat, xmean, xsigma, xmax, lat.conf.Cell_nLoc, false);
-	printf("RMS orbit [mm]: (%8.1e +/- %7.1e, %8.1e +/- %7.1e)\n",
-	       1e3*xmean[X_], 1e3*xsigma[X_], 1e3*xmean[Y_], 1e3*xsigma[Y_]);
-      } else
-	printf("orb_corr: failed\n");
-    } else {
-      printf("orb_corr: failed\n");
-      break;
-    }
-  }
-
-  lat.prt_cod("orb_corr.out", true);
-
-  return cod;
-}
-
-
-void tst_lsoc(LatticeType &lat)
-{
-
-  const long   seed   = 1121;
-  const int    n_corr = 5;
-  const double dx[]   = {100e-6, 100e-6};
-
-  const int
-    bpm   = lat.ElemIndex("bpm"),
-    hcorr = lat.ElemIndex("chv"),
-    vcorr = lat.ElemIndex("chv");
-
-  // lat.conf.trace = true;
-
-  iniranf(seed); setrancut(1e0);
-
-  gcmat(lat, bpm, hcorr, 1); gcmat(lat, bpm, vcorr, 2);
-
-  misalign_rms_type(lat, Quad, dx[X_], dx[Y_], 0e0, true);
-    
-  orb_corr(lat, n_corr);
 }
 
 

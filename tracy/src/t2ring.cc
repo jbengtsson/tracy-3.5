@@ -1,12 +1,4 @@
-/* Tracy-2
-
-   J. Bengtsson, CBP, LBL      1990 - 1994   Pascal version
-                 SLS, PSI      1995 - 1997
-   M. Boege      SLS, PSI      1998          C translation
-   L. Nadolski   SOLEIL        2002          Link to NAFF, Radia field maps
-   J. Bengtsson  NSLS-II, BNL  2004 -        
-
-   t2ring.c: Functions for rings.                                             */
+/* t2ring.c: Functions for rings.                                             */
 
 
 void LatticeType::ChamberOff(void)
@@ -15,9 +7,9 @@ void LatticeType::ChamberOff(void)
 
   for (i = 0; i <= conf.Cell_nLoc; i++) {
     elems[i]->maxampl[X_][0] = -max_ampl;
-    elems[i]->maxampl[X_][1] = max_ampl;
+    elems[i]->maxampl[X_][1] =  max_ampl;
     elems[i]->maxampl[Y_][0] = -max_ampl;
-    elems[i]->maxampl[Y_][1] = max_ampl;
+    elems[i]->maxampl[Y_][1] =  max_ampl;
   }
   conf.chambre = false;
 }
@@ -680,7 +672,7 @@ void LatticeType::prt_lat(const int loc1, const int loc2, const char *fname,
   for (i = loc1; i <= loc2; i++) {
     if (all || (elems[i]->Fnum == conf.bpm)) {
       fprintf(outf,
-	      "%4ld %15s %9.5f %4.1f %9.5f %8.5f %8.5f %8.5f %8.5f"
+	      "%4ld %-10s %9.5f %4.1f %9.5f %8.5f %8.5f %8.5f %8.5f"
 	      " %9.5f %8.5f %8.5f %8.5f %8.5f  %8.2e\n",
 	      i, elems[i]->Name.c_str(), elems[i]->S, get_code(conf, *elems[i]),
 	      elems[i]->Alpha[X_], elems[i]->Beta[X_], elems[i]->Nu[X_],
@@ -815,7 +807,7 @@ void LatticeType::prt_lat(const int loc1, const int loc2, const char *fname,
 	  eta_Fl = (Inv(A_CS)*eta_Fl).cst();
 	  curly_H = sqr(eta_Fl[x_]) + sqr(eta_Fl[px_]);
 
-	  fprintf(outf, "%4ld %15s %6.2f %4.1f"
+	  fprintf(outf, "%4ld %-10s %6.2f %4.1f"
 		  " %9.5f %8.5f %8.5f %11.8f %11.8f"
 		  " %9.5f %8.5f %8.5f %8.5f %8.5f %10.3e %10.3e %10.3e\n",
 		  i, elems[i]->Name.c_str(), s, get_code(conf, *elems[i]),
@@ -835,7 +827,7 @@ void LatticeType::prt_lat(const int loc1, const int loc2, const char *fname,
 	eta_Fl = (Inv(A)*eta_Fl).cst();
 	curly_H = sqr(eta_Fl[x_]) + sqr(eta_Fl[px_]);
 
-	fprintf(outf, "%4ld %15s %6.2f %4.1f"
+	fprintf(outf, "%4ld %-10s %6.2f %4.1f"
 		" %9.5f %8.5f %8.5f %11.8f %11.8f"
 		" %9.5f %8.5f %8.5f %8.5f %8.5f %10.3e %10.3e %10.3e\n",
 		i, elems[i]->Name.c_str(), elems[i]->S,
@@ -890,10 +882,9 @@ void LatticeType::prt_cod(const char *file_name, const bool all)
       }
       /* COD is in local coordinates */
       fprintf(outf,
-	      "%4ld %.*s %6.2f %4.1f %6.3f %6.3f %6.3f %6.3f"
+	      "%4ld %-10s %6.2f %4.1f %6.3f %6.3f %6.3f %6.3f"
 	      " %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f\n",
-	      i, SymbolLength, elems[i]->Name.c_str(), elems[i]->S,
-	      get_code(conf, *elems[i]),
+	      i, elems[i]->Name.c_str(), elems[i]->S, get_code(conf, *elems[i]),
 	      elems[i]->Beta[X_], elems[i]->Nu[X_],
 	      elems[i]->Beta[Y_], elems[i]->Nu[Y_],
 	      1e3*elems[i]->BeamPos[x_], 1e3*elems[i]->BeamPos[y_],

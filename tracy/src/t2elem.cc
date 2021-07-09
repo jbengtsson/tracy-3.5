@@ -604,7 +604,7 @@ void MpoleType::Mpole_Pass(ConfigType &conf, ss_vect<T> &ps)
   switch (Pmethod) {
 
   case Meth_Fourth:
-    if (conf.mat_meth && (Pthick = pthicktype(thick)) && (Porder <= Quad)) {
+    if (conf.mat_meth && (Porder <= Quad)) {
       ps = mat_pass(M_transp, ps);
 
       // if (conf.emittance && !conf.Cavity_on) &&
@@ -2266,7 +2266,7 @@ void LatticeType::putelem(long i, ElemType *cellrec) { elems[i] = cellrec; }
 int LatticeType::GetnKid(const int Fnum) { return (elemf[Fnum-1].nKid); }
 
 
-inline long LatticeType::Elem_GetPos(const int Fnum, const int Knum)
+inline long int LatticeType::Elem_GetPos(const int Fnum, const int Knum)
 {
   if (elemf[Fnum-1].nKid > 0)
     return elemf[Fnum-1].KidList[Knum-1];
@@ -2319,25 +2319,10 @@ void LatticeType::SI_init()
 }
 
 
-void prt_name(const std::string &name, const int len)
-{
-  int j, k;
-
-  j = 0;
-  do {
-    printf("%c", name[j]);
-    j++;
-  } while (name[j] != ' ');
-  for (k = j; k < len; k++)
-    printf(" ");
-}
-
-
 void ElemType::prt_elem(void)
 {
-  printf("  ");
-  prt_name(Name, 7);
-  printf(" %6.3f %2d %6.3f %2d %2d", S, Pkind, PL, Fnum, Knum);
+  printf(" %-10s %6.3f %2d %6.3f %2d %2d",
+	 Name.c_str(), S, Pkind, PL, Fnum, Knum);
 }
 
 
@@ -2431,15 +2416,10 @@ void LatticeType::prt_fams(void)
   int k;
 
   printf("\nFamilies:\n");
-  for (k = 0; k < elemf.size(); k++) {
-    if (elemf[k].ElemF != NULL) {
-      // Family numbers may not be contigues for machine file.
-      printf("  %3d ", k+1);
-      prt_name(elemf[k].ElemF->Name, 7);
-      printf(" %2d %6.3f\n", elemf[k].ElemF->Pkind, elemf[k].ElemF->PL);
-    } else
-      printf("  %3d undef.\n", k+1);
-  }
+  for (k = 0; k < elemf.size(); k++)
+    printf("  %3d %-10s %2d %6.3f\n",
+	   k+1, elemf[k].ElemF->Name.c_str(), elemf[k].ElemF->Pkind,
+	   elemf[k].ElemF->PL);
 }
 
 
@@ -2475,43 +2455,43 @@ DriftType* Drift_Alloc(void)
 MpoleType* Mpole_Alloc(void)
 {
   int       j;
-  MpoleType *M = new MpoleType;
+  MpoleType *Mp = new MpoleType;
 
-  Init_Euclid(M);
+  Init_Euclid(Mp);
   for (j = -HOMmax; j <= HOMmax; j++) {
-    M->PBpar.push_back(0e0);
-    M->PBsys.push_back(0e0);
-    M->PBrms.push_back(0e0);
-    M->PBrnd.push_back(0e0);
-    M->PB.push_back(0e0);
+    Mp->PBpar.push_back(0e0);
+    Mp->PBsys.push_back(0e0);
+    Mp->PBrms.push_back(0e0);
+    Mp->PBrnd.push_back(0e0);
+    Mp->PB.push_back(0e0);
   }
   
-  M->Pmethod = Meth_Fourth; M->PN = 0;
+  Mp->Pmethod = Meth_Fourth; Mp->PN = 0;
   /* Displacement errors */
   for (j = 0; j <= 1; j++) {
-    M->PdSsys[j] = 0e0; M->PdSrms[j] = 0e0; M->PdSrnd[j] = 0e0;
+    Mp->PdSsys[j] = 0e0; Mp->PdSrms[j] = 0e0; Mp->PdSrnd[j] = 0e0;
   }
-  M->PdTpar = 0e0; /* Roll angle */
-  M->PdTsys = 0e0; /* systematic Roll errors */
-  M->PdTrms = 0e0; /* random Roll errors */
-  M->PdTrnd = 0e0; /* random seed */
+  Mp->PdTpar = 0e0; /* Roll angle */
+  Mp->PdTsys = 0e0; /* systematic Roll errors */
+  Mp->PdTrms = 0e0; /* random Roll errors */
+  Mp->PdTrnd = 0e0; /* random seed */
   for (j = -HOMmax; j <= HOMmax; j++) {
     /* Initializes multipoles strengths to zero */
-    M->PB[j+HOMmax]    = 0e0; M->PBpar[j+HOMmax] = 0e0;
-    M->PBsys[j+HOMmax] = 0e0; M->PBrms[j+HOMmax] = 0e0;
-    M->PBrnd[j+HOMmax] = 0e0;
+    Mp->PB[j+HOMmax]    = 0e0; Mp->PBpar[j+HOMmax] = 0e0;
+    Mp->PBsys[j+HOMmax] = 0e0; Mp->PBrms[j+HOMmax] = 0e0;
+    Mp->PBrnd[j+HOMmax] = 0e0;
   }
-  M->Porder = 0; M->n_design = 0;
-  M->Pirho  = 0e0; /* inverse of curvature radius */
-  M->PTx1   = 0e0; /* Entrance angle */
-  M->PTx2   = 0e0; /* Exit angle */
-  M->Pgap   = 0e0; /* Gap for fringe field ??? */
+  Mp->Porder = 0; Mp->n_design = 0;
+  Mp->Pirho  = 0e0; /* inverse of curvature radius */
+  Mp->PTx1   = 0e0; /* Entrance angle */
+  Mp->PTx2   = 0e0; /* Exit angle */
+  Mp->Pgap   = 0e0; /* Gap for fringe field ??? */
 
-  M->Pc0 = 0e0; M->Pc1 = 0e0; M->Ps1 = 0e0;
+  Mp->Pc0 = 0e0; Mp->Pc1 = 0e0; Mp->Ps1 = 0e0;
 
   // M_transp is allocated in Mpole_Init.
 
-  return M;
+  return Mp;
 }
 
 
@@ -2695,120 +2675,118 @@ static int UpdatePorder(MpoleType *M)
 }
 
 
-arma::mat get_edge_mat(const double h, const double phi, const double gap,
-		       const double delta)
+arma::mat get_edge_mat(MpoleType *Mp, const bool entrance, const double delta)
 {
-  arma::mat M = arma::mat(tps_dim, tps_dim);
+  arma::mat mat = arma::mat(tps_dim, tps_dim);
 
-  M.eye(tps_dim, tps_dim);
-  M(px_, x_) =  h*tan(degtorad(phi));
-  M(py_, y_) = -h*tan(degtorad(phi)-get_psi(h, phi, gap));
+  const double
+    h   = Mp->Pirho,
+    phi = (entrance)? Mp->PTx1 : Mp->PTx2,
+    gap = Mp->Pgap;
 
-  return M;
+  mat.eye(tps_dim, tps_dim);
+  mat(px_, x_) =  h*tan(degtorad(phi));
+  mat(py_, y_) = -h*tan(degtorad(phi)-get_psi(h, phi, gap));
+  return mat;
 }
 
 
-arma::mat get_sbend_mat(const double L, const double h, const double b2,
-			const double delta)
+arma::mat get_sbend_mat(const ElemType *elem, const double delta)
 {
-  double    K_x, K_y, psi_x, psi_y;
-  arma::mat M = arma::mat(tps_dim, tps_dim);
+  arma::mat mat = arma::mat(tps_dim, tps_dim);
 
-  K_x = b2 + sqr(h);
-  K_y = fabs(b2);
-  psi_x = sqrt(fabs(K_x)/(1e0+delta))*L;
-  psi_y = sqrt(K_y/(1e0+delta))*L;
+  const MpoleType *Mp = dynamic_cast<const MpoleType*>(elem);
 
-  M.eye(tps_dim, tps_dim);
+  const double
+    L     = elem->PL,
+    h     = Mp->Pirho,
+    b2    = Mp->PB[Quad+HOMmax],
+    K_x   = b2 + sqr(h),
+    K_y   = fabs(b2),
+    psi_x = sqrt(fabs(K_x)/(1e0+delta))*L,
+    psi_y = sqrt(K_y/(1e0+delta))*L;
+
+  mat.eye(tps_dim, tps_dim);
   if (K_x > 0e0) {
-    M(x_, x_)      = cos(psi_x);
-    M(x_, px_)     = sin(psi_x)/sqrt(K_x*(1e0+delta));
-    M(x_, delta_)  = (1e0-cos(psi_x))*h/K_x;
-    M(px_, x_)     = -sqrt(K_x*(1e0+delta))*sin(psi_x);
-    M(px_, px_)    = cos(psi_x);
-    M(px_, delta_) = sin(psi_x)*sqrt(1e0+delta)*h/sqrt(K_x);
+    mat(x_, x_)      = cos(psi_x);
+    mat(x_, px_)     = sin(psi_x)/sqrt(K_x*(1e0+delta));
+    mat(x_, delta_)  = (1e0-cos(psi_x))*h/K_x;
+    mat(px_, x_)     = -sqrt(K_x*(1e0+delta))*sin(psi_x);
+    mat(px_, px_)    = cos(psi_x);
+    mat(px_, delta_) = sin(psi_x)*sqrt(1e0+delta)*h/sqrt(K_x);
 
     if (psi_y != 0e0) {
-      M(y_, y_)    = cosh(psi_y);
-      M(y_, py_)   = sinh(psi_y)/sqrt(K_y*(1e0+delta));
-      M(py_, y_)   = sqrt(K_y*(1e0+delta))*sinh(psi_y);
-      M(py_, py_)  = cosh(psi_y);
+      mat(y_, y_)    = cosh(psi_y);
+      mat(y_, py_)   = sinh(psi_y)/sqrt(K_y*(1e0+delta));
+      mat(py_, y_)   = sqrt(K_y*(1e0+delta))*sinh(psi_y);
+      mat(py_, py_)  = cosh(psi_y);
     } else
-      M(y_, py_)   = L/(1e0+delta);
+      mat(y_, py_)   = L/(1e0+delta);
  
-    M(ct_, x_)     = sin(psi_x)*sqrt(1e0+delta)*h/sqrt(K_x);
-    M(ct_, px_)    = (1e0-cos(psi_x))*h/K_x;
-    M(ct_, delta_) =
+    mat(ct_, x_)     = sin(psi_x)*sqrt(1e0+delta)*h/sqrt(K_x);
+    mat(ct_, px_)    = (1e0-cos(psi_x))*h/K_x;
+    mat(ct_, delta_) =
       (psi_x-sin(psi_x))*sqrt(1e0+delta)*sqr(h)/pow(K_x, 3e0/2e0);
   } else if (K_x < 0e0) {
-    K_x = fabs(K_x);
-    M(x_, x_)      = cosh(psi_x);
-    M(x_, px_)     = sinh(psi_x)/sqrt(K_x*(1e0+delta));
-    M(x_, delta_)  = -(1e0-cosh(psi_x))*h/K_x;
-    M(px_, x_)     = sqrt(K_x*(1e0+delta))*sinh(psi_x);
-    M(px_, px_)    = cosh(psi_x);
-    M(px_, delta_) = sinh(psi_x)*sqrt(1e0+delta)*h/sqrt(K_x);
+    mat(x_, x_)      = cosh(psi_x);
+    mat(x_, px_)     = sinh(psi_x)/sqrt(fabs(K_x)*(1e0+delta));
+    mat(x_, delta_)  = -(1e0-cosh(psi_x))*h/fabs(K_x);
+    mat(px_, x_)     = sqrt(fabs(K_x)*(1e0+delta))*sinh(psi_x);
+    mat(px_, px_)    = cosh(psi_x);
+    mat(px_, delta_) = sinh(psi_x)*sqrt(1e0+delta)*h/sqrt(fabs(K_x));
 
     if (psi_y != 0e0) {
-      M(y_, y_)    = cos(psi_y);
-      M(y_, py_)   = sin(psi_y)/sqrt(K_y*(1e0+delta));
-      M(py_, y_)   = -sqrt(K_y*(1e0+delta))*sin(psi_y);
-      M(py_, py_)  = cos(psi_y);
+      mat(y_, y_)    = cos(psi_y);
+      mat(y_, py_)   = sin(psi_y)/sqrt(K_y*(1e0+delta));
+      mat(py_, y_)   = -sqrt(K_y*(1e0+delta))*sin(psi_y);
+      mat(py_, py_)  = cos(psi_y);
    } else
-      M(y_, py_)   = L/(1e0+delta);
+      mat(y_, py_)   = L/(1e0+delta);
 
-    M(ct_, x_)     = sinh(psi_x)*sqrt(1e0+delta)*h/sqrt(K_x);
-    M(ct_, px_)    = -(1e0-cosh(psi_x))*h/K_x;
-    M(ct_, delta_) =
-      - (psi_x-sinh(psi_x))*sqrt(1e0+delta)*sqr(h)/pow(K_x, 3e0/2e0);
+    mat(ct_, x_)     = sinh(psi_x)*sqrt(1e0+delta)*h/sqrt(fabs(K_x));
+    mat(ct_, px_)    = -(1e0-cosh(psi_x))*h/fabs(K_x);
+    mat(ct_, delta_) =
+      - (psi_x-sinh(psi_x))*sqrt(1e0+delta)*sqr(h)/pow(fabs(K_x), 3e0/2e0);
   } else {
     // K_x = 0.
-    M(x_, px_) = L/(1e0+delta);
-    M(y_, py_) = L/(1e0+delta);
+    mat(x_, px_) = L/(1e0+delta);
+    mat(y_, py_) = L/(1e0+delta);
   }
-
-  return M;
-}
-
-
-arma::mat get_thin_kick_mat(const double b2L, const double delta)
-{
-  arma::mat M(tps_dim, tps_dim);
-
-  M.eye(tps_dim, tps_dim);
-  M(px_, x_) = -b2L*(1e0+delta);
-  M(py_, y_) = b2L*(1e0+delta);
-
-  return M;
+  return mat;
 }
 
 
 arma::mat get_transp_mat(ElemType *elem, const double delta)
 {
-  arma::mat M0(tps_dim, tps_dim), M1(tps_dim, tps_dim), M2(tps_dim, tps_dim);
+  arma::mat M(tps_dim, tps_dim), M1(tps_dim, tps_dim), M2(tps_dim, tps_dim);
 
-  const MpoleType* M = dynamic_cast<const MpoleType*>(elem);
+  MpoleType *Mp = dynamic_cast<MpoleType*>(elem);
 
   if (elem->PL != 0e0) {
-    M0 = get_sbend_mat(elem->PL, M->Pirho, M->PB[Quad+HOMmax], delta);
-    M1 = get_edge_mat(M->Pirho, M->PTx1, M->Pgap, delta);
-    M2 = get_edge_mat(M->Pirho, M->PTx2, M->Pgap, delta);
-    M0 = M2*M0*M1;
-  } else
-    M0 = get_thin_kick_mat(elem->PL*M->PB[Quad+HOMmax], delta);
-
-  return M0;
+    M = get_sbend_mat(elem, delta);
+    M1 = get_edge_mat(Mp, true, delta);
+    M2 = get_edge_mat(Mp, false, delta);
+    M = M2*M*M1;
+  } else {
+    M.eye(tps_dim, tps_dim);
+    M(px_, x_)         = -Mp->PB[ Quad+HOMmax]*(1e0+delta);
+    M(py_, y_)         =  Mp->PB[-Quad+HOMmax]*(1e0+delta);
+    M(px_, tps_dim-1)  = -Mp->PB[  Dip+HOMmax]*(1e0+delta);
+    M(py_, tps_dim-1)  =  Mp->PB[ -Dip+HOMmax]*(1e0+delta);
+  }
+  return M;
 }
 
 
 void LatticeType::get_transp_mats(const double delta)
 {
   long int  k;
-  MpoleType *M;
+  MpoleType *Mp;
 
   for (k = 0; k <= conf.Cell_nLoc; k++) {
-    M = dynamic_cast<MpoleType*>(elems[k]);
-    if (elems[k]->Pkind == Mpole) M->M_transp = get_transp_mat(elems[k], delta);
+    Mp = dynamic_cast<MpoleType*>(elems[k]);
+    if (elems[k]->Pkind == Mpole)
+      Mp->M_transp = get_transp_mat(elems[k], delta);
   }
 }
 
@@ -2860,8 +2838,7 @@ ElemType* CavityType::Elem_Init(const ConfigType &conf, const bool reverse)
 {
   CavityType *Cp;
 
-  const CavityType* C =
-    dynamic_cast<const CavityType*>(this);
+  const CavityType* C = dynamic_cast<const CavityType*>(this);
 
   Cp = Cavity_Alloc();
   *Cp = *C;
@@ -2873,8 +2850,7 @@ ElemType* MarkerType::Elem_Init(const ConfigType &conf, const bool reverse)
 {
   MarkerType *Mkp;
 
-  const MarkerType* Mk =
-    dynamic_cast<const MarkerType*>(this);
+  const MarkerType* Mk = dynamic_cast<const MarkerType*>(this);
 
   Mkp = Marker_Alloc();
   *Mkp = *Mk;
@@ -2901,8 +2877,7 @@ ElemType* InsertionType::Elem_Init(const ConfigType &conf, const bool reverse)
 {
   InsertionType *IDp;
 
-  const InsertionType* ID =
-    dynamic_cast<const InsertionType*>(this);
+  const InsertionType* ID = dynamic_cast<const InsertionType*>(this);
 
 //  ID->Porder = order;
 //  x = ID->PBW[Quad+HOMmax];
@@ -2916,8 +2891,7 @@ ElemType* FieldMapType::Elem_Init(const ConfigType &conf, const bool reverse)
 {
   FieldMapType *FMp;
 
-  const FieldMapType *FM =
-    dynamic_cast<const FieldMapType*>(this);
+  const FieldMapType *FM = dynamic_cast<const FieldMapType*>(this);
 
   FMp = FieldMap_Alloc();
   *FMp = *FM;
@@ -2929,8 +2903,7 @@ ElemType* SpreaderType::Elem_Init(const ConfigType &conf, const bool reverse)
 {
   SpreaderType *Sprp;
 
-  const SpreaderType* Spr =
-    dynamic_cast<const SpreaderType*>(this);
+  const SpreaderType* Spr = dynamic_cast<const SpreaderType*>(this);
 
   Sprp = Spreader_Alloc();
   *Sprp = *Spr;
@@ -2942,8 +2915,7 @@ ElemType* RecombinerType::Elem_Init(const ConfigType &conf, const bool reverse)
 {
   RecombinerType *Recp;
 
-  const RecombinerType* Rec =
-    dynamic_cast<const RecombinerType*>(this);
+  const RecombinerType* Rec = dynamic_cast<const RecombinerType*>(this);
 
   Recp = Recombiner_Alloc();
   *Recp = *Rec;
@@ -2955,8 +2927,7 @@ ElemType* SolenoidType::Elem_Init(const ConfigType &conf, const bool reverse)
 {
   SolenoidType *Solp;
 
-  const SolenoidType* Sol =
-    dynamic_cast<const SolenoidType*>(this);
+  const SolenoidType* Sol = dynamic_cast<const SolenoidType*>(this);
 
   Solp = Solenoid_Alloc();
   *Solp = *Sol;
@@ -3767,8 +3738,7 @@ void MpoleType::SetPB(const int n)
   if ((1 <= abs(n)) && (abs(n) <= HOMmax)) {
     PB[n+HOMmax] =
       PBpar[n+HOMmax] + PBsys[n+HOMmax] + PBrms[n+HOMmax]*PBrnd[n+HOMmax];
-    if (abs(n) > Porder && PB[n+HOMmax] != 0e0)
-      Porder = abs(n);
+    if (abs(n) > Porder && PB[n+HOMmax] != 0e0) Porder = abs(n);
   } else {
     printf("SetPB: |n| < 1 (%d)\n", n);
     exit(1);
@@ -3841,14 +3811,20 @@ double LatticeType::GetdT(const int Fnum, const int Knum)
 
 void LatticeType::SetPB(const int Fnum, const int Knum, const int n)
 {
-  elems[Elem_GetPos(Fnum, Knum)]->SetPB(n);
+  MpoleType *Mp;
+  ElemType  *elemp = elems[Elem_GetPos(Fnum, Knum)];
+
+  elemp->SetPB(n);
+  if (this->conf.mat_meth) {
+    Mp = dynamic_cast<MpoleType*>(elemp);
+    Mp->M_transp = get_transp_mat(elemp, 0e0);
+  }
 }
 
 double LatticeType::GetPB(const int Fnum, const int Knum, const int n)
 {
   return elems[Elem_GetPos(Fnum, Knum)]->GetPB(n);
 }
-
 
 
 void LatticeType::Mpole_DefPBpar(const int Fnum, const int Knum, const int n,

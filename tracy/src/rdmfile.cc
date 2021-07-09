@@ -1,4 +1,4 @@
-/* To generate a lattice flat file.
+/* To read a lattice flat file.
 
    Type codes:
 

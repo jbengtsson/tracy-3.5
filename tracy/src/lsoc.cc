@@ -216,7 +216,6 @@ void lsoc(LatticeType &lat, const int plane, const double scl)
   }
       
   gsl_linalg_SV_solve(U_lsoc[k], V_lsoc[k], w_lsoc[k], b, x);
-  // dsvbksb(U_lsoc[k], w_lsoc[k], V_lsoc[k], n_bpm_[k], n_corr_[k], b, x);
 
   for (j = 0; j < n_corr_[k]; j++) {
     loc = corrs_[k][j];

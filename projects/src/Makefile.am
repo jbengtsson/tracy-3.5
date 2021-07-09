@@ -64,6 +64,7 @@ AM_CPPFLAGS = -I$(TRACY_LIB)/tracy/inc -I$(NUM_REC)/inc
 # Fortan flags.
 AM_FFLAGS   = -g -O0 -Wall -fbounds-check
 # C++ flags.
-AM_CXXFLAGS = -g -O0 -Wall -std=c++11
+AM_CXXFLAGS = -g -O0 -Wall -Wno-error=all -std=c++11 -D_GLIBCXX_DEBUG \
+              -D_GLIBCXX_DEBUG_PEDANTIC
 #CXXFLAGS = -pg -O2 -Wall -Wno-non-template-friend
 FFLAGS      = -g -O2 -Wall -fbounds-check -fdefault-integer-8
