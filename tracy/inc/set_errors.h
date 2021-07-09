@@ -2,6 +2,18 @@
 #ifndef SET_ERRORS
 #define SET_ERRORS
 
+
+enum error_type
+  { bn_des   = 0,
+    dbn_des  = 1,
+    bnL_des  = 2,
+    dbnL_des = 3,
+    bnL_sys  = 4,
+    bnL_rms  = 5,
+    bnr_sys  = 6,
+    bnr_rms  = 7 };
+
+
 void iniranf(const long i);
 
 void newseed(void);
@@ -71,58 +83,24 @@ void get_bn_design_elem(LatticeType &lat, const int Fnum, const int Knum,
 void get_bnL_design_elem(LatticeType &lat, const int Fnum, const int Knum,
 			 const int n, double &bnL, double &anL);
 
-void set_bn_design_elem(LatticeType &lat, const int Fnum, const int Knum,
-			const int n, const double bn, const double an);
-void set_bn_design_fam(LatticeType &lat, const int Fnum, const int n,
-		       const double bn, const double an);
-void set_dbn_design_elem(LatticeType &lat, const int Fnum, const int Knum,
-			 const int n, const double dbn, const double dan);
-void set_dbn_design_fam(LatticeType &lat, const int Fnum, const int n,
-			const double dbn, const double dan);
-void set_bnL_design_elem(LatticeType &lat, const int Fnum, const int Knum,
-			 const int n, const double bnL, const double anL);
-void set_bnL_design_fam(LatticeType &lat, const int Fnum, const int n,
-			const double bnL, const double anL);
-void set_dbnL_design_elem(LatticeType &lat, const int Fnum, const int Knum,
-			 const int n, const double dbnL, const double danL);
-void set_dbnL_design_fam(LatticeType &lat, const int Fnum, const int n,
-			 const double dbnL, const double danL);
+void set_bn(LatticeType &lat, error_type err, const int Fnum, const int Knum,
+	    const int n, const double bn, const double an, const bool new_rnd);
+
+void set_bn(LatticeType &lat, error_type err, const int Fnum, const int n,
+	    const double bn, const double an, const bool new_rnd);
 
 //------------------------------------------------------------------------------
 
 void set_bnL_design_type(LatticeType &lat, const int type, const int n,
 			 const double bnL, const double anL);
 
-//------------------------------------------------------------------------------
-
-void set_bnL_sys_elem(LatticeType &lat, const int Fnum, const int Knum,
-		      const int n, const double bnL, const double anL);
-void set_bnL_sys_fam(LatticeType &lat, const int Fnum, const int n,
-		     const double bnL, const double anL);
-void set_bnr_sys_elem(LatticeType &lat, const int Fnum, const int Knum,
-		      const int n, const double bnr, const double anr);
-void set_bnr_sys_fam(LatticeType &lat, const int Fnum, const int n,
-		     const double bnr, const double anr);
 void set_bnL_sys_type(LatticeType &lat, const int type, const int n,
 		      const double bnL, const double anL);
 void set_bnr_sys_type(LatticeType &lat, const int type, const int n,
 		      const double bnr, const double anr);
 
-void set_bnL_rms_elem(LatticeType &lat, const int Fnum, const int Knum,
-		      const int n, const double bnL, const double anL,
-		      const bool new_rnd);
-void set_bnL_rms_fam(LatticeType &lat, const int Fnum, const int n,
-		     const double bnL, const double anL,
-		     const bool new_rnd);
-void set_bnr_rms_elem(LatticeType &lat, const int Fnum, const int Knum,
-		      const int n, const double bnr, const double anr,
-		      const bool new_rnd);
-void set_bnr_rms_fam(LatticeType &lat, const int Fnum, const int n,
-		     const double bnr, const double anr,
-		     const bool new_rnd);
 void set_bnL_rms_type(LatticeType &lat, const int type, const int n,
 		      const double bnL, const double anL, const bool new_rnd);
-
 
 void set_bnr_rms_type(LatticeType &lat, const int type, const int n,
 		      const double bnr, const double anr,

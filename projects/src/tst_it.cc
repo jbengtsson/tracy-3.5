@@ -139,7 +139,7 @@ void get_lat(const char *file_name, LatticeType &lat)
 
   lat.conf.trace        = false;
   lat.conf.reverse_elem = !false;
-  lat.conf.mat_meth     = false;
+  lat.conf.mat_meth     = !false;
 
   lat.conf.H_exact    = false; lat.conf.quad_fringe = false;
   lat.conf.Cavity_on  = false; lat.conf.radiation   = false;

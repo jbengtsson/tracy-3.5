@@ -578,28 +578,80 @@ void get_bnL_design_elem(LatticeType &lat, const int Fnum, const int Knum,
 }
 
 
-void set_bn_design_elem(LatticeType &lat, const int Fnum, const int Knum,
-			const int n, const double bn, const double an)
+void set_bn(LatticeType &lat, error_type err, const int Fnum, const int Knum,
+	    const int n, const double bn, const double an, const bool new_rnd)
 {
-  ElemType  *elem;
-  MpoleType *M;
+  int       nd;
+  ElemType* elem = lat.elems[lat.Elem_GetPos(Fnum, Knum)];
+  MpoleType *M   = dynamic_cast<MpoleType*>(elem);
 
   if (n < 1) {
     std::cout << "set_bn_design_elem: n < 1 (" << n << ")" << std::endl;
     exit(1);
   }
 
-  elem = lat.elems[lat.Elem_GetPos(Fnum, Knum)];
-  M = dynamic_cast<MpoleType*>(elem);
-
-  M->PBpar[HOMmax+n] = bn; M->PBpar[HOMmax-n] = an;
+  switch (err) {
+  case bn_des:
+    M->PBpar[HOMmax+n] = bn;
+    M->PBpar[HOMmax-n] = an;
+    break;
+  case dbn_des:
+    M->PBpar[HOMmax+n] += bn;
+    M->PBpar[HOMmax-n] += an;
+    break;
+  case bnL_des:
+    M->PBpar[HOMmax+n] = (elem->PL != 0e0)? bn/elem->PL : bn;
+    M->PBpar[HOMmax-n] = (elem->PL != 0e0)? an/elem->PL : an;
+    break;
+  case dbnL_des:
+    M->PBpar[HOMmax+n] += (elem->PL != 0e0)? bn/elem->PL : bn;
+    M->PBpar[HOMmax-n] += (elem->PL != 0e0)? an/elem->PL : an;
+    break;
+  case bnL_sys:
+    M->PBsys[HOMmax+n] += (elem->PL != 0e0)? bn/elem->PL : bn;
+    M->PBsys[HOMmax-n] += (elem->PL != 0e0)? an/elem->PL : an;
+    break;
+  case bnL_rms:
+    M->PBrms[HOMmax+n] += (elem->PL != 0e0)? bn/elem->PL : bn;
+    M->PBrms[HOMmax-n] += (elem->PL != 0e0)? an/elem->PL : an;
+    if (new_rnd) {
+	M->PBrnd[HOMmax+n] = (normal)? normranf() : ranf();
+	M->PBrnd[HOMmax-n] = (normal)? normranf() : ranf();
+      }
+    break;
+  case bnr_sys:
+    // Errors are relative to design values for: [Dip, Quad, Sext, ...].
+    nd = M->n_design;
+    M->PBsys[HOMmax+n] = bn*M->PBpar[HOMmax+nd];
+    M->PBsys[HOMmax-n] = an*M->PBpar[HOMmax+nd];
+    break;
+  case bnr_rms:
+    // Errors are relative to design values for: [Dip, Quad, Sext, ...].
+    nd = M->n_design;
+    if (nd == Dip) {
+      M->PBrms[HOMmax+n] = bn*M->Pirho;
+      M->PBrms[HOMmax-n] = an*M->Pirho;
+    } else {
+      M->PBrms[HOMmax+n] = bn*M->PBpar[HOMmax+nd];
+      M->PBrms[HOMmax-n] = an*M->PBpar[HOMmax+nd];
+    }
+    if(new_rnd){
+	M->PBrnd[HOMmax+n] = (normal)? normranf() : ranf(); 
+	M->PBrnd[HOMmax-n] = (normal)? normranf() : ranf();
+    }
+    break;
+  default:
+    printf("\nset_bn: undefined error type: %d\n", err);
+    exit(1);
+    break;
+  }
 
   lat.SetPB(Fnum, Knum, n); lat.SetPB(Fnum, Knum, -n);
 }
 
 
-void set_bn_design_fam(LatticeType &lat, const int Fnum, const int n,
-		       const double bn, const double an)
+void set_bn(LatticeType &lat, error_type err, const int Fnum, const int n,
+		       const double bn, const double an, const bool new_rnd)
 {
   int k;
 
@@ -609,127 +661,13 @@ void set_bn_design_fam(LatticeType &lat, const int Fnum, const int n,
   }
 
   for (k = 1; k <= lat.GetnKid(Fnum); k++)
-    set_bn_design_elem(lat, Fnum, k, n, bn, an);
+    set_bn(lat, err, Fnum, k, n, bn, an, new_rnd);
 }
 
-
-void set_dbn_design_elem(LatticeType &lat, const int Fnum, const int Knum,
-			 const int n, const double dbn, const double dan)
-{
-  ElemType  *elem;
-  MpoleType *M;
-
-  if (n < 1) {
-    std::cout << "set_dbn_design_elem: n < 1 (" << n << ")" << std::endl;
-    exit(1);
-  }
-
-  elem = lat.elems[lat.Elem_GetPos(Fnum, Knum)];
-  M = dynamic_cast<MpoleType*>(elem);
-
-  M->PBpar[HOMmax+n] += dbn; M->PBpar[HOMmax-n] += dan;
-
-  lat.SetPB(Fnum, Knum, n); lat.SetPB(Fnum, Knum, -n);
-}
-
-
-void set_dbn_design_fam(LatticeType &lat, const int Fnum, const int n,
-			const double dbn, const double dan)
-{
-  int k;
-
-  if (n < 1) {
-    std::cout << "set_dbn_design_fam: n < 1 (" << n << ")" << std::endl;
-    exit(1);
-  }
-
-  for (k = 1; k <= lat.GetnKid(Fnum); k++)
-    set_dbn_design_elem(lat, Fnum, k, n, dbn, dan);
-}
-
-
-void set_bnL_design_elem(LatticeType &lat, const int Fnum, const int Knum,
-			 const int n, const double bnL, const double anL)
-{
-  ElemType  *elem;
-  MpoleType *M;
-
-  if (n < 1) {
-    std::cout << "set_bnL_design_elem: n < 1 (" << n << ")" << std::endl;
-    exit(1);
-  }
-
-  elem = lat.elems[lat.Elem_GetPos(Fnum, Knum)];
-  M = dynamic_cast<MpoleType*>(elem);
-
-  if (elem->PL != 0e0) {
-    M->PBpar[HOMmax+n] = bnL/elem->PL;
-    M->PBpar[HOMmax-n] = anL/elem->PL;
-  } else {
-    // thin kick
-    M->PBpar[HOMmax+n] = bnL; M->PBpar[HOMmax-n] = anL;
-  }
-
-  lat.SetPB(Fnum, Knum, n); lat.SetPB(Fnum, Knum, -n);
-}
-
-
-void set_dbnL_design_elem(LatticeType &lat, const int Fnum, const int Knum,
-			  const int n, const double dbnL, const double danL)
-{
-  ElemType  *elem;
-  MpoleType *M;
-
-  if (n < 1) {
-    std::cout << "set_dbnL_design_elem: n < 1 (" << n << ")" << std::endl;
-    exit(1);
-  }
-
-  elem = lat.elems[lat.Elem_GetPos(Fnum, Knum)];
-  M = dynamic_cast<MpoleType*>(elem);
-
-  if (elem->PL != 0e0) {
-    M->PBpar[HOMmax+n] += dbnL/elem->PL;
-    M->PBpar[HOMmax-n] += danL/elem->PL;
-  } else {
-    // thin kick
-    M->PBpar[HOMmax+n] += dbnL; M->PBpar[HOMmax-n] += danL;
-  }
-
-  lat.SetPB(Fnum, Knum, n); lat.SetPB(Fnum, Knum, -n);
-}
-
-
-void set_dbnL_design_fam(LatticeType &lat, const int Fnum, const int n,
-			 const double dbnL, const double danL)
-{
-  int k;
-
-  if (n < 1) {
-    std::cout << "set_dbnL_design_fam: n < 1 (" << n << ")" << std::endl;
-    exit(1);
-  }
-
-  for (k = 1; k <= lat.GetnKid(Fnum); k++)
-    set_dbnL_design_elem(lat, Fnum, k, n, dbnL, danL);
-}
-
-
-void set_bnL_design_fam(LatticeType &lat, const int Fnum, const int n,
-			const double bnL, const double anL)
-{
-  int k;
-
-  if (n < 1) {
-    std::cout << "set_bnL_design_fam: n < 1 (" << n << ")" << std::endl;
-    exit(1);
-  }
-
-  for (k = 1; k <= lat.GetnKid(Fnum); k++)
-    set_bnL_design_elem(lat, Fnum, k, n, bnL, anL);
-}
 
 //------------------------------------------------------------------------------
+
+#if 0
 
 void set_bnL_design_type(LatticeType &lat, const int type, const int n,
 			 const double bnL, const double anL)
@@ -751,48 +689,6 @@ void set_bnL_design_type(LatticeType &lat, const int type, const int n,
     }
   } else
     printf("Bad type argument to set_bnL_design_type()\n");
-}
-
-//------------------------------------------------------------------------------
-
-void set_bnL_sys_elem(LatticeType &lat, const int Fnum, const int Knum,
-		      const int n, const double bnL, const double anL)
-{
-  ElemType  *elem;
-  MpoleType *M;
-
-  if (n < 1) {
-    std::cout << "set_bnL_sys_elem: n < 1 (" << n << ")" << std::endl;
-    exit(1);
-  }
-
-  elem = lat.elems[lat.Elem_GetPos(Fnum, Knum)];
-  M = dynamic_cast<MpoleType*>(elem);
-
-  if (elem->PL != 0e0) {
-    M->PBsys[HOMmax+n] = bnL/elem->PL;
-    M->PBsys[HOMmax-n] = anL/elem->PL;
-  } else {
-    // thin kick
-    M->PBsys[HOMmax+n] = bnL; M->PBsys[HOMmax-n] = anL;
-  }
-
-  lat.SetPB(Fnum, Knum, n); lat.SetPB(Fnum, Knum, -n);
-}
-
-
-void set_bnL_sys_fam(LatticeType &lat, const int Fnum, const int n,
-		     const double bnL, const double anL)
-{
-  int k;
-
-  if (n < 1) {
-    std::cout << "set_bnL_sys_fam: n < 1 (" << n << ")" << std::endl;
-    exit(1);
-  }
-
-  for (k = 1; k <= lat.GetnKid(Fnum); k++)
-    set_bnL_sys_elem(lat, Fnum, k, n, bnL, anL);
 }
 
 
@@ -819,65 +715,6 @@ void set_bnL_sys_type(LatticeType &lat, const int type, const int n,
 }
 
 
-void set_bnL_rms_elem(LatticeType &lat, const int Fnum, const int Knum,
-		      const int n, const double bnL, const double anL,
-		      const bool new_rnd)
-{
-  ElemType  *elem;
-  MpoleType *M;
-
-  bool prt = false;
-
-  if (n < 1) {
-    std::cout << "set_bnL_rms_elem: n < 1 (" << n << ")" << std::endl;
-    exit(1);
-  }
-
-  elem = lat.elems[lat.Elem_GetPos(Fnum, Knum)];
-  M = dynamic_cast<MpoleType*>(elem);
-
-  if (elem->PL != 0e0) {
-    M->PBrms[HOMmax+n] = bnL/elem->PL;
-    M->PBrms[HOMmax-n] = anL/elem->PL;
-  } else {
-    // thin kick
-    M->PBrms[HOMmax+n] = bnL; M->PBrms[HOMmax-n] = anL;
-  }
-
-  if(new_rnd){
-    if (normal) {
-      M->PBrnd[HOMmax+n] = normranf();
-      M->PBrnd[HOMmax-n] = normranf();
-    } else {
-      M->PBrnd[HOMmax+n] = ranf(); M->PBrnd[HOMmax-n] = ranf();
-    }
-  }
-
-  if (prt)
-    printf("set_bnL_rms_elem:  Fnum = %d, Knum = %d"
-	   ", bnL = %e, anL = %e %e %e\n",
-	   Fnum, Knum, bnL, anL,
-	   M->PBrms[HOMmax+n], M->PBrms[HOMmax-n]);
-
-  lat.SetPB(Fnum, Knum, n); lat.SetPB(Fnum, Knum, -n);
-}
-
-
-void set_bnL_rms_fam(LatticeType &lat, const int Fnum, const int n,
-		     const double bnL, const double anL, const bool new_rnd)
-{
-  int k;
-
-  if (n < 1) {
-    std::cout << "set_bnL_rms_fam: n < 1 (" << n << ")" << std::endl;
-    exit(1);
-  }
-
-  for (k = 1; k <= lat.GetnKid(Fnum); k++)
-    set_bnL_rms_elem(lat, Fnum, k, n, bnL, anL, new_rnd);
-}
-
-
 void set_bnL_rms_type(LatticeType &lat, const int type, const int n,
 		      const double bnL, const double anL, const bool new_rnd)
 {
@@ -898,48 +735,6 @@ void set_bnL_rms_type(LatticeType &lat, const int type, const int n,
     }
   } else
     printf("Bad type argument to set_bnL_rms_type()\n");
-}
-
-
-void set_bnr_sys_elem(LatticeType &lat, const int Fnum, const int Knum,
-		      const int n, const double bnr, const double anr)
-{
-  int       nd;
-  MpoleType *M;
-  bool      prt = false;
-
-  if (n < 1) {
-    std::cout << "set_bnr_sys_elem: n < 1 (" << n << ")" << std::endl;
-    exit(1);
-  }
-
-  M = dynamic_cast<MpoleType*>(lat.elems[lat.Elem_GetPos(Fnum, Knum)]);
-  nd = M->n_design;
-  // errors are relative to design values for (Dip, Quad, Sext, ...)
-  M->PBsys[HOMmax+n] = bnr*M->PBpar[HOMmax+nd];
-  M->PBsys[HOMmax-n] = anr*M->PBpar[HOMmax+nd];
-
-  lat.SetPB(Fnum, Knum, n); lat.SetPB(Fnum, Knum, -n);
-
-  if (prt)
-    printf("set the n=%d component of %s to %e %e %e\n",
-	   n, lat.elems[lat.Elem_GetPos(Fnum, Knum)]->Name.c_str(),
-	   bnr, M->PBpar[HOMmax+nd], M->PBsys[HOMmax+n]);
-}
-
-
-void set_bnr_sys_fam(LatticeType &lat, const int Fnum, const int n,
-		     const double bnr, const double anr)
-{
-  int k;
-
-  if (n < 1) {
-    std::cout << "set_bnr_sys_fam: n < 1 (" << n << ")" << std::endl;
-    exit(1);
-  }
-
-  for (k = 1; k <= lat.GetnKid(Fnum); k++)
-    set_bnr_sys_elem(lat, Fnum, k, n, bnr, anr);
 }
 
 
@@ -966,67 +761,6 @@ void set_bnr_sys_type(LatticeType &lat, const int type, const int n,
 }
 
 
-void set_bnr_rms_elem(LatticeType &lat, const int Fnum, const int Knum,
-		      const int n, const double bnr, const double anr,
-		      const bool new_rnd)
-{
-  int       nd;
-  MpoleType *M;
-
-  bool prt = false;
-
-  if (n < 1) {
-    std::cout << "set_bnr_rms_elem: n < 1 (" << n << ")" << std::endl;
-    exit(1);
-  }
-
-  M = dynamic_cast<MpoleType*>(lat.elems[lat.Elem_GetPos(Fnum, Knum)]);
-  nd = M->n_design;
-  // errors are relative to design values for (Dip, Quad, Sext, ...)
-  if (nd == Dip) {
-    M->PBrms[HOMmax+n] = bnr*M->Pirho; M->PBrms[HOMmax-n] = anr*M->Pirho;
-  } else {
-    M->PBrms[HOMmax+n] = bnr*M->PBpar[HOMmax+nd];
-    M->PBrms[HOMmax-n] = anr*M->PBpar[HOMmax+nd];
-  }
-
-  if(new_rnd){
-    if (normal) {
-      M->PBrnd[HOMmax+n] = normranf(); M->PBrnd[HOMmax-n] = normranf();
-    } else {
-      M->PBrnd[HOMmax+n] = ranf(); M->PBrnd[HOMmax-n] = ranf();
-    }
-  }
-
-  lat.SetPB(Fnum, Knum, n); lat.SetPB(Fnum, Knum, -n);
-
-  if (prt) {
-    printf("set_bnr_rms_elem:  Fnum = %d, Knum = %d, n = %d, n_design = %d"
-	   ", new_rnd = %d, r_# = (%e, %e)\n",
-	   Fnum, Knum, n, nd, new_rnd,
-	   M->PBrnd[HOMmax+n], M->PBrnd[HOMmax-n]);
-    printf("  (bnr, anr) = (%e, %e), PBrms = (%e, %e), PB = (%e, %e)\n",
-	   bnr, anr, M->PBrms[HOMmax+n], M->PBrms[HOMmax-n],
-	   M->PB[HOMmax+n], M->PB[HOMmax-n]);
-  }
-}
-
-
-void set_bnr_rms_fam(LatticeType &lat, const int Fnum, const int n,
-		     const double bnr, const double anr, const bool new_rnd)
-{
-  int k;
-
-  if (n < 1) {
-    std::cout << "set_bnr_rms_fam: n < 1 (" << n << ")" << std::endl;
-    exit(1);
-  }
-
-  for (k = 1; k <= lat.GetnKid(Fnum); k++)
-    set_bnr_rms_elem(lat, Fnum, k, n, bnr, anr, new_rnd);
-}
-
-
 void set_bnr_rms_type(LatticeType &lat, const int type, const int n,
 		      const double bnr, const double anr, const bool new_rnd)
 {
@@ -1048,3 +782,5 @@ void set_bnr_rms_type(LatticeType &lat, const int type, const int n,
   } else
     printf("Bad type argument to set_bnr_rms_type()\n");
 }
+
+#endif

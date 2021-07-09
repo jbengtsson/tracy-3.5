@@ -126,19 +126,47 @@ typedef char                partsName[NameLength];
 typedef std::vector<double> MpoleArray;
 
 enum PartsKind
-  { drift = 0, Wigl = 1, Mpole = 2, Cavity = 3, marker = 4, undef = 5,
-    Insertion = 6, FieldMap = 7, Spreader = 8, Recombiner = 9, Solenoid = 10,
-    Map = 11 };
-enum pthicktype
-  { thick = 0, thin = 1 };
-enum
-  { All = 0, Dip = 1, Quad = 2, Sext = 3, Oct = 4, Dec = 5, Dodec = 6 };
-enum
-  { Horizontal = 1, Vertical = 2 };
-enum
-  { Meth_Linear = 0, Meth_First = 1, Meth_Second = 2, Meth_Fourth = 4 };
-enum set_mpole { b_n_ = 0, db_n_ = 1, b_nL_ = 2, db_nL_ = 3 };
+  { drift      = 0,
+    Wigl       = 1,
+    Mpole      = 2,
+    Cavity     = 3,
+    marker     = 4,
+    undef      = 5,
+    Insertion  = 6,
+    FieldMap   = 7,
+    Spreader   = 8,
+    Recombiner = 9,
+    Solenoid   = 10,
+    Map        = 11 };
 
+enum pthicktype
+  { thick = 0,
+    thin = 1 };
+
+enum
+  { All   = 0,
+    Dip   = 1,
+    Quad  = 2,
+    Sext  = 3,
+    Oct   = 4,
+    Dec   = 5,
+    Dodec = 6 };
+
+enum
+  { Horizontal = 1,
+    Vertical   = 2 };
+
+enum
+  { Meth_Linear = 0,
+    Meth_First  = 1,
+    Meth_Second = 2,
+    Meth_Fourth = 4 };
+
+enum set_mpole
+  { b_n_   = 0,
+    db_n_  = 1,
+    b_nL_  = 2,
+    db_nL_ = 3 };
 
 const int
   n_harm_max   = 10,

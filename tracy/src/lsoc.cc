@@ -25,8 +25,8 @@ void zero_trims(LatticeType &lat)
   for (k = 0; k < 2; k++)
     for (j = 0; j < n_corr_[k]; j++) {
       loc = corrs_[k][j];
-      set_bn_design_elem(lat, lat.elems[loc]->Fnum, lat.elems[loc]->Knum, Dip,
-			 0e0, 0e0);
+      set_bn(lat, bn_des, lat.elems[loc]->Fnum, lat.elems[loc]->Knum, Dip, 0e0,
+	     0e0, false);
     }
 }
 
@@ -220,11 +220,11 @@ void lsoc(LatticeType &lat, const int plane, const double scl)
   for (j = 0; j < n_corr_[k]; j++) {
     loc = corrs_[k][j];
     if (plane == 1)
-      set_dbnL_design_elem(lat, lat.elems[loc]->Fnum, lat.elems[loc]->Knum, Dip,
-			   -scl*gsl_vector_get(x, j), 0e0);
+      set_bn(lat, dbnL_des, lat.elems[loc]->Fnum, lat.elems[loc]->Knum, Dip,
+	     -scl*gsl_vector_get(x, j), 0e0, false);
     else
-      set_dbnL_design_elem(lat, lat.elems[loc]->Fnum, lat.elems[loc]->Knum, Dip,
-			   0e0, scl*gsl_vector_get(x, j));
+      set_bn(lat, dbnL_des, lat.elems[loc]->Fnum, lat.elems[loc]->Knum, Dip,
+	     0e0, scl*gsl_vector_get(x, j), false);
   }
 
   gsl_vector_free(b);
@@ -350,16 +350,16 @@ void lstc(LatticeType &lat, const int plane, const double scl)
 		  << "(b_1L)[" << std::setw(3) << j << "] = "
 		  << std::setw(12)<< -gsl_vector_get(x, j) << std::endl;
 
-      set_dbnL_design_elem(lat, lat.elems[loc]->Fnum, lat.elems[loc]->Knum, Dip,
-			   -scl*gsl_vector_get(x, j), 0e0);
+      set_bn(lat, dbnL_des, lat.elems[loc]->Fnum, lat.elems[loc]->Knum, Dip,
+	     -scl*gsl_vector_get(x, j), 0e0, false);
     } else {
       if (lat.conf.trace)
 	std::cout << std::scientific << std::setprecision(5)
 		  << "(a_1L)[" << std::setw(3) << j << "] = "
 		  << std::setw(12) << gsl_vector_get(x, j) << std::endl;
 
-      set_dbnL_design_elem(lat, lat.elems[loc]->Fnum, lat.elems[loc]->Knum, Dip,
-			   0e0, scl*gsl_vector_get(x, j));
+      set_bn(lat, dbnL_des, lat.elems[loc]->Fnum, lat.elems[loc]->Knum, Dip,
+	     0e0, scl*gsl_vector_get(x, j), false);
     }
   }
 
