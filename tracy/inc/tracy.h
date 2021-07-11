@@ -162,12 +162,6 @@ enum
     Meth_Second = 2,
     Meth_Fourth = 4 };
 
-enum set_mpole
-  { b_n_   = 0,
-    db_n_  = 1,
-    b_nL_  = 2,
-    db_nL_ = 3 };
-
 const int
   n_harm_max   = 10,
   Spreader_max = 10;
@@ -368,18 +362,11 @@ class LatticeType {
   void Mpole_DefdTpar(const int Fnum, const int Knum, const double PdTpar);
   void Mpole_DefdTsys(const int Fnum, const int Knum, const double PdTsys);
 
-  // nsls-ii_lib.
-  void set_b_n(const set_mpole set_, const int Fnum, const int Knum,
-	       const int n, const double b_n);
-
   bool Lattice_Read(FILE *inf, FILE *outf);
   void prtmfile(const char mfile_dat[]);
   void rdmfile(const char *mfile_dat);
 
   // t2elem.
-  // Obsolete.
-  void getelem(long i, ElemType *cellrec);
-  void putelem(long i, ElemType *cellrec);
 
   template<typename T>
   friend T get_p_s(const ConfigType &conf, const ss_vect<T> &ps);

@@ -2259,10 +2259,6 @@ void MapType::Map_Pass(ConfigType &conf, ss_vect<T> &ps)
 { ps = is_double<ss_vect<T>>::ps(M*ps); }
 
 
-void LatticeType::getelem(long i, ElemType *cellrec) { cellrec = elems[i]; }
-
-void LatticeType::putelem(long i, ElemType *cellrec) { elems[i] = cellrec; }
-
 int LatticeType::GetnKid(const int Fnum) { return (elemf[Fnum-1].nKid); }
 
 

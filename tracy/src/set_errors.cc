@@ -188,82 +188,75 @@ void CheckAlignTol(LatticeType &lat, const char *OutputFile)
 }
 
 
-void misalign_rms_elem(LatticeType &lat, const int Fnum, const int Knum,
-		       const double dx_rms, const double dy_rms,
-		       const double dr_rms, const bool new_rnd)
+void misalign(LatticeType &lat, const dx_types dx_type, const int Fnum,
+	      const int Knum, const double dx, const double dy, const double dr,
+	      const bool new_rnd)
 {
   long int  loc;
-  MpoleType *mp;
+  MpoleType *Mp;
 
   loc = lat.Elem_GetPos(Fnum, Knum);
-  mp = dynamic_cast<MpoleType*>(lat.elems[loc]);
+  Mp  = dynamic_cast<MpoleType*>(lat.elems[loc]);
 
-  mp->PdSrms[X_] = dx_rms; mp->PdSrms[Y_] = dy_rms; mp->PdTrms = dr_rms;
-  if (new_rnd) {
-    if (normal) {
-      mp->PdSrnd[X_] = normranf(); mp->PdSrnd[Y_] = normranf();
-      mp->PdTrnd = normranf();
-    } else {
-      mp->PdSrnd[X_] = ranf(); mp->PdSrnd[Y_] = ranf();
-      mp->PdTrnd = ranf();
+  switch (dx_type) {
+  case dx_sys:
+  Mp->PdSsys[X_] = dx;
+  Mp->PdSsys[Y_] = dy;
+  Mp->PdTsys     = dr;
+
+  lat.SetdS(Fnum, Knum); lat.SetdT(Fnum, Knum);
+  break;
+  case dx_rms:
+    Mp->PdSrms[X_] = dx;
+    Mp->PdSrms[Y_] = dy;
+    Mp->PdTrms     = dr;
+    if (new_rnd) {
+      if (normal) {
+	Mp->PdSrnd[X_] = normranf();
+	Mp->PdSrnd[Y_] = normranf();
+	Mp->PdTrnd     = normranf();
+      } else {
+	Mp->PdSrnd[X_] = ranf();
+	Mp->PdSrnd[Y_] = ranf();
+	Mp->PdTrnd     = ranf();
+      }
     }
+  break;
+  default:
+    printf("\nget_bn: undefined error type: %d\n", dx_type);
+    exit(1);
+    break;
   }
 
   lat.SetdS(Fnum, Knum); lat.SetdT(Fnum, Knum);
 }
 
-void misalign_sys_elem(LatticeType &lat, const int Fnum, const int Knum,
-		       const double dx_sys, const double dy_sys,
-		       const double dr_sys)
-{
-  long int  loc;
-  MpoleType *mp;
-
-  loc = lat.Elem_GetPos(Fnum, Knum);
-  mp  = dynamic_cast<MpoleType*>(lat.elems[loc]);
-
-  mp->PdSsys[X_] = dx_sys; mp->PdSsys[Y_] = dy_sys; mp->PdTsys = dr_sys;
-
-  lat.SetdS(Fnum, Knum); lat.SetdT(Fnum, Knum);
-}
-
-void misalign_rms_fam(LatticeType &lat, const int Fnum,
-		      const double dx_rms, const double dy_rms,
-		      const double dr_rms, const bool new_rnd)
+void misalign(LatticeType &lat, const dx_types dx_type, const int Fnum,
+	      const double dx, const double dy, const double dr,
+	      const bool new_rnd)
 {
   int  i;
 
   for (i = 1; i <= lat.GetnKid(Fnum); i++)
-    misalign_rms_elem(lat, Fnum, i, dx_rms, dy_rms, dr_rms, new_rnd);
+    misalign(lat, dx_type, Fnum, i, dx, dy, dr, new_rnd);
 }
 
-void misalign_sys_fam(LatticeType &lat, const int Fnum,
-		      const double dx_sys, const double dy_sys,
-		      const double dr_sys)
-{
-  int  i;
-
-  for (i = 1; i <= lat.GetnKid(Fnum); i++)
-    misalign_sys_elem(lat, Fnum, i, dx_sys, dy_sys, dr_sys);
-}
-
-void misalign_rms_type(LatticeType &lat, const int type,
-		       const double dx_rms, const double dy_rms,
-		       const double dr_rms, const bool new_rnd)
+void misalign_rms_type(LatticeType &lat, const int type, const double dx,
+		       const double dy, const double dr, const bool new_rnd)
 {
   long int  k;
-  MpoleType *M;
+  MpoleType *Mp;
 
   if ((type >= All) && (type <= HOMmax)) {
     for (k = 1; k <= lat.conf.Cell_nLoc; k++) {
-      M = dynamic_cast<MpoleType*>(lat.elems[k]);
+      Mp = dynamic_cast<MpoleType*>(lat.elems[k]);
       if ((lat.elems[k]->Pkind == Mpole) &&
-	  ((type == M->n_design) || ((type == All) &&
+	  ((type == Mp->n_design) || ((type == All) &&
 	   ((lat.elems[k]->Fnum != lat.conf.gs)
 	    && (lat.elems[k]->Fnum != lat.conf.ge))))) {
 	// if all: skip girders
-	misalign_rms_elem(lat, lat.elems[k]->Fnum, lat.elems[k]->Knum,
-			  dx_rms, dy_rms, dr_rms, new_rnd);
+	misalign(lat, dx_rms, lat.elems[k]->Fnum, lat.elems[k]->Knum, dx, dy,
+		 dr, new_rnd);
       }
     }
   } else {
@@ -271,23 +264,22 @@ void misalign_rms_type(LatticeType &lat, const int type,
   }
 }
 
-void misalign_sys_type(LatticeType &lat, const int type,
-		       const double dx_sys, const double dy_sys,
-		       const double dr_sys)
+void misalign_sys_type(LatticeType &lat, const int type, const double dx,
+		       const double dy, const double dr)
 {
   long int  k;
-  MpoleType *M;
+  MpoleType *Mp;
 
   if ((type >= All) && (type <= HOMmax)) {
     for (k = 1; k <= lat.conf.Cell_nLoc; k++) {
-      M = dynamic_cast<MpoleType*>(lat.elems[k]);
+      Mp = dynamic_cast<MpoleType*>(lat.elems[k]);
       if ((lat.elems[k]->Pkind == Mpole) &&
-	  ((type == M->n_design) || ((type == All) &&
+	  ((type == Mp->n_design) || ((type == All) &&
 	   ((lat.elems[k]->Fnum != lat.conf.gs)
 	    && (lat.elems[k]->Fnum != lat.conf.ge))))) {
 	// if all: skip girders
-	misalign_sys_elem(lat, lat.elems[k]->Fnum, lat.elems[k]->Knum,
-			  dx_sys, dy_sys, dr_sys);
+	misalign(lat, dx_sys, lat.elems[k]->Fnum, lat.elems[k]->Knum, dx, dy,
+		 dr, false);
       }
     }
   } else {
@@ -296,8 +288,8 @@ void misalign_sys_type(LatticeType &lat, const int type,
 }
 
 void misalign_rms_girders(LatticeType &lat, const int gs, const int ge,
-			  const double dx_rms, const double dy_rms,
-			  const double dr_rms, const bool new_rnd)
+			  const double dx, const double dy,
+			  const double dr, const bool new_rnd)
 {
   int       i, k, n_girders, n_ge, n_gs;
   long int  loc_gs, loc_ge, j;
@@ -313,8 +305,8 @@ void misalign_rms_girders(LatticeType &lat, const int gs, const int ge,
     exit (1);
   }
 
-  misalign_rms_fam(lat, gs, dx_rms, dy_rms, dr_rms, new_rnd);
-  misalign_rms_fam(lat, ge, dx_rms, dy_rms, dr_rms, new_rnd);
+  misalign(lat, dx_rms, gs, dx, dy, dr, new_rnd);
+  misalign(lat, dx_rms, ge, dx, dy, dr, new_rnd);
 
   for (i = 1; i <= n_girders; i++) {
     loc_gs = lat.Elem_GetPos(gs, i);
@@ -349,8 +341,8 @@ void misalign_rms_girders(LatticeType &lat, const int gs, const int ge,
 
 
 void misalign_sys_girders(LatticeType &lat, const int gs, const int ge,
-			  const double dx_sys, const double dy_sys,
-			  const double dr_sys)
+			  const double dx, const double dy,
+			  const double dr)
 {
   int       i, k, n_girders, n_ge, n_gs;
   long int  loc_gs, loc_ge, j;
@@ -366,8 +358,8 @@ void misalign_sys_girders(LatticeType &lat, const int gs, const int ge,
     exit (1);
   }
 
-  misalign_sys_fam(lat, gs, dx_sys, dy_sys, dr_sys);
-  misalign_sys_fam(lat, ge, dx_sys, dy_sys, dr_sys);
+  misalign(lat, dx_sys, gs, dx, dy, dr, false);
+  misalign(lat, dx_sys, ge, dx, dy, dr, false);
 
   for (i = 1; i <= n_girders; i++) {
     loc_gs = lat.Elem_GetPos(gs, i); loc_ge = lat.Elem_GetPos(ge, i);
@@ -401,25 +393,24 @@ void misalign_sys_girders(LatticeType &lat, const int gs, const int ge,
 
 // Apertures.
 
-void set_aper_elem(LatticeType &lat, const int Fnum, const int Knum,
-		   const double Dxmin, const double Dxmax,
-		   const double Dymin, const double Dymax)
+void set_aper(LatticeType &lat, const int Fnum, const int Knum,
+	      const double Dxmin, const double Dxmax,
+	      const double Dymin, const double Dymax)
 {
-  int k;
+  const int k = lat.Elem_GetPos(Fnum, Knum);
 
-    k = lat.Elem_GetPos(Fnum, Knum);
-    lat.elems[k]->maxampl[X_][0] = Dxmin; lat.elems[k]->maxampl[X_][1] = Dxmax;
-    lat.elems[k]->maxampl[Y_][0] = Dymin; lat.elems[k]->maxampl[Y_][1] = Dymax;
- }
+  lat.elems[k]->maxampl[X_][0] = Dxmin; lat.elems[k]->maxampl[X_][1] = Dxmax;
+  lat.elems[k]->maxampl[Y_][0] = Dymin; lat.elems[k]->maxampl[Y_][1] = Dymax;
+}
 
-void set_aper_fam(LatticeType &lat, const int Fnum,
-		  const double Dxmin, const double Dxmax,
-		  const double Dymin, const double Dymax)
+void set_aper(LatticeType &lat, const int Fnum,
+	      const double Dxmin, const double Dxmax,
+	      const double Dymin, const double Dymax)
 {
   int k;
 
   for (k = 1; k <= lat.GetnKid(Fnum); k++)
-    set_aper_elem(lat, Fnum, k, Dxmin, Dxmax, Dymin, Dymax);
+    set_aper(lat, Fnum, k, Dxmin, Dxmax, Dymin, Dymax);
 }
 
 void set_aper_type(LatticeType &lat, const int type, const double Dxmin,
@@ -433,8 +424,8 @@ void set_aper_type(LatticeType &lat, const int type, const double Dxmin,
       M = dynamic_cast<MpoleType*>(lat.elems[k]);
       if (((lat.elems[k]->Pkind == Mpole) && (M->n_design == type))
 	  || (type == All))
-	set_aper_elem(lat, lat.elems[k]->Fnum, lat.elems[k]->Knum, Dxmin, Dxmax,
-		      Dymin, Dymax);
+	set_aper(lat, lat.elems[k]->Fnum, lat.elems[k]->Knum, Dxmin, Dxmax,
+		 Dymin, Dymax);
     }
   } else
     printf("set_aper_type: bad design type %d\n", type);
@@ -496,68 +487,8 @@ void set_dL(LatticeType &lat, const int Fnum, const double dL)
 
 // Multipoles.
 
-void LatticeType::set_b_n(const set_mpole set_, const int Fnum, const int Knum,
-			 const int n, const double b_n)
-{
-  //       / b_n, n > 0 
-  // : set |
-  //       \ a_n, n < 0
-
-  ElemType  *elemp;
-  MpoleType *M;
-
-  if ((-HOMmax <= n) && (n <= HOMmax)) {
-    elemp = elems[Elem_GetPos(Fnum, Knum)];
-    M = dynamic_cast<MpoleType*>(elemp);
-
-    switch (set_) {
-    case set_mpole(b_n_):
-      M->PBpar[HOMmax+n] = b_n;
-      break;
-    case set_mpole(db_n_):
-      M->PBpar[HOMmax+n] += b_n;
-      break;
-    case set_mpole(b_nL_):
-      M->PBpar[HOMmax+n] = (elemp->PL != 0e0)? b_n/elemp->PL : b_n;
-      break;
-    case set_mpole(db_nL_):
-      M->PBpar[HOMmax+n] += (elemp->PL != 0e0)? b_n/elemp->PL : b_n;
-      break;
-    default:
-      printf("\nset_b_n: unknown set_ %d\n", set_);
-      exit(1);
-      break;
-    }
-
-   SetPB(Fnum, Knum, n);
-  } else {
-    printf("set_b_n: n < 1 (%d)\n", n);
-    exit(1);
-  }
-}
-
-//------------------------------------------------------------------------------
-
-void get_bn_design_elem(LatticeType &lat, const int Fnum, const int Knum,
-			const int n, double &bn, double &an)
-{
-  ElemType  *elem;
-  MpoleType *M;
-
-  if (n < 1) {
-    std::cout << "get_bn_design_elem: n < 1 (" << n << ")" << std::endl;
-    exit(1);
-  }
-
-  elem = lat.elems[lat.Elem_GetPos(Fnum, Knum)];
-  M = dynamic_cast<MpoleType*>(elem);
-
-  bn = M->PBpar[HOMmax+n]; an = M->PBpar[HOMmax-n];
-}
-
-
-void get_bnL_design_elem(LatticeType &lat, const int Fnum, const int Knum,
-			 const int n, double &bnL, double &anL)
+void get_bn(LatticeType &lat, const bn_types bn_type, const int Fnum,
+	    const int Knum, const int n, double &bn, double &an)
 {
   ElemType  *elem;
   MpoleType *M;
@@ -568,29 +499,39 @@ void get_bnL_design_elem(LatticeType &lat, const int Fnum, const int Knum,
   }
 
   elem = lat.elems[lat.Elem_GetPos(Fnum, Knum)];
-  M = dynamic_cast<MpoleType*>(elem);
+  M    = dynamic_cast<MpoleType*>(elem);
 
-  bnL = M->PBpar[HOMmax+n]; anL = M->PBpar[HOMmax-n];
-
-  if (elem->PL != 0e0) {
-    bnL *= elem->PL; anL *= elem->PL;
+  switch (bn_type) {
+  case bn_des:
+    bn = M->PBpar[HOMmax+n];
+    an = M->PBpar[HOMmax-n];
+    break;
+  case bnL_des:
+    bn = (elem->PL != 0e0)? M->PBpar[HOMmax+n]*elem->PL : M->PBpar[HOMmax+n];
+    an = (elem->PL != 0e0)? M->PBpar[HOMmax-n]*elem->PL : M->PBpar[HOMmax-n];
+    break;
+  default:
+    printf("\nget_bn: undefined error type: %d\n", bn_type);
+    exit(1);
+    break;
   }
 }
 
 
-void set_bn(LatticeType &lat, error_type err, const int Fnum, const int Knum,
-	    const int n, const double bn, const double an, const bool new_rnd)
+void set_bn(LatticeType &lat, const bn_types bn_type, const int Fnum,
+	    const int Knum, const int n, const double bn, const double an,
+	    const bool new_rnd)
 {
   int       nd;
   ElemType* elem = lat.elems[lat.Elem_GetPos(Fnum, Knum)];
   MpoleType *M   = dynamic_cast<MpoleType*>(elem);
 
   if (n < 1) {
-    std::cout << "set_bn_design_elem: n < 1 (" << n << ")" << std::endl;
+    std::cout << "set_bn: n < 1 (" << n << ")" << std::endl;
     exit(1);
   }
 
-  switch (err) {
+  switch (bn_type) {
   case bn_des:
     M->PBpar[HOMmax+n] = bn;
     M->PBpar[HOMmax-n] = an;
@@ -641,7 +582,7 @@ void set_bn(LatticeType &lat, error_type err, const int Fnum, const int Knum,
     }
     break;
   default:
-    printf("\nset_bn: undefined error type: %d\n", err);
+    printf("\nset_bn: undefined error type: %d\n", bn_type);
     exit(1);
     break;
   }
@@ -650,18 +591,18 @@ void set_bn(LatticeType &lat, error_type err, const int Fnum, const int Knum,
 }
 
 
-void set_bn(LatticeType &lat, error_type err, const int Fnum, const int n,
-		       const double bn, const double an, const bool new_rnd)
+void set_bn(LatticeType &lat, const bn_types bn_type, const int Fnum,
+	    const int n, const double bn, const double an, const bool new_rnd)
 {
   int k;
 
   if (n < 1) {
-    std::cout << "set_bn_design_fam: n < 1 (" << n << ")" << std::endl;
+    std::cout << "set_bn: n < 1 (" << n << ")" << std::endl;
     exit(1);
   }
 
   for (k = 1; k <= lat.GetnKid(Fnum); k++)
-    set_bn(lat, err, Fnum, k, n, bn, an, new_rnd);
+    set_bn(lat, bn_type, Fnum, k, n, bn, an, new_rnd);
 }
 
 
