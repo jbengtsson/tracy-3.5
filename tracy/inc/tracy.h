@@ -362,9 +362,9 @@ class LatticeType {
   void Mpole_DefdTpar(const int Fnum, const int Knum, const double PdTpar);
   void Mpole_DefdTsys(const int Fnum, const int Knum, const double PdTsys);
 
-  bool Lattice_Read(FILE *inf, FILE *outf);
-  void prtmfile(const char mfile_dat[]);
-  void rdmfile(const char *mfile_dat);
+  bool Lat_Read(const string &filnam);
+  void prtmfile(const string &mfile_dat);
+  void rdmfile(const string &mfile_dat);
 
   // t2elem.
 

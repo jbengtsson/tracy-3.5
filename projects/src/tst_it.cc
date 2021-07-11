@@ -130,10 +130,9 @@ void tst_lsoc(LatticeType &lat)
 }
 
 
-void get_lat(const char *file_name, LatticeType &lat)
+void get_lat(const string &file_name, LatticeType &lat)
 {
   double eps_x, sigma_delta, U_0, J[3], tau[3], I[6];
-  FILE   *inf, *outf;
 
   const string str = file_name;
 
@@ -148,9 +147,7 @@ void get_lat(const char *file_name, LatticeType &lat)
   lat.conf.Cart_Bend  = false; lat.conf.dip_edge_fudge = true;
 
   if (true) {
-    inf  = file_read((str+".lat").c_str());
-    outf = file_write((str+".lax").c_str());
-    lat.Lattice_Read(inf, outf);
+    lat.Lat_Read(file_name);
     lat.Lat_Init();
   } else
     lat.rdmfile(file_name);

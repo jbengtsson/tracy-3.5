@@ -89,10 +89,10 @@ typedef struct _REC_UDItable {
 } _REC_UDItable;
 
 
-//* Local variables for Lattice_Read: */
-struct LOC_Lattice_Read
+//* Local variables for Lat_Read: */
+struct LOC_Lat_Read
 {
-  FILE     **fi, **fo;
+  FILE     *fi, *fo;
   jmp_buf  _JL9999;
   long     Symmetry;
   bool     Ring;    /* true is CELL is a ring */
@@ -205,7 +205,7 @@ long *P_setunion(long *d, long *s1, long *s2)
 }
 
 
-static long CheckElementtable(const char *name, struct LOC_Lattice_Read *LINK)
+static long CheckElementtable(const char *name, struct LOC_Lat_Read *LINK)
 {
   /* Lat_->conf.Elem_nFam = Number of parts in a Element */
   long  i, j;
@@ -221,7 +221,7 @@ static long CheckElementtable(const char *name, struct LOC_Lattice_Read *LINK)
 }
 
 
-static long CheckBLOCKStable(const char *name, struct LOC_Lattice_Read *LINK)
+static long CheckBLOCKStable(const char *name, struct LOC_Lat_Read *LINK)
 {
   /* NoB = Number of Block defs */
   long  i, j, FORLIM;
@@ -243,13 +243,13 @@ static long CheckBLOCKStable(const char *name, struct LOC_Lattice_Read *LINK)
 }
 
 
-//static void InitUDItable(struct LOC_Lattice_Read *LINK)
+//static void InitUDItable(struct LOC_Lat_Read *LINK)
 //{
 //  LINK->UDIC = 0;
 //}
 
 
-static long CheckUDItable(const char *name, struct LOC_Lattice_Read *LINK)
+static long CheckUDItable(const char *name, struct LOC_Lat_Read *LINK)
 {
   long  i, j, FORLIM;
 
@@ -270,7 +270,7 @@ static long CheckUDItable(const char *name, struct LOC_Lattice_Read *LINK)
 
 
 static void EnterUDItable(const char *name, double X,
-			  struct LOC_Lattice_Read *LINK)
+			  struct LOC_Lat_Read *LINK)
 {
   _REC_UDItable  *WITH;
 
@@ -287,7 +287,7 @@ static void EnterUDItable(const char *name, double X,
 }
 
 
-static void ModUDItable(long N, double X, struct LOC_Lattice_Read *LINK)
+static void ModUDItable(long N, double X, struct LOC_Lat_Read *LINK)
 {
   _REC_UDItable *WITH;
 
@@ -297,7 +297,7 @@ static void ModUDItable(long N, double X, struct LOC_Lattice_Read *LINK)
 
 
 static void RefUDItable(const char *name, double *X,
-			struct LOC_Lattice_Read *LINK)
+			struct LOC_Lat_Read *LINK)
 {
   long k;
 
@@ -306,7 +306,7 @@ static void RefUDItable(const char *name, double *X,
 }
 
 
-//static void PrintUpname(char *name, struct LOC_Lattice_Read *LINK)
+//static void PrintUpname(char *name, struct LOC_Lat_Read *LINK)
 //{
 //  /*(var name:partsname)*/
 //  long i;
@@ -322,7 +322,7 @@ static void RefUDItable(const char *name, double *X,
 
 
 //static void PrintUpname1(char *name, long *pos,
-//                         struct LOC_Lattice_Read *LINK)
+//                         struct LOC_Lat_Read *LINK)
 //{  /*1*/
 //  /*var name : partsname; var pos : integer*/
 //  long i;
@@ -340,7 +340,7 @@ static void RefUDItable(const char *name, double *X,
 //  }  /*2*/
 //}  /*1*/
 
-//void PrintUpname2(char *name, struct LOC_Lattice_Read *LINK)
+//void PrintUpname2(char *name, struct LOC_Lat_Read *LINK)
 //{
 //  /*(var name:partsname)*/
 //  long i;
@@ -355,7 +355,7 @@ static void RefUDItable(const char *name, double *X,
 //}
 
 
-static void abort_(struct LOC_Lattice_Read *LINK)
+static void abort_(struct LOC_Lat_Read *LINK)
 {
   long i;
 
@@ -369,37 +369,37 @@ static void abort_(struct LOC_Lattice_Read *LINK)
 }
 
 
-static void ENDskip(FILE **fo, long *errpos, long *cc, bool *skipflag,
-		    struct LOC_Lattice_Read *LINK)
+static void ENDskip(FILE *fo, long *errpos, long *cc, bool *skipflag,
+		    struct LOC_Lat_Read *LINK)
 {
   /*underline skips part of input*/
   while (*errpos < *cc) {
-    putc('-', *fo);
+    putc('-', fo);
     (*errpos)++;
   }
   *skipflag = false;
 }
 
 
-static void Lat_Error(long n, FILE **fo, long *cc, long *errpos,
-		      struct LOC_Lattice_Read *LINK)
+static void Lat_Error(long n, FILE *fo, long *cc, long *errpos,
+		      struct LOC_Lat_Read *LINK)
 {
   if (*errpos != 0L)   /*write(fo, ' ****')*/
     return;
   if (*cc > *errpos) {
-    fprintf(*fo, "%*c^%2ld", (int)(*cc - *errpos), ' ', n);
+    fprintf(fo, "%*c^%2ld", (int)(*cc - *errpos), ' ', n);
     *errpos = *cc + 3;
   }
 }
 
 
-static void Lat_Nextch(FILE **fi, FILE **fo, long *cc, long *ll, long *errpos,
+static void Lat_Nextch(FILE *fi, FILE *fo, long *cc, long *ll, long *errpos,
 		       long *lc, char *chin, bool *skipflag, char *line,
-		       struct LOC_Lattice_Read *LINK)
+		       struct LOC_Lat_Read *LINK)
 {
   if (*cc == *ll) {
-    if (P_eof(*fi)) {
-      fprintf(*fo, "\nprogram incomplete\n");
+    if (P_eof(fi)) {
+      fprintf(fo, "\nprogram incomplete\n");
       /*errormsg;*/
       abort_(LINK);
     }
@@ -407,7 +407,7 @@ static void Lat_Nextch(FILE **fi, FILE **fo, long *cc, long *ll, long *errpos,
     if (*errpos != 0) {
       if (*skipflag)
 	ENDskip(fo, errpos, cc, skipflag, LINK);
-      putc('\n', *fo);
+      putc('\n', fo);
       *errpos = 0;
     }
     /* write(fo, */
@@ -418,25 +418,25 @@ static void Lat_Nextch(FILE **fi, FILE **fo, long *cc, long *ll, long *errpos,
     *ll = 0;
     *cc = 0;
 
-    while (!P_eoln(*fi)) {
+    while (!P_eoln(fi)) {
       (*ll)++;
       if ((*ll) > LatLLng) {
         printf("\nLat_Nextch: LatLLng exceeded %ld (%d)\n", (*ll)-1, LatLLng-1);
         exit_(1);
       }
-      *chin = getc(*fi);
+      *chin = getc(fi);
       if (*chin == '\n')
 	*chin = ' ';
-      putc(*chin, *fo);
+      putc(*chin, fo);
       line[*ll-1] = *chin;
     }
     (*ll)++;
-    fscanf(*fi, "%*[^\n]");
+    fscanf(fi, "%*[^\n]");
 
-    getc(*fi);
+    getc(fi);
     line[*ll-1] = ' ';
     /*read(fi, line[ll]);*/
-    putc('\n', *fo);
+    putc('\n', fo);
   }
   (*cc)++;
   if ((*cc) > LatLLng) {
@@ -453,17 +453,17 @@ static void Lat_Nextch(FILE **fi, FILE **fo, long *cc, long *ll, long *errpos,
 }  /* Lat_Nextch */
 
 
-static void Lat_errorm(const char *cmnt, FILE **fi, FILE **fo, long *cc,
+static void Lat_errorm(const char *cmnt, FILE *fi, FILE *fo, long *cc,
 		       long *ll, long *errpos, long *lc, char *chin,
 		       bool *skipflag, char *line,
-		       struct LOC_Lattice_Read *LINK)
+		       struct LOC_Lat_Read *LINK)
 {
   /*write(fo, ' ****')*/
   if (*cc > *errpos) {
-    fprintf(*fo, "%*c^%.80s", (int)(*cc - *errpos), ' ', cmnt);
+    fprintf(fo, "%*c^%.80s", (int)(*cc - *errpos), ' ', cmnt);
     *errpos = *cc + 3;
   }
-  while (!P_eof(*fi))
+  while (!P_eof(fi))
     Lat_Nextch(fi, fo, cc, ll, errpos, lc, chin, skipflag, line, LINK);
   Lat_->conf.ErrFlag = true;
   abort_(LINK);
@@ -472,8 +472,8 @@ static void Lat_errorm(const char *cmnt, FILE **fi, FILE **fo, long *cc,
 /* Local variables for Lat_GetSym: */
 struct LOC_Lat_GetSym
 {
-  struct LOC_Lattice_Read  *LINK;
-  FILE    **fi, **fo;
+  struct LOC_Lat_Read  *LINK;
+  FILE    *fi, *fo;
   long    *cc, *ll, *errpos, *lc, emax_, emin_;
   char    *chin;
   double  *rnum;
@@ -553,13 +553,13 @@ static void adjustscale(struct LOC_Lat_GetSym *LINK)
 }
 
 
-static void Lat_GetSym(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
+static void Lat_GetSym(FILE *fi_, FILE *fo_, long *cc_, long *ll_,
 		       long *errpos_, long *lc_, long *nkw, long *inum,
 		       long emax__, long emin__, long kmax_, long nmax_,
 		       char *chin_, char *id, double *rnum_, bool *skipflag_,
 		       bool *rsvwd, char *line_, Lat_symbol *sym, alfa_ *key,
 		       Lat_symbol *ksy, Lat_symbol *sps,
-		       struct LOC_Lattice_Read *LINK)
+		       struct LOC_Lat_Read *LINK)
 {  /*GetSym*/
   struct LOC_Lat_GetSym V;
 
@@ -849,8 +849,8 @@ static void Lat_GetSym(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 /* Local variables for Lat_EVAL: */
 struct LOC_Lat_EVAL
 {
-  struct LOC_Lattice_Read *LINK;
-  FILE **fi, **fo;
+  struct LOC_Lat_Read *LINK;
+  FILE *fi, *fo;
   long *cc, *ll, *errpos, *lc, *nkw, *inum, emax_, emin_, kmax_, nmax_;
   char *chin;
   char *id;
@@ -1247,7 +1247,7 @@ static void Expression(struct LOC_Lat_EVAL *LINK)
  *                           *
  ******************************/
 
-static double Lat_EVAL(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
+static double Lat_EVAL(FILE *fi_, FILE *fo_, long *cc_, long *ll_,
 		       long *errpos_,
 		       long *lc_, long *nkw_, long *inum_, long emax__,
 		       long emin__,
@@ -1256,7 +1256,7 @@ static double Lat_EVAL(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 		       bool *skipflag_, bool *rsvwd_, char *line_,
 		       Lat_symbol *sym_,
 		       alfa_ *key_, Lat_symbol *ksy_, Lat_symbol *sps_,
-		       struct LOC_Lattice_Read *LINK)
+		       struct LOC_Lat_Read *LINK)
 {  /* eval */
   struct LOC_Lat_EVAL V;
   double Result = 0.0;
@@ -1312,8 +1312,8 @@ static double Lat_EVAL(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 /* Local variables for Lat_ProcessBlockInput: */
 struct LOC_Lat_ProcessBlockInput
 {
-  struct LOC_Lattice_Read *LINK;
-  FILE **fi, **fo;
+  struct LOC_Lat_Read *LINK;
+  FILE *fi, *fo;
   long *cc, *ll, *errpos, *lc, *nkw, *inum, emax_, emin_, kmax_, nmax_;
   char *chin;
   char *id;
@@ -1678,7 +1678,7 @@ static void GetBlock(struct LOC_Lat_ProcessBlockInput *LINK)
 }
 
 
-static void Lat_ProcessBlockInput(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
+static void Lat_ProcessBlockInput(FILE *fi_, FILE *fo_, long *cc_, long *ll_,
 				  long *errpos_, long *lc_, long *nkw_,
 				  long *inum_, long emax__, long emin__,
 				  long kmax__, long nmax__, char *chin_,
@@ -1687,7 +1687,7 @@ static void Lat_ProcessBlockInput(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 				  char *line_,
 				  Lat_symbol *sym_, alfa_ *key_,
 				  Lat_symbol *ksy_, Lat_symbol *sps_,
-				  struct LOC_Lattice_Read *LINK)
+				  struct LOC_Lat_Read *LINK)
 {
   struct LOC_Lat_ProcessBlockInput V;
   long i;
@@ -1739,7 +1739,7 @@ static void Lat_ProcessBlockInput(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 }  /* ProcessBlockInput */
 
 
-static bool Lat_CheckWiggler(FILE **fo, long i, struct LOC_Lattice_Read *LINK)
+static bool Lat_CheckWiggler(FILE *fo, long i, struct LOC_Lat_Read *LINK)
 {
   double       a, Lambda, L, diff;
   long         NN;
@@ -1764,8 +1764,8 @@ static bool Lat_CheckWiggler(FILE **fo, long i, struct LOC_Lattice_Read *LINK)
 /* Local variables for Lat_DealElement: */
 struct LOC_Lat_DealElement
 {
-  struct      LOC_Lattice_Read *LINK;
-  FILE        **fi, **fo;
+  struct      LOC_Lat_Read *LINK;
+  FILE        *fi, *fo;
   long        *cc, *ll, *errpos, *lc, *nkw, *inum, emax_, emin_, kmax_, nmax_;
   char        *chin;
   char        *id;
@@ -1992,7 +1992,7 @@ static void SetDBN(ElemFamType &elemf, struct LOC_Lat_DealElement *LINK)
 }
 
 
-static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
+static bool Lat_DealElement(FILE *fi_, FILE *fo_, long *cc_, long *ll_,
                             long *errpos_, long *lc_, long *nkw_, long *inum_,
 			    long emax__, long emin__,
                             long kmax__, long nmax__, char *chin_, char *id_,
@@ -2001,7 +2001,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 			    bool *rsvwd_,
                             char *line_, Lat_symbol *sym_, alfa_ *key_,
 			    Lat_symbol *ksy_,
-                            Lat_symbol *sps_, struct LOC_Lattice_Read *LINK)
+                            Lat_symbol *sps_, struct LOC_Lat_Read *LINK)
 {
   struct LOC_Lat_DealElement V;
   bool           Result = false;
@@ -3474,16 +3474,16 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 }  /*of procedure Lat_DealElement*/
 
 
-static void errorm___(const char *cmnt, struct LOC_Lattice_Read *LINK)
+static void errorm___(const char *cmnt, struct LOC_Lat_Read *LINK)
 {
   /*write(fo, ' ****')*/
   /*error*/
   if (LINK->cc > LINK->errpos) {
-    fprintf(*LINK->fo, "%*c^%.80s", (int)(LINK->cc - LINK->errpos),
+    fprintf(LINK->fo, "%*c^%.80s", (int)(LINK->cc - LINK->errpos),
 	    ' ', cmnt);
     LINK->errpos = LINK->cc + 3;
   }
-  while (!P_eof(*LINK->fi))
+  while (!P_eof(LINK->fi))
     Lat_Nextch(LINK->fi, LINK->fo, &LINK->cc, &LINK->ll, &LINK->errpos,
 	       &LINK->lc, &LINK->chin, &LINK->skipflag, LINK->line, LINK);
   Lat_->conf.ErrFlag = true;
@@ -3491,7 +3491,7 @@ static void errorm___(const char *cmnt, struct LOC_Lattice_Read *LINK)
 }
 
 
-static void GetSym___(struct LOC_Lattice_Read *LINK)
+static void GetSym___(struct LOC_Lat_Read *LINK)
 {
   /* reads next symbol  */
   /*GetSym*/
@@ -3503,7 +3503,7 @@ static void GetSym___(struct LOC_Lattice_Read *LINK)
 }
 
 
-static void test___(long *s1, const char *cmnt, struct LOC_Lattice_Read *LINK)
+static void test___(long *s1, const char *cmnt, struct LOC_Lat_Read *LINK)
 {
   /*test*/
   if (!P_inset(LINK->sym, s1))
@@ -3511,7 +3511,7 @@ static void test___(long *s1, const char *cmnt, struct LOC_Lattice_Read *LINK)
 }
 
 
-static void getest___(long *s1, const char *cmnt, struct LOC_Lattice_Read *LINK)
+static void getest___(long *s1, const char *cmnt, struct LOC_Lat_Read *LINK)
 {
   /*test*/
   GetSym___(LINK);
@@ -3523,7 +3523,7 @@ static void getest___(long *s1, const char *cmnt, struct LOC_Lattice_Read *LINK)
 /* Local variables for init_reserved_words: */
 struct LOC_init_reserved_words
 {
-  struct LOC_Lattice_Read *LINK;
+  struct LOC_Lat_Read *LINK;
 };
 
 
@@ -3540,7 +3540,7 @@ static void Reg(const char *name, Lat_symbol ks,
 }
 
 
-static void init_reserved_words(struct LOC_Lattice_Read *LINK)
+static void init_reserved_words(struct LOC_Lat_Read *LINK)
 {
   struct LOC_init_reserved_words V;
 
@@ -3667,7 +3667,7 @@ static void init_reserved_words(struct LOC_Lattice_Read *LINK)
 /* Local variables for DealWithDefns: */
 struct LOC_DealWithDefns
 {
-  struct LOC_Lattice_Read *LINK;
+  struct LOC_Lat_Read *LINK;
 };
 
 static double EVAL__(struct LOC_DealWithDefns *LINK)
@@ -3689,7 +3689,7 @@ static double EVAL__(struct LOC_DealWithDefns *LINK)
  *                                                   *
  ******************************************************/
 
-static void DealWithDefns(struct LOC_Lattice_Read *LINK)
+static void DealWithDefns(struct LOC_Lat_Read *LINK)
 {  /*0*/
   struct LOC_DealWithDefns V;
   partsName idsave, ElementName, BlockName, IdentName;
@@ -3948,7 +3948,7 @@ static void DealWithDefns(struct LOC_Lattice_Read *LINK)
 }  /*0*/
 
 
-void GetEnergy(struct LOC_Lattice_Read *LINK)
+void GetEnergy(struct LOC_Lat_Read *LINK)
 {
   long k;
 
@@ -3964,7 +3964,7 @@ void GetEnergy(struct LOC_Lattice_Read *LINK)
 }
 
 
-void GetRingType(struct LOC_Lattice_Read *LINK)
+void GetRingType(struct LOC_Lat_Read *LINK)
 {
   long k;
 
@@ -3985,7 +3985,7 @@ void GetRingType(struct LOC_Lattice_Read *LINK)
 }
 
 
-static void GetDP(struct LOC_Lattice_Read *LINK)
+static void GetDP(struct LOC_Lat_Read *LINK)
 {
   long k;
 
@@ -4001,7 +4001,7 @@ static void GetDP(struct LOC_Lattice_Read *LINK)
   EnterUDItable("dp             ", Lat_->conf.dPcommon, LINK);
 }
 
-static void GetCODEPS(struct LOC_Lattice_Read *LINK)
+static void GetCODEPS(struct LOC_Lat_Read *LINK)
 {
   long k;
 
@@ -4018,7 +4018,7 @@ static void GetCODEPS(struct LOC_Lattice_Read *LINK)
 }
 
 
-static double Circumference(struct LOC_Lattice_Read *LINK)
+static double Circumference(struct LOC_Lat_Read *LINK)
 {
   long i;
   double S;
@@ -4045,7 +4045,7 @@ void fixedtostr(std::string &str)
 }
 
 
-static void RegisterKids(struct LOC_Lattice_Read *LINK)
+static void RegisterKids(struct LOC_Lat_Read *LINK)
 {
   long        i;
   ElemFamType *WITH;
@@ -4073,7 +4073,7 @@ static void RegisterKids(struct LOC_Lattice_Read *LINK)
 }
 
 
-void PrintResult(struct LOC_Lattice_Read *LINK)
+void PrintResult(struct LOC_Lat_Read *LINK)
 {
   long      j, nKid;
   struct tm *newtime;
@@ -4112,20 +4112,24 @@ void PrintResult(struct LOC_Lattice_Read *LINK)
 }
 
 
-bool LatticeType::Lattice_Read(FILE *fi_, FILE *fo_)
+bool LatticeType::Lat_Read(const string &filnam)
 {
-  struct LOC_Lattice_Read V;
+  struct LOC_Lat_Read V;
+  FILE   *fi_, *fo_;
 
   ElemFam_ = &elemf;
   Lat_     = this;
 
+  fi_ = file_read((filnam+".lat").c_str());
+  fo_ = file_write((filnam+".lax").c_str());
+
   if (Lat_->conf.trace)
-    printf("\nLattice_Read: dndsym = %d, solsym = %d, max_set = %d"
+    printf("\nLat_Read: dndsym = %d, solsym = %d, max_set = %d"
 	   ", SETBITS = %u\n",
 	   bndsym, solsym, max_set, (unsigned)(4*sizeof(long int)));
 
-  V.fi = &fi_; /* input lattice file */
-  V.fo = &fo_; /* output lattice file */
+  V.fi = fi_; /* input lattice file */
+  V.fo = fo_; /* output lattice file */
   if (setjmp(V._JL9999)) goto _L9999;
   V.UDIC = 0; Lat_->conf.Cell_nLoc = 0; Lat_->conf.Elem_nFam = 0; V.NoB = 0;
   V.Symmetry = 0; V.Bpointer = 0;
@@ -4150,10 +4154,10 @@ bool LatticeType::Lattice_Read(FILE *fi_, FILE *fo_)
     GetDP(&V);                      /* define energy offset */
   }
 
-  if (*V.fi != NULL) fclose(*V.fi); /* Close lat file */
-  *V.fi = NULL;
-  if (*V.fo != NULL) fclose(*V.fo); /* Close lax file */
-  *V.fo = NULL;
+  if (V.fi != NULL) fclose(V.fi); /* Close lat file */
+  V.fi = NULL;
+  if (V.fo != NULL) fclose(V.fo); /* Close lax file */
+  V.fo = NULL;
 
   RegisterKids(&V);                 /* Check wether too many elements */
 

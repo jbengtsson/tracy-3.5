@@ -98,7 +98,7 @@ void prtName(FILE *fp, ElemType *elem, const int i, const int type,
 }
 
 
-void LatticeType::prtmfile(const char mfile_dat[])
+void LatticeType::prtmfile(const string &mfile_dat)
 {
   int           i, j, k;
   MpoleType     *M;
@@ -110,7 +110,7 @@ void LatticeType::prtmfile(const char mfile_dat[])
 
   const int n_ps = 6;
 
-  mfile = file_write(mfile_dat);
+  mfile = file_write(mfile_dat.c_str());
   for (i = 0; i <= conf.Cell_nLoc; i++) {
     switch (elems[i]->Pkind) {
     case drift:

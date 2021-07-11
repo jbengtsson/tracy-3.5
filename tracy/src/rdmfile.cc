@@ -385,7 +385,7 @@ void chk_Fam(std::vector<ElemFamType> &elemf)
 }
 
 
-void LatticeType::rdmfile(const char *mfile_dat)
+void LatticeType::rdmfile(const string &mfile_dat)
 {
   char          line[line_max];
   long int      i;
@@ -395,7 +395,7 @@ void LatticeType::rdmfile(const char *mfile_dat)
   std::cout << std::endl;
   std::cout << "reading machine file: " << mfile_dat << std::endl;
 
-  file_rd(inf, mfile_dat);
+  file_rd(inf, mfile_dat.c_str());
 
   while (inf.getline(line, line_max)) {
     get_elem(inf, this, line, i, kind);
