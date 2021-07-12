@@ -14,7 +14,7 @@ AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_CPP
 AC_PROG_RANLIB
-# Use GNU gcc
+# Use GNU gcc; vs. LLVM.
 AC_PROG_CXX(gcc-11)
 AC_PROG_F77(gfortran)
 
