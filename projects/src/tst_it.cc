@@ -1,4 +1,3 @@
-#define _GLIBCXX_DEBUG 1
 
 #define NO_TPSA 1
 
@@ -135,6 +134,15 @@ void get_lat(const string &file_name, LatticeType &lat)
   double eps_x, sigma_delta, U_0, J[3], tau[3], I[6];
 
   const string str = file_name;
+
+  vector<double> vec = { 0e0, 1e0, 2e0 };
+
+  printf("\n");
+  for (int k = 0; k < (int)vec.size()+3; k++)
+    printf(" %10.3e", vec[k]);
+  printf("\n");
+
+  exit(0);
 
   lat.conf.trace        = false;
   lat.conf.reverse_elem = !false;

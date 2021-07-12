@@ -45,26 +45,15 @@ fit_nu_SOURCES            = fit_nu.cc
 opt_des_bessy_iii_SOURCES = opt_des_bessy_iii.cc
 tst_it_SOURCES            = tst_it.cc
 
-#opt_des_2_LDADD = -L/usr/lib/x86_64-linux-gnu \
-#	  	  -lgfortran
-
-#LIBS     = -L$(TRACY_LIB)/tracy -ltracy
-# gfortran needs to be before stdc_++ for Fortran programs
 LIBS	 = -L$(TRACY_LIB)/tracy/lib -ltracy \
+           -L /usr/local/lib \
+           -L /usr/local/Cellar/gcc/11.1.0_1/lib/gcc/11 \
            -lstdc++ \
            -lgsl \
-           -larmadillo -llapack -lblas \
-           -lm
-#           -L/usr/local/Cellar/gcc/10.1.0/lib/gcc/10 \
-#	   -lgslcblas
-#	   -lgfortran
-#INCLUDES = -I$(TRACY_LIB)/tracy/inc -I$(NUM_REC)/inc
+           -larmadillo
 # C Preprocessor flags.
-AM_CPPFLAGS = -I$(TRACY_LIB)/tracy/inc -I$(NUM_REC)/inc
-# Fortan flags.
-AM_FFLAGS   = -g -O0 -Wall -fbounds-check
+AM_CPPFLAGS = -I$(TRACY_LIB)/tracy/inc -I$(NUM_REC)/inc \
+              -I/usr/local/Cellar/armadillo/10.5.2/include \
+              -I/usr/local/Cellar/gsl/2.7/include
 # C++ flags.
-AM_CXXFLAGS = -g -O0 -Wall -Wno-error=all -std=c++11 -D_GLIBCXX_DEBUG \
-              -D_GLIBCXX_DEBUG_PEDANTIC
-#CXXFLAGS = -pg -O2 -Wall -Wno-non-template-friend
-FFLAGS      = -g -O2 -Wall -fbounds-check -fdefault-integer-8
+AM_CXXFLAGS = -g -O0 -Wall -Wno-error=all -std=c++11
