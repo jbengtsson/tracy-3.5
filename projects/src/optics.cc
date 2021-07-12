@@ -1664,7 +1664,7 @@ int main(int argc, char *argv[])
     exit(0);
   }
 
-  Ring_GetTwiss(true, 0e0); printglob();
+  Ring_GetTwiss(true, 0e-3); printglob();
 
   if (false) {
     prt_lin_map(3,

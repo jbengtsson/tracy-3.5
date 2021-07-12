@@ -46,23 +46,12 @@ opt_des_bessy_iii_SOURCES = opt_des_bessy_iii.cc
 for_pierre_SOURCES        = for_pierre.cc
 tst_it_SOURCES            = tst_it.cc
 
-#opt_des_2_LDADD = -L/usr/lib/x86_64-linux-gnu \
-#	  	  -lgfortran
-
-#LIBS     = -L$(TRACY_LIB)/tracy -ltracy
-# gfortran needs to be before stdc_++ for Fortran programs
 LIBS	 = -L$(TRACY_LIB)/tracy/lib -ltracy \
            -L$(NUM_REC)/lib -lnum_rec \
-           -L/usr/local/Cellar/gcc/10.1.0/lib/gcc/10 \
-           -lstdc++ \
-           -lm
-#	   -lgfortran
-#INCLUDES = -I$(TRACY_LIB)/tracy/inc -I$(NUM_REC)/inc
+           -L /usr/local/Cellar/gcc/11.1.0_1/lib/gcc/11 \
+           -lstdc++
 # C Preprocessor flags.
 AM_CPPFLAGS = -I$(TRACY_LIB)/tracy/inc -I$(NUM_REC)/inc
-# Fortan flags.
-AM_FFLAGS   = -g -O0 -Wall -fbounds-check
 # C++ flags.
 AM_CXXFLAGS = -g -O0 -Wall
 #CXXFLAGS = -pg -O2 -Wall -Wno-non-template-friend
-FFLAGS      = -g -O2 -Wall -fbounds-check -fdefault-integer-8

@@ -10,6 +10,8 @@
 #ifndef TRACY_LIB_H
 #define TRACY_LIB_H
 
+#define _GLIBCXX_DEBUG 1
+
 // C standard library
 #include <stdio.h>
 #include <stddef.h>
