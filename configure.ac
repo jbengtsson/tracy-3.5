@@ -1,15 +1,14 @@
 # Process this file with autoconf to produce a configure script.
-#AC_INIT(tracy/src/t2elem.cc)
-AC_INIT(Tracy, 2.0)
+#AC_INIT
+AC_CONFIG_SRCDIR([tracy/src/t2elem.cc])
+AC_INIT([Tracy],[2.0])
 AC_CONFIG_AUX_DIR(config)
-#AM_INIT_AUTOMAKE(Tracy, 2.0)
 AC_CONFIG_SRCDIR(tracy/src/t2elem.cc)
 AM_INIT_AUTOMAKE
-AM_CONFIG_HEADER(config.h)
+AC_CONFIG_HEADERS(config.h)
 # Checks for programs.
 AC_PROG_AWK
 AC_PROG_CC
-AM_PROG_CC_STDC
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_CPP
@@ -29,6 +28,7 @@ AC_C_INLINE
 AC_TYPE_SIZE_T
 
 # Checks for library functions.
-AC_OUTPUT(Makefile
+AC_CONFIG_FILES([Makefile
           TPSA/Makefile
-	  tracy/Makefile tracy/src/Makefile)
+	  tracy/Makefile tracy/src/Makefile])
+AC_OUTPUT

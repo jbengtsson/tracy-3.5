@@ -228,7 +228,7 @@ bool LatticeType::getcod(double dP, long &lastpos)
 void LatticeType::Lat_Init(void)
 {
   bool     first = true, reverse;
-  long int loc;
+  long int loc = 0;
   int      i, j;
   double   Stotal;
 

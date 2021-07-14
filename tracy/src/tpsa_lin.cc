@@ -148,11 +148,12 @@ arma::mat get_mat(const ss_vect<tps> &map)
   int       j, k;
   arma::mat mat(tps_dim, tps_dim);
 
-  for (j = 0; j < tps_dim; j++) {
-    for (k = 0; k < tps_dim; k++)
+  for (j = 0; j < ps_dim; j++) {
+    for (k = 0; k < ps_dim; k++)
       mat(j, k) = get_m_ij(map, j+1, k+1);
-    if (j < ps_dim) mat(j, tps_dim-1) = get_m_ij(map, j+1, 0);
+    mat(j, tps_dim-1) = get_m_ij(map, j+1, 0);
   }
+  mat(tps_dim-1, tps_dim-1) = get_m_ij(map, tps_dim, tps_dim);
   return mat;
 }
 
@@ -162,8 +163,8 @@ ss_vect<tps> put_mat(const arma::mat &mat)
   int          j, k;
   ss_vect<tps> map;
 
-  for (j = 0; j < tps_dim; j++) {
-    for (k = 0; k < tps_dim; k++)
+  for (j = 0; j < ps_dim; j++) {
+    for (k = 0; k < ps_dim; k++)
       put_m_ij(map, j+1, k+1, mat(j, k));
     if (j < ps_dim) put_m_ij(map, j+1, 0, mat(j, tps_dim-1));
   }
@@ -303,7 +304,7 @@ void dainv_(const tps_buf &x, tps_buf &z)
   double  a;
 
   a = -1.0/sqr(x[0]); z[0] = 1.0/x[0];
-  for (i = 1; i <= tps_dim; i++)
+  for (i = 1; i <= ps_dim; i++)
     z[i] = a*x[i];
 }
 
@@ -457,7 +458,7 @@ void dacct_(const ss_vect<tps> &x, const int i,
 
 void dainv_(const ss_vect<tps> &x, const int i, ss_vect<tps> &z, const int k)
 {
-  z = put_mat(inv(get_mat(x)));
+  z = put_mat(arma::inv(get_mat(x)));
 }
 
 

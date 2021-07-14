@@ -135,14 +135,16 @@ void get_lat(const string &file_name, LatticeType &lat)
 
   const string str = file_name;
 
-  vector<double> vec = { 0e0, 1e0, 2e0 };
+  if (false) {
+    vector<double> vec = { 0e0, 1e0, 2e0 };
 
-  printf("\n");
-  for (int k = 0; k < (int)vec.size()+3; k++)
-    printf(" %10.3e", vec[k]);
-  printf("\n");
+    printf("\n");
+    for (int k = 0; k < (int)vec.size()+3; k++)
+      printf(" %10.3e", vec[k]);
+    printf("\n");
 
-  exit(0);
+    exit(0);
+  }
 
   lat.conf.trace        = false;
   lat.conf.reverse_elem = !false;
@@ -169,7 +171,7 @@ void get_lat(const string &file_name, LatticeType &lat)
     lat.prt_fams();
   }
 
-  if (false) {
+  if (!false) {
     long int lastpos;
     double   xmean[2], xsigma[2], xmax[2];
 
@@ -188,6 +190,7 @@ void get_lat(const string &file_name, LatticeType &lat)
   }
 
   lat.Ring_GetTwiss(true, 0e-3); printglob(lat);
+
   if (lat.conf.mat_meth)
     lat.get_eps_x(eps_x, sigma_delta, U_0, J, tau, I, true);
 

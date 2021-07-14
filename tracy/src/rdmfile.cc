@@ -75,7 +75,6 @@ ElemType* elem_alloc(const int kind)
 {
   ElemType   *Elem;
   MpoleType  *M;
-  CavityType *C;
 
   switch (kind) {
   case marker_:
@@ -95,7 +94,6 @@ ElemType* elem_alloc(const int kind)
   case cavity_:
     Elem = Cavity_Alloc();
     Elem->Pkind = PartsKind(Cavity);
-    C = dynamic_cast<CavityType*>(Elem);
     break;
   case thinkick_:
     Elem = Mpole_Alloc();

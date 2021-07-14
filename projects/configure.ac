@@ -1,13 +1,12 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT(Tracy, 2.0)
+AC_INIT([Tracy],[2.0])
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_SRCDIR(src/main.cc)
 AM_INIT_AUTOMAKE
-AM_CONFIG_HEADER(config.h)
+AC_CONFIG_HEADERS(config.h)
 # Checks for programs.
 AC_PROG_AWK
 AC_PROG_CC
-AM_PROG_CC_STDC
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_CPP
@@ -27,4 +26,5 @@ AC_C_INLINE
 AC_TYPE_SIZE_T
 
 # Checks for library functions.
-AC_OUTPUT(Makefile src/Makefile src/ptc/Makefile)
+AC_CONFIG_FILES([Makefile src/Makefile src/ptc/Makefile])
+AC_OUTPUT

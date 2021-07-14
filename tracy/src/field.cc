@@ -146,7 +146,7 @@ operator<<(std::basic_ostream<CharT, Traits> &os, const ss_vect<double> &a)
   std::basic_ostringstream<CharT, Traits>  s;
 
   s.flags(os.flags()); s.imbue(os.getloc());
-  for (i = 0; i < 6; i++)
+  for (i = 0; i < tps_dim; i++)
     s << std::setprecision(os.precision()) << std::setw(os.width()) << a[i];
 //   s << endl;
   return os << s.str();
@@ -165,7 +165,7 @@ operator<<(std::basic_ostream<CharT, Traits> &os, const ss_vect<tps> &a)
   std::basic_ostringstream<CharT, Traits>  s;
 
   s.flags(os.flags()); s.imbue(os.getloc());
-  for (i = 0; i < 6; i++)
+  for (i = 0; i < tps_dim; i++)
     s << std::setprecision(os.precision()) << std::setw(os.width()) << a[i];
   return os << s.str();
 }
