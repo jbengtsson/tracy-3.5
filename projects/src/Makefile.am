@@ -51,9 +51,13 @@ LIBS	 = -L$(TRACY_LIB)/tracy/lib -ltracy \
            -lstdc++ \
            -lgsl \
            -larmadillo
+
 # C Preprocessor flags.
 AM_CPPFLAGS = -I$(TRACY_LIB)/tracy/inc -I$(NUM_REC)/inc \
               -I/usr/local/Cellar/armadillo/10.5.2/include \
-              -I/usr/local/Cellar/gsl/2.7/include
+              -I/usr/local/Cellar/gsl/2.7/include \
+              -I/usr/local/opt/pybind11/include \
+              -I/usr/local/Cellar/python@3.9/3.9.5/Frameworks/Python.framework/Versions/3.9/include/python3.9
+
 # C++ flags.
 AM_CXXFLAGS = -g -O0 -Wall -Wno-error=all -std=c++11

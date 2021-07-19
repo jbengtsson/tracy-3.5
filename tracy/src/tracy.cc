@@ -394,3 +394,17 @@ long LatticeType::ElemIndex(const std::string &name)
 
   return i;
 }
+
+
+int no_tps = 1;
+
+PYBIND11_MODULE(libtracy, conf) {
+    // Optional module docstring.
+    conf.doc() = "pybind11 example plugin";
+
+    // define add function
+    // m.def("add", &add, "A function which adds two numbers");
+
+    // Bindings to ConfigType class.
+    py::class_<ConfigType>(conf, "ConfigType");
+}

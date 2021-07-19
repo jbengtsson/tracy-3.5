@@ -171,7 +171,7 @@ void get_lat(const string &file_name, LatticeType &lat)
     lat.prt_fams();
   }
 
-  if (!false) {
+  if (false) {
     long int lastpos;
     double   xmean[2], xsigma[2], xmax[2];
 
@@ -180,11 +180,13 @@ void get_lat(const string &file_name, LatticeType &lat)
     printf("\nRMS orbit [mm]: (%8.1e +/- %7.1e, %8.1e +/- %7.1e)\n",
 	   1e3*xmean[X_], 1e3*xsigma[X_], 1e3*xmean[Y_], 1e3*xsigma[Y_]);
 
+    set_bn(lat, bn_des, lat.ElemIndex("chv"), Dip, 1e-3, 0.1e-3, false);
     lat.getcod(0e0, lastpos);
-
     cod_stat(lat, xmean, xsigma, xmax, lat.conf.Cell_nLoc, true);
     printf("RMS orbit [mm]: (%8.1e +/- %7.1e, %8.1e +/- %7.1e)\n",
 	   1e3*xmean[X_], 1e3*xsigma[X_], 1e3*xmean[Y_], 1e3*xsigma[Y_]);
+
+    lat.prt_cod("cod.out", true);
 
     exit(0);
   }

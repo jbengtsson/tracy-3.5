@@ -1,10 +1,16 @@
-# Process this file with autoconf to produce a configure script.
-#AC_INIT
+# C macro processor.
+AC_CONFIG_MACRO_DIRS([m4])
 AC_CONFIG_SRCDIR([tracy/src/t2elem.cc])
 AC_INIT([Tracy],[2.0])
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_SRCDIR(tracy/src/t2elem.cc)
 AM_INIT_AUTOMAKE
+# Shared library: libtool.
+LT_CONFIG_LTDL_DIR()
+# Remark: Execute glibtoolize before aclocal & automake.
+#LT_INIT([disable-static])
+#LT_INIT([disable-shared])
+LT_INIT
 AC_CONFIG_HEADERS(config.h)
 # Checks for programs.
 AC_PROG_AWK
@@ -12,8 +18,7 @@ AC_PROG_CC
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_CPP
-AC_PROG_RANLIB
-# Use GNU gcc; vs. LLVM.
+# For MacBook: use GNU gcc vs. LLVM.
 AC_PROG_CXX(gcc-11)
 AC_PROG_F77(gfortran)
 
