@@ -25,3 +25,5 @@ lat.ChamberOff();
 lat.conf.CODimax = 10;
 
 lat.Ring_GetTwiss(True, 0e-3); lat.print();
+
+print('\n', lat.conf.TotalTune)

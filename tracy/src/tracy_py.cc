@@ -1,3 +1,6 @@
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+
 
 namespace py = pybind11;
 
@@ -20,7 +23,18 @@ PYBIND11_MODULE(libtracy, scsi) {
       .def_readwrite("bpm",            &ConfigType::bpm)
       .def_readwrite("Cart_Bend",      &ConfigType::Cart_Bend)
       .def_readwrite("dip_edge_fudge", &ConfigType::dip_edge_fudge)
+      .def_readwrite("Cell_nLoc",      &ConfigType::Cell_nLoc)
+      .def_readwrite("Elem_nFam",      &ConfigType::Elem_nFam)
       .def_readwrite("CODimax",        &ConfigType::CODimax)
+      .def_readwrite("TotalTune",      &ConfigType::TotalTune)
+      .def_readwrite("alpha_rad",      &ConfigType::alpha_rad)
+      .def_readwrite("D_rad",          &ConfigType::D_rad)
+      .def_readwrite("J",              &ConfigType::J)
+      .def_readwrite("tau",            &ConfigType::tau)
+      .def_readwrite("D_IBS",          &ConfigType::D_IBS)
+      .def_readwrite("eps",            &ConfigType::eps)
+      .def_readwrite("epsp",           &ConfigType::epsp)
+      .def_readwrite("Chrom",          &ConfigType::Chrom)
       .def(py::init<>());
 
     py::class_<CellType>   (scsi, "CellType")

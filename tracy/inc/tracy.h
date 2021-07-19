@@ -177,18 +177,18 @@ class ConfigType {
     reverse_elem,
     stable,
     ErrFlag,
-    Cavity_on,                 // if true, cavity turned on
-    radiation,                 // if true, radiation turned on
+    Cavity_on,                    // if true, cavity turned on
+    radiation,                    // if true, radiation turned on
     emittance,
-    quad_fringe,               // quadrupole hard-edge fringe field.
-    H_exact,                   // "Small Ring" Hamiltonian.
+    quad_fringe,                  // quadrupole hard-edge fringe field.
+    H_exact,                      // "Small Ring" Hamiltonian.
     Cart_Bend,
-    dip_edge_fudge,            // Dipole Edge fudge.
-    pathlength,                // Absolute Path Length.
+    dip_edge_fudge,               // Dipole Edge fudge.
+    pathlength,                   // Absolute Path Length.
     Aperture_on,
     EPU,
-    mat_meth,                  // Matrix method.
-    IBS,                       // Intrabeam Scattering.
+    mat_meth,                     // Matrix method.
+    IBS,                          // Intrabeam Scattering.
     tuneflag,
     chromflag,
     codflag,
@@ -197,44 +197,46 @@ class ConfigType {
     overflag,
     chambre;
   long int
-    Cell_nLoc,                 // Number of Elements.
-    Elem_nFam,                 // Number of Families.
-    CODimax;                   // closed Orbit Finder: max number of iterations,
+    Cell_nLoc,                    // Number of Elements.
+    Elem_nFam,                    // Number of Families.
+    CODimax;                      /* closed Orbit Finder: max number of
+                                     iterations. */
   int
-    bpm,                       // BPM Number.
-    hcorr,                     // Corrector: Horizontal number,
-    vcorr,                     //            Vertical number.
-    qt,                        // Vertical corrector number.
-    gs,                        // Girder: start marker,
-    ge,                        //         end marker.
-    RingType,                  // 1 if a ring (0 if transfer line).
-    lossplane;                 /* lost in: horizontal    1
-		                           vertical      2
-			                   longitudinal  3 */
+    bpm,                          // BPM Number.
+    hcorr,                        // Corrector: Horizontal number,
+    vcorr,                        //            Vertical number.
+    qt,                           // Vertical corrector number.
+    gs,                           // Girder: start marker,
+    ge,                           //         end marker.
+    RingType,                     // 1 if a ring (0 if transfer line).
+    lossplane;                    /* lost in: horizontal    1
+		                              vertical      2
+			                      longitudinal  3 */
   double
-    dPcommon,                  // dp for numerical differentiation.
-    dPparticle,                // Energy deviation.
-    delta_RF,                  // RF Acceptance.
-    TotalTune[DOF],            // Transverse Tunes.
-    Omega,                     // Synchrotron Frequency.
-    U0,                        // Energy Loss per turn [keV].
-    Alphac,                    // Linear Momentum Compaction.
-    Energy,                    // Beam Energy.
-    dE,                        // Energy Loss.
-    alpha_rad[DOF],            // Damping Coeffs.
-    D_rad[DOF],                // Diffusion Coeffs (Floquet Space).
-    J[DOF],                    // Partition Numbers.
-    tau[DOF],                  // Damping Times.
-    CODeps,                    //                      precision.
-    Qb,                        // Bunch Charge.
-    D_IBS[DOF],                // Diffusion Matrix (Floquet Ipace).
-    eps[DOF],                  // Eigenemittances.
-    epsp[DOF],                 // Trans. & Long. projected Emittances.
-    alpha_z,                   // Long. alpha and beta.
+    dPcommon,                     // dp for numerical differentiation.
+    dPparticle,                   // Energy deviation.
+    delta_RF,                     // RF Acceptance.
+    Omega,                        // Synchrotron Frequency.
+    U0,                           // Energy Loss per turn [keV].
+    Alphac,                       // Linear Momentum Compaction.
+    Energy,                       // Beam Energy.
+    dE,                           // Energy Loss.
+    CODeps,                       //                      precision.
+    Qb,                           // Bunch Charge.
+    alpha_z,                      // Long. alpha and beta.
     beta_z,
-    beta0,                     // Relativistic factors.
-    gamma0,
-    Chrom[2];                  // Linear Chromaticities.
+    beta0,                        // Relativistic factors.
+    gamma0;
+  std::vector<double>
+    TotalTune{0e0, 0e0, 0e0},     // Transverse Tunes.
+    alpha_rad{0e0, 0e0, 0e0},     // Damping Coeffs.
+    D_rad{0e0, 0e0, 0e0},         // Diffusion Coeffs (Floquet Space).
+    J{0e0, 0e0, 0e0},             // Partition Numbers.
+    tau{0e0, 0e0, 0e0},           // Damping Times.
+    D_IBS{0e0, 0e0, 0e0},         // Diffusion Matrix (Floquet Ipace).
+    eps{0e0, 0e0, 0e0},           // Eigenemittances.
+    epsp{0e0, 0e0, 0e0},          // Trans. & Long. projected Emittances.
+    Chrom{0e0, 0e0};              // Linear Chromaticities.
   arma::vec
     CODvect = arma::vec(tps_dim), // Closed Orbit.
     wr = arma::vec(tps_dim),

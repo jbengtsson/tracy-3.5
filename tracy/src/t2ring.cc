@@ -329,7 +329,7 @@ void LatticeType::Ring_Getchrom(double dP)
 void LatticeType::Ring_Twiss(bool chroma, double dP)
 {
   long int     lastpos = 0;
-  int          n = 0;
+  int          k, n = 0;
   Vector2      alpha = {0.0, 0.0}, beta = {0.0, 0.0},
                gamma = {0.0, 0.0}, nu = {0.0, 0.0};
   arma::mat    R(tps_dim, tps_dim);
@@ -360,7 +360,8 @@ void LatticeType::Ring_Twiss(bool chroma, double dP)
 
   Cell_Twiss(0, conf.Cell_nLoc, AScr, chroma, true, dP);
 
-  memcpy(conf.TotalTune, elems[conf.Cell_nLoc]->Nu, sizeof(Vector2));
+  for (k = 0; k < 2; k++)
+    conf.TotalTune[k] = elems[conf.Cell_nLoc]->Nu[k];
   conf.tuneflag = true;
 
   if (chroma && !conf.Cavity_on) {

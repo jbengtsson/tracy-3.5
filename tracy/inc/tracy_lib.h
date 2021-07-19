@@ -37,11 +37,8 @@
 
 #include <vector>
 
-#include <pybind11/pybind11.h>
-
 
 using namespace std;
-namespace       py = pybind11;
 
 
 // Tracy-3
