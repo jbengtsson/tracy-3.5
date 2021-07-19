@@ -2412,7 +2412,7 @@ void LatticeType::prt_fams(void)
   int k;
 
   printf("\nFamilies:\n");
-  for (k = 0; k < elemf.size(); k++)
+  for (k = 0; k < (int)elemf.size(); k++)
     printf("  %3d %-10s %2d %6.3f\n",
 	   k+1, elemf[k].ElemF->Name.c_str(), elemf[k].ElemF->Pkind,
 	   elemf[k].ElemF->PL);
@@ -2424,7 +2424,7 @@ void LatticeType::prt_elems(void)
   int k;
 
   printf("\nLattice: %lu\n", elems.size());
-  for (k = 0; k < elems.size(); k++) {
+  for (k = 0; k < (int)elems.size(); k++) {
     printf("  %3d ", k);
     elems[k]->print();
   }

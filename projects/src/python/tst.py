@@ -1,13 +1,20 @@
 import os, sys
 
-sys.path.append(os.getenv('TRACY_LIB')+'/tracy/lib')
-import libtracy
+tracy_dir = os.getenv('TRACY_LIB')
+sys.path.append(tracy_dir+'/tracy/lib')
+import libtracy as scsi
 
-tst
 
-# ext_modules = [
-#     Pybind11Extension(
-#         "python_example",
-#         sorted(glob("src/*.cc")),  # Sort source files for reproducibility
-#     ),
-# ]
+
+lat = scsi.LatticeType()
+
+lat_dir = os.getenv('LAT')
+lat.Lat_Read(lat_dir+'/BESSY-III/NoTG-TGRB-B60-6bend-6sx_JB_tracy');
+
+lat.Lat_Init();
+
+lat.ChamberOff();
+
+lat.conf.CODimax = 10;
+
+lat.Ring_GetTwiss(True, 0e-3); scsi.printglob(lat);
