@@ -204,7 +204,8 @@ void getprm(arma::mat &Ascr, Vector2 &alpha, Vector2 &beta)
 }
 
 
-void dagetprm(ss_vect<tps> &Ascr, Vector2 &alpha, Vector2 &beta)
+void dagetprm(ss_vect<tps> &Ascr, std::vector<double> &alpha,
+	      std::vector<double> &beta)
 {
   int k;
 
@@ -697,10 +698,11 @@ void LatticeType::prt_lat(const char *fname, const bool all)
 
 void LatticeType::Cell_Twiss(const long int i0, const long int i1)
 {
-  long int     i;
-  int          k, nu_int[2];
-  double       alpha[2], beta[2], dnu[2], eta[2], etap[2];
-  ss_vect<tps> A;
+  long int            i;
+  int                 k, nu_int[2];
+  std::vector<double> alpha{0e0, 0e0}, beta{0e0, 0e0}, dnu{0e0, 0e0},
+                      eta{0e0, 0e0}, etap{0e0, 0e0};
+  ss_vect<tps>        A;
 
   for (k = 0; k < 2; k++)
     nu_int[k] = 0;
@@ -731,15 +733,17 @@ void LatticeType::Cell_Twiss(const long int i0, const long int i1)
 void LatticeType::prt_lat(const int loc1, const int loc2, const char *fname,
 			  const bool all, const int n)
 {
-  long int        i = 0;
-  int             j, k;
-  double          s, h;
-  double          alpha[2], beta[2], nu[2], dnu[2], eta[2], etap[2], dnu1[2];
-  double          curly_H;
-  MpoleType       *Mp;
-  ss_vect<double> eta_Fl;
-  ss_vect<tps>    A, A_CS;
-  FILE            *outf;
+  long int            i = 0;
+  int                 j, k;
+  double              s, h;
+  std::vector<double> alpha{0e0, 0e0}, beta{0e0, 0e0}, nu{0e0, 0e0},
+		      dnu{0e0, 0e0}, eta{0e0, 0e0}, etap{0e0, 0e0},
+		      dnu1{0e0, 0e0};
+  double              curly_H;
+  MpoleType           *Mp;
+  ss_vect<double>     eta_Fl;
+  ss_vect<tps>        A, A_CS;
+  FILE                *outf;
 
   const double  c1 = 1e0/(2e0*(2e0-pow(2e0, 1e0/3e0))), c2 = 0.5e0-c1;
   const double  d1 = 2e0*c1, d2 = 1e0-2e0*d1;
@@ -1377,8 +1381,10 @@ void prt_lin_map(const int n_DOF, const ss_vect<tps> &map)
 }
 
 
-ss_vect<tps> get_A(const double alpha[], const double beta[],
-		   const double eta[], const double etap[])
+ss_vect<tps> get_A(const std::vector<double> &alpha,
+		   const std::vector<double> &beta,
+		   const std::vector<double> &eta,
+		   const std::vector<double> &etap)
 {
   int          k;
   ss_vect<tps> A, Id;
@@ -1397,7 +1403,8 @@ ss_vect<tps> get_A(const double alpha[], const double beta[],
 }
 
 
-ss_vect<tps> get_A_CS(const int n, const ss_vect<tps> &A, double dnu[])
+ss_vect<tps> get_A_CS(const int n, const ss_vect<tps> &A,
+		      std::vector<double> &dnu)
 {
   int          k;
   double       c, s;
@@ -1413,9 +1420,9 @@ ss_vect<tps> get_A_CS(const int n, const ss_vect<tps> &A, double dnu[])
 }
 
 
-void get_ab(const ss_vect<tps> &A,
-	    double alpha[], double beta[], double dnu[],
-	    double eta[], double etap[])
+void get_ab(const ss_vect<tps> &A, std::vector<double> &alpha,
+	    std::vector<double> &beta, std::vector<double> &dnu,
+	    std::vector<double> &eta, std::vector<double> &etap)
 {
   int          k;
   ss_vect<tps> A_Atp;
@@ -1526,44 +1533,42 @@ void Trac(LatticeType &lat, double x, double px, double y, double py, double dp,
 }
 
 
-void printglob(LatticeType &lat)
+void LatticeType::print(void)
 {
   printf("\n***************************************************************"
 	 "***************\n");
   printf("\n");
   printf("  dPcommon     =  %9.3e  dPparticle   =  %9.3e"
 	 "  Energy [GeV] = %.3f\n",
-         lat.conf.dPcommon, lat.conf.dPparticle, lat.conf.Energy);
+         conf.dPcommon, conf.dPparticle, conf.Energy);
   printf("  MaxAmplx [m] = %9.3e  MaxAmply [m] = %9.3e"
 	 "  RFAccept [%%] = %4.2f\n",
-         lat.elems[0]->maxampl[X_][0], lat.elems[0]->maxampl[Y_][0],
-	 lat.conf.delta_RF*1e2);
-  printf(" Cavity_On    =  %s    ", lat.conf.Cavity_on ? "TRUE " : "FALSE");
-  printf("  Radiation_On = %s     \n",
-	 lat.conf.radiation ? "TRUE " : "FALSE");
+         elems[0]->maxampl[X_][0], elems[0]->maxampl[Y_][0], conf.delta_RF*1e2);
+  printf(" Cavity_On    =  %s    ", conf.Cavity_on ? "TRUE " : "FALSE");
+  printf("  Radiation_On = %s     \n", conf.radiation ? "TRUE " : "FALSE");
   printf("  bpm          =  %3d        qt           = %3d        ",
-	 lat.conf.bpm, lat.conf.qt);
-  printf(" Chambre_On   = %s     \n", lat.conf.chambre ? "TRUE " : "FALSE");
+	 conf.bpm, conf.qt);
+  printf(" Chambre_On   = %s     \n", conf.chambre ? "TRUE " : "FALSE");
   printf("  hcorr        =  %3d        vcorr        = %3d\n\n",
-	 lat.conf.hcorr, lat.conf.vcorr);
-  printf("  alphac       =   %22.16e\n", lat.conf.Alphac); 
+	 conf.hcorr, conf.vcorr);
+  printf("  alphac       =   %22.16e\n", conf.Alphac); 
   printf("  nux          =  %19.16f      nuz  =  %19.16f",
-         lat.conf.TotalTune[X_], lat.conf.TotalTune[Y_]);
-  if (lat.conf.Cavity_on)
-    printf("  omega  = %11.9f\n", lat.conf.Omega);
+         conf.TotalTune[X_], conf.TotalTune[Y_]);
+  if (conf.Cavity_on)
+    printf("  omega  = %11.9f\n", conf.Omega);
   else {
     printf("\n");
     printf("  ksix         = %10.6f                ksiz = %10.6f\n",
-            lat.conf.Chrom[X_], lat.conf.Chrom[Y_]);
+	   conf.Chrom[X_], conf.Chrom[Y_]);
   }
 
   cout << scientific << setprecision(6) << setw(14);
-  lat.conf.OneTurnMat.raw_print(cout, "\n  OneTurn matrix:\n");
+  conf.OneTurnMat.raw_print(cout, "\n  OneTurn matrix:\n");
   fflush(stdout);
 }
 
 
-void GetEmittance(LatticeType &lat, const int Fnum, const bool prt)
+void LatticeType::GetEmittance(const int Fnum, const bool prt)
 {
   // A. Chao "Evaluation of Beam Distribution Parameters in an Electron
   // Storage Ring" J. Appl. Phys 50 (2), 595-598.
@@ -1578,35 +1583,34 @@ void GetEmittance(LatticeType &lat, const int Fnum, const bool prt)
   CavityType   *Cp;
 
   // save state
-  rad = lat.conf.radiation; emit = lat.conf.emittance;
-  cav = lat.conf.Cavity_on; path = lat.conf.pathlength;
+  rad = conf.radiation; emit = conf.emittance;
+  cav = conf.Cavity_on; path = conf.pathlength;
 
-  C = lat.elems[lat.conf.Cell_nLoc]->S;
+  C = elems[conf.Cell_nLoc]->S;
 
   // damped system
-  lat.conf.radiation = true; lat.conf.emittance  = true;
-  lat.conf.Cavity_on = true; lat.conf.pathlength = false;
+  conf.radiation = true; conf.emittance  = true;
+  conf.Cavity_on = true; conf.pathlength = false;
 
-  lat.Ring_GetTwiss(false, 0.0);
+  Ring_GetTwiss(false, 0.0);
 
   // radiation loss is computed in Cav_Pass
 
-  loc = lat.Elem_GetPos(Fnum, 1);
-  Cp = dynamic_cast<CavityType*>(lat.elems[loc]);
+  loc = Elem_GetPos(Fnum, 1);
+  Cp = dynamic_cast<CavityType*>(elems[loc]);
 
-  lat.conf.U0 = lat.conf.dE*1e9*lat.conf.Energy;
+  conf.U0 = conf.dE*1e9*conf.Energy;
   V_RF = Cp->Pvolt;
   h_RF = Cp->Ph;
-  phi0 = fabs(asin(lat.conf.U0/V_RF));
-  lat.conf.delta_RF =
+  phi0 = fabs(asin(conf.U0/V_RF));
+  conf.delta_RF =
     sqrt(-V_RF*cos(M_PI-phi0)*(2.0-(M_PI-2.0*(M_PI-phi0))
-    *tan(M_PI-phi0))/(fabs(lat.conf.Alphac)*M_PI*h_RF*1e9*lat.conf.Energy));
+    *tan(M_PI-phi0))/(fabs(conf.Alphac)*M_PI*h_RF*1e9*conf.Energy));
 
   // Compute diffusion coeffs. for eigenvectors [sigma_xx, sigma_yy, sigma_zz]
-  Ascr_map =
-    put_mat(lat.conf.Ascr); Ascr_map += vectops(lat.conf.CODvect);
+  Ascr_map = put_mat(conf.Ascr); Ascr_map += vectops(conf.CODvect);
 
-  lat.Cell_Pass(0, lat.conf.Cell_nLoc, Ascr_map, lastpos);
+  Cell_Pass(0, conf.Cell_nLoc, Ascr_map, lastpos);
 
   // K. Robinson "Radiation Effects in Circular Electron Accelerators"
   // Phys. Rev. 111 (2), 373-380.
@@ -1619,121 +1623,117 @@ void GetEmittance(LatticeType &lat, const int Fnum, const bool prt)
 
   for (i = 0; i < DOF; i++) {
     // partition numbers
-    lat.conf.J[i] =
-      2.0*(1.0+lat.conf.CODvect[delta_])*lat.conf.alpha_rad[i]/lat.conf.dE;
+    conf.J[i] =
+      2.0*(1.0+conf.CODvect[delta_])*conf.alpha_rad[i]/conf.dE;
     // damping times
-    lat.conf.tau[i] = -C/(c0*lat.conf.alpha_rad[i]);
+    conf.tau[i] = -C/(c0*conf.alpha_rad[i]);
     // diffusion coeff. and emittance (alpha is for betatron amplitudes)
-    lat.conf.eps[i] = -lat.conf.D_rad[i]/(2.0*lat.conf.alpha_rad[i]);
+    conf.eps[i] = -conf.D_rad[i]/(2.0*conf.alpha_rad[i]);
     // fractional tunes
-    nu[i]  = atan2(lat.conf.wi[i*2], lat.conf.wr[i*2])/(2.0*M_PI);
+    nu[i]  = atan2(conf.wi[i*2], conf.wr[i*2])/(2.0*M_PI);
     if (nu[i] < 0.0) nu[i] = 1.0 + nu[i];
   }
 
   // undamped system
-  lat.conf.radiation = !false; lat.conf.emittance = false;
+  conf.radiation = !false; conf.emittance = false;
 
-  lat.Ring_GetTwiss(false, 0.0);
+  Ring_GetTwiss(false, 0.0);
 
   // Compute sigmas arround the lattice:
   //   Sigma = A diag[J_1, J_1, J_2, J_2, J_3, J_3] A^T
   for (i = 0; i < 6; i++) {
-    Ascr_map[i] = tps(lat.conf.CODvect[i]);
+    Ascr_map[i] = tps(conf.CODvect[i]);
     for (j = 0; j < 6; j++)
-      Ascr_map[i] += lat.conf.Ascr(i, j)*sqrt(lat.conf.eps[j/2])*tps(0.0, j+1);
+      Ascr_map[i] += conf.Ascr(i, j)*sqrt(conf.eps[j/2])*tps(0.0, j+1);
   }
   // prt_lin_map(3, Ascr_map);
-  for (loc = 0; loc <= lat.conf.Cell_nLoc; loc++) {
-    lat.elems[loc]->Elem_Pass(lat.conf, Ascr_map);
+  for (loc = 0; loc <= conf.Cell_nLoc; loc++) {
+    elems[loc]->Elem_Pass(conf, Ascr_map);
     // sigma = A x A^tp
-    lat.elems[loc]->sigma = get_mat(Ascr_map);
-    lat.elems[loc]->sigma = trans(lat.elems[loc]->sigma);
+    elems[loc]->sigma = get_mat(Ascr_map);
+    elems[loc]->sigma = trans(elems[loc]->sigma);
     Ascr = get_mat(Ascr_map);
-    lat.elems[loc]->sigma = Ascr*lat.elems[loc]->sigma;
+    elems[loc]->sigma = Ascr*elems[loc]->sigma;
   }
 
   // A. W. Chao, M. J. Lee "Particle Distribution Parameters in an Electron
   // Storage Ring" J. Appl. Phys. 47 (10), 4453-4456 (1976).
   // observable tilt angle
-  theta = atan2(2e0*lat.elems[0]->sigma(x_, y_),
-		(lat.elems[0]->sigma(x_, x_)-lat.elems[0]->sigma(y_, y_)))/2e0;
+  theta =
+    atan2(2e0*elems[0]->sigma(x_, y_),
+	  (elems[0]->sigma(x_, x_)-elems[0]->sigma(y_, y_)))/2e0;
 
   // longitudinal alpha and beta
-  lat.conf.alpha_z =
-    -lat.conf.Ascr(ct_, ct_)*lat.conf.Ascr(delta_, ct_)
-    - lat.conf.Ascr(ct_, delta_)*lat.conf.Ascr(delta_, delta_);
-  lat.conf.beta_z =
-    sqr(lat.conf.Ascr(ct_, ct_)) + sqr(lat.conf.Ascr(ct_, delta_));
-  gamma_z = (1.0+sqr(lat.conf.alpha_z))/lat.conf.beta_z;
+  conf.alpha_z =
+    -conf.Ascr(ct_, ct_)*conf.Ascr(delta_, ct_)
+    - conf.Ascr(ct_, delta_)*conf.Ascr(delta_, delta_);
+  conf.beta_z =
+    sqr(conf.Ascr(ct_, ct_)) + sqr(conf.Ascr(ct_, delta_));
+  gamma_z = (1.0+sqr(conf.alpha_z))/conf.beta_z;
 
   // bunch size
-  sigma_s = sqrt(lat.conf.beta_z*lat.conf.eps[Z_]);
-  sigma_delta = sqrt(gamma_z*lat.conf.eps[Z_]);
+  sigma_s = sqrt(conf.beta_z*conf.eps[Z_]);
+  sigma_delta = sqrt(gamma_z*conf.eps[Z_]);
 
   if (prt) {
     printf("\nEmittance:\n");
     printf("\nBeam energy [GeV]:              "
-	   "Eb          = %4.2f\n", lat.conf.Energy);
+	   "Eb          = %4.2f\n", conf.Energy);
     printf("Energy loss per turn [keV]:     "
 	   "U0          = %3.1f\n",
-	   1e-3*lat.conf.U0);
+	   1e-3*conf.U0);
     printf("Synchronous phase [deg]:        "
 	   "phi0        = 180 - %4.2f\n",
 	   radtodeg(phi0));
     printf("RF bucket height [%%]:           "
-	   "delta_RF    = %4.2f\n", 1e2*lat.conf.delta_RF);
-    printf("\n");
-    printf("Equilibrium emittance [m.rad]:  "
+	   "delta_RF    = %4.2f\n", 1e2*conf.delta_RF);
+    printf("\nEquilibrium emittance [m.rad]:  "
 	   "eps         =  [%9.3e, %9.3e, %9.3e]\n",
-            lat.conf.eps[X_], lat.conf.eps[Y_], lat.conf.eps[Z_]);
+            conf.eps[X_], conf.eps[Y_], conf.eps[Z_]);
     printf("Bunch length [mm]:              "
 	   "sigma_s     =  %5.3f\n", 1e3*sigma_s);
     printf("Momentum spread:                "
 	   "sigma_delta =  %9.3e\n", sigma_delta);
     printf("Longitudinal phase space:       "
 	   "alpha_z     = %10.3e, beta_z = %9.3e\n",
-	   lat.conf.alpha_z, lat.conf.beta_z);
-     printf("Partition numbers:              "
+	   conf.alpha_z, conf.beta_z);
+    printf("Partition numbers:              "
 	   "J           =  [%5.3f, %5.3f, %5.3f]\n",
-            lat.conf.J[X_], lat.conf.J[Y_], lat.conf.J[Z_]);
+            conf.J[X_], conf.J[Y_], conf.J[Z_]);
     printf("Damping times [msec]:           "
 	   "tau         =  [%3.1f, %3.1f, %3.1f]\n",
-	   1e3*lat.conf.tau[X_], 1e3*lat.conf.tau[Y_], 1e3*lat.conf.tau[Z_]);
+	   1e3*conf.tau[X_], 1e3*conf.tau[Y_], 1e3*conf.tau[Z_]);
     printf("Diffusion coeffs:               "
 	   "D           =  [%7.1e, %7.1e, %7.1e]\n",
-	   lat.conf.D_rad[X_], lat.conf.D_rad[Y_], lat.conf.D_rad[Z_]);
-    printf("\n");
-    printf("alphac:                         "
-	   "alphac      = %11.3e\n", lat.conf.Alphac);
-    printf("\n");
-    printf("Fractional tunes:               "
+	   conf.D_rad[X_], conf.D_rad[Y_], conf.D_rad[Z_]);
+    printf("\nalphac:                         "
+	   "alphac      = %11.3e\n", conf.Alphac);
+    printf("\nFractional tunes:               "
 	   "nu_x        =  [%7.5f, %7.5f, %12.5e]\n", nu[X_], nu[Y_], nu[Z_]);
     printf("                                "
 	   "1-nu_x      =  [%7.5f, %7.5f, %12.5e]\n",
 	   1e0-nu[X_], 1e0-nu[Y_], 1e0-nu[Z_]);
-    printf("\n");
-    printf("sigmas:                         "
+    printf("\nsigmas:                         "
 	   "sigma_x     =  %5.1f  microns, sigma_px    = %5.1f urad\n",
-	   1e6*sqrt(lat.elems[0]->sigma(x_, x_)),
-	   1e6*sqrt(lat.elems[0]->sigma(px_, px_)));
+	   1e6*sqrt(elems[0]->sigma(x_, x_)),
+	   1e6*sqrt(elems[0]->sigma(px_, px_)));
     printf("                                "
 	   "sigma_y     =  %5.1f  microns, sigma_py    = %5.1f urad\n",
-	   1e6*sqrt(lat.elems[0]->sigma(y_, y_)),
-	   1e6*sqrt(lat.elems[0]->sigma(py_, py_)));
+	   1e6*sqrt(elems[0]->sigma(y_, y_)),
+	   1e6*sqrt(elems[0]->sigma(py_, py_)));
     printf("                                "
 	   "sigma_s     =  %6.2f mm,      sigma_delta = %8.2e\n",
-	   1e3*sqrt(lat.elems[0]->sigma(ct_, ct_)),
-	   sqrt(lat.elems[0]->sigma(delta_, delta_)));
+	   1e3*sqrt(elems[0]->sigma(ct_, ct_)),
+	   sqrt(elems[0]->sigma(delta_, delta_)));
 
-    printf("\n");
-    printf("Beam ellipse twist [rad]:       tw      = %5.3f\n", theta);
+    printf("\nBeam ellipse twist [rad]:       tw      = %5.3f\n", theta);
     printf("                   [deg]:       tw      = %5.3f\n",
 	   radtodeg(theta));
   }
 
   // restore state
-  lat.conf.radiation = rad; lat.conf.emittance  = emit;
-  lat.conf.Cavity_on = cav; lat.conf.pathlength = path;
+  conf.radiation = rad; conf.emittance  = emit;
+  conf.Cavity_on = cav; conf.pathlength = path;
 }
 
 
@@ -1876,7 +1876,7 @@ int Newton_Raphson(LatticeType &lat, int n, ss_vect<double> &x, int ntrial,
 }
 
 
-void get_dnu(const int n, const ss_vect<tps> &A, double dnu[])
+void get_dnu(const int n, const ss_vect<tps> &A, std::vector<double> &dnu)
 {
   int k;
 

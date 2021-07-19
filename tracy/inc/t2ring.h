@@ -46,14 +46,17 @@ void findcod(LatticeType &lat, double dP);
 
 void prt_lin_map(const int n_DOF, const ss_vect<tps> &map);
 
-ss_vect<tps> get_A(const double alpha[], const double beta[],
-		   const double eta[], const double etap[]);
+ss_vect<tps> get_A(const std::vector<double> &alpha,
+		   const std::vector<double> &beta,
+		   const std::vector<double> &eta,
+		   const std::vector<double> &etap);
 
-ss_vect<tps> get_A_CS(const int n, const ss_vect<tps> &A, double dnu[]);
+ss_vect<tps> get_A_CS(const int n, const ss_vect<tps> &A,
+		      std::vector<double> &dnu);
 
-void get_ab(const ss_vect<tps> &A,
-	    double alpha[], double beta[], double nu[],
-	    double eta[], double etap[]);
+void get_ab(const ss_vect<tps> &A, std::vector<double> &alpha,
+	    std::vector<double> &beta, std::vector<double> &dnu,
+	    std::vector<double> &eta, std::vector<double> &etap);
 
 void get_twoJ(const int n_DOF, const ss_vect<double> &ps,
 	      const ss_vect<tps> &A, double twoJ[]);
@@ -65,10 +68,6 @@ void Trac(LatticeType &lat, double x, double px, double y, double py, double dp,
 void SetKLpar(LatticeType &lat, int Fnum, int Knum, int Order, double kL);
 
 double GetKpar(LatticeType &lat, int Fnum, int Knum, int Order);
-
-void printglob(LatticeType &lat);
-
-void GetEmittance(LatticeType &lat, const int Fnum, const bool prt);
 
 double get_dynap(LatticeType &lat, const double delta, const int n_aper,
 		 const int n_track, const bool cod);
@@ -82,7 +81,7 @@ void computeFandJ(LatticeType &lat, int n, double *x, ss_vect<double> *fjac,
 int Newton_Raphson(LatticeType &lat, int n, ss_vect<double> &x, int ntrial,
 		   double tolx);
 
-void get_dnu(const int n, const ss_vect<tps> &A, double dnu[]);
+void get_dnu(const int n, const ss_vect<tps> &A, std::vector<double> &dnu);
 
 ss_vect<tps> tp_S(const int n_DOF, const ss_vect<tps> &A);
 

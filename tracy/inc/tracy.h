@@ -262,11 +262,13 @@ class CellType {
     dI[6],                     // Contribution to I[1..5].
     dS[2],                     // Transverse displacement.
     dT[2],                     // dT = (cos(dT), sin(dT)).
-    Nu[2],                     // Phase advances.
-    Alpha[2],                  // Alpha functions (redundant).
-    Beta[2],                   // beta fonctions (redundant).
-    Eta[2],                    // dispersion and its derivative (redundant).
-    Etap[2],
+    Nu[2];                     // Twiss parameters (redundant).
+  std::vector<double>
+    Alpha{0e0, 0e0},
+    Beta{0e0, 0e0},
+    Eta{0e0, 0e0},             // eta & derivative (redundant).
+    Etap{0e0, 0e0};
+  double
     maxampl[2][2];             /* Horizontal and vertical physical apertures:
 				  maxampl[X_][0] < x < maxampl[X_][1]
 				  maxampl[Y_][0] < y < maxampl[Y_][1].        */
@@ -440,6 +442,10 @@ class LatticeType {
   // Vacuum chamber.
   void ChamberOff(void);
   void PrintCh(void);
+
+  void print(void);
+
+  void GetEmittance(const int Fnum, const bool prt);
 };
 
 class DriftType : public ElemType {
