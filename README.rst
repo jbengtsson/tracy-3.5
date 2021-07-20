@@ -36,6 +36,7 @@ To install
 First create environment variable $TRACY_LINK e.g.:
 
 .. code:: shell
+
    export TRACY_LIB=$HOME/git_repos/tracy-3.5
 
 
