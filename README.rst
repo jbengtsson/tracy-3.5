@@ -25,21 +25,29 @@ Michael Boege, SLS, 1998.
 Requirements
 ------------
 
-   GNU C/C++ and FORTRAN-95 compilers: gcc and gfortran.
-   GNU autoconf/automake environment and libtool.
-   "Numerical Recipes in C": http://www.nr.com.
+* GNU C/C++ and FORTRAN-95 compilers: gcc and gfortran.
+* GNU autoconf/automake environment and libtool.
+* GNU scientific library see https://www.gnu.org/software/gsl/
+
 
 To install
 ----------
 
 First create environment variable $TRACY_LINK e.g.:
 
+```shell
    export TRACY_LIB=$HOME/git_repos/tracy-3.5
+```
 
 then:
+
+
+```shell
 
    mkdir git_repos
    cd git_repos
    git clone git@github.com:jbengtsson/tracy-3.5.git
    cd tracy-3.5
    ./make_tracy.sh
+
+```
