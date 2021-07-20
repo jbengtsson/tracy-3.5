@@ -11,21 +11,18 @@ libtracy_la_SOURCES     = tracy_lib.cc
 # AM_LDFLAGS flags:
 #  {-static | -shared}
 #  {-no-undefined | -undefined dynamic_lookup}
-AM_LDFLAGS  = -shared 
+AM_LDFLAGS  = -shared
 
 LIBS	    = -L/usr/local/Cellar/gcc/11.1.0_1/lib/gcc/11 \
               -lstdc++ \
-              -L/usr/local/Cellar/gsl/2.7/lib \
-              -lgsl \
               -L/usr/local/Cellar/armadillo/10.5.2/lib \
-              -larmadillo
+              -larmadillo \
+              $(GSL_LIBS)
 
 # C Preprocessor flags.
 AM_CPPFLAGS = -I../inc \
               -I/usr/local/Cellar/armadillo/10.5.2/include \
-              -I/usr/local/Cellar/gsl/2.7/include \
-              -I/usr/local/opt/pybind11/include \
-              -I/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/Current/include/python3.9
+              $(GSL_CFLAGS)
 
 # C++ flags.
 AM_CXXFLAGS = -g -O0 -Wall -Wno-error=all -std=gnu++11 -fPIC

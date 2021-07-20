@@ -54,7 +54,7 @@
 // NSLS-II.
 // #include "nsls-ii_lib.cc"
 
-#include "tracy_py.cc"
+//#include "tracy_py.cc"
 
 str80
   finame,               // input data file.
@@ -211,6 +211,8 @@ template void splin2(const double [], const double [],
 template void splin2(const double [], const double [],
 		     double **, double **, const int, const int,
 		     const tps &, const tps &, tps &);
+
+int no_tps = 1;
 
 
 double d_sign(double a, double b)
@@ -375,7 +377,7 @@ long LatticeType::ElemIndex(const std::string &name)
 
   if (prt) {
     printf("\nElemIndex:\n     ");
-    prt_name_ascii(name1); 
+    prt_name_ascii(name1);
     printf("\n");
   }
 

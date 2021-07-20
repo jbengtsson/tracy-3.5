@@ -4,6 +4,16 @@ AC_CONFIG_SRCDIR([tracy/src/t2elem.cc])
 AC_INIT([Tracy],[2.0])
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_SRCDIR(tracy/src/t2elem.cc)
+
+
+# search for GSL see https://www.gnu.org/software/gsl/doc/html/autoconf.html
+AC_CHECK_LIB([m],[cos])
+AC_CHECK_LIB([gslcblas],[cblas_dgemm])
+AC_CHECK_LIB([gsl],[gsl_blas_dgemm])
+
+# Checks for armadillo to be added
+# AC_CHECK_LIB([armadillo])
+
 AM_INIT_AUTOMAKE
 # Shared library: libtool.
 LT_CONFIG_LTDL_DIR()
