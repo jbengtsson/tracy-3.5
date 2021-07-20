@@ -2319,6 +2319,7 @@ void ElemType::prt_elem(void)
 {
   printf(" %-10s %6.3f %2d %6.3f %2d %2d",
 	 Name.c_str(), S, Pkind, PL, Fnum, Knum);
+  fflush(stdout);
 }
 
 

@@ -1,5 +1,6 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+
 #include "tracy_lib.h"
 
 namespace py = pybind11;
@@ -10,6 +11,7 @@ PYBIND11_MODULE(libtracy, scsi) {
     scsi.doc() = "Self-Consistent Symplectic Integrator (SCSI)";
 
     py::enum_<PartsKind>(scsi, "PartsKind")
+      .value("drift",      PartsKind::drift)
       .value("Wigl",       PartsKind::Wigl)
       .value("Mpole",      PartsKind::Mpole)
       .value("Cavity",     PartsKind::Cavity)
@@ -23,7 +25,7 @@ PYBIND11_MODULE(libtracy, scsi) {
       .value("Map",        PartsKind::Map)
       .export_values();
 
-    py::class_<ConfigType> (scsi, "ConfigType")
+    py::class_<ConfigType>(scsi, "ConfigType")
       .def_readwrite("trace",          &ConfigType::trace)
       .def_readwrite("reverse_elem",   &ConfigType::reverse_elem)
       .def_readwrite("mat_meth",       &ConfigType::mat_meth)
@@ -51,7 +53,7 @@ PYBIND11_MODULE(libtracy, scsi) {
       .def_readwrite("Chrom",          &ConfigType::Chrom)
       .def(py::init<>());
 
-    py::class_<CellType>   (scsi, "CellType")
+    py::class_<CellType>(scsi, "CellType")
       .def_readwrite("Fnum",    &CellType::Fnum)
       .def_readwrite("Knum",    &CellType::Knum)
       .def_readwrite("S",       &CellType::S)
@@ -62,10 +64,17 @@ PYBIND11_MODULE(libtracy, scsi) {
       .def_readwrite("BeamPos", &CellType::BeamPos)
       .def(py::init<>());
 
-    py::class_<ElemType>   (scsi, "ElemType")
-      .def(py::init<>());
+    py::class_<ElemType>(scsi, "ElemType")
+      .def_readwrite("Name",    &ElemType::Name)
+      .def_readwrite("Reverse", &ElemType::Reverse)
+      .def_readwrite("PL",      &ElemType::PL)
+      .def_readwrite("Pkind",   &ElemType::Pkind)
+      // Virtual class: no constructor.
+      // .def(py::init<>())
+      .def("prt_elem", &ElemType::prt_elem)
+      .def("print",    &ElemType::print);
 
-    py::class_<ElemFamType>   (scsi, "ElemFamType")
+    py::class_<ElemFamType>(scsi, "ElemFamType")
       .def(py::init<>());
 
     py::class_<LatticeType>(scsi, "LatticeType")
@@ -75,7 +84,18 @@ PYBIND11_MODULE(libtracy, scsi) {
       .def(py::init<>())
       .def("Lat_Read",      &LatticeType::Lat_Read)
       .def("Lat_Init",      &LatticeType::Lat_Init)
+      .def("prt_fams",      &LatticeType::prt_fams)
+      .def("prt_elems",     &LatticeType::prt_elems)
+      .def("print",         &LatticeType::print)
       .def("ChamberOff",    &LatticeType::ChamberOff)
       .def("Ring_GetTwiss", &LatticeType::Ring_GetTwiss)
-      .def("print",         &LatticeType::print);
+      .def("GetEmittance",  &LatticeType::GetEmittance);
+
+    py::class_<DriftType, ElemType>(scsi, "DriftType");
+
+    py::class_<MpoleType, ElemType>(scsi, "MpoleType");
+
+    py::class_<CavityType, ElemType>(scsi, "CavityType");
+
+    py::class_<MarkerType, ElemType>(scsi, "MarkerType");
 }

@@ -141,7 +141,7 @@ enum PartsKind
 
 enum pthicktype
   { thick = 0,
-    thin = 1 };
+    thin  = 1 };
 
 enum
   { All   = 0,
@@ -284,7 +284,7 @@ class CellType {
     *next_ptr;                           // pointer to next cell (for tracking).
 };
 
-// Element base class.
+// Element virtual base class.
 class ElemType : public CellType {
  public:
   std::string

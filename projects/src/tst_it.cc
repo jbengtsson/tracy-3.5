@@ -191,7 +191,7 @@ void get_lat(const string &file_name, LatticeType &lat)
     exit(0);
   }
 
-  lat.Ring_GetTwiss(true, 0e-3); printglob(lat);
+  lat.Ring_GetTwiss(true, 0e-3); lat.print();
 
   if (lat.conf.mat_meth)
     lat.get_eps_x(eps_x, sigma_delta, U_0, J, tau, I, true);
@@ -202,7 +202,7 @@ void get_lat(const string &file_name, LatticeType &lat)
   lat.prt_lat("linlat.out", true, 10);
   lat.prtmfile("flat_file.dat");
 
-  if (!lat.conf.mat_meth) GetEmittance(lat, lat.ElemIndex("cav"), true);
+  if (!lat.conf.mat_meth) lat.GetEmittance(lat.ElemIndex("cav"), true);
 
   if (false) {
     lat.conf.Cavity_on = true;
