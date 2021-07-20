@@ -35,14 +35,14 @@ To install
 
 First create environment variable $TRACY_LINK e.g.:
 
-.. code::shell
+.. code:: shell
    export TRACY_LIB=$HOME/git_repos/tracy-3.5
 
 
 then:
 
 
-.. code::shell
+.. code:: shell
 
    mkdir git_repos
    cd git_repos
