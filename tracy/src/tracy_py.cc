@@ -1,10 +1,10 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-
+#include "tracy_lib.h"
 
 namespace py = pybind11;
 
-int no_tps = 1;
+//int no_tps = 1;
 
 PYBIND11_MODULE(libtracy, scsi) {
     scsi.doc() = "Self-Consistent Symplectic Integrator (SCSI)";
