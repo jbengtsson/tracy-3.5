@@ -9,6 +9,20 @@ int no_tps = 1;
 PYBIND11_MODULE(libtracy, scsi) {
     scsi.doc() = "Self-Consistent Symplectic Integrator (SCSI)";
 
+    py::enum_<PartsKind>(scsi, "PartsKind")
+      .value("Wigl",       PartsKind::Wigl)
+      .value("Mpole",      PartsKind::Mpole)
+      .value("Cavity",     PartsKind::Cavity)
+      .value("marker",     PartsKind::marker)
+      .value("undef",      PartsKind::undef)
+      .value("Insertion",  PartsKind::Insertion)
+      .value("FieldMap",   PartsKind::FieldMap)
+      .value("Spreader",   PartsKind::Spreader)
+      .value("Recombiner", PartsKind::Recombiner)
+      .value("Solenoid",   PartsKind::Solenoid)
+      .value("Map",        PartsKind::Map)
+      .export_values();
+
     py::class_<ConfigType> (scsi, "ConfigType")
       .def_readwrite("trace",          &ConfigType::trace)
       .def_readwrite("reverse_elem",   &ConfigType::reverse_elem)
