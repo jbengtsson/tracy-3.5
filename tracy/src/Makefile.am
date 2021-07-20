@@ -15,15 +15,14 @@ AM_LDFLAGS  = -shared
 
 LIBS	    = -L/usr/local/Cellar/gcc/11.1.0_1/lib/gcc/11 \
               -lstdc++ \
-              -L/usr/local/Cellar/gsl/2.7/lib \
-              -lgsl \
+              $(GSL_LIBS) \
               -L/usr/local/Cellar/armadillo/10.5.2/lib \
               -larmadillo
 
 # C Preprocessor flags.
 AM_CPPFLAGS = -I../inc \
               -I/usr/local/Cellar/armadillo/10.5.2/include \
-              -I/usr/local/Cellar/gsl/2.7/include \
+              $(GSL_CFLAGS) \
               -I/usr/local/opt/pybind11/include \
               -I/usr/local/Cellar/python@3.9/3.9.6/Frameworks/Python.framework/Versions/Current/include/python3.9
 
