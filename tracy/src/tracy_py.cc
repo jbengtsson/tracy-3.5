@@ -93,7 +93,12 @@ PYBIND11_MODULE(libtracy, scsi) {
 
     py::class_<DriftType, ElemType>(scsi, "DriftType");
 
-    py::class_<MpoleType, ElemType>(scsi, "MpoleType");
+    py::class_<MpoleType, ElemType>(scsi, "MpoleType")
+      .def_readwrite("Pmethod",  &MpoleType::Pmethod)
+      .def_readwrite("PN",       &MpoleType::PN)
+      .def_readwrite("Porder",   &MpoleType::Porder)
+      .def_readwrite("n_design", &MpoleType::n_design)
+      .def_readwrite("PBpar",    &MpoleType::PBpar);
 
     py::class_<CavityType, ElemType>(scsi, "CavityType");
 
