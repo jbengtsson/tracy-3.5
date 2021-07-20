@@ -11,6 +11,8 @@ AC_CHECK_LIB([m],[cos])
 AC_CHECK_LIB([gslcblas],[cblas_dgemm])
 AC_CHECK_LIB([gsl],[gsl_blas_dgemm])
 
+# Checks for armadillo to be added
+# AC_CHECK_LIB([armadillo])
 
 AM_INIT_AUTOMAKE
 # Shared library: libtool.
