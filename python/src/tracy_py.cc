@@ -10,6 +10,8 @@ namespace py = pybind11;
 PYBIND11_MODULE(libtracy, scsi) {
     scsi.doc() = "Self-Consistent Symplectic Integrator (SCSI)";
 
+    scsi.attr("HOMmax") = HOMmax;
+
     py::enum_<PartsKind>(scsi, "PartsKind")
       .value("drift",      PartsKind::drift)
       .value("Wigl",       PartsKind::Wigl)
