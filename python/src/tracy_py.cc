@@ -10,8 +10,10 @@ namespace py = pybind11;
 PYBIND11_MODULE(libtracy, scsi) {
     scsi.doc() = "Self-Consistent Symplectic Integrator (SCSI)";
 
+    // Constants.
     scsi.attr("HOMmax") = HOMmax;
 
+    // Enums.
     py::enum_<PartsKind>(scsi, "PartsKind")
       .value("drift",      PartsKind::drift)
       .value("Wigl",       PartsKind::Wigl)
@@ -26,6 +28,19 @@ PYBIND11_MODULE(libtracy, scsi) {
       .value("Solenoid",   PartsKind::Solenoid)
       .value("Map",        PartsKind::Map)
       .export_values();
+
+    py::enum_<MpoleKind>(scsi, "MpoleKind")
+      .value("All",   MpoleKind::All)
+      .value("Dip",   MpoleKind::Dip)
+      .value("Quad",  MpoleKind::Quad)
+      .value("Sext",  MpoleKind::Sext)
+      .value("Oct",   MpoleKind::Oct)
+      .value("Dec",   MpoleKind::Dec)
+      .value("Dodec", MpoleKind::Dodec);
+
+    py::enum_<PlaneKind>(scsi, "Horizontal")
+      .value("Horizontal", PlaneKind::Horizontal)
+      .value("Vertical",   PlaneKind::Vertical);
 
     py::class_<ConfigType>(scsi, "ConfigType")
       .def_readwrite("trace",          &ConfigType::trace)
@@ -93,16 +108,41 @@ PYBIND11_MODULE(libtracy, scsi) {
       .def("Ring_GetTwiss", &LatticeType::Ring_GetTwiss)
       .def("GetEmittance",  &LatticeType::GetEmittance);
 
-    py::class_<DriftType, ElemType>(scsi, "DriftType");
+    py::class_<DriftType, ElemType>(scsi, "DriftType")
+      .def(py::init<>());
 
     py::class_<MpoleType, ElemType>(scsi, "MpoleType")
       .def_readwrite("Pmethod",  &MpoleType::Pmethod)
       .def_readwrite("PN",       &MpoleType::PN)
       .def_readwrite("Porder",   &MpoleType::Porder)
       .def_readwrite("n_design", &MpoleType::n_design)
-      .def_readwrite("PBpar",    &MpoleType::PBpar);
+      .def_readwrite("PBpar",    &MpoleType::PBpar)
+      .def(py::init<>());
 
-    py::class_<CavityType, ElemType>(scsi, "CavityType");
+    py::class_<CavityType, ElemType>(scsi, "CavityType")
+      .def(py::init<>());
 
-    py::class_<MarkerType, ElemType>(scsi, "MarkerType");
+    py::class_<MarkerType, ElemType>(scsi, "MarkerType")
+      .def(py::init<>());
+
+    py::class_<WigglerType, ElemType>(scsi, "WigglerType")
+      .def(py::init<>());
+
+    py::class_<InsertionType, ElemType>(scsi, "InsertionType")
+      .def(py::init<>());
+
+    py::class_<FieldMapType, ElemType>(scsi, "FieldMapType")
+      .def(py::init<>());
+
+    py::class_<SpreaderType, ElemType>(scsi, "SpreaderType")
+      .def(py::init<>());
+
+    py::class_<RecombinerType, ElemType>(scsi, "RecombinerType")
+      .def(py::init<>());
+
+    py::class_<SolenoidType, ElemType>(scsi, "SolenoidType")
+      .def(py::init<>());
+
+    py::class_<MapType, ElemType>(scsi, "MapType")
+      .def(py::init<>());
 }

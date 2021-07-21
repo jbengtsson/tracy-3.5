@@ -143,7 +143,7 @@ enum pthicktype
   { thick = 0,
     thin  = 1 };
 
-enum
+enum MpoleKind
   { All   = 0,
     Dip   = 1,
     Quad  = 2,
@@ -152,7 +152,7 @@ enum
     Dec   = 5,
     Dodec = 6 };
 
-enum
+enum PlaneKind
   { Horizontal = 1,
     Vertical   = 2 };
 
