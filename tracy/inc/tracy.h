@@ -229,14 +229,14 @@ class ConfigType {
     gamma0;
   std::vector<double>
     TotalTune{0e0, 0e0, 0e0},     // Transverse Tunes.
+    Chrom{0e0, 0e0},              // Linear Chromaticities.
     alpha_rad{0e0, 0e0, 0e0},     // Damping Coeffs.
     D_rad{0e0, 0e0, 0e0},         // Diffusion Coeffs (Floquet Space).
     J{0e0, 0e0, 0e0},             // Partition Numbers.
     tau{0e0, 0e0, 0e0},           // Damping Times.
     D_IBS{0e0, 0e0, 0e0},         // Diffusion Matrix (Floquet Ipace).
     eps{0e0, 0e0, 0e0},           // Eigenemittances.
-    epsp{0e0, 0e0, 0e0},          // Trans. & Long. projected Emittances.
-    Chrom{0e0, 0e0};              // Linear Chromaticities.
+    epsp{0e0, 0e0, 0e0};          // Trans. & Long. projected Emittances.
   arma::vec
     CODvect = arma::vec(tps_dim), // Closed Orbit.
     wr = arma::vec(tps_dim),
@@ -264,16 +264,15 @@ class CellType {
     dI[6],                     // Contribution to I[1..5].
     dS[2],                     // Transverse displacement.
     dT[2],                     // dT = (cos(dT), sin(dT)).
-    Nu[2];                     // Twiss parameters (redundant).
+    Nu[2],                     // Twiss parameters (redundant).
+    maxampl[2][2];             /* Horizontal and vertical physical apertures:
+				  maxampl[X_][0] < x < maxampl[X_][1]
+				  maxampl[Y_][0] < y < maxampl[Y_][1].        */
   std::vector<double>
     Alpha{0e0, 0e0},
     Beta{0e0, 0e0},
     Eta{0e0, 0e0},             // eta & derivative (redundant).
     Etap{0e0, 0e0};
-  double
-    maxampl[2][2];             /* Horizontal and vertical physical apertures:
-				  maxampl[X_][0] < x < maxampl[X_][1]
-				  maxampl[Y_][0] < y < maxampl[Y_][1].        */
   ss_vect<double>
     BeamPos;                   // Last position of the beam this cell.
   arma::mat
@@ -478,30 +477,27 @@ class MpoleType : public ElemType {
     Porder,                    // The highest order in PB.
     n_design;                  // multipole order (design).
   double
-    // Roll angle.
-    PdTpar,                    // design [deg].
-    PdTsys,                    // systematic [deg].
-    PdTrms,                    // rms [deg].
-    PdTrnd,                    // random number.
-    // Bending Angles.
-    PTx1,                      // horizontal entrance angle [deg].
-    PTx2,                      // horizontal exit angle [deg].
-    Pgap,                      // total magnet gap [m].
+    PdTpar,                    // Roll angle [deg]: design
+    PdTsys,                    //                    systematic
+    PdTrms,                    //                    rms
+    PdTrnd,                    //                    random number.
+    PTx1,                      // Bend angle [deg]: hor. entrance angle
+    PTx2,                      //                   hor. exit angle.
+    Pgap,                      // Total magnet gap [m].
     Pirho,                     // 1/rho [1/m].
-    Pc0,                       // corrections for roll error of bend.
+    Pc0,                       // Corrections for roll error of bend.
     Pc1,
-    Ps1,
-    // Displacement Errors.
-    PdSsys[2],                 // systematic [m].
-    PdSrms[2],                 // rms [m].
-    PdSrnd[2];                 // random number.
+    Ps1;
+  std::vector<double>
+    PdSsys{0e0, 0e0},          // Displacement errors [m]: systematic
+    PdSrms{0e0, 0e0},          //                          rms
+    PdSrnd{0e0, 0e0};          //                          random number.
   MpoleArray
-    // Multipole strengths.
-    PBpar,                     // design.
-    PBsys,                     // systematic.
-    PBrms,                     // rms.
-    PBrnd,                     // random number.
-    PB;                        // total.
+    PBpar,                     // Multipole strengths: design
+    PBsys,                     //                      systematic
+    PBrms,                     //                      rms
+    PBrnd,                     //                      random number
+    PB;                        //                      total.
   pthicktype
     Pthick;
   arma::mat
@@ -584,22 +580,21 @@ class WigglerType : public ElemType {
     n_harm,                    // No of harmonics.
     harm[n_harm_max],          // Harmonic number.
     Porder;                    // The highest order in PB.
-    // Roll angle
   double
-    PdTpar,                    // Design [deg].
-    PdTsys,                    // Systematic [deg].
-    PdTrms,                    // RMS [deg].
-    PdTrnd,                    // Random number.
+    PdTpar,                    // Roll angle [deg]: design
+    PdTsys,                    //                   systematic
+    PdTrms,                    //                   RMS
+    PdTrnd,                    //                   random number.
     Lambda,                    // lambda.
-    // Displacement Error.
-    PdSsys[2],                 // Systematic [m].
-    PdSrms[2],                 // RMS [m].
-    PdSrnd[2],                 // Random number.
-    BoBrhoV[n_harm_max],       // B/Brho vertical.
-    BoBrhoH[n_harm_max],       // B/Brho horizontal.
+    BoBrhoV[n_harm_max],       // B/Brho: ver.
+    BoBrhoH[n_harm_max],       //         hor.
     kxV[n_harm_max],           // kx.
     kxH[n_harm_max],           // kx.
     phi[n_harm_max];           // phi.
+  std::vector<double>
+    PdSsys{0e0, 0e0},          // Displacement error [m]: systematic
+    PdSrms{0e0, 0e0},          //                         RMS
+    PdSrnd{0e0, 0e0};          //                         random number.
   MpoleArray
     PBW;
 
@@ -661,17 +656,17 @@ class InsertionType : public ElemType {
     PdTpar,                    // design [deg].
     PdTsys,                    // systematic [deg].
     PdTrms,                    // rms [deg].
-    PdTrnd,                    // random number.
+    PdTrnd;                    // random number.
 //  Strength
 //  double Plperiod;           // Length Period [m].
 //  int Pnperiod;              // Number of periods.
 //  double PBoBrho;            // B/Brho.
 //  double PKx;                // kx.
 //  mpolArray PBW;
-  // Displacement Error.
-    PdSsys[2],                 // systematic [m].
-    PdSrms[2],                 // rms [m].
-    PdSrnd[2];                 // random number.
+  std::vector<double>
+    PdSsys{0e0, 0e0},          // Displacement error [m]: systematic
+    PdSrms{0e0, 0e0},          //                         rms
+    PdSrnd{0e0, 0e0};          //                         random number.
 
   friend InsertionType* Insertion_Alloc(void);
   ElemType* Elem_Init(const ConfigType &conf, const bool reverse);
@@ -789,11 +784,11 @@ class SolenoidType : public ElemType {
     dTpar,                     // design [deg].
     dTsys,                     // systematic [deg].
     dTrms,                     // rms [deg].
-    dTrnd,                     // random number.
-    // Displacement Errors.
-    PdSsys[2],                 // systematic [m].
-    PdSrms[2],                 // rms [m].
-    PdSrnd[2];                 // random number.
+    dTrnd;                     // random number.
+  std::vector<double>
+    PdSsys{0e0, 0e0},          // Displacement errors [m]: systematic
+    PdSrms{0e0, 0e0},          //                          rms
+    PdSrnd{0e0, 0e0};          //                          random number.
 
   friend SolenoidType* Solenoid_Alloc(void);
   ElemType* Elem_Init(const ConfigType &conf, const bool reverse);
@@ -816,11 +811,12 @@ class SolenoidType : public ElemType {
 class MapType : public ElemType {
  public:
   double
-    dnu[2],
-    alpha[2],
-    beta[2],
     eta_x,
     etap_x;
+  std::vector<double>
+    dnu{0e0, 0e0},
+    alpha{0e0, 0e0},
+    beta{0e0, 0e0};
   ss_vect<tps>
     M;
 

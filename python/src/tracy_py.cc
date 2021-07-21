@@ -78,12 +78,10 @@ PYBIND11_MODULE(libtracy, scsi) {
       .def_readwrite("passflag",       &ConfigType::passflag)
       .def_readwrite("overflag",       &ConfigType::overflag)
       .def_readwrite("chambre",        &ConfigType::chambre)
-
       // long int
       .def_readwrite("Cell_nLoc",      &ConfigType::Cell_nLoc)
       .def_readwrite("Elem_nFam",      &ConfigType::Elem_nFam)
       .def_readwrite("CODimax",        &ConfigType::CODimax)
-
       // int
       .def_readwrite("bpm",            &ConfigType::bpm)
       .def_readwrite("hcorr",          &ConfigType::hcorr)
@@ -93,7 +91,6 @@ PYBIND11_MODULE(libtracy, scsi) {
       .def_readwrite("ge",             &ConfigType::ge)
       .def_readwrite("RingType",       &ConfigType::RingType)
       .def_readwrite("lossplane",      &ConfigType::lossplane)
-
       // double
       .def_readwrite("dPcommon",       &ConfigType::dPcommon)
       .def_readwrite("dPparticle",     &ConfigType::dPparticle)
@@ -109,9 +106,9 @@ PYBIND11_MODULE(libtracy, scsi) {
       .def_readwrite("beta_z",         &ConfigType::beta_z)
       .def_readwrite("beta0",          &ConfigType::beta0)
       .def_readwrite("gamma0",         &ConfigType::gamma0)
-
       // std::vector<double>:
       .def_readwrite("TotalTune",      &ConfigType::TotalTune)
+      .def_readwrite("Chrom",          &ConfigType::Chrom)
       .def_readwrite("alpha_rad",      &ConfigType::alpha_rad)
       .def_readwrite("D_rad",          &ConfigType::D_rad)
       .def_readwrite("J",              &ConfigType::J)
@@ -119,64 +116,117 @@ PYBIND11_MODULE(libtracy, scsi) {
       .def_readwrite("D_IBS",          &ConfigType::D_IBS)
       .def_readwrite("eps",            &ConfigType::eps)
       .def_readwrite("epsp",           &ConfigType::epsp)
-      .def_readwrite("Chrom",          &ConfigType::Chrom)
-
       // arma::vec
-
       // arma::mat
 
       .def(py::init<>());
 
     py::class_<CellType>(scsi, "CellType")
+      // int
       .def_readwrite("Fnum",    &CellType::Fnum)
       .def_readwrite("Knum",    &CellType::Knum)
+      // double
       .def_readwrite("S",       &CellType::S)
+      // std::vector<double>:
       .def_readwrite("Alpha",   &CellType::Alpha)
       .def_readwrite("Beta",    &CellType::Beta)
       .def_readwrite("Eta",     &CellType::Eta)
       .def_readwrite("Etap",    &CellType::Etap)
+      // ss_vect<double>
       .def_readwrite("BeamPos", &CellType::BeamPos)
+      // arma::mat
+      // CellType
+
       .def(py::init<>());
 
     py::class_<ElemType>(scsi, "ElemType")
+      // std::string
       .def_readwrite("Name",    &ElemType::Name)
+      // bool
       .def_readwrite("Reverse", &ElemType::Reverse)
+      // double
       .def_readwrite("PL",      &ElemType::PL)
+      // PartsKind
       .def_readwrite("Pkind",   &ElemType::Pkind)
+
       // Virtual class: no constructor.
       // .def(py::init<>())
+
       .def("prt_elem", &ElemType::prt_elem)
       .def("print",    &ElemType::print);
 
     py::class_<ElemFamType>(scsi, "ElemFamType")
+      // ElemType
+      // int
+      .def_readwrite("nKid",    &ElemFamType::nKid)
+      .def_readwrite("NoDBN",   &ElemFamType::NoDBN)
+      // std::vector<int>
+      .def_readwrite("KidList", &ElemFamType::KidList)
+      // std::vector<string>
+      .def_readwrite("DBNlist", &ElemFamType::DBNlist)
+
       .def(py::init<>());
 
     py::class_<LatticeType>(scsi, "LatticeType")
+      // std::vector<ElemFamType>
       .def_readwrite("elemf", &LatticeType::elemf)
+      // std::vector<ElemType*>
       .def_readwrite("elems", &LatticeType::elems)
+      // ConfigType
       .def_readwrite("conf",  &LatticeType::conf)
+
       .def(py::init<>())
-      .def("Lat_Read",      &LatticeType::Lat_Read)
+
       .def("Lat_Init",      &LatticeType::Lat_Init)
+
       .def("prt_fams",      &LatticeType::prt_fams)
       .def("prt_elems",     &LatticeType::prt_elems)
-      .def("print",         &LatticeType::print)
-      .def("ChamberOff",    &LatticeType::ChamberOff)
+
+      .def("Lat_Read",      &LatticeType::Lat_Read)
+      .def("prtmfile",      &LatticeType::prtmfile)
+      .def("rdmfile",       &LatticeType::rdmfile)
+
       .def("Ring_GetTwiss", &LatticeType::Ring_GetTwiss)
+
+      .def("ChamberOff",    &LatticeType::ChamberOff)
+
+      .def("print",         &LatticeType::print)
+
       .def("GetEmittance",  &LatticeType::GetEmittance);
 
     py::class_<DriftType, ElemType>(scsi, "DriftType")
       .def(py::init<>());
 
     py::class_<MpoleType, ElemType>(scsi, "MpoleType")
+      // int
       .def_readwrite("Pmethod",  &MpoleType::Pmethod)
       .def_readwrite("PN",       &MpoleType::PN)
       .def_readwrite("Porder",   &MpoleType::Porder)
       .def_readwrite("n_design", &MpoleType::n_design)
+      // double
+      .def_readwrite("PdTpar",   &MpoleType::PdTpar)
+      .def_readwrite("PdTsys",   &MpoleType::PdTsys)
+      .def_readwrite("PdTrms",   &MpoleType::PdTrms)
+      .def_readwrite("PdTrnd",   &MpoleType::PdTrnd)
+      .def_readwrite("PTx1",     &MpoleType::PTx1)
+      .def_readwrite("PTx2",     &MpoleType::PTx2)
+      .def_readwrite("Pgap",     &MpoleType::Pgap)
+      .def_readwrite("Pirho",    &MpoleType::Pirho)
+      .def_readwrite("Pc0",      &MpoleType::Pc0)
+      .def_readwrite("Pc1",      &MpoleType::Pc1)
+      .def_readwrite("Ps1",      &MpoleType::Ps1)
+      // std::vector<doubble>
+      // .def_readwrite("", &MpoleType::)
+      // .def_readwrite("", &MpoleType::)
+      // .def_readwrite("", &MpoleType::)
+      // .def_readwrite("", &MpoleType::)
+      // MpoleArray
       .def_readwrite("PBpar",    &MpoleType::PBpar)
+
       .def(py::init<>());
 
     py::class_<CavityType, ElemType>(scsi, "CavityType")
+
       .def(py::init<>());
 
     py::class_<MarkerType, ElemType>(scsi, "MarkerType")
