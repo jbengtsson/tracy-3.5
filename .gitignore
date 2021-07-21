@@ -46,3 +46,6 @@ dist/
 # Python build
 build/
 libtracy.*
+
+# Files required to be doubled by python build process
+python/README.rst
