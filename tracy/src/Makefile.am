@@ -25,7 +25,8 @@ AM_CPPFLAGS = -I../inc \
               $(GSL_CFLAGS)
 
 # C++ flags.
-AM_CXXFLAGS = -g -O0 -Wall -Wno-error=all -std=gnu++11 -fPIC
+AM_CXXFLAGS = -g -O0 -Wall -Wno-error=all -std=gnu++11 -fPIC \
+              $(GSL_CFLAGS)
 
 # Fortan flags.
 FFLAGS      = -g -O2 -Wall -fbounds-check -fdefault-integer-8 -mcmodel=large
