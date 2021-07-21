@@ -216,12 +216,18 @@ PYBIND11_MODULE(libtracy, scsi) {
       .def_readwrite("Pc1",      &MpoleType::Pc1)
       .def_readwrite("Ps1",      &MpoleType::Ps1)
       // std::vector<doubble>
-      // .def_readwrite("", &MpoleType::)
-      // .def_readwrite("", &MpoleType::)
-      // .def_readwrite("", &MpoleType::)
-      // .def_readwrite("", &MpoleType::)
+      .def_readwrite("PdSsys",   &MpoleType::PdSsys)
+      .def_readwrite("PdSrms",   &MpoleType::PdSrms)
+      .def_readwrite("PdSrnd",   &MpoleType::PdSrnd)
       // MpoleArray
       .def_readwrite("PBpar",    &MpoleType::PBpar)
+      .def_readwrite("PBsys",    &MpoleType::PBsys)
+      .def_readwrite("PBrms",    &MpoleType::PBrms)
+      .def_readwrite("PBrnd",    &MpoleType::PBrnd)
+      .def_readwrite("PB",       &MpoleType::PB)
+      // pthicktype
+      .def_readwrite("Pthick",   &MpoleType::Pthick)
+      // arma::mat
 
       .def(py::init<>());
 

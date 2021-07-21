@@ -2,7 +2,9 @@ import os, sys
 
 tracy_dir = os.getenv('TRACY_LIB')
 sys.path.append(tracy_dir+'/tracy/lib')
+
 import libtracy as scsi
+
 
 def printf(format, *args): sys.stdout.write(format % args); sys.stdout.flush()
 
@@ -66,4 +68,5 @@ def main(file_name):
 
 lat_dir = os.getenv('LAT')
 file_name = lat_dir+'/BESSY-III/NoTG-TGRB-B60-6bend-6sx_JB_tracy'
+
 lat = main(file_name)

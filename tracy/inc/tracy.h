@@ -41,16 +41,17 @@ extern double       chi_m;
 #define degtorad(x) ((x)*M_PI/180.0)
 #define radtodeg(x) ((x)*180.0/M_PI)
 
-#define sqr(x)   ((x)*(x))
-#define cube(x)  ((x)*(x)*(x))
+#define sqr(x)      ((x)*(x))
+#define cube(x)     ((x)*(x)*(x))
 
-#define fract(x) ((x)-(int)(x))
-#define nint(x) ((x) < 0 ? ((long)(x-0.5)) : ((long)(x+0.5))) 
+#define fract(x)    ((x)-(int)(x))
+#define nint(x)     ((x) < 0 ? ((long)(x-0.5)) : ((long)(x+0.5))) 
 
-#define sgn(n) ((n > 0) ? 1 : ((n < 0) ? -1 : 0)) 
+#define sgn(n)      ((n > 0) ? 1 : ((n < 0) ? -1 : 0)) 
 
 
 // Inline.
+
 inline arma::vec pstovec(ss_vect<double> ps)
 {
   arma::vec ps_vec =
@@ -156,7 +157,7 @@ enum PlaneKind
   { Horizontal = 1,
     Vertical   = 2 };
 
-enum
+enum IntMethKind
   { Meth_Linear = 0,
     Meth_First  = 1,
     Meth_Second = 2,
