@@ -27,15 +27,15 @@ def prt_elems(scsi, lat):
 def set_config():
     lat = scsi.LatticeType()
 
-    lat.conf.trace        = False;
-    lat.conf.reverse_elem = not False;
-    lat.conf.mat_meth     = not False;
+    lat.conf.trace        = False
+    lat.conf.reverse_elem = not False
+    lat.conf.mat_meth     = not False
 
-    lat.conf.H_exact    = False; lat.conf.quad_fringe    = False;
-    lat.conf.Cavity_on  = False; lat.conf.radiation      = False;
-    lat.conf.emittance  = False; lat.conf.IBS            = False;
-    lat.conf.pathlength = False; lat.conf.bpm            = 0;
-    lat.conf.Cart_Bend  = False; lat.conf.dip_edge_fudge = True;
+    lat.conf.H_exact    = False; lat.conf.quad_fringe    = False
+    lat.conf.Cavity_on  = False; lat.conf.radiation      = False
+    lat.conf.emittance  = False; lat.conf.IBS            = False
+    lat.conf.pathlength = False; lat.conf.bpm            = 0
+    lat.conf.Cart_Bend  = False; lat.conf.dip_edge_fudge = True
 
     return lat
 
