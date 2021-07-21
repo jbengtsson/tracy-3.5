@@ -58,7 +58,8 @@ def main(file_name):
         lat.prt_fams()
         lat.prt_elems()
     printf('\nHOMmax = %d\n', scsi.HOMmax)
-    prt_elems(scsi, lat)
+    if False:
+        prt_elems(scsi, lat)
     
     return lat
 
