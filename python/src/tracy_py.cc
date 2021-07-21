@@ -11,9 +11,18 @@ PYBIND11_MODULE(libtracy, scsi) {
     scsi.doc() = "Self-Consistent Symplectic Integrator (SCSI)";
 
     // Constants.
+
     scsi.attr("HOMmax") = HOMmax;
+    scsi.attr("c0")     = c0;
+    scsi.attr("q_e")    = q_e;
+    scsi.attr("m_e")    = m_e;
+    scsi.attr("mu_0")   = mu_0;
+    scsi.attr("eps_0")  = eps_0;
+    scsi.attr("r_e")    = r_e;
+    scsi.attr("h_bar")  = h_bar;
 
     // Enums.
+
     py::enum_<PartsKind>(scsi, "PartsKind")
       .value("drift",      PartsKind::drift)
       .value("Wigl",       PartsKind::Wigl)
@@ -42,23 +51,66 @@ PYBIND11_MODULE(libtracy, scsi) {
       .value("Horizontal", PlaneKind::Horizontal)
       .value("Vertical",   PlaneKind::Vertical);
 
+    // Classes.
+
     py::class_<ConfigType>(scsi, "ConfigType")
+      // bool
       .def_readwrite("trace",          &ConfigType::trace)
       .def_readwrite("reverse_elem",   &ConfigType::reverse_elem)
-      .def_readwrite("mat_meth",       &ConfigType::mat_meth)
-      .def_readwrite("H_exact",        &ConfigType::H_exact)
-      .def_readwrite("quad_fringe",    &ConfigType::quad_fringe)
+      .def_readwrite("stable",         &ConfigType::stable)
+      .def_readwrite("ErrFlag",        &ConfigType::ErrFlag)
       .def_readwrite("Cavity_on",      &ConfigType::Cavity_on)
       .def_readwrite("radiation",      &ConfigType::radiation)
       .def_readwrite("emittance",      &ConfigType::emittance)
-      .def_readwrite("IBS",            &ConfigType::IBS)
-      .def_readwrite("pathlength",     &ConfigType::pathlength)
-      .def_readwrite("bpm",            &ConfigType::bpm)
+      .def_readwrite("quad_fringe",    &ConfigType::quad_fringe)
+      .def_readwrite("H_exact",        &ConfigType::H_exact)
       .def_readwrite("Cart_Bend",      &ConfigType::Cart_Bend)
       .def_readwrite("dip_edge_fudge", &ConfigType::dip_edge_fudge)
+      .def_readwrite("pathlength",     &ConfigType::pathlength)
+      .def_readwrite("Aperture_on",    &ConfigType::Aperture_on)
+      .def_readwrite("EPU",            &ConfigType::EPU)
+      .def_readwrite("mat_meth",       &ConfigType::mat_meth)
+      .def_readwrite("IBS",            &ConfigType::IBS)
+      .def_readwrite("tuneflag",       &ConfigType::tuneflag)
+      .def_readwrite("chromflag",      &ConfigType::chromflag)
+      .def_readwrite("codflag",        &ConfigType::codflag)
+      .def_readwrite("mapflag",        &ConfigType::mapflag)
+      .def_readwrite("passflag",       &ConfigType::passflag)
+      .def_readwrite("overflag",       &ConfigType::overflag)
+      .def_readwrite("chambre",        &ConfigType::chambre)
+
+      // long int
       .def_readwrite("Cell_nLoc",      &ConfigType::Cell_nLoc)
       .def_readwrite("Elem_nFam",      &ConfigType::Elem_nFam)
       .def_readwrite("CODimax",        &ConfigType::CODimax)
+
+      // int
+      .def_readwrite("bpm",            &ConfigType::bpm)
+      .def_readwrite("hcorr",          &ConfigType::hcorr)
+      .def_readwrite("vcorr",          &ConfigType::vcorr)
+      .def_readwrite("qt",             &ConfigType::qt)
+      .def_readwrite("gs",             &ConfigType::gs)
+      .def_readwrite("ge",             &ConfigType::ge)
+      .def_readwrite("RingType",       &ConfigType::RingType)
+      .def_readwrite("lossplane",      &ConfigType::lossplane)
+
+      // double
+      .def_readwrite("dPcommon",       &ConfigType::dPcommon)
+      .def_readwrite("dPparticle",     &ConfigType::dPparticle)
+      .def_readwrite("delta_RF",       &ConfigType::delta_RF)
+      .def_readwrite("Omega",          &ConfigType::Omega)
+      .def_readwrite("U0",             &ConfigType::U0)
+      .def_readwrite("Alphac",         &ConfigType::Alphac)
+      .def_readwrite("Energy",         &ConfigType::Energy)
+      .def_readwrite("dE",             &ConfigType::dE)
+      .def_readwrite("CODeps",         &ConfigType::CODeps)
+      .def_readwrite("Qb",             &ConfigType::Qb)
+      .def_readwrite("alpha_z",        &ConfigType::alpha_z)
+      .def_readwrite("beta_z",         &ConfigType::beta_z)
+      .def_readwrite("beta0",          &ConfigType::beta0)
+      .def_readwrite("gamma0",         &ConfigType::gamma0)
+
+      // std::vector<double>:
       .def_readwrite("TotalTune",      &ConfigType::TotalTune)
       .def_readwrite("alpha_rad",      &ConfigType::alpha_rad)
       .def_readwrite("D_rad",          &ConfigType::D_rad)
@@ -68,6 +120,11 @@ PYBIND11_MODULE(libtracy, scsi) {
       .def_readwrite("eps",            &ConfigType::eps)
       .def_readwrite("epsp",           &ConfigType::epsp)
       .def_readwrite("Chrom",          &ConfigType::Chrom)
+
+      // arma::vec
+
+      // arma::mat
+
       .def(py::init<>());
 
     py::class_<CellType>(scsi, "CellType")
