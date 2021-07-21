@@ -4,8 +4,6 @@ tracy_dir = os.getenv('TRACY_LIB')
 sys.path.append(tracy_dir+'/tracy/lib')
 import libtracy as scsi
 
-HOMmax = 21
-
 def printf(format, *args): sys.stdout.write(format % args); sys.stdout.flush()
 
 def prt_elems(scsi, lat):
@@ -24,7 +22,7 @@ def prt_elems(scsi, lat):
             elif lat.elems[k].Pkind == scsi.PartsKind.Mpole:
                 printf('%-8s %5.3f %5.3f\n',
                        lat.elems[k].Name, lat.elems[k].PL,
-                       lat.elems[k].PBpar[HOMmax+2])
+                       lat.elems[k].PBpar[scsi.HOMmax+2])
 
 def set_config():
     lat = scsi.LatticeType()
@@ -59,8 +57,9 @@ def main(file_name):
     if False:
         lat.prt_fams()
         lat.prt_elems()
+    printf('\nHOMmax = %d\n', scsi.HOMmax)
     prt_elems(scsi, lat)
-
+    
     return lat
 
 
