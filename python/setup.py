@@ -17,7 +17,7 @@ copy_file(
 # execute gsl-config --libs to see what is required
 gsl_lib_dirs = ['/usr/lib/x86_64-linux-gnu']
 gsl_libs = ['gsl', 'gslcblas', 'm']
-gsl_include = ['']
+gsl_include = []
 
 ext_modules = [
     Pybind11Extension(

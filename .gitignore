@@ -1,3 +1,6 @@
+# tracy parser output
+*.lax
+
 # Compiled files.
 *.o
 *.a
@@ -40,6 +43,7 @@ sls-2
 *.gif
 *.log
 
+
 # Python dist
 dist/
 
@@ -49,3 +53,7 @@ libtracy.*
 
 # Files required to be doubled by python build process
 python/README.rst
+
+# Byte-compiled / optimized / DLL files
+**/__pycache__/
+*.py[cod]
