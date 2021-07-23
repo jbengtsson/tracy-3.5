@@ -1,8 +1,11 @@
+import logging
 import os
 from setuptools import setup
 from distutils.file_util import copy_file
 
 from pybind11.setup_helpers import Pybind11Extension, build_ext
+
+import gsl_conf
 
 # Make a copy of README.rst ... required by setup.cfg
 t_dir = os.path.dirname(__file__)
@@ -14,18 +17,15 @@ copy_file(
     update=True
 )
 
-# execute gsl-config --libs to see what is required
-gsl_lib_dirs = ['/usr/lib/x86_64-linux-gnu']
-gsl_libs = ['gsl', 'gslcblas', 'm']
-gsl_include = []
+d = gsl_conf.gsl_config()
 
 ext_modules = [
     Pybind11Extension(
         "libtracy",
         sorted(['src/tracy_py.cc']),
-        include_dirs=['../tracy/inc'] + gsl_include,
-        library_dirs=['../tracy/src/.libs'] + gsl_lib_dirs,
-        libraries=['tracy'] + gsl_libs
+        include_dirs=['../tracy/inc'] + [d['gsl_include']],
+        library_dirs=['../tracy/src/.libs'] + [d['gsl_lib_dir']],
+        libraries=['tracy'] + d['gsl_libs']
     ),
 ]
 
