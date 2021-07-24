@@ -28,13 +28,13 @@ class _LatticeBasicFunctionality(unittest.TestCase):
 
         self.lat = lat
 
-    @unittest.SkipTest
+    @unittest.skip
     def test0_readFile(self):
         '''Test if reading file from path works
         '''
         self.lat.Lat_Read(self.lattice_filename)
 
-    @unittest.SkipTest
+    @unittest.skip
     def test0_readInit(self):
         '''Test if reading file and init works
         '''

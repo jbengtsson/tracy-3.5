@@ -26,7 +26,7 @@ class _ElementTestBasis(unittest.TestCase, metaclass=abc.ABCMeta):
     def test02_repr(self):
         repr(self.elem)
 
-    # @unittest.skip
+    @unittest.skip
     def test10_print(self):
         '''test if element can be printed
         '''
