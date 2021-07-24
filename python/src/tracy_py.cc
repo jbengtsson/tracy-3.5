@@ -147,14 +147,24 @@ PYBIND11_MODULE(libtracy, scsi) {
       // double
       .def_readwrite("PL",      &ElemType::PL)
       // PartsKind
-      .def_readwrite("Pkind",   &ElemType::Pkind)
+      //.def_readwrite("Pkind",   &ElemType::Pkind)
 
       // Virtual class: no constructor.
       // .def(py::init<>())
 
       .def("prt_elem", &ElemType::prt_elem)
-      .def("print",    &ElemType::print);
-
+        .def("print",    &ElemType::print);
+    /*
+        .def("_repr__",
+             [](const TestElement &elem){
+                 std::stringstream repr;
+                 repr << "TestElement(" << elem.getName()
+                      <<  ", " << elem.getLength()
+                      << ")";
+                 return repr.str();
+             }
+            );
+    */
     py::class_<ElemFamType>(scsi, "ElemFamType")
       // ElemType
       // int
