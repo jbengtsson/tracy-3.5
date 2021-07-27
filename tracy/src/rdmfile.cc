@@ -73,8 +73,8 @@ const int line_max = 200;
 
 ElemType* elem_alloc(const int kind)
 {
-  ElemType   *Elem;
-  MpoleType  *M;
+  ElemType  *Elem;
+  MpoleType *M;
 
   switch (kind) {
   case marker_:
@@ -383,7 +383,7 @@ void chk_Fam(std::vector<ElemFamType> &elemf)
 }
 
 
-void LatticeType::rdmfile(const string &mfile_dat)
+void LatticeType::rdmfile(const std::string &mfile_dat)
 {
   char          line[line_max];
   long int      i;

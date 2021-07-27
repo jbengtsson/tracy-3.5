@@ -28,8 +28,10 @@ AC_PROG_CC
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_CPP
-# For MacBook: use GNU gcc vs. LLVM.
+# For MacBook: use local installation of GNU gcc.
 AC_PROG_CXX(gcc-11)
+# For MacBook: use Clang, part of LLVM.
+#AC_PROG_CXX(clang)
 AC_PROG_F77(gfortran)
 
 # Checks for libraries.
@@ -44,6 +46,6 @@ AC_TYPE_SIZE_T
 
 # Checks for library functions.
 AC_CONFIG_FILES([Makefile
-          TPSA/Makefile
-	  tracy/Makefile tracy/src/Makefile])
+		 TPSA/Makefile
+		 tracy/Makefile tracy/src/Makefile])
 AC_OUTPUT

@@ -5,7 +5,6 @@
 
 namespace py = pybind11;
 
-//int no_tps = 1;
 
 PYBIND11_MODULE(libtracy, scsi) {
     scsi.doc() = "Self-Consistent Symplectic Integrator (SCSI)";

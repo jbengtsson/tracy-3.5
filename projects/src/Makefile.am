@@ -45,19 +45,23 @@ fit_nu_SOURCES            = fit_nu.cc
 opt_des_bessy_iii_SOURCES = opt_des_bessy_iii.cc
 tst_it_SOURCES            = tst_it.cc
 
+# For MacBook: use local installation of gcc; vs. LLVM.
+
 LIBS	 = -L$(TRACY_LIB)/tracy/lib -ltracy \
-           -L /usr/local/lib \
-           -L /usr/local/Cellar/gcc/11.1.0_1/lib/gcc/11 \
+           -L/usr/local/Cellar/gcc/11.1.0_1/lib/gcc/11 \
            -lstdc++ \
+           -L/usr/local/Cellar/gsl/2.7/lib \
            -lgsl \
+           -L/usr/local/Cellar/armadillo/10.5.2/lib \
            -larmadillo
 
 # C Preprocessor flags.
 AM_CPPFLAGS = -I$(TRACY_LIB)/tracy/inc -I$(NUM_REC)/inc \
-              -I/usr/local/Cellar/armadillo/10.5.2/include \
               -I/usr/local/Cellar/gsl/2.7/include \
-              -I/usr/local/opt/pybind11/include \
+              -I/usr/local/Cellar/armadillo/10.5.2/include \
+              -I/usr/local/Cellar/pybind11/2.6.2/include \
               -I/usr/local/Cellar/python@3.9/3.9.5/Frameworks/Python.framework/Versions/3.9/include/python3.9
 
 # C++ flags.
-AM_CXXFLAGS = -g -O0 -Wall -Wno-error=all -std=c++11
+AM_CXXFLAGS = -g -O0 -Wall -Wno-error=all -std=c++11 \
+              -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC

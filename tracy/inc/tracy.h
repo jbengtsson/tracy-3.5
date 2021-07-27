@@ -52,14 +52,14 @@ extern double       chi_m;
 
 // Inline.
 
-inline arma::vec pstovec(ss_vect<double> ps)
+inline arma::vec pstovec(const ss_vect<double> ps)
 {
   arma::vec ps_vec =
     {ps[x_], ps[px_], ps[y_], ps[py_], ps[delta_], ps[ct_], 1e0};
   return ps_vec;
 }
 
-inline ss_vect<double> vectops(arma::vec ps_vec)
+inline ss_vect<double> vectops(const arma::vec ps_vec)
 {
   ss_vect<double>
     ps(ps_vec[x_], ps_vec[px_], ps_vec[y_], ps_vec[py_], ps_vec[delta_],
@@ -328,7 +328,7 @@ class ElemFamType {
     NoDBN;
   std::vector<int>
     KidList;
-  std::vector<string>
+  std::vector<std::string>
     DBNlist;                   // For control system.
 };
 
@@ -366,9 +366,9 @@ class LatticeType {
   void Mpole_DefdTpar(const int Fnum, const int Knum, const double PdTpar);
   void Mpole_DefdTsys(const int Fnum, const int Knum, const double PdTsys);
 
-  bool Lat_Read(const string &filnam);
-  void prtmfile(const string &mfile_dat);
-  void rdmfile(const string &mfile_dat);
+  bool Lat_Read(const std::string &filnam);
+  void prtmfile(const std::string &mfile_dat);
+  void rdmfile(const std::string &mfile_dat);
 
   // t2elem.
 
@@ -840,9 +840,9 @@ class MapType : public ElemType {
 };
 
 
-void file_rd(std::ifstream &inf, const string &file_name);
+void file_rd(std::ifstream &inf, const std::string &file_name);
 
-void file_wr(std::ofstream &outf, const string &file_name);
+void file_wr(std::ofstream &outf, const std::string &file_name);
 
 void file_rd(std::ifstream &inf, const char file_name[]);
 

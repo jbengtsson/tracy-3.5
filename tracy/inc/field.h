@@ -240,7 +240,7 @@ template<typename T> class ss_vect {
   friend ss_vect<tps> Taked(const ss_vect<tps> &, const int);
  private:
   // (Note, e.g. spin components should be added here)
-  T ss[tps_dim];
+  std::vector<T> ss{0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0};
 };
 
 

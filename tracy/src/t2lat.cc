@@ -4040,7 +4040,7 @@ void fixedtostr(std::string &str)
   std::string str1 = str;
 
   str = "";
-  for(int j=0; (j < str1.length()) && str1[j] != ' '; ++j){
+  for(int j=0; (j < (int)str1.length()) && str1[j] != ' '; ++j){
         str += str1[j];
   }
 }
