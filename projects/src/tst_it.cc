@@ -243,7 +243,7 @@ void get_lat(const string &file_name, LatticeType &lat)
 
   const string str = file_name;
 
-  lat.conf.trace        = !false;
+  lat.conf.trace        = false;
   lat.conf.reverse_elem = !false;
   lat.conf.mat_meth     = !false;
 

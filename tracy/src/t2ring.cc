@@ -1442,13 +1442,13 @@ void get_twoJ(const int n_DOF, const ss_vect<double> &ps, const ss_vect<tps> &A,
 	      double twoJ[])
 {
   int             j, no;
-  long int        jj[tps_n];
+  long int        jj[ps_dim];
   ss_vect<double> z;
 
   no = no_tps;
   danot_(1);
 
-  for (j = 0; j < nv_tps; j++)
+  for (j = 0; j < ps_dim; j++)
     jj[j] = (j < 2*n_DOF)? 1 : 0;
 
   z = (PInv(A, jj)*ps).cst();
@@ -1894,10 +1894,10 @@ void get_dnu(const int n, const ss_vect<tps> &A, std::vector<double> &dnu)
 ss_vect<tps> tp_S(const int n_DOF, const ss_vect<tps> &A)
 {
   int          j;
-  long int     jj[tps_n];
+  long int     jj[ps_dim];
   ss_vect<tps> S;
 
-  for (j = 1; j <= tps_n; j++)
+  for (j = 1; j <= ps_dim; j++)
     jj[j-1] = (j <= 2*n_DOF)? 1 : 0;
 
   S = get_S(n_DOF);

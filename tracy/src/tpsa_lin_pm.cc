@@ -129,7 +129,7 @@ tps::~tps(void)
 double tps::operator[](const int k) const
 {
   int      i;
-  long int jj[tps_n];
+  long int jj[nv_tps];
   double   r;
 
   for (i = 0; i < nv_tps; i++)
@@ -306,7 +306,7 @@ tps cosh(const tps &a)
 const double tps::cst(void) const
 {
   int      i;
-  long int jj[tps_n];
+  long int jj[nv_tps];
   double   r;
 
   for (i = 0; i < nv_tps; i++)
@@ -363,17 +363,17 @@ ss_vect<tps> PInv(const ss_vect<tps> &x, const long int jj[])
   ss_vect<tps> Id, y, z;
 
   Id.identity(); y.zero();
-  for (j = 0; j < tps_n; j++)
+  for (j = 0; j < nv_tps; j++)
     if (jj[j] != 0) {
-      for (k = 0; k < ps_dim; k++)
+      for (k = 0; k < nv_tps; k++)
 	y[j] += jj[k]*x[j][k]*Id[k];
     } else
       y[j] = Id[j];
 
-  dainv_(y, tps_n, z, tps_n);
+  dainv_(y, nv_tps, z, nv_tps);
 
   y.zero();
-  for (j = 0; j < ps_dim; j++)
+  for (j = 0; j < nv_tps; j++)
     if (jj[j] != 0) y[j] = z[j];
 
   return y;
@@ -384,7 +384,7 @@ std::istream& operator>>(std::istream &is, tps &a)
   char	 line[max_str], *token;
   int    i, n, no1, nv1;
 //  int    ibuf1[bufsize], ibuf2[bufsize];
-  int    jj[tps_n];
+  int    jj[nv_tps];
   double rbuf[bufsize];
 
   const bool prt = false;
@@ -394,9 +394,9 @@ std::istream& operator>>(std::istream &is, tps &a)
   is.getline(line, max_str); is.getline(line, max_str);
   sscanf(line, "tpsa, NO_TPSA =%d, NV =%d", &no1, &nv1);
   if (prt) std::cout << "no = " << no1 << ", nv = " << nv1 << "\n";
-//  ibuf1[0] = no_tps; ibuf2[0] = tps_n;
+//  ibuf1[0] = no_tps; ibuf2[0] = nv_tps;
 
-  if ((no1 <= no_tps) && (nv1 <= tps_n)) {
+  if ((no1 <= no_tps) && (nv1 <= nv_tps)) {
     for (i = 1; i <= 5; i++)
       is.getline(line, max_str);
 
@@ -406,25 +406,25 @@ std::istream& operator>>(std::istream &is, tps &a)
       is.getline(line, max_str);
       token = strtok(line, " "); sscanf(token, "%d", &no1);
       token = strtok(NULL, " "); sscanf(token, "%le", &rbuf[n]);
-      for (i = 0; i < tps_n; i++) {
+      for (i = 0; i < nv_tps; i++) {
 	token = strtok(NULL, " "); sscanf(token, "%d", &jj[i]);
       }
       if (prt) {
 	std::cout << std::scientific << std::setprecision(3)
 	     << no1 << std::setw(11) << rbuf[n];
-	for (i = 0; i < tps_n; i++)
+	for (i = 0; i < nv_tps; i++)
 	  std::cout << std::setw(3) << jj[i];
 	std::cout << "\n"; 
       }
 
-//      hash_(no_tps, tps_n, jj, ibuf1[n-1], ibuf2[n-1]);
+//      hash_(no_tps, nv_tps, jj, ibuf1[n-1], ibuf2[n-1]);
     } while (no1 >= 0);
 
     rbuf[0] = -no1;
 //    daimp_(rbuf, ibuf1, ibuf2, a.intptr);
   } else {
     std::cout << "*** illegal no (" << no_tps << ") or nv ("
-	 << tps_n << ")\n";
+	      << nv_tps << ")\n";
     exit_(1);
   }
 

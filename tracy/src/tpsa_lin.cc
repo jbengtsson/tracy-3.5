@@ -42,15 +42,15 @@ void daini_(int no, int nv, int fio)
     printf("daini_: max order exceeded %d (%d)\n", no, 1);
     exit_(1);
   }
-  if ((nv < 1) || (nv > tps_n))
-    printf("daini_: to many dimensions %d(%d)\n", nv, tps_n);
+  if ((nv < 1) || (nv > nv_tps))
+    printf("daini_: to many dimensions %d(%d)\n", nv, nv_tps);
 }
 
 
 void lieini(const int no, const int nv, const int nd2i)
 {
-  if ((nv < 1) || (nv > tps_n))
-    printf("lieini: max dim exceeded %d (%d)\n", nv, tps_n);
+  if ((nv < 1) || (nv > nv_tps))
+    printf("lieini: max dim exceeded %d (%d)\n", nv, nv_tps);
 }
 
 
@@ -155,6 +155,7 @@ arma::mat get_mat(const ss_vect<tps> &map)
       mat(j, k) = get_m_ij(map, j+1, k+1);
     mat(j, tps_n-1) = get_m_ij(map, j+1, 0);
   }
+  mat(tps_n-1, tps_n-1) = 1e0;
   return mat;
 }
 

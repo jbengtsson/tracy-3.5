@@ -79,7 +79,7 @@ void LatticeType::Cell_Pass(const long i0, const long i1, tps &sigma,
   const int  n = 9;
 
   int           i, j;
-  long int      jj[n][nv_tps];
+  long int      jj[n][ps_dim];
   ss_vect<tps>  Id, map, A;
 
   const double  deps = 1e-20;
@@ -101,7 +101,7 @@ void LatticeType::Cell_Pass(const long i0, const long i1, tps &sigma,
 	// stochastic part
 
 	for (i = 0; i < n; i++)
-	  for (j = 0; j < nv_tps; j++)
+	  for (j = 0; j < ps_dim; j++)
 	    jj[i][j] = 0;
 
 	jj[0][x_]  = 2; jj[1][x_]  = 1; jj[1][px_]    = 1; jj[2][px_]    = 2;
@@ -128,7 +128,7 @@ bool LatticeType::Cell_getCOD(long imax, double eps, double dP, long &lastpos)
 {
   long            j, n, n_iter;
   int             no;
-  long int        jj[tps_n];
+  long int        jj[ps_dim];
   double          dxabs;
   ss_vect<double> x0, x1, dx;
   ss_vect<tps>    I, dx0, map;
@@ -151,7 +151,7 @@ bool LatticeType::Cell_getCOD(long imax, double eps, double dP, long &lastpos)
   //   x0[y_] = elems[0]->Eta[Y_]*dP; x0[py_] = elems[0]->Etap[Y_]*dP;
   // }
 
-  for (j = 0; j < tps_n; j++)
+  for (j = 0; j < ps_dim; j++)
     jj[j] = (j < n)? 1 : 0;
 
   if (conf.trace)
