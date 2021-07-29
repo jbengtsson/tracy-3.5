@@ -63,7 +63,7 @@ inline ss_vect<double> vectops(const arma::vec ps_vec)
 {
   ss_vect<double>
     ps(ps_vec[x_], ps_vec[px_], ps_vec[y_], ps_vec[py_], ps_vec[delta_],
-       ps_vec[ct_], ps_vec[tps_dim-1]);
+       ps_vec[ct_]);
   return ps;
 }
 
@@ -239,15 +239,15 @@ class ConfigType {
     eps{0e0, 0e0, 0e0},           // Eigenemittances.
     epsp{0e0, 0e0, 0e0};          // Trans. & Long. projected Emittances.
   arma::vec
-    CODvect = arma::vec(tps_dim), // Closed Orbit.
-    wr = arma::vec(tps_dim),
-    wi = arma::vec(tps_dim);      // Eigenvalues: Real and Imaginary part.
+    CODvect = arma::vec(tps_n),   // Closed Orbit.
+    wr = arma::vec(tps_n),
+    wi = arma::vec(tps_n);        // Eigenvalues: Real and Imaginary part.
   arma::mat
-    OneTurnMat = arma::mat(tps_dim, tps_dim), // Linear Poincare Map.
-    Ascr       = arma::mat(tps_dim, tps_dim),
-    Ascrinv    = arma::mat(tps_dim, tps_dim),
-    Vr         = arma::mat(tps_dim, tps_dim), // Eigenvectors: Real part, 
-    Vi         = arma::mat(tps_dim, tps_dim); //               Imaginary part.
+    OneTurnMat = arma::mat(tps_n, tps_n), // Linear Poincare Map.
+    Ascr       = arma::mat(tps_n, tps_n),
+    Ascrinv    = arma::mat(tps_n, tps_n),
+    Vr         = arma::mat(tps_n, tps_n), // Eigenvectors: Real part, 
+    Vi         = arma::mat(tps_n, tps_n); //               Imaginary part.
 };
 
 
@@ -277,17 +277,17 @@ class CellType {
   ss_vect<double>
     BeamPos;                   // Last position of the beam this cell.
   arma::mat
-    A = arma::mat(tps_dim, tps_dim),     // Floquet space to phase space
-                                         // transformation.
-    sigma = arma::mat(tps_dim, tps_dim); // sigma matrix (redundant).
+    A = arma::mat(tps_n, tps_n),     /* Floquet space to phase space
+					transformation. */
+    sigma = arma::mat(tps_n, tps_n); // sigma matrix (redundant).
   CellType
-    *next_ptr;                           // pointer to next cell (for tracking).
+    *next_ptr;                       // pointer to next cell (for tracking).
 };
 
 // Element virtual base class.
 class ElemType : public CellType {
  public:
-  std::string
+  __gnu_debug::string
     Name;                      // Element name.
   bool
     Reverse;                   // Reverse element.
@@ -328,7 +328,7 @@ class ElemFamType {
     NoDBN;
   std::vector<int>
     KidList;
-  std::vector<std::string>
+  std::vector<__gnu_debug::string>
     DBNlist;                   // For control system.
 };
 
@@ -345,7 +345,7 @@ class LatticeType {
   void prt_elems(void);
 
   int GetnKid(const int Fnum);
-  long int ElemIndex(const std::string &name);
+  long int ElemIndex(const __gnu_debug::string &name);
   long int Elem_GetPos(const int Fnum, const int Knum);
 
   void get_transp_mats(const double delta);
@@ -366,9 +366,10 @@ class LatticeType {
   void Mpole_DefdTpar(const int Fnum, const int Knum, const double PdTpar);
   void Mpole_DefdTsys(const int Fnum, const int Knum, const double PdTsys);
 
-  bool Lat_Read(const std::string &filnam);
-  void prtmfile(const std::string &mfile_dat);
-  void rdmfile(const std::string &mfile_dat);
+  bool Lat_Read(const __gnu_debug::string &filnam);
+  bool Lat_Read_py(const std::string &filnam);
+  void prtmfile(const __gnu_debug::string &mfile_dat);
+  void rdmfile(const __gnu_debug::string &mfile_dat);
 
   // t2elem.
 
@@ -502,7 +503,7 @@ class MpoleType : public ElemType {
   pthicktype
     Pthick;
   arma::mat
-    M_transp = arma::mat(tps_dim, tps_dim); // Transport matrix.
+    M_transp = arma::mat(tps_n, tps_n); // Transport matrix & orbit.
 
   friend MpoleType* Mpole_Alloc(void);
   ElemType* Elem_Init(const ConfigType &conf, const bool reverse);
@@ -840,9 +841,9 @@ class MapType : public ElemType {
 };
 
 
-void file_rd(std::ifstream &inf, const std::string &file_name);
+void file_rd(std::ifstream &inf, const __gnu_debug::string &file_name);
 
-void file_wr(std::ofstream &outf, const std::string &file_name);
+void file_wr(std::ofstream &outf, const __gnu_debug::string &file_name);
 
 void file_rd(std::ifstream &inf, const char file_name[]);
 

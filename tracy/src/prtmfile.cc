@@ -98,7 +98,7 @@ void prtName(FILE *fp, ElemType *elem, const int i, const int type,
 }
 
 
-void LatticeType::prtmfile(const string &mfile_dat)
+void LatticeType::prtmfile(const __gnu_debug::string &mfile_dat)
 {
   int           i, j, k;
   MpoleType     *M;

@@ -30,7 +30,11 @@
 #include <sstream>
 #include <iomanip>
 #include <fstream>
+#if 0
 #include <string>
+#else
+#include <debug/string>
+#endif
 #include <algorithm>
 
 #include <armadillo>

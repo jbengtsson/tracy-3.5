@@ -7,11 +7,10 @@
 
 const int
   max_str   = 132,
-  n_m2      = 21,       // No of 2nd moments.
-  ps_tr_dim = 4,        // Phase-space dim
-  ps_dim    = 6,        // Phase-space dim
-  tps_dim   = ps_dim+1; /* TPSA dim:
-			   phase space and parameter dependance */
+  n_m2      = 21,       // No of 1st & 2nd order moments: (6 over 5) + 6.
+  ps_tr_dim = 4,        // Transverse phase-space dim.
+  ps_dim    = 6,        // 6D phase-space dim.
+  tps_n     = ps_dim+1; // 6D phase-space linear terms & cst.
 
 // Spatial components.
 enum spatial_index { X_ = 0, Y_ = 1, Z_ = 2 };
@@ -19,10 +18,6 @@ enum spatial_index { X_ = 0, Y_ = 1, Z_ = 2 };
 // Phase-space components.
 // (Note, e.g. spin components should be added here)
 enum ps_index { x_ = 0, px_ = 1, y_ = 2, py_ = 3, delta_ = 4, ct_ = 5 };
-
-#if NO_TPSA == 1
-typedef double tps_buf[tps_dim]; // Const. and linear terms.
-#endif
 
 template<typename T> class ss_vect;
 
@@ -132,7 +127,8 @@ class tps {
   friend ss_vect<tps> Taked(const ss_vect<tps> &, const int);
  private:
 #if NO_TPSA == 1
-  tps_buf ltps;    // Linear TPSA.
+  // Linear TPSA: cst. & linear terms.
+  std::vector<double> ltps{0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0};
 #else
   long int intptr; // Index used by Fortran implementation.
 #endif
@@ -154,7 +150,7 @@ template<typename T> class ss_vect {
 
   ss_vect(void);
   ss_vect(const double x, const double px, const double y, const double py,
-	  const double ct, const double delta, const double prm);
+	  const double ct, const double delta);
 // Let's the compiler synthetize the copy constructor
 //  ss_vect(const T &a) { }
 //  ss_vect(const ss_vect<T> &a) { }
@@ -240,18 +236,19 @@ template<typename T> class ss_vect {
   friend ss_vect<tps> Taked(const ss_vect<tps> &, const int);
  private:
   // (Note, e.g. spin components should be added here)
-  std::vector<T> ss{0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0};
+  std::vector<T> ss;
 };
 
 
 typedef struct MNF_struct
 {
-  tps          K;       // new effective Hamiltonian
-  ss_vect<tps> A0;      // transformation to fixed point
-  ss_vect<tps> A1;      // (linear) transformation to Floquet space
-  tps          g;       /* generator for nonlinear transformation to
-			    Floquet space */
-  ss_vect<tps> map_res; // residual map
+  tps
+    K,       // New effective Hamiltonian.
+    g;       // Generator for nonlinear transformation to Floquet space.
+  ss_vect<tps>
+    A0,      // Transformation to fixed point.
+    A1,      // Transformation (linear) to Floquet space.
+    map_res; // Residual map.
 } MNF_struct;
 
 
@@ -261,7 +258,7 @@ inline ss_vect<double> ss_vect<tps>::cst(void) const
   int             i;
   ss_vect<double> x;
 
-  for (i = 0; i < tps_dim; i++)
+  for (i = 0; i < ps_dim; i++)
     x[i] = (*this)[i].cst();
   return x;
 }
@@ -304,131 +301,92 @@ class is_double< ss_vect<tps> > {
 
 
 template<typename T>
-inline T sqr(const T &a)
-{ return a*a; }
+inline T sqr(const T &a) { return a*a; }
 
 
-inline tps operator+(const tps &a, const tps &b)
-{ return tps(a) += b; }
+inline tps operator+(const tps &a, const tps &b) { return tps(a) += b; }
 
-inline tps operator+(const tps &a, const double b)
-{ return tps(a) += b; }
+inline tps operator+(const tps &a, const double b) { return tps(a) += b; }
 
-inline tps operator+(const double a, const tps &b)
-{ return tps(a) += b; }
+inline tps operator+(const double a, const tps &b) { return tps(a) += b; }
 
-inline tps operator-(const tps &a, const tps &b)
-{ return tps(a) -= b; }
+inline tps operator-(const tps &a, const tps &b) { return tps(a) -= b; }
 
-inline tps operator-(const tps &a, const double b)
-{ return tps(a) -= b; }
+inline tps operator-(const tps &a, const double b) { return tps(a) -= b; }
 
-inline tps operator-(const double a, const tps &b)
-{ return tps(a) -= b; }
+inline tps operator-(const double a, const tps &b) { return tps(a) -= b; }
 
-inline tps operator*(const tps &a, const tps &b)
-{ return tps(a) *= b; }
+inline tps operator*(const tps &a, const tps &b) { return tps(a) *= b; }
 
-inline tps operator*(const tps &a, const double b)
-{ return tps(a) *= b; }
+inline tps operator*(const tps &a, const double b) { return tps(a) *= b; }
 
-inline tps operator*(const double a, const tps &b)
-{ return tps(a) *= b; }
+inline tps operator*(const double a, const tps &b) { return tps(a) *= b; }
 
-inline tps operator/(const tps &a, const tps &b)
-{ return tps(a) /= b; }
+inline tps operator/(const tps &a, const tps &b) { return tps(a) /= b; }
 
-inline tps operator/(const tps &a, const double b)
-{ return tps(a) /= b; }
+inline tps operator/(const tps &a, const double b) { return tps(a) /= b; }
 
-inline tps operator/(const double a, const tps &b)
-{ return tps(a) /= b; }
+inline tps operator/(const double a, const tps &b) { return tps(a) /= b; }
 
 
-inline tps operator+(const tps &x)
-{ return tps(x); }
+inline tps operator+(const tps &x) { return tps(x); }
 
-inline tps operator-(const tps &x)
-{ return tps(x) *= -1.0; }
+inline tps operator-(const tps &x) { return tps(x) *= -1.0; }
 
 
-inline bool operator>(const tps &a, const tps &b)
-{ return a.cst() > b.cst(); }
+inline bool operator>(const tps &a, const tps &b) { return a.cst() > b.cst(); }
 
-inline bool operator>(const tps &a, const double b)
-{ return a.cst() > b; }
+inline bool operator>(const tps &a, const double b) { return a.cst() > b; }
 
-inline bool operator>(const double a, const tps &b)
-{ return a > b.cst(); }
+inline bool operator>(const double a, const tps &b) { return a > b.cst(); }
 
 
-inline bool operator<(const tps &a, const tps &b)
-{ return a.cst() < b.cst(); }
+inline bool operator<(const tps &a, const tps &b) { return a.cst() < b.cst(); }
 
-inline bool operator<(const tps &a, const double b)
-{ return a.cst() < b; }
+inline bool operator<(const tps &a, const double b) { return a.cst() < b; }
 
-inline bool operator<(const double a, const tps &b)
-{ return a < b.cst(); }
+inline bool operator<(const double a, const tps &b) { return a < b.cst(); }
 
 
 inline bool operator>=(const tps &a, const tps &b)
 { return a.cst() >= b.cst(); }
 
-inline bool operator>=(const tps &a, const double b)
-{ return a.cst() >= b; }
+inline bool operator>=(const tps &a, const double b) { return a.cst() >= b; }
 
-inline bool operator>=(const double a, const tps &b)
-{ return a >= b.cst(); }
+inline bool operator>=(const double a, const tps &b) { return a >= b.cst(); }
 
 
 inline bool operator<=(const tps &a, const tps &b)
 { return a.cst() <= b.cst(); }
 
-inline bool operator<=(const tps &a, const double b)
-{ return a.cst() <= b; }
+inline bool operator<=(const tps &a, const double b) { return a.cst() <= b; }
 
-inline bool operator<=(const double a, const tps &b)
-{ return a <= b.cst(); }
+inline bool operator<=(const double a, const tps &b) { return a <= b.cst(); }
 
 
 inline bool operator==(const tps &a, const tps &b)
 { return a.cst() == b.cst(); }
 
-inline bool operator==(const tps &a, const double b)
-{ return a.cst() == b; }
+inline bool operator==(const tps &a, const double b) { return a.cst() == b; }
 
-inline bool operator==(const double a, const tps &b)
-{ return a == b.cst(); }
+inline bool operator==(const double a, const tps &b) { return a == b.cst(); }
 
 
 inline bool operator!=(const tps &a, const tps &b)
 { return a.cst() != b.cst(); }
 
-inline bool operator!=(const tps &a, const double b)
-{ return a.cst() != b; }
+inline bool operator!=(const tps &a, const double b) { return a.cst() != b; }
 
-inline bool operator!=(const double a, const tps &b)
-{ return a != b.cst(); }
+inline bool operator!=(const double a, const tps &b) { return a != b.cst(); }
 
 
 template<typename T>
-inline ss_vect<T>::ss_vect(void)
-{
-  int  i;
-
-  for (i = 0; i < tps_dim; i++)
-    ss[i] = T();
-}
+inline ss_vect<T>::ss_vect(void) { ss.resize(ps_dim); }
 
 template<typename T>
 inline ss_vect<T>::ss_vect(const double x, const double px, const double y,
-			   const double py, const double delta, const double ct,
-			   const double prm)
-{
-  ss[x_] = x; ss[px_] = px; ss[y_] = y; ss[py_] = py; ss[delta_] = delta;
-  ss[ct_] = ct; ss[tps_dim-1] = prm;
-}
+			   const double py, const double delta, const double ct)
+{ ss = {x, px, y, py, delta, ct}; }
 
 template<typename T>
 template<typename U>
@@ -437,11 +395,6 @@ inline ss_vect<T>::ss_vect(const U &a) : ss(a) { }
 template<typename T>
 template<typename U>
 inline ss_vect<T>::ss_vect(const ss_vect<U> &a)
-{
-  int              i;
-
-  for (i = 0; i < tps_dim; i++)
-    ss[i] = a[i];
- }
+{ for (int i = 0; i < ps_dim; i++) ss.push_back(a[i]); }
 
 #endif

@@ -246,9 +246,7 @@ template<>
 class is_tps<tps> {
  public:
   static inline void get_ps(const ss_vect<tps> &x, CellType *Cell)
-  {
-    Cell->BeamPos = x.cst(); Cell->A = get_mat(x);
-  }
+  { Cell->BeamPos = x.cst(); Cell->A = get_mat(x); }
 
   static inline tps set_prm(const int k) { return tps(0e0, k); }
 
@@ -2674,14 +2672,14 @@ static int UpdatePorder(MpoleType *M)
 
 arma::mat get_edge_mat(MpoleType *Mp, const bool entrance, const double delta)
 {
-  arma::mat mat = arma::mat(tps_dim, tps_dim);
+  arma::mat mat = arma::mat(tps_n, tps_n);
 
   const double
     h   = Mp->Pirho,
     phi = (entrance)? Mp->PTx1 : Mp->PTx2,
     gap = Mp->Pgap;
 
-  mat.eye(tps_dim, tps_dim);
+  mat.eye(tps_n, tps_n);
   mat(px_, x_) =  h*tan(degtorad(phi));
   mat(py_, y_) = -h*tan(degtorad(phi)-get_psi(h, phi, gap));
   return mat;
@@ -2690,7 +2688,7 @@ arma::mat get_edge_mat(MpoleType *Mp, const bool entrance, const double delta)
 
 arma::mat get_sbend_mat(const ElemType *elem, const double delta)
 {
-  arma::mat mat = arma::mat(tps_dim, tps_dim);
+  arma::mat mat = arma::mat(tps_n, tps_n);
 
   const MpoleType *Mp = dynamic_cast<const MpoleType*>(elem);
 
@@ -2703,7 +2701,7 @@ arma::mat get_sbend_mat(const ElemType *elem, const double delta)
     psi_x = sqrt(fabs(K_x)/(1e0+delta))*L,
     psi_y = sqrt(K_y/(1e0+delta))*L;
 
-  mat.eye(tps_dim, tps_dim);
+  mat.eye(tps_n, tps_n);
   if (K_x > 0e0) {
     mat(x_, x_)      = cos(psi_x);
     mat(x_, px_)     = sin(psi_x)/sqrt(K_x*(1e0+delta));
@@ -2755,7 +2753,7 @@ arma::mat get_sbend_mat(const ElemType *elem, const double delta)
 
 arma::mat get_transp_mat(ElemType *elem, const double delta)
 {
-  arma::mat M(tps_dim, tps_dim), M1(tps_dim, tps_dim), M2(tps_dim, tps_dim);
+  arma::mat M(tps_n, tps_n), M1(tps_n, tps_n), M2(tps_n, tps_n);
 
   MpoleType *Mp = dynamic_cast<MpoleType*>(elem);
 
@@ -2765,11 +2763,11 @@ arma::mat get_transp_mat(ElemType *elem, const double delta)
     M2 = get_edge_mat(Mp, false, delta);
     M = M2*M*M1;
   } else {
-    M.eye(tps_dim, tps_dim);
-    M(px_, x_)         = -Mp->PB[ Quad+HOMmax]*(1e0+delta);
-    M(py_, y_)         =  Mp->PB[-Quad+HOMmax]*(1e0+delta);
-    M(px_, tps_dim-1)  = -Mp->PB[  Dip+HOMmax]*(1e0+delta);
-    M(py_, tps_dim-1)  =  Mp->PB[ -Dip+HOMmax]*(1e0+delta);
+    M.eye(tps_n, tps_n);
+    M(px_, x_)       = -Mp->PB[ Quad+HOMmax]*(1e0+delta);
+    M(py_, y_)       =  Mp->PB[-Quad+HOMmax]*(1e0+delta);
+    M(px_, tps_n-1)  = -Mp->PB[  Dip+HOMmax]*(1e0+delta);
+    M(py_, tps_n-1)  =  Mp->PB[ -Dip+HOMmax]*(1e0+delta);
   }
   return M;
 }

@@ -43,7 +43,7 @@ def set_config():
 
 def get_lat(file_name):
     lat = set_config()
-    lat.Lat_Read(file_name);
+    lat.Lat_Read_py(file_name);
     lat.Lat_Init();
     lat.ChamberOff();
     lat.conf.CODimax = 10;
@@ -67,7 +67,7 @@ def main(file_name):
 
 
 lat_dir = os.getenv('LAT')
-if not True:
+if True:
     file_name = lat_dir+'/BESSY-III/NoTG-TGRB-B60-6bend-6sx_JB_tracy'
 else:
     file_name = lat_dir+'/DIAMOND-II/vmx_symopt_Qx205_Qy364'

@@ -37,11 +37,7 @@ inline bool ElemType::CheckAmpl(ConfigType &conf, const ss_vect<T> &ps)
 
 template<typename T>
 void ElemType::Cell_Pass(ConfigType &conf, ss_vect<T> &ps)
-{
-  Elem_Pass(conf, ps);
-
-  is_tps<T>::get_ps(ps, this);
-}
+{ Elem_Pass(conf, ps); is_tps<T>::get_ps(ps, this); }
 
 
 template<typename T>
@@ -132,7 +128,7 @@ bool LatticeType::Cell_getCOD(long imax, double eps, double dP, long &lastpos)
 {
   long            j, n, n_iter;
   int             no;
-  long int        jj[tps_dim];
+  long int        jj[tps_n];
   double          dxabs;
   ss_vect<double> x0, x1, dx;
   ss_vect<tps>    I, dx0, map;
@@ -155,7 +151,7 @@ bool LatticeType::Cell_getCOD(long imax, double eps, double dP, long &lastpos)
   //   x0[y_] = elems[0]->Eta[Y_]*dP; x0[py_] = elems[0]->Etap[Y_]*dP;
   // }
 
-  for (j = 0; j < tps_dim; j++)
+  for (j = 0; j < tps_n; j++)
     jj[j] = (j < n)? 1 : 0;
 
   if (conf.trace)
@@ -232,7 +228,7 @@ void LatticeType::Lat_Init(void)
   int      i, j;
   double   Stotal;
 
-  const std::string first_name = "begin";
+  const __gnu_debug::string first_name = "begin";
 
   if (debug) printf("Lat_Init: Cell_nLoc = %ld\n", conf.Cell_nLoc);
 

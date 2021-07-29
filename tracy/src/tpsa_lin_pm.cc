@@ -10,17 +10,18 @@
 */
 
 
-extern const int  nv_tps, nd_tps, iref_tps;
-extern int        no_tps, ndpt_tps;
-extern double     eps_tps;
+extern const int nv_tps, nd_tps, iref_tps;
 
-bool    ini_tps = false, header = false, res_basis = false, stable = false;
+extern int    no_tps, ndpt_tps;
+extern double eps_tps;
 
-unsigned short int  seq_tps = 0;       // sequence no for TPSA vector
-const int           n_max   = 100;     // max iterations for LieExp
+bool ini_tps = false, header = false, res_basis = false, stable = false;
 
-const int           bufsize = 250000;  /* Note, max no of monomials is
-					  (no+nv)!/(nv!*no!) */
+unsigned short int seq_tps = 0;       // sequence no for TPSA vector
+
+const int n_max   = 100;              // max iterations for LieExp
+const int bufsize = 250000;           /* Note, max no of monomials is
+					 (no+nv)!/(nv!*no!) */
  
 
 long int fact(long int n)
@@ -30,7 +31,7 @@ long int fact(long int n)
   else if (n == 0)
     return 1;
   else {
-    std::cout << "fact: neg. argument: " << n << std::endl;
+    std::cout << "fact: neg. argument: " << n << "\n";
     exit_(1);
     // avoid compiler warning
     return -1;
@@ -40,8 +41,8 @@ long int fact(long int n)
 
 long int nok(long int n, long int k)
 {
-  long int  j;
-  double    u;
+  long int j;
+  double   u;
 
   u = 1.0;
   for (j = 0; j < k; j++)
@@ -56,17 +57,15 @@ extern "C" {
   // for Fortran compability
 //  void f_init(void);
 
-//  void MAIN_() { cout << "call to MAIN_" << std::endl; }
+//  void MAIN_() { cout << "call to MAIN_" << "\n"; }
 }
 
 void TPSA_Ini(void)
 {
-  long int  n;
+  long int n;
 
-  std::cout << std::endl;
-  std::cout << std::scientific << "initializing TPSA library: no = " << no_tps
-       << ", nv = " << nv_tps
-       << ", eps = " << eps_tps << std::endl;
+  std::cout << std::scientific << "\ninitializing TPSA library: no = " << no_tps
+	    << ", nv = " << nv_tps << ", eps = " << eps_tps << "\n";
   // Initialize Fortran I/O
 //  f_init();
   // Initialize TPSA-lib
@@ -75,7 +74,7 @@ void TPSA_Ini(void)
 //  lieinit_(no_tps, nv_tps, nd_tps, ndpt_tps, iref_tps, 0);
   n = nok(no_tps+nv_tps, nv_tps);
   if (n > bufsize) {
-    std::cout << "*** bufsize exceeded " << n << " (" << bufsize << ")" << std::endl;
+    std::cout << "*** bufsize exceeded " << n << " (" << bufsize << ")\n";
     exit_(0);
   }
   ini_tps = true;
@@ -85,7 +84,7 @@ void TPSAEps(const double eps)
 { daeps_(eps); eps_tps = eps; }
 
 tps::tps(void) {
-  char  name[11];
+  char name[11];
 
   if (!ini_tps) TPSA_Ini();
   seq_tps++; sprintf(name, "tps-%-5hu", seq_tps);
@@ -94,7 +93,7 @@ tps::tps(void) {
 
 tps::tps(const double r)
 {
-  char  name[11];
+  char name[11];
 
   if (!ini_tps) TPSA_Ini();
   seq_tps++; sprintf(name, "tps-%-5hu", seq_tps);
@@ -103,7 +102,7 @@ tps::tps(const double r)
 
 tps::tps(const double r, const int i)
 {
-  char  name[11];
+  char name[11];
 
   if (!ini_tps) TPSA_Ini();
   seq_tps++; sprintf(name, "tps-%-5hu", seq_tps);
@@ -115,7 +114,7 @@ tps::tps(const double r, const int i)
 }
 
 tps::tps(const tps &x) {
-  char  name[11];
+  char name[11];
 
   if (!ini_tps) TPSA_Ini();
   seq_tps++; sprintf(name, "tps-%-5hu", seq_tps);
@@ -130,7 +129,7 @@ tps::~tps(void)
 double tps::operator[](const int k) const
 {
   int      i;
-  long int jj[tps_dim];
+  long int jj[tps_n];
   double   r;
 
   for (i = 0; i < nv_tps; i++)
@@ -142,7 +141,7 @@ double tps::operator[](const int k) const
 
 double tps::operator[](const long int jj[]) const
 {
-  double  r;
+  double r;
 
   dapek_(ltps, jj, r);
   return(r);
@@ -185,7 +184,7 @@ tps& tps::operator/=(const tps &x)
 
 tps sqrt(const tps &a)
 {
-  tps  b;
+  tps b;
 
   dafun_("SQRT", a.ltps, b.ltps);
   return b;
@@ -202,7 +201,7 @@ tps pow(const tps &a, const int n)
   else if (n > 1)
     return tps(pow(a, n-1)) *= a;
   else {
-    std::cout << "pow: should never get here " << n << std::endl;
+    std::cout << "pow: should never get here " << n << "\n";
     exit_(0);
     // avoid compiler warning
     return 0.0;
@@ -211,7 +210,7 @@ tps pow(const tps &a, const int n)
 
 tps exp(const tps &a)
 {
-  tps  b;
+  tps b;
 
   dafun_("EXP ", a.ltps, b.ltps);
   return b;
@@ -219,7 +218,7 @@ tps exp(const tps &a)
 
 tps log(const tps &a)
 {
-  tps  b;
+  tps b;
 
   dafun_("LOG ", a.ltps, b.ltps);
   return b;
@@ -227,7 +226,7 @@ tps log(const tps &a)
 
 tps sin(const tps &a)
 {
-  tps  b;
+  tps b;
 
   dafun_("SIN ", a.ltps, b.ltps);
   return b;
@@ -236,7 +235,7 @@ tps sin(const tps &a)
 
 tps cos(const tps &a)
 {
-  tps  b;
+  tps b;
 
   dafun_("COS ", a.ltps, b.ltps);
   return b;
@@ -244,7 +243,7 @@ tps cos(const tps &a)
 
 tps tan(const tps &a)
 {
-  tps  b;
+  tps b;
 
   dafun_("TAN ", a.ltps, b.ltps);
   return b;
@@ -252,7 +251,7 @@ tps tan(const tps &a)
 
 tps asin(const tps &a)
 {
-  tps  b;
+  tps b;
 
   dafun_("ASIN", a.ltps, b.ltps);
   return b;
@@ -260,7 +259,7 @@ tps asin(const tps &a)
 
 tps atan(const tps &a)
 {
-  tps  b;
+  tps b;
 
   dafun_("ATAN", a.ltps, b.ltps);
   return b;
@@ -268,7 +267,7 @@ tps atan(const tps &a)
 
 
 tps atan2(const tps &b, const tps &a) {
-  tps  c;
+  tps c;
 
   if (a.cst() > 0.0)
     c = atan(b/a);
@@ -276,7 +275,7 @@ tps atan2(const tps &b, const tps &a) {
     if (b.cst() != 0.0)
       c = sgn(b.cst())*M_PI/2.0;
     else {
-      std::cout << "atan2: 0/0 undefined" << std::endl;
+      std::cout << "atan2: 0/0 undefined\n";
       exit_(1);
     }
   else
@@ -290,7 +289,7 @@ tps atan2(const tps &b, const tps &a) {
 
 tps sinh(const tps &a)
 {
-  tps  b;
+  tps b;
 
   dafun_("SINH", a.ltps, b.ltps);
   return b;
@@ -298,7 +297,7 @@ tps sinh(const tps &a)
 
 tps cosh(const tps &a)
 {
-  tps  b;
+  tps b;
 
   dafun_("COSH", a.ltps, b.ltps);
   return b;
@@ -307,7 +306,7 @@ tps cosh(const tps &a)
 const double tps::cst(void) const
 {
   int      i;
-  long int jj[tps_dim];
+  long int jj[tps_n];
   double   r;
 
   for (i = 0; i < nv_tps; i++)
@@ -318,7 +317,7 @@ const double tps::cst(void) const
 
 double abs(const tps &a)
 {
-  double  r;
+  double r;
 
   daabs_(a.ltps, r);
   return r;
@@ -326,7 +325,7 @@ double abs(const tps &a)
 
 double abs2(const tps &a)
 {
-  double  r;
+  double r;
 
   daabs2_(a.ltps, r);
   return r;
@@ -335,7 +334,7 @@ double abs2(const tps &a)
 
 tps operator*(const tps &x, const ss_vect<tps> &y)
 {
-  ss_vect<tps>  x1, z1;
+  ss_vect<tps> x1, z1;
 
   x1.zero(); x1[0] = x;
   dacct_(x1, nv_tps, y, nv_tps, z1, 1);
@@ -344,7 +343,7 @@ tps operator*(const tps &x, const ss_vect<tps> &y)
 
 ss_vect<tps> operator*(const ss_vect<tps> &x, const ss_vect<tps> &y)
 {
-  ss_vect<tps>  z;
+  ss_vect<tps> z;
 
   dacct_(x, nv_tps, y, nv_tps, z, nv_tps);
   return z;
@@ -352,7 +351,7 @@ ss_vect<tps> operator*(const ss_vect<tps> &x, const ss_vect<tps> &y)
 
 ss_vect<tps> Inv(const ss_vect<tps> &x)
 {
-  ss_vect<tps>  y;
+  ss_vect<tps> y;
 
   dainv_(x, nv_tps, y, nv_tps);
   return y;
@@ -360,18 +359,18 @@ ss_vect<tps> Inv(const ss_vect<tps> &x)
 
 ss_vect<tps> PInv(const ss_vect<tps> &x, const long int jj[])
 {
-  int           j, k;
-  ss_vect<tps>  Id, y, z;
+  int          j, k;
+  ss_vect<tps> Id, y, z;
 
   Id.identity(); y.zero();
-  for (j = 0; j < tps_dim; j++)
+  for (j = 0; j < tps_n; j++)
     if (jj[j] != 0) {
       for (k = 0; k < ps_dim; k++)
 	y[j] += jj[k]*x[j][k]*Id[k];
     } else
       y[j] = Id[j];
 
-  dainv_(y, tps_dim, z, tps_dim);
+  dainv_(y, tps_n, z, tps_n);
 
   y.zero();
   for (j = 0; j < ps_dim; j++)
@@ -382,22 +381,22 @@ ss_vect<tps> PInv(const ss_vect<tps> &x, const long int jj[])
 
 std::istream& operator>>(std::istream &is, tps &a)
 {
-  char	  line[max_str], *token;
-  int     i, n, no1, nv1;
-//  int     ibuf1[bufsize], ibuf2[bufsize];
-  int     jj[tps_dim];
-  double  rbuf[bufsize];
+  char	 line[max_str], *token;
+  int    i, n, no1, nv1;
+//  int    ibuf1[bufsize], ibuf2[bufsize];
+  int    jj[tps_n];
+  double rbuf[bufsize];
 
-  const bool  prt = false;
+  const bool prt = false;
 
-  std::cout << "not implemented" << std::endl; exit_(1);
+  std::cout << "not implemented\n"; exit_(1);
 
   is.getline(line, max_str); is.getline(line, max_str);
   sscanf(line, "tpsa, NO_TPSA =%d, NV =%d", &no1, &nv1);
-  if (prt) std::cout << "no = " << no1 << ", nv = " << nv1 << std::endl;
-//  ibuf1[0] = no_tps; ibuf2[0] = tps_dim;
+  if (prt) std::cout << "no = " << no1 << ", nv = " << nv1 << "\n";
+//  ibuf1[0] = no_tps; ibuf2[0] = tps_n;
 
-  if ((no1 <= no_tps) && (nv1 <= tps_dim)) {
+  if ((no1 <= no_tps) && (nv1 <= tps_n)) {
     for (i = 1; i <= 5; i++)
       is.getline(line, max_str);
 
@@ -407,25 +406,25 @@ std::istream& operator>>(std::istream &is, tps &a)
       is.getline(line, max_str);
       token = strtok(line, " "); sscanf(token, "%d", &no1);
       token = strtok(NULL, " "); sscanf(token, "%le", &rbuf[n]);
-      for (i = 0; i < tps_dim; i++) {
+      for (i = 0; i < tps_n; i++) {
 	token = strtok(NULL, " "); sscanf(token, "%d", &jj[i]);
       }
       if (prt) {
 	std::cout << std::scientific << std::setprecision(3)
 	     << no1 << std::setw(11) << rbuf[n];
-	for (i = 0; i < tps_dim; i++)
+	for (i = 0; i < tps_n; i++)
 	  std::cout << std::setw(3) << jj[i];
-	std::cout << std::endl; 
+	std::cout << "\n"; 
       }
 
-//      hash_(no_tps, tps_dim, jj, ibuf1[n-1], ibuf2[n-1]);
+//      hash_(no_tps, tps_n, jj, ibuf1[n-1], ibuf2[n-1]);
     } while (no1 >= 0);
 
     rbuf[0] = -no1;
 //    daimp_(rbuf, ibuf1, ibuf2, a.intptr);
   } else {
     std::cout << "*** illegal no (" << no_tps << ") or nv ("
-	 << tps_dim << ")" << std::endl;
+	 << tps_n << ")\n";
     exit_(1);
   }
 
@@ -433,88 +432,78 @@ std::istream& operator>>(std::istream &is, tps &a)
 }
 
 
+void prt_coeff(std::ostringstream &s, const tps &a, const long int jj[],
+	       const int ord, int &n_coeff)
+{
+  int j;
+
+  if (fabs(a[jj]) >= eps_tps) {
+    s << std::setw(5) << ord << std::scientific << std::setw(24)
+      << std::setprecision(16) << a[jj] << " ";
+    for (j = 0; j < nv_tps; j++)
+      s << std::setw(3) << jj[j];
+    s << "\n";
+    n_coeff++;
+  }
+}
+
+
 std::ostream& operator<<(std::ostream &os, const tps &a)
 {
   int                i, j, n;
-  long int           jj[tps_dim];
+  long int           jj[nv_tps];
   std::ostringstream s;
 
-  s << std::endl;
-  s << "NO_TPSA = " << no_tps << ", NV = " << nv_tps << std::endl;
+  s << "\nNO_TPSA = " << no_tps << ", NV = " << nv_tps << "\n";
 
   for (i = 1; i <= 66; i++)
     s << "-"; 
-  s << std::endl;
+  s << "\n";
 
   if (header) {
-    s << std::endl;
+    s << "\n";
     if (!res_basis) {
       s << "                                                        n"
-	<< std::endl;
-      s << "      ====     i  i   i  i  i   i  i     i             ===="
-	<< std::endl;
-      s << "      \\         1  2   3  4  5   6  7     n            \\   "
-	<< std::endl;
-      s << "  P =  |   a  x  p   y  p  d  ct  p ... p  ,    |I| =  |   i"
-	<< std::endl;
-      s << "      /     I     x      y         1     n             /     k"
-	<< std::endl;
-      s << "      ====                                             ===="
-	<< std::endl;
-      s << "       I                                               k=1"
-	<< std::endl;
+	<< "\n      ====     i  i   i  i  i   i  i     i             ====\n"
+	<< "      \\         1  2   3  4  5   6  7     n            \\   \n"
+	<< "  P =  |   a  x  p   y  p  d  ct  p ... p  ,    |I| =  |   i\n"
+	<< "      /     I     x      y         1     n             /     k\n"
+	<< "      ====                                             ====\n"
+	<< "       I                                               k=1\n";
     } else {
-      s << "                                                          n"
-	<< std::endl;
-      s << "      ====      i   i   i   i  i   i  i     i            ===="
-	<< std::endl;
-      s << "      \\        + 1 - 2 + 3 - 4  5   6  7     n           \\   "
-	<< std::endl;
-      s << "  P =  |   a  h   h   h   h   d  ct  p ... p  ,    |I| =  |   i"
-	<< std::endl;
-      s << "      /     I  x   x   y   y          1     n            /     k"
-	<< std::endl;
-      s << "      ====                                               ===="
-	<< std::endl;
-      s << "       I                                                 k=1"
-	<< std::endl;
+      s << "                                                          n\n"
+	<< "      ====      i   i   i   i  i   i  i     i            ====\n"
+	<< "      \\        + 1 - 2 + 3 - 4  5   6  7     n           \\   \n"
+	<< "  P =  |   a  h   h   h   h   d  ct  p ... p  ,    |I| =  |   i\n"
+	<< "      /     I  x   x   y   y          1     n            /     k\n"
+	<< "      ====                                               ====\n"
+	<< "       I                                                 k=1\n";
     }
   }
   
   n = 0;
-  for (j = 0; j <= nv_tps; j++)
+  for (j = 0; j < nv_tps; j++)
     if (fabs(a.ltps[j]) >= eps_tps) n++;
 
   if (n != 0) {
-    s << std::endl;
-    s << "   |I|         a              ";
+    s << "\n   |I|         a              ";
     for (i = 1; i <= nv_tps; i++)
       s << "  i";
-    s << std::endl;
-    s << "                I              ";
+    s << "\n                I              ";
     for (i = 1; i <= nv_tps; i++)
       s << std::setw(3) << i;
-    s << std::endl;
-    s << std::endl;
+    s << "\n\n";
   } else
-    s << "   ALL COMPONENTS ZERO " << std::endl;
+    s << "   ALL COMPONENTS ZERO " << "\n";
 
+  n = 0;
   for (j = 0; j < nv_tps; j++)
     jj[j] = 0;
-
-  for (i = 0; i <= nv_tps; i++) {
-    if (i > 0) {
-      n = 1; jj[i-1] = 1;
-    } else
-      n = 0;
-    if (fabs(a[jj]) >= eps_tps) {
-      s << std::setw(5) << n << std::scientific << std::setw(24)
-	<< std::setprecision(16) << a[jj] << " ";
-      for (j = 0; j < nv_tps; j++)
-	s << std::setw(3) << jj[j];
-      s << std::endl;
-    }
-    if (i > 0) jj[i-1] = 0;
+  prt_coeff(s, a, jj, 0, n);
+  for (i = 0; i < nv_tps; i++) {
+    jj[i] = 1;
+    prt_coeff(s, a, jj, 1, n);
+    jj[i] = 0;
   }
 
   if (n == 0) n = 1;
@@ -522,7 +511,7 @@ std::ostream& operator<<(std::ostream &os, const tps &a)
     << std::scientific << std::setw(24) << std::setprecision(16) << 0.0 << " ";
   for (j = 0; j < nv_tps; j++)
     s << std::setw(3) << 0;
-  s << std::endl;
+  s << "\n";
 
   return os << s.str();
 }

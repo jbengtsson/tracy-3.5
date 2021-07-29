@@ -13,18 +13,18 @@ void daini_(long int no, long int nv, long int fio);
 
 void lieini(const long int no, const long int nv, const long int nd2i);
 
-void daall_(tps_buf &x, const long int nd2, const char *daname,
+void daall_(std::vector<double> &x, const long int nd2, const char *daname,
 	    const long int no, const long int nv);
 
-void dadal_(tps_buf &x, const long int ss_dim);
+void dadal_(std::vector<double> &x, const long int ss_dim);
 
-void davar_(tps_buf &x, const double r, const long int i);
+void davar_(std::vector<double> &x, const double r, const long int i);
 
-void dacon_(tps_buf &x, const double r);
+void dacon_(std::vector<double> &x, const double r);
 
-void dapek_(const tps_buf &x, const long int jj[], double &r);
+void dapek_(const std::vector<double> &x, const long int jj[], double &r);
 
-void dapok_(tps_buf &x, const long int jj[], const double r);
+void dapok_(std::vector<double> &x, const long int jj[], const double r);
 
 double get_m_ij(const ss_vect<tps> &map, const long int i,
 		    const long int j);
@@ -36,58 +36,71 @@ arma::mat get_mat(const ss_vect<tps> &map);
 
 ss_vect<tps> put_mat(const arma::mat &mat);
 
-void dacop_(const tps_buf &x, tps_buf &z);
+void dacop_(const std::vector<double> &x, std::vector<double> &z);
 
-void daadd_(const tps_buf &x, const tps_buf &y, tps_buf &z);
+void daadd_(const std::vector<double> &x, const std::vector<double> &y,
+	    std::vector<double> &z);
 
-void dasub_(const tps_buf &x, const tps_buf &y, tps_buf &z);
+void dasub_(const std::vector<double> &x, const std::vector<double> &y,
+	    std::vector<double> &z);
 
-void damul_(const tps_buf &x, const tps_buf &y, tps_buf &z);
+void damul_(const std::vector<double> &x, const std::vector<double> &y,
+	    std::vector<double> &z);
 
-void dadiv_(const tps_buf &x, const tps_buf &y, tps_buf &z);
+void dadiv_(const std::vector<double> &x, const std::vector<double> &y,
+	    std::vector<double> &z);
 
-void dacad_(const tps_buf &x, const double y, tps_buf &z);
+void dacad_(const std::vector<double> &x, const double y,
+	    std::vector<double> &z);
 
-void dacsu_(const tps_buf &x, const double y, tps_buf &z);
+void dacsu_(const std::vector<double> &x, const double y,
+	    std::vector<double> &z);
 
-void dacmu_(const tps_buf &x, const double y, tps_buf &z);
+void dacmu_(const std::vector<double> &x, const double y,
+	    std::vector<double> &z);
 
-void dasuc_(const tps_buf &x, const double y, tps_buf &z);
+void dasuc_(const std::vector<double> &x, const double y,
+	    std::vector<double> &z);
 
-void dacdi_(const tps_buf &x, const double y, tps_buf &z);
+void dacdi_(const std::vector<double> &x, const double y,
+	    std::vector<double> &z);
 
-void dadic_(const tps_buf &x, const double y, tps_buf &z);
+void dadic_(const std::vector<double> &x, const double y,
+	    std::vector<double> &z);
 
-void dapos_(const tps_buf &x, tps_buf &z);
+void dapos_(const std::vector<double> &x, std::vector<double> &z);
 
-void dasqr_(const tps_buf &x, tps_buf &z);
+void dasqr_(const std::vector<double> &x, std::vector<double> &z);
 
-void dacma_(const tps_buf &x, const tps_buf &y, const double rb, tps_buf &z);
+void dacma_(const std::vector<double> &x, const std::vector<double> &y,
+	    const double rb, std::vector<double> &z);
 
-void dalin_(const tps_buf &x, const double ra, const tps_buf &y,
-	    const double rb, tps_buf &z);
+void dalin_(const std::vector<double> &x, const double ra,
+	    const std::vector<double> &y,
+	    const double rb, std::vector<double> &z);
 
-void dainv_(const tps_buf &x, tps_buf &z);
+void dainv_(const std::vector<double> &x, std::vector<double> &z);
 
-void dasqrt(const tps_buf &x, tps_buf &z);
+void dasqrt(const std::vector<double> &x, std::vector<double> &z);
 
-void daexp(const tps_buf &x, tps_buf &z);
+void daexp(const std::vector<double> &x, std::vector<double> &z);
 
-void dalog(const tps_buf &x, tps_buf &z);
+void dalog(const std::vector<double> &x, std::vector<double> &z);
 
-void dasin(const tps_buf &x, tps_buf &z);
+void dasin(const std::vector<double> &x, std::vector<double> &z);
 
-void dacos(const tps_buf &x, tps_buf &z);
+void dacos(const std::vector<double> &x, std::vector<double> &z);
 
-void dasinh(const tps_buf &x, tps_buf &z);
+void dasinh(const std::vector<double> &x, std::vector<double> &z);
 
-void dacosh(const tps_buf &x, tps_buf &z);
+void dacosh(const std::vector<double> &x, std::vector<double> &z);
 
-void datan(const tps_buf &x, tps_buf &z);
+void datan(const std::vector<double> &x, std::vector<double> &z);
 
-void daarctan(const tps_buf &x, tps_buf &z);
+void daarctan(const std::vector<double> &x, std::vector<double> &z);
 
-void dafun_(const char *fun, const tps_buf &x, tps_buf &z);
+void dafun_(const char *fun, const std::vector<double> &x,
+	    std::vector<double> &z);
 
 void dacct_(const ss_vect<tps> &x, const long int i,
 	    const ss_vect<tps> &y, const long int j, ss_vect<tps> &z,
@@ -98,8 +111,8 @@ void dainv_(const ss_vect<tps> &x, const long int i, ss_vect<tps> &z,
 
 void Rotmap(const long int n, ss_vect<tps> &map, const arma::mat &R);
 
-void daabs_(const tps_buf &x, double &r);
+void daabs_(const std::vector<double> &x, double &r);
 
-void daabs2_(const tps_buf &x, double &r);
+void daabs2_(const std::vector<double> &x, double &r);
 
 #endif

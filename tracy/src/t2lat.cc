@@ -282,7 +282,8 @@ static void EnterUDItable(const char *name, double X,
     return;
   }
   WITH = &LINK->UDItable[LINK->UDIC-1];
-  memcpy(WITH->Uname, name, sizeof(partsName));
+  // memcpy(WITH->Uname, name, sizeof(partsName));
+  strncpy(WITH->Uname, name, sizeof(partsName));
   WITH->Uvalue = X;
 }
 
@@ -619,7 +620,8 @@ static void Lat_GetSym(FILE *fi_, FILE *fo_, long *cc_, long *ll_,
   case 'z':
   case '"':  /*identifier or wordsymbol*/
     V.k = 0;
-    memcpy(id, "               ", sizeof(alfa_));
+    // memcpy(id, "               ", sizeof(alfa_));
+    strncpy(id, "               ", sizeof(alfa_));
     do {
       if (*V.chin == '"')
 	parsename = !parsename;
@@ -4035,9 +4037,9 @@ static double Circumference(struct LOC_Lat_Read *LINK)
 /*
  * Warning! Modfies str (should be a pointer not a reference)
  */
-void fixedtostr(std::string &str)
+void fixedtostr(__gnu_debug::string &str)
 {
-  std::string str1 = str;
+  __gnu_debug::string str1 = str;
 
   str = "";
   for(int j=0; (j < (int)str1.length()) && str1[j] != ' '; ++j){
@@ -4113,7 +4115,7 @@ void PrintResult(struct LOC_Lat_Read *LINK)
 }
 
 
-bool LatticeType::Lat_Read(const string &filnam)
+bool LatticeType::Lat_Read(const __gnu_debug::string &filnam)
 {
   struct LOC_Lat_Read V;
   FILE   *fi_, *fo_;

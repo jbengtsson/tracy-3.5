@@ -383,7 +383,7 @@ void chk_Fam(std::vector<ElemFamType> &elemf)
 }
 
 
-void LatticeType::rdmfile(const std::string &mfile_dat)
+void LatticeType::rdmfile(const __gnu_debug::string &mfile_dat)
 {
   char          line[line_max];
   long int      i;

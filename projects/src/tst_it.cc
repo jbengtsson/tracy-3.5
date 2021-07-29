@@ -9,19 +9,6 @@ const int    n_turn    = 2064;
 const double delta_max = 2e-2;
 
 
-void tst_lat(LatticeType &lat)
-{
-  int          k;
-  ss_vect<tps> map;
-
-  printf("\ntst_lat\n");
-  map.identity();
-  for (k = 0; k <= 10; k++)
-    lat.elems[k]->Elem_Pass(lat.conf, map);
-  prt_lin_map(3, map);
-}
-
-
 void cod_stat(const LatticeType &lat, double mean[], double sigma[],
 	      double xmax[], long lastpos, bool all)
 {
@@ -129,24 +116,134 @@ void tst_lsoc(LatticeType &lat)
 }
 
 
+void tst_ss_vect(LatticeType &lat)
+{
+  if (false) {
+    vector<double> vec = { 0e0, 1e0, 2e0 };
+
+    printf("\nTest of smart pointers:\n\n");
+    fflush(stdout);
+
+    for (int k = 0; k < (int)vec.size()+1; k++)
+      printf(" %10.3e", vec[k]);
+    printf("\n");
+  }
+
+  if (!false) {
+    long int        jj[tps_n];
+    ss_vect<double> ps0(1e0, 2e0, 3e0, 4e0, 5e0, 6e0);
+    ss_vect<tps>    ps;
+
+    printf("\nBasic test of ss_vect<double/tps>:\n");
+    fflush(stdout);
+
+    ps.identity(); ps += ps0;
+
+    cout << scientific << setprecision(3) << setw(11) << ps << "\n";
+
+    for (int j = 0; j < ps_dim; j++) {
+      for (int k = 0; k < ps_dim; k++)
+	cout << scientific << setprecision(3) << setw(11) << ps[j][k];
+      cout << scientific << setprecision(3) << setw(11) << ps[j].cst();
+      cout << "\n";
+    }
+
+    cout << "\n";
+    for (int k = 0; k < ps_dim; k++)
+      jj[k] = 0;
+    for (int j = 0; j < ps_dim; j++) {
+      for (int k = 0; k < ps_dim; k++) {
+	jj[k] = 1;
+	cout << scientific << setprecision(3) << setw(11) << ps[j][jj];
+	jj[k] = 0;
+      }
+      cout << scientific << setprecision(3) << setw(11) << ps[j][jj];
+      cout << "\n";
+    }
+  }
+
+  if (!false) {
+    ss_vect<double> ps;
+    ss_vect<tps>    Id;
+    
+    printf("\nTest of ss_vect<double/tps> <-> vector/matrix:\n\n");
+    fflush(stdout);
+
+    ps.zero(); ps[x_] = 1e-3; ps[y_] = 1e-3;
+    cout << scientific << setprecision(3) << setw(11) << ps << "\n";
+    cout << scientific << setprecision(3) << setw(11);
+    pstovec(ps).raw_print(cout, " ");
+    cout << scientific << setprecision(3) << "\n"
+	 << setw(11) << vectops(pstovec(ps)) << "\n";
+
+    Id.identity();
+    prt_lin_map(3, Id);
+    cout << scientific << setprecision(3) << setw(11);
+    get_mat(Id).raw_print(cout, " ");
+    prt_lin_map(3, put_mat(get_mat(Id)));
+  }
+}
+
+
+void tst_SI(LatticeType &lat)
+{
+  if (false) {
+    long int        lastpos;
+    ss_vect<double> ps;
+
+    printf("\nTest of Cell_Pass for double:\n\n");
+    fflush(stdout);
+
+    ps.zero(); ps[x_] = 1e-3; ps[y_] = 1e-3;
+    cout << scientific << setprecision(3) << setw(11) << ps << "\n";
+    lat.Cell_Pass(0, lat.conf.Cell_nLoc, ps, lastpos);
+    cout << scientific << setprecision(3) << setw(11) << ps << "\n";
+  }
+
+  if (!false) {
+    long int     lastpos;
+    ss_vect<tps> map;
+
+    printf("\nTest of Cell_Pass for tps:\n\n");
+    fflush(stdout);
+
+    map.identity();
+    prt_lin_map(3, map);
+    fflush(stdout);
+    printf("\n");
+    lat.Cell_Pass(0, lat.conf.Cell_nLoc, map, lastpos);
+    prt_lin_map(3, map);
+  }
+
+  if (false) {
+    long int lastpos;
+    double   xmean[2], xsigma[2], xmax[2];
+
+    lat.getcod(0e0, lastpos);
+    cod_stat(lat, xmean, xsigma, xmax, lat.conf.Cell_nLoc, true);
+    printf("\nRMS orbit [mm]: (%8.1e +/- %7.1e, %8.1e +/- %7.1e)\n",
+	   1e3*xmean[X_], 1e3*xsigma[X_], 1e3*xmean[Y_], 1e3*xsigma[Y_]);
+
+    set_bn(lat, bn_des, lat.ElemIndex("chv"), Dip, 1e-3, 0.1e-3, false);
+    lat.getcod(0e0, lastpos);
+    cod_stat(lat, xmean, xsigma, xmax, lat.conf.Cell_nLoc, true);
+    printf("RMS orbit [mm]: (%8.1e +/- %7.1e, %8.1e +/- %7.1e)\n",
+	   1e3*xmean[X_], 1e3*xsigma[X_], 1e3*xmean[Y_], 1e3*xsigma[Y_]);
+
+    lat.prt_cod("cod.out", true);
+
+    exit(0);
+  }
+}
+
+
 void get_lat(const string &file_name, LatticeType &lat)
 {
   double eps_x, sigma_delta, U_0, J[3], tau[3], I[6];
 
   const string str = file_name;
 
-  if (false) {
-    vector<double> vec = { 0e0, 1e0, 2e0 };
-
-    printf("\n");
-    for (int k = 0; k < (int)vec.size()+3; k++)
-      printf(" %10.3e", vec[k]);
-    printf("\n");
-
-    exit(0);
-  }
-
-  lat.conf.trace        = false;
+  lat.conf.trace        = !false;
   lat.conf.reverse_elem = !false;
   lat.conf.mat_meth     = !false;
 
@@ -172,22 +269,7 @@ void get_lat(const string &file_name, LatticeType &lat)
   }
 
   if (false) {
-    long int lastpos;
-    double   xmean[2], xsigma[2], xmax[2];
-
-    lat.getcod(0e0, lastpos);
-    cod_stat(lat, xmean, xsigma, xmax, lat.conf.Cell_nLoc, true);
-    printf("\nRMS orbit [mm]: (%8.1e +/- %7.1e, %8.1e +/- %7.1e)\n",
-	   1e3*xmean[X_], 1e3*xsigma[X_], 1e3*xmean[Y_], 1e3*xsigma[Y_]);
-
-    set_bn(lat, bn_des, lat.ElemIndex("chv"), Dip, 1e-3, 0.1e-3, false);
-    lat.getcod(0e0, lastpos);
-    cod_stat(lat, xmean, xsigma, xmax, lat.conf.Cell_nLoc, true);
-    printf("RMS orbit [mm]: (%8.1e +/- %7.1e, %8.1e +/- %7.1e)\n",
-	   1e3*xmean[X_], 1e3*xsigma[X_], 1e3*xmean[Y_], 1e3*xsigma[Y_]);
-
-    lat.prt_cod("cod.out", true);
-
+    tst_SI(lat);
     exit(0);
   }
 
@@ -195,8 +277,6 @@ void get_lat(const string &file_name, LatticeType &lat)
 
   if (lat.conf.mat_meth)
     lat.get_eps_x(eps_x, sigma_delta, U_0, J, tau, I, true);
-
-  if (false) tst_lat(lat);
 
   lat.prt_lat("linlat1.out", true);
   lat.prt_lat("linlat.out", true, 10);
@@ -216,7 +296,12 @@ int main(int argc, char *argv[])
   string      file_name;
   LatticeType lat;
 
+  if (false) {
+    tst_ss_vect(lat);
+    exit(0);
+  }
+
   get_lat(argv[1], lat);
 
-  if (!false) tst_lsoc(lat);
+  if (false) tst_lsoc(lat);
 }

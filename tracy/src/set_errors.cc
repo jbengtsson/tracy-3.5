@@ -67,7 +67,7 @@ void CheckAlignTol(LatticeType &lat, const char *OutputFile)
   int          gs_nKid, ge_nKid;
   int          dip_Fnum,dip_nKid;
   int          loc, loc_gs, loc_ge;
-  std::string  name;
+  __gnu_debug::string  name;
   double       s;
   double       PdSsys[2], PdSrms[2], PdSrnd[2], dS[2], dT[2];
   MpoleType    *M;

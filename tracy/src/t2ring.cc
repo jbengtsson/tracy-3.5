@@ -1,5 +1,3 @@
-/* t2ring.c: Functions for rings.                                             */
-
 
 void LatticeType::ChamberOff(void)
 {
@@ -84,7 +82,7 @@ void GetNu(Vector2 &nu, arma::mat &M)
 
   int       i;
   double    sgn, detp, detm, b, c, tr[2], b2mc, x;
-  arma::mat M1(tps_dim, tps_dim);
+  arma::mat M1(tps_n, tps_n);
 
   const int n = 4;
 
@@ -332,7 +330,7 @@ void LatticeType::Ring_Twiss(bool chroma, double dP)
   int          k, n = 0;
   Vector2      alpha = {0.0, 0.0}, beta = {0.0, 0.0},
                gamma = {0.0, 0.0}, nu = {0.0, 0.0};
-  arma::mat    R(tps_dim, tps_dim);
+  arma::mat    R(tps_n, tps_n);
   ss_vect<tps> AScr;
 
   n = (conf.Cavity_on)? 6 : 4;
@@ -388,7 +386,7 @@ void LatticeType::TraceABN(long i0, long i1, const Vector2 &alpha,
   double        sb;
   ss_vect<tps>  Ascr;
 
-  conf.Ascr = arma::eye(tps_dim, tps_dim);
+  conf.Ascr = arma::eye(tps_n, tps_n);
   for (i = 1; i <= 2; i++) {
     sb = sqrt(beta[i-1]); j = i*2 - 1;
     conf.Ascr(j-1, j-1) = sb;               conf.Ascr(j-1, j) = 0.0;
@@ -1096,7 +1094,7 @@ void LatticeType::Ring_Fittune(Vector2 &nu, double eps, iVector2 &nq, long qf[],
   int             i, j, k;
   Vector2         nu0, nu1;
   ss_vect<double> dkL1, dnu;
-  arma::mat       A(tps_dim, tps_dim);
+  arma::mat       A(tps_n, tps_n);
 
   const double dP = 0e0;
 
@@ -1186,7 +1184,7 @@ void LatticeType::Ring_Fitchrom(Vector2 &ksi, double eps, iVector2 &ns,
   int             i, j, k;
   Vector2         ksi0;
   ss_vect<double> dkpL1, dksi;
-  arma::mat       A(tps_dim, tps_dim);
+  arma::mat       A(tps_n, tps_n);
 
   const double dP = 0e0;
 
@@ -1444,7 +1442,7 @@ void get_twoJ(const int n_DOF, const ss_vect<double> &ps, const ss_vect<tps> &A,
 	      double twoJ[])
 {
   int             j, no;
-  long int        jj[tps_dim];
+  long int        jj[tps_n];
   ss_vect<double> z;
 
   no = no_tps;
@@ -1579,7 +1577,7 @@ void LatticeType::GetEmittance(const int Fnum, const bool prt)
   double       C, theta, V_RF, phi0, gamma_z;
   double       sigma_s, sigma_delta;
   Vector3      nu;
-  arma::mat    Ascr(tps_dim, tps_dim);
+  arma::mat    Ascr(tps_n, tps_n);
   ss_vect<tps> Ascr_map;
   CavityType   *Cp;
 
@@ -1832,8 +1830,8 @@ int Newton_Raphson(LatticeType &lat, int n, ss_vect<double> &x, int ntrial,
   int             k, i;
   double          errx;
   ss_vect<double> bet, fvect;
-  arma::mat       alpha   = arma::mat(tps_dim, tps_dim);
-  arma::vec       bet_vec = arma::vec(tps_dim);
+  arma::mat       alpha   = arma::mat(tps_n, tps_n);
+  arma::vec       bet_vec = arma::vec(tps_n);
 
   errx = 0.0;
 
@@ -1896,10 +1894,10 @@ void get_dnu(const int n, const ss_vect<tps> &A, std::vector<double> &dnu)
 ss_vect<tps> tp_S(const int n_DOF, const ss_vect<tps> &A)
 {
   int          j;
-  long int     jj[tps_dim];
+  long int     jj[tps_n];
   ss_vect<tps> S;
 
-  for (j = 1; j <= tps_dim; j++)
+  for (j = 1; j <= tps_n; j++)
     jj[j-1] = (j <= 2*n_DOF)? 1 : 0;
 
   S = get_S(n_DOF);
@@ -2039,7 +2037,7 @@ bool chk_if_lost(LatticeType &lat, double x0, double y0, double delta,
 {
   long int        i, lastn, lastpos;
   ss_vect<double> ps;
-  arma::vec       ps_vec = arma::vec(tps_dim);
+  arma::vec       ps_vec = arma::vec(tps_n);
 
   bool prt = false;
 

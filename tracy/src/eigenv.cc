@@ -398,10 +398,10 @@ static void GetAinv(struct LOC_GDiag &LINK)
 ****************************************************************************/
 static void GetEta(arma::mat &M, arma::vec &Eta, struct LOC_GDiag &LINK)
 {
-  arma::mat I(tps_dim, tps_dim), IMinNInv(ps_tr_dim, ps_tr_dim);
+  arma::mat I(tps_n, tps_n), IMinNInv(ps_tr_dim, ps_tr_dim);
   arma::vec SmallM(ps_tr_dim);
 
-  I.eye(tps_dim, tps_dim);
+  I.eye(tps_n, tps_n);
   IMinNInv = I - M;
   IMinNInv =
     inv(IMinNInv(arma::span(0, ps_tr_dim-1), arma::span(0, ps_tr_dim-1)));
@@ -520,7 +520,7 @@ void LatticeType::GDiag(int n_, double C, arma::mat &A, arma::mat &Ainv_,
 
   V.Ainv.eye(ps_dim, ps_dim);
   GetAinv(V);
-  A.eye(tps_dim, tps_dim);
+  A.eye(tps_n, tps_n);
   A(arma::span(0, ps_dim-1), arma::span(0, ps_dim-1)) = V.Ainv;
   A = inv(A);
   if (V.n == ps_tr_dim) {

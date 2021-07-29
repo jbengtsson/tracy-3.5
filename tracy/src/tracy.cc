@@ -54,7 +54,9 @@
 // NSLS-II.
 // #include "nsls-ii_lib.cc"
 
+#if 0
 #include "../../python/src/tracy_py.cc"
+#endif
 
 str80
   finame,               // input data file.
@@ -64,9 +66,9 @@ str80
 FILE
   *fi,                  // lattice input  file.
   *fo,                  // lattice output file.
-  *psin[maxincl + 1],   // program input file.
+  *psin[maxincl+1],     // program input file.
   *psout,               // program output file.
-  *prr[maxfil - 2];     // prr[1] : input, prr[2] : output.
+  *prr[maxfil-2];       // prr[1] : input, prr[2] : output.
 
 
 int
@@ -85,18 +87,19 @@ int    i_, j_;
 double **C_;
 
 // ss_vect<tps> map;
-MNF_struct   MNF;
+// MNF_struct MNF;
 
 // Truncated Power Series Algebra (TPSA)
-const int     nv_tps   = tps_dim, // no of variables
-              nd_tps   = 3,       // no of degrees of freedom
-              iref_tps = 0;       /* file with resonances to be excluded from
-				     the map normal form: fort.7 */
+const int
+  nv_tps   = ps_dim,    // No of variables.
+  nd_tps   = 3,         // No of degrees of freedom.
+  iref_tps = 0;         /* File with resonances to be excluded from the map
+			   normal form: fort.7. */
 
-double        eps_tps  = 1e-25;   // floating point truncation
+double eps_tps = 1e-25; // Floating point truncation.
 
 
-// instantiate templates
+// Instantiate templates.
 
 template class ss_vect<double>;
 template class ss_vect<tps>;
@@ -254,7 +257,7 @@ int P_eoln(FILE *f)
 
 // C++ file I/O.
 
-void file_rd(std::ifstream &inf, const std::string &file_name)
+void file_rd(std::ifstream &inf, const __gnu_debug::string &file_name)
 {
   inf.open(file_name.c_str(), std::ios::in);
   if (!inf.is_open()) {
@@ -264,7 +267,7 @@ void file_rd(std::ifstream &inf, const std::string &file_name)
 }
 
 
-void file_wr(std::ofstream &outf, const std::string &file_name)
+void file_wr(std::ofstream &outf, const __gnu_debug::string &file_name)
 {
   outf.open(file_name.c_str(), std::ios::out);
   if (!outf.is_open()) {
@@ -365,10 +368,10 @@ void prt_name_ascii(string &name)
 }
 
 
-long LatticeType::ElemIndex(const std::string &name)
+long LatticeType::ElemIndex(const __gnu_debug::string &name)
 {
   long        i;
-  std::string name1 = name;
+  __gnu_debug::string name1 = name;
 
   const bool prt = false;
 
