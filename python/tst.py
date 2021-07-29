@@ -67,7 +67,7 @@ def main(file_name):
 
 
 lat_dir = os.getenv('LAT')
-if True:
+if not True:
     file_name = lat_dir+'/BESSY-III/NoTG-TGRB-B60-6bend-6sx_JB_tracy'
 else:
     file_name = lat_dir+'/DIAMOND-II/vmx_symopt_Qx205_Qy364'
