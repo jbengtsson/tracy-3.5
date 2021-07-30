@@ -30,11 +30,6 @@ typedef char str80[80];
 
 const int max_elem = Cell_nLocMax;
 
-// extern ss_vect<tps> map;
-extern MNF_struct   MNF;
-
-extern double       chi_m;
-
 
 // Macros.
 
@@ -120,6 +115,7 @@ extern void lsoc(int niter, int bpm, int corr, int plane);
 typedef char                partsName[NameLength];
 typedef std::vector<double> MpoleArray;
 
+
 enum PartsKind
   { drift      = 0,
     Wigl       = 1,
@@ -158,7 +154,7 @@ enum IntMethKind
     Meth_Fourth = 4 };
 
 const int
-  n_harm_max   = 10,
+n_harm_max   = 10,
   Spreader_max = 10;
 
 const double
@@ -223,21 +219,28 @@ class ConfigType {
     beta0,                        // Relativistic factors.
     gamma0;
   std::vector<double>
-    TotalTune{0e0, 0e0, 0e0},     // Transverse Tunes.
-    Chrom{0e0, 0e0},              // Linear Chromaticities.
-    alpha_rad{0e0, 0e0, 0e0},     // Damping Coeffs.
-    D_rad{0e0, 0e0, 0e0},         // Diffusion Coeffs (Floquet space).
-    J{0e0, 0e0, 0e0},             // Partition Numbers.
-    tau{0e0, 0e0, 0e0},           // Damping Times.
-    D_IBS{0e0, 0e0, 0e0},         // Diffusion Matrix (Floquet space).
+    TotalTune{0e0, 0e0, 0e0},     // Transverse tunes.
+    Chrom{0e0, 0e0},              // Linear chromaticities.
+    alpha_rad{0e0, 0e0, 0e0},     // Damping coeffs.
+    D_rad{0e0, 0e0, 0e0},         // Diffusion coeffs (Floquet space).
+    J{0e0, 0e0, 0e0},             // Partition numbers.
+    tau{0e0, 0e0, 0e0},           // Damping times.
+    D_IBS{0e0, 0e0, 0e0},         // Diffusion matrix (Floquet space).
     eps{0e0, 0e0, 0e0},           // Eigenemittances.
-    epsp{0e0, 0e0, 0e0},          // Trans. & Long. projected Emittances.
-    CODvect{0e0, 0e0, 0e0, 0e0, 0e0, 0e0}; // Closed Orbit.
+    epsp{0e0, 0e0, 0e0},          // Trans. & Long. projected emittances.
+    CODvect{0e0, 0e0, 0e0, 0e0, 0e0, 0e0}; // Closed orbit.
+  std::vector< std::vector<double> >
+  OneTurnMat
+    { {0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+      {0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+      {0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+      {0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+      {0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+      {0e0, 0e0, 0e0, 0e0, 0e0, 0e0} };
   arma::vec
     wr = arma::vec(tps_n),
     wi = arma::vec(tps_n);        // Eigenvalues: Re & Im part.
   arma::mat
-    OneTurnMat = arma::mat(tps_n, tps_n), // Linear Poincare Map.
     Ascr       = arma::mat(tps_n, tps_n),
     Ascrinv    = arma::mat(tps_n, tps_n),
     Vr         = arma::mat(tps_n, tps_n), // Eigenvectors: Real part, 
@@ -388,7 +391,8 @@ class LatticeType {
 
   // t2ring.
   void GDiag(int n_, double C, arma::mat &A, arma::mat &Ainv_, arma::mat &R,
-	     arma::mat &M, double &Omega, double &alphac);
+	     std::vector< std::vector<double> > &M, double &Omega,
+	     double &alphac);
 
   void Cell_Geteta(long i0, long i1, bool ring, double dp);
   void Cell_Twiss(long i0, long i1, ss_vect<tps> &Ascr, bool chroma, bool ring,

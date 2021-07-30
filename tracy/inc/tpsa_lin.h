@@ -36,6 +36,10 @@ arma::mat get_mat(const ss_vect<tps> &map);
 
 ss_vect<tps> put_mat(const arma::mat &mat);
 
+arma::mat stlmattomat(const std::vector< std::vector<double> > &stlmat);
+
+std::vector< std::vector<double> > get_stlmat(const ss_vect<tps> &map);
+
 void dacop_(const std::vector<double> &x, std::vector<double> &z);
 
 void daadd_(const std::vector<double> &x, const std::vector<double> &y,

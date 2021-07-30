@@ -30,7 +30,7 @@ def set_config():
     lat = scsi.LatticeType()
 
     lat.conf.trace        = False
-    lat.conf.reverse_elem = not False
+    lat.conf.reverse_elem = True
     lat.conf.mat_meth     = not False
 
     lat.conf.H_exact    = False; lat.conf.quad_fringe    = False

@@ -39,7 +39,7 @@ void LatticeType::PrintCh(void)
 }
 
 
-void GetNu(std::vector<double> &nu, arma::mat &M)
+void GetNu(std::vector<double> &nu, std::vector< std::vector<double> > &M)
 {
   /* Not assuming mid-plane symmetry, the charachteristic polynomial for a
      symplectic periodic matrix is given by
@@ -82,11 +82,11 @@ void GetNu(std::vector<double> &nu, arma::mat &M)
 
   int       i;
   double    sgn, detp, detm, b, c, tr[2], b2mc, x;
-  arma::mat M1(tps_n, tps_n);
+  arma::mat M1(ps_dim, ps_dim);
 
   const int n = 4;
 
-  M1 = M;
+  M1 = stlmattomat(M);
   for (i = 0; i < n; i++)
     M1(i, i) -= 1e0;   
   detp = det(M1);
@@ -128,7 +128,8 @@ void GetNu(std::vector<double> &nu, arma::mat &M)
 }
 
 
-bool Cell_GetABGN(arma::mat &M, std::vector<double> &alpha,
+bool Cell_GetABGN(std::vector< std::vector<double> > &M,
+		  std::vector<double> &alpha,
 		  std::vector<double> &beta, std::vector<double> &gamma,
 		  std::vector<double> &nu)
 {
@@ -138,13 +139,13 @@ bool Cell_GetABGN(arma::mat &M, std::vector<double> &alpha,
 
   stable = true;
   for (k = 0; k < 2; k++) {
-    c = (M(2*k, 2*k)+M(2*k+1, 2*k+1))/2e0;
+    c = (M[2*k][2*k]+M[2*k+1][2*k+1])/2e0;
     stable = (fabs(c) < 1e0);
     if (stable) {
-      s = sqrt(1e0-sqr(c))*sgn(M(2*k, 2*k+1));
-      alpha[k] = (M(2*k, 2*k)-M(2*k+1, 2*k+1))/(2e0*s);
-      beta[k] = M(2*k, 2*k+1)/s;
-      gamma[k] = -M(2*k+1, 2*k)/s;
+      s = sqrt(1e0-sqr(c))*sgn(M[2*k][2*k+1]);
+      alpha[k] = (M[2*k][2*k]-M[2*k+1][2*k+1])/(2e0*s);
+      beta[k] = M[2*k][2*k+1]/s;
+      gamma[k] = -M[2*k+1][2*k]/s;
     }
   }
   GetNu(nu, M);
@@ -384,7 +385,7 @@ void LatticeType::Ring_GetTwiss(bool chroma, double dP)
 
   if (conf.trace) printf("enter Ring_GetTwiss\n");
   Ring_Twiss(chroma, dP);
-  conf.Alphac = conf.OneTurnMat(ct_, delta_)/elems[conf.Cell_nLoc]->S;
+  conf.Alphac = conf.OneTurnMat[ct_][delta_]/elems[conf.Cell_nLoc]->S;
   if (conf.trace) printf("exit Ring_GetTwiss\n");
 }
 
@@ -1558,6 +1559,8 @@ void Trac(LatticeType &lat, double x, double px, double y, double py, double dp,
 
 void LatticeType::print(void)
 {
+  int j, k;
+
   printf("\n***************************************************************"
 	 "***************\n");
   printf("\n");
@@ -1585,8 +1588,12 @@ void LatticeType::print(void)
 	   conf.Chrom[X_], conf.Chrom[Y_]);
   }
 
-  cout << scientific << setprecision(6) << setw(14);
-  conf.OneTurnMat.raw_print(cout, "\n  OneTurn matrix:\n");
+  printf("\n  OneTurn matrix:\n");
+  for (j = 0; j < ps_dim; j++) {
+    for (k = 0; k < ps_dim; k++)
+      printf("%14.6e", conf.OneTurnMat[j][k]);
+    printf("\n");
+  }
   fflush(stdout);
 }
 

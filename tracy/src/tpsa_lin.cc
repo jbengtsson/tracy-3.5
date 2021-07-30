@@ -174,6 +174,34 @@ ss_vect<tps> put_mat(const arma::mat &mat)
 }
 
 
+arma::mat stlmattomat(const std::vector< std::vector<double> > &stlmat)
+{
+  int       j, k;
+  arma::mat mat(nv_tps, nv_tps);
+
+  for (j = 0; j < (int)stlmat.size(); j++)
+    for (k = 0; k < (int)stlmat[0].size(); k++)
+      mat(j, k) = stlmat[j][k];
+  return mat;
+}
+
+
+std::vector< std::vector<double> > get_stlmat(const ss_vect<tps> &map)
+{
+  int                                j, k;
+  std::vector<double>                row;
+  std::vector< std::vector<double> > mat;
+
+  for (j = 0; j < nv_tps; j++) {
+    row.clear();
+    for (k = 0; k < nv_tps; k++)
+      row.push_back(get_m_ij(map, j+1, k+1));
+    mat.push_back(row);
+  }
+  return mat;
+}
+
+
 void dacop_(const std::vector<double> &x, std::vector<double> &z)
 {
   int i;

@@ -396,12 +396,12 @@ static void GetAinv(struct LOC_GDiag &LINK)
        none
 
 ****************************************************************************/
-static void GetEta(arma::mat &M, arma::vec &Eta, struct LOC_GDiag &LINK)
+static void GetEta(const arma::mat &M, arma::vec &Eta, struct LOC_GDiag &LINK)
 {
-  arma::mat I(tps_n, tps_n), IMinNInv(ps_tr_dim, ps_tr_dim);
+  arma::mat I(ps_dim, ps_dim), IMinNInv(ps_tr_dim, ps_tr_dim);
   arma::vec SmallM(ps_tr_dim);
 
-  I.eye(tps_n, tps_n);
+  I.eye(ps_dim, ps_dim);
   IMinNInv = I - M;
   IMinNInv =
     inv(IMinNInv(arma::span(0, ps_tr_dim-1), arma::span(0, ps_tr_dim-1)));
@@ -494,8 +494,8 @@ void GenB(arma::mat &B, arma::mat &BInv, arma::vec &Eta,
 
 ****************************************************************************/
 void LatticeType::GDiag(int n_, double C, arma::mat &A, arma::mat &Ainv_,
-			arma::mat &R, arma::mat &M, double &Omega,
-			double &alphac)
+			arma::mat &R, std::vector< std::vector<double> > &M,
+			double &Omega, double &alphac)
 {
   struct LOC_GDiag V;
   int              j;
@@ -503,8 +503,10 @@ void LatticeType::GDiag(int n_, double C, arma::mat &A, arma::mat &Ainv_,
   arma::vec        wr(ps_dim), wi(ps_dim), eta(ps_dim);
   arma::mat        fm(ps_dim, ps_dim), B(ps_dim, ps_dim), Binv(ps_dim, ps_dim);
 
+  const arma::mat M_arma = stlmattomat(M);
+
   V.n = n_; V.Ainv = Ainv_; InitJJ(V);
-  fm = M(arma::span(0, V.n-1), arma::span(0, V.n-1));
+  fm = M_arma;
   fm = trans(fm);  /* fm <- transpose(fm) */
   /* look for eigenvalues and eigenvectors of fm */
   stable = geigen(V.n, fm, V.Vre, V.Vim, wr, wi);
@@ -515,7 +517,7 @@ void LatticeType::GDiag(int n_, double C, arma::mat &A, arma::mat &Ainv_,
       conf.alpha_rad[j-1] = log(sqrt(x1*x2));
     }
 
-  fm = M;
+  fm = M_arma;
   stable = geigen(V.n, fm, this->conf.Vr, this->conf.Vi, wr, wi);
 
   V.Ainv.eye(ps_dim, ps_dim);
@@ -524,14 +526,14 @@ void LatticeType::GDiag(int n_, double C, arma::mat &A, arma::mat &Ainv_,
   A(arma::span(0, ps_dim-1), arma::span(0, ps_dim-1)) = V.Ainv;
   A = inv(A);
   if (V.n == ps_tr_dim) {
-    GetEta(M, eta, V); GenB(B, Binv, eta, V);
+    GetEta(M_arma, eta, V); GenB(B, Binv, eta, V);
     A(arma::span(0, ps_dim-1), arma::span(0, ps_dim-1)) =
       B*A(arma::span(0, ps_dim-1), arma::span(0, ps_dim-1));
     Binv = V.Ainv*Binv;
     V.Ainv = Binv;
   }
-  R = A;
-  R = M*R;
+  R = A(arma::span(0, ps_dim-1), arma::span(0, ps_dim-1));
+  R = M_arma*R;
   R(arma::span(0, ps_dim-1), arma::span(0, ps_dim-1)) =
     V.Ainv*R(arma::span(0, ps_dim-1), arma::span(0, ps_dim-1));
   if (V.n == ps_tr_dim) {

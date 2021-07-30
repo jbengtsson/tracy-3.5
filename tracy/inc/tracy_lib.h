@@ -39,7 +39,7 @@
 
 #include <gsl/gsl_linalg.h>
 // Must be defined before armadillo.
-#include <carma>
+// #include <carma>
 #include <armadillo>
 
 #include <vector>

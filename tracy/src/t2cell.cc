@@ -187,7 +187,7 @@ bool LatticeType::Cell_getCOD(long imax, double eps, double dP, long &lastpos)
   conf.codflag = dxabs < eps;
 
   if (conf.codflag) {
-    conf.CODvect = pstostlvec(x0); conf.OneTurnMat = get_mat(map);
+    conf.CODvect = pstostlvec(x0); conf.OneTurnMat = get_stlmat(map);
     Cell_Pass(0, conf.Cell_nLoc, x0, lastpos);
   } else {
     std::cout << std::scientific << std::setprecision(5)

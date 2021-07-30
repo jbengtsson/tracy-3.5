@@ -68,7 +68,7 @@ bool orb_corr(LatticeType &lat, const int n_orbit)
   long   lastpos;
   double xmean[2], xsigma[2], xmax[2];
 
-  lat.conf.CODvect.zeros();
+  lat.conf.CODvect.assign(lat.conf.CODvect.size(), 0e0);
   for (i = 1; i <= n_orbit; i++) {
     cod = lat.getcod(0e0, lastpos);
     if (cod) {
@@ -244,7 +244,7 @@ void get_lat(const string &file_name, LatticeType &lat)
   const string str = file_name;
 
   lat.conf.trace        = false;
-  lat.conf.reverse_elem = !false;
+  lat.conf.reverse_elem = true;
   lat.conf.mat_meth     = !false;
 
   lat.conf.H_exact    = false; lat.conf.quad_fringe = false;

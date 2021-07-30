@@ -13,11 +13,11 @@
 const char beam_envelope_file[] = "beam_envelope";
 
 
-void GetNu(std::vector<double> &nu, arma::mat &M);
+void GetNu(std::vector<double> &nu, std::vector< std::vector<double> > &M);
 
-bool Cell_GetABGN(arma::mat &M, std::vector<double> &alpha,
-		  std::vector<double> &beta, std::vector<double> &gamma,
-		  std::vector<double> &nu);
+bool Cell_GetABGN(std::vector< std::vector<double> > &M,
+		  std::vector<double> &alpha, std::vector<double> &beta,
+		  std::vector<double> &gamma, std::vector<double> &nu);
 
 void Cell_Geteta(long i0, long i1, bool ring, double dP);
 

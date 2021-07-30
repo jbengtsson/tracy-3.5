@@ -52,16 +52,18 @@ LIBS	 = -L$(TRACY_LIB)/tracy/lib -ltracy \
            -lstdc++ \
            -L/usr/local/Cellar/gsl/2.7/lib \
            -lgsl \
-           -L/usr/local/Cellar/armadillo/10.5.2/lib \
+           -L/usr/local/Cellar/armadillo/10.6.1/lib \
            -larmadillo
 
 # C Preprocessor flags.
 AM_CPPFLAGS = -I$(TRACY_LIB)/tracy/inc -I$(NUM_REC)/inc \
               -I/usr/local/Cellar/gsl/2.7/include \
-              -I/usr/local/Cellar/armadillo/10.5.2/include \
+              -I/usr/local/Cellar/armadillo/10.6.1/include \
               -I/usr/local/Cellar/pybind11/2.6.2/include \
-              -I/usr/local/Cellar/python@3.9/3.9.5/Frameworks/Python.framework/Versions/3.9/include/python3.9
+              -I/usr/local/Cellar/python@3.9/3.9.5/Frameworks/Python.framework/Versions/3.9/include/python3.9 \
+              -I/usr/local/carma/include \
+              -I/usr/local/Cellar/numpy/1.21.1/lib/python3.9/site-packages/numpy/core/include
 
 # C++ flags.
-AM_CXXFLAGS = -g -O0 -Wall -Wno-error=all -std=c++11 \
+AM_CXXFLAGS = -g -O0 -Wall -Wno-error=all -std=c++14 \
               -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC
