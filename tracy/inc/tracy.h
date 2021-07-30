@@ -230,13 +230,13 @@ class ConfigType {
     epsp{0e0, 0e0, 0e0},          // Trans. & Long. projected emittances.
     CODvect{0e0, 0e0, 0e0, 0e0, 0e0, 0e0}; // Closed orbit.
   std::vector< std::vector<double> >
-  OneTurnMat
-    { {0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
-      {0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
-      {0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
-      {0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
-      {0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
-      {0e0, 0e0, 0e0, 0e0, 0e0, 0e0} };
+    OneTurnMat
+      { {0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+	{0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+	{0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+	{0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+	{0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+	{0e0, 0e0, 0e0, 0e0, 0e0, 0e0} };
   arma::vec
     wr = arma::vec(tps_n),
     wi = arma::vec(tps_n);        // Eigenvalues: Re & Im part.
