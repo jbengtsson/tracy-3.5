@@ -271,12 +271,12 @@ void codstat(LatticeType &lat, double mean[], double sigma[], double xmax[],
 	     const long lastpos, const bool all,
 	     const std::vector<long int> &bpms)
 {
-  long    i, n, loc;
-  int     j;
-  Vector2 sum, sum2;
+  long                i, n, loc;
+  int                 j;
+  std::vector<double> sum, sum2;
 
   for (j = 0; j < 2; j++) {
-    sum[j] = 0e0; sum2[j] = 0e0; xmax[j] = 0e0;
+    sum.push_back(0e0); sum2.push_back = 0e0; xmax[j] = 0e0;
   }
 
   n = 0;
@@ -344,11 +344,22 @@ void thread_beam(LatticeType &lat, const int n_cell, const string &Fam_name,
   // Thread beam one super period at the time.
   // Assumes a marker at entrance, center, and exit of each super period.
 
-  long int              lastpos, i0, i1;
-  int                   i, j, Fnum;
-  Vector2               mean, sigma, max;
-  ss_vect<double>       ps;
-  orb_corr_type         orb_corr[2];
+  long int
+    lastpos,
+    i0,
+    i1;
+  int
+    i,
+    j,
+    Fnum;
+  std::vector<double>
+    mean  = {0.0, 0.0},
+    sigma = {0.0, 0.0},
+    max   = {0.0, 0.0};
+  ss_vect<double>
+    ps;
+  orb_corr_type
+    orb_corr[2];
   std::vector<long int> bpms;
 
   const double eps = 1e-4;
@@ -403,10 +414,16 @@ void thread_beam(LatticeType &lat, const int n_cell, const string &Fam_name,
 bool cod_correct(LatticeType &lat, const int n_orbit, const double scl,
 		 orb_corr_type orb_corr[])
 {
-  bool     cod = false;
-  long int lastpos;
-  int      j;
-  Vector2  mean, sigma, max;
+  bool
+    cod = false;
+  long int
+    lastpos;
+  int
+    j;
+  std::vector<double>
+    mean = {0.0, 0.0},
+    sigma = {0.0, 0.0},
+    max = {0.0, 0.0};
 
   if (trace) printf("cod_correct:\n");
 

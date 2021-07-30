@@ -1,5 +1,6 @@
-#include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include <pybind11/pybind11.h>
+#include <pybind11/numpy.h>
 
 #include "tracy_lib.h"
 
@@ -121,6 +122,7 @@ PYBIND11_MODULE(libtracy, scsi) {
       .def_readwrite("D_IBS",          &ConfigType::D_IBS)
       .def_readwrite("eps",            &ConfigType::eps)
       .def_readwrite("epsp",           &ConfigType::epsp)
+      .def_readwrite("CODvect",        &ConfigType::CODvect)
       // arma::vec
       // arma::mat
 
@@ -201,6 +203,7 @@ PYBIND11_MODULE(libtracy, scsi) {
       .def("prtmfile",      &LatticeType::prtmfile)
       .def("rdmfile",       &LatticeType::rdmfile)
 
+      .def("getcod",        &LatticeType::getcod)
       .def("Ring_GetTwiss", &LatticeType::Ring_GetTwiss)
 
       .def("ChamberOff",    &LatticeType::ChamberOff)

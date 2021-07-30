@@ -214,14 +214,16 @@ void DA_data_type::get_DA_real(LatticeType &lat, param_data_type &params,
   char     fname[30];
 
   fitvect  qfbuf, qdbuf;
-  iVector2 nq;
-  Vector2  nu;
+  std::vector<int>
+    nq = {0, 0},
+    ns = {0, 0};
+  std::vector<double>
+    nu = {0.0, 0.0},
+    si = {0.0, 0.0};
   double   dk;
   double   TotalTuneX,TotalTuneY;
 
   fitvect  sfbuf, sdbuf;
-  iVector2 ns;
-  Vector2  si;
   double   dks;
   double   ChromaX, ChromaY;
 

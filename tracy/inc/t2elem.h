@@ -18,10 +18,10 @@ void getelem(long i, CellType *cellrec);
 void putelem(long i, CellType *cellrec);
 
 template<typename T>
-void GtoL(ss_vect<T> &X, Vector2 &S, Vector2 &R,
+void GtoL(ss_vect<T> &X, std::vector<double> &S, std::vector<double> &R,
 	  const double c0, const double c1, const double s1);
 template<typename T>
-void LtoG(ss_vect<T> &X, Vector2 &S, Vector2 &R,
+void LtoG(ss_vect<T> &X, std::vector<double> &S, std::vector<double> &R,
 	  double c0, double c1, double s1);
 template<typename T>
 void p_rot(ConfigType &conf, double phi, ss_vect<T> &x);

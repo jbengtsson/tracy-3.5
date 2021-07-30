@@ -137,7 +137,7 @@ void splin2_(const double x1a[], const double x2a[], double **ya, double **y2a,
 
 
 template<typename T>
-void GtoL(ss_vect<T> &ps, Vector2 &S, Vector2 &R,
+void GtoL(ss_vect<T> &ps, std::vector<double> &S, std::vector<double> &R,
 	  const double c0, const double c1, const double s1)
 {
   ss_vect<T> ps1;
@@ -160,7 +160,7 @@ void GtoL(ss_vect<T> &ps, Vector2 &S, Vector2 &R,
 
 
 template<typename T>
-void LtoG(ss_vect<T> &ps, Vector2 &S, Vector2 &R,
+void LtoG(ss_vect<T> &ps, std::vector<double> &S, std::vector<double> &R,
 	  double c0, double c1, double s1)
 {
   ss_vect<T> ps1;
@@ -213,7 +213,7 @@ template<>
 class is_tps<double> {
  public:
   static inline void get_ps(const ss_vect<double> &x, CellType *Cell)
-  { Cell->BeamPos = x; }
+  { Cell->BeamPos = pstostlvec(x); }
 
   static inline double set_prm(const int k) { return 1e0; }
 
@@ -246,7 +246,7 @@ template<>
 class is_tps<tps> {
  public:
   static inline void get_ps(const ss_vect<tps> &x, CellType *Cell)
-  { Cell->BeamPos = x.cst(); Cell->A = get_mat(x); }
+  { Cell->BeamPos = pstostlvec(x.cst()); Cell->A = get_mat(x); }
 
   static inline tps set_prm(const int k) { return tps(0e0, k); }
 

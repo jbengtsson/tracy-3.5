@@ -39,7 +39,7 @@ void LatticeType::PrintCh(void)
 }
 
 
-void GetNu(Vector2 &nu, arma::mat &M)
+void GetNu(std::vector<double> &nu, arma::mat &M)
 {
   /* Not assuming mid-plane symmetry, the charachteristic polynomial for a
      symplectic periodic matrix is given by
@@ -128,8 +128,9 @@ void GetNu(Vector2 &nu, arma::mat &M)
 }
 
 
-bool Cell_GetABGN(arma::mat &M, Vector2 &alpha, Vector2 &beta, Vector2 &gamma,
-		  Vector2 &nu)
+bool Cell_GetABGN(arma::mat &M, std::vector<double> &alpha,
+		  std::vector<double> &beta, std::vector<double> &gamma,
+		  std::vector<double> &nu)
 {
   bool   stable;
   int    k;
@@ -190,7 +191,8 @@ void LatticeType::Cell_Geteta(long i0, long i1, bool ring, double dP)
 }
 
 
-void getprm(arma::mat &Ascr, Vector2 &alpha, Vector2 &beta)
+void getprm(arma::mat &Ascr, std::vector<double> &alpha,
+	    std::vector<double> &beta)
 {
   int k;
 
@@ -221,23 +223,23 @@ void dagetprm(ss_vect<tps> &Ascr, std::vector<double> &alpha,
 void LatticeType::Cell_Twiss(long i0, long i1, ss_vect<tps> &Ascr, bool chroma,
 			     bool ring, double dP)
 {
-  long int     i;
-  int          k;
-  Vector2      nu1, dnu;
-  ss_vect<tps> Ascr0, Ascr1;
-  ElemType     *elemp;
+  long int            i;
+  int                 k;
+  std::vector<double> nu1, dnu;
+  ss_vect<tps>        Ascr0, Ascr1;
+  ElemType            *elemp;
 
   const int n = 4;
 
   for (k = 0; k < 2; k++) {
-    nu1[k] = 0e0; dnu[k] = 0e0; 
+    nu1.push_back(0e0); dnu.push_back(0e0); 
   }
 
   if (conf.radiation) conf.dE = 0e0;
 
   elemp = elems[i0];
   dagetprm(Ascr, elemp->Alpha, elemp->Beta);
-  memcpy(elemp->Nu, nu1, sizeof(Vector2));
+  elemp->Nu = nu1;
 
   Ascr0 = Ascr;
   for (k = 0; k < n+2; k++)
@@ -287,10 +289,16 @@ void LatticeType::Cell_Twiss(long i0, long i1, ss_vect<tps> &Ascr, bool chroma,
 
 void LatticeType::Ring_Getchrom(double dP)
 {
-  long int lastpos;
-  int      k;
-  Vector2  alpha = {0.0, 0.0}, beta = {0.0, 0.0}, gamma = {0.0, 0.0};
-  Vector2     nu = {0.0, 0.0},  nu0 = {0.0, 0.0};
+  long int
+    lastpos;
+  int
+    k;
+  std::vector<double>
+    alpha = {0.0, 0.0},
+    beta  = {0.0, 0.0},
+    gamma = {0.0, 0.0},
+    nu    = {0.0, 0.0},
+    nu0   = {0.0, 0.0};
   
   if (dP != 0e0)
     printf("\nRing_Getchrom: linear chromaticity for delta = %e\n", dP);
@@ -328,8 +336,11 @@ void LatticeType::Ring_Twiss(bool chroma, double dP)
 {
   long int     lastpos = 0;
   int          k, n = 0;
-  Vector2      alpha = {0.0, 0.0}, beta = {0.0, 0.0},
-               gamma = {0.0, 0.0}, nu = {0.0, 0.0};
+  std::vector<double>
+    alpha = {0.0, 0.0},
+    beta  = {0.0, 0.0},
+    gamma = {0.0, 0.0},
+    nu    = {0.0, 0.0};
   arma::mat    R(tps_n, tps_n);
   ss_vect<tps> AScr;
 
@@ -378,9 +389,10 @@ void LatticeType::Ring_GetTwiss(bool chroma, double dP)
 }
 
 
-void LatticeType::TraceABN(long i0, long i1, const Vector2 &alpha,
-			   const Vector2 &beta, const Vector2 &eta,
-			   const Vector2 &etap, const double dP)
+void LatticeType::TraceABN(long i0, long i1, const std::vector<double> &alpha,
+			   const std::vector<double> &beta,
+			   const std::vector<double> &eta,
+			   const std::vector<double> &etap, const double dP)
 {
   long          i, j;
   double        sb;
@@ -409,8 +421,10 @@ void LatticeType::TraceABN(long i0, long i1, const Vector2 &alpha,
 }
 
 
-void LatticeType::ttwiss(const Vector2 &alpha, const Vector2 &beta,
-			 const Vector2 &eta, const Vector2 &etap,
+void LatticeType::ttwiss(const std::vector<double> &alpha,
+			 const std::vector<double> &beta,
+			 const std::vector<double> &eta,
+			 const std::vector<double> &etap,
 			 const double dP)
 {
   TraceABN(0, conf.Cell_nLoc, alpha, beta, eta, etap, dP);
@@ -1086,15 +1100,24 @@ void LatticeType::checkifstable(struct LOC_Ring_Fittune *LINK)
 }
 
 
-void LatticeType::Ring_Fittune(Vector2 &nu, double eps, iVector2 &nq, long qf[],
+void LatticeType::Ring_Fittune(std::vector<double> &nu, double eps,
+			       std::vector<int> &nq, long qf[],
 			       long qd[], double dkL, long imax)
 {
   struct LOC_Ring_Fittune V;
 
-  int             i, j, k;
-  Vector2         nu0, nu1;
-  ss_vect<double> dkL1, dnu;
-  arma::mat       A(tps_n, tps_n);
+  int
+    i,
+    j,
+    k;
+  std::vector<double>
+    nu0 = {0.0, 0.0},
+    nu1 = {0.0, 0.0};
+  ss_vect<double>
+    dkL1,
+    dnu;
+  arma::mat
+    A(tps_n, tps_n);
 
   const double dP = 0e0;
 
@@ -1104,7 +1127,7 @@ void LatticeType::Ring_Fittune(Vector2 &nu, double eps, iVector2 &nq, long qf[],
     printf("  Tune fit, nux =%10.5f, nuy =%10.5f, eps =% .3E,"
 	   " imax =%4ld, dkL = % .5E\n", nu[0], nu[1], eps, imax, dkL);
   Ring_GetTwiss(false, dP); checkifstable(&V);
-  memcpy(nu0, conf.TotalTune, sizeof(Vector2));
+  nu0 = conf.TotalTune;
   i = 0;
   do {
     i++;
@@ -1153,7 +1176,7 @@ void LatticeType::Ring_Fittune(Vector2 &nu, double eps, iVector2 &nq, long qf[],
       }
     }
     Ring_GetTwiss(false, dP); checkifstable(&V);
-    memcpy(nu0, conf.TotalTune, sizeof(Vector2));
+    nu0 = conf.TotalTune;
     if (trace)
       printf("  Nux = %10.6f%10.6f, Nuy = %10.6f%10.6f,"
 	     " QF*L = % .5E, QD*L = % .5E @%3d\n",
@@ -1176,15 +1199,16 @@ void LatticeType::shiftkp(long Elnum, double dkp)
 }
 
 
-void LatticeType::Ring_Fitchrom(Vector2 &ksi, double eps, iVector2 &ns,
-				long sf[], long sd[], double dkpL, long imax)
+void LatticeType::Ring_Fitchrom(std::vector<double> &ksi, double eps,
+				std::vector<int> &ns, long sf[], long sd[],
+				double dkpL, long imax)
 {
-  bool            rad;
-  long int        lastpos;
-  int             i, j, k;
-  Vector2         ksi0;
-  ss_vect<double> dkpL1, dksi;
-  arma::mat       A(tps_n, tps_n);
+  bool                rad;
+  long int            lastpos;
+  int                 i, j, k;
+  std::vector<double> ksi0 = {0.0, 0.0};
+  ss_vect<double>     dkpL1, dksi;
+  arma::mat           A(tps_n, tps_n);
 
   const double dP = 0e0;
 
@@ -1348,7 +1372,7 @@ void findcod(LatticeType &lat, double dP)
   if (lat.conf.codflag == false)
     fprintf(stdout, "Error No COD found\n");
   
-  lat.conf.CODvect = pstovec(vcod); // save closed orbit at the ring entrance
+  lat.conf.CODvect = pstostlvec(vcod); // save closed orbit at the ring entrance
 
   if (lat.conf.trace) {
     fprintf(stdout,
@@ -1571,15 +1595,15 @@ void LatticeType::GetEmittance(const int Fnum, const bool prt)
 {
   // A. Chao "Evaluation of Beam Distribution Parameters in an Electron
   // Storage Ring" J. Appl. Phys 50 (2), 595-598.
-  bool         emit, rad, cav, path;
-  int          i, j, h_RF;
-  long int     lastpos, loc;
-  double       C, theta, V_RF, phi0, gamma_z;
-  double       sigma_s, sigma_delta;
-  Vector3      nu;
-  arma::mat    Ascr(tps_n, tps_n);
-  ss_vect<tps> Ascr_map;
-  CavityType   *Cp;
+  bool                emit, rad, cav, path;
+  int                 i, j, h_RF;
+  long int            lastpos, loc;
+  double              C, theta, V_RF, phi0, gamma_z;
+  double              sigma_s, sigma_delta;
+  std::vector<double> nu = {0.0, 0.0, 0.0};
+  arma::mat           Ascr(tps_n, tps_n);
+  ss_vect<tps>        Ascr_map;
+  CavityType          *Cp;
 
   // save state
   rad = conf.radiation; emit = conf.emittance;
@@ -1920,7 +1944,7 @@ void dynap(FILE *fp, LatticeType &lat, double r, const double delta,
   if (cod)
     lat.getcod(delta, lastpos);
   else
-    lat.conf.CODvect.zeros();
+    lat.conf.CODvect.assign(lat.conf.CODvect.size(), 0e0);
   if (floqs) {
     lat.Ring_GetTwiss(false, delta);
     if (print) {

@@ -52,8 +52,14 @@ def get_lat(file_name):
    
 def main(file_name):
     lat = get_lat(file_name)
+
     lat.Ring_GetTwiss(True, 0e-3); lat.print();
-    print('\nnu:', lat.conf.TotalTune)
+    print('\nnu: ', lat.conf.TotalTune)
+
+    lastpos = 0;
+    lat.getcod(1e-3, lastpos);
+    print('\nCod:', lat.conf.CODvect)
+
     print('\nPartsKind.Mpole:',
           scsi.PartsKind.Mpole.name, scsi.PartsKind.Mpole.value)
     if False:

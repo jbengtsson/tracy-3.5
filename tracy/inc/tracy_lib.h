@@ -38,6 +38,7 @@
 #include <algorithm>
 
 #include <gsl/gsl_linalg.h>
+// Must be defined before armadillo.
 #include <carma>
 #include <armadillo>
 

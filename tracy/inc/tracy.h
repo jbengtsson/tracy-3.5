@@ -50,22 +50,20 @@ extern double       chi_m;
 #define sgn(n)      ((n > 0) ? 1 : ((n < 0) ? -1 : 0)) 
 
 
-// Inline.
+// Inline functions.
 
 inline arma::vec pstovec(const ss_vect<double> ps)
-{
-  arma::vec ps_vec =
-    {ps[x_], ps[px_], ps[y_], ps[py_], ps[delta_], ps[ct_], 1e0};
-  return ps_vec;
-}
+{ return {ps[x_], ps[px_], ps[y_], ps[py_], ps[delta_], ps[ct_], 1e0}; }
 
 inline ss_vect<double> vectops(const arma::vec ps_vec)
 {
-  ss_vect<double>
-    ps(ps_vec[x_], ps_vec[px_], ps_vec[y_], ps_vec[py_], ps_vec[delta_],
-       ps_vec[ct_]);
+  ss_vect<double> ps(ps_vec[x_], ps_vec[px_], ps_vec[y_], ps_vec[py_],
+		     ps_vec[delta_], ps_vec[ct_]);
   return ps;
 }
+
+inline std::vector<double> pstostlvec(const ss_vect<double> ps)
+{ return{ps[x_], ps[px_], ps[y_], ps[py_], ps[delta_], ps[ct_]}; }
 
 
 #define HOMmax   21     // [a_n, b_n] <=> [-HOMmax..HOMmax].
@@ -89,11 +87,7 @@ const double  h_bar = 6.58211899e-16;           /* reduced Planck constant
 						   [eV s] */
 typedef char alfa_[NameLength];
 
-typedef long   iVector2[2];
-typedef double Vector2[2];
-typedef double Vector3[3];
-
-#define fitvectmax      200
+#define fitvectmax 200
 typedef long   fitvect[fitvectmax];
 
 extern double Fdrift1, Fkick1, Fdrift2, Fkick2, crad, cfluc;
@@ -222,7 +216,7 @@ class ConfigType {
     Alphac,                       // Linear Momentum Compaction.
     Energy,                       // Beam Energy.
     dE,                           // Energy Loss.
-    CODeps,                       //                      precision.
+    CODeps,                       // Closed Orbit precision.
     Qb,                           // Bunch Charge.
     alpha_z,                      // Long. alpha and beta.
     beta_z,
@@ -232,16 +226,16 @@ class ConfigType {
     TotalTune{0e0, 0e0, 0e0},     // Transverse Tunes.
     Chrom{0e0, 0e0},              // Linear Chromaticities.
     alpha_rad{0e0, 0e0, 0e0},     // Damping Coeffs.
-    D_rad{0e0, 0e0, 0e0},         // Diffusion Coeffs (Floquet Space).
+    D_rad{0e0, 0e0, 0e0},         // Diffusion Coeffs (Floquet space).
     J{0e0, 0e0, 0e0},             // Partition Numbers.
     tau{0e0, 0e0, 0e0},           // Damping Times.
-    D_IBS{0e0, 0e0, 0e0},         // Diffusion Matrix (Floquet Ipace).
+    D_IBS{0e0, 0e0, 0e0},         // Diffusion Matrix (Floquet space).
     eps{0e0, 0e0, 0e0},           // Eigenemittances.
-    epsp{0e0, 0e0, 0e0};          // Trans. & Long. projected Emittances.
+    epsp{0e0, 0e0, 0e0},          // Trans. & Long. projected Emittances.
+    CODvect{0e0, 0e0, 0e0, 0e0, 0e0, 0e0}; // Closed Orbit.
   arma::vec
-    CODvect = arma::vec(tps_n),   // Closed Orbit.
     wr = arma::vec(tps_n),
-    wi = arma::vec(tps_n);        // Eigenvalues: Real and Imaginary part.
+    wi = arma::vec(tps_n);        // Eigenvalues: Re & Im part.
   arma::mat
     OneTurnMat = arma::mat(tps_n, tps_n), // Linear Poincare Map.
     Ascr       = arma::mat(tps_n, tps_n),
@@ -262,23 +256,23 @@ class CellType {
   double
     S,                         // Position in the ring.
     curly_dH_x,                // Contribution to curly_H_x.
-    dI[6],                     // Contribution to I[1..5].
-    dS[2],                     // Transverse displacement.
-    dT[2],                     // dT = (cos(dT), sin(dT)).
-    Nu[2],                     // Twiss parameters (redundant).
     maxampl[2][2];             /* Horizontal and vertical physical apertures:
 				  maxampl[X_][0] < x < maxampl[X_][1]
 				  maxampl[Y_][0] < y < maxampl[Y_][1].        */
   std::vector<double>
-    Alpha{0e0, 0e0},
+    dI{0e0, 0e0, 0e0, 0e0, 0e0, 0e0}, // Contribution to I[1..5].
+    dS{0e0, 0e0},              // Transverse displacement.
+    dT{0e0, 0e0},              // dT = (cos(dT), sin(dT)).
+    Eta{0e0, 0e0},             // Eta & eta' (redundant).
+    Etap{0e0, 0e0},
+    Alpha{0e0, 0e0},           // Twiss parameters (redundant).
     Beta{0e0, 0e0},
-    Eta{0e0, 0e0},             // eta & derivative (redundant).
-    Etap{0e0, 0e0};
-  ss_vect<double>
-    BeamPos;                   // Last position of the beam this cell.
+    Nu{0e0, 0e0},
+    BeamPos{0e0, 0e0, 0e0, 0e0, 0e0, 0e0}; /* Last position of the beam this
+					      cell.                           */
   arma::mat
     A = arma::mat(tps_n, tps_n),     /* Floquet space to phase space
-					transformation. */
+					transformation.                       */
     sigma = arma::mat(tps_n, tps_n); // sigma matrix (redundant).
   CellType
     *next_ptr;                       // pointer to next cell (for tracking).
@@ -400,18 +394,20 @@ class LatticeType {
   void Cell_Twiss(long i0, long i1, ss_vect<tps> &Ascr, bool chroma, bool ring,
 		  double dp);
   void Cell_Twiss(const long int i0, const long int i1);
-  void TraceABN(long i0, long i1, const Vector2 &alpha, const Vector2 &beta,
-		const Vector2 &eta, const Vector2 &etap, const double dp);
-  void ttwiss(const Vector2 &alpha, const Vector2 &beta, const Vector2 &eta,
-	      const Vector2 &etap, const double dp);
+  void TraceABN(long i0, long i1, const std::vector<double> &alpha,
+		const std::vector<double> &beta, const std::vector<double> &eta,
+		const std::vector<double> &etap, const double dp);
+  void ttwiss(const std::vector<double> &alpha, const std::vector<double> &beta,
+	      const std::vector<double> &eta, const std::vector<double> &etap,
+	      const double dp);
   void Ring_Twiss(bool chroma, double dp);
   void Ring_GetTwiss(bool chroma, double dp);
   void Ring_Getchrom(double dp);
 
-  void Ring_Fittune(Vector2 &nu, double eps, iVector2 &nq, long qf[], long qd[],
-		    double dkL, long imax);
-  void Ring_Fitchrom(Vector2 &ksi, double eps, iVector2 &ns, long sf[],
-		     long sd[], double dkpL, long imax);
+  void Ring_Fittune(std::vector<double> &nu, double eps, std::vector<int> &nq,
+		    long qf[], long qd[], double dkL, long imax);
+  void Ring_Fitchrom(std::vector<double> &ksi, double eps, std::vector<int> &ns,
+		     long sf[], long sd[], double dkpL, long imax);
   void Ring_FitDisp(long pos, double eta, double eps, long nq, long q[],
 		    double dkL, long imax);
 

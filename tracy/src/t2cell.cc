@@ -187,9 +187,9 @@ bool LatticeType::Cell_getCOD(long imax, double eps, double dP, long &lastpos)
   conf.codflag = dxabs < eps;
 
   if (conf.codflag) {
-    conf.CODvect = pstovec(x0); conf.OneTurnMat = get_mat(map);
+    conf.CODvect = pstostlvec(x0); conf.OneTurnMat = get_mat(map);
     Cell_Pass(0, conf.Cell_nLoc, x0, lastpos);
-  } else
+  } else {
     std::cout << std::scientific << std::setprecision(5)
 	      << "\nCell_getCOD: failed to converge after " << n_iter
 	      << " iterations:\n"
@@ -198,10 +198,13 @@ bool LatticeType::Cell_getCOD(long imax, double eps, double dP, long &lastpos)
 	      << std::scientific << std::setprecision(5)
 	      << "  x_0   =" << std::setw(13) << x0 << "\n"
 	      << std::scientific << std::setprecision(5)
-	      << "  x_k-1 =" << std::setw(13) << elems[lastpos-1]->BeamPos
-	      << "\n"
+	      << "  x_k-1 =";
+    for (j = 0; j < (int)elems[lastpos-1]->BeamPos.size(); j++)
+      std::cout << std::setw(13) << elems[lastpos-1]->BeamPos[j];
+    std::cout << "\n"
 	      << std::scientific << std::setprecision(5)
 	      << "  x_k   =" << std::setw(13) << map.cst() << "\n";
+  }
 
   danot_(no);
   

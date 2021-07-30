@@ -13,10 +13,11 @@
 const char beam_envelope_file[] = "beam_envelope";
 
 
-void GetNu(Vector2 &nu, arma::mat &M);
+void GetNu(std::vector<double> &nu, arma::mat &M);
 
-bool Cell_GetABGN(arma::mat &M, Vector2 &alpha, Vector2 &beta, Vector2 &gamma,
-		  Vector2 &nu);
+bool Cell_GetABGN(arma::mat &M, std::vector<double> &alpha,
+		  std::vector<double> &beta, std::vector<double> &gamma,
+		  std::vector<double> &nu);
 
 void Cell_Geteta(long i0, long i1, bool ring, double dP);
 
@@ -27,14 +28,17 @@ void Ring_Getchrom(double dP);
 
 void Ring_GetTwiss(bool chroma, double dP);
 
-/* void Ring_Fittune(Vector2 &nu, double eps, iVector2 &nq, long qf[], long qd[], */
-/*                   double dkL, long imax); */
+#if 0
+void Ring_Fittune(std::vector<double> &nu, double eps, std::vector<int> &nq,
+		  long qf[], long qd[], double dkL, long imax);
 
-/* void Ring_Fitchrom(Vector2 &ksi, double eps, iVector2 &ns, */
-/* 		   long sf[], long sd[], double dkpL, long imax); */
+void Ring_Fitchrom(std::vector<double> &ksi, double eps,
+		   std::vector<> &ns, long sf[], long sd[], double dkpL,
+		   long imax);
 
-/* void Ring_FitDisp(long pos, double eta, double eps, long nq, long q[], */
-/*                   double dkL, long imax); */
+void Ring_FitDisp(long pos, double eta, double eps, long nq, long q[],
+		  double dkL, long imax);
+#endif
 
 void get_dI_eta_5(const int k, std::vector<ElemType*> Elem);
 
