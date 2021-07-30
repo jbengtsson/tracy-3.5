@@ -37,8 +37,9 @@
 #endif
 #include <algorithm>
 
-#include <armadillo>
 #include <gsl/gsl_linalg.h>
+#include <carma>
+#include <armadillo>
 
 #include <vector>
 
