@@ -123,6 +123,7 @@ PYBIND11_MODULE(libtracy, scsi) {
       .def_readwrite("eps",            &ConfigType::eps)
       .def_readwrite("epsp",           &ConfigType::epsp)
       .def_readwrite("CODvect",        &ConfigType::CODvect)
+      .def_readwrite("OneTurnMat",     &ConfigType::OneTurnMat)
       // arma::vec
       // arma::mat
 

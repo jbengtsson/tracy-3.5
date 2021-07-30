@@ -60,12 +60,17 @@ def main(file_name):
     lat.getcod(1e-3, lastpos);
     print('\nCod:', lat.conf.CODvect)
 
+    print('\nOneturm matrix:\n', lat.conf.OneTurnMat)
+
     print('\nPartsKind.Mpole:',
           scsi.PartsKind.Mpole.name, scsi.PartsKind.Mpole.value)
+
     if False:
         lat.prt_fams()
         lat.prt_elems()
+
     printf('\nHOMmax = %d\n', scsi.HOMmax)
+
     if False:
         prt_elems(scsi, lat)
     
