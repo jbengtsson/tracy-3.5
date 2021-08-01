@@ -205,10 +205,10 @@ PYBIND11_MODULE(libtracy, scsi) {
       .def("prtmfile",      &LatticeType::prtmfile)
       .def("rdmfile",       &LatticeType::rdmfile)
 
-      .def("prt_lat1",       &LatticeType::prt_lat1)
-      .def("prt_lat2",       &LatticeType::prt_lat2)
-      .def("prt_lat3",       &LatticeType::prt_lat3)
-      .def("prt_lat4",       &LatticeType::prt_lat4)
+      .def("prt_lat1",      &LatticeType::prt_lat1)
+      .def("prt_lat2",      &LatticeType::prt_lat2)
+      .def("prt_lat3",      &LatticeType::prt_lat3)
+      .def("prt_lat4",      &LatticeType::prt_lat4)
 
       .def("getcod",        &LatticeType::getcod)
       .def("Ring_GetTwiss", &LatticeType::Ring_GetTwiss)
