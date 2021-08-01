@@ -32,13 +32,17 @@ double get_m_ij(const ss_vect<tps> &map, const long int i,
 void put_m_ij(ss_vect<tps> &map, const long int i, const long int j,
 	      const double r);
 
-arma::mat get_mat(const ss_vect<tps> &map);
+ss_vect<tps> stlmattomap(const std::vector< std::vector<double> > &stlmat);
 
-ss_vect<tps> put_mat(const arma::mat &mat);
+std::vector< std::vector<double> > maptostlmat(const ss_vect<tps> &map);
+
+arma::mat maptomat(const ss_vect<tps> &map);
+
+ss_vect<tps> mattomap(const arma::mat &mat);
 
 arma::mat stlmattomat(const std::vector< std::vector<double> > &stlmat);
 
-std::vector< std::vector<double> > get_stlmat(const ss_vect<tps> &map);
+std::vector< std::vector<double> > mattostlmat(const arma::mat &mat);
 
 void dacop_(const std::vector<double> &x, std::vector<double> &z);
 

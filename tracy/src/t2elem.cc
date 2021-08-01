@@ -246,7 +246,7 @@ template<>
 class is_tps<tps> {
  public:
   static inline void get_ps(const ss_vect<tps> &x, CellType *Cell)
-  { Cell->BeamPos = pstostlvec(x.cst()); Cell->A = get_mat(x); }
+  { Cell->BeamPos = pstostlvec(x.cst()); Cell->A = maptostlmat(x); }
 
   static inline tps set_prm(const int k) { return tps(0e0, k); }
 
@@ -572,15 +572,10 @@ void quad_fringe(ConfigType &conf, const double b2, ss_vect<T> &ps)
 
 
 inline ss_vect<double> mat_pass(arma::mat &M, ss_vect<double> &ps)
-{
-  return vectops(M*pstovec(ps));
-}
-
+{ return vectops(M*pstovec(ps)); }
 
 inline ss_vect<tps> mat_pass(arma::mat &M, ss_vect<tps> &ps)
-{
-  return put_mat(M*get_mat(ps));
-}
+{ return mattomap(M*maptomat(ps)); }
 
 
 template<typename T>

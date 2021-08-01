@@ -9,10 +9,10 @@
 # define LONG_MIN       (~LONG_MAX)
 #endif
 
-#define S_SIZE          200  // max size for file name of a lattice file
+#define S_SIZE          200  // Max size for lattice file name.
 
-#define NameLength      150  // maximum length of identifiers (e.g. file names)
-#define SymbolLength    15   // maximum length of element name
+#define NameLength      150  // Max length of identifiers (e.g. file names).
+#define SymbolLength    15   // Max length of element name.
 
 #define blankname       "               "
 
@@ -60,14 +60,18 @@ inline ss_vect<double> vectops(const arma::vec ps_vec)
 inline std::vector<double> pstostlvec(const ss_vect<double> ps)
 { return{ps[x_], ps[px_], ps[y_], ps[py_], ps[delta_], ps[ct_]}; }
 
+inline ss_vect<double> stlvectops(const std::vector<double> &stlvec)
+{
+  ss_vect<double> ps(stlvec[x_], stlvec[px_], stlvec[y_], stlvec[py_],
+		     stlvec[delta_], stlvec[ct_]);
+  return ps;
+}
+
 
 #define HOMmax   21     // [a_n, b_n] <=> [-HOMmax..HOMmax].
 
 #define IDXMAX  200
 #define IDZMAX  100
-
-#define DOF     (ps_dim/2)
-#define nv_     6
 
 #define debug   false
 
@@ -231,18 +235,30 @@ class ConfigType {
     CODvect{0e0, 0e0, 0e0, 0e0, 0e0, 0e0}; // Closed orbit.
   std::vector< std::vector<double> >
     OneTurnMat
-      { {0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
-	{0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
-	{0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
-	{0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
-	{0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
-	{0e0, 0e0, 0e0, 0e0, 0e0, 0e0} };
+      {{0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+       {0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+       {0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+       {0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+       {0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+       {0e0, 0e0, 0e0, 0e0, 0e0, 0e0}},
+    Ascr
+      {{0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+       {0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+       {0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+       {0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+       {0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+       {0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0}},
+    Ascrinv
+      {{0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+       {0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+       {0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+       {0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+       {0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+       {0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0}};
   arma::vec
-    wr = arma::vec(tps_n),
-    wi = arma::vec(tps_n);        // Eigenvalues: Re & Im part.
+    wr = arma::vec(tps_n),        // Eigenvalues Re & Im part.
+    wi = arma::vec(tps_n);
   arma::mat
-    Ascr       = arma::mat(tps_n, tps_n),
-    Ascrinv    = arma::mat(tps_n, tps_n),
     Vr         = arma::mat(tps_n, tps_n), // Eigenvectors: Real part, 
     Vi         = arma::mat(tps_n, tps_n); //               Imaginary part.
 };
@@ -273,9 +289,15 @@ class CellType {
     Nu{0e0, 0e0},
     BeamPos{0e0, 0e0, 0e0, 0e0, 0e0, 0e0}; /* Last position of the beam this
 					      cell.                           */
+  std::vector< std::vector<double> >
+    A                          // Floquet space to phase space transformation.
+      {{0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+       {0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+       {0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+       {0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+       {0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+       {0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0}};
   arma::mat
-    A = arma::mat(tps_n, tps_n),     /* Floquet space to phase space
-					transformation.                       */
     sigma = arma::mat(tps_n, tps_n); // sigma matrix (redundant).
   CellType
     *next_ptr;                       // pointer to next cell (for tracking).
@@ -423,12 +445,12 @@ class LatticeType {
 
   friend void get_dI_eta_5(const int k, ElemType *Elem[]);
 
-  void prt_lat(const int loc1, const int loc2, const char *fname,
-	       const bool all);
-  void prt_lat(const char *fname, const bool all);
-  void prt_lat(const int loc1, const int loc2, const char *fname,
-	       const bool all, const int n);
-  void prt_lat(const char *fname, const bool all, const int n);
+  void prt_lat1(const int loc1, const int loc2, const std::string &fname,
+		const bool all);
+  void prt_lat2(const std::string &fname, const bool all);
+  void prt_lat3(const int loc1, const int loc2, const std::string &fname,
+		const bool all, const int n);
+  void prt_lat4(const std::string &fname, const bool all, const int n);
   void prt_chrom_lat(void);
   void prt_cod(const char *file_name, const bool all);
   void prt_beampos(const char *file_name);

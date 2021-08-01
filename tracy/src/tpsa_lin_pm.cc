@@ -122,8 +122,7 @@ tps::tps(const tps &x) {
   dacop_(x.ltps, ltps);
 }
 
-tps::~tps(void)
-{ dadal_(ltps, 1); }
+tps::~tps(void) { dadal_(ltps, 1); }
 
 
 double tps::operator[](const int k) const
@@ -147,39 +146,29 @@ double tps::operator[](const long int jj[]) const
   return(r);
 }
 
-void tps::pook(const long int jj[], const double r)
-{ dapok_(ltps, jj, r); }
+void tps::pook(const long int jj[], const double r) { dapok_(ltps, jj, r); }
 
-tps& tps::operator=(const double r)
-{ dacon_(ltps, r); return *this; }
+tps& tps::operator=(const double r) { dacon_(ltps, r); return *this; }
 
-tps& tps::operator+=(const double x)
-{ dacad_(ltps, x, ltps); return *this; }
+tps& tps::operator+=(const double x) { dacad_(ltps, x, ltps); return *this; }
 
-tps& tps::operator-=(const double x)
-{ dacad_(ltps, -x, ltps); return *this; }
+tps& tps::operator-=(const double x) { dacad_(ltps, -x, ltps); return *this; }
 
-tps& tps::operator*=(const double x)
-{ dacmu_(ltps, x, ltps); return *this; }
+tps& tps::operator*=(const double x) { dacmu_(ltps, x, ltps); return *this; }
 
 tps& tps::operator/=(const double x)
 { dacmu_(ltps, 1.0/x, ltps); return *this; }
 
 
-tps& tps::operator=(const tps &x)
-{ dacop_(x.ltps, ltps); return *this; }
+tps& tps::operator=(const tps &x) { dacop_(x.ltps, ltps); return *this; }
 
-tps& tps::operator+=(const tps &x)
-{ daadd_(ltps, x.ltps, ltps); return *this; }
+tps& tps::operator+=(const tps &x) { daadd_(ltps, x.ltps, ltps); return *this; }
 
-tps& tps::operator-=(const tps &x)
-{ dasub_(ltps, x.ltps, ltps); return *this; }
+tps& tps::operator-=(const tps &x) { dasub_(ltps, x.ltps, ltps); return *this; }
 
-tps& tps::operator*=(const tps &x)
-{ damul_(ltps, x.ltps, ltps); return *this; }
+tps& tps::operator*=(const tps &x) { damul_(ltps, x.ltps, ltps); return *this; }
 
-tps& tps::operator/=(const tps &x)
-{ dadiv_(ltps, x.ltps, ltps); return *this; }
+tps& tps::operator/=(const tps &x) { dadiv_(ltps, x.ltps, ltps); return *this; }
 
 
 tps sqrt(const tps &a)

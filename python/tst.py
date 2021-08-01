@@ -8,6 +8,12 @@ import libtracy as scsi
 
 def printf(format, *args): sys.stdout.write(format % args); sys.stdout.flush()
 
+def prt_mat(mat):
+    for x in mat:
+        for i, y in enumerate(x):
+            printf('%14.6e', y)
+        print('')
+
 def prt_elems(scsi, lat):
     printf('\n')
     for k in range(0, lat.conf.Cell_nLoc+1):
@@ -56,11 +62,15 @@ def main(file_name):
     lat.Ring_GetTwiss(True, 0e-3); lat.print();
     print('\nnu: ', lat.conf.TotalTune)
 
+    print('\nLinear Poincare map:')
+    prt_mat(lat.conf.OneTurnMat)
+
+    print('\nA:')
+    prt_mat(lat.conf.Ascr)
+
     lastpos = 0;
     lat.getcod(1e-3, lastpos);
     print('\nCod:', lat.conf.CODvect)
-
-    print('\nOneturm matrix:\n', lat.conf.OneTurnMat)
 
     print('\nPartsKind.Mpole:',
           scsi.PartsKind.Mpole.name, scsi.PartsKind.Mpole.value)
@@ -74,7 +84,9 @@ def main(file_name):
     if False:
         prt_elems(scsi, lat)
     
-    return lat
+    lat.prt_lat2('"linlat1.out', True);
+    lat.prt_lat4('linlat.out', True, 10);
+#    lat.prtmfile('flat_file.dat');
 
 
 lat_dir = os.getenv('LAT')
@@ -83,4 +95,4 @@ if not True:
 else:
     file_name = lat_dir+'/DIAMOND-II/vmx_symopt_Qx205_Qy364'
 
-lat = main(file_name)
+main(file_name)

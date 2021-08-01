@@ -49,7 +49,7 @@ void LatticeType::Cell_Pass(const long i0, const long i1, ss_vect<T> &ps,
   if (conf.radiation) conf.dE = 0e0;
 
   if (conf.emittance)
-    for (i = 0; i < DOF; i++)
+    for (i = 0; i < ps_dim/2; i++)
       conf.D_rad[i] = 0e0;
 
   if (!elems[i0]->CheckAmpl(conf, ps))
@@ -108,7 +108,7 @@ void LatticeType::Cell_Pass(const long i0, const long i1, tps &sigma,
 	jj[3][y_]  = 2; jj[4][y_]  = 1; jj[4][py_]    = 1; jj[5][py_]    = 2;
 	jj[6][ct_] = 2; jj[7][ct_] = 1; jj[7][delta_] = 1; jj[8][delta_] = 2;
 
-	A = put_mat(conf.Ascr); sigma = sigma*A;
+	A = stlmattomap(conf.Ascr); sigma = sigma*A;
 
 	for (i = 0; i < 3; i++) {
 	  if (conf.eps[i] > deps) {

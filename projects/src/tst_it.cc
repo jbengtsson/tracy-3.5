@@ -179,8 +179,8 @@ void tst_ss_vect(LatticeType &lat)
     Id.identity();
     prt_lin_map(3, Id);
     cout << scientific << setprecision(3) << setw(11);
-    get_mat(Id).raw_print(cout, " ");
-    prt_lin_map(3, put_mat(get_mat(Id)));
+    maptomat(Id).raw_print(cout, " ");
+    prt_lin_map(3, mattomap(maptomat(Id)));
   }
 }
 

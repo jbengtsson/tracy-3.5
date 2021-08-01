@@ -124,6 +124,7 @@ PYBIND11_MODULE(libtracy, scsi) {
       .def_readwrite("epsp",           &ConfigType::epsp)
       .def_readwrite("CODvect",        &ConfigType::CODvect)
       .def_readwrite("OneTurnMat",     &ConfigType::OneTurnMat)
+      .def_readwrite("Ascr",           &ConfigType::Ascr)
       // arma::vec
       // arma::mat
 
@@ -203,6 +204,11 @@ PYBIND11_MODULE(libtracy, scsi) {
       .def("Lat_Read_py",   &LatticeType::Lat_Read_py)
       .def("prtmfile",      &LatticeType::prtmfile)
       .def("rdmfile",       &LatticeType::rdmfile)
+
+      .def("prt_lat1",       &LatticeType::prt_lat1)
+      .def("prt_lat2",       &LatticeType::prt_lat2)
+      .def("prt_lat3",       &LatticeType::prt_lat3)
+      .def("prt_lat4",       &LatticeType::prt_lat4)
 
       .def("getcod",        &LatticeType::getcod)
       .def("Ring_GetTwiss", &LatticeType::Ring_GetTwiss)

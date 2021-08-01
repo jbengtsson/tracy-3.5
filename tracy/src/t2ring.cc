@@ -335,15 +335,18 @@ void LatticeType::Ring_Getchrom(double dP)
 
 void LatticeType::Ring_Twiss(bool chroma, double dP)
 {
-  long int     lastpos = 0;
-  int          k, n = 0;
+  long int
+    lastpos = 0;
+  int
+    k,
+    n = 0;
   std::vector<double>
     alpha = {0.0, 0.0},
     beta  = {0.0, 0.0},
     gamma = {0.0, 0.0},
     nu    = {0.0, 0.0};
-  arma::mat    R(tps_n, tps_n);
-  ss_vect<tps> AScr;
+  arma::mat    R(tps_n, tps_n), Amat(tps_n, tps_n), Ainvmat(tps_n, tps_n);
+  ss_vect<tps> Ascr;
 
   n = (conf.Cavity_on)? 6 : 4;
 
@@ -358,17 +361,19 @@ void LatticeType::Ring_Twiss(bool chroma, double dP)
     return;
   }
   // Get eigenvalues and eigenvectors for the one turn transfer matrix
-  GDiag(n, elems[conf.Cell_nLoc]->S, conf.Ascr, conf.Ascrinv, R,
+  GDiag(n, elems[conf.Cell_nLoc]->S, Amat, Ainvmat, R,
 	conf.OneTurnMat, conf.Omega, conf.Alphac);
+  conf.Ascr = mattostlmat(Amat);
+  conf.Ascrinv = mattostlmat(Ainvmat);
 
-  // AScr = put_mat(n, conf.Ascr);
-  AScr = put_mat(conf.Ascr);
+  // Ascr = put_mat(n, conf.Ascr);
+  Ascr = stlmattomap(conf.Ascr);
   if (!conf.Cavity_on) {
-    // AScr[delta_] = 0.0; AScr[ct_] = 0.0;
-    AScr[delta_] = tps(0e0, delta_+1); AScr[ct_] = 0e0;
+    // Ascr[delta_] = 0.0; Ascr[ct_] = 0.0;
+    Ascr[delta_] = tps(0e0, delta_+1); Ascr[ct_] = 0e0;
   }
 
-  Cell_Twiss(0, conf.Cell_nLoc, AScr, chroma, true, dP);
+  Cell_Twiss(0, conf.Cell_nLoc, Ascr, chroma, true, dP);
 
   for (k = 0; k < 2; k++)
     conf.TotalTune[k] = elems[conf.Cell_nLoc]->Nu[k];
@@ -395,30 +400,26 @@ void LatticeType::TraceABN(long i0, long i1, const std::vector<double> &alpha,
 			   const std::vector<double> &eta,
 			   const std::vector<double> &etap, const double dP)
 {
-  long          i, j;
-  double        sb;
-  ss_vect<tps>  Ascr;
+  long         i;
+  ss_vect<tps> Id, Ascr;
 
-  conf.Ascr = arma::eye(tps_n, tps_n);
-  for (i = 1; i <= 2; i++) {
-    sb = sqrt(beta[i-1]); j = i*2 - 1;
-    conf.Ascr(j-1, j-1) = sb;               conf.Ascr(j-1, j) = 0.0;
-    conf.Ascr(j, j - 1) = -(alpha[i-1]/sb); conf.Ascr(j, j) = 1/sb;
-  }
-  conf.Ascr(0, 4) = eta[0]; conf.Ascr(1, 4) = etap[0];
-  conf.Ascr(2, 4) = eta[1]; conf.Ascr(3, 4) = etap[1];
-
-  for (i = 0; i < 6; i++)
-    conf.CODvect[i] = 0.0;
-  conf.CODvect[4] = dP;
-
-  for (i = 0; i <= 5; i++) {
-    Ascr[i] = tps(conf.CODvect[i]);
-    for (j = 0; j <= 5; j++)
-      Ascr[i] += conf.Ascr(i, j)*tps(0.0, j+1);
-    Cell_Twiss(i0, i1, Ascr, false, false, dP);
+  Id.identity();
+  Ascr.zero();
+  for (i = 0; i < 2; i++) {
+    Ascr[2*i] = sqrt(beta[i])*Id[2*i] + eta[i]*Id[delta_];
+    Ascr[2*i+1] =
+      -alpha[i]/sqrt(beta[i])*Id[2*i] + 1/sqrt(beta[i])*Id[2*i+1]
+      + etap[i]*Id[delta_];
   }
 
+  for (i = 0; i < ps_dim; i++)
+    conf.CODvect[i] = 0e0;
+  conf.CODvect[delta_] = dP;
+
+  Ascr += stlvectops(conf.CODvect);
+  Cell_Twiss(i0, i1, Ascr, false, false, dP);
+
+  conf.Ascr = maptostlmat(Ascr);
 }
 
 
@@ -597,7 +598,7 @@ void LatticeType::get_eps_x(double &eps_x, double &sigma_delta, double &U_0,
 
   conf.Cavity_on = false; conf.emittance = false;
   Ring_GetTwiss(false, 0.0);
-  A = put_mat(conf.Ascr); A += vectops(conf.CODvect);
+  A = stlmattomap(conf.Ascr); A += stlvectops(conf.CODvect);
   conf.emittance = true;
   Elem_Pass_Lin(A);
   get_I(I, false);
@@ -665,14 +666,14 @@ double get_code(const ConfigType &conf, const ElemType &Cell)
 }
 
 
-void LatticeType::prt_lat(const int loc1, const int loc2, const char *fname,
-			  const bool all)
+void LatticeType::prt_lat1(const int loc1, const int loc2,
+			   const std::string &fname, const bool all)
 {
   long int i = 0;
   double   I5 = 0e0;
   FILE     *outf;
 
-  outf = file_write(fname);
+  outf = file_write(fname.c_str());
   fprintf(outf,
 	  "#        name             s     code"
 	  "   alphax   betax     nux      etax    etapx");
@@ -704,10 +705,8 @@ void LatticeType::prt_lat(const int loc1, const int loc2, const char *fname,
 }
 
 
-void LatticeType::prt_lat(const char *fname, const bool all)
-{
-  prt_lat(0, conf.Cell_nLoc, fname, all);
-}
+void LatticeType::prt_lat2(const std::string &fname, const bool all)
+{ prt_lat1(0, conf.Cell_nLoc, fname, all); }
 
 
 void LatticeType::Cell_Twiss(const long int i0, const long int i1)
@@ -722,7 +721,7 @@ void LatticeType::Cell_Twiss(const long int i0, const long int i1)
     nu_int[k] = 0;
 
   for (i = i0; i <= i1; i++) {
-    A = put_mat(elems[i]->A);
+    A = stlmattomap(elems[i]->A);
     get_ab(A, alpha, beta, dnu, eta, etap);
 
     for (k = 0; k < 2; k++) {
@@ -744,8 +743,9 @@ void LatticeType::Cell_Twiss(const long int i0, const long int i1)
 }
 
 
-void LatticeType::prt_lat(const int loc1, const int loc2, const char *fname,
-			  const bool all, const int n)
+void LatticeType::prt_lat3(const int loc1, const int loc2,
+			   const std::string &fname, const bool all,
+			   const int n)
 {
   long int            i = 0;
   int                 j, k;
@@ -762,7 +762,7 @@ void LatticeType::prt_lat(const int loc1, const int loc2, const char *fname,
   const double  c1 = 1e0/(2e0*(2e0-pow(2e0, 1e0/3e0))), c2 = 0.5e0-c1;
   const double  d1 = 2e0*c1, d2 = 1e0-2e0*d1;
 
-  outf = file_write(fname);
+  outf = file_write(fname.c_str());
   fprintf(outf, "#        name           s   code"
 	        "    alphax   betax     nux       etax       etapx");
   fprintf(outf, "       alphay   betay     nuy      etay    etapy\n");
@@ -862,10 +862,9 @@ void LatticeType::prt_lat(const int loc1, const int loc2, const char *fname,
 }
 
 
-void LatticeType::prt_lat(const char *fname, const bool all, const int n)
-{
-  prt_lat(0, conf.Cell_nLoc, fname, all, n);
-}
+void LatticeType::prt_lat4(const std::string &fname, const bool all,
+			   const int n)
+{ prt_lat3(0, conf.Cell_nLoc, fname, all, n); }
 
 
 void LatticeType::prt_cod(const char *file_name, const bool all)
@@ -1638,7 +1637,7 @@ void LatticeType::GetEmittance(const int Fnum, const bool prt)
     *tan(M_PI-phi0))/(fabs(conf.Alphac)*M_PI*h_RF*1e9*conf.Energy));
 
   // Compute diffusion coeffs. for eigenvectors [sigma_xx, sigma_yy, sigma_zz]
-  Ascr_map = put_mat(conf.Ascr); Ascr_map += vectops(conf.CODvect);
+  Ascr_map = stlmattomap(conf.Ascr); Ascr_map += stlvectops(conf.CODvect);
 
   Cell_Pass(0, conf.Cell_nLoc, Ascr_map, lastpos);
 
@@ -1651,7 +1650,7 @@ void LatticeType::GetEmittance(const int Fnum, const bool prt)
   // or
   //   J_x + J_y + J_z = 4.
 
-  for (i = 0; i < DOF; i++) {
+  for (i = 0; i < ps_dim/2; i++) {
     // partition numbers
     conf.J[i] =
       2.0*(1.0+conf.CODvect[delta_])*conf.alpha_rad[i]/conf.dE;
@@ -1674,15 +1673,15 @@ void LatticeType::GetEmittance(const int Fnum, const bool prt)
   for (i = 0; i < 6; i++) {
     Ascr_map[i] = tps(conf.CODvect[i]);
     for (j = 0; j < 6; j++)
-      Ascr_map[i] += conf.Ascr(i, j)*sqrt(conf.eps[j/2])*tps(0.0, j+1);
+      Ascr_map[i] += conf.Ascr[i][j]*sqrt(conf.eps[j/2])*tps(0.0, j+1);
   }
   // prt_lin_map(3, Ascr_map);
   for (loc = 0; loc <= conf.Cell_nLoc; loc++) {
     elems[loc]->Elem_Pass(conf, Ascr_map);
     // sigma = A x A^tp
-    elems[loc]->sigma = get_mat(Ascr_map);
+    elems[loc]->sigma = maptomat(Ascr_map);
     elems[loc]->sigma = trans(elems[loc]->sigma);
-    Ascr = get_mat(Ascr_map);
+    Ascr = maptomat(Ascr_map);
     elems[loc]->sigma = Ascr*elems[loc]->sigma;
   }
 
@@ -1695,10 +1694,10 @@ void LatticeType::GetEmittance(const int Fnum, const bool prt)
 
   // longitudinal alpha and beta
   conf.alpha_z =
-    -conf.Ascr(ct_, ct_)*conf.Ascr(delta_, ct_)
-    - conf.Ascr(ct_, delta_)*conf.Ascr(delta_, delta_);
+    -conf.Ascr[ct_][ct_]*conf.Ascr[delta_][ct_]
+    - conf.Ascr[ct_][delta_]*conf.Ascr[delta_][delta_];
   conf.beta_z =
-    sqr(conf.Ascr(ct_, ct_)) + sqr(conf.Ascr(ct_, delta_));
+    sqr(conf.Ascr[ct_][ct_]) + sqr(conf.Ascr[ct_][delta_]);
   gamma_z = (1.0+sqr(conf.alpha_z))/conf.beta_z;
 
   // bunch size
@@ -1791,7 +1790,7 @@ double get_dynap(LatticeType &lat, const double delta, const int n_aper,
     fclose(fp);
     DA += get_aper(n_aper, x_aper, y_aper);
 
-    for (i = 0; i < nv_; i++)
+    for (i = 0; i < ps_dim; i++)
       lat.conf.CODvect[i] = 0.0;
     sprintf(str, "dynap_dp%3.1f.out", -1e2*delta);
     fp = file_write(str);
@@ -2076,7 +2075,7 @@ bool chk_if_lost(LatticeType &lat, double x0, double y0, double delta,
   ps[delta_] = delta; ps[ct_] = 0.0;
   if (floqs) {
     // Transform to phase space.
-    ps_vec = lat.conf.Ascr*pstovec(ps);
+    ps_vec = stlmattomat(lat.conf.Ascr)*pstovec(ps);
     ps = vectops(ps_vec);
   }
   for (i = 0; i <= 3; i++)

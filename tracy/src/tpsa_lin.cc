@@ -56,12 +56,7 @@ void lieini(const int no, const int nv, const int nd2i)
 
 void daall_(std::vector<double> &x, const int nd2, const char *daname,
 	   const int no, const int nv)
-{
-  int j;
-
-  for (j = 0; j <= nv_tps; j++)
-    x[j] = 0.0;
-}
+{ for (int j = 0; j <= nv_tps; j++) x[j] = 0.0; }
 
 
 void dadal_(std::vector<double> &x, const int nv_tps) { }
@@ -69,31 +64,24 @@ void dadal_(std::vector<double> &x, const int nv_tps) { }
 
 void davar_(std::vector<double> &x, const double r, const int i)
 {
-  int j;
-
   x[0] = r;
-  for (j = 1; j <= nv_tps; j++)
-    x[j] = 0e0;
+  for (int j = 1; j <= nv_tps; j++) x[j] = 0e0;
   x[i] = 1e0;
 }
 
 
 void dacon_(std::vector<double> &x, const double r)
 {
-  int j;
-
   x[0] = r;
-  for (j = 1; j <= nv_tps; j++)
-    x[j] = 0.0;
+  for (int j = 1; j <= nv_tps; j++) x[j] = 0e0;
 }
 
 
 void dapek_(const std::vector<double> &x, const long int jj[], double &r)
 {
-  int i, n_zero;
+  int n_zero = 0;
 
-  n_zero = 0;
-  for (i = 0; i < nv_tps; i++) {
+  for (int i = 0; i < nv_tps; i++) {
     if (jj[i] == 0)
       n_zero++;
     else if (jj[i] == 1)
@@ -115,10 +103,9 @@ void dapek_(const std::vector<double> &x, const long int jj[], double &r)
 
 void dapok_(std::vector<double> &x, const long int jj[], const double r)
 {
-  int i, n_zero;
+  int n_zero = 0;
 
-  n_zero = 0;
-  for (i = 0; i < nv_tps; i++) {
+  for (int i = 0; i < nv_tps; i++) {
     if (jj[i] == 0)
       n_zero++;
     else if (jj[i] == 1)
@@ -145,13 +132,46 @@ void put_m_ij(ss_vect<tps> &map, const int i, const int j, const double r)
 { map[i-1].ltps[j] = r; }
 
 
-arma::mat get_mat(const ss_vect<tps> &map)
+ss_vect<tps> stlmattomap(const std::vector< std::vector<double> > &stlmat)
 {
-  int       j, k;
+  ss_vect<tps> map;
+
+  const int n = (int)stlmat[0].size();
+
+  for (int j = 0; j < nv_tps; j++)
+    for (int k = 0; k < nv_tps; k++)
+      put_m_ij(map, j+1, k+1, stlmat[j][k]);
+  if (n > nv_tps)
+    for (int j = 0; j < nv_tps; j++)
+      put_m_ij(map, j+1, 0, stlmat[j][n-1]);
+  return map;
+}
+
+std::vector< std::vector<double> > maptostlmat(const ss_vect<tps> &map)
+{
+  std::vector<double>                row;
+  std::vector< std::vector<double> > stlmat;
+
+  for (int j = 0; j < nv_tps; j++) {
+    row.clear();
+    for (int k = 0; k < nv_tps; k++)
+      row.push_back(map[j][k+1]);
+    row.push_back(map[j][0]);
+    stlmat.push_back(row);
+  }
+  row.clear();
+  for (int k = 0; k < nv_tps; k++)
+    row.push_back(0e0);
+  stlmat.push_back(row);
+  return stlmat;
+}
+
+arma::mat maptomat(const ss_vect<tps> &map)
+{
   arma::mat mat(tps_n, tps_n);
 
-  for (j = 0; j < nv_tps; j++) {
-    for (k = 0; k < nv_tps; k++)
+  for (int j = 0; j < nv_tps; j++) {
+    for (int k = 0; k < nv_tps; k++)
       mat(j, k) = get_m_ij(map, j+1, k+1);
     mat(j, tps_n-1) = get_m_ij(map, j+1, 0);
   }
@@ -160,13 +180,12 @@ arma::mat get_mat(const ss_vect<tps> &map)
 }
 
 
-ss_vect<tps> put_mat(const arma::mat &mat)
+ss_vect<tps> mattomap(const arma::mat &mat)
 {
-  int          j, k;
   ss_vect<tps> map;
 
-  for (j = 0; j < nv_tps; j++) {
-    for (k = 0; k < nv_tps; k++)
+  for (int j = 0; j < nv_tps; j++) {
+    for (int k = 0; k < nv_tps; k++)
       put_m_ij(map, j+1, k+1, mat(j, k));
     if (j < nv_tps) put_m_ij(map, j+1, 0, mat(j, tps_n-1));
   }
@@ -176,25 +195,42 @@ ss_vect<tps> put_mat(const arma::mat &mat)
 
 arma::mat stlmattomat(const std::vector< std::vector<double> > &stlmat)
 {
-  int       j, k;
-  arma::mat mat(nv_tps, nv_tps);
+  const int
+    m = (int)stlmat.size(),
+    n = (int)stlmat[0].size();
 
-  for (j = 0; j < (int)stlmat.size(); j++)
-    for (k = 0; k < (int)stlmat[0].size(); k++)
+  arma::mat mat(m, n);
+
+  for (int j = 0; j < m; j++)
+    for (int k = 0; k < n; k++)
       mat(j, k) = stlmat[j][k];
   return mat;
 }
 
 
+std::vector< std::vector<double> > mattostlmat(const arma::mat &mat)
+{
+  std::vector<double>                row;
+  std::vector< std::vector<double> > stlmat;
+
+  for (int j = 0; j < (int)mat.n_rows; j++) {
+    row.clear();
+    for (int k = 0; k < (int)mat.n_cols; k++)
+      row.push_back(mat(j, k));
+    stlmat.push_back(row);
+  }
+  return stlmat;
+}
+
+
 std::vector< std::vector<double> > get_stlmat(const ss_vect<tps> &map)
 {
-  int                                j, k;
   std::vector<double>                row;
   std::vector< std::vector<double> > mat;
 
-  for (j = 0; j < nv_tps; j++) {
+  for (int j = 0; j < nv_tps; j++) {
     row.clear();
-    for (k = 0; k < nv_tps; k++)
+    for (int k = 0; k < nv_tps; k++)
       row.push_back(get_m_ij(map, j+1, k+1));
     mat.push_back(row);
   }
@@ -203,42 +239,24 @@ std::vector< std::vector<double> > get_stlmat(const ss_vect<tps> &map)
 
 
 void dacop_(const std::vector<double> &x, std::vector<double> &z)
-{
-  int i;
-
-  for (i = 0; i <= nv_tps; i++)
-    z[i] = x[i];
-}
-
+{ for (int i = 0; i <= nv_tps; i++) z[i] = x[i]; }
 
 void daadd_(const std::vector<double> &x, const std::vector<double> &y,
 	    std::vector<double> &z)
-{
-  int i;
-
-  for (i = 0; i <= nv_tps; i++)
-    z[i] = x[i] + y[i];
-}
-
+{ for (int i = 0; i <= nv_tps; i++) z[i] = x[i] + y[i]; }
 
 void dasub_(const std::vector<double> &x, const std::vector<double> &y,
 	    std::vector<double> &z)
-{
-  int i;
-
-  for (i = 0; i <= nv_tps; i++)
-    z[i] = x[i] - y[i];
-}
+{ for (int i = 0; i <= nv_tps; i++) z[i] = x[i] - y[i]; }
 
 
 void damul_(const std::vector<double> &x, const std::vector<double> &y,
 	    std::vector<double> &z)
 {
-  int     i;
   std::vector<double> u(tps_n, 0e0);
 
   u[0] = x[0]*y[0];
-  for (i = 1; i <= nv_tps; i++)
+  for (int i = 1; i <= nv_tps; i++)
     u[i] = x[0]*y[i] + x[i]*y[0];
   dacop_(u, z);
 }
@@ -259,24 +277,21 @@ void dadiv_(const std::vector<double> &x, const std::vector<double> &y,
 void dacad_(const std::vector<double> &x, const double y,
 	    std::vector<double> &z)
 {
-  int i;
-
   z[0] = x[0] + y;
-  for (i = 1; i <= nv_tps; i++)
+  for (int i = 1; i <= nv_tps; i++)
     z[i] = x[i];
 }
 
 
 void dacsu_(const std::vector<double> &x, const double y,
-	    std::vector<double> &z) { dacad_(x, -y, z); }
+	    std::vector<double> &z)
+{ dacad_(x, -y, z); }
 
 
 void dacmu_(const std::vector<double> &x, const double y,
 	    std::vector<double> &z)
 {
-  int i;
-
-  for (i = 0; i <= nv_tps; i++)
+  for (int i = 0; i <= nv_tps; i++)
     z[i] = x[i]*y;
 }
 
@@ -334,87 +349,78 @@ void dalin_(const std::vector<double> &x, const double ra,
 
 void dainv_(const std::vector<double> &x, std::vector<double> &z)
 {
-  int    i;
   double a;
 
-  a = -1.0/sqr(x[0]); z[0] = 1.0/x[0];
-  for (i = 1; i <= nv_tps; i++)
+  a = -1e0/sqr(x[0]); z[0] = 1e0/x[0];
+  for (int i = 1; i <= nv_tps; i++)
     z[i] = a*x[i];
 }
 
 
 void dasqrt(const std::vector<double> &x, std::vector<double> &z)
 {
-  int    i;
   double a;
 
   a = sqrt(x[0]); z[0] = a; a = 0.5/a;
-  for (i = 1; i <= nv_tps; i++)
+  for (int i = 1; i <= nv_tps; i++)
     z[i] = a*x[i];
 }
 
 
 void daexp(const std::vector<double> &x, std::vector<double> &z)
 {
-  int    i;
   double a;
 
   a = exp(x[0]); z[0] = a;
-  for (i = 1; i <= nv_tps; i++)
+  for (int i = 1; i <= nv_tps; i++)
     z[i] = a*x[i];
 }
 
 
 void dalog(const std::vector<double> &x, std::vector<double> &z)
 {
-  int i;
-
   z[0] = log(x[0]);
-  for (i = 1; i <= nv_tps; i++)
+  for (int i = 1; i <= nv_tps; i++)
     z[i] = x[i]/x[0];
 }
 
 
 void dasin(const std::vector<double> &x, std::vector<double> &z)
 {
-  int    i;
   double a;
 
   z[0] = sin(x[0]); a = cos(x[0]);
-  for (i = 1; i <= nv_tps; i++)
+  for (int i = 1; i <= nv_tps; i++)
     z[i] = a*x[i];
 }
 
 
 void dacos(const std::vector<double> &x, std::vector<double> &z)
 {
-  int    i;
   double a;
 
   z[0] = cos(x[0]); a = -sin(x[0]);
-  for (i = 1; i <= nv_tps; i++)
+  for (int i = 1; i <= nv_tps; i++)
     z[i] = a*x[i];
 }
 
 
 void dasinh(const std::vector<double> &x, std::vector<double> &z)
 {
-  int    i;
   double a;
 
   z[0] = sinh(x[0]); a = cosh(x[0]);
-  for (i = 1; i <= nv_tps; i++)
+  for (int i = 1; i <= nv_tps; i++)
     z[i] = a*x[i];
 }
 
 
 void dacosh(const std::vector<double> &x, std::vector<double> &z)
 {
-  int    i;
   double a;
 
   z[0] = cos(x[0]); a = sinh(x[0]);
-  for (i = 1; i <= nv_tps; i++)
+  for (int i = 1; i <= nv_tps; i++)
     z[i] = a*x[i];
 }
 
@@ -429,11 +435,10 @@ void datan(const std::vector<double> &x, std::vector<double> &z)
 
 void daarctan(const std::vector<double> &x, std::vector<double> &z)
 {
-  int    i;
   double a;
 
   a = x[0]; z[0] = atan(a); a = 1.0/(1.0+sqr(a));
-  for (i = 1; i <= nv_tps; i++)
+  for (int i = 1; i <= nv_tps; i++)
     z[i] = a*x[i];
 }
 
@@ -492,28 +497,24 @@ void dacct_(const ss_vect<tps> &x, const int i,
 
 
 void dainv_(const ss_vect<tps> &x, const int i, ss_vect<tps> &z, const int k)
-{ z = put_mat(arma::inv(get_mat(x))); }
+{ z = mattomap(arma::inv(maptomat(x))); }
 
 
 void Rotmap(const int n, ss_vect<tps> &map, const arma::mat &R)
-{ map = put_mat(get_mat(map)*R); }
+{ map = mattomap(maptomat(map)*R); }
 
 
 void daabs_(const std::vector<double> &x, double &r)
 {
-  int k;
-
-  r = 0.0;
-  for (k = 0; k <= nv_tps; k++)
+  r = 0e0;
+  for (int k = 0; k <= nv_tps; k++)
     r += fabs(x[k]);
 }
 
 
 void daabs2_(const std::vector<double> &x, double &r)
 {
-  int k;
-
-  r = 0.0;
-  for (k = 0; k <= nv_tps; k++)
+  r = 0e0;
+  for (int k = 0; k <= nv_tps; k++)
     r += sqr(x[k]);
 }
