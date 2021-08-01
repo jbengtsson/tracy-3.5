@@ -385,9 +385,9 @@ class LatticeType {
   void Mpole_DefdTpar(const int Fnum, const int Knum, const double PdTpar);
   void Mpole_DefdTsys(const int Fnum, const int Knum, const double PdTsys);
 
-  bool Lat_Read(const __gnu_debug::string &filnam);
+  bool Lat_Read(const std::string &filnam);
   bool Lat_Read_py(const std::string &filnam);
-  void prtmfile(const __gnu_debug::string &mfile_dat);
+  void prtmfile(const std::string &mfile_dat);
   void rdmfile(const __gnu_debug::string &mfile_dat);
 
   // t2elem.

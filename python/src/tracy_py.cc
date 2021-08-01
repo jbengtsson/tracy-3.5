@@ -7,12 +7,6 @@
 namespace py = pybind11;
 
 
-bool LatticeType::Lat_Read_py(const std::string &filnam_py)
-{
-  return Lat_Read(filnam_py);
-}
-
-
 PYBIND11_MODULE(libtracy, scsi) {
     scsi.doc() = "Self-Consistent Symplectic Integrator (SCSI)";
 
@@ -201,7 +195,7 @@ PYBIND11_MODULE(libtracy, scsi) {
       .def("prt_fams",      &LatticeType::prt_fams)
       .def("prt_elems",     &LatticeType::prt_elems)
 
-      .def("Lat_Read_py",   &LatticeType::Lat_Read_py)
+      .def("Lat_Read",      &LatticeType::Lat_Read)
       .def("prtmfile",      &LatticeType::prtmfile)
       .def("rdmfile",       &LatticeType::rdmfile)
 

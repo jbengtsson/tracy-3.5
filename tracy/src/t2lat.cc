@@ -4115,7 +4115,7 @@ void PrintResult(struct LOC_Lat_Read *LINK)
 }
 
 
-bool LatticeType::Lat_Read(const __gnu_debug::string &filnam)
+bool LatticeType::Lat_Read(const std::string &filnam)
 {
   struct LOC_Lat_Read V;
   FILE   *fi_, *fo_;

@@ -49,7 +49,7 @@ def set_config():
 
 def get_lat(file_name):
     lat = set_config()
-    lat.Lat_Read_py(file_name);
+    lat.Lat_Read(file_name);
     lat.Lat_Init();
     lat.ChamberOff();
     lat.conf.CODimax = 10;
@@ -86,7 +86,7 @@ def main(file_name):
     
     lat.prt_lat2('"linlat1.out', True);
     lat.prt_lat4('linlat.out', True, 10);
-#    lat.prtmfile('flat_file.dat');
+    lat.prtmfile('flat_file.dat');
 
 
 lat_dir = os.getenv('LAT')
