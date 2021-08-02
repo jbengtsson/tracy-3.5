@@ -47,8 +47,8 @@ const int max_elem = Cell_nLocMax;
 
 // Inline functions.
 
-inline arma::vec pstovec(const ss_vect<double> &ps)
-{ return {ps[x_], ps[px_], ps[y_], ps[py_], ps[delta_], ps[ct_], 1e0}; }
+inline arma::vec pstovec(const ss_vect<double> &vec)
+{ return {vec[x_], vec[px_], vec[y_], vec[py_], vec[delta_], vec[ct_], 1e0}; }
 
 inline ss_vect<double> vectops(const arma::vec vec)
 { return {vec[x_], vec[px_], vec[y_], vec[py_], vec[delta_], vec[ct_]}; }
@@ -57,10 +57,10 @@ inline std::vector<double> vectostlvec(const arma::vec &vec)
 { return {vec[x_], vec[px_], vec[y_], vec[py_], vec[delta_], vec[ct_], 1e0}; }
 
 inline std::vector<double> stlvectovec(const arma::vec &vec)
-{ return {vec[x_], vec[px_], vec[y_], vec[py_], vec[delta_], vec[ct_]}; }
+{ return {vec[x_], vec[px_], vec[y_], vec[py_], vec[delta_], vec[ct_], 1e0}; }
 
-inline std::vector<double> pstostlvec(const ss_vect<double> &ps)
-{ return{ps[x_], ps[px_], ps[y_], ps[py_], ps[delta_], ps[ct_], 1e0}; }
+inline std::vector<double> pstostlvec(const ss_vect<double> &vec)
+{ return {vec[x_], vec[px_], vec[y_], vec[py_], vec[delta_], vec[ct_], 1e0}; }
 
 inline ss_vect<double> stlvectops(const std::vector<double> &vec)
 { return {vec[x_], vec[px_], vec[y_], vec[py_], vec[delta_], vec[ct_]}; }
