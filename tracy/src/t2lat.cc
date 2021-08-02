@@ -4037,9 +4037,9 @@ static double Circumference(struct LOC_Lat_Read *LINK)
 /*
  * Warning! Modfies str (should be a pointer not a reference)
  */
-void fixedtostr(__gnu_debug::string &str)
+void fixedtostr(std::string &str)
 {
-  __gnu_debug::string str1 = str;
+  std::string str1 = str;
 
   str = "";
   for(int j=0; (j < (int)str1.length()) && str1[j] != ' '; ++j){

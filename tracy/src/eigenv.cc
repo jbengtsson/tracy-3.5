@@ -493,32 +493,33 @@ void GenB(arma::mat &B, arma::mat &BInv, arma::vec &Eta,
        none
 
 ****************************************************************************/
-void LatticeType::GDiag(int n_, double C, arma::mat &A, arma::mat &Ainv_,
-			arma::mat &R, std::vector< std::vector<double> > &M,
-			double &Omega, double &alphac)
+void LatticeType::GDiag(int n_, double C, arma::mat &A, arma::mat &Ainv,
+			arma::mat &R, arma::mat &M, double &Omega,
+			double &alphac)
 {
   struct LOC_GDiag V;
   int              j;
   double           x1, x2;
   arma::vec        wr(ps_dim), wi(ps_dim), eta(ps_dim);
-  arma::mat        fm(ps_dim, ps_dim), B(ps_dim, ps_dim), Binv(ps_dim, ps_dim);
+  arma::mat        fm(ps_dim, ps_dim), B(ps_dim, ps_dim), Binv(ps_dim, ps_dim),
+                   Vrmat(tps_n, tps_n), Vimat(tps_n, tps_n);
 
-  const arma::mat M_arma = stlmattomat(M);
-
-  V.n = n_; V.Ainv = Ainv_; InitJJ(V);
-  fm = M_arma;
-  fm = trans(fm);  /* fm <- transpose(fm) */
-  /* look for eigenvalues and eigenvectors of fm */
+  V.n = n_; V.Ainv = Ainv; InitJJ(V);
+  fm = trans(M);
   stable = geigen(V.n, fm, V.Vre, V.Vim, wr, wi);
   if (conf.radiation)
-    for (j = 1; j <=  V.n/2; j++) {
+    for (j = 1; j <= V.n/2; j++) {
       x1 = sqrt(sqr(wr[j*2-2])+sqr(wi[j*2-2]));
       x2 = sqrt(sqr(wr[j*2-1])+sqr(wi[j*2-1]));
       conf.alpha_rad[j-1] = log(sqrt(x1*x2));
     }
 
-  fm = M_arma;
-  stable = geigen(V.n, fm, this->conf.Vr, this->conf.Vi, wr, wi);
+  stable = geigen(V.n, M, Vrmat, Vimat, wr, wi);
+
+  this->conf.Vr = mattostlmat(Vrmat);
+  this->conf.Vi = mattostlmat(Vimat);
+  this->conf.wr = vectostlvec(wr);
+  this->conf.wi = vectostlvec(wi);
 
   V.Ainv.eye(ps_dim, ps_dim);
   GetAinv(V);
@@ -526,14 +527,14 @@ void LatticeType::GDiag(int n_, double C, arma::mat &A, arma::mat &Ainv_,
   A(arma::span(0, ps_dim-1), arma::span(0, ps_dim-1)) = V.Ainv;
   A = inv(A);
   if (V.n == ps_tr_dim) {
-    GetEta(M_arma, eta, V); GenB(B, Binv, eta, V);
+    GetEta(M, eta, V); GenB(B, Binv, eta, V);
     A(arma::span(0, ps_dim-1), arma::span(0, ps_dim-1)) =
       B*A(arma::span(0, ps_dim-1), arma::span(0, ps_dim-1));
     Binv = V.Ainv*Binv;
     V.Ainv = Binv;
   }
   R = A(arma::span(0, ps_dim-1), arma::span(0, ps_dim-1));
-  R = M_arma*R;
+  R = M*R;
   R(arma::span(0, ps_dim-1), arma::span(0, ps_dim-1)) =
     V.Ainv*R(arma::span(0, ps_dim-1), arma::span(0, ps_dim-1));
   if (V.n == ps_tr_dim) {
@@ -678,16 +679,16 @@ void NormEigenVec(arma::mat &Vr,arma::mat &Vi, arma::vec &wr, arma::vec &wi,
 
   if ((r(0, 0) > r(1, 0)) && (r(0, 0) > r(2, 0))) goto L140;
   if ((r(0, 1) > r(1, 1)) && (r(0, 1) > r(2, 1))) goto L130;
-  eswap(t6a,wr,wi,r,1,3);
+  eswap(t6a, wr, wi, r, 1, 3);
   goto L140;
 
 L130:
-  eswap(t6a,wr,wi,r,1,2);
+  eswap(t6a, wr, wi, r, 1, 2);
 
 L140:
 //  if ((r[1, 1] > r[0, 1]) && (r[1, 1] > r[2, 1])) goto L150;
   if ((r(1, 1) > r(0, 1)) && (r(1, 1) > r(2, 1)))  return;
-  eswap(t6a,wr,wi,r,2,3);
+  eswap(t6a, wr, wi, r, 2, 3);
 
 //L150:
 //

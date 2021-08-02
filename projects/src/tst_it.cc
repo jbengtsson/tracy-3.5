@@ -278,8 +278,8 @@ void get_lat(const string &file_name, LatticeType &lat)
   if (lat.conf.mat_meth)
     lat.get_eps_x(eps_x, sigma_delta, U_0, J, tau, I, true);
 
-  lat.prt_lat("linlat1.out", true);
-  lat.prt_lat("linlat.out", true, 10);
+  lat.prt_lat2("linlat1.out", true);
+  lat.prt_lat4("linlat.out", true, 10);
   lat.prtmfile("flat_file.dat");
 
   if (!lat.conf.mat_meth) lat.GetEmittance(lat.ElemIndex("cav"), true);

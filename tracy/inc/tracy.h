@@ -47,25 +47,23 @@ const int max_elem = Cell_nLocMax;
 
 // Inline functions.
 
-inline arma::vec pstovec(const ss_vect<double> ps)
+inline arma::vec pstovec(const ss_vect<double> &ps)
 { return {ps[x_], ps[px_], ps[y_], ps[py_], ps[delta_], ps[ct_], 1e0}; }
 
-inline ss_vect<double> vectops(const arma::vec ps_vec)
-{
-  ss_vect<double> ps(ps_vec[x_], ps_vec[px_], ps_vec[y_], ps_vec[py_],
-		     ps_vec[delta_], ps_vec[ct_]);
-  return ps;
-}
+inline ss_vect<double> vectops(const arma::vec vec)
+{ return {vec[x_], vec[px_], vec[y_], vec[py_], vec[delta_], vec[ct_]}; }
 
-inline std::vector<double> pstostlvec(const ss_vect<double> ps)
-{ return{ps[x_], ps[px_], ps[y_], ps[py_], ps[delta_], ps[ct_]}; }
+inline std::vector<double> vectostlvec(const arma::vec &vec)
+{ return {vec[x_], vec[px_], vec[y_], vec[py_], vec[delta_], vec[ct_], 1e0}; }
 
-inline ss_vect<double> stlvectops(const std::vector<double> &stlvec)
-{
-  ss_vect<double> ps(stlvec[x_], stlvec[px_], stlvec[y_], stlvec[py_],
-		     stlvec[delta_], stlvec[ct_]);
-  return ps;
-}
+inline std::vector<double> stlvectovec(const arma::vec &vec)
+{ return {vec[x_], vec[px_], vec[y_], vec[py_], vec[delta_], vec[ct_]}; }
+
+inline std::vector<double> pstostlvec(const ss_vect<double> &ps)
+{ return{ps[x_], ps[px_], ps[y_], ps[py_], ps[delta_], ps[ct_], 1e0}; }
+
+inline ss_vect<double> stlvectops(const std::vector<double> &vec)
+{ return {vec[x_], vec[px_], vec[y_], vec[py_], vec[delta_], vec[ct_]}; }
 
 
 #define HOMmax   21     // [a_n, b_n] <=> [-HOMmax..HOMmax].
@@ -103,9 +101,6 @@ extern FILE  *fi,              // lattice input  file
 
 extern int P_eof(FILE *f);
 extern int P_eoln(FILE *f);
-
-extern void NormEigenVec(arma::mat &Vr, arma::mat &Vi, double *wr, double *wi,
-			 arma::mat &t6a);
 
 extern void t2init(void);
 
@@ -232,17 +227,24 @@ class ConfigType {
     D_IBS{0e0, 0e0, 0e0},         // Diffusion matrix (Floquet space).
     eps{0e0, 0e0, 0e0},           // Eigenemittances.
     epsp{0e0, 0e0, 0e0},          // Trans. & Long. projected emittances.
-    CODvect{0e0, 0e0, 0e0, 0e0, 0e0, 0e0}; // Closed orbit.
+    CODvect                       // Closed orbit.
+      {0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+    wr                            // Eigenvalues Re & Im part.
+      {0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+    wi
+      {0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0};
   std::vector< std::vector<double> >
     OneTurnMat
-      {{0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
-       {0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
-       {0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
-       {0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
-       {0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
-       {0e0, 0e0, 0e0, 0e0, 0e0, 0e0}},
+      {{0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+       {0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+       {0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+       {0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+       {0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+       {0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+       {0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0}},
     Ascr
       {{0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+       {0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
        {0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
        {0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
        {0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
@@ -254,13 +256,25 @@ class ConfigType {
        {0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
        {0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
        {0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+       {0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+       {0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0}},
+    Vr                            // Eigenvectors: Real part,
+      {{0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+       {0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+       {0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+       {0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+       {0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+       {0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+       {0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0}},
+  
+    Vi                            //               Imaginary part.
+      {{0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+       {0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+       {0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+       {0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+       {0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+       {0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
        {0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0}};
-  arma::vec
-    wr = arma::vec(tps_n),        // Eigenvalues Re & Im part.
-    wi = arma::vec(tps_n);
-  arma::mat
-    Vr         = arma::mat(tps_n, tps_n), // Eigenvectors: Real part, 
-    Vi         = arma::mat(tps_n, tps_n); //               Imaginary part.
 };
 
 
@@ -274,12 +288,10 @@ class CellType {
     Knum;                      // Element Kid #.
   double
     S,                         // Position in the ring.
-    curly_dH_x,                // Contribution to curly_H_x.
-    maxampl[2][2];             /* Horizontal and vertical physical apertures:
-				  maxampl[X_][0] < x < maxampl[X_][1]
-				  maxampl[Y_][0] < y < maxampl[Y_][1].        */
+    curly_dH_x;                // Contribution to curly_H_x.
   std::vector<double>
-    dI{0e0, 0e0, 0e0, 0e0, 0e0, 0e0}, // Contribution to I[1..5].
+    dI                         // Contribution to I[1..5].
+    {0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
     dS{0e0, 0e0},              // Transverse displacement.
     dT{0e0, 0e0},              // dT = (cos(dT), sin(dT)).
     Eta{0e0, 0e0},             // Eta & eta' (redundant).
@@ -287,26 +299,35 @@ class CellType {
     Alpha{0e0, 0e0},           // Twiss parameters (redundant).
     Beta{0e0, 0e0},
     Nu{0e0, 0e0},
-    BeamPos{0e0, 0e0, 0e0, 0e0, 0e0, 0e0}; /* Last position of the beam this
-					      cell.                           */
+    BeamPos                    // Last position of the beam this cell.
+      {0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0};
   std::vector< std::vector<double> >
+    maxampl                    // Hor & ver physical aperture.
+      {{0e0, 0e0},
+       {0e0, 0e0}},
     A                          // Floquet space to phase space transformation.
       {{0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
        {0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
        {0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
        {0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
        {0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
-       {0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0}};
-  arma::mat
-    sigma = arma::mat(tps_n, tps_n); // sigma matrix (redundant).
-  CellType
-    *next_ptr;                       // pointer to next cell (for tracking).
+       {0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+       {0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0}},
+    sigma                      // sigma matrix (redundant).
+      {{0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+       {0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+       {0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+       {0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+       {0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+       {0e0, 0e0, 0e0, 0e0, 0e0, 0e0}};
+    CellType
+      *next_ptr;               // pointer to next cell (for tracking).
 };
 
 // Element virtual base class.
 class ElemType : public CellType {
  public:
-  __gnu_debug::string
+  std::string
     Name;                      // Element name.
   bool
     Reverse;                   // Reverse element.
@@ -364,7 +385,7 @@ class LatticeType {
   void prt_elems(void);
 
   int GetnKid(const int Fnum);
-  long int ElemIndex(const __gnu_debug::string &name);
+  long int ElemIndex(const std::string &name);
   long int Elem_GetPos(const int Fnum, const int Knum);
 
   void get_transp_mats(const double delta);
@@ -413,8 +434,7 @@ class LatticeType {
 
   // t2ring.
   void GDiag(int n_, double C, arma::mat &A, arma::mat &Ainv_, arma::mat &R,
-	     std::vector< std::vector<double> > &M, double &Omega,
-	     double &alphac);
+	     arma::mat &M, double &Omega, double &alphac);
 
   void Cell_Geteta(long i0, long i1, bool ring, double dp);
   void Cell_Twiss(long i0, long i1, ss_vect<tps> &Ascr, bool chroma, bool ring,
@@ -524,8 +544,15 @@ class MpoleType : public ElemType {
     PB;                        //                      total.
   pthicktype
     Pthick;
-  arma::mat
-    M_transp = arma::mat(tps_n, tps_n); // Transport matrix & orbit.
+  std::vector< std::vector<double> >
+    M_elem                     // Transport matrix & orbit.
+      {{0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+       {0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+       {0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+       {0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+       {0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0},
+       {0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0}};
+
 
   friend MpoleType* Mpole_Alloc(void);
   ElemType* Elem_Init(const ConfigType &conf, const bool reverse);

@@ -243,7 +243,7 @@ void get_elem(std::ifstream &inf, LatticeType *lat, char *line, long int &i,
     }
 
     if (lat->conf.mat_meth && (M->Pthick == thick))
-      M->M_transp = get_transp_mat(lat->elems[i], 0e0);
+      M->M_elem = get_transp_mat(lat->elems[i], 0e0);
     break;
   case Wigl:
     W = dynamic_cast<WigglerType*>(lat->elems[i]);

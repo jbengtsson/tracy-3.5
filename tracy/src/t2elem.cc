@@ -571,11 +571,13 @@ void quad_fringe(ConfigType &conf, const double b2, ss_vect<T> &ps)
 }
 
 
-inline ss_vect<double> mat_pass(arma::mat &M, ss_vect<double> &ps)
-{ return vectops(M*pstovec(ps)); }
+inline ss_vect<double> mat_pass(std::vector< std::vector<double> > &M,
+				ss_vect<double> &ps)
+{ return vectops(stlmattomat(M)*pstovec(ps)); }
 
-inline ss_vect<tps> mat_pass(arma::mat &M, ss_vect<tps> &ps)
-{ return mattomap(M*maptomat(ps)); }
+inline ss_vect<tps> mat_pass(std::vector< std::vector<double> > &M,
+			     ss_vect<tps> &ps)
+{ return mattomap(stlmattomat(M)*maptomat(ps)); }
 
 
 template<typename T>
@@ -598,7 +600,7 @@ void MpoleType::Mpole_Pass(ConfigType &conf, ss_vect<T> &ps)
 
   case Meth_Fourth:
     if (conf.mat_meth && (Porder <= Quad)) {
-      ps = mat_pass(M_transp, ps);
+      ps = mat_pass(M_elem, ps);
 
       // if (conf.emittance && !conf.Cavity_on) &&
       // 	(PL != 0e0) && (Pirho != 0e0)) get_dI_eta_5(this);
@@ -2479,7 +2481,7 @@ MpoleType* Mpole_Alloc(void)
 
   Mp->Pc0 = 0e0; Mp->Pc1 = 0e0; Mp->Ps1 = 0e0;
 
-  // M_transp is allocated in Mpole_Init.
+  // M_elem is allocated in Mpole_Init.
 
   return Mp;
 }
@@ -2746,7 +2748,8 @@ arma::mat get_sbend_mat(const ElemType *elem, const double delta)
 }
 
 
-arma::mat get_transp_mat(ElemType *elem, const double delta)
+std::vector< std::vector<double> >
+get_transp_mat(ElemType *elem, const double delta)
 {
   arma::mat M(tps_n, tps_n), M1(tps_n, tps_n), M2(tps_n, tps_n);
 
@@ -2764,7 +2767,7 @@ arma::mat get_transp_mat(ElemType *elem, const double delta)
     M(px_, tps_n-1)  = -Mp->PB[  Dip+HOMmax]*(1e0+delta);
     M(py_, tps_n-1)  =  Mp->PB[ -Dip+HOMmax]*(1e0+delta);
   }
-  return M;
+  return mattostlmat(M);
 }
 
 
@@ -2776,7 +2779,7 @@ void LatticeType::get_transp_mats(const double delta)
   for (k = 0; k <= conf.Cell_nLoc; k++) {
     Mp = dynamic_cast<MpoleType*>(elems[k]);
     if (elems[k]->Pkind == Mpole)
-      Mp->M_transp = get_transp_mat(elems[k], delta);
+      Mp->M_elem = get_transp_mat(elems[k], delta);
   }
 }
 
@@ -2809,7 +2812,7 @@ ElemType* MpoleType::Elem_Init(const ConfigType &conf, const bool reverse)
     M->Pthick = pthicktype(thin);
 
   // Allocate transport matrix.
-  M->M_transp = get_transp_mat(this, 0e0);
+  M->M_elem = get_transp_mat(this, 0e0);
 
   Mp = Mpole_Alloc();
   *Mp = *M;
@@ -3807,7 +3810,7 @@ void LatticeType::SetPB(const int Fnum, const int Knum, const int n)
   elemp->SetPB(n);
   if (this->conf.mat_meth) {
     Mp = dynamic_cast<MpoleType*>(elemp);
-    Mp->M_transp = get_transp_mat(elemp, 0e0);
+    Mp->M_elem = get_transp_mat(elemp, 0e0);
   }
 }
 

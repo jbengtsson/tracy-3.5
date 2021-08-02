@@ -117,27 +117,38 @@ PYBIND11_MODULE(libtracy, scsi) {
       .def_readwrite("eps",            &ConfigType::eps)
       .def_readwrite("epsp",           &ConfigType::epsp)
       .def_readwrite("CODvect",        &ConfigType::CODvect)
+      .def_readwrite("wr",             &ConfigType::wr)
+      .def_readwrite("wi",             &ConfigType::wi)
+      // std::vector< std::vector<double> >
       .def_readwrite("OneTurnMat",     &ConfigType::OneTurnMat)
       .def_readwrite("Ascr",           &ConfigType::Ascr)
-      // arma::vec
-      // arma::mat
+      .def_readwrite("Ascrinv",        &ConfigType::Ascrinv)
+      .def_readwrite("Vr",             &ConfigType::Vr)
+      .def_readwrite("Vi",             &ConfigType::Vi)
 
       .def(py::init<>());
 
     py::class_<CellType>(scsi, "CellType")
       // int
-      .def_readwrite("Fnum",    &CellType::Fnum)
-      .def_readwrite("Knum",    &CellType::Knum)
+      .def_readwrite("Fnum",       &CellType::Fnum)
+      .def_readwrite("Knum",       &CellType::Knum)
       // double
-      .def_readwrite("S",       &CellType::S)
+      .def_readwrite("S",          &CellType::S)
+      .def_readwrite("curly_dH_x", &CellType::curly_dH_x)
       // std::vector<double>:
-      .def_readwrite("Alpha",   &CellType::Alpha)
-      .def_readwrite("Beta",    &CellType::Beta)
-      .def_readwrite("Eta",     &CellType::Eta)
-      .def_readwrite("Etap",    &CellType::Etap)
-      // ss_vect<double>
-      .def_readwrite("BeamPos", &CellType::BeamPos)
-      // arma::mat
+      .def_readwrite("dI",         &CellType::dI)
+      .def_readwrite("dS",         &CellType::dS)
+      .def_readwrite("dT",         &CellType::dT)
+      .def_readwrite("Eta",        &CellType::Eta)
+      .def_readwrite("Etap",       &CellType::Etap)
+      .def_readwrite("Alpha",      &CellType::Alpha)
+      .def_readwrite("Beta",       &CellType::Beta)
+      .def_readwrite("Nu",         &CellType::Nu)
+      .def_readwrite("BeamPos",    &CellType::BeamPos)
+      // std::vector< std::vector<double> >
+      .def_readwrite("maxampl",    &CellType::maxampl)
+      .def_readwrite("A",          &CellType::A)
+      .def_readwrite("sigma",      &CellType::sigma)
       // CellType
 
       .def(py::init<>());
@@ -150,13 +161,13 @@ PYBIND11_MODULE(libtracy, scsi) {
       // double
       .def_readwrite("PL",      &ElemType::PL)
       // PartsKind
-      //.def_readwrite("Pkind",   &ElemType::Pkind)
+      .def_readwrite("Pkind",   &ElemType::Pkind)
 
       // Virtual class: no constructor.
       // .def(py::init<>())
 
       .def("prt_elem", &ElemType::prt_elem)
-        .def("print",    &ElemType::print);
+      .def("print",    &ElemType::print);
     /*
         .def("_repr__",
              [](const TestElement &elem){
@@ -194,6 +205,10 @@ PYBIND11_MODULE(libtracy, scsi) {
 
       .def("prt_fams",      &LatticeType::prt_fams)
       .def("prt_elems",     &LatticeType::prt_elems)
+
+      .def("GetnKid",       &LatticeType::GetnKid)
+      .def("ElemIndex",     &LatticeType::ElemIndex)
+      .def("Elem_GetPos",   &LatticeType::Elem_GetPos)
 
       .def("Lat_Read",      &LatticeType::Lat_Read)
       .def("prtmfile",      &LatticeType::prtmfile)
@@ -234,7 +249,7 @@ PYBIND11_MODULE(libtracy, scsi) {
       .def_readwrite("Pc0",      &MpoleType::Pc0)
       .def_readwrite("Pc1",      &MpoleType::Pc1)
       .def_readwrite("Ps1",      &MpoleType::Ps1)
-      // std::vector<doubble>
+      // std::vector<double>
       .def_readwrite("PdSsys",   &MpoleType::PdSsys)
       .def_readwrite("PdSrms",   &MpoleType::PdSrms)
       .def_readwrite("PdSrnd",   &MpoleType::PdSrnd)
@@ -246,7 +261,8 @@ PYBIND11_MODULE(libtracy, scsi) {
       .def_readwrite("PB",       &MpoleType::PB)
       // pthicktype
       .def_readwrite("Pthick",   &MpoleType::Pthick)
-      // arma::mat
+      // std::vector< std::vector<double> >
+      .def_readwrite("M_elem",   &MpoleType::M_elem)
 
       .def(py::init<>());
 

@@ -139,11 +139,11 @@ ss_vect<tps> stlmattomap(const std::vector< std::vector<double> > &stlmat)
   const int n = (int)stlmat[0].size();
 
   for (int j = 0; j < nv_tps; j++)
-    for (int k = 0; k < nv_tps; k++)
-      put_m_ij(map, j+1, k+1, stlmat[j][k]);
-  if (n > nv_tps)
-    for (int j = 0; j < nv_tps; j++)
-      put_m_ij(map, j+1, 0, stlmat[j][n-1]);
+    for (int k = -1; k < nv_tps; k++)
+      if (k == -1)
+	put_m_ij(map, j+1, 0, stlmat[j][n-1]);
+      else
+	put_m_ij(map, j+1, k+1, stlmat[j][k]);
   return map;
 }
 

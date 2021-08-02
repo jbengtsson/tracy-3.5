@@ -72,6 +72,8 @@ def main(file_name):
     lat.getcod(1e-3, lastpos);
     print('\nCod:', lat.conf.CODvect)
 
+    printf('\nHOMmax = %d\n', scsi.HOMmax)
+
     print('\nPartsKind.Mpole:',
           scsi.PartsKind.Mpole.name, scsi.PartsKind.Mpole.value)
 
@@ -79,12 +81,18 @@ def main(file_name):
         lat.prt_fams()
         lat.prt_elems()
 
-    printf('\nHOMmax = %d\n', scsi.HOMmax)
-
     if False:
         prt_elems(scsi, lat)
     
-    lat.prt_lat2('"linlat1.out', True);
+    # Locat 1st dipole & print transport matrix.
+    for k in range(0, lat.conf.Cell_nLoc+1):
+        if (lat.elems[k].Pkind == scsi.PartsKind.Mpole) \
+           and (lat.elems[k].n_design == scsi.MpoleKind.Dip):
+            printf('\n%s M_elem:\n', lat.elems[k].Name)
+            prt_mat(lat.elems[k].M_elem)
+            break
+
+    lat.prt_lat2('linlat1.out', True);
     lat.prt_lat4('linlat.out', True, 10);
     lat.prtmfile('flat_file.dat');
 

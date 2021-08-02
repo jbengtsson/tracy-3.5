@@ -345,7 +345,11 @@ void LatticeType::Ring_Twiss(bool chroma, double dP)
     beta  = {0.0, 0.0},
     gamma = {0.0, 0.0},
     nu    = {0.0, 0.0};
-  arma::mat    R(tps_n, tps_n), Amat(tps_n, tps_n), Ainvmat(tps_n, tps_n);
+  arma::mat
+    M(tps_n, tps_n),
+    R(tps_n, tps_n),
+    A(tps_n, tps_n),
+    Ainv(tps_n, tps_n);
   ss_vect<tps> Ascr;
 
   n = (conf.Cavity_on)? 6 : 4;
@@ -361,10 +365,10 @@ void LatticeType::Ring_Twiss(bool chroma, double dP)
     return;
   }
   // Get eigenvalues and eigenvectors for the one turn transfer matrix
-  GDiag(n, elems[conf.Cell_nLoc]->S, Amat, Ainvmat, R,
-	conf.OneTurnMat, conf.Omega, conf.Alphac);
-  conf.Ascr = mattostlmat(Amat);
-  conf.Ascrinv = mattostlmat(Ainvmat);
+  M = stlmattomat(conf.OneTurnMat);
+  GDiag(n, elems[conf.Cell_nLoc]->S, A, Ainv, R, M, conf.Omega, conf.Alphac);
+  conf.Ascr = mattostlmat(A);
+  conf.Ascrinv = mattostlmat(Ainv);
 
   // Ascr = put_mat(n, conf.Ascr);
   Ascr = stlmattomap(conf.Ascr);
@@ -550,7 +554,7 @@ void LatticeType::Elem_Pass_Lin(ss_vect<T> ps)
   for (k = 0; k <= conf.Cell_nLoc; k++) {
     if (elems[k]->Pkind == Mpole) { 
       Mp = dynamic_cast<MpoleType*>(elems[k]);
-      ps = mat_pass(Mp->M_transp, ps);
+      ps = mat_pass(Mp->M_elem, ps);
 
       if (conf.emittance && !conf.Cavity_on
 	  && (elems[k]->PL != 0e0) && (Mp->Pirho != 0e0))
@@ -979,13 +983,13 @@ void LatticeType::prt_beamsizes(const int cnt)
   for(k = 0; k <= conf.Cell_nLoc; k++)
     fprintf(fp,"%4d %10s %e %e %e %e %e %e %e %e %e\n",
 	    k, elems[k]->Name.c_str(), elems[k]->S,
-	    elems[k]->sigma(x_, x_), elems[k]->sigma(px_, px_),
-	    elems[k]->sigma(x_, px_),
-	    elems[k]->sigma(y_, y_), elems[k]->sigma(py_, py_),
-	    elems[k]->sigma(y_, py_),
-	    radtodeg(atan2(2e0*elems[k]->sigma(x_, y_),
-			   elems[k]->sigma(x_, x_)-elems[k]->sigma(y_, y_))
-		     /2e0), elems[k]->sigma(x_, y_));
+	    elems[k]->sigma[x_][x_], elems[k]->sigma[px_][px_],
+	    elems[k]->sigma[x_][px_],
+	    elems[k]->sigma[y_][y_], elems[k]->sigma[py_][py_],
+	    elems[k]->sigma[y_][py_],
+	    radtodeg(atan2(2e0*elems[k]->sigma[x_][y_],
+			   elems[k]->sigma[x_][x_]-elems[k]->sigma[y_][y_])
+		     /2e0), elems[k]->sigma[x_][y_]);
 
   fclose(fp);
 
@@ -1607,7 +1611,7 @@ void LatticeType::GetEmittance(const int Fnum, const bool prt)
   double              C, theta, V_RF, phi0, gamma_z;
   double              sigma_s, sigma_delta;
   std::vector<double> nu = {0.0, 0.0, 0.0};
-  arma::mat           Ascr(tps_n, tps_n);
+  arma::mat           Ascr(tps_n, tps_n), sigma(nv_tps, nv_tps);
   ss_vect<tps>        Ascr_map;
   CavityType          *Cp;
 
@@ -1679,18 +1683,15 @@ void LatticeType::GetEmittance(const int Fnum, const bool prt)
   for (loc = 0; loc <= conf.Cell_nLoc; loc++) {
     elems[loc]->Elem_Pass(conf, Ascr_map);
     // sigma = A x A^tp
-    elems[loc]->sigma = maptomat(Ascr_map);
-    elems[loc]->sigma = trans(elems[loc]->sigma);
-    Ascr = maptomat(Ascr_map);
-    elems[loc]->sigma = Ascr*elems[loc]->sigma;
+    elems[loc]->sigma = mattostlmat(Ascr*trans(Ascr));
   }
 
   // A. W. Chao, M. J. Lee "Particle Distribution Parameters in an Electron
   // Storage Ring" J. Appl. Phys. 47 (10), 4453-4456 (1976).
   // observable tilt angle
   theta =
-    atan2(2e0*elems[0]->sigma(x_, y_),
-	  (elems[0]->sigma(x_, x_)-elems[0]->sigma(y_, y_)))/2e0;
+    atan2(2e0*elems[0]->sigma[x_][y_],
+	  (elems[0]->sigma[x_][x_]-elems[0]->sigma[y_][y_]))/2e0;
 
   // longitudinal alpha and beta
   conf.alpha_z =
@@ -1744,16 +1745,16 @@ void LatticeType::GetEmittance(const int Fnum, const bool prt)
 	   1e0-nu[X_], 1e0-nu[Y_], 1e0-nu[Z_]);
     printf("\nsigmas:                         "
 	   "sigma_x     =  %5.1f  microns, sigma_px    = %5.1f urad\n",
-	   1e6*sqrt(elems[0]->sigma(x_, x_)),
-	   1e6*sqrt(elems[0]->sigma(px_, px_)));
+	   1e6*sqrt(elems[0]->sigma[x_][x_]),
+	   1e6*sqrt(elems[0]->sigma[px_][px_]));
     printf("                                "
 	   "sigma_y     =  %5.1f  microns, sigma_py    = %5.1f urad\n",
-	   1e6*sqrt(elems[0]->sigma(y_, y_)),
-	   1e6*sqrt(elems[0]->sigma(py_, py_)));
+	   1e6*sqrt(elems[0]->sigma[y_][y_]),
+	   1e6*sqrt(elems[0]->sigma[py_][py_]));
     printf("                                "
 	   "sigma_s     =  %6.2f mm,      sigma_delta = %8.2e\n",
-	   1e3*sqrt(elems[0]->sigma(ct_, ct_)),
-	   sqrt(elems[0]->sigma(delta_, delta_)));
+	   1e3*sqrt(elems[0]->sigma[ct_][ct_]),
+	   sqrt(elems[0]->sigma[delta_][delta_]));
 
     printf("\nBeam ellipse twist [rad]:       tw      = %5.3f\n", theta);
     printf("                   [deg]:       tw      = %5.3f\n",

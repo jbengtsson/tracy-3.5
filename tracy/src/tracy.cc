@@ -369,10 +369,10 @@ void prt_name_ascii(string &name)
 }
 
 
-long LatticeType::ElemIndex(const __gnu_debug::string &name)
+long LatticeType::ElemIndex(const std::string &name)
 {
   long        i;
-  __gnu_debug::string name1 = name;
+  std::string name1 = name;
 
   const bool prt = false;
 
