@@ -98,9 +98,13 @@ def main(file_name):
 
 
 lat_dir = os.getenv('LAT')
-if not True:
+lat_ind = 3;
+
+if lat_ind == 1:
     file_name = lat_dir+'/BESSY-III/NoTG-TGRB-B60-6bend-6sx_JB_tracy'
-else:
+elif lat_ind == 2:
     file_name = lat_dir+'/DIAMOND-II/vmx_symopt_Qx205_Qy364'
+elif lat_ind == 3:
+    file_name = 'tests/lattices/b2_stduser_beamports_blm_tracy_corr'
 
 main(file_name)
