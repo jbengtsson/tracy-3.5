@@ -71,7 +71,6 @@ using namespace std;
 #include "t2ring.h"
 // #include "sigma_track.h"
 
-#include "t2lat.h"
 #include "rdmfile.h"
 #include "prtmfile.h"
 

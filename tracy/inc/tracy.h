@@ -21,8 +21,8 @@
 #define bigvectmax      4096
 
 // Dynamic aperture (chk_if_lost).
-#define px_0            0.0
-#define py_0            0.0
+#define px_0            0e0
+#define py_0            0e0
 
 
 typedef char str80[80];
@@ -82,22 +82,13 @@ const double  eps_0 = 1.0/(sqr(c0)*mu_0);       // permeability of free space
 const double  r_e   = q_e/(4.0*M_PI*eps_0*m_e); // classical electron radius
 const double  h_bar = 6.58211899e-16;           /* reduced Planck constant
 						   [eV s] */
-typedef char alfa_[NameLength];
-
 #define fitvectmax 200
 typedef long   fitvect[fitvectmax];
 
 extern double Fdrift1, Fkick1, Fdrift2, Fkick2, crad, cfluc;
 
-extern str80 finame,           // input  data file
-             foname,           // output data file
-             fname;            // temp file name
-
 extern FILE  *fi,              // lattice input  file
-             *fo,              // lattice output file
-             *psin[],          // program input file
-             *psout,           // program output file
-             *prr[];           // prr[1] : input, prr[2] : output
+             *fo;              // lattice output file
 
 extern int P_eof(FILE *f);
 extern int P_eoln(FILE *f);
@@ -111,7 +102,15 @@ extern void gcmat(int bpm, int corr, int plane);
 extern void lsoc(int niter, int bpm, int corr, int plane);
 
 
+// struct DBName
+// {
+//   char name[DBNameLen];
+// };
+
+
+typedef char                alfa_[NameLength];
 typedef char                partsName[NameLength];
+
 typedef std::vector<double> MpoleArray;
 
 

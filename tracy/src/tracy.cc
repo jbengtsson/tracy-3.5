@@ -54,21 +54,14 @@
 // NSLS-II.
 // #include "nsls-ii_lib.cc"
 
-#if 1
+#if 0
 #include "../../python/src/tracy_py.cc"
 #endif
 
-str80
-  finame,               // input data file.
-  foname,               // output data file.
-  fname;                // temp file name.
 
 FILE
   *fi,                  // lattice input  file.
-  *fo,                  // lattice output file.
-  *psin[maxincl+1],     // program input file.
-  *psout,               // program output file.
-  *prr[maxfil-2];       // prr[1] : input, prr[2] : output.
+  *fo;                  // lattice output file.
 
 
 int

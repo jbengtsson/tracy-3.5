@@ -4,15 +4,8 @@ static std::vector<ElemFamType> *ElemFam_;
 static LatticeType              *Lat_;
 
 
-#define NoBmax       300          // maximum number of blocks (NoB)
-//#define NoBEmax      25000      /* maximum number of elements in
-//				     a block (Elem_NFam) */
-#define NoBEmax      200000       /* maximum number of elements in
-				     a block (Elem_NFam) */
-//#define UDImax       100        // max number of user defined constants
-#define UDImax       500          // max number of user defined constants
-//#define LatLLng      (132+1)
-// #define LatLLng      (1000+1)
+#define DBNameLen    39
+
 #define LatLLng      (2000+1)
 #define Lat_nkw_max  200          // no. of key words
 
@@ -73,7 +66,7 @@ typedef struct _REC_BlockStype
   long      BSTART, BOWARI;
 } _REC_BlockStype;
 
-typedef _REC_BlockStype BlockStype[NoBmax];
+typedef std::vector<_REC_BlockStype> BlockStype;
 
 typedef long index_;
 
@@ -89,42 +82,43 @@ typedef struct _REC_UDItable {
 } _REC_UDItable;
 
 
-//* Local variables for Lat_Read: */
+// Local variables for Lat_Read:
 struct LOC_Lat_Read
 {
-  FILE     *fi, *fo;
-  jmp_buf  _JL9999;
-  long     Symmetry;
-  bool     Ring;    /* true is CELL is a ring */
+  FILE              *fi, *fo;
+  jmp_buf           _JL9999;
+  long              Symmetry;
+  bool              Ring;            // true is CELL is a ring
 
-  long  NoB;        /* Number of defined Blocks */
-  BlockStype BlockS;
+  long              NoB;             // Number of defined Blocks
+  BlockStype        BlockS;
 
-  long  Bstack[NoBEmax];
-  long  Bpointer;
-  bool  Reverse_stack[NoBEmax]; // Reverse element.
+  std::vector<long> Bstack;
+  long              Bpointer;
+  std::vector<bool> Reverse_stack;    // Reverse element.
 
-  long  UDIC;       /* Number of user defined constants */
-  _REC_UDItable UDItable[UDImax];
+  long              UDIC;             // Number of user defined constants
+  std::vector<_REC_UDItable>
+  UDItable;
 
-  long         nkw;    /* number of key word */
-  Lat_symbol   sym;    /* last symbol read by GetSym*/
-  alfa_        id;     /* identifier from GetSym*/
-  long         inum;   /* integer from GetSym*/
-  double       rnum;   /* double number from GetSym*/
-  char         chin;   /* last character read from source program*/
-  long         cc;     /* character counter*/
-  long         lc;     /* program location counter*/
-  long         ll;     /* length of current line*/
-  long         errpos;
-  Latlinetype  line;
+  long              nkw;              // number of key word
+  Lat_symbol        sym;              // last symbol read by GetSym*/
+  alfa_             id;               // identifier from GetSym*/
+  long              inum;             // integer from GetSym*/
+  double            rnum;             // double number from GetSym*/
+  char              chin;             // last character read from source program
+  long              cc;               // character counter*/
+  long              lc;               // program location counter*/
+  long              ll;               // length of current line*/
+  long              errpos;
+  Latlinetype       line;
 
-  Lat_keytype  key;
-  Lat_ksytype  ksy;
-  Lat_spstype  sps;
+  Lat_keytype       key;
+  Lat_ksytype       ksy;
+  Lat_spstype       sps;
 
-  symset       defbegsys, elmbegsys;
-  bool         skipflag, rsvwd;
+  symset            defbegsys, elmbegsys;
+  bool              skipflag, rsvwd;
 };
 
 
@@ -224,18 +218,12 @@ static long CheckElementtable(const char *name, struct LOC_Lat_Read *LINK)
 static long CheckBLOCKStable(const char *name, struct LOC_Lat_Read *LINK)
 {
   /* NoB = Number of Block defs */
-  long  i, j, FORLIM;
+  long  i, j;
 
   j = 0;
-  if (LINK->NoB > NoBmax) {
-    printf("\nCheckBLOCKStable: ** NoBmax exhausted: %ld(%ld)\n",
-	   LINK->NoB, (long)NoBmax);
-    return j;
-  }
   //  if (strstr(LINK->line,"insertion") != NULL) return 0;
 
-  FORLIM = LINK->NoB;
-  for (i = 1; i <= FORLIM; i++) {
+  for (i = 1; i <= LINK->NoB; i++) {
     if (!strncmp(LINK->BlockS[i-1].Bname, name, sizeof(partsName)))
       j = i;
   }
@@ -251,17 +239,10 @@ static long CheckBLOCKStable(const char *name, struct LOC_Lat_Read *LINK)
 
 static long CheckUDItable(const char *name, struct LOC_Lat_Read *LINK)
 {
-  long  i, j, FORLIM;
+  long  i, j;
 
   j = 0;
-  if (LINK->UDIC > UDImax) {
-    printf("\nCheckUDItable: ** UDImax exhausted: %ld(%d)\n",
-	   LINK->UDIC, UDImax);
-    exit_(1);
-    return j;
-  }
-  FORLIM = LINK->UDIC;
-  for (i = 1L; i <= FORLIM; i++) {
+  for (i = 1L; i <= LINK->UDIC; i++) {
     if (!strncmp(LINK->UDItable[i - 1L].Uname, name, sizeof(partsName)))
       j = i;
   }
@@ -272,15 +253,10 @@ static long CheckUDItable(const char *name, struct LOC_Lat_Read *LINK)
 static void EnterUDItable(const char *name, double X,
 			  struct LOC_Lat_Read *LINK)
 {
-  _REC_UDItable  *WITH;
+  _REC_UDItable *WITH;
 
   LINK->UDIC++;
-  if (LINK->UDIC > UDImax) {
-    printf("\nEnterUDItable: ** UDImax exhausted: %ld(%d)\n",
-	   LINK->UDIC, UDImax);
-    exit_(1);
-    return;
-  }
+  LINK->UDItable.resize(LINK->UDIC);
   WITH = &LINK->UDItable[LINK->UDIC-1];
   // memcpy(WITH->Uname, name, sizeof(partsName));
   strncpy(WITH->Uname, name, sizeof(partsName));
@@ -865,7 +841,7 @@ struct LOC_Lat_EVAL
   Lat_symbol *sps;
   jmp_buf _JL999;
 
-  double S[tmax + 1];
+  std::vector<double> S;
   long t;
   symset facbegsys;
 };
@@ -940,11 +916,7 @@ static void writes(struct LOC_Lat_EVAL *LINK)
 static void PUSH(double x, struct LOC_Lat_EVAL *LINK)
 {
   LINK->t++;
-  if (LINK->t == tmax)
-    {
-      printf("\nPUSH: ** Lat_Eval: stack overflow\n");
-      longjmp(LINK->_JL999, 1);
-    }
+  LINK->S.resize(LINK->t+1);
   LINK->S[LINK->t] = x;
   writes(LINK);
 }
@@ -1007,6 +979,7 @@ static double GetKparm(long direction, struct LOC_Factor *LINK)
       ->PBpar[HOMmax-(long)LINK->LINK->LINK->LINK
 	      ->S[LINK->LINK->LINK->LINK->t]];
   LINK->LINK->LINK->LINK->t--;
+  LINK->LINK->LINK->LINK->S.resize(LINK->LINK->LINK->LINK->t+1);
   /* GetSym;*/
   return Result;
 }
@@ -1193,11 +1166,13 @@ static void Term(struct LOC_Expression *LINK)
     if (mulop == times) {
       LINK->LINK->S[LINK->LINK->t-1] *= LINK->LINK->S[LINK->LINK->t];
       LINK->LINK->t--;
+      LINK->LINK->S.resize(LINK->LINK->t+1);
       writes(LINK->LINK);
     } else {
       if (mulop == rdiv) {
 	LINK->LINK->S[LINK->LINK->t-1] /= LINK->LINK->S[LINK->LINK->t];
 	LINK->LINK->t--;
+	LINK->LINK->S.resize(LINK->LINK->t+1);
 	writes(LINK->LINK);
       }
     }
@@ -1232,11 +1207,13 @@ static void Expression(struct LOC_Lat_EVAL *LINK)
     if (addop == plus_) {
       LINK->S[LINK->t-1] += LINK->S[LINK->t];
       LINK->t--;
+      LINK->S.resize(LINK->t+1);
       writes(LINK);
     } else {
       if (addop == minus_) {
 	LINK->S[LINK->t-1] -= LINK->S[LINK->t];
 	LINK->t--;
+	LINK->S.resize(LINK->t+1);
 	writes(LINK);
       }
     }
@@ -1385,11 +1362,8 @@ static void DeBlock(long ii, long k4, struct LOC_Lat_ProcessBlockInput *LINK)
   for (k5 = 1; k5 <= k4; k5++) {
     for (k1 = k2 - 1; k1 < k3; k1++) {  /*11*/
       LINK->LINK->Bpointer++;
-      if (LINK->LINK->Bpointer >= NoBEmax) {
-	printf("\nDeBlock: ** NoBEmax exceeded %ld (%d)\n",
-	       LINK->LINK->Bpointer, NoBEmax);
-	exit(1);
-      }
+      LINK->LINK->Bstack.resize(LINK->LINK->Bpointer);
+      LINK->LINK->Reverse_stack.resize(LINK->LINK->Bpointer);
       LINK->LINK->Bstack[LINK->LINK->Bpointer-1] = LINK->LINK->Bstack[k1];
       LINK->LINK->Reverse_stack[LINK->LINK->Bpointer-1] =
 	LINK->LINK->Reverse_stack[k1];
@@ -1420,11 +1394,8 @@ static void InsideParent(long k4, struct LOC_GetBlock *LINK)
     for (k1 = 2; k1 <= k4; k1++) {
       for (b = b1 - 1; b < b2; b++) {
 	LINK->LINK->LINK->Bpointer++;
-	if (LINK->LINK->LINK->Bpointer >= NoBEmax) {
-	  printf("\nInsideParent: ** NoBEmax exceeded %ld (%d)\n",
-		 LINK->LINK->LINK->Bpointer, NoBEmax);
-	  exit(1);
-	}
+	LINK->LINK->LINK->Bstack.resize(LINK->LINK->LINK->Bpointer);
+	LINK->LINK->LINK->Reverse_stack.resize(LINK->LINK->LINK->Bpointer);
 	LINK->LINK->LINK->Bstack[LINK->LINK->LINK->Bpointer-1] =
 	  LINK->LINK->LINK->Bstack[b];
 	LINK->LINK->LINK->Reverse_stack[LINK->LINK->LINK->Bpointer-1] =
@@ -1537,11 +1508,8 @@ static void GetBlock(struct LOC_Lat_ProcessBlockInput *LINK)
 	  i = CheckElementtable(LINK->id, LINK->LINK);
 	  if (i != 0) {  /*9*/
 	    LINK->LINK->Bpointer++;
-	    if (LINK->LINK->Bpointer >= NoBEmax) {
-	      printf("\nGetBlock: ** NoBEmax exceeded %ld (%d)\n",
-		     LINK->LINK->Bpointer, NoBEmax);
-	      exit(1);
-	    }
+	    LINK->LINK->Bstack.resize(LINK->LINK->Bpointer);
+	    LINK->LINK->Reverse_stack.resize(LINK->LINK->Bpointer);
 	    LINK->LINK->Bstack[LINK->LINK->Bpointer-1] = i;
 	    LINK->LINK->Reverse_stack[LINK->LINK->Bpointer-1] = false;
 	    GetSym_(LINK);
@@ -1579,11 +1547,9 @@ static void GetBlock(struct LOC_Lat_ProcessBlockInput *LINK)
 		      if (i != 0) {  /*13*/
 			for (k1 = 1; k1 <= k4; k1++) {  /*14*/
 			  LINK->LINK->Bpointer++;
-			  if (LINK->LINK->Bpointer >= NoBEmax) {
-			    printf("\nGetBlock: ** NoBEmax exceeded %ld (%d)\n",
-				   LINK->LINK->Bpointer, NoBEmax);
-			    exit(1);
-			  }
+			  LINK->LINK->Bstack.resize(LINK->LINK->Bpointer);
+			  LINK->LINK->Reverse_stack.resize
+			    (LINK->LINK->Bpointer);
 			  LINK->LINK->Bstack[LINK->LINK->Bpointer-1] = i;
 			  LINK->LINK->Reverse_stack[LINK->LINK->Bpointer-1] =
 			    false;
@@ -1628,11 +1594,8 @@ static void GetBlock(struct LOC_Lat_ProcessBlockInput *LINK)
 		    if (i != 0) {  /*11*/
 		      for (k1 = 1; k1 <= k4; k1++) {  /*12*/
 			LINK->LINK->Bpointer++;
-			if (LINK->LINK->Bpointer >= NoBEmax) {
-			  printf("\nGetBlock: ** NoBEmax exceeded %ld (%d)\n",
-				 LINK->LINK->Bpointer, NoBEmax);
-			  exit(1);
-			}
+			LINK->LINK->Bstack.resize(LINK->LINK->Bpointer);
+			LINK->LINK->Reverse_stack.resize(LINK->LINK->Bpointer);
 			LINK->LINK->Bstack[LINK->LINK->Bpointer-1] = i;
 			LINK->LINK->Reverse_stack[LINK->LINK->Bpointer-1] =
 			  false;
@@ -1657,11 +1620,8 @@ static void GetBlock(struct LOC_Lat_ProcessBlockInput *LINK)
 	      i = CheckElementtable(LINK->id, LINK->LINK);
 	      if (i != 0) {  /*9*/
 		LINK->LINK->Bpointer++;
-		if (LINK->LINK->Bpointer >= NoBEmax) {
-		  printf("\nGetBlock: ** NoBEmax exceeded %ld (%d)\n",
-			 LINK->LINK->Bpointer, NoBEmax);
-		  exit(1);
-		}
+		LINK->LINK->Bstack.resize(LINK->LINK->Bpointer);
+		LINK->LINK->Reverse_stack.resize(LINK->LINK->Bpointer);
 		LINK->LINK->Bstack[LINK->LINK->Bpointer-1] = -i;
 		LINK->LINK->Reverse_stack[LINK->LINK->Bpointer-1] = false;
 		GetSym_(LINK);
@@ -1725,12 +1685,9 @@ static void Lat_ProcessBlockInput(FILE *fi_, FILE *fo_, long *cc_, long *ll_,
     return;
   }
   /* Increment number of defined blocks */
+  
   LINK->NoB++;
-  if (LINK->NoB > NoBmax) {
-    printf("\nLOC_Lat_ProcessBlockInput: ** NoBmax exhausted: %ld(%d)\n",
-	   LINK->NoB, NoBmax);
-    return;
-  }
+  LINK->BlockS.resize(LINK->NoB);
   WITH = &LINK->BlockS[LINK->NoB-1];
   memcpy(WITH->Bname, BlockName, sizeof(partsName));
   WITH->BSTART = LINK->Bpointer + 1;
@@ -1764,29 +1721,37 @@ static bool Lat_CheckWiggler(FILE *fo, long i, struct LOC_Lat_Read *LINK)
 }
 
 /* Local variables for Lat_DealElement: */
+
+struct DBName
+{
+  char name[DBNameLen];
+};
+
+
 struct LOC_Lat_DealElement
 {
-  struct      LOC_Lat_Read *LINK;
-  FILE        *fi, *fo;
-  long        *cc, *ll, *errpos, *lc, *nkw, *inum, emax_, emin_, kmax_, nmax_;
-  char        *chin;
-  char        *id;
-  char        *BlockName;
-  double      *rnum;
-  bool        *skipflag, *rsvwd;
-  char        *line;
-  Lat_symbol  *sym;
-  alfa_       *key;
-  Lat_symbol  *ksy;
-  Lat_symbol  *sps;
-  jmp_buf     _JL9999;
-  double      B[HOMmax+HOMmax+1];
-  bool        BA[HOMmax+HOMmax+1];
-  int         n_harm, harm[n_harm_max];
-  double      kxV[n_harm_max], BoBrhoV[n_harm_max];
-  double      kxH[n_harm_max], BoBrhoH[n_harm_max], phi[n_harm_max];
-  long        DBNsavemax;
-  DBNameType  DBNsave[nKidMax];
+  struct     LOC_Lat_Read *LINK;
+  FILE       *fi, *fo;
+  long       *cc, *ll, *errpos, *lc, *nkw, *inum, emax_, emin_, kmax_, nmax_;
+  char       *chin;
+  char       *id;
+  char       *BlockName;
+  double     *rnum;
+  bool       *skipflag, *rsvwd;
+  char       *line;
+  Lat_symbol *sym;
+  alfa_      *key;
+  Lat_symbol *ksy;
+  Lat_symbol *sps;
+  jmp_buf    _JL9999;
+  double     B[HOMmax+HOMmax+1];
+  bool       BA[HOMmax+HOMmax+1];
+  int        n_harm, harm[n_harm_max];
+  double     kxV[n_harm_max], BoBrhoV[n_harm_max];
+  double     kxH[n_harm_max], BoBrhoH[n_harm_max], phi[n_harm_max];
+  long       DBNsavemax;
+  std::vector<DBName>
+  DBNsave;
 };
 
 
@@ -1878,8 +1843,8 @@ static void ClearHOMandDBN(struct LOC_Lat_DealElement *LINK)
   long i;
 
   for (i = -HOMmax; i <= HOMmax; i++) {
-    LINK->B[i + HOMmax] = 0.0;
-    LINK->BA[i + HOMmax] = false;
+    LINK->B[i+HOMmax] = 0e0;
+    LINK->BA[i+HOMmax] = false;
   }
   LINK->DBNsavemax = 0;
 }
@@ -1952,17 +1917,18 @@ static void GetDBN_(struct LOC_Lat_DealElement *LINK)
   symset SET;
   long SET1[(long)squote / 32 + 2];
 
-  getest__(P_expset(SET, 1 << ((long)lparent)), "<(> expected:GetDBN", LINK);
+  getest__(P_expset(SET, 1 << ((long)lparent)), "GetDBN: <(> expected", LINK);
   do {
     getest__(P_addset(P_expset(SET1, 0), (long)squote),
-	     "<'> expected:GetDBN", LINK);
+	     "GetDBN <'> expected:", LINK);
     LINK->DBNsavemax++;
+    LINK->DBNsave.resize(LINK->DBNsavemax);
     for (i = 0; i < DBNameLen; i++)
-      LINK->DBNsave[LINK->DBNsavemax-1][i] = ' ';
+      LINK->DBNsave[LINK->DBNsavemax-1].name[i] = ' ';
     i = 0;
     while (*LINK->chin != '\'' && i < DBNameLen) {
       i++;
-      LINK->DBNsave[LINK->DBNsavemax-1][i-1] = *LINK->chin;
+      LINK->DBNsave[LINK->DBNsavemax-1].name[i-1] = *LINK->chin;
       Lat_Nextch(LINK->fi, LINK->fo, LINK->cc, LINK->ll, LINK->errpos,
 		 LINK->lc, LINK->chin, LINK->skipflag, LINK->line,
 		 LINK->LINK);
@@ -1986,9 +1952,9 @@ static void SetDBN(ElemFamType &elemf, struct LOC_Lat_DealElement *LINK)
     for (i = 0; i < elemf.NoDBN; i++) {
       j = 0;
       do {
-  	elemf.DBNlist.back().push_back(LINK->DBNsave[i][j]);
+  	elemf.DBNlist.back().push_back(LINK->DBNsave[i].name[j]);
   	j++;
-      } while(LINK->DBNsave[i][j] != ' ');
+      } while(LINK->DBNsave[i].name[j] != ' ');
     }
   }
 }
@@ -3701,7 +3667,6 @@ static void DealWithDefns(struct LOC_Lat_Read *LINK)
   long SET2[(long)period_ / 32 + 2];
   long SET3[(long)invsym / 32 + 2];
   _REC_BlockStype *WITH;
-  long FORLIM;
   long SET4[(long)symsym / 32 + 2];
   long SET5[(long)endsym / 32 + 2];
 
@@ -3838,16 +3803,9 @@ static void DealWithDefns(struct LOC_Lat_Read *LINK)
 	k = 0;
 	if (i != 0) {  /*4*/
 	  WITH = &LINK->BlockS[i-1];
-	  FORLIM = WITH->BOWARI;
-	  for (j = WITH->BSTART - 1; j < FORLIM; j++) {  /*6*/
+	  for (j = WITH->BSTART - 1; j < WITH->BOWARI; j++) {  /*6*/
 	    k++;
-	    if (j < NoBEmax)
-	      k1 = LINK->Bstack[j];
-	    else {
-	      printf("\nDealWithDefns: ** NoBEmax exceeded %ld (%d)\n",
-		     j+1, NoBEmax);
-	      exit(1);
-	    }
+	    k1 = LINK->Bstack[j];
 	    if (k <= Cell_nLocMax) {
 	      // Allocate family for local list.
 	      Cell_List.emplace_back();
@@ -4024,11 +3982,9 @@ static double Circumference(struct LOC_Lat_Read *LINK)
 {
   long i;
   double S;
-  long FORLIM;
 
-  S = 0.0;
-  FORLIM = Lat_->conf.Cell_nLoc;
-  for (i = 1; i <= FORLIM; i++)
+  S = 0e0;
+  for (i = 1; i <= Lat_->conf.Cell_nLoc; i++)
     S += (*ElemFam_)[Cell_List[i].Fnum-1].ElemF->PL;
   return S;
 }
@@ -4088,9 +4044,7 @@ void PrintResult(struct LOC_Lat_Read *LINK)
   printf("  TRACY III v. 3.5 compiled on %s\n",__DATE__);
   printf("\n");
   printf("  LATTICE Statistics for today %s \n\n", asctime2(newtime));
-  printf("  Number of constants: UDIC                 =%5ld"
-	 ", UDImax          =%5d\n",
-	 LINK->UDIC, UDImax);
+  printf("  Number of constants: UDIC                 =%5ld\n", LINK->UDIC);
   printf("  Number of keywords : nkw                  =%5ld"
 	 ", Lat_nkw_max     =%5d\n",
 	 LINK->nkw, Lat_nkw_max);
@@ -4102,12 +4056,8 @@ void PrintResult(struct LOC_Lat_Read *LINK)
       nKid = (*ElemFam_)[j].nKid;
   }
   printf("  Max number of Kids : nKid                 =%5ld\n", nKid);
-  printf("  Number of Blocks   : NoB                  =%5ld"
-	 ", NoBmax          =%5d\n",
-	 LINK->NoB, NoBmax);
-  printf("  Max Block size     : NoBE                 =%5ld"
-	 ", NoBEmax         =%5d\n",
-	 LINK->Bpointer, NoBEmax);
+  printf("  Number of Blocks   : NoB                  =%5ld\n", LINK->NoB);
+  printf("  Max Block size     : NoBE                 =%5ld\n", LINK->Bpointer);
   printf("  Number of Elements : Lat_->conf.Cell_nLoc =%5ld"
 	 ", Cell_nLocmax    =%5d\n",
 	 Lat_->conf.Cell_nLoc, Cell_nLocMax);
@@ -4171,8 +4121,6 @@ bool LatticeType::Lat_Read(const std::string &filnam)
   return (!Lat_->conf.ErrFlag);
 }
 
-#undef NoBmax
-#undef NoBEmax
 #undef UDImax
 #undef LatLLng
 #undef Lat_nkw_max
