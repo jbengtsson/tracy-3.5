@@ -2,6 +2,12 @@
 
 Rather a test that the correct names were used in the export
 '''
+
+import os, sys
+
+tracy_dir = os.getenv('TRACY_LIB')
+sys.path.append(tracy_dir+'/tracy/lib')
+
 import unittest
 import libtracy as scsi
 
