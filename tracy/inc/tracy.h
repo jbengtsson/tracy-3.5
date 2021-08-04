@@ -85,18 +85,6 @@ extern void gcmat(int bpm, int corr, int plane);
 extern void lsoc(int niter, int bpm, int corr, int plane);
 
 
-#define NameLength      150  // Max length of identifiers (e.g. file names).
-
-#define blankname       "               "
-
-struct name_struct
-{
-  char name[NameLength];
-};
-
-typedef char                alfa_[NameLength];
-typedef char                partsName[NameLength];
-
 typedef std::vector<double> MpoleArray;
 
 

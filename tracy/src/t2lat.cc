@@ -37,9 +37,11 @@ typedef enum
   vrfsym, harnumsym, frqsym, gstsym, typsym, rollsym, idsym,
   fnamesym1, fnamesym2, scalingsym, fmsym, harmsym, sprsym, recsym, solsym,
   entryfsym, exitfsym
-} Lat_symbol;   /*\*/
+} Lat_symbol;
+
 // idsym fnamesym1 fnamesym2 scalingsym added for insertion
 // ring sym added
+
 /* p2c: t2lat.pas, line 52:
  * Note: Line breaker spent 0.0 seconds, 5000 tries on line 603 [251] */
 
@@ -53,9 +55,9 @@ const int  max_set = (solsym-bndsym+1)/SETBITS + 2;
 // array for set
 typedef long int  symset[max_set];
 
-typedef  alfa_       Lat_keytype[Lat_nkw_max];
-typedef  Lat_symbol  Lat_ksytype[Lat_nkw_max];
-typedef  Lat_symbol  Lat_spstype[256];
+#define NameLength 150  // Max length of identifiers (e.g. file names).
+
+typedef char partsName[NameLength];
 
 typedef struct _REC_BlockStype
 {
@@ -78,6 +80,19 @@ typedef struct _REC_UDItable {
   double     Uvalue;
 } _REC_UDItable;
 
+
+#define blankname       "               "
+
+struct alfa_struct
+{
+  char name[NameLength];
+};
+
+typedef char alfa_[NameLength];
+
+typedef  alfa_      Lat_keytype[Lat_nkw_max];
+typedef  Lat_symbol Lat_ksytype[Lat_nkw_max];
+typedef  Lat_symbol Lat_spstype[256];
 
 // Local variables for Lat_Read:
 struct LOC_Lat_Read
@@ -116,6 +131,47 @@ struct LOC_Lat_Read
 
   symset            defbegsys, elmbegsys;
   bool              skipflag, rsvwd;
+};
+
+
+/* Local variables for Lat_EVAL: */
+struct LOC_Lat_EVAL
+{
+  struct LOC_Lat_Read *LINK;
+  FILE       *fi, *fo;
+  long       *cc, *ll, *errpos, *lc, *nkw, *inum, emax_, emin_, kmax_, nmax_;
+  char       *chin;
+  char       *id;
+  double     *rnum;
+  bool       *skipflag, *rsvwd;
+  char       *line;
+  Lat_symbol *sym;
+  alfa_      *key;
+  Lat_symbol *ksy;
+  Lat_symbol *sps;
+  jmp_buf    _JL999;
+
+  std::vector<double> S;
+  long t;
+  symset facbegsys;
+};
+
+
+/* Local variables for Lat_ProcessBlockInput: */
+struct LOC_Lat_ProcessBlockInput
+{
+  struct LOC_Lat_Read *LINK;
+  FILE       *fi, *fo;
+  long       *cc, *ll, *errpos, *lc, *nkw, *inum, emax_, emin_, kmax_, nmax_;
+  char       *chin;
+  char       *id;
+  double     *rnum;
+  bool       *skipflag, *rsvwd;
+  char       *line;
+  Lat_symbol *sym;
+  alfa_      *key;
+  Lat_symbol *ksy;
+  Lat_symbol *sps;
 };
 
 
@@ -821,28 +877,6 @@ static void Lat_GetSym(FILE *fi_, FILE *fo_, long *cc_, long *ll_,
   }
 }
 
-/* Local variables for Lat_EVAL: */
-struct LOC_Lat_EVAL
-{
-  struct LOC_Lat_Read *LINK;
-  FILE *fi, *fo;
-  long *cc, *ll, *errpos, *lc, *nkw, *inum, emax_, emin_, kmax_, nmax_;
-  char *chin;
-  char *id;
-  double *rnum;
-  bool *skipflag, *rsvwd;
-  char *line;
-  Lat_symbol *sym;
-  alfa_ *key;
-  Lat_symbol *ksy;
-  Lat_symbol *sps;
-  jmp_buf _JL999;
-
-  std::vector<double> S;
-  long t;
-  symset facbegsys;
-};
-
 static void Expression(struct LOC_Lat_EVAL *LINK);
 
 
@@ -1284,23 +1318,6 @@ static double Lat_EVAL(FILE *fi_, FILE *fo_, long *cc_, long *ll_,
   return Result;
 }
 
-
-/* Local variables for Lat_ProcessBlockInput: */
-struct LOC_Lat_ProcessBlockInput
-{
-  struct LOC_Lat_Read *LINK;
-  FILE *fi, *fo;
-  long *cc, *ll, *errpos, *lc, *nkw, *inum, emax_, emin_, kmax_, nmax_;
-  char *chin;
-  char *id;
-  double *rnum;
-  bool *skipflag, *rsvwd;
-  char *line;
-  Lat_symbol *sym;
-  alfa_ *key;
-  Lat_symbol *ksy;
-  Lat_symbol *sps;
-};
 
 static void GetBlock(struct LOC_Lat_ProcessBlockInput *LINK);
 
