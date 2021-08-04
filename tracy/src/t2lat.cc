@@ -18,9 +18,6 @@ static LatticeType              *Lat_;
 #define nmax         LONG_MAX
 
 #define nn           3
-#define tmax         100
-
-#define nKidMax      5            // maximum number of kids.
 
 typedef char Latlinetype[LatLLng];
 
@@ -3806,31 +3803,19 @@ static void DealWithDefns(struct LOC_Lat_Read *LINK)
 	  for (j = WITH->BSTART - 1; j < WITH->BOWARI; j++) {  /*6*/
 	    k++;
 	    k1 = LINK->Bstack[j];
-	    if (k <= Cell_nLocMax) {
-	      // Allocate family for local list.
-	      Cell_List.emplace_back();
-	      Cell_List[k].Fnum = k1;
-	      Cell_List[k].Reverse = LINK->Reverse_stack[j];
-	      if (debug)
-	      	printf("  Cell definition: |%s| %2ld %3ld %2d %1d\n",
-	      	       WITH->Bname, i, k, Cell_List[k].Fnum,
-		       Cell_List[k].Reverse);
-	    } else {
-	      printf("\nDealWithDefns: ** Cell_nLocMax exhausted: %ld(%ld)\n",
-		     k, (long)Cell_nLocMax);
-	      exit_(1);
-	    }
+	    // Allocate family for local list.
+	    Cell_List.emplace_back();
+	    Cell_List[k].Fnum = k1;
+	    Cell_List[k].Reverse = LINK->Reverse_stack[j];
+	    if (debug)
+	      printf("  Cell definition: |%s| %2ld %3ld %2d %1d\n",
+		     WITH->Bname, i, k, Cell_List[k].Fnum,
+		     Cell_List[k].Reverse);
 	  }
 	  /*5*/
 	}
 	/*4*/
-	if (k <= Cell_nLocMax)
-	  Lat_->conf.Cell_nLoc = k;   /*number of Elements in a cell*/
-	else {
-	  printf("\nDealWithDefns: ** Cell_nLocMax exhausted: %ld(%ld)\n",
-		 k, (long)Cell_nLocMax);
-	  exit_(1);
-	}
+	Lat_->conf.Cell_nLoc = k;   /*number of Elements in a cell*/
 	getest___(P_expset(SET, 1 << ((long)comma)),
 		  "<, > expected", LINK);
 	getest___(P_addset(P_expset(SET4, 0), (long)symsym),
@@ -4048,7 +4033,7 @@ void PrintResult(struct LOC_Lat_Read *LINK)
   printf("  Number of keywords : nkw                  =%5ld"
 	 ", Lat_nkw_max     =%5d\n",
 	 LINK->nkw, Lat_nkw_max);
-  printf("  Number of Families : Lat_->conf.Elem_nFam    =%5ld\n",
+  printf("  Number of Families : Lat_->conf.Elem_nFam =%5ld\n",
 	 Lat_->conf.Elem_nFam);
   nKid = 0L;
   for (j = 0L; j < Lat_->conf.Elem_nFam; j++) {
@@ -4058,9 +4043,8 @@ void PrintResult(struct LOC_Lat_Read *LINK)
   printf("  Max number of Kids : nKid                 =%5ld\n", nKid);
   printf("  Number of Blocks   : NoB                  =%5ld\n", LINK->NoB);
   printf("  Max Block size     : NoBE                 =%5ld\n", LINK->Bpointer);
-  printf("  Number of Elements : Lat_->conf.Cell_nLoc =%5ld"
-	 ", Cell_nLocmax    =%5d\n",
-	 Lat_->conf.Cell_nLoc, Cell_nLocMax);
+  printf("  Number of Elements : Lat_->conf.Cell_nLoc =%5ld\n",
+	 Lat_->conf.Cell_nLoc);
   printf("  Circumference      : %12.7f [m]\n\n\n", Circumference(LINK));
 }
 
@@ -4130,4 +4114,3 @@ bool LatticeType::Lat_Read(const std::string &filnam)
 #undef nmax
 
 #undef nn
-#undef tmax

@@ -9,26 +9,12 @@
 # define LONG_MIN       (~LONG_MAX)
 #endif
 
-#define S_SIZE          200  // Max size for lattice file name.
-
-#define NameLength      150  // Max length of identifiers (e.g. file names).
-#define SymbolLength    15   // Max length of element name.
-
-#define blankname       "               "
-
 #define maxincl         5
 #define maxfil          10
-#define bigvectmax      4096
 
 // Dynamic aperture (chk_if_lost).
 #define px_0            0e0
 #define py_0            0e0
-
-
-typedef char str80[80];
-
-
-const int max_elem = Cell_nLocMax;
 
 
 // Macros.
@@ -87,9 +73,6 @@ typedef long   fitvect[fitvectmax];
 
 extern double Fdrift1, Fkick1, Fdrift2, Fkick2, crad, cfluc;
 
-extern FILE  *fi,              // lattice input  file
-             *fo;              // lattice output file
-
 extern int P_eof(FILE *f);
 extern int P_eoln(FILE *f);
 
@@ -102,11 +85,14 @@ extern void gcmat(int bpm, int corr, int plane);
 extern void lsoc(int niter, int bpm, int corr, int plane);
 
 
-// struct DBName
-// {
-//   char name[DBNameLen];
-// };
+#define NameLength      150  // Max length of identifiers (e.g. file names).
 
+#define blankname       "               "
+
+struct name_struct
+{
+  char name[NameLength];
+};
 
 typedef char                alfa_[NameLength];
 typedef char                partsName[NameLength];

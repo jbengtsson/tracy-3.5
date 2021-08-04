@@ -263,8 +263,8 @@ void LatticeType::Lat_Init(void)
 	printf("...\n");
       }
     if (debug)
-      printf("\nLat_Init: Fnum = %2d Knum = %2d loc = %3ld %*s\n",
-	     i, j, loc, SymbolLength, elems[loc]->Name.c_str());
+      printf("\nLat_Init: Fnum = %2d Knum = %2d loc = %3ld %-15s\n",
+	     i, j, loc, elems[loc]->Name.c_str());
   }
 
   /* Computes s-location of each element in the structure */

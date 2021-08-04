@@ -59,11 +59,6 @@
 #endif
 
 
-FILE
-  *fi,                  // lattice input  file.
-  *fo;                  // lattice output file.
-
-
 int
   Fnum_Cart,
   n_iter_Cart;

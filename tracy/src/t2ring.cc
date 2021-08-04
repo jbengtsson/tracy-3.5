@@ -928,8 +928,8 @@ void LatticeType::prt_beampos(const char *file_name)
   fprintf(outf, "#\n");
 
   for (k = 0; k <= conf.Cell_nLoc; k++)
-    fprintf(outf, "%4ld %.*s %6.2f %4.1f %12.5e %12.5e\n",
-	    k, SymbolLength, elems[k]->Name.c_str(), elems[k]->S,
+    fprintf(outf, "%4ld %-15s %6.2f %4.1f %12.5e %12.5e\n",
+	    k, elems[k]->Name.c_str(), elems[k]->S,
 	    get_code(conf, *elems[k]), elems[k]->BeamPos[x_],
 	    elems[k]->BeamPos[y_]);
 
