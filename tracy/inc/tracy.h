@@ -341,7 +341,7 @@ class ElemFamType {
     NoDBN;
   std::vector<int>
     KidList;
-  std::vector<__gnu_debug::string>
+  std::vector<std::string>
     DBNlist;                   // For control system.
 };
 
@@ -382,7 +382,7 @@ class LatticeType {
   bool Lat_Read(const std::string &filnam);
   bool Lat_Read_py(const std::string &filnam);
   void prtmfile(const std::string &mfile_dat);
-  void rdmfile(const __gnu_debug::string &mfile_dat);
+  void rdmfile(const std::string &mfile_dat);
 
   // t2elem.
 
@@ -863,9 +863,9 @@ class MapType : public ElemType {
 };
 
 
-void file_rd(std::ifstream &inf, const __gnu_debug::string &file_name);
+void file_rd(std::ifstream &inf, const std::string &file_name);
 
-void file_wr(std::ofstream &outf, const __gnu_debug::string &file_name);
+void file_wr(std::ofstream &outf, const std::string &file_name);
 
 void file_rd(std::ifstream &inf, const char file_name[]);
 

@@ -246,7 +246,7 @@ int P_eoln(FILE *f)
 
 // C++ file I/O.
 
-void file_rd(std::ifstream &inf, const __gnu_debug::string &file_name)
+void file_rd(std::ifstream &inf, const std::string &file_name)
 {
   inf.open(file_name.c_str(), std::ios::in);
   if (!inf.is_open()) {
@@ -256,7 +256,7 @@ void file_rd(std::ifstream &inf, const __gnu_debug::string &file_name)
 }
 
 
-void file_wr(std::ofstream &outf, const __gnu_debug::string &file_name)
+void file_wr(std::ofstream &outf, const std::string &file_name)
 {
   outf.open(file_name.c_str(), std::ios::out);
   if (!outf.is_open()) {

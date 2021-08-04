@@ -231,7 +231,7 @@ void LatticeType::Lat_Init(void)
   int      i, j;
   double   Stotal;
 
-  const __gnu_debug::string first_name = "begin";
+  const std::string first_name = "begin";
 
   if (debug) printf("Lat_Init: Cell_nLoc = %ld\n", conf.Cell_nLoc);
 
