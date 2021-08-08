@@ -57,8 +57,6 @@ inline ss_vect<double> stlvectops(const std::vector<double> &vec)
 #define IDXMAX  200
 #define IDZMAX  100
 
-#define debug   false
-
 // Physics constants
 const double  c0    = 2.99792458e8;             // speed of light in vacuum
 const double  q_e   = 1.602e-19;                // electron charge

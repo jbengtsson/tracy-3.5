@@ -4,22 +4,22 @@ static std::vector<ElemFamType> *ElemFam_;
 static LatticeType              *Lat_;
 
 
-#define DBNameLen    39
+#define debug       false
 
-#define LatLLng      (2000+1)
-#define Lat_nkw_max  200          // no. of key words
+#define DBNameLen   39
+
+#define LatLLng     (2000+1)
+#define Lat_nkw_max 200          // no. of key words
 
 // tables
 
-#define emax         322
-#define emin         (-292)
-#define kmax         15           // max no. of significant digits
+#define emax        322
+#define emin        (-292)
+#define kmax        15           // max no. of significant digits
 
-#define nmax         LONG_MAX
+#define nmax        LONG_MAX
 
-#define nn           3
-
-typedef char Latlinetype[LatLLng];
+#define nn          3
 
 typedef enum
 {
@@ -81,18 +81,11 @@ typedef struct _REC_UDItable {
 } _REC_UDItable;
 
 
-#define blankname       "               "
-
-struct alfa_struct
-{
-  char name[NameLength];
-};
-
 typedef char alfa_[NameLength];
 
-typedef  alfa_      Lat_keytype[Lat_nkw_max];
-typedef  Lat_symbol Lat_ksytype[Lat_nkw_max];
-typedef  Lat_symbol Lat_spstype[256];
+typedef alfa_      Lat_keytype[Lat_nkw_max];
+typedef Lat_symbol Lat_ksytype[Lat_nkw_max];
+typedef Lat_symbol Lat_spstype[256];
 
 // Local variables for Lat_Read:
 struct LOC_Lat_Read
@@ -100,30 +93,30 @@ struct LOC_Lat_Read
   FILE              *fi, *fo;
   jmp_buf           _JL9999;
   long              Symmetry;
-  bool              Ring;            // true is CELL is a ring
+  bool              Ring;          // true is CELL is a ring
 
-  long              NoB;             // Number of defined Blocks
+  long              NoB;           // Number of defined Blocks
   BlockStype        BlockS;
 
   std::vector<long> Bstack;
   long              Bpointer;
-  std::vector<bool> Reverse_stack;    // Reverse element.
+  std::vector<bool> Reverse_stack; // Reverse element.
 
-  long              UDIC;             // Number of user defined constants
+  long              UDIC;          // Number of user defined constants
   std::vector<_REC_UDItable>
   UDItable;
 
-  long              nkw;              // number of key word
-  Lat_symbol        sym;              // last symbol read by GetSym*/
-  alfa_             id;               // identifier from GetSym*/
-  long              inum;             // integer from GetSym*/
-  double            rnum;             // double number from GetSym*/
-  char              chin;             // last character read from source program
-  long              cc;               // character counter*/
-  long              lc;               // program location counter*/
-  long              ll;               // length of current line*/
+  long              nkw;           // number of key word
+  Lat_symbol        sym;           // last symbol read by GetSym*/
+  alfa_             id;            // identifier from GetSym*/
+  long              inum;          // integer from GetSym*/
+  double            rnum;          // double number from GetSym*/
+  char              chin;          // last character read from source program
+  long              cc;            // character counter*/
+  long              lc;            // program location counter*/
+  long              ll;            // length of current line*/
   long              errpos;
-  Latlinetype       line;
+  string            *line;
 
   Lat_keytype       key;
   Lat_ksytype       ksy;
@@ -144,7 +137,7 @@ struct LOC_Lat_EVAL
   char       *id;
   double     *rnum;
   bool       *skipflag, *rsvwd;
-  char       *line;
+  string     *line;
   Lat_symbol *sym;
   alfa_      *key;
   Lat_symbol *ksy;
@@ -167,11 +160,57 @@ struct LOC_Lat_ProcessBlockInput
   char       *id;
   double     *rnum;
   bool       *skipflag, *rsvwd;
-  char       *line;
+  string     *line;
   Lat_symbol *sym;
   alfa_      *key;
   Lat_symbol *ksy;
   Lat_symbol *sps;
+};
+
+
+struct DBName
+{
+  char name[DBNameLen];
+};
+
+struct LOC_Lat_DealElement
+{
+  struct     LOC_Lat_Read *LINK;
+  FILE       *fi, *fo;
+  long       *cc, *ll, *errpos, *lc, *nkw, *inum, emax_, emin_, kmax_, nmax_;
+  char       *chin;
+  char       *id;
+  char       *BlockName;
+  double     *rnum;
+  bool       *skipflag, *rsvwd;
+  string     *line;
+  Lat_symbol *sym;
+  alfa_      *key;
+  Lat_symbol *ksy;
+  Lat_symbol *sps;
+  jmp_buf    _JL9999;
+  double     B[HOMmax+HOMmax+1];
+  bool       BA[HOMmax+HOMmax+1];
+  int        n_harm, harm[n_harm_max];
+  double     kxV[n_harm_max], BoBrhoV[n_harm_max];
+  double     kxH[n_harm_max], BoBrhoH[n_harm_max], phi[n_harm_max];
+  long       DBNsavemax;
+  std::vector<DBName>
+    DBNsave;
+};
+
+
+/* Local variables for Lat_GetSym: */
+struct LOC_Lat_GetSym
+{
+  struct LOC_Lat_Read *LINK;
+  FILE   *fi, *fo;
+  long   *cc, *ll, *errpos, *lc, emax_, emin_;
+  char   *chin;
+  double *rnum;
+  bool   *skipflag;
+  string *line;
+  long   k, e;
 };
 
 
@@ -424,7 +463,7 @@ static void Lat_Error(long n, FILE *fo, long *cc, long *errpos,
 
 
 static void Lat_Nextch(FILE *fi, FILE *fo, long *cc, long *ll, long *errpos,
-		       long *lc, char *chin, bool *skipflag, char *line,
+		       long *lc, char *chin, bool *skipflag, string *line,
 		       struct LOC_Lat_Read *LINK)
 {
   if (*cc == *ll) {
@@ -447,7 +486,8 @@ static void Lat_Nextch(FILE *fi, FILE *fo, long *cc, long *ll, long *errpos,
 
     *ll = 0;
     *cc = 0;
-
+    
+    *line = "";
     while (!P_eoln(fi)) {
       (*ll)++;
       if ((*ll) > LatLLng) {
@@ -458,34 +498,37 @@ static void Lat_Nextch(FILE *fi, FILE *fo, long *cc, long *ll, long *errpos,
       if (*chin == '\n')
 	*chin = ' ';
       putc(*chin, fo);
-      line[*ll-1] = *chin;
+      // *line[*ll-1] = *chin;
+      *line += *chin;
     }
     (*ll)++;
     fscanf(fi, "%*[^\n]");
 
     getc(fi);
-    line[*ll-1] = ' ';
-    /*read(fi, line[ll]);*/
+    // *line[*ll-1] = ' ';
+    *line += ' ';
+    /*read(fi, *line[ll]);*/
     putc('\n', fo);
   }
+
   (*cc)++;
   if ((*cc) > LatLLng) {
     printf("\nLat_Nextch: LatLLng exceeded %ld (%d)\n", (*cc), LatLLng);
     exit_(1);
   }
-  *chin = line[*cc-1];
+  *chin = (*line)[*cc-1];
   /* upper case to lower case */
   if (isupper(*chin))
     *chin = _tolower(*chin);
   /* tab */
   if (*chin == '\t')
     *chin = ' ';
-}  /* Lat_Nextch */
+} /* Lat_Nextch */
 
 
 static void Lat_errorm(const char *cmnt, FILE *fi, FILE *fo, long *cc,
 		       long *ll, long *errpos, long *lc, char *chin,
-		       bool *skipflag, char *line,
+		       bool *skipflag, string *line,
 		       struct LOC_Lat_Read *LINK)
 {
   /*write(fo, ' ****')*/
@@ -498,19 +541,6 @@ static void Lat_errorm(const char *cmnt, FILE *fi, FILE *fo, long *cc,
   Lat_->conf.ErrFlag = true;
   abort_(LINK);
 }
-
-/* Local variables for Lat_GetSym: */
-struct LOC_Lat_GetSym
-{
-  struct LOC_Lat_Read  *LINK;
-  FILE    *fi, *fo;
-  long    *cc, *ll, *errpos, *lc, emax_, emin_;
-  char    *chin;
-  double  *rnum;
-  bool    *skipflag;
-  char    *line;
-  long    k, e;
-};
 
 
 static void NextCh(struct LOC_Lat_GetSym *LINK)
@@ -587,14 +617,13 @@ static void Lat_GetSym(FILE *fi_, FILE *fo_, long *cc_, long *ll_,
 		       long *errpos_, long *lc_, long *nkw, long *inum,
 		       long emax__, long emin__, long kmax_, long nmax_,
 		       char *chin_, char *id, double *rnum_, bool *skipflag_,
-		       bool *rsvwd, char *line_, Lat_symbol *sym, alfa_ *key,
+		       bool *rsvwd, string *line_, Lat_symbol *sym, alfa_ *key,
 		       Lat_symbol *ksy, Lat_symbol *sps,
 		       struct LOC_Lat_Read *LINK)
 {  /*GetSym*/
   struct LOC_Lat_GetSym V;
-
-  long i, j, mysign;
-  bool parsename;
+  long                  i, j, mysign;
+  bool                  parsename;
 
 
   V.LINK = LINK;
@@ -614,13 +643,12 @@ static void Lat_GetSym(FILE *fi_, FILE *fo_, long *cc_, long *ll_,
   *rsvwd = false;
   mysign = 1;
   parsename = false;
+
  _L1:
   while (*V.chin == ' ')
-
     NextCh(&V);
 
   switch (*V.chin) {
-
   case 'a':
   case 'b':
   case 'c':
@@ -674,7 +702,7 @@ static void Lat_GetSym(FILE *fi_, FILE *fo_, long *cc_, long *ll_,
 	j = V.k - 1;
       if (strncmp(id, key[V.k-1], sizeof(alfa_)) >= 0)
 	i = V.k + 1;
-      /*  writeln(fo, '  bunary: id=', id, '  key[', k:3, ']=', key[k],
+      /*  writeln(fo, '  binary: id=', id, '  key[', k:3, ']=', key[k],
 	  'i=', i:4, ' j=', j:4, ' k=', k:4, ' i-1-j=', (i-1-j):4);*/
     }
     while (i <= j);
@@ -1263,7 +1291,7 @@ static double Lat_EVAL(FILE *fi_, FILE *fo_, long *cc_, long *ll_,
 		       long emin__,
 		       long kmax__, long nmax__, char *chin_, char *id_,
 		       double *rnum_,
-		       bool *skipflag_, bool *rsvwd_, char *line_,
+		       bool *skipflag_, bool *rsvwd_, string *line_,
 		       Lat_symbol *sym_,
 		       alfa_ *key_, Lat_symbol *ksy_, Lat_symbol *sps_,
 		       struct LOC_Lat_Read *LINK)
@@ -1339,7 +1367,8 @@ static void GetSym_(struct LOC_Lat_ProcessBlockInput *LINK)
 }
 
 
-static void test_(long *s1, const char *cmnt, struct LOC_Lat_ProcessBlockInput *LINK)
+static void test_(long *s1, const char *cmnt,
+		  struct LOC_Lat_ProcessBlockInput *LINK)
 {
   /*test*/
   if (!P_inset(*LINK->sym, s1))
@@ -1660,7 +1689,7 @@ static void Lat_ProcessBlockInput(FILE *fi_, FILE *fo_, long *cc_, long *ll_,
 				  long kmax__, long nmax__, char *chin_,
 				  char *id_, char *BlockName,
 				  double *rnum_, bool *skipflag_, bool *rsvwd_,
-				  char *line_,
+				  string *line_,
 				  Lat_symbol *sym_, alfa_ *key_,
 				  Lat_symbol *ksy_, Lat_symbol *sps_,
 				  struct LOC_Lat_Read *LINK)
@@ -1736,39 +1765,6 @@ static bool Lat_CheckWiggler(FILE *fo, long i, struct LOC_Lat_Read *LINK)
 
 /* Local variables for Lat_DealElement: */
 
-struct DBName
-{
-  char name[DBNameLen];
-};
-
-
-struct LOC_Lat_DealElement
-{
-  struct     LOC_Lat_Read *LINK;
-  FILE       *fi, *fo;
-  long       *cc, *ll, *errpos, *lc, *nkw, *inum, emax_, emin_, kmax_, nmax_;
-  char       *chin;
-  char       *id;
-  char       *BlockName;
-  double     *rnum;
-  bool       *skipflag, *rsvwd;
-  char       *line;
-  Lat_symbol *sym;
-  alfa_      *key;
-  Lat_symbol *ksy;
-  Lat_symbol *sps;
-  jmp_buf    _JL9999;
-  double     B[HOMmax+HOMmax+1];
-  bool       BA[HOMmax+HOMmax+1];
-  int        n_harm, harm[n_harm_max];
-  double     kxV[n_harm_max], BoBrhoV[n_harm_max];
-  double     kxH[n_harm_max], BoBrhoH[n_harm_max], phi[n_harm_max];
-  long       DBNsavemax;
-  std::vector<DBName>
-  DBNsave;
-};
-
-
 static void errorm__(const char *cmnt, struct LOC_Lat_DealElement *LINK)
 {
   Lat_errorm(cmnt, LINK->fi, LINK->fo, LINK->cc, LINK->ll, LINK->errpos,
@@ -1793,7 +1789,8 @@ static void test__(long *s1, const char *cmnt, struct LOC_Lat_DealElement *LINK)
 }
 
 
-static void getest__(long *s1, const char *cmnt, struct LOC_Lat_DealElement *LINK)
+static void getest__(long *s1, const char *cmnt,
+		     struct LOC_Lat_DealElement *LINK)
 {
   /*test*/
   GetSym__(LINK);
@@ -1804,11 +1801,11 @@ static void getest__(long *s1, const char *cmnt, struct LOC_Lat_DealElement *LIN
 
 static double EVAL_(struct LOC_Lat_DealElement *LINK)
 {
-  return (Lat_EVAL(LINK->fi, LINK->fo, LINK->cc, LINK->ll, LINK->errpos,
-		   LINK->lc, LINK->nkw, LINK->inum, LINK->emax_, LINK->emin_,
-		   LINK->kmax_, LINK->nmax_, LINK->chin, LINK->id, LINK->rnum,
-		   LINK->skipflag, LINK->rsvwd, LINK->line, LINK->sym,
-		   LINK->key, LINK->ksy, LINK->sps, LINK->LINK));
+  return Lat_EVAL(LINK->fi, LINK->fo, LINK->cc, LINK->ll, LINK->errpos,
+		  LINK->lc, LINK->nkw, LINK->inum, LINK->emax_, LINK->emin_,
+		  LINK->kmax_, LINK->nmax_, LINK->chin, LINK->id, LINK->rnum,
+		  LINK->skipflag, LINK->rsvwd, LINK->line, LINK->sym,
+		  LINK->key, LINK->ksy, LINK->sps, LINK->LINK);
 }
 
 static void ProcessBlockInput(struct LOC_Lat_DealElement *LINK)
@@ -1981,7 +1978,7 @@ static bool Lat_DealElement(FILE *fi_, FILE *fo_, long *cc_, long *ll_,
 			    char *ElementName,
                             char *BlockName_, double *rnum_, bool *skipflag_,
 			    bool *rsvwd_,
-                            char *line_, Lat_symbol *sym_, alfa_ *key_,
+                            string *line_, Lat_symbol *sym_, alfa_ *key_,
 			    Lat_symbol *ksy_,
                             Lat_symbol *sps_, struct LOC_Lat_Read *LINK)
 {
@@ -2026,7 +2023,9 @@ static bool Lat_DealElement(FILE *fi_, FILE *fo_, long *cc_, long *ll_,
 
   V.kmax_ = kmax__; V.nmax_ = nmax__; V.chin = chin_; V.id = id_;
   V.BlockName = BlockName_; V.rnum = rnum_; V.skipflag = skipflag_;
-  V.rsvwd = rsvwd_; V.line = line_; V.sym = sym_; V.key = key_; V.ksy = ksy_;
+  V.rsvwd = rsvwd_;
+  V.line = line_;
+  V.sym = sym_; V.key = key_; V.ksy = ksy_;
   V.sps = sps_;
   if (setjmp(V._JL9999)) goto _L9999;
   Result = false;
@@ -3614,11 +3613,11 @@ static void init_reserved_words(struct LOC_Lat_Read *LINK)
 	   (int)',', (int)'[', (int)'[', (int)']', (int)'\'',
 	   (int)'&', (int)';', (int)'/', (int)':');
 
-  LINK->lc = 0;   /* reset line counter */
-  LINK->ll = 0;   /* reset line length  */
-  LINK->cc = 0;   /* reset char counter */
-  LINK->errpos = 0;   /* reset error position */
-  LINK->chin = ' ';   /* reset current char   */
+  LINK->lc = 0;             /* reset line counter */
+  LINK->ll = 0;             /* reset line length  */
+  LINK->cc = 0;             /* reset char counter */
+  LINK->errpos = 0;         /* reset error position */
+  LINK->chin = ' ';         /* reset current char   */
   LINK->skipflag = false;   /* reset skip flag  */
   P_addset(P_expset(LINK->defbegsys, 0), (long)ident);
   P_addset(P_expset(LINK->elmbegsys, 0), (long)qdsym);
@@ -4000,9 +3999,8 @@ void fixedtostr(std::string &str)
   std::string str1 = str;
 
   str = "";
-  for(int j=0; (j < (int)str1.length()) && str1[j] != ' '; ++j){
-        str += str1[j];
-  }
+  for(int j = 0; (j < (int)str1.length()) && str1[j] != ' '; ++j)
+    str += str1[j];
 }
 
 
@@ -4069,7 +4067,9 @@ void PrintResult(struct LOC_Lat_Read *LINK)
 bool LatticeType::Lat_Read(const std::string &filnam)
 {
   struct LOC_Lat_Read V;
-  FILE   *fi_, *fo_;
+  FILE                *fi_, *fo_;
+
+  V.line = new string;  
 
   ElemFam_ = &elemf;
   Lat_     = this;
@@ -4099,7 +4099,8 @@ bool LatticeType::Lat_Read(const std::string &filnam)
 
   GetSym___(&V);
 
-  if (V.sym == defsym) DealWithDefns(&V);
+  if (V.sym == defsym)
+    DealWithDefns(&V);
 
   if (V.Symmetry != 0) {
     GetRingType(&V);                /* define ring vs. transfer line */
@@ -4118,6 +4119,8 @@ bool LatticeType::Lat_Read(const std::string &filnam)
   if (debug) this->prt_fams();
   PrintResult(&V);                  /* Print lattice statistics */
 
+  delete V.line;  
+
  _L9999:
   return (!Lat_->conf.ErrFlag);
 }
@@ -4131,3 +4134,5 @@ bool LatticeType::Lat_Read(const std::string &filnam)
 #undef nmax
 
 #undef nn
+
+#undef debug

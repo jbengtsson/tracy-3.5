@@ -9,6 +9,9 @@
 */
 
 
+#define debug false
+
+
 template<typename T>
 inline bool ElemType::CheckAmpl(ConfigType &conf, const ss_vect<T> &ps)
 {
@@ -275,3 +278,6 @@ void LatticeType::Lat_Init(void)
 
   if (debug) prt_elems();
 }
+
+
+#undef debug
