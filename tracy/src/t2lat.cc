@@ -76,8 +76,8 @@ typedef enum {
 typedef long typset;
 
 typedef struct _REC_UDItable {
-  partsName  Uname;
-  double     Uvalue;
+  partsName Uname;
+  double    Uvalue;
 } _REC_UDItable;
 
 
@@ -342,16 +342,23 @@ static long CheckUDItable(const char *name, struct LOC_Lat_Read *LINK)
 }
 
 
-static void EnterUDItable(const char *name, double X,
-			  struct LOC_Lat_Read *LINK)
+static void EnterUDItable(const char *name, double X, struct LOC_Lat_Read *LINK)
 {
   _REC_UDItable *WITH;
 
   LINK->UDIC++;
   LINK->UDItable.resize(LINK->UDIC);
   WITH = &LINK->UDItable[LINK->UDIC-1];
-  // memcpy(WITH->Uname, name, sizeof(partsName));
-  strncpy(WITH->Uname, name, sizeof(partsName));
+  printf("\nEnterUDItable: %lu %lu |%s|\n",
+	 sizeof(WITH->Uname), strlen(name), name);
+  if (strlen(name)+1 <= 2*sizeof(WITH->Uname))
+    // memcpy(WITH->Uname, name, sizeof(partsName));
+    strcpy(WITH->Uname, name);
+  else {
+    printf("\nEnterUDItable: string length exceeded %lu (%lu)\n",
+	   strlen(name)+1, 2*sizeof(WITH->Uname));   
+    exit(1);
+  }
   WITH->Uvalue = X;
 }
 
@@ -625,6 +632,7 @@ static void Lat_GetSym(FILE *fi_, FILE *fo_, long *cc_, long *ll_,
   long                  i, j, mysign;
   bool                  parsename;
 
+  const char empty_str[] = "               ";
 
   V.LINK = LINK;
   /*GetSym*/
@@ -677,8 +685,14 @@ static void Lat_GetSym(FILE *fi_, FILE *fo_, long *cc_, long *ll_,
   case 'z':
   case '"':  /*identifier or wordsymbol*/
     V.k = 0;
-    // memcpy(id, "               ", sizeof(alfa_));
-    strncpy(id, "               ", sizeof(alfa_));
+    if (strlen(empty_str)+1 <= 2*sizeof(id))
+      // memcpy(id, empty_str, sizeof(alfa_));
+      strcpy(id, empty_str);
+    else {
+      printf("\nLat_GetSym: string length exceeded %lu (%lu)\n",
+	     strlen(empty_str)+1, 2*sizeof(id));   
+    exit(1);
+    }
     do {
       if (*V.chin == '"')
 	parsename = !parsename;
@@ -1073,9 +1087,18 @@ static void Factor(struct LOC_Term *LINK)
 	       LINK->LINK->LINK);
 	/*--> new */
 	GetSym(LINK->LINK->LINK);
-	memcpy(fname, LINK->LINK->LINK->id, sizeof(alfa_));
-	memset(fname + sizeof(alfa_), ' ',
-	       sizeof(partsName) - sizeof(alfa_));
+	printf("\nFactor: %lu %lu |%s|\n",
+	       sizeof(fname), sizeof(LINK->LINK->LINK->id),
+	       LINK->LINK->LINK->id);
+	if (strlen(LINK->LINK->LINK->id)+1 <= 2*sizeof(fname))
+	  // memcpy(fname, LINK->LINK->LINK->id, sizeof(alfa_));
+	  // memset(fname+sizeof(alfa_), ' ', sizeof(partsName)-sizeof(alfa_));
+	  strcpy(fname, LINK->LINK->LINK->id);
+        else {
+	  printf("\n: string length exceeded %lu (%lu)\n",
+		 strlen(LINK->LINK->LINK->id)+1, 2*sizeof(fname));   
+	  exit(1);
+	}
 	WITH = (*ElemFam_)[V.i-1].ElemF;
 	WITH1 = dynamic_cast<MpoleType*>(WITH);
 	if (!strncmp(fname, "l              ", sizeof(partsName)))
@@ -1122,9 +1145,18 @@ static void Factor(struct LOC_Term *LINK)
 	  PUSH(x, LINK->LINK->LINK);
 	  GetSym(LINK->LINK->LINK);
 	} else {  /*4: function ?*/
-	  memcpy(fname, LINK->LINK->LINK->id, sizeof(alfa_));
-	  memset(fname + sizeof(alfa_), ' ',
-		 sizeof(partsName) - sizeof(alfa_));
+	  printf("\nFactor: %lu %lu |%s|\n",
+		 sizeof(fname), sizeof(LINK->LINK->LINK->id),
+		 LINK->LINK->LINK->id);
+	  if (strlen(LINK->LINK->LINK->id)+1 <= 2*sizeof(fname))
+	    // memcpy(fname, LINK->LINK->LINK->id, sizeof(alfa_));
+	    // memset(fname+sizeof(alfa_), ' ', sizeof(partsName)-sizeof(alfa_));
+	    strcpy(fname, LINK->LINK->LINK->id);
+	  else {
+	    printf("\n: string length exceeded %lu (%lu)\n",
+		   strlen(LINK->LINK->LINK->id)+1, 2*sizeof(fname));   
+	    exit(1);
+	  }
 	  GetSym(LINK->LINK->LINK);
 	  switch (*LINK->LINK->LINK->sym) {   /*5*/
 
@@ -1732,7 +1764,16 @@ static void Lat_ProcessBlockInput(FILE *fi_, FILE *fo_, long *cc_, long *ll_,
   LINK->NoB++;
   LINK->BlockS.resize(LINK->NoB);
   WITH = &LINK->BlockS[LINK->NoB-1];
-  memcpy(WITH->Bname, BlockName, sizeof(partsName));
+  printf("\nLat_ProcessBlockInput: %lu %lu |%s|\n",
+	 sizeof(WITH->Bname), sizeof(BlockName), BlockName);
+  if (strlen(BlockName)+1 <= 2*sizeof(WITH->Bname))
+    // memcpy(WITH->Bname, BlockName, sizeof(partsName));
+    strcpy(WITH->Bname, BlockName);
+  else {
+    printf("\n: string length exceeded %lu (%lu)\n",
+	   strlen(BlockName)+1, 2*sizeof(WITH->Bname));   
+    exit(1);
+  }
   WITH->BSTART = LINK->Bpointer + 1;
   GetBlock(&V);
   test_(P_expset(SET, 1 << ((long)semicolon)), "<;> expected", &V);
@@ -3516,7 +3557,16 @@ static void Reg(const char *name, Lat_symbol ks,
     std::cout << "\nReg: Lat_nkw_max exceeded " << LINK->LINK->nkw
 	 << "(" << Lat_nkw_max << ")" << std::endl;
   }
-  memcpy(LINK->LINK->key[LINK->LINK->nkw-1], name, sizeof(alfa_));
+  printf("\nReg: %lu %lu |%s|\n",
+	 sizeof(LINK->LINK->key[LINK->LINK->nkw-1]), sizeof(name), name);
+  if (strlen(name)+1 <= 2*sizeof(LINK->LINK->key[LINK->LINK->nkw-1]))
+    // memcpy(LINK->LINK->key[LINK->LINK->nkw-1], name, sizeof(alfa_));
+    strcpy(LINK->LINK->key[LINK->LINK->nkw-1], name);
+  else {
+    printf("\n: string length exceeded %lu (%lu)\n",
+	   strlen(name)+1, 2*sizeof(LINK->LINK->key[LINK->LINK->nkw-1]));   
+    exit(1);
+  }
   LINK->LINK->ksy[LINK->LINK->nkw-1] = ks;
 }
 
@@ -3701,14 +3751,39 @@ static void DealWithDefns(struct LOC_Lat_Read *LINK)
   if (LINK->sym == ident) {
     do {   /*2*/
       if (LINK->sym == ident) {  /*2.5:-----------------------*/
-	memcpy(idsave, LINK->id, sizeof(alfa_));
-	memset(idsave + sizeof(alfa_), ' ', sizeof(partsName) - sizeof(alfa_));
-	memcpy(ElementName, LINK->id, sizeof(alfa_));
-	memset(ElementName + sizeof(alfa_), ' ',
-	       sizeof(partsName) - sizeof(alfa_));
-	memcpy(BlockName, LINK->id, sizeof(alfa_));
-	memset(BlockName + sizeof(alfa_), ' ',
-	       sizeof(partsName) - sizeof(alfa_));
+	printf("\nDealWithDefns: %lu %lu |%s|\n",
+	       sizeof(idsave), sizeof(LINK->id), LINK->id);
+	if (strlen(LINK->id)+1 <= 2*sizeof(idsave))
+	  // memcpy(idsave, LINK->id, sizeof(alfa_));
+	  // memset(idsave+sizeof(alfa_), ' ', sizeof(partsName)-sizeof(alfa_));
+	  strcpy(idsave, LINK->id);
+        else {
+	  printf("\n: string length exceeded %lu (%lu)\n",
+		 strlen(LINK->id)+1, 2*sizeof(idsave));   
+	  exit(1);
+	}
+	printf("\nDealWithDefns: %lu %lu |%s|\n",
+	       sizeof(ElementName), sizeof(LINK->id), LINK->id);
+	if (strlen(LINK->id)+1 <= 2*sizeof(ElementName))
+	  // memcpy(ElementName, LINK->id, sizeof(alfa_));
+	  // memset(ElementName+sizeof(alfa_), ' ', sizeof(partsName)-sizeof(alfa_));
+	  strcpy(ElementName, LINK->id);
+        else {
+	  printf("\n: string length exceeded %lu (%lu)\n",
+		 strlen(LINK->id)+1, 2*sizeof(ElementName));   
+	  exit(1);
+	}
+	printf("\nDealWithDefns: %lu %lu |%s|\n",
+	       sizeof(BlockName), sizeof(LINK->id), LINK->id);
+	if (strlen(LINK->id)+1 <= 2*sizeof(BlockName))
+	  // memcpy(BlockName, LINK->id, sizeof(alfa_));
+	  // memset(BlockName+sizeof(alfa_), ' ', sizeof(partsName)-sizeof(alfa_));
+	  strcpy(BlockName, LINK->id);
+        else {
+	  printf("\n: string length exceeded %lu (%lu)\n",
+		 strlen(LINK->id)+1, 2*sizeof(BlockName));   
+	  exit(1);
+	}
 	P_addset(P_expset(SET2, 0), (long)colon);
 	P_addset(SET2, (long)eql);
 	getest___(P_addset(SET2, (long)period_),
@@ -3746,7 +3821,16 @@ static void DealWithDefns(struct LOC_Lat_Read *LINK)
 	   **************************************************************/
 
 	  if (LINK->sym == eql) {  /*3:of parameter*/
-	    memcpy(IdentName, idsave, sizeof(partsName));
+	    printf("\nDealWithDefns: %lu %lu |%s|\n",
+		   sizeof(IdentName), sizeof(idsave), idsave);
+	    if (strlen(idsave)+1 <= 2*sizeof(IdentName))
+	      // memcpy(IdentName, idsave, sizeof(partsName));
+	      strcpy(IdentName, idsave);
+	    else {
+	      printf("\n: string length exceeded %lu (%lu)\n",
+		     strlen(idsave)+1, 2*sizeof(IdentName));   
+	      exit(1);
+	    }
 	    i = CheckUDItable(IdentName, LINK);
 	    if (i == 0)
 	      EnterUDItable(IdentName, EVAL__(&V), LINK);
@@ -3864,9 +3948,17 @@ static void DealWithDefns(struct LOC_Lat_Read *LINK)
       case prnsym:  /*4*/
 	getest___(P_addset(P_expset(SET1, 0), (long)ident),
 		  "<identifiler> expected", LINK);
-	memcpy(IdentName, LINK->id, sizeof(alfa_));
-	memset(IdentName + sizeof(alfa_), ' ',
-	       sizeof(partsName) - sizeof(alfa_));
+	printf("\nDealWithDefns: %lu %lu |%s|\n",
+	       sizeof(IdentName), sizeof(LINK->id), LINK->id);
+	if (strlen(LINK->id)+1 <= 2*sizeof(IdentName))
+	  // memcpy(IdentName, LINK->id, sizeof(alfa_));
+	  // memset(IdentName+sizeof(alfa_), ' ', sizeof(partsName)-sizeof(alfa_));
+	  strcpy(IdentName, LINK->id);
+        else {
+	  printf("\n: string length exceeded %lu (%lu)\n",
+		 strlen(LINK->id)+1, 2*sizeof(IdentName));   
+	  exit(1);
+	}
 	i = CheckElementtable(IdentName, LINK);
 	if (i == 0) {   /*PrintElementParam(i)*/
 	  i = CheckBLOCKStable(IdentName, LINK);
