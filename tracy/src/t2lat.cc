@@ -349,8 +349,6 @@ static void EnterUDItable(const char *name, double X, struct LOC_Lat_Read *LINK)
   LINK->UDIC++;
   LINK->UDItable.resize(LINK->UDIC);
   WITH = &LINK->UDItable[LINK->UDIC-1];
-  printf("\nEnterUDItable: %lu %lu |%s|\n",
-	 sizeof(WITH->Uname), strlen(name), name);
   if (strlen(name)+1 <= 2*sizeof(WITH->Uname))
     // memcpy(WITH->Uname, name, sizeof(partsName));
     strcpy(WITH->Uname, name);
@@ -1087,9 +1085,6 @@ static void Factor(struct LOC_Term *LINK)
 	       LINK->LINK->LINK);
 	/*--> new */
 	GetSym(LINK->LINK->LINK);
-	printf("\nFactor: %lu %lu |%s|\n",
-	       sizeof(fname), sizeof(LINK->LINK->LINK->id),
-	       LINK->LINK->LINK->id);
 	if (strlen(LINK->LINK->LINK->id)+1 <= 2*sizeof(fname))
 	  // memcpy(fname, LINK->LINK->LINK->id, sizeof(alfa_));
 	  // memset(fname+sizeof(alfa_), ' ', sizeof(partsName)-sizeof(alfa_));
@@ -1145,9 +1140,6 @@ static void Factor(struct LOC_Term *LINK)
 	  PUSH(x, LINK->LINK->LINK);
 	  GetSym(LINK->LINK->LINK);
 	} else {  /*4: function ?*/
-	  printf("\nFactor: %lu %lu |%s|\n",
-		 sizeof(fname), sizeof(LINK->LINK->LINK->id),
-		 LINK->LINK->LINK->id);
 	  if (strlen(LINK->LINK->LINK->id)+1 <= 2*sizeof(fname))
 	    // memcpy(fname, LINK->LINK->LINK->id, sizeof(alfa_));
 	    // memset(fname+sizeof(alfa_), ' ', sizeof(partsName)-sizeof(alfa_));
@@ -1764,8 +1756,6 @@ static void Lat_ProcessBlockInput(FILE *fi_, FILE *fo_, long *cc_, long *ll_,
   LINK->NoB++;
   LINK->BlockS.resize(LINK->NoB);
   WITH = &LINK->BlockS[LINK->NoB-1];
-  printf("\nLat_ProcessBlockInput: %lu %lu |%s|\n",
-	 sizeof(WITH->Bname), sizeof(BlockName), BlockName);
   if (strlen(BlockName)+1 <= 2*sizeof(WITH->Bname))
     // memcpy(WITH->Bname, BlockName, sizeof(partsName));
     strcpy(WITH->Bname, BlockName);
@@ -2697,6 +2687,7 @@ static bool Lat_DealElement(FILE *fi_, FILE *fo_, long *cc_, long *ll_,
     Lat_->conf.Elem_nFam++;
     WITH2 = Mpole_Alloc();
     WITH2->Name = ElementName;
+    WITH2->PL = 0.0;
     WITH2->Pkind = Mpole;
     WITH2->Pthick = pthicktype(thin);
     // Allocate family to lattice object.
@@ -3557,8 +3548,6 @@ static void Reg(const char *name, Lat_symbol ks,
     std::cout << "\nReg: Lat_nkw_max exceeded " << LINK->LINK->nkw
 	 << "(" << Lat_nkw_max << ")" << std::endl;
   }
-  printf("\nReg: %lu %lu |%s|\n",
-	 sizeof(LINK->LINK->key[LINK->LINK->nkw-1]), sizeof(name), name);
   if (strlen(name)+1 <= 2*sizeof(LINK->LINK->key[LINK->LINK->nkw-1]))
     // memcpy(LINK->LINK->key[LINK->LINK->nkw-1], name, sizeof(alfa_));
     strcpy(LINK->LINK->key[LINK->LINK->nkw-1], name);
@@ -3751,8 +3740,6 @@ static void DealWithDefns(struct LOC_Lat_Read *LINK)
   if (LINK->sym == ident) {
     do {   /*2*/
       if (LINK->sym == ident) {  /*2.5:-----------------------*/
-	printf("\nDealWithDefns: %lu %lu |%s|\n",
-	       sizeof(idsave), sizeof(LINK->id), LINK->id);
 	if (strlen(LINK->id)+1 <= 2*sizeof(idsave))
 	  // memcpy(idsave, LINK->id, sizeof(alfa_));
 	  // memset(idsave+sizeof(alfa_), ' ', sizeof(partsName)-sizeof(alfa_));
@@ -3762,8 +3749,6 @@ static void DealWithDefns(struct LOC_Lat_Read *LINK)
 		 strlen(LINK->id)+1, 2*sizeof(idsave));   
 	  exit(1);
 	}
-	printf("\nDealWithDefns: %lu %lu |%s|\n",
-	       sizeof(ElementName), sizeof(LINK->id), LINK->id);
 	if (strlen(LINK->id)+1 <= 2*sizeof(ElementName))
 	  // memcpy(ElementName, LINK->id, sizeof(alfa_));
 	  // memset(ElementName+sizeof(alfa_), ' ', sizeof(partsName)-sizeof(alfa_));
@@ -3773,8 +3758,6 @@ static void DealWithDefns(struct LOC_Lat_Read *LINK)
 		 strlen(LINK->id)+1, 2*sizeof(ElementName));   
 	  exit(1);
 	}
-	printf("\nDealWithDefns: %lu %lu |%s|\n",
-	       sizeof(BlockName), sizeof(LINK->id), LINK->id);
 	if (strlen(LINK->id)+1 <= 2*sizeof(BlockName))
 	  // memcpy(BlockName, LINK->id, sizeof(alfa_));
 	  // memset(BlockName+sizeof(alfa_), ' ', sizeof(partsName)-sizeof(alfa_));
@@ -3821,8 +3804,6 @@ static void DealWithDefns(struct LOC_Lat_Read *LINK)
 	   **************************************************************/
 
 	  if (LINK->sym == eql) {  /*3:of parameter*/
-	    printf("\nDealWithDefns: %lu %lu |%s|\n",
-		   sizeof(IdentName), sizeof(idsave), idsave);
 	    if (strlen(idsave)+1 <= 2*sizeof(IdentName))
 	      // memcpy(IdentName, idsave, sizeof(partsName));
 	      strcpy(IdentName, idsave);
@@ -3948,8 +3929,6 @@ static void DealWithDefns(struct LOC_Lat_Read *LINK)
       case prnsym:  /*4*/
 	getest___(P_addset(P_expset(SET1, 0), (long)ident),
 		  "<identifiler> expected", LINK);
-	printf("\nDealWithDefns: %lu %lu |%s|\n",
-	       sizeof(IdentName), sizeof(LINK->id), LINK->id);
 	if (strlen(LINK->id)+1 <= 2*sizeof(IdentName))
 	  // memcpy(IdentName, LINK->id, sizeof(alfa_));
 	  // memset(IdentName+sizeof(alfa_), ' ', sizeof(partsName)-sizeof(alfa_));

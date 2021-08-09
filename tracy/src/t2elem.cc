@@ -725,8 +725,8 @@ void Cav_Focus(const double L, const T delta, const bool entrance,
 template<typename T>
 void CavityType::Cavity_Pass(ConfigType &conf, ss_vect<T> &ps)
 {
-  double     L;
-  T          delta;
+  double L;
+  T      delta;
 
   L = PL;
   Drift(conf, L/2e0, ps);
@@ -2312,7 +2312,7 @@ void LatticeType::SI_init()
 
 void ElemType::prt_elem(void)
 {
-  printf(" %-10s %6.3f %2d %6.3f %2d %2d",
+  printf(" %-15s %6.3f %2d %6.3f %2d %2d",
 	 Name.c_str(), S, Pkind, PL, Fnum, Knum);
   fflush(stdout);
 }
@@ -2421,7 +2421,7 @@ void LatticeType::prt_elems(void)
 
   printf("\nLattice: %lu\n", elems.size());
   for (k = 0; k < (int)elems.size(); k++) {
-    printf("  %3d ", k);
+    printf("  %4d ", k);
     elems[k]->print();
   }
 }

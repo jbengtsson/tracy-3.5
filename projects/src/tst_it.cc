@@ -259,8 +259,6 @@ void get_lat(const string &file_name, LatticeType &lat)
   } else
     lat.rdmfile(file_name);
 
-  exit(0);
-
   lat.ChamberOff();
 
   lat.conf.CODimax = 10;
