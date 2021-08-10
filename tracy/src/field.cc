@@ -111,6 +111,17 @@ ss_vect<T> ss_vect<T>::zero(void)
 }
 
 template<>
+ss_vect<double> ss_vect<double>::identity(void)
+{
+  int i;
+
+  for (i = 0; i < ps_dim; i++)
+    ss[i] = 1e0;
+  return *this;
+}
+
+
+template<>
 ss_vect<tps> ss_vect<tps>::identity(void)
 {
   int i;

@@ -106,6 +106,12 @@ def main(file_name):
     lat.prt_lat4('linlat.out', True, 10);
     lat.prtmfile('flat_file.dat');
 
+    # Polymorphic number class.
+    ps = scsi.ss_vectdouble()
+    print('\nps:', ps)
+    ps.zero()
+    ps.identity()
+
 
 lat_dir = os.getenv('LAT')
 lat_ind = 1;

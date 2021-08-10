@@ -208,7 +208,7 @@ template<typename T> class ss_vect {
     operator<<(std::basic_ostream<CharT, Traits> &, const ss_vect<T> &);
 
   ss_vect<T> zero(void);
-  ss_vect<tps> identity(void);
+  ss_vect<T> identity(void);
 
   friend ss_vect<tps> FExpo(const tps &, const ss_vect<tps> &,
 			    const int, const int, const int);

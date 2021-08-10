@@ -7,8 +7,31 @@
 namespace py = pybind11;
 
 
+// Polymorphic number class wrapper function.
+template<typename T>
+void declare_field(py::module &scsi, const std::string &typestr) {
+  using Class = ss_vect<T>;
+  std::string pyclass_name = std::string("ss_vect") + typestr;
+  py::class_<Class>(scsi, pyclass_name.c_str(), py::buffer_protocol(),
+		    py::dynamic_attr())
+    .def(py::init<>())
+    .def("zero",     &Class::zero)
+    .def("identity", &Class::identity);
+    // .def("identity", &ss_vect<tps>::identity);
+  // .def(py::init<Class::xy_t, Class::xy_t, T>());
+  // .def("size",      &Class::size);
+}
+
+
 PYBIND11_MODULE(libtracy, scsi) {
     scsi.doc() = "Self-Consistent Symplectic Integrator (SCSI)";
+
+    // Polymorphic number class.
+
+    declare_field<double>(scsi, "double");
+    declare_field<tps>(scsi, "tps");
+
+    // Beam line class.
 
     // Constants.
 
