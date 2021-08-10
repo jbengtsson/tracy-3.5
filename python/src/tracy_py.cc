@@ -226,6 +226,7 @@ PYBIND11_MODULE(libtracy, scsi) {
 
       .def("print",         &LatticeType::print)
 
+      .def("get_eps_x",     &LatticeType::get_eps_x)
       .def("GetEmittance",  &LatticeType::GetEmittance);
 
     py::class_<DriftType, ElemType>(scsi, "DriftType")

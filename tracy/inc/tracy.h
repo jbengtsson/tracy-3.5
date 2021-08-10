@@ -428,11 +428,12 @@ class LatticeType {
   void Ring_FitDisp(long pos, double eta, double eps, long nq, long q[],
 		    double dkL, long imax);
 
-  void get_I(double I[], const bool prt);
+  void get_I(std::vector<double> &I, const bool prt);
   template<typename T>
   void Elem_Pass_Lin(ss_vect<T> ps);
   void get_eps_x(double &eps_x, double &sigma_delta, double &U_0,
-		 double J[], double tau[], double I[], const bool prt);
+		 std::vector<double> &J, std::vector<double> &tau,
+		 std::vector<double> &I, const bool prt);
 
   friend void get_dI_eta_5(const int k, ElemType *Elem[]);
 

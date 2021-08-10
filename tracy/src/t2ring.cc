@@ -511,30 +511,31 @@ void get_dI_eta_5( std::vector<ElemType*> elems, const int k)
 }
 
 
-void LatticeType::get_I(double I[], const bool prt)
+void LatticeType::get_I(std::vector<double> &I, const bool prt)
 {
   int j, k;
 
   for (k = 0; k <= 5; k++)
     I[k] = 0e0;
 
-  if (prt) {
-    printf("\nget_I:\n");
-    printf("\n      name               s     curly_H      I_1        I_2"
-	   "        I_3        I_4        I_5      alpha_x    beta_x"
-	   "     eta_x      eta'_x     alpha_y    beta_y\n\n");
-  }
+  if (prt)
+    printf("\nget_I:\n"
+	   "      name               s     curly_H            I_1"
+	   "                     I_2                     I_3"
+	   "                     I_4                     I_5"
+	   "             alpha_x    beta_x     eta_x      eta'_x     alpha_y"
+	   "    beta_y\n\n");
   for (j = 0; j <= conf.Cell_nLoc; j++)
     if ((elems[j]->Pkind == drift) || (elems[j]->Pkind == Mpole) ||
 	(elems[j]->Pkind == Wigl) ||
 	(elems[j]->Pkind == marker)) {
       if (prt)
-	printf("%5d %-10s %6.3f %10.3e",
+	printf("%5d %-15s %6.3f %10.3e",
 	       j, elems[j]->Name.c_str(), elems[j]->S,
 	       elems[j]->curly_dH_x);
       for (k = 1; k <= 5; k++) {
 	I[k] += elems[j]->dI[k];
-	if (prt) printf(" %10.3e", elems[j]->dI[k]);
+	if (prt) printf(" %10.3e (%10.3e)", elems[j]->dI[k], I[k]);
       }
       if (prt)
 	printf(" %10.3e %10.3e %10.3e %10.3e %10.3e %10.3e\n",
@@ -566,8 +567,8 @@ void LatticeType::Elem_Pass_Lin(ss_vect<T> ps)
 
 
 void LatticeType::get_eps_x(double &eps_x, double &sigma_delta, double &U_0,
-			    double J[], double tau[], double I[],
-			    const bool prt)
+			    std::vector<double> &J, std::vector<double> &tau,
+			    std::vector<double> &I, const bool prt)
 {
   bool         cav, emit;
   int          k;

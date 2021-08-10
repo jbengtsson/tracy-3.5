@@ -1,4 +1,5 @@
 import os, sys
+import numpy as np
 
 tracy_dir = os.getenv('TRACY_LIB')
 sys.path.append(tracy_dir+'/tracy/lib')
@@ -62,6 +63,15 @@ def main(file_name):
     lat.Ring_GetTwiss(True, 0e-3); lat.print();
     print('\nnu: ', lat.conf.TotalTune)
 
+    if lat.conf.mat_meth:
+        eps_x = 0.0; sigma_delta = 0.0; U_0 = 0.0; J = np.zeros(3);
+        tau = np.zeros(3); I = np.zeros(6)
+        lat.get_eps_x(eps_x, sigma_delta, U_0, J, tau, I, True);
+    else:
+        lat.GetEmittance(lat.ElemIndex("cav"), True)
+
+    printf('\nE [GeV]: %3.1f\n', lat.conf.Energy)
+
     print('\nLinear Poincare map:')
     prt_mat(lat.conf.OneTurnMat)
 
@@ -84,7 +94,7 @@ def main(file_name):
     if False:
         prt_elems(scsi, lat)
     
-    # Locat 1st dipole & print transport matrix.
+    # Locate 1st dipole & print transport matrix.
     for k in range(0, lat.conf.Cell_nLoc+1):
         if (lat.elems[k].Pkind == scsi.PartsKind.Mpole) \
            and (lat.elems[k].n_design == scsi.MpoleKind.Dip):
@@ -98,7 +108,7 @@ def main(file_name):
 
 
 lat_dir = os.getenv('LAT')
-lat_ind = 3;
+lat_ind = 1;
 
 if lat_ind == 1:
     file_name = lat_dir+'/BESSY-III/NoTG-TGRB-B60-6bend-6sx_JB_tracy'

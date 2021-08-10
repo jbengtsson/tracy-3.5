@@ -2439,6 +2439,7 @@ void Init_Euclid(ElemType *elem)
 DriftType* Drift_Alloc(void)
 {
   DriftType *D = new DriftType;
+  D->PL = 0e0;
   Init_Euclid(D);
   return D;
 }
@@ -2449,6 +2450,7 @@ MpoleType* Mpole_Alloc(void)
   int       j;
   MpoleType *Mp = new MpoleType;
 
+  Mp->PL = 0e0;
   Init_Euclid(Mp);
   for (j = -HOMmax; j <= HOMmax; j++) {
     Mp->PBpar.push_back(0e0);
@@ -2491,6 +2493,7 @@ CavityType* Cavity_Alloc(void)
 {
   CavityType *C = new CavityType;
 
+  C->PL = 0e0;
   Init_Euclid(C);
   C->Pvolt = 0e0; C->Pfreq = 0e0; C->phi = 0e0; C->Ph = 0;
   C->entry_focus = false; C->exit_focus = false;
@@ -2503,6 +2506,7 @@ MarkerType* Marker_Alloc(void)
 {
   MarkerType *Mk = new MarkerType;
 
+  Mk->PL = 0e0;
   Init_Euclid(Mk);
   return Mk;
 }
@@ -2513,6 +2517,7 @@ WigglerType* Wiggler_Alloc(void)
   int         j;
   WigglerType *W = new WigglerType;
 
+  W->PL = 0e0;
   Init_Euclid(W);
   W->Pmethod = Meth_Linear; W->PN = 0;
   for (j = 0; j <= 1; j++) {
@@ -2539,6 +2544,7 @@ InsertionType* Insertion_Alloc(void)
   int           i = 0, j = 0;
   InsertionType *ID = new InsertionType;
 
+  ID->PL = 0e0;
   Init_Euclid(ID);
   ID->Pmethod = Meth_Linear; ID->PN = 0;
   ID->nx = 0; ID->nz = 0;
@@ -2590,6 +2596,7 @@ FieldMapType* FieldMap_Alloc(void)
 {
   FieldMapType *FM = new FieldMapType;
 
+  FM->PL = 0e0;
   Init_Euclid(FM);
   FM->n_step = 0; FM->n[X_] = 0; FM->n[Y_] = 0; FM->n[Z_] = 0; FM->scl = 1e0;
   FM->phi = 0e0; FM->Ld = 0e0; FM->L1 = 0e0; FM->cut = 0; FM->x0 = 0e0;
@@ -2603,6 +2610,7 @@ SpreaderType* Spreader_Alloc(void)
   int          k;
   SpreaderType *Spr = new SpreaderType;
 
+  Spr->PL = 0e0;
   Init_Euclid(Spr);
   for (k = 0; k < Spreader_max; k++)
     Spr->Cell_ptrs[k] = NULL;
@@ -2615,6 +2623,7 @@ RecombinerType* Recombiner_Alloc(void)
 {
   RecombinerType *Rec = new RecombinerType;
 
+  Rec->PL = 0e0;
   Init_Euclid(Rec);
   return Rec;
 }
@@ -2625,6 +2634,7 @@ SolenoidType* Solenoid_Alloc(void)
   int          j;
   SolenoidType *Sol = new SolenoidType;
 
+  Sol->PL = 0e0;
   Init_Euclid(Sol);
   Sol->N = 0;
   for (j = 0; j <= 1; j++) {
@@ -2639,6 +2649,7 @@ MapType* Map_Alloc(void)
 {
   MapType *Map = new MapType;
 
+  Map->PL = 0e0;
   Init_Euclid(Map);
   return Map;
 }

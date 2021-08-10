@@ -2687,7 +2687,6 @@ static bool Lat_DealElement(FILE *fi_, FILE *fo_, long *cc_, long *ll_,
     Lat_->conf.Elem_nFam++;
     WITH2 = Mpole_Alloc();
     WITH2->Name = ElementName;
-    WITH2->PL = 0.0;
     WITH2->Pkind = Mpole;
     WITH2->Pthick = pthicktype(thin);
     // Allocate family to lattice object.
@@ -2729,7 +2728,6 @@ static bool Lat_DealElement(FILE *fi_, FILE *fo_, long *cc_, long *ll_,
     Lat_->conf.Elem_nFam++;
     WITHMk = Marker_Alloc();
     WITHMk->Name = ElementName;
-    WITHMk->PL = 0.0;
     WITHMk->Pkind = PartsKind(marker);
     // Allocate family to lattice object.
     (*ElemFam_).emplace_back();
