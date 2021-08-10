@@ -107,10 +107,17 @@ def main(file_name):
     lat.prtmfile('flat_file.dat');
 
     # Polymorphic number class.
-    ps = scsi.ss_vectdouble()
-    print('\nps:', ps)
+    ps = scsi.ss_vect_double()
+    # print('\nps:', ps)
+    print()
     ps.zero()
+    ps.print()
     ps.identity()
+    ps.print()
+
+    Id = scsi.ss_vect_tps()
+    Id.identity()
+    Id.print()
 
 
 lat_dir = os.getenv('LAT')

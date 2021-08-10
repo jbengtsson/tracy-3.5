@@ -159,6 +159,8 @@ template<typename T> class ss_vect {
   template<typename U>
     ss_vect(const ss_vect<U> &);
 
+  void print(void);
+
   ss_vect<double> cst(void) const;
   T& operator[](const int i) { return ss[i]; }
   const T& operator[](const int i) const { return ss[i]; }

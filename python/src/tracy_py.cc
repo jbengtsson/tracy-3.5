@@ -15,11 +15,10 @@ void declare_field(py::module &scsi, const std::string &typestr) {
   py::class_<Class>(scsi, pyclass_name.c_str(), py::buffer_protocol(),
 		    py::dynamic_attr())
     .def(py::init<>())
+    .def("__repr__", [](const T &a) { return "test"; })
+    .def("print",    &Class::print)
     .def("zero",     &Class::zero)
     .def("identity", &Class::identity);
-    // .def("identity", &ss_vect<tps>::identity);
-  // .def(py::init<Class::xy_t, Class::xy_t, T>());
-  // .def("size",      &Class::size);
 }
 
 
@@ -28,8 +27,8 @@ PYBIND11_MODULE(libtracy, scsi) {
 
     // Polymorphic number class.
 
-    declare_field<double>(scsi, "double");
-    declare_field<tps>(scsi, "tps");
+    declare_field<double>(scsi, "_double");
+    declare_field<tps>(scsi, "_tps");
 
     // Beam line class.
 
