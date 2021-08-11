@@ -3,17 +3,27 @@
    Definitions:  Polymorphic number class.              */
 
 
-template<>
-void ss_vect<double>::print(void)
+void tps::print(const string &str)
 {
-  std::cout << std::scientific << std::setprecision(6) << std::setw(14)
+  std::cout << std::scientific << std::setprecision(6) << str << "cst:\n"
+	    << std::setw(14) << ltps[0] << "\nlinear:\n";
+  for (int i = 1; i <= nv_tps; i++)
+    std::cout << std::scientific << std::setprecision(6)
+	      << std::setw(14) << ltps[i];
+  std::cout << "\n";
+}
+
+template<>
+void ss_vect<double>::print(const string &str)
+{
+  std::cout << std::scientific << std::setprecision(6) << str << std::setw(14)
 	    << *this << "\n"; 
 }
 
 template<>
-void ss_vect<tps>::print(void)
+void ss_vect<tps>::print(const string &str)
 {
-  std::cout << "\n";
+  std::cout  << str;
   for (int i = 1; i <= nv_tps; i++) {
     for (int j = 1; j <= nv_tps; j++)
       std::cout << std::scientific << std::setprecision(6)

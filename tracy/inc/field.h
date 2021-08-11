@@ -34,6 +34,8 @@ class tps {
   tps(const tps &);
   ~tps(void);
 
+  void print(const string &);
+
   // initialize TPSA library
    friend void TPSAEps(const double);
   // trace level for TPSALib and LieLib
@@ -159,7 +161,7 @@ template<typename T> class ss_vect {
   template<typename U>
     ss_vect(const ss_vect<U> &);
 
-  void print(void);
+  void print(const string &);
 
   ss_vect<double> cst(void) const;
   T& operator[](const int i) { return ss[i]; }

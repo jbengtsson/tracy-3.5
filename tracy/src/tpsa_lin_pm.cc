@@ -437,6 +437,29 @@ void prt_coeff(std::ostringstream &s, const tps &a, const long int jj[],
 }
 
 
+void prt_header(std::ostream &s, const bool res_basis)
+{
+  s << "\n";
+  if (!res_basis) {
+    s << "                                                        n"
+      << "\n      ====     i  i   i  i  i   i  i     i             ====\n"
+      << "      \\         1  2   3  4  5   6  7     n            \\   \n"
+      << "  P =  |   a  x  p   y  p  d  ct  p ... p  ,    |I| =  |   i\n"
+      << "      /     I     x      y         1     n             /     k\n"
+      << "      ====                                             ====\n"
+      << "       I                                               k=1\n";
+  } else {
+    s << "                                                          n\n"
+      << "      ====      i   i   i   i  i   i  i     i            ====\n"
+      << "      \\        + 1 - 2 + 3 - 4  5   6  7     n           \\   \n"
+      << "  P =  |   a  h   h   h   h   d  ct  p ... p  ,    |I| =  |   i\n"
+      << "      /     I  x   x   y   y          1     n            /     k\n"
+      << "      ====                                               ====\n"
+      << "       I                                                 k=1\n";
+  }
+}
+
+
 std::ostream& operator<<(std::ostream &os, const tps &a)
 {
   int                i, j, n;
@@ -449,29 +472,10 @@ std::ostream& operator<<(std::ostream &os, const tps &a)
     s << "-"; 
   s << "\n";
 
-  if (header) {
-    s << "\n";
-    if (!res_basis) {
-      s << "                                                        n"
-	<< "\n      ====     i  i   i  i  i   i  i     i             ====\n"
-	<< "      \\         1  2   3  4  5   6  7     n            \\   \n"
-	<< "  P =  |   a  x  p   y  p  d  ct  p ... p  ,    |I| =  |   i\n"
-	<< "      /     I     x      y         1     n             /     k\n"
-	<< "      ====                                             ====\n"
-	<< "       I                                               k=1\n";
-    } else {
-      s << "                                                          n\n"
-	<< "      ====      i   i   i   i  i   i  i     i            ====\n"
-	<< "      \\        + 1 - 2 + 3 - 4  5   6  7     n           \\   \n"
-	<< "  P =  |   a  h   h   h   h   d  ct  p ... p  ,    |I| =  |   i\n"
-	<< "      /     I  x   x   y   y          1     n            /     k\n"
-	<< "      ====                                               ====\n"
-	<< "       I                                                 k=1\n";
-    }
-  }
+  if (header) prt_header(s, res_basis);
   
   n = 0;
-  for (j = 0; j < nv_tps; j++)
+  for (j = 1; j <= nv_tps; j++)
     if (fabs(a.ltps[j]) >= eps_tps) n++;
 
   if (n != 0) {
@@ -497,7 +501,7 @@ std::ostream& operator<<(std::ostream &os, const tps &a)
 
   if (n == 0) n = 1;
   s << std::setw(5) << -n
-    << std::scientific << std::setw(24) << std::setprecision(16) << 0.0 << " ";
+    << std::scientific << std::setw(24) << std::setprecision(16) << 0e0 << " ";
   for (j = 0; j < nv_tps; j++)
     s << std::setw(3) << 0;
   s << "\n";

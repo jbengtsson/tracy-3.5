@@ -1,5 +1,6 @@
 #include <pybind11/stl.h>
 #include <pybind11/pybind11.h>
+// #include <pybind11/operators.h>
 #include <pybind11/numpy.h>
 
 #include "tracy_lib.h"
@@ -7,7 +8,8 @@
 namespace py = pybind11;
 
 
-// Polymorphic number class wrapper function.
+// Polymorphic number class wrapper functions.
+
 template<typename T>
 void declare_field(py::module &scsi, const std::string &typestr) {
   using Class = ss_vect<T>;
@@ -15,10 +17,22 @@ void declare_field(py::module &scsi, const std::string &typestr) {
   py::class_<Class>(scsi, pyclass_name.c_str(), py::buffer_protocol(),
 		    py::dynamic_attr())
     .def(py::init<>())
-    .def("__repr__", [](const T &a) { return "test"; })
-    .def("print",    &Class::print)
-    .def("zero",     &Class::zero)
-    .def("identity", &Class::identity);
+    // Python print redirect.
+    .def("__repr__", [](const ss_vect<T> &a) {
+		       std::stringstream stream;
+		       stream << a;
+		       return stream.str(); 
+		     })
+    .def("print",      &Class::print)
+    .def("__getitem__", [](const ss_vect<T> &a, const int k) {
+			  return a[k];
+			})
+
+    .def("__setitem__", [](ss_vect<T> &a, const int k, const T &x) {
+			  a[k] = x;
+			})
+    .def("zero",       [](ss_vect<double> &a) { return a.zero(); })
+    .def("identity",   &Class::identity);
 }
 
 
@@ -26,6 +40,30 @@ PYBIND11_MODULE(libtracy, scsi) {
     scsi.doc() = "Self-Consistent Symplectic Integrator (SCSI)";
 
     // Polymorphic number class.
+
+    // Enums.
+
+    py::enum_<spatial_index>(scsi, "spatial_index")
+      .value("X_", spatial_index::X_)
+      .value("Y_", spatial_index::Y_)
+      .value("Z_", spatial_index::Z_);
+
+    py::enum_<ps_index>(scsi, "ps_index")
+      .value("x_",     ps_index::x_)
+      .value("px_",    ps_index::px_)
+      .value("y_",     ps_index::y_)
+      .value("py_",    ps_index::py_)
+      .value("ct_",    ps_index::ct_)
+      .value("delta_", ps_index::delta_);
+
+    // Classes.
+
+    py::class_<tps>(scsi, "tps")
+      .def(py::init<>())
+      .def(py::init<const double>())
+      .def(py::init<const double, const int>())
+      // Python print redirect.
+      .def("print", &tps::print);
 
     declare_field<double>(scsi, "_double");
     declare_field<tps>(scsi, "_tps");
