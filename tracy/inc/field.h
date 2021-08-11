@@ -13,11 +13,11 @@ const int
   tps_n     = ps_dim+1; // 6D phase-space linear terms & cst.
 
 // Spatial components.
-enum spatial_index { X_ = 0, Y_ = 1, Z_ = 2 };
+enum spat_ind { X_ = 0, Y_ = 1, Z_ = 2 };
 
 // Phase-space components.
 // (Note, e.g. spin components should be added here)
-enum ps_index { x_ = 0, px_ = 1, y_ = 2, py_ = 3, delta_ = 4, ct_ = 5 };
+enum ps_ind { x_ = 0, px_ = 1, y_ = 2, py_ = 3, delta_ = 4, ct_ = 5 };
 
 template<typename T> class ss_vect;
 

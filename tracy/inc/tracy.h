@@ -307,11 +307,11 @@ class ElemType : public CellType {
   PartsKind
     Pkind;                     // Enumeration for magnet types.
 
-  void prt_elem(void);
+  void prt_elem(const string &);
 
   virtual ElemType* Elem_Init(const ConfigType &conf, const bool reverse)
   { return NULL; };
-  virtual void print(void) {};
+  virtual void print(const string &) {};
 
   virtual void SetdS(void) {};
   virtual void SetdT(void) {};
@@ -353,7 +353,7 @@ class LatticeType {
   void SI_init();
 
   void prt_fams(void);
-  void prt_elems(void);
+  void prt_elems(const string &str);
 
   int GetnKid(const int Fnum);
   long int ElemIndex(const std::string &name);
@@ -398,7 +398,15 @@ class LatticeType {
   // t2cell.
   template<typename T>
   void Cell_Pass(const long i0, const long i1, ss_vect<T> &ps, long &lastpos);
+
+  // Python does not support function overloading; dynamically typed language.
+  void Cell_Pass1(const long i0, const long i1, ss_vect<double> &ps,
+		  long &lastpos);
+  void Cell_Pass2(const long i0, const long i1, ss_vect<tps> &ps,
+		  long &lastpos);
+
   void Cell_Pass(const long i0, const long i1, tps &sigma, long &lastpos);
+
   bool Cell_getCOD(long imax, double eps, double dp, long &lastpos);
   bool GetCOD(long imax, double eps, double dp, long &lastpos);
   bool getcod(double dp, long &lastpos);
@@ -460,7 +468,7 @@ class LatticeType {
   void ChamberOff(void);
   void PrintCh(void);
 
-  void print(void);
+  void print(const string &);
 
   void GetEmittance(const int Fnum, const bool prt);
 };
@@ -469,7 +477,7 @@ class DriftType : public ElemType {
  public:
   friend DriftType* Drift_Alloc(void);
   ElemType* Elem_Init(const ConfigType &conf, const bool reverse);
-  void print(void);
+  void print(const string &);
 
   void SetdS(void) {};
   void SetdT(void) {};
@@ -528,7 +536,7 @@ class MpoleType : public ElemType {
 
   friend MpoleType* Mpole_Alloc(void);
   ElemType* Elem_Init(const ConfigType &conf, const bool reverse);
-  void print(void);
+  void print(const string &);
 
   void SetdS(void);
   void SetdT(void);
@@ -559,7 +567,7 @@ class CavityType : public ElemType {
 
   friend CavityType* Cavity_Alloc(void);
   ElemType* Elem_Init(const ConfigType &conf, const bool reverse);
-  void print(void);
+  void print(const string &);
 
   void SetdS(void) {};
   void SetdT(void) {};
@@ -579,7 +587,7 @@ class MarkerType : public ElemType {
  public:
   friend MarkerType* Marker_Alloc(void);
   ElemType* Elem_Init(const ConfigType &conf, const bool reverse);
-  void print(void);
+  void print(const string &);
 
   void SetdS(void) {};
   void SetdT(void) {};
@@ -623,7 +631,7 @@ class WigglerType : public ElemType {
 
   friend WigglerType* Wiggler_Alloc(void);
   ElemType* Elem_Init(const ConfigType &conf, const bool reverse);
-  void print(void);
+  void print(const string &);
 
   void SetdS(void);
   void SetdT(void);
@@ -693,7 +701,7 @@ class InsertionType : public ElemType {
 
   friend InsertionType* Insertion_Alloc(void);
   ElemType* Elem_Init(const ConfigType &conf, const bool reverse);
-  void print(void);
+  void print(const string &);
 
   void SetdS(void) {};
   void SetdT(void) {};
@@ -732,7 +740,7 @@ class FieldMapType : public ElemType {
 
   friend FieldMapType* FieldMap_Alloc(void);
   ElemType* Elem_Init(const ConfigType &conf, const bool reverse);
-  void print(void);
+  void print(const string &);
 
   void SetdS(void) {};
   void SetdT(void) {};
@@ -757,7 +765,7 @@ class SpreaderType : public ElemType {
 
   friend SpreaderType* Spreader_Alloc(void);
   ElemType* Elem_Init(const ConfigType &conf, const bool reverse);
-  void print(void);
+  void print(const string &);
 
   void SetdS(void) {};
   void SetdT(void) {};
@@ -781,7 +789,7 @@ class RecombinerType : public ElemType {
 
   friend RecombinerType* Recombiner_Alloc(void);
   ElemType* Elem_Init(const ConfigType &conf, const bool reverse);
-  void print(void);
+  void print(const string &);
 
   void SetdS(void) {};
   void SetdT(void) {};
@@ -815,7 +823,7 @@ class SolenoidType : public ElemType {
 
   friend SolenoidType* Solenoid_Alloc(void);
   ElemType* Elem_Init(const ConfigType &conf, const bool reverse);
-  void print(void);
+  void print(const string &);
 
   void SetdS(void) {};
   void SetdT(void) {};
@@ -845,7 +853,7 @@ class MapType : public ElemType {
 
   friend MapType* Map_Alloc(void);
   ElemType* Elem_Init(const ConfigType &conf, const bool reverse);
-  void print(void);
+  void print(const string &);
 
   void SetdS(void) {};
   void SetdT(void) {};

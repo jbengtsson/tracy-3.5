@@ -1561,7 +1561,7 @@ void Trac(LatticeType &lat, double x, double px, double y, double py, double dp,
 }
 
 
-void LatticeType::print(void)
+void LatticeType::print(const string &str)
 {
   int j, k;
 

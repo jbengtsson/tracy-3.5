@@ -8,7 +8,7 @@
 namespace py = pybind11;
 
 
-// Polymorphic number class wrapper functions.
+// Polymorphic number template class wrapper.
 
 template<typename T>
 void declare_field(py::module &scsi, const std::string &typestr) {
@@ -27,11 +27,10 @@ void declare_field(py::module &scsi, const std::string &typestr) {
     .def("__getitem__", [](const ss_vect<T> &a, const int k) {
 			  return a[k];
 			})
-
     .def("__setitem__", [](ss_vect<T> &a, const int k, const T &x) {
 			  a[k] = x;
 			})
-    .def("zero",       [](ss_vect<double> &a) { return a.zero(); })
+    .def("zero",       &Class::zero)
     .def("identity",   &Class::identity);
 }
 
@@ -43,18 +42,18 @@ PYBIND11_MODULE(libtracy, scsi) {
 
     // Enums.
 
-    py::enum_<spatial_index>(scsi, "spatial_index")
-      .value("X_", spatial_index::X_)
-      .value("Y_", spatial_index::Y_)
-      .value("Z_", spatial_index::Z_);
+    py::enum_<spat_ind>(scsi, "spat_ind")
+      .value("X_", spat_ind::X_)
+      .value("Y_", spat_ind::Y_)
+      .value("Z_", spat_ind::Z_);
 
-    py::enum_<ps_index>(scsi, "ps_index")
-      .value("x_",     ps_index::x_)
-      .value("px_",    ps_index::px_)
-      .value("y_",     ps_index::y_)
-      .value("py_",    ps_index::py_)
-      .value("ct_",    ps_index::ct_)
-      .value("delta_", ps_index::delta_);
+    py::enum_<ps_ind>(scsi, "ps_ind")
+      .value("x_",     ps_ind::x_)
+      .value("px_",    ps_ind::px_)
+      .value("y_",     ps_ind::y_)
+      .value("py_",    ps_ind::py_)
+      .value("delta_", ps_ind::delta_)
+      .value("ct_",    ps_ind::ct_);
 
     // Classes.
 
@@ -68,7 +67,7 @@ PYBIND11_MODULE(libtracy, scsi) {
     declare_field<double>(scsi, "_double");
     declare_field<tps>(scsi, "_tps");
 
-    // Beam line class.
+    // Beamline class.
 
     // Constants.
 
@@ -185,7 +184,6 @@ PYBIND11_MODULE(libtracy, scsi) {
       .def_readwrite("Ascrinv",        &ConfigType::Ascrinv)
       .def_readwrite("Vr",             &ConfigType::Vr)
       .def_readwrite("Vi",             &ConfigType::Vi)
-
       .def(py::init<>());
 
     py::class_<CellType>(scsi, "CellType")
@@ -210,7 +208,6 @@ PYBIND11_MODULE(libtracy, scsi) {
       .def_readwrite("A",          &CellType::A)
       .def_readwrite("sigma",      &CellType::sigma)
       // CellType
-
       .def(py::init<>());
 
     py::class_<ElemType>(scsi, "ElemType")
@@ -222,23 +219,11 @@ PYBIND11_MODULE(libtracy, scsi) {
       .def_readwrite("PL",      &ElemType::PL)
       // PartsKind
       .def_readwrite("Pkind",   &ElemType::Pkind)
-
       // Virtual class: no constructor.
       // .def(py::init<>())
-
       .def("prt_elem", &ElemType::prt_elem)
       .def("print",    &ElemType::print);
-    /*
-        .def("_repr__",
-             [](const TestElement &elem){
-                 std::stringstream repr;
-                 repr << "TestElement(" << elem.getName()
-                      <<  ", " << elem.getLength()
-                      << ")";
-                 return repr.str();
-             }
-            );
-    */
+
     py::class_<ElemFamType>(scsi, "ElemFamType")
       // ElemType
       // int
@@ -248,7 +233,6 @@ PYBIND11_MODULE(libtracy, scsi) {
       .def_readwrite("KidList", &ElemFamType::KidList)
       // std::vector<string>
       .def_readwrite("DBNlist", &ElemFamType::DBNlist)
-
       .def(py::init<>());
 
     py::class_<LatticeType>(scsi, "LatticeType")
@@ -258,36 +242,28 @@ PYBIND11_MODULE(libtracy, scsi) {
       .def_readwrite("elems", &LatticeType::elems)
       // ConfigType
       .def_readwrite("conf",  &LatticeType::conf)
-
       .def(py::init<>())
-
       .def("Lat_Init",      &LatticeType::Lat_Init)
-
       .def("prt_fams",      &LatticeType::prt_fams)
       .def("prt_elems",     &LatticeType::prt_elems)
-
       .def("GetnKid",       &LatticeType::GetnKid)
       .def("ElemIndex",     &LatticeType::ElemIndex)
       .def("Elem_GetPos",   &LatticeType::Elem_GetPos)
-
       .def("Lat_Read",      &LatticeType::Lat_Read)
       .def("prtmfile",      &LatticeType::prtmfile)
       .def("rdmfile",       &LatticeType::rdmfile)
-
       .def("prt_lat1",      &LatticeType::prt_lat1)
       .def("prt_lat2",      &LatticeType::prt_lat2)
       .def("prt_lat3",      &LatticeType::prt_lat3)
       .def("prt_lat4",      &LatticeType::prt_lat4)
-
       .def("getcod",        &LatticeType::getcod)
       .def("Ring_GetTwiss", &LatticeType::Ring_GetTwiss)
-
       .def("ChamberOff",    &LatticeType::ChamberOff)
-
       .def("print",         &LatticeType::print)
-
       .def("get_eps_x",     &LatticeType::get_eps_x)
-      .def("GetEmittance",  &LatticeType::GetEmittance);
+      .def("GetEmittance",  &LatticeType::GetEmittance)
+      .def("Cell_Pass1",    &LatticeType::Cell_Pass1)
+      .def("Cell_Pass2",    &LatticeType::Cell_Pass2);
 
     py::class_<DriftType, ElemType>(scsi, "DriftType")
       .def(py::init<>());
@@ -324,34 +300,32 @@ PYBIND11_MODULE(libtracy, scsi) {
       .def_readwrite("Pthick",   &MpoleType::Pthick)
       // std::vector< std::vector<double> >
       .def_readwrite("M_elem",   &MpoleType::M_elem)
-
       .def(py::init<>());
 
-    py::class_<CavityType, ElemType>(scsi, "CavityType")
-
+    py::class_<CavityType,     ElemType>(scsi, "CavityType")
       .def(py::init<>());
 
-    py::class_<MarkerType, ElemType>(scsi, "MarkerType")
+    py::class_<MarkerType,     ElemType>(scsi, "MarkerType")
       .def(py::init<>());
 
-    py::class_<WigglerType, ElemType>(scsi, "WigglerType")
+    py::class_<WigglerType,    ElemType>(scsi, "WigglerType")
       .def(py::init<>());
 
-    py::class_<InsertionType, ElemType>(scsi, "InsertionType")
+    py::class_<InsertionType,  ElemType>(scsi, "InsertionType")
       .def(py::init<>());
 
-    py::class_<FieldMapType, ElemType>(scsi, "FieldMapType")
+    py::class_<FieldMapType,   ElemType>(scsi, "FieldMapType")
       .def(py::init<>());
 
-    py::class_<SpreaderType, ElemType>(scsi, "SpreaderType")
+    py::class_<SpreaderType,   ElemType>(scsi, "SpreaderType")
       .def(py::init<>());
 
     py::class_<RecombinerType, ElemType>(scsi, "RecombinerType")
       .def(py::init<>());
 
-    py::class_<SolenoidType, ElemType>(scsi, "SolenoidType")
+    py::class_<SolenoidType,   ElemType>(scsi, "SolenoidType")
       .def(py::init<>());
 
-    py::class_<MapType, ElemType>(scsi, "MapType")
+    py::class_<MapType,        ElemType>(scsi, "MapType")
       .def(py::init<>());
 }

@@ -7,6 +7,11 @@ sys.path.append(tracy_dir+'/tracy/lib')
 import libtracy as scsi
 
 
+# Constants.
+
+x_ = 0; px_ = 1; y_ = 2; py_ = 3; delta_ = 4; ct_ = 5
+
+
 def printf(format, *args): sys.stdout.write(format % args); sys.stdout.flush()
 
 def prt_mat(mat):
@@ -60,7 +65,7 @@ def get_lat(file_name):
 def main(file_name):
     lat = get_lat(file_name)
 
-    lat.Ring_GetTwiss(True, 0e-3); lat.print();
+    lat.Ring_GetTwiss(True, 0e-3); lat.print('');
     print('\nnu: ', lat.conf.TotalTune)
 
     if lat.conf.mat_meth:
@@ -118,8 +123,6 @@ def main(file_name):
     ps = scsi.ss_vect_double()
     ps.zero()
     ps.print('\nps:\n')
-    ps.identity()
-    ps.print('')
 
     Id = scsi.ss_vect_tps()
     Id.identity()
@@ -131,6 +134,21 @@ def main(file_name):
     Id[0].print('\n')
     Id[0] = Id[3]
     Id[0].print('\n')
+
+    lastpos = 0
+    lat.getcod(0e0, lastpos);
+    print('\nCod:', lat.conf.CODvect)
+
+    ps = scsi.ss_vect_double()
+    ps.zero()
+    ps[x_] = 1e-3; ps[y_] = -1e-3
+    lat.Cell_Pass1(0, lat.conf.Cell_nLoc, ps, lastpos)
+    ps.print('\n')
+    
+    ps = scsi.ss_vect_tps()
+    ps.identity()
+    lat.Cell_Pass2(0, lat.conf.Cell_nLoc, ps, lastpos)
+    ps.print('\n')
 
 lat_dir = os.getenv('LAT')
 lat_ind = 1;

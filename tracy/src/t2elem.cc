@@ -2310,17 +2310,18 @@ void LatticeType::SI_init()
 }
 
 
-void ElemType::prt_elem(void)
+void ElemType::prt_elem(const string &str)
 {
+  printf("%s", str.c_str());
   printf(" %-15s %6.3f %2d %6.3f %2d %2d",
 	 Name.c_str(), S, Pkind, PL, Fnum, Knum);
   fflush(stdout);
 }
 
 
-void DriftType::print(void)
+void DriftType::print(const string &str)
 {
-  prt_elem();
+  prt_elem(str);
   printf(" drift \n");
 }
 
@@ -2330,9 +2331,9 @@ double get_phi(MpoleType *elem)
   return (elem->Pirho != 0e0)? radtodeg(elem->Pirho*elem->PL) : 0e0;
 }
 
-void MpoleType::print(void)
+void MpoleType::print(const string &str)
 {
-  prt_elem();
+  prt_elem(str);
   printf(" mpole  method %1d n_step %2d n_max %2d, n_design %2d reverse %1d"
 	 " phi %10.3e phi_1 %10.3e phi_2 %10.3e b_2 %10.3e b_3 %10.3e\n",
 	 Pmethod, PN, Porder, n_design, Reverse,
@@ -2340,65 +2341,65 @@ void MpoleType::print(void)
 }
 
 
-void CavityType::print(void)
+void CavityType::print(const string &str)
 {
-  prt_elem();
+  prt_elem(str);
   printf(" cavity\n");
 }
 
 
-void MarkerType::print(void)
+void MarkerType::print(const string &str)
 {
-  prt_elem();
+  prt_elem(str);
   printf(" marker\n");
 }
 
 
-void WigglerType::print(void)
+void WigglerType::print(const string &str)
 {
-  prt_elem();
+  prt_elem(str);
   printf(" wiggl \n");
 }
 
 
-void InsertionType::print(void)
+void InsertionType::print(const string &str)
 {
-  prt_elem();
+  prt_elem(str);
   printf(" ID    \n");
 }
 
 
-void FieldMapType::print(void)
+void FieldMapType::print(const string &str)
 {
-  prt_elem();
+  prt_elem(str);
   printf(" FM    \n");
 }
 
 
-void SpreaderType::print(void)
+void SpreaderType::print(const string &str)
 {
-  prt_elem();
+  prt_elem(str);
   printf(" spread\n");
 }
 
 
-void RecombinerType::print(void)
+void RecombinerType::print(const string &str)
 {
-  prt_elem();
+  prt_elem(str);
   printf(" recomb\n");
 }
 
 
-void SolenoidType::print(void)
+void SolenoidType::print(const string &str)
 {
-  prt_elem();
+  prt_elem(str);
   printf(" sol   \n");
 }
 
 
-void MapType::print(void)
+void MapType::print(const string &str)
 {
-  prt_elem();
+  prt_elem(str);
   printf(" map   \n");
 }
 
@@ -2415,14 +2416,14 @@ void LatticeType::prt_fams(void)
 }
 
 
-void LatticeType::prt_elems(void)
+void LatticeType::prt_elems(const string &str)
 {
   int k;
 
   printf("\nLattice: %lu\n", elems.size());
   for (k = 0; k < (int)elems.size(); k++) {
     printf("  %4d ", k);
-    elems[k]->print();
+    elems[k]->print(str);
   }
 }
 

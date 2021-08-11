@@ -130,14 +130,13 @@ ss_vect<T> ss_vect<T>::zero(void)
   return *this;
 }
 
+
 template<>
 ss_vect<double> ss_vect<double>::identity(void)
 {
-  for (int i = 0; i < ps_dim; i++)
-    ss[i] = 1e0;
-  return *this;
+  printf("\nidentity: not implemented for ss_vect<double>\n");
+  exit(1);
 }
-
 
 template<>
 ss_vect<tps> ss_vect<tps>::identity(void)

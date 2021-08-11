@@ -75,6 +75,15 @@ void LatticeType::Cell_Pass(const long i0, const long i1, ss_vect<T> &ps,
 }
 
 
+void LatticeType::Cell_Pass1(const long i0, const long i1, ss_vect<double> &ps,
+			    long &lastpos)
+{ Cell_Pass(i0, i1, ps, lastpos); }
+
+void LatticeType::Cell_Pass2(const long i0, const long i1, ss_vect<tps> &ps,
+			    long &lastpos)
+{ Cell_Pass(i0, i1, ps, lastpos); }
+
+
 void LatticeType::Cell_Pass(const long i0, const long i1, tps &sigma,
 			    long &lastpos)
 {
@@ -276,7 +285,7 @@ void LatticeType::Lat_Init(void)
     Stotal += elems[i]->PL; elems[i]->S = Stotal;
   }
 
-  if (debug) prt_elems();
+  if (debug) prt_elems("");
 }
 
 
