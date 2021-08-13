@@ -42,18 +42,18 @@ PYBIND11_MODULE(libtracy, scsi) {
 
     // Enums.
 
-    py::enum_<spat_ind>(scsi, "spat_ind")
-      .value("X_", spat_ind::X_)
-      .value("Y_", spat_ind::Y_)
-      .value("Z_", spat_ind::Z_);
+    py::enum_<spatial_ind>(scsi, "spatial_ind")
+      .value("X_", spatial_ind::X_)
+      .value("Y_", spatial_ind::Y_)
+      .value("Z_", spatial_ind::Z_);
 
-    py::enum_<ps_ind>(scsi, "ps_ind")
-      .value("x_",     ps_ind::x_)
-      .value("px_",    ps_ind::px_)
-      .value("y_",     ps_ind::y_)
-      .value("py_",    ps_ind::py_)
-      .value("delta_", ps_ind::delta_)
-      .value("ct_",    ps_ind::ct_);
+    py::enum_<phase_space_ind>(scsi, "phase_space_ind")
+      .value("x_",     phase_space_ind::x_)
+      .value("px_",    phase_space_ind::px_)
+      .value("y_",     phase_space_ind::y_)
+      .value("py_",    phase_space_ind::py_)
+      .value("delta_", phase_space_ind::delta_)
+      .value("ct_",    phase_space_ind::ct_);
 
     // Classes.
 

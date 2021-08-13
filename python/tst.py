@@ -12,6 +12,14 @@ import libtracy as scsi
 x_ = 0; px_ = 1; y_ = 2; py_ = 3; delta_ = 4; ct_ = 5
 
 
+# Lattices.
+lat_dir  = os.getenv('LAT')
+lattices = {
+    'bessy-iii': lat_dir+'/BESSY-III/NoTG-TGRB-B60-6bend-6sx_JB_tracy',
+    'diamond':   lat_dir+'/DIAMOND-II/vmx_symopt_Qx205_Qy364',
+    'bessy-ii':  'tests/lattices/b2_stduser_beamports_blm_tracy_corr'
+}
+
 def printf(format, *args): sys.stdout.write(format % args); sys.stdout.flush()
 
 def prt_mat(mat):
@@ -68,6 +76,7 @@ def main(file_name):
     lat.Ring_GetTwiss(True, 0e-3); lat.print('');
     print('\nnu: ', lat.conf.TotalTune)
 
+    # Compute radiation effects.
     if lat.conf.mat_meth:
         eps_x = 0.0; sigma_delta = 0.0; U_0 = 0.0; J = np.zeros(3);
         tau = np.zeros(3); I = np.zeros(6)
@@ -83,6 +92,7 @@ def main(file_name):
     print('\nA:')
     prt_mat(lat.conf.Ascr)
 
+    # Compute off-momentum closed orbit.
     lastpos = 0;
     lat.getcod(1e-3, lastpos);
     print('\nCod:', lat.conf.CODvect)
@@ -135,29 +145,22 @@ def main(file_name):
     Id[0] = Id[3]
     Id[0].print('\n')
 
+    # Compute on-momentum closed orbit.
     lastpos = 0
     lat.getcod(0e0, lastpos);
     print('\nCod:', lat.conf.CODvect)
 
+    # Track one turn.
     ps = scsi.ss_vect_double()
     ps.zero()
     ps[x_] = 1e-3; ps[y_] = -1e-3
     lat.Cell_Pass1(0, lat.conf.Cell_nLoc, ps, lastpos)
     ps.print('\n')
     
-    ps = scsi.ss_vect_tps()
-    ps.identity()
-    lat.Cell_Pass2(0, lat.conf.Cell_nLoc, ps, lastpos)
-    ps.print('\n')
+    # Compute linear Poincare map.
+    M = scsi.ss_vect_tps()
+    M.identity()
+    lat.Cell_Pass2(0, lat.conf.Cell_nLoc, M, lastpos)
+    M.print('\n')
 
-lat_dir = os.getenv('LAT')
-lat_ind = 1;
-
-if lat_ind == 1:
-    file_name = lat_dir+'/BESSY-III/NoTG-TGRB-B60-6bend-6sx_JB_tracy'
-elif lat_ind == 2:
-    file_name = lat_dir+'/DIAMOND-II/vmx_symopt_Qx205_Qy364'
-elif lat_ind == 3:
-    file_name = 'tests/lattices/b2_stduser_beamports_blm_tracy_corr'
-
-main(file_name)
+main(lattices['bessy-iii'])
