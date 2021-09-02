@@ -2257,7 +2257,7 @@ void MapType::Map_Pass(ConfigType &conf, ss_vect<T> &ps)
 int LatticeType::GetnKid(const int Fnum) { return (elemf[Fnum-1].nKid); }
 
 
-inline long int LatticeType::Elem_GetPos(const int Fnum, const int Knum)
+long int LatticeType::Elem_GetPos(const int Fnum, const int Knum)
 {
   if (elemf[Fnum-1].nKid > 0)
     return elemf[Fnum-1].KidList[Knum-1];
