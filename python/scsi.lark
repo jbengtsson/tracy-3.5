@@ -1,0 +1,44 @@
+// SCSI grammar.
+// Basically, it's an extension of Pascal's grammar -- a context-free grammar
+// (aka Chomsky type-2) -- introduced by Niklaus Wirth
+// 1970. The first computer langauge for which the compiler was coded in the
+// native language; for which the implementation relied heavily on recursion.
+// Hence, compact code & portable.
+
+%ignore /!.*/            // ingore comments
+%ignore /[ \t\f]/+       // ingore whitespace
+%ignore /&[ \t\f]*\r?\n/ // line continuation
+%import common (SIGNED_INT, SIGNED_FLOAT, SIGNED_NUMBER, ESCAPED_STRING, CNAME)
+
+int         : SIGNED_INT
+float       : SIGNED_FLOAT
+string      : ESCAPED_STRING
+word        : /\w+/
+name        : /\w+/ | "\"" /[\w:]+/ "\""
+
+start        : _NEWLINE* (statement _NEWLINE+)*
+_NEWLINE    : /[ \t\f]*\r?\n[ \t\f]*/
+?statement  : element | lattice | command | "%" assignment
+
+element     : name ":" [name] ("," attribute)* ","?
+attribute   : word "=" (int | float | string | word)
+
+lattice     : name ":" "LINE"i "=" arrangement
+arrangement : [int "*"] [/-/] "(" object (","+ object)* ")"
+?object     : ref_name | arrangement
+ref_name    : [int "*"] [/-/] ["\""] /[\w:]+/ ["\""]
+
+command     : name ["," word]
+
+assignment  = expr "sto" CNAME
+?expr       = SIGNED_NUMBER -> number
+            | CNAME         -> variable
+            | function
+            | binary
+!function   = expr ("exp" | "log" | "sqrt"| "sin" | "cos" | "tan" | "arcsin"
+	            | "arccos" | "arctan")
+?binary     = expr expr "+" -> add
+            | expr expr "-" -> sub
+            | expr expr "*" -> mul
+            | expr expr "/" -> div
+?start_rpn  = assignment | expr // used to tested the rpn parser
