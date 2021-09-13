@@ -1,7 +1,7 @@
 import os, sys
 
-tracy_dir = os.getenv('TRACY_LIB')
-sys.path.append(tracy_dir+'/tracy/lib')
+# tracy_dir = os.getenv('TRACY_LIB')
+# sys.path.append(tracy_dir+'/tracy/lib')
 
 import unittest
 import libtracy as scsi
@@ -33,19 +33,28 @@ class _LatticeBasicFunctionality(unittest.TestCase):
 
         self.lat = lat
 
-    @unittest.skip
+    # @unittest.skip
     def test0_readFile(self):
         '''Test if reading file from path works
         '''
         self.lat.Lat_Read(self.lattice_filename)
 
-    @unittest.skip
-    def test0_readInit(self):
+    # @unittest.skip
+    def test1_readInit(self):
         '''Test if reading file and init works
         '''
         lat = self.lat
         lat.Lat_Read(self.lattice_filename)
         lat.Lat_Init()
+
+    def test2_eps_get_x(self):
+        '''Test emmittance computation test
+        '''
+        lat = self.lat
+        lat.Lat_Read(self.lattice_filename)
+        lat.Lat_Init()
+        ret = lat.get_eps_x(True)
+        eps_x, sigma_delta, U_0, J, tau, I = ret
 
 
 class LatticeBasicFunctionality(_LatticeBasicFunctionality):
