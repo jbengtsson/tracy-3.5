@@ -48,7 +48,7 @@ public:
   get_eps_x_py(const bool prt) {
     double eps_x, sigma_delta, U_0;
     // TODO: allocate appropriate space
-    std::vector<double> J(3, 0.0), tau(3, 0.0), I(3, 0.0);
+    std::vector<double> J(3, 0.0), tau(3, 0.0), I(6, 0.0);
 
     get_eps_x(eps_x, sigma_delta, U_0, J, tau, I, prt);
 
@@ -60,7 +60,7 @@ public:
 };
 
 
-PYBIND11_MODULE(libtracy, scsi) {
+PYBIND11_MODULE(lib, scsi) {
     scsi.doc() = "Self-Consistent Symplectic Integrator (SCSI)";
 
     // Polymorphic number class.

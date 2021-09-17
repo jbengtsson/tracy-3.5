@@ -4,7 +4,7 @@ import os, sys
 # sys.path.append(tracy_dir+'/tracy/lib')
 
 import unittest
-import libtracy as scsi
+import tracy.lib as scsi
 import os
 
 t_dir = os.path.dirname(__file__)
