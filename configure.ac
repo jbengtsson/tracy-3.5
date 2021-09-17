@@ -29,10 +29,11 @@ AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_CPP
 # For MacBook: use local installation of GNU gcc.
-AC_PROG_CXX(gcc-11)
+# AC_PROG_CXX(gcc-11)
 # For MacBook: use Clang, part of LLVM.
-#AC_PROG_CXX(clang)
-AC_PROG_F77(gfortran)
+# AC_PROG_F77(gfortran)
+AC_PROG_CXX
+AC_PROG_F77
 
 # Checks for libraries.
 
