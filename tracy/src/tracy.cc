@@ -54,7 +54,7 @@
 // NSLS-II.
 // #include "nsls-ii_lib.cc"
 
-#if 1
+#if 0
 #include "../../python/src/tracy_py.cc"
 #endif
 

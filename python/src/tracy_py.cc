@@ -43,18 +43,20 @@ void declare_field(py::module &scsi, const std::string &typestr) {
 class LatticeTypePy : public LatticeType {
 
 public:
-    std::tuple<double, double, double, std::vector<double>,std::vector<double>,std::vector<double>>
-    get_eps_x_py(const bool prt){
-		double eps_x, sigma_delta, U_0;
-		// TODO: allocate appropriate space
-		std::vector<double> J(3, 0.0), tau(3, 0.0), I(3, 0.0);
+  std::tuple<double, double, double, std::vector<double>,
+	     std::vector<double>,std::vector<double>>
+  get_eps_x_py(const bool prt) {
+    double eps_x, sigma_delta, U_0;
+    // TODO: allocate appropriate space
+    std::vector<double> J(3, 0.0), tau(3, 0.0), I(3, 0.0);
 
-		get_eps_x(eps_x, sigma_delta, U_0, J, tau, I, prt);
+    get_eps_x(eps_x, sigma_delta, U_0, J, tau, I, prt);
 
-		std::tuple<double, double, double, std::vector<double>,std::vector<double>,std::vector<double>>
-		  tup( make_tuple(eps_x, sigma_delta, U_0, J, tau, I));
-		return tup;
-	}
+    std::tuple<double, double, double, std::vector<double>,
+	       std::vector<double>,std::vector<double>>
+      tup(make_tuple(eps_x, sigma_delta, U_0, J, tau, I));
+    return tup;
+  }
 };
 
 

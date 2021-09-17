@@ -163,4 +163,4 @@ def main(file_name):
     lat.Cell_Pass2(0, lat.conf.Cell_nLoc, M, lastpos)
     M.print('\n')
 
-main(lattices['bessy-iii'])
+main(lattices['bessy-ii'])
