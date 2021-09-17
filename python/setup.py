@@ -24,6 +24,7 @@ ext_modules = [
         "libtracy",
         sorted(['src/tracy_py.cc']),
         include_dirs=['../tracy/inc'] + [d['gsl_include']],
+        define_macros=[("_GLIBCXX_DEBUG", 1), ("_GLIBCXX_DEBUG_PEDANTIC", 1)],
         library_dirs=['../tracy/src/.libs'] + [d['gsl_lib_dir']],
         libraries=['tracy'] + d['gsl_libs']
     ),
