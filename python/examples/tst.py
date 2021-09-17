@@ -1,5 +1,5 @@
 import numpy as np
-import libtracy as scsi
+import tracy.lib as scsi
 
 
 # Constants.

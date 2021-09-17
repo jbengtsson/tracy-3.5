@@ -24,7 +24,7 @@ ext_modules = [
     #    include_dirs=['.'],
     # ),
     Pybind11Extension(
-        "libtracy",
+        "lib",
         sorted(["src/tracy_py.cc"]),
         include_dirs=["../tracy/inc"] + [d["gsl_include"]],
         define_macros=[("_GLIBCXX_DEBUG", 1), ("_GLIBCXX_DEBUG_PEDANTIC", 1)],
@@ -34,4 +34,7 @@ ext_modules = [
 ]
 
 
-setup(cmdclass={"build_ext": build_ext}, ext_modules=ext_modules)
+setup(cmdclass={"build_ext": build_ext},
+      ext_package='tracy',
+      ext_modules=ext_modules
+)

@@ -60,7 +60,7 @@ public:
 };
 
 
-PYBIND11_MODULE(libtracy, scsi) {
+PYBIND11_MODULE(lib, scsi) {
     scsi.doc() = "Self-Consistent Symplectic Integrator (SCSI)";
 
     // Polymorphic number class.
