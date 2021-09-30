@@ -173,21 +173,19 @@ def main(file_name):
     lat.getcod(0e0, lastpos)
     print("\nCod:", lat.conf.CODvect)
 
-    if not False:
-        # Track one turn.
-        ps = scsi.ss_vect_double()
-        ps.zero()
-        ps[x_] = 1e-3
-        ps[y_] = -1e-3
-        lat.Cell_Pass1(0, lat.conf.Cell_nLoc, ps, lastpos)
-        ps.print("\n")
+    # Track one turn.
+    ps = scsi.ss_vect_double()
+    ps.zero()
+    ps[x_] = 1e-3
+    ps[y_] = -1e-3
+    lat.Cell_Pass1(0, lat.conf.Cell_nLoc, ps, lastpos)
+    ps.print("\n")
 
-    if not False:
-        # Compute linear Poincare map.
-        M = scsi.ss_vect_tps()
-        M.identity()
-        lat.Cell_Pass2(0, lat.conf.Cell_nLoc, M, lastpos)
-        M.print("\n")
+    # Compute linear Poincare map.
+    M = scsi.ss_vect_tps()
+    M.identity()
+    lat.Cell_Pass2(0, lat.conf.Cell_nLoc, M, lastpos)
+    M.print("\n")
 
 
 if __name__ == "__main__":
