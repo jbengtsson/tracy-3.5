@@ -1,15 +1,20 @@
+import os, sys
 import numpy as np
+
+tracy_dir = os.getenv('TRACY_LIB')
+sys.path.append(tracy_dir+'/tracy/lib')
+
 import tracy.lib as scsi
 
 
 # Constants.
 
-x_ = 0
-px_ = 1
-y_ = 2
-py_ = 3
+x_     = 0
+px_    = 1
+y_     = 2
+py_    = 3
 delta_ = 4
-ct_ = 5
+ct_    = 5
 
 
 def prt_mat(mat):
