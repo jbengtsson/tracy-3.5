@@ -49,6 +49,7 @@ using namespace std;
 
 
 // Tracy-3
+#include "tracy_config.h"
 #include "field.h"
 
 #if NO_TPSA == 1

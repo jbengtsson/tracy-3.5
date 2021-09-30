@@ -155,12 +155,12 @@ def main(file_name):
     ps.zero()
     ps.print("\nps:-----\n")
 
-    if False:
+    if not False:
         Id = scsi.ss_vect_tps()
         print(Id)
         Id.identity()
         Id.print("\nId:\n")
-        # print('\nId:\n', Id)
+        print('\nId:\n', Id)
 
         Id[3].print("\n")
         Id[0] = scsi.tps(0e0, 3)
@@ -173,7 +173,7 @@ def main(file_name):
     lat.getcod(0e0, lastpos)
     print("\nCod:", lat.conf.CODvect)
 
-    if False:
+    if not False:
         # Track one turn.
         ps = scsi.ss_vect_double()
         ps.zero()
@@ -182,7 +182,7 @@ def main(file_name):
         lat.Cell_Pass1(0, lat.conf.Cell_nLoc, ps, lastpos)
         ps.print("\n")
 
-    if False:
+    if not False:
         # Compute linear Poincare map.
         M = scsi.ss_vect_tps()
         M.identity()
