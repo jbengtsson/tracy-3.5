@@ -9,6 +9,14 @@
 namespace py = pybind11;
 
 
+#ifndef NO_TPSA
+#error "NO_TPSA not defined: code most probably will not work"
+#endif
+
+#if NO_TPSA != 1
+#warning "NO TPSA is expected to be defined as 1. "
+#endif /* NO_TPSA != 1 */
+
 // Polymorphic number template class wrapper.
 
 template<typename T>
