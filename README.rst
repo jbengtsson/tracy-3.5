@@ -109,16 +109,18 @@ requires to select the proper directory
 Install proper dependencies
 
 .. code:: shell
+
     pip3 install -r requirements.txt
 
 
 And build the extension e.g.
 
 .. code:: shell
+
     python3 setup.py build
     python3 setup.py install
 
-For further details see  of the build system https://pypi.org/project/setuptools/
+For further details of the build system see https://pypi.org/project/setuptools/
 
 
 To run the regression tests
