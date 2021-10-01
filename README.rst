@@ -59,9 +59,10 @@ and to clone the tree into the tracy-3.5 directory.
    git clone git@github.com:jbengtsson/tracy-3.5.git
    cd tracy-3.5
 
-Then select the proper tree
+Then select the proper tree by
 
 .. code:: shell
+
    git checkout tracy-3.5_scsi
 
 
@@ -74,12 +75,14 @@ First create environment variable $TRACY_LIB. This will be the prefix where the
 built library and include files will be installed later on e.g:
 
 .. code:: shell
+
    export TRACY_LIB=$HOME/git_repos/tracy-3.5
 
 
 To build the library use:
 
 .. code:: shell
+
    cd tracy-3.5
    libtoolize
    ./bootstrap
