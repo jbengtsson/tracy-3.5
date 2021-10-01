@@ -25,7 +25,7 @@ Contributions
 
   Intial demo/prototype & guidelines by Jan Chrin, PSI, 2017.
   
-  Guidelines & automated regression testing prototyped by Pierre Schnizer.
+  Guidelines & automated regression testing bootstrapped by Pierre Schnizer.
 
 
 Requirements
