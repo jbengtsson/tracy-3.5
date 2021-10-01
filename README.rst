@@ -32,18 +32,31 @@ Requirements
 ------------
 * GNU C/C++ compiler.
 * GNU Python.
-* GNU Scientific Library (GSL).
-* Armadillo (for linear algebra).
+* GNU Scientific Library (GSL): https://www.gnu.org/software/gsl.
+* Armadillo (for linear algebra): http://arma.sourceforge.net.
 
 
 To install
 ----------
+.. code:: shell
+
   mkdir git_repos
   cd git_repos
   git clone git@github.com:jbengtsson/tracy-3.5_scsi.git
   cd tracy-3.5_scsi/python
   python3 setup.py build
 
+To run the regression tests
+---------------------------
+.. code:: shell
+
+python3 setup.py nosetests
+
+To run the demo/test program
+------------------------
+.. code:: shell
+
+python3 examples/tst.py
 
 
 Obsolete
