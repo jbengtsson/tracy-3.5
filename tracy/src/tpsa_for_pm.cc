@@ -53,16 +53,13 @@ long int nok(long int n, long int k)
 double getmat(const ss_vect<tps> &map, const int i, const int j)
 {
   int      k;
-  long int jj[ss_dim];
+  long int jj[tps_n];
   double   r;
 
-  for (k = 0; k < nv_tps; k++)
+  for (k = 0; k < tps_n; k++)
     jj[k] = 0;
-
   jj[j-1] = 1;
-
   dapek_(map[i-1].intptr, jj, r);
-
   return r;
 }
 
@@ -70,13 +67,11 @@ double getmat(const ss_vect<tps> &map, const int i, const int j)
 void putmat(ss_vect<tps> &map, const int i, const int j, const double r)
 {
   int      k;
-  long int jj[ss_dim];
+  long int jj[tps_n];
 
-  for (k = 0; k < nv_tps; k++)
+  for (k = 0; k < tps_n; k++)
     jj[k] = 0;
-
   if (j > 0) jj[j-1] = 1;
-
   dapok_(map[i-1].intptr, jj, r);
 }
 
@@ -87,7 +82,7 @@ void getlinmat(const int nv, const ss_vect<tps> &map, arma::mat &mat)
 
   for (j = 1; j <= nv; j++)
     for (k = 1; k <= nv; k++)
-      mat[j-1][k-1] = getmat(map, j, k);
+      mat(j-1, k-1) = getmat(map, j, k);
 }
 
 
@@ -102,7 +97,7 @@ ss_vect<tps> putlinmat(const int nv, const arma::mat &mat)
       if (k == 0)
         putmat(map, j, k, 0.0);
       else
-        putmat(map, j, k, mat[j-1][k-1]);
+        putmat(map, j, k, mat(j-1, k-1));
     }
   }
   return map;
@@ -125,9 +120,9 @@ void TPSA_Ini(void)
 {
 
   std::cout << std::endl;
-  std::cout << std::scientific << "initializing TPSA library: no = " << no_tps
-       << ", nv = " << nv_tps << ", nd = " << nd_tps
-       << ", ndpt = " << ndpt_tps << ", eps = " << eps_tps << std::endl;
+  std::cout << std::scientific << "initializing F77 TPSA library: no = "
+	    << no_tps << ", nv = " << nv_tps << ", nd = " << nd_tps
+	    << ", ndpt = " << ndpt_tps << ", eps = " << eps_tps << std::endl;
 
   // Initialize Fortran I/O
 //  f_init();
@@ -195,13 +190,127 @@ tps::~tps(void)
 { dadal_(intptr, 1); }
 
 
+double get_m_ij(const ss_vect<tps> &map, const int i, const int j)
+{ return getmat(map, i, j); }
+
+
+void put_m_ij(ss_vect<tps> &map, const int i, const int j, const double r)
+{ putmat(map, i, j, r); }
+
+
+ss_vect<tps> stlmattomap(const std::vector< std::vector<double> > &stlmat)
+{
+  ss_vect<tps> map;
+
+  const int n = (int)stlmat[0].size();
+
+  for (int j = 0; j < nv_tps; j++)
+    for (int k = -1; k < nv_tps; k++)
+      if (k == -1)
+	put_m_ij(map, j+1, 0, stlmat[j][n-1]);
+      else
+	put_m_ij(map, j+1, k+1, stlmat[j][k]);
+  return map;
+}
+
+std::vector< std::vector<double> > maptostlmat(const ss_vect<tps> &map)
+{
+  std::vector<double>                row;
+  std::vector< std::vector<double> > stlmat;
+
+  for (int j = 0; j < nv_tps; j++) {
+    row.clear();
+    for (int k = 0; k < nv_tps; k++)
+      row.push_back(map[j][k+1]);
+    row.push_back(map[j][0]);
+    stlmat.push_back(row);
+  }
+  row.clear();
+  for (int k = 0; k < nv_tps; k++)
+    row.push_back(0e0);
+  stlmat.push_back(row);
+  return stlmat;
+}
+
+arma::mat maptomat(const ss_vect<tps> &map)
+{
+  arma::mat mat(tps_n, tps_n);
+
+  for (int j = 0; j < nv_tps; j++) {
+    for (int k = 0; k < nv_tps; k++)
+      mat(j, k) = get_m_ij(map, j+1, k+1);
+    mat(j, tps_n-1) = get_m_ij(map, j+1, 0);
+  }
+  mat(tps_n-1, tps_n-1) = 1e0;
+  return mat;
+}
+
+
+ss_vect<tps> mattomap(const arma::mat &mat)
+{
+  ss_vect<tps> map;
+
+  for (int j = 0; j < nv_tps; j++) {
+    for (int k = 0; k < nv_tps; k++)
+      put_m_ij(map, j+1, k+1, mat(j, k));
+    if (j < nv_tps) put_m_ij(map, j+1, 0, mat(j, tps_n-1));
+  }
+  return map;
+}
+
+
+arma::mat stlmattomat(const std::vector< std::vector<double> > &stlmat)
+{
+  const int
+    m = (int)stlmat.size(),
+    n = (int)stlmat[0].size();
+
+  arma::mat mat(m, n);
+
+  for (int j = 0; j < m; j++)
+    for (int k = 0; k < n; k++)
+      mat(j, k) = stlmat[j][k];
+  return mat;
+}
+
+
+std::vector< std::vector<double> > mattostlmat(const arma::mat &mat)
+{
+  std::vector<double>                row;
+  std::vector< std::vector<double> > stlmat;
+
+  for (int j = 0; j < (int)mat.n_rows; j++) {
+    row.clear();
+    for (int k = 0; k < (int)mat.n_cols; k++)
+      row.push_back(mat(j, k));
+    stlmat.push_back(row);
+  }
+  return stlmat;
+}
+
+
+std::vector< std::vector<double> > get_stlmat(const ss_vect<tps> &map)
+{
+  std::vector<double>                row;
+  std::vector< std::vector<double> > mat;
+
+  for (int j = 0; j < nv_tps; j++) {
+    row.clear();
+    for (int k = 0; k < nv_tps; k++)
+      row.push_back(get_m_ij(map, j+1, k+1));
+    mat.push_back(row);
+  }
+  return mat;
+}
+
+
 double tps::operator[](const int k) const
 {
   int      i;
-  long int jj[ss_dim];
+  long int jj[tps_n];
   double   r;
 
-  for (i = 0; i < nv_tps; i++)
+  for (i = 0; i < tps_n; i++)
     jj[i] = 0;
   jj[k] = 1;
   dapek_(intptr, jj, r);
@@ -548,10 +657,10 @@ tps cosh(const tps &a)
 const double tps::cst(void) const
 {
   int      i;
-  long int jj[ss_dim];
+  long int jj[tps_n];
   double   r;
 
-  for (i = 0; i < nv_tps; i++)
+  for (i = 0; i < tps_n; i++)
     jj[i] = 0;
   dapek_(intptr, jj, r);
   return r;
@@ -788,7 +897,7 @@ ss_vect<tps> PInv(const ss_vect<tps> &x, const long int jj[])
   ss_vect<tps> y, z;
 
   n = 0;
-  for (k = 0; k < ss_dim; k++) {
+  for (k = 0; k < tps_n; k++) {
     if (jj[k] != 0) {
       n++; y[n-1] = x[k];
     }
@@ -797,7 +906,7 @@ ss_vect<tps> PInv(const ss_vect<tps> &x, const long int jj[])
   dainv_(y, n, z, n);
 
   n = 0; y.zero();
-  for (k = 0; k < ss_dim; k++) {
+  for (k = 0; k < tps_n; k++) {
     if (jj[k] != 0) {
       n++; y[n-1] = z[k];
     }
@@ -1009,7 +1118,7 @@ std::istream& operator>>(std::istream &is, tps &a)
 {
   char	   line[max_str], *token;
   int      i, n, no1, nv1;
-  long int ibuf1[bufsize], ibuf2[bufsize], jj[ss_dim];
+  long int ibuf1[bufsize], ibuf2[bufsize], jj[tps_n];
   double   rbuf[bufsize];
 
   const bool debug_ = false, prt = false;
@@ -1023,9 +1132,9 @@ std::istream& operator>>(std::istream &is, tps &a)
   is.getline(line, max_str); is.getline(line, max_str);
   sscanf(line, "tpsa, NO_TPSA =%d, NV =%d", &no1, &nv1);
   if (prt) std::cout << "no = " << no1 << ", nv = " << nv1 << std::endl;
-  ibuf1[0] = no_tps; ibuf2[0] = ss_dim;
+  ibuf1[0] = no_tps; ibuf2[0] = tps_n;
 
-  if ((no1 <= no_tps) && (nv1 <= ss_dim)) {
+  if ((no1 <= no_tps) && (nv1 <= tps_n)) {
     for (i = 1; i <= 5; i++)
       is.getline(line, max_str);
 
@@ -1035,25 +1144,25 @@ std::istream& operator>>(std::istream &is, tps &a)
       is.getline(line, max_str);
       token = strtok(line, " "); sscanf(token, "%d", &no1);
       token = strtok(NULL, " "); sscanf(token, "%le", &rbuf[n]);
-      for (i = 0; i < ss_dim; i++) {
+      for (i = 0; i < tps_n; i++) {
 	token = strtok(NULL, " "); sscanf(token, "%ld", &jj[i]);
       }
       if (prt) {
 	std::cout << std::scientific << std::setprecision(3)
 	     << no1 << std::setw(11) << rbuf[n];
-	for (i = 0; i < ss_dim; i++)
+	for (i = 0; i < tps_n; i++)
 	  std::cout << std::setw(3) << jj[i];
 	std::cout << std::endl; 
       }
 
-      hash_(no_tps, ss_dim, jj, ibuf1[n-1], ibuf2[n-1]);
+      hash_(no_tps, tps_n, jj, ibuf1[n-1], ibuf2[n-1]);
     } while (no1 >= 0);
 
     rbuf[0] = -no1;
     daimp_(rbuf, ibuf1, ibuf2, a.intptr);
   } else {
     std::cout << "*** illegal no = " << no1 << " (" << no_tps
-	 << ") or nv = " << nv1 << " (" << ss_dim << ")" << std::endl;
+	 << ") or nv = " << nv1 << " (" << tps_n << ")" << std::endl;
     exit_(1);
   }
 

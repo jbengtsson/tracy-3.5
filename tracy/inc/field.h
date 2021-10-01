@@ -61,10 +61,10 @@ class tps {
   tps& operator*=(const tps &);
   tps& operator/=(const tps &);
 
+#if NO_TPSA == 1
   friend double get_m_ij(const ss_vect<tps> &map, const int i, const int j);
   friend void put_m_ij(ss_vect<tps> &map, const int i, const int j,
 		       const double r);
-#if NO_TPSA == 1
   friend void dacct_(const ss_vect<tps> &x, const int i,
                      const ss_vect<tps> &y, const int j,
                      ss_vect<tps> &z, const int k);
@@ -127,7 +127,14 @@ class tps {
   friend tps Intd(const ss_vect<tps> &, const double);
   friend ss_vect<tps> Difd(const tps &, const double);
   friend ss_vect<tps> Taked(const ss_vect<tps> &, const int);
- private:
+
+#if NO_TPSA != 1
+  friend double getmat(const ss_vect<tps> &map, const int i, const int j);
+  friend void putmat(ss_vect<tps> &map, const int i, const int j,
+		     const double r);
+#endif
+
+private:
 #if NO_TPSA == 1
   // Linear TPSA: cst. & linear terms.
   std::vector<double> ltps{0e0, 0e0, 0e0, 0e0, 0e0, 0e0, 0e0};

@@ -3,6 +3,8 @@
    Definitions:  Polymorphic number class.              */
 
 
+#if NO_TPSA == 1
+
 void tps::print(const string &str)
 {
   std::cout << std::scientific << std::setprecision(6) << str << "cst:\n"
@@ -14,16 +16,9 @@ void tps::print(const string &str)
 }
 
 template<>
-void ss_vect<double>::print(const string &str)
-{
-  std::cout << std::scientific << std::setprecision(6) << str << std::setw(14)
-	    << *this << "\n"; 
-}
-
-template<>
 void ss_vect<tps>::print(const string &str)
 {
-  std::cout  << str;
+  std::cout << str;
   for (int i = 1; i <= nv_tps; i++) {
     for (int j = 1; j <= nv_tps; j++)
       std::cout << std::scientific << std::setprecision(6)
@@ -32,6 +27,21 @@ void ss_vect<tps>::print(const string &str)
   }
 }
 
+#else
+
+void tps::print(const string &str) { std::cout << str << *this; }
+
+template<>
+void ss_vect<tps>::print(const string &str) { std::cout << str << *this; }
+
+#endif
+
+template<>
+void ss_vect<double>::print(const string &str)
+{
+  std::cout << std::scientific << std::setprecision(6) << str << std::setw(14)
+	    << *this << "\n"; 
+}
 
 
 template<typename T>

@@ -41,7 +41,8 @@ def prt_elems(scsi, lat):
         else:
             print("{:2d}\n".format(lat.elems[k].Pkind))
             if lat.elems[k].Pkind == scsi.PartsKind.drift:
-                print("{:-8s} {:5.3f}\n".format(lat.elems[k].Name, lat.elems[k].PL))
+                print("{:-8s} {:5.3f}\n".format(lat.elems[k].Name,
+                                                lat.elems[k].PL))
             elif lat.elems[k].Pkind == scsi.PartsKind.Mpole:
                 print(
                     "{:-8s} {:5.3f} {:5.3f}\n".format(
@@ -96,7 +97,7 @@ def main(file_name):
     else:
         lat.GetEmittance(lat.ElemIndex("cav"), True)
 
-    print("\nE [GeV]: {:3.1f}\n", lat.conf.Energy)
+    print("\nE [GeV]: {:3.1f}\n".format(lat.conf.Energy))
 
     print("\nLinear Poincare map:")
     prt_mat(lat.conf.OneTurnMat)
@@ -155,18 +156,17 @@ def main(file_name):
     ps.zero()
     ps.print("\nps:-----\n")
 
-    if not False:
-        Id = scsi.ss_vect_tps()
-        print(Id)
-        Id.identity()
-        Id.print("\nId:\n")
-        print('\nId:\n', Id)
+    Id = scsi.ss_vect_tps()
+    print(Id)
+    Id.identity()
+    Id.print("\nId:\n")
+    print('\nId:\n', Id)
 
-        Id[3].print("\n")
-        Id[0] = scsi.tps(0e0, 3)
-        Id[0].print("\n")
-        Id[0] = Id[3]
-        Id[0].print("\n")
+    Id[3].print("\n")
+    Id[0] = scsi.tps(0e0, 3)
+    Id[0].print("\n")
+    Id[0] = Id[3]
+    Id[0].print("\n")
 
     # Compute on-momentum closed orbit.
     lastpos = 0
@@ -185,7 +185,7 @@ def main(file_name):
     M = scsi.ss_vect_tps()
     M.identity()
     lat.Cell_Pass2(0, lat.conf.Cell_nLoc, M, lastpos)
-    M.print("\n")
+    M.print("M:\n")
 
 
 if __name__ == "__main__":

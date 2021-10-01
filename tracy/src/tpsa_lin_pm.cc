@@ -64,8 +64,8 @@ void TPSA_Ini(void)
 {
   long int n;
 
-  std::cout << std::scientific << "\ninitializing TPSA library: no = " << no_tps
-	    << ", nv = " << nv_tps << ", eps = " << eps_tps << "\n";
+  std::cout << std::scientific << "\ninitializing linear TPSA library: no = "
+	    << no_tps << ", nv = " << nv_tps << ", eps = " << eps_tps << "\n";
   // Initialize Fortran I/O
 //  f_init();
   // Initialize TPSA-lib

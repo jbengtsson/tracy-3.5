@@ -204,7 +204,9 @@ template void splin2(const double [], const double [],
 		     double **, double **, const int, const int,
 		     const tps &, const tps &, tps &);
 
-int no_tps = 1;
+int
+  no_tps   = NO_TPSA,
+  ndpt_tps = 5;
 
 
 double d_sign(double a, double b)
