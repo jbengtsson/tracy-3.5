@@ -7,23 +7,46 @@ Self-Consistent Symplectic Integrator for charged particle beam dynamics
 ------------------------------------------------------------------------
 
 The symplectic integrator for realistic modeling of magnetic lattices for
-ring-based synchrotrons was initially implemented in Pascal as a "*beam dynamics library*",
+ring-based synchrotrons was initially implemented in Pascal as a *beam dynamics library*,
 by the author, 1990; with care taken for the software architecture & resulting records/modules
-(-> "objects") to reflect the structure of the mathematical objects describing
-the underlying "*beam dynamics model*".
+– akin to *objects* although not explicitly supported by the grammar –  to reflect the structure of the mathematical objects describing
+the underlying *beam dynamics model*.
+
 The resulting C code, see below, has now been re-factored by introducing a C++ "*beam line class*";
 i.e., to recover the transparency & simplicity of the original model & code.
+
+Nota Bene: Although the beam dynamics model for a precursor, Tracy::
+
+H\. Nishimura "*TRACY, A Tool for Accelerator Design and Analysis*" `EPAC 1988.`_
+
+.. _`EPAC 1988.`: https://accelconf.web.cern.ch/e88/PDF/EPAC1988_0803.PDF
+
+was lacking, i.e., based on the quadratic Hamiltonian for linear optics design:
+
+
+
+Because 
 
 
 Contributions
 -------------
 * The symplectic integrator for RADIA kick maps was implemented by Laurent Nadolski, SOLEIL, 2002.
 
-* The original Pascal library/code was machine translated to C by Michael Boege, SLS, 1998 (with p2c).
+* The original Pascal library/code was machine translated to C by Michael Boege, SLS, 1998::
+
+M\. Böge, J. Chrin *A CORBA Based Client-Server Model for Beam Dynamics Applications* `ICALEPS 1999.`_
+
+.. _`ICALEPS 1999.`: https://accelconf.web.cern.ch/ica99/papers/mc1p61.pdf
+
+with `p2c.`_
+
+.. _`p2c.`: http://users.fred.net/tds/lab/p2c/historic/daves.index-2012Jul25-20-44-55.html
 
 * Python interface::
 
   Intial demo/prototype & guidelines by Jan Chrin, PSI, 2017.
+  
+  J. Chrin
 
   Guidelines & automated regression testing bootstrapped by Pierre Schnizer.
 
