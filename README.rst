@@ -3,7 +3,7 @@ Thor
 
 Author: Johan Bengtsson
 
-Self-Consistent Symplectic Integrator for charged particle beam dynamics
+Self-Consistent Symplectic Integrator for Charged Particle Beam Dynamics
 ------------------------------------------------------------------------
 
 The symplectic integrator for realistic modeling of magnetic lattices for
@@ -32,21 +32,29 @@ Contributions
 -------------
 * The symplectic integrator for RADIA kick maps was implemented by Laurent Nadolski, SOLEIL, 2002.
 
-* The original Pascal library/code was machine translated to C by Michael Boege, SLS, 1998::
+* The original Pascal library/code was machine translated to C by Michael Boege, SLS::
 
-M\. Böge, J. Chrin *A CORBA Based Client-Server Model for Beam Dynamics Applications* `ICALEPS 1999.`_
+  M\. Böge, J. Chrin *A CORBA Based Client-Server Model for Beam Dynamics Applications* `ICALEPS 1999.`_
 
-.. _`ICALEPS 1999.`: https://accelconf.web.cern.ch/ica99/papers/mc1p61.pdf
+  .. _`ICALEPS 1999.`: https://accelconf.web.cern.ch/ica99/papers/mc1p61.pdf
 
-with `p2c.`_
+  with `p2c.`_
 
-.. _`p2c.`: http://users.fred.net/tds/lab/p2c/historic/daves.index-2012Jul25-20-44-55.html
+  .. _`p2c.`: http://users.fred.net/tds/lab/p2c/historic/daves.index-2012Jul25-20-44-55.html
+
+* Similarly, James Rowland utilized the C version to implement a *virtual accelerator* interfaced to EPICS as a *Virtual Input Output Controller* (VIOC)::
+
+  M\. Heron, J. Rowland, et al *Progress on the Implementation of the DIAMOND Control System* `ICALEPCS 2005.`_
+
+  .. _`ICALEPCS 2005.` https://accelconf.web.cern.ch/ica05/proceed-ings/pdf/P1_018.pdf
 
 * Python interface::
 
   Intial demo/prototype & guidelines by Jan Chrin, PSI, 2017.
   
-  J. Chrin
+  J\. Chrin *Channel Access from Cython (and other Cython use cases)* `EPICS Collaboration Meeting 2017.`_
+  
+  .. _`EPICS Collaboration Meeting 2017.`: https://indico.esss.lu.se/event/889/contributions/7038/attachments/6800/9762/Cython_EpicsTM_Oct2017_Barcelona.pdf
 
   Guidelines & automated regression testing bootstrapped by Pierre Schnizer.
 
