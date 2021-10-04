@@ -13,7 +13,7 @@ by the author, 1990; with care taken for the software architecture & resulting r
 the underlying *beam dynamics model*.
 
 The resulting C code, see below, has now been re-factored by introducing a C++ "*beam line class*";
-i.e., to recover the transparency & simplicity of the original model & code.
+i.e., to recover the transparency & simplicity of the original *beam dynamics model*.
 
 Nota Bene: Although the *beam dynamics model* had to be replaced & the model/code re-architectured & structured – for a reusable approach – as a *Pascal beam dynamics libary*, the code was named Tracy-2, i.e., after the demo/prototype Tracy::
 
@@ -32,8 +32,7 @@ N\. Wirth *PASCAL-S:: A Subset and its Implementation* `Institut für Informatik
 .. _`Institut für Informatik (1975).`: http://pascal.hansotten.com/uploads/pascals/PASCAL-S%20A%20subset%20and%20its%20Implementation%20012.pdf
 
 
-The CERN Classic collaboration.
-Thor
+The CERN Classic collaboration -> Thor
 
 Contributions
 -------------
@@ -67,13 +66,13 @@ Contributions
 
 * Besides, the internal *numerical engine* was manually translated to C and re-used for::
 
-  A. Terebilo *Accelerator Toolbox for MATLAB* `SLAC-PUB-8732 (2001).`_
+  A\. Terebilo *Accelerator Toolbox for MATLAB* `SLAC-PUB-8732 (2001).`_
   
   .. `SLAC-PUB-8732 (2001).`_: http://www-public.slac.stanford.edu/sciDoc/docMeta.aspx?slacPubNumber=SLAC-PUB-8732
 
 * Python interface::
 
-  Intial demo/prototype & guidelines by Jan Chrin, PSI, 2017.
+  Initial demo/prototype & guidelines by Jan Chrin, PSI, 2017.
   
   J\. Chrin *Channel Access from Cython (and other Cython use cases)* `EPICS Collaboration Meeting 2017.`_
   
