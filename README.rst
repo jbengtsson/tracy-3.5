@@ -15,18 +15,21 @@ the underlying *beam dynamics model*.
 The resulting C code, see below, has now been re-factored by introducing a C++ "*beam line class*";
 i.e., to recover the transparency & simplicity of the original model & code.
 
-Nota Bene: Although the beam dynamics model for a precursor, Tracy::
+Nota Bene: Although the beam dynamics model had to be replaced & the model/code re-architectured/structured as a Pascal beam dynamics libary, the code was named Tracy-2, i.e., after a precursor Tracy::
 
 H\. Nishimura "*TRACY, A Tool for Accelerator Design and Analysis*" `EPAC 1988.`_
 
 .. _`EPAC 1988.`: https://accelconf.web.cern.ch/e88/PDF/EPAC1988_0803.PDF
 
-was lacking, i.e., based on the quadratic Hamiltonian for linear optics design:
+i.e., based on the linearized quadratic Hamiltonian for linear optics design. However, it was prototyped/implemented by extending the *standard procedures & functions* for the *Pascal-S compiler/interpreter* by N. Wirth::
 
+N. Wirth *PASCAL-S A Subset and its Implementation* `Institut für Informatik (1975).`_
 
+.. _`Institut für Informatik (1975).`: http://pascal.hansotten.com/uploads/pascals/PASCAL-S%20A%20subset%20and%20its%20Implementation%20012.pdf
 
-Because 
+which we liked we named it Tracy-2.
 
+Thor
 
 Contributions
 -------------
