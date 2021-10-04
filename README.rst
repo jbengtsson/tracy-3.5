@@ -15,27 +15,41 @@ the underlying *beam dynamics model*.
 The resulting C code, see below, has now been re-factored by introducing a C++ "*beam line class*";
 i.e., to recover the transparency & simplicity of the original model & code.
 
-Nota Bene: Although the beam dynamics model had to be replaced & the model/code re-architectured/structured as a Pascal beam dynamics libary, the code was named Tracy-2, i.e., after a precursor Tracy::
+Nota Bene: Although the *beam dynamics model* had to be replaced & the model/code re-architectured & structured – for a reusable approach – as a *Pascal beam dynamics libary*, the code was named Tracy-2, i.e., after the demo/prototype Tracy::
 
 H\. Nishimura "*TRACY, A Tool for Accelerator Design and Analysis*" `EPAC 1988.`_
 
 .. _`EPAC 1988.`: https://accelconf.web.cern.ch/e88/PDF/EPAC1988_0803.PDF
 
-i.e., based on the linearized quadratic Hamiltonian for linear optics design. However, it was prototyped/implemented by extending the *standard procedures & functions* for the *Pascal-S compiler/interpreter* by N. Wirth::
+for which the *beam dynamics model* was based on the linearized quadratic Hamiltonian::
 
-N. Wirth *PASCAL-S A Subset and its Implementation* `Institut für Informatik (1975).`_
+
+
+for linear optics design. In particular, because the prototype was implemented by extending the *standard procedures & functions* for the *Pascal-S compiler/interpreter* by N. Wirth::
+
+N\. Wirth *PASCAL-S:: A Subset and its Implementation* `Institut für Informatik (1975).`_
 
 .. _`Institut für Informatik (1975).`: http://pascal.hansotten.com/uploads/pascals/PASCAL-S%20A%20subset%20and%20its%20Implementation%20012.pdf
 
-which we liked we named it Tracy-2.
 
+The CERN Classic collaboration.
 Thor
 
 Contributions
 -------------
-* The symplectic integrator for RADIA kick maps was implemented by Laurent Nadolski, SOLEIL, 2002.
+* The symplectic integrator for RADIA kick maps::
 
-* The original Pascal library/code was machine translated to C by Michael Boege, SLS::
+  P\. Elleaume *A New Approach to the Electron Beam Dynamics in Undulators and Wigglers”* `EPAC 1992.`_
+
+  .. _`EPAC 1992.`: https://accelconf.web.cern.ch/e92/PDF/EPAC1992_0661.PDF
+
+  was implemented by Laurent Nadolski, SOLEIL, 2002.
+
+* The original Pascal library/code was machine translated to C and re-used to implement a *model server* for the SLS commissioning::
+
+  M\. Böge *Update on TRACY-2 Documentation* `SLS Tech Note SLS-TME-TA-1999-0002 (1999).`_
+
+  .. _`SLS Tech Note SLS-TME-TA-1999-0002 (1999).`: http://ados.web.psi.ch/slsnotes/tmeta9902.pdf
 
   M\. Böge, J. Chrin *A CORBA Based Client-Server Model for Beam Dynamics Applications* `ICALEPS 1999.`_
 
@@ -45,11 +59,17 @@ Contributions
 
   .. _`p2c.`: http://users.fred.net/tds/lab/p2c/historic/daves.index-2012Jul25-20-44-55.html
 
-* Similarly, James Rowland utilized the C version to implement a *virtual accelerator* interfaced to EPICS as a *Virtual Input Output Controller* (VIOC)::
+* Similarly, James Rowland re-used the C version to implement a *Virtual Accelerator* interfaced to EPICS as a *Virtual Input Output Controller* (VIOC)::
 
   M\. Heron, J. Rowland, et al *Progress on the Implementation of the DIAMOND Control System* `ICALEPCS 2005.`_
 
-  .. _`ICALEPCS 2005.` https://accelconf.web.cern.ch/ica05/proceed-ings/pdf/P1_018.pdf
+  .. _`ICALEPCS 2005.`: https://accelconf.web.cern.ch/ica05/proceed-ings/pdf/P1_018.pdf
+
+* Besides, the internal *numerical engine* was manually translated to C and re-used for::
+
+  A. Terebilo *Accelerator Toolbox for MATLAB* `SLAC-PUB-8732 (2001).`_
+  
+  .. `SLAC-PUB-8732 (2001).`_: http://www-public.slac.stanford.edu/sciDoc/docMeta.aspx?slacPubNumber=SLAC-PUB-8732
 
 * Python interface::
 
@@ -71,7 +91,7 @@ Requirements
 * Python https://www.python.org/ for the python interface
 
 The library uses the range checking inmplementation of e.g. `std::vector` as
-provided by GNU C++; thus its dependency on the GUN compiler collections
+provided by GNU C++; thus its dependency on the GNU compiler collections.
 
 To install
 ----------
