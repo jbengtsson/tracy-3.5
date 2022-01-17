@@ -22,14 +22,15 @@ const bool
   prt_s1  = false,
   prt_dt  = false;
 
-#define FULL_LAT 1
+#define FULL_LAT 0
 #define SET_NU   1
 
 const int
   n_cell = 16;
 const double
 #if SET_NU
-  nu[]     = {42.38/n_cell, 14.18/n_cell},
+  nu_int[] = {44, 13},
+  nu[]     = {(nu_int[X_]+0.38)/n_cell, (nu_int[Y_]+0.18)/n_cell},
 #else
   nu[]     = {0.1, 0.0},
 #endif
@@ -1628,11 +1629,9 @@ int main(int argc, char *argv[])
   // 1: DIAMOND, 2: NSLS-II, 3: Oleg I, 4: Oleg II.
   FieldMap_filetype = 4; sympl = !false;
 
-  reverse_elem = true;
-
-  trace = false;
-
-  globval.mat_meth = !false;
+  trace            = false;
+  reverse_elem     = true;
+  globval.mat_meth = false;
 
   if (true)
     Read_Lattice(argv[1]);
@@ -1648,6 +1647,15 @@ int main(int argc, char *argv[])
   if (false) no_sxt();
 
   if (false) {
+    getcod(0e0, lastpos);
+    prt_cod("cod_0.out", globval.bpm, true);
+    set_bn_design_elem(ElemIndex("chv"), Dip, 1, 1e-3, -1e-3);
+    getcod(0e0, lastpos);
+    prt_cod("cod_1.out", globval.bpm, true);
+    exit(0);
+  }
+
+  if (false) {
     ss_vect<tps> map;
     map.identity();
     if (!false) no_sxt();
@@ -1660,15 +1668,30 @@ int main(int argc, char *argv[])
   globval.pathlength = false;
 
   if (false) {
-    getcod(0.0, lastpos);
+    long int lastpos;
+    double   xmean[2], xsigma[2], xmax[2];
+
+    getcod(0e0, lastpos);
+    codstat(xmean, xsigma, xmax, globval.Cell_nLoc, true);
+    printf("\nRMS orbit [mm]: (%8.1e +/- %7.1e, %8.1e +/- %7.1e)\n",
+	   1e3*xmean[X_], 1e3*xsigma[X_], 1e3*xmean[Y_], 1e3*xsigma[Y_]);
+
+    set_bn_design_fam(ElemIndex("chv"), Dip, 1e-3, 0.1e-3);
+    getcod(0e0, lastpos);
+    codstat(xmean, xsigma, xmax, globval.Cell_nLoc, true);
+    printf("RMS orbit [mm]: (%8.1e +/- %7.1e, %8.1e +/- %7.1e)\n",
+	   1e3*xmean[X_], 1e3*xsigma[X_], 1e3*xmean[Y_], 1e3*xsigma[Y_]);
+
+    prt_cod("cod.out", 0, true);
+
     exit(0);
   }
 
   Ring_GetTwiss(true, 0e-3); printglob();
 
   if (false) {
-    prt_lin_map(3,
-		chk_sympl(putlinmat(6, globval.OneTurnMat))-get_sympl_form(3));
+    prt_lin_map
+      (3, chk_sympl(putlinmat(6, globval.OneTurnMat))-get_sympl_form(3));
     exit(0);
   }
 
