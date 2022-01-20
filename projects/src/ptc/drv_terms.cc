@@ -9,7 +9,11 @@ int no_tps   = NO,
 const bool   set_dnu = false;
 const int    n_cell  = 2;
 const double
-  beta_inj[] = {7.9, 3.1},
+#if 1
+  beta_inj[] = {2.7, 2.5},
+#else
+  beta_inj[] = {2.8, 2.6},
+#endif
   A_max[]    = {3e-3, 1.5e-3},
   delta_max  = 2e-2,
   twoJ[]     = {sqr(A_max[X_])/beta_inj[X_], sqr(A_max[Y_])/beta_inj[Y_]},
@@ -123,6 +127,77 @@ void prt_drv_terms(ofstream &outf, const int k,
 }
 
 
+void prt_tab(ofstream &outf, ss_vect<tps> &map_Fl, tps &K,
+	     const double twoJ[], const double delta)
+{
+  int          i;
+  tps          h_re, h_im, k_re, k_im;
+  ss_vect<tps> Id_scl;
+
+  Id_scl.identity();
+  for (i = 0; i < 4; i++)
+    Id_scl[i] *= sqrt(twoJ[i/2]);
+  Id_scl[delta_] *= delta;
+
+  CtoR(get_h_local(map_Fl)*Id_scl, h_re, h_im);
+  CtoR(K*Id_scl, k_re, k_im);
+
+  outf << scientific << setprecision(5)
+       << "\n\th_10002\t"
+       << setw(13) << h_abs_ijklm(h_re, h_im, 1, 0, 0, 0, 2) << "\n"
+       << "\th_20001\t"
+       << setw(13) << h_abs_ijklm(h_re, h_im, 2, 0, 0, 0, 1) << "\n"
+       << "\th_00201\t"
+       << setw(13) << h_abs_ijklm(h_re, h_im, 0, 0, 2, 0, 1) << "\n"
+
+       << "\n\th_10110\t"
+       << setw(13) << h_abs_ijklm(h_re, h_im, 1, 0, 1, 1, 0) << "\n"
+       << "\th_21000\t"
+       << setw(13) << h_abs_ijklm(h_re, h_im, 2, 1, 0, 0, 0) << "\n"
+       << "\th_30000\t"
+       << setw(13) << h_abs_ijklm(h_re, h_im, 3, 0, 0, 0, 0) << "\n"
+       << "\th_10020\t"
+       << setw(13) << h_abs_ijklm(h_re, h_im, 1, 0, 0, 2, 0) << "\n"
+       << "\th_10200\t"
+       << setw(13) << h_abs_ijklm(h_re, h_im, 1, 0, 2, 0, 0) << "\n";
+
+  if (false) {
+    outf << scientific << setprecision(5)
+	 << "\n\th_40000\t"
+	 << setw(13) << h_abs_ijklm(h_re, h_im, 4, 0, 0, 0, 0) << "\n"
+	 << "\th_20000\t"
+	 << setw(13) << h_abs_ijklm(h_re, h_im, 3, 1, 0, 0, 0) << "\n"
+	 << "\th_20200\t"
+	 << setw(13) << h_abs_ijklm(h_re, h_im, 2, 0, 2, 0, 0) << "\n"
+	 << "\th_00200\t"
+	 << setw(13) << h_abs_ijklm(h_re, h_im, 1, 1, 2, 0, 0) << "\n"
+	 << "\th_00400\t"
+	 << setw(13) << h_abs_ijklm(h_re, h_im, 0, 0, 4, 0, 0) << "\n"
+	 << "\th_20000\t"
+	 << setw(13) << h_abs_ijklm(h_re, h_im, 2, 0, 1, 1, 0) << "\n"
+	 << "\th_00200\t"
+	 << setw(13) << h_abs_ijklm(h_re, h_im, 0, 0, 3, 1, 0) << "\n"
+	 << "\th_00200\t"
+	 << setw(13) << h_abs_ijklm(h_re, h_im, 2, 0, 0, 2, 0) << "\n";
+  }
+
+  outf << scientific << setprecision(5)
+       << "\n\tk_22000\t"
+       << setw(13) << h_ijklm(k_re, 2, 2, 0, 0, 0) << "\n"
+       << "\tk_00220\t"
+       << setw(13) << h_ijklm(k_re, 0, 0, 2, 2, 0) << "\n"
+       << "\tk_11110\t"
+       << setw(13) << h_ijklm(k_re, 1, 1, 1, 1, 0) << "\n"
+
+       << "\n\tk_11002\t"
+       << setw(13) << h_ijklm(k_re, 1, 1, 0, 0, 2) << "\n"
+       << "\tk_00112\t"
+       << setw(13) << h_ijklm(k_re, 0, 0, 1, 1, 2) << "\n";
+
+  outf.flush();
+}
+
+
 void get_drv_terms(const double twoJ[], const double delta)
 {
   long int     lastpos;
@@ -130,13 +205,15 @@ void get_drv_terms(const double twoJ[], const double delta)
   ss_vect<tps> Id, map, map_Fl, A_k;
   ofstream     outf;
 
-  const string str = "drv_terms.out";
+  const string
+    str1 = "drv_terms.out",
+    str2 = "drv_terms_tab.txt";
   
-  outf.open(str.c_str(), ios::out);
+  outf.open(str1.c_str(), ios::out);
 
   Id.identity();
 
-  danot_(2);
+  danot_(3);
   map.identity();
   Cell_Pass(0, globval.Cell_nLoc, map, lastpos);
   MNF = MapNorm(map, 1);
@@ -159,6 +236,10 @@ void get_drv_terms(const double twoJ[], const double delta)
     prt_drv_terms(outf, k, twoJ, delta, map_Fl);
   }
 
+  outf.close();
+
+  outf.open(str2.c_str(), ios::out);
+  prt_tab(outf, map_Fl, MNF.K, twoJ, delta_max);
   outf.close();
 }
 
@@ -383,6 +464,8 @@ void map_gymn(void)
   cout << scientific << setprecision(5) << (map_res-MNF.map_res)[x_];
 #endif
 }
+
+
 
 
 int main(int argc, char *argv[])

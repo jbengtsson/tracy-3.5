@@ -7,15 +7,9 @@ int no_tps   = NO,
 
 
 const double
-#if 1
-  beta_inj[] = {2.8, 4.0},
-  A_max[]    = {3e-3, 2e-3},
-  delta_max  = 3e-2,
-#else
-  beta_inj[] = {16.5, 3.7},
-  A_max[]    = {15e-3, 8e-3},
-  delta_max  = 3e-2,
-#endif
+  beta_inj[] = {2.8, 2.6},
+  A_max[]    = {3e-3, 1.5e-3},
+  delta_max  = 2e-2,
   twoJ[]     = {sqr(A_max[X_])/beta_inj[X_], sqr(A_max[Y_])/beta_inj[Y_]};
 
 const char home_dir[] = "/home/bengtsson";
@@ -305,7 +299,7 @@ void wtf()
 int main(int argc, char *argv[])
 {
   tps          H, H_re, H_im, g_re, g_im, K_re, K_im;
-  ss_vect<tps> Id;
+  ss_vect<tps> Id_scl;
   ofstream     outf;
 
   globval.H_exact    = false; globval.quad_fringe    = false;
@@ -347,27 +341,27 @@ int main(int argc, char *argv[])
 
   CtoR(MNF.K, K_re, K_im); CtoR(MNF.g, g_re, g_im);
 
-  Id.identity();
-  Id[x_] *= sqrt(twoJ[X_]); Id[px_] *= sqrt(twoJ[X_]);
-  Id[y_] *= sqrt(twoJ[Y_]); Id[py_] *= sqrt(twoJ[Y_]);
-  Id[delta_] *= delta_max;
+  Id_scl.identity();
+  Id_scl[x_] *= sqrt(twoJ[X_]); Id_scl[px_] *= sqrt(twoJ[X_]);
+  Id_scl[y_] *= sqrt(twoJ[Y_]); Id_scl[py_] *= sqrt(twoJ[Y_]);
+  Id_scl[delta_] *= delta_max;
 
   if (true) {
 //    H = get_H(); CtoR(H, H_re, H_im);
 
 //    outf.open("H.dat", ios::out);
-//    outf << H_re*Id;
+//    outf << H_re*Id_scl;
 //    outf.close();
 
     outf.open("K.dat", ios::out);
-    outf << K_re;
+    outf << K_re*Id_scl;
     outf.close();
 
     outf.open("g.dat", ios::out);
-    outf << g_im;
+    outf << g_im*Id_scl;
     outf.close();
 
-//    cout << N*nus[3]*Id << N*nus[4]*Id;
+//    cout << N*nus[3]*Id_scl << N*nus[4]*Id_scl;
 
     outf.open("nus.dat", ios::out);
     outf << nus[3] << nus[4];
