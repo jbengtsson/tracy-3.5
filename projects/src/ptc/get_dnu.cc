@@ -148,7 +148,7 @@ void get_twoJ(const ss_vect<double> &ps, double twoJ[])
 void get_dnu(const double Ax_max, const double Ay_max, const double delta_max)
 {
   char            str[max_str];
-  int             i;
+  int             i, k;
   double          twoJ[2], nux, nuy;
   ss_vect<double> ps;
   ss_vect<tps>    Id;
@@ -174,8 +174,8 @@ void get_dnu(const double Ax_max, const double Ay_max, const double delta_max)
     if (ps[x_] == 0.0) ps[x_] = A_min;
     ps[y_] = A_min;
     get_twoJ(ps, twoJ);
-    Id[x_] = sqrt(twoJ[X_]); Id[px_] = sqrt(twoJ[X_]);
-    Id[y_] = sqrt(twoJ[Y_]); Id[py_] = sqrt(twoJ[Y_]);
+    for (k = 0; k < 4; k++)
+      Id[k] = sqrt(twoJ[k/2]);
     nux = (nus[3]*Id).cst(); nuy = (nus[4]*Id).cst();
 
     outf << scientific << setprecision(3)
@@ -195,8 +195,8 @@ void get_dnu(const double Ax_max, const double Ay_max, const double delta_max)
     if (ps[y_] == 0.0) ps[y_] = A_min;
 //    get_twoJ(2, ps, MNF.A1, twoJ);
     get_twoJ(ps, twoJ);
-    Id[x_] = sqrt(twoJ[X_]); Id[px_] = sqrt(twoJ[X_]);
-    Id[y_] = sqrt(twoJ[Y_]); Id[py_] = sqrt(twoJ[Y_]);
+    for (k = 0; k < 4; k++)
+      Id[k] = sqrt(twoJ[k/2]);
     nux = (nus[3]*Id).cst(); nuy = (nus[4]*Id).cst();
 
     outf << scientific << setprecision(3)
@@ -227,7 +227,7 @@ void get_dnu(const double Ax_max, const double Ay_max, const double delta_max)
 void get_dnu2(const double Ax_max, const double Ay_max, const double delta)
 {
   char            str[max_str];
-  int             i, j;
+  int             i, j, k;
   double          twoJ[2], nux, nuy;
   ss_vect<double> ps;
   ss_vect<tps>    Id;
@@ -250,8 +250,8 @@ void get_dnu2(const double Ax_max, const double Ay_max, const double delta)
     for (j = -n_ampl; j <= n_ampl; j++) {
       ps[x_] = i*Ax_max/n_ampl; ps[y_] = j*Ay_max/n_ampl;
       get_twoJ(ps, twoJ);
-      Id[x_] = sqrt(twoJ[X_]); Id[px_] = sqrt(twoJ[X_]);
-      Id[y_] = sqrt(twoJ[Y_]); Id[py_] = sqrt(twoJ[Y_]);
+      for (k = 0; k < 4; k++)
+	Id[k] = sqrt(twoJ[k/2]);
       nux = (nus[3]*Id).cst(); nuy = (nus[4]*Id).cst();
 
       outf << scientific << setprecision(3)
@@ -298,6 +298,7 @@ void wtf()
 
 int main(int argc, char *argv[])
 {
+  int          k;
   tps          H, H_re, H_im, g_re, g_im, K_re, K_im;
   ss_vect<tps> Id_scl;
   ofstream     outf;
@@ -342,8 +343,8 @@ int main(int argc, char *argv[])
   CtoR(MNF.K, K_re, K_im); CtoR(MNF.g, g_re, g_im);
 
   Id_scl.identity();
-  Id_scl[x_] *= sqrt(twoJ[X_]); Id_scl[px_] *= sqrt(twoJ[X_]);
-  Id_scl[y_] *= sqrt(twoJ[Y_]); Id_scl[py_] *= sqrt(twoJ[Y_]);
+  for (k = 0; k < 4; k++)
+    Id_scl[k] *= sqrt(twoJ[k/2]);
   Id_scl[delta_] *= delta_max;
 
   if (true) {

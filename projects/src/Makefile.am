@@ -48,7 +48,7 @@ tst_it_SOURCES            = tst_it.cc
 
 LIBS	 = -L$(TRACY_LIB)/tracy/lib -ltracy \
            -L$(NUM_REC)/lib -lnum_rec \
-           -L /usr/local/Cellar/gcc/11.1.0_1/lib/gcc/11 \
+           -L /usr/local/Cellar/gcc/11.2.0/lib/gcc/11 \
            -lstdc++
 # C Preprocessor flags.
 AM_CPPFLAGS = -I$(TRACY_LIB)/tracy/inc -I$(NUM_REC)/inc
