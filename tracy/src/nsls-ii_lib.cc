@@ -2382,7 +2382,7 @@ double Touschek(const double Qb, const double delta_RF, const bool consistent,
 
     sum_delta[k][X_] += delta_p; sum_delta[k][Y_] += delta_m;
     sum2_delta[k][X_] += sqr(delta_p); sum2_delta[k][Y_] += sqr(delta_m);
-    fprintf(outf, "%4d %7.2f %5.3f %6.3f\n",
+    fprintf(outf, "%4ld %7.2f %5.3f %6.3f\n",
 	    k, Cell[k].S, 1e2*sum_delta[k][X_], 1e2*sum_delta[k][Y_]);
     fflush(outf);
     if (prt)

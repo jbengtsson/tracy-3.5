@@ -43,7 +43,7 @@
 
 #define DIM2(prow,row,col,type,l) \
   {\
-  register type *pdata;\
+  type *pdata;\
   int I;\
   SYSCHECKMALLOCSIZE(pdata, type,(row) * (col));\
   SYSCHECKMALLOCSIZE(prow, type *,(row));\

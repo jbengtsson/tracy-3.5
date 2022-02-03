@@ -139,9 +139,9 @@ const bool debug_lat = false;
 // Set operations
 
 // val IN s
-int P_inset(register unsigned val, register long *s)
+int P_inset(unsigned val, long *s)
 {
-  register unsigned  bit;
+  unsigned  bit;
 
   bit = val % SETBITS; val /= SETBITS;
   if (val < (unsigned)*s++ && ((1L<<bit) & (unsigned)s[val]))
@@ -151,10 +151,10 @@ int P_inset(register unsigned val, register long *s)
 
 
 // s := s + [val]
-long *P_addset(register long *s, register unsigned val)
+long *P_addset(long *s, unsigned val)
 {
-  register long      *sbase = s;
-  register unsigned  bit, size;
+  long      *sbase = s;
+  unsigned  bit, size;
 
   bit = val % SETBITS; val /= SETBITS; size = *s;
   if (++val > size) {
@@ -175,7 +175,7 @@ long *P_addset(register long *s, register unsigned val)
 
 
 // d := s
-long *P_expset(register long *d, register long s)
+long *P_expset(long *d, long s)
 {
   if (s) {
     d[1] = s;
@@ -187,10 +187,10 @@ long *P_expset(register long *d, register long s)
 
 
 // d := s1 + s2
-long *P_setunion(register long *d, register long *s1, register long *s2)
+long *P_setunion(long *d, long *s1, long *s2)
 {
   long          *dbase = d++;
-  register int  sz1 = *s1++, sz2 = *s2++;
+  int  sz1 = *s1++, sz2 = *s2++;
 
  while (sz1 > 0 && sz2 > 0) {
     *d++ = *s1++ | *s2++;

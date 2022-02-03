@@ -136,7 +136,6 @@ void get_twoJ(const ss_vect<double> &ps, double twoJ[])
 {
   int             j;
   ss_vect<double> z;
-  ss_vect<tps>    Id;
 
   z = (A_inv*ps).cst();
 
@@ -151,7 +150,7 @@ void get_dnu(const double Ax_max, const double Ay_max, const double delta_max)
   int             i, k;
   double          twoJ[2], nux, nuy;
   ss_vect<double> ps;
-  ss_vect<tps>    Id;
+  ss_vect<tps>    Id_scl;
   ifstream        inf;
   ofstream        outf;
 
@@ -168,15 +167,15 @@ void get_dnu(const double Ax_max, const double Ay_max, const double delta_max)
 //  sprintf(str, "%s%s", home_dir, "/projects/src/");
 //  file_wr(outf, strcat(str, "dnu_dAx_pert.out"));
   file_wr(outf, "dnu_dAx_pert.out");
-  Id.zero(); ps.zero();
+  Id_scl.zero(); ps.zero();
   for (i = -n_ampl; i <= n_ampl; i++) {
     ps[x_] = i*Ax_max/n_ampl;
     if (ps[x_] == 0.0) ps[x_] = A_min;
     ps[y_] = A_min;
     get_twoJ(ps, twoJ);
     for (k = 0; k < 4; k++)
-      Id[k] = sqrt(twoJ[k/2]);
-    nux = (nus[3]*Id).cst(); nuy = (nus[4]*Id).cst();
+      Id_scl[k] = sqrt(twoJ[k/2]);
+    nux = (nus[3]*Id_scl).cst(); nuy = (nus[4]*Id_scl).cst();
 
     outf << scientific << setprecision(3)
 	 << setw(12) << 1e3*ps[x_] << setw(12) << 1e3*ps[y_]
@@ -188,7 +187,7 @@ void get_dnu(const double Ax_max, const double Ay_max, const double delta_max)
 //  sprintf(str, "%s%s", home_dir, "/projects/src/");
 //  file_wr(outf, strcat(str, "dnu_dAy_pert.out"));
   file_wr(outf, "dnu_dAy_pert.out");
-  Id.zero(); ps.zero();
+  Id_scl.zero(); ps.zero();
   for (i = -n_ampl; i <= n_ampl; i++) {
     ps[x_] = A_min;
     ps[y_] = i*Ay_max/n_ampl;
@@ -196,8 +195,8 @@ void get_dnu(const double Ax_max, const double Ay_max, const double delta_max)
 //    get_twoJ(2, ps, MNF.A1, twoJ);
     get_twoJ(ps, twoJ);
     for (k = 0; k < 4; k++)
-      Id[k] = sqrt(twoJ[k/2]);
-    nux = (nus[3]*Id).cst(); nuy = (nus[4]*Id).cst();
+      Id_scl[k] = sqrt(twoJ[k/2]);
+    nux = (nus[3]*Id_scl).cst(); nuy = (nus[4]*Id_scl).cst();
 
     outf << scientific << setprecision(3)
 	 << setw(12) << 1e3*ps[x_] << setw(12) << 1e3*ps[y_]
@@ -209,11 +208,11 @@ void get_dnu(const double Ax_max, const double Ay_max, const double delta_max)
 //  sprintf(str, "%s%s", home_dir, "/projects/src/");
 //  file_wr(outf, strcat(str, "chrom2_pert.out"));
   file_wr(outf, "chrom2_pert.out");
-  Id.zero(); ps.zero();
+  Id_scl.zero(); ps.zero();
   for (i = -n_delta; i <= n_delta; i++) {
-    ps[delta_] = i*delta_max/n_delta; Id[delta_] = ps[delta_];
+    ps[delta_] = i*delta_max/n_delta; Id_scl[delta_] = ps[delta_];
 
-    nux = (nus[3]*Id).cst(); nuy = (nus[4]*Id).cst();
+    nux = (nus[3]*Id_scl).cst(); nuy = (nus[4]*Id_scl).cst();
 
     outf << scientific << setprecision(3)
 	 << setw(12) << 1e2*ps[delta_]
@@ -230,7 +229,7 @@ void get_dnu2(const double Ax_max, const double Ay_max, const double delta)
   int             i, j, k;
   double          twoJ[2], nux, nuy;
   ss_vect<double> ps;
-  ss_vect<tps>    Id;
+  ss_vect<tps>    Id_scl;
   ifstream        inf;
   ofstream        outf;
 
@@ -244,15 +243,15 @@ void get_dnu2(const double Ax_max, const double Ay_max, const double delta)
   }
 
   file_wr(outf, "dnu_dAxy_pert.out");
-  Id.zero(); Id[delta_] = delta;
+  Id_scl.zero(); Id_scl[delta_] = delta;
   ps.zero();
   for (i = -n_ampl; i <= n_ampl; i++) {
     for (j = -n_ampl; j <= n_ampl; j++) {
       ps[x_] = i*Ax_max/n_ampl; ps[y_] = j*Ay_max/n_ampl;
       get_twoJ(ps, twoJ);
       for (k = 0; k < 4; k++)
-	Id[k] = sqrt(twoJ[k/2]);
-      nux = (nus[3]*Id).cst(); nuy = (nus[4]*Id).cst();
+	Id_scl[k] = sqrt(twoJ[k/2]);
+      nux = (nus[3]*Id_scl).cst(); nuy = (nus[4]*Id_scl).cst();
 
       outf << scientific << setprecision(3)
 	   << setw(12) << 1e3*ps[x_] << setw(12) << 1e3*ps[y_]

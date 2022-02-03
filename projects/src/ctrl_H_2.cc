@@ -925,9 +925,7 @@ double constr_type::get_chi2(const double twoJ[], const double delta,
   int    j, k;
   double chi2, dchi2[3], dnu[2], dnu_cos[2], dnu_sin[2];
 
-  const double
-    delta_eps = 1e-6,
-    b_2_ref   = 0e0;
+  const double delta_eps = 1e-6;
 
   if (prt) printf("\nget_chi2:\n");
 
@@ -1550,21 +1548,10 @@ double h_abs_ijklm(const tps &h_re, const tps &h_im, const int i, const int j,
 
 void fit_powell(param_type &lat_prms, const double eps, double (*f)(double *))
 {
-  const int
-    n_prm   = lat_prms.n_prm,
-    n_pt    = n_prm + 2,
-    n_w     = (n_pt+13)*(n_pt+n_prm)+3*n_prm*(n_prm+3)/2,
-    n_prt   = 2,
-    max_fun = 5000;
-  const double
-    // rho_beg = lat_prms.dbn[0],
-    rho_beg = 1e-1,
-    rho_end = 1e-6;
-  const bool
-    prt     = false;
+  const bool prt = false;
 
   int          n_bn, i, j, iter;
-  double       *bn, **xi, fret, eps_x, w[n_w], x[n_prm];
+  double       *bn, **xi, fret;
   ss_vect<tps> A;
 
   const double ftol = 1e-6;
@@ -1591,6 +1578,21 @@ void fit_powell(param_type &lat_prms, const double eps, double (*f)(double *))
 
     dpowell(bn, xi, n_bn, ftol, &iter, &fret, f);
   } else {
+    // const int
+    //   n_prm   = lat_prms.n_prm,
+    //   n_pt = n_prm + 2,
+    //   n_w  = (n_pt+13)*(n_pt+n_prm)+3*n_prm*(n_prm+3)/2;
+
+    // double w[n_w], x[n_prm];
+
+    // const int
+    //   n_prt   = 2,
+    //   max_fun = 5000;
+    // const double
+    //   // rho_beg = lat_prms.dbn[0],
+    //   rho_beg = 1e-1,
+    //   rho_end = 1e-6;
+
     // for (i = 1; i <= n_prm; i++)
     //   x[i-1] = bn[i];
     // newuoa_(n_prm, n_pt, x, rho_beg, rho_end, n_prt, max_fun, w);
@@ -1600,6 +1602,7 @@ void fit_powell(param_type &lat_prms, const double eps, double (*f)(double *))
   printf("bns:\n");
   lat_prms.prt_prm(bn);
   // lat_prms.set_prm(bn);
+  // double eps_x;
   // eps_x = get_lin_opt(false);
   // f_prt(bn);
 
@@ -1610,20 +1613,8 @@ void fit_powell(param_type &lat_prms, const double eps, double (*f)(double *))
 void fit_sim_anneal(param_type &lat_prms, const double eps,
 		    double (*f)(double *))
 {
-  const int
-    n_prm   = lat_prms.n_prm,
-    n_pt    = n_prm + 2,
-    n_w     = (n_pt+13)*(n_pt+n_prm)+3*n_prm*(n_prm+3)/2,
-    n_prt   = 2,
-    max_fun = 5000;
-
-  const double
-    // rho_beg = lat_prms.dbn[0],
-    rho_beg = 1e-1,
-    rho_end = 1e-6;
-
   int          n_bn, i, j, iter;
-  double       *bn, **xi, fret, eps_x, w[n_w], x[n_prm];
+  double       *bn, **xi, fret;
   ss_vect<tps> A;
 
   const double ftol = 1e-8;
@@ -1649,6 +1640,20 @@ void fit_sim_anneal(param_type &lat_prms, const double eps,
 
     dpowell(bn, xi, n_bn, ftol, &iter, &fret, f);
   } else {
+    // const int
+    //   n_prm   = lat_prms.n_prm,
+    //   n_pt    = n_prm + 2,
+    //   n_w     = (n_pt+13)*(n_pt+n_prm)+3*n_prm*(n_prm+3)/2,
+    //   n_prt   = 2,
+    //   max_fun = 5000;
+
+    // const double
+    //   // rho_beg = lat_prms.dbn[0],
+    //   rho_beg = 1e-1,
+    //   rho_end = 1e-6;
+
+    // double *bn, **xi, fret, eps_x, w[n_w], x[n_prm];
+
     // for (i = 1; i <= n_prm; i++)
     //   x[i-1] = bn[i];
     // newuoa_(n_prm, n_pt, x, rho_beg, rho_end, n_prt, max_fun, w);
@@ -1668,7 +1673,7 @@ void fit_sim_anneal(param_type &lat_prms, const double eps,
 void fit_conj_grad(param_type &lat_prms, double (*f)(double *))
 {
   int          n_bn, iter;
-  double       *bn, fret, eps_x;
+  double       *bn, fret;
   ss_vect<tps> A;
 
   const double ftol = 1e-8;
@@ -1685,6 +1690,7 @@ void fit_conj_grad(param_type &lat_prms, double (*f)(double *))
   printf("\n  iter = %d fret = %12.5e\n", iter, fret);
   printf("bns:\n");
   lat_prms.prt_prm(bn);
+  // double eps_x;
   // lat_prms.set_prm(bn);
   // eps_x = get_lin_opt(false);
   // f_prt(bn);

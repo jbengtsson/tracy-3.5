@@ -731,9 +731,10 @@ void tune_fp(const double delta_eps, const double twoJ[], const double delta,
   const int    order = 3, n_pts = 3;
   const double delta_rng = 1e-2;
 
-  double ksi2[2], ksi[order+1][2], a[3], a_delta[3];
+  double ksi[order+1][2], a[3], a_delta[3];
 
 #if 0
+  double ksi2[2];
   get_ksi2_(delta_eps, ksi2);
 #else
   get_ksi_(delta_rng, order, n_pts, ksi);

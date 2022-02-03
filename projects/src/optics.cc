@@ -624,45 +624,39 @@ void chk_drv_terms(void)
 }
 
 
-void chk_mpole_Fam(const int Fnum, const bool exit)
+void chk_mpole_Fam(const int Fnum)
 {
-  int k, loc;
+  int n_Kids, k, loc[2];
 
-  printf("\n");
-  for (k = 1; k <= GetnKid(Fnum); k++) {
-    loc = Elem_GetPos(Fnum, k);
-    if (!exit && ((k-1) % 2 == 1)) loc -= 1;
-    printf("%8s %7.3f %8.5f %8.5f %8.5f\n",
-	   Cell[loc].Elem.PName, Cell[loc].S,
-	   Cell[loc].Beta[X_], Cell[loc].Beta[Y_], Cell[loc].Eta[X_]);
+  printf("\n   name        s     beta_x   beta_y   eta_x    dnu_x    dnu_y\n");
+  n_Kids = GetnKid(Fnum);
+  for (k = 1; k <= n_Kids; k++) {
+    loc[0] = (k > 1)? Elem_GetPos(Fnum, k-1) : Elem_GetPos(Fnum, n_Kids);
+    loc[1] = Elem_GetPos(Fnum, k);
+    printf("  %.8s %7.3f %8.5f %8.5f %8.5f %8.5f %8.5f\n",
+	   Cell[loc[1]].Elem.PName, Cell[loc[1]].S,
+	   Cell[loc[1]].Beta[X_], Cell[loc[1]].Beta[Y_], Cell[loc[1]].Eta[X_],
+	   (k > 1)? Cell[loc[1]].Nu[X_]-Cell[loc[0]].Nu[X_] : NAN,
+	   (k > 1)?Cell[loc[1]].Nu[Y_]-Cell[loc[0]].Nu[Y_] : NAN);
   }
 }
 
 
-void chk_mpole(void)
+void chk_mpole(const int lat_case)
 {
   int              k;
   std::vector<int> Fnum;
 
-  // M-6HBAi 12,
-  // TBA-6x8 2,
-  const int lat_case = 2;
-
   switch (lat_case) {
   case 1:
-    // M-6HBAi.
-    Fnum.push_back(ElemIndex("sextmark"));
-    Fnum.push_back(ElemIndex("sd1"));
-    Fnum.push_back(ElemIndex("sd2"));
+    // S-F.
+    Fnum.push_back(ElemIndex("om_s1a"));
+    Fnum.push_back(ElemIndex("om_s1b"));
+    Fnum.push_back(ElemIndex("om_s2a"));
+    Fnum.push_back(ElemIndex("om_s2b"));
     break;
   case 2:
-    // H-6-BA.
-    Fnum.push_back(ElemIndex("sf1"));
-    Fnum.push_back(ElemIndex("sd1"));
-    Fnum.push_back(ElemIndex("sd2"));
-    Fnum.push_back(ElemIndex("s"));
-    Fnum.push_back(ElemIndex("sh1"));
-    Fnum.push_back(ElemIndex("sh2"));
+    // C-F.
     break;
   default:
     printf("\nchk_mpole: unknown lattice type\n");
@@ -674,7 +668,7 @@ void chk_mpole(void)
  
   printf("\nSextupole Scheme:\n");
   for (k = 0; k < (int)Fnum.size(); k++)
-    chk_mpole_Fam(Fnum[k], false);
+    chk_mpole_Fam(Fnum[k]);
 }
 
 
@@ -904,9 +898,8 @@ void curly_H_s(void)
 
 void prt_eta_Fl(void)
 {
-  long int        lastpos;
   int             i, k;
-  double          dphi, s, mu_x, alpha1_x, beta1_x, curly_H;
+  double          s, mu_x, alpha1_x, beta1_x, curly_H;
   ss_vect<double> eta0, eta_Fl0, eta_Fl, omega_M_eta, A_Atp_omega_M_eta;
   ss_vect<tps>    Id, A, M, R, A_Atp0, A_Atp, Omega;
   FILE            *outf;
@@ -914,11 +907,8 @@ void prt_eta_Fl(void)
   const int    n_step = 25;
   const double
     L        = 0.75,
-    phi      = 5.0,
     rho      = L/(5.0*M_PI/180e0),
-    alpha0_x = 0.0,
-    beta0_x  = 0.19177,
-    gamma0_x = (1e0+sqr(alpha0_x))/beta0_x;
+    beta0_x  = 0.19177;
 
   Id.identity();
 
@@ -1022,9 +1012,9 @@ void prt_mat(const int n, const Matrix &A)
 void get_disp(void)
 {
   int             k;
-  long int        jj[ss_dim], lastn, lastpos;
+  long int        lastn, lastpos;
   double          twoJ[2], curly_H[2], ds[2], ds0, ds_hat, delta_mean[2],
-                  delta_hat, phi_x, f_rf, m_56, m_65, m_66, alpha_s, beta_s,
+                  delta_hat, phi_x, f_rf, alpha_s, beta_s,
                   gamma_s, nu_s, alpha_c, C;
   ss_vect<double> eta, A, ps, D;
   ss_vect<tps>    Ascr, Id, M;
@@ -1188,8 +1178,6 @@ void get_disp(void)
 
     printf("\n");
     prtmat(6, globval.OneTurnMat);
-    m_56 = globval.OneTurnMat[ct_][delta_];
-    m_65 = globval.OneTurnMat[delta_][ct_];
 
     ps.zero();
     for (k = 1; k <= 2000; k++) {
@@ -1602,9 +1590,9 @@ ss_vect<tps> chk_sympl(ss_vect<tps> M)
 int main(int argc, char *argv[])
 {
   bool             tweak;
-  long int         lastn, lastpos, loc, loc2;
-  int              k, b2_fam[2], b3_fam[2], lat_case;
-  double           b2[2], a2, b3[2], b3L[2], a3, a3L, f_rf, dx, dnu[3], I[6];
+  long int         lastpos, loc;
+  int              k, lat_case;
+  double           dx, dnu[3], I[6];
   double           eps_x, sigma_delta, U_0, J[3], tau[3];
   tps              a;
   Matrix           M;
@@ -1745,7 +1733,7 @@ int main(int argc, char *argv[])
     prtmfile("flat_file.dat");
 
     if (false) {
-      prt_lat_param("lattice.txt", "cav", 3.225e-6, 3.155);
+      prt_lat_param((char*)"lattice.txt", (char*)"cav", 3.225e-6, 3.155);
       reality_check();
     }
 
@@ -1978,7 +1966,7 @@ int main(int argc, char *argv[])
   }
 
   if (false) {
-    chk_mpole();
+    chk_mpole(1);
     prt_lat("linlat1.out", globval.bpm, true);
     prt_lat("linlat.out", globval.bpm, true, 10);
     exit(0);

@@ -669,7 +669,7 @@ template<typename T>
 void Mpole_Pass(CellType &Cell, ss_vect<T> &ps)
 {
   int             seg = 0, i;
-  double          k = 0e0, dL = 0e0, dL1 = 0e0, dL2 = 0e0;
+  double          dL = 0e0, dL1 = 0e0, dL2 = 0e0;
   double          dkL1 = 0e0, dkL2 = 0e0, h_ref = 0e0;
   elemtype        *elemp;
   MpoleType       *M;

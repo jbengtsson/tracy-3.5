@@ -1,14 +1,13 @@
 void get_bend(const char *name, double &L, double &B, double &B_2)
 {
   int    loc;
-  double rho_inv, phi, b_2;
+  double rho_inv, b_2;
 
   const double Brho = globval.Energy*1e9/c0;
 
   loc = Elem_GetPos(ElemIndex(name), 1);
   L = Cell[loc].Elem.PL;
   rho_inv = Cell[loc].Elem.M->Pirho;
-  phi = L*rho_inv;
   b_2 = Cell[loc].Elem.M->PBpar[Quad+HOMmax];
   B = Brho*rho_inv;
   B_2 = Brho*b_2;
@@ -17,10 +16,7 @@ void get_bend(const char *name, double &L, double &B, double &B_2)
 
 void get_RB(const char *name, int &n_RB, double &B_2, double &dx)
 {
-  int    loc;
-  double L, rho_inv, phi, B;
-
-  const double Brho = globval.Energy*1e9/c0;
+  double L, B;
 
   get_bend(name, L, B, B_2);
   n_RB = GetnKid(ElemIndex(name));

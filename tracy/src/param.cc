@@ -375,10 +375,11 @@ void param_data_type::SetCorMis(double gxrms, double gyrms, double gtrms,
       setrancut(rancuty);
       Girder[i].gdy[0] = Girder[isup].gdy[0]*(1-r)+Girder[isup].gdy[1]*r
 	+ ggyrms*normranf();
-      if (Girder[i].gco[0]==3)
+      if (Girder[i].gco[0]==3) {
 	Girder[i].gdt=Girder[isup].gdt;
-      else
+      } else {
 	setrancut(rancutt);Girder[i].gdt=gtrms*normranf();
+      }
       // printf("\nGir up %ld %f %f %f %f %f \n",
       // 	     i, Girder[i].gsp[0], Girder[i].gsp[1], Girder[i].gdx[0]*1e6,
       // 	     Girder[i].gdx[1]*1e6, r);
