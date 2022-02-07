@@ -83,26 +83,39 @@ plot file_name using 2:3 axis x1y2 notitle with fsteps lt 1 lw 1 \
 if (!ps) pause mouse "click on graph to cont.\n";
 
 if (ps) set output "drv_terms_4.".(ext);
+set title "4th Order Tune Shift Terms";
+set xlabel "s [m]"; set ylabel "|h_{ijklm}|";
+set y2range [-2.0:20];
+plot file_name using 2:3 axis x1y2 notitle with fsteps lt 1 lw 1 \
+     lc rgb "black", \
+     file_name using 2:20 title "h_{22000}" with steps ls 1, \
+     file_name using 2:21 title "h_{11110}" with steps ls 2, \
+     file_name using 2:22 title "h_{00220}" with steps ls 3, \
+     file_name using 2:23 title "h_{11002}" with steps ls 4, \
+     file_name using 2:24 title "h_{00112}" with steps ls 5;
+if (!ps) pause mouse "click on graph to cont.\n";
+
+if (ps) set output "drv_terms_5.".(ext);
 set title "5th Order Geometric Terms";
 set xlabel "s [m]"; set ylabel "|h_{ijklm}|";
 set y2range [-2.0:20];
 plot file_name using 2:3 axis x1y2 notitle with fsteps lt 1 lw 1 \
      lc rgb "black", \
-     file_name using 2:20 title "h_{50000}" with steps ls 1, \
-     file_name using 2:21 title "h_{41000}" with steps ls 2, \
-     file_name using 2:22 title "h_{32000}" with steps ls 3, \
-     file_name using 2:23 title "h_{30200}" with steps ls 4, \
-     file_name using 2:24 title "h_{21200}" with steps ls 5, \
-     file_name using 2:25 title "h_{10400}" with steps ls 6, \
-     file_name using 2:26 title "h_{30110}" with steps ls 7, \
-     file_name using 2:27 title "h_{21110}" with steps ls 8, \
-     file_name using 2:28 title "h_{10310}" with steps ls 1, \
-     file_name using 2:29 title "h_{30020}" with steps ls 2, \
-     file_name using 2:30 title "h_{21020}" with steps ls 3, \
-     file_name using 2:31 title "h_{10220}" with steps ls 4, \
-     file_name using 2:32 title "h_{10130}" with steps ls 5, \
-     file_name using 2:34 title "h_{10040}" with steps ls 6, \
-     file_name using 2:35 title "h_{01040}" with steps ls 7;
+     file_name using 2:25 title "h_{50000}" with steps ls 1, \
+     file_name using 2:26 title "h_{41000}" with steps ls 2, \
+     file_name using 2:27 title "h_{32000}" with steps ls 3, \
+     file_name using 2:28 title "h_{30200}" with steps ls 4, \
+     file_name using 2:27 title "h_{21200}" with steps ls 5, \
+     file_name using 2:30 title "h_{10400}" with steps ls 6, \
+     file_name using 2:31 title "h_{30110}" with steps ls 7, \
+     file_name using 2:32 title "h_{21110}" with steps ls 8, \
+     file_name using 2:33 title "h_{10310}" with steps ls 1, \
+     file_name using 2:34 title "h_{30020}" with steps ls 2, \
+     file_name using 2:35 title "h_{21020}" with steps ls 3, \
+     file_name using 2:36 title "h_{10220}" with steps ls 4, \
+     file_name using 2:37 title "h_{10130}" with steps ls 5, \
+     file_name using 2:38 title "h_{10040}" with steps ls 6, \
+     file_name using 2:39 title "h_{01040}" with steps ls 7;
 if (!ps) pause mouse "click on graph to cont.\n";
 
 EOP
