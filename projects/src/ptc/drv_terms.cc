@@ -9,7 +9,7 @@ int no_tps   = NO,
 const bool   set_dnu = false;
 const int    n_cell  = 2;
 const double
-#if 1
+#if 0
   beta_inj[] = {2.7, 2.5},
 #else
   beta_inj[] = {2.8, 2.6},
@@ -61,19 +61,13 @@ tps get_h_local(const ss_vect<tps> &map)
 }
 
 
-void prt_drv_terms(ofstream &outf, const int k,
-		   const double twoJ[], const double delta,
+void prt_drv_terms(ofstream &outf, const ss_vect<tps> &Id_scl, const int k,
 		   const ss_vect<tps> &map_Fl)
 {
-  int          i, loc;
+  int          loc;
   double       s;
   tps          h_re, h_im;
-  ss_vect<tps> Id_scl, A0, A1;
-
-  Id_scl.identity();
-  for (i = 0; i < 4; i++)
-    Id_scl[i] *= sqrt(twoJ[i/2]);
-  Id_scl[delta_] *= delta;
+  ss_vect<tps> A0, A1;
 
   CtoR(get_h_local(map_Fl)*Id_scl, h_re, h_im);
 
@@ -105,6 +99,13 @@ void prt_drv_terms(ofstream &outf, const int k,
        << setw(13) << h_abs_ijklm(h_re, h_im, 0, 0, 3, 1, 0)
        << setw(13) << h_abs_ijklm(h_re, h_im, 2, 0, 0, 2, 0)
 
+       << setw(13) << h_abs_ijklm(h_re, h_im, 2, 2, 0, 0, 0)
+       << setw(13) << h_abs_ijklm(h_re, h_im, 1, 1, 1, 1, 0)
+       << setw(13) << h_abs_ijklm(h_re, h_im, 0, 0, 2, 2, 0)
+
+       << setw(13) << h_abs_ijklm(h_re, h_im, 1, 1, 0, 0, 2)
+       << setw(13) << h_abs_ijklm(h_re, h_im, 0, 0, 1, 1, 2)
+
        << setw(13) << h_abs_ijklm(h_re, h_im, 5, 0, 0, 0, 0)
        << setw(13) << h_abs_ijklm(h_re, h_im, 4, 1, 0, 0, 0)
        << setw(13) << h_abs_ijklm(h_re, h_im, 3, 2, 0, 0, 0)
@@ -112,7 +113,6 @@ void prt_drv_terms(ofstream &outf, const int k,
        << setw(13) << h_abs_ijklm(h_re, h_im, 2, 1, 2, 0, 0)
        << setw(13) << h_abs_ijklm(h_re, h_im, 1, 0, 4, 0, 0)
        << setw(13) << h_abs_ijklm(h_re, h_im, 3, 0, 1, 1, 0)
-       << setw(13) << h_abs_ijklm(h_re, h_im, 1, 0, 4, 0, 0)
        << setw(13) << h_abs_ijklm(h_re, h_im, 2, 1, 1, 1, 0)
        << setw(13) << h_abs_ijklm(h_re, h_im, 1, 0, 3, 1, 0)
        << setw(13) << h_abs_ijklm(h_re, h_im, 3, 0, 0, 2, 0)
@@ -127,17 +127,10 @@ void prt_drv_terms(ofstream &outf, const int k,
 }
 
 
-void prt_tab(ofstream &outf, ss_vect<tps> &map_Fl, tps &K,
-	     const double twoJ[], const double delta)
+void prt_tab(ofstream &outf, const ss_vect<tps> &Id_scl, ss_vect<tps> &map_Fl,
+	     tps &K)
 {
-  int          i;
-  tps          h_re, h_im, k_re, k_im;
-  ss_vect<tps> Id_scl;
-
-  Id_scl.identity();
-  for (i = 0; i < 4; i++)
-    Id_scl[i] *= sqrt(twoJ[i/2]);
-  Id_scl[delta_] *= delta;
+  tps h_re, h_im, k_re, k_im;
 
   CtoR(get_h_local(map_Fl)*Id_scl, h_re, h_im);
   CtoR(K*Id_scl, k_re, k_im);
@@ -183,26 +176,27 @@ void prt_tab(ofstream &outf, ss_vect<tps> &map_Fl, tps &K,
 
   outf << scientific << setprecision(5)
        << "\n\tk_22000\t"
-       << setw(13) << h_ijklm(k_re, 2, 2, 0, 0, 0) << "\n"
-       << "\tk_00220\t"
-       << setw(13) << h_ijklm(k_re, 0, 0, 2, 2, 0) << "\n"
+       << setw(13) << h_abs_ijklm(k_re, k_im, 2, 2, 0, 0, 0) << "\n"
        << "\tk_11110\t"
-       << setw(13) << h_ijklm(k_re, 1, 1, 1, 1, 0) << "\n"
+       << setw(13) << h_abs_ijklm(k_re, k_im, 1, 1, 1, 1, 0) << "\n"
+       << "\tk_00220\t"
+       << setw(13) << h_abs_ijklm(k_re, k_im, 0, 0, 2, 2, 0) << "\n"
 
        << "\n\tk_11002\t"
-       << setw(13) << h_ijklm(k_re, 1, 1, 0, 0, 2) << "\n"
+       << setw(13) << h_abs_ijklm(k_re, k_im, 1, 1, 0, 0, 2) << "\n"
        << "\tk_00112\t"
-       << setw(13) << h_ijklm(k_re, 0, 0, 1, 1, 2) << "\n";
+       << setw(13) << h_abs_ijklm(k_re, k_im, 0, 0, 1, 1, 2) << "\n";
 
   outf.flush();
 }
 
 
-void get_drv_terms(const double twoJ[], const double delta)
+void get_drv_terms(const ss_vect<tps> &Id_scl)
 {
   long int     lastpos;
   int          k, loc;
-  ss_vect<tps> Id, map, map_Fl, A_k;
+  double       dnu[2];
+  ss_vect<tps> Id, map, map_Fl, A_0, A_k;
   ofstream     outf;
 
   const string
@@ -213,12 +207,12 @@ void get_drv_terms(const double twoJ[], const double delta)
 
   Id.identity();
 
-  danot_(3);
+  danot_(1);
   map.identity();
   Cell_Pass(0, globval.Cell_nLoc, map, lastpos);
   MNF = MapNorm(map, 1);
 
-  A_k = MNF.A0*MNF.A1;
+  A_k = A_0 = MNF.A0*MNF.A1;
   prt_lin_map(3, map);
   prt_lin_map(3, Inv(A_k)*map*A_k);
 
@@ -230,33 +224,34 @@ void get_drv_terms(const double twoJ[], const double delta)
     printf("%5d (%3ld)\n", k, n_cell*globval.Cell_nLoc);
     danot_(1);
     Elem_Pass(loc, A_k);
-    danot_(no_tps);
+    A_k = get_A_CS(2, A_k, dnu);
+    danot_(no_tps-1);
     Elem_Pass(loc, map);
-    map_Fl = Inv(A_k)*map;
-    prt_drv_terms(outf, k, twoJ, delta, map_Fl);
+    map_Fl = Inv(A_k)*map*A_0;
+
+    if (false) prt_lin_map(3, map_Fl);
+
+    prt_drv_terms(outf, Id_scl, k, map_Fl);
   }
 
   outf.close();
 
   outf.open(str2.c_str(), ios::out);
-  prt_tab(outf, map_Fl, MNF.K, twoJ, delta_max);
+  prt_tab(outf, Id_scl, map_Fl, MNF.K);
   outf.close();
 }
 
 
-void tst_g()
+void tst_g(const ss_vect<tps> &Id_scl)
 {
   long int     lastpos;
-  ss_vect<tps> Id, Id_scl, dx_fl, M, M_fl, A1;
+  ss_vect<tps> Id, dx_fl, M, M_fl, A1;
 
   const int loc = 30;
 
   daeps_(1e-10);
 
   Id.identity();
-
-  Id_scl.identity();
-  Id_scl[delta_] = 0e0; Id_scl[ct_] = 0e0;
 
   danot_(no_tps-1);
   map.identity();
@@ -315,23 +310,18 @@ double f_kernel(const long int jj[])
 }
 
 
-void get_dx_dJ(const double twoJ[])
+void get_dx_dJ(const ss_vect<tps> &Id_scl)
 {
   long int     lastpos;
   int          j, k;
-  double       b3L, a3L, dx[2];
+  double       dx[2];
   tps          g_re, g_im;
-  ss_vect<tps> Id, Id_scl, dx_fl, dx_re, dx_im, M;
+  ss_vect<tps> Id, dx_fl, dx_re, dx_im, M;
   ofstream     outf;
 
   outf.open("dx_dJ.out", ios::out);
 
   Id.identity();
-
-  Id_scl.identity();
-  for (j = 0; j < 4; j++)
-    Id_scl[j] *= sqrt(twoJ[j/2]);
-  Id_scl[delta_] = 0e0;
 
   danot_(no_tps-1);
   map.identity();
@@ -355,6 +345,7 @@ void get_dx_dJ(const double twoJ[])
 	CtoR(dx_fl[k], dx_re[k], dx_im[k]);
 #if 0
       // Phase space.
+      double b3L, a3L;
       get_bnL_design_elem(Cell[j].Fnum, Cell[j].Knum, Sext, b3L, a3L);
       dx_re = MNF.A1*dx_re; dx_im = MNF.A1*dx_im;
       dx[X_] = b3L*h_ijklm(dx_re[x_]*Id_scl, 1, 1, 0, 0, 0);
@@ -470,6 +461,8 @@ void map_gymn(void)
 
 int main(int argc, char *argv[])
 {
+  int          k;
+  ss_vect<tps> Id_scl;
 
   globval.H_exact    = false; globval.quad_fringe    = false;
   globval.Cavity_on  = false; globval.radiation      = false;
@@ -484,6 +477,11 @@ int main(int argc, char *argv[])
   std::string home_dir = "";
 
   daeps_(eps_tps);
+
+  Id_scl.identity();
+  for (k = 0; k < 4; k++)
+    Id_scl[k] *= sqrt(twoJ[k/2]);
+  Id_scl[delta_] *= delta_max;
 
   if (!true)
     Read_Lattice((home_dir+argv[1]).c_str());
@@ -505,11 +503,11 @@ int main(int argc, char *argv[])
   }
 
   if (false) {
-    tst_g();
+    tst_g(Id_scl);
     exit(0);
   }
 
-  if (true) get_drv_terms(twoJ, delta_max);
+  if (true) get_drv_terms(Id_scl);
 
-  if (false) get_dx_dJ(twoJ);
+  if (false) get_dx_dJ(Id_scl);
 }

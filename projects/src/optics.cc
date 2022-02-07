@@ -657,6 +657,10 @@ void chk_mpole(const int lat_case)
     break;
   case 2:
     // C-F.
+    Fnum.push_back(ElemIndex("om_s1a"));
+    Fnum.push_back(ElemIndex("om_s1b"));
+    Fnum.push_back(ElemIndex("om_s2a"));
+    Fnum.push_back(ElemIndex("om_s2b"));
     break;
   default:
     printf("\nchk_mpole: unknown lattice type\n");
@@ -1966,7 +1970,7 @@ int main(int argc, char *argv[])
   }
 
   if (false) {
-    chk_mpole(1);
+    chk_mpole(2);
     prt_lat("linlat1.out", globval.bpm, true);
     prt_lat("linlat.out", globval.bpm, true, 10);
     exit(0);
