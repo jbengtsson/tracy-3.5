@@ -62,14 +62,15 @@ tps get_h_local(const ss_vect<tps> &map)
 
 
 void prt_drv_terms(ofstream &outf, const ss_vect<tps> &Id_scl, const int k,
-		   const ss_vect<tps> &map_Fl)
+		   const ss_vect<tps> &map_k_Fl)
 {
   int          loc;
   double       s;
   tps          h_re, h_im;
   ss_vect<tps> A0, A1;
 
-  CtoR(get_h_local(map_Fl)*Id_scl, h_re, h_im);
+  danot_(no_tps-1);
+  CtoR(get_h_local(map_k_Fl)*Id_scl, h_re, h_im);
 
   loc = k % (globval.Cell_nLoc+1);
   s = Cell[loc].S + k/(globval.Cell_nLoc+1)*Cell[globval.Cell_nLoc].S;
@@ -196,7 +197,7 @@ void get_drv_terms(const ss_vect<tps> &Id_scl)
   long int     lastpos;
   int          k, loc;
   double       dnu[2];
-  ss_vect<tps> Id, map, map_Fl, A_0, A_k;
+  ss_vect<tps> Id, map, map_k, map_k_Fl, A_0, A_k;
   ofstream     outf;
 
   const string
@@ -216,9 +217,9 @@ void get_drv_terms(const ss_vect<tps> &Id_scl)
   prt_lin_map(3, map);
   prt_lin_map(3, Inv(A_k)*map*A_k);
 
-  map.identity();
-  map[x_] += MNF.A0[x_][delta_]*Id[delta_];
-  map[px_] += MNF.A0[px_][delta_]*Id[delta_];
+  map_k.identity();
+  map_k[x_] += MNF.A0[x_][delta_]*Id[delta_];
+  map_k[px_] += MNF.A0[px_][delta_]*Id[delta_];
   for (k = 0; k < n_cell*(globval.Cell_nLoc+1); k++) {
     loc = k % (globval.Cell_nLoc+1);
     printf("%5d (%3ld)\n", k, n_cell*globval.Cell_nLoc);
@@ -226,18 +227,18 @@ void get_drv_terms(const ss_vect<tps> &Id_scl)
     Elem_Pass(loc, A_k);
     A_k = get_A_CS(2, A_k, dnu);
     danot_(no_tps-1);
-    Elem_Pass(loc, map);
-    map_Fl = Inv(A_k)*map*A_0;
+    Elem_Pass(loc, map_k);
+    map_k_Fl = Inv(A_k)*map_k*A_0;
 
-    if (false) prt_lin_map(3, map_Fl);
+    if (false) prt_lin_map(3, map_k_Fl);
 
-    prt_drv_terms(outf, Id_scl, k, map_Fl);
+    prt_drv_terms(outf, Id_scl, k, map_k_Fl);
   }
 
   outf.close();
 
   outf.open(str2.c_str(), ios::out);
-  prt_tab(outf, Id_scl, map_Fl, MNF.K);
+  prt_tab(outf, Id_scl, map_k_Fl, MNF.K);
   outf.close();
 }
 
