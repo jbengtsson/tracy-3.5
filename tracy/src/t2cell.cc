@@ -223,6 +223,10 @@ bool Cell_getCOD(long imax, double eps, double dP, long &lastpos)
   if (status.codflag) {
     globval.CODvect = x0; getlinmat(6, map, globval.OneTurnMat);
     Cell_Pass(0, globval.Cell_nLoc, x0, lastpos);
+    if (trace) {
+      cout << "\nOneTurnMat:\n";
+      prtmat(6, globval.OneTurnMat);
+    }
   } else
     std::cout << std::scientific << std::setprecision(5)
 	      << "\nCell_getCOD: failed to converge after " << n_iter

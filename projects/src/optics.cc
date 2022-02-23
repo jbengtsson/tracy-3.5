@@ -659,8 +659,7 @@ void chk_mpole(const int lat_case)
     // C-F.
     Fnum.push_back(ElemIndex("om_s1a"));
     Fnum.push_back(ElemIndex("om_s1b"));
-    Fnum.push_back(ElemIndex("om_s2a"));
-    Fnum.push_back(ElemIndex("om_s2b"));
+    Fnum.push_back(ElemIndex("om_s2"));
     break;
   default:
     printf("\nchk_mpole: unknown lattice type\n");

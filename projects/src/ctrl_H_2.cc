@@ -20,6 +20,9 @@ double f_mult(double *bn);
 double eps_x, sigma_E;
 
 
+const bool debug_prt = !false;
+
+
 struct param_type {
   // Parameter Type:
   //   Bend Angle  -3,
@@ -166,8 +169,6 @@ void param_type::add_prm(const std::string Fname, const int n,
 			 const double bn_min, const double bn_max,
 			 const double bn_scl)
 {
-  const bool prt = false;
-
   Fnum.push_back(ElemIndex(Fname.c_str()));
   this->n.push_back(n);
   this->bn_min.push_back(bn_min);
@@ -175,7 +176,7 @@ void param_type::add_prm(const std::string Fname, const int n,
   this->bn_scl.push_back(bn_scl);
   this->l0.push_back(0e0);
   this->n_prm = this->Fnum.size();
-  if (prt)
+  if (debug_prt)
     printf("\nadd_prm: %8s %3d %2d\n",
 	   Fname.c_str(), Fnum.back(), this->n.back());
 }
@@ -186,8 +187,6 @@ void param_type::add_prm(const std::vector<int> &grad_dip_Fnum,
 			 const int n, const double bn_min, const double bn_max,
 			 const double bn_scl)
 {
-  const bool prt = false;
-
   // Flag Gradient Dipole by Negative Family Number.
   this->Fnum.push_back(-grad_dip_Fnum[0]);
   this->grad_dip_Fnum.push_back(grad_dip_Fnum);
@@ -199,7 +198,7 @@ void param_type::add_prm(const std::vector<int> &grad_dip_Fnum,
   this->l0.push_back(0e0);
   this->n_prm = this->Fnum.size();
 
-  if (prt) printf("add_prm: %2d\n", this->n_prm);
+  if (debug_prt) printf("add_prm: %2d\n", this->n_prm);
 }
 
 
@@ -222,11 +221,10 @@ void param_type::ini_prm(double *bn)
   int    i, loc;
   double an;
 
-  const bool   prt = false;
   const double eps = 1e-8;
 
   for (i = 1; i <= n_prm; i++) {
-    if (prt) printf("\nini_prm: %2d %3d %2d\n", i, Fnum[i-1], n[i-1]);
+    if (debug_prt) printf("\nini_prm: %2d %3d %2d\n", i, Fnum[i-1], n[i-1]);
     if (n[i-1] > 0)
       // Multipole.
       get_bn_design_elem(abs(Fnum[i-1]), 1, n[i-1], bn[i], an);
@@ -254,7 +252,7 @@ void param_type::ini_prm(double *bn)
       }
       bn[i] = min(bn[i], bn_max[i-1]);
       bn[i] = max(bn[i], bn_min[i-1]);
-      if (prt)
+      if (debug_prt)
 	printf("  position: min = %8.1e max = %8.1e\n",
 	       bn_min[i-1], bn_max[i-1]);
     } else if (n[i-1] == -2)
@@ -360,14 +358,12 @@ double get_phi(constr_type &constr)
   int    j, k;
   double phi;
 
-  const bool prt = false;
-
-  if (prt) printf("\nget_phi:\n");
+  if (debug_prt) printf("\nget_phi:\n");
   phi = 0e0;
   for (j = 0; j < constr.n_b1; j++) {
     if (constr.Fnum_b1[j] > 0) {
       phi += get_phi_tot(constr.Fnum_b1[j]);
-      if (prt) {
+      if (debug_prt) {
 	printf("  ");
 	prt_name(stdout, Cell[Elem_GetPos(constr.Fnum_b1[j], 1)].Elem.PName,
 		 "", 8);
@@ -376,7 +372,7 @@ double get_phi(constr_type &constr)
     } else
       for (k = 0; k < (int)constr.grad_dip_Fnum_b1[j].size(); k++) {
 	phi += get_phi_tot(constr.grad_dip_Fnum_b1[j][k]);
-	if (prt) {
+	if (debug_prt) {
 	  printf("  ");
 	  prt_name(stdout,
 		   Cell[Elem_GetPos(constr.grad_dip_Fnum_b1[j][k], 1)]
@@ -396,8 +392,6 @@ void phi_corr(constr_type &constr)
   int    loc;
   double phi1, phi;
 
-  const bool prt = false;
-
   loc = Elem_GetPos(constr.Fnum_b1[constr.n_b1-1], 1);
   phi = get_phi(constr);
   phi1 =
@@ -408,7 +402,7 @@ void phi_corr(constr_type &constr)
  
   constr.phi_tot = get_phi(constr);
 
-  if (prt) {
+  if (debug_prt) {
     printf("\nphi_corr:\n  ");
     prt_name(stdout, Cell[loc].Elem.PName, "", 8);
     printf("\n  %5.3f -> %5.3f (%5.3f)\n", phi, constr.phi_tot, constr.phi0);
@@ -434,11 +428,9 @@ void param_type::set_prm(double *bn)
   int    i;
   double bn_ext;
 
-  const bool prt = false;
+  const int n_prt = 6;
 
-  const int  n_prt = 6;
-
-  if (prt) printf("\nset_prm:\n  ");
+  if (debug_prt) printf("\nset_prm:\n  ");
   for (i = 1; i <= n_prm; i++) {
     // Bounded.
     bn_ext = bn_bounded(bn[i], bn_min[i-1], bn_max[i-1]);
@@ -464,12 +456,12 @@ void param_type::set_prm(double *bn)
       else
 	set_grad_dip_phi(grad_dip_Fnum[i-1], grad_dip_scl[i-1], bn_ext);
     }
-    if (prt) {
+    if (debug_prt) {
       printf(" %12.5e", bn_ext);
       if (i % n_prt == 0) printf("\n  ");
     }
   }
-  if (prt && (n_prm % n_prt != 0)) printf("\n");
+  if (debug_prt && (n_prm % n_prt != 0)) printf("\n");
 }
 
 
@@ -533,17 +525,15 @@ void set_ds(const int Fnum, const int Knum, const double ds)
 {
   int loc;
 
-  const bool prt = false;
-
   loc = Elem_GetPos(Fnum, Knum);
 
   if ((Cell[loc+1].Elem.Pkind == drift) && (Cell[loc-1].Elem.Pkind == drift)) {
     if (Knum % 2 == 1) {
-      if (prt) printf("\nset_ds Knum = %d (odd):", Knum);
+      if (debug_prt) printf("\nset_ds Knum = %d (odd):", Knum);
       set_dL(Cell[loc+1].Fnum, Knum, -ds);
       set_dL(Cell[loc-1].Fnum, Knum, ds);
     } else {
-      if (prt) printf("\nset_ds Knum = %d (even):", Knum);
+      if (debug_prt) printf("\nset_ds Knum = %d (even):", Knum);
       set_dL(Cell[loc+1].Fnum, Knum, ds);
       set_dL(Cell[loc-1].Fnum, Knum, -ds);
     }
@@ -553,7 +543,7 @@ void set_ds(const int Fnum, const int Knum, const double ds)
     exit(1);
   }
 
-  if (prt)
+  if (debug_prt)
     printf("\n  %5s %8.5f\n  %5s %8.5f\n  %5s %8.5f\n",
 	   Cell[loc].Elem.PName, ds,
 	   Cell[loc+1].Elem.PName, Cell[loc+1].Elem.PL,
@@ -614,9 +604,8 @@ void constr_type::add_constr(const int loc,
   const double              val[] = {v1,   v2,   v3,   v4,   v5,   v6};
   const std::vector<double> vec1(scl, scl+n);
   const std::vector<double> vec2(val, val+n);
-  const bool                prt   = false;
 
-  if (prt) printf("\nadd_constr: %8s loc = %1d\n", Cell[loc].Elem.PName, loc);
+  if (debug_prt) printf("\nadd_constr: %8s loc = %1d\n", Cell[loc].Elem.PName, loc);
   this->loc.push_back(loc);
   this->value_scl.push_back(vec1);
   this->value.push_back(vec2);
@@ -632,7 +621,6 @@ double get_eps_x1(const bool track, double &eps_x, double &sigma_E)
   double       I[6];
   ss_vect<tps> A;
 
-  const bool   prt     = false;
   const double C_q_scl = 1e18*C_q/sqr(m_e);
 
   if (track) {
@@ -649,7 +637,7 @@ double get_eps_x1(const bool track, double &eps_x, double &sigma_E)
   eps_x = 1e9*C_q_scl*sqr(globval.Energy)*I[5]/(I[2]-I[4]);
   sigma_E = sqrt(C_q_scl*sqr(globval.Energy)*I[3]/(2e0*I[2]+I[4]));
 
-  if (prt) {
+  if (debug_prt) {
     printf("\nget_eps_x1:\n");
     printf("  E [GeV]          = %9.3e\n", globval.Energy);
     printf("  I[2..5]          = [");
@@ -671,13 +659,11 @@ double get_lin_opt(constr_type &constr)
   double       eps_x;
   ss_vect<tps> A;
 
-  const bool prt = false;
-
-  if (prt) printf("\nget_lin_opt: ring = %d\n", lat_constr.ring);
+  if (debug_prt) printf("\nget_lin_opt: ring = %d\n", lat_constr.ring);
   if (lat_constr.ring) {
     Ring_GetTwiss(true, 0e0);
     eps_x = get_eps_x1(true, eps_x, sigma_E);
-    if (prt) printf("  eps_x = %9.3e\n", eps_x);
+    if (debug_prt) printf("  eps_x = %9.3e\n", eps_x);
   } else {
     globval.emittance = true;
     A = get_A(constr.ic[0], constr.ic[1], constr.ic[2], constr.ic[3]);
@@ -702,8 +688,6 @@ void constr_type::ini_constr(const bool ring)
 double get_constr(const int loc, const int k)
 {
   double constr = 0e0;
-
-  const bool prt = false;
 
   switch (k) {
   case 0:
@@ -730,7 +714,7 @@ double get_constr(const int loc, const int k)
     break;
   }
 
-  if (prt) printf("get_constr: %1d %10.3e\n", k, constr);
+  if (debug_prt) printf("get_constr: %1d %10.3e\n", k, constr);
 
   return constr;
 }
@@ -740,7 +724,6 @@ double get_eps(const int n)
 {
   double eps = 0e0;
 
-  const bool   prt       = false;
   const double prm_eps[] = { 1e-3, 1e-4, 1e-4, 1e-4 };
 
   switch (n) {
@@ -766,7 +749,7 @@ double get_eps(const int n)
     break;
   }
 
-  if (prt) printf("get_eps: %2d %10.3e\n", n, eps);
+  if (debug_prt) printf("get_eps: %2d %10.3e\n", n, eps);
 
   return eps;
 }
@@ -1076,12 +1059,10 @@ void constr_type::get_dchi2(const double twoJ[], const double delta,
   int    k, loc;
   double eps;
 
-  const bool prt = false;
-
   for (k = 0; k < lat_prms.n_prm; k++) {
     eps = get_eps(lat_prms.n[k]);
 
-    if (prt) {
+    if (debug_prt) {
       printf("\nget_dchi2: ");
       loc = Elem_GetPos(lat_prms.Fnum[k], 1);
       prt_name(stdout, Cell[loc].Elem.PName, ":", 6);
@@ -1249,12 +1230,10 @@ void get_nu(ss_vect<tps> &A, const double delta, double nu[])
   long int     lastpos;
   ss_vect<tps> A_delta;
 
-  const bool prt = false;
-
   A_delta = get_A_CS(2, A, nu); A_delta[delta_] += delta;
   Cell_Pass(0, globval.Cell_nLoc, A_delta, lastpos);
   get_A_CS(2, A_delta, nu);
-  if (prt) printf("\n[%18.16f, %18.16f]\n", nu[X_], nu[Y_]);
+  if (debug_prt) printf("\n[%18.16f, %18.16f]\n", nu[X_], nu[Y_]);
 }
 
 
@@ -1264,8 +1243,8 @@ void fit_ksi1(const std::vector<int> &Fnum_b3,
   int                 n_b3, j, k, n_svd;
   double              **A, **U, **V, *w, *b, *x, b3L, a3L;
 
-  const bool   prt = false;
-  const int    m   = 2;
+  const int
+    m       = 2;
   const double
     ksi0[]  = {ksi_x, ksi_y},
     svd_cut = 1e-10;
@@ -1282,7 +1261,7 @@ void fit_ksi1(const std::vector<int> &Fnum_b3,
   for (k = 1; k <= n_b3; k++) {
     set_dbnL_design_fam(Fnum_b3[k-1], Sext, db3L, 0e0);
     Ring_Getchrom(0e0);
-    if (prt)
+    if (debug_prt)
       printf("\nfit_ksi1: ksi1+ = [%9.5f, %9.5f]\n",
 	     globval.Chrom[X_], globval.Chrom[Y_]);
 
@@ -1290,7 +1269,7 @@ void fit_ksi1(const std::vector<int> &Fnum_b3,
       A[j][k] = globval.Chrom[j-1];
     set_dbnL_design_fam(Fnum_b3[k-1], Sext, -2e0*db3L, 0e0);
     Ring_Getchrom(0e0);
-    if (prt)
+    if (debug_prt)
       printf("fit_ksi1: ksi1- = [%9.5f, %9.5f]\n",
 	 globval.Chrom[X_], globval.Chrom[Y_]);
     for (j = 1; j <= 2; j++) {
@@ -1301,7 +1280,7 @@ void fit_ksi1(const std::vector<int> &Fnum_b3,
   }
 
   Ring_Getchrom(0e0);
-  if (prt)
+  if (debug_prt)
     printf("\nfit_ksi1: ksi1  = [%9.5f, %9.5f]\n",
 	   globval.Chrom[X_], globval.Chrom[Y_]);
   for (j = 1; j <= 2; j++)
@@ -1309,29 +1288,29 @@ void fit_ksi1(const std::vector<int> &Fnum_b3,
 
   dmcopy(A, m, n_b3, U); dsvdcmp(U, m, n_b3, w, V);
 
-  if (prt) printf("\nfit_ksi1:\n  singular values:\n  ");
+  if (debug_prt) printf("\nfit_ksi1:\n  singular values:\n  ");
   n_svd = 0;
   for (j = 1; j <= n_b3; j++) {
-    if (prt) printf("%11.3e", w[j]);
+    if (debug_prt) printf("%11.3e", w[j]);
     if (w[j] < svd_cut) {
       w[j] = 0e0;
-      if (prt) printf(" (zeroed)");
+      if (debug_prt) printf(" (zeroed)");
     } else {
       if (n_svd > 2) {
-	if (prt) printf("fit_ksi1: more than 2 non-zero singular values");
+	if (debug_prt) printf("fit_ksi1: more than 2 non-zero singular values");
 	exit(1);
       }
       n_svd++;
     }
   }
-  if (prt) printf("\n");
+  if (debug_prt) printf("\n");
 
   dsvbksb(U, w, V, m, n_b3, b, x);
 
   for (k = 1; k <= n_b3; k++)
     set_dbnL_design_fam(Fnum_b3[k-1], Sext, x[k], 0e0);
 
-  if (prt) {
+  if (debug_prt) {
     printf("  b3:\n  ");
     for (k = 0; k < n_b3; k++) {
       get_bn_design_elem(Fnum_b3[k], 1, Sext, b3L, a3L);
@@ -1377,9 +1356,7 @@ void prt_grad_dip(FILE *outf, const std::vector<int> &Fnum)
 {
   int k, loc;
 
-  const bool prt = false;
-
-  if (prt) printf("  prt_grad_dip: %d\n", (int)Fnum.size());
+  if (debug_prt) printf("  prt_grad_dip: %d\n", (int)Fnum.size());
   for (k = 0; k < (int)Fnum.size(); k++) {
     loc = Elem_GetPos(Fnum[k], 1);
     prt_name(outf, Cell[loc].Elem.PName, ":", 8);
@@ -1394,11 +1371,9 @@ void prt_elem(FILE *outf, const param_type &lat_prms, const int n)
   double   b_n_prev, b_n;
   CellType *cellp;
 
- const bool prt = false;
-
   loc = Elem_GetPos(abs(lat_prms.Fnum[n-1]), 1);
   cellp = &Cell[loc];
-  if (prt) {
+  if (debug_prt) {
     printf("prt_elem:\n  ");
     prt_name(stdout, cellp->Elem.PName, "\n", 0);
   }
@@ -1406,7 +1381,7 @@ void prt_elem(FILE *outf, const param_type &lat_prms, const int n)
     prt_name(outf, cellp->Elem.PName, ":", 8);
     prt_drift(outf, Cell[loc]);
   } else if (cellp->Elem.Pkind == Mpole) {
-    if (prt) {
+    if (debug_prt) {
       printf("  n_design:     %1d\n", cellp->Elem.M->n_design);
       printf("  n:            %1d\n", cellp->Elem.M->Porder);
     }
@@ -1512,8 +1487,6 @@ bool get_nu(double nu[])
   double       cosmu;
   ss_vect<tps> ps;
 
-  bool prt = false;
-
   ps.identity();
   Cell_Pass(0, globval.Cell_nLoc, ps, lastpos);
   for (k = 0; k < 2; k++) {
@@ -1528,7 +1501,7 @@ bool get_nu(double nu[])
       return false;
     }
   }
-  if (prt) printf("\nget_nu: nu = [%7.5f, %7.5f]\n", nu[X_], nu[Y_]);
+  if (debug_prt) printf("\nget_nu: nu = [%7.5f, %7.5f]\n", nu[X_], nu[Y_]);
   return true;
 }
 
@@ -1548,8 +1521,6 @@ double h_abs_ijklm(const tps &h_re, const tps &h_im, const int i, const int j,
 
 void fit_powell(param_type &lat_prms, const double eps, double (*f)(double *))
 {
-  const bool prt = false;
-
   int          n_bn, i, j, iter;
   double       *bn, **xi, fret;
   ss_vect<tps> A;
@@ -1560,8 +1531,8 @@ void fit_powell(param_type &lat_prms, const double eps, double (*f)(double *))
 
   bn = dvector(1, n_bn); xi = dmatrix(1, n_bn, 1, n_bn);
 
-  if (prt) lat_prms.prt_prm(bn);
   lat_prms.ini_prm(bn);
+  if (debug_prt) lat_prms.prt_prm(bn);
   f(bn);
 
   if (false) {
