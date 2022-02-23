@@ -216,9 +216,13 @@ double f_achrom(double *bn)
 
     fit_ksi1(lat_constr.Fnum_b3, 0e0, 0e0, 1e1);
 
+    printf("\n1\n");
+
     chi2 =
-      lat_constr.get_chi2(twoJ, delta_max, twoJ_delta, lat_prms, bn, true,
-			  false);
+      lat_constr.get_chi2
+      (twoJ, delta_max, twoJ_delta, lat_prms, bn, !true, false);
+
+    printf("\n2\n");
 
     if (scl_extra != 0e0) {
       b2_uq1 = GetKpar(ElemIndex("uq1"), 1, Quad);
@@ -230,11 +234,13 @@ double f_achrom(double *bn)
 	     b2_uq1, b2_uq2, b2_uq3, dchi2);
     }
 
+    printf("\n3\n");
+
     if (first || (chi2 < lat_constr.chi2)) {
       first = false;
       if (lat_constr.n_iter % n_prt == 0) {
 	// Print dchi2.
-	lat_constr.get_chi2(twoJ, delta_max, twoJ_delta, lat_prms, bn, true,
+	lat_constr.get_chi2(twoJ, delta_max, twoJ_delta, lat_prms, bn, !true,
 			    true);
 	prt_f(bn, chi2, lat_constr, lat_prms, true, true);
       }
@@ -244,6 +250,8 @@ double f_achrom(double *bn)
     }
   } else
     chi2 = 1e30;
+
+  printf("\n4\n");
 
   return chi2;
 }
@@ -1137,8 +1145,8 @@ void set_weights_sp(constr_type &constr)
   lat_constr.nu_ref[X_]            = 2*nu_ref[X_];
   lat_constr.nu_ref[Y_]            = 2*nu_ref[Y_];
 
-  lat_constr.high_ord_achr_scl[X_] = 1e0*1e6;
-  lat_constr.high_ord_achr_scl[Y_] = 1e0*1e6;
+  lat_constr.high_ord_achr_scl[X_] = 0e0*1e6;
+  lat_constr.high_ord_achr_scl[Y_] = 0e0*1e6;
 
   // Super Period.
   lat_constr.phi_scl               = ((dphi)? 1e0 : 0e0);

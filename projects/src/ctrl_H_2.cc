@@ -1047,7 +1047,7 @@ double constr_type::get_chi2(const double twoJ[], const double delta,
 		      dchi2[X_], dchi2[Y_]);
     }
   }
-
+  
   return chi2;
 }
 
