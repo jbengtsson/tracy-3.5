@@ -1200,7 +1200,7 @@ int main(int argc, char *argv[])
   setvbuf(stdout, buffer, _IONBF, BUFSIZ);
 
   trace            = false;
-  reverse_elem     = !false;
+  reverse_elem     = true;
   globval.mat_meth = !false;
 
   if (!true)

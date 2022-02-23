@@ -331,10 +331,10 @@ void Ring_Twiss(bool chroma, double dP)
 void Ring_GetTwiss(bool chroma, double dP)
 {
 
-  if (trace) printf("enter Ring_GetTwiss\n");
+  if (trace) printf("\nenter Ring_GetTwiss\n");
   Ring_Twiss(chroma, dP);
   globval.Alphac = globval.OneTurnMat[ct_][delta_]/Cell[globval.Cell_nLoc].S;
-  if (trace) printf("exit Ring_GetTwiss\n");
+  if (trace) printf("\nexit Ring_GetTwiss\n");
 }
 
 

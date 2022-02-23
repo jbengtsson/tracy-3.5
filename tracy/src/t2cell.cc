@@ -163,6 +163,7 @@ void Cell_Pass(const long i0, const long i1, tps &sigma, long &lastpos)
 
 bool Cell_getCOD(long imax, double eps, double dP, long &lastpos)
 {
+  static bool     first = true;
   long            j, n, n_iter;
   int             no;
   long int        jj[ss_dim];
@@ -170,11 +171,20 @@ bool Cell_getCOD(long imax, double eps, double dP, long &lastpos)
   ss_vect<double> x0, x1, dx;
   ss_vect<tps>    I, dx0, map;
 
+  if (trace) printf("\nCell_getCOD:\n");
+
   no = no_tps; danot_(1);
   
-  if (globval.mat_meth && (dP != globval.dPparticle))
+  if (globval.mat_meth && (first || (dP != globval.dPparticle))) {
     // Recompute transport matrices.
+    if (trace)
+      printf("  recomputing transport matrices:  delta = %9.3e (%9.3e)"
+	     " first = %1d\n",
+	     dP, globval.dPparticle, first);
     get_lin_maps(dP);
+    globval.dPparticle = dP;
+    first = false;
+  }
 
   globval.dPparticle = dP;
 
@@ -191,12 +201,10 @@ bool Cell_getCOD(long imax, double eps, double dP, long &lastpos)
   for (j = 0; j < ss_dim; j++)
     jj[j] = (j < n)? 1 : 0;
 
-  if (trace) {
-    std::cout << "\nCell_getCOD:" << "\n";
-    std::cout << std::scientific << std::setprecision(5)
-	      << "  0                        x0 ="
+  if (trace)
+   std::cout << std::scientific << std::setprecision(5)
+	      << "\n  0                        x0 ="
 	      << std::setw(13) << x0 << "\n";
-  }
   n_iter = 0; I.identity();
   do {
     n_iter++; map.identity(); map += x0;
@@ -224,7 +232,7 @@ bool Cell_getCOD(long imax, double eps, double dP, long &lastpos)
     globval.CODvect = x0; getlinmat(6, map, globval.OneTurnMat);
     Cell_Pass(0, globval.Cell_nLoc, x0, lastpos);
     if (trace) {
-      cout << "\nOneTurnMat:\n";
+      cout << "\n  OneTurnMat:\n";
       prtmat(6, globval.OneTurnMat);
     }
   } else
