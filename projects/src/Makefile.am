@@ -53,5 +53,6 @@ LIBS	 = -L$(TRACY_LIB)/tracy/lib -ltracy \
 # C Preprocessor flags.
 AM_CPPFLAGS = -I$(TRACY_LIB)/tracy/inc -I$(NUM_REC)/inc
 # C++ flags.
-AM_CXXFLAGS = -g -O0 -Wall
+AM_CXXFLAGS = -g -O0 -pedantic -Wall \
+              -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC
 #CXXFLAGS = -pg -O2 -Wall -Wno-non-template-friend

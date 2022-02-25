@@ -20,7 +20,7 @@ double f_mult(double *bn);
 double eps_x, sigma_E;
 
 
-const bool debug_prt = !false;
+const bool debug_prt = false;
 
 
 struct param_type {
@@ -976,12 +976,12 @@ double constr_type::get_chi2(const double twoJ[], const double delta,
 
     if (prt) printf("\n");
     for (k = 0; k < (int)drv_terms.h.size(); k++) {
-      dchi2[k] = lat_constr.drv_terms.h_scl[k]*sqr(lat_constr.drv_terms.h[k]);
-      chi2 += dchi2[k];
+      dchi2[0] = lat_constr.drv_terms.h_scl[k]*sqr(lat_constr.drv_terms.h[k]);
+      chi2 += dchi2[0];
       if (prt && (lat_constr.drv_terms.h_scl[k] != 0e0)) {
 	if ((k == 1) || (k == 4) || (k == 9) || (k == 20) || (k == 22)
 	    || (k == 24)) printf("\n");
-	printf("  h[%2d] = %10.3e\n", k, dchi2[k]);
+	printf("  h[%2d] = %10.3e\n", k, dchi2[0]);
       }
     }
     if (prt) lat_constr.drv_terms.print();
@@ -1181,9 +1181,10 @@ void constr_type::prt_constr(const double chi2)
     printf("    dnu_sin    = [%7.3f, %7.3f]\n",
 	   nu_sin[X_]-nu_sin_ref[X_], nu_sin[Y_]-nu_sin_ref[Y_]);
   }
-  if (scl_ksi_1) printf("    ksi1       = [%7.3f, %7.3f]\n",
+  if (scl_ksi_1)
+    printf("    ksi1       = [%7.3f, %7.3f]\n",
 	   lat_constr.drv_terms.h_c[0], lat_constr.drv_terms.h_s[0]);
-  printf( "    alpha_c =    %9.3e\n", globval.Alphac);
+  printf( "    alpha_c    = %9.3e\n", globval.Alphac);
   if (lat_constr.ksi1_ctrl.size() != 0)
     printf("    ksi1_ctrl       = [%5.3f, %5.3f, %5.3f]\n",
 	   lat_constr.ksi1_ctrl[0], lat_constr.ksi1_ctrl[1],
@@ -1193,7 +1194,7 @@ void constr_type::prt_constr(const double chi2)
     phi = rad2deg(Cell[loc].Elem.PL*Cell[loc].Elem.M->Pirho);
     printf("    phi        = %7.5f (%7.5f)\n    ", phi_tot, phi0);
     prt_name(stdout, Cell[loc].Elem.PName, "_phi", 3);
-    printf(" = %7.5f\n", phi);
+    printf("    = %7.5f\n", phi);
   }
   if (L_scl != 0e0)
     printf("    L          = %7.5f (%7.5f)\n", Cell[globval.Cell_nLoc].S, L0);
