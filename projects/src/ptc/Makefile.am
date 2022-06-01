@@ -12,10 +12,12 @@ opt_des_1_ptc_SOURCES = opt_des_1_ptc.cc
 opt_des_2_ptc_SOURCES = opt_des_2_ptc.cc
 
 LIBS     = -L$(TRACY_LIB)/tracy/lib -ltracy_ptc -lTPSALib -lLieLib \
-           -L$(NUM_REC)/lib -L/usr/local/Cellar/gcc/10.1.0/lib/gcc/10 \
+           -L$(NUM_REC)/lib -L/usr/local/Cellar/gcc/11.3.0/lib/gcc/11 \
+           -L/usr/local/Cellar/gsl/2.7.1/lib \
            -lnum_rec \
 	   -lstdc++ \
            -lm \
+           -lgsl -lgslcblas \
            -lgfortran
 #INCLUDES = -I$(TRACY_LIB)/tracy/inc -I$(NUM_REC)/inc
 AM_CPPFLAGS = -I$(TRACY_LIB)/tracy/inc -I$(NUM_REC)/inc

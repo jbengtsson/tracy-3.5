@@ -48,10 +48,13 @@ tst_it_SOURCES            = tst_it.cc
 
 LIBS	 = -L$(TRACY_LIB)/tracy/lib -ltracy \
            -L$(NUM_REC)/lib -lnum_rec \
-           -L /usr/local/Cellar/gcc/11.2.0/lib/gcc/11 \
-           -lstdc++
+           -L/usr/local/Cellar/gcc/11.2.0/lib/gcc/11 \
+           -L/usr/local/Cellar/gsl/2.7.1/lib \
+           -lstdc++ \
+           -lgsl -lgslcblas
 # C Preprocessor flags.
-AM_CPPFLAGS = -I$(TRACY_LIB)/tracy/inc -I$(NUM_REC)/inc
+AM_CPPFLAGS = -I/usr/local/Cellar/gsl/2.7.1/include \
+              -I$(TRACY_LIB)/tracy/inc -I$(NUM_REC)/inc
 # C++ flags.
 AM_CXXFLAGS = -g -O0 -pedantic -Wall \
               -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC

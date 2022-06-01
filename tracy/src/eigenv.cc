@@ -1,3 +1,7 @@
+#include <gsl/gsl_complex_math.h>
+#include <gsl/gsl_math.h>
+#include <gsl/gsl_eigen.h>
+
 
 // eigenv.c -- Eigenvalue routines
 
@@ -157,7 +161,10 @@ static void Swap(double *x, double *y)
        17/07/03 use M_PI instead of pi
 
 ****************************************************************************/
-void geigen(int n, Matrix &fm, Matrix &Vre, Matrix &Vim,
+
+#if 0
+
+void geigen(const int n, const Matrix &fm, Matrix &Vre, Matrix &Vim,
 	    psVector &wr, psVector &wi)
 {
   int      info, i, j, k, c;
@@ -237,6 +244,137 @@ void geigen(int n, Matrix &fm, Matrix &Vre, Matrix &Vim,
 //_L999: ;
 }
 
+#else
+
+gsl_matrix* mattogslmat(const int n, const Matrix &M)
+{
+  gsl_matrix *gslmat = gsl_matrix_alloc(n, n);
+
+  for (int j = 0; j < n; j++)
+    for (int k = 0; k < n; k++)
+      gsl_matrix_set(gslmat, j, k, M[j][k]);
+  return gslmat;
+}
+
+
+ss_vect<tps> gslmattomap(const int n, const gsl_matrix *gslmat)
+{
+  ss_vect<tps> M;
+
+  M.zero();
+  for (int j = 0; j < n; j++)
+    for (int k = 0; k < n; k++)
+      putmat(M, j+1, k+1, gsl_matrix_get(gslmat, j, k));
+  return M;
+}
+
+
+void geigen(const int n, const Matrix &fm, Matrix &Vre, Matrix &Vim,
+	    psVector &wr, psVector &wi)
+{
+  int          info, i, j, k, c;
+  double       TEMP;
+  psVector     ort, cosfm, sinfm, nufm1, nufm2, nu1, nu2;
+  Matrix       aa, vv;
+  ss_vect<tps> M;
+
+  gsl_complex
+    z;
+  gsl_matrix
+    *m    = gsl_matrix_alloc(n, n);
+  gsl_vector_complex
+    *eval = gsl_vector_complex_alloc(n);
+  gsl_matrix_complex
+    *evec = gsl_matrix_complex_alloc(n, n);
+  gsl_eigen_nonsymmv_workspace
+    *w    = gsl_eigen_nonsymmv_alloc(n);
+
+  m = mattogslmat(n, fm);
+
+  gsl_eigen_nonsymmv(m, eval, evec, w);
+  gsl_eigen_nonsymmv_free(w);
+  gsl_eigen_nonsymmv_sort(eval, evec, GSL_EIGEN_SORT_ABS_ASC);
+       
+  if (false) {
+    for (i = 0; i < n; i++) {
+      gsl_complex eval_i = gsl_vector_complex_get(eval, i);
+      gsl_vector_complex_view evec_i = gsl_matrix_complex_column(evec, i);
+
+      printf ("eigenvalue = %10.3e + %10.3ei, %10.3e\n",
+	      GSL_REAL(eval_i), GSL_IMAG(eval_i), gsl_complex_abs(eval_i));
+      printf ("eigenvector = \n");
+      for (j = 0; j < 4; ++j) {
+	gsl_complex z = gsl_vector_complex_get(&evec_i.vector, j);
+	printf("%10.3e + %10.3ei\n", GSL_REAL(z), GSL_IMAG(z));
+      }
+    }
+  }
+
+  for (i = 0; i < n; i++) {
+    z = gsl_vector_complex_get(eval, i);
+    wr[i] = GSL_REAL(z);
+    wi[i] = GSL_IMAG(z);
+  }
+
+  for (i = 0; i < n/2; i++) {
+    for (j = 0; j < n; j++) {
+      z = gsl_matrix_complex_get(evec, j, i*2);
+      Vre[j][i*2]   =  GSL_REAL(z);
+      Vim[j][i*2]   =  GSL_IMAG(z);
+      Vre[j][i*2+1] =  GSL_REAL(z);
+      Vim[j][i*2+1] = -GSL_IMAG(z);
+    }
+  }
+  for (i = 0; i < n/2; i++) {
+    j = (i+1)*2 - 1;
+    cosfm[i] = (fm[j-1][j-1]+fm[j][j])/2;
+    if (fabs(cosfm[i]) > (double)1.0) {
+      printf("geigen: unstable |cosfm[nu_%d]-1e0| = %10.3e\n",
+	     i+1, fabs(cosfm[i]-1e0));
+      globval.stable = false;
+//      goto _L999;
+      // return;
+    }
+    TEMP     = cosfm[i];
+    sinfm[i] = sgn(fm[j-1][j])*sqrt(1.0-TEMP*TEMP);
+    nufm1[i] = GetAngle(cosfm[i], sinfm[i])/(2.0*M_PI);
+    if (nufm1[i] < 0.0) nufm1[i]++;
+    if (nufm1[i] <= 0.5)
+      nufm2[i] = nufm1[i];
+    else
+      nufm2[i] = 1.0 - nufm1[i];
+    nu1[i] = GetAngle(wr[j-1], wi[j-1])/(2.0*M_PI);
+    if (nu1[i] < 0.0) nu1[i]++;
+    if (nu1[i] <= 0.5)
+      nu2[i] = nu1[i];
+    else
+      nu2[i] = 1.0 - nu1[i];
+    // printf("nu: %7.5f %7.5f\n", nufm2[i], nu2[i]);
+  }
+  for (i = 1; i <= n/2; i++) {
+    c = closest(nufm2[i-1], nu2[0], nu2[1], nu2[2]);
+    if (c != i) {
+      j = c*2 - 1; k = i*2 - 1;
+      /*          writeln(' swapping ', j:0, ' with ', k:0);*/
+      SwapMat(n, Vre, j, k);     SwapMat(n, Vim, j, k);
+      SwapMat(n, Vre, j+1, k+1); SwapMat(n, Vim, j+1, k+1);
+
+      Swap(&wr[j-1], &wr[k-1]);  Swap(&wi[j-1], &wi[k-1]);
+      Swap(&wr[j], &wr[k]);      Swap(&wi[j], &wi[k]);
+
+      Swap(&nu1[i-1], &nu1[c-1]); Swap(&nu2[i-1], &nu2[c-1]);
+    }
+  }
+  for (i = 1; i <= n/2; i++) {
+    if ((0.5-nufm1[i-1])*(0.5-nu1[i-1]) < 0.0) {
+      j = i*2 - 1;
+      SwapMat(n, Vim, j, j+1); Swap(&wi[j-1], &wi[j]);
+    }
+  }
+//_L999: ;
+}
+
+#endif
 
 /* Local variables for GDiag: */
 struct LOC_GDiag {
@@ -627,7 +765,8 @@ static void eswap(Matrix &t6a, psVector &lamr, psVector &lami, Matrix &r,
        30/12/02 label 150 removed
 
 ****************************************************************************/
-void NormEigenVec(Matrix &Vr,Matrix &Vi, psVector &wr, psVector &wi, Matrix &t6a)
+void NormEigenVec(Matrix &Vr,Matrix &Vi, psVector &wr, psVector &wi,
+		  Matrix &t6a)
 {
   Matrix r;
   double rn,sqrn;
@@ -646,7 +785,8 @@ void NormEigenVec(Matrix &Vr,Matrix &Vi, psVector &wr, psVector &wi, Matrix &t6a
     rn = 0e0;
     for (i1 = 1; i1 <= ss_dim; i1+= 2) {
       i2 = i1 + 1; i3 = i2 / 2;
-      r[i3-1][j3-1] = t6a[i1-1][j1-1]*t6a[i2-1][j2-1]-t6a[i2-1][j1-1]*t6a[i1-1][j2-1];
+      r[i3-1][j3-1] =
+	t6a[i1-1][j1-1]*t6a[i2-1][j2-1]-t6a[i2-1][j1-1]*t6a[i1-1][j2-1];
       rn += r[i3-1][j3-1];
     }
 
