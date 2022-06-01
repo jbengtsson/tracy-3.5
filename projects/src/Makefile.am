@@ -50,6 +50,7 @@ LIBS	 = -L$(TRACY_LIB)/tracy/lib -ltracy \
            -L$(NUM_REC)/lib -lnum_rec \
            -L/usr/local/Cellar/gcc/11.2.0/lib/gcc/11 \
            -L/usr/local/Cellar/gsl/2.7.1/lib \
+           -L//net/home/lli/OPAL/OPAL-2.0.1/include \
            -lstdc++ \
            -lgsl -lgslcblas
 # C Preprocessor flags.
