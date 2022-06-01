@@ -14,6 +14,7 @@ opt_des_2_ptc_SOURCES = opt_des_2_ptc.cc
 LIBS     = -L$(TRACY_LIB)/tracy/lib -ltracy_ptc -lTPSALib -lLieLib \
            -L$(NUM_REC)/lib -lnum_rec \
            -L/usr/local/Cellar/gsl/2.7.1/lib \
+           -L/net/home/lli/OPAL/OPAL-2.0.1/include \
 	   -lstdc++ \
            -lm \
            -lgsl -lgslcblas \
