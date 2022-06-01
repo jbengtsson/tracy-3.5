@@ -1,8 +1,4 @@
 #!/bin/sh
-#echo $PATH
-#PATH=/net/home/lli/OPAL/OPAL-2.0.1/bin:$PATH
-#echo $PATH
-#export PATH
 set -x
 aclocal -I config
 autoheader
