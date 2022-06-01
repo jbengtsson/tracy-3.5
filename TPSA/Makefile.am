@@ -8,6 +8,6 @@ libLieLib_a_SOURCES  = LieLib.f
 #FFLAGS    = -g -O5 -Wall -fbounds-check -fdefault-integer-8 -mcmodel=medium \
 #	    -w -fallow-argument-mismatch -O2
 FFLAGS    = -g -O2 -Wall -fbounds-check -fdefault-integer-8 -mcmodel=medium \
-	    -w -O2
+	    -w -fallow-argument-mismatch
 
 AM_FFLAGS = -g -O2 -Wall -fbounds-check -fPIC

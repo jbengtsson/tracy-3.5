@@ -46,18 +46,19 @@ opt_des_bessy_iii_SOURCES = opt_des_bessy_iii.cc
 for_pierre_SOURCES        = for_pierre.cc
 tst_it_SOURCES            = tst_it.cc
 
-LIBS	 = -L$(TRACY_LIB)/tracy/lib \
-           -L$(TRACY_LIB)/tracy/lib64 \
-	   -ltracy \
-           -L$(NUM_REC)/lib -lnum_rec \
-           -L/usr/local/Cellar/gsl/2.7.1/lib \
-           -L/net/home/lli/OPAL/OPAL-2.0.1/lib \
-           -lstdc++ \
-           -lgsl -lgslcblas
+GSL_INCLUDE = /usr/local/Cellar/gsl/2.7.1
+# GSL_INCLUDE = /net/home/lli/OPAL/OPAL-2.0.1
+
+LIBS	    = -L$(TRACY_LIB)/tracy/lib -ltracy \
+              -L$(NUM_REC)/lib -lnum_rec \
+              -lstdc++ \
+              -L$(GSL_INCLUDE)/lib -lgsl -lgslcblas
 # C Preprocessor flags.
 AM_CPPFLAGS = -I/usr/local/Cellar/gsl/2.7.1/include \
               -I/opt/OPAL-2.2.1/lib \
-              -I$(TRACY_LIB)/tracy/inc -I$(NUM_REC)/inc
+              -I$(TRACY_LIB)/tracy/inc \
+              -I$(NUM_REC)/inc \
+              -I$(GSL_INCLUDE)/include
 # C++ flags.
 AM_CXXFLAGS = -g -O0 -pedantic -Wall \
               -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC

@@ -1091,15 +1091,16 @@ void set_hoa_sp(constr_type &constr)
   int k;
 
   const std::vector<std::vector<double>>
-    hoa_nu =
+    hoa_nu_list =
       {
-       {nu[X_]+dnu[X_], nu[Y_]+dnu[Y_]},
-       {nu[X_], nu[Y_]}, {nu[X_], nu[Y_]}, {nu[X_], nu[Y_]},
-       {nu[X_]+dnu[X_], nu[Y_]+dnu[Y_]}
+	{hoa_nu[X_]+hoa_dnu[X_], hoa_nu[Y_]+hoa_dnu[Y_]},
+	{hoa_nu[X_], hoa_nu[Y_]}, {hoa_nu[X_], hoa_nu[Y_]},
+	{hoa_nu[X_], hoa_nu[Y_]},
+	{hoa_nu[X_]+hoa_dnu[X_], hoa_nu[Y_]+hoa_dnu[Y_]}
       };
 
-  for (k = 0; k < (int)hoa_nu.size(); k++)
-    constr.hoa_nu.push_back(hoa_nu[k]);
+  for (k = 0; k < (int)hoa_nu_list.size(); k++)
+    constr.hoa_nu.push_back(hoa_nu_list[k]);
 
   constr.hoa_scl[X_] = 1e0;
   constr.hoa_scl[Y_] = 1e0;
@@ -1171,7 +1172,7 @@ void opt_sp(param_type &prms, constr_type &constr)
 
   lat_constr.eps0_x = eps0_x;
   set_constr_sp(constr);
-  set_b3_constr_sp(constr);
+  // set_b3_constr_sp(constr);
   set_weights_sp(constr);
 
   lat_constr.ini_constr(true);
