@@ -11,10 +11,11 @@ get_nl_optics_SOURCES = get_nl_optics.cc
 opt_des_1_ptc_SOURCES = opt_des_1_ptc.cc
 opt_des_2_ptc_SOURCES = opt_des_2_ptc.cc
 
-GSL_INCLUDE = /usr/local/Cellar/gsl/2.7.1
-# GSL_INCLUDE = /net/home/lli/OPAL/OPAL-2.0.1
+# GSL_INCLUDE = /usr/local/Cellar/gsl/2.7.1
+GSL_INCLUDE = /net/home/lli/OPAL/OPAL-2.0.1
 
 LIBS        = -L$(TRACY_LIB)/tracy/lib \
+              -L$(TRACY_LIB)/tracy/lib64 \
               -ltracy_ptc -lTPSALib -lLieLib \
               -L$(NUM_REC)/lib -lnum_rec \
               -lstdc++ \
