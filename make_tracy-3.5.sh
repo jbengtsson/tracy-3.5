@@ -1,5 +1,10 @@
 #!/bin/sh
 
+#echo $PATH
+#PATH=$PATH:/net/home/lli/OPAL/OPAL-2.0.1/bin
+#echo $PATH
+#export PATH
+
 dir=`pwd`
 
 cd "$TRACY_LIB"

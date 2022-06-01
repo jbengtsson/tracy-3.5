@@ -1,4 +1,4 @@
-SUBDIRS      = ptc
+#SUBDIRS      = ptc
 
 bin_PROGRAMS = optics dynap leac dnu touschek ibs vlad tbt \
                max_iv_1 max_iv_2 ibs_for_les delta bare_da match \
@@ -46,10 +46,12 @@ opt_des_bessy_iii_SOURCES = opt_des_bessy_iii.cc
 for_pierre_SOURCES        = for_pierre.cc
 tst_it_SOURCES            = tst_it.cc
 
-LIBS	 = -L$(TRACY_LIB)/tracy/lib -ltracy \
+LIBS	 = -L$(TRACY_LIB)/tracy/lib \
+           -L$(TRACY_LIB)/tracy/lib64 \
+	   -ltracy \
            -L$(NUM_REC)/lib -lnum_rec \
            -L/usr/local/Cellar/gsl/2.7.1/lib \
-           -L/net/home/lli/OPAL/OPAL-2.0.1/include \
+           -L/net/home/lli/OPAL/OPAL-2.0.1/lib \
            -lstdc++ \
            -lgsl -lgslcblas
 # C Preprocessor flags.

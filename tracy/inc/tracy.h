@@ -16,10 +16,10 @@
 // Defined in math.h.
 //#define M_PI   3.14159265358979323846  // pi
 
-#ifndef LONG_MAX
-# define LONG_MAX   ((long)(((unsigned long) -1) >> 1))
-# define LONG_MIN   (~LONG_MAX)
-#endif
+//#ifndef LONG_MAX
+//# define LONG_MAX   ((long)(((unsigned long) -1) >> 1))
+//# define LONG_MIN   (~LONG_MAX)
+//#endif
 
 #define debug           false
 
