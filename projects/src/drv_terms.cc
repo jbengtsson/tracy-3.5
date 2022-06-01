@@ -792,10 +792,10 @@ void drv_terms_type::prt_h_abs(FILE *outf, const char *str, const int i0,
 
 void drv_terms_type::print(void)
 {
-  prt_h(stdout,     "\nLinear chromaticity:\n", 1, 1);
+  prt_h(stdout,     "\nLinear chromaticity\n", 1, 1);
   prt_h_abs(stdout, "\n3rd order chromatic terms\n", 2, 4);
-  prt_h_abs(stdout, "\n3rd order geometric terms:\n", 5, 9);
-  prt_h_abs(stdout, "\n4th order geometric terms:\n", 10, 20);
+  prt_h_abs(stdout, "\n3rd order geometric terms\n", 5, 9);
+  prt_h_abs(stdout, "\n4th order geometric terms\n", 10, 20);
   prt_h(stdout,     "\nTune footprint:\n", 21, 21);
   prt_h(stdout,     "", 22, 22);
   prt_h(stdout,     "\n", 23, 24);

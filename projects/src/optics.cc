@@ -518,6 +518,7 @@ void chk_high_ord_achr(const int lat_case)
   switch (lat_case) {
   case 1:
     dnu[X_] = 19.0/8.0; dnu[Y_] = 15.0/16.0;
+
     // loc.push_back(Elem_GetPos(ElemIndex("dc_1_01"),  1));
     loc.push_back(0);
     loc.push_back(Elem_GetPos(ElemIndex("idmarker"), 2));
@@ -526,12 +527,30 @@ void chk_high_ord_achr(const int lat_case)
     loc.push_back(Elem_GetPos(ElemIndex("idmarker"), 5));
    break;
   case 2:
-    dnu[X_] = 11.0/8.0; dnu[Y_] = 15.0/16;
+    dnu[X_] = 11.0/8.0; dnu[Y_] = 15.0/16.0;
+
     loc.push_back(Elem_GetPos(ElemIndex("ls"), 1));
     loc.push_back(Elem_GetPos(ElemIndex("ss"), 1));
     loc.push_back(Elem_GetPos(ElemIndex("ss"), 2));
     loc.push_back(Elem_GetPos(ElemIndex("ss"), 3));
     loc.push_back(Elem_GetPos(ElemIndex("ls"), 2));
+    break;
+  case 3:
+    dnu[X_] = 2.0/5.0; dnu[Y_] = 1.0/10.0;
+
+    loc.push_back(Elem_GetPos(ElemIndex("ul4"), 1)-1);
+    loc.push_back(Elem_GetPos(ElemIndex("mb1"), 1)-1);
+    loc.push_back(Elem_GetPos(ElemIndex("s2_h"), 1));
+    loc.push_back(Elem_GetPos(ElemIndex("b1_h"), 1));
+    loc.push_back(Elem_GetPos(ElemIndex("s2_h"), 3));
+    loc.push_back(Elem_GetPos(ElemIndex("b1_h"), 3));
+    loc.push_back(Elem_GetPos(ElemIndex("s2_h"), 5));
+    loc.push_back(Elem_GetPos(ElemIndex("b1_h"), 5));
+    loc.push_back(Elem_GetPos(ElemIndex("s2_h"), 7));
+    loc.push_back(Elem_GetPos(ElemIndex("b1_h"), 7));
+    loc.push_back(Elem_GetPos(ElemIndex("s2_h"), 9));
+    loc.push_back(Elem_GetPos(ElemIndex("mb1"), 2));
+    loc.push_back(Elem_GetPos(ElemIndex("ul4"), 2));
     break;
   default:
     printf("\nchk_high_ord_achr: unknown lattice type\n");
@@ -541,12 +560,13 @@ void chk_high_ord_achr(const int lat_case)
 
   printf("\nCell phase advance:\n");
   printf("Ideal:    [%7.5f, %7.5f]\n", dnu[X_], dnu[Y_]);
-  for (k = 1; k < (int)loc.size(); k++)
-    printf(" %9.5f %8.5f %8.5f %7.5f [%7.5f, %7.5f]\n",
-	   Cell[loc[k]].S, Cell[loc[k]].Alpha[X_], Cell[loc[k]].Alpha[Y_],
-	   Cell[loc[k]].S-Cell[loc[k-1]].S, 
-	   Cell[loc[k]].Nu[X_]-Cell[loc[k-1]].Nu[X_], 
-	   Cell[loc[k]].Nu[Y_]-Cell[loc[k-1]].Nu[Y_]);
+  for (k = 0; k < (int)loc.size(); k++)
+    printf(" %-.8s %9.5f %8.5f %8.5f %7.5f [%7.5f, %7.5f]\n",
+	   Cell[loc[k]].Elem.PName, Cell[loc[k]].S,
+	   Cell[loc[k]].Alpha[X_], Cell[loc[k]].Alpha[Y_],
+	   (k == 0)? NAN : Cell[loc[k]].S-Cell[loc[k-1]].S, 
+	   (k == 0)? NAN : Cell[loc[k]].Nu[X_]-Cell[loc[k-1]].Nu[X_], 
+	   (k == 0)? NAN : Cell[loc[k]].Nu[Y_]-Cell[loc[k-1]].Nu[Y_]);
 }
 
 
@@ -1590,6 +1610,24 @@ ss_vect<tps> chk_sympl(ss_vect<tps> M)
 }
 
 
+void chk_si(void)
+{
+  long int     lastpos;
+  int          k;
+  ss_vect<tps> ps;
+
+  globval.radiation = false;
+
+  printf("last element? > ");
+  scanf("%d", &k);
+  ps.identity();
+  Cell_Pass(0, k, ps, lastpos);
+
+  printf("%-.10s\n", Cell[k].Elem.PName);
+  prt_lin_map(3, ps);
+}
+
+
 int main(int argc, char *argv[])
 {
   bool             tweak;
@@ -1622,7 +1660,7 @@ int main(int argc, char *argv[])
 
   trace            = false;
   reverse_elem     = true;
-  globval.mat_meth = !false;
+  globval.mat_meth = false;
 
   if (true)
     Read_Lattice(argv[1]);
@@ -1635,6 +1673,7 @@ int main(int argc, char *argv[])
   globval.pathlength = false; globval.Aperture_on    = false;
   globval.Cart_Bend  = false; globval.dip_edge_fudge = true;
 
+
   if (false) no_sxt();
 
   if (false) {
@@ -1643,6 +1682,11 @@ int main(int argc, char *argv[])
     set_bn_design_elem(ElemIndex("chv"), Dip, 1, 1e-3, -1e-3);
     getcod(0e0, lastpos);
     prt_cod("cod_1.out", globval.bpm, true);
+    exit(0);
+  }
+
+  if (false) {
+    chk_si();
     exit(0);
   }
 
@@ -1679,6 +1723,45 @@ int main(int argc, char *argv[])
   }
 
   Ring_GetTwiss(true, 0e-3); printglob();
+
+  if (false) {
+    printf("\nGetAinv:\n");
+    prtmat(6, globval.Ascrinv);
+    printf("\nA:\n");
+    prt_lin_map(3, get_A_CS(2, putlinmat(6, globval.Ascr), dnu));
+
+    ss_vect<tps> A, map;
+
+    A   = putlinmat(6, globval.Ascr);
+    map = putlinmat(6, globval.OneTurnMat);
+    printf("\nA^-1*M*A:\n");
+    prt_lin_map(3, Inv(A)*map*A);
+
+    if (false) {
+      double       dnu[2];
+      Matrix       R;
+
+      const int n = 15;
+
+      map.identity();
+      Cell_Pass(n+1, globval.Cell_nLoc, map, lastpos);
+      Cell_Pass(0, n, map, lastpos);
+      getlinmat(6, map, globval.OneTurnMat);
+      GDiag(4, Cell[globval.Cell_nLoc].S, globval.Ascr, globval.Ascrinv, R,
+	    globval.OneTurnMat, globval.Omega, globval.Alphac);
+      printf("\nA:\n");
+      prt_lin_map(3, get_A_CS(2, putlinmat(6, globval.Ascr), dnu));
+
+      ss_vect<tps> A, map;
+
+      A   = putlinmat(6, globval.Ascr);
+      map = putlinmat(6, globval.OneTurnMat);
+      printf("\nA^-1*M*A:\n");
+      prt_lin_map(3, Inv(A)*map*A);
+    }
+
+    exit(0);
+  }
 
   if (false) {
     prt_lin_map
@@ -1956,9 +2039,10 @@ int main(int argc, char *argv[])
   }
 
   if (false) {
-    printf("Lattice Case (1..3)? ");
-    scanf("%d", &lat_case);
+    // printf("Lattice Case (1..3)? ");
+    // scanf("%d", &lat_case);
 
+    lat_case = 3;
     chk_high_ord_achr(lat_case);
     // exit(0);
   }

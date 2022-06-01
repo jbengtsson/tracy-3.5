@@ -89,27 +89,28 @@ public:
     ksi1_ctrl_scl[3],
     phi_scl,
     phi_tot, phi0,                 // Cell bend angle.
-    high_ord_achr_scl[2],
+    hoa_scl[2],
     mI_scl[2],
     mI0[2],                        // -I Transformer.
     alpha_c_scl,                   // alpha_c.
     L_scl,
     L0;                            // Cell length.
   std::vector<double> 
-    ksi1_ctrl;
+    ksi1_ctrl,
+    hoa_loc;
   std::vector< std::vector<double> >
     value,
     value_scl,
     mI,
-    high_ord_achr_nu,              // Higher-Order-Achromat Phase Advance.
-    high_ord_achr_dnu;             // Deviation from ref.
+    hoa_nu,                        // Higher-Order-Achromat Phase Advance.
+    hoa_dnu;                       // Deviation from ref.
   double **Jacobian;
   std::vector<int>
     Fnum,
     Fnum_b1,
     Fnum_b3,
     Fnum_b4,
-    high_ord_achr_Fnum,
+    hoa_Fnum,
     loc,
     type;
   std::vector< std::vector<int> >
@@ -124,7 +125,7 @@ public:
     eps_x_scl = nu_ref_scl[X_] = nu_ref_scl[Y_] = phi_scl = 0e0;
     nu_cos_ref_scl[X_] = nu_cos_ref_scl[Y_] = 0e0;
     ksi1_ctrl_scl[0] = ksi1_ctrl_scl[1] = ksi1_ctrl_scl[2] = 0e0;
-    high_ord_achr_scl[X_] = high_ord_achr_scl[Y_] = 0e0;
+    hoa_scl[X_] = hoa_scl[Y_] = 0e0;
     mI_scl[X_] = mI_scl[Y_] = 0e0;
     L_scl = 0e0;
   }
@@ -858,15 +859,15 @@ void get_ksi1_ctrl(constr_type &constr)
 }
 
 
-void get_high_ord_achr(constr_type &constr)
+void get_hoa(constr_type &constr)
 {
   int j, k;
 
-  for (j = 0; j < (int)constr.high_ord_achr_Fnum.size()/2; j++)
+  for (j = 0; j < (int)constr.hoa_Fnum.size()/2; j++)
     for (k = 0; k < 2; k++)
-      constr.high_ord_achr_dnu[j][k] =
-	Cell[constr.high_ord_achr_Fnum[2*j+1]].Nu[k]
-	- Cell[constr.high_ord_achr_Fnum[2*j]].Nu[k];
+      constr.hoa_dnu[j][k] =
+	Cell[constr.hoa_Fnum[2*j+1]].Nu[k]
+	- Cell[constr.hoa_Fnum[2*j]].Nu[k];
 }
 
 
@@ -979,8 +980,20 @@ double constr_type::get_chi2(const double twoJ[], const double delta,
       dchi2[0] = lat_constr.drv_terms.h_scl[k]*sqr(lat_constr.drv_terms.h[k]);
       chi2 += dchi2[0];
       if (prt && (lat_constr.drv_terms.h_scl[k] != 0e0)) {
-	if ((k == 1) || (k == 4) || (k == 9) || (k == 20) || (k == 22)
-	    || (k == 24)) printf("\n");
+	if (k == 0)
+	  printf("Linear chromaticity\n");
+	else if (k == 1)
+	  printf("3rd order chromatic terms\n");
+	else if (k == 4)
+	  printf("3rd order geometric terms\n");
+	else if (k == 9)
+	  printf("4th order geometric terms\n");
+	else if (k == 20)
+	  printf("2nd order chromaticity\n");
+	else if (k == 22)
+	  printf("\n");
+	else if (k == 24)
+	  printf("\n");
 	printf("  h[%2d] = %10.3e\n", k, dchi2[0]);
       }
     }
@@ -1033,17 +1046,17 @@ double constr_type::get_chi2(const double twoJ[], const double delta,
     }
   }
 
-  if ((high_ord_achr_scl[X_] != 0e0) || (high_ord_achr_scl[Y_] != 0e0)) {
-    get_high_ord_achr(lat_constr);
+  if ((hoa_scl[X_] != 0e0) || (hoa_scl[Y_] != 0e0)) {
+    get_hoa(lat_constr);
     if (prt) printf("\n");
-    for (j = 0; j < (int)high_ord_achr_dnu.size(); j++) {
+    for (j = 0; j < (int)hoa_dnu.size(); j++) {
       for (k = 0; k < 2; k++) {
 	dchi2[k] =
-	  high_ord_achr_scl[k]
-	  *sqr(high_ord_achr_dnu[j][k]-high_ord_achr_nu[j][k]);
+	  hoa_scl[k]
+	  *sqr(hoa_dnu[j][k]-hoa_nu[j][k]);
 	chi2 += dchi2[k];
       }
-      if (prt) printf("  high_ord_achr   = [%10.3e, %10.3e]\n",
+      if (prt) printf("  hoa   = [%10.3e, %10.3e]\n",
 		      dchi2[X_], dchi2[Y_]);
     }
   }
@@ -1138,19 +1151,19 @@ void prt_h(const constr_type &constr)
 }
 
 
-void prt_high_ord_achr(const constr_type &constr)
+void prt_hoa(const constr_type &constr)
 {
   int j, n;
 
-  n = constr.high_ord_achr_nu.size();
+  n = constr.hoa_nu.size();
   printf("\n  Higher-Order-Achromat:\n");
   for (j = 0; j < n; j++)
     printf("    [%7.5f, %7.5f]\n",
-	   constr.high_ord_achr_nu[j][X_], constr.high_ord_achr_nu[j][Y_]);
+	   constr.hoa_nu[j][X_], constr.hoa_nu[j][Y_]);
   printf("\n");
   for (j = 0; j < n; j++)
     printf("    [%7.5f, %7.5f]\n",
-	   constr.high_ord_achr_dnu[j][X_], constr.high_ord_achr_dnu[j][Y_]);
+	   constr.hoa_dnu[j][X_], constr.hoa_dnu[j][Y_]);
 }
 
 
@@ -1201,8 +1214,8 @@ void constr_type::prt_constr(const double chi2)
 
   if (scl_ksi_1) prt_h(*this);
 
-  if ((high_ord_achr_scl[X_] != 0e0) || (high_ord_achr_scl[Y_] != 0e0))
-    prt_high_ord_achr(*this);
+  if ((hoa_scl[X_] != 0e0) || (hoa_scl[Y_] != 0e0))
+    prt_hoa(*this);
 
   if ((mI_scl[X_] != 0e0) || (mI_scl[Y_] != 0e0)) {
     printf("\n  -I Transf.:\n");
@@ -1700,19 +1713,19 @@ void prt_f(double *bn, const double chi2, constr_type &lat_constr,
 
 void prt_prms(constr_type &constr)
 {
-  printf("\n  eps_x_scl         =  %10.3e\n"
-	 "  nu_ref            = [%8.5f,   %8.5f]\n"
-	 "  nu_cos_ref        = [%8.5f,   %8.5f]\n"
-	 "  nu_sin_ref        = [%8.5f,   %8.5f]\n"
-	 "  mI_nu_ref         = [%8.5f,   %8.5f]\n"
-	 "  mI_scl            = [%10.3e, %10.3e]\n"
-	 "  high_ord_achr_scl = [%10.3e, %10.3e]\n"
-	 "  phi_scl           =  %10.3e\n",
+  printf("\n  eps_x_scl  =  %10.3e\n"
+	 "  nu_ref     = [%8.5f,   %8.5f]\n"
+	 "  nu_cos_ref = [%8.5f,   %8.5f]\n"
+	 "  nu_sin_ref = [%8.5f,   %8.5f]\n"
+	 "  mI_nu_ref  = [%8.5f,   %8.5f]\n"
+	 "  mI_scl     = [%10.3e, %10.3e]\n"
+	 "  hoa_scl    = [%10.3e, %10.3e]\n"
+	 "  phi_scl    =  %10.3e\n",
 	 constr.eps_x_scl,
 	 constr.nu_ref[X_], constr.nu_ref[Y_],
 	 constr.nu_cos_ref[X_], constr.nu_cos_ref[Y_],
 	 constr.nu_sin_ref[X_], constr.nu_sin_ref[Y_],
 	 constr.mI0[X_], constr.mI0[Y_], constr.mI_scl[X_], constr.mI_scl[Y_],
-	 constr.high_ord_achr_scl[X_], constr.high_ord_achr_scl[Y_],
+	 constr.hoa_scl[X_], constr.hoa_scl[Y_],
 	 constr.phi_scl);
 }

@@ -1,3 +1,5 @@
+/* Note, optimisation of the super period is for two cells.                   */
+
 #define NO 1
 
 #include "tracy_lib.h"
@@ -7,9 +9,6 @@
 #include "drv_terms.cc"
 
 int no_tps = NO;
-
-/* Note, optimisation of the super period is for two cells.                   */
-
 
 const bool
   ps_rot          = false, // Note, needs to be zeroed; after use.
@@ -32,21 +31,22 @@ const int
   n_ic     = 4;
 
 const double
-  beta_ms[]             = {1.5, 1.5},
+  beta_ms[]       = {2.0, 2.0},
 
 // From the center of the straight: alpha, beta, eta, eta'.
-  ic[n_ic][2]           =
+  ic[n_ic][2]     =
   {{-0.0114433644, -0.0125080189}, {6.0835321179, 2.6975935689},
    {0.0613130109, 0.0000000000}, {0.0001292022, 0.0000000000}},
 
-  eps0_x                = 0.100,
+  eps0_x          = 0.100,
 
-  beta_inj[]            = {2.0, 2.0},
-  A_max[]               = {6e-3, 3e-3},
-  delta_max             = 2e-2,
-  A_delta_max[]         = {2e-3, 0.1e-3},
+// b3_cf_425Grad_DoneQx44Qy13_top_tracy,
+  beta_inj[]      = {2.8, 2.6},
+  A_max[]         = {6e-3, 3e-3},
+  delta_max       = 2e-2,
+  A_delta_max[]   = {2e-3, 0.1e-3},
 
-  dnu[]                 = {0.0, 0.1},
+  dnu[]           = {0.0, 0.1},
 
 // NU:
 //   1 5 unit cells
@@ -56,50 +56,49 @@ const double
 #define NU 1
 #if NU == 1
   // 5 unit cells.
-  nu_ref[]              = {1.0/4.0, 1.0/4.0},
-  high_ord_achr_nu[][2] = {{2.0/5.0, 1.0/10.0}, {2.0/5.0, 1.0/10.0},
-			   {2.0/5.0, 1.0/10.0}, {2.0/5.0, 1.0/10.0},
-			   {2.0/5.0, 1.0/10.0}},
+  nu_ref[]        = {1.0/4.0, 1.0/4.0},
+  hoa_dnu[]       = {0.18,    0.0},
+  hoa_nu[]        = {2.0/5.0, 1.0/10.0},
 #elif NU == 2
   // 4 unit cells.
-  nu_ref[]              = {3.0/8.0, 1.0/8.0},
-  high_ord_achr_nu[][2] = {{3.0/8.0, 1.0/8.0}, {0.0, 0.0}},
+  nu_ref[]        = {3.0/8.0, 1.0/8.0},
+  hoa_nu[]        = {3.0/8.0, 1.0/8.0},
 #elif NU == 3
   // Unit cell.
-  nu_ref[]              = {2.0/5.0, 1.0/10.0},
-  high_ord_achr_nu[][2] = {{0.0, 0.0}, {0.0, 0.0}},
+  nu_ref[]        = {2.0/5.0, 1.0/10.0},
+  hoa_nu[]        = {0.0, 0.0},
 #endif
 
-  scl_eps_x             = 5e7,
-  nu_ref_scl[]          = {1e-3*1e7, 1e-4*1e7},
-  alpha_c_scl           = 1e0*5e-7,
+  scl_eps_x       = 5e7,
+  nu_ref_scl[]    = {1e-3*1e7, 1e-4*1e7},
+  alpha_c_scl     = 1e0*5e-7,
 
-  mI_scl                = 1e-6,
+  mI_scl          = 1e-6,
 
-  scl_ksi_1             = (ksi_terms[0])?     1e0*1e0 : 0e0,
-  scl_h_3               = (drv_terms[0])?     1e-10*1e14 : 0e0,
-  scl_h_3_delta         = (drv_terms[1])?     1e14 : 0e0,
-  scl_h_4               = (drv_terms[2])?     1e18 : 0e0,
-  scl_ksi_2             = (ksi_terms[1])?     1e-2*1e7 : 0e0,
-  scl_ksi_3             = (ksi_terms[2])?     1e0*1e7 : 0e0,
-  scl_chi_2             = (tune_fp_terms[0])? 1e1*1e4 : 0e0,
-  scl_chi_delta_2       = (tune_fp_terms[1])? 1e5 : 0e0,
+  scl_ksi_1       = (ksi_terms[0])?     1e0*1e0 : 0e0,
+  scl_h_3         = (drv_terms[0])?     1e-10*1e14 : 0e0,
+  scl_h_3_delta   = (drv_terms[1])?     1e14 : 0e0,
+  scl_h_4         = (drv_terms[2])?     1e18 : 0e0,
+  scl_ksi_2       = (ksi_terms[1])?     1e-2*1e7 : 0e0,
+  scl_ksi_3       = (ksi_terms[2])?     1e0*1e7 : 0e0,
+  scl_chi_2       = (tune_fp_terms[0])? 1e1*1e4 : 0e0,
+  scl_chi_delta_2 = (tune_fp_terms[1])? 1e5 : 0e0,
 
-  scl_extra             = 0e0,
+  scl_extra       = 0e0,
 
-  twoJ[]                =
+  twoJ[]          =
     {sqr(A_max[X_])/beta_inj[X_], sqr(A_max[Y_])/beta_inj[Y_]},
-  twoJ_delta[]          =
+  twoJ_delta[]    =
     {sqr(A_delta_max[X_])/beta_inj[X_], sqr(A_delta_max[Y_])/beta_inj[Y_]},
 
-  mI_nu_ref[]           = {1.5, 0.5},
+  mI_nu_ref[]     = {1.5, 0.5},
 
-  phi_max               = 6.0,
-  b_2_max               = 15.0,
-  b_2_dip_max           = 15.0,
-  b_3_chrom_max         = 2e3,
-  b_3_max               = 2e3,
-  b_4_max               = 1e4;
+  phi_max         = 6.0,
+  b_2_max         = 15.0,
+  b_2_dip_max     = 15.0,
+  b_3_chrom_max   = 2e3,
+  b_3_max         = 2e3,
+  b_4_max         = 1e4;
 
 
 // Needs scl_extra.
@@ -125,9 +124,8 @@ double f_match(double *bn)
 
   eps_x = get_lin_opt(lat_constr);
 
-  if ((lat_constr.high_ord_achr_scl[X_] != 0e0)
-      || (lat_constr.high_ord_achr_scl[Y_] != 0e0))
-    get_high_ord_achr(lat_constr);
+  if ((lat_constr.hoa_scl[X_] != 0e0) || (lat_constr.hoa_scl[Y_] != 0e0))
+    get_hoa(lat_constr);
 
   chi2 =
     lat_constr.get_chi2(twoJ, delta_max, twoJ_delta, lat_prms, bn, false,
@@ -373,26 +371,26 @@ void set_b3_constr_uc(constr_type &constr)
 {
   int k, n;
 
-  lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("s1"), 1));
-  lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("s2"), 1));
+  lat_constr.hoa_Fnum.push_back(Elem_GetPos(ElemIndex("s1"), 1));
+  lat_constr.hoa_Fnum.push_back(Elem_GetPos(ElemIndex("s2"), 1));
 
-  n = lat_constr.high_ord_achr_Fnum.size()/2;
-  lat_constr.high_ord_achr_dnu.resize(n);
-  lat_constr.high_ord_achr_nu.resize(n);
+  n = lat_constr.hoa_Fnum.size()/2;
+  lat_constr.hoa_dnu.resize(n);
+  lat_constr.hoa_nu.resize(n);
   for (k = 0; k < n; k++) {
-    lat_constr.high_ord_achr_dnu[k].resize(2, 0e0);
-    lat_constr.high_ord_achr_nu[k].resize(2, 0e0);
+    lat_constr.hoa_dnu[k].resize(2, 0e0);
+    lat_constr.hoa_nu[k].resize(2, 0e0);
   }
 
   for (k = 0; k < 2; k++)
-    lat_constr.high_ord_achr_nu[0][k] = high_ord_achr_nu[0][k]/2e0;
+    lat_constr.hoa_nu[0][k] = hoa_nu[k]/2e0;
 }
 
 
 void set_weights_uc(constr_type &constr)
 {
-  lat_constr.high_ord_achr_scl[X_] = 0e0;
-  lat_constr.high_ord_achr_scl[Y_] = 0e0;
+  lat_constr.hoa_scl[X_] = 0e0;
+  lat_constr.hoa_scl[Y_] = 0e0;
 }
 
 
@@ -482,19 +480,19 @@ void set_b3_constr_res(constr_type &constr)
 {
   int k, n;
 
-  lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("b1c"), 1)-1);
-  lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("b1c"), 2));
+  lat_constr.hoa_Fnum.push_back(Elem_GetPos(ElemIndex("b1c"), 1)-1);
+  lat_constr.hoa_Fnum.push_back(Elem_GetPos(ElemIndex("b1c"), 2));
 
-  n = lat_constr.high_ord_achr_Fnum.size()/2;
-  lat_constr.high_ord_achr_dnu.resize(n);
-  lat_constr.high_ord_achr_nu.resize(n);
+  n = lat_constr.hoa_Fnum.size()/2;
+  lat_constr.hoa_dnu.resize(n);
+  lat_constr.hoa_nu.resize(n);
   for (k = 0; k < n; k++) {
-    lat_constr.high_ord_achr_dnu[k].resize(2, 0e0);
-    lat_constr.high_ord_achr_nu[k].resize(2, 0e0);
+    lat_constr.hoa_dnu[k].resize(2, 0e0);
+    lat_constr.hoa_nu[k].resize(2, 0e0);
   }
 
   for (k = 0; k < 2; k++)
-    lat_constr.high_ord_achr_nu[0][k] = high_ord_achr_nu[0][k];
+    lat_constr.hoa_nu[0][k] = hoa_nu[k];
 }
 
 
@@ -639,23 +637,23 @@ void set_b3_constr_unit_cell(constr_type &constr)
   int k, n;
 
   if (!long_grad_dip) {
-    lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("b1c"), 1));
-    lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("b1c"), 3));
+    lat_constr.hoa_Fnum.push_back(Elem_GetPos(ElemIndex("b1c"), 1));
+    lat_constr.hoa_Fnum.push_back(Elem_GetPos(ElemIndex("b1c"), 3));
   } else {
-    lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("b1c1"), 1));
-    lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("b1c1"), 3));
+    lat_constr.hoa_Fnum.push_back(Elem_GetPos(ElemIndex("b1c1"), 1));
+    lat_constr.hoa_Fnum.push_back(Elem_GetPos(ElemIndex("b1c1"), 3));
   }
 
-  n = lat_constr.high_ord_achr_Fnum.size()/2;
-  lat_constr.high_ord_achr_dnu.resize(n);
-  lat_constr.high_ord_achr_nu.resize(n);
+  n = lat_constr.hoa_Fnum.size()/2;
+  lat_constr.hoa_dnu.resize(n);
+  lat_constr.hoa_nu.resize(n);
   for (k = 0; k < n; k++) {
-    lat_constr.high_ord_achr_dnu[k].resize(2, 0e0);
-    lat_constr.high_ord_achr_nu[k].resize(2, 0e0);
+    lat_constr.hoa_dnu[k].resize(2, 0e0);
+    lat_constr.hoa_nu[k].resize(2, 0e0);
   }
 
   for (k = 0; k < 2; k++)
-    lat_constr.high_ord_achr_nu[0][k] = high_ord_achr_nu[0][k];
+    lat_constr.hoa_nu[0][k] = hoa_nu[k];
 
   // for (k = 0; k < 2; k++)
   //   lat_constr.mI0[k] = mI_nu_ref[k];
@@ -758,19 +756,19 @@ void set_b3_constr_disp(constr_type &constr)
 {
   int k, n;
 
-  lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("s1"), 1));
-  lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("s2"), 1));
+  lat_constr.hoa_Fnum.push_back(Elem_GetPos(ElemIndex("s1"), 1));
+  lat_constr.hoa_Fnum.push_back(Elem_GetPos(ElemIndex("s2"), 1));
 
-  n = lat_constr.high_ord_achr_Fnum.size()/2;
-  lat_constr.high_ord_achr_dnu.resize(n);
-  lat_constr.high_ord_achr_nu.resize(n);
+  n = lat_constr.hoa_Fnum.size()/2;
+  lat_constr.hoa_dnu.resize(n);
+  lat_constr.hoa_nu.resize(n);
   for (k = 0; k < n; k++) {
-    lat_constr.high_ord_achr_dnu[k].resize(2, 0e0);
-    lat_constr.high_ord_achr_nu[k].resize(2, 0e0);
+    lat_constr.hoa_dnu[k].resize(2, 0e0);
+    lat_constr.hoa_nu[k].resize(2, 0e0);
   }
 
   for (k = 0; k < 2; k++)
-    lat_constr.high_ord_achr_nu[0][k] = high_ord_achr_nu[0][k]/2e0;
+    lat_constr.hoa_nu[0][k] = hoa_nu[k]/2e0;
 }
 
 
@@ -870,19 +868,19 @@ void set_b3_constr_straight(constr_type &constr)
 {
   int k, n;
 
-  lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("s0"), 1));
-  lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("s1"), 1));
+  lat_constr.hoa_Fnum.push_back(Elem_GetPos(ElemIndex("s0"), 1));
+  lat_constr.hoa_Fnum.push_back(Elem_GetPos(ElemIndex("s1"), 1));
 
-  n = lat_constr.high_ord_achr_Fnum.size()/2;
-  lat_constr.high_ord_achr_dnu.resize(n);
-  lat_constr.high_ord_achr_nu.resize(n);
+  n = lat_constr.hoa_Fnum.size()/2;
+  lat_constr.hoa_dnu.resize(n);
+  lat_constr.hoa_nu.resize(n);
   for (k = 0; k < n; k++) {
-    lat_constr.high_ord_achr_dnu[k].resize(2, 0e0);
-    lat_constr.high_ord_achr_nu[k].resize(2, 0e0);
+    lat_constr.hoa_dnu[k].resize(2, 0e0);
+    lat_constr.hoa_nu[k].resize(2, 0e0);
   }
 
   for (k = 0; k < 2; k++)
-    lat_constr.high_ord_achr_nu[0][k] = high_ord_achr_nu[0][k]/2e0;
+    lat_constr.hoa_nu[0][k] = hoa_nu[k]/2e0;
 }
 
 
@@ -1009,7 +1007,7 @@ void set_constr_sp(constr_type &constr)
 
   // Beta functions at center of straight
   constr.add_constr(Elem_GetPos(ElemIndex("ul4"), 2),
-  		    1e5, 1e5, 1e2,         1e2,         1e7, 1e7,
+  		    1e5, 1e5, 1e1,         1e1,         1e7, 1e7,
   		    0.0, 0.0, beta_ms[X_], beta_ms[Y_], 0.0, 0.0);
   // Symmetry.
   constr.add_constr(Elem_GetPos(ElemIndex("s2_h"), 1),
@@ -1088,74 +1086,67 @@ void set_b3_Fam_sp(param_type &prms)
 }
 
 
-void set_b3_constr_sp(constr_type &constr)
+void set_hoa_sp(constr_type &constr)
 {
-  int j, k, n;
+  int k;
 
-  if (!long_grad_dip) {
-    lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("mb1"), 1)-1);
-    lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("b1_h"),  1));
+  const std::vector<std::vector<double>>
+    hoa_nu =
+      {
+       {nu[X_]+dnu[X_], nu[Y_]+dnu[Y_]},
+       {nu[X_], nu[Y_]}, {nu[X_], nu[Y_]}, {nu[X_], nu[Y_]},
+       {nu[X_]+dnu[X_], nu[Y_]+dnu[Y_]}
+      };
 
-    lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("b1_h"),  1));
-    lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("b1_h"),  3));
+  for (k = 0; k < (int)hoa_nu.size(); k++)
+    constr.hoa_nu.push_back(hoa_nu[k]);
 
-    lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("b1_h"),  3));
-    lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("b1_h"),  5));
+  constr.hoa_scl[X_] = 1e0;
+  constr.hoa_scl[Y_] = 1e0;
 
-    lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("b1_h"),  5));
-    lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("b1_h"),  7));
-
-    lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("b1_h"),  7));
-    lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("mb1"), 2));
-  } else {
-    lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("b1c1"), 1));
-    lat_constr.high_ord_achr_Fnum.push_back(Elem_GetPos(ElemIndex("b1c1"), 3));
-  }
-
-  n = lat_constr.high_ord_achr_Fnum.size()/2;
-  lat_constr.high_ord_achr_dnu.resize(n);
-  lat_constr.high_ord_achr_nu.resize(n);
-  for (k = 0; k < n; k++) {
-    lat_constr.high_ord_achr_dnu[k].resize(2, 0e0);
-    lat_constr.high_ord_achr_nu[k].resize(2, 0e0);
-  }
-
-  for (j = 0; j < (int)lat_constr.high_ord_achr_nu.size(); j++)
-    for (k = 0; k < 2; k++)
-      lat_constr.high_ord_achr_nu[j][k] = high_ord_achr_nu[j][k];
+  constr.loc.push_back(Elem_GetPos(ElemIndex("ul4"), 1)-1);
+  constr.loc.push_back(Elem_GetPos(ElemIndex("mb1"), 1)-1);
+  constr.loc.push_back(Elem_GetPos(ElemIndex("s2_h"), 1));
+  constr.loc.push_back(Elem_GetPos(ElemIndex("b1_h"), 1));
+  constr.loc.push_back(Elem_GetPos(ElemIndex("s2_h"), 3));
+  constr.loc.push_back(Elem_GetPos(ElemIndex("b1_h"), 3));
+  constr.loc.push_back(Elem_GetPos(ElemIndex("s2_h"), 5));
+  constr.loc.push_back(Elem_GetPos(ElemIndex("b1_h"), 5));
+  constr.loc.push_back(Elem_GetPos(ElemIndex("s2_h"), 7));
+  constr.loc.push_back(Elem_GetPos(ElemIndex("b1_h"), 7));
+  constr.loc.push_back(Elem_GetPos(ElemIndex("s2_h"), 9));
+  constr.loc.push_back(Elem_GetPos(ElemIndex("mb1"), 2));
+  constr.loc.push_back(Elem_GetPos(ElemIndex("ul4"), 2));
 }
 
 
 void set_weights_sp(constr_type &constr)
 {
-  lat_constr.eps_x_scl             = 1e0*1e7;
+  lat_constr.eps_x_scl      = 1e0*1e7;
 
-  lat_constr.alpha_c_scl           = 1e1*1e-6;
+  lat_constr.alpha_c_scl    = 1e0*1e-6;
 
-  lat_constr.nu_ref_scl[X_]        = nu_ref_scl[X_];
-  lat_constr.nu_ref_scl[Y_]        = nu_ref_scl[Y_];
-  lat_constr.nu_ref[X_]            = 2*nu_ref[X_];
-  lat_constr.nu_ref[Y_]            = 2*nu_ref[Y_];
-
-  lat_constr.high_ord_achr_scl[X_] = 1e0*1e6;
-  lat_constr.high_ord_achr_scl[Y_] = 1e0*1e6;
+  lat_constr.nu_ref_scl[X_] = nu_ref_scl[X_];
+  lat_constr.nu_ref_scl[Y_] = nu_ref_scl[Y_];
+  lat_constr.nu_ref[X_]     = 2*nu_ref[X_];
+  lat_constr.nu_ref[Y_]     = 2*nu_ref[Y_];
 
   // Super Period.
-  lat_constr.phi_scl               = ((dphi)? 1e0 : 0e0);
+  lat_constr.phi_scl        = ((dphi)? 1e0 : 0e0);
 #define N_SP 16
 #if N_SP == 20
   // 20 super periods 5-BA.
-  lat_constr.phi0                  = 2*18.0;
+  lat_constr.phi0           = 2*18.0;
 #elif N_SP == 18
   // 18 super periods 6-BA.
-  lat_constr.phi0                  = 2*20.0;
+  lat_constr.phi0           = 2*20.0;
 #elif N_SP == 16
   // 16 super periods 6-BA.
-  lat_constr.phi0                  = 2*22.5;
+  lat_constr.phi0           = 2*22.5;
 #endif
 #undef N_SP
-  lat_constr.L_scl                 = 0e-10;
-  lat_constr.L0                    = 10.0;
+  lat_constr.L_scl          = 0e-10;
+  lat_constr.L0             = 10.0;
 
   lat_constr.drv_terms.get_h_scl(scl_ksi_1, scl_h_3, scl_h_3_delta, scl_h_4,
 				 scl_ksi_2, scl_ksi_3, scl_chi_2,
