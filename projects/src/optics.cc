@@ -30,7 +30,7 @@ const int
 const double
 #if SET_NU
   nu_int[] = {44, 13},
-  nu[]     = {(nu_int[X_]+0.38)/n_cell, (nu_int[Y_]+0.18)/n_cell},
+  nu[]     = {(nu_int[X_]-0.38)/n_cell, (nu_int[Y_]-0.18)/n_cell},
 #else
   nu[]     = {0.1, 0.0},
 #endif
