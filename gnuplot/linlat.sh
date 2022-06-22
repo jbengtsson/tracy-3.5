@@ -32,7 +32,7 @@ set style line 1 lt 1 lw 1 lc rgb "blue";
 set style line 2 lt 1 lw 1 lc rgb "green";
 set style line 3 lt 1 lw 1 lc rgb "red";
 
-if (ps) set output "linlat_1.".(ext);
+if (ps) set output file_name."_1.".(ext);
 set title "Beta Functions";
 set xlabel "s [m]"; set ylabel "{/Symbol b} [m]";
 set y2range [-2.0:20];
@@ -42,7 +42,7 @@ plot file_name.".out" using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
      file_name.".out" using 3:11 title "{/Symbol b}_y" with lines ls 3;
 if (!ps) pause mouse "click on graph to cont.\n";
 
-if (ps) set output "linlat_2.".(ext);
+if (ps) set output file_name."_2.".(ext);
 set title "Dispersion";
 set xlabel "s [m]"; set ylabel "{/Symbol h} [m]";
 set y2range [-2.0:20];
@@ -52,16 +52,16 @@ plot file_name.".out" using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
      file_name.".out" using 3:13 title "{/Symbol h}_y" with lines ls 3;
 if (!ps) pause mouse "click on graph to cont.\n";
 
-if (ps) set output "linlat_3.".(ext);
+if (ps) set output file_name."_3.".(ext);
 set title "{/Symbol b}_{x,y}{/Symbol \264h}_x";
 set xlabel "s [m]"; set ylabel "";
 set y2range [-2.0:20];
 plot file_name.".out" using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
      lc rgb "black", \
-     file_name.".out" using 3:(\$6*\$8) title "{/Symbol b}_x{/Symbol \264h}_x" \
-     with lines ls 1, \
-     file_name.".out" using 3:(\$11*\$8) title "{/Symbol b}_y{/Symbol \264h}_x" \
-     with lines ls 3;
+     file_name.".out" using 3:(\$6*\$8) \
+     title "{/Symbol b}_x{/Symbol \264h}_x" with lines ls 1, \
+     file_name.".out" using 3:(\$11*\$8) \
+     title "{/Symbol b}_y{/Symbol \264h}_x" with lines ls 3;
 if (!ps) pause mouse "click on graph to cont.\n";
 
 file_name_palette = "`echo \$TRACY_LIB`/gnuplot/jet.dat";
@@ -71,30 +71,32 @@ set palette model RGB file file_name_palette \
 unset colorbox;
 #set cbrange [-2.0:1.5];
 
-if (ps) set output "linlat_4.".(ext);
-set title "{/ZapfChancery-MediumItalic H}_x({/Symbol h}_x\\\~, {/Symbol h}\'_x\\\~)";
+if (ps) set output file_name."_4.".(ext);
+set title "{/ZapfChancery-MediumItalic H}_x({/Symbol h}_x\\\~, \
+    {/Symbol h}\'_x\\\~)";
 set xlabel "{/Symbol h}_x\\\~ [10^{-3}]";
 set ylabel "{/Symbol h}\'_x\\\~ [10^{-3}]";
 set size square;
 #set xrange [0:*]
-plot file_name.".out" using (1e3*\$15):(1e3*\$16):(abs(\$4)) notitle "{/Symbol n}_x" \
-     with lines lt palette z;
+plot file_name.".out" using (1e3*\$15):(1e3*\$16):(abs(\$4)) notitle \
+     "{/Symbol n}_x" with lines lt palette z;
 if (!ps) pause mouse "click on graph to cont.\n";
 
-if (ps) set output "linlat_5.".(ext);
+if (ps) set output file_name."_5.".(ext);
 set title "sqrt({/ZapfChancery-MediumItalic H}_x(s)*{/Symbol b}_x)";
 set xlabel "s [m]"; set ylabel "";
 set y2range [-2.0:20];
 plot file_name.".out" using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
      lc rgb "black", \
-     file_name.".out" using 3:(sqrt((\$15**2+\$16**2)*\$6)) notitle with lines ls 1;
+     file_name.".out" using 3:(sqrt((\$15**2+\$16**2)*\$6)) notitle \
+     with lines ls 1;
 if (!ps) pause mouse "click on graph to cont.\n";
 
 set size nosquare;
 
 exit;
 
-if (ps) set output "linlat_6.".(ext);
+if (ps) set output file_name."_6.".(ext);
 set title "{/Symbol h}_x [m]";
 set xlabel "s [m]"; set ylabel "";
 set y2range [-2.0:20];
@@ -103,7 +105,7 @@ plot file_name.".out" using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
      file_name.".out" using 3:8 notitle with lines ls 1;
 if (!ps) pause mouse "click on graph to cont.\n";
 
-if (ps) set output "linlat_7.".(ext);
+if (ps) set output file_name."_7.".(ext);
 set title "{/Symbol h}'_x";
 set xlabel "s [m]"; set ylabel "";
 set y2range [-2.0:20];
@@ -112,7 +114,7 @@ plot file_name.".out" using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
      file_name.".out" using 3:9 notitle with lines ls 1;
 if (!ps) pause mouse "click on graph to cont.\n";
 
-if (ps) set output "linlat_8.".(ext);
+if (ps) set output file_name."_8.".(ext);
 set title "eta{_x\\\~";
 set xlabel "s [m]"; set ylabel "";
 set y2range [-2.0:20];
@@ -122,7 +124,7 @@ plot file_name.".out" using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
      file_name.".out" using 3:16 title "eta'_x\\\~" with lines ls 2;
 if (!ps) pause mouse "click on graph to cont.\n";
 
-if (ps) set output "linlat_9.".(ext);
+if (ps) set output file_name."_9.".(ext);
 set title "{/ZapfChancery-MediumItalic H}_x(s)";
 set xlabel "s [m]"; set ylabel "";
 set y2range [-2.0:20];
@@ -131,7 +133,7 @@ plot file_name.".out" using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
      file_name.".out" using 3:(\$15**2+\$16**2) notitle with lines ls 1;
 if (!ps) pause mouse "click on graph to cont.\n";
 
-if (ps) set output "linlat_10.".(ext);
+if (ps) set output file_name."_10.".(ext);
 set title "arg\\\{{/ZapfChancery-MediumItalic H}_x(s)\\\}";
 set xlabel "s [m]"; set ylabel "";
 set y2range [-2.0:20];
@@ -145,7 +147,7 @@ if (!ps) pause mouse "click on graph to cont.\n";
 
 exit;
 
-if (ps) set output "linlat_11.".(ext);
+if (ps) set output file_name."_11.".(ext);
 set title "Normalized Phase Advance";
 set xlabel "s [m]"; set ylabel "{/Symbol n}";
 set y2range [-2.0:20];
@@ -155,7 +157,7 @@ plot file_name.".out" using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
      file_name.".out" using 3:12 title "{/Symbol n}_y" with lines ls 3;
 if (!ps) pause mouse "click on graph to cont.\n";
 
-if (ps) set output "linlat_12.".(ext);
+if (ps) set output file_name."_12.".(ext);
 set title "{/Symbol g}";
 set xlabel "s [m]"; set ylabel "{/Symbol g}";
 set y2range [-2.0:20];
@@ -169,7 +171,7 @@ if (!ps) pause mouse "click on graph to cont.\n";
 
 exit;
 
-if (ps) set output "linlat_13.".(ext);
+if (ps) set output file_name."_13.".(ext);
  set title "{/Symbol a}"; \
 set xlabel "s [m]"; set ylabel "{/Symbol a}"; \
 set y2range [-2.0:20]; \
