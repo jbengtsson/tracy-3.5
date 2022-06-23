@@ -9,10 +9,10 @@ int no_tps   = NO,
 const bool   set_dnu = false;
 const int    n_cell  = 2;
 const double
-#if 0
-  beta_inj[] = {2.7, 2.5},
+#if 1
+  beta_inj[] = {3.1, 3.0},
 #else
-  beta_inj[] = {2.8, 2.6},
+  beta_inj[] = {3.1, 2.8},
 #endif
   A_max[]    = {3e-3, 1.5e-3},
   delta_max  = 2e-2,
@@ -208,7 +208,8 @@ void get_drv_terms(const ss_vect<tps> &Id_scl)
 
   Id.identity();
 
-  danot_(1);
+  // Needed for tune footprint.
+  danot_(no_tps-1);
   map.identity();
   Cell_Pass(0, globval.Cell_nLoc, map, lastpos);
   MNF = MapNorm(map, 1);

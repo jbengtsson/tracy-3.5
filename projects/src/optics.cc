@@ -164,13 +164,12 @@ void track(const double Ax, const double Ay)
 
 
 void fit_ksi1(const std::vector<int> &Fnum_b3,
-	      const double ksi_x, const double ksi_y, const double db3L,
-	      double svd[])
+	      const double ksi_x, const double ksi_y, const double db3L)
 {
-  int    n_b3, j, k, n_svd;
+  int    n_b3, j, k;
   double **A, **U, **V, *w, *b, *x, b3L, a3L;
 
-  const bool   prt = false;
+  const bool   prt = !false;
   const int    m   = 2;
   const double
     ksi0[]  = {ksi_x, ksi_y},
@@ -183,7 +182,7 @@ void fit_ksi1(const std::vector<int> &Fnum_b3,
   w = dvector(1, n_b3); b = dvector(1, m); x = dvector(1, n_b3);
 
   // Zero sextupoles to track linear chromaticity.
-  no_sxt();
+  if (false) no_sxt();
 
   for (k = 1; k <= n_b3; k++) {
     set_dbnL_design_fam(Fnum_b3[k-1], Sext, db3L, 0e0);
@@ -216,19 +215,11 @@ void fit_ksi1(const std::vector<int> &Fnum_b3,
   dmcopy(A, m, n_b3, U); dsvdcmp(U, m, n_b3, w, V);
 
   printf("\nfit_ksi1:\n  singular values:\n");
-  n_svd = 0;
   for (j = 1; j <= n_b3; j++) {
     printf("  %9.3e", w[j]);
     if (w[j] < svd_cut) {
       w[j] = 0e0;
       printf(" (zeroed)");
-    } else {
-      if (n_svd > 2) {
-	printf("fit_ksi1: more than 2 non-zero singular values");
-	exit(1);
-      }
-      svd[n_svd] = w[j];
-      n_svd++;
     }
     printf("\n");
   }
@@ -255,38 +246,27 @@ void fit_ksi1(const std::vector<int> &Fnum_b3,
 
 void fit_ksi1(const int lat_case, const double ksi_x, const double ksi_y)
 {
-  double           svd[2];
   std::vector<int> Fnum;
-
-  // ESRF-U        1,
-  // M-6HBAi-2-1-1 2,
-  // M-6HBA-0-.-.  3.
 
   switch (lat_case) {
   case 1:
-    Fnum.push_back(ElemIndex("sd1a"));
-    Fnum.push_back(ElemIndex("sd1b"));
-    Fnum.push_back(ElemIndex("sd1d"));
-    Fnum.push_back(ElemIndex("sd1e"));
-    Fnum.push_back(ElemIndex("sf2a"));
-    Fnum.push_back(ElemIndex("sf2e"));
-    Fnum.push_back(ElemIndex("sh1a"));
-    Fnum.push_back(ElemIndex("sh2b"));
-    Fnum.push_back(ElemIndex("sh3e"));
+    Fnum.push_back(ElemIndex("sd1"));
+    Fnum.push_back(ElemIndex("sd2"));
+    Fnum.push_back(ElemIndex("sd3a"));
+    Fnum.push_back(ElemIndex("sd3b"));
+    Fnum.push_back(ElemIndex("sf1"));
+    Fnum.push_back(ElemIndex("sf2"));
+    Fnum.push_back(ElemIndex("sf3"));
+    Fnum.push_back(ElemIndex("sf3a"));
     break;
   case 2:
-    Fnum.push_back(ElemIndex("sf1"));
     Fnum.push_back(ElemIndex("sd1"));
     Fnum.push_back(ElemIndex("sd2"));
-    Fnum.push_back(ElemIndex("sh1"));
-    Fnum.push_back(ElemIndex("sh2"));
-    break;
-  case 3:
+    Fnum.push_back(ElemIndex("sd3a"));
+    Fnum.push_back(ElemIndex("sd3b"));
     Fnum.push_back(ElemIndex("sf1"));
-    Fnum.push_back(ElemIndex("sd1"));
-    Fnum.push_back(ElemIndex("sd2"));
-    Fnum.push_back(ElemIndex("sh1"));
-    Fnum.push_back(ElemIndex("sh2"));
+    Fnum.push_back(ElemIndex("sf2"));
+    Fnum.push_back(ElemIndex("sf3"));
     break;
   default:
     printf("\nfit_ksi1: unknown lattice type\n");
@@ -294,7 +274,7 @@ void fit_ksi1(const int lat_case, const double ksi_x, const double ksi_y)
     break;
   }
 
-  fit_ksi1(Fnum, 0e0, 0e0, 1e1, svd);
+  fit_ksi1(Fnum, 0e0, 0e0, 1.0);
 }
 
 
@@ -1675,6 +1655,11 @@ int main(int argc, char *argv[])
 
 
   if (false) no_sxt();
+
+  if (false) {
+    fit_ksi1(1, 0e0, 0e0);
+    exit(0);
+  }
 
   if (false) {
     getcod(0e0, lastpos);

@@ -46,8 +46,8 @@ opt_des_bessy_iii_SOURCES = opt_des_bessy_iii.cc
 for_pierre_SOURCES        = for_pierre.cc
 tst_it_SOURCES            = tst_it.cc
 
-# GSL_INCLUDE = /usr/local/Cellar/gsl/2.7.1
-GSL_INCLUDE = /net/home/lli/OPAL/OPAL-2.0.1
+GSL_INCLUDE = /usr/local/Cellar/gsl/2.7.1
+# GSL_INCLUDE = /net/home/lli/OPAL/OPAL-2.0.1
 
 LIBS	    = -L$(TRACY_LIB)/tracy/lib \
               -L$(TRACY_LIB)/tracy/lib64 \
