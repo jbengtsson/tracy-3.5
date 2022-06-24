@@ -219,8 +219,6 @@ void get_drv_terms(const ss_vect<tps> &Id_scl)
   prt_lin_map(3, Inv(A_k)*map*A_k);
 
   map_k.identity();
-  map_k[x_] += MNF.A0[x_][delta_]*Id[delta_];
-  map_k[px_] += MNF.A0[px_][delta_]*Id[delta_];
   for (k = 0; k < n_cell*(globval.Cell_nLoc+1); k++) {
     loc = k % (globval.Cell_nLoc+1);
     printf("%5d (%3ld)\n", k, n_cell*globval.Cell_nLoc);

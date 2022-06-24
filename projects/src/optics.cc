@@ -17,7 +17,7 @@ int no_tps = NO;
 
 
 const bool
-  set_dnu = !false,
+  set_dnu = false,
   mI_rot  = false,
   prt_s1  = false,
   prt_dt  = false;
@@ -167,7 +167,7 @@ void fit_ksi1(const std::vector<int> &Fnum_b3,
 	      const double ksi_x, const double ksi_y, const double db3L)
 {
   int    n_b3, j, k;
-  double **A, **U, **V, *w, *b, *x, b3L, a3L;
+  double **A, **U, **V, *w, *b, *x, b3, a3;
 
   const bool   prt = !false;
   const int    m   = 2;
@@ -216,7 +216,7 @@ void fit_ksi1(const std::vector<int> &Fnum_b3,
 
   printf("\nfit_ksi1:\n  singular values:\n");
   for (j = 1; j <= n_b3; j++) {
-    printf("  %9.3e", w[j]);
+    printf("    %9.3e", w[j]);
     if (w[j] < svd_cut) {
       w[j] = 0e0;
       printf(" (zeroed)");
@@ -230,10 +230,10 @@ void fit_ksi1(const std::vector<int> &Fnum_b3,
     set_dbnL_design_fam(Fnum_b3[k-1], Sext, x[k], 0e0);
 
   if (prt) {
-    printf("  b3:\n  ");
+    printf("\n  b3:\n");
     for (k = 0; k < n_b3; k++) {
-      get_bn_design_elem(Fnum_b3[k], 1, Sext, b3L, a3L);
-      printf(" %9.5f", b3L);
+      get_bn_design_elem(Fnum_b3[k], 1, Sext, b3, a3);
+      printf("    %-.8s %10.5f\n", ElemFam[Fnum_b3[k]-1].ElemF.PName, b3);
     }
     printf("\n");
   }
@@ -250,6 +250,10 @@ void fit_ksi1(const int lat_case, const double ksi_x, const double ksi_y)
 
   switch (lat_case) {
   case 1:
+    Fnum.push_back(ElemIndex("sf"));
+    Fnum.push_back(ElemIndex("sd"));
+    break;
+  case 2:
     Fnum.push_back(ElemIndex("sd1"));
     Fnum.push_back(ElemIndex("sd2"));
     Fnum.push_back(ElemIndex("sd3a"));
@@ -259,7 +263,7 @@ void fit_ksi1(const int lat_case, const double ksi_x, const double ksi_y)
     Fnum.push_back(ElemIndex("sf3"));
     Fnum.push_back(ElemIndex("sf3a"));
     break;
-  case 2:
+  case 3:
     Fnum.push_back(ElemIndex("sd1"));
     Fnum.push_back(ElemIndex("sd2"));
     Fnum.push_back(ElemIndex("sd3a"));
@@ -657,9 +661,8 @@ void chk_mpole(const int lat_case)
     break;
   case 2:
     // C-F.
-    Fnum.push_back(ElemIndex("om_s1a"));
-    Fnum.push_back(ElemIndex("om_s1b"));
-    Fnum.push_back(ElemIndex("om_s2"));
+    Fnum.push_back(ElemIndex("sf_m"));
+    Fnum.push_back(ElemIndex("sd_m"));
     break;
   default:
     printf("\nchk_mpole: unknown lattice type\n");
@@ -1640,7 +1643,7 @@ int main(int argc, char *argv[])
 
   trace            = false;
   reverse_elem     = true;
-  globval.mat_meth = false;
+  globval.mat_meth = !false;
 
   if (true)
     Read_Lattice(argv[1]);
@@ -1774,11 +1777,11 @@ int main(int argc, char *argv[])
     dnu[X_] = 0.0; dnu[Y_] = 0.0;
     set_map(ElemIndex("ps_rot"), dnu);
     Ring_GetTwiss(true, 0e0); printglob();
-    for (k = 0; k < 2; k++)
-      if (!FULL_LAT)
-	dnu[k] = (SET_NU)? nu[k] - globval.TotalTune[k] : nu[k];
-      else
-	dnu[k] = (SET_NU)? nu[k] - globval.TotalTune[k]/n_cell : nu[k];
+    // for (k = 0; k < 2; k++)
+    //   if (!FULL_LAT)
+    // 	dnu[k] = (SET_NU)? nu[k] - globval.TotalTune[k] : nu[k];
+    //   else
+    // 	dnu[k] = (SET_NU)? nu[k] - globval.TotalTune[k]/n_cell : nu[k];
     printf("\ntune set to:\n  dnu     = [%8.5f, %8.5f]\n", dnu[X_], dnu[Y_]);
     printf("  nu      = [%8.5f, %8.5f]\n", nu[X_], nu[Y_]);
     set_map(ElemIndex("ps_rot"), dnu);
