@@ -82,11 +82,11 @@ ss_vect<tps> get_mns(const ss_vect<tps> &x, const int no1, const int no2)
 }
 
 
-void Dragt_Finn_Fact(const ss_vect<tps> &map, ss_vect<tps> &R, tps &h)
+void Dragt_Finn_Fact(const ss_vect<tps> &map, ss_vect<tps> &M, tps &h)
 {
   /* Dragt-Finn factorization:
 
-       M = exp(:h_no:)*...*exp(:h_4:)*exp(:h_3:)*R                            */
+       M = exp(:h_no:)*...*exp(:h_4:)*exp(:h_3:)*M                            */
 
   int          k;
   tps          hn;
@@ -95,11 +95,10 @@ void Dragt_Finn_Fact(const ss_vect<tps> &map, ss_vect<tps> &R, tps &h)
   Id.identity();
 
   danot_(1);
-  map1 = map;
-  R = get_map_Fl(map1);
+  M = map;
 
   danot_(no_tps);
-  map1 = map*Inv(R);
+  map1 = map*Inv(M);
   h = 0e0;
   for (k = 3; k <= no_tps; k++) {
     Fn = get_mns(map1, k-1, k-1);
