@@ -233,7 +233,7 @@ void fit_ksi1(const std::vector<int> &Fnum_b3,
     printf("\n  b3:\n");
     for (k = 0; k < n_b3; k++) {
       get_bn_design_elem(Fnum_b3[k], 1, Sext, b3, a3);
-      printf("    %-.8s %10.5f\n", ElemFam[Fnum_b3[k]-1].ElemF.PName, b3);
+      printf("    %-8s %10.5f\n", ElemFam[Fnum_b3[k]-1].ElemF.PName, b3);
     }
     printf("\n");
   }
@@ -1643,7 +1643,7 @@ int main(int argc, char *argv[])
 
   trace            = false;
   reverse_elem     = true;
-  globval.mat_meth = !false;
+  globval.mat_meth = false;
 
   if (true)
     Read_Lattice(argv[1]);
@@ -1777,11 +1777,11 @@ int main(int argc, char *argv[])
     dnu[X_] = 0.0; dnu[Y_] = 0.0;
     set_map(ElemIndex("ps_rot"), dnu);
     Ring_GetTwiss(true, 0e0); printglob();
-    // for (k = 0; k < 2; k++)
-    //   if (!FULL_LAT)
-    // 	dnu[k] = (SET_NU)? nu[k] - globval.TotalTune[k] : nu[k];
-    //   else
-    // 	dnu[k] = (SET_NU)? nu[k] - globval.TotalTune[k]/n_cell : nu[k];
+    for (k = 0; k < 2; k++)
+      if (!FULL_LAT)
+	dnu[k] = (SET_NU)? nu[k] - globval.TotalTune[k] : nu[k];
+      else
+	dnu[k] = (SET_NU)? nu[k] - globval.TotalTune[k]/n_cell : nu[k];
     printf("\ntune set to:\n  dnu     = [%8.5f, %8.5f]\n", dnu[X_], dnu[Y_]);
     printf("  nu      = [%8.5f, %8.5f]\n", nu[X_], nu[Y_]);
     set_map(ElemIndex("ps_rot"), dnu);
