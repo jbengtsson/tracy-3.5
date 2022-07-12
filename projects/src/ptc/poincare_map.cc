@@ -1,9 +1,10 @@
-#define NO 5
+#define NO 3
 
 #include "tracy_lib.h"
 
-int no_tps   = NO,
-    ndpt_tps = 5;
+int
+  no_tps   = NO,
+  ndpt_tps = 5;
 
 
 const double
@@ -18,22 +19,22 @@ const double
   dnu[]      = {0.03, 0.02};
 
 
-ss_vect<tps> get_map_Fl(ss_vect<tps> &map)
+ss_vect<tps> get_map_Fl(const ss_vect<tps> &map)
 {
   Matrix       R_mat;
-  ss_vect<tps> Id, A0_inv, R;
+  ss_vect<tps> Id, A0_inv, map1, R;
 
-  const int  n_dim = 4;
+  const int n_dim = 4, no_delta = 1;
 
   Id.identity();
 
   // Find fixed point.
-  GoFix(map, MNF.A0, A0_inv, no_tps);
+  GoFix(map, MNF.A0, A0_inv, no_delta);
 
   // Translate to fix point.
-  map = A0_inv*map*MNF.A0;
+  map1 = A0_inv*map*MNF.A0;
 
-  getlinmat(n_dim, map, globval.OneTurnMat);
+  getlinmat(n_dim, map1, globval.OneTurnMat);
   GDiag(n_dim, 1.0, globval.Ascr, globval.Ascrinv, R_mat,
         globval.OneTurnMat, globval.Omega, globval.Alphac);
 
@@ -46,13 +47,15 @@ ss_vect<tps> get_map_Fl(ss_vect<tps> &map)
   R[delta_] = Id[delta_];
 
   // Transform to Floquet space.
-  return Inv(MNF.A1)*map*MNF.A1;
+  return Inv(MNF.A1)*map1*MNF.A1;
 }
 
 
-ss_vect<tps> get_map_Fl_2(ss_vect<tps> &map)
+ss_vect<tps> get_map_Fl_2(const ss_vect<tps> &map)
 {
-  MNF = MapNorm(map, 1);
+  const int no_delta = 1;
+
+  MNF = MapNorm(map, no_delta);
   return Inv(MNF.A0*MNF.A1)*map*MNF.A0*MNF.A1;
 }
 
@@ -109,13 +112,13 @@ void Dragt_Finn_Fact(const ss_vect<tps> &map, ss_vect<tps> &M, tps &h)
 }
 
 
-void Dragt_Finn_Fact_2(ss_vect<tps> &map, ss_vect<tps> &M, tps &h)
+void Dragt_Finn_Fact_2(const ss_vect<tps> &map, ss_vect<tps> &M, tps &h)
 {
   h = LieFact_DF(map, M);
 }
 
 
-ss_vect<tps> Dragt_Finn_Map(ss_vect<tps> &M, tps &h)
+ss_vect<tps> Dragt_Finn_Map(const ss_vect<tps> &M, const tps &h)
 {
   int           k;
   ss_vect<tps>  Id, map;
@@ -128,7 +131,7 @@ ss_vect<tps> Dragt_Finn_Map(ss_vect<tps> &M, tps &h)
 }
 
 
-ss_vect<tps> Dragt_Finn_Map_2(ss_vect<tps> &M, tps &h)
+ss_vect<tps> Dragt_Finn_Map_2(const ss_vect<tps> &M, const tps &h)
 {
   ss_vect<tps> Id;
 
@@ -137,10 +140,93 @@ ss_vect<tps> Dragt_Finn_Map_2(ss_vect<tps> &M, tps &h)
 }
 
 
-void analyse()
+void chk_get_map_Fl(const ss_vect<tps> &map_Fl)
 {
-  tps          h, h_2;
-  ss_vect<tps> map_Fl, map_Fl_2, R, R_2;
+  ss_vect<tps> map_Fl_2;
+
+  map_Fl_2 = get_map_Fl_2(map);
+  daeps_(1e-6);
+  cout << scientific << setprecision(3) << "\nmap_Fl-map_Fl_2\n"
+       << setw(11) << map_Fl-map_Fl_2 << "\n";
+  daeps_(eps_tps);
+}
+
+
+void chk_Dragt_Finn_Fact(const ss_vect<tps> &map_Fl, const ss_vect<tps> &R,
+			 const tps &h)
+{
+  tps          h_2;
+  ss_vect<tps> R_2;
+
+  Dragt_Finn_Fact_2(map_Fl, R_2, h_2);
+  daeps_(1e-6);
+  cout << scientific << setprecision(3) << "\nR-R_2\n"
+       << setw(11) << R-R_2 << "\n";
+  cout << scientific << setprecision(3) << "\nh-h_2\n"
+       << setw(11) << h-h_2 << "\n";
+  daeps_(eps_tps);
+}
+
+
+void chk_Dragt_Finn_Map(const ss_vect<tps> &R, const tps &h,
+			const ss_vect<tps> &map_Fl)
+{
+  ss_vect<tps> map_Fl_2;
+
+  map_Fl_2 = Dragt_Finn_Map_2(R, h);
+  danot_(no_tps-1);
+  daeps_(1e-6);
+  cout << scientific << setprecision(3) << "\nmap_Fl-map_Fl_2\n"
+       << setw(11) << map_Fl-map_Fl_2 << "\n";
+  daeps_(eps_tps);
+}
+
+tps get_k_2(const ss_vect<tps> &R)
+{
+  int          k;
+  double       mu[2];
+  tps          k_2, k_2_re, k_2_im;
+  ss_vect<tps> Id;
+
+  Id.identity();
+
+  k_2_re = 0e0;
+  for (k = 0; k < 2; k++) {
+    mu[k] = atan2(R[2*k][2*k+1], R[2*k][2*k]);
+    if (mu[k] < 0e0) mu[k] += 2e0*M_PI;
+    k_2_re -= mu[k]*Id[2*k]*Id[2*k+1]/2e0;
+  }
+  printf("\nget_k_2: nu = [%5.3f, %5.3f]\n",
+	 mu[X_]/(2e0*M_PI), mu[Y_]/(2e0*M_PI));
+  k_2_im = 0e0;
+  k_2 = RtoC(k_2_re, k_2_im);
+  return k_2;
+}
+
+
+tps get_h(const tps &k_2, const tps &h)
+{
+  int           k;
+  tps           K;
+  ss_vect<tps>  Id;
+
+  Id.identity();
+  K = k_2;
+  for (k = 3; k <= no_tps; k++)
+    K = K*LieExp(Take(h, k), Id);
+  return K;
+}
+
+
+tps get_h(const ss_vect<tps> &map) { return LieFact(map); }
+
+
+void analyse(void)
+{
+  tps          h_DF, h, k_2;
+  ss_vect<tps> Id, map_Fl, map_Fl_2, R_DF;
+
+  Id.identity();
 
   danot_(no_tps-1);
   get_map(false);
@@ -150,40 +236,33 @@ void analyse()
   prt_lin_map(3, map);
 
   map_Fl = get_map_Fl(map);
+  printf("\nmap_Fl:\n");
+  prt_lin_map(3, map_Fl);
+  if (false) chk_get_map_Fl(map_Fl);
 
-  if (!false) {
-    map_Fl_2 = get_map_Fl_2(map);
-    daeps_(1e-6);
-    cout << scientific << setprecision(3) << setw(11) << map_Fl-map_Fl_2
-	 << "\n";
-    daeps_(eps_tps);
-    printf("\nmap_Fl:\n");
-    prt_lin_map(3, map_Fl);
-  }
+  Dragt_Finn_Fact(map_Fl, R_DF, h_DF);
+  if (false) chk_Dragt_Finn_Fact(map_Fl, R_DF, h_DF);
 
-  Dragt_Finn_Fact(map_Fl, R, h);
-  if (!false) {
-    Dragt_Finn_Fact_2(map_Fl_2, R_2, h_2);
-    daeps_(1e-6);
-    cout << scientific << setprecision(3) << "\nR-R_2\n"
-	 << setw(11) << R-R_2 << "\n";
-    cout << scientific << setprecision(3) << "\nh-h_2\n"
-	 << setw(11) << h-h_2 << "\n";
-    daeps_(eps_tps);
-    printf("\nmap_Fl:\n");
-    prt_lin_map(3, map_Fl);
-  }
+  map_Fl_2 = Dragt_Finn_Map(R_DF, h_DF);
+  printf("\nmap_Fl:\n");
+  prt_lin_map(3, map_Fl_2);
+  if (false) chk_Dragt_Finn_Map(R_DF, h_DF, map_Fl_2);
 
-  map_Fl = Dragt_Finn_Map(R, h);
+  k_2 = get_k_2(R_DF);
+  cout << scientific << setprecision(3) << "\nk_2:\n"
+       << setw(11) << k_2 << "\n";
 
-  if (!false) {
-    map_Fl_2 = Dragt_Finn_Map(R, h);
-    danot_(no_tps-1);
-    daeps_(1e-6);
-    map_Fl_2 = map_Fl_2;
-    cout << scientific << setprecision(3) << setw(11) << map_Fl-map_Fl_2
-	 << "\n";
-    daeps_(eps_tps);
+  h = get_h(map_Fl*Inv(R_DF));
+  daeps_(1e-10);
+  cout << scientific << setprecision(3) << "\nh-h_DF:\n"
+       << setw(11) << h-h_DF << "\n";
+
+  if (false) {
+    // Doesn't converge for no >= 4;
+    h = get_h(map_Fl);
+    daeps_(1e-10);
+    cout << scientific << setprecision(3) << "\nh:\n"
+	 << setw(11) << h << "\n";
   }
 }
 

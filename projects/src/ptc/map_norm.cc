@@ -118,7 +118,7 @@ tps LieFact_SC(const ss_vect<tps> &map)
 {
   /* Superconvergent Dragt-Finn factorization:
 
-       M = exp(:h_no,:)...exp(:h_6,9:)exp(:h_4,5:)exp(:h_3:)R                */
+       M = exp(:h_no-:)...exp(:h_6-9:)exp(:h_4-5:)exp(:h_3:)R                 */
 
   int           j, n;
   tps           h, hn;
