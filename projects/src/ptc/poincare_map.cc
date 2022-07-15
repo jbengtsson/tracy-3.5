@@ -257,8 +257,15 @@ void analyse(void)
   cout << scientific << setprecision(3) << "\nh-h_DF:\n"
        << setw(11) << h-h_DF << "\n";
 
+  h = h + k_2;
+  cout << scientific << setprecision(3) << "\nh:\n"
+       << setw(11) << h << "\n";
+  cout << scientific << setprecision(3) << "\nM*h:\n"
+       << setw(11) << h*map_Fl << "\n";
+
   if (false) {
     // Doesn't converge for no >= 4;
+    // h = get_h(map_Fl*Inv(R));
     h = get_h(map_Fl);
     daeps_(1e-10);
     cout << scientific << setprecision(3) << "\nh:\n"

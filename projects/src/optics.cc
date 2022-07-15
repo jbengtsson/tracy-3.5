@@ -17,7 +17,7 @@ int no_tps = NO;
 
 
 const bool
-  set_dnu = false,
+  set_dnu = !false,
   mI_rot  = false,
   prt_s1  = false,
   prt_dt  = false;

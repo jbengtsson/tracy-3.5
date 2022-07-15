@@ -6,8 +6,10 @@ int no_tps   = NO,
     ndpt_tps = 5;
 
 
-const bool   set_dnu = false;
-const int    n_cell  = 2;
+const bool
+  set_dnu    = false;
+const int
+  n_cell     = 2;
 const double
 #if 1
   beta_inj[] = {3.1, 3.0},
@@ -136,57 +138,69 @@ void prt_tab(ofstream &outf, const ss_vect<tps> &Id_scl, ss_vect<tps> &map_Fl,
   CtoR(get_h_local(map_Fl)*Id_scl, h_re, h_im);
   CtoR(K*Id_scl, k_re, k_im);
 
-  outf << scientific << setprecision(5)
-       << "\n\th_10002\t"
+  outf << scientific << setprecision(1)
+       << "h_11001,"
+       << setw(13) << h_abs_ijklm(h_re, h_im, 1, 1, 0, 0, 1) << "\n"
+       << "h_00111,"
+       << setw(13) << h_abs_ijklm(h_re, h_im, 0, 0, 1, 1, 1) << "\n"
+
+       << "\nh_10002,"
        << setw(13) << h_abs_ijklm(h_re, h_im, 1, 0, 0, 0, 2) << "\n"
-       << "\th_20001\t"
+       << "h_20001,"
        << setw(13) << h_abs_ijklm(h_re, h_im, 2, 0, 0, 0, 1) << "\n"
-       << "\th_00201\t"
+       << "h_00201,"
        << setw(13) << h_abs_ijklm(h_re, h_im, 0, 0, 2, 0, 1) << "\n"
 
-       << "\n\th_10110\t"
+       << "\nh_10110,"
        << setw(13) << h_abs_ijklm(h_re, h_im, 1, 0, 1, 1, 0) << "\n"
-       << "\th_21000\t"
+       << "h_21000,"
        << setw(13) << h_abs_ijklm(h_re, h_im, 2, 1, 0, 0, 0) << "\n"
-       << "\th_30000\t"
+       << "h_30000,"
        << setw(13) << h_abs_ijklm(h_re, h_im, 3, 0, 0, 0, 0) << "\n"
-       << "\th_10020\t"
+       << "h_10020,"
        << setw(13) << h_abs_ijklm(h_re, h_im, 1, 0, 0, 2, 0) << "\n"
-       << "\th_10200\t"
-       << setw(13) << h_abs_ijklm(h_re, h_im, 1, 0, 2, 0, 0) << "\n";
+       << "h_10200,"
+       << setw(13) << h_abs_ijklm(h_re, h_im, 1, 0, 2, 0, 0) << "\n"
 
-  if (false) {
-    outf << scientific << setprecision(5)
-	 << "\n\th_40000\t"
-	 << setw(13) << h_abs_ijklm(h_re, h_im, 4, 0, 0, 0, 0) << "\n"
-	 << "\th_20000\t"
-	 << setw(13) << h_abs_ijklm(h_re, h_im, 3, 1, 0, 0, 0) << "\n"
-	 << "\th_20200\t"
-	 << setw(13) << h_abs_ijklm(h_re, h_im, 2, 0, 2, 0, 0) << "\n"
-	 << "\th_00200\t"
-	 << setw(13) << h_abs_ijklm(h_re, h_im, 1, 1, 2, 0, 0) << "\n"
-	 << "\th_00400\t"
-	 << setw(13) << h_abs_ijklm(h_re, h_im, 0, 0, 4, 0, 0) << "\n"
-	 << "\th_20000\t"
-	 << setw(13) << h_abs_ijklm(h_re, h_im, 2, 0, 1, 1, 0) << "\n"
-	 << "\th_00200\t"
-	 << setw(13) << h_abs_ijklm(h_re, h_im, 0, 0, 3, 1, 0) << "\n"
-	 << "\th_00200\t"
-	 << setw(13) << h_abs_ijklm(h_re, h_im, 2, 0, 0, 2, 0) << "\n";
-  }
+       << "\nh_20110,"
+       << setw(13) << h_abs_ijklm(h_re, h_im, 2, 0, 1, 1, 0) << "\n"
+       << "h_31000,"
+       << setw(13) << h_abs_ijklm(h_re, h_im, 3, 1, 0, 0, 0) << "\n"
+       << "h_40000,"
+       << setw(13) << h_abs_ijklm(h_re, h_im, 4, 0, 0, 0, 0) << "\n"
+       << "h_20020,"
+       << setw(13) << h_abs_ijklm(h_re, h_im, 2, 0, 0, 2, 0) << "\n"
+       << "h_20200,"
+       << setw(13) << h_abs_ijklm(h_re, h_im, 2, 0, 2, 0, 0) << "\n"
+       << "h_00400,"
+       << setw(13) << h_abs_ijklm(h_re, h_im, 0, 0, 4, 0, 0) << "\n"
+       << "h_11200,"
+       << setw(13) << h_abs_ijklm(h_re, h_im, 1, 1, 2, 0, 0) << "\n"
+       << "h_00310,"
+       << setw(13) << h_abs_ijklm(h_re, h_im, 0, 0, 3, 1, 0) << "\n"
 
-  outf << scientific << setprecision(5)
-       << "\n\tk_22000\t"
+       << "\nk_22000,"
        << setw(13) << h_abs_ijklm(k_re, k_im, 2, 2, 0, 0, 0) << "\n"
-       << "\tk_11110\t"
+       << "k_11110,"
        << setw(13) << h_abs_ijklm(k_re, k_im, 1, 1, 1, 1, 0) << "\n"
-       << "\tk_00220\t"
+       << "k_00220,"
        << setw(13) << h_abs_ijklm(k_re, k_im, 0, 0, 2, 2, 0) << "\n"
 
-       << "\n\tk_11002\t"
+       << "\nk_22001,"
+       << setw(13) << h_abs_ijklm(k_re, k_im, 2, 2, 0, 0, 1) << "\n"
+       << "k_11111,"
+       << setw(13) << h_abs_ijklm(k_re, k_im, 1, 1, 1, 1, 1) << "\n"
+       << "k_00221,"
+       << setw(13) << h_abs_ijklm(k_re, k_im, 0, 0, 2, 2, 1) << "\n"
+
+       << "\nk_11002,"
        << setw(13) << h_abs_ijklm(k_re, k_im, 1, 1, 0, 0, 2) << "\n"
-       << "\tk_00112\t"
-       << setw(13) << h_abs_ijklm(k_re, k_im, 0, 0, 1, 1, 2) << "\n";
+       << "k_00112,"
+       << setw(13) << h_abs_ijklm(k_re, k_im, 0, 0, 1, 1, 2) << "\n"
+       << "k_11003,"
+       << setw(13) << h_abs_ijklm(k_re, k_im, 1, 1, 0, 0, 3) << "\n"
+       << "k_00113,"
+       << setw(13) << h_abs_ijklm(k_re, k_im, 0, 0, 1, 1, 3) << "\n";
 
   outf.flush();
 }
