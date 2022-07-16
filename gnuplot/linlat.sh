@@ -94,9 +94,19 @@ if (!ps) pause mouse "click on graph to cont.\n";
 
 set size nosquare;
 
+if (ps) set output file_name."_6.".(ext);
+set title "Normalized Phase Advance";
+set xlabel "s [m]"; set ylabel "{/Symbol n}";
+set y2range [-2.0:20];
+plot file_name.".out" using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
+     lc rgb "black", \
+     file_name.".out" using 3:7 title "{/Symbol n}_x" with lines ls 1, \
+     file_name.".out" using 3:12 title "{/Symbol n}_y" with lines ls 3;
+if (!ps) pause mouse "click on graph to cont.\n";
+
 exit;
 
-if (ps) set output file_name."_6.".(ext);
+if (ps) set output file_name."_7.".(ext);
 set title "{/Symbol h}_x [m]";
 set xlabel "s [m]"; set ylabel "";
 set y2range [-2.0:20];
@@ -105,7 +115,7 @@ plot file_name.".out" using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
      file_name.".out" using 3:8 notitle with lines ls 1;
 if (!ps) pause mouse "click on graph to cont.\n";
 
-if (ps) set output file_name."_7.".(ext);
+if (ps) set output file_name."_8.".(ext);
 set title "{/Symbol h}'_x";
 set xlabel "s [m]"; set ylabel "";
 set y2range [-2.0:20];
@@ -114,7 +124,7 @@ plot file_name.".out" using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
      file_name.".out" using 3:9 notitle with lines ls 1;
 if (!ps) pause mouse "click on graph to cont.\n";
 
-if (ps) set output file_name."_8.".(ext);
+if (ps) set output file_name."_9.".(ext);
 set title "eta{_x\\\~";
 set xlabel "s [m]"; set ylabel "";
 set y2range [-2.0:20];
@@ -124,7 +134,7 @@ plot file_name.".out" using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
      file_name.".out" using 3:16 title "eta'_x\\\~" with lines ls 2;
 if (!ps) pause mouse "click on graph to cont.\n";
 
-if (ps) set output file_name."_9.".(ext);
+if (ps) set output file_name."_10.".(ext);
 set title "{/ZapfChancery-MediumItalic H}_x(s)";
 set xlabel "s [m]"; set ylabel "";
 set y2range [-2.0:20];
@@ -133,7 +143,7 @@ plot file_name.".out" using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
      file_name.".out" using 3:(\$15**2+\$16**2) notitle with lines ls 1;
 if (!ps) pause mouse "click on graph to cont.\n";
 
-if (ps) set output file_name."_10.".(ext);
+if (ps) set output file_name."_11.".(ext);
 set title "arg\\\{{/ZapfChancery-MediumItalic H}_x(s)\\\}";
 set xlabel "s [m]"; set ylabel "";
 set y2range [-2.0:20];
@@ -146,16 +156,6 @@ plot file_name.".out" using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
 if (!ps) pause mouse "click on graph to cont.\n";
 
 exit;
-
-if (ps) set output file_name."_11.".(ext);
-set title "Normalized Phase Advance";
-set xlabel "s [m]"; set ylabel "{/Symbol n}";
-set y2range [-2.0:20];
-plot file_name.".out" using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
-     lc rgb "black", \
-     file_name.".out" using 3:7 title "{/Symbol n}_x" with lines ls 1, \
-     file_name.".out" using 3:12 title "{/Symbol n}_y" with lines ls 3;
-if (!ps) pause mouse "click on graph to cont.\n";
 
 if (ps) set output file_name."_12.".(ext);
 set title "{/Symbol g}";

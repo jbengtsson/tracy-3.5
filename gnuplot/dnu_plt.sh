@@ -5,6 +5,7 @@ prm2=${2-1}
 prm3=${3-0}
 prm4=${4-5}
 prm5=${5-0}
+
 gnuplot << EOP
 
 home_dir = "$prm1"; N = $prm2; ps = $prm3; case = $prm4; pert = $prm5;
