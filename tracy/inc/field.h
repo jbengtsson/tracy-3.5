@@ -245,18 +245,21 @@ template<typename T> class ss_vect {
 };
 
 
-typedef ss_vect<double>  psVector;
-typedef psVector         Matrix[ss_dim];
+typedef ss_vect<double> psVector;
+typedef psVector        Matrix[ss_dim];
 
 
 typedef struct MNF_struct
 {
-  tps          K;       // new effective Hamiltonian
-  ss_vect<tps> A0;      // transformation to fixed point
-  ss_vect<tps> A1;      // (linear) transformation to Floquet space
-  tps          g;       /* generator for nonlinear transformation to
-			    Floquet space */
-  ss_vect<tps> map_res; // residual map
+  tps
+    K,              // New effective Hamiltonian.
+    g;              // Generator for nonlinear transformation to Floquet space.
+  ss_vect<tps>
+    A0, A0_inv,     // Transformation to fixed point.
+    A1, A1_inv,     // Linear transformation to Floquet space.
+    A_nl, A_nl_inv, // Nonlinear transformation to Floquet space.
+    nus,            // Tune shift.
+    map_res;        // Residual map.
 } MNF_struct;
 
 

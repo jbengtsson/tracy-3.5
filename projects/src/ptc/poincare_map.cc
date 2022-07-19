@@ -625,58 +625,41 @@ tps g_renorm(const double nu0_x, const double nu0_y,
 }
 
 
-void stability(const ss_vect<tps> &map)
+void track_H(const string &file_name, const double Ax, const double Ay, tps &H)
 {
   long int        lastpos;
   int             k;
   double          h, J[2], phi[2], nu[2], scl, J2[2], phi2[2];
-  tps             K, H, g_r, scl_tps;
+  tps             scl_tps;
   ss_vect<double> ps, ps_Fl, ps_nl;
-  ss_vect<tps>    nus, A0_inv, A1_inv, A_nl_inv, Id;
+  ss_vect<tps>    Id;
   FILE            *outf;
 
-  const double
-    Ax        = 5e-3,
-    Ay        = 5e-3;
-  const string
-    file_name = "stability.out";
+  const double x_ampl[] = {Ax, Ay};
 
   danot_(no_tps);
 
   Id.identity();
 
-  MNF = MapNorm(map, no_tps);
-  nus = dHdJ(MNF.K);
-  A0_inv = Inv(MNF.A0);
-  A1_inv = Inv(MNF.A1);
-  A_nl_inv = get_A_nl_inv(MNF.g);
-
   ps.zero();
-  ps[x_] = Ax; ps[px_] = 0e0; ps[y_] = Ay; ps[py_] = 0e0;
-  ps[delta_] = 0e0; ps[ct_] = 0e0;
+  ps[x_] = x_ampl[X_];
+  ps[y_] = x_ampl[Y_];
 
-  ps_Fl = (A1_inv*ps).cst(); ps_nl = (A_nl_inv*ps_Fl).cst();
+  ps_Fl = (MNF.A1_inv*MNF.A0_inv*ps).cst();
+  ps_nl = (MNF.A_nl_inv*ps_Fl).cst();
 
   // scale action-angle variables
   for (k = 0; k < 2; k++) {
-    nu[k] = (nus[k]*ps_nl).cst();
-    scl = sqrt(nus[k].cst()/nu[k]);
+    nu[k] = (MNF.nus[k]*ps_nl).cst();
+    scl = sqrt(MNF.nus[k].cst()/nu[k]);
     ps_Fl[2*k] *= scl; ps_Fl[2*k+1] *= scl;
   }
-
-  if (false)
-    g_r = g_renorm(nus[0].cst(), nus[1].cst(), nu[X_], nu[Y_], MNF.g);
-  else
-    g_r = MNF.g;
-
-  H = get_H(g_r, MNF.K);
-  A_nl_inv = get_A_nl_inv(g_r);
 
   outf = file_write(file_name.c_str());
 
   for (k = 1; k <= 500; k++) {
     Cell_Pass(0, globval.Cell_nLoc, ps, lastpos);
-    ps_Fl = (A1_inv*ps).cst();
+    ps_Fl = (MNF.A1_inv*ps).cst();
     J[X_] = (sqr(ps_Fl[x_])+sqr(ps_Fl[px_]))/2.0;
     phi[X_] = atan2(ps_Fl[px_], ps_Fl[x_]);
     J[Y_] = (sqr(ps_Fl[y_])+sqr(ps_Fl[py_]))/2.0;
@@ -684,13 +667,13 @@ void stability(const ss_vect<tps> &map)
 
     h = (H*ps_Fl).cst();
 
-    ps_nl = (A_nl_inv*ps_Fl).cst();
+    ps_nl = (MNF.A_nl_inv*ps_Fl).cst();
     J2[X_] = (sqr(ps_nl[x_])+sqr(ps_nl[px_]))/2.0;
     phi2[X_] = atan2(ps_nl[px_], ps_nl[x_]);
     J2[Y_] = (sqr(ps_nl[y_])+sqr(ps_nl[py_]))/2.0;
     phi2[Y_] = atan2(ps_nl[py_], ps_nl[y_]);
 
-    fprintf(outf, "%d %10.3e %10.3e %10.3e %10.3e %10.3e %10.3e %10.3e %10.3e"
+    fprintf(outf, "%3d %10.3e %10.3e %10.3e %10.3e %10.3e %10.3e %10.3e %10.3e"
 	    " %10.3e %10.3e %10.3e %10.3e %10.3e\n",
 	    k, 1e3*ps_Fl[x_], 1e3*ps_Fl[px_], 1e3*ps_Fl[y_], 1e3*ps_Fl[py_],
 	    1e6*J[X_], phi[X_], 1e6*J[Y_], phi[Y_], 1e6*J2[X_], phi2[X_],
@@ -698,6 +681,37 @@ void stability(const ss_vect<tps> &map)
   }
 
   fclose(outf);
+}
+
+
+void stability(const ss_vect<tps> &map)
+{
+  tps          H;
+  ss_vect<tps> Id;
+
+  MNF = MapNorm(map, no_tps);
+
+  MNF.nus = dHdJ(MNF.K);
+
+  MNF.A0_inv = Inv(MNF.A0);
+  MNF.A1_inv = Inv(MNF.A1);
+
+  // if (false)
+  //   g_r = g_renorm(nus[0].cst(), nus[1].cst(), nu[X_], nu[Y_], MNF.g);
+  // else
+  //   g_r = MNF.g;
+
+  H = get_H(MNF.g, MNF.K);
+  MNF.A_nl = get_A_nl(MNF.g);
+  MNF.A_nl_inv = get_A_nl_inv(MNF.g);
+
+  track_H("track_H_1.dat", 0.1e-3, 0.1e-3, H);
+  track_H("track_H_2.dat", 0.5e-3, 0.5e-3, H);
+  track_H("track_H_3.dat", 1.0e-3, 1.0e-3, H);
+  track_H("track_H_4.dat", 1.5e-3, 1.5e-3, H);
+  track_H("track_H_5.dat", 2.0e-3, 2.0e-3, H);
+  track_H("track_H_6.dat", 2.5e-3, 2.5e-3, H);
+  track_H("track_H_7.dat", 3.0e-3, 3.0e-3, H);
 }
 
 
@@ -718,8 +732,8 @@ void get_sympl_form(FILE *outf, const double Ax, const double Ay,
   globval.Cavity_on = false;
 
   ps1.zero();
-  ps1[x_] = Ax;
-  ps1[y_] = Ay;
+  ps1[x_]     = Ax;
+  ps1[y_]     = Ay;
   ps1[delta_] = delta;
   ps2 = ps1;
   ps3 = ps1;
@@ -855,8 +869,10 @@ int main(int argc, char *argv[])
 
   if (false) H_inv(map);
 
-  if (!false) {
+  if (false) {
     track_sympl_form(30, 5e-3, 5e-3);
     track_sympl_form_delta(30, 5e-3, 0.1e-3, 4e-2);
   }
+
+  if (!false) stability(map);
 }
