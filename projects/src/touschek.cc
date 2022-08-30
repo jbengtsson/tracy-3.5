@@ -18,14 +18,14 @@ void err_and_corr(const string &param_file)
   const int 
     Nb          = 538;
   const double
-    C           = 323.193,
-    T0          = C/c0,
+    C           = 350.3,
     Ib          = 300e-3,
-    Qb          = Ib*T0/Nb,
-    eps[]       = {150e-12, 8e-12},
-    sigma_s     = 2.5e-3,
-    sigma_delta = 0.8e-3,
+    eps[]       = {101e-12, 8e-12},
+    sigma_s     = 2.3e-3,
+    sigma_delta = 0.90e-3,
     delta_RF    = 5e-2;
+    T0          = C/c0,
+    Qb          = Ib*T0/Nb,
 
   const string file_name = "mom_aper.out";
 
