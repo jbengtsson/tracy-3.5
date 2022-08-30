@@ -6,6 +6,8 @@ gnuplot << EOP
 
 ps = $prm1;
 
+file_name = "touschek.out";
+
 f_s = 24; l_w = 2;
 if (ps == 0) \
   set terminal qt; \
@@ -29,8 +31,8 @@ set title "Momentum Aperture";
 set xlabel "s [m]";
 set ylabel "{/Symbol d} [%]";
 #set yrange [-5.2 : 5.2]
-plot "mom_aper.out" using 2:3 notitle with fsteps ls 2, \
-     "mom_aper.out" using 2:4 notitle with fsteps ls 2;
+plot file_name using 2:3 notitle with fsteps ls 2, \
+     file_name using 2:4 notitle with fsteps ls 2;
 if (!ps) pause mouse "click on graph to cont.\n";
 
 EOP
