@@ -6,7 +6,7 @@ gnuplot << EOP
 
 ps = $prm1;
 
-file_name = "touschek.out";
+file_name = "mom_aper.out";
 
 f_s = 24; l_w = 2;
 if (ps == 0) \
