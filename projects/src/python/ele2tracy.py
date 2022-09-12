@@ -1,7 +1,7 @@
 import math
 import numpy
 import re
-import StringIO
+from io import StringIO 
 import sys
 
 # Module to translate from ELEGANT to Tracy-2,3 lattice.
@@ -149,6 +149,7 @@ def line(line, tokens, decls):
 ele2tracy = {
     'charge'    : marker_charge,
     'mark'      : marker,
+    'marker'    : marker,
     'watch'     : marker_watch,
     'ematrix'   : marker_ematrix,
     'twiss'     : marker_twiss,
@@ -223,8 +224,8 @@ def parse_definition(line, tokens, decls):
     try:
         str = ele2tracy[tokens[1]](line, tokens, decls)
     except KeyError:
-        print '\n*** undefined token!'
-        print line
+        print('\n*** undefined token!')
+        print(line)
         exit(1)
     return str
 
@@ -246,8 +247,8 @@ def parse_line(line, outf, decls):
             tokens = re.split(r'[,:=]', line_lc)
             outf.write('%s\n' % (parse_definition(line_lc, tokens, decls)))
         else:
-            print '\n*** undefined statement!'
-            print line
+            print('\n*** undefined statement!')
+            print(line)
             exit(1)
 
 def prt_decl(outf):

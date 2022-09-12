@@ -4,11 +4,12 @@ bin_PROGRAMS = optics dynap leac dnu touschek ibs vlad tbt \
                max_iv_1 max_iv_2 ibs_for_les delta bare_da match \
                carbon_map dls 6BA track_fft m4 m4_mod dls_ii track opt_des_1 \
 	       opt_des_2 id_model sigma tech_note dx_dj tune_scan sxt \
-               chk_drv_terms fit_nu opt_des_bessy_iii for_pierre tst_it
+               chk_drv_terms fit_nu opt_des_bessy_iii for_pierre tst_it \
+               ctrl_cod
 
 #sc_f_LINK    = gfortran -g -O0 -Wall -fbounds-check -o sc_f
 
-#main_SOURCES            = main.cc
+#main_SOURCES              = main.cc
 optics_SOURCES            = optics.cc
 dynap_SOURCES             = dynap.cc
 dnu_SOURCES               = dnu.cc
@@ -45,6 +46,7 @@ fit_nu_SOURCES            = fit_nu.cc
 opt_des_bessy_iii_SOURCES = opt_des_bessy_iii.cc
 for_pierre_SOURCES        = for_pierre.cc
 tst_it_SOURCES            = tst_it.cc
+ctrl_cod_SOURCES          = ctrl_cod.cc
 
 GSL_INCLUDE = /usr/local/Cellar/gsl/2.7.1
 # GSL_INCLUDE = /net/home/lli/OPAL/OPAL-2.0.1

@@ -17,7 +17,7 @@ int no_tps = NO;
 
 
 const bool
-  set_dnu = !false,
+  set_dnu = false,
   mI_rot  = false,
   prt_s1  = false,
   prt_dt  = false;
@@ -1616,7 +1616,7 @@ int main(int argc, char *argv[])
   bool             tweak;
   long int         lastpos, loc;
   int              k, lat_case;
-  double           dx, dnu[3], I[6];
+  double           dx, dnu[3], I[6], eps[3];
   double           eps_x, sigma_delta, U_0, J[3], tau[3];
   tps              a;
   Matrix           M;
@@ -1815,8 +1815,8 @@ int main(int argc, char *argv[])
   }
 
   if (false) {
-    prt_ZAP(6);
-    exit(0);
+    prt_ZAP(16);
+    // exit(0);
   }
 
   if (false) {
@@ -2078,7 +2078,7 @@ int main(int argc, char *argv[])
 
   if (false) get_alphac2();
 
-  if (false) {
+  if (!false) {
     iniranf(seed); setrancut(1e0);
 
     globval.bpm = ElemIndex("bpm");
@@ -2166,6 +2166,14 @@ int main(int argc, char *argv[])
 
   if (true) GetEmittance(ElemIndex("cav"), true);
   // exit(0);
+
+  if (false) {
+    globval.eps[Y_] = 0.8e-12;
+    for (k = 0; k < 3; k++)
+      eps[k] = globval.eps[k];
+    for (k = 1; k <= 5; k++)
+      IBS_BM(0.65e-9, globval.eps, eps, true, true);
+   }
 
   if (false) {
     Id.identity();
