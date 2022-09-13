@@ -76,15 +76,12 @@ void get_cod_rms(const double dxy_rms[], const int n_seed, const bool all)
 
 void config_cod(param_data_type &prms)
 {
-  const int n_bpm_Fam = 1, n_hcorr_Fam = 7, n_vcorr_Fam = 6;
+  const int n_bpm_Fam = 1, n_hcorr_Fam = 1, n_vcorr_Fam = 1;
 
   const std::string
-    bpm_names[n_bpm_Fam] =
-    {"bpm"},
-    hcorr_names[n_hcorr_Fam] =
-    {"sd1h", "sd2h", "sd3ah", "sd3bh", "oxx", "oxy", "oyy"},
-    vcorr_names[n_vcorr_Fam] =
-    {"sf1",  "sf2",  "sf3", "oxx", "oxy", "oyy"};
+    bpm_names[n_bpm_Fam]     = {"bpm"},
+    hcorr_names[n_hcorr_Fam] = {"sdk"},
+    vcorr_names[n_vcorr_Fam] = {"sfk"};
 
   prms.ini_COD_corr(n_bpm_Fam, bpm_names, n_hcorr_Fam, hcorr_names, n_vcorr_Fam,
 		    vcorr_names, true);
@@ -129,6 +126,9 @@ int main(int argc, char *argv[])
   globval.Cart_Bend  = false; globval.dip_edge_fudge = true;
 
   Ring_GetTwiss(true, 0e-3); printglob();
+
+  prt_lat("linlat1.out", globval.bpm, true);
+  prt_lat("linlat.out", globval.bpm, true, 10);
 
   GetEmittance(ElemIndex("cav"), true);
 
