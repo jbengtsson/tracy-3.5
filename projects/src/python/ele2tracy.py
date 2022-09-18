@@ -162,6 +162,8 @@ ele2tracy = {
     'csrdrif'   : drift,
     'rcol'      : drift,
     'kicker'    : drift,
+    'hkick'     : drift,
+    'vkick'     : drift,
     'bumper'    : drift,
     'csben'     : bend,
     'csbend'    : bend,

@@ -764,8 +764,9 @@ void prt_lat(const int loc1, const int loc2, const char *fname, const int Fnum,
 
   outf = file_write(fname);
   fprintf(outf, "#        name           s   code"
-	        "    alphax   betax     nux       etax       etapx");
-  fprintf(outf, "       alphay   betay     nuy      etay    etapy\n");
+	        "   alpha_x  beta_x    nu_x      eta_x       eta'_x");
+  fprintf(outf, "      alpha_y  beta_y    nu_y     eta_y   eta'_y"
+	        "   eta_x^     eta'_x^   curly_H_x  phi_x\n");
   fprintf(outf, "#                      [m]"
 	        "                    [m]                 [m]");
   fprintf(outf, "                             [m]                [m]\n");
@@ -826,11 +827,13 @@ void prt_lat(const int loc1, const int loc2, const char *fname, const int Fnum,
 
 	  fprintf(outf, "%4ld %15s %6.2f %4.1f"
 		  " %9.5f %8.5f %8.5f %11.8f %11.8f"
-		  " %9.5f %8.5f %8.5f %8.5f %8.5f %10.3e %10.3e %10.3e\n",
+		  " %9.5f %8.5f %8.5f %8.5f %8.5f"
+		  " %10.3e %10.3e %10.3e %8.5f\n",
 		  i, Cell[i].Elem.PName, s, get_code(Cell[i]),
 		  alpha[X_], beta[X_], nu[X_]+dnu[X_], eta[X_], etap[X_],
 		  alpha[Y_], beta[Y_], nu[Y_]+dnu[Y_], eta[Y_], etap[Y_],
-		  eta_Fl[x_], eta_Fl[px_], curly_H);
+		  eta_Fl[x_], eta_Fl[px_],
+		  curly_H, atan2(eta_Fl[px_], eta_Fl[x_])/(2e0*M_PI));
 	}
       } else {
 	A = get_A(Cell[i].Alpha, Cell[i].Beta, Cell[i].Eta, Cell[i].Etap);
@@ -844,13 +847,15 @@ void prt_lat(const int loc1, const int loc2, const char *fname, const int Fnum,
 
 	fprintf(outf, "%4ld %15s %6.2f %4.1f"
 		" %9.5f %8.5f %8.5f %11.8f %11.8f"
-		" %9.5f %8.5f %8.5f %8.5f %8.5f %10.3e %10.3e %10.3e\n",
+		" %9.5f %8.5f %8.5f %8.5f %8.5f"
+		" %10.3e %10.3e %10.3e %8.5f\n",
 		i, Cell[i].Elem.PName, Cell[i].S, get_code(Cell[i]),
 		Cell[i].Alpha[X_], Cell[i].Beta[X_], Cell[i].Nu[X_],
 		Cell[i].Eta[X_], Cell[i].Etap[X_],
 		Cell[i].Alpha[Y_], Cell[i].Beta[Y_], Cell[i].Nu[Y_],
 		Cell[i].Eta[Y_], Cell[i].Etap[Y_],
-		eta_Fl[x_], eta_Fl[px_], curly_H);
+		eta_Fl[x_], eta_Fl[px_],
+		curly_H, atan2(eta_Fl[px_], eta_Fl[x_])/(2e0*M_PI));
       }
     }
   }
