@@ -1585,7 +1585,7 @@ int main(int argc, char *argv[])
   globval.Cart_Bend  = false; globval.dip_edge_fudge = true;
 
 
-  if (!false) no_sxt();
+  if (false) no_sxt();
 
   if (false) {
     fit_ksi1(1, 0e0, 0e0);

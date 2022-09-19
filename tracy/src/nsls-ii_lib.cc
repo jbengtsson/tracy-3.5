@@ -641,28 +641,30 @@ double get_code(CellType &Cell)
 
   switch (Cell.Elem.Pkind) {
   case drift:
-    code = 0.0;
+    code = 0e0;
     break;
   case Mpole:
-    if (Cell.Elem.M->Pirho != 0.0)
-      code = sgn(Cell.Elem.M->Pirho)*0.5;
-    else if (Cell.Elem.M->PBpar[Quad+HOMmax] != 0)
-      code = sgn(Cell.Elem.M->PBpar[Quad+HOMmax]);
-    else if (Cell.Elem.M->PBpar[Sext+HOMmax] != 0)
-      code = 1.5*sgn(Cell.Elem.M->PBpar[Sext+HOMmax]);
-    else if (Cell.Elem.M->PBpar[Oct+HOMmax] != 0)
-      code = 1.75*sgn(Cell.Elem.M->PBpar[Oct+HOMmax]);
-    else if (Cell.Elem.M->PBpar[Dec+HOMmax] != 0)
-      code = 1.75*sgn(Cell.Elem.M->PBpar[Dec+HOMmax]);
-    else if (Cell.Elem.M->PBpar[Dodec+HOMmax] != 0)
-      code = 1.75*sgn(Cell.Elem.M->PBpar[Dodec+HOMmax]);
-    else if (Cell.Fnum == globval.bpm)
-      code = 2.0;
+    if (Cell.Elem.M->Pirho != 0e0) {
+      if (Cell.Elem.M->PBpar[Quad+HOMmax] == 0e0)
+	code = 0.5*sgn(Cell.Elem.M->Pirho);
+      else
+	code = 0.75*sgn(Cell.Elem.M->PBpar[Quad+HOMmax]);
+    }
+    else if (Cell.Elem.M->PBpar[Quad+HOMmax] != 0e0)
+      code = 1.0*sgn(Cell.Elem.M->PBpar[Quad+HOMmax]);
+    else if (Cell.Elem.M->PBpar[Sext+HOMmax] != 0e0)
+      code = 1.25*sgn(Cell.Elem.M->PBpar[Sext+HOMmax]);
+    else if (Cell.Elem.M->PBpar[Oct+HOMmax] != 0e0)
+      code = 1.5*sgn(Cell.Elem.M->PBpar[Oct+HOMmax]);
+    else if (Cell.Elem.M->PBpar[Dec+HOMmax] != 0e0)
+      code = 1.5*sgn(Cell.Elem.M->PBpar[Dec+HOMmax]);
+    else if (Cell.Elem.M->PBpar[Dodec+HOMmax] != 0e0)
+      code = 1.5*sgn(Cell.Elem.M->PBpar[Dodec+HOMmax]);
     else
-      code = 0.0;
+      code = 0e0;
     break;
   default:
-    code = 0.0;
+    code = 0e0;
     break;
   }
 
