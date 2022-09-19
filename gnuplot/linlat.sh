@@ -140,7 +140,8 @@ set xlabel "s [m]"; set ylabel "";
 set y2range [-2.0:20];
 plot file_name.".out" using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
      lc rgb "black", \
-     file_name.".out" using 3:(\$15**2+\$16**2) notitle with lines ls 1;
+     file_name.".out" using 3:(\$15**2+\$16**2):(abs(\$4)) notitle with \
+     lines lt palette z;
 if (!ps) pause mouse "click on graph to cont.\n";
 
 if (ps) set output file_name."_11.".(ext);
