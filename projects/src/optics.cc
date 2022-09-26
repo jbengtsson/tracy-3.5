@@ -1539,6 +1539,27 @@ void chk_si(void)
 }
 
 
+ss_vect<tps> chop_map(const int n_dof, ss_vect<tps> map, const double eps)
+{
+  long int jj[ss_dim];
+  int      j, k;
+
+  const int n = 2*n_dof;
+
+  for (j = 0; j < ss_dim; j++)
+    jj[j] = 0;
+
+  for (j = 0; j < n; j++)
+    for (k = 0; k < n; k++)
+      if (fabs(map[j][k]) < eps) {
+	jj[k] = 1;
+	map[j].pook(jj, 0e0);
+	jj[k] = 0;
+      }
+  return map;
+}
+
+
 int main(int argc, char *argv[])
 {
   bool             tweak;
@@ -1579,11 +1600,39 @@ int main(int argc, char *argv[])
     rdmfile(argv[1]);
 
   globval.H_exact    = false; globval.quad_fringe    = false;
-  globval.Cavity_on  = false; globval.radiation      = false;
+  globval.Cavity_on  = !false; globval.radiation      = false;
   globval.emittance  = false; globval.IBS            = false;
   globval.pathlength = false; globval.Aperture_on    = false;
   globval.Cart_Bend  = false; globval.dip_edge_fudge = true;
 
+  if (!false) {
+    // trace = true;
+    Ring_GetTwiss(false, 0e-3); printglob();
+    double dnu[3];
+    printf("\nA^-1:\n");
+    prt_lin_map(3, chop_map(3, putlinmat(6, globval.Ascrinv), 1e-15));
+    printf("\nA_CS^-1:\n");
+    prt_lin_map(3, chop_map(3, get_A_CS(3, putlinmat(6, globval.Ascrinv), dnu),
+			    1e-10));
+    printf("\nA^T.S.A:\n");
+    prt_lin_map(3, chop_map(3, tp_S(3, putlinmat(6, globval.Ascr))
+			    *get_S(3)*putlinmat(6, globval.Ascr), 1e-10));
+    printf("\nR = A^-1.M.A:\n");
+    prt_lin_map(3, chop_map(3, putlinmat(6, globval.Ascrinv)
+			    *putlinmat(6, globval.OneTurnMat)
+			    *putlinmat(6, globval.Ascr), 1e-10));
+    prt_lat("linlat1.out", globval.bpm, true);
+    prt_lat("linlat.out", globval.bpm, true, 10);
+    exit(0);
+  }
+
+  if (false) {
+    ss_vect<tps> map;
+    map.identity();
+    Cell_Pass(0, globval.Cell_nLoc, map, lastpos);
+    prt_lin_map(3, map);
+    exit(0);
+  }
 
   if (false) no_sxt();
 
@@ -1749,21 +1798,6 @@ int main(int argc, char *argv[])
 
   if (false) {
     wtf();
-    exit(0);
-  }
-
-  if (false) {
-#if PM
-    get_Poincare_Map();
-#else
-      no_sxt();
-      globval.Cavity_on = true; globval.radiation = true;
-      Ring_GetTwiss(true, 0e0); printglob();
-      PoincareMap map;
-      prt_lin_map(3, map.GetMap(true, true));
-#endif
-    prt_lat("linlat1.out", globval.bpm, true);
-    prt_lat("linlat.out", globval.bpm, true, 10);
     exit(0);
   }
 
@@ -2080,6 +2114,21 @@ int main(int argc, char *argv[])
 
   if (true) GetEmittance(ElemIndex("cav"), true);
   // exit(0);
+
+  if (false) {
+#if PM
+    get_Poincare_Map();
+#else
+      no_sxt();
+      globval.Cavity_on = true; globval.radiation = true;
+      Ring_GetTwiss(true, 0e0); printglob();
+      PoincareMap map;
+      prt_lin_map(3, map.GetMap(true, true));
+#endif
+    prt_lat("linlat1.out", globval.bpm, true);
+    prt_lat("linlat.out", globval.bpm, true, 10);
+    exit(0);
+  }
 
   if (false) {
     globval.eps[Y_] = 0.8e-12;
