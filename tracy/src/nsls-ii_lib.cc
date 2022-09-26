@@ -301,7 +301,7 @@ ss_vect<tps> get_A_CS(const int n, const ss_vect<tps> &A, double dnu[])
 
   Id.identity(); R.identity(); get_dnu(n, A, dnu);
   for (k = 0; k < n; k++) {
-    c = cos(2.0*M_PI*dnu[k]); s = sin(2.0*M_PI*dnu[k]);
+    c = cos(2e0*M_PI*dnu[k]); s = sin(2e0*M_PI*dnu[k]);
     R[2*k] = c*Id[2*k] - s*Id[2*k+1]; R[2*k+1] = s*Id[2*k] + c*Id[2*k+1];
   }
 
@@ -482,6 +482,8 @@ void GetEmittance(const int Fnum, const bool prt)
   Matrix       Ascr;
   ss_vect<tps> Ascr_map;
 
+  const bool debug_prt = false;
+
   // save state
   rad = globval.radiation; emit = globval.emittance;
   cav = globval.Cavity_on; path = globval.pathlength;
@@ -493,6 +495,12 @@ void GetEmittance(const int Fnum, const bool prt)
   globval.Cavity_on = true; globval.pathlength = false;
 
   Ring_GetTwiss(false, 0.0);
+  if (debug_prt) {
+    printf("\nM:\n");
+    prtmat(6, globval.OneTurnMat);
+    printf("\nA^-1:\n");
+    prtmat(6, globval.Ascrinv);
+  }
 
   // radiation loss is computed in Cav_Pass
 

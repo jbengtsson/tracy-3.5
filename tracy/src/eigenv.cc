@@ -2,6 +2,9 @@
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_eigen.h>
 
+// For debugging.
+const bool eigenv_prt = false;
+
 
 // eigenv.c -- Eigenvalue routines
 
@@ -269,6 +272,30 @@ ss_vect<tps> gslmattomap(const int n, const gsl_matrix *gslmat)
 }
 
 
+void prt_cmplx_vec(const string &str, const int n, const ss_vect<double> &a_re,
+		   const ss_vect<double> &a_im)
+{
+  int k;
+
+  cout << str;
+  for (k = 0; k < n; k++)
+    cout << scientific << setprecision(3)
+	 << setw(12) << a_re[k] << (sgn(a_im[k] > 0)? " + " : " - ")
+	 << setw(9) << fabs(a_im[k]) << "i";
+  cout << "\n";
+}
+
+void prt_cmplx_mat(const string &str, const int n, const Matrix &A_re,
+		   const Matrix &A_im)
+{
+  int j;
+
+  cout << str;
+  for (j = 0; j < n; j++)
+    prt_cmplx_vec("", n, A_re[j], A_im[j]);
+}
+
+
 void geigen(const int n, const Matrix &fm, Matrix &Vre, Matrix &Vim,
 	    psVector &wr, psVector &wi)
 {
@@ -351,11 +378,20 @@ void geigen(const int n, const Matrix &fm, Matrix &Vre, Matrix &Vim,
       nu2[i] = 1.0 - nu1[i];
     // printf("nu: %7.5f %7.5f\n", nufm2[i], nu2[i]);
   }
+  if (eigenv_prt) {
+    prt_cmplx_vec("\ngeigen w:\n", n, wr, wi);
+    prt_cmplx_mat("\ngeigen V:\n", n, Vre, Vim);
+  }
   for (i = 1; i <= n/2; i++) {
+    if (eigenv_prt)
+      printf("\ngeigen: [nufm2[i-1], nu2[0], nu2[1], nu2[2]] = "
+	     "[%7.5f %7.5f %7.5f %7.5f]\n",
+	     nufm2[i-1], nu2[0], nu2[1], nu2[2]);
     c = closest(nufm2[i-1], nu2[0], nu2[1], nu2[2]);
     if (c != i) {
       j = c*2 - 1; k = i*2 - 1;
       /*          writeln(' swapping ', j:0, ' with ', k:0);*/
+      if (eigenv_prt) printf("\ngeigen: swap-1 %1d <-> %1d\n", j, k);
       SwapMat(n, Vre, j, k);     SwapMat(n, Vim, j, k);
       SwapMat(n, Vre, j+1, k+1); SwapMat(n, Vim, j+1, k+1);
 
@@ -368,8 +404,13 @@ void geigen(const int n, const Matrix &fm, Matrix &Vre, Matrix &Vim,
   for (i = 1; i <= n/2; i++) {
     if ((0.5-nufm1[i-1])*(0.5-nu1[i-1]) < 0.0) {
       j = i*2 - 1;
+      if (eigenv_prt) printf("\ngeigen: swap-2 %1d <-> %1d\n", j, j+1);
       SwapMat(n, Vim, j, j+1); Swap(&wi[j-1], &wi[j]);
     }
+  }
+  if (eigenv_prt) {
+    prt_cmplx_vec("\ngeigen w:\n", n, wr, wi);
+    prt_cmplx_mat("\ngeigen V:\n", n, Vre, Vim);
   }
 //_L999: ;
 }
@@ -476,7 +517,7 @@ static void GetAinv(struct LOC_GDiag &LINK)
       FORLIM1 = LINK.n;
       for (j = 0; j < FORLIM1; j++) {
         LINK.Vre[j][i] *= z;
-        LINK.Vim[j][i] = sgn * LINK.Vim[j][i] * z;
+        LINK.Vim[j][i] *= sgn * z;
       }
     }
   }
@@ -645,6 +686,7 @@ void GDiag(int n_, double C, Matrix &A, Matrix &Ainv_, Matrix &R,
   CopyMat(V.n, M, fm); /* fm<-M */
   TpMat(V.n, fm);  /* fm <- transpose(fm) */
   /* look for eigenvalues and eigenvectors of fm */
+  if (eigenv_prt) printf("\nGDiag: compute A & A^-1 for M.\n");
   geigen(V.n, fm, V.Vre, V.Vim, wr, wi);
   if (globval.radiation)
     for (j = 1; j <=  V.n/2; j++) {
@@ -654,6 +696,9 @@ void GDiag(int n_, double C, Matrix &A, Matrix &Ainv_, Matrix &R,
     }
 
   CopyMat(V.n, M, fm);
+  if (eigenv_prt)
+    printf("\nGDiag: compute eigenvalues & eigenvectors for M^T for globval."
+	   "\n");
   geigen(V.n, fm, globval.Vr, globval.Vi, globval.wr, globval.wi);
 
   /*  CopyVec(6,wr,globval.wr);
