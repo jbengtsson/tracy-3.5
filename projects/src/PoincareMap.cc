@@ -683,7 +683,11 @@ void PoincareMapType::propagate(const int n, BeamType &beam) const
 
     beam.BeamStats();
 
-    if (i % n_prt == 0) prt_eps(outf, i, beam.Sigma, *this);
+    if (i % n_prt == 0) {
+      printf("propagate: %4d turns\n", i);
+      prt_eps(outf, i, beam.Sigma, *this);
+      fflush(outf);
+    }
   }
   if (n % n_prt != 0) prt_eps(outf, n, beam.Sigma, *this);
 
@@ -900,7 +904,7 @@ void BenchMark(const int n_part, const int n_turn, const PoincareMapType &map)
   BeamType beam;
 
   printf("\nBenchMark:\n");
-  beam.BeamInit_dist(n_part, 0e-9, 1e-9, 0e-3, map.A);
+  beam.BeamInit_dist(n_part, 0e-9, 0.2e-9, 0e-3, map.A);
   beam.BeamStats(); beam.print(map);
   map.propagate(n_turn, beam);
   beam.BeamStats(); beam.print(map);
@@ -912,7 +916,7 @@ void BenchMark(const int n_turn, const PoincareMapType &map)
   BeamType beam;
  
   printf("\nBenchMark:\n");
-  beam.BeamInit_Sigma(0e-9, 1e-9, 0e-9, map.A);
+  beam.BeamInit_Sigma(0e-9, 0.2e-9, 0e-9, map.A);
   beam.print(map);
   map.propagate(n_turn, beam.Sigma);
   beam.print(map);
@@ -1034,7 +1038,7 @@ void get_Poincare_Map(void)
 
   if (!false) chk_map(map);
 
-  if (false) {
+  if (!false) {
     if (true)
       BenchMark(30000, map);
     else
