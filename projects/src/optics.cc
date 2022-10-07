@@ -1600,23 +1600,38 @@ int main(int argc, char *argv[])
     rdmfile(argv[1]);
 
   globval.H_exact    = false; globval.quad_fringe    = false;
-  globval.Cavity_on  = !false; globval.radiation      = false;
+  globval.Cavity_on  = !false; globval.radiation      = !false;
   globval.emittance  = false; globval.IBS            = false;
   globval.pathlength = false; globval.Aperture_on    = false;
   globval.Cart_Bend  = false; globval.dip_edge_fudge = true;
 
   if (!false) {
-    // trace = true;
+    trace = true;
+    ss_vect<double> ps;
+    ps.zero();
+    ps[x_]     =  1e-10;
+    ps[y_]     = -1e-10;
+    ps[delta_] =  1e-10;
+    cout << scientific << setprecision(6)
+	 << "\nx:\n" << setw(14) << ps << "\n";
+    // Cell_Pass(8, 8, ps, lastpos);
+    Cell_Pass(0, globval.Cell_nLoc, ps, lastpos);
+    cout << scientific << setprecision(6)
+	 << "x:\n" << setw(14) << ps << "\n";
+    // exit(0);
+
+    getcod(0e0, lastpos);
+    cout << scientific << setprecision(5)
+	 << "\nCOD:\n" << setw(13) << globval.CODvect << "\n";
+    // exit(0);
+
     Ring_GetTwiss(false, 0e-3); printglob();
+    cout << scientific << setprecision(5)
+	 << "\nCOD:\n" << setw(13) << globval.CODvect << "\n";
+    printf("\nA_CS:\n");
     double dnu[3];
-    printf("\nA^-1:\n");
-    prt_lin_map(3, chop_map(3, putlinmat(6, globval.Ascrinv), 1e-15));
-    printf("\nA_CS^-1:\n");
-    prt_lin_map(3, chop_map(3, get_A_CS(3, putlinmat(6, globval.Ascrinv), dnu),
+    prt_lin_map(3, chop_map(3, get_A_CS(3, putlinmat(6, globval.Ascr), dnu),
 			    1e-10));
-    printf("\nA^T.S.A:\n");
-    prt_lin_map(3, chop_map(3, tp_S(3, putlinmat(6, globval.Ascr))
-			    *get_S(3)*putlinmat(6, globval.Ascr), 1e-10));
     printf("\nR = A^-1.M.A:\n");
     prt_lin_map(3, chop_map(3, putlinmat(6, globval.Ascrinv)
 			    *putlinmat(6, globval.OneTurnMat)

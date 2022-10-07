@@ -321,7 +321,7 @@ class is_tps<tps> {
     // M. Sands "The Physics of Electron Storage Rings" SLAC-121, Eq. (5.20),
     // p. 118:
     //   dN<u^2>/E^2 =
-    //     3*C_U*C_gamma*h_bar*c*E_0^5*(1+delta)^4*(B_perp/(Brho))^3
+    //     3*C_u*C_gamma*h_bar*c*E_0^5*(1+delta)^4*(B_perp/(Brho))^3
     //     /(4*pi*m_e^3 [eV/c^2])
     // A contains the eigenvectors.
     int          j;
@@ -350,18 +350,24 @@ template<typename T>
 void get_B2(const double h_ref, const T B[], const ss_vect<T> &xp,
 	    T &B2_perp, T &B2_par)
 {
-  // compute B_perp^2 and B_par^2
+  const bool prt_debug = false;
+
+  // Compute B_perp^2 and B_par^2.
   T xn, e[3];
 
   xn = 1e0/sqrt(sqr(1e0+xp[x_]*h_ref)+sqr(xp[px_])+sqr(xp[py_]));
   e[X_] = xp[px_]*xn; e[Y_] = xp[py_]*xn; e[Z_] = (1e0+xp[x_]*h_ref)*xn;
 
-  // left-handed coordinate system
+  // Left-handed coordinate system.
   B2_perp =
     sqr(B[Y_]*e[Z_]-B[Z_]*e[Y_]) + sqr(B[X_]*e[Y_]-B[Y_]*e[X_])
     + sqr(B[Z_]*e[X_]-B[X_]*e[Z_]);
 
-//  B2_par = sqr(B[X_]*e[X_]+B[Y_]*e[Y_]+B[Z_]*e[Z_]);
+  if (prt_debug)
+    cout << scientific << setprecision(5)
+	 << "\nget_B2:" << setw(13) << B2_perp << "\n";
+
+  //  B2_par = sqr(B[X_]*e[X_]+B[Y_]*e[Y_]+B[Z_]*e[Z_]);
 }
 
 
@@ -372,6 +378,12 @@ void radiate(ss_vect<T> &ps, const double L, const double h_ref, const T B[])
   // ddelta/d(ds) = -C_gamma*E_0^3*(1+delta)^2*(B_perp/(Brho))^2/(2*pi)
   T          p_s0, p_s1, ds, B2_perp = 0e0, B2_par = 0e0;
   ss_vect<T> cs;
+
+  const bool prt_debug = false;
+
+  if (prt_debug)
+    cout << scientific << setprecision(5)
+	 << "\nradiate ->:\n" << setw(13) << ps << "\n";
 
   // Large ring: x' and y' unchanged.
   p_s0 = get_p_s(ps); cs = ps; cs[px_] /= p_s0; cs[py_] /= p_s0;
@@ -386,6 +398,10 @@ void radiate(ss_vect<T> &ps, const double L, const double h_ref, const T B[])
   }
 
   if (globval.emittance) is_tps<T>::emittance(B2_perp, ds, p_s0, cs);
+
+  if (prt_debug)
+    cout << scientific << setprecision(5)
+	 << "\n<- radiate:\n" << setw(13) << ps << "\n";
 }
 
 
@@ -481,6 +497,8 @@ void thin_kick(const int Order, const double MB[], const double L,
   T          BxoBrho, ByoBrho, ByoBrho1, B[3], u, p_s;
   ss_vect<T> ps0;
 
+  const bool prt_debug = false;
+
   if ((h_bend != 0e0) || ((1 <= Order) && (Order <= HOMmax))) {
     ps0 = ps;
     // Compute magnetic field with Horner's rule.
@@ -491,7 +509,13 @@ void thin_kick(const int Order, const double MB[], const double L,
       ByoBrho  = ByoBrho1;
     }
 
-    if (globval.radiation || globval.emittance) {
+  if (prt_debug)
+    cout << scientific << setprecision(5)
+	 << "\nthin_kick ->:\n" << "  h_bend = " << h_bend << " h_ref = "
+	 << h_ref << "\n  BxoBrho = " << setw(13) << BxoBrho << " ByoBrho = "
+	 << setw(13) << ByoBrho << "\n  ps = " << setw(13) << ps << "\n";
+
+  if (globval.radiation || globval.emittance) {
       B[X_] = BxoBrho; B[Y_] = ByoBrho + h_bend; B[Z_] = 0e0;
       radiate(ps, L, h_ref, B);
     }
@@ -519,6 +543,10 @@ void thin_kick(const int Order, const double MB[], const double L,
       ps[px_] -= L*(h_bend+ByoBrho);
     ps[py_] += L*BxoBrho;
   }
+
+  if (prt_debug)
+    cout << scientific << setprecision(5)
+	 << "\n<- thin_kick:\n  ps = " << setw(13) << ps << "\n";
 }
 
 
