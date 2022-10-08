@@ -550,9 +550,13 @@ void prtmat(const int n, const Matrix &A)
 
   printf("matrix:\n");
   for (i = 0; i < n; i++) {
-    for (j = 0; j < n; j++)
+    for (j = 0; j < n; j++) {
+#if 1
       printf(" %13.6e", A[i][j]);
-//      printf(" %23.16e", A[i][j]);
+#else
+      printf(" %23.16e", A[i][j]);
+#endif
+    }
     putchar('\n');
   }
 }

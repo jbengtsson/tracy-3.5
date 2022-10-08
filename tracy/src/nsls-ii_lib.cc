@@ -491,15 +491,15 @@ void GetEmittance(const int Fnum, const bool prt)
   C = Cell[globval.Cell_nLoc].S;
 
   // damped system
-  globval.radiation = true; globval.emittance  = true;
+  globval.radiation = true; globval.emittance  = false;
   globval.Cavity_on = true; globval.pathlength = false;
 
   Ring_GetTwiss(false, 0.0);
   if (debug_prt) {
-    printf("\nM:\n");
+    cout << scientific << setprecision(6)
+	 << "\nGetEmittance:\nx0 =" << setw(14) << globval.CODvect << "\n";
+    printf("M:\n");
     prtmat(6, globval.OneTurnMat);
-    printf("\nA^-1:\n");
-    prtmat(6, globval.Ascrinv);
   }
 
   // radiation loss is computed in Cav_Pass
@@ -513,9 +513,29 @@ void GetEmittance(const int Fnum, const bool prt)
     *tan(M_PI-phi0))/(fabs(globval.Alphac)*M_PI*h_RF*1e9*globval.Energy));
 
   // Compute diffusion coeffs. for eigenvectors [sigma_xx, sigma_yy, sigma_zz]
-  Ascr_map = putlinmat(6, globval.Ascr); Ascr_map += globval.CODvect;
+  Ascr_map = putlinmat(6, globval.Ascr);
+  double dnu[3];
+  Ascr_map = get_A_CS(2, Ascr_map, dnu);
+  Ascr_map += globval.CODvect;
 
+  if (debug_prt) {
+    cout << scientific << setprecision(6)
+	 << "\nA.cst =" << setw(14) << Ascr_map.cst() << "\nA:";
+    prt_lin_map(3, Ascr_map);
+  }
+
+  globval.emittance = true;
   Cell_Pass(0, globval.Cell_nLoc, Ascr_map, lastpos);
+
+  if (debug_prt) {
+    cout << scientific << setprecision(6)
+	 << "\nA.cst =" << setw(14) << Ascr_map.cst() << "\nA:";
+    prt_lin_map(3, Ascr_map);
+    cout << scientific << setprecision(6)
+	 << "\nalpha_rad =" << setw(14) << globval.alpha_rad[X_] << setw(14)
+	 << globval.alpha_rad[Y_] << setw(14) << globval.alpha_rad[Z_]
+	 << "\n";    
+  }
 
   // K. Robinson "Radiation Effects in Circular Electron Accelerators"
   // Phys. Rev. 111 (2), 373-380.
@@ -538,6 +558,9 @@ void GetEmittance(const int Fnum, const bool prt)
     nu[i]  = atan2(globval.wi[i*2], globval.wr[i*2])/(2.0*M_PI);
     if (nu[i] < 0.0) nu[i] = 1.0 + nu[i];
   }
+
+  if (debug_prt)
+    printf("\nnu = %18.16f %18.16f %18.16f\n", nu[X_], nu[Y_], 1e0-nu[Z_]);
 
   // undamped system
   globval.radiation = !false; globval.emittance = false;

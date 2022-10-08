@@ -1605,42 +1605,6 @@ int main(int argc, char *argv[])
   globval.pathlength = false; globval.Aperture_on    = false;
   globval.Cart_Bend  = false; globval.dip_edge_fudge = true;
 
-  if (!false) {
-    trace = true;
-    ss_vect<double> ps;
-    ps.zero();
-    ps[x_]     =  1e-10;
-    ps[y_]     = -1e-10;
-    ps[delta_] =  1e-10;
-    cout << scientific << setprecision(6)
-	 << "\nx:\n" << setw(14) << ps << "\n";
-    // Cell_Pass(8, 8, ps, lastpos);
-    Cell_Pass(0, globval.Cell_nLoc, ps, lastpos);
-    cout << scientific << setprecision(6)
-	 << "x:\n" << setw(14) << ps << "\n";
-    // exit(0);
-
-    getcod(0e0, lastpos);
-    cout << scientific << setprecision(5)
-	 << "\nCOD:\n" << setw(13) << globval.CODvect << "\n";
-    // exit(0);
-
-    Ring_GetTwiss(false, 0e-3); printglob();
-    cout << scientific << setprecision(5)
-	 << "\nCOD:\n" << setw(13) << globval.CODvect << "\n";
-    printf("\nA_CS:\n");
-    double dnu[3];
-    prt_lin_map(3, chop_map(3, get_A_CS(3, putlinmat(6, globval.Ascr), dnu),
-			    1e-10));
-    printf("\nR = A^-1.M.A:\n");
-    prt_lin_map(3, chop_map(3, putlinmat(6, globval.Ascrinv)
-			    *putlinmat(6, globval.OneTurnMat)
-			    *putlinmat(6, globval.Ascr), 1e-10));
-    prt_lat("linlat1.out", globval.bpm, true);
-    prt_lat("linlat.out", globval.bpm, true, 10);
-    exit(0);
-  }
-
   if (false) {
     ss_vect<tps> map;
     map.identity();
@@ -2128,7 +2092,6 @@ int main(int argc, char *argv[])
   }
 
   if (true) GetEmittance(ElemIndex("cav"), true);
-  // exit(0);
 
   if (false) {
 #if PM

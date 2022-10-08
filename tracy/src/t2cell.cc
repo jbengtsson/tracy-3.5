@@ -202,9 +202,8 @@ bool Cell_getCOD(long imax, double eps, double dP, long &lastpos)
     jj[j] = (j < n)? 1 : 0;
 
   if (trace)
-   std::cout << std::scientific << std::setprecision(5)
-	      << "\n  0                        x0 ="
-	      << std::setw(13) << x0 << "\n";
+   std::cout << std::scientific << std::setprecision(6)
+	     << "\n  0                       x0 =" << std::setw(14) << x0 << "\n";
   n_iter = 0; I.identity();
   do {
     n_iter++; map.identity(); map += x0;
@@ -223,7 +222,8 @@ bool Cell_getCOD(long imax, double eps, double dP, long &lastpos)
 	<< std::scientific << std::setprecision(1)
 	<< std::setw(3) << n_iter
 	<< " err = " << std::setw(7) << dxabs << "/" << std::setw(7) << eps
-	<< std::setprecision(5)	<< "  x0 =" << std::setw(13) << x0 << "\n";
+	<< std::setprecision(6)	<< " x0 =" << std::setw(14) << x0
+	<< "\n";
   } while ((dxabs >= eps) && (n_iter <= imax));
 
   status.codflag = dxabs < eps;
@@ -236,17 +236,17 @@ bool Cell_getCOD(long imax, double eps, double dP, long &lastpos)
       prtmat(6, globval.OneTurnMat);
     }
   } else
-    std::cout << std::scientific << std::setprecision(5)
+    std::cout << std::scientific << std::setprecision(6)
 	      << "\nCell_getCOD: failed to converge after " << n_iter
 	      << " iterations:\n"
 	      << "  dP =" << std::setw(12) << dP
 	      << ", particle lost at element " << lastpos << "\n"
-	      << std::scientific << std::setprecision(5)
-	      << "  x_0   =" << std::setw(13) << x0 << "\n"
-	      << std::scientific << std::setprecision(5)
-	      << "  x_k-1 =" << std::setw(13) << Cell[lastpos-1].BeamPos << "\n"
-	      << std::scientific << std::setprecision(5)
-	      << "  x_k   =" << std::setw(13) << map.cst() << "\n";
+	      << std::scientific << std::setprecision(6)
+	      << "  x_0   =" << std::setw(14) << x0 << "\n"
+	      << std::scientific << std::setprecision(6)
+	      << "  x_k-1 =" << std::setw(14) << Cell[lastpos-1].BeamPos
+	      << "\n" << std::scientific << std::setprecision(6)
+	      << "  x_k   =" << std::setw(14) << map.cst() << "\n";
 
   danot_(no);
   

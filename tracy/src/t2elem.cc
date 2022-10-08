@@ -325,17 +325,24 @@ class is_tps<tps> {
     //     /(4*pi*m_e^3 [eV/c^2])
     // A contains the eigenvectors.
     int          j;
-    double       B_66;
+    double       B_66, dD[3];
     ss_vect<tps> A_inv;
+
+    bool prt_debug = false;
 
     if (B2_perp > 0e0) {
       B_66 = (q_fluct*pow(B2_perp.cst(), 1.5)*pow(p_s0, 4)*ds).cst();
+      if (prt_debug) printf("\nemittance:\n  B_66 = %12.5e\n", B_66);
       A_inv = Inv(A);
       // D_11 = D_22 = curly_H_x,y * B_66 / 2,
       // curly_H_x,y = eta_Fl^2 + etap_Fl^2
-      for (j = 0; j < 3; j++)
-	globval.D_rad[j] +=
-	  (sqr(A_inv[j*2][delta_])+sqr(A_inv[j*2+1][delta_]))*B_66/2e0;
+
+      for (j = 0; j < 3; j++) {
+	dD[j] = (sqr(A_inv[j*2][delta_])+sqr(A_inv[j*2+1][delta_]))*B_66/2e0;
+	globval.D_rad[j] += dD[j];
+      }
+      if (prt_debug)
+	printf("  dD = %12.5e  %12.5e %12.5e", dD[X_], dD[Y_], dD[Z_]);
     }
   }
 
