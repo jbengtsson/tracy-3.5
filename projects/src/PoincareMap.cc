@@ -27,9 +27,10 @@ public:
   std::vector< ss_vect<double> >
     ps;                // Phase space coordinates. 
   ss_vect<double>
-    mean;              // Average.
+    mean,              // Average.
+    barycenter;        // 1st moment.
   ss_vect<tps>
-    Sigma;             // Variances.
+    Sigma;             // 2nd moment; beam envelope.
 
   void BeamInit_dist(const int n_part, const double eps_x, const double eps_y,
 		     const double eps_z, const ss_vect<tps> &A);
@@ -88,8 +89,8 @@ public:
   void GetM_Chol_tp(void);
   void GetM_rad(void);
   void GetM(const bool cav, const bool rad);
-  void propagate(const int n, BeamType &beam) const;
-  void propagate(const int n, ss_vect<tps> &Sigma) const;
+  void propagate_macro_part(const int n, BeamType &beam) const;
+  void propagate_stat_mom(const int n, BeamType &beam) const;
   void print(void);
 };
 
@@ -640,6 +641,17 @@ void get_stats(const int n, const ss_vect<double> &sum,
 }
 
 
+void prt_barycenter(FILE *outf, const int n, const ss_vect<double> barycenter)
+{
+  int k;
+
+  fprintf(outf, "%7d", n);
+  for (k = 0; k < 2*n_DOF; k++)
+    fprintf(outf, "%13.5e", barycenter[k]);
+  fprintf(outf, "\n");
+}
+
+
 void prt_eps(FILE *outf, const int n, const ss_vect<tps> Sigma,
 	     const PoincareMapType &map)
 {
@@ -655,27 +667,32 @@ void prt_eps(FILE *outf, const int n, const ss_vect<tps> Sigma,
 }
 
 
-void PoincareMapType::propagate(const int n, BeamType &beam) const
+void PoincareMapType::propagate_macro_part(const int n, BeamType &beam) const
 {
   int             i, j = 0, k, n_rnd;
   double          rnd;
   ss_vect<double> X, sum, sum2, m, s;
-  FILE            *outf;
+  FILE            *outf_bc, *outf_eps;
 
   std::default_random_engine       rand;
   std::normal_distribution<double> norm_ranf(0e0, 1e0);
 
   const int    n_prt     = 10;
-  const string file_name = "propagate.out";
+  const string file_name = "propagate";
 
-  outf = file_write(file_name.c_str());
+  outf_bc  = file_write((file_name+"_bc.out").c_str());
+  outf_eps = file_write((file_name+"_eps.out").c_str());
 
-  sum.zero(); sum2.zero(); n_rnd = 0;
+  sum.zero();
+  sum2.zero();
+  n_rnd = 0;
   for (i = 1; i <= n; i++) {
     for (j = 0; j < (int)beam.ps.size(); j++) {
       n_rnd++;
       for (k = 0; k < 2*n_DOF; k++) {
-	rnd = norm_ranf(rand); sum[k] += rnd; sum2[k] += sqr(rnd);
+	rnd = norm_ranf(rand);
+	sum[k] += rnd;
+	sum2[k] += sqr(rnd);
 	X[k] = rnd;
       }
       beam.ps[j] = (M*beam.ps[j]+M_Chol_tp*X).cst();
@@ -685,13 +702,18 @@ void PoincareMapType::propagate(const int n, BeamType &beam) const
 
     if (i % n_prt == 0) {
       printf("propagate: %4d turns\n", i);
-      prt_eps(outf, i, beam.Sigma, *this);
-      fflush(outf);
+      prt_barycenter(outf_bc, i, beam.barycenter);
+      prt_eps(outf_eps, i, beam.Sigma, *this);
+      fflush(outf_bc);
+      fflush(outf_eps);
     }
   }
-  if (n % n_prt != 0) prt_eps(outf, n, beam.Sigma, *this);
+  if (n % n_prt != 0) {
+    prt_barycenter(outf_bc, i, beam.barycenter);
+    prt_eps(outf_eps, n, beam.Sigma, *this);
+  }
 
-  fclose(outf);
+  fclose(outf_eps);
 
   get_stats(n_rnd, sum, sum2, m, s);
   PrtVec("\nmean_X:", m);
@@ -699,37 +721,47 @@ void PoincareMapType::propagate(const int n, BeamType &beam) const
 }
 
 
-void PoincareMapType::propagate(const int n, ss_vect<tps> &Sigma) const
+void PoincareMapType::propagate_stat_mom(const int n, BeamType &beam) const
 {
   int             j, k, n_rnd;
   double          rnd;
-  ss_vect<double> sum, sum2, m, s;
-  ss_vect<tps>    X;
-  FILE            *outf;
+  ss_vect<double> sum, sum2, m, s, X;
+  ss_vect<tps>    Id, X_map;
+  FILE            *outf_bc, *outf_eps;
 
   const int          n_prt     = 1;
-  const string       file_name = "propagate.out";
+  const string       file_name = "propagate";
   const ss_vect<tps> M_Chol    = TpMap(M_Chol_tp);
 
   std::default_random_engine       rand;
   std::normal_distribution<double> norm_ranf(0e0, 1e0);
 
-  outf = file_write(file_name.c_str());
+  outf_bc  = file_write((file_name+"_bc.out").c_str());
+  outf_eps = file_write((file_name+"_eps.out").c_str());
 
+  Id.identity();
   n_rnd = 0;
   for (j = 1; j <= n; j++) {
     n_rnd++;
     for (k = 0; k < 2*n_DOF; k++) {
       rnd = norm_ranf(rand); sum[k] += rnd; sum2[k] += sqr(rnd);
-      X[k] = rnd*tps(0e0, k+1);
+      X[k] = rnd;
+      X_map[k] = X[k]*Id[k];
     }
-    Sigma = M*TpMap(M*Sigma) + M_Chol_tp*sqr(X)*M_Chol;
+    beam.barycenter = (M*beam.barycenter).cst() + (M_Chol_tp*X).cst();
+    beam.Sigma = M*TpMap(M*beam.Sigma) + M_Chol_tp*sqr(X_map)*M_Chol;
 
-    if (j % n_prt == 0) prt_eps(outf, j, Sigma, *this);
+    if (j % n_prt == 0) {
+      prt_barycenter(outf_bc, j, beam.barycenter);
+      prt_eps(outf_eps, j, beam.Sigma, *this);
+    }
   }
-  if (n % n_prt != 0) prt_eps(outf, n, Sigma, *this);
+  if (n % n_prt != 0) {
+    prt_barycenter(outf_bc, j, beam.barycenter);
+    prt_eps(outf_eps, n, beam.Sigma, *this);
+  }
 
-  fclose(outf);
+  fclose(outf_eps);
 
   get_stats(n_rnd, sum, sum2, m, s);
   PrtVec("\nmean_X:", m);
@@ -906,7 +938,7 @@ void BenchMark(const int n_part, const int n_turn, const PoincareMapType &map)
   printf("\nBenchMark:\n");
   beam.BeamInit_dist(n_part, 0e-9, 0.2e-9, 0e-3, map.A);
   beam.BeamStats(); beam.print(map);
-  map.propagate(n_turn, beam);
+  map.propagate_macro_part(n_turn, beam);
   beam.BeamStats(); beam.print(map);
 }
 
@@ -916,9 +948,11 @@ void BenchMark(const int n_turn, const PoincareMapType &map)
   BeamType beam;
  
   printf("\nBenchMark:\n");
+  beam.barycenter[x_] = 0e-6;
+  beam.barycenter[y_] = 1e-6;
   beam.BeamInit_Sigma(0e-9, 0.2e-9, 0e-9, map.A);
   beam.print(map);
-  map.propagate(n_turn, beam.Sigma);
+  map.propagate_stat_mom(n_turn, beam);
   beam.print(map);
 }
 

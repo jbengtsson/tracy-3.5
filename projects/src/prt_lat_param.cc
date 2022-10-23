@@ -91,7 +91,7 @@ void prt_lat_param(char *file_name, char *cav_name, const double eps_s,
   fprintf(outf, "n_b_4\t%1d\n", n_bn);
 
   get_RB("qf4", n_RB_tot, B_2, dx);
-  dx_max = max(fabs(dx), dx_max);
+  dx_max = fabs(dx);
   get_RB("qf8", n_RB, B_2, dx);
   n_RB_tot += n_RB;
   dx_max = max(fabs(dx), dx_max);

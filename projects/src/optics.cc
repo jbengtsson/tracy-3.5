@@ -51,7 +51,7 @@ void prt_name(FILE *outf, const char *name, const string &str, const int len)
     fprintf(outf, "%c", name[j]);
     j++;
   } while (name[j] != ' ');
-  fprintf(outf, str.c_str());
+  fprintf(outf, "%s", str.c_str());
   for (k = j; k < len; k++)
     fprintf(outf, " ");
 }
@@ -1573,7 +1573,6 @@ int main(int argc, char *argv[])
   ss_vect<tps>     Ascr, A_Atp, Id, Ms;
   ostringstream    str;
 
-  const long   seed   = 1121;
   const int    n_turn = 2064;
   const double delta  = 2e-2;
   //                   nu[]    = { 102.18/20.0, 68.30/20.0 };
@@ -1604,14 +1603,6 @@ int main(int argc, char *argv[])
   globval.emittance  = false; globval.IBS            = false;
   globval.pathlength = false; globval.Aperture_on    = false;
   globval.Cart_Bend  = false; globval.dip_edge_fudge = true;
-
-  if (false) {
-    ss_vect<tps> map;
-    map.identity();
-    Cell_Pass(0, globval.Cell_nLoc, map, lastpos);
-    prt_lin_map(3, map);
-    exit(0);
-  }
 
   if (false) no_sxt();
 
@@ -2093,7 +2084,7 @@ int main(int argc, char *argv[])
 
   if (true) GetEmittance(ElemIndex("cav"), true);
 
-  if (false) {
+  if (!false) {
 #if PM
     get_Poincare_Map();
 #else
