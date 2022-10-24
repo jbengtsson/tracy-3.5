@@ -55,6 +55,7 @@ set key right top;
 set title "Transverse Phase Space";
 set xlabel "turn no";
 set ylabel "{/Symbol e}_{x,y} [nm.rad]";
+unset y2tics;
 plot file_name_2 using 1:(1e9*\$2) title "{/Symbol e}_x" with points ls 1, \
      file_name_2 using 1:(1e9*\$4) title "{/Symbol e}_y" with points ls 3;
 
