@@ -1,41 +1,125 @@
-#define NO 2
+#define NO 4
 
 #include "tracy_lib.h"
+
+
+// F. Klein's Erlangen Program.
 
 int no_tps   = NO,
     ndpt_tps = 5;
 
 
-void track_twoJ()
+tps get_H(const MNF_struct &MNF)
+{
+  int          i;
+  tps          H, g_n;
+  ss_vect<tps> Id, M_n;
+
+  // Construct generator.
+  // K is in Dragt-Finn form but the generators commute.
+  Id.identity();
+  H = MNF.K;
+  for (i = no_tps; i >= 3; i--) {
+    g_n = Take(MNF.g, i);
+    H = H*LieExp(-g_n, Id);
+  }
+  return H*Inv(MNF.A0*MNF.A1);
+}
+
+
+void compute_invariant()
 {
   long int     lastpos;
   int          k;
-  tps          twoJ;
-  ss_vect<tps> Id, M;
+  double       nu_int;
+  tps          H_2, DH_2, H, DH;
+  ss_vect<tps> Id, M, B;
 
   const double
     alpha[] = {Cell[0].Alpha[X_], Cell[0].Alpha[Y_]},
     beta[]  = {Cell[0].Beta[X_],  Cell[0].Beta[Y_]},
-    gamma[] = {(1e0+sqr(alpha[X_]))/beta[X_], (1e0+sqr(alpha[Y_]))/beta[Y_]};
+    gamma[] = {(1e0+sqr(alpha[X_]))/beta[X_], (1e0+sqr(alpha[Y_]))/beta[Y_]},
+    eta_x   = Cell[0].Eta[X_],
+    etap_x  = Cell[0].Etap[X_];
 
   Id.identity();
-  printf("\n  alpha_x = %5.3f beta_x = %5.3f gamma_x = %5.3f\n",
-	 alpha[X_], beta[X_], gamma[X_]);
+
+  printf("\n  alpha_x = %6.3f beta_x = %5.3f gamma_x = %5.3f"
+	 " eta_x = %10.3e eta'_x = %10.3e\n"
+	 "  alpha_y = %6.3f beta_y = %5.3f gamma_y = %5.3f\n",
+	 alpha[X_], beta[X_], gamma[X_], eta_x, etap_x,
+	 alpha[Y_], beta[Y_], gamma[Y_]);
+
+  danot_(no_tps-1);
 
   M.identity();
   Cell_Pass(0, globval.Cell_nLoc, M, lastpos);
   printf("\nM:\n");
   prt_lin_map(3, M);
+  // cout << scientific << setprecision(3) << "\nM:\n" << M << "\n";
 
-  twoJ = 0e0;
-  for (k = 0; k < 2; k++)
-    twoJ +=
-      gamma[k]*sqr(Id[2*k]) + 2e0*alpha[k]*Id[2*k]*Id[2*k+1]
-      + beta[k]*sqr(Id[2*k+1]);
+  danot_(2);
 
-  cout << scientific << setprecision(3) <<  "\ntwoJ:\n" << twoJ << "\n";
-  twoJ = twoJ*M;
-  cout << scientific << setprecision(3) <<  "\ntwoJ:\n" << twoJ << "\n";
+  H_2 = 0e0;
+  for (k = 0; k < 2; k++) {
+    H_2 +=
+      -M_PI*modf(globval.TotalTune[k], &nu_int)
+      *(gamma[k]*sqr(Id[2*k])+2e0*alpha[k]*Id[2*k]*Id[2*k+1]
+	+beta[k]*sqr(Id[2*k+1]))
+      + M[ct_][delta_]*sqr(Id[delta_])/4e0;
+  }
+
+  B.identity();
+  B[x_]  += eta_x*Id[delta_];
+  B[px_] += etap_x*Id[delta_];
+  B[ct_] += -etap_x*Id[x_] - eta_x*Id[px_];
+
+  printf("\nLinear dispersion computed by numerical differentiation.\n");
+  printf("\nB:\n");
+  prt_lin_map(3, B);
+
+  danot_(no_tps);
+
+  printf("\nLinear dispersion computed by TPSA.\n");
+  MNF = MapNorm(M, 1);
+
+  danot_(2);
+
+  printf("\nA0:\n");
+  prt_lin_map(3, MNF.A0);
+
+
+  H_2 = H_2*Inv(MNF.A0);
+
+  daeps_(1e-10);
+  H_2 = 1e0*H_2;
+  cout << scientific << setprecision(3) << "\nH_2:\n" << H_2 << "\n";
+  daeps_(eps_tps);
+
+  printf("\ne^-H:\n");
+  prt_lin_map(3, LieExp(H_2, Id));
+
+  DH_2 = H_2*M - H_2;
+  daeps_(1e-13);
+  DH_2 = 1e0*DH_2;
+  cout << scientific << setprecision(3) << "\nH_2*M - H_2:\n" << DH_2 << "\n";
+  daeps_(eps_tps);
+
+  danot_(no_tps);
+
+  MNF = MapNorm(M, no_tps);
+  H = get_H(MNF);
+
+  daeps_(1e-7);
+  H = 1e0*H;
+  cout << scientific << setprecision(3) << "\nH:\n" << H << "\n";
+  daeps_(eps_tps);
+
+  DH = H*M - H;
+  daeps_(1e-7);
+  DH = 1e0*DH;
+  cout << scientific << setprecision(3) << "\nDH:\n" << DH << "\n";
+  daeps_(eps_tps);
 }
 
 
@@ -58,6 +142,6 @@ int main(int argc, char *argv[])
 
   Ring_GetTwiss(true, 0e0); printglob();
 
-  track_twoJ();
+  compute_invariant();
 }
 

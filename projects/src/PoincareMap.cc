@@ -27,15 +27,13 @@ public:
   std::vector< ss_vect<double> >
     ps;                // Phase space coordinates. 
   ss_vect<double>
-    mean,              // Average.
-    barycenter;        // 1st moment.
+    mean;              // 1st moment.
   ss_vect<tps>
     Sigma;             // 2nd moment; beam envelope.
 
-  void BeamInit_dist(const int n_part, const double eps_x, const double eps_y,
-		     const double eps_z, const ss_vect<tps> &A);
-  void BeamInit_Sigma(const double eps_x, const double eps_y,
-		      const double eps_z, const ss_vect<tps> &A);
+  void BeamInit_dist(const int n_part, const ss_vect<double> &mean,
+		     const double eps[], const ss_vect<tps> &A);
+  void BeamInit_Sigma(const double eps[], const ss_vect<tps> &A);
   void BeamStats(void);
   void print(const PoincareMapType &map);
 };
@@ -168,7 +166,7 @@ double get_curly_H_x(const double alpha_x, const double beta_x,
 }
 
 
-ss_vect<double> get_eps(const ss_vect<tps> Sigma, const ss_vect<tps> A)
+ss_vect<double> get_eps(const ss_vect<tps> &Sigma, const ss_vect<tps> &A)
 {
   int             k;
   ss_vect<double> eps;
@@ -641,18 +639,18 @@ void get_stats(const int n, const ss_vect<double> &sum,
 }
 
 
-void prt_barycenter(FILE *outf, const int n, const ss_vect<double> barycenter)
+void prt_mean(FILE *outf, const int n, const ss_vect<double> mean)
 {
   int k;
 
   fprintf(outf, "%7d", n);
   for (k = 0; k < 2*n_DOF; k++)
-    fprintf(outf, "%13.5e", barycenter[k]);
+    fprintf(outf, "%13.5e", mean[k]);
   fprintf(outf, "\n");
 }
 
 
-void prt_eps(FILE *outf, const int n, const ss_vect<tps> Sigma,
+void prt_eps(FILE *outf, const int n, const ss_vect<tps> &Sigma,
 	     const PoincareMapType &map)
 {
   int             k;
@@ -702,14 +700,14 @@ void PoincareMapType::propagate_macro_part(const int n, BeamType &beam) const
 
     if (i % n_prt == 0) {
       printf("propagate: %4d turns\n", i);
-      prt_barycenter(outf_bc, i, beam.barycenter);
+      prt_mean(outf_bc, i, beam.mean);
       prt_eps(outf_eps, i, beam.Sigma, *this);
       fflush(outf_bc);
       fflush(outf_eps);
     }
   }
   if (n % n_prt != 0) {
-    prt_barycenter(outf_bc, i, beam.barycenter);
+    prt_mean(outf_bc, i, beam.mean);
     prt_eps(outf_eps, n, beam.Sigma, *this);
   }
 
@@ -748,16 +746,17 @@ void PoincareMapType::propagate_stat_mom(const int n, BeamType &beam) const
       X[k] = rnd;
       X_map[k] = X[k]*Id[k];
     }
-    beam.barycenter = (M*beam.barycenter).cst() + (M_Chol_tp*X).cst();
+    // Average of stochastic term is zero.
+    beam.mean = (M*beam.mean).cst() + 0*(M_Chol_tp*X).cst();
     beam.Sigma = M*TpMap(M*beam.Sigma) + M_Chol_tp*sqr(X_map)*M_Chol;
 
     if (j % n_prt == 0) {
-      prt_barycenter(outf_bc, j, beam.barycenter);
+      prt_mean(outf_bc, j, beam.mean);
       prt_eps(outf_eps, j, beam.Sigma, *this);
     }
   }
   if (n % n_prt != 0) {
-    prt_barycenter(outf_bc, j, beam.barycenter);
+    prt_mean(outf_bc, j, beam.mean);
     prt_eps(outf_eps, n, beam.Sigma, *this);
   }
 
@@ -783,7 +782,7 @@ ss_vect<tps> GetM_track(const bool cav_on, const bool rad_on,
 
 
 ss_vect<tps> GetMTwiss(const double alpha[], const double beta[],
-		       const ss_vect<double> eta, const double nu[])
+		       const ss_vect<double> &eta, const double nu[])
 {
   ss_vect<tps> Id, A, M;
 
@@ -856,17 +855,14 @@ void PoincareMapType::print(void)
 }
 
 
-void BeamType::BeamInit_dist(const int n_part, const double eps_x,
-			     const double eps_y, const double eps_z,
-			     const ss_vect<tps> &A)
+void BeamType::BeamInit_dist(const int n_part, const ss_vect<double> &mean,
+			     const double eps[],const ss_vect<tps> &A)
 {
   int             j, k;
   double          phi;
   ss_vect<double> ps_Fl;
 
   this->n_part = n_part;
-
-  const double eps[] = {eps_x, eps_y, eps_z};
 
   for (j = 0; j < n_part; j++) {
     ps_Fl.zero();
@@ -876,21 +872,20 @@ void BeamType::BeamInit_dist(const int n_part, const double eps_x,
       ps_Fl[2*k] = sqrt(2e0*eps[k])*cos(phi);
       ps_Fl[2*k+1] = -sqrt(2e0*eps[k])*sin(phi);
     }
-    this->ps.push_back((A*ps_Fl).cst());
+    this->ps.push_back((A*ps_Fl).cst()+mean);
   }
 }
 
 
-void BeamType::BeamInit_Sigma(const double eps_x, const double eps_y,
-			      const double eps_z, const ss_vect<tps> &A)
+void BeamType::BeamInit_Sigma(const double eps[], const ss_vect<tps> &A)
 {
   int          k;
+  ss_vect<tps> Id;
 
-  const double eps[] = {eps_x, eps_y, eps_z};
-
+  Id.identity();
   Sigma.zero();
   for (k = 0; k < 2*n_DOF; k++)
-    Sigma[k] += eps[k/2]*tps(1e0, k+1);
+    Sigma[k] += eps[k/2]*Id[k];
   Sigma = A*Sigma*TpMap(A);
 }
 
@@ -917,7 +912,8 @@ void BeamType::BeamStats(void)
   ss_vect<double> sum;
   ss_vect<tps>    sum2;
 
-  sum.zero(); sum2.zero();
+  sum.zero();
+  sum2.zero();
   for (i = 0; i < n_part; i++) {
     sum += ps[i];
     for (j = 0; j < 2*n_DOF; j++)
@@ -933,24 +929,37 @@ void BeamType::print(const PoincareMapType &map) { prt_Sigma(Sigma, map); }
 
 void BenchMark(const int n_part, const int n_turn, const PoincareMapType &map)
 {
-  BeamType beam;
+  ss_vect<double> mean;
+  BeamType        beam;
 
-  printf("\nBenchMark:\n");
-  beam.BeamInit_dist(n_part, 0e-9, 0.2e-9, 0e-3, map.A);
-  beam.BeamStats(); beam.print(map);
+  const double eps[] = {0e-9, 0.2e-9, 0e-3};
+
+  printf("\nBenchMark - macroparticles:\n");
+  mean.zero();
+  mean[x_] = 100e-6;
+  mean[y_] = 0.1e-6;
+  beam.BeamInit_dist(n_part, mean, eps, map.A);
+  beam.BeamStats();
+  PrtVec("\nmean:", beam.mean);
+  beam.print(map);
   map.propagate_macro_part(n_turn, beam);
-  beam.BeamStats(); beam.print(map);
+  beam.BeamStats();
+  beam.print(map);
 }
 
 
 void BenchMark(const int n_turn, const PoincareMapType &map)
 {
-  BeamType beam;
+  ss_vect<double> mean;
+  BeamType        beam;
+
+  const double eps[] = {0e-9, 0.2e-9, 0e-3};
  
-  printf("\nBenchMark:\n");
-  beam.barycenter[x_] = 0e-6;
-  beam.barycenter[y_] = 1e-6;
-  beam.BeamInit_Sigma(0e-9, 0.2e-9, 0e-9, map.A);
+  printf("\nBenchMark - statistical moments:\n");
+  mean.zero();
+  beam.mean[x_] = 100e-6;
+  beam.mean[y_] = 0.1e-6;
+  beam.BeamInit_Sigma(eps, map.A);
   beam.print(map);
   map.propagate_stat_mom(n_turn, beam);
   beam.print(map);
@@ -1073,7 +1082,7 @@ void get_Poincare_Map(void)
   if (!false) chk_map(map);
 
   if (!false) {
-    if (true)
+    if (!true)
       BenchMark(30000, map);
     else
       BenchMark(10000, 30000, map);
