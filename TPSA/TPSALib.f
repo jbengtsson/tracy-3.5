@@ -1227,6 +1227,16 @@
       return
       end subroutine
 
+      function getno() bind(C, name="getno_")
+      use iso_c_binding, only: c_char, c_long, c_double
+      implicit none
+      integer(c_long) getno
+
+      include "TPSALib_prm.f"
+      getno = nocut
+      return
+      end function
+
       subroutine getdanot(not)
       implicit none
       integer not
