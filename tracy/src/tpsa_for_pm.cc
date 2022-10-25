@@ -100,7 +100,7 @@ ss_vect<tps> putlinmat(const int nv, const Matrix &mat)
   for (j = 1; j <= nv; j++) {
     for (k = 0; k <= nv; k++) {
       if (k == 0)
-        putmat(map, j, k, 0.0);
+        putmat(map, j, k, 0e0);
       else
         putmat(map, j, k, mat[j-1][k-1]);
     }
