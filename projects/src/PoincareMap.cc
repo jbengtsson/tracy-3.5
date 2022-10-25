@@ -1082,7 +1082,7 @@ void get_Poincare_Map(void)
   if (!false) chk_map(map);
 
   if (!false) {
-    if (!true)
+    if (true)
       BenchMark(30000, map);
     else
       BenchMark(10000, 30000, map);

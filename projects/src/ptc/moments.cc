@@ -15,7 +15,7 @@ tps get_H(const MNF_struct &MNF)
   tps          H, g_n;
   ss_vect<tps> Id, M_n;
 
-  // Construct generator.
+  // Compute Lie generator in Floquet space.
   // K is in Dragt-Finn form but the generators commute.
   Id.identity();
   H = MNF.K;
@@ -23,7 +23,7 @@ tps get_H(const MNF_struct &MNF)
     g_n = Take(MNF.g, i);
     H = H*LieExp(-g_n, Id);
   }
-  return H*Inv(MNF.A0*MNF.A1);
+  return H;
 }
 
 
@@ -65,9 +65,9 @@ void compute_invariant()
     H_2 +=
       -M_PI*modf(globval.TotalTune[k], &nu_int)
       *(gamma[k]*sqr(Id[2*k])+2e0*alpha[k]*Id[2*k]*Id[2*k+1]
-	+beta[k]*sqr(Id[2*k+1]))
-      + M[ct_][delta_]*sqr(Id[delta_])/4e0;
+	+beta[k]*sqr(Id[2*k+1]));
   }
+  H_2 += M[ct_][delta_]*sqr(Id[delta_])/2e0;
 
   B.identity();
   B[x_]  += eta_x*Id[delta_];
@@ -83,42 +83,42 @@ void compute_invariant()
   printf("\nLinear dispersion computed by TPSA.\n");
   MNF = MapNorm(M, 1);
 
-  danot_(2);
-
   printf("\nA0:\n");
   prt_lin_map(3, MNF.A0);
-
 
   H_2 = H_2*Inv(MNF.A0);
 
   daeps_(1e-10);
   H_2 = 1e0*H_2;
-  cout << scientific << setprecision(3) << "\nH_2:\n" << H_2 << "\n";
+  cout << scientific << setprecision(3) << "\nH_2:\n" << H_2;
   daeps_(eps_tps);
 
-  printf("\ne^-H:\n");
+  printf("\ne^-H_2:\n");
   prt_lin_map(3, LieExp(H_2, Id));
+
+  // Restore max order after call to LieExp.
+  danot_(2);
 
   DH_2 = H_2*M - H_2;
   daeps_(1e-13);
   DH_2 = 1e0*DH_2;
-  cout << scientific << setprecision(3) << "\nH_2*M - H_2:\n" << DH_2 << "\n";
+  cout << scientific << setprecision(3) << "\nH_2*M - H_2:\n" << DH_2;
   daeps_(eps_tps);
 
   danot_(no_tps);
 
   MNF = MapNorm(M, no_tps);
-  H = get_H(MNF);
+  H = get_H(MNF)*Inv(MNF.A0*MNF.A1);
 
   daeps_(1e-7);
   H = 1e0*H;
-  cout << scientific << setprecision(3) << "\nH:\n" << H << "\n";
+  cout << scientific << setprecision(3) << "\nH:\n" << H;
   daeps_(eps_tps);
 
   DH = H*M - H;
   daeps_(1e-7);
   DH = 1e0*DH;
-  cout << scientific << setprecision(3) << "\nDH:\n" << DH << "\n";
+  cout << scientific << setprecision(3) << "\nDH:\n" << DH;
   daeps_(eps_tps);
 }
 
