@@ -9,25 +9,24 @@ int no_tps   = NO,
     ndpt_tps = 5;
 
 //------------------------------------------------------------------------------
-// Complex TPSA.
+// Template class for complex TPSA.
 
-class Complex
+template<typename T> class Complex
 {
 private:
-  tps real, imag;
+  T real, imag;
 
 public:
   Complex(void);
-  Complex(const double real);
   Complex(const double real, const double imag);
-  Complex(const tps &real, const tps &imag);
+  Complex(const T &real, const T &imag);
 
   void print(void);
 
-  tps get_real(void) const;
-  tps get_imag(void) const;
-  void set_real(const tps &);
-  void set_imag(const tps &);
+  T get_real(void) const;
+  T get_imag(void) const;
+  void set_real(const T &);
+  void set_imag(const T &);
 
   Complex operator+=(const Complex &);
   Complex operator-=(const Complex &);
@@ -45,105 +44,119 @@ public:
   friend Complex operator+(const Complex &);
 };
 
-Complex::Complex(void)
+template<typename T>
+Complex<T>::Complex(void)
 {
   this->real = 0e0;
   this->imag = 0e0;
 }
 
-Complex::Complex(const double real)
-{
-  this->real = real;
-  this->imag = 0e0;
-}
-
-Complex::Complex(const double real, const double imag)
+template<typename T>
+Complex<T>::Complex(const double real, const double imag)
 {
   this->real = real;
   this->imag = imag;
 }
 
-Complex::Complex(const tps &real, const tps &imag)
+template<typename T>
+Complex<T>::Complex(const T &real, const T &imag)
 {
   this->real = real;
   this->imag = imag;
 }
 
-void Complex::print(void)
+template<typename T>
+void Complex<T>::print(void)
 {
   cout << "\nReal:\n" << this->real << "\nImag:\n" << this->imag <<  "\n";
 }
 
-tps Complex::get_real(void) const
+template<typename T>
+T Complex<T>::get_real(void) const
 {
     return this->real;
 }
 
-tps Complex::get_imag(void) const
+template<typename T>
+T Complex<T>::get_imag(void) const
 {
     return this->imag;
 }
 
-void Complex::set_real(const tps &real)
+template<typename T>
+void Complex<T>::set_real(const T &real)
 {
     this->real = real;
 }
 
-void Complex::set_imag(const tps &imag)
+template<typename T>
+void Complex<T>::set_imag(const T &imag)
 {
     this->imag = imag;
 }
 
-Complex Complex::operator+=(const Complex &a)
+template<typename T>
+Complex<T> Complex<T>::operator+=(const Complex &a)
 {
   return Complex(this->get_real()+a.get_real(),
 		 this->get_imag()+a.get_imag());
 }
 
-Complex Complex::operator-=(const Complex &a)
+template<typename T>
+Complex<T> Complex<T>::operator-=(const Complex &a)
 {
   return Complex(this->get_real()+a.get_real(),
 		 this->get_imag()+a.get_imag());
 }
 
-Complex Complex::operator*=(const Complex &a)
+template<typename T>
+Complex<T> Complex<T>::operator*=(const Complex &a)
 {
   return Complex(this->get_real()*a.get_real()-this->get_imag()*a.get_imag(),
 		 this->get_real()*a.get_imag()+this->get_imag()*a.get_real());
 }
 
-Complex Complex::operator/=(const Complex &a)
+template<typename T>
+Complex<T> Complex<T>::operator/=(const Complex &a)
 {
   return this->operator*=(conjugate(a)/(a*conjugate(a)));
 }
 
-inline Complex conjugate(const Complex &a)
+template<typename T>
+inline Complex<T> conjugate(const Complex<T> &a)
 {
-  return Complex(a.get_real(), -a.get_imag());
+  return Complex<T>(a.get_real(), -a.get_imag());
 }
 
-inline Complex abs(const Complex &a)
+template<typename T>
+inline Complex<T> abs(const Complex<T> &a)
 {
   return a*conjugate(a);
 }
 
-inline Complex operator+(const Complex &a, const Complex &b)
-{ return Complex(a) += b; }
+template<typename T>
+inline Complex<T> operator+(const Complex<T> &a, const Complex<T> &b)
+{ return Complex<T>(a) += b; }
 
-inline Complex operator-(const Complex &a, const Complex &b)
-{ return Complex(a) -= b; }
+template<typename T>
+inline Complex<T> operator-(const Complex<T> &a, const Complex<T> &b)
+{ return Complex<T>(a) -= b; }
 
-inline Complex operator*(const Complex &a, const Complex &b)
-{ return Complex(a) *= b; }
+template<typename T>
+inline Complex<T> operator*(const Complex<T> &a, const Complex<T> &b)
+{ return Complex<T>(a) *= b; }
 
-inline Complex operator/(const Complex &a, const Complex &b)
-{ return Complex(a) /= b; }
+template<typename T>
+inline Complex<T> operator/(const Complex<T> &a, const Complex<T> &b)
+{ return Complex<T>(a) /= b; }
 
-inline Complex operator+(const Complex &x)
-{ return Complex(x); }
+template<typename T>
+inline Complex<T> operator+(const Complex<T> &x)
+{ return Complex<T>(x); }
 
-inline Complex operator-(const Complex &x)
-{ return Complex(x) *= -1e0; }
+template<typename T>
+inline Complex<T> operator-(const Complex<T> &x)
+{ return Complex<T>(x) *= Complex<T>(-1e0, -1e0); }
 
 //------------------------------------------------------------------------------
 
