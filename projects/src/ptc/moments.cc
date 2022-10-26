@@ -262,14 +262,17 @@ ss_vect<tps> compute_map_normal_form(ss_vect<tps> &map)
     map1 = Inv(A)*map1*A;
   }
 
+#if 1
   MNF = MapNorm(map, no_tps);
 
   daeps_(1e-8);
   cout << "\nMNF.g-g:\n" << MNF.g-g;
   cout << "\nMNF.K-K:\n" << MNF.K-K;
-//  CtoR(MNF.K-K, h_k_re, h_k_im);
-//  cout << h_k_re;
   daeps_(eps_tps);
+#endif
+
+  // MNF.g = g;
+  // MNF.K = K;
 
   return map1;
 }
@@ -412,7 +415,7 @@ void track_H(const string &file_name, const double A_x, const double A_y,
 }
 
 
-void stability(const ss_vect<tps> &map)
+void track_H(const ss_vect<tps> &map)
 {
   tps H;
 
@@ -435,20 +438,19 @@ void stability(const ss_vect<tps> &map)
   track_H("track_H_1.dat", 0.1e-3, 0.1e-3, H);
   track_H("track_H_2.dat", 0.5e-3, 0.5e-3, H);
   track_H("track_H_3.dat", 1.0e-3, 1.0e-3, H);
-  track_H("track_H_4.dat", 1.5e-3, 1.5e-3, H);
-  track_H("track_H_5.dat", 2.0e-3, 2.0e-3, H);
-  track_H("track_H_6.dat", 2.5e-3, 2.5e-3, H);
-  track_H("track_H_7.dat", 3.0e-3, 3.0e-3, H);
+  track_H("track_H_4.dat", 1.1e-3, 1.0e-3, H);
+  track_H("track_H_5.dat", 1.2e-3, 1.0e-3, H);
+  track_H("track_H_6.dat", 1.3e-3, 1.0e-3, H);
+  track_H("track_H_7.dat", 1.4e-3, 1.0e-3, H);
 }
 
 
-void compute_invariant()
+void compute_invariant(ss_vect<tps> &M)
 {
-  long int     lastpos;
   int          k;
   double       nu_int;
   tps          H_2, DH_2, H, DH;
-  ss_vect<tps> Id, M, B;
+  ss_vect<tps> Id, B;
 
   const double
     alpha[] = {Cell[0].Alpha[X_], Cell[0].Alpha[Y_]},
@@ -464,14 +466,6 @@ void compute_invariant()
 	 "  alpha_y = %6.3f beta_y = %5.3f gamma_y = %5.3f\n",
 	 alpha[X_], beta[X_], gamma[X_], eta_x, etap_x,
 	 alpha[Y_], beta[Y_], gamma[Y_]);
-
-  danot_(no_tps-1);
-
-  M.identity();
-  Cell_Pass(0, globval.Cell_nLoc, M, lastpos);
-  printf("\nM:\n");
-  prt_lin_map(3, M);
-  // cout << scientific << setprecision(3) << "\nM:\n" << M << "\n";
 
   danot_(2);
 
@@ -495,12 +489,10 @@ void compute_invariant()
 
   danot_(no_tps);
 
-  compute_map_normal_form(M);
-  exit(0);
-
   printf("\nLinear dispersion computed by TPSA.\n");
   MNF = MapNorm(M, 1);
 
+  cout << scientific << setprecision(3) << "\ng:\n" << MNF.g;
   printf("\nA0:\n");
   prt_lin_map(3, MNF.A0);
 
@@ -544,6 +536,9 @@ void compute_invariant()
 
 int main(int argc, char *argv[])
 {
+  long int    lastpos;
+  ss_vect<tps> M;
+
   globval.H_exact    = false; globval.quad_fringe    = false;
   globval.Cavity_on  = false; globval.radiation      = false;
   globval.emittance  = false; globval.IBS            = false;
@@ -561,6 +556,17 @@ int main(int argc, char *argv[])
 
   Ring_GetTwiss(true, 0e0); printglob();
 
-  compute_invariant();
-}
+  danot_(no_tps-1);
 
+  M.identity();
+  Cell_Pass(0, globval.Cell_nLoc, M, lastpos);
+  printf("\nM:\n");
+  prt_lin_map(3, M);
+  // cout << scientific << setprecision(3) << "\nM:\n" << M << "\n";
+
+  if (!false)
+    compute_invariant(M);
+
+  if (false)
+    track_H(M);
+}
