@@ -358,90 +358,216 @@ tps g_renorm(const double nu0_x, const double nu0_y,
 }
 
 
-void track_H(const string &file_name, const double A_x, const double A_y,
-	     tps &H)
+void find_res(const int n, const double nu_x, const double nu_y)
+{
+  int    j, k;
+  double res, int_part;
+
+  const double eps = 0.01;
+
+  printf("\nfind_res:\n"
+	 );
+  for (j = 0; j <= n; j++)
+    for (k = -n; k <= n; k++) {
+      res = j*nu_x + k*nu_y;
+      if (((j != 0) || (k != 0)) &&
+	  fabs(modf(res, &int_part)) < eps)
+	printf("  %1d*nu_x %c %1d*nu_y = %8.5f\n", j, (k < 0)? '-':'+',
+	       abs(k), res);
+    }
+}
+
+
+tps MNF_renorm(ss_vect<double> &ps_Fl, ss_vect<double> &ps_nl, MNF_struct &MNF,
+	       const bool prt_res)
+{
+  int    k;
+  double nu[2], scl;
+  tps    g_r;
+
+  // Scale action-angle coordinates.
+  for (k = 0; k < 2; k++) {
+    nu[k] = (MNF.nus[k]*ps_nl).cst();
+    scl = sqrt(MNF.nus[k].cst()/nu[k]);
+    ps_Fl[2*k] *= scl;
+    ps_Fl[2*k+1] *= scl;
+  }
+
+  if (prt_res) {
+    printf("\ntrack_H - Renormalising:\n  nu = [%7.5f, %7.5f] ->"
+	   "\n  nu = [%7.5f, %7.5f]\n",
+	   MNF.nus[0].cst(),MNF. nus[1].cst(), nu[X_], nu[Y_]);
+    find_res(5, nu[X_], nu[Y_]);
+  }
+
+  g_r = g_renorm(MNF.nus[0].cst(), MNF.nus[1].cst(), nu[X_], nu[Y_], MNF.g);
+
+  MNF.A_nl = get_A_nl(g_r);
+  MNF.A_nl_inv = get_A_nl_inv(g_r);
+
+  return g_r;
+}
+
+
+tps df_dJ(const int k, const tps &f, const ss_vect<double> ps_Fl)
+{
+  // d/dJ = (x * df / dx + p_x * df / dp_x) / (x^2 + p_x^2).
+  // Care is required for denominator.
+  ss_vect<tps> Id;
+
+  Id.identity();
+  return
+    (Id[2*k]*Der(f, 2*k+1)+Id[2*k+1]*Der(f, 2*k+2))
+    /(sqr(ps_Fl[2*k])+sqr(ps_Fl[2*k+1]));
+}
+
+
+tps df_dphi(const int k, const tps &f)
+{
+  // d/dphi = px*df/dx - x*df/dp_x.
+  ss_vect<tps> Id;
+
+  Id.identity();
+  return Id[2*k+1]*Der(f, 2*k+1) - Id[2*k]*Der(f, 2*k+2);
+}
+
+
+tps dfg_dphi(const int k, const tps &f, const tps &g,
+	     const ss_vect<double> ps_nl)
+
+{
+  // phi = -atan(g(x, p_x) / f(x, p_x))
+  // is not defined for f(x, p_x) = 0
+  // dphi = (g * df - f * dg) / (f^2 + g^2)
+  // Care is required for denominator.
+  return (g*df_dphi(k, f)-f*df_dphi(k, g))/(sqr(ps_nl[2*k])+sqr(ps_nl[2*k+1]));
+}
+
+
+void track_H(const string &file_name, const double x, const double y,
+	     tps &H, const bool prt_res)
 {
   long int        lastpos;
-  int             k;
-  double          h, J[2], phi[2], nu[2], scl, J2[2], phi2[2];
-  tps             scl_tps;
+  int             j, k;
+  double          h, twoJ[2], phi[2], twoJ2[2], phi2[2];
+  tps             g_r;
   ss_vect<double> ps, ps_Fl, ps_nl;
   FILE            *outf;
 
-  const double x_ampl[] = {A_x, A_y};
+  const int    n   = 500;
+  const double A[] = {x, y};
+
+  outf = file_write(file_name.c_str());
 
   danot_(no_tps);
 
   ps.zero();
-  ps[x_] = x_ampl[X_];
-  ps[y_] = x_ampl[Y_];
+  for (k = 0; k < 2; k++)
+    ps[2*k] = A[k];
 
   ps_Fl = (MNF.A1_inv*MNF.A0_inv*ps).cst();
   ps_nl = (MNF.A_nl_inv*ps_Fl).cst();
 
-  // scale action-angle variables
-  for (k = 0; k < 2; k++) {
-    nu[k] = (MNF.nus[k]*ps_nl).cst();
-    scl = sqrt(MNF.nus[k].cst()/nu[k]);
-    ps_Fl[2*k] *= scl; ps_Fl[2*k+1] *= scl;
-  }
+  if (true)
+    g_r = MNF_renorm(ps_Fl, ps_nl, MNF, prt_res);
+  else
+    g_r = MNF.g;
 
-  outf = file_write(file_name.c_str());
+  H = get_H(g_r, MNF.K);
 
-  for (k = 1; k <= 500; k++) {
+  for (j = 0; j < n; j++) {
     Cell_Pass(0, globval.Cell_nLoc, ps, lastpos);
-    ps_Fl = (MNF.A1_inv*ps).cst();
-    J[X_] = (sqr(ps_Fl[x_])+sqr(ps_Fl[px_]))/2e0;
-    phi[X_] = atan2(ps_Fl[px_], ps_Fl[x_]);
-    J[Y_] = (sqr(ps_Fl[y_])+sqr(ps_Fl[py_]))/2e0;
-    phi[Y_] = atan2(ps_Fl[py_], ps_Fl[y_]);
 
-    h = (H*ps_Fl).cst();
+    if (lastpos == globval.Cell_nLoc) {
+      ps_Fl = (MNF.A1_inv*ps).cst();
+      ps_nl = (MNF.A_nl_inv*ps_Fl).cst();
+      h = (H*ps_Fl).cst();
 
-    ps_nl = (MNF.A_nl_inv*ps_Fl).cst();
-    J2[X_] = (sqr(ps_nl[x_])+sqr(ps_nl[px_]))/2e0;
-    phi2[X_] = atan2(ps_nl[px_], ps_nl[x_]);
-    J2[Y_] = (sqr(ps_nl[y_])+sqr(ps_nl[py_]))/2e0;
-    phi2[Y_] = atan2(ps_nl[py_], ps_nl[y_]);
+      for (k = 0; k < 2; k++) {
+	twoJ[k] = sqr(ps_Fl[2*k]) + sqr(ps_Fl[2*k+1]);
+	phi[k] = atan2(ps_Fl[2*k+1], ps_Fl[2*k]);
+	twoJ2[k] = sqr(ps_nl[2*k]) + sqr(ps_nl[2*k+1]);
+	phi2[k] = atan2(ps_nl[2*k+1], ps_nl[2*k]);
+      }
 
-    fprintf(outf, "%3d %10.3e %10.3e %10.3e %10.3e %10.3e %10.3e %10.3e %10.3e"
-	    " %10.3e %10.3e %10.3e %10.3e %10.3e\n",
-	    k, 1e3*ps_Fl[x_], 1e3*ps_Fl[px_], 1e3*ps_Fl[y_], 1e3*ps_Fl[py_],
-	    1e6*J[X_], phi[X_], 1e6*J[Y_], phi[Y_], 1e6*J2[X_], phi2[X_],
-	    1e6*J2[Y_], phi2[Y_], 1e6*fabs(h));
+      fprintf(outf,
+	      "%3d %10.3e %10.3e %10.3e %10.3e %10.3e %10.3e %10.3e %10.3e"
+	      " %10.3e %10.3e %10.3e %10.3e %10.3e\n",
+	      j, 1e3*ps_Fl[x_], 1e3*ps_Fl[px_], 1e3*ps_Fl[y_], 1e3*ps_Fl[py_],
+	      1e6*twoJ[X_], phi[X_], 1e6*twoJ[Y_], phi[Y_],
+	      1e6*twoJ2[X_], phi2[X_], 1e6*twoJ2[Y_], phi2[Y_], 1e6*fabs(h));
+    }
   }
 
   fclose(outf);
 }
 
 
-void track_H(const ss_vect<tps> &map)
+void track_H(const MNF_struct &MNF)
 {
   tps H;
 
-  MNF = MapNorm(map, no_tps);
-
-  MNF.nus = dHdJ(MNF.K);
-
-  MNF.A0_inv = Inv(MNF.A0);
-  MNF.A1_inv = Inv(MNF.A1);
-
-  // if (false)
-  //   g_r = g_renorm(nus[0].cst(), nus[1].cst(), nu[X_], nu[Y_], MNF.g);
-  // else
-  //   g_r = MNF.g;
-
   H = get_H(MNF.g, MNF.K);
-  MNF.A_nl = get_A_nl(MNF.g);
-  MNF.A_nl_inv = get_A_nl_inv(MNF.g);
 
-  track_H("track_H_1.dat", 0.1e-3, 0.1e-3, H);
-  track_H("track_H_2.dat", 0.5e-3, 0.5e-3, H);
-  track_H("track_H_3.dat", 1.0e-3, 1.0e-3, H);
-  track_H("track_H_4.dat", 1.1e-3, 1.0e-3, H);
-  track_H("track_H_5.dat", 1.2e-3, 1.0e-3, H);
-  track_H("track_H_6.dat", 1.3e-3, 1.0e-3, H);
-  track_H("track_H_7.dat", 1.4e-3, 1.0e-3, H);
+  // One super period: BESSY-III/b3_sf_40Grad_JB.lat.
+  track_H("track_H_1.dat", 0.1e-3,     0.1e-3, H, false);
+  track_H("track_H_2.dat", 0.5e-3,     0.5e-3, H, false);
+  track_H("track_H_3.dat", 1.0e-3,     1.0e-3, H, false);
+  track_H("track_H_4.dat", 1.1e-3,     1.0e-3, H, false);
+  track_H("track_H_5.dat", 1.3e-3,     1.0e-3, H, false);
+  track_H("track_H_6.dat", 1.47e-3,    1.0e-3, H, false);
+  track_H("track_H_7.dat", 1.47005e-3, 1.0e-3, H, true);
+}
+
+
+void diff_map(const string &file_name, const int n_x, const int n_y,
+	      const double x_max, const double y_max, MNF_struct &MNF)
+{
+  int             i, j, k;
+  double          A[2], dphi2_dphi[2];
+  tps             g_r;
+  ss_vect<double> ps, ps_Fl, ps_nl;
+  FILE            *outf;
+
+  const int
+    n[] = {n_x, n_y};
+  const double
+    A_max[] = {x_max, y_max},
+    A_min[] = {1e-6, 1e-6},
+    cut     = 2e0;
+
+  outf = file_write(file_name.c_str());
+
+  danot_(no_tps);
+
+  for (i = -n[X_]; i <= n[X_]; i++) {
+    A[X_] = i*A_max[X_]/n[X_];
+    ps.zero();
+    ps[x_] = (i != 0)? A[X_] : A_min[X_];
+    for (j = -n[Y_]; j <= n[Y_]; j++) {
+      A[Y_] = j*A_max[Y_]/n[Y_];
+      ps[y_] = (j != 0)? A[Y_] : A_min[Y_];
+      ps_Fl = (MNF.A1_inv*ps).cst();
+      ps_nl = (MNF.A_nl_inv*ps_Fl).cst();
+
+      if (true)
+	g_r = MNF_renorm(ps_Fl, ps_nl, MNF, false);
+      else
+	g_r = MNF.g;
+
+      for (k = 0; k < 2; k++)
+	dphi2_dphi[k] =
+	  (dfg_dphi(k, MNF.A_nl_inv[2*k], MNF.A_nl_inv[2*k+1], ps_nl)
+	   *ps_Fl).cst();
+
+      fprintf(outf, "\n  %9.5f %9.5f %12.5e %12.5e",
+	      1e3*A[X_], 1e3*A[Y_],
+	      (fabs(dphi2_dphi[X_]) < cut)? fabs(dphi2_dphi[X_]):NAN,
+	      (fabs(dphi2_dphi[Y_]) < cut)? fabs(dphi2_dphi[Y_]):NAN);
+    }
+    fprintf(outf, "\n");
+  }
+  fclose(outf);
 }
 
 
@@ -564,9 +690,20 @@ int main(int argc, char *argv[])
   prt_lin_map(3, M);
   // cout << scientific << setprecision(3) << "\nM:\n" << M << "\n";
 
-  if (!false)
+  MNF = MapNorm(M, no_tps);
+  MNF.nus = dHdJ(MNF.K);
+  MNF.A0_inv = Inv(MNF.A0);
+  MNF.A1_inv = Inv(MNF.A1);
+  MNF.A_nl = get_A_nl(MNF.g);
+  MNF.A_nl_inv = get_A_nl_inv(MNF.g);
+
+  if (false)
     compute_invariant(M);
 
   if (false)
-    track_H(M);
+    track_H(MNF);
+
+  if (!false)
+    diff_map("diffusion.out", 25, 25, 4e-3, 4e-3, MNF);
+
 }

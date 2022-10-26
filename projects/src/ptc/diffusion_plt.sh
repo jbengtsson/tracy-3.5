@@ -42,21 +42,31 @@ set style line 6 lw 1 lc rgb "cyan";
 file_name = "`echo $TRACY_LIB`/gnuplot/jet.dat";
 # Load 64-color palette for Jet
 set palette model RGB file file_name using (\$1/255):(\$2/255):(\$3/255);
+set palette negative
 
-set cbrange [-10:1];
-set noztics; unset clabel;
+set cbrange [0:2];
+set noztics;
+unset clabel;
 set view map;
 # To set y-axis to left side and avoid compression of color box.
 unset pm3d;
 
-if (ps) set output (home_dir)."diffusion.".(ext);
-
-unset contour;
-unset pm3d;
+set contour;
+set pm3d;
 set colorbox;
+
+if (ps) set output (home_dir)."diffusion_1.".(ext);
 
 set title "";
 set xlabel "x [mm]"; set ylabel "y [mm]";
-splot file1 using 1:2:((\$3 != nan)? \$3 : NaN) notitle lt palette z;
+splot file using 1:2:3 notitle lt palette z;
+
+if (!ps) pause mouse "click on graph to cont.\n";
+
+if (ps) set output (home_dir)."diffusion_2.".(ext);
+
+set title "";
+set xlabel "x [mm]"; set ylabel "y [mm]";
+splot file using 1:2:4 notitle lt palette z;
 
 if (!ps) pause mouse "click on graph to cont.\n";
