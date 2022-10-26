@@ -1,4 +1,4 @@
-#define NO 4
+#define NO 6
 
 #include "tracy_lib.h"
 
@@ -8,6 +8,144 @@
 int no_tps   = NO,
     ndpt_tps = 5;
 
+//------------------------------------------------------------------------------
+// Complex TPSA.
+
+class Complex
+{
+private:
+  tps real, imag;
+
+public:
+  Complex(void);
+  Complex(const double real);
+  Complex(const double real, const double imag);
+  Complex(const tps &real, const tps &imag);
+
+  void print(void);
+
+  tps get_real(void) const;
+  tps get_imag(void) const;
+  void set_real(const tps &);
+  void set_imag(const tps &);
+
+  Complex operator+=(const Complex &);
+  Complex operator-=(const Complex &);
+  Complex operator*=(const Complex &);
+  Complex operator/=(const Complex &);
+
+  friend Complex conjugate(const Complex &);
+  friend Complex abs(const Complex &);
+
+  friend Complex operator+(const Complex &, const Complex &);
+  friend Complex operator-(const Complex &, const Complex &);
+  friend Complex operator*(const Complex &, const Complex &);
+  friend Complex operator/(const Complex &, const Complex &);
+  friend Complex operator+(const Complex &);
+  friend Complex operator+(const Complex &);
+};
+
+Complex::Complex(void)
+{
+  this->real = 0e0;
+  this->imag = 0e0;
+}
+
+Complex::Complex(const double real)
+{
+  this->real = real;
+  this->imag = 0e0;
+}
+
+Complex::Complex(const double real, const double imag)
+{
+  this->real = real;
+  this->imag = imag;
+}
+
+Complex::Complex(const tps &real, const tps &imag)
+{
+  this->real = real;
+  this->imag = imag;
+}
+
+void Complex::print(void)
+{
+  cout << "\nReal:\n" << this->real << "\nImag:\n" << this->imag <<  "\n";
+}
+
+tps Complex::get_real(void) const
+{
+    return this->real;
+}
+
+tps Complex::get_imag(void) const
+{
+    return this->imag;
+}
+
+void Complex::set_real(const tps &real)
+{
+    this->real = real;
+}
+
+void Complex::set_imag(const tps &imag)
+{
+    this->imag = imag;
+}
+
+Complex Complex::operator+=(const Complex &a)
+{
+  return Complex(this->get_real()+a.get_real(),
+		 this->get_imag()+a.get_imag());
+}
+
+Complex Complex::operator-=(const Complex &a)
+{
+  return Complex(this->get_real()+a.get_real(),
+		 this->get_imag()+a.get_imag());
+}
+
+Complex Complex::operator*=(const Complex &a)
+{
+  return Complex(this->get_real()*a.get_real()-this->get_imag()*a.get_imag(),
+		 this->get_real()*a.get_imag()+this->get_imag()*a.get_real());
+}
+
+Complex Complex::operator/=(const Complex &a)
+{
+  return this->operator*=(conjugate(a)/(a*conjugate(a)));
+}
+
+inline Complex conjugate(const Complex &a)
+{
+  return Complex(a.get_real(), -a.get_imag());
+}
+
+inline Complex abs(const Complex &a)
+{
+  return a*conjugate(a);
+}
+
+inline Complex operator+(const Complex &a, const Complex &b)
+{ return Complex(a) += b; }
+
+inline Complex operator-(const Complex &a, const Complex &b)
+{ return Complex(a) -= b; }
+
+inline Complex operator*(const Complex &a, const Complex &b)
+{ return Complex(a) *= b; }
+
+inline Complex operator/(const Complex &a, const Complex &b)
+{ return Complex(a) /= b; }
+
+inline Complex operator+(const Complex &x)
+{ return Complex(x); }
+
+inline Complex operator-(const Complex &x)
+{ return Complex(x) *= -1e0; }
+
+//------------------------------------------------------------------------------
 
 ss_vect<tps> Id(void)
 {
@@ -41,6 +179,11 @@ ss_vect<tps> get_map_k(const ss_vect<tps> &x, const int k1, const int k2)
   for (k = 0; k < nv_tps; k++)
     map_k[k] = get_h_k(x[k], k1, k2);
   return map_k;
+}
+
+
+void GoFix(const ss_vect<tps> &map, MNF_struct &MNF, const int no)
+{
 }
 
 
@@ -514,9 +657,10 @@ void track_H(const MNF_struct &MNF)
   track_H("track_H_2.dat", 0.5e-3,     0.5e-3, H, false);
   track_H("track_H_3.dat", 1.0e-3,     1.0e-3, H, false);
   track_H("track_H_4.dat", 1.1e-3,     1.0e-3, H, false);
-  track_H("track_H_5.dat", 1.3e-3,     1.0e-3, H, false);
-  track_H("track_H_6.dat", 1.47e-3,    1.0e-3, H, false);
-  track_H("track_H_7.dat", 1.47005e-3, 1.0e-3, H, true);
+  track_H("track_H_5.dat", 1.2e-3,     1.0e-3, H, false);
+  track_H("track_H_6.dat", 1.3e-3,     1.0e-3, H, false);
+  track_H("track_H_7.dat", 1.47e-3,    1.0e-3, H, false);
+  // track_H("track_H_7.dat", 1.47005e-3, 1.0e-3, H, true);
 }
 
 
@@ -660,6 +804,12 @@ void compute_invariant(ss_vect<tps> &M)
 }
 
 
+void tst_cmplx()
+{
+
+}
+
+
 int main(int argc, char *argv[])
 {
   long int    lastpos;
@@ -704,6 +854,5 @@ int main(int argc, char *argv[])
     track_H(MNF);
 
   if (!false)
-    diff_map("diffusion.out", 25, 25, 4e-3, 4e-3, MNF);
-
+    diff_map("diffusion.out", 25, 25, 4e-3, 5e-3, MNF);
 }
