@@ -4,14 +4,13 @@ prm1=${1-0}
 
 gnuplot << EOP
 
-ps = $prm1;
+ps = $prm1
 
-file = "diffusion.out";
+file_name = "diffusion"
 
-# Only works for postscript terminal.
-#set fontpath "/usr/share/fonts/msttcore"
+f_s = 36
+l_w = 2
 
-f_s = 36; l_w = 2;
 if (ps == 0) \
   set terminal qt 0 font "Sans, 9"; \
 else if (ps == 1) \
@@ -25,48 +24,38 @@ else if (ps == 3) \
   ext = "pdf"; \
 else if (ps == 4) \
   set term pngcairo enhanced color solid lw l_w font "Times-Roman f_s"; \
-  ext = "png"; \
-else if (ps == 5) \
-  set term svg enhanced font "Times-Roman,f_s"; \
-  ext = "svg";
+  ext = "png"
 
-set grid;
+set grid
 
-set style line 1 lw 1 lc rgb "red";
-set style line 2 lw 1 lc rgb "dark-orange";
-set style line 3 lw 1 lc rgb "blue";
-set style line 4 lw 1 lc rgb "dark-green";
-set style line 5 lw 1 lc rgb "purple";
-set style line 6 lw 1 lc rgb "cyan";
+set style line 1 lw 1 lc rgb "red"
+set style line 2 lw 1 lc rgb "dark-orange"
+set style line 3 lw 1 lc rgb "blue"
+set style line 4 lw 1 lc rgb "dark-green"
+set style line 5 lw 1 lc rgb "purple"
+set style line 6 lw 1 lc rgb "cyan"
 
-file_name = "`echo $TRACY_LIB`/gnuplot/jet.dat";
+palette_file_name = "`echo $TRACY_LIB`/gnuplot/jet.dat"
 # Load 64-color palette for Jet
-set palette model RGB file file_name using (\$1/255):(\$2/255):(\$3/255);
+set palette model RGB file palette_file_name using (\$1/255):(\$2/255):(\$3/255)
 set palette negative
 
-set cbrange [0:2];
-set noztics;
-unset clabel;
-set view map;
+set cbrange [0:1]
+set noztics
+unset clabel
+set view map
 # To set y-axis to left side and avoid compression of color box.
-unset pm3d;
+unset pm3d
 
-set contour;
-set pm3d;
-set colorbox;
+set contour
+set pm3d
+set colorbox
 
-if (ps) set output (home_dir)."diffusion_1.".(ext);
+if (ps) set output file_name.".".(ext)
 
-set title "";
-set xlabel "x [mm]"; set ylabel "y [mm]";
-splot file using 1:2:3 notitle lt palette z;
+set title "{/Symbol \266 f}_2/d{/Symbol \266 f}"
+set xlabel "x [mm]"
+set ylabel "y [mm]"
+splot file_name.".out" using 1:2:(\$3*\$4) notitle lt palette z
 
-if (!ps) pause mouse "click on graph to cont.\n";
-
-if (ps) set output (home_dir)."diffusion_2.".(ext);
-
-set title "";
-set xlabel "x [mm]"; set ylabel "y [mm]";
-splot file using 1:2:4 notitle lt palette z;
-
-if (!ps) pause mouse "click on graph to cont.\n";
+if (!ps) pause mouse "click on graph to cont.\n"
