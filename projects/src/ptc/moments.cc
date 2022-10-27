@@ -5,80 +5,70 @@
 
 // F. Klein's Erlangen Program.
 
+
 int no_tps   = NO,
     ndpt_tps = 5;
 
 //------------------------------------------------------------------------------
 // Template class for complex TPSA.
 
-template<typename T> class Complex
+const int ps_dim = 6;
+
+class ctps
 {
 private:
-  T re, im;
+  tps re, im;
 
 public:
-  Complex(void);
-  Complex(const T &real, const T &imag);
-
-  void zero(void);
+  ctps(void) { this->re = 0e0; this->im = 0e0; }
+  template<typename T1, typename T2>
+  ctps(const T1 &real, const T2 &imag) { this->re = real; this->im = imag; }
+  ctps(const double real) { this->re = real; this->im = 0e0; }
 
   // template<typename CharT, class Traits>
   // friend std::basic_ostream<CharT, Traits>&
-  // operator<<(std::basic_ostream<CharT, Traits> &, const Complex &);
+  // operator<<(std::basic_ostream<CharT, Traits> &, const ctps &);
 
-  T& real(void);
-  T& imag(void);
-  const T& real(void) const;
-  const T& imag(void) const;
+  tps& real(void) { return this->re; }
+  tps& imag(void) { return this->im; }
+  const tps& real(void) const { return this->re; }
+  const tps& imag(void) const { return this->im; }
 
-  Complex operator+=(const Complex &);
-  Complex operator-=(const Complex &);
-  Complex operator*=(const Complex &);
-  Complex operator/=(const Complex &);
+  ctps operator+=(const double);
+  ctps operator-=(const double);
+  ctps operator*=(const double);
+  ctps operator/=(const double);
 
-  friend Complex conjugate(const Complex &);
-  friend Complex abs(const Complex &);
+  ctps operator+=(const ctps &);
+  ctps operator-=(const ctps &);
+  ctps operator*=(const ctps &);
+  ctps operator/=(const ctps &);
 
-  friend Complex operator+(const Complex &, const Complex &);
-  friend Complex operator-(const Complex &, const Complex &);
-  friend Complex operator*(const Complex &, const Complex &);
-  friend Complex operator/(const Complex &, const Complex &);
-  friend Complex operator+(const Complex &);
-  friend Complex operator+(const Complex &);
+  friend ctps conjugate(const ctps &);
+  friend ctps abs(const ctps &);
+
+  friend ctps operator+(const double a, const ctps &b) { return ctps(a) += b; }
+  friend ctps operator-(const double a, const ctps &b) { return ctps(a) -= b; }
+  friend ctps operator*(const double a, const ctps &b) { return ctps(a) *= b; }
+  friend ctps operator/(const double a, const ctps &b) { return ctps(a) /= b; }
+
+  friend ctps operator+(const ctps &a, const double b) { return ctps(a) += b; }
+  friend ctps operator-(const ctps &a, const double b) { return ctps(a) -= b; }
+  friend ctps operator*(const ctps &a, const double b) { return ctps(a) *= b; }
+  friend ctps operator/(const ctps &a, const double b) { return ctps(a) /= b; }
+
+  friend ctps operator+(const ctps &a, const ctps &b) { return ctps(a) += b; }
+  friend ctps operator-(const ctps &a, const ctps &b) { return ctps(a) -= b; }
+  friend ctps operator*(const ctps &a, const ctps &b) { return ctps(a) *= b; }
+  friend ctps operator/(const ctps &a, const ctps &b) { return ctps(a) /= b; }
+
+  friend ctps operator+(const ctps &x) { return ctps(x); }
+  friend ctps operator-(const ctps &x) { return ctps(x) *= ctps(-1e0, 0e0); }
 };
 
-
-template<>
-Complex<tps>::Complex(void)
-{
-  this->re = 0e0;
-  this->im = 0e0;
-}
-
-template<>
-Complex<ss_vect<tps> >::Complex(void)
-{
-  this->re.zero();
-  this->im.zero();
-}
-
-template<typename T>
-Complex<T>::Complex(const T &real, const T &imag)
-{
-  this->re = real;
-  this->im = imag;
-}
-
-template<typename T>
-void Complex<T>::zero(void)
-{
-  this->re.zero();
-  this->im.zero();
-}
-
-template<typename CharT, class Traits, typename T>
+template<typename CharT, class Traits>
 std::basic_ostream<CharT, Traits>&
-operator<<(std::basic_ostream<CharT, Traits> &os, Complex<T> &a)
+operator<<(std::basic_ostream<CharT, Traits> &os, const ctps &a)
 {
   std::basic_ostringstream<CharT, Traits> s;
 
@@ -94,105 +84,172 @@ operator<<(std::basic_ostream<CharT, Traits> &os, Complex<T> &a)
 // template<>
 // std::basic_ostream<char, std::char_traits<char> >&
 // operator<<(std::basic_ostream<char, std::char_traits<char> > &,
-// 	   const Complex<ss_vect<tps> > &);
+// 	   const ctps<ss_vect<tps> > &);
 
-template<typename T>
-T& Complex<T>::real(void)
+ctps ctps::operator+=(const double a)
 {
-  return this->re;
+  this->real() += a;
+  return *this;
 }
 
-template<typename T>
-T& Complex<T>::imag(void)
+ctps ctps::operator-=(const double a)
 {
-  return this->im;
+  this->real() -= a;
+  return *this;
 }
 
-template<typename T>
-const T& Complex<T>::real(void) const
+ctps ctps::operator*=(const double a)
 {
-  return this->re;
+  this->real() *= a;
+  this->imag() *= a;
+  return *this;
 }
 
-template<typename T>
-const T& Complex<T>::imag(void) const
+ctps ctps::operator/=(const double a)
 {
-  return this->im;
+  this->real() /= a;
+  this->imag() /= a;
+  return *this;
 }
 
-template<typename T>
-Complex<T> Complex<T>::operator+=(const Complex<T> &a)
+ctps ctps::operator+=(const ctps &a)
 {
-  return Complex(this->get_real()+a.get_real(),
-		 this->get_imag()+a.get_imag());
+  this->real() += a.real();
+  this->imag() += a.imag();
+  return *this;
 }
 
-template<typename T>
-Complex<T> Complex<T>::operator-=(const Complex<T> &a)
+ctps ctps::operator-=(const ctps &a)
 {
-  return Complex(this->get_real()+a.get_real(),
-		 this->get_imag()+a.get_imag());
+  this->real() -= a.real();
+  this->imag() -= a.imag();
+  return *this;
 }
 
-template<typename T>
-Complex<T> Complex<T>::operator*=(const Complex<T> &a)
+ctps ctps::operator*=(const ctps &a)
 {
-  return Complex(this->get_real()*a.get_real()-this->get_imag()*a.get_imag(),
-		 this->get_real()*a.get_imag()+this->get_imag()*a.get_real());
+  const ctps b = *this;
+  this->real() = b.real()*a.real()-b.imag()*a.imag();
+  this->imag() = b.real()*a.imag()+b.imag()*a.real();
+  return *this;
 }
 
-template<typename T>
-Complex<T> Complex<T>::operator/=(const Complex<T> &a)
+ctps ctps::operator/=(const ctps &a)
 {
   return this->operator*=(conjugate(a)/(a*conjugate(a)));
 }
 
-template<typename T>
-inline Complex<T> conjugate(const Complex<T> &a)
+inline ctps conjugate(const ctps &a)
 {
-  return Complex<T>(a.get_real(), -a.get_imag());
+  return ctps(a.real(), -a.imag());
 }
 
-template<typename T>
-inline Complex<T> abs(const Complex<T> &a)
+inline ctps abs(const ctps &a)
 {
   return a*conjugate(a);
 }
 
-template<typename T>
-inline Complex<T> operator+(const Complex<T> &a, const Complex<T> &b)
-{ return Complex<T>(a) += b; }
 
-template<typename T>
-inline Complex<T> operator-(const Complex<T> &a, const Complex<T> &b)
-{ return Complex<T>(a) -= b; }
-
-template<typename T>
-inline Complex<T> operator*(const Complex<T> &a, const Complex<T> &b)
-{ return Complex<T>(a) *= b; }
-
-template<typename T>
-inline Complex<T> operator/(const Complex<T> &a, const Complex<T> &b)
-{ return Complex<T>(a) /= b; }
-
-template<typename T>
-inline Complex<T> operator+(const Complex<T> &x)
-{ return Complex<T>(x); }
-
-template<typename T>
-inline Complex<T> operator-(const Complex<T> &x)
-{ return Complex<T>(x) *= Complex<T>(-1e0, 0e0); }
-
-
-template<typename T> class Complex_ext : public Complex<ss_vect<T> >
+class css_vect
 {
+private:
+  ctps css[6];
 public:
-  const Complex<T>& operator[](const int i) const;
+  css_vect(void)
+  {
+    for (int k = 0; k < ps_dim; k++) 
+      css[k] = ctps(0e0, 0e0);
+  }
+  css_vect(const ss_vect<tps> &real, const ss_vect<tps> &imag)
+  {
+    for (int k = 0; k < ps_dim; k++) 
+      css[k] = ctps(real[k], imag[k]);
+  }
+
+  // template<typename CharT, class Traits>
+  // friend std::basic_ostream<CharT, Traits>&
+  // operator<<(std::basic_ostream<CharT, Traits> &, const css_vect &);
+
+  ss_vect<tps> get_real(void)
+  {
+    ss_vect<tps> a;
+    for (int k = 0; k < ps_dim; k++)
+      a[k] = css[k].real();
+    return a;
+  }
+  ss_vect<tps> get_imag(void)
+  {
+    ss_vect<tps> a;
+    for (int k = 0; k < ps_dim; k++)
+      a[k] = css[k].imag();
+    return a;
+  }
+
+  css_vect& zero(void)
+  {
+    for (int k = 0; k < ps_dim; k++)
+      css[k] = ctps(0e0, 0e0);
+    return *this;
+  }
+
+  css_vect& identity(void)
+  {
+    for (int k = 0; k < ps_dim; k++)
+      css[k] = ctps(tps(0e0, k+1), 0e0);
+    return *this;
+  }
+
+  ctps& operator[](const int i) { return css[i]; }
+  const ctps& operator[](const int i) const { return css[i]; }
 };
 
-template<>
-const Complex<tps>& Complex_ext<ss_vect<tps> >::operator[](const int i) const
-{ return Complex<tps>(this->real()[i], this->imag()[i]); }
+template<typename CharT, class Traits>
+std::basic_ostream<CharT, Traits>&
+operator<<(std::basic_ostream<CharT, Traits> &os, const css_vect &a)
+{
+  ss_vect<tps>                            re, im;
+  std::basic_ostringstream<CharT, Traits> s;
+
+  for (int k = 0; k < ps_dim; k++) {
+    re[k] = a[k].real();
+    im[k] = a[k].imag();
+  }
+
+  s.flags(os.flags());
+  s.imbue(os.getloc());
+  s << std::setprecision(os.precision()) << std::setw(os.width())
+    << "\nReal:\n" << re << "\nImag:\n" << im;
+  //   s << endl;
+  return os << s.str();
+}
+
+// Instantiate.
+// template<>
+// std::basic_ostream<char, std::char_traits<char> >&
+// operator<<(std::basic_ostream<char, std::char_traits<char> > &,
+// 	   const ctps<ss_vect<tps> > &);
+
+
+void prt_cmplx_lin_map(const int n_DOF, const string &str, const css_vect &map)
+{
+  int          i, j;
+  ss_vect<tps> re, im;
+
+  for (i = 0; i < 2*n_DOF; i++) {
+    re[i] = map[i].real();
+    im[i] = map[i].imag();
+  }
+
+  cout << str;
+  for (i = 1; i <= 2*n_DOF; i++) {
+    for (j = 1; j <= 2*n_DOF; j++)
+	cout << scientific << setprecision(3)
+	     << setw(11) << getmat(re, i, j)
+	     << ((getmat(im, i, j) > 0e0)? " + i":" - i")
+	     << setw(0) << fabs(getmat(im, i, j));
+    cout << "\n";
+  }
+}
 
 //------------------------------------------------------------------------------
 
@@ -858,40 +915,28 @@ void compute_invariant(ss_vect<tps> &M)
 
 void tst_cmplx()
 {
-  int                    k;
-  ss_vect<tps>           Id;
-  Complex<ss_vect<tps> > hpm, ps;
+  int          k;
+  ss_vect<tps> Id;
+  css_vect     hpm, ps;
 
   Id.identity();
 
-  hpm.zero();
+  hpm.identity();
   for (k = 0; k < 2; k++) {
-    hpm.real()[2*k] += Id[2*k];
-    hpm.imag()[2*k] += -Id[2*k+1];
-
-    hpm.real()[2*k+1] += Id[2*k];
-    hpm.imag()[2*k+1] += Id[2*k+1];
+    hpm[2*k]   = ctps(Id[2*k], -Id[2*k+1]);
+    hpm[2*k+1] = ctps(Id[2*k],  Id[2*k+1]);
   }
 
-  // cout << scientific << setprecision(3) << "\nhpm:\n" << hpm.operator[](x_);
-  exit(0);
-
-  cout << scientific << setprecision(3) << "\nhpm:\n" << hpm;
-  printf("\nRe{hpm}\n");
-  prt_lin_map(3, hpm.real());
-  printf("\nIm{hpm}\n");
-  prt_lin_map(3, hpm.imag());
-
-  // ps.zero();
-  // for (k = 0; k < 2; k++) {
-  //   ps.real()[2*k] = (hpm[2*k]+hpm[2*k+1])/2e0;
-  //   ps.real()[2*k+1] = Complex(0e0, 1e0)*(hpm[2*k]+hpm[2*k+1])/2e0;
-  // }
   // cout << scientific << setprecision(3) << "\nhpm:\n" << hpm;
-  // printf("\nRe{ps}\n");
-  // prt_lin_map(3, hpm.real());
-  // printf("\nIm{ps}\n");
-  // prt_lin_map(3, hpm.imag());
+  prt_cmplx_lin_map(3, "\nhpm:\n", hpm);
+
+  ps.identity();
+  for (k = 0; k < 2; k++) {
+    ps[2*k]   = (hpm[2*k]+hpm[2*k+1])/2e0;
+    ps[2*k+1] = ctps(0e0, 1e0)*(hpm[2*k]-hpm[2*k+1])/2e0;
+  }
+  // cout << scientific << setprecision(3) << "\nps:\n" << ps;
+  prt_cmplx_lin_map(3, "\nps:\n", ps);
 }
 
 
