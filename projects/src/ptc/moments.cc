@@ -1,4 +1,4 @@
-#define NO 6
+#define NO 5
 
 #include "tracy_lib.h"
 
@@ -14,19 +14,22 @@ int no_tps   = NO,
 template<typename T> class Complex
 {
 private:
-  T real, imag;
+  T re, im;
 
 public:
   Complex(void);
-  Complex(const double real, const double imag);
   Complex(const T &real, const T &imag);
 
-  void print(void);
+  void zero(void);
 
-  T get_real(void) const;
-  T get_imag(void) const;
-  void set_real(const T &);
-  void set_imag(const T &);
+  // template<typename CharT, class Traits>
+  // friend std::basic_ostream<CharT, Traits>&
+  // operator<<(std::basic_ostream<CharT, Traits> &, const Complex &);
+
+  T& real(void);
+  T& imag(void);
+  const T& real(void) const;
+  const T& imag(void) const;
 
   Complex operator+=(const Complex &);
   Complex operator-=(const Complex &);
@@ -44,80 +47,102 @@ public:
   friend Complex operator+(const Complex &);
 };
 
-template<typename T>
-Complex<T>::Complex(void)
+
+template<>
+Complex<tps>::Complex(void)
 {
-  this->real = 0e0;
-  this->imag = 0e0;
+  this->re = 0e0;
+  this->im = 0e0;
 }
 
-template<typename T>
-Complex<T>::Complex(const double real, const double imag)
+template<>
+Complex<ss_vect<tps> >::Complex(void)
 {
-  this->real = real;
-  this->imag = imag;
+  this->re.zero();
+  this->im.zero();
 }
 
 template<typename T>
 Complex<T>::Complex(const T &real, const T &imag)
 {
-  this->real = real;
-  this->imag = imag;
+  this->re = real;
+  this->im = imag;
 }
 
 template<typename T>
-void Complex<T>::print(void)
+void Complex<T>::zero(void)
 {
-  cout << "\nReal:\n" << this->real << "\nImag:\n" << this->imag <<  "\n";
+  this->re.zero();
+  this->im.zero();
 }
 
-template<typename T>
-T Complex<T>::get_real(void) const
+template<typename CharT, class Traits, typename T>
+std::basic_ostream<CharT, Traits>&
+operator<<(std::basic_ostream<CharT, Traits> &os, Complex<T> &a)
 {
-    return this->real;
+  std::basic_ostringstream<CharT, Traits> s;
+
+  s.flags(os.flags());
+  s.imbue(os.getloc());
+  s << std::setprecision(os.precision()) << std::setw(os.width())
+    << "\nReal:\n" << a.real() << "\nImag:\n" << a.imag();
+  //   s << endl;
+  return os << s.str();
 }
 
+// Instantiate.
+// template<>
+// std::basic_ostream<char, std::char_traits<char> >&
+// operator<<(std::basic_ostream<char, std::char_traits<char> > &,
+// 	   const Complex<ss_vect<tps> > &);
+
 template<typename T>
-T Complex<T>::get_imag(void) const
+T& Complex<T>::real(void)
 {
-    return this->imag;
+  return this->re;
 }
 
 template<typename T>
-void Complex<T>::set_real(const T &real)
+T& Complex<T>::imag(void)
 {
-    this->real = real;
+  return this->im;
 }
 
 template<typename T>
-void Complex<T>::set_imag(const T &imag)
+const T& Complex<T>::real(void) const
 {
-    this->imag = imag;
+  return this->re;
 }
 
 template<typename T>
-Complex<T> Complex<T>::operator+=(const Complex &a)
+const T& Complex<T>::imag(void) const
+{
+  return this->im;
+}
+
+template<typename T>
+Complex<T> Complex<T>::operator+=(const Complex<T> &a)
 {
   return Complex(this->get_real()+a.get_real(),
 		 this->get_imag()+a.get_imag());
 }
 
 template<typename T>
-Complex<T> Complex<T>::operator-=(const Complex &a)
+Complex<T> Complex<T>::operator-=(const Complex<T> &a)
 {
   return Complex(this->get_real()+a.get_real(),
 		 this->get_imag()+a.get_imag());
 }
 
 template<typename T>
-Complex<T> Complex<T>::operator*=(const Complex &a)
+Complex<T> Complex<T>::operator*=(const Complex<T> &a)
 {
   return Complex(this->get_real()*a.get_real()-this->get_imag()*a.get_imag(),
 		 this->get_real()*a.get_imag()+this->get_imag()*a.get_real());
 }
 
 template<typename T>
-Complex<T> Complex<T>::operator/=(const Complex &a)
+Complex<T> Complex<T>::operator/=(const Complex<T> &a)
 {
   return this->operator*=(conjugate(a)/(a*conjugate(a)));
 }
@@ -156,7 +181,18 @@ inline Complex<T> operator+(const Complex<T> &x)
 
 template<typename T>
 inline Complex<T> operator-(const Complex<T> &x)
-{ return Complex<T>(x) *= Complex<T>(-1e0, -1e0); }
+{ return Complex<T>(x) *= Complex<T>(-1e0, 0e0); }
+
+
+template<typename T> class Complex_ext : public Complex<ss_vect<T> >
+{
+public:
+  const Complex<T>& operator[](const int i) const;
+};
+
+template<>
+const Complex<tps>& Complex_ext<ss_vect<tps> >::operator[](const int i) const
+{ return Complex<tps>(this->real()[i], this->imag()[i]); }
 
 //------------------------------------------------------------------------------
 
@@ -672,8 +708,11 @@ void track_H(const MNF_struct &MNF)
   track_H("track_H_4.dat", 1.1e-3,     1.0e-3, H, false);
   track_H("track_H_5.dat", 1.2e-3,     1.0e-3, H, false);
   track_H("track_H_6.dat", 1.3e-3,     1.0e-3, H, false);
+#if 1
   track_H("track_H_7.dat", 1.47e-3,    1.0e-3, H, false);
-  // track_H("track_H_7.dat", 1.47005e-3, 1.0e-3, H, true);
+#else
+  track_H("track_H_7.dat", 1.47005e-3, 1.0e-3, H, true);
+#endif
 }
 
 
@@ -819,7 +858,40 @@ void compute_invariant(ss_vect<tps> &M)
 
 void tst_cmplx()
 {
+  int                    k;
+  ss_vect<tps>           Id;
+  Complex<ss_vect<tps> > hpm, ps;
 
+  Id.identity();
+
+  hpm.zero();
+  for (k = 0; k < 2; k++) {
+    hpm.real()[2*k] += Id[2*k];
+    hpm.imag()[2*k] += -Id[2*k+1];
+
+    hpm.real()[2*k+1] += Id[2*k];
+    hpm.imag()[2*k+1] += Id[2*k+1];
+  }
+
+  // cout << scientific << setprecision(3) << "\nhpm:\n" << hpm.operator[](x_);
+  exit(0);
+
+  cout << scientific << setprecision(3) << "\nhpm:\n" << hpm;
+  printf("\nRe{hpm}\n");
+  prt_lin_map(3, hpm.real());
+  printf("\nIm{hpm}\n");
+  prt_lin_map(3, hpm.imag());
+
+  // ps.zero();
+  // for (k = 0; k < 2; k++) {
+  //   ps.real()[2*k] = (hpm[2*k]+hpm[2*k+1])/2e0;
+  //   ps.real()[2*k+1] = Complex(0e0, 1e0)*(hpm[2*k]+hpm[2*k+1])/2e0;
+  // }
+  // cout << scientific << setprecision(3) << "\nhpm:\n" << hpm;
+  // printf("\nRe{ps}\n");
+  // prt_lin_map(3, hpm.real());
+  // printf("\nIm{ps}\n");
+  // prt_lin_map(3, hpm.imag());
 }
 
 
@@ -843,22 +915,27 @@ int main(int argc, char *argv[])
   else
     rdmfile(argv[1]);
 
-  Ring_GetTwiss(true, 0e0); printglob();
+  if (false) {
+    Ring_GetTwiss(true, 0e0);
+    printglob();
+  }
 
   danot_(no_tps-1);
 
-  M.identity();
-  Cell_Pass(0, globval.Cell_nLoc, M, lastpos);
-  printf("\nM:\n");
-  prt_lin_map(3, M);
-  // cout << scientific << setprecision(3) << "\nM:\n" << M << "\n";
+  if (false) {
+    M.identity();
+    Cell_Pass(0, globval.Cell_nLoc, M, lastpos);
+    printf("\nM:\n");
+    prt_lin_map(3, M);
+    // cout << scientific << setprecision(3) << "\nM:\n" << M << "\n";
 
-  MNF = MapNorm(M, no_tps);
-  MNF.nus = dHdJ(MNF.K);
-  MNF.A0_inv = Inv(MNF.A0);
-  MNF.A1_inv = Inv(MNF.A1);
-  MNF.A_nl = get_A_nl(MNF.g);
-  MNF.A_nl_inv = get_A_nl_inv(MNF.g);
+    MNF = MapNorm(M, no_tps);
+    MNF.nus = dHdJ(MNF.K);
+    MNF.A0_inv = Inv(MNF.A0);
+    MNF.A1_inv = Inv(MNF.A1);
+    MNF.A_nl = get_A_nl(MNF.g);
+    MNF.A_nl_inv = get_A_nl_inv(MNF.g);
+  }
 
   if (false)
     compute_invariant(M);
@@ -866,6 +943,9 @@ int main(int argc, char *argv[])
   if (false)
     track_H(MNF);
 
-  if (!false)
+  if (false)
     diff_map("diffusion.out", 25, 25, 4e-3, 5e-3, MNF);
+
+  if (!false)
+    tst_cmplx();
 }
