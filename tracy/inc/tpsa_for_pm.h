@@ -10,6 +10,9 @@
 #ifndef TPSA_FOR_PM_H
 #define TPSA_FOR_PM_H
 
+// Name length for FORTRAN library is 10; 10+1 for C.
+const int name_len_for = 10; 
+
 extern int  bufsize;  // Note, max no of monomials is (no+nv)!/(nv!*no!)
  
 

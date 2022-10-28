@@ -14,8 +14,6 @@ bool ini_tps = false, header = false, res_basis = false, stable = false;
 //const int n_max   = 150;     // max iterations for LieExp
 const int n_max   = 200;     // max iterations for LieExp
 
-// Name length for FORTRAN library is 10; 10+1 for C.
-const int  name_len_for              = 10; 
 const char tpsa_name[name_len_for+1] = "tps-";
 
 int  bufsize; // Note, max no of monomials is (no+nv)!/(nv!*no!)
@@ -891,6 +889,50 @@ ss_vect<tps> dHdJ(const tps &H)
 void CtoR(const tps &a, tps &a_re, tps &a_im)
 {
   ctor_(a.intptr, a_re.intptr, a_im.intptr);
+}
+
+
+tps CtoI(const tps &a)
+{
+  tps b;
+
+  ctoi_(a.intptr, b.intptr);
+  return b;
+}
+
+
+tps cpart(const tps &a)
+{
+  tps b;
+
+  cpart_(a.intptr, b.intptr);
+  return b;
+}
+
+
+ss_vect<tps> etctr(void)
+{
+  int          i;
+  long int     aintptrs[nv_tps];
+  ss_vect<tps> a;
+
+  for (i = 0; i < nv_tps; i++)
+    aintptrs[i] = a[i].intptr;
+  etctr_(aintptrs);
+  return a;
+}
+
+
+ss_vect<tps> etcjg(void)
+{
+  int          i;
+  long int     aintptrs[nv_tps];
+  ss_vect<tps> a;
+
+  for (i = 0; i < nv_tps; i++)
+    aintptrs[i] = a[i].intptr;
+  etcjg_(aintptrs);
+  return a;
 }
 
 

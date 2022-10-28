@@ -470,8 +470,11 @@
       return
       end subroutine
 
-      subroutine trx(h,rh,y)
+      subroutine trx(h,rh,y) bind(C, name="trx_")
+      use iso_c_binding
       implicit none
+      integer(C_LONG) h,rh
+      integer(C_LONG) y(*)
       integer i,ie,iv,ndim,ndim2,nt,ntt
 !  :RH: = Y :H: Y^-1 =  :HoY:
       parameter (ndim=3)
@@ -480,8 +483,6 @@
       dimension ie(ntt),iv(ntt)
       integer nd,nd2,no,nv
       common /ii/no,nv,nd,nd2
-      integer h,rh
-      integer y(*)
 !
       nt=nv-nd2
       if(nt.gt.0) then
@@ -3414,8 +3415,10 @@
       return
       end function
 
-      subroutine cpart(h,ch)
+      subroutine cpart(h,ch) bind(C, name="cpart_")
+      use iso_c_binding
       implicit none
+      integer(C_LONG) h,ch
       integer ndim,ntt
       double precision rext
       parameter (ndim=3)
@@ -3423,19 +3426,19 @@
       external rext
       integer nd,nd2,no,nv
       common /ii/no,nv,nd,nd2
-      integer h,ch
       call dacfu(h,rext,ch)
       return
       end subroutine
 
-      subroutine ctoi(f1,f2)
+      subroutine ctoi(f1,f2) bind(C, name="ctoi_")
+      use iso_c_binding
       implicit none
+      integer(C_LONG) f1,f2
       integer ndim2,ntt
       parameter (ndim2=6)
       parameter (ntt=40)
       integer nd,nd2,no,nv
       common /ii/no,nv,nd,nd2
-      integer f1,f2
       integer b1,x(ndim2)
 !
 !
@@ -3498,8 +3501,9 @@
       return
       end subroutine
 
-      subroutine etctr(x)
+      subroutine etctr(x) bind(C, name="etctr_")
       implicit none
+      integer x(*)
       integer i,ndim,ndim2,ntt
       parameter (ndim=3)
       parameter (ndim2=6)
@@ -3508,7 +3512,6 @@
       common /ii/no,nv,nd,nd2
       integer ndc,ndc2,ndpt,ndt
       common /coast/ndc,ndc2,ndt,ndpt
-      integer x(*)
       integer rel(ndim2)
 !
 !
@@ -3524,8 +3527,10 @@
       return
       end subroutine
 
-      subroutine etcjg(x)
+      subroutine etcjg(x) bind(C, name="etcjg_")
+      use iso_c_binding
       implicit none
+      integer(C_LONG) x(*)
       integer i,ndim,ndim2,ntt
       parameter (ndim=3)
       parameter (ndim2=6)
@@ -3536,7 +3541,6 @@
       common /ii/no,nv,nd,nd2
       integer ndc,ndc2,ndpt,ndt
       common /coast/ndc,ndc2,ndt,ndpt
-      integer x(*)
 
       integer rel(ndim2)
 !

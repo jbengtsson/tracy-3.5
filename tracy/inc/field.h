@@ -127,6 +127,10 @@ class tps {
 			       ss_vect<tps> &, const int, const int);
   friend ss_vect<tps> dHdJ(const tps &);
   friend void CtoR(const tps &, tps &, tps &);
+  friend tps CtoI(const tps &);
+  friend tps cpart(const tps &);
+  friend ss_vect<tps> etctr(void);
+  friend ss_vect<tps> etcjg(void);
   friend tps RtoC(const tps &, const tps &);
   friend tps LieFact_DF(const ss_vect<tps> &, ss_vect<tps> &);
   friend ss_vect<tps> FlowFact(const ss_vect<tps> &);
@@ -232,6 +236,8 @@ template<typename T> class ss_vect {
 			       ss_vect<tps> &, const int, const int);
   friend void dHdJ(const tps &, ss_vect<tps> &);
   friend void CtoR(const tps &, tps &, tps &);
+  friend ss_vect<tps> etctr(void);
+  friend ss_vect<tps> etcjg(void);
   friend tps RtoC(const tps &, const tps &);
   friend tps LieFact_DF(const ss_vect<tps> &, ss_vect<tps> &);
   friend tps LieFact(const ss_vect<tps> &);

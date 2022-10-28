@@ -980,17 +980,103 @@ void tst_cmplx()
 }
 
 
+ss_vect<tps> etctr(void);
+ss_vect<tps> etcjg(void);
+
+
+void tweak(const tps &a, tps &a_re, tps &a_im)
+{
+  char         name[name_len_for+1];
+  int          i, j, k, n, ord, sgn;
+  long int     ibuf1[bufsize], ibuf2[bufsize], jj[nv_tps];
+  double       rbuf[bufsize];
+  tps          b, c;
+  ss_vect<tps> Id;
+
+  const int n_dof = 2; // Coasting beam.
+
+  Id.identity();
+
+  a.exprt(rbuf, ibuf1, ibuf2, name);
+  n = rbuf[0];
+  printf("\n%s:\n", name);
+  for (i = 1; i <= n; i++) {
+    dehash_(no_tps, nv_tps, ibuf1[i-1], ibuf2[i-1], jj);
+    ord = 0;
+    for (k = 0; k < n_dof; k++)
+      ord += jj[2*k+1];
+    ord = (ord % 4);
+    switch (ord) {
+    case 0:
+      sgn = 1;
+      break;
+    case 1:
+      sgn = -1;
+      break;
+    case 2:
+      sgn = -1;
+      break;
+    case 3:
+      sgn = 1;
+      break;
+    default:
+      printf("\ntweak: undefined case %d\n", ord);
+      break;
+    }
+
+    rbuf[i] *= sgn;
+
+    if (false) {
+      printf("  %10.3e ", rbuf[i]);
+      for (j = 0; j < nv_tps; j++)
+	printf(" %3ld", jj[j]);
+      printf("  %2d  %2d\n", ord, sgn);
+    }
+  }
+  b.imprt(n, rbuf, ibuf1, ibuf2);
+
+  map.identity();
+  for (k = 0; k < n_dof; k++) {
+    map[2*k] = (Id[2*k]+Id[2*k+1])/2e0;
+    map[2*k+1] = (Id[2*k]-Id[2*k+1])/2e0;
+  }
+  b = b*map;
+
+  map.identity();
+  for (k = 0; k < n_dof; k++) {
+    map[2*k] = Id[2*k+1];
+    map[2*k+1] = Id[2*k];
+  }
+  c = b*map;
+
+  if (false) {
+    cout << "\ntweak:\n";
+    prt_lin_map(3, map);
+  }
+
+  a_re = (b+c)/2e0;
+  a_im = (b+c)/2e0;
+}
+
+
 void tst_ctor(MNF_struct &MNF)
 {
   int          k;
-  tps          K_re, K_im;
-  ss_vect<tps> Id, Id_no_delta;
+  tps          K_re, K_im, g_re, g_im, g2_re, g2_im;
+  ss_vect<tps> Id, Id_no_delta, tmp;
   ctps         cK, cg, tst;
   css_vect     ctor, rtoc;
 
   Id.identity();
   Id_no_delta.identity();
   Id_no_delta[delta_] = 0e0;
+
+  CtoR(MNF.g, g_re, g_im);
+  tweak(MNF.g, g2_re, g2_im);
+
+  cout << "\ncheck:\n" << g_re-g2_re << g_im-g2_im;
+
+  exit(0);
 
   ctor.identity();
   for (k = 0; k < 2; k++) {
