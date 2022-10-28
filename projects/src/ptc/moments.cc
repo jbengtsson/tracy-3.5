@@ -23,11 +23,23 @@ public:
   ctps(void) { this->re = 0e0; this->im = 0e0; }
   template<typename T1, typename T2>
   ctps(const T1 &real, const T2 &imag) { this->re = real; this->im = imag; }
-  ctps(const double real) { this->re = real; this->im = 0e0; }
+  template<typename T>
+  ctps(const T real) { this->re = real; this->im = 0e0; }
 
-  // template<typename CharT, class Traits>
-  // friend std::basic_ostream<CharT, Traits>&
-  // operator<<(std::basic_ostream<CharT, Traits> &, const ctps &);
+  template<typename CharT, class Traits>
+  friend std::basic_ostream<CharT, Traits>&
+  operator<<(std::basic_ostream<CharT, Traits> &, const ctps &);
+
+  void print(void)
+  {
+      cout << scientific << setprecision(3) << *this;
+  }
+
+  void print(const string &str)
+  {
+    cout << str;
+    this->print();
+  }
 
   tps& real(void) { return this->re; }
   tps& imag(void) { return this->im; }
@@ -79,12 +91,6 @@ operator<<(std::basic_ostream<CharT, Traits> &os, const ctps &a)
   //   s << endl;
   return os << s.str();
 }
-
-// Instantiate.
-// template<>
-// std::basic_ostream<char, std::char_traits<char> >&
-// operator<<(std::basic_ostream<char, std::char_traits<char> > &,
-// 	   const ctps<ss_vect<tps> > &);
 
 ctps ctps::operator+=(const double a)
 {
@@ -165,19 +171,35 @@ public:
     for (int k = 0; k < ps_dim; k++) 
       css[k] = ctps(real[k], imag[k]);
   }
+  css_vect(const ss_vect<tps> &real)
+  {
+    for (int k = 0; k < ps_dim; k++) 
+      css[k] = ctps(real[k], 0e0);
+  }
 
-  // template<typename CharT, class Traits>
-  // friend std::basic_ostream<CharT, Traits>&
-  // operator<<(std::basic_ostream<CharT, Traits> &, const css_vect &);
+  template<typename CharT, class Traits>
+  friend std::basic_ostream<CharT, Traits>&
+  operator<<(std::basic_ostream<CharT, Traits> &, const css_vect &);
 
-  ss_vect<tps> get_real(void)
+  void print(void)
+  {
+      cout << scientific << setprecision(3) << *this;
+  }
+
+  void print(const string &str)
+  {
+    cout << str;
+    this->print();
+  }
+
+  ss_vect<tps> get_real(void) const
   {
     ss_vect<tps> a;
     for (int k = 0; k < ps_dim; k++)
       a[k] = css[k].real();
     return a;
   }
-  ss_vect<tps> get_imag(void)
+  ss_vect<tps> get_imag(void) const
   {
     ss_vect<tps> a;
     for (int k = 0; k < ps_dim; k++)
@@ -201,20 +223,21 @@ public:
 
   ctps& operator[](const int i) { return css[i]; }
   const ctps& operator[](const int i) const { return css[i]; }
+
+  friend ctps operator*(const ctps &A, const css_vect &B);
+  friend css_vect operator*(const css_vect &, const css_vect &);
 };
 
 template<typename CharT, class Traits>
 std::basic_ostream<CharT, Traits>&
 operator<<(std::basic_ostream<CharT, Traits> &os, const css_vect &a)
 {
-  ss_vect<tps>                            re, im;
   std::basic_ostringstream<CharT, Traits> s;
 
-  for (int k = 0; k < ps_dim; k++) {
-    re[k] = a[k].real();
-    im[k] = a[k].imag();
-  }
-
+  const ss_vect<tps>
+    re = a.get_real(),
+    im = a.get_imag();
+    
   s.flags(os.flags());
   s.imbue(os.getloc());
   s << std::setprecision(os.precision()) << std::setw(os.width())
@@ -223,11 +246,28 @@ operator<<(std::basic_ostream<CharT, Traits> &os, const css_vect &a)
   return os << s.str();
 }
 
-// Instantiate.
-// template<>
-// std::basic_ostream<char, std::char_traits<char> >&
-// operator<<(std::basic_ostream<char, std::char_traits<char> > &,
-// 	   const ctps<ss_vect<tps> > &);
+ctps operator*(const ctps &A, const css_vect &B)
+{
+  const tps
+    A_re = A.real(),
+    A_im = A.imag();
+  const ss_vect<tps>
+    B_re = B.get_real(),
+    B_im = B.get_imag();
+
+  return ctps(A_re*B_re-A_im*B_im, A_re*B_im+A_im*B_re);
+}
+
+css_vect operator*(const css_vect &A, const css_vect &B)
+{
+  const ss_vect<tps>
+    A_re = A.get_real(),
+    A_im = A.get_imag(),
+    B_re = B.get_real(),
+    B_im = B.get_imag();
+
+  return css_vect(A_re*B_re-A_im*B_im, A_re*B_im+A_im*B_re);
+}
 
 
 void prt_cmplx_lin_map(const int n_DOF, const string &str, const css_vect &map)
@@ -940,6 +980,45 @@ void tst_cmplx()
 }
 
 
+void tst_ctor(MNF_struct &MNF)
+{
+  int          k;
+  tps          K_re, K_im;
+  ss_vect<tps> Id, Id_no_delta;
+  ctps         cK, cg, tst;
+  css_vect     ctor, rtoc;
+
+  Id.identity();
+  Id_no_delta.identity();
+  Id_no_delta[delta_] = 0e0;
+
+  ctor.identity();
+  for (k = 0; k < 2; k++) {
+    ctor[2*k]   = ctps((Id[2*k]+Id[2*k+1])/2e0, 0e0);
+    ctor[2*k+1] = ctps(0e0, (Id[2*k]-Id[2*k+1])/2e0);
+  }
+
+  prt_cmplx_lin_map(3, "\nctor:\n", ctor);
+  
+  tst = 1.1*(sqr(Id[x_])+sqr(Id[px_]));
+  tst.print("\ntst:\n");
+  (tst*ctor).print("\nctst:\n");
+  exit(0);
+
+  CtoR(MNF.K, K_re, K_im);
+  cout << "\nK:\n" << MNF.K;
+  cout << "\nK_re:\n" << K_re;
+  cout << "\nK_im:\n" << K_im;
+  (ctps(MNF.K)*ctor).print("\ncK:\n");
+
+  rtoc.identity();
+  for (k = 0; k < 2; k++) {
+    rtoc[2*k]   = (ctor[2*k]+ctor[2*k+1])/2e0;
+    rtoc[2*k+1] = ctps(0e0, 1e0)*(ctor[2*k]-ctor[2*k+1])/2e0;
+  }
+}
+
+
 int main(int argc, char *argv[])
 {
   long int    lastpos;
@@ -967,7 +1046,7 @@ int main(int argc, char *argv[])
 
   danot_(no_tps-1);
 
-  if (false) {
+  if (!false) {
     M.identity();
     Cell_Pass(0, globval.Cell_nLoc, M, lastpos);
     printf("\nM:\n");
@@ -991,6 +1070,9 @@ int main(int argc, char *argv[])
   if (false)
     diff_map("diffusion.out", 25, 25, 4e-3, 5e-3, MNF);
 
-  if (!false)
+  if (false)
     tst_cmplx();
+
+  if (!false)
+    tst_ctor(MNF);
 }
