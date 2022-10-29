@@ -12,7 +12,7 @@ int no_tps   = NO,
 //------------------------------------------------------------------------------
 // Template class for complex TPSA.
 
-const int ps_dim = 6;
+const int ps_dim = 2*nd_tps;
 
 class ctps
 {
@@ -980,60 +980,92 @@ void tst_cmplx()
 }
 
 
-void CtoR_JB(const tps &a, tps &a_re, tps &a_im)
+int f_q_k_conj(const int dof, const long int jj[])
 {
-  char         name[name_len_for+1];
-  int          i, j, k, n, ord, sgn;
-  long int     ibuf1[bufsize], ibuf2[bufsize], jj[nv_tps];
-  double       rbuf[bufsize];
-  tps          b, c;
-  ss_vect<tps> Id;
+  int ord, k, sgn = 0;
 
-  const int n_dof = 2; // Coasting beam.
+  const bool prt = false;
 
-  Id.identity();
+  // Order of the momenta for the oscillating planes.
+  ord = 0;
+  for (k = 0; k < dof; k++)
+    ord += jj[2*k+1];
+  ord = (ord % 4);
+  switch (ord) {
+  case 0:
+    sgn = 1;
+    break;
+  case 1:
+    sgn = -1;
+    break;
+  case 2:
+    sgn = -1;
+    break;
+  case 3:
+    sgn = 1;
+    break;
+  default:
+    printf("\n: undefined case %d\n", ord);
+    break;
+  }
 
+  if (prt) {
+    for (k = 0; k < nv_tps; k++)
+      printf("%3ld", jj[k]);
+    printf("%3d%4d\n", ord, sgn);
+  }
+
+  return sgn;
+}
+
+
+tps q_k_conj(const int dof, const tps &a)
+{
+  char     name[name_len_for+1];
+  int      j, n;
+  long int ibuf1[bufsize], ibuf2[bufsize], jj[nv_tps];
+  double   rbuf[bufsize];
+  tps      b;
+
+  // Adjust the sign for the momenta for the oscillating planes.
   a.exprt(rbuf, ibuf1, ibuf2, name);
   n = rbuf[0];
   printf("\n%s:\n", name);
-  for (i = 1; i <= n; i++) {
-    dehash_(no_tps, nv_tps, ibuf1[i-1], ibuf2[i-1], jj);
-    ord = 0;
-    for (k = 0; k < n_dof; k++)
-      ord += jj[2*k+1];
-    ord = (ord % 4);
-    switch (ord) {
-    case 0:
-      sgn = 1;
-      break;
-    case 1:
-      sgn = -1;
-      break;
-    case 2:
-      sgn = -1;
-      break;
-    case 3:
-      sgn = 1;
-      break;
-    default:
-      printf("\nCtoR_JB: undefined case %d\n", ord);
-      break;
-    }
-    rbuf[i] *= sgn;
+  for (j = 1; j <= n; j++) {
+    dehash_(no_tps, nv_tps, ibuf1[j-1], ibuf2[j-1], jj);
+    rbuf[j] *= f_q_k_conj(dof, jj);
   }
-
   b.imprt(n, rbuf, ibuf1, ibuf2);
+  return b;
+}
 
+
+void CtoR_JB(const tps &a, tps &a_re, tps &a_im)
+{
+  int          k;
+  tps          b, c;
+  ss_vect<tps> Id;
+
+  const int dof = 2; // Coasting beam 2.5 D.O.F.
+
+  Id.identity();
+
+  b = q_k_conj(dof, a);
+
+  // q_k -> (q_k + p_k) / 2
+  // p_k -> (q_k - p_k) / 2
   map.identity();
-  for (k = 0; k < n_dof; k++) {
-    map[2*k] = (Id[2*k]+Id[2*k+1])/2e0;
+  for (k = 0; k < dof; k++) {
+    map[2*k]   = (Id[2*k]+Id[2*k+1])/2e0;
     map[2*k+1] = (Id[2*k]-Id[2*k+1])/2e0;
   }
   b = b*map;
 
+  // q_k -> p_k
+  // p_k -> q_k
   map.identity();
-  for (k = 0; k < n_dof; k++) {
-    map[2*k] = Id[2*k+1];
+  for (k = 0; k < dof; k++) {
+    map[2*k]   = Id[2*k+1];
     map[2*k+1] = Id[2*k];
   }
   c = b*map;
@@ -1046,7 +1078,7 @@ void CtoR_JB(const tps &a, tps &a_re, tps &a_im)
 void tst_ctor(MNF_struct &MNF)
 {
   int          k;
-  tps          K_re, K_im, g_re, g_im, g2_re, g2_im;
+  tps          K_re, K_im, K_re_JB, K_im_JB, g_re, g_im, g_re_JB, g_im_JB;
   ss_vect<tps> Id, Id_no_delta, tmp;
   ctps         cK, cg, tst;
   css_vect     ctor, rtoc;
@@ -1055,10 +1087,20 @@ void tst_ctor(MNF_struct &MNF)
   Id_no_delta.identity();
   Id_no_delta[delta_] = 0e0;
 
-  CtoR(MNF.g, g_re, g_im);
-  CtoR_JB(MNF.g, g2_re, g2_im);
+  CtoR(MNF.K, K_re, K_im);
+  CtoR_JB(MNF.K, K_re_JB, K_im_JB);
 
-  cout << "\ncheck:\n" << g_re-g2_re << g_im-g2_im;
+  CtoR(MNF.g, g_re, g_im);
+  CtoR_JB(MNF.g, g_re_JB, g_im_JB);
+
+  // cout << "\ncpart(K):\n" << cpart(MNF.K) << "\n";
+  // cout << "\ng:\n" << MNF.g << "\n";
+  // cout << "\ncpart(g):\n" << cpart(MNF.g) << "\n";
+
+  cout << "\n[K_re-K_re_JB, K_im-K_im_JB]:\n"
+       << K_re-K_re_JB << K_im-K_im_JB;
+  cout << "\n[g_re-g_re_JB, g_im-g_im_JB]:\n"
+       << g_re-g_re_JB << g_im-g_im_JB;
 
   exit(0);
 
