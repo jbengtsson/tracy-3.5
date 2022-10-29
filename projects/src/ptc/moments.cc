@@ -980,11 +980,7 @@ void tst_cmplx()
 }
 
 
-ss_vect<tps> etctr(void);
-ss_vect<tps> etcjg(void);
-
-
-void tweak(const tps &a, tps &a_re, tps &a_im)
+void CtoR_JB(const tps &a, tps &a_re, tps &a_im)
 {
   char         name[name_len_for+1];
   int          i, j, k, n, ord, sgn;
@@ -1020,19 +1016,12 @@ void tweak(const tps &a, tps &a_re, tps &a_im)
       sgn = 1;
       break;
     default:
-      printf("\ntweak: undefined case %d\n", ord);
+      printf("\nCtoR_JB: undefined case %d\n", ord);
       break;
     }
-
     rbuf[i] *= sgn;
-
-    if (false) {
-      printf("  %10.3e ", rbuf[i]);
-      for (j = 0; j < nv_tps; j++)
-	printf(" %3ld", jj[j]);
-      printf("  %2d  %2d\n", ord, sgn);
-    }
   }
+
   b.imprt(n, rbuf, ibuf1, ibuf2);
 
   map.identity();
@@ -1049,13 +1038,8 @@ void tweak(const tps &a, tps &a_re, tps &a_im)
   }
   c = b*map;
 
-  if (false) {
-    cout << "\ntweak:\n";
-    prt_lin_map(3, map);
-  }
-
   a_re = (b+c)/2e0;
-  a_im = (b+c)/2e0;
+  a_im = (b-c)/2e0;
 }
 
 
@@ -1072,7 +1056,7 @@ void tst_ctor(MNF_struct &MNF)
   Id_no_delta[delta_] = 0e0;
 
   CtoR(MNF.g, g_re, g_im);
-  tweak(MNF.g, g2_re, g2_im);
+  CtoR_JB(MNF.g, g2_re, g2_im);
 
   cout << "\ncheck:\n" << g_re-g2_re << g_im-g2_im;
 
