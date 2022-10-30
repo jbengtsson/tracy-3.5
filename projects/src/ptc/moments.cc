@@ -953,7 +953,7 @@ void compute_invariant(ss_vect<tps> &M)
 }
 
 
-int f_q_k_conj(const int dof, const long int jj[])
+int f_p_k_cmplx_sgn_corr(const int dof, const long int jj[])
 {
   int ord, k, sgn = 0;
 
@@ -994,7 +994,7 @@ int f_q_k_conj(const int dof, const long int jj[])
 }
 
 
-tps q_k_conj(const int dof, const tps &a)
+tps p_k_cmplx_sgn_corr(const int dof, const tps &a)
 {
   char     name[name_len_for+1];
   int      j, n;
@@ -1007,15 +1007,15 @@ tps q_k_conj(const int dof, const tps &a)
   n = rbuf[0];
   for (j = 1; j <= n; j++) {
     dehash_(no_tps, nv_tps, ibuf1[j-1], ibuf2[j-1], jj);
-    rbuf[j] *= f_q_k_conj(dof, jj);
+    rbuf[j] *= f_p_k_cmplx_sgn_corr(dof, jj);
   }
   b.imprt(n, rbuf, ibuf1, ibuf2);
   return b;
 }
 
-ctps q_k_conj(const int dof, const ctps &a)
+ctps p_k_cmplx_sgn_corr(const int dof, const ctps &a)
 {
-  return ctps(q_k_conj(dof, a.real()), q_k_conj(dof, a.imag()));
+  return ctps(p_k_cmplx_sgn_corr(dof, a.real()), p_k_cmplx_sgn_corr(dof, a.imag()));
 }
 
 
@@ -1030,7 +1030,7 @@ void CtoR_JB2(const int dof, const tps &a, tps &a_re, tps &a_im)
 
   Id.identity();
 
-  b = q_k_conj(dof, a);
+  b = p_k_cmplx_sgn_corr(dof, a);
 
   // q_k -> (q_k + p_k) / 2
   // p_k -> (q_k - p_k) / 2
@@ -1081,7 +1081,7 @@ tps RtoC_JB2(const int dof, tps &a_re, tps &a_im)
     map[2*k+1] = Id[2*k] - Id[2*k+1];
   }
   b = b*map;
-  b = q_k_conj(dof, b);
+  b = p_k_cmplx_sgn_corr(dof, b);
   return b;
 }
 
@@ -1091,7 +1091,7 @@ ctps CtoR(const int dof, const ctps &a)
 {
   // Cartesian to resonance basis:
   // h_q_k^+ = (q_k - i p_k) / 2
-  // h_q_k^- = (q_k + i p_k) / 2i
+  // h_q_k^- = (q_k + i p_k) / 2
   int          k;
   ss_vect<tps> Id;
 
@@ -1101,15 +1101,15 @@ ctps CtoR(const int dof, const ctps &a)
     map[2*k]   = (Id[2*k]+Id[2*k+1])/2e0;
     map[2*k+1] = (Id[2*k]-Id[2*k+1])/2e0;
   }
-  return q_k_conj(dof, a)*css_vect(map);
+  return p_k_cmplx_sgn_corr(dof, a)*css_vect(map);
 }
 
 
 ctps RtoC(const int dof, const ctps &a)
 {
   // Resonance to Cartesian basis.
-  // q_k =  (h_q_k^+ + h_q_k^-) / 2
-  // p_k = -(h_q_k^+ - h_q_k^-) / 2i
+  // q_k =    h_q_k^+ + h_q_k^-
+  // p_k = i (h_q_k^+ - h_q_k^-)
   int          k;
   ctps         b;
   ss_vect<tps> Id;
@@ -1120,7 +1120,7 @@ ctps RtoC(const int dof, const ctps &a)
     map[2*k]   = Id[2*k] + Id[2*k+1];
     map[2*k+1] = Id[2*k] - Id[2*k+1];
   }
-  return q_k_conj(dof, a*css_vect(map));
+  return p_k_cmplx_sgn_corr(dof, a*css_vect(map));
 }
 
 
