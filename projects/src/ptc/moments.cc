@@ -1093,15 +1093,16 @@ ctps CtoR(const int dof, const ctps &a)
   // h_q_k^+ = (q_k - i p_k) / 2
   // h_q_k^- = (q_k + i p_k) / 2
   int          k;
-  ss_vect<tps> Id;
+  ss_vect<tps> Id, Zero;
 
   Id.identity();
+  Zero.zero();
   map.identity();
   for (k = 0; k < dof; k++) {
     map[2*k]   = (Id[2*k]+Id[2*k+1])/2e0;
     map[2*k+1] = (Id[2*k]-Id[2*k+1])/2e0;
   }
-  return p_k_cmplx_sgn_corr(dof, a)*css_vect(map);
+  return p_k_cmplx_sgn_corr(dof, a)*css_vect(map, Zero);
 }
 
 
@@ -1112,15 +1113,16 @@ ctps RtoC(const int dof, const ctps &a)
   // p_k = i (h_q_k^+ - h_q_k^-)
   int          k;
   ctps         b;
-  ss_vect<tps> Id;
+  ss_vect<tps> Id, Zero;
 
   Id.identity();
+  Zero.zero();
   map.identity();
   for (k = 0; k < dof; k++) {
     map[2*k]   = Id[2*k] + Id[2*k+1];
     map[2*k+1] = Id[2*k] - Id[2*k+1];
   }
-  return p_k_cmplx_sgn_corr(dof, a*css_vect(map));
+  return p_k_cmplx_sgn_corr(dof, a*css_vect(map, Zero));
 }
 
 
