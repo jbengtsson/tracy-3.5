@@ -1112,7 +1112,6 @@ ctps RtoC(const int dof, const ctps &a)
   // q_k =    h_q_k^+ + h_q_k^-
   // p_k = i (h_q_k^+ - h_q_k^-)
   int          k;
-  ctps         b;
   ss_vect<tps> Id, Zero;
 
   Id.identity();
