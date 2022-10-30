@@ -1013,6 +1013,11 @@ tps q_k_conj(const int dof, const tps &a)
   return b;
 }
 
+ctps q_k_conj(const int dof, const ctps &a)
+{
+  return ctps(q_k_conj(dof, a.real()), q_k_conj(dof, a.imag()));
+}
+
 
 #if 0
 // Obsolete.
@@ -1084,6 +1089,7 @@ tps RtoC_JB2(const int dof, tps &a_re, tps &a_im)
 
 ctps CtoR(const int dof, const ctps &a)
 {
+  // Cartesian to resonance basis:
   // h_q_k^+ = (q_k - i p_k) / 2
   // h_q_k^- = (q_k + i p_k) / 2i
   int          k;
@@ -1095,13 +1101,14 @@ ctps CtoR(const int dof, const ctps &a)
     map[2*k]   = (Id[2*k]+Id[2*k+1])/2e0;
     map[2*k+1] = (Id[2*k]-Id[2*k+1])/2e0;
   }
-  return ctps(q_k_conj(dof, a.real())*map, q_k_conj(dof, a.imag())*map);
+  return q_k_conj(dof, a)*css_vect(map);
 }
 
 
 ctps RtoC(const int dof, const ctps &a)
 {
-  // q_k = (h_q_k^+ + h_q_k^-) / 2
+  // Resonance to Cartesian basis.
+  // q_k =  (h_q_k^+ + h_q_k^-) / 2
   // p_k = -(h_q_k^+ - h_q_k^-) / 2i
   int          k;
   ctps         b;
@@ -1113,7 +1120,7 @@ ctps RtoC(const int dof, const ctps &a)
     map[2*k]   = Id[2*k] + Id[2*k+1];
     map[2*k+1] = Id[2*k] - Id[2*k+1];
   }
-  return ctps(q_k_conj(dof, a.real()*map), q_k_conj(dof, a.imag()*map));
+  return q_k_conj(dof, a*css_vect(map));
 }
 
 
