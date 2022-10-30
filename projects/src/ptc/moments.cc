@@ -1014,7 +1014,10 @@ tps q_k_conj(const int dof, const tps &a)
 }
 
 
-void CtoR_JB(const int dof, const tps &a, tps &a_re, tps &a_im)
+#if 0
+// Obsolete.
+
+void CtoR_JB2(const int dof, const tps &a, tps &a_re, tps &a_im)
 {
   int          k;
   tps          b, c;
@@ -1051,7 +1054,8 @@ void CtoR_JB(const int dof, const tps &a, tps &a_re, tps &a_im)
   a_im = (b-c)/2e0;
 }
 
-tps RtoC_JB(const int dof, tps &a_re, tps &a_im)
+
+tps RtoC_JB2(const int dof, tps &a_re, tps &a_im)
 {
   int          k;
   tps          b;
@@ -1076,96 +1080,71 @@ tps RtoC_JB(const int dof, tps &a_re, tps &a_im)
   return b;
 }
 
+#endif
 
-void tst_cmplx()
+ctps CtoR(const int dof, const ctps &a)
 {
+  // h_q_k^+ = (q_k - i p_k) / 2
+  // h_q_k^- = (q_k + i p_k) / 2i
   int          k;
   ss_vect<tps> Id;
-  css_vect     hpm, ps;
 
   Id.identity();
-
-  hpm.identity();
-  for (k = 0; k < 2; k++) {
-    hpm[2*k]   = ctps(Id[2*k], -Id[2*k+1]);
-    hpm[2*k+1] = ctps(Id[2*k],  Id[2*k+1]);
+  map.identity();
+  for (k = 0; k < dof; k++) {
+    map[2*k]   = (Id[2*k]+Id[2*k+1])/2e0;
+    map[2*k+1] = (Id[2*k]-Id[2*k+1])/2e0;
   }
+  return ctps(q_k_conj(dof, a.real())*map, q_k_conj(dof, a.imag())*map);
+}
 
-  // cout << scientific << setprecision(3) << "\nhpm:\n" << hpm;
-  prt_cmplx_lin_map(3, "\nhpm:\n", hpm);
 
-  ps.identity();
-  for (k = 0; k < 2; k++) {
-    ps[2*k]   = (hpm[2*k]+hpm[2*k+1])/2e0;
-    ps[2*k+1] = ctps(0e0, 1e0)*(hpm[2*k]-hpm[2*k+1])/2e0;
+ctps RtoC(const int dof, const ctps &a)
+{
+  // q_k = (h_q_k^+ + h_q_k^-) / 2
+  // p_k = -(h_q_k^+ - h_q_k^-) / 2i
+  int          k;
+  ctps         b;
+  ss_vect<tps> Id;
+
+  Id.identity();
+  map.identity();
+  for (k = 0; k < dof; k++) {
+    map[2*k]   = Id[2*k] + Id[2*k+1];
+    map[2*k+1] = Id[2*k] - Id[2*k+1];
   }
-  // cout << scientific << setprecision(3) << "\nps:\n" << ps;
-  prt_cmplx_lin_map(3, "\nps:\n", ps);
+  return ctps(q_k_conj(dof, a.real()*map), q_k_conj(dof, a.imag()*map));
 }
 
 
 void tst_ctor(MNF_struct &MNF)
 {
-  int          k;
   tps          K_re, K_im, K_re_JB, K_im_JB, g_re, g_im, g_re_JB, g_im_JB;
-  ss_vect<tps> Id, Id_no_delta, tmp;
-  ctps         cK, cg, tst;
-  css_vect     ctor, rtoc;
+  ss_vect<tps> Id;
+  ctps         cK, cg;
 
   Id.identity();
-  Id_no_delta.identity();
-  Id_no_delta[delta_] = 0e0;
 
   CtoR(MNF.K, K_re, K_im);
-  CtoR_JB(2, MNF.K, K_re_JB, K_im_JB);
-
   CtoR(MNF.g, g_re, g_im);
-  CtoR_JB(2, MNF.g, g_re_JB, g_im_JB);
+  cK = CtoR(2, ctps(MNF.K, 0e0));
+  cg = CtoR(2, ctps(0e0, MNF.g));
 
   cout << "\n[K_re-K_re_JB, K_im-K_im_JB]:\n"
-       << K_re-K_re_JB << K_im-K_im_JB;
+       << K_re-cK.real() << K_im-cK.imag();
+  daeps_(1e-7);
   cout << "\n[g_re-g_re_JB, g_im-g_im_JB]:\n"
-       << g_re-g_re_JB << g_im-g_im_JB;
-
-  cout << "\nRtoC_JB(K_re, K_im)-K:\n"
-       << RtoC_JB(2, K_re_JB, K_im_JB)-MNF.K;
-  daeps_(1e-8);
-  cout << "\nRtoC_JB(g_re, g_im)-g:\n"
-       << RtoC_JB(2, g_re_JB, g_im_JB)-MNF.g;
+       << g_re-cg.real() << g_im-cg.imag();
   daeps_(eps_tps);
 
-  cK = ctps(K_re, K_im);
-  cg = ctps(g_re, g_im);
+  cK = RtoC(2, ctps(K_re, K_im));
+  cg = RtoC(2, ctps(g_re, g_im));
 
-  cK.print("\ncK:\n");
-  // cg.print("\ncg:\n");
+  cout << "\nRtoC_JB(2, cK)-K:\n" << cK.real()-MNF.K << cK.imag();
 
-  exit(0);
-
-  ctor.identity();
-  for (k = 0; k < 2; k++) {
-    ctor[2*k]   = ctps((Id[2*k]+Id[2*k+1])/2e0, 0e0);
-    ctor[2*k+1] = ctps(0e0, (Id[2*k]-Id[2*k+1])/2e0);
-  }
-
-  prt_cmplx_lin_map(3, "\nctor:\n", ctor);
-  
-  tst = 1.1*(sqr(Id[x_])+sqr(Id[px_]));
-  tst.print("\ntst:\n");
-  (tst*ctor).print("\nctst:\n");
-  exit(0);
-
-  CtoR(MNF.K, K_re, K_im);
-  cout << "\nK:\n" << MNF.K;
-  cout << "\nK_re:\n" << K_re;
-  cout << "\nK_im:\n" << K_im;
-  (ctps(MNF.K)*ctor).print("\ncK:\n");
-
-  rtoc.identity();
-  for (k = 0; k < 2; k++) {
-    rtoc[2*k]   = (ctor[2*k]+ctor[2*k+1])/2e0;
-    rtoc[2*k+1] = ctps(0e0, 1e0)*(ctor[2*k]-ctor[2*k+1])/2e0;
-  }
+  daeps_(1e-6);
+  cout << "\nRtoC_JB(2, cg)-g:\n" << 1e0*cg.real() << cg.imag()-MNF.g;
+  daeps_(eps_tps);
 }
 
 
@@ -1219,9 +1198,6 @@ int main(int argc, char *argv[])
 
   if (false)
     diff_map("diffusion.out", 25, 25, 4e-3, 5e-3, MNF);
-
-  if (false)
-    tst_cmplx();
 
   if (!false)
     tst_ctor(MNF);
