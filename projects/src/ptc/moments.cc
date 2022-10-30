@@ -955,7 +955,6 @@ void compute_invariant(ss_vect<tps> &M)
 
 int f_p_k_cmplx_sgn_corr(const int dof, const long int jj[])
 {
-  // Correct sign for complex vs. real momenta p_k.
   int ord, k, sgn = 0;
 
   // Compute the sum of exponents for the momenta for the oscillating planes:
@@ -984,6 +983,9 @@ int f_p_k_cmplx_sgn_corr(const int dof, const long int jj[])
 
 tps p_k_cmplx_sgn_corr(const int dof, const tps &a)
 {
+  // Correct sign for complex vs. real momenta p_k.
+  //   q_k =  (h_q_k^+ + h_q_k^-) / 2
+  // i p_k = -(h_q_k^+ - h_q_k^-) / 2
   char     name[name_len_for+1];
   int      j, n;
   long int ibuf1[bufsize], ibuf2[bufsize], jj[nv_tps];
@@ -1024,8 +1026,8 @@ void CtoR_JB2(const int dof, const tps &a, tps &a_re, tps &a_im)
   // q_k -> (q_k + p_k) / 2
   // p_k -> (q_k - p_k) / 2
   // Complex space:
-  // h_q_k^+ -> (q_k - i p_k) / 2
-  // h_q_k^- -> (q_k + i p_k) / 2i
+  // q_k =   (h_q_k^+ + h_q_k^-) / 2
+  // p_k = i (h_q_k^+ - h_q_k^-) / 2
   map.identity();
   for (k = 0; k < dof; k++) {
     map[2*k]   = (Id[2*k]+Id[2*k+1])/2e0;
@@ -1062,8 +1064,8 @@ tps RtoC_JB2(const int dof, tps &a_re, tps &a_im)
   // q_k -> q_k + p_k
   // p_k -> q_k - p_k
   // Complex space:
-  // q_k -> (h_q_k^+ + h_q_k^-) / 2
-  // p_k -> -(h_q_k^+ - h_q_k^-) / 2i
+  // h_q_k^+ = q_k - i h_p_k
+  // h_q_k^- = q_k + i h_p_k
   map.identity();
   for (k = 0; k < dof; k++) {
     map[2*k]   = Id[2*k] + Id[2*k+1];
@@ -1079,8 +1081,8 @@ tps RtoC_JB2(const int dof, tps &a_re, tps &a_im)
 ctps CtoR(const int dof, const ctps &a)
 {
   // Cartesian to resonance basis:
-  // h_q_k^+ = (q_k - i p_k) / 2
-  // h_q_k^- = (q_k + i p_k) / 2
+  //   q_k =  (h_q_k^+ + h_q_k^-) / 2
+  // i p_k = -(h_q_k^+ - h_q_k^-) / 2
   int          k;
   ss_vect<tps> Id, Zero;
 
@@ -1098,8 +1100,8 @@ ctps CtoR(const int dof, const ctps &a)
 ctps RtoC(const int dof, const ctps &a)
 {
   // Resonance to Cartesian basis.
-  // q_k =    h_q_k^+ + h_q_k^-
-  // p_k = i (h_q_k^+ - h_q_k^-)
+  // h_q_k^+ = q_k - i h_p_k
+  // h_q_k^- = q_k + i h_p_k
   int          k;
   ss_vect<tps> Id, Zero;
 
