@@ -955,9 +955,8 @@ void compute_invariant(ss_vect<tps> &M)
 
 int f_p_k_cmplx_sgn_corr(const int dof, const long int jj[])
 {
+  // Correct sign for complex vs. real momenta p_k.
   int ord, k, sgn = 0;
-
-  const bool prt = false;
 
   // Compute the sum of exponents for the momenta for the oscillating planes:
   ord = 0;
@@ -968,28 +967,17 @@ int f_p_k_cmplx_sgn_corr(const int dof, const long int jj[])
   //  j + l mod 4 = [0: +1, 1: -1, 2: -1, 3: +1]
   switch (ord) {
   case 0:
+  case 3:
     sgn = 1;
     break;
   case 1:
-    sgn = -1;
-    break;
   case 2:
     sgn = -1;
-    break;
-  case 3:
-    sgn = 1;
     break;
   default:
     printf("\n: undefined case %d\n", ord);
     break;
   }
-
-  if (prt) {
-    for (k = 0; k < nv_tps; k++)
-      printf("%3ld", jj[k]);
-    printf("%3d%4d\n", ord, sgn);
-  }
-
   return sgn;
 }
 
@@ -1015,7 +1003,8 @@ tps p_k_cmplx_sgn_corr(const int dof, const tps &a)
 
 ctps p_k_cmplx_sgn_corr(const int dof, const ctps &a)
 {
-  return ctps(p_k_cmplx_sgn_corr(dof, a.real()), p_k_cmplx_sgn_corr(dof, a.imag()));
+  return
+    ctps(p_k_cmplx_sgn_corr(dof, a.real()), p_k_cmplx_sgn_corr(dof, a.imag()));
 }
 
 
