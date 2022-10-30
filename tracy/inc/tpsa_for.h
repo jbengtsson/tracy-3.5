@@ -72,6 +72,7 @@ extern "C" {
   void ctor_(const long int &, long int &, long int &);
   void ctoi_(const long int &, long int &);
   void cpart_(const long int &, long int &);
+  void etrtc_(const long int []);
   void etctr_(const long int []);
   void etcjg_(long int []);
   void trx_(const long int &, long int &, long int []);

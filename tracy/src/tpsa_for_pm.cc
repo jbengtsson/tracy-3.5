@@ -923,6 +923,19 @@ ss_vect<tps> etctr(void)
 }
 
 
+ss_vect<tps> etrtc(void)
+{
+  int          i;
+  long int     aintptrs[nv_tps];
+  ss_vect<tps> a;
+
+  for (i = 0; i < nv_tps; i++)
+    aintptrs[i] = a[i].intptr;
+  etrtc_(aintptrs);
+  return a;
+}
+
+
 ss_vect<tps> etcjg(void)
 {
   int          i;

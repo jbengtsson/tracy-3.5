@@ -3474,8 +3474,10 @@
       return
       end subroutine
 
-      subroutine etrtc(x)
+      subroutine etrtc(x) bind(C, name="etrtc_")
+      use iso_c_binding
       implicit none
+      integer x(*)
       integer i,ndim,ndim2,ntt
       parameter (ndim=3)
       parameter (ndim2=6)
@@ -3484,7 +3486,6 @@
       common /ii/no,nv,nd,nd2
       integer ndc,ndc2,ndpt,ndt
       common /coast/ndc,ndc2,ndt,ndpt
-      integer x(*)
 
       integer rel(ndim2)
 !
@@ -3502,8 +3503,9 @@
       end subroutine
 
       subroutine etctr(x) bind(C, name="etctr_")
+      use iso_c_binding
       implicit none
-      integer x(*)
+      integer(C_LONG) x(*)
       integer i,ndim,ndim2,ntt
       parameter (ndim=3)
       parameter (ndim2=6)

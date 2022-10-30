@@ -986,11 +986,13 @@ int f_q_k_conj(const int dof, const long int jj[])
 
   const bool prt = false;
 
-  // Order of the momenta for the oscillating planes.
+  // Compute the sum of exponents for the momenta for the oscillating planes:
   ord = 0;
   for (k = 0; k < dof; k++)
     ord += jj[2*k+1];
   ord = (ord % 4);
+  //  Sum_k c_ijkl x^i p_x^j y^k p_y^l
+  //  j + l mod 4 = [0: +1, 1: -1, 2: -1, 3: +1]
   switch (ord) {
   case 0:
     sgn = 1;
@@ -1030,7 +1032,6 @@ tps q_k_conj(const int dof, const tps &a)
   // Adjust the sign for the momenta for the oscillating planes.
   a.exprt(rbuf, ibuf1, ibuf2, name);
   n = rbuf[0];
-  printf("\n%s:\n", name);
   for (j = 1; j <= n; j++) {
     dehash_(no_tps, nv_tps, ibuf1[j-1], ibuf2[j-1], jj);
     rbuf[j] *= f_q_k_conj(dof, jj);
@@ -1040,13 +1041,11 @@ tps q_k_conj(const int dof, const tps &a)
 }
 
 
-void CtoR_JB(const tps &a, tps &a_re, tps &a_im)
+void CtoR_JB(const int dof, const tps &a, tps &a_re, tps &a_im)
 {
   int          k;
   tps          b, c;
   ss_vect<tps> Id;
-
-  const int dof = 2; // Coasting beam 2.5 D.O.F.
 
   Id.identity();
 
@@ -1054,6 +1053,9 @@ void CtoR_JB(const tps &a, tps &a_re, tps &a_im)
 
   // q_k -> (q_k + p_k) / 2
   // p_k -> (q_k - p_k) / 2
+  // Complex space:
+  // h_q_k^+ -> (q_k - i p_k) / 2
+  // h_q_k^- -> (q_k + i p_k) / 2i
   map.identity();
   for (k = 0; k < dof; k++) {
     map[2*k]   = (Id[2*k]+Id[2*k+1])/2e0;
@@ -1063,6 +1065,8 @@ void CtoR_JB(const tps &a, tps &a_re, tps &a_im)
 
   // q_k -> p_k
   // p_k -> q_k
+  // Complex space:
+  // i (q_k -/+ i p_k) = (i q_k +/- p_k)
   map.identity();
   for (k = 0; k < dof; k++) {
     map[2*k]   = Id[2*k+1];
@@ -1072,6 +1076,31 @@ void CtoR_JB(const tps &a, tps &a_re, tps &a_im)
 
   a_re = (b+c)/2e0;
   a_im = (b-c)/2e0;
+}
+
+tps RtoC_JB(const int dof, tps &a_re, tps &a_im)
+{
+  int          k;
+  tps          b;
+  ss_vect<tps> Id, map;
+
+  Id.identity();
+
+  b = a_re + a_im;
+
+  // q_k -> q_k + p_k
+  // p_k -> q_k - p_k
+  // Complex space:
+  // q_k -> (h_q_k^+ + h_q_k^-) / 2
+  // p_k -> -(h_q_k^+ - h_q_k^-) / 2i
+  map.identity();
+  for (k = 0; k < dof; k++) {
+    map[2*k]   = Id[2*k] + Id[2*k+1];
+    map[2*k+1] = Id[2*k] - Id[2*k+1];
+  }
+  b = b*map;
+  b = q_k_conj(dof, b);
+  return b;
 }
 
 
@@ -1088,19 +1117,22 @@ void tst_ctor(MNF_struct &MNF)
   Id_no_delta[delta_] = 0e0;
 
   CtoR(MNF.K, K_re, K_im);
-  CtoR_JB(MNF.K, K_re_JB, K_im_JB);
+  CtoR_JB(2, MNF.K, K_re_JB, K_im_JB);
 
   CtoR(MNF.g, g_re, g_im);
-  CtoR_JB(MNF.g, g_re_JB, g_im_JB);
-
-  // cout << "\ncpart(K):\n" << cpart(MNF.K) << "\n";
-  // cout << "\ng:\n" << MNF.g << "\n";
-  // cout << "\ncpart(g):\n" << cpart(MNF.g) << "\n";
+  CtoR_JB(2, MNF.g, g_re_JB, g_im_JB);
 
   cout << "\n[K_re-K_re_JB, K_im-K_im_JB]:\n"
        << K_re-K_re_JB << K_im-K_im_JB;
   cout << "\n[g_re-g_re_JB, g_im-g_im_JB]:\n"
        << g_re-g_re_JB << g_im-g_im_JB;
+
+  cout << "\nRtoC_JB(K_re, K_im)-K:\n"
+       << RtoC_JB(2, K_re_JB, K_im_JB)-MNF.K;
+  daeps_(1e-8);
+  cout << "\nRtoC_JB(g_re, g_im)-g:\n"
+       << RtoC_JB(2, g_re_JB, g_im_JB)-MNF.g;
+  daeps_(eps_tps);
 
   exit(0);
 

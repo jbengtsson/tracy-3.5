@@ -129,6 +129,7 @@ class tps {
   friend void CtoR(const tps &, tps &, tps &);
   friend tps CtoI(const tps &);
   friend tps cpart(const tps &);
+  friend ss_vect<tps> etrtc(void);
   friend ss_vect<tps> etctr(void);
   friend ss_vect<tps> etcjg(void);
   friend tps RtoC(const tps &, const tps &);
@@ -236,6 +237,7 @@ template<typename T> class ss_vect {
 			       ss_vect<tps> &, const int, const int);
   friend void dHdJ(const tps &, ss_vect<tps> &);
   friend void CtoR(const tps &, tps &, tps &);
+  friend ss_vect<tps> etrtc(void);
   friend ss_vect<tps> etctr(void);
   friend ss_vect<tps> etcjg(void);
   friend tps RtoC(const tps &, const tps &);
