@@ -964,7 +964,7 @@ int f_p_k_cmplx_sgn_corr(const int dof, const long int jj[])
     ord += jj[2*k+1];
   ord = (ord % 4);
   //  Sum_k c_ijkl x^i p_x^j y^k p_y^l
-  //  j + l mod 4 = [0: +1, 1: -1, 2: -1, 3: +1]
+  //  j + l mod 4 = [0, 3: +1; 1, 2: -1]
   switch (ord) {
   case 0:
   case 3:
