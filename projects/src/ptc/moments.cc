@@ -953,33 +953,6 @@ void compute_invariant(ss_vect<tps> &M)
 }
 
 
-void tst_cmplx()
-{
-  int          k;
-  ss_vect<tps> Id;
-  css_vect     hpm, ps;
-
-  Id.identity();
-
-  hpm.identity();
-  for (k = 0; k < 2; k++) {
-    hpm[2*k]   = ctps(Id[2*k], -Id[2*k+1]);
-    hpm[2*k+1] = ctps(Id[2*k],  Id[2*k+1]);
-  }
-
-  // cout << scientific << setprecision(3) << "\nhpm:\n" << hpm;
-  prt_cmplx_lin_map(3, "\nhpm:\n", hpm);
-
-  ps.identity();
-  for (k = 0; k < 2; k++) {
-    ps[2*k]   = (hpm[2*k]+hpm[2*k+1])/2e0;
-    ps[2*k+1] = ctps(0e0, 1e0)*(hpm[2*k]-hpm[2*k+1])/2e0;
-  }
-  // cout << scientific << setprecision(3) << "\nps:\n" << ps;
-  prt_cmplx_lin_map(3, "\nps:\n", ps);
-}
-
-
 int f_q_k_conj(const int dof, const long int jj[])
 {
   int ord, k, sgn = 0;
@@ -1104,6 +1077,33 @@ tps RtoC_JB(const int dof, tps &a_re, tps &a_im)
 }
 
 
+void tst_cmplx()
+{
+  int          k;
+  ss_vect<tps> Id;
+  css_vect     hpm, ps;
+
+  Id.identity();
+
+  hpm.identity();
+  for (k = 0; k < 2; k++) {
+    hpm[2*k]   = ctps(Id[2*k], -Id[2*k+1]);
+    hpm[2*k+1] = ctps(Id[2*k],  Id[2*k+1]);
+  }
+
+  // cout << scientific << setprecision(3) << "\nhpm:\n" << hpm;
+  prt_cmplx_lin_map(3, "\nhpm:\n", hpm);
+
+  ps.identity();
+  for (k = 0; k < 2; k++) {
+    ps[2*k]   = (hpm[2*k]+hpm[2*k+1])/2e0;
+    ps[2*k+1] = ctps(0e0, 1e0)*(hpm[2*k]-hpm[2*k+1])/2e0;
+  }
+  // cout << scientific << setprecision(3) << "\nps:\n" << ps;
+  prt_cmplx_lin_map(3, "\nps:\n", ps);
+}
+
+
 void tst_ctor(MNF_struct &MNF)
 {
   int          k;
@@ -1133,6 +1133,12 @@ void tst_ctor(MNF_struct &MNF)
   cout << "\nRtoC_JB(g_re, g_im)-g:\n"
        << RtoC_JB(2, g_re_JB, g_im_JB)-MNF.g;
   daeps_(eps_tps);
+
+  cK = ctps(K_re, K_im);
+  cg = ctps(g_re, g_im);
+
+  cK.print("\ncK:\n");
+  // cg.print("\ncg:\n");
 
   exit(0);
 
