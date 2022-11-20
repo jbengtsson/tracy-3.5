@@ -1,4 +1,4 @@
-#define NO 5
+#define NO 2
 
 #include "tracy_lib.h"
 
@@ -953,13 +953,13 @@ void compute_invariant(ss_vect<tps> &M)
 }
 
 
-int f_p_k_cmplx_sgn_corr(const int dof, const long int jj[])
+int f_p_k_cmplx_sgn_corr(const int n_dof, const long int jj[])
 {
   int ord, k, sgn = 0;
 
   // Compute the sum of exponents for the momenta for the oscillating planes:
   ord = 0;
-  for (k = 0; k < dof; k++)
+  for (k = 0; k < n_dof; k++)
     ord += jj[2*k+1];
   ord = (ord % 4);
   //  Sum_k c_ijkl x^i p_x^j y^k p_y^l
@@ -981,7 +981,7 @@ int f_p_k_cmplx_sgn_corr(const int dof, const long int jj[])
 }
 
 
-tps p_k_cmplx_sgn_corr(const int dof, const tps &a)
+tps p_k_cmplx_sgn_corr(const int n_dof, const tps &a)
 {
   // Correct sign for complex vs. real momenta p_k.
   //   q_k =  (h_q_k^+ + h_q_k^-) / 2
@@ -997,23 +997,24 @@ tps p_k_cmplx_sgn_corr(const int dof, const tps &a)
   n = rbuf[0];
   for (j = 1; j <= n; j++) {
     dehash_(no_tps, nv_tps, ibuf1[j-1], ibuf2[j-1], jj);
-    rbuf[j] *= f_p_k_cmplx_sgn_corr(dof, jj);
+    rbuf[j] *= f_p_k_cmplx_sgn_corr(n_dof, jj);
   }
   b.imprt(n, rbuf, ibuf1, ibuf2);
   return b;
 }
 
-ctps p_k_cmplx_sgn_corr(const int dof, const ctps &a)
+ctps p_k_cmplx_sgn_corr(const int n_dof, const ctps &a)
 {
   return
-    ctps(p_k_cmplx_sgn_corr(dof, a.real()), p_k_cmplx_sgn_corr(dof, a.imag()));
+    ctps(p_k_cmplx_sgn_corr(n_dof, a.real()),
+	 p_k_cmplx_sgn_corr(n_dof, a.imag()));
 }
 
 
 #if 0
 // Obsolete.
 
-void CtoR_JB2(const int dof, const tps &a, tps &a_re, tps &a_im)
+void CtoR_JB2(const int n_dof, const tps &a, tps &a_re, tps &a_im)
 {
   int          k;
   tps          b, c;
@@ -1021,7 +1022,7 @@ void CtoR_JB2(const int dof, const tps &a, tps &a_re, tps &a_im)
 
   Id.identity();
 
-  b = p_k_cmplx_sgn_corr(dof, a);
+  b = p_k_cmplx_sgn_corr(n_dof, a);
 
   // q_k -> (q_k + p_k) / 2
   // p_k -> (q_k - p_k) / 2
@@ -1029,7 +1030,7 @@ void CtoR_JB2(const int dof, const tps &a, tps &a_re, tps &a_im)
   // q_k =   (h_q_k^+ + h_q_k^-) / 2
   // p_k = i (h_q_k^+ - h_q_k^-) / 2
   map.identity();
-  for (k = 0; k < dof; k++) {
+  for (k = 0; k < n_dof; k++) {
     map[2*k]   = (Id[2*k]+Id[2*k+1])/2e0;
     map[2*k+1] = (Id[2*k]-Id[2*k+1])/2e0;
   }
@@ -1040,7 +1041,7 @@ void CtoR_JB2(const int dof, const tps &a, tps &a_re, tps &a_im)
   // Complex space:
   // i (q_k -/+ i p_k) = (i q_k +/- p_k)
   map.identity();
-  for (k = 0; k < dof; k++) {
+  for (k = 0; k < n_dof; k++) {
     map[2*k]   = Id[2*k+1];
     map[2*k+1] = Id[2*k];
   }
@@ -1051,7 +1052,7 @@ void CtoR_JB2(const int dof, const tps &a, tps &a_re, tps &a_im)
 }
 
 
-tps RtoC_JB2(const int dof, tps &a_re, tps &a_im)
+tps RtoC_JB2(const int n_dof, tps &a_re, tps &a_im)
 {
   int          k;
   tps          b;
@@ -1067,18 +1068,18 @@ tps RtoC_JB2(const int dof, tps &a_re, tps &a_im)
   // h_q_k^+ = q_k - i h_p_k
   // h_q_k^- = q_k + i h_p_k
   map.identity();
-  for (k = 0; k < dof; k++) {
+  for (k = 0; k < n_dof; k++) {
     map[2*k]   = Id[2*k] + Id[2*k+1];
     map[2*k+1] = Id[2*k] - Id[2*k+1];
   }
   b = b*map;
-  b = p_k_cmplx_sgn_corr(dof, b);
+  b = p_k_cmplx_sgn_corr(n_dof, b);
   return b;
 }
 
 #endif
 
-ctps CtoR(const int dof, const ctps &a)
+ctps CtoR(const int n_dof, const ctps &a)
 {
   // Cartesian to resonance basis:
   //   q_k =  (h_q_k^+ + h_q_k^-) / 2
@@ -1089,15 +1090,15 @@ ctps CtoR(const int dof, const ctps &a)
   Id.identity();
   Zero.zero();
   map.identity();
-  for (k = 0; k < dof; k++) {
+  for (k = 0; k < n_dof; k++) {
     map[2*k]   = (Id[2*k]+Id[2*k+1])/2e0;
     map[2*k+1] = (Id[2*k]-Id[2*k+1])/2e0;
   }
-  return p_k_cmplx_sgn_corr(dof, a)*css_vect(map, Zero);
+  return p_k_cmplx_sgn_corr(n_dof, a)*css_vect(map, Zero);
 }
 
 
-ctps RtoC(const int dof, const ctps &a)
+ctps RtoC(const int n_dof, const ctps &a)
 {
   // Resonance to Cartesian basis.
   // h_q_k^+ = q_k - i h_p_k
@@ -1108,11 +1109,11 @@ ctps RtoC(const int dof, const ctps &a)
   Id.identity();
   Zero.zero();
   map.identity();
-  for (k = 0; k < dof; k++) {
+  for (k = 0; k < n_dof; k++) {
     map[2*k]   = Id[2*k] + Id[2*k+1];
     map[2*k+1] = Id[2*k] - Id[2*k+1];
   }
-  return p_k_cmplx_sgn_corr(dof, a*css_vect(map, Zero));
+  return p_k_cmplx_sgn_corr(n_dof, a*css_vect(map, Zero));
 }
 
 
@@ -1147,6 +1148,188 @@ void tst_ctor(MNF_struct &MNF)
 }
 
 
+void compute_C_S_long(double &alpha_z, double &beta_z)
+{
+  alpha_z =
+    -globval.Ascr[ct_][ct_]*globval.Ascr[delta_][ct_]
+    - globval.Ascr[ct_][delta_]*globval.Ascr[delta_][delta_];
+  beta_z = sqr(globval.Ascr[ct_][ct_]) + sqr(globval.Ascr[ct_][delta_]);
+}
+
+
+ss_vect<tps> compute_A_A_t(const int n_dof)
+{
+  int          k;
+  double       alpha_z, beta_z;
+  ss_vect<tps> Id, A_A_t;
+
+  Id.identity();
+
+  if (n_dof > 2) compute_C_S_long(alpha_z, beta_z);
+
+  A_A_t.zero();
+  for (k = 0; k < n_dof; k++) {
+    if (k < 2) {
+      A_A_t[2*k] = Cell[0].Beta[k]*Id[2*k] - Cell[0].Alpha[k]*Id[2*k+1];
+      A_A_t[2*k+1] =
+	-Cell[0].Alpha[k]*Id[2*k]
+	+ (1e0+sqr(Cell[0].Alpha[k]))/Cell[0].Beta[k]*Id[2*k+1];
+    } else {
+      A_A_t[ct_] = beta_z*Id[ct_] - alpha_z*Id[delta_];
+      A_A_t[delta_] = -alpha_z*Id[ct_]	+ (1e0+sqr(alpha_z))/beta_z*Id[delta_];
+    }
+  }
+
+  return A_A_t;
+}
+
+
+void tst_moment(void)
+{
+  long int     lastpos;
+  ss_vect<tps> M, A_A_t;
+
+  const int
+    n_dof = 3,
+#if 0
+    loc   = globval.Cell_nLoc;
+#else
+    loc   = 10;
+#endif
+
+  globval.Cavity_on = !false;
+  globval.radiation = !false;
+
+  danot_(1);
+
+  Ring_GetTwiss(true, 0e0);
+  printglob();
+
+  danot_(no_tps-1);
+
+  M.identity();
+  Cell_Pass(0, loc, M, lastpos);
+  printf("\nM:");
+  prt_lin_map(3, M);
+
+  A_A_t = compute_A_A_t(n_dof);
+  printf("\nInitial A_A_t beta = [%5.3f, %5.3f]:",
+	 A_A_t[x_][x_], A_A_t[y_][y_]);
+  prt_lin_map(3, A_A_t);
+
+  A_A_t = M*tp_S(n_dof, M*A_A_t);
+
+  printf("\nFinal A_A_t beta = [%5.3f, %5.3f]:",
+	 A_A_t[x_][x_], A_A_t[y_][y_]);
+  prt_lin_map(3, A_A_t);
+
+  A_A_t = compute_A_A_t(n_dof);
+  printf("\nInitial A_A_t beta = [%5.3f, %5.3f]:",
+	 A_A_t[x_][x_], A_A_t[y_][y_]);
+  prt_lin_map(3, A_A_t);
+
+  Cell_Pass(0, loc, A_A_t, lastpos);
+  A_A_t = tp_S(n_dof, A_A_t);
+
+  Cell_Pass(0, loc, A_A_t, lastpos);
+  printf("\nFinal A_A_t beta = [%5.3f, %5.3f]:",
+	 A_A_t[x_][x_], A_A_t[y_][y_]);
+  prt_lin_map(3, A_A_t);
+}
+
+
+tps compute_twoJ(const int n_dof, const ss_vect<tps> &A_A_t)
+{
+  int          j, k;
+  tps          twoJ;
+  ss_vect<tps> Id, ox, tmp;
+
+  const ss_vect<tps> omega = get_S(n_dof);
+
+  Id.identity();
+
+  tmp = tp_S(n_dof, omega)*A_A_t*omega;
+  twoJ = 0e0;
+  for (j = 0; j < 2*n_dof; j++)
+    for (k = 0; k < 2*n_dof; k++)
+      twoJ += tmp[j][k]*Id[j]*Id[k];
+  return twoJ;
+}
+
+
+void compute_Twiss(const tps &twoJ, double alpha[], double beta[])
+{
+  long int jj[ss_dim];
+  int      k;
+
+  for (k = 0; k < ss_dim; k++)
+    jj[k] = 0;
+  for (k = 0; k < 2; k++) {
+    jj[2*k]   = 1;
+    jj[2*k+1] = 1;
+    alpha[k] = twoJ[jj]/2e0;
+    jj[2*k]   = 0;
+    jj[2*k+1] = 0;
+    jj[2*k+1] = 2;
+    beta[k] = twoJ[jj];
+    jj[2*k+1] = 0;
+  }
+}
+
+
+void tst_twoJ(void)
+{
+  long int     lastpos;
+  double       alpha[2], beta[2];
+  tps          twoJ;
+  ss_vect<tps> Id, M, A_A_t;
+
+  const int
+    n_dof = 3,
+#if 0
+    loc   = globval.Cell_nLoc;
+#else
+  loc   = 10;
+#endif
+
+  Id.identity();
+
+  globval.Cavity_on = !false;
+  globval.radiation = !false;
+
+  danot_(1);
+
+  Ring_GetTwiss(true, 0e0);
+  printglob();
+
+  danot_(no_tps-1);
+
+  M.identity();
+  Cell_Pass(0, loc, M, lastpos);
+  printf("\nM:");
+  prt_lin_map(3, M);
+
+  danot_(no_tps);
+
+  A_A_t = compute_A_A_t(n_dof);
+  printf("\nInitial A_A_t beta = [%5.3f, %5.3f]:",
+	 A_A_t[x_][x_], A_A_t[y_][y_]);
+  prt_lin_map(3, A_A_t);
+  twoJ = compute_twoJ(n_dof, A_A_t);
+  compute_Twiss(twoJ, alpha, beta);
+  printf("\nInitial 2J alpha = [%5.3f, %5.3f] beta = [%5.3f, %5.3f]:\n",
+	 alpha[X_], alpha[Y_], beta[X_], beta[Y_]);
+  cout << twoJ;
+
+  twoJ = twoJ*Inv(M);
+
+  compute_Twiss(twoJ, alpha, beta);
+  printf("\nFinal 2J alpha = [%5.3f, %5.3f] beta = [%5.3f, %5.3f]:\n",
+	 alpha[X_], alpha[Y_], beta[X_], beta[Y_]);
+  cout << twoJ;
+}
+
+
 int main(int argc, char *argv[])
 {
   long int    lastpos;
@@ -1167,17 +1350,18 @@ int main(int argc, char *argv[])
   else
     rdmfile(argv[1]);
 
-  if (false) {
+  if (!false) {
+    danot_(1);
     Ring_GetTwiss(true, 0e0);
     printglob();
   }
 
   danot_(no_tps-1);
 
-  if (!false) {
+  if (false) {
     M.identity();
     Cell_Pass(0, globval.Cell_nLoc, M, lastpos);
-    printf("\nM:\n");
+    printf("\nM:");
     prt_lin_map(3, M);
     // cout << scientific << setprecision(3) << "\nM:\n" << M << "\n";
 
@@ -1198,6 +1382,12 @@ int main(int argc, char *argv[])
   if (false)
     diff_map("diffusion.out", 25, 25, 4e-3, 5e-3, MNF);
 
-  if (!false)
+  if (false)
     tst_ctor(MNF);
+
+  if (false)
+    tst_moment();
+
+  if (!false)
+    tst_twoJ();
 }
