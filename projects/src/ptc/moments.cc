@@ -1238,21 +1238,21 @@ void tst_moment(void)
 }
 
 
-tps compute_twoJ(const int n_dof, const ss_vect<tps> &A_A_t)
+tps compute_twoJ(const int n_dof, const double eps[], const ss_vect<tps> &A_A_t)
 {
   int          j, k;
   tps          twoJ;
-  ss_vect<tps> Id, ox, tmp;
+  ss_vect<tps> Id, quad_form;
 
   const ss_vect<tps> omega = get_S(n_dof);
 
   Id.identity();
 
-  tmp = tp_S(n_dof, omega)*A_A_t*omega;
+  quad_form = tp_S(n_dof, omega)*A_A_t*omega;
   twoJ = 0e0;
   for (j = 0; j < 2*n_dof; j++)
     for (k = 0; k < 2*n_dof; k++)
-      twoJ += tmp[j][k]*Id[j]*Id[k];
+      twoJ += Id[j]*sqrt(eps[j/2])*quad_form[j][k]*sqrt(eps[k/2])*Id[k];
   return twoJ;
 }
 
@@ -1280,12 +1280,12 @@ void compute_Twiss(const tps &twoJ, double alpha[], double beta[])
 void tst_twoJ(void)
 {
   long int     lastpos;
+  int          k;
   double       alpha[2], beta[2];
   tps          twoJ;
-  ss_vect<tps> Id, M, A_A_t;
+  ss_vect<tps> Id, M, M_inv, A_A_t;
 
-  const int
-    n_dof = 3,
+  const int n_dof = 3,
 #if 0
     loc   = globval.Cell_nLoc;
 #else
@@ -1306,16 +1306,16 @@ void tst_twoJ(void)
 
   M.identity();
   Cell_Pass(0, loc, M, lastpos);
+  M_inv = Inv(M);
   printf("\nM:");
   prt_lin_map(3, M);
 
   danot_(no_tps);
 
-  A_A_t = compute_A_A_t(n_dof);
-  printf("\nInitial A_A_t beta = [%5.3f, %5.3f]:",
-	 A_A_t[x_][x_], A_A_t[y_][y_]);
-  prt_lin_map(3, A_A_t);
-  twoJ = compute_twoJ(n_dof, A_A_t);
+  for (k = 0; k < n_dof; k++)
+    globval.eps[k] = 1e0;
+
+  twoJ = compute_twoJ(n_dof, globval.eps, compute_A_A_t(n_dof));
   compute_Twiss(twoJ, alpha, beta);
   printf("\nInitial 2J alpha = [%5.3f, %5.3f] beta = [%5.3f, %5.3f]:\n",
 	 alpha[X_], alpha[Y_], beta[X_], beta[Y_]);

@@ -1088,36 +1088,36 @@ void set_b3_Fam_sp(param_type &prms)
 
 void set_hoa_sp(constr_type &constr)
 {
-  int k;
+  // int k;
 
-  const std::vector<std::vector<double>>
-    hoa_nu_list =
-      {
-	{hoa_nu[X_]+hoa_dnu[X_], hoa_nu[Y_]+hoa_dnu[Y_]},
-	{hoa_nu[X_], hoa_nu[Y_]}, {hoa_nu[X_], hoa_nu[Y_]},
-	{hoa_nu[X_], hoa_nu[Y_]},
-	{hoa_nu[X_]+hoa_dnu[X_], hoa_nu[Y_]+hoa_dnu[Y_]}
-      };
+  // const std::vector<std::vector<double> >
+  //   hoa_nu_list =
+  //     {
+  // 	{hoa_nu[X_]+hoa_dnu[X_], hoa_nu[Y_]+hoa_dnu[Y_]},
+  // 	{hoa_nu[X_], hoa_nu[Y_]}, {hoa_nu[X_], hoa_nu[Y_]},
+  // 	{hoa_nu[X_], hoa_nu[Y_]},
+  // 	{hoa_nu[X_]+hoa_dnu[X_], hoa_nu[Y_]+hoa_dnu[Y_]}
+  //     };
 
-  for (k = 0; k < (int)hoa_nu_list.size(); k++)
-    constr.hoa_nu.push_back(hoa_nu_list[k]);
+  // for (k = 0; k < (int)hoa_nu_list.size(); k++)
+  //   constr.hoa_nu.push_back(hoa_nu_list[k]);
 
-  constr.hoa_scl[X_] = 1e0;
-  constr.hoa_scl[Y_] = 1e0;
+  // constr.hoa_scl[X_] = 1e0;
+  // constr.hoa_scl[Y_] = 1e0;
 
-  constr.loc.push_back(Elem_GetPos(ElemIndex("ul4"), 1)-1);
-  constr.loc.push_back(Elem_GetPos(ElemIndex("mb1"), 1)-1);
-  constr.loc.push_back(Elem_GetPos(ElemIndex("s2_h"), 1));
-  constr.loc.push_back(Elem_GetPos(ElemIndex("b1_h"), 1));
-  constr.loc.push_back(Elem_GetPos(ElemIndex("s2_h"), 3));
-  constr.loc.push_back(Elem_GetPos(ElemIndex("b1_h"), 3));
-  constr.loc.push_back(Elem_GetPos(ElemIndex("s2_h"), 5));
-  constr.loc.push_back(Elem_GetPos(ElemIndex("b1_h"), 5));
-  constr.loc.push_back(Elem_GetPos(ElemIndex("s2_h"), 7));
-  constr.loc.push_back(Elem_GetPos(ElemIndex("b1_h"), 7));
-  constr.loc.push_back(Elem_GetPos(ElemIndex("s2_h"), 9));
-  constr.loc.push_back(Elem_GetPos(ElemIndex("mb1"), 2));
-  constr.loc.push_back(Elem_GetPos(ElemIndex("ul4"), 2));
+  // constr.loc.push_back(Elem_GetPos(ElemIndex("ul4"), 1)-1);
+  // constr.loc.push_back(Elem_GetPos(ElemIndex("mb1"), 1)-1);
+  // constr.loc.push_back(Elem_GetPos(ElemIndex("s2_h"), 1));
+  // constr.loc.push_back(Elem_GetPos(ElemIndex("b1_h"), 1));
+  // constr.loc.push_back(Elem_GetPos(ElemIndex("s2_h"), 3));
+  // constr.loc.push_back(Elem_GetPos(ElemIndex("b1_h"), 3));
+  // constr.loc.push_back(Elem_GetPos(ElemIndex("s2_h"), 5));
+  // constr.loc.push_back(Elem_GetPos(ElemIndex("b1_h"), 5));
+  // constr.loc.push_back(Elem_GetPos(ElemIndex("s2_h"), 7));
+  // constr.loc.push_back(Elem_GetPos(ElemIndex("b1_h"), 7));
+  // constr.loc.push_back(Elem_GetPos(ElemIndex("s2_h"), 9));
+  // constr.loc.push_back(Elem_GetPos(ElemIndex("mb1"), 2));
+  // constr.loc.push_back(Elem_GetPos(ElemIndex("ul4"), 2));
 }
 
 

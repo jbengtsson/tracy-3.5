@@ -1599,7 +1599,7 @@ int main(int argc, char *argv[])
     rdmfile(argv[1]);
 
   globval.H_exact    = false; globval.quad_fringe    = false;
-  globval.Cavity_on  = !false; globval.radiation      = !false;
+  globval.Cavity_on  = false; globval.radiation      = false;
   globval.emittance  = false; globval.IBS            = false;
   globval.pathlength = false; globval.Aperture_on    = false;
   globval.Cart_Bend  = false; globval.dip_edge_fudge = true;
@@ -2084,7 +2084,7 @@ int main(int argc, char *argv[])
 
   if (true) GetEmittance(ElemIndex("cav"), true);
 
-  if (!false) {
+  if (false) {
 #if PM
     get_Poincare_Map();
 #else

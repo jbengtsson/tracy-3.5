@@ -244,6 +244,13 @@ struct CavityType {
     Pvolt,        // Vrf [V].
     Pfreq,        // Vrf [Hz].
     phi;          // RF phase.
+  // Higher order modes.
+  std::vector<double>
+    HOM_f,        // Frequency
+    HOM_phi,      // Phase.
+    HOM_Q,        // Quality factor.
+    HOM_Z,        // Shunt impedance.
+    HOM_V;        // Voltage.
   int
     Ph;           // Harmonic number.
   bool
