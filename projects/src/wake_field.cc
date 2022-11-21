@@ -9,7 +9,10 @@
 int no_tps = NO;
 
 
-class SigmaType {
+class BeamType;
+
+
+class PoincareMapType {
 private:
   int
     n_dof;
@@ -24,7 +27,6 @@ private:
     fixed_point,       // Closed orbit.
     mean;              // 1st moment.
   ss_vect<tps>
-    sigma,             // 2nd moment; beam envelope.
     M,                 // Poincaré map.
     M_t,               // M^T.
     A,                 // M = A R A^-1.
@@ -35,13 +37,10 @@ private:
     M_diff,            // Diffusion matrix.
     M_Chol,            // Cholesky decomposition.
     M_Chol_t;          // M_Chol^T.
-  FILE
-    *outf;             // Output file.
 public:
-  void set_params(const int n_dof, const double C, const string &file_name);
-  ss_vect<double> get_eps(void) const;
-  void prt_eps(const int n) const;
-  void prt_sigma(void);
+  friend class BeamType;
+
+  void set_params(const int n_dof, const double C);
   void get_M(void);
   void get_A_and_tau(void);
   void get_D_and_eps(void);
@@ -49,9 +48,28 @@ public:
   void get_M_diff(void);
   void get_M_Chol_t(void);
   void get_maps(void);
-  void init_sigma(const double eps_x, const double eps_y, const double sigma_s,
-		  const double sigma_delta);
-  void propagate(const int n);
+  void propagate(const int n, BeamType &beam);
+};
+
+
+class BeamType {
+private:
+  FILE
+    *outf;             // Output file.
+public:
+  ss_vect<double>
+    fixed_point,       // Closed orbit.
+    mean;              // 1st moment.
+  ss_vect<tps>
+    sigma;             // 2nd moment; beam envelope.
+
+  void set_file_name(const string &file_name);
+  ss_vect<double> get_eps(const PoincareMapType &map) const;
+  void prt_eps(const int n, const PoincareMapType &map) const;
+  void prt_sigma(const PoincareMapType &map);
+  void init_sigma(const string &file_name, const double eps_x,
+		  const double eps_y, const double sigma_s,
+		  const double sigma_delta, const PoincareMapType &map);
 };
 
 
@@ -111,59 +129,14 @@ ss_vect<tps> tp_map(const int n_dof, const ss_vect<tps> &A)
 }
 
 
-void SigmaType::set_params(const int n_dof, const double C,
-			   const string &file_name)
+void PoincareMapType::set_params(const int n_dof, const double C)
 {
   this->n_dof = n_dof;
   this->C = C;
-  outf = file_write(file_name.c_str());
 }
 
 
-ss_vect<double> SigmaType::get_eps(void) const
-{
-  // Compute the emittances.
-  int             k;
-  ss_vect<double> eps;
-  ss_vect<tps>    diag;
-
-  diag = A_inv*sigma*A_t_inv;
-  for (k = 0; k < 2*n_dof; k++)
-    eps[k] = diag[k][k];
-  return eps;
-}
-
-
-void SigmaType::prt_eps(const int n) const
-{
-  int             k;
-  ss_vect<double> eps;
-
-  eps = get_eps();
-  fprintf(outf, "%7d", n);
-  for (k = 0; k < 2*n_dof; k++)
-    fprintf(outf, "%13.5e", eps[k]);
-  fprintf(outf, "%13.5e %13.5e\n",
-	  sqrt(sigma[delta_][delta_]), sqrt(sigma[ct_][ct_]));
-}
-
-
-void SigmaType::prt_sigma(void)
-{
-  int             k;
-  ss_vect<double> eps;
-
-  eps = get_eps();
-  prt_vec(n_dof, "\neps:", eps);
-  prt_map(n_dof, "\nsigma:", sigma);
-  printf("\nsigma_kk:\n ");
-  for (k = 0; k < 2*n_dof; k++)
-    printf(" %11.5e", sqrt(sigma[k][k]));
-  printf("\n");
-}
-
-
-void SigmaType::get_M(void)
+void PoincareMapType::get_M(void)
 {
   // Compute the Poincaré map for the fixed point.
   long int lastpos;
@@ -175,7 +148,7 @@ void SigmaType::get_M(void)
 }
 
 
-void SigmaType::get_A_and_tau(void)
+void PoincareMapType::get_A_and_tau(void)
 {
   // Compute the Floquet to phase space transformation and damping times.
   // The damping coeffients are obtained from the eigen values.
@@ -202,7 +175,7 @@ void SigmaType::get_A_and_tau(void)
 }
 
 
-void SigmaType::get_D_and_eps(void)
+void PoincareMapType::get_D_and_eps(void)
 {
   // Compute the diffusion coefficients and emittances.
   int long     lastpos;
@@ -224,7 +197,7 @@ void SigmaType::get_D_and_eps(void)
   }
 }
 
-void SigmaType::get_sigma_s_and_delta(void)
+void PoincareMapType::get_sigma_s_and_delta(void)
 {
   // Compute the bunch size: sigma_s & sigma_delta.
   double alpha_s, beta_s, gamma_s;
@@ -239,7 +212,7 @@ void SigmaType::get_sigma_s_and_delta(void)
 }
 
 
-void SigmaType::get_M_diff(void)
+void PoincareMapType::get_M_diff(void)
 {
   // Compute the diffusion matrix.
   int          k;
@@ -252,7 +225,7 @@ void SigmaType::get_M_diff(void)
 }
 
 
-void SigmaType::get_M_Chol_t(void)
+void PoincareMapType::get_M_Chol_t(void)
 {
   // Compute the Cholesky decomposition: D = L^T L.
   int          j, k, j1, k1;
@@ -294,7 +267,7 @@ void SigmaType::get_M_Chol_t(void)
 }
 
 
-void SigmaType::get_maps(void)
+void PoincareMapType::get_maps(void)
 {
   long int lastpos;
   double   dnu[3];
@@ -336,25 +309,7 @@ void SigmaType::get_maps(void)
 }
 
 
-void SigmaType::init_sigma(const double eps_x, const double eps_y,
-			   const double sigma_s, const double sigma_delta)
-{
-  int          k;
-  ss_vect<tps> Id;
-
-  const double eps0[] = {eps_x, eps_y};
-
-  Id.identity();
-  sigma.zero();
-  for (k = 0; k < 4; k++)
-    sigma[k] += eps0[k/2]*Id[k];
-  sigma = A*sigma*A_t;
-  sigma[ct_] += sqr(sigma_s)*Id[ct_];
-  sigma[delta_] += sqr(sigma_delta)*Id[delta_];
-}
-
-
-void SigmaType::propagate(const int n)
+void PoincareMapType::propagate(const int n, BeamType &beam)
 {
   int             j, k, n_rnd;
   double          rnd;
@@ -376,17 +331,82 @@ void SigmaType::propagate(const int n)
       X_map[k] = X[k]*Id[k];
     }
     // Average of stochastic term is zero.
-    mean = (M*mean).cst() + 0*(M_Chol_t*X).cst();
-    sigma = M*tp_map(n_dof, M*sigma) + M_Chol_t*sqr(X_map)*M_Chol;
+    beam.mean = (M*mean).cst() + 0*(M_Chol_t*X).cst();
+    beam.sigma = M*tp_map(n_dof, M*beam.sigma) + M_Chol_t*sqr(X_map)*M_Chol;
 
-    prt_eps(j);
+    beam.prt_eps(j, *this);
   }
+}
+
+
+ss_vect<double> BeamType::get_eps(const PoincareMapType &map) const
+{
+  // Compute the emittances.
+  int             k;
+  ss_vect<double> eps;
+  ss_vect<tps>    diag;
+
+  diag = map.A_inv*sigma*map.A_t_inv;
+  for (k = 0; k < 2*map.n_dof; k++)
+    eps[k] = diag[k][k];
+  return eps;
+}
+
+
+void BeamType::prt_eps(const int n, const PoincareMapType &map) const
+{
+  int             k;
+  ss_vect<double> eps;
+
+  eps = get_eps(map);
+  fprintf(outf, "%7d", n);
+  for (k = 0; k < 2*map.n_dof; k++)
+    fprintf(outf, "%13.5e", eps[k]);
+  fprintf(outf, "%13.5e %13.5e\n",
+	  sqrt(sigma[delta_][delta_]), sqrt(sigma[ct_][ct_]));
+}
+
+
+void BeamType::prt_sigma(const PoincareMapType &map)
+{
+  int             k;
+  ss_vect<double> eps;
+
+  eps = get_eps(map);
+  prt_vec(map.n_dof, "\neps:", eps);
+  prt_map(map.n_dof, "\nsigma:", sigma);
+  printf("\nsigma_kk:\n ");
+  for (k = 0; k < 2*map.n_dof; k++)
+    printf(" %11.5e", sqrt(sigma[k][k]));
+  printf("\n");
+}
+
+
+void BeamType::init_sigma
+(const string &file_name, const double eps_x, const double eps_y,
+ const double sigma_s, const double sigma_delta, const PoincareMapType &map)
+{
+  int          k;
+  ss_vect<tps> Id;
+
+  const double eps0[] = {eps_x, eps_y};
+
+  outf = file_write(file_name.c_str());
+
+  Id.identity();
+  sigma.zero();
+  for (k = 0; k < 4; k++)
+    sigma[k] += eps0[k/2]*Id[k];
+  sigma = map.A*sigma*map.A_t;
+  sigma[ct_] += sqr(sigma_s)*Id[ct_];
+  sigma[delta_] += sqr(sigma_delta)*Id[delta_];
 }
 
 
 void track(void)
 {
-  SigmaType s;
+  PoincareMapType map;
+  BeamType        beam;
 
   const string
     file_name = "wake_field.out";
@@ -398,10 +418,10 @@ void track(void)
     sigma_s     = 0e0,
     sigma_delta = 1e-3;
 
-  s.set_params(n_dof, Cell[globval.Cell_nLoc].S, file_name);
-  s.get_maps();
-  s.init_sigma(eps0[X_], eps0[Y_], sigma_s, sigma_delta);
-  s.propagate(n);
+  map.set_params(n_dof, Cell[globval.Cell_nLoc].S);
+  map.get_maps();
+  beam.init_sigma(file_name, eps0[X_], eps0[Y_], sigma_s, sigma_delta, map);
+  map.propagate(n, beam);
 }
 
 
