@@ -1,3 +1,7 @@
+
+#include <random>
+
+
 #define NO 1
 
 #include "tracy_lib.h"
@@ -9,27 +13,45 @@ class SigmaType {
 private:
   int
     n_dof;
+  double
+    C,                 // Circumference.
+    tau[3],            // Damping times.
+    D[3],              // Diffusion coefficients.
+    eps[3],            // Emittance.
+    sigma_s,           // Bunch length.
+    sigma_delta;       // Momentum spread.
   ss_vect<double>
+    fixed_point,       // Closed orbit.
     mean;              // 1st moment.
   ss_vect<tps>
     sigma,             // 2nd moment; beam envelope.
     M,                 // Poincaré map.
-    M_t,
-    A,
-    A_t,
-    A_inv, 
-    A_t_inv;
+    M_t,               // M^T.
+    A,                 // M = A R A^-1.
+    A_t,               // A^T.
+    A_inv,             // A^-1.
+    A_t_inv,           // (A^T)^-1.
+    R,                 // Phase-space rotation.
+    M_diff,            // Diffusion matrix.
+    M_Chol,            // Cholesky decomposition.
+    M_Chol_t;          // M_Chol^T.
   FILE
     *outf;             // Output file.
 public:
-  void set_n_dof(const int n_dof) { this->n_dof = n_dof; }
+  void set_params(const int n_dof, const double C, const string &file_name);
   ss_vect<double> get_eps(void) const;
-  void set_file_name(const string &file_name);
   void prt_eps(const int n) const;
   void prt_sigma(void);
-  void propagate(const int n);
-  void init_sigma(const double eps[]);
   void get_M(void);
+  void get_A_and_tau(void);
+  void get_D_and_eps(void);
+  void get_sigma_s_and_delta(void);
+  void get_M_diff(void);
+  void get_M_Chol_t(void);
+  void get_maps(void);
+  void init_sigma(const double eps_x, const double eps_y, const double sigma_s,
+		  const double sigma_delta);
+  void propagate(const int n);
 };
 
 
@@ -87,8 +109,11 @@ ss_vect<tps> tp_map(const int n_dof, const ss_vect<tps> &A)
 }
 
 
-void SigmaType::set_file_name(const string &file_name)
+void SigmaType::set_params(const int n_dof, const double C,
+			   const string &file_name)
 {
+  this->n_dof = n_dof;
+  this->C = C;
   outf = file_write(file_name.c_str());
 }
 
@@ -135,75 +160,219 @@ void SigmaType::prt_sigma(void)
 }
 
 
-void SigmaType::propagate(const int n)
+void SigmaType::get_M(void)
 {
   long int lastpos;
-  int      k;
 
-  for (k = 0; k < n; k++) {
-    if (true) {
-      sigma = M*sigma*M_t;
-    } else {
-      Cell_Pass(0, globval.Cell_nLoc, sigma, lastpos);
-      sigma = tp_map(n_dof, sigma);
-      Cell_Pass(0, globval.Cell_nLoc, sigma, lastpos);
-    }
-    this->prt_eps(k);
+  M.identity();
+  M += fixed_point;
+  Cell_Pass(0, globval.Cell_nLoc, M, lastpos);
+  M -= fixed_point;
+}
+
+
+void SigmaType::get_A_and_tau(void)
+{
+  int    k;
+  double nu_s, alpha_c;
+  Matrix M_mat, A_mat, A_inv_mat, R_mat;
+
+  globval.Cavity_on = true;
+  globval.radiation = true;
+
+  getlinmat(2*n_dof, M, M_mat);
+  GDiag(2*n_dof, C, A_mat, A_inv_mat, R_mat, M_mat, nu_s, alpha_c);
+
+  for (k = 0; k < n_dof; k++)
+    tau[k] = -C/(c0*globval.alpha_rad[k]);
+
+  A = putlinmat(2*n_dof, A_mat);
+  if (n_dof < 3) {
+    // Coasting longitudinal plane.
+    A[ct_] = tps(0e0, ct_+1);
+    A[delta_] = tps(0e0, delta_+1);
+  }
+  R = putlinmat(2*n_dof, R_mat);
+}
+
+
+void SigmaType::get_D_and_eps(void)
+{
+  // Get diffusion coefficients.
+  int long     lastpos;
+  int          k;
+  ss_vect<tps> As, D_diag;
+
+  globval.Cavity_on = true;
+  globval.radiation = true;
+  globval.emittance = true;
+
+  As = A + fixed_point;
+  Cell_Pass(0, globval.Cell_nLoc, As, lastpos);
+
+  globval.emittance = false;
+
+  for (k = 0; k < n_dof; k++) {
+    D[k] = globval.D_rad[k];
+    eps[k] = D[k]*tau[k]*c0/(2e0*C);
   }
 }
 
-
-void SigmaType::init_sigma(const double eps[])
+void SigmaType::get_sigma_s_and_delta(void)
 {
-  int          k;
-  ss_vect<tps> Id;
+  // Longitudinal alpha and beta.
+  double alpha_s, beta_s, gamma_s;
 
-  Id.identity();
-  sigma.zero();
-  for (k = 0; k < 2*n_dof; k++)
-    sigma[k] += eps[k/2]*Id[k];
-  sigma = A*sigma*A_t;
+  alpha_s = -A[ct_][ct_]*A[delta_][ct_] - A[ct_][delta_]*A[delta_][delta_];
+  beta_s = sqr(A[ct_][ct_]) + sqr(A[ct_][delta_]);
+  gamma_s = (1e0+sqr(alpha_s))/beta_s;
+
+  // Bunch size.
+  sigma_s = sqrt(beta_s*eps[Z_]);
+  sigma_delta = sqrt(gamma_s*eps[Z_]);
 }
 
 
-void SigmaType::get_M(void)
+void SigmaType::get_M_diff(void)
+{
+  int          k;
+  ss_vect<tps> As, D_diag;
+
+  D_diag.zero();
+  for (k = 0; k < 2*n_dof; k++)
+    D_diag[k] = D[k/2]*tps(0e0, k+1);
+  M_diff = A*D_diag*tp_map(n_dof, A);
+}
+
+
+void SigmaType::get_M_Chol_t(void)
+{
+  // Cholesky decomposition: D = L^T L.
+  int          j, k, j1, k1;
+  double       *diag, **d1, **d2;
+
+  const int n = 2*n_dof;
+
+  diag = dvector(1, n);
+  d1 = dmatrix(1, n, 1, n);
+  d2 = dmatrix(1, n, 1, n);
+
+  // Remove vertical plane.
+  for (j = 1; j <= 4; j++) {
+    j1 = (j < 3)? j : j+2;
+    for (k = 1; k <= 4; k++) {
+      k1 = (k < 3)? k : k+2;
+      d1[j][k] = M_diff[j1-1][k1-1];
+    }
+  }
+
+  dcholdc(d1, 4, diag);
+
+  for (j = 1; j <= 4; j++)
+    for (k = 1; k <= j; k++)
+      d2[j][k] = (j == k)? diag[j] : d1[j][k];
+
+  M_Chol_t.zero();
+  for (j = 1; j <= 4; j++) {
+     j1 = (j < 3)? j : j+2;
+     for (k = 1; k <= 4; k++) {
+       k1 = (k < 3)? k : k+2;
+       M_Chol_t[j1-1] += d2[j][k]*tps(0e0, k1);
+     }
+  }
+
+  free_dvector(diag, 1, n);
+  free_dmatrix(d1, 1, n, 1, n);
+  free_dmatrix(d2, 1, n, 1, n);
+}
+
+
+void SigmaType::get_maps(void)
 {
   long int lastpos;
   double   dnu[3];
 
-  const bool prt = false;
-
   globval.radiation = true;
   globval.Cavity_on = true;
 
-  Ring_GetTwiss(true, 0e0);
-  printglob();
+  getcod(0e0, lastpos);
+  fixed_point = globval.CODvect;
+  prt_vec(n_dof, "\nFixed Point:", fixed_point);
 
-  globval.U0 = globval.dE*1e9*globval.Energy;
-  printf("\nU0 [keV] = %3.1f\n", 1e-3*globval.U0);
-  printf("alpha    = [%10.3e, %10.3e, %10.3e]\n",
-	 globval.alpha_rad[X_], globval.alpha_rad[Y_], globval.alpha_rad[Z_]);
-  
-  A = get_A_CS(n_dof, putlinmat(6, globval.Ascr), dnu);
+  get_M();
+  M_t = tp_map(n_dof, M);
+  prt_map(n_dof, "\nM:", M);
+
+  get_A_and_tau();
+  A = get_A_CS(n_dof, A, dnu);
   A_t = tp_map(n_dof, A);
   A_inv = Inv(A);
   A_t_inv = Inv(A_t);
 
-  M.identity();
-  M += globval.CODvect;
-  Cell_Pass(0, globval.Cell_nLoc, M, lastpos);
-  M -= globval.CODvect;
-  M_t = tp_map(n_dof, M);
+  prt_map(n_dof, "\nA:", A);
+  printf("\ntau [msec]   = [%5.3f, %5.3f, %5.3f]\n",
+	 1e3*tau[X_], 1e3*tau[Y_], 1e3*tau[Z_]);
 
-  printf("Det{M}-1 = %10.3e\n", det_map(n_dof, M)-1e0);
+  get_D_and_eps();
+  get_sigma_s_and_delta();
+  get_M_diff();
 
-  if (prt) {
-    prt_map(n_dof, "\nA:", A);
-    prt_map(n_dof, "\nA^T:", A_t);
-    prt_map(n_dof, "\nA^-1:", A_inv);
-    prt_map(n_dof, "\n(A^T)^-1:", A_t_inv);
-    prt_map(n_dof, "\nM:", M);
-    prt_map(n_dof, "\nM^T:", M_t);
+  printf("D            = [%9.3e, %9.3e, %9.3e]\n", D[X_], D[Y_], D[Z_]);
+  printf("eps          = [%9.3e, %9.3e, %9.3e]\n", eps[X_], eps[Y_], eps[Z_]);
+  printf("sigma_s [mm] = %5.3f\n", 1e3*sigma_s);
+  printf("sigma_delta  = %9.3e\n", sigma_delta);
+  prt_map(n_dof, "\nDiffusion Matrix:", M_diff);
+
+  get_M_Chol_t();
+  M_Chol = tp_map(n_dof, M_Chol_t);
+  prt_map(n_dof, "\nCholesky Decomposition:", M_Chol);
+}
+
+
+void SigmaType::init_sigma(const double eps_x, const double eps_y,
+			   const double sigma_s, const double sigma_delta)
+{
+  int          k;
+  ss_vect<tps> Id;
+
+  const double eps0[] = {eps_x, eps_y};
+
+  Id.identity();
+  sigma.zero();
+  for (k = 0; k < 4; k++)
+    sigma[k] += eps0[k/2]*Id[k];
+  sigma = A*sigma*A_t;
+  sigma[ct_] += sqr(sigma_s)*Id[ct_];
+  sigma[delta_] += sqr(sigma_delta)*Id[delta_];
+}
+
+
+void SigmaType::propagate(const int n)
+{
+  int             j, k, n_rnd;
+  double          rnd;
+  ss_vect<double> sum, sum2, m, s, X;
+  ss_vect<tps>    Id, X_map;
+
+  std::default_random_engine       rand;
+  std::normal_distribution<double> norm_ranf(0e0, 1e0);
+
+  Id.identity();
+  n_rnd = 0;
+  for (j = 1; j <= n; j++) {
+    n_rnd++;
+    for (k = 0; k < 2*n_dof; k++) {
+      rnd = norm_ranf(rand);
+      sum[k] += rnd;
+      sum2[k] += sqr(rnd);
+      X[k] = rnd;
+      X_map[k] = X[k]*Id[k];
+    }
+    // Average of stochastic term is zero.
+    mean = (M*mean).cst() + 0*(M_Chol_t*X).cst();
+    sigma = M*tp_map(n_dof, M*sigma) + M_Chol_t*sqr(X_map)*M_Chol;
+
+    prt_eps(j);
   }
 }
 
@@ -215,15 +384,16 @@ void track(void)
   const string
     file_name = "wake_field.out";
   const int
-    n_dof     = 3,
-    n         = 30000;
+    n_dof       = 3,
+    n           = 30000;
   const double
-    eps0[]    = {1e-9, 0.2e-9, 1e-3};
+    eps0[]      = {0e-9, 0.2e-9, 0e-3},
+    sigma_s     = 0e0,
+    sigma_delta = 1e-3;
 
-  s.set_n_dof(n_dof);
-  s.get_M();
-  s.init_sigma(eps0);
-  s.set_file_name(file_name);
+  s.set_params(n_dof, Cell[globval.Cell_nLoc].S, file_name);
+  s.get_maps();
+  s.init_sigma(eps0[X_], eps0[Y_], sigma_s, sigma_delta);
   s.propagate(n);
 }
 

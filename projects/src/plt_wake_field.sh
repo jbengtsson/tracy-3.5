@@ -38,7 +38,7 @@ set multiplot
 
 set size 1.0, 0.5
 set origin 0.0, 0.5
-set key right top
+set key left top
 set title "Transverse Phase Space"
 set xlabel "turn no"
 set ylabel "{/Symbol e}_{x} [nm{/Symbol \327}rad]"
@@ -50,7 +50,7 @@ plot file_name using 1:(1e9*\$2) title "{/Symbol e}_x" with points ls 1, \
      ls 3
 
 set origin 0.0, 0.0
-set key right top
+set key right bottom
 set title "Longitudinal Phase Space"
 set xlabel "turn no"
 set ylabel "{/Symbol s}_s [mm]"
