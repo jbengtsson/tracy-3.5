@@ -92,6 +92,7 @@ void prt_lin_map(const int n, const string &str, const ss_vect<tps> A)
 
 double det_map(const int n_dof, const ss_vect<tps> &A)
 {
+  // Compute the determinant of a matrix.
   Matrix A_mat;
 
   getlinmat(2*n_dof, A, A_mat);
@@ -101,6 +102,7 @@ double det_map(const int n_dof, const ss_vect<tps> &A)
 
 ss_vect<tps> tp_map(const int n_dof, const ss_vect<tps> &A)
 {
+  // Compute the transpose of a matrix.
   Matrix A_mat;
 
   getlinmat(2*n_dof, A, A_mat);
@@ -120,6 +122,7 @@ void SigmaType::set_params(const int n_dof, const double C,
 
 ss_vect<double> SigmaType::get_eps(void) const
 {
+  // Compute the emittances.
   int             k;
   ss_vect<double> eps;
   ss_vect<tps>    diag;
@@ -162,6 +165,7 @@ void SigmaType::prt_sigma(void)
 
 void SigmaType::get_M(void)
 {
+  // Compute the Poincaré map for the fixed point.
   long int lastpos;
 
   M.identity();
@@ -173,6 +177,8 @@ void SigmaType::get_M(void)
 
 void SigmaType::get_A_and_tau(void)
 {
+  // Compute the Floquet to phase space transformation and damping times.
+  // The damping coeffients are obtained from the eigen values.
   int    k;
   double nu_s, alpha_c;
   Matrix M_mat, A_mat, A_inv_mat, R_mat;
@@ -198,7 +204,7 @@ void SigmaType::get_A_and_tau(void)
 
 void SigmaType::get_D_and_eps(void)
 {
-  // Get diffusion coefficients.
+  // Compute the diffusion coefficients and emittances.
   int long     lastpos;
   int          k;
   ss_vect<tps> As, D_diag;
@@ -220,7 +226,7 @@ void SigmaType::get_D_and_eps(void)
 
 void SigmaType::get_sigma_s_and_delta(void)
 {
-  // Longitudinal alpha and beta.
+  // Compute the bunch size: sigma_s & sigma_delta.
   double alpha_s, beta_s, gamma_s;
 
   alpha_s = -A[ct_][ct_]*A[delta_][ct_] - A[ct_][delta_]*A[delta_][delta_];
@@ -235,6 +241,7 @@ void SigmaType::get_sigma_s_and_delta(void)
 
 void SigmaType::get_M_diff(void)
 {
+  // Compute the diffusion matrix.
   int          k;
   ss_vect<tps> As, D_diag;
 
@@ -247,7 +254,7 @@ void SigmaType::get_M_diff(void)
 
 void SigmaType::get_M_Chol_t(void)
 {
-  // Cholesky decomposition: D = L^T L.
+  // Compute the Cholesky decomposition: D = L^T L.
   int          j, k, j1, k1;
   double       *diag, **d1, **d2;
 
