@@ -24,9 +24,8 @@ private:
     sigma_s,           // Bunch length.
     sigma_delta;       // Momentum spread.
   ss_vect<double>
-    fixed_point,       // Closed orbit.
-    mean;              // 1st moment.
-  ss_vect<tps>
+  fixed_point;       // Closed orbit.
+   ss_vect<tps>
     M,                 // Poincaré map.
     M_t,               // M^T.
     A,                 // M = A R A^-1.
@@ -331,7 +330,7 @@ void PoincareMapType::propagate(const int n, BeamType &beam)
       X_map[k] = X[k]*Id[k];
     }
     // Average of stochastic term is zero.
-    beam.mean = (M*mean).cst() + 0*(M_Chol_t*X).cst();
+    beam.mean = (M*beam.mean).cst() + 0*(M_Chol_t*X).cst();
     beam.sigma = M*tp_map(n_dof, M*beam.sigma) + M_Chol_t*sqr(X_map)*M_Chol;
 
     beam.prt_eps(j, *this);
