@@ -24,7 +24,7 @@ private:
     sigma_s,           // Bunch length.
     sigma_delta;       // Momentum spread.
   ss_vect<double>
-  fixed_point;       // Closed orbit.
+    fixed_point;       // Closed orbit.
    ss_vect<tps>
     M,                 // Poincaré map.
 
@@ -60,8 +60,7 @@ private:
     *outf;             // Output file.
 public:
   ss_vect<double>
-    fixed_point,       // Closed orbit.
-    mean;              // 1st moment.
+    mean;              // 1st moment; barycentre.
   ss_vect<tps>
     sigma;             // 2nd moment; beam envelope.
 
@@ -69,8 +68,7 @@ public:
   ss_vect<double> get_eps(const PoincareMapType &map) const;
   void prt_eps(const int n, const PoincareMapType &map) const;
   void prt_sigma(const PoincareMapType &map);
-  void init_sigma(const string &file_name, const double eps_x,
-		  const double eps_y, const double sigma_s,
+  void init_sigma(const double eps_x, const double eps_y, const double sigma_s,
 		  const double sigma_delta, const PoincareMapType &map);
 };
 
@@ -341,6 +339,12 @@ void PoincareMapType::propagate(const int n, BeamType &beam)
 }
 
 
+void BeamType::set_file_name(const string &file_name)
+{
+  outf = file_write(file_name.c_str());
+}
+
+
 ss_vect<double> BeamType::get_eps(const PoincareMapType &map) const
 {
   // Compute the emittances.
@@ -385,15 +389,13 @@ void BeamType::prt_sigma(const PoincareMapType &map)
 
 
 void BeamType::init_sigma
-(const string &file_name, const double eps_x, const double eps_y,
- const double sigma_s, const double sigma_delta, const PoincareMapType &map)
+(const double eps_x, const double eps_y, const double sigma_s,
+ const double sigma_delta, const PoincareMapType &map)
 {
   int          k;
   ss_vect<tps> Id;
 
   const double eps0[] = {eps_x, eps_y};
-
-  outf = file_write(file_name.c_str());
 
   Id.identity();
   sigma.zero();
@@ -422,8 +424,10 @@ void track(void)
 
   map.set_params(n_dof, Cell[globval.Cell_nLoc].S);
   map.get_maps();
-  beam.init_sigma(file_name, eps0[X_], eps0[Y_], sigma_s, sigma_delta, map);
+  beam.set_file_name(file_name);
+  beam.init_sigma(eps0[X_], eps0[Y_], sigma_s, sigma_delta, map);
   map.propagate(n, beam);
+  beam.prt_sigma(map);
 }
 
 
