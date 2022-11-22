@@ -1,5 +1,5 @@
 bin_PROGRAMS = fmap get_dnu vlad tracy_2_3 carbon_map drv_terms get_nl_optics \
-               opt_des_1_ptc opt_des_2_ptc poincare_map moments
+               opt_des_1_ptc opt_des_2_ptc poincare_map moments wakefield
 
 fmap_SOURCES          = fmap.cc
 get_dnu_SOURCES       = get_dnu.cc
@@ -12,6 +12,7 @@ opt_des_1_ptc_SOURCES = opt_des_1_ptc.cc
 opt_des_2_ptc_SOURCES = opt_des_2_ptc.cc
 poincare_map_SOURCES  = poincare_map.cc
 moments_SOURCES       = moments.cc
+wakefield_SOURCES     = wakefield.cc
 
 GSL_INCLUDE = /usr/local/Cellar/gsl/2.7.1
 # GSL_INCLUDE = /net/home/lli/OPAL/OPAL-2.0.1

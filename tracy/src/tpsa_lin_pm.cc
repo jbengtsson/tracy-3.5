@@ -88,25 +88,32 @@ tps::tps(void) {
   char  name[11];
 
   if (!ini_tps) TPSA_Ini();
-  seq_tps++; sprintf(name, "tps-%-5hu", seq_tps);
+  seq_tps++;
+  // sprintf(name, "tps-%-5hu", seq_tps);
   daall_(ltps, 1, name, no_tps, nv_tps); dacon_(ltps, 0.0);
 }
 
 tps::tps(const double r)
 {
-  char  name[11];
+  // C string is null terminated: 10+1 characters.
+  const char name[11] = "tps       ";
 
   if (!ini_tps) TPSA_Ini();
-  seq_tps++; sprintf(name, "tps-%-5hu", seq_tps);
+  seq_tps++;
+  // Avoid unnecessary overhead.
+  // sprintf(name, "tps-%-5hu", seq_tps);
   daall_(ltps, 1, name, no_tps, nv_tps); dacon_(ltps, r);
 }
 
 tps::tps(const double r, const int i)
 {
-  char  name[11];
+  // C string is null terminated: 10+1 characters.
+  const char name[11] = "tps       ";
 
   if (!ini_tps) TPSA_Ini();
-  seq_tps++; sprintf(name, "tps-%-5hu", seq_tps);
+  seq_tps++;
+  // Avoid unnecessary overhead.
+  // sprintf(name, "tps-%-5hu", seq_tps);
   daall_(ltps, 1, name, no_tps, nv_tps);
   if (i == 0)
     dacon_(ltps, r);
@@ -115,10 +122,13 @@ tps::tps(const double r, const int i)
 }
 
 tps::tps(const tps &x) {
-  char  name[11];
+  // C string is null terminated: 10+1 characters.
+  const char name[11] = "tps       ";
 
   if (!ini_tps) TPSA_Ini();
-  seq_tps++; sprintf(name, "tps-%-5hu", seq_tps);
+  seq_tps++;
+  // Avoid unnecessary overhead.
+  // sprintf(name, "tps-%-5hu", seq_tps);
   daall_(ltps, 1, name, no_tps, nv_tps);
   dacop_(x.ltps, ltps);
 }

@@ -27,13 +27,16 @@ private:
   fixed_point;       // Closed orbit.
    ss_vect<tps>
     M,                 // Poincaré map.
+
     M_t,               // M^T.
     A,                 // M = A R A^-1.
     A_t,               // A^T.
     A_inv,             // A^-1.
     A_t_inv,           // (A^T)^-1.
     R,                 // Phase-space rotation.
+
     M_diff,            // Diffusion matrix.
+
     M_Chol,            // Cholesky decomposition.
     M_Chol_t;          // M_Chol^T.
 public:
@@ -408,7 +411,7 @@ void track(void)
   BeamType        beam;
 
   const string
-    file_name = "wake_field.out";
+    file_name = "wakefield.out";
   const int
     n_dof       = 3,
     n           = 30000;
