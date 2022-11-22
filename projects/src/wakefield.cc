@@ -311,23 +311,17 @@ void PoincareMapType::get_maps(void)
 
 void PoincareMapType::propagate(const int n, BeamType &beam)
 {
-  int             j, k, n_rnd;
-  double          rnd;
-  ss_vect<double> sum, sum2, m, s, X;
+  int             j, k;
+  ss_vect<double> X;
   ss_vect<tps>    Id, X_map;
 
   std::default_random_engine       rand;
   std::normal_distribution<double> norm_ranf(0e0, 1e0);
 
   Id.identity();
-  n_rnd = 0;
   for (j = 1; j <= n; j++) {
-    n_rnd++;
     for (k = 0; k < 2*n_dof; k++) {
-      rnd = norm_ranf(rand);
-      sum[k] += rnd;
-      sum2[k] += sqr(rnd);
-      X[k] = rnd;
+      X[k] = norm_ranf(rand);
       X_map[k] = X[k]*Id[k];
     }
     // Average of stochastic term is zero.
