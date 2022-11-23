@@ -45,13 +45,15 @@ public:
   friend class BeamType;
 
   void set_params(const int n_dof, const double C);
-  void get_M(void);
-  void get_A_and_tau(void);
-  void get_D_and_eps(void);
-  void get_sigma_s_and_delta(void);
-  void get_M_diff(void);
-  void get_M_Chol_t(void);
-  void get_maps(void);
+  void compute_M(void);
+  void compute_A(void);
+  void compute_tau(void);
+  void compute_D(void);
+  void compute_eps(void);
+  void compute_bunch_size(void);
+  void compute_M_diff(void);
+  void compute_M_Chol_t(void);
+  void compute_maps(void);
   void compute_stochastic(ss_vect<double> &X, ss_vect<tps> &X_map);
   void propagate(const int n, BeamType &beam);
 };
@@ -71,7 +73,7 @@ public:
   friend class PoincareMapType;
 
   void set_file_name(const string &file_name);
-  ss_vect<double> get_eps(const PoincareMapType &map) const;
+  ss_vect<double> compute_eps(const PoincareMapType &map) const;
   void prt_eps(const int n, const PoincareMapType &map) const;
   void prt_sigma(const PoincareMapType &map);
   void init_sigma(const double eps_x, const double eps_y, const double sigma_s,
@@ -142,7 +144,7 @@ void PoincareMapType::set_params(const int n_dof, const double C)
 }
 
 
-void PoincareMapType::get_M(void)
+void PoincareMapType::compute_M(void)
 {
   // Compute the Poincaré map for the fixed point.
   long int lastpos;
@@ -154,11 +156,10 @@ void PoincareMapType::get_M(void)
 }
 
 
-void PoincareMapType::get_A_and_tau(void)
+void PoincareMapType::compute_A(void)
 {
   // Compute the Floquet to phase space transformation and damping times.
   // The damping coeffients are obtained from the eigen values.
-  int    k;
   double nu_s, alpha_c;
   Matrix M_mat, A_mat, A_inv_mat, R_mat;
 
@@ -167,9 +168,6 @@ void PoincareMapType::get_A_and_tau(void)
 
   getlinmat(2*n_dof, M, M_mat);
   GDiag(2*n_dof, C, A_mat, A_inv_mat, R_mat, M_mat, nu_s, alpha_c);
-
-  for (k = 0; k < n_dof; k++)
-    tau[k] = -C/(c0*globval.alpha_rad[k]);
 
   A = putlinmat(2*n_dof, A_mat);
   if (n_dof < 3) {
@@ -181,7 +179,16 @@ void PoincareMapType::get_A_and_tau(void)
 }
 
 
-void PoincareMapType::get_D_and_eps(void)
+void PoincareMapType::compute_tau(void)
+{
+  int k;
+  
+  for (k = 0; k < n_dof; k++)
+    tau[k] = -C/(c0*globval.alpha_rad[k]);
+}
+
+
+void PoincareMapType::compute_D(void)
 {
   // Compute the diffusion coefficients and emittances.
   int long     lastpos;
@@ -197,13 +204,20 @@ void PoincareMapType::get_D_and_eps(void)
 
   globval.emittance = false;
 
-  for (k = 0; k < n_dof; k++) {
+  for (k = 0; k < n_dof; k++)
     D[k] = globval.D_rad[k];
-    eps[k] = D[k]*tau[k]*c0/(2e0*C);
-  }
 }
 
-void PoincareMapType::get_sigma_s_and_delta(void)
+void PoincareMapType::compute_eps(void)
+{
+  int k;
+
+  for (k = 0; k < n_dof; k++)
+    eps[k] = D[k]*tau[k]*c0/(2e0*C);
+}
+
+
+void PoincareMapType::compute_bunch_size(void)
 {
   // Compute the bunch size: sigma_s & sigma_delta.
   double alpha_s, beta_s, gamma_s;
@@ -218,7 +232,7 @@ void PoincareMapType::get_sigma_s_and_delta(void)
 }
 
 
-void PoincareMapType::get_M_diff(void)
+void PoincareMapType::compute_M_diff(void)
 {
   // Compute the diffusion matrix.
   int          k;
@@ -231,7 +245,7 @@ void PoincareMapType::get_M_diff(void)
 }
 
 
-void PoincareMapType::get_M_Chol_t(void)
+void PoincareMapType::compute_M_Chol_t(void)
 {
   // Compute the Cholesky decomposition: D = L^T L.
   int          j, k, j1, k1;
@@ -260,11 +274,11 @@ void PoincareMapType::get_M_Chol_t(void)
 
   M_Chol_t.zero();
   for (j = 1; j <= 4; j++) {
-     j1 = (j < 3)? j : j+2;
-     for (k = 1; k <= 4; k++) {
-       k1 = (k < 3)? k : k+2;
-       M_Chol_t[j1-1] += d2[j][k]*tps(0e0, k1);
-     }
+    j1 = (j < 3)? j : j+2;
+    for (k = 1; k <= 4; k++) {
+      k1 = (k < 3)? k : k+2;
+      M_Chol_t[j1-1] += d2[j][k]*tps(0e0, k1);
+    }
   }
 
   free_dvector(diag, 1, n);
@@ -273,7 +287,7 @@ void PoincareMapType::get_M_Chol_t(void)
 }
 
 
-void PoincareMapType::get_maps(void)
+void PoincareMapType::compute_maps(void)
 {
   long int lastpos;
   double   dnu[3];
@@ -285,11 +299,12 @@ void PoincareMapType::get_maps(void)
   fixed_point = globval.CODvect;
   prt_vec(n_dof, "\nFixed Point:", fixed_point);
 
-  get_M();
+  compute_M();
   M_t = tp_map(n_dof, M);
   prt_map(n_dof, "\nM:", M);
 
-  get_A_and_tau();
+  compute_A();
+  compute_tau();
   A = get_A_CS(n_dof, A, dnu);
   A_t = tp_map(n_dof, A);
   A_inv = Inv(A);
@@ -299,9 +314,10 @@ void PoincareMapType::get_maps(void)
   printf("\ntau [msec]   = [%5.3f, %5.3f, %5.3f]\n",
 	 1e3*tau[X_], 1e3*tau[Y_], 1e3*tau[Z_]);
 
-  get_D_and_eps();
-  get_sigma_s_and_delta();
-  get_M_diff();
+  compute_D();
+  compute_eps();
+  compute_bunch_size();
+  compute_M_diff();
 
   printf("D            = [%9.3e, %9.3e, %9.3e]\n", D[X_], D[Y_], D[Z_]);
   printf("eps          = [%9.3e, %9.3e, %9.3e]\n", eps[X_], eps[Y_], eps[Z_]);
@@ -309,7 +325,7 @@ void PoincareMapType::get_maps(void)
   printf("sigma_delta  = %9.3e\n", sigma_delta);
   prt_map(n_dof, "\nDiffusion Matrix:", M_diff);
 
-  get_M_Chol_t();
+  compute_M_Chol_t();
   M_Chol = tp_map(n_dof, M_Chol_t);
   prt_map(n_dof, "\nCholesky Decomposition:", M_Chol);
 }
@@ -356,7 +372,7 @@ void BeamType::set_file_name(const string &file_name)
 }
 
 
-ss_vect<double> BeamType::get_eps(const PoincareMapType &map) const
+ss_vect<double> BeamType::compute_eps(const PoincareMapType &map) const
 {
   // Compute the emittances.
   int             k;
@@ -375,7 +391,7 @@ void BeamType::prt_eps(const int n, const PoincareMapType &map) const
   int             k;
   ss_vect<double> eps;
 
-  eps = get_eps(map);
+  eps = compute_eps(map);
   fprintf(outf, "%7d", n);
   for (k = 0; k < 2*map.n_dof; k++)
     fprintf(outf, "%13.5e", eps[k]);
@@ -389,7 +405,7 @@ void BeamType::prt_sigma(const PoincareMapType &map)
   int             k;
   ss_vect<double> eps;
 
-  eps = get_eps(map);
+  eps = compute_eps(map);
   prt_vec(map.n_dof, "\neps:", eps);
   prt_map(map.n_dof, "\nsigma:", sigma);
   printf("\nsigma_kk:\n ");
@@ -432,7 +448,7 @@ void track(void)
     sigma_delta = 1e-3;
 
   map.set_params(n_dof, Cell[globval.Cell_nLoc].S);
-  map.get_maps();
+  map.compute_maps();
   beam.set_file_name(file_name);
   beam.init_sigma(eps0[X_], eps0[Y_], sigma_s, sigma_delta, map);
   map.propagate(n, beam);
