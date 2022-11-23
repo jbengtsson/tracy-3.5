@@ -85,7 +85,7 @@ void TPSAEps(const double eps)
 { daeps_(eps); eps_tps = eps; }
 
 tps::tps(void) {
-  char  name[11];
+  const char name[11] = "tps       ";
 
   if (!ini_tps) TPSA_Ini();
   seq_tps++;
