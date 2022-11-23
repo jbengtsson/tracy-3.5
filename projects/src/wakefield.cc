@@ -15,12 +15,13 @@ class BeamType;
 class PoincareMapType {
 private:
   int
-    n_dof;
+    n_dof,             // Degrees of freedom.
+    n_harm;            // RF cavity harmonic number.
   double
     C,                 // Circumference.
     tau[3],            // Damping times.
     D[3],              // Diffusion coefficients.
-    eps[3],            // Emittance.
+    eps[3],            // Natural emittance.
     sigma_s,           // Bunch length.
     sigma_delta;       // Momentum spread.
   ss_vect<double>
@@ -37,7 +38,7 @@ private:
 
     M_diff,            // Diffusion matrix.
 
-    M_Chol,            // Cholesky decomposition.
+    M_Chol,            // Cholesky decomposition: D = L^T L.
     M_Chol_t;          // M_Chol^T.
 public:
   friend class BeamType;
@@ -50,19 +51,23 @@ public:
   void get_M_diff(void);
   void get_M_Chol_t(void);
   void get_maps(void);
+  void compute_stochastic(ss_vect<double> &X, ss_vect<tps> &X_map);
   void propagate(const int n, BeamType &beam);
 };
 
 
 class BeamType {
 private:
+  double
+    Q_b;               // Bunch charge.
+  ss_vect<double>
+    mean;              // 1st moment: barycentre.
+  ss_vect<tps>
+    sigma;             // 2nd moment: beam envelope.
   FILE
     *outf;             // Output file.
 public:
-  ss_vect<double>
-    mean;              // 1st moment; barycentre.
-  ss_vect<tps>
-    sigma;             // 2nd moment; beam envelope.
+  friend class PoincareMapType;
 
   void set_file_name(const string &file_name);
   ss_vect<double> get_eps(const PoincareMapType &map) const;
@@ -309,26 +314,37 @@ void PoincareMapType::get_maps(void)
 }
 
 
+void PoincareMapType::compute_stochastic(ss_vect<double> &X,
+					 ss_vect<tps> &X_map)
+{
+  int          k;
+
+  static std::default_random_engine rand;
+  std::normal_distribution<double>  norm_ranf(0e0, 1e0);
+
+  for (k = 0; k < 2*n_dof; k++) {
+    X[k] = norm_ranf(rand);
+    X_map[k] = X[k]*tps(0e0, k+1);
+  }
+}
+
+
 void PoincareMapType::propagate(const int n, BeamType &beam)
 {
-  int             j, k;
+  int             k;
   ss_vect<double> X;
-  ss_vect<tps>    Id, X_map;
+  ss_vect<tps>    X_map;
 
   std::default_random_engine       rand;
   std::normal_distribution<double> norm_ranf(0e0, 1e0);
 
-  Id.identity();
-  for (j = 1; j <= n; j++) {
-    for (k = 0; k < 2*n_dof; k++) {
-      X[k] = norm_ranf(rand);
-      X_map[k] = X[k]*Id[k];
-    }
+  for (k = 1; k <= n; k++) {
+    compute_stochastic(X, X_map);
     // Average of stochastic term is zero.
     beam.mean = (M*beam.mean).cst() + 0*(M_Chol_t*X).cst();
     beam.sigma = M*tp_map(n_dof, M*beam.sigma) + M_Chol_t*sqr(X_map)*M_Chol;
 
-    beam.prt_eps(j, *this);
+    beam.prt_eps(k, *this);
   }
 }
 
@@ -386,18 +402,16 @@ void BeamType::init_sigma
 (const double eps_x, const double eps_y, const double sigma_s,
  const double sigma_delta, const PoincareMapType &map)
 {
-  int          k;
-  ss_vect<tps> Id;
+  int k;
 
   const double eps0[] = {eps_x, eps_y};
 
-  Id.identity();
   sigma.zero();
   for (k = 0; k < 4; k++)
-    sigma[k] += eps0[k/2]*Id[k];
+    sigma[k] += eps0[k/2]*tps(0e0, k+1);
   sigma = map.A*sigma*map.A_t;
-  sigma[ct_] += sqr(sigma_s)*Id[ct_];
-  sigma[delta_] += sqr(sigma_delta)*Id[delta_];
+  sigma[ct_] += sqr(sigma_s)*tps(0e0, ct_+1);
+  sigma[delta_] += sqr(sigma_delta)*tps(0e0, delta_+1);
 }
 
 
