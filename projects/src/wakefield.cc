@@ -19,6 +19,7 @@ private:
     n_harm;            // RF cavity harmonic number.
   double
     C,                 // Circumference.
+    alpha_rad[3],      // Damping coefficients.
     tau[3],            // Damping times.
     D[3],              // Diffusion coefficients.
     eps[3],            // Natural emittance.
@@ -83,12 +84,10 @@ public:
 
 void prt_vec(const int n_dof, const string &str, ss_vect<double> vec)
 {
-  int k;
-
   const int n_dec = 6;
 
   printf("%s\n", str.c_str());
-  for (k = 0; k < 2*n_dof; k++)
+  for (int k = 0; k < 2*n_dof; k++)
     printf("%*.*e", n_dec+8, n_dec, vec[k]);
   printf("\n");
 }
@@ -96,13 +95,11 @@ void prt_vec(const int n_dof, const string &str, ss_vect<double> vec)
 
 void prt_map(const int n_dof, const string &str, ss_vect<tps> map)
 {
-  int i, j;
-
-  const int n_dec = 6+6;
+  const int n_dec = 6;
 
   printf("%s\n", str.c_str());
-  for (i = 0; i < 2*n_dof; i++) {
-    for (j = 0; j < 2*n_dof; j++)
+  for (int i = 0; i < 2*n_dof; i++) {
+    for (int j = 0; j < 2*n_dof; j++)
       printf("%*.*e", n_dec+8, n_dec, map[i][j]);
     printf("\n");
   }
@@ -118,7 +115,7 @@ void prt_lin_map(const int n, const string &str, const ss_vect<tps> A)
 
 double det_map(const int n_dof, const ss_vect<tps> &A)
 {
-  // Compute the determinant of a matrix.
+  // Matrix determinant.
   Matrix A_mat;
 
   getlinmat(2*n_dof, A, A_mat);
@@ -128,7 +125,7 @@ double det_map(const int n_dof, const ss_vect<tps> &A)
 
 ss_vect<tps> tp_map(const int n_dof, const ss_vect<tps> &A)
 {
-  // Compute the transpose of a matrix.
+  // Matrix transpose.
   Matrix A_mat;
 
   getlinmat(2*n_dof, A, A_mat);
@@ -158,16 +155,17 @@ void PoincareMapType::compute_M(void)
 
 void PoincareMapType::compute_A(void)
 {
-  // Compute the Floquet to phase space transformation and damping times.
-  // The damping coeffients are obtained from the eigen values.
+  // Poincaré map Diagonalization.
+  // The damping coeffients alpha[] are obtained from the eigen values.
   double nu_s, alpha_c;
   Matrix M_mat, A_mat, A_inv_mat, R_mat;
 
-  globval.Cavity_on = true;
-  globval.radiation = true;
+  globval.Cavity_on = globval.radiation = true;
 
   getlinmat(2*n_dof, M, M_mat);
   GDiag(2*n_dof, C, A_mat, A_inv_mat, R_mat, M_mat, nu_s, alpha_c);
+  for (int k = 0; k < n_dof; k++)
+    alpha_rad[k] = globval.alpha_rad[k];
 
   A = putlinmat(2*n_dof, A_mat);
   if (n_dof < 3) {
@@ -181,38 +179,33 @@ void PoincareMapType::compute_A(void)
 
 void PoincareMapType::compute_tau(void)
 {
-  int k;
-  
-  for (k = 0; k < n_dof; k++)
-    tau[k] = -C/(c0*globval.alpha_rad[k]);
+  // Compute the damping times.
+  for (int k = 0; k < n_dof; k++)
+    tau[k] = -C/(c0*alpha_rad[k]);
 }
 
 
 void PoincareMapType::compute_D(void)
 {
-  // Compute the diffusion coefficients and emittances.
+  // Compute the diffusion coefficients.
   int long     lastpos;
-  int          k;
   ss_vect<tps> As, D_diag;
 
-  globval.Cavity_on = true;
-  globval.radiation = true;
-  globval.emittance = true;
+  globval.Cavity_on = globval.radiation = globval.emittance = true;
 
   As = A + fixed_point;
   Cell_Pass(0, globval.Cell_nLoc, As, lastpos);
 
   globval.emittance = false;
 
-  for (k = 0; k < n_dof; k++)
+  for (int k = 0; k < n_dof; k++)
     D[k] = globval.D_rad[k];
 }
 
 void PoincareMapType::compute_eps(void)
 {
-  int k;
-
-  for (k = 0; k < n_dof; k++)
+  // Compute the eigen emittances.
+  for (int k = 0; k < n_dof; k++)
     eps[k] = D[k]*tau[k]*c0/(2e0*C);
 }
 
@@ -226,7 +219,6 @@ void PoincareMapType::compute_bunch_size(void)
   beta_s = sqr(A[ct_][ct_]) + sqr(A[ct_][delta_]);
   gamma_s = (1e0+sqr(alpha_s))/beta_s;
 
-  // Bunch size.
   sigma_s = sqrt(beta_s*eps[Z_]);
   sigma_delta = sqrt(gamma_s*eps[Z_]);
 }
@@ -235,11 +227,10 @@ void PoincareMapType::compute_bunch_size(void)
 void PoincareMapType::compute_M_diff(void)
 {
   // Compute the diffusion matrix.
-  int          k;
   ss_vect<tps> As, D_diag;
 
   D_diag.zero();
-  for (k = 0; k < 2*n_dof; k++)
+  for (int k = 0; k < 2*n_dof; k++)
     D_diag[k] = D[k/2]*tps(0e0, k+1);
   M_diff = A*D_diag*tp_map(n_dof, A);
 }
@@ -334,12 +325,11 @@ void PoincareMapType::compute_maps(void)
 void PoincareMapType::compute_stochastic(ss_vect<double> &X,
 					 ss_vect<tps> &X_map)
 {
-  int          k;
-
+  // Compute stochastic part of map.
   static std::default_random_engine rand;
   std::normal_distribution<double>  norm_ranf(0e0, 1e0);
 
-  for (k = 0; k < 2*n_dof; k++) {
+  for (int k = 0; k < 2*n_dof; k++) {
     X[k] = norm_ranf(rand);
     X_map[k] = X[k]*tps(0e0, k+1);
   }
@@ -374,13 +364,12 @@ void BeamType::set_file_name(const string &file_name)
 
 ss_vect<double> BeamType::compute_eps(const PoincareMapType &map) const
 {
-  // Compute the emittances.
-  int             k;
+  // Compute the eigen emittances.
   ss_vect<double> eps;
   ss_vect<tps>    diag;
 
   diag = map.A_inv*sigma*map.A_t_inv;
-  for (k = 0; k < 2*map.n_dof; k++)
+  for (int k = 0; k < 2*map.n_dof; k++)
     eps[k] = diag[k][k];
   return eps;
 }
@@ -388,12 +377,11 @@ ss_vect<double> BeamType::compute_eps(const PoincareMapType &map) const
 
 void BeamType::prt_eps(const int n, const PoincareMapType &map) const
 {
-  int             k;
   ss_vect<double> eps;
 
   eps = compute_eps(map);
   fprintf(outf, "%7d", n);
-  for (k = 0; k < 2*map.n_dof; k++)
+  for (int k = 0; k < 2*map.n_dof; k++)
     fprintf(outf, "%13.5e", eps[k]);
   fprintf(outf, "%13.5e %13.5e\n",
 	  sqrt(sigma[delta_][delta_]), sqrt(sigma[ct_][ct_]));
@@ -402,14 +390,13 @@ void BeamType::prt_eps(const int n, const PoincareMapType &map) const
 
 void BeamType::prt_sigma(const PoincareMapType &map)
 {
-  int             k;
   ss_vect<double> eps;
 
   eps = compute_eps(map);
   prt_vec(map.n_dof, "\neps:", eps);
   prt_map(map.n_dof, "\nsigma:", sigma);
   printf("\nsigma_kk:\n ");
-  for (k = 0; k < 2*map.n_dof; k++)
+  for (int k = 0; k < 2*map.n_dof; k++)
     printf(" %11.5e", sqrt(sigma[k][k]));
   printf("\n");
 }
@@ -419,12 +406,10 @@ void BeamType::init_sigma
 (const double eps_x, const double eps_y, const double sigma_s,
  const double sigma_delta, const PoincareMapType &map)
 {
-  int k;
-
   const double eps0[] = {eps_x, eps_y};
 
   sigma.zero();
-  for (k = 0; k < 4; k++)
+  for (int k = 0; k < 4; k++)
     sigma[k] += eps0[k/2]*tps(0e0, k+1);
   sigma = map.A*sigma*map.A_t;
   sigma[ct_] += sqr(sigma_s)*tps(0e0, ct_+1);
