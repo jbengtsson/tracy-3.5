@@ -26,20 +26,21 @@ private:
     sigma_delta;       // Momentum spread.
   ss_vect<double>
     fixed_point;       // Closed orbit.
-   ss_vect<tps>
-    M,                 // Poincaré map.
+  ss_vect<tps>
+    M,                 // Poincaré map: deterministic part.
+    M_diff,            // Diffusion matrix: stochastic part.
 
+  // Cashe for the maps utilised by the computations.
+  // Poincaré map.
     M_t,               // M^T.
-    A,                 // M = A R A^-1.
+    A,                 // Diagonalized: M = A R A^-1.
     A_t,               // A^T.
     A_inv,             // A^-1.
     A_t_inv,           // (A^T)^-1.
-    R,                 // Phase-space rotation.
-
-    M_diff,            // Diffusion matrix.
-
-    M_Chol,            // Cholesky decomposition: D = L^T L.
-    M_Chol_t;          // M_Chol^T.
+    R,                 // Phase-space rotation by 2*pi*nu.
+  // Diffusion matrix.
+    M_Chol,            // Cholesky decomposition of the diffusion matrix:
+    M_Chol_t;          //   D = L^T L.
 public:
   friend class BeamType;
 
@@ -439,7 +440,7 @@ void track(void)
 }
 
 
-void set_state(void)
+void set_lat_state(void)
 {
   globval.H_exact        = false;
   globval.quad_fringe    = false;
@@ -464,7 +465,7 @@ int main(int argc, char *argv[])
   else
     rdmfile(argv[1]);
 
-  set_state();
+  set_lat_state();
 
   Ring_GetTwiss(true, 0e0);
   printglob();
