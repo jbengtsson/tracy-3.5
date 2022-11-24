@@ -16,13 +16,16 @@ class PoincareMapType {
 private:
   int
     n_dof,             // Degrees of freedom.
-    n_harm;            // RF cavity harmonic number.
+    n_harm,            // RF cavity harmonic number.
+    cav_fnum;          // RF cavity family number;
+  CavityType
+    *cav_ptr;          // Pointer to RF cavity.
   double
     C,                 // Circumference.
     alpha_rad[3],      // Damping coefficients.
-    tau[3],            // Damping times.
+    tau[3],            // Damping times: -C/(c0*alpha_rad).
     D[3],              // Diffusion coefficients.
-    eps[3],            // Natural emittance.
+    eps[3],            // Eigen emittances: eps = D*tau*c0/(2e0*C).
     sigma_s,           // Bunch length.
     sigma_delta;       // Momentum spread.
   ss_vect<double>
@@ -46,6 +49,7 @@ public:
   friend class BeamType;
 
   void set_params(const int n_dof, const double C);
+
   void compute_M(void);
   void compute_A(void);
   void compute_tau(void);
@@ -55,8 +59,13 @@ public:
   void compute_M_diff(void);
   void compute_M_Chol_t(void);
   void compute_maps(void);
-  void compute_stochastic(ss_vect<double> &X, ss_vect<tps> &X_map);
+
+  void compute_stochastic_part(ss_vect<double> &X, ss_vect<tps> &X_map);
   void propagate(const int n, BeamType &beam);
+
+  void set_rf_cav_hom(const string &fam_name, const double f, const double Z,
+		      const double Q);
+  void propagate_rf_cav_hom(BeamType &beam);
 };
 
 
@@ -322,8 +331,8 @@ void PoincareMapType::compute_maps(void)
 }
 
 
-void PoincareMapType::compute_stochastic(ss_vect<double> &X,
-					 ss_vect<tps> &X_map)
+void PoincareMapType::compute_stochastic_part
+(ss_vect<double> &X, ss_vect<tps> &X_map)
 {
   // Compute stochastic part of map.
   static std::default_random_engine rand;
@@ -346,13 +355,41 @@ void PoincareMapType::propagate(const int n, BeamType &beam)
   std::normal_distribution<double> norm_ranf(0e0, 1e0);
 
   for (k = 1; k <= n; k++) {
-    compute_stochastic(X, X_map);
+    compute_stochastic_part(X, X_map);
     // Average of stochastic term is zero.
     beam.mean = (M*beam.mean).cst() + 0*(M_Chol_t*X).cst();
     beam.sigma = M*tp_map(n_dof, M*beam.sigma) + M_Chol_t*sqr(X_map)*M_Chol;
 
+    propagate_rf_cav_hom(beam);
+
     beam.prt_eps(k, *this);
   }
+}
+
+
+void PoincareMapType::set_rf_cav_hom(const string &fam_name, const double f,
+				     const double Z, const double Q)
+{
+  long int cav_loc;
+
+  cav_fnum = ElemIndex(fam_name.c_str());
+  cav_loc = Elem_GetPos(cav_fnum, 1);
+  cav_ptr = Cell[cav_loc].Elem.C;
+
+  cav_ptr->HOM_f.push_back(f);
+  cav_ptr->HOM_Z.push_back(Z);
+  cav_ptr->HOM_Q.push_back(Q);
+  cav_ptr->HOM_V.push_back(0e0);
+
+  printf("\nset_rf_cav_hom: %.6s h = %d\n",
+	 Cell[cav_loc].Elem.PName, cav_ptr->Ph);
+}
+
+
+void PoincareMapType::propagate_rf_cav_hom(BeamType &beam)
+{
+  if (false)
+    printf("propagate_rf_cav_hom: V = %10.3e\n", cav_ptr->HOM_V[0]);
 }
 
 
@@ -434,9 +471,14 @@ void track(void)
 
   map.set_params(n_dof, Cell[globval.Cell_nLoc].S);
   map.compute_maps();
+  map.set_rf_cav_hom("cav", 800e6, 1e6, 4.8e4);
+
   beam.set_file_name(file_name);
+
   beam.init_sigma(eps0[X_], eps0[Y_], sigma_s, sigma_delta, map);
+
   map.propagate(n, beam);
+
   beam.prt_sigma(map);
 }
 
