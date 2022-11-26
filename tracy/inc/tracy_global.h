@@ -238,24 +238,37 @@ struct InsertionType {
 };
 
 struct CavityType {
+  bool
+    entry_focus,   // Edge focusing at entry.
+    exit_focus;    // Edge focusing at exit.
   int
-    PN;           // Number of integration steps.
+    N_step,        // Number of integration steps.
+    harm_num;      // RF harmonic number.
   double
-    Pvolt,        // Vrf [V].
-    Pfreq,        // Vrf [Hz].
-    phi;          // RF phase.
+  // Fundamental.
+    f_RF,          // RF frequency [Hz].
+    V_RF,          // RF voltage [V].
+    phi_RF,        // RF phase [deg].
+  // For beam loading compensation for the fundamental mode.
+    Q_RF,
+    beta_RF;       // Power coupling factor.
+  std::complex<double>
+    Z_fund;        // Shunt impedance.
   // Higher order modes.
   std::vector<double>
-    HOM_f,        // Frequency
-    HOM_phi,      // Phase.
-    HOM_Q,        // Quality factor.
-    HOM_Z,        // Shunt impedance.
-    HOM_V;        // Voltage.
-  int
-    Ph;           // Harmonic number.
-  bool
-    entry_focus,  // Edge focusing at entry.
-    exit_focus;   // Edge focusing at exit.
+  // Transverse.
+    HOM_f_trans,   // Frequency
+    HOM_Q_trans,   // Quality factor.
+  // Longitudinal.
+    HOM_f_long,    // Frequency
+    HOM_Q_long;    // Quality factor.
+  std::vector< std::complex<double> >
+  // Transverse.
+    HOM_Z_trans,   // Shunt impedance.
+    HOM_V_trans,   // Amplitude & phase.
+  // Longitudinal.
+    HOM_Z_long,    // Shunt impedance.
+    HOM_V_long;    // Amplitude & phase.
 };
 
 struct CellType;

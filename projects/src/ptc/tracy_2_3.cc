@@ -74,8 +74,8 @@ void prt_H_long(const int n, const double phi_max, const double delta_max,
   prt_alphac(alphac);
 
   loc = Elem_GetPos(ElemIndex(cav_name.c_str()), 1);
-  h_rf = Cell[loc].Elem.C->Ph;
-  V_rf = Cell[loc].Elem.C->Pvolt;
+  h_rf = Cell[loc].Elem.C->harm_num;
+  V_rf = Cell[loc].Elem.C->V_RF;
 
   phi0 = - fabs(asin(U0/V_rf));
   if (neg_alphac) phi0 += M_PI;

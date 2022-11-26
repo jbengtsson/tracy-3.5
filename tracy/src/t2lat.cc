@@ -2582,11 +2582,11 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       WITH1->Pkind = Cavity;
       Cav_Alloc(&WITH->ElemF);
       WITH3 = WITH1->C;
-      WITH3->Pvolt = Vrf;   /* Voltage [V] */
-      WITH3->Pfreq = Frf;   /* Frequency in Hz */
-      WITH3->phi = QPhi*M_PI/180.0;
-      WITH3->Ph = harnum;
-      WITH3->PN = k1;
+      WITH3->V_RF = Vrf;   /* Voltage [V] */
+      WITH3->f_RF = Frf;   /* Frequency in Hz */
+      WITH3->phi_RF = QPhi*M_PI/180.0;
+      WITH3->harm_num = harnum;
+      WITH3->N_step = k1;
       WITH3->entry_focus = entryf == 1;
       WITH3->exit_focus = exitf == 1;
       SetDBN(&V);

@@ -322,7 +322,7 @@ int main(int argc, char *argv[])
   if (false) {
     globval.Cavity_on = false; globval.radiation = false;
 
-    f_rf = Cell[Elem_GetPos(ElemIndex("cav"), 1)].Elem.C->Pfreq;
+    f_rf = Cell[Elem_GetPos(ElemIndex("cav"), 1)].Elem.C->f_RF;
     printf("\nf_rf = %10.3e\n", f_rf);
 
     globval.Cavity_on = true;

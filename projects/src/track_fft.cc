@@ -321,7 +321,7 @@ void track_fft(const int n_turn,
 
   track(file_name, twoJx[0], phix[0], twoJy[0], phiy[0], delta,
 	n_turn, lastn, lastpos,
-	2, Cell[Elem_GetPos(ElemIndex("cav"), 1)].Elem.C->Pfreq);
+	2, Cell[Elem_GetPos(ElemIndex("cav"), 1)].Elem.C->f_RF);
 
   if (lastn == n_turn) {
     GetTrack(file_name, &n, twoJx, phix, twoJy, phiy);
@@ -435,7 +435,7 @@ int main(int argc, char *argv[])
 
   delta0    = -0.5e-2;
   n_turn    = 1000;
-  f_rf      = Cell[Elem_GetPos(ElemIndex("cav"), 1)].Elem.C->Pfreq;
+  f_rf      = Cell[Elem_GetPos(ElemIndex("cav"), 1)].Elem.C->f_RF;
   
   
   

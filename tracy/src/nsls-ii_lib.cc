@@ -505,8 +505,8 @@ void GetEmittance(const int Fnum, const bool prt)
   // radiation loss is computed in Cav_Pass
 
   globval.U0 = globval.dE*1e9*globval.Energy;
-  V_RF = Cell[Elem_GetPos(Fnum, 1)].Elem.C->Pvolt;
-  h_RF = Cell[Elem_GetPos(Fnum, 1)].Elem.C->Ph;
+  V_RF = Cell[Elem_GetPos(Fnum, 1)].Elem.C->V_RF;
+  h_RF = Cell[Elem_GetPos(Fnum, 1)].Elem.C->harm_num;
   phi0 = fabs(asin(globval.U0/V_RF));
   globval.delta_RF =
     sqrt(-V_RF*cos(M_PI-phi0)*(2.0-(M_PI-2.0*(M_PI-phi0))

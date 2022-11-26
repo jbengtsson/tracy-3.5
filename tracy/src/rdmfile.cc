@@ -205,11 +205,12 @@ void rdmfile(const char *mfile_dat)
       inf.getline(line, line_max);
       if (prt) printf("%s\n", line);
       sscanf(line, "%lf %lf %d %lf %lf",
-	     &Cell[i].Elem.C->Pvolt, &Cell[i].Elem.C->Pfreq,
-	     &Cell[i].Elem.C->Ph, &globval.Energy, &Cell[i].Elem.C->phi);
+	     &Cell[i].Elem.C->V_RF, &Cell[i].Elem.C->f_RF,
+	     &Cell[i].Elem.C->harm_num, &globval.Energy,
+	     &Cell[i].Elem.C->phi_RF);
       globval.Energy *= 1e-9;
-      Cell[i].Elem.C->Pvolt *= globval.Energy*1e9;
-      Cell[i].Elem.C->Pfreq *= c0/(2.0*M_PI);
+      Cell[i].Elem.C->V_RF *= globval.Energy*1e9;
+      Cell[i].Elem.C->f_RF *= c0/(2.0*M_PI);
      break;
     case Mpole:
       Cell[i].Elem.M->Pmethod = method; Cell[i].Elem.M->PN = n;

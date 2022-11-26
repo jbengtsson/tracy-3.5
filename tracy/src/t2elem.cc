@@ -856,14 +856,14 @@ void Cav_Pass(CellType &Cell, ss_vect<T> &ps)
 
   elemp = &Cell.Elem; C = elemp->C; L = elemp->PL;
   Drift(L/2e0, ps);
-  if (globval.Cavity_on && C->Pvolt != 0e0) {
-    delta = -C->Pvolt/(globval.Energy*1e9)
-            *sin(2e0*M_PI*C->Pfreq/c0*ps[ct_]+C->phi);
+  if (globval.Cavity_on && C->V_RF != 0e0) {
+    delta = -C->V_RF/(globval.Energy*1e9)
+            *sin(2e0*M_PI*C->f_RF/c0*ps[ct_]+C->phi_RF);
     ps[delta_] += delta;
 
     if (globval.radiation) globval.dE -= is_double<T>::cst(delta);
 
-    if (globval.pathlength) ps[ct_] -= C->Ph/C->Pfreq*c0;
+    if (globval.pathlength) ps[ct_] -= C->harm_num/C->f_RF*c0;
   }
   Drift(L/2e0, ps);
 }
@@ -2668,7 +2668,7 @@ void Cav_Alloc(elemtype *Elem)
 
   Elem->C = (CavityType *)malloc(sizeof(CavityType));
   C = Elem->C;
-  C->Pvolt = 0e0; C->Pfreq = 0e0; C->phi = 0e0; C->Ph = 0;
+  C->V_RF = 0e0; C->f_RF = 0e0; C->phi_RF = 0e0; C->harm_num = 0;
   C->entry_focus = false; C->exit_focus = false;
 }
 

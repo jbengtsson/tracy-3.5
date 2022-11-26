@@ -469,8 +469,8 @@ void PoincareMapType::GetM_cav(void)
 {
   const int loc = Elem_GetPos(ElemIndex("cav"), 1);
 
-  V_RF = Cell[loc].Elem.C->Pvolt;
-  f_RF = Cell[loc].Elem.C->Pfreq;
+  V_RF = Cell[loc].Elem.C->V_RF;
+  f_RF = Cell[loc].Elem.C->f_RF;
   phi0 = asin(delta_cav*E0/V_RF);
 
   M_cav.identity();

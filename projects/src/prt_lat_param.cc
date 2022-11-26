@@ -69,8 +69,8 @@ void prt_lat_param(char *file_name, char *cav_name, const double eps_s,
   fprintf(outf, "C [m]\t%5.3f\n", Cell[globval.Cell_nLoc].S);
 
   loc = Elem_GetPos(ElemIndex(cav_name), 1);
-  fprintf(outf, "Harmonic no\t%1d\n", Cell[loc].Elem.C->Ph);
-  fprintf(outf, "RF frequency [MHz]\t%8.6f\n", 1e-6*Cell[loc].Elem.C->Pfreq);
+  fprintf(outf, "Harmonic no\t%1d\n", Cell[loc].Elem.C->harm_num);
+  fprintf(outf, "RF frequency [MHz]\t%8.6f\n", 1e-6*Cell[loc].Elem.C->f_RF);
 
   fprintf(outf, "LS [m]\t%4.2f\n",
 	 2e0*Cell[Elem_GetPos(ElemIndex("quad_add"), 1)-1].S);

@@ -954,7 +954,7 @@ void get_disp(void)
   ss_vect<tps>    Ascr, Id, M;
   ofstream        outf;
 
-  f_rf = Cell[Elem_GetPos(ElemIndex("cav"), 1)].Elem.C->Pfreq;
+  f_rf = Cell[Elem_GetPos(ElemIndex("cav"), 1)].Elem.C->f_RF;
   printf("\nf_rf = %10.3e\n", f_rf);
 
   Id.identity();

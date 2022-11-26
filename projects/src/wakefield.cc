@@ -1,6 +1,6 @@
 
 #include <random>
-
+#include <complex>
 
 #define NO 1
 
@@ -63,8 +63,8 @@ public:
   void compute_stochastic_part(ss_vect<double> &X, ss_vect<tps> &X_map);
   void propagate(const int n, BeamType &beam);
 
-  void set_rf_cav_hom(const string &fam_name, const double f, const double Z,
-		      const double Q);
+  void set_rf_cav_hom(const string &fam_name, const double f,
+		      const std::complex<double> &Z, const double Q);
   void propagate_rf_cav_hom(BeamType &beam);
 };
 
@@ -367,8 +367,9 @@ void PoincareMapType::propagate(const int n, BeamType &beam)
 }
 
 
-void PoincareMapType::set_rf_cav_hom(const string &fam_name, const double f,
-				     const double Z, const double Q)
+void PoincareMapType::set_rf_cav_hom
+(const string &fam_name, const double f, const std::complex<double> &Z,
+ const double Q)
 {
   long int cav_loc;
 
@@ -376,20 +377,20 @@ void PoincareMapType::set_rf_cav_hom(const string &fam_name, const double f,
   cav_loc = Elem_GetPos(cav_fnum, 1);
   cav_ptr = Cell[cav_loc].Elem.C;
 
-  cav_ptr->HOM_f.push_back(f);
-  cav_ptr->HOM_Z.push_back(Z);
-  cav_ptr->HOM_Q.push_back(Q);
-  cav_ptr->HOM_V.push_back(0e0);
+  cav_ptr->HOM_f_trans.push_back(f);
+  cav_ptr->HOM_Z_trans.push_back(Z);
+  cav_ptr->HOM_Q_trans.push_back(Q);
+  cav_ptr->HOM_V_trans.push_back(0e0);
 
   printf("\nset_rf_cav_hom: %.6s h = %d\n",
-	 Cell[cav_loc].Elem.PName, cav_ptr->Ph);
+	 Cell[cav_loc].Elem.PName, cav_ptr->harm_num);
 }
 
 
 void PoincareMapType::propagate_rf_cav_hom(BeamType &beam)
 {
   if (false)
-    printf("propagate_rf_cav_hom: V = %10.3e\n", cav_ptr->HOM_V[0]);
+    cout << "propagate_rf_cav_hom: V = " << cav_ptr->HOM_V_trans[0] << "\n";
 }
 
 
@@ -471,7 +472,7 @@ void track(void)
 
   map.set_params(n_dof, Cell[globval.Cell_nLoc].S);
   map.compute_maps();
-  map.set_rf_cav_hom("cav", 800e6, 1e6, 4.8e4);
+  map.set_rf_cav_hom("cav", 800e6, std::complex<double>(1e6, 0e0), 4.8e4);
 
   beam.set_file_name(file_name);
 

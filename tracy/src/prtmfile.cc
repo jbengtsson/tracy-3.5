@@ -163,9 +163,9 @@ void prtmfile(const char mfile_dat[])
     case Cavity:
       prtName(mfile, i, cavity_, 0, 0, 0);
       fprintf(mfile, " %23.16e %23.16e %d %23.16e %23.16e\n",
-	      Cell[i].Elem.C->Pvolt/(1e9*globval.Energy),
-	      2.0*M_PI*Cell[i].Elem.C->Pfreq/c0, Cell[i].Elem.C->Ph,
-	      1e9*globval.Energy, Cell[i].Elem.C->phi);
+	      Cell[i].Elem.C->V_RF/(1e9*globval.Energy),
+	      2.0*M_PI*Cell[i].Elem.C->f_RF/c0, Cell[i].Elem.C->harm_num,
+	      1e9*globval.Energy, Cell[i].Elem.C->phi_RF);
       break;
     case marker:
       prtName(mfile, i, marker_, 0, 0, 0);
