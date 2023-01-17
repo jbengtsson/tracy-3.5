@@ -63,8 +63,8 @@ public:
   void compute_stochastic_part(ss_vect<double> &X, ss_vect<tps> &X_map);
   void propagate(const int n, BeamType &beam);
 
-  void set_rf_cav_hom(const string &fam_name, const double f,
-		      const std::complex<double> &Z, const double Q);
+  void set_rf_cav_hom(const string &fam_name, const double f, const double Z,
+		      const double Q);
   void propagate_rf_cav_hom(BeamType &beam);
 };
 
@@ -368,8 +368,7 @@ void PoincareMapType::propagate(const int n, BeamType &beam)
 
 
 void PoincareMapType::set_rf_cav_hom
-(const string &fam_name, const double f, const std::complex<double> &Z,
- const double Q)
+(const string &fam_name, const double f, const double Z, const double Q)
 {
   long int cav_loc;
 
@@ -389,7 +388,7 @@ void PoincareMapType::set_rf_cav_hom
 
 void PoincareMapType::propagate_rf_cav_hom(BeamType &beam)
 {
-  if (false)
+  if (!false)
     cout << "propagate_rf_cav_hom: V = " << cav_ptr->HOM_V_trans[0] << "\n";
 }
 
@@ -472,7 +471,7 @@ void track(void)
 
   map.set_params(n_dof, Cell[globval.Cell_nLoc].S);
   map.compute_maps();
-  map.set_rf_cav_hom("cav", 800e6, std::complex<double>(1e6, 0e0), 4.8e4);
+  map.set_rf_cav_hom("cav", 800e6, 1e6, 4.8e4);
 
   beam.set_file_name(file_name);
 

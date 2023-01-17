@@ -259,15 +259,15 @@ struct CavityType {
   // Transverse.
     HOM_f_trans,   // Frequency
     HOM_Q_trans,   // Quality factor.
+    HOM_Z_trans,   // Shunt impedance.
   // Longitudinal.
     HOM_f_long,    // Frequency
-    HOM_Q_long;    // Quality factor.
+    HOM_Q_long,    // Quality factor.
+    HOM_Z_long;    // Shunt impedance.
   std::vector< std::complex<double> >
   // Transverse.
-    HOM_Z_trans,   // Shunt impedance.
     HOM_V_trans,   // Amplitude & phase.
   // Longitudinal.
-    HOM_Z_long,    // Shunt impedance.
     HOM_V_long;    // Amplitude & phase.
 };
 
