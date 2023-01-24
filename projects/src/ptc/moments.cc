@@ -1,4 +1,4 @@
-#define NO 2
+#define NO 5
 
 #include "tracy_lib.h"
 
@@ -270,19 +270,19 @@ css_vect operator*(const css_vect &A, const css_vect &B)
 }
 
 
-void prt_cmplx_lin_map(const int n_DOF, const string &str, const css_vect &map)
+void prt_cmplx_lin_map(const string &str, const css_vect &map)
 {
   int          i, j;
   ss_vect<tps> re, im;
 
-  for (i = 0; i < 2*n_DOF; i++) {
+  for (i = 0; i < 2*nd_tps; i++) {
     re[i] = map[i].real();
     im[i] = map[i].imag();
   }
 
   cout << str;
-  for (i = 1; i <= 2*n_DOF; i++) {
-    for (j = 1; j <= 2*n_DOF; j++)
+  for (i = 1; i <= 2*nd_tps; i++) {
+    for (j = 1; j <= 2*nd_tps; j++)
 	cout << scientific << setprecision(3)
 	     << setw(11) << getmat(re, i, j)
 	     << ((getmat(im, i, j) > 0e0)? " + i":" - i")
@@ -301,29 +301,31 @@ ss_vect<tps> Id(void)
 }
 
 
-tps get_h_k(const tps &h, const int k1, const int k2)
+tps get_h_k(const tps &h, const int k)
 {
-  // Get monomials of order [k1..k2].
+  // Take in Forest's LieLib.
+  // Get monomials of order k.
   long int no;
   tps      h_k;
 
   no = getno_();
-  danot_(k1-1);
+  danot_(k-1);
   h_k = -h;
-  danot_(k2);
+  danot_(k);
   h_k += h;
   danot_(no);
   return h_k;
 }
 
 
-ss_vect<tps> get_map_k(const ss_vect<tps> &x, const int k1, const int k2)
+ss_vect<tps> get_map_k(const ss_vect<tps> &x, const int k)
 {
-  int          k;
+  // Taked in Forest's LieLib.
+  int          i;
   ss_vect<tps> map_k;
 
-  for (k = 0; k < nv_tps; k++)
-    map_k[k] = get_h_k(x[k], k1, k2);
+  for (i = 0; i < nv_tps; i++)
+    map_k[i] = get_h_k(x[i], k);
   return map_k;
 }
 
@@ -364,11 +366,176 @@ ss_vect<tps> get_map_Fl(ss_vect<tps> &map)
 }
 
 
+tps tps_compute_function
+(const tps &a, std::function<double (const long int [])> fun)
+{
+  // Dacfu in Forest's LieLib.
+  char     name[name_len_for+1];
+  int      k, n;
+  long int ibuf1[bufsize], ibuf2[bufsize], jj[nv_tps];
+  double   rbuf[bufsize];
+  tps      b;
+
+  a.exprt(rbuf, ibuf1, ibuf2, name);
+  n = rbuf[0];
+  for (k = 1; k <= n; k++) {
+    dehash_(no_tps, nv_tps, ibuf1[k-1], ibuf2[k-1], jj);
+    rbuf[k] *= fun(jj);
+  }
+  b.imprt(n, rbuf, ibuf1, ibuf2);
+  return b;
+}
+
+
+ss_vect<tps> difd_JB(const tps &h, const double scl)
+{
+  // Difd in Forest's LieLib:
+  // Compute vector flow operator from Lie operator :h:
+  //   :h: = v(i)*del_i, i = 1..6
+  int          k;
+  ss_vect<tps> v;
+
+  for (k = 0; k < nd_tps; k++) {
+    v[2*k+1] = Der(h, 2*k+1);
+    v[2*k] = scl*Der(h, 2*k+2);
+  }
+  return v;
+}
+
+
+tps LieFlo_JB(const ss_vect<tps> &h, const tps &x)
+{
+  // Daflo in Forest's LieLib.
+  //   y = h(i)*del_i x
+  int k;
+  tps b1, b2, b3, y;
+
+  for (k = 0; k < 2*nd_tps; k++) {
+    b2 = Der(x, k+1);
+    b3 = b2*h[k];
+    b2 = b3 + b1;
+    b1 = b2;
+  }
+  y = b1;
+  return y;
+}
+
+
+tps expflo_JB(const ss_vect<tps> &h, const tps &x, const double eps,
+	      const int n_max)
+{
+  // Expflo in Forest's LieLib.
+  int    k;
+  double eps0, eps1;
+  tps    b_k, b, y;
+
+  eps0 = 1e30;
+  b_k = b = x;
+  printf("\n");
+  for (k = 1; k <= n_max; k++) {
+    if (!false)
+      b_k = LieFlo(h, b_k/k);
+    else
+      b_k = LieFlo_JB(h, b_k/k);
+    b += b_k;
+    eps1 = abs(b_k);
+    printf("k = %d eps0 = %10.3e eps1 = %10.3e eps = %10.3e\n",
+	   k, eps0, eps1, eps_tps);
+    if (eps1 < eps)
+      break;
+    eps0 = eps1;
+  }
+  if (eps1 < eps)
+    return b;
+  else {
+    printf("\n*** expflo_JB: did not converge eps = %9.3e (eps = %9.3e)"
+	   " n_max = %1d\n", eps1, eps, n_max);
+    return NAN;
+  }
+}
+
+
+tps exp1d_JB(const tps &h, const tps &x, const double eps, const int n_max)
+{
+  // Exp1d in Forest's LieLib.
+  // Compute:
+  //   y = exp(:h:) x
+  tps          y;
+  ss_vect<tps> v;
+
+  v = difd_JB(h, -1e0);
+  y = expflo_JB(v, x, eps, n_max);
+  return y;
+}
+
+
+ss_vect<tps> expnd2_JB(const tps &h, const ss_vect<tps> &x, const double eps,
+		       const int n_max)
+{
+  // Expnd2 in Forest's LieLib.
+  // Compute:
+  //   Y = exp(:h:) X
+  int          k;
+  ss_vect<tps> y;
+
+  y = x;
+  for (k = 0; k < 2*nd_tps; k++)
+    if (false)
+      y[k] = LieExp(h, y[k]);
+    else
+      y[k] = exp1d_JB(h, y[k], eps, n_max);
+  return y;
+}
+
+
+ss_vect<tps> LieExp_JB(const tps &h, const ss_vect<tps> &x)
+{
+  return expnd2_JB(h, x, eps_tps, 5);
+}
+
+
+double f_lie_exp(const long int jj[])
+{
+  int    k;
+  double f_lie_exp;
+
+ f_lie_exp = 0e0;
+ for (k = 0; k < nd_tps; k++)
+    f_lie_exp += jj[2*k] + jj[2*k+1];
+  f_lie_exp += 1e0;
+  f_lie_exp = 1e0/f_lie_exp;
+  return f_lie_exp;
+}
+
+
+tps compute_Lie_exp(const ss_vect<tps> &map, const double scl)
+{
+  // Intd in Forest's LieLib.
+  // E. Forest, M. Berz, J. Irwin "Normal Form Methods for Complicated
+  // Periodic Systems: A Complete Solution Using Differential Algebra and Lie
+  // Operators" Part. Accel. 24, 91-107 (1989):
+  //   Eqs. (34)-(37).
+  int          k;
+  tps          a1, a2, h;
+  ss_vect<tps> Id;
+
+  Id.identity();
+  h = 0e0;
+  for (k = 0; k < nd_tps; k++) {
+    a2 = tps_compute_function(map[2*k], f_lie_exp);
+    a1 = tps_compute_function(map[2*k+1], f_lie_exp);
+    h += scl*a2*Id[2*k+1] + a1*Id[2*k];
+  }
+  return h;
+}
+
+
 ss_vect<tps> compute_Dragt_Finn_Map
 (const tps &h, const ss_vect<tps> &map, const int k1, const int k2,
  const int reverse)
 {
-  // Dragt-Finn map:
+  // Fexpo in Forest's LieLib.
+  // Compute map from Dragt-Finn factorisation:
   // not reverse:
   //   exp(:h_3:) exp(:h_4:) ... exp(:h_no:)
   // reverse:
@@ -379,36 +546,122 @@ ss_vect<tps> compute_Dragt_Finn_Map
 
   map1.identity();
   for (k = k2; k >= k1; k--) {
-    h_k = get_h_k(h, k, k);
+    h_k = get_h_k(h, k);
     if (!reverse)
-      map1 = map1*LieExp(h_k, map);
+      map1 = map1*LieExp_JB(h_k, map);
     else
-      map1 = LieExp(h_k, map)*map1;
+      map1 = LieExp_JB(h_k, map)*map1;
   }
   return map1;
 }
 
-
-tps LieFact_JB(const ss_vect<tps> &map)
+tps facflo_JB(const ss_vect<tps> &h, const tps &x, const int k1, const int k2,
+	      const double sca, const int ifac)
 {
+  int          k;
+  tps          v, b01, w;
+  ss_vect<tps> bm, b0;
+
+  const int    n_max = 100; 
+  const double eps   = -1e0;
+
+  v = x;
+
+  if (ifac == 1) {
+    for (k = k2; k >= k1; k--) {
+      b0 = get_map_k(h, k);
+      bm = sca*b0;
+      b01 = expflo_JB(bm, v, eps_tps, n_max);
+      v = b01;
+    }
+  } else if (ifac == -1) {
+    for (k = k1; k <= k2; k++) {
+      b0 = get_map_k(h, k);
+      bm = sca*b0;
+      b01 = expflo_JB(bm, v, eps_tps, n_max);
+      v = b01;
+    }
+  } else {
+    printf("\n*** facflo_JB: undef. ifac = %1d\n", ifac);
+    exit(1);
+  }
+  w = v;
+  return w;
+}
+
+
+ss_vect<tps>facflod_JB
+(const ss_vect<tps> &h, const ss_vect<tps>  &x, const int k1, const int k2,
+ const double sca, const int ifac)
+{
+  int          i;
+  ss_vect<tps> w;
+
+  for (i = 0; i < 2*nd_tps; i++)
+    w[i] = facflo_JB(h, x[i], k1, k2, sca, ifac);
+  return w;
+}
+
+
+ss_vect<tps>flofac_JB
+(const ss_vect<tps> &xy, ss_vect<tps> &x)
+{
+  int          k;
+  ss_vect<tps> v, w, h;
+
+  x = get_map_k(xy, 1);
+  v = xy*Inv(x);
+  h.zero();
+  w = v;
+  for (k = 2; k <= no_tps; k++) {
+    v = get_map_k(w, k);
+    h = v + h;
+    v = facflod_JB(h, w, k, k, -1e0, -1);
+    w = v;
+  }
+  return h;
+}
+
+
+tps Dragt_Finn_fact(const ss_vect<tps> &xy, ss_vect<tps> &x)
+{
+  // Liefact in Forest's LieLib.
+  // A. Dragt, J. Finn "Lie Series and Invariant Functions for Analytic
+  // Symplectic maps" J. Math. Phys. 17, 2215-2227 (1976).
   // Dragt-Finn factorization:
-  //   M = M_1 exp(:h_3:) ... exp(:h_4:) exp(:h_no:).
+  //   M = exp(:h_no:) exp(:h_no-1:)... exp(:h_4:) exp(:h_3:) M_lin
+
+  tps          h;
+  ss_vect<tps> v;
+
+  v = flofac_JB(xy, x);
+  h = compute_Lie_exp(v, -1e0);
+  return h;
+}
+
+
+tps Dragt_Finn_fact2(const ss_vect<tps> &map, ss_vect<tps> &map_lin)
+{
+  // Liefact in Forest's LieLib.
+  // A. Dragt, J. Finn "Lie Series and Invariant Functions for Analytic
+  // Symplectic maps" J. Math. Phys. 17, 2215-2227 (1976).
+  // Dragt-Finn factorization:
+  //   M = exp(:h_no:) exp(:h_no-1:)... exp(:h_4:) exp(:h_3:) M_lin
+
   int          k;
   tps          h, h_k;
-  ss_vect<tps> Id, A0_inv, M_1, Fn, map1;
+  ss_vect<tps> Id, map_km1, map1;
 
   Id.identity();
-  map1 = map;
-  M_1 = get_map_Fl(map1);
-  map1 = map1*Inv(M_1);
+  map_lin = get_map_k(map, 1);
+  map1 = map*Inv(map_lin);
   h = 0e0;
   for (k = 3; k <= no_tps; k++) {
-    Fn = get_map_k(map1, k-1, k-1);
-    h_k = Intd(Fn, -1e0);
+    map_km1 = get_map_k(map1, k-1);
+    h_k = compute_Lie_exp(map_km1, -1e0);
     h += h_k;
     map1 = map1*compute_Dragt_Finn_Map(-h_k, Id, k, k, true);
   }
-//  cout << h;
   return h;
 }
 
@@ -539,7 +792,7 @@ ss_vect<tps> compute_map_normal_form(ss_vect<tps> &map)
 
     map2 = map1*Inv(R*compute_Dragt_Finn_Map(K, Id, 3, k-1, true));
     h_k =
-      Intd(get_map_k(map2, k-1, k-1), -1e0);
+      Intd(get_map_k(map2, k-1), -1e0);
     g_k = get_g(nu0[X_], nu0[Y_], h_k);
     g += g_k;
     CtoR(h_k, h_k_re, h_k_im);
@@ -953,13 +1206,18 @@ void compute_invariant(ss_vect<tps> &M)
 }
 
 
-int f_p_k_cmplx_sgn_corr(const int n_dof, const long int jj[])
+double f_p_k_cmplx_sgn_corr(const long int jj[])
 {
+  // Adjust the sign for the momenta for the oscillating planes.
+  // Correct sign for complex vs. real momenta p_k.
+  //   q_k =  (h_q_k^+ + h_q_k^-) / 2
+  // i p_k = -(h_q_k^+ - h_q_k^-) / 2
+  // Adjust the sign for the momenta for the oscillating planes.
   int ord, k, sgn = 0;
 
   // Compute the sum of exponents for the momenta for the oscillating planes:
   ord = 0;
-  for (k = 0; k < n_dof; k++)
+  for (k = 0; k < nd_tps; k++)
     ord += jj[2*k+1];
   ord = (ord % 4);
   //  Sum_k c_ijkl x^i p_x^j y^k p_y^l
@@ -981,40 +1239,18 @@ int f_p_k_cmplx_sgn_corr(const int n_dof, const long int jj[])
 }
 
 
-tps p_k_cmplx_sgn_corr(const int n_dof, const tps &a)
-{
-  // Correct sign for complex vs. real momenta p_k.
-  //   q_k =  (h_q_k^+ + h_q_k^-) / 2
-  // i p_k = -(h_q_k^+ - h_q_k^-) / 2
-  char     name[name_len_for+1];
-  int      j, n;
-  long int ibuf1[bufsize], ibuf2[bufsize], jj[nv_tps];
-  double   rbuf[bufsize];
-  tps      b;
-
-  // Adjust the sign for the momenta for the oscillating planes.
-  a.exprt(rbuf, ibuf1, ibuf2, name);
-  n = rbuf[0];
-  for (j = 1; j <= n; j++) {
-    dehash_(no_tps, nv_tps, ibuf1[j-1], ibuf2[j-1], jj);
-    rbuf[j] *= f_p_k_cmplx_sgn_corr(n_dof, jj);
-  }
-  b.imprt(n, rbuf, ibuf1, ibuf2);
-  return b;
-}
-
-ctps p_k_cmplx_sgn_corr(const int n_dof, const ctps &a)
+ctps p_k_cmplx_sgn_corr(const ctps &a)
 {
   return
-    ctps(p_k_cmplx_sgn_corr(n_dof, a.real()),
-	 p_k_cmplx_sgn_corr(n_dof, a.imag()));
+    ctps(tps_compute_function(a.real(), f_p_k_cmplx_sgn_corr),
+	 tps_compute_function(a.imag(), f_p_k_cmplx_sgn_corr));
 }
 
 
 #if 0
 // Obsolete.
 
-void CtoR_JB2(const int n_dof, const tps &a, tps &a_re, tps &a_im)
+void CtoR_JB2(const tps &a, tps &a_re, tps &a_im)
 {
   int          k;
   tps          b, c;
@@ -1022,7 +1258,7 @@ void CtoR_JB2(const int n_dof, const tps &a, tps &a_re, tps &a_im)
 
   Id.identity();
 
-  b = p_k_cmplx_sgn_corr(n_dof, a);
+  b = p_k_cmplx_sgn_corr_fun(nd_tps, a);
 
   // q_k -> (q_k + p_k) / 2
   // p_k -> (q_k - p_k) / 2
@@ -1030,7 +1266,7 @@ void CtoR_JB2(const int n_dof, const tps &a, tps &a_re, tps &a_im)
   // q_k =   (h_q_k^+ + h_q_k^-) / 2
   // p_k = i (h_q_k^+ - h_q_k^-) / 2
   map.identity();
-  for (k = 0; k < n_dof; k++) {
+  for (k = 0; k < nd_tps; k++) {
     map[2*k]   = (Id[2*k]+Id[2*k+1])/2e0;
     map[2*k+1] = (Id[2*k]-Id[2*k+1])/2e0;
   }
@@ -1041,7 +1277,7 @@ void CtoR_JB2(const int n_dof, const tps &a, tps &a_re, tps &a_im)
   // Complex space:
   // i (q_k -/+ i p_k) = (i q_k +/- p_k)
   map.identity();
-  for (k = 0; k < n_dof; k++) {
+  for (k = 0; k < nd_tps; k++) {
     map[2*k]   = Id[2*k+1];
     map[2*k+1] = Id[2*k];
   }
@@ -1052,7 +1288,7 @@ void CtoR_JB2(const int n_dof, const tps &a, tps &a_re, tps &a_im)
 }
 
 
-tps RtoC_JB2(const int n_dof, tps &a_re, tps &a_im)
+tps RtoC_JB2(tps &a_re, tps &a_im)
 {
   int          k;
   tps          b;
@@ -1068,18 +1304,18 @@ tps RtoC_JB2(const int n_dof, tps &a_re, tps &a_im)
   // h_q_k^+ = q_k - i h_p_k
   // h_q_k^- = q_k + i h_p_k
   map.identity();
-  for (k = 0; k < n_dof; k++) {
+  for (k = 0; k < nd_tps; k++) {
     map[2*k]   = Id[2*k] + Id[2*k+1];
     map[2*k+1] = Id[2*k] - Id[2*k+1];
   }
   b = b*map;
-  b = p_k_cmplx_sgn_corr(n_dof, b);
+  b = p_k_cmplx_sgn_corr_fun(nd_tps, b);
   return b;
 }
 
 #endif
 
-ctps CtoR(const int n_dof, const ctps &a)
+ctps CtoR(const ctps &a)
 {
   // Cartesian to resonance basis:
   //   q_k =  (h_q_k^+ + h_q_k^-) / 2
@@ -1090,15 +1326,15 @@ ctps CtoR(const int n_dof, const ctps &a)
   Id.identity();
   Zero.zero();
   map.identity();
-  for (k = 0; k < n_dof; k++) {
+  for (k = 0; k < nd_tps; k++) {
     map[2*k]   = (Id[2*k]+Id[2*k+1])/2e0;
     map[2*k+1] = (Id[2*k]-Id[2*k+1])/2e0;
   }
-  return p_k_cmplx_sgn_corr(n_dof, a)*css_vect(map, Zero);
+  return p_k_cmplx_sgn_corr(a)*css_vect(map, Zero);
 }
 
 
-ctps RtoC(const int n_dof, const ctps &a)
+ctps RtoC(const ctps &a)
 {
   // Resonance to Cartesian basis.
   // h_q_k^+ = q_k - i h_p_k
@@ -1109,11 +1345,11 @@ ctps RtoC(const int n_dof, const ctps &a)
   Id.identity();
   Zero.zero();
   map.identity();
-  for (k = 0; k < n_dof; k++) {
+  for (k = 0; k < nd_tps; k++) {
     map[2*k]   = Id[2*k] + Id[2*k+1];
     map[2*k+1] = Id[2*k] - Id[2*k+1];
   }
-  return p_k_cmplx_sgn_corr(n_dof, a*css_vect(map, Zero));
+  return p_k_cmplx_sgn_corr(a*css_vect(map, Zero));
 }
 
 
@@ -1127,8 +1363,8 @@ void tst_ctor(MNF_struct &MNF)
 
   CtoR(MNF.K, K_re, K_im);
   CtoR(MNF.g, g_re, g_im);
-  cK = CtoR(2, ctps(MNF.K, 0e0));
-  cg = CtoR(2, ctps(0e0, MNF.g));
+  cK = CtoR(ctps(MNF.K, 0e0));
+  cg = CtoR(ctps(0e0, MNF.g));
 
   cout << "\n[K_re-K_re_JB, K_im-K_im_JB]:\n"
        << K_re-cK.real() << K_im-cK.imag();
@@ -1137,8 +1373,8 @@ void tst_ctor(MNF_struct &MNF)
        << g_re-cg.real() << g_im-cg.imag();
   daeps_(eps_tps);
 
-  cK = RtoC(2, ctps(K_re, K_im));
-  cg = RtoC(2, ctps(g_re, g_im));
+  cK = RtoC(ctps(K_re, K_im));
+  cg = RtoC(ctps(g_re, g_im));
 
   cout << "\nRtoC_JB(2, cK)-K:\n" << cK.real()-MNF.K << cK.imag();
 
@@ -1157,7 +1393,7 @@ void compute_C_S_long(double &alpha_z, double &beta_z)
 }
 
 
-ss_vect<tps> compute_A_A_t(const int n_dof)
+ss_vect<tps> compute_A_A_t(void)
 {
   int          k;
   double       alpha_z, beta_z;
@@ -1165,10 +1401,10 @@ ss_vect<tps> compute_A_A_t(const int n_dof)
 
   Id.identity();
 
-  if (n_dof > 2) compute_C_S_long(alpha_z, beta_z);
+  if (nd_tps > 2) compute_C_S_long(alpha_z, beta_z);
 
   A_A_t.zero();
-  for (k = 0; k < n_dof; k++) {
+  for (k = 0; k < nd_tps; k++) {
     if (k < 2) {
       A_A_t[2*k] = Cell[0].Beta[k]*Id[2*k] - Cell[0].Alpha[k]*Id[2*k+1];
       A_A_t[2*k+1] =
@@ -1190,7 +1426,7 @@ void tst_moment(void)
   ss_vect<tps> M, A_A_t;
 
   const int
-    n_dof = 3,
+    nd_tps = 3,
 #if 0
     loc   = globval.Cell_nLoc;
 #else
@@ -1210,48 +1446,48 @@ void tst_moment(void)
   M.identity();
   Cell_Pass(0, loc, M, lastpos);
   printf("\nM:");
-  prt_lin_map(3, M);
+  prt_lin_map(nd_tps, M);
 
-  A_A_t = compute_A_A_t(n_dof);
+  A_A_t = compute_A_A_t();
   printf("\nInitial A_A_t beta = [%5.3f, %5.3f]:",
 	 A_A_t[x_][x_], A_A_t[y_][y_]);
-  prt_lin_map(3, A_A_t);
+  prt_lin_map(nd_tps, A_A_t);
 
-  A_A_t = M*tp_S(n_dof, M*A_A_t);
+  A_A_t = M*tp_S(2, M*A_A_t);
 
   printf("\nFinal A_A_t beta = [%5.3f, %5.3f]:",
 	 A_A_t[x_][x_], A_A_t[y_][y_]);
-  prt_lin_map(3, A_A_t);
+  prt_lin_map(nd_tps, A_A_t);
 
-  A_A_t = compute_A_A_t(n_dof);
+  A_A_t = compute_A_A_t();
   printf("\nInitial A_A_t beta = [%5.3f, %5.3f]:",
 	 A_A_t[x_][x_], A_A_t[y_][y_]);
-  prt_lin_map(3, A_A_t);
+  prt_lin_map(nd_tps, A_A_t);
 
   Cell_Pass(0, loc, A_A_t, lastpos);
-  A_A_t = tp_S(n_dof, A_A_t);
+  A_A_t = tp_S(2, A_A_t);
 
   Cell_Pass(0, loc, A_A_t, lastpos);
   printf("\nFinal A_A_t beta = [%5.3f, %5.3f]:",
 	 A_A_t[x_][x_], A_A_t[y_][y_]);
-  prt_lin_map(3, A_A_t);
+  prt_lin_map(nd_tps, A_A_t);
 }
 
 
-tps compute_twoJ(const int n_dof, const double eps[], const ss_vect<tps> &A_A_t)
+tps compute_twoJ(const double eps[], const ss_vect<tps> &A_A_t)
 {
   int          j, k;
   tps          twoJ;
   ss_vect<tps> Id, quad_form;
 
-  const ss_vect<tps> omega = get_S(n_dof);
+  const ss_vect<tps> omega = get_S(nd_tps);
 
   Id.identity();
 
-  quad_form = tp_S(n_dof, omega)*A_A_t*omega;
+  quad_form = tp_S(nd_tps, omega)*A_A_t*omega;
   twoJ = 0e0;
-  for (j = 0; j < 2*n_dof; j++)
-    for (k = 0; k < 2*n_dof; k++)
+  for (j = 0; j < 2*nd_tps; j++)
+    for (k = 0; k < 2*nd_tps; k++)
       twoJ += Id[j]*sqrt(eps[j/2])*quad_form[j][k]*sqrt(eps[k/2])*Id[k];
   return twoJ;
 }
@@ -1280,12 +1516,11 @@ void compute_Twiss(const tps &twoJ, double alpha[], double beta[])
 void tst_twoJ(void)
 {
   long int     lastpos;
-  int          k;
+  int          k, loc;
   double       alpha[2], beta[2];
   tps          twoJ;
   ss_vect<tps> Id, M, M_inv, A_A_t;
 
-  const int n_dof = 3,
 #if 0
     loc   = globval.Cell_nLoc;
 #else
@@ -1312,10 +1547,10 @@ void tst_twoJ(void)
 
   danot_(no_tps);
 
-  for (k = 0; k < n_dof; k++)
+  for (k = 0; k < nd_tps; k++)
     globval.eps[k] = 1e0;
 
-  twoJ = compute_twoJ(n_dof, globval.eps, compute_A_A_t(n_dof));
+  twoJ = compute_twoJ(globval.eps, compute_A_A_t());
   compute_Twiss(twoJ, alpha, beta);
   printf("\nInitial 2J alpha = [%5.3f, %5.3f] beta = [%5.3f, %5.3f]:\n",
 	 alpha[X_], alpha[Y_], beta[X_], beta[Y_]);
@@ -1333,7 +1568,8 @@ void tst_twoJ(void)
 int main(int argc, char *argv[])
 {
   long int    lastpos;
-  ss_vect<tps> M;
+  tps          h;
+  ss_vect<tps> Id, M, M_lin;
 
   globval.H_exact    = false; globval.quad_fringe    = false;
   globval.Cavity_on  = false; globval.radiation      = false;
@@ -1356,14 +1592,16 @@ int main(int argc, char *argv[])
     printglob();
   }
 
-  danot_(no_tps-1);
-
   if (false) {
+    danot_(no_tps-1);
+
     M.identity();
     Cell_Pass(0, globval.Cell_nLoc, M, lastpos);
     printf("\nM:");
     prt_lin_map(3, M);
     // cout << scientific << setprecision(3) << "\nM:\n" << M << "\n";
+
+    danot_(no_tps);
 
     MNF = MapNorm(M, no_tps);
     MNF.nus = dHdJ(MNF.K);
@@ -1388,6 +1626,34 @@ int main(int argc, char *argv[])
   if (false)
     tst_moment();
 
-  if (!false)
+  if (false)
     tst_twoJ();
+
+  if(false) {
+    danot_(no_tps);
+
+    M.identity();
+    Cell_Pass(0, globval.Cell_nLoc, M, lastpos);
+    printf("\nM:");
+    prt_lin_map(3, M);
+
+    Id.identity();
+    h = LieFact_DF(M, M_lin);
+    cout << LieExp_JB(h, Id)-LieExp(h, Id) << "\n";
+  }
+
+  if(!false) {
+    danot_(no_tps);
+
+    M.identity();
+    Cell_Pass(0, globval.Cell_nLoc, M, lastpos);
+    printf("\nM:");
+    prt_lin_map(3, M);
+
+    if (!true) {
+      cout << Dragt_Finn_fact(M, M_lin) << "\n";
+      cout << LieFact_DF(M, M_lin) << "\n";
+    } else
+      cout << Dragt_Finn_fact(M, M_lin)-LieFact_DF(M, M_lin) << "\n";
+  }
 }
