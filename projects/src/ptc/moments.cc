@@ -366,306 +366,6 @@ ss_vect<tps> get_map_Fl(ss_vect<tps> &map)
 }
 
 
-tps tps_compute_function
-(const tps &a, std::function<double (const long int [])> fun)
-{
-  // Dacfu in Forest's LieLib.
-  char     name[name_len_for+1];
-  int      k, n;
-  long int ibuf1[bufsize], ibuf2[bufsize], jj[nv_tps];
-  double   rbuf[bufsize];
-  tps      b;
-
-  a.exprt(rbuf, ibuf1, ibuf2, name);
-  n = rbuf[0];
-  for (k = 1; k <= n; k++) {
-    dehash_(no_tps, nv_tps, ibuf1[k-1], ibuf2[k-1], jj);
-    rbuf[k] *= fun(jj);
-  }
-  b.imprt(n, rbuf, ibuf1, ibuf2);
-  return b;
-}
-
-
-ss_vect<tps> difd_JB(const tps &h, const double scl)
-{
-  // Difd in Forest's LieLib:
-  // Compute vector flow operator from Lie operator :h:
-  //   :h: = v(i)*del_i, i = 1..6
-  int          k;
-  ss_vect<tps> v;
-
-  for (k = 0; k < nd_tps; k++) {
-    v[2*k+1] = Der(h, 2*k+1);
-    v[2*k] = scl*Der(h, 2*k+2);
-  }
-  return v;
-}
-
-
-tps LieFlo_JB(const ss_vect<tps> &h, const tps &x)
-{
-  // Daflo in Forest's LieLib.
-  //   y = h(i)*del_i x
-  int k;
-  tps b1, b2, b3, y;
-
-  for (k = 0; k < 2*nd_tps; k++) {
-    b2 = Der(x, k+1);
-    b3 = b2*h[k];
-    b2 = b3 + b1;
-    b1 = b2;
-  }
-  y = b1;
-  return y;
-}
-
-
-tps expflo_JB(const ss_vect<tps> &h, const tps &x, const double eps,
-	      const int n_max)
-{
-  // Expflo in Forest's LieLib.
-  int    k;
-  double eps0, eps1;
-  tps    b_k, b, y;
-
-  eps0 = 1e30;
-  b_k = b = x;
-  printf("\n");
-  for (k = 1; k <= n_max; k++) {
-    if (!false)
-      b_k = LieFlo(h, b_k/k);
-    else
-      b_k = LieFlo_JB(h, b_k/k);
-    b += b_k;
-    eps1 = abs(b_k);
-    printf("k = %d eps0 = %10.3e eps1 = %10.3e eps = %10.3e\n",
-	   k, eps0, eps1, eps_tps);
-    if (eps1 < eps)
-      break;
-    eps0 = eps1;
-  }
-  if (eps1 < eps)
-    return b;
-  else {
-    printf("\n*** expflo_JB: did not converge eps = %9.3e (eps = %9.3e)"
-	   " n_max = %1d\n", eps1, eps, n_max);
-    return NAN;
-  }
-}
-
-
-tps exp1d_JB(const tps &h, const tps &x, const double eps, const int n_max)
-{
-  // Exp1d in Forest's LieLib.
-  // Compute:
-  //   y = exp(:h:) x
-  tps          y;
-  ss_vect<tps> v;
-
-  v = difd_JB(h, -1e0);
-  y = expflo_JB(v, x, eps, n_max);
-  return y;
-}
-
-
-ss_vect<tps> expnd2_JB(const tps &h, const ss_vect<tps> &x, const double eps,
-		       const int n_max)
-{
-  // Expnd2 in Forest's LieLib.
-  // Compute:
-  //   Y = exp(:h:) X
-  int          k;
-  ss_vect<tps> y;
-
-  y = x;
-  for (k = 0; k < 2*nd_tps; k++)
-    if (false)
-      y[k] = LieExp(h, y[k]);
-    else
-      y[k] = exp1d_JB(h, y[k], eps, n_max);
-  return y;
-}
-
-
-ss_vect<tps> LieExp_JB(const tps &h, const ss_vect<tps> &x)
-{
-  return expnd2_JB(h, x, eps_tps, 5);
-}
-
-
-double f_lie_exp(const long int jj[])
-{
-  int    k;
-  double f_lie_exp;
-
- f_lie_exp = 0e0;
- for (k = 0; k < nd_tps; k++)
-    f_lie_exp += jj[2*k] + jj[2*k+1];
-  f_lie_exp += 1e0;
-  f_lie_exp = 1e0/f_lie_exp;
-  return f_lie_exp;
-}
-
-
-tps compute_Lie_exp(const ss_vect<tps> &map, const double scl)
-{
-  // Intd in Forest's LieLib.
-  // E. Forest, M. Berz, J. Irwin "Normal Form Methods for Complicated
-  // Periodic Systems: A Complete Solution Using Differential Algebra and Lie
-  // Operators" Part. Accel. 24, 91-107 (1989):
-  //   Eqs. (34)-(37).
-  int          k;
-  tps          a1, a2, h;
-  ss_vect<tps> Id;
-
-  Id.identity();
-  h = 0e0;
-  for (k = 0; k < nd_tps; k++) {
-    a2 = tps_compute_function(map[2*k], f_lie_exp);
-    a1 = tps_compute_function(map[2*k+1], f_lie_exp);
-    h += scl*a2*Id[2*k+1] + a1*Id[2*k];
-  }
-  return h;
-}
-
-
-ss_vect<tps> compute_Dragt_Finn_Map
-(const tps &h, const ss_vect<tps> &map, const int k1, const int k2,
- const int reverse)
-{
-  // Fexpo in Forest's LieLib.
-  // Compute map from Dragt-Finn factorisation:
-  // not reverse:
-  //   exp(:h_3:) exp(:h_4:) ... exp(:h_no:)
-  // reverse:
-  //   exp(:h_no:) exp(:h_no-1:) ... exp(:h_3:)
-  int          k;
-  tps          h_k;
-  ss_vect<tps> map1;
-
-  map1.identity();
-  for (k = k2; k >= k1; k--) {
-    h_k = get_h_k(h, k);
-    if (!reverse)
-      map1 = map1*LieExp_JB(h_k, map);
-    else
-      map1 = LieExp_JB(h_k, map)*map1;
-  }
-  return map1;
-}
-
-tps facflo_JB(const ss_vect<tps> &h, const tps &x, const int k1, const int k2,
-	      const double sca, const int ifac)
-{
-  int          k;
-  tps          v, b01, w;
-  ss_vect<tps> bm, b0;
-
-  const int    n_max = 100; 
-  const double eps   = -1e0;
-
-  v = x;
-
-  if (ifac == 1) {
-    for (k = k2; k >= k1; k--) {
-      b0 = get_map_k(h, k);
-      bm = sca*b0;
-      b01 = expflo_JB(bm, v, eps_tps, n_max);
-      v = b01;
-    }
-  } else if (ifac == -1) {
-    for (k = k1; k <= k2; k++) {
-      b0 = get_map_k(h, k);
-      bm = sca*b0;
-      b01 = expflo_JB(bm, v, eps_tps, n_max);
-      v = b01;
-    }
-  } else {
-    printf("\n*** facflo_JB: undef. ifac = %1d\n", ifac);
-    exit(1);
-  }
-  w = v;
-  return w;
-}
-
-
-ss_vect<tps>facflod_JB
-(const ss_vect<tps> &h, const ss_vect<tps>  &x, const int k1, const int k2,
- const double sca, const int ifac)
-{
-  int          i;
-  ss_vect<tps> w;
-
-  for (i = 0; i < 2*nd_tps; i++)
-    w[i] = facflo_JB(h, x[i], k1, k2, sca, ifac);
-  return w;
-}
-
-
-ss_vect<tps>flofac_JB
-(const ss_vect<tps> &xy, ss_vect<tps> &x)
-{
-  int          k;
-  ss_vect<tps> v, w, h;
-
-  x = get_map_k(xy, 1);
-  v = xy*Inv(x);
-  h.zero();
-  w = v;
-  for (k = 2; k <= no_tps; k++) {
-    v = get_map_k(w, k);
-    h = v + h;
-    v = facflod_JB(h, w, k, k, -1e0, -1);
-    w = v;
-  }
-  return h;
-}
-
-
-tps Dragt_Finn_fact(const ss_vect<tps> &xy, ss_vect<tps> &x)
-{
-  // Liefact in Forest's LieLib.
-  // A. Dragt, J. Finn "Lie Series and Invariant Functions for Analytic
-  // Symplectic maps" J. Math. Phys. 17, 2215-2227 (1976).
-  // Dragt-Finn factorization:
-  //   M = exp(:h_no:) exp(:h_no-1:)... exp(:h_4:) exp(:h_3:) M_lin
-
-  tps          h;
-  ss_vect<tps> v;
-
-  v = flofac_JB(xy, x);
-  h = compute_Lie_exp(v, -1e0);
-  return h;
-}
-
-
-tps Dragt_Finn_fact2(const ss_vect<tps> &map, ss_vect<tps> &map_lin)
-{
-  // Liefact in Forest's LieLib.
-  // A. Dragt, J. Finn "Lie Series and Invariant Functions for Analytic
-  // Symplectic maps" J. Math. Phys. 17, 2215-2227 (1976).
-  // Dragt-Finn factorization:
-  //   M = exp(:h_no:) exp(:h_no-1:)... exp(:h_4:) exp(:h_3:) M_lin
-
-  int          k;
-  tps          h, h_k;
-  ss_vect<tps> Id, map_km1, map1;
-
-  Id.identity();
-  map_lin = get_map_k(map, 1);
-  map1 = map*Inv(map_lin);
-  h = 0e0;
-  for (k = 3; k <= no_tps; k++) {
-    map_km1 = get_map_k(map1, k-1);
-    h_k = compute_Lie_exp(map_km1, -1e0);
-    h += h_k;
-    map1 = map1*compute_Dragt_Finn_Map(-h_k, Id, k, k, true);
-  }
-  return h;
-}
-
-
 tps get_Ker(const tps &h)
 {
   int          i, j, k;
@@ -790,7 +490,7 @@ ss_vect<tps> compute_map_normal_form(ss_vect<tps> &map)
   for (k = 3; k <= no_tps; k++) {
     n = pow(2, k-3);
 
-    map2 = map1*Inv(R*compute_Dragt_Finn_Map(K, Id, 3, k-1, true));
+    map2 = map1*Inv(R*FExpo(K, Id, 3, k-1, true));
     h_k =
       Intd(get_map_k(map2, k-1), -1e0);
     g_k = get_g(nu0[X_], nu0[Y_], h_k);
@@ -800,7 +500,7 @@ ss_vect<tps> compute_map_normal_form(ss_vect<tps> &map)
     K += K_k;
 //    cout << endl << "k = " << k << h_k_re;
 
-    A = compute_Dragt_Finn_Map(g_k, Id, k, k, true);
+    A = FExpo(g_k, Id, k, k, true);
     map1 = Inv(A)*map1*A;
   }
 
@@ -822,13 +522,13 @@ ss_vect<tps> compute_map_normal_form(ss_vect<tps> &map)
 
 ss_vect<tps> get_A_nl(const tps g)
 {
-  return compute_Dragt_Finn_Map(g, Id(), 3, no_tps, true);
+  return FExpo(g, Id(), 3, no_tps, true);
 }
 
 
 ss_vect<tps> get_A_nl_inv(const tps g)
 {
-  return compute_Dragt_Finn_Map(-g, Id(), 3, no_tps, false);
+  return FExpo(-g, Id(), 3, no_tps, false);
 }
 
 
@@ -1239,6 +939,27 @@ double f_p_k_cmplx_sgn_corr(const long int jj[])
 }
 
 
+tps tps_compute_function
+(const tps &a, std::function<double (const long int [])> fun)
+{
+  // Dacfu in Forest's LieLib.
+  char     name[name_len_for+1];
+  int      k, n;
+  long int ibuf1[bufsize], ibuf2[bufsize], jj[nv_tps];
+  double   rbuf[bufsize];
+  tps      b;
+
+  a.exprt(rbuf, ibuf1, ibuf2, name);
+  n = rbuf[0];
+  for (k = 1; k <= n; k++) {
+    dehash_(no_tps, nv_tps, ibuf1[k-1], ibuf2[k-1], jj);
+    rbuf[k] *= fun(jj);
+  }
+  b.imprt(n, rbuf, ibuf1, ibuf2);
+  return b;
+}
+
+
 ctps p_k_cmplx_sgn_corr(const ctps &a)
 {
   return
@@ -1628,32 +1349,4 @@ int main(int argc, char *argv[])
 
   if (false)
     tst_twoJ();
-
-  if(false) {
-    danot_(no_tps);
-
-    M.identity();
-    Cell_Pass(0, globval.Cell_nLoc, M, lastpos);
-    printf("\nM:");
-    prt_lin_map(3, M);
-
-    Id.identity();
-    h = LieFact_DF(M, M_lin);
-    cout << LieExp_JB(h, Id)-LieExp(h, Id) << "\n";
-  }
-
-  if(!false) {
-    danot_(no_tps);
-
-    M.identity();
-    Cell_Pass(0, globval.Cell_nLoc, M, lastpos);
-    printf("\nM:");
-    prt_lin_map(3, M);
-
-    if (!true) {
-      cout << Dragt_Finn_fact(M, M_lin) << "\n";
-      cout << LieFact_DF(M, M_lin) << "\n";
-    } else
-      cout << Dragt_Finn_fact(M, M_lin)-LieFact_DF(M, M_lin) << "\n";
-  }
 }
