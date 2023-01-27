@@ -244,7 +244,7 @@ tps M_to_h_DF(const ss_vect<tps> &map)
 }
 
 
-ss_vect<tps> h_DF_M
+ss_vect<tps> h_DF_to_M
 (const tps &Lie_DF_gen, const ss_vect<tps> &x, const int k1, const int k2,
  const bool reverse)
 {
@@ -275,8 +275,8 @@ ss_vect<tps> h_DF_M
 int main(int argc, char *argv[])
 {
   long int    lastpos;
-  tps          h;
-  ss_vect<tps> Id, M, M_lin;
+  tps          h, h_re, h_im, h_DF;
+  ss_vect<tps> Id, M, M2, M_lin;
 
   globval.H_exact    = false; globval.quad_fringe    = false;
   globval.Cavity_on  = false; globval.radiation      = false;
@@ -293,6 +293,8 @@ int main(int argc, char *argv[])
   else
     rdmfile(argv[1]);
 
+  Id.identity();
+
   if (!false) {
     danot_(1);
     Ring_GetTwiss(true, 0e0);
@@ -307,12 +309,11 @@ int main(int argc, char *argv[])
     printf("\nM:");
     prt_lin_map(3, M);
 
-    Id.identity();
     h = LieFact_DF(M, M_lin);
     cout << exp_h_to_M(h, Id, eps_tps, 100)-LieExp(h, Id) << "\n";
   }
 
-  if(!false) {
+  if(false) {
     danot_(no_tps);
 
     M.identity();
@@ -321,5 +322,28 @@ int main(int argc, char *argv[])
     prt_lin_map(3, M);
 
     cout << M_to_h_DF(M)-LieFact_DF(M, M_lin) << "\n";
+  }
+
+  if(!false) {
+    danot_(no_tps-1);
+
+    M.identity();
+    Cell_Pass(0, globval.Cell_nLoc, M, lastpos);
+    printf("\nM:");
+    prt_lin_map(3, M);
+
+    danot_(no_tps);
+
+    M_lin = get_M_k(M, 1);
+    prt_lin_map(3, M_lin);
+
+    h_DF = M_to_h_DF(M);
+    cout << "\nh_DF:\n" << h_DF << "\n";
+
+    M2 = h_DF_to_M(h_DF, Id, 3, no_tps, false)*M_lin;
+    
+    danot_(no_tps-1);
+
+    cout << "\nh_M2-M:\n" << M2-M << "\n";
   }
 }
