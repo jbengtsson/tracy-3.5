@@ -1146,13 +1146,14 @@
       integer nd,nd2,no,nv
       common /ii/no,nv,nd,nd2
       integer b1,h
-      call etall1(b1)
-      call etall1(h)
+!     J.B. 01/02/23: Changed etall1 to etallnom1.
+      call etallnom1(b1, 'B1        ')
+      call etallnom1(h, 'H         ')
       call dacop(h1,h)
       do i=1,nd
         call dader(2*i-1,h,v(2*i))
         call dader(2*i,h,b1)
-        call   dacmu(b1,sca,v(2*i-1))
+        call dacmu(b1,sca,v(2*i-1))
       enddo
       call dadal1(h)
       call dadal1(b1)
