@@ -1,4 +1,4 @@
-#define NO 3
+#define NO 6
 
 #include "tracy_lib.h"
 
@@ -198,6 +198,35 @@ ss_vect<tps>M_to_M_fact(const ss_vect<tps> &map)
   // Factor map:
   //   M = M_2 ... * M_n
   int          j, k;
+  tps          y;
+  ss_vect<tps> map_lin, v_k, map_res, map_fact;
+
+  const int n_max = 100; 
+
+  map_lin = get_M_k(map, 1);
+  map_res = map*Inv(map_lin);
+  map_fact.zero();
+  for (k = 2; k <= no_tps; k++) {
+    map_fact += get_M_k(map_res, k);
+    // Loop over phase-space dimensions.
+    for (j = 0; j < 2*nd_tps; j++) {
+      y = map_res[j];
+      v_k = get_M_k(-map_fact, k);
+      y = exp_v_to_tps(v_k, y, eps_tps, n_max);
+      map_res[j] = y;
+    }
+  }
+  return map_fact;
+}
+
+
+ss_vect<tps>M_to_M_fact2(const ss_vect<tps> &map)
+{
+  // Obsolete.
+  // Flofac in Forest's F77 LieLib.
+  // Factor map:
+  //   M = M_2 ... * M_n
+  int          j, k;
   ss_vect<tps> map_lin, map_res, map_fact;
 
   map_lin = get_M_k(map, 1);
@@ -322,7 +351,7 @@ int main(int argc, char *argv[])
     cout << exp_h_to_M(h_DF, Id, eps_tps, 100)-LieExp(h_DF, Id) << "\n";
   }
 
-  if(false) {
+  if(!false) {
     danot_(no_tps);
 
     M.identity();
@@ -333,7 +362,7 @@ int main(int argc, char *argv[])
     cout << M_to_h_DF(M)-LieFact_DF(M, M_lin) << "\n";
   }
 
-  if(!false) {
+  if(false) {
     danot_(no_tps-1);
 
     M.identity();
