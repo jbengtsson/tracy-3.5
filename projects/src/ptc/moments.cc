@@ -1,13 +1,34 @@
-#define NO 5
+#define NO 2
 
 #include "tracy_lib.h"
 
 
-// F. Klein's Erlangen Program.
-
-
 int no_tps   = NO,
     ndpt_tps = 5;
+
+
+class MomentType {
+private:
+  double       q;     // Charge.
+public:
+  ss_vect<tps> Sigma; // Statistical moments for charge distribution.
+
+  void propagate_cavity(void);
+  void propagate_lat(void);
+};
+
+  
+void  MomentType::propagate_cavity(void)
+{
+}
+
+
+void  MomentType::propagate_lat(void)
+{
+  long int lastpos;
+
+  Cell_Pass(0, globval.Cell_nLoc, Sigma, lastpos);
+}
 
 
 void compute_C_S_long(double &alpha_z, double &beta_z)
@@ -43,6 +64,45 @@ ss_vect<tps> compute_A_A_t(void)
   }
 
   return A_A_t;
+}
+
+
+tps compute_twoJ(const double eps[], const ss_vect<tps> &A_A_t)
+{
+  int          j, k;
+  tps          twoJ;
+  ss_vect<tps> Id, quad_form;
+
+  const ss_vect<tps> omega = get_S(nd_tps);
+
+  Id.identity();
+
+  quad_form = tp_S(nd_tps, omega)*A_A_t*omega;
+  twoJ = 0e0;
+  for (j = 0; j < 2*nd_tps; j++)
+    for (k = 0; k < 2*nd_tps; k++)
+      twoJ += Id[j]*sqrt(eps[j/2])*quad_form[j][k]*sqrt(eps[k/2])*Id[k];
+  return twoJ;
+}
+
+
+void compute_Twiss(const tps &twoJ, double alpha[], double beta[])
+{
+  long int jj[ss_dim];
+  int      k;
+
+  for (k = 0; k < ss_dim; k++)
+    jj[k] = 0;
+  for (k = 0; k < 2; k++) {
+    jj[2*k]   = 1;
+    jj[2*k+1] = 1;
+    alpha[k] = twoJ[jj]/2e0;
+    jj[2*k]   = 0;
+    jj[2*k+1] = 0;
+    jj[2*k+1] = 2;
+    beta[k] = twoJ[jj];
+    jj[2*k+1] = 0;
+  }
 }
 
 
@@ -100,47 +160,10 @@ void tst_moment(void)
 }
 
 
-tps compute_twoJ(const double eps[], const ss_vect<tps> &A_A_t)
-{
-  int          j, k;
-  tps          twoJ;
-  ss_vect<tps> Id, quad_form;
-
-  const ss_vect<tps> omega = get_S(nd_tps);
-
-  Id.identity();
-
-  quad_form = tp_S(nd_tps, omega)*A_A_t*omega;
-  twoJ = 0e0;
-  for (j = 0; j < 2*nd_tps; j++)
-    for (k = 0; k < 2*nd_tps; k++)
-      twoJ += Id[j]*sqrt(eps[j/2])*quad_form[j][k]*sqrt(eps[k/2])*Id[k];
-  return twoJ;
-}
-
-
-void compute_Twiss(const tps &twoJ, double alpha[], double beta[])
-{
-  long int jj[ss_dim];
-  int      k;
-
-  for (k = 0; k < ss_dim; k++)
-    jj[k] = 0;
-  for (k = 0; k < 2; k++) {
-    jj[2*k]   = 1;
-    jj[2*k+1] = 1;
-    alpha[k] = twoJ[jj]/2e0;
-    jj[2*k]   = 0;
-    jj[2*k+1] = 0;
-    jj[2*k+1] = 2;
-    beta[k] = twoJ[jj];
-    jj[2*k+1] = 0;
-  }
-}
-
-
 int main(int argc, char *argv[])
 {
+  double alpha[2], beta[2], dnu[2], eta[2], etap[2];
+  MomentType m;
 
   globval.H_exact    = false; globval.quad_fringe    = false;
   globval.Cavity_on  = false; globval.radiation      = false;
@@ -163,5 +186,20 @@ int main(int argc, char *argv[])
     printglob();
   }
 
-  tst_moment();
+  if (false)
+    tst_moment();
+
+  if (!false) {
+    m.Sigma = putlinmat(6, globval.Ascr);
+    prt_lin_map(3, m.Sigma);
+    get_ab(m.Sigma, alpha, beta, dnu, eta, etap);
+    printf("\n  alpha = [%5.3f, %5.3f] beta = [%5.3f, %5.3f]\n",
+	   alpha[X_], alpha[Y_], beta[X_], beta[Y_]);
+
+    m.propagate_lat();
+    prt_lin_map(3, m.Sigma);
+    prt_lin_map(3, get_A_CS(3, m.Sigma, dnu));
+    printf("\n  alpha = [%5.3f, %5.3f] beta = [%5.3f, %5.3f]\n",
+	   alpha[X_], alpha[Y_], beta[X_], beta[Y_]);
+  }
 }
