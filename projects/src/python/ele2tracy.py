@@ -7,6 +7,8 @@ import sys
 # Module to translate from ELEGANT to Tracy-2,3 lattice.
 
 
+debug = False
+
 def get_index(tokens, token):
     return tokens.index(token) if token in tokens else None
 
@@ -234,6 +236,8 @@ def parse_definition(line, tokens, decls):
 
 def parse_line(line, outf, decls):
     line_lc = line.lower()
+    if debug:
+        print(line_lc)
     if not line_lc.rstrip():
         # Blank line.
         outf.write('\n')
