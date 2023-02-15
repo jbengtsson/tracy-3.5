@@ -1,10 +1,9 @@
-#define NO 2
+#define NO 1
 
 #include "tracy_lib.h"
 
 
-int no_tps   = NO,
-    ndpt_tps = 5;
+int no_tps = NO;
 
 
 class MomentType {
@@ -13,13 +12,20 @@ private:
 public:
   ss_vect<tps> Sigma; // Statistical moments for charge distribution.
 
-  void propagate_cavity(void);
+  void propagate_cav(void);
   void propagate_lat(void);
+  void propagate(void);
 };
 
   
-void  MomentType::propagate_cavity(void)
+void  MomentType::propagate_cav(void)
 {
+  long int lastpos;
+
+  const int loc = globval.Cell_nLoc;
+
+  printf("\n  From: %10s\n", Cell[loc].Elem.PName);
+  Cell_Pass(loc, loc, Sigma, lastpos);
 }
 
 
@@ -27,7 +33,18 @@ void  MomentType::propagate_lat(void)
 {
   long int lastpos;
 
-  Cell_Pass(0, globval.Cell_nLoc, Sigma, lastpos);
+  printf("\n  From: %10s\n  To:   %10s\n", Cell[0].Elem.PName,
+	 Cell[globval.Cell_nLoc-1].Elem.PName);
+  Cell_Pass(0, globval.Cell_nLoc-1, Sigma, lastpos);
+}
+
+
+void  MomentType::propagate(void)
+{
+  // Assumes that the RF cavity is at the end of the lattice.
+
+  this->propagate_lat();
+  this->propagate_cav();
 }
 
 
@@ -122,12 +139,8 @@ void tst_moment(void)
   globval.Cavity_on = !false;
   globval.radiation = !false;
 
-  danot_(1);
-
   Ring_GetTwiss(true, 0e0);
   printglob();
-
-  danot_(no_tps-1);
 
   M.identity();
   Cell_Pass(0, loc, M, lastpos);
@@ -162,7 +175,7 @@ void tst_moment(void)
 
 int main(int argc, char *argv[])
 {
-  double alpha[2], beta[2], dnu[2], eta[2], etap[2];
+  double     alpha[2], beta[2], dnu[2], eta[2], etap[2];
   MomentType m;
 
   globval.H_exact    = false; globval.quad_fringe    = false;
@@ -172,16 +185,12 @@ int main(int argc, char *argv[])
   globval.Cart_Bend  = false; globval.dip_edge_fudge = true;
   globval.mat_meth   = false;
 
-  // disable from TPSALib- and LieLib log messages
-  idprset_(-1);
-
-  if (false)
+  if (true)
     Read_Lattice(argv[1]);
   else
     rdmfile(argv[1]);
 
   if (!false) {
-    danot_(1);
     Ring_GetTwiss(true, 0e0);
     printglob();
   }
@@ -191,14 +200,15 @@ int main(int argc, char *argv[])
 
   if (!false) {
     m.Sigma = putlinmat(6, globval.Ascr);
-    prt_lin_map(3, m.Sigma);
+    prt_lin_map(3, get_A_CS(2, m.Sigma, dnu));
     get_ab(m.Sigma, alpha, beta, dnu, eta, etap);
     printf("\n  alpha = [%5.3f, %5.3f] beta = [%5.3f, %5.3f]\n",
 	   alpha[X_], alpha[Y_], beta[X_], beta[Y_]);
 
-    m.propagate_lat();
-    prt_lin_map(3, m.Sigma);
-    prt_lin_map(3, get_A_CS(3, m.Sigma, dnu));
+    m.propagate();
+
+    prt_lin_map(3, get_A_CS(2, m.Sigma, dnu));
+    get_ab(m.Sigma, alpha, beta, dnu, eta, etap);
     printf("\n  alpha = [%5.3f, %5.3f] beta = [%5.3f, %5.3f]\n",
 	   alpha[X_], alpha[Y_], beta[X_], beta[Y_]);
   }
