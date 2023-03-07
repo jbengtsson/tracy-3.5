@@ -85,6 +85,7 @@ public:
   void set_file_name(const string &file_name);
   ss_vect<double> compute_eps(const PoincareMapType &map) const;
   void prt_eps(const int n, const PoincareMapType &map) const;
+  void prt_beam(const int n, const PoincareMapType &map) const;
   void prt_sigma(const PoincareMapType &map);
   void init_sigma(const double eps_x, const double eps_y, const double sigma_s,
 		  const double sigma_delta, const PoincareMapType &map);
@@ -357,12 +358,12 @@ void PoincareMapType::propagate(const int n, BeamType &beam)
   for (k = 1; k <= n; k++) {
     compute_stochastic_part(X, X_map);
     // Average of stochastic term is zero.
-    beam.mean = (M*beam.mean).cst() + 0*(M_Chol_t*X).cst();
+    beam.mean = (M*beam.mean).cst() + (M_Chol_t*X).cst();
     beam.sigma = M*tp_map(n_dof, M*beam.sigma) + M_Chol_t*sqr(X_map)*M_Chol;
 
     propagate_rf_cav_hom(beam);
 
-    beam.prt_eps(k, *this);
+    beam.prt_beam(k, *this);
   }
 }
 
@@ -388,7 +389,7 @@ void PoincareMapType::set_rf_cav_hom
 
 void PoincareMapType::propagate_rf_cav_hom(BeamType &beam)
 {
-  if (!false)
+  if (false)
     cout << "propagate_rf_cav_hom: V = " << cav_ptr->HOM_V_trans[0] << "\n";
 }
 
@@ -425,6 +426,17 @@ void BeamType::prt_eps(const int n, const PoincareMapType &map) const
 }
 
 
+void BeamType::prt_beam(const int n, const PoincareMapType &map) const
+{
+  fprintf(outf, "%7d", n);
+  for (int k = 0; k < 2*map.n_dof; k++)
+    fprintf(outf, "%13.5e", mean[k]);
+  for (int k = 0; k < 2*map.n_dof; k++)
+    fprintf(outf, "%13.5e", sqrt(sigma[k][k]));
+  fprintf(outf, "\n");
+}
+
+
 void BeamType::prt_sigma(const PoincareMapType &map)
 {
   ss_vect<double> eps;
@@ -445,6 +457,8 @@ void BeamType::init_sigma
 {
   const double eps0[] = {eps_x, eps_y};
 
+  mean.zero();
+
   sigma.zero();
   for (int k = 0; k < 4; k++)
     sigma[k] += eps0[k/2]*tps(0e0, k+1);
@@ -454,7 +468,8 @@ void BeamType::init_sigma
 }
 
 
-void track(void)
+void track(const int n, const double eps[], const double sigma_s,
+	   const double sigma_delta)
 {
   PoincareMapType map;
   BeamType        beam;
@@ -462,12 +477,7 @@ void track(void)
   const string
     file_name = "wakefield.out";
   const int
-    n_dof       = 3,
-    n           = 30000;
-  const double
-    eps0[]      = {0e-9, 0.2e-9, 0e-3},
-    sigma_s     = 0e0,
-    sigma_delta = 1e-3;
+    n_dof     = 3;
 
   map.set_params(n_dof, Cell[globval.Cell_nLoc].S);
   map.compute_maps();
@@ -475,7 +485,7 @@ void track(void)
 
   beam.set_file_name(file_name);
 
-  beam.init_sigma(eps0[X_], eps0[Y_], sigma_s, sigma_delta, map);
+  beam.init_sigma(eps[X_], eps[Y_], sigma_s, sigma_delta, map);
 
   map.propagate(n, beam);
 
@@ -500,6 +510,8 @@ void set_lat_state(void)
 
 int main(int argc, char *argv[])
 {
+  double gamma_z, sigma_s, sigma_delta;
+
   reverse_elem     = true;
   globval.mat_meth = false;
 
@@ -513,5 +525,16 @@ int main(int argc, char *argv[])
   Ring_GetTwiss(true, 0e0);
   printglob();
 
-  track();
+  GetEmittance(ElemIndex("cav"), true);
+  gamma_z     = (1e0+sqr(globval.alpha_z))/globval.beta_z;
+  sigma_s     = sqrt(globval.beta_z*globval.eps[Z_]);
+  sigma_delta = sqrt(gamma_z*globval.eps[Z_]);
+  printf("\nsigma_x [microns] = %5.3f\n",
+	 1e6*sqrt(Cell[0].Beta[X_]*globval.eps[X_]));
+  printf("sigma_y [microns] = %5.3f\n",
+	 1e6*sqrt(Cell[0].Beta[Y_]*globval.eps[Y_]));
+  printf("sigma_s [ps]      = %5.3f\n", 1e12*sigma_s/c0);
+  printf("sigma_delta       = %9.3e\n", sigma_delta);
+
+  track(50000, globval.eps, sigma_s, sigma_delta);
 }
