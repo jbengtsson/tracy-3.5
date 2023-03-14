@@ -102,7 +102,7 @@ void chk_cod_corr(const double dx_rms, const double dy_rms, const int seed,
 
   config_cod(prms);
 
-  get_cod_rms(dxy_rms, n_seed, true);
+  get_cod_rms(dxy_rms, n_seed, !true);
 }
 
 
