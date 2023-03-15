@@ -211,16 +211,16 @@ ss_vect<tps> tp_map(const int n_dof, const ss_vect<tps> &A)
 }
 
 
-ss_vect<tps> compute_M(const ss_vect<double> fixed_point)
+ss_vect<tps> compute_M(const ss_vect<double> fix_point)
 {
-  // Compute the Poincaré map for the fixed point.
+  // Compute the Poincaré map for the fix point.
   long int lastpos;
   ss_vect<tps> M;
 
   M.identity();
-  M += fixed_point;
+  M += fix_point;
   Cell_Pass(0, globval.Cell_nLoc, M, lastpos);
-  M -= fixed_point;
+  M -= fix_point;
   return M;
 }
 
@@ -268,7 +268,7 @@ void compute_tau(const double alpha_rad[], double tau[])
 
 
 void compute_D
-(const ss_vect<double> &fixed_point, const ss_vect<tps> &A, double D[])
+(const ss_vect<double> &fix_point, const ss_vect<tps> &A, double D[])
 {
   // Compute the diffusion coefficients.
 
@@ -279,7 +279,7 @@ void compute_D
 
   globval.Cavity_on = globval.radiation = globval.emittance = true;
 
-  As = A + fixed_point;
+  As = A + fix_point;
   Cell_Pass(0, globval.Cell_nLoc, As, lastpos);
 
   globval.emittance = false;
@@ -380,6 +380,8 @@ ss_vect<tps> compute_M_Chol_t(const ss_vect<tps> &M_diff)
 void compute_maps
 (ss_vect<tps> &M, ss_vect<tps> &M_Chol, ss_vect<tps> &M_Chol_t)
 {
+  int k;
+
   const int n_dof = 3;
 
   long int
@@ -388,7 +390,7 @@ void compute_maps
     dnu[n_dof], alpha_rad[n_dof], tau[n_dof], D[n_dof], eps[n_dof],
     sigma_s, sigma_delta;
   ss_vect<double>
-    fixed_point;
+    fix_point;
   ss_vect<tps>
     M_t, R, A, A_t, A_inv, A_t_inv, M_diff;
 
@@ -396,10 +398,16 @@ void compute_maps
   globval.Cavity_on = true;
 
   getcod(0e0, lastpos);
-  fixed_point = globval.CODvect;
-  prt_vec(n_dof, "\nFixed Point:", fixed_point);
+  fix_point = globval.CODvect;
+  printf("\nFix point:");
+  for (k = 0; k < 6; k++)
+    if (k != ct_)
+      printf(" %10.3e", globval.CODvect[k]);
+    else
+      printf(" %10.3e", globval.CODvect[k]/c0);
+  printf("\n");
 
-  M = compute_M(fixed_point);
+  M = compute_M(fix_point);
   M_t = tp_map(n_dof, M);
   prt_map(n_dof, "\nM:", M);
 
@@ -411,18 +419,22 @@ void compute_maps
   A_t_inv = Inv(A_t);
 
   prt_map(n_dof, "\nA:", A);
-  printf("\ntau [msec]   = [%5.3f, %5.3f, %5.3f]\n",
+  printf("\ntau [msec]          = [%5.3f, %5.3f, %5.3f]\n",
 	 1e3*tau[X_], 1e3*tau[Y_], 1e3*tau[Z_]);
 
-  compute_D(fixed_point, A, D);
+  compute_D(fix_point, A, D);
   compute_eps(tau, D, eps);
   compute_bunch_size(A, eps, sigma_s, sigma_delta);
   M_diff = compute_M_diff(A, D);
 
-  printf("D            = [%9.3e, %9.3e, %9.3e]\n", D[X_], D[Y_], D[Z_]);
-  printf("eps          = [%9.3e, %9.3e, %9.3e]\n", eps[X_], eps[Y_], eps[Z_]);
-  printf("sigma_s [mm] = %5.3f\n", 1e3*sigma_s);
-  printf("sigma_delta  = %9.3e\n", sigma_delta);
+  printf("D                   = [%9.3e, %9.3e, %9.3e]\n", D[X_], D[Y_], D[Z_]);
+  printf("eps                 = [%9.3e, %9.3e, %9.3e]\n",
+	 eps[X_], eps[Y_], eps[Z_]);
+  printf("sigma_x [micro m]   = %5.3f\n", 1e6*sqrt(eps[X_]*Cell[0].Beta[X_]));
+  printf("sigma_x'[micro rad] = %5.3f\n",
+	 1e6*sqrt(eps[X_]*(1e0+sqr(Cell[0].Alpha[X_]))/Cell[0].Beta[X_]));
+  printf("sigma_t [ps]        = %5.3f\n", 1e12*sigma_s/c0);
+  printf("sigma_delta         = %9.3e\n", sigma_delta);
   prt_map(n_dof, "\nDiffusion Matrix:", M_diff);
 
   M_Chol_t = compute_M_Chol_t(M_diff);
@@ -460,24 +472,73 @@ void propagate_rad(ss_vect<double> &ps, ss_vect<tps> &M_Chol_t)
 }
 
 
+void compute_sigma(void)
+{
+  const int ps_dim = 6;
+
+  int             k, n;
+  double          sum[ps_dim], sum_sqr[ps_dim], mean[ps_dim], sigma[ps_dim];
+  string          line;
+  ss_vect<double> ps;
+  stringstream    str;
+  ifstream        inf;
+
+  const bool   prt       = false;
+  const string file_name = "moments.out";
+
+  inf.open(file_name.c_str());
+
+  for (k = 0; k < ps_dim; k++) {
+    sum[k] = 0e0;
+    sum_sqr[k] = 0e0;
+  }
+  while (getline(inf, line)) {
+    str.clear();
+    str.str("");
+    str << line;
+    str >> n;
+    for (k = 0; k < ps_dim; k++) {
+      str >> ps[k];
+      sum[k] += ps[k];
+      sum_sqr[k] += sqr(ps[k]);
+    }
+    if (prt)
+      cout << scientific << setprecision(3)
+	   << setw(3) << n << setw(11) << ps << "\n";
+  }
+  for (k = 0; k < ps_dim; k++) {
+    mean[k] = sum[k]/n;
+    sigma[k] = sqrt((n*sum_sqr[k]-sqr(mean[k]))/(n*(n-1)));
+  }
+  printf("\nx [micro m]  = %10.3e +/- %9.3e\n", 1e6*mean[x_], 1e6*sigma[x_]);
+  printf("delta        = %10.3e +/- %9.3e\n",
+	 mean[delta_], sigma[delta_]);
+  printf("s [pico sec] = %10.3e +/- %9.3e\n",
+	 1e12*mean[ct_]/c0, 1e12*sigma[ct_]/c0);
+}
+
+
 void set_HOM
-(const string &name, const double f, const double Q, const double R_s)
+(const string &name, const double beta_RF, const double f, const double R_s,
+ const double Q)
 {
   const long int loc = Elem_GetPos(ElemIndex(name.c_str()), 1);
 
+  Cell[loc].Elem.C->beta_RF = beta_RF;
   Cell[loc].Elem.C->HOM_f_long.push_back(f);
-  Cell[loc].Elem.C->HOM_Q_long.push_back(Q);
   Cell[loc].Elem.C->HOM_Z_long.push_back(R_s);
+  Cell[loc].Elem.C->HOM_Q_long.push_back(Q);
   Cell[loc].Elem.C->HOM_V_long.push_back(0e0);
 }
 
 
-void prt_HOM(const string &name)
+void prt_HOM(const int n, const string &name)
 {
   const long int
     loc = Elem_GetPos(ElemIndex(name.c_str()), 1);
 
-  printf("  U = %22.15e %22.15e %22.15e\n",
+  printf("%3d", n);
+  printf("  %22.15e %22.15e %22.15e\n",
 	 abs(Cell[loc].Elem.C->HOM_V_long[0]),
 	 arg(Cell[loc].Elem.C->HOM_V_long[0]),
 	 real(Cell[loc].Elem.C->HOM_V_long[0]));
@@ -490,7 +551,7 @@ void prt_ps(FILE *outf, const int n, const ss_vect<double> &ps)
 
   fprintf(outf, "%3d", n);
   for (k = 0; k < 6; k++)
-    if (k < 5)
+    if (k != ct_)
       fprintf(outf, " %22.15e", ps[k]);
     else
       fprintf(outf, " %22.15e", ps[k]/c0);
@@ -498,57 +559,70 @@ void prt_ps(FILE *outf, const int n, const ss_vect<double> &ps)
 }
 
 
-void propagate_mag_lat(ss_vect<double> &ps, ss_vect<tps> &M)
+void propagate_mag_lat
+(ss_vect<double> &ps, const ss_vect<tps> &M, const bool map_track)
 {
-  ps = (M*ps).cst();
+  long int lastpos;
+
+  if (!map_track)
+    Cell_Pass(0, globval.Cell_nLoc, ps, lastpos);
+  else
+    ps = (M*ps).cst();
+}
+
+
+void propagate_cav_HOM(const int n, const double Q_b, ss_vect<double> &ps)
+{
+
+  const string
+    cav_name = "cav";
+  const long int
+    loc = Elem_GetPos(ElemIndex(cav_name.c_str()), 1);
+  const double
+    Circ       = Cell[globval.Cell_nLoc].S,
+    Brho       = globval.Energy*1e9/c0,
+    beta_RF    = Cell[loc].Elem.C->beta_RF,
+    f          = Cell[loc].Elem.C->HOM_f_long[0],
+    R_s        = Cell[loc].Elem.C->HOM_Z_long[0],
+    Q          = Cell[loc].Elem.C->HOM_Q_long[0],
+    k_loss     = 2e0*M_PI*f*R_s/Q,
+    R_s_loaded = R_s/(1e0+beta_RF),
+    Q_loaded   = Q/(1e0+beta_RF);
+  const complex<double>
+    I = complex<double>(0e0, 1e0);
+
+  // Update RF cavity HOM phasor.
+  Cell[loc].Elem.C->HOM_V_long[0] *=
+    exp(2e0*M_PI*f*(Circ+ps[ct_])/c0*(-1e0/(2e0*Q_loaded)+I));
+
+  // First half increment for HOM phasor.
+  Cell[loc].Elem.C->HOM_V_long[0] += Q_b*k_loss/2e0;
+
+  // Propagate through wake field.
+  ps[delta_] -= Q_b*real(Cell[loc].Elem.C->HOM_V_long[0])/2e0;
+
+  // Second half increment for HOM phasor.
+  Cell[loc].Elem.C->HOM_V_long[0] += Q_b*k_loss/2e0;
+
+  prt_HOM(n, "cav");
 }
 
 
 void propagate_lat
 (FILE *outf, const int n, const double Q_b, ss_vect<double> &ps,
- ss_vect<tps> &M, ss_vect<tps> &M_Chol_t, const bool map_track)
+ ss_vect<tps> &M, ss_vect<tps> &M_Chol_t)
 {
-  long int lastpos;
 
-  const string cav_name = "cav";
+  // Propagate through magnetic lattice.
+  propagate_mag_lat(ps, M, false);
 
-  const long int
-    loc = Elem_GetPos(ElemIndex(cav_name.c_str()), 1);
+  if (!true)
+    // Radiate.
+    propagate_rad(ps, M_Chol_t);
 
-  const double
-    Circ   = Cell[globval.Cell_nLoc].S,
-    Brho   = globval.Energy*1e9/c0,
-    f      = Cell[loc].Elem.C->HOM_f_long[0],
-    Q      = Cell[loc].Elem.C->HOM_Q_long[0],
-    R_s    = Cell[loc].Elem.C->HOM_Z_long[0],
-    k_loss = 2e0*M_PI*f*R_s/Q;
+  if (true)
+    propagate_cav_HOM(n, Q_b, ps);
 
-  const complex<double>
-    I = complex<double>(0e0, 1e0);
-
-  if (! map_track)
-    Cell_Pass(0, globval.Cell_nLoc, ps, lastpos);
-  else {
-    // Propagate through magnetic lattice.
-    propagate_mag_lat(ps, M);
-
-    if (!true)
-      // Radiate.
-      propagate_rad(ps, M_Chol_t);
-
-    if (!true) {
-      // Update RF cavity HOMs voltage.
-      Cell[loc].Elem.C->HOM_V_long[0] *=
-	exp(2e0*M_PI*f*(Circ+ps[ct_])/c0*(-1e0/Q+I));
-      Cell[loc].Elem.C->HOM_V_long[0] += Q_b*k_loss;
-
-      prt_HOM("cav");
-    }
-
-    if (!true)
-      // Propagate throug wake field.
-      ps[delta_] -= Q_b*c0*real(Cell[loc].Elem.C->HOM_V_long[0])/(2e0*Brho);
-  }
   prt_ps(outf, n, ps);
 }
 
@@ -556,55 +630,57 @@ void propagate_lat
 void test_case_2(const string &name)
 {
   // Single bunch, 1 longitudinal HOM.
-  long int        lastpos;
   int             k;
   ss_vect<double> ps;
   ss_vect<tps>    M, M_Chol, M_Chol_t;
   FILE            *outf;
 
   const int
-    n_turn = 20000;
+    n_turn = 10;
 
   const double
-    Q_b    = -0.6e-9,
-    f      = 1e9,
-    Q      = 1e8,
-    R_s    = 1e3;
+    Q_b        = -0.6e-9,
+    beta_RF    = 1e0,
+    f          = 1e9,
+    R_s        = 1e3,
+#if 1
+    Q          = 1e8;
+#else
+    Q          = 5e3;
+#endif
 
   const string
-    file_name = "track.out";
+    file_name = "moments.out";
 
   outf = file_write(file_name.c_str());
 
-  globval.Cavity_on = globval.radiation = true;
+  globval.Cavity_on = globval.radiation = !true;
   globval.pathlength = false;
 
-  const complex<double>
-    u1 = polar(3.769911184307752e-05, -3.141592643589793e+00),
-    u2 = polar(6.490144782493358e-05,  2.607734888987444e+00);
+  if (false)
+    compute_maps(M, M_Chol, M_Chol_t);
 
-  printf("\n du = %22.15e + i %22.15e\n", abs(u2-u1), arg(u2-u1));
-
-  compute_maps(M, M_Chol, M_Chol_t);
-
-  set_HOM("cav", f, Q, R_s);
-
-  globval.Cavity_on = globval.radiation = true;
-  getcod(0e0, lastpos);
-  printf("\nFixed point:");
-  for (k = 0; k < 6; k++)
-    if (k != ct_)
-      printf(" %10.3e", globval.CODvect[k]);
-    else
-      printf(" %10.3e", globval.CODvect[k]/c0);
-  printf("\n");
+  set_HOM("cav", beta_RF, f, R_s, Q);
 
   ps.zero();
-  ps += globval.CODvect;
+
+  if (false) {
+    ps[x_]     =  1e-6;
+    ps[px_]    = -1e-6;
+    ps[y_]     =  2e-6;
+    ps[py_]    = -2e-6;
+    ps[ct_]    =  3e-12*c0;
+    ps[delta_] = -3e-6;
+  }
+
   prt_ps(outf, 0, ps);
   printf("\n");
   for (k = 1; k <= n_turn; k++)
-    propagate_lat(outf, k, Q_b, ps, M, M_Chol_t, false);
+    propagate_lat(outf, k, Q_b, ps, M, M_Chol_t);
+  fflush(outf);
+
+  if (false)
+    compute_sigma();
 }
 
 
@@ -620,6 +696,9 @@ int main(int argc, char *argv[])
   globval.Cart_Bend  = false; globval.dip_edge_fudge = true;
   globval.mat_meth   = false;
 
+  reverse_elem     = true;
+  globval.mat_meth = false;
+
   if (true)
     Read_Lattice(argv[1]);
   else
@@ -628,8 +707,12 @@ int main(int argc, char *argv[])
   if (!false) {
     Ring_GetTwiss(true, 0e0);
     printglob();
-    if (false)
+
+    if (!false)
       GetEmittance(ElemIndex("cav"), true);
+
+    prt_lat("linlat1.out", globval.bpm, true);
+    prt_lat("linlat.out", globval.bpm, true, 10);
   }
 
   if (!false)
