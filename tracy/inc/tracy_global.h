@@ -251,7 +251,7 @@ struct CavityType {
     phi_RF,        // RF phase [deg].
   // For beam loading compensation for the fundamental mode.
     Q_RF,
-    beta_RF;       // Power coupling factor.
+    beta_RF;       // Power coupling factor, ring definition: P = V^2/(2*R_s).
   std::complex<double>
     Z_fund;        // Shunt impedance.
   // Higher order modes.
