@@ -6,7 +6,7 @@ gnuplot << EOP
 
 ps = $prm1
 
-file_name = "track.out"
+file_name = "moments.out"
 
 f_s = 24
  l_w = 2
