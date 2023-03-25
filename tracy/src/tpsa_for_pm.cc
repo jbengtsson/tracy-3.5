@@ -1067,7 +1067,9 @@ std::istream& operator>>(std::istream &is, tps &a)
   long int ibuf1[bufsize], ibuf2[bufsize], jj[ss_dim];
   double   rbuf[bufsize];
 
-  const bool debug_ = false, prt = false;
+  const bool
+    debug_ = false,
+    prt    = false;
 
   if (debug_) {
 //    darea77_(a.intptr, 8);
@@ -1075,27 +1077,37 @@ std::istream& operator>>(std::istream &is, tps &a)
     return is;
   }
 
-  is.getline(line, max_str); is.getline(line, max_str);
-  sscanf(line, "tpsa, NO =%d, NV =%d", &no1, &nv1);
-  if (prt) std::cout << "no = " << no1 << ", nv = " << nv1 << std::endl;
+  is.getline(line, max_str);
+  is.getline(line, max_str);
+  sscanf(line, "%*[^,], NO =%d, NV =%d", &no1, &nv1);
+  if (prt)
+    std::cout << "\n  no = " << no1 << ", nv = " << nv1 << std::endl;
   ibuf1[0] = no_tps; ibuf2[0] = ss_dim;
 
   if ((no1 <= no_tps) && (nv1 <= ss_dim)) {
-    for (i = 1; i <= 5; i++)
+    for (i = 1; i <= 5; i++) {
       is.getline(line, max_str);
+      if (strncmp(line, "   ALL COMPONENTS ZERO", 22) == 0) {
+	is.getline(line, max_str);
+	return is;
+      }
+    }
 
     n = 0;
     do {
       n++;
       is.getline(line, max_str);
-      token = strtok(line, " "); sscanf(token, "%d", &no1);
-      token = strtok(NULL, " "); sscanf(token, "%le", &rbuf[n]);
+      token = strtok(line, " ");
+      sscanf(token, "%d", &no1);
+      token = strtok(NULL, " ");
+      sscanf(token, "%le", &rbuf[n]);
       for (i = 0; i < ss_dim; i++) {
-	token = strtok(NULL, " "); sscanf(token, "%ld", &jj[i]);
+	token = strtok(NULL, " ");
+	sscanf(token, "%ld", &jj[i]);
       }
       if (prt) {
 	std::cout << std::scientific << std::setprecision(3)
-	     << no1 << std::setw(11) << rbuf[n];
+		  <<std::setw(3) << no1 << std::setw(11) << rbuf[n];
 	for (i = 0; i < ss_dim; i++)
 	  std::cout << std::setw(3) << jj[i];
 	std::cout << std::endl; 

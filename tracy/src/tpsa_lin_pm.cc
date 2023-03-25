@@ -401,10 +401,11 @@ std::istream& operator>>(std::istream &is, tps &a)
 
   const bool  prt = false;
 
-  std::cout << "not implemented" << std::endl; exit_(1);
+  std::cout << "not implemented" << std::endl;
+  exit_(1);
 
   is.getline(line, max_str); is.getline(line, max_str);
-  sscanf(line, "tpsa, NO =%d, NV =%d", &no1, &nv1);
+  sscanf(line, "%*[^,], NO =%d, NV =%d", &no1, &nv1);
   if (prt) std::cout << "no = " << no1 << ", nv = " << nv1 << std::endl;
 //  ibuf1[0] = no_tps; ibuf2[0] = ss_dim;
 
@@ -446,12 +447,12 @@ std::istream& operator>>(std::istream &is, tps &a)
 
 std::ostream& operator<<(std::ostream &os, const tps &a)
 {
-  int                i, j, n;
-  long int           jj[ss_dim];
+  int                i, j, n, n1;
+  long int           jj[ss_dim+1];
   std::ostringstream s;
 
   s << std::endl;
-  s << "NO = " << no_tps << ", NV = " << nv_tps << std::endl;
+  s << "tps, NO = " << no_tps << ", NV = " << nv_tps+1 << std::endl;
 
   for (i = 1; i <= 66; i++)
     s << "-"; 
@@ -499,29 +500,30 @@ std::ostream& operator<<(std::ostream &os, const tps &a)
   if (n != 0) {
     s << std::endl;
     s << "   |I|         a              ";
-    for (i = 1; i <= nv_tps; i++)
+    for (i = 1; i <= nv_tps+1; i++)
       s << "  i";
     s << std::endl;
     s << "                I              ";
-    for (i = 1; i <= nv_tps; i++)
+    for (i = 1; i <= nv_tps+1; i++)
       s << std::setw(3) << i;
     s << std::endl;
     s << std::endl;
   } else
     s << "   ALL COMPONENTS ZERO " << std::endl;
 
-  for (j = 0; j < nv_tps; j++)
+  for (j = 0; j < nv_tps+1; j++)
     jj[j] = 0;
 
   for (i = 0; i <= nv_tps; i++) {
     if (i > 0) {
-      n = 1; jj[i-1] = 1;
+      n1 = 1;
+      jj[i-1] = 1;
     } else
-      n = 0;
+      n1 = 0;
     if (fabs(a[jj]) >= eps_tps) {
-      s << std::setw(5) << n << std::scientific << std::setw(24)
+      s << std::setw(5) << n1 << std::scientific << std::setw(24)
 	<< std::setprecision(16) << a[jj] << " ";
-      for (j = 0; j < nv_tps; j++)
+      for (j = 0; j < nv_tps+1; j++)
 	s << std::setw(3) << jj[j];
       s << std::endl;
     }
@@ -531,7 +533,7 @@ std::ostream& operator<<(std::ostream &os, const tps &a)
   if (n == 0) n = 1;
   s << std::setw(5) << -n
     << std::scientific << std::setw(24) << std::setprecision(16) << 0.0 << " ";
-  for (j = 0; j < nv_tps; j++)
+  for (j = 0; j < nv_tps+1; j++)
     s << std::setw(3) << 0;
   s << std::endl;
 
