@@ -786,7 +786,8 @@ void A_At_pass(void)
   int          i;
   ss_vect<tps> A, A_Atp;
 
-  A.identity(); A = putlinmat(4, globval.Ascr);
+  A.identity();
+  A = putlinmat(4, globval.Ascr);
   A_Atp = A*tp_S(2, A);
   printf("\n    alpha_x  beta_x    alpha_y  beta_y:\n"
 	 "  %9.5f %8.5f %9.5f %8.5f\n",
@@ -813,8 +814,11 @@ void curly_H_s(void)
 
   outf = file_write("curly_H_s.out");
   printf("\n");
-  eta.zero(); eta[0] = Cell[0].Eta[X_]; eta[1] = Cell[0].Etap[X_];
-  A.identity(); A = putlinmat(2, globval.Ascr);
+  eta.zero();
+  eta[0] = Cell[0].Eta[X_];
+  eta[1] = Cell[0].Etap[X_];
+  A.identity();
+  A = putlinmat(2, globval.Ascr);
   for (i = 0; i <= globval.Cell_nLoc; i++) {
     eta.zero(); eta[0] = Cell[i].Eta[X_]; eta[1] = Cell[i].Etap[X_];
     Cell_Pass(i, i, A, lastpos); A = get_A_CS(2, A, dnu);
@@ -848,9 +852,12 @@ void prt_eta_Fl(void)
 
   outf = file_write("eta_Fl.out");
 
-  A.identity(); A = putlinmat(2, globval.Ascr);
+  A.identity();
+  A = putlinmat(2, globval.Ascr);
 
-  eta0.zero(); eta0[x_] = Cell[0].Eta[X_]; eta0[px_] = Cell[0].Etap[X_];
+  eta0.zero();
+  eta0[x_] = Cell[0].Eta[X_];
+  eta0[px_] = Cell[0].Etap[X_];
   eta_Fl0 = (Inv(A)*eta0).cst();
 
   A_Atp0.identity();
@@ -1002,7 +1009,11 @@ void get_disp(void)
 	 -gamma_s*sin(2e0*M_PI*nu_s)*D[x_], -gamma_s*sin(2e0*M_PI*nu_s)*D[px_]);
 
   A.zero();
-  A[x_] = 10e-6; A[px_] = 0e-6; A[y_] = 0e-6; A[py_] = 0e-6; A[delta_] = 0e-3;
+  A[x_] = 10e-6;
+  A[px_] = 0e-6;
+  A[y_] = 0e-6;
+  A[py_] = 0e-6;
+  A[delta_] = 0e-3;
   Ascr.zero();
   Ascr = putlinmat(4, globval.Ascr);
   get_twoJ(2, A, Ascr, twoJ);
@@ -1604,7 +1615,7 @@ int main(int argc, char *argv[])
   globval.pathlength = false; globval.Aperture_on    = false;
   globval.Cart_Bend  = false; globval.dip_edge_fudge = true;
 
-  if (false) no_sxt();
+  if (!false) no_sxt();
 
   if (false) {
     fit_ksi1(1, 0e0, 0e0);
