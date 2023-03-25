@@ -1710,8 +1710,8 @@ int main(int argc, char *argv[])
   }
 
   if (false) {
-    chk_optics(-0.0000000002, 5.8603517371, 0.0606139854, 0.0000000130,
-	       -0.0000000001, 2.8107227635, 0.0, 0.0);
+    chk_optics(0.0, 8.20878, 0.00557, 0.0,
+	       0.0, 3.50066, 0.0,     0.0);
     prt_lat("linlat1.out", globval.bpm, true);
     prt_lat("linlat.out", globval.bpm, true, 10);
     prtmfile("flat_file.dat");
