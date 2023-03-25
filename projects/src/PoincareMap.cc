@@ -602,9 +602,11 @@ void PoincareMapType::GetMap(void)
 
 void PoincareMapType::GetM(const bool cav, const bool rad)
 {
-  cav_on = cav; rad_on = rad;
+  cav_on = cav;
+  rad_on = rad;
 
-  C = Cell[globval.Cell_nLoc].S; E0 = 1e9*globval.Energy;
+  C = Cell[globval.Cell_nLoc].S;
+  E0 = 1e9*globval.Energy;
 
   GetMap();
   GetA(n_DOF, C, M_num, A, M_Fl, tau);
@@ -1068,7 +1070,8 @@ void get_Poincare_Map(void)
 
   if (!false) no_sxt();
 
-  map.GetM(true, true); map.print();
+  map.GetM(true, true);
+  map.print();
 
   if (false) tst_Chol_decomp(map);
 

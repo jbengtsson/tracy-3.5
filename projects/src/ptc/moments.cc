@@ -24,13 +24,11 @@ private:
     Q_b;       // Bunch charge.
   ss_vect<tps>
     M,         // Poincaré map for lattice without radiation.
-    M_rad,     // Poincaré map for lattice with radiation.
     M_inv,
-    M_rad_inv,
     A,         // Transformation from Floquet to phase space without radiation.
-    A_rad,     // Transformation from Floquet to phase space with radiation.
     A_inv,
-    A_rad_inv,
+    M_delta,
+    M_tau,
     M_Chol,
     M_Chol_t;
   ofstream
@@ -112,16 +110,14 @@ void MomentType::rd_maps(void)
 
   const string file_name = "../compute_maps";
 
-  M      = rd_map(file_name+"_M.dat", "\nM:\n");
-  A      = rd_map(file_name+"_A.dat", "\nA:\n");
-  M_rad  = rd_map(file_name+"_M_rad.dat", "\nM_rad:\n");
-  A_rad  = rd_map(file_name+"_A_rad.dat", "\nA_rad:\n");
-  M_Chol = rd_map(file_name+"_M_Chol.dat", "\nM_Chol:\n");
+  M       = rd_map(file_name+"_M.dat", "\nM:\n");
+  A       = rd_map(file_name+"_A.dat", "\nA:\n");
+  M_delta = rd_map(file_name+"_M_delta.dat", "\nM_delta:\n");
+  M_tau   = rd_map(file_name+"_M_tau.dat", "\nM_tau:\n");
+  M_Chol  = rd_map(file_name+"_M_Chol.dat", "\nM_Chol:\n");
 
   M_inv     = Inv(M);
-  M_rad_inv = Inv(M_rad);
   A_inv     = Inv(A);
-  A_rad_inv = Inv(A_rad);
   M_Chol_t  = tp_map(3, M_Chol);
 }
 
@@ -294,10 +290,7 @@ void MomentType::propagate_cav_HOM_transv(const int n)
 
 void MomentType::propagate_mag_lat(void)
 {
-  if (!globval.radiation)
-    sigma = sigma*M_inv;
-  else
-    sigma = sigma*M_rad_inv;
+  sigma = sigma*M_inv;
 }
 
 
