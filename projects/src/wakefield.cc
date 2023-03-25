@@ -378,7 +378,7 @@ void PoincareMapType::set_rf_cav_hom
   cav_ptr = Cell[cav_loc].Elem.C;
 
   cav_ptr->HOM_f_trans.push_back(f);
-  cav_ptr->HOM_Z_trans.push_back(Z);
+  cav_ptr->HOM_R_sh_trans.push_back(Z);
   cav_ptr->HOM_Q_trans.push_back(Q);
   cav_ptr->HOM_V_trans.push_back(0e0);
 
