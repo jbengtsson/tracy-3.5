@@ -431,7 +431,6 @@ void propagate_cav_HOM_transv
     loc = Elem_GetPos(ElemIndex(cav_name.c_str()), 1);
   const double
     Circ        = Cell[globval.Cell_nLoc].S,
-    Brho        = globval.Energy*1e9/c0,
     beta_RF     = Cell[loc].Elem.C->beta_RF,
     f           = Cell[loc].Elem.C->HOM_f_long[0],
     R_sh        = Cell[loc].Elem.C->HOM_R_sh_long[0],
@@ -470,7 +469,6 @@ void propagate_cav_HOM_long(const int n, const double Q_b, tps &sigma)
     loc = Elem_GetPos(ElemIndex(cav_name.c_str()), 1);
   const double
     Circ       = Cell[globval.Cell_nLoc].S,
-    Brho       = globval.Energy*1e9/c0,
     beta_RF    = Cell[loc].Elem.C->beta_RF,
     f          = Cell[loc].Elem.C->HOM_f_long[0],
     R_sh       = Cell[loc].Elem.C->HOM_R_sh_long[0],
@@ -516,7 +514,8 @@ void propagate_lat
 
 
 tps compute_sigma
-(const double eps[], const double sigma_s, const double sigma_delta)
+(const double eps[], const double sigma_s, const double sigma_delta,
+ const ss_vect<tps> &A)
 {
   int          k;
   tps          sigma;
@@ -526,7 +525,7 @@ tps compute_sigma
   sigma = 0e0;
   for (k = 0; k < 2; k++)
     sigma += eps[k]*(sqr(Id[2*k])+sqr(Id[2*k+1]));
-  sigma = sigma*Inv(MNF.A1);
+  sigma = sigma*Inv(A);
   sigma += sqr(sigma_delta*Id[ct_]) + sqr(sigma_s*Id[delta_]);
   return sigma;
 }
@@ -537,7 +536,6 @@ void test_case_2(const string &name)
   // Single bunch, 1 longitudinal HOM.
   long int        lastpos;
   int             k;
-  double          gamma;
   tps             sigma;
   ss_vect<tps>    M, M_inv, A, M_Chol, M_Chol_t;
   ofstream        outf;
@@ -582,7 +580,7 @@ void test_case_2(const string &name)
 
   set_HOM_long("cav", beta_HOM, f, R_sh, Q);
 
-  sigma = compute_sigma(eps, sigma_s, sigma_delta);
+  sigma = compute_sigma(eps, sigma_s, sigma_delta, MNF.A1);
 
   prt_sigma(outf, 0, sigma);
   printf("\n");
@@ -610,8 +608,6 @@ void set_state(void)
 
 int main(int argc, char *argv[])
 {
-  double     alpha[2], beta[2], dnu[2], eta[2], etap[2];
-  MomentType m;
 
   reverse_elem     = true;
   globval.mat_meth = false;
