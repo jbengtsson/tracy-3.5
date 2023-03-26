@@ -65,6 +65,45 @@ ss_vect<tps> compute_M(const ss_vect<double> fix_point)
 }
 
 
+ss_vect<double> compute_eta(const ss_vect<tps> &M)
+{
+  long int        jj[ss_dim];
+  int             k;
+  ss_vect<double> eta;
+  ss_vect<tps>    Id, M_x;
+
+  Id.identity();
+  for (k = 0; k < ss_dim; k++)
+    jj[k] = 0;
+  // Only use 2x2 part of hor. matrix.
+  M_x.zero();
+  for (k = 0; k < 2; k++) {
+    M_x[k] = M[k][x_]*Id[x_] + M[k][px_]*Id[px_];
+    jj[k] = 1;
+  }
+  eta.zero();
+  for (k = 0; k < 2; k++)
+    eta[k] = M[k][delta_];
+  eta = (PInv(Id-M_x, jj)*eta).cst();
+  return eta;
+}
+
+
+ss_vect<tps> compute_A0(const ss_vect<double> &eta)
+{
+  // Canonical Transfomation to delta dependent Fixed Point.
+  int          k;
+  ss_vect<tps> Id, A0;
+
+  Id.identity(); A0.identity();
+  for (k = 0; k < 2; k++)
+    A0[k] += eta[k]*Id[delta_];
+  // Symplectic flow.
+  A0[ct_] += eta[px_]*Id[x_] - eta[x_]*Id[px_];
+  return A0;
+}
+
+
 ss_vect<tps> compute_A
 (const double C, const ss_vect<tps> &M, double alpha_rad[], const bool rad)
 {
@@ -93,18 +132,7 @@ ss_vect<tps> compute_A
 }
 
 
-void compute_tau
-(const double C, const double alpha_rad[], double tau[], double &delta_tau)
-{
-  // Compute the damping times.
-  
-  for (int k = 0; k < nd_tps; k++)
-    tau[k] = -C/(c0*alpha_rad[k]);
-  delta_tau = exp(-C/(c0*tau[Z_])) - 1e0;
-}
-
-
-ss_vect<tps> compute_M_cav(const string &cav_name)
+ss_vect<tps> compute_M_cav(const string &cav_name, double &phi0)
 {
   ss_vect<tps> M_cav;
 
@@ -115,9 +143,9 @@ ss_vect<tps> compute_M_cav(const string &cav_name)
     f_RF      = Cell[loc].Elem.C->f_RF,
     E0        = 1e9*globval.Energy,
     U0        = globval.dE*E0,
-    delta_cav = U0/E0,
-    phi0      = asin(delta_cav*E0/V_RF);
+    delta_cav = U0/E0;
 
+  phi0 = asin(delta_cav*E0/V_RF);
   M_cav.identity();
   M_cav[delta_] -=
     V_RF*2e0*M_PI*f_RF*cos(phi0)/(1e9*globval.Energy*c0)*tps(0e0, ct_+1);
@@ -125,29 +153,41 @@ ss_vect<tps> compute_M_cav(const string &cav_name)
 }
 
 
-ss_vect<tps> compute_M_delta(const double delta_tau)
+void compute_tau
+(const double C, const double alpha_rad[], double tau[])
+{
+  // Compute the damping times.
+  
+  for (int k = 0; k < nd_tps; k++)
+    tau[k] = -C/(c0*alpha_rad[k]);
+}
+
+
+ss_vect<tps> compute_M_delta(const double alpha_rad[])
 {
   int          k;
+  double       delta_rad;
   ss_vect<tps> M_delta;
 
   M_delta.identity();
   for (k = 0; k < nd_tps; k++) {
-    M_delta[2*k] *= 1e0 + delta_tau;
-    M_delta[2*k+1] /= 1e0 + delta_tau;
+    delta_rad = exp(alpha_rad[Z_]) - 1e0;
+    M_delta[2*k] *= 1e0 + delta_rad;
+    M_delta[2*k+1] /= 1e0 + delta_rad;
   }
   return M_delta;
 }
 
 
-ss_vect<tps> compute_M_tau(const double C, const double tau[])
+ss_vect<tps> compute_M_tau(const double alpha[])
 {
   int          k;
   ss_vect<tps> M_tau;
  
   M_tau.zero();
   for (k = 0; k < nd_tps; k++) {
-    M_tau[2*k] = exp(-C/(c0*tau[k]))*tps(0e0, 2*k+1);
-    M_tau[2*k+1] = exp(-C/(c0*tau[k]))*tps(0e0, 2*k+2);
+    M_tau[2*k] = exp(alpha[k])*tps(0e0, 2*k+1);
+    M_tau[2*k+1] = exp(alpha[k])*tps(0e0, 2*k+2);
   }
   return M_tau;
 }
@@ -279,12 +319,12 @@ void compute_maps(void)
   long int
     lastpos;
   double
-    dnu[3], alpha_rad[3], tau[3], delta_tau, D[3], eps[3],
+    dnu[3], alpha_rad[3], tau[3], phi0, D[3], eps[3],
     sigma_s, sigma_delta;
   ss_vect<double>
-    fix_point;
+    fix_point, eta;
   ss_vect<tps>
-    M, A, M_delta, M_tau, D_mat, M_Chol;
+    M, A, M_delta, M_tau, M_cav, D_mat, M_Chol, A0;
 
   globval.radiation = globval.Cavity_on = true;
 
@@ -292,46 +332,61 @@ void compute_maps(void)
   fix_point = globval.CODvect;
   U0 = globval.dE*E0;
 
-  printf("\nFix point:");
-  for (k = 0; k < 6; k++)
-    if (k != ct_)
-      printf(" %10.3e", globval.CODvect[k]);
-    else
-      printf(" %10.3e", globval.CODvect[k]/c0);
-  printf("\n");
-  printf("\nU0 [keV] = %3.1f\n", 1e-3*U0);
-
   M = compute_M(fix_point);
-
-  prt_map(nd_tps, "\nM:", M);
-  prt_map(file_name+"_M.dat", M);
 
   A = compute_A(C, M, alpha_rad, true);
   A = get_A_CS(nd_tps, A, dnu);
 
-  prt_map(nd_tps, "\nA:", A);
-  prt_map(file_name+"_A.dat", A);
+  compute_tau(C, alpha_rad, tau);
+  M_delta = compute_M_delta(alpha_rad);
 
-  compute_tau(C, alpha_rad, tau, delta_tau);
-  M_delta = compute_M_delta(delta_tau);
-
-  prt_map(nd_tps, "\nM_delta:", M_delta);
-  prt_map(file_name+"_M_delta.dat", M_delta);
-
-  M_tau = compute_M_tau(C, tau);
+  M_tau = compute_M_tau(alpha_rad);
   M_tau = A*M_tau*Inv(A);
 
-  prt_map(nd_tps, "\nM_tau:", M_tau);
-  prt_map(file_name+"_M_tau.dat", M_tau);
-
-  printf("\ntau [msec]          = [%5.3f, %5.3f, %5.3f]\n",
-	 1e3*tau[X_], 1e3*tau[Y_], 1e3*tau[Z_]);
+  M_cav = compute_M_cav("cav", phi0);
 
   compute_D(fix_point, A, D);
   compute_eps(C, tau, D, eps);
   compute_bunch_size(A, eps, sigma_s, sigma_delta);
   D_mat = compute_D_mat(A, D);
 
+  M_Chol = compute_M_Chol(D_mat);
+
+  prt_map(nd_tps, "\nM:", M);
+  prt_map(file_name+"_M.dat", M);
+  prt_map(nd_tps, "\nA:", A);
+  prt_map(file_name+"_A.dat", A);
+  prt_map(nd_tps, "\nM_delta:", M_delta);
+  prt_map(file_name+"_M_delta.dat", M_delta);
+  prt_map(nd_tps, "\nM_tau:", M_tau);
+  prt_map(file_name+"_M_tau.dat", M_tau);
+  prt_map(nd_tps, "\nDiffusion Matrix:", D_mat);
+  prt_map(nd_tps, "\nCholesky Decomposition:", M_Chol);
+  prt_map(file_name+"_M_Chol.dat", M_Chol);
+
+  M = Inv(M_delta)*Inv(M_cav)*Inv(M_tau)*M;
+  prt_map(nd_tps, "\nM_delta^-1.M_cav^-1.M_tau^-1.M:", M);
+  eta = compute_eta(M);
+  A0 = compute_A0(eta);
+  prt_map(nd_tps, "\nA0:", A0);
+  M = Inv(A0)*M*A0;
+  prt_map(nd_tps, "\nA0^-1.M.A0:", M);
+
+  prt_map(nd_tps, "\nM^t.Omega.M-Omega:", tp_map(3, M)*get_S(3)*M-get_S(3));
+
+  printf("\nFix point           =");
+  for (k = 0; k < 6; k++)
+    if (k != ct_)
+      printf(" %10.3e", globval.CODvect[k]);
+    else
+      printf(" %10.3e", globval.CODvect[k]/c0);
+  printf("\n");
+  cout << scientific << setprecision(3)
+       << "eta                 ="  << setw(11) << eta << "\n";
+  printf("U0 [keV]            = %3.1f\n", 1e-3*U0);
+  printf("phi0 [deg]          = 180 - %4.2f\n", fabs(phi0*180e0/M_PI));
+  printf("tau [msec]          = [%5.3f, %5.3f, %5.3f]\n",
+	 1e3*tau[X_], 1e3*tau[Y_], 1e3*tau[Z_]);
   printf("D                   = [%9.3e, %9.3e, %9.3e]\n",
 	 D[X_], D[Y_], D[Z_]);
   printf("eps                 = [%9.3e, %9.3e, %9.3e]\n",
@@ -341,12 +396,6 @@ void compute_maps(void)
 	 1e6*sqrt(eps[X_]*(1e0+sqr(Cell[0].Alpha[X_]))/Cell[0].Beta[X_]));
   printf("sigma_t [ps]        = %5.3f\n", 1e12*sigma_s/c0);
   printf("sigma_delta         = %9.3e\n", sigma_delta);
-  prt_map(nd_tps, "\nDiffusion Matrix:", D_mat);
-
-  M_Chol = compute_M_Chol(D_mat);
-
-  prt_map(nd_tps, "\nCholesky Decomposition:", M_Chol);
-  prt_map(file_name+"_M_Chol.dat", M_Chol);
 }
 
 
