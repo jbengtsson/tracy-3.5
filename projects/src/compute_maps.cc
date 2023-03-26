@@ -326,6 +326,24 @@ void compute_maps(void)
   ss_vect<tps>
     M, A, M_delta, M_tau, M_cav, D_mat, M_Chol, A0;
 
+  globval.radiation = globval.Cavity_on = false;
+
+  M = compute_M();
+
+  prt_map(nd_tps, "\nM:", M);
+
+  if (false) {
+    // Remove linear dispersion.
+    eta = compute_eta(M);
+    A0 = compute_A0(eta);
+    M = Inv(A0)*M*A0;
+  }
+
+  prt_map(nd_tps, "\nM:", M);
+  prt_map(nd_tps, "\nM^t.Omega.M-Omega:", tp_map(3, M)*get_S(3)*M-get_S(3));
+
+  prt_map(file_name+"_M.dat", M);
+
   globval.radiation = globval.Cavity_on = true;
 
   getcod(0e0, lastpos);
@@ -353,15 +371,14 @@ void compute_maps(void)
   M_Chol = compute_M_Chol(D_mat);
 
   prt_map(nd_tps, "\nM:", M);
-  prt_map(file_name+"_M.dat", M);
   prt_map(nd_tps, "\nA:", A);
-  prt_map(file_name+"_A.dat", A);
   prt_map(nd_tps, "\nM_delta:", M_delta);
-  prt_map(file_name+"_M_delta.dat", M_delta);
   prt_map(nd_tps, "\nM_tau:", M_tau);
-  prt_map(file_name+"_M_tau.dat", M_tau);
   prt_map(nd_tps, "\nDiffusion Matrix:", D_mat);
   prt_map(nd_tps, "\nCholesky Decomposition:", M_Chol);
+
+  prt_map(file_name+"_M_delta.dat", M_delta);
+  prt_map(file_name+"_M_tau.dat", M_tau);
   prt_map(file_name+"_M_Chol.dat", M_Chol);
 
   M = Inv(M_delta)*Inv(M_cav)*Inv(M_tau)*M;
@@ -374,13 +391,12 @@ void compute_maps(void)
 
   prt_map(nd_tps, "\nM^t.Omega.M-Omega:", tp_map(3, M)*get_S(3)*M-get_S(3));
 
+  globval.CODvect[ct_] /= c0;
   printf("\nFix point           =");
   for (k = 0; k < 6; k++)
-    if (k != ct_)
-      printf(" %10.3e", globval.CODvect[k]);
-    else
-      printf(" %10.3e", globval.CODvect[k]/c0);
+    printf(" %10.3e", globval.CODvect[k]);
   printf("\n");
+  globval.CODvect[ct_] *= c0;
   cout << scientific << setprecision(3)
        << "eta                 ="  << setw(11) << eta << "\n";
   printf("U0 [keV]            = %3.1f\n", 1e-3*U0);
@@ -428,7 +444,11 @@ int main(int argc, char *argv[])
   set_state();
 
   Ring_GetTwiss(true, 0e0);
+
   printglob();
+  prt_lat("linlat1.out", globval.bpm, true);
+  prt_lat("linlat.out", globval.bpm, true, 10);
+  prtmfile("flat_file.dat");
 
   daeps_(1e-15);
   compute_maps();

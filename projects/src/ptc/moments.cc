@@ -10,21 +10,36 @@ int
   no_tps   = NO,
   ndpt_tps = 5;
 
+// Moment indeces.
+const long int
+  x[]           = {0, 1, 0, 0, 0, 0, 0},
+  p_x[]         = {1, 0, 0, 0, 0, 0, 0},
+  y[]           = {0, 0, 0, 1, 0, 0, 0},
+  p_y[]         = {0, 0, 1, 0, 0, 0, 0},
+  ct[]          = {0, 0, 0, 0, 1, 0, 0},
+  delta[]       = {0, 0, 0, 0, 0, 1, 0},
+
+  x_x[]         = {0, 2, 0, 0, 0, 0, 0},
+  x_p_x[]       = {1, 1, 0, 0, 0, 0, 0},
+  p_x_p_x[]     = {2, 0, 0, 0, 0, 0, 0},
+  y_y[]         = {0, 0, 0, 2, 0, 0, 0},
+  y_p_y[]       = {0, 0, 1, 1, 0, 0, 0},
+  p_y_p_y[]     = {0, 0, 2, 0, 0, 0, 0},
+  ct_ct[]       = {0, 0, 0, 0, 2, 0, 0},
+  delta_delta[] = {0, 0, 0, 0, 0, 2, 0};
+
 
 class MomentType {
   const string
     file_name = "moments.out"; // Output file name.
 
 private:
-  long int
-    cav_loc;
   int
     n;
   double
-    Q_b;       // Bunch charge.
+    Q_b,       // Bunch charge.
+    Circ;      // Circumference.
   ss_vect<tps>
-    M,         // Poincaré map for lattice without radiation.
-    M_inv,
     A,         // Transformation from Floquet to phase space without radiation.
     A_inv,
     M_delta,
@@ -34,6 +49,11 @@ private:
   ofstream
     outf;
 public:
+  long int
+    cav_loc;
+  ss_vect<tps>
+    M,         // Poincaré map for lattice without radiation.
+    M_inv;
   tps
     sigma;     // Statistical moments for charge distribution.
 
@@ -43,7 +63,7 @@ public:
 		    const double Q);
   void compute_sigma(const double eps[], const double sigma_s,
 		     const double sigma_delta);
-  void prt_sigma(const int n);
+  void print_sigma(const int n);
   void propagate_cav(void);
   void propagate_cav_HOM_long(const int n);
   void propagate_cav_HOM_transv(const int n);
@@ -53,7 +73,7 @@ public:
 };
 
 
-void prt_map(const int n_dof, const string &str, const ss_vect<tps> map)
+void print_map(const int n_dof, const string &str, const ss_vect<tps> map)
 {
   const int n_dec = 6;
 
@@ -89,7 +109,7 @@ ss_vect<tps> rd_map(const string &file_name, const string &str)
   inf >> map;
   inf.close();
   if (prt)
-    prt_map(3, str.c_str(), map);
+    print_map(3, str.c_str(), map);
   return map;
 }
 
@@ -108,7 +128,7 @@ ss_vect<tps> tp_map(const int n_dof, const ss_vect<tps> &A)
 void MomentType::rd_maps(void)
 {
 
-  const string file_name = "../compute_maps";
+  const string   file_name = "../compute_maps";
 
   M       = rd_map(file_name+"_M.dat", "\nM:\n");
   A       = rd_map(file_name+"_A.dat", "\nA:\n");
@@ -127,6 +147,7 @@ void MomentType::init
 {
   this->cav_loc = Elem_GetPos(ElemIndex(cav_name.c_str()), 1);
   this->Q_b     = Q_b;
+  this->Circ    = Cell[globval.Cell_nLoc].S;
   file_wr(outf, file_name.c_str());
   rd_maps();
 }
@@ -158,42 +179,25 @@ void MomentType::compute_sigma
 }
 
 
-void MomentType::prt_sigma(const int n)
+void MomentType::print_sigma(const int n)
 {
-  const long int
-    x[]           = {1, 0, 0, 0, 0, 0, 0},
-    p_x[]         = {0, 1, 0, 0, 0, 0, 0},
-    y[]           = {0, 0, 1, 0, 0, 0, 0},
-    p_y[]         = {0, 0, 0, 1, 0, 0, 0},
-    ct[]          = {0, 0, 0, 0, 0, 1, 0},
-    delta[]       = {0, 0, 0, 0, 1, 0, 0},
-
-    x_x[]         = {2, 0, 0, 0, 0, 0, 0},
-    p_x_p_x[]     = {0, 2, 0, 0, 0, 0, 0},
-    y_y[]         = {0, 0, 2, 0, 0, 0, 0},
-    p_y_p_y[]     = {0, 0, 0, 2, 0, 0, 0},
-    ct_ct[]       = {0, 0, 0, 0, 0, 2, 0},
-    delta_delta[] = {0, 0, 0, 0, 2, 0, 0};
-
   this->n = n;
 
   outf << scientific << setprecision(3)
        << setw(5) << n
-       << setw(11) << sigma[x] << setw(11) << sigma[p_x]
-       << setw(11) << sigma[y] << setw(11) << sigma[p_y]
-       << setw(11) << sigma[delta] << setw(11) << sigma[ct]/c0 << " |"
-       << setw(10) << sqrt(sigma[p_x_p_x]) << setw(10) << sqrt(sigma[x_x])
-       << setw(10) << sqrt(sigma[p_y_p_y]) << setw(10) << sqrt(sigma[y_y])
-       << setw(10) << sqrt(sigma[ct_ct])
-       << setw(10) << sqrt(sigma[delta_delta])/c0 << "\n";
+       << setw(11) << -sigma[x] << setw(11) << sigma[p_x]
+       << setw(11) << -sigma[y] << setw(11) << sigma[p_y]
+       << setw(11) << -sigma[delta] << setw(11) << sigma[ct]/c0 << " |"
+       << setw(10) << sqrt(sigma[x_x]) << setw(10) << sqrt(sigma[p_x_p_x])
+       << setw(10) << sqrt(sigma[y_y]) << setw(10) << sqrt(sigma[p_y_p_y])
+       << setw(10) << sqrt(sigma[delta_delta])
+       << setw(10) << sqrt(sigma[ct_ct])/c0 << "\n";
 }
 
 
 double get_ct(tps &sigma)
 {
-  const long int jj[] = {0, 0, 0, 0, 0, 1, 0};
-
-  return sigma[jj];
+  return sigma[ct];
 }
 
 
@@ -205,13 +209,13 @@ void MomentType::propagate_cav(void)
   C = Cell[cav_loc].Elem.C;
 
   delta =
-    -C->V_RF/(globval.Energy*1e9)
+    C->V_RF/(globval.Energy*1e9)
     *sin(2e0*M_PI*C->f_RF*get_ct(sigma)/c0+C->phi_RF);
-  sigma += delta*tps(0e0, delta_+1);
+  sigma += delta*tps(0e0, ct_+1);
 }
 
 
-void prt_HOM(const int n, const long int cav_loc)
+void print_HOM(const int n, const long int cav_loc)
 {
   printf("%3d", n);
   printf("  %22.15e %22.15e %22.15e\n",
@@ -226,7 +230,6 @@ void MomentType::propagate_cav_HOM_long(const int n)
   ss_vect<tps> M;
 
  const double
-    Circ        = Cell[globval.Cell_nLoc].S,
     beta_RF     = Cell[cav_loc].Elem.C->beta_RF,
     f           = Cell[cav_loc].Elem.C->HOM_f_long[0],
     R_sh        = Cell[cav_loc].Elem.C->HOM_R_sh_long[0],
@@ -251,7 +254,7 @@ void MomentType::propagate_cav_HOM_long(const int n)
   Cell[cav_loc].Elem.C->HOM_V_long[0] += Q_b*k_loss/2e0;
 
   if (!false)
-    prt_HOM(n, cav_loc);
+    print_HOM(n, cav_loc);
 }
 
 
@@ -259,7 +262,6 @@ void MomentType::propagate_cav_HOM_transv(const int n)
 {
 
   const double
-    Circ        = Cell[globval.Cell_nLoc].S,
     beta_RF     = Cell[cav_loc].Elem.C->beta_RF,
     f           = Cell[cav_loc].Elem.C->HOM_f_long[0],
     R_sh        = Cell[cav_loc].Elem.C->HOM_R_sh_long[0],
@@ -284,7 +286,7 @@ void MomentType::propagate_cav_HOM_transv(const int n)
   Cell[cav_loc].Elem.C->HOM_V_long[0] += Q_b*k_loss/2e0;
 
   if (false)
-    prt_HOM(n, cav_loc);
+    print_HOM(n, cav_loc);
 }
 
 
@@ -329,7 +331,7 @@ void MomentType::propagate_rad(void)
 
 void MomentType::propagate_lat(const int n)
 {
-  if (false)
+  if (globval.Cavity_on)
     propagate_cav();
 
   if (false)
@@ -337,19 +339,40 @@ void MomentType::propagate_lat(const int n)
 
   propagate_mag_lat();
 
-  if (false)
+  if (globval.radiation)
     propagate_rad();
+}
+
+
+void track(MomentType &m, const int n, ss_vect<double> &ps)
+{
+  int             k;
+
+  ps[ct_] /= c0;
+  cout << scientific << setprecision(3)
+       << "\n" << setw(5) << 0 << setw(11) << ps << "\n";
+  ps[ct_] *= c0;
+  for (k = 1; k <= n; k++) {
+    if (globval.Cavity_on)
+      Cav_Pass(Cell[m.cav_loc], ps);
+    ps = (m.M*ps).cst();
+    ps[ct_] /= c0;
+    cout << scientific << setprecision(3)
+	 << setw(5) << k << setw(11) << ps << "\n";
+    ps[ct_] *= c0;
+  }
 }
 
 
 void test_case(const string &cav_name)
 {
   // Single bunch, 1 longitudinal HOM.
-  int        k;
-  MomentType m;
+  int             k;
+  ss_vect<double> ps;
+  MomentType      m;
 
   const int
-    n_turn      = 1000;
+    n_turn      = 15;
   const double
     eps[]       = {161.7e-12, 8e-12},
     sigma_s     = 3.739e-3,
@@ -371,17 +394,28 @@ void test_case(const string &cav_name)
 
   m.set_HOM_long(beta_HOM, f, R_sh, Q);
 
-  globval.radiation = globval.Cavity_on = true;
+  globval.radiation = false;
+  globval.Cavity_on = true;
+
+  ps.zero();
+  ps[x_]     =  1e-3;
+  ps[y_]     = -1e-3;
+  ps[delta_] =  1e-3;
 
   m.compute_sigma(eps, sigma_s, sigma_delta);
 
-  m.prt_sigma(0);
-  m.sigma += 1e-3*tps(0e0, delta_+1);
+  m.sigma -= ps[x_]*tps(0e0, px_+1);
+  m.sigma += ps[y_]*tps(0e0, py_+1);
+  m.sigma -= ps[delta_]*tps(0e0, ct_+1);
+
+  m.print_sigma(0);
   printf("\n");
   for (k = 1; k <= n_turn; k++) {
     m.propagate_lat(k);
-    m.prt_sigma(k);
+    m.print_sigma(k);
   }
+
+  track(m, n_turn, ps);
 }
 
 
