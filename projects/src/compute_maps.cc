@@ -172,8 +172,13 @@ ss_vect<tps> compute_M_delta(const double alpha_rad[])
   M_delta.identity();
   for (k = 0; k < nd_tps; k++) {
     delta_rad = exp(alpha_rad[Z_]) - 1e0;
-    M_delta[2*k] *= 1e0 + delta_rad;
-    M_delta[2*k+1] /= 1e0 + delta_rad;
+    if (k < 2) {
+      M_delta[2*k] *= 1e0 + delta_rad;
+      M_delta[2*k+1] /= 1e0 + delta_rad;
+    } else {
+      M_delta[ct_] *= 1e0 + delta_rad;
+      M_delta[delta_] /= 1e0 + delta_rad;
+    }
   }
   return M_delta;
 }
@@ -250,6 +255,31 @@ ss_vect<tps> compute_D_mat(const ss_vect<tps> &A, const double D[])
 }
 
 
+void prt_map(const string file_name, const ss_vect<tps> map)
+{
+  ofstream outf;
+
+  file_wr(outf, file_name.c_str());
+  outf << scientific << setprecision(3) << setw(11) << map;
+  outf.close();
+}
+
+
+void prt_mat(const int n, const string &str, double **M)
+{
+  int i, j;
+
+  const int n_dec = 8;
+
+  printf("%s\n", str.c_str());
+  for (i = 1; i <= n; i++) {
+    for (j = 1; j <= n; j++)
+      printf("%*.*e", n_dec+8, n_dec, M[i][j]);
+    printf("\n");
+  }
+}
+
+
 ss_vect<tps> compute_M_Chol(const ss_vect<tps> &M_diff)
 {
   // Compute the Cholesky decomposition: D = L^T L.
@@ -276,7 +306,10 @@ ss_vect<tps> compute_M_Chol(const ss_vect<tps> &M_diff)
 
   for (j = 1; j <= 4; j++)
     for (k = 1; k <= j; k++)
-      d2[j][k] = (j == k)? diag[j] : d1[j][k];
+      if (k <= j)
+	d2[j][k] = (j == k)? diag[j] : d1[j][k];
+      else
+	d2[j][k] = 0e0;
 
   M_Chol_t.zero();
   for (j = 1; j <= 4; j++) {
@@ -292,16 +325,6 @@ ss_vect<tps> compute_M_Chol(const ss_vect<tps> &M_diff)
   free_dmatrix(d2, 1, n, 1, n);
 
   return tp_map(3, M_Chol_t);
-}
-
-
-void prt_map(const string file_name, const ss_vect<tps> map)
-{
-  ofstream outf;
-
-  file_wr(outf, file_name.c_str());
-  outf << scientific << setprecision(3) << setw(11) << map;
-  outf.close();
 }
 
 
@@ -332,7 +355,7 @@ void compute_maps(void)
 
   prt_map(nd_tps, "\nM:", M);
 
-  if (false) {
+  if (!false) {
     // Remove linear dispersion.
     eta = compute_eta(M);
     A0 = compute_A0(eta);
@@ -400,6 +423,7 @@ void compute_maps(void)
   cout << scientific << setprecision(3)
        << "eta                 ="  << setw(11) << eta << "\n";
   printf("U0 [keV]            = %3.1f\n", 1e-3*U0);
+  printf("delta0              = %10.3e\n", U0/E0);
   printf("phi0 [deg]          = 180 - %4.2f\n", fabs(phi0*180e0/M_PI));
   printf("tau [msec]          = [%5.3f, %5.3f, %5.3f]\n",
 	 1e3*tau[X_], 1e3*tau[Y_], 1e3*tau[Z_]);

@@ -4,11 +4,9 @@ prm1=${1-0}
 
 gnuplot << EOP
 
-c0 = 2.99792458e8
-
 ps = $prm1
 
-file_name = "wakefield.out"
+file_name = "moments.out"
 
 f_s = 24
  l_w = 2
@@ -55,16 +53,15 @@ plot file_name using 1:(1e6*\$4) notitle with points ls 3
 unset multiplot
 if (!ps) pause mouse "click on graph to cont.\n"
 
-
 if (ps) set output "plt_wakefield_2.".(ext)
 
 set multiplot
 
 set origin 0.0, 0.5
-set title "<s> [ps]"
+set title "<t> [ps]"
 set xlabel "turn no"
 set ylabel ""
-plot file_name using 1:(1e12*\$7/c0) notitle with points ls 1
+plot file_name using 1:(1e12*\$7) notitle with points ls 1
 
 set origin 0.0, 0.0
 set title "<{/Symbol d}>"
@@ -85,13 +82,13 @@ set key right bottom
 set title "{/Symbol s}_x [{/Symbol m}m]"
 set xlabel "turn no"
 set ylabel ""
-plot file_name using 1:(1e6*\$8) notitle with points ls 1
+plot file_name using 1:(1e6*\$9) notitle with points ls 1
 
 set origin 0.0, 0.0
 set title "{/Symbol s}_y [{/Symbol m}m]"
 set xlabel "turn no"
 set ylabel ""
-plot file_name using 1:(1e6*\$10) notitle with points ls 3
+plot file_name using 1:(1e6*\$11) notitle with points ls 3
 
 unset multiplot
 if (!ps) pause mouse "click on graph to cont.\n"
@@ -102,16 +99,16 @@ if (ps) set output "plt_wakefield_4.".(ext)
 set multiplot
 
 set origin 0.0, 0.5
-set title "{/Symbol s}_s [ps]"
+set title "{/Symbol s}_t [ps]"
 set xlabel "turn no"
 set ylabel ""
-plot file_name using 1:(1e12*\$13/c0) notitle with points ls 1
+plot file_name using 1:(1e12*\$14) notitle with points ls 1
 
 set origin 0.0, 0.0
 set title "{/Symbol s_d}"
 set xlabel "turn no"
 set ylabel ""
-plot file_name using 1:12 notitle with points ls 3
+plot file_name using 1:13 notitle with points ls 3
 
 unset multiplot
 if (!ps) pause mouse "click on graph to cont.\n"
