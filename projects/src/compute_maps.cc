@@ -163,20 +163,18 @@ void compute_tau
 }
 
 
-ss_vect<tps> compute_M_delta(const double alpha_rad[])
+ss_vect<tps> compute_M_delta(const double delta_rad)
 {
   int          k;
-  double       delta_rad;
   ss_vect<tps> M_delta;
 
   M_delta.identity();
   for (k = 0; k < nd_tps; k++) {
-    delta_rad = exp(alpha_rad[Z_]) - 1e0;
     if (k < 2) {
-      M_delta[2*k] *= 1e0 + delta_rad;
-      M_delta[2*k+1] /= 1e0 + delta_rad;
+      M_delta[2*k]    *= 1e0 + delta_rad;
+      M_delta[2*k+1]  /= 1e0 + delta_rad;
     } else {
-      M_delta[ct_] *= 1e0 + delta_rad;
+      M_delta[ct_]    *= 1e0 + delta_rad;
       M_delta[delta_] /= 1e0 + delta_rad;
     }
   }
@@ -305,7 +303,7 @@ ss_vect<tps> compute_M_Chol(const ss_vect<tps> &M_diff)
   dcholdc(d1, 4, diag);
 
   for (j = 1; j <= 4; j++)
-    for (k = 1; k <= j; k++)
+    for (k = 1; k <= 4; k++)
       if (k <= j)
 	d2[j][k] = (j == k)? diag[j] : d1[j][k];
       else
@@ -342,12 +340,12 @@ void compute_maps(void)
   long int
     lastpos;
   double
-    dnu[3], alpha_rad[3], tau[3], phi0, D[3], eps[3],
+    dnu[3], alpha_rad[3], tau[3], delta_rad, phi0, D[3], eps[3],
     sigma_s, sigma_delta;
   ss_vect<double>
     fix_point, eta;
   ss_vect<tps>
-    M, A, M_delta, M_tau, M_cav, D_mat, M_Chol, A0;
+    M, A, M_delta, M_tau, M_cav, D_mat, M_Chol, M1, A0;
 
   globval.radiation = globval.Cavity_on = false;
 
@@ -355,7 +353,7 @@ void compute_maps(void)
 
   prt_map(nd_tps, "\nM:", M);
 
-  if (!false) {
+  if (false) {
     // Remove linear dispersion.
     eta = compute_eta(M);
     A0 = compute_A0(eta);
@@ -379,7 +377,8 @@ void compute_maps(void)
   A = get_A_CS(nd_tps, A, dnu);
 
   compute_tau(C, alpha_rad, tau);
-  M_delta = compute_M_delta(alpha_rad);
+  delta_rad = exp(alpha_rad[Z_]) - 1e0;
+  M_delta = compute_M_delta(delta_rad);
 
   M_tau = compute_M_tau(alpha_rad);
   M_tau = A*M_tau*Inv(A);
@@ -404,8 +403,20 @@ void compute_maps(void)
   prt_map(file_name+"_M_tau.dat", M_tau);
   prt_map(file_name+"_M_Chol.dat", M_Chol);
 
-  M = Inv(M_delta)*Inv(M_cav)*Inv(M_tau)*M;
-  prt_map(nd_tps, "\nM_delta^-1.M_cav^-1.M_tau^-1.M:", M);
+  M1 = M;
+  prt_map(nd_tps, "\nM:", M1);
+
+  M1 = Inv(M_tau)*M1;
+  prt_map(nd_tps, "\nM_tau^-1.M:", M1);
+
+  M1 = Inv(M_cav)*M1;
+  prt_map(nd_tps, "\nM_cav^-1.:", M1);
+
+  M1 = Inv(M_delta)*M1;
+  prt_map(nd_tps, "\nM_delta^-1.:", M1);
+
+  prt_map(nd_tps, "\nM^t.Omega.M-Omega:", tp_map(3, M1)*get_S(3)*M1-get_S(3));
+
   eta = compute_eta(M);
   A0 = compute_A0(eta);
   prt_map(nd_tps, "\nA0:", A0);
@@ -424,6 +435,7 @@ void compute_maps(void)
        << "eta                 ="  << setw(11) << eta << "\n";
   printf("U0 [keV]            = %3.1f\n", 1e-3*U0);
   printf("delta0              = %10.3e\n", U0/E0);
+  printf("delta_rad           = %10.3e\n", delta_rad);
   printf("phi0 [deg]          = 180 - %4.2f\n", fabs(phi0*180e0/M_PI));
   printf("tau [msec]          = [%5.3f, %5.3f, %5.3f]\n",
 	 1e3*tau[X_], 1e3*tau[Y_], 1e3*tau[Z_]);

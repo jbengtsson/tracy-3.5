@@ -10,7 +10,7 @@ int
   no_tps   = NO,
   ndpt_tps = 5;
 
-// Moment indeces.
+// Moment indices.
 const long int
   x[]           = {0, 1, 0, 0, 0, 0, 0},
   p_x[]         = {1, 0, 0, 0, 0, 0, 0},
@@ -27,6 +27,10 @@ const long int
   p_y_p_y[]     = {0, 0, 2, 0, 0, 0, 0},
   ct_ct[]       = {0, 0, 0, 0, 2, 0, 0},
   delta_delta[] = {0, 0, 0, 0, 0, 2, 0};
+const int
+  ps_index[]    = {px_, x_, py_, y_, ct_, delta_},
+  ps_sign[]     = {-1, 1, -1, 1, -1, 1};
+
 
 
 class MomentType {
@@ -38,14 +42,13 @@ private:
     n;
   double
     Q_b,       // Bunch charge.
-    Circ;      // Circumference.
+    Circ,      // Circumference.
+    phi_RF;    // RF phase [rad].
   ss_vect<tps>
     A,         // Transformation from Floquet to phase space without radiation.
     A_inv,
     M_delta,
-    M_delta_inv,
     M_tau,
-    M_tau_inv,
     M_Chol,
     M_Chol_t;
   ofstream
@@ -60,15 +63,17 @@ public:
     sigma;     // Statistical moments for charge distribution.
 
   void rd_maps(void);
-  void init(const double Q_b, const string &cav_name);
+  void init(const double Q_b, const double phi_RF, const string &cav_name);
   void set_HOM_long(const double beta, const double f, const double R_sh,
 		    const double Q);
   void compute_sigma(const double eps[], const double sigma_s,
 		     const double sigma_delta);
   void print_sigma(const int n);
-  void propagate_cav(void);
+  ss_vect<tps> compute_cav_HOM_long_M(void);
   void propagate_cav_HOM_long(const int n);
   void propagate_cav_HOM_transv(const int n);
+  ss_vect<tps> compute_M_cav(void);
+  void propagate_cav(void);
   void propagate_mag_lat(void);
   void propagate_delta(void);
   void propagate_tau(void);
@@ -147,13 +152,20 @@ void MomentType::rd_maps(void)
 
 
 void MomentType::init
-(const double Q_b, const string &cav_name)
+(const double Q_b, const double phi_RF, const string &cav_name)
 {
+  CavityType *C;
+
   this->cav_loc = Elem_GetPos(ElemIndex(cav_name.c_str()), 1);
   this->Q_b     = Q_b;
+  this->phi_RF  = phi_RF*M_PI/180e0;
   this->Circ    = Cell[globval.Cell_nLoc].S;
+
   file_wr(outf, file_name.c_str());
   rd_maps();
+
+  C = Cell[cav_loc].Elem.C;
+  C->phi_RF = this->phi_RF;
 }
 
 
@@ -205,20 +217,6 @@ double get_ct(tps &sigma)
 }
 
 
-void MomentType::propagate_cav(void)
-{
-  tps        delta;
-  CavityType *C;
-
-  C = Cell[cav_loc].Elem.C;
-
-  delta =
-    C->V_RF/(globval.Energy*1e9)
-    *sin(2e0*M_PI*C->f_RF*get_ct(sigma)/c0+C->phi_RF);
-  sigma += delta*tps(0e0, ct_+1);
-}
-
-
 void print_HOM(const int n, const long int cav_loc)
 {
   printf("%3d", n);
@@ -228,10 +226,8 @@ void print_HOM(const int n, const long int cav_loc)
 	 real(Cell[cav_loc].Elem.C->HOM_V_long[0]));
 }
 
-
-void MomentType::propagate_cav_HOM_long(const int n)
+ss_vect<tps> MomentType::compute_cav_HOM_long_M(void)
 {
-  ss_vect<tps> M;
 
  const double
     beta_RF     = Cell[cav_loc].Elem.C->beta_RF,
@@ -252,13 +248,31 @@ void MomentType::propagate_cav_HOM_long(const int n)
   Cell[cav_loc].Elem.C->HOM_V_long[0] += Q_b*k_loss/2e0;
 
   // Propagate through wake field.
-  sigma -= Q_b*real(Cell[cav_loc].Elem.C->HOM_V_long[0])/2e0*tps(0e0, delta_+1);
+  sigma -=
+    Q_b*real(Cell[cav_loc].Elem.C->HOM_V_long[0])/2e0
+    *tps(0e0, ps_index[delta_]+1);
 
   // Second half increment of HOM phasor.
   Cell[cav_loc].Elem.C->HOM_V_long[0] += Q_b*k_loss/2e0;
 
   if (!false)
     print_HOM(n, cav_loc);
+
+  return M;
+}
+
+
+void MomentType::propagate_cav_HOM_long(const int n)
+{
+  ss_vect<tps> M_cav;
+   
+  danot_(1);
+  M_cav = compute_cav_HOM_long_M();
+  danot_(NO);
+  cout << scientific << setprecision(3)
+       << "\nM_cav_HOM_long:\n" << M_cav;
+  exit(0);
+  sigma = sigma*Inv(M_cav);
 }
 
 
@@ -300,6 +314,39 @@ void MomentType::propagate_mag_lat(void)
 }
 
 
+ss_vect<tps> MomentType::compute_M_cav(void)
+{
+  ss_vect<tps> M_cav;
+
+  const CavityType* C = Cell[cav_loc].Elem.C;
+
+#if 0
+  M_cav.identity();
+  M_cav[delta_] +=
+    -C->V_RF*2e0*M_PI*C->f_RF/(1e9*globval.Energy*c0)
+    *cos(2e0*M_PI*C->f_RF*get_ct(sigma)/c0+this->phi_RF)*tps(0e0, ct_+1);
+#else
+  danot_(1);
+  M_cav.identity();
+  M_cav[ct_] += get_ct(sigma); 
+  Cav_Pass(Cell[cav_loc], M_cav);
+  M_cav[ct_] -= get_ct(sigma);
+  M_cav[delta_] -= M_cav[delta_].cst();
+  danot_(NO);
+#endif
+  return M_cav;
+}
+
+
+void MomentType::propagate_cav(void)
+{
+  ss_vect<tps> M_cav;
+   
+  M_cav = compute_M_cav();
+  sigma = sigma*Inv(M_cav);
+}
+
+
 void MomentType::propagate_delta(void)
 {
   sigma = sigma*M_delta;
@@ -335,10 +382,6 @@ void MomentType::propagate_qfluct(void)
   std::default_random_engine       rand;
   std::normal_distribution<double> norm_ranf(0e0, 1e0);
 
-  const int
-    ps_index[] = {px_, x_, py_, y_, ct_, delta_},
-    ps_sign[]  = {-1, 1, -1, 1, -1, 1};
-
   Id.identity();
   compute_stochastic_part(X, X_map);
   qfluct = (M_Chol_t*X).cst();
@@ -346,22 +389,23 @@ void MomentType::propagate_qfluct(void)
   for (j = 0; j < 2*nd_tps; j++) {
     sigma += ps_sign[j]*qfluct[j]*Id[ps_index[j]];
     for (k = 0; k < 2*nd_tps; k++)
-      sigma +=
-	ps_sign[j]*ps_sign[k]*qfluct2[j][k]*Id[ps_index[j]]*Id[ps_index[k]];
+      if ((j != ct_) && (k != ct_))
+	sigma +=
+	  ps_sign[j]*ps_sign[k]*qfluct2[j][k]*Id[ps_index[j]]*Id[ps_index[k]];
   }
 }
 
 
 void MomentType::propagate_lat(const int n)
 {
-  // if (globval.radiation)
-  //   propagate_delta();
+  if (globval.radiation)
+    propagate_tau();
 
   if (globval.Cavity_on)
     propagate_cav();
 
-  if (globval.radiation)
-    propagate_tau();
+  // if (globval.radiation)
+  //   propagate_delta();
 
   if (false)
     propagate_cav_HOM_long(n);
@@ -383,7 +427,7 @@ void track(MomentType &m, const int n, ss_vect<double> &ps)
        << "\n" << setw(5) << 0 << setw(11) << ps << "\n";
   ps[ct_] *= c0;
   for (k = 1; k <= n; k++) {
-    if (!true)
+    if (true)
       Cell_Pass(0, globval.Cell_nLoc, ps, lastpos);
     else {
       if (globval.Cavity_on)
@@ -413,6 +457,7 @@ void test_case(const string &cav_name)
     sigma_delta = 9.353e-04,
 
     Q_b         = -0.6e-9,
+    phi_RF      = -30.63,
     beta_HOM    = 1e0,
     f           = 1e9,
     R_sh        = 1e3,
@@ -422,7 +467,7 @@ void test_case(const string &cav_name)
 
   danot_(1);
 
-  m.init(Q_b, cav_name);
+  m.init(Q_b, phi_RF, cav_name);
 
   danot_(NO);
 
@@ -430,30 +475,29 @@ void test_case(const string &cav_name)
 
   globval.radiation = globval.Cavity_on = true;
 
-  Cell[m.cav_loc].Elem.C->phi_RF = 0e0;
-
-  if (true)
-    ps.zero();
-  else {
+  ps.zero();
+  if (false) {
     ps[x_]     =  1e-6;
-    ps[y_]     = -1e-6;
-    ps[delta_] =  1e-6;
+    ps[px_]    =  2e-6;
+    ps[y_]     = -3e-6;
+    ps[py_]    = -4e-6;
+    ps[ct_]    = -5e-6;
+    ps[delta_] =  6e-6;
   }
 
-  if (!false)
-    m.sigma = 0e0;
-  else
+  m.sigma = 0e0;
+  if (false)
     m.compute_sigma(eps, sigma_s, sigma_delta);
 
-  m.sigma -= ps[x_]*tps(0e0, px_+1);
-  m.sigma -= ps[y_]*tps(0e0, py_+1);
-  m.sigma -= ps[delta_]*tps(0e0, ct_+1);
+  for (k = 0; k < 2*nd_tps; k++)
+    m.sigma += ps_sign[k]*ps[k]*tps(0e0, ps_index[k]+1);
 
   m.print_sigma(0);
   printf("\n");
   for (k = 1; k <= n_turn; k++) {
     m.propagate_lat(k);
-    m.print_sigma(k);
+    m.print_sigma
+      (k);
   }
 
   if (false)
