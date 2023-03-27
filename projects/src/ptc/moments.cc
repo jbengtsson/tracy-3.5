@@ -69,10 +69,10 @@ public:
   void compute_sigma(const double eps[], const double sigma_s,
 		     const double sigma_delta);
   void print_sigma(const int n);
-  ss_vect<tps> compute_cav_HOM_long_M(void);
+  void compute_cav_HOM_long_M(ss_vect<tps> &M);
   void propagate_cav_HOM_long(const int n);
   void propagate_cav_HOM_transv(const int n);
-  ss_vect<tps> compute_M_cav(void);
+  void compute_M_cav(ss_vect<tps> &M);
   void propagate_cav(void);
   void propagate_mag_lat(void);
   void propagate_delta(void);
@@ -226,7 +226,7 @@ void print_HOM(const int n, const long int cav_loc)
 	 real(Cell[cav_loc].Elem.C->HOM_V_long[0]));
 }
 
-ss_vect<tps> MomentType::compute_cav_HOM_long_M(void)
+void MomentType::compute_cav_HOM_long_M(ss_vect<tps> &M)
 {
 
  const double
@@ -242,23 +242,21 @@ ss_vect<tps> MomentType::compute_cav_HOM_long_M(void)
 
   // Update RF cavity HOM phasor.
   Cell[cav_loc].Elem.C->HOM_V_long[0] *=
-    exp(2e0*M_PI*f*(Circ+get_ct(sigma))/c0*(-1e0/(2e0*Q_loaded)+I));
+    exp(2e0*M_PI*f*(Circ+M[ct_].cst())/c0*(-1e0/(2e0*Q_loaded)+I));
 
   // First half increment of HOM phasor.
   Cell[cav_loc].Elem.C->HOM_V_long[0] += Q_b*k_loss/2e0;
 
   // Propagate through wake field.
-  sigma -=
+  M[delta_] -=
     Q_b*real(Cell[cav_loc].Elem.C->HOM_V_long[0])/2e0
-    *tps(0e0, ps_index[delta_]+1);
+    *tps(0e0, ct_+1);
 
   // Second half increment of HOM phasor.
   Cell[cav_loc].Elem.C->HOM_V_long[0] += Q_b*k_loss/2e0;
 
-  if (!false)
+  if (false)
     print_HOM(n, cav_loc);
-
-  return M;
 }
 
 
@@ -267,11 +265,10 @@ void MomentType::propagate_cav_HOM_long(const int n)
   ss_vect<tps> M_cav;
    
   danot_(1);
-  M_cav = compute_cav_HOM_long_M();
+  M_cav.identity();
+  compute_cav_HOM_long_M(M_cav);
+  M -= M.cst();
   danot_(NO);
-  cout << scientific << setprecision(3)
-       << "\nM_cav_HOM_long:\n" << M_cav;
-  exit(0);
   sigma = sigma*Inv(M_cav);
 }
 
@@ -314,27 +311,21 @@ void MomentType::propagate_mag_lat(void)
 }
 
 
-ss_vect<tps> MomentType::compute_M_cav(void)
+void MomentType::compute_M_cav(ss_vect<tps> &M)
 {
-  ss_vect<tps> M_cav;
 
   const CavityType* C = Cell[cav_loc].Elem.C;
 
-#if 0
-  M_cav.identity();
-  M_cav[delta_] +=
+#if 1
+  M[delta_] +=
     -C->V_RF*2e0*M_PI*C->f_RF/(1e9*globval.Energy*c0)
-    *cos(2e0*M_PI*C->f_RF*get_ct(sigma)/c0+this->phi_RF)*tps(0e0, ct_+1);
+    *cos(2e0*M_PI*C->f_RF*M[ct_].cst()/c0+this->phi_RF)*tps(0e0, ct_+1);
 #else
   danot_(1);
-  M_cav.identity();
-  M_cav[ct_] += get_ct(sigma); 
-  Cav_Pass(Cell[cav_loc], M_cav);
-  M_cav[ct_] -= get_ct(sigma);
-  M_cav[delta_] -= M_cav[delta_].cst();
+  Cav_Pass(Cell[cav_loc], M);
+  M -= M.cst();
   danot_(NO);
 #endif
-  return M_cav;
 }
 
 
@@ -342,7 +333,9 @@ void MomentType::propagate_cav(void)
 {
   ss_vect<tps> M_cav;
    
-  M_cav = compute_M_cav();
+  M_cav.identity();
+  M_cav[ct_] += get_ct(sigma);
+  compute_M_cav(M_cav);
   sigma = sigma*Inv(M_cav);
 }
 
@@ -407,7 +400,7 @@ void MomentType::propagate_lat(const int n)
   // if (globval.radiation)
   //   propagate_delta();
 
-  if (false)
+  if (!false)
     propagate_cav_HOM_long(n);
 
   propagate_mag_lat();
@@ -496,8 +489,7 @@ void test_case(const string &cav_name)
   printf("\n");
   for (k = 1; k <= n_turn; k++) {
     m.propagate_lat(k);
-    m.print_sigma
-      (k);
+    m.print_sigma(k);
   }
 
   if (false)
