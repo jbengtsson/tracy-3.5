@@ -37,7 +37,7 @@ if (ps) set output "track_1.".(ext)
 set key right top;
 set title "Barycenter";
 set xlabel "turn no";
- set ylabel "<x> [{/Symbol m}m]";
+set ylabel "<x> [{/Symbol m}m]";
 set y2label "<y> [{/Symbol m}m]";
 set ytics nomirror;
 set y2tics;
