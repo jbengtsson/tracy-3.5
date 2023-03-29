@@ -32,7 +32,6 @@ const int
   ps_sign[]     = {-1, 1, -1, 1, -1, 1};
 
 
-
 class MomentType {
   const string
     file_name = "moments.out"; // Output file name.
@@ -72,7 +71,7 @@ public:
   ss_vect<tps> compute_cav_HOM_long_M(const tps ct);
   void propagate_cav_HOM_long(const int n);
   void propagate_cav_HOM_transv(const int n);
-  ss_vect<tps> compute_M_cav(const tps ct);
+  ss_vect<tps> compute_M_cav(void);
   void propagate_cav(void);
   void propagate_mag_lat(void);
   void propagate_delta(void);
@@ -211,88 +210,89 @@ void MomentType::print_sigma(const int n)
 }
 
 
-double get_ct(tps &sigma)
+void print_HOM(const int n, const long int cav_loc, const complex<double> V0)
 {
-  return sigma[ct];
-}
+  const complex<double> dV = Cell[cav_loc].Elem.C->HOM_V_long[0] - V0;
 
-
-void print_HOM(const int n, const long int cav_loc)
-{
   printf("%3d", n);
-  printf("  %22.15e %22.15e %22.15e\n",
+  printf("  %22.15e %22.15e\n",
 	 abs(Cell[cav_loc].Elem.C->HOM_V_long[0]),
-	 arg(Cell[cav_loc].Elem.C->HOM_V_long[0]),
-	 real(Cell[cav_loc].Elem.C->HOM_V_long[0]));
+	 arg(Cell[cav_loc].Elem.C->HOM_V_long[0]));
 }
 
 void MomentType::propagate_cav_HOM_transv(const int n)
 {
+  complex<double> V0;
 
   const double
-    beta_RF     = Cell[cav_loc].Elem.C->beta_RF,
-    f           = Cell[cav_loc].Elem.C->HOM_f_long[0],
-    R_sh        = Cell[cav_loc].Elem.C->HOM_R_sh_long[0],
-    Q           = Cell[cav_loc].Elem.C->HOM_Q_long[0],
-    k_loss      = 2e0*M_PI*f*R_sh/Q,
-    R_sh_loaded = R_sh/(1e0+beta_RF),
-    Q_loaded    = Q/(1e0+beta_RF);
+    beta_RF = Cell[cav_loc].Elem.C->beta_long[0],
+    f       = Cell[cav_loc].Elem.C->HOM_f_long[0],
+    R_sh    = Cell[cav_loc].Elem.C->HOM_R_sh_long[0],
+    Q       = Cell[cav_loc].Elem.C->HOM_Q_long[0],
+    k_loss  = 2e0*M_PI*f*R_sh/Q,                      /* Ring convention
+							  P = V^2/(2Rs).  */
+    Q_loaded = Q/(1e0+beta_RF);
   const complex<double>
     I = complex<double>(0e0, 1e0);
 
+  V0 = Cell[cav_loc].Elem.C->HOM_V_long[0];
+
   // Update RF cavity HOM phasor.
   Cell[cav_loc].Elem.C->HOM_V_long[0] *=
-    exp(2e0*M_PI*f*(Circ+get_ct(sigma))/c0*(-1e0/(2e0*Q_loaded)+I));
+    exp(2e0*M_PI*f*(Circ+sigma[ct])/c0*(-1e0/(2e0*Q_loaded)+I));
 
   // First half increment of HOM phasor.
   Cell[cav_loc].Elem.C->HOM_V_long[0] += Q_b*k_loss/2e0;
 
   // Propagate through wake field.
-  sigma -= Q_b*real(Cell[cav_loc].Elem.C->HOM_V_long[0])/2e0;
+  sigma -= Q_b*real(Cell[cav_loc].Elem.C->HOM_V_long[0]);
 
   // Second half increment of HOM phasor.
   Cell[cav_loc].Elem.C->HOM_V_long[0] += Q_b*k_loss/2e0;
 
   if (false)
-    print_HOM(n, cav_loc);
+    print_HOM(n, cav_loc, V0);
 }
 
 
 ss_vect<tps> MomentType::compute_cav_HOM_long_M(const tps ct)
 {
-  double       delta;
-  ss_vect<tps> M_cav;
+  double          delta;
+  complex<double> V0;
+  ss_vect<tps>    M_cav;
 
   const double
-    beta_RF     = Cell[cav_loc].Elem.C->beta_RF,
-    f           = Cell[cav_loc].Elem.C->HOM_f_long[0],
-    R_sh        = Cell[cav_loc].Elem.C->HOM_R_sh_long[0],
-    Q           = Cell[cav_loc].Elem.C->HOM_Q_long[0],
-    k_loss      = 2e0*M_PI*f*R_sh/Q,
-    R_sh_loaded = R_sh/(1e0+beta_RF),
-    Q_loaded    = Q/(1e0+beta_RF);
+    beta_RF  = Cell[cav_loc].Elem.C->beta_long[0],
+    f        = Cell[cav_loc].Elem.C->HOM_f_long[0],
+    R_sh     = Cell[cav_loc].Elem.C->HOM_R_sh_long[0],
+    Q        = Cell[cav_loc].Elem.C->HOM_Q_long[0],
+    k_loss   = 2e0*M_PI*f*R_sh/(2e0*Q),                 /* Ring convention
+							   P = V^2/(2Rs).  */
+    Q_loaded = Q/(1e0+beta_RF);
   const complex<double>
     I = complex<double>(0e0, 1e0);
 
   M_cav.identity();
 
+  V0 = Cell[cav_loc].Elem.C->HOM_V_long[0];
+
   // Update RF cavity HOM phasor.
   Cell[cav_loc].Elem.C->HOM_V_long[0] *=
     exp(2e0*M_PI*f*(Circ+ct.cst())/c0*(-1e0/(2e0*Q_loaded)+I));
 
-  // First half increment of HOM phasor.
-  Cell[cav_loc].Elem.C->HOM_V_long[0] += Q_b*k_loss/2e0;
+  // First half increment of HOM phasor: Q_b is negative.
+  Cell[cav_loc].Elem.C->HOM_V_long[0] += Q_b*k_loss;
 
   // Propagate through wake field.
-  delta = -Q_b*real(Cell[cav_loc].Elem.C->HOM_V_long[0])/2e0;
+  delta = 9.14e5*Q_b*real(Cell[cav_loc].Elem.C->HOM_V_long[0]);
 
   M_cav[delta_] += delta;
 
-  // Second half increment of HOM phasor.
-  Cell[cav_loc].Elem.C->HOM_V_long[0] += Q_b*k_loss/2e0;
+  // Second half increment of HOM phasor: Q_b is negative.
+  Cell[cav_loc].Elem.C->HOM_V_long[0] += Q_b*k_loss;
 
-  if (!false)
-    print_HOM(n, cav_loc);
+  if (false)
+    print_HOM(n, cav_loc, V0);
 
   return M_cav;
 }
@@ -302,33 +302,28 @@ void MomentType::propagate_cav_HOM_long(const int n)
 {
   ss_vect<tps> M_cav;
    
-  M_cav = compute_cav_HOM_long_M(tps(get_ct(sigma), ct_+1));
+  M_cav = compute_cav_HOM_long_M(tps(sigma[ct], ct_+1));
   sigma += M_cav[delta_].cst()*ps_sign[delta_]*tps(0e0, ps_index[delta_]+1);
 }
 
 
-void MomentType::propagate_mag_lat(void)
+ss_vect<tps> MomentType::compute_M_cav(void)
 {
-  sigma = sigma*M_inv;
-}
-
-
-ss_vect<tps> MomentType::compute_M_cav(const tps ct)
-{
-  tps          delta;
+  tps          ct0, delta;
   ss_vect<tps> M_cav;
 
   const CavityType* C = Cell[cav_loc].Elem.C;
 
   danot_(1);
+  ct0 = tps(sigma[ct], ct_+1);
   M_cav.identity();
 #if 1
-  M_cav[ct_] += ct.cst();
+  M_cav[ct_] += ct0.cst();
   Cav_Pass(Cell[cav_loc], M_cav);
   M_cav[delta_] -= M_cav[delta_].cst();
 #else
   delta =
-    -C->V_RF/(1e9*globval.Energy)*sin(2e0*M_PI*C->f_RF*ct/c0+this->phi_RF);
+    -C->V_RF/(1e9*globval.Energy)*sin(2e0*M_PI*C->f_RF*ct0/c0+this->phi_RF);
   M_cav[delta_] += delta - delta.cst();
 #endif
   danot_(NO);
@@ -340,7 +335,7 @@ void MomentType::propagate_cav(void)
 {
   ss_vect<tps> M_cav;
    
-  M_cav = compute_M_cav(tps(get_ct(sigma), ct_+1));
+  M_cav = compute_M_cav();
   sigma = sigma*Inv(M_cav);
 }
 
@@ -394,11 +389,14 @@ void MomentType::propagate_qfluct(void)
 }
 
 
+void MomentType::propagate_mag_lat(void)
+{
+  sigma = sigma*M_inv;
+}
+
+
 void MomentType::propagate_lat(const int n)
 {
-  if (!true && globval.radiation)
-    propagate_tau();
-
   if (globval.Cavity_on)
     propagate_cav();
 
@@ -410,7 +408,10 @@ void MomentType::propagate_lat(const int n)
 
   propagate_mag_lat();
 
-  if (!true && globval.radiation)
+  if (globval.radiation)
+    propagate_tau();
+
+  if (globval.radiation)
     propagate_qfluct();
 }
 
@@ -475,7 +476,8 @@ void test_case(const string &cav_name)
 
   m.set_HOM_long(beta_HOM, f, R_sh, Q);
 
-  globval.radiation = globval.Cavity_on = true;
+  globval.radiation = !true;
+  globval.Cavity_on = true;
 
   ps.zero();
   if (!false) {
