@@ -41,6 +41,7 @@ private:
     n;
   double
     Q_b,       // Bunch charge.
+    t_q,       // Time stamp.
     Circ,      // Circumference.
     phi_RF;    // RF phase [rad].
   ss_vect<tps>
@@ -157,6 +158,7 @@ void MomentType::init
 
   this->cav_loc = Elem_GetPos(ElemIndex(cav_name.c_str()), 1);
   this->Q_b     = Q_b;
+  this->t_q     = 0e0;
   this->phi_RF  = phi_RF*M_PI/180e0;
   this->Circ    = Cell[globval.Cell_nLoc].S;
 
@@ -257,7 +259,10 @@ ss_vect<tps> MomentType::compute_cav_HOM_long_M(const tps ct)
     Q        = Cell[cav_loc].Elem.C->HOM_Q_long[0],
     k_loss   = 2e0*M_PI*f*R_sh/(2e0*Q),                 /* Ring convention
 							   P = V^2/(2Rs).  */
-    Q_loaded = Q/(1e0+beta_RF);
+    Q_loaded = Q/(1e0+beta_RF),
+
+    E0       = 1e9*globval.Energy;
+
   const complex<double>
     I = complex<double>(0e0, 1e0);
 
@@ -267,15 +272,14 @@ ss_vect<tps> MomentType::compute_cav_HOM_long_M(const tps ct)
 
   // Update RF cavity HOM phasor.
   Cell[cav_loc].Elem.C->HOM_V_long[0] *=
-    exp(2e0*M_PI*f*(Circ+ct.cst())/c0*(-1e0/(2e0*Q_loaded)+I));
+    exp(2e0*M_PI*f*(Circ+ct.cst()-t_q)/c0*(-1e0/(2e0*Q_loaded)+I));
+  t_q = ct.cst();
 
   // First half increment of HOM phasor: Q_b is negative.
   Cell[cav_loc].Elem.C->HOM_V_long[0] += Q_b*k_loss;
 
   // Propagate through wake field.
-  delta = Q_b*real(Cell[cav_loc].Elem.C->HOM_V_long[0]);
-  if (!false)
-    delta *= 9.14e5;
+  delta = real(Cell[cav_loc].Elem.C->HOM_V_long[0])/E0;
 
   M_cav[delta_] += delta;
 
@@ -390,8 +394,7 @@ void MomentType::propagate_lat(const int n)
   // if (globval.radiation)
   //   propagate_delta();
 
-  if (false)
-    propagate_cav_HOM_long(n);
+  propagate_cav_HOM_long(n);
 
   propagate_mag_lat();
 
@@ -436,14 +439,14 @@ void test_case(const string &cav_name)
   MomentType      m;
 
   const int
-    n_turn      = 20000;
+    n_turn      = 1000;
   const double
     eps[]       = {161.7e-12, 8e-12},
     sigma_s     = 3.739e-3,
     sigma_delta = 9.353e-04,
 
     Q_b         = -0.6e-9,
-    phi_RF      = -30.63,
+    phi_RF      = -0*30.63,
     beta_HOM    = 1e0,
     f           = 1e9,
     R_sh        = 1e3,
@@ -463,11 +466,11 @@ void test_case(const string &cav_name)
 
   m.set_HOM_long(beta_HOM, f, R_sh, Q);
 
-  globval.radiation = true;
+  globval.radiation = !true;
   globval.Cavity_on = true;
 
   ps.zero();
-  if (!false) {
+  if (false) {
     ps[x_]     =  0e-6;
     ps[px_]    =  0e-6;
     ps[y_]     =  0e-6;
@@ -477,7 +480,7 @@ void test_case(const string &cav_name)
   }
 
   m.sigma = 0e0;
-  if (!false)
+  if (false)
     m.compute_sigma(eps, sigma_s, sigma_delta);
 
   for (k = 0; k < 2*nd_tps; k++)
