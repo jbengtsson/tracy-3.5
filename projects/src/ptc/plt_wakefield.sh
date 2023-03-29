@@ -40,13 +40,13 @@ set size 1.0, 0.5
 set origin 0.0, 0.5
 set key right bottom
 set title "<x> [{/Symbol m}m]"
-set xlabel "turn no"
+set xlabel "Turn no"
 set ylabel ""
 plot file_name using 1:(1e6*\$2) notitle with points ls 1
 
 set origin 0.0, 0.0
 set title "<y> [{/Symbol m}m]"
-set xlabel "turn no"
+set xlabel "Turn no"
 set ylabel ""
 plot file_name using 1:(1e6*\$4) notitle with points ls 3
 
@@ -59,13 +59,13 @@ set multiplot
 
 set origin 0.0, 0.5
 set title "<t> [ps]"
-set xlabel "turn no"
+set xlabel "Turn no"
 set ylabel ""
 plot file_name using 1:(1e12*\$7) notitle with points ls 1
 
 set origin 0.0, 0.0
 set title "<{/Symbol d}>"
-set xlabel "turn no"
+set xlabel "Turn no"
 set ylabel ""
 plot file_name using 1:6 notitle with points ls 3
 
@@ -80,13 +80,13 @@ set size 1.0, 0.5
 set origin 0.0, 0.5
 set key right bottom
 set title "{/Symbol s}_x [{/Symbol m}m]"
-set xlabel "turn no"
+set xlabel "Turn no"
 set ylabel ""
 plot file_name using 1:(1e6*\$9) notitle with points ls 1
 
 set origin 0.0, 0.0
 set title "{/Symbol s}_y [{/Symbol m}m]"
-set xlabel "turn no"
+set xlabel "Turn no"
 set ylabel ""
 plot file_name using 1:(1e6*\$11) notitle with points ls 3
 
@@ -100,15 +100,35 @@ set multiplot
 
 set origin 0.0, 0.5
 set title "{/Symbol s}_t [ps]"
-set xlabel "turn no"
+set xlabel "Turn no"
 set ylabel ""
 plot file_name using 1:(1e12*\$14) notitle with points ls 1
 
 set origin 0.0, 0.0
 set title "{/Symbol s_d}"
-set xlabel "turn no"
+set xlabel "Turn no"
 set ylabel ""
 plot file_name using 1:13 notitle with points ls 3
+
+unset multiplot
+if (!ps) pause mouse "click on graph to cont.\n"
+
+
+if (ps) set output "plt_wakefield_5.".(ext)
+
+set multiplot
+
+set origin 0.0, 0.5
+set title "HOM Amplitude"
+set xlabel "Turn no"
+set ylabel ""
+plot file_name using 1:15 notitle with points ls 1
+
+set origin 0.0, 0.0
+set title "HOM Phase"
+set xlabel "Turn no"
+set ylabel ""
+plot file_name using 1:16 notitle with points ls 3
 
 unset multiplot
 if (!ps) pause mouse "click on graph to cont.\n"
