@@ -206,19 +206,11 @@ void MomentType::print_sigma(const int n)
        << setw(10) << sqrt(sigma[x_x]) << setw(10) << sqrt(sigma[p_x_p_x])
        << setw(10) << sqrt(sigma[y_y]) << setw(10) << sqrt(sigma[p_y_p_y])
        << setw(10) << sqrt(sigma[delta_delta])
-       << setw(10) << sqrt(sigma[ct_ct])/c0 << "\n";
+       << setw(10) << sqrt(sigma[ct_ct])/c0
+       << setw(11) << abs(Cell[cav_loc].Elem.C->HOM_V_long[0])
+       << setw(11) << arg(Cell[cav_loc].Elem.C->HOM_V_long[0]) << "\n";
 }
 
-
-void print_HOM(const int n, const long int cav_loc, const complex<double> V0)
-{
-  const complex<double> dV = Cell[cav_loc].Elem.C->HOM_V_long[0] - V0;
-
-  printf("%3d", n);
-  printf("  %22.15e %22.15e\n",
-	 abs(Cell[cav_loc].Elem.C->HOM_V_long[0]),
-	 arg(Cell[cav_loc].Elem.C->HOM_V_long[0]));
-}
 
 void MomentType::propagate_cav_HOM_transv(const int n)
 {
@@ -249,9 +241,6 @@ void MomentType::propagate_cav_HOM_transv(const int n)
 
   // Second half increment of HOM phasor.
   Cell[cav_loc].Elem.C->HOM_V_long[0] += Q_b*k_loss/2e0;
-
-  if (false)
-    print_HOM(n, cav_loc, V0);
 }
 
 
@@ -284,15 +273,14 @@ ss_vect<tps> MomentType::compute_cav_HOM_long_M(const tps ct)
   Cell[cav_loc].Elem.C->HOM_V_long[0] += Q_b*k_loss;
 
   // Propagate through wake field.
-  delta = 9.14e5*Q_b*real(Cell[cav_loc].Elem.C->HOM_V_long[0]);
+  delta = Q_b*real(Cell[cav_loc].Elem.C->HOM_V_long[0]);
+  if (!false)
+    delta *= 9.14e5;
 
   M_cav[delta_] += delta;
 
   // Second half increment of HOM phasor: Q_b is negative.
   Cell[cav_loc].Elem.C->HOM_V_long[0] += Q_b*k_loss;
-
-  if (false)
-    print_HOM(n, cav_loc, V0);
 
   return M_cav;
 }
@@ -382,9 +370,8 @@ void MomentType::propagate_qfluct(void)
   for (j = 0; j < 2*nd_tps; j++) {
     sigma += ps_sign[j]*qfluct[j]*Id[ps_index[j]];
     for (k = 0; k < 2*nd_tps; k++)
-      if ((j != ct_) && (k != ct_))
-	sigma +=
-	  ps_sign[j]*ps_sign[k]*qfluct2[j][k]*Id[ps_index[j]]*Id[ps_index[k]];
+      sigma +=
+	ps_sign[j]*ps_sign[k]*qfluct2[j][k]*Id[ps_index[j]]*Id[ps_index[k]];
   }
 }
 
@@ -403,7 +390,7 @@ void MomentType::propagate_lat(const int n)
   // if (globval.radiation)
   //   propagate_delta();
 
-  if (!false)
+  if (false)
     propagate_cav_HOM_long(n);
 
   propagate_mag_lat();
@@ -449,7 +436,7 @@ void test_case(const string &cav_name)
   MomentType      m;
 
   const int
-    n_turn      = 1000;
+    n_turn      = 20000;
   const double
     eps[]       = {161.7e-12, 8e-12},
     sigma_s     = 3.739e-3,
@@ -476,7 +463,7 @@ void test_case(const string &cav_name)
 
   m.set_HOM_long(beta_HOM, f, R_sh, Q);
 
-  globval.radiation = !true;
+  globval.radiation = true;
   globval.Cavity_on = true;
 
   ps.zero();
@@ -490,7 +477,7 @@ void test_case(const string &cav_name)
   }
 
   m.sigma = 0e0;
-  if (false)
+  if (!false)
     m.compute_sigma(eps, sigma_s, sigma_delta);
 
   for (k = 0; k < 2*nd_tps; k++)
