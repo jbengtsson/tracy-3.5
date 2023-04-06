@@ -105,7 +105,7 @@ ss_vect<tps> compute_A0(const ss_vect<double> &eta)
 
 
 ss_vect<tps> compute_A
-(const double C, const ss_vect<tps> &M, double alpha_rad[], const bool rad)
+(const double C, const ss_vect<tps> &M, double alpha_rad[], const bool cav_on)
 {
   // Poincaré map Diagonalization.
   // The damping coeffients alpha[] are obtained from the eigen values.
@@ -113,9 +113,7 @@ ss_vect<tps> compute_A
   Matrix       M_mat, A_mat, A_inv_mat, R_mat;
   ss_vect<tps> A;
 
-  const int n_dof = (rad)? 3 : 2;
-
-  globval.radiation = globval.Cavity_on = rad;
+  const int n_dof = (cav_on)? 3 : 2;
 
   getlinmat(2*n_dof, M, M_mat);
   GDiag(2*n_dof, C, A_mat, A_inv_mat, R_mat, M_mat, nu_s, alpha_c);
@@ -306,7 +304,7 @@ ss_vect<tps> compute_M_Chol(const ss_vect<tps> &M_diff)
 
 
 ss_vect<tps> compute_M_cav
-(const string &cav_name, const double U0, double &phi0)
+(const string &cav_name, double phi0)
 {
   tps          ct0;
   ss_vect<tps> M;
@@ -316,7 +314,6 @@ ss_vect<tps> compute_M_cav
 
   C = Cell[loc].Elem.C;
 
-  phi0 = asin(U0/C->V_RF);
   ct0 = tps(0e0, ct_+1);
   M.identity();
 #if 1
@@ -343,21 +340,28 @@ void compute_maps(void)
   ss_vect<double>
     fixed_point, eta;
   ss_vect<tps>
-    Id, M, M_cav, M_lat, M_2D, M_3D, A_3D_1, A_3D_2, M_delta, M_tau, D_mat,
+    M, M_cav, M_lat, M_2D, M_3D, A_3D, A_3D_no_rad, M_delta, M_tau, D_mat,
     M_Chol, A0, M1;
+   CavityType
+     *C;
 
   const string
-    file_name = "compute_maps";
+    file_name = "compute_maps",
+    cav_name  = "cav";
+  const int
+    loc       = Elem_GetPos(ElemIndex(cav_name.c_str()), 1);
   const double
-    C         = Cell[globval.Cell_nLoc].S,
+    Circ      = Cell[globval.Cell_nLoc].S,
     E0        = 1e9*globval.Energy;
 
   globval.radiation = globval.Cavity_on = false;
 
-  if (false)
+  if (false) {
     no_sxt();
+    set_bn_design_fam(ElemIndex("o1x"), Oct, 0e0, 0e0);
+  }
 
-  Id.identity();
+  C = Cell[loc].Elem.C;
 
   M_2D = compute_M();
 
@@ -371,119 +375,101 @@ void compute_maps(void)
     prt_map(nd_tps, "\nM_2D:", M_2D);
   }
 
-  prt_map(nd_tps, "\nM^t.Omega.M_2D.Omega:",
+  prt_map(nd_tps, "\nM_2D^t.Omega.M_2D.Omega:",
 	  tp_map(3, M_2D)*get_S(3)*M_2D-get_S(3));
 
   prt_map(file_name+"_M_2D.dat", M_2D);
 
   globval.radiation = globval.Cavity_on = true;
 
+  C->phi_RF = 0e0;
   getcod(0e0, lastpos);
   fixed_point = globval.CODvect;
   U0 = globval.dE*E0;
+  M_3D = compute_M(fixed_point);
+  A_3D = compute_A(Circ, M_3D, alpha_rad, true);
+  A_3D = get_A_CS(nd_tps, A_3D, dnu);
   cout << scientific << setprecision(3)
        << "\nFixed point =" << setw(11) << fixed_point << "\n";
-
-  M_3D = compute_M(fixed_point);
-  A_3D_1 = compute_A(C, M_3D, alpha_rad, true);
-  A_3D_1 = get_A_CS(nd_tps, A_3D_1, dnu);
-
   prt_map(nd_tps, "\nM_3D:", M_3D);
+
+  // phi0 = asin(U0/C->V_RF);
+  // M_cav = compute_M_cav("cav", phi0);
+  // printf("\nphi0 [deg] = 180 - %4.2f\n", fabs(phi0*180e0/M_PI));
+  // cout << scientific << setprecision(3)
+  //      << "\nFixed point =" << setw(11) << M_cav.cst() << "\n";
+  // prt_map(nd_tps, "\nM_cav:", M_cav);
 
   M_cav.identity();
   M_cav += fixed_point;
-  Cell_Pass(0, 2, M_cav, lastpos);
-  prt_map(nd_tps, "\nM_cav:", M_cav);
+  Cell_Pass(0, 3, M_cav, lastpos);
   cout << scientific << setprecision(3)
        << "\nFixed point =" << setw(11) << M_cav.cst() << "\n";
-
-  M_lat = M_3D*Inv(M_cav);
-  prt_map(nd_tps, "\nM_lat:", M_3D*Inv(M_cav));
+  prt_map(nd_tps, "\nM_cav:", M_cav);
 
   M1.identity();
   M1 += M_cav.cst();
   Cell_Pass(3, globval.Cell_nLoc, M1, lastpos);
-  prt_map(nd_tps, "\nM_lat:", M1);
   cout << scientific << setprecision(3)
        << "\nFixed point =" << setw(11) << M1.cst() << "\n";
+  prt_map(nd_tps, "\nM_lat_rad:", M1);
 
-  prt_map(nd_tps, "\nM_lat:", M1);
-
-  M1 = Inv(A_3D_1)*M_lat*M_cav*A_3D_1;
-  prt_map(nd_tps, "\nR:", M1);
-  printf("\n  nu = [");
-  for (k = 0; k < 3; k++)
-    printf("%21.15e%s",
-	   acos((M1[2*k][2*k]+M1[2*k+1][2*k+1])/2e0)/(2e0*M_PI),
-	   (k < 2)? ", " : "]\n");
-
-  compute_tau(C, alpha_rad, tau);
-  delta_tau = exp(alpha_rad[Z_]) - 1e0;
-  M_delta = compute_M_delta(delta_tau);
+  M_lat = M_3D*Inv(M_cav);
+  prt_map(nd_tps, "\nM_lat_rad:", M_lat);
 
   M_tau = compute_M_tau(alpha_rad);
   prt_map(nd_tps, "\nM_tau:", M_tau);
-  // M_tau = A_3D_2*M_tau*Inv(A_3D_1);
-
-  M1 = Inv(M_tau)*M1;
-  prt_map(nd_tps, "\nR:", M1);
-  printf("\n  nu = [");
-  for (k = 0; k < 3; k++)
-    printf("%21.15e%s",
-	   acos((M1[2*k][2*k]+M1[2*k+1][2*k+1])/2e0)/(2e0*M_PI),
-	   (k < 2)? ", " : "]\n");
-  prt_map(nd_tps, "\nM^t.Omega.M_2D.Omega:",
-	  tp_map(3, M1)*get_S(3)*M1-get_S(3));
 
   globval.radiation = false;
   globval.Cavity_on = true;
 
+  phi0 = 0e0;
+  C->phi_RF = phi0;
+  printf("\nphi0 [deg] = 180 - %4.2f\n", fabs(phi0*180e0/M_PI));
   M1 = compute_M();
   prt_map(nd_tps, "\nM_3D_no_rad:", M1);
-
+  A_3D_no_rad = compute_A(Circ, M1, alpha_rad, true);
+  A_3D_no_rad = get_A_CS(nd_tps, A_3D_no_rad, dnu);
   printf("\n  nu = [");
   for (k = 0; k < 3; k++)
     printf("%21.15e%s",
 	   acos((M1[2*k][2*k]+M1[2*k+1][2*k+1])/2e0)/(2e0*M_PI),
 	   (k < 2)? ", " : "]\n");
 
-  M_cav.identity();
-  Cell_Pass(0, 2, M_cav, lastpos);
-  prt_map(nd_tps, "\nM_cav:", M_cav);
-  cout << scientific << setprecision(3)
-       << "\nFixed point =" << setw(11) << M_cav.cst() << "\n";
-
-  M1 = M1*Inv(M_cav);
-  prt_map(nd_tps, "\nM_2D:", M1);
-
+  M1 = Inv(M_tau)*Inv(A_3D)*M_lat*M_cav*A_3D;
+  prt_map(nd_tps, "\nR_no_rad:", M1);
   printf("\n  nu = [");
   for (k = 0; k < 3; k++)
     printf("%21.15e%s",
 	   acos((M1[2*k][2*k]+M1[2*k+1][2*k+1])/2e0)/(2e0*M_PI),
 	   (k < 2)? ", " : "]\n");
+  prt_map(nd_tps, "\nM^t.Omega.R_no_rad.Omega:",
+	  tp_map(3, M1)*get_S(3)*M1-get_S(3));
 
-  prt_map(nd_tps, "\nM_2D:", M_2D);
-
+  M1 = A_3D_no_rad*M1*Inv(A_3D_no_rad);
+  prt_map(nd_tps, "\nM_no_rad:", M1);
   printf("\n  nu = [");
   for (k = 0; k < 3; k++)
     printf("%21.15e%s",
-	   acos((M_2D[2*k][2*k]+M_2D[2*k+1][2*k+1])/2e0)/(2e0*M_PI),
+	   acos((M1[2*k][2*k]+M1[2*k+1][2*k+1])/2e0)/(2e0*M_PI),
 	   (k < 2)? ", " : "]\n");
 
   exit(0);
 
-  M_cav = compute_M_cav("cav", U0, phi0);
+  phi0 = asin(U0/C->V_RF);
+  M_cav = compute_M_cav("cav", phi0);
   printf("\nphi0 [deg] = 180 - %4.2f\n", fabs(phi0*180e0/M_PI));
   prt_map(nd_tps, "\nM_cav:", M_cav);
 
-  compute_D(fixed_point, A_3D_1, D);
-  compute_eps(C, tau, D, eps);
-  compute_bunch_size(A_3D_1, eps, sigma_s, sigma_delta);
-  D_mat = compute_D_mat(A_3D_1, D);
+  compute_D(fixed_point, A_3D, D);
+  compute_tau(Circ, alpha_rad, tau);
+  compute_eps(Circ, tau, D, eps);
+  compute_bunch_size(A_3D, eps, sigma_s, sigma_delta);
+  D_mat = compute_D_mat(A_3D, D);
 
   M_Chol = compute_M_Chol(D_mat);
 
-  prt_map(nd_tps, "\nA:", A_3D_1);
+  prt_map(nd_tps, "\nA:", A_3D);
   M1 = M_3D*Inv(M_2D);
   prt_map(nd_tps, "\nM_2D^-1.M_3D:", M1);
   M1 = M_3D*Inv(M_tau)*Inv(M_2D);
