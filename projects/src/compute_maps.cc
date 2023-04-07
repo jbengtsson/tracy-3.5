@@ -344,8 +344,8 @@ void compute_maps(void)
   ss_vect<double>
     fixed_point, eta;
   ss_vect<tps>
-    M, M_cav, M_lat, M_2D, M_3D, A_3D, M_3D_no_rad, A_lat_rad, A_3D_no_rad,
-    M_delta, M_tau, D_mat, M_Chol, A0, M1;
+    M_3D, A_3D, M, A_3D_no_rad, M_tau, M_3D_no_rad, M_cav, M_2D, M_lat, D_mat,
+    M_Chol, A0;
    CavityType
      *C;
 
@@ -357,8 +357,6 @@ void compute_maps(void)
   const double
     Circ      = Cell[globval.Cell_nLoc].S,
     E0        = 1e9*globval.Energy;
-
-  globval.radiation = globval.Cavity_on = false;
 
   C = Cell[loc].Elem.C;
 
@@ -381,9 +379,9 @@ void compute_maps(void)
   phi0 = asin(U0/C->V_RF);
   C->phi_RF = phi0;
   printf("\nphi0 [deg] = 180 - %4.2f\n", fabs(phi0*180e0/M_PI));
-  M1 = compute_M();
-  prt_map(nd_tps, "\nM_3D_no_rad:", M1);
-  A_3D_no_rad = compute_A(Circ, M1, alpha_rad, true);
+  M = compute_M();
+  prt_map(nd_tps, "\nM_3D_no_rad:", M);
+  A_3D_no_rad = compute_A(Circ, M, alpha_rad, true);
   A_3D_no_rad = get_A_CS(nd_tps, A_3D_no_rad, dnu);
 
   M_tau = compute_M_tau(alpha_rad);
@@ -392,27 +390,29 @@ void compute_maps(void)
   M_3D_no_rad = A_3D_no_rad*Inv(M_tau)*Inv(A_3D)*M_3D*A_3D*Inv(A_3D_no_rad);
   prt_map(nd_tps, "\nM_3D_no_rad:", M_3D_no_rad);
   prt_map(nd_tps, "\nM_3D_no_rad^t.Omega.M_3D__no_rad-Omega:",
-	  tp_map(3, M1)*get_S(3)*M1-get_S(3));
-  prt_nu(M1);
+	  tp_map(3, M)*get_S(3)*M-get_S(3));
+  prt_nu(M);
 
   phi0 = asin(U0/C->V_RF);
   M_cav = compute_M_cav("cav", phi0);
   printf("\nphi0 [deg] = 180 - %4.2f\n", fabs(phi0*180e0/M_PI));
   prt_map(nd_tps, "\nM_cav:", M_cav);
 
-  M1 = M_3D_no_rad*Inv(M_cav);
-  prt_map(nd_tps, "\nM_2D:", M1);
+  M = M_3D_no_rad*Inv(M_cav);
+  prt_map(nd_tps, "\nM_2D:", M);
   prt_map(nd_tps, "\nM_2D^t.Omega.M_2D-Omega:",
-	  tp_map(3, M1)*get_S(3)*M1-get_S(3));
-  prt_nu(M1);
+	  tp_map(3, M)*get_S(3)*M-get_S(3));
+  prt_nu(M);
 
   globval.radiation = globval.Cavity_on = false;
 
   M_2D = compute_M();
   prt_map(nd_tps, "\nM_2D:", M_2D);
+  prt_nu(M_2D);
 
   if (false) {
     // Remove linear dispersion.
+    printf("\nRemoving linear dispersion:\n");
     eta = compute_eta(M_2D);
     A0 = compute_A0(eta);
     M_2D = Inv(A0)*M_2D*A0;
@@ -421,98 +421,18 @@ void compute_maps(void)
 
   exit(0);
 
-  // phi0 = asin(U0/C->V_RF);
-  // M_cav = compute_M_cav("cav", phi0);
-  // printf("\nphi0 [deg] = 180 - %4.2f\n", fabs(phi0*180e0/M_PI));
-  // cout << scientific << setprecision(3)
-  //      << "\nFixed point =" << setw(11) << M_cav.cst() << "\n";
-  // prt_map(nd_tps, "\nM_cav:", M_cav);
-
-  M1.identity();
-  M1 += M_cav.cst();
-  Cell_Pass(3, globval.Cell_nLoc, M1, lastpos);
-  cout << scientific << setprecision(3)
-       << "\nFixed point =" << setw(11) << M1.cst() << "\n";
-  prt_map(nd_tps, "\nM_lat_rad:", M1);
-
-  M_lat = M_3D*Inv(M_cav);
-  prt_map(nd_tps, "\nM_lat_rad:", M_lat);
-
-  M1 = M_lat;
-  M1 -= M1.cst();
-  A_lat_rad = compute_A(Circ, M1, alpha_rad, false);
-  A_lat_rad = get_A_CS(nd_tps, A_lat_rad, dnu);
-  prt_map(nd_tps, "\nA_lat_rad:", A_lat_rad);
-  M1 = Inv(A_lat_rad)*M_lat*A_lat_rad;
-  prt_map(nd_tps, "\nR_lat_rad:", M1);
-
-  globval.radiation = false;
-  globval.Cavity_on = true;
-
-  phi0 = asin(U0/C->V_RF);
-  C->phi_RF = phi0;
-  printf("\nphi0 [deg] = 180 - %4.2f\n", fabs(phi0*180e0/M_PI));
-  M1 = compute_M();
-  prt_map(nd_tps, "\nM_3D_no_rad:", M1);
-  A_3D_no_rad = compute_A(Circ, M1, alpha_rad, true);
-  A_3D_no_rad = get_A_CS(nd_tps, A_3D_no_rad, dnu);
-
-  M1 = Inv(A_3D_no_rad)*M1*A_3D_no_rad;
-  prt_map(nd_tps, "\nR_no_rad:", M1);
-
-  M1 = Inv(M_tau)*Inv(A_3D)*M_lat*M_cav*A_3D;
-  prt_map(nd_tps, "\nR_no_rad:", M1);
-  prt_map(nd_tps, "\nM^t.Omega.R_no_rad-Omega:",
-	  tp_map(3, M1)*get_S(3)*M1-get_S(3));
-
-  M1 = A_3D_no_rad*M1*Inv(A_3D_no_rad);
-  prt_map(nd_tps, "\nM_no_rad:", M1);
-
-  exit(0);
-
   compute_D(fixed_point, A_3D, D);
   compute_tau(Circ, alpha_rad, tau);
   compute_eps(Circ, tau, D, eps);
   compute_bunch_size(A_3D, eps, sigma_s, sigma_delta);
   D_mat = compute_D_mat(A_3D, D);
+  prt_map(nd_tps, "\nDiffusion Matrix:", D_mat);
 
   M_Chol = compute_M_Chol(D_mat);
-
-  prt_map(nd_tps, "\nA:", A_3D);
-  M1 = M_3D*Inv(M_2D);
-  prt_map(nd_tps, "\nM_2D^-1.M_3D:", M1);
-  M1 = M_3D*Inv(M_tau)*Inv(M_2D);
-  prt_map(nd_tps, "\nM_3D.M_2D^-1.Inv(M_tau):", M1);
-  prt_map(nd_tps, "\nM_delta:", M_delta);
-  prt_map(nd_tps, "\nM_tau:", M_tau);
-  prt_map(nd_tps, "\nDiffusion Matrix:", D_mat);
   prt_map(nd_tps, "\nCholesky Decomposition:", M_Chol);
 
-  prt_map(file_name+"_M_delta.dat", M_delta);
   prt_map(file_name+"_M_tau.dat", M_tau);
   prt_map(file_name+"_M_Chol.dat", M_Chol);
-
-  M1 = M_3D;
-  prt_map(nd_tps, "\nM:", M1);
-
-  M1 = Inv(M_tau)*M1;
-  prt_map(nd_tps, "\nM_tau^-1.M:", M1);
-
-  M1 = Inv(M_cav)*M1;
-  prt_map(nd_tps, "\nM_cav^-1.:", M1);
-
-  M1 = Inv(M_delta)*M1;
-  prt_map(nd_tps, "\nM_delta^-1.:", M1);
-
-  prt_map(nd_tps, "\nM^t.Omega.M-Omega:", tp_map(3, M1)*get_S(3)*M1-get_S(3));
-
-  eta = compute_eta(M1);
-  A0 = compute_A0(eta);
-  prt_map(nd_tps, "\nA0:", A0);
-  M1 = Inv(A0)*M1*A0;
-  prt_map(nd_tps, "\nA0^-1.M.A0:", M1);
-
-  prt_map(nd_tps, "\nM^t.Omega.M-Omega:", tp_map(3, M1)*get_S(3)*M1-get_S(3));
 
   globval.CODvect[ct_] /= c0;
   cout << scientific << setprecision(3)
