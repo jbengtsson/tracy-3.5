@@ -660,12 +660,12 @@ void compute_normal_mode_form(const ss_vect<tps> &T)
     prt_map(nd_tps, "\nN:", N);
     prt_map(nd_tps, "\nm:", m);
     prt_map(nd_tps, "\nn:", n);
+    printf("\n|n| = %11.5e\n", compute_det(1, n));
   }
 
   cos_mu1_m_cos_mu2 =
-    1e0/2e0*compute_trace(1, M-N)
-    *sqrt(1e0+(2e0*compute_det(1, m)+compute_trace(1, n*m))
-	  /sqr(1e0/2e0*compute_trace(1, M-N)));
+    -sqrt(sqr(1e0/2e0*compute_trace(1, M-N))
+	  +2e0*compute_det(1, m)+compute_trace(1, n*m));
 
   if (2e0*compute_det(1, m)+compute_trace(1, n*m) > 0e0) {
     cs_2phi = 1e0/2e0*compute_trace(1, M-N)/cos_mu1_m_cos_mu2;
@@ -688,7 +688,7 @@ void compute_normal_mode_form(const ss_vect<tps> &T)
   }
 
   D =
-    -(m+get_S(1)*compute_transp(1, n)*compute_transp(1, get_S(1)));
+    -(m+compute_transp(1, get_S(1))*compute_transp(1, n)*get_S(1));
   // Supported operators issue.
   D *= 1e0/(cos_mu1_m_cos_mu2*sn_2phi);
   for (k = y_; k < 2*nd_tps; k++)
@@ -698,6 +698,8 @@ void compute_normal_mode_form(const ss_vect<tps> &T)
   printf("\n  |D| = %11.5e\n", sgn_D_det);
 
   prt_map(nd_tps, "\nD:", D);
+  prt_map(nd_tps, "\nA:", M+sgn_D_det*Inv(D)*m*(sn_phi/cs_phi));
+  prt_map(nd_tps, "\nB:", N+D*n*(sn_phi/cs_phi));
 
   R.identity();
   R[x_]  =
