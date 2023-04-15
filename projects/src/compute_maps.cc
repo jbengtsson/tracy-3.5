@@ -684,7 +684,7 @@ void compute_normal_mode_form(const ss_vect<tps> &T)
     sn_phi = sn_2phi/sqrt(2e0*(1e0+cs_2phi));
     printf("\n  cosh(2 phi) = %11.5e\n", cs_2phi);
     printf("  sinh(2 phi) = %11.5e\n", sn_2phi);
-    printf("  sinh(2 phi) = %11.5e\n", sin(acos(cs_2phi)));
+    printf("  sinh(2 phi) = %11.5e\n", sinh(acosh(cs_2phi)));
   }
 
   D =
