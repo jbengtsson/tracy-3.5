@@ -574,66 +574,6 @@ ss_vect<tps> compute_sympl_conj(const ss_vect<tps> &A)
 }
 
 
-void compute_normal_mode_form1(const ss_vect<tps> &T)
-{
-  int          j, k;
-  double       denom, gamma;
-  ss_vect<tps> Id, M, N, m, n, H, C, C_sc, V;
-
-  Id.identity();
-  M = N = m = n.zero();
-  for (j = 0; j < 2; j++)
-    for (k = 0; k < 2; k++) {
-      M[j] += T[j][k]*Id[k];
-      N[j] += T[j+4][k+4]*Id[k];
-      m[j] += T[j][k+4]*Id[k];
-      n[j] += T[j+4][k]*Id[k];
-    }
-
-  if (!false) {
-    prt_map(nd_tps, "\nT:", T);
-    prt_map(nd_tps, "\nM:", M);
-    prt_map(nd_tps, "\nN:", N);
-    prt_map(nd_tps, "\nm:", m);
-    prt_map(nd_tps, "\nn:", n);
-    prt_map(nd_tps, "\nn^+:", compute_sympl_conj(n));
-  }
-
-  H = m + compute_sympl_conj(n);
-  prt_map(nd_tps, "\nH:", H);
-
-  denom = sqr(compute_trace(1, M-N)) + 4e0*compute_det(1, H);
-  printf("\ndenom = %11.5e\n", denom);
-  if (denom < 0e0) {
-    printf("\ncompute_normal_mode_form: denom = %9.3e < 0\n", denom);
-    exit(1);
-  }
-
-  gamma = sqrt(1e0/2e0+1e0/2e0*sqrt(sqr(compute_trace(1, M-N))/denom));
-  printf("\ngamma = %11.5e\n", gamma);
-
-  C = -H*sgn(compute_trace(1, M-N));
-  // Supported operators issue.
-  C *= 1e0/(gamma*sqrt(denom));
-  prt_map(nd_tps, "\nC:", C);
-
-  C_sc = compute_sympl_conj(C);
-  prt_map(nd_tps, "\nC^+:", C_sc);
-
-  printf("\ngamma^2 + |C| - 1 = %11.5e\n", sqr(gamma)+compute_det(1, C)-1e0);
-
-  V.identity();
-  V[x_]  = gamma*Id[x_] + (C[x_][x_]*Id[4]+C[x_][px_]*Id[5]);
-  V[px_] = gamma*Id[px_] + (C[px_][x_]*Id[4]+C[px_][px_]*Id[5]);
-  V[4]  = (-C_sc[x_][x_]*Id[x_]-C_sc[x_][px_]*Id[px_]) + gamma*Id[4];
-  V[5] = (-C_sc[px_][x_]*Id[x_]-C_sc[px_][px_]*Id[px_]) + gamma*Id[5];
-
-  prt_map(nd_tps, "\nV:", V);
-  prt_map(nd_tps, "\nV^-1.T.V:", Inv(V)*T*V);
-  prt_map(nd_tps, "\nT:", T);
-}
-
-
 void compute_normal_mode_form(const ss_vect<tps> &T)
 {
   int
@@ -643,35 +583,16 @@ void compute_normal_mode_form(const ss_vect<tps> &T)
   ss_vect<tps>
     Id, M, N, m, n, D, D_inv, R;
 
-#if 0
-  ss_vect<tps> T;
-  Id.identity();
-  T.zero();
-  T[x_] += T1[delta_][delta_]*Id[x_] + T1[delta_][ct_]*Id[px_];
-  T[px_] +=
-    T1[ct_][delta_]*Id[x_] + T1[ct_][ct_]*Id[px_]
-    + T1[ct_][x_]*Id[delta_] + T1[ct_][px_]*Id[ct_];
-  T[y_] = T1[y_];
-  T[py_] = T1[py_];
-  T[delta_] +=
-    T1[x_][x_]*Id[delta_] + T1[x_][px_]*Id[ct_]
-    + T1[x_][delta_]*Id[x_] + T1[x_][ct_]*Id[px_];
-  T[ct_] +=
-    T1[px_][x_]*Id[delta_] + T1[px_][px_]*Id[ct_]
-    + T1[px_][delta_]*Id[x_] + T1[px_][ct_]*Id[px_];
-
-  prt_map(nd_tps, "\nT1:", T1);
-  prt_map(nd_tps, "\nT:", T);
-#endif
+  const int plane = 4;
 
   Id.identity();
   M = N = m = n.zero();
   for (j = 0; j < 2; j++)
     for (k = 0; k < 2; k++) {
       M[j] += T[j][k]*Id[k];
-      N[j] += T[j+4][k+4]*Id[k];
-      m[j] += T[j+4][k]*Id[k];
-      n[j] += T[j][k+4]*Id[k];
+      N[j] += T[j+plane][k+plane]*Id[k];
+      m[j] += T[j+plane][k]*Id[k];
+      n[j] += T[j][k+plane]*Id[k];
     }
 
   if (!false) {
@@ -692,6 +613,9 @@ void compute_normal_mode_form(const ss_vect<tps> &T)
   cs_2phi = 1e0/2e0*compute_trace(1, M-N)/cos_mu1_m_cos_mu2;
 
   if (fabs(cs_2phi) < 1e0) {
+    printf("compute_normal_mode_form: not tested!");
+    exit(1);
+
     sn_2phi =
       fabs(sqrt(2e0*compute_det(1, m)+compute_trace(1, n*m))/cos_mu1_m_cos_mu2);
     cs_phi = sqrt((1e0+cs_2phi)/2e0);
@@ -724,14 +648,14 @@ void compute_normal_mode_form(const ss_vect<tps> &T)
   R.identity();
   R[x_]  =
     Id[x_]*cs_phi
-    + sgn_D_det*(D_inv[x_][x_]*Id[4]+D_inv[x_][px_]*Id[5])*sn_phi;
+    + sgn_D_det*(D_inv[x_][x_]*Id[plane]+D_inv[x_][px_]*Id[plane+1])*sn_phi;
   R[px_] =
     Id[px_]*cs_phi
-    + sgn_D_det*(D_inv[px_][x_]*Id[4]+D_inv[px_][px_]*Id[5])*sn_phi;
-  R[4]  =
-    -(D[x_][x_]*Id[x_]+D[x_][px_]*Id[px_])*sn_phi + Id[4]*cs_phi;
-  R[5] =
-    -(D[px_][x_]*Id[x_]+D[px_][px_]*Id[px_])*sn_phi + Id[5]*cs_phi;
+    + sgn_D_det*(D_inv[px_][x_]*Id[plane]+D_inv[px_][px_]*Id[plane+1])*sn_phi;
+  R[plane]  =
+    -(D[x_][x_]*Id[x_]+D[x_][px_]*Id[px_])*sn_phi + Id[plane]*cs_phi;
+  R[plane+1] =
+    -(D[px_][x_]*Id[x_]+D[px_][px_]*Id[px_])*sn_phi + Id[plane+1]*cs_phi;
 
   prt_map(nd_tps, "\nR:", R);
   prt_map(nd_tps, "\nR^-1.T.R:", Inv(R)*T*R);
