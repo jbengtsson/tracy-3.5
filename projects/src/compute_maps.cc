@@ -313,8 +313,7 @@ ss_vect<tps> compute_M_Chol(const ss_vect<tps> &M_diff)
 }
 
 
-ss_vect<tps> compute_M_cav
-(const string &cav_name, double phi_RF)
+ss_vect<tps> compute_M_cav(const string &cav_name, double phi_RF)
 {
   tps          ct0;
   ss_vect<tps> M;
@@ -379,22 +378,41 @@ ss_vect<tps> compute_R_2D(const double Circ, const double alpha_c,
 }
 
 
-void compute_M_2D(void)
+void get_Twiss(const int n_dof, double alpha[], double beta[], double nu[])
 {
+  int k;
+
+  for (k = 0; k < n_dof; k++) {
+    if (k < 2) {
+      alpha[k] = Cell[k].Alpha[k];
+      beta[k] = Cell[k].Beta[k];
+      nu[k] = globval.TotalTune[k];
+    } else {
+      alpha[k] = globval.alpha_z;
+      beta[k] = globval.beta_z;
+      nu[k] = globval.Omega;
+    }
+  }
+}
+
+
+ss_vect<tps> compute_M_2D(void)
+{
+  double          alpha[2], beta[2], nu[2];
   ss_vect<double> eta;
   ss_vect<tps>    M, A, A0, A1, R;
 
-  globval.radiation = globval.Cavity_on = false;
-  Ring_GetTwiss(true, 0e0);
-  M = putlinmat(2*nd_tps, globval.OneTurnMat);
-  // prt_map(nd_tps, "\nM:", M);
-
   const double
     Circ    = Cell[globval.Cell_nLoc].S,
-    alpha_c = globval.Alphac,
-    alpha[] = {Cell[0].Alpha[X_], Cell[0].Alpha[Y_]},
-    beta[]  = {Cell[0].Beta[X_], Cell[0].Beta[Y_]},
-    nu[]    = {globval.TotalTune[X_], globval.TotalTune[Y_]};
+    alpha_c = globval.Alphac;
+
+  globval.radiation = globval.Cavity_on = false;
+
+  Ring_GetTwiss(true, 0e0);
+  M = putlinmat(2*nd_tps, globval.OneTurnMat);
+  prt_map(nd_tps, "\nM:", M);
+
+  get_Twiss(2, alpha, beta, nu);
 
   eta.zero();
   eta[x_] = Cell[0].Eta[X_];
@@ -404,8 +422,9 @@ void compute_M_2D(void)
   A = A0*A1;
   R = compute_R_2D(Circ, alpha_c, nu, A);
   M = A*R*Inv(A);
-
   prt_map(nd_tps, "\nM:", M);
+
+  return M;
 }
 
 
@@ -547,34 +566,17 @@ ss_vect<tps> compute_normal_mode_form(const ss_vect<tps> &T)
 }
 
 
-void get_Twiss(double alpha[], double beta[], double nu[])
-{
-  int k;
-
-  for (k = 0; k < nd_tps; k++) {
-    if (k < 2) {
-      alpha[k] = Cell[k].Alpha[k];
-      beta[k] = Cell[k].Beta[k];
-      nu[k] = globval.TotalTune[k];
-    } else {
-      alpha[k] = globval.alpha_z;
-      beta[k] = globval.beta_z;
-      nu[k] = globval.Omega;
-    }
-  }
-}
-
-
 void compute_M_3D
 (const string &file_name, const string &cav_name, double &phi_RF,
  ss_vect<double> &fixed_point, double &U0, double alpha_rad[],
  ss_vect<tps> &A_3D)
 {
-  long int     lastpos;
-  int          k;
-  double       alpha[3], beta[3], nu[3];
-  ss_vect<tps> M_3D_no_rad, M_3D, A_CS, A_sb, M_tau, R, M;
-  CavityType   *C;
+  long int        lastpos;
+  int             k;
+  double          alpha[3], beta[3], nu[3];
+  ss_vect<double> eta;
+  ss_vect<tps>    M_3D_no_rad, M_3D, A_CS, A_sb, M_tau, R, M;
+  CavityType      *C;
 
   const int
     loc = Elem_GetPos(ElemIndex(cav_name.c_str()), 1);
@@ -583,7 +585,7 @@ void compute_M_3D
 
   C = Cell[loc].Elem.C;
 
-  // Compute with radiation effects.
+  // Compute radiation effects.
   globval.radiation = globval.Cavity_on = true;
 
   getcod(0e0, lastpos);
@@ -593,7 +595,7 @@ void compute_M_3D
   C->phi_RF = phi_RF;
   printf("\nphi_RF [deg] = 180 - %4.2f\n", fabs(phi_RF*180e0/M_PI));
 
-  // With RF cavity & no radiation.
+  // With RF cavity but without radiation.
   globval.radiation = false;
   globval.Cavity_on = true;
 
@@ -601,7 +603,7 @@ void compute_M_3D
   compute_Twiss_long();
   M_3D_no_rad = putlinmat(2*nd_tps, globval.OneTurnMat);
 
-  get_Twiss(alpha, beta, nu);
+  get_Twiss(nd_tps, alpha, beta, nu);
 
   A_CS = compute_A_3D(alpha, beta);
   A_sb = compute_normal_mode_form(M_3D_no_rad);
@@ -622,7 +624,7 @@ void compute_M_3D
   compute_Twiss_long();
   M_3D = putlinmat(2*nd_tps, globval.OneTurnMat);
 
-  get_Twiss(alpha, beta, nu);
+  get_Twiss(nd_tps, alpha, beta, nu);
 
   M_tau = compute_M_tau(globval.alpha_rad);
 
@@ -632,7 +634,7 @@ void compute_M_3D
 
   R = compute_R_3D(nu);
   M = A_3D*M_tau*R*Inv(A_3D);
-  prt_map(nd_tps, "\nM - with RF cavity & radiation:", M);
+  prt_map(nd_tps, "\nM - w/ RF cavity & radiation:", M);
   prt_map(nd_tps, "\nValidation:", M-M_3D);
 
   prt_map(file_name+"_R.dat", R);
