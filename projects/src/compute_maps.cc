@@ -643,6 +643,26 @@ void compute_normal_mode_form(const ss_vect<tps> &T)
   ss_vect<tps>
     Id, M, N, m, n, D, D_inv, R;
 
+#if 0
+  ss_vect<tps> T;
+  Id.identity();
+  T.zero();
+  T[x_] +=
+    T1[ct_][ct_]*Id[x_] + T1[ct_][delta_]*Id[px_]
+    + T1[ct_][x_]*Id[delta_] + T1[ct_][px_]*Id[ct_];
+  T[px_] += T1[delta_][ct_]*Id[x_] + T1[delta_][delta_]*Id[px_];
+  T[y_] = T1[y_];
+  T[py_] = T1[py_];
+  T[delta_] +=
+    T1[x_][x_]*Id[delta_] + T1[x_][px_]*Id[ct_]
+    + T1[x_][ct_]*Id[x_] + T1[x_][delta_]*Id[px_];
+  T[ct_] +=
+    T1[px_][x_]*Id[delta_] + T1[px_][px_]*Id[ct_]
+    + T1[px_][ct_]*Id[x_] + T1[px_][delta_]*Id[px_];
+
+  prt_map(nd_tps, "\nT1:", T1);
+  prt_map(nd_tps, "\nT:", T);
+#endif
 
   Id.identity();
   M = N = m = n.zero();
@@ -670,7 +690,7 @@ void compute_normal_mode_form(const ss_vect<tps> &T)
   if (2e0*compute_det(1, m)+compute_trace(1, n*m) > 0e0) {
     cs_2phi = 1e0/2e0*compute_trace(1, M-N)/cos_mu1_m_cos_mu2;
     sn_2phi =
-      sqrt(2e0*compute_det(1, m)+compute_trace(1, n*m))/cos_mu1_m_cos_mu2;
+      -sqrt(2e0*compute_det(1, m)+compute_trace(1, n*m))/cos_mu1_m_cos_mu2;
     cs_phi = sqrt((1e0+cs_2phi)/2e0);
     sn_phi = sn_2phi/sqrt(2e0*(1e0-cs_2phi));
     printf("\n  cos(2 phi) = %11.5e\n", cs_2phi);
@@ -698,8 +718,6 @@ void compute_normal_mode_form(const ss_vect<tps> &T)
   printf("\n  |D| = %11.5e\n", sgn_D_det);
 
   prt_map(nd_tps, "\nD:", D);
-  prt_map(nd_tps, "\nA:", M+sgn_D_det*Inv(D)*m*(sn_phi/cs_phi));
-  prt_map(nd_tps, "\nB:", N+D*n*(sn_phi/cs_phi));
 
   R.identity();
   R[x_]  =
@@ -716,6 +734,20 @@ void compute_normal_mode_form(const ss_vect<tps> &T)
   prt_map(nd_tps, "\nR:", R);
   prt_map(nd_tps, "\nR^-1.T.R:", Inv(R)*T*R);
   prt_map(nd_tps, "\nT:", T);
+
+  const ss_vect<tps>
+    A = M + sgn_D_det*Inv(D)*m*(sn_phi/cs_phi),
+    B = N + D*n*(sn_phi/cs_phi);
+  M = A*sqr(cs_phi) + sgn_D_det*Inv(D)*B*D*sqr(sn_phi);
+  N = B*sqr(cs_phi) + sgn_D_det*D*A*Inv(D)*B*D*sqr(sn_phi);
+  m = -(D*A-B*D)*sn_phi*cs_phi;
+  n = -(sgn_D_det*A*Inv(D)-sgn_D_det*Inv(D)*B)*sn_phi*cs_phi;
+  prt_map(nd_tps, "\nA:", A);
+  prt_map(nd_tps, "\nB:", B);
+  prt_map(nd_tps, "\nM:", M);
+  prt_map(nd_tps, "\nN:", N);
+  prt_map(nd_tps, "\nm:", m);
+  prt_map(nd_tps, "\nn:", n);
 }
 
 
