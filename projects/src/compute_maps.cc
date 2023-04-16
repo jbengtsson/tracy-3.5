@@ -296,7 +296,7 @@ ss_vect<tps> compute_M_Chol(const ss_vect<tps> &M_diff)
 
 
 ss_vect<tps> compute_M_cav
-(const string &cav_name, double phi0)
+(const string &cav_name, double phi_RF)
 {
   tps          ct0;
   ss_vect<tps> M;
@@ -309,36 +309,15 @@ ss_vect<tps> compute_M_cav
   ct0 = tps(0e0, ct_+1);
   M.identity();
 #if 1
-  C->phi_RF = phi0;
+  C->phi_RF = phi_RF;
   M[ct_] += ct0.cst();
   Cav_Pass(Cell[loc], M);
 #else
-  M[delta_] += -C->V_RF/(1e9*globval.Energy)*sin(2e0*M_PI*C->f_RF*ct0/c0+phi0);
+  M[delta_] +=
+    -C->V_RF/(1e9*globval.Energy)*sin(2e0*M_PI*C->f_RF*ct0/c0+phi_RF);
 #endif
   M[delta_] -= M[delta_].cst();
   return M;
-}
-
-
-void compute_M_delta(const double alpha[])
-{
-  int          k;
-  ss_vect<tps> M_delta;
-
-  M_delta.identity();
-  for (k = 0; k < nd_tps; k++) {
-    M_delta[2*k] *= 1e0 + alpha[k];
-    M_delta[2*k+1] /= 1e0 + alpha[k];
-  }
-}
-
-
-double DetMap(ss_vect<tps> A)
-{
-  Matrix A_mat;
-
-  getlinmat(2*nd_tps, A, A_mat);
-  return DetMat(2*nd_tps, A_mat);
 }
 
 
@@ -476,58 +455,6 @@ ss_vect<tps> compute_R_3D(const double nu[])
 }
 
 
-void compute_M_3D(const double phi0, const ss_vect<tps> &M_tau)
-{
-  double          dnu[3];
-  ss_vect<double> eta;
-  ss_vect<tps>    M, A, R, A0, A1, M_cav;
-
-  globval.radiation = false;
-  globval.Cavity_on = true;
-  Ring_GetTwiss(true, 0e0);
-  M = putlinmat(2*nd_tps, globval.OneTurnMat);
-  A = get_A_CS(nd_tps, putlinmat(2*nd_tps, globval.Ascr), dnu);
-
-  eta = compute_eta(M);
-
-  prt_map(nd_tps, "\nM:", M);
-  prt_map(nd_tps, "\nA:", A);
-
-  globval.alpha_z =
-    -globval.Ascr[ct_][ct_]*globval.Ascr[delta_][ct_]
-    - globval.Ascr[ct_][delta_]*globval.Ascr[delta_][delta_];
-  globval.beta_z = sqr(globval.Ascr[ct_][ct_]) + sqr(globval.Ascr[ct_][delta_]);
-
-  const double
-    Circ    = Cell[globval.Cell_nLoc].S,
-    alpha_c = globval.Alphac,
-    alpha[] = {Cell[0].Alpha[X_], Cell[0].Alpha[Y_], globval.alpha_z},
-    beta[]  = {Cell[0].Beta[X_], Cell[0].Beta[Y_], globval.beta_z},
-    nu[]    =
-    {globval.TotalTune[X_], globval.TotalTune[Y_], globval.Omega};
-
-#if 1
-  A = compute_A_3D(alpha, beta);
-  R = compute_R_3D(nu);
-  // R = M_tau*R;
-  M = A*R*Inv(A);
-#else
-  compute_A_2D(eta, alpha, beta, A0, A1);
-  A = A0*A1;
-  R = compute_R_2D(Circ, alpha_c, nu, A);
-  R = M_tau*R;
-  M = A*R*Inv(A);
-
-  globval.Cavity_on = true;
-  M_cav = compute_M_cav("cav", phi0);
-  printf("\nphi0 [deg] = 180 - %4.2f\n", fabs(phi0*180e0/M_PI));
-  M = M*M_cav;
-#endif
-
-  prt_map(nd_tps, "\nM:", M);
-}
-
-
 ss_vect<tps> compute_transp(const int n_dof, const ss_vect<tps> &A)
 {
   // Compute the transpose of a matrix.
@@ -561,28 +488,16 @@ double compute_det(const int n_dof, const ss_vect<tps> &A)
 }
 
 
-ss_vect<tps> compute_sympl_conj(const ss_vect<tps> &A)
-{
-  // Symplectic conjugate for a 2x2 matrix.
-  ss_vect<tps> Id, B;
-
-  Id.identity();
-  B.zero();
-  B[x_]  =  A[px_][px_]*Id[x_] - A[x_][px_]*Id[px_];
-  B[px_] = -A[px_][x_]*Id[x_]  + A[x_][x_]*Id[px_];
-  return B;
-}
-
-
-void compute_normal_mode_form(const ss_vect<tps> &T)
+ss_vect<tps> compute_normal_mode_form(const ss_vect<tps> &T)
 {
   int
     j, k;
   double
     cos_mu1_m_cos_mu2, cs_2phi, sn_2phi, cs_phi, sn_phi, sgn_D_det;
   ss_vect<tps>
-    Id, M, N, m, n, D, D_inv, R;
+    Id, M, N, m, n, D, D_inv, R, A, B;
 
+  const bool prt  = false;
   const int plane = 4;
 
   Id.identity();
@@ -595,42 +510,35 @@ void compute_normal_mode_form(const ss_vect<tps> &T)
       n[j] += T[j][k+plane]*Id[k];
     }
 
-  if (!false) {
+  if (prt)
     prt_map(nd_tps, "\nT:", T);
-    prt_map(nd_tps, "\nM:", M);
-    prt_map(nd_tps, "\nN:", N);
-    prt_map(nd_tps, "\nm:", m);
-    prt_map(nd_tps, "\nn:", n);
-    printf("\n|n| = %11.5e\n", compute_det(1, n));
-  }
 
   cos_mu1_m_cos_mu2 =
     1e0/2e0*compute_trace(1, M-N)
     *sqrt(1e0+(2e0*compute_det(1, m)+compute_trace(1, n*m))
 	  /sqr(1e0/2e0*compute_trace(1, M-N)));
-  printf("\n  cos(mu1) - cos(mu2) = %11.5e\n", cos_mu1_m_cos_mu2);
+  printf("\n  cos(mu1) - cos(mu2) = %12.5e\n", cos_mu1_m_cos_mu2);
 
   cs_2phi = 1e0/2e0*compute_trace(1, M-N)/cos_mu1_m_cos_mu2;
 
   if (fabs(cs_2phi) < 1e0) {
-    printf("compute_normal_mode_form: not tested!");
+    printf("\n*** compute_normal_mode_form: not tested!");
     exit(1);
 
     sn_2phi =
       fabs(sqrt(2e0*compute_det(1, m)+compute_trace(1, n*m))/cos_mu1_m_cos_mu2);
     cs_phi = sqrt((1e0+cs_2phi)/2e0);
     sn_phi = sn_2phi/sqrt(2e0*(1e0-cs_2phi));
-    printf("\n  cos(2 phi) = %11.5e\n", cs_2phi);
-    printf("  sin(2 phi) = %11.5e\n", sn_2phi);
-    printf("  sin(2 phi) = %11.5e\n", sin(acos(cs_2phi)));
+    printf("  cos(2 phi)          = %12.5e\n", cs_2phi);
+    printf("  sin(2 phi)          = %12.5e\n", sn_2phi);
   } else {
     sn_2phi =
       fabs(sqrt(-(2e0*compute_det(1, m)+compute_trace(1, n*m)))
 	   /cos_mu1_m_cos_mu2);
     cs_phi = sqrt((1e0+cs_2phi)/2e0);
     sn_phi = sn_2phi/sqrt(2e0*(1e0+cs_2phi));
-    printf("\n  cosh(2 phi) = %11.5e\n", cs_2phi);
-    printf("  sinh(2 phi) = %11.5e\n", sn_2phi);
+    printf("  cosh(2 phi)         = %12.5e\n", cs_2phi);
+    printf("  sinh(2 phi)         = %12.5e\n", sn_2phi);
   }
 
   D =
@@ -641,9 +549,7 @@ void compute_normal_mode_form(const ss_vect<tps> &T)
     D[k]= Id[k];
   D_inv = Inv(D);
   sgn_D_det = compute_det(1, D);
-  printf("\n  |D| = %11.5e\n", sgn_D_det);
-
-  prt_map(nd_tps, "\nD:", D);
+  printf("  |D|                 = %12.5e\n", sgn_D_det);
 
   R.identity();
   R[x_]  =
@@ -657,23 +563,101 @@ void compute_normal_mode_form(const ss_vect<tps> &T)
   R[plane+1] =
     -(D[px_][x_]*Id[x_]+D[px_][px_]*Id[px_])*sn_phi + Id[plane+1]*cs_phi;
 
-  prt_map(nd_tps, "\nR:", R);
-  prt_map(nd_tps, "\nR^-1.T.R:", Inv(R)*T*R);
-  prt_map(nd_tps, "\nT:", T);
+  if (prt) {
+    prt_map(nd_tps, "\nT:", T);
+    prt_map(nd_tps, "\nR:", R);
+    prt_map(nd_tps, "\nR^-1.T.R:", Inv(R)*T*R);
 
-  const ss_vect<tps>
-    A = M + sgn_D_det*Inv(D)*m*(sn_phi/cs_phi),
+    A = M + sgn_D_det*Inv(D)*m*(sn_phi/cs_phi);
     B = N + D*n*(sn_phi/cs_phi);
-  M = A*sqr(cs_phi) + sgn_D_det*Inv(D)*B*D*sqr(sn_phi);
-  N = B*sqr(cs_phi) + sgn_D_det*D*A*Inv(D)*B*D*sqr(sn_phi);
-  m = -(D*A-B*D)*sn_phi*cs_phi;
-  n = -(sgn_D_det*A*Inv(D)-sgn_D_det*Inv(D)*B)*sn_phi*cs_phi;
-  prt_map(nd_tps, "\nA:", A);
-  prt_map(nd_tps, "\nB:", B);
-  prt_map(nd_tps, "\nM:", M);
-  prt_map(nd_tps, "\nN:", N);
-  prt_map(nd_tps, "\nm:", m);
-  prt_map(nd_tps, "\nn:", n);
+    M = A*sqr(cs_phi) + sgn_D_det*Inv(D)*B*D*sqr(sn_phi);
+    N = B*sqr(cs_phi) + sgn_D_det*D*A*Inv(D)*B*D*sqr(sn_phi);
+    m = -(D*A-B*D)*sn_phi*cs_phi;
+    n = -(sgn_D_det*A*Inv(D)-sgn_D_det*Inv(D)*B)*sn_phi*cs_phi;
+
+    prt_map(nd_tps, "\nD:", D);
+    prt_map(nd_tps, "\nA:", A);
+    prt_map(nd_tps, "\nB:", B);
+    prt_map(nd_tps, "\nM:", M);
+    prt_map(nd_tps, "\nN:", N);
+    prt_map(nd_tps, "\nm:", m);
+    prt_map(nd_tps, "\nn:", n);
+  }
+
+  return R;
+}
+
+
+void compute_Twiss_long(void)
+{
+  globval.alpha_z =
+    -globval.Ascr[ct_][ct_]*globval.Ascr[delta_][ct_]
+    - globval.Ascr[ct_][delta_]*globval.Ascr[delta_][delta_];
+  globval.beta_z = sqr(globval.Ascr[ct_][ct_]) + sqr(globval.Ascr[ct_][delta_]);
+}
+
+
+void compute_M_3D_no_rad(const double phi_RF, CavityType *C)
+{
+  ss_vect<double> eta;
+  ss_vect<tps>    M_3D, A, A_sb, R, M;
+
+  globval.radiation = false;
+  globval.Cavity_on = true;
+
+  C->phi_RF = phi_RF;
+  printf("\nphi_RF [deg] = 180 - %4.2f\n", fabs(C->phi_RF*180e0/M_PI));
+  Ring_GetTwiss(true, 0e0);
+  compute_Twiss_long();
+  M_3D = putlinmat(2*nd_tps, globval.OneTurnMat);
+
+  const double
+    alpha[] = {Cell[0].Alpha[X_], Cell[0].Alpha[Y_], globval.alpha_z},
+    beta[]  = {Cell[0].Beta[X_], Cell[0].Beta[Y_], globval.beta_z},
+    nu[]    =
+    {globval.TotalTune[X_], globval.TotalTune[Y_], globval.Omega};
+
+  A = compute_A_3D(alpha, beta);
+  A_sb = compute_normal_mode_form(M_3D);
+  R = compute_R_3D(nu);
+  M = A_sb*A*R*Inv(A_sb*A);
+  prt_map(nd_tps, "\nM_3D_no_rad:", M);
+  prt_map(nd_tps, "\nValidation:", M-M_3D);
+}
+
+
+void compute_M_3D(const double phi_RF, CavityType *C, const double alpha_rad[])
+{
+  ss_vect<double> eta;
+  ss_vect<tps>    M_3D_no_rad, M_3D, A, A_sb, M_tau, R, M;
+
+  globval.radiation = false;
+  globval.Cavity_on = true;
+
+  C->phi_RF = phi_RF;
+  printf("\nphi_RF [deg] = 180 - %4.2f\n", fabs(phi_RF*180e0/M_PI));
+  M_3D_no_rad = putlinmat(2*nd_tps, globval.OneTurnMat);
+
+  globval.radiation = globval.Cavity_on = true;
+
+  C->phi_RF = 0e0;
+  printf("\nphi_RF [deg] = 180 - %4.2f\n", fabs(C->phi_RF*180e0/M_PI));
+  Ring_GetTwiss(true, 0e0);
+  compute_Twiss_long();
+  M_3D = putlinmat(2*nd_tps, globval.OneTurnMat);
+
+  const double
+    alpha[] = {Cell[0].Alpha[X_], Cell[0].Alpha[Y_], globval.alpha_z},
+    beta[]  = {Cell[0].Beta[X_], Cell[0].Beta[Y_], globval.beta_z},
+    nu[]    = {globval.TotalTune[X_], globval.TotalTune[Y_], globval.Omega};
+
+  A = compute_A_3D(alpha, beta);
+  A_sb = compute_normal_mode_form(M_3D_no_rad);
+  M_tau = compute_M_tau(alpha_rad);
+  R = compute_R_3D(nu);
+  M = A_sb*A*M_tau*R*Inv(A_sb*A);
+  prt_map(nd_tps, "\nM_3D:", M);
+  prt_map(nd_tps, "\nValidation:", M-M_3D);
 }
 
 
@@ -682,13 +666,13 @@ void compute_maps(void)
   long int
     lastpos;
   double
-    U0, nu[3], alpha_rad[3], dnu[3], phi0, dummy[3], D[3], tau[3], eps[3],
+    U0, nu[3], alpha_rad[3], dnu[3], phi_RF, D[3], tau[3], eps[3],
     sigma_s, sigma_delta;
   ss_vect<double>
     fixed_point, fixed_point_no_rad, eta;
   ss_vect<tps>
-    M_3D, A_3D, M_3D_no_rad, A_3D_no_rad, M_tau, M_cav, M_2D, M, D_mat, M_Chol,
-    A0;
+    M_3D, A_3D, M_tau, M_cav, M_2D, M, D_mat, M_Chol,
+    A0, R;
    CavityType
      *C;
 
@@ -703,110 +687,20 @@ void compute_maps(void)
 
   C = Cell[loc].Elem.C;
 
-  globval.radiation = false;
-  globval.Cavity_on = true;
+  globval.radiation = globval.Cavity_on = true;
 
   C->phi_RF = 0e0;
   getcod(0e0, lastpos);
   fixed_point = globval.CODvect;
-  cout << scientific << setprecision(3)
-       << "\nFixed point =" << setw(11) << fixed_point << "\n";
   U0 = globval.dE*E0;
   M_3D = compute_M(fixed_point);
-  prt_map(nd_tps, "\nM_3D:", M_3D);
   A_3D = compute_A(Circ, M_3D, nu, alpha_rad, true);
   A_3D = get_A_CS(nd_tps, A_3D, dnu);
-  prt_map(nd_tps, "\nA_3D:", A_3D);
 
-  prt_map(nd_tps, "\nR = Inv(A_3D)*M_3D*A_3D:", Inv(A_3D)*M_3D*A_3D);
-  prt_map(file_name+"_M_3D.dat", M_3D);
-  prt_map(file_name+"_A_3D.dat", A_3D);
+  phi_RF = asin(U0/C->V_RF);
 
-  compute_normal_mode_form(M_3D);
-
-  exit(0);
-
-  if (!false)
-    compute_M_2D();
-
-  M_tau = compute_M_tau(alpha_rad);
-  prt_map(nd_tps, "\nM_tau:", M_tau);
-  prt_map(file_name+"_M_tau.dat", M_tau);
-
-  phi0 = asin(U0/C->V_RF);
-  C->phi_RF = phi0;
-  compute_M_3D(phi0, M_tau);
-
-  exit(0);
-
-  globval.radiation = false;
-  globval.Cavity_on = true;
-
-  phi0 = asin(U0/C->V_RF);
-  C->phi_RF = phi0;
-  printf("\nphi0 [deg] = 180 - %4.2f\n", fabs(phi0*180e0/M_PI));
-  getcod(0e0, lastpos);
-  fixed_point_no_rad = globval.CODvect;
-  cout << scientific << setprecision(3)
-       << "\nFixed point =" << setw(11) << fixed_point_no_rad << "\n";
-  M_3D_no_rad = compute_M(fixed_point_no_rad);
-  prt_map(nd_tps, "\nM_3D_no_rad:", M_3D_no_rad);
-  A_3D_no_rad = compute_A(Circ, M_3D_no_rad, nu, dummy, true);
-  A_3D_no_rad = get_A_CS(nd_tps, A_3D_no_rad, dnu);
-  prt_map(nd_tps, "\nA_3D_no_rad:", A_3D_no_rad);
-
-  M_3D_no_rad = A_3D_no_rad*Inv(M_tau)*Inv(A_3D)*M_3D*A_3D*Inv(A_3D_no_rad);
-  prt_map(nd_tps,
-	  "\nM_3D_no_rad = "
-	  "A_3D_no_rad.M_tau^-1.A_3D^-1.M_3D*A_3D.A_3D_no_rad^-1:",
-	  M_3D_no_rad);
-  prt_map(nd_tps, "\nM_3D_no_rad^t.Omega.M_3D_no_rad - Omega:",
-	  tp_map(3, M_3D_no_rad)*get_S(3)*M_3D_no_rad-get_S(3));
-
-  exit(0);
-
-  M_3D_no_rad = A_3D_no_rad*Inv(M_tau)*Inv(A_3D)*M_3D*A_3D*Inv(A_3D_no_rad);
-  prt_map(nd_tps,
-	  "\nM_3D_no_rad = "
-	  "A_3D_no_rad.M_tau^-1.A_3D^-1.M_3D*A_3D.A_3D_no_rad^-1:",
-	  M_3D_no_rad);
-  prt_map(nd_tps, "\nM_3D_no_rad^t.Omega.M_3D_no_rad - Omega:",
-	  tp_map(3, M_3D_no_rad)*get_S(3)*M_3D_no_rad-get_S(3));
-  compute_A(Circ, M_3D_no_rad, nu, dummy, true);
-  prt_map(file_name+"_A_3D_no_rad.dat", A_3D_no_rad);
-
-  phi0 = asin(U0/C->V_RF);
-  M_cav = compute_M_cav("cav", phi0);
-  printf("\nphi0 [deg] = 180 - %4.2f\n", fabs(phi0*180e0/M_PI));
-  prt_map(nd_tps, "\nM_cav:", M_cav);
-
-  M_2D = M_3D_no_rad*Inv(M_cav);
-  prt_map(nd_tps, "\nM_2D = M_3D_no_rad.M_cav^-1:", M_2D);
-  prt_map(nd_tps, "\nM_2D^t.Omega.M_2D - Omega:",
-	  tp_map(3, M_2D)*get_S(3)*M_2D-get_S(3));
-  // Compute nu.
-  compute_A(Circ, M_2D, nu, dummy, false);
-  prt_map(file_name+"_M_2D.dat", M_2D);
-
-  globval.radiation = globval.Cavity_on = false;
-
-  M = compute_M();
-  prt_map(nd_tps, "\nM_2D:", M);
- // Compute nu.
-  compute_A(Circ, M, nu, dummy, false);
-
-  if (false) {
-    // Remove linear dispersion.
-    printf("\nRemoving linear dispersion:\n");
-    eta = compute_eta(M);
-    A0 = compute_A0(eta);
-    M = Inv(A0)*M*A0;
-    prt_map(nd_tps, "\nM:", M);
-  }
-
-  if (!false)
-    compute_map
-      (M_2D, M_cav, M_3D_no_rad, A_3D_no_rad, M_tau, M_3D, A_3D, alpha_rad, U0);
+  compute_M_3D_no_rad(phi_RF, C);
+  compute_M_3D(phi_RF, C, alpha_rad);
 
   compute_D(fixed_point, A_3D, D);
   compute_tau(Circ, alpha_rad, tau);
@@ -821,13 +715,13 @@ void compute_maps(void)
 
   globval.CODvect[ct_] /= c0;
   cout << scientific << setprecision(3)
-       << "\nFixed point         = " << setw(11) << globval.CODvect << "\n";
+       << "\nFixed point         =" << setw(11) << globval.CODvect << "\n";
   globval.CODvect[ct_] *= c0;
   cout << scientific << setprecision(3)
        << "eta                 ="  << setw(11) << eta << "\n";
   printf("U0 [keV]            = %3.1f\n", 1e-3*U0);
   printf("U0/E0               = %10.3e\n", U0/E0);
-  printf("phi0 [deg]          = 180 - %4.2f\n", fabs(phi0*180e0/M_PI));
+  printf("phi_RF [deg]        = 180 - %4.2f\n", fabs(phi_RF*180e0/M_PI));
   printf("tau [msec]          = [%5.3f, %5.3f, %5.3f]\n",
 	 1e3*tau[X_], 1e3*tau[Y_], 1e3*tau[Z_]);
   printf("D                   = [%9.3e, %9.3e, %9.3e]\n",
