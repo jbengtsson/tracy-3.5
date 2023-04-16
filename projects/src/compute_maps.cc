@@ -647,18 +647,18 @@ void compute_normal_mode_form(const ss_vect<tps> &T)
   ss_vect<tps> T;
   Id.identity();
   T.zero();
-  T[x_] +=
-    T1[ct_][ct_]*Id[x_] + T1[ct_][delta_]*Id[px_]
+  T[x_] += T1[delta_][delta_]*Id[x_] + T1[delta_][ct_]*Id[px_];
+  T[px_] +=
+    T1[ct_][delta_]*Id[x_] + T1[ct_][ct_]*Id[px_]
     + T1[ct_][x_]*Id[delta_] + T1[ct_][px_]*Id[ct_];
-  T[px_] += T1[delta_][ct_]*Id[x_] + T1[delta_][delta_]*Id[px_];
   T[y_] = T1[y_];
   T[py_] = T1[py_];
   T[delta_] +=
     T1[x_][x_]*Id[delta_] + T1[x_][px_]*Id[ct_]
-    + T1[x_][ct_]*Id[x_] + T1[x_][delta_]*Id[px_];
+    + T1[x_][delta_]*Id[x_] + T1[x_][ct_]*Id[px_];
   T[ct_] +=
     T1[px_][x_]*Id[delta_] + T1[px_][px_]*Id[ct_]
-    + T1[px_][ct_]*Id[x_] + T1[px_][delta_]*Id[px_];
+    + T1[px_][delta_]*Id[x_] + T1[px_][ct_]*Id[px_];
 
   prt_map(nd_tps, "\nT1:", T1);
   prt_map(nd_tps, "\nT:", T);
@@ -684,27 +684,29 @@ void compute_normal_mode_form(const ss_vect<tps> &T)
   }
 
   cos_mu1_m_cos_mu2 =
-    -sqrt(sqr(1e0/2e0*compute_trace(1, M-N))
-	  +2e0*compute_det(1, m)+compute_trace(1, n*m));
+    1e0/2e0*compute_trace(1, M-N)
+    *sqrt(1e0+(2e0*compute_det(1, m)+compute_trace(1, n*m))
+	  /sqr(1e0/2e0*compute_trace(1, M-N)));
+  printf("\n  cos(mu1) - cos(mu2) = %11.5e\n", cos_mu1_m_cos_mu2);
 
-  if (2e0*compute_det(1, m)+compute_trace(1, n*m) > 0e0) {
-    cs_2phi = 1e0/2e0*compute_trace(1, M-N)/cos_mu1_m_cos_mu2;
+  cs_2phi = 1e0/2e0*compute_trace(1, M-N)/cos_mu1_m_cos_mu2;
+
+  if (fabs(cs_2phi) < 1e0) {
     sn_2phi =
-      -sqrt(2e0*compute_det(1, m)+compute_trace(1, n*m))/cos_mu1_m_cos_mu2;
+      fabs(sqrt(2e0*compute_det(1, m)+compute_trace(1, n*m))/cos_mu1_m_cos_mu2);
     cs_phi = sqrt((1e0+cs_2phi)/2e0);
     sn_phi = sn_2phi/sqrt(2e0*(1e0-cs_2phi));
     printf("\n  cos(2 phi) = %11.5e\n", cs_2phi);
     printf("  sin(2 phi) = %11.5e\n", sn_2phi);
     printf("  sin(2 phi) = %11.5e\n", sin(acos(cs_2phi)));
   } else {
-    cs_2phi = 1e0/2e0*compute_trace(1, M-N)/cos_mu1_m_cos_mu2;
     sn_2phi =
-      -sqrt(-(2e0*compute_det(1, m)+compute_trace(1, n*m)))/cos_mu1_m_cos_mu2;
+      fabs(sqrt(-(2e0*compute_det(1, m)+compute_trace(1, n*m)))
+	   /cos_mu1_m_cos_mu2);
     cs_phi = sqrt((1e0+cs_2phi)/2e0);
     sn_phi = sn_2phi/sqrt(2e0*(1e0+cs_2phi));
     printf("\n  cosh(2 phi) = %11.5e\n", cs_2phi);
     printf("  sinh(2 phi) = %11.5e\n", sn_2phi);
-    printf("  sinh(2 phi) = %11.5e\n", sinh(acosh(cs_2phi)));
   }
 
   D =
