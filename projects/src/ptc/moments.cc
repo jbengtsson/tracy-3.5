@@ -27,6 +27,7 @@ const long int
   p_y_p_y[]     = {0, 0, 2, 0, 0, 0, 0},
   ct_ct[]       = {0, 0, 0, 0, 2, 0, 0},
   delta_delta[] = {0, 0, 0, 0, 0, 2, 0};
+
 const int
   ps_index[]    = {px_, x_, py_, y_, ct_, delta_},
   ps_sign[]     = {-1, 1, -1, 1, -1, 1};
@@ -45,9 +46,8 @@ private:
     Circ,      // Circumference.
     phi_RF;    // RF phase [rad].
   ss_vect<tps>
-    A,         // Transformation from Floquet to phase space without radiation.
-    A_inv,
-    M_delta,
+    A_CS,
+    A_sb,
     M_Chol,
     M_Chol_t;
   ofstream
@@ -55,12 +55,15 @@ private:
 public:
   long int
     cav_loc;
-  ss_vect<tps>
-    M,         // Poincaré map for lattice without radiation.
-    M_inv,
-    M_tau;
   tps
     sigma;     // Statistical moments for charge distribution.
+  ss_vect<tps>
+    M,
+    M_inv,
+    M_cav,
+    R,
+    A,
+    M_tau;
 
   void rd_maps(void);
   void init(const double Q_b, const double phi_RF, const string &cav_name);
@@ -73,11 +76,7 @@ public:
   ss_vect<tps> compute_cav_HOM_trans_M(const tps &ct);
   void propagate_cav_HOM_long(const int n);
   void propagate_cav_HOM_trans(const int n);
-  ss_vect<tps> compute_M_cav(void);
-  void propagate_cav(void);
-  void propagate_mag_lat(void);
-  void propagate_delta(void);
-  void propagate_tau(void);
+  void compute_M_cav(void);
   void propagate_qfluct(void);
   void propagate_lat(const int n);
 };
@@ -124,7 +123,7 @@ ss_vect<tps> rd_map(const string &file_name, const string &str)
 }
 
 
-ss_vect<tps> tp_map(const int n_dof, const ss_vect<tps> &A)
+ss_vect<tps> compute_transp(const int n_dof, const ss_vect<tps> &A)
 {
   // Matrix transpose.
   Matrix A_mat;
@@ -135,20 +134,31 @@ ss_vect<tps> tp_map(const int n_dof, const ss_vect<tps> &A)
 }
 
 
+double compute_det(const int n_dof, const ss_vect<tps> &A)
+{
+  // Matrix determinant.
+  Matrix A_mat;
+
+  getlinmat(2*n_dof, A, A_mat);
+  return DetMat(2*n_dof, A_mat);
+}
+
+
 void MomentType::rd_maps(void)
 {
 
   const string   file_name = "../compute_maps";
 
-  M        = rd_map(file_name+"_M.dat", "\nM:\n");
-  A        = rd_map(file_name+"_A.dat", "\nA:\n");
-  M_delta  = rd_map(file_name+"_M_delta.dat", "\nM_delta:\n");
-  M_tau    = rd_map(file_name+"_M_tau.dat", "\nM_tau:\n");
-  M_Chol   = rd_map(file_name+"_M_Chol.dat", "\nM_Chol:\n");
+  R       = rd_map(file_name+"_R.dat", "\nR:");
+  A_CS    = rd_map(file_name+"_A_CS.dat", "\nA_CS:");
+  A_sb    = rd_map(file_name+"_A_sb.dat", "\nA_sb:");
+  M_tau   = rd_map(file_name+"_M_tau.dat", "\nM_tau:");
+  M_Chol  = rd_map(file_name+"_M_Chol.dat", "\nM_Chol:");
 
-  M_inv    = Inv(M);
-  A_inv    = Inv(A);
-  M_Chol_t = tp_map(3, M_Chol);
+  A       = A_sb*A_CS;
+  print_map(3, "\nA:", A);
+  M_Chol_t = compute_transp(3, M_Chol);
+  print_map(3, "\nM_Chol_t:", M_Chol_t);
 }
 
 
@@ -192,7 +202,7 @@ void MomentType::compute_sigma
   sigma = 0e0;
   for (k = 0; k < 2; k++)
     sigma += eps[k]*(sqr(Id[2*k])+sqr(Id[2*k+1]));
-  sigma = sigma*A_inv;
+  sigma = sigma*Inv(A);
   sigma += sqr(sigma_delta*Id[ct_]) + sqr(sigma_s*Id[delta_]);
 }
 
@@ -313,17 +323,16 @@ void MomentType::propagate_cav_HOM_trans(const int n)
 }
 
 
-ss_vect<tps> MomentType::compute_M_cav(void)
+void MomentType::compute_M_cav(void)
 {
-  tps          ct0;
-  ss_vect<tps> M_cav;
+  tps ct0;
 
   const CavityType* C = Cell[cav_loc].Elem.C;
 
   danot_(1);
   ct0 = tps(sigma[ct], ct_+1);
   M_cav.identity();
-#if 1
+#if 0
   M_cav[ct_] += ct0.cst();
   Cav_Pass(Cell[cav_loc], M_cav);
 #else
@@ -332,28 +341,6 @@ ss_vect<tps> MomentType::compute_M_cav(void)
 #endif
   M_cav[delta_] -= M_cav[delta_].cst();
   danot_(NO);
-  return M_cav;
-}
-
-
-void MomentType::propagate_cav(void)
-{
-  ss_vect<tps> M_cav;
-   
-  M_cav = compute_M_cav();
-  sigma = sigma*Inv(M_cav);
-}
-
-
-void MomentType::propagate_delta(void)
-{
-  sigma = sigma*M_delta;
-}
-
-
-void MomentType::propagate_tau(void)
-{
-  sigma = sigma*M_tau;
 }
 
 
@@ -393,30 +380,20 @@ void MomentType::propagate_qfluct(void)
 }
 
 
-void MomentType::propagate_mag_lat(void)
-{
-  sigma = sigma*M_inv;
-}
-
-
 void MomentType::propagate_lat(const int n)
 {
-  if (globval.Cavity_on)
-    propagate_cav();
-
-  // if (globval.radiation)
-  //   propagate_delta();
+  if (globval.Cavity_on) {
+    compute_M_cav();
+    sigma = sigma*Inv(M_cav);
+  }
 
   propagate_cav_HOM_long(n);
   // propagate_cav_HOM_trans(n);
   t_q = sigma[ct];
 
-  propagate_mag_lat();
+  sigma = sigma*M_inv;
 
-  if (globval.radiation)
-    propagate_tau();
-
-  if (!true && globval.radiation)
+  if (true && globval.radiation)
     propagate_qfluct();
 }
 
@@ -436,13 +413,12 @@ void track(MomentType &m, const int n, ss_vect<double> &ps)
        << "\n" << setw(5) << 0 << setw(13) << ps << "\n";
   ps[ct_] *= c0;
   for (k = 1; k <= n; k++) {
-    if (true)
+    if (false)
       Cell_Pass(0, globval.Cell_nLoc, ps, lastpos);
     else {
       if (globval.Cavity_on)
 	Cav_Pass(Cell[m.cav_loc], ps);
       ps = (m.M*ps).cst();
-      ps = (m.M_tau*ps).cst();
     }
     ps[ct_] /= c0;
     outf << scientific << setprecision(5)
@@ -454,65 +430,15 @@ void track(MomentType &m, const int n, ss_vect<double> &ps)
 }
 
 
-ss_vect<tps> compute_fixed_point(const double eps)
-{
-  long int        jj[ss_dim], lastpos;
-  int             k, n_iter;
-  double          dcod_abs;
-  ss_vect<double> cod0, cod1, dcod;
-  ss_vect<tps>    I, dcod0, M;
-
-  const int
-    n_max  = 20,
-    ps_dim = (globval.Cavity_on)? 6 : 4;
-
-  danot_(1);
-
-  I.identity();
-
-  for (k = 0; k < ss_dim; k++)
-    jj[k] = (k < ps_dim)? 1 : 0;
-
-  cod0.zero();
-  n_iter = 0;
-  do {
-    n_iter++;
-    M.identity();
-    M += cod0;
-
-    Cell_Pass(0, globval.Cell_nLoc, M, lastpos); 
-
-    if (lastpos == globval.Cell_nLoc) {
-      cod1 = M.cst();
-      dcod = cod0 - cod1;
-      dcod0 = PInv(M-I-cod1, jj)*dcod;
-      dcod_abs = xabs(ps_dim, dcod);
-      cod0 += dcod0.cst();
-      cout << scientific << setprecision(3) << setw(11) << M;
-    } else {
-      dcod_abs = NAN;
-      break;
-    }
-  } while ((dcod_abs >= eps) && (n_iter <= n_max));
-
-  cout << scientific << setprecision(3) << setw(11) << M;
-
-  danot_(NO);
-
-  return M;
-}
-
-
 void test_case(const string &cav_name)
 {
   // Single bunch, 1 longitudinal HOM.
   int             k;
   ss_vect<double> ps;
-  ss_vect<tps>    M;
   MomentType      m;
 
   const int
-    n_turn      = 1000;
+    n_turn      = 10000;
   const double
     eps[]       = {161.7e-12, 8e-12},
     sigma_s     = 3.739e-3,
@@ -533,13 +459,29 @@ void test_case(const string &cav_name)
 
   m.set_HOM_long(beta_HOM, f, R_sh, Q);
 
-  globval.radiation = true;
+  globval.radiation = !true;
   globval.Cavity_on = true;
 
-  if (false) {
-    M = compute_fixed_point(1e-20);
-    exit(0);
+  m.M = m.R;
+  if (globval.radiation)
+#if 0
+    m.M = m.M_tau*m.R;
+#else
+    m.M = Inv(m.M_tau)*m.R;
+#endif
+  m.M = m.A*m.M*Inv(m.A);
+  if (!globval.Cavity_on) {
+    m.compute_M_cav();
+    m.M = m.M*Inv(m.M_cav);
   }
+  print_map(3, "\nM:", m.M);
+  printf("\n  det(M) - 1 = %11.5e\n", compute_det(nd_tps, m.M)-1e0);
+  m.M_inv = Inv(m.M);
+#if 0
+  m.M_inv *= compute_det(nd_tps, m.M_inv);
+#endif
+  print_map(3, "\nM^-1:", m.M_inv);
+  printf("\n  det(M^-1) - 1 = %11.5e\n", compute_det(nd_tps, m.M_inv)-1e0);
 
   ps.zero();
   if (!false) {
