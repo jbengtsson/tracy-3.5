@@ -46,9 +46,11 @@ private:
     Circ,      // Circumference.
     phi_RF;    // RF phase [rad].
   ss_vect<tps>
-    A_CS,
-    A_sb,
-    M_Chol,
+    R,
+    M_tau,
+    A_CS,      // Courant-Snyder.
+    A_sb,      // Synchro-betatron.
+    M_Chol,    // Cholesky decomposition.
     M_Chol_t;
   ofstream
     outf;
@@ -59,24 +61,21 @@ public:
     sigma;     // Statistical moments for charge distribution.
   ss_vect<tps>
     M,
-    M_inv,
-    M_cav,
-    R,
-    A,
-    M_tau;
+    M_inv;
 
   void rd_maps(void);
   void init(const double Q_b, const double phi_RF, const string &cav_name);
   void set_HOM_long(const double beta, const double f, const double R_sh,
 		    const double Q);
-  void compute_sigma(const double eps[], const double sigma_s,
+  void compute_sigma(const bool disp, const double eps[], const double sigma_s,
 		     const double sigma_delta);
   void print_sigma(const int n);
   ss_vect<tps> compute_cav_HOM_long_M(const tps &ct);
   ss_vect<tps> compute_cav_HOM_trans_M(const tps &ct);
   void propagate_cav_HOM_long(const int n);
   void propagate_cav_HOM_trans(const int n);
-  void compute_M_cav(void);
+  ss_vect<tps> compute_M_cav(void);
+  void compute_M_and_M_inv(const bool disp);
   void propagate_qfluct(void);
   void propagate_lat(const int n);
 };
@@ -155,8 +154,6 @@ void MomentType::rd_maps(void)
   M_tau   = rd_map(file_name+"_M_tau.dat", "\nM_tau:");
   M_Chol  = rd_map(file_name+"_M_Chol.dat", "\nM_Chol:");
 
-  A       = A_sb*A_CS;
-  print_map(3, "\nA:", A);
   M_Chol_t = compute_transp(3, M_Chol);
   print_map(3, "\nM_Chol_t:", M_Chol_t);
 }
@@ -193,7 +190,8 @@ void MomentType::set_HOM_long
 
 
 void MomentType::compute_sigma
-(const double eps[], const double sigma_s, const double sigma_delta)
+(const bool disp, const double eps[], const double sigma_s,
+ const double sigma_delta)
 {
   int          k;
   ss_vect<tps> Id;
@@ -202,8 +200,11 @@ void MomentType::compute_sigma
   sigma = 0e0;
   for (k = 0; k < 2; k++)
     sigma += eps[k]*(sqr(Id[2*k])+sqr(Id[2*k+1]));
-  sigma = sigma*Inv(A);
-  sigma += sqr(sigma_delta*Id[ct_]) + sqr(sigma_s*Id[delta_]);
+  sigma = sigma*Inv(A_CS);
+  if (disp)
+    sigma = sigma*Inv(A_sb);
+  sigma +=
+    sqr(sigma_s*Id[ps_index[ct_]]) + sqr(sigma_delta*Id[ps_index[delta_]]);
 }
 
 
@@ -323,13 +324,15 @@ void MomentType::propagate_cav_HOM_trans(const int n)
 }
 
 
-void MomentType::compute_M_cav(void)
+ss_vect<tps> MomentType::compute_M_cav(void)
 {
-  tps ct0;
+  tps          ct0;
+  ss_vect<tps> M_cav;
 
   const CavityType* C = Cell[cav_loc].Elem.C;
 
   danot_(1);
+
   ct0 = tps(sigma[ct], ct_+1);
   M_cav.identity();
 #if 0
@@ -340,7 +343,41 @@ void MomentType::compute_M_cav(void)
     -C->V_RF/(1e9*globval.Energy)*sin(2e0*M_PI*C->f_RF*ct0/c0+this->phi_RF);
 #endif
   M_cav[delta_] -= M_cav[delta_].cst();
+
   danot_(NO);
+}
+
+
+void MomentType::compute_M_and_M_inv(const bool disp)
+{
+  // Remark: Pseudo M^-1 for moment tracking.
+  ss_vect<tps> M_cav;
+
+  if (!globval.Cavity_on)
+    M_cav = compute_M_cav();
+
+  M = R;
+  if (globval.radiation)
+    M = M_tau*M;
+  M = A_CS*M*Inv(A_CS);
+  if (disp)
+    M = A_sb*M*Inv(A_sb);
+  if (!globval.Cavity_on)
+    M = M*Inv(M_cav);
+
+  M_inv = Inv(R);
+  if (globval.radiation)
+    M_inv = M_tau*M_inv;
+  M_inv = Inv(A_CS)*M_inv*A_CS;
+  if (disp)
+    M_inv = Inv(A_sb)*M_inv*A_sb;
+  if (!globval.Cavity_on)
+    M_inv = M_cav*M_inv;
+
+  print_map(3, "\nM:", M);
+  printf("\n  det(M) - 1 = %11.5e\n", compute_det(nd_tps, M)-1e0);
+  print_map(3, "\nM_inv:", M_inv);
+  printf("\n  det(M_inv) - 1 = %11.5e\n", compute_det(nd_tps, M_inv)-1e0);
 }
 
 
@@ -382,10 +419,7 @@ void MomentType::propagate_qfluct(void)
 
 void MomentType::propagate_lat(const int n)
 {
-  if (globval.Cavity_on) {
-    compute_M_cav();
-    sigma = sigma*Inv(M_cav);
-  }
+  // Remark: The RF cavity - or not - is included in M_inv;
 
   propagate_cav_HOM_long(n);
   // propagate_cav_HOM_trans(n);
@@ -433,12 +467,13 @@ void track(MomentType &m, const int n, ss_vect<double> &ps)
 void test_case(const string &cav_name)
 {
   // Single bunch, 1 longitudinal HOM.
+  bool            disp;
   int             k;
   ss_vect<double> ps;
   MomentType      m;
 
   const int
-    n_turn      = 10000;
+    n_turn      = 20000;
   const double
     eps[]       = {161.7e-12, 8e-12},
     sigma_s     = 3.739e-3,
@@ -459,29 +494,11 @@ void test_case(const string &cav_name)
 
   m.set_HOM_long(beta_HOM, f, R_sh, Q);
 
-  globval.radiation = !true;
+  globval.radiation = true;
   globval.Cavity_on = true;
+  disp              = !true;
 
-  m.M = m.R;
-  if (globval.radiation)
-#if 0
-    m.M = m.M_tau*m.R;
-#else
-    m.M = Inv(m.M_tau)*m.R;
-#endif
-  m.M = m.A*m.M*Inv(m.A);
-  if (!globval.Cavity_on) {
-    m.compute_M_cav();
-    m.M = m.M*Inv(m.M_cav);
-  }
-  print_map(3, "\nM:", m.M);
-  printf("\n  det(M) - 1 = %11.5e\n", compute_det(nd_tps, m.M)-1e0);
-  m.M_inv = Inv(m.M);
-#if 0
-  m.M_inv *= compute_det(nd_tps, m.M_inv);
-#endif
-  print_map(3, "\nM^-1:", m.M_inv);
-  printf("\n  det(M^-1) - 1 = %11.5e\n", compute_det(nd_tps, m.M_inv)-1e0);
+  m.compute_M_and_M_inv(disp);
 
   ps.zero();
   if (!false) {
@@ -495,7 +512,7 @@ void test_case(const string &cav_name)
 
   m.sigma = 0e0;
   if (!false)
-    m.compute_sigma(eps, sigma_s, sigma_delta);
+    m.compute_sigma(disp, eps, sigma_s, sigma_delta);
 
   for (k = 0; k < 2*nd_tps; k++)
     m.sigma += ps_sign[k]*ps[k]*tps(0e0, ps_index[k]+1);
