@@ -8,8 +8,11 @@ ps = $prm1
 
 file_name = "moments.out"
 
+c0 = 2.99792458e8;
+
 f_s = 24
- l_w = 2
+l_w = 2
+
 if (ps == 0) \
   set terminal qt 0 font "Sans, 9"; \
 else if (ps == 1) \
@@ -61,7 +64,7 @@ set origin 0.0, 0.5
 set title "<t> [ps]"
 set xlabel "Turn no"
 set ylabel ""
-plot file_name using 1:(1e12*\$7) notitle with points ls 1
+plot file_name using 1:(1e12*\$7/c0) notitle with points ls 1
 
 set origin 0.0, 0.0
 set title "<{/Symbol d}>"
@@ -102,7 +105,7 @@ set origin 0.0, 0.5
 set title "{/Symbol s}_t [ps]"
 set xlabel "Turn no"
 set ylabel ""
-plot file_name using 1:(1e12*\$14) notitle with points ls 1
+plot file_name using 1:(1e12*\$14/c0) notitle with points ls 1
 
 set origin 0.0, 0.0
 set title "{/Symbol s_d}"

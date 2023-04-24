@@ -9,7 +9,8 @@ ps = $prm1
 file_name = "track.out"
 
 f_s = 24
- l_w = 2
+l_w = 2
+
 if (ps == 0) \
   set terminal qt 0 font "Sans, 9"; \
 else if (ps == 1) \
