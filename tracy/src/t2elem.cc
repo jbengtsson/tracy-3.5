@@ -858,7 +858,7 @@ void Cav_Pass(CellType &Cell, ss_vect<T> &ps)
   Drift(L/2e0, ps);
   if (globval.Cavity_on && C->V_RF != 0e0) {
     delta = -C->V_RF/(globval.Energy*1e9)
-            *sin(2e0*M_PI*C->f_RF/c0*ps[ct_]+C->phi_RF);
+            *sin(2e0*M_PI*C->f_RF/c0*ps[ct_]-C->phi_RF);
     ps[delta_] += delta;
 
     if (globval.radiation) globval.dE -= is_double<T>::cst(delta);
@@ -887,13 +887,14 @@ void Cav_Pass1(CellType &Cell, ss_vect<T> &ps)
 
   h = L/(C->PN+1e0);
   // globval.Energy contains p_0.
-  delta_max = C->Pvolt/(1e9*globval.Energy); ddelta = delta_max/C->PN;
+  delta_max = C->Pvolt/(1e9*globval.Energy);
+  ddelta = delta_max/C->PN;
   delta = delta_max*sin(2e0*M_PI*C->Pfreq*ps[ct_]/c0+C->phi);
   if (C->entry_focus) Cav_Focus(L, delta, true, ps);
   for (k = 0; k < C->PN; k++) {
     Drift(h, ps);
 
-    ps[delta_] -= ddelta*sin(2e0*M_PI*C->Pfreq*(ps[ct_]-k*h)/c0+C->phi);
+    ps[delta_] -= ddelta*sin(2e0*M_PI*C->Pfreq*(ps[ct_]-k*h)/c0-C->phi);
 
     if (globval.radiation) globval.dE -= is_double<T>::cst(ddelta);
     if (globval.pathlength) ps[ct_] -= C->Ph/C->Pfreq*c0;
