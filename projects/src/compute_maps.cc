@@ -588,18 +588,31 @@ void compute_M
   // Compute radiation effects.
   globval.radiation = globval.Cavity_on = true;
 
+  printf("\n  phi_RF [deg] = 180 + %4.2f\n", C->phi_RF*180e0/M_PI);
   getcod(0e0, lastpos);
   fixed_point = globval.CODvect;
+  printf("\nFixed point = [");
+  for (k = 0; k < 2*nd_tps; k++)
+    printf("%9.3e%s", globval.CODvect[k], (k < 2*nd_tps-1)? ", " : "]\n");
+
   U0 = globval.dE*E0;
-  phi_RF = asin(U0/C->V_RF);
+  // Remark: U0 < 0; i.e., energy loss.
+  phi_RF = -asin(U0/C->V_RF);
   C->phi_RF = phi_RF;
-  printf("\n  phi_RF [deg] = 180 - %4.2f\n", fabs(phi_RF*180e0/M_PI));
+  printf("\n  phi_RF [deg] = 180 + %4.2f\n", C->phi_RF*180e0/M_PI);
+
+  getcod(0e0, lastpos);
+  fixed_point = globval.CODvect;
+  printf("\nFixed point = [");
+  for (k = 0; k < 2*nd_tps; k++)
+    printf("%9.3e%s", globval.CODvect[k], (k < 2*nd_tps-1)? ", " : "]\n");
 
   // With RF cavity but without radiation.
   globval.radiation = false;
   globval.Cavity_on = true;
 
   Ring_GetTwiss(true, 0e0);
+
   compute_Twiss_long();
   M_3D_no_rad = putlinmat(2*nd_tps, globval.OneTurnMat);
 
@@ -615,7 +628,12 @@ void compute_M
   M = A_sb*A_CS*R*Inv(A_sb*A_CS);
   prt_map(nd_tps, "\nM - with RF cavity & no radiation:", M);
   printf("\n  det(M) - 1 = %11.5e\n", compute_det(nd_tps, M)-1e0);
-  prt_map(nd_tps, "\nValidation:", M-M_3D_no_rad);
+  printf("\nValidation:\n");
+  getcod(0e0, lastpos);
+  printf("\nFixed point = [");
+  for (k = 0; k < 2*nd_tps; k++)
+    printf("%9.3e%s", fixed_point[k], (k < 2*nd_tps-1)? ", " : "]\n");
+  prt_map(nd_tps, "\nM-M_3D_no_rad:", M-M_3D_no_rad);
 
   // With RF cavity & radiation.
   globval.radiation = globval.Cavity_on = true;
@@ -647,7 +665,12 @@ void compute_M
   M = A*M_tau*R*Inv(A);
   prt_map(nd_tps, "\nM - w/ RF cavity & radiation:", M);
   printf("\n  det(M) - 1 = %11.5e\n", compute_det(nd_tps, M)-1e0);
-  prt_map(nd_tps, "\nValidation:", M-M_3D);
+  printf("\nValidation:\n");
+  printf("\nFixed point = [");
+  getcod(0e0, lastpos);
+  for (k = 0; k < 2*nd_tps; k++)
+    printf("%9.3e%s", fixed_point[k], (k < 2*nd_tps-1)? ", " : "]\n");
+  prt_map(nd_tps, "\nM-M_3D:", M-M_3D);
 
   prt_map(file_name+"_R.dat", R);
   prt_map(file_name+"_M_tau.dat", M_tau);
@@ -665,13 +688,12 @@ void prt_summary
 
   const double E0 = 1e9*globval.Energy;
 
-  fixed_point[ct_] /= c0;
-  cout << scientific << setprecision(3)
-       << "\n  Fixed point         =" << setw(11) << fixed_point << "\n";
-  fixed_point[ct_] *= c0;
+  printf("\n  Fixed point        = [");
+  for (k = 0; k < 2*nd_tps; k++)
+    printf("%9.3e%s", fixed_point[k], (k < 2*nd_tps-1)? ", " : "]\n");
   printf("  U0 [keV]            = %3.1f\n", 1e-3*U0);
   printf("  U0/E0               = %10.3e\n", U0/E0);
-  printf("  phi_RF [deg]        = 180 - %4.2f\n", fabs(phi_RF*180e0/M_PI));
+  printf("  phi_RF [deg]        = 180 + %4.2f\n", phi_RF*180e0/M_PI);
   printf("  tau [msec]          = [");
   for (k = 0; k < nd_tps; k++)
     printf("%5.3f%s", 1e3*tau[k], (k < 2)? ", " : "]\n");
@@ -684,7 +706,7 @@ void prt_summary
   printf("  sigma_x [micro m]   = %5.3f\n", 1e6*sqrt(eps[X_]*Cell[0].Beta[X_]));
   printf("  sigma_x'[micro rad] = %5.3f\n",
 	 1e6*sqrt(eps[X_]*(1e0+sqr(Cell[0].Alpha[X_]))/Cell[0].Beta[X_]));
-  printf("  sigma_t [ps]        = %5.3f\n", 1e12*sigma_s/c0);
+  printf("  sigma_t [ps]        = %5.3f\n", 1e12*sigma_s);
   printf("  sigma_delta         = %9.3e\n", sigma_delta);
 }
 
