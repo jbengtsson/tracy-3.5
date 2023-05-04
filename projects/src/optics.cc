@@ -277,19 +277,28 @@ void dpath_length()
 }
 
 
-void prt_symm(const std::vector<int> &Fam)
+void prt_symm(const std::vector<int> &Fam, const int period)
 {
-  long int loc;
-  int      j, k;
+  long int loc, loc_prev;
+  int      i, j, k;
+  double   dnu[2];
 
-  for (j = 0; j < (int)Fam.size(); j++) {
+  for (i = 0; i < (int)Fam.size(); i++) {
     printf("\n");
-    for (k = 1; k <= GetnKid(Fam[j]); k++) {
-      loc = Elem_GetPos(Fam[j], k);
-      if (k % 2 == 0) loc -= 1;
-      printf(" %5.1f %6.3f %6.3f %6.3f\n",
-	     Cell[loc].S, Cell[loc].Beta[X_], Cell[loc].Beta[Y_],
-	     Cell[loc].Eta[X_]);
+    for (j = 1; j <= GetnKid(Fam[i]); j++) {
+      loc = Elem_GetPos(Fam[i], j);
+      if (j == 1) loc_prev = loc;
+      if (((period == 1) && (j > 1)) || ((period > 1) && (j % period == 0))) {
+	for (k = 0; k < 2; k++)
+	  dnu[k] = Cell[loc].Nu[k] - Cell[loc_prev].Nu[k];
+      } else {
+	for (k = 0; k < 2; k++)
+	  dnu[k] = NAN;
+      }
+      printf(" %5.1f %8.5f %8.5f %8.5f %8.5f %8.5f\n",
+	     Cell[loc].S, Cell[loc].Beta[X_], dnu[X_], Cell[loc].Eta[X_],
+	     Cell[loc].Beta[Y_], dnu[Y_]);
+      loc_prev = loc;
     }
   }
 }
@@ -1615,7 +1624,7 @@ int main(int argc, char *argv[])
   globval.pathlength = false; globval.Aperture_on    = false;
   globval.Cart_Bend  = false; globval.dip_edge_fudge = true;
 
-  if (!false) no_sxt();
+  if (false) no_sxt();
 
   if (false) {
     fit_ksi1(1, 0e0, 0e0);
@@ -2028,69 +2037,15 @@ int main(int argc, char *argv[])
     exit(0);
   }
 
-  if (false) {
-    // Fam.push_back(ElemIndex("s1b"));
-    // Fam.push_back(ElemIndex("s1d"));
-    // Fam.push_back(ElemIndex("s2b"));
-    // Fam.push_back(ElemIndex("s2d"));
-    // Fam.push_back(ElemIndex("sx1"));
-    // Fam.push_back(ElemIndex("sy1"));
+  if (!false) {
+    Fam.push_back(ElemIndex("om_sf"));
+    prt_symm(Fam, 1);
 
-  switch (2) {
-  case 1:
-    // DIAMOND.
-    Fam.push_back(ElemIndex("ts1a"));
-    Fam.push_back(ElemIndex("ts1ab"));
-    Fam.push_back(ElemIndex("ts2a"));
-    Fam.push_back(ElemIndex("ts2ab"));
-    Fam.push_back(ElemIndex("ts1b"));
-    Fam.push_back(ElemIndex("ts2b"));
-    Fam.push_back(ElemIndex("ts1c"));
-    Fam.push_back(ElemIndex("ts2c"));
-    Fam.push_back(ElemIndex("ts1d"));
-    Fam.push_back(ElemIndex("ts2d"));
-    Fam.push_back(ElemIndex("ts1e"));
-    Fam.push_back(ElemIndex("ts2e"));
+    Fam.clear();
+    Fam.push_back(ElemIndex("om_sd"));
+    prt_symm(Fam, 2);
 
-    Fam.push_back(ElemIndex("s1"));
-    Fam.push_back(ElemIndex("s2"));
-    Fam.push_back(ElemIndex("s3"));
-    Fam.push_back(ElemIndex("s4"));
-    Fam.push_back(ElemIndex("s5"));
-    break;
-  case 2:
-    // DIAMOND-II, 6-BA.
-    Fam.push_back(ElemIndex("sd1"));
-    Fam.push_back(ElemIndex("sd2"));
-    Fam.push_back(ElemIndex("sd3"));
-    // Fam.push_back(ElemIndex("sd4"));
-    Fam.push_back(ElemIndex("sf21"));
-    Fam.push_back(ElemIndex("sd31"));
-    // Fam.push_back(ElemIndex("sd41"));
-    Fam.push_back(ElemIndex("sf1"));
-    // Fam.push_back(ElemIndex("sf2"));
-    Fam.push_back(ElemIndex("sh1a"));
-    Fam.push_back(ElemIndex("sh1e"));
-    break;
-  default:
-    printf("\nmain: unknown case\n");
-    exit(1);
-    break;
-  }
-
-    prt_symm(Fam);
-  }
-
-  if (false) {
-    Fam.push_back(ElemIndex("q1_2"));
-    Fam.push_back(ElemIndex("q1_2m"));
-    Fam.push_back(ElemIndex("q1b"));
-    Fam.push_back(ElemIndex("q2b"));
-    Fam.push_back(ElemIndex("q1d"));
-    Fam.push_back(ElemIndex("q2d"));
-    Fam.push_back(ElemIndex("q3d"));
-
-    prt_quad(Fam);
+    exit(0);
   }
 
   if (true) GetEmittance(ElemIndex("cav"), true);
