@@ -3205,19 +3205,19 @@ void pol_fit(int n, double x[], double y[], int order, psVector &b,
 }
 
 
-void get_ksi2(const double d_delta)
+void get_ksi2(const double d_delta, const int n_step)
 {
-  const int n_points = 20, order = 5;
+  const int order = 5;
 
   int      i, n;
-  double   delta[2*n_points+1], nu[2][2*n_points+1], sigma;
+  double   delta[2*n_step+1], nu[2][2*n_step+1], sigma;
   psVector b;
   FILE     *fp;
 
   fp = file_write("chrom2.out");
   n = 0;
-  for (i = -n_points; i <= n_points; i++) {
-    n++; delta[n-1] = i*(double)d_delta/(double)n_points;
+  for (i = -n_step; i <= n_step; i++) {
+    n++; delta[n-1] = i*(double)d_delta/(double)n_step;
     Ring_GetTwiss(false, delta[n-1]);
     nu[0][n-1] = globval.TotalTune[X_]; nu[1][n-1] = globval.TotalTune[Y_];
     fprintf(fp, "%5.2f %8.5f %8.5f\n", 1e2*delta[n-1], nu[0][n-1], nu[1][n-1]);

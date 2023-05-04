@@ -268,7 +268,7 @@ double get_chi2(long int n, double x[], double y[], long int m, psVector b);
 void pol_fit(int n, double x[], double y[], int order, psVector &b,
 	     double &sigma, const bool prt);
 
-void get_ksi2(const double d_delta);
+void get_ksi2(const double d_delta, const int n_step);
 
 bool find_nu(const int n, const double nus[], const double eps, double &nu);
 
