@@ -5,10 +5,13 @@
 int no_tps = NO;
 
 
+const int
+  n_step = 25;
+
 const double
-#if 0
+#if 1
   A_max[]   = {4e-3, 3e-3},
-  delta_max = 4e-2;
+  delta_max = 5e-2;
 #else
   A_max[]   = {15e-3, 10e-3},
   delta_max = 5e-2;
@@ -37,6 +40,6 @@ int main(int argc, char *argv[])
     Ring_GetTwiss(true, 0e0); printglob();
   }
 
-  dnu_dA(A_max[X_], A_max[Y_], 0e0, 25);
-  get_ksi2(delta_max);
+  dnu_dA(A_max[X_], A_max[Y_], 0e0, n_step);
+  get_ksi2(delta_max, n_step);
 }

@@ -921,7 +921,7 @@ int main(int argc, char *argv[])
     cout << endl;
     cout << "computing tune shifts" << endl;
     dnu_dA(4e-3, 3e-3, 0.0, 25);  // the final argument 25 defines the number of amplitude steps
-    get_ksi2(6.0e-2); // this gets the chromas (up to +/-delta) and writes them into chrom2.out
+    get_ksi2(6.0e-2, 20); // this gets the chromas (up to +/-delta) and writes them into chrom2.out
   }
   
   if (false) {
