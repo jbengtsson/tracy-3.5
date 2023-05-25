@@ -277,29 +277,29 @@ void dpath_length()
 }
 
 
-void prt_symm(const std::vector<int> &Fam, const int period)
+void prt_symm(const string &name, const int period)
 {
   long int loc, loc_prev;
-  int      i, j, k;
+  int      j, k;
   double   dnu[2];
 
-  for (i = 0; i < (int)Fam.size(); i++) {
-    printf("\n");
-    for (j = 1; j <= GetnKid(Fam[i]); j++) {
-      loc = Elem_GetPos(Fam[i], j);
-      if (j == 1) loc_prev = loc;
-      if (((period == 1) && (j > 1)) || ((period > 1) && (j % period == 0))) {
-	for (k = 0; k < 2; k++)
-	  dnu[k] = Cell[loc].Nu[k] - Cell[loc_prev].Nu[k];
-      } else {
-	for (k = 0; k < 2; k++)
-	  dnu[k] = NAN;
-      }
-      printf(" %5.1f %8.5f %8.5f %8.5f %8.5f %8.5f\n",
-	     Cell[loc].S, Cell[loc].Beta[X_], dnu[X_], Cell[loc].Eta[X_],
-	     Cell[loc].Beta[Y_], dnu[Y_]);
-      loc_prev = loc;
+  const int Fnum = ElemIndex(name.c_str());
+
+  printf("\nprt_symm %-s:\n", name.c_str());
+  for (j = 1; j <= GetnKid(Fnum); j++) {
+    loc = Elem_GetPos(Fnum, j);
+    if (j == 1) loc_prev = loc;
+    if (((period == 1) && (j > 1)) || ((period > 1) && (j % period == 0))) {
+      for (k = 0; k < 2; k++)
+	dnu[k] = Cell[loc].Nu[k] - Cell[loc_prev].Nu[k];
+    } else {
+      for (k = 0; k < 2; k++)
+	dnu[k] = NAN;
     }
+    printf(" %5.1f %8.5f %8.5f %8.5f %8.5f %8.5f\n",
+	   Cell[loc].S, Cell[loc].Beta[X_], dnu[X_], Cell[loc].Eta[X_],
+	   Cell[loc].Beta[Y_], dnu[Y_]);
+    loc_prev = loc;
   }
 }
 
@@ -2037,13 +2037,9 @@ int main(int argc, char *argv[])
     exit(0);
   }
 
-  if (!false) {
-    Fam.push_back(ElemIndex("om_sf"));
-    prt_symm(Fam, 1);
-
-    Fam.clear();
-    Fam.push_back(ElemIndex("om_sd"));
-    prt_symm(Fam, 2);
+  if (false) {
+    prt_symm("om_sf", 1);
+    prt_symm("om_sd", 2);
 
     exit(0);
   }
