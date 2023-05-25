@@ -61,10 +61,10 @@ if (ps) set output "plt_wakefield_2.".(ext)
 set multiplot
 
 set origin 0.0, 0.5
-set title "<t> [ps]"
+set title "<ct> [m]"
 set xlabel "Turn no"
 set ylabel ""
-plot file_name using 1:(1e12*\$7/c0) notitle with points ls 1
+plot file_name using 1:7 notitle with points ls 1
 
 set origin 0.0, 0.0
 set title "<{/Symbol d}>"
@@ -102,10 +102,10 @@ if (ps) set output "plt_wakefield_4.".(ext)
 set multiplot
 
 set origin 0.0, 0.5
-set title "{/Symbol s}_t [ps]"
+set title "{/Symbol s}_ct [m]"
 set xlabel "Turn no"
 set ylabel ""
-plot file_name using 1:(1e12*\$14/c0) notitle with points ls 1
+plot file_name using 1:14 notitle with points ls 1
 
 set origin 0.0, 0.0
 set title "{/Symbol s_d}"

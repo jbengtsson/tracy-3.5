@@ -384,6 +384,9 @@ void MomentType::compute_M_and_M_inv(const double fp[])
   M = A_CS*M*Inv(A_CS);
   if (lat_disp)
     M = A_sb*M*Inv(A_sb);
+  cout << scientific << setprecision(3) << "\nM constant part :\n"
+       << setw(11) << M.cst() << "\n";
+  print_map(3, "\nM:", M);
   // Remove the RF cavity.
   M_cav.identity();
   RF_cav_pass(cav_loc, M_cav);
@@ -403,9 +406,9 @@ void MomentType::compute_M_and_M_inv(const double fp[])
     M_inv = A_sb*M_inv*Inv(A_sb);
   M_inv = (M_cav-M_cav.cst())*M_inv;
 
-  cout << scientific << setprecision(3) << "\nM constant part :\n"
+  cout << scientific << setprecision(3) << "\nM.M_cav^-1 constant part :\n"
        << setw(11) << M.cst() << "\n";
-  print_map(3, "\nM:", M);
+  print_map(3, "\nM.M_cav^-1:", M);
   printf("\ndet(M) - 1 = %11.5e\n", compute_det(nd_tps, M)-1e0);
   cout << scientific << setprecision(3)
        << "\nM^-1 constant part :\n" << setw(11) << M_inv.cst() << "\n";
@@ -476,28 +479,27 @@ void MomentType::propagate_lat(const int n)
 
   sigma = sigma*M_inv;
 
-  if (globval.radiation)
-    propagate_qfluct();
+  // if (globval.radiation)
+  //   propagate_qfluct();
 }
 
 
 void track(MomentType &m, const int n, ss_vect<double> &ps)
 {
   long int lastpos;
-  int      k;
-  double   dct;
-  ofstream outf;
+  int             k;
+  double          dct;
+  ss_vect<double> ps1;
+  ofstream        outf;
 
   const string file_name = "track.out";
 
   file_wr(outf, file_name.c_str());
 
-  ps[ct_] /= c0;
   outf << scientific << setprecision(5)
        << "\n" << setw(5) << 0 << setw(13) << ps << "\n";
-  ps[ct_] *= c0;
   for (k = 1; k <= n; k++) {
-#if 1
+#if 0
     if (globval.Cavity_on) {
       if (m.RF_cav_linear)
 	ps = (m.M_cav*ps).cst();
@@ -519,12 +521,12 @@ void track(MomentType &m, const int n, ss_vect<double> &ps)
     ps = (m.M*ps).cst();
 #else
     // Absolute coordinates.
-    Cell_Pass(0, globval.Cell_nLoc, ps, lastpos);
+    ps1 = ps + m.fixed_point;
+    Cell_Pass(0, globval.Cell_nLoc, ps1, lastpos);
+    ps = ps1 - m.fixed_point;
 #endif
-    ps[ct_] /= c0;
     outf << scientific << setprecision(5)
 	 << setw(5) << k << setw(13) << ps << "\n";
-    ps[ct_] *= c0;
   }
 
   outf.close();
@@ -559,16 +561,16 @@ void test_case(const string &cav_name)
   MomentType      m;
 
   const int
-    n_turn        = 40000;
+    n_turn        = 5000;
   const double
     fp[] =
-    {-4.473e-08, 2.824e-08, 0.000e+00, 0.000e+00, -1.033e-04, -1.703e-10},
+    {2.448e-09, 1.372e-07, 0.000e+00, 0.000e+00, -1.036e-04, -3.211e-16},
     eps[]         = {161.7e-12, 8e-12},
     sigma_s       = 3.739e-3,
     sigma_delta   = 9.353e-04,
 
     Q_b           = -0*0.6e-9,
-    phi_RF        = -30.63,
+    phi_RF        = 30.63,
     delta_RF      = 2.067e-04,
     beta_HOM      = 1e0,
     f             = 1e9,
@@ -583,7 +585,7 @@ void test_case(const string &cav_name)
 
   m.set_HOM_long(beta_HOM, f, R_sh, Q);
 
-  globval.radiation = true;
+  globval.radiation = !true;
   globval.Cavity_on = true;
   m.lat_disp        = true;
   m.RF_cav_linear   = !true;
@@ -591,18 +593,16 @@ void test_case(const string &cav_name)
   m.compute_M_and_M_inv(fp);
 
   m.sigma = 0e0;
-  if (!false)
+  if (false)
     m.compute_sigma(eps, sigma_s, sigma_delta);
   if (false)
     for (k = 0; k < 2*nd_tps; k++)
-      m.sigma += ps_sign[k]*m.fixed_point[k]*tps(0e0, ps_index[k]+1);
+      m.sigma -= ps_sign[k]*m.fixed_point[k]*tps(0e0, ps_index[k]+1);
 
   bc = get_barycentre(m.sigma);
-  bc[ct_] /= c0;
   printf("\nBarycentre = [");
   for (k = 0; k < 2*nd_tps; k++)
     printf("%9.3e%s", bc[k], (k < 2*nd_tps-1)? ", " : "]\n");
-  bc[ct_] *= c0;
 
   m.print_sigma(0);
   printf("\n");
@@ -611,9 +611,9 @@ void test_case(const string &cav_name)
     m.print_sigma(k);
   }
 
-  if (false) {
+  if (!false) {
     ps.zero();
-    if (!false)
+    if (false)
       ps = bc;
     track(m, n_turn, ps);
   }
