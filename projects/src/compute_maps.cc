@@ -5,25 +5,18 @@
 int no_tps = NO;
 
 
-void prt_vec(const int n_dof, const string &str, const ss_vect<double> vec)
-{
-  const int n_dec = 6;
-
-  printf("%s\n", str.c_str());
-  for (int k = 0; k < 2*n_dof; k++)
-    printf("%*.*e", n_dec+8, n_dec, vec[k]);
-  printf("\n");
-}
-
-
 void prt_map(const int n_dof, const string &str, const ss_vect<tps> map)
 {
   const int n_dec = 6;
 
   printf("%s\n", str.c_str());
-  for (int i = 0; i < 2*n_dof; i++) {
-    for (int j = 0; j < 2*n_dof; j++)
-      printf("%*.*e", n_dec+8, n_dec, map[i][j]);
+  printf("Constant:\n");
+  cout << scientific << setprecision(n_dec) << setw(8+n_dec)
+       << map.cst() << "\n";
+  printf("Map:\n");
+  for (int j = 0; j < 2*n_dof; j++) {
+    for (int k = 0; k < 2*n_dof; k++)
+      printf("%*.*e", n_dec+8, n_dec, map[j][k]);
     printf("\n");
   }
 }
@@ -380,12 +373,10 @@ ss_vect<tps> compute_R_2D(const double Circ, const double alpha_c,
 
 void get_Twiss(const int n_dof, double alpha[], double beta[], double nu[])
 {
-  int k;
-
-  for (k = 0; k < n_dof; k++) {
+  for (int k = 0; k < n_dof; k++) {
     if (k < 2) {
-      alpha[k] = Cell[k].Alpha[k];
-      beta[k] = Cell[k].Beta[k];
+      alpha[k] = Cell[0].Alpha[k];
+      beta[k] = Cell[0].Beta[k];
       nu[k] = globval.TotalTune[k];
     } else {
       alpha[k] = globval.alpha_z;
@@ -468,20 +459,18 @@ ss_vect<tps> compute_R_3D(const double nu[])
 
 ss_vect<tps> compute_normal_mode_form(const ss_vect<tps> &T)
 {
-  int
-    j, k;
   double
-    cos_mu1_m_cos_mu2, cs_2phi, sn_2phi, cs_phi, sn_phi, sgn_D_det;
+    Dt, Delta, cs_2phi, sn_2phi, cs_phi, sn_phi, sgn_D_det;
   ss_vect<tps>
     Id, M, N, m, n, D, D_inv, R, A, B;
 
-  const bool prt  = false;
-  const int plane = 4;
+  const bool prt   = false;
+  const int  plane = 4;
 
   Id.identity();
   M = N = m = n.zero();
-  for (j = 0; j < 2; j++)
-    for (k = 0; k < 2; k++) {
+  for (int j = 0; j < 2; j++)
+    for (int k = 0; k < 2; k++) {
       M[j] += T[j][k]*Id[k];
       N[j] += T[j+plane][k+plane]*Id[k];
       m[j] += T[j+plane][k]*Id[k];
@@ -491,39 +480,45 @@ ss_vect<tps> compute_normal_mode_form(const ss_vect<tps> &T)
   if (prt)
     prt_map(nd_tps, "\nT:", T);
 
-  cos_mu1_m_cos_mu2 =
+  Dt = 2e0*compute_det(1, m) + compute_trace(1, n*m);
+  Delta =
     1e0/2e0*compute_trace(1, M-N)
-    *sqrt(1e0+(2e0*compute_det(1, m)+compute_trace(1, n*m))
-	  /sqr(1e0/2e0*compute_trace(1, M-N)));
-  printf("\n  cos(mu1) - cos(mu2) = %12.5e\n", cos_mu1_m_cos_mu2);
+    *sqrt(1e0+Dt/sqr(1e0/2e0*compute_trace(1, M-N)));
+  cs_2phi = compute_trace(1, M-N)/(2e0*Delta);
 
-  cs_2phi = 1e0/2e0*compute_trace(1, M-N)/cos_mu1_m_cos_mu2;
+  printf("\n  cos(mu1) - cos(mu2) = %12.5e\n", Delta);
 
   if (fabs(cs_2phi) < 1e0) {
+    // Symplectic rotation.
     printf("\n*** compute_normal_mode_form: not tested!\n");
-    exit(1);
 
-    sn_2phi =
-      fabs(sqrt(2e0*compute_det(1, m)+compute_trace(1, n*m))/cos_mu1_m_cos_mu2);
+    sn_2phi = fabs(sqrt(Dt)/Delta);
     cs_phi = sqrt((1e0+cs_2phi)/2e0);
-    sn_phi = sn_2phi/sqrt(2e0*(1e0-cs_2phi));
-    printf("  cos(2 phi)          = %12.5e\n", cs_2phi);
+    sn_phi = -sn_2phi/sqrt(2e0*(1e0+cs_2phi));
+    printf("  1 - |cos(2 phi)|    = %12.5e\n", 1e0-fabs(cs_2phi));
     printf("  sin(2 phi)          = %12.5e\n", sn_2phi);
+    printf("  acos(2 phi)         = %12.5e\n", acos(cs_2phi));
+    printf("  asin(2 phi)         = %12.5e\n", asin(sn_2phi));
   } else {
+    // "Symplectic boost".
     sn_2phi =
       fabs(sqrt(-(2e0*compute_det(1, m)+compute_trace(1, n*m)))
-	   /cos_mu1_m_cos_mu2);
+	   /Delta);
     cs_phi = sqrt((1e0+cs_2phi)/2e0);
     sn_phi = sn_2phi/sqrt(2e0*(1e0+cs_2phi));
-    printf("  cosh(2 phi)         = %12.5e\n", cs_2phi);
+    printf("  1 - |cosh(2 phi)|   = %12.5e\n", 1e0-fabs(cs_2phi));
     printf("  sinh(2 phi)         = %12.5e\n", sn_2phi);
+    printf("  acosh(2 phi)        = %12.5e\n", acosh(cs_2phi));
+    printf("  asinh(2 phi)        = %12.5e\n", asinh(sn_2phi));
   }
 
-  D =
-    -(m+compute_transp(1, get_S(1))*compute_transp(1, n)*get_S(1));
+  if (fabs(cs_2phi) < 1e0)
+    D = (m+compute_transp(1, get_S(1))*compute_transp(1, n)*get_S(1));
+  else
+    D = -(m+compute_transp(1, get_S(1))*compute_transp(1, n)*get_S(1));
   // Supported operators issue.
-  D *= 1e0/(cos_mu1_m_cos_mu2*sn_2phi);
-  for (k = y_; k < 2*nd_tps; k++)
+  D *= 1e0/(Delta*sn_2phi);
+  for (int k = y_; k < 2*nd_tps; k++)
     D[k]= Id[k];
   D_inv = Inv(D);
   sgn_D_det = compute_det(1, D);
@@ -566,116 +561,159 @@ ss_vect<tps> compute_normal_mode_form(const ss_vect<tps> &T)
 }
 
 
+std::vector<double> get_nu(const ss_vect<tps> &M)
+{
+  double              nu_z, alpha_c;
+  Matrix              A_mat, A_inv_mat, R_mat, M_mat;
+  std::vector<double> nu;
+
+  const int
+    n_dof = (globval.Cavity_on)? 3 : 2;
+  const double
+    Circ  = Cell[globval.Cell_nLoc].S;
+
+  getlinmat(2*n_dof, M, M_mat);
+  GDiag(2*n_dof, Circ, A_mat, A_inv_mat, R_mat, M_mat, nu_z, alpha_c);
+  for (int k =  0; k < n_dof; k++)
+    nu.push_back(atan2(globval.wi[2*k], globval.wr[2*k])/(2e0*M_PI));
+  return nu;
+}
+
+
+void prt_map(const string &str, const string &cav_name, const ss_vect<tps> &M)
+{
+  int                 k;
+  std::vector<double> nu;
+
+  const int
+    loc = Elem_GetPos(ElemIndex(cav_name.c_str()), 1);
+  const CavityType*
+    C = Cell[loc].Elem.C;
+
+  nu = get_nu(M);
+
+  printf("\n-----------------------------------\n");
+  printf("%s", str.c_str());
+  printf("Cavity_on    = %s\n", (globval.Cavity_on == true)?"true":"false");
+  printf("radiation    = %s\n", (globval.radiation == true)?"true":"false");
+  printf("\nphi_RF [deg] = 180 + %4.2f\n", C->phi_RF*180e0/M_PI);
+  prt_map(nd_tps, "", M);
+  printf("det(M) - 1:\n %10.3e\n", compute_det(nd_tps, M)-1e0);
+  printf("nu:\n");
+  for (k = 0; k < nd_tps; k++)
+    printf(" %7.5f", nu[k]);
+  printf("\n");
+  printf("-----------------------------------\n");
+}
+
+
 void compute_M
 (const string &file_name, const string &cav_name, double &phi_RF,
  ss_vect<double> &fixed_point, double &U0, double alpha_rad[],
- ss_vect<tps> &A)
+ ss_vect<tps> &A_rad)
 {
-  long int        lastpos;
-  int             k;
-  double          alpha[3], beta[3], nu[3], dnu[3];
-  ss_vect<double> eta;
-  ss_vect<tps>    M_3D_no_rad, M_3D, A_3D, A_CS, A_sb, M_tau, R, M;
-  CavityType      *C;
-
   const int
     loc = Elem_GetPos(ElemIndex(cav_name.c_str()), 1);
   const double
     E0  = 1e9*globval.Energy;
 
-  C = Cell[loc].Elem.C;
+  long int
+    lastpos;
+  int
+    k;
+  double
+    alpha[3], beta[3], nu[3], dnu[3];
+  ss_vect<double>
+    eta;
+  ss_vect<tps>
+    M_no_rad, M_rad, A_CS_no_rad, A_sb_no_rad, M_tau, R_no_rad, R_rad,
+    M;
+  CavityType*
+    C = Cell[loc].Elem.C;
 
   // Compute radiation effects.
   globval.radiation = globval.Cavity_on = true;
 
-  printf("\n  phi_RF [deg] = 180 + %4.2f\n", C->phi_RF*180e0/M_PI);
+  C->phi_RF = phi_RF;
   getcod(0e0, lastpos);
-  fixed_point = globval.CODvect;
-  printf("\nFixed point = [");
-  for (k = 0; k < 2*nd_tps; k++)
-    printf("%9.3e%s", globval.CODvect[k], (k < 2*nd_tps-1)? ", " : "]\n");
+
+  printf("\n-----------------------------------\n");
+  printf("Cavity_on     = %s\n", (globval.Cavity_on == true)?"true":"false");
+  printf("radiation     = %s\n", (globval.radiation == true)?"true":"false");
+  printf("\nphi_RF [deg]  = 180 + %4.2f\n", C->phi_RF*180e0/M_PI);
+  printf("Fixed point   =");
+  cout << scientific << setprecision(3) << setw(11) << globval.CODvect << "\n";
 
   U0 = globval.dE*E0;
   // Remark: U0 < 0; i.e., energy loss.
   phi_RF = -asin(U0/C->V_RF);
   C->phi_RF = phi_RF;
-  printf("\n  phi_RF [deg] = 180 + %4.2f\n", C->phi_RF*180e0/M_PI);
-
   getcod(0e0, lastpos);
   fixed_point = globval.CODvect;
-  printf("\nFixed point = [");
-  for (k = 0; k < 2*nd_tps; k++)
-    printf("%9.3e%s", globval.CODvect[k], (k < 2*nd_tps-1)? ", " : "]\n");
 
-  // With RF cavity but without radiation.
+  printf("\nphi_RF [deg]  = 180 + %4.2f\n", C->phi_RF*180e0/M_PI);
+  printf("Fixed point   =");
+  cout << scientific << setprecision(3) << setw(11) << fixed_point << "\n";
+  printf("-----------------------------------\n");
+
+  // With RF cavity & without radiation:
+  // Remark: with synchronous RF phase with radiations.
   globval.radiation = false;
   globval.Cavity_on = true;
 
-  Ring_GetTwiss(true, 0e0);
+  C->phi_RF = 0e0;
 
+  Ring_GetTwiss(true, 0e0);
   compute_Twiss_long();
-  M_3D_no_rad = putlinmat(2*nd_tps, globval.OneTurnMat);
+
+  M_no_rad = putlinmat(2*nd_tps, globval.OneTurnMat);
+  M_no_rad += globval.CODvect;
 
   get_Twiss(nd_tps, alpha, beta, nu);
-  printf("\n  nu = [");
-  for (k = 0; k < nd_tps; k++)
-    printf("%11.5e%s", nu[k], (k < 2)? ", " : "]\n");
 
-  A_CS = compute_A_3D(alpha, beta);
-  A_sb = compute_normal_mode_form(M_3D_no_rad);
+  A_CS_no_rad = compute_A_3D(alpha, beta);
+  A_sb_no_rad = compute_normal_mode_form(M_no_rad);
 
-  R = compute_R_3D(nu);
-  M = A_sb*A_CS*R*Inv(A_sb*A_CS);
-  prt_map(nd_tps, "\nM - with RF cavity & no radiation:", M);
-  printf("\n  det(M) - 1 = %11.5e\n", compute_det(nd_tps, M)-1e0);
-  printf("\nValidation:\n");
-  getcod(0e0, lastpos);
-  printf("\nFixed point = [");
-  for (k = 0; k < 2*nd_tps; k++)
-    printf("%9.3e%s", fixed_point[k], (k < 2*nd_tps-1)? ", " : "]\n");
-  prt_map(nd_tps, "\nM-M_3D_no_rad:", M-M_3D_no_rad);
+  R_no_rad = compute_R_3D(nu);
+  M = A_sb_no_rad*A_CS_no_rad*R_no_rad*Inv(A_sb_no_rad*A_CS_no_rad);
+  M += globval.CODvect;
+
+  prt_map("", cav_name, M);
+  prt_map(nd_tps, "\nValidation:\n", M-M_no_rad);
 
   // With RF cavity & radiation.
   globval.radiation = globval.Cavity_on = true;
 
-  C->phi_RF = 0e0;
-  printf("\n  phi_RF [deg] = 180 - %4.2f\n", fabs(C->phi_RF*180e0/M_PI));
+  C->phi_RF = phi_RF;
+
   Ring_GetTwiss(true, 0e0);
+  compute_Twiss_long();
+
+  M = putlinmat(2*nd_tps, globval.OneTurnMat);
+  M += globval.CODvect;
+
   for (k = 0; k < nd_tps; k++)
     alpha_rad[k] = globval.alpha_rad[k];
-  compute_Twiss_long();
-  M_3D = putlinmat(2*nd_tps, globval.OneTurnMat);
-  A_3D = get_A_CS(nd_tps, putlinmat(2*nd_tps, globval.Ascr), dnu);
+  A_rad = get_A_CS(nd_tps, putlinmat(2*nd_tps, globval.Ascr), dnu);
 
   get_Twiss(nd_tps, alpha, beta, nu);
-  printf("\n  nu = [");
-  for (k = 0; k < nd_tps; k++)
-    printf("%11.5e%s", nu[k], (k < 2)? ", " : "]\n");
 
-  M_tau = compute_M_tau(globval.alpha_rad);
+  M_tau = compute_M_tau(alpha_rad);
 
-  A_CS = compute_A_3D(alpha, beta);
-  A_sb = compute_normal_mode_form(M_3D_no_rad);
-  A = A_sb*A_CS;
+  R_rad = compute_R_3D(nu);
+  M_rad = A_rad*M_tau*R_rad*Inv(A_rad);
+  M_rad += fixed_point;
 
-  prt_map(nd_tps, "\nA:", A);
-  prt_map(nd_tps, "\nValidation:", A-A_3D);
+  prt_map("", cav_name, M);
+  prt_map(nd_tps, "\nValidation:\n", M-M_rad);
+  printf("\n-----------------------------------\n");
 
-  R = compute_R_3D(nu);
-  M = A*M_tau*R*Inv(A);
-  prt_map(nd_tps, "\nM - w/ RF cavity & radiation:", M);
-  printf("\n  det(M) - 1 = %11.5e\n", compute_det(nd_tps, M)-1e0);
-  printf("\nValidation:\n");
-  printf("\nFixed point = [");
-  getcod(0e0, lastpos);
-  for (k = 0; k < 2*nd_tps; k++)
-    printf("%9.3e%s", fixed_point[k], (k < 2*nd_tps-1)? ", " : "]\n");
-  prt_map(nd_tps, "\nM-M_3D:", M-M_3D);
-
-  prt_map(file_name+"_R.dat", R);
+  prt_map(file_name+"_R_no_rad.dat", R_no_rad);
+  prt_map(file_name+"_A_CS_no_rad.dat", A_CS_no_rad);
+  prt_map(file_name+"_A_sb_no_rad.dat", A_sb_no_rad);
+  prt_map(file_name+"_R_rad.dat", R_rad);
+  prt_map(file_name+"_A_rad.dat", A_rad);
   prt_map(file_name+"_M_tau.dat", M_tau);
-  prt_map(file_name+"_A_CS.dat", A_CS);
-  prt_map(file_name+"_A_sb.dat", A_sb);
 }
 
 
@@ -693,7 +731,7 @@ void prt_summary
     printf("%9.3e%s", fixed_point[k], (k < 2*nd_tps-1)? ", " : "]\n");
   printf("  U0 [keV]            = %3.1f\n", 1e-3*U0);
   printf("  U0/E0               = %10.3e\n", U0/E0);
-  printf("  phi_RF [deg]        = 180 + %4.2f\n", phi_RF*180e0/M_PI);
+  printf("  phi_RF [deg]        = 180 + %7.5f\n", phi_RF*180e0/M_PI);
   printf("  tau [msec]          = [");
   for (k = 0; k < nd_tps; k++)
     printf("%5.3f%s", 1e3*tau[k], (k < 2)? ", " : "]\n");
@@ -706,12 +744,12 @@ void prt_summary
   printf("  sigma_x [micro m]   = %5.3f\n", 1e6*sqrt(eps[X_]*Cell[0].Beta[X_]));
   printf("  sigma_x'[micro rad] = %5.3f\n",
 	 1e6*sqrt(eps[X_]*(1e0+sqr(Cell[0].Alpha[X_]))/Cell[0].Beta[X_]));
-  printf("  sigma_t [ps]        = %5.3f\n", 1e12*sigma_s);
+  printf("  sigma_ct [m]        = %9.3e\n", sigma_s);
   printf("  sigma_delta         = %9.3e\n", sigma_delta);
 }
 
 
-void compute_maps(void)
+void compute_maps(const double Circ, const string &cav_name)
 {
   double
     phi_RF, U0, alpha_rad[3], D[3], tau[3], eps[3], sigma_s, sigma_delta;
@@ -720,11 +758,7 @@ void compute_maps(void)
   ss_vect<tps>
     M, A, D_mat, M_Chol;
 
-  const string
-    file_name = "compute_maps",
-    cav_name  = "cav";
-  const double
-    Circ      = Cell[globval.Cell_nLoc].S;
+  const string file_name = "compute_maps";
 
   compute_M(file_name, cav_name, phi_RF, fixed_point, U0, alpha_rad, A);
 
@@ -760,6 +794,12 @@ void set_state(void)
 
 int main(int argc, char *argv[])
 {
+  double       Circ;
+  ss_vect<tps> M;
+
+  const string
+    file_name = "compute_maps",
+    cav_name  = "cav";
 
   reverse_elem     = true;
   globval.mat_meth = false;
@@ -771,13 +811,21 @@ int main(int argc, char *argv[])
 
   set_state();
 
-  Ring_GetTwiss(true, 0e0);
+  daeps_(1e-15);
 
+  Circ = Cell[globval.Cell_nLoc].S;
+
+  globval.Cavity_on = globval.radiation = false;
+  Ring_GetTwiss(true, 0e0);
   printglob();
+
+  globval.Cavity_on = globval.radiation = true;
+  Ring_GetTwiss(true, 0e0);
+  printglob();
+
   prt_lat("linlat1.out", globval.bpm, true);
   prt_lat("linlat.out", globval.bpm, true, 10);
   prtmfile("flat_file.dat");
 
-  daeps_(1e-15);
-  compute_maps();
+  compute_maps(Circ, cav_name);
 }
