@@ -72,7 +72,6 @@ public:
     M,
     M_inv,
     M_cav;
-  CavityType *C;
 
   void rd_maps(void);
   void init(const double Q_b, const double phi_RF, const string &cav_name);
@@ -85,7 +84,6 @@ public:
   ss_vect<tps> compute_cav_HOM_trans_M(const tps &ct);
   void propagate_cav_HOM_long(const int n);
   void propagate_cav_HOM_trans(const int n);
-  void compute_M_cav(void);
   void compute_M_and_M_inv(const double fp[]);
   void propagate_qfluct(void);
   void propagate_lat(const int n);
@@ -96,15 +94,14 @@ void prt_map(const string &str, const ss_vect<tps> map)
 {
   const int n_dec = 6;
 
-  printf("%s\n", str.c_str());
-  printf("Constant:\n");
+  cout << str << "\n" << "Constant:\n";
   cout << scientific << setprecision(n_dec) << setw(8+n_dec)
        << map.cst() << "\n";
-  printf("Map:\n");
+  cout << "Map:\n";
   for (int j = 0; j < 2*nd_tps; j++) {
     for (int k = 0; k < 2*nd_tps; k++)
-      printf("%*.*e", n_dec+8, n_dec, map[j][k]);
-    printf("\n");
+      cout << scientific << setprecision(n_dec) << setw(8+n_dec) << map[j][k];
+    cout << "\n";
   }
 }
 
@@ -180,16 +177,15 @@ void MomentType::rd_maps(void)
 void MomentType::init
 (const double Q_b, const double phi_RF, const string &cav_name)
 {
-  this->cav_loc   = Elem_GetPos(ElemIndex(cav_name.c_str()), 1);
-  this->C         = Cell[cav_loc].Elem.C;
-  this->phi_RF    = phi_RF*M_PI/180e0;
-  this->C->phi_RF = this->phi_RF;
+  this->cav_loc = Elem_GetPos(ElemIndex(cav_name.c_str()), 1);
+  this->phi_RF = phi_RF*M_PI/180e0;
+  Cell[cav_loc].Elem.C->phi_RF = this->phi_RF;
+  this->Q_b = Q_b;
+  this->t_q = 0e0;
+  this->Circ = Cell[globval.Cell_nLoc].S;
 
-  printf("\ninit: RF phase = %5.3f: \n", this->C->phi_RF*180e0/M_PI);
-
-  this->Q_b       = Q_b;
-  this->t_q       = 0e0;
-  this->Circ      = Cell[globval.Cell_nLoc].S;
+  printf("\ninit: RF phase = %5.3f: \n",
+	 Cell[cav_loc].Elem.C->phi_RF*180e0/M_PI);
 
   file_wr(outf, file_name.c_str());
   rd_maps();
@@ -361,34 +357,23 @@ void RF_cav_pass(long int cav_loc, ss_vect<T> &ps)
 }
 
 
-void MomentType::compute_M_cav(void)
+ss_vect<tps> compute_M_cav(const long int cav_loc)
 {
-  const double dct = ps_sign[ct_]*sigma[ct];
+  ss_vect<tps> M;
 
-  danot_(1);
-
-  M_cav.identity();
-  M_cav[ct_] += dct;
-  RF_cav_pass(cav_loc, M_cav);
-  M_cav[ct_] -= dct;
-
-  danot_(NO);
+  M.identity();
+  RF_cav_pass(cav_loc, M);
+  return M;
 }
 
 
-void prt_map(const int n_dof, const string &str, const ss_vect<tps> map)
+ss_vect<tps> compute_M_cav_inv(ss_vect<tps> &M_cav)
 {
-  const int n_dec = 6;
+  ss_vect<tps> M_cav_inv;
 
-  printf("%s\n", str.c_str());
-  cout << scientific << setprecision(3)
-       << "Constant:\n" << setw(11) << map.cst() << "\n";
-  printf("Map:\n");
-  for (int j = 0; j < 2*n_dof; j++) {
-    for (int k = 0; k < 2*n_dof; k++)
-      printf("%*.*e", n_dec+8, n_dec, map[j][k]);
-    printf("\n");
-  }
+  M_cav_inv = Inv(M_cav-M_cav.cst());
+  M_cav_inv -= M_cav.cst();
+  return M_cav_inv;
 }
 
 
@@ -423,7 +408,7 @@ void prt_map(const string &str, const CavityType *C, const ss_vect<tps> &M)
   printf("Cavity_on    = %s\n", (globval.Cavity_on == true)?"true":"false");
   printf("radiation    = %s\n", (globval.radiation == true)?"true":"false");
   printf("\nphi_RF [deg] = 180 + %4.2f\n", C->phi_RF*180e0/M_PI);
-  prt_map(nd_tps, "", M);
+  prt_map("", M);
   printf("det(M) - 1:\n %10.3e\n", compute_det(nd_tps, M)-1e0);
   printf("nu:\n");
   for (k = 0; k < nd_tps; k++)
@@ -433,38 +418,29 @@ void prt_map(const string &str, const CavityType *C, const ss_vect<tps> &M)
 }
 
 
-ss_vect<tps> compute_M_cav_inv(ss_vect<tps> &M_cav)
-{
-  ss_vect<tps> M_cav_inv;
-
-  M_cav_inv = Inv(M_cav-M_cav.cst());
-  M_cav_inv -= M_cav.cst();
-  return M_cav_inv;
-}
-
-
 void MomentType::compute_M_and_M_inv(const double fp[])
 {
   // Remark: Pseudo M^-1 for moment tracking.
-  long int     lastpos;
-  ss_vect<tps> R, A, map, M_cav_inv;
+  long int        lastpos;
+  ss_vect<double> fp1;
+  ss_vect<tps>    R, A, map, M_cav_inv;
   
   danot_(1);
 
   if (!globval.radiation) {
-    C->phi_RF = 0e0;
+    Cell[cav_loc].Elem.C->phi_RF = 0e0;
     R = R_no_rad;
     A = A_CS_no_rad;
     if (lat_disp)
       A = A_sb_no_rad*A;
     fixed_point.zero();
   } else {
-    C->phi_RF = phi_RF;
+    Cell[cav_loc].Elem.C->phi_RF = phi_RF;
     R = M_tau*R_rad;
     A = A_CS_rad;
     if (lat_disp)
       A = A_sb_rad*A;
-    for (int k = 0; k < 2*nd_tps; k++)
+    for (int k =  0; k < 2*nd_tps; k++)
       fixed_point[k] = fp[k];
   }
 
@@ -475,43 +451,34 @@ void MomentType::compute_M_and_M_inv(const double fp[])
   map += fixed_point;
   Cell_Pass(0, globval.Cell_nLoc, map, lastpos);
   
-  prt_map("", C, M);
+  prt_map("", Cell[cav_loc].Elem.C, M);
 #if 0
   prt_map(nd_tps, "\nValidation:\n", map-M);
 #endif
 
   // Remove the RF cavity.
-  M_cav.identity();
-  RF_cav_pass(cav_loc, M_cav);
-
-  prt_map(nd_tps, "\nM_cav:", M_cav);
-#if 0
-  cout << scientific << setprecision(3) << "\nM_cav^-1 constant part :\n"
-       << setw(11) << (Inv(M_cav)).cst() << "\n";
-  prt_map(nd_tps, "\nM_cav^-1:\n", Inv(M_cav));
-#endif
-
+  M_cav = compute_M_cav(cav_loc);
   M_cav_inv = compute_M_cav_inv(M_cav);
-
-  prt_map(nd_tps, "\nM_cav^-1:", M_cav_inv);
-
   M = M*M_cav_inv;
+  M -= M.cst();
 
-  prt_map(nd_tps, "\nM.M_cav^-1:\n", M);
-
+  prt_map("\nM_cav:", M_cav);
+  prt_map("\nM_cav^-1:", M_cav_inv);
+  prt_map("\nM.M_cav^-1:", M);
   cout << scientific << setprecision(3) << "\nFixed point = "
        << setw(11) << fixed_point << "\n";
     
-  fixed_point = (M_cav*fixed_point).cst();
+  fp1 = (M_cav*fixed_point).cst();
 
   cout << scientific << setprecision(3) << "Fixed point = "
-       << setw(11) << fixed_point << "\n";
+       << setw(11) << fp1 << "\n";
     
   map.identity();
-  map += fixed_point;
+  map += fp1;
   Cell_Pass(2, globval.Cell_nLoc, map, lastpos);
+  map -= map.cst();
 
-  prt_map(nd_tps, "\nValidation:\n", map);
+  prt_map("\nValidation:\n", map-M);
 
   exit(0);
 
@@ -585,7 +552,7 @@ void MomentType::propagate_lat(const int n)
 
   if (globval.Cavity_on) {
     if (!RF_cav_linear) {
-      compute_M_cav();
+      compute_M_cav(cav_loc);
       dct = ps_sign[ct_]*sigma[ct];
       sigma -= ps_sign[ct_]*dct*tps(0e0, ps_index[ct_]+1);
       sigma = sigma*Inv(M_cav-M_cav.cst());

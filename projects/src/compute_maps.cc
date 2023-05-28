@@ -15,8 +15,8 @@ void prt_map(const string &str, const ss_vect<tps> map)
   cout << "Map:\n";
   for (int j = 0; j < 2*nd_tps; j++) {
     for (int k = 0; k < 2*nd_tps; k++)
-      printf("%*.*e", n_dec+8, n_dec, map[j][k]);
-    printf("\n");
+      cout << scientific << setprecision(n_dec) << setw(8+n_dec) << map[j][k];
+    cout << "\n";
   }
 }
 
