@@ -5,24 +5,23 @@
 int no_tps = NO;
 
 
-void prt_map(const int n_dof, const string &str, const ss_vect<tps> map)
+void prt_map(const string &str, const ss_vect<tps> map)
 {
   const int n_dec = 6;
 
-  printf("%s\n", str.c_str());
-  printf("Constant:\n");
+  cout << str << "\n" << "Constant:\n";
   cout << scientific << setprecision(n_dec) << setw(8+n_dec)
        << map.cst() << "\n";
-  printf("Map:\n");
-  for (int j = 0; j < 2*n_dof; j++) {
-    for (int k = 0; k < 2*n_dof; k++)
+  cout << "Map:\n";
+  for (int j = 0; j < 2*nd_tps; j++) {
+    for (int k = 0; k < 2*nd_tps; k++)
       printf("%*.*e", n_dec+8, n_dec, map[j][k]);
     printf("\n");
   }
 }
 
 
-void prt_map(const string file_name, const ss_vect<tps> map)
+void prt_map_to_file(const string file_name, const ss_vect<tps> map)
 {
   ofstream outf;
 
@@ -401,7 +400,7 @@ ss_vect<tps> compute_M_2D(void)
 
   Ring_GetTwiss(true, 0e0);
   M = putlinmat(2*nd_tps, globval.OneTurnMat);
-  prt_map(nd_tps, "\nM:", M);
+  prt_map("\nM:", M);
 
   get_Twiss(2, alpha, beta, nu);
 
@@ -413,7 +412,7 @@ ss_vect<tps> compute_M_2D(void)
   A = A0*A1;
   R = compute_R_2D(Circ, alpha_c, nu, A);
   M = A*R*Inv(A);
-  prt_map(nd_tps, "\nM:", M);
+  prt_map("\nM:", M);
 
   return M;
 }
@@ -478,7 +477,7 @@ ss_vect<tps> compute_normal_mode_form(const ss_vect<tps> &T)
     }
 
   if (prt)
-    prt_map(nd_tps, "\nT:", T);
+    prt_map("\nT:", T);
 
   Dt = 2e0*compute_det(1, m) + compute_trace(1, n*m);
   Delta =
@@ -537,9 +536,9 @@ ss_vect<tps> compute_normal_mode_form(const ss_vect<tps> &T)
     -(D[px_][x_]*Id[x_]+D[px_][px_]*Id[px_])*sn_phi + Id[plane+1]*cs_phi;
 
   if (prt) {
-    prt_map(nd_tps, "\nT:", T);
-    prt_map(nd_tps, "\nR:", R);
-    prt_map(nd_tps, "\nR^-1.T.R:", Inv(R)*T*R);
+    prt_map("\nT:", T);
+    prt_map("\nR:", R);
+    prt_map("\nR^-1.T.R:", Inv(R)*T*R);
 
     A = M + sgn_D_det*Inv(D)*m*(sn_phi/cs_phi);
     B = N + D*n*(sn_phi/cs_phi);
@@ -548,13 +547,13 @@ ss_vect<tps> compute_normal_mode_form(const ss_vect<tps> &T)
     m = -(D*A-B*D)*sn_phi*cs_phi;
     n = -sgn_D_det*(A*Inv(D)-Inv(D)*B)*sn_phi*cs_phi;
 
-    prt_map(nd_tps, "\nD:", D);
-    prt_map(nd_tps, "\nA:", A);
-    prt_map(nd_tps, "\nB:", B);
-    prt_map(nd_tps, "\nM:", M);
-    prt_map(nd_tps, "\nN:", N);
-    prt_map(nd_tps, "\nm:", m);
-    prt_map(nd_tps, "\nn:", n);
+    prt_map("\nD:", D);
+    prt_map("\nA:", A);
+    prt_map("\nB:", B);
+    prt_map("\nM:", M);
+    prt_map("\nN:", N);
+    prt_map("\nm:", m);
+    prt_map("\nn:", n);
   }
 
   return R;
@@ -597,7 +596,7 @@ void prt_map(const string &str, const string &cav_name, const ss_vect<tps> &M)
   printf("Cavity_on    = %s\n", (globval.Cavity_on == true)?"true":"false");
   printf("radiation    = %s\n", (globval.radiation == true)?"true":"false");
   printf("\nphi_RF [deg] = 180 + %4.2f\n", C->phi_RF*180e0/M_PI);
-  prt_map(nd_tps, "", M);
+  prt_map("", M);
   printf("det(M) - 1:\n %10.3e\n", compute_det(nd_tps, M)-1e0);
   printf("nu:\n");
   for (k = 0; k < nd_tps; k++)
@@ -626,7 +625,8 @@ void compute_M
   ss_vect<double>
     eta;
   ss_vect<tps>
-    M_no_rad, M_rad, A_CS_no_rad, A_sb_no_rad, M_tau, R_no_rad, R_rad,
+    M_no_rad, M_rad, A_CS_no_rad, A_sb_no_rad, A_CS_rad, A_sb_rad, M_tau,
+    R_no_rad, R_rad,
     M;
   CavityType*
     C = Cell[loc].Elem.C;
@@ -679,7 +679,7 @@ void compute_M
   M += globval.CODvect;
 
   prt_map("", cav_name, M);
-  prt_map(nd_tps, "\nValidation:\n", M-M_no_rad);
+  prt_map("\nValidation:\n", M-M_no_rad);
 
   // With RF cavity & radiation.
   globval.radiation = globval.Cavity_on = true;
@@ -687,16 +687,18 @@ void compute_M
   C->phi_RF = phi_RF;
 
   Ring_GetTwiss(true, 0e0);
+  for (k = 0; k < nd_tps; k++)
+    alpha_rad[k] = globval.alpha_rad[k];
   compute_Twiss_long();
 
   M = putlinmat(2*nd_tps, globval.OneTurnMat);
   M += globval.CODvect;
 
-  for (k = 0; k < nd_tps; k++)
-    alpha_rad[k] = globval.alpha_rad[k];
-  A_rad = get_A_CS(nd_tps, putlinmat(2*nd_tps, globval.Ascr), dnu);
-
   get_Twiss(nd_tps, alpha, beta, nu);
+
+  A_rad = get_A_CS(nd_tps, putlinmat(2*nd_tps, globval.Ascr), dnu);
+  A_CS_rad = compute_A_3D(alpha, beta);
+  A_sb_rad = A_rad*Inv(A_CS_rad);
 
   M_tau = compute_M_tau(alpha_rad);
 
@@ -704,16 +706,18 @@ void compute_M
   M_rad = A_rad*M_tau*R_rad*Inv(A_rad);
   M_rad += fixed_point;
 
+  prt_map("\nA_sb_rad:", A_sb_rad);
   prt_map("", cav_name, M);
-  prt_map(nd_tps, "\nValidation:\n", M-M_rad);
+  prt_map("\nValidation:\n", M-M_rad);
   printf("\n-----------------------------------\n");
 
-  prt_map(file_name+"_R_no_rad.dat", R_no_rad);
-  prt_map(file_name+"_A_CS_no_rad.dat", A_CS_no_rad);
-  prt_map(file_name+"_A_sb_no_rad.dat", A_sb_no_rad);
-  prt_map(file_name+"_R_rad.dat", R_rad);
-  prt_map(file_name+"_A_rad.dat", A_rad);
-  prt_map(file_name+"_M_tau.dat", M_tau);
+  prt_map_to_file(file_name+"_R_no_rad.dat", R_no_rad);
+  prt_map_to_file(file_name+"_A_CS_no_rad.dat", A_CS_no_rad);
+  prt_map_to_file(file_name+"_A_sb_no_rad.dat", A_sb_no_rad);
+  prt_map_to_file(file_name+"_R_rad.dat", R_rad);
+  prt_map_to_file(file_name+"_A_CS_rad.dat", A_CS_rad);
+  prt_map_to_file(file_name+"_A_sb_rad.dat", A_sb_rad);
+  prt_map_to_file(file_name+"_M_tau.dat", M_tau);
 }
 
 
@@ -722,24 +726,22 @@ void prt_summary
  const double tau[], const double D[], const double eps[], const double sigma_s,
  const double sigma_delta)
 {
-  int k;
-
   const double E0 = 1e9*globval.Energy;
 
   printf("\n  Fixed point        = [");
-  for (k = 0; k < 2*nd_tps; k++)
+  for (int k = 0; k < 2*nd_tps; k++)
     printf("%9.3e%s", fixed_point[k], (k < 2*nd_tps-1)? ", " : "]\n");
   printf("  U0 [keV]            = %3.1f\n", 1e-3*U0);
   printf("  U0/E0               = %10.3e\n", U0/E0);
   printf("  phi_RF [deg]        = 180 + %7.5f\n", phi_RF*180e0/M_PI);
   printf("  tau [msec]          = [");
-  for (k = 0; k < nd_tps; k++)
+  for (int k = 0; k < nd_tps; k++)
     printf("%5.3f%s", 1e3*tau[k], (k < 2)? ", " : "]\n");
   printf("  D                   = [");
-  for (k = 0; k < nd_tps; k++)
+  for (int k = 0; k < nd_tps; k++)
     printf("%9.3e%s", D[k], (k < 2)? ", " : "]\n");
   printf("  eps                 = [");
-  for (k = 0; k < nd_tps; k++)
+  for (int k = 0; k < nd_tps; k++)
     printf("%9.3e%s", eps[k], (k < 2)? ", " : "]\n");
   printf("  sigma_x [micro m]   = %5.3f\n", 1e6*sqrt(eps[X_]*Cell[0].Beta[X_]));
   printf("  sigma_x'[micro rad] = %5.3f\n",
@@ -767,10 +769,10 @@ void compute_maps(const double Circ, const string &cav_name)
   compute_eps(Circ, tau, D, eps);
   compute_bunch_size(eps, sigma_s, sigma_delta);
   D_mat = compute_D_mat(A, D);
-  prt_map(nd_tps, "\nDiffusion Matrix:", D_mat);
+  prt_map("\nDiffusion Matrix:", D_mat);
 
   M_Chol = compute_M_Chol(D_mat);
-  prt_map(nd_tps, "\nCholesky Decomposition:", M_Chol);
+  prt_map("\nCholesky Decomposition:", M_Chol);
   prt_map(file_name+"_M_Chol.dat", M_Chol);
 
   prt_summary(fixed_point, U0, phi_RF, tau,  D,  eps, sigma_s, sigma_delta);
