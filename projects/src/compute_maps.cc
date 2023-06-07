@@ -595,7 +595,7 @@ void prt_map(const string &str, const string &cav_name, const ss_vect<tps> &M)
   printf("%s", str.c_str());
   printf("Cavity_on    = %s\n", (globval.Cavity_on == true)?"true":"false");
   printf("radiation    = %s\n", (globval.radiation == true)?"true":"false");
-  printf("\nphi_RF [deg] = 180 + %4.2f\n", C->phi_RF*180e0/M_PI);
+  printf("\nphi_RF [deg] = %4.2f\n", C->phi_RF*180e0/M_PI);
   prt_map("", M);
   printf("det(M) - 1:\n %10.3e\n", compute_det(nd_tps, M)-1e0);
   printf("nu:\n");
@@ -640,7 +640,7 @@ void compute_M
   printf("\n-----------------------------------\n");
   printf("Cavity_on     = %s\n", (globval.Cavity_on == true)?"true":"false");
   printf("radiation     = %s\n", (globval.radiation == true)?"true":"false");
-  printf("\nphi_RF [deg]  = 180 + %4.2f\n", C->phi_RF*180e0/M_PI);
+  printf("\nphi_RF [deg]  = %4.2f\n", C->phi_RF*180e0/M_PI);
   printf("Fixed point   =");
   cout << scientific << setprecision(3) << setw(11) << globval.CODvect << "\n";
 
@@ -651,7 +651,7 @@ void compute_M
   getcod(0e0, lastpos);
   fixed_point = globval.CODvect;
 
-  printf("\nphi_RF [deg]  = 180 + %4.2f\n", C->phi_RF*180e0/M_PI);
+  printf("\nphi_RF [deg]  = %4.2f\n", C->phi_RF*180e0/M_PI);
   printf("Fixed point   =");
   cout << scientific << setprecision(3) << setw(11) << fixed_point << "\n";
   printf("-----------------------------------\n");
@@ -733,7 +733,7 @@ void prt_summary
     printf("%9.3e%s", fixed_point[k], (k < 2*nd_tps-1)? ", " : "]\n");
   printf("  U0 [keV]            = %3.1f\n", 1e-3*U0);
   printf("  U0/E0               = %10.3e\n", U0/E0);
-  printf("  phi_RF [deg]        = 180 + %7.5f\n", phi_RF*180e0/M_PI);
+  printf("  phi_RF [deg]        = %7.5f\n", phi_RF*180e0/M_PI);
   printf("  tau [msec]          = [");
   for (int k = 0; k < nd_tps; k++)
     printf("%5.3f%s", 1e3*tau[k], (k < 2)? ", " : "]\n");

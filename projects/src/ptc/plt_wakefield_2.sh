@@ -33,7 +33,7 @@ set style line 1 lt 1 lw 1 lc rgb "blue"  pointsize point_size
 set style line 2 lt 1 lw 1 lc rgb "green" pointsize point_size
 set style line 3 lt 1 lw 1 lc rgb "red"   pointsize point_size
 
-if (ps) set output "plt_wakefield_1.".(ext)
+if (ps) set output "plt_wakefield_2_1.".(ext)
 
 set multiplot
 
@@ -54,7 +54,7 @@ plot file_name using 1:(1e6*\$4) notitle with linespoints ls 3
 unset multiplot
 if (!ps) pause mouse "click on graph to cont.\n"
 
-if (ps) set output "plt_wakefield_2.".(ext)
+if (ps) set output "plt_wakefield_2_2.".(ext)
 
 set multiplot
 
@@ -73,7 +73,7 @@ plot file_name using 1:6 notitle with linespoints ls 3
 unset multiplot
 if (!ps) pause mouse "click on graph to cont.\n"
 
-if (ps) set output "plt_wakefield_3.".(ext)
+if (ps) set output "plt_wakefield_2_3.".(ext)
 
 set multiplot
 

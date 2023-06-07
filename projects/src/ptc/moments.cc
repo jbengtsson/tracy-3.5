@@ -152,7 +152,7 @@ void prt_map_full(const string &str, const long int cav_loc,
   printf("%s", str.c_str());
   printf("Cavity_on    = %s\n", (globval.Cavity_on == true)?"true":"false");
   printf("radiation    = %s\n", (globval.radiation == true)?"true":"false");
-  printf("phi_RF [deg] = 180 + %4.2f\n",
+  printf("phi_RF [deg] = %4.2f\n",
 	 Cell[cav_loc].Elem.C->phi_RF*180e0/M_PI);
   prt_map("", M);
   printf("\ndet(M) - 1:\n %10.3e\n", compute_det(nd_tps, M)-1e0);
@@ -594,8 +594,8 @@ void MomentType::propagate_lat(const int n)
   // sigma +=
   //   ps_sign[delta_]*fixed_point_rad[delta_]*tps(0e0, ps_index[delta_]+1);
 
-  // if (globval.radiation)
-  //   propagate_qfluct();
+  if (true && globval.radiation)
+    propagate_qfluct();
 }
 
 
@@ -709,23 +709,20 @@ void test_case(const string &cav_name)
   globval.radiation = true;
   globval.Cavity_on = true;
   m.lat_disp        = true;
-  m.RF_cav_linear   = !true;
+  m.RF_cav_linear   = false;
 
   m.compute_M_and_M_inv();
 
   danot_(NO);
 
   m.sigma = 0e0;
-  if (!false) {
+  if (false) {
     m.sigma += ps_sign[x_]*1e-6*tps(0e0, ps_index[x_]+1);
     m.sigma += ps_sign[y_]*2e-6*tps(0e0, ps_index[y_]+1);
     m.sigma += ps_sign[delta_]*3e-6*tps(0e0, ps_index[delta_]+1);
   }
-  if (false)
+  if (!false)
     m.compute_sigma(eps, sigma_s, sigma_delta);
-  if (false)
-    for (k = 0; k < 2*nd_tps; k++)
-      m.sigma -= ps_sign[k]*m.M_fixed_point[k]*tps(0e0, ps_index[k]+1);
 
   bc = get_barycentre(m.sigma);
   printf("\nBarycentre = [");
@@ -741,13 +738,16 @@ void test_case(const string &cav_name)
     }
   }
 
-  if (!false) {
+  if (false) {
     printf("\ntrack:\n");
     printf("Cavity_on = %s\n", (globval.Cavity_on == true)?"true":"false");
     printf("radiation = %s\n", (globval.radiation == true)?"true":"false");
 
     ps = bc;
     getcod(0e0, lastpos);
+    printf("\nFixed Point = [");
+    for (k = 0; k < 2*nd_tps; k++)
+      printf("%9.3e%s", globval.CODvect[k], (k < 2*nd_tps-1)? ", " : "]\n");
     track(m, n_turn, ps);
   }
 }
