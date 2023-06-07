@@ -62,13 +62,13 @@ set origin 0.0, 0.5
 set title "ct [m]"
 set xlabel "Turn no"
 set ylabel ""
-plot file_name using 1:7 notitle with points ls 1
+plot file_name using 1:7 notitle with linespoints ls 1
 
 set origin 0.0, 0.0
 set title "{/Symbol d}"
 set xlabel "Turn no"
 set ylabel ""
-plot file_name using 1:6 notitle with points ls 3
+plot file_name using 1:6 notitle with linespoints ls 3
 
 unset multiplot
 if (!ps) pause mouse "click on graph to cont.\n"
