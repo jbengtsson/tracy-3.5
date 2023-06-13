@@ -84,6 +84,8 @@ public:
    const string &cav_name, const bool quant_fluct, const bool incl_cst);
   void set_HOM_long(const double beta, const double f, const double R_sh,
 		    const double Q);
+  void set_HOM_trans(const double beta, const double f, const double R_sh,
+		     const double Q, const int plane);
   void compute_sigma(const double eps[], const double sigma_s,
 		     const double sigma_delta);
   void print_sigma(const int n);
@@ -283,6 +285,18 @@ void MomentType::set_HOM_long
 }
 
 
+void MomentType::set_HOM_trans
+(const double beta, const double f, const double R_sh, const double Q,
+ const int plane)
+{
+  C->beta_trans[plane].push_back(beta);
+  C->HOM_f_trans[plane].push_back(f);
+  C->HOM_R_sh_trans[plane].push_back(R_sh);
+  C->HOM_Q_trans[plane].push_back(Q);
+  C->HOM_V_trans[plane].push_back(0e0);
+}
+
+
 void MomentType::compute_sigma
 (const double eps[], const double sigma_s, const double sigma_delta)
 {
@@ -318,7 +332,9 @@ void MomentType::print_sigma(const int n)
        << setw(10) << sqrt(sigma[delta_delta])
        << setw(10) << sqrt(sigma[ct_ct])
        << setw(11) << abs(C->HOM_V_long[0])
-       << setw(11) << arg(C->HOM_V_long[0]) << "\n";
+       << setw(11) << arg(C->HOM_V_long[0])
+       << setw(11) << abs(C->HOM_V_trans[X_][0])
+       << setw(11) << arg(C->HOM_V_trans[X_][0]) << "\n";
 }
 
 
@@ -377,12 +393,12 @@ ss_vect<tps> MomentType::compute_cav_HOM_trans_M(const tps &ct)
   ss_vect<tps> M_HOM;
 
   const double
-    beta_RF = C->beta_trans[0],
-    f       = C->HOM_f_trans[0],
-    R_sh    = C->HOM_R_sh_trans[0],
-    Q       = C->HOM_Q_trans[0],
-    k_loss  = 2e0*M_PI*f*R_sh/(2e0*Q),                 /* Ring convention
-							  P = V^2/(2Rs).  */
+    beta_RF  = C->beta_trans[X_][0],
+    f        = C->HOM_f_trans[X_][0],
+    R_sh     = C->HOM_R_sh_trans[X_][0],
+    Q        = C->HOM_Q_trans[X_][0],
+    k_loss   = 2e0*M_PI*f*R_sh/(2e0*Q), /* Ring convention
+						    P = V^2/(2Rs).            */
     Q_loaded = Q/(1e0+beta_RF),
 
     E0       = 1e9*globval.Energy;
@@ -393,11 +409,11 @@ ss_vect<tps> MomentType::compute_cav_HOM_trans_M(const tps &ct)
   M_HOM.identity();
 
   // Update RF cavity HOM phasor.
-  C->HOM_V_trans[0] *=
+  C->HOM_V_trans[X_][0] *=
     exp(2e0*M_PI*f*(Circ+ct.cst()-t_q)/c0*(-1e0/(2e0*Q_loaded)+I));
 
   // First half increment of HOM phasor.
-  // C->HOM_V_trans[0] += [x, y]*Q_b*k_loss;
+  C->HOM_V_trans[X_][0] += ps_sign[x_]*sigma[x]*Q_b*k_loss;
 
   // Propagate through wake field.
   delta = real(C->HOM_V_long[0])/E0;
@@ -405,7 +421,7 @@ ss_vect<tps> MomentType::compute_cav_HOM_trans_M(const tps &ct)
   M_HOM[delta_] += delta;
 
   // Second half increment of HOM phasor.
-  // C->HOM_V_trans[0] += [x, y]*Q_b*k_loss;
+  C->HOM_V_trans[X_][0] += ps_sign[x_]*sigma[x]*Q_b*k_loss;
 
   return M_HOM;
 }
@@ -415,8 +431,8 @@ void MomentType::propagate_cav_HOM_trans(const int n)
 {
   ss_vect<tps> M_HOM;
    
-  M_HOM = compute_cav_HOM_trans_M(tps(sigma[ct], ct_+1));
-  sigma += M_HOM[delta_].cst()*ps_sign[delta_]*tps(0e0, ps_index[delta_]+1);
+  M_HOM = compute_cav_HOM_trans_M(tps(sigma[x], x_+1));
+  sigma += M_HOM[px_].cst()*ps_sign[px_]*tps(0e0, ps_index[px_]+1);
 }
 
 
@@ -577,7 +593,7 @@ void MomentType::propagate_lat(const int n)
     sigma = sigma*M_cav_inv;
 
   propagate_cav_HOM_long(n);
-  // propagate_cav_HOM_trans(n);
+  propagate_cav_HOM_trans(n);
   t_q = sigma[ct];
 
   if (globval.radiation & quant_fluct)
@@ -649,25 +665,31 @@ void test_case(const string &cav_name)
   MomentType      m;
 
   const int
-    n_turn        = 3000;
+    n_turn           = 3000;
   const double
     // Observation piont: long straight.
     fp_rad[] =
     {2.448e-09, 1.372e-07, 0.000e+00, 0.000e+00, -1.036e-04, -3.211e-16},
-    eps[]         = {161.7e-12, 8e-12},
-    sigma_s       = 3.739e-3,
-    sigma_delta   = 9.353e-04,
+    eps[]            = {161.7e-12, 8e-12},
+    sigma_s          = 3.739e-3,
+    sigma_delta      = 9.353e-04,
 
-    Q_b           = -0.6e-9,
-    phi_RF_rad    = 30.62567,
-    beta_HOM      = 1e0,
-    f             = 1e9,
-    R_sh          = 1e3,
+    Q_b              = -0.6e-9,
+    phi_RF_rad       = 30.62567,
+
+    beta_HOM_long    = 1e0,
+    f_long           = 1e9,
+    R_sh_long        = (false)? 1e3 : 0e0,
 #if 1
-    Q             = 1e8;
+    Q_long           = 1e8,
 #else
-    Q             = 5e3;
+    Q_long           = 5e3,
 #endif  
+
+    beta_HOM_trans_x = 1e0,
+    f_trans_x        = 1e9,
+    R_sh_trans_x     = (false)? 1e3 : 0e0,
+    Q_trans_x        = 1e8;
 
   danot_(1);
 
@@ -680,7 +702,8 @@ void test_case(const string &cav_name)
 
   m.init(Q_b, fp_rad, phi_RF, cav_name, quant_fluct, true);
 
-  m.set_HOM_long(beta_HOM, f, R_sh, Q);
+  m.set_HOM_long(beta_HOM_long, f_long, R_sh_long, Q_long);
+  m.set_HOM_trans(beta_HOM_trans_x, f_trans_x, R_sh_trans_x, Q_trans_x, X_);
 
   m.compute_M_and_M_inv();
 
@@ -688,9 +711,9 @@ void test_case(const string &cav_name)
 
   m.sigma = 0e0;
   if (false) {
-    m.sigma += ps_sign[x_]*1e-6*tps(0e0, ps_index[x_]+1);
-    m.sigma += ps_sign[y_]*2e-6*tps(0e0, ps_index[y_]+1);
-    m.sigma += ps_sign[delta_]*3e-6*tps(0e0, ps_index[delta_]+1);
+    m.sigma += ps_sign[x_]*10e-6*tps(0e0, ps_index[x_]+1);
+    // m.sigma += ps_sign[y_]*2e-6*tps(0e0, ps_index[y_]+1);
+    // m.sigma += ps_sign[delta_]*3e-6*tps(0e0, ps_index[delta_]+1);
   }
   if (false)
     m.compute_sigma(eps, sigma_s, sigma_delta);

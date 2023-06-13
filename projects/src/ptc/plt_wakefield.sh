@@ -98,7 +98,6 @@ plot file_name using 1:(1e6*\$11) notitle with points ls 3
 unset multiplot
 if (!ps) pause mouse "click on graph to cont.\n"
 
-
 if (ps) set output "plt_wakefield_4.".(ext)
 
 set multiplot
@@ -120,22 +119,40 @@ plot file_name using 1:13 notitle with points ls 3
 unset multiplot
 if (!ps) pause mouse "click on graph to cont.\n"
 
-
 if (ps) set output "plt_wakefield_5.".(ext)
 
 set multiplot
 
 set origin 0.0, 0.5
-set title "HOM Amplitude"
+set title "Long HOM Amplitude"
 set xlabel "Turn no"
 set ylabel ""
 plot file_name using 1:15 notitle with points ls 1
 
 set origin 0.0, 0.0
-set title "HOM Phase"
+set title "Long HOM Phase"
 set xlabel "Turn no"
 set ylabel ""
 plot file_name using 1:16 notitle with points ls 3
+
+unset multiplot
+if (!ps) pause mouse "click on graph to cont.\n"
+
+if (ps) set output "plt_wakefield_6.".(ext)
+
+set multiplot
+
+set origin 0.0, 0.5
+set title "Hor HOM Amplitude"
+set xlabel "Turn no"
+set ylabel ""
+plot file_name using 1:17 notitle with points ls 1
+
+set origin 0.0, 0.0
+set title "Hor HOM Phase"
+set xlabel "Turn no"
+set ylabel ""
+plot file_name using 1:18 notitle with points ls 3
 
 unset multiplot
 if (!ps) pause mouse "click on graph to cont.\n"

@@ -239,37 +239,43 @@ struct InsertionType {
 
 struct CavityType {
   bool
-    entry_focus,    // Edge focusing at entry.
-    exit_focus;     // Edge focusing at exit.
+    entry_focus,       // Edge focusing at entry.
+    exit_focus;        // Edge focusing at exit.
   int
-    N_step,         // Number of integration steps.
-    harm_num;       // RF harmonic number.
+    N_step,            // Number of integration steps.
+    harm_num;          // RF harmonic number.
   double
   // Fundamental.
-    f_RF,           // RF frequency [Hz].
-    V_RF,           // RF voltage [V].
-    phi_RF,         // RF phase [deg].
+    f_RF,              // RF frequency [Hz].
+    V_RF,              // RF voltage [V].
+    phi_RF,            // RF phase [deg].
   // For beam loading compensation for the fundamental mode.
-    R_sh_fund,      // Shunt impedance.
-    Q_RF,           // Quality factor.
-    beta_RF;        // Power coupling factor, ring definition: P = V^2/(2*R_s).
+    R_sh_fund,         // Shunt impedance.
+    Q_RF,              // Quality factor.
+    beta_RF,           /* Power coupling factor, ring definition:
+			    P = V^2/(2*R_s).                                  */
+    coord_scl[3]
+    = {1.0, 1.0, 1.0}; // Scale factor for coordinates [x, y, z] for HOMs.
+
   // Higher order modes.
   std::vector<double>
   // Transverse.
-    HOM_f_trans,    // Frequency
-    HOM_R_sh_trans, // Shunt impedance.
-    HOM_Q_trans,    // Quality factor.
-    beta_trans,     // Power coupling factor, ring definition: P = V^2/(2*R_s).
+    HOM_f_trans[2],    // Frequency
+    HOM_R_sh_trans[2], // Shunt impedance.
+    HOM_Q_trans[2],    // Quality factor.
+    beta_trans[2],     /* Power coupling factor, ring definition:
+			    P = V^2/(2*R_s).                                  */
   // Longitudinal.
-    HOM_f_long,     // Frequency
-    HOM_R_sh_long,  // Shunt impedance.
-    HOM_Q_long,     // Quality factor.
-    beta_long;      // Power coupling factor, ring definition: P = V^2/(2*R_s).
+    HOM_f_long,        // Frequency
+    HOM_R_sh_long,     // Shunt impedance.
+    HOM_Q_long,        // Quality factor.
+    beta_long;         /* Power coupling factor, ring definition:
+			    P = V^2/(2*R_s).                                  */
   std::vector< std::complex<double> >
   // Transverse.
-    HOM_V_trans,    // Amplitude & phase.
+    HOM_V_trans[2],    // Amplitude & phase.
   // Longitudinal.
-    HOM_V_long;     // Amplitude & phase.
+    HOM_V_long;        // Amplitude & phase.
 };
 
 struct CellType;
