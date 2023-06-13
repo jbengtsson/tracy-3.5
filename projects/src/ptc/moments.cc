@@ -44,8 +44,7 @@ private:
     Q_b,         // Bunch charge.
     t_q,         // Time stamp.
     Circ,        // Circumference.
-    phi_RF,      // RF phase [rad].
-    delta_RF;    // Energy change.
+    phi_RF;      // RF phase [rad].
   ss_vect<tps>
     R_no_rad,
     A_CS_no_rad, // Courant-Snyder.
@@ -74,6 +73,8 @@ public:
     M_inv,
     M_cav,
     M_cav_inv;
+  CavityType
+    *C;
 
   void rd_maps(void);
   void init(const double Q_b, const double fixed_point[], const double phi_RF,
@@ -88,6 +89,8 @@ public:
   void propagate_cav_HOM_long(const int n);
   void propagate_cav_HOM_trans(const int n);
   void compute_M(const bool inverse);
+  ss_vect<tps> compute_M_cav(void);
+  ss_vect<tps> compute_M_cav_inv(void);
   void compute_M_and_M_inv(void);
   void propagate_qfluct(void);
   void propagate_lat(const int n);
@@ -123,19 +126,37 @@ std::vector<double> get_nu(const ss_vect<tps> &M)
 }
 
 
-void prt_map(const string &str, const ss_vect<tps> map)
+void prt_map(ostream &outf, const string &str, const ss_vect<tps> map)
 {
   const int n_dec = 6;
 
-  cout << str << "\n" << "Constant:\n";
-  cout << scientific << setprecision(n_dec) << setw(8+n_dec)
+  outf << str << "\n" << "Constant:\n";
+  outf << scientific << setprecision(n_dec) << setw(8+n_dec)
        << map.cst() << "\n";
-  cout << "Map:\n";
+  outf << "Map:\n";
   for (int j = 0; j < 2*nd_tps; j++) {
     for (int k = 0; k < 2*nd_tps; k++)
-      cout << scientific << setprecision(n_dec) << setw(8+n_dec) << map[j][k];
-    cout << "\n";
+      outf << scientific << setprecision(n_dec) << setw(8+n_dec) << map[j][k];
+    outf << "\n";
   }
+}
+
+
+void prt_map(const string &str, const ss_vect<tps> map)
+{
+  prt_map(cout, str, map);
+}
+
+
+void prt_map(const string &file_name, const string &str, const ss_vect<tps> map)
+{
+  ofstream outf;
+
+  const int n_dec = 6;
+
+  file_wr(outf, file_name);
+  outf << scientific << setprecision(n_dec) << setw(8+n_dec) << map;
+  outf.close();
 }
 
 
@@ -226,10 +247,9 @@ void MomentType::init
 (const double Q_b, const double fixed_point[], const double phi_RF,
  const string &cav_name)
 {
-  CavityType* C;
-
   this->cav_loc = Elem_GetPos(ElemIndex(cav_name.c_str()), 1);
-  C = Cell[this->cav_loc].Elem.C;
+  this->C = Cell[this->cav_loc].Elem.C;
+
   this->phi_RF = phi_RF*M_PI/180e0;
   C->phi_RF = this->phi_RF;
   this->Q_b = Q_b;
@@ -249,8 +269,6 @@ void MomentType::init
 void MomentType::set_HOM_long
 (const double beta, const double f, const double R_sh, const double Q)
 {
-  CavityType* C = Cell[cav_loc].Elem.C;
-
   C->beta_long.push_back(beta);
   C->HOM_f_long.push_back(f);
   C->HOM_R_sh_long.push_back(R_sh);
@@ -272,14 +290,12 @@ void MomentType::compute_sigma
   if (lat_disp)
     sigma = sigma*Inv(A_sb_no_rad);
   sigma +=
-    sqr(sigma_s*Id[ct_]) + sqr(sigma_delta*Id[delta_]);
+    sqr(sigma_s*Id[ps_index[ct_]]) + sqr(sigma_delta*Id[ps_index[delta_]]);
 }
 
 
 void MomentType::print_sigma(const int n)
 {
-  const CavityType* C = Cell[cav_loc].Elem.C;
-
   this->n = n;
 
   outf << scientific << setprecision(3)
@@ -295,8 +311,8 @@ void MomentType::print_sigma(const int n)
        << setw(10) << sqrt(sigma[y_y]) << setw(10) << sqrt(sigma[p_y_p_y])
        << setw(10) << sqrt(sigma[delta_delta])
        << setw(10) << sqrt(sigma[ct_ct])
-       << setw(11) << abs(Cell[cav_loc].Elem.C->HOM_V_long[0])
-       << setw(11) << arg(Cell[cav_loc].Elem.C->HOM_V_long[0]) << "\n";
+       << setw(11) << abs(C->HOM_V_long[0])
+       << setw(11) << arg(C->HOM_V_long[0]) << "\n";
 }
 
 
@@ -305,8 +321,6 @@ ss_vect<tps> MomentType::compute_cav_HOM_long_M(const tps &ct)
   double       delta;
   ss_vect<tps> M_cav;
 
-  CavityType*
-    C = Cell[cav_loc].Elem.C;
   const double
     beta_RF  = C->beta_long[0],
     f        = C->HOM_f_long[0],
@@ -356,8 +370,6 @@ ss_vect<tps> MomentType::compute_cav_HOM_trans_M(const tps &ct)
   double       delta;
   ss_vect<tps> M_cav;
 
-  CavityType* C = Cell[cav_loc].Elem.C;
-
   const double
     beta_RF = C->beta_trans[0],
     f       = C->HOM_f_trans[0],
@@ -403,94 +415,119 @@ void MomentType::propagate_cav_HOM_trans(const int n)
 
 
 template<typename T>
-void RF_cav_pass(long int cav_loc, ss_vect<T> &ps)
+void RF_cav_pass(long int cav_loc, const double phi_RF, ss_vect<T> &ps,
+		 const bool reverse)
 {
-  bool Cav_state;
+  ss_vect<T> ps1;
+  CavityType *C;
 
-#if 1
-  Cav_state = globval.Cavity_on;
+  const bool Cav_state = globval.Cavity_on;
+
+  C = Cell[cav_loc].Elem.C;
+
+  ps1 = ps;
+  if (reverse) {
+    C->phi_RF = -phi_RF;
+    ps1[ct_] = -ps1[ct_];
+  }
   globval.Cavity_on = true;
-  Cav_Pass(Cell[cav_loc], ps);
+  Cav_Pass(Cell[cav_loc], ps1);
+  if (reverse) {
+    C->phi_RF = phi_RF;
+    ps1[ct_] = -ps1[ct_];
+  }
+  ps = ps1;
+
   globval.Cavity_on = Cav_state;
-#else
-  ps[delta_] +=
-    -C->V_RF/(1e9*globval.Energy)*sin(2e0*M_PI*C->f_RF*ct0/c0+this->phi_RF);
-#endif
 }
 
 
-ss_vect<tps> compute_M_cav(const long int cav_loc)
+ss_vect<tps> MomentType::compute_M_cav(void)
 {
-  ss_vect<tps> M;
+  const int no = getno_();
 
-  M.identity();
-  RF_cav_pass(cav_loc, M);
-  return M;
+  danot_(1);
+  M_cav.identity();
+  RF_cav_pass(cav_loc, phi_RF, M_cav, false);
+  danot_(no);
+  return M_cav;
 }
 
 
-ss_vect<tps> compute_M_cav_inv(ss_vect<tps> &M_cav)
+ss_vect<tps> MomentType::compute_M_cav_inv(void)
 {
-  ss_vect<tps> M_cav_inv;
+  const int no = getno_();
 
-  M_cav_inv = Inv(M_cav-M_cav.cst());
-  M_cav_inv -= M_cav.cst();
+  danot_(1);
+  M_cav_inv.identity();
+  RF_cav_pass(cav_loc, phi_RF, M_cav_inv, true);
+  danot_(no);
   return M_cav_inv;
 }
 
 
-void MomentType::compute_M(const bool inverse)
+void MomentType::compute_M_and_M_inv(void)
 {
   long int        lastpos;
   ss_vect<double> fp1;
-  ss_vect<tps>    R, A, M1, map;
-  CavityType*     C = Cell[cav_loc].Elem.C;
+  ss_vect<tps>    R, A, map;
 
   const bool validation = !false;
 
   if (!globval.radiation) {
     C->phi_RF = 0e0;
-    R = R_no_rad;
-    A = A_CS_no_rad;
-    if (lat_disp)
-      A = A_sb_no_rad*A;
     M_fixed_point.zero();
+
+    M = A_CS_no_rad*R_no_rad*Inv(A_CS_no_rad);
+    if (lat_disp)
+      M = A_sb_no_rad*M*Inv(A_sb_no_rad);
+
+    M_inv = Inv(M);
   } else {
     C->phi_RF = phi_RF;
-    // Pseudo-inverse.
-    if (!inverse)
-      R = M_tau*R_rad;
-    else
-      R = Inv(M_tau)*R_rad;
-    A = A_CS_rad;
-    if (lat_disp)
-      A = A_sb_rad*A;
     M_fixed_point = fixed_point_rad;
+
+    M = A_CS_rad*M_tau*R_rad*Inv(A_CS_rad);
+    if (lat_disp)
+      M = A_sb_rad*M*Inv(A_sb_rad);
+ 
+    // Psuedo inverse for transformation theorem.
+    M_inv = A_CS_rad*M_tau*Inv(R_rad)*Inv(A_CS_rad);
+    if (lat_disp)
+      M_inv = A_sb_rad*M_inv*Inv(A_sb_rad);
   }
 
-  M1 = A*R*Inv(A);
-  prt_map_full("", cav_loc, M1);
+  prt_map_full("", cav_loc, M);
+  prt_map("\nM:", M);
+  prt_map("\nM^-1:", M_inv);
 
-  if (validation && !inverse) {
+  if (validation) {
     map.identity();
     map += M_fixed_point;
     Cell_Pass(0, globval.Cell_nLoc, map, lastpos);
     map -= M_fixed_point;
   
-    prt_map("\nValidation:\n", map-M1);
+    prt_map("\nValidation:\n", map-M);
   }
 
   // Remove the RF cavity.
-  M_cav = compute_M_cav(cav_loc);
-  M_cav_inv = compute_M_cav_inv(M_cav);
-  M1 = M1*M_cav_inv;
-  M1 -= M1.cst();
+  compute_M_cav();
+  M_cav -= M_cav.cst();
+  compute_M_cav_inv();
+  M_cav_inv -= M_cav_inv.cst();
+
+  M = M*M_cav_inv;
+
+  M_inv = M_cav*M_inv;
 
   prt_map("\nM_cav:", M_cav);
   prt_map("\nM_cav^-1:", M_cav_inv);
-  prt_map("\nM.M_cav^-1:", M1);
+  prt_map("\nM.M_cav^-1:", M);
+  prt_map("\nM_cav.M^-1:", M_inv);
+  prt_map("\nM.M_cav^-1.M_cav.M^-1:", M*M_inv);
+  prt_map("\nM.M_cav:", M*M_cav);
 
-  if (validation && !inverse) {
+  if (validation) {
     cout << scientific << setprecision(3) << "\nFixed point = "
 	 << setw(11) << M_fixed_point << "\n";
     
@@ -504,29 +541,8 @@ void MomentType::compute_M(const bool inverse)
     Cell_Pass(2, globval.Cell_nLoc, map, lastpos);
     map -= map.cst();
 
-    prt_map("\nValidation:\n", map-M1);
+    prt_map("\nValidation:\n", map-M);
   }
-
-  if (!inverse) {
-    M = M1;
-    M -= M_cav.cst();
-    prt_map("\nM:", M);
-  } else {
-    M_inv = Inv(M1);
-    M_inv -= M_cav_inv.cst();
-    prt_map("\nM^-1:", M_inv);
-  }
-}
-
-
-void MomentType::compute_M_and_M_inv(void)
-{
-  // Remark: Pseudo M^-1 for moment tracking.
-  
-  compute_M(false);
-  compute_M(true);
-
-  prt_map("\nM.M^-1:", M*M_inv);
 }
 
 
@@ -558,7 +574,7 @@ void MomentType::propagate_qfluct(void)
   qfluct = (M_Chol_t*X).cst();
   qfluct2 = M_Chol_t*sqr(X_map)*M_Chol;
   for (j = 0; j < 2*nd_tps; j++) {
-    sigma += ps_sign[j]*qfluct[j]*Id[ps_index[j]];
+    // sigma += ps_sign[j]*qfluct[j]*Id[ps_index[j]];
     for (k = 0; k < 2*nd_tps; k++)
       sigma +=
 	ps_sign[j]*ps_sign[k]*qfluct2[j][k]*Id[ps_index[j]]*Id[ps_index[k]];
@@ -568,33 +584,31 @@ void MomentType::propagate_qfluct(void)
 
 void MomentType::propagate_lat(const int n)
 {
+  // Moments are propageted by the inverse map.
+  // Hence, the maps for the lattice & RF cavity appears in reversed order.
+
   double dct;
 
+  sigma = sigma*M_inv;
+  // Include contribution from constant term.
+  // sigma +=
+  //   ps_sign[delta_]*fixed_point_rad[delta_]*tps(0e0, ps_index[delta_]+1);
+
   if (globval.Cavity_on) {
-    if (!RF_cav_linear) {
-      M_cav = compute_M_cav(cav_loc);
-      M_cav_inv = compute_M_cav_inv(M_cav);
-      dct = ps_sign[ct_]*sigma[ct];
-      // sigma -= ps_sign[ct_]*dct*tps(0e0, ps_index[ct_]+1);
-      sigma = sigma*(M_cav_inv-M_cav_inv.cst());
-      // sigma += ps_sign[ct_]*dct*tps(0e0, ps_index[ct_]+1);
-    } else
-      sigma = sigma*(M_cav_inv-M_cav_inv.cst());
+    compute_M_cav_inv();
+    M_cav_inv -= M_cav_inv.cst();
+    // dct = ps_sign[ct_]*sigma[ct];
+    // sigma -= ps_sign[ct_]*dct*tps(0e0, ps_index[ct_]+1);
+    sigma = sigma*M_cav_inv;
     // Include contribution from constant term.
-    // sigma +=
-    //   ps_sign[delta_]*M_cav[delta_].cst()*tps(0e0, ps_index[delta_]+1);
+    // sigma += ps_sign[ct_]*dct*tps(0e0, ps_index[ct_]+1);
   }
 
   propagate_cav_HOM_long(n);
   // propagate_cav_HOM_trans(n);
   t_q = sigma[ct];
 
-  sigma = sigma*(M_inv-M_inv.cst());
-  // Include contribution from constant term.
-  // sigma +=
-  //   ps_sign[delta_]*fixed_point_rad[delta_]*tps(0e0, ps_index[delta_]+1);
-
-  if (true && globval.radiation)
+  if (!false && globval.radiation)
     propagate_qfluct();
 }
 
@@ -612,24 +626,6 @@ void track(MomentType &m, const int n, ss_vect<double> &ps)
   file_wr(outf, file_name.c_str());
 
   ps1 = ps;
-#if 0
-  ps1 += m.M.cst();
-
-  outf << scientific << setprecision(5)
-       << "\n" << setw(5) << 0 << setw(13) << ps1-m.M.cst() << "\n";
-
-  for (int k = 1; k <= n; k++) {
-    if (globval.Cavity_on) {
-      if (!m.RF_cav_linear)
-	m.M_cav = compute_M_cav(m.cav_loc);
-      ps1 = (m.M_cav*ps1).cst();
-    }
-    ps1 = (m.M*ps1).cst();
-
-    outf << scientific << setprecision(5)
-	 << setw(5) << k << setw(13) << ps1-m.M.cst() << "\n";
-  }
-#else
   outf << scientific << setprecision(5)
        << "\n" << setw(5) << 0 << setw(13) << ps1 << "\n";
 
@@ -640,12 +636,11 @@ void track(MomentType &m, const int n, ss_vect<double> &ps)
     if (rel_to_fp)
       ps1 -= globval.CODvect;
     if (lastpos != globval.Cell_nLoc)
-      printf("\n particle lost: lastpos = %d\n", lastpos);
+      printf("\n particle lost: lastpos = %ld\n", lastpos);
 
     outf << scientific << setprecision(5)
 	 << setw(5) << k << setw(13) << ps1 << "\n";
   }
-#endif
 
   outf.close();
 }
@@ -676,21 +671,22 @@ void test_case(const string &cav_name)
   // Single bunch, 1 longitudinal HOM.
   long int        lastpos;
   int             k;
+  double          phi_RF;
   ss_vect<double> bc, ps;
   MomentType      m;
 
   const int
-    n_turn        = 3000;
+    n_turn        = 5000;
   const double
+    // Observation piont: long straight.
     fp_rad[] =
-    {-4.283e-08, 2.828e-08, 0.000e+00, 0.000e+00, -1.035e-04, -2.020e-16},
+    {2.448e-09, 1.372e-07, 0.000e+00, 0.000e+00, -1.036e-04, -3.211e-16},
     eps[]         = {161.7e-12, 8e-12},
     sigma_s       = 3.739e-3,
     sigma_delta   = 9.353e-04,
 
     Q_b           = -0*0.6e-9,
-    phi_RF        = 30.62567,
-    delta_RF      = 2.067e-04,
+    phi_RF_rad    = 30.6256664203,
     beta_HOM      = 1e0,
     f             = 1e9,
     R_sh          = 1e3,
@@ -702,16 +698,18 @@ void test_case(const string &cav_name)
 
   danot_(1);
 
+  globval.radiation = true;
+  globval.Cavity_on = true;
+  m.lat_disp        = true;
+
+  phi_RF = (!globval.radiation)? 0e0 : phi_RF_rad;
+
   m.init(Q_b, fp_rad, phi_RF, cav_name);
 
   m.set_HOM_long(beta_HOM, f, R_sh, Q);
 
-  globval.radiation = true;
-  globval.Cavity_on = true;
-  m.lat_disp        = true;
-  m.RF_cav_linear   = false;
-
   m.compute_M_and_M_inv();
+  prt_map_full("", m.cav_loc, m.M_inv);
 
   danot_(NO);
 
@@ -721,7 +719,7 @@ void test_case(const string &cav_name)
     m.sigma += ps_sign[y_]*2e-6*tps(0e0, ps_index[y_]+1);
     m.sigma += ps_sign[delta_]*3e-6*tps(0e0, ps_index[delta_]+1);
   }
-  if (!false)
+  if (false)
     m.compute_sigma(eps, sigma_s, sigma_delta);
 
   bc = get_barycentre(m.sigma);
@@ -738,16 +736,18 @@ void test_case(const string &cav_name)
     }
   }
 
-  if (false) {
+  if (!false) {
     printf("\ntrack:\n");
     printf("Cavity_on = %s\n", (globval.Cavity_on == true)?"true":"false");
     printf("radiation = %s\n", (globval.radiation == true)?"true":"false");
 
     ps = bc;
+
     getcod(0e0, lastpos);
     printf("\nFixed Point = [");
     for (k = 0; k < 2*nd_tps; k++)
       printf("%9.3e%s", globval.CODvect[k], (k < 2*nd_tps-1)? ", " : "]\n");
+
     track(m, n_turn, ps);
   }
 }

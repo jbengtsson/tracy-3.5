@@ -85,12 +85,14 @@ set key right bottom
 set title "{/Symbol s}_x [{/Symbol m}m]"
 set xlabel "Turn no"
 set ylabel ""
+set yrange[0:]
 plot file_name using 1:(1e6*\$9) notitle with points ls 1
 
 set origin 0.0, 0.0
 set title "{/Symbol s}_y [{/Symbol m}m]"
 set xlabel "Turn no"
 set ylabel ""
+set yrange[0:]
 plot file_name using 1:(1e6*\$11) notitle with points ls 3
 
 unset multiplot
@@ -105,12 +107,14 @@ set origin 0.0, 0.5
 set title "{/Symbol s}_{ct} [m]"
 set xlabel "Turn no"
 set ylabel ""
+set yrange[0:]
 plot file_name using 1:14 notitle with points ls 1
 
 set origin 0.0, 0.0
 set title "{/Symbol s_d}"
 set xlabel "Turn no"
 set ylabel ""
+set yrange[0:]
 plot file_name using 1:13 notitle with points ls 3
 
 unset multiplot
