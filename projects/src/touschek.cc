@@ -14,67 +14,77 @@ void err_and_corr(const string &param_file)
   orb_corr_type   orb_corr[2];
   FILE            *fp;
 
-  // MAX-VI:
-  // const double Qb = 5e-9, eps_x = 16e-12, eps_y = 16e-12,
-  //              sigma_s = 1e-2, sigma_delta = 1e-3;
-  // SLS-2:
-  const double Qb = 0.994e-9, eps_x = 101e-12, eps_y = 10e-12,
-               sigma_s = 2.58e-3, sigma_delta = 1.0e-3;
+  // BESSY-III: I_b = 300 mA, h = 538.
+  const int 
+    Nb          = 538;
+  const double
+    C           = 350.3,
+    Ib          = 300e-3,
+    eps[]       = {101e-12, 8e-12},
+    sigma_s     = 2.3e-3,
+    sigma_delta = 0.90e-3,
+    delta_RF    = 5e-2,
+    T0          = C/c0,
+    Qb          = Ib*T0/Nb;
 
   const string file_name = "mom_aper.out";
 
+  params.get_param(param_file);
+
+  globval.dPcommon = 1e-10;
+  globval.CODeps = 1e-10;
+
+  Ring_GetTwiss(true, 0e0); printglob();
+
   params.err_and_corr_init(param_file, orb_corr);
-
-  Lattice.param.Cavity_on = false;
-
-  Lattice.param.CODeps = 1e-10;
 
   if (params.fe_file != "") params.LoadFieldErr(false, 1e0, true);
   if (params.ae_file != "") {
     // Load misalignments; set seed, no scaling of rms errors.
     params.LoadAlignTol(false, 1e0, true, 1);
     // Beam based alignment.
-    if (params.bba) params.Align_BPMs(Quad);
+    if (params.bba) params.Align_BPMs(Quad, -1e0, -1e0, -1e0);
 
-    cod = params.cod_corr(params.n_cell, 1e0, orb_corr);
+    cod = params.cod_corr(params.n_cell, 1e0, params.h_maxkick,
+			  params.v_maxkick, params.n_bits, orb_corr);
   } else
-    cod = Lattice.getcod(0e0, lastpos);
+    cod = getcod(0e0, lastpos);
 
-  params.Orb_and_Trim_Stat();
+  params.Orb_and_Trim_Stat(orb_corr);
 
   if (params.N_calls > 0) {
-    params.ID_corr(params.N_calls, params.N_steps, false);
-    cod = params.cod_corr(params.n_cell, 1e0, orb_corr);
+    params.ID_corr(params.N_calls, params.N_steps, false, 1);
+    // cod = params.cod_corr(params.n_cell, 1e0, orb_corr);
   }
 
-  Lattice.prtmfile("flat_file.dat");
+  prtmfile("flat_file.dat");
 
   if (cod) {
     printf("\nerr_and_corr: orbit correction completed\n");
-    Lattice.prt_cod("cod.out", Lattice.param.bpm, true);
+    prt_cod("cod.out", globval.bpm, true);
  
-    Lattice.param.delta_RF = 5.2e-2; Lattice.param.Cavity_on = true;
+    globval.delta_RF = delta_RF; globval.Cavity_on = true;
 
-    Lattice.Touschek(Qb, Lattice.param.delta_RF, eps_x, eps_y, sigma_delta, sigma_s);
+    Touschek(Qb, globval.delta_RF, eps[X_], eps[Y_], sigma_delta, sigma_s);
       
-    double  sum_delta[Lattice.param.Cell_nLoc+1][2];
-    double  sum2_delta[Lattice.param.Cell_nLoc+1][2];
-//    double  mean_delta_s[Lattice.param.Cell_nLoc+1][2];
-//    double  sigma_delta_s[Lattice.param.Cell_nLoc+1][2];
+    double  sum_delta[globval.Cell_nLoc+1][2];
+    double  sum2_delta[globval.Cell_nLoc+1][2];
+//    double  mean_delta_s[globval.Cell_nLoc+1][2];
+//    double  sigma_delta_s[globval.Cell_nLoc+1][2];
 
-    for(j = 0; j <= Lattice.param.Cell_nLoc; j++){
+    for(j = 0; j <= globval.Cell_nLoc; j++){
       sum_delta[j][X_] = 0e0; sum_delta[j][Y_] = 0e0;
       sum2_delta[j][X_] = 0e0; sum2_delta[j][Y_] = 0e0;
     }
  
-    Lattice.Touschek(Qb, Lattice.param.delta_RF, false,
-		     eps_x, eps_y, sigma_delta, sigma_s,
-		     params.n_track_DA, false, sum_delta, sum2_delta);
+    Touschek(Qb, globval.delta_RF, false,
+	     eps[X_], eps[Y_], sigma_delta, sigma_s,
+	     params.n_track_DA, false, sum_delta, sum2_delta);
 
-    fp = file_write((file_name).c_str()); 
-    for(j = 0; j <= Lattice.param.Cell_nLoc; j++)
+    fp = file_write(file_name.c_str()); 
+    for(j = 0; j <= globval.Cell_nLoc; j++)
       fprintf(fp, "%4d %7.2f %5.3f %6.3f\n",
-	      j, Lattice.Cell[j].S, 1e2*sum_delta[j][X_], 1e2*sum_delta[j][Y_]);
+	      j, Cell[j].S, 1e2*sum_delta[j][X_], 1e2*sum_delta[j][Y_]);
     fclose(fp);
   } else
     chk_cod(cod, "error_and_correction");
@@ -85,12 +95,15 @@ void err_and_corr(const string &param_file)
 
 int main(int argc, char *argv[])
 {
-  Lattice.param.H_exact    = false; Lattice.param.quad_fringe = false;
-  Lattice.param.Cavity_on  = false; Lattice.param.radiation   = false;
-  Lattice.param.emittance  = false; Lattice.param.IBS         = false;
-  Lattice.param.pathlength = false; Lattice.param.Aperture_on = false;
+  globval.H_exact    = false; globval.quad_fringe    = false;
+  globval.Cavity_on  = false; globval.radiation      = false;
+  globval.emittance  = false; globval.IBS            = false;
+  globval.pathlength = false; globval.Aperture_on    = false;
+  globval.Cart_Bend  = false; globval.dip_edge_fudge = true;
 
-  if (argc < 1) {
+  globval.mat_meth = false;
+
+  if (argc < 2) {
     printf("*** bad command line\n");
     exit(1);
   }

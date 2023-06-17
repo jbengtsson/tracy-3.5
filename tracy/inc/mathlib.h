@@ -8,6 +8,9 @@
 
 */
 
+#ifndef MATHLIB_H
+#define MATHLIB_H
+
 // macros
 
 #define sqr(x)   ((x)*(x))
@@ -16,14 +19,16 @@
 #define fract(x) ((x)-(int)(x))
 #define nint(x) ((x) < 0 ? ((long)(x-0.5)) : ((long)(x+0.5))) 
 
-#define min(a, b) ((a) < (b) ? (a) : (b))
-#define max(a, b) ((a) > (b) ? (a) : (b))
+// The functions std::min & std::max are defined in <algorithm>.
+/* #define min(a, b) ((a) < (b) ? (a) : (b)) */
+/* #define max(a, b) ((a) > (b) ? (a) : (b)) */
 
 #define sgn(n) ((n > 0) ? 1 : ((n < 0) ? -1 : 0)) 
 
 
-extern long int rseed0, rseed;
-extern double   normcut_;
+extern long rseed0;
+extern long rseed;
+extern double normcut_;
 
 void iniranf(const long i);
 void newseed(void);
@@ -53,3 +58,5 @@ void TpMat(const int n, Matrix &a);
 double DetMat(const int n, const Matrix &a);
 bool InvMat(const int n, Matrix &a);
 void prtmat(const int n, const Matrix &a);
+
+#endif

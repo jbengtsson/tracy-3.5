@@ -18,7 +18,12 @@ int no_tps = NO;
 // From k_symm.lat.
 // const double ic[][2] =
 //   {{-6.00257, 2.31594}, {7.43795, 2.74922}, {0.18750, 0.0}, {0.16825, 0.0}};
-// From jb_2.lat.
+
+// For k_symm.lat.
+// const double ic[][2] =
+//   {{-6.00257, 2.31594}, {7.43795, 2.74922}, {0.18750, 0.0}, {0.16825, 0.0}};
+
+// For jb_2_2_3_mod.lat.
 const double ic[][2] =
   {{-6.57117, 2.40476}, {8.00696, 2.78072}, {0.08540, 0.0}, {0.08387, 0.0}};
 
@@ -680,15 +685,18 @@ int main(int argc, char *argv[])
     exit(0);
   }
 
-  if (!qf031)
+  if (!qf031) {
     loc0 = Elem_GetPos(ElemIndex("qf03"), 3);
-  else
-    loc0 = Elem_GetPos(ElemIndex("qf031"), 1);
   // loc0 = Elem_GetPos(ElemIndex("qd04"), 7);
   // loc0 = Elem_GetPos(ElemIndex("qd041"), 1);
   // loc1 = Elem_GetPos(ElemIndex("eq05"), 1);
   // loc1 = Elem_GetPos(ElemIndex("b20"), 5);
-  loc1 = Elem_GetPos(ElemIndex("qf031"), 4);
+    loc1 = Elem_GetPos(ElemIndex("qf03"), 6);
+  } else {
+    loc0 = Elem_GetPos(ElemIndex("qf031"), 1);
+    loc1 = Elem_GetPos(ElemIndex("qf031"), 4);
+  }
+
   Ascr = get_A(ic[0], ic[1], ic[2], ic[3]);
   Cell_Twiss(loc0, loc1, Ascr, false, false, 0e0);
 

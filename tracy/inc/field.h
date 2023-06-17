@@ -2,6 +2,8 @@
 
    Definitions:  Polymorphic number class.              */
 
+#ifndef FIELD_H
+#define FIELD_H
 
 const int  max_str = 132;
 
@@ -27,8 +29,6 @@ typedef double  tps_buf[ss_dim+1]; // const. and linear terms
 
 template<typename T> class ss_vect;
 
-typedef int  iVector[ss_dim];
-
 // Polymorphic class for floating point and TPSA
 
 struct MNF_struct;
@@ -38,7 +38,7 @@ class tps {
   tps(void);
   tps(const double);
   tps(const double, const int);
-  tps(const double, const int []);
+  tps(const double, const long int []);
   tps(const tps &);
   ~tps(void);
 
@@ -49,11 +49,11 @@ class tps {
 
   const double cst(void) const;
   double operator[](const int) const;
-  double operator[](const int []) const;
-  void pook(const int [], const double);
+  double operator[](const long int []) const;
+  void pook(const long int [], const double);
 
-  void exprt(double [], int [], int [], char []) const;
-  void imprt(const int, double [], const int [], const int []);
+  void exprt(double [], long int [], long int [], char []) const;
+  void imprt(const int, double [], const long int [], const long int []);
 
   tps& operator=(const double);
   tps& operator+=(const double);
@@ -118,7 +118,7 @@ class tps {
   friend ss_vect<tps> Inv(const ss_vect<tps> &);
   // Q(nv, nv) = P(nv, nv)^-1
   friend ss_vect<tps> Inv_Ext(const ss_vect<tps> &);
-  friend ss_vect<tps> PInv(const ss_vect<tps> &, const iVector &);
+  friend ss_vect<tps> PInv(const ss_vect<tps> &, const long int[]);
   friend void GoFix(const ss_vect<tps> &, ss_vect<tps> &,
 		    ss_vect<tps> &, const int);
   friend MNF_struct MapNorm(const ss_vect<tps> &, const int);
@@ -127,6 +127,11 @@ class tps {
 			       ss_vect<tps> &, const int, const int);
   friend ss_vect<tps> dHdJ(const tps &);
   friend void CtoR(const tps &, tps &, tps &);
+  friend tps CtoI(const tps &);
+  friend tps cpart(const tps &);
+  friend ss_vect<tps> etrtc(void);
+  friend ss_vect<tps> etctr(void);
+  friend ss_vect<tps> etcjg(void);
   friend tps RtoC(const tps &, const tps &);
   friend tps LieFact_DF(const ss_vect<tps> &, ss_vect<tps> &);
   friend ss_vect<tps> FlowFact(const ss_vect<tps> &);
@@ -137,9 +142,9 @@ class tps {
 #if NO == 1
   tps_buf  ltps;  // linear TPSA
 #else
-  int     intptr; // index used by Fortran implementation
+  long int intptr; // index used by Fortran implementation
 #endif
-  double  r;      // floating-point calc. if intptr = 0
+  double   r;      // floating-point calc. if intptr = 0
 };
 
 
@@ -223,7 +228,7 @@ template<typename T> class ss_vect {
   friend ss_vect<tps> Inv(const ss_vect<tps> &);
   // Q(nv, nv) = P(nv, nv)^-1
   friend ss_vect<tps> Inv_Ext(const ss_vect<tps> &);
-  friend ss_vect<tps> PInv(const ss_vect<tps> &, const iVector &);
+  friend ss_vect<tps> PInv(const ss_vect<tps> &, const long int []);
   friend void GoFix(const ss_vect<tps> &, ss_vect<tps> &,
 		    ss_vect<tps> &, const int);
   friend MNF_struct MapNorm(const ss_vect<tps> &, const int);
@@ -232,6 +237,9 @@ template<typename T> class ss_vect {
 			       ss_vect<tps> &, const int, const int);
   friend void dHdJ(const tps &, ss_vect<tps> &);
   friend void CtoR(const tps &, tps &, tps &);
+  friend ss_vect<tps> etrtc(void);
+  friend ss_vect<tps> etctr(void);
+  friend ss_vect<tps> etcjg(void);
   friend tps RtoC(const tps &, const tps &);
   friend tps LieFact_DF(const ss_vect<tps> &, ss_vect<tps> &);
   friend tps LieFact(const ss_vect<tps> &);
@@ -245,19 +253,34 @@ template<typename T> class ss_vect {
 };
 
 
-typedef ss_vect<double>  psVector;
-typedef psVector         Matrix[ss_dim];
+typedef ss_vect<double> psVector;
+typedef psVector        Matrix[ss_dim];
 
 
 typedef struct MNF_struct
 {
-  tps           K;       // new effective Hamiltonian
-  ss_vect<tps>  A0;      // transformation to fixed point
-  ss_vect<tps>  A1;      // (linear) transformation to Floquet space
-  tps           g;       /* generator for nonlinear transformation to
-			    Floquet space */
-  ss_vect<tps>  map_res; // residual map
+  tps
+    K,              // New effective Hamiltonian.
+    g;              // Generator for nonlinear transformation to Floquet space.
+  ss_vect<tps>
+    A0, A0_inv,     // Transformation to fixed point.
+    A1, A1_inv,     // Linear transformation to Floquet space.
+    A_nl, A_nl_inv, // Nonlinear transformation to Floquet space.
+    nus,            // Tune shift.
+    map_res;        // Residual map.
 } MNF_struct;
+
+
+template<>
+inline ss_vect<double> ss_vect<tps>::cst(void) const
+{
+  int             i;
+  ss_vect<double> x;
+
+  for (i = 0; i < ss_dim; i++)
+    x[i] = (*this)[i].cst();
+  return x;
+}
 
 
 // partial template-class specialization
@@ -277,6 +300,22 @@ template<>
 class is_double<tps> {
  public:
   static inline double cst(const tps &x) { return x.cst(); }
+};
+
+// partial specialization
+template<>
+class is_double< ss_vect<double> > {
+ public:
+  static inline ss_vect<double> cst(const ss_vect<double> &x) { return x; }
+  static inline ss_vect<double> ps(const ss_vect<tps> &x) { return x.cst(); }
+};
+
+// partial specialization
+template<>
+class is_double< ss_vect<tps> > {
+ public:
+  static inline ss_vect<double> cst(const ss_vect<tps> &x) { return x.cst(); }
+  static inline ss_vect<tps> ps(const ss_vect<tps> &x) { return x; }
 };
 
 
@@ -411,3 +450,5 @@ inline ss_vect<T>::ss_vect(const ss_vect<U> &a)
   for (i = 0; i < ss_dim; i++)
     ss[i] = a[i];
  }
+
+#endif

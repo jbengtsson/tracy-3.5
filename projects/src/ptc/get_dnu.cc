@@ -1,9 +1,4 @@
-// #define NO 6
-// to model tune footprint
-#define NO 6
-// #define NO 10
-// #define NO 12
-// #define NO 15
+#define NO 8
 
 #include "tracy_lib.h"
 
@@ -11,18 +6,21 @@ int no_tps   = NO,
     ndpt_tps = 5;
 
 
+const double
+  beta_inj[] = {2.8, 2.8},
+  A_max[]    = {3e-3, 2.5e-3},
+  delta_max  = 5e-2,
+  twoJ[]     = {sqr(A_max[X_])/beta_inj[X_], sqr(A_max[Y_])/beta_inj[Y_]};
+
 const char home_dir[] = "/home/bengtsson";
 
-double        nu0[2];
-ss_vect<tps>  A_inv, nus;
-
-// const double  Ax = 6e-3, Ay = 4e-3, delta = 5e-2;
-const double  Ax = 5e-3, Ay = 3e-3, delta = 3e-2;
+double       nu0[2];
+ss_vect<tps> A_inv, nus;
 
 
 void get_map_n(const int n)
 {
-  ss_vect<tps>  map2, map4;
+  ss_vect<tps> map2, map4;
 
   get_map(false);
 
@@ -90,11 +88,11 @@ void get_map_normal_form()
 
 tps get_H(void)
 {
-  int           i;
-  tps           H, gn;
-  ss_vect<tps>  Id, Mn;
+  int          i;
+  tps          H, gn;
+  ss_vect<tps> Id, Mn;
 
-  const bool  prt = false;
+  const bool prt = false;
 
   // Construct generator.
   // K is in Dragt-Finn form but the generators commute.
@@ -118,10 +116,10 @@ tps get_H(void)
 
 void get_A(void)
 {
-  int           j;
-  iVector       jj;
-  tps           gn;
-  ss_vect<tps>  Id, A;
+  int          j;
+  long int     jj[ss_dim];
+  tps          gn;
+  ss_vect<tps> Id, A;
 
   Id.identity(); A = MNF.A1;
   for (j = no_tps; j >= 3; j--) {
@@ -130,16 +128,14 @@ void get_A(void)
 
   for (j = 0; j < nv_tps; j++)
     jj[j] = (j < 4)? 1 : 0;
-
   A_inv = PInv(A, jj);
 }
 
 
 void get_twoJ(const ss_vect<double> &ps, double twoJ[])
 {
-  int              j;
-  ss_vect<double>  z;
-  ss_vect<tps>     Id;
+  int             j;
+  ss_vect<double> z;
 
   z = (A_inv*ps).cst();
 
@@ -150,17 +146,16 @@ void get_twoJ(const ss_vect<double> &ps, double twoJ[])
 
 void get_dnu(const double Ax_max, const double Ay_max, const double delta_max)
 {
-  char             str[max_str];
-  int              i;
-  double           twoJ[2], nux, nuy;
-  ss_vect<double>  ps;
-  ss_vect<tps>     Id;
+  char            str[max_str];
+  int             i, k;
+  double          twoJ[2], nux, nuy;
+  ss_vect<double> ps;
+  ss_vect<tps>    Id_scl;
+  ifstream        inf;
+  ofstream        outf;
 
-  ifstream      inf;
-  ofstream      outf;
-
-  const int     n_ampl = 25, n_delta = 20;
-  const double  A_min = 1e-6;
+  const int    n_ampl = 25, n_delta = 20;
+  const double A_min = 1e-6;
 
   if (false) {
     sprintf(str, "%s%s", home_dir, "/Thor-2.0/thor/wrk");
@@ -172,15 +167,15 @@ void get_dnu(const double Ax_max, const double Ay_max, const double delta_max)
 //  sprintf(str, "%s%s", home_dir, "/projects/src/");
 //  file_wr(outf, strcat(str, "dnu_dAx_pert.out"));
   file_wr(outf, "dnu_dAx_pert.out");
-  Id.zero(); ps.zero();
+  Id_scl.zero(); ps.zero();
   for (i = -n_ampl; i <= n_ampl; i++) {
     ps[x_] = i*Ax_max/n_ampl;
     if (ps[x_] == 0.0) ps[x_] = A_min;
     ps[y_] = A_min;
     get_twoJ(ps, twoJ);
-    Id[x_] = sqrt(twoJ[X_]); Id[px_] = sqrt(twoJ[X_]);
-    Id[y_] = sqrt(twoJ[Y_]); Id[py_] = sqrt(twoJ[Y_]);
-    nux = (nus[3]*Id).cst(); nuy = (nus[4]*Id).cst();
+    for (k = 0; k < 4; k++)
+      Id_scl[k] = sqrt(twoJ[k/2]);
+    nux = (nus[3]*Id_scl).cst(); nuy = (nus[4]*Id_scl).cst();
 
     outf << scientific << setprecision(3)
 	 << setw(12) << 1e3*ps[x_] << setw(12) << 1e3*ps[y_]
@@ -192,16 +187,16 @@ void get_dnu(const double Ax_max, const double Ay_max, const double delta_max)
 //  sprintf(str, "%s%s", home_dir, "/projects/src/");
 //  file_wr(outf, strcat(str, "dnu_dAy_pert.out"));
   file_wr(outf, "dnu_dAy_pert.out");
-  Id.zero(); ps.zero();
+  Id_scl.zero(); ps.zero();
   for (i = -n_ampl; i <= n_ampl; i++) {
     ps[x_] = A_min;
     ps[y_] = i*Ay_max/n_ampl;
     if (ps[y_] == 0.0) ps[y_] = A_min;
 //    get_twoJ(2, ps, MNF.A1, twoJ);
     get_twoJ(ps, twoJ);
-    Id[x_] = sqrt(twoJ[X_]); Id[px_] = sqrt(twoJ[X_]);
-    Id[y_] = sqrt(twoJ[Y_]); Id[py_] = sqrt(twoJ[Y_]);
-    nux = (nus[3]*Id).cst(); nuy = (nus[4]*Id).cst();
+    for (k = 0; k < 4; k++)
+      Id_scl[k] = sqrt(twoJ[k/2]);
+    nux = (nus[3]*Id_scl).cst(); nuy = (nus[4]*Id_scl).cst();
 
     outf << scientific << setprecision(3)
 	 << setw(12) << 1e3*ps[x_] << setw(12) << 1e3*ps[y_]
@@ -213,11 +208,11 @@ void get_dnu(const double Ax_max, const double Ay_max, const double delta_max)
 //  sprintf(str, "%s%s", home_dir, "/projects/src/");
 //  file_wr(outf, strcat(str, "chrom2_pert.out"));
   file_wr(outf, "chrom2_pert.out");
-  Id.zero(); ps.zero();
+  Id_scl.zero(); ps.zero();
   for (i = -n_delta; i <= n_delta; i++) {
-    ps[delta_] = i*delta_max/n_delta; Id[delta_] = ps[delta_];
+    ps[delta_] = i*delta_max/n_delta; Id_scl[delta_] = ps[delta_];
 
-    nux = (nus[3]*Id).cst(); nuy = (nus[4]*Id).cst();
+    nux = (nus[3]*Id_scl).cst(); nuy = (nus[4]*Id_scl).cst();
 
     outf << scientific << setprecision(3)
 	 << setw(12) << 1e2*ps[delta_]
@@ -230,16 +225,15 @@ void get_dnu(const double Ax_max, const double Ay_max, const double delta_max)
 
 void get_dnu2(const double Ax_max, const double Ay_max, const double delta)
 {
-  char             str[max_str];
-  int              i, j;
-  double           twoJ[2], nux, nuy;
-  ss_vect<double>  ps;
-  ss_vect<tps>     Id;
+  char            str[max_str];
+  int             i, j, k;
+  double          twoJ[2], nux, nuy;
+  ss_vect<double> ps;
+  ss_vect<tps>    Id_scl;
+  ifstream        inf;
+  ofstream        outf;
 
-  ifstream      inf;
-  ofstream      outf;
-
-  const int     n_ampl = 10;
+  const int n_ampl = 10;
 
   if (false) {
     sprintf(str, "%s%s", home_dir, "/Thor-2.0/thor/wrk");
@@ -249,15 +243,15 @@ void get_dnu2(const double Ax_max, const double Ay_max, const double delta)
   }
 
   file_wr(outf, "dnu_dAxy_pert.out");
-  Id.zero(); Id[delta_] = delta;
+  Id_scl.zero(); Id_scl[delta_] = delta;
   ps.zero();
   for (i = -n_ampl; i <= n_ampl; i++) {
     for (j = -n_ampl; j <= n_ampl; j++) {
       ps[x_] = i*Ax_max/n_ampl; ps[y_] = j*Ay_max/n_ampl;
       get_twoJ(ps, twoJ);
-      Id[x_] = sqrt(twoJ[X_]); Id[px_] = sqrt(twoJ[X_]);
-      Id[y_] = sqrt(twoJ[Y_]); Id[py_] = sqrt(twoJ[Y_]);
-      nux = (nus[3]*Id).cst(); nuy = (nus[4]*Id).cst();
+      for (k = 0; k < 4; k++)
+	Id_scl[k] = sqrt(twoJ[k/2]);
+      nux = (nus[3]*Id_scl).cst(); nuy = (nus[4]*Id_scl).cst();
 
       outf << scientific << setprecision(3)
 	   << setw(12) << 1e3*ps[x_] << setw(12) << 1e3*ps[y_]
@@ -270,35 +264,72 @@ void get_dnu2(const double Ax_max, const double Ay_max, const double delta)
 }
 
 
+void wtf()
+{
+  long int jj[ss_dim];
+  int      k;
+  tps      g_re, g_im, K_re, K_im;
+  
+  Ring_GetTwiss(true, 0.0); printglob();
+
+  get_map(false);
+
+  danot_(no_tps);
+  get_map_normal_form(); nus = dHdJ(MNF.K);
+
+  CtoR(MNF.K, K_re, K_im); CtoR(MNF.g, g_re, g_im);
+
+  cout << scientific << setprecision(5) << K_re;
+  for (k = 0; k < nv_tps; k++)
+    jj[k] = 0;
+  jj[x_] = 1; jj[px_] = 1; jj[delta_] = 1;
+  printf("\nTune Shift Terms:\n  h_11001 = %12.5e\n", -2e0*K_re[jj]);
+  jj[x_] = 0; jj[px_] = 0; jj[y_] = 1; jj[py_] = 1;
+  printf("  h_00111 = %12.5e\n", -2e0*K_re[jj]);
+  jj[x_] = 2; jj[px_] = 2; jj[y_] = 0; jj[py_] = 0; jj[delta_] = 0;
+  printf("  h_22000 = %12.5e\n", -4e0*K_re[jj]);
+  jj[x_] = 0; jj[px_] = 0; jj[y_] = 2; jj[py_] = 2;
+  printf("  h_00220 = %12.5e\n", -4e0*K_re[jj]);
+  jj[x_] = 1; jj[px_] = 1; jj[y_] = 1; jj[py_] = 1;
+  printf("  h_11110 = %12.5e\n", -4e0*K_re[jj]);
+}
+
+
 int main(int argc, char *argv[])
 {
-  char          str[max_str];
-  double        Jx, Jy, delta;
-  tps           H, H_re, H_im, g_re, g_im, K_re, K_im;
-  ss_vect<tps>  Id;
-  ofstream      outf;
+  int          k;
+  tps          H, H_re, H_im, g_re, g_im, K_re, K_im;
+  ss_vect<tps> Id_scl;
+  ofstream     outf;
 
-  Lattice.param.H_exact    = false; Lattice.param.quad_fringe = false;
-  Lattice.param.Cavity_on  = false; Lattice.param.radiation   = false;
-  Lattice.param.emittance  = false; Lattice.param.IBS         = false;
-  Lattice.param.pathlength = false; Lattice.param.bpm         = 0;
+  globval.H_exact    = false; globval.quad_fringe    = false;
+  globval.Cavity_on  = false; globval.radiation      = false;
+  globval.emittance  = false; globval.IBS            = false;
+  globval.pathlength = false; globval.bpm            = 0;
+  globval.Cart_Bend  = false; globval.dip_edge_fudge = true;
+  globval.mat_meth   = false;
 
   // disable from TPSALib- and LieLib log messages
   idprset_(-1);
 
   if (false)
-    Lattice.Read_Lattice(argv[1]);
+    Read_Lattice(argv[1]);
   else {
-    Lattice.rdmfile(argv[1]);
+    rdmfile(argv[1]);
   }
 
-  Lattice.param.EPU = true;
+  globval.EPU = true;
+
+  if (false) {
+    wtf();
+    exit(0);
+  }
 
   danot_(1);
 
 //  Ring_GetTwiss(true, 0.0); printglob();
 
-  Lattice.prt_lat("linlat.out", Lattice.param.bpm, true);
+  prt_lat("linlat.out", globval.bpm, true);
 
   danot_(no_tps-1);
 
@@ -310,35 +341,27 @@ int main(int argc, char *argv[])
 
   CtoR(MNF.K, K_re, K_im); CtoR(MNF.g, g_re, g_im);
 
-//  Jx = sqr(20e-3)/(2.0*Lattice.Cell[Lattice.param.Cell_nLoc].Beta[X_]);
-//  Jy = sqr(10e-3)/(2.0*Lattice.Cell[Lattice.param.Cell_nLoc].Beta[Y_]);
-//  delta = 3e-2;
-
-  Jx = sqr(15e-3)/(2.0*Lattice.Cell[Lattice.param.Cell_nLoc].Beta[X_]);
-  Jy = sqr(6.5e-3)/(2.0*Lattice.Cell[Lattice.param.Cell_nLoc].Beta[Y_]);
-  delta = 2.5e-2;
-
-  Id.identity();
-  Id[x_] *= sqrt(2.0*Jx); Id[px_] *= sqrt(2.0*Jx);
-  Id[y_] *= sqrt(2.0*Jy); Id[py_] *= sqrt(2.0*Jy);
-  Id[delta_] *= delta;
+  Id_scl.identity();
+  for (k = 0; k < 4; k++)
+    Id_scl[k] *= sqrt(twoJ[k/2]);
+  Id_scl[delta_] *= delta_max;
 
   if (true) {
 //    H = get_H(); CtoR(H, H_re, H_im);
 
 //    outf.open("H.dat", ios::out);
-//    outf << H_re*Id;
+//    outf << H_re*Id_scl;
 //    outf.close();
 
     outf.open("K.dat", ios::out);
-    outf << K_re;
+    outf << K_re*Id_scl;
     outf.close();
 
     outf.open("g.dat", ios::out);
-    outf << g_im;
+    outf << g_im*Id_scl;
     outf.close();
 
-//    cout << N*nus[3]*Id << N*nus[4]*Id;
+//    cout << N*nus[3]*Id_scl << N*nus[4]*Id_scl;
 
     outf.open("nus.dat", ios::out);
     outf << nus[3] << nus[4];
@@ -350,7 +373,7 @@ int main(int argc, char *argv[])
   // Note, nus are in Floquet space.
   get_A();
 
-  get_dnu(Ax, Ay, 3.0e-2);
+  get_dnu(A_max[X_], A_max[Y_], delta_max);
 
 //  get_dnu2(Ax, Ay, 0.0);
 

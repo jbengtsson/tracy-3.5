@@ -34,10 +34,7 @@ else if (ps == 3) \
   ext = "pdf"; \
 else if (ps == 4) \
   set term pngcairo enhanced color solid lw l_w font "Times-Roman f_s"; \
-  ext = "png"; \
-else if (ps == 5) \
-  set term svg enhanced font "Times-Roman,f_s"; \
-  ext = "svg";
+  ext = "png";
 
 if ((N == 1) && (case == 1)) \
   N_x = 44; N_y = 12; \
@@ -63,7 +60,7 @@ set clabel "%5.2f"; set key left;
 
 set palette rgbformulae 22, 13, -31 negative;
 
-if (ps) set output (home_dir)."dnu_1.".(ext);
+if (ps) set output "dnu_1.".(ext);
 
 #set multiplot;
 
@@ -71,8 +68,8 @@ if (ps) set output (home_dir)."dnu_1.".(ext);
 set title "{/Symbol n}_x vs. A_{x,y}";
 set xlabel "A_{x,y} [mm]"; set ylabel "{/Symbol n}_x";
 if (!pert) \
-  plot file1 using 1:(N*(N_x+\$5)) title "A_x" with lines ls 1, \
-       file2 using 2:(N*(N_x+\$5)) title "A_y" with lines ls 3; \
+  plot "dnu_dAx.out" using 1:(N*(N_x+\$5)) title "A_x" with lines ls 1, \
+       "dnu_dAy.out" using 2:(N*(N_x+\$5)) title "A_y" with lines ls 3; \
 else \
   plot file1 using 1:(N*(N_x+\$5)) title "A_x" with lines ls 1, \
        file2 using 2:(N*(N_x+\$5)) title "A_y" with lines ls 3, \
@@ -80,22 +77,24 @@ else \
        file22 using 2:(N*(N_x+\$3)) title "A_y (pert)" with lines ls 4;
 if (!ps) pause mouse "click on graph to cont.\n";
 
-if (ps) set output (home_dir)."dnu_2.".(ext);
+if (ps) set output "dnu_2.".(ext);
 
 #set origin 0.0, 0.0;
 set title "{/Symbol n}_y vs. A_{x,y}";
 set xlabel "A_{x,y} [mm]"; set ylabel "{/Symbol n}_y"; \
 if (!pert) \
-  plot file1 using 1:(N*(N_y+\$6)) title "A_x" with lines ls 1, \
-       file2 using 2:(N*(N_y+\$6)) title "A_y" with lines ls 3; \
+  plot "dnu_dAx.out" using 1:(N*(N_y+\$6)) title "A_x" with lines ls 1, \
+       "dnu_dAy.out" using 2:(N*(N_y+\$6)) title "A_y" with lines ls 3; \
 else \
-  plot file1 using 1:(N*(N_y+\$6)) title "A_x" with lines ls 1, \
-       file2 using 2:(N*(N_y+\$6)) title "A_y" with lines ls 3, \
-       file12 using 1:(N*(N_y+\$4)) title "A_x (pert)" with lines ls 2, \
-       file22 using 2:(N*(N_y+\$4)) title "A_y (pert)" with lines ls 4;
+  plot "dnu_dAx.out" using 1:(N*(N_y+\$6)) title "A_x" with lines ls 1, \
+       "dnu_dAy.out" using 2:(N*(N_y+\$6)) title "A_y" with lines ls 3, \
+       "dnu_dAx_pert.out" using 1:(N*(N_y+\$4)) title "A_x (pert)" \
+       with lines ls 2, \
+       "dnu_dAy_pert.out" using 2:(N*(N_y+\$4)) title "A_y (pert)" \
+       with lines ls 4;
 if (!ps) pause mouse "click on graph to cont.\n";
 
-if (ps) set output (home_dir)."dnu_3.".(ext);
+if (ps) set output "dnu_3.".(ext);
 
 #set origin 0.5, 0.5;
 set title "Chromaticity";
@@ -114,9 +113,7 @@ else \
        with lines ls 4;
 if (!ps) pause mouse "click on graph to cont.\n";
 
-exit;
-
-if (ps) set output (home_dir)."dnu_4.".(ext);
+if (ps) set output "dnu_4.".(ext);
 
 #set origin 0.5, 0.0;
 
@@ -148,90 +145,88 @@ set parametric;
 #
 #  nu_y = +/-(n-n_x*nu_y)/n_y
 #
-# The adjustment is the difference between nu_x_min/nu_x_max and nu_y_min/nu_y_max
+# The adjustment is the difference between x_min/x_max and y_min/y_max
 # vs. the actual (nu_x,y) values
 
-i10    = floor(nu_x_min) + 1.0;
-i01_1  = floor(nu_y_min) + 1.0;
-i01_2  = floor(nu_y_min) + 2.0;
+i10    = floor(x_min) + 1.0;
+i01_1  = floor(y_min) + 1.0;
+i01_2  = floor(y_min) + 2.0;
 
-i20_1  = floor(nu_x_min) + 1.5;
-i20_2  = floor(nu_x_min) + 0.5;
-i02_1  = floor(nu_y_min) + 0.5;
-i02_2  = floor(nu_y_min) + 1.5;
-i02_3  = floor(nu_y_min) + 2.5;
+i20_1  = floor(x_min) + 1.5;
+i20_2  = floor(x_min) + 0.5;
+i02_1  = floor(y_min) + 0.5;
+i02_2  = floor(y_min) + 1.5;
+i02_3  = floor(y_min) + 2.5;
 
-i11    = floor(nu_x_min+nu_y_max);
-i1m1_1 = floor(nu_x_min-nu_y_min);
-i1m1_2 = floor(nu_x_min-nu_y_min) - 1.0;
+i11    = floor(x_min+y_max);
+i1m1_1 = floor(x_min-y_min);
+i1m1_2 = floor(x_min-y_min) - 1.0;
 
-i30    = floor(nu_x_min) + 4.0/3.0;
-i12_1  = floor(nu_x_min+2*nu_y_max) - 2.0;
-i12_2  = floor(nu_x_min+2*nu_y_max) - 1.0;
-i12_3  = floor(nu_x_min+2*nu_y_max);
-i1m2_1 = floor(nu_x_min-2*nu_y_min);
-i1m2_2 = floor(nu_x_min-2*nu_y_min) - 1.0;
-i1m2_3 = floor(nu_x_min-2*nu_y_min) - 2.0;
-i1m2_4 = floor(nu_x_min-2*nu_y_min) + 1.0;
+i30    = floor(x_min) + 4.0/3.0;
+i12_1  = floor(x_min+2*y_max) - 2.0;
+i12_2  = floor(x_min+2*y_max) - 1.0;
+i12_3  = floor(x_min+2*y_max);
+i1m2_1 = floor(x_min-2*y_min);
+i1m2_2 = floor(x_min-2*y_min) - 1.0;
+i1m2_3 = floor(x_min-2*y_min) - 2.0;
+i1m2_4 = floor(x_min-2*y_min) + 1.0;
 
-i40    = floor(nu_x_min) + 1.25;
-i04_1  = floor(nu_y_min) + 0.25;
-i04_2  = floor(nu_y_min) + 1.25;
-i04_3  = floor(nu_y_min) + 1.75;
-i04_4  = floor(nu_y_min) + 2.25;
-i22_1  = floor(2.0*nu_x_min+2.0*nu_y_max) - 2.0;
-i22_2  = floor(2.0*nu_x_min+2.0*nu_y_max);
-i2m2_1 = floor(2.0*nu_x_min-2.0*nu_y_min) - 1.0;
-i2m2_2 = floor(2.0*nu_x_min-2.0*nu_y_min);
-i2m2_3 = floor(2.0*nu_x_min-2.0*nu_y_min) + 1.0;
+i40    = floor(x_min) + 1.25;
+i04_1  = floor(y_min) + 0.25;
+i04_2  = floor(y_min) + 1.25;
+i04_3  = floor(y_min) + 1.75;
+i04_4  = floor(y_min) + 2.25;
+i22_1  = floor(2.0*x_min+2.0*y_max) - 2.0;
+i22_2  = floor(2.0*x_min+2.0*y_max);
+i2m2_1 = floor(2.0*x_min-2.0*y_min) - 1.0;
+i2m2_2 = floor(2.0*x_min-2.0*y_min);
+i2m2_3 = floor(2.0*x_min-2.0*y_min) + 1.0;
 
-i14_1  = floor(nu_x_min+4.0*nu_y_max) - 5.0;
-i14_2  = floor(nu_x_min+4.0*nu_y_max) - 4.0;
-i14_3  = floor(nu_x_min+4.0*nu_y_max) - 3.0;
-i14_4  = floor(nu_x_min+4.0*nu_y_max) - 2.0;
-i14_5  = floor(nu_x_min+4.0*nu_y_max) - 1.0;
-i14_6  = floor(nu_x_min+4.0*nu_y_max);
-i32_1  = floor(3.0*nu_x_min+2.0*nu_y_max);
-i32_2  = floor(3.0*nu_x_min+2.0*nu_y_max) + 1.0;
-i32_3  = floor(3.0*nu_x_min+2.0*nu_y_max) + 2.0;
-i1m4_1 = floor(nu_x_min-4.0*nu_y_min);
-i1m4_2 = floor(nu_x_min-4.0*nu_y_min) - 1.0;
-i1m4_3 = floor(nu_x_min-4.0*nu_y_min) - 2.0;
-i1m4_4 = floor(nu_x_min-4.0*nu_y_min) - 3.0;
-i1m4_5 = floor(nu_x_min-4.0*nu_y_min) - 4.0;
-i1m4_6 = floor(nu_x_min-4.0*nu_y_min) - 5.0;
-i3m2_1 = floor(3.0*nu_x_min-2.0*nu_y_min);
-i3m2_2 = floor(3.0*nu_x_min-2.0*nu_y_min) + 1.0;
-i3m2_3 = floor(3.0*nu_x_min-2.0*nu_y_min) + 2.0;
+i14_1  = floor(x_min+4.0*y_max) - 5.0;
+i14_2  = floor(x_min+4.0*y_max) - 4.0;
+i14_3  = floor(x_min+4.0*y_max) - 3.0;
+i14_4  = floor(x_min+4.0*y_max) - 2.0;
+i14_5  = floor(x_min+4.0*y_max) - 1.0;
+i14_6  = floor(x_min+4.0*y_max);
+i32_1  = floor(3.0*x_min+2.0*y_max);
+i32_2  = floor(3.0*x_min+2.0*y_max) + 1.0;
+i32_3  = floor(3.0*x_min+2.0*y_max) + 2.0;
+i1m4_1 = floor(x_min-4.0*y_min);
+i1m4_2 = floor(x_min-4.0*y_min) - 1.0;
+i1m4_3 = floor(x_min-4.0*y_min) - 2.0;
+i1m4_4 = floor(x_min-4.0*y_min) - 3.0;
+i1m4_5 = floor(x_min-4.0*y_min) - 4.0;
+i1m4_6 = floor(x_min-4.0*y_min) - 5.0;
+i3m2_1 = floor(3.0*x_min-2.0*y_min);
+i3m2_2 = floor(3.0*x_min-2.0*y_min) + 1.0;
+i3m2_3 = floor(3.0*x_min-2.0*y_min) + 2.0;
 
-i21    = floor(2.0*nu_x_min+nu_y_min) + 2.0;
-i2m1_1 = floor(2.0*nu_x_min-nu_y_min);
-i2m1_2 = floor(2.0*nu_x_min-nu_y_min) + 1.0;
+i21    = floor(2.0*x_min+y_min) + 2.0;
+i2m1_1 = floor(2.0*x_min-y_min);
+i2m1_2 = floor(2.0*x_min-y_min) + 1.0;
 
-#i60    = floor(nu_x_min);
-i06    = floor(nu_y_min) + 14.0/6.0;
-#i51    = floor(5.0*nu_x_min+1.0*nu_y_max);
-#i5m1   = floor(5.0*nu_x_min-1.0*nu_y_min);
-i15    = floor(1.0*nu_x_min+5.0*nu_y_max);
-i1m5_1 = floor(1.0*nu_x_min-5.0*nu_y_min) - 6;
-i1m5_2 = floor(1.0*nu_x_min-5.0*nu_y_min) - 7;
-#i24    = floor(2.0*nu_x_min+4.0*nu_y_max);
-i2m4   = floor(2.0*nu_x_min-4.0*nu_y_min) - 5;
-i42    = floor(4.0*nu_x_min+2.0*nu_y_max) + 2;
-i4m2   = floor(4.0*nu_x_min-2.0*nu_y_min) - 1;
-i33    = floor(3.0*nu_x_min+3.0*nu_y_max) + 1;
-#i3m3   = floor(3.0*nu_x_min-3.0*nu_y_min) - 3;
+#i60    = floor(x_min);
+i06    = floor(y_min) + 14.0/6.0;
+#i51    = floor(5.0*x_min+1.0*y_max);
+#i5m1   = floor(5.0*x_min-1.0*y_min);
+i15    = floor(1.0*x_min+5.0*y_max);
+i1m5_1 = floor(1.0*x_min-5.0*y_min) - 6;
+i1m5_2 = floor(1.0*x_min-5.0*y_min) - 7;
+#i24    = floor(2.0*x_min+4.0*y_max);
+i2m4   = floor(2.0*x_min-4.0*y_min) - 5;
+i42    = floor(4.0*x_min+2.0*y_max) + 2;
+i4m2   = floor(4.0*x_min-2.0*y_min) - 1;
+i33    = floor(3.0*x_min+3.0*y_max) + 1;
+#i3m3   = floor(3.0*x_min-3.0*y_min) - 3;
 
-#i6m4   = floor(6.0*nu_x_min-4.0*nu_y_min) - 2;
+#i6m4   = floor(6.0*x_min-4.0*y_min) - 2;
 
-set xrange [nu_x_min:nu_x_max]; set yrange [nu_y_min:nu_y_max];
-set zrange [0:1];
+set xrange [x_min:x_max]; set yrange [y_min:y_max]; set zrange [0:1];
+set urange [x_min:x_max]; set vrange [y_min:y_max];
 
-set urange [nu_x_min:nu_x_max]; set vrange [nu_y_min:nu_y_max];
-
-splot file4 using (N*(\$3+N_x)):(N*(\$4+N_y)):5 notitle \
+splot "fmapdp_est.dat" using (N*(\$3+N_x)):(N*(\$4+N_y)):5 notitle \
       with points pt 2 lc rgb "blue" ps 0.5,\
-      file4 using (N*(\$3+N_x)):(N*(\$4+N_y)):5 notitle \
+      "fmap_est.dat" using (N*(\$3+N_x)):(N*(\$4+N_y)):5 notitle \
       with points pt 1 lc rgb "red" ps 0.5, \
       i10,   v,                  1.0 notitle with lines ls 1, \
       u,     i01_1,              1.0 notitle with lines ls 1, \

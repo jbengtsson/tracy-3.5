@@ -40,7 +40,7 @@ void param_type::add_prm(const std::string Fname, const int n,
 			 const double bn_min, const double bn_max,
 			 const double bn_scl)
 {
-  Fnum.push_back(Lattice.Elem_Index(Fname.c_str()));
+  Fnum.push_back(ElemIndex(Fname.c_str()));
   this->n.push_back(n);
   this->bn_min.push_back(bn_min);
   this->bn_max.push_back(bn_max);
@@ -76,7 +76,7 @@ void param_type::set_prm(double *bn) const
 
   for (i = 1; i <= n_prm; i++) {
     if (n[i-1] > 0)
-      for (j = 1; j <= Lattice.GetnKid(Fnum[i-1]); j++)
+      for (j = 1; j <= GetnKid(Fnum[i-1]); j++)
 	set_bn_design_elem(Fnum[i-1], j, n[i-1], bn[i], 0e0);
     else if (n[i-1] == -1) {
       set_L(Fnum[i-1], bn[i]); get_S();
@@ -108,18 +108,18 @@ double get_bn_s(const int Fnum, const int Knum, const int n)
   if (Fnum > 0)
     get_bn_design_elem(Fnum, Knum, n, bn, an);
   else {
-    k =Lattice. Elem_GetPos(abs(Fnum), Knum);
+    k = Elem_GetPos(abs(Fnum), Knum);
 
-    switch (Lattice.Cell[k-1].Name[1]) {
+    switch (Cell[k-1].Elem.PName[1]) {
     case 'u':
-      bn = Lattice.Cell[k-1].L;
+      bn = Cell[k-1].Elem.PL;
       break;
     case 'd':
-      bn = Lattice.Cell[k+1].L;
+      bn = Cell[k+1].Elem.PL;
       break;
     default:
       printf("get_bn_s: configuration error %s (%d)\n",
-	     Lattice.Cell[k-1].Name, k);
+	     Cell[k-1].Elem.PName, k);
       exit(1);
       break;
     }
@@ -137,32 +137,32 @@ void set_bn_s(const int Fnum, const int Knum, const int n, const double bn)
     set_bn_design_elem(Fnum, Knum, n, bn, 0e0);
   else {
     // point to multipole
-    k = Lattice.Elem_GetPos(abs(Fnum), Knum);
+    k = Elem_GetPos(abs(Fnum), Knum);
 
-    switch (Lattice.Cell[k-1].Name[1]) {
+    switch (Cell[k-1].Elem.PName[1]) {
     case 'u':
-      if (Lattice.Cell[k+1].Name[1] == 'd') {
-	set_L(Lattice.Cell[k-1].Fnum, Lattice.Cell[k-1].Knum, bn);
-	set_L(Lattice.Cell[k+1].Fnum, Lattice.Cell[k+1].Knum, -bn);
+      if (Cell[k+1].Elem.PName[1] == 'd') {
+	set_L(Cell[k-1].Fnum, Cell[k-1].Knum, bn);
+	set_L(Cell[k+1].Fnum, Cell[k+1].Knum, -bn);
       } else {
 	printf("set_bn_s: configuration error %s (%d)\n",
-	       Lattice.Cell[k+1].Name, k+2);
+	       Cell[k+1].Elem.PName, k+2);
 	exit(1);
       }
       break;
     case 'd':
-      if (Lattice.Cell[k+1].Name[1] == 'u') {
-	set_L(Lattice.Cell[k-1].Fnum, Lattice.Cell[k-1].Knum, -bn);
-	set_L(Lattice.Cell[k+1].Fnum, Lattice.Cell[k+1].Knum, bn);
+      if (Cell[k+1].Elem.PName[1] == 'u') {
+	set_L(Cell[k-1].Fnum, Cell[k-1].Knum, -bn);
+	set_L(Cell[k+1].Fnum, Cell[k+1].Knum, bn);
       } else {
 	printf("set_bn_s: configuration error %s (%d)\n",
-	       Lattice.Cell[k+1].Name, k+2);
+	       Cell[k+1].Elem.PName, k+2);
 	exit(1);
       }
       break;
     default:
       printf("set_bn_s: configuration error %s (%d)\n",
-	     Lattice.Cell[k-1].Name, k);
+	     Cell[k-1].Elem.PName, k);
       exit(1);
       break;
     }
@@ -174,7 +174,7 @@ void set_bn_s(const int Fnum, const int n, const double bn)
 {
   int k;
 
-  for (k = 1; k <= Lattice.GetnKid(abs(Fnum)); k++)
+  for (k = 1; k <= GetnKid(abs(Fnum)); k++)
     set_bn_s(Fnum, k, n, bn);
 }
 
@@ -185,8 +185,8 @@ void get_S(void)
   double S;
 
   S = 0e0;
-  for (j = 0; j <= Lattice.param.Cell_nLoc; j++) {
-    S += Lattice.Cell[j].L; Lattice.Cell[j].S = S;
+  for (j = 0; j <= globval.Cell_nLoc; j++) {
+    S += Cell[j].Elem.PL; Cell[j].S = S;
   }
 }
 
@@ -200,7 +200,7 @@ void get_dnu(const int i0, const int i1, const double alpha0[],
   ss_vect<tps> map;
 
   map.identity(); map[delta_] += dp;
-  Lattice.Cell_Pass(i0+1, i1, map, lastpos);
+  Cell_Pass(i0+1, i1, map, lastpos);
 
   for (k = 0; k < 2; k++) {
     m11 = map[2*k][2*k]; m12 = map[2*k][2*k+1];
@@ -229,10 +229,10 @@ void get_dnu_dp(const int i0, const int i1, const double alpha0[],
 
   printf("\n%10.8f %10.8f\n", dksi[X_], dksi[Y_]);
 
-  Lattice.Ring_GetTwiss(true, dp);
-  printf("\n%10.8f %10.8f\n", Lattice.param.TotalTune[X_], Lattice.param.TotalTune[Y_]);
-  Lattice.Ring_GetTwiss(true, -dp);
-  printf("%10.8f %10.8f\n", Lattice.param.TotalTune[X_], Lattice.param.TotalTune[Y_]);
+  Ring_GetTwiss(true, dp);
+  printf("\n%10.8f %10.8f\n", globval.TotalTune[X_], globval.TotalTune[Y_]);
+  Ring_GetTwiss(true, -dp);
+  printf("%10.8f %10.8f\n", globval.TotalTune[X_], globval.TotalTune[Y_]);
 }
 
 
@@ -244,14 +244,10 @@ void prt_match(const param_type &b2_prms, const double *b2)
 
   outf = file_write(file_name.c_str());
 
-  fprintf(outf, "l5h: drift, l = %7.5f;\n",
-	  get_L(Lattice.Elem_Index("l5h"), 1));
-  fprintf(outf, "l6h: drift, l = %7.5f;\n",
-	  get_L(Lattice.Elem_Index("l6h"), 1));
-  fprintf(outf, "l7:  drift, l = %7.5f;\n",
-	  get_L(Lattice.Elem_Index("l7"), 1));
-  fprintf(outf, "l8:  drift, l = %7.5f;\n",
-	  get_L(Lattice.Elem_Index("l8"), 1));
+  fprintf(outf, "l5h: drift, l = %7.5f;\n", get_L(ElemIndex("l5h"), 1));
+  fprintf(outf, "l6h: drift, l = %7.5f;\n", get_L(ElemIndex("l6h"), 1));
+  fprintf(outf, "l7:  drift, l = %7.5f;\n", get_L(ElemIndex("l7"), 1));
+  fprintf(outf, "l8:  drift, l = %7.5f;\n", get_L(ElemIndex("l8"), 1));
 
   fprintf(outf, "\nbm:  bending, l = 0.14559, t = 0.5, k = %9.5f, t1 = 0.0"
 	  ", t2 = 0.0,\n     gap = 0.00, N = Nbend, Method = Meth;\n", b2[1]);
@@ -278,12 +274,12 @@ double f_match(double *b2)
   b2_prms.set_prm(b2);
 
   Ascr = get_A(ic[0], ic[1], ic[2], ic[3]);
-  Lattice.Cell_Twiss(loc[0]+1, loc[4], Ascr, false, false, 0e0);
+  Cell_Twiss(loc[0]+1, loc[4], Ascr, false, false, 0e0);
 
   chi2 = 0e0;
-  // chi2 += sqr(1e5*(Lattice.Cell[loc[1]].Eta[X_]));
-  // chi2 += sqr(1e5*(Lattice.Cell[loc[1]].Etap[X_]));
-  // chi2 += sqr(5e1*(Lattice.Cell[loc[1]].Beta[Y_]-20e0));
+  // chi2 += sqr(1e5*(Cell[loc[1]].Eta[X_]));
+  // chi2 += sqr(1e5*(Cell[loc[1]].Etap[X_]));
+  // chi2 += sqr(5e1*(Cell[loc[1]].Beta[Y_]-20e0));
 
   for (i = 1; i <= b2_prms.n_prm; i++)
     if (fabs(b2[i]) > b2_prms.bn_max[i-1]) chi2 += 1e10;
@@ -298,9 +294,9 @@ double f_match(double *b2)
 
      // prt_match(b2_prms, b2);
 
-      Lattice.prtmfile("flat_file.fit");
-      Lattice.prt_lat(loc[0]+1, loc[4], "linlat1.out", Lattice.param.bpm, true);
-      Lattice.prt_lat(loc[0]+1, loc[4], "linlat.out", Lattice.param.bpm, true, 10);
+      prtmfile("flat_file.fit");
+      prt_lat(loc[0]+1, loc[4], "linlat1.out", globval.bpm, true);
+      prt_lat(loc[0]+1, loc[4], "linlat.out", globval.bpm, true, 10);
     }
   }
 
@@ -322,17 +318,16 @@ void fit_match(param_type &b2_prms)
   xi = dmatrix(1, n_b2, 1, n_b2);
 
   loc[0] = 0;
-  loc[1] = Lattice.param.Cell_nLoc;
+  loc[1] = globval.Cell_nLoc;
 
   Ascr = get_A(ic[0], ic[1], ic[2], ic[3]);
-  Lattice.Cell_Twiss(loc[0]+1, loc[1], Ascr, false, false, 0e0);
+  Cell_Twiss(loc[0]+1, loc[1], Ascr, false, false, 0e0);
 
-  Lattice.prt_lat(loc[0], loc[1], "linlat1.out", Lattice.param.bpm, true);
-  Lattice.prt_lat(loc[0], loc[1], "linlat.out", Lattice.param.bpm, true, 10);
+  prt_lat(loc[0], loc[1], "linlat1.out", globval.bpm, true);
+  prt_lat(loc[0], loc[1], "linlat.out", globval.bpm, true, 10);
 
   for (j = 0; j < 2; j++) {
-    alpha0[j] = Lattice.Cell[loc[0]].Alpha[j];
-    beta0[j] = Lattice.Cell[loc[0]].Beta[j];
+    alpha0[j] = Cell[loc[0]].Alpha[j]; beta0[j] = Cell[loc[0]].Beta[j];
   }
   get_dnu_dp(loc[0], loc[1], alpha0, beta0, 1e-5, dnu);
   exit(0);
@@ -348,10 +343,10 @@ void fit_match(param_type &b2_prms)
   dpowell(b2, xi, n_b2, 1e-16, &iter, &fret, f_match);
 
   Ascr = get_A(ic[0], ic[1], ic[2], ic[3]);
-  Lattice.Cell_Twiss(loc[0]+1, loc[3], Ascr, false, false, 0e0);
+  Cell_Twiss(loc[0]+1, loc[3], Ascr, false, false, 0e0);
 
-  Lattice.prt_lat(loc[0]+1, loc[5], "linlat1.out", Lattice.param.bpm, true);
-  Lattice.prt_lat(loc[0]+1, loc[5], "linlat.out", Lattice.param.bpm, true, 10);
+  prt_lat(loc[0]+1, loc[5], "linlat1.out", globval.bpm, true);
+  prt_lat(loc[0]+1, loc[5], "linlat.out", globval.bpm, true, 10);
 
   free_dvector(b2, 1, n_b2);  free_dvector(b2_lim, 1, n_b2);
   free_dmatrix(xi, 1, n_b2, 1, n_b2);
@@ -362,22 +357,22 @@ int main(int argc, char *argv[])
 {
   ss_vect<tps> Ascr;
 
-  Lattice.param.H_exact    = false; Lattice.param.quad_fringe = false;
-  Lattice.param.Cavity_on  = false; Lattice.param.radiation   = false;
-  Lattice.param.emittance  = false; Lattice.param.IBS         = false;
-  Lattice.param.pathlength = false; Lattice.param.bpm         = 0;
+  globval.H_exact    = false; globval.quad_fringe = false;
+  globval.Cavity_on  = false; globval.radiation   = false;
+  globval.emittance  = false; globval.IBS         = false;
+  globval.pathlength = false; globval.bpm         = 0;
 
   if (true)
-    Lattice.Read_Lattice(argv[1]);
+    Read_Lattice(argv[1]);
   else
-    Lattice.rdmfile(argv[1]);
+    rdmfile(argv[1]);
 
   no_sxt();
 
-  Lattice.Ring_GetTwiss(true, 0e0); printglob();
+  Ring_GetTwiss(true, 0e0); printglob();
 
-  // prt_lat("linlat1.out", Lattice.param.bpm, true);
-  // prt_lat("linlat.out", Lattice.param.bpm, true, 10);
+  // prt_lat("linlat1.out", globval.bpm, true);
+  // prt_lat("linlat.out", globval.bpm, true, 10);
 
   if (true) {
     // b2_prms.add_prm("q01",  2, 0.0, 25.0, 1.0);

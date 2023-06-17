@@ -2,102 +2,58 @@
 
 #include "tracy_lib.h"
 
+#include "prt_ZAP.cc"
+
+#define PM 1
+#if PM
+#include "PoincareMap.cc"
+#else
+#include "get_Poincare_Map.cc"
+#endif
+
+#include "prt_lat_param.cc"
+
 int no_tps = NO;
 
 
-void prt_name(FILE * outf, const char *name)
+const bool
+  set_dnu = false,
+  mI_rot  = false,
+  prt_s1  = false,
+  prt_dt  = false;
+
+#define FULL_LAT 0
+#define SET_NU   1
+
+const int
+  n_cell = 16;
+const double
+#if SET_NU
+  nu_int[] = {44, 13},
+  nu[]     = {(nu_int[X_]-0.38)/n_cell, (nu_int[Y_]-0.18)/n_cell},
+#else
+  nu[]     = {0.1, 0.0},
+#endif
+  dnu_mI[] = {-0.21, -0.20};
+
+
+double rad2deg(const double a) { return a*180e0/M_PI; }
+
+double deg2rad(const double a) { return a*M_PI/180e0; }
+
+
+void prt_name(FILE *outf, const char *name, const string &str, const int len)
 {
-    int j, k, len;
+  int j, k;
 
-    len = strlen(name);
-
-    j = 0;
-    do {
-	fprintf(outf, "%c", name[j]);
-	j++;
-    } while ((j < len) && (name[j] != ' '));
-    fprintf(outf, ",");
-    for (k = j; k < len; k++)
-	fprintf(outf, "%c", name[k]);
-}
-
-
-void get_cod_rms(const double dx, const double dy,
-		 const int n_seed, const bool all)
-{
-  bool                cod;
-  int                 i, j, k, n, n_cod;
-  std::vector<double> x1[6], x2[6], x_mean[6], x_sigma[6];
-  MpoleType           *M;
-  FILE                *fp;
-
-  const int n_cod_corr = 5;
-
-  Lattice.param.Cavity_on = false;
-
-  for (j = 0; j <= Lattice.param.Cell_nLoc; j++)
-    for (k = 0; k < 6; k++) {
-      x1[k].push_back(0e0); x2[k].push_back(0e0);
-    }
-  
-  fp = file_write("cod_rms.out");
-  
-  n_cod = 0;
-  for (i = 0; i < n_seed; i++) {
-    printf("\norb_corr: seed no %d\n", i+1);
-
-    misalign_rms_type(Dip,  dx, dy, 0e0, true);
-    misalign_rms_type(Quad, dx, dy, 0e0, true);
-    
-    cod = Lattice.orb_corr(n_cod_corr);
-
-    if (cod) {
-      n_cod++;
-
-      n = 0;
-      for (j = 0; j <= Lattice.param.Cell_nLoc; j++) {
-	if (all || (Lattice.Cell[j]->Elem.Kind == Mpole)) {
-	  M = static_cast<MpoleType*>(Lattice.Cell[j]);
-	  if (M->n_design == Sext) {
-	    n++;
-	    for (k = 0; k < 6; k++) {
-	      x1[k][n-1] += Lattice.Cell[j]->BeamPos[k];
-	      x2[k][n-1] += sqr(Lattice.Cell[j]->BeamPos[k]);
-	    }
-	  }
-	}
-      }
-    } else
-      printf("orb_corr: failed\n");
-
-    // Reset orbit trims.
-    set_bn_design_fam(Lattice.param.hcorr, Dip, 0e0, 0e0);
-    set_bn_design_fam(Lattice.param.vcorr, Dip, 0e0, 0e0);
-  }
-
-  printf("\nget_cod_rms: no of seeds %d, no of cods %d\n", n_seed, n_cod);
-
-  n = 0;
-  for (j = 0; j <= Lattice.param.Cell_nLoc; j++)
-    if (all || (Lattice.Cell[j]->Elem.Kind == Mpole)) {
-      M = static_cast<MpoleType*>(Lattice.Cell[j]);
-      if (M->n_design == Sext) {
-	n++;
-	for (k = 0; k < 6; k++) {
-	  x_mean[k].push_back(x1[k][n-1]/n_cod);
-	  x_sigma[k].push_back(sqrt((n_cod*x2[k][n-1]-sqr(x1[k][n-1]))
-				    /(n_cod*(n_cod-1.0))));
-	}
-	fprintf(fp, "%8.3f %6.2f %10.3e +/- %10.3e %10.3e +/- %10.3e\n",
-		Lattice.Cell[j]->S, get_code(Lattice.Cell[j]),
-		1e3*x_mean[x_][n-1], 1e3*x_sigma[x_][n-1],
-		1e3*x_mean[y_][n-1], 1e3*x_sigma[y_][n-1]);
-      }
-    } else
-      fprintf(fp, "%8.3f %6.2f\n", Lattice.Cell[j]->S,
-	      get_code(Lattice.Cell[j]));
-  
-  fclose(fp);
+  j = 0;
+  do {
+    fprintf(outf, "%c", name[j]);
+    j++;
+  } while (name[j] != ' ');
+  fprintf(outf, "%s", str.c_str());
+  for (k = j; k < len; k++)
+    fprintf(outf, " ");
 }
 
 
@@ -108,25 +64,25 @@ void track(const double Ax, const double Ay)
   ss_vect<double> xt, xs;
   FILE            *fd;
 
-  Lattice.getcod(0e0, lastpos);
+  getcod(0e0, lastpos);
 
   fd = fopen("trackdat_oneturn.dat","w");
   fprintf(fd, "orbit %22.14e %22.14e %22.14e %22.14e %22.14e %22.14e\n",
-	  Lattice.Cell[0]->BeamPos[0], Lattice.Cell[0]->BeamPos[1],
-	  Lattice.Cell[0]->BeamPos[2], Lattice.Cell[0]->BeamPos[3],
-	  Lattice.Cell[0]->BeamPos[4], Lattice.Cell[0]->BeamPos[5] );
+	  Cell[0].BeamPos[0], Cell[0].BeamPos[1],
+	  Cell[0].BeamPos[2], Cell[0].BeamPos[3],
+	  Cell[0].BeamPos[4], Cell[0].BeamPos[5] );
   fprintf(fd, "orbit %22.14e %22.14e %22.14e %22.14e %22.14e %22.14e\n",
-	  Lattice.param.CODvect[0], Lattice.param.CODvect[1],
-	  Lattice.param.CODvect[2], Lattice.param.CODvect[3],
-	  Lattice.param.CODvect[4], Lattice.param.CODvect[5]);
+	  globval.CODvect[0], globval.CODvect[1],
+	  globval.CODvect[2], globval.CODvect[3],
+	  globval.CODvect[4], globval.CODvect[5]);
 
   xt.zero(); xt[x_] = Ax; xt[y_] = Ay; 
 
   fprintf(fd, "start %22.14e %22.14e %22.14e %22.14e %22.14e %22.14e\n",
 	  xt[0], xt[1], xt[2], xt[3], xt[4], xt[5] );
 
-  for (i = 0; i <= Lattice.param.Cell_nLoc; i++) {
-    Lattice.Cell_Pass(i, i, xt, lastpos);
+  for (i = 0; i <= globval.Cell_nLoc; i++) {
+    Cell_Pass(i, i, xt, lastpos);
     fprintf(fd, "%5d %22.14e %22.14e %22.14e %22.14e %22.14e %22.14e \n",
 	    i, xt[0], xt[1], xt[2], xt[3], xt[4], xt[5]);
   }
@@ -135,20 +91,215 @@ void track(const double Ax, const double Ay)
 }
 
 
-void prt_symm(const std::vector<int> &Fam)
+void fit_ksi1(const std::vector<int> &Fnum_b3,
+	      const double ksi_x, const double ksi_y, const double db3L)
 {
-  long int loc;
-  int      j, k;
+  int    n_b3, j, k;
+  double **A, **U, **V, *w, *b, *x, b3, a3;
 
-  for (j = 0; j < (int)Fam.size(); j++) {
-    printf("\n");
-    for (k = 1; k <= Lattice.GetnKid(Fam[j]); k++) {
-      loc = Lattice.Elem_GetPos(Fam[j], k);
-      if (k % 2 == 0) loc -= 1;
-      printf(" %5.1f %6.3f %6.3f %6.3f\n",
-	     Lattice.Cell[loc]->S, Lattice.Cell[loc]->Beta[X_],
-	     Lattice.Cell[loc]->Beta[Y_], Lattice.Cell[loc]->Eta[X_]);
+  const bool   prt = !false;
+  const int    m   = 2;
+  const double
+    ksi0[]  = {ksi_x, ksi_y},
+    svd_cut = 1e-10;
+
+  n_b3 = Fnum_b3.size();
+
+  A = dmatrix(1, m, 1, n_b3); U = dmatrix(1, m, 1, n_b3);
+  V = dmatrix(1, n_b3, 1, n_b3);
+  w = dvector(1, n_b3); b = dvector(1, m); x = dvector(1, n_b3);
+
+  // Zero sextupoles to track linear chromaticity.
+  if (false) no_sxt();
+
+  for (k = 1; k <= n_b3; k++) {
+    set_dbnL_design_fam(Fnum_b3[k-1], Sext, db3L, 0e0);
+    Ring_Getchrom(0e0);
+    if (prt)
+      printf("\nfit_ksi1: ksi1+ = [%9.5f, %9.5f]\n",
+	     globval.Chrom[X_], globval.Chrom[Y_]);
+
+    for (j = 1; j <= m; j++)
+      A[j][k] = globval.Chrom[j-1];
+    set_dbnL_design_fam(Fnum_b3[k-1], Sext, -2e0*db3L, 0e0);
+    Ring_Getchrom(0e0);
+    if (prt)
+      printf("fit_ksi1: ksi1- = [%9.5f, %9.5f]\n",
+	 globval.Chrom[X_], globval.Chrom[Y_]);
+    for (j = 1; j <= 2; j++) {
+      A[j][k] -= globval.Chrom[j-1]; A[j][k] /= 2e0*db3L;
     }
+
+    set_dbnL_design_fam(Fnum_b3[k-1], Sext, db3L, 0e0);
+  }
+
+  Ring_Getchrom(0e0);
+  if (prt)
+    printf("\nfit_ksi1: ksi1  = [%9.5f, %9.5f]\n",
+	   globval.Chrom[X_], globval.Chrom[Y_]);
+  for (j = 1; j <= 2; j++)
+    b[j] = -(globval.Chrom[j-1]-ksi0[j-1]);
+
+  dmcopy(A, m, n_b3, U); dsvdcmp(U, m, n_b3, w, V);
+
+  printf("\nfit_ksi1:\n  singular values:\n");
+  for (j = 1; j <= n_b3; j++) {
+    printf("    %9.3e", w[j]);
+    if (w[j] < svd_cut) {
+      w[j] = 0e0;
+      printf(" (zeroed)");
+    }
+    printf("\n");
+  }
+
+  dsvbksb(U, w, V, m, n_b3, b, x);
+
+  for (k = 1; k <= n_b3; k++)
+    set_dbnL_design_fam(Fnum_b3[k-1], Sext, x[k], 0e0);
+
+  if (prt) {
+    printf("\n  b3:\n");
+    for (k = 0; k < n_b3; k++) {
+      get_bn_design_elem(Fnum_b3[k], 1, Sext, b3, a3);
+      printf("    %-8s %10.5f\n", ElemFam[Fnum_b3[k]-1].ElemF.PName, b3);
+    }
+    printf("\n");
+  }
+
+  free_dmatrix(A, 1, m, 1, n_b3); free_dmatrix(U, 1, m, 1, n_b3);
+  free_dmatrix(V, 1, n_b3, 1, n_b3);
+  free_dvector(w, 1, n_b3); free_dvector(b, 1, m); free_dvector(x, 1, n_b3);
+}
+
+
+void fit_ksi1(const int lat_case, const double ksi_x, const double ksi_y)
+{
+  std::vector<int> Fnum;
+
+  switch (lat_case) {
+  case 1:
+    Fnum.push_back(ElemIndex("sf"));
+    Fnum.push_back(ElemIndex("sd"));
+    break;
+  case 2:
+    Fnum.push_back(ElemIndex("sd1"));
+    Fnum.push_back(ElemIndex("sd2"));
+    Fnum.push_back(ElemIndex("sd3a"));
+    Fnum.push_back(ElemIndex("sd3b"));
+    Fnum.push_back(ElemIndex("sf1"));
+    Fnum.push_back(ElemIndex("sf2"));
+    Fnum.push_back(ElemIndex("sf3"));
+    Fnum.push_back(ElemIndex("sf3a"));
+    break;
+  case 3:
+    Fnum.push_back(ElemIndex("sd1"));
+    Fnum.push_back(ElemIndex("sd2"));
+    Fnum.push_back(ElemIndex("sd3a"));
+    Fnum.push_back(ElemIndex("sd3b"));
+    Fnum.push_back(ElemIndex("sf1"));
+    Fnum.push_back(ElemIndex("sf2"));
+    Fnum.push_back(ElemIndex("sf3"));
+    break;
+  default:
+    printf("\nfit_ksi1: unknown lattice type\n");
+    exit(1);
+    break;
+  }
+
+  fit_ksi1(Fnum, 0e0, 0e0, 1.0);
+}
+
+
+void chk_phi()
+{
+  int    k;
+  double dphi, phi, mphi;
+
+  printf("\n");
+  phi = 0e0; mphi = 0e0;
+  for (k = 0; k <= globval.Cell_nLoc; k++) {
+    // if ((Cell[k].Elem.Pkind == Mpole) &&
+    // 	(Cell[k].Elem.M->n_design == Dip)) {
+    if ((Cell[k].Elem.Pkind == Mpole) &&
+	(Cell[k].Elem.M->Pirho != 0e0)) {
+      dphi = rad2deg(Cell[k].Elem.PL*Cell[k].Elem.M->Pirho);
+      if (dphi != 0e0) {
+	prt_name(stdout, Cell[k].Elem.PName, "", 8);
+	printf(" %9.6f\n", dphi);
+      }
+      phi += dphi;
+      if (dphi < 0e0) mphi += dphi;
+    }
+  }
+  printf("\nphi = %8.6f phi- = %8.6f phi+ = %8.6f\n", phi, mphi, phi-mphi);
+}
+
+
+void dpath_length()
+{
+  int    k, loc;
+  double phi, dL, L_tot, phi_tot, mphi, Lc1, phi2, rho2, L2, Lc2;
+
+  printf("\n");
+  L_tot = 0e0; phi_tot = 0e0; mphi = 0e0;
+  for (k = 0; k <= globval.Cell_nLoc; k++) {
+    if ((Cell[k].Elem.Pkind == Mpole) &&
+	(Cell[k].Elem.M->Pirho != 0e0)) {
+      phi = Cell[k].Elem.PL*Cell[k].Elem.M->Pirho;
+      phi_tot += phi;
+      if (phi < 0e0) {
+	dL = Cell[k].Elem.PL - 2e0*sin(phi/2e0)/Cell[k].Elem.M->Pirho;
+	L_tot += dL; mphi += phi;
+	prt_name(stdout, Cell[k].Elem.PName, "", 8);
+	printf(" phi [deg] = %9.6f L [m] = %9.6f rho [m] = %9.6f"
+	       " dL [mm] = %9.6f L_tot [mm] = %9.6f\n",
+	       rad2deg(phi), Cell[k].Elem.PL, 1e0/Cell[k].Elem.M->Pirho,
+	       1e3*dL, 1e3*L_tot);
+      }
+    }
+  }
+  printf("\nphi = %8.6f phi- = %8.6f phi+ = %8.6f\n",
+	 rad2deg(phi_tot), rad2deg(mphi), rad2deg(phi_tot-mphi));
+
+  printf("\n");
+  loc = Elem_GetPos(ElemIndex("dq1"), 1);
+  phi = Cell[loc].Elem.PL*Cell[loc].Elem.M->Pirho;
+  Lc1 = 2e0*sin(phi/2e0)/Cell[loc].Elem.M->Pirho;
+  phi2 = phi + mphi/8e0; rho2 = Lc1/(2e0*sin(phi2/2e0)); L2 = rho2*phi2;
+  Lc1 = 2e0*sin(phi/2e0)/Cell[loc].Elem.M->Pirho;
+  Lc2 = 2e0*rho2*sin(phi2/2e0);
+  prt_name(stdout, Cell[loc].Elem.PName, "", 8);
+  printf(" phi = %9.6f L = %9.6f rho = %9.6f Lc1 = %9.6f\n",
+	 rad2deg(phi), Cell[loc].Elem.PL, 1e0/Cell[loc].Elem.M->Pirho, Lc1);
+  printf("         phi = %9.6f L = %9.6f rho = %9.6f Lc2 = %9.6f\n",
+	 rad2deg(phi2), L2, rho2, Lc2);
+  printf(" dL [mm] = %9.6f\n", 1e3*8e0*(L2-Cell[loc].Elem.PL));
+}
+
+
+void prt_symm(const string &name, const int period)
+{
+  long int loc, loc_prev;
+  int      j, k;
+  double   dnu[2];
+
+  const int Fnum = ElemIndex(name.c_str());
+
+  printf("\nprt_symm %-s:\n", name.c_str());
+  for (j = 1; j <= GetnKid(Fnum); j++) {
+    loc = Elem_GetPos(Fnum, j);
+    if (j == 1) loc_prev = loc;
+    if (((period == 1) && (j > 1)) || ((period > 1) && (j % period == 0))) {
+      for (k = 0; k < 2; k++)
+	dnu[k] = Cell[loc].Nu[k] - Cell[loc_prev].Nu[k];
+    } else {
+      for (k = 0; k < 2; k++)
+	dnu[k] = NAN;
+    }
+    printf(" %5.1f %8.5f %8.5f %8.5f %8.5f %8.5f\n",
+	   Cell[loc].S, Cell[loc].Beta[X_], dnu[X_], Cell[loc].Eta[X_],
+	   Cell[loc].Beta[Y_], dnu[Y_]);
+    loc_prev = loc;
   }
 }
 
@@ -160,17 +311,83 @@ void prt_quad(const std::vector<int> &Fam)
 
   printf("\n");
   for (j = 0; j < (int)Fam.size(); j++) {
-    loc = Lattice.Elem_GetPos(Fam[j], 1);
+    loc = Elem_GetPos(Fam[j], 1);
     printf(" %4.1f %6.3f %6.3f %2d\n",
-	   Lattice.Cell[loc]->S, Lattice.Cell[loc]->Beta[X_],
-	   Lattice.Cell[loc]->Beta[Y_], Lattice.GetnKid(Fam[j]));
+	   Cell[loc].S, Cell[loc].Beta[X_], Cell[loc].Beta[Y_],
+	   GetnKid(Fam[j]));
   }
 }
 
 
-void chk_optics(const double alpha_x, const double alpha_y,
-		const double beta_x, const double beta_y,
+void prt_drift()
+{
+  int k;
+
+  printf("\n");
+  for (k = 0; k <= globval.Cell_nLoc; k++)
+    if (Cell[k].Elem.Pkind == drift)
+      printf("%3d %10s %13.10f\n", k, Cell[k].Elem.PName, Cell[k].Elem.PL);
+}
+
+
+void prt_dip()
+{
+  int                        j, k, loc;
+  double                     phi, L, L1, phi1, phi_rel, phi_rel_tot;
+  std::vector<int>           row;
+  std::vector< vector<int> > Fnum;
+  std::vector<double>        phi2;
+
+  row.push_back(ElemIndex("bl1_1"));
+  row.push_back(ElemIndex("bl1_2"));
+  row.push_back(ElemIndex("bl1_3"));
+  row.push_back(ElemIndex("bl1_4"));
+  row.push_back(ElemIndex("bl1_5"));
+  Fnum.push_back(row);
+  row.clear();
+
+  row.push_back(ElemIndex("bl2_1"));
+  row.push_back(ElemIndex("bl2_2"));
+  row.push_back(ElemIndex("bl2_3"));
+  row.push_back(ElemIndex("bl2_4"));
+  row.push_back(ElemIndex("bl2_5"));
+  Fnum.push_back(row);
+  row.clear();
+
+  for (j = 0; j < (int)Fnum.size(); j++) {
+    printf("\n");
+    L1 = 0.0; phi1 = 0e0; phi2.push_back(0e0);
+    for (k = 0; k < (int)Fnum[j].size(); k++) {
+      loc = Elem_GetPos(Fnum[j][k], 1);
+      L = Cell[loc].Elem.PL; phi = rad2deg(L*Cell[loc].Elem.M->Pirho);
+      L1 += Cell[loc].Elem.PL; phi1 += phi;
+      printf("%10s %13.10f %13.10f %13.10f %13.10f\n",
+	     Cell[loc].Elem.PName, L,
+	     phi, Cell[loc].Elem.M->PTx1, Cell[loc].Elem.M->PTx2);
+    }
+    printf("\nMagnet: L = %13.10f phi = %13.10f\n", L1, phi1);
+    phi2[j] += phi1;
+    printf("\nCell: phi = %13.10f\n", phi2[j]);
+  }
+
+  for (j = 0; j < (int)Fnum.size(); j++) {
+    printf("\nphi ratios: \n");
+    phi_rel_tot = 0e0;
+    for (k = 0; k < (int)Fnum[j].size(); k++) {
+      loc = Elem_GetPos(Fnum[j][k], 1);
+      L = Cell[loc].Elem.PL; phi = rad2deg(L*Cell[loc].Elem.M->Pirho);
+      phi_rel = phi/phi2[j];
+      phi_rel_tot += phi_rel;
+      printf(" %8.6f", phi_rel);
+    }
+    printf("\nTotal: %8.6f\n", phi_rel_tot);
+  }
+}
+
+
+void chk_optics(const double alpha_x, const double beta_x,
 		const double eta_x, const double etap_x,
+		const double alpha_y, const double beta_y,
 		const double eta_y, const double etap_y)
 {
   Vector2 alpha, beta, eta, etap;
@@ -180,7 +397,7 @@ void chk_optics(const double alpha_x, const double alpha_y,
   eta[X_]   = eta_x;   eta[Y_]   = eta_y;
   etap[X_]  = etap_x;  etap[Y_]  = etap_y;
 
-  Lattice.ttwiss(alpha, beta, eta, etap, 0e0);
+  ttwiss(alpha, beta, eta, etap, 0e0);
 }
 
 
@@ -191,213 +408,231 @@ void chk_mini_beta(const std::vector<int> &Fam)
 
   for (j = 0; j < (int)Fam.size(); j++) {
     printf("\n");
-    for (k = 1; k <= Lattice.GetnKid(Fam[j]); k++) {
-      loc = Lattice.Elem_GetPos(Fam[j], k);
+    for (k = 1; k <= GetnKid(Fam[j]); k++) {
+      loc = Elem_GetPos(Fam[j], k);
       if (k % 2 == 1) {
-	nu0[X_] = Lattice.Cell[loc]->Nu[X_];
-	nu0[Y_] = Lattice.Cell[loc]->Nu[Y_];
+	nu0[X_] = Cell[loc].Nu[X_]; nu0[Y_] = Cell[loc].Nu[Y_];
       } else {
 	loc -= 1;
 	printf(" %5.1f %6.3f %6.3f %6.3f %8.5f %8.5f\n",
-	       Lattice.Cell[loc]->S, Lattice.Cell[loc]->Beta[X_],
-	       Lattice.Cell[loc]->Beta[Y_], Lattice.Cell[loc]->Eta[X_],
-	       Lattice.Cell[loc]->Nu[X_]-nu0[X_],
-	       Lattice.Cell[loc]->Nu[Y_]-nu0[Y_]);
+	       Cell[loc].S, Cell[loc].Beta[X_], Cell[loc].Beta[Y_],
+	       Cell[loc].Eta[X_],
+	       Cell[loc].Nu[X_]-nu0[X_], Cell[loc].Nu[Y_]-nu0[Y_]);
       }
     }
   }
 }
 
 
-void chk_high_ord_achr(void)
+void chk_high_ord_achr(const int lat_case)
 {
   int              k;
   double           dnu[2];
   std::vector<int> loc;
 
-  // D-TBA  0,
-  // H-6BA  1,
-  // H-8BA  2,
-  // RB-6BA 3.
-  const int lat_case = 1;
+  // ESRF-U        1,
+  // M-6HBAi-2-1-1 2,
+  // M-6HBA-0-.-.  3.
 
-  Lattice.Ring_GetTwiss(true, 0e0);
+  Ring_GetTwiss(true, 0e0);
  
   switch (lat_case) {
-  case 0:
-    dnu[X_] = 0.0; dnu[Y_] = 0.0;
-    loc.push_back(Lattice.Elem_GetPos(Lattice.Elem_Index("dr_01"),     1));
-    loc.push_back(Lattice.Elem_GetPos(Lattice.Elem_Index("idmarker"),  2));
-    loc.push_back(Lattice.Elem_GetPos(Lattice.Elem_Index("idmarker"),  3));
-    loc.push_back(Lattice.Elem_GetPos(Lattice.Elem_Index("idmarker"),  4));
-
-    loc.push_back(Lattice.Elem_GetPos(Lattice.Elem_Index("dr_01"),     5));
-    loc.push_back(Lattice.Elem_GetPos(Lattice.Elem_Index("idmarker"),  6));
-    loc.push_back(Lattice.Elem_GetPos(Lattice.Elem_Index("idmarker"),  7));
-    loc.push_back(Lattice.Elem_GetPos(Lattice.Elem_Index("idmarker"),  8));
-
-    loc.push_back(Lattice.Elem_GetPos(Lattice.Elem_Index("dr_01"),     9));
-    loc.push_back(Lattice.Elem_GetPos(Lattice.Elem_Index("idmarker"), 10));
-    loc.push_back(Lattice.Elem_GetPos(Lattice.Elem_Index("idmarker"), 11));
-    loc.push_back(Lattice.Elem_GetPos(Lattice.Elem_Index("idmarker"), 12));
-
-    loc.push_back(Lattice.Elem_GetPos(Lattice.Elem_Index("dr_01"),    13));
-    loc.push_back(Lattice.Elem_GetPos(Lattice.Elem_Index("idmarker"), 14));
-    loc.push_back(Lattice.Elem_GetPos(Lattice.Elem_Index("idmarker"), 15));
-    loc.push_back(Lattice.Elem_GetPos(Lattice.Elem_Index("idmarker"), 16));
-
-    loc.push_back(Lattice.Elem_GetPos(Lattice.Elem_Index("dr_01"),    17));
-    loc.push_back(Lattice.Elem_GetPos(Lattice.Elem_Index("idmarker"), 18));
-    loc.push_back(Lattice.Elem_GetPos(Lattice.Elem_Index("idmarker"), 19));
-    loc.push_back(Lattice.Elem_GetPos(Lattice.Elem_Index("idmarker"), 20));
-
-    loc.push_back(Lattice.Elem_GetPos(Lattice.Elem_Index("dr_01"),    21));
-    loc.push_back(Lattice.Elem_GetPos(Lattice.Elem_Index("idmarker"), 22));
-    loc.push_back(Lattice.Elem_GetPos(Lattice.Elem_Index("idmarker"), 23));
-    loc.push_back(Lattice.Elem_GetPos(Lattice.Elem_Index("idmarker"), 24));
-   break;
   case 1:
     dnu[X_] = 19.0/8.0; dnu[Y_] = 15.0/16.0;
-    loc.push_back(Lattice.Elem_GetPos(Lattice.Elem_Index("ss1"), 1));
-    loc.push_back(Lattice.Elem_GetPos(Lattice.Elem_Index("ss1"), 3));
-    loc.push_back(Lattice.Elem_GetPos(Lattice.Elem_Index("ss1"), 5));
-    loc.push_back(Lattice.param.Cell_nLoc);
-    break;
+
+    // loc.push_back(Elem_GetPos(ElemIndex("dc_1_01"),  1));
+    loc.push_back(0);
+    loc.push_back(Elem_GetPos(ElemIndex("idmarker"), 2));
+    loc.push_back(Elem_GetPos(ElemIndex("idmarker"), 3));
+    loc.push_back(Elem_GetPos(ElemIndex("idmarker"), 4));
+    loc.push_back(Elem_GetPos(ElemIndex("idmarker"), 5));
+   break;
   case 2:
-    dnu[X_] = 19.0/8.0; dnu[Y_] = 15.0/16.0;
-    loc.push_back(Lattice.Elem_GetPos(Lattice.Elem_Index("du1"), 1));
-    loc.push_back(Lattice.Elem_GetPos(Lattice.Elem_Index("du1"), 3));
-    loc.push_back(Lattice.Elem_GetPos(Lattice.Elem_Index("du1"), 5));
-    loc.push_back(Lattice.param.Cell_nLoc);
+    dnu[X_] = 11.0/8.0; dnu[Y_] = 15.0/16.0;
+
+    loc.push_back(Elem_GetPos(ElemIndex("ls"), 1));
+    loc.push_back(Elem_GetPos(ElemIndex("ss"), 1));
+    loc.push_back(Elem_GetPos(ElemIndex("ss"), 2));
+    loc.push_back(Elem_GetPos(ElemIndex("ss"), 3));
+    loc.push_back(Elem_GetPos(ElemIndex("ls"), 2));
     break;
   case 3:
-    dnu[X_] = 23.0/8.0; dnu[Y_] = 19.0/16.0;
-    loc.push_back(Lattice.Elem_GetPos(Lattice.Elem_Index("dss1"), 1));
-    loc.push_back(Lattice.Elem_GetPos(Lattice.Elem_Index("dss1"), 3));
-    loc.push_back(Lattice.Elem_GetPos(Lattice.Elem_Index("dss1"), 5));
-    loc.push_back(Lattice.param.Cell_nLoc);
+    dnu[X_] = 2.0/5.0; dnu[Y_] = 1.0/10.0;
+
+    loc.push_back(Elem_GetPos(ElemIndex("ul4"), 1)-1);
+    loc.push_back(Elem_GetPos(ElemIndex("mb1"), 1)-1);
+    loc.push_back(Elem_GetPos(ElemIndex("s2_h"), 1));
+    loc.push_back(Elem_GetPos(ElemIndex("b1_h"), 1));
+    loc.push_back(Elem_GetPos(ElemIndex("s2_h"), 3));
+    loc.push_back(Elem_GetPos(ElemIndex("b1_h"), 3));
+    loc.push_back(Elem_GetPos(ElemIndex("s2_h"), 5));
+    loc.push_back(Elem_GetPos(ElemIndex("b1_h"), 5));
+    loc.push_back(Elem_GetPos(ElemIndex("s2_h"), 7));
+    loc.push_back(Elem_GetPos(ElemIndex("b1_h"), 7));
+    loc.push_back(Elem_GetPos(ElemIndex("s2_h"), 9));
+    loc.push_back(Elem_GetPos(ElemIndex("mb1"), 2));
+    loc.push_back(Elem_GetPos(ElemIndex("ul4"), 2));
+    break;
+  default:
+    printf("\nchk_high_ord_achr: unknown lattice type\n");
+    exit(1);
     break;
   }
 
   printf("\nCell phase advance:\n");
   printf("Ideal:    [%7.5f, %7.5f]\n", dnu[X_], dnu[Y_]);
   for (k = 0; k < (int)loc.size(); k++)
-    if (k == 0)
-      printf("\n %9.5f %8.5f %8.5f %7.5f [%7.5f, %7.5f]\n",
-	     Lattice.Cell[loc[k]]->S,
-	     Lattice.Cell[loc[k]]->Alpha[X_], Lattice.Cell[loc[k]]->Alpha[Y_],
-	     Lattice.Cell[loc[0]]->S,
-	     Lattice.Cell[loc[0]]->Nu[X_], Lattice.Cell[loc[0]]->Nu[Y_]);
-    else
-      printf(" %9.5f %8.5f %8.5f %7.5f [%7.5f, %7.5f]\n",
-	     Lattice.Cell[loc[k]]->S,
-	     Lattice.Cell[loc[k]]->Alpha[X_], Lattice.Cell[loc[k]]->Alpha[Y_],
-	     Lattice.Cell[loc[k]]->S-Lattice.Cell[loc[k-1]]->S, 
-	     Lattice.Cell[loc[k]]->Nu[X_]-Lattice.Cell[loc[k-1]]->Nu[X_], 
-	     Lattice.Cell[loc[k]]->Nu[Y_]-Lattice.Cell[loc[k-1]]->Nu[Y_]);
+    printf(" %-.8s %9.5f %8.5f %8.5f %7.5f [%7.5f, %7.5f]\n",
+	   Cell[loc[k]].Elem.PName, Cell[loc[k]].S,
+	   Cell[loc[k]].Alpha[X_], Cell[loc[k]].Alpha[Y_],
+	   (k == 0)? NAN : Cell[loc[k]].S-Cell[loc[k-1]].S, 
+	   (k == 0)? NAN : Cell[loc[k]].Nu[X_]-Cell[loc[k-1]].Nu[X_], 
+	   (k == 0)? NAN : Cell[loc[k]].Nu[Y_]-Cell[loc[k-1]].Nu[Y_]);
 }
 
 
-void chk_mpole_Fam(const int Fnum, const bool exit)
+void chk_mI_trans(const int lat_case)
 {
-  int k, loc;
+  int Fnum, k, loc0, loc1;
 
-  printf("\n");
-  for (k = 1; k <= Lattice.GetnKid(Fnum); k++) {
-    loc = Lattice.Elem_GetPos(Fnum, k);
-    if (!exit && ((k-1) % 2 == 1)) loc -= 1;
-    printf("%8s %7.3f %8.5f %8.5f\n",
-	   Lattice.Cell[loc]->Name, Lattice.Cell[loc]->S,
-	   Lattice.Cell[loc]->Beta[X_], Lattice.Cell[loc]->Beta[Y_]);
+  // ESRF-U        1,
+  // M-6HBAi-2-1-1 2,
+  // M-6HBA-0-.-.  3.
+
+  Ring_GetTwiss(true, 0e0);
+ 
+  switch (lat_case) {
+  case 1:
+    Fnum = ElemIndex("dispbumpcenter");
+   break;
+  case 2:
+    Fnum = ElemIndex("sf1");
+   break;
+  case 3:
+    Fnum = ElemIndex("sf1_ctr");
+   break;
+  default:
+    printf("\nchk_mI_trans: unknown lattice type\n");
+    exit(1);
+    break;
+  }
+
+  printf("\nChromatic sextupole phase advance:\n");
+  // for (k = 3; k <= GetnKid(Fnum); k += 4) {
+  for (k = 2; k <= GetnKid(Fnum); k += 2) {
+    loc0 = Elem_GetPos(Fnum, k-1); loc1 = Elem_GetPos(Fnum, k);
+    printf(" %8s %7.3f [%7.5f, %7.5f]\n",
+	   Cell[loc1].Elem.PName, Cell[loc1].S,
+	   Cell[loc1].Nu[X_]-Cell[loc0].Nu[X_], 
+	   Cell[loc1].Nu[Y_]-Cell[loc0].Nu[Y_]);
   }
 }
 
 
-void chk_mpole(void)
+void chk_lin_chrom(void)
+{
+  int Fnum, loc0, loc1;
+
+  Ring_GetTwiss(true, 0e0);
+ 
+  printf("\nchk_lin_chrom:\n");
+  Fnum = ElemIndex("sf1");
+  loc0 = Elem_GetPos(Fnum, 2); loc1 = Elem_GetPos(Fnum, 3);
+  printf(" %8s [%7.5f, %7.5f]\n",
+	 Cell[loc1].Elem.PName,
+	 Cell[loc1].Nu[X_]-Cell[loc0].Nu[X_], 
+	 Cell[loc1].Nu[Y_]-Cell[loc0].Nu[Y_]);
+  loc1 = Elem_GetPos(Fnum, 1);
+  printf(" %8s [%7.5f, %7.5f]\n",
+	 Cell[loc1].Elem.PName, 2e0*Cell[loc1].Nu[X_], 2e0*Cell[loc1].Nu[Y_]);
+}
+
+
+void chk_drv_terms(void)
+{
+  int k;
+
+  Ring_GetTwiss(true, 0e0);
+ 
+  printf("\nh_10200 phase advance:\n");
+  for (k = 0; k <= globval.Cell_nLoc; k++)
+    if ((Cell[k].Elem.Pkind == Mpole) && (Cell[k].Elem.M->Porder == Sext))
+      printf(" %8s %7.3f %7.5f\n",
+	     Cell[k].Elem.PName, Cell[k].S, Cell[k].Nu[X_]+2.0*Cell[k].Nu[Y_]);
+  k = globval.Cell_nLoc;
+  printf(" %8s %7.3f %7.5f\n",
+	 Cell[k].Elem.PName, Cell[k].S, Cell[k].Nu[X_]+2.0*Cell[k].Nu[Y_]);
+}
+
+
+void chk_mpole_Fam(const int Fnum)
+{
+  int n_Kids, k, loc[2];
+
+  printf("\n   name        s     beta_x   beta_y   eta_x    dnu_x    dnu_y\n");
+  n_Kids = GetnKid(Fnum);
+  for (k = 1; k <= n_Kids; k++) {
+    loc[0] = (k > 1)? Elem_GetPos(Fnum, k-1) : Elem_GetPos(Fnum, n_Kids);
+    loc[1] = Elem_GetPos(Fnum, k);
+    printf("  %.8s %7.3f %8.5f %8.5f %8.5f %8.5f %8.5f\n",
+	   Cell[loc[1]].Elem.PName, Cell[loc[1]].S,
+	   Cell[loc[1]].Beta[X_], Cell[loc[1]].Beta[Y_], Cell[loc[1]].Eta[X_],
+	   (k > 1)? Cell[loc[1]].Nu[X_]-Cell[loc[0]].Nu[X_] : NAN,
+	   (k > 1)?Cell[loc[1]].Nu[Y_]-Cell[loc[0]].Nu[Y_] : NAN);
+  }
+}
+
+
+void chk_mpole(const int lat_case)
 {
   int              k;
   std::vector<int> Fnum;
 
-  const int lat_case = 1;
-
   switch (lat_case) {
   case 1:
-    // H-6-BA.
-    Fnum.push_back(Lattice.Elem_Index("sf"));
-    Fnum.push_back(Lattice.Elem_Index("sda"));
-    Fnum.push_back(Lattice.Elem_Index("sdb"));
-
-    Fnum.push_back(Lattice.Elem_Index("s1"));
-    Fnum.push_back(Lattice.Elem_Index("s2"));
-    Fnum.push_back(Lattice.Elem_Index("s3"));
-    Fnum.push_back(Lattice.Elem_Index("s4"));
-    Fnum.push_back(Lattice.Elem_Index("s5"));
-
-    Fnum.push_back(Lattice.Elem_Index("o1a"));
-    Fnum.push_back(Lattice.Elem_Index("o2a"));
-    Fnum.push_back(Lattice.Elem_Index("o3"));
-    Fnum.push_back(Lattice.Elem_Index("o1b"));
-    Fnum.push_back(Lattice.Elem_Index("o2b"));
-
-    Fnum.push_back(Lattice.Elem_Index("o4"));
-    Fnum.push_back(Lattice.Elem_Index("o5"));
-    Fnum.push_back(Lattice.Elem_Index("o6"));
+    // S-F.
+    Fnum.push_back(ElemIndex("om_s1a"));
+    Fnum.push_back(ElemIndex("om_s1b"));
+    Fnum.push_back(ElemIndex("om_s2a"));
+    Fnum.push_back(ElemIndex("om_s2b"));
     break;
   case 2:
-    // H-8-BA_II.
-    Fnum.push_back(Lattice.Elem_Index("sf"));
-    Fnum.push_back(Lattice.Elem_Index("sd"));
-    Fnum.push_back(Lattice.Elem_Index("s1"));
-    Fnum.push_back(Lattice.Elem_Index("s2"));
-    Fnum.push_back(Lattice.Elem_Index("s3"));
-    Fnum.push_back(Lattice.Elem_Index("s4"));
-    Fnum.push_back(Lattice.Elem_Index("s5"));
-    Fnum.push_back(Lattice.Elem_Index("s6"));
+    // C-F.
+    Fnum.push_back(ElemIndex("sf_m"));
+    Fnum.push_back(ElemIndex("sd_m"));
     break;
-  case 3:
-    // RB-6-BA.
-    Fnum.push_back(Lattice.Elem_Index("sd"));
-    Fnum.push_back(Lattice.Elem_Index("sfm"));
-    Fnum.push_back(Lattice.Elem_Index("sdm"));
-    Fnum.push_back(Lattice.Elem_Index("sxx"));
-    Fnum.push_back(Lattice.Elem_Index("sxy1"));
-    Fnum.push_back(Lattice.Elem_Index("sxy2"));
-    Fnum.push_back(Lattice.Elem_Index("sxy3"));
-    Fnum.push_back(Lattice.Elem_Index("syy1"));
-    Fnum.push_back(Lattice.Elem_Index("syy2"));
-    Fnum.push_back(Lattice.Elem_Index("syy3"));
+  default:
+    printf("\nchk_mpole: unknown lattice type\n");
+    exit(1);
     break;
   }
 
-  Lattice.Ring_GetTwiss(true, 0e0);
+  Ring_GetTwiss(true, 0e0);
  
   printf("\nSextupole Scheme:\n");
   for (k = 0; k < (int)Fnum.size(); k++)
-    chk_mpole_Fam(Fnum[k], false);
+    chk_mpole_Fam(Fnum[k]);
 }
 
 
 void chk_dip(void)
 {
-  int       k;
-  double    L, phi, L_sum, phi_sum;
-  MpoleType *M;
+  int    k;
+  double L, phi, L_sum, phi_sum;
 
-  Lattice.Ring_GetTwiss(true, 0e0);
+  Ring_GetTwiss(true, 0e0);
  
   printf("\nLong grad dipole:\n");
   L_sum = 0e0; phi_sum = 0e0;
-  for (k = 0; k <= Lattice.param.Cell_nLoc; k++) {
-    if (Lattice.Cell[k]->Elem.Kind == Mpole) {
-      M = static_cast<MpoleType*>(Lattice.Cell[k]);
-      if (M->irho != 0e0) {
-	L = Lattice.Cell[k]->L;
-	phi = L*M->irho*180e0/M_PI;
-	L_sum += L; phi_sum += phi;
-	printf(" %6s %4.3f %7.3f %9.6f %9.6f %9.6f %9.6f %9.6f\n",
-	       Lattice.Cell[k]->Name, L, 1e0/M->irho, phi, M->Tx1, M->Tx2,
-	       L_sum, phi_sum);
-      }
+  for (k = 0; k <= globval.Cell_nLoc; k++) {
+    if ((Cell[k].Elem.Pkind == Mpole) && (Cell[k].Elem.M->Pirho != 0e0)) {
+      L = Cell[k].Elem.PL;
+      phi = L*Cell[k].Elem.M->Pirho*180e0/M_PI;
+      L_sum += L; phi_sum += phi;
+      printf(" %6s %4.3f %7.3f %9.6f %9.6f %9.6f %9.6f %9.6f\n",
+	     Cell[k].Elem.PName, L, 1e0/Cell[k].Elem.M->Pirho,
+	     phi, Cell[k].Elem.M->PTx1, Cell[k].Elem.M->PTx2,
+	     L_sum, phi_sum);
     }
   }
 }
@@ -414,26 +649,29 @@ void dnu_mpole(void)
   switch (lat_case) {
   case 1:
     // H-6-BA.
-    Fnum.push_back(Lattice.Elem_Index("sf"));
-    // Fnum.push_back(Lattice.Elem_Index("sda"));
-    // Fnum.push_back(Lattice.Elem_Index("sdb"));
+    Fnum.push_back(ElemIndex("sf"));
+    // Fnum.push_back(ElemIndex("sda"));
+    // Fnum.push_back(ElemIndex("sdb"));
+    break;
+  default:
+    printf("\ndnu_mpole: unknown lattice type\n");
+    exit(1);
     break;
   }
 
-  Lattice.Ring_GetTwiss(true, 0e0);
+  Ring_GetTwiss(true, 0e0);
  
   printf("\nMultipole Phase Advances:\n");
-  for (n = 1; n <= Lattice.GetnKid(Fnum[0]); n++) {
-    loc1 = Lattice.Elem_GetPos(Fnum[0], n);
+  for (n = 1; n <= GetnKid(Fnum[0]); n++) {
+    loc1 = Elem_GetPos(Fnum[0], n);
     if (n == 1)
       printf("%10s %7.5f %7.5f\n",
-	     Lattice.Cell[loc1]->Name,
-	     Lattice.Cell[loc1]->Nu[X_], Lattice.Cell[loc1]->Nu[Y_]);
+	     Cell[loc1].Elem.PName, Cell[loc1].Nu[X_], Cell[loc1].Nu[Y_]);
     else
       printf("%10s %7.5f %7.5f\n",
-	     Lattice.Cell[loc1]->Name,
-	     Lattice.Cell[loc1]->Nu[X_]-Lattice.Cell[loc0]->Nu[X_],
-	     Lattice.Cell[loc1]->Nu[Y_]-Lattice.Cell[loc0]->Nu[Y_]);
+	     Cell[loc1].Elem.PName,
+	     Cell[loc1].Nu[X_]-Cell[loc0].Nu[X_],
+	     Cell[loc1].Nu[Y_]-Cell[loc0].Nu[Y_]);
     loc0 = loc1;
   }
 }
@@ -448,104 +686,1217 @@ double get_pole_tip_field(const double Brho, const double R_ref,
 
 void pole_tip_field(const double R_ref)
 {
-  int        k, n;
-  double     phi, b1, bn, an;
-  MpoleType  *M;
+  int    k, n;
+  double phi, b1, bn, an;
 
-  const double Brho = Lattice.param.Energy*1e9/c0;
+  const double Brho = globval.Energy*1e9/c0;
 
-  for (k = 0; k <= Lattice.param.Cell_nLoc; k++)
-    if (Lattice.Cell[k]->Elem.Kind == Mpole) {
-      M = static_cast<MpoleType*>(Lattice.Cell[k]);
-      switch (M->n_design) {
+  for (k = 0; k <= globval.Cell_nLoc; k++)
+    if (Cell[k].Elem.Pkind == Mpole) {
+      switch (Cell[k].Elem.M->n_design) {
       case Dip:
-	phi = Lattice.Cell[k]->L*M->irho; b1 = M->irho;	n = Quad;
-	get_bn_design_elem(Lattice.Cell[k]->Fnum, 1, n, bn, an);
+	phi = Cell[k].Elem.PL*Cell[k].Elem.M->Pirho;
+	b1 = Cell[k].Elem.M->Pirho;
+	n = Quad;
+	get_bn_design_elem(Cell[k].Fnum, 1, n, bn, an);
 	printf("%10s L = %5.3f b_%1d = %7.3f     B^ = %6.3f phi = %6.3f\n",
-	       Lattice.Cell[k]->Name, Lattice.Cell[k]->L,
+	       Cell[k].Elem.PName, Cell[k].Elem.PL,
 	       1, b1, Brho*b1, phi*180e0/M_PI);
 	printf("                          b_%1d = %7.3f     B^ = %6.3f\n",
 	       n, bn, get_pole_tip_field(Brho, R_ref, n, bn));
 	break;
       case Quad:
-	n = M->n_design;
-	get_bn_design_elem(Lattice.Cell[k]->Fnum, 1, n, bn, an);
+	n = Cell[k].Elem.M->n_design;
+	get_bn_design_elem(Cell[k].Fnum, 1, n, bn, an);
 	printf("%10s L = %5.3f b_%1d = %7.3f     B^ = %6.3f\n",
-	       Lattice.Cell[k]->Name, Lattice.Cell[k]->L, n, bn,
+	       Cell[k].Elem.PName, Cell[k].Elem.PL, n, bn,
 	       get_pole_tip_field(Brho, R_ref, n, bn));
 	break;
       case Sext:
-	n = M->n_design;
-	get_bn_design_elem(Lattice.Cell[k]->Fnum, 1, n, bn, an);
+	n = Cell[k].Elem.M->n_design;
+	get_bn_design_elem(Cell[k].Fnum, 1, n, bn, an);
 	printf("%10s L = %5.3f b_%1d = %11.3e B^ = %6.3f\n",
-	       Lattice.Cell[k]->Name, Lattice.Cell[k]->L, n, bn,
+	       Cell[k].Elem.PName, Cell[k].Elem.PL, n, bn,
 	       get_pole_tip_field(Brho, R_ref, n, bn));
 	break;
       case Dodec:
-	n = M->n_design - 2;
-	get_bn_design_elem(Lattice.Cell[k]->Fnum, 1, n, bn, an);
+	n = Cell[k].Elem.M->n_design - 2;
+	get_bn_design_elem(Cell[k].Fnum, 1, n, bn, an);
 	printf("%10s L = %5.3f b_%1d = %11.3e B^ = %6.3f\n",
-	       Lattice.Cell[k]->Name, Lattice.Cell[k]->L, n, bn,
+	       Cell[k].Elem.PName, Cell[k].Elem.PL, n, bn,
 	       get_pole_tip_field(Brho, R_ref, n, bn));
-	n = M->n_design;
-	get_bn_design_elem(Lattice.Cell[k]->Fnum, 1, n, bn, an);
+	n = Cell[k].Elem.M->n_design;
+	get_bn_design_elem(Cell[k].Fnum, 1, n, bn, an);
 	printf("%10s L = %5.3f b_%1d = %11.3e B^ = %6.3f\n",
-	       Lattice.Cell[k]->Name, Lattice.Cell[k]->L, n, bn,
+	       Cell[k].Elem.PName, Cell[k].Elem.PL, n, bn,
 	       get_pole_tip_field(Brho, R_ref, n, bn));
+	break;
+      default:
+	printf("\npole_tip_field: unknown lattice type\n");
+	exit(1);
 	break;
       }
     }
 }
 
 
+void get_dbeta_deta(const double delta)
+{
+  // Evaluate derivative; to avoid effect of tune shift.
+  int            j, k;
+  vector<double> dbeta[2], deta_x;
+  FILE           *outf;
+
+  const double d_delta = 1e-5;
+
+  const string file_name = "dbeta_deta.out";
+
+  outf = file_write(file_name.c_str());
+
+  printf("\nOptics for delta = %10.3e\n", d_delta);
+  Ring_GetTwiss(true, d_delta); printglob();
+  for (k = 0; k <= globval.Cell_nLoc; k++) {
+    for (j = 0; j < 2; j++)
+      dbeta[j].push_back(Cell[k].Beta[j]);
+    deta_x.push_back(Cell[k].Eta[X_]);
+  }
+  printf("\nOptics for delta = %10.3e\n", -d_delta);
+  Ring_GetTwiss(true, -d_delta); printglob();
+  for (k = 0; k <= globval.Cell_nLoc; k++) {
+    for (j = 0; j < 2; j++) {
+      dbeta[j][k] -= Cell[k].Beta[j]; dbeta[j][k] /= (2e0*d_delta);
+    }
+    deta_x[k] -= Cell[k].Eta[X_]; deta_x[k] /= (2e0*d_delta);
+    fprintf(outf, "%4d %10s %8.3f %4.1f %12.5e %12.5e %12.5e\n",
+	    k, Cell[k].Elem.PName, Cell[k].S, get_code(Cell[k]),
+	    dbeta[X_][k], dbeta[Y_][k], deta_x[k]);
+  }
+
+  fclose(outf);
+}
+
+
+ss_vect<tps> get_sympl_form(const int dof)
+{
+  int          k;
+  ss_vect<tps> Id, omega;
+
+  Id.identity(); omega.zero();
+  for (k = 0; k < dof; k++) {
+    omega[2*k] = Id[2*k+1]; omega[2*k+1] = -Id[2*k];
+  }
+  return omega;
+}
+
+
+void A_At_pass(void)
+{
+  long int     lastpos;
+  int          i;
+  ss_vect<tps> A, A_Atp;
+
+  A.identity();
+  A = putlinmat(4, globval.Ascr);
+  A_Atp = A*tp_S(2, A);
+  printf("\n    alpha_x  beta_x    alpha_y  beta_y:\n"
+	 "  %9.5f %8.5f %9.5f %8.5f\n",
+	 -A_Atp[x_][px_], A_Atp[x_][x_], -A_Atp[y_][py_], A_Atp[y_][y_]);
+  for (i = 0; i <= globval.Cell_nLoc; i++) {
+    Cell_Pass(i, i, A_Atp, lastpos);
+    A_Atp = tp_S(2, A_Atp);
+    Cell_Pass(i, i, A_Atp, lastpos);
+    A_Atp = tp_S(2, A_Atp);
+    printf("  %9.5f %8.5f %9.5f %8.5f\n",
+	   -A_Atp[x_][px_], A_Atp[x_][x_], -A_Atp[y_][py_], A_Atp[y_][y_]);
+  }
+}
+
+
+void curly_H_s(void)
+{
+  long int        lastpos;
+  int             i;
+  double          dnu[2];
+  ss_vect<double> eta, eta_Fl;
+  ss_vect<tps>    A;
+  FILE            *outf;
+
+  outf = file_write("curly_H_s.out");
+  printf("\n");
+  eta.zero();
+  eta[0] = Cell[0].Eta[X_];
+  eta[1] = Cell[0].Etap[X_];
+  A.identity();
+  A = putlinmat(2, globval.Ascr);
+  for (i = 0; i <= globval.Cell_nLoc; i++) {
+    eta.zero(); eta[0] = Cell[i].Eta[X_]; eta[1] = Cell[i].Etap[X_];
+    Cell_Pass(i, i, A, lastpos); A = get_A_CS(2, A, dnu);
+
+    eta_Fl = (Inv(A)*eta).cst();
+
+    fprintf(outf, "  %6.3f %10.3e %10.3e %10.3e\n",
+	    Cell[i].S, eta_Fl[x_], eta_Fl[px_],
+	    sqr(eta_Fl[x_])+sqr(eta_Fl[px_]));
+
+  }
+  fclose(outf);
+}
+
+
+void prt_eta_Fl(void)
+{
+  int             i, k;
+  double          s, mu_x, alpha1_x, beta1_x, curly_H;
+  ss_vect<double> eta0, eta_Fl0, eta_Fl, omega_M_eta, A_Atp_omega_M_eta;
+  ss_vect<tps>    Id, A, M, R, A_Atp0, A_Atp, Omega;
+  FILE            *outf;
+
+  const int    n_step = 25;
+  const double
+    L        = 0.75,
+    rho      = L/(5.0*M_PI/180e0),
+    beta0_x  = 0.19177;
+
+  Id.identity();
+
+  outf = file_write("eta_Fl.out");
+
+  A.identity();
+  A = putlinmat(2, globval.Ascr);
+
+  eta0.zero();
+  eta0[x_] = Cell[0].Eta[X_];
+  eta0[px_] = Cell[0].Etap[X_];
+  eta_Fl0 = (Inv(A)*eta0).cst();
+
+  A_Atp0.identity();
+  A_Atp0[x_] = Cell[0].Beta[X_]*Id[x_] - Cell[0].Alpha[X_]*Id[px_];
+  A_Atp0[px_] =
+    -Cell[0].Alpha[X_]*Id[x_]
+    + (1e0+sqr(Cell[0].Alpha[X_]))*Id[px_]/Cell[0].Beta[X_];
+
+  Omega.identity(); Omega[x_] = Id[px_]; Omega[px_] = -Id[x_];
+
+  R.identity(); M.identity();
+
+  for (i = 0; i <= n_step; i++) {
+    s = i*L/n_step;
+
+    mu_x = atan(s/beta0_x);
+
+    M[x_] =
+      cos(s/rho)*Id[x_] + rho*sin(s/rho)*Id[px_] + rho*(1e0-cos(s/rho));
+    M[px_] = -sin(s/rho)/rho*Id[x_] + cos(s/rho)*Id[px_] + sin(s/rho);
+
+    A_Atp = (M-M.cst())*A_Atp0*tp_S(1, M-M.cst());
+    beta1_x = A_Atp[x_][x_]; alpha1_x = -A_Atp[px_][x_];
+
+    if (true) {
+      R[x_] =
+	cos(mu_x)*Id[x_] + sin(mu_x)*Id[px_]
+	+ rho*(1e0-cos(s/rho))/sqrt(beta1_x);
+      R[px_] =
+	-sin(mu_x)*Id[x_] + cos(mu_x)*Id[px_]
+	+ (beta1_x*sin(s/rho)+alpha1_x*rho*(1e0-cos(s/rho)))/sqrt(beta1_x);
+
+      eta_Fl = (R*eta_Fl0).cst();
+
+      curly_H = sqr(eta_Fl[x_]) + sqr(eta_Fl[px_]);
+    } else {
+      omega_M_eta = (Omega*M*eta0).cst();
+      A_Atp_omega_M_eta = (A_Atp*omega_M_eta).cst();
+      curly_H = 0e0;
+      for (k = 0; k < 2; k++)
+	curly_H += omega_M_eta[k]*A_Atp_omega_M_eta[k];
+    }
+
+
+    fprintf(outf, "  %6.3f %6.3f  %6.3f %6.3f %10.3e %10.3e %10.3e\n",
+	    s, mu_x/(2e0*M_PI), alpha1_x, beta1_x, eta_Fl[x_], eta_Fl[px_],
+	    curly_H);
+
+  }
+
+  fclose(outf);
+}
+
+
+void track(const string fname, const int n, const double x, const double p_x,
+	   const double y, const double p_y, const double delta)
+{
+  long int        lastpos;
+  int             k;
+  ss_vect<double> ps;
+  ofstream        outf;
+
+  file_wr(outf, fname.c_str());
+
+  ps.zero();
+  ps[x_] = x; ps[px_] = p_x; ps[y_] = y; ps[py_] = p_y; ps[delta_] = delta;
+
+  outf << std::scientific << std::setprecision(6)
+       << "\n" << std::setw(14) << ps << "\n"; 
+  for (k = 1; k <= n; k++) {
+    Cell_Pass(0, globval.Cell_nLoc, ps, lastpos);  
+    outf << std::scientific << std::setprecision(6)
+	 << std::setw(14) << ps << "\n";
+  }
+
+  outf.close();
+}
+
+
+void prt_mat(const int n, const Matrix &A)
+{
+  int i, j;
+
+  printf("matrix:\n");
+  for (i = 0; i < n; i++) {
+    for (j = 0; j < n; j++)
+      printf(" %18.15f", A[i][j]);
+    printf("\n");
+  }
+}
+
+
+void get_disp(void)
+{
+  int             k;
+  long int        lastn, lastpos;
+  double          twoJ[2], curly_H[2], ds[2], ds0, ds_hat, delta_mean[2],
+                  delta_hat, phi_x, f_rf, alpha_s, beta_s,
+                  gamma_s, nu_s, alpha_c, C;
+  ss_vect<double> eta, A, ps, D;
+  ss_vect<tps>    Ascr, Id, M;
+  ofstream        outf;
+
+  f_rf = Cell[Elem_GetPos(ElemIndex("cav"), 1)].Elem.C->f_RF;
+  printf("\nf_rf = %10.3e\n", f_rf);
+
+  Id.identity();
+
+  globval.Cavity_on = !false; globval.radiation = false;
+  Ring_GetTwiss(true, 0e0); printglob();
+  nu_s = -globval.TotalTune[Z_];
+  alpha_c = globval.Alphac;
+  C = Cell[globval.Cell_nLoc].S;
+
+#if 0
+  // Expanded.
+  printf("\n  m_66, m_65 = %21.14e %21.14e\n",
+	 1e0, -sqr(2e0*M_PI*nu_s)/(alpha_c*C));
+  printf("  m_56, m_55 = %21.14e %21.14e\n", -alpha_c*C, 1e0);
+#else
+  // "Exact".
+  alpha_s =
+    -globval.Ascr[ct_][ct_]*globval.Ascr[delta_][ct_]
+    - globval.Ascr[ct_][delta_]*globval.Ascr[delta_][delta_];
+  beta_s = sqr(globval.Ascr[ct_][ct_]) + sqr(globval.Ascr[ct_][delta_]);
+  gamma_s = (1e0+sqr(alpha_s))/beta_s;
+
+  printf("\n  nu_s       = %15.8e\n", nu_s);
+  printf("  alpha_s    = %10.3e\n", alpha_s);
+  printf("  beta_s     = %10.3e\n", beta_s);
+  printf("  gamma_s    = %10.3e\n", gamma_s);
+
+  printf("\n  m_66, m_65 = %21.14e %21.14e\n",
+	 cos(2e0*M_PI*nu_s)-alpha_s*sin(2e0*M_PI*nu_s),
+	 -gamma_s*sin(2e0*M_PI*nu_s));
+  printf("  m_56, m_55 = %21.14e %21.14e\n",
+	 beta_s*sin(2e0*M_PI*nu_s),
+	 cos(2e0*M_PI*nu_s)+alpha_s*sin(2e0*M_PI*nu_s));
+#endif
+
+  globval.Cavity_on = false; globval.radiation = false;
+  Ring_GetTwiss(true, 0e0); printglob();
+
+  M = putlinmat(6, globval.OneTurnMat);
+  D[x_] = M[x_][x_]*M[px_][delta_] - M[px_][x_]*M[x_][delta_];
+  D[px_] = M[x_][px_]*M[px_][delta_] - M[px_][px_]*M[x_][delta_];
+  printf("\n  m_51, m_52 = %13.6e %13.6e\n", D[x_], D[px_]);
+  printf("  m_61, m_62 = %13.6e %13.6e\n",
+	 -gamma_s*sin(2e0*M_PI*nu_s)*D[x_], -gamma_s*sin(2e0*M_PI*nu_s)*D[px_]);
+
+  A.zero();
+  A[x_] = 10e-6;
+  A[px_] = 0e-6;
+  A[y_] = 0e-6;
+  A[py_] = 0e-6;
+  A[delta_] = 0e-3;
+  Ascr.zero();
+  Ascr = putlinmat(4, globval.Ascr);
+  get_twoJ(2, A, Ascr, twoJ);
+
+  eta.zero();
+  eta[x_] = Cell[globval.Cell_nLoc].Eta[X_];
+  eta[px_] = Cell[globval.Cell_nLoc].Etap[X_];
+  get_twoJ(1, eta, Ascr, curly_H);
+
+  ds0 =
+    Cell[globval.Cell_nLoc].Etap[X_]*A[x_]
+    - Cell[globval.Cell_nLoc].Eta[X_]*A[px_];
+  for (k = 0; k < 2; k++)
+    ds[k] = M_PI*globval.Chrom[k]*twoJ[k];
+  ds_hat = sqrt(twoJ[X_]*curly_H[X_]);
+
+  for (k = 0; k < 2; k++)
+    delta_mean[k] = ds[k]/(alpha_c*C);
+  delta_hat =
+    sqr(2e0*M_PI*nu_s)*ds_hat
+    /(alpha_c*C*sin(M_PI*globval.TotalTune[X_]));
+
+  alpha_s = (1e0-cos(2e0*M_PI*nu_s))/sin(2e0*M_PI*nu_s);
+  beta_s  = alpha_c*C/sin(2e0*M_PI*nu_s);
+  M.identity();
+  M[ct_] =
+    (cos(2e0*M_PI*nu_s)+alpha_s*sin(2e0*M_PI*nu_s))*Id[ct_]
+    + beta_s*sin(2e0*M_PI*nu_s)*Id[delta_];
+  M[delta_] =
+    -(1e0+sqr(alpha_s))*sin(2e0*M_PI*nu_s)/beta_s*Id[ct_]
+    + (cos(2e0*M_PI*nu_s)-alpha_s*sin(2e0*M_PI*nu_s))*Id[delta_];
+  prt_lin_map(3, M);
+
+  printf("\n  alpha_c                   = %9.3e\n", alpha_c);
+  printf("  A_x                       = %9.3e [micron]\n", 1e6*A[X_]);
+  printf("  2*J                       = %9.3e %9.3e\n", twoJ[X_], twoJ[Y_]);
+  printf("  curly_H                   = %9.3e\n", curly_H[X_]);
+  printf("\n  ds0                       = %7.5f [micron]\n", 1e6*ds0);
+  printf("  ds = 2*pi*ksi*J           = %9.3e %9.3e [micron]\n",
+	 1e6*ds[X_], 1e6*ds[Y_]);
+  printf("  ds^ = sqrt(2*J_x*curly_H) = %7.5f [micron]\n", 1e6*ds_hat);
+  printf("\n  nu_s                      = %10.5e\n", nu_s);
+  printf("  delta_mean                = %9.3e %9.3e\n",
+	 delta_mean[X_], delta_mean[Y_]);
+  printf("  delta_hat                 = %9.3e\n", delta_hat);
+  printf("\n  nu_s                      = %10.3e\n", nu_s);
+  printf("  alpha_s                   = %10.3e\n", alpha_s);
+  printf("  beta_s                    = %10.3e\n", beta_s);
+
+  if (!false) {
+    globval.Cavity_on = false; globval.radiation = false;
+    Ring_GetTwiss(true, 0e0); printglob();
+
+    printf("\ndet{M}-1 = %12.5e\n", DetMat(6, globval.OneTurnMat)-1e0);
+
+    globval.Cavity_on = true; globval.radiation = false;
+    Ring_GetTwiss(true, 0e0); printglob();
+
+    printf("\ndet{M}-1 = %12.5e\n", DetMat(6, globval.OneTurnMat)-1e0);
+
+    globval.alpha_z =
+      -globval.Ascr[ct_][ct_]*globval.Ascr[delta_][ct_]
+      - globval.Ascr[ct_][delta_]*globval.Ascr[delta_][delta_];
+    globval.beta_z =
+      sqr(globval.Ascr[ct_][ct_]) + sqr(globval.Ascr[ct_][delta_]);
+    globval.TotalTune[Z_] = fabs(globval.TotalTune[Z_]);
+
+    printf("\nnu_z    = %12.5e\n", globval.TotalTune[Z_]);
+    printf("beta_z  = %12.5e %12.5e\n",
+	   globval.beta_z, alpha_c*C/sin(2e0*M_PI*globval.TotalTune[Z_]));
+    printf("alpha_z = %12.5e %12.5e %12.5e+O(nu_s)^2\n",
+	   globval.alpha_z,
+	   (1e0-cos(2e0*M_PI*globval.TotalTune[Z_]))
+	   /sin(2e0*M_PI*globval.TotalTune[Z_]),
+	   M_PI*globval.TotalTune[Z_]);
+
+    M.zero();
+    M[ct_] =
+      (cos(2e0*M_PI*globval.TotalTune[Z_])
+       +globval.alpha_z*sin(2e0*M_PI*globval.TotalTune[Z_]))*Id[ct_]
+      + globval.beta_z*sin(2e0*M_PI*globval.TotalTune[Z_])*Id[delta_];
+    M[delta_] =
+      -(1e0+sqr(globval.alpha_z))/globval.beta_z
+      *sin(2e0*M_PI*globval.TotalTune[Z_])*Id[ct_]
+      + (cos(2e0*M_PI*globval.TotalTune[Z_])-globval.alpha_z
+	 *sin(2e0*M_PI*globval.TotalTune[Z_]))*Id[delta_];
+
+    phi_x =
+      atan2(
+	    Cell[globval.Cell_nLoc].Alpha[X_]*Cell[globval.Cell_nLoc].Eta[X_]
+	    +Cell[globval.Cell_nLoc].Beta[X_]*Cell[globval.Cell_nLoc].Etap[X_],
+	    Cell[globval.Cell_nLoc].Eta[X_]);
+
+    prt_lin_map(3, M);
+    printf("\ndet{M}-1 = %12.5e\n",
+	   M[ct_][ct_]*M[delta_][delta_]-M[ct_][delta_]*M[delta_][ct_]-1e0);
+    printf("phi_x  = %12.5e\n", phi_x*180e0/M_PI);
+  }
+
+  globval.Cavity_on = !false; globval.radiation = false;
+  track("track.out", A[x_], A[px_], A[y_], A[py_], A[delta_], 2000,
+	lastn, lastpos,	0, 0*f_rf);
+
+  if (!false) {
+    // Standard Map.
+    file_wr(outf, "std_map.out");
+
+    printf("\n");
+    prtmat(6, globval.OneTurnMat);
+
+    ps.zero();
+    for (k = 1; k <= 2000; k++) {
+      ps[delta_] +=
+	-sqr(2e0*M_PI*nu_s)/(alpha_c*C)*ps[ct_];
+      ps[ct_] +=
+	alpha_c*C*(ps[delta_]+ds_hat*sin(k*2e0*M_PI*globval.TotalTune[X_]));
+      outf << scientific << setprecision(5)
+	   << setw(5) << k << setw(13) << ps << "\n";
+    }
+    outf.close();
+  }
+}
+
+
+void get_matrix(const string &name, const double delta)
+{
+  int          k;
+  double       L, rho, b2, K[2], psi[2];
+  elemtype     Elem;
+  ss_vect<tps> Id, map;
+
+  // prt_mat(6, globval.OneTurnMat);
+
+  Id.identity();
+
+  Elem = Cell[Elem_GetPos(ElemIndex(name.c_str()), 1)].Elem;
+  L = Elem.PL;
+  rho = 1e0/Elem.M->Pirho;
+  b2  = Elem.M->PBpar[Quad+HOMmax];
+  printf("\n  L = %7.5f rho = %7.5f b_2 = %7.5f \n", L, rho, b2);
+  K[X_] = b2 + 1e0/sqr(rho); K[Y_] = b2;
+  for (k = 0; k < 2; k++)
+    psi[k] = sqrt(fabs(K[k])/(1e0+delta))*L;
+
+  map.identity();
+  if (K[X_] >= 0e0) {
+    map[x_] =
+      cos(psi[X_])*Id[x_] + sin(psi[X_])/(sqrt(K[X_]*(1e0+delta)))*Id[px_]
+      + (1e0-cos(psi[X_]))/(rho*K[X_])*Id[delta_];
+    map[px_] =
+      -sqrt(K[X_]*(1e0+delta))*sin(psi[X_])*Id[x_] + cos(psi[X_])*Id[px_]
+      + sin(psi[X_])*sqrt(1e0+delta)/(rho*sqrt(K[X_]))*Id[delta_];
+    map[y_] =
+      (psi[Y_] != 0e0)?
+      cosh(psi[Y_])*Id[y_] + sinh(psi[Y_])/(sqrt(K[Y_]*(1e0+delta)))*Id[py_]
+      :
+      cosh(psi[Y_])*Id[y_] + L*(1e0+delta)*Id[py_];
+    map[py_] =
+      sqrt(K[Y_]*(1e0+delta))*sinh(psi[Y_])*Id[y_] + cosh(psi[Y_])*Id[py_];
+    map[ct_] +=
+      sin(psi[X_])*sqrt(1e0+delta)/(rho*sqrt(K[X_]))*Id[x_]
+      + (1e0-cos(psi[X_]))/(rho*K[X_])*Id[px_]
+      + (psi[X_]-sin(psi[X_]))*sqrt(1e0+delta)
+      /(sqr(rho)*pow(K[X_], 3e0/2e0))*Id[delta_];
+  } else {
+    printf("\nK_x < 0\n");
+    K[X_] = -K[X_]; K[Y_] = -K[Y_];
+    map[x_] =
+      cosh(psi[X_])*Id[x_] + sinh(psi[X_])/(sqrt(K[X_]*(1e0+delta)))*Id[px_]
+      - (1e0-cosh(psi[X_]))/(rho*K[X_])*Id[delta_];
+    map[px_] =
+      sqrt(K[X_]*(1e0+delta))*sinh(psi[X_])*Id[x_] + cosh(psi[X_])*Id[px_]
+      + sinh(psi[X_])*sqrt(1e0+delta)/(rho*sqrt(K[X_]))*Id[delta_];
+    map[y_] =
+      cos(psi[Y_])*Id[y_] + sin(psi[Y_])/(sqrt(K[Y_]*(1e0+delta)))*Id[py_];
+    map[py_] =
+      -sqrt(K[Y_]*(1e0+delta))*sin(psi[Y_])*Id[y_] + cos(psi[Y_])*Id[py_];
+    map[ct_] =
+      sinh(psi[X_])*sqrt(1e0+delta)/(rho*sqrt(K[X_]))*Id[x_]
+      - (1e0-cosh(psi[X_]))/(rho*K[X_])*Id[px_]
+      - (psi[X_]-sinh(psi[X_]))*sqrt(1e0+delta)
+      /(sqr(rho)*pow(K[X_], 3e0/2e0))*Id[delta_];
+  }
+
+  prt_lin_map(3, map);
+}
+
+
+void get_eta(void)
+{
+  int             k;
+  long int        jj[ss_dim];
+  ss_vect<double> D, eta;
+  ss_vect<tps>    Id, M;
+
+  Id.identity();
+
+  Ring_GetTwiss(true, 0e0); printglob();
+  prt_lat("linlat1.out", globval.bpm, true);
+
+  for (k = 0; k < ss_dim; k++)
+    jj[k] = 0;
+  jj[x_] = 1; jj[px_] = 1;
+  M = putlinmat(2, globval.OneTurnMat);
+  prt_lin_map(1, PInv(Id-M, jj));
+
+  M[x_] =
+    (1e0+Cell[globval.Cell_nLoc].Alpha[X_]/tan(M_PI*globval.TotalTune[X_]))
+    /2e0*Id[x_]
+    + Cell[globval.Cell_nLoc].Beta[X_]/(2e0*tan(M_PI*globval.TotalTune[X_]))
+    *Id[px_];
+  M[px_] =
+    -(1e0+sqr(Cell[globval.Cell_nLoc].Alpha[X_]))
+    /(2e0*Cell[globval.Cell_nLoc].Beta[X_]*tan(M_PI*globval.TotalTune[X_]))
+    *Id[x_]
+    + (1e0-Cell[globval.Cell_nLoc].Alpha[X_]/tan(M_PI*globval.TotalTune[X_]))
+    /2e0*Id[px_];
+
+  for (k = 0; k < 2; k++)
+    D[k] = globval.OneTurnMat[k][delta_];
+
+  eta = (M*D).cst();
+
+  prt_lin_map(1, M);
+  prt_lin_map(1, D);
+  prt_lin_map(1, eta);
+
+  printf("eta = %13.6e %13.6e\n", eta[x_], eta[px_]);
+}
+
+
+void orm(const string &bpm, const int i,
+	 const string &corr, const int j)
+{
+  long int loc_bpm, loc_corr;
+  double   nu, spiq, betai, betaj, nui, nuj, A_ij;
+
+  nu = globval.TotalTune[X_]; spiq = sin(M_PI*nu);
+  loc_bpm = Elem_GetPos(ElemIndex(bpm.c_str()), i);
+  betai = Cell[loc_bpm].Beta[X_]; nui = Cell[loc_bpm].Nu[X_];
+  loc_corr = Elem_GetPos(ElemIndex(corr.c_str()), j);
+  betaj = Cell[loc_corr].Beta[X_]; nuj = Cell[loc_corr].Nu[X_];
+  A_ij = sqrt(betai*betaj)/(2e0*spiq)*cos(nu*M_PI-fabs(2e0*M_PI*(nui-nuj)));
+
+  printf("\norm:     A_ij = %12.5e\n", A_ij);
+}
+
+
+void orm_num(const string &bpm, const int i,
+	     const string &corr, const int j, const double eps)
+{
+  long int        lastpos, loc_bpm, loc_corr;
+  double          A_ij, x0, x1;
+
+  loc_bpm = Elem_GetPos(ElemIndex(bpm.c_str()), i);
+  loc_corr = Elem_GetPos(ElemIndex(corr.c_str()), j);
+  set_dbnL_design_elem(Cell[loc_corr].Fnum, Cell[loc_corr].Knum, Dip, eps, 0e0);
+  getcod(0.0, lastpos);
+  x1 = Cell[loc_bpm].BeamPos[x_];
+  set_dbnL_design_elem(Cell[loc_corr].Fnum, Cell[loc_corr].Knum, Dip, -2e0*eps,
+		       0e0);
+  getcod(0.0, lastpos);
+  x0 = Cell[loc_bpm].BeamPos[x_];
+  set_dbnL_design_elem(Cell[loc_corr].Fnum, Cell[loc_corr].Knum, Dip, eps, 0e0);
+  A_ij = (x1-x0)/(2e0*eps);
+
+  printf("orm_num: A_ij = %12.5e\n", A_ij);
+}
+
+
+void trm(const string &bpm, const int i,
+	 const string &corr, const int j)
+{
+  long int loc_bpm, loc_corr;
+  double   betai, betaj, nui, nuj, A_ij;
+
+  loc_bpm = Elem_GetPos(ElemIndex(bpm.c_str()), i);
+  betai = Cell[loc_bpm].Beta[X_]; nui = Cell[loc_bpm].Nu[X_];
+  loc_corr = Elem_GetPos(ElemIndex(corr.c_str()), j);
+  betaj = Cell[loc_corr].Beta[X_]; nuj = Cell[loc_corr].Nu[X_];
+  A_ij =
+    (loc_bpm > loc_corr)?
+    sqrt(betai*betaj)*sin(2e0*M_PI*(nui-nuj)) : 0e0;
+
+  printf("\ntrm:     A_ij = %12.5e\n", A_ij);
+}
+
+
+void trm_num(const string &bpm, const int i,
+	     const string &corr, const int j, const double eps)
+{
+  long int        lastpos, loc_bpm, loc_corr;
+  double          A_ij;
+  ss_vect<double> ps0, ps1;
+
+  loc_bpm = Elem_GetPos(ElemIndex(bpm.c_str()), i);
+  loc_corr = Elem_GetPos(ElemIndex(corr.c_str()), j);
+  set_dbnL_design_elem(Cell[loc_corr].Fnum, Cell[loc_corr].Knum, Dip, eps, 0e0);
+  ps1.zero();
+  Cell_Pass(0, loc_bpm, ps1, lastpos);
+  set_dbnL_design_elem(Cell[loc_corr].Fnum, Cell[loc_corr].Knum, Dip, -2e0*eps,
+		       0e0);
+  ps0.zero();
+  Cell_Pass(0, loc_bpm, ps0, lastpos);
+  set_dbnL_design_elem(Cell[loc_corr].Fnum, Cell[loc_corr].Knum, Dip, eps, 0e0);
+  A_ij = (ps1[x_]-ps0[x_])/(2e0*eps);
+
+  printf("trm_num: A_ij = %12.5e\n", A_ij);
+}
+
+
+void wtf(void)
+{
+  globval.Cavity_on = true; globval.radiation = !false;
+  Ring_GetTwiss(true, 0e0); printglob();
+  globval.alpha_z =
+    -globval.Ascr[ct_][ct_]*globval.Ascr[delta_][ct_]
+    - globval.Ascr[ct_][delta_]*globval.Ascr[delta_][delta_];
+  globval.beta_z = sqr(globval.Ascr[ct_][ct_]) + sqr(globval.Ascr[ct_][delta_]);
+ 
+  printf("\nLattice Parameters:\n  alpha = [%9.5f, %9.5f, %9.5f]\n",
+	 Cell[0].Alpha[X_], Cell[0].Alpha[Y_], globval.alpha_z);
+  printf("  beta  = [%9.5f, %9.5f, %9.5f]\n",
+	 Cell[0].Beta[X_], Cell[0].Beta[Y_], globval.beta_z);
+}
+
+void prt_M_lin(void)
+{
+  int k;
+
+  for (k = 0; k <= globval.Cell_nLoc; k++) {
+    if (Cell[k].Elem.Pkind == Mpole) {
+      printf("%10s:", Cell[k].Elem.PName);
+      prt_lin_map(3, Cell[k].Elem.M->M_lin);
+    }
+  }
+}
+
+
+void prt_RB(const int loc, const string &name, const bool rb, const bool hdr)
+{
+  double L, rho_inv, phi, B, b_2, dx;
+
+  const double Brho = globval.Energy*1e9/c0;
+
+  L = Cell[loc].Elem.PL; rho_inv = Cell[loc].Elem.M->Pirho;
+  b_2 = Cell[loc].Elem.M->PBpar[Quad+HOMmax];
+  phi = L*rho_inv; B = Brho*rho_inv; dx = rho_inv/b_2;
+  if (hdr) {
+    printf("\n  Name         L       phi       B       b_2      B_2      dx\n");
+    printf("              [m]      [°]      [T]     [mˆ-2]   [T/m]    [mm]\n");
+  }
+  printf("  %-8s  %6.3f  %7.3f  %7.3f    %6.3f    %5.1f",
+	 name.c_str(), L, phi*180e0/M_PI, B, b_2, Brho*b_2);
+  if (rb)
+    printf("  %4.1f\n", 1e3*dx);
+  else
+    printf("\n");
+}
+
+
+void prt_quad(const int loc, const string &name, const bool hdr)
+{
+  double L, b_2;
+
+  const double Brho = globval.Energy*1e9/c0;
+
+  L = Cell[loc].Elem.PL; b_2 = Cell[loc].Elem.M->PBpar[Quad+HOMmax];
+  if (hdr) {
+    printf("\n  Name         L                         b_2       B_2\n");
+    printf("              [m]                       [mˆ-2]    [T/m]\n");
+  }
+  printf("  %-8s  %6.3f                      %6.3f  %6.1f\n",
+	 name.c_str(), L, b_2, Brho*b_2);
+}
+
+
+void prt_sext(const int loc, const string &name, const bool hdr)
+{
+  double L, b_3;
+
+  const double Brho = globval.Energy*1e9/c0;
+
+  L = Cell[loc].Elem.PL; b_3 = Cell[loc].Elem.M->PBpar[Sext+HOMmax];
+  if (hdr) {
+    printf("\n  Name         L                         b_3       B_3\n");
+    printf("              [m]                       [mˆ-3]   [T/mˆ-2]\n");
+  }
+  printf("  %-8s  %6.3f                      %6.1f  %8.1f\n",
+	 name.c_str(), L, b_3, Brho*b_3);
+}
+
+
+void prt_oct(const int loc, const string &name, const bool hdr)
+{
+  double L, b_4;
+
+  const double Brho = globval.Energy*1e9/c0;
+
+  L = Cell[loc].Elem.PL; b_4 = Cell[loc].Elem.M->PBpar[Oct+HOMmax];
+  if (hdr) {
+    printf("\n  Name         L                         b_4       B_4\n");
+    printf("              [m]                       [mˆ-4]   [T/mˆ-2]\n");
+  }
+  printf("  %-8s  %6.3f                      %6.1f  %8.1f\n",
+	 name.c_str(), L, b_4, Brho*b_4);
+}
+
+
+void prt_lat_param1()
+{
+  int    k;
+  double beta_max[2], eta_x_max;
+
+  prt_RB(Elem_GetPos(ElemIndex("dq1     "), 1), "DQ ", false, true);
+  prt_RB(Elem_GetPos(ElemIndex("qf4     "), 1), "qf4", true, false);
+  prt_RB(Elem_GetPos(ElemIndex("qf8     "), 1), "qf8", true, false);
+
+  prt_quad(Elem_GetPos(ElemIndex("qf1     "),  1), "qf1",     true);
+  prt_quad(Elem_GetPos(ElemIndex("qd2     "),  1), "qd2",     false);
+  prt_quad(Elem_GetPos(ElemIndex("qd3     "),  1), "qd3",     false);
+  prt_quad(Elem_GetPos(ElemIndex("qd5     "),  1), "qd5",     false);
+  prt_quad(Elem_GetPos(ElemIndex("qf6     "),  1), "qf6",     false);
+  prt_quad(Elem_GetPos(ElemIndex("qd2_c1  "),  1), "qd2_c1",  false);
+  prt_quad(Elem_GetPos(ElemIndex("qf1_c1  "),  1), "qf1_c1",  false);
+  prt_quad(Elem_GetPos(ElemIndex("quad_add"), 1), "qf1_add",  false);
+
+  prt_sext(Elem_GetPos(ElemIndex("sf1     "),  1), "sf1",     true);
+  prt_sext(Elem_GetPos(ElemIndex("sd1     "),  1), "sd1",     false);
+  prt_sext(Elem_GetPos(ElemIndex("sd2     "),  1), "sd2",     false);
+  prt_sext(Elem_GetPos(ElemIndex("sh1     "),  1), "sh1",     false);
+  prt_sext(Elem_GetPos(ElemIndex("sh2     "),  1), "sh2",     false);
+  prt_sext(Elem_GetPos(ElemIndex("s       "),  1), "s  ",     false);
+
+  prt_oct(Elem_GetPos( ElemIndex("of1     "),  1), "of1",     true);
+
+  beta_max[X_] = beta_max[Y_] = eta_x_max = 0e0;
+  for (k = 0; k <= globval.Cell_nLoc; k++) {
+    beta_max[X_] = max(Cell[k].Beta[X_], beta_max[X_]);
+    beta_max[Y_] = max(Cell[k].Beta[Y_], beta_max[Y_]);
+    eta_x_max = max(Cell[k].Eta[X_], eta_x_max);
+  }
+  printf("\nmax beta = [%5.3f, %5.3f] max eta_x = %5.3f\n",
+	 beta_max[X_], beta_max[Y_], eta_x_max);
+
+  printf("\nLS:  L = %5.3f beta = [%5.3f, %5.3f]\n",
+	 2e0*Cell[Elem_GetPos(ElemIndex("quad_add"), 1)-1].S,
+	 Cell[Elem_GetPos(ElemIndex("ls"), 1)].Beta[X_],
+	 Cell[Elem_GetPos(ElemIndex("ls"), 1)].Beta[Y_]);
+  printf("SS:  L = %5.3f beta = [%5.3f, %5.3f]\n",
+	 Cell[Elem_GetPos(ElemIndex("qf1"), 2)-1].S
+	 -Cell[Elem_GetPos(ElemIndex("qf1"), 1)].S,
+	 Cell[Elem_GetPos(ElemIndex("ss"), 1)].Beta[X_],
+	 Cell[Elem_GetPos(ElemIndex("ss"), 1)].Beta[Y_]);
+  printf("MS:  L = %5.3f beta = [%5.3f, %5.3f] eta_x = %6.4f\n",
+	 Cell[Elem_GetPos(ElemIndex("sh2"), 2)-1].S
+	 -Cell[Elem_GetPos(ElemIndex("sh2"), 1)].S,
+	 Cell[Elem_GetPos(ElemIndex("ms"), 1)].Beta[X_],
+	 Cell[Elem_GetPos(ElemIndex("ms"), 1)].Beta[Y_],
+	 Cell[Elem_GetPos(ElemIndex("ms"), 1)].Eta[X_]);
+}
+
+
+void reality_check()
+{
+  int  j;
+  FILE *fp;
+
+  fp = file_write("reality_check.out");
+  fprintf(fp,
+	  "  No  Name              s[n-1]  s[n]    L   s[n]-s[n-1]"
+	  "  s[n+1]-s[n]\n");
+  for (j = 0; j <= globval.Cell_nLoc; j++)
+    if (Cell[j].Elem.Pkind == Mpole) {
+      fprintf(fp, "\n %3d  %10s %7.3f %7.3f %5.3f   %5.3f        %5.3f",
+	      j, Cell[j].Elem.PName, Cell[j-1].S, Cell[j].S, Cell[j].Elem.PL,
+	      Cell[j-1].S-Cell[j-2].S, Cell[j+1].S-Cell[j].S);
+    }
+  fprintf(fp, "\n");
+  fclose(fp);
+}
+
+
+void chk_traj(void)
+{
+  long int lastpos;
+  int      k;
+  ofstream  outf;
+
+  ss_vect<double> M;
+
+  file_wr(outf, "beampos.out");
+
+  globval.Cavity_on = false; globval.radiation = !false;
+
+  if (false) no_sxt();
+
+  M.zero();
+  Cell_Pass(0, globval.Cell_nLoc, M, lastpos);
+  for (k = 0; k <= globval.Cell_nLoc; k++)
+    outf << setw(4) << k << " "
+	 << setw(15) << Cell[k].Elem.PName
+	 << fixed << setprecision(2) << setw(7) << Cell[k].S
+	 << setprecision(1) << setw(5) << get_code(Cell[k])
+	 << scientific << setprecision(15) << setw(23) << Cell[k].BeamPos
+	 << "\n";
+
+  outf.close();
+}
+
+
+ss_vect<tps> chk_sympl(ss_vect<tps> M)
+{
+  // Pass by value for function arguments.
+  return tp_S(3, M)*(get_sympl_form(3))*M;
+}
+
+
+void chk_si(void)
+{
+  long int     lastpos;
+  int          k;
+  ss_vect<tps> ps;
+
+  globval.radiation = false;
+
+  printf("last element? > ");
+  scanf("%d", &k);
+  ps.identity();
+  Cell_Pass(0, k, ps, lastpos);
+
+  printf("%-.10s\n", Cell[k].Elem.PName);
+  prt_lin_map(3, ps);
+}
+
+
+ss_vect<tps> chop_map(const int n_dof, ss_vect<tps> map, const double eps)
+{
+  long int jj[ss_dim];
+  int      j, k;
+
+  const int n = 2*n_dof;
+
+  for (j = 0; j < ss_dim; j++)
+    jj[j] = 0;
+
+  for (j = 0; j < n; j++)
+    for (k = 0; k < n; k++)
+      if (fabs(map[j][k]) < eps) {
+	jj[k] = 1;
+	map[j].pook(jj, 0e0);
+	jj[k] = 0;
+      }
+  return map;
+}
+
+
 int main(int argc, char *argv[])
 {
   bool             tweak;
-  long int         lastn, lastpos, loc;
-  int              b2_fam[2], b3_fam[2];
-  double           b2[2], a2, b3[2], b3L[2], a3, a3L, f_rf, dx;
+  long int         lastpos, loc;
+  int              k, lat_case;
+  double           dx, dnu[3], I[6], eps[3];
+  double           eps_x, sigma_delta, U_0, J[3], tau[3];
+  tps              a;
   Matrix           M;
   std::vector<int> Fam;
-  CavityType       *C;
+  ss_vect<tps>     Ascr, A_Atp, Id, Ms;
   ostringstream    str;
 
-  const long        seed   = 1121;
-  const int         n_turn = 2064;
-  const double      delta  = 3e-2,
+  const int    n_turn = 2064;
+  const double delta  = 2e-2;
   //                   nu[]    = { 102.18/20.0, 68.30/20.0 };
   // const std::string q_fam[] = { "qfe", "qde" }, s_fam[] = { "sfh", "sd" };
   //                   nu[]    = { 39.1/12.0, 15.25/12.0 };
   //                   // nu[]    = { 3.266+0.01, 1.275 };
   // const std::string q_fam[] = { "qm2b", "qm3" }, s_fam[] = { "sfh", "sd" };
-                    nu[]    = { 9.2, 3.64 };
-  const std::string q_fam[] = { "qf03", "qd04" }, s_fam[] = { "sfh", "sd" };
+  const std::string
+    q_fam[] = { "qf03", "qd04" },
+    s_fam[] = { "sfh", "sd" };
 
   const double R_ref = 5e-3;
 
-  Lattice.param.H_exact           = false; Lattice.param.quad_fringe  = false;
-  Lattice.param.Cavity_on         = false; Lattice.param.radiation    = false;
-  Lattice.param.emittance         = false; Lattice.param.IBS          = false;
-  Lattice.param.pathlength        = false; Lattice.param.bpm          = 0;
-  Lattice.param.dip_edge_fudge    = true;  Lattice.param.reverse_elem = !false;
-  // 1: DIAMOND, 3: Oleg I, 4: Oleg II.
-  Lattice.param.FieldMap_filetype = 1;     Lattice.param.sympl        = false;
+  // 1: DIAMOND, 2: NSLS-II, 3: Oleg I, 4: Oleg II.
+  FieldMap_filetype = 4; sympl = !false;
 
-  trace = !true;
+  trace            = false;
+  reverse_elem     = true;
+  globval.mat_meth = false;
 
   if (true)
-     Lattice.Read_Lattice(argv[1]);
+    Read_Lattice(argv[1]);
   else
-     Lattice.rdmfile(argv[1]);
+    rdmfile(argv[1]);
+
+  globval.H_exact    = false; globval.quad_fringe    = false;
+  globval.Cavity_on  = false; globval.radiation      = false;
+  globval.emittance  = false; globval.IBS            = false;
+  globval.pathlength = false; globval.Aperture_on    = false;
+  globval.Cart_Bend  = false; globval.dip_edge_fudge = true;
+
+  if (false) no_sxt();
 
   if (false) {
-    loc = Lattice.Elem_GetPos(Lattice.Elem_Index("bb"), 1);
+    fit_ksi1(1, 0e0, 0e0);
+    exit(0);
+  }
+
+  if (false) {
+    getcod(0e0, lastpos);
+    prt_cod("cod_0.out", globval.bpm, true);
+    set_bn_design_elem(ElemIndex("chv"), Dip, 1, 1e-3, -1e-3);
+    getcod(0e0, lastpos);
+    prt_cod("cod_1.out", globval.bpm, true);
+    exit(0);
+  }
+
+  if (false) {
+    chk_si();
+    exit(0);
+  }
+
+  if (false) {
+    ss_vect<tps> map;
+    map.identity();
+    if (!false) no_sxt();
+    Cell_Pass(0, 12, map, lastpos);
+    prt_lin_map(3, map);
+    exit(0);
+  }
+
+  globval.Cavity_on = false; globval.radiation = false;
+  globval.pathlength = false;
+
+  if (false) {
+    long int lastpos;
+    double   xmean[2], xsigma[2], xmax[2];
+
+    getcod(0e0, lastpos);
+    codstat(xmean, xsigma, xmax, globval.Cell_nLoc, true);
+    printf("\nRMS orbit [mm]: (%8.1e +/- %7.1e, %8.1e +/- %7.1e)\n",
+	   1e3*xmean[X_], 1e3*xsigma[X_], 1e3*xmean[Y_], 1e3*xsigma[Y_]);
+
+    set_bn_design_fam(ElemIndex("chv"), Dip, 1e-3, 0.1e-3);
+    getcod(0e0, lastpos);
+    codstat(xmean, xsigma, xmax, globval.Cell_nLoc, true);
+    printf("RMS orbit [mm]: (%8.1e +/- %7.1e, %8.1e +/- %7.1e)\n",
+	   1e3*xmean[X_], 1e3*xsigma[X_], 1e3*xmean[Y_], 1e3*xsigma[Y_]);
+
+    prt_cod("cod.out", 0, true);
+
+    exit(0);
+  }
+
+  Ring_GetTwiss(true, 0e-3); printglob();
+
+  if (false) {
+    printf("\nGetAinv:\n");
+    prtmat(6, globval.Ascrinv);
+    printf("\nA:\n");
+    prt_lin_map(3, get_A_CS(2, putlinmat(6, globval.Ascr), dnu));
+
+    ss_vect<tps> A, map;
+
+    A   = putlinmat(6, globval.Ascr);
+    map = putlinmat(6, globval.OneTurnMat);
+    printf("\nA^-1*M*A:\n");
+    prt_lin_map(3, Inv(A)*map*A);
+
+    if (false) {
+      double       dnu[2];
+      Matrix       R;
+
+      const int n = 15;
+
+      map.identity();
+      Cell_Pass(n+1, globval.Cell_nLoc, map, lastpos);
+      Cell_Pass(0, n, map, lastpos);
+      getlinmat(6, map, globval.OneTurnMat);
+      GDiag(4, Cell[globval.Cell_nLoc].S, globval.Ascr, globval.Ascrinv, R,
+	    globval.OneTurnMat, globval.Omega, globval.Alphac);
+      printf("\nA:\n");
+      prt_lin_map(3, get_A_CS(2, putlinmat(6, globval.Ascr), dnu));
+
+      ss_vect<tps> A, map;
+
+      A   = putlinmat(6, globval.Ascr);
+      map = putlinmat(6, globval.OneTurnMat);
+      printf("\nA^-1*M*A:\n");
+      prt_lin_map(3, Inv(A)*map*A);
+    }
+
+    exit(0);
+  }
+
+  if (false) {
+    prt_lin_map
+      (3, chk_sympl(putlinmat(6, globval.OneTurnMat))-get_sympl_form(3));
+    exit(0);
+  }
+
+  if (false) {
+    chk_phi();
+    // exit(0);
+  }
+
+  if (false) {
+    chk_optics(0.0, 8.20878, 0.00557, 0.0,
+	       0.0, 3.50066, 0.0,     0.0);
+    prt_lat("linlat1.out", globval.bpm, true);
+    prt_lat("linlat.out", globval.bpm, true, 10);
+    prtmfile("flat_file.dat");
+    exit(0);
+  }
+
+  if (false) chk_traj();
+
+  if (set_dnu) {
+    dnu[X_] = 0.0; dnu[Y_] = 0.0;
+    set_map(ElemIndex("ps_rot"), dnu);
+    Ring_GetTwiss(true, 0e0); printglob();
+    for (k = 0; k < 2; k++)
+      if (!FULL_LAT)
+	dnu[k] = (SET_NU)? nu[k] - globval.TotalTune[k] : nu[k];
+      else
+	dnu[k] = (SET_NU)? nu[k] - globval.TotalTune[k]/n_cell : nu[k];
+    printf("\ntune set to:\n  dnu     = [%8.5f, %8.5f]\n", dnu[X_], dnu[Y_]);
+    printf("  nu      = [%8.5f, %8.5f]\n", nu[X_], nu[Y_]);
+    set_map(ElemIndex("ps_rot"), dnu);
+    Ring_GetTwiss(true, 0e0); printglob();
+  }
+
+  if (mI_rot) {
+    dnu[X_] = 0.0; dnu[Y_] = 0.0;
+    set_map(ElemIndex("mI_rot"), dnu);
+    Ring_GetTwiss(true, 0e0); printglob();
+    for (k = 0; k < 2; k++)
+      dnu[k] = dnu_mI[k];
+    set_map(ElemIndex("mI_rot"), dnu);
+    Ring_GetTwiss(true, 0e0); printglob();
+  }
+
+  if (globval.mat_meth && !prt_s1) {
+    get_eps_x(eps_x, sigma_delta, U_0, J, tau, I, true);
+
+    prt_lat("linlat1.out", globval.bpm, true);
+    prt_lat("linlat.out", globval.bpm, true, 10);
+    prt_chrom_lat();
+    prtmfile("flat_file.dat");
+
+    if (false) {
+      prt_lat_param((char*)"lattice.txt", (char*)"cav", 3.225e-6, 3.155);
+      reality_check();
+    }
+
+    exit(0);
+  }
+
+  if (false) {
+    prt_ZAP(16);
+    // exit(0);
+  }
+
+  if (false) {
+    wtf();
+    exit(0);
+  }
+
+  if (false) {
+    long int     lastpos;
+    ss_vect<tps> map;
+
+    globval.Cavity_on = !false; globval.radiation = false;
+
+    map.identity();
+    Cell_Pass(0, globval.Cell_nLoc, map, lastpos);
+    prt_lin_map(3, map);
+    exit(0);
+  }
+
+  if (false) {
+    int             k;
+    ss_vect<double> ps;
+    ofstream        outf;
+
+    file_wr(outf, "track.out");
+    globval.Cavity_on = !false; globval.radiation = !false;
+    ps.zero();
+    ps[x_] = 0e-3; ps[px_] = 0e-3; ps[y_] = 0e-3; ps[py_] = 0e-3;
+    ps[ct_] = 0e-3;
+    for (k = 0; k <= globval.Cell_nLoc; k++) {
+      Cell_Pass(k, k, ps, lastpos);
+      outf << setw(4) << k
+	   << fixed << setprecision(5) << setw(9) << Cell[k].S
+	   << " " << setw(10) << Cell[k].Elem.PName
+	   << scientific << setprecision(14)
+	   << setw(22) << ps << "\n";
+    }
+    outf.close();
+    exit(0);
+  }
+
+  if (false) {
+    orm("bpm_11", 3, "ch_11", 1);
+    orm_num("bpm_11", 3, "ch_11", 1, 1e-8);
+    printf("\n");
+    trm("bpm_11", 3, "ch_11", 1);
+    trm_num("bpm_11", 3, "ch_11", 1, 1e-8);
+    exit(0);
+  }
+
+  if (false) {
+    get_matrix("dq1", 0e0);
+    exit(0);
+  }
+
+  if (false) {
+    get_eta();
+    exit(0);
+  }
+
+  if (false) {
+    globval.Cavity_on  = !false; globval.radiation = !false;
+    track("track.out", 10, 0e0, 0e0, 0e0, 0e0, 0e0);
+    exit(0);
+  }
+
+  if (false) {
+    A_At_pass();
+    exit(0);
+  }
+
+  if (false) {
+    curly_H_s();
+    exit(0);
+  }
+
+  if (false) {
+    prt_eta_Fl();
+    exit(0);
+  }
+
+  if (false) {
+    chk_lin_chrom();
+    // exit(0);
+  }
+  
+  if (prt_dt) {
+    printf("Lattice Case (1..3)? ");
+    scanf("%d", &lat_case);
+
+    fit_ksi1(lat_case, 0e0, 0e0);
+
+    chk_mI_trans(lat_case);
+
+    no_sxt();
+    Ring_GetTwiss(true, 0e0); printglob();
+
+    prt_lat("linlat1.out", globval.bpm, true);
+    prt_lat("linlat.out", globval.bpm, true, 10);
+    prt_chrom_lat();
+
+    exit(0);
+  }
+
+  if (false) {
+    loc = Elem_GetPos(ElemIndex("bb"), 1);
     map.identity();
     // Tweak to remain within field map range at entrance.
     tweak = true;
     if (tweak) {
       dx = -1.4e-3; map[x_] += dx;
     }
-    Lattice.Cell_Pass(loc, loc, map, lastpos);
+    Cell_Pass(loc, loc, map, lastpos);
     if (tweak) map[x_] -= dx;
     prt_lin_map(3, map);
     getlinmat(6, map, M);
@@ -554,14 +1905,97 @@ int main(int argc, char *argv[])
   }
 
   if (false) {
-    chk_high_ord_achr();
+    dpath_length();
     exit(0);
   }
 
   if (false) {
-    chk_mpole();
-    Lattice.prt_lat("linlat1.out", Lattice.param.bpm, true);
-    Lattice.prt_lat("linlat.out", Lattice.param.bpm, true, 10);
+    prt_drift();
+    exit(0);
+  }
+
+  if (false) {
+    prt_dip();
+    exit(0);
+  }
+
+  if (false) {
+    const double
+      alpha0[] = { 0.91959,  3.19580},
+      beta0[]  = { 1.27047, 17.77859},
+      eta0[]   = { 0.0,      0.0},
+      etap0[]  = { 0.0,      0.0},
+      alpha1[] = { 0.81112,  0.45975},
+      beta1[]  = { 4.56189,  2.62113},
+      eta1[]   = { 0.07297,  0.0},
+      etap1[]  = {-0.01063,  0.0};
+
+    set_map_per(ElemIndex("ps_per"), alpha1, beta1, eta1, etap1);
+    if (!true) {
+      Ring_GetTwiss(true, 0e0); printglob();
+    } else
+      ttwiss(alpha0, beta0, eta0, etap0, 0e0);
+
+    prt_lat("linlat1.out", globval.bpm, true);
+    prt_lat("linlat.out", globval.bpm, true, 10);
+
+    exit(0);
+  }
+
+  prtmfile("flat_file.dat");
+  // globval.bpm = ElemIndex("bpm");
+  prt_lat("linlat1.out", globval.bpm, true);
+  prt_lat("linlat.out", globval.bpm, true, 10);
+  prt_chrom_lat();
+
+  if (prt_s1) {
+    // loc = Elem_GetPos(ElemIndex("s1"), 1);
+    loc = Elem_GetPos(ElemIndex("s0"), 2);
+    printf("\n%10s:\n  {{%12.10f, %12.10f}, {%12.10f, %12.10f},"
+	   " {%12.10f, %12.10f}, {%12.10f, %12.10f}}\n",
+	   Cell[loc].Elem.PName,
+	   Cell[loc].Alpha[X_], Cell[loc].Alpha[Y_],
+	   Cell[loc].Beta[X_], Cell[loc].Beta[Y_],
+	   Cell[loc].Eta[X_], Cell[loc].Eta[Y_],
+	   Cell[loc].Etap[X_], Cell[loc].Etap[Y_]);
+    printf("\n%10s:\n  (%12.10f, %12.10f, %12.10f, %12.10f,"
+	   "\n  %12.10f, %12.10f, %3.1f, %3.1f)\n",
+	   Cell[loc].Elem.PName,
+	   Cell[loc].Alpha[X_], Cell[loc].Beta[X_],
+	   Cell[loc].Eta[X_], Cell[loc].Etap[X_], 
+	   Cell[loc].Alpha[Y_], Cell[loc].Beta[Y_],
+	   Cell[loc].Eta[Y_], Cell[loc].Etap[Y_]);
+    exit(0);
+  }
+
+  if (false) {
+    loc = Elem_GetPos(ElemIndex("lgb00"), 1);
+    printf("\n%10s:  \n  %13.10f %13.10f %13.10f %13.10f %13.10f %13.10f\n",
+	   Cell[loc].Elem.PName,
+	   Cell[loc].Alpha[X_], Cell[loc].Beta[X_],
+	   Cell[loc].Eta[X_], Cell[loc].Etap[X_],
+	   Cell[loc].Alpha[Y_], Cell[loc].Beta[Y_]);
+    exit(0);
+  }
+
+  if (false) {
+    // printf("Lattice Case (1..3)? ");
+    // scanf("%d", &lat_case);
+
+    lat_case = 3;
+    chk_high_ord_achr(lat_case);
+    // exit(0);
+  }
+
+  if (false) {
+    chk_drv_terms();
+    exit(0);
+  }
+
+  if (false) {
+    chk_mpole(2);
+    prt_lat("linlat1.out", globval.bpm, true);
+    prt_lat("linlat.out", globval.bpm, true, 10);
     exit(0);
   }
 
@@ -576,22 +2010,8 @@ int main(int argc, char *argv[])
   }
 
   if (false) {
-    chk_optics(0.0, 0.0, 9.21924, 3.17296, 0.0, 0.0, 0.0, 0.0);
-    Lattice.prt_lat("linlat1.out", Lattice.param.bpm, true);
-    Lattice.prt_lat("linlat.out", Lattice.param.bpm, true, 10);
-    exit(0);
-  }
-
-  if (false) {
-    Lattice.param.Cavity_on = true;
-    track(6e-3, 0.1e-3);
-    exit(0);
-  }
-
-  if (false) {
-    Lattice.Ring_GetTwiss(true, 0e0); printglob();
-    Lattice.set_map("ps_rot", 0.55/6.0, -0.07/6.0);
-    Lattice.Ring_GetTwiss(true, 0e0); printglob();
+    globval.Cavity_on = false; globval.radiation = false;
+    track(0e-3, 0e-3);
     exit(0);
   }
 
@@ -600,170 +2020,120 @@ int main(int argc, char *argv[])
     exit(0);
   }
 
-  if (false) no_sxt();
-
-  Lattice.param.Cavity_on = false; Lattice.param.radiation = false;
-  Lattice.Ring_GetTwiss(true, 0e0); printglob();
-
-  if (false) Lattice.get_alphac2();
-
-  Lattice.prtmfile("flat_file.dat");
-
-  // Lattice.param.bpm = Lattice.Elem_Index("bpm");
-  Lattice.prt_lat("linlat1.out", Lattice.param.bpm, true);
-  Lattice.prt_lat("linlat.out", Lattice.param.bpm, true, 10);
-  Lattice.prt_chrom_lat();
-
   if (false) {
-    iniranf(seed); setrancut(1e0);
-    // Lattice.param.bpm = Lattice.Elem_Index("mon");
-    Lattice.param.bpm = Lattice.Elem_Index("bpm");
-    Lattice.param.hcorr = Lattice.Elem_Index("ch");
-    Lattice.param.vcorr = Lattice.Elem_Index("cv");
-    // ALS-U.
-    // Lattice.param.bpm = Lattice.Elem_Index("bpm_m");
-    // Lattice.param.hcorr = Lattice.Elem_Index("corr_h");
-    // Lattice.param.vcorr = Lattice.Elem_Index("corr_v");
-
-    gcmat(Lattice.param.bpm, Lattice.param.hcorr, 1);
-    gcmat(Lattice.param.bpm, Lattice.param.vcorr, 2);
-
-    get_cod_rms(50e-6, 50e-6, 100, true);
-
-    exit(0);
+    get_dbeta_deta(1e-4);
+    // exit(0);
   }
 
+  globval.Cavity_on = false; globval.radiation = false;
+  Ring_GetTwiss(true, 0e0); printglob();
+
+  if (false) get_alphac2();
+
   if (false) {
-    Fam.push_back(Lattice.Elem_Index("ts1b"));
-    // Fam.push_back(Lattice.Elem_Index("ts1d"));
+    Fam.push_back(ElemIndex("ts1b"));
+    // Fam.push_back(ElemIndex("ts1d"));
     chk_mini_beta(Fam);
     exit(0);
   }
 
   if (false) {
-    // Fam.push_back(Lattice.Elem_Index("s1b"));
-    // Fam.push_back(Lattice.Elem_Index("s1d"));
-    // Fam.push_back(Lattice.Elem_Index("s2b"));
-    // Fam.push_back(Lattice.Elem_Index("s2d"));
-    // Fam.push_back(Lattice.Elem_Index("sx1"));
-    // Fam.push_back(Lattice.Elem_Index("sy1"));
+    prt_symm("om_sf", 1);
+    prt_symm("om_sd", 2);
 
-  switch (2) {
-  case 1:
-    // DIAMOND.
-    Fam.push_back(Lattice.Elem_Index("ts1a"));
-    Fam.push_back(Lattice.Elem_Index("ts1ab"));
-    Fam.push_back(Lattice.Elem_Index("ts2a"));
-    Fam.push_back(Lattice.Elem_Index("ts2ab"));
-    Fam.push_back(Lattice.Elem_Index("ts1b"));
-    Fam.push_back(Lattice.Elem_Index("ts2b"));
-    Fam.push_back(Lattice.Elem_Index("ts1c"));
-    Fam.push_back(Lattice.Elem_Index("ts2c"));
-    Fam.push_back(Lattice.Elem_Index("ts1d"));
-    Fam.push_back(Lattice.Elem_Index("ts2d"));
-    Fam.push_back(Lattice.Elem_Index("ts1e"));
-    Fam.push_back(Lattice.Elem_Index("ts2e"));
-
-    Fam.push_back(Lattice.Elem_Index("s1"));
-    Fam.push_back(Lattice.Elem_Index("s2"));
-    Fam.push_back(Lattice.Elem_Index("s3"));
-    Fam.push_back(Lattice.Elem_Index("s4"));
-    Fam.push_back(Lattice.Elem_Index("s5"));
-    break;
-  case 2:
-    // DIAMOND-II, 6-BA.
-    Fam.push_back(Lattice.Elem_Index("sd1"));
-    Fam.push_back(Lattice.Elem_Index("sd2"));
-    Fam.push_back(Lattice.Elem_Index("sd3"));
-    // Fam.push_back(Lattice.Elem_Index("sd4"));
-    Fam.push_back(Lattice.Elem_Index("sf21"));
-    Fam.push_back(Lattice.Elem_Index("sd31"));
-    // Fam.push_back(Lattice.Elem_Index("sd41"));
-    Fam.push_back(Lattice.Elem_Index("sf1"));
-    // Fam.push_back(Lattice.Elem_Index("sf2"));
-    Fam.push_back(Lattice.Elem_Index("sh1a"));
-    Fam.push_back(Lattice.Elem_Index("sh1e"));
-    break;
+    exit(0);
   }
 
-    prt_symm(Fam);
+  if (true) GetEmittance(ElemIndex("cav"), true);
+
+  if (false) {
+#if PM
+    get_Poincare_Map();
+#else
+      no_sxt();
+      globval.Cavity_on = true; globval.radiation = true;
+      Ring_GetTwiss(true, 0e0); printglob();
+      PoincareMap map;
+      prt_lin_map(3, map.GetMap(true, true));
+#endif
+    prt_lat("linlat1.out", globval.bpm, true);
+    prt_lat("linlat.out", globval.bpm, true, 10);
+    exit(0);
   }
 
   if (false) {
-    Fam.push_back(Lattice.Elem_Index("q1_2"));
-    Fam.push_back(Lattice.Elem_Index("q1_2m"));
-    Fam.push_back(Lattice.Elem_Index("q1b"));
-    Fam.push_back(Lattice.Elem_Index("q2b"));
-    Fam.push_back(Lattice.Elem_Index("q1d"));
-    Fam.push_back(Lattice.Elem_Index("q2d"));
-    Fam.push_back(Lattice.Elem_Index("q3d"));
-
-    prt_quad(Fam);
-  }
-
-  if (true) Lattice.GetEmittance(Lattice.Elem_Index("cav"), true);
+    globval.eps[Y_] = 0.8e-12;
+    for (k = 0; k < 3; k++)
+      eps[k] = globval.eps[k];
+    for (k = 1; k <= 5; k++)
+      IBS_BM(0.65e-9, globval.eps, eps, true, true);
+   }
 
   if (false) {
-    b2_fam[0] = Lattice.Elem_Index(q_fam[0].c_str());
-    b2_fam[1] = Lattice.Elem_Index(q_fam[1].c_str());
-    Lattice.FitTune(b2_fam[0], b2_fam[1], nu[X_], nu[Y_]);
-    get_bn_design_elem(b2_fam[0], 1, Quad, b2[0], a2);
-    get_bn_design_elem(b2_fam[1], 1, Quad, b2[1], a2);
+    Id.identity();
+    Ms[x_] =
+      (cos(-2e0*M_PI*globval.TotalTune[Z_])
+       +globval.alpha_z*sin(-2e0*M_PI*globval.TotalTune[Z_]))*Id[x_]
+      + globval.beta_z*sin(-2e0*M_PI*globval.TotalTune[Z_])*Id[px_];
+    Ms[px_] =
+      -(1e0+sqr(globval.alpha_z))/globval.beta_z
+      *sin(-2e0*M_PI*globval.TotalTune[Z_])*Id[x_]
+      +(cos(-2e0*M_PI*globval.TotalTune[Z_])
+	-globval.alpha_z*sin(-2e0*M_PI*globval.TotalTune[Z_]))*Id[px_];
+    prt_lin_map(1, Ms);
+    Ms = exp(-Cell[globval.Cell_nLoc].S/(c0*globval.tau[Z_]))*Ms;
+    prt_lin_map(1, Ms);
+    printf("\nDet = %17.10e",
+	   Ms[x_][x_]*Ms[px_][px_]-Ms[x_][px_]*Ms[px_][x_]);
 
-    printf("\nnu_x = %8.5f nu_y = %8.5f\n",
-	   Lattice.param.TotalTune[X_], Lattice.param.TotalTune[Y_]);
-    printf("  %s = %8.5f  %s = %8.5f\n",
-	   q_fam[0].c_str(), b2[0], q_fam[1].c_str(), b2[1]);
+    // Variables needs to be changed too.
+    // Ascr = putlinmat(6, globval.Ascr);
+    // a = Ascr[delta_]; Ascr[delta_] = Ascr[ct_]; Ascr[ct_] = a;
+    // Ascr = get_A_CS(3, Ascr, dnu);
+    // A_Atp = Ascr*tp_S(3, Ascr);
+    // printf("\nA_Atp\n");
+    // prt_lin_map(3, A_Atp);
 
-    Lattice.Ring_GetTwiss(true, 0e0); printglob();
+    exit(0);
   }
 
   if (false) {
-    b3_fam[0] = Lattice.Elem_Index(s_fam[0].c_str());
-    b3_fam[1] = Lattice.Elem_Index(s_fam[1].c_str());
-    Lattice.FitChrom(b3[0], b3[1], 0e0, 0e0);
-    get_bn_design_elem(b3_fam[0], 1, Sext, b3[0], a3);
-    get_bn_design_elem(b3_fam[1], 1, Sext, b3[1], a3);
-    get_bnL_design_elem(b3_fam[0], 1, Sext, b3L[0], a3L);
-    get_bnL_design_elem(b3_fam[1], 1, Sext, b3L[1], a3L);
+    // b2_fam[0] = ElemIndex(q_fam[0].c_str());
+    // b2_fam[1] = ElemIndex(q_fam[1].c_str());
+    // FitTune(b2_fam[0], b2_fam[1], nu[X_], nu[Y_]);
+    // get_bn_design_elem(b2_fam[0], 1, Quad, b2[0], a2);
+    // get_bn_design_elem(b2_fam[1], 1, Quad, b2[1], a2);
 
-    printf("\n%s = %10.5f (%10.5f), %s = %10.5f (%10.5f)\n",
-	   s_fam[0].c_str(), b3[0], b3L[0], s_fam[1].c_str(), b3[1], b3L[1]);
+    // printf("\nnu_x = %8.5f nu_y = %8.5f\n",
+    // 	   globval.TotalTune[X_], globval.TotalTune[Y_]);
+    // printf("  %s = %8.5f  %s = %8.5f\n",
+    // 	   q_fam[0].c_str(), b2[0], q_fam[1].c_str(), b2[1]);
 
-    Lattice.Ring_GetTwiss(true, 0e0); printglob();
+    // Ring_GetTwiss(true, 0e0); printglob();
   }
 
-  Lattice.prtmfile("flat_file.fit");
+  if (false) {
+    // b3_fam[0] = ElemIndex(s_fam[0].c_str());
+    // b3_fam[1] = ElemIndex(s_fam[1].c_str());
+    // FitChrom(b3[0], b3[1], 0e0, 0e0);
+    // get_bn_design_elem(b3_fam[0], 1, Sext, b3[0], a3);
+    // get_bn_design_elem(b3_fam[1], 1, Sext, b3[1], a3);
+    // get_bnL_design_elem(b3_fam[0], 1, Sext, b3L[0], a3L);
+    // get_bnL_design_elem(b3_fam[1], 1, Sext, b3L[1], a3L);
+
+    // printf("\n%s = %10.5f (%10.5f), %s = %10.5f (%10.5f)\n",
+    // 	   s_fam[0].c_str(), b3[0], b3L[0], s_fam[1].c_str(), b3[1], b3L[1]);
+
+    // Ring_GetTwiss(true, 0e0); printglob();
+  }
 
   if (false) {
-    Lattice.param.Cavity_on = false; Lattice.param.radiation = false;
-
-    C = static_cast<CavityType*>
-      (Lattice.Cell[Lattice.Elem_GetPos(Lattice.Elem_Index("cav"), 1)]);
-
-    f_rf = C->freq;
-    printf("\nf_rf = %10.3e\n", f_rf);
-
-    Lattice.param.Cavity_on = true;
-    // Synchro-betatron resonance for "101pm_above_coupres_tracy.lat".
-    // track("track.out", 2.6e-3, 0e0, 1e-6, 0e0, 0e0, n_turn, lastn, lastpos,
-    // 	  0, 0*f_rf);
-    // track("track.out", 1e-6, 0e0, 1.9e-3, 0e0, 0e0, n_turn, lastn, lastpos,
-    // 	  0, 0*f_rf);
-    
-    // track("track.out", 1e-3, 0e0, 1e-3, 0e0, 0e0, 10*n_turn, lastn, lastpos,
-    // 	  0, f_rf);
-
-    // lattice/101pm_s7o7_a_tracy.lat.
-    Lattice.track("track.out", 5.5e-3, 0e0, 1e-6, 0e0, 0e0, n_turn, lastn,
-		  lastpos, 0, 0*f_rf);
+    get_disp();
+    exit(0);
   }
 
   if (true) {
-    // set_map("M", 0.0, 0.0);
-
-    Lattice.param.Cavity_on = true;
-    Lattice.get_dynap(delta, 25, n_turn, false);
+    globval.Cavity_on = true;
+    get_dynap(delta, 25, n_turn, false);
   }
-
 }

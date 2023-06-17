@@ -13,29 +13,36 @@ void err_and_corr(const string &param_file, const int mode)
   param_data_type params;
   orb_corr_type   orb_corr[2];
 
-  params.err_and_corr_init(param_file, orb_corr);
+  params.get_param(param_file);
 
-  Lattice.param.CODeps = 1e-10;
+  globval.dPcommon = 1e-10;
+  globval.CODeps = 1e-10;
+
+  Ring_GetTwiss(true, 0e0); printglob();
+
+  params.err_and_corr_init(param_file, orb_corr);
 
   if (params.fe_file != "") params.LoadFieldErr(false, 1e0, true);
   if (params.ae_file != "") {
     // Load misalignments; set seed, no scaling of rms errors.
     params.LoadAlignTol(false, 1e0, true, 1);
     // Beam based alignment.
-    if (params.bba) params.Align_BPMs(Quad);
+    if (params.bba) params.Align_BPMs(Quad, -1e0, -1e0, -1e0);
 
-    cod = params.cod_corr(params.n_cell, 1e0, orb_corr);
+    trace = false;
+    cod = params.cod_corr(params.n_cell, 1e0, params.h_maxkick,
+			  params.v_maxkick, params.n_bits, orb_corr);
   } else
-    cod = Lattice.getcod(0e0, lastpos);
+    cod = getcod(0e0, lastpos);
 
-  params.Orb_and_Trim_Stat();
+  params.Orb_and_Trim_Stat(orb_corr);
 
   if (params.N_calls > 0) {
-    params.ID_corr(params.N_calls, params.N_steps, false);
-    cod = params.cod_corr(params.n_cell, 1e0, orb_corr);
+    params.ID_corr(params.N_calls, params.N_steps, false, 1);
+    // cod = params.cod_corr(params.n_cell, 1e0, orb_corr);
   }
 
-  Lattice.prtmfile("flat_file.dat");
+  prtmfile("flat_file.dat");
 
   if (cod) {
     if (mode == 1) {
@@ -61,10 +68,13 @@ void err_and_corr(const string &param_file, const int mode)
 
 int main(int argc, char *argv[])
 {
-  Lattice.param.H_exact    = false; Lattice.param.quad_fringe = false;
-  Lattice.param.Cavity_on  = false; Lattice.param.radiation   = false;
-  Lattice.param.emittance  = false; Lattice.param.IBS         = false;
-  Lattice.param.pathlength = false; Lattice.param.Aperture_on = false;
+  globval.H_exact    = false; globval.quad_fringe    = false;
+  globval.Cavity_on  = false; globval.radiation      = false;
+  globval.emittance  = false; globval.IBS            = false;
+  globval.pathlength = false; globval.Aperture_on    = false;
+  globval.Cart_Bend  = false; globval.dip_edge_fudge = true;
+
+  globval.mat_meth = false;
 
   if (argc < 2) {
     printf("*** bad command line\n");

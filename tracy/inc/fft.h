@@ -8,4 +8,9 @@
 
 */
 
+#ifndef FFT_H
+#define FFT_H
+
 extern void FFT(long int n, double *xr, double *xi);
+
+#endif

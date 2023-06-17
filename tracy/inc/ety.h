@@ -8,6 +8,9 @@
 
 */
 
+#ifndef ETY_H
+#define ETY_H
+
 void ETY(int n, int low, int high, Matrix &a, psVector &ort);
 
 void ETYT(int n, int low, int high, Matrix &a, psVector &ort,
@@ -16,4 +19,4 @@ void ETYT(int n, int low, int high, Matrix &a, psVector &ort,
 void ety2(int n, int low, int high, Matrix &h, psVector &wr,
 	  psVector &wi, Matrix &z, int &ierr);
 
-
+#endif

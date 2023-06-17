@@ -1,17 +1,17 @@
 #!/bin/sh
 
-prm1=${1-""}
-prm2=${2-0}
-prm3=${3-3.0}
+prm1=${1-0}
+prm2=${2-3.0}
 
 gnuplot << EOP
 
-home_dir = "$prm1"; ps = $prm2; delta = sprintf("%3.1f", $prm3);
+ps = $prm1;
+delta = sprintf("%3.1f", $prm2);
 norm = 0; mom_aper = 1; phys_app = 0;
 
-file1 = (home_dir)."dynap.out";
-file2 = (home_dir)."dynap_dp".delta.".out";
-file3 = (home_dir)."dynap_dp-".delta.".out";
+file1 = "dynap.out";
+file2 = "dynap_dp".delta.".out";
+file3 = "dynap_dp-".delta.".out";
 
 f_s = 24; l_w = 2;
 if (ps == 0) \
@@ -27,10 +27,7 @@ else if (ps == 3) \
   ext = "pdf"; \
 else if (ps == 4) \
   set term pngcairo enhanced color solid lw l_w font "Times-Roman f_s"; \
-  ext = "png"; \
-else if (ps == 5) \
-  set term svg enhanced font "Times-Roman,f_s"; \
-  ext = "svg";
+  ext = "png";
 
 set grid;
 
@@ -51,7 +48,7 @@ if (phys_app) \
   set arrow from  x_hat, y_hat to  x_hat,   0.0 nohead \
   lt 1 lw 1 lc rgb "black";
 
-if (ps) set output (home_dir)."dynap.".(ext);
+if (ps) set output "dynap.".(ext);
 
 if (!norm) \
   set title "Dynamic Aperture (bare lattice)"; \

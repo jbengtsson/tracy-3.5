@@ -85,28 +85,35 @@ void TPSAEps(const double eps)
 { daeps_(eps); eps_tps = eps; }
 
 tps::tps(void) {
-  char  name[11];
+  const char name[11] = "tps       ";
 
   if (!ini_tps) TPSA_Ini();
-  seq_tps++; sprintf(name, "tps-%-5hu", seq_tps);
+  seq_tps++;
+  // sprintf(name, "tps-%-5hu", seq_tps);
   daall_(ltps, 1, name, no_tps, nv_tps); dacon_(ltps, 0.0);
 }
 
 tps::tps(const double r)
 {
-  char  name[11];
+  // C string is null terminated: 10+1 characters.
+  const char name[11] = "tps       ";
 
   if (!ini_tps) TPSA_Ini();
-  seq_tps++; sprintf(name, "tps-%-5hu", seq_tps);
+  seq_tps++;
+  // Avoid unnecessary overhead.
+  // sprintf(name, "tps-%-5hu", seq_tps);
   daall_(ltps, 1, name, no_tps, nv_tps); dacon_(ltps, r);
 }
 
 tps::tps(const double r, const int i)
 {
-  char  name[11];
+  // C string is null terminated: 10+1 characters.
+  const char name[11] = "tps       ";
 
   if (!ini_tps) TPSA_Ini();
-  seq_tps++; sprintf(name, "tps-%-5hu", seq_tps);
+  seq_tps++;
+  // Avoid unnecessary overhead.
+  // sprintf(name, "tps-%-5hu", seq_tps);
   daall_(ltps, 1, name, no_tps, nv_tps);
   if (i == 0)
     dacon_(ltps, r);
@@ -115,10 +122,13 @@ tps::tps(const double r, const int i)
 }
 
 tps::tps(const tps &x) {
-  char  name[11];
+  // C string is null terminated: 10+1 characters.
+  const char name[11] = "tps       ";
 
   if (!ini_tps) TPSA_Ini();
-  seq_tps++; sprintf(name, "tps-%-5hu", seq_tps);
+  seq_tps++;
+  // Avoid unnecessary overhead.
+  // sprintf(name, "tps-%-5hu", seq_tps);
   daall_(ltps, 1, name, no_tps, nv_tps);
   dacop_(x.ltps, ltps);
 }
@@ -130,7 +140,7 @@ tps::~tps(void)
 double tps::operator[](const int k) const
 {
   int     i;
-  iVector jj;
+  long int jj[ss_dim];
   double  r;
 
   for (i = 0; i < nv_tps; i++)
@@ -140,7 +150,7 @@ double tps::operator[](const int k) const
   return(r);
 }
 
-double tps::operator[](const int jj[]) const
+double tps::operator[](const long int jj[]) const
 {
   double  r;
 
@@ -148,7 +158,7 @@ double tps::operator[](const int jj[]) const
   return(r);
 }
 
-void tps::pook(const int jj[], const double r)
+void tps::pook(const long int jj[], const double r)
 { dapok_(ltps, jj, r); }
 
 tps& tps::operator=(const double r)
@@ -306,9 +316,9 @@ tps cosh(const tps &a)
 
 const double tps::cst(void) const
 {
-  int     i;
-  iVector jj;
-  double  r;
+  int      i;
+  long int jj[ss_dim];
+  double   r;
 
   for (i = 0; i < nv_tps; i++)
     jj[i] = 0;
@@ -358,26 +368,25 @@ ss_vect<tps> Inv(const ss_vect<tps> &x)
   return y;
 }
 
-ss_vect<tps> PInv(const ss_vect<tps> &x, const iVector &jj)
+ss_vect<tps> PInv(const ss_vect<tps> &x, const long int jj[])
 {
-  int           k, n;
-  ss_vect<tps>  y, z;
+  int           j, k, n;
+  ss_vect<tps>  Id, y, z;
 
-  n = 0;
-  for (k = 0; k < ss_dim; k++) {
-    if (jj[k] != 0) {
-      n++; y[n-1] = x[k];
-    }
-  }
+  Id.identity(); y.zero(); n = 0;
+  for (j = 0; j < ss_dim; j++)
+    if (jj[j] != 0) {
+      n++;
+      for (k = 0; k < ss_dim; k++)
+	y[j] += jj[k]*x[j][k]*Id[k];
+    } else
+      y[j] = Id[j];
 
-  dainv_(y, n, z, n);
+  dainv_(y, nv_tps, z, nv_tps);
 
-  n = 0; y.zero();
-  for (k = 0; k < ss_dim; k++) {
-    if (jj[k] != 0) {
-      n++; y[n-1] = z[k];
-    }
-  }
+  y.zero();
+  for (j = 0; j < ss_dim; j++)
+    if (jj[j] != 0) y[j] = z[j];
 
   return y;
 }
@@ -392,10 +401,11 @@ std::istream& operator>>(std::istream &is, tps &a)
 
   const bool  prt = false;
 
-  std::cout << "not implemented" << std::endl; exit_(1);
+  std::cout << "not implemented" << std::endl;
+  exit_(1);
 
   is.getline(line, max_str); is.getline(line, max_str);
-  sscanf(line, "tpsa, NO =%d, NV =%d", &no1, &nv1);
+  sscanf(line, "%*[^,], NO =%d, NV =%d", &no1, &nv1);
   if (prt) std::cout << "no = " << no1 << ", nv = " << nv1 << std::endl;
 //  ibuf1[0] = no_tps; ibuf2[0] = ss_dim;
 
@@ -437,12 +447,12 @@ std::istream& operator>>(std::istream &is, tps &a)
 
 std::ostream& operator<<(std::ostream &os, const tps &a)
 {
-  int            i, j, n;
-  iVector        jj;
-  std::ostringstream  s;
+  int                i, j, n, n1;
+  long int           jj[ss_dim+1];
+  std::ostringstream s;
 
   s << std::endl;
-  s << "NO = " << no_tps << ", NV = " << nv_tps << std::endl;
+  s << "tps, NO = " << no_tps << ", NV = " << nv_tps+1 << std::endl;
 
   for (i = 1; i <= 66; i++)
     s << "-"; 
@@ -490,29 +500,30 @@ std::ostream& operator<<(std::ostream &os, const tps &a)
   if (n != 0) {
     s << std::endl;
     s << "   |I|         a              ";
-    for (i = 1; i <= nv_tps; i++)
+    for (i = 1; i <= nv_tps+1; i++)
       s << "  i";
     s << std::endl;
     s << "                I              ";
-    for (i = 1; i <= nv_tps; i++)
+    for (i = 1; i <= nv_tps+1; i++)
       s << std::setw(3) << i;
     s << std::endl;
     s << std::endl;
   } else
     s << "   ALL COMPONENTS ZERO " << std::endl;
 
-  for (j = 0; j < nv_tps; j++)
+  for (j = 0; j < nv_tps+1; j++)
     jj[j] = 0;
 
   for (i = 0; i <= nv_tps; i++) {
     if (i > 0) {
-      n = 1; jj[i-1] = 1;
+      n1 = 1;
+      jj[i-1] = 1;
     } else
-      n = 0;
+      n1 = 0;
     if (fabs(a[jj]) >= eps_tps) {
-      s << std::setw(5) << n << std::scientific << std::setw(24)
+      s << std::setw(5) << n1 << std::scientific << std::setw(24)
 	<< std::setprecision(16) << a[jj] << " ";
-      for (j = 0; j < nv_tps; j++)
+      for (j = 0; j < nv_tps+1; j++)
 	s << std::setw(3) << jj[j];
       s << std::endl;
     }
@@ -522,7 +533,7 @@ std::ostream& operator<<(std::ostream &os, const tps &a)
   if (n == 0) n = 1;
   s << std::setw(5) << -n
     << std::scientific << std::setw(24) << std::setprecision(16) << 0.0 << " ";
-  for (j = 0; j < nv_tps; j++)
+  for (j = 0; j < nv_tps+1; j++)
     s << std::setw(3) << 0;
   s << std::endl;
 

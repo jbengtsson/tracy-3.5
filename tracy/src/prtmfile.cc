@@ -18,6 +18,7 @@
      thin kick   3
      wiggler     4
      kick_map    6
+     map         7
 
    Integration methods:
 
@@ -26,7 +27,7 @@
    Format:
 
      name, family no, kid no, element no
-     type code, integration method, no of integration steps
+     type code, integration method, no of integration steps, reverse
      apertures: xmin, xmax, ymin, ymax
 
    The following lines follows depending on element type.
@@ -44,7 +45,7 @@
 		     n   n
 		    ...
 
-     wiggler:    L [m], lambda [m]
+     wiggler:    L [m], Lambda [m]
                  no of harmonics
                  harm no, kxV [1/m], BoBrhoV [1/m], kxH, BoBrhoH, phi
                     ...
@@ -60,6 +61,8 @@
 
      kick_map:   order <file name>
 
+     map:
+
 */
 
 
@@ -73,107 +76,120 @@
 #define thinkick_  3
 #define wiggler_   4
 #define kick_map_  6
+#define map_       7
 
 
 void prtName(FILE *fp, const int i,
-	     const int type, const int method, const int N)
+	     const int type, const int method, const int N, const bool reverse)
 {
   fprintf(fp, "%-15s %4d %4d %4d\n",
-	  Lattice.Cell[i]->Name,
-	  Lattice.Cell[i]->Fnum, Lattice.Cell[i]->Knum, i);
-  fprintf(fp, " %3d %3d %3d\n", type, method, N);
+	  Cell[i].Elem.PName, Cell[i].Fnum, Cell[i].Knum, i);
+  fprintf(fp, " %3d %3d %3d %4d\n", type, method, N, reverse);
   fprintf(fp, " %23.16e %23.16e %23.16e %23.16e\n",
-	  Lattice.Cell[i]->maxampl[X_][0], Lattice.Cell[i]->maxampl[X_][1],
-	  Lattice.Cell[i]->maxampl[Y_][0], Lattice.Cell[i]->maxampl[Y_][1]);
+	  Cell[i].maxampl[X_][0], Cell[i].maxampl[X_][1],
+	  Cell[i].maxampl[Y_][0], Cell[i].maxampl[Y_][1]);
 }
 
 
-void prtHOM(FILE *fp, const int n_design, const mpolArray B, const int Order)
+void prtHOM(FILE *fp, const int n_design, const mpolArray PB, const int Order)
 {
   int i, nmpole;
   
   nmpole = 0;
   for (i = 1; i <= Order; i++)
-    if ((B[HOMmax-i] != 0.0) || (B[HOMmax+i] != 0.0)) nmpole++;
+    if ((PB[HOMmax-i] != 0.0) || (PB[HOMmax+i] != 0.0)) nmpole++;
   fprintf(fp, "  %2d %2d\n", nmpole, n_design);
   for (i = 1; i <= Order; i++) {
-    if ((B[HOMmax-i] != 0.0) || (B[HOMmax+i] != 0.0))
-      fprintf(fp, "%3d %23.16e %23.16e\n", i, B[HOMmax+i], B[HOMmax-i]);
+    if ((PB[HOMmax-i] != 0.0) || (PB[HOMmax+i] != 0.0))
+      fprintf(fp, "%3d %23.16e %23.16e\n", i, PB[HOMmax+i], PB[HOMmax-i]);
   }
 }
 
 
-void LatticeType::prtmfile(const char mfile_dat[])
+void prtmfile(const char mfile_dat[])
 {
-  int           i, j;
-  MpoleType     *M;
-  WigglerType   *W;
-  CavityType    *C;
-  InsertionType *ID;
-  FILE          *mfile;
+  int  i, j, k;
+  FILE *mfile;
+
+  const int n_ps = 6;
 
   mfile = file_write(mfile_dat);
-  for (i = 0; i <= Lattice.param.Cell_nLoc; i++) {
-    switch (Lattice.Cell[i]->Elem.Kind) {
-    case PartsKind(undef):
-      // First element: begin.
-      prtName(mfile, i, drift_, 0, 0);
-      fprintf(mfile, " %23.16e\n", Lattice.Cell[i]->L);
+  for (i = 0; i <= globval.Cell_nLoc; i++) {
+    switch (Cell[i].Elem.Pkind) {
+    case drift:
+      prtName(mfile, i, drift_, 0, 0, 0);
+      fprintf(mfile, " %23.16e\n", Cell[i].Elem.PL);
       break;
-    case PartsKind(marker):
-      prtName(mfile, i, marker_, 0, 0);
-      break;
-    case PartsKind(drift):
-      prtName(mfile, i, drift_, 0, 0);
-      fprintf(mfile, " %23.16e\n", Lattice.Cell[i]->L);
-      break;
-    case PartsKind(Mpole):
-      M = static_cast<MpoleType*>(Lattice.Cell[i]);
-      if (Lattice.Cell[i]->L != 0.0) {
-	prtName(mfile, i, mpole_, M->method, M->N);
+    case Mpole:
+      if (Cell[i].Elem.PL != 0.0) {
+	prtName(mfile, i, mpole_, Cell[i].Elem.M->Pmethod, Cell[i].Elem.M->PN,
+		Cell[i].Elem.Reverse);
 	fprintf(mfile, " %23.16e %23.16e %23.16e %23.16e\n",
-		Lattice.Cell[i]->dS[X_], Lattice.Cell[i]->dS[Y_],
-		M->dRpar, M->dRsys+M->dRrms*M->dRrnd);
+		Cell[i].dS[X_], Cell[i].dS[Y_],
+		Cell[i].Elem.M->PdTpar,
+		Cell[i].Elem.M->PdTsys
+		+Cell[i].Elem.M->PdTrms*Cell[i].Elem.M->PdTrnd);
 	fprintf(mfile, " %23.16e %23.16e %23.16e %23.16e %23.16e\n",
-		Lattice.Cell[i]->L, M->irho, M->Tx1, M->Tx2,	M->gap);
-	prtHOM(mfile, M->n_design, M->B, M->order);
+		Cell[i].Elem.PL, Cell[i].Elem.M->Pirho,
+		Cell[i].Elem.M->PTx1, Cell[i].Elem.M->PTx2,
+		Cell[i].Elem.M->Pgap);
+	prtHOM(mfile, Cell[i].Elem.M->n_design, Cell[i].Elem.M->PB,
+	       Cell[i].Elem.M->Porder);
       } else {
-	prtName(mfile, i, thinkick_, M->method,	M->N);
+	prtName(mfile, i, thinkick_, Cell[i].Elem.M->Pmethod,
+		Cell[i].Elem.M->PN, Cell[i].Elem.Reverse);
 	fprintf(mfile, " %23.16e %23.16e %23.16e\n",
-		Lattice.Cell[i]->dS[X_], Lattice.Cell[i]->dS[Y_],
-		M->dRsys+M->dRrms*M->dRrnd);
-	prtHOM(mfile, M->n_design, M->B, M->order);
+		Cell[i].dS[X_], Cell[i].dS[Y_],
+		Cell[i].Elem.M->PdTsys
+		+Cell[i].Elem.M->PdTrms*Cell[i].Elem.M->PdTrnd);
+	prtHOM(mfile, Cell[i].Elem.M->n_design, Cell[i].Elem.M->PB,
+	       Cell[i].Elem.M->Porder);
       }
       break;
-    case PartsKind(Wigl):
-      W = static_cast<WigglerType*>(Lattice.Cell[i]);
-      prtName(mfile, i, wiggler_, W->method, W->N);
+    case Wigl:
+      prtName(mfile, i, wiggler_, Cell[i].Elem.W->Pmethod, Cell[i].Elem.W->PN,
+	      Cell[i].Elem.Reverse);
       fprintf(mfile, " %23.16e %23.16e\n",
-	      Lattice.Cell[i]->L, W->lambda);
-      fprintf(mfile, "%2d\n", W->n_harm);
-      for (j = 0; j < W->n_harm; j++) {
+	      Cell[i].Elem.PL, Cell[i].Elem.W->Lambda);
+      fprintf(mfile, "%2d\n", Cell[i].Elem.W->n_harm);
+      for (j = 0; j < Cell[i].Elem.W->n_harm; j++) {
 	fprintf(mfile, "%2d %23.16e %23.16e %23.16e %23.16e %23.16e\n",
-		W->harm[j], W->kxV[j], W->BoBrhoV[j], W->kxH[j], W->BoBrhoH[j],
-		W->phi[j]);
+		Cell[i].Elem.W->harm[j],
+		Cell[i].Elem.W->kxV[j], Cell[i].Elem.W->BoBrhoV[j],
+		Cell[i].Elem.W->kxH[j], Cell[i].Elem.W->BoBrhoH[j],
+		Cell[i].Elem.W->phi[j]);
       }
       break;
-    case PartsKind(Cavity):
-      C = static_cast<CavityType*>(Lattice.Cell[i]);
-      prtName(mfile, i, cavity_, 0, 0);
+    case Cavity:
+      prtName(mfile, i, cavity_, 0, 0, 0);
       fprintf(mfile, " %23.16e %23.16e %d %23.16e %23.16e\n",
-	      C->volt/(1e9*Lattice.param.Energy), 2.0*M_PI*C->freq/c0, C->h,
-	      1e9*Lattice.param.Energy, C->phi);
+	      Cell[i].Elem.C->V_RF/(1e9*globval.Energy),
+	      2.0*M_PI*Cell[i].Elem.C->f_RF/c0, Cell[i].Elem.C->harm_num,
+	      1e9*globval.Energy, Cell[i].Elem.C->phi_RF);
       break;
-    case PartsKind(Insertion):
-      ID = static_cast<InsertionType*>(Lattice.Cell[i]);
-      prtName(mfile, i, kick_map_, ID->method, ID->N);
-      if (ID->firstorder)
-	fprintf(mfile, " %3.1lf %1d %s\n", ID->scaling, 1, ID->fname1);
+    case marker:
+      prtName(mfile, i, marker_, 0, 0, 0);
+      break;
+    case Insertion:
+      prtName(mfile, i, kick_map_, Cell[i].Elem.ID->Pmethod,
+	      Cell[i].Elem.ID->PN, Cell[i].Elem.Reverse);
+      if (Cell[i].Elem.ID->firstorder)
+	fprintf(mfile, " %3.1lf %1d %s\n",
+		Cell[i].Elem.ID->scaling, 1, Cell[i].Elem.ID->fname1);
       else
-	fprintf(mfile, " %3.1lf %1d %s\n", ID->scaling, 2, ID->fname2);
+	fprintf(mfile, " %3.1lf %1d %s\n",
+		Cell[i].Elem.ID->scaling, 2, Cell[i].Elem.ID->fname2);
+      break;
+    case Map:
+      prtName(mfile, i, map_, 0, 0, 0);
+      for (j = 0; j < n_ps; j++) {
+	for (k = 0; k < n_ps; k++)
+	  fprintf(mfile, " %23.16le", Cell[i].Elem.Map->M[j][k]);
+	fprintf(mfile, "\n");
+      }
       break;
     default:
-      printf("prtmfile: unknown type %d\n", Lattice.Cell[i]->Elem.Kind);
+      printf("prtmfile: unknown type %d\n", Cell[i].Elem.Pkind);
       exit(1);
       break;
     }

@@ -14,11 +14,11 @@
 
 */
 
-#define ORDER 1
+#define NO 1
 
 #include "tracy_lib.h"
 
-int no_tps = ORDER;
+int no_tps = NO;
 
 #define N_COEFF  3    // no of terms to optimize
 
@@ -32,8 +32,6 @@ int no_tps = ORDER;
 const int  ps_dim = 4+1;
 
 typedef double sp_vec[2], ps_vec[ps_dim], mat[ps_dim][ps_dim];
-
-const int  n_b3_max = 50;
 
 int     iter, n_b3, b3s[n_b3_max];
 double  twoJx, twoJy;
@@ -525,21 +523,21 @@ void sext_terms(const double twoJx, const double twoJy)
 
   printf("\n");
   printf("First order geometric terms:\n");
-  sxt_1(-1.0/4.0, 2, 1, 0, 0, 0, h_c, h_s);
-  h_c *= pow(twoJx, 3.0/2.0); h_s *= pow(twoJx, 3.0/2.0);
-  printf("  h_21000: %23.16e %23.16e\n", h_c/2.0, h_s/2.0);
   sxt_1(-1.0/12.0, 3, 0, 0, 0, 0, h_c, h_s);
   h_c *= pow(twoJx, 3.0/2.0); h_s *= pow(twoJx, 3.0/2.0);
   printf("  h_30000: %23.16e %23.16e\n", h_c/2.0, h_s/2.0);
+  sxt_1(-1.0/4.0, 2, 1, 0, 0, 0, h_c, h_s);
+  h_c *= pow(twoJx, 3.0/2.0); h_s *= pow(twoJx, 3.0/2.0);
+  printf("  h_21000: %23.16e %23.16e\n", h_c/2.0, h_s/2.0);
+  sxt_1(1.0/4.0, 1, 0, 2, 0, 0, h_c, h_s);
+  h_c *= sqrt(twoJx)*twoJy; h_s *= sqrt(twoJx)*twoJy;
+  printf("  h_10200: %23.16e %23.16e\n", h_c/2.0, h_s/2.0);
   sxt_1(1.0/2.0, 1, 0, 1, 1, 0, h_c, h_s);
   h_c *= sqrt(twoJx)*twoJy; h_s *= sqrt(twoJx)*twoJy;
   printf("  h_10110: %23.16e %23.16e\n", h_c/2.0, h_s/2.0);
   sxt_1(1.0/4.0, 1, 0, 0, 2, 0, h_c, h_s);
   h_c *= sqrt(twoJx)*twoJy; h_s *= sqrt(twoJx)*twoJy;
   printf("  h_10020: %23.16e %23.16e\n", h_c/2.0, h_s/2.0);
-  sxt_1(1.0/4.0, 1, 0, 2, 0, 0, h_c, h_s);
-  h_c *= sqrt(twoJx)*twoJy; h_s *= sqrt(twoJx)*twoJy;
-  printf("  h_10200: %23.16e %23.16e\n", h_c/2.0, h_s/2.0);
 
   printf("\n");
   printf("Second order geometric terms:\n");
@@ -551,24 +549,13 @@ void sext_terms(const double twoJx, const double twoJy)
   h_c *= sqr(twoJx); h_s *= sqr(twoJx);
   printf("  h_31000: %23.16e %23.16e\n", h_c/2.0, h_s/2.0);
 
-  sxt_2(-1.0/16.0, 3, 0, 0, 0, 0, 1, 1, 1, c, s);
+  sxt_2(-1.0/32.0, 0, 3, 0, 0, 3, 0, 0, 0, c, s);
   h_c = c; h_s = s;
-  sxt_2(-1.0/16.0, 1, 0, 1, 1, 2, 1, 0, 0, c, s);
+  sxt_2(-3.0/32.0, 1, 2, 0, 0, 2, 1, 0, 0, c, s);
   h_c += c; h_s += s;
-  sxt_2(-1.0/8.0, 1, 0, 0, 2, 1, 0, 2, 0, c, s);
-  h_c += c; h_s += s;
-  h_c *= twoJx*twoJy; h_s *= twoJx*twoJy;
-  printf("  h_20110: %23.16e %23.16e\n", h_c/2.0, h_s/2.0);
+  h_c *= sqr(twoJx); h_s *= sqr(twoJx);
+  printf("  h_22000: %23.16e %23.16e\n", h_c/2.0, h_s/2.0);
   
-  sxt_2(-1.0/32.0, 1, 0, 0, 2, 2, 1, 0, 0, c, s);
-  h_c = c; h_s = s;
-  sxt_2(-1.0/32.0, 3, 0, 0, 0, 0, 1, 0, 2, c, s);
-  h_c += c; h_s += s;
-  sxt_2(-4.0/32.0, 1, 0, 0, 2, 1, 0, 1, 1, c, s);
-  h_c += c; h_s += s;
-  h_c *= twoJx*twoJy; h_s *= twoJx*twoJy;
-  printf("  h_20020: %23.16e %23.16e\n", h_c/2.0, h_s/2.0);
-
   sxt_2(-1.0/32.0, 3, 0, 0, 0, 0, 1, 2, 0, c, s);
   h_c = c; h_s = s;
   sxt_2(-1.0/32.0, 1, 0, 2, 0, 2, 1, 0, 0, c, s);
@@ -589,25 +576,14 @@ void sext_terms(const double twoJx, const double twoJy)
   h_c *= twoJx*twoJy; h_s *= twoJx*twoJy;
   printf("  h_11200: %23.16e %23.16e\n", h_c/2.0, h_s/2.0);
     
-  sxt_2(-1.0/16.0, 0, 1, 2, 0, 1, 0, 1, 1, c, s);
+  sxt_2(-1.0/16.0, 3, 0, 0, 0, 0, 1, 1, 1, c, s);
   h_c = c; h_s = s;
-  sxt_2(-1.0/16.0, 0, 1, 1, 1, 1, 0, 2, 0, c, s);
+  sxt_2(-1.0/16.0, 1, 0, 1, 1, 2, 1, 0, 0, c, s);
   h_c += c; h_s += s;
-  h_c *= sqr(twoJy); h_s *= sqr(twoJy);
-  printf("  h_00310: %23.16e %23.16e\n", h_c/2.0, h_s/2.0);
-  
-  sxt_2(-1.0/32.0, 0, 1, 2, 0, 1, 0, 2, 0, h_c, h_s);
-  h_c *= sqr(twoJy); h_s *= sqr(twoJy);
-  printf("  h_00400: %23.16e %23.16e\n", h_c/2.0, h_s/2.0);
-
-  printf("\n");
-  printf("Second order tune shifts (driving terms):\n");
-  sxt_2(-1.0/32.0, 0, 3, 0, 0, 3, 0, 0, 0, c, s);
-  h_c = c; h_s = s;
-  sxt_2(-3.0/32.0, 1, 2, 0, 0, 2, 1, 0, 0, c, s);
+  sxt_2(-1.0/8.0, 1, 0, 0, 2, 1, 0, 2, 0, c, s);
   h_c += c; h_s += s;
-  h_c *= sqr(twoJx); h_s *= sqr(twoJx);
-  printf("  h_22000: %23.16e %23.16e\n", h_c/2.0, h_s/2.0);
+  h_c *= twoJx*twoJy; h_s *= twoJx*twoJy;
+  printf("  h_20110: %23.16e %23.16e\n", h_c/2.0, h_s/2.0);
   
   sxt_2(-1.0/8.0, 1, 0, 1, 1, 1, 2, 0, 0, c, s);
   h_c = c; h_s = s;
@@ -620,6 +596,26 @@ void sext_terms(const double twoJx, const double twoJy)
   h_c *= twoJx*twoJy; h_s *= twoJx*twoJy;
   printf("  h_11110: %23.16e %23.16e\n", h_c/2.0, h_s/2.0);
   
+  sxt_2(-1.0/16.0, 0, 1, 2, 0, 1, 0, 1, 1, c, s);
+  h_c = c; h_s = s;
+  sxt_2(-1.0/16.0, 0, 1, 1, 1, 1, 0, 2, 0, c, s);
+  h_c += c; h_s += s;
+  h_c *= sqr(twoJy); h_s *= sqr(twoJy);
+  printf("  h_00310: %23.16e %23.16e\n", h_c/2.0, h_s/2.0);
+  
+  sxt_2(-1.0/32.0, 1, 0, 0, 2, 2, 1, 0, 0, c, s);
+  h_c = c; h_s = s;
+  sxt_2(-1.0/32.0, 3, 0, 0, 0, 0, 1, 0, 2, c, s);
+  h_c += c; h_s += s;
+  sxt_2(-4.0/32.0, 1, 0, 0, 2, 1, 0, 1, 1, c, s);
+  h_c += c; h_s += s;
+  h_c *= twoJx*twoJy; h_s *= twoJx*twoJy;
+  printf("  h_20020: %23.16e %23.16e\n", h_c/2.0, h_s/2.0);
+
+  sxt_2(-1.0/32.0, 0, 1, 2, 0, 1, 0, 2, 0, h_c, h_s);
+  h_c *= sqr(twoJy); h_s *= sqr(twoJy);
+  printf("  h_00400: %23.16e %23.16e\n", h_c/2.0, h_s/2.0);
+
   sxt_2(-1.0/8.0, 0, 1, 1, 1, 1, 0, 1, 1, c, s);
   h_c = c; h_s = s;
   sxt_2(-1.0/32.0, 0, 1, 0, 2, 1, 0, 2, 0, c, s);
@@ -638,13 +634,13 @@ void sext_terms(const double twoJx, const double twoJy)
 }
 
 
-float f_sxt(float p[])
+double f_sxt(double p[])
 {
   int     i;
   double  f, h_c, h_s, c, s;
 
   const int    n_prt = 100;
-  const float  scl_ksi1 = 1e3, scl_geom = 1e0, scl_dnu = 1.0, b3L_max = 3.5;
+  const double  scl_ksi1 = 1e3, scl_geom = 1e0, scl_dnu = 1.0, b3L_max = 3.5;
 
   iter++;
 
@@ -788,11 +784,11 @@ float f_sxt(float p[])
 void h_min(void)
 {
   int    i, j, n_iter;
-  float  *p, **xi, fret;
+  double  *p, **xi, fret;
 
-  const float  ftol = 1e-6;
+  const double  ftol = 1e-6;
 
-  p = vector(1, n_b3_max); xi = matrix(1, n_b3_max, 1, n_b3_max);
+  p = dvector(1, n_b3_max); xi = dmatrix(1, n_b3_max, 1, n_b3_max);
   
   n_b3 = 0;
   b3s[n_b3++] = ElemIndex("s4");  b3s[n_b3++] = ElemIndex("s6");
@@ -809,9 +805,9 @@ void h_min(void)
   }
 
   iter = 0;
-  powell(p, xi, n_b3, ftol, &n_iter, &fret, f_sxt); f_sxt(p);
+  dpowell(p, xi, n_b3, ftol, &n_iter, &fret, f_sxt); f_sxt(p);
 
-  free_vector(p, 1, n_b3_max); free_matrix(xi, 1, n_b3_max, 1, n_b3_max);
+  free_dvector(p, 1, n_b3_max); free_dmatrix(xi, 1, n_b3_max, 1, n_b3_max);
 }
 
 
@@ -824,17 +820,25 @@ int main(int argc, char *argv[])
 
   const double  Ax = 30e-3, Ay = 10e-3, betax = 18.150, betay = 3.090;
 
+  reverse_elem = !false;
+
+  trace = false;
+
+  globval.mat_meth = !false;
+
   Read_Lattice(argv[1]);
 
-  globval.H_exact   = false; globval.quad_fringe = false;
-  globval.Cavity_on = false; globval.radiation   = false;
-  globval.emittance = false; globval.pathlength  = false;
+  globval.H_exact    = false; globval.quad_fringe    = false;
+  globval.Cavity_on  = false; globval.radiation      = false;
+  globval.emittance  = false; globval.IBS            = false;
+  globval.pathlength = false; globval.bpm            = 0;
+  globval.Cart_Bend  = false; globval.dip_edge_fudge = true;
 
   Ring_GetTwiss(true, 0.0); printglob();
 
   prt_lat("linlat.out", globval.bpm, true);
 
-  twoJx = 1.0; twoJy = 1.0;
+  twoJx = 1e0; twoJy = 1e0;
 
   sext_terms(twoJx, twoJy);
 
@@ -850,7 +854,7 @@ int main(int argc, char *argv[])
 
   if (false) {
     fp = file_write("dynap.out");
-    dynap(fp, 5e-3, 0.0, 0.1e-3, n_aper, 512, x_aper, y_aper, false, true);
+    // dynap(fp, 5e-3, 0.0, 0.1e-3, n_aper, 512, x_aper, y_aper, false, true);
     fclose(fp);
   }
 }

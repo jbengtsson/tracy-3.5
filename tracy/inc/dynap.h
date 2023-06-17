@@ -1,4 +1,5 @@
-
+#ifndef DYNAP_H
+#define DYNAP_H
 
 class DA_data_type {
  private:
@@ -17,3 +18,5 @@ class DA_data_type {
   void get_DA_real(param_data_type &params, orb_corr_type orb_corr[]);
   void get_mean_sigma(const int n, double &m, double &s);
 };
+
+#endif

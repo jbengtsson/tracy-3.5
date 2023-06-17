@@ -11,9 +11,6 @@
 // missing in lstdc++
 //template double std::__cmath_power<double>(double, unsigned);
 
-long int rseed0, rseed;
-double   normcut_;
-
 double log(const int k) { return log((double)k); }
 
 
@@ -35,7 +32,7 @@ struct LOC_InvMat
   Matrix  *a;
   long    row, column;
   double  determ;
-};
+} ;
 
 void iniranf(const long i)
 {
@@ -553,9 +550,13 @@ void prtmat(const int n, const Matrix &A)
 
   printf("matrix:\n");
   for (i = 0; i < n; i++) {
-    for (j = 0; j < n; j++)
-      printf(" %14.6e", A[i][j]);
-//      printf(" %24.16e", A[i][j]);
+    for (j = 0; j < n; j++) {
+#if 1
+      printf(" %13.6e", A[i][j]);
+#else
+      printf(" %23.16e", A[i][j]);
+#endif
+    }
     putchar('\n');
   }
 }

@@ -36,10 +36,7 @@ else if (ps == 3) \
   ext = "pdf"; \
 else if (ps == 4) \
   set term pngcairo enhanced color solid lw l_w font "Times-Roman f_s"; \
-  ext = "png"; \
-else if (ps == 5) \
-  set term svg enhanced font "Times-Roman,f_s"; \
-  ext = "svg";
+  ext = "png";
 
 # sgn:
 #    frac(nu):
@@ -114,39 +111,32 @@ i10    = floor(nu_x_min) + 1.0;
 i01_1  = floor(nu_y_min) + 1.0;
 i01_2  = floor(nu_y_min) + 2.0;
 
-i20_1  = floor(nu_x_min) + 1.0/2.0;
-i20_2  = floor(nu_x_min) + 3.0/2.0;
-i02_1  = floor(nu_y_min) + 1.0/2.0;
-i02_2  = floor(nu_y_min) + 3.0/2.0;
-i02_3  = floor(nu_y_min) + 5.0/2.0;
+i20    = floor(nu_x_min) + 1.5;
+i02_1  = floor(nu_y_min) + 0.5;
+i02_2  = floor(nu_y_min) + 1.5;
+i02_3  = floor(nu_y_min) + 2.5;
 
 i11    = floor(nu_x_min+nu_y_max);
 i1m1_1 = floor(nu_x_min-nu_y_min);
 i1m1_2 = floor(nu_x_min-nu_y_min) - 1.0;
 
-i30_1  = floor(nu_x_min) + 1.0/3.0;
-i30_2  = floor(nu_x_min) + 2.0/3.0;
-i30_3  = floor(nu_x_min) + 3.0/3.0;
-i30_4  = floor(nu_x_min) + 4.0/3.0;
+i30    = floor(nu_x_min) + 4.0/3.0;
 i12_1  = floor(nu_x_min+2*nu_y_max) - 2.0;
 i12_2  = floor(nu_x_min+2*nu_y_max) - 1.0;
 i12_3  = floor(nu_x_min+2*nu_y_max);
 i12_4  = floor(nu_x_min+2*nu_y_max) + 1.0;
 i1m2_1 = floor(nu_x_min-2*nu_y_min) - 2.0;
 i1m2_2 = floor(nu_x_min-2*nu_y_min) - 1.0;
-i1m2_3 = floor(nu_x_min-2*nu_y_min);
+i1m2_3 = floor(nu_x_min-2*nu_y_min) - 2.0;
 i1m2_4 = floor(nu_x_min-2*nu_y_min) + 1.0;
 
-i40_1  = floor(nu_x_min) + 1.0/4.0;
-i40_2  = floor(nu_x_min) + 3.0/4.0;
-i40_3  = floor(nu_x_min) + 5.0/4.0;
-i04_1  = floor(nu_y_min) + 1.0/4.0;
-i04_2  = floor(nu_y_min) + 3.0/4.0;
-i04_3  = floor(nu_y_min) + 5.0/4.0;
+i40    = floor(nu_x_min) + 1.25;
+i04_1  = floor(nu_y_min) + 0.25;
+i04_2  = floor(nu_y_min) + 1.25;
+i04_3  = floor(nu_y_min) + 1.75;
+i04_4  = floor(nu_y_min) + 2.25;
 i22_1  = floor(2.0*nu_x_min+2.0*nu_y_max) - 2.0;
-i22_2  = floor(2.0*nu_x_min+2.0*nu_y_max) - 1.0;
-i22_3  = floor(2.0*nu_x_min+2.0*nu_y_max);
-i22_4  = floor(2.0*nu_x_min+2.0*nu_y_max) + 1.0;
+i22_2  = floor(2.0*nu_x_min+2.0*nu_y_max);
 i2m2_1 = floor(2.0*nu_x_min-2.0*nu_y_min) - 1.0;
 i2m2_2 = floor(2.0*nu_x_min-2.0*nu_y_min);
 i2m2_3 = floor(2.0*nu_x_min-2.0*nu_y_min) + 1.0;
@@ -193,8 +183,7 @@ i33    = floor(3.0*nu_x_min+3.0*nu_y_max) + 1;
 
 set urange [nu_x_min:nu_x_max]; set vrange [nu_y_min:nu_y_max];
 
-if (ps) set output (home_dir)."fmap_1.".(ext);
-#if (ps) set output "| display png:-";
+if (ps) set output "fmap_1.".(ext);
 
 #set multiplot;
 
@@ -203,12 +192,10 @@ unset pm3d;
 set colorbox;
 
 #set size 1.0, 0.5; set origin 0.0, 0.5;
-# Work-around for y-axis label.
-set size 0.9, 1.0; set origin 0.03, 0.0;
 set title "Tune Shift";
 set xlabel "{/Symbol n}_x"; set ylabel "{/Symbol n}_y";
 if (scale) set xrange [nu_x_min:nu_x_max]; set yrange [nu_y_min:nu_y_max]; 
-splot file1 using \
+splot "fmap.out" using \
       ((abs(\$3-int(\$3)) > 1e-6)? N*(N_x+sgn_x*\$3) : NaN): \
       ((abs(\$4-int(\$4)) > 1e-6)? N*(N_y+sgn_y*\$4) : NaN):7 \
       notitle w points pt 13 lt palette z, \
@@ -216,8 +203,7 @@ splot file1 using \
       u,     i01_1,              1.0 notitle with lines ls 1, \
       u,     i01_2,              1.0 notitle with lines ls 1, \
                                                               \
-      i20_1, v,                  1.0 notitle with lines ls 1, \
-      i20_2, v,                  1.0 notitle with lines ls 1, \
+      i20,   v,                  1.0 notitle with lines ls 1, \
       u,     i02_1,              1.0 notitle with lines ls 1, \
       u,     i02_2,              1.0 notitle with lines ls 1, \
       u,     i02_3,              1.0 notitle with lines ls 1, \
@@ -225,10 +211,7 @@ splot file1 using \
       u,     u-i1m1_1,           1.0 notitle with lines ls 2, \
       u,     u-i1m1_2,           1.0 notitle with lines ls 2, \
                                                               \
-      i30_1, v,                  1.0 notitle with lines ls 1, \
-      i30_2, v,                  1.0 notitle with lines ls 1, \
-      i30_3, v,                  1.0 notitle with lines ls 1, \
-      i30_4, v,                  1.0 notitle with lines ls 1, \
+      i30,   v,                  1.0 notitle with lines ls 1, \
       u,     (i12_1-u)/2.0,      1.0 notitle with lines ls 1, \
       u,     (i12_2-u)/2.0,      1.0 notitle with lines ls 1, \
       u,     (i12_3-u)/2.0,      1.0 notitle with lines ls 1, \
@@ -238,16 +221,9 @@ splot file1 using \
       u,     (u-i1m2_3)/2.0,     1.0 notitle with lines ls 1, \
       u,     (u-i1m2_4)/2.0,     1.0 notitle with lines ls 1, \
                                                               \
-      i40_1, v,                  1.0 notitle with lines ls 3, \
-      i40_2, v,                  1.0 notitle with lines ls 3, \
-      i40_3, v,                  1.0 notitle with lines ls 3, \
-      u, i04_1,                  1.0 notitle with lines ls 3, \
-      u, i04_2,                  1.0 notitle with lines ls 3, \
-      u, i04_3,                  1.0 notitle with lines ls 3, \
+      i40, v,                    1.0 notitle with lines ls 3, \
       u,     (i22_1-2.0*u)/2.0,  1.0 notitle with lines ls 3, \
       u,     (i22_2-2.0*u)/2.0,  1.0 notitle with lines ls 3, \
-      u,     (i22_3-2.0*u)/2.0,  1.0 notitle with lines ls 3, \
-      u,     (i22_4-2.0*u)/2.0,  1.0 notitle with lines ls 3, \
       u,     (2.0*u-i2m2_1)/2.0, 1.0 notitle with lines ls 3, \
       u,     (2.0*u-i2m2_2)/2.0, 1.0 notitle with lines ls 3, \
       u,     (2.0*u-i2m2_3)/2.0, 1.0 notitle with lines ls 3, \
@@ -291,15 +267,13 @@ splot file1 using \
 
 if (!ps) pause mouse "click on graph to cont.\n";
 
-if (ps) set output (home_dir)."fmap_2.".(ext);
+if (ps) set output "fmap_2.".(ext);
 
 set pm3d at b map;
 #set contour;
 #unset colorbox;
 
 #set origin 0.0, 0.0;
-# Restore work-around for y-axis label.
-set size 1.0, 1.0; set origin 0.0, 0.0;
 set title "Diffusion Map";
 set xlabel "x [mm]"; set ylabel "y [mm]";
 if (scale) set xrange [-x_max:x_max]; set yrange [-y_max:y_max];
@@ -315,12 +289,10 @@ unset pm3d;
 set colorbox;
 
 #set size 1.0, 0.5; set origin 0.0, 0.5;
-# Work-around for y-axis label.
-set size 0.9, 1.0; set origin 0.03, 0.0;
 set title "Tune Shift";
 set xlabel "{/Symbol n}_x"; set ylabel "{/Symbol n}_y";
 if (scale) set xrange [nu_x_min:nu_x_max]; set yrange [nu_y_min:nu_y_max];
-splot file2 using \
+splot "fmapdp.out" using \
       ((abs(\$3-int(\$3)) > 1e-6)? N*(N_x+sgn_x*\$3) : NaN): \
       ((abs(\$4-int(\$4)) > 1e-6)? N*(N_y+sgn_y*\$4) : NaN):7 \
       notitle w points pt 13 lt palette z, \
@@ -328,8 +300,7 @@ splot file2 using \
       u,     i01_1,              1.0 notitle with lines ls 1, \
       u,     i01_2,              1.0 notitle with lines ls 1, \
                                                               \
-      i20_1, v,                  1.0 notitle with lines ls 1, \
-      i20_2, v,                  1.0 notitle with lines ls 1, \
+      i20,   v,                  1.0 notitle with lines ls 1, \
       u,     i02_1,              1.0 notitle with lines ls 1, \
       u,     i02_2,              1.0 notitle with lines ls 1, \
       u,     i02_3,              1.0 notitle with lines ls 1, \
@@ -337,10 +308,7 @@ splot file2 using \
       u,     u-i1m1_1,           1.0 notitle with lines ls 2, \
       u,     u-i1m1_2,           1.0 notitle with lines ls 2, \
                                                               \
-      i30_1, v,                  1.0 notitle with lines ls 1, \
-      i30_2, v,                  1.0 notitle with lines ls 1, \
-      i30_3, v,                  1.0 notitle with lines ls 1, \
-      i30_4, v,                  1.0 notitle with lines ls 1, \
+      i30,   v,                  1.0 notitle with lines ls 1, \
       u,     (i12_1-u)/2.0,      1.0 notitle with lines ls 1, \
       u,     (i12_2-u)/2.0,      1.0 notitle with lines ls 1, \
       u,     (i12_3-u)/2.0,      1.0 notitle with lines ls 1, \
@@ -350,16 +318,9 @@ splot file2 using \
       u,     (u-i1m2_3)/2.0,     1.0 notitle with lines ls 1, \
       u,     (u-i1m2_4)/2.0,     1.0 notitle with lines ls 1, \
                                                               \
-      i40_1, v,                  1.0 notitle with lines ls 3, \
-      i40_2, v,                  1.0 notitle with lines ls 3, \
-      i40_3, v,                  1.0 notitle with lines ls 3, \
-      u, i04_1,                  1.0 notitle with lines ls 3, \
-      u, i04_2,                  1.0 notitle with lines ls 3, \
-      u, i04_3,                  1.0 notitle with lines ls 3, \
+      i40, v,                    1.0 notitle with lines ls 3, \
       u,     (i22_1-2.0*u)/2.0,  1.0 notitle with lines ls 3, \
       u,     (i22_2-2.0*u)/2.0,  1.0 notitle with lines ls 3, \
-      u,     (i22_3-2.0*u)/2.0,  1.0 notitle with lines ls 3, \
-      u,     (i22_4-2.0*u)/2.0,  1.0 notitle with lines ls 3, \
       u,     (2.0*u-i2m2_1)/2.0, 1.0 notitle with lines ls 3, \
       u,     (2.0*u-i2m2_2)/2.0, 1.0 notitle with lines ls 3, \
       u,     (2.0*u-i2m2_3)/2.0, 1.0 notitle with lines ls 3, \
@@ -403,14 +364,12 @@ splot file2 using \
 
 if (!ps) pause mouse "click on graph to cont.\n";
 
-if (ps) set output (home_dir)."fmap_4.".(ext);
+if (ps) set output "fmap_4.".(ext);
 
 set pm3d at b map;
 #unset colorbox;
 
 #set origin 0.0, 0.0;
-# Restore work-around for y-axis label.
-set size 1.0, 1.0; set origin 0.0, 0.0;
 set title "Diffusion Map";
 set xlabel "{/Symbol d} [%]"; set ylabel "x [mm]";
 if (scale) set xrange [-delta_max:delta_max]; set yrange [-x_max:x_max];

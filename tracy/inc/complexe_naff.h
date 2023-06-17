@@ -26,6 +26,9 @@
 
 /* Fin ajout */
 
+#ifndef COMPLEXE_NAFF_H
+#define COMPLEXE_NAFF_H
+
 /*----------------IMPLEMENTATION--------------------------------*/
 
 /*----------------i_compl_cmplx---------------------------------*/
@@ -176,8 +179,8 @@ t_complexe i_compl_div2d(const double c1,
                                        const double c2_r, 
                                        const double c2_i)
 {
-	register double ratio, den;
-	register double abr, abi;
+	double ratio, den;
+	double abr, abi;
     t_complexe zres;
     
 	if( (abr = c2_r) < 0.)
@@ -205,11 +208,11 @@ t_complexe i_compl_div2d(const double c1,
 /*----------------i_compl_div4d--------------------------------*/
 /* division de deux complexes : (c1_r+i*c1_i)/(c2_r+i*c2_i)    */
 /*-------------------------------------------------------------*/
-t_complexe i_compl_div4d(register const double c1_r,register const double c1_i,
-                                       register const double  c2_r,register const double c2_i)
+t_complexe i_compl_div4d(const double c1_r,const double c1_i,
+                                       const double  c2_r,const double c2_i)
 {
-	register double ratio, den;
-	register double abr, abi;
+	double ratio, den;
+	double abr, abi;
     t_complexe zres;
     
 	if( (abr = c2_r) < 0.)
@@ -250,9 +253,9 @@ t_complexe i_compl_div(const t_complexe c1,const t_complexe c2)
 /*-------------------------------------------------------------*/
 t_complexe i_compl_pow2d(const double p_r, const double p_i,int n)
 {
-	register unsigned long u;
-	register double t;
-	register double q_r=1,q_i=0,x_r,x_i;
+	unsigned long u;
+	double t;
+	double q_r=1,q_i=0,x_r,x_i;
     t_complexe zq;
     
 	if(n == 0)
@@ -513,3 +516,5 @@ t_complexe i_compl_log10(t_complexe c1)
  c.imag = i_compl_angle(c1)/norm;
  return c;
 }
+
+#endif

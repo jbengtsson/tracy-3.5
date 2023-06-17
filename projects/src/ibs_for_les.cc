@@ -16,16 +16,15 @@ void prt_ZAP(const int n)
   outf = file_write("ZAPLAT.DAT");
 
   fprintf(outf, "%ld %7.5f\n",
-	  Lattice.param.Cell_nLoc+1, n*Lattice.Cell[Lattice.param.Cell_nLoc].S);
+	  globval.Cell_nLoc+1, n*Cell[globval.Cell_nLoc].S);
   fprintf(outf, "One super period\n");
 
-  for (k = 0; k <= Lattice.param.Cell_nLoc; k++)
+  for (k = 0; k <= globval.Cell_nLoc; k++)
     fprintf(outf, "%10.5f %8.5f %9.6f %8.5f %7.3f %8.5f %8.5f %7.5f\n",
-	    Lattice.Cell[k].S,
-	    Lattice.Cell[k].Beta[X_], Lattice.Cell[k].Alpha[X_],
-	    Lattice.Cell[k].Beta[Y_], Lattice.Cell[k].Alpha[Y_],
-	    Lattice.Cell[k].Eta[X_], Lattice.Cell[k].Etap[X_],
-	    Lattice.Cell[k].maxampl[X_][1]);
+	    Cell[k].S,
+	    Cell[k].Beta[X_], Cell[k].Alpha[X_],
+	    Cell[k].Beta[Y_], Cell[k].Alpha[Y_],
+	    Cell[k].Eta[X_], Cell[k].Etap[X_], Cell[k].maxampl[X_][1]);
 
   fprintf(outf, "0\n");
 
@@ -47,15 +46,15 @@ void get_IBS(const double Qb, const double eps[])
   for (j = 1; j <= n_iter; j++) {
     if (j == 1) {
       printf("\nIBS %d:\n", j);
-      Lattice.IBS_BM(Qb, eps, eps1, true, true);
+      IBS_BM(Qb, eps, eps1, true, true);
     } else if ((j == n_iter-1) || (j == n_iter)) {
       printf("\nIBS %d:\n", j);
-      Lattice.IBS_BM(Qb, eps, eps1, false, true);
+      IBS_BM(Qb, eps, eps1, false, true);
     } else
-      Lattice.IBS_BM(Qb, eps, eps1, false, false);
+      IBS_BM(Qb, eps, eps1, false, false);
   }
 
-  sigma_s = sqrt(Lattice.param.beta_z*eps1[Z_]);
+  sigma_s = sqrt(globval.beta_z*eps1[Z_]);
   sigma_delta = eps1[Z_]/sigma_s;
   printf("eps_x = %9.3e, eps_y = %9.3e, sigma_s = %9.3e, sigma_delta = %9.3e\n",
 	 eps1[X_], eps1[Y_], sigma_s, sigma_delta);
@@ -66,42 +65,42 @@ int main(int argc, char *argv[])
 {
   double sigma_s, sigma_delta, gamma_z;
 
-  Lattice.param.H_exact    = false; Lattice.param.quad_fringe = false;
-  Lattice.param.Cavity_on  = false; Lattice.param.radiation   = false;
-  Lattice.param.emittance  = false; Lattice.param.IBS         = false;
-  Lattice.param.pathlength = false; Lattice.param.bpm         = 0;
+  globval.H_exact    = false; globval.quad_fringe = false;
+  globval.Cavity_on  = false; globval.radiation   = false;
+  globval.emittance  = false; globval.IBS         = false;
+  globval.pathlength = false; globval.bpm         = 0;
 
   // Set bunch charge and vertical emittance here.
   const double Qb = 5e-9, eps_y = 0.008e-9;
 
   if (true)
-    Lattice.Read_Lattice(argv[1]);
+    Read_Lattice(argv[1]);
   else {
-    Lattice.param.Energy = 3e0;
-    Lattice.rdmfile(argv[1]);
+    globval.Energy = 3e0;
+    rdmfile(argv[1]);
   }
 
-  Lattice.Ring_GetTwiss(true, 0.0); printglob();
+  Ring_GetTwiss(true, 0.0); printglob();
 
   if (true) prt_ZAP(20);
 
-  Lattice.GetEmittance(Lattice.Elem_Index("cav"), true);
+  GetEmittance(ElemIndex("cav"), true);
 
-  gamma_z = (1e0+sqr(Lattice.param.alpha_z))/Lattice.param.beta_z;
+  gamma_z = (1e0+sqr(globval.alpha_z))/globval.beta_z;
 
   // Tweak bunch length here.
-  sigma_s     = sqrt(Lattice.param.beta_z*Lattice.param.eps[Z_]);
-  sigma_delta = sqrt(gamma_z*Lattice.param.eps[Z_]);
+  sigma_s     = sqrt(globval.beta_z*globval.eps[Z_]);
+  sigma_delta = sqrt(gamma_z*globval.eps[Z_]);
   printf("\nsigma_s [m] = %9.3e, sigma_delta = %9.3e\n", sigma_s, sigma_delta);
 
-  Lattice.param.eps[Y_] = eps_y;
+  globval.eps[Y_] = eps_y;
 
   // alpha_z << 1 => eps_z ~ sigma_s * sigma_delta.
-  Lattice.param.eps[Z_] = sigma_s*sigma_delta;
-  Lattice.param.beta_z  = sqr(sigma_s)/Lattice.param.eps[Z_];
+  globval.eps[Z_] = sigma_s*sigma_delta;
+  globval.beta_z  = sqr(sigma_s)/globval.eps[Z_];
 
   printf("\nbeta_z = %5.3f, eps_z = %10.3e\n",
-	 Lattice.param.beta_z, Lattice.param.eps[Z_]);
+	 globval.beta_z, globval.eps[Z_]);
 
-  get_IBS(Qb, Lattice.param.eps);
+  get_IBS(Qb, globval.eps);
 }

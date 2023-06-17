@@ -10,6 +10,8 @@
 
  ***************************************************************************/
 
+#ifndef MODNAFF_H
+#define MODNAFF_H
 
 /*--------*/
 /* define */
@@ -41,7 +43,7 @@
 
 #define DIM2(prow,row,col,type,l) \
   {\
-  register type *pdata;\
+  type *pdata;\
   int I;\
   SYSCHECKMALLOCSIZE(pdata, type,(row) * (col));\
   SYSCHECKMALLOCSIZE(prow, type *,(row));\
@@ -126,3 +128,5 @@ void naf_cleannaf();
 BOOL naf_mftnaf(int NBTERM, double EPS);
 void naf_prtabs(int KTABS, t_complexe *ZTABS, int IPAS);
 void naf_smoy(t_complexe *ZM);
+
+#endif

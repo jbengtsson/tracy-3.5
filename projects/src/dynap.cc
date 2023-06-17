@@ -11,13 +11,21 @@ void err_and_corr(const string &param_file)
   orb_corr_type   orb_corr[2];
   DA_data_type    DA;
 
+  params.get_param(param_file);
+
+  globval.dPcommon = 1e-10;
+
+  Ring_GetTwiss(true, 0e0); printglob();
+
   params.err_and_corr_init(param_file, orb_corr);
 
-  Lattice.param.CODeps = 1e-10;
+  globval.CODeps = 1e-10;
 
-  Lattice.param.Cavity_on = true;
+  globval.Cavity_on = true;
 
   if (params.DA_bare) DA.get_DA_bare(params);
+
+  trace = false;
 
   DA.get_DA_real(params, orb_corr);
 
@@ -27,15 +35,18 @@ void err_and_corr(const string &param_file)
 
 int main(int argc, char *argv[])
 {
-  Lattice.param.H_exact    = false; Lattice.param.quad_fringe = false;
-  Lattice.param.Cavity_on  = false; Lattice.param.radiation   = false;
-  Lattice.param.emittance  = false; Lattice.param.IBS         = false;
-  Lattice.param.pathlength = false; Lattice.param.Aperture_on = false;
+  globval.H_exact    = false; globval.quad_fringe    = false;
+  globval.Cavity_on  = false; globval.radiation      = false;
+  globval.emittance  = false; globval.IBS            = false;
+  globval.pathlength = false; globval.Aperture_on    = false;
+  globval.Cart_Bend  = false; globval.dip_edge_fudge = true;
 
-  if (argc < 1) {
+  globval.mat_meth = false;
+
+  if (argc == 2)
+    err_and_corr(argv[1]);
+  else {
     printf("*** bad command line\n");
     exit(1);
   }
-
-  err_and_corr(argv[1]);
 }

@@ -2,39 +2,44 @@
 
 #include "tracy_lib.h"
 
-int  no_tps = NO;
+int no_tps = NO;
 
 
-// MAX-IV           1,
-// SLS-2            2,
-// DIAMOND          3,
-// DIAMOND-II 4-BA  4,
-// DIAMOND-II 6-BA  5.
-// DIAMOND-II 8-BA  6.
-const int lat_case = 3;
+const int
+  n_step = 25;
 
 const double
-  A_max[][2] =
-    {{1.5e-3, 1.5e-3}, {7.0e-3, 5.0e-3}, {15.0e-3, 8e-3}, {5.0e-3, 3.0e-3},
-     {7.0e-3, 4.0e-3}, {3.0e-3, 2.0e-3}},
-  delta_max[] = {3.0e-2, 3.0e-2, 1.5e-2, 3e-2, 3e-2, 3e-2};
+#if 1
+  A_max[]   = {4e-3, 3e-3},
+  delta_max = 5e-2;
+#else
+  A_max[]   = {15e-3, 10e-3},
+  delta_max = 5e-2;
+#endif
 
 
 int main(int argc, char *argv[])
 {
-  
-  Lattice.param.H_exact    = false; Lattice.param.quad_fringe = false;
-  Lattice.param.Cavity_on  = false; Lattice.param.radiation   = false;
-  Lattice.param.emittance  = false; Lattice.param.IBS         = false;
-  Lattice.param.pathlength = false; Lattice.param.bpm         = 0;
+
+  globval.H_exact    = false; globval.quad_fringe    = false;
+  globval.Cavity_on  = false; globval.radiation      = false;
+  globval.emittance  = false; globval.IBS            = false;
+  globval.pathlength = false; globval.bpm            = 0;
+  globval.Cart_Bend  = false; globval.dip_edge_fudge = true;
+
+  reverse_elem = !false;
+
+  globval.mat_meth = false;
 
   if (false)
-    Lattice.Read_Lattice(argv[1]);
+    Read_Lattice(argv[1]);
   else
-    Lattice.rdmfile(argv[1]);
+    rdmfile(argv[1]);
 
-  Lattice.param.EPU = false;
+  if (false) {
+    Ring_GetTwiss(true, 0e0); printglob();
+  }
 
-  Lattice.dnu_dA(A_max[lat_case-1][X_], A_max[lat_case-1][Y_], 0e0, 25);
-  Lattice.get_ksi2(delta_max[lat_case-1]);
+  dnu_dA(A_max[X_], A_max[Y_], 0e0, n_step);
+  get_ksi2(delta_max, n_step);
 }

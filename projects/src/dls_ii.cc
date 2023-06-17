@@ -5,7 +5,7 @@
 int no_tps = NO;
 
 
-const double eps_x       = 130e-3,               // Hor. emittance [nm.rad].
+const double eps_x       = 150e-3,               // Hor. emittance [nm.rad].
              nu_uc[]     = {2.43, 0.89},         // Cell tune.
              nu_sc[]     = {2.43, 0.89},         // Super period tune.
              L_uc        = 1.25,                 // Unit Cell length.
@@ -18,11 +18,11 @@ const double eps_x       = 130e-3,               // Hor. emittance [nm.rad].
              beta_cuc[]  = {5.6, 1.9},
              beta_cs[]   = {3.0, 3.0};          /* Linear Optics
 						    Center of Straight. */
-int sf_sd[2];
 
-const string sf_sd_name[] = {"sf2", "sd2"};
+int              n_b3;
+std::vector<int> b3_Fnum, loc;
 
-const int n_prt = 8;
+const int n_prt = 9;
 
 struct param_type {
 private:
@@ -119,13 +119,49 @@ void get_S(void)
 }
 
 
+void nu_cell_tweak(const double dnu_diff_min)
+{
+  bool          stable[2];
+  long int      lastpos;
+  int           k;
+  double        dnu_diff[2], beta0[2], beta1[2], dnu[2];
+  ss_vect<tps>  M;
+
+  const bool prt = false;
+
+  for (k = 0; k < 2; k++)
+    // Avoid half integer resonances.
+    dnu_diff[k] = (2e0*globval.TotalTune[k]-nint(2e0*globval.TotalTune[k]))/2e0;
+  if (prt) printf("\nnu = [%8.5f, %8.5f] dnu_diff = [%8.5f, %8.5f]\n",
+		  globval.TotalTune[X_], globval.TotalTune[Y_],
+		  dnu_diff[X_], dnu_diff[Y_]);
+
+  for (k = 0; k < 2; k++)
+    if (fabs(dnu_diff[k]) < dnu_diff_min)
+      dnu[k] = sgn(dnu_diff[k])*dnu_diff_min - dnu_diff[k];
+  set_map(ElemIndex("M"), dnu);
+
+  M.identity();
+  Cell_Pass(0, globval.Cell_nLoc, M, lastpos);
+  get_map_twiss(M, beta0, beta1, globval.TotalTune, stable);
+
+  for (k = 0; k < 2; k++)
+    dnu_diff[k] =
+      (2e0*globval.TotalTune[k]-nint(2e0*globval.TotalTune[k]))/2e0;
+  if (prt) printf("nu = [%8.5f, %8.5f] dnu_diff = [%8.5f, %8.5f]"
+		  " dnu = [%8.5f, %8.5f]\n",
+		  globval.TotalTune[X_], globval.TotalTune[Y_],
+		  dnu_diff[X_], dnu_diff[Y_], dnu[X_], dnu[Y_]);
+}
+
+
 double get_eps_x1(void)
 {
   // Evaluate emittance [nm.rad] and damping partition from synchrotron
   // integrals.
   bool         cav, emit;
   long int     lastpos;
-  double       eps_x;
+  double       I[6], eps_x;
   ss_vect<tps> A;
 
   const bool prt = false;
@@ -135,8 +171,12 @@ double get_eps_x1(void)
   globval.Cavity_on = false; globval.emittance = false;
 
   Ring_GetTwiss(false, 0e0);
+  if (!globval.stable) {
+    printf("\nget_eps_x1: unstable\n");
+    return -1e0;
+  }
 
-  putlinmat(6, globval.Ascr, A);
+  A = putlinmat(6, globval.Ascr);
 
   // prt_lin_map(3, A);
 
@@ -144,11 +184,13 @@ double get_eps_x1(void)
 
   Cell_Pass(0, globval.Cell_nLoc, A, lastpos);
 
-  eps_x = 1470e0*pow(globval.Energy, 2)*I5/(I2-I4);
+  get_I(I, false);
+
+  eps_x = 1470e0*pow(globval.Energy, 2)*I[5]/(I[2]-I[4]);
 
   if (prt)
     printf("eps_x = %5.3f pm.rad, J_x = %5.3f, J_z = %5.3f \n",
-	   1e3*eps_x, 1e0-I4/I2, 2e0+I4/I2);
+	   1e3*eps_x, 1e0-I[4]/I[2], 2e0+I[4]/I[2]);
 
   globval.Cavity_on = cav; globval.emittance = emit;
 
@@ -156,90 +198,73 @@ double get_eps_x1(void)
 }
 
 
-void fit_ksi1(const double ksi[], const double eps, const int ns[],
-	      const int sf[], const int sd[], const double dkpL, const int imax)
+void fit_ksi1(const double ksi_x, const double ksi_y,
+	      const std::vector<int> &Fnum,
+	      const double db3L, const double eps, const int iter_max)
 {
-  long int lastpos;
-  int      i, j, k;
-  double   ksi0[2];
-  psVector dkpL1, dksi;
-  Matrix   A;
+  int      j, k, n, n_iter;
+  double   b3L, a3L, chi, ksi0[2], **A, **U, **V, *w, *b, *x;
 
-  if (trace)
-    printf("  Chromaticity fit, ksix =%10.5f, ksiy =%10.5f, eps =% .3E"
-	   ", imax =%4d, dkpL =%10.5f\n", ksi[0], ksi[1], eps, imax, dkpL);
+  const bool   prt = false;
+  const int    m = 2, n_prt = 8;
+  const double ksi_ref[] = {ksi_x, ksi_y}, svd_eps = 1e-10;
+
+  n = Fnum.size();
+
+  A = dmatrix(1, m, 1, n); U = dmatrix(1, m, 1, n); V = dmatrix(1, n, 1, n);
+  w = dvector(1, n); b = dvector(1, m); x = dvector(1, n);
 
   Ring_Getchrom(0e0);
-  for (j = 0; j <= 1; j++)
-    ksi0[j] = globval.Chrom[j];
-  i = 0;
-  do {
-    i++;
-    /* First vary sf then sd */
+  for (j = 1; j <= 2; j++) {
+    ksi0[j-1] = globval.Chrom[j-1]; b[j] = -(ksi0[j-1]-ksi_ref[j-1]);
+  }
+  chi = sqrt(sqr(b[1])+sqr(b[2]));
+
+  n_iter = 0; chi = 1e30;
+  while ((chi > eps) && (n_iter < iter_max)) {
+    n_iter++;
+    for (k = 1; k <= n; k++) {
+      Ring_Getchrom(0e0);
+      set_dbnL_design_fam(Fnum[k-1], Sext, db3L, 0e0);
+      Ring_Getchrom(0e0);
+      for (j = 1; j <= 2; j++)
+	A[j][k] = (globval.Chrom[j-1]-ksi0[j-1])/db3L;
+      set_dbnL_design_fam(Fnum[k-1], Sext, -db3L, 0e0);
+      Ring_Getchrom(0e0);
+    }
+
+    dmcopy(A, m, n, U); dsvdcmp(U, m, n, w, V);
+
+  if (prt) printf("\nfit_ksi1 singular values:\n");
+    for (j = 1; j <= n; j++) {
+      if (prt) printf("%11.3e", w[j]);
+      if (w[j] < svd_eps) {
+	w[j] = 0e0;
+	if (prt) printf(" (zeroed)");
+      }
+      if (prt && (j % n_prt == 0)) printf("\n");
+    }
+    if (prt && (n % n_prt != 0)) printf("\n");
+
+    dsvbksb(U, w, V, m, n, b, x);
+
+    for (k = 1; k <= n; k++) {
+      set_dbnL_design_fam(Fnum[k-1], Sext, x[k], 0e0);
+      get_bnL_design_elem(Fnum[k-1], 1, Sext, b3L, a3L);
+    }
+
+    Ring_Getchrom(0e0);
     for (j = 1; j <= 2; j++) {
-      for (k = 0; k < ns[j-1]; k++) {
-	if (j == 1)
-	  shiftkp(sf[k], dkpL);
-	else
-	  shiftkp(sd[k], dkpL);
-      }
-      GetCOD(globval.CODimax, globval.CODeps, 0e0, lastpos); Ring_Getchrom(0e0);
-      for (k = 0; k <= 1; k++) {
-	dksi[k] = globval.Chrom[k] - ksi0[k];
-	A[k][j-1] = dksi[k] / dkpL;
-      }
-      for (k = 0; k < ns[j-1]; k++) {
-	if (j == 1)
-	  shiftkp(sf[k], -dkpL);
-	else
-	  shiftkp(sd[k], -dkpL);
-      }
+      ksi0[j-1] = globval.Chrom[j-1]; b[j] = -(ksi0[j-1]-ksi_ref[j-1]);
     }
-    if (!InvMat(2L, A)) {
-      printf("  A is singular\n");
-      exit(1);
-    }
-    for (j = 0; j <= 1; j++)
-      dkpL1[j] = ksi[j] - ksi0[j];
-    LinTrans(2L, A, dkpL1);
-    for (j = 1; j <= 2; j++) {
-      for (k = 0; k < ns[j-1]; k++) {
-	if (j == 1)
-	  shiftkp(sf[k], dkpL1[j-1]);
-	else
-	  shiftkp(sd[k], dkpL1[j-1]);
-      }
-    }
-    GetCOD(globval.CODimax, globval.CODeps, 0e0, lastpos); Ring_Getchrom(0e0);
-    for (j = 0; j <= 1; j++)
-      ksi0[j] = globval.Chrom[j];
-    if (trace)
-      printf("  ksix =%10.6f, ksiy =%10.6f, SF = % .5E, SD = % .5E @%3d\n",
-	     ksi0[0], ksi0[1], Elem_GetKval(Cell[sf[0]].Fnum, 1, Sext),
-	     Elem_GetKval(Cell[sd[0]].Fnum, 1, Sext), i);
-  } while (sqrt(sqr(ksi[0]-ksi0[0])+sqr(ksi[1]-ksi0[1])) >= eps && i != imax);
-}
+    chi = sqrt(sqr(b[1])+sqr(b[2]));
+  }
+  if (prt) printf("\nfit_ksi1: ksi = [%12.5e, %12.5e]\n",
+		  globval.Chrom[0], globval.Chrom[1]);
 
-
-void fit_ksi1(const int sf, const int sd,
-	      const double ksi_x, const double ksi_y)
-{
-  const int n_max = 100;
-
-  int     i, ns[2], sf_buf[n_max], sd_buf[n_max];
-  double  ksi[2];
-
-  ns[X_] = GetnKid(sf);
-  for (i = 1; i <= ns[X_]; i++)
-    sf_buf[i-1] = Elem_GetPos(sf, i);
-
-  ns[Y_] = GetnKid(sd);
-  for (i = 1; i <= ns[Y_]; i++)
-    sd_buf[i-1] = Elem_GetPos(sd, i);
-
-  ksi[X_] = ksi_x; ksi[Y_] = ksi_y;
-
-  fit_ksi1(ksi, 1e-5, ns, sf_buf, sd_buf, 0.01, 10);
+  free_dmatrix(A, 1, m, 1, n); free_dmatrix(U, 1, m, 1, n);
+  free_dmatrix(V, 1, n, 1, n);
+  free_dvector(w, 1, n); free_dvector(b, 1, m); free_dvector(x, 1, n);
 }
 
 
@@ -287,56 +312,52 @@ void quad_scan(const int n,
 }
 
 
-void prt_b2(const param_type &b2_prms)
+void prt_b2(FILE *outf, const param_type &b2_prms)
 {
   long int loc;
   int      k;
-  double   b2, a2;
-  FILE     *outf;
-
-  const std::string file_name = "b2.out";
-
-  outf = file_write(file_name.c_str());
+  double   b2, a2, phi;
 
   fprintf(outf, "\n");
   for (k = 0; k < (int)b2_prms.n_prm; k++) {
     loc = Elem_GetPos(b2_prms.Fnum[k], 1);
     get_bn_design_elem(b2_prms.Fnum[k], 1, Quad, b2, a2);
-    fprintf(outf,
-	    "%-8s: quadrupole, l = %7.5f"
-	    ", k = %12.5e, n = nquad, Method = Meth;\n",
-	    Cell[loc].Elem.PName, Cell[loc].Elem.PL, b2);
+    if (Cell[loc].Elem.M->n_design == Dip) {
+      phi = Cell[loc].Elem.M->Pirho*Cell[loc].Elem.PL*180e0/M_PI;
+      fprintf(outf,
+	      "%-8s: Bending, L = %7.5f, T = %7.5f, T1 = %7.5f, T2 = %7.5f"
+	      ", K = %12.5e, N = Ndip, Method = Meth;\n",
+	      Cell[loc].Elem.PName, Cell[loc].Elem.PL, phi,
+	      Cell[loc].Elem.M->PTx1, Cell[loc].Elem.M->PTx2, b2);
+    } else
+      fprintf(outf,
+	      "%-8s: Quadrupole, L = %7.5f, K = %12.5e"
+	      ", N = Nquad, Method = Meth;\n",
+	      Cell[loc].Elem.PName, Cell[loc].Elem.PL, b2);
   }
-
-  fclose(outf);
 }
 
 
-void prt_emit(const param_type &b2_prms, const double *b2)
+void prt_emit(const string &file_name,
+	      const param_type &b2_prms, const double *b2)
 {
-  double b3[2], a3;
+  int    k, loc;
+  double b3, a3;
   FILE   *outf;
-
-  std::string file_name = "emit.out";
-
-  get_bn_design_elem(sf_sd[0], 1, Sext, b3[0], a3);
-  get_bn_design_elem(sf_sd[1], 1, Sext, b3[1], a3);
 
   outf = file_write(file_name.c_str());
 
-  fprintf(outf, "l1:  drift, l = %7.5f;\n", b2[3]);
-  fprintf(outf, "l2:  drift, l = %7.5f;\n", b2[4]);
+  prt_b2(outf, b2_prms);
 
-  fprintf(outf, "\nbh:  bending, l = %8.5f, t = 0.5, k = %8.5f, t1 = 0.0"
-	  ", t2 = 0.0,\n     gap = 0.0, N = Nbend, Method = Meth;\n",
-	  b2[5], b2[1]);
-  fprintf(outf, "qf:  quadrupole, l = 0.08, k = %8.5f, N = Nquad"
-	  ", Method = Meth;\n\n", b2[2]);
-
-  fprintf(outf, "sfh: sextupole, l = 0.05, k = %8.5f, N = Nsext"
-	  ", Method = Meth;\n", b3[0]);
-  fprintf(outf, "sd:  sextupole, l = 0.1, k = %8.5f, N = Nsext"
-	  ", Method = Meth;\n", b3[1]);
+  fprintf(outf, "\n");
+  for (k = 0; k < n_b3; k++) {
+    loc = Elem_GetPos(b3_Fnum[k], 1);
+    get_bn_design_elem(b3_Fnum[k], 1, Sext, b3, a3);
+    fprintf(outf,
+	    "%-8s: sextupole, l = %7.5f"
+	    ", k = %12.5e, n = nquad, Method = Meth;\n",
+	    Cell[loc].Elem.PName, Cell[loc].Elem.PL, b3);
+  }
 
   fclose(outf);
 }
@@ -350,73 +371,82 @@ double f_emit(double *b2)
 
   static double chi2_ref = 1e30;
 
-  int    loc, i;
-  double eps1_x, tr[2], b3L[2], a3L, chi2;
+  bool         stable[2];
+  long int     lastpos;
+  int          k;
+  double       eps1_x, tr[2], b3L[n_b3], beta_b3L[n_b3], a3L, chi2;
+  double       beta0[2], beta1[2];
+  ss_vect<tps> M;
 
-  const bool   prt = false;
-  const double scl_eps   = 5e-1, scl_eta   = 5e1,
-               scl_dnu_x = 5e-1, scl_alpha = 1e2,
-               scl_ksi   = 1e-3;
+  const std::string file_name = "emit.out";
+  const int         ksi_i_max = 10;
+  const double      db3L = 1e-2, ksi_eps = 1e-3,
+                    scl_eps = 1e0, scl_eta = 1e1, scl_ksi = 1e-6,
+                    dnu_diff_min = 0.05;
 
   b2_prms.set_prm(b2);
 
-  // Upstream of B2.
-  loc = Elem_GetPos(ElemIndex("b2_5"), 1) - 1;
+  M.identity();
+  Cell_Pass(0, Elem_GetPos(ElemIndex("M"), 1)-1, M, lastpos);
+  // prt_lin_map(3, M);
 
-  Ring_GetTwiss(false, 0e0);
+  for (k = 0; k < 2; k++)
+    tr[k] = M[2*k][2*k] + M[2*k+1][2*k+1];
+  if ((fabs(tr[X_]) > 2e0) || (fabs(tr[Y_]) > 2e0)) {
+    printf("\nf_emit: unstable [%5.3f, %5.3f]\n", tr[X_], tr[Y_]);
+    chi2 = 1e10;
+    return chi2;
+  }
+
+  get_map_twiss(M, beta0, beta1, globval.TotalTune, stable);
+
+  // Tweak Cell Tune as needed. Update for each iteration; since Linear Optics
+  // is changing.
+  nu_cell_tweak(dnu_diff_min);
+
   eps1_x = get_eps_x1();
 
-  tr[X_] = globval.OneTurnMat[x_][x_] + globval.OneTurnMat[px_][px_];
-  tr[Y_] = globval.OneTurnMat[y_][y_] + globval.OneTurnMat[py_][py_];
-  if (prt) printf("\nTr{M}: %6.3f %6.3f\n", tr[X_], tr[Y_]);
+  fit_ksi1(0e0, 0e0, b3_Fnum, db3L, ksi_eps, ksi_i_max);
 
-  FitChrom(sf_sd[0], sf_sd[1], 0e0, 0e0);
-  get_bnL_design_elem(sf_sd[0], 1, Sext, b3L[0], a3L);
-  get_bnL_design_elem(sf_sd[1], 1, Sext, b3L[1], a3L);
+  for (k = 0; k < n_b3; k++)
+    get_bnL_design_elem(b3_Fnum[k], 1, Sext, b3L[k], a3L);
+  beta_b3L[0] = Cell[loc[1]].Beta[Y_]*b3L[0];
+  beta_b3L[1] = Cell[loc[2]].Beta[X_]*b3L[1];
+  beta_b3L[2] = Cell[loc[3]].Beta[Y_]*b3L[0];
 
   chi2 = 0e0;
 
-  chi2 += sqr(scl_eta*Cell[loc].Eta[X_]);
-  chi2 += sqr(scl_eta*Cell[loc].Etap[X_]);
+  chi2 += sqr(scl_eta*Cell[loc[0]].Eta[X_]);
+  chi2 += sqr(scl_eta*Cell[loc[0]].Etap[X_]);
 
   chi2 += sqr(scl_eps*(eps1_x-eps_x));
 
-  chi2 += sqr(scl_dnu_x*(globval.TotalTune[X_]-nu_uc[X_]));
-  // chi2 += sqr(scl_alpha*Cell[0].Alpha[X_]);
-  // chi2 += sqr(scl_alpha*Cell[0].Alpha[Y_]);
+  for (k = 0; k < 3; k++)
+    chi2 += sqr(scl_ksi*sqr(beta_b3L[k]));
 
-  chi2 += sqr(scl_ksi*b3L[0]);
-  chi2 += sqr(scl_ksi*b3L[1]);
-
-  if ((fabs(tr[X_]) > 2e0) || (fabs(tr[Y_]) > 2e0)) {
-    printf("\nTr{M}: %6.3f %6.3f\n", tr[X_], tr[Y_]);
-    chi2 += 1e10;
-    exit(1);
-  }
-
-  for (i = 1; i <= b2_prms.n_prm; i++) {
-    if (fabs(b2[i]) > b2_prms.bn_max[i-1]) chi2 += 1e10;
-  }
+  // for (k = 1; k <= b2_prms.n_prm; k++) {
+  //   if (fabs(b2[k]) > b2_prms.bn_max[k-1]) chi2 += 1e10;
+  // }
 
   if (chi2 < chi2_ref) {
     printf("\nchi2: %11.5e -> %11.5e\n", chi2_ref, chi2);
-    printf("b:    %5.1f %10.3e %10.3e %10.3e %10.3e %7.5f %7.5f %9.5f %9.5f\n",
+    printf("b:    %5.1f %10.3e %10.3e %7.5f %7.5f %10.3e %10.3e %10.3e\n",
 	   1e3*eps1_x,
-	   Cell[loc].Eta[X_], Cell[loc].Etap[X_],
-	   Cell[0].Alpha[X_], Cell[0].Alpha[Y_],
+	   Cell[loc[0]].Eta[X_], Cell[loc[0]].Etap[X_],
 	   globval.TotalTune[X_], globval.TotalTune[Y_],
-	   b3L[0], b3L[1]);
+	   beta_b3L[0], beta_b3L[1], beta_b3L[2]);
+    printf("      %6.3f %6.3f %6.3f\n",
+	   Cell[loc[1]].Beta[Y_], Cell[loc[2]].Beta[X_], Cell[loc[3]].Beta[Y_]);
+    printf("      %9.5f %9.5f\n", b3L[0], b3L[1]);
 
-    for (i = 1; i <= b2_prms.n_prm; i++) {
-      printf(" %12.5e", b2[i]);
-      if (i % n_prt == 0) printf("\n");
+    for (k = 1; k <= b2_prms.n_prm; k++) {
+      printf(" %12.5e", b2[k]);
+      if (k % n_prt == 0) printf("\n");
     }
     if (b2_prms.n_prm % n_prt != 0) printf("\n");
 
+    prt_emit(file_name, b2_prms, b2);
     prtmfile("flat_file.fit");
-    prt_b2(b2_prms);
-    prt_emit(b2_prms, b2);
-
     prt_lat("linlat1.out", globval.bpm, true);
     prt_lat("linlat.out", globval.bpm, true, 10);
   }
@@ -447,10 +477,102 @@ void fit_emit(param_type &b2_prms)
     for (j = 1; j <= n_b2; j++)
       xi[i][j] = (i == j)? 1e-2 : 0e0;
 
-  sf_sd[0] = ElemIndex(sf_sd_name[0].c_str());
-  sf_sd[1] = ElemIndex(sf_sd_name[1].c_str());
+  dpowell(b2, xi, n_b2, 1e-8, &iter, &fret, f_emit);
 
-  dpowell(b2, xi, n_b2, 1e-16, &iter, &fret, f_emit);
+  free_dvector(b2, 1, n_b2);  free_dvector(b2_lim, 1, n_b2);
+  free_dmatrix(xi, 1, n_b2, 1, n_b2);
+}
+
+
+double f_stable(double *b2)
+{
+  // Optimize unit cell.
+  // Lattice: unit cell.
+  // Nota Bene: singular for crossing integer Cell Tunes.
+
+  static double chi2_ref = 1e30;
+
+  bool         stable[2];
+  long int     lastpos;
+  int          k;
+  double       eps1_x, tr[2], chi2;
+  double       beta0[2], beta1[2];
+  ss_vect<tps> M;
+
+  const std::string file_name = "stable.out";
+  const double      scl_eps = 1e0, scl_eta = 1e1, scl_tr = 1e0;
+
+  b2_prms.set_prm(b2);
+
+  M.identity();
+  Cell_Pass(0, Elem_GetPos(ElemIndex("M"), 1)-1, M, lastpos);
+  // prt_lin_map(3, M);
+
+  for (k = 0; k < 2; k++)
+    tr[k] = M[2*k][2*k] + M[2*k+1][2*k+1];
+  if ((fabs(tr[X_]) > 2e0) || (fabs(tr[Y_]) > 2e0))
+    printf("\nf_emit: unstable [%5.3f, %5.3f]\n", tr[X_], tr[Y_]);
+
+  get_map_twiss(M, beta0, beta1, globval.TotalTune, stable);
+
+  eps1_x = get_eps_x1();
+
+  chi2 = 0e0;
+
+  chi2 += sqr(scl_eta*Cell[loc[0]].Eta[X_]);
+  chi2 += sqr(scl_eta*Cell[loc[0]].Etap[X_]);
+
+  chi2 += sqr(scl_tr*tr[X_]);
+  chi2 += sqr(scl_tr*tr[Y_]);
+
+  chi2 += sqr(scl_eps*(eps1_x-eps_x));
+
+  if (chi2 < chi2_ref) {
+    printf("\nchi2: %11.5e -> %11.5e\n", chi2_ref, chi2);
+    printf("b:    %5.1f %10.3e %10.3e %7.5f %7.5f\n",
+	   1e3*eps1_x,
+	   Cell[loc[0]].Eta[X_], Cell[loc[0]].Etap[X_],
+	   globval.TotalTune[X_], globval.TotalTune[Y_]);
+
+    for (k = 1; k <= b2_prms.n_prm; k++) {
+      printf(" %12.5e", b2[k]);
+      if (k % n_prt == 0) printf("\n");
+    }
+    if (b2_prms.n_prm % n_prt != 0) printf("\n");
+
+    prt_emit(file_name, b2_prms, b2);
+    prtmfile("flat_file.fit");
+    prt_lat("linlat1.out", globval.bpm, true);
+    prt_lat("linlat.out", globval.bpm, true, 10);
+  }
+
+  chi2_ref = min(chi2, chi2_ref);
+
+  return chi2;
+}
+
+
+void fit_stable(param_type &b2_prms)
+{
+  // Optimize unit cell.
+  // Lattice: unit cell.
+
+  int    n_b2, i, j, iter;
+  double *b2, *b2_lim, **xi, fret;
+
+  n_b2 = b2_prms.n_prm;
+
+  b2 = dvector(1, n_b2); b2_lim = dvector(1, n_b2);
+  xi = dmatrix(1, n_b2, 1, n_b2);
+
+  b2_prms.ini_prm(b2, b2_lim);
+
+  // Set initial directions and magnitude (unit vectors).
+  for (i = 1; i <= n_b2; i++)
+    for (j = 1; j <= n_b2; j++)
+      xi[i][j] = (i == j)? 1e-2 : 0e0;
+
+  dpowell(b2, xi, n_b2, 1e-8, &iter, &fret, f_stable);
 
   free_dvector(b2, 1, n_b2);  free_dvector(b2_lim, 1, n_b2);
   free_dmatrix(xi, 1, n_b2, 1, n_b2);
@@ -691,13 +813,16 @@ void fit_match(param_type &b2_prms)
 
 int main(int argc, char *argv[])
 {
+  int k;
 
   globval.H_exact    = false; globval.quad_fringe = false;
   globval.Cavity_on  = false; globval.radiation   = false;
   globval.emittance  = false; globval.IBS         = false;
   globval.pathlength = false; globval.bpm         = 0;
 
-  if (!false)
+  reverse_elem = !false;
+
+  if (false)
     Read_Lattice(argv[1]);
   else
     rdmfile(argv[1]);
@@ -712,6 +837,8 @@ int main(int argc, char *argv[])
   if (false) quad_scan(10, "qf", 3e0, "bh", 2e0);
 
   if (!false) {
+    b2_prms.add_prm("b1",    2, 0.0, 25.0, 1.0);
+
     b2_prms.add_prm("qf1",   2, 0.0, 25.0, 1.0);
     b2_prms.add_prm("qd2",   2, 0.0, 25.0, 1.0);
     b2_prms.add_prm("qd3",   2, 0.0, 25.0, 1.0);
@@ -723,7 +850,24 @@ int main(int argc, char *argv[])
 
     b2_prms.bn_tol = 1e-6; b2_prms.svd_cut = 1e-8; b2_prms.step = 1.0;
 
+    b3_Fnum.push_back(ElemIndex("sd2"));
+    b3_Fnum.push_back(ElemIndex("sf2"));
+    n_b3 = b3_Fnum.size();
+
+    // Upstream of B2.
+    loc.push_back(Elem_GetPos(ElemIndex("b2_5"), 1)-1);
+    // Center of SD2 (SD3).
+    loc.push_back(Elem_GetPos(b3_Fnum[0], 1));
+    // Center of SF2.
+    loc.push_back(Elem_GetPos(b3_Fnum[1], 1));
+    // Center of SD2.
+    loc.push_back(Elem_GetPos(b3_Fnum[0], 3));
+    printf("\nloc:\n");
+    for (k = 0; k < (int)loc.size(); k++)
+      printf("\n  %10s %5.3f", Cell[loc[k]].Elem.PName, Cell[loc[k]].S);
+
     no_sxt();
+    // fit_stable(b2_prms);
     fit_emit(b2_prms);
   }
 

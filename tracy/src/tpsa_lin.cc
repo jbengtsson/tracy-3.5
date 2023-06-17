@@ -15,9 +15,8 @@
 #define danamlen  10
 #define dafunlen   4
 
-typedef char    danambuf[danamlen];
-typedef char    funnambuf[dafunlen];
-typedef int     iVector[ss_dim];
+typedef char     danambuf[danamlen];
+typedef char     funnambuf[dafunlen];
 
 extern const int  nv_tps, nd_tps, iref_tps;
 extern int        no_tps, ndpt_tps;
@@ -91,7 +90,7 @@ void dacon_(tps_buf &x, const double r)
 }
 
 
-void dapek_(const tps_buf &x, const int jj[], double &r)
+void dapek_(const tps_buf &x, const long int jj[], double &r)
 {
   int  i, nzero;
 
@@ -112,7 +111,7 @@ void dapek_(const tps_buf &x, const int jj[], double &r)
 }
 
 
-void dapok_(tps_buf &x, const int jj[], const double r)
+void dapok_(tps_buf &x, const long int jj[], const double r)
 {
   int  i, nzero;
 
@@ -156,10 +155,11 @@ void getlinmat(const int nv, const ss_vect<tps> &map, Matrix &mat)
 }
 
 
-void putlinmat(const int nv, const Matrix &mat, ss_vect<tps> &map)
+ss_vect<tps> putlinmat(const int nv, const Matrix &mat)
 {
   /* Puts zeroes in constant part of da map */
-  int j, k;
+  int          j, k;
+  ss_vect<tps> map;
 
   for (j = 1; j <= nv; j++) {
     for (k = 0; k <= nv; k++) {
@@ -169,6 +169,7 @@ void putlinmat(const int nv, const Matrix &mat, ss_vect<tps> &map)
         putmat(map, j, k, mat[j-1][k-1]);
     }
   }
+  return map;
 }
 
 
@@ -460,9 +461,9 @@ void dainv_(const ss_vect<tps> &x, const int i, ss_vect<tps> &z, const int k)
 {
   Matrix  mat;
 
-  getlinmat(i, x, mat);  /* gets linear matrix from x */
-  if (InvMat(i, mat))    /* inverses matrix of rank i */
-    putlinmat(k, mat, z);/* puts linear matrix into z */
+  getlinmat(i, x, mat);    /* gets linear matrix from x */
+  if (InvMat(i, mat))      /* inverses matrix of rank i */
+    z = putlinmat(k, mat); /* puts linear matrix into z */
   else
     printf("dainv: map is singular\n");
 }
@@ -472,7 +473,7 @@ void Rotmap(const int n, ss_vect<tps> &map, const Matrix &R)
 {
   Matrix  mat;
 
-  getlinmat(n, map, mat); MulRMat(n, mat, R); putlinmat(n, mat, map);
+  getlinmat(n, map, mat); MulRMat(n, mat, R); map = putlinmat(n, mat);
 }
 
 

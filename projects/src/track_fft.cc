@@ -7,10 +7,7 @@ int no_tps = NO;
 const char home_dir[] = "/home/simon";
 
 
-
-
-// copied here from old 2011 nsls-ii_lib.cc because no longer included in 2017
-// version
+//copied here from old 2011 nsls-ii_lib.cc because no longer included in 2017 version
 void LoadAlignTol(const char *AlignFile, const bool Scale_it,
 		  const double Scale, const bool new_rnd, const int seed)
 {
@@ -88,10 +85,10 @@ void LoadAlignTol(const char *AlignFile, const bool Scale_it,
 	  printf("misaligning girders:     dx = %e, dy = %e, dr = %e\n",
 		 dx, dy, dr);
 	  if (rms)
-	    misalign_rms_girders(Lattice.param.gs, Lattice.param.ge, dx, dy, dr_deg,
+	    misalign_rms_girders(globval.gs, globval.ge, dx, dy, dr_deg,
 				 new_rnd);
 	  else
-	    misalign_sys_girders(Lattice.param.gs, Lattice.param.ge, dx, dy, dr_deg);
+	    misalign_sys_girders(globval.gs, globval.ge, dx, dy, dr_deg);
 	} else if (strcmp("dipole", Name) == 0) {
 	  printf("misaligning dipoles:     dx = %e, dy = %e, dr = %e\n",
 		 dx, dy, dr);
@@ -120,14 +117,14 @@ void LoadAlignTol(const char *AlignFile, const bool Scale_it,
 	    for (j = 1; j <= n_bpm_[k]; j++) {
 	      loc = bpms_[k][j];
 	      if (rms)
-		misalign_rms_elem(Lattice.Cell[loc].Fnum, Lattice.Cell[loc].Knum,
+		misalign_rms_elem(Cell[loc].Fnum, Cell[loc].Knum,
 				  dx, dy, dr_deg, new_rnd);
 	      else
-		misalign_sys_elem(Lattice.Cell[loc].Fnum, Lattice.Cell[loc].Knum,
+		misalign_sys_elem(Cell[loc].Fnum, Cell[loc].Knum,
 				  dx, dy, dr_deg);
 	    }
 	} else {
-	  Fnum = Lattice.Elem_Index(Name);
+	  Fnum = ElemIndex(Name);
 	  if(Fnum > 0) {
 	    printf("misaligning all %s:  dx = %e, dy = %e, dr = %e\n",
 		   Name, dx, dy, dr);
@@ -218,7 +215,7 @@ void LoadFieldErr_scl(const char *FieldErrorFile, const bool Scale_it,
 	  if (prt)
 	    printf(" %2d %9.1e %9.1e\n", n, Bn, An);
 	  // convert to normalized multipole components
-	  Lattice.SetFieldErrors(name, rms, r0, n, Bn, An, true);
+	  SetFieldErrors(name, rms, r0, n, Bn, An, true);
 	}
       }
     } else
@@ -259,26 +256,26 @@ bool orb_corr_scl(const int n_orbit)
   } else
     n_orbit2 = n_orbit;
   
-  Lattice.param.CODvect.zero();
+  globval.CODvect.zero();
   for (i = 1; i <= n_orbit2; i++) {
-    cod = Lattice.getcod(0.0, lastpos);
+    cod = getcod(0.0, lastpos);
     if (cod) {
-      Lattice.codstat(xmean, xsigma, xmax, Lattice.param.Cell_nLoc, false); //false = take values only at BPM positions
+      codstat(xmean, xsigma, xmax, globval.Cell_nLoc, false); //false = take values only at BPM positions
       printf("\n");
       printf("RMS orbit [mm]: %8.1e +/- %7.1e, %8.1e +/- %7.1e\n", 
 	     1e3*xmean[X_], 1e3*xsigma[X_], 1e3*xmean[Y_], 1e3*xsigma[Y_]);
       if (n_orbit != 0) {
 	// J.B. 08/24/17 ->
 	// The call to:
-	//   gcmat(Lattice.Elem_Index("bpm_m"), Lattice.Elem_Index("corr_h"), 1); gcmat(Lattice.Elem_Index("bpm_m"), Lattice.Elem_Index("corr_v"), 2);
+	//   gcmat(ElemIndex("bpm_m"), ElemIndex("corr_h"), 1); gcmat(ElemIndex("bpm_m"), ElemIndex("corr_v"), 2);
    	// configures the bpm system.
-	// lsoc(1, Lattice.Elem_Index("bpm_m"), Lattice.Elem_Index("corr_h"), 1);  //updated from older T3 version
-	// lsoc(1, Lattice.Elem_Index("bpm_m"), Lattice.Elem_Index("corr_v"), 2);  //updated from older T3 version
+	// lsoc(1, ElemIndex("bpm_m"), ElemIndex("corr_h"), 1);  //updated from older T3 version
+	// lsoc(1, ElemIndex("bpm_m"), ElemIndex("corr_v"), 2);  //updated from older T3 version
 	lsoc(1, scl); lsoc(2, scl);
 	// -> J.B. 08/24/17:
-	cod = Lattice.getcod(0.0, lastpos);
+	cod = getcod(0.0, lastpos);
 	if (cod) {
-	  Lattice.codstat(xmean, xsigma, xmax, Lattice.param.Cell_nLoc, false); //false = take values only at BPM positions
+	  codstat(xmean, xsigma, xmax, globval.Cell_nLoc, false); //false = take values only at BPM positions
 	  printf("RMS orbit [mm]: %8.1e +/- %7.1e, %8.1e +/- %7.1e\n", 
 		 1e3*xmean[X_], 1e3*xsigma[X_], 1e3*xmean[Y_], 1e3*xsigma[Y_]);
 	} else
@@ -288,7 +285,7 @@ bool orb_corr_scl(const int n_orbit)
       printf("orb_corr: failed\n");
   }
   
-  Lattice.prt_cod("orb_corr.out", Lattice.Elem_Index("bpm_m"), true);  //updated from older T3 version
+  prt_cod("orb_corr.out", ElemIndex("bpm_m"), true);  //updated from older T3 version
 
   return cod;
 }
@@ -317,16 +314,14 @@ void track_fft(const int n_turn,
 
   const char  file_name[] = "track_fft.out";
 
-  ps[x_] = x; ps[px_] = 0.0; ps[y_] = y; ps[py_] = 0.0; Lattice.getfloqs(ps);
+  ps[x_] = x; ps[px_] = 0.0; ps[y_] = y; ps[py_] = 0.0; getfloqs(ps);
   twoJx[0] = sqr(ps[x_]) + sqr(ps[px_]);
   twoJy[0] = sqr(ps[y_]) + sqr(ps[py_]);
   phix[0] = atan2(ps[px_], ps[x_]); phiy[0] = atan2(ps[py_], ps[y_]);
 
-  Lattice.track(file_name, twoJx[0], phix[0], twoJy[0], phiy[0], delta,
-		n_turn, lastn, lastpos,
-		2,
-		Lattice.Cell[Lattice.Elem_GetPos(Lattice.Elem_Index("cav"), 1)]
-		.Elem.C->freq);
+  track(file_name, twoJx[0], phix[0], twoJy[0], phiy[0], delta,
+	n_turn, lastn, lastpos,
+	2, Cell[Elem_GetPos(ElemIndex("cav"), 1)].Elem.C->f_RF);
 
   if (lastn == n_turn) {
     GetTrack(file_name, &n, twoJx, phix, twoJy, phiy);
@@ -409,17 +404,17 @@ void track_fft(const int n_turn,
 int main(int argc, char *argv[])
 {
   
-  Lattice.param.H_exact    = false; Lattice.param.quad_fringe = false;
-  Lattice.param.Cavity_on  = false; Lattice.param.radiation   = false;
-  Lattice.param.emittance  = false;
-  Lattice.param.pathlength = false; Lattice.param.bpm         = 0;
+  globval.H_exact    = false; globval.quad_fringe = false;
+  globval.Cavity_on  = false; globval.radiation   = false;
+  globval.emittance  = false;
+  globval.pathlength = false; globval.bpm         = 0;
 
-  Lattice.Read_Lattice(argv[1]);
+  Read_Lattice(argv[1]);
 
   // to turn off sextupoles:
   //no_sxt();
 
-  Lattice.Ring_GetTwiss(true, 0.0); printglob();
+  Ring_GetTwiss(true, 0.0); printglob();
 
   int n_turn;
   double x0, y0, px0, py0, delta0, f_rf;
@@ -440,31 +435,25 @@ int main(int argc, char *argv[])
 
   delta0    = -0.5e-2;
   n_turn    = 1000;
-  f_rf      =
-    Lattice.Cell[Lattice.Elem_GetPos(Lattice.Elem_Index("cav"), 1)]
-    .Elem.C->freq;
+  f_rf      = Cell[Elem_GetPos(ElemIndex("cav"), 1)].Elem.C->f_RF;
   
   
   
   if (false) {
     const long  seed = 1121;
     iniranf(seed); setrancut(2.0);
-    Lattice.Ring_GetTwiss(true, 0e-2); printglob(); //gettwiss computes one-turn matrix arg=(w or w/o chromat, dp/p)
-    Lattice.param.gs = Lattice.Elem_Index("GS");
-    Lattice.param.ge = Lattice.Elem_Index("GE");
+    Ring_GetTwiss(true, 0e-2); printglob(); //gettwiss computes one-turn matrix arg=(w or w/o chromat, dp/p)
+    globval.gs = ElemIndex("GS"); globval.ge = ElemIndex("GE");
     // compute response matrix (needed for OCO)
-    gcmat(Lattice.Elem_Index("bpm_m"), Lattice.Elem_Index("corr_h"), 1);
-    gcmat(Lattice.Elem_Index("bpm_m"), Lattice.Elem_Index("corr_v"), 2);
+    gcmat(ElemIndex("bpm_m"), ElemIndex("corr_h"), 1); gcmat(ElemIndex("bpm_m"), ElemIndex("corr_v"), 2);
     // reset orbit trims
     zero_trims();
-    LoadFieldErr_scl("/home/simon/projects/in/lattice/FieldErr.5e-4.dat", false,
-		     1.0, true, 20); //last number is seed no.
-    LoadAlignTol("/home/simon/projects/in/lattice/AlignErr.required+.dat",
-		 false, 1.0, true, 20); //last number is seed no.
+    LoadFieldErr_scl("/home/simon/projects/in/lattice/FieldErr.5e-4.dat", false, 1.0, true, 20); //last number is seed no.
+    LoadAlignTol("/home/simon/projects/in/lattice/AlignErr.required+.dat", false, 1.0, true, 20); //last number is seed no.
     bool       cod;
     cod = orb_corr_scl(3);  // use orb_corr_scl(0) to show orbit deviations BEFORE correction -> ampl. factor
     // use orb_corr_scl(3) to correct orbit in 3 iterations
-    Lattice.GetEmittance(Lattice.Elem_Index("cav"), true);
+    GetEmittance(ElemIndex("cav"), true);
   }
   
 
@@ -478,9 +467,8 @@ int main(int argc, char *argv[])
   // FOR TxT TRACKING AND PLOTTING VS TURN NO.
   if (!true) {
     long int lastn, lastpos;
-    Lattice.param.Cavity_on  = true; Lattice.param.radiation   = true;
-    Lattice.track("track_fft.out", x0, px0, y0, py0, delta0, n_turn,
-		  lastn, lastpos, 0, f_rf);  //track is in physlib.cc
+    globval.Cavity_on  = true; globval.radiation   = true;
+    track("track_fft.out", x0, px0, y0, py0, delta0, n_turn, lastn, lastpos, 0, f_rf);  //track is in physlib.cc
     //                                                                       ^ floqs
     // floqs: 0 = phase space            (x, px, y, py, delta, ct)
     //        1 = floquet space          (x^, px^, y^, py^, delta, ct)
@@ -495,9 +483,8 @@ int main(int argc, char *argv[])
     struct    tm *newtime;
     FILE      *fp;
     
-    Lattice.param.Cavity_on  = true; Lattice.param.radiation   = true;
-    Lattice.track("track_fft.out", x0, px0, y0, py0, delta0, 1,
-		  lastn, lastpos, 0, f_rf); // track_fft.out makes no sense here
+    globval.Cavity_on  = true; globval.radiation   = true;
+    track("track_fft.out", x0, px0, y0, py0, delta0, 1, lastn, lastpos, 0, f_rf); // track_fft.out makes no sense here
     
     fp = file_write("track_ExE.out");
     
@@ -505,20 +492,16 @@ int main(int argc, char *argv[])
     
     fprintf(fp,"# TRACY III v.3.5 -- %s -- %s \n",
 	    "track_ExE.out", asctime2(newtime));
-    fprintf(fp, "#         s   name              code  x          xp         "
-	    "y          yp         delta      ctau\n");
-    fprintf(fp,"#        [m]                          [mm]       [mrad]     "
-	    "[mm]       [mrad]     [%%]        [?]\n");
+    fprintf(fp,"#         s   name              code  x          xp         y          yp         delta      ctau\n");
+    fprintf(fp,"#        [m]                          [mm]       [mrad]     [mm]       [mrad]     [%%]        [?]\n");
     fprintf(fp, "#\n");
     
-    for (j = 0; j <= Lattice.param.Cell_nLoc; j++){
-      fprintf(fp, "%4li %8.3f %s %6.2f %10.3e %10.3e %10.3e %10.3e %10.3e "
-	      "%10.3e\n",
-	      j, Lattice.Cell[j].S, Lattice.Cell[j].Name,
-	      get_code(Lattice.Cell[j]),
-	      Lattice.Cell[j].BeamPos[0]*1e3, Lattice.Cell[j].BeamPos[1]*1e3,
-	      Lattice.Cell[j].BeamPos[2]*1e3, Lattice.Cell[j].BeamPos[3]*1e3,
-	      Lattice.Cell[j].BeamPos[4]*100, Lattice.Cell[j].BeamPos[5]);
+    for (j = 0; j <= globval.Cell_nLoc; j++){
+      fprintf(fp, "%4li %8.3f %s %6.2f %10.3e %10.3e %10.3e %10.3e %10.3e %10.3e\n",
+	      j, Cell[j].S, Cell[j].Elem.PName, get_code(Cell[j]),
+	      Cell[j].BeamPos[0]*1e3, Cell[j].BeamPos[1]*1e3,
+	      Cell[j].BeamPos[2]*1e3, Cell[j].BeamPos[3]*1e3,
+	      Cell[j].BeamPos[4]*100, Cell[j].BeamPos[5]);
 	}
     
     fclose(fp);
