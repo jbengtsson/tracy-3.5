@@ -1,0 +1,658 @@
+{ Input file for Elegeant
+  DELTA Lattice (Status 8/2004) Optics Version: DEL-008
+  Robert Molo (14.10.2010)
+  Basic Lattice 9233 und 9242
+  =====================================================
+  Orginal File:
+  DELTA lattice definition file
+  Created 11/08/04 (D. Schirmer, University of Dortmund)
+  DELTA lattice with new BPMs, Correctors, SAW-Model, U55, 
+  exact Beamline-Marker, etc ...                                    }
+{ ----------------------------------------------------------------- }
+
+define lattice; ringtype = 1;
+
+Energy = 1.5;
+
+dP = 1e-8; CODeps = 1e-14;
+
+Meth = 4; Nbend = 10; Nquad = 10; Nsext = 2;
+
+{pi = 4.0*arctan(1.0);}
+pi = 3.14159265358979323846;
+
+
+{ ***********
+  *Aperture *
+  *********** }
+
+{AP: MAXAMP, X_MAX=0.15, Y_MAX=0.15;}
+
+{ ----------------------------------------------------------------- }
+
+{ *************
+  * RF Cavity *
+  ************* }
+
+{ design length [m] }
+L0 = 115.2;
+
+{ speed of light [m/s] }
+C0 = 2.99792458e8;
+
+h_rf = 192;
+
+{ Frequency [Hz] Mod. by S. Khan 2013
+  DRFC drift removed by R. Molo 21.02.2013 }
+C_d:  drift, l=0.15;
+CAV:  cavity, l=0.0, voltage=0.36e+6, harnum=h_rf, frequency=h_rf*C0/L0,
+      phi=0.0 {180.0-21.95};
+CAV1: C_d, CAV, C_d;
+{CAV1: drift, L=0.3;}
+
+{ ----------------------------------------------------------------- }
+
+{ ***********
+  * Dipoles *
+  *********** }
+
+{ Warning: The manual is wrong. For RBEN, the length is the 
+           straight length of the magnet, not the arc length.
+  ACHTUNG: AT TOOLBOX RBEN sind SBEND 
+  Besser SBEND benutzen, weil man sie durch CSBEND ersetzen kann
+  CSBEND Probleme in Vertikaler Chromo bei Twiss Parameter -> SBEND
+  For long. tracking change SBEN to CSBEN and add SYNCH_RAD=1, ISR=1 }
+
+L_B20 = 1.14535792/(2*sin(0.34906580/2))*0.34906580;
+L_B7  = 0.58112798/(2*sin(0.1221731/2))*0.1221731;
+L_B3  = 0.58500000/(2*sin(0.0523600/2))*0.0523600;
+B20: bending, L=1.15119359, T=0.34906580*180.0/pi, T1=0.34906580/2*180.0/pi,
+     T2=0.34906580/2*180.0/pi, N=Nbend, Method=Meth;
+B7:  bending, L=0.58148956, T=0.1221731*180.0/pi, T1=0.1221731/2*180.0/pi,
+     T2=0.1221731/2*180.0/pi,  N=Nbend, Method=Meth;
+B3:  bending, L=0.58506683, T=0.0523600*180.0/pi, T1=0.0523600/2*180.0/pi,
+     T2=0.0523600/2*180.0/pi,  N=Nbend, Method=Meth;
+
+{ ----------------------------------------------------------------- }
+
+{ ***************
+  * Quadrupoles *
+  *************** }
+
+qlong  = 0.217;
+qshort = 0.117;
+
+QF01: quadrupole, L=qlong, K= 1.904478, N=Nquad, Method=Meth;
+QF02: quadrupole, L=qlong, K= 2.880125, N=Nquad, Method=Meth;
+QF03: quadrupole, L=qlong, K= 3.835739, N=Nquad, Method=Meth;
+
+QD01: quadrupole, L=qshort, K=-1.827804, N=Nquad, Method=Meth;
+QD02: quadrupole, L=qshort, K=-1.439061, N=Nquad, Method=Meth;
+QD03: quadrupole, L=qshort, K=-2.317805, N=Nquad, Method=Meth;
+QD04: quadrupole, L=qshort, K=-2.424349, N=Nquad, Method=Meth;
+
+QN01: quadrupole, L=qshort, K=-2.521478, N=Nquad, Method=Meth;
+QN02: quadrupole, L=qlong , K= 2.755639, N=Nquad, Method=Meth;
+QN03: quadrupole, L=qshort, K= 0.214173, N=Nquad, Method=Meth;
+QN04: quadrupole, L=qshort, K= 0.504450, N=Nquad, Method=Meth;
+QN05: quadrupole, L=qshort, K=-2.605665, N=Nquad, Method=Meth;
+QN06: quadrupole, L=qshort, K= 2.702120, N=Nquad, Method=Meth;
+QN07: quadrupole, L=qshort, K= 0.0,      N=Nquad, Method=Meth;
+QN08: quadrupole, L=qshort, K= 0.0,      N=Nquad, Method=Meth;
+
+QS01: quadrupole, L=qshort, K=-1.389007, N=Nquad, Method=Meth;
+QS02: quadrupole, L=qlong , K= 2.931214, N=Nquad, Method=Meth;
+QS03: quadrupole, L=qshort, K=-1.686768, N=Nquad, Method=Meth;
+QS04: quadrupole, L=qshort, K=-2.441484, N=Nquad, Method=Meth;
+QS05: quadrupole, L=qshort, K= 1.915117, N=Nquad, Method=Meth;
+QS06: quadrupole, L=qshort, K= 1.946584, N=Nquad, Method=Meth;
+QS07: quadrupole, L=qshort, K=-1.193575, N=Nquad, Method=Meth;
+QS08: quadrupole, L=qshort, K= 2.986112, N=Nquad, Method=Meth;
+QS09: quadrupole, L=qshort, K=-2.313881, N=Nquad, Method=Meth;
+
+{ ----------------------------------------------------------------- }
+
+
+{ **************
+  * Sextupoles *
+  ************** }
+
+{ In order to affect the chromaticity,  the SEXT or KSEXT element 
+  must have non-zero length. If you need a zero length element,  set 
+  L=1e-12 or some other very small number. The K value is then KL/L.
+  If you are planning to do tracking,  you should use KSEXT,  since SEXT 
+  is not symplectic.
+  Achtung DEL008olaf und DEL008new -> Falsche Sextuple um Faktor 2 }
+
+{SF1: sextupole, L=0.0, K= 0.0,    N=1, Method=Meth;
+SF2: sextupole, L=0.0, K= 2.68/2, N=1, Method=Meth;
+SF3: sextupole, L=0.0, K= 6.10/2, N=1, Method=Meth;
+
+SD1: sextupole, L=0.0, K=-6.10/2, N=1, Method=Meth;
+SD2: sextupole, L=0.0, K=-5.80/2, N=1, Method=Meth;
+
+SS3: sextupole, L=0.0, K= 1.48/2, N=1, Method=Meth;
+SS4: sextupole, L=0.0, K=-5.80/2, N=1, Method=Meth;}
+
+SF1: sextupole, L = 0.0, K =  2.53/2, N = 1, Method = Meth;
+SF2: sextupole, L = 0.0, K =  3.50/2, N = 1, Method = Meth;
+SF3: sextupole, L = 0.0, K =  2.53/2, N = 1, Method = Meth;
+
+SD1: sextupole, L = 0.0, K = -5.97/2, N = 1, Method = Meth;
+SD2: sextupole, L = 0.0, K = -3.75/2, N = 1, Method = Meth;
+
+SS3: sextupole, L = 0.0, K =  2.12/2, N = 1, Method = Meth;
+SS4: sextupole, L = 0.0, K = -4.22/2, N = 1, Method = Meth;
+
+SB:  sextupole, L=0.0, K=-0.15/2, N=1, Method=Meth;
+SB1: sextupole, L=0.0, K=-0.04/2, N=1, Method=Meth;
+SB2: sextupole, L=0.0, K=-0.02/2, N=1, Method=Meth;
+
+SS1: sextupole, L=0.0, K= 0.0,    N=1, Method=Meth;
+SS2: sextupole, L=0.0, K= 0.0,    N=1, Method=Meth;
+SN1: sextupole, L=0.0, K= 0.0,    N=1, Method=Meth;
+SN2: sextupole, L=0.0, K= 0.0,    N=1, Method=Meth;
+
+
+{ ----------------------------------------------------------------- }
+{ ----------------------------------------------------------------- }
+
+{ **********
+  * Drifts *
+  ********** }
+
+dl = 0.00114989502000000;
+{ Add dl to each drift in order to get design length }
+
+D00:   drift, L=0.3615 + dl;
+D00C:  drift, L=1.2230 + dl;
+D00D:  drift, L=0.2230 + dl;
+D00E:  drift, L=0.5000 + dl;
+D00F:  drift, L=0.9460 + dl;
+D01:   drift, L=0.0880 + dl;
+D02:   drift, L=0.1570 + dl;
+D03:   drift, L=0.4730 + dl;
+D03E:  drift, L=0.5050 + dl;
+D03F:  drift, L=0.4410 + dl;
+D04:   drift, L=0.3080 + dl;
+D04a:  drift, L=0.1930 + dl;
+D04b:  drift, L=0.1150 + dl;
+D05:   drift, L=0.3960 + dl;
+D06:   drift, L=0.2460 + dl;
+D07:   drift, L=0.2890 + dl;
+D08:   drift, L=0.3950 + dl;
+D09:   drift, L=0.2780 + dl;
+D10:   drift, L=0.1890 + dl;
+D11:   drift, L=0.3220 + dl;
+D12:   drift, L=0.4330 + dl;
+D13:   drift, L=0.50975 + dl;
+D14:   drift, L=0.4606 + dl;
+D14Ia: drift, L=0.1340 + dl;
+D14Ib: drift, L=0.3266 + dl;
+D15:   drift, L=0.4460 + dl;
+DCAV:  drift, L=0.4615 + dl;
+D20:   drift, L=0.1595 + dl;
+D21:   drift, L=0.7580 + dl;
+D22:   drift, L=0.3030 + dl;
+D23:   drift, L=0.5410 + dl;
+D24:   drift, L=1.7950 + dl;
+D25:   drift, L=2.8100 + dl;
+D26:   drift, L=0.5000 + dl;
+D27:   drift, L=0.3000 + dl;
+D28:   drift, L=0.3970 + dl;
+D29:   drift, L=1.4240 + dl;
+D30:   drift, L=0.8330 + dl;
+DQ3N:  drift, L=0.2340 + dl;
+
+{ ----------------------------------------------------------------- }
+
+{ ***************************
+  * Closed Orbit Correctors *
+  *************************** }
+
+{ Sind das die Steerer? Ich denke ja }
+
+HK01: corrector, horizontal, method=meth;
+HK02: corrector, horizontal, method=meth;
+HK03: corrector, horizontal, method=meth;
+HK04: corrector, horizontal, method=meth;
+HK05: corrector, horizontal, method=meth;
+HK06: corrector, horizontal, method=meth;
+HK07: corrector, horizontal, method=meth;
+HK08: corrector, horizontal, method=meth;
+HK09: corrector, horizontal, method=meth;
+HK0:  corrector, horizontal, method=meth;
+HK1:  corrector, horizontal, method=meth;
+HK:   corrector, horizontal, method=meth;
+HK3:  corrector, horizontal, method=meth;
+HK4:  corrector, horizontal, method=meth;
+HK5:  corrector, horizontal, method=meth;
+HK6:  corrector, horizontal, method=meth;
+HK7:  corrector, horizontal, method=meth;
+HK8:  corrector, horizontal, method=meth;
+HK9:  corrector, horizontal, method=meth;
+HK0:  corrector, horizontal, method=meth;
+HK1:  corrector, horizontal, method=meth;
+HK2:  corrector, horizontal, method=meth;
+HK3:  corrector, horizontal, method=meth;
+HK4:  corrector, horizontal, method=meth;
+HK5:  corrector, horizontal, method=meth;
+HK6:  corrector, horizontal, method=meth;
+HK7:  corrector, horizontal, method=meth;
+HK8:  corrector, horizontal, method=meth;
+HK9:  corrector, horizontal, method=meth;
+HK30: corrector, horizontal, method=meth;
+
+VK01: corrector, vertical, method=meth;
+VK02: corrector, vertical, method=meth;
+VK03: corrector, vertical, method=meth;
+VK04: corrector, vertical, method=meth;
+VK05: corrector, vertical, method=meth;
+VK06: corrector, vertical, method=meth;
+VK07: corrector, vertical, method=meth;
+VK08: corrector, vertical, method=meth;
+VK09: corrector, vertical, method=meth;
+VK0:  corrector, vertical, method=meth;
+VK1:  corrector, vertical, method=meth;
+VK:   corrector, vertical, method=meth;
+VK3:  corrector, vertical, method=meth;
+VK4:  corrector, vertical, method=meth;
+VK5:  corrector, vertical, method=meth;
+VK6:  corrector, vertical, method=meth;
+VK7:  corrector, vertical, method=meth;
+VK8:  corrector, vertical, method=meth;
+VK9:  corrector, vertical, method=meth;
+VK0:  corrector, vertical, method=meth;
+VK1:  corrector, vertical, method=meth;
+VK2:  corrector, vertical, method=meth;
+VK3:  corrector, vertical, method=meth;
+VK4:  corrector, vertical, method=meth;
+VK5:  corrector, vertical, method=meth;
+VK6:  corrector, vertical, method=meth;
+
+{ ----------------------------------------------------------------- }
+
+{ **************************
+  * Beam Position Monitors *
+  ************************** }
+
+BPM01: beam position monitor;
+BPM02: beam position monitor;
+BPM03: beam position monitor;
+BPM04: beam position monitor;
+BPM05: beam position monitor;
+BPM06: beam position monitor;
+BPM07: beam position monitor;
+BPM08: beam position monitor;
+BPM09: beam position monitor;
+BPM10: beam position monitor;
+BPM11: beam position monitor;
+BPM12: beam position monitor;
+BPM13: beam position monitor;
+BPM14: beam position monitor;
+BPM15: beam position monitor;
+BPM16: beam position monitor;
+BPM17: beam position monitor;
+BPM18: beam position monitor;
+BPM19: beam position monitor;
+BPM20: beam position monitor;
+BPM21: beam position monitor;
+BPM22: beam position monitor;
+BPM23: beam position monitor;
+BPM24: beam position monitor;
+BPM25: beam position monitor;
+BPM26: beam position monitor;
+BPM27: beam position monitor;
+BPM28: beam position monitor;
+BPM29: beam position monitor;
+BPM30: beam position monitor;
+BPM31: beam position monitor;
+BPM32: beam position monitor;
+BPM33: beam position monitor;
+BPM34: beam position monitor;
+BPM35: beam position monitor;
+BPM36: beam position monitor;
+BPM37: beam position monitor;
+BPM38: beam position monitor;
+BPM39: beam position monitor;
+BPM40: beam position monitor;
+BPM41: beam position monitor;
+BPM42: beam position monitor;
+BPM43: beam position monitor;
+BPM44: beam position monitor;
+BPM45: beam position monitor;
+BPM46: beam position monitor;
+BPM47: beam position monitor;
+BPM48: beam position monitor;
+BPM49: beam position monitor;
+BPM50: beam position monitor;
+BPM51: beam position monitor;
+BPM52: beam position monitor;
+BPM53: beam position monitor;
+BPM54: beam position monitor;
+
+{ ----------------------------------------------------------------- }
+
+{ **********
+  * Marker *
+  ********** }
+
+{ B20-1 (IR) }
+BL0:  marker;
+
+{ B20-2 (blind) }
+BL1:  marker;
+
+{ B20-3 (ISAS) }
+BL2:  marker;
+
+{ (FEL up stream) }
+BL3:  marker;
+
+{ (FEL down stream) }
+BL4:  marker;
+
+{ U250 FEL (Juelich) }
+BL5:  marker;
+
+{ B20-6 (mirror degradation) }
+BL6:  marker;
+
+{ B20-10 (Delta-SYLI Monitor) }
+BL7:  marker;
+
+{ SAW Uni Wuppertal }
+BL8:  marker;
+
+{ SAW Center Uni Dortmund }
+BL9:  marker;
+
+{ SAW Uni Wuppertal }
+BL10: marker;
+
+{ U55 center }
+BL11: marker;
+
+{ B20-15 (TGM-3, UniDo) }
+BL12: marker;
+
+{ Monitorkammer }
+BERGOZ: marker;
+
+{ Injektionsseptum }
+SEPT: marker;
+
+{ Marker fur Ein- und Austritt U55 Kammer (14mm Hohe) }
+
+{ U55 Begin }
+U55B: marker;
+
+{ U55 End }
+U55E: marker;
+
+{ Marker for the center of SAW (full vaccum gap 10mm) and FEL (U250) }
+SAW: marker;
+FEL: marker;
+
+START: marker;
+EEND:  marker;
+
+{ Marker for the kickers
+  Extraktion Kicker }
+EXCK: marker;
+
+{ Delta Kicker 1 }
+DEK1: marker;
+
+{ Delta Kicker 2 }
+DEK2: marker;
+
+{ Delta Kicker 3 }
+DEK3: marker;
+
+{ ----------------------------------------------------------------- }
+
+{ *********************
+  * SAW Wiggler Model *
+  ********************* }
+
+
+DTAPER1: drift, L=0.064;
+DTAPER2: drift, L=0.051;
+DFLANGE: drift, L=0.167;
+DFREE:   drift, L=0.491;
+DWIGI:   drift, L=1.250;
+DWIGI1:  drift, L=0.674;
+DWIGI2:  drift, L=0.576;
+
+E1: bending, L=0.056, T=-0.007151*180.0/pi, T1=0.0, T2=-0.006685*180.0/pi,
+    N=Nbend, Method=Meth;
+E2: bending, L=0.056, T=-0.007151*180.0/pi, T1=-0.006685*180.0/pi, T2=0.0,
+    N=Nbend, Method=Meth;
+
+Dlinks: drift, L=0.09650;
+DA:     drift, L=0.01175;
+DC:     drift, L=0.01100;
+DB1:    drift, L=0.01350;
+DB2:    drift, L=0.00060;
+
+N0: bending, L=0.05250, T=0.050920*180.0/pi, T1=0.023664*180.0/pi,
+    T2=0.023664*180.0/pi, N=Nbend, Method=Meth;
+S:  bending, L=0.05600, T=-0.014302*180.0/pi, T1=-0.006685*180.0/pi,
+    T2=-0.006685*180.0/pi, N=Nbend, Method=Meth;
+NS: bending, L=0.05290, T=-0.018309*180.0/pi, T1=0.006685*180.0/pi,
+    T2=-0.023664*180.0/pi, N=Nbend, Method=Meth;
+SS: bending, L=0.05290, T=-0.018309*180.0/pi, T1=-0.023664*180.0/pi,
+    T2=0.006685*180.0/pi, N=Nbend, Method=Meth;
+N1: bending, L=0.02625, T=0.025460*180.0/pi, T1=0.023664*180.0/pi, T2=0.0,
+    N=Nbend, Method=Meth;
+N2: bending, L=0.02625, T=0.025460*180.0/pi, T1=0.0, T2=0.023664*180.0/pi,
+    N=Nbend, Method=Meth;
+
+WEin: DTAPER1, BPM40, DTAPER2, DFLANGE;
+WAus: DFLANGE, DTAPER2, BPM41, DTAPER1;
+
+WPeriod1: DC, DB1, NS, DB2, DA;
+WPeriod2: DA, DB2, SS, DB1, DC;
+
+Wiggler_on:
+  WEin, DFREE, DC, E1, WPeriod1, N1, SAW, BL8, BL9, BL10, N2, WPeriod2, S,
+  WPeriod1, N0, WPeriod2, S, WPeriod1, N0, WPeriod2, S, WPeriod1, N0,
+  WPeriod2, S, WPeriod1, N0, WPeriod2, E2, DC, DFREE, WAus;
+
+Wiggler_off: WEin, DWIGI1, SAW, BL8, BL9, BL10, DWIGI2, DWIGI, WAus;
+
+Wiggler1: Wiggler_off;
+
+{ ----------------------------------------------------------------- }
+
+{ ****************
+  * Marker Umbau *
+  **************** }
+
+L1_Start: marker;
+L1_End:   marker;
+
+L2_Start: marker;
+L2_End:   marker;
+
+L3_Start: marker;
+L3_End:   marker;
+
+
+{ ----------------------------------------------------------------- }
+
+{ ****************
+  * Umbau Sterrer*
+  **************** }
+
+HKD1: corrector, horizontal, method=meth;
+HKD3: corrector, horizontal, method=meth;
+HKD5: corrector, horizontal, method=meth;
+
+{ Ersetzen D00F }
+D00F1: drift, L=0.72700 + dl;
+D00F2: drift, L=0.21900 + dl;
+{ ----------------------------------------------------------------- }
+
+{ ***********************
+  * LATTICE-DESCRIPTION *
+  *********************** }
+
+Quadrant1:
+  HK01, QF01, BPM01, D00C, D00D, QD01, VK01, QD01, BPM02, D01, SD1, D02, SB,
+  B20, SB, D02, SD1, D01, BPM03, QD02, VK02, QD02, D03, EXCK, D03, QF02,
+  SF2, HK02, QF02, D01, SF3, D04, QD03, VK03, QD03, BPM04, D01, SD1, D02, SB,
+  B20, SB, D02, SD1, D01, BPM05, QD04, QD04, D05, QF03, SF2, HK03, QF03, D01,
+  SF3, D04, QD04, VK04, QD04, BPM06, D01, SD1, D02, SB, B20, SB,
+  D02, SD1, D01, BPM07, QD04, QD04, D05, QF03, SF2, HK04, QF03, D01, SF3, D04,
+  QD04, QD04, BPM08, D01, SD1, D02, SB, B20, SB;
+
+Quadrant11:
+  L1_Start,
+  D02, SD2, D01, BPM09, QN01, VK05, SN1, QN01, D06, QN02, SF2, HK05, QN02, D01,
+  SF3, D07, D07, BPM10, QN03, QN03, D01, SD2, D08, D08,
+  L1_End,
+  SB1, B7, SB1,
+  L2_Start,
+  D09, BPM11, QN04, HK06, QN04, D10, D10, D01, DQ3N, D11, D11, D11, BPM12,
+  QN05, VK06, QN05, D12, D12, BPM13, QN06, HK07, QN06, D25, QN07, HK08, QN07,
+  D26, QN08, VK07, QN08, D27,
+  L2_End,
+  SB2, B3, SB2,
+  L3_Start,
+  D14, D14Ia, BPM14, D14Ib, D14, D14, D14, D15, D15, BL4, BL5, FEL,
+  L3_End;
+
+Quadrant20:
+  D15, D15, D14, D14, D14, D14Ib, BPM15, D14Ia, D14, SB2, B3, SB2, D27, QN08,
+  VK08, QN08, D26, QN07, HK09, QN07, D25, QN06, HK0, QN06, BPM16, D12, D12,
+  QN05, VK09, QN05, BPM17, D11, D11, D11, DQ3N, D01, D10, D10, QN04, HK1, QN04,
+  BPM18, D09, SB1, B7, SB1, D08, D08, SD2, D01, QN03, QN03, BPM19, D07, D07,
+  SF3, D01, QN02, SF2, HK, QN02, D06, QN01, VK0, SN1, QN01, BPM20, D01, SD2,
+  D02;
+
+Quadrant2:
+  SB, B20, SB, D02, SD1, D01, BPM21, QD04, QD04, D04, SF3, D01, QF03, SF2,
+  HK3, QF03, D05, QD04, QD04, BPM22, D01, SD1, D02, SB, B20,
+  SB, D02, SD1, D01, BPM23, QD04, VK1, QD04, D04, SF3, D01, QF03, SF2, HK4,
+  QF03, D05, QD04, QD04, BPM24, D01, SD1, D02, SB, B20, SB, D02, SD1, D01,
+  BPM25, QD03, VK, QD03, D04a, HKD1, D04b, SF3, D01, QF02, SF2, HK5, QF02,
+  D03, DEK1, D03, QD02, VK3, QD02, BPM26, D01, SD1, D02, SB, B20, SB,
+  D02, SD1, D01, BPM27, QD01, QD01, D00E, DEK2, D00F1, HKD3, D00F2, QF01, SF1;
+
+Quadrant3:
+  HK6, QF01, BPM28, D00C, SEPT, D00D, QD01, VK4, QD01, BPM29, D01, SD1, D02,
+  SB, B20, SB, D02, SD1, D01, BPM30, QD02, VK5, QD02, D03, DEK3, D03,
+  QF02, SF2, HK7, QF02, D01, SF3, D04b, HKD5, D04a, QD03, VK6, QD03, BPM31,
+  D01, SD1, D02, SB, B20, SB, D02, SD1, D01, BPM32, QD04, QD04,
+  D05, QF03, SF2, HK8, QF03, D01, SF3, D04, QD04, VK7, QD04, BPM33, D01, SD1,
+  D02, SB, B20, SB, D02, SD1, D01, BPM34, QD04, QD04, D05, QF03, SF2, HK9,
+  QF03, D01, SF3, D04, QD04, QD04, BPM35, D01, SD1, D02, SB, B20, SB, D02,
+  SD2, D01, BPM36, QS01, VK8, SS1, QS01, D06, QS02, SF2, HK0, QS02, D01, SF3,
+  D07, D07, BPM37, QS03, QS03, D01, SD2, D08, D08, SB1, B7, SB1, D09, QS04,
+  HK1, QS04, D10, D10, D01, QS05, QS05, D11, D11, D11, QS06, VK9, QS06,
+  BPM38, D12, D12, BPM39, QS07, HK2, QS07, D21, Wiggler1, Dlinks, D20, SB2,
+  B3, SB2, D22, QS08, VK0, SS3, QS08, D23, QS09, HK3, QS09, D01, SS4, D24;
+
+Quadrant4:
+  D24, SS4, D01, BPM42, QS09, HK4, QS09, D23, BPM43, QS08, VK1, SS3, QS08,
+  D22, SB2, B3, SB2, D28, U55B, D29, BL11, D29, U55E, D30, BPM44, QS07, HK5,
+  QS07, D12, D12, QS06, VK2, QS06, BPM45, D11, D11, D11, QS05, QS05, D01, D10,
+  D10, QS04, HK6, QS04, D09, SB1, B7, SB1, D08, D08, SD2, D01, QS03, QS03,
+  BPM46, D07, D07, SF3, D01, QS02, SF2, HK7, QS02, D06, QS01, VK3, SS1, QS01,
+  BPM47, D01, SD2, D02, SB, B20, SB, D02, SD1, D01, BPM48, QD04, QD04, D04,
+  SF3, D01, QF03, SF2, HK8, QF03, D05, QD04, QD04, BPM49, D01, SD1, D02, SB,
+  B20, SB, D02, SD1, D01, BPM50, QD04, VK4, QD04, D04, SF3, D01, QF03, SF2,
+  HK9, QF03, D05, QD04, QD04, BPM51, D01, SD1, D02, SB, B20,
+  SB, D02, SD1, D01, BPM52, QD03, VK5, QD03, D04, SF3, D01, QF02, SF2, HK30,
+  QF02, D03F, BERGOZ, D03E, QD02, VK6, QD02, BPM53, D01, SD1, D02, SB, B20,
+  SB, D02, SD1, D01, BPM54, QD01, QD01, D00D, DCAV, CAV1, DCAV, QF01, SF1;
+
+{ ----------------------------------------------------------------- }
+
+{ ***********
+  * Dipoles *
+  *********** }
+
+{ 10 grad }
+L_B10 = 0.57000/(2*sin(0.1745329/2))*0.1745329;
+B10: bending, L=0.57072411, T=0.1745329*180.0/pi, T1=0.1745329/2*180.0/pi,
+     T2=0.1745329/2*180.0/pi, N=Nbend, Method=Meth;
+
+{ ----------------------------------------------------------------- }
+
+{ ***************
+  * Quadrupoles *
+  *************** }
+
+qshort = 0.234;
+qlong  = 0.434;
+
+Q01:  quadrupole, L=0.234, K= 0.9997159818787944, N=Nquad, Method=Meth;
+Q03:  quadrupole, L=0.434, K= 3.127255235072216,  N=Nquad, Method=Meth;
+Q02:  quadrupole, L=0.234, K=-4.296740169778668,  N=Nquad, Method=Meth;
+
+EQ01: quadrupole, L=0.234, K=-4.195440559535303, N=Nquad, Method=Meth;
+EQ02: quadrupole, L=0.234, K= 3.422580624001597, N=Nquad, Method=Meth;
+EQ03: quadrupole, L=0.234, K= 1.510341778055265, N=Nquad, Method=Meth;
+EQ04: quadrupole, L=0.234, K= 2.071627080130389, N=Nquad, Method=Meth;
+EQ05: quadrupole, L=0.234, K=-2.102053436977397, N=Nquad, Method=Meth;
+
+{ ----------------------------------------------------------------- }
+
+{ **********
+  * Drifts *
+  ********** }
+
+F01: drift, L=0.1500001947745855;
+F02: drift, L=0.1998347228625822;
+F03: drift, L=0.1760875326528089;
+F04: drift, L=0.2638153189336666;
+F05: drift, L=0.2065099007760627;
+
+U561:  drift, L=1.0700;
+U562:  drift, L=1.0700;
+
+E01: drift, L=0.1522164008292093;
+E02: drift, L=0.1848722162647881;
+E03: drift, L=0.1512694548262472;
+E04: drift, L=0.152910793324165;
+E05: drift, L=0.1633312373793755;
+E06: drift, L=0.1743659766930873;
+E07: drift, L=0.1697949406840447;
+
+EF:  drift, L=4.0;
+
+{ ----------------------------------------------------------------- }
+
+{ **********
+  * Marker *
+  ********** }
+
+{START:  marker;}
+{END:   marker;}
+ENDF:   marker;
+FEMTOM: marker;
+EEHGM:  marker;
+EEHGMM: marker;
+DISPM:  marker;
+
+{ ----------------------------------------------------------------- }
+
+{ ***********************
+  * LATTICE-DESCRIPTION *
+  *********************** }
+
+FEMTO1:
+  F01, Q01, F02, Q02, F03, Q03, F04, U561, FEMTOM, U562, F05, ENDF, B10,
+  START, E01, EQ01, E02, DISPM, EQ02, E03, EQ03, E04, DISPM, EEHGM, EF,
+  EEHGMM, EF, EEHGM, E05, EQ04, E06, EQ05, E07, EEND;
+
+FEMTO: FEMTO1, inv(FEMTO1);
+
+DELTA: START, Quadrant1, FEMTO, Quadrant2, Quadrant3, Quadrant4, EEND{, AP};
+
+cell: DELTA, symmetry = 1;
+
+end;

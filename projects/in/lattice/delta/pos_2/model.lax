@@ -1,0 +1,446 @@
+{ Delta optik. }
+
+{ BEAM, PARTICLE = ELECTRON, PC=1.5, RADIATE = FALSE; }
+
+define lattice; ringtype = 1;
+
+Energy = 1.5;
+
+dP = 1e-8; CODeps = 1e-14;
+
+Meth = 4; Nbend = 10; Nquad = 10; Nsext = 2;
+
+{pi = 4.0*arctan(1.0);}
+pi = 3.14159265358979323846;
+
+{ BL: SEQUENCE, REFER = CENTRE, L = 115.16199; }
+
+{CAV:  cavity, l = 0.0, voltage = 0.36e6, harnum = 192,
+      frequency = 499.6540966666666e6, phi = 0.0;}
+CAV:  cavity, l = 0.0, voltage = 2e6, harnum = 192,
+      frequency = 499.6540966666666e6, phi = 0.0;
+
+phi1 = 20.0; rho1 = 1.102/(2.0*sin(phi1/2*pi/180.0));
+L1 = rho1*phi1*pi/180.0;
+phi3 =  7.0; rho3 = 0.5251/(2.0*sin(phi3/2*pi/180.0));
+L3 = rho3*phi3*pi/180.0;
+phi4 =  3.0; rho4 = 0.5251/(2.0*sin(phi4/2*pi/180.0));
+L4 = rho4*phi4*pi/180.0;
+
+{ Tracy-3.5: fint*gap = 0.5*gap. }
+BEND1: Bending, L = L1, T = phi1, T1 = phi1/2, T2 = phi1/2, Gap = 4*1/6*0.0504,
+       N = Nbend, Method = Meth;
+BEND3: Bending, L = L3, T = phi3, T1 = phi3/2, T2 = phi3/2, Gap = 4*1/6*0.0504,
+       N = Nbend, Method = Meth;
+BEND4: Bending, L = L4, T = phi4, T1 = phi4/2, T2 = phi4/2, Gap = 4*1/6*0.0504,
+       N = Nbend, Method = Meth;
+
+{ Quadrupoles 18-21 area sof now not being used. }
+
+qq1:  Quadrupole, L = 0.2175, K =  1.87785,   N = Nquad, Method = Meth;
+qq2:  Quadrupole, L = 0.235,  K = -1.84496,   N = Nquad, Method = Meth;
+qq3:  Quadrupole, L = 0.235,  K = -1.40487,   N = Nquad, Method = Meth;
+qq4:  Quadrupole, L = 0.435,  K =  2.81843,   N = Nquad, Method = Meth;
+qq5:  Quadrupole, L = 0.235,  K = -2.24284,   N = Nquad, Method = Meth;
+qq6:  Quadrupole, L = 0.235,  K = -2.29898,   N = Nquad, Method = Meth;
+qq7:  Quadrupole, L = 0.435,  K =  3.76231,   N = Nquad, Method = Meth;
+qq8:  Quadrupole, L = 0.235,  K = -2.37517,   N = Nquad, Method = Meth;
+qq9:  Quadrupole, L = 0.235,  K = -2.32268,   N = Nquad, Method = Meth;
+qq10: Quadrupole, L = 0.435,  K =  3.77377,   N = Nquad, Method = Meth;
+qq11: Quadrupole, L = 0.235,  K = -2.31860,   N = Nquad, Method = Meth;
+qq12: Quadrupole, L = 0.235,  K = -2.43186,   N = Nquad, Method = Meth;
+qq13: Quadrupole, L = 0.435,  K =  2.74027,   N = Nquad, Method = Meth;
+qq14: Quadrupole, L = 0.235,  K =  0.158151,  N = Nquad, Method = Meth;
+qq15: Quadrupole, L = 0.235,  K =  0.281600,  N = Nquad, Method = Meth;
+qq16: Quadrupole, L = 0.235,  K = -2.60247,   N = Nquad, Method = Meth;
+qq17: Quadrupole, L = 0.235,  K =  2.75516,   N = Nquad, Method = Meth;
+qq22: Quadrupole, L = 0.235,  K =  2.71858,   N = Nquad, Method = Meth;
+qq23: Quadrupole, L = 0.235,  K = -2.55304,   N = Nquad, Method = Meth;
+qq24: Quadrupole, L = 0.235,  K =  0.342361,  N = Nquad, Method = Meth;
+qq25: Quadrupole, L = 0.235,  K =  0.0744382, N = Nquad, Method = Meth;
+qq26: Quadrupole, L = 0.435,  K =  2.74733,   N = Nquad, Method = Meth;
+qq27: Quadrupole, L = 0.235,  K = -2.44504,   N = Nquad, Method = Meth;
+qq28: Quadrupole, L = 0.235,  K = -2.32195,   N = Nquad, Method = Meth;
+qq29: Quadrupole, L = 0.435,  K =  3.82471,   N = Nquad, Method = Meth;
+qq30: Quadrupole, L = 0.235,  K = -2.26481,   N = Nquad, Method = Meth;
+qq31: Quadrupole, L = 0.235,  K = -2.28892,   N = Nquad, Method = Meth;
+qq32: Quadrupole, L = 0.435,  K =  3.78639,   N = Nquad, Method = Meth;
+qq33: Quadrupole, L = 0.235,  K = -2.26671,   N = Nquad, Method = Meth;
+qq34: Quadrupole, L = 0.235,  K = -2.21945,   N = Nquad, Method = Meth;
+qq35: Quadrupole, L = 0.435,  K =  2.81751,   N = Nquad, Method = Meth;
+qq36: Quadrupole, L = 0.235,  K = -1.38904,   N = Nquad, Method = Meth;
+qq37: Quadrupole, L = 0.235,  K = -1.78279,   N = Nquad, Method = Meth;
+qq38: Quadrupole, L = 0.435,  K =  1.91962,   N = Nquad, Method = Meth;
+qq40: Quadrupole, L = 0.235,  K = -1.83124,   N = Nquad, Method = Meth;
+qq41: Quadrupole, L = 0.235,  K = -1.36355,   N = Nquad, Method = Meth;
+qq42: Quadrupole, L = 0.435,  K =  2.80195,   N = Nquad, Method = Meth;
+qq43: Quadrupole, L = 0.235,  K = -2.19839,   N = Nquad, Method = Meth;
+qq44: Quadrupole, L = 0.235,  K = -2.36186,   N = Nquad, Method = Meth;
+qq45: Quadrupole, L = 0.435,  K =  3.83349,   N = Nquad, Method = Meth;
+qq46: Quadrupole, L = 0.235,  K = -2.31583,   N = Nquad, Method = Meth;
+qq47: Quadrupole, L = 0.235,  K = -2.25255,   N = Nquad, Method = Meth;
+qq48: Quadrupole, L = 0.435,  K =  3.84359,   N = Nquad, Method = Meth;
+qq49: Quadrupole, L = 0.235,  K = -2.36847,   N = Nquad, Method = Meth;
+qq50: Quadrupole, L = 0.235,  K = -1.35465,   N = Nquad, Method = Meth;
+qq51: Quadrupole, L = 0.435,  K =  2.97514,   N = Nquad, Method = Meth;
+qq52: Quadrupole, L = 0.235,  K = -1.71704,   N = Nquad, Method = Meth;
+qq53: Quadrupole, L = 0.235,  K = -2.42094,   N = Nquad, Method = Meth;
+qq54: Quadrupole, L = 0.235,  K =  1.84124,   N = Nquad, Method = Meth;
+qq55: Quadrupole, L = 0.235,  K =  1.55734,   N = Nquad, Method = Meth;
+qq56: Quadrupole, L = 0.235,  K = -1.36887,   N = Nquad, Method = Meth;
+qq57: Quadrupole, L = 0.235,  K =  2.96794,   N = Nquad, Method = Meth;
+qq58: Quadrupole, L = 0.235,  K = -2.55646,   N = Nquad, Method = Meth;
+qq59: Quadrupole, L = 0.235,  K = -2.42588,   N = Nquad, Method = Meth;
+qq60: Quadrupole, L = 0.235,  K =  3.33299,   N = Nquad, Method = Meth;
+qq61: Quadrupole, L = 0.235,  K = -1.02458,   N = Nquad, Method = Meth;
+qq62: Quadrupole, L = 0.235,  K =  1.92980,   N = Nquad, Method = Meth;
+qq63: Quadrupole, L = 0.235,  K =  1.90107,   N = Nquad, Method = Meth;
+qq64: Quadrupole, L = 0.235,  K = -2.39989,   N = Nquad, Method = Meth;
+qq65: Quadrupole, L = 0.235,  K = -1.73968,   N = Nquad, Method = Meth;
+qq66: Quadrupole, L = 0.435,  K =  2.94516,   N = Nquad, Method = Meth;
+qq67: Quadrupole, L = 0.235,  K = -1.40624,   N = Nquad, Method = Meth;
+qq68: Quadrupole, L = 0.235,  K = -2.37393,   N = Nquad, Method = Meth;
+qq69: Quadrupole, L = 0.435,  K =  3.84736,   N = Nquad, Method = Meth;
+qq70: Quadrupole, L = 0.235,  K = -2.28727,   N = Nquad, Method = Meth;
+qq71: Quadrupole, L = 0.235,  K = -2.25501,   N = Nquad, Method = Meth;
+qq72: Quadrupole, L = 0.435,  K =  3.82311,   N = Nquad, Method = Meth;
+qq73: Quadrupole, L = 0.235,  K = -2.30352,   N = Nquad, Method = Meth;
+qq74: Quadrupole, L = 0.235,  K = -2.25089,   N = Nquad, Method = Meth;
+qq75: Quadrupole, L = 0.435,  K =  2.81994,   N = Nquad, Method = Meth;
+qq76: Quadrupole, L = 0.235,  K = -1.41344,   N = Nquad, Method = Meth;
+qq77: Quadrupole, L = 0.235,  K = -1.83642,   N = Nquad, Method = Meth;
+
+BPM: Marker;
+
+s = 0.0;
+D1: Drift, L = 0.10875 - QQ1.L/2;
+s = s + D1.L + QQ1.L;
+D2: Drift, L = 0.2380 - s;
+s = s + D2.L;
+D3: Drift, L = 1.780061 - QQ2.L/2 - s;
+s = s + D3.L +  QQ2.L;
+D4: Drift, L = 1.918061 - s;
+s = s + D4.L;
+D5: Drift, L = 2.723960 - BEND1.L/2 - s;
+s = s + D5.L + BEND1.L;
+D6: Drift, L = 3.529722 - s;
+s = s + D6.L;
+D7: Drift, L = 3.667722 - QQ3.L/2 - s;
+s = s + D7.L + QQ3.L;
+D8: Drift, L = 4.951089 - QQ4.L/2 - s;
+s = s + D8.L + QQ4.L;
+D9: Drift, L = 5.6800 - QQ5.L/2 -s;
+s = s + D9.L + QQ5.L;
+D10: Drift, L = 5.818 - s;
+s = s + D10.L;
+D11: Drift, L = 6.622340 - BEND1.L/2 - s;
+s = s + D11.L + BEND1.L;
+D12: Drift, L = 7.4277 - s;
+s = s + D12.L;
+D13: Drift, L = 7.565700 - QQ6.L/2 - s;
+s = s + D13.L + QQ6.L;
+D14: Drift, L = 8.293619 - QQ7.L/2 - s;
+s = s + D14.L + QQ7.L;
+D15: Drift, L = 9.023299 - QQ8.L/2 - s;
+s = s + D15.L + QQ8.L;
+D16: Drift, L = 9.161299 - s;
+s = s + D16.L;
+D17: Drift, L = 9.971507 - BEND1.L/2 - s;
+s = s + D17.L + BEND1.L;
+D18: Drift, L = 10.777276 - s;
+s = s + D18.L;
+D19: Drift, L = 10.915276 - QQ9.L/2 - s;
+s = s + D19.L + QQ9.L;
+D20: Drift, L = 11.644706 - QQ10.L/2 - s;
+s = s + D20.L + QQ10.L;
+D21: Drift, L = 12.374026 - QQ11.L/2 - s;
+s = s + D21.L + QQ11.L;
+D22: Drift, L = 12.512026 - s;
+s = s + D22.L;
+D23: Drift, L = 13.320388 - BEND1.L/2 - s;
+s = s + D23.L + BEND1.L;
+D24: Drift, L = 14.12428 - s;
+s = s + D24.L;
+D25: Drift, L = 14.262280 - QQ12.L/2 - s;
+s = s + D25.L + QQ12.L;
+D26: Drift, L = 14.844369 - QQ13.L/2 - s;
+s = s + D26.L + QQ13.L;
+D27: Drift, L = 15.705952 - s;
+s = s + D27.L;
+D28: Drift, L = 15.843952 - QQ14.L/2 - s;
+s = s + D28.L + QQ14.L;
+D29: Drift, L = 17.130637 - BEND3.L/2 - s;
+s = s + D29.L + BEND3.L;
+D30: Drift, L = 17.678022 - s;
+s = s + D30.L;
+D31: Drift, L = 17.816022 - QQ15.L/2 - s;
+s = s + D31.L + QQ15.L;
+D32: Drift, L = 19.713796 - QQ16.L/2 - s;
+s = s + D32.L + QQ16.L;
+D33: Drift, L = 20.677153 - s;
+s = s + D33.L;
+D34: Drift, L = 20.815153 - QQ17.L/2 - s;
+s = s + D34.L + QQ17.L;
+D35: Drift, L =  25.303936- BEND4.L/2 - s;
+s = s + D35.L + BEND4.L;
+D36: Drift, L = 26.1986 - s;
+s = s + D36.L;
+D37: Drift, L = 31.384 - s;
+s = s + D37.L;
+D38: Drift, L = 32.277059 - BEND4.L/2 - s;
+s = s + D38.L + BEND4.L;
+D39: Drift, L = 36.767553 - QQ22.L/2 - s;
+s = s + D39.L + QQ22.L;
+D40: Drift, L = 36.905553 - s;
+s = s + D40.L;
+D41: Drift, L = 37.868319 - QQ23.L/2 - s;
+s = s + D41.L + QQ23.L;
+D42: Drift, L = 38.006319 - s;
+s = s + D42.L;
+D43: Drift, L = 39.767092 - QQ24.L/2 - s;
+s = s + D43.L + QQ24.L;
+D44: Drift, L = 39.905092 - s;
+s = s + D44.L;
+D45: Drift, L = 40.450358 - BEND3.L/2 - s;
+s = s + D45.L + BEND3.L;
+D46: Drift, L = 41.742580 - QQ25.L/2 - s;
+s = s + D46.L + QQ25.L;
+D47: Drift, L = 41.88058 - s;
+s = s + D47.L;
+D48: Drift, L = 42.741572 - QQ26.L/2 - s;
+s = s + D48.L + QQ26.L;
+D49: Drift, L = 43.322886 - QQ27.L/2 - s;
+s = s + D49.L + QQ27.L;
+D50: Drift, L = 43.460886 - s;
+s = s + D50.L;
+D51: Drift, L = 44.260607 - BEND1.L/2 - s;
+s = s + D51.L + BEND1.L;
+D52: Drift, L = 45.071051 - s;
+s = s + D52.L;
+D53: Drift, L = 45.209051 - QQ28.L/2 - s;
+s = s + D53.L + QQ28.L;
+D54: Drift, L = 45.937824 - QQ29.L/2 - s;
+s = s + D54.L + QQ29.L;
+D55: Drift, L = 46.669945 - QQ30.L/2 - s;
+s = s + D55.L + QQ30.L;
+D56: Drift, L = 46.807945 - s;
+s = s + D56.L;
+D57: Drift, L = 47.609488 - BEND1.L/2 - s;
+s = s + D57.L + BEND1.L;
+D58: Drift, L = 48.421492 - s;
+s = s + D58.L;
+D59: Drift, L = 48.559492 - QQ31.L/2 - s;
+s = s + D59.L + QQ31.L;
+D60: Drift, L = 49.286664 - QQ32.L/2 - s;
+s = s + D60.L + QQ32.L;
+D61: Drift, L = 50.018536 - QQ33.L/2 - s;
+s = s + D61.L + QQ33.L;
+D62: Drift, L = 50.156536 - s;
+s = s + D62.L;
+D63: Drift, L = 50.958655 - BEND1.L/2 - s;
+s = s + D63.L + BEND1.L;
+D64: Drift, L = 51.76915 - s;
+s = s + D64.L;
+D65: Drift, L = 51.907150 - QQ34.L/2 - s;
+s = s + D65.L + QQ34.L;
+D66: Drift, L = 52.635177 - QQ35.L/2 - s;
+s = s + D66.L + QQ35.L;
+D67: Drift, L = 53.914321 - QQ36.L/2 - s;
+s = s + D67.L + QQ36.L;
+D68: Drift, L = 54.052321 - s;
+s = s + D68.L;
+D69: Drift, L = 54.857035 - BEND1.L/2 - s;
+s = s + D69.L + BEND1.L;
+D70: Drift, L = 55.662485 - s;
+s = s + D70.L;
+D71: Drift, L = 55.800485 - QQ37.L/2 - s;
+s = s + D71.L + QQ37.L;
+D72: Drift, L = 57.580292 - QQ38.L/2 - s;
+s = s + D72.L + QQ38.L;
+D73: Drift, L = 57.818292 - s;
+s = s + D73.L;
+D74: Drift, L = 59.361017 - QQ40.L/2 - s;
+s = s + D74.L + QQ40.L;
+D75: Drift, L = 59.499017 - s;
+s = s + D75.L;
+D76: Drift, L = 60.304955 - BEND1.L/2 - s;
+s = s + D76.L + BEND1.L;
+D77: Drift, L = 61.110428 - s;
+s = s + D77.L;
+D78: Drift, L = 61.248428 - QQ41.L/2 - s;
+s = s + D78.L + QQ41.L;
+D79: Drift, L = 62.527694 - QQ42.L/2 - s;
+s = s + D79.L + QQ42.L;
+D80: Drift, L = 63.257627 - QQ43.L/2 - s;
+s = s + D80.L + QQ43.L;
+D81: Drift, L = 63.395627 - s;
+s = s + D81.L;
+D82: Drift, L = 64.203335 - BEND1.L/2 - s;
+s = s + D82.L + BEND1.L;
+D83: Drift, L = 65.009088 - s;
+s = s + D83.L;
+D84: Drift, L = 65.147088 - QQ44.L/2 - s;
+s = s + D84.L + QQ44.L;
+D85: Drift, L = 65.875121 - QQ45.L/2 - s;
+s = s + D85.L + QQ45.L;
+D86: Drift, L = 66.605631 - QQ46.L/2 - s;
+s = s + D86.L + QQ46.L;
+D87: Drift, L = 66.743631 - s;
+s = s + D87.L;
+D88: Drift, L = 67.552502 - BEND1.L/2 - s;
+s = s + D88.L + BEND1.L;
+D89: Drift, L = 68.355643 - s;
+s = s + D89.L;
+D90: Drift, L = 68.493643 - QQ47.L/2 - s;
+s = s + D90.L + QQ47.L;
+D91: Drift, L = 69.222212 - QQ48.L/2 - s;
+s = s + D91.L + QQ48.L;
+D92: Drift, L = 69.954114 - QQ49.L/2 - s;
+s = s + D92.L + QQ49.L;
+D93: Drift, L = 70.092114 - s;
+s = s + D93.L;
+D94: Drift, L = 70.901383 - BEND1.L/2 - s;
+s = s + D94.L + BEND1.L;
+D95: Drift, L = 71.703534 - s;
+s = s + D95.L;
+D96: Drift, L = 71.841534 - QQ50.L/2 - s;
+s = s + D96.L + QQ50.L;
+D97: Drift, L = 72.420433 - QQ51.L/2 - s;
+s = s + D97.L + QQ51.L;
+D98: Drift, L = 73.254069 - s;
+s = s + D98.L;
+D99: Drift, L = 73.392069 - QQ52.L/2 - s;
+s = s + D99.L + QQ52.L;
+D100: Drift, L = 74.711632 - BEND3.L/2 - s;
+s = s + D100.L + BEND3.L;
+D101: Drift, L = 75.460594 - QQ53.L/2 - s;
+s = s + D101.L + QQ53.L;
+D102: Drift, L = 76.095555 - QQ54.L/2 - s;
+s = s + D102.L + QQ54.L;
+D103: Drift, L = 77.292870 - QQ55.L/2 - s;
+s = s + D103.L + QQ55.L;
+D104: Drift, L = 77.43087 - s;
+s = s + D104.L;
+D105: Drift, L = 78.257549 - s;
+s = s + D105.L;
+D106: Drift, L = 78.395549 - QQ56.L/2 - s;
+s = s + D106.L + QQ56.L;
+D107: Drift, L = 79.344 - s;
+s = s + D107.L;
+D108: Drift, L = 82.28 - s;
+s = s + D108.L;
+D109: Drift, L = 82.884931 - BEND4.L/2 - s;
+s = s + D109.L + BEND4.L;
+D110: Drift, L = 83.596733 - QQ57.L/2 - s;
+s = s + D110.L + QQ57.L;
+D111: Drift, L = 84.374848 - QQ58.L/2 - s;
+s = s + D111.L + QQ58.L;
+D112: Drift, L = 88.242254- s;
+s = s + D112.L;
+D113: Drift, L = 88.380254 - QQ59.L/2 - s;
+s = s + D113.L + QQ59.L;
+D114: Drift, L = 89.006653 - s;
+s = s + D114.L;
+D115: Drift, L = 89.144653 - QQ60.L/2 - s;
+s = s + D115.L + QQ60.L;
+D116: Drift, L = 89.858054 - BEND4.L/2 - s;
+s = s + D116.L + BEND4.L;
+D117: Drift, L = 94.209525 - s;
+s = s + D117.L;
+D118: Drift, L = 94.347525 - QQ61.L/2 - s;
+s = s + D118.L + QQ61.L;
+D119: Drift, L = 95.446603 - QQ62.L/2 - s;
+s = s + D119.L + QQ62.L;
+D120: Drift, L = 95.584603 - s;
+s = s + D120.L;
+D121: Drift, L = 96.648590 - QQ63.L/2 - s;
+s = s + D121.L + QQ63.L;
+D122: Drift, L = 97.346540 - QQ64.L/2 - s;
+s = s + D122.L + QQ64.L;
+D123: Drift, L = 98.031353 - BEND3.L/2 - s;
+s = s + D123.L + BEND3.L;
+D124: Drift, L = 99.319079 - QQ65.L/2 - s;
+s = s + D124.L + QQ65.L;
+D125: Drift, L = 99.457079 - s;
+s = s + D125.L;
+D126: Drift, L = 100.318052 - QQ66.L/2 - s;
+s = s + D126.L + QQ66.L;
+D127: Drift, L = 100.899916 - QQ67.L/2 - s;
+s = s + D127.L + QQ67.L;
+D128: Drift, L = 101.037916 - s;
+s = s + D128.L;
+D129: Drift, L = 101.841602 - BEND1.L/2 - s;
+s = s + D129.L + BEND1.L;
+D130: Drift, L = 102.650406 - s;
+s = s + D130.L;
+D131: Drift, L = 102.788406 - QQ68.L/2 - s;
+s = s + D131.L + QQ68.L;
+D132: Drift, L = 103.515592 - QQ69.L/2 - s;
+s = s + D132.L + QQ69.L;
+D133: Drift, L = 104.246714 - QQ70.L/2 - s;
+s = s + D133.L + QQ70.L;
+D134: Drift, L = 104.384714 - s;
+s = s + D134.L;
+D135: Drift, L = 105.190483 - BEND1.L/2 - s;
+s = s + D135.L + BEND1.L;
+D136: Drift, L = 105.99701 - s;
+s = s + D136.L;
+D137: Drift, L = 106.135010 - QQ71.L/2 - s;
+s = s + D137.L + QQ71.L;
+D138: Drift, L = 106.865232 - QQ72.L/2 - s;
+s = s + D138.L + QQ72.L;
+D139: Drift, L = 107.594489 - QQ73.L/2 - s;
+s = s + D139.L + QQ73.L;
+D140: Drift, L = 107.732489 - s;
+s = s + D140.L;
+D141: Drift, L = 108.539650 - BEND1.L/2 - s;
+s = s + D141.L + BEND1.L;
+D142: Drift, L = 109.347725 - s;
+s = s + D142.L;
+D143: Drift, L = 109.485725 - QQ74.L/2 - s;
+s = s + D143.L + QQ74.L;
+D144: Drift, L = 110.216596 - QQ75.L/2 - s;
+s = s + D144.L + QQ75.L;
+D145: Drift, L = 111.497085 - QQ76.L/2 - s;
+s = s + D145.L + QQ76.L;
+D146: Drift, L = 111.635085 - s;
+s = s + D146.L;
+D147: Drift, L = 112.438030 - BEND1.L/2 - s;
+s = s + D147.L + BEND1.L;
+D148: Drift, L = 113.242876 - s;
+s = s + D148.L;
+D149: Drift, L = 113.380876 - QQ77.L/2 - s;
+s = s + D149.L + QQ77.L;
+D150: Drift, L = 115.05324 - QQ1.L/2 - s;
+s = s + D150.L + QQ1.L;
+
+
+Line:
+  D1, QQ1, D2, BPM, D3, QQ2, D4, BPM, D5, BEND1, D6, BPM, D7, QQ3, D8, QQ4,
+  D9, QQ5, D10, BPM, D11, BEND1, D12, BPM, D13, QQ6, D14, QQ7, D15, QQ8, D16,
+  BPM, D17, BEND1, D18, BPM, D19, QQ9, D20, QQ10, D21, QQ11, D22, BPM, D23,
+  BEND1, D24, BPM, D25, QQ12, D26, QQ13, D27, BPM, D28, QQ14, D29, BEND3, D30,
+  BPM, D31, QQ15, D32, QQ16, D33, BPM, D34, QQ17, D35, BEND4, D36, BPM, D37,
+  BPM, D38, BEND4, D39, QQ22, D40, BPM, D41, QQ23, D42, BPM, D43, QQ24, D44,
+  BPM, D45, BEND3, D46, QQ25, D47, BPM, D48, QQ26, D49, QQ27, D50, BPM, D51,
+  BEND1, D52, BPM, D53, QQ28, D54, QQ29, D55, QQ30, D56, BPM, D57, BEND1, D58,
+  BPM, D59, QQ31, D60, QQ32, D61, QQ33, D62, BPM, D63, BEND1, D64, BPM, D65,
+  QQ34, D66, QQ35, D67, QQ36, D68, BPM, D69, BEND1, D70, BPM, D71, QQ37, D72,
+  QQ38, D73, BPM, D74, QQ40, D75, BPM, D76, BEND1, D77, BPM, D78, QQ41, D79,
+  QQ42, D80, QQ43, D81, BPM, D82, BEND1, D83, BPM, D84, QQ44, D85, QQ45, D86,
+  QQ46, D87, BPM, D88, BEND1, D89, BPM, D90, QQ47, D91, QQ48, D92, QQ49, D93,
+  BPM, D94, BEND1, D95, BPM, D96, QQ50, D97, QQ51, D98, BPM, D99, QQ52, D100,
+  BEND3, D101, QQ53, D102, QQ54, D103, QQ55, D104, BPM, D105, BPM, D106, QQ56,
+  D107, BPM, D108, BPM, D109, BEND4, D110, QQ57, D111, QQ58, D112, BPM, D113,
+  QQ59, D114, BPM, D115, QQ60, D116, BEND4, D117, BPM, D118, QQ61, D119, QQ62,
+  D120, BPM, D121, QQ63, D122, QQ64, D123, BEND3, D124, QQ65, D125, BPM, D126,
+  QQ66, D127, QQ67, D128, BPM, D129, BEND1, D130, BPM, D131, QQ68, D132, QQ69,
+  D133, QQ70, D134, BPM, D135, BEND1, D136, BPM, D137, QQ71, D138, QQ72, D139,
+  QQ73, D140, BPM, D141, BEND1, D142, BPM, D143, QQ74, D144, QQ75, D145, QQ76,
+  D146, BPM, D147, BEND1, D148, BPM, D149, QQ77, D150, QQ1;
+
+Ring: Line, Cav;
+
+Cell: Ring, Symmetry = 1;
+
+End;

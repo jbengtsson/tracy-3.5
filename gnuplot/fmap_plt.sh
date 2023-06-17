@@ -1,18 +1,30 @@
 #!/bin/sh
 
-prm1=${1-1}
-prm2=${2-0}
-prm3=${3-5}
+prm1=${1-""}
+prm2=${2-6}
+prm3=${3-0}
 prm4=${4-1}
+prm5=${5-1}
 
 gnuplot << EOP
 
-N = $prm1; ps = $prm2; case  = $prm3; scale = $prm4;
-#MAX-VI: 1, SLS-2: 2, DIAMOND-II: 4-BA 3, 6-BA 4, DIAMOND: 5, DELTA: 6.
+home_dir = "$prm1"; N = $prm2; ps = $prm3; case = $prm4; scale = $prm5;
 
-f_s = 24; l_w = 2;
+nan = -2.0;
+
+# BESSY-III  1..3,
+# ALS-U      4,
+# SLS-2      5.
+
+file1 = (home_dir)."fmap.out";
+file2 = (home_dir)."fmapdp.out";
+
+# Only works for postscript terminal.
+#set fontpath "/usr/share/fonts/msttcore"
+
+f_s = 36; l_w = 2;
 if (ps == 0) \
-  set terminal x11; \
+  set terminal qt 0 font "Sans, 9"; \
 else if (ps == 1) \
   set terminal postscript enhanced color solid lw l_w "Times-Roman" f_s; \
   ext = "ps"; \
@@ -26,52 +38,44 @@ else if (ps == 4) \
   set term pngcairo enhanced color solid lw l_w font "Times-Roman f_s"; \
   ext = "png";
 
+# sgn:
+#    frac(nu):
+#       [0,   0.5]   1
+#       [0.5, 1.0]  -1, int(nu) = nu + 1.
+
 sgn_x = 1; sgn_y = 1;
 if ((N == 1) && (case == 1)) \
-  N_x = 102; N_y = 68;\
-else if ((N == 1) && (case == 2)) \
-  N_x = 39; N_y = 15; \
-else if ((N == 1) && (case == 3)) \
-  N_x = 51; N_y = 17; \
-else if ((N == 1) && (case == 4)) \
-  N_x = 58; N_y = 21; \
-else if ((N == 1) && (case == 5)) \
-  N_x = 28; N_y = 13; \
-else if ((N == 1) && (case == 6)) \
-  N_x = 9; N_y = 4; sgn_x = -1; sgn_y = -1; \
-else if (N == 20) \
-  N_x = 5; N_y = 3; \
-else if ((N == 6) && (case == 3)) \
-  N_x = 9; N_y = 3; sgn_x = -1; sgn_y = -1; \
-else if ((N == 6) && (case == 4)) \
-  N_x = 10; N_y = 4; sgn_x = -1; sgn_y = -1; \
-else if ((N == 24) && (case == 4)) \
-  N_x = 2; N_y = 0; sgn_x = 1; sgn_y = -1;
+  N_x = 43; N_y = 13; sgn_y = -1;\
+else if ((N == 16) && (case == 1)) \
+  N_x = 3; N_y = 1; sgn_x = -1; sgn_y = -1; \
+else if ((N == 20) && (case == 2)) \
+  N_x = 3; N_y = 1; sgn_x = -1; sgn_y = -1; \
+else if ((N == 20) && (case == 3)) \
+  N_x = 3; N_y = 1; sgn_x = -1; sgn_y = -1; \
+else if ((N == 12) && (case == 4)) \
+  N_x = 3; N_y = 1; \
+else if ((N == 12) && (case == 5)) \
+  N_x = 3; N_y = 1;
 
 if (case == 1) \
-  nu_x_min = 102.0; nu_x_max = 102.5; nu_y_min = 68.0; nu_y_max = 68.5; \
-  x_min = -2.0; x_max = 2.0; y_min = -2.0; y_max = 2.0; \
-  delta_min = -5.1; delta_max = 5.1; \
+  nu_x_min = 42.55; nu_x_max = 43.95; nu_y_min = 12.45; nu_y_max = 13.05; \
+  x_max = 5.0; y_max = 5.0; delta_max = 4.0; \
 else if (case == 2) \
-  nu_x_min = 39.0; nu_x_max = 39.5; nu_y_min = 15.0; nu_y_max = 15.6; \
-  x_min = -6.0; x_max = 6.0; y_min = -6.0; y_max = 6.0; \
-  delta_min = -5.1; delta_max = 5.1; \
+  nu_x_min = 53.0; nu_x_max = 54.0; nu_y_min = 11.0; nu_y_max = 12.0; \
+  x_max = 3.0; y_max = 3.0; delta_max = 3.5; \
 else if (case == 3) \
-  nu_x_min = 51.0; nu_x_max = 51.5; nu_y_min = 17.0; nu_y_max = 17.6; \
-  x_min = -5.0; x_max = 5.0; y_min = -3.0; y_max = 3.0; \
-  delta_min = -3.1; delta_max = 3.1; \
+  nu_x_min = 52.0; nu_x_max = 53.0; nu_y_min = 16.0; nu_y_max = 17.0; \
+  x_max = 3.0; y_max = 3.0; delta_max = 3.5; \
 else if (case == 4) \
-  nu_x_min = 58.0; nu_x_max = 58.5; nu_y_min = 21.0; nu_y_max = 21.6; \
-  x_min = -6.0; x_max = 6.0; y_min = -6.0; y_max = 6.0; \
-  delta_min = -5.1; delta_max = 5.1; \
+  nu_x_min = 40.0; nu_x_max = 41.0; nu_y_min = 14.0; nu_y_max = 15.0; \
+  x_max = 4.0; y_max = 4.0; delta_max = 4.0; \
 else if (case == 5) \
-  nu_x_min = 28.0; nu_x_max = 28.5; nu_y_min = 13.0; nu_y_max = 13.5; \
-  x_min = -15.0; x_max = 15.0; y_min = -10.0; y_max = 10.0; \
-  delta_min = -2.6; delta_max = 2.6; \
-else if (case == 6) \
-  nu_x_min = 8.49; nu_x_max = 8.7; nu_y_min = 3.49; nu_y_max = 3.6; \
-  x_min = -40.0; x_max = 40.0; y_min = -6.0; y_max = 6.0; \
-  delta_min = -3.0; delta_max = 3.0;
+  nu_x_min = 37.5; nu_x_max = 38.5; nu_y_min = 14.0; nu_y_max = 15.0; \
+  x_max = 8.0; y_max = 8.0; delta_max = 4.0;
+
+# DELTA: del008 .
+#  nu_x_min = 9.0; nu_x_max = 9.3; nu_y_min = 3.1; nu_y_max = 3.4; 
+
 
 set grid;
 
@@ -86,7 +90,7 @@ file_name = "`echo $TRACY_LIB`/gnuplot/jet.dat";
 # Load 64-color palette for Jet
 set palette model RGB file file_name using (\$1/255):(\$2/255):(\$3/255);
 
-#set cbrange [-10:-2];
+set cbrange [-10:1];
 set noztics; unset clabel;
 set view map;
 # To set y-axis to left side and avoid compression of color box.
@@ -120,7 +124,8 @@ i30    = floor(nu_x_min) + 4.0/3.0;
 i12_1  = floor(nu_x_min+2*nu_y_max) - 2.0;
 i12_2  = floor(nu_x_min+2*nu_y_max) - 1.0;
 i12_3  = floor(nu_x_min+2*nu_y_max);
-i1m2_1 = floor(nu_x_min-2*nu_y_min);
+i12_4  = floor(nu_x_min+2*nu_y_max) + 1.0;
+i1m2_1 = floor(nu_x_min-2*nu_y_min) - 2.0;
 i1m2_2 = floor(nu_x_min-2*nu_y_min) - 1.0;
 i1m2_3 = floor(nu_x_min-2*nu_y_min) - 2.0;
 i1m2_4 = floor(nu_x_min-2*nu_y_min) + 1.0;
@@ -142,6 +147,7 @@ i14_3  = floor(nu_x_min+4.0*nu_y_max) - 3.0;
 i14_4  = floor(nu_x_min+4.0*nu_y_max) - 2.0;
 i14_5  = floor(nu_x_min+4.0*nu_y_max) - 1.0;
 i14_6  = floor(nu_x_min+4.0*nu_y_max);
+i14_7  = floor(nu_x_min+4.0*nu_y_max) + 1.0;
 i32_1  = floor(3.0*nu_x_min+2.0*nu_y_max);
 i32_2  = floor(3.0*nu_x_min+2.0*nu_y_max) + 1.0;
 i32_3  = floor(3.0*nu_x_min+2.0*nu_y_max) + 2.0;
@@ -209,6 +215,7 @@ splot "fmap.out" using \
       u,     (i12_1-u)/2.0,      1.0 notitle with lines ls 1, \
       u,     (i12_2-u)/2.0,      1.0 notitle with lines ls 1, \
       u,     (i12_3-u)/2.0,      1.0 notitle with lines ls 1, \
+      u,     (i12_4-u)/2.0,      1.0 notitle with lines ls 1, \
       u,     (u-i1m2_1)/2.0,     1.0 notitle with lines ls 1, \
       u,     (u-i1m2_2)/2.0,     1.0 notitle with lines ls 1, \
       u,     (u-i1m2_3)/2.0,     1.0 notitle with lines ls 1, \
@@ -230,6 +237,7 @@ splot "fmap.out" using \
       u,     (i14_4-u)/4.0,      1.0 notitle with lines ls 4, \
       u,     (i14_5-u)/4.0,      1.0 notitle with lines ls 4, \
       u,     (i14_6-u)/4.0,      1.0 notitle with lines ls 4, \
+      u,     (i14_7-u)/4.0,      1.0 notitle with lines ls 4, \
       u,     (3.0*u-i3m2_1)/2.0, 1.0 notitle with lines ls 4, \
       u,     (3.0*u-i3m2_2)/2.0, 1.0 notitle with lines ls 4, \
       u,     (3.0*u-i3m2_3)/2.0, 1.0 notitle with lines ls 4, \
@@ -267,42 +275,13 @@ set pm3d at b map;
 
 #set origin 0.0, 0.0;
 set title "Diffusion Map";
-set xlabel "A_x"; set ylabel "A_y";
-if (scale) set xrange [x_min:x_max]; set yrange [y_min:y_max];
-splot "fmap.out" using 1:2:((\$7 != -2.0)? \$7 : NaN) notitle lt palette z;
+set xlabel "x [mm]"; set ylabel "y [mm]";
+if (scale) set xrange [-x_max:x_max]; set yrange [-y_max:y_max];
+splot file1 using 1:2:((\$7 != nan)? \$7 : NaN) notitle lt palette z;
 
-#unset multiplot;
 if (!ps) pause mouse "click on graph to cont.\n";
 
-unset output;
-
-# Workaround bug for multiplot.
-reset;
-
-set grid;
-
-set style line 1 lw 1 lc rgb "red";
-set style line 2 lw 1 lc rgb "dark-orange";
-set style line 3 lw 1 lc rgb "blue";
-set style line 4 lw 1 lc rgb "dark-green";
-set style line 5 lw 1 lc rgb "purple";
-set style line 6 lw 1 lc rgb "cyan";
-
-file_name = "`echo $TRACY_LIB`/gnuplot/jet.dat";
-# Load 64-color palette for Jet
-set palette model RGB file file_name using (\$1/255):(\$2/255):(\$3/255);
-
-#set cbrange [-10:-2];
-set noztics; unset clabel;
-set view map;
-
-set parametric;
-
-set urange [nu_x_min:nu_x_max]; set vrange [nu_y_min:nu_y_max];
-
-if (ps) set output "fmap_3.".(ext);
-
-#set multiplot;
+if (ps) set output (home_dir)."fmap_3.".(ext);
 
 unset contour;
 # To set y-axis to left side and avoid compression of color box.
@@ -333,6 +312,7 @@ splot "fmapdp.out" using \
       u,     (i12_1-u)/2.0,      1.0 notitle with lines ls 1, \
       u,     (i12_2-u)/2.0,      1.0 notitle with lines ls 1, \
       u,     (i12_3-u)/2.0,      1.0 notitle with lines ls 1, \
+      u,     (i12_4-u)/2.0,      1.0 notitle with lines ls 1, \
       u,     (u-i1m2_1)/2.0,     1.0 notitle with lines ls 1, \
       u,     (u-i1m2_2)/2.0,     1.0 notitle with lines ls 1, \
       u,     (u-i1m2_3)/2.0,     1.0 notitle with lines ls 1, \
@@ -354,6 +334,7 @@ splot "fmapdp.out" using \
       u,     (i14_4-u)/4.0,      1.0 notitle with lines ls 4, \
       u,     (i14_5-u)/4.0,      1.0 notitle with lines ls 4, \
       u,     (i14_6-u)/4.0,      1.0 notitle with lines ls 4, \
+      u,     (i14_7-u)/4.0,      1.0 notitle with lines ls 4, \
       u,     (3.0*u-i3m2_1)/2.0, 1.0 notitle with lines ls 4, \
       u,     (3.0*u-i3m2_2)/2.0, 1.0 notitle with lines ls 4, \
       u,     (3.0*u-i3m2_3)/2.0, 1.0 notitle with lines ls 4, \
@@ -390,9 +371,9 @@ set pm3d at b map;
 
 #set origin 0.0, 0.0;
 set title "Diffusion Map";
-set xlabel "{/Symbol d} [%]"; set ylabel "A_x";
-if (scale) set xrange [delta_min:delta_max]; set yrange [x_min:x_max];
-splot "fmapdp.out" using 1:2:((\$7 != -2.0)? \$7 : NaN) notitle lt palette z;
+set xlabel "{/Symbol d} [%]"; set ylabel "x [mm]";
+if (scale) set xrange [-delta_max:delta_max]; set yrange [-x_max:x_max];
+splot file2 using 1:2:((\$7 != nan)? \$7 : NaN) notitle lt palette z;
 
 #unset multiplot;
 if (!ps) pause mouse "click on graph to cont.\n";

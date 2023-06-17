@@ -1,8 +1,9 @@
 ps = 0; eps = 0;
 
 font_size = 30; line_width = 2;
-if (!ps) set terminal x11;
-if (ps && !eps) \
+if (ps == 0) \
+  set terminal qt 0 font "Sans, 9"; \
+else if (ps == 1) \
   set terminal postscript enhanced color solid \
   lw line_width "Times-Roman" font_size;
 if (ps && eps) \

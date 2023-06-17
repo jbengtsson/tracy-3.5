@@ -6,9 +6,11 @@ gnuplot << EOP
 
 ps = $prm1;
 
+file_name = "mom_aper.out";
+
 f_s = 24; l_w = 2;
 if (ps == 0) \
-  set terminal x11; \
+  set terminal qt; \
 else if (ps == 1) \
   set terminal postscript enhanced color solid lw l_w "Times-Roman" f_s; \
   ext = "ps"; \
@@ -28,8 +30,9 @@ if (ps) set output "touschek.".(ext);
 set title "Momentum Aperture";
 set xlabel "s [m]";
 set ylabel "{/Symbol d} [%]";
-plot "mom_aper.out" using 2:3 notitle with fsteps ls 2, \
-     "mom_aper.out" using 2:4 notitle with fsteps ls 2;
+#set yrange [-5.2 : 5.2]
+plot file_name using 2:3 notitle with fsteps ls 2, \
+     file_name using 2:4 notitle with fsteps ls 2;
 if (!ps) pause mouse "click on graph to cont.\n";
 
 EOP
