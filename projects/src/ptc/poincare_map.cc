@@ -196,7 +196,7 @@ tps get_k_2(const ss_vect<tps> &R)
     if (mu[k] < 0e0) mu[k] += 2e0*M_PI;
     k_2_re -= mu[k]*Id[2*k]*Id[2*k+1]/2e0;
   }
-  printf("\nget_k_2: nu = [%5.3f, %5.3f]\n",
+  printf("\nget_k_2: nu = [%7.5f, %7.5f]\n",
 	 mu[X_]/(2e0*M_PI), mu[Y_]/(2e0*M_PI));
   k_2_im = 0e0;
   k_2 = RtoC(k_2_re, k_2_im);
@@ -705,13 +705,14 @@ void stability(const ss_vect<tps> &map)
   MNF.A_nl = get_A_nl(MNF.g);
   MNF.A_nl_inv = get_A_nl_inv(MNF.g);
 
+  // BESSY-III/b3_sf_40Grad_JB.lat.
   track_H("track_H_1.dat", 0.1e-3, 0.1e-3, H);
   track_H("track_H_2.dat", 0.5e-3, 0.5e-3, H);
   track_H("track_H_3.dat", 1.0e-3, 1.0e-3, H);
-  track_H("track_H_4.dat", 1.5e-3, 1.5e-3, H);
-  track_H("track_H_5.dat", 2.0e-3, 2.0e-3, H);
-  track_H("track_H_6.dat", 2.5e-3, 2.5e-3, H);
-  track_H("track_H_7.dat", 3.0e-3, 3.0e-3, H);
+  track_H("track_H_4.dat", 1.0e-3, 1.0e-3, H);
+  track_H("track_H_5.dat", 1.25e-3, 1.0e-3, H);
+  track_H("track_H_6.dat", 1.4700475e-3, 1.0e-3, H);
+  track_H("track_H_7.dat", 1.5e-3, 1.5e-3, H);
 }
 
 
@@ -865,7 +866,7 @@ int main(int argc, char *argv[])
   get_map(false);
   danot_(no_tps);
 
-  if (false) analyse(map);
+  if (!false) analyse(map);
 
   if (false) H_inv(map);
 
@@ -874,5 +875,5 @@ int main(int argc, char *argv[])
     track_sympl_form_delta(30, 5e-3, 0.1e-3, 4e-2);
   }
 
-  if (!false) stability(map);
+  if (false) stability(map);
 }
