@@ -751,6 +751,17 @@ void prt_summary
 }
 
 
+ss_vect<tps> tp_map(const int n_dof, const ss_vect<tps> &A)
+{
+  // Compute the transpose of a matrix.
+  Matrix A_mat;
+
+  getlinmat(2*n_dof, A, A_mat);
+  TpMat(2*n_dof, A_mat);
+  return putlinmat(2*n_dof, A_mat);
+}
+
+
 void compute_maps(const double Circ, const string &cav_name)
 {
   double
@@ -773,6 +784,7 @@ void compute_maps(const double Circ, const string &cav_name)
 
   M_Chol = compute_M_Chol(D_mat);
   prt_map("\nCholesky Decomposition:", M_Chol);
+  prt_map("\nCholesky Decomposition Transpose:", tp_map(3, M_Chol));
   prt_map(file_name+"_M_Chol.dat", M_Chol);
 
   prt_summary(fixed_point, U0, phi_RF, tau,  D,  eps, sigma_s, sigma_delta);

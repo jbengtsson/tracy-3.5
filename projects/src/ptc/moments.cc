@@ -592,9 +592,9 @@ void MomentType::propagate_lat(const int n)
   if (globval.Cavity_on)
     sigma = sigma*M_cav_inv;
 
+  t_q = sigma[ct];
   propagate_cav_HOM_long(n);
   propagate_cav_HOM_trans(n);
-  t_q = sigma[ct];
 
   if (globval.radiation & quant_fluct)
     propagate_qfluct();
@@ -679,7 +679,7 @@ void test_case(const string &cav_name)
 
     beta_HOM_long    = 1e0,
     f_long           = 1e9,
-    R_sh_long        = (false)? 1e3 : 0e0,
+    R_sh_long        = (!false)? 1e3 : 0e0,
 #if 1
     Q_long           = 1e8,
 #else
@@ -688,12 +688,12 @@ void test_case(const string &cav_name)
 
     beta_HOM_trans_x = 1e0,
     f_trans_x        = 1e9,
-    R_sh_trans_x     = (false)? 1e3 : 0e0,
+    R_sh_trans_x     = (!false)? 1e3 : 0e0,
     Q_trans_x        = 1e8;
 
   danot_(1);
 
-  globval.radiation = !true;
+  globval.radiation = true;
   quant_fluct       = true;
   globval.Cavity_on = true;
   m.lat_disp        = true;
@@ -710,7 +710,7 @@ void test_case(const string &cav_name)
   danot_(NO);
 
   m.sigma = 0e0;
-  if (false) {
+  if (!false) {
     m.sigma += ps_sign[x_]*10e-6*tps(0e0, ps_index[x_]+1);
     // m.sigma += ps_sign[y_]*2e-6*tps(0e0, ps_index[y_]+1);
     // m.sigma += ps_sign[delta_]*3e-6*tps(0e0, ps_index[delta_]+1);
