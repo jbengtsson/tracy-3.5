@@ -377,10 +377,10 @@ void PoincareMapType::set_rf_cav_hom
   cav_loc = Elem_GetPos(cav_fnum, 1);
   cav_ptr = Cell[cav_loc].Elem.C;
 
-  cav_ptr->HOM_f_trans.push_back(f);
-  cav_ptr->HOM_R_sh_trans.push_back(Z);
-  cav_ptr->HOM_Q_trans.push_back(Q);
-  cav_ptr->HOM_V_trans.push_back(0e0);
+  cav_ptr->HOM_f_trans[0].push_back(f);
+  cav_ptr->HOM_R_sh_trans[0].push_back(Z);
+  cav_ptr->HOM_Q_trans[0].push_back(Q);
+  cav_ptr->HOM_V_trans[0].push_back(0e0);
 
   printf("\nset_rf_cav_hom: %.6s h = %d\n",
 	 Cell[cav_loc].Elem.PName, cav_ptr->harm_num);
@@ -390,7 +390,7 @@ void PoincareMapType::set_rf_cav_hom
 void PoincareMapType::propagate_rf_cav_hom(BeamType &beam)
 {
   if (false)
-    cout << "propagate_rf_cav_hom: V = " << cav_ptr->HOM_V_trans[0] << "\n";
+    cout << "propagate_rf_cav_hom: V = " << cav_ptr->HOM_V_trans[X_][0] << "\n";
 }
 
 
