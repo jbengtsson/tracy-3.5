@@ -115,6 +115,8 @@ if (!ps) pause mouse "click on graph to cont.\n";
 
 if (ps) set output "dnu_4.".(ext);
 
+exit
+
 #set origin 0.5, 0.0;
 
 set style line 1 lw l_w lc rgb "red";
