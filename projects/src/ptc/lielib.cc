@@ -1,4 +1,4 @@
-#define NO 6
+#define NO 3
 
 #include "tracy_lib.h"
 
@@ -352,14 +352,20 @@ int main(int argc, char *argv[])
   }
 
   if(!false) {
-    danot_(no_tps);
+    danot_(no_tps-1);
 
     M.identity();
     Cell_Pass(0, globval.Cell_nLoc, M, lastpos);
     printf("\nM:");
     prt_lin_map(3, M);
 
-    cout << M_to_h_DF(M)-LieFact_DF(M, M_lin) << "\n";
+    // cout << M;
+
+    danot_(no_tps);
+
+    // cout << M_to_h_DF(M)-LieFact_DF(M, M_lin) << "\n";
+    // cout << LieFact_DF(M, M_lin) << "\n";
+    cout << M_to_h_DF(M) << "\n";
   }
 
   if(false) {
