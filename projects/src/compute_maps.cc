@@ -253,6 +253,7 @@ ss_vect<tps> compute_D_mat(const ss_vect<tps> &A, const double D[])
   D_diag.zero();
   for (int k = 0; k < 2*nd_tps; k++)
     D_diag[k] = D[k/2]*tps(0e0, k+1);
+  prt_map("\nDiffusion Matrix - Floquet Space:", D_diag);
   return A*D_diag*compute_transp(nd_tps, A);
 }
 
