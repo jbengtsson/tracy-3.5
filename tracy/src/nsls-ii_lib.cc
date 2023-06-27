@@ -311,18 +311,15 @@ ss_vect<tps> get_A_CS(const int n, const ss_vect<tps> &A, double dnu[])
 
 void prt_lin_map(const int n_DOF, const ss_vect<tps> &map)
 {
-  int i, j;
+  const int n_dec = (true)? 6 : 16;
 
-  std::cout << std::endl;
-  for (i = 1; i <= 2*n_DOF; i++) {
-    for (j = 1; j <= 2*n_DOF; j++)
-      if (true)
-	std::cout << std::scientific << std::setprecision(6)
-	     << std::setw(14) << getmat(map, i, j);
-      else
-	std::cout << std::scientific << std::setprecision(16)
-	     << std::setw(24) << getmat(map, i, j);
-    std::cout << std::endl;
+  std::cout << std::scientific << std::setprecision(n_dec)
+	    << "\ncst\n"  << std::setw(8+n_dec) << map.cst() << "\nmap\n";
+  for (auto i = 1; i <= 2*n_DOF; i++) {
+    for (auto j = 1; j <= 2*n_DOF; j++)
+      std::cout << std::scientific << std::setprecision(n_dec)
+		<< std::setw(8+n_dec) << getmat(map, i, j);
+    std::cout << "\n";
   }
 }
 
@@ -443,7 +440,7 @@ void get_eps_x(double &eps_x, double &sigma_delta, double &U_0, double J[],
 
   get_I(I, false);
 
-  U_0 = 1e9*C_gamma*pow(globval.Energy, 4)*I[2]/(2e0*M_PI);
+  U_0 = -1e9*C_gamma*pow(globval.Energy, 4)*I[2]/(2e0*M_PI);
   eps_x = C_q_scl*sqr(globval.Energy)*I[5]/(I[2]-I[4]);
   sigma_delta = sqrt(C_q_scl*sqr(globval.Energy)*I[3]/(2e0*I[2]+I[4]));
   J[X_] = 1e0 - I[4]/I[2]; J[Z_] = 2e0 + I[4]/I[2]; J[Y_] = 4e0 - J[X_] - J[Z_];
@@ -461,7 +458,7 @@ void get_eps_x(double &eps_x, double &sigma_delta, double &U_0, double J[],
     printf("  eps_x [nm.rad] = %6.4f\n", 1e9*eps_x);
     printf("  sigma_delta    = %9.3e\n", sigma_delta);
     printf("  J              = [%5.3f, %5.3f, %5.3f]\n", J[X_], J[Y_], J[Z_]);
-    printf("  tau   [msec]   = [%e, %e, %e]\n",
+    printf("  tau   [msec]   = [%5.3f, %5.3f, %5.3f]\n",
 	   1e3*tau[X_], 1e3*tau[Y_], 1e3*tau[Z_]);
   }
 
