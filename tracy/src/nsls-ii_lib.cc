@@ -626,7 +626,7 @@ void GetEmittance(const int Fnum, const bool prt)
 	   "tau         =  [%5.3f, %5.3f, %5.3f]\n",
 	   1e3*globval.tau[X_], 1e3*globval.tau[Y_], 1e3*globval.tau[Z_]);
     printf("Diffusion coeffs:               "
-	   "D           =  [%7.1e, %7.1e, %7.1e]\n",
+	   "D           =  [%11.5e, %11.5e, %11.5e]\n",
 	   globval.D_rad[X_], globval.D_rad[Y_], globval.D_rad[Z_]);
     printf("\n");
     printf("alphac:                         "
