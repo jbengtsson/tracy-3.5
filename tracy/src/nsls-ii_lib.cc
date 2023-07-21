@@ -712,7 +712,8 @@ void prt_lat(const int loc1, const int loc2, const char *fname, const int Fnum,
 	  "#        name             s     code"
 	  "   alphax   betax     nux      etax    etapx");
   fprintf(outf,
-	  "     alphay   betay     nuy      etay    etapy      I5\n");
+	  "     alphay   betay     nuy      etay    etapy      I5"
+	  "                    dD\n");
   fprintf(outf,
 	  "#                        [m]"
 	  "                     [m]                [m]");
@@ -723,12 +724,14 @@ void prt_lat(const int loc1, const int loc2, const char *fname, const int Fnum,
     if (all || (Cell[i].Fnum == Fnum)) {
       fprintf(outf,
 	      "%4ld %15s %9.5f %4.1f %9.5f %8.5f %8.5f %8.5f %8.5f"
-	      " %9.5f %8.5f %8.5f %8.5f %8.5f  %8.2e\n",
+	      " %9.5f %8.5f %8.5f %8.5f %8.5f  %8.2e "
+	      "[%10.5e, %10.5e, %10.5e]\n",
 	      i, Cell[i].Elem.PName, Cell[i].S, get_code(Cell[i]),
 	      Cell[i].Alpha[X_], Cell[i].Beta[X_], Cell[i].Nu[X_],
 	      Cell[i].Eta[X_], Cell[i].Etap[X_],
 	      Cell[i].Alpha[Y_], Cell[i].Beta[Y_], Cell[i].Nu[Y_],
-	      Cell[i].Eta[Y_], Cell[i].Etap[Y_], I5);
+	      Cell[i].Eta[Y_], Cell[i].Etap[Y_], I5,
+	      Cell[i].dD[X_], Cell[i].dD[Y_], Cell[i].dD[Z_]);
     }
   }
 
@@ -829,11 +832,11 @@ void prt_lat(const int loc1, const int loc2, const char *fname, const int Fnum,
 	      EdgeFocus(Mp->Pirho, Mp->PTx1, Mp->Pgap, A);
 
 	    Drift(c1*h, A);
-	    thin_kick(Quad, Mp->PBpar, d1*h, Mp->Pirho, Mp->Pirho, A);
+	    thin_kick(Cell[i], Quad, Mp->PBpar, d1*h, Mp->Pirho, Mp->Pirho, A);
 	    Drift(c2*h, A);
-	    thin_kick(Quad, Mp->PBpar, d2*h, Mp->Pirho, Mp->Pirho, A);
+	    thin_kick(Cell[i], Quad, Mp->PBpar, d2*h, Mp->Pirho, Mp->Pirho, A);
 	    Drift(c2*h, A);
-	    thin_kick(Quad, Mp->PBpar, d1*h, Mp->Pirho, Mp->Pirho, A);
+	    thin_kick(Cell[i], Quad, Mp->PBpar, d1*h, Mp->Pirho, Mp->Pirho, A);
 	    Drift(c1*h, A);
 
 	    if ((j == n) && (Mp->Pirho != 0e0))

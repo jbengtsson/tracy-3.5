@@ -95,7 +95,7 @@ template<typename T>
 void Insertion_Pass(CellType &Cell, ss_vect<T> &x);
 
 template<typename T>
-void sol_pass(const elemtype &elem, ss_vect<T> &x);
+void sol_pass(CellType &Cell, ss_vect<T> &x);
 
 template<typename T>
 void Solenoid_Pass(CellType &Cell, ss_vect<T> &x);

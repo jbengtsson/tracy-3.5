@@ -4,39 +4,6 @@
 #define PLANES 2
 
 typedef struct globvalrec {
-  double
-    dPcommon,       // dp for numerical differentiation.
-    dPparticle,     // Energy deviation.
-    delta_RF,       // RF Acceptance.
-    TotalTune[3],   // Transverse Tunes.
-    Omega,          // Synchrotron Frequency.
-    U0,             // Energy Loss per turn [keV].
-    Alphac;         // Linear Momentum Compaction.
-  Vector2
-    Chrom;          // Linear Chromaticities.
-  double
-    Energy;         // Beam Energy.
-  long
-    Cell_nLoc,      // Number of Elements.
-    Elem_nFam,      // Number of Families.
-    CODimax;        // closed Orbit Finder: max number of iterations,
-  double            //
-    CODeps;         //                      precision.
-  psVector
-    CODvect;        // Closed Orbit.
-  int
-    bpm,            // BPM Number.
-    hcorr,          // Corrector: Horizontal number,
-    vcorr,          //            Vertical number.
-    qt,             // Vertical corrector number.
-    gs,             // Girder: start marker,
-    ge;             //         end marker.
-  Matrix
-    OneTurnMat,     // Linear Poincare Map.
-    Ascr,
-    Ascrinv,
-    Vr,             // Eigenvectors: Real part, 
-    Vi;             //               Imaginary part.
   bool
     Cavity_on,      // if true, cavity turned on
     radiation,      // if true, radiation turned on
@@ -50,28 +17,54 @@ typedef struct globvalrec {
     Aperture_on,
     EPU,
     mat_meth;       // Matrix method.
+  bool
+    IBS;            // Intrabeam Scattering.
+  long
+    Cell_nLoc,      // Number of Elements.
+    Elem_nFam,      // Number of Families.
+    CODimax;        // closed Orbit Finder: max number of iterations,
+  int
+    bpm,            // BPM Number.
+    hcorr,          // Corrector: Horizontal number,
+    vcorr,          //            Vertical number.
+    qt,             // Vertical corrector number.
+    gs,             // Girder: start marker,
+    ge,             //         end marker.
+    RingType;       // 1 if a ring (0 if transfer line).
   double
+    dPcommon,       // dp for numerical differentiation.
+    dPparticle,     // Energy deviation.
+    delta_RF,       // RF Acceptance.
+    TotalTune[3],   // Transverse Tunes.
+    Omega,          // Synchrotron Frequency.
+    U0,             // Energy Loss per turn [keV].
+    Alphac,         // Linear Momentum Compaction.
+    Energy,         // Beam Energy.
+    CODeps,         // Precision for fixed point finder.
     dE,             // Energy Loss.
     alpha_rad[DOF], // Damping Coeffs.
     D_rad[DOF],     // Diffusion Coeffs (Floquet Space).
     J[DOF],         // Partition Numbers.
-    tau[DOF];       // Damping Times.
-  bool
-    IBS;            // Intrabeam Scattering.
-  double
-    Qb,             // Bunch Charge.
-    D_IBS[DOF];     // Diffusion Matrix (Floquet Ipace).
-  psVector
-    wr, wi;         // Eigenvalues: Real and Imaginary part.
-  double
+    tau[DOF],       // Damping Times.
     eps[DOF],       // Eigenemittances.
     epsp[DOF],      // Trans. & Long. projected Emittances.
     alpha_z,        // Long. alpha and beta.
     beta_z,
     beta0,          // Relativistic factors.
-    gamma0;
-  int
-    RingType;       // 1 if a ring (0 if transfer line).
+    gamma0,
+    Qb,             // Bunch Charge.
+    D_IBS[DOF];     // Diffusion Matrix (Floquet Ipace).
+  Vector2
+    Chrom;          // Linear Chromaticities.
+  psVector
+    CODvect,        // Closed Orbit.
+    wr, wi;         // Eigenvalues: Real and Imaginary part.
+  Matrix
+    OneTurnMat,     // Linear Poincare Map.
+    Ascr,
+    Ascrinv,
+    Vr,             // Eigenvectors: Real part, 
+    Vi;             //               Imaginary part.
 } globvalrec;
 
 
@@ -360,32 +353,31 @@ struct CellType {
     Fnum,            // Element Family #.
     Knum;            // Element Kid #.
   double
-    S;               // Position in the ring.
+    S,               // Position in the ring.
+    curly_dH_x,      // Contribution to curly_H_x.
+    dI[6],           // Contribution to I[2..5].
+    dD[3];           /* Increamental change of the linear actions by the
+		        radiation reaction                                    */
   CellType*
     next_ptr;        // pointer to next cell (for tracking).
   Vector2
     dS,              // Transverse displacement.
-    dT;              // dT = (cos(dT), sin(dT)).
-  elemtype
-    Elem;            // Structure (name, type).
-  Vector2
+    dT,              // dT = (cos(dT), sin(dT)).
     Nu,              // Phase advances.
     Alpha,           // Alpha functions (redundant).
     Beta,            // beta fonctions (redundant).
     Eta,             // dispersion and its derivative (redundant).
-    Etap;
+    Etap,
+    maxampl[PLANES]; /* Horizontal and vertical physical apertures:
+			maxampl[X_][0] < x < maxampl[X_][1]
+			maxampl[Y_][0] < y < maxampl[Y_][1]. */
+  elemtype
+    Elem;            // Structure (name, type).
   psVector
     BeamPos;         // Last position of the beam this cell.
   Matrix
     A,               // Floquet space to phase space transformation.
     sigma;           // sigma matrix (redundant).
-  Vector2
-    maxampl[PLANES]; /* Horizontal and vertical physical apertures:
-			maxampl[X_][0] < x < maxampl[X_][1]
-			maxampl[Y_][0] < y < maxampl[Y_][1]. */
-  double
-    curly_dH_x,      // Contribution to curly_H_x.
-    dI[6];           // Contribution to I[2..5].
 };
 
 #endif

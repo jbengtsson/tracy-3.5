@@ -279,8 +279,10 @@ class is_tps<double> {
       return 0e0;
     }
 
-  static inline void emittance(const double B2, const double u,
-			       const double ps0, const ss_vect<double> &xp) { }
+  static inline void emittance
+  (CellType &Cell, const double B2, const double u, const double ps0,
+   const ss_vect<double> &xp)
+  { }
 
   static inline void diff_mat(const double B2, const double u,
 			      const double ps0, const ss_vect<double> &xp) { }
@@ -317,8 +319,10 @@ class is_tps<tps> {
   static inline double get_dI_eta(const ss_vect<tps> &A)
   { return A[x_][delta_]; }
 
-  static inline void emittance(const tps &B2_perp, const tps &ds,
-			       const tps &p_s0, const ss_vect<tps> &A) {
+  static inline void emittance
+  (CellType &Cell, const tps &B2_perp, const tps &ds, const tps &p_s0,
+   const ss_vect<tps> &A)
+  {
     // M. Sands "The Physics of Electron Storage Rings" SLAC-121, Eq. (5.20),
     // p. 118:
     //   dN<u^2>/E^2 =
@@ -333,7 +337,6 @@ class is_tps<tps> {
 
     if (B2_perp > 0e0) {
       B_66 = (q_fluct*pow(B2_perp.cst(), 1.5)*pow(p_s0, 4)*ds).cst();
-      if (prt_debug) printf("\nemittance:\n  B_66 = %12.5e\n", B_66);
       A_inv = Inv(A);
       // D_11 = D_22 = curly_H_x,y * B_66 / 2,
       // curly_H_x,y = eta_Fl^2 + etap_Fl^2
@@ -341,9 +344,14 @@ class is_tps<tps> {
       for (j = 0; j < 3; j++) {
 	dD[j] = (sqr(A_inv[j*2][delta_])+sqr(A_inv[j*2+1][delta_]))*B_66/2e0;
 	globval.D_rad[j] += dD[j];
+	Cell.dD[j] = globval.D_rad[j];
       }
       if (prt_debug)
-	printf("  dD = %12.5e  %12.5e %12.5e", dD[X_], dD[Y_], dD[Z_]);
+	printf("emittance:\n  %8s\n  B_66 = %12.5e\n"
+	       "  dD   = [%12.5e, %12.5e, %12.5e]\n"
+	       "  D    = [%12.5e, %12.5e, %12.5e]\n",
+	       Cell.Elem.PName, B_66, dD[X_], dD[Y_], dD[Z_],
+	       globval.D_rad[X_], globval.D_rad[Y_], globval.D_rad[Z_]);
     }
   }
 
@@ -380,7 +388,9 @@ void get_B2(const double h_ref, const T B[], const ss_vect<T> &xp,
 
 
 template<typename T>
-void radiate(ss_vect<T> &ps, const double L, const double h_ref, const T B[])
+void radiate
+(CellType &Cell, ss_vect<T> &ps, const double L, const double h_ref,
+ const T B[])
 {
   // M. Sands "The Physics of Electron Storage Rings" SLAC-121, p. 98.
   // ddelta/d(ds) = -C_gamma*E_0^3*(1+delta)^2*(B_perp/(Brho))^2/(2*pi)
@@ -405,7 +415,8 @@ void radiate(ss_vect<T> &ps, const double L, const double h_ref, const T B[])
     p_s1 = get_p_s(ps); ps[px_] = cs[px_]*p_s1; ps[py_] = cs[py_]*p_s1;
   }
 
-  if (globval.emittance) is_tps<T>::emittance(B2_perp, ds, p_s0, cs);
+  if (globval.emittance)
+    is_tps<T>::emittance(Cell, B2_perp, ds, p_s0, cs);
 
   if (prt_debug)
     cout << scientific << setprecision(5)
@@ -414,7 +425,8 @@ void radiate(ss_vect<T> &ps, const double L, const double h_ref, const T B[])
 
 
 template<typename T>
-void radiate_ID(ss_vect<T> &ps, const double L, const T &B2_perp)
+void radiate_ID
+(CellType &Cell, ss_vect<T> &ps, const double L, const T &B2_perp)
 {
   T          p_s0, p_s1, ds;
   ss_vect<T> cs;
@@ -430,7 +442,8 @@ void radiate_ID(ss_vect<T> &ps, const double L, const T &B2_perp)
     p_s1 = get_p_s(ps); ps[px_] = cs[px_]*p_s1; ps[py_] = cs[py_]*p_s1;
   }
 
-  if (globval.emittance) is_tps<T>::emittance(B2_perp, ds, p_s0, cs);
+  if (globval.emittance)
+    is_tps<T>::emittance(Cell, B2_perp, ds, p_s0, cs);
 }
 
 
@@ -495,8 +508,9 @@ static double get_psi(double irho, double phi, double gap)
 
 
 template<typename T>
-void thin_kick(const int Order, const double MB[], const double L,
-	       const double h_bend, const double h_ref, ss_vect<T> &ps)
+void thin_kick
+(CellType &Cell, const int Order, const double MB[], const double L,
+ const double h_bend, const double h_ref, ss_vect<T> &ps)
 {
   // The vector potential for the combined-function sector bend is from:
   // C. Iselin "Lie Transformations and Transport Equations for Combined-
@@ -525,7 +539,7 @@ void thin_kick(const int Order, const double MB[], const double L,
 
   if (globval.radiation || globval.emittance) {
       B[X_] = BxoBrho; B[Y_] = ByoBrho + h_bend; B[Z_] = 0e0;
-      radiate(ps, L, h_ref, B);
+      radiate(Cell, ps, L, h_ref, B);
     }
 
     if (h_ref != 0e0) {
@@ -767,9 +781,9 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &ps)
 	  }
 
 	  Drift(dL1, ps);
-	  thin_kick(M->Porder, M->PB, dkL1, M->Pirho, h_ref, ps);
+	  thin_kick(Cell, M->Porder, M->PB, dkL1, M->Pirho, h_ref, ps);
 	  Drift(dL2, ps);
-	  thin_kick(M->Porder, M->PB, dkL2, M->Pirho, h_ref, ps);
+	  thin_kick(Cell, M->Porder, M->PB, dkL2, M->Pirho, h_ref, ps);
 
 	  if (globval.emittance) {
 	    // Needs A^-1.
@@ -778,7 +792,7 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &ps)
 	  }
 
 	  Drift(dL2, ps);
-	  thin_kick(M->Porder, M->PB, dkL1, M->Pirho, h_ref, ps);
+	  thin_kick(Cell, M->Porder, M->PB, dkL1, M->Pirho, h_ref, ps);
 	  Drift(dL1, ps);
 
 	  if (globval.emittance) {
@@ -800,7 +814,7 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &ps)
 	  Cell.dI[5] += elemp->PL*fabs(cube(M->Pirho))*Cell.curly_dH_x;
 	}
       } else
-	thin_kick(M->Porder, M->PB, 1e0, 0e0, 0e0, ps);
+	thin_kick(Cell, M->Porder, M->PB, 1e0, 0e0, 0e0, ps);
 
       // Fringe fields.
       if (!globval.Cart_Bend) {
@@ -1196,22 +1210,29 @@ inline void get_Axy_map(const FieldMapType *FM, const double z,
 */
 
 template<typename T>
-void Wiggler_pass_EF(const elemtype &elem, ss_vect<T> &ps)
+void Wiggler_pass_EF(CellType &Cell, ss_vect<T> &ps)
 {
   // First order symplectic integrator for wiggler using expanded Hamiltonian
 
-  int    i, nstep = 0;
-  double h, z;
-  T      AxoBrho[4] = {0e0, 0e0, 0e0, 0e0}, AyoBrho[4] = {0e0, 0e0, 0e0, 0e0};
-  T      psi, hodp, a12, a21, a22, det;
-  T      d1, d2, a11, c11, c12, c21, c22, x2, B[3];
+  int
+    i, nstep = 0;
+  double
+    h, z;
+  T
+    AxoBrho[4] = {0e0, 0e0, 0e0, 0e0}, AyoBrho[4] = {0e0, 0e0, 0e0, 0e0},
+    psi, hodp, a12, a21, a22, det,
+    d1, d2, a11, c11, c12, c21, c22, x2, B[3];
+  elemtype
+    *elemp;
 
-  switch (elem.Pkind) {
+  elemp = &Cell.Elem;
+
+  switch (elemp->Pkind) {
   case Wigl:
-    nstep = elem.W->PN;
+    nstep = elemp->W->PN;
     break;
   case FieldMap:
-    nstep = elem.FM->n_step;
+    nstep = elemp->FM->n_step;
     break;
   default:
     std::cout << "Wiggler_pass_EF: unknown element type" << std::endl;
@@ -1219,14 +1240,14 @@ void Wiggler_pass_EF(const elemtype &elem, ss_vect<T> &ps)
     break;
   }
 
-  h = elem.PL/nstep; z = 0e0;
+  h = elemp->PL/nstep; z = 0e0;
   for (i = 1; i <= nstep; ++i) {
-    switch (elem.Pkind) {
+    switch (elemp->Pkind) {
     case Wigl:
-      get_Axy(elem.W, z, ps, AxoBrho, AyoBrho);
+      get_Axy(elemp->W, z, ps, AxoBrho, AyoBrho);
       break;
     case FieldMap:
-//      get_Axy_map(elem.FM, z, ps, AxoBrho, AyoBrho);
+//      get_Axy_map(elemp->FM, z, ps, AxoBrho, AyoBrho);
       break;
     default:
       std::cout << "Wiggler_pass_EF: unknown element type" << std::endl;
@@ -1260,7 +1281,7 @@ void Wiggler_pass_EF(const elemtype &elem, ss_vect<T> &ps)
 
     if (globval.radiation || globval.emittance) {
       B[X_] = -AyoBrho[3]; B[Y_] = AxoBrho[3]; B[Z_] = AyoBrho[1] - AxoBrho[2];
-      radiate(ps, h, 0e0, B);
+      radiate(Cell, ps, h, 0e0, B);
     }
 
     z += h;
@@ -1269,11 +1290,10 @@ void Wiggler_pass_EF(const elemtype &elem, ss_vect<T> &ps)
 
 
 template<typename T>
-inline void get_Axy2(const double z,
-		     const double kxV, const double kxH, const double kz,
-		     const double BoBrhoV, const double BoBrhoH,
-		     const double phi,
-		     ss_vect<T> &x, T AxoBrho[], T AyoBrho[])
+inline void get_Axy2
+(const double z, const double kxV, const double kxH, const double kz,
+ const double BoBrhoV, const double BoBrhoH, const double phi,
+ ss_vect<T> &x, T AxoBrho[], T AyoBrho[])
 {
   int i;
   T   cx, sx, cz1, cz2, sz1, sz2, chy, shy, kyH, kyV, chx, shx, cy, sy;
@@ -1318,9 +1338,9 @@ inline void get_Axy2(const double z,
 
 
 template<typename T>
-void Wiggler_pass_EF2(int nstep, double L, double kxV, double kxH, double kz,
-		      double BoBrhoV, double BoBrhoH, double phi,
-		      ss_vect<T> &x)
+void Wiggler_pass_EF2
+(CellType &Cell, int nstep, double L, double kxV, double kxH, double kz,
+ double BoBrhoV, double BoBrhoH, double phi, ss_vect<T> &x)
 {
   // First order symplectic integrator for wiggler using expanded Hamiltonian
 
@@ -1355,7 +1375,7 @@ void Wiggler_pass_EF2(int nstep, double L, double kxV, double kxH, double kz,
 
     if (globval.radiation || globval.emittance) {
       B[X_] = -AyoBrho[3]; B[Y_] = AxoBrho[3]; B[Z_] = AyoBrho[1] - AxoBrho[2];
-      radiate(x, h, 0e0, B);
+      radiate(Cell, x, h, 0e0, B);
     }
 
     z += h;
@@ -1366,9 +1386,9 @@ void Wiggler_pass_EF2(int nstep, double L, double kxV, double kxH, double kz,
 
 
 template<typename T>
-inline void get_Axy_EF3(const WigglerType *W, const double z,
-			const ss_vect<T> &ps,
-			T &AoBrho, T dAoBrho[], T &dp, const bool hor)
+inline void get_Axy_EF3
+(const WigglerType *W, const double z, const ss_vect<T> &ps, T &AoBrho,
+ T dAoBrho[], T &dp, const bool hor)
 {
   int    i;
   double ky, kz_n;
@@ -1496,7 +1516,7 @@ void Wiggler_pass_EF3(CellType &Cell, ss_vect<T> &ps)
       B[Z_] = dAyoBrho[X_] - dAxoBrho[Y_];
       // Tranform from Conjugate to Kinematic Momenta.
       ps[px_] -= AxoBrho; ps[py_] -= AyoBrho;
-      radiate(ps, h, 0e0, B);
+      radiate(Cell, ps, h, 0e0, B);
       // Tranform from Kinematic to Conjugate Momenta.
       ps[px_] += AxoBrho; ps[py_] += AyoBrho;
     }
@@ -1549,9 +1569,9 @@ void Wiggler_Pass(CellType &Cell, ss_vect<T> &ps)
   case Meth_First:
     if ((W->BoBrhoV[0] != 0e0) || (W->BoBrhoH[0] != 0e0)) {
       if (!globval.EPU)
-	Wiggler_pass_EF(Cell.Elem, ps);
+	Wiggler_pass_EF(Cell, ps);
       else {
-	Wiggler_pass_EF2(W->PN, elemp->PL, W->kxV[0], W->kxH[0],
+	Wiggler_pass_EF2(Cell, W->PN, elemp->PL, W->kxV[0], W->kxH[0],
 		2e0*M_PI/W->Lambda, W->BoBrhoV[0], W->BoBrhoH[0],
 		W->phi[0], ps);
       }
@@ -1573,11 +1593,11 @@ void Wiggler_Pass(CellType &Cell, ss_vect<T> &ps)
     L1 = c_1*L; L2 = c_2*L; K1 = d_1*L; K2 = d_2*L;
     for (seg = 1; seg <= W->PN; seg++) {
       Drift(L1, ps); ps1 = ps;
-      thin_kick(W->Porder, W->PBW, K1, 0e0, 0e0, ps1);
+      thin_kick(Cell, W->Porder, W->PBW, K1, 0e0, 0e0, ps1);
       ps[py_] = ps1[py_]; Drift(L2, ps); ps1 = ps;
-      thin_kick(W->Porder, W->PBW, K2, 0e0, 0e0, ps1);
+      thin_kick(Cell, W->Porder, W->PBW, K2, 0e0, 0e0, ps1);
       ps[py_] = ps1[py_]; Drift(L2, ps); ps1 = ps;
-      thin_kick(W->Porder, W->PBW, K1, 0e0, 0e0, ps1);
+      thin_kick(Cell, W->Porder, W->PBW, K1, 0e0, 0e0, ps1);
       ps[py_] = ps1[py_]; Drift(L1, ps);
     }
     break;
@@ -1612,7 +1632,7 @@ inline T get_p_s_cs(const ss_vect<T> &cs)
 
 
 template<typename T>
-void radiate_cs(ss_vect<T> &cs, const double L, const T B[])
+void radiate_cs(CellType &Cell, ss_vect<T> &cs, const double L, const T B[])
 {
   // M. Sands "The Physics of Electron Storage Rings" SLAC-121, p. 98.
   // ddelta/d(ds) = -C_gamma*E_0^3*(1+delta)^2*(B_perp/(Brho))^2/(2*pi)
@@ -1624,9 +1644,11 @@ void radiate_cs(ss_vect<T> &cs, const double L, const T B[])
 
   p_s = get_p_s_cs(cs);
 
-  if (globval.radiation) cs[delta_] -= cl_rad*sqr(p_s)*B2_perp*ds;
+  if (globval.radiation)
+    cs[delta_] -= cl_rad*sqr(p_s)*B2_perp*ds;
 
-  if (globval.emittance) is_tps<T>::emittance(B2_perp, ds, p_s, cs);
+  if (globval.emittance)
+    is_tps<T>::emittance(Cell, B2_perp, ds, p_s, cs);
 }
 
 
@@ -1670,10 +1692,11 @@ bool get_BoBrho(const FieldMapType *FM, const double z, const ss_vect<T> &cs,
 
 
 template<typename T>
-void rk4_(const CellType &Cell, const ss_vect<T> &y, const ss_vect<T> &dydx,
-	  const double x, const double h, ss_vect<T> &cs, const double z,
-	  void (*derivs)(const CellType &, const double, const ss_vect<T> &,
-			 ss_vect<T> &))
+void rk4_
+(CellType &Cell, const ss_vect<T> &y, const ss_vect<T> &dydx, const double x,
+ const double h, ss_vect<T> &cs, const double z,
+ void (*derivs)(const CellType &, const double, const ss_vect<T> &,
+		ss_vect<T> &))
 {
   int        j;
   double     xh, hh, h6;
@@ -1694,7 +1717,7 @@ void rk4_(const CellType &Cell, const ss_vect<T> &y, const ss_vect<T> &dydx,
       return;
     }
 
-    radiate_cs(cs, h, BoBrho);
+    radiate_cs(Cell, cs, h, BoBrho);
   }
 }
 
@@ -2101,7 +2124,7 @@ void FieldMap_pass_SI(CellType &Cell, ss_vect<T> &ps)
     if (globval.radiation || globval.emittance) {
 //      B[X_] = -AoBrhoy[3]; B[Y_] = AoBrho[X_][3];
 //      B[Z_] = AoBrhoy[1] - AoBrho[X_][2];
-//      radiate(ps, h, 0e0, B);
+//      radiate(Cell, ps, h, 0e0, B);
     }
 
     if (trace)
@@ -2154,16 +2177,16 @@ template void f_FM(const CellType &, const double, const ss_vect<double> &,
 		   ss_vect<double> &);
 template void f_FM(const CellType &, const double, const ss_vect<tps> &,
 		   ss_vect<tps> &);
-template void rk4_(const CellType &, const ss_vect<double> &,
-		   const ss_vect<double> &, const double, const double,
-		   ss_vect<double> &, const double,
-		   void (*derivs)(const CellType &, const double,
-				  const ss_vect<double> &, ss_vect<double> &));
-template void rk4_(const CellType &, const ss_vect<tps> &,
-		   const ss_vect<tps> &, const double, const double,
-		   ss_vect<tps> &, const double,
-		   void (*derivs)(const CellType &, const double,
-				  const ss_vect<tps> &, ss_vect<tps> &));
+template void rk4_
+(CellType &, const ss_vect<double> &, const ss_vect<double> &, const double,
+ const double, ss_vect<double> &, const double,
+ void (*derivs)
+ (const CellType &, const double, const ss_vect<double> &, ss_vect<double> &));
+template void rk4_
+(CellType &, const ss_vect<tps> &, const ss_vect<tps> &, const double,
+ const double, ss_vect<tps> &, const double,
+ void (*derivs)
+ (const CellType &, const double, const ss_vect<tps> &, ss_vect<tps> &));
 template void FieldMap_pass_RK(CellType &, ss_vect<double> &);
 template void FieldMap_pass_RK(CellType &, ss_vect<tps> &);
 template void FieldMap_pass_SI(CellType &, ss_vect<double> &);
@@ -2290,7 +2313,7 @@ void Insertion_Pass(CellType &Cell, ss_vect<T> &x)
 	// Scale locally with (Brho) (as above) instead of when the file
 	// is read; since the beam energy might not be known at that time.
 	if (globval.radiation || globval.emittance)
-	  radiate_ID(x, LN, elemp->ID->scaling*B2_perp);
+	  radiate_ID(Cell, x, LN, elemp->ID->scaling*B2_perp);
       // }
 
       if (outoftable) {
@@ -2315,57 +2338,60 @@ void Insertion_Pass(CellType &Cell, ss_vect<T> &x)
 
 
 template<typename T>
-void sol_pass(const elemtype &elem, ss_vect<T> &x)
+void sol_pass(CellType &Cell, ss_vect<T> &x)
 {
-  int    i;
-  double h, z;
-  T      hd, AxoBrho, AyoBrho, dAxoBrho[3], dAyoBrho[3], dpy, dpx, B[3];
+  int      i;
+  double   h, z;
+  T        hd, AxoBrho, AyoBrho, dAxoBrho[3], dAyoBrho[3], dpy, dpx, B[3];
+  elemtype *elem;
 
-  h = elem.PL/elem.Sol->N; z = 0e0;
+  elem = &Cell.Elem;
 
-  for (i = 1; i <= elem.Sol->N; i++) {
+  h = elem->PL/elem->Sol->N; z = 0e0;
+
+  for (i = 1; i <= elem->Sol->N; i++) {
     hd = h/(1e0+x[delta_]);
 
     // 1: half step in z
     z += 0.5*h;
 
     // 2: half drift in y
-    AyoBrho = elem.Sol->BoBrho*x[x_]/2e0; dpx = elem.Sol->BoBrho*x[y_]/2e0;
-//    get_Axy_EF3(elem.W, z, x, AyoBrho, dAyoBrho, dpx, false);
+    AyoBrho = elem->Sol->BoBrho*x[x_]/2e0; dpx = elem->Sol->BoBrho*x[y_]/2e0;
+//    get_Axy_EF3(elem->W, z, x, AyoBrho, dAyoBrho, dpx, false);
 
     x[px_] -= dpx; x[py_] -= AyoBrho;
     x[y_] += 0.5*hd*x[py_];
     x[ct_] += sqr(0.5)*hd*sqr(x[py_])/(1e0+x[delta_]);
 
-    AyoBrho = elem.Sol->BoBrho*x[x_]/2e0; dpx = elem.Sol->BoBrho*x[y_]/2e0;
-//    get_Axy_EF3(elem.W, z, x, AyoBrho, dAyoBrho, dpx, false);
+    AyoBrho = elem->Sol->BoBrho*x[x_]/2e0; dpx = elem->Sol->BoBrho*x[y_]/2e0;
+//    get_Axy_EF3(elem->W, z, x, AyoBrho, dAyoBrho, dpx, false);
 
     x[px_] += dpx; x[py_] += AyoBrho;
 
     // 3: full drift in x
-    AxoBrho = -elem.Sol->BoBrho*x[y_]/2e0; dpy = -elem.Sol->BoBrho*x[x_]/2e0;
-//    get_Axy_EF3(elem.W, z, x, AxoBrho, dAxoBrho, dpy, true);
+    AxoBrho = -elem->Sol->BoBrho*x[y_]/2e0; dpy = -elem->Sol->BoBrho*x[x_]/2e0;
+//    get_Axy_EF3(elem->W, z, x, AxoBrho, dAxoBrho, dpy, true);
 
     x[px_] -= AxoBrho; x[py_] -= dpy; x[x_] += hd*x[px_];
     x[ct_] += 0.5*hd*sqr(x[px_])/(1e0+x[delta_]);
 
     if (globval.pathlength) x[ct_] += h;
 
-    AxoBrho = -elem.Sol->BoBrho*x[y_]/2e0; dpy = -elem.Sol->BoBrho*x[x_]/2e0;
-//    get_Axy_EF3(elem.W, z, x, AxoBrho, dAxoBrho, dpy, true);
+    AxoBrho = -elem->Sol->BoBrho*x[y_]/2e0; dpy = -elem->Sol->BoBrho*x[x_]/2e0;
+//    get_Axy_EF3(elem->W, z, x, AxoBrho, dAxoBrho, dpy, true);
 
     x[px_] += AxoBrho; x[py_] += dpy;
 
     // 4: a half drift in y
-    AyoBrho = elem.Sol->BoBrho*x[x_]/2e0; dpx = elem.Sol->BoBrho*x[y_]/2e0;
-//    get_Axy_EF3(elem.W, z, x, AyoBrho, dAyoBrho, dpx, false);
+    AyoBrho = elem->Sol->BoBrho*x[x_]/2e0; dpx = elem->Sol->BoBrho*x[y_]/2e0;
+//    get_Axy_EF3(elem->W, z, x, AyoBrho, dAyoBrho, dpx, false);
 
     x[px_] -= dpx; x[py_] -= AyoBrho;
     x[y_] += 0.5*hd*x[py_];
     x[ct_] += sqr(0.5)*hd*sqr(x[py_])/(1e0+x[delta_]);
 
-    AyoBrho = elem.Sol->BoBrho*x[x_]/2e0; dpx = elem.Sol->BoBrho*x[y_]/2e0;
-//    get_Axy_EF3(elem.W, z, x, AyoBrho, dAyoBrho, dpx, false);
+    AyoBrho = elem->Sol->BoBrho*x[x_]/2e0; dpx = elem->Sol->BoBrho*x[y_]/2e0;
+//    get_Axy_EF3(elem->W, z, x, AyoBrho, dAyoBrho, dpx, false);
 
     x[px_] += dpx; x[py_] += AyoBrho;
 
@@ -2374,16 +2400,16 @@ void sol_pass(const elemtype &elem, ss_vect<T> &x)
 
     if (globval.radiation || globval.emittance) {
       dAxoBrho[X_] = 0e0;
-      dAxoBrho[Y_] = -elem.Sol->BoBrho/2e0;
+      dAxoBrho[Y_] = -elem->Sol->BoBrho/2e0;
       dAxoBrho[Z_] = 0e0;
-      dAyoBrho[X_] = elem.Sol->BoBrho/2e0;
+      dAyoBrho[X_] = elem->Sol->BoBrho/2e0;
       dAyoBrho[Y_] = 0e0;
       dAyoBrho[Z_] = 0e0;
-//      get_Axy_EF3(elem.W, z, x, AyoBrho, dAyoBrho, dpx, false);
-//      get_Axy_EF3(elem.W, z, x, AxoBrho, dAxoBrho, dpy, true);
+//      get_Axy_EF3(elem->W, z, x, AyoBrho, dAyoBrho, dpx, false);
+//      get_Axy_EF3(elem->W, z, x, AxoBrho, dAxoBrho, dpy, true);
       B[X_] = -dAyoBrho[Z_]; B[Y_] = dAxoBrho[Z_];
       B[Z_] = dAyoBrho[X_] - dAxoBrho[Y_];
-      radiate(x, h, 0e0, B);
+      radiate(Cell, x, h, 0e0, B);
     }
   }
 }
@@ -2393,9 +2419,7 @@ template<typename T>
 void Solenoid_Pass(CellType &Cell, ss_vect<T> &ps)
 {
   GtoL(ps, Cell.dS, Cell.dT, 0e0, 0e0, 0e0);
-
-  sol_pass(Cell.Elem, ps);
-
+  sol_pass(Cell, ps);
   LtoG(ps, Cell.dS, Cell.dT, 0e0, 0e0, 0e0);
 }
 
