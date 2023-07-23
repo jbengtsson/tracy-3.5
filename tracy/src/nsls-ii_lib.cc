@@ -713,7 +713,8 @@ void prt_lat(const int loc1, const int loc2, const char *fname, const int Fnum,
 	  "   alphax   betax     nux      etax    etapx");
   fprintf(outf,
 	  "     alphay   betay     nuy      etay    etapy      I5"
-	  "                    dD\n");
+	  "                           dD"
+	  "                                              Fixed Point\n");
   fprintf(outf,
 	  "#                        [m]"
 	  "                     [m]                [m]");
@@ -725,13 +726,21 @@ void prt_lat(const int loc1, const int loc2, const char *fname, const int Fnum,
       fprintf(outf,
 	      "%4ld %15s %9.5f %4.1f %9.5f %8.5f %8.5f %8.5f %8.5f"
 	      " %9.5f %8.5f %8.5f %8.5f %8.5f  %8.2e "
-	      "[%10.5e, %10.5e, %10.5e]\n",
+	      "[%11.5e, %11.5e, %11.5e]",
 	      i, Cell[i].Elem.PName, Cell[i].S, get_code(Cell[i]),
 	      Cell[i].Alpha[X_], Cell[i].Beta[X_], Cell[i].Nu[X_],
 	      Cell[i].Eta[X_], Cell[i].Etap[X_],
 	      Cell[i].Alpha[Y_], Cell[i].Beta[Y_], Cell[i].Nu[Y_],
 	      Cell[i].Eta[Y_], Cell[i].Etap[Y_], I5,
 	      Cell[i].dD[X_], Cell[i].dD[Y_], Cell[i].dD[Z_]);
+      for (int k = 0; k < 2*nd_tps; k++) {
+	if (k == 0)
+	  fprintf(outf, " [%12.5e", Cell[i].BeamPos[k]);
+	else if (k < 5)
+	  fprintf(outf, ", %12.5e", Cell[i].BeamPos[k]);
+	else
+	  fprintf(outf, ", %12.5e\n", Cell[i].BeamPos[k]);
+     }
     }
   }
 

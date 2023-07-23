@@ -1,3 +1,5 @@
+#include <assert.h>
+
 #define NO 1
 
 #include "tracy_lib.h"
@@ -1942,11 +1944,15 @@ int main(int argc, char *argv[])
     exit(0);
   }
 
+  if (!false) GetEmittance(ElemIndex("cav"), true);
+
   prtmfile("flat_file.dat");
   // globval.bpm = ElemIndex("bpm");
   prt_lat("linlat1.out", globval.bpm, true);
   prt_lat("linlat.out", globval.bpm, true, 10);
   prt_chrom_lat();
+
+  assert(false);
 
   if (prt_s1) {
     // loc = Elem_GetPos(ElemIndex("s1"), 1);

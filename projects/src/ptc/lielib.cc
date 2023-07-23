@@ -204,6 +204,9 @@ ss_vect<tps>M_to_M_fact(const ss_vect<tps> &map)
   const int n_max = 100; 
 
   map_lin = get_M_k(map, 1);
+  cout << map[x_];
+  prt_lin_map(3, Inv(map_lin));
+  cout << Inv(map_lin)[x_];
   map_res = map*Inv(map_lin);
   map_fact.zero();
   for (k = 2; k <= no_tps; k++) {
@@ -351,7 +354,7 @@ int main(int argc, char *argv[])
     cout << exp_h_to_M(h_DF, Id, eps_tps, 100)-LieExp(h_DF, Id) << "\n";
   }
 
-  if(!false) {
+  if (!false) {
     danot_(no_tps-1);
 
     M.identity();
@@ -368,7 +371,7 @@ int main(int argc, char *argv[])
     cout << M_to_h_DF(M) << "\n";
   }
 
-  if(false) {
+  if (false) {
     danot_(no_tps-1);
 
     M.identity();
