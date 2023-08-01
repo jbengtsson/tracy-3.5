@@ -96,7 +96,7 @@ tps M_to_h(const ss_vect<tps> &map)
     // Integrate monomials.
     f_x = tps_fun(map[2*k+1], f_int_mon)*Id[2*k];
     f_px = tps_fun(map[2*k], f_int_mon)*Id[2*k+1];
-    h += f_x - f_px;
+    h -= f_x - f_px;
   }
   return h;
 }
