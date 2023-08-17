@@ -3,7 +3,10 @@
 #include "tracy_lib.h"
 
 
-// F. Klein's Erlangen Program.
+// F. Klein 𝑉𝑒𝑟𝑔𝑙𝑒𝑖𝑐ℎ𝑒𝑛𝑑𝑒 𝐵𝑒𝑡𝑟𝑎𝑐ℎ𝑡𝑢𝑛𝑔𝑒𝑛 𝑢̈𝑏𝑒𝑟 𝑛𝑒𝑢𝑒𝑟𝑒 𝑔𝑒𝑜𝑚𝑒𝑡𝑟𝑖𝑠𝑐ℎ𝑒 𝐹𝑜𝑟𝑠𝑐ℎ𝑢𝑛𝑔𝑒𝑛
+// (Deichert, 1872).
+// Aka Felix Klein's Erlangen Program.
+//  https://archive.org/details/abn7632.0001.001.umich.edu/page/n1/mode/2up
 
 
 int no_tps   = NO,
@@ -12,7 +15,7 @@ int no_tps   = NO,
 
 tps get_h_k(const tps &h, const int k)
 {
-  // Take in Forest's F77 LieLib.
+  // 𝑇𝑎𝑘𝑒 in Forest's F77 LieLib.
   // Get monomials of order k.
   long int no;
   tps      h_k;
@@ -29,11 +32,10 @@ tps get_h_k(const tps &h, const int k)
 
 ss_vect<tps> get_M_k(const ss_vect<tps> &x, const int k)
 {
-  // Taked in Forest's F77 LieLib.
-  int          i;
+  // 𝑇𝑎𝑘𝑒𝑑 in Forest's F77 LieLib.
   ss_vect<tps> map_k;
 
-  for (i = 0; i < nv_tps; i++)
+  for (auto i = 0; i < nv_tps; i++)
     map_k[i] = get_h_k(x[i], k);
   return map_k;
 }
@@ -42,7 +44,7 @@ ss_vect<tps> get_M_k(const ss_vect<tps> &x, const int k)
 tps tps_fun
 (const tps &a, std::function<double (const long int [])> fun)
 {
-  // Dacfu in Forest's F77 LieLib.
+  // 𝐷𝑎𝑐𝑓𝑢 in Forest's F77 LieLib.
   // Multiplies mononials I_vec with function f(I_vec).
   char     name[name_len_for+1];
   int      k, n;
@@ -79,7 +81,7 @@ double f_int_mon(const long int jj[])
 
 tps M_to_h(const ss_vect<tps> &map)
 {
-  // Intd in Forest's F77 LieLib.
+  // 𝐼𝑛𝑡𝑑 in Forest's F77 LieLib.
   // E. Forest, M. Berz, J. Irwin "Normal Form Methods for Complicated
   // Periodic Systems: A Complete Solution Using Differential Algebra and Lie
   // Operators" Part. Accel. 24, 91-107 (1989):
@@ -104,7 +106,7 @@ tps M_to_h(const ss_vect<tps> &map)
 
 ss_vect<tps> h_to_v(const tps &h)
 {
-  // Difd in Forest's F77 LieLib:
+  // 𝐷𝑖𝑓𝑑 in Forest's F77 LieLib:
   // Compute vector flow operator from Lie operator :h:
   //   v = Omega * [del_x H, del_px H]^T
   int          k;
@@ -120,7 +122,7 @@ ss_vect<tps> h_to_v(const tps &h)
 
 tps v_to_tps(const ss_vect<tps> &v, const tps &x)
 {
-  // Daflo in Forest's F77 LieLib.
+  // 𝐷𝑎𝑓𝑙𝑜 in Forest's F77 LieLib.
   //   y = v * nabla * x
   int k;
   tps y;
@@ -135,7 +137,7 @@ tps v_to_tps(const ss_vect<tps> &v, const tps &x)
 tps exp_v_to_tps(const ss_vect<tps> &v, const tps &x, const double eps,
 	      const int n_max)
 {
-  // Expflo in Forest's F77 LieLib:
+  // 𝐸𝑥𝑝𝑓𝑙𝑜 in Forest's F77 LieLib:
   //   y = exp(v*nabla) * x
   int    k;
   double eps1;
@@ -162,7 +164,7 @@ tps exp_v_to_tps(const ss_vect<tps> &v, const tps &x, const double eps,
 tps exp_v_fac_to_tps(const ss_vect<tps> &v, const tps &x, const int k1,
 		      const int k2, const double scl)
 {
-  // Facflo in Forest's F77 LieLib.
+  // 𝐹𝑎𝑐𝑓𝑙𝑜 in Forest's F77 LieLib.
   //   y = exp(D_k1) * exp(D_k1+1) ...  * exp(D_k2) * x
   int          k;
   tps          y;
@@ -182,7 +184,7 @@ tps exp_v_fac_to_tps(const ss_vect<tps> &v, const tps &x, const int k1,
 ss_vect<tps> exp_v_fac_to_M(const ss_vect<tps> &v, const ss_vect<tps> &x,
 			    const int k1, const int k2, const double scl)
 {
-  // Facflod in Forest's F77 LieLib.
+  // 𝐹𝑎𝑐𝑓𝑙𝑜𝑑 in Forest's F77 LieLib.
   int          k;
   ss_vect<tps> M;
 
@@ -194,7 +196,7 @@ ss_vect<tps> exp_v_fac_to_M(const ss_vect<tps> &v, const ss_vect<tps> &x,
 
 ss_vect<tps>M_to_M_fact(const ss_vect<tps> &map)
 {
-  // Flofac in Forest's F77 LieLib.
+  // 𝐹𝑙𝑜𝑓𝑎𝑐 in Forest's F77 LieLib.
   // Factor map:
   //   M = M_2 ... * M_n
   int          j, k;
@@ -226,7 +228,7 @@ ss_vect<tps>M_to_M_fact(const ss_vect<tps> &map)
 ss_vect<tps>M_to_M_fact2(const ss_vect<tps> &map)
 {
   // Obsolete.
-  // Flofac in Forest's F77 LieLib.
+  // 𝐹𝑙𝑜𝑓𝑎𝑐 in Forest's F77 LieLib.
   // Factor map:
   //   M = M_2 ... * M_n
   int          j, k;
@@ -247,7 +249,7 @@ ss_vect<tps>M_to_M_fact2(const ss_vect<tps> &map)
 tps exp_h_to_tps(const tps &h, const tps &x, const double eps,
 		   const int n_max)
 {
-  // Exp1d in Forest's F77 LieLib.
+  // 𝐸𝑥𝑝1𝑑 in Forest's F77 LieLib.
   //   y = exp(:h:) x
   return exp_v_to_tps(h_to_v(h), x, eps, n_max);
 }
@@ -256,7 +258,7 @@ tps exp_h_to_tps(const tps &h, const tps &x, const double eps,
 ss_vect<tps> exp_h_to_M(const tps &h, const ss_vect<tps> &x, const double eps,
 		       const int n_max)
 {
-  // Expnd2 in Forest's F77 LieLib.
+  // 𝐸𝑥𝑝𝑛𝑑2 in Forest's F77 LieLib.
   //   Y = exp(:h:) X
   int          k;
   ss_vect<tps> y;
@@ -270,7 +272,7 @@ ss_vect<tps> exp_h_to_M(const tps &h, const ss_vect<tps> &x, const double eps,
 
 tps M_to_h_DF(const ss_vect<tps> &map)
 {
-  // Liefact in Forest's F77 LieLib.
+  // 𝐿𝑖𝑒𝑓𝑎𝑐𝑡 in Forest's F77 LieLib.
   // A. Dragt, J. Finn "Lie Series and Invariant Functions for Analytic
   // Symplectic maps" J. Math. Phys. 17, 2215-2227 (1976).
   // Dragt-Finn factorization:
@@ -278,11 +280,12 @@ tps M_to_h_DF(const ss_vect<tps> &map)
   return M_to_h(M_to_M_fact(map));
 }
 
+#if 1
 
 ss_vect<tps> h_DF_to_M
 (const tps &h_DF, const ss_vect<tps> &x, const int k1, const int k2)
 {
-  // Fexpo in Forest's F77 LieLib.
+  // 𝐹𝑒𝑥𝑝𝑜 in Forest's F77 LieLib.
   // Compute map from Dragt-Finn factorisation:
   //   M = exp(:h_3:) * exp(:h_4:) ...  * exp(:h_n:) * X
   ss_vect<tps> v_DF;
@@ -293,11 +296,12 @@ ss_vect<tps> h_DF_to_M
   return exp_v_fac_to_M(v_DF, x, k1, k2, 1e0);
 }
 
+#else
 
-ss_vect<tps> h_DF_to_M2
+ss_vect<tps> h_DF_to_M
 (const tps &h, const ss_vect<tps> &map, const int k1, const int k2)
 {
-  // Fexpo in Forest's LieLib.
+  // 𝐹𝑒𝑥𝑝𝑜 in Forest's LieLib.
   // Compute map from Dragt-Finn factorisation:
   //   exp(:h_3:) exp(:h_4:) ... exp(:h_no:)
   int          k;
@@ -312,6 +316,7 @@ ss_vect<tps> h_DF_to_M2
   return map1;
 }
 
+#endif
 
 int main(int argc, char *argv[])
 {

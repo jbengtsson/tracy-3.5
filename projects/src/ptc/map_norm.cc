@@ -28,8 +28,10 @@ tps get_mns(const tps &a, const int no1, const int no2)
 {
   tps  b;
 
-  danot_(no1-1); b = -a;
-  danot_(no2);   b += a;
+  danot_(no1-1);
+  b = -a;
+  danot_(no2);
+  b += a;
   danot_(no_tps);
 
   return b;
@@ -399,7 +401,8 @@ ss_vect<tps> map_norm_SC(void)
 
   if (sup_conv) {
     // transform to super convergent Map Normal Form
-    map1 = FExpo(-MNF.g, Id, 3, no_tps, 1); MNF.g = -LieFact_SC(map1*R);
+    map1 = FExpo(-MNF.g, Id, 3, no_tps, 1);
+    MNF.g = -LieFact_SC(map1*R);
   }
 
   cout << MNF.g-g;
