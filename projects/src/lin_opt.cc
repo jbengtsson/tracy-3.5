@@ -29,7 +29,8 @@ void set_lat_state(const bool mat_meth)
 int main(int argc, char *argv[])
 {
   double       eps_x, sigma_delta, U_0, J[3], tau[3], I[6], dnu[3];
-  ss_vect<tps> A;
+  Matrix       A_mat_tp;
+  ss_vect<tps> A, A_tp, Sigma;
 
   if (true)
     Read_Lattice(argv[1]);
@@ -42,16 +43,22 @@ int main(int argc, char *argv[])
 
   printglob();
 
-  printf("\nA:\n");
-  prt_lin_map(3, get_A_CS(2, putlinmat(6, globval.Ascr), dnu));
-
-  A = putlinmat(6, globval.Ascr);
-
-  printf("\nA:\n");
-  prt_lin_map(3, get_A_CS(2, A, dnu));
-
   if (!globval.mat_meth) {
     GetEmittance(ElemIndex("cav"), true);
+
+    A = putlinmat(6, globval.Ascr);
+    CopyMat(6, globval.Ascr, A_mat_tp);
+    TpMat(6, A_mat_tp);
+    A_tp = putlinmat(6, A_mat_tp);
+
+    printf("\nA_CS:\n");
+    prt_lin_map(3, get_A_CS(2, A, dnu));
+
+    printf("\nA:\n");
+    prt_lin_map(3, A);
+
+    printf("\nA^T:\n");
+    prt_lin_map(3, A_tp);
 
     printf("\nsigma [");
     for (auto k = 0; k < 2*nd_tps; k++) {
@@ -65,14 +72,15 @@ int main(int argc, char *argv[])
     printf("\nCell[{end}].Sigma:\n");
     prtmat(6, Cell[globval.Cell_nLoc].sigma);
 
+    Sigma = putlinmat(6, Cell[globval.Cell_nLoc].sigma);
+
     printf("\nA^-1*Sigma*A\n");
-    prt_lin_map(3, Inv(A)*putlinmat(6, Cell[globval.Cell_nLoc].sigma)*A);
-  } else {
+    prt_lin_map(3, A*Sigma*Inv(A_tp));
+  } else
     get_eps_x(eps_x, sigma_delta, U_0, J, tau, I, true);
 
-    prt_lat("linlat1.out", globval.bpm, true);
-    prt_lat("linlat.out", globval.bpm, true, 10);
-    prt_chrom_lat();
-    prtmfile("flat_file.dat");
-  }
+  prt_lat("linlat1.out", globval.bpm, true);
+  prt_lat("linlat.out", globval.bpm, true, 10);
+  prt_chrom_lat();
+  prtmfile("flat_file.dat");
 }
