@@ -63,10 +63,12 @@ LIBS	    = -L$(TRACY_LIB)/tracy/lib \
 
 # C Preprocessor flags.
 AM_CPPFLAGS = -I/usr/local/Cellar/gsl/2.7.1/include \
-              -I/opt/OPAL-2.2.1/lib \
               -I$(TRACY_LIB)/tracy/inc \
               -I$(NUM_REC)/inc \
               -I$(GSL_INCLUDE)/include
+
+#              -I/opt/OPAL-2.2.1/lib 
+
 # C++ flags.
 AM_CXXFLAGS = -g -O0 -pedantic -Wall \
               -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC
