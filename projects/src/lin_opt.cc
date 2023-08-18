@@ -28,40 +28,39 @@ void set_lat_state(const bool mat_meth)
 
 void compute_sigma(Matrix &Sigma)
 {
-   double dnu[nd_tps];
    Matrix A_tp;
    
-   for (auto j = 0; j < 2*nd_tps; j++)
-     for (auto k = 0; k < 2*nd_tps; k++)
+   for (auto j = 0; j < 6; j++)
+     for (auto k = 0; k < 6; k++)
        Sigma[j][k] = (j == k)? globval.eps[k/2] : 0e0;
    
-   MulLMat(2*nd_tps, globval.Ascr, Sigma);
-   CopyMat(2*nd_tps, globval.Ascr, A_tp);
-   TpMat(2*nd_tps, A_tp);
-   MulRMat(2*nd_tps, Sigma, A_tp);
+   MulLMat(6, globval.Ascr, Sigma);
+   CopyMat(6, globval.Ascr, A_tp);
+   TpMat(6, A_tp);
+   MulRMat(6, Sigma, A_tp);
 }
 
 
 void check_A()
 {
   long int     lastpos;
-  double       dnu[nd_tps];
-  ss_vect<tps> A1,A0;
+  double       dnu[3];
+  ss_vect<tps> A1, A0;
 
-  A1 = A0 = get_A_CS(2, putlinmat(2*nd_tps, globval.Ascr), dnu);
+  A1 = A0 = get_A_CS(2, putlinmat(6, globval.Ascr), dnu);
   
   printf("\nA before:\n");
-  prt_lin_map(nd_tps, A0);
+  prt_lin_map(3, A0);
   
   Cell_Pass(0, globval.Cell_nLoc, A1, lastpos);
   
   A1 = get_A_CS(2, A1, dnu);
     
   printf("\nA after:\n");
-  prt_lin_map(nd_tps, A1);
+  prt_lin_map(3, A1);
   
   printf("\nA1 - A0:\n");
-  prt_lin_map(nd_tps, A1-A0);
+  prt_lin_map(3, A1-A0);
 }
 
 
@@ -84,31 +83,30 @@ ss_vect<tps> compute_map()
 
 void track_sigma(void)
 {
-  long int     lastpos;
   Matrix       M, M_tp, Sigma0, Sigma1, DSigma;
   ss_vect<tps> map;
   
   map = compute_map();
   
-  getlinmat(2*nd_tps, map, M);
-  CopyMat(2*nd_tps, M, M_tp);
-  TpMat(2*nd_tps, M_tp);
+  getlinmat(6, map, M);
+  CopyMat(6, M, M_tp);
+  TpMat(6, M_tp);
   
   compute_sigma(Sigma0);
 
-  CopyMat(2*nd_tps, Sigma0, Sigma1);
+  CopyMat(6, Sigma0, Sigma1);
   MulLMat(6, M, Sigma1);
   MulRMat(6, Sigma1, M_tp);
   
-  CopyMat(2*nd_tps, Sigma1, DSigma);
-  SubMat (2*nd_tps, Sigma0, DSigma);
+  CopyMat(6, Sigma1, DSigma);
+  SubMat (6, Sigma0, DSigma);
 
   printf("\nSigma before:\n");
-  prtmat(2*nd_tps, Sigma0);
+  prtmat(6, Sigma0);
   printf("\nSigma after:\n");
-  prtmat(2*nd_tps, Sigma1);
+  prtmat(6, Sigma1);
   printf("\nSigma1 - Sigma0:\n");
-  prtmat(2*nd_tps, DSigma);
+  prtmat(6, DSigma);
  
 }
 
@@ -116,29 +114,29 @@ void track_sigma(void)
 void benchmark(void)
 {
   double
-    eps_x, sigma_delta, U_0, J[nd_tps], tau[nd_tps], I[2*nd_tps], dnu[nd_tps];
+    eps_x, sigma_delta, U_0, J[3], tau[3], I[6], dnu[3];
   Matrix
     A_tp_mat;
   ss_vect<tps>
     A, A_tp, Sigma;
   
   if (!globval.mat_meth) {
-    A = putlinmat(2*nd_tps, globval.Ascr);
-    CopyMat(2*nd_tps, globval.Ascr, A_tp_mat);
-    TpMat(2*nd_tps, A_tp_mat);
-    A_tp = putlinmat(2*nd_tps, A_tp_mat);
+    A = putlinmat(6, globval.Ascr);
+    CopyMat(6, globval.Ascr, A_tp_mat);
+    TpMat(6, A_tp_mat);
+    A_tp = putlinmat(6, A_tp_mat);
 
     printf("\nA_CS:\n");
-    prt_lin_map(nd_tps, get_A_CS(2, A, dnu));
+    prt_lin_map(3, get_A_CS(2, A, dnu));
 
     printf("\nA:\n");
-    prt_lin_map(nd_tps, A);
+    prt_lin_map(3, A);
 
     printf("\nA^T:\n");
-    prt_lin_map(nd_tps, A_tp);
+    prt_lin_map(3, A_tp);
 
     printf("\nsigma [");
-    for (auto k = 0; k < 2*nd_tps; k++) {
+    for (auto k = 0; k < 6; k++) {
       printf("%9.3e", sqrt(Cell[globval.Cell_nLoc].sigma[k][k]));
       if (k != 5)
 	printf(" ");
@@ -146,12 +144,12 @@ void benchmark(void)
     printf("]\n");
 
     printf("\nCell[{end}].Sigma:\n");
-    prtmat(2*nd_tps, Cell[globval.Cell_nLoc].sigma);
+    prtmat(6, Cell[globval.Cell_nLoc].sigma);
 
-    Sigma = putlinmat(2*nd_tps, Cell[globval.Cell_nLoc].sigma);
+    Sigma = putlinmat(6, Cell[globval.Cell_nLoc].sigma);
 
     printf("\nA^-1*Sigma*A\n");
-    prt_lin_map(nd_tps, A*Sigma*Inv(A_tp));
+    prt_lin_map(3, A*Sigma*Inv(A_tp));
   } else
     get_eps_x(eps_x, sigma_delta, U_0, J, tau, I, true);
 
@@ -164,8 +162,6 @@ void benchmark(void)
 
 int main(int argc, char *argv[])
 {
-  double dnu[nd_tps];
-  
   if (true)
     Read_Lattice(argv[1]);
   else
