@@ -70,6 +70,6 @@ AM_CPPFLAGS = -I/usr/local/Cellar/gsl/2.7.1/include \
 #              -I/opt/OPAL-2.2.1/lib 
 
 # C++ flags.
-AM_CXXFLAGS = -g -O0 -pedantic -Wall \
+AM_CXXFLAGS = -g -O0 -pedantic -Wall -std=c++11 \
               -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC
 #CXXFLAGS = -pg -O2 -Wall -Wno-non-template-friend
