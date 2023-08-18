@@ -49,16 +49,14 @@ void check_A()
 
   A1 = A0 = get_A_CS(2, putlinmat(6, globval.Ascr), dnu);
   
-  printf("\nA before:\n");
-  prt_lin_map(3, A0);
-  
   Cell_Pass(0, globval.Cell_nLoc, A1, lastpos);
   
   A1 = get_A_CS(2, A1, dnu);
     
+  printf("\nA before:\n");
+  prt_lin_map(3, A0);
   printf("\nA after:\n");
   prt_lin_map(3, A1);
-  
   printf("\nA1 - A0:\n");
   prt_lin_map(3, A1-A0);
 }
@@ -107,51 +105,41 @@ void track_sigma(void)
   prtmat(6, Sigma1);
   printf("\nSigma1 - Sigma0:\n");
   prtmat(6, DSigma);
- 
 }
 
 
 void benchmark(void)
 {
-  double
-    eps_x, sigma_delta, U_0, J[3], tau[3], I[6], dnu[3];
-  Matrix
-    A_tp_mat;
-  ss_vect<tps>
-    A, A_tp, Sigma;
+  double       dnu[3];
+  Matrix       A_tp_mat;
+  ss_vect<tps> A, A_tp, Sigma;
   
-  if (!globval.mat_meth) {
-    A = putlinmat(6, globval.Ascr);
-    CopyMat(6, globval.Ascr, A_tp_mat);
-    TpMat(6, A_tp_mat);
-    A_tp = putlinmat(6, A_tp_mat);
+  A = putlinmat(6, globval.Ascr);
+  CopyMat(6, globval.Ascr, A_tp_mat);
+  TpMat(6, A_tp_mat);
+  A_tp = putlinmat(6, A_tp_mat);
 
-    printf("\nA_CS:\n");
-    prt_lin_map(3, get_A_CS(2, A, dnu));
+  Sigma = putlinmat(6, Cell[globval.Cell_nLoc].sigma);
 
-    printf("\nA:\n");
-    prt_lin_map(3, A);
+  printf("\nA_CS:\n");
+  prt_lin_map(3, get_A_CS(2, A, dnu));
+  printf("\nA:\n");
+  prt_lin_map(3, A);
+  printf("\nA^T:\n");
+  prt_lin_map(3, A_tp);
 
-    printf("\nA^T:\n");
-    prt_lin_map(3, A_tp);
+  printf("\nsigma [");
+  for (auto k = 0; k < 6; k++) {
+    printf("%9.3e", sqrt(Cell[globval.Cell_nLoc].sigma[k][k]));
+    if (k != 5)
+      printf(" ");
+  }
+  printf("]\n");
 
-    printf("\nsigma [");
-    for (auto k = 0; k < 6; k++) {
-      printf("%9.3e", sqrt(Cell[globval.Cell_nLoc].sigma[k][k]));
-      if (k != 5)
-	printf(" ");
-    }
-    printf("]\n");
-
-    printf("\nCell[{end}].Sigma:\n");
-    prtmat(6, Cell[globval.Cell_nLoc].sigma);
-
-    Sigma = putlinmat(6, Cell[globval.Cell_nLoc].sigma);
-
-    printf("\nA^-1*Sigma*A\n");
-    prt_lin_map(3, A*Sigma*Inv(A_tp));
-  } else
-    get_eps_x(eps_x, sigma_delta, U_0, J, tau, I, true);
+  printf("\nCell[{end}].Sigma:\n");
+  prtmat(6, Cell[globval.Cell_nLoc].sigma);
+  printf("\nA^-1*Sigma*A\n");
+  prt_lin_map(3, A*Sigma*Inv(A_tp));
 
   prt_lat("linlat1.out", globval.bpm, true);
   prt_lat("linlat.out", globval.bpm, true, 10);
