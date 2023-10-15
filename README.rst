@@ -85,9 +85,9 @@ Contributions
 Requirements
 ------------
 
-   GNU C/C++ and FORTRAN-95 compilers: gcc and gfortran.
-   GNU autoconf/automake environment and libtool.
-   "Numerical Recipes in C": http://numerical.recipes.
+  * GNU C/C++ and FORTRAN-95 compilers: gcc and gfortran.
+  * GNU autoconf/automake environment and libtool.
+  * "Numerical Recipes in C": http://numerical.recipes.
 
 Installation
 ------------
