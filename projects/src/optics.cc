@@ -1613,7 +1613,7 @@ int main(int argc, char *argv[])
 
   trace            = false;
   reverse_elem     = true;
-  globval.mat_meth = false;
+  globval.mat_meth = !false;
 
   if (true)
     Read_Lattice(argv[1]);
@@ -1680,6 +1680,13 @@ int main(int argc, char *argv[])
   }
 
   Ring_GetTwiss(true, 0e-3); printglob();
+
+  if (false) {
+    printf("\nA:\n");
+    prt_lin_map(3, get_A_CS(2, putlinmat(6, globval.Ascr), dnu));
+
+    assert(false);
+  }
 
   if (false) {
     printf("\nGetAinv:\n");

@@ -491,6 +491,7 @@ ss_vect<tps> compute_normal_mode_form(const ss_vect<tps> &T)
   if (fabs(cs_2phi) < 1e0) {
     // Symplectic rotation.
     printf("\n*** compute_normal_mode_form: not tested!\n");
+    assert(false);
 
     sn_2phi = fabs(sqrt(Dt)/Delta);
     cs_phi = sqrt((1e0+cs_2phi)/2e0);
@@ -809,7 +810,7 @@ void set_state(void)
 
 int main(int argc, char *argv[])
 {
-  double       Circ;
+  double       Circ, dnu[3];
   ss_vect<tps> M;
 
   const string
@@ -833,6 +834,10 @@ int main(int argc, char *argv[])
   globval.Cavity_on = globval.radiation = false;
   Ring_GetTwiss(true, 0e0);
   printglob();
+  printf("\nA (RF Cavity = %s Radation = %s):\n",
+	 (globval.Cavity_on)? "true":"false",
+	 (globval.radiation)? "true":"false");
+  prt_lin_map(3, get_A_CS(2, putlinmat(6, globval.Ascr), dnu));
 
   prt_lat("linlat1.out", globval.bpm, true);
   prt_lat("linlat.out", globval.bpm, true, 10);
@@ -842,10 +847,18 @@ int main(int argc, char *argv[])
   globval.radiation = false;
   Ring_GetTwiss(true, 0e0);
   printglob();
+  printf("\nA (RF Cavity = %s Radation = %s):\n",
+	 (globval.Cavity_on)? "true":"false",
+	 (globval.radiation)? "true":"false");
+  prt_lin_map(3, get_A_CS(2, putlinmat(6, globval.Ascr), dnu));
 
   globval.Cavity_on = globval.radiation = true;
   Ring_GetTwiss(true, 0e0);
   printglob();
+  printf("\nA (RF Cavity = %s Radation = %s):\n",
+	 (globval.Cavity_on)? "true":"false",
+	 (globval.radiation)? "true":"false");
+  prt_lin_map(3, get_A_CS(2, putlinmat(6, globval.Ascr), dnu));
 
   compute_maps(Circ, cav_name);
 }
