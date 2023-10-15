@@ -22,7 +22,7 @@ Requirements:
 
    GNU C/C++ and FORTRAN-95 compilers: gcc and gfortran.
    GNU autoconf/automake environment and libtool.
-   "Numerical Recipes in C": http://www.nr.com.
+   "Numerical Recipes in C": http://numerical.recipes.
 
 To install:
 
