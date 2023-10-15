@@ -1,5 +1,5 @@
 Tracy-3.5
-=======
+=========
 
 The symplectic integrator for realistic modeling of magnetic lattices for ring-based synchrotrons was initially implemented as a *Pascal module/beam dynamics software library*, by the author 1990, as an *on-line model* to guide the ALS commissioning. In particular, care was taken for the software architecture & resulting records/modules – akin to *objects* although not explicitly supported by the artificial language grammar – to reflect the *structure of the mathematical objects* describing the underlying *beam dynamics model*.
 
@@ -9,13 +9,6 @@ Hence, the code was also benchmarked & calibrated as part of the ALS commissioni
 
   .. _`EPAC 1994.`: https://accelconf.web.cern.ch/e94/PDF/EPAC1994_1021.PDF
 
-Malika Meddahi was a postdoc at ALS who did her thesis at CERN (for which she received the *Prix Daniel Guinier* in France that year):
-
-  *Effets faisceau-faisceau dans le collisionneur protons-antiprotons du SPS* `CERN-SL-91-30-BI (1991)`_
-
-  .. _`CERN-SL-91-30-BI (1991)`: http://cds.cern.ch/record/223301)
-
-The resulting C code, see below, has now been re-factored by introducing a C++ *beam line class*; i.e., to recover the transparency & simplicity of the original *beam dynamics model*.
 
 Remark: Although the entire *beam dynamics model* had to be replaced & the model/code/"approach" re-architectured & structured – for a reusable approach – as a *Pascal beam dynamics libary* (standard practise in software engineering), the code was named *Tracy-2*, i.e., inspired by the, somewhat archaic demo/prototype/concept *Tracy*:
 
@@ -53,8 +46,6 @@ Hence, the one thing we did find useful for a realistic on-line model – having
 
 
 
-
-
 tracy-3.5
 
 Author: Johan Bengtsson
@@ -68,11 +59,41 @@ with care taken for the software architecture and resulting records/modules
 the underlying beam dynamics model.
 
 
-The symplectic integrator for RADIA kick maps was implemented by Laurent
-Nadolski, SOLEIL, 2002.
+Contributions
+-------------
+* The symplectic integrator for *RADIA kick maps*:
 
-The original Pascal library/code was machine translated to C (with p2c) by
-Michael Boege, SLS, 1998.
+    P\. Elleaume *A New Approach to the Electron Beam Dynamics in Undulators and Wigglers* `EPAC 1992.`_
+
+    .. _`EPAC 1992.`: https://accelconf.web.cern.ch/e92/PDF/EPAC1992_0661.PDF
+
+  was implemented by Laurent Nadolski, SOLEIL, 2002.
+
+* The original *Pascal library/code* was machine translated to C and re-used to implement a *model server* for the SLS commissioning:
+
+    M\. Böge *Update on TRACY-2 Documentation* `SLS Tech Note SLS-TME-TA-1999-0002 (1999).`_
+
+    .. _`SLS Tech Note SLS-TME-TA-1999-0002 (1999).`: http://ados.web.psi.ch/slsnotes/tmeta9902.pdf
+
+    M\. Böge, J. Chrin *A CORBA Based Client-Server Model for Beam Dynamics Applications* `ICALEPCS 1999.`_
+
+    .. _`ICALEPCS 1999.`: https://accelconf.web.cern.ch/ica99/papers/mc1p61.pdf
+
+  with `p2c.`_
+
+    .. _`p2c.`: http://users.fred.net/tds/lab/p2c/historic/daves.index-2012Jul25-20-44-55.html
+
+* Similarly, James Rowland re-used the C version to implement a *Virtual Accelerator* interfaced to EPICS as a *Virtual Input Output Controller* (VIOC):
+
+    M\. Heron, J. Rowland, et al *Progress on the Implementation of the DIAMOND Control System* `ICALEPCS 2005.`_
+
+    .. _`ICALEPCS 2005.`: https://accelconf.web.cern.ch/ica05/proceed-ings/pdf/P1_018.pdf
+
+* Besides, a subset of the internal *numerical engine* was manually translated to C and re-used for:
+
+    A\. Terebilo *Accelerator Toolbox for MATLAB* `SLAC-PUB-8732 (2001).`_
+
+    .. _`SLAC-PUB-8732 (2001).`: http://www-public.slac.stanford.edu/sciDoc/docMeta.aspx?slacPubNumber=SLAC-PUB-8732
 
 
 Requirements:
