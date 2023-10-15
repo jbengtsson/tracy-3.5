@@ -20,6 +20,8 @@ for which the *beam dynamics model* was based on the *linearized quadratic Hamil
 
   .. image:: images/H_2.png
 
+  ![alt text](images/H_2.png)
+
 for *linear optics design*. I.e., for a *bare lattice* with *mid-plane symmetry*.
 
 E.g. by not having figured out/mastered how to pass records (structures in C) as function/procedure variables – vs. scalars only – for the Pascal-S compiler/interpreter to the beam dynamics library. The API was rather poor/sloppy. I.e., not scalable and thus ill suited to cope with the complexity of a realistic model. As expressed by Forest in the title of:
