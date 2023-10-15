@@ -20,7 +20,7 @@ for which the *beam dynamics model* was based on the *linearized quadratic Hamil
 
   .. image:: images/H_2.png
 
-  ![alt text](images/H_2.png)
+  [alt text](images/H_2.png)
 
 for *linear optics design*. I.e., for a *bare lattice* with *mid-plane symmetry*.
 
