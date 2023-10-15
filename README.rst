@@ -99,7 +99,11 @@ First create environment variable $TRACY_LINK e.g.:
 then:
 
    mkdir git_repos
+
    cd git_repos
+
    git clone git@github.com:jbengtsson/tracy-3.5.git
+
    cd tracy-3.5
+
    ./make_tracy.sh
