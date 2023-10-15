@@ -45,20 +45,6 @@ Hence, the one thing we did find useful for a realistic on-line model – having
   *Pascal-P6* https://sourceforge.net/projects/pascal-p6.
 
 
-
-tracy-3.5
-
-Author: Johan Bengtsson
-
-Self-Consistent Symplectic Integrator for charged particle beam dynamics.
-
-The symplectic integrator for realistic modeling of magnetic lattices for
-ring-based synchrotrons was initially implemented in Pascal, by the author,
-with care taken for the software architecture and resulting records/modules
-(-> "objects") to reflect the structure of the mathematical objects describing
-the underlying beam dynamics model.
-
-
 Contributions
 -------------
 * The symplectic integrator for *RADIA kick maps*:
@@ -96,13 +82,15 @@ Contributions
     .. _`SLAC-PUB-8732 (2001).`: http://www-public.slac.stanford.edu/sciDoc/docMeta.aspx?slacPubNumber=SLAC-PUB-8732
 
 
-Requirements:
+Requirements
+------------
 
    GNU C/C++ and FORTRAN-95 compilers: gcc and gfortran.
    GNU autoconf/automake environment and libtool.
    "Numerical Recipes in C": http://numerical.recipes.
 
-To install:
+Installation
+------------
 
 First create environment variable $TRACY_LINK e.g.:
 
