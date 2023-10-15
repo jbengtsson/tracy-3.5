@@ -18,7 +18,7 @@ Remark: Although the entire *beam dynamics model* had to be replaced & the model
 
 for which the *beam dynamics model* was based on the *linearized quadratic Hamiltonian*:
 
-  .. image:: ../images/H_2.png
+  .. image:: https://raw.githubusercontent.com/jbengtsson/tracy-3.5/images/H_2.png
 
 for *linear optics design*. I.e., for a *bare lattice* with *mid-plane symmetry*.
 
