@@ -1,4 +1,4 @@
-#define NO 3
+#define NO 4
 
 #include "tracy_lib.h"
 
@@ -161,8 +161,21 @@ tps exp_v_to_tps(const ss_vect<tps> &v, const tps &x, const double eps,
 }
 
 
+ss_vect<tps> exp_v_to_M(const ss_vect<tps> &v, const ss_vect<tps> &x,
+			const double eps, const int n_max)
+{
+  // 𝐸𝑥𝑝𝑓𝑙𝑜𝑑 in Forest's F77 LieLib:
+  //   y = exp(v*nabla) * x
+  ss_vect<tps> M;
+
+  for (int k = 0; k < 2*nd_tps; k++)
+    M[k] = exp_v_to_tps(v, x[k], eps, n_max);
+  return M;
+}
+
+
 tps exp_v_fac_to_tps(const ss_vect<tps> &v, const tps &x, const int k1,
-		      const int k2, const double scl)
+		     const int k2, const double scl)
 {
   // 𝐹𝑎𝑐𝑓𝑙𝑜 in Forest's F77 LieLib.
   //   y = exp(D_k1) * exp(D_k1+1) ...  * exp(D_k2) * x
@@ -206,9 +219,9 @@ ss_vect<tps>M_to_M_fact(const ss_vect<tps> &map)
   const int n_max = 100; 
 
   map_lin = get_M_k(map, 1);
-  cout << map[x_];
+  cout << "\nM_to_M_fact ->\n" << map[x_];
   prt_lin_map(3, Inv(map_lin));
-  cout << Inv(map_lin)[x_];
+  cout << Inv(map_lin)[x_] << "\n<- M_to_M_fact\n";
   map_res = map*Inv(map_lin);
   map_fact.zero();
   for (k = 2; k <= no_tps; k++) {
@@ -318,11 +331,192 @@ ss_vect<tps> h_DF_to_M
 
 #endif
 
+int f_q_k_conj(const int dof, const long int jj[])
+{
+  int ord, k, sgn = 0;
+
+  const bool prt = false;
+
+  // Compute the sum of exponents for the momenta for the oscillating planes:
+  ord = 0;
+  for (k = 0; k < dof; k++)
+    ord += jj[2*k+1];
+  ord = (ord % 4);
+  //  Sum_k c_ijkl x^i p_x^j y^k p_y^l
+  //  j + l mod 4 = [0: +1, 1: -1, 2: -1, 3: +1]
+  switch (ord) {
+  case 0:
+    sgn = 1;
+    break;
+  case 1:
+    sgn = -1;
+    break;
+  case 2:
+    sgn = -1;
+    break;
+  case 3:
+    sgn = 1;
+    break;
+  default:
+    printf("\n: undefined case %d\n", ord);
+    break;
+  }
+
+  if (prt) {
+    for (k = 0; k < nv_tps; k++)
+      printf("%3ld", jj[k]);
+    printf("%3d%4d\n", ord, sgn);
+  }
+
+  return sgn;
+}
+
+
+tps q_k_conj(const int dof, const tps &a)
+{
+  char     name[name_len_for+1];
+  int      j, n;
+  long int ibuf1[bufsize], ibuf2[bufsize], jj[nv_tps];
+  double   rbuf[bufsize];
+  tps      b;
+
+  // Adjust the sign for the momenta for the oscillating planes.
+  a.exprt(rbuf, ibuf1, ibuf2, name);
+  n = rbuf[0];
+  for (j = 1; j <= n; j++) {
+    dehash_(no_tps, nv_tps, ibuf1[j-1], ibuf2[j-1], jj);
+    rbuf[j] *= f_q_k_conj(dof, jj);
+  }
+  b.imprt(n, rbuf, ibuf1, ibuf2);
+  return b;
+}
+
+
+void CtoR_JB(const int dof, const tps &a, tps &a_re, tps &a_im)
+{
+  int          k;
+  tps          b, c;
+  ss_vect<tps> Id;
+
+  Id.identity();
+
+  b = q_k_conj(dof, a);
+  cout << "\nb:\n" << b;
+
+  // q_k -> (q_k + p_k) / 2
+  // p_k -> (q_k - p_k) / 2
+  // Complex space:
+  // h_q_k^+ -> (q_k - i p_k) / 2
+  // h_q_k^- -> (q_k + i p_k) / 2i
+  map.identity();
+  for (k = 0; k < dof; k++) {
+    map[2*k]   = (Id[2*k]+Id[2*k+1])/2e0;
+    map[2*k+1] = (Id[2*k]-Id[2*k+1])/2e0;
+  }
+  b = b*map;
+  cout << "\nb:\n" << b;
+
+  // q_k -> p_k
+  // p_k -> q_k
+  // Complex space:
+  // i (q_k -/+ i p_k) = (i q_k +/- p_k)
+  map.identity();
+  for (k = 0; k < dof; k++) {
+    map[2*k]   = Id[2*k+1];
+    map[2*k+1] = Id[2*k];
+  }
+  c = b*map;
+  cout << "\nc:\n" << c;
+
+  a_re = (b+c)/2e0;
+  a_im = (b-c)/2e0;
+}
+
+
+tps RtoC_JB(const int dof, tps &a_re, tps &a_im)
+{
+  int          k;
+  tps          b;
+  ss_vect<tps> Id, map;
+
+  Id.identity();
+
+  b = a_re + a_im;
+
+  // q_k -> q_k + p_k
+  // p_k -> q_k - p_k
+  // Complex space:
+  // q_k -> (h_q_k^+ + h_q_k^-) / 2
+  // p_k -> -(h_q_k^+ - h_q_k^-) / 2i
+  map.identity();
+  for (k = 0; k < dof; k++) {
+    map[2*k]   = Id[2*k] + Id[2*k+1];
+    map[2*k+1] = Id[2*k] - Id[2*k+1];
+  }
+  b = b*map;
+  b = q_k_conj(dof, b);
+  return b;
+}
+
+
+void GoFix(const ss_vect<tps> &map, ss_vect<tps> &A0, const int no)
+{
+  const int n_dof = 2;
+
+  int          no0;
+  double       xic;
+  ss_vect<tps> Id, w, x, v;
+
+  no0 = getno_();
+
+  danot_(no);
+
+  Id.identity();
+  v.identity();
+  for (int k = 0; k < 2*n_dof; k++)
+    v[k] = map[k] - Id[k];
+  w = Inv(v);
+  x.zero();
+  x[delta_] = Id[delta_];
+  v = w*x;
+  v[delta_] = 0e0;
+  v[ct_] = 0e0;
+  A0 = Id + v;
+
+  // Corrections.
+  v.zero();
+  x.zero();
+  w.zero();
+  for (int k = 0; k < 2*n_dof; k++)
+    w[k] = A0[k] - Id[k];
+  A0 = w;
+  for (int k = 0; k < 2*n_dof; k++)
+    w[k] = Der(w[k], delta_+1);
+  for (int k = 0; k < n_dof; k++) {
+    v[2*k+1] = w[2*k];
+    v[2*k] = -w[2*k+1];
+  }
+
+  xic = pow(-1e0, ct_);
+
+  for (int k = 0; k < 2*n_dof; k++) {
+    x[0] = v[k]*Id[k];
+    w[ct_] = x[0] + w[ct_];
+    w[k] = A0[k];
+  }
+  w[ct_] = xic*w[ct_];
+
+  A0 = exp_v_to_M(w, Id, 1e-7, 10000);
+
+  danot_(no0);
+}
+
+
 int main(int argc, char *argv[])
 {
   long int    lastpos;
-  tps          h, h_DF;
-  ss_vect<tps> Id, M, M2, M_lin;
+  tps          h, h_re, h_im, h_DF;
+  ss_vect<tps> Id, M, M2, M_lin, A0;
 
   globval.H_exact    = false; globval.quad_fringe    = false;
   globval.Cavity_on  = false; globval.radiation      = false;
@@ -371,9 +565,30 @@ int main(int argc, char *argv[])
 
     danot_(no_tps);
 
+    GoFix(M, A0, no_tps-1);
+
+    MNF = MapNorm(M, no_tps-1);
+
+    cout << "\nA0-MNF.A0:\n" << A0-MNF.A0 << "\n";
+
+    assert(false);
+
+    cout << "\nA1:\n";
+    prt_lin_map(3, MNF.A1);
+    cout << "\ng:\n" << MNF.g << "\n";
+
+
+    h = M_to_h_DF(M);
+    if (!true)
+      CtoR(h, h_re, h_im);
+    else
+      CtoR_JB(2, h, h_re, h_im);
+
     // cout << M_to_h_DF(M)-LieFact_DF(M, M_lin) << "\n";
     // cout << LieFact_DF(M, M_lin) << "\n";
-    cout << M_to_h_DF(M) << "\n";
+    cout << "\nh:\n" << h << "\n";
+    cout << "\nh_re:\n" << h_re << "\n";
+    cout << "\nh_im:\n" << h_im << "\n";
   }
 
   if (false) {
