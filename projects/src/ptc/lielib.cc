@@ -1,4 +1,4 @@
-#define NO 4
+#define NO 6
 
 #include "tracy_lib.h"
 
@@ -464,47 +464,36 @@ void GoFix(const ss_vect<tps> &map, ss_vect<tps> &A0, const int no)
   const int n_dof = 2;
 
   int          no0;
-  double       xic;
-  ss_vect<tps> Id, w, x, v;
+  ss_vect<tps> Id, x, v, w;
 
   no0 = getno_();
 
   danot_(no);
 
-  Id.identity();
-  v.identity();
+  v = Id.identity();
   for (int k = 0; k < 2*n_dof; k++)
     v[k] = map[k] - Id[k];
-  w = Inv(v);
   x.zero();
   x[delta_] = Id[delta_];
-  v = w*x;
-  v[delta_] = 0e0;
-  v[ct_] = 0e0;
+  v = Inv(v)*x;
+  v[delta_] = v[ct_] = 0e0;
   A0 = Id + v;
 
   // Corrections.
-  v.zero();
-  x.zero();
-  w.zero();
+  v = x = w.zero();
   for (int k = 0; k < 2*n_dof; k++)
-    w[k] = A0[k] - Id[k];
-  A0 = w;
+    A0[k] -= Id[k];
   for (int k = 0; k < 2*n_dof; k++)
-    w[k] = Der(w[k], delta_+1);
+    w[k] = Der(A0[k], delta_+1);
   for (int k = 0; k < n_dof; k++) {
     v[2*k+1] = w[2*k];
     v[2*k] = -w[2*k+1];
   }
-
-  xic = pow(-1e0, ct_);
-
   for (int k = 0; k < 2*n_dof; k++) {
-    x[0] = v[k]*Id[k];
-    w[ct_] = x[0] + w[ct_];
+    w[ct_] = v[k]*Id[k] + w[ct_];
     w[k] = A0[k];
   }
-  w[ct_] = xic*w[ct_];
+  w[ct_] = pow(-1e0, ct_)*w[ct_];
 
   A0 = exp_v_to_M(w, Id, 1e-7, 10000);
 
