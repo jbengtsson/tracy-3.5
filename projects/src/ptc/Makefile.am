@@ -1,6 +1,6 @@
 bin_PROGRAMS = fmap get_dnu vlad tracy_2_3 carbon_map drv_terms get_nl_optics \
-               opt_des_1_ptc opt_des_2_ptc poincare_map wakefield lielib \
-               map_norm_jb stat_mom moments tune_conf
+               opt_des_1_ptc opt_des_2_ptc poincare_map wakefield \
+               lielib map_norm_jb stat_mom moments tune_conf
 
 fmap_SOURCES          = fmap.cc
 get_dnu_SOURCES       = get_dnu.cc
@@ -13,6 +13,7 @@ opt_des_1_ptc_SOURCES = opt_des_1_ptc.cc
 opt_des_2_ptc_SOURCES = opt_des_2_ptc.cc
 poincare_map_SOURCES  = poincare_map.cc
 wakefield_SOURCES     = wakefield.cc
+#map_norm_SOURCES      = map_norm.cc
 lielib_SOURCES        = lielib.cc
 map_norm_jb_SOURCES   = map_norm_jb.cc
 stat_mom_SOURCES      = stat_mom.cc
