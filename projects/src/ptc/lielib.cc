@@ -459,12 +459,12 @@ tps RtoC_JB(const int dof, tps &a_re, tps &a_im)
 }
 
 
-void GoFix(const ss_vect<tps> &map, ss_vect<tps> &A0, const int no)
+ss_vect<tps> GoFix(const ss_vect<tps> &map, const int no)
 {
   const int n_dof = 2;
 
   int          no0;
-  ss_vect<tps> Id, x, v, w;
+  ss_vect<tps> Id, A0, x, v, w;
 
   no0 = getno_();
 
@@ -498,6 +498,8 @@ void GoFix(const ss_vect<tps> &map, ss_vect<tps> &A0, const int no)
   A0 = exp_v_to_M(w, Id, 1e-7, 10000);
 
   danot_(no0);
+
+  return A0;
 }
 
 
@@ -554,7 +556,7 @@ int main(int argc, char *argv[])
 
     danot_(no_tps);
 
-    GoFix(M, A0, no_tps-1);
+    A0 = GoFix(M, no_tps-1);
 
     MNF = MapNorm(M, no_tps-1);
 
