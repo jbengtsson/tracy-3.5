@@ -82,6 +82,9 @@ Contributions
     .. _`SLAC-PUB-8732 (2001).`: http://www-public.slac.stanford.edu/sciDoc/docMeta.aspx?slacPubNumber=SLAC-PUB-8732
 
 
+However, unfortunately, an insufficient effort was made to understand how the linear optics is obtained from the symplectic integrater by utilising Power Series Algebra (TPSA) for a self-consistent approach – a major shortcut – i.e., the resulting model/code is not self-consistent.
+
+
 Requirements
 ------------
 
