@@ -560,7 +560,11 @@ int main(int argc, char *argv[])
 
     MNF = MapNorm(M, no_tps-1);
 
-    cout << "\nA0-MNF.A0:\n" << A0-MNF.A0 << "\n";
+    // cout << "\nA0-MNF.A0:\n" << A0-MNF.A0 << "\n";
+
+    cout << "\nA0:\n";
+    prt_lin_map(3, A0);
+    cout << "\nA0:\n" << A0;
 
     assert(false);
 

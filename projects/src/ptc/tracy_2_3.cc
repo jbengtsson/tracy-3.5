@@ -6,14 +6,11 @@ int  no_tps   = NO,
      ndpt_tps = 5;
 
 
-const int n_alphac = 3;
-
-
 void get_alphac(double alphac[])
 {
   int i;
 
-  for (i = 0; i < n_alphac; i++)
+  for (i = 0; i < NO; i++)
     alphac[i] = h_ijklm(map[ct_], 0, 0, 0, 0, i+1)/Cell[globval.Cell_nLoc].S;
 }
 
@@ -28,14 +25,14 @@ void prt_alphac(double alphac[])
         << std::setw(10) << alphac[1] << "*delta + "
         << std::setw(10) << alphac[2] << "*delta^2" << std::endl;
 
-  if (n_alphac >= 2) {
+  if (NO >= 3) {
     std::cout << std::endl;
     std::cout << std::fixed << std::setprecision(2)
 	 << "Fixed points to O(3): " << 0
 	 << ", " << -1e2*alphac[0]/alphac[1] <<"%" << std::endl;
   }
 
-  if (n_alphac >= 3) {
+  if (NO >= 4) {
     po2 = alphac[1]/(2.0*alphac[2]); q = alphac[0]/alphac[2];
     pm = sqrt(sqr(po2)-q);
     std::cout << std::endl;
@@ -55,7 +52,7 @@ double H_long(const double phi, const double delta,
   double H;
 
   H = V_rf/(globval.Energy*1e9)*(cos(phi+phi0)+phi*sin(phi0));
-  for (i = 2; i <= n_alphac+1; i++)
+  for (i = 2; i <= NO+1; i++)
     H += 2.0*M_PI*h_rf*alphac[i-2]*pow(delta, (double)i)/i;
   return H;
 }
@@ -65,7 +62,7 @@ void prt_H_long(const int n, const double phi_max, const double delta_max,
 		const string &cav_name, const double U0, const bool neg_alphac)
 {
   int            loc, i, j, h_rf;
-  double         V_rf, alphac[n_alphac], phi, delta, H, delta_rf, phi0;
+  double         V_rf, alphac[NO], phi, delta, H, delta_rf, phi0;
   std::ofstream  os;
 
   os.open("H_long.dat", std::ios::out);
@@ -113,7 +110,7 @@ void prt_H_long(const int n, const double phi_max, const double delta_max,
 
 void prt_alphac()
 {
-  double alphac[n_alphac];
+  double alphac[NO];
 
   get_alphac(alphac);
   cout << endl << scientific << setprecision(3)
@@ -178,6 +175,8 @@ int main(int argc, char *argv[])
   danot_(no_tps-1);
   globval.Cavity_on = true; globval.radiation = true;
   get_map(false);
-  prt_H_long(10, 180e0, 10e-2, "cav", -544.7e3, false);
+  // prt_H_long(10, 180e0, 10e-2, "cav", -544.7e3, false);
+  prt_H_long(10, 180e0, 15e-2, "cav", -45.4e3, true);
+  // prt_H_long(10, 180e0, 20e-2, "cav", -22.4e3, false);
   prt_alphac();
 }
