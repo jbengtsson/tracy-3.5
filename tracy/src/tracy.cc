@@ -155,9 +155,9 @@ template void Cav_Focus
 template void Cav_Focus
 (const double, const tps, const bool, ss_vect<tps> &);
 
-template void Cav_Pass(CellType &, ss_vect<double> &);
+template void Cav_Pass(const CellType &, ss_vect<double> &);
 
-template void Cav_Pass(CellType &, ss_vect<tps> &);
+template void Cav_Pass(const CellType &, ss_vect<tps> &);
 
 template void Wiggler_pass_EF(CellType &Cell, ss_vect<double> &x);
 

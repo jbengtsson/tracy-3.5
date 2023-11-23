@@ -5,66 +5,65 @@
 
 typedef struct globvalrec {
   bool
-    Cavity_on,      // if true, cavity turned on
-    radiation,      // if true, radiation turned on
+    Cavity_on,      // If true, cavity turned on.
+    radiation,      // If true, radiation turned on.
     emittance,
-    quad_fringe,    // quadrupole hard-edge fringe field.
+    quad_fringe,    // Quadrupole hard-edge fringe field.
     H_exact,        // "Small Ring" Hamiltonian.
     Cart_Bend,
-    dip_edge_fudge, // Dipole Edge fudge.
-    pathlength,     // Absolute Path Length.
+    dip_edge_fudge, // Dipole edge fudge.
+    pathlength,     // Absolute path length.
     stable,
     Aperture_on,
     EPU,
-    mat_meth;       // Matrix method.
-  bool
-    IBS;            // Intrabeam Scattering.
+    mat_meth,       // Matrix method.
+    IBS,            // Intrabeam scattering.
+    rad_D;          // Compute radiation diffusion matrix.
   long
-    Cell_nLoc,      // Number of Elements.
-    Elem_nFam,      // Number of Families.
-    CODimax;        // closed Orbit Finder: max number of iterations,
+    Cell_nLoc,      // Number of elements.
+    Elem_nFam,      // Number of families.
+    CODimax;        // Closed orbit finder: max number of iterations.
   int
-    bpm,            // BPM Number.
-    hcorr,          // Corrector: Horizontal number,
-    vcorr,          //            Vertical number.
+    bpm,            // BPM number.
+    hcorr, vcorr,   // Corrector: horizontal number, vertical number.
     qt,             // Vertical corrector number.
-    gs,             // Girder: start marker,
-    ge,             //         end marker.
-    RingType;       // 1 if a ring (0 if transfer line).
+    gs, ge,         // Girder: [start, end] marker.
+    RingType;       // Ring - 1, transfer line - 0.
   double
-    dPcommon,       // dp for numerical differentiation.
-    dPparticle,     // Energy deviation.
+    dPcommon,       // Dp for numerical differentiation.
+    dPparticle,     // Momentum deviation.
     delta_RF,       // RF Acceptance.
-    TotalTune[3],   // Transverse Tunes.
-    Omega,          // Synchrotron Frequency.
-    U0,             // Energy Loss per turn [keV].
-    Alphac,         // Linear Momentum Compaction.
-    Energy,         // Beam Energy.
+    TotalTune[3],   // Tunes.
+    Omega,          // Synchrotron frequency.
+    U0,             // Energy loss per turn [keV].
+    Alphac,         // Linear momentum compaction.
+    Energy,         // Beam energy.
     CODeps,         // Precision for fixed point finder.
-    dE,             // Energy Loss.
-    alpha_rad[DOF], // Damping Coeffs.
-    D_rad[DOF],     // Diffusion Coeffs (Floquet Space).
-    J[DOF],         // Partition Numbers.
-    tau[DOF],       // Damping Times.
-    eps[DOF],       // Eigenemittances.
-    epsp[DOF],      // Trans. & Long. projected Emittances.
-    alpha_z,        // Long. alpha and beta.
+    dE,             // Energy loss.
+    alpha_rad[DOF], // Damping coeffs.
+    D_rad[DOF],     // Diffusion coeffs, Floquet Space.
+    J[DOF],         // Partition numbers.
+    tau[DOF],       // Damping times.
+    eps[DOF],       // Eigen emittances.
+    epsp[DOF],      // Projected emittances.
+    alpha_z,        // Longitudinal alpha and beta.
     beta_z,
     beta0,          // Relativistic factors.
     gamma0,
-    Qb,             // Bunch Charge.
-    D_IBS[DOF];     // Diffusion Matrix (Floquet Ipace).
+    Qb,             // Bunch charge.
+    D_IBS[DOF];     // IBS diffusion matrix, Floquet space.
   Vector2
-    Chrom;          // Linear Chromaticities.
+    Chrom;          // Linear chromaticity.
   psVector
-    CODvect,        // Closed Orbit.
-    wr, wi;         // Eigenvalues: Real and Imaginary part.
+    CODvect,        // Closed orbit.
+    wr, wi;         // Eigenvalues: [real, imaginary].
   Matrix
-    OneTurnMat,     // Linear Poincare Map.
+    OneTurnMat,     // Linear Poincare map.
     Ascr,
     Ascrinv,
-    Vr,             // Eigenvectors: Real part, 
-    Vi;             //               Imaginary part.
+    Vr, Vi;         // Eigenvectors: [real, imaginary].
+  ss_vect<tps>
+    Diff_mat;       // Diffusion matrix, phase-space.
 } globvalrec;
 
 
@@ -73,42 +72,40 @@ struct DriftType { };
 
 struct MpoleType {
   int
-    Pmethod,          // Integration Method.
+    Pmethod,          // Integration method.
     PN;               // Number of integration steps.
   // Displacement Errors.
   Vector2
-    PdSsys,           // systematic [m].
-    PdSrms,           // rms [m].
-    PdSrnd;           // random number.
+    PdSsys,           // Systematic [m].
+    PdSrms,           // RMS [m].
+    PdSrnd;           // Random number.
   // Roll angle.
   double
-    PdTpar,           // design [deg].
-    PdTsys,           // systematic [deg].
-    PdTrms,           // rms [deg].
-    PdTrnd;           // random number.
+    PdTpar,           // Design [deg].
+    PdTsys,           // Systematic [deg].
+    PdTrms,           // RMS [deg].
+    PdTrnd;           // Random number.
   // Multipole strengths.
   mpolArray
-    PBpar,            // design.
-    PBsys,            // systematic.
-    PBrms,            // rms.
-    PBrnd,            // random number.
-    PB;               // total.
+    PBpar,            // Design.
+    PBsys,            // Systematic.
+    PBrms,            // RMS.
+    PBrnd,            // Random number.
+    PB;               // Total.
   int
-    Porder,           // The highest order in PB.
-    n_design;         // multipole order (design).
+    Porder,           // Max multipole order.
+    n_design;         // Multipole order, design.
   pthicktype
     Pthick;
   // Bending Angles.
   double
-    PTx1,             // horizontal entrance angle [deg].
-    PTx2,             // horizontal exit angle [deg].
-    Pgap,             // total magnet gap [m].
+    PTx1,             // Horizontal entrance angle [deg].
+    PTx2,             // Horizontal exit angle [deg].
+    Pgap,             // Total magnet gap [m].
     Pirho,            // 1/rho [1/m].
-    Pc0,              // corrections for roll error of bend.
-    Pc1,
-    Ps1;
+    Pc0, Pc1, Ps1;    // Bend roll error corrections.
   ss_vect<tps>
-    M_lin;            // Linear Map for Element.
+    M_lin;            // Linear map.
 };
 
 const int n_harm_max = 10;
@@ -130,18 +127,18 @@ struct WigglerType {
     PdTrnd,              // Random number.
     Lambda;              // lambda.
   int
-    n_harm,              // No of harmonics.
+    n_harm,              // Number of harmonics.
     harm[n_harm_max];    // Harmonic number.
   double
     BoBrhoV[n_harm_max], // B/Brho vertical.
     BoBrhoH[n_harm_max], // B/Brho horizontal.
-    kxV[n_harm_max],     // kx.
-    kxH[n_harm_max],     // kx.
-    phi[n_harm_max];     // phi.
+    kxV[n_harm_max],     // Kx.
+    kxH[n_harm_max],     // Kx.
+    phi[n_harm_max];     // Phi.
   mpolArray
     PBW;
   int
-    Porder;              // The highest order in PB.
+    Porder;              // Max multipole order.
 };
 
 
@@ -182,17 +179,17 @@ struct InsertionType {
     nx,                      // Horizontal point number.
     nz;                      // Vertical point number.
   double
-    scaling;                 // static scaling factor as in BETA ESRF.
+    scaling;                 // static scaling factor as in BETA, ESRF.
   bool
-    linear,                  // if true linear interpolation else spline.
-    firstorder,              // true if first order kick map loaded.
-    secondorder;             // true if second order kick map loaded.
+    linear,                  // If true linear interpolation else spline.
+    firstorder,              // True if first order kick map loaded.
+    secondorder;             // True if second order kick map loaded.
   double
     phi,                     // Bend angle.
-    tabx[IDXMAX],            // spacing in H-plane.
-    tabz[IDZMAX],            // spacing in V-plane.
+    tabx[IDXMAX],            // Spacing in H-plane.
+    tabz[IDZMAX],            // Spacing in V-plane.
     thetax[IDZMAX][IDXMAX],
-    thetax1[IDZMAX][IDXMAX], // 1 for first order.
+    thetax1[IDZMAX][IDXMAX], // First order - 1.
     thetaz[IDZMAX][IDXMAX],
     thetaz1[IDZMAX][IDXMAX];
   bool

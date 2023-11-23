@@ -5,7 +5,7 @@ bin_PROGRAMS = optics dynap leac dnu touschek ibs vlad tbt \
                carbon_map dls 6BA track_fft m4 m4_mod dls_ii track opt_des_1 \
 	       opt_des_2 id_model sigma tech_note dx_dj tune_scan sxt \
                chk_drv_terms fit_nu opt_des_bessy_iii for_pierre tst_it \
-               ctrl_cod wakefield compute_maps lin_opt
+               ctrl_cod wakefield compute_maps lin_opt tst_D
 
 #sc_f_LINK    = gfortran -g -O0 -Wall -fbounds-check -o sc_f
 
@@ -50,6 +50,7 @@ ctrl_cod_SOURCES          = ctrl_cod.cc
 wakefield_SOURCES         = wakefield.cc
 compute_maps_SOURCES      = compute_maps.cc
 lin_opt_SOURCES           = lin_opt.cc
+tst_D_SOURCES             = tst_D.cc
 
 GSL_INCLUDE = /usr/local/Cellar/gsl/2.7.1
 # GSL_INCLUDE = /net/home/lli/OPAL/OPAL-2.0.1

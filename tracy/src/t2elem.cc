@@ -404,7 +404,10 @@ void radiate
 	 << "\nradiate ->:\n" << setw(13) << ps << "\n";
 
   // Large ring: x' and y' unchanged.
-  p_s0 = get_p_s(ps); cs = ps; cs[px_] /= p_s0; cs[py_] /= p_s0;
+  p_s0 = get_p_s(ps);
+  cs = ps;
+  cs[px_] /= p_s0;
+  cs[py_] /= p_s0;
 
   // H = -p_s => ds = H*L.
   ds = (1e0+cs[x_]*h_ref+(sqr(cs[px_])+sqr(cs[py_]))/2e0)*L;
@@ -467,13 +470,30 @@ void Drift(const double L, ss_vect<T> &ps)
 
 
 template<typename T>
-void Drift_Pass(CellType &Cell, ss_vect<T> &x)
+void drift_D(const double dL, ss_vect<T> &ps, ss_vect<tps> &D)
 {
-  Drift(Cell.Elem.PL, x);
+  ss_vect<tps> M;
 
-  if (globval.emittance && !globval.Cavity_on)
+  M.identity();
+  M += is_double<ss_vect<T> >::cst(ps);
+  Drift(dL, M);
+  M -= is_double<ss_vect<T> >::cst(ps);
+  D = M*D*tp_map(3, M);
+}
+
+
+template<typename T>
+void Drift_Pass(CellType &Cell, ss_vect<T> &ps)
+{
+  Drift(Cell.Elem.PL, ps);
+
+  if (globval.emittance && !globval.Cavity_on) {
     // Needs A^-1.
-    Cell.curly_dH_x = is_tps<tps>::get_curly_H(x);
+    Cell.curly_dH_x = is_tps<tps>::get_curly_H(ps);
+  }
+
+  if (globval.rad_D)
+    Drift(Cell.Elem.PL, globval.Diff_mat);
 }
 
 
@@ -508,6 +528,46 @@ static double get_psi(double irho, double phi, double gap)
 
 
 template<typename T>
+void thin_kick_D
+(CellType &Cell, const ss_vect<T> ps, const double L, const double h_ref,
+ const T B[])
+{
+  const double lambda_bar = h_bar*c0/m_e;
+
+  double       d;
+  T            p_s0, B2_perp, B2_par;
+  ss_vect<T>   cs;
+  ss_vect<tps> Id, B_map, D;
+
+  Id.identity();
+
+  p_s0 = get_p_s(ps);
+  cs = ps;
+  cs[px_] /= p_s0;
+  cs[py_] /= p_s0;
+
+  get_B2(h_ref, B, cs, B2_perp, B2_par);
+
+  d =
+    is_double<T>::cst
+    (C_u*r_e*lambda_bar*pow(1e9*globval.Energy/m_e, 5)
+     *L*pow(B2_perp, 3e0/2e0)
+     *sqr(sqr(1+ps[delta_]))
+     *(1+ps[x_]*h_ref+(sqr(ps[px_])+sqr(ps[py_]))/(2e0*sqr(p_s0))));
+
+  B_map.identity();
+  B_map[px_] += ps[px_]/p_s0*Id[delta_];
+  B_map[py_] += ps[py_]/p_s0*Id[delta_];
+  B_map[delta_] += -ps[px_]/p_s0*Id[x_] - ps[py_]/p_s0*Id[y_];
+
+  D.zero();
+  D[delta_] +=
+    d*is_double<T>::cst(1e0+sqr(ps[px_]/p_s0)+sqr(ps[py_]/p_s0))*Id[delta_];
+  globval.Diff_mat += B_map*D*Inv(B_map);
+}
+
+
+template<typename T>
 void thin_kick
 (CellType &Cell, const int Order, const double MB[], const double L,
  const double h_bend, const double h_ref, ss_vect<T> &ps)
@@ -531,22 +591,27 @@ void thin_kick
       ByoBrho  = ByoBrho1;
     }
 
-  if (prt_debug)
-    cout << scientific << setprecision(5)
-	 << "\nthin_kick ->:\n" << "  h_bend = " << h_bend << " h_ref = "
-	 << h_ref << "\n  BxoBrho = " << setw(13) << BxoBrho << " ByoBrho = "
-	 << setw(13) << ByoBrho << "\n  ps = " << setw(13) << ps << "\n";
+    if (prt_debug)
+      cout << scientific << setprecision(5)
+	   << "\nthin_kick ->:\n" << "  h_bend = " << h_bend << " h_ref = "
+	   << h_ref << "\n  BxoBrho = " << setw(13) << BxoBrho << " ByoBrho = "
+	   << setw(13) << ByoBrho << "\n  ps = " << setw(13) << ps << "\n";
 
-  if (globval.radiation || globval.emittance) {
-      B[X_] = BxoBrho; B[Y_] = ByoBrho + h_bend; B[Z_] = 0e0;
+    if (globval.radiation || globval.emittance || globval.rad_D) {
+      B[X_] = BxoBrho;
+      B[Y_] = ByoBrho + h_bend;
+      B[Z_] = 0e0;
       radiate(Cell, ps, L, h_ref, B);
+
+      if (globval.rad_D)
+	thin_kick_D(Cell, ps, L, h_ref, B);
     }
 
     if (h_ref != 0e0) {
       // Sector bend.
       if (true) {
 	ps[px_] -= L*(ByoBrho+(h_bend-h_ref)/2e0+h_ref*h_bend*ps0[x_]
-		     -h_ref*ps0[delta_]);
+		      -h_ref*ps0[delta_]);
 	ps[ct_] += L*h_ref*ps0[x_];
       } else {
 	// The Hamiltonian is split into: H_d + H_k; with [H_d, H_d] = 0.
@@ -573,8 +638,8 @@ void thin_kick
 
 
 template<typename T>
-void EdgeFocus(const double irho, const double phi, const double gap,
-		      ss_vect<T> &ps)
+void EdgeFocus
+(const double irho, const double phi, const double gap, ss_vect<T> &ps)
 {
   ps[px_] += irho*tan(dtor(phi))*ps[x_];
   if (!globval.dip_edge_fudge) {
@@ -719,6 +784,19 @@ void get_dI_eta_5(CellType &Cell)
 }
 
 
+void EdgeFocus_D
+(const double irho, const double phi, const double gap, ss_vect<tps> &D)
+{
+  Matrix D_mat;
+
+  EdgeFocus(irho, phi, gap, D);
+  getlinmat(6, D, D_mat);
+  TpMat(6, D_mat);
+  D = putlinmat(6, D_mat);
+  EdgeFocus(irho, phi, gap, D);
+}
+
+
 template<typename T>
 void Mpole_Pass(CellType &Cell, ss_vect<T> &ps)
 {
@@ -753,7 +831,12 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &ps)
       if (globval.quad_fringe && (M->PB[Quad+HOMmax] != 0e0))
 	quad_fringe(M->PB[Quad+HOMmax], ps);
       if (!globval.Cart_Bend) {
-	if (M->Pirho != 0e0) EdgeFocus(M->Pirho, M->PTx1, M->Pgap, ps);
+	if (M->Pirho != 0e0) {
+	  EdgeFocus(M->Pirho, M->PTx1, M->Pgap, ps);
+	
+	  if (globval.rad_D)
+	    EdgeFocus_D(M->Pirho, M->PTx1, M->Pgap, globval.Diff_mat);
+	}
       } else {
 	p_rot(M->PTx1, ps); bend_fringe(M->Pirho, ps);
       }
@@ -781,8 +864,12 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &ps)
 	  }
 
 	  Drift(dL1, ps);
+	  if (globval.rad_D)
+	    drift_D(dL1, ps, globval.Diff_mat);
 	  thin_kick(Cell, M->Porder, M->PB, dkL1, M->Pirho, h_ref, ps);
 	  Drift(dL2, ps);
+	  if (globval.rad_D)
+	    drift_D(dL2, ps, globval.Diff_mat);
 	  thin_kick(Cell, M->Porder, M->PB, dkL2, M->Pirho, h_ref, ps);
 
 	  if (globval.emittance) {
@@ -792,8 +879,12 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &ps)
 	  }
 
 	  Drift(dL2, ps);
+	  if (globval.rad_D)
+	    drift_D(dL2, ps, globval.Diff_mat);
 	  thin_kick(Cell, M->Porder, M->PB, dkL1, M->Pirho, h_ref, ps);
 	  Drift(dL1, ps);
+	  if (globval.rad_D)
+	    drift_D(dL1, ps, globval.Diff_mat);
 
 	  if (globval.emittance) {
 	    // Needs A^-1.
@@ -818,7 +909,12 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &ps)
 
       // Fringe fields.
       if (!globval.Cart_Bend) {
-	if (M->Pirho != 0e0) EdgeFocus(M->Pirho, M->PTx2, M->Pgap, ps);
+	if (M->Pirho != 0e0) {
+	  EdgeFocus(M->Pirho, M->PTx2, M->Pgap, ps);
+	
+	  if (globval.rad_D)
+	    EdgeFocus_D(M->Pirho, M->PTx2, M->Pgap, globval.Diff_mat);
+	}
       } else {
 	bend_fringe(-M->Pirho, ps); p_rot(M->PTx2, ps);
       }
@@ -866,14 +962,14 @@ void Cav_Focus(const double L, const T delta, const bool entrance,
 #if 1
 
 template<typename T>
-void Cav_Pass(CellType &Cell, ss_vect<T> &ps)
+void Cav_propagate(const CellType &Cell, ss_vect<T> &ps)
 {
-  double     L;
-  elemtype   *elemp;
-  CavityType *C;
-  T          delta;
+  const elemtype*   elemp = &Cell.Elem;
+  const CavityType* C     = elemp->C;
+  const double      L     = elemp->PL;
 
-  elemp = &Cell.Elem; C = elemp->C; L = elemp->PL;
+  T delta;
+
   Drift(L/2e0, ps);
   if (globval.Cavity_on && C->V_RF != 0e0) {
     delta = -C->V_RF/(globval.Energy*1e9)
@@ -885,6 +981,29 @@ void Cav_Pass(CellType &Cell, ss_vect<T> &ps)
     if (globval.pathlength) ps[ct_] -= C->harm_num/C->f_RF*c0;
   }
   Drift(L/2e0, ps);
+}
+
+
+template<typename T>
+void cav_D(const CellType &Cell, ss_vect<T> &ps, ss_vect<tps> &D)
+{
+  ss_vect<tps> M;
+
+  M.identity();
+  M += is_double<ss_vect<T> >::cst(ps);
+  Cav_propagate(Cell, M);
+  M -= is_double<ss_vect<T> >::cst(ps);
+  D = M*D*tp_map(3, M);
+}
+
+
+template<typename T>
+void Cav_Pass(const CellType &Cell, ss_vect<T> &ps)
+{
+  Cav_propagate(Cell, ps);
+
+  if (globval.rad_D)
+    cav_D(Cell, ps, globval.Diff_mat);
 }
 
 #else

@@ -43,6 +43,8 @@ ss_vect<tps> get_S(const int n_DOF);
 
 ss_vect<tps> tp_S(const int n_DOF, const ss_vect<tps> &A);
 
+ss_vect<tps> tp_map(const int n_dof, const ss_vect<tps> &A);
+
 void get_dnu(const int n, const ss_vect<tps> &A, double dnu[]);
 
 ss_vect<tps> get_A_CS(const int n, const ss_vect<tps> &A, double dnu[]);

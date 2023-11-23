@@ -72,7 +72,7 @@ template<typename T>
 void Marker_Pass(CellType &Cell, ss_vect<T> &X);
 
 template<typename T>
-void Cav_Pass(CellType &Cell, ss_vect<T> &X);
+void Cav_Pass(const CellType &Cell, ss_vect<T> &X);
 
 template<typename T>
 void Wiggler_pass_EF(const elemtype &elem, ss_vect<T> &x);

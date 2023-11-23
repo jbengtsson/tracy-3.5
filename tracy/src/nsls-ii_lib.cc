@@ -225,6 +225,7 @@ ss_vect<tps> get_S(const int n_DOF)
 
 ss_vect<tps> tp_S(const int n_DOF, const ss_vect<tps> &A)
 {
+  // Transpose of symplectic map.
   int          j;
   long int     jj[ss_dim];
   ss_vect<tps> S;
@@ -235,6 +236,17 @@ ss_vect<tps> tp_S(const int n_DOF, const ss_vect<tps> &A)
   S = get_S(n_DOF);
 
   return -S*PInv(A, jj)*S;
+}
+
+
+ss_vect<tps> tp_map(const int n_dof, const ss_vect<tps> &A)
+{
+  // Matrix transpose.
+  Matrix A_mat;
+
+  getlinmat(2*n_dof, A, A_mat);
+  TpMat(2*n_dof, A_mat);
+  return putlinmat(2*n_dof, A_mat);
 }
 
 
