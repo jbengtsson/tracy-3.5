@@ -66,6 +66,10 @@ void tst_D(void)
   prt_lin_map(3, D);
 
   printf("\nDiffusion Matrix:\n");
+#if 0
+  for (int k = 0; k < 6; k++)
+    globval.Diff_mat[k] /= 2e0;
+#endif
   prt_lin_map(3, globval.Diff_mat);
 }
 

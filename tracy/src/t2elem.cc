@@ -633,9 +633,9 @@ void thin_kick_D
      *pow(B2_perp, 3e0/2e0)*pow(1+ps[delta_], 4)*ds);
 
   B_map.identity();
-  B_map[px_] += ps[px_]/p_s0*Id[delta_];
-  B_map[py_] += ps[py_]/p_s0*Id[delta_];
-  B_map[delta_] += -ps[px_]/p_s0*Id[x_] - ps[py_]/p_s0*Id[y_];
+  B_map[px_] += cs[px_]*Id[delta_];
+  B_map[py_] += cs[py_]*Id[delta_];
+  B_map[delta_] += -cs[px_]*Id[x_] - cs[py_]*Id[y_];
 
   D.zero();
   D[delta_] += d*Id[delta_];
