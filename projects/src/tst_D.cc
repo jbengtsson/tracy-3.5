@@ -26,18 +26,13 @@ void tst_D(void)
 
   globval.rad_D = globval.Cavity_on = globval.radiation = true;
 
-
   getcod(0e0, lastpos);
   cod = globval.CODvect;
 
   ps.zero();
   ps += cod;
-  for (int k = 0; k <= globval.Cell_nLoc; k++) {
-    Cell_Pass(k, k, ps, lastpos);
-
-    printf("\nD %d %-10s\n", k, Cell[k].Elem.PName);
-    prt_lin_map(3, globval.Diff_mat);
-  }
+  globval.Diff_mat.zero();
+  Cell_Pass(0, globval.Cell_nLoc, ps, lastpos);
 
   cout << scientific << setprecision(3)
        << "\ncod:\n" << setw(11) << cod << "\n";

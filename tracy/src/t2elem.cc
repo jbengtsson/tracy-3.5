@@ -470,14 +470,14 @@ void Drift(const double L, ss_vect<T> &ps)
 
 
 template<typename T>
-void drift_D(const double dL, ss_vect<T> &ps, ss_vect<tps> &D)
+void drift_D(const double dL, const ss_vect<T> &ps, ss_vect<tps> &D)
 {
   ss_vect<tps> M;
 
   M.identity();
   M += is_double<ss_vect<T> >::cst(ps);
   Drift(dL, M);
-  M -= is_double<ss_vect<T> >::cst(ps);
+  M -= M.cst();
   D = M*D*tp_map(3, M);
 }
 
@@ -485,15 +485,15 @@ void drift_D(const double dL, ss_vect<T> &ps, ss_vect<tps> &D)
 template<typename T>
 void Drift_Pass(CellType &Cell, ss_vect<T> &ps)
 {
+  if (globval.rad_D)
+    drift_D(Cell.Elem.PL, ps, globval.Diff_mat);
+
   Drift(Cell.Elem.PL, ps);
 
   if (globval.emittance && !globval.Cavity_on) {
     // Needs A^-1.
     Cell.curly_dH_x = is_tps<tps>::get_curly_H(ps);
   }
-
-  if (globval.rad_D)
-    Drift(Cell.Elem.PL, globval.Diff_mat);
 }
 
 
@@ -528,47 +528,7 @@ static double get_psi(double irho, double phi, double gap)
 
 
 template<typename T>
-void thin_kick_D
-(CellType &Cell, const ss_vect<T> ps, const double L, const double h_ref,
- const T B[])
-{
-  const double lambda_bar = h_bar*c0/m_e;
-
-  double       d;
-  T            p_s0, B2_perp, B2_par;
-  ss_vect<T>   cs;
-  ss_vect<tps> Id, B_map, D;
-
-  Id.identity();
-
-  p_s0 = get_p_s(ps);
-  cs = ps;
-  cs[px_] /= p_s0;
-  cs[py_] /= p_s0;
-
-  get_B2(h_ref, B, cs, B2_perp, B2_par);
-
-  d =
-    is_double<T>::cst
-    (C_u*r_e*lambda_bar*pow(1e9*globval.Energy/m_e, 5)
-     *L*pow(B2_perp, 3e0/2e0)
-     *sqr(sqr(1+ps[delta_]))
-     *(1+ps[x_]*h_ref+(sqr(ps[px_])+sqr(ps[py_]))/(2e0*sqr(p_s0))));
-
-  B_map.identity();
-  B_map[px_] += ps[px_]/p_s0*Id[delta_];
-  B_map[py_] += ps[py_]/p_s0*Id[delta_];
-  B_map[delta_] += -ps[px_]/p_s0*Id[x_] - ps[py_]/p_s0*Id[y_];
-
-  D.zero();
-  D[delta_] +=
-    d*is_double<T>::cst(1e0+sqr(ps[px_]/p_s0)+sqr(ps[py_]/p_s0))*Id[delta_];
-  globval.Diff_mat += B_map*D*Inv(B_map);
-}
-
-
-template<typename T>
-void thin_kick
+void thin_kick_propagate
 (CellType &Cell, const int Order, const double MB[], const double L,
  const double h_bend, const double h_ref, ss_vect<T> &ps)
 {
@@ -602,9 +562,6 @@ void thin_kick
       B[Y_] = ByoBrho + h_bend;
       B[Z_] = 0e0;
       radiate(Cell, ps, L, h_ref, B);
-
-      if (globval.rad_D)
-	thin_kick_D(Cell, ps, L, h_ref, B);
     }
 
     if (h_ref != 0e0) {
@@ -634,6 +591,75 @@ void thin_kick
   if (prt_debug)
     cout << scientific << setprecision(5)
 	 << "\n<- thin_kick:\n  ps = " << setw(13) << ps << "\n";
+}
+
+
+template<typename T>
+void thin_kick_D
+(CellType &Cell, const int Order, const double MB[], const double L,
+ const double h_bend, const double h_ref, const ss_vect<T> ps)
+{
+  const double lambda_bar = h_bar*c0/m_e;
+
+  double       d;
+  T            BxoBrho, ByoBrho, ByoBrho1, B[3], p_s0, ds, B2_perp, B2_par;
+  ss_vect<T>   cs, ps0, p_s1;
+  ss_vect<tps> Id, B_map, D, M;
+  
+  Id.identity();
+
+  ByoBrho = MB[Order+HOMmax]; BxoBrho = MB[HOMmax-Order];
+  for (int j = Order-1; j >= 1; j--) {
+    ByoBrho1 = ps0[x_]*ByoBrho - ps0[y_]*BxoBrho + MB[j+HOMmax];
+    BxoBrho  = ps0[y_]*ByoBrho + ps0[x_]*BxoBrho + MB[HOMmax-j];
+    ByoBrho  = ByoBrho1;
+  }
+
+  B[X_] = BxoBrho;
+  B[Y_] = ByoBrho + h_bend;
+  B[Z_] = 0e0;
+
+  p_s0 = get_p_s(ps);
+  cs = ps;
+  cs[px_] /= p_s0;
+  cs[py_] /= p_s0;
+
+  ds = (1e0+cs[x_]*h_ref+(sqr(cs[px_])+sqr(cs[py_]))/2e0)*L;
+  get_B2(h_ref, B, cs, B2_perp, B2_par);
+
+  d =
+    is_double<T>::cst
+    (C_u*r_e*lambda_bar*pow(1e9*globval.Energy/m_e, 5)
+     *pow(B2_perp, 3e0/2e0)*pow(1+ps[delta_], 4)*ds);
+
+  B_map.identity();
+  B_map[px_] += ps[px_]/p_s0*Id[delta_];
+  B_map[py_] += ps[py_]/p_s0*Id[delta_];
+  B_map[delta_] += -ps[px_]/p_s0*Id[x_] - ps[py_]/p_s0*Id[y_];
+
+  D.zero();
+  D[delta_] += d*Id[delta_];
+  D = B_map*D*tp_map(3, B_map);
+
+  M.identity();
+  M += is_double<ss_vect<T> >::cst(ps);
+  thin_kick_propagate(Cell, Order, MB, L, h_bend, h_ref, M);
+  M -= M.cst();
+
+  globval.Diff_mat = M*globval.Diff_mat*tp_map(3, M);
+  globval.Diff_mat += D;
+}
+
+
+template<typename T>
+void thin_kick
+(CellType &Cell, const int Order, const double MB[], const double L,
+ const double h_bend, const double h_ref, ss_vect<T> &ps)
+{
+  if (globval.rad_D)
+    thin_kick_D(Cell, Order, MB, L, h_bend, h_ref, ps);
+
+  thin_kick_propagate(Cell, Order, MB, L, h_bend, h_ref, ps);
 }
 
 
@@ -783,17 +809,17 @@ void get_dI_eta_5(CellType &Cell)
 
 }
 
-
 void EdgeFocus_D
-(const double irho, const double phi, const double gap, ss_vect<tps> &D)
+(const double irho, const double phi, const double gap, const ss_vect<tps> &ps,
+ ss_vect<tps> &D)
 {
-  Matrix D_mat;
+  ss_vect<tps> M;
 
-  EdgeFocus(irho, phi, gap, D);
-  getlinmat(6, D, D_mat);
-  TpMat(6, D_mat);
-  D = putlinmat(6, D_mat);
-  EdgeFocus(irho, phi, gap, D);
+  M.identity();
+  M += ps.cst();
+  EdgeFocus(irho, phi, gap, M);
+  M -= M.cst();
+  D = M*D*tp_map(3, M);
 }
 
 
@@ -835,7 +861,7 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &ps)
 	  EdgeFocus(M->Pirho, M->PTx1, M->Pgap, ps);
 	
 	  if (globval.rad_D)
-	    EdgeFocus_D(M->Pirho, M->PTx1, M->Pgap, globval.Diff_mat);
+	    EdgeFocus_D(M->Pirho, M->PTx1, M->Pgap, ps, globval.Diff_mat);
 	}
       } else {
 	p_rot(M->PTx1, ps); bend_fringe(M->Pirho, ps);
@@ -913,7 +939,7 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &ps)
 	  EdgeFocus(M->Pirho, M->PTx2, M->Pgap, ps);
 	
 	  if (globval.rad_D)
-	    EdgeFocus_D(M->Pirho, M->PTx2, M->Pgap, globval.Diff_mat);
+	    EdgeFocus_D(M->Pirho, M->PTx2, M->Pgap, ps, globval.Diff_mat);
 	}
       } else {
 	bend_fringe(-M->Pirho, ps); p_rot(M->PTx2, ps);
@@ -985,25 +1011,25 @@ void Cav_propagate(const CellType &Cell, ss_vect<T> &ps)
 
 
 template<typename T>
-void cav_D(const CellType &Cell, ss_vect<T> &ps, ss_vect<tps> &D)
+void cav_D(const CellType &Cell, const ss_vect<T> &ps, ss_vect<tps> &D)
 {
   ss_vect<tps> M;
 
   M.identity();
   M += is_double<ss_vect<T> >::cst(ps);
   Cav_propagate(Cell, M);
-  M -= is_double<ss_vect<T> >::cst(ps);
+  M -= M.cst();
   D = M*D*tp_map(3, M);
 }
 
 
 template<typename T>
-void Cav_Pass(const CellType &Cell, ss_vect<T> &ps)
+inline void Cav_Pass(const CellType &Cell, ss_vect<T> &ps)
 {
-  Cav_propagate(Cell, ps);
-
   if (globval.rad_D)
     cav_D(Cell, ps, globval.Diff_mat);
+
+  Cav_propagate(Cell, ps);
 }
 
 #else
