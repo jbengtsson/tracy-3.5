@@ -32,7 +32,7 @@ void tst_D(void)
   ps.zero();
   ps += cod;
   globval.Diff_mat.zero();
-  Cell_Pass(0, globval.Cell_nLoc, ps, lastpos);
+  Cell_Pass(0, globval.Cell_nLoc-1, ps, lastpos);
 
   cout << scientific << setprecision(3)
        << "\ncod:\n" << setw(11) << cod << "\n";

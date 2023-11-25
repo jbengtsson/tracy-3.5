@@ -18,7 +18,7 @@ T get_p_s(const ss_vect<T> &);
 
 void getelem(long i, CellType *cellrec);
 
-void putelem(long i, CellType *cellrec);
+void putelem(long i, const CellType *cellrec);
 
 
 int GetnKid(const int Fnum1);
@@ -102,8 +102,8 @@ void Solenoid_Pass(CellType &Cell, ss_vect<T> &x);
 
 /* template<typename T> */
 /* void Map_Pass(CellType &Cell, ss_vect<T> &x); */
-void Map_Pass(CellType &Cell, ss_vect<double> &x);
-void Map_Pass(CellType &Cell, ss_vect<tps> &x);
+void Map_Pass(const CellType &Cell, ss_vect<double> &x);
+void Map_Pass(const CellType &Cell, ss_vect<tps> &x);
 
 
 void Mpole_SetPB(int Fnum1, int Knum1, int Order);

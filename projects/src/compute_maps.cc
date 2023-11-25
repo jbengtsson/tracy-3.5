@@ -31,17 +31,6 @@ void prt_map_to_file(const string file_name, const ss_vect<tps> map)
 }
 
 
-ss_vect<tps> compute_transp(const int n_dof, const ss_vect<tps> &A)
-{
-  // Matrix transpose.
-  Matrix A_mat;
-
-  getlinmat(2*n_dof, A, A_mat);
-  TpMat(2*n_dof, A_mat);
-  return putlinmat(2*n_dof, A_mat);
-}
-
-
 double compute_trace(const int n_dof, const ss_vect<tps> &A)
 {
   // Matrix trace.
@@ -254,7 +243,7 @@ ss_vect<tps> compute_D_mat(const ss_vect<tps> &A, const double D[])
   for (int k = 0; k < 2*nd_tps; k++)
     D_diag[k] = D[k/2]*tps(0e0, k+1);
   prt_map("\nDiffusion Matrix - Floquet Space:", D_diag);
-  return A*D_diag*compute_transp(nd_tps, A);
+  return A*D_diag*tp_map(nd_tps, A);
 }
 
 
@@ -302,7 +291,7 @@ ss_vect<tps> compute_M_Chol(const ss_vect<tps> &M_diff)
   free_dmatrix(d1, 1, n, 1, n);
   free_dmatrix(d2, 1, n, 1, n);
 
-  return compute_transp(3, M_Chol_t);
+  return tp_map(3, M_Chol_t);
 }
 
 
@@ -514,9 +503,9 @@ ss_vect<tps> compute_normal_mode_form(const ss_vect<tps> &T)
   }
 
   if (fabs(cs_2phi) < 1e0)
-    D = (m+compute_transp(1, get_S(1))*compute_transp(1, n)*get_S(1));
+    D = (m+tp_map(1, get_S(1))*tp_map(1, n)*get_S(1));
   else
-    D = -(m+compute_transp(1, get_S(1))*compute_transp(1, n)*get_S(1));
+    D = -(m+tp_map(1, get_S(1))*tp_map(1, n)*get_S(1));
   // Supported operators issue.
   D *= 1e0/(Delta*sn_2phi);
   for (int k = y_; k < 2*nd_tps; k++)
@@ -611,7 +600,7 @@ void prt_map(const string &str, const string &cav_name, const ss_vect<tps> &M)
 void compute_M
 (const string &file_name, const string &cav_name, double &phi_RF,
  ss_vect<double> &fixed_point, double &U0, double alpha_rad[],
- ss_vect<tps> &A_rad)
+ ss_vect<tps> &M, ss_vect<tps> &A_rad, ss_vect<tps> &M_rad)
 {
   const int
     loc = Elem_GetPos(ElemIndex(cav_name.c_str()), 1);
@@ -627,9 +616,8 @@ void compute_M
   ss_vect<double>
     eta;
   ss_vect<tps>
-    M_no_rad, M_rad, A_CS_no_rad, A_sb_no_rad, A_CS_rad, A_sb_rad, M_tau,
-    R_no_rad, R_rad,
-    M;
+    M_no_rad, A_CS_no_rad, A_sb_no_rad, A_CS_rad, A_sb_rad, R_no_rad, M_tau,
+    R_rad;
   CavityType*
     C = Cell[loc].Elem.C;
 
@@ -753,17 +741,6 @@ void prt_summary
 }
 
 
-ss_vect<tps> tp_map(const int n_dof, const ss_vect<tps> &A)
-{
-  // Compute the transpose of a matrix.
-  Matrix A_mat;
-
-  getlinmat(2*n_dof, A, A_mat);
-  TpMat(2*n_dof, A_mat);
-  return putlinmat(2*n_dof, A_mat);
-}
-
-
 void compute_maps(const double Circ, const string &cav_name)
 {
   double
@@ -771,11 +748,14 @@ void compute_maps(const double Circ, const string &cav_name)
   ss_vect<double>
     fixed_point;
   ss_vect<tps>
-    M, A, D_mat, M_Chol;
+    Id, M, A, M_rad, D_mat, M_Chol, Sigma;
 
   const string file_name = "compute_maps";
 
-  compute_M(file_name, cav_name, phi_RF, fixed_point, U0, alpha_rad, A);
+  Id.identity();
+
+  compute_M
+    (file_name, cav_name, phi_RF, fixed_point, U0, alpha_rad, M, A, M_rad);
 
   compute_D(fixed_point, A, D);
   compute_tau(Circ, alpha_rad, tau);
@@ -789,7 +769,18 @@ void compute_maps(const double Circ, const string &cav_name)
   prt_map("\nCholesky Decomposition Transpose:", tp_map(3, M_Chol));
   prt_map(file_name+"_M_Chol.dat", M_Chol);
 
-  prt_summary(fixed_point, U0, phi_RF, tau,  D,  eps, sigma_s, sigma_delta);
+  prt_summary(fixed_point, U0, phi_RF, tau, D, eps, sigma_s, sigma_delta);
+
+  // Validation.
+  prt_map("\nM:\n", M);
+  Sigma.zero();
+  for (int k = 0; k < 6; k++)
+    Sigma[k] = eps[k/2]*Id[k];
+  prt_map("\nSigma:\n", Sigma);
+  Sigma = A*Sigma*tp_map(3, A);
+  prt_map("\nSigma:\n", Sigma);
+  prt_map("\nValidation:\n",
+	  ((M-M.cst())*Sigma*tp_map(3, M-M.cst())+D_mat)-Sigma);
 }
 
 

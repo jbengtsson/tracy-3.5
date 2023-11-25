@@ -557,7 +557,7 @@ void thin_kick_propagate
 	   << h_ref << "\n  BxoBrho = " << setw(13) << BxoBrho << " ByoBrho = "
 	   << setw(13) << ByoBrho << "\n  ps = " << setw(13) << ps << "\n";
 
-    if (globval.radiation || globval.emittance || globval.rad_D) {
+    if (globval.radiation || globval.emittance) {
       B[X_] = BxoBrho;
       B[Y_] = ByoBrho + h_bend;
       B[Z_] = 0e0;
@@ -858,10 +858,10 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &ps)
 	quad_fringe(M->PB[Quad+HOMmax], ps);
       if (!globval.Cart_Bend) {
 	if (M->Pirho != 0e0) {
-	  EdgeFocus(M->Pirho, M->PTx1, M->Pgap, ps);
-	
 	  if (globval.rad_D)
 	    EdgeFocus_D(M->Pirho, M->PTx1, M->Pgap, ps, globval.Diff_mat);
+
+	  EdgeFocus(M->Pirho, M->PTx1, M->Pgap, ps);
 	}
       } else {
 	p_rot(M->PTx1, ps); bend_fringe(M->Pirho, ps);
@@ -889,13 +889,13 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &ps)
 	    Cell.dI[4] += is_tps<tps>::get_dI_eta(ps);
 	  }
 
-	  Drift(dL1, ps);
 	  if (globval.rad_D)
 	    drift_D(dL1, ps, globval.Diff_mat);
+	  Drift(dL1, ps);
 	  thin_kick(Cell, M->Porder, M->PB, dkL1, M->Pirho, h_ref, ps);
-	  Drift(dL2, ps);
 	  if (globval.rad_D)
 	    drift_D(dL2, ps, globval.Diff_mat);
+	  Drift(dL2, ps);
 	  thin_kick(Cell, M->Porder, M->PB, dkL2, M->Pirho, h_ref, ps);
 
 	  if (globval.emittance) {
@@ -904,13 +904,13 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &ps)
 	    Cell.dI[4] += 4e0*is_tps<tps>::get_dI_eta(ps);
 	  }
 
-	  Drift(dL2, ps);
 	  if (globval.rad_D)
 	    drift_D(dL2, ps, globval.Diff_mat);
+	  Drift(dL2, ps);
 	  thin_kick(Cell, M->Porder, M->PB, dkL1, M->Pirho, h_ref, ps);
-	  Drift(dL1, ps);
 	  if (globval.rad_D)
 	    drift_D(dL1, ps, globval.Diff_mat);
+	  Drift(dL1, ps);
 
 	  if (globval.emittance) {
 	    // Needs A^-1.
@@ -936,10 +936,10 @@ void Mpole_Pass(CellType &Cell, ss_vect<T> &ps)
       // Fringe fields.
       if (!globval.Cart_Bend) {
 	if (M->Pirho != 0e0) {
-	  EdgeFocus(M->Pirho, M->PTx2, M->Pgap, ps);
-	
 	  if (globval.rad_D)
 	    EdgeFocus_D(M->Pirho, M->PTx2, M->Pgap, ps, globval.Diff_mat);
+
+	  EdgeFocus(M->Pirho, M->PTx2, M->Pgap, ps);
 	}
       } else {
 	bend_fringe(-M->Pirho, ps); p_rot(M->PTx2, ps);
@@ -1035,7 +1035,7 @@ inline void Cav_Pass(const CellType &Cell, ss_vect<T> &ps)
 #else
 
 template<typename T>
-void Cav_Pass1(CellType &Cell, ss_vect<T> &ps)
+void Cav_Pass1(const CellType &Cell, ss_vect<T> &ps)
 {
   /* J. Rosenzweig and L. Serafini "Transverse Particle Motion in
      Radio-Frequency Linear Accelerators" Phys. Rev. E 49(2),
@@ -1081,7 +1081,7 @@ void Cav_Pass1(CellType &Cell, ss_vect<T> &ps)
 
 
 template<typename T>
-void Cav_Pass(CellType &Cell, ss_vect<T> &ps)
+void Cav_Pass(const CellType &Cell, ss_vect<T> &ps)
 {
   /* J. Rosenzweig and L. Serafini "Transverse Particle Motion in
      Radio-Frequency Linear Accelerators" Phys. Rev. E 49(2),
@@ -2572,17 +2572,18 @@ void Solenoid_Pass(CellType &Cell, ss_vect<T> &ps)
 // template<typename T>
 // void Map_Pass(CellType &Cell, ss_vect<T> &ps) { ps = Cell.Elem.Map->M*ps; }
 
-void Map_Pass(CellType &Cell, ss_vect<double> &ps)
+void Map_Pass(const CellType &Cell, ss_vect<double> &ps)
 {
   ps = (Cell.Elem.Map->M*ps).cst();
 }
 
-void Map_Pass(CellType &Cell, ss_vect<tps> &ps) { ps = Cell.Elem.Map->M*ps; }
+void Map_Pass(const CellType &Cell, ss_vect<tps> &ps)
+{ ps = Cell.Elem.Map->M*ps; }
 
 
 void getelem(long i, CellType *cellrec) { *cellrec = Cell[i]; }
 
-void putelem(long i, CellType *cellrec) { Cell[i] = *cellrec; }
+void putelem(long i, const CellType *cellrec) { Cell[i] = *cellrec; }
 
 
 int GetnKid(const int Fnum1) { return (ElemFam[Fnum1-1].nKid); }

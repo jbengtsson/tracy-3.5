@@ -133,17 +133,6 @@ double det_map(const int n_dof, const ss_vect<tps> &A)
 }
 
 
-ss_vect<tps> tp_map(const int n_dof, const ss_vect<tps> &A)
-{
-  // Matrix transpose.
-  Matrix A_mat;
-
-  getlinmat(2*n_dof, A, A_mat);
-  TpMat(2*n_dof, A_mat);
-  return putlinmat(2*n_dof, A_mat);
-}
-
-
 void PoincareMapType::set_params(const int n_dof, const double C)
 {
   this->n_dof = n_dof;
