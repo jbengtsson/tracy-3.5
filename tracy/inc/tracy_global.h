@@ -105,7 +105,8 @@ struct MpoleType {
     Pirho,            // 1/rho [1/m].
     Pc0, Pc1, Ps1;    // Bend roll error corrections.
   ss_vect<tps>
-    M_lin;            // Linear map.
+    M_lin,            // Linear map.
+    dD_mat;           // Diffusion matrix increment, phase-space.
 };
 
 const int n_harm_max = 10;

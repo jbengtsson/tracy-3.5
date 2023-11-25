@@ -597,14 +597,14 @@ void thin_kick_propagate
 template<typename T>
 void thin_kick_D
 (CellType &Cell, const int Order, const double MB[], const double L,
- const double h_bend, const double h_ref, const ss_vect<T> ps)
+ const double h_bend, const double h_ref, const ss_vect<T> ps, ss_vect<tps> &D)
 {
   const double lambda_bar = h_bar*c0/m_e;
 
   double       d;
   T            BxoBrho, ByoBrho, ByoBrho1, B[3], p_s0, ds, B2_perp, B2_par;
   ss_vect<T>   cs, ps0, p_s1;
-  ss_vect<tps> Id, B_map, D, M;
+  ss_vect<tps> Id, B_map;
   
   Id.identity();
 
@@ -640,14 +640,6 @@ void thin_kick_D
   D.zero();
   D[delta_] += d*Id[delta_];
   D = B_map*D*tp_map(3, B_map);
-
-  M.identity();
-  M += is_double<ss_vect<T> >::cst(ps);
-  thin_kick_propagate(Cell, Order, MB, L, h_bend, h_ref, M);
-  M -= M.cst();
-
-  globval.Diff_mat = M*globval.Diff_mat*tp_map(3, M);
-  globval.Diff_mat += D;
 }
 
 
@@ -656,8 +648,18 @@ void thin_kick
 (CellType &Cell, const int Order, const double MB[], const double L,
  const double h_bend, const double h_ref, ss_vect<T> &ps)
 {
-  if (globval.rad_D)
-    thin_kick_D(Cell, Order, MB, L, h_bend, h_ref, ps);
+  ss_vect<tps> M, D;
+
+  if (globval.rad_D) {
+    M.identity();
+    M += is_double<ss_vect<T> >::cst(ps);
+    thin_kick_propagate(Cell, Order, MB, L, h_bend, h_ref, M);
+    M -= M.cst();
+    globval.Diff_mat = M*globval.Diff_mat*tp_map(3, M);
+
+    thin_kick_D(Cell, Order, MB, L, h_bend, h_ref, ps, D);
+    globval.Diff_mat += D;
+  }
 
   thin_kick_propagate(Cell, Order, MB, L, h_bend, h_ref, ps);
 }
