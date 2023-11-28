@@ -767,19 +767,22 @@ void compute_maps(const double Circ, const string &cav_name)
   M_Chol = compute_M_Chol(D_mat);
   prt_map("\nCholesky Decomposition:", M_Chol);
   prt_map("\nCholesky Decomposition Transpose:", tp_map(3, M_Chol));
-  prt_map(file_name+"_M_Chol.dat", M_Chol);
+  prt_map("\n"+file_name+"_M_Chol.dat", M_Chol);
 
   prt_summary(fixed_point, U0, phi_RF, tau, D, eps, sigma_s, sigma_delta);
 
   // Validation.
-  prt_map("\nM:\n", M);
   Sigma.zero();
   for (int k = 0; k < 6; k++)
     Sigma[k] = eps[k/2]*Id[k];
-  prt_map("\nSigma:\n", Sigma);
+
+  prt_map("\nSigma - Floquet Space:", Sigma);
+
   Sigma = A*Sigma*tp_map(3, A);
-  prt_map("\nSigma:\n", Sigma);
-  prt_map("\nValidation:\n",
+
+  prt_map("\nSigma - Phase Space:", Sigma);
+
+  prt_map("\nM.Sigma.M^tp - D:",
 	  ((M-M.cst())*Sigma*tp_map(3, M-M.cst())+D_mat)-Sigma);
 }
 

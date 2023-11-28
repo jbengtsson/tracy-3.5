@@ -102,16 +102,6 @@ public:
 };
 
 
-double compute_det(const int n_dof, const ss_vect<tps> &A)
-{
-  // Matrix determinant.
-  Matrix A_mat;
-
-  getlinmat(2*n_dof, A, A_mat);
-  return DetMat(2*n_dof, A_mat);
-}
-
-
 std::vector<double> get_nu(const ss_vect<tps> &M)
 {
   double              nu_z, alpha_c;
@@ -181,7 +171,7 @@ void prt_map_full(const string &str, const long int cav_loc,
   printf("phi_RF [deg] = %4.2f\n",
 	 Cell[cav_loc].Elem.C->phi_RF*180e0/M_PI);
   prt_map("", M);
-  printf("\ndet(M) - 1:\n %10.3e\n", compute_det(nd_tps, M)-1e0);
+  printf("\ndet(M) - 1:\n %10.3e\n", det_map(nd_tps, M)-1e0);
   printf("nu:\n");
   for (k = 0; k < nd_tps; k++)
     printf(" %7.5f", nu[k]);

@@ -4,16 +4,6 @@
 
 #include "tracy_lib.h"
 
-#include "prt_ZAP.cc"
-
-#define PM 1
-#if PM
-#include "PoincareMap.cc"
-#else
-#include "get_Poincare_Map.cc"
-#endif
-
-#include "prt_lat_param.cc"
 
 int no_tps = NO;
 
@@ -22,7 +12,7 @@ void tst_D(void)
 {
   long int        lastpos;
   ss_vect<double> ps, cod;
-  ss_vect<tps>    D, A, M;
+  ss_vect<tps>    A, M, D, Sigma;
 
   globval.rad_D = globval.Cavity_on = globval.radiation = true;
 
@@ -45,10 +35,12 @@ void tst_D(void)
   printglob();
 
   A = putlinmat(6, globval.Ascr);
-
   M = putlinmat(6, globval.OneTurnMat);
 
-  printf("\nA.R.A^-1:\n");
+  printf("\n|M|-1 = %9.3e\n", det_map(3, M)-1e0);
+
+
+  printf("\nA.R.A^-1:");
   prt_lin_map(3, Inv(A)*M*A);
 
   GetEmittance(ElemIndex("cav"), true);
@@ -65,12 +57,25 @@ void tst_D(void)
   printf("\nDiffusion Matrix - Phase Space:\n");
   prt_lin_map(3, D);
 
-  printf("\nDiffusion Matrix:\n");
-#if 0
-  for (int k = 0; k < 6; k++)
-    globval.Diff_mat[k] /= 2e0;
-#endif
+  printf("\nDiffusion Matrix - Beam Envelope Theory:\n");
   prt_lin_map(3, globval.Diff_mat);
+
+
+  Sigma.zero();
+  for (int k = 0; k < 2*nd_tps; k++)
+    Sigma[k] = globval.eps[k/2]*tps(0e0, k+1);
+
+  printf("\nSigma - Floquet Space:\n");
+
+  prt_lin_map(3, Sigma);
+
+  Sigma = A*Sigma*tp_map(3, A);
+
+  printf("\nSigma - Phase Space:");
+  prt_lin_map(3, Sigma);
+
+  printf("\nM.Sigma.M^tp + D - Sigma:");
+  prt_lin_map(3, M*Sigma*tp_map(3, M)+D-Sigma);
 }
 
 
