@@ -10,7 +10,7 @@ int no_tps = NO;
 
 void tst_D(void)
 {
-  // Average over one half synchrotron oscillation.
+  // Average over half a synchrotron oscillation.
   const int n_turn = 215;
 
   long int        lastpos;

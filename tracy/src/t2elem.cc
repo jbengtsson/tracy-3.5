@@ -651,11 +651,13 @@ void thin_kick
   ss_vect<tps> M, D;
 
   if (globval.rad_D) {
+    globval.radiation = false;
     M.identity();
     M += is_double<ss_vect<T> >::cst(ps);
     thin_kick_propagate(Cell, Order, MB, L, h_bend, h_ref, M);
     M -= M.cst();
     globval.Diff_mat = M*globval.Diff_mat*tp_map(3, M);
+    globval.radiation = true;
 
     thin_kick_D(Cell, Order, MB, L, h_bend, h_ref, ps, D);
     globval.Diff_mat += D;
