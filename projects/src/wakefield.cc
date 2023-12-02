@@ -123,27 +123,6 @@ void prt_lin_map(const int n, const string &str, const ss_vect<tps> A)
 }
 
 
-double det_map(const int n_dof, const ss_vect<tps> &A)
-{
-  // Matrix determinant.
-  Matrix A_mat;
-
-  getlinmat(2*n_dof, A, A_mat);
-  return DetMat(2*n_dof, A_mat);
-}
-
-
-ss_vect<tps> tp_map(const int n_dof, const ss_vect<tps> &A)
-{
-  // Matrix transpose.
-  Matrix A_mat;
-
-  getlinmat(2*n_dof, A, A_mat);
-  TpMat(2*n_dof, A_mat);
-  return putlinmat(2*n_dof, A_mat);
-}
-
-
 void PoincareMapType::set_params(const int n_dof, const double C)
 {
   this->n_dof = n_dof;

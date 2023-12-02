@@ -753,17 +753,6 @@ void prt_summary
 }
 
 
-ss_vect<tps> tp_map(const int n_dof, const ss_vect<tps> &A)
-{
-  // Compute the transpose of a matrix.
-  Matrix A_mat;
-
-  getlinmat(2*n_dof, A, A_mat);
-  TpMat(2*n_dof, A_mat);
-  return putlinmat(2*n_dof, A_mat);
-}
-
-
 void compute_maps(const double Circ, const string &cav_name)
 {
   double

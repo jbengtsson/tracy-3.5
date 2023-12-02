@@ -30,7 +30,7 @@ LIBS        = -L$(TRACY_LIB)/tracy/lib \
               -lstdc++ \
               -lm \
               -L$(GSL_INCLUDE)/lib -lgsl -lgslcblas \
-              -L/usr/local/Cellar/gcc/12.2.0/lib/gcc/12 \
+              -L/usr/local/Cellar/gcc/13.2.0/lib/gcc/13 \
               -lgfortran
 
 AM_CPPFLAGS = -I/opt/OPAL-2.2.1/lib \

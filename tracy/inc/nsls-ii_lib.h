@@ -39,6 +39,10 @@ tps get_h(void);
 
 void get_m2(const ss_vect<tps> &ps, tps m2[]);
 
+double det_map(const int n_DOF, const ss_vect<tps> &A);
+
+ss_vect<tps> tp_map(const int n_DOF, const ss_vect<tps> &A);
+
 ss_vect<tps> get_S(const int n_DOF);
 
 ss_vect<tps> tp_S(const int n_DOF, const ss_vect<tps> &A);

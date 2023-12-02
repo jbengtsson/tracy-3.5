@@ -737,12 +737,11 @@
       return
       end subroutine
 
-      subroutine comcfu(b,f1,f2,c) bind(C, name="comcfu_")
-      use iso_c_binding
+      subroutine comcfu(b,f1,f2,c)
       implicit none
-      integer(C_LONG) b(*), c(*)
-      real(C_DOUBLE), bind(C) :: f1, f2
-      external       f1, f2
+      integer  b(*), c(*)
+      double precision f1, f2
+      external f1, f2
 
 ! Complex dacfu
       integer t(4)
@@ -1136,7 +1135,7 @@
       use iso_c_binding
       implicit none
       integer(C_LONG) h1, v(*)
-      real(C_DOUBLE)  sca
+      real(C_DOUBLE) sca
 
       integer i,ndim,ndim2,ntt
 ! INVERSE OF INTD ROUTINE
