@@ -866,14 +866,14 @@ void Cav_Focus(const double L, const T delta, const bool entrance,
 #if 1
 
 template<typename T>
-void Cav_Pass(CellType &Cell, ss_vect<T> &ps)
+void Cav_Pass(const CellType &Cell, ss_vect<T> &ps)
 {
-  double     L;
-  elemtype   *elemp;
-  CavityType *C;
-  T          delta;
+  const elemtype*   elemp = &Cell.Elem;
+  const CavityType* C     = elemp->C;
+  const double      L     = elemp->PL;
 
-  elemp = &Cell.Elem; C = elemp->C; L = elemp->PL;
+  T delta;
+
   Drift(L/2e0, ps);
   if (globval.Cavity_on && C->V_RF != 0e0) {
     delta = -C->V_RF/(globval.Energy*1e9)
@@ -890,7 +890,7 @@ void Cav_Pass(CellType &Cell, ss_vect<T> &ps)
 #else
 
 template<typename T>
-void Cav_Pass1(CellType &Cell, ss_vect<T> &ps)
+void Cav_Pass1(const CellType &Cell, ss_vect<T> &ps)
 {
   /* J. Rosenzweig and L. Serafini "Transverse Particle Motion in
      Radio-Frequency Linear Accelerators" Phys. Rev. E 49(2),
@@ -936,7 +936,7 @@ void Cav_Pass1(CellType &Cell, ss_vect<T> &ps)
 
 
 template<typename T>
-void Cav_Pass(CellType &Cell, ss_vect<T> &ps)
+void Cav_Pass(const CellType &Cell, ss_vect<T> &ps)
 {
   /* J. Rosenzweig and L. Serafini "Transverse Particle Motion in
      Radio-Frequency Linear Accelerators" Phys. Rev. E 49(2),
@@ -2427,17 +2427,18 @@ void Solenoid_Pass(CellType &Cell, ss_vect<T> &ps)
 // template<typename T>
 // void Map_Pass(CellType &Cell, ss_vect<T> &ps) { ps = Cell.Elem.Map->M*ps; }
 
-void Map_Pass(CellType &Cell, ss_vect<double> &ps)
+void Map_Pass(const CellType &Cell, ss_vect<double> &ps)
 {
   ps = (Cell.Elem.Map->M*ps).cst();
 }
 
-void Map_Pass(CellType &Cell, ss_vect<tps> &ps) { ps = Cell.Elem.Map->M*ps; }
+void Map_Pass(const CellType &Cell, ss_vect<tps> &ps)
+{ ps = Cell.Elem.Map->M*ps; }
 
 
 void getelem(long i, CellType *cellrec) { *cellrec = Cell[i]; }
 
-void putelem(long i, CellType *cellrec) { Cell[i] = *cellrec; }
+void putelem(long i, const CellType *cellrec) { Cell[i] = *cellrec; }
 
 
 int GetnKid(const int Fnum1) { return (ElemFam[Fnum1-1].nKid); }
