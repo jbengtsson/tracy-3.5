@@ -1,4 +1,11 @@
-ps = 0;
+#!/bin/sh
+
+prm1=${1-0}
+
+gnuplot << EOP
+
+ps = $prm1;
+
 
 f_s = 24; l_w = 2;
 if (ps == 0) \
@@ -28,6 +35,9 @@ if (ps) set output "H_long.".(ext);
 
 set cntrparam level 75;
 set title "Longitudinal Phase Space to O({/Symbol a}_4)"
+# Degree symbol does not work for qt terminal
 set xlabel "{/Symbol f} [{/Symbol \260}]"; set ylabel "{/Symbol d} [%]";
 splot "H_long.dat" using 1:2:3 notitle with lines lt palette z;
 if (!ps) pause mouse "click on graph to cont.\n";
+
+EOP
