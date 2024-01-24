@@ -974,6 +974,8 @@ int main(int argc, char *argv[])
   Ring_GetTwiss(true, 0e0);
   printglob();
 
+  prtmfile("flat_file.dat");
+  prt_lat("linlat1.out", globval.bpm, true);
   prt_lat("linlat.out", globval.bpm, true);
 
   twoJx = 1e0;
