@@ -176,7 +176,7 @@ int main(int argc, char *argv[])
   globval.Cavity_on = true; globval.radiation = true;
   get_map(false);
   // prt_H_long(10, 180e0, 10e-2, "cav", -544.7e3, false);
-  prt_H_long(10, 180e0, 15e-2, "cav", -45.4e3, true);
+  // prt_H_long(10, 180e0, 15e-2, "cav", -45.4e3, true);
   // prt_H_long(10, 180e0, 20e-2, "cav", -22.4e3, false);
-  prt_alphac();
+  prt_H_long(10, 180e0, 10e-2, "cavh1t8r", -174.9e3, false);
 }
