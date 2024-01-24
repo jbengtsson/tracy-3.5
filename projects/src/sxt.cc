@@ -31,8 +31,6 @@
 
 int no_tps = NO;
 
-#define N_COEFF  3    // no of terms to optimize
-
 // spatial components
 //enum spatial_index { X_ = 0, Y_ = 1, Z_ = 2 };
 
@@ -40,12 +38,12 @@ int no_tps = NO;
 //enum ps_index { x_ = 0, px_ = 1, y_ = 2, py_ = 3, delta_ = 4, ct_ = 5 };
 
 // 2.5 degrees of freedom, i.e. delta is treated as a parameter
-const int  ps_dim = 4+1;
+const int ps_dim = 4+1;
 
 typedef double sp_vec[2], ps_vec[ps_dim], mat[ps_dim][ps_dim];
 
-int     iter, n_b3, b3s[n_b3_max];
-double  twoJx, twoJy;
+int    iter, n_b3, b3s[n_b3_max];
+double twoJx, twoJy;
 
 
 double get_bn(CellType &Cell, long int Order)
