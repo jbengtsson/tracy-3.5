@@ -29,7 +29,7 @@ set style line 1 lt 1 lw 1 lc rgb "blue";
 set style line 2 lt 1 lw 1 lc rgb "green";
 set style line 3 lt 1 lw 1 lc rgb "red";
 
-if (ps) set output "Ddisp_1.".(ext);
+if (ps) set output "Ddisp.".(ext);
 set title "Change of Dispersion";
 set xlabel "s [m]";
 set ylabel "{/Symbol h} [m]";
