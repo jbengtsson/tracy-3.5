@@ -84,7 +84,7 @@ int main(int argc, char *argv[])
 
   if (true) prt_ZAP(20);
 
-  GetEmittance(ElemIndex("cav"), true);
+  GetEmittance(ElemIndex("cav"), false, true);
 
   gamma_z = (1e0+sqr(globval.alpha_z))/globval.beta_z;
 

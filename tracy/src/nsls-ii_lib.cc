@@ -488,7 +488,7 @@ void get_eps_x(double &eps_x, double &sigma_delta, double &U_0, double J[],
 }
 
 
-void GetEmittance(const int Fnum, const bool prt)
+void GetEmittance(const int Fnum, const bool path_length, const bool prt)
 {
   // A. Chao "Evaluation of Beam Distribution Parameters in an Electron
   // Storage Ring" J. Appl. Phys 50 (2), 595-598.
@@ -504,16 +504,20 @@ void GetEmittance(const int Fnum, const bool prt)
   const bool debug_prt = false;
 
   // save state
-  rad = globval.radiation; emit = globval.emittance;
-  cav = globval.Cavity_on; path = globval.pathlength;
+  rad  = globval.radiation;
+  emit = globval.emittance;
+  cav  = globval.Cavity_on;
+  path = globval.pathlength;
 
   C = Cell[globval.Cell_nLoc].S;
 
   // damped system
-  globval.radiation = true; globval.emittance  = false;
-  globval.Cavity_on = true; globval.pathlength = false;
+  globval.radiation  = true;
+  globval.emittance  = false;
+  globval.Cavity_on  = true;
+  globval.pathlength = path_length;
 
-  Ring_GetTwiss(false, 0.0);
+  Ring_GetTwiss(false, 0e0);
   if (debug_prt) {
     cout << scientific << setprecision(6)
 	 << "\nGetEmittance:\nx0 =" << setw(14) << globval.CODvect << "\n";
@@ -678,8 +682,10 @@ void GetEmittance(const int Fnum, const bool prt)
   }
 
   // restore state
-  globval.radiation = rad; globval.emittance  = emit;
-  globval.Cavity_on = cav; globval.pathlength = path;
+  globval.radiation  = rad;
+  globval.emittance  = emit;
+  globval.Cavity_on  = cav;
+  globval.pathlength = path;
 }
 
 

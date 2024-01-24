@@ -161,7 +161,7 @@ int main(int argc, char *argv[])
 
   printglob();
   
-  GetEmittance(ElemIndex("cav"), true);
+  GetEmittance(ElemIndex("cav"), false, true);
   
   if (false)
     check_A();

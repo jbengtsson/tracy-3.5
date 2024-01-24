@@ -1951,7 +1951,7 @@ int main(int argc, char *argv[])
     exit(0);
   }
 
-  if (!false) GetEmittance(ElemIndex("cav"), true);
+  if (!false) GetEmittance(ElemIndex("cav"), false, true);
 
   prtmfile("flat_file.dat");
   // globval.bpm = ElemIndex("bpm");
@@ -2057,7 +2057,7 @@ int main(int argc, char *argv[])
     exit(0);
   }
 
-  if (true) GetEmittance(ElemIndex("cav"), true);
+  if (true) GetEmittance(ElemIndex("cav"), false, true);
 
   if (false) {
 #if PM

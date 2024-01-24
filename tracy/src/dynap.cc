@@ -325,7 +325,7 @@ void DA_data_type::get_DA_real(param_data_type &params,
  
       Ring_GetTwiss(true, 0.0); printglob();
 
-      GetEmittance(ElemIndex("cav"), true);
+      GetEmittance(ElemIndex("cav"), false, true);
 
       if (params.n_lin > 0) {
 	params.corr_eps_y(j);
@@ -335,7 +335,7 @@ void DA_data_type::get_DA_real(param_data_type &params,
 			  params.n_bits, orb_corr);
 	}
  	Ring_GetTwiss(true, 0.0); printglob();
-	GetEmittance(ElemIndex("cav"), true);
+	GetEmittance(ElemIndex("cav"), false, true);
       }
 
       ///////////////////////////////
@@ -369,7 +369,7 @@ void DA_data_type::get_DA_real(param_data_type &params,
 	       globval.TotalTune[1], globval.TotalTune[1]-TotalTuneY);
 
 	Ring_GetTwiss(true, 0.0); printglob();
-	GetEmittance(ElemIndex("cav"), true);
+	GetEmittance(ElemIndex("cav"), false, true);
       }
 
       // Fit chromaticities to ChromX and ChromY
@@ -402,7 +402,7 @@ void DA_data_type::get_DA_real(param_data_type &params,
 	       globval.Chrom[1]-ChromaY);
 
 	Ring_GetTwiss(true, 0.0); printglob();
-	GetEmittance(ElemIndex("cav"), true);
+	GetEmittance(ElemIndex("cav"), false, true);
       }
       
       // End of tune and chromaticity fit

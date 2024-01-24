@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
   prtmfile("flat_file.dat");
   exit(0);
 
-  if (true) GetEmittance(ElemIndex("cav"), true);
+  if (true) GetEmittance(ElemIndex("cav"), false, true);
 
   if (true) {
     globval.Cavity_on = true;

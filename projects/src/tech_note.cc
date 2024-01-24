@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
 
   if (!true) {
     Ring_GetTwiss(true, 0e0); printglob();
-    GetEmittance(ElemIndex("cav"), true);
+    GetEmittance(ElemIndex("cav"), false, true);
     Ring_GetTwiss(true, 0e0);
   } else {
     // globval.emittance = true;

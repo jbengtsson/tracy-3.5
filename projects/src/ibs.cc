@@ -144,7 +144,7 @@ int main(int argc, char *argv[])
  if (false) prt_ZAP(20);
 
   get_eps_x1();
-  GetEmittance(ElemIndex("cav"), true);
+  GetEmittance(ElemIndex("cav"), false, true);
 
   printf("\nalpha_z = %11.3e, beta_z = %10.3e\n",
 	 globval.alpha_z,  globval.beta_z);

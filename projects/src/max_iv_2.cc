@@ -561,7 +561,7 @@ int main(int argc, char *argv[])
 
   if (false) {
     get_eps_x1();
-    GetEmittance(ElemIndex("cav"), true);
+    GetEmittance(ElemIndex("cav"), false, true);
   }
 
   if (false) quad_scan(10, "qf", 3e0, "bh", 2e0);

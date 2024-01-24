@@ -469,7 +469,7 @@ void get_sigma(void)
 
   if (!false) prt_rad(globval.Energy, rho);
 
-  GetEmittance(ElemIndex("cav"), true);
+  GetEmittance(ElemIndex("cav"), false, true);
 
   prtmat(6, Cell[0].sigma);
 

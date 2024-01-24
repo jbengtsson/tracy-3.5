@@ -453,7 +453,7 @@ int main(int argc, char *argv[])
     bool       cod;
     cod = orb_corr_scl(3);  // use orb_corr_scl(0) to show orbit deviations BEFORE correction -> ampl. factor
     // use orb_corr_scl(3) to correct orbit in 3 iterations
-    GetEmittance(ElemIndex("cav"), true);
+    GetEmittance(ElemIndex("cav"), false, true);
   }
   
 

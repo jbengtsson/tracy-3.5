@@ -582,7 +582,7 @@ void get_cod_rms_scl_new(const int n_seed)
       cod = orb_corr_scl(3);  // use orb_corr_scl(0) to show orbit deviations BEFORE correction -> ampl. factor
                               // use orb_corr_scl(3) to correct orbit in 3 iterations
     // get coupling, ver. disp., etc. BEFORE/after correction
-    GetEmittance(ElemIndex("cav"), true);
+    GetEmittance(ElemIndex("cav"), false, true);
     prt_beamsizes(1); // writes beam_envelope.out; contains sigmamatrix(s), theta(s)
 
 
@@ -866,7 +866,7 @@ int main(int argc, char *argv[])
   //prtmfile("flat_file.dat"); // writes flat file
   get_matching_params_scl();
   //get_alphac2_scl();
-  GetEmittance(ElemIndex("cav"), true); // call GetEmittance last since it screws up linlat output
+  GetEmittance(ElemIndex("cav"), false, true); // call GetEmittance last since it screws up linlat output
   //prt_beamsizes(); // writes beam_envelope.out; contains sigmamatrix(s), theta(s)
     
   //globval.Aperture_on = true;
@@ -954,7 +954,7 @@ int main(int argc, char *argv[])
     double  sum_delta[globval.Cell_nLoc+1][2];
     double  sum2_delta[globval.Cell_nLoc+1][2];
     
-    GetEmittance(ElemIndex("cav"), true);
+    GetEmittance(ElemIndex("cav"), false, true);
     
     // initialize momentum aperture arrays
     for(k = 0; k <= globval.Cell_nLoc; k++){

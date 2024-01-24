@@ -285,7 +285,7 @@ int main(int argc, char *argv[])
     prt_quad(Fam);
   }
 
-  if (true) GetEmittance(ElemIndex("cav"), true);
+  if (true) GetEmittance(ElemIndex("cav"), false, true);
 
   if (false) {
     // b2_fam[0] = ElemIndex(q_fam[0].c_str());

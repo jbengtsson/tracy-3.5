@@ -504,7 +504,7 @@ int main(int argc, char *argv[])
   Ring_GetTwiss(true, 0e0);
   printglob();
 
-  GetEmittance(ElemIndex("cav"), true);
+  GetEmittance(ElemIndex("cav"), false, true);
   gamma_z     = (1e0+sqr(globval.alpha_z))/globval.beta_z;
   sigma_s     = sqrt(globval.beta_z*globval.eps[Z_]);
   sigma_delta = sqrt(gamma_z*globval.eps[Z_]);
