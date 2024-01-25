@@ -1,3 +1,14 @@
+/*
+
+  Remark: Dispersion is based on the adiabatic approximation. Hence, for
+  3 D.O.F. the Poincaré map is either diagonalised directly for 6D phase-space
+  or by first decoupling the transvarse & longitudinal planes by normal mode
+  analysis.
+
+
+*/
+
+
 #include <assert.h>
 
 #define NO 1
