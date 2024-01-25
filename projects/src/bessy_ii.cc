@@ -124,23 +124,22 @@ void rf_gymnastics(const int Fnum, const std::vector<int> &bpm)
   f_RF = get_f_RF(Fnum);
 
   fprintf(fp, "\n");
-  fprintf(fp, "# Df_RF   f_s    rms hor    sigma_ct    nu_x   nu_y\n");
-  fprintf(fp, "# [kHz]  [kHz]  orbit [mm]  [picosec]\n");
+  fprintf(fp, "# Df_RF   f_s   hor orbit  sigma_ct   nu_x   nu_y\n");
+  fprintf(fp, "# [kHz]  [kHz]   rms [mm]   [psec]\n");
   for (int k = n[0]; k <= n[1]; k++) {
     Df_RF = k*f_RF_step;
     set_f_RF(Fnum, f_RF+Df_RF);
-    get_f_RF(Fnum);
 
     getcod(0e0, lastpos);
     f_0 = c0/(C+globval.CODvect[ct_]);
     cod_stat(bpm, mean, sigma, peak);
     Ring_GetTwiss(true, 0e0);
-    GetEmittance(ElemIndex("cavh1t8r"), true, !true);
-    fprintf(fp, "  %5.1f  %5.3f    %5.3f      %5.3f    %6.3f  %5.3f\n",
-	    1e-3*Df_RF, -1e-3*globval.Omega*f_0,
-	    1e3*sigma[X_],
-	    1e12*sqrt(Cell[0].sigma[ct_][ct_])/c0,
-	    globval.TotalTune[X_], globval.TotalTune[Y_]);
+    GetEmittance(ElemIndex("cavh1t8r"), true, false);
+    fprintf
+      (fp, "  %5.1f  %5.3f    %5.3f     %5.3f   %6.3f  %5.3f\n",
+       1e-3*Df_RF, -1e-3*globval.Omega*f_0, 1e3*sigma[X_],
+       1e12*sqrt(Cell[0].sigma[ct_][ct_])/c0,
+       globval.TotalTune[X_], globval.TotalTune[Y_]);
   }
 }
 
