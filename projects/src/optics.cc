@@ -1582,6 +1582,21 @@ ss_vect<tps> chop_map(const int n_dof, ss_vect<tps> map, const double eps)
 }
 
 
+void set_state(void)
+{
+  globval.H_exact        = false;
+  globval.quad_fringe    = false;
+  globval.Cavity_on      = false;
+  globval.radiation      = false;
+  globval.emittance      = false;
+  globval.IBS            = false;
+  globval.pathlength     = false;
+  globval.Aperture_on    = false;
+  globval.Cart_Bend      = false;
+  globval.dip_edge_fudge = true;
+}
+
+
 int main(int argc, char *argv[])
 {
   bool             tweak;
@@ -1620,11 +1635,7 @@ int main(int argc, char *argv[])
   else
     rdmfile(argv[1]);
 
-  globval.H_exact    = false; globval.quad_fringe    = false;
-  globval.Cavity_on  = false; globval.radiation      = false;
-  globval.emittance  = false; globval.IBS            = false;
-  globval.pathlength = false; globval.Aperture_on    = false;
-  globval.Cart_Bend  = false; globval.dip_edge_fudge = true;
+  set_state();
 
   if (false) no_sxt();
 
