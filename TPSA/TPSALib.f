@@ -4682,9 +4682,14 @@
       use iso_c_binding, only: c_char, c_long, c_double, c_funptr
       implicit none
       integer(c_long) ina, inc
-!      real(c_double), bind(C) :: fun
-!      external       fun
-      type(c_funptr), value :: fun
+
+      abstract interface
+        function fun(j) bind(C)
+          import :: c_long, c_double
+          real(c_long), intent(in) :: j(*)
+          real(c_double) :: fun
+        end function
+      end interface
 
       integer illc,ilmc,incc,inoc,invc
       integer(8) ipoc
@@ -4703,11 +4708,11 @@
         call dainf(inc,inoc,invc,ipoc,ilmc,illc)
         incc=0
         call daall1(incc,'$$DAJUNK$$',inoc,invc)
-!        call dacfut(ina,fun,incc)
+        call dacfut(ina,fun,incc)
         call dacop(incc,inc)
         call dadal1(incc)
       else
-!        call dacfut(ina,fun,inc)
+        call dacfut(ina,fun,inc)
       endif
 
       return
