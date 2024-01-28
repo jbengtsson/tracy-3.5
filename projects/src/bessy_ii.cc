@@ -106,6 +106,7 @@ void set_f_RF(const int Fnum, const double f_RF)
 
 double nu_s_track_fft(const int n, const double delta_ampl)
 {
+  // Obtain synchrotron tune from tracking & FFT analysis.
   const bool
     prt = false;
   const string
@@ -159,6 +160,7 @@ double nu_s_track_fft(const int n, const double delta_ampl)
 
 double compute_nu_s(const int Fnum)
 {
+  // Compute synchrotron tune from analytic formula.
   const int
     loc     = Elem_GetPos(Fnum, 1),
     h       = Cell[loc].Elem.C->harm_num;
@@ -187,7 +189,7 @@ void rf_gymnastics(const int Fnum, const std::vector<int> &bpm)
     C         = Cell[globval.Cell_nLoc].S;
 
   long int lastpos;
-  double   f_RF, Df_RF, f_0, mean[2], sigma[2], peak[2], nu_s, nu_s_fft;
+  double   f_RF, Df_RF, f_0, mean[2], sigma[2], peak[2], nu_s;
   FILE     *fp;
 
   trace = false;
@@ -200,24 +202,27 @@ void rf_gymnastics(const int Fnum, const std::vector<int> &bpm)
   f_RF = get_f_RF(Fnum);
 
   fprintf(fp, "\n");
-  fprintf(fp, "# Df_RF   delta     ct      nu_s       nu_s       nu_s      f_s   hor orbit  sigma_ct   nu_x   nu_y\n");
-  fprintf(fp, "# [kHz]    [%%]      [m]              estimated  tracking  [kHz]   rms [mm]   [psec]\n");
+  fprintf(fp, "# Df_RF   delta     ct      nu_s      nu_s      f_s"
+	  "   hor orbit  sigma_ct   nu_x   nu_y\n");
+  fprintf(fp, "# [kHz]    [%%]      [m]             estimated  [kHz]"
+	  "   rms [mm]   [psec]\n");
   for (int k = n[0]; k <= n[1]; k++) {
     Df_RF = k*f_RF_step;
     set_f_RF(Fnum, f_RF+Df_RF);
     getcod(0e0, lastpos);
 
     nu_s = compute_nu_s(Fnum);
-    nu_s_fft = nu_s_track_fft(1024, 1e-3);
 
     f_0 = c0/(C+globval.CODvect[ct_]);
     cod_stat(bpm, mean, sigma, peak);
     GetEmittance(Fnum, true, false);
 
     fprintf
-      (fp, "  %5.1f  %6.3f  %7.3f   %7.5f    %7.5f    %7.5f   %5.3f    %5.3f     %5.3f   %6.3f  %5.3f\n",
+      (fp,
+       "  %5.1f  %6.3f  %7.3f   %7.5f   %7.5f   %5.3f    %5.3f     %5.3f"
+       "   %6.3f  %5.3f\n",
        1e-3*Df_RF, 1e2*globval.CODvect[delta_], globval.CODvect[ct_],
-       -globval.Omega, nu_s, nu_s_fft, -1e-3*globval.Omega*f_0, 1e3*sigma[X_],
+       -globval.Omega, nu_s, -1e-3*globval.Omega*f_0, 1e3*sigma[X_],
        1e12*sqrt(Cell[0].sigma[ct_][ct_])/c0,
        globval.TotalTune[X_], globval.TotalTune[Y_]);
   }
