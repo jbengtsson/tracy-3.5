@@ -44,9 +44,9 @@ void prt_alphac(double alphac[])
 }
 
 
-double H_long(const double phi, const double delta,
-	      const int h_rf, const double V_rf, const double phi0,
-	      const double alphac[])
+double H_long
+(const double phi, const double delta, const int h_rf, const double V_rf,
+ const double phi0, const double alphac[])
 {
   int    i;
   double H;
@@ -58,8 +58,9 @@ double H_long(const double phi, const double delta,
 }
 
 
-void prt_H_long(const int n, const double phi_max, const double delta_max,
-		const string &cav_name, const double U0, const bool neg_alphac)
+void prt_H_long
+(const int n, const double phi_max, const double delta_max,
+ const string &cav_name, const double U0, const bool neg_alphac)
 {
   int            loc, i, j, h_rf;
   double         V_rf, alphac[NO], phi, delta, H, delta_rf, phi0;
