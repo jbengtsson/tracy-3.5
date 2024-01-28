@@ -83,17 +83,93 @@ void compute_Ddisp(const double delta, const std::vector<int> &bpm)
 }
 
 
+double get_V_RF(const int Fnum)
+{
+  const int loc = Elem_GetPos(Fnum, 1);
+  return Cell[loc].Elem.C->V_RF;
+}
+
+
 double get_f_RF(const int Fnum)
 {
-  int loc = Elem_GetPos(Fnum, 1);
+  const int loc = Elem_GetPos(Fnum, 1);
   return Cell[loc].Elem.C->f_RF;
 }
 
 
 void set_f_RF(const int Fnum, const double f_RF)
 {
-  int loc = Elem_GetPos(Fnum, 1);
+  const int loc = Elem_GetPos(Fnum, 1);
   Cell[loc].Elem.C->f_RF = f_RF;
+}
+
+
+double nu_s_track_fft(const int n, const double delta_ampl)
+{
+  const bool
+    prt = false;
+  const string
+    file_name_1 = "track.out",
+    file_name_2 = "fft.out";
+  const int
+    ps_dim = 6,
+    n_peak = 3;
+
+  long int        lastpos;
+  double          ps_buf[ps_dim][n], nu[n_peak], A[n_peak];
+  ss_vect<double> ps;
+  ofstream        outf;
+
+  if (prt)
+    file_wr(outf, file_name_1.c_str());
+  ps.zero();
+  ps += globval.CODvect;
+  ps[delta_] += delta_ampl;
+  for (int k = 0; k < ps_dim; k++)
+    ps_buf[k][0] = ps[k];
+  if (prt)
+    outf << scientific << setprecision(3) << setw(4) << 0 << setw(12) << ps
+	 << "\n";
+  for (int j = 1; j < n; j++) {
+    for (int k = 0; k < ps_dim; k++)
+      ps_buf[k][j] = ps[k];
+    Cell_Pass(0, globval.Cell_nLoc, ps, lastpos);
+    if (prt)
+      outf << scientific << setprecision(3) << setw(4) << j << setw(12) << ps
+	   << "\n";
+  }
+  if (prt)
+    outf.close();
+
+  rm_mean(n, ps_buf[ct_]);
+  sin_FFT(n, ps_buf[ct_]);
+  GetPeaks(n, ps_buf[ct_], 1, nu, A);
+
+  if (prt) {
+    file_wr(outf, file_name_2.c_str());
+    for (int k = 0; k < n/2+1; k++)
+      outf << setprecision(5)
+	   << fixed << setw(8) << (double)k/(double)n
+	   << scientific << setw(13) << ps_buf[ct_][k] << "\n";
+    outf.close();
+  }
+
+  return nu[0];
+}
+
+double compute_nu_s(const int Fnum)
+{
+  const int
+    loc     = Elem_GetPos(Fnum, 1),
+    h       = Cell[loc].Elem.C->harm_num;
+  const double
+    E_0     = 1e9*globval.Energy,
+    U_0     = globval.U0,
+    V_RF    = Cell[loc].Elem.C->V_RF,
+    alpha_c = globval.Alphac,
+    phi_0   = fabs(asin(U_0/V_RF));
+
+  return sqrt(h*alpha_c*V_RF*cos(phi_0*M_PI/180e0)/(2e0*M_PI*E_0));
 }
 
 
@@ -111,7 +187,7 @@ void rf_gymnastics(const int Fnum, const std::vector<int> &bpm)
     C         = Cell[globval.Cell_nLoc].S;
 
   long int lastpos;
-  double   f_RF, Df_RF, f_0, mean[2], sigma[2], peak[2];
+  double   f_RF, Df_RF, f_0, mean[2], sigma[2], peak[2], nu_s, nu_s_fft;
   FILE     *fp;
 
   trace = false;
@@ -124,20 +200,24 @@ void rf_gymnastics(const int Fnum, const std::vector<int> &bpm)
   f_RF = get_f_RF(Fnum);
 
   fprintf(fp, "\n");
-  fprintf(fp, "# Df_RF   f_s   hor orbit  sigma_ct   nu_x   nu_y\n");
-  fprintf(fp, "# [kHz]  [kHz]   rms [mm]   [psec]\n");
+  fprintf(fp, "# Df_RF   delta     ct      nu_s       nu_s       nu_s      f_s   hor orbit  sigma_ct   nu_x   nu_y\n");
+  fprintf(fp, "# [kHz]    [%%]      [m]              estimated  tracking  [kHz]   rms [mm]   [psec]\n");
   for (int k = n[0]; k <= n[1]; k++) {
     Df_RF = k*f_RF_step;
     set_f_RF(Fnum, f_RF+Df_RF);
-
     getcod(0e0, lastpos);
+
+    nu_s = compute_nu_s(Fnum);
+    nu_s_fft = nu_s_track_fft(1024, 1e-3);
+
     f_0 = c0/(C+globval.CODvect[ct_]);
     cod_stat(bpm, mean, sigma, peak);
-    Ring_GetTwiss(true, 0e0);
-    GetEmittance(ElemIndex("cavh1t8r"), true, false);
+    GetEmittance(Fnum, true, false);
+
     fprintf
-      (fp, "  %5.1f  %5.3f    %5.3f     %5.3f   %6.3f  %5.3f\n",
-       1e-3*Df_RF, -1e-3*globval.Omega*f_0, 1e3*sigma[X_],
+      (fp, "  %5.1f  %6.3f  %7.3f   %7.5f    %7.5f    %7.5f   %5.3f    %5.3f     %5.3f   %6.3f  %5.3f\n",
+       1e-3*Df_RF, 1e2*globval.CODvect[delta_], globval.CODvect[ct_],
+       -globval.Omega, nu_s, nu_s_fft, -1e-3*globval.Omega*f_0, 1e3*sigma[X_],
        1e12*sqrt(Cell[0].sigma[ct_][ct_])/c0,
        globval.TotalTune[X_], globval.TotalTune[Y_]);
   }
