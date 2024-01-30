@@ -97,6 +97,13 @@ double get_f_RF(const int Fnum)
 }
 
 
+int get_h_RF(const int Fnum)
+{
+  const int loc = Elem_GetPos(Fnum, 1);
+  return Cell[loc].Elem.C->harm_num;
+}
+
+
 void set_f_RF(const int Fnum, const double f_RF)
 {
   const int loc = Elem_GetPos(Fnum, 1);
@@ -183,14 +190,18 @@ void rf_gymnastics(const int Fnum, const std::vector<int> &bpm)
   const string
     file_name = "f_RF_scan.out";
   const int
-    n[] = {-15, 10};
+    n[]       = {-15, 10};
   const double
-    f_RF_step = 1e3,
-    C         = Cell[globval.Cell_nLoc].S;
+    f_RF_step = 1e3;
 
-  long int lastpos;
-  double   f_RF, Df_RF, f_0, mean[2], sigma[2], peak[2], nu_s;
-  FILE     *fp;
+  long int
+    lastpos;
+  int
+    h_RF;
+  double
+    f_0_RF, df_RF, f_RF, f_rev, mean[2], sigma[2], peak[2], dct, delta, nu_s;
+  FILE
+    *fp;
 
   trace = false;
 
@@ -199,30 +210,37 @@ void rf_gymnastics(const int Fnum, const std::vector<int> &bpm)
 
   globval.Cavity_on = globval.radiation = globval.pathlength = true;
 
-  f_RF = get_f_RF(Fnum);
+  f_0_RF = get_f_RF(Fnum);
+  h_RF = get_h_RF(Fnum);
 
   fprintf(fp, "\n");
-  fprintf(fp, "# Df_RF   delta     ct      nu_s      nu_s      f_s"
+  fprintf(fp, "# df_RF   delta     ct      nu_s      nu_s      f_s"
 	  "   hor orbit  sigma_ct   nu_x   nu_y\n");
   fprintf(fp, "# [kHz]    [%%]      [m]             estimated  [kHz]"
 	  "   rms [mm]   [psec]\n");
   for (int k = n[0]; k <= n[1]; k++) {
-    Df_RF = k*f_RF_step;
-    set_f_RF(Fnum, f_RF+Df_RF);
+    df_RF = k*f_RF_step;
+    f_RF = f_0_RF + df_RF;
+    set_f_RF(Fnum, f_RF);
+
+    f_rev = f_RF/h_RF;
+
     getcod(0e0, lastpos);
+
+    cod_stat(bpm, mean, sigma, peak);
+    dct = globval.CODvect[ct_];
+    delta = globval.CODvect[delta_];
 
     nu_s = compute_nu_s(Fnum);
 
-    f_0 = c0/(C+globval.CODvect[ct_]);
-    cod_stat(bpm, mean, sigma, peak);
     GetEmittance(Fnum, true, false);
 
     fprintf
       (fp,
        "  %5.1f  %6.3f  %7.3f   %7.5f   %7.5f   %5.3f    %5.3f     %5.3f"
        "   %6.3f  %5.3f\n",
-       1e-3*Df_RF, 1e2*globval.CODvect[delta_], globval.CODvect[ct_],
-       -globval.Omega, nu_s, -1e-3*globval.Omega*f_0, 1e3*sigma[X_],
+       1e-3*df_RF, 1e2*delta, dct,
+       -globval.Omega, nu_s, -1e-3*globval.Omega*f_rev, 1e3*sigma[X_],
        1e12*sqrt(Cell[0].sigma[ct_][ct_])/c0,
        globval.TotalTune[X_], globval.TotalTune[Y_]);
   }
