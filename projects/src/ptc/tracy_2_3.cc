@@ -33,7 +33,7 @@ void prt_alpha_c(std::vector<double> &alpha_c)
     if (k < alpha_c.size()-1)
       cout << " + ";
   }
-  
+  cout << "\n";
 
   if (NO >= 3) {
     cout << fixed << setprecision(2)

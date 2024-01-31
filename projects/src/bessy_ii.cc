@@ -218,9 +218,11 @@ void rf_gymnastics
 
   fprintf(fp, "\n");
   fprintf(fp,
-	  "# df_RF    df_RF    delta   ct      nu_s       f_s   hor orbit  sigma_ct   nu_x   nu_y\n");
+	  "# df_RF    df_RF    delta   ct      nu_s       f_s   hor orbit"
+	  "  sigma_ct   nu_x   nu_y\n");
   fprintf(fp,
-	  "# [kHz]  estimated   [%%]    [m]               [kHz]   rms [mm]   [psec]\n");
+	  "# [kHz]  estimated   [%%]    [m]               [kHz]   rms [mm]"
+	  "   [psec]\n");
   for (int j = n[0]; j <= n[1]; j++) {
     df_RF = j*f_RF_step;
     f_RF = f_0_RF + df_RF;
@@ -242,8 +244,8 @@ void rf_gymnastics
 
     fprintf
       (fp,
-       "  %5.1f   %5.1f    %6.3f  %5.3f  %9.7f   %5.3f    %5.3f     %5.3f   %6.3f"
-       "  %5.3f\n",
+       "  %5.1f    %5.1f    %6.3f  %5.3f  %9.7f   %5.3f    %5.3f     %5.3f"
+       "   %6.3f  %5.3f\n",
        1e-3*df_RF, 1e-3*df_RF_est, 1e2*delta, dct,
        -globval.Omega, -1e-3*globval.Omega*f_rev, 1e3*sigma[X_],
        1e12*sqrt(Cell[0].sigma[ct_][ct_])/c0,
