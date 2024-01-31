@@ -4230,7 +4230,7 @@ void PrintResult(struct LOC_Lattice_Read *LINK)
   printf("  Number of Elements : globval.Cell_nLoc    =%5ld"
 	 ", Cell_nLocmax    =%5d\n",
 	 globval.Cell_nLoc, Cell_nLocMax);
-  printf("  Circumference      : %12.7f [m]\n", Circumference(LINK));
+  printf("  Circumference      : %20.15f [m]\n", Circumference(LINK));
   printf("\n");
   printf("\n");
 }

@@ -182,7 +182,9 @@ double compute_nu_s(const int Fnum)
 }
 
 
-void rf_gymnastics(const int Fnum, const std::vector<int> &bpm)
+void rf_gymnastics
+(const int Fnum, const std::vector<int> &bpm,
+ const std::vector<double> &alpha_c)
 {
   // Remark: Globval.pathlength must be set to true in GetEmittance in
   //         nsls-ii_lib.
@@ -199,7 +201,8 @@ void rf_gymnastics(const int Fnum, const std::vector<int> &bpm)
   int
     h_RF;
   double
-    f_0_RF, df_RF, f_RF, f_rev, mean[2], sigma[2], peak[2], dct, delta, nu_s;
+    f_0_RF, df_RF, f_RF, df_RF_est, f_rev, mean[2], sigma[2], peak[2],
+    dct, delta;
   FILE
     *fp;
 
@@ -214,16 +217,14 @@ void rf_gymnastics(const int Fnum, const std::vector<int> &bpm)
   h_RF = get_h_RF(Fnum);
 
   fprintf(fp, "\n");
-  fprintf(fp, "# df_RF   delta     ct      nu_s      nu_s      f_s"
-	  "   hor orbit  sigma_ct   nu_x   nu_y\n");
-  fprintf(fp, "# [kHz]    [%%]      [m]             estimated  [kHz]"
-	  "   rms [mm]   [psec]\n");
-  for (int k = n[0]; k <= n[1]; k++) {
-    df_RF = k*f_RF_step;
+  fprintf(fp,
+	  "# df_RF    df_RF    delta   ct      nu_s       f_s   hor orbit  sigma_ct   nu_x   nu_y\n");
+  fprintf(fp,
+	  "# [kHz]  estimated   [%%]    [m]               [kHz]   rms [mm]   [psec]\n");
+  for (int j = n[0]; j <= n[1]; j++) {
+    df_RF = j*f_RF_step;
     f_RF = f_0_RF + df_RF;
     set_f_RF(Fnum, f_RF);
-
-    f_rev = f_RF/h_RF;
 
     getcod(0e0, lastpos);
 
@@ -231,19 +232,45 @@ void rf_gymnastics(const int Fnum, const std::vector<int> &bpm)
     dct = globval.CODvect[ct_];
     delta = globval.CODvect[delta_];
 
-    nu_s = compute_nu_s(Fnum);
+    df_RF_est = 0e0;
+    for (int k = 0; k < alpha_c.size(); k++)
+      df_RF_est -= alpha_c[k]*pow(delta, k+1);
+    df_RF_est *= f_0_RF;
+    f_rev = f_RF/h_RF;
 
     GetEmittance(Fnum, true, false);
 
     fprintf
       (fp,
-       "  %5.1f  %6.3f  %7.3f   %7.5f   %7.5f   %5.3f    %5.3f     %5.3f"
-       "   %6.3f  %5.3f\n",
-       1e-3*df_RF, 1e2*delta, dct,
-       -globval.Omega, nu_s, -1e-3*globval.Omega*f_rev, 1e3*sigma[X_],
+       "  %5.1f   %5.1f    %6.3f  %5.3f  %9.7f   %5.3f    %5.3f     %5.3f   %6.3f"
+       "  %5.3f\n",
+       1e-3*df_RF, 1e-3*df_RF_est, 1e2*delta, dct,
+       -globval.Omega, -1e-3*globval.Omega*f_rev, 1e3*sigma[X_],
        1e12*sqrt(Cell[0].sigma[ct_][ct_])/c0,
        globval.TotalTune[X_], globval.TotalTune[Y_]);
   }
+}
+
+
+void compare_nu_s(const int Fnum)
+{
+  long int lastpos;
+
+  globval.Cavity_on = true;
+  Ring_GetTwiss(true, 0e0);
+  printglob();
+  getcod(0e0, lastpos);
+  cout << scientific << setprecision(5)
+       << "\n" << setw(13) << globval.CODvect << "\n";
+  printf("\n  nu_s = %9.7f\n", compute_nu_s(Fnum));
+
+  globval.radiation = true;
+  Ring_GetTwiss(true, 0e0);
+  printglob();
+  getcod(0e0, lastpos);
+  cout << scientific << setprecision(5)
+       << "\n" << setw(13) << globval.CODvect << "\n";
+  printf("\n  nu_s = %9.7f\n", compute_nu_s(Fnum));
 }
 
 
@@ -266,6 +293,8 @@ int main(int argc, char *argv[])
 {
   const std::vector<string>
     cav = {"cavh1t8r", "cavh2t8r", "cavh3t8r", "cavh4t8r"};
+  const std::vector<double>
+    alpha_c = {7.038e-04, 5.164e-04, 3.293e-02, -2.415e-01};
 
   std::vector<int>    bpm;
   std::vector<double> disp;
@@ -288,6 +317,9 @@ int main(int argc, char *argv[])
   prtmfile("flat_file.dat");
 
   if (false)
+  compare_nu_s(ElemIndex(cav[0]));
+
+  if (false)
     GetEmittance(ElemIndex(cav[0]), false, true);
 
   if (false) {
@@ -297,6 +329,6 @@ int main(int argc, char *argv[])
 
   if (!false) {
     bpm = get_bpm();
-    rf_gymnastics(ElemIndex(cav[0]), bpm);
+    rf_gymnastics(ElemIndex(cav[0]), bpm, alpha_c);
   }
 }
