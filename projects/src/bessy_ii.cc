@@ -244,7 +244,7 @@ void rf_gymnastics
 
     fprintf
       (fp,
-       "  %5.1f    %5.1f    %6.3f  %5.3f  %9.7f   %5.3f    %5.3f     %5.3f"
+       "  %5.1f    %5.1f   %6.3f  %5.3f  %9.7f   %5.3f    %5.3f     %5.3f"
        "   %6.3f  %5.3f\n",
        1e-3*df_RF, 1e-3*df_RF_est, 1e2*delta, dct,
        -globval.Omega, -1e-3*globval.Omega*f_rev, 1e3*sigma[X_],

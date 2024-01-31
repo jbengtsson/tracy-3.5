@@ -23,13 +23,13 @@ void prt_alpha_c(std::vector<double> &alpha_c)
   for (int k = 0; k < alpha_c.size(); k++) {
     if (k == 0)
       cout << scientific << setprecision(3)
-	   << setw(10) << alpha_c[k];
+	   << setw(9) << alpha_c[k];
     else if (k == 1)
       cout << scientific << setprecision(3)
-	   << setw(10) << alpha_c[k] << "*delta";
+	   << setw(9) << alpha_c[k] << "*delta";
     else if (k > 1)
       cout << scientific << setprecision(3)
-	   << setw(10) << alpha_c[k] << "*delta^" << k;
+	   << setw(9) << alpha_c[k] << "*delta^" << k;
     if (k < alpha_c.size()-1)
       cout << " + ";
   }
