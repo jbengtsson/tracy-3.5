@@ -4,8 +4,37 @@ import re
 from io import StringIO 
 import sys
 
-# Module to translate from ELEGANT to Tracy-2,3 lattice.
+'''
+Module to translate from ELEGANT to Tracy-2,3 lattice.
 
+For dipole edge focusing:
+
+Tracy-2:
+
+K. Brown 𝐴 𝐹𝑖𝑟𝑠𝑡 𝑎𝑛𝑑 𝑆𝑒𝑐𝑜𝑛𝑑 𝑂𝑟𝑑𝑒𝑟 𝑀𝑎𝑡𝑟𝑖𝑥 𝑇ℎ𝑒𝑜𝑟𝑦 𝑓𝑜𝑟 𝑡ℎ𝑒 𝐷𝑒𝑠𝑖𝑔𝑛 𝑜𝑓 𝐵𝑒𝑎𝑚 𝑇𝑟𝑎𝑛𝑠𝑝𝑜𝑟𝑡 𝑆𝑦𝑠𝑡𝑒𝑚𝑠
+𝑎𝑛𝑑 𝐶ℎ𝑎𝑟𝑔𝑒𝑑 𝑃𝑎𝑟𝑡𝑖𝑐𝑙𝑒 𝑆𝑝𝑒𝑐𝑡𝑟𝑜𝑚𝑒𝑡𝑒𝑟𝑠 p. 74 SLAC-75 (1968):
+
+  https://www.osti.gov/servlets/purl/4742148#page=81
+
+  irho h = 1/rho [1/m]
+  phi  edge angle
+  gap  full gap between poles
+
+                                    2
+        K_1 * gap *h * (1 + sin phi)
+  psi = ----------------------------- * (1 - K_2 * g * gap *tan(phi))
+                 cos phi
+
+  K_1 is usually 1/2
+  K_2 is zero here                                                  */
+  gap - full gap
+
+Elegant:
+  hgap - half gap
+  fint 
+
+
+'''
 
 debug = False
 
