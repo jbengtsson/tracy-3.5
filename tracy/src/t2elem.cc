@@ -485,13 +485,13 @@ static double get_psi(double irho, double phi, double gap)
        phi  edge angle
        gap  full gap between poles
 
-                                    2
-                   K1*gap*h*(1 + sin phi)
-            psi = ----------------------- * (1 - K2*g*gap*tan phi)
+                                     2
+                   k_1*gap*h*(1 + sin (phi))
+            psi = ----------------------- * (1 - k_1*k_2*gap*h*tan(phi))
                         cos phi
 
-            K1 is usually 1/2
-            K2 is zero here                                                  */
+            k_1 is usually 1/2
+            k_2 is zero here                                                  */
 
   double psi;
 
