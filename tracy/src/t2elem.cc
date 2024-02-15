@@ -479,7 +479,13 @@ void Drift_Pass(CellType &Cell, ss_vect<T> &x)
 
 static double get_psi(double irho, double phi, double gap)
 {
-  /* Correction for magnet gap (longitudinal fringe field)
+  /* Reference:
+     H. Enge 𝐸𝑓𝑓𝑒𝑐𝑡 𝑜𝑓 𝐸𝑥𝑡𝑒𝑛𝑑𝑒𝑑 𝐹𝑟𝑖𝑛𝑔𝑖𝑛𝑔 𝐹𝑖𝑒𝑙𝑑𝑠 𝑜𝑛 𝐼𝑜𝑛-𝐹𝑜𝑐𝑢𝑠𝑖𝑛𝑔 𝑃𝑟𝑜𝑝𝑒𝑟𝑡𝑖𝑒𝑠 𝑜𝑓 𝐷𝑒𝑓𝑙𝑒𝑐𝑡𝑖𝑛𝑔
+     𝑀𝑎𝑔𝑛𝑒𝑡𝑠 Rev. Sci. Instr. 35, 278-287 (1964).
+
+     https://doi.org/10.1063/1.1718806
+
+     Magnet gap correction (longitudinal fringe field)
 
        irho h = 1/rho [1/m]
        phi  edge angle
