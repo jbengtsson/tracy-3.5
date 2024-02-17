@@ -276,6 +276,39 @@ void compare_nu_s(const int Fnum)
 }
 
 
+void prt_lin_opt(void)
+{
+  const int
+    n_bpm = 7;
+  const string
+    bpm[n_bpm] = {
+      "BPMZ5D8R", "BPMZ6D8R", "BPMZ7D8R", "BPMZ1T8R", "BPMZ2T8R", "BPMZ3T8R",
+      "BPMZ4T8R"
+    };
+
+  bool   first = true;
+  int    loc;
+  double nu_j[2], dnu[2];
+
+  printf("\n");
+  for (int j = 0; j < n_bpm; j++) {
+    loc = Elem_GetPos(ElemIndex(bpm[j]), 1);
+    if (first) {
+      for (int k = 0; k < 2; k++) {
+	nu_j[k] = Cell[loc].Nu[k];
+	dnu[k] = 0e0;
+      }
+      first = false;
+    }
+    for (int k = 0; k < 2; k++) {
+      dnu[k] = Cell[loc].Nu[k] - nu_j[k];
+      nu_j[k] = Cell[loc].Nu[k];
+    }
+    printf("%10s %8.3f %8.3f\n", bpm[j].c_str(), dnu[X_], dnu[Y_]);
+  }
+}
+
+
 void set_lat_state(void)
 {
   globval.H_exact        = false;
@@ -318,8 +351,11 @@ int main(int argc, char *argv[])
   prt_lat("linlat.out", globval.bpm, true, 10);
   prtmfile("flat_file.dat");
 
+  if (!false)
+    prt_lin_opt();
+
   if (false)
-  compare_nu_s(ElemIndex(cav[0]));
+    compare_nu_s(ElemIndex(cav[0]));
 
   if (false)
     GetEmittance(ElemIndex(cav[0]), false, true);
@@ -329,7 +365,7 @@ int main(int argc, char *argv[])
     compute_Ddisp(2.0e-2, bpm);
   }
 
-  if (!false) {
+  if (false) {
     bpm = get_bpm();
     rf_gymnastics(ElemIndex(cav[0]), bpm, alpha_c);
   }
