@@ -288,23 +288,27 @@ void prt_lin_opt(void)
 
   bool   first = true;
   int    loc;
-  double nu_j[2], dnu[2];
+  double beta_j[2], A_rel[2], nu_j[2], dnu[2];
 
-  printf("\n");
+  printf("\n  BPM     Rel. A_x  Rel. A_y  dnu_x  dnu_y\n");
   for (int j = 0; j < n_bpm; j++) {
     loc = Elem_GetPos(ElemIndex(bpm[j]), 1);
     if (first) {
       for (int k = 0; k < 2; k++) {
+	beta_j[k] = Cell[loc].Beta[k];
 	nu_j[k] = Cell[loc].Nu[k];
 	dnu[k] = 0e0;
       }
       first = false;
     }
     for (int k = 0; k < 2; k++) {
+      A_rel[k] = sqrt(Cell[loc].Beta[k]/beta_j[k]);
+      beta_j[k] = Cell[loc].Beta[k];
       dnu[k] = Cell[loc].Nu[k] - nu_j[k];
       nu_j[k] = Cell[loc].Nu[k];
     }
-    printf("%10s %8.3f %8.3f\n", bpm[j].c_str(), dnu[X_], dnu[Y_]);
+    printf("%-10s %5.3f     %5.3f    %5.3f  %5.3f\n",
+	   bpm[j].c_str(), A_rel[X_], A_rel[Y_], dnu[X_], dnu[Y_]);
   }
 }
 
