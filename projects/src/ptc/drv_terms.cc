@@ -11,11 +11,7 @@ const bool
 const int
   n_cell     = 2;
 const double
-#if 1
-  beta_inj[] = {3.1, 3.0},
-#else
-  beta_inj[] = {3.1, 2.8},
-#endif
+  beta_inj[] = {2.8, 2.8},
   A_max[]    = {3e-3, 1.5e-3},
   delta_max  = 2e-2,
   twoJ[]     = {sqr(A_max[X_])/beta_inj[X_], sqr(A_max[Y_])/beta_inj[Y_]},
@@ -39,32 +35,35 @@ void chk_bend()
 }
 
 
-double h_abs_ijklm(const tps &h_re, const tps &h_im,
-		   const int i, const int j, const int k, const int l,
-		   const int m)
+double h_abs_ijklm
+(const tps &h_re, const tps &h_im, const int i, const int j, const int k,
+ const int l, const int m)
 {
   return sqrt(sqr(h_ijklm(h_re, i, j, k, l, m))
   	      +sqr(h_ijklm(h_im, i, j, k, l, m)));
 }
 
 
-tps get_h_local(const ss_vect<tps> &map)
+tps get_h_local(const ss_vect<tps> &map, const bool dragt_finn)
 {
   ss_vect<tps>  map1, R;
 
-  if (true)
+  if (dragt_finn)
     // Dragt-Finn factorization.
     return LieFact_DF(map, R);
   else {
     // Single Lie exponent.
-    danot_(1); map1 = map; danot_(no_tps);
+    danot_(1);
+    map1 = map;
+    danot_(no_tps);
     return LieFact(map*Inv(map1));
   }
 }
 
 
-void prt_drv_terms(ofstream &outf, const ss_vect<tps> &Id_scl, const int k,
-		   const ss_vect<tps> &map_k_Fl)
+void prt_drv_terms
+(ofstream &outf, const ss_vect<tps> &Id_scl, const int k,
+ const ss_vect<tps> &map_k_Fl)
 {
   int          loc;
   double       s;
@@ -72,7 +71,7 @@ void prt_drv_terms(ofstream &outf, const ss_vect<tps> &Id_scl, const int k,
   ss_vect<tps> A0, A1;
 
   danot_(no_tps-1);
-  CtoR(get_h_local(map_k_Fl)*Id_scl, h_re, h_im);
+  CtoR(get_h_local(map_k_Fl, true)*Id_scl, h_re, h_im);
 
   loc = k % (globval.Cell_nLoc+1);
   s = Cell[loc].S + k/(globval.Cell_nLoc+1)*Cell[globval.Cell_nLoc].S;
@@ -130,12 +129,12 @@ void prt_drv_terms(ofstream &outf, const ss_vect<tps> &Id_scl, const int k,
 }
 
 
-void prt_tab(ofstream &outf, const ss_vect<tps> &Id_scl, ss_vect<tps> &map_Fl,
-	     tps &K)
+void prt_tab
+(ofstream &outf, const ss_vect<tps> &Id_scl, ss_vect<tps> &map_Fl, tps &K)
 {
   tps h_re, h_im, k_re, k_im;
 
-  CtoR(get_h_local(map_Fl)*Id_scl, h_re, h_im);
+  CtoR(get_h_local(map_Fl, false)*Id_scl, h_re, h_im);
   CtoR(K*Id_scl, k_re, k_im);
 
   outf << scientific << setprecision(1)
@@ -215,10 +214,10 @@ void get_drv_terms(const ss_vect<tps> &Id_scl)
   ofstream     outf;
 
   const string
-    str1 = "drv_terms.out",
-    str2 = "drv_terms_tab.txt";
+    file_name_1 = "drv_terms.out",
+    file_name_2 = "drv_terms_tab.txt";
   
-  outf.open(str1.c_str(), ios::out);
+  outf.open(file_name_1.c_str(), ios::out);
 
   Id.identity();
 
@@ -229,10 +228,13 @@ void get_drv_terms(const ss_vect<tps> &Id_scl)
   MNF = MapNorm(map, 1);
 
   A_k = A_0 = MNF.A0*MNF.A1;
+  printf("\nM:");
   prt_lin_map(3, map);
+  printf("\nA^-1*M*A:");
   prt_lin_map(3, Inv(A_k)*map*A_k);
 
   map_k.identity();
+  printf("\n");
   for (k = 0; k < n_cell*(globval.Cell_nLoc+1); k++) {
     loc = k % (globval.Cell_nLoc+1);
     printf("%5d (%3ld)\n", k, n_cell*globval.Cell_nLoc);
@@ -250,7 +252,7 @@ void get_drv_terms(const ss_vect<tps> &Id_scl)
 
   outf.close();
 
-  outf.open(str2.c_str(), ios::out);
+  outf.open(file_name_2.c_str(), ios::out);
   prt_tab(outf, Id_scl, map_k_Fl, MNF.K);
   outf.close();
 }
@@ -293,11 +295,11 @@ void tst_g(const ss_vect<tps> &Id_scl)
 
 tps dacfu1(const tps &a, double (*func)(const long int []))
 {
-  char    name[11];
-  int     j, n;
+  char     name[11];
+  int      j, n;
   long int jj[ss_dim], ibuf1[bufsize], ibuf2[bufsize];
-  double  rbuf[bufsize];
-  tps     b;
+  double   rbuf[bufsize];
+  tps      b;
 
   a.exprt(rbuf, ibuf1, ibuf2, name); n = (int)rbuf[0];
 
@@ -471,6 +473,19 @@ void map_gymn(void)
 }
 
 
+void set_state(void)
+{
+  globval.H_exact        = false;
+  globval.quad_fringe    = false;
+  globval.Cavity_on      = false;
+  globval.radiation      = false;
+  globval.emittance      = false;
+  globval.IBS            = false;
+  globval.pathlength     = false;
+  globval.Aperture_on    = false;
+  globval.Cart_Bend      = false;
+  globval.dip_edge_fudge = true;
+}
 
 
 int main(int argc, char *argv[])
@@ -478,12 +493,7 @@ int main(int argc, char *argv[])
   int          k;
   ss_vect<tps> Id_scl;
 
-  globval.H_exact    = false; globval.quad_fringe    = false;
-  globval.Cavity_on  = false; globval.radiation      = false;
-  globval.emittance  = false; globval.IBS            = false;
-  globval.pathlength = false; globval.bpm            = 0;
-  globval.Cart_Bend  = false; globval.dip_edge_fudge = true;
-  globval.mat_meth   = false;
+  set_state();
 
   // disable from TPSALib and LieLib log messages
   idprset(-1);
@@ -504,7 +514,10 @@ int main(int argc, char *argv[])
 
   if (false) chk_bend();
 
-  // Ring_GetTwiss(true, 0e0); printglob();
+  if (false) {
+    Ring_GetTwiss(true, 0e0);
+    printglob();
+  }
 
   if (set_dnu) {
     set_map(ElemIndex("ps_rot"), dnu);
