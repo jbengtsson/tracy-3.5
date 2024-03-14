@@ -313,6 +313,195 @@ void prt_lin_opt(void)
 }
 
 
+void fit_ksi_1
+(const std::vector<int> &Fnum_b3, const double ksi_x, const double ksi_y,
+ const double db_3_L)
+{
+  int    n_b3, j, k;
+  double **A, **U, **V, *w, *b, *x, b3, a3;
+
+  const bool   prt = !false;
+  const int    m   = 2;
+  const double
+    ksi0[]  = {ksi_x, ksi_y},
+    svd_cut = 1e-10;
+
+  n_b3 = Fnum_b3.size();
+
+  A = dmatrix(1, m, 1, n_b3); U = dmatrix(1, m, 1, n_b3);
+  V = dmatrix(1, n_b3, 1, n_b3);
+  w = dvector(1, n_b3); b = dvector(1, m); x = dvector(1, n_b3);
+
+  // Zero sextupoles to track linear chromaticity.
+  if (false) no_sxt();
+
+  for (k = 1; k <= n_b3; k++) {
+    set_dbnL_design_fam(Fnum_b3[k-1], Sext, db_3_L, 0e0);
+    Ring_Getchrom(0e0);
+    if (prt)
+      printf("\nfit_ksi_1: ksi1+ = [%9.5f, %9.5f]\n",
+	     globval.Chrom[X_], globval.Chrom[Y_]);
+
+    for (j = 1; j <= m; j++)
+      A[j][k] = globval.Chrom[j-1];
+    set_dbnL_design_fam(Fnum_b3[k-1], Sext, -2e0*db_3_L, 0e0);
+    Ring_Getchrom(0e0);
+    if (prt)
+      printf("fit_ksi_1: ksi1- = [%9.5f, %9.5f]\n",
+	     globval.Chrom[X_], globval.Chrom[Y_]);
+    for (j = 1; j <= 2; j++) {
+      A[j][k] -= globval.Chrom[j-1]; A[j][k] /= 2e0*db_3_L;
+    }
+
+    set_dbnL_design_fam(Fnum_b3[k-1], Sext, db_3_L, 0e0);
+  }
+
+  Ring_Getchrom(0e0);
+  if (prt)
+    printf("\nfit_ksi_1: ksi1  = [%9.5f, %9.5f]\n",
+	   globval.Chrom[X_], globval.Chrom[Y_]);
+  for (j = 1; j <= 2; j++)
+    b[j] = -(globval.Chrom[j-1]-ksi0[j-1]);
+
+  dmcopy(A, m, n_b3, U); dsvdcmp(U, m, n_b3, w, V);
+
+  printf("\nfit_ksi_1:\n  singular values:\n");
+  for (j = 1; j <= n_b3; j++) {
+    printf("    %9.3e", w[j]);
+    if (w[j] < svd_cut) {
+      w[j] = 0e0;
+      printf(" (zeroed)");
+    }
+    printf("\n");
+  }
+
+  dsvbksb(U, w, V, m, n_b3, b, x);
+
+  for (k = 1; k <= n_b3; k++)
+    set_dbnL_design_fam(Fnum_b3[k-1], Sext, x[k], 0e0);
+
+  if (prt) {
+    printf("\n  b3:\n");
+    for (k = 0; k < n_b3; k++) {
+      get_bn_design_elem(Fnum_b3[k], 1, Sext, b3, a3);
+      printf("    %-8s %10.5f\n", ElemFam[Fnum_b3[k]-1].ElemF.PName, b3);
+    }
+    printf("\n");
+  }
+
+  free_dmatrix(A, 1, m, 1, n_b3); free_dmatrix(U, 1, m, 1, n_b3);
+  free_dmatrix(V, 1, n_b3, 1, n_b3);
+  free_dvector(w, 1, n_b3); free_dvector(b, 1, m); free_dvector(x, 1, n_b3);
+}
+
+
+void fit_ksi_1(const double ksi_x, const double ksi_y)
+{
+  const double db_3_L = 1.0;
+
+  std::vector<int> Fnum;
+
+  Fnum.push_back(ElemIndex("S4M2D1R"));
+  Fnum.push_back(ElemIndex("S3M2D1R"));
+  Fnum.push_back(ElemIndex("S2M2D1R"));
+  Fnum.push_back(ElemIndex("S1MT1R"));
+  Fnum.push_back(ElemIndex("S2M1T1R"));
+  Fnum.push_back(ElemIndex("S3M1T1R"));
+  Fnum.push_back(ElemIndex("S4M1T1R"));
+  Fnum.push_back(ElemIndex("S4M2T1R"));
+  Fnum.push_back(ElemIndex("S3M2T1R"));
+  Fnum.push_back(ElemIndex("S2M2T1R"));
+  Fnum.push_back(ElemIndex("S1MD2R"));
+  Fnum.push_back(ElemIndex("S2M1D2R"));
+  Fnum.push_back(ElemIndex("S3M1D2R"));
+  Fnum.push_back(ElemIndex("S4M1D2R"));
+  Fnum.push_back(ElemIndex("S4M2D2R"));
+  Fnum.push_back(ElemIndex("S3M2D2R"));
+  Fnum.push_back(ElemIndex("S2M2D2R"));
+  Fnum.push_back(ElemIndex("S1MT2R"));
+  Fnum.push_back(ElemIndex("S2M1T2R"));
+  Fnum.push_back(ElemIndex("S3M1T2R"));
+  Fnum.push_back(ElemIndex("S4M1T2R"));
+  Fnum.push_back(ElemIndex("S4M2T2R"));
+  Fnum.push_back(ElemIndex("S3M2T2R"));
+  Fnum.push_back(ElemIndex("S2M2T2R"));
+  Fnum.push_back(ElemIndex("S1MD3R"));
+  Fnum.push_back(ElemIndex("S2M1D3R"));
+  Fnum.push_back(ElemIndex("S3M1D3R"));
+  Fnum.push_back(ElemIndex("S4M1D3R"));
+  Fnum.push_back(ElemIndex("S4M2D3R"));
+  Fnum.push_back(ElemIndex("S3M2D3R"));
+  Fnum.push_back(ElemIndex("S2M2D3R"));
+  Fnum.push_back(ElemIndex("S1MT3R"));
+  Fnum.push_back(ElemIndex("S2M1T3R"));
+  Fnum.push_back(ElemIndex("S3M1T3R"));
+  Fnum.push_back(ElemIndex("S4M1T3R"));
+  Fnum.push_back(ElemIndex("S4M2T3R"));
+  Fnum.push_back(ElemIndex("S3M2T3R"));
+  Fnum.push_back(ElemIndex("S2M2T3R"));
+  Fnum.push_back(ElemIndex("S1MD4R"));
+  Fnum.push_back(ElemIndex("S2M1D4R"));
+  Fnum.push_back(ElemIndex("S3M1D4R"));
+  Fnum.push_back(ElemIndex("S4M1D4R"));
+  Fnum.push_back(ElemIndex("S4M2D4R"));
+  Fnum.push_back(ElemIndex("S3M2D4R"));
+  Fnum.push_back(ElemIndex("S2M2D4R"));
+  Fnum.push_back(ElemIndex("S1MT4R"));
+  Fnum.push_back(ElemIndex("S2M1T4R"));
+  Fnum.push_back(ElemIndex("S3M1T4R"));
+  Fnum.push_back(ElemIndex("S4M1T4R"));
+  Fnum.push_back(ElemIndex("S4M2T4R"));
+  Fnum.push_back(ElemIndex("S3M2T4R"));
+  Fnum.push_back(ElemIndex("S2M2T4R"));
+  Fnum.push_back(ElemIndex("S1MD5R"));
+  Fnum.push_back(ElemIndex("S2M1D5R"));
+  Fnum.push_back(ElemIndex("S3M1D5R"));
+  Fnum.push_back(ElemIndex("S4M1D5R"));
+  Fnum.push_back(ElemIndex("S4M2D5R"));
+  Fnum.push_back(ElemIndex("S3M2D5R"));
+  Fnum.push_back(ElemIndex("S2M2D5R"));
+  Fnum.push_back(ElemIndex("S1MT5R"));
+  Fnum.push_back(ElemIndex("S2M1T5R"));
+  Fnum.push_back(ElemIndex("S3M1T5R"));
+  Fnum.push_back(ElemIndex("S4M1T5R"));
+  Fnum.push_back(ElemIndex("S4M2T5R"));
+  Fnum.push_back(ElemIndex("S3M2T5R"));
+  Fnum.push_back(ElemIndex("S2M2T5R"));
+  Fnum.push_back(ElemIndex("S1MD6R"));
+  Fnum.push_back(ElemIndex("S2M1D6R"));
+  Fnum.push_back(ElemIndex("S3M1D6R"));
+  Fnum.push_back(ElemIndex("S4M1D6R"));
+  Fnum.push_back(ElemIndex("S4M2D6R"));
+  Fnum.push_back(ElemIndex("S3M2D6R"));
+  Fnum.push_back(ElemIndex("S2M2D6R"));
+  Fnum.push_back(ElemIndex("S1MT6R"));
+  Fnum.push_back(ElemIndex("S2M1T6R"));
+  Fnum.push_back(ElemIndex("S3M1T6R"));
+  Fnum.push_back(ElemIndex("S4M1T6R"));
+  Fnum.push_back(ElemIndex("S4M2T6R"));
+  Fnum.push_back(ElemIndex("S3M2T6R"));
+  Fnum.push_back(ElemIndex("S2M2T6R"));
+  Fnum.push_back(ElemIndex("S1MD7R"));
+  Fnum.push_back(ElemIndex("S2M1D7R"));
+  Fnum.push_back(ElemIndex("S3M1D7R"));
+  Fnum.push_back(ElemIndex("S4M1D7R"));
+  Fnum.push_back(ElemIndex("S4M2D7R"));
+  Fnum.push_back(ElemIndex("S3M2D7R"));
+  Fnum.push_back(ElemIndex("S2M2D7R"));
+  Fnum.push_back(ElemIndex("S1MT7R"));
+  Fnum.push_back(ElemIndex("S2M1T7R"));
+  Fnum.push_back(ElemIndex("S3M1T7R"));
+  Fnum.push_back(ElemIndex("S4M1T7R"));
+  Fnum.push_back(ElemIndex("S4M2T7R"));
+  Fnum.push_back(ElemIndex("S3M2T7R"));
+  Fnum.push_back(ElemIndex("S2M2T7R"));
+  Fnum.push_back(ElemIndex("S1MD8R"));
+  Fnum.push_back(ElemIndex("S4M2D1R"));
+
+  fit_ksi_1(Fnum, ksi_x, ksi_y, db_3_L);
+}
+
+
 void set_lat_state(void)
 {
   globval.H_exact        = false;
@@ -357,6 +546,11 @@ int main(int argc, char *argv[])
 
   if (!false)
     prt_lin_opt();
+
+  if (false) {
+    fit_ksi_1(0.0, 0.0);
+    get_ksi2(3e-2, 20);
+  }
 
   if (false)
     compare_nu_s(ElemIndex(cav[0]));
