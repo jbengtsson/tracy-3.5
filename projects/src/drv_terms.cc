@@ -1,30 +1,29 @@
+/* Author: Johan Bengtsson.
 
-/* Description:
+   Module:
 
-   Control of on & off-momentum dynamic aperture.
-   Evaluates & minimizes the Lie generators to 2nd order in the sextupole
-   strengths.
-   Developed for a streamlined, systematic design process for numerical
-   optimizations for the first implementation of a Higher-Order-Achromat,
-   aka SLS (Swiss Light Source), i.e., a 3rd Order Achromat [1].
+   Control of dynamic aperture.
+   Pascal module developed for the SLS conceptual design in 1995.
+   Machine translated to C - by utilising P2C - in 2004 for the conceptual
+   design of NSLS-II.
 
-   Initially coded in Pascal & ported to OPA. The latter a derivative of
-   OPTIK by K. Wille, DELTA, Dortmund Univ. A CAD tool for Linear Optics Design;
-   i.e., interactive, coded in Turbo Pascal. However, the underlying model had
-   to be corrected for 6D symplectic matrix formalism (phase space vs.
-   configuration space, p. 11 ref. [1]). Because, clearly, chromatic effects
-   beyond leading order must be evaluated for state-of-the-arts Linear Optics
-   Design.
+   Description:
+
+   Procedures to compute and minimize the sextupolar driving terms to second
+   order, amplitude dependent tune shifts(, and second order chromaticity).
 
    References:
 
-   [1] J. Bengtsson "The Sextupole Scheme for the Swiss Light Source (SLS):
-       An Analytic Approach" SLS Note 9/97 (1997).
-   [2] A. Streun OPA.
-   [3] D. Schirmer, K. Wille "DELTA Optics" PAC 1991.
+   [1] J. Bengssson 𝐶𝑜𝑛𝑡𝑟𝑜𝑙 𝑜𝑓 𝐷𝑦𝑛𝑎𝑚𝑖𝑐 𝐴𝑝𝑒𝑟𝑡𝑢𝑟𝑒 𝑓𝑜𝑟 𝑆𝑦𝑛𝑐ℎ𝑟𝑜𝑡𝑟𝑜𝑛 𝐿𝑖𝑔ℎ𝑡 𝑆𝑜𝑢𝑟𝑐𝑒𝑠 PAC 2005.
 
-   Johan Bengtsson                                                            */
+       https://accelconf.web.cern.ch/P05/PAPERS/MPPE020.PDF
 
+   [2] J. Bengtsson 𝑇ℎ𝑒 𝑆𝑒𝑥𝑡𝑢𝑝𝑜𝑙𝑒 𝑆𝑐ℎ𝑒𝑚𝑒 𝑓𝑜𝑟 𝑡ℎ𝑒 𝑆𝑤𝑖𝑠𝑠 𝐿𝑖𝑔ℎ𝑡 𝑆𝑜𝑢𝑟𝑐𝑒 (𝑆𝐿𝑆):
+       𝐴𝑛 𝐴𝑛𝑎𝑙𝑦𝑡𝑖𝑐 𝐴𝑝𝑝𝑟𝑜𝑎𝑐ℎ SLS Note 9/97 (1997).
+
+       https://ados.web.psi.ch/slsnotes/sls0997.pdf
+
+*/
 
 struct drv_terms_type {
 private:
@@ -33,11 +32,13 @@ public:
   std::vector<string> h_label;
   std::vector<double> h_scl, h_c, h_s, h;
 
-  void get_h_scl(double scl_ksi_1, double scl_h_3, double scl_h_3_delta,
-		 double scl_h_4, double scl_ksi_2, double scl_chi_2,
-		 double scl_chi_delta_2, double scl_ksi_3);
-  void get_h(const double delta_eps, const double twoJ[], const double delta,
-	     const double twoJ_delta[]);
+  void get_h_scl
+  (double scl_ksi_1, double scl_h_3, double scl_h_3_delta, double scl_h_4,
+   double scl_ksi_2, double scl_chi_2, double scl_chi_delta_2,
+   double scl_ksi_3);
+  void get_h
+  (const double delta_eps, const double twoJ[], const double delta,
+   const double twoJ_delta[]);
   void prt_h(FILE *outf, const char *str, const int i0, const int i1);
   void prt_h_abs(FILE *outf, const char *str, const int i0, const int i1);
   void print(void);
@@ -58,8 +59,8 @@ void propagate_drift(const double L, ss_vect<tps> &A)
 }
 
 
-void propagate_thin_kick(const double L, const double rho_inv,
-			 const double b2, ss_vect<tps> &A)
+void propagate_thin_kick
+(const double L, const double rho_inv, const double b2, ss_vect<tps> &A)
 {
   // Thin-kick propagator.
 
@@ -75,8 +76,8 @@ void propagate_thin_kick(const double L, const double rho_inv,
 }
 
 
-void propagate_fringe_field(const double L, const double rho_inv,
-			    const double phi, ss_vect<tps> &A)
+void propagate_fringe_field
+(const double L, const double rho_inv, const double phi, ss_vect<tps> &A)
 {
   // Dipole harde-edge fringe field propagator.
 
@@ -93,13 +94,12 @@ void propagate_fringe_field(const double L, const double rho_inv,
 }
 
 
-void get_quad(const double L,
-	      const double rho_inv, const double phi1, const double phi2,
-	      const double b2,
-	      const double alpha0[], const double beta0[], const double nu0[],
-	      const double eta0[], const double etap0[],
-	      const int m_x, const int m_y, const int n_x, const int n_y,
-	      const int m, double &h_c, double &h_s)
+void get_quad
+(const double L, const double rho_inv, const double phi1, const double phi2,
+ const double b2, const double alpha0[], const double beta0[],
+ const double nu0[], const double eta0[], const double etap0[],
+ const int m_x, const int m_y, const int n_x, const int n_y, const int m,
+ double &h_c, double &h_s)
 {
   // Quad propagator: second order symplectic integrator.
   // Use Simpson's rule to integrate for thick magnets.
@@ -197,9 +197,9 @@ void get_quad(const double L,
 }
 
 
-void get_h_ijklm(const int i, const int j, const int k, const int l,
-		 const int m, ss_vect<tps> &A, double nu[], double &c,
-		 double &s)
+void get_h_ijklm
+(const int i, const int j, const int k, const int l, const int m,
+ ss_vect<tps> &A, double nu[], double &c, double &s)
 {
   int    k1;
   double alpha[2], beta[2], dnu[2], eta[2], etap[2], phi, ampl;
@@ -240,8 +240,9 @@ long int ind(long int k)
 }
 
 
-void get_twiss(const int n, double alpha[], double beta[], double eta[],
-	       double etap[], double nu[])
+void get_twiss
+(const int n, double alpha[], double beta[], double eta[], double etap[],
+ double nu[])
 {
   int k;
 
@@ -255,8 +256,9 @@ void get_twiss(const int n, double alpha[], double beta[], double eta[],
 }
 
 
-void get_lin_map(const int n_step, const double delta, const elemtype &Elem, 
-		 ss_vect<tps> &M1, ss_vect<tps> &M2, ss_vect<tps> &M)
+void get_lin_map
+(const int n_step, const double delta, const elemtype &Elem, ss_vect<tps> &M1,
+ ss_vect<tps> &M2, ss_vect<tps> &M)
 {
 
   if (Elem.PL != 0e0) {
@@ -272,9 +274,9 @@ void get_lin_map(const int n_step, const double delta, const elemtype &Elem,
 }
 
 
-void get_mult(const int loc, const int n_step, const double delta,
-	      const int i, const int j, const int k, const int l, const int m,
-	      double &h_c, double &h_s)
+void get_mult
+(const int loc, const int n_step, const double delta, const int i, const int j,
+ const int k, const int l, const int m, double &h_c, double &h_s)
 {
   int          k1;
   double       nu[2];
@@ -304,9 +306,10 @@ void get_mult(const int loc, const int n_step, const double delta,
 }
 
 
-void sxt_1(const double scl, const double twoJ[], const double delta, 
-	   const int i, const int j, const int k, const int l, const int m,
-	   double &h_c, double &h_s, const bool incl_b3)
+void sxt_1
+(const double scl, const double twoJ[], const double delta, const int i,
+ const int j, const int k, const int l, const int m, double &h_c, double &h_s,
+ const bool incl_b3)
 {
   // First order generators.
 
@@ -350,10 +353,10 @@ void sxt_1(const double scl, const double twoJ[], const double delta,
 }
 
 
-void sxt_2(const double scl,
-	   const int i1, const int j1, const int k1, const int l1,
-	   const int i2, const int j2, const int k2, const int l2,
-	   double &h_c, double &h_s)
+void sxt_2
+(const double scl, const int i1, const int j1, const int k1, const int l1,
+ const int i2, const int j2, const int k2, const int l2, double &h_c,
+ double &h_s)
 {
   // Second order generators.
 
@@ -498,8 +501,9 @@ void get_ksi2_(const double delta_eps, double ksi2[])
 }
 
 
-double get_chi2_(const std::vector<double> &x, const std::vector<double> &y,
-		 const int n, double *b)
+double get_chi2_
+(const std::vector<double> &x, const std::vector<double> &y, const int n,
+ double *b)
 {
   int    i, j;
   double sum, z;
@@ -517,8 +521,9 @@ double get_chi2_(const std::vector<double> &x, const std::vector<double> &y,
 }
 
 
-void pol_fit_(const std::vector<double> &x, const std::vector<double> &y,
-	      const int n, double *b, double &sigma)
+void pol_fit_
+(const std::vector<double> &x, const std::vector<double> &y, const int n,
+ double *b, double &sigma)
 {
   int    i, j, k;
   double *b1, **T, **T_inv;
@@ -558,8 +563,8 @@ void pol_fit_(const std::vector<double> &x, const std::vector<double> &y,
 }
 
 
-void get_ksi_(const double delta_rng, const int order, const int n_pts,
-	      double ksi[][2])
+void get_ksi_
+(const double delta_rng, const int order, const int n_pts, double ksi[][2])
 {
   int                 i, k;
   double              *b, sigma;
@@ -600,10 +605,11 @@ void cross_terms(const double delta_eps, const double nu[], double ad[])
 }
 
 
-void h_1(const double scl, const double twoJ[], const double delta,
-	 const int i, const int j, const int k, const int l,
-	 const int m, std::vector<string> &h_label,
-	 std::vector<double> &h_c, std::vector<double> &h_s, const string &str)
+void h_1
+(const double scl, const double twoJ[], const double delta, const int i,
+ const int j, const int k, const int l, const int m,
+ std::vector<string> &h_label, std::vector<double> &h_c,
+ std::vector<double> &h_s, const string &str)
 {
   double c, s;
 
@@ -612,17 +618,18 @@ void h_1(const double scl, const double twoJ[], const double delta,
 }
 
 
-void h_2(const string &str, const double c, const double s,
-	 std::vector<string> &h_label, std::vector<double> &h_c,
-	 std::vector<double> &h_s)
+void h_2
+(const string &str, const double c, const double s,
+ std::vector<string> &h_label, std::vector<double> &h_c,
+ std::vector<double> &h_s)
 {
   h_label.push_back(str); h_c.push_back(c); h_s.push_back(s);
 }
 
 
-void first_order(const double twoJ[], const double delta,
-		 std::vector<string> &h_label, std::vector<double> &h_c,
-		 std::vector<double> &h_s)
+void first_order
+(const double twoJ[], const double delta, std::vector<string> &h_label,
+ std::vector<double> &h_c, std::vector<double> &h_s)
 {
   double ksi1[2], s;
 
@@ -646,8 +653,9 @@ void first_order(const double twoJ[], const double delta,
 }
 
 
-void second_order(const double twoJ[], std::vector<string> &h_label,
-		  std::vector<double> &h_c, std::vector<double> &h_s)
+void second_order
+(const double twoJ[], std::vector<string> &h_label, std::vector<double> &h_c,
+ std::vector<double> &h_s)
 {
   double c, s;
 
@@ -724,9 +732,10 @@ void second_order(const double twoJ[], std::vector<string> &h_label,
 }
 
 
-void tune_fp(const double delta_eps, const double twoJ[], const double delta,
-	     const double twoJ_delta[], std::vector<string> &h_label,
-	     std::vector<double> &h_c, std::vector<double> &h_s)
+void tune_fp
+(const double delta_eps, const double twoJ[], const double delta,
+ const double twoJ_delta[], std::vector<string> &h_label,
+ std::vector<double> &h_c, std::vector<double> &h_s)
 {
   const int    order = 3, n_pts = 3;
   const double delta_rng = 1e-2;
@@ -767,8 +776,8 @@ void tune_fp(const double delta_eps, const double twoJ[], const double delta,
 }
 
 
-void drv_terms_type::prt_h(FILE *outf, const char *str, const int i0,
-			   const int i1)
+void drv_terms_type::prt_h
+(FILE *outf, const char *str, const int i0, const int i1)
 {
   int k;
 
@@ -779,8 +788,8 @@ void drv_terms_type::prt_h(FILE *outf, const char *str, const int i0,
 }
 
 
-void drv_terms_type::prt_h_abs(FILE *outf, const char *str, const int i0,
-			       const int i1)
+void drv_terms_type::prt_h_abs
+(FILE *outf, const char *str, const int i0, const int i1)
 {
   int k;
 
@@ -803,10 +812,9 @@ void drv_terms_type::print(void)
 }
 
 
-void drv_terms_type::get_h_scl(double scl_ksi_1, double scl_h_3,
-			       double scl_h_3_delta, double scl_h_4,
-			       double scl_ksi_2, double scl_ksi_3,
-			       double scl_chi_2, double scl_chi_delta_2)
+void drv_terms_type::get_h_scl
+(double scl_ksi_1, double scl_h_3, double scl_h_3_delta, double scl_h_4,
+ double scl_ksi_2, double scl_ksi_3, double scl_chi_2, double scl_chi_delta_2)
 {
   int k;
 
@@ -838,8 +846,9 @@ void drv_terms_type::get_h_scl(double scl_ksi_1, double scl_h_3,
 }
 
 
-void drv_terms_type::get_h(const double delta_eps, const double twoJ[],
-			   const double delta, const double twoJ_delta[])
+void drv_terms_type::get_h
+(const double delta_eps, const double twoJ[], const double delta,
+ const double twoJ_delta[])
 {
   int k;
 
