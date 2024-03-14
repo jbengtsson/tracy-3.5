@@ -32,7 +32,7 @@ void prt_alpha_c(std::vector<double> &alpha_c)
     if (k < alpha_c.size()-1)
       cout << " + ";
   }
-  
+  cout << "\n";
 
   if (NO >= 3) {
     cout << fixed << setprecision(2)
@@ -74,8 +74,7 @@ void compute_f_0(const int Fnum, const std::vector<double> &alpha_c)
     cod_n_max = 10;
   const double
     cod_eps   = 1e-10,
-    f_RF_step = 1e3,
-    C_0       = Cell[globval.Cell_nLoc].S;
+    f_RF_step = 1e3;
 
   long int lastpos;
   double   f_RF, df_RF, dct, delta, df_RF_mod;
