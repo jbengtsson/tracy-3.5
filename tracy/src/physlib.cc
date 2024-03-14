@@ -63,7 +63,7 @@ void printglob(void)
 	 "  RFAccept [%%] = %4.2f\n",
          Cell[0].maxampl[X_][0], Cell[0].maxampl[Y_][0],
 	 globval.delta_RF*1e2);
-  printf(" Cavity_On    =  %s    ", globval.Cavity_on ? "TRUE " : "FALSE");
+  printf("  Cavity_On    =  %s    ", globval.Cavity_on ? "TRUE " : "FALSE");
   printf("  Radiation_On = %s     \n",
 	 globval.radiation ? "TRUE " : "FALSE");
   printf("  bpm          =  %3d        qt           = %3d        ",
