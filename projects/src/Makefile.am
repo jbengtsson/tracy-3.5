@@ -1,6 +1,6 @@
 #SUBDIRS      = ptc
 
-bin_PROGRAMS = optics dynap leac dnu touschek ibs vlad tbt \
+bin_PROGRAMS = optics dynap leac dnu touschek ibs vlad tbt tbt_ref \
                max_iv_1 max_iv_2 ibs_for_les delta bare_da match \
                carbon_map dls 6BA track_fft m4 m4_mod dls_ii track opt_des_1 \
 	       opt_des_2 id_model sigma tech_note dx_dj tune_scan sxt \
@@ -18,6 +18,7 @@ touschek_SOURCES          = touschek.cc
 ibs_SOURCES               = ibs.cc
 vlad_SOURCES              = vlad.cc
 tbt_SOURCES               = tbt.cc
+tbt_ref_SOURCES           = tbt_ref.cc
 max_iv_1_SOURCES          = max_iv_1.cc
 max_iv_2_SOURCES          = max_iv_2.cc
 ibs_for_les_SOURCES       = ibs_for_les.cc
