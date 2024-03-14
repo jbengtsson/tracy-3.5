@@ -6,17 +6,18 @@ int no_tps = NO;
 
 const int  n_bpm_max = 100;
 
-char    bpm_names[n_bpm_max][max_str];
-int     n_bpm, n_turn_, n_stats, jj[ss_dim];
-double  data[n_bpm_max][2][2048];
-double  alpha_mean[2], alpha_sigma[2];
-double  betas_sum[n_bpm_max][2], betas_sum2[n_bpm_max][2];
-double  betas_mean[n_bpm_max][2], betas_sigma[n_bpm_max][2];
-double  dnus_sum[n_bpm_max][2], dnus_sum2[n_bpm_max][2];
-double  dnus_mean[n_bpm_max][2], dnus_sigma[n_bpm_max][2];
-double  twoJ[n_bpm_max][2][2048], phi[n_bpm_max][2][2048];
-double  phi0[n_bpm_max][2][2048];
-double  tune_mean[2], tune_sigma[2];
+char     bpm_names[n_bpm_max][max_str];
+long int jj[ss_dim];
+int      n_bpm, n_turn_, n_stats;
+double   data[n_bpm_max][2][2048];
+double   alpha_mean[2], alpha_sigma[2];
+double   betas_sum[n_bpm_max][2], betas_sum2[n_bpm_max][2];
+double   betas_mean[n_bpm_max][2], betas_sigma[n_bpm_max][2];
+double   dnus_sum[n_bpm_max][2], dnus_sum2[n_bpm_max][2];
+double   dnus_mean[n_bpm_max][2], dnus_sigma[n_bpm_max][2];
+double   twoJ[n_bpm_max][2][2048], phi[n_bpm_max][2][2048];
+double   phi0[n_bpm_max][2][2048];
+double   tune_mean[2], tune_sigma[2];
 
 // Kalman filter.
 ss_vect<tps>  Id, A, A_tp, H, H_tp, R, Q, P, K_;
@@ -246,7 +247,7 @@ void get_ind(const int n, const int k, int &ind1, int &ind3)
 double get_nu(const int n, const double A[], const int k, const int window)
 {
   int     ind, ind1, ind3;
-  double  A1, A2, nu;
+  double  A1, A2, nu = 0e0;
 
   get_ind(n, k, ind1, ind3);
   if (A[ind3] > A[ind1]) {
@@ -282,7 +283,7 @@ double get_nu(const int n, const double A[], const int k, const int window)
 double get_A(const int n, const double A[], const double nu, int k,
 	     const int window)
 {
-  double corr;
+  double corr = 0e0;
 
   switch (window) {
   case 1:
@@ -639,7 +640,7 @@ void Kalman_Filter1(void)
 {
   // Kalman filter in Floquet space
 
-  ss_vect<tps>  Pm, Sm;
+  ss_vect<tps> Pm, Sm;
 
   // predictor
   Pm = A*P*A_tp + Q;
@@ -655,7 +656,7 @@ void Kalman_Filter2(ss_vect<double> &x, const ss_vect<double> &z)
 {
   // Kalman filter in Floquet space
 
-  ss_vect<tps>  xm;
+  ss_vect<tps> xm;
 
   // predictor
   xm = (A*x).cst();
@@ -694,8 +695,10 @@ void ss_est(const int n_bpm, const int cut, const int n)
     for (k = 0; k < 2; k++)
       rm_mean(n, data[j][k]);
 
-  map.identity(); putlinmat(2*n_DOF, globval.OneTurnMat, map);
-  Ascr.identity(); putlinmat(2*n_DOF, globval.Ascr, Ascr);
+  map.identity();
+  map = putlinmat(2*n_DOF, globval.OneTurnMat);
+  Ascr.identity();
+  Ascr = putlinmat(2*n_DOF, globval.Ascr);
   A = PInv(Ascr, jj)*map*Ascr;
 
   cout << endl;
