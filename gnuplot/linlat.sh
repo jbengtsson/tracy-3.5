@@ -11,8 +11,9 @@ plt_I5    = 1;
 
 
 f_s = 24; l_w = 2;
+# Enhanced is needed for Greek characters.
 if (ps == 0) \
-  set terminal qt 0 font "Sans, 9"; \
+  set terminal qt 0 enhanced font "Sans, 9"; \
 else if (ps == 1) \
   set terminal postscript enhanced color solid lw l_w "Times-Roman" f_s; \
   ext = "ps"; \
@@ -51,6 +52,10 @@ plot file_name.".out" using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
      file_name.".out" using 3:8 title "{/Symbol h}_x" with lines ls 1, \
      file_name.".out" using 3:13 title "{/Symbol h}_y" with lines ls 3;
 if (!ps) pause mouse "click on graph to cont.\n";
+
+exit;
+
+# Symbol characters broken for > \219.
 
 if (ps) set output file_name."_3.".(ext);
 set title "{/Symbol b}_{x,y}{/Symbol \264h}_x";
