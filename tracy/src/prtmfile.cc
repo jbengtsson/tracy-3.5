@@ -50,8 +50,8 @@
                  harm no, kxV [1/m], BoBrhoV [1/m], kxH, BoBrhoH, phi
                     ...
 
-     cavity:	 cavity voltage/beam energy [eV], omega/c, beam energy [eV],
-                 phi
+     cavity:	 L [m], cavity voltage/beam energy [eV], omega/c,
+                 beam energy [eV], phi
 
      thin kick:	 hor., ver. displacement, roll angle (total)
 		 no of nonzero multipole coeff.
@@ -162,8 +162,8 @@ void prtmfile(const char mfile_dat[])
       break;
     case Cavity:
       prtName(mfile, i, cavity_, 0, 0, 0);
-      fprintf(mfile, " %23.16e %23.16e %d %23.16e %23.16e\n",
-	      Cell[i].Elem.C->V_RF/(1e9*globval.Energy),
+      fprintf(mfile, " %23.16e %23.16e %23.16e %d %23.16e %23.16e\n",
+	      Cell[i].Elem.PL, Cell[i].Elem.C->V_RF/(1e9*globval.Energy),
 	      2.0*M_PI*Cell[i].Elem.C->f_RF/c0, Cell[i].Elem.C->harm_num,
 	      1e9*globval.Energy, Cell[i].Elem.C->phi_RF);
       break;
