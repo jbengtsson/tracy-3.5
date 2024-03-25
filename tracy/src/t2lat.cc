@@ -625,11 +625,11 @@ static void Lat_GetSym(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     do {
       if (*V.chin == '"')
 	parsename = !parsename;
-      if (V.k < NameLength) {
+      if (V.k < SymbolLength) {
 	V.k++; id[V.k-1] = *V.chin;
       } else {
 	printf("In Lat_GetSym, symbol: %s too long, max value is %d\n",
-		id, NameLength);
+	       id, SymbolLength);
 	exit_(1);
       }
       NextCh(&V);
