@@ -3244,7 +3244,7 @@ void pol_fit(int n, double x[], double y[], int order, psVector &b,
 
 void get_ksi2(const double d_delta, const int n_step)
 {
-  const int order = 5;
+  const int order = 3;
 
   int      i, n;
   double   delta[2*n_step+1], nu[2][2*n_step+1], sigma;
