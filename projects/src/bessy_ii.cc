@@ -544,12 +544,12 @@ int main(int argc, char *argv[])
   prt_lat("linlat.out", globval.bpm, true, 10);
   prtmfile("flat_file.dat");
 
-  if (!false)
+  if (false)
     prt_lin_opt();
 
-  if (false) {
+  if (!false) {
     fit_ksi_1(0.0, 0.0);
-    get_ksi2(3e-2, 20);
+    get_ksi2(3e-2, 10);
   }
 
   if (false)
@@ -560,7 +560,7 @@ int main(int argc, char *argv[])
 
   if (false) {
     bpm = get_bpm();
-    compute_Ddisp(2.0e-2, bpm);
+    compute_Ddisp(2e-2, bpm);
   }
 
   if (false) {
