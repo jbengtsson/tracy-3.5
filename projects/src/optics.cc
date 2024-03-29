@@ -1628,7 +1628,7 @@ int main(int argc, char *argv[])
 
   trace            = false;
   reverse_elem     = true;
-  globval.mat_meth = !false;
+  globval.mat_meth = false;
 
   if (true)
     Read_Lattice(argv[1]);
@@ -1749,9 +1749,9 @@ int main(int argc, char *argv[])
     // exit(0);
   }
 
-  if (false) {
-    chk_optics(0.0, 8.20878, 0.00557, 0.0,
-	       0.0, 3.50066, 0.0,     0.0);
+  if (!false) {
+    chk_optics(0.04355, 17.02439, -0.01098, 0.00052,
+	       -0.02641, 3.79429, 0.0, 0.0);
     prt_lat("linlat1.out", globval.bpm, true);
     prt_lat("linlat.out", globval.bpm, true, 10);
     prtmfile("flat_file.dat");
