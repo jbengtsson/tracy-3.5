@@ -9,13 +9,8 @@ const int
   n_step = 25;
 
 const double
-#if 1
-  A_max[]   = {4e-3, 3e-3},
-  delta_max = 5e-2;
-#else
-  A_max[]   = {15e-3, 10e-3},
-  delta_max = 5e-2;
-#endif
+  A_max[]   = {6e-3, 3e-3},
+  delta_max = 4e-2;
 
 
 int main(int argc, char *argv[])

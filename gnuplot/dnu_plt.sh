@@ -38,7 +38,7 @@ else if (ps == 4) \
 
 if ((N == 1) && (case == 1)) \
   N_x = 44; N_y = 12; \
-else if ((N == 16) && (case == 1)) \
+else if ((N == 20) && (case == 1)) \
   N_x = 2; N_y = 0; \
 else if ((N == 1) && (case == 2)) \
   N_x = 17; N_y = 6;
@@ -56,7 +56,7 @@ set style line 2 lt 1 lw l_w lc rgb "dark-green";
 set style line 3 lt 1 lw l_w lc rgb "red";
 set style line 4 lt 1 lw l_w lc rgb "dark-orange";
 
-set clabel "%5.2f"; set key left;
+#set clabel "%5.2f"; set key left;
 
 set palette rgbformulae 22, 13, -31 negative;
 
