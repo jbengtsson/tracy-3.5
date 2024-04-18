@@ -1,7 +1,7 @@
 #!/bin/sh
 
 prm1=${1-0}
-prm2=${2-3.0}
+prm2=${2-4.0}
 
 gnuplot << EOP
 
