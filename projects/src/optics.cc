@@ -180,8 +180,9 @@ void fit_ksi1(const int lat_case, const double ksi_x, const double ksi_y)
 
   switch (lat_case) {
   case 1:
-    Fnum.push_back(ElemIndex("sf"));
-    Fnum.push_back(ElemIndex("sd"));
+    Fnum.push_back(ElemIndex("sf_h"));
+    Fnum.push_back(ElemIndex("sd1"));
+    Fnum.push_back(ElemIndex("sd2"));
     break;
   case 2:
     Fnum.push_back(ElemIndex("sd1"));
@@ -1582,6 +1583,27 @@ ss_vect<tps> chop_map(const int n_dof, ss_vect<tps> map, const double eps)
 }
 
 
+void FitTune(long int qf, long int qd, double nu_x, double nu_y)
+{
+  iVector2 n_q;
+  Vector2  nu  = {nu_x, nu_y};
+
+  n_q[0] = GetnKid(qf);
+  n_q[1] = GetnKid(qd);
+
+  long int
+    qf_list[n_q[0]],
+    qd_list[n_q[1]];
+
+  for (int k = 0; k < n_q[0]; k++)
+    qf_list[k] = Elem_GetPos(qf, k+1);
+  for (int k = 0; k < n_q[1]; k++)
+    qd_list[k] = Elem_GetPos(qd, k+1);
+
+  Ring_Fittune(nu, nueps, n_q, qf_list, qd_list, nudkL, nuimax);
+}
+
+
 void set_state(void)
 {
   globval.H_exact        = false;
@@ -1610,16 +1632,11 @@ int main(int argc, char *argv[])
   ss_vect<tps>     Ascr, A_Atp, Id, Ms;
   ostringstream    str;
 
-  const int    n_turn = 2064;
-  const double delta  = 2e-2;
-  //                   nu[]    = { 102.18/20.0, 68.30/20.0 };
-  // const std::string q_fam[] = { "qfe", "qde" }, s_fam[] = { "sfh", "sd" };
-  //                   nu[]    = { 39.1/12.0, 15.25/12.0 };
-  //                   // nu[]    = { 3.266+0.01, 1.275 };
-  // const std::string q_fam[] = { "qm2b", "qm3" }, s_fam[] = { "sfh", "sd" };
-  const std::string
-    q_fam[] = { "qf03", "qd04" },
-    s_fam[] = { "sfh", "sd" };
+  const int
+    n_turn = 2064;
+  const double
+    delta = 4e-2,
+    nu[]  = { 42.20/20.0, 16.28/20.0 };
 
   const double R_ref = 5e-3;
 
@@ -1749,7 +1766,7 @@ int main(int argc, char *argv[])
     // exit(0);
   }
 
-  if (!false) {
+  if (false) {
     chk_optics(0.04355, 17.02439, -0.01098, 0.00052,
 	       -0.02641, 3.79429, 0.0, 0.0);
     prt_lat("linlat1.out", globval.bpm, true);
@@ -2122,18 +2139,21 @@ int main(int argc, char *argv[])
   }
 
   if (false) {
-    // b2_fam[0] = ElemIndex(q_fam[0].c_str());
-    // b2_fam[1] = ElemIndex(q_fam[1].c_str());
-    // FitTune(b2_fam[0], b2_fam[1], nu[X_], nu[Y_]);
-    // get_bn_design_elem(b2_fam[0], 1, Quad, b2[0], a2);
-    // get_bn_design_elem(b2_fam[1], 1, Quad, b2[1], a2);
+    const std::string
+      q_fam[] = { "qf2", "qd" };
+    const long int
+      b2_fam[] = {ElemIndex(q_fam[0].c_str()), ElemIndex(q_fam[1].c_str())};
+    double
+      b2[2], a2;
 
-    // printf("\nnu_x = %8.5f nu_y = %8.5f\n",
-    // 	   globval.TotalTune[X_], globval.TotalTune[Y_]);
-    // printf("  %s = %8.5f  %s = %8.5f\n",
-    // 	   q_fam[0].c_str(), b2[0], q_fam[1].c_str(), b2[1]);
+    FitTune(b2_fam[0], b2_fam[1], nu[X_], nu[Y_]);
+    get_bn_design_elem(b2_fam[0], 1, Quad, b2[0], a2);
+    get_bn_design_elem(b2_fam[1], 1, Quad, b2[1], a2);
 
-    // Ring_GetTwiss(true, 0e0); printglob();
+    printf("  %s = %8.5f  %s = %8.5f\n",
+	   q_fam[0].c_str(), b2[0], q_fam[1].c_str(), b2[1]);
+
+    Ring_GetTwiss(true, 0e0); printglob();
   }
 
   if (false) {
