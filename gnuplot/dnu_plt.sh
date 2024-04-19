@@ -56,7 +56,7 @@ set style line 2 lt 1 lw l_w lc rgb "dark-green";
 set style line 3 lt 1 lw l_w lc rgb "red";
 set style line 4 lt 1 lw l_w lc rgb "dark-orange";
 
-#set clabel "%5.2f"; set key left;
+set cntrlabel format "%5.2f"; set key left;
 
 set palette rgbformulae 22, 13, -31 negative;
 

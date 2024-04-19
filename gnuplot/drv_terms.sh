@@ -26,7 +26,7 @@ else if (ps == 4) \
 
 # left adjusted labels
 #set key Left;
-set clabel "%5.2f"; set key left;
+set cntrlabel format "%5.2f"; set key left;
 
 set grid;
 
