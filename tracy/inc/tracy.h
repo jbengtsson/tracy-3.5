@@ -41,7 +41,7 @@
 #define DBNameLen       39
 
 #define NameLength      150  // maximum length of identifiers (e.g. file names)
-#define SymbolLength    15   // maximum length of element name
+#define SymbolLength    20   // maximum length of element name
 
 #define blankname       "               "
 
