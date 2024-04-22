@@ -248,7 +248,7 @@ def get_arg(str, decls):
     return arg
 
 
-def parse_definition(line, tokens, decls):
+def parse_definition(line_no, line, tokens, decls):
     n_elem = 10; # No of elements per line.
 
     for k in range(len(tokens)):
@@ -258,7 +258,7 @@ def parse_definition(line, tokens, decls):
     try:
         str = ele2tracy[tokens[1]](line, tokens, decls)
     except KeyError:
-        print('\n*** undefined token!')
+        print('\n*** line {:d} undefined token!'.format(line_no))
         print(line)
         exit(1)
     return str
@@ -276,12 +276,13 @@ def parse_line(line_no, line, outf, decls):
         outf.write('{ %s }\n' % (line.strip('!')))
     elif line_lc.startswith('%'):
         # Declaration.
-        outf.write('%s;\n' % (parse_decl(line_lc.strip('%'), decls)))
+        outf.write('%s;\n' % (parse_decl(line_no, line_lc.strip('%'), decls)))
     else:
         if line_lc.find(':') != -1:
             # Definition.
             tokens = re.split(r'[,:=]', line_lc)
-            outf.write('%s\n' % (parse_definition(line_lc, tokens, decls)))
+            outf.write('%s\n'
+                       % (parse_definition(line_no, line_lc, tokens, decls)))
         else:
             print('\n*** undefined statement!')
             print(line)
