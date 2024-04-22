@@ -2158,7 +2158,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     t1 = 0.0;   /* T1 */
     t2 = 0.0;   /* T2 */
     gap = 0.0;   /* gap */
-    k2 = Meth_Linear;   /* method */
+    k2 = Meth_Fourth;   /* method */
     dt = 0.0;
     ClearHOMandDBN(&V);
     P_addset(P_expset(mysys, 0), (long)lsym);
@@ -2618,7 +2618,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     QL = 0.0;   /* L */
     QK = 0.0;   /* K */
     k1 = 0;     /* N */
-    k2 = Meth_Linear;   /* method */
+    k2 = Meth_Fourth;   /* method */
     dt = 0.0;
     ClearHOMandDBN(&V);
     getest__(P_expset(SET, 1 << ((long)comma)), "<, > expected", &V);
@@ -2885,7 +2885,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     t1 = 0.0;   /* T1 */
     t2 = 0.0;   /* T2 */
     gap = 0.0;   /* gap */
-    k2 = Meth_Linear;   /* method */
+    k2 = Meth_Fourth;   /* method */
     dt = 0.0;
     ClearHOMandDBN(&V);
     P_addset(P_expset(mysys, 0), (long)lsym);
@@ -3018,7 +3018,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     getest__(P_expset(SET, 1 << ((long)comma)), "<, > expected", &V);
     GetSym__(&V);
     QL = 0e0; QK = 0e0; QKV = 0e0; QKH = 0e0; QKxV = 0e0; QKxH = 0e0;
-    QPhi = 0e0; QKS = 0e0; k1 = 0; k2 = Meth_Linear; dt = 0e0;
+    QPhi = 0e0; QKS = 0e0; k1 = 0; k2 = Meth_Fourth; dt = 0e0;
     ClearHOMandDBN(&V);
     P_addset(P_expset(mysys, 0), (long)lsym);
     P_addset(mysys, (long)lmdsym);
