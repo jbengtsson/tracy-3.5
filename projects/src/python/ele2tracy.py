@@ -3,6 +3,7 @@ import numpy
 import re
 from io import StringIO 
 import sys
+import os
 
 '''
 Module to translate from ELEGANT to Tracy-2,3 lattice.
@@ -253,7 +254,7 @@ def parse_definition(line, tokens, decls):
     for k in range(len(tokens)):
         # Remove white space; unless a string.
         if not tokens[k].startswith('"'):
-            tokens[k] = re.sub('[\s]', '', tokens[k])
+            tokens[k] = re.sub(r'[\s]', '', tokens[k])
     try:
         str = ele2tracy[tokens[1]](line, tokens, decls)
     except KeyError:
@@ -263,10 +264,10 @@ def parse_definition(line, tokens, decls):
     return str
 
 
-def parse_line(line, outf, decls):
+def parse_line(line_no, line, outf, decls):
     line_lc = line.lower()
     if debug:
-        print(line_lc)
+        print("{:3d} {:s}".format(line_no, line_lc))
     if not line_lc.rstrip():
         # Blank line.
         outf.write('\n')
@@ -295,12 +296,16 @@ def prt_decl(outf):
 
 
 def transl_file(file_name, decls):
-    str = file_name.split('.')[0]+'.lat'
+    str = file_name.split('.lte')[0]+'.lat'
     inf = open(file_name, 'r')
     outf = open(str, 'w')
+    print("\ninput  = {:s}".format(file_name))
+    print("output = {:s}".format(str))
     prt_decl(outf)
+    line_no = 0
     line = inf.readline()
     while line:
+        line_no += 1
         line = line.strip('\r\n')
         # Remove trailing spaces.
         line = line.rstrip()
@@ -322,7 +327,7 @@ def transl_file(file_name, decls):
                         # Remove trailing spaces.
                         line2 = line2.rstrip()
                 line += line2
-            parse_line(line, outf, decls)
+            parse_line(line_no, line, outf, decls)
         line = inf.readline()
     outf.write('\nline: ???;\n')
     outf.write('\ncell: line, symmetry = 1;\n')
