@@ -129,6 +129,9 @@ void Cell_Geteta(long i0, long i1, bool ring, double dP)
 
   const int n = 4;
 
+  if (trace)
+    printf("\nCell_Geteta(%d, %d, %s, %10.3e)\n",
+	   i0, i1, (ring)? "true":"false", dP);
   if (ring)
     GetCOD(globval.CODimax, globval.CODeps, dP-globval.dPcommon/2e0, lastpos);
   else {
@@ -294,6 +297,9 @@ void Ring_Twiss(bool chroma, double dP)
   Matrix        R;
   ss_vect<tps>  AScr;
 
+  if (trace)
+    printf("\nRing_Twiss(%s, %9.3e):\n", (chroma)? "true":"false", dP);
+
   n = (globval.Cavity_on)? 6 : 4;
 
   GetCOD(globval.CODimax, globval.CODeps, dP, lastpos);
@@ -323,7 +329,8 @@ void Ring_Twiss(bool chroma, double dP)
   status.tuneflag = true;
 
   if (chroma && !globval.Cavity_on) {
-    Ring_Getchrom(dP); GetCOD(globval.CODimax, globval.CODeps, dP, lastpos);
+    Ring_Getchrom(dP);
+    GetCOD(globval.CODimax, globval.CODeps, dP, lastpos);
   }
 }
 
@@ -331,10 +338,12 @@ void Ring_Twiss(bool chroma, double dP)
 void Ring_GetTwiss(bool chroma, double dP)
 {
 
-  if (trace) printf("\nenter Ring_GetTwiss\n");
+  if (trace)
+    printf("\nRing_GetTwiss(%s, %9.3e) ->\n", (chroma)? "true":"false", dP);
   Ring_Twiss(chroma, dP);
   globval.Alphac = globval.OneTurnMat[ct_][delta_]/Cell[globval.Cell_nLoc].S;
-  if (trace) printf("\nexit Ring_GetTwiss\n");
+  if (trace)
+    printf("\n<- Ring_GetTwiss\n\n");
 }
 
 

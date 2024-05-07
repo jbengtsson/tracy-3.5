@@ -1616,6 +1616,7 @@ void set_state(void)
   globval.Aperture_on    = false;
   globval.Cart_Bend      = false;
   globval.dip_edge_fudge = true;
+  globval.dip_edge_fudge = true;
 }
 
 
@@ -1708,6 +1709,11 @@ int main(int argc, char *argv[])
   }
 
   Ring_GetTwiss(true, 0e-3); printglob();
+
+  prtmfile("flat_file.dat");
+  prt_lat("linlat1.out", globval.bpm, true);
+  prt_lat("linlat.out", globval.bpm, true, 10);
+  prt_chrom_lat();
 
   if (false) {
     printf("\nA:\n");
@@ -1980,13 +1986,6 @@ int main(int argc, char *argv[])
   }
 
   if (!false) GetEmittance(ElemIndex("cav"), false, true);
-
-  prtmfile("flat_file.dat");
-  // globval.bpm = ElemIndex("bpm");
-  prt_lat("linlat1.out", globval.bpm, true);
-  prt_lat("linlat.out", globval.bpm, true, 10);
-  prt_chrom_lat();
-
   assert(false);
 
   if (prt_s1) {

@@ -171,7 +171,8 @@ bool Cell_getCOD(long imax, double eps, double dP, long &lastpos)
   ss_vect<double> x0, x1, dx;
   ss_vect<tps>    I, dx0, map;
 
-  if (trace) printf("\nCell_getCOD:\n");
+  if (trace)
+    printf("\nCell_getCOD(%d, %9.3e, %9.3e):\n", imax, eps, dP);
 
   no = no_tps; danot_(1);
   
@@ -203,7 +204,8 @@ bool Cell_getCOD(long imax, double eps, double dP, long &lastpos)
 
   if (trace)
    std::cout << std::scientific << std::setprecision(6)
-	     << "\n  0                       x0 =" << std::setw(14) << x0 << "\n";
+	     << "  0                       x0 =" << std::setw(14) << x0
+	     << "\n";
   n_iter = 0; I.identity();
   do {
     n_iter++; map.identity(); map += x0;

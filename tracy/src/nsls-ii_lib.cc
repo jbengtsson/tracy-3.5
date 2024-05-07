@@ -947,14 +947,16 @@ void prt_chrom_lat(void)
   double   ksi[Cell_nLocMax][2];
   FILE     *outf;
 
-  printf("\nprt_chrom_lat:\n  calling Ring_GetTwiss with delta != 0\n");
+  printf("\nprt_chrom_lat:\n  Ring_GetTwiss(delta = %9.3e)\n",
+	 globval.dPcommon);
   Ring_GetTwiss(true, globval.dPcommon);
   for (i = 0; i <= globval.Cell_nLoc; i++) {
     dbeta_ddelta[i][X_] = Cell[i].Beta[X_];
     dbeta_ddelta[i][Y_] = Cell[i].Beta[Y_];
     detax_ddelta[i] = Cell[i].Eta[X_];
   }
-  printf("  calling Ring_GetTwiss with delta != 0\n");
+  printf("  Ring_GetTwiss(delta = %9.3e) \n",
+	 -globval.dPcommon);
   Ring_GetTwiss(true, -globval.dPcommon);
   ksi[0][X_] = 0.0; ksi[0][Y_] = 0.0;
   for (i = 0; i <= globval.Cell_nLoc; i++) {
