@@ -1,6 +1,6 @@
 #!/bin/sh
 
-prm1=${1-""}
+prm1=${1-"linlat"}
 prm2=${2-0}
 
 gnuplot << EOP
