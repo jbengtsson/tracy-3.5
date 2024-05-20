@@ -1,10 +1,12 @@
 #!/bin/sh
 
 prm1=${1-0}
+prm2=${2-"cod.out"}
 
 gnuplot << EOP
 
-ps = $prm1;
+ps        = $prm1;
+file_name = "$prm2";
 
 
 f_s = 24; l_w = 2;
@@ -34,9 +36,9 @@ set title "Horizontal Closed Orbit";
 set xlabel "s [m]";
 set ylabel "x [mm]";
 set y2range [-1.5:20];
-plot "cod.out" using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
+plot file_name using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
      lc rgb "black", \
-     "cod.out" using 3:9 notitle with impulses ls 1;
+     file_name using 3:9 notitle with impulses ls 1;
 if (!ps) pause mouse "click on graph to cont.\n";
 
 if (ps) set output "cod_2.".(ext);
@@ -44,9 +46,9 @@ set title "Vertical Closed Orbit";
 set xlabel "s [m]";
 set ylabel "y [mm]";
 set y2range [-1.5:20];
-plot "cod.out" using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
+plot file_name using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
      lc rgb "black", \
-     "cod.out" using 3:10 notitle with impulses ls 3;
+     file_name using 3:10 notitle with impulses ls 3;
 if (!ps) pause mouse "click on graph to cont.\n";
 
 if (ps) set output "cod_3.".(ext);
@@ -54,9 +56,9 @@ set title "Horizontal Corrector Strength";
 set xlabel "s [m]";
 set ylabel "{\Symbol t}_x [mrad]";
 set y2range [-1.5:20];
-plot "cod.out" using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
+plot file_name using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
      lc rgb "black", \
-     "cod.out" using 3:13 notitle with impulses ls 1;
+     file_name using 3:13 notitle with impulses ls 1;
 if (!ps) pause mouse "click on graph to cont.\n";
 
 if (ps) set output "cod_4.".(ext);
@@ -64,9 +66,9 @@ set title "Vertical Corrector Strength";
 set xlabel "s [m]";
 set ylabel "{\Symbol t}_y [mrad]";
 set y2range [-1.5:20];
-plot "cod.out" using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
+plot file_name using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
      lc rgb "black", \
-     "cod.out" using 3:14 notitle with impulses ls 3;
+     file_name using 3:14 notitle with impulses ls 3;
 if (!ps) pause mouse "click on graph to cont.\n";
 
 EOP
