@@ -32,18 +32,17 @@ set style line 2 lt 1 lw 1 lc rgb "green";
 set style line 3 lt 1 lw 1 lc rgb "red";
 
 # Symbol characters broken for > \219.
-# In particular, {/Symbol \264h} = eta.
+# In particular, {/Symbol \264h} = times.
 
 if (ps) set output "chromlat_1.".(ext)
-# set title "Linear Chromaticity: {/Symbol b}_{x,y}{/Symbol \264h}_x";
-set title "Linear Chromaticity: {/Symbol b}_{x,y} x eta_x";
+set title "Linear Chromaticity: {/Symbol b}_{x,y} x {/Symbol h}_x";
 set xlabel "s [m]"; set ylabel "[m^2]";
 set y2range [-1.5:20];
 plot file_name using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
      lc rgb "black", \
-     file_name using 3:(\$6*\$8) title "{/Symbol b}_x x eta_x" \
+     file_name using 3:(\$6*\$8) title "{/Symbol b}_x x {/Symbol h}_x" \
      with lines ls 1, \
-     file_name using 3:(\$11*\$8) title "{/Symbol b}_y x eta_x" \
+     file_name using 3:(\$11*\$8) title "{/Symbol b}_y x {/Symbol h}_x" \
      with lines ls 3;
 if (!ps) pause mouse "click on graph to cont.\n";
 
