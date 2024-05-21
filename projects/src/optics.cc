@@ -19,22 +19,22 @@ int no_tps = NO;
 
 
 const bool
-  set_dnu = false,
-  mI_rot  = false,
-  prt_s1  = false,
-  prt_dt  = false;
+  tweak_nu = false,
+  mI_rot   = false,
+  prt_s1   = false,
+  prt_dt   = false;
 
 #define FULL_LAT 0
 #define SET_NU   1
 
 const int
-  n_cell = 16;
+  n_cell = 20;
 const double
 #if SET_NU
-  nu_int[] = {44, 13},
+  nu_int[] = {50, 17},
   nu[]     = {(nu_int[X_]-0.38)/n_cell, (nu_int[Y_]-0.18)/n_cell},
 #else
-  nu[]     = {0.1, 0.0},
+  nu[]     = {0.3, -0.2},
 #endif
   dnu_mI[] = {-0.21, -0.20};
 
@@ -182,7 +182,8 @@ void fit_ksi1(const int lat_case, const double ksi_x, const double ksi_y)
   case 1:
     Fnum.push_back(ElemIndex("sf_h"));
     Fnum.push_back(ElemIndex("sd1"));
-    Fnum.push_back(ElemIndex("sd2"));
+    if (false)
+      Fnum.push_back(ElemIndex("sd2"));
     break;
   case 2:
     Fnum.push_back(ElemIndex("sd1"));
@@ -1604,6 +1605,74 @@ void FitTune(long int qf, long int qd, double nu_x, double nu_y)
 }
 
 
+void set_dnu(const string name, const double dnu[], const double alpha[],
+	     const double beta[], const double eta_x, const double etap_x)
+{
+  const int
+    Fnum = ElemIndex(name.c_str()),
+    loc = Elem_GetPos(Fnum, 1);
+
+  for (int k = 0; k < 2; k++) {
+    Cell[loc].Elem.Map->dnu[k] = dnu[k];
+    Cell[loc].Elem.Map->alpha[k] = Cell[loc].Alpha[k];
+    Cell[loc].Elem.Map->alpha[k] = Cell[loc].Alpha[k];
+    Cell[loc].Elem.Map->beta[k]  = Cell[loc].Beta[k];
+  }
+  Cell[loc].Elem.Map->eta_x  = Cell[loc].Eta[X_];
+  Cell[loc].Elem.Map->etap_x = Cell[loc].Etap[X_];
+
+  printf("\nset_dnu:\n");
+  printf("  dnu = [%7.5f, %7.5f]\n", dnu[X_], dnu[Y_]);
+
+  set_map(Cell[loc].Elem.Map);
+
+  Ring_GetTwiss(true, 0e0);
+  printglob();
+}
+
+
+void prt_lin_map(ofstream &outf, const ss_vect<tps> &map, const bool full)
+{
+  const int n_dec = (full)? 16 : 6;
+
+  outf << std::scientific << std::setprecision(n_dec)
+	    << "cst\n"  << std::setw(8+n_dec) << map.cst() << "\nmap\n";
+  for (auto i = 1; i <= 6; i++) {
+    for (auto j = 1; j <= 6; j++)
+      outf << std::scientific << std::setprecision(n_dec)
+		<< std::setw(8+n_dec) << getmat(map, i, j);
+    outf << "\n";
+  }
+}
+
+
+void prt_Poincare_map(const double delta)
+{
+  const string
+    file_name = "poincare_map.txt";
+  const int
+    n_dec = 16;
+
+  long int     lastpos;
+  ss_vect<tps> M;
+  ofstream     outf;
+
+  getcod(delta, lastpos);
+
+  cout << scientific << setprecision(n_dec)
+       << "\nClosed Orbit:\n" << setw(n_dec+8) << globval.CODvect << "\n";
+
+  M.identity();
+  M += globval.CODvect;
+  Cell_Pass(0, globval.Cell_nLoc, M, lastpos);
+
+  file_wr(outf, file_name.c_str());
+  outf << "Poincaré map:\n";
+  prt_lin_map(outf, M, true);
+  outf.close();
+}
+
+
 void set_state(void)
 {
   globval.H_exact        = false;
@@ -1615,7 +1684,6 @@ void set_state(void)
   globval.pathlength     = false;
   globval.Aperture_on    = false;
   globval.Cart_Bend      = false;
-  globval.dip_edge_fudge = true;
   globval.dip_edge_fudge = true;
 }
 
@@ -1636,8 +1704,7 @@ int main(int argc, char *argv[])
   const int
     n_turn = 2064;
   const double
-    delta = 4e-2,
-    nu[]  = { 42.20/20.0, 16.28/20.0 };
+    delta = 4e-2;
 
   const double R_ref = 5e-3;
 
@@ -1710,10 +1777,31 @@ int main(int argc, char *argv[])
 
   Ring_GetTwiss(true, 0e-3); printglob();
 
+  if (tweak_nu) {
+    dnu[X_] = 0e0;
+    dnu[Y_] = 0e0;
+    set_map(ElemIndex("ps_rot"), dnu);
+    Ring_GetTwiss(true, 0e0);
+    printglob();
+    for (k = 0; k < 2; k++)
+      if (!FULL_LAT)
+	dnu[k] = (SET_NU)? nu[k] - globval.TotalTune[k] : nu[k];
+      else
+	dnu[k] = (SET_NU)? nu[k] - globval.TotalTune[k]/n_cell : nu[k];
+    printf("\ntweak_nu:\n");
+    printf("  dnu = [%8.5f, %8.5f]\n", dnu[X_], dnu[Y_]);
+    set_map(ElemIndex("ps_rot"), dnu);
+    Ring_GetTwiss(true, 0e0);
+    printglob();
+  }
+
   prtmfile("flat_file.dat");
   prt_lat("linlat1.out", globval.bpm, true);
   prt_lat("linlat.out", globval.bpm, true, 10);
   prt_chrom_lat();
+
+  if (false)
+    prt_Poincare_map(1e-2);
 
   if (false) {
     printf("\nA:\n");
@@ -1782,21 +1870,6 @@ int main(int argc, char *argv[])
   }
 
   if (false) chk_traj();
-
-  if (set_dnu) {
-    dnu[X_] = 0.0; dnu[Y_] = 0.0;
-    set_map(ElemIndex("ps_rot"), dnu);
-    Ring_GetTwiss(true, 0e0); printglob();
-    for (k = 0; k < 2; k++)
-      if (!FULL_LAT)
-	dnu[k] = (SET_NU)? nu[k] - globval.TotalTune[k] : nu[k];
-      else
-	dnu[k] = (SET_NU)? nu[k] - globval.TotalTune[k]/n_cell : nu[k];
-    printf("\ntune set to:\n  dnu     = [%8.5f, %8.5f]\n", dnu[X_], dnu[Y_]);
-    printf("  nu      = [%8.5f, %8.5f]\n", nu[X_], nu[Y_]);
-    set_map(ElemIndex("ps_rot"), dnu);
-    Ring_GetTwiss(true, 0e0); printglob();
-  }
 
   if (mI_rot) {
     dnu[X_] = 0.0; dnu[Y_] = 0.0;
@@ -1962,30 +2035,8 @@ int main(int argc, char *argv[])
     exit(0);
   }
 
-  if (false) {
-    const double
-      alpha0[] = { 0.91959,  3.19580},
-      beta0[]  = { 1.27047, 17.77859},
-      eta0[]   = { 0.0,      0.0},
-      etap0[]  = { 0.0,      0.0},
-      alpha1[] = { 0.81112,  0.45975},
-      beta1[]  = { 4.56189,  2.62113},
-      eta1[]   = { 0.07297,  0.0},
-      etap1[]  = {-0.01063,  0.0};
-
-    set_map_per(ElemIndex("ps_per"), alpha1, beta1, eta1, etap1);
-    if (!true) {
-      Ring_GetTwiss(true, 0e0); printglob();
-    } else
-      ttwiss(alpha0, beta0, eta0, etap0, 0e0);
-
-    prt_lat("linlat1.out", globval.bpm, true);
-    prt_lat("linlat.out", globval.bpm, true, 10);
-
-    exit(0);
-  }
-
-  if (!false) GetEmittance(ElemIndex("cav"), false, true);
+  if (!false)
+    GetEmittance(ElemIndex("cav"), false, true);
   assert(false);
 
   if (prt_s1) {
