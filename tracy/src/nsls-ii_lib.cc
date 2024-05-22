@@ -704,7 +704,8 @@ double get_code(CellType &Cell)
       if (Cell.Elem.M->PBpar[Quad+HOMmax] == 0e0)
 	code = 0.5*sgn(Cell.Elem.M->Pirho);
       else
-	code = 0.75*sgn(Cell.Elem.M->PBpar[Quad+HOMmax]);
+	// code = 0.75*sgn(Cell.Elem.M->PBpar[Quad+HOMmax]);
+	code = 0.5*sgn(Cell.Elem.M->Pirho);
     }
     else if (Cell.Elem.M->PBpar[Quad+HOMmax] != 0e0)
       code = 1.0*sgn(Cell.Elem.M->PBpar[Quad+HOMmax]);
