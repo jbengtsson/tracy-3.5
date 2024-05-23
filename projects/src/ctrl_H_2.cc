@@ -1702,7 +1702,7 @@ void prt_f(double *bn, const double chi2, constr_type &lat_constr,
     prt_lat("linlat1.out", globval.bpm, true);
     prt_lat("linlat.out", globval.bpm, true, 10);
   }
-  if (chrom) prt_chrom_lat();
+  if (chrom) prt_chrom_lat("chromlat.out");
 
   prt_bn(outf, lat_prms);
   prt_b3(outf, lat_constr.Fnum_b3);

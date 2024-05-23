@@ -208,7 +208,7 @@ int main(int argc, char *argv[])
   // globval.bpm = ElemIndex("bpm");
   prt_lat("linlat1.out", globval.bpm, true);
   prt_lat("linlat.out", globval.bpm, true, 10);
-  prt_chrom_lat();
+  prt_chrom_lat("chromlat.out");
 
   if (false) {
     iniranf(seed); setrancut(1e0);

@@ -78,7 +78,7 @@ void prt_lat(const int loc1, const int loc2, const char *fname, const int Fnum,
 
 void prt_lat(const char *fname, const int Fnum, const bool all, const int n);
 
-void prt_chrom_lat(void);
+void prt_chrom_lat(const string file_name);
 
 void prt_cod(const char *file_name, const int Fnum, const bool all);
 

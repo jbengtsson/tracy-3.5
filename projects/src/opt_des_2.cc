@@ -1687,7 +1687,7 @@ int main(int argc, char *argv[])
 
     prt_lat("linlat1.out", globval.bpm, true);
     prt_lat("linlat.out", globval.bpm, true, 10);
-    prt_chrom_lat();
+    prt_chrom_lat("chromlat.out");
   }
 
   switch (opt_case) {

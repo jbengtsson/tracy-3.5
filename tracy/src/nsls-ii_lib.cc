@@ -941,7 +941,7 @@ void prt_lat(const char *fname, const int Fnum, const bool all, const int n)
 }
 
 
-void prt_chrom_lat(void)
+void prt_chrom_lat(const string file_name)
 {
   long int i;
   double   dbeta_ddelta[Cell_nLocMax][2], detax_ddelta[Cell_nLocMax];
@@ -980,7 +980,7 @@ void prt_chrom_lat(void)
     }
   }
 
-  outf = file_write("chromlat.out");
+  outf = file_write(file_name.c_str());
   fprintf(outf, "#     name              s    code"
 	        "  bx*ex  sqrt(bx*by)  dbx/dd*ex  bx*dex/dd"
 	        "  by*ex  dby/dd*ex by*dex/dd  ksix  ksiy"
