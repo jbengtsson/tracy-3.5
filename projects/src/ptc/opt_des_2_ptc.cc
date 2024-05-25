@@ -1759,7 +1759,7 @@ void prt_f(double *b2, const double chi2, constr_type &lat_constr,
   prtmfile("flat_file.fit");
   prt_lat("linlat1.out", globval.bpm, true);
   prt_lat("linlat.out", globval.bpm, true, 10);
-  if (chrom) prt_chrom_lat();
+  if (chrom) prt_chrom_lat("chromlat.out");
 
   prt_b2(lat_prms);
   prt_b3(lat_constr.Fnum_b3);
@@ -3013,7 +3013,7 @@ int main(int argc, char *argv[])
 
     prt_lat("linlat1.out", globval.bpm, true);
     prt_lat("linlat.out", globval.bpm, true, 10);
-    prt_chrom_lat();
+    prt_chrom_lat("chromlat.out");
   }
 
   if (false) fit_ksi1(0e0, 0e0);
