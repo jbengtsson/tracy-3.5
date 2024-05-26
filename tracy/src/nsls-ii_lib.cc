@@ -162,6 +162,17 @@ void no_sxt(void)
 }
 
 
+void no_mult(const int n)
+{
+  int k;
+
+  // printf("\nzeroing multipoles\n");
+  for (k = 0; k <= globval.Cell_nLoc; k++)
+    if ((Cell[k].Elem.Pkind == Mpole) && (Cell[k].Elem.M->Porder >= n))
+      SetKpar(Cell[k].Fnum, Cell[k].Knum, n, 0.0);
+}
+
+
 void get_map(const bool cod)
 {
   long int lastpos;
@@ -3260,7 +3271,8 @@ void get_ksi2(const double d_delta, const int n_step)
     n++; delta[n-1] = i*(double)d_delta/(double)n_step;
     Ring_GetTwiss(false, delta[n-1]);
     nu[0][n-1] = globval.TotalTune[X_]; nu[1][n-1] = globval.TotalTune[Y_];
-    fprintf(fp, "%5.2f %8.5f %8.5f\n", 1e2*delta[n-1], nu[0][n-1], nu[1][n-1]);
+    fprintf(fp, "%8.5f %11.8f %11.8f\n",
+	    1e2*delta[n-1], nu[0][n-1], nu[1][n-1]);
   }
   printf("\n");
   printf("Horizontal chromaticity:\n");

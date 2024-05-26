@@ -140,8 +140,10 @@ int main(int argc, char *argv[])
 
   set_state();
 
-  if (false)
-    no_sxt();
+  if (false) {
+    no_mult(Sext);
+    no_mult(Oct);
+  }
 
   if (false)
     fit_ksi_jb(1, 0e0, 0e0);

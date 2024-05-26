@@ -200,12 +200,12 @@ int main(int argc, char *argv[])
   prt_lat("linlat1.out", globval.bpm, true);
   prt_lat("linlat.out", globval.bpm, true, 10);
 
-  if (false) {
+  if (!false) {
     GetEmittance(ElemIndex("cav"), true, true);
-    scan_f_RF("cav", 500.0, 10);
+    scan_f_RF("cav", 0.5e3, 10);
   }
 
-  if (!false) {
+  if (false) {
     GetEmittance(ElemIndex("cav"), true, true);
 
     set_rev_bends();

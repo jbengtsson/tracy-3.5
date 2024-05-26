@@ -33,7 +33,9 @@ void chk_cod(const bool cod, const char *proc_name);
 
 void no_sxt(void);
 
-void get_map(const bool cod);
+void no_mult(const int n);
+
+  void get_map(const bool cod);
 
 tps get_h(void);
 
