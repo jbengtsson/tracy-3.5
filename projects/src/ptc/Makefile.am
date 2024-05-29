@@ -1,6 +1,6 @@
 bin_PROGRAMS = fmap get_dnu vlad tracy_2_3 carbon_map drv_terms get_nl_optics \
                opt_des_1_ptc opt_des_2_ptc poincare_map wakefield \
-               lielib map_norm_jb stat_mom moments tune_conf bessy_ii
+               lielib map_norm_jb stat_mom moments tune_conf bessy_ii max_4u
 
 fmap_SOURCES          = fmap.cc
 get_dnu_SOURCES       = get_dnu.cc
@@ -20,6 +20,7 @@ stat_mom_SOURCES      = stat_mom.cc
 moments_SOURCES       = moments.cc
 tune_conf_SOURCES     = tune_conf.cc
 bessy_ii_SOURCES      = bessy_ii.cc
+max_4u_SOURCES        = max_4u.cc
 
 GSL_INCLUDE = /usr/local/Cellar/gsl/2.7.1
 # GSL_INCLUDE = /net/home/lli/OPAL/OPAL-2.0.1
