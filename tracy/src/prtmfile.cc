@@ -66,8 +66,6 @@
 */
 
 
-#define snamelen 10
-
 // numerical type codes
 #define marker_   -1
 #define drift_     0
