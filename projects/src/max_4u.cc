@@ -19,21 +19,6 @@ void get_dnu_straight(const int loc_1, const int loc_2)
 }
 
 
-void set_state(void)
-{
-  globval.H_exact        = false;
-  globval.quad_fringe    = false;
-  globval.Cavity_on      = false;
-  globval.radiation      = false;
-  globval.emittance      = false;
-  globval.IBS            = false;
-  globval.pathlength     = false;
-  globval.Aperture_on    = false;
-  globval.Cart_Bend      = false;
-  globval.dip_edge_fudge = true;
-}
-
-
 void fit_ksi_jb(const std::vector<int> &Fnum_b3,
 	      const double ksi_x, const double ksi_y, const double db3L)
 {
@@ -127,6 +112,49 @@ void fit_ksi_jb(const int lat_case, const double ksi_x, const double ksi_y)
 }
 
 
+void track(const int n_turn, const double Ax, const double Ay)
+{
+  const string
+    file_name = "track.dat";
+  const double
+    A[] = {Ax, Ay};
+
+  long int        lastpos;
+  ss_vect<double> ps;
+  ofstream        outf;
+
+  file_wr(outf, file_name.c_str());
+  ps.zero();
+  for (int k = 0; k < 2; k++)
+    ps[2*k] = A[k];
+  outf << "# turn          x                     p_x                     y                     p_y                   delta                   c*t\n";
+  outf << "#              [m]                   [rad]                   [m]                   [rad]                                          [m] \n";
+    outf << scientific << setprecision(14)
+	 << setw(4) << 0 << setw(23) << ps << "\n";
+  for (int k = 1; k <= n_turn; k++) {
+    Cell_Pass(0, globval.Cell_nLoc, ps, lastpos);
+    outf << scientific << setprecision(14)
+	 << setw(4) << k << setw(23) << ps << "\n";
+  }
+  outf.close();
+}
+
+
+void set_state(void)
+{
+  globval.H_exact        = false;
+  globval.quad_fringe    = false;
+  globval.Cavity_on      = false;
+  globval.radiation      = false;
+  globval.emittance      = false;
+  globval.IBS            = false;
+  globval.pathlength     = false;
+  globval.Aperture_on    = false;
+  globval.Cart_Bend      = false;
+  globval.dip_edge_fudge = true;
+}
+
+
 int main(int argc, char *argv[])
 {
   int loc_1, loc_2;
@@ -159,9 +187,14 @@ int main(int argc, char *argv[])
   if (!false)
     GetEmittance(ElemIndex("cav"), false, true);
 
-  if (!false) {
+  if (false) {
     loc_1 = Elem_GetPos(ElemIndex("sd2"), 1);
     loc_2 = Elem_GetPos(ElemIndex("sd2"), 2);
     get_dnu_straight(loc_1, loc_2);
+  }
+
+  if (!false) {
+    globval.Cavity_on = false;
+    track(100, -6e-3, 0e0);
   }
 }
