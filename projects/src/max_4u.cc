@@ -1,5 +1,7 @@
 #define NO 1
 
+#include <assert.h>
+
 #include "tracy_lib.h"
 
 
@@ -127,8 +129,12 @@ void track(const int n_turn, const double Ax, const double Ay)
   ps.zero();
   for (int k = 0; k < 2; k++)
     ps[2*k] = A[k];
-  outf << "# turn          x                     p_x                     y                     p_y                   delta                   c*t\n";
-  outf << "#              [m]                   [rad]                   [m]                   [rad]                                          [m] \n";
+  outf << "# turn          x                     p_x"
+       << "                     y                     p_y"
+       << "                   delta                   c*t\n"
+       << "#              [m]                   [rad]"
+       << "                   [m]                   [rad]"
+       << "                                          [m] \n";
     outf << scientific << setprecision(14)
 	 << setw(4) << 0 << setw(23) << ps << "\n";
   for (int k = 1; k <= n_turn; k++) {
@@ -137,6 +143,22 @@ void track(const int n_turn, const double Ax, const double Ay)
 	 << setw(4) << k << setw(23) << ps << "\n";
   }
   outf.close();
+}
+
+
+void chk_optics(const double alpha_x, const double beta_x,
+		const double eta_x, const double etap_x,
+		const double alpha_y, const double beta_y,
+		const double eta_y, const double etap_y)
+{
+  Vector2 alpha, beta, eta, etap;
+
+  alpha[X_] = alpha_x; alpha[Y_] = alpha_y;
+  beta[X_]  = beta_x;  beta[Y_]  = beta_y;
+  eta[X_]   = eta_x;   eta[Y_]   = eta_y;
+  etap[X_]  = etap_x;  etap[Y_]  = etap_y;
+
+  ttwiss(alpha, beta, eta, etap, 0e0);
 }
 
 
@@ -173,8 +195,10 @@ int main(int argc, char *argv[])
     no_mult(Oct);
   }
 
-  if (false)
+  if (false) {
     fit_ksi_jb(1, 0e0, 0e0);
+    assert(false);
+  }
 
   Ring_GetTwiss(true, 0e0);
   printglob();
@@ -187,13 +211,20 @@ int main(int argc, char *argv[])
   if (!false)
     GetEmittance(ElemIndex("cav"), false, true);
 
-  if (false) {
+  if (!false) {
     loc_1 = Elem_GetPos(ElemIndex("sd2"), 1);
     loc_2 = Elem_GetPos(ElemIndex("sd2"), 2);
     get_dnu_straight(loc_1, loc_2);
   }
 
-  if (!false) {
+  if (false) {
+    chk_optics(0.0, 13.24261, 0.0, 0.0, 0.0, 2.35728, 0.0, 0.0);
+    prt_lat("linlat1.out", globval.bpm, true);
+    prt_lat("linlat.out", globval.bpm, true, 10);
+    prtmfile("flat_file.dat");
+  }
+
+  if (false) {
     globval.Cavity_on = false;
     track(100, -6e-3, 0e0);
   }
