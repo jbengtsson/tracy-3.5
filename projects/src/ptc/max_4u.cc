@@ -7,10 +7,8 @@ int no_tps   = NO,
 
 
 const double
-  beta_inj[] = {5.0, 3.0},
-  A_max[]    = {6e-3, 3e-3},
-  delta_max  = 3e-2,
-  twoJ[]     = {sqr(A_max[X_])/beta_inj[X_], sqr(A_max[Y_])/beta_inj[Y_]};
+  A_max[]   = {6e-3, 3e-3},
+  delta_max = 3e-2;
 
 
 void set_ps_rot(const double dnu_x, const double dnu_y)
@@ -41,17 +39,21 @@ tps get_h_local(const ss_vect<tps> &map, const bool dragt_finn)
 }
 
 
-std::vector<double> get_h_ijklm(void)
+double h_abs_ijklm
+(const tps &h_re, const tps &h_im, const int i, const int j, const int k,
+ const int l, const int m)
+{
+  return sqrt(sqr(h_ijklm(h_re, i, j, k, l, m))
+  	      +sqr(h_ijklm(h_im, i, j, k, l, m)));
+}
+
+
+std::vector<double> get_h_ijklm(ss_vect<tps> &Id_scl)
 {
   long int            lastpos;
   std::vector<double> h_buf;
   tps                 h, h_re, h_im;
-  ss_vect<tps>        Id_scl, map;
-
-  Id_scl.identity();
-  for (int k = 0; k < 4; k++)
-    Id_scl[k] *= sqrt(twoJ[k/2]);
-  Id_scl[delta_] *= delta_max;
+  ss_vect<tps>        map;
 
   danot_(no_tps-1);
   map.identity();
@@ -60,12 +62,12 @@ std::vector<double> get_h_ijklm(void)
   h = get_h_local(map, true);
   CtoR(h*Id_scl, h_re, h_im);
 
-  h_buf.push_back(h_ijklm(h_re, 1, 1, 0, 0, 0));
-  h_buf.push_back(h_ijklm(h_re, 1, 1, 1, 1, 0));
-  h_buf.push_back(h_ijklm(h_re, 0, 0, 1, 1, 0));
+  h_buf.push_back(h_abs_ijklm(h_re, h_im, 1, 1, 0, 0, 0));
+  h_buf.push_back(h_abs_ijklm(h_re, h_im, 1, 1, 1, 1, 0));
+  h_buf.push_back(h_abs_ijklm(h_re, h_im, 0, 0, 1, 1, 0));
 
-  h_buf.push_back(h_ijklm(h_re, 1, 1, 0, 0, 2));
-  h_buf.push_back(h_ijklm(h_re, 0, 0, 1, 1, 2));
+  h_buf.push_back(h_abs_ijklm(h_re, h_im, 1, 1, 0, 0, 2));
+  h_buf.push_back(h_abs_ijklm(h_re, h_im, 0, 0, 1, 1, 2));
 
   return h_buf;
 }
@@ -91,7 +93,9 @@ double get_chi_2(std::vector<double> &h_ijklm)
   return chi_2;
 }
 
-void scan_h_ijklm(const int n, const double dnu_max_x, const double dnu_max_y)
+void scan_h_ijklm
+(ss_vect<tps> &Id_scl, const int n, const double dnu_max_x,
+ const double dnu_max_y)
 {
   const double
     dnu_max[] = {dnu_max_x, dnu_max_y};
@@ -119,7 +123,7 @@ void scan_h_ijklm(const int n, const double dnu_max_x, const double dnu_max_y)
       if (k == 0)
 	outf << "\n";
       set_ps_rot(dnu[X_], dnu[Y_]);
-      h_ijklm = get_h_ijklm();
+      h_ijklm = get_h_ijklm(Id_scl);
       chi_2 = get_chi_2(h_ijklm);
       if (chi_2 < chi_2_min) {
 	dnu_min = dnu;
@@ -128,6 +132,7 @@ void scan_h_ijklm(const int n, const double dnu_max_x, const double dnu_max_y)
       for (int l = 0; l < 5; l++)
 	h_ijklm_min[l] = min(fabs(h_ijklm[l]), h_ijklm_min[l]);
 
+      prt_h_ijklm(cout, dnu, h_ijklm);
       prt_h_ijklm(outf, dnu, h_ijklm);
 
       dnu[Y_] += nu_step[Y_];
@@ -141,7 +146,7 @@ void scan_h_ijklm(const int n, const double dnu_max_x, const double dnu_max_y)
   cout << scientific << setprecision(3) << "\ndh_ijklm rms = "
        << setw(9) << sqrt(chi_2_min) << "\n";
   set_ps_rot(dnu_min[X_], dnu_min[Y_]);
-  h_ijklm = get_h_ijklm();
+  h_ijklm = get_h_ijklm(Id_scl);
   prt_h_ijklm(cout, dnu_min, h_ijklm);
   cout << "\nh_ijklm_min  = ";
   for (int k = 0; k < h_ijklm_min.size(); k++)
@@ -167,7 +172,10 @@ void set_state(void)
 
 int main(int argc, char *argv[])
 {
-   set_state();
+  double       twoJ;
+  ss_vect<tps> Id_scl;
+
+  set_state();
 
   // disable from TPSALib and LieLib log messages
   idprset(-1);
@@ -188,7 +196,16 @@ int main(int argc, char *argv[])
     // Twiss functions are needed for set_ps_rot.
     Ring_GetTwiss(true, 0e0);
     printglob();
-    scan_h_ijklm(10, 1.0, 1.0);
+
+    Id_scl.identity();
+    for (int k = 0; k < 2; k++) {
+      twoJ = sqr(A_max[k])/Cell[0].Beta[k];
+      Id_scl[2*k] *= sqrt(twoJ);
+      Id_scl[2*k+1] *= sqrt(twoJ);
+    }
+    Id_scl[delta_] *= delta_max;
+
+    scan_h_ijklm(Id_scl, 10, 1.0, 1.0);
   }
 
   if (false) {
