@@ -1,7 +1,7 @@
 #!/bin/sh
 
 prm1=${1-0}
-prm2=${2-"k_ijklm"}
+prm2=${2-"h_ijklm"}
 
 gnuplot << EOP
 
@@ -46,8 +46,8 @@ unset colorbox;
 #set cntrparam level 18;
 set cntrparam level 25;
 
-# x <-> horizontal, y <-> vertical, z <-> perpendicular to screen
-# rot_x, rot_z, scale, scale_z
+# x <-> horizontal, y <-> vertical, z <-> perpendicular to screen.
+# rot_x, rot_z, scale, scale_z.
 if (!contour) set view 65, 15, 1, 1;
 if (contour) set view 0, 0, 1, 1;
 
@@ -56,9 +56,10 @@ set palette rgbformulae 22, 13, -31 negative;
 if (ps) set output file_name."_1.".(ext);
 if (ps) set output "tune_scan.ps"
 
-set title "k_{ijklm}";
+set title "h_{ijklm}";
 set xlabel "{/Symbol n}_x"; set ylabel "{/Symbol n}_y";
 
-splot file_name.".dat" using 1:2:4 notitle with lines lt palette z;
+splot file_name.".dat" using 1:2:(log(abs(\$4))) notitle with lines lt \
+      palette z;
 
 if (!ps) pause mouse "click on graph to cont.\n";
