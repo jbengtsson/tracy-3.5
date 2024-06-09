@@ -8,16 +8,35 @@
 int no_tps = NO;
 
 
-void get_dnu_straight(const int loc_1, const int loc_2)
+void set_ps_rot(const string &fam_name, const double dnu_x, const double dnu_y)
+{
+  const double
+    dnu_0[] = {0e0, 0e0},
+    dnu[]   = {dnu_x, dnu_y};
+
+  set_map(ElemIndex(fam_name.c_str()), dnu_0);
+  printf("\ntweak_nu:\n");
+  printf("  dnu = [%8.5f, %8.5f]\n", dnu[X_], dnu[Y_]);
+  set_map(ElemIndex(fam_name.c_str()), dnu);
+  Ring_GetTwiss(true, 0e0);
+  printglob();
+ }
+
+
+void get_dnu_straight(const int loc)
 {
   const double
     dnu[] = {
-      Cell[globval.Cell_nLoc].Nu[X_]-Cell[loc_2].Nu[X_]+Cell[loc_1].Nu[X_],
-      Cell[globval.Cell_nLoc].Nu[Y_]-Cell[loc_2].Nu[Y_]+Cell[loc_1].Nu[Y_]
+      Cell[globval.Cell_nLoc].Nu[X_]-Cell[loc].Nu[X_],
+      Cell[globval.Cell_nLoc].Nu[Y_]-Cell[loc].Nu[Y_]
     };
 
   printf("\nget_dnu_straight:\n");
-  printf(" dnu = [%7.5f, %7.5f]\n", dnu[X_], dnu[Y_]);
+  printf(" nu               = [%7.5f, %7.5f]\n",
+	 Cell[globval.Cell_nLoc].Nu[X_], Cell[globval.Cell_nLoc].Nu[Y_]);
+  printf(" dnu              = [%7.5f, %7.5f]\n",
+	 Cell[loc].Nu[X_],Cell[loc].Nu[Y_] ),
+  printf(" dnu_1/2_straight = [%7.5f, %7.5f]\n", dnu[X_], dnu[Y_]);
 }
 
 
@@ -179,7 +198,7 @@ void set_state(void)
 
 int main(int argc, char *argv[])
 {
-  int loc_1, loc_2;
+  int loc;
 
   globval.mat_meth = false;
 
@@ -203,6 +222,15 @@ int main(int argc, char *argv[])
   Ring_GetTwiss(true, 0e0);
   printglob();
 
+  if (false) {
+    // A 1/2 ps_rot at the entrance & exit of the super period for a symmetric
+    // approach.
+    // set_ps_rot("ps_rot1", 0.1491/2e0, -0.0413/2e0);
+    // set_ps_rot("ps_rot2", 0.3991/2e0, -0.2914/2e0);
+
+    set_ps_rot("ps_rot", 0.06/2.0, 0.0/2.0);
+  }
+
   prtmfile("flat_file.dat");
   prt_lat("linlat1.out", globval.bpm, true);
   prt_lat("linlat.out", globval.bpm, true, 10);
@@ -211,10 +239,10 @@ int main(int argc, char *argv[])
   if (!false)
     GetEmittance(ElemIndex("cav"), false, true);
 
-  if (!false) {
-    loc_1 = Elem_GetPos(ElemIndex("sd2"), 1);
-    loc_2 = Elem_GetPos(ElemIndex("sd2"), 2);
-    get_dnu_straight(loc_1, loc_2);
+  if (false) {
+    loc = Elem_GetPos(ElemIndex("sd2"), 2);
+    printf("\nloc = %d\n", loc);
+    get_dnu_straight(loc);
   }
 
   if (false) {
