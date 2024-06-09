@@ -6,16 +6,13 @@ int no_tps   = NO,
     ndpt_tps = 5;
 
 
-const bool
-  set_dnu    = false;
 const int
   n_cell     = 2;
 const double
   beta_inj[] = {2.8, 2.8},
   A_max[]    = {3e-3, 1.5e-3},
   delta_max  = 2e-2,
-  twoJ[]     = {sqr(A_max[X_])/beta_inj[X_], sqr(A_max[Y_])/beta_inj[Y_]},
-  dnu[]      = {0.03, 0.02};
+  twoJ[]     = {sqr(A_max[X_])/beta_inj[X_], sqr(A_max[Y_])/beta_inj[Y_]};
 
 
 void chk_bend()
@@ -473,6 +470,21 @@ void map_gymn(void)
 }
 
 
+void set_ps_rot(const string &fam_name, const double dnu_x, const double dnu_y)
+{
+  const double
+    dnu_0[] = {0e0, 0e0},
+    dnu[]   = {dnu_x, dnu_y};
+
+  set_map(ElemIndex(fam_name.c_str()), dnu_0);
+  printf("\ntweak_nu:\n");
+  printf("  dnu = [%7.5f, %7.5f]\n", dnu[X_], dnu[Y_]);
+  set_map(ElemIndex("ps_rot"), dnu);
+  Ring_GetTwiss(true, 0e0);
+  printglob();
+ }
+
+
 void set_state(void)
 {
   globval.H_exact        = false;
@@ -491,6 +503,7 @@ void set_state(void)
 int main(int argc, char *argv[])
 {
   int          k;
+  double       dnu[2];
   ss_vect<tps> Id_scl;
 
   set_state();
@@ -519,9 +532,23 @@ int main(int argc, char *argv[])
     printglob();
   }
 
-  if (set_dnu) {
-    set_map(ElemIndex("ps_rot"), dnu);
-    Ring_GetTwiss(true, 0e0); printglob();
+  if (false) {
+    // A 1/2 ps_rot at the entrance & exit of the super period for a symmetric
+    // approach.
+    Ring_GetTwiss(true, 0e0);
+    printglob();
+
+    dnu[X_] = 0e0;
+    dnu[Y_] = 0e0;
+    printf("dnu_x?> ");
+    scanf("%lf", &dnu[X_]);
+    // printf("dnu_y?> ");
+    // scanf("%lf", &dnu[Y_]);
+    // printf("dnu_x, dnu_y? ");
+    // scanf("%lf %lf", &dnu[X_], &dnu[X_]);
+
+    // set_ps_rot("ps_rot", (0.01202+dnu[X_])/2e0, (0.00628+dnu[Y_])/2e0);
+    set_ps_rot("ps_rot", dnu[X_]/2e0, dnu[Y_]/2e0);
   }
 
   if (false) {
