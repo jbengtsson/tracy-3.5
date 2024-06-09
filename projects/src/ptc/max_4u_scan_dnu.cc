@@ -73,9 +73,10 @@ std::vector<double> get_h_ijklm(ss_vect<tps> &Id_scl)
 
 double get_chi_2(const std::vector<double> &h_ijklm)
 {
+  // Compute RMS for the on-momentum tune tune footprint terms.
   double chi_2 = 0e0;
 
-  for (int k = 0; k < h_ijklm.size(); k++)
+  for (int k = 0; k < 3; k++)
     chi_2 += sqr(h_ijklm[k]);
   return chi_2;
 }
@@ -87,10 +88,12 @@ void prt_k_ijklm
   outf << fixed << setprecision(5)
        << setw(9) << nu[X_]  << setw(9) << nu[Y_] << setw(9) << dnu[X_]
        << setw(9) << dnu[Y_];
-  for (int k = 0; k < h_ijklm.size(); k++)
+  for (int k = 0; k < 3; k++)
     outf << scientific << setprecision(5) << setw(13) << h_ijklm[k];
   outf << scientific << setprecision(5)
        << setw(13) << sqrt(get_chi_2(h_ijklm));
+  for (int k = 3; k < 5; k++)
+    outf << scientific << setprecision(5) << setw(13) << h_ijklm[k];
   outf << "\n";
 }
 
@@ -101,7 +104,7 @@ void scan_nu
 {
   const double
     nu0[]      = {globval.TotalTune[X_]/n_cell, globval.TotalTune[Y_]/n_cell},
-    dnu_max[] = {dnu_max_x, dnu_max_y};
+    dnu_max[]  = {dnu_max_x, dnu_max_y};
   const string
     file_name = "k_ijklm.dat"; 
 
@@ -111,14 +114,15 @@ void scan_nu
 
   file_wr(outf, file_name.c_str());
 
-  outf << "\n# nu_x   nu_y   dnu_x   dnu_y  k_22000    k_11110    k_00220    k_11002    k_00112     rms\n";
+  outf << "\n#   nu_x     nu_y    dnu_x    dnu_y     k_22000      k_11110"
+       << "       rms      k_00220      k_11002      k_00112\n";
   cout << "\n";
   for (int j = 0; j <= n_step; j++) {
     cout << "  j = " << j << "\n";
-    dnu[X_] = j*dnu_max[X_]/n_step;
+    dnu[X_] = j*dnu_max[X_]/n_step - 0.01;
     nu[X_] = nu0[X_] + dnu[X_];
     for (int k = 0; k <= n_step; k++) {
-      dnu[Y_] = k*dnu_max[Y_]/n_step;
+      dnu[Y_] = k*dnu_max[Y_]/n_step - 0.03;
       nu[Y_] = nu0[Y_] + dnu[Y_];
       if ((j !=0) && (k == 0)) {
 	outf << "\n";
@@ -177,5 +181,5 @@ int main(int argc, char *argv[])
   }
   Id_scl[delta_] *= delta_max;
 
-  scan_nu(Id_scl, 5, 50, 0.2, 0.2);
+  scan_nu(Id_scl, 5, 50, 0.05, 0.11);
 }
