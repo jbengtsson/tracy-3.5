@@ -1,26 +1,28 @@
 bin_PROGRAMS = fmap get_dnu vlad tracy_2_3 carbon_map drv_terms get_nl_optics \
                opt_des_1_ptc opt_des_2_ptc poincare_map wakefield \
-               lielib map_norm_jb stat_mom moments tune_conf bessy_ii max_4u
+               lielib map_norm_jb stat_mom moments tune_conf bessy_ii max_4u \
+               max_4u_scan_dnu
 
-fmap_SOURCES          = fmap.cc
-get_dnu_SOURCES       = get_dnu.cc
-vlad_SOURCES          = vlad.cc
-tracy_2_3_SOURCES     = tracy_2_3.cc
-carbon_map_SOURCES    = carbon_map.cc
-drv_terms_SOURCES     = drv_terms.cc
-get_nl_optics_SOURCES = get_nl_optics.cc
-opt_des_1_ptc_SOURCES = opt_des_1_ptc.cc
-opt_des_2_ptc_SOURCES = opt_des_2_ptc.cc
-poincare_map_SOURCES  = poincare_map.cc
-wakefield_SOURCES     = wakefield.cc
-#map_norm_SOURCES      = map_norm.cc
-lielib_SOURCES        = lielib.cc
-map_norm_jb_SOURCES   = map_norm_jb.cc
-stat_mom_SOURCES      = stat_mom.cc
-moments_SOURCES       = moments.cc
-tune_conf_SOURCES     = tune_conf.cc
-bessy_ii_SOURCES      = bessy_ii.cc
-max_4u_SOURCES        = max_4u.cc
+fmap_SOURCES            = fmap.cc
+get_dnu_SOURCES         = get_dnu.cc
+vlad_SOURCES            = vlad.cc
+tracy_2_3_SOURCES       = tracy_2_3.cc
+carbon_map_SOURCES      = carbon_map.cc
+drv_terms_SOURCES       = drv_terms.cc
+get_nl_optics_SOURCES   = get_nl_optics.cc
+opt_des_1_ptc_SOURCES   = opt_des_1_ptc.cc
+opt_des_2_ptc_SOURCES   = opt_des_2_ptc.cc
+poincare_map_SOURCES    = poincare_map.cc
+wakefield_SOURCES       = wakefield.cc
+#map_norm_SOURCES        = map_norm.cc
+lielib_SOURCES          = lielib.cc
+map_norm_jb_SOURCES     = map_norm_jb.cc
+stat_mom_SOURCES        = stat_mom.cc
+moments_SOURCES         = moments.cc
+tune_conf_SOURCES       = tune_conf.cc
+bessy_ii_SOURCES        = bessy_ii.cc
+max_4u_SOURCES          = max_4u.cc
+max_4u_scan_dnu_SOURCES = max_4u_scan_dnu.cc
 
 GSL_INCLUDE = /usr/local/Cellar/gsl/2.7.1
 # GSL_INCLUDE = /net/home/lli/OPAL/OPAL-2.0.1
