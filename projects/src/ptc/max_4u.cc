@@ -84,7 +84,7 @@ void prt_h_ijklm
 }
 
 
-double get_chi_2(std::vector<double> &h_ijklm)
+double get_chi_2(const std::vector<double> &h_ijklm)
 {
   double chi_2 = 0e0;
 
@@ -100,7 +100,7 @@ void scan_h_ijklm
   const double
     dnu_max[] = {dnu_max_x, dnu_max_y};
   const string
-    file_name = "h_ijklm.dat"; 
+    file_name = "k_ijklm.dat"; 
 
   double              nu_step[2], chi_2, chi_2_min = 1e30;
   std::vector<double> h_ijklm, dnu, dnu_min, h_ijklm_min;
