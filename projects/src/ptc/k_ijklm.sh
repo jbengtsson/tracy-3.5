@@ -1,7 +1,7 @@
 #!/bin/sh
 
 prm1=${1-0}
-prm2=${2-"h_ijklm"}
+prm2=${2-"k_ijklm"}
 
 gnuplot << EOP
 
@@ -56,10 +56,38 @@ set palette rgbformulae 22, 13, -31 negative;
 if (ps) set output file_name."_1.".(ext);
 if (ps) set output "tune_scan.ps"
 
-set title "h_{ijklm}";
+set title "k_{22000}";
 set xlabel "{/Symbol n}_x"; set ylabel "{/Symbol n}_y";
-
-splot file_name.".dat" using 1:2:(log(abs(\$4))) notitle with lines lt \
+splot file_name.".dat" using 1:2:(log(\$5)) notitle with lines lt \
       palette z;
+if (!ps) pause mouse "click on graph to cont.\n";
 
+set title "k_{11110}";
+set xlabel "{/Symbol n}_x"; set ylabel "{/Symbol n}_y";
+splot file_name.".dat" using 1:2:(log(\$6)) notitle with lines lt \
+      palette z;
+if (!ps) pause mouse "click on graph to cont.\n";
+
+set title "k_{00220}";
+set xlabel "{/Symbol n}_x"; set ylabel "{/Symbol n}_y";
+splot file_name.".dat" using 1:2:(log(\$7)) notitle with lines lt \
+      palette z;
+if (!ps) pause mouse "click on graph to cont.\n";
+
+set title "k_{11002}";
+set xlabel "{/Symbol n}_x"; set ylabel "{/Symbol n}_y";
+splot file_name.".dat" using 1:2:(log(\$8)) notitle with lines lt \
+      palette z;
+if (!ps) pause mouse "click on graph to cont.\n";
+
+set title "k_{00112}";
+set xlabel "{/Symbol n}_x"; set ylabel "{/Symbol n}_y";
+splot file_name.".dat" using 1:2:(log(\$9)) notitle with lines lt \
+      palette z;
+if (!ps) pause mouse "click on graph to cont.\n";
+
+set title "k_{ijklm} RMS";
+set xlabel "{/Symbol n}_x"; set ylabel "{/Symbol n}_y";
+splot file_name.".dat" using 1:2:(log(\$10)) notitle with lines lt \
+      palette z;
 if (!ps) pause mouse "click on graph to cont.\n";
