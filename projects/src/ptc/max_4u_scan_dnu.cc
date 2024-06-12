@@ -15,14 +15,16 @@ const double
   delta_max = 4e-2;
 
 
-void set_ps_rot(const double dnu_x, const double dnu_y)
+void set_ps_rot(const string &fam_name, const double dnu_x, const double dnu_y)
 {
+  const int
+    Fnum = ElemIndex(fam_name.c_str());
   const double
     dnu_0[] = {0e0, 0e0},
     dnu[]   = {dnu_x, dnu_y};
 
-  set_map(ElemIndex("ps_rot"), dnu_0);
-  set_map(ElemIndex("ps_rot"), dnu);
+  set_map(Fnum, dnu_0);
+  set_map(Fnum, dnu);
 }
 
 
@@ -46,7 +48,7 @@ double k_abs_ijklm
 }
 
 
-std::vector<double> get_h_ijklm(ss_vect<tps> &Id_scl)
+std::vector<double> get_h_ijklm(const ss_vect<tps> &Id_scl)
 {
   std::vector<double> k_buf;
   tps                 k_re, k_im;
@@ -86,8 +88,8 @@ void prt_k_ijklm
  const std::vector<double> &h_ijklm)
 {
   outf << fixed << setprecision(5)
-       << setw(9) << nu[X_]  << setw(9) << nu[Y_] << setw(9) << dnu[X_]
-       << setw(9) << dnu[Y_];
+       << setw(9) << nu[X_] << setw(9) << nu[Y_]
+       << setw(9) << dnu[X_] << setw(9) << dnu[Y_];
   for (int k = 0; k < 3; k++)
     outf << scientific << setprecision(5) << setw(13) << h_ijklm[k];
   outf << scientific << setprecision(5)
@@ -99,35 +101,40 @@ void prt_k_ijklm
 
 
 void scan_nu
-(ss_vect<tps> &Id_scl, const int n_cell, const int n_step,
+(const string &fam_name, const ss_vect<tps> &Id_scl,
+ const int n_step, const double nu0_x, const double nu0_y,
+ const double dnu_offset_x, const double dnu_offset_y,
  const double dnu_max_x, const double dnu_max_y)
 {
   const double
-    nu0[]      = {globval.TotalTune[X_]/n_cell, globval.TotalTune[Y_]/n_cell},
-    dnu_max[]  = {dnu_max_x, dnu_max_y};
+    nu0[]         = {nu0_x, nu0_y},
+    dnu_offset[] = {dnu_offset_x, dnu_offset_y},
+    dnu_max[]    = {dnu_max_x, dnu_max_y};
   const string
     file_name = "k_ijklm.dat"; 
 
-  double              dnu[2], nu[2];
+  double              nu[2], dnu[2];
   std::vector<double> k_ijklm;
   ofstream            outf;
 
   file_wr(outf, file_name.c_str());
 
   outf << "\n#   nu_x     nu_y    dnu_x    dnu_y     k_22000      k_11110"
-       << "       rms      k_00220      k_11002      k_00112\n";
+       << "      k_00220       rms      k_11002      k_00112\n";
   cout << "\n";
   for (int j = 0; j <= n_step; j++) {
     cout << "  j = " << j << "\n";
-    dnu[X_] = j*dnu_max[X_]/n_step - 0.01;
+    dnu[X_] = j*dnu_max[X_]/n_step + dnu_offset[X_];
     nu[X_] = nu0[X_] + dnu[X_];
     for (int k = 0; k <= n_step; k++) {
-      dnu[Y_] = k*dnu_max[Y_]/n_step - 0.03;
+      dnu[Y_] = k*dnu_max[Y_]/n_step + dnu_offset[Y_];
       nu[Y_] = nu0[Y_] + dnu[Y_];
       if ((j !=0) && (k == 0)) {
 	outf << "\n";
       }
-      set_ps_rot(nu[X_], nu[Y_]);
+      // A 1/2 ps_rot at the entrance & exit of the super period for a symmetric
+      // approach.
+      set_ps_rot(fam_name, dnu[X_]/2e0, dnu[Y_]/2e0);
       k_ijklm = get_h_ijklm(Id_scl);
 
       prt_k_ijklm(outf, nu, dnu, k_ijklm);
@@ -170,6 +177,7 @@ int main(int argc, char *argv[])
   else
     rdmfile(argv[1]);
 
+  // Twiss functions required by ps_rot.
   Ring_GetTwiss(true, 0e0);
   printglob();
 
@@ -181,5 +189,17 @@ int main(int argc, char *argv[])
   }
   Id_scl[delta_] *= delta_max;
 
-  scan_nu(Id_scl, 5, 50, 0.05, 0.11);
+  if (false)
+    scan_nu("ps_rot1", Id_scl, 50, 0.290, 0.180, -0.15, -0.15, 0.3, 0.3);
+
+  if (false)
+    scan_nu("ps_rot2", Id_scl, 50, 2.274, 1.403, -0.5, -0.5, 1.0, 1.0);
+
+  if (!false) {
+    // A 1/2 ps_rot at the entrance & exit of the super period for a symmetric
+    // approach.
+    set_ps_rot("ps_rot2", -0.15/2e0, -0.1/2e0);
+
+    prtmfile("flat_file.fit");
+  }
 }
