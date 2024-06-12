@@ -11,14 +11,16 @@ const double
   delta_max = 3e-2;
 
 
-void set_ps_rot(const double dnu_x, const double dnu_y)
+void set_ps_rot(const string &fam_name, const double dnu_x, const double dnu_y)
 {
+  const int
+    Fnum = ElemIndex(fam_name.c_str());
   const double
     dnu_0[] = {0e0, 0e0},
     dnu[]   = {dnu_x, dnu_y};
 
-  set_map(ElemIndex("ps_rot"), dnu_0);
-  set_map(ElemIndex("ps_rot"), dnu);
+  set_map(Fnum, dnu_0);
+  set_map(Fnum, dnu);
 }
 
 
@@ -122,7 +124,7 @@ void scan_h_ijklm
     for (int k = 0; k < 2*n+1; k++) {
       if (k == 0)
 	outf << "\n";
-      set_ps_rot(dnu[X_], dnu[Y_]);
+      set_ps_rot("ps_rot", dnu[X_], dnu[Y_]);
       h_ijklm = get_h_ijklm(Id_scl);
       chi_2 = get_chi_2(h_ijklm);
       if (chi_2 < chi_2_min) {
@@ -145,7 +147,7 @@ void scan_h_ijklm
 
   cout << scientific << setprecision(3) << "\ndh_ijklm rms = "
        << setw(9) << sqrt(chi_2_min) << "\n";
-  set_ps_rot(dnu_min[X_], dnu_min[Y_]);
+  set_ps_rot("ps_rot", dnu_min[X_], dnu_min[Y_]);
   h_ijklm = get_h_ijklm(Id_scl);
   prt_h_ijklm(cout, dnu_min, h_ijklm);
   cout << "\nh_ijklm_min  = ";
@@ -212,7 +214,7 @@ int main(int argc, char *argv[])
     // Twiss functions are needed for set_ps_rot.
     Ring_GetTwiss(true, 0e0);
     printglob();
-    set_ps_rot(0.1, -0.1);
+    set_ps_rot("ps_rot", 0.1, -0.1);
     Ring_GetTwiss(true, 0e0);
     printglob();
     prtmfile("flat_file.dat");
