@@ -2,26 +2,8 @@
 
 #include "tracy_lib.h"
 
-int  no_tps   = NO,
-     ndpt_tps = 5;
-
-
-void prt_lin_map(const int n_DOF, const ss_vect<tps> &map)
-{
-  int  i, j;
-
-  cout << endl;
-  for (i = 1; i <= 2*n_DOF; i++) {
-    for (j = 1; j <= 2*n_DOF; j++)
-      if (true) 
-	cout << scientific << setprecision(6)
-	     << setw(15) << getmat(map, i, j);
-      else
-	cout << scientific << setprecision(16)
-	     << setw(24) << getmat(map, i, j);
-    cout << endl;
-  }
-}
+int no_tps   = NO,
+    ndpt_tps = 5;
 
 
 tps get_mns(const tps &a, const int no1, const int no2)
@@ -80,8 +62,10 @@ ss_vect<tps> get_map_Fl(ss_vect<tps> &map)
   getlinmat(n_dim, map, globval.OneTurnMat);
   GDiag(n_dim, 1.0, globval.Ascr, globval.Ascrinv, R_mat,
         globval.OneTurnMat, globval.Omega, globval.Alphac);
-  MNF.A1.identity(); putlinmat(4, globval.Ascr, MNF.A1);
-  R.identity(); putlinmat(4, R_mat, R);
+  MNF.A1.identity();
+  MNF.A1 = putlinmat(4, globval.Ascr);
+  R.identity();
+  R = putlinmat(4, R_mat);
 
   // transform to Floquet space
   map = Inv(MNF.A1)*map*MNF.A1;
@@ -147,7 +131,7 @@ tps LieFact_SC(const ss_vect<tps> &map)
 tps get_Ker(const tps &h)
 {
   int           i, j, k;
-  iVector       jj;
+  long int      jj[ss_dim];
   tps           h_Ke;
   ss_vect<tps>  Id;
 
@@ -212,7 +196,7 @@ tps get_g(const tps nu_x, const tps nu_y, const tps &h)
   // Compute g = (1-R)^-1 * h 
 
   int           i, j, k, l, m;
-  iVector       jj1, jj2;
+  long int      jj1[ss_dim], jj2[ss_dim];
   double        re, im;
   tps           h_re, h_im, g_re, g_im, mn1, mn2, cotan;
   ss_vect<tps>  Id;
@@ -274,7 +258,7 @@ int pow(const int i, const int n)
 }
 
 
-ss_vect<tps> map_norm(void)
+ss_vect<tps> map_norm_JB(void)
 {
   int           k, n;
   double        nu0[2];
@@ -285,7 +269,8 @@ ss_vect<tps> map_norm(void)
 
   danot_(no_tps-1);
 
-  map1 = map; R = get_map_Fl(map1);
+  map1 = map;
+  R = get_map_Fl(map1);
 
   danot_(no_tps);
 
@@ -432,12 +417,12 @@ int main(int argc, char *argv[])
 
   danot_(no_tps-1);
 
-  get_map();
+  get_map(false);
 
   prt_lin_map(3, map);
 
   danot_(no_tps);
 
-//  map_norm();
+//  map_norm_JB();
   map_norm_SC();
 }
