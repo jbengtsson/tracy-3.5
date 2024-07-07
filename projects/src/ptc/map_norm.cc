@@ -1,4 +1,4 @@
-#define NO 7
+#define NO 4
 
 #include "tracy_lib.h"
 
@@ -62,10 +62,12 @@ ss_vect<tps> get_map_Fl(ss_vect<tps> &map)
   getlinmat(n_dim, map, globval.OneTurnMat);
   GDiag(n_dim, 1.0, globval.Ascr, globval.Ascrinv, R_mat,
         globval.OneTurnMat, globval.Omega, globval.Alphac);
-  MNF.A1.identity();
   MNF.A1 = putlinmat(4, globval.Ascr);
-  R.identity();
+  for (auto k = 4; k < nv_tps; k++)
+    MNF.A1[k] = tps(0e0, k+1); 
   R = putlinmat(4, R_mat);
+  for (auto k = 4; k < nv_tps; k++)
+    R[k] = tps(0e0, k+1); 
 
   // transform to Floquet space
   map = Inv(MNF.A1)*map*MNF.A1;
@@ -86,7 +88,9 @@ tps LieFact_JB(const ss_vect<tps> &map)
 
   Id.identity();
 
-  map1 = map; R = get_map_Fl(map1); map1 = map1*Inv(R);
+  map1 = map;
+  R = get_map_Fl(map1);
+  map1 = map1*Inv(R);
 
   h = 0.0;
   for (k = 3; k <= no_tps; k++) {
@@ -112,7 +116,9 @@ tps LieFact_SC(const ss_vect<tps> &map)
 
   Id.identity();
 
-  map1 = map; R = get_map_Fl(map1); map1 = map1*Inv(R);
+  map1 = map;
+  R = get_map_Fl(map1);
+  map1 = map1*Inv(R);
 
   h = 0; n = 1;
   while (n+2 < no_tps) {
@@ -224,8 +230,10 @@ tps get_g(const tps nu_x, const tps nu_y, const tps &h)
 	      pow(Id[x_], j)*pow(Id[px_], i)*pow(Id[y_], l)*pow(Id[py_], k);
 
 	    for (m = 0; m <= no_tps-i-j-k-l; m++) {
-	      jj1[delta_] = m; jj2[delta_] = m;
-	      re = h_re[jj1]; im = h_im[jj1];
+	      jj1[delta_] = m;
+	      jj2[delta_] = m;
+	      re = h_re[jj1];
+	      im = h_im[jj1];
 	      // compute g
 	      g_re += (re-cotan*im)*(mn1+mn2)*pow(Id[delta_], m)/2.0;
 	      g_im += (im+cotan*re)*(mn1-mn2)*pow(Id[delta_], m)/2.0;
@@ -272,9 +280,16 @@ ss_vect<tps> map_norm_JB(void)
   map1 = map;
   R = get_map_Fl(map1);
 
+  printf("\nA0:");
+  prt_lin_map(3, MNF.A0);
+  printf("\nA1:");
+  prt_lin_map(3, MNF.A1);
+  printf("\nR:");
+  prt_lin_map(3, R);
+
   danot_(no_tps);
 
-  K = 0.0;
+  K = 0e0;
   for (k = 0; k < 2; k++) {
     nu0[k] = atan2(R[2*k][2*k+1], R[2*k][2*k]);
     if (nu0[k] < 0.0) nu0[k] += 2.0*M_PI;
@@ -295,19 +310,22 @@ ss_vect<tps> map_norm_JB(void)
     n = pow(2, k-3);
 
     map2 = map1*Inv(R*FExpo(K, Id, 3, k-1, -1));
-    hn = Intd(get_mns(map2, k-1, k-1), -1.0); gn = get_g(nu0[X_], nu0[Y_], hn);
+    hn = Intd(get_mns(map2, k-1, k-1), -1.0);
+    gn = get_g(nu0[X_], nu0[Y_], hn);
     g += gn;
-    CtoR(hn, hn_re, hn_im); Kn = RtoC(get_Ker(hn_re), get_Ker(hn_im)); K += Kn;
+    CtoR(hn, hn_re, hn_im);
+    Kn = RtoC(get_Ker(hn_re), get_Ker(hn_im));
+    K += Kn;
 //    cout << endl << "k = " << k << hn_re;
 
-    A = FExpo(gn, Id, k, k, -1); map1 = Inv(A)*map1*A;
+    A = FExpo(gn, Id, k, k, -1);
+    map1 = Inv(A)*map1*A;
   }
 
   MNF = MapNorm(map, no_tps);
 
   cout << MNF.g-g;
-//  CtoR(MNF.K-K, hn_re, hn_im);
-//  cout << hn_re;
+  cout << MNF.K-K;
 
   return map1;
 }
@@ -326,7 +344,8 @@ ss_vect<tps> map_norm_SC(void)
 
   danot_(no_tps-1);
 
-  map1 = map; R = get_map_Fl(map1);
+  map1 = map;
+  R = get_map_Fl(map1);
 
   danot_(no_tps);
 
@@ -398,18 +417,31 @@ ss_vect<tps> map_norm_SC(void)
 }
 
 
+void set_state(void)
+{
+  globval.H_exact        = false;
+  globval.quad_fringe    = false;
+  globval.Cavity_on      = false;
+  globval.radiation      = false;
+  globval.emittance      = false;
+  globval.IBS            = false;
+  globval.pathlength     = false;
+  globval.Aperture_on    = false;
+  globval.Cart_Bend      = false;
+  globval.dip_edge_fudge = true;
+}
+
+
 int main(int argc, char *argv[])
 {
-
-  globval.H_exact    = false; globval.quad_fringe = false;
-  globval.Cavity_on  = false; globval.radiation   = false;
-  globval.emittance  = false; globval.IBS         = false;
-  globval.pathlength = false; globval.bpm         = 0;
 
   // disable from TPSALib- and LieLib log messages
   idprset_(-1);
 
-  rdmfile("flat_file.dat");
+  if (false)
+    Read_Lattice(argv[1]);
+  else
+    rdmfile(argv[1]);
 
   danot_(1);
 
@@ -423,6 +455,6 @@ int main(int argc, char *argv[])
 
   danot_(no_tps);
 
-//  map_norm_JB();
-  map_norm_SC();
+  map_norm_JB();
+  // map_norm_SC();
 }
