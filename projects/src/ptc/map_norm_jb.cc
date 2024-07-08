@@ -1,4 +1,4 @@
-#define NO 3
+#define NO 4
 
 #include "tracy_lib.h"
 
@@ -399,7 +399,7 @@ tps get_Ker(const tps &h)
 }
 
 
-tps get_g(const tps nu_x, const tps nu_y, const tps &h)
+tps get_g(const double nu_x, const double nu_y, const tps &h)
 {
   // Compute g = (1-R)^-1 * h 
 
@@ -1232,20 +1232,50 @@ void tst_twoJ(void)
   cout << twoJ;
 }
 
+
+void compute_map_norm(void)
+{
+  tps          g_re, g_im, k_re, k_im;
+  ss_vect<tps> Id, M, M2, M_lin;
+
+  danot_(no_tps-1);
+
+  get_map(false);
+  printf("\nM:");
+  prt_lin_map(3, map);
+  // cout << scientific << setprecision(3) << "\nM:\n" << map << "\n";
+
+  danot_(no_tps);
+
+  MNF = MapNorm(map, no_tps);
+  CtoR(MNF.g, g_re, g_im);
+  CtoR(MNF.K, k_re, k_im);
+
+  daeps_(1e-8);
+  cout << scientific << setprecision(5) << 1e0*MNF.g;
+  cout << scientific << setprecision(5) << 1e0*MNF.K;
+}
+
 //------------------------------------------------------------------------------
+
+void set_state(void)
+{
+  globval.H_exact        = false;
+  globval.quad_fringe    = false;
+  globval.Cavity_on      = false;
+  globval.radiation      = false;
+  globval.emittance      = false;
+  globval.IBS            = false;
+  globval.pathlength     = false;
+  globval.Aperture_on    = false;
+  globval.Cart_Bend      = false;
+  globval.dip_edge_fudge = true;
+}
+
 
 int main(int argc, char *argv[])
 {
-  long int    lastpos;
-  tps          h, h_re, h_im, h_DF;
-  ss_vect<tps> Id, M, M2, M_lin;
-
-  globval.H_exact    = false; globval.quad_fringe    = false;
-  globval.Cavity_on  = false; globval.radiation      = false;
-  globval.emittance  = false; globval.IBS            = false;
-  globval.pathlength = false; globval.bpm            = 0;
-  globval.Cart_Bend  = false; globval.dip_edge_fudge = true;
-  globval.mat_meth   = false;
+  ss_vect<tps> M;
 
   // disable from TPSALib- and LieLib log messages
   idprset_(-1);
@@ -1255,26 +1285,7 @@ int main(int argc, char *argv[])
   else
     rdmfile(argv[1]);
 
- if (false) {
-    danot_(no_tps-1);
-
-    M.identity();
-    Cell_Pass(0, globval.Cell_nLoc, M, lastpos);
-    printf("\nM:");
-    prt_lin_map(3, M);
-    // cout << scientific << setprecision(3) << "\nM:\n" << M << "\n";
-
-    danot_(no_tps);
-
-    MNF = MapNorm(M, no_tps);
-    MNF.nus = dHdJ(MNF.K);
-    MNF.A0_inv = Inv(MNF.A0);
-    MNF.A1_inv = Inv(MNF.A1);
-    MNF.A_nl = get_A_nl(MNF.g);
-    MNF.A_nl_inv = get_A_nl_inv(MNF.g);
-  }
-
-  if (false)
+ if (false)
     compute_invariant(M);
 
   if (false)
@@ -1288,4 +1299,7 @@ int main(int argc, char *argv[])
 
   if (false)
     tst_twoJ();
+
+  if (!false)
+    compute_map_norm();
 }

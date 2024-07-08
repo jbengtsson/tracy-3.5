@@ -210,10 +210,13 @@ tps get_g(const tps nu_x, const tps nu_y, const tps &h)
   CtoR(h, h_re, h_im);
 
   for (k = 0; k < nv_tps; k++) {
-    jj1[k] = 0; jj2[k] = 0;
+    jj1[k] = 0;
+    jj2[k] = 0;
   }
 
-  Id.identity(); g_re = 0.0; g_im = 0.0;
+  Id.identity();
+  g_re = 0e0;
+  g_im = 0e0;
   for (i = 0; i <= no_tps; i++) {
     jj1[x_] = i; jj2[px_] = i;
     for (j = 0; j <= no_tps; j++) {
@@ -223,7 +226,7 @@ tps get_g(const tps nu_x, const tps nu_y, const tps &h)
 	for (l = 0; l <= no_tps; l++) {
 	  jj1[py_] = l; jj2[y_] = l;
 	  if ((i+j+k+l <= no_tps) && ((i-j != 0) || (k-l != 0))) {
-	    cotan = 1.0/tan(((i-j)*nu_x+(k-l)*nu_y)*M_PI);
+	    cotan = 1e0/tan(((i-j)*nu_x+(k-l)*nu_y)*M_PI);
 	    mn1 =
 	      pow(Id[x_], i)*pow(Id[px_], j)*pow(Id[y_], k)*pow(Id[py_], l);
 	    mn2 =
@@ -234,10 +237,11 @@ tps get_g(const tps nu_x, const tps nu_y, const tps &h)
 	      jj2[delta_] = m;
 	      re = h_re[jj1];
 	      im = h_im[jj1];
-	      // compute g
+	      // Compute g.
 	      g_re += (re-cotan*im)*(mn1+mn2)*pow(Id[delta_], m)/2.0;
 	      g_im += (im+cotan*re)*(mn1-mn2)*pow(Id[delta_], m)/2.0;
-	      h_re.pook(jj2, 0.0); h_im.pook(jj2, 0.0);
+	      h_re.pook(jj2, 0.0);
+	      h_im.pook(jj2, 0.0);
 	    }
 	  }
 	}
@@ -302,8 +306,7 @@ ss_vect<tps> map_norm_JB(void)
 
   // coasting beam
   K += h_ijklm(map1[ct_], 0, 0, 0, 0, 1)*sqr(Id[delta_])/2.0;
-//  CtoR(K, hn_re, hn_im);
-//  cout << endl << "K:" << hn_re;
+  cout << "K:" << K;
 
   g = 0.0;
   for (k = 3; k <= no_tps; k++) {
@@ -316,16 +319,24 @@ ss_vect<tps> map_norm_JB(void)
     CtoR(hn, hn_re, hn_im);
     Kn = RtoC(get_Ker(hn_re), get_Ker(hn_im));
     K += Kn;
-//    cout << endl << "k = " << k << hn_re;
-
     A = FExpo(gn, Id, k, k, -1);
     map1 = Inv(A)*map1*A;
   }
 
+  daeps_(1e-10);
+  cout << "\ng:" << 1e0*g;
+  cout << "\nK:" << 1e0*K;
+  assert(false);
+
   MNF = MapNorm(map, no_tps);
 
-  cout << MNF.g-g;
-  cout << MNF.K-K;
+  if (true) {
+    cout << g;
+    cout << K;
+  } else {
+    cout << g-MNF.g;
+    cout << K-MNF.K;
+  }
 
   return map1;
 }
@@ -438,6 +449,8 @@ int main(int argc, char *argv[])
   // disable from TPSALib- and LieLib log messages
   idprset_(-1);
 
+  daeps_(1e-30);
+
   if (false)
     Read_Lattice(argv[1]);
   else
@@ -451,6 +464,7 @@ int main(int argc, char *argv[])
 
   get_map(false);
 
+  printf("\nM:");
   prt_lin_map(3, map);
 
   danot_(no_tps);

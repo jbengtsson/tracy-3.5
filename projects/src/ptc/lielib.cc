@@ -134,8 +134,8 @@ tps v_to_tps(const ss_vect<tps> &v, const tps &x)
 }
 
 
-tps exp_v_to_tps(const ss_vect<tps> &v, const tps &x, const double eps,
-	      const int n_max)
+tps exp_v_to_tps
+(const ss_vect<tps> &v, const tps &x, const double eps, const int n_max)
 {
   // Expflo in Forest's F77 LieLib:
   //   y = exp(v*nabla) * x
@@ -158,6 +158,31 @@ tps exp_v_to_tps(const ss_vect<tps> &v, const tps &x, const double eps,
 	   " n_max = %1d\n", eps1, eps, n_max);
     return NAN;
   }
+}
+
+
+tps LieExp_JB(const tps &h, const tps &x, const double eps, const int n_max)
+{
+  // exp1d in Forest's F77 LieLib:
+  //   y = exp(:h:) * x
+  tps          y;
+  ss_vect<tps> v;
+
+  v = h_to_v(h);
+  y = exp_v_to_tps(v, x, eps, n_max);
+  return y;
+}
+
+
+ss_vect<tps> LieExp_JB
+(const tps &h, const ss_vect<tps> &x, const double eps, const int n_max)
+{
+  // expnd2 in Forest's F77 LieLib:
+  //   y = exp(:h:) * x
+  ss_vect<tps> M;
+  for (auto k = 0; k < 2*nd_tps; k++)
+    M[k] = LieExp_JB(h, x[k], eps, n_max);
+  return M;
 }
 
 
