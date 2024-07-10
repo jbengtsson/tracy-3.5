@@ -176,7 +176,7 @@ ss_vect<tps> get_R_nl(void)
   return R_nl;
 }
 
-
+#if 0
 ss_vect<tps> get_A_nl(const tps g)
 {
   ss_vect<tps>  Id;
@@ -186,16 +186,22 @@ ss_vect<tps> get_A_nl(const tps g)
   return FExpo(g, Id, 3, no_tps, -1);
 }
 
+#else
 
-ss_vect<tps> get_A_nl_inv(const tps g)
+ss_vect<tps> get_A_nl(const tps g)
 {
-  ss_vect<tps>  Id;
+  int          j;
+  tps          gn;
+  ss_vect<tps> Id, A_nl;
 
-  Id.identity();
-
-  return FExpo(-g, Id, 3, no_tps, 1);
+  Id.identity(); A_nl = Id;
+  for (j = 3; j <= no_tps; j++) {
+    gn = Take(g, j);
+    A_nl = A_nl*LieExp(gn, Id);
+  }
+  return A_nl;
 }
-
+#endif
 
 tps get_g(const tps nu_x, const tps nu_y, const tps &h)
 {
@@ -270,12 +276,11 @@ int pow(const int i, const int n)
 }
 
 
-ss_vect<tps> map_norm_JB(void)
+void map_norm_JB(void)
 {
-  int           k, n;
-  double        nu0[2];
-  tps           hn, hn_re, hn_im, h_ke, gn, Kn, g, K;
-  ss_vect<tps>  Id, R, A, nus, map1, map2;
+  double        nu_0[2];
+  tps           hn, hn_re, hn_im, gn, Kn, g, K, K_re, K_im;
+  ss_vect<tps>  Id, R, A, nus, map1, map2, A_nl;
 
   Id.identity();
 
@@ -294,27 +299,24 @@ ss_vect<tps> map_norm_JB(void)
   danot_(no_tps);
 
   K = 0e0;
-  for (k = 0; k < 2; k++) {
-    nu0[k] = atan2(R[2*k][2*k+1], R[2*k][2*k]);
-    if (nu0[k] < 0.0) nu0[k] += 2.0*M_PI;
-    nu0[k] /= 2.0*M_PI;
-    K -= M_PI*nu0[k]*(sqr(Id[2*k])+sqr(Id[2*k+1]));
+  for (auto k = 0; k < 2; k++) {
+    nu_0[k] = atan2(R[2*k][2*k+1], R[2*k][2*k]);
+    if (nu_0[k] < 0.0) nu_0[k] += 2.0*M_PI;
+    nu_0[k] /= 2.0*M_PI;
+    K -= M_PI*nu_0[k]*(sqr(Id[2*k])+sqr(Id[2*k+1]));
   }
   cout << endl;
   cout << fixed << setprecision(5)
-       << "nu0 = (" << nu0[X_] << ", " << nu0[Y_] << ")" << endl;
+       << "nu_0 = [" << nu_0[X_] << ", " << nu_0[Y_] << "]" << "\n";
 
   // coasting beam
   K += h_ijklm(map1[ct_], 0, 0, 0, 0, 1)*sqr(Id[delta_])/2.0;
-  cout << "K:" << K;
 
-  g = 0.0;
-  for (k = 3; k <= no_tps; k++) {
-    n = pow(2, k-3);
-
+  g = 0e0;
+  for (auto k = 3; k <= no_tps; k++) {
     map2 = map1*Inv(R*FExpo(K, Id, 3, k-1, -1));
     hn = Intd(get_mns(map2, k-1, k-1), -1.0);
-    gn = get_g(nu0[X_], nu0[Y_], hn);
+    gn = get_g(nu_0[X_], nu_0[Y_], hn);
     g += gn;
     CtoR(hn, hn_re, hn_im);
     Kn = RtoC(get_Ker(hn_re), get_Ker(hn_im));
@@ -323,30 +325,27 @@ ss_vect<tps> map_norm_JB(void)
     map1 = Inv(A)*map1*A;
   }
 
-  daeps_(1e-10);
-  cout << "\ng:" << 1e0*g;
-  cout << "\nK:" << 1e0*K;
-  assert(false);
+  if (!false) {
+    MNF = MapNorm(map, no_tps);
 
-  MNF = MapNorm(map, no_tps);
+    daeps_(1e-10);
+    cout << "\ng" << 1e0*g;
+    cout << "\nK:" << 1e0*K;
 
-  if (true) {
-    cout << g;
-    cout << K;
-  } else {
-    cout << g-MNF.g;
-    cout << K-MNF.K;
+    cout << "\ng-MNF.g:" << g-MNF.g;
+    cout << "\nK-MNF.K:" << K-MNF.K;
   }
 
-  return map1;
+  danot_(no_tps-1);
+  cout << "\nM[x]:" << 1e0*map[x_];
 }
 
 
 ss_vect<tps> map_norm_SC(void)
 {
   int           k, n;
-  double        nu0[2];
-  tps           hn, hn_re, hn_im, h_ke, gn, Kn, g, K;
+  double        nu_0[2];
+  tps           hn, hn_re, hn_im, gn, Kn, g, K;
   ss_vect<tps>  Id, R, A, nus, map1, map2;
 
   const bool  sup_conv = true;
@@ -362,17 +361,17 @@ ss_vect<tps> map_norm_SC(void)
 
   K = 0.0;
   for (k = 0; k < 2; k++) {
-    nu0[k] = atan2(R[2*k][2*k+1], R[2*k][2*k]);
-    if (nu0[k] < 0.0) nu0[k] += 2.0*M_PI;
-    nu0[k] /= 2.0*M_PI;
-    K -= M_PI*nu0[k]*(sqr(Id[2*k])+sqr(Id[2*k+1]));
+    nu_0[k] = atan2(R[2*k][2*k+1], R[2*k][2*k]);
+    if (nu_0[k] < 0.0) nu_0[k] += 2.0*M_PI;
+    nu_0[k] /= 2e0*M_PI;
+    K -= M_PI*nu_0[k]*(sqr(Id[2*k])+sqr(Id[2*k+1]));
   }
   cout << endl;
   cout << fixed << setprecision(5)
-       << "nu0 = (" << nu0[X_] << ", " << nu0[Y_] << ")" << endl;
+       << "nu_0 = (" << nu_0[X_] << ", " << nu_0[Y_] << ")" << endl;
 
   // coasting beam
-  K += h_ijklm(map1[ct_], 0, 0, 0, 0, 1)*sqr(Id[delta_])/2.0;
+  K += h_ijklm(map1[ct_], 0, 0, 0, 0, 1)*sqr(Id[delta_])/2e0;
 //  CtoR(K, hn_re, hn_im);
 //  cout << endl << "K:" << hn_re;
 
@@ -387,7 +386,8 @@ ss_vect<tps> map_norm_SC(void)
     nus = dHdJ(K);
     gn = get_mns(get_g(nus[3], nus[4], hn), n+2, min(2*n+1, no_tps));
     g += gn;
-    CtoR(hn, hn_re, hn_im); Kn = RtoC(get_Ker(hn_re), get_Ker(hn_im)); K += Kn;
+    CtoR(hn, hn_re, hn_im);
+    Kn = RtoC(get_Ker(hn_re), get_Ker(hn_im)); K += Kn;
 //    cout << endl << "k = " << k << Kn << hn_re;
 
     A = LieExp(gn, Id); map1 = Inv(A)*map1*A;
