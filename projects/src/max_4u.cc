@@ -10,14 +10,16 @@ int no_tps = NO;
 
 void set_ps_rot(const string &fam_name, const double dnu_x, const double dnu_y)
 {
+  const int
+    Fnum = ElemIndex(fam_name.c_str());
   const double
     dnu_0[] = {0e0, 0e0},
     dnu[]   = {dnu_x, dnu_y};
 
-  set_map(ElemIndex(fam_name.c_str()), dnu_0);
+  set_map(Fnum, dnu_0);
   printf("\ntweak_nu:\n");
   printf("  dnu = [%8.5f, %8.5f]\n", dnu[X_], dnu[Y_]);
-  set_map(ElemIndex(fam_name.c_str()), dnu);
+  set_map(Fnum, dnu);
   Ring_GetTwiss(true, 0e0);
   printglob();
  }
@@ -125,9 +127,9 @@ void fit_ksi_jb(const int lat_case, const double ksi_x, const double ksi_y)
 {
   std::vector<int> Fnum;
 
-  Fnum.push_back(ElemIndex("sf_h"));
-  Fnum.push_back(ElemIndex("sd1"));
-  Fnum.push_back(ElemIndex("sd2"));
+  Fnum.push_back(ElemIndex("sfoh"));
+  Fnum.push_back(ElemIndex("sdqd"));
+  // Fnum.push_back(ElemIndex("sd2"));
   
   fit_ksi_jb(Fnum, 0e0, 0e0, 1e0);
 }
@@ -236,7 +238,7 @@ int main(int argc, char *argv[])
   prt_lat("linlat.out", globval.bpm, true, 10);
   prt_chrom_lat("chromlat.out");
 
-  if (!false)
+  if (false)
     GetEmittance(ElemIndex("cav"), false, true);
 
   if (false) {
@@ -252,7 +254,7 @@ int main(int argc, char *argv[])
     prtmfile("flat_file.dat");
   }
 
-  if (false) {
+  if (!false) {
     globval.Cavity_on = false;
     track(100, -6e-3, 0e0);
   }
