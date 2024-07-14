@@ -9,8 +9,8 @@ const int
   n_step = 25;
 
 const double
-  A_max[]   = {15e-3, 7e-3},
-  delta_max = 6e-2;
+  A_max[]   = {8e-3, 4e-3},
+  delta_max = 4e-2;
 
 
 int main(int argc, char *argv[])
