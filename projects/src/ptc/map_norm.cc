@@ -279,7 +279,7 @@ int pow(const int i, const int n)
 void map_norm_JB(void)
 {
   double        nu_0[2];
-  tps           hn, hn_re, hn_im, gn, Kn, g, K, K_re, K_im;
+  tps           hn, hn_re, hn_im, gn, Kn, g, g_re, g_im, K, K_re, K_im;
   ss_vect<tps>  Id, R, A, nus, map1, map2, A_nl;
 
   Id.identity();
@@ -325,19 +325,19 @@ void map_norm_JB(void)
     map1 = Inv(A)*map1*A;
   }
 
+  CtoR(g, g_re, g_im);
+  CtoR(K, K_re, K_im);
+
+  daeps_(1e-10);
+  cout << "\ng_im" << 1e0*g_im;
+  cout << "\nK_re:" << 1e0*K_re;
+
   if (!false) {
     MNF = MapNorm(map, no_tps);
-
-    daeps_(1e-10);
-    cout << "\ng" << 1e0*g;
-    cout << "\nK:" << 1e0*K;
 
     cout << "\ng-MNF.g:" << g-MNF.g;
     cout << "\nK-MNF.K:" << K-MNF.K;
   }
-
-  danot_(no_tps-1);
-  cout << "\nM[x]:" << 1e0*map[x_];
 }
 
 
@@ -468,6 +468,15 @@ int main(int argc, char *argv[])
   prt_lin_map(3, map);
 
   danot_(no_tps);
+
+  if (!false) {
+    tps          h, h_re, h_im;
+    ss_vect<tps> R;
+
+    h = LieFact_DF(map, R);
+    CtoR(h, h_re, h_im);
+    cout << "\nh_im:\n" << h_im;
+  }
 
   map_norm_JB();
   // map_norm_SC();
