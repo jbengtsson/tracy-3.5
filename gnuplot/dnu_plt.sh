@@ -39,7 +39,7 @@ else if (ps == 4) \
 if ((N == 1) && (case == 1)) \
   N_x = 44; N_y = 12; \
 else if ((N == 20) && (case == 1)) \
-  N_x = 2; N_y = 0; \
+  N_x = 2; N_y = 1; \
 else if ((N == 1) && (case == 2)) \
   N_x = 17; N_y = 6;
 
