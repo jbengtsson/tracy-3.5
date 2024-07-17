@@ -51,7 +51,8 @@ void set_state(void)
 
 int main(int argc, char *argv[])
 {
-  int loc_1, loc_2;
+  int    loc_1, loc_2;
+  double I[6], eps[3], eps_x, sigma_delta, U_0, J[3], tau[3];
 
   globval.mat_meth = false;
 
@@ -79,7 +80,10 @@ int main(int argc, char *argv[])
   prt_chrom_lat("chromlat.out");
 
   if (!false)
-    GetEmittance(ElemIndex("cav"), false, true);
+    if (globval.mat_meth)
+      GetEmittance(ElemIndex("cav"), false, true);
+    else
+      get_eps_x(eps_x, sigma_delta, U_0, J, tau, I, true);
 
   if (!false) {
     loc_1 = Elem_GetPos(ElemIndex("sd2"), 1);

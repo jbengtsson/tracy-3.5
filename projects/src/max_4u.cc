@@ -42,8 +42,9 @@ void get_dnu_straight(const int loc)
 }
 
 
-void fit_ksi_jb(const std::vector<int> &Fnum_b3,
-	      const double ksi_x, const double ksi_y, const double db3L)
+void fit_xi_jb
+(const std::vector<int> &Fnum_b3, const double ksi_x, const double ksi_y,
+ const double db3L)
 {
   int    n_b3, j, k;
   double **A, **U, **V, *w, *b, *x, b3, a3;
@@ -67,7 +68,7 @@ void fit_ksi_jb(const std::vector<int> &Fnum_b3,
     set_dbnL_design_fam(Fnum_b3[k-1], Sext, db3L, 0e0);
     Ring_Getchrom(0e0);
     if (prt)
-      printf("\nfit_ksi_jb: ksi1+ = [%9.5f, %9.5f]\n",
+      printf("\nfit_xi_jb: ksi1+ = [%9.5f, %9.5f]\n",
 	     globval.Chrom[X_], globval.Chrom[Y_]);
 
     for (j = 1; j <= m; j++)
@@ -75,10 +76,11 @@ void fit_ksi_jb(const std::vector<int> &Fnum_b3,
     set_dbnL_design_fam(Fnum_b3[k-1], Sext, -2e0*db3L, 0e0);
     Ring_Getchrom(0e0);
     if (prt)
-      printf("fit_ksi_jb: ksi1- = [%9.5f, %9.5f]\n",
+      printf("fit_xi_jb: ksi1- = [%9.5f, %9.5f]\n",
 	 globval.Chrom[X_], globval.Chrom[Y_]);
     for (j = 1; j <= 2; j++) {
-      A[j][k] -= globval.Chrom[j-1]; A[j][k] /= 2e0*db3L;
+      A[j][k] -= globval.Chrom[j-1];
+      A[j][k] /= 2e0*db3L;
     }
 
     set_dbnL_design_fam(Fnum_b3[k-1], Sext, db3L, 0e0);
@@ -86,24 +88,32 @@ void fit_ksi_jb(const std::vector<int> &Fnum_b3,
 
   Ring_Getchrom(0e0);
   if (prt)
-    printf("\nfit_ksi_jb: ksi1  = [%9.5f, %9.5f]\n",
+    printf("\nfit_xi_jb: ksi1  = [%9.5f, %9.5f]\n",
 	   globval.Chrom[X_], globval.Chrom[Y_]);
   for (j = 1; j <= 2; j++)
     b[j] = -(globval.Chrom[j-1]-ksi0[j-1]);
 
-  dmcopy(A, m, n_b3, U); dsvdcmp(U, m, n_b3, w, V);
+  dmcopy(A, m, n_b3, U);
+  dsvdcmp(U, m, n_b3, w, V);
 
-  printf("\nfit_ksi_jb:\n  singular values:\n");
-  for (j = 1; j <= n_b3; j++) {
-    printf("    %9.3e", w[j]);
-    if (w[j] < svd_cut) {
-      w[j] = 0e0;
-      printf(" (zeroed)");
+  if (prt) {
+    printf("\nfit_xi_jb:\n  singular values:\n");
+    for (j = 1; j <= n_b3; j++) {
+      printf("    %9.3e", w[j]);
+      if (w[j] < svd_cut) {
+	w[j] = 0e0;
+	printf(" (zeroed)");
+      }
+      printf("\n");
     }
-    printf("\n");
   }
 
   dsvbksb(U, w, V, m, n_b3, b, x);
+
+  if (prt) {
+    dmdump(stdout, "\nA:", A, 2, 2, "%11.3e");
+    dvdump(stdout, "\nx:", x, 2, "%11.3e");
+  }
 
   for (k = 1; k <= n_b3; k++)
     set_dbnL_design_fam(Fnum_b3[k-1], Sext, x[k], 0e0);
@@ -123,15 +133,17 @@ void fit_ksi_jb(const std::vector<int> &Fnum_b3,
 }
 
 
-void fit_ksi_jb(const int lat_case, const double ksi_x, const double ksi_y)
+void fit_xi_jb(const int lat_case, const double ksi_x, const double ksi_y)
 {
   std::vector<int> Fnum;
 
+  // Fnum.push_back(ElemIndex("sf_h"));
+  // Fnum.push_back(ElemIndex("sd1"));
+  // Fnum.push_back(ElemIndex("sd2"));
   Fnum.push_back(ElemIndex("sfoh"));
   Fnum.push_back(ElemIndex("sdqd"));
-  // Fnum.push_back(ElemIndex("sd2"));
   
-  fit_ksi_jb(Fnum, 0e0, 0e0, 1e0);
+  fit_xi_jb(Fnum, 0e0, 0e0, 1e0);
 }
 
 
@@ -211,13 +223,13 @@ int main(int argc, char *argv[])
 
   set_state();
 
-  if (false) {
+  if (false)
     no_mult(Sext);
+  if (false)
     no_mult(Oct);
-  }
 
   if (false) {
-    fit_ksi_jb(1, 0e0, 0e0);
+    fit_xi_jb(1, 0e0, 0e0);
     assert(false);
   }
 
@@ -238,7 +250,7 @@ int main(int argc, char *argv[])
   prt_lat("linlat.out", globval.bpm, true, 10);
   prt_chrom_lat("chromlat.out");
 
-  if (false)
+  if (!false)
     GetEmittance(ElemIndex("cav"), false, true);
 
   if (false) {
