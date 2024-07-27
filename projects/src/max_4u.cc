@@ -137,11 +137,9 @@ void fit_xi_jb(const int lat_case, const double ksi_x, const double ksi_y)
 {
   std::vector<int> Fnum;
 
-  // Fnum.push_back(ElemIndex("sf_h"));
-  // Fnum.push_back(ElemIndex("sd1"));
+  Fnum.push_back(ElemIndex("s2"));
+  Fnum.push_back(ElemIndex("s3"));
   // Fnum.push_back(ElemIndex("sd2"));
-  Fnum.push_back(ElemIndex("sfoh"));
-  Fnum.push_back(ElemIndex("sdqd"));
   
   fit_xi_jb(Fnum, 0e0, 0e0, 1e0);
 }
@@ -195,6 +193,25 @@ void chk_optics(const double alpha_x, const double beta_x,
 }
 
 
+void chk_phi()
+{
+  int    k;
+  double dphi, phi, mphi;
+
+  printf("\n");
+  phi = 0e0; mphi = 0e0;
+  for (k = 0; k <= globval.Cell_nLoc; k++) {
+    if ((Cell[k].Elem.Pkind == Mpole) &&
+	(Cell[k].Elem.M->Pirho != 0e0)) {
+      dphi = Cell[k].Elem.PL*Cell[k].Elem.M->Pirho*180e0/M_PI;
+      phi += dphi;
+      if (dphi < 0e0) mphi += dphi;
+    }
+  }
+  printf("\nphi = %8.6f phi- = %8.6f phi+ = %8.6f\n", phi, mphi, phi-mphi);
+}
+
+
 void set_state(void)
 {
   globval.H_exact        = false;
@@ -223,6 +240,8 @@ int main(int argc, char *argv[])
 
   set_state();
 
+  chk_phi();
+
   if (false)
     no_mult(Sext);
   if (false)
@@ -242,7 +261,7 @@ int main(int argc, char *argv[])
     // set_ps_rot("ps_rot1", 0.1491/2e0, -0.0413/2e0);
     // set_ps_rot("ps_rot2", 0.3991/2e0, -0.2914/2e0);
 
-    set_ps_rot("ps_rot", 0.06/2.0, 0.0/2.0);
+    set_ps_rot("ps_rot", -0.1/2.0, 0.1/2.0);
   }
 
   prtmfile("flat_file.dat");

@@ -31,7 +31,11 @@ const int
   n_cell = 20;
 const double
 #if SET_NU
+#if 0
+  nu_int[] = {42, 19},
+#else
   nu_int[] = {50, 17},
+#endif
   nu[]     = {(nu_int[X_]-0.38)/n_cell, (nu_int[Y_]-0.18)/n_cell},
 #else
   nu[]     = {0.3, -0.2},
