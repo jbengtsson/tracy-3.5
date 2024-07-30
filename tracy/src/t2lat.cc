@@ -41,7 +41,7 @@ typedef enum
   qdsym, sexsym, versym, plus_, minus_, lparent, rparent, eql, comma, lbrack,
   rbrack, neq, andsy, semicolon, times, rdiv, intcon, realcon, becomes, colon,
   leq, pwrsym, lss, geo, gtr, period_, charcon, stringcon, ident, geq, lsym,
-  bobrhosym, bobrhovsym, bobrhohsym, kxvsym, kxhsym, phisym, b_2_sym, b_3_sym,
+  bobrhosym, bobrhovsym, bobrhohsym, kxvsym, kxhsym, phisym, b_2_sym,
   tsym, t1sym, t2sym,
   gapsym, thksym, invsym, thnsym,
   endsym, tsksym, bemsym, corsym, prnsym, tblsym, possym, prmsym,
@@ -655,7 +655,7 @@ static void Lat_GetSym(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       /*  writeln(fo, 'GetSym detected reserved word: id=', id,
 	  '  k=', k:4, '  key[', k:4, ']=', key[k]);*/
     } else {
-      if      (!strncmp(id, "phi            ", sizeof(alfa_)))
+      if      (!strncmp(id, "t              ", sizeof(alfa_)))
 	*sym = tsym;
       else if (!strncmp(id, "gap            ", sizeof(alfa_)))
 	*sym = gapsym;
@@ -673,12 +673,10 @@ static void Lat_GetSym(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 	*sym = kxvsym;
       else if (!strncmp(id, "kxh            ", sizeof(alfa_)))
 	*sym = kxhsym;
-      else if (!strncmp(id, "phi_rf         ", sizeof(alfa_)))
+      else if (!strncmp(id, "phi            ", sizeof(alfa_)))
 	*sym = phisym;
-      else if (!strncmp(id, "b_2            ", sizeof(alfa_)))
+      else if (!strncmp(id, "k              ", sizeof(alfa_)))
 	*sym = b_2_sym;
-      else if (!strncmp(id, "b_3            ", sizeof(alfa_)))
-	*sym = b_3_sym;
       else if (!strncmp(id, "harnum         ", sizeof(alfa_)))
 	*sym = harnumsym;
       else
@@ -1052,9 +1050,9 @@ static void Factor(struct LOC_Term *LINK)
 	    x = WITH1->Pirho * WITH->PL * 180.0 / M_PI;
 	  else
 	    x = WITH1->Pirho * 180.0 / M_PI;
-	} else if (!strncmp(fname, "phi_1          ", sizeof(partsName)))
+	} else if (!strncmp(fname, "t1             ", sizeof(partsName)))
 	  x = WITH1->PTx1;
-	else if (!strncmp(fname, "phi_2          ", sizeof(partsName)))
+	else if (!strncmp(fname, "t2             ", sizeof(partsName)))
 	  x = WITH1->PTx2;
 	else if (!strncmp(fname, "gap            ", sizeof(partsName)))
 	  x = WITH1->Pgap;
@@ -2399,7 +2397,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     if (*V.sym == comma) {
       GetSym__(&V);
       P_addset(P_expset(mysys, 0), (long)lsym);
-      P_addset(mysys, (long)b_3_sym);
+      P_addset(mysys, (long)b_2_sym);
       P_addset(mysys, (long)nsym);
       P_addset(mysys, (long)mthsym);
       P_addset(mysys, (long)rollsym);
@@ -2415,7 +2413,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 	    QL = EVAL_(&V);
 	    break;
 
-	  case b_3_sym:
+	  case b_2_sym:
 	    QK = EVAL_(&V);
 	    break;
 
