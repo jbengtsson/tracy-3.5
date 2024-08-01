@@ -9,7 +9,8 @@ ps        = $prm1;
 file_name = "$prm2";
 
 
-f_s = 24; l_w = 2;
+f_s = 24;
+l_w = 2;
 # Enhanced is needed for Greek characters.
 if (ps == 0) \
   set terminal qt 0 enhanced font "Sans, 9"; \
