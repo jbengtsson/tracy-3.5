@@ -100,16 +100,16 @@ def bend(line, tokens, decls):
     else:
         sys.stdout.write('bend: hgap or fint not defined\n')
     if False and loc_n != None:
-        str += ', N = %s, Method = 4;' % (tokens[loc_n+1])
+        str += ', N = %s;' % (tokens[loc_n+1])
     else:
-        str += ', N = Nbend, Method = 4;'
+        str += ', N = Nbend;'
     return str
 
 def quad(line, tokens, decls):
     # QUAD is modeled by a third order Taylor expansion.
     loc_l = tokens.index('l')
     loc_k = tokens.index('k1')
-    str = '%s: Quadrupole, L = %s, K = %s, N = Nquad, Method = 4;' % \
+    str = '%s: Quadrupole, L = %s, K = %s, N = Nquad;' % \
         (tokens[0], get_arg(tokens[loc_l+1], decls),
          get_arg(tokens[loc_k+1], decls))
     return str
@@ -119,7 +119,7 @@ def sext(line, tokens, decls):
     loc_k = tokens.index('k2')
     # The field expansion is a power series for Tracy-2,3 vs. a Taylor expansion
     # for Elegant; i.e., like in MAD-8.
-    str = '%s: Sextupole, L = %s, K = %s/2.0, N = Nsext, Method = 4;' % \
+    str = '%s: Sextupole, L = %s, K = %s/2.0, N = Nsext;' % \
         (tokens[0], get_arg(tokens[loc_l+1], decls),
          get_arg(tokens[loc_k+1], decls))
     return str
@@ -129,10 +129,23 @@ def oct1(line, tokens, decls):
     loc_k = tokens.index('k3')
     # The field expansion is a power series for Tracy-2,3 vs. a Taylor expansion
     # for Elegant; i.e., like in MAD-8.
-    str = '%s: Multipole, L = %s, HOM = (4, %s, 0.0), N = Nsext, Method = 4;' \
+    str = '%s: Multipole, L = %s, HOM = (4, %s, 0.0), N = Nsext;' \
         % \
         (tokens[0], get_arg(tokens[loc_l+1], decls),
          get_arg(tokens[loc_k+1], decls))
+    return str
+
+def mult(line, tokens, decls):
+    loc_l = tokens.index('l')
+    loc_n = tokens.index('order')
+    loc_b_n = tokens.index('knl')
+    # The field expansion is a power series for Tracy-2,3 vs. a Taylor expansion
+    # for Elegant; i.e., like in MAD-8.
+    str = '%s: Multipole, L = %s, HOM = (%s, %s, 0.0), N = Nsext;' \
+        % \
+        (tokens[0], get_arg(tokens[loc_l+1], decls),
+         get_arg(tokens[loc_n+1], decls),
+         get_arg(tokens[loc_b_n+1], decls))
     return str
 
 def cavity(line, tokens, decls):
@@ -205,6 +218,7 @@ ele2tracy = {
     'sext'      : sext,
     'ksext'     : sext,
     'koct'      : oct1,
+    'mult'      : mult,
     'rfca'      : cavity,
     'line'      : line
     }
