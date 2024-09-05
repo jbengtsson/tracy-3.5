@@ -1,10 +1,10 @@
-/* Author: Johan Bengtsson
+/* Author: Johan Bengtsson.
 
    Module:
 
    Control of dynamic aperture.
    Pascal module developed for the SLS conceptual design in 1995.
-   Machine translated to C - by utilising P2C -in 2004 for the conceptual
+   Machine translated to C - by utilising P2C - in 2004 for the conceptual
    design of NSLS-II.
 
    Description:
@@ -42,8 +42,14 @@ const int ps_dim = 4+1;
 
 typedef double sp_vec[2], ps_vec[ps_dim], mat[ps_dim][ps_dim];
 
-int    iter, n_b3, b3s[n_b3_max];
-double twoJx, twoJy;
+int iter, n_b3, b3s[n_b3_max];
+
+const double
+  beta_inj[] = {2.8,  2.8},
+  A_max[]    = {3e-3, 1.5e-3},
+  delta_max  = 2e-2,
+  // twoJ[] = {sqr(A_max[X_])/beta_inj[X_], sqr(A_max[Y_])/beta_inj[Y_]};
+  twoJ[] = {1e0, 1e0};
 
 
 double get_bn(CellType &Cell, long int Order)
@@ -360,6 +366,9 @@ void sxt_1(const double scl,
 {
   /* First order generators. */
 
+  const double tune[] =
+    {Cell[globval.Cell_nLoc].Nu[X_], Cell[globval.Cell_nLoc].Nu[Y_]};
+
   int     n, k1, m_x, m_y, n_x, n_y;
   double  c, s, b3L, A, phi;
   sp_vec  alpha0, beta0, nu0, eta0, etap0, beta, nu, eta;
@@ -402,14 +411,16 @@ void sxt_1(const double scl,
 	  eta[k1] = eta0[k1];
 	}
 	b3L = get_bnL(Cell[n], Sext);
-	phi = 2e0*M_PI*(n_x*nu[X_]+n_y*nu[Y_]);
-	A = scl*b3L*pow(beta[X_], m_x/2e0)*pow(beta[Y_], m_y/2e0);
-	if (m >= 1) {
-	  A *= -pow(eta[X_], m);
-	  if (m == 1) A *= 2e0;
+	if (b3L != 0e0) {
+	  phi = 2e0*M_PI*(n_x*(nu[X_]-tune[X_])+n_y*(nu[Y_]-tune[Y_]));
+	  A = scl*b3L*pow(beta[X_], m_x/2e0)*pow(beta[Y_], m_y/2e0);
+	  if (m >= 1) {
+	    A *= -pow(eta[X_], m);
+	    if (m == 1) A *= 2e0;
+	  }
+	  h_c += A*cos(phi);
+	  h_s -= A*sin(phi);
 	}
-	h_c += A*cos(phi);
-	h_s -= A*sin(phi);
       }
     }
   }
@@ -446,7 +457,8 @@ void sxt_2(const double scl,
       }
       b3L1 = get_bnL(Cell[n1], Sext);
       dnu = (i1-j1)*nu1[X_] + (k1-l1)*nu1[Y_];
-      A1 = b3L1*pow(beta1[X_], (i1+j1)/2e0)*pow(twoJy*beta1[Y_], (k1+l1)/2e0);
+      A1 =
+	b3L1*pow(beta1[X_], (i1+j1)/2e0)*pow(twoJ[Y_]*beta1[Y_], (k1+l1)/2e0);
       for (n2 = 0; n2 <= globval.Cell_nLoc; n2++) {
 	if ((Cell[n2].Elem.Pkind == Mpole) &&
 	    (Cell[n2].Elem.M->Porder >= Sext)) {
@@ -542,8 +554,9 @@ void K(const double nu_x, const double nu_y, double a[])
 	  c_1xm2y = cos(dmu_x-2e0*dmu_y-pi_1xm2y)/s_1xm2y;
 	  c_1xp2y = cos(dmu_x+2e0*dmu_y-pi_1xp2y)/s_1xp2y;
 	  a[0] += A*beta1[X_]*beta2[X_]*(3*c_1x+c_3x)/2e0;
-	  a[1] -= A*beta1[Y_]*(4e0*twoJx*beta2[X_]*c_1x+2e0*twoJy*beta2[Y_]
-		  *(c_1xm2y-c_1xp2y));
+	  a[1] -=
+	    A*beta1[Y_]*(4e0*twoJ[X_]*beta2[X_]*c_1x+2e0*twoJ[Y_]*beta2[Y_]
+			 *(c_1xm2y-c_1xp2y));
 	  a[2] += A*beta1[Y_]*beta2[Y_]*(4e0*c_1x+c_1xm2y+c_1xp2y)/2e0;
 	}
       }
@@ -555,76 +568,89 @@ void K(const double nu_x, const double nu_y, double a[])
 }
 
 
-void sext_terms(const double twoJx, const double twoJy)
+void sext_terms(const double twoJ[])
 {
   double h_c, h_s, c, s, a[3];
 
-  printf("\n");
-  printf("First order chromatic terms:\n");
+  printf("\nFirst order chromatic terms:\n");
   sxt_1(1e0/2e0, 1, 1, 0, 0, 1, h_c, h_s);
-  printf("  h_11001: %23.16e %23.16e\n", h_c/2e0, h_s/2e0);
+  printf("  h_11001: %23.16e %23.16e\n", h_c, h_s);
   sxt_1(-1e0/2e0, 0, 0, 1, 1, 1, h_c, h_s);
-  printf("  h_00111: %23.16e %23.16e\n", h_c/2e0, h_s/2e0);
+  printf("  h_00111: %23.16e %23.16e\n", h_c, h_s);
 
   printf("\n");
   sxt_1(1e0/4e0, 2, 0, 0, 0, 1, h_c, h_s);
-  h_c *= twoJx;
-  h_s *= twoJx;
-  printf("  h_20001: %23.16e %23.16e\n", h_c/2e0, h_s/2e0);
+  h_c *= twoJ[X_];
+  h_s *= twoJ[X_];
+  printf("  h_20001: %23.16e %23.16e\n", h_c, h_s);
   sxt_1(-1e0/4e0, 0, 0, 2, 0, 1, h_c, h_s);
-  h_c *= twoJy;
-  h_s *= twoJy;
-  printf("  h_00201: %23.16e %23.16e\n", h_c/2e0, h_s/2e0);
+  h_c *= twoJ[Y_];
+  h_s *= twoJ[Y_];
+  printf("  h_00201: %23.16e %23.16e\n", h_c, h_s);
   sxt_1(1e0, 1, 0, 0, 0, 2, h_c, h_s);
-  h_c *= sqrt(twoJx);
-  h_s *= sqrt(twoJx);
-  printf("  h_10002: %23.16e %23.16e\n", h_c/2e0, h_s/2e0);
+  h_c *= sqrt(twoJ[X_]);
+  h_s *= sqrt(twoJ[X_]);
+  printf("  h_10002: %23.16e %23.16e\n", h_c, h_s);
 
-  printf("\n");
-  printf("First order geometric terms:\n");
-  sxt_1(-1e0/12e0, 3, 0, 0, 0, 0, h_c, h_s);
-  h_c *= pow(twoJx, 3e0/2e0);
-  h_s *= pow(twoJx, 3e0/2e0);
-  printf("  h_30000: %23.16e %23.16e\n", h_c/2e0, h_s/2e0);
+  printf("\nFirst order geometric terms:\n");
   sxt_1(-1e0/4e0, 2, 1, 0, 0, 0, h_c, h_s);
-  h_c *= pow(twoJx, 3e0/2e0);
-  h_s *= pow(twoJx, 3e0/2e0);
-  printf("  h_21000: %23.16e %23.16e\n", h_c/2e0, h_s/2e0);
-  sxt_1(1e0/4e0, 1, 0, 2, 0, 0, h_c, h_s);
-  h_c *= sqrt(twoJx)*twoJy;
-  h_s *= sqrt(twoJx)*twoJy;
-  printf("  h_10200: %23.16e %23.16e\n", h_c/2e0, h_s/2e0);
+  h_c *= pow(twoJ[X_], 3e0/2e0);
+  h_s *= pow(twoJ[X_], 3e0/2e0);
+  printf("  h_21000: %23.16e %23.16e\n", h_c, h_s);
+  sxt_1(-1e0/12e0, 3, 0, 0, 0, 0, h_c, h_s);
+  h_c *= pow(twoJ[X_], 3e0/2e0);
+  h_s *= pow(twoJ[X_], 3e0/2e0);
+  printf("  h_30000: %23.16e %23.16e\n", h_c, h_s);
   sxt_1(1e0/2e0, 1, 0, 1, 1, 0, h_c, h_s);
-  h_c *= sqrt(twoJx)*twoJy;
-  h_s *= sqrt(twoJx)*twoJy;
-  printf("  h_10110: %23.16e %23.16e\n", h_c/2e0, h_s/2e0);
+  h_c *= sqrt(twoJ[X_])*twoJ[Y_];
+  h_s *= sqrt(twoJ[X_])*twoJ[Y_];
+  printf("  h_10110: %23.16e %23.16e\n", h_c, h_s);
+  sxt_1(1e0/4e0, 1, 0, 2, 0, 0, h_c, h_s);
+  h_c *= sqrt(twoJ[X_])*twoJ[Y_];
+  h_s *= sqrt(twoJ[X_])*twoJ[Y_];
+  printf("  h_10200: %23.16e %23.16e\n", h_c, h_s);
   sxt_1(1e0/4e0, 1, 0, 0, 2, 0, h_c, h_s);
-  h_c *= sqrt(twoJx)*twoJy;
-  h_s *= sqrt(twoJx)*twoJy;
-  printf("  h_10020: %23.16e %23.16e\n", h_c/2e0, h_s/2e0);
+  h_c *= sqrt(twoJ[X_])*twoJ[Y_];
+  h_s *= sqrt(twoJ[X_])*twoJ[Y_];
+  printf("  h_10020: %23.16e %23.16e\n", h_c, h_s);
 
-  printf("\n");
-  printf("Second order geometric terms:\n");
+  printf("\nSecond order geometric terms:\n");
   sxt_2(-1e0/32e0, 2, 1, 0, 0, 3, 0, 0, 0, h_c, h_s);
-  h_c *= sqr(twoJx);
-  h_s *= sqr(twoJx);
-  printf("  h_40000: %23.16e %23.16e\n", h_c/2e0, h_s/2e0);
+  h_c *= sqr(twoJ[X_]);
+  h_s *= sqr(twoJ[X_]);
+  printf("  h_40000: %23.16e %23.16e\n", h_c, h_s);
   
   sxt_2(-1e0/16e0, 1, 2, 0, 0, 3, 0, 0, 0, h_c, h_s);
-  h_c *= sqr(twoJx);
-  h_s *= sqr(twoJx);
-  printf("  h_31000: %23.16e %23.16e\n", h_c/2e0, h_s/2e0);
+  h_c *= sqr(twoJ[X_]);
+  h_s *= sqr(twoJ[X_]);
+  printf("  h_31000: %23.16e %23.16e\n", h_c, h_s);
 
-  sxt_2(-1e0/32e0, 0, 3, 0, 0, 3, 0, 0, 0, c, s);
+  sxt_2(-1e0/16e0, 3, 0, 0, 0, 0, 1, 1, 1, c, s);
   h_c = c;
   h_s = s;
-  sxt_2(-3e0/32e0, 1, 2, 0, 0, 2, 1, 0, 0, c, s);
+  sxt_2(-1e0/16e0, 1, 0, 1, 1, 2, 1, 0, 0, c, s);
   h_c += c;
   h_s += s;
-  h_c *= sqr(twoJx);
-  h_s *= sqr(twoJx);
-  printf("  h_22000: %23.16e %23.16e\n", h_c/2e0, h_s/2e0);
+  sxt_2(-1e0/8e0, 1, 0, 0, 2, 1, 0, 2, 0, c, s);
+  h_c += c;
+  h_s += s;
+  h_c *= twoJ[X_]*twoJ[Y_];
+  h_s *= twoJ[X_]*twoJ[Y_];
+  printf("  h_20110: %23.16e %23.16e\n", h_c, h_s);
   
+  sxt_2(-1e0/32e0, 1, 0, 0, 2, 2, 1, 0, 0, c, s);
+  h_c = c;
+  h_s = s;
+  sxt_2(-1e0/32e0, 3, 0, 0, 0, 0, 1, 0, 2, c, s);
+  h_c += c;
+  h_s += s;
+  sxt_2(-4e0/32e0, 1, 0, 0, 2, 1, 0, 1, 1, c, s);
+  h_c += c;
+  h_s += s;
+  h_c *= twoJ[X_]*twoJ[Y_];
+  h_s *= twoJ[X_]*twoJ[Y_];
+  printf("  h_20020: %23.16e %23.16e\n", h_c, h_s);
+
   sxt_2(-1e0/32e0, 3, 0, 0, 0, 0, 1, 2, 0, c, s);
   h_c = c;
   h_s = s;
@@ -634,9 +660,9 @@ void sext_terms(const double twoJx, const double twoJy)
   sxt_2(-4e0/32e0, 1, 0, 1, 1, 1, 0, 2, 0, c, s);
   h_c += c;
   h_s += s;
-  h_c *= twoJx*twoJy;
-  h_s *= twoJx*twoJy;
-  printf("  h_20200: %23.16e %23.16e\n", h_c/2e0, h_s/2e0);
+  h_c *= twoJ[X_]*twoJ[Y_];
+  h_s *= twoJ[X_]*twoJ[Y_];
+  printf("  h_20200: %23.16e %23.16e\n", h_c, h_s);
   
   sxt_2(-1e0/16e0, 1, 0, 2, 0, 1, 2, 0, 0, c, s);
   h_c = c;
@@ -650,22 +676,34 @@ void sext_terms(const double twoJx, const double twoJy)
   sxt_2(-2e0/16e0, 1, 0, 1, 1, 0, 1, 2, 0, c, s);
   h_c += c;
   h_s += s;
-  h_c *= twoJx*twoJy;
-  h_s *= twoJx*twoJy;
-  printf("  h_11200: %23.16e %23.16e\n", h_c/2e0, h_s/2e0);
+  h_c *= twoJ[X_]*twoJ[Y_];
+  h_s *= twoJ[X_]*twoJ[Y_];
+  printf("  h_11200: %23.16e %23.16e\n", h_c, h_s);
     
-  sxt_2(-1e0/16e0, 3, 0, 0, 0, 0, 1, 1, 1, c, s);
+  sxt_2(-1e0/16e0, 0, 1, 2, 0, 1, 0, 1, 1, c, s);
   h_c = c;
   h_s = s;
-  sxt_2(-1e0/16e0, 1, 0, 1, 1, 2, 1, 0, 0, c, s);
+  sxt_2(-1e0/16e0, 0, 1, 1, 1, 1, 0, 2, 0, c, s);
   h_c += c;
   h_s += s;
-  sxt_2(-1e0/8e0, 1, 0, 0, 2, 1, 0, 2, 0, c, s);
+  h_c *= sqr(twoJ[Y_]);
+  h_s *= sqr(twoJ[Y_]);
+  printf("  h_00310: %23.16e %23.16e\n", h_c, h_s);
+  
+  sxt_2(-1e0/32e0, 0, 1, 2, 0, 1, 0, 2, 0, h_c, h_s);
+  h_c *= sqr(twoJ[Y_]);
+  h_s *= sqr(twoJ[Y_]);
+  printf("  h_00400: %23.16e %23.16e\n", h_c, h_s);
+
+  sxt_2(-1e0/32e0, 0, 3, 0, 0, 3, 0, 0, 0, c, s);
+  h_c = c;
+  h_s = s;
+  sxt_2(-3e0/32e0, 1, 2, 0, 0, 2, 1, 0, 0, c, s);
   h_c += c;
   h_s += s;
-  h_c *= twoJx*twoJy;
-  h_s *= twoJx*twoJy;
-  printf("  h_20110: %23.16e %23.16e\n", h_c/2e0, h_s/2e0);
+  h_c *= sqr(twoJ[X_]);
+  h_s *= sqr(twoJ[X_]);
+  printf("\n  h_22000: %23.16e %23.16e\n", h_c, h_s);
   
   sxt_2(-1e0/8e0, 1, 0, 1, 1, 1, 2, 0, 0, c, s);
   h_c = c;
@@ -679,38 +717,10 @@ void sext_terms(const double twoJx, const double twoJy)
   sxt_2(-1e0/8e0, 1, 0, 0, 2, 0, 1, 2, 0, c, s);
   h_c += c;
   h_s += s;
-  h_c *= twoJx*twoJy;
-  h_s *= twoJx*twoJy;
-  printf("  h_11110: %23.16e %23.16e\n", h_c/2e0, h_s/2e0);
+  h_c *= twoJ[X_]*twoJ[Y_];
+  h_s *= twoJ[X_]*twoJ[Y_];
+  printf("  h_11110: %23.16e %23.16e\n", h_c, h_s);
   
-  sxt_2(-1e0/16e0, 0, 1, 2, 0, 1, 0, 1, 1, c, s);
-  h_c = c;
-  h_s = s;
-  sxt_2(-1e0/16e0, 0, 1, 1, 1, 1, 0, 2, 0, c, s);
-  h_c += c;
-  h_s += s;
-  h_c *= sqr(twoJy);
-  h_s *= sqr(twoJy);
-  printf("  h_00310: %23.16e %23.16e\n", h_c/2e0, h_s/2e0);
-  
-  sxt_2(-1e0/32e0, 1, 0, 0, 2, 2, 1, 0, 0, c, s);
-  h_c = c;
-  h_s = s;
-  sxt_2(-1e0/32e0, 3, 0, 0, 0, 0, 1, 0, 2, c, s);
-  h_c += c;
-  h_s += s;
-  sxt_2(-4e0/32e0, 1, 0, 0, 2, 1, 0, 1, 1, c, s);
-  h_c += c;
-  h_s += s;
-  h_c *= twoJx*twoJy;
-  h_s *= twoJx*twoJy;
-  printf("  h_20020: %23.16e %23.16e\n", h_c/2e0, h_s/2e0);
-
-  sxt_2(-1e0/32e0, 0, 1, 2, 0, 1, 0, 2, 0, h_c, h_s);
-  h_c *= sqr(twoJy);
-  h_s *= sqr(twoJy);
-  printf("  h_00400: %23.16e %23.16e\n", h_c/2e0, h_s/2e0);
-
   sxt_2(-1e0/8e0, 0, 1, 1, 1, 1, 0, 1, 1, c, s);
   h_c = c;
   h_s = s;
@@ -720,9 +730,9 @@ void sext_terms(const double twoJx, const double twoJy)
   sxt_2(-1e0/32e0, 0, 1, 2, 0, 1, 0, 0, 2, c, s);
   h_c += c;
   h_s += s;
-  h_c *= sqr(twoJy);
-  h_s *= sqr(twoJy);
-  printf("  h_00220: %23.16e %23.16e\n", h_c/2e0, h_s/2e0);
+  h_c *= sqr(twoJ[Y_]);
+  h_s *= sqr(twoJ[Y_]);
+  printf("  h_00220: %23.16e %23.16e\n", h_c, h_s);
 
   K(globval.TotalTune[X_], globval.TotalTune[Y_], a);
   printf("\n");
@@ -770,27 +780,27 @@ double f_sxt(double p[])
 
   // h_21000
   sxt_1(-1e0/4e0, 2, 1, 0, 0, 0, h_c, h_s);
-  f += scl_geom*pow(twoJx, 3e0/2e0)*sqr(h_c);
+  f += scl_geom*pow(twoJ[X_], 3e0/2e0)*sqr(h_c);
   // h_30000
   sxt_1(-1e0/12e0, 3, 0, 0, 0, 0, h_c, h_s);
-  f += scl_geom*pow(twoJx, 3e0/2e0)*sqr(h_c);
+  f += scl_geom*pow(twoJ[X_], 3e0/2e0)*sqr(h_c);
   // h_10110
   sxt_1(1e0/2e0, 1, 0, 1, 1, 0, h_c, h_s);
-  f += scl_geom*sqrt(twoJx)*twoJy*sqr(h_c);
+  f += scl_geom*sqrt(twoJ[X_])*twoJ[Y_]*sqr(h_c);
   // h_10020
   sxt_1(1e0/4e0, 1, 0, 0, 2, 0, h_c, h_s);
-  f += scl_geom*sqrt(twoJx)*twoJy*sqr(h_c);
+  f += scl_geom*sqrt(twoJ[X_])*twoJ[Y_]*sqr(h_c);
   // h_10200
   sxt_1(1e0/4e0, 1, 0, 2, 0, 0, h_c, h_s);
-  f += scl_geom*sqrt(twoJx)*twoJy*sqr(h_c);
+  f += scl_geom*sqrt(twoJ[X_])*twoJ[Y_]*sqr(h_c);
 
   // h_40000
   sxt_2(-1e0/32e0, 2, 1, 0, 0, 3, 0, 0, 0, h_c, h_s);
-  f += scl_geom*sqr(twoJx)*sqr(h_c);
+  f += scl_geom*sqr(twoJ[X_])*sqr(h_c);
   
   // h_31000
   sxt_2(-1e0/16e0, 1, 2, 0, 0, 3, 0, 0, 0, h_c, h_s);
-  f += scl_geom*sqr(twoJx)*sqr(h_c);
+  f += scl_geom*sqr(twoJ[X_])*sqr(h_c);
 
   // h_20110
   sxt_2(-1e0/16e0, 3, 0, 0, 0, 0, 1, 1, 1, c, s);
@@ -802,7 +812,7 @@ double f_sxt(double p[])
   sxt_2(-1e0/8e0, 1, 0, 0, 2, 1, 0, 2, 0, c, s);
   h_c += c;
   h_s += s;
-  f += scl_geom*twoJx*twoJy*sqr(h_c);
+  f += scl_geom*twoJ[X_]*twoJ[Y_]*sqr(h_c);
   
   // h_20020
   sxt_2(-1e0/32e0, 1, 0, 0, 2, 2, 1, 0, 0, c, s);
@@ -814,7 +824,7 @@ double f_sxt(double p[])
   sxt_2(-4e0/32e0, 1, 0, 0, 2, 1, 0, 1, 1, c, s);
   h_c += c;
   h_s += s;
-  f += scl_geom*twoJx*twoJy*sqr(h_c);
+  f += scl_geom*twoJ[X_]*twoJ[Y_]*sqr(h_c);
 
   // h_20200
   sxt_2(-1e0/32e0, 3, 0, 0, 0, 0, 1, 2, 0, c, s);
@@ -826,7 +836,7 @@ double f_sxt(double p[])
   sxt_2(-4e0/32e0, 1, 0, 1, 1, 1, 0, 2, 0, c, s);
   h_c += c;
   h_s += s;
-  f += scl_geom*twoJx*twoJy*sqr(h_c);
+  f += scl_geom*twoJ[X_]*twoJ[Y_]*sqr(h_c);
   
   // h_11200
   sxt_2(-1e0/16e0, 1, 0, 2, 0, 1, 2, 0, 0, c, s);
@@ -841,7 +851,7 @@ double f_sxt(double p[])
   sxt_2(-2e0/16e0, 1, 0, 1, 1, 0, 1, 2, 0, c, s);
   h_c += c;
   h_s += s;
-  f += scl_geom*twoJx*twoJy*sqr(h_c);
+  f += scl_geom*twoJ[X_]*twoJ[Y_]*sqr(h_c);
     
   // h_00310
   sxt_2(-1e0/16e0, 0, 1, 2, 0, 1, 0, 1, 1, c, s);
@@ -850,11 +860,11 @@ double f_sxt(double p[])
   sxt_2(-1e0/16e0, 0, 1, 1, 1, 1, 0, 2, 0, c, s);
   h_c += c;
   h_s += s;
-  f += scl_geom*sqr(twoJy)*sqr(h_c);
+  f += scl_geom*sqr(twoJ[Y_])*sqr(h_c);
   
   // h_00400
   sxt_2(-1e0/32e0, 0, 1, 2, 0, 1, 0, 2, 0, h_c, h_s);
-  f += scl_geom*twoJx*twoJy*sqr(h_c);
+  f += scl_geom*twoJ[X_]*twoJ[Y_]*sqr(h_c);
 
   // h_22000
   sxt_2(-1e0/32e0, 0, 3, 0, 0, 3, 0, 0, 0, c, s);
@@ -863,7 +873,7 @@ double f_sxt(double p[])
   sxt_2(-3e0/32e0, 1, 2, 0, 0, 2, 1, 0, 0, c, s);
   h_c += c;
   h_s += s;
-  f += scl_dnu*sqr(twoJx)*sqr(h_c);
+  f += scl_dnu*sqr(twoJ[X_])*sqr(h_c);
   
   // h_11110
   sxt_2(-1e0/8e0, 1, 0, 1, 1, 1, 2, 0, 0, c, s);
@@ -878,7 +888,7 @@ double f_sxt(double p[])
   sxt_2(-1e0/8e0, 1, 0, 0, 2, 0, 1, 2, 0, c, s);
   h_c += c;
   h_s += s;
-  f += scl_dnu*twoJx*twoJy*sqr(h_c);
+  f += scl_dnu*twoJ[X_]*twoJ[Y_]*sqr(h_c);
   
   // h_00220
   sxt_2(-1e0/8e0, 0, 1, 1, 1, 1, 0, 1, 1, c, s);
@@ -890,7 +900,7 @@ double f_sxt(double p[])
   sxt_2(-1e0/32e0, 0, 1, 2, 0, 1, 0, 0, 2, c, s);
   h_c += c;
   h_s += s;
-  f += scl_dnu*sqr(twoJy)*sqr(h_c);
+  f += scl_dnu*sqr(twoJ[Y_])*sqr(h_c);
 
   if (iter % n_prt == 0) {
     printf("\n");
@@ -957,15 +967,14 @@ void set_state(void)
 
 int main(int argc, char *argv[])
 {
-  const int    n_aper = 25;
-  const double Ax = 30e-3, Ay = 10e-3, betax = 18.150, betay = 3.090;
+  const int n_aper = 25;
 
   double x_aper[n_aper], y_aper[n_aper];
   FILE   *fp;
 
   trace            = false;
   reverse_elem     = !false;
-  globval.mat_meth = !false;
+  globval.mat_meth = false;
 
   Read_Lattice(argv[1]);
 
@@ -978,20 +987,12 @@ int main(int argc, char *argv[])
   prt_lat("linlat1.out", globval.bpm, true);
   prt_lat("linlat.out", globval.bpm, true);
 
-  twoJx = 1e0;
-  twoJy = 1e0;
-
-  sext_terms(twoJx, twoJy);
+  sext_terms(twoJ);
 
   if (false) {
     no_sxt();
-
-    twoJx = sqr(Ax)/betax;
-    twoJy = sqr(Ay)/betay;
-
     h_min();
-
-    sext_terms(twoJx, twoJy);
+    sext_terms(twoJ);
   }
 
   if (false) {
