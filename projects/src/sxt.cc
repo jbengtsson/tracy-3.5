@@ -967,7 +967,8 @@ void set_state(void)
 
 int main(int argc, char *argv[])
 {
-  const int n_aper = 25;
+  const bool no_oct = !false;
+  const int n_aper  = 25;
 
   double x_aper[n_aper], y_aper[n_aper];
   FILE   *fp;
@@ -980,6 +981,9 @@ int main(int argc, char *argv[])
 
   set_state();
 
+  if (no_oct)
+    no_mult(Oct);
+
   Ring_GetTwiss(true, 0e0);
   printglob();
 
@@ -988,6 +992,9 @@ int main(int argc, char *argv[])
   prt_lat("linlat.out", globval.bpm, true);
 
   sext_terms(twoJ);
+
+  if (no_oct)
+    printf("\n*** Octupoles turned off\n");
 
   if (false) {
     no_sxt();
