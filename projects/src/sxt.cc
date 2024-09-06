@@ -366,9 +366,6 @@ void sxt_1(const double scl,
 {
   /* First order generators. */
 
-  const double tune[] =
-    {Cell[globval.Cell_nLoc].Nu[X_], Cell[globval.Cell_nLoc].Nu[Y_]};
-
   int     n, k1, m_x, m_y, n_x, n_y;
   double  c, s, b3L, A, phi;
   sp_vec  alpha0, beta0, nu0, eta0, etap0, beta, nu, eta;
@@ -412,12 +409,12 @@ void sxt_1(const double scl,
 	}
 	b3L = get_bnL(Cell[n], Sext);
 	if (b3L != 0e0) {
-	  phi = 2e0*M_PI*(n_x*(nu[X_]-tune[X_])+n_y*(nu[Y_]-tune[Y_]));
 	  A = scl*b3L*pow(beta[X_], m_x/2e0)*pow(beta[Y_], m_y/2e0);
 	  if (m >= 1) {
 	    A *= -pow(eta[X_], m);
 	    if (m == 1) A *= 2e0;
 	  }
+	  phi = 2e0*M_PI*(n_x*nu[X_]+n_y*nu[Y_]);
 	  h_c += A*cos(phi);
 	  h_s -= A*sin(phi);
 	}
