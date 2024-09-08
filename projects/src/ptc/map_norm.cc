@@ -276,7 +276,7 @@ int pow(const int i, const int n)
 }
 
 
-void map_norm_JB(void)
+void map_norm_JB(MNF_struct &MNF)
 {
   double        nu_0[2];
   tps           hn, hn_re, hn_im, gn, Kn, g, g_re, g_im, K, K_re, K_im;
@@ -325,18 +325,15 @@ void map_norm_JB(void)
     map1 = Inv(A)*map1*A;
   }
 
-  CtoR(g, g_re, g_im);
-  CtoR(K, K_re, K_im);
-
-  daeps_(1e-10);
-  cout << "\ng_im" << 1e0*g_im;
-  cout << "\nK_re:" << 1e0*K_re;
-
   if (!false) {
     MNF = MapNorm(map, no_tps);
 
+    daeps_(1e-8);
+    cout << "\ng:" << 1e0*g;
+    cout << "\nK:" << 1e0*K;
     cout << "\ng-MNF.g:" << g-MNF.g;
     cout << "\nK-MNF.K:" << K-MNF.K;
+    daeps_(1e-30);
   }
 }
 
@@ -428,6 +425,55 @@ ss_vect<tps> map_norm_SC(void)
 }
 
 
+void prt_ampl_dep_orb_terms(MNF_struct &MNF)
+{
+  tps g_re, g_im;
+
+  MNF.g = get_mns(MNF.g, 1, 3);
+  CtoR(MNF.g, g_re, g_im);
+  cout << "\ng_im:\n" << g_im;
+
+  printf("\n  s_21000 = %10.3e\n", h_ijklm(g_im, 2, 1, 0, 0, 0));
+  printf("  s_30000 = %10.3e\n", h_ijklm(g_im, 3, 0, 0, 0, 0));
+  printf("  s_10110 = %10.3e\n", h_ijklm(g_im, 1, 0, 1, 1, 0));
+  printf("  s_10200 = %10.3e\n", h_ijklm(g_im, 1, 0, 2, 0, 0));
+  printf("  s_10020 = %10.3e\n", h_ijklm(g_im, 1, 0, 0, 2, 0));
+}
+
+
+void compute_ampl_dep_orb(MNF_struct &MNF)
+{
+  tps
+    x_avg, x_avg_re, x_avg_im, x3_avg, x3_avg_re, x3_avg_im,
+    x_y2_avg, x_y2_avg_re, x_y2_avg_im;
+  ss_vect<tps>
+    Id;
+
+  Id.identity();
+
+  MNF.g = get_mns(MNF.g, 1, 3);
+
+  x_avg = PB(MNF.g, Id[x_]*MNF.A1);
+  CtoR(x_avg, x_avg_re, x_avg_im);
+  // cout << "\n<x_re>:" << x_avg_re;
+
+  x3_avg = PB(MNF.g, cube(Id[x_])*MNF.A1);
+  CtoR(x3_avg, x3_avg_re, x3_avg_im);
+  // cout << "\n<x3_re>:" << x3_avg_re;
+
+  x_y2_avg = PB(MNF.g, Id[x_]*sqr(Id[y_])*MNF.A1);
+  CtoR(x_y2_avg, x_y2_avg_re, x_y2_avg_im);
+  // cout << "\n<x_y^2_re>:" << x_y2_avg_re;
+
+  printf("\n  s_11000 = %10.3e\n", h_ijklm(x_avg_re, 1, 1, 0, 0, 0));
+  printf("  s_00110 = %10.3e\n", h_ijklm(x_avg_re, 0, 0, 1, 1, 0));
+  printf("  s_22000 = %10.3e\n", h_ijklm(x3_avg_re, 2, 2, 0, 0, 0));
+  printf("  s_11110 = %10.3e\n", h_ijklm(x3_avg_re, 1, 1, 1, 1, 0));
+  printf("  s_11110 = %10.3e\n", h_ijklm(x_y2_avg_re, 1, 1, 1, 1, 0));
+  printf("  s_00220 = %10.3e\n", h_ijklm(x_y2_avg_re, 0, 0, 2, 2, 0));
+}
+
+
 void set_state(void)
 {
   globval.H_exact        = false;
@@ -470,14 +516,23 @@ int main(int argc, char *argv[])
   danot_(no_tps);
 
   if (!false) {
-    tps          h, h_re, h_im;
+    tps          h_re, h_im;
     ss_vect<tps> R;
 
-    h = LieFact_DF(map, R);
+    auto h = LieFact_DF(map, R);
+    // h = get_mns(h, 1, 3);
     CtoR(h, h_re, h_im);
-    cout << "\nh_im:\n" << h_im;
+    cout << "\nh_re:" << h_re;
+    cout << "\nh_im:" << h_im;
   }
+  assert(false);
 
-  map_norm_JB();
+  map_norm_JB(MNF);
   // map_norm_SC();
+
+  cout << "\ng:" << MNF.g;
+  cout << "\nK:" << MNF.K;
+
+  prt_ampl_dep_orb_terms(MNF);
+  // compute_ampl_dep_orb(MNF);
 }
