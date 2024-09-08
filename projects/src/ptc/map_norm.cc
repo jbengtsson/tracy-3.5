@@ -425,6 +425,64 @@ ss_vect<tps> map_norm_SC(void)
 }
 
 
+inline long int* vec2arr(const std::vector<long int> &vec)
+{
+  static long int jj[ss_dim];
+  for (auto k = 0; k < vec.size(); k++)
+    jj[k] = vec[k];
+  return jj;
+ }
+
+
+void prt_h_ijklm
+(const char h, const std::vector<long int> &vec, const tps &h_re,
+ const tps &h_im)
+{
+  std::string index;
+
+  auto jj = vec2arr(vec);
+  for (auto k = 0; k < 6; k++)
+    index += '0' + jj[k];
+  std::cout << std::scientific << std::setprecision(16)
+	    << h << "_" << index << " = [" << std::setw(23) << h_re[jj] << ", "
+	    << std::setw(23) <<  h_im[jj] << "]\n";
+}
+
+
+void prt_drv_terms(const tps &h, const tps &K)
+{
+  tps h_re, h_im, K_re, K_im;
+
+  CtoR(h, h_re, h_im);
+  CtoR(K, K_re, K_im);
+
+  // Linear chromaticity.
+  std::cout << "\n";
+  prt_h_ijklm('h', {1, 1, 0, 0, 1, 0, 0}, h_re, h_im);
+  prt_h_ijklm('h', {0, 0, 1, 1, 1, 0, 0}, h_re, h_im);
+
+  // First order chromatic terms.
+  std::cout << "\n";
+  prt_h_ijklm('h', {2, 0, 0, 0, 1, 0, 0}, h_re, h_im);
+  prt_h_ijklm('h', {0, 0, 2, 0, 1, 0, 0}, h_re, h_im);
+  prt_h_ijklm('h', {1, 0, 0, 0, 2, 0, 0}, h_re, h_im);
+
+  // Normal sextupoles.
+  std::cout << "\n";
+  prt_h_ijklm('h', {2, 1, 0, 0, 0, 0, 0}, h_re, h_im);
+  prt_h_ijklm('h', {3, 0, 0, 0, 0, 0, 0}, h_re, h_im);
+  prt_h_ijklm('h', {1, 0, 1, 1, 0, 0, 0}, h_re, h_im);
+  prt_h_ijklm('h', {1, 0, 2, 0, 0, 0, 0}, h_re, h_im);
+  prt_h_ijklm('h', {1, 0, 0, 2, 0, 0, 0}, h_re, h_im);
+
+  // Amplitude dependent tune shift.
+  std::cout << "\n";
+  prt_h_ijklm('K', {2, 2, 0, 0, 0, 0, 0}, K_re, K_im);
+  prt_h_ijklm('K', {1, 1, 1, 1, 0, 0, 0}, K_re, K_im);
+  prt_h_ijklm('K', {0, 0, 2, 2, 0, 0, 0}, K_re, K_im);
+}
+
+
 void prt_ampl_dep_orb_terms(MNF_struct &MNF)
 {
   tps g_re, g_im;
@@ -519,11 +577,18 @@ int main(int argc, char *argv[])
     tps          h_re, h_im;
     ss_vect<tps> R;
 
-    auto h = LieFact_DF(map, R);
+    MNF = MapNorm(map, no_tps);
+
+    auto M_Fl = Inv(MNF.A0*MNF.A1)*map*MNF.A0*MNF.A1;
+    auto h = LieFact_DF(M_Fl, R);
+    prt_drv_terms(h, MNF.K);
+
     // h = get_mns(h, 1, 3);
-    CtoR(h, h_re, h_im);
-    cout << "\nh_re:" << h_re;
-    cout << "\nh_im:" << h_im;
+    if (false) {
+      CtoR(h, h_re, h_im);
+      cout << "\nh_re:" << h_re;
+      cout << "\nh_im:" << h_im;
+    }
   }
   assert(false);
 
