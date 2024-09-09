@@ -6,7 +6,7 @@ bin_PROGRAMS = optics dynap leac dnu touschek ibs vlad tbt tbt_ref \
 	       opt_des_2 id_model sigma tech_note dx_dj tune_scan sxt \
                chk_drv_terms fit_nu opt_des_bessy_iii for_pierre tst_it \
                ctrl_cod wakefield compute_maps lin_opt map_diag_3D bessy_ii \
-               rev_bend max_4u max_4u_2 dnu_dJ
+               rev_bend max_4u max_4u_2 dnu_dJ tst_drv_terms
 
 #sc_f_LINK    = gfortran -g -O0 -Wall -fbounds-check -o sc_f
 
@@ -58,6 +58,7 @@ rev_bend_SOURCES          = rev_bend.cc
 max_4u_SOURCES            = max_4u.cc
 max_4u_2_SOURCES          = max_4u_2.cc
 dnu_dJ_SOURCES            = dnu_dJ.cc
+tst_drv_terms_SOURCES     = tst_drv_terms.cc
 
 GSL_INCLUDE = /usr/local/Cellar/gsl/2.7.1
 # GSL_INCLUDE = /net/home/lli/OPAL/OPAL-2.0.1
