@@ -443,9 +443,10 @@ void prt_h_ijklm
   auto jj = vec2arr(vec);
   for (auto k = 0; k < 6; k++)
     index += '0' + jj[k];
+  auto sgn = (fabs(h_im[jj]) > 0e0)? " + " : " - ";
   std::cout << std::scientific << std::setprecision(16)
-	    << h << "_" << index << " = [" << std::setw(23) << h_re[jj] << ", "
-	    << std::setw(23) <<  h_im[jj] << "]\n";
+	    << h << "_" << index << " = (" << std::setw(23) << h_re[jj] << sgn
+	    << "i" << std::setw(22) <<  fabs(h_im[jj]) << ")\n";
 }
 
 
@@ -574,7 +575,7 @@ int main(int argc, char *argv[])
   danot_(no_tps);
 
   if (!false) {
-    tps          h_re, h_im;
+    tps          h_re, h_im, g, g_re, g_im;
     ss_vect<tps> R;
 
     MNF = MapNorm(map, no_tps);
@@ -589,6 +590,19 @@ int main(int argc, char *argv[])
       cout << "\nh_re:" << h_re;
       cout << "\nh_im:" << h_im;
     }
+
+    MNF = MapNorm(M_Fl, no_tps);
+
+    g = get_mns(MNF.g, 1, 3);
+    g = g*R;
+    CtoR(g, g_re, g_im);
+
+    std::cout << "\n";
+    prt_h_ijklm('g', {2, 1, 0, 0, 0, 0, 0}, g_re, g_im);
+    prt_h_ijklm('g', {3, 0, 0, 0, 0, 0, 0}, g_re, g_im);
+    prt_h_ijklm('g', {1, 0, 1, 1, 0, 0, 0}, g_re, g_im);
+    prt_h_ijklm('g', {1, 0, 2, 0, 0, 0, 0}, g_re, g_im);
+    prt_h_ijklm('g', {1, 0, 0, 2, 0, 0, 0}, g_re, g_im);
   }
   assert(false);
 
