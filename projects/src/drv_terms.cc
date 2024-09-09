@@ -25,20 +25,23 @@
 
 */
 
+#include <string>
+#include <vector>
+
 struct drv_terms_type {
 private:
 
 public:
-  std::vector<string> h_label;
+  std::vector<std::string> h_label;
   std::vector<double> h_scl, h_c, h_s, h;
 
   void get_h_scl
-  (double scl_ksi_1, double scl_h_3, double scl_h_3_delta, double scl_h_4,
-   double scl_ksi_2, double scl_chi_2, double scl_chi_delta_2,
-   double scl_ksi_3);
+  (const double scl_ksi_1, const double scl_h_3, const double scl_h_3_delta,
+   const double scl_h_4, const double scl_ksi_2, const double scl_chi_2,
+   const double scl_chi_delta_2, const double scl_ksi_3);
   void get_h
-  (const double delta_eps, const double twoJ[], const double delta,
-   const double twoJ_delta[]);
+  (const const double delta_eps, const const double twoJ[],
+   const const double delta, const const double twoJ_delta[]);
   void prt_h(FILE *outf, const char *str, const int i0, const int i1);
   void prt_h_abs(FILE *outf, const char *str, const int i0, const int i1);
   void print(void);
@@ -54,7 +57,8 @@ void propagate_drift(const double L, ss_vect<tps> &A)
   Id.identity();
 
   M.identity();
-  M[x_] += L*Id[px_]; M[y_] += L*Id[py_];
+  M[x_] += L*Id[px_];
+  M[y_] += L*Id[py_];
   A = M*A;
 }
 
@@ -69,7 +73,8 @@ void propagate_thin_kick
   Id.identity();
 
   M.identity();
-  M[px_] += -(b2+sqr(rho_inv))*L*Id[x_]; M[py_] += b2*L*Id[y_];
+  M[px_] += -(b2+sqr(rho_inv))*L*Id[x_];
+  M[py_] += b2*L*Id[y_];
   M[px_] += rho_inv*L*Id[delta_];
 
   A = M*A;
@@ -128,7 +133,9 @@ void get_quad
 
   propagate_fringe_field(L, rho_inv, phi1, A1);
 
-  h = L/n_step; h_c = 0e0; h_s = 0e0;
+  h = L/n_step;
+  h_c = 0e0;
+  h_s = 0e0;
   for (j = 1; j <= n_step; j++) {
     get_ab(A1, alpha, beta, dnu, eta, etap);
     for (k = 0; k <= 1; k++)
@@ -137,7 +144,8 @@ void get_quad
 
     phi = 2e0*M_PI*(n_x*nu[X_]+n_y*nu[Y_]);
     r = pow(beta[X_], m_x/2e0)*pow(beta[Y_], m_y/2e0)*pow(eta[X_], m-1);
-    h_c += r*cos(phi); h_s += -r*sin(phi);
+    h_c += r*cos(phi);
+    h_s += -r*sin(phi);
 
     propagate_drift(h/2e0, A1);
     
@@ -160,7 +168,8 @@ void get_quad
 
     phi = 2e0*M_PI*(n_x*nu[X_]+n_y*nu[Y_]);
     r = pow(beta[X_], m_x/2e0)*pow(beta[Y_], m_y/2e0)*pow(eta[X_], m-1);
-    h_c += 4e0*r*cos(phi); h_s += -4e0*r*sin(phi);
+    h_c += 4e0*r*cos(phi);
+    h_s += -4e0*r*sin(phi);
 
     propagate_drift(h/2e0, A1);
 
@@ -177,11 +186,13 @@ void get_quad
 
     phi = 2e0*M_PI*(n_x*nu[X_]+n_y*nu[Y_]);
     r = pow(beta[X_], m_x/2e0)*pow(beta[Y_], m_y/2e0)*pow(eta[X_], m-1);
-    h_c += r*cos(phi); h_s += -r*sin(phi);
+    h_c += r*cos(phi);
+    h_s += -r*sin(phi);
 
   }
 
-  h_c *= b2*L/(6e0*n_step); h_s *= b2*L/(6e0*n_step);
+  h_c *= b2*L/(6e0*n_step);
+  h_s *= b2*L/(6e0*n_step);
 
   propagate_fringe_field(L, rho_inv, phi2, A1);
 
@@ -222,7 +233,8 @@ void get_h_ijklm
     if (m == 1) ampl *= 2e0;
   }
 
-  c += ampl*cos(phi); s -= ampl*sin(phi);
+  c += ampl*cos(phi);
+  s -= ampl*sin(phi);
 }
 
 
@@ -264,11 +276,11 @@ void get_lin_map
   if (Elem.PL != 0e0) {
     M1 = get_edge_lin_map(Elem.M->Pirho, Elem.M->PTx1, Elem.M->Pgap, delta);
     M2 = get_edge_lin_map(Elem.M->Pirho, Elem.M->PTx2, Elem.M->Pgap, delta);
-    M =
-      get_sbend_lin_map(Elem.PL/n_step, Elem.M->Pirho, Elem.M->PB[Quad+HOMmax],
-			delta);
+    M = get_sbend_lin_map
+      (Elem.PL/n_step, Elem.M->Pirho, Elem.M->PB[Quad+HOMmax], delta);
   } else {
-    M1.identity(); M2.identity();
+    M1.identity();
+    M2.identity();
     M = get_thin_kick_lin_map(Elem.PL*Elem.M->PB[Quad+HOMmax], delta);
   }
 }
@@ -284,9 +296,9 @@ void get_mult
 
   const bool prt = false;
 
-  A =
-    get_A(Cell[ind(loc-1)].Alpha, Cell[ind(loc-1)].Beta,
-	  Cell[ind(loc-1)].Eta, Cell[ind(loc-1)].Etap);
+  A = get_A
+    (Cell[ind(loc-1)].Alpha, Cell[ind(loc-1)].Beta, Cell[ind(loc-1)].Eta,
+     Cell[ind(loc-1)].Etap);
   for (k1 = 0; k1 < 2; k1++)
     nu[k1] = Cell[ind(loc-1)].Nu[k1];
 
@@ -302,7 +314,8 @@ void get_mult
   }
   A = M2*M*A;
   get_h_ijklm(i, j, k, l, m, A, nu, h_c, h_s);
-  h_c /= n_step; h_s /= n_step;
+  h_c /= n_step;
+  h_s /= n_step;
 }
 
 
@@ -393,7 +406,8 @@ void sxt_2
 	  }
 	}
       }
-      h_s += A1*s; h_c += A1*c;
+      h_s += A1*s;
+      h_c += A1*c;
     }
   }
 }
@@ -442,9 +456,8 @@ const double
 	      A*cellp1->Beta[Y_]
 	      *(4e0*cellp2->Beta[X_]*c_1x+2e0*cellp2->Beta[Y_]
 		*(c_1xm2y-c_1xp2y));
-	    a[2] +=
-	      A*cellp1->Beta[Y_]*cellp2->Beta[Y_]*(4e0*c_1x+c_1xm2y+c_1xp2y)
-	      /2e0;
+	    a[2] += A*cellp1->Beta[Y_]*cellp2->Beta[Y_]
+	      *(4e0*c_1x+c_1xm2y+c_1xp2y)/2e0;
 	  }
 	}
       }
@@ -554,8 +567,8 @@ void pol_fit_
   if (prt) {
     printf("\n  n    Coeff.\n");
     for (i = 0; i < n; i++)
-      printf("%3d %10.3e +/-%8.2e\n",
-	     i, b[i+1], sigma*sqrt(chi2*T_inv[i+1][i+1]));
+      printf
+	("%3d %10.3e +/-%8.2e\n", i, b[i+1], sigma*sqrt(chi2*T_inv[i+1][i+1]));
   }
 
   free_dvector(b1, 1, n);
@@ -614,7 +627,9 @@ void h_1
   double c, s;
 
   sxt_1(scl, twoJ, delta, i, j, k, l, m, c, s, true);
-  h_label.push_back(str.c_str()); h_c.push_back(c); h_s.push_back(s);
+  h_label.push_back(str.c_str());
+  h_c.push_back(c);
+  h_s.push_back(s);
 }
 
 
@@ -623,7 +638,9 @@ void h_2
  std::vector<string> &h_label, std::vector<double> &h_c,
  std::vector<double> &h_s)
 {
-  h_label.push_back(str); h_c.push_back(c); h_s.push_back(s);
+  h_label.push_back(str);
+  h_c.push_back(c);
+  h_s.push_back(s);
 }
 
 
@@ -639,7 +656,8 @@ void first_order
   sxt_1(-1e0/(4e0*M_PI), twoJ1, 1e0, 1, 1, 0, 0, 1, ksi1[X_], s, false);
   sxt_1(1e0/(4e0*M_PI), twoJ1, 1e0, 0, 0, 1, 1, 1, ksi1[Y_], s, false);
   h_label.push_back("ksi1   ");
-  h_c.push_back(ksi1[X_]); h_s.push_back(ksi1[Y_]);
+  h_c.push_back(ksi1[X_]);
+  h_s.push_back(ksi1[Y_]);
 
   h_1( 1e0/8e0,  twoJ, delta, 2, 0, 0, 0, 1, h_label, h_c, h_s, "h_20001");
   h_1(-1e0/4e0,  twoJ, delta, 0, 0, 2, 0, 1, h_label, h_c, h_s, "h_00201");
@@ -661,25 +679,29 @@ void second_order
 
   c = s = 0e0;
   sxt_2(-1e0/64e0, 2, 1, 0, 0, 3, 0, 0, 0, c, s);
-  c *= sqr(twoJ[X_]); s *= sqr(twoJ[X_]);
+  c *= sqr(twoJ[X_]);
+  s *= sqr(twoJ[X_]);
   h_2("h_40000", c, s, h_label, h_c, h_s);
   
   c = s = 0e0;
   sxt_2(-1e0/16e0, 1, 2, 0, 0, 3, 0, 0, 0, c, s);
-  c *= sqr(twoJ[X_]); s *= sqr(twoJ[X_]);
+  c *= sqr(twoJ[X_]);
+  s *= sqr(twoJ[X_]);
   h_2("h_31000", c, s, h_label, h_c, h_s);
 
   c = s = 0e0;
   sxt_2(-1e0/32e0, 0, 3, 0, 0, 3, 0, 0, 0, c, s);
   sxt_2(-3e0/32e0, 1, 2, 0, 0, 2, 1, 0, 0, c, s);
-  c *= sqr(twoJ[X_]); s *= sqr(twoJ[X_]);
+  c *= sqr(twoJ[X_]);
+  s *= sqr(twoJ[X_]);
   h_2("h_22000", c, s, h_label, h_c, h_s);
 
   c = s = 0e0;
   sxt_2(-1e0/32e0, 3, 0, 0, 0, 0, 1, 2, 0, c, s);
   sxt_2(-1e0/32e0, 1, 0, 2, 0, 2, 1, 0, 0, c, s);
   sxt_2(-4e0/32e0, 1, 0, 1, 1, 1, 0, 2, 0, c, s);
-  c *= twoJ[X_]*twoJ[Y_]; s *= twoJ[X_]*twoJ[Y_];
+  c *= twoJ[X_]*twoJ[Y_];
+  s *= twoJ[X_]*twoJ[Y_];
   h_2("h_20200", c, s, h_label, h_c, h_s);
   
   c = s = 0e0;
@@ -687,14 +709,16 @@ void second_order
   sxt_2(-1e0/16e0, 2, 1, 0, 0, 0, 1, 2, 0, c, s);
   sxt_2(-2e0/16e0, 0, 1, 1, 1, 1, 0, 2, 0, c, s);
   sxt_2(-2e0/16e0, 1, 0, 1, 1, 0, 1, 2, 0, c, s);
-  c *= twoJ[X_]*twoJ[Y_]; s *= twoJ[X_]*twoJ[Y_];
+  c *= twoJ[X_]*twoJ[Y_];
+  s *= twoJ[X_]*twoJ[Y_];
   h_2("h_11200", c, s, h_label, h_c, h_s);
     
   c = s = 0e0;
   sxt_2(-1e0/16e0, 3, 0, 0, 0, 0, 1, 1, 1, c, s);
   sxt_2(-1e0/16e0, 1, 0, 1, 1, 2, 1, 0, 0, c, s);
   sxt_2(-1e0/8e0, 1, 0, 0, 2, 1, 0, 2, 0, c, s);
-  c *= twoJ[X_]*twoJ[Y_]; s *= twoJ[X_]*twoJ[Y_];
+  c *= twoJ[X_]*twoJ[Y_];
+  s *= twoJ[X_]*twoJ[Y_];
   h_2("h_20110", c, s, h_label, h_c, h_s);
   
   c = s = 0e0;
@@ -702,13 +726,15 @@ void second_order
   sxt_2(-1e0/8e0, 2, 1, 0, 0, 0, 1, 1, 1, c, s);
   sxt_2(-1e0/8e0, 0, 1, 0, 2, 1, 0, 2, 0, c, s);
   sxt_2(-1e0/8e0, 1, 0, 0, 2, 0, 1, 2, 0, c, s);
-  c *= twoJ[X_]*twoJ[Y_]; s *= twoJ[X_]*twoJ[Y_];
+  c *= twoJ[X_]*twoJ[Y_];
+  s *= twoJ[X_]*twoJ[Y_];
   h_2("h_11110", c, s, h_label, h_c, h_s);
   
   c = s = 0e0;
   sxt_2(-1e0/32e0, 0, 1, 2, 0, 1, 0, 1, 1, c, s);
   sxt_2(-1e0/32e0, 0, 1, 1, 1, 1, 0, 2, 0, c, s);
-  c *= sqr(twoJ[Y_]); s *= sqr(twoJ[Y_]);
+  c *= sqr(twoJ[Y_]);
+  s *= sqr(twoJ[Y_]);
   h_2("h_00310", c, s, h_label, h_c, h_s);
   
   c = s = 0e0;
@@ -720,14 +746,16 @@ void second_order
 
   c = s = 0e0;
   sxt_2(-1e0/8e0, 0, 1, 2, 0, 1, 0, 2, 0, c, s);
-  c *= sqr(twoJ[Y_]); s *= sqr(twoJ[Y_]);
+  c *= sqr(twoJ[Y_]);
+  s *= sqr(twoJ[Y_]);
   h_2("h_00400", c, s, h_label, h_c, h_s);
 
   c = s = 0e0;
   sxt_2(-1e0/16e0, 0, 1, 1, 1, 1, 0, 1, 1, c, s);
   sxt_2(-1e0/64e0, 0, 1, 0, 2, 1, 0, 2, 0, c, s);
   sxt_2(-1e0/64e0, 0, 1, 2, 0, 1, 0, 0, 2, c, s);
-  c *= sqr(twoJ[Y_]); s *= sqr(twoJ[Y_]);
+  c *= sqr(twoJ[Y_]);
+  s *= sqr(twoJ[Y_]);
   h_2("h_00220", c, s, h_label, h_c, h_s);
 }
 
@@ -854,7 +882,8 @@ void drv_terms_type::get_h
 
   const bool prt = false;
 
-  h_c.clear(); h_s.clear();
+  h_c.clear();
+  h_s.clear();
   first_order(twoJ, delta, h_label, h_c, h_s);
   second_order(twoJ, h_label, h_c, h_s);
   tune_fp(delta_eps, twoJ, delta, twoJ_delta, h_label, h_c, h_s);
