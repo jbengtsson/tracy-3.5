@@ -443,10 +443,11 @@ void prt_h_ijklm
   auto jj = vec2arr(vec);
   for (auto k = 0; k < 6; k++)
     index += '0' + jj[k];
-  auto sgn = (fabs(h_im[jj]) > 0e0)? " + " : " - ";
-  std::cout << std::scientific << std::setprecision(16)
-	    << h << "_" << index << " = (" << std::setw(23) << h_re[jj] << sgn
-	    << "i" << std::setw(22) <<  fabs(h_im[jj]) << ")\n";
+  auto h_abs = sqrt(sqr(h_re[jj])+sqr(h_im[jj]));
+  auto h_arg = atan2(h_im[jj], h_re[jj])*180e0/M_PI;
+  auto sgn_h_im = (fabs(h_im[jj]) > 0e0)? '+' : '-';
+  printf("  %c_%s = (%23.16e %c i%22.16e)  %9.3e |_ %6.1f\n",
+	 h, index.c_str(), h_re[jj], sgn_h_im, fabs(h_im[jj]), h_abs, h_arg);
 }
 
 
