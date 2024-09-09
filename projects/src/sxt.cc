@@ -561,7 +561,7 @@ void K(const double nu_x, const double nu_y, double a[])
   }
 
   for (k = 0; k < 3; k++)
-    a[k] /= 32e0*M_PI;
+    a[k] /= 32e0;
 }
 
 
