@@ -212,6 +212,11 @@ void chk_phi()
 }
 
 
+void compute_rb_orbit()
+{
+}
+
+
 void set_state(void)
 {
   globval.H_exact        = false;
@@ -229,7 +234,8 @@ void set_state(void)
 
 int main(int argc, char *argv[])
 {
-  int loc;
+  int    loc;
+  double I[6], eps_x, sigma_delta, U_0, J[3], tau[3];
 
   globval.mat_meth = false;
 
@@ -258,10 +264,8 @@ int main(int argc, char *argv[])
   if (false) {
     // A 1/2 ps_rot at the entrance & exit of the super period for a symmetric
     // approach.
-    // set_ps_rot("ps_rot1", 0.1491/2e0, -0.0413/2e0);
-    // set_ps_rot("ps_rot2", 0.3991/2e0, -0.2914/2e0);
 
-    set_ps_rot("ps_rot", -0.1/2.0, 0.1/2.0);
+    set_ps_rot("ps_rot", 0.0/2.0, -0.15/2.0);
   }
 
   prtmfile("flat_file.dat");
@@ -270,7 +274,10 @@ int main(int argc, char *argv[])
   prt_chrom_lat("chromlat.out");
 
   if (!false)
+  if (!globval.mat_meth)
     GetEmittance(ElemIndex("cav"), false, true);
+  else
+    get_eps_x(eps_x, sigma_delta, U_0, J, tau, I, true);
 
   if (false) {
     loc = Elem_GetPos(ElemIndex("sd2"), 2);
