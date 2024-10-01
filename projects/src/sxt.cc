@@ -528,33 +528,36 @@ void K(const double nu_x, const double nu_y, double a[])
       }
       b3L1 = get_bnL(Cell[n1], Sext);
 
-      for (n2 = 0; n2 <= globval.Cell_nLoc; n2++) {
-	if ((Cell[n2].Elem.Pkind == Mpole) &&
-	    (Cell[n2].Elem.M->Porder >= Sext)) {
-	  for (k = 0; k <= 1; k++) {
-	    alpha0[k] = Cell[n2-1].Alpha[k];
-	    beta0[k] = Cell[n2-1].Beta[k];
-	    nu0[k] = Cell[n2-1].Nu[k];
-	    eta0[k] = Cell[n2-1].Eta[k];
-	    etap0[k] = Cell[n2-1].Etap[k];
+      if (b3L1 != 0e0) {
+	for (n2 = 0; n2 <= globval.Cell_nLoc; n2++) {
+	  if ((Cell[n2].Elem.Pkind == Mpole) &&
+	      (Cell[n2].Elem.M->Porder >= Sext)) {
+	    for (k = 0; k <= 1; k++) {
+	      alpha0[k] = Cell[n2-1].Alpha[k];
+	      beta0[k] = Cell[n2-1].Beta[k];
+	      nu0[k] = Cell[n2-1].Nu[k];
+	      eta0[k] = Cell[n2-1].Eta[k];
+	      etap0[k] = Cell[n2-1].Etap[k];
+	    }
+	    for (k = 0; k <= 1; k++) {
+	      beta2[k] = beta0[k];
+	      nu2[k] = nu0[k];
+	    }
+	    b3L2 = get_bnL(Cell[n2], Sext);
+	    if (b3L2 != 0e0) {
+	      dmu_x = 2e0*M_PI*fabs(nu1[X_]-nu2[X_]);
+	      dmu_y = 2e0*M_PI*fabs(nu1[Y_]-nu2[Y_]);
+	      A = b3L1*b3L2*sqrt(beta1[X_]*beta2[X_]);
+	      c_1x = cos(dmu_x-pi_1x)/s_1x;
+	      c_3x = cos(3e0*dmu_x-pi_3x)/s_3x;
+	      c_1xm2y = cos(dmu_x-2e0*dmu_y-pi_1xm2y)/s_1xm2y;
+	      c_1xp2y = cos(dmu_x+2e0*dmu_y-pi_1xp2y)/s_1xp2y;
+	      a[0] += A*beta1[X_]*beta2[X_]*(3*c_1x+c_3x)/2e0;
+	      a[1] -= A*beta1[Y_]*(4e0*beta2[X_]*c_1x+2e0*beta2[Y_]
+				   *(c_1xm2y-c_1xp2y));
+	      a[2] += A*beta1[Y_]*beta2[Y_]*(4e0*c_1x+c_1xm2y+c_1xp2y)/2e0;
+	    }
 	  }
-	  for (k = 0; k <= 1; k++) {
-	    beta2[k] = beta0[k];
-	    nu2[k] = nu0[k];
-	  }
-	  b3L2 = get_bnL(Cell[n2], Sext);
-	  dmu_x = 2e0*M_PI*fabs(nu1[X_]-nu2[X_]);
-	  dmu_y = 2e0*M_PI*fabs(nu1[Y_]-nu2[Y_]);
-	  A = b3L1*b3L2*sqrt(beta1[X_]*beta2[X_]);
-	  c_1x = cos(dmu_x-pi_1x)/s_1x;
-	  c_3x = cos(3e0*dmu_x-pi_3x)/s_3x;
-	  c_1xm2y = cos(dmu_x-2e0*dmu_y-pi_1xm2y)/s_1xm2y;
-	  c_1xp2y = cos(dmu_x+2e0*dmu_y-pi_1xp2y)/s_1xp2y;
-	  a[0] += A*beta1[X_]*beta2[X_]*(3*c_1x+c_3x)/2e0;
-	  a[1] -=
-	    A*beta1[Y_]*(4e0*twoJ[X_]*beta2[X_]*c_1x+2e0*twoJ[Y_]*beta2[Y_]
-			 *(c_1xm2y-c_1xp2y));
-	  a[2] += A*beta1[Y_]*beta2[Y_]*(4e0*c_1x+c_1xm2y+c_1xp2y)/2e0;
 	}
       }
     }
@@ -565,9 +568,98 @@ void K(const double nu_x, const double nu_y, double a[])
 }
 
 
+void compute_dx_dJ
+(const double nu_x, const double nu_y, double dx_dJ[], const int n1)
+{
+  // Amplitude dependent orbit shifts.
+
+  long int
+    k, n2;
+  double
+    b3L2, pi_1x, pi_3x, pi_1xm2y, pi_1xp2y, s_1x, s_3x, s_1xm2y, s_1xp2y,
+    c_1x, c_3x, c_1xm2y, c_1xp2y, dmu_x, dmu_y, A;
+  Vector2
+    beta1, nu1, beta2, nu2;
+
+  pi_1x = M_PI*nu_x;
+  pi_3x = 3e0*M_PI*nu_x;
+  pi_1xm2y = M_PI*(nu_x-2e0*nu_y);
+  pi_1xp2y = M_PI*(nu_x+2e0*nu_y);
+
+  s_1x = sin(pi_1x);
+  s_3x = sin(pi_3x);
+  s_1xm2y = sin(pi_1xm2y);
+  s_1xp2y = sin(pi_1xp2y);
+
+  for (k = 0; k <= 1; k++) {
+    beta1[k] = Cell[ind(n1-1)].Beta[k];
+    nu1[k] = Cell[ind(n1-1)].Nu[k];
+    if (n1-1 < 0)
+      nu1[k] -= globval.TotalTune[k];
+  }
+
+  for (k = 0; k <= 3; k++)
+    dx_dJ[k] = 0e0;
+
+  for (n2 = 0; n2 <= globval.Cell_nLoc; n2++) {
+    if ((Cell[n2].Elem.Pkind == Mpole) &&
+	(Cell[n2].Elem.M->Porder >= Sext)) {
+      for (k = 0; k <= 1; k++) {
+	beta2[k] = Cell[n2-1].Beta[k];
+	nu2[k] = Cell[n2-1].Nu[k];
+      }
+      b3L2 = get_bnL(Cell[n2], Sext);
+      if (b3L2 != 0e0) {
+	dmu_x = 2e0*M_PI*fabs(nu1[X_]-nu2[X_]);
+	dmu_y = 2e0*M_PI*fabs(nu1[Y_]-nu2[Y_]);
+	A = b3L2*sqrt(beta2[X_]);
+	c_1x = cos(dmu_x-pi_1x)/s_1x;
+	c_3x = cos(3e0*dmu_x-pi_3x)/s_3x;
+	c_1xm2y = cos(dmu_x-2e0*dmu_y-pi_1xm2y)/s_1xm2y;
+	c_1xp2y = cos(dmu_x+2e0*dmu_y-pi_1xp2y)/s_1xp2y;
+	dx_dJ[0] -= A*beta2[X_]*(3e0*c_1x+c_3x);
+	dx_dJ[1] += 4e0*A*beta2[Y_]*c_1x;
+	dx_dJ[2] += 4e0*A*(2e0*beta2[X_]*c_1x+beta2[Y_]*(c_1xm2y-c_1xp2y));
+	dx_dJ[3] -= A*beta2[Y_]*(4e0*c_1x+c_1xm2y+c_1xp2y);
+      }
+    }
+  }
+
+  for (k = 0; k < 4; k++)
+    dx_dJ[k] *= sqrt(beta1[X_])/64e0;
+}
+
+
+void K2(const double nu_x, const double nu_y, double a[])
+{
+  /* Amplitude dependent tune shifts. */
+
+  long int k, n1;
+  double   b3L1, dx_dJ[4];
+  Vector2  beta1;
+
+  for (k = 0; k <= 3; k++)
+    a[k] = 0e0;
+
+  for (n1 = 0; n1 <= globval.Cell_nLoc; n1++) {
+    if ((Cell[n1].Elem.Pkind == Mpole) && (Cell[n1].Elem.M->Porder >= Sext)) {
+      for (k = 0; k <= 1; k++)
+	beta1[k] = Cell[ind(n1-1)].Beta[k];
+      b3L1 = get_bnL(Cell[n1], Sext);
+      if (b3L1 != 0e0) {
+	compute_dx_dJ(globval.TotalTune[X_], globval.TotalTune[Y_], dx_dJ, n1);
+	a[0] -= b3L1*beta1[X_]*dx_dJ[0];
+	a[2] -= b3L1*beta1[Y_]*dx_dJ[2];
+	a[3] -= b3L1*beta1[Y_]*dx_dJ[3];
+      }
+    }
+  }
+}
+
+
 void sext_terms(const double twoJ[])
 {
-  double h_c, h_s, c, s, a[3];
+  double h_c, h_s, c, s, a[4], dx_dJ[4];
 
   printf("\nFirst order chromatic terms:\n");
   sxt_1(1e0/4e0, 1, 1, 0, 0, 1, h_c, h_s);
@@ -732,11 +824,24 @@ void sext_terms(const double twoJ[])
   printf("  h_00220: %23.16e %23.16e\n", h_c, h_s);
 
   K(globval.TotalTune[X_], globval.TotalTune[Y_], a);
-  printf("\n");
-  printf("Amplitude dependent tune shifts\n");
+  printf("\nAmplitude dependent tune shifts:\n");
   printf("  a_xx = %23.16e\n", a[0]);
   printf("  a_xy = %23.16e\n", a[1]);
   printf("  a_yy = %23.16e\n", a[2]);
+
+  compute_dx_dJ(globval.TotalTune[X_], globval.TotalTune[Y_], dx_dJ, 1);
+  printf("\ndx_dJ:\n");
+  printf("  <x^3>_22000   = %23.16e\n", dx_dJ[0]);
+  printf("  <x^3>_11110   = %23.16e\n", dx_dJ[1]);
+  printf("  <x*y^2>_11110 = %23.16e\n", dx_dJ[2]);
+  printf("  <x*y^2>_00220 = %23.16e\n", dx_dJ[3]);
+
+  K2(globval.TotalTune[X_], globval.TotalTune[Y_], a);
+  printf("\nAmplitude dependent tune shifts:\n");
+  printf("  a_xx = %23.16e\n", a[0]);
+  printf("  a_xy = %23.16e\n", a[1]);
+  printf("  a_xy = %23.16e\n", a[2]);
+  printf("  a_yy = %23.16e\n", a[3]);
 }
 
 
