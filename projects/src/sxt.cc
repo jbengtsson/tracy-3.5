@@ -583,13 +583,13 @@ void compute_dx_dJ
 
   pi_1x = M_PI*nu_x;
   pi_3x = 3e0*M_PI*nu_x;
-  pi_1xm2y = M_PI*(nu_x-2e0*nu_y);
   pi_1xp2y = M_PI*(nu_x+2e0*nu_y);
+  pi_1xm2y = M_PI*(nu_x-2e0*nu_y);
 
   s_1x = sin(pi_1x);
   s_3x = sin(pi_3x);
-  s_1xm2y = sin(pi_1xm2y);
   s_1xp2y = sin(pi_1xp2y);
+  s_1xm2y = sin(pi_1xm2y);
 
   for (k = 0; k <= 1; k++) {
     beta1[k] = Cell[ind(n1-1)].Beta[k];
@@ -615,12 +615,12 @@ void compute_dx_dJ
 	A = b3L2*sqrt(beta2[X_]);
 	c_1x = cos(dmu_x-pi_1x)/s_1x;
 	c_3x = cos(3e0*dmu_x-pi_3x)/s_3x;
-	c_1xm2y = cos(dmu_x-2e0*dmu_y-pi_1xm2y)/s_1xm2y;
 	c_1xp2y = cos(dmu_x+2e0*dmu_y-pi_1xp2y)/s_1xp2y;
+	c_1xm2y = cos(dmu_x-2e0*dmu_y-pi_1xm2y)/s_1xm2y;
 	dx_dJ[0] -= A*beta2[X_]*(3e0*c_1x+c_3x);
 	dx_dJ[1] += 4e0*A*beta2[Y_]*c_1x;
-	dx_dJ[2] += 4e0*A*(2e0*beta2[X_]*c_1x+beta2[Y_]*(c_1xm2y-c_1xp2y));
-	dx_dJ[3] -= A*beta2[Y_]*(4e0*c_1x+c_1xm2y+c_1xp2y);
+	dx_dJ[2] += 4e0*A*(2e0*beta2[X_]*c_1x-beta2[Y_]*(c_1xp2y-c_1xm2y));
+	dx_dJ[3] -= A*beta2[Y_]*(4e0*c_1x+c_1xp2y+c_1xm2y);
       }
     }
   }
@@ -649,6 +649,7 @@ void K2(const double nu_x, const double nu_y, double a[])
       if (b3L1 != 0e0) {
 	compute_dx_dJ(globval.TotalTune[X_], globval.TotalTune[Y_], dx_dJ, n1);
 	a[0] -= b3L1*beta1[X_]*dx_dJ[0];
+	a[1] -= b3L1*beta1[X_]*dx_dJ[1];
 	a[2] -= b3L1*beta1[Y_]*dx_dJ[2];
 	a[3] -= b3L1*beta1[Y_]*dx_dJ[3];
       }
