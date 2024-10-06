@@ -41,8 +41,8 @@ typedef enum
   qdsym, sexsym, versym, plus_, minus_, lparent, rparent, eql, comma, lbrack,
   rbrack, neq, andsy, semicolon, times, rdiv, intcon, realcon, becomes, colon,
   leq, pwrsym, lss, geo, gtr, period_, charcon, stringcon, ident, geq, lsym,
-  bobrhosym, bobrhovsym, bobrhohsym, kxvsym, kxhsym, phisym, b_2_sym,
-  tsym, t1sym, t2sym,
+  bobrhosym, bobrhovsym, bobrhohsym, kxvsym, kxhsym, phi_rf_sym, b_2_sym,
+  b_3_sym, phi_b_sym, phi_1_sym, phi_2_sym,
   gapsym, thksym, invsym, thnsym,
   endsym, tsksym, bemsym, corsym, prnsym, tblsym, possym, prmsym,
   udisym, squote, linsym, mthsym, celsym, mapsym, cavsym, symsym, chmsym,
@@ -655,8 +655,8 @@ static void Lat_GetSym(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       /*  writeln(fo, 'GetSym detected reserved word: id=', id,
 	  '  k=', k:4, '  key[', k:4, ']=', key[k]);*/
     } else {
-      if      (!strncmp(id, "t              ", sizeof(alfa_)))
-	*sym = tsym;
+      if      (!strncmp(id, "phi            ", sizeof(alfa_)))
+	*sym = phi_b_sym;
       else if (!strncmp(id, "gap            ", sizeof(alfa_)))
 	*sym = gapsym;
       else if (!strncmp(id, "l              ", sizeof(alfa_)))
@@ -673,10 +673,12 @@ static void Lat_GetSym(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 	*sym = kxvsym;
       else if (!strncmp(id, "kxh            ", sizeof(alfa_)))
 	*sym = kxhsym;
-      else if (!strncmp(id, "phi            ", sizeof(alfa_)))
-	*sym = phisym;
-      else if (!strncmp(id, "k              ", sizeof(alfa_)))
+      else if (!strncmp(id, "phi_rf         ", sizeof(alfa_)))
+	*sym = phi_rf_sym;
+      else if (!strncmp(id, "b_2            ", sizeof(alfa_)))
 	*sym = b_2_sym;
+      else if (!strncmp(id, "b_3            ", sizeof(alfa_)))
+	*sym = b_3_sym;
       else if (!strncmp(id, "harnum         ", sizeof(alfa_)))
 	*sym = harnumsym;
       else
@@ -2165,10 +2167,10 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     P_addset(mysys, (long)b_2_sym);
     P_addset(mysys, (long)nsym);
     P_addset(mysys, (long)mthsym);
-    P_addset(mysys, (long)tsym);
+    P_addset(mysys, (long)phi_b_sym);
     P_addset(mysys, (long)rollsym);
-    P_addset(mysys, (long)t1sym);
-    P_addset(mysys, (long)t2sym);
+    P_addset(mysys, (long)phi_1_sym);
+    P_addset(mysys, (long)phi_2_sym);
     P_addset(mysys, (long)gapsym);
     P_addset(mysys, (long)homsym);
     P_addset(mysys, (long)dbnsym);
@@ -2191,7 +2193,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 	k1 = (long)floor(EVAL_(&V) + 0.5);
 	break;
 
-      case tsym:
+      case phi_b_sym:
 	t = EVAL_(&V);
 	break;
 
@@ -2199,11 +2201,11 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 	dt = EVAL_(&V);
 	break;
 
-      case t1sym:
+      case phi_1_sym:
 	t1 = EVAL_(&V);
 	break;
 
-      case t2sym:
+      case phi_2_sym:
 	t2 = EVAL_(&V);
 	break;
 
@@ -2397,7 +2399,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     if (*V.sym == comma) {
       GetSym__(&V);
       P_addset(P_expset(mysys, 0), (long)lsym);
-      P_addset(mysys, (long)b_2_sym);
+      P_addset(mysys, (long)b_3_sym);
       P_addset(mysys, (long)nsym);
       P_addset(mysys, (long)mthsym);
       P_addset(mysys, (long)rollsym);
@@ -2413,7 +2415,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 	    QL = EVAL_(&V);
 	    break;
 
-	  case b_2_sym:
+	  case b_3_sym:
 	    QK = EVAL_(&V);
 	    break;
 
@@ -2516,7 +2518,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     P_addset(P_expset(mysys, 0), (long)lsym);
     P_addset(mysys, (long)frqsym);
     P_addset(mysys, (long)vrfsym);
-    P_addset(mysys, (long)phisym);
+    P_addset(mysys, (long)phi_rf_sym);
     P_addset(mysys, (long)harnumsym);
     P_addset(mysys, (long)nsym);
     P_addset(mysys, (long)entryfsym);
@@ -2540,7 +2542,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 	Vrf = EVAL_(&V);
 	break;
 
-      case phisym:
+      case phi_rf_sym:
 	QPhi = EVAL_(&V);
 	break;
 
@@ -2891,9 +2893,9 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     P_addset(P_expset(mysys, 0), (long)lsym);
     P_addset(mysys, (long)nsym);
     P_addset(mysys, (long)mthsym);
-    P_addset(mysys, (long)tsym);
-    P_addset(mysys, (long)t1sym);
-    P_addset(mysys, (long)t2sym);
+    P_addset(mysys, (long)phi_b_sym);
+    P_addset(mysys, (long)phi_1_sym);
+    P_addset(mysys, (long)phi_2_sym);
     P_addset(mysys, (long)gapsym);
     P_addset(mysys, (long)rollsym);
     P_addset(mysys, (long)homsym);
@@ -2912,7 +2914,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 	k1 = (long)floor(EVAL_(&V) + 0.5);
 	break;
 
-      case tsym:
+      case phi_b_sym:
 	t = EVAL_(&V);
 	break;
 
@@ -2920,11 +2922,11 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 	dt = EVAL_(&V);
 	break;
 
-      case t1sym:
+      case phi_1_sym:
 	t1 = EVAL_(&V);
 	break;
 
-      case t2sym:
+      case phi_2_sym:
 	t2 = EVAL_(&V);
 	break;
 
@@ -3026,7 +3028,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     P_addset(mysys, (long)bobrhohsym);
     P_addset(mysys, (long)kxvsym);
     P_addset(mysys, (long)kxhsym);
-    P_addset(mysys, (long)phisym);
+    P_addset(mysys, (long)phi_rf_sym);
     P_addset(mysys, (long)harmsym);
     P_addset(mysys, (long)nsym);
     P_addset(mysys, (long)mthsym);
@@ -3058,7 +3060,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 	QKxH = EVAL_(&V);
 	break;
 
-      case phisym:
+      case phi_rf_sym:
 	QPhi = EVAL_(&V);
 	break;
 
@@ -3148,7 +3150,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     QL = 0.0; k1 = 0; t  = 0.0; strcpy(str1, ""); strcpy(str2, "");
     scaling = 1.0; // scaling factor
     P_addset(P_expset(mysys, 0), (long)lsym);
-    P_addset(mysys, (long)tsym);
+    P_addset(mysys, (long)phi_b_sym);
     P_addset(mysys, (long)nsym);
     P_addset(mysys, (long)scalingsym);
     P_addset(mysys, (long)fnamesym1);
@@ -3163,7 +3165,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 	QL = EVAL_(&V);
 	break;
 
-      case tsym:
+      case phi_b_sym:
 	t = EVAL_(&V);
 	break;
 
@@ -3248,7 +3250,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     dt  = 0e0;
     scaling = 1.0; // scaling factor
     P_addset(P_expset(mysys, 0), (long)nsym);
-    P_addset(mysys, (long)tsym);
+    P_addset(mysys, (long)phi_b_sym);
     P_addset(mysys, (long)scalingsym);
     P_addset(mysys, (long)fnamesym1);
     P_addset(mysys, (long)fnamesym2);
@@ -3264,7 +3266,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 	GetSym__(&V);
 	break;
 
-      case tsym:
+      case phi_b_sym:
 	t = EVAL_(&V);
 	break;
 
@@ -3717,6 +3719,8 @@ static void init_reserved_words(struct LOC_Lattice_Read *LINK)
   Reg("multipole      ", mpsym, &V);
   Reg("nonlinear      ", nbdsym, &V);
   Reg("parameter      ", prmsym, &V);
+  Reg("phi_1          ", phi_1_sym, &V);
+  Reg("phi_2          ", phi_2_sym, &V);
   Reg("position       ", possym, &V);
   Reg("print          ", prnsym, &V);
   Reg("quadrupole     ", qdsym, &V);
@@ -3729,8 +3733,6 @@ static void init_reserved_words(struct LOC_Lattice_Read *LINK)
   Reg("solenoid       ", solsym, &V);
   Reg("spreader       ", sprsym, &V);
   Reg("symmetry       ", symsym, &V);
-  Reg("t1             ", t1sym, &V);
-  Reg("t2             ", t2sym, &V);
   Reg("table          ", tblsym, &V);
   Reg("task           ", tsksym, &V);
   Reg("type           ", typsym, &V);
