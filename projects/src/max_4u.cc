@@ -212,7 +212,16 @@ void chk_phi()
 }
 
 
-void compute_rb_orbit()
+void for_Stephen(void)
+{
+  globval.CODvect.zero();
+  globval.CODvect[delta_] = 1e-1;
+  get_map(!false);
+  prt_lin_map(3, map);
+}
+
+
+void compute_rb_orbit(void)
 {
 }
 
@@ -248,6 +257,11 @@ int main(int argc, char *argv[])
 
   chk_phi();
 
+  if (false) {
+    for_Stephen();
+    assert(false);
+  }
+
   if (false)
     no_mult(Sext);
   if (false)
@@ -273,11 +287,12 @@ int main(int argc, char *argv[])
   prt_lat("linlat.out", globval.bpm, true, 10);
   prt_chrom_lat("chromlat.out");
 
-  if (!false)
-  if (!globval.mat_meth)
-    GetEmittance(ElemIndex("cav"), false, true);
-  else
-    get_eps_x(eps_x, sigma_delta, U_0, J, tau, I, true);
+  if (!false) {
+    if (!globval.mat_meth)
+      GetEmittance(ElemIndex("cav"), false, true);
+    else
+      get_eps_x(eps_x, sigma_delta, U_0, J, tau, I, true);
+  }
 
   if (false) {
     loc = Elem_GetPos(ElemIndex("sd2"), 2);
