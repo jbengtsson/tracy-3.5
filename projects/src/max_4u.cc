@@ -212,15 +212,6 @@ void chk_phi()
 }
 
 
-void for_Stephen(void)
-{
-  globval.CODvect.zero();
-  globval.CODvect[delta_] = 1e-1;
-  get_map(!false);
-  prt_lin_map(3, map);
-}
-
-
 void compute_rb_orbit(void)
 {
 }
@@ -246,7 +237,7 @@ int main(int argc, char *argv[])
   int    loc;
   double I[6], eps_x, sigma_delta, U_0, J[3], tau[3];
 
-  globval.mat_meth = false;
+  globval.mat_meth = !false;
 
   if (true)
     Read_Lattice(argv[1]);
@@ -256,11 +247,6 @@ int main(int argc, char *argv[])
   set_state();
 
   chk_phi();
-
-  if (false) {
-    for_Stephen();
-    assert(false);
-  }
 
   if (false)
     no_mult(Sext);
