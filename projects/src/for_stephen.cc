@@ -26,7 +26,8 @@ void set_state(void)
 
 void compute_mat(void)
 {
-  const string file_name = "for_stephen.txt";
+  const bool   incremental = false;
+  const string file_name   = "for_stephen.txt";
 
   long int     lastpos;
   ss_vect<tps> M;
@@ -36,6 +37,8 @@ void compute_mat(void)
 
   M.identity();
   for (auto k = 0; k <= globval.Cell_nLoc; k++) {
+    if (not incremental)
+      M.identity();
     Cell_Pass(k, k, M, lastpos);
     printf("\n  %2d %10s %7.3f", k, Cell[k].Elem.PName, Cell[k].S);
     prt_lin_map(3, M);
