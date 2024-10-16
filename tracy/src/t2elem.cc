@@ -674,65 +674,72 @@ void quad_fringe(const double b2, ss_vect<T> &ps)
 
 void get_dI_eta_5(CellType &Cell)
 {
-  double       L, K, h, b2, alpha, beta, gamma, psi, eta, etap;
+  const CellType*
+    Cellp = &Cell - 1;
+  const double
+    L     = Cell.Elem.PL,
+    h     = Cell.Elem.M->Pirho,
+    b2    = Cell.Elem.M->PBpar[Quad+HOMmax],
+    K_x   = b2 + sqr(Cell.Elem.M->Pirho),
+    psi   = sqrt(fabs(K_x))*L,
+    alpha = Cellp->Alpha[X_],
+    beta  = Cellp->Beta[X_],
+    gamma = (1e0+sqr(alpha))/beta,
+    eta   = Cellp->Eta[X_],
+    etap  = Cellp->Etap[X_];
+
   ss_vect<tps> Id;
-  CellType     *Cellp;
 
   Id.identity();
 
-  L = Cell.Elem.PL;
-  h = Cell.Elem.M->Pirho;
-  b2 = Cell.Elem.M->PBpar[Quad+HOMmax];
-  K = b2 + sqr(Cell.Elem.M->Pirho);
-  psi = sqrt(fabs(K))*L;
-  Cellp = &Cell - 1;
-  alpha = Cellp->Alpha[X_]; beta = Cellp->Beta[X_];
-  gamma = (1e0+sqr(alpha))/beta;
-  eta = Cellp->Eta[X_]; etap = Cellp->Etap[X_];
-
-  Cell.dI[1] = L*eta*h;
   Cell.dI[2] = L*sqr(h);
   Cell.dI[3] = L*fabs(cube(h));
 
-  if (K > 0e0) {
+  if (K_x > 0e0) {
+    // For completeness.
+    Cell.dI[1] = (h*L/K_x-(h-K_x*eta)*sin(psi)/pow(K_x, 3e0/2e0)
+		  +(1e0-cos(psi))*etap/K_x)*h;
+
     Cell.dI[4] =
-      h/K*(2e0*b2+sqr(h))
-      *((eta*sqrt(K)*sin(psi)+etap*(1e0-cos(psi)))
-	+ h/sqrt(K)*(psi-sin(psi)));
+      h/K_x*(2e0*b2+sqr(h))
+      *((eta*sqrt(K_x)*sin(psi)+etap*(1e0-cos(psi)))
+	+ h/sqrt(K_x)*(psi-sin(psi)));
 
     Cell.dI[5] =
       L*fabs(cube(h))
       *(gamma*sqr(eta)+2e0*alpha*eta*etap+beta*sqr(etap))
-      - 2e0*pow(h, 4)/(pow(K, 3e0/2e0))
-      *(sqrt(K)*(alpha*eta+beta*etap)*(cos(psi)-1e0)
+      - 2e0*pow(h, 4)/(pow(K_x, 3e0/2e0))
+      *(sqrt(K_x)*(alpha*eta+beta*etap)*(cos(psi)-1e0)
 	+(gamma*eta+alpha*etap)*(psi-sin(psi)))
-      + fabs(pow(h, 5))/(4e0*pow(K, 5e0/2e0))
-      *(2e0*alpha*sqrt(K)*(4e0*cos(psi)-cos(2e0*psi)-3e0)
-	+beta*K*(2e0*psi-sin(2e0*psi))
+      + fabs(pow(h, 5))/(4e0*pow(K_x, 5e0/2e0))
+      *(2e0*alpha*sqrt(K_x)*(4e0*cos(psi)-cos(2e0*psi)-3e0)
+	+beta*K_x*(2e0*psi-sin(2e0*psi))
 	+gamma*(6e0*psi-8e0*sin(psi)+sin(2e0*psi)));
   } else {
-    K = fabs(K);
+    // Function only called for h != 0 => K_x != 0.
+    // For completeness.
+    Cell.dI[1] = (-h*L/fabs(K_x)+(h+fabs(K_x)*eta)*sinh(psi)
+		  /pow(fabs(K_x), 3e0/2e0)-(1e0-cosh(psi))*etap/fabs(K_x))*h;
 
     Cell.dI[4] =
-      h/K*(2e0*b2+sqr(h))
-      *((eta*sqrt(K)*sinh(psi)-etap*(1e0-cosh(psi)))
-	- h/sqrt(K)*(psi-sinh(psi)));
+      h/fabs(K_x)*(2e0*b2+sqr(h))
+      *((eta*sqrt(fabs(K_x))*sinh(psi)-etap*(1e0-cosh(psi)))
+	- h/sqrt(fabs(K_x))*(psi-sinh(psi)));
 
     Cell.dI[5] =
       L*fabs(cube(h))
       *(gamma*sqr(eta)+2e0*alpha*eta*etap+beta*sqr(etap))
-      + 2e0*pow(h, 4)/(pow(K, 3e0/2e0))
-      *(sqrt(K)*(alpha*eta+beta*etap)*(cosh(psi)-1e0)
+      + 2e0*pow(h, 4)/(pow(fabs(K_x), 3e0/2e0))
+      *(sqrt(fabs(K_x))*(alpha*eta+beta*etap)*(cosh(psi)-1e0)
 	+(gamma*eta+alpha*etap)*(psi-sinh(psi)))
-      + fabs(pow(h, 5))/(4e0*pow(K, 5e0/2e0))
-      *(2e0*alpha*sqrt(K)*(4e0*cosh(psi)-cosh(2e0*psi)-3e0)
-	-beta*K*(2e0*psi-sinh(2e0*psi))
+      + fabs(pow(h, 5))/(4e0*pow(fabs(K_x), 5e0/2e0))
+      *(2e0*alpha*sqrt(fabs(K_x))*(4e0*cosh(psi)-cosh(2e0*psi)-3e0)
+	-beta*fabs(K_x)*(2e0*psi-sinh(2e0*psi))
 	+gamma*(6e0*psi-8e0*sinh(psi)+sinh(2e0*psi)));
   }
 
   // For completeness.
   Cell.curly_dH_x = Cell.dI[5]/(L*fabs(cube(h)));
-
 }
 
 
@@ -1053,12 +1060,8 @@ void Cav_Pass(const CellType &Cell, ss_vect<T> &ps)
 
 void get_dI_eta_5_ID(CellType &Cell)
 {
-  double       L, K, h, b2, alpha, beta, gamma, psi, eta, etap;
-  ss_vect<tps> Id;
-  CellType     *Cellp;
-
-
-  Id.identity();
+  double   L, K, h, b2, alpha, beta, gamma, psi, eta, etap;
+  CellType *Cellp;
 
   L = Cell.Elem.PL;
   h = Cell.Elem.M->Pirho;
