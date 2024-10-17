@@ -40,9 +40,10 @@ void compute_mat(void)
     if (!incremental)
       M.identity();
     Cell_Pass(k, k, M, lastpos);
-    printf("\n  %2d %10s S = %7.3f", k, Cell[k].Elem.PName, Cell[k].S);
+    printf("\n  %2d %10s S [m] = %7.3f", k, Cell[k].Elem.PName, Cell[k].S);
     if (Cell[k].Elem.Pkind == Mpole)
-      printf("  h = %21.16e", Cell[k].Elem.M->Pirho);
+      printf("  h [1/m] = %21.16e  phi [deg] = %21.16e", Cell[k].Elem.M->Pirho,
+	     Cell[k].Elem.M->Pirho* Cell[k].Elem.PL*180e0/M_PI);
     prt_lin_map(3, M);
   }
 
@@ -88,11 +89,17 @@ int main(int argc, char *argv[])
   if (!false) {
     if (!globval.mat_meth)
       GetEmittance(ElemIndex("cav"), false, true);
-    else
+    else {
       get_eps_x(eps_x, sigma_delta, U_0, J, tau, I, true);
+
+      double I[6];
+      get_I(I, false);
+      printf("\n  alpha = %23.16e %23.16e\n", I[1]/Cell[globval.Cell_nLoc].S,
+	     globval.OneTurnMat[ct_][delta_]/Cell[globval.Cell_nLoc].S);
+    }
   }
 
-  if (!false)
+  if (false)
     compute_mat();
 
   if (false)

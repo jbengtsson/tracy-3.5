@@ -64,7 +64,7 @@ set xlabel "{/Symbol n}_x"
 splot file_name.".dat" using 1:2:(log(\$5)) notitle with pm3d
 if (!ps) pause mouse "click on graph to cont.\n"
 
-set cbrange [-20:-10]
+# set cbrange [-20:-10]
 
 if (ps) set output file_name."_2.".(ext)
 set title "k_{11110}"
@@ -87,7 +87,7 @@ set xlabel "{/Symbol n}_x"
 splot file_name.".dat" using 1:2:(log(\$8)) notitle with pm3d
 if (!ps) pause mouse "click on graph to cont.\n"
 
-unset cbrange [-30:-14]
+unset cbrange
 
 if (ps) set output file_name."_5.".(ext)
 set title "k_{11002}"

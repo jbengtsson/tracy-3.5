@@ -2,6 +2,7 @@
 
 #include <random>
 #include <complex>
+#include <gsl/gsl_sf_hermite.h>
 
 #include "tracy_lib.h"
 
@@ -102,16 +103,6 @@ public:
 };
 
 
-double compute_det(const int n_dof, const ss_vect<tps> &A)
-{
-  // Matrix determinant.
-  Matrix A_mat;
-
-  getlinmat(2*n_dof, A, A_mat);
-  return DetMat(2*n_dof, A_mat);
-}
-
-
 std::vector<double> get_nu(const ss_vect<tps> &M)
 {
   double              nu_z, alpha_c;
@@ -181,7 +172,7 @@ void prt_map_full(const string &str, const long int cav_loc,
   printf("phi_RF [deg] = %4.2f\n",
 	 Cell[cav_loc].Elem.C->phi_RF*180e0/M_PI);
   prt_map("", M);
-  printf("\ndet(M) - 1:\n %10.3e\n", compute_det(nd_tps, M)-1e0);
+  printf("\ndet(M) - 1:\n %10.3e\n", get_det(nd_tps, M)-1e0);
   printf("nu:\n");
   for (k = 0; k < nd_tps; k++)
     printf(" %7.5f", nu[k]);
@@ -337,6 +328,100 @@ void MomentType::print_sigma(const int n)
        << setw(11) << arg(C->HOM_V_trans[X_][0]) << "\n";
 }
 
+
+void rd_csv_file(const string &file_name, const int k)
+{
+  data = np.loadtxt(file_name, delimiter=" ", dtype=float);
+  bunch = np.array([data[0,:], data[k, :]]);
+  return bunch;
+}
+
+
+void rd_csv_file(const string &file_name, const int k)
+{
+  int i = 0, rows = 7;
+
+  // Allocate vectors
+  gsl_vector *X = gsl_vector_alloc (rows);
+  gsl_vector *Y = gsl_vector_alloc (rows);
+  gsl_vector *Z = gsl_vector_alloc (rows);
+
+  // Open the file
+  std::ifstream openfile("data.csv");
+  openfile.ignore(10000, '\n'); // Ignore the header
+  std::string line;
+
+  while (getline(openfile, line, '\n')) {
+    std::string a, b, c;
+    std::stringstream iss(line);
+    getline(getline(getline (iss, a, ','), b, ','), c, ',');
+    // std::cout << a << ' ' << b << ' ' << c << std::endl;
+
+    // Set vectors
+    gsl_vector_set (X, i, std::stod(a));
+    gsl_vector_set (Y, i, std::stod(b));
+    gsl_vector_set (Z, i, std::stod(c));
+
+    i += 1;
+  }
+
+
+void def compute_moment(n, bunch)
+{
+  // Time step.
+  dt = bunch[0, 1] - bunch[0, 0];
+      return np.sum(bunch[0, :]**n*bunch[1, :])*dt;
+}
+
+
+void normalise_distr(bunch)
+{
+  // Normalise distribution.
+  bunch[1] /= compute_moment(0, bunch);
+  // Remove mean.
+  bunch[0] -= compute_moment(1, bunch);
+  // Normalise by sigma.
+  bunch[0] /= np.sqrt(compute_moment(2, bunch));
+
+  // Renormalise distribution.
+  bunch[1] /= compute_moment(0, bunch);
+
+  m_1, m_2 = compute_moment(1, bunch), compute_moment(2, bunch);
+  print("\n[mean, sigma, sigma^2] =\n  [{:10.3e}, {:9.3e}, {:9.3e}]".
+	format(m_1, np.sqrt(m_2), m_2));
+  return bunch;
+}
+
+
+void compute_c_n(n, bunch)
+{
+  // Time step.
+  dt = bunch[0][1] - bunch[0][0];
+  h_n = np.zeros(n+1);
+  h_n[n] = 1;
+  coeff =
+    np.sum(hermite_e.hermeval(bunch[0, :], h_n)**2
+	   *Gaussian(0e0, 1e0, bunch[0, :]))*dt;
+  c_n = np.sum(bunch[1, :]*hermite_e.hermeval(bunch[0, :], h_n))*dt/coeff;
+
+  return c_n;
+}
+
+
+void compute_profile()
+{
+  c_max = 6;
+
+  with_Gaussian = True;
+
+  c = np.zeros(c_max+1);
+  for (int k = 0; k <= c_max+1; k++)
+    c[k] = compute_c_n(k, bunch);
+  print("c =\n ", c);
+
+  bunch_fit = np.zeros(len(bunch[0]));
+  bunch_fit[:] = hermite_e.hermeval(bunch[0, :], c);
+}
 
 ss_vect<tps> MomentType::compute_cav_HOM_long_M(const tps &ct)
 {

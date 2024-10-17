@@ -237,7 +237,7 @@ int main(int argc, char *argv[])
   int    loc;
   double I[6], eps_x, sigma_delta, U_0, J[3], tau[3];
 
-  globval.mat_meth = !false;
+  globval.mat_meth = false;
 
   if (true)
     Read_Lattice(argv[1]);
@@ -245,6 +245,11 @@ int main(int argc, char *argv[])
     rdmfile(argv[1]);
 
   set_state();
+
+  globval.Cavity_on = true;
+  Ring_GetTwiss(true, 0e0);
+  printglob();
+  assert(false);
 
   chk_phi();
 
