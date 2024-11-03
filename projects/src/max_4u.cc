@@ -8,6 +8,14 @@
 int no_tps = NO;
 
 
+const bool
+  set_xi = false,
+  ps_rot = false;
+
+const double
+  dnu[] = {0.1, 0.0};
+
+
 void set_ps_rot(const string &fam_name, const double dnu_x, const double dnu_y)
 {
   const int
@@ -133,18 +141,6 @@ void fit_xi_jb
 }
 
 
-void fit_xi_jb(const int lat_case, const double ksi_x, const double ksi_y)
-{
-  std::vector<int> Fnum;
-
-  Fnum.push_back(ElemIndex("s2"));
-  Fnum.push_back(ElemIndex("s3"));
-  // Fnum.push_back(ElemIndex("sd2"));
-  
-  fit_xi_jb(Fnum, 0e0, 0e0, 1e0);
-}
-
-
 void track(const int n_turn, const double Ax, const double Ay)
 {
   const string
@@ -246,31 +242,40 @@ int main(int argc, char *argv[])
 
   set_state();
 
-  globval.Cavity_on = true;
-  Ring_GetTwiss(true, 0e0);
-  printglob();
-  assert(false);
-
   chk_phi();
 
-  if (false)
+  if (set_xi) {
     no_mult(Sext);
-  if (false)
     no_mult(Oct);
-
-  if (false) {
-    fit_xi_jb(1, 0e0, 0e0);
-    assert(false);
   }
 
   Ring_GetTwiss(true, 0e0);
   printglob();
 
-  if (false) {
+  if (set_xi) {
+    std::vector<int> Fnum;
+    if (false) {
+      Fnum.push_back(ElemIndex("s1"));
+      Fnum.push_back(ElemIndex("s2"));
+      Fnum.push_back(ElemIndex("s3"));
+      Fnum.push_back(ElemIndex("s4"));
+    } else {
+      Fnum.push_back(ElemIndex("s1_f1"));
+      Fnum.push_back(ElemIndex("s2_f1"));
+      Fnum.push_back(ElemIndex("s3_f1"));
+      Fnum.push_back(ElemIndex("s4_f1"));
+    }
+    fit_xi_jb(Fnum, 0e0, 0e0, 1e0);
+
+    Ring_GetTwiss(true, 0e0);
+    printglob();
+  }
+
+  if (ps_rot) {
     // A 1/2 ps_rot at the entrance & exit of the super period for a symmetric
     // approach.
 
-    set_ps_rot("ps_rot", 0.0/2.0, -0.15/2.0);
+    set_ps_rot("ps_rot", dnu[X_]/2.0, dnu[Y_]/2.0);
   }
 
   prtmfile("flat_file.dat");
