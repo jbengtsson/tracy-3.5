@@ -37,12 +37,12 @@ typedef char Latlinetype[LatLLng];
 
 typedef enum
 {
-  bndsym, defsym, dfcsym, drfsym, elmsym, fcssym, horsym, monsym,
-  qdsym, sexsym, versym, plus_, minus_, lparent, rparent, eql, comma, lbrack,
+  bndsym, defsym, dfcsym, drfsym, elmsym, fcssym, horsym, monsym, qdsym,
+  sexsym, octsym, versym, plus_, minus_, lparent, rparent, eql, comma, lbrack,
   rbrack, neq, andsy, semicolon, times, rdiv, intcon, realcon, becomes, colon,
   leq, pwrsym, lss, geo, gtr, period_, charcon, stringcon, ident, geq, lsym,
   bobrhosym, bobrhovsym, bobrhohsym, kxvsym, kxhsym, phi_rf_sym, b_2_sym,
-  b_3_sym, phi_b_sym, phi_1_sym, phi_2_sym,
+  b_3_sym, b_4_sym, phi_b_sym, phi_1_sym, phi_2_sym,
   gapsym, thksym, invsym, thnsym,
   endsym, tsksym, bemsym, corsym, prnsym, tblsym, possym, prmsym,
   udisym, squote, linsym, mthsym, celsym, mapsym, cavsym, symsym, chmsym,
@@ -679,6 +679,8 @@ static void Lat_GetSym(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 	*sym = b_2_sym;
       else if (!strncmp(id, "b_3            ", sizeof(alfa_)))
 	*sym = b_3_sym;
+      else if (!strncmp(id, "b_4            ", sizeof(alfa_)))
+	*sym = b_4_sym;
       else if (!strncmp(id, "harnum         ", sizeof(alfa_)))
 	*sym = harnumsym;
       else
@@ -2373,11 +2375,11 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     ***************************************************************************
 
     <name>: Sextupole,
-            L=<length>, ( [m] )
-            K =<K-value>, ( [m-3] )
-            Roll=<roll angle>, ( [degree], design roll angle )
-            HOM=(i, <Bi>, <Ai>, ( higher order component in USA notation )
-                 j, <Bj>, <Aj>, ( Systematic error Only )
+            L=<length>,          ( [m] )
+            B_3 =<B_3-value>,    ( [m^-3] )
+            Roll=<roll angle>,   ( [degree], design roll angle )
+            HOM=(i, <Bi>, <Ai>,  ( higher order component in USA notation )
+                 j, <Bj>, <Aj>,  ( Systematic error Only )
                  ............    ( Random errors are assigned )
                  n, <Bn>, <An>); ( in a Program File using procedures )
 
@@ -2387,10 +2389,10 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 
     **************************************************************************/
 
-  case sexsym:  /*4*/
-    QL = 0.0;   /* L */
-    QK = 0.0;   /* K */
-    k1 = 0;   /* N */
+  case sexsym:          /*4*/
+    QL = 0.0;           /* L */
+    QK = 0.0;           /* K */
+    k1 = 0;             /* N */
     k2 = Meth_Fourth;   /* method */
     dt = 0.0;
     ClearHOMandDBN(&V);
@@ -2476,6 +2478,121 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       AssignHOM(globval.Elem_nFam, &V);
       SetDBN(&V);
       WITH2->PBpar[HOMmax + 3] = QK;
+    } else {
+      printf("Elem_nFamMax exceeded: %ld(%ld)\n",
+	     globval.Elem_nFam, (long)Elem_nFamMax);
+      exit_(1);
+    }
+    break;
+
+    /**************************************************************************
+      Octupole
+    ***************************************************************************
+
+    <name>: Octupole,
+            L=<length>,          ( [m] )
+            B_4 =<B_4-value>,    ( [m^-4] )
+            Roll=<roll angle>,   ( [degree], design roll angle )
+            HOM=(i, <Bi>, <Ai>,  ( higher order component in USA notation )
+                 j, <Bj>, <Aj>,  ( Systematic error Only )
+                 ............    ( Random errors are assigned )
+                 n, <Bn>, <An>); ( in a Program File using procedures )
+
+    Example
+
+      OF: Octupole, K=-10.236345;
+
+    **************************************************************************/
+
+  case octsym:          /*4*/
+    QL = 0.0;           /* L */
+    QK = 0.0;           /* K */
+    k1 = 0;             /* N */
+    k2 = Meth_Fourth;   /* method */
+    dt = 0.0;
+    ClearHOMandDBN(&V);
+    getest__(P_expset(SET, (1 << ((long)comma)) | (1 << ((long)semicolon))),
+	     "<, > or <;> expected", &V);
+    if (*V.sym == comma) {
+      GetSym__(&V);
+      P_addset(P_expset(mysys, 0), (long)lsym);
+      P_addset(mysys, (long)b_4_sym);
+      P_addset(mysys, (long)nsym);
+      P_addset(mysys, (long)mthsym);
+      P_addset(mysys, (long)rollsym);
+      P_addset(mysys, (long)homsym);
+      P_addset(mysys, (long)dbnsym);
+      do {   /*5: read L, K, N, T, T1, T2 */
+	test__(mysys, "illegal parameter", &V);
+	sym1 = *V.sym;
+	getest__(P_expset(SET, 1 << ((long)eql)), "<=> expected", &V);
+	switch (sym1)
+	  {   /*6*/
+	  case lsym:
+	    QL = EVAL_(&V);
+	    break;
+
+	  case b_4_sym:
+	    QK = EVAL_(&V);
+	    break;
+
+	  case nsym:
+	    k1 = (long)floor(EVAL_(&V) + 0.5);
+	    break;
+
+	  case mthsym:
+	    k2 = (long)floor(EVAL_(&V) + 0.5);
+	    if ((unsigned int)k2 >= 32 ||
+		((1 << k2) & ((1 << Meth_Linear) | (1 << Meth_Second) |
+			      (1 << Meth_Fourth))) == 0)
+	      getest__(P_expset(SET, 0), "Check integrator..", &V);
+	    break;
+
+	  case rollsym:
+	    dt = EVAL_(&V);
+	    break;
+
+	  case homsym:
+	    GetHOM(&V);
+	    break;
+
+	  case dbnsym:
+	    GetDBN_(&V);
+	    break;
+	  default:
+	    break;
+	  }
+
+	test__(P_expset(SET,
+			(1 << ((long)comma)) | (1 << ((long)semicolon))),
+	       "<, > or <;> expected", &V);
+
+	if (*V.sym == comma)
+	  GetSym__(&V);
+
+      } while (P_inset(*V.sym, mysys));   /*5*/
+      test__(P_expset(SET, 1 << ((long)semicolon)), "<;> expected.", &V);
+    }
+    GetSym__(&V);
+    globval.Elem_nFam++;
+    if (globval.Elem_nFam <= Elem_nFamMax) {
+      WITH = &ElemFam[globval.Elem_nFam-1];
+      WITH1 = &WITH->ElemF;
+      memcpy(WITH1->PName, ElementName, sizeof(partsName));
+      WITH1->PL = QL;
+      WITH1->Pkind = Mpole;
+      Mpole_Alloc(&WITH->ElemF);
+      WITH2 = WITH1->M;
+      WITH2->Pmethod = k2;
+      WITH2->PN = k1;
+      if (WITH1->PL != 0.0)
+	WITH2->Pthick = pthicktype(thick);
+      else
+	WITH2->Pthick = pthicktype(thin);
+      WITH2->PdTpar = dt; WITH2->n_design = Sext;
+      AssignHOM(globval.Elem_nFam, &V);
+      SetDBN(&V);
+      WITH2->PBpar[HOMmax + 4] = QK;
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
 	     globval.Elem_nFam, (long)Elem_nFamMax);
@@ -3718,6 +3835,7 @@ static void init_reserved_words(struct LOC_Lattice_Read *LINK)
   Reg("monitor        ", monsym, &V);
   Reg("multipole      ", mpsym, &V);
   Reg("nonlinear      ", nbdsym, &V);
+  Reg("octupole       ", octsym, &V);
   Reg("parameter      ", prmsym, &V);
   Reg("phi_1          ", phi_1_sym, &V);
   Reg("phi_2          ", phi_2_sym, &V);
@@ -3773,6 +3891,7 @@ static void init_reserved_words(struct LOC_Lattice_Read *LINK)
   P_addset(P_expset(LINK->defbegsys, 0), (long)ident);
   P_addset(P_expset(LINK->elmbegsys, 0), (long)qdsym);
   P_addset(LINK->elmbegsys, (long)sexsym);
+  P_addset(LINK->elmbegsys, (long)octsym);
   P_addset(LINK->elmbegsys, (long)corsym);
   P_addset(LINK->elmbegsys, (long)bemsym);
   P_addset(LINK->elmbegsys, (long)gstsym);
