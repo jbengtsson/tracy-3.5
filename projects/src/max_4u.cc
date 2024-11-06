@@ -33,20 +33,41 @@ void set_ps_rot(const string &fam_name, const double dnu_x, const double dnu_y)
  }
 
 
-void get_dnu_straight(const int loc)
+double* get_dnu_straight(const int loc)
 {
-  const double
-    dnu[] = {
-      Cell[globval.Cell_nLoc].Nu[X_]-Cell[loc].Nu[X_],
-      Cell[globval.Cell_nLoc].Nu[Y_]-Cell[loc].Nu[Y_]
-    };
+  static double
+    dnu[2] =  {
+    Cell[globval.Cell_nLoc].Nu[X_]-Cell[loc].Nu[X_],
+    Cell[globval.Cell_nLoc].Nu[Y_]-Cell[loc].Nu[Y_]
+  };
 
   printf("\nget_dnu_straight:\n");
   printf(" nu               = [%7.5f, %7.5f]\n",
 	 Cell[globval.Cell_nLoc].Nu[X_], Cell[globval.Cell_nLoc].Nu[Y_]);
   printf(" dnu              = [%7.5f, %7.5f]\n",
-	 Cell[loc].Nu[X_],Cell[loc].Nu[Y_] ),
+	 Cell[loc].Nu[X_], Cell[loc].Nu[Y_] ),
   printf(" dnu_1/2_straight = [%7.5f, %7.5f]\n", dnu[X_], dnu[Y_]);
+
+  return dnu;
+}
+
+
+void set_dnu_straight(const string &fam_name, const int loc)
+{
+  const double dnu_half_straight[] = {0.25, 0.125};
+  // const double dnu_half_straight[] = {0.5, 0.25};
+
+  double*       dnu;
+  static double dnu_ps_rot[2];
+
+  dnu = get_dnu_straight(loc);
+  for (int k = 0; k < 2; k++)
+    dnu_ps_rot[k] = dnu_half_straight[k] - dnu[k];
+
+  printf("\nset_dnu_straight:\n");
+  printf(" dnu_ps_rot = [%7.5f, %7.5f]\n", dnu_ps_rot[X_], dnu_ps_rot[Y_]);
+
+  set_ps_rot(fam_name, dnu_ps_rot[X_], dnu_ps_rot[Y_]);
 }
 
 
@@ -252,16 +273,27 @@ int main(int argc, char *argv[])
   Ring_GetTwiss(true, 0e0);
   printglob();
 
+  if (false) {
+    // A 1/2 ps_rot at the entrance & exit of the super period for a symmetric
+    // approach.
+    loc = Elem_GetPos(ElemIndex("lsborder"), 2);
+    printf("\nloc = %d\n", loc);
+    set_dnu_straight("ps_rot", loc);
+
+    Ring_GetTwiss(true, 0e0);
+    printglob();
+  }
+
   if (set_xi) {
     std::vector<int> Fnum;
     if (false) {
-      Fnum.push_back(ElemIndex("s1"));
-      Fnum.push_back(ElemIndex("s2"));
+      // Fnum.push_back(ElemIndex("s1"));
+      // Fnum.push_back(ElemIndex("s2"));
       Fnum.push_back(ElemIndex("s3"));
       Fnum.push_back(ElemIndex("s4"));
     } else {
-      Fnum.push_back(ElemIndex("s1_f1"));
-      Fnum.push_back(ElemIndex("s2_f1"));
+      // Fnum.push_back(ElemIndex("s1_f1"));
+      // Fnum.push_back(ElemIndex("s2_f1"));
       Fnum.push_back(ElemIndex("s3_f1"));
       Fnum.push_back(ElemIndex("s4_f1"));
     }
@@ -274,8 +306,7 @@ int main(int argc, char *argv[])
   if (ps_rot) {
     // A 1/2 ps_rot at the entrance & exit of the super period for a symmetric
     // approach.
-
-    set_ps_rot("ps_rot", dnu[X_]/2.0, dnu[Y_]/2.0);
+    set_ps_rot("ps_rot", dnu[X_]/2e0, dnu[Y_]/2e0);
   }
 
   prtmfile("flat_file.dat");
@@ -291,7 +322,7 @@ int main(int argc, char *argv[])
   }
 
   if (false) {
-    loc = Elem_GetPos(ElemIndex("sd2"), 2);
+    loc = Elem_GetPos(ElemIndex("lsborder"), 2);
     printf("\nloc = %d\n", loc);
     get_dnu_straight(loc);
   }
