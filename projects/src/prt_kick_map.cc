@@ -10,10 +10,18 @@ int no_tps = NO;
 
 void prt_kick_map(CellType &Cell)
 {
-  for (int j = 0; j < Cell.ID->nx; j++) {
-    for (int k = 0; k < Cell.ID->ny; k++)
-      printf("", Cell.ID->tabx[j], Cell.ID->tabz[k], thetax[j][k]);
-    printf("\n");
+  const string file_name = "kick_map.dat";
+
+  FILE *outf;
+
+outf = file_write(file_name.c_str());
+
+  for (int j = 0; j < Cell.Elem.ID->nx; j++) {
+    for (int k = 0; k < Cell.Elem.ID->nz; k++)
+      fprintf(outf, "  %10.5f %10.5f %12.5e %12.5e\n",
+	     Cell.Elem.ID->tabx[j], Cell.Elem.ID->tabz[k],
+	     Cell.Elem.ID->thetax[k][j], Cell.Elem.ID->thetaz[k][j]);
+    fprintf(outf, "\n");
   }
 }
 
@@ -47,6 +55,6 @@ int main(int argc, char *argv[])
   Ring_GetTwiss(true, 0e0);
   printglob();
 
-  auto loc = Elem_GetPos(ElemIndex("cpmu", 1)
+  auto loc = Elem_GetPos(ElemIndex("cpmu_km"), 1);
   prt_kick_map(Cell[loc]);
 }
