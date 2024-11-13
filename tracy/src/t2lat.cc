@@ -673,7 +673,7 @@ static void Lat_GetSym(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 	*sym = kxvsym;
       else if (!strncmp(id, "kxh            ", sizeof(alfa_)))
 	*sym = kxhsym;
-      else if (!strncmp(id, "phi_rf         ", sizeof(alfa_)))
+      else if (!strncmp(id, "phase          ", sizeof(alfa_)))
 	*sym = phi_rf_sym;
       else if (!strncmp(id, "b_2            ", sizeof(alfa_)))
 	*sym = b_2_sym;
