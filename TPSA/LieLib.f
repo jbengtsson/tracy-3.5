@@ -48,8 +48,9 @@
         is(i)=0
       enddo
       idpr=1
-      write(*, *) "lieinit:", no, nv, nd, nd2, ndpt, idpr
-      write(*, *) "lieinit: calling daini"
+      write(*, 100) 'lieinit:  no = ', no, ', nv = ', nv, ', nd  = ',     &
+     &      nd, ',    nd2 = ', nd2, ', ndpt = ', ndpt, ', idpr = ', idpr
+ 100  format(6(a, i0))
       call daini(no,nv,0)
       if(nis.gt.0)call etallnom(is,nis,'$$IS      ')
       if(ndpt1.eq.0) then
@@ -81,7 +82,8 @@
       endif
       if(iref1.eq.0) iref=-1
 
-      if(idpr.eq.1)write(6,*) ' NO = ',no,' IN DA-CALCULATIONS '
+      if(idpr.eq.1) write(6, 200) ' NO = ', no,' IN DA-CALCULATIONS '
+ 200  format(a, i0, a)
 
       do i=0,20
         xintex(i)=0.d0
@@ -737,11 +739,26 @@
       return
       end subroutine
 
-      subroutine comcfu(b,f1,f2,c)
+      subroutine comcfu(b,f1,f2,c) bind(C, name="comcfu_")
+      use iso_c_binding
       implicit none
-      integer  b(*), c(*)
-      double precision f1, f2
-      external f1, f2
+      integer(C_LONG) b(*), c(*)
+
+      abstract interface
+        function f1(j) bind(C)
+          import :: c_long, c_double
+          real(c_long), intent(in) :: j(*)
+          real(c_double) :: f1
+        end function
+      end interface
+
+      abstract interface
+        function f2(j) bind(C)
+          import :: c_long, c_double
+          real(c_long), intent(in) :: j(*)
+          real(c_double) :: f2
+        end function
+      end interface
 
 ! Complex dacfu
       integer t(4)
@@ -1135,7 +1152,7 @@
       use iso_c_binding
       implicit none
       integer(C_LONG) h1, v(*)
-      real(C_DOUBLE) sca
+      real(C_DOUBLE)  sca
 
       integer i,ndim,ndim2,ntt
 ! INVERSE OF INTD ROUTINE
@@ -3477,7 +3494,7 @@
       subroutine etrtc(x) bind(C, name="etrtc_")
       use iso_c_binding
       implicit none
-      integer x(*)
+      integer(C_LONG) x(*)
       integer i,ndim,ndim2,ntt
       parameter (ndim=3)
       parameter (ndim2=6)
