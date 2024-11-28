@@ -79,12 +79,12 @@ if (!ps) pause mouse "click on graph to cont.\n";
 #      title "{/Symbol b}_y{/Symbol \264h}_x" with lines ls 3;
 # if (!ps) pause mouse "click on graph to cont.\n";
 
-# file_name_palette = "`echo \$TRACY_LIB`/gnuplot/jet.dat";
-# # Load 64-color palette for Jet
-# set palette model RGB file file_name_palette \
-#   using (\$1/255):(\$2/255):(\$3/255);
-# unset colorbox;
-# #set cbrange [-2.0:1.5];
+file_name_palette = "`echo \$TRACY_LIB`/gnuplot/jet.dat";
+# Load 64-color palette for Jet
+set palette model RGB file file_name_palette \
+  using (\$1/255):(\$2/255):(\$3/255);
+#unset colorbox;
+#set cbrange [-2.0:1.5];
 
 if (ps) set output file_name."_5.".(ext);
 set title "{/ZapfChancery-MediumItalic H}_x({/Symbol h}_x\\\~, \
@@ -157,17 +157,17 @@ if (!ps) pause mouse "click on graph to cont.\n";
 #      lines lt palette z;
 # if (!ps) pause mouse "click on graph to cont.\n";
 
-if (ps) set output file_name."_12.".(ext);
-set title "arg\\\{{/ZapfChancery-MediumItalic H}_x(s)\\\}";
-set xlabel "s [m]"; set ylabel "";
-set y2range [-2.0:20];
-plot file_name.".out" using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
-     lc rgb "black", \
-     file_name.".out" using 3:(-atan2(\$16, \$15)*180.0/pi) \
-     title "arg\\\{curly\\\_H_x\\\}" with lines ls 1, \
-     file_name.".out" using 3:(\$7*360.0) title "arg\\\{J_x\\\}" \
-     with lines ls 2;
-if (!ps) pause mouse "click on graph to cont.\n";
+# if (ps) set output file_name."_12.".(ext);
+# set title "arg\\\{{/ZapfChancery-MediumItalic H}_x(s)\\\}";
+# set xlabel "s [m]"; set ylabel "";
+# set y2range [-2.0:20];
+# plot file_name.".out" using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
+#      lc rgb "black", \
+#      file_name.".out" using 3:(-atan2(\$16, \$15)*180.0/pi) \
+#      title "arg\\\{curly\\\_H_x\\\}" with lines ls 1, \
+#      file_name.".out" using 3:(\$7*360.0) title "arg\\\{J_x\\\}" \
+#      with lines ls 2;
+# if (!ps) pause mouse "click on graph to cont.\n";
 
 # if (ps) set output file_name."_13.".(ext);
 # set title "{/Symbol g}";
