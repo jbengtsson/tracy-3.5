@@ -98,7 +98,7 @@ plot file_name.".out" using (1e3*\$15):(1e3*\$16):(abs(\$4)) notitle \
      "{/Symbol n}_x" with lines lt palette z;
 if (!ps) pause mouse "click on graph to cont.\n";
 
-The caliographic font requires Postscript.
+# The caliographic font requires Postscript.
 if (ps) set output file_name."_6.".(ext);
 set title "|{/ZapfChancery-MediumItalic H}_x(s)|" \
     .", arg\\\{{/ZapfChancery-MediumItalic H}_x(s)\\\}";
