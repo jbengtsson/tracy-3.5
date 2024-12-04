@@ -1,13 +1,14 @@
-#SUBDIRS      = ptc
+AUTOMAKE_OPTIONS = subdir-objects
 
-bin_PROGRAMS = optics dynap leac dnu touschek ibs vlad tbt tbt_ref \
-               max_iv_1 max_iv_2 ibs_for_les delta bare_da match \
-               carbon_map dls 6BA track_fft m4 m4_mod dls_ii track opt_des_1 \
-	       opt_des_2 id_model sigma tech_note dx_dj tune_scan sxt \
-               chk_drv_terms fit_nu opt_des_bessy_iii for_pierre tst_it \
-               ctrl_cod wakefield compute_maps lin_opt map_diag_3D bessy_ii \
-               rev_bend max_4u max_4u_2 dnu_dJ tst_drv_terms for_stephen \
-               prt_kick_map
+SUBDIRS = ptc
+
+bin_PROGRAMS = \
+	optics dynap leac dnu touschek ibs vlad tbt tbt_ref max_iv_1 max_iv_2 \
+	ibs_for_les delta bare_da match carbon_map dls 6BA track_fft m4 m4_mod \
+	dls_ii track opt_des_1 opt_des_2 id_model sigma tech_note dx_dj \
+	tune_scan sxt chk_drv_terms fit_nu opt_des_bessy_iii for_pierre tst_it \
+	ctrl_cod wakefield compute_maps lin_opt map_diag_3D bessy_ii \
+	rev_bend max_4u max_4u_2 dnu_dJ tst_drv_terms for_stephen prt_kick_map
 
 #sc_f_LINK    = gfortran -g -O0 -Wall -fbounds-check -o sc_f
 
@@ -63,25 +64,28 @@ tst_drv_terms_SOURCES     = tst_drv_terms.cc
 for_stephen_SOURCES       = for_stephen.cc
 prt_kick_map_SOURCES      = prt_kick_map.cc
 
-GSL_INCLUDE = /usr/local/Cellar/gsl/2.7.1
-# GSL_INCLUDE = /net/home/lli/OPAL/OPAL-2.0.1
+LOCAL = /usr/local/opt
 
-LIBS	    = -L$(TRACY_LIB)/tracy/lib \
-              -L$(TRACY_LIB)/tracy/lib64 \
-              -ltracy \
-              -L$(NUM_REC)/lib -lnum_rec \
-              -lstdc++ \
-              -L$(GSL_INCLUDE)/lib -lgsl -lgslcblas
+LIBS =	-L$(TRACY_LIB)/tracy/lib -ltracy \
+	-L$(NUM_REC)/lib -lnum_rec \
+	-L$(LOCAL)/gsl/lib -lgsl
+
+# Enduser flags.
+
+# Load flags.
+# LDFLAGS = "--static"
+
+# Package manager flags.
 
 # C Preprocessor flags.
-AM_CPPFLAGS = -I/usr/local/Cellar/gsl/2.7.1/include \
-              -I$(TRACY_LIB)/tracy/inc \
-              -I$(NUM_REC)/inc \
-              -I$(GSL_INCLUDE)/include
-
-#              -I/opt/OPAL-2.2.1/lib 
+AM_CPPFLAGS = \
+	-I$(TRACY_LIB)/tracy/inc \
+	-I$(NUM_REC)/inc 
 
 # C++ flags.
-AM_CXXFLAGS = -g -O0 -pedantic -Wall -std=c++11 \
-              -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC
-#CXXFLAGS = -pg -O2 -Wall -Wno-non-template-friend
+AM_CXXFLAGS = \
+	-g -O0 -pedantic -Wall -std=c++11 \
+	-D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC
+#CXXFLAGS = -pg -O0 -Wall -Wno-non-template-friend
+
+AM_LDFLAGS = -F/System/Library/Frameworks -framework CoreServices
