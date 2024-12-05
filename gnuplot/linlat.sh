@@ -8,7 +8,6 @@ gnuplot << EOP
 ps        = $prm1;
 file_name = "$prm2";
 
-
 f_s = 24;
 l_w = 2;
 # Enhanced is needed for Greek characters.
