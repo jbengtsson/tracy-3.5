@@ -31,16 +31,46 @@ set grid
 set style line 1 lt 1 lw 1 lc rgb "blue"
 set style line 2 lt 1 lw 1 lc rgb "green"
 set style line 3 lt 1 lw 1 lc rgb "red"
+set style line 4 lt 1 lw 1 lc rgb "cyan"
 
 if (ps) set output file_name."_1.".(ext)
-set title "Beta Functions"
+set title "{/Symbol f}(s)"
 set xlabel "s [m]"
-set ylabel "{/Symbol b} [m]"
+set ylabel "[deg]"
 set y2range [-2.0:20]
 plot file_name.".out" using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
      lc rgb "black", \
-     file_name.".out" using 3:6 title "{/Symbol b}_x" with lines ls 1, \
-     file_name.".out" using 3:11 title "{/Symbol b}_y" with lines ls 3
+     file_name.".out" using 3:5 notitle with lines ls 1
+if (!ps) pause mouse "click on graph to cont.\n"
+
+if (ps) set output file_name."_2.".(ext)
+set title "b_2(s)"
+set xlabel "s [m]"
+set ylabel "[1/m^2]"
+set y2range [-2.0:20]
+plot file_name.".out" using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
+     lc rgb "black", \
+     file_name.".out" using 3:6 notitle with lines ls 2
+if (!ps) pause mouse "click on graph to cont.\n"
+
+if (ps) set output file_name."_3.".(ext)
+set title "b_3(s)"
+set xlabel "s [m]"
+set ylabel "[1/m^3]"
+set y2range [-2.0:20]
+plot file_name.".out" using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
+     lc rgb "black", \
+     file_name.".out" using 3:7 notitle with lines ls 3
+if (!ps) pause mouse "click on graph to cont.\n"
+
+if (ps) set output file_name."_4.".(ext)
+set title "b_4(s)"
+set xlabel "s [m]"
+set ylabel "[1/m^4]"
+set y2range [-2.0:20]
+plot file_name.".out" using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
+     lc rgb "black", \
+     file_name.".out" using 3:8 notitle with lines ls 4
 if (!ps) pause mouse "click on graph to cont.\n"
 
 EOP
