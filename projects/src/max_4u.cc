@@ -9,8 +9,10 @@ int no_tps = NO;
 
 
 const bool
-  set_xi = false,
-  ps_rot = false;
+  zero_b_3 = false,
+  zero_b_4 = false,
+  set_b_3  = false,
+  ps_rot   = false;
 
 const double
   dnu[] = {0.1, 0.0};
@@ -229,6 +231,36 @@ void chk_phi()
 }
 
 
+void prt_b_n(void)
+{
+  const string file_name = "lat_bn.out"; 
+
+  FILE* outf;
+
+  outf = file_write(file_name.c_str());
+
+  fprintf(outf, "#        name           s   code   phi       b_2"
+	  "          b_3          b_4\n");
+  fprintf(outf, "#                      [m]        [deg]    [1/m^2]"
+	  "      [1/m^3]      [1/m^4]\n");
+  for (int k = 0; k <= globval.Cell_nLoc; k++)
+    if (Cell[k].Elem.Pkind != Mpole)
+      fprintf(outf, "%4ld %15s %6.2f %4.1f %6.3f %12.5e %12.5e %12.5e\n",
+	      k, Cell[k].Elem.PName, Cell[k].S, get_code(Cell[k]),
+	      0e0, 0e0, 0e0, 0e0);
+    else {
+      auto phi = Cell[k].Elem.M->Pirho*Cell[k].Elem.PL*180e0/M_PI;
+      fprintf(outf, "%4ld %15s %6.2f %4.1f %6.3f %12.5e %12.5e %12.5e\n",
+	      k, Cell[k].Elem.PName, Cell[k].S, get_code(Cell[k]),
+	      phi, Cell[k].Elem.M->PBpar[Quad+HOMmax],
+	      Cell[k].Elem.M->PBpar[Sext+HOMmax],
+	      Cell[k].Elem.M->PBpar[Oct+HOMmax]);
+    }
+
+  fclose(outf);
+}
+
+
 void compute_rb_orbit(void)
 {
 }
@@ -265,13 +297,15 @@ int main(int argc, char *argv[])
 
   chk_phi();
 
-  if (set_xi) {
+  if (zero_b_3)
     no_mult(Sext);
+  if (zero_b_4)
     no_mult(Oct);
-  }
 
   Ring_GetTwiss(true, 0e0);
   printglob();
+
+  prt_b_n();
 
   if (false) {
     // A 1/2 ps_rot at the entrance & exit of the super period for a symmetric
@@ -284,7 +318,7 @@ int main(int argc, char *argv[])
     printglob();
   }
 
-  if (set_xi) {
+  if (set_b_3) {
     std::vector<int> Fnum;
     if (false) {
       // Fnum.push_back(ElemIndex("s1"));
