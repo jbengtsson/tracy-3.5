@@ -40,8 +40,8 @@ public:
    const double scl_h_4, const double scl_ksi_2, const double scl_chi_2,
    const double scl_chi_delta_2, const double scl_ksi_3);
   void get_h
-  (const const double delta_eps, const const double twoJ[],
-   const const double delta, const const double twoJ_delta[]);
+  (const double delta_eps, const double twoJ[], const double delta,
+   const double twoJ_delta[]);
   void prt_h(FILE *outf, const char *str, const int i0, const int i1);
   void prt_h_abs(FILE *outf, const char *str, const int i0, const int i1);
   void print(void);

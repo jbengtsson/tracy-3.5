@@ -1,3 +1,5 @@
+#include <assert.h>
+
 #define NO 4
 
 #include "tracy_lib.h"

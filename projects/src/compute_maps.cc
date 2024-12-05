@@ -1,5 +1,7 @@
 #define NO 1
 
+#include <assert.h>
+
 #include "tracy_lib.h"
 
 int no_tps = NO;

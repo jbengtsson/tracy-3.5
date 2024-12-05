@@ -1,3 +1,5 @@
+#include <functional>
+
 #define NO 4
 
 #include "tracy_lib.h"

@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stddef.h>
 #include <string.h>
+#include <assert.h>
 
 #include <cstdlib>
 #include <cfloat>

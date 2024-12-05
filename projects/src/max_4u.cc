@@ -15,7 +15,7 @@ const bool
   ps_rot   = false;
 
 const double
-  dnu[] = {0.1, 0.0};
+  dnu[] = {0.01, 0.01};
 
 
 void set_ps_rot(const string &fam_name, const double dnu_x, const double dnu_y)

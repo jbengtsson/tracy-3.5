@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
     }
   }
 
-  if (false)
+  if (!false)
     compute_mat();
 
   if (false)
