@@ -98,21 +98,21 @@ plot file_name.".out" using (1e3*\$15):(1e3*\$16):(abs(\$4)) notitle \
 if (!ps) pause mouse "click on graph to cont.\n";
 
 # The caliographic font requires Postscript.
-if (ps) set output file_name."_6.".(ext);
-set title "|{/ZapfChancery-MediumItalic H}_x(s)|" \
-    .", arg\\\{{/ZapfChancery-MediumItalic H}_x(s)\\\}";
-set xlabel "s [m]";
-set ylabel "";
-# set y2label "[{/Symbol \260}]";
-set y2range [-2.0:20];
-plot file_name.".out" using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
-     lc rgb "black", \
-     file_name.".out" using 3:(\$15) \
-     title "|{/ZapfChancery-MediumItalic H}_x|" with lines ls 1, \
-     file_name.".out" using 3:(\$16) \
-     title "arg\\\{{/ZapfChancery-MediumItalic H}_x\\\}" \
-     with lines ls 2;
-if (!ps) pause mouse "click on graph to cont.\n";
+# if (ps) set output file_name."_6.".(ext);
+# set title "|{/ZapfChancery-MediumItalic H}_x(s)|" \
+#     .", arg\\\{{/ZapfChancery-MediumItalic H}_x(s)\\\}";
+# set xlabel "s [m]";
+# set ylabel "";
+# # set y2label "[{/Symbol \260}]";
+# set y2range [-2.0:20];
+# plot file_name.".out" using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
+#      lc rgb "black", \
+#      file_name.".out" using 3:(\$15) \
+#      title "|{/ZapfChancery-MediumItalic H}_x|" with lines ls 1, \
+#      file_name.".out" using 3:(\$16) \
+#      title "arg\\\{{/ZapfChancery-MediumItalic H}_x\\\}" \
+#      with lines ls 2;
+# if (!ps) pause mouse "click on graph to cont.\n";
 
 # if (ps) set output file_name."_7.".(ext);
 # set title "sqrt({/ZapfChancery-MediumItalic H}_x(s)*{/Symbol b}_x)";
