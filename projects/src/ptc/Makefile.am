@@ -29,14 +29,11 @@ lie_series_chk_SOURCES  = lie_series_chk.cc
 
 LOCAL = /usr/local/opt
 
-LIBS = \
-	-L$(TRACY_LIB)/tracy/lib -ltracy_ptc -lTPSALib -lLieLib \
+LIBS =	-L$(TRACY_LIB)/tracy/lib \
+	-ltracy_ptc -lTPSALib -lLieLib \
 	-L$(NUM_REC)/lib -lnum_rec \
 	-L$(LOCAL)/gsl/lib -lgsl \
 	-L$(LOCAL)/gfortran/lib/gcc/current -lgfortran
-
-#	-I$(GNU)/gcc/lib/gcc/current 
-#	-L$(GNU)/gsl/lib -lgsl 
 
 # Load flags.
 # LDFLAGS = "--static"
@@ -44,17 +41,16 @@ LIBS = \
 # C Preprocessor flags.
 AM_CPPFLAGS = \
 	-I$(TRACY_LIB)/tracy/inc \
-	-I$(NUM_REC)/inc \
-	-std=c++11
-
-#	-I$(GNU)/gcc/include 
-#	-I$(GNU)/gsl/include 
+	-I$(NUM_REC)/inc
 
 # FORTRAN 77 flags (The package maintainer’s variant of FFLAGS).
 AM_FFLAGS = -ggdb -O0 -Wall -fbounds-check
 
 # C++ flags.
-AM_CXXFLAGS = -ggdb -O0 -Wall -fPIC
+AM_CXXFLAGS = -ggdb -O0 -Wall -std=c++11
 #AM_CXXFLAGS = -ggdb -O0 -Wall -Wno-non-template-friend -fPIC -Wl,--no-relax
 
-AM_LDFLAGS = -ld_classic -F/System/Library/Frameworks -framework CoreServices
+AM_LDFLAGS = \
+	-F/System/Library/Frameworks -framework CoreServices \
+	-Wl,-weak_reference_mismatches,weak
+#	-Wl,-ld_classic
