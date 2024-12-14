@@ -2692,7 +2692,7 @@ void Mpole_Alloc(elemtype *Elem)
 
   /* Memory allocation */
   Elem->M = (MpoleType *)malloc(sizeof(MpoleType));
-  M = Elem->M; M->Pmethod = Meth_Fourth; M->PN = 0;
+  M = Elem->M; M->Pmethod = Meth_Fourth; M->PN = 1;
   /* Displacement errors */
   for (j = 0; j <= 1; j++) {
     M->PdSsys[j] = 0e0; M->PdSrms[j] = 0e0; M->PdSrnd[j] = 0e0;

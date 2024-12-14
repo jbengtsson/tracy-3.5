@@ -2157,11 +2157,11 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     GetSym__(&V);
     QL = 0.0;   /* L */
     QK = 0.0;   /* K */
-    k1 = 0;   /* N */
+    k1 = 1;     /* N */
     t  = 0.0;   /* T */
     t1 = 0.0;   /* T1 */
     t2 = 0.0;   /* T2 */
-    gap = 0.0;   /* gap */
+    gap = 0.0;  /* gap */
     k2 = Meth_Fourth;   /* method */
     dt = 0.0;
     ClearHOMandDBN(&V);
@@ -2293,7 +2293,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     GetSym__(&V);
     QL = 0.0;   /* L */
     QK = 0.0;   /* K */
-    k1 = 0;   /* N */
+    k1 = 1;     /* N */
     k2 = Meth_Fourth;   /* method */
     dt = 0.0;
     ClearHOMandDBN(&V);
@@ -2392,7 +2392,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
   case sexsym:          /*4*/
     QL = 0.0;           /* L */
     QK = 0.0;           /* K */
-    k1 = 0;             /* N */
+    k1 = 1;             /* N */
     k2 = Meth_Fourth;   /* method */
     dt = 0.0;
     ClearHOMandDBN(&V);
@@ -2507,7 +2507,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
   case octsym:          /*4*/
     QL = 0.0;           /* L */
     QK = 0.0;           /* K */
-    k1 = 0;             /* N */
+    k1 = 1;             /* N */
     k2 = Meth_Fourth;   /* method */
     dt = 0.0;
     ClearHOMandDBN(&V);
@@ -2736,7 +2736,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
   case corsym:  /*4*/
     QL = 0.0;   /* L */
     QK = 0.0;   /* K */
-    k1 = 0;     /* N */
+    k1 = 1;     /* N */
     k2 = Meth_Fourth;   /* method */
     dt = 0.0;
     ClearHOMandDBN(&V);
@@ -2999,11 +2999,11 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     GetSym__(&V);
     QL = 0.0;   /* L */
     QK = 0.0;   /* K */
-    k1 = 0;   /* N */
-    t = 0.0;   /* T */
+    k1 = 1;     /* N */
+    t = 0.0;    /* T */
     t1 = 0.0;   /* T1 */
     t2 = 0.0;   /* T2 */
-    gap = 0.0;   /* gap */
+    gap = 0.0;  /* gap */
     k2 = Meth_Fourth;   /* method */
     dt = 0.0;
     ClearHOMandDBN(&V);
