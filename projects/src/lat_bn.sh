@@ -1,4 +1,4 @@
-!/bin/sh
+#!/bin/sh
 
 prm1=${1-0}
 prm2=${2-"lat_bn"}
