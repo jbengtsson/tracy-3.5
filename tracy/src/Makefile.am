@@ -23,4 +23,8 @@ FFLAGS = \
 	-w -fallow-argument-mismatch
 
 # C++ flags.
-AM_CXXFLAGS = -g -O0 -Wall -Wno-error=all -fPIC
+AM_CXXFLAGS = -g -O0 -Wall -Wno-error=all
+
+AM_LDFLAGS = \
+	-F/System/Library/Frameworks -framework CoreServices \
+	-Wl,-weak_reference_mismatches,weak -Wl,-ld_classic
