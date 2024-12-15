@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
   else
     rdmfile(argv[1]);
 
-  if (false) {
+  if (!false) {
     Ring_GetTwiss(true, 0e0); printglob();
   }
 
