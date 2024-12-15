@@ -9,13 +9,14 @@ int no_tps = NO;
 
 
 const bool
-  zero_b_3 = false,
-  zero_b_4 = false,
-  set_b_3  = false,
-  ps_rot   = false;
+  zero_b_3      = false,
+  zero_b_4      = false,
+  set_b_3       = false,
+  ps_rot        = false,
+  chk_mpole_sym = false;
 
 const double
-  dnu[] = {0.01, 0.01};
+  dnu[] = {0.0, 0.0};
 
 
 void set_ps_rot(const string &fam_name, const double dnu_x, const double dnu_y)
@@ -231,6 +232,50 @@ void chk_phi()
 }
 
 
+void chk_mpole_Fam(const int Fnum)
+{
+  int n_Kids, k, loc[2];
+
+  printf("\n   name        s     beta_x   beta_y   eta_x    dnu_x    dnu_y\n");
+  n_Kids = GetnKid(Fnum);
+  for (k = 1; k <= n_Kids; k++) {
+    loc[0] = (k > 1)? Elem_GetPos(Fnum, k-1) : Elem_GetPos(Fnum, n_Kids);
+    loc[1] = Elem_GetPos(Fnum, k);
+    printf("  %.8s %7.3f %8.5f %8.5f %8.5f %8.5f %8.5f\n",
+	   Cell[loc[1]].Elem.PName, Cell[loc[1]].S,
+	   Cell[loc[1]].Beta[X_], Cell[loc[1]].Beta[Y_], Cell[loc[1]].Eta[X_],
+	   (k > 1)? Cell[loc[1]].Nu[X_]-Cell[loc[0]].Nu[X_] : NAN,
+	   (k > 1)?Cell[loc[1]].Nu[Y_]-Cell[loc[0]].Nu[Y_] : NAN);
+  }
+}
+
+
+void chk_mpole(const int lat_case)
+{
+  int              k;
+  std::vector<int> Fnum;
+
+  switch (lat_case) {
+  case 1:
+    Fnum.push_back(ElemIndex("s1_h1"));
+    Fnum.push_back(ElemIndex("s2_h1"));
+    Fnum.push_back(ElemIndex("s3_h1"));
+    Fnum.push_back(ElemIndex("s4_h1"));
+    break;
+  default:
+    printf("\nchk_mpole: unknown lattice type\n");
+    exit(1);
+    break;
+  }
+
+  Ring_GetTwiss(true, 0e0);
+ 
+  printf("\nMultipole Scheme:\n");
+  for (k = 0; k < (int)Fnum.size(); k++)
+    chk_mpole_Fam(Fnum[k]);
+}
+
+
 void prt_b_n(void)
 {
   const string file_name = "lat_bn.out"; 
@@ -286,6 +331,8 @@ int main(int argc, char *argv[])
   int    loc;
   double I[6], eps_x, sigma_delta, U_0, J[3], tau[3];
 
+  reverse_elem = !false;
+
   globval.mat_meth = false;
 
   if (true)
@@ -319,17 +366,21 @@ int main(int argc, char *argv[])
   }
 
   if (set_b_3) {
+    const int lat = 3;
     std::vector<int> Fnum;
-    if (false) {
-      // Fnum.push_back(ElemIndex("s1"));
-      // Fnum.push_back(ElemIndex("s2"));
+    switch (lat) {
+    case 1:
       Fnum.push_back(ElemIndex("s3"));
       Fnum.push_back(ElemIndex("s4"));
-    } else {
-      // Fnum.push_back(ElemIndex("s1_f1"));
-      // Fnum.push_back(ElemIndex("s2_f1"));
+      break;
+    case 2:
       Fnum.push_back(ElemIndex("s3_f1"));
       Fnum.push_back(ElemIndex("s4_f1"));
+      break;
+    case 3:
+      Fnum.push_back(ElemIndex("s3_h1"));
+      Fnum.push_back(ElemIndex("s4_h1"));
+      break;
     }
     fit_xi_jb(Fnum, 0e0, 0e0, 1e0);
 
@@ -347,6 +398,9 @@ int main(int argc, char *argv[])
   prt_lat("linlat1.out", globval.bpm, true);
   prt_lat("linlat.out", globval.bpm, true, 10);
   prt_chrom_lat("chromlat.out");
+
+  if (chk_mpole_sym)
+    chk_mpole(1);
 
   if (!false) {
     if (!globval.mat_meth)
@@ -368,7 +422,7 @@ int main(int argc, char *argv[])
     prtmfile("flat_file.dat");
   }
 
-  if (!false) {
+  if (false) {
     globval.Cavity_on = false;
     track(100, -6e-3, 0e0);
   }
