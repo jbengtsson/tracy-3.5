@@ -7,13 +7,15 @@ AC_CONFIG_HEADERS(config.h)
 # Checks for programs.
 AC_PROG_AWK
 # Use GNU vs. Clang/LLVM compilers.
-AC_PROG_CC(gcc-14)
+#AC_PROG_CC(gcc-14)
+AC_PROG_CC(cc)
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_CPP
 AC_PROG_RANLIB
 # Use GNU vs. Clang/LLVM compilers.
-AC_PROG_CXX(g++-14)
+#AC_PROG_CXX(g++-14)
+AC_PROG_CXX(cc)
 AC_PROG_F77(gfortran-14)
 #AC_PROG_MAKE_SET(make)
 

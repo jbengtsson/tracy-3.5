@@ -29,9 +29,11 @@ lie_series_chk_SOURCES  = lie_series_chk.cc
 
 LOCAL = /usr/local/opt
 
+# Explicit reference to libc++ required for CC front-end vs. C++.
 LIBS =	-L$(TRACY_LIB)/tracy/lib \
 	-ltracy_ptc -lTPSALib -lLieLib \
 	-L$(NUM_REC)/lib -lnum_rec \
+	-lstdc++ \
 	-L$(LOCAL)/gsl/lib -lgsl \
 	-L$(LOCAL)/gfortran/lib/gcc/current -lgfortran
 
@@ -52,5 +54,5 @@ AM_CXXFLAGS = -ggdb -O0 -Wall -std=c++11
 
 AM_LDFLAGS = \
 	-F/System/Library/Frameworks -framework CoreServices \
-	-Wl,-weak_reference_mismatches,weak
-#	-Wl,-ld_classic
+	-Wl,-weak_reference_mismatches,weak -Wl,-ld_classic
+#	-mmacosx-version-min=12

@@ -66,8 +66,10 @@ prt_kick_map_SOURCES      = prt_kick_map.cc
 
 LOCAL = /usr/local/opt
 
+# Explicit reference to libc++ required for CC front-end vs. C++.
 LIBS =	-L$(TRACY_LIB)/tracy/lib -ltracy \
 	-L$(NUM_REC)/lib -lnum_rec \
+	-lstdc++ \
 	-L$(LOCAL)/gsl/lib -lgsl
 
 # Enduser flags.
@@ -88,4 +90,6 @@ AM_CXXFLAGS = \
 	-D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC
 #CXXFLAGS = -pg -O0 -Wall -Wno-non-template-friend
 
-AM_LDFLAGS = -F/System/Library/Frameworks -framework CoreServices
+AM_LDFLAGS = \
+	-F/System/Library/Frameworks -framework CoreServices \
+	-Wl,-weak_reference_mismatches,weak -Wl,-ld_classic
