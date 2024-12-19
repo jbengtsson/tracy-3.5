@@ -9,6 +9,25 @@
 int no_tps = NO;
 
 
+void chk_phi()
+{
+  int    k;
+  double dphi, phi, mphi;
+
+  printf("\n");
+  phi = 0e0; mphi = 0e0;
+  for (k = 0; k <= globval.Cell_nLoc; k++) {
+    if ((Cell[k].Elem.Pkind == Mpole) &&
+	(Cell[k].Elem.M->Pirho != 0e0)) {
+      dphi = Cell[k].Elem.PL*Cell[k].Elem.M->Pirho*180e0/M_PI;
+      phi += dphi;
+      if (dphi < 0e0) mphi += dphi;
+    }
+  }
+  printf("\nphi = %8.6f phi- = %8.6f phi+ = %8.6f\n", phi, mphi, phi-mphi);
+}
+
+
 void chk_sympl(void)
 {
   int long     lastpos;
@@ -79,6 +98,8 @@ int main(int argc, char *argv[])
     rdmfile(argv[1]);
 
   set_state();
+
+  chk_phi();
 
   Ring_GetTwiss(true, 0e0);
   printglob();
