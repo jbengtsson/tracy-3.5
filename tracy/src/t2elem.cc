@@ -2916,8 +2916,8 @@ ss_vect<tps> get_edge_lin_map(const double h, const double phi,
 }
 
 
-ss_vect<tps> get_sbend_lin_map(const double L, const double h, const double b2,
-			       const double delta)
+ss_vect<tps> get_sbend_lin_map
+(const double L, const double h, const double b2, const double delta)
 {
   double       K_x, K_y, psi_x, psi_y;
   ss_vect<tps> Id, M;
@@ -2925,9 +2925,9 @@ ss_vect<tps> get_sbend_lin_map(const double L, const double h, const double b2,
   Id.identity();
 
   K_x = b2 + sqr(h);
-  K_y = fabs(b2);
+  K_y = -b2;
   psi_x = sqrt(fabs(K_x)/(1e0+delta))*L;
-  psi_y = sqrt(K_y/(1e0+delta))*L;
+  psi_y = sqrt(fabs(K_y)/(1e0+delta))*L;
 
   M.identity();
   if (K_x > 0e0) {
@@ -2937,41 +2937,37 @@ ss_vect<tps> get_sbend_lin_map(const double L, const double h, const double b2,
     M[px_] =
       -sqrt(K_x*(1e0+delta))*sin(psi_x)*Id[x_] + cos(psi_x)*Id[px_]
       + sin(psi_x)*sqrt(1e0+delta)*h/sqrt(K_x)*Id[delta_];
-
-    if (psi_y != 0e0) {
-      M[y_]  = cosh(psi_y)*Id[y_] + sinh(psi_y)/sqrt(K_y*(1e0+delta))*Id[py_];
-      M[py_] = sqrt(K_y*(1e0+delta))*sinh(psi_y)*Id[y_] + cosh(psi_y)*Id[py_];
-    } else
-      M[y_]  += L/(1e0+delta)*Id[py_];
  
     M[ct_] +=
       sin(psi_x)*sqrt(1e0+delta)*h/sqrt(K_x)*Id[x_]
       + (1e0-cos(psi_x))*h/K_x*Id[px_]
       + (psi_x-sin(psi_x))*sqrt(1e0+delta)*sqr(h)/pow(K_x, 3e0/2e0)*Id[delta_];
   } else if (K_x < 0e0) {
-    K_x = fabs(K_x);
     M[x_] =
-      cosh(psi_x)*Id[x_] + sinh(psi_x)/sqrt(K_x*(1e0+delta))*Id[px_]
-      -(1e0-cosh(psi_x))*h/K_x*Id[delta_];
+      cosh(psi_x)*Id[x_] + sinh(psi_x)/sqrt(-K_x*(1e0+delta))*Id[px_]
+      -(1e0-cosh(psi_x))*h/-K_x*Id[delta_];
     M[px_] =
-      sqrt(K_x*(1e0+delta))*sinh(psi_x)*Id[x_] + cosh(psi_x)*Id[px_]
-      + sinh(psi_x)*sqrt(1e0+delta)*h/sqrt(K_x)*Id[delta_];
-
-    if (psi_y != 0e0) {
-      M[y_]  = cos(psi_y)*Id[y_] + sin(psi_y)/sqrt(K_y*(1e0+delta))*Id[py_];
-      M[py_] = -sqrt(K_y*(1e0+delta))*sin(psi_y)*Id[y_] + cos(psi_y)*Id[py_];
-   } else
-      M[y_]  += L/(1e0+delta)*Id[py_];
+      sqrt(-K_x*(1e0+delta))*sinh(psi_x)*Id[x_] + cosh(psi_x)*Id[px_]
+      + sinh(psi_x)*sqrt(1e0+delta)*h/sqrt(-K_x)*Id[delta_];
 
     M[ct_] +=
-      sinh(psi_x)*sqrt(1e0+delta)*h/sqrt(K_x)*Id[x_]
-      - (1e0-cosh(psi_x))*h/K_x*Id[px_]
-      - (psi_x-sinh(psi_x))*sqrt(1e0+delta)*sqr(h)/pow(K_x, 3e0/2e0)*Id[delta_];
-  } else {
+      sinh(psi_x)*sqrt(1e0+delta)*h/sqrt(-K_x)*Id[x_]
+      - (1e0-cosh(psi_x))*h/-K_x*Id[px_]
+      - (psi_x-sinh(psi_x))*sqrt(1e0+delta)*sqr(h)
+      /pow(-K_x, 3e0/2e0)*Id[delta_];
+  } else
     // K_x = 0.
     M[x_] += L/(1e0+delta)*Id[px_];
-    M[y_] += L/(1e0+delta)*Id[py_];
-  }
+
+  if (K_y > 0e0) {
+    M[y_]  = cos(psi_y)*Id[y_] + sin(psi_y)/sqrt(K_y*(1e0+delta))*Id[py_];
+    M[py_] = -sqrt(K_y*(1e0+delta))*sin(psi_y)*Id[y_] + cos(psi_y)*Id[py_];
+  } else if (K_y < 0e0) {
+    M[y_]  = cosh(psi_y)*Id[y_] + sinh(psi_y)/sqrt(-K_y*(1e0+delta))*Id[py_];
+    M[py_] = sqrt(-K_y*(1e0+delta))*sinh(psi_y)*Id[y_] + cosh(psi_y)*Id[py_];
+  } else
+    // K_y = 0.
+    M[y_]  += L/(1e0+delta)*Id[py_];
 
   return M;
 }
