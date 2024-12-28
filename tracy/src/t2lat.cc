@@ -389,7 +389,7 @@ static void Lat_Error(long n, FILE **fo, long *cc, long *errpos,
   if (*errpos != 0L)   /*write(fo, ' ****')*/
     return;
   if (*cc > *errpos) {
-    fprintf(*fo, "%*c^%2ld", (int)(*cc - *errpos), ' ', n);
+    fprintf(*fo, "%*c^%2ld", (int)(*cc - *errpos - 2), ' ', n);
     *errpos = *cc + 3;
   }
 }
@@ -462,7 +462,7 @@ static void Lat_errorm(const char *cmnt, FILE **fi, FILE **fo, long *cc,
 {
   /*write(fo, ' ****')*/
   if (*cc > *errpos) {
-    fprintf(*fo, "%*c^%.80s", (int)(*cc - *errpos), ' ', cmnt);
+    fprintf(*fo, "%*c^%.80s", (int)(*cc - *errpos - 2), ' ', cmnt);
     *errpos = *cc + 3;
   }
   while (!P_eof(*fi))
