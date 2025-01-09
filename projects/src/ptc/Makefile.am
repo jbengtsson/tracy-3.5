@@ -29,16 +29,15 @@ lie_series_chk_SOURCES  = lie_series_chk.cc
 
 LOCAL = /usr/local/opt
 
+# -L$(TRACY_LIB)/tracy/lib -ltracy_ptc 
 # Explicit reference to libc++ required for CC front-end vs. C++.
 LIBS =	-L$(TRACY_LIB)/tracy/lib \
-	-ltracy_ptc -lTPSALib -lLieLib \
 	-L$(NUM_REC)/lib -lnum_rec \
-	-lstdc++ \
 	-L$(LOCAL)/gsl/lib -lgsl \
 	-L$(LOCAL)/gfortran/lib/gcc/current -lgfortran
 
 # Load flags.
-# LDFLAGS = "--static"
+LDFLAGS = $(THOR_LIB)/TPSA/TPSALib.o $(THOR_LIB)/TPSA/LieLib.o
 
 # C Preprocessor flags.
 AM_CPPFLAGS = \
@@ -49,10 +48,10 @@ AM_CPPFLAGS = \
 AM_FFLAGS = -ggdb -O0 -Wall -fbounds-check
 
 # C++ flags.
-AM_CXXFLAGS = -ggdb -O0 -Wall -std=c++11
+AM_CXXFLAGS = \
+	-g -O0 -pedantic -Wall \
+	-D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC -fPIC 
+# AM_CXXFLAGS = -ggdb -O0 -Wall -std=c++11
 #AM_CXXFLAGS = -ggdb -O0 -Wall -Wno-non-template-friend -fPIC -Wl,--no-relax
 
-AM_LDFLAGS = \
-	-F/System/Library/Frameworks -framework CoreServices \
-	-Wl,-weak_reference_mismatches,weak -Wl,-ld_classic
-#	-mmacosx-version-min=12
+AM_LDFLAGS = -F/System/Library/Frameworks -framework CoreServices

@@ -1,6 +1,8 @@
 #define NO 5
 
-#include "tracy_lib.h"
+#include "../../tracy/src/tracy.cc"
+
+// #include "tracy_lib.h"
 
 int no_tps   = NO,
     ndpt_tps = 5;
@@ -249,9 +251,12 @@ void get_drv_terms(const ss_vect<tps> &Id_scl)
 
   outf.close();
 
+#if 0
+  // Needs to be debugged.
   outf.open(file_name_2.c_str(), ios::out);
   prt_tab(outf, Id_scl, map_k_Fl, MNF.K);
   outf.close();
+#endif
 }
 
 

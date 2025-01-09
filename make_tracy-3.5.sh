@@ -9,7 +9,7 @@ rm -rf tracy/lib/*
 make distclean
 
 # Configure libtool (for shared libraries).
-#libtoolize
+glibtoolize
 
 ./bootstrap
 ./configure --prefix=$dir/tracy

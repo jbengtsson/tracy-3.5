@@ -69,13 +69,12 @@ LOCAL = /usr/local/opt
 # Explicit reference to libc++ required for CC front-end vs. C++.
 LIBS =	-L$(TRACY_LIB)/tracy/lib -ltracy \
 	-L$(NUM_REC)/lib -lnum_rec \
-	-lstdc++ \
 	-L$(LOCAL)/gsl/lib -lgsl
 
 # Enduser flags.
 
 # Load flags.
-# LDFLAGS = "--static"
+# LDFLAGS =
 
 # Package manager flags.
 
@@ -87,9 +86,7 @@ AM_CPPFLAGS = \
 # C++ flags.
 AM_CXXFLAGS = \
 	-g -O0 -pedantic -Wall -std=c++11 \
-	-D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC
+	-D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC -fPIC
 #CXXFLAGS = -pg -O0 -Wall -Wno-non-template-friend
 
-AM_LDFLAGS = \
-	-F/System/Library/Frameworks -framework CoreServices \
-	-Wl,-weak_reference_mismatches,weak -Wl,-ld_classic
+AM_LDFLAGS = -F/System/Library/Frameworks -framework CoreServices

@@ -48,7 +48,7 @@ double* get_dnu_straight(const int loc)
   printf(" nu               = [%7.5f, %7.5f]\n",
 	 Cell[globval.Cell_nLoc].Nu[X_], Cell[globval.Cell_nLoc].Nu[Y_]);
   printf(" dnu              = [%7.5f, %7.5f]\n",
-	 Cell[loc].Nu[X_], Cell[loc].Nu[Y_] ),
+	 Cell[loc].Nu[X_], Cell[loc].Nu[Y_] );
   printf(" dnu_1/2_straight = [%7.5f, %7.5f]\n", dnu[X_], dnu[Y_]);
 
   return dnu;

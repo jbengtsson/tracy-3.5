@@ -1,10 +1,12 @@
 AUTOMAKE_OPTIONS = subdir-objects
 
-lib_LIBRARIES = libTPSALib.a libLieLib.a
+# lib_LIBRARIES = libTPSALib.a libLieLib.a
+# Make shared libraries - use glibtoolize to initialise.
+lib_LTLIBRARIES = libTPSALib.la libLieLib.la
 
-libTPSALib_a_SOURCES = TPSALib.f
+libTPSALib_la_SOURCES = $(THOR_LIB)/TPSA/TPSALib.f
 
-libLieLib_a_SOURCES  = LieLib.f
+libLieLib_la_SOURCES  = $(THOR_LIB)/TPSA/LieLib.f
 
 # FORTRAN 77 flags.
 # Use -O2 to avoid Clang issued on MacBook.
