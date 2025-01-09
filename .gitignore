@@ -32,7 +32,10 @@ aclocal.m4
 config/
 *.Po
 *.*~
-
+*.lo
+*.la
+*.lai
+*.dylib
 .deps
 
 # Fortran modules
