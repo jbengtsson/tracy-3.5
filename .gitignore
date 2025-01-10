@@ -11,6 +11,9 @@
 # tracy parser output
 *.lax
 
+# macOS generated files.
+.DS_Store
+
 # Compiled files.
 *.o
 *.a
