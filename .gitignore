@@ -13,6 +13,8 @@
 
 # macOS generated files.
 .DS_Store
+# Xcode generated files.
+xcuserdata/
 
 # Compiled files.
 *.o
