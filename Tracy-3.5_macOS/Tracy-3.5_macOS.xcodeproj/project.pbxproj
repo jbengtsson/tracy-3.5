@@ -8,7 +8,54 @@
 
 /* Begin PBXFileReference section */
 		045EC22D2D3171E6000C2BD3 /* libTracy-3.5_macOS.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = "libTracy-3.5_macOS.dylib"; sourceTree = BUILT_PRODUCTS_DIR; };
+		045EC2342D317306000C2BD3 /* bootstrap */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = bootstrap; sourceTree = "<group>"; };
+		045EC23B2D317306000C2BD3 /* configure.ac */ = {isa = PBXFileReference; lastKnownFileType = text; path = configure.ac; sourceTree = "<group>"; };
+		045EC2742D317306000C2BD3 /* make_tracy-3.5.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "make_tracy-3.5.sh"; sourceTree = "<group>"; };
+		045EC2752D317306000C2BD3 /* Makefile.am */ = {isa = PBXFileReference; lastKnownFileType = text; path = Makefile.am; sourceTree = "<group>"; };
+		045EC3712D317306000C2BD3 /* README.rst */ = {isa = PBXFileReference; lastKnownFileType = text; path = README.rst; sourceTree = "<group>"; };
+		045EC41D2D31732A000C2BD3 /* tracy-3.5.config */ = {isa = PBXFileReference; lastKnownFileType = text; path = "tracy-3.5.config"; sourceTree = "<group>"; };
+		045EC41E2D31732A000C2BD3 /* tracy-3.5.creator */ = {isa = PBXFileReference; lastKnownFileType = text; path = "tracy-3.5.creator"; sourceTree = "<group>"; };
+		045EC41F2D31732A000C2BD3 /* tracy-3.5.includes */ = {isa = PBXFileReference; lastKnownFileType = text; path = "tracy-3.5.includes"; sourceTree = "<group>"; };
+		045EC4202D31732A000C2BD3 /* tracy-3.5_temp.cflags */ = {isa = PBXFileReference; lastKnownFileType = text; path = "tracy-3.5_temp.cflags"; sourceTree = "<group>"; };
+		045EC4212D31732A000C2BD3 /* tracy-3.5_temp.config */ = {isa = PBXFileReference; lastKnownFileType = text; path = "tracy-3.5_temp.config"; sourceTree = "<group>"; };
+		045EC4222D31732A000C2BD3 /* tracy-3.5_temp.creator */ = {isa = PBXFileReference; lastKnownFileType = text; path = "tracy-3.5_temp.creator"; sourceTree = "<group>"; };
+		045EC4232D31732A000C2BD3 /* tracy-3.5_temp.cxxflags */ = {isa = PBXFileReference; lastKnownFileType = text; path = "tracy-3.5_temp.cxxflags"; sourceTree = "<group>"; };
+		045EC4242D31732A000C2BD3 /* tracy-3.5_temp.files */ = {isa = PBXFileReference; lastKnownFileType = text; path = "tracy-3.5_temp.files"; sourceTree = "<group>"; };
+		045EC4252D31732A000C2BD3 /* tracy-3.5_temp.includes */ = {isa = PBXFileReference; lastKnownFileType = text; path = "tracy-3.5_temp.includes"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		045EC23A2D317306000C2BD3 /* config */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = config;
+			sourceTree = "<group>";
+		};
+		045EC2732D317306000C2BD3 /* gnuplot */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = gnuplot;
+			sourceTree = "<group>";
+		};
+		045EC3702D317306000C2BD3 /* projects */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = projects;
+			sourceTree = "<group>";
+		};
+		045EC3772D317306000C2BD3 /* TPSA */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = TPSA;
+			sourceTree = "<group>";
+		};
+		045EC3C42D317306000C2BD3 /* tracy */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = tracy;
+			sourceTree = "<group>";
+		};
+		045EC41C2D317306000C2BD3 /* tracy-2_pas */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "tracy-2_pas";
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		045EC22B2D3171E6000C2BD3 /* Frameworks */ = {
@@ -24,6 +71,26 @@
 		045EC2242D3171E6000C2BD3 = {
 			isa = PBXGroup;
 			children = (
+				045EC2342D317306000C2BD3 /* bootstrap */,
+				045EC23A2D317306000C2BD3 /* config */,
+				045EC23B2D317306000C2BD3 /* configure.ac */,
+				045EC2732D317306000C2BD3 /* gnuplot */,
+				045EC2742D317306000C2BD3 /* make_tracy-3.5.sh */,
+				045EC2752D317306000C2BD3 /* Makefile.am */,
+				045EC3702D317306000C2BD3 /* projects */,
+				045EC3712D317306000C2BD3 /* README.rst */,
+				045EC3772D317306000C2BD3 /* TPSA */,
+				045EC3C42D317306000C2BD3 /* tracy */,
+				045EC41C2D317306000C2BD3 /* tracy-2_pas */,
+				045EC41D2D31732A000C2BD3 /* tracy-3.5.config */,
+				045EC41E2D31732A000C2BD3 /* tracy-3.5.creator */,
+				045EC41F2D31732A000C2BD3 /* tracy-3.5.includes */,
+				045EC4202D31732A000C2BD3 /* tracy-3.5_temp.cflags */,
+				045EC4212D31732A000C2BD3 /* tracy-3.5_temp.config */,
+				045EC4222D31732A000C2BD3 /* tracy-3.5_temp.creator */,
+				045EC4232D31732A000C2BD3 /* tracy-3.5_temp.cxxflags */,
+				045EC4242D31732A000C2BD3 /* tracy-3.5_temp.files */,
+				045EC4252D31732A000C2BD3 /* tracy-3.5_temp.includes */,
 				045EC22E2D3171E6000C2BD3 /* Products */,
 			);
 			sourceTree = "<group>";
