@@ -7,11 +7,11 @@
 	objects = {
 
 /* Begin PBXFileReference section */
-		045EC0062D3127DA000C2BD3 /* libTracy-3.5_macOS.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = "libTracy-3.5_macOS.dylib"; sourceTree = BUILT_PRODUCTS_DIR; };
+		045EC0262D316C4D000C2BD3 /* libTracy-3.5_macOS.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = "libTracy-3.5_macOS.dylib"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		045EC0042D3127DA000C2BD3 /* Frameworks */ = {
+		045EC0242D316C4D000C2BD3 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -21,17 +21,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		045EBFFD2D3127DA000C2BD3 = {
+		045EC01D2D316C4D000C2BD3 = {
 			isa = PBXGroup;
 			children = (
-				045EC0072D3127DA000C2BD3 /* Products */,
+				045EC0272D316C4D000C2BD3 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		045EC0072D3127DA000C2BD3 /* Products */ = {
+		045EC0272D316C4D000C2BD3 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				045EC0062D3127DA000C2BD3 /* libTracy-3.5_macOS.dylib */,
+				045EC0262D316C4D000C2BD3 /* libTracy-3.5_macOS.dylib */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -39,7 +39,7 @@
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
-		045EC0022D3127DA000C2BD3 /* Headers */ = {
+		045EC0222D316C4D000C2BD3 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -49,13 +49,13 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		045EC0052D3127DA000C2BD3 /* Tracy-3.5_macOS */ = {
+		045EC0252D316C4D000C2BD3 /* Tracy-3.5_macOS */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 045EC00A2D3127DA000C2BD3 /* Build configuration list for PBXNativeTarget "Tracy-3.5_macOS" */;
+			buildConfigurationList = 045EC02A2D316C4D000C2BD3 /* Build configuration list for PBXNativeTarget "Tracy-3.5_macOS" */;
 			buildPhases = (
-				045EC0022D3127DA000C2BD3 /* Headers */,
-				045EC0032D3127DA000C2BD3 /* Sources */,
-				045EC0042D3127DA000C2BD3 /* Frameworks */,
+				045EC0222D316C4D000C2BD3 /* Headers */,
+				045EC0232D316C4D000C2BD3 /* Sources */,
+				045EC0242D316C4D000C2BD3 /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -65,44 +65,44 @@
 			packageProductDependencies = (
 			);
 			productName = "Tracy-3.5_macOS";
-			productReference = 045EC0062D3127DA000C2BD3 /* libTracy-3.5_macOS.dylib */;
+			productReference = 045EC0262D316C4D000C2BD3 /* libTracy-3.5_macOS.dylib */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		045EBFFE2D3127DA000C2BD3 /* Project object */ = {
+		045EC01E2D316C4D000C2BD3 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastUpgradeCheck = 1620;
 				TargetAttributes = {
-					045EC0052D3127DA000C2BD3 = {
+					045EC0252D316C4D000C2BD3 = {
 						CreatedOnToolsVersion = 16.2;
 					};
 				};
 			};
-			buildConfigurationList = 045EC0012D3127DA000C2BD3 /* Build configuration list for PBXProject "Tracy-3.5_macOS" */;
+			buildConfigurationList = 045EC0212D316C4D000C2BD3 /* Build configuration list for PBXProject "Tracy-3.5_macOS" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 				Base,
 			);
-			mainGroup = 045EBFFD2D3127DA000C2BD3;
+			mainGroup = 045EC01D2D316C4D000C2BD3;
 			minimizedProjectReferenceProxies = 1;
 			preferredProjectObjectVersion = 77;
-			productRefGroup = 045EC0072D3127DA000C2BD3 /* Products */;
+			productRefGroup = 045EC0272D316C4D000C2BD3 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				045EC0052D3127DA000C2BD3 /* Tracy-3.5_macOS */,
+				045EC0252D316C4D000C2BD3 /* Tracy-3.5_macOS */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
-		045EC0032D3127DA000C2BD3 /* Sources */ = {
+		045EC0232D316C4D000C2BD3 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -112,7 +112,7 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		045EC0082D3127DA000C2BD3 /* Debug */ = {
+		045EC0282D316C4D000C2BD3 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -173,7 +173,7 @@
 			};
 			name = Debug;
 		};
-		045EC0092D3127DA000C2BD3 /* Release */ = {
+		045EC0292D316C4D000C2BD3 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -227,7 +227,7 @@
 			};
 			name = Release;
 		};
-		045EC00B2D3127DA000C2BD3 /* Debug */ = {
+		045EC02B2D316C4D000C2BD3 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
@@ -240,7 +240,7 @@
 			};
 			name = Debug;
 		};
-		045EC00C2D3127DA000C2BD3 /* Release */ = {
+		045EC02C2D316C4D000C2BD3 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
@@ -256,25 +256,25 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		045EC0012D3127DA000C2BD3 /* Build configuration list for PBXProject "Tracy-3.5_macOS" */ = {
+		045EC0212D316C4D000C2BD3 /* Build configuration list for PBXProject "Tracy-3.5_macOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				045EC0082D3127DA000C2BD3 /* Debug */,
-				045EC0092D3127DA000C2BD3 /* Release */,
+				045EC0282D316C4D000C2BD3 /* Debug */,
+				045EC0292D316C4D000C2BD3 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		045EC00A2D3127DA000C2BD3 /* Build configuration list for PBXNativeTarget "Tracy-3.5_macOS" */ = {
+		045EC02A2D316C4D000C2BD3 /* Build configuration list for PBXNativeTarget "Tracy-3.5_macOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				045EC00B2D3127DA000C2BD3 /* Debug */,
-				045EC00C2D3127DA000C2BD3 /* Release */,
+				045EC02B2D316C4D000C2BD3 /* Debug */,
+				045EC02C2D316C4D000C2BD3 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = 045EBFFE2D3127DA000C2BD3 /* Project object */;
+	rootObject = 045EC01E2D316C4D000C2BD3 /* Project object */;
 }
