@@ -172,11 +172,98 @@
 !-----------------------------------------------------------------------------1
 !
 
+      module shared_data
+
+!     PARAMETERS:
+!
+!     LDA: MAXIMUM NUMBER OF DA-VECTORS;    CAN BE CHANGED QUITE ARBITRARILY
+!     LST: LENGTH OF MAIN STORAGE STACK;    CAN BE CHANGED QUITE ARBITRARILY
+!     LEA: MAXIMUM NUMBER OF MONOMIALS;     CAN BE INCREASED FOR LARGE NO, NV
+!     ( (no+nv) over no )
+!     LIA: DIMENSION OF IA1, IA2;           CAN BE INCREASED FOR LARGE NO, NV
+!     ( (no+1)^nv/2 )
+!     LNO: MAXIMUM ORDER;                   CAN BE INCREASED TO ABOUT 1000
+!     LNV: MAXIMUM NUMBER OF VARIABLES;     CAN BE INCREASED TO ABOUT 1000
+!
+!-----------------------------------------------------------------------------1
+
+      implicit none
+
+      integer lda, lea, lia, lno, lnv
+!     Fortran-77 restriction: integer*4 for array index.
+!     integer*4: 2^(4*8-1) - 1 = 2147483647.
+      integer lst
+
+!     Max lst for Fortran array integer*4 index.
+!      parameter (lda=100000, lst=1700000000, lea=500000, lia=80000,      &
+!     &           lno=11, lnv=7)
+
+!     For Laptop, NO = 5.
+!      parameter (lda=60000,  lst=88000000,  lea=500000, lia=80000,         &
+!     For Laptop, NO = 7.
+      parameter (lda=100000, lst=300000000, lea=500000, lia=80000,          &
+!      parameter (lda=100000, lst=390000000, lea=500000, lia=80000,          &
+!      parameter (lda=100000, lst=400000000, lea=500000, lia=80000,         &
+!     For Laptop, NO = 9.
+!      parameter (lda=100000, lst=700000000, lea=500000, lia=80000,         &
+!     For Workstation.
+!      parameter (lda=100000, lst=900000000, lea=500000, lia=80000,         &
+!     For Cluster, NO = 11. Increase virtual memory for SGE by:
+!       qsub -l mem_free=50G,h_vmem=50G -q...
+!      parameter (lda=100000, lst=2000000000, lea=500000, lia=80000,        &
+     &           lno=10, lnv=7)
+
+
+      integer         nda, ndamaxi
+      common /fordes/ nda, ndamaxi
+
+      double precision eps, epsmac
+      common /da/ eps, epsmac
+
+      integer      nst, nomax, nvmax, nmmax, nocut, lfi
+      common /dai/ nst, nomax, nvmax, nmmax, nocut, lfi
+
+      double precision, dimension(:), allocatable ::                       &
+     &     cc, facint
+      integer, dimension(:), allocatable ::                                &
+     &     idanv, idapo, idalm, idall,                                     &
+     &     ie1, ie2, ieo, i1, i2, ia1, ia2, ifi, idano
+
+      contains
+
+      subroutine alloc_shared_data()
+      allocate(cc(lst))
+
+      allocate(i1(lst))
+      allocate(i2(lst))
+      allocate(ie1(lea))
+      allocate(ie2(lea))
+      allocate(ieo(lea))
+      allocate(ia1(0:lia))
+      allocate(ia2(0:lia))
+      allocate(ifi(lea))
+      allocate(idano(lda))
+      allocate(idanv(lda))
+      allocate(idapo(lda))
+      allocate(idalm(lda))
+      allocate(idall(lda))
+
+      allocate(facint(0:lno))
+      end subroutine alloc_shared_data
+
+!-----------------------------------------------------------------------------9
+
+      end module shared_data
+
+
       module tpsa
       contains
 
       subroutine daini(no,nv,iunit) bind(C, name="daini_")
       use iso_c_binding, only: c_char, c_long, c_double
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer(c_long) no, nv, iunit
 
@@ -191,8 +278,6 @@
 !     FOUND AFTER THE ROUTINE.
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
-!-----------------------------------------------------------------------------9
 !      COMMON / DASCR /  IS(20), RS(20)                                        1
       integer idao,is,iscrri
       double precision rs
@@ -208,7 +293,10 @@
       character aa*10
       dimension n(lnv+1),k(0:lnv),j(lnv),jj(lnv)
 !
-      write(*, *) "daini:", no, nv
+      write(*, 200) 'daini:    no = ', no, ', nv = ', nv
+ 200  format(2(a, i0))
+      write(*, *) 'Initialising shared data.'
+      call alloc_shared_data()
       if(eps.le.0.d0) eps=1.d-38
 !      if(EPS.le.0.d0) eps=1.d-90
       epsmac=1.d-7
@@ -416,14 +504,15 @@
 
       subroutine daexter() bind(C, name="daexter_")
       use iso_c_binding, only: c_char, c_long, c_double
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
 
       integer i
 !     *****************************
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
-!-----------------------------------------------------------------------------9
       logical allvec(lda)
       integer nhole
       common /hole/nhole
@@ -438,13 +527,14 @@
       end subroutine
 
       subroutine dallsta(ldanow)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer i,ldanow
 !     *****************************
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
-!-----------------------------------------------------------------------------9
       logical allvec(lda)
       integer nhole
       common /hole/nhole
@@ -521,6 +611,9 @@
 
       subroutine daallno1(ic,ccc) bind(C, name="daallno1_")
       use iso_c_binding, only: c_char, c_long, c_double
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer(c_long)   ic
       character(c_char) ccc(*)
@@ -533,7 +626,6 @@
 !     ORDER NOmax AND NUMBER OF VARIABLES NVmax
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
 
       logical allvec(lda)
       integer nhole,j
@@ -640,6 +732,9 @@
 
       subroutine daallno(ic,l,ccc) bind(C, name="daallno_")
       use iso_c_binding, only: c_char, c_long, c_double
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer(c_long)   ic(*), l
       character(c_char) ccc(*)
@@ -652,7 +747,6 @@
 !     ORDER NOmax AND NUMBER OF VARIABLES NVmax
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
 
       logical allvec(lda)
       integer nhole
@@ -761,6 +855,9 @@
 
       subroutine daall1(ic,ccc,no,nv) bind(C, name="daall1_")
       use iso_c_binding, only: c_char, c_long, c_double
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer(c_long)   ic, no, nv
       character(c_char) ccc(*)
@@ -773,7 +870,6 @@
 !     ORDER NO AND NUMBER OF VARIABLES NV
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
 
       logical allvec(lda)
       integer nhole
@@ -883,6 +979,9 @@
 !
       subroutine daall(ic,l,ccc,no,nv) bind(C, name="daall_")
       use iso_c_binding, only: c_char, c_long, c_double
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer(c_long)   ic(*), l, no, nv
       character(c_char) ccc(*)
@@ -895,7 +994,6 @@
 !     ORDER NO AND NUMBER OF VARIABLES NV
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
 
       logical allvec(lda)
       integer nhole
@@ -1007,6 +1105,9 @@
 !
       subroutine dadal1(idal) bind(C, name="dadal1_")
       use iso_c_binding, only: c_char, c_long, c_double
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer(c_long) idal
 
@@ -1015,7 +1116,6 @@
 !     THIS SUBROUTINE DEALLOCATES THE VECTORS IDAL
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
 
       character daname(lda)*10
       common / daname / daname
@@ -1057,6 +1157,9 @@
 
       subroutine dadal(idal,l) bind(C, name="dadal_")
       use iso_c_binding, only: c_char, c_long, c_double
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer(c_long) idal(*), l
 
@@ -1066,7 +1169,6 @@
 !     THIS SUBROUTINE DEALLOCATES THE VECTORS IDAL
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
 
       character daname(lda)*10
       common / daname / daname
@@ -1110,6 +1212,9 @@
 
       subroutine davar(ina,ckon,i) bind(C, name="davar_")
       use iso_c_binding, only: c_char, c_long, c_double
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer(c_long) ina, i
       real(c_double) ckon
@@ -1121,8 +1226,6 @@
 !     THIS SUBROUTINE DECLARES THE DA VECTOR
 !     AS THE INDEPENDENT VARIABLE NUMBER I.
 !
-!-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
 !
       call dainf(ina,inoa,inva,ipoa,ilma,illa)
 !
@@ -1174,6 +1277,9 @@
 !
       subroutine dacon(ina,ckon) bind(C, name="dacon_")
       use iso_c_binding, only: c_char, c_long, c_double
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer(c_long) ina
       real(c_double) ckon
@@ -1184,8 +1290,6 @@
 !
 !     THIS SUBROUTINE SETS THE VECTOR C TO THE CONSTANT CKON
 !
-!-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
 !
       call dainf(ina,inoa,inva,ipoa,ilma,illa)
 !
@@ -1207,6 +1311,9 @@
 !
       subroutine danot(not) bind(C, name="danot_")
       use iso_c_binding, only: c_char, c_long, c_double
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer(c_long) not
 
@@ -1214,8 +1321,6 @@
 !
 !     THIS SUBROUTINE RESETS THE TRUNCATION ORDER NOCUT TO A NEW VALUE
 !
-!-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
 !
       if(not.gt.nomax) then
         write(6,*)'ERROR, NOCUT = ',not,' EXCEEDS NOMAX = ',nomax
@@ -1229,23 +1334,26 @@
 
       function getno() bind(C, name="getno_")
       use iso_c_binding, only: c_char, c_long, c_double
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer(c_long) getno
 
-      include "TPSALib_prm.f"
       getno = nocut
       return
       end function
 
       subroutine getdanot(not)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer not
 !     *********************
 !
 !     THIS SUBROUTINE RESETS THE TRUNCATION ORDER NOCUT TO A NEW VALUE
 !
-!-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
 !
       if(not.gt.nomax) then
         write(6,*)'ERROR, NOCUT = ',not,' EXCEEDS NOMAX = ',nomax
@@ -1259,6 +1367,9 @@
 
       subroutine daeps(deps) bind(C, name="daeps_")
       use iso_c_binding, only: c_char, c_long, c_double
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       real(c_double) deps
 
@@ -1267,7 +1378,6 @@
 !     THIS SUBROUTINE RESETS THE TRUNCATION ORDER NOCUT TO A NEW VALUE
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
 !
       if(deps.ge.0.d0) then
         eps = deps
@@ -1280,8 +1390,10 @@
 !
       subroutine dapek(ina,jj,cjj) bind(C, name="dapek_")
       use iso_c_binding, only: c_char, c_long, c_double
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
-      include "TPSALib_prm.f"
       integer(c_long) ina, jj(lnv)
       real(c_double) cjj
 
@@ -1395,8 +1507,10 @@
 !
       subroutine dapok(ina,jj,cjj) bind(C, name="dapok_")
       use iso_c_binding, only: c_char, c_long, c_double
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
-      include "TPSALib_prm.f"
       integer(c_long) ina, jj(lnv)
       real(c_double) cjj
 
@@ -1548,6 +1662,9 @@
 !
       subroutine daclr(inc) bind(C, name="daclr_")
       use iso_c_binding, only: c_char, c_long, c_double
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer(c_long) inc
 
@@ -1559,7 +1676,6 @@
 !     C TO ZERO
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
 !
       call dainf(inc,inoc,invc,ipoc,ilmc,illc)
 !
@@ -1574,6 +1690,9 @@
 !
       subroutine dacop(ina,inb) bind(C, name="dacop_")
       use iso_c_binding, only: c_char, c_long, c_double
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer(c_long) ina,inb
 
@@ -1584,7 +1703,6 @@
 !     THIS SUBROUTINE COPIES THE DA VECTOR A TO THE DA VECTOR B
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
 !
 !      call dainf(ina,inoa,inva,ipoa,ilma,illa)
 !      call dainf(inb,inob,invb,ipob,ilmb,illb)
@@ -1623,6 +1741,9 @@
 
 !
       subroutine datrashn(idif,ina,inbb)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer i,ia,idif,illa,ilma,ina,inb,inbb,inoa,inva
       integer(8) ipoa
@@ -1632,7 +1753,6 @@
 !     THIS SUBROUTINE COPIES THE DA VECTOR A TO THE DA VECTOR B
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
 
       integer jd(lnv)
 !
@@ -1678,6 +1798,9 @@
 !
       subroutine daadd(ina,inb,inc) bind(C, name="daadd_")
       use iso_c_binding, only: c_char, c_long, c_double
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer(c_long) ina, inb, inc
 
@@ -1686,7 +1809,6 @@
       integer idaadd,illc,ilmc,inoc,invc
       integer(8) ipoc, ipoa, ipob
 
-      include "TPSALib_prm.f"
 
 !     *****************************
 !
@@ -1719,6 +1841,9 @@
 !
       subroutine dasub(ina,inb,inc) bind(C, name="dasub_")
       use iso_c_binding, only: c_char, c_long, c_double
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer(c_long) ina, inb, inc
 
@@ -1728,7 +1853,6 @@
       integer idaadd,illc,ilmc,inoc,invc
       integer(8) ipoc
 
-      include "TPSALib_prm.f"
 
       integer ipob
 !     THIS SUBROUTINE PERFORMS A DA SUBTRACTION OF THE DA VECTORS A AND B.
@@ -1759,6 +1883,9 @@
       end subroutine
 !
       subroutine damulin(ina,inb,coe1,inc,ind,coe2,ine)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer ina,inb,inc,incc,ind,ine,inoc,invc
       double precision coe1,coe2
@@ -1769,7 +1896,6 @@
 !     OF THE (NOMAX+2) SCRATCH VARIABLES ALLOCATED BY DAINI IS USED.
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
 !
 !
 
@@ -1786,17 +1912,18 @@
 !
 ! ANFANG UNTERPROGRAMM
       subroutine daexx(ina,inb,inc)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer illc,ilmc,ina,inaa,inb,inbb,inc,inoc,invc
       integer(8) ipoc
 
-      include "TPSALib_prm.f"
 
 !     ******************************
 !
 !     THIS SUBROUTINE EXPONENTIATES INE WITH THE CONSTANT CKON
 !
-!-----------------------------------------------------------------------------1
       write(6,*) "daexx"
       if(ina.ne.inc.and.inb.ne.inc) then
         call daexxt(ina,inb,inc)
@@ -1818,6 +1945,9 @@
 
 ! ANFANG UNTERPROGRAMM
       subroutine daexxt(ina,inb,inc)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer idaexx,illa,illb,illc,ilma,ilmb,ilmc,ina,inb,inc,inoa,    &
      &inob,inoc,inva,invb,invc
@@ -1826,9 +1956,6 @@
 !
 !     THIS SUBROUTINE EXPONENTIATES INA WITH INB
 !
-!-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
-!-----------------------------------------------------------------------------9
 !      call dainf(ina,inoa,inva,ipoa,ilma,illa)
 !      call dainf(inb,inob,invb,ipob,ilmb,illb)
 !      call dainf(inc,inoc,invc,ipoc,ilmc,illc)
@@ -1845,18 +1972,19 @@
 
 ! ANFANG UNTERPROGRAMM
       subroutine dacex(ina,ckon,inb)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer illc,ilmc,ina,inb,inc,incc,inoc,invc
       integer(8) ipoc
       double precision ckon
 
-      include "TPSALib_prm.f"
 
 !     ******************************
 !
 !     THIS SUBROUTINE EXPONENTIATES INE WITH THE CONSTANT CKON
 !
-!-----------------------------------------------------------------------------1
       write(6,*) "dacex"
       if(ina.eq.inb) then
 !        call dainf(inc,inoc,invc,ipoc,ilmc,illc)
@@ -1872,6 +2000,9 @@
       return
       end subroutine
       subroutine dacext(ina,ckon,inb)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer idacex,illa,illb,ilma,ilmb,ina,inb,inoa,inob,inva,invb
       integer(8) ipoa,ipob
@@ -1880,9 +2011,6 @@
 !
 !     THIS SUBROUTINE EXPONENTIATES THE CONSTANT CKON WITH INA
 !
-!-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
-!-----------------------------------------------------------------------------9
 !      call dainf(ina,inoa,inva,ipoa,ilma,illa)
 !      call dainf(inb,inob,invb,ipob,ilmb,illb)
 !
@@ -1902,18 +2030,19 @@
       end subroutine
 
       subroutine daexc(ina,ckon,inb)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer illc,ilmc,ina,inb,inc,incc,inoc,invc
       integer(8) ipoc
       double precision ckon
 
-      include "TPSALib_prm.f"
 
 !     ******************************
 !
 !     THIS SUBROUTINE EXPONENTIATES INE WITH THE CONSTANT CKON
 !
-!-----------------------------------------------------------------------------1
 !        write(6,*) "daexc"
 
       if(ina.eq.inb) then
@@ -1931,19 +2060,20 @@
       end subroutine
 
       subroutine daexct(ina,ckon,inb)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer i,ic,idaexc,illa,illb,ilma,ilmb,ina,inb,inoa,inob,inva,   &
      &invb
       integer(8) ipoa, ipob
       double precision ckon,xic
 
-      include "TPSALib_prm.f"
 
 !     ******************************
 !
 !     THIS SUBROUTINE EXPONENTIATES INE WITH THE CONSTANT CKON
 !
-!-----------------------------------------------------------------------------1
 !      call dainf(ina,inoa,inva,ipoa,ilma,illa)
 !      call dainf(inb,inob,invb,ipob,ilmb,illb)
 !
@@ -1976,6 +2106,9 @@
 
       subroutine damul(ina,inb,inc) bind(C, name="damul_")
       use iso_c_binding, only: c_char, c_long, c_double
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer(c_long) ina, inb, inc
 
@@ -1989,7 +2122,6 @@
 !
 !-----------------------------------------------------------------------------1
 
-      include "TPSALib_prm.f"
 
       double precision ccipoa,ccipob
       integer i
@@ -2025,6 +2157,9 @@
       end subroutine
 
       subroutine damult(ina,inb,inc)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer i,i1ia,i2ia,illa,illb,illc,ilma,ilmb,ilmc,ina,            &
      &inb,inc,inoa,inoc,inva,invb,invc,ioffb,ipno,                      &
@@ -2038,7 +2173,6 @@
 !     OF THE (NOMAX+2) SCRATCH VARIABLES ALLOCATED BY DAINI IS USED.
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
 !
       dimension ipno(0:lno),noff(0:lno)
 !
@@ -2129,6 +2263,9 @@
 !
       subroutine dadiv(ina,inb,inc) bind(C, name="dadiv_")
       use iso_c_binding, only: c_char, c_long, c_double
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer(c_long) ina, inb, inc
 
@@ -2140,7 +2277,6 @@
 !     THIS SUBROUTINE SQUARES THE VECTOR A AND STORES THE RESULT IN C.
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
       double precision ck,ck1
       integer i
 !
@@ -2175,6 +2311,9 @@
 !
       subroutine dasqr(ina,inc) bind(C, name="dasqr_")
       use iso_c_binding, only: c_char, c_long, c_double
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer(c_long) ina, inc
 
@@ -2185,7 +2324,6 @@
 !     THIS SUBROUTINE SQUARES THE VECTOR A AND STORES THE RESULT IN C.
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
       integer i
       double precision ccipoa
 !
@@ -2218,6 +2356,9 @@
       end subroutine
 
       subroutine dasqrt(ina,inc)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer i,i1ia,i2ia,ib1,illa,illc,ilma,ilmc,ina,inc,              &
      &inoc,inva,invc,ioffa,ioffb,ipno,ipos,                             &
@@ -2229,7 +2370,6 @@
 !     THIS SUBROUTINE SQUARES THE VECTOR A AND STORES THE RESULT IN C.
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
 !
       dimension ipno(0:lno),noff(0:lno)
 !
@@ -2327,6 +2467,9 @@
 !
       subroutine dacad(ina,ckon,inb) bind(C, name="dacad_")
       use iso_c_binding, only: c_char, c_long, c_double
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer(c_long) ina, inb
       real(c_double) ckon
@@ -2338,7 +2481,6 @@
 !     THIS SUBROUTINE ADDS THE CONSTANT CKON TO THE VECTOR A
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
       integer jj(lnv)
       data jj / lnv*0 /
 !
@@ -2357,6 +2499,9 @@
       end subroutine
 !
       subroutine dacsu(ina,ckon,inb)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer illa,illb,ilma,ilmb,ina,inb,inoa,inob,inva,invb,ipoa,ipob
       double precision ckon,const
@@ -2365,7 +2510,6 @@
 !     THIS SUBROUTINE SUBTRACTS THE CONSTANT CKON FROM THE VECTOR A
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
       integer jj(lnv)
       data jj / lnv*0 /
 !
@@ -2384,6 +2528,9 @@
       end subroutine
 !
       subroutine dasuc(ina,ckon,inb)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer illa,illb,ilma,ilmb,ina,inb,inoa,inob,inva,invb
       integer(8) ipoa, ipob
@@ -2393,7 +2540,6 @@
 !     THIS SUBROUTINE SUBTRACTS THE VECTOR INA FROM THE CONSTANT CKON
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
       integer i
 !
 !      call dainf(ina,inoa,inva,ipoa,ilma,illa)
@@ -2417,6 +2563,9 @@
 !
       subroutine dacmu(ina,ckon,inc) bind(C, name="dacmu_")
       use iso_c_binding, only: c_char, c_long, c_double
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer(c_long) ina, inc
       real(c_double) ckon
@@ -2430,7 +2579,6 @@
 !     THE DA VECTOR DENOTED WITH THE INTEGER E.
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
       integer i
 !
       if(nomax.eq.1) then
@@ -2458,6 +2606,9 @@
       end subroutine
 
       subroutine dacmut(ina,ckon,inb)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer i,illa,illb,ilma,ilmb,ina,inb,inoa,inob,inva,invb,        &
      &minv
@@ -2470,7 +2621,6 @@
 !     THE DA VECTOR DENOTED WITH THE INTEGER E.
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
 !
 !
 !
@@ -2515,6 +2665,9 @@
       end subroutine
 !
       subroutine dacdi(ina,ckon,inb)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer illa,illb,ilma,ilmb,ina,inb,inoa,inob,inva,invb
       integer(8) ipoa,ipob
@@ -2524,7 +2677,6 @@
 !     THIS SUBROUTINE DIVIDES THE VECTOR INA BY THE CONSTANT CKON
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
       integer i
 !
 !      if(ckon.eq.0.d0) then
@@ -2553,6 +2705,9 @@
 !
 !
       subroutine dadic(ina,ckon,inc)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer idadic,illa,illc,ilma,ilmc,ina,inc,inoa,inoc,inva,invc
       integer(8) ipoa, ipoc
@@ -2562,7 +2717,6 @@
 !     THIS SUBROUTINE DIVIDES THE CONSTANT CKON BY THE VECTOR INA
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
       double precision ck
       integer i
 !
@@ -2602,6 +2756,9 @@
       end subroutine
 !
       subroutine dacma(ina,inb,bfac,inc)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer idacma,illc,ilmc,ina,inb,inc,inoc,invc
       integer(8) ipoc, ipob, ipoa
@@ -2613,7 +2770,6 @@
 !     CAN LATER BE REPLACED BY SOMETHING LIKE DAADD WITH MINOR CHANGES.
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
       integer  i
 !
       if(nomax.eq.1) then
@@ -2640,6 +2796,9 @@
 !
       subroutine dalin(ina,afac,inb,bfac,inc) bind(C, name="dalin_")
       use iso_c_binding, only: c_char, c_long, c_double
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer(c_long) ina, inb, inc
       real(c_double) afac, bfac
@@ -2652,7 +2811,6 @@
 !     C = AFAC*A + BFAC*B. IT IS ALSO USED TO ADD AND SUBTRACT.
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
       integer  i
 !
       if(nomax.eq.1) then
@@ -2684,6 +2842,9 @@
 
 
       subroutine dalint(ina,afac,inb,bfac,inc)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer i,iamax,ibmax,icmax,illa,illb,illc,ilma,ilmb,             &
      &ilmc,ina,inb,inc,inoa,inob,inoc,inva,invb,invc,                   &
@@ -2696,7 +2857,6 @@
 !     C = AFAC*A + BFAC*B. IT IS ALSO USED TO ADD AND SUBTRACT.
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
 !
 !
 !      CALL DACHK(INA,INOA,INVA, INB,INOB,INVB, INC,INOC,INVC)
@@ -2849,6 +3009,9 @@
 !
       subroutine dafun(cf1,ina,inc) bind(C, name="dafun_")
       use iso_c_binding, only: c_char, c_long, c_double
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer(c_long)   ina, inc
       character(c_char) cf1(4)
@@ -2863,7 +3026,6 @@
 !     THIS HAS TO BE FIXED IN THE FUTURE.
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
 !
       character cf*4
 
@@ -2885,6 +3047,9 @@
       end subroutine
 
       subroutine dafunt(cf,ina,inc)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer i,illa,illc,ilma,ilmc,ina,inc,ind,inoa,inoc,inon,inva,    &
      &invc,ipow,iscr,jj,lfun,no
@@ -2900,7 +3065,6 @@
 !     THIS HAS TO BE FIXED IN THE FUTURE.
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
 !
       character cf*4,cfh*4,abcs*26,abcc*26
       dimension xf(0:lno),jj(lnv)
@@ -3394,6 +3558,9 @@
 
       subroutine daabs(ina,anorm) bind(C, name="daabs_")
       use iso_c_binding, only: c_char, c_long, c_double
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer(c_long) ina
       real(c_double) anorm
@@ -3405,7 +3572,6 @@
 !     THIS SUBROUTINE COMPUTES THE NORM OF THE DA VECTOR A
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
 !
       call dainf(ina,inoa,inva,ipoa,ilma,illa)
 !
@@ -3419,6 +3585,9 @@
 !
       subroutine daabs2(ina,anorm) bind(C, name="daabs2_")
       use iso_c_binding, only: c_char, c_long, c_double
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer(c_long) ina
       real(c_double) anorm
@@ -3430,7 +3599,6 @@
 !     THIS SUBROUTINE COMPUTES THE NORM OF THE DA VECTOR A
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
 !
       call dainf(ina,inoa,inva,ipoa,ilma,illa)
 !
@@ -3444,6 +3612,9 @@
 !
 
       subroutine dacom(ina,inb,dnorm)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer idacom,illc,ilmc,ina,inb,inc,inoc,invc,ipoc
       double precision dnorm
@@ -3464,6 +3635,9 @@
 !
 
       subroutine dapos(ina,inb)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer illa,illb,ilma,ilmb,ina,inb,inoa,inob,inva,invb
       integer(8)  ia, ib, ipoa, ipob
@@ -3472,7 +3646,6 @@
 !     THIS SUBROUTINE MAKES THE SIGNS OF ALL THE COEFFICIENTS OF A POSITIVE
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
 
       call dainf(ina,inoa,inva,ipoa,ilma,illa)
       call dainf(inb,inob,invb,ipob,ilmb,illb)
@@ -3504,6 +3677,9 @@
 !
       subroutine dacct(ma,ia,mb,ib,mc,ic) bind(C, name="dacct_")
       use iso_c_binding, only: c_char, c_long, c_double
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer(c_long) ma(*), mb(*), mc(*), ia, ib, ic
 
@@ -3516,7 +3692,6 @@
 !     DA VECTORS, RESPECTIVELY.
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
 !
       integer mon(lnv)
 
@@ -3539,6 +3714,9 @@
       end subroutine
 
       subroutine dacctt(mb,ib,mc,ic,ma,ia)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer i,ia,ib,ic,iia,iib,iic,illa,illb,illc,ilma,ilmb,ilmc,inoa,&
      &inob,inoc,inva,invb,invc,iv,jl,jv
@@ -3551,7 +3729,6 @@
 !     DA VECTORS, RESPECTIVELY.
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
 !
 !      INTEGER MON(LNO+1),ICC(LNV),MB(*),MC(*),MA(*)
 !ETIENNE
@@ -3628,6 +3805,9 @@
 
       subroutine mtree(mb,ib,mc,ic) bind(C, name="mtree_")
       use iso_c_binding, only: c_char, c_long, c_double
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer(c_long) mb(*), ib, mc(*), ic
 
@@ -3643,7 +3823,6 @@
 !     CONTAINS COEFFICIENTS AND CONTROL INTEGERS USED FOR THE TRAVERSAL.
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
 !
       integer jj(lnv),jv(0:lno)
 !
@@ -3833,9 +4012,11 @@
       end subroutine
 
       subroutine ppushprint(mc,ic,mf,jc,line)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer i,ic,iv,jc,jl,jv,mc,mf
-      include "TPSALib_prm.f"
       dimension mc(*)
       character*20 line
       if(mf.le.0) return
@@ -3864,6 +4045,9 @@
 
       subroutine ppush(mc,ic,xi,xf) bind(C, name="ppush_")
       use iso_c_binding, only: c_char, c_long, c_double
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer(c_long) mc, ic
       real(c_double) xi, xf
@@ -3876,7 +4060,6 @@
 !     TO THE COORDINATES IN XI AND STORES THE RESULT IN XF
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
 !
       dimension mc(*),xf(*),xi(*),xm(lno+1) ,xt(lno)
 !
@@ -3905,6 +4088,9 @@
       end subroutine
 
       subroutine ppush1(mc,xi,xf)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer i,iv,jl,jv,mc
       double precision xf,xi,xm,xt,xx
@@ -3914,7 +4100,6 @@
 !     TO THE COORDINATES IN XI AND STORES THE RESULT IN XF
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
 !
       dimension xi(*),xm(lno+1) ,xt(lno)
 !
@@ -3941,6 +4126,9 @@
 
       subroutine dainv(ma,ia,mb,ib) bind(C, name="dainv_")
       use iso_c_binding, only: c_char, c_long, c_double
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer(c_long) ma(*), ia, mb(*), ib
 
@@ -3953,7 +4141,6 @@
 !     STORES THE RESULT IN MI
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
 !
       integer jj(lnv),ml(lnv)
 !
@@ -3993,6 +4180,9 @@
       end subroutine
 
       subroutine dainvt(ma,ia,mb,ib)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer i,ia,ib,ie,ier,illa,illb,ilma,ilmb,inoa,inob,inva,invb,   &
      &j,k,nocut0
@@ -4004,7 +4194,6 @@
 !     STORES THE RESULT IN MI
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
 !
       integer jj(lnv),ms(lnv),ml(lnv),ma(*),mb(*)
 !
@@ -4144,6 +4333,9 @@
 !
       subroutine matinv(a,ai,n,nmx,ier) bind(C, name="matinv_")
       use iso_c_binding, only: c_char, c_long, c_double
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer(c_long) nmax
       parameter (nmax=400)
@@ -4181,6 +4373,9 @@
       end subroutine
 !
       subroutine ludcmp(a,n,np,indx,d,ier)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer i,ier,imax,indx,j,k,n,nmax,np
       double precision a,aamax,d,dum,sum,tiny,vv
@@ -4259,6 +4454,9 @@
       end subroutine
 !
       subroutine lubksb(a,n,np,indx,b,nmx)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer i,ii,indx,j,ll,n,nmx,np
       double precision a,b,sum
@@ -4305,6 +4503,9 @@
 
       subroutine dapin(ma,ia,mb,ib,jx) bind(C, name="dapin_")
       use iso_c_binding, only: c_char, c_long, c_double
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer(c_long) ma(*), ia, mb(*), ib, jx(*)
 
@@ -4317,7 +4518,6 @@
 !     STORES THE RESULT IN MI
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
 !
       integer jj(lnv),ml(lnv)
 !
@@ -4357,6 +4557,9 @@
       end subroutine
 
       subroutine dapint(ma,ia,mb,ib,jind)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer i,ia,ib,illa,ilma,inoa,inva,k
       integer(8) ipoa
@@ -4366,7 +4569,6 @@
 !     NONZERO ENTRIES IN JJ OF THE MATRIX A. THE RESULT IS STORED IN B.
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
 !
       integer jj(lnv),jind(*),ma(*),mb(*),mn(lnv),mi(lnv),me(lnv)
 !
@@ -4413,6 +4615,9 @@
 !
       subroutine dader(idif,ina,inc) bind(C, name="dader_")
       use iso_c_binding, only: c_char, c_long, c_double
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer(c_long) idif, ina, inc
 
@@ -4424,7 +4629,6 @@
 !     OF THE VECTOR A AND STORES THE RESULT IN C.
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
 !
 
       if(ina.eq.inc) then
@@ -4442,6 +4646,9 @@
       end subroutine
 
       subroutine dadert(idif,ina,inc)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer ibase,ic,ider1,ider1s,ider2,ider2s,idif,iee,ifac,illa,    &
      &illc,ilma,ilmc,ina,inc,inoa,inoc,inva,invc,jj
@@ -4453,7 +4660,6 @@
 !     OF THE VECTOR A AND STORES THE RESULT IN C.
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
       integer jd(lnv)
 !
       call dainf(ina,inoa,inva,ipoa,ilma,illa)
@@ -4532,6 +4738,9 @@
       end subroutine
 !
       subroutine dapoi(ina,inb,inc,n)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer i,ina,inb,inc,n
 !     *******************************
@@ -4540,7 +4749,6 @@
 !     B AND STORES THE RESULT IN C. N IS THE DEGREE OF FREEDOM OF THE SYSTEM.
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
 !
       integer is(4)
 !
@@ -4575,6 +4783,9 @@
       end subroutine
 !
       subroutine dacfuR(ina,fun,inc)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer illc,ilmc,ina,inc,incc,inoc,invc
       integer(8) ipoc
@@ -4587,7 +4798,6 @@
 !     RESULT IN C
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
 !
 !
 
@@ -4606,6 +4816,9 @@
       end subroutine
 
       subroutine dacfuRt(ina,fun,inc)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer i,illa,illc,ilma,ilmc,ina,inc,inoa,inoc,inva,invc,        &
      &j
@@ -4620,7 +4833,6 @@
 !     RESULT IN C
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
 !
       dimension j(lnv)
 !
@@ -4680,6 +4892,9 @@
 !
       subroutine dacfu(ina,fun,inc) bind(C, name="dacfu_")
       use iso_c_binding, only: c_char, c_long, c_double, c_funptr
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer(c_long) ina, inc
 
@@ -4700,7 +4915,6 @@
 !     RESULT IN C
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
 !
 !
 
@@ -4722,6 +4936,9 @@
 
 
       subroutine dacfuI(ina,fun,inc)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer illc,ilmc,ina,inc,incc,inoc,invc
       integer(8) ipoc
@@ -4734,7 +4951,6 @@
 !     RESULT IN C
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
 !
 !
 
@@ -4753,6 +4969,9 @@
       end subroutine
 
       subroutine dacfuIt(ina,fun,inc)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer i,illa,illc,ilma,ilmc,ina,inc,inoa,inoc,inva,invc,        &
      &j
@@ -4767,7 +4986,6 @@
 !     RESULT IN C
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
 !
       dimension j(lnv)
 !
@@ -4827,6 +5045,9 @@
 !
 
       subroutine dacfut(ina,fun,inc)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer i,ia,ic,illa,illc,ilma,ilmc,ina,inc,inoa,inoc,inva,invc,  &
      &j
@@ -4840,7 +5061,6 @@
 !     RESULT IN C
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
 !
       dimension j(lnv)
 !
@@ -4901,6 +5121,9 @@
 
       subroutine daimp(r, ic1, ic2, ina) bind(C, name="daimp_")
       use iso_c_binding, only: c_char, c_long, c_double
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer(c_long) ic1, ic2, ina
       real(c_double) r
@@ -4912,9 +5135,6 @@
 *     THIS SUBROUTINE "IMPORTS" THE ARRAY H WITH LENGTH LH AND PUTS ITS
 *     ENTRIES INTO THE DA VECTOR A
 *
-!-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
-!-----------------------------------------------------------------------------9
 
       DIMENSION r(nmmax+1), ic1(nmmax), ic2(nmmax)
 
@@ -4936,6 +5156,9 @@
 
       subroutine daexp(ina, r, ic1, ic2, name) bind(C, name="daexp_")
       use iso_c_binding, only: c_char, c_long, c_double
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer(c_long)   ina, ic1, ic2
       real(c_double)    r
@@ -4950,8 +5173,6 @@
 *
       integer j
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
-!-----------------------------------------------------------------------------9
       dimension j(lnv)
       character daname(lda)*10
       common / daname / daname
@@ -4989,6 +5210,9 @@
 
       subroutine dapri(ina,iunit) bind(C, name="dapri_")
       use iso_c_binding, only: c_char, c_long, c_double
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer(c_long) ina, iunit
 
@@ -4999,8 +5223,6 @@
 !     THIS SUBROUTINE PRINTS THE DA VECTOR INA TO UNIT IUNIT.
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
-!-----------------------------------------------------------------------------9
       dimension j(lnv)
       character daname(lda)*10
       common / daname / daname
@@ -5083,6 +5305,9 @@
       end subroutine
 
       subroutine dapriold(ina,iunit)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
 !     ***************************
 !       Frank
@@ -5093,8 +5318,6 @@
       integer iii,illa,ilma,ina,inoa,inva,ioa,iout,iunit,j,k
       integer(8) i, ii, ipoa
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
-!-----------------------------------------------------------------------------9
       dimension j(lnv)
       character daname(lda)*10
       common / daname / daname
@@ -5170,6 +5393,9 @@
       end subroutine
 
       subroutine dapri77(ina,iunit)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer i,ii,illa,ilma,ina,inoa,inva,ioa,iout,ipoa,iunit,j
       character c10*10,k10*10
@@ -5178,7 +5404,6 @@
 !     THIS SUBROUTINE PRINTS THE DA VECTOR INA TO UNIT IUNIT.
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
       dimension j(lnv)
       character daname(lda)*10
       common / daname / daname
@@ -5275,11 +5500,13 @@
       end subroutine
 
       subroutine dashift(ina,inc,ishift)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer i,ii,illa,ilma,ina,inoa,inva,ioa,iout,ipoa,iunit,j
       double precision c
 !       Frank
-      include "TPSALib_prm.f"
 !-----------------------------------------------------------------------------9
       dimension j(lnv)
       character daname(lda)*10
@@ -5395,6 +5622,9 @@
 
       subroutine darea(ina,iunit) bind(C, name="darea_")
       use iso_c_binding, only: c_char, c_long, c_double
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer(c_long) ina, iunit
 
@@ -5403,7 +5633,6 @@
       integer(8) ic, ipoa
       double precision c
 !       Frank
-      include "TPSALib_prm.f"
 !-----------------------------------------------------------------------------9
       character daname(lda)*10
       common / daname / daname
@@ -5501,6 +5730,9 @@
 !
       subroutine darea77(ina,iunit) bind(C, name="darea77_")
       use iso_c_binding, only: c_char, c_long, c_double
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer(c_long) ina, iunit
 
@@ -5512,7 +5744,6 @@
 !     THIS SUBROUTINE READS THE DA VECTOR INA FROM UNIT IUNIT.
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
       character daname(lda)*10
       common / daname / daname
 !-----------------------------------------------------------------------------3
@@ -5581,6 +5812,9 @@
       end subroutine
 
       subroutine dadeb(iunit,c,istop)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer istop,iunit
 !     *******************************
@@ -5589,7 +5823,6 @@
 !     NONZERO INFORMATION IN THE COMMON BLOCKS AND ALL DA  VECTORS.
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
       character daname(lda)*10
       common / daname / daname
 !-----------------------------------------------------------------------------3
@@ -5607,6 +5840,9 @@
 !
 !
       subroutine danum(no,nv,numda)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer i,mm,no,numda,nv
 !     *****************************
@@ -5625,6 +5861,9 @@
       end subroutine
 !
       subroutine dainf(inc,inoc,invc,ipoc,ilmc,illc)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer illc,ilmc,inc,inoc,invc
       integer(8) ipoc
@@ -5634,7 +5873,6 @@
 !     AND RETURS THE INFORMATION IN COMMON DA
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
 !
       if(inc.ge.1.and.inc.le.nda) then
         inoc = idano(inc)
@@ -5652,6 +5890,9 @@
       end subroutine
 !
       subroutine dapac(inc)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer illc,ilmc,inc,inoc,invc
       integer(8) i, ic, ipoc
@@ -5663,7 +5904,6 @@
 !     INVERSE IS DAUNP.
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
 !
 !      call dainf(inc,inoc,invc,ipoc,ilmc,illc)
       ipoc = idapo(inc)
@@ -5692,6 +5932,9 @@
 !
 !
       subroutine dachk(ina,inoa,inva, inb,inob,invb, inc,inoc,invc)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer ierr,ina,inb,inc,inoa,inob,inoc,inva,invb,invc,invsum,lsw
 !     *************************************************************
@@ -5747,6 +5990,9 @@
       end subroutine
 !
       subroutine damch(iaa,ia)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer i,ia,iaa,illa,ilma,ino1,inoi,inv1,invi
       integer(8) ipoa
@@ -5772,6 +6018,9 @@
       end subroutine
 !
       subroutine dadcd(jj,ic1,ic2)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer i,ibase,ic1,ic2,isplit
 !     ****************************
@@ -5779,7 +6028,6 @@
 !     THIS SUBROUTINE CODES THE EXPONENTS IN JJ INTO THEIR DA CODES I1,I2.
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
 !
       integer jj(lnv)
       ibase = nomax + 1
@@ -5799,6 +6047,9 @@
       end subroutine
 !
       subroutine dancd(ic1,ic2,jj)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer i,ibase,ic,ic1,ic2,isplit
       double precision x
@@ -5807,7 +6058,6 @@
 !     THIS SUBROUTINE ENCODES THE EXPONENTS IN JJ FROM THEIR DA CODES I1,I2.
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
 !
       integer jj(*)
       ibase = nomax + 1
@@ -5837,6 +6087,9 @@
 !ETIENNE
       subroutine datra(idif,ina,inc) bind(C, name="datra_")
       use iso_c_binding, only: c_char, c_long, c_double
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer(c_long) idif, ina, inc
 
@@ -5851,7 +6104,6 @@
 !
 !     dx^n/dx= x^(n-1)
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
 !
       call dainf(ina,inoa,inva,ipoa,ilma,illa)
       call dainf(inc,inoc,invc,ipoc,ilmc,illc)
@@ -5925,6 +6177,9 @@
       end subroutine
 
       subroutine etred(no1,nv1,ic1,ic2,no2,nv2,i11,i21)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer i,i11,i21,ic,ic1,ic2,no1,no2,nv1,nv2
 !     ****************************
@@ -5932,7 +6187,6 @@
 !     THIS SUBROUTINE CODES THE EXPONENTS IN JJ INTO THEIR DA CODES I1,I2.
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
 !
       integer jj(lnv)
 
@@ -5969,6 +6223,9 @@
 
       subroutine hash(no1,nv1,jj,ic1,ic2) bind(C, name="hash_")
       use iso_c_binding, only: c_char, c_long, c_double
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer(c_long) no1, nv1, jj(*), ic1, ic2
 
@@ -5978,7 +6235,6 @@
 !     THIS SUBROUTINE CODES THE EXPONENTS IN JJ INTO THEIR DA CODES I1,I2.
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
 
       ibase = no1 + 1
       isplit = (nv1+1)/2
@@ -5998,6 +6254,9 @@
 !
       subroutine dehash(no1,nv1,ic1,ic2,jj) bind(C, name="dehash_")
       use iso_c_binding, only: c_char, c_long, c_double
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer(c_long) no1, nv1, ic1, ic2, jj(*)
 
@@ -6008,7 +6267,6 @@
 !     THIS SUBROUTINE ENCODES THE EXPONENTS IN JJ FROM THEIR DA CODES I1,I2.
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
 !
 
       epsmac=1.e-7
@@ -6033,6 +6291,9 @@
       end subroutine
 
       subroutine daswap(j1,j2,inb)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer ic1,ic2,illb,ilmb,inb,inob,invb,j1,j2,jj,k1,k2
       integer(8) ia, ic, ipob
@@ -6041,7 +6302,6 @@
 !     SWAP A DA VECTOR
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
 !
       dimension jj(lnv)
 
@@ -6073,6 +6333,9 @@
       end subroutine
 
       subroutine dagauss(ina,inb,nd2,anorm)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer i,illa,illb,ilma,ilmb,ina,inb,inoa,inob,inva,invb,        &
      &ja,jb,nd2
@@ -6083,7 +6346,6 @@
 !     THIS SUBROUTINE COMPUTES THE NORM OF THE DA VECTOR A
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
 !
       dimension ja(lnv),jb(lnv)
 
@@ -6109,6 +6371,9 @@
       end subroutine
 
       subroutine daran(ina,cm,xran)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer illa,ilma,ina,inoa,inva
       integer(8) i, ipoa
@@ -6121,7 +6386,6 @@
 !     ABS(CM) IS THE FILLING FACTOR
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
 !
 !
       call dainf(ina,inoa,inva,ipoa,ilma,illa)
@@ -6168,6 +6432,9 @@
 !
       real(c_double) function bran(xran) bind(C, name="bran_")
       use iso_c_binding, only: c_char, c_long, c_double
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       real(c_double) xran
 
@@ -6186,6 +6453,9 @@
       end function
 
       subroutine danorm2(ina,inc)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer illc,ilmc,ina,inc,incc,inoc,invc
       integer(8) ipoc
@@ -6196,7 +6466,6 @@
 !     THE DA VECTOR DENOTED WITH THE INTEGER E.
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
 !
 
       if(ina.eq.inc) then
@@ -6214,6 +6483,9 @@
       end subroutine
 
       subroutine danorm2t(ina,inb)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer illa,illb,ilma,ilmb,ina,inb,inoa,inob,inva,invb
       integer(8) ia, ib, ipoa, ipob
@@ -6224,7 +6496,6 @@
 !     THE DA VECTOR DENOTED WITH THE INTEGER E.
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
 !
       call dainf(ina,inoa,inva,ipoa,ilma,illa)
       call dainf(inb,inob,invb,ipob,ilmb,illb)
@@ -6256,6 +6527,9 @@
       end subroutine
 
       subroutine danormr(ina,inc)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer illc,ilmc,ina,inc,incc,inoc,invc
       integer(8) ipoc
@@ -6266,7 +6540,6 @@
 !     THE DA VECTOR DENOTED WITH THE INTEGER E.
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
 !
 
       if(ina.eq.inc) then
@@ -6284,6 +6557,9 @@
       end subroutine
 
       subroutine danormrt(ina,inb)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer illa,illb,ilma,ilmb,ina,inb,inoa,inob,inva,invb
       integer(8) ia, ib, ipoa, ipob
@@ -6294,7 +6570,6 @@
 !     THE DA VECTOR DENOTED WITH THE INTEGER E.
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
 !
       call dainf(ina,inoa,inva,ipoa,ilma,illa)
       call dainf(inb,inob,invb,ipob,ilmb,illb)
@@ -6325,6 +6600,9 @@
       return
       end subroutine
       subroutine dakey(c)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       character c*(*)
 !
@@ -6334,6 +6612,9 @@
       end subroutine
 ! ANFANG UNTERPROGRAMM
       subroutine dapri6(ina,result,ien,i56)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer i,i56,ien,ihp,illa,ilma,ina,inoa,inva,ioa,iout,           &
      &j
@@ -6346,7 +6627,6 @@
 !     I56 SAYS WHETHER THE 5TH OR THE 6TH COORDINATE IS THE ENERGY
 !     AND MUST HAVE THE VALUE 5 OR 6 ACCORDINGLY
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
       character daname(lda)*10
       common / daname / daname
 !-----------------------------------------------------------------------------3
@@ -6416,6 +6696,9 @@
 ! ANFANG UNTERPROGRAMM
 
       subroutine darea6(ina,zfeld,i56)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer i,i56,ii1,ii2,iin,illa,ilma,ina,inoa,inva,io,io1,ip,      &
      &iwarin,iwarno,iwarnv,j
@@ -6428,7 +6711,6 @@
 !     AND MUST HAVE THE VALUE 5 OR 6 ACCORDINGLY
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
       character daname(lda)*10
       common / daname / daname
       dimension zfeld(100)
@@ -6496,6 +6778,9 @@
       end subroutine
 ! ANFANG FUNKTION
       double precision function dare(ina)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer ii,illa,ilma,ina,inoa,inva,ioa,j,jj
       integer(8) ipoa
@@ -6506,7 +6791,6 @@
 !     30.10 1997 E.Mcintosh & F.Schmidt
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
       dimension j(lnv)
 !-----------------------------------------------------------------------------9
 !
@@ -6546,6 +6830,9 @@
 ! ANFANG UNTERPROGRAMM
 
       subroutine daprimax(ina,iunit)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer iii,illa,ilma,ina,inoa,inva,ioa,iout,iunit,j
       integer(8) i, ii, ipoa
@@ -6554,8 +6841,6 @@
 !     THIS SUBROUTINE PRINTS THE DA VECTOR INA TO UNIT IUNIT.
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
-!-----------------------------------------------------------------------------9
       character daname(lda)*10
       common / daname / daname
 !-----------------------------------------------------------------------------3
@@ -6622,6 +6907,9 @@
 
 !  unknown stuff
       subroutine damono(ina,jd,cfac,istart,inc)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer illa,illc,ilma,ilmc,ina,inc,inoa,inoc,inva,invc,          &
      &istart,jd
@@ -6634,7 +6922,6 @@
 !     RESULT IN C
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
 !
       dimension jd(*)
 !
@@ -6678,6 +6965,9 @@
 !
 
       subroutine dacycle(ina,ipresent,value,j,illa)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer i,illa,ilma,ina,inoa,inva,iout,ipoa,ipresent,j
       integer(8) ii
@@ -6687,7 +6977,6 @@
 !     THIS SUBROUTINE PRINTS THE DA VECTOR INA TO UNIT IUNIT.
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
       dimension j(lnv)
       character daname(lda)*10
       common / daname / daname
@@ -6725,6 +7014,9 @@
 
       end subroutine
       subroutine daorder(ina,iunit,jx,invo,nchop)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer i,ii,ii1,ii2,iin,illa,ilma,ina,inoa,inva,invo,io,io1,     &
      &ipoa,iunit,iwarin,iwarno,iwarnv,j,jh,jt,jx,nchop
@@ -6735,7 +7027,6 @@
 !     THIS SUBROUTINE READS THE DA VECTOR INA FROM UNIT IUNIT.
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
       character daname(lda)*10
       common / daname / daname
 !-----------------------------------------------------------------------------3
@@ -6810,6 +7101,9 @@
 !
 !ETIENNE
       subroutine datrash(idif,ina,inc)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
       integer ibase,ider1,ider1s,ider2,ider2s,idif,ikil1,ikil2,         &
      &illa,illc,ilma,ilmc,ina,inc,inoa,inoc,inva,invc,jj
@@ -6821,7 +7115,6 @@
 !     OF THE VECTOR A AND STORES THE RESULT IN C.
 !
 !-----------------------------------------------------------------------------1
-      include "TPSALib_prm.f"
 !
       integer jx(lnv)
 
@@ -6896,6 +7189,9 @@
       end subroutine
 
       integer function mypause(i)
+!-----------------------------------------------------------------------------1
+      use shared_data
+!-----------------------------------------------------------------------------1
       implicit none
 ! Replaces obsolescent feature pause
       integer i

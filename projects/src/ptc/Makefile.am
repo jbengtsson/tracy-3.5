@@ -29,15 +29,15 @@ lie_series_chk_SOURCES  = lie_series_chk.cc
 
 LOCAL = /usr/local/opt
 
-# -L$(TRACY_LIB)/tracy/lib -ltracy_ptc 
 # Explicit reference to libc++ required for CC front-end vs. C++.
-LIBS =	-L$(TRACY_LIB)/tracy/lib \
+LIBS =	-L$(TRACY_LIB)/tracy/lib -ltracy_ptc \
+	$(TRACY_LIB)/TPSA/TPSALib.o $(TRACY_LIB)/TPSA/LieLib.o \
 	-L$(NUM_REC)/lib -lnum_rec \
 	-L$(LOCAL)/gsl/lib -lgsl \
 	-L$(LOCAL)/gfortran/lib/gcc/current -lgfortran
 
 # Load flags.
-LDFLAGS = $(THOR_LIB)/TPSA/TPSALib.o $(THOR_LIB)/TPSA/LieLib.o
+# LDFLAGS = $(THOR_LIB)/TPSA/TPSALib.o $(THOR_LIB)/TPSA/LieLib.o
 
 # C Preprocessor flags.
 AM_CPPFLAGS = \

@@ -1,8 +1,6 @@
 #define NO 5
 
-#include "../../tracy/src/tracy.cc"
-
-// #include "tracy_lib.h"
+#include "tracy_lib.h"
 
 int no_tps   = NO,
     ndpt_tps = 5;
