@@ -7,13 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0406151A2D31F314008612E2 /* libtracy_lib.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 045EC22D2D3171E6000C2BD3 /* libtracy_lib.dylib */; };
-		0406151B2D31F370008612E2 /* libnum_rec.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 040615152D31F11E008612E2 /* libnum_rec.a */; };
-		0406151C2D31F3B0008612E2 /* libnum_rec.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 040615152D31F11E008612E2 /* libnum_rec.a */; };
-		040615212D31F7F5008612E2 /* libnum_rec.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 040615152D31F11E008612E2 /* libnum_rec.a */; };
-		0406152E2D31FBA2008612E2 /* libtracy_ptc_lib.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 040614FC2D31DB04008612E2 /* libtracy_ptc_lib.dylib */; };
-		04061CC52D321761008612E2 /* LieLib.o in Frameworks */ = {isa = PBXBuildFile; fileRef = 04061CBF2D32168B008612E2 /* LieLib.o */; };
-		04061CC62D321761008612E2 /* TPSALib.o in Frameworks */ = {isa = PBXBuildFile; fileRef = 04061CC02D32168B008612E2 /* TPSALib.o */; };
+		04C76F6C2D32AEF90053DBD5 /* tracy_ptc_lib.o in Frameworks */ = {isa = PBXBuildFile; fileRef = 04C76F6B2D32AEF90053DBD5 /* tracy_ptc_lib.o */; };
+		04C76F6D2D32AF190053DBD5 /* LieLib.o in Frameworks */ = {isa = PBXBuildFile; fileRef = 04C76F4B2D32A87F0053DBD5 /* LieLib.o */; };
+		04C76F6E2D32AF190053DBD5 /* TPSALib.o in Frameworks */ = {isa = PBXBuildFile; fileRef = 04C76F4C2D32A87F0053DBD5 /* TPSALib.o */; };
+		04C76F6F2D32AF450053DBD5 /* LieLib.o in Frameworks */ = {isa = PBXBuildFile; fileRef = 04C76F4B2D32A87F0053DBD5 /* LieLib.o */; };
+		04C76F702D32AF450053DBD5 /* TPSALib.o in Frameworks */ = {isa = PBXBuildFile; fileRef = 04C76F4C2D32A87F0053DBD5 /* TPSALib.o */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -40,10 +38,7 @@
 /* Begin PBXFileReference section */
 		040614FC2D31DB04008612E2 /* libtracy_ptc_lib.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libtracy_ptc_lib.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		040615032D31DBB7008612E2 /* max_4u */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = max_4u; sourceTree = BUILT_PRODUCTS_DIR; };
-		040615152D31F11E008612E2 /* libnum_rec.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libnum_rec.a; path = ../../../num_rec/lib/libnum_rec.a; sourceTree = "<group>"; };
 		040615262D31F7F5008612E2 /* drv_terms */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = drv_terms; sourceTree = BUILT_PRODUCTS_DIR; };
-		04061CBF2D32168B008612E2 /* LieLib.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; name = LieLib.o; path = "../tracy-3.5_dev/TPSA/LieLib.o"; sourceTree = "<group>"; };
-		04061CC02D32168B008612E2 /* TPSALib.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; name = TPSALib.o; path = "../tracy-3.5_dev/TPSA/TPSALib.o"; sourceTree = "<group>"; };
 		045EC22D2D3171E6000C2BD3 /* libtracy_lib.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libtracy_lib.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		045EC2342D317306000C2BD3 /* bootstrap */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = bootstrap; sourceTree = "<group>"; };
 		045EC23B2D317306000C2BD3 /* configure.ac */ = {isa = PBXFileReference; lastKnownFileType = text; path = configure.ac; sourceTree = "<group>"; };
@@ -59,7 +54,44 @@
 		045EC4232D31732A000C2BD3 /* tracy-3.5_temp.cxxflags */ = {isa = PBXFileReference; lastKnownFileType = text; path = "tracy-3.5_temp.cxxflags"; sourceTree = "<group>"; };
 		045EC4242D31732A000C2BD3 /* tracy-3.5_temp.files */ = {isa = PBXFileReference; lastKnownFileType = text; path = "tracy-3.5_temp.files"; sourceTree = "<group>"; };
 		045EC4252D31732A000C2BD3 /* tracy-3.5_temp.includes */ = {isa = PBXFileReference; lastKnownFileType = text; path = "tracy-3.5_temp.includes"; sourceTree = "<group>"; };
+		04C76F4B2D32A87F0053DBD5 /* LieLib.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; name = LieLib.o; path = "../tracy-3.5_dev/TPSA/LieLib.o"; sourceTree = "<group>"; };
+		04C76F4C2D32A87F0053DBD5 /* TPSALib.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; name = TPSALib.o; path = "../tracy-3.5_dev/TPSA/TPSALib.o"; sourceTree = "<group>"; };
+		04C76F632D32AD8C0053DBD5 /* libLieLib.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libLieLib.a; path = "../tracy-3.5_dev/TPSA/libLieLib.a"; sourceTree = "<group>"; };
+		04C76F642D32AD8C0053DBD5 /* libTPSALib.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libTPSALib.a; path = "../tracy-3.5_dev/TPSA/libTPSALib.a"; sourceTree = "<group>"; };
+		04C76F692D32AE8C0053DBD5 /* libtracy_ptc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libtracy_ptc.a; path = "../tracy-3.5_dev/tracy/lib/libtracy_ptc.a"; sourceTree = "<group>"; };
+		04C76F6B2D32AEF90053DBD5 /* tracy_ptc_lib.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; name = tracy_ptc_lib.o; path = "../tracy-3.5_dev/tracy/src/tracy_ptc_lib.o"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		04C76F3E2D329EDC0053DBD5 /* Exceptions for "tracy" folder in "tracy_lib" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				src/tracy_lib.cc,
+			);
+			target = 045EC22C2D3171E6000C2BD3 /* tracy_lib */;
+		};
+		04C76F402D329EF90053DBD5 /* Exceptions for "tracy" folder in "tracy_ptc_lib" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				src/tracy_ptc_lib.cc,
+			);
+			target = 040614F52D31DB04008612E2 /* tracy_ptc_lib */;
+		};
+		04C76F442D329F770053DBD5 /* Exceptions for "projects" folder in "max_4u" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				src/max_4u.cc,
+			);
+			target = 040615022D31DBB7008612E2 /* max_4u */;
+		};
+		04C76F482D32A57E0053DBD5 /* Exceptions for "projects" folder in "drv_terms" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				src/ptc/drv_terms.cc,
+			);
+			target = 0406151D2D31F7F5008612E2 /* drv_terms */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		045EC23A2D317306000C2BD3 /* config */ = {
@@ -74,6 +106,10 @@
 		};
 		045EC3702D317306000C2BD3 /* projects */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				04C76F442D329F770053DBD5 /* Exceptions for "projects" folder in "max_4u" target */,
+				04C76F482D32A57E0053DBD5 /* Exceptions for "projects" folder in "drv_terms" target */,
+			);
 			path = projects;
 			sourceTree = "<group>";
 		};
@@ -84,6 +120,10 @@
 		};
 		045EC3C42D317306000C2BD3 /* tracy */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				04C76F3E2D329EDC0053DBD5 /* Exceptions for "tracy" folder in "tracy_lib" target */,
+				04C76F402D329EF90053DBD5 /* Exceptions for "tracy" folder in "tracy_ptc_lib" target */,
+			);
 			path = tracy;
 			sourceTree = "<group>";
 		};
@@ -99,8 +139,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				04061CC52D321761008612E2 /* LieLib.o in Frameworks */,
-				04061CC62D321761008612E2 /* TPSALib.o in Frameworks */,
+				04C76F6D2D32AF190053DBD5 /* LieLib.o in Frameworks */,
+				04C76F6E2D32AF190053DBD5 /* TPSALib.o in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -108,8 +148,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0406151A2D31F314008612E2 /* libtracy_lib.dylib in Frameworks */,
-				0406151C2D31F3B0008612E2 /* libnum_rec.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -117,8 +155,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0406152E2D31FBA2008612E2 /* libtracy_ptc_lib.dylib in Frameworks */,
-				040615212D31F7F5008612E2 /* libnum_rec.a in Frameworks */,
+				04C76F6F2D32AF450053DBD5 /* LieLib.o in Frameworks */,
+				04C76F702D32AF450053DBD5 /* TPSALib.o in Frameworks */,
+				04C76F6C2D32AEF90053DBD5 /* tracy_ptc_lib.o in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -126,7 +165,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0406151B2D31F370008612E2 /* libnum_rec.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -136,9 +174,12 @@
 		0406150A2D31E3FD008612E2 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				04061CBF2D32168B008612E2 /* LieLib.o */,
-				04061CC02D32168B008612E2 /* TPSALib.o */,
-				040615152D31F11E008612E2 /* libnum_rec.a */,
+				04C76F6B2D32AEF90053DBD5 /* tracy_ptc_lib.o */,
+				04C76F692D32AE8C0053DBD5 /* libtracy_ptc.a */,
+				04C76F632D32AD8C0053DBD5 /* libLieLib.a */,
+				04C76F642D32AD8C0053DBD5 /* libTPSALib.a */,
+				04C76F4B2D32A87F0053DBD5 /* LieLib.o */,
+				04C76F4C2D32A87F0053DBD5 /* TPSALib.o */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -362,6 +403,7 @@
 					"$(NUM_REC)/inc",
 				);
 				"LIBRARY_SEARCH_PATHS[arch=*]" = (
+					"/Users/johan/git/tracy-3.5_dev/tracy/lib",
 					/Users/johan/num_rec/lib,
 					/usr/local/opt/gsl/lib,
 					/usr/local/opt/gsl/lib,
@@ -391,12 +433,18 @@
 					"$(NUM_REC)/inc",
 				);
 				"LIBRARY_SEARCH_PATHS[arch=*]" = (
+					"/Users/johan/git/tracy-3.5_dev/tracy/lib",
 					/Users/johan/num_rec/lib,
 					/usr/local/opt/gsl/lib,
 					/usr/local/opt/gsl/lib,
 					/usr/local/opt/gfortran/lib/gcc/current,
 				);
 				MACH_O_TYPE = mh_dylib;
+				"OTHER_LDFLAGS[arch=*]" = (
+					"-lnum_rec",
+					"-lgsl",
+					"-lgfortran",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 			};
@@ -412,7 +460,16 @@
 					/usr/local/opt/gsl/include,
 					"$(NUM_REC)/inc",
 				);
-				"LIBRARY_SEARCH_PATHS[arch=*]" = /Users/johan/num_rec/lib;
+				"LIBRARY_SEARCH_PATHS[arch=*]" = (
+					"/Users/johan/git/tracy-3.5_dev/tracy/lib",
+					/Users/johan/num_rec/lib,
+					/usr/local/opt/gsl/lib,
+				);
+				"OTHER_LDFLAGS[arch=*]" = (
+					"-ltracy",
+					"-lnum_rec",
+					"-lgsl",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -427,7 +484,16 @@
 					/usr/local/opt/gsl/include,
 					"$(NUM_REC)/inc",
 				);
-				"LIBRARY_SEARCH_PATHS[arch=*]" = /Users/johan/num_rec/lib;
+				"LIBRARY_SEARCH_PATHS[arch=*]" = (
+					"/Users/johan/git/tracy-3.5_dev/tracy/lib",
+					/Users/johan/num_rec/lib,
+					/usr/local/opt/gsl/lib,
+				);
+				"OTHER_LDFLAGS[arch=*]" = (
+					"-ltracy",
+					"-lnum_rec",
+					"-lgsl",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
@@ -442,7 +508,18 @@
 					/usr/local/opt/gsl/include,
 					"$(NUM_REC)/inc",
 				);
-				"LIBRARY_SEARCH_PATHS[arch=*]" = /Users/johan/num_rec/lib;
+				"LIBRARY_SEARCH_PATHS[arch=*]" = (
+					/Users/johan/num_rec/lib,
+					/usr/local/opt/gsl/lib,
+					/usr/local/opt/gsl/lib,
+					/usr/local/opt/gfortran/lib/gcc/current,
+					/usr/local/opt/gfortran/lib/gcc/current,
+				);
+				"OTHER_LDFLAGS[arch=*]" = (
+					"-lnum_rec",
+					"-lgsl",
+					"-lgfortran",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -457,7 +534,18 @@
 					/usr/local/opt/gsl/include,
 					"$(NUM_REC)/inc",
 				);
-				"LIBRARY_SEARCH_PATHS[arch=*]" = /Users/johan/num_rec/lib;
+				"LIBRARY_SEARCH_PATHS[arch=*]" = (
+					/Users/johan/num_rec/lib,
+					/usr/local/opt/gsl/lib,
+					/usr/local/opt/gsl/lib,
+					/usr/local/opt/gfortran/lib/gcc/current,
+					/usr/local/opt/gfortran/lib/gcc/current,
+				);
+				"OTHER_LDFLAGS[arch=*]" = (
+					"-lnum_rec",
+					"-lgsl",
+					"-lgfortran",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
@@ -623,7 +711,10 @@
 					/usr/local/opt/gsl/lib,
 				);
 				MACH_O_TYPE = mh_dylib;
-				"OTHER_LDFLAGS[arch=*]" = "";
+				"OTHER_LDFLAGS[arch=*]" = (
+					"-lnum_rec",
+					"-lgsl",
+				);
 				"OTHER_LIBTOOLFLAGS[arch=*]" = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
