@@ -56,9 +56,6 @@
 		045EC4252D31732A000C2BD3 /* tracy-3.5_temp.includes */ = {isa = PBXFileReference; lastKnownFileType = text; path = "tracy-3.5_temp.includes"; sourceTree = "<group>"; };
 		04C76F4B2D32A87F0053DBD5 /* LieLib.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; name = LieLib.o; path = "../tracy-3.5_dev/TPSA/LieLib.o"; sourceTree = "<group>"; };
 		04C76F4C2D32A87F0053DBD5 /* TPSALib.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; name = TPSALib.o; path = "../tracy-3.5_dev/TPSA/TPSALib.o"; sourceTree = "<group>"; };
-		04C76F632D32AD8C0053DBD5 /* libLieLib.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libLieLib.a; path = "../tracy-3.5_dev/TPSA/libLieLib.a"; sourceTree = "<group>"; };
-		04C76F642D32AD8C0053DBD5 /* libTPSALib.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libTPSALib.a; path = "../tracy-3.5_dev/TPSA/libTPSALib.a"; sourceTree = "<group>"; };
-		04C76F692D32AE8C0053DBD5 /* libtracy_ptc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libtracy_ptc.a; path = "../tracy-3.5_dev/tracy/lib/libtracy_ptc.a"; sourceTree = "<group>"; };
 		04C76F6B2D32AEF90053DBD5 /* tracy_ptc_lib.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; name = tracy_ptc_lib.o; path = "../tracy-3.5_dev/tracy/src/tracy_ptc_lib.o"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -175,9 +172,6 @@
 			isa = PBXGroup;
 			children = (
 				04C76F6B2D32AEF90053DBD5 /* tracy_ptc_lib.o */,
-				04C76F692D32AE8C0053DBD5 /* libtracy_ptc.a */,
-				04C76F632D32AD8C0053DBD5 /* libLieLib.a */,
-				04C76F642D32AD8C0053DBD5 /* libTPSALib.a */,
 				04C76F4B2D32A87F0053DBD5 /* LieLib.o */,
 				04C76F4C2D32A87F0053DBD5 /* TPSALib.o */,
 			);
