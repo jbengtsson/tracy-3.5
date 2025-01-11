@@ -61,37 +61,6 @@
 		045EC4252D31732A000C2BD3 /* tracy-3.5_temp.includes */ = {isa = PBXFileReference; lastKnownFileType = text; path = "tracy-3.5_temp.includes"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		040614F42D31D952008612E2 /* Exceptions for "tracy" folder in "tracy_lib" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				src/tracy_lib.cc,
-			);
-			target = 045EC22C2D3171E6000C2BD3 /* tracy_lib */;
-		};
-		040614FE2D31DB37008612E2 /* Exceptions for "tracy" folder in "tracy_ptc_lib" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				src/tracy_ptc_lib.cc,
-			);
-			target = 040614F52D31DB04008612E2 /* tracy_ptc_lib */;
-		};
-		040615132D31F0B6008612E2 /* Exceptions for "projects" folder in "max_4u" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				src/max_4u.cc,
-			);
-			target = 040615022D31DBB7008612E2 /* max_4u */;
-		};
-		040615292D31F9FA008612E2 /* Exceptions for "projects" folder in "drv_terms" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				src/ptc/drv_terms.cc,
-			);
-			target = 0406151D2D31F7F5008612E2 /* drv_terms */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		045EC23A2D317306000C2BD3 /* config */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
@@ -105,10 +74,6 @@
 		};
 		045EC3702D317306000C2BD3 /* projects */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				040615132D31F0B6008612E2 /* Exceptions for "projects" folder in "max_4u" target */,
-				040615292D31F9FA008612E2 /* Exceptions for "projects" folder in "drv_terms" target */,
-			);
 			path = projects;
 			sourceTree = "<group>";
 		};
@@ -119,10 +84,6 @@
 		};
 		045EC3C42D317306000C2BD3 /* tracy */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				040614F42D31D952008612E2 /* Exceptions for "tracy" folder in "tracy_lib" target */,
-				040614FE2D31DB37008612E2 /* Exceptions for "tracy" folder in "tracy_ptc_lib" target */,
-			);
 			path = tracy;
 			sourceTree = "<group>";
 		};
