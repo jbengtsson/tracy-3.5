@@ -1,6 +1,0 @@
-#!/bin/sh
-set -x
-aclocal -I config
-autoheader
-autoconf
-automake --add-missing --foreign --copy
