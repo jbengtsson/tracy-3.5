@@ -1,0 +1,76 @@
+define lattice; ringtype = 1;
+
+Energy = 3.0;
+
+pi = 4.0*arctan(1.0);
+
+dP = 1e-8; CODeps = 1e-16;  
+
+Meth = 4; Nbend = 10; Nquad = 10; Nsext = 10; Nmult = 10;
+
+B2:  BENDING, L = 1.2, T = 0.044879895051283*180.0/pi, N = Nbend,
+     Method = Meth;
+B2H: BENDING, L = 0.6, T = 0.022439947525641*180.0/pi, N = Nbend,
+     Method = Meth;
+
+OSD:    DRIFT, L = 0.025;
+OSF:    DRIFT, L = 0.025;
+OFW:    DRIFT, L = 0.57500194;
+OFWSF:  DRIFT, L = 0.37500194;
+O1F:    DRIFT, L = 0.28839503;
+O2F:    DRIFT, L = 0.40612007;
+O2FSD:  DRIFT, L = 0.20612007;
+O2FOCT: DRIFT, L = 0.35612007;
+
+{QD1: QUADRUPOLE, L = 0.175, K = -1.53214011925176,  N = Nquad, Method = Meth;
+QF2: QUADRUPOLE, L = 0.19,  K =  1.878213027632271, N = Nquad, Method = Meth;
+QD2: QUADRUPOLE, L = 0.175, K = -1.532245472882953, N = Nquad, Method = Meth;
+QF3: QUADRUPOLE, L = 0.3,   K =  1.518545732607598, N = Nquad, Method = Meth;
+QD3: QUADRUPOLE, L = 0.22,  K = -1.228285402799955, N = Nquad, Method = Meth;}
+
+QD1: Quadrupole, L = 0.175, K = -1.5321385501695040, N = Nquad, Method = Meth;
+QF2: Quadrupole, L = 0.19,  K =  1.8781987383697358, N = Nquad, Method = Meth;
+QD2: Quadrupole, L = 0.175, K = -1.5322485713223637, N = Nquad, Method = Meth;
+QF3: Quadrupole, L = 0.3,   K =  1.5185496248200228, N = Nquad, Method = Meth;
+QD3: Quadrupole, L = 0.22,  K = -1.2282747865631987, N = Nquad, Method = Meth;
+
+QF2: KQUAD,L=0.19,K1=1.29423206800674
+QD2: KQUAD,L=0.175,K1=-1.296222014193225
+QF3: KQUAD,L=0.28,K1=1.777395734439716
+QD3: KQUAD,L=0.2,K1=-1.348374277192064
+
+O: DRIF,L=0.075
+OFW: DRIF,L=0.3001321078893861
+O1F: DRIF,L=0.3499999988208027
+O2F: DRIF,L=0.2214533266809365
+
+SF1: Sextupole, L = 0.2,   K =   11.0762222888612616, N = Nsext, Method = Meth;
+SD1: Sextupole, L = 0.2,   K =    2.4094966670550799, N = Nsext, Method = Meth;
+SF2: Sextupole, L = 0.075, K =   22.3183817110621625, N = Nsext, Method = Meth;
+SD2: Sextupole, L = 0.075, K = -143.9636678788223492, N = Nsext, Method = Meth;
+SD3: Sextupole, L = 0.05,  K =  -31.1742095927636136, N = Nsext, Method = Meth;
+
+OCT: MULTIPOLE, L = 0.000001, HOM = (4, 0.0, 0.0), N = Nmult,
+     Method = Meth;
+
+MQ1: MARKER;
+MQ2: MARKER;
+MQ3: MARKER;
+MQ4: MARKER;
+
+NC0: QD1, SD3, OSD, B2H, B2H, SF2, QF2, QF2, SF2, B2H, B2H, SD2, QD2, QD2, SD2,
+     B2H, B2H;
+
+NC1: INV(NC0);
+
+SNSA: OFWSF, SF1, QF3, QF3, O1F, QD3, QD3, O2FSD, SD1, OCT, B2H;
+
+SNSB: INV(SNSA);
+
+BLOCK: MQ1, NC0, SNSA, SNSB, NC1, MQ4;
+
+OFFELO: 20*BLOCK;
+
+CELL: OFFELO, SYMMETRY = 1;
+
+END;

@@ -1,0 +1,105 @@
+define lattice; ringtype = 1;
+
+Energy = 2.5; { Beam momentum [GeV]. }
+
+dP = 1e-8; CODeps = 1e-14;
+
+Meth = 4; Nbend = 10; Nquad = 10; Nsext = 2;
+
+pi = 4.0*arctan(1.0); c0 = 2.99792458e8;
+
+{ ----- table of elements --------------------------------------------- }
+
+c0 = 2.99792458e8; gamma = 3.5e9/c0; Brho = 1e9*Energy/c0;
+
+h_rf = 538; C = 16*20.2;
+
+cav: Cavity, L = 0.0, Frequency = c0/C*h_rf, Voltage = 1.5e6, harnum = h_rf,
+     phi = 0.0;
+
+bpm: Beam Position Monitor;
+
+l1h:   Drift, L = 0.050000;
+
+ml1:   Drift, L = 0.100000;
+ml1ah: Drift, L = 0.13000;
+ml1b:  Drift, L = 0.100000;
+ul1:   Drift, L = 0.100000;
+ul2:   Drift, L = 0.253388;
+ul3:   Drift, L = 0.300000;
+ul4dr: Drift, L = 2.750000;
+
+ul4: l1h, bpm, ul4dr;
+
+uq1: Quadrupole, L = 0.165000, K = -9.421282, N = Nquad, Method = 4;
+uq2: Quadrupole, L = 0.200000, K = 9.412986, N = Nquad, Method = 4;
+uq3: Quadrupole, L = 0.100000, K = -2.712603, N = Nquad, Method = 4;
+
+bb:  Bending, L = 1.100000, T = 0.087441*180.0/pi, T1 = 0.043720*180.0/pi,
+T2 = 0.043720*180.0/pi, K = -1.166115, N = Nbend, Method = 4;
+
+br:  Bending, L = 0.163000, T = -0.006632*180.0/pi, T1 = (-0.003316)*180.0/pi,
+T2 = -0.003316*180.0/pi, K = 6.045379, N = Nbend, Method = 4;
+
+mbb: Bending, L = 0.600000, T = 0.050571*180.0/pi, T1 = (0.025285)*180.0/pi,
+T2 = 0.025285*180.0/pi, K = 0.000000, N = Nbend, Method = 4;
+
+mbr: Bending, L = 0.163000, T = -0.002574*180.0/pi, T1 = -0.001287*180.0/pi,
+T2 = -0.001287*180.0/pi, K = 6.364826, N = Nbend, Method = 4;
+
+sfk: Multipole, L = 0.0, N = Nsext, Method = 4;
+sdk: Multipole, L = 0.0, N = Nsext, Method = 4;
+
+sf1:   Sextupole, L = 0.150000,   K = 163.050876/2.0,  N = Nsext, Method = 4;
+sf2:   Sextupole, L = 0.150000,   K = 330.550822/2.0,  N = Nsext, Method = 4;
+sf3:   Sextupole, L = 0.150000,   K = 500.650122/2.0,  N = Nsext, Method = 4;
+sd1h:  Sextupole, L = 0.200000/2, K = -255.987678/2.0, N = Nsext, Method = 4;
+sd2h:  Sextupole, L = 0.200000/2, K = -341.363978/2.0, N = Nsext, Method = 4;
+sd3ah: Sextupole, L = 0.200000/2, K = -446.820720/2.0, N = Nsext, Method = 4;
+sd3bh: Sextupole, L = 0.200000/2, K = -502.299348/2.0, N = Nsext, Method = 4;
+
+sd1:  sd1h, sdk, sd1h;
+sd2:  sd2h, sdk, sd2h;
+sd3a: sd3ah, sdk, sd3ah;
+sd3b: sd3bh, sdk, sd3bh;
+
+om_sf:  Marker;
+om_mbb: Marker;
+om_c:   Marker;
+
+oxx: Multipole, L = 0.0, HOM = (4, 0.0, 0.0), N = Nsext, Method = 4;
+oxy: Multipole, L = 0.0, HOM = (4, 0.0, 0.0), N = Nsext, Method = 4;
+oyy: Multipole, L = 0.0, HOM = (4, 0.0, 0.0), N = Nsext, Method = 4;
+
+
+{ ----- table of segments --------------------------------------------- }
+
+l1:      l1h, l1h;
+l1bpm:   l1h, bpm, l1h;
+
+ml1a:    ml1ah, ml1ah;
+ml1abpm: ml1ah, bpm, ml1ah;
+
+
+ucs21: 
+  om_sf, sfk, sf2, l1, br, l1, sd2, l1bpm, bb, l1bpm, sd1, l1, br, l1, sf1,
+  om_sf;
+ucs32: 
+  om_sf, sfk, sf3, l1, br, l1, sd3a, l1bpm, bb, l1bpm, sd2, l1, br, l1, sf2,
+  om_sf;
+dcell: 
+  om_sf, sf3, ml1, mbr, ml1b, sd3b, ml1abpm, mbb, om_mbb;
+
+arc: inv(dcell), ucs32, ucs21, om_c, inv(ucs21), inv(ucs32), dcell;
+
+mund:
+  om_mbb, oyy, sdk, sfk, ul1, uq1, ul2, uq2, oxx, sdk, sfk, ul3, oxy, uq3, sdk,
+  sfk, ul4;
+
+sec: inv(mund), arc, mund;
+
+ring: 1*sec, cav;
+
+cell: ring, symmetry = 1;
+
+end;

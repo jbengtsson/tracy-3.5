@@ -1,0 +1,202 @@
+define lattice; ringtype = 1;
+
+Energy = 3.0; { Beam momentum [GeV]. }
+
+dP = 1e-8; CODeps = 1e-14;
+
+Meth = 4; Nbend = 10; Nquad = 10; Nsext = 2;
+
+pi = 4.0*arctan(1.0); c0 = 2.99792458e8;
+
+bpm_01: Beam Position Monitor;
+bpm_02: Beam Position Monitor;
+bpm_03: Beam Position Monitor;
+bpm_04: Beam Position Monitor;
+bpm_05: Beam Position Monitor;
+bpm_06: Beam Position Monitor;
+bpm_07: Beam Position Monitor;
+bpm_08: Beam Position Monitor;
+bpm_09: Beam Position Monitor;
+bpm_10: Beam Position Monitor;
+cellcenter: Marker;
+jl1e_1: Bending, L = 0.20368308461, T = 0.453213195853495, T1 = 0.181698583025314, T2 = 0.181698583025314, N = Nbend, Method = 4;
+jl1e_2: Bending, L = 0.20368308461, T = 0.453213195853495, T1 = 0.726794332101254, T2 = -0.363397166050627, N = Nbend, Method = 4;
+jl1e_3: Bending, L = 0.20368308461, T = 0.453213195853495, T1 = 0.363397166050627, N = Nbend, Method = 4;
+jl1e_4: Bending, L = 0.20368308461, T = 0.453213195853495, T2 = 0.363397166050627, N = Nbend, Method = 4;
+jl1e_5: Bending, L = 0.20368308461, T = 0.453213195853495, T1 = -0.363397166050627, T2 = 0.726794332101254, N = Nbend, Method = 4;
+dl1a_1: Bending, L = 0.20098308461, T = 0.293828757233129, T1 = -0.730875849666986, T2 = 0.908492766157541, N = Nbend, Method = 4;
+dl1a_2: Bending, L = 0.20098308461, T = 0.338225259620537, T1 = -0.490233575712040, T2 = 0.730875849666986, N = Nbend, Method = 4;
+dl1a_3: Bending, L = 0.20098308461, T = 0.395966225985196, T1 = -0.183701155317049, T2 = 0.490233575712040, N = Nbend, Method = 4;
+dl1a_4: Bending, L = 0.20098308461, T = 0.489531783054820, T1 = 0.220234090250181, T2 = 0.183701155317049, N = Nbend, Method = 4;
+dl1a_5: Bending, L = 0.20098308461, T = 0.748513953373793, T1 = 0.908492766157541, T2 = -0.220234090250181, N = Nbend, Method = 4;
+dl1e_1: Bending, L = 0.20098308461, T = 0.293828757233129, T1 = 0.908492766157541, T2 = -0.730875849666986, N = Nbend, Method = 4;
+dl1e_2: Bending, L = 0.20098308461, T = 0.338225259620537, T1 = 0.730875849666986, T2 = -0.490233575712040, N = Nbend, Method = 4;
+dl1e_3: Bending, L = 0.20098308461, T = 0.395966225985196, T1 = 0.490233575712040, T2 = -0.183701155317049, N = Nbend, Method = 4;
+dl1e_4: Bending, L = 0.20098308461, T = 0.489531783054820, T1 = 0.183701155317049, T2 = 0.220234090250181, N = Nbend, Method = 4;
+dl1e_5: Bending, L = 0.20098308461, T = 0.748513953373793, T1 = -0.220234090250181, T2 = 0.908492766157541, N = Nbend, Method = 4;
+dl2b_1: Bending, L = 0.20098308461, T = 0.293828757233129, T1 = 0.842602619717496, T2 = -0.664985703226941, N = Nbend, Method = 4;
+dl2b_2: Bending, L = 0.20098308461, T = 0.338225259620537, T1 = 0.664985703226941, T2 = -0.424343429271995, N = Nbend, Method = 4;
+dl2b_3: Bending, L = 0.20098308461, T = 0.395966225985196, T1 = 0.424343429271995, T2 = -0.117811008877005, N = Nbend, Method = 4;
+dl2b_4: Bending, L = 0.20098308461, T = 0.489531783054820, T1 = 0.117811008877005, T2 = 0.286124236690226, N = Nbend, Method = 4;
+dl2b_5: Bending, L = 0.20098308461, T = 0.748513953373793, T1 = -0.286124236690226, T2 = 0.842602619717496, N = Nbend, Method = 4;
+dl2d_1: Bending, L = 0.20098308461, T = 0.293828757233129, T1 = -0.664985703226941, T2 = 0.842602619717496, N = Nbend, Method = 4;
+dl2d_2: Bending, L = 0.20098308461, T = 0.338225259620537, T1 = -0.424343429271995, T2 = 0.664985703226941, N = Nbend, Method = 4;
+dl2d_3: Bending, L = 0.20098308461, T = 0.395966225985196, T1 = -0.117811008877005, T2 = 0.424343429271995, N = Nbend, Method = 4;
+dl2d_4: Bending, L = 0.20098308461, T = 0.489531783054820, T1 = 0.286124236690226, T2 = 0.117811008877005, N = Nbend, Method = 4;
+dl2d_5: Bending, L = 0.20098308461, T = 0.748513953373793, T1 = 0.842602619717496, T2 = -0.286124236690226, N = Nbend, Method = 4;
+dq1: Bending, L = 0.8669221133, T = 2.967868041465032, T1 = 0.836518380891002, T2 = 0.836518380891002, K = -2.77983870743549, N = Nbend, Method = 4;
+dr_01: Drift, L = 2.55;
+dr_02: Drift, L = 0.056;
+dr_03: Drift, L = 0.0600000000000005;
+dr_04: Drift, L = 0.3199999999999998;
+dr_05: Drift, L = 0.0470000000000002;
+dr_06: Drift, L = 0.0469999999999997;
+dr_07: Drift, L = 0.07500000000000109;
+dr_08: Drift, L = 0.1360000000000001;
+dr_09: Drift, L = 0.4648738299999993;
+dr_10: Drift, L = 0.07500000000000021;
+dr_11: Drift, L = 0.0749999999999993;
+dr_12: Drift, L = 0.0600000000000005;
+dr_13: Drift, L = 0.3948738300000008;
+dr_14: Drift, L = 0.0559999999999992;
+dr_15: Drift, L = 0.0749999999999993;
+dr_16: Drift, L = 0.0470000000000015;
+dr_17: Drift, L = 0.0939999999999994;
+dr_18: Drift, L = 0.0559999999999992;
+dr_19: Drift, L = 0.0899999999999999;
+dr_20: Drift, L = 0.09000000000000161;
+dr_21: Drift, L = 0.02;
+dr_22: Drift, L = 0.02;
+dr_23: Drift, L = 1.5;
+dr_24: Drift, L = 1.5;
+dr_25: Drift, L = 0.02;
+dr_26: Drift, L = 0.02;
+dr_27: Drift, L = 0.0899999999999999;
+dr_28: Drift, L = 0.0899999999999999;
+dr_29: Drift, L = 0.0559999999999974;
+dr_30: Drift, L = 0.09400000500000159;
+dr_31: Drift, L = 0.0470000000000006;
+dr_32: Drift, L = 0.0750000000000028;
+dr_33: Drift, L = 0.1839999999999975;
+dr_34: Drift, L = 0.2668738300000015;
+dr_35: Drift, L = 0.0599999999999952;
+dr_36: Drift, L = 0.0750000000000028;
+dr_37: Drift, L = 0.0749999999999993;
+dr_38: Drift, L = 0.4568738299999993;
+dr_39: Drift, L = 0.1440000000000019;
+dr_40: Drift, L = 0.0749999999999993;
+dr_41: Drift, L = 0.0470000000000006;
+dr_42: Drift, L = 0.0470000049999975;
+dr_43: Drift, L = 0.3200000000000003;
+dr_44: Drift, L = 0.0599999999999952;
+dr_45: Drift, L = 0.0560000000000009;
+dr_46: Drift, L = 2.55;
+dr_46_c1: Drift, L = 3.576;
+dr_add: Drift, L = 0.1;
+dr_triplet: Drift, L = 0.05;
+dr_01ic1: Drift, L = 2.5;
+dr_02ic1: Drift, L = 0.0009949546575760001;
+dr_03ic1: Drift, L = 1.2984949547;
+dr_04ic1: Drift, L = 0.031;
+dr_05ic1: Drift, L = 0.149;
+dr_06ic1: Drift, L = 0.0470000049999939;
+dr_07ic1: Drift, L = 0.127;
+dr_08ic1: Drift, L = 0.047;
+dr_09ic1: Drift, L = 0.047;
+dr_10ic1: Drift, L = 0.075;
+dr_11ic1: Drift, L = 0.0798738313376899;
+dr_12ic1: Drift, L = 0.025;
+dr_13ic1: Drift, L = 0.056;
+ge: Marker;
+gs: Marker;
+sextmark: Marker;
+idmarker: Marker;
+idmarker_end: Marker;
+dr_k1: Drift, L = 0.22;
+dr_k2: Drift, L = 0.22;
+ocf6: Drift, L = 0.0;
+of1: Multipole, L = 0.08999999999999291, HOM = (4, -48000, 0.0), N = Nsext, Method = 4;
+of2: Multipole, L = 0.08999999999999291, HOM = (4, -48000, 0.0), N = Nsext, Method = 4;
+qd2: Quadrupole, L = 0.102, K = -6.998000099002551, N = Nquad, Method = 4;
+qd2_c1: Quadrupole, L = 0.102, K = -5.764730498989414, N = Nquad, Method = 4;
+qd3: Quadrupole, L = 0.1, K = -5.482877545518269, N = Nquad, Method = 4;
+qd3_c1: Quadrupole, L = 0.1, K = -5.482845349088892, N = Nquad, Method = 4;
+qd5: Quadrupole, L = 0.136, K = -4.526099304569786, N = Nquad, Method = 4;
+qf1: Quadrupole, L = 0.155, K = 6.425067134036485, N = Nquad, Method = 4;
+qf1_c1: Quadrupole, L = 0.155, K = 5.135860240991176, N = Nquad, Method = 4;
+qf4: Quadrupole, L = 0.142, K = 4.820248480089243, N = Nquad, Method = 4;
+qf4_c1: Quadrupole, L = 0.142, K = 4.820240322870077, N = Nquad, Method = 4;
+qf4ic1: Quadrupole, L = 0.142, K = 4.662595861678516, N = Nquad, Method = 4;
+qf2ic1: Quadrupole, L = 0.15, K = 5.809119773311265, N = Nquad, Method = 4;
+qf1ic1: Quadrupole, L = 0.155, K = 2.700732052568173, N = Nquad, Method = 4;
+qd3ic1: Quadrupole, L = 0.1, K = -9.315092975134705, N = Nquad, Method = 4;
+qd2ic1: Quadrupole, L = 0.102, K = -5.623958894611743, N = Nquad, Method = 4;
+quad_add: Quadrupole, L = 0.162, K = 6.519078481820309, N = Nquad, Method = 4;
+qf6: Quadrupole, L = 0.362, K = 6.431253944184242, N = Nquad, Method = 4;
+qf8: Quadrupole, L = 0.278, K = 6.341404534286385, N = Nquad, Method = 4;
+qd_triplet_1: Quadrupole, L = 0.162, K = -4.1368723143321, N = Nquad, Method = 4;
+qf_triplet_2: Quadrupole, L = 0.162, K = 4.218488854503306, N = Nquad, Method = 4;
+cav: Cavity, L = 0.0, Frequency = 499654096.667, Voltage = 2200000, phi = 0*171.697982738;
+sd1: Sextupole, L = 0.14, K = -397.8903921982013/2.0, N = Nsext, Method = 4;
+sf1: Sextupole, L = 0.07000000000000001, K = 423.3810047545011/2.0, N = Nsext, Method = 4;
+sh1a: Sextupole, L = 0.05, K = 0.0/2.0, N = Nsext, Method = 4;
+sh2b: Sextupole, L = 0.05, K = 0.0/2.0, N = Nsext, Method = 4;
+sh2d: Sextupole, L = 0.05, K = 0.0/2.0, N = Nsext, Method = 4;
+sh3e: Sextupole, L = 0.05, K = 0.0/2.0, N = Nsext, Method = 4;
+mal: Marker; { malign }
+w1: Marker; { watch }
+w3: Marker; { watch }
+arca_c2: 
+  dr_01, bpm_01, dr_02, gs, qf1, dr_03, sh1a, dr_04, qd2, dr_05, 
+  dl1a_5, dl1a_4, dl1a_3, dl1a_2, dl1a_1, dr_06, qd3, dr_07, sd1, dr_08, bpm_02, 
+  dr_09, qf4, dr_10, sf1, sextmark, sf1, dr_11, qf4, dr_12, of1, ge, 
+  dr_13, bpm_03, dr_14, gs, sd1, dr_15, qd5, dr_16, dl2b_1, dl2b_2, dl2b_3, 
+  dl2b_4, dl2b_5, dr_17, bpm_04, dr_18, qf6, dr_19, ocf6, dq1, ocf6, dr_20, 
+  qf8, dr_21, sh2b, dr_22, bpm_05, dr_23, cellcenter, dr_24, bpm_06, dr_25, sh2d, 
+  dr_26, qf8, dr_27, ocf6, dq1, ocf6, dr_28, qf6, dr_29, bpm_07, dr_30, 
+  dl2d_5, dl2d_4, dl2d_3, dl2d_2, dl2d_1, dr_31, qd5, dr_32, sd1, ge, dr_33, 
+  bpm_08, dr_34, gs, of1, dr_35, qf4, dr_36, sf1, sextmark, sf1, dr_37, 
+  qf4, dr_38, bpm_09, dr_39, sd1, dr_40, qd3, dr_41, dl1e_1, dl1e_2, dl1e_3, 
+  dl1e_4, dl1e_5, dr_42, qd2, dr_43, sh3e, dr_44, qf1, ge, dr_45, bpm_10, 
+  dr_46, idmarker, idmarker_end;
+arca_c1: 
+  dr_01, bpm_01, dr_02, gs, qf1, dr_03, sh1a, dr_04, qd2, dr_05, 
+  dl1a_5, dl1a_4, dl1a_3, dl1a_2, dl1a_1, dr_06, qd3, dr_07, sd1, dr_08, bpm_02, 
+  dr_09, qf4, dr_10, sf1, sextmark, sf1, dr_11, qf4, dr_12, of2, ge, 
+  dr_13, bpm_03, dr_14, gs, sd1, dr_15, qd5, dr_16, dl2b_1, dl2b_2, dl2b_3, 
+  dl2b_4, dl2b_5, dr_17, bpm_04, dr_18, qf6, dr_19, ocf6, dq1, ocf6, dr_20, 
+  qf8, dr_21, sh2b, dr_22, bpm_05, dr_23, cellcenter, dr_24, bpm_06, dr_25, sh2d, 
+  dr_26, qf8, dr_27, ocf6, dq1, ocf6, dr_28, qf6, dr_29, bpm_07, dr_30, 
+  dl2d_5, dl2d_4, dl2d_3, dl2d_2, dl2d_1, dr_31, qd5, dr_32, sd1, ge, dr_33, 
+  bpm_08, dr_34, gs, of2, dr_35, qf4, dr_36, sf1, sextmark, sf1, dr_37, 
+  qf4_c1, dr_38, bpm_09, dr_39, sd1, dr_40, qd3_c1, dr_41, dl1e_1, dl1e_2, dl1e_3, 
+  dl1e_4, dl1e_5, dr_42, qd2_c1, dr_43, sh3e, dr_44, qf1_c1, ge, dr_45, bpm_10, 
+  dr_add, dr_46_c1, qd_triplet_1, dr_triplet, qf_triplet_2, idmarker, idmarker_end;
+arca_inj: 
+  dr_01, bpm_01, dr_02, gs, qf1, dr_03, sh1a, dr_04, qd2, dr_05, 
+  dl1a_5, dl1a_4, dl1a_3, dl1a_2, dl1a_1, dr_06, qd3, dr_07, sd1, dr_08, bpm_02, 
+  dr_09, qf4, dr_10, sf1, sextmark, sf1, dr_11, qf4, dr_12, of2, ge, 
+  dr_13, bpm_03, dr_14, gs, sd1, dr_15, qd5, dr_16, dl2b_1, dl2b_2, dl2b_3, 
+  dl2b_4, dl2b_5, dr_17, bpm_04, dr_18, qf6, dr_19, ocf6, dq1, ocf6, dr_20, 
+  qf8, dr_21, sh2b, dr_22, bpm_05, dr_23, cellcenter, dr_24, bpm_06, dr_25, sh2d, 
+  dr_26, qf8, dr_27, ocf6, dq1, ocf6, dr_28, qf6, dr_29, bpm_07, dr_30, 
+  dl2d_5, dl2d_4, dl2d_3, dl2d_2, dl2d_1, dr_31, qd5, dr_32, sd1, ge, dr_33, 
+  bpm_08, dr_34, gs, of2, dr_35, qf4, dr_36, sf1, sextmark, sf1, dr_37, 
+  qf4ic1, dr_13ic1, bpm_09, dr_12ic1, dr_k1, dr_k1, dr_11ic1, sd1, dr_10ic1, qd3ic1, dr_09ic1, 
+  jl1e_1, dr_08ic1, qf2ic1, dr_07ic1, jl1e_2, jl1e_3, jl1e_4, jl1e_5, dr_06ic1, qd2ic1, dr_05ic1, 
+  dr_k2, dr_04ic1, ge, dr_03ic1, qf1ic1, dr_01ic1, idmarker, idmarker_end;
+ap: Drift, L = 0.0;
+ring24: w3, mal, 24*arca_c2, ap, w1;
+ring24rf: w3, mal, cav, 24*arca_c2, ap, w1;
+sp_arcac2: w3, mal, inv(arca_c2), arca_c2, ap, w1;
+sp_arcac1: w3, mal, arca_c1, inv(arca_c1), ap, w1;
+sp: arca_c2, arca_c2, arca_c1, inv(arca_c1);
+ringrf: 
+  w3, mal, cav, inv(arca_inj), 5*sp, arca_c2, arca_c2, arca_inj, ap, w1;
+ring: w3, mal, 6*sp, ap, w1;
+
+ring: ringrf;
+
+cell: ring, symmetry = 1;
+
+end;

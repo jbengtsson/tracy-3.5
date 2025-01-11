@@ -1,0 +1,91 @@
+{..it\tracy-3.5\projects\in\lattice\bessy-iii\l1-200-16p_johan-length.opa}
+
+{opa to tracy-2 export}
+
+define lattice;
+energy = 2.500000;
+dp = 1.0d-10;  codeps = 1.0d-6;  dk = 1.0d-6;
+meth = 4; nbend = 10; nquad = 10;
+
+{----- variables ----------------------------------------------------}
+
+orbitdpp  = 0;
+b0a       = 2.455*1.0;
+b1a       = -0.205*1.0;
+mb1a      = -0.165*1.0;
+mb0a      = 2.415*1.0;
+
+{----- table of elements ----------------------------------------------------}
+
+c0 = 2.99792458e8; gamma = 3.5e9/c0; Brho = 1e9*Energy/c0;
+
+h_rf = 535; C = 20*16.0600000;
+
+cav: Cavity, L = 0.0, Frequency = c0/C*h_rf, Voltage = 1.5e6, harnum = h_rf,
+     phi = 180.0;
+
+l01  : drift, l = 0.549613;
+l02  : drift, l = 0.091515;
+l11  : drift, l = 0.150000;
+l12  : drift, l = 0.150000;
+l2   : drift, l = 0.100000;
+l3   : drift, l = 0.100000;
+ml0  : drift, l = 0.470505;
+ml1  : drift, l = 0.196287;
+ml2  : drift, l = 0.100000;
+ml3  : drift, l = 0.100000;
+ul0  : drift, l = 0.100000;
+ul1  : drift, l = 0.287956;
+ul2  : drift, l = 0.100000;
+ul3  : drift, l = 0.100000;
+ul4  : drift, l = 2.800000;
+o1l  : drift, l = 0.040000;
+
+q1   : quadrupole, l = 0.130000, k = 11.138731, n=nquad, method=meth;
+uq1  : quadrupole, l = 0.090000, k = -7.685566, n=nquad, method=meth;
+uq2  : quadrupole, l = 0.120000, k = 7.807746, n=nquad, method=meth;
+uq3  : quadrupole, l = 0.090000, k = -2.884596, n=nquad, method=meth;
+
+b0   : bending, l = 0.450000, t = b0a, k = -1.694817, t1 = 0.000000,
+       t2 = b0a, n=nbend, method=meth;
+b1   : bending, l = 0.150000, t = b1a, k = 7.654325, t1 = b1a/2.0,
+       t2 = b1a/2.0, n=nbend, method=meth;
+mb0  : bending, l = 0.450000, t = mb0a, k = 0.000000, t1 = mb0a/2.0,
+       t2 = mb0a/2.0, n=nbend, method=meth;
+mb1  : bending, l = 0.130000, t = mb1a, k = 7.063343, t1 = mb1a/2.0,
+       t2 = mb1a/2.0, n=nbend, method=meth;
+
+s0   : sextupole, l = 0.060000, k = 386.044847, n = 5, method=meth;
+s1   : sextupole, l = 0.080000, k = -477.524900, n = 5, method=meth;
+
+s3   : sextupole, l = 0.080000, k = 0.0, n = 5, method=meth;
+s4   : sextupole, l = 0.080000, k = 0.0, n = 5, method=meth;
+
+mbac : marker;
+sf   : marker;
+dipa : marker;
+
+o1   : multipole, l = 0.0, hom = (4,0.0000,0), n = 1, method = meth;
+o2   : multipole, l = 0.0, hom = (4,0.0000,0), n = 1, method = meth;
+o3   : multipole, l = 0.0, hom = (4,0.0000,0), n = 1, method = meth;
+
+ps_rot: map;
+
+{----- table of segments ----------------------------------------------------}
+
+cell0   : mbac, b0, l11, s1, l12, b1, l3, s0, sf;
+cell1   : mbac, mb0, ml0, s1, ml1, mb1, ml2, s0, sf;
+mbacell : inv(cell0), cell0;
+mund    : dipa, ul1, uq1, o1, uq1, ul0, s3, ul0, uq2, o2, uq2, ul2,
+          s4, ul2, uq3, o3, uq3, ul4;
+straight: inv(mund);
+match   : inv(cell1), mund;
+arc     : inv(match), 4*mbacell, match;
+
+line: 1*arc, cav, ps_rot;
+
+cell: line, symmetry=1;
+
+end;
+
+{..it\tracy-3.5\projects\in\lattice\bessy-iii\l1-200-16p_johan-length.opa}

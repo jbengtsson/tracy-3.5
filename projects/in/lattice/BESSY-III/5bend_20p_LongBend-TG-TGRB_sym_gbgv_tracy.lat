@@ -1,0 +1,89 @@
+define lattice;
+
+energy = 2.5;
+
+dp = 1.0d-10; codeps = 1.0d-6; dk = 1.0d-6;
+
+meth = 4; nbend = 10; nquad = 10; nsext = 2;
+
+pi = 4.0*arctan(1.0);
+
+c0 = 2.99792458e8; gamma = 3.5e9/c0; Brho = 1e9*Energy/c0;
+
+h_rf = 535; C = 20*16.0600000;
+
+cav: Cavity, L = 0.0, Frequency = c0/C*h_rf, Voltage = 1.5e6, harnum = h_rf,
+     phi = 0.0;
+
+l1: drift, l = 0.100000;
+l2: drift, l = 0.100000;
+l3: drift, l = 0.100000;
+l4: drift, l = 0.100000;
+l5: drift, l = 0.100000;
+l6: drift, l = 0.100000;
+l7: drift, l = 0.100000;
+l8: drift, l = 0.100000;
+l9: drift, l = 2.500000;
+
+b1e1:     bending, l =  0.14000000,
+    t =  0.93106573, t1 =  0.46553286, t2 =  0.46553286, k = -1.18307405,
+    n = nbend, method = 4;
+b1e2:     bending, l =  0.14000000,
+    t =  0.29544335, t1 =  0.14772168, t2 =  0.14772168, k = -0.51732776,
+    n = nbend, method = 4;
+b1e3:     bending, l =  0.14000000,
+    t = -0.08006632, t1 = -0.04003316, t2 = -0.04003316, k = -0.40806098,
+    n = nbend, method = 4;
+b1e4:     bending, l =  0.14000000,
+    t =  0.55161747, t1 =  0.27580873, t2 =  0.27580873, k = -0.10951195,
+    n = nbend, method = 4;
+b1e5:     bending, l =  0.14000000,
+    t =  1.08401977, t1 =  0.54200988, t2 =  0.54200988, k =  0.41221067,
+    n = nbend, method = 4;
+b1c1:     bending, l =  0.08000000,
+    t =  1.41078632, t1 =  0.70539316, t2 =  0.70539316, k = -6.21775576,
+    n = nbend, method = 4;
+b1c2:     bending, l =  0.08000000,
+    t =  0.57719675, t1 =  0.28859838, t2 =  0.28859838, k =  2.00074224,
+    n = nbend, method = 4;
+b1c3:     bending, l =  0.08000000,
+    t =  0.36961491, t1 =  0.18480745, t2 =  0.18480745, k = -2.19449377,
+    n = nbend, method = 4;
+b1c4:     bending, l =  0.08000000,
+    t =  0.17957194, t1 =  0.08978597, t2 =  0.08978597, k = -3.07583415,
+    n = nbend, method = 4;
+b1c5:     bending, l =  0.08000000,
+    t = -0.09723798, t1 = -0.04861899, t2 = -0.04861899, k = -1.42072244,
+    n = nbend, method = 4;
+b2:       bending, l =  0.13000000,
+    t = -0.27546895, t1 = -0.13773448, t2 = -0.13773448, k = 10.66048787,
+    n = nbend, method = 4;
+
+q1:       quadrupole, l = 0.16000000, k =  -11.60609235, n = nquad, method = 4;
+q2:       quadrupole, l = 0.26000000, k =    9.99574328, n = nquad, method = 4;
+q3:       quadrupole, l = 0.10000000, k =   -6.24903792, n = nquad, method = 4;
+
+s1:       sextupole,  l = 0.06000000, k = 1295.26918391, n = nsext, method = 4;
+s2:       sextupole,  l = 0.08000000, k = -1287.13540118, n = nsext, method = 4;
+
+s3: sextupole, l = 0.080000, k = 0.0, n = 1, method = meth;
+s4: sextupole, l = 0.080000, k = 0.0, n = 1, method = meth;
+
+b1e: b1e1, b1e2, b1e3, b1e4, b1e5;
+b1c: b1c1, b1c2, b1c3, b1c4, b1c5;
+
+cell_hc: b1c, l1, s2, l2, b2, l3, s1;
+cell_u: inv(cell_hc), cell_hc;
+cell_he: b1e, l1, s2, l2, b2, l3, s1;
+cell_m: l4, s3, l5, q1, l6, q2, l7, s4, l8, q3, l9;
+
+{ Include cavity to pass beam energy to flat file. }
+{line: cell_u, cav;}
+{line: inv(cell_he), cell_m;}
+{line: 1*(cell_hc, inv(cell_hc)), cav;}
+{line: inv(cell_m), cell_he, inv(cell_hc), cav;}
+line: inv(cell_m), cell_he, 3*cell_u, inv(cell_he), cell_m, cav;
+
+cell: line, symmetry=1;
+
+end;

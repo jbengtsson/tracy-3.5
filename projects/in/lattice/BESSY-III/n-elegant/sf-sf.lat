@@ -1,0 +1,124 @@
+define lattice; ringtype = 1;
+
+Energy = 2.5; { Beam momentum [GeV]. }
+
+dP = 1e-8; CODeps = 1e-14;
+
+Meth = 4; Nbend = 10; Nquad = 10; Nsext = 2;
+
+pi = 4.0*arctan(1.0); c0 = 2.99792458e8;
+
+{ ..design\lattices\bessy-iii\2022_11_pg\b3_sf_uc4375_dsc_sf_4372_1276.opa }
+
+{ opa to elegant export }
+
+{ ----- table of elements --------------------------------------------- }
+
+c0 = 2.99792458e8; gamma = 3.5e9/c0; Brho = 1e9*Energy/c0;
+
+h_rf = 538; C = 16*20.2;
+
+cav: Cavity, L = 0.0, Frequency = c0/C*h_rf, Voltage = 1.5e6, harnum = h_rf,
+     phi = 0.0;
+
+bpm: Beam Position Monitor;
+
+skx: multipole, l = 0.0, N = 1, method=Meth;
+sky: multipole, l = 0.0, N = 1, method=Meth;
+
+
+{  l1     : drift, l = 0.100000 }
+l1h: Drift, L = 0.100000 / 2;
+l1: l1h, l1h;
+l1bpm: l1h, bpm, l1h;
+
+ml1: Drift, L = 0.100000;
+
+{ ml1a   : drift, l = 0.100000 }
+ml1ah: Drift, L = 0.100000 / 2;
+ml1a: ml1ah, ml1ah;
+ml1abpm: ml1ah, bpm, ml1ah;
+
+ml1b: Drift, L = 0.100000;
+ml1c: Drift, L = 0.100000;
+ul1: Drift, L = 0.120000;
+
+ul2: Drift, L = 0.250000;
+ul2h: Drift, L = 0.25000 / 2;
+
+ul2sk: ul2h, sky, skx, ul2h;
+
+ul3: Drift, L = 0.100000;
+{ ul4d   : drift, l = 2.800000 }
+ul4dr: Drift, L = 2.750000;
+ul4bpm: l1h, bpm, ul4dr;
+{ ul4BPM    : Line=(l1h, BPM, SKY, SKX, ul4dr) }
+
+qd: Quadrupole, L = 0.125000, K = -9.573181, N = Nquad, Method = 4;
+mqd: Quadrupole, L = 0.130000, K = -9.753806, N = Nquad, Method = 4;
+uq1: Quadrupole, L = 0.150000, K = 9.025159, N = Nquad, Method = 4;
+uq2: Quadrupole, L = 0.250000, K = -9.108800, N = Nquad, Method = 4;
+uq3: Quadrupole, L = 0.180000, K = 9.434980, N = Nquad, Method = 4;
+
+bb0: Bending, L = 1.100000, T = (0.088226)*180.0/pi,
+T1 = (0.044113)*180.0/pi, T2 = (0.044113)*180.0/pi, K = 0.000000, N = Nbend,
+   Method = 4;
+bb: skx, bb0;
+
+br: Bending, L = 0.170000, T = (-0.005934)*180.0/pi,
+    T1 = (-0.002967)*180.0/pi, T2 = (-0.002967)*180.0/pi, K = 8.660561,
+    N = Nbend, Method = 4;
+mbb: Bending, L = 0.850000, T = (0.045120)*180.0/pi, T1 = (0.022560)*180.0/pi,
+     T2 = (0.022560)*180.0/pi, K = 0.000000, N = Nbend, Method = 4;
+mbr: Bending, L = 0.180000, T = (-0.001487)*180.0/pi,
+     T1 = (-0.000744)*180.0/pi, T2 = (-0.000744)*180.0/pi, K = 8.862581,
+     N = Nbend, Method = 4;
+
+sd: Sextupole, L = 0.110000, K = -465.507178/2.0, N = Nsext, Method = 4;
+sf: Sextupole, L = 0.050000, K = 480.518826/2.0, N = Nsext, Method = 4;
+sd1: Sextupole, L = 0.110000, K = -465.507178/2.0, N = Nsext, Method = 4;
+sf1: Sextupole, L = 0.050000, K = 480.518826/2.0, N = Nsext, Method = 4;
+sd2: Sextupole, L = 0.110000, K = -465.507178/2.0, N = Nsext, Method = 4;
+sf2: Sextupole, L = 0.050000, K = 480.518826/2.0, N = Nsext, Method = 4;
+sd3: Sextupole, L = 0.110000, K = -465.507178/2.0, N = Nsext, Method = 4;
+sf3: Sextupole, L = 0.050000, K = 480.518826/2.0, N = Nsext, Method = 4;
+
+om_sf: Marker;
+om_mbb: Marker;
+om_c: Marker;
+
+
+{ ----- table of segments --------------------------------------------- }
+
+{ ucell : line=(om_sf, SKX, sf, l1, br, l1, qd, l1, sd, l1BPM, bb, l1BPM, SKY,
+  	  sd, l1, qd, l1,& }
+{         br, l1, sf, om_sf) }
+
+uc1: 
+  om_sf, sf1, l1, br, l1, qd, l1, sd1, l1bpm, bb, 
+  l1bpm, sky, sd1, l1, qd, l1, br, l1, sf2, om_sf;
+uc2: 
+  om_sf, skx, sf2, l1, br, l1, qd, l1, sd2, l1bpm, 
+  bb, l1bpm, sd2, l1, qd, l1, br, l1, sf3, om_sf;
+dcell: 
+  om_sf, skx, sf3, ml1, mbr, ml1c, mqd, ml1b, sd3, ml1abpm, 
+  mbb, om_mbb;
+
+arc: 
+  inv(dcell), inv(uc2), inv(uc1), om_c, skx, uc1, uc2, dcell;
+
+mund: 
+  om_mbb, ul1, uq1, ul2sk, uq2, ul3, uq3, ul4bpm;
+{ sec   : line=(-mund, arc, mund, SKX) }
+{ sec   : line=(-mund, arc, mund, BPM) }
+sec: inv(mund), arc, mund;
+sech: om_c, uc1, uc2, dcell, mund;
+sec16: inv(mund), arc, mund;
+
+ring:  1*sec, cav;
+
+cell: ring, symmetry = 1;
+
+end;
+
+{ ..design\lattices\bessy-iii\2022_11_pg\b3_sf_uc4375_dsc_sf_4372_1276.opa }

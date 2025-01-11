@@ -1,0 +1,38 @@
+{ J.B. 09/10/14
+
+  Minimum emittance cell with:
+
+  eps_r = 4
+  nu    = [ 0.418,  0.151]
+  ksi   = [-0.539, -0.569]
+}
+
+define lattice; ringtype = 1;
+
+Energy = 3.0;
+
+dP = 1e-8; CODeps = 1e-14;
+
+Meth = 4; Nbend = 25; Nquad = 1;
+
+CAV: Cavity, Frequency = 1e6, Voltage = 1.00e6, Harnum = 1;
+
+Lb = 1.0; phib = 3.0;
+
+D1: Drift, L = 0.374762*Lb;
+
+BH: Bending, L = Lb/2.0, K = 0.0, T = phib/2.0, T1 = 0.0, T2 = 0.0,
+    N = Nbend, Method = Meth;
+
+QF: Quadrupole, L = 0.0, K =  1.84912/Lb, N = Nquad, Method = Meth;
+QD: Quadrupole, L = 0.0, K = -1.05/Lb,    N = Nquad, Method = Meth;
+
+HCELL: QD, BH, QF, D1;
+
+FCELL: INV(HCELL), HCELL;
+
+LINE: FCELL, CAV;
+
+CELL: LINE, SYMMETRY = 1;
+
+END;

@@ -1,0 +1,96 @@
+{..y-3.5\projects\in\lattice\bessy-iii\b3_cf_425grad_doneqx44qy13_top.opa}
+
+{opa to tracy-2 export}
+
+define lattice;
+energy = 2.500000;
+dp = 1.0d-10;  codeps = 1.0d-10;  dk = 1.0d-6;
+meth = 4; nbend = 10; nquad = 10;
+
+{----- variables ----------------------------------------------------}
+
+b2a   = -0.38;
+b1a   = 4.25-2.0*b2a;
+mb2a  = -0.160989817118871;
+mb1a  = 2.75-mb2a;
+
+{----- table of elements ----------------------------------------------------}
+
+c0 = 2.99792458e8; gamma = 3.5e9/c0; Brho = 1e9*Energy/c0;
+
+h_rf = 538; C = 16*20.2;
+
+cav: Cavity, L = 0.0, Frequency = c0/C*h_rf, Voltage = 1.5e6, harnum = h_rf,
+     phi = 0.0;
+
+bpm: beam position monitor;
+chv: multipole, l = 0.0, N = 1, method=meth;
+
+l1     : drift, l = 0.100000;
+ml1    : drift, l = 0.100000;
+ml1a   : drift, l = 0.260000;
+ml1b   : drift, l = 0.100000;
+ul1    : drift, l = 0.100000;
+ul2    : drift, l = 0.258148;
+ul3    : drift, l = 0.300000;
+ul4    : drift, l = 2.800000;
+
+b1_h   : bending, l = 1.100000/2, t = b1a/2, k = -1.199036, t1 = 0*b1a/2.0,
+         t2 = b1a/2.0, n=nbend, method=meth;
+b2     : bending, l = 0.163000, t = b2a, k = 6.190683, t1 = b2a/2.0,
+         t2 = b2a/2.0, n=nbend, method=meth;
+
+mb1    : bending, l = 0.600000, t = mb1a, k = 0.000000, t1 = mb1a/2.0,
+         t2 = mb1a/2.0, n=nbend, method=meth;
+mb2    : bending, l = 0.163000, t = mb2a, k = 6.476866, t1 = mb2a/2.0,
+         t2 = mb2a/2.0, n=nbend, method=meth;
+
+uq1    : quadrupole, l = 0.165000, k = -9.476508, n=nquad, method=meth;
+uq2    : quadrupole, l = 0.200000, k =  9.591353, n=nquad, method=meth;
+uq3    : quadrupole, l = 0.100000, k = -3.051951, n=nquad, method=meth;
+
+{ Original. }
+s1a_h : sextupole, l = 0.090000,  k = -223.646713, n = 1, method=meth;
+s1b_h : sextupole, l = 0.090000,  k = -223.646713, n = 1, method=meth;
+s2_h  : sextupole, l = 0.130000,  k =  224.408612, n = 1, method=meth;
+
+{s1a_h : sextupole, l = 0.090000,  k = -2.07036e+02, n = 1, method=meth;
+s1b_h : sextupole, l = 0.090000,  k = -3.05323e+02, n = 1, method=meth;
+s2_h  : sextupole, l = 0.130000,  k =  2.48694e+02, n = 1, method=meth;}
+
+om_s1a: marker;
+om_s1b: marker;
+s1a: s1a_h, om_s1a, s1a_h;
+s1b: s1b_h, om_s1b, s1b_h;
+
+om_s2  : marker;
+om_mb1 : marker;
+om_c   : marker;
+
+b_t    : marker;
+
+ps_rot: map;
+
+
+{----- table of segments ----------------------------------------------------}
+
+ucell  : s2_h, l1, b2, l1, s1a, l1, inv(b1_h), b1_h, l1, s1a, l1, b2, l1,
+       	 s2_h;
+ucellh : b1_h, l1, s1a, l1, b2, l1, s2_h;
+ucellh1: b1_h, l1, s1a, l1, b2, l1, s2_h, om_s2, bpm, chv;
+dcell  : s2_h, ml1, mb2, ml1b, s1b, ml1a, mb1, om_mb1;
+arc    : inv(dcell), bpm, chv, inv(ucellh1), ucellh, om_s2, bpm, chv, ucell,
+       	 b_t, om_c, om_s2, bpm, chv,
+       	 ucell, om_s2, bpm, chv, inv(ucellh), ucellh1, dcell;
+mund   : ul1, uq1, ul2, bpm, chv, uq2, ul3, uq3, bpm, chv, ul4;
+sec    : b_t, inv(mund), arc, mund;
+
+{ring: ucell;}
+{ring: inv(mund), inv(dcell), inv(ucellh1), ucellh1, dcell, mund;}
+ring: 1*(sec, ps_rot), b_t, cav;
+
+cell: ring, symmetry=1;
+
+end;
+
+{..y-3.5\projects\in\lattice\bessy-iii\b3_cf_425grad_doneqx44qy13_top.opa}

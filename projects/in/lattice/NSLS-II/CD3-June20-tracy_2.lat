@@ -1,0 +1,259 @@
+{ New DBA30HLC16Es2rng7x7s.opa H(8m) L(5m)Rho = 25m }
+
+define lattice; ringtype = 1;
+
+Energy = 3.0;
+
+dP = 1e-8; CODeps = 1e-14;  
+  
+Meth = 4; Nbend = 4; Nquad = 4;  
+  
+pi = 4.0*arctan(1.0);  
+
+c0 = 2.99792458e8; h_rf = 1320; C = 791.958; Brho = 1e9*Energy/c0;
+  
+CAV: Cavity, Frequency = c0/C*h_rf, Voltage = 5.00e6, Harnum = h_rf;  
+
+ 
+CH: Corrector, Horizontal, Method= Meth;
+CV: Corrector, Vertical, Method= Meth; 
+
+BPM: Beam Position Monitor ; 
+
+GE: Multipole, N = 1, Method = Meth;
+GS: Multipole, N = 1, Method = Meth; 
+
+DBPM : Drift, L=0.0875;
+DFCH : Drift, L=0.15;
+DH0G1A : Drift, L=4.65;
+DH1AG2A : Drift, L=0.0875;
+DH1AG6B : Drift, L=0.0875;
+DH2AG2A : Drift, L=0.1575;
+DH2AG6B : Drift, L=0.1325;
+DH2BG2A : Drift, L=0.1575;
+DH2BG6B : Drift, L=0.1825;
+DH2CG2A : Drift, L=0.15;
+DH2CG6B : Drift, L=0.15;
+DH3AG2A : Drift, L=0.19;
+DH3AG6B : Drift, L=0.19;
+DH3BG2A : Drift, L=0.195;
+DH3BG6B : Drift, L=0.195;
+DH4AG2A : Drift, L=0.0875;
+DH4AG6B : Drift, L=0.0875;
+DH4BG2A : Drift, L=0.2485;
+DH4BG6B : Drift, L=0.07714;
+DH4CG3A : Drift, L=0.0315;
+DH4CG6B : Drift, L=0.20286;
+DL0G1A : Drift, L=3.3;
+DL1AG2A : Drift, L=0.0875;
+DL1AG6B : Drift, L=0.0875;
+DL2AG2A : Drift, L=0.1375;
+DL2AG6B : Drift, L=0.1375;
+DL2BG2A : Drift, L=0.1375;
+DL2BG6B : Drift, L=0.1375;
+DL2CG2A : Drift, L=0.25;
+DL2CG6B : Drift, L=0.25;
+DL3AG2A : Drift, L=0.6136;
+DL3AG6B : Drift, L=0.6136;
+DL3BG2A : Drift, L=0.0875;
+DL3BG6B : Drift, L=0.0875;
+DL4AG2A : Drift, L=0.2817;
+DL4AG6B : Drift, L=0.0822;
+DL4BG3A : Drift, L=0.0183;
+DL4BG6B : Drift, L=0.2178;
+DM1AG3A : Drift, L=0.365;
+DM1BG3A : Drift, L=0.31;
+DM1CG5B : Drift, L=0.2;
+DM1DG5B : Drift, L=0.0554;
+DM1EG4B : Drift, L=0.2196;
+DM2A2G4A : Drift, L=0.2;
+DM2AG4B : Drift, L=0.1125;
+DM2B2G4B : Drift, L=0.67;
+DM2BG4A : Drift, L=0.5825;
+DM2CG4A : Drift, L=0.2;
+DM2CG4B : Drift, L=0.2;
+DPWG5B : Drift, L=0.2;
+DSCH : Drift, L=0.1; 
+
+B1: Bending, L = 2.62, T = 6, T1 = 3, T2 = 3, N = Nbend, Method = Meth;  
+
+
+QH1: Quadrupole,L = 0.25, K=-0.688256, N = Nquad, Method = Meth;  
+QH2: Quadrupole,L = 0.4, K=1.65522, N = Nquad, Method = Meth;  
+QH3: Quadrupole,L = 0.25, K=-1.8739, N = Nquad, Method = Meth;  
+QL1: Quadrupole,L = 0.25, K=-1.78299, N = Nquad, Method = Meth;  
+QL2: Quadrupole,L = 0.4, K=2.01175, N = Nquad, Method = Meth;  
+QL3: Quadrupole,L = 0.25, K=-1.55768, N = Nquad, Method = Meth;  
+QM1: Quadrupole,L = 0.25, K=-0.824645, N = Nquad, Method = Meth;  
+QM2: Quadrupole,L = 0.25, K=1.38771, N = Nquad, Method = Meth;  
+SQ1H: Quadrupole,L = 0.1, K=0, N = Nquad, Method = Meth;  
+SQ2H: Quadrupole,L = 0.15, K=0, N = Nquad, Method = Meth;   
+
+DU_SH1: Drift, L = 0.0;
+DU_SH2: Drift, L = 0.0;
+DU_SH3: Drift, L = 0.0;
+DU_SH4: Drift, L = 0.0;
+DD_SH1: Drift, L = 0.0;
+DD_SH2: Drift, L = 0.0;
+DD_SH3: Drift, L = 0.0;
+DD_SH4: Drift, L = 0.0;
+
+DU_SL1: Drift, L = 0.0;
+DU_SL2: Drift, L = 0.0;
+DU_SL3: Drift, L = 0.0;
+DD_SL1: Drift, L = 0.0;
+DD_SL2: Drift, L = 0.0;
+DD_SL3: Drift, L = 0.0;
+
+DU_SM1: Drift, L = 0.0;
+DD_SM1: Drift, L = 0.0;
+
+SH1: Sextupole, L = 0.2,  K = 9.9954, N = 1, Method = Meth; 
+SH2: Sextupole, L = 0.2,  K = 4.53303, N = 1, Method = Meth; 
+SH3: Sextupole, L = 0.2,  K = -8.8697, N = 1, Method = Meth; 
+SH4: Sextupole, L = 0.2,  K = -5.63785, N = 1, Method = Meth; 
+
+SL1: Sextupole, L = 0.2, K = 3.05508, N = 1, Method = Meth; 
+SL2: Sextupole, L = 0.2, K = 8.66135, N = 1, Method = Meth; 
+SL3: Sextupole, L = 0.2, K = -9.99995, N = 1, Method = Meth; 
+SL4:   Sextupole, L = 0.0, K = 0.0, N = 1, Method = Meth; 
+
+SM1: Sextupole, L = 0.2,  K = -11.30165, N = 1, Method = Meth; 
+SM2H: Sextupole, L = 0.125, K = 12.7797, N = 1, Method = Meth;
+
+OM1: Multipole, L = 0.0, N = 1, Method = Meth,
+     HOM = (3, 0.0, 0.0);
+OM2: Multipole, L = 0.0, N = 1, Method = Meth,
+     HOM = (3, 0.0, 0.0);
+OM3: Multipole, L = 0.0, N = 1, Method = Meth,
+     HOM = (3, 0.0, 0.0);
+
+MP: Marker;
+SS: Marker;
+LS: Marker;
+
+{lambda_DW = 0.09; n_DW = 78; L_DW = n_DW*lambda_DW; B_DW = 1.8;
+DW_90: Wiggler, L = L_DW, lambda = lambda_DW, kxV = 0*0.072*2.0*pi/lambda_DW,
+       BoBrhoV = B_DW/Brho, N = n_DW*8, Method = 2;}
+
+L_DW = 7.02;
+DW_90: insertion, scaling = 1.0, N = 50, Method = 2,
+  file2 = "/home/bengtsson/projects/in/lattice/w90v5_pole80mm_finemesh_7m.txt";
+
+DH0G1A_DW : Drift, L=4.65 - L_DW/2.0;
+
+D_DW: Drift, L = -L_DW/2.0;
+{DW:   D_DW, DW_90, D_DW;}
+DW: DW_90;
+
+{L_DW = 7.02;
+DW_100: insertion, scaling = 1.0, N = 50, Method = 2,
+        file2 = "/home/bengtsson/projects/in/lattice/w100v5_7m_5th.txt";
+
+D_DW: Drift, L = -L_DW/2.0;
+DW:   D_DW, DW_100, D_DW;}
+
+L_IVU = 3.0;
+IVU_20: insertion, scaling = 1.0, N = 50, Method = 2,
+        file2 = "/home/bengtsson/projects/in/lattice/u20_3m_finemesh_5th.txt";
+
+D_IVU: Drift, L = -L_IVU/2.0;
+IVU: D_IVU, IVU_20, D_IVU;
+
+L_EPU = 3.96;
+U55: insertion, scaling = 1.0, N = 50, Method = 2,
+{  file2 = "/home/bengtsson/projects/in/lattice/u55gap115mm_155mm5th_rev1.txt";}
+{  file2 = "/home/bengtsson/projects/in/lattice/u55gap115mmph275mm5th_rev1.txt";}
+  file2 = "/home/bengtsson/projects/in/lattice/u55gap115mm_inclined_293mm5th_rev1.txt";
+D_EPU: Drift, L = -L_EPU/2.0;
+EPU:   D_EPU, U55, D_EPU;
+
+Girder1C30: DH0G1A,GE;
+
+Girder2C30: GS,DU_SH1,SH1,DD_SH1,DH1AG2A,BPM,DBPM,QH1,DH2AG2A,SQ1H,
+CH,CV,SQ1H,DH2BG2A,DU_SH2,SH2,DD_SH2,DH2CG2A,QH2,DH3AG2A,
+DU_SH3,SH3,DD_SH3,DH3BG2A,QH3,DH4AG2A,BPM,DBPM,DU_SH4,SH4,DD_SH4,DH4BG2A,
+DFCH,CH,CV,DFCH,GE,DH4CG3A;
+
+Girder3C30: GS,B1,DM1AG3A,DFCH,CH,CV,DFCH,DM1BG3A,
+GE;
+
+Girder4C30: GS,OM2,QM1,DM2A2G4A,DU_SM1,SM1,DD_SM1,OM3,DM2BG4A,BPM,DBPM,QM2,
+DM2CG4A,SM2H,MP,SM2H,DM2CG4B,QM2,DM2B2G4B,DD_SM1,SM1,DU_SM1,DM2AG4B,
+BPM,DBPM,QM1,OM1,DM1EG4B,DFCH,CV,CH,DFCH,
+GE;
+
+Girder5C30: GS,DM1DG5B,DPWG5B,DM1CG5B,B1,GE,DL4BG6B;
+
+Girder6C30: GS,DFCH,CV,CH,DFCH,DL4AG6B,SL4,QL3,DBPM,
+BPM,DL3BG6B,DU_SL3,SL3,DD_SL3,DL3AG6B,QL2,DL2CG6B,DU_SL2,SL2,DD_SL2,DL2BG6B,
+DSCH,CV,CH,DSCH,DL2AG6B,QL1,DL1AG6B,BPM,
+DBPM,DU_SL1,SL1,DD_SL1,GE;
+
+Girder1C01: GS,DL0G1A,SS,DL0G1A,GE;
+
+Girder2C01: GS,DD_SL1,SL1,DU_SL1,DL1AG2A,BPM,DBPM,QL1,DL2AG2A,DSCH,
+CH,CV,DSCH,DL2BG2A,DD_SL2,SL2,DU_SL2,DL2CG2A,QL2,DL3AG2A,
+DD_SL3,SL3,DU_SL3,DL3BG2A,BPM,DBPM,QL3,SL4,DL4AG2A,DFCH,CH,
+CV,DFCH,GE,DL4BG3A;
+
+Girder3C01: GS,B1,DM1AG3A,SQ2H,CH,CV,SQ2H,DM1BG3A,
+GE;
+
+Girder4C01: GS,OM1,QM1,DM2A2G4A,DU_SM1,SM1,DD_SM1,DM2BG4A,BPM,DBPM,QM2,
+DM2CG4A,SM2H,MP,SM2H,DM2CG4B,QM2,DM2B2G4B,OM3,DD_SM1,SM1,DU_SM1,DM2AG4B,
+BPM,DBPM,QM1,OM2,DM1EG4B,DFCH,CV,CH,DFCH,
+GE;
+
+Girder5C01: GS,DM1DG5B,DPWG5B,DM1CG5B,B1,GE,DH4CG6B;
+
+Girder6C01: GS,DFCH,CV,CH,DFCH,DH4BG6B,DD_SH4,SH4,DU_SH4,DH4AG6B,
+BPM,DBPM,QH3,DH3BG6B,DD_SH3,SH3,DU_SH3,DH3AG6B,QH2,DH2CG6B,
+DD_SH2,SH2,DU_SH2,DH2BG6B,DSCH,CV,CH,DSCH,DH2AG6B,QH1,
+DH1AG6B,BPM,DBPM,DD_SH1,SH1,DU_SH1,GE;
+
+Girder1C02H: GS,DH0G1A;
+
+
+SPC30C01: Girder1C30,Girder2C30,Girder3C30,Girder4C30,Girder5C30,Girder6C30,
+          Girder1C01,Girder2C01,Girder3C01,Girder4C01,Girder5C01,Girder6C01,
+          Girder1C02H,LS;
+
+Girder1C02H_DW: GS,DH0G1A_DW;
+
+SPC30C01_DW: Girder1C30,Girder2C30,Girder3C30,Girder4C30,Girder5C30,Girder6C30,
+          Girder1C01,Girder2C01,Girder3C01,Girder4C01,Girder5C01,Girder6C01,
+          Girder1C02H_DW,LS;
+
+Girder1C30_DW: DH0G1A_DW,GE;
+
+DW_SPC30C01: Girder1C30_DW,Girder2C30,Girder3C30,Girder4C30,Girder5C30,Girder6C30,
+          Girder1C01,Girder2C01,Girder3C01,Girder4C01,Girder5C01,Girder6C01,
+          Girder1C02H,LS;
+
+Girder1C01_IVU: GS,DL0G1A,IVU,DL0G1A,GE;
+
+SPC30C01_IVU: Girder1C30,Girder2C30,Girder3C30,Girder4C30,Girder5C30,
+              Girder6C30,Girder1C01_IVU,Girder2C01,Girder3C01,Girder4C01,
+              Girder5C01,Girder6C01,Girder1C02H,LS;
+
+Girder1C01_EPU: GS,DL0G1A,EPU,DL0G1A,GE;
+
+SPC30C01_EPU: Girder1C30,Girder2C30,Girder3C30,Girder4C30,Girder5C30,
+              Girder6C30,Girder1C01_EPU,Girder2C01,Girder3C01,Girder4C01,
+              Girder5C01,Girder6C01,Girder1C02H,LS;
+
+RING: 1*SPC30C01, CAV;
+
+{ 3 DWs }
+{RING: 1*(SPC30C01_DW, DW, DW_SPC30C01, 3*SPC30C01), CAV;}
+{RING: SPC30C01, DW, SPC30C01_IVU, SPC30C01_IVU, SPC30C01_IVU, SPC30C01,
+       SPC30C01, DW, 4*SPC30C01,
+       SPC30C01, DW, 4*SPC30C01, CAV;}
+
+{ 1 EPU }
+{RING: SPC30C01, SPC30C01_EPU, 13*SPC30C01, CAV;}
+
+CELL: RING, SYMMETRY = 1;
+
+END;

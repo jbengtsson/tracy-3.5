@@ -1,0 +1,219 @@
+{..s-length corr\diamond_test17_matched_phases_corr_length_ver_01-ref.opa}
+
+{opa to tracy-2 export}
+
+define lattice;
+energy = 3.5;
+dp = 1.0d-10;  codeps = 1.0d-6;  dk = 1.0d-6;
+meth = 4; nbend = 10; nquad = 10; nsext = 4;
+
+{----- variables ----------------------------------------------------}
+
+aban   = 0.455300002123364;
+abans  = aban;
+abanm  = aban;
+f      = 0.75;
+
+{----- table of elements ----------------------------------------------------}
+
+dmon   : drift, l = 0.050000;
+dnvb   : drift, l = 0.010000;
+dsvb   : drift, l = 0.084000;
+dnm    : drift, l = 0.300000;
+dnm1   : drift, l = 0.050000;
+dnm2   : drift, l = 0.150000;
+dmp    : drift, l = 0.150000;
+dxm    : drift, l = 0.220000;
+dsx    : drift, l = 0.100000;
+dme    : drift, l = 0.200000;
+dmem   : drift, l = 0.150000;
+dme1   : drift, l = 0.100000;
+dme2   : drift, l = 0.150000;
+mgp    : drift, l = 1.000000;
+mgpl   : drift, l = 1.740000;
+mgp1   : drift, l = 1.000000;
+mgp2   : drift, l = 1.000000;
+dm1    : drift, l = 0.100000;
+dm2    : drift, l = 0.150000;
+dm8    : drift, l = 0.300000;
+dms    : drift, l = 1.760000;
+dms1   : drift, l = 1.560000;
+dms2   : drift, l = 1.560000;
+dxd    : drift, l = 0.050000;
+doc    : drift, l = 0.050000;
+dbs    : drift, l = 0.073930;
+l1     : drift, l = 1.300000;
+l2     : drift, l = 1.667500;
+dls    : drift, l = 4.772000;
+dls1   : drift, l = 3.978000;
+dss    : drift, l = 3.000000;
+dss1   : drift, l = 2.942500;
+dmes   : drift, l = 0.200000;
+
+center : marker;
+
+qm3    : quadrupole, l = 0.150000, k = -7.051552, n=nquad, method=meth;
+qm2a   : quadrupole, l = 0.150000, k = 7.494419, n=nquad, method=meth;
+qm2b   : quadrupole, l = 0.150000, k = 7.126250, n=nquad, method=meth;
+qm1    : quadrupole, l = 0.150000, k = -7.490407, n=nquad, method=meth;
+q1     : quadrupole, l = 0.000000, k = -6232930.000000, n=nquad, method=meth;
+q2     : quadrupole, l = 0.000000, k = 7358620.000000, n=nquad, method=meth;
+qm22   : quadrupole, l = 0.150000, k = -7.051552, n=nquad, method=meth;
+qma2   : quadrupole, l = 0.100000, k = 15.715155, n=nquad, method=meth;
+qmb2   : quadrupole, l = 0.150000, k = 7.126250, n=nquad, method=meth;
+qm21   : quadrupole, l = 0.100000, k = -15.164625, n=nquad, method=meth;
+qs2a   : quadrupole, l = 0.100000, k = 15.547058, n=nquad, method=meth;
+qs2b   : quadrupole, l = 0.100000, k = 0.000000, n=nquad, method=meth;
+qs1    : quadrupole, l = 0.100000, k = -15.176298, n=nquad, method=meth;
+qml3   : quadrupole, l = 0.150000, k = -5.301352, n=nquad, method=meth;
+qml2a  : quadrupole, l = 0.150000, k = 5.627422, n=nquad, method=meth;
+qml2b  : quadrupole, l = 0.150000, k = 7.468358, n=nquad, method=meth;
+qml1   : quadrupole, l = 0.150000, k = -8.343426, n=nquad, method=meth;
+
+bn00   : bending, l = 0.078256*f, t = 0.703125, k = 0.000000,
+         t1 = 0.000000, t2 = 0.703125, n=nbend, method=meth;
+i_bn00   : bending, l = 0.078256*f, t = 0.703125, k = 0.000000,
+         t1 = 0.703125, t2 = 0.000000, n=nbend, method=meth;
+bn03   : bending, l = 0.039128*f, t = 0.234375, k = 0.000000,
+         t1 = -0.703125, t2 = 0.937500, n=nbend, method=meth;
+i_bn03   : bending, l = 0.039128*f, t = 0.234375, k = 0.000000,
+         t1 = 0.937500, t2 = -0.703125, n=nbend, method=meth;
+bn06   : bending, l = 0.156513*f, t = 0.703125, k = 0.000000,
+         t1 = -0.937500, t2 = 1.640625, n=nbend, method=meth;
+i_bn06   : bending, l = 0.156513*f, t = 0.703125, k = 0.000000,
+         t1 = 1.640625, t2 = -0.937500, n=nbend, method=meth;
+
+
+{sd    : sextupole, l = 0.10, k = 1e-10, n = 4, method=meth;
+sfm   : sextupole, l = 0.10, k = 1e-10, n = 4, method=meth;
+sdm   : sextupole, l = 0.10, k = 1e-10, n = 4, method=meth;
+
+sxx   : multipole, l = 0.10, hom = (4, 1e-10, 0.0), n = 1, method=meth;
+sxy1  : multipole, l = 0.10, hom = (4, 1e-10, 0.0), n = 1, method=meth;
+sxy2  : multipole, l = 0.10, hom = (4, 1e-10, 0.0), n = 1, method=meth;
+sxy3  : multipole, l = 0.10, hom = (4, 1e-10, 0.0), n = 1, method=meth;
+syy1  : multipole, l = 0.10, hom = (4, 1e-10, 0.0), n = 1, method=meth;
+syy2  : multipole, l = 0.10, hom = (4, 1e-10, 0.0), n = 1, method=meth;
+syy3  : multipole, l = 0.10, hom = (4, 1e-10, 0.0), n = 1, method=meth;}
+
+{ tune_conf/6-RB-BA/ref. }
+sd      : sextupole, l = 0.10000, k = -1.83206e+03, n = nsext, Method = Meth;
+sfm     : sextupole, l = 0.10000, k =  9.15074e+02, n = nsext, Method = Meth;
+sdm     : sextupole, l = 0.10000, k = -5.69051e+02, n = nsext, Method = Meth;
+
+sxx     : multipole, l = 0.10000,
+          hom = ( 4, -1.09600e+04, 0e0), n = 1, Method = Meth;
+sxy1    : multipole, l = 0.10000,
+          hom = ( 4, -2.90191e+04, 0e0), n = 1, Method = Meth;
+sxy2    : multipole, l = 0.10000,
+          hom = ( 4,  6.43334e+04, 0e0), n = 1, Method = Meth;
+sxy3    : multipole, l = 0.10000,
+          hom = ( 4, -5.62697e+04, 0e0), n = 1, Method = Meth;
+syy1    : multipole, l = 0.10000,
+          hom = ( 4,  2.11591e+04, 0e0), n = 1, Method = Meth;
+syy2    : multipole, l = 0.10000,
+          hom = ( 4, -1.22107e+04, 0e0), n = 1, Method = Meth;
+syy3    : multipole, l = 0.10000,
+          hom = ( 4,  4.54290e+04, 0e0), n = 1, Method = Meth;
+
+bnom1  : marker;
+bnom2  : marker;
+bnom3  : marker;
+
+an     : bending, l = 0.300000, t = -aban, k = 4.301269, t1 = -aban,
+         t2 = 0.000000, n=nbend, method=meth;
+i_an     : bending, l = 0.300000, t = -aban, k = 4.301269,
+         t1 = 0.000000, t2 = -aban, n=nbend, method=meth;
+anm    : bending, l = 0.300000, t = -aban, k = 3.677687, t1 = -aban,
+         t2 = 0.000000, n=nbend, method=meth;
+i_anm    : bending, l = 0.300000, t = -aban, k = 3.677687,
+         t1 = 0.000000, t2 = -aban, n=nbend, method=meth;
+vbm    : bending, l = 0.206103, t = 0.234375+aban, k = -0.751641,
+         t1 = -1.640625, t2 = 2.5+aban, n=nbend, method=meth;
+i_vbm    : bending, l = 0.206103, t = 0.234375+aban, k = -0.751641,
+         t1 = 2.5+aban, t2 = -1.640625, n=nbend, method=meth;
+vb     : bending, l = 0.206103, t = 0.234375+aban, k = -4.330370,
+         t1 = -1.640625, t2 = 2.5+aban, n=nbend, method=meth;
+i_vb     : bending, l = 0.206103, t = 0.234375+aban, k = -4.330370,
+         t1 = 2.5+aban, t2 = -1.640625, n=nbend, method=meth;
+
+bpm         : beam position monitor;
+ch          : corrector, horizontal;
+cv          : corrector, vertical;
+chv         : ch, cv;
+b_t         : marker;
+
+{----- table of segments ----------------------------------------------------}
+
+bn     : bn00, bn03, bn06;
+i_bn   : i_bn06, i_bn03, i_bn00;
+hnc    : bn, dnvb, vb, dnm1, sd, dnm2, bpm, chv, an;
+i_hnc  : i_an, bpm, chv, dnm2, inv(sd), dnm1, i_vb, dnvb, i_bn;
+mpfho  : doc, doc;
+mpfh   : doc, doc;
+mpf    : mpfh, sfm, inv(mpfho);
+ncellr : hnc, mpfh, inv(mpfho), i_hnc;
+i_ncellr: hnc, mpfho, inv(mpfh), i_hnc;
+mpfm   : doc, doc, sfm, doc, doc;
+moxy1  : doc, doc, sxy1, doc;
+moxy2  : doc, bpm, chv, doc, sxy2, doc;
+moxy3  : doc, bpm, chv, doc, sxy3, doc;
+moxx   : doc, bpm, chv, doc, sxx, doc;
+moyy1  : doc, bpm, chv, doc, syy1, doc;
+moyy2  : doc, bpm, chv, doc, syy2, doc;
+moyy3  : doc, bpm, chv, doc, syy3, bpm, chv, doc;
+
+dsup   : hnc, mpfm, anm, dxm, bpm, chv, sdm, dnm1, i_vbm, dnvb, i_bn;
+i_dsup : bn, dnvb, vbm, dnm1, inv(sdm), bpm, chv, dxm, i_anm, inv(mpfm), i_hnc;
+mat    : bnom1, dme, inv(moyy1), qml1, dmon, inv(moxy1), qml2a, dmon,
+         inv(moxx), qml2b, dm2, qml3, dls1, bnom2;
+
+mat1   : bnom1, dmem, inv(moyy2), qm21, dmon, inv(moxy2), qma2, dmon,
+         dms1, bnom2;
+mat2   : dmes, inv(moyy3), qs1, dmon, inv(moxy3), qs2a, dss1;
+tm     : dsup, mat;
+i_tm   : inv(mat), i_dsup;
+tm1    : dsup, mat1;
+i_tm1  : inv(mat1), i_dsup;
+tm2    : dsup, mat2;
+i_tm2  : inv(mat2), i_dsup;
+itm    : mat, inv(mat), i_dsup;
+i_itm  : dsup, mat, inv(mat);
+itm0   : inv(mat), i_dsup;
+i_itm0 : dsup, mat;
+itm1   : inv(mat1), i_dsup;
+i_itm1 : dsup, mat1;
+itm2   : inv(mat2), i_dsup;
+i_itm2 : dsup, mat2;
+ssh    : q1, l1, q2;
+cell1   : ncellr;
+i_cell1 : i_ncellr;
+sp1    : i_tm1, tm2;
+i_sp1  : i_tm2, tm1;
+sp13   : i_tm, mat1, inv(mat1), tm;
+i_sp13 : i_tm, mat1, inv(mat1), tm;
+sp10   : sp1, i_sp1;
+i_sp10 : sp1, i_sp1;
+
+sp     : itm0, i_itm1,
+         sp1, b_t, i_sp1, itm1,
+   	 i_itm2, i_sp1, b_t, sp1, itm2,
+ 	 i_itm1,
+  	 itm1, i_itm0;
+
+cav: Cavity, L = 0.0, Frequency = 499.654e6, Voltage = 2.2e6, phi = 180.0;
+
+sp1    : i_tm1, tm2;
+i_sp1  : i_tm2, tm1;
+
+{ Unit Cell. }
+{ring: i_tm2, tm1, itm1, i_itm2, cav;}
+{ Matching Cell. }
+{ring: itm0, i_itm1, itm1, i_itm0, cav;}
+ring: 1*sp, b_t, cav;
+
+cell: ring, symmetry=1;
+
+end;
+
+{..s-length corr\diamond_test17_matched_phases_corr_length_ver_01-ref.opa}

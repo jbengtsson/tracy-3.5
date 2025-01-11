@@ -1,0 +1,42 @@
+#                                               -*- Autoconf -*-
+# Process this file with autoconf to produce a configure script.
+
+AC_PREREQ([2.72])
+AC_INIT([FULL-PACKAGE-NAME], [VERSION], [BUG-REPORT-ADDRESS])
+AC_CONFIG_SRCDIR([config.h.in])
+AC_CONFIG_HEADERS([config.h])
+
+# Checks for programs.
+AC_PROG_CXX
+AC_PROG_CC
+AC_PROG_MAKE_SET
+
+# Checks for libraries.
+# FIXME: Replace 'main' with a function in '-lLieLib':
+AC_CHECK_LIB([LieLib], [main])
+# FIXME: Replace 'main' with a function in '-lTPSALib':
+AC_CHECK_LIB([TPSALib], [main])
+# FIXME: Replace 'main' with a function in '-lgfortran':
+AC_CHECK_LIB([gfortran], [main])
+# FIXME: Replace 'main' with a function in '-lgsl':
+AC_CHECK_LIB([gsl], [main])
+# FIXME: Replace 'main' with a function in '-lnum_rec':
+AC_CHECK_LIB([num_rec], [main])
+# FIXME: Replace 'main' with a function in '-ltracy':
+AC_CHECK_LIB([tracy], [main])
+# FIXME: Replace 'main' with a function in '-ltracy_ptc':
+AC_CHECK_LIB([tracy_ptc], [main])
+
+# Checks for header files.
+
+# Checks for typedefs, structures, and compiler characteristics.
+AC_CHECK_HEADER_STDBOOL
+AC_C_INLINE
+
+# Checks for library functions.
+AC_CHECK_FUNCS([modf pow sqrt strstr])
+
+AC_CONFIG_FILES([Makefile
+                 src/Makefile
+                 src/ptc/Makefile])
+AC_OUTPUT

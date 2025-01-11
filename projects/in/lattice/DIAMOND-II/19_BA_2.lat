@@ -1,0 +1,93 @@
+define lattice; ringtype = 1;
+
+Energy = 3.0;
+
+dP = 1e-8; CODeps = 1e-14;
+
+Meth = 4; Nbend = 10; Nquad = 10; Nsext = 2;
+
+pi = 4.0*arctan(1.0);
+
+c0 = 2.99792458e8; h_rf = 1320; C = 791.958; Brho = 1e9*Energy/c0;
+
+cav: Cavity, Frequency = c0/C*h_rf, Voltage = 3.30e6, Harnum = h_rf;
+
+l1:  drift, l = 0.1;
+l2h: drift, l = 0.1;
+l4:  drift, l = 0.254311;
+l5h: drift, l = 0.856190/2.0;
+ls:  drift, l = 2.500000;
+l6:  drift, l = 0.173080;
+l3h: drift, l = 0.030029;
+
+{bh: bending, l = 0.166667, t = 0.5, k = -7.98615, t1 = 0.0, t2 = 0.0,
+      gap = 0.0, N = Nbend, Method = Meth;
+qf:  quadrupole, l = 0.075, k = 26.99086, N = Nquad, Method = Meth;}}}
+
+{ Cell tune [5/16, 1/16]. }
+bh: bending, l = 0.166667, t = 0.5, k = -7.98627, t1 = 0.0, t2 = 0.0,
+      gap = 0.0, N = Nbend, Method = Meth;
+qf:  quadrupole, l = 0.075, k = 26.9914, N = Nquad, Method = Meth;
+
+{bm: bending, l = 0.166667, t = 0.5, k = -3.000000, t1 = 0.0, t2 = 0.0,
+     gap = 0.00, N = Nbend, Method = Meth;
+qfe: quadrupole, l = 0.1,  k =  23.402022, N = Nquad, Method = Meth;
+qde: quadrupole, l = 0.1,  k = -19.788989, N = Nquad, Method = Meth;
+qm:  quadrupole, l = 0.15, k =  18.290790, N = Nquad, Method = Meth;}
+
+bm: bending, l = 0.166667, t = 0.5, k = 1.98317, t1 = 0.0, t2 = 0.0,
+     gap = 0.00, N = Nbend, Method = Meth;
+qfe: quadrupole, l = 0.1,  k =  2.49553e+01, N = Nquad, Method = Meth;
+qde: quadrupole, l = 0.1,  k = -2.56116e+01, N = Nquad, Method = Meth;
+qm:  quadrupole, l = 0.15, k =  2.14538e+01, N = Nquad, Method = Meth;
+
+{sf:  sextupole, l = 0.0, k =  139.70554, N = Nsext, Method = Meth;
+sd:  sextupole, l = 0.0, k = -172.11743, N = Nsext, Method = Meth;}
+
+sf:  sextupole, l = 0.0, k =  233.65702, N = Nsext, Method = Meth;
+sd:  sextupole, l = 0.0, k = -318.87144, N = Nsext, Method = Meth;
+
+o1: multipole, l = 0.0, HOM = (4, -1.30852e+05, 0.0), N = Nsext, Method = Meth;
+o2: multipole, l = 0.0, HOM = (4,  7.45536e+05, 0.0), N = Nsext, Method = Meth;
+o3: multipole, l = 0.0, HOM = (4, -1.49892e+06, 0.0), N = Nsext, Method = Meth;
+
+start: marker;
+
+uc_h: sf, l1, qf, l2h, l2h, sd, bh;
+uc :  inv(uc_h), uc_h;
+
+{L_bm  = 0.0;
+L_qfe = 0.0;
+L_qde = 0.0;
+L_qm  = 0.0;}
+
+L_bm  =  1.48772e-01;
+L_qfe = -2.96745e-02;
+L_qde =  1.49216e-03;
+L_qm  = -5.62540e-02;
+
+du_bm:  drift, L =  L_bm;
+dd_bm:  drift, L = -L_bm;
+du_qfe: drift, L =  L_qfe;
+dd_qfe: drift, L = -L_qfe;
+du_qde: drift, L =  L_qde;
+dd_qde: drift, L = -L_qde;
+du_qm:  drift, L =  L_qm;
+dd_qm:  drift, L = -L_qm;
+
+ms: ls, o1, du_qfe, qfe, dd_qfe, l3h, l3h, du_qde, qde, dd_qde, o2, l4, o3,
+    du_bm, bm, dd_bm, l5h, l5h, du_qm, qm, dd_qm, l6, bh;
+
+sch: ms, 8*uc;
+
+sc: sch, inv(sch);
+
+{line: 1*uc, cav;}
+
+{line: inv(ms);}
+
+line: 1*sc, cav;
+
+cell: line, symmetry = 1;
+
+end;

@@ -1,0 +1,85 @@
+{..it\tracy-3.5\projects\in\lattice\bessy-iii\notg-tgrb-b60-6bend-6sx.opa}
+
+{opa to tracy-2 export}
+
+define lattice;
+energy = 2.500000;
+dp = 1.0d-10;  codeps = 1.0d-6;  dk = 1.0d-6;
+meth = 4; nbend = 10; nquad = 10;
+
+{----- variables ----------------------------------------------------}
+
+orbitdpp  = 0;
+b0a       = 2.205*1.0;
+b1a       = -0.25*1.0;
+mb0a      = 3.43*1.0;
+mb1a      = -0.0*1.0;
+
+{----- table of elements ----------------------------------------------------}
+
+c0 = 2.99792458e8; gamma = 3.5e9/c0; Brho = 1e9*Energy/c0;
+
+h_rf = 538; C = 16*20.2;
+
+cav: Cavity, L = 0.0, Frequency = c0/C*h_rf, Voltage = 1.5e6, harnum = h_rf,
+     phi = 0.0;
+
+l0  : drift, l = 0.100000;
+l1  : drift, l = 0.100000;
+l2  : drift, l = 0.100000;
+l3  : drift, l = 0.100000;
+ml0 : drift, l = 0.100000;
+ml1 : drift, l = 0.100000;
+ml2 : drift, l = 0.100000;
+ml3 : drift, l = 0.100000;
+ul0 : drift, l = 0.100000;
+ul1 : drift, l = 0.100000;
+ul2 : drift, l = 0.100000;
+ul3 : drift, l = 0.100000;
+ul4 : drift, l = 2.800000;
+
+q0  : quadrupole, l = 0.110000, k = -7.702058, n=nquad, method=meth;
+mq2 : quadrupole, l = 0.110000, k = 8.617091, n=nquad, method=meth;
+
+uq1 : quadrupole, l = 0.100000, k = -6.174755, n=nquad, method=meth;
+uq2 : quadrupole, l = 0.280000, k = 7.731768, n=nquad, method=meth;
+uq3 : quadrupole, l = 0.090000, k = -7.696539, n=nquad, method=meth;
+
+b0  : bending, l = 0.600000, t = b0a, k = 0.000000, t1 = 0.000000,
+      t2 = b0a, n=nbend, method=meth;
+b1  : bending, l = 0.140000, t = b1a, k = 8.081387, t1 = b1a/2.0,
+      t2 = b1a/2.0, n=nbend, method=meth;
+b1a : bending, l = 0.220000, t = b1a, k = 7.630257, t1 = b1a/2.0,
+      t2 = b1a/2.0, n=nbend, method=meth;
+mb0 : bending, l = 0.600000, t = mb0a, k = -2.237166, t1 = mb0a/2.0,
+      t2 = mb0a/2.0, n=nbend, method=meth;
+
+s0  : sextupole, l = 0.040000, k = 505.109148, n = 1, method=meth;
+s0a : sextupole, l = 0.040000, k = 1023.621440, n = 1, method=meth;
+s1  : sextupole, l = 0.080000, k = -346.018550, n = 1, method=meth;
+s1a : sextupole, l = 0.080000, k = -734.288733, n = 1, method=meth;
+s3  : sextupole, l = 0.080000, k = 398.901079, n = 1, method=meth;
+s4  : sextupole, l = 0.080000, k = 37.389977, n = 1, method=meth;
+
+b0c : marker;
+s0c : marker;
+
+ps_rot: map;
+
+{----- table of segments ----------------------------------------------------}
+
+cell0   : b0c, b0, l0, q0, l1, s1, l1, b1, l3, s0;
+cell1   : b0c, b0, l0, q0, l1, s1, l1, b1a, l3, s0a, s0c;
+mbacell : inv(cell0), cell0;
+mcell   : mb0, ml2, s1a, ml2, mq2, ml1, s0a;
+mund    : ul0, s3, ul0, uq1, ul1, uq2, ul2, s4, ul3, uq3, ul4;
+match   : cell1, inv(mcell), mund;
+arc     : inv(match), cell0, mbacell, mbacell, inv(cell0), match;
+
+line: 1*(arc, ps_rot), cav;
+
+cell: line, symmetry=1;
+
+end;
+
+{..it\tracy-3.5\projects\in\lattice\bessy-iii\notg-tgrb-b60-6bend-6sx.opa}

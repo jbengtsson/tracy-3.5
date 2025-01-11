@@ -1,0 +1,63 @@
+define lattice;
+
+energy = 2.5;
+
+dp = 1.0d-10; codeps = 1.0d-6; dk = 1.0d-6;
+
+meth = 4; nbend = 10; nquad = 10; nsext = 2;
+
+pi = 4.0*arctan(1.0);
+
+c0 = 2.99792458e8; gamma = 3.5e9/c0; Brho = 1e9*Energy/c0;
+
+h_rf = 535; C = 20*16.0600000;
+
+cav: Cavity, L = 0.0, Frequency = c0/C*h_rf, Voltage = 1.5e6, harnum = h_rf,
+     phi = 0.0;
+
+l1: drift, l = 0.100000;
+l2: drift, l = 0.100000;
+l3: drift, l = 0.100000;
+l4: drift, l = 0.100000;
+l5: drift, l = 0.100000;
+l6: drift, l = 0.100000;
+l7: drift, l = 0.100000;
+l8: drift, l = 0.100000;
+l9: drift, l = 2.500000;
+
+b1e:      bending, l =  0.66539161,
+    t =  2.76458410, t1 =  1.38229205, t2 =  1.38229205, k = -1.28299591,
+    n = nbend, method = 4;
+b1c:      bending, l =  0.40000000,
+    t =  2.53042219, t1 =  1.26521109, t2 =  1.26521109, k = -2.23077143,
+    n = nbend, method = 4;
+b2:       bending, l =  0.13000000,
+    t = -0.32725457, t1 = -0.16362728, t2 = -0.16362728, k = 10.68131799,
+    n = nbend, method = 4;
+
+q1:       quadrupole, l = 0.16000000, k =   -7.98740530, n = nquad, method = 4;
+q2:       quadrupole, l = 0.26000000, k =    8.96514405, n = nquad, method = 4;
+q3:       quadrupole, l = 0.10000000, k =   -6.70562289, n = nquad, method = 4;
+
+s1:       sextupole,  l = 0.06000000, k =  791.82210789, n = nsext, method = 4;
+s2:       sextupole,  l = 0.08000000, k = -753.98348541, n = nsext, method = 4;
+
+s3: sextupole, l = 0.080000, k = 0.0, n = 1, method = meth;
+s4: sextupole, l = 0.080000, k = 0.0, n = 1, method = meth;
+
+
+cell_hc: b1c, l1, s2, l2, b2, l3, s1;
+cell_u: inv(cell_hc), cell_hc;
+cell_he: b1e, l1, s2, l2, b2, l3, s1;
+cell_m: l4, s3, l5, q1, l6, q2, l7, s4, l8, q3, l9;
+
+{ Include cavity to pass beam energy to flat file. }
+{line: cell_u, cav;}
+{line: inv(cell_he), cell_m;}
+{line: 1*(cell_hc, inv(cell_hc)), cav;}
+{line: inv(cell_m), cell_he, inv(cell_hc), cav;}
+line: 1*(inv(cell_m), cell_he, 4*cell_u, inv(cell_he), cell_m), cav;
+
+cell: line, symmetry=1;
+
+end;

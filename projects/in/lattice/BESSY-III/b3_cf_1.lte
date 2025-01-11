@@ -1,0 +1,105 @@
+!..ign\lattices\bessy-iii\2022_05_pg\b3_cf_425grad_doneqx44qy13_novar.opa
+
+!opa to elegant export
+
+!----- table of elements ---------------------------------------------
+
+BPM: monitor, L=0.000
+
+!l1     : drift, l = 0.100000
+l1h    : drift, l = 0.050000
+
+ml1    : drift, l = 0.100000
+!ml1a   : drift, l = 0.260000
+ml1ah   : drift, l = 0.13000
+ml1b   : drift, l = 0.100000
+ul1    : drift, l = 0.100000
+ul2    : drift, l = 0.253388
+ul3    : drift, l = 0.300000
+!ul4    : drift, l = 2.800000
+ul4dr  : drift, l = 2.750000
+ul4    : Line=(l1h, BPM, ul4dr)
+
+uq1    : kquad, l = 0.165000, k1 = -9.421282
+uq2    : kquad, l = 0.200000, k1 = 9.412986
+uq3    : kquad, l = 0.100000, k1 = -2.712603
+
+% 1.0 sto edgefactor  
+bb     : csbend, l = 1.100000, angle = 0.087441, k1 = "-1.166115 1.0 *", e1 = "0.043720 edgefactor *", e2 = "0.043720 edgefactor *", &
+  REFERENCE_CORRECTION=1, TRACKING_MATRIX=0, FSE_CORRECTION=0, Edge1_Effects=2,Edge2_Effects=2
+!, MALIGN_METHOD=0
+
+br     : csbend, l = 0.163000, angle = -0.006632, k1 = "6.045379 1.0 *", e1 = -0.003316, e2 = -0.003316, &
+  REFERENCE_CORRECTION=1, TRACKING_MATRIX=0, FSE_CORRECTION=0, Edge1_Effects=2,Edge2_Effects=2
+
+mbb    : csbend, l = 0.600000, angle = 0.050571, k1 = 0.000000, e1 = 0.025285,  e2 = 0.025285
+
+mbr    : csbend, l = 0.163000, angle = -0.002574, k1 = 6.364826, e1 = -0.001287, e2 = -0.001287, &
+  REFERENCE_CORRECTION=1, TRACKING_MATRIX=0, FSE_CORRECTION=0, Edge1_Effects=2,Edge2_Effects=2
+
+SFK: drift, l = 0.0
+SDK: drift, l = 0.0
+
+sdh     : ksext, l = "0.200000 2 /", k2 = -439.476520, HSteering=1, VSteering = 0
+sf     : ksext, l = 0.150000, k2 = 443.446592 , HSteering=0, VSteering = 1
+sd3h    : ksext, l = "0.200000 2 /", k2 = -439.476520, HSteering=1, VSteering = 0
+
+sf1    : ksext, l = .150000, k2 = 163.050876, HSteering=0, VSteering = 1
+sf2    : ksext, l = .150000, k2 = 330.550822, HSteering=0, VSteering = 1
+sf3    : ksext, l = .150000, k2 = 500.650122, HSteering=0, VSteering = 1
+sd1h    : ksext, l = "0.200000 2 /", k2 = -255.987678, HSteering=1, VSteering = 0
+sd2h    : ksext, l = "0.200000 2 /", k2 = -341.363978, HSteering=1, VSteering = 0
+sd3ah   : ksext, l = "0.200000 2 /", k2 = -446.820720, HSteering=1, VSteering = 0
+sd3bh   : ksext, l = "0.200000 2 /", k2 = -502.299348, HSteering=1, VSteering = 0
+
+sd: line=(sdh, SDK, sdh)
+sd1: line=(sd1h, SDK, sd1h)
+sd2: line=(sd2h, SDK, sd2h)
+sd3: line=(sd3h, SDK, sd3h)
+sd3a: line=(sd3ah, SDK, sd3ah)
+sd3b: line=(sd3bh, SDK, sd3bh)
+!sd2: line=(sd2h, sd2h)
+!sd3: line=(sd3h, sd3h)
+!sd3a: line=(sd3ah, sd3ah)
+!sd3b: line=(sd3bh, sd3bh)
+
+
+
+om_sf  : marker
+om_mbb : marker
+om_c   : marker
+
+StartEnd: marker
+
+oxx    : koct, l = 0.0, k3 = 0.0000, order=3
+oxy    : koct, l = 0.0, k3 = 0.0000, order=3
+oyy    : koct, l = 0.0, k3 = 0.0000, order=3
+
+
+!----- table of segments ---------------------------------------------
+
+l1: line=(l1h, l1h)
+l1BPM: line=(l1h, BPM, l1h)
+
+ml1a: line=(ml1ah, ml1ah)
+ml1aBPM: line=(ml1ah, BPM, ml1ah)
+
+
+ucell  : line=(om_sf, SFK, sf, l1, br, l1, sd, l1BPM, bb, l1BPM, sd, l1, br, l1, sf,&
+         om_sf)
+ucs21  : line=(om_sf, SFK, sf2, l1, br, l1, sd2, l1BPM, bb, l1BPM, sd1, l1, br, l1, sf1,&
+         om_sf)
+ucs32  : line=(om_sf, SFK, sf3, l1, br, l1, sd3a, l1BPM, bb, l1BPM, sd2, l1, br, l1, sf2,&
+         om_sf)
+dcell  : line=(om_sf, sf3, ml1, mbr, ml1b, sd3b, ml1aBPM, mbb, om_mbb)
+
+arc    : line=(-dcell, ucs32, ucs21, om_c, -ucs21, -ucs32, dcell)
+!mund   : line=(om_mbb, oyy, SDK, ul1, uq1, ul2, uq2, oxx, SDK, ul3, oxy, uq3, SDK, ul4)
+mund   : line=(om_mbb, oyy, SDK, ul1, uq1, ul2, uq2, oxx, ul3, oxy, uq3, SDK, ul4)
+sec    : line=(-mund, arc, mund)
+sech   : line=(om_c, -ucs21, -ucs32, dcell, mund)
+sec16x : line=(-sech, sech)
+sec16  : line=(-mund, arc, mund)
+ring   : line=(StartEnd,16*sec,StartEnd)
+
+!..ign\lattices\bessy-iii\2022_05_pg\b3_cf_425grad_doneqx44qy13_novar.opa

@@ -1,0 +1,117 @@
+{..:\users\bs36\desktop\tba-opa-28-08-2018\opa-tba-6x8-0-1-1-antibend.opa}
+
+{opa to tracy-2 export}
+
+define lattice;
+energy = 3.500000;
+dp = 1.0d-10;  codeps = 1.0d-6;  dk = 1.0d-6;
+meth = 4;
+
+{----- variables ----------------------------------------------------}
+
+cav: Cavity, L = 0.0, Frequency = 499654096.667, Voltage = 2200000, phi = 0.0;
+
+dp      = 1e-10;
+codeps  = 1e-6;
+dk      = 1e-6;
+nbend   = 10;
+nquad   = 10;
+nsext   = 2;
+f       = 0.8;
+aban    = 0.885;
+rk1     = 3.741;
+rk2     = 3.677687;
+
+{----- table of elements ----------------------------------------------------}
+
+d_ls     : drift, l = 3.900000;
+d5       : drift, l = 0.073642;
+d6       : drift, l = 0.430954;
+d7       : drift, l = 0.105044;
+d8       : drift, l = 0.128516;
+d_ms     : drift, l = 1.400000;
+d_ss     : drift, l = 2.400000;
+d9       : drift, l = 0.121878;
+d10      : drift, l = 0.399991;
+d11      : drift, l = 0.229363;
+d12      : drift, l = 0.111938;
+d4       : drift, l = 0.303287;
+d3       : drift, l = 0.388615;
+d2       : drift, l = 0.389758;
+d1       : drift, l = 0.075853;
+
+ss       : marker;
+ms       : marker;
+ls       : marker;
+
+qf1_ms   : quadrupole, l = 0.199929, k = -2.966380, n=nquad, method=meth;
+qd2_ms   : quadrupole, l = 0.175853, k = 9.037744, n=nquad, method=meth;
+qd3_ss   : quadrupole, l = 0.399795, k = 0.493422, n=nquad, method=meth;
+qf2_ss   : quadrupole, l = 0.217227, k = 7.676293, n=nquad, method=meth;
+qd1_ss   : quadrupole, l = 0.130500, k = -8.160622, n=nquad, method=meth;
+qd4_ls   : quadrupole, l = 0.396163, k = 1.690419, n=nquad, method=meth;
+qf3_ls   : quadrupole, l = 0.158229, k = 4.811859, n=nquad, method=meth;
+qd2_ls   : quadrupole, l = 0.165843, k = -10.286440, n=nquad, method=meth;
+qf1_ls   : quadrupole, l = 0.132901, k = 9.243029, n=nquad, method=meth;
+
+sfh      : sextupole, l = 0.050000, k = 387.858481, n = 4, method=meth;
+sd1a     : sextupole, l = 0.100000, k = -635.567090, n = 4, method=meth;
+sd1b     : sextupole, l = 0.100000, k = -121.697110, n = 4, method=meth;
+
+b1       : bending, l = 0.525371, t = 2.393338+aban, k = -2.447000,
+           t1 = 1.196669, t2 = 1.196669, n=nbend, method=meth;
+b2       : bending, l = 0.335976, t = 1.356662, k = -3.472000,
+           t1 = 0.678331, t2 = 0.678331, n=nbend, method=meth;
+qf1a_tba : bending, l = 0.197289, t = -aban, k = rk1, t1 = -aban,
+           t2 = 0.000000, n=nbend, method=meth;
+i_qf1a_tba : bending, l = 0.197289, t = -aban, k = rk1,
+           t1 = 0.000000, t2 = -aban, n=nbend, method=meth;
+qf1b_tba : bending, l = 0.176008, t = -aban, k = rk2, t1 = -aban,
+           t2 = 0.000000, n=nbend, method=meth;
+i_qf1b_tba : bending, l = 0.176008, t = -aban, k = rk2,
+           t1 = 0.000000, t2 = -aban, n=nbend, method=meth;
+
+bpm      : beam position monitor;
+
+ch       : corrector, horizontal;
+
+cv       : corrector, vertical;
+
+
+{----- table of segments ----------------------------------------------------}
+
+tba_1     : d5, sd1a, d6, qf1a_tba, d7, sfh;
+i_tba_1   : sfh, d7, i_qf1a_tba, d6, sd1a, d5;
+tba_2     : d5, sd1b, d6, qf1b_tba, d7, sfh;
+i_tba_2   : sfh, d7, i_qf1b_tba, d6, sd1b, d5;
+tba_hcell : b1, tba_1, i_tba_2, b2;
+i_tba_hcell: b2, tba_2, i_tba_1, b1;
+tba_cell  : tba_hcell, i_tba_hcell;
+i_tba_cell: tba_hcell, i_tba_hcell;
+ms_mcell  : d8, qf1_ms, d9, qd2_ms, d_ms;
+ss_mcell  : d_ss, qd1_ss, d12, qf2_ss, d11, qd3_ss, d10;
+ls_mcell  : d_ls, qf1_ls, d1, qd2_ls, d2, qf3_ls, d3, qd4_ls, d4;
+std_hcell : ss_mcell, tba_cell, ms_mcell;
+i_std_hcell: inv(ms_mcell), i_tba_cell, inv(ss_mcell);
+std_cell  : i_std_hcell, ss, std_hcell;
+i_std_cell: i_std_hcell, ss, std_hcell;
+anbn_cell : inv(ms_mcell), tba_cell, ms_mcell;
+i_anbn_cell: inv(ms_mcell), i_tba_cell, ms_mcell;
+line2     : ls, ls_mcell, tba_cell, ms_mcell;
+i_line2   : inv(ms_mcell), i_tba_cell, inv(ls_mcell), ls;
+line3     : line2, i_line2;
+i_line3   : line2, i_line2;
+sp1       : line2, std_cell, i_line2;
+i_sp1     : line2, i_std_cell, i_line2;
+sp        : line2, ms, std_cell, ms, std_cell, ms, std_cell, ms, i_line2;
+i_sp      : line2, ms, i_std_cell, ms, i_std_cell, ms, i_std_cell,
+            ms, i_line2;
+
+line: sp, cav;
+
+
+cell: ring, symmetry=1;
+
+end;
+
+{..:\users\bs36\desktop\tba-opa-28-08-2018\opa-tba-6x8-0-1-1-antibend.opa}

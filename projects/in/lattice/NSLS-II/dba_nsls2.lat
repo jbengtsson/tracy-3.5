@@ -1,0 +1,104 @@
+define lattice; ringtype = 1;
+
+Energy = 3.0;
+
+dP = 1e-8; CODeps = 1e-14;
+
+Meth = 4; Nbend = 10; Nquad = 2; Nsext = 2;
+
+pi = 4.0*arctan(1.0);
+
+c0 = 2.99792458e8; h_rf = 1320; C = 10.1586800; Brho = 1e9*Energy/c0;
+
+CAV: Cavity, Frequency = c0/C*h_rf, Voltage = 5.00e6/2, Harnum = h_rf;
+
+
+{ Baseline }
+{D1: Drift, L = 0.975;
+D2: Drift, L = 0.2;
+D3: Drift, L = 0.6535;
+D4: Drift, L = 0.1835;
+D5: Drift, L = 0.58750;
+D6: Drift, L = 0.92810;
+D7: Drift, L = 0.91250;
+D8: Drift, L = 3.66250;}
+
+{ Mod. baseline}
+{D1: Drift, L = 0.38539;
+D2: Drift, L = 0.78961;
+D3: Drift, L = 0.33899;
+D4: Drift, L = 0.49801;
+D5: Drift, L = 0.16604;
+D6: Drift, L = 1.55345;
+D7: Drift, L = 0.97432;
+D8: Drift, L = 3.39680;}
+
+{ Low emittance mode }
+D1: Drift, L = 0.45240;
+D2: Drift, L =-0.05204;
+D3: Drift, L = 0.96200;
+D4: Drift, L = 0.65000;
+D5: Drift, L = 0.37633;
+D6: Drift, L = 0.74537;
+D7: Drift, L = 0.51230;
+D8: Drift, L = 4.45625;
+
+B: Bending, L = 2.62, T = 6.0, T1 = 3.0, T2 = 3.0,
+   N = Nbend, Method = Meth;
+
+{ Baseline: D-F-D }
+{QD:   Quadrupole, L = 0.25,  K = -0.803148, N = Nquad, Method = Meth;
+QF:   Quadrupole, L = 0.283, K =  1.2223,   N = Nquad, Method = Meth;
+QSS1: Quadrupole, L = 0.275, K = -1.48928, N = Nquad, Method = Meth;
+QSS2: Quadrupole, L = 0.448, K =  1.81307, N = Nquad, Method = Meth;
+QSS3: Quadrupole, L = 0.275, K = -1.56216, N = Nquad, Method = Meth;}
+
+{ Mod. baseline: F-D-F }
+{QD: Quadrupole, L = 0.25000, K =  -1.42228, N = Nquad, Method = Meth;
+QF: Quadrupole, L = 0.28300, K =   1.33857, N = Nquad, Method = Meth;
+QSS3: Quadrupole, L = 0.27500, K =   2.43963, N = Nquad, Method = Meth;
+QSS2: Quadrupole, L = 0.44800, K =  -1.54215, N = Nquad, Method = Meth;
+QSS1: Quadrupole, L = 0.27500, K =   2.09410, N = Nquad, Method = Meth;}
+
+{ Low emittance mode: F-D-F }
+QD: Quadrupole, L = 0.25000, K =   3.41908, N = Nquad, Method = Meth;
+QF: Quadrupole, L = 0.28300, K =  -1.56890, N = Nquad, Method = Meth;
+QSS1: Quadrupole, L = 0.27500, K =   2.63067, N = Nquad, Method = Meth;
+QSS2: Quadrupole, L = 0.44800, K =  -2.38683, N = Nquad, Method = Meth;
+QSS3: Quadrupole, L = 0.27500, K =   2.87723, N = Nquad, Method = Meth;
+
+QLS1: Quadrupole, L = 0.27500, K = -2.36217, N = Nquad, Method = Meth;
+QLS2: Quadrupole, L = 0.44800, K =  1.83538, N = Nquad, Method = Meth;
+QLS3: Quadrupole, L = 0.27500, K = -0.87050, N = Nquad, Method = Meth;
+
+SM1:  Sextupole, L = 0.2,      K =  57.25340, N = Nsext, Method = Meth;
+SM2H: Sextupole, L = 0.25/2.0, K = -83.55426, N = Nsext, Method = Meth;
+
+CSS: Marker;
+
+lambda_DW = 0.10; n_DW = 70; L_DW = n_DW*lambda_DW; B_DW = 1.8;
+DW100: Wiggler, L = L_DW, lambda = lambda_DW, kxV = 0.0,
+       BoBrhoV = B_DW/Brho, N = n_DW*8, Method = 2;
+
+D_DW: Drift, L = -L_DW/2.0;
+DW: D_DW, DW100, D_DW;
+
+DBAH: B, D1, QD, D2, SM1, D3, QF, D4, SM2H;
+
+IDBAH: INV(DBAH);
+
+DBA: DBAH, CSS, INV(DBAH);
+
+SSH: D5, QSS1, D6, QSS2, D7, QSS3, D8;
+
+LSH: D5, QLS1, D6, QLS2, D7, QLS3, D8;
+
+LOCELL: INV(SSH), DBA, SSH, CAV;
+
+HILO: INV(LSH), DBA, SSH, INV(SSH), DBA, LSH, CAV;
+
+{RING: 1*(2*SCELL, DW, 8*SCELL), CAV;}
+
+CELL: LOCELL, SYMMETRY = 1;
+
+END;

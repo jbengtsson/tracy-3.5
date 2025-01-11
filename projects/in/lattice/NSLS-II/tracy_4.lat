@@ -1,0 +1,250 @@
+Beam, energy = 3e9;
+
+Lattice, cod_delta = 1e-8, cod_eps = 1e-14;
+
+Nbend = 4; Nquad = 4; Nsext = 1;
+
+pi = 4.0*arctan(1.0);
+
+c0 = 2.99792458e8; h_rf = 1320; C = 791.958; Brho = 1e9*Energy/c0;
+
+// Girder start & end
+
+GESP01: Marker;
+GSSP01: Marker;
+
+// BPMs
+
+PH1SP01: Marker;
+PH2SP01: Marker;
+PM1SP01: Marker;
+PL2SP01: Marker;
+PL1SP01: Marker;
+
+// Hor/Ver Correctors
+
+FXH2SP01:   Corrector, L = 0.0, plane = "H";
+FXM1SP01:   Corrector, L = 0.0, plane = "H";
+FXL1SP01:   Corrector, L = 0.0, plane = "H";
+FXL2SP01:   Corrector, L = 0.0, plane = "H";
+FXH1SP01:   Corrector, L = 0.0, plane = "H";
+
+FYH2SP01:   Corrector, L = 0.0, plane = "V";
+FYM1SP01:   Corrector, L = 0.0, plane = "V";
+FYL1SP01:   Corrector, L = 0.0, plane = "V";
+FYL2SP01:   Corrector, L = 0.0, plane = "V";
+FYH1SP01:   Corrector, L = 0.0, plane = "V";
+
+CXSQ1HSP01: Corrector, L = 0.0, plane = "H";
+CXH2SP01:   Corrector, L = 0.0, plane = "H";
+CXM1SP01:   Corrector, L = 0.0, plane = "H";
+CXM1G4C30B: Corrector, L = 0.0, plane = "H";
+CXL2SP01:   Corrector, L = 0.0, plane = "H";
+CXL1SP01:   Corrector, L = 0.0, plane = "H";
+CXSQ2HSP01: Corrector, L = 0.0, plane = "H";
+CXM1G4C01B: Corrector, L = 0.0, plane = "H";
+CXH1SP01:   Corrector, L = 0.0, plane = "H";
+
+CYSQ1HSP01: Corrector, L = 0.0, plane = "V";
+CYH2SP01:   Corrector, L = 0.0, plane = "V";
+CYM1SP01:   Corrector, L = 0.0, plane = "V";
+CYM1G4C30B: Corrector, L = 0.0, plane = "V";
+CYL2SP01:   Corrector, L = 0.0, plane = "V";
+CYL1SP01:   Corrector, L = 0.0, plane = "V";
+CYSQ2HSP01: Corrector, L = 0.0, plane = "V";
+CYM1G4C01B: Corrector, L = 0.0, plane = "V";
+CYH1SP01:   Corrector, L = 0.0, plane = "V";
+
+// Drifts
+
+DH02G1A:    Drift, L = 4.29379;
+DFH2SP01:   Drift, L = 0.022;
+DH1G1A:     Drift, L = 0.312211;
+DH1AG2A:    Drift, L = 0.0875;
+DBPM2:      Drift, L = 0.075;
+DH2AG2A:    Drift, L = 0.145;
+DH2BG2A:    Drift, L = 0.4595;
+DH3AG2A:    Drift, L = 0.19;
+DH3BG2A:    Drift, L = 0.1825;
+DH4AG2A:    Drift, L = 0.075;
+DBPM:       Drift, L = 0.0875;
+DH4BG2A:    Drift, L = 0.2485;
+DCH2SP01:   Drift, L = 0.15;
+DH4CG3A:    Drift, L = 0.0315;
+DM1AG3A:    Drift, L = 0.415;
+DCM1SP01:   Drift, L = 0.1;
+DM1BG3A:    Drift, L = 0.36;
+DM2AG4A:    Drift, L = 0.2;
+DFT1G4A:    Drift, L = 0.106;
+DFM1SP01:   Drift, L = 0.022;
+DM2BG4A:    Drift, L = 0.42;
+DBPM1:      Drift, L = 0.0835;
+DM2CG4A:    Drift, L = 0.1835;
+DM2CG4B:    Drift, L = 0.1835;
+DM2BG4B:    Drift, L = 0.5035;
+DM2AG4B:    Drift, L = 0.2625;
+DM1EG4B:    Drift, L = 0.109;
+DCM1G4C30B: Drift, L = 0.15;
+DM1DG5B:    Drift, L = 0.166;
+DPWG5B:     Drift, L = 0.2;
+DM1CG5B:    Drift, L = 0.2;
+DL4BG6B:    Drift, L = 0.2178;
+DL4AG6B:    Drift, L = 0.3697;
+DL3CG6B:    Drift, L = 0.0875;
+DL3BG6B:    Drift, L = 0.1575;
+DCL2SP01:   Drift, L = 0.1;
+DL3AG6B:    Drift, L = 0.2081;
+DL2CG6B:    Drift, L = 0.25;
+DL2BG6B:    Drift, L = 0.13125;
+DCL1SP01:   Drift, L = 0.1;
+DL2AG6B:    Drift, L = 0.13125;
+DL1AG6B:    Drift, L = 0.075;
+DL0BG1A:    Drift, L = 0.446522;
+DFL1SP01:   Drift, L = 0.022;
+DFT2G1A:    Drift, L = 0.051;
+DLDKG1A:    Drift, L = 0.095;
+DL01G1A:    Drift, L = 2.66348;
+DL02G1A:    Drift, L = 2.79768;
+DFL2SP01:   Drift, L = 0.022;
+DL0AG1A:    Drift, L = 0.312322;
+DL1AG2A:    Drift, L = 0.0875;
+DL2AG2A:    Drift, L = 0.13125;
+DL2BG2A:    Drift, L = 0.13125;
+DL2CG2A:    Drift, L = 0.25;
+DL3AG2A:    Drift, L = 0.2081;
+DL3BG2A:    Drift, L = 0.1575;
+DL3CG2A:    Drift, L = 0.0875;
+DL4AG2A:    Drift, L = 0.5692;
+DL4BG3A:    Drift, L = 0.0183;
+DM2A2G4A:   Drift, L = 0.2;
+DM2B2G4A:   Drift, L = 0.42;
+DM2B2G4B:   Drift, L = 0.5035;
+DM2A2G4B:   Drift, L = 0.2625;
+DCM1G4C01B: Drift, L = 0.15;
+DH4CG6B:    Drift, L = 0.21634;
+DH4BG6B:    Drift, L = 0.06366;
+DH4AG6B:    Drift, L = 0.0875;
+DH3BG6B:    Drift, L = 0.1825;
+DH3AG6B:    Drift, L = 0.19;
+DH2BG6B:    Drift, L = 0.4845;
+DCH1SP01:   Drift, L = 0.1;
+DH2AG6B:    Drift, L = 0.12;
+DH1AG6B:    Drift, L = 0.075;
+DH2G1A:     Drift, L = 0.440902;
+DFH1SP01:   Drift, L = 0.022;
+DH01G1A:    Drift, L = 4.1651;
+
+// Dipoles
+
+B1SP01: Dipole, L = 2.62, angle = 6.0, e1 = 3.0, e2 = 3.0, N = Nbend;
+
+// Quadrupoles
+
+QH1SP01:  Quadrupole, L = 0.275, b2 = -0.633004, N = Nquad;
+QH2SP01:  Quadrupole, L = 0.448, b2 =  1.46598,  N = Nquad;
+QH3SP01:  Quadrupole, L = 0.275, b2 = -1.69330,  N = Nquad;
+QM1SP01:  Quadrupole, L = 0.25,  b2 = -0.803148, N = Nquad;
+QM2SP01:  Quadrupole, L = 0.283, b2 =  1.2223,   N = Nquad;
+QL3SP01:  Quadrupole, L = 0.275, b2 = -1.48928,  N = Nquad;
+QL2SP01:  Quadrupole, L = 0.448, b2 =  1.81307,  N = Nquad;
+QL1SP01:  Quadrupole, L = 0.275, b2 = -1.56216,  N = Nquad;
+
+SQ1HSP01: Quadrupole, L = 0.1,   b2 =  0.0,      N = Nquad;
+SQ2HSP01: Quadrupole, L = 0.1,   b2 =  0.0,      N = Nquad;
+
+// Sextupoles
+
+SL1:  Sextupole, L = 0.200000, b3 = -17.000695, N = Nsext;
+SL2:  Sextupole, L = 0.200000, b3 =  17.466656, N = Nsext;
+SL3:  Sextupole, L = 0.200000, b3 =  -8.197468, N = Nsext;
+SM1A: Sextupole, L = 0.200000, b3 = -12.994561, N = Nsext;
+SM1B: Sextupole, L = 0.200000, b3 = -11.432591, N = Nsext;
+SM2:  Sextupole, L = 0.250000, b3 =  14.000000, N = Nsext;
+SH1:  Sextupole, L = 0.200000, b3 =  17.202316, N = Nsext;
+SH3:  Sextupole, L = 0.200000, b3 = -11.309930, N = Nsext;
+SH4:  Sextupole, L = 0.200000, b3 =  -2.516449, N = Nsext;
+
+CAV: Cavity, f = c0/C*h_rf, V = 5.00e6, h = h_rf;
+
+// Girders
+
+G1C30:
+  LINE=(DH02G1A, DFH2SP01, FXH2SP01, FYH2SP01, DFH2SP01, DH1G1A
+        /*, GESP01*/);
+
+G2C30:
+  LINE=(GSSP01, SH1, DH1AG2A, PH1SP01, DBPM2, QH1SP01, DH2AG2A,
+        SQ1HSP01, CXSQ1HSP01, CYSQ1HSP01, SQ1HSP01, DH2BG2A,
+        QH2SP01, DH3AG2A, SH3, DH3BG2A, QH3SP01, DH4AG2A,
+        PH2SP01, DBPM, SH4, DH4BG2A, DCH2SP01, CXH2SP01,
+        CYH2SP01, DCH2SP01, GESP01, DH4CG3A);
+
+G3C30:
+  LINE=(GSSP01, B1SP01, DM1AG3A, DCM1SP01, CXM1SP01, CYM1SP01,
+        DCM1SP01, DM1BG3A, GESP01);
+
+G4C30:
+  LINE=(GSSP01, QM1SP01, DM2AG4A, SM1A, DFT1G4A, DFM1SP01,
+        FXM1SP01, FYM1SP01, DFM1SP01, DM2BG4A, PM1SP01, DBPM1,
+        QM2SP01, DM2CG4A, SM2, DM2CG4B, QM2SP01, DM2BG4B, SM1B,
+        DM2AG4B, PM1SP01, DBPM, QM1SP01, DM1EG4B, DCM1G4C30B,
+        CXM1G4C30B, CYM1G4C30B, DCM1G4C30B, GESP01);
+
+G5C30:
+  LINE=(GSSP01, DM1DG5B, DPWG5B, DM1CG5B, B1SP01, GESP01,
+        DL4BG6B);
+
+G6C30:
+  LINE=(GSSP01, DL4AG6B, QL3SP01, DBPM2, PL2SP01, DL3CG6B, SL3,
+        DL3BG6B, DCL2SP01, CXL2SP01, CYL2SP01, DCL2SP01,
+        DL3AG6B, QL2SP01, DL2CG6B, SL2, DL2BG6B, DCL1SP01,
+        CXL1SP01, CYL1SP01, DCL1SP01, DL2AG6B, QL1SP01, DL1AG6B,
+        PL1SP01, DBPM, SL1, GESP01);
+
+G1C1:
+  LINE=(GSSP01, DL0BG1A, DFL1SP01, FXL1SP01, FYL1SP01, DFL1SP01,
+        DFT2G1A, DLDKG1A, DL01G1A, DL02G1A, DLDKG1A, DFT2G1A,
+        DFL2SP01, FXL2SP01, FYL2SP01, DFL2SP01, DL0AG1A,
+        GESP01);
+
+G2C1:
+  LINE=(GSSP01, SL1, DL1AG2A, PL1SP01, DBPM2, QL1SP01, DL2AG2A,
+        DCL1SP01, CXL1SP01, CYL1SP01, DCL1SP01, DL2BG2A, SL2,
+        DL2CG2A, QL2SP01, DL3AG2A, DCL2SP01, CXL2SP01, CYL2SP01,
+        DCL2SP01, DL3BG2A, SL3, DL3CG2A, PL2SP01, DBPM2,
+        QL3SP01, DL4AG2A, GESP01);
+
+G3C1:
+  LINE=(DL4BG3A, GSSP01, B1SP01, DM1AG3A, SQ2HSP01, CXSQ2HSP01,
+        CYSQ2HSP01, SQ2HSP01, DM1BG3A, GESP01);
+
+G4C1:
+  LINE=(GSSP01, QM1SP01, DM2A2G4A, SM1A, DFT1G4A, DFM1SP01,
+        FXM1SP01, FYM1SP01, DFM1SP01, DM2B2G4A, PM1SP01, DBPM1,
+        QM2SP01, DM2CG4A, SM2, DM2CG4B, QM2SP01, DM2B2G4B, SM1B,
+        DM2A2G4B, PM1SP01, DBPM, QM1SP01, DM1EG4B, DCM1G4C01B,
+        CXM1G4C01B, CYM1G4C01B, DCM1G4C01B, GESP01);
+
+G5C1:
+  LINE=(GSSP01, DM1DG5B, DPWG5B, DM1CG5B, B1SP01, GESP01,
+        DH4CG6B);
+
+G6C1:
+  LINE=(GSSP01, DCH2SP01, CXH2SP01, CYH2SP01, DCH2SP01, DH4BG6B,
+        SH4, DH4AG6B, PH2SP01, DBPM2, QH3SP01, DH3BG6B, SH3,
+        DH3AG6B, QH2SP01, DH2BG6B, DCH1SP01, CXH1SP01, CYH1SP01,
+        DCH1SP01, DH2AG6B, QH1SP01, DH1AG6B, PH1SP01, DBPM, SH1,
+        GESP01);
+
+G1C2:
+  LINE=(/*GSSP01,*/ DH2G1A, DFH1SP01, FXH1SP01, FYH1SP01,
+        DFH1SP01, DH01G1A);
+
+// Super Cell
+
+CELL:
+  LINE=(G1C30, G2C30, G3C30, G4C30, G5C30, G6C30, G1C1, G2C1, G3C1, G4C1, G5C1,
+        G6C1, G1C2);
+
+
+RING: LINE=(15*CELL, CAV);

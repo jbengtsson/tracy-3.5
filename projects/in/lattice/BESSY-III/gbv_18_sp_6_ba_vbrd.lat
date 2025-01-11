@@ -1,0 +1,102 @@
+{z:\git\tracy-3.5\projects\in\lattice\bessy-iii\jbgv_20_sp_5ba.opa}
+
+{opa to tracy-2 export}
+
+define lattice;
+energy = 2.500000;
+dp = 1.0d-10;  codeps = 1.0d-6;  dk = 1.0d-6;
+meth = 4; nbend = 10; nquad = 10; nsext = 10;
+
+{----- variables ----------------------------------------------------}
+
+
+{----- table of elements ----------------------------------------------------}
+
+c0 = 2.99792458e8; gamma = 3.5e9/c0; Brho = 1e9*Energy/c0;
+
+h_rf = 535; C = 20*16.0600000;
+
+cav: Cavity, L = 0.0, Frequency = c0/C*h_rf, Voltage = 1.5e6, harnum = h_rf,
+     phi = 0.0;
+
+l1   : drift, l = 0.100000;
+l2   : drift, l = 0.100000;
+l3   : drift, l = 0.100000;
+l4   : drift, l = 0.100000;
+l5   : drift, l = 0.100000;
+l6   : drift, l = 0.100000;
+l7   : drift, l = 0.100000;
+l8   : drift, l = 0.100000;
+l9   : drift, l = 2.500000;
+
+n_dip = 5;
+
+b1e1:     bending, l =  0.13999731,
+    t =  0.43926837, t1 =  0.21963419, t2 =  0.21963419, k = -2.15711581,
+    n = nbend, method = 4;
+b1e2:     bending, l =  0.13999731,
+    t =  0.33806814, t1 =  0.16903407, t2 =  0.16903407, k =  0.33614689,
+    n = nbend, method = 4;
+b1e3:     bending, l =  0.13999731,
+    t =  0.38403771, t1 =  0.19201885, t2 =  0.19201885, k = -0.87036042,
+    n = nbend, method = 4;
+b1e4:     bending, l =  0.13999731,
+    t =  0.53084574, t1 =  0.26542287, t2 =  0.26542287, k = -1.23957394,
+    n = nbend, method = 4;
+b1e5:     bending, l =  0.13999731,
+    t =  0.69406791, t1 =  0.34703395, t2 =  0.34703395, k = -1.36574153,
+    n = nbend, method = 4;
+b1c1:     bending, l =  0.08000000,
+    t =  0.36903915, t1 =  0.18451958, t2 =  0.18451958, k = -2.02077783,
+    n = nbend, method = 4;
+b1c2:     bending, l =  0.08000000,
+    t =  0.34440808, t1 =  0.17220404, t2 =  0.17220404, k = -2.32574407,
+    n = nbend, method = 4;
+b1c3:     bending, l =  0.08000000,
+    t =  0.43612055, t1 =  0.21806027, t2 =  0.21806027, k = -2.25893227,
+    n = nbend, method = 4;
+b1c4:     bending, l =  0.08000000,
+    t =  0.47775837, t1 =  0.23887919, t2 =  0.23887919, k = -2.27263258,
+    n = nbend, method = 4;
+b1c5:     bending, l =  0.08000000,
+    t =  0.46597933, t1 =  0.23298966, t2 =  0.23298966, k = -2.29938657,
+    n = nbend, method = 4;
+b2:       bending, l =  0.13000000,
+    t = -0.15190196, t1 = -0.07595098, t2 = -0.07595098, k = 10.54424702,
+    n = nbend, method = 4;
+
+q1:       quadrupole, l = 0.16000000, k =   -8.72261602, n = nquad, method = 4;
+q2:       quadrupole, l = 0.26000000, k =    9.05704398, n = nquad, method = 4;
+q3:       quadrupole, l = 0.10000000, k =   -5.78697131, n = nquad, method = 4;
+
+s1:       sextupole,  l = 0.06000000, k =  881.07230808, n = nsext, method = 4;
+s2:       sextupole,  l = 0.08000000, k = -814.11597727, n = nsext, method = 4;
+
+s3   : sextupole, l = 0.080000, k = 0.000000, n = 1, method=meth;
+s4   : sextupole, l = 0.080000, k = 0.000000, n = 1, method=meth;
+
+b1e: b1e1, b1e2, b1e3, b1e4, b1e5;
+b1c: b1c1, b1c2, b1c3, b1c4, b1c5;
+
+mbac : marker;
+s1c  : marker;
+
+ps_rot: map;
+
+{----- table of segments ----------------------------------------------------}
+
+cell_hc : mbac, b1c, l1, s2, l2, b2, l3, s1, s1c;
+cell_u  : inv(cell_hc), cell_hc;
+cell_he : s1c, s1, l3, b2, l2, s2, l1, b1e;
+cell_m  : l4, s3, l5, q1, l6, q2, l7, s4, l8, q3, l9;
+match   : cell_he, cell_m;
+line    : inv(match), 4*cell_u, match;
+achr    : line;
+
+ring: 1*achr, ps_rot, cav;
+
+cell: ring, symmetry=1;
+
+end;
+
+{z:\git\tracy-3.5\projects\in\lattice\bessy-iii\jbgv_20_sp_5ba.opa}

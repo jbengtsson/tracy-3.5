@@ -1,0 +1,252 @@
+!##### AMOUNT OF CANONCICAL KICKS #####
+% 24 sto bkicks
+% 146 sto qkicks
+% 32 sto skicks
+
+!##### DIAGNOSTICS #####
+WPINJECT  : WATCH, filename="%s.WP_INJECT.coo", mode=coordinate, disable=1
+WPSLICED  : WATCH, filename="%s.WP_SLICED_%03ld.coo", mode=coordinate, disable=1
+PINH3FD2L : WATCH, filename="%s.WP_PINH3FD2L.coo", mode=coordinate, disable=1
+PINH9FD5L : WATCH, filename="%s.WP_PINH9FD5L.coo", mode=coordinate, disable=1
+IBSM1FD2L : WATCH, filename="%s.WP_IBSM1FD2L.coo", mode=coordinate, disable=1
+FILPATAPD : WATCH, filename="%s.WP_FILPATAPD.coo", mode=coordinate, disable=1
+M1        : MALIGN
+M2        : MALIGN
+RC        : MARK
+
+!#### VIRTUAL ELEMENTS ####
+! no effect on beam since L=0 (even if K != 0)
+! used for tune- & chromaticity optimization by linking to real elements
+! outside achromat quads & chromatic (zero-dispersion) sexts
+VQF  : KQUAD, L=0, K1=0
+VQD  : KQUAD, L=0, K1=0
+VCSF : KSEXT, L=0, K2=0
+VCSD : KSEXT, L=0, K2=0
+VHSF : KSEXT, L=0, K2=0
+VHSD : KSEXT, L=0, K2=0
+
+!!##### DRIFTS #####
+! naming convention: D + previous element at first appearence
+DQ1  : DRIF, L=0.288
+DS1  : DRIF, L=0.16
+DQ2  : DRIF, L=0.42
+DS2  : DRIF, L=0.307   
+DB   : DRIF, L=0.42
+DS3  : DRIF, L=0.153
+DQ3  : DRIF, L=0.153
+DL   : DRIF, L=2.80600
+DK   : DRIF, L=2.45300
+DS4D6: DRIF, L=0.164000
+DB1ID: DRIF, L=2.020140
+DB2ID: DRIF, L=2.216250
+DB3ID: DRIF, L=0.100000
+! EMIL quadrupole position estimated
+DQ5T6: drif, L=2.2976 
+DQIT6: drif, L=2.3644
+
+!##### DIPOLES #####
+! edge_order=2 gives relevant change for dnuy/dp
+! and consistent results with mad-x and ptc exact
+! -> important for nonlinear dynamics
+% 0.855 sto L
+% pi 16 / sto angle
+% L angle / sto rho
+% angle 2 / sto hangle
+! standard BESSY II Dipole
+B       : CSBEND, n_kicks="bkicks", L="L", ANGLE="angle", E1="hangle", E2="hangle", &
+          EDGE_ORDER=2, EDGE1_EFFECTS=2, EDGE2_EFFECTS=2, FSE_CORRECTION=1, &
+          HGAP=0.0000001, FINT=0.7
+          
+! split dipoles for diagnostic beamlines
+BP2D2R1 : CSBEND, n_kicks="bkicks", L=0.2812,   ANGLE="0.2812 rho /",   E1="hangle", &
+          EDGE_ORDER=2, EDGE1_EFFECTS=2, EDGE2_EFFECTS=0, FSE_CORRECTION=1, &
+          HGAP=0.0000001, FINT=0.7
+          
+BP2D2R2 : CSBEND, n_kicks="bkicks", L=0.0304,   ANGLE="0.0304 rho /",&
+          HGAP=1e-07,FINT=0.,N_KICKS=160,EDGE1_EFFECTS=0,EDGE2_EFFECTS=0,EDGE_ORDER=0,FSE_CORRECTION=1
+BP2D2R3 : CSBEND, n_kicks="bkicks", L=0.0152,   ANGLE="0.0152 rho /",&
+          HGAP=1e-07,FINT=0.,N_KICKS=160,EDGE1_EFFECTS=0,EDGE2_EFFECTS=0,EDGE_ORDER=0,FSE_CORRECTION=1
+BP2D2R4 : CSBEND, n_kicks="bkicks", L=0.5282,   ANGLE="0.5282 rho /",   E2="hangle", &
+          EDGE_ORDER=2, EDGE1_EFFECTS=0, EDGE2_EFFECTS=2, FSE_CORRECTION=1, &
+          HGAP=0.0000001, FINT=0.7
+          
+BP2D5R1 : CSBEND, n_kicks="bkicks", L=0.278008, ANGLE="0.278008 rho /", E1="hangle", &
+          EDGE_ORDER=2, EDGE1_EFFECTS=2, EDGE2_EFFECTS=2, FSE_CORRECTION=1, &
+          HGAP=0.0000001, FINT=0.7
+          
+BP2D5R2 : CSBEND, n_kicks="bkicks", L=0.576992, ANGLE="0.576992 rho /", E2="hangle", &
+          EDGE_ORDER=2, EDGE1_EFFECTS=2, EDGE2_EFFECTS=2, FSE_CORRECTION=1, &
+          HGAP=0.0000001, FINT=0.7
+          
+! dipoles for chicane in femto slicing straight
+B1ID    : CSBEND, n_kicks="bkicks", L=0.28, ANGLE=0.0578788879,  E1=0,             E2=0.0578788879, &
+          EDGE_ORDER=2, EDGE1_EFFECTS=2, EDGE2_EFFECTS=2, FSE_CORRECTION=1, &
+          HGAP=0.0000001, FINT=0.7
+          
+B2ID    : CSBEND, n_kicks="bkicks", L=0.56, ANGLE=-0.1117010721, E1=-0.0578788879, E2=-0.0538221842, &
+          EDGE_ORDER=2, EDGE1_EFFECTS=2, EDGE2_EFFECTS=2, FSE_CORRECTION=1, &
+          HGAP=0.0000001, FINT=0.7
+          
+B3ID    : CSBEND, n_kicks="bkicks", L=0.28, ANGLE=0.0538221842,  E1=0.0538221842,  E2=0, &
+          EDGE_ORDER=2, EDGE1_EFFECTS=2, EDGE2_EFFECTS=2, FSE_CORRECTION=1, &
+          HGAP=0.0000001, FINT=0.7
+          
+
+!#### CAVITY ####
+% 1.5e6 sto NCCVOLT
+% 4.996366081528583e+08 sto NCCFREQ
+% 1.729810237412622e+02 sto NCCPHASE
+NCC: RFCA, L=0.0, VOLT="NCCVOLT", FREQ="NCCFREQ", PHASE="NCCPHASE", T_REFERENCE=0
+
+!##### QUADS #####
+! VALUES FROM LOCO "20170328_232127.loco"
+QIT6    : KQUAD, n_kicks="qkicks", L=0.122   , K1=-1.00000000
+Q1     : KQUAD, n_kicks="qkicks", L=0.25    , K1= 2.44079848
+Q2     : KQUAD, n_kicks="qkicks", L=0.2     , K1=-1.85645474
+Q3P1T1  : KQUAD, n_kicks="qkicks", L=0.25    , K1=-2.53244679
+Q3P1T6  : KQUAD, n_kicks="qkicks", L=0.25    , K1=-2.67932726
+Q3P1T8  : KQUAD, n_kicks="qkicks", L=0.25    , K1=-2.42694672
+Q3P2T1  : KQUAD, n_kicks="qkicks", L=0.25    , K1=-2.41797240
+Q3P2T6  : KQUAD, n_kicks="qkicks", L=0.25    , K1=-2.29702646
+Q3P2T8  : KQUAD, n_kicks="qkicks", L=0.25    , K1=-2.53721496
+Q3D1    : KQUAD, n_kicks="qkicks", L=0.25    , K1=-2.01021297
+Q3D2    : KQUAD, n_kicks="qkicks", L=0.25    , K1=-2.12322497
+Q3D3    : KQUAD, n_kicks="qkicks", L=0.25    , K1=-2.11687203
+Q3D4    : KQUAD, n_kicks="qkicks", L=0.25    , K1=-2.12625066
+Q3D5    : KQUAD, n_kicks="qkicks", L=0.25    , K1=-2.11327275
+Q3D6    : KQUAD, n_kicks="qkicks", L=0.25    , K1=-2.09601963
+Q3D7    : KQUAD, n_kicks="qkicks", L=0.25    , K1=-2.10848505
+Q3D8    : KQUAD, n_kicks="qkicks", L=0.25    , K1=-2.12959092
+Q3T2    : KQUAD, n_kicks="qkicks", L=0.25    , K1=-2.44518658
+Q3T3    : KQUAD, n_kicks="qkicks", L=0.25    , K1=-2.42225754
+Q3T4    : KQUAD, n_kicks="qkicks", L=0.25    , K1=-2.42652600
+Q3T5    : KQUAD, n_kicks="qkicks", L=0.25    , K1=-2.43989449
+Q3T7    : KQUAD, n_kicks="qkicks", L=0.25    , K1=-2.41713938
+Q4P1T1  : KQUAD, n_kicks="qkicks", L=0.5     , K1= 2.59978755
+Q4P1T6  : KQUAD, n_kicks="qkicks", L=0.5     , K1= 2.27294486
+Q4P1T8  : KQUAD, n_kicks="qkicks", L=0.5     , K1= 2.57275874
+Q4P2T1  : KQUAD, n_kicks="qkicks", L=0.5     , K1= 2.57520022
+Q4P2T6  : KQUAD, n_kicks="qkicks", L=0.5     , K1= 2.56892780
+Q4P2T8  : KQUAD, n_kicks="qkicks", L=0.5     , K1= 2.61410058
+Q4D1    : KQUAD, n_kicks="qkicks", L=0.5     , K1= 1.39127671
+Q4D2    : KQUAD, n_kicks="qkicks", L=0.5     , K1= 1.47338287
+Q4D3    : KQUAD, n_kicks="qkicks", L=0.5     , K1= 1.47375437
+Q4D4    : KQUAD, n_kicks="qkicks", L=0.5     , K1= 1.48376734
+Q4D5    : KQUAD, n_kicks="qkicks", L=0.5     , K1= 1.47000821
+Q4D6    : KQUAD, n_kicks="qkicks", L=0.5     , K1= 1.46820382
+Q4D7    : KQUAD, n_kicks="qkicks", L=0.5     , K1= 1.46474319
+Q4D8    : KQUAD, n_kicks="qkicks", L=0.5     , K1= 1.48226424
+Q4T2    : KQUAD, n_kicks="qkicks", L=0.5     , K1= 2.55457808
+Q4T3    : KQUAD, n_kicks="qkicks", L=0.5     , K1= 2.56763453
+Q4T4    : KQUAD, n_kicks="qkicks", L=0.5     , K1= 2.57036341
+Q4T5    : KQUAD, n_kicks="qkicks", L=0.5     , K1= 2.57075719
+Q4T7    : KQUAD, n_kicks="qkicks", L=0.5     , K1= 2.57523174
+Q5P1T1  : KQUAD, n_kicks="qkicks", L=0.2     , K1=-2.40085853
+Q5P1T6  : KQUAD, n_kicks="qkicks", L=0.2     , K1=-1.17302059
+Q5P1T8  : KQUAD, n_kicks="qkicks", L=0.2     , K1=-2.61930541
+Q5P2T1  : KQUAD, n_kicks="qkicks", L=0.2     , K1=-2.62772469
+Q5P2T6  : KQUAD, n_kicks="qkicks", L=0.2     , K1=-2.60298545
+Q5P2T8  : KQUAD, n_kicks="qkicks", L=0.2     , K1=-2.39936189
+Q5T2    : KQUAD, n_kicks="qkicks", L=0.2     , K1=-2.57238544
+Q5T3    : KQUAD, n_kicks="qkicks", L=0.2     , K1=-2.62712000
+Q5T4    : KQUAD, n_kicks="qkicks", L=0.2     , K1=-2.60499276
+Q5T5    : KQUAD, n_kicks="qkicks", L=0.2     , K1=-2.59307704
+Q5T7    : KQUAD, n_kicks="qkicks", L=0.2     , K1=-2.62346918
+
+!##### SEXTUPOLES #####
+! K2 values calculated from mml Setpoints and HW2PhysicsParams
+! K2 = Setpoint(Ampere) * HW2PhysicsParams / L * 2
+! Attention: Length of S1 L = 0.21 has to be used for calculating K2
+! In elegant S1 has the length L = 0.105 because it is splitted 
+! VALUES FROM LOCO "20170328_232127.loco"
+S1      : KSEXT, n_kicks="skicks", L=0.105    , K2=53.55252586
+S2      : KSEXT, n_kicks="skicks", L=0.16    , K2=-46.38738644
+S3T6LH  : KSEXT, n_kicks="skicks", L=0.16    , K2=-42.58205529
+S3T6RH  : KSEXT, n_kicks="skicks", L=0.16    , K2=-42.58205529
+S3D1    : KSEXT, n_kicks="skicks", L=0.16    , K2=-46.89556219
+S3D     : KSEXT, n_kicks="skicks", L=0.16    , K2=-49.21821975
+S3T     : KSEXT, n_kicks="skicks", L=0.16    , K2=-76.86890500
+S4T6LH  : KSEXT, n_kicks="skicks", L=0.16    , K2=39.91575633
+S4T6RH  : KSEXT, n_kicks="skicks", L=0.16    , K2=74.28765761
+S4D1    : KSEXT, n_kicks="skicks", L=0.16    , K2=21.62103468
+S4D     : KSEXT, n_kicks="skicks", L=0.16    , K2=35.48067229
+S4T     : KSEXT, n_kicks="skicks", L=0.16    , K2=88.70168073
+
+!#### SPECIAL SECTIONS ####
+! virtual elements for tune- & chromaticity optimization by linking
+VIRTUAL : LINE=(VQF,VQD,VCSF,VCSD,VHSF,VHSD)
+! dipoles with diagnostic beamlines
+BP2D2R  : LINE=(BP2D2R1,PINH3FD2L,BP2D2R2,IBSM1FD2L,BP2D2R3,FILPATAPD,BP2D2R4)
+BP2D5R  : LINE=(BP2D5R1,PINH9FD5L,BP2D5R2)
+! T6 - EMIL quadrupole (position unclear)
+EMIL    : LINE=(DQ5T6,QIT6,QIT6,DQIT6)
+! D6 - chicane for femto slicing straight
+FEMTOC  : LINE=(B1ID,DB1ID,B2ID,DB2ID,B3ID,DB3ID)
+
+!#### ACHROMAT LEFT AND RIGHT HALF ####
+ACHLH : LINE=(DQ2,Q2,DS2,S2,DQ1,Q1,DS1,S1)
+ACHRH : LINE=(S1,DS1,Q1,DQ1,S2,DS2,Q2,DQ2)
+
+!#### DUPLETS AND TRIPLETS LEFT AND RIGHT HALFS ####
+D1LH : LINE=(DB,Q3D1,DQ3,S3D1,DS3,Q4D1,DQ3,S4D1,DL)
+D1RH : LINE=(DL,S4D1,DQ3,Q4D1,DS3,S3D1,DQ3,Q3D1,DB)
+T1LH : LINE=(DB,Q3P1T1,DQ3,S3T,DS3,Q4P1T1,DQ3,S4T,DQ3,Q5P1T1,DK)
+T1RH : LINE=(DK,Q5P2T1,DQ3,S4T,DQ3,Q4P2T1,DS3,S3T,DQ3,Q3P2T1,DB)
+D2LH : LINE=(DB,Q3D2,DQ3,S3D,DS3,Q4D2,DQ3,S4D,DL)
+D2RH : LINE=(DL,S4D,DQ3,Q4D2,DS3,S3D,DQ3,Q3D2,DB)
+T2LH : LINE=(DB,Q3T2,DQ3,S3T,DS3,Q4T2,DQ3,S4T,DQ3,Q5T2,DK)
+T2RH : LINE=(DK,Q5T2,DQ3,S4T,DQ3,Q4T2,DS3,S3T,DQ3,Q3T2,DB)
+D3LH : LINE=(DB,Q3D3,DQ3,S3D,DS3,Q4D3,DQ3,S4D,DL)
+D3RH : LINE=(DL,S4D,DQ3,Q4D3,DS3,S3D,DQ3,Q3D3,DB)
+T3LH : LINE=(DB,Q3T3,DQ3,S3T,DS3,Q4T3,DQ3,S4T,DQ3,Q5T3,DK)
+T3RH : LINE=(DK,Q5T3,DQ3,S4T,DQ3,Q4T3,DS3,S3T,DQ3,Q3T3,DB)
+D4LH : LINE=(DB,Q3D4,DQ3,S3D,DS3,Q4D4,DQ3,S4D,DL)
+D4RH : LINE=(DL,S4D,DQ3,Q4D4,DS3,S3D,DQ3,Q3D4,DB)
+T4LH : LINE=(DB,Q3T4,DQ3,S3T,DS3,Q4T4,DQ3,S4T,DQ3,Q5T4,DK)
+T4RH : LINE=(DK,Q5T4,DQ3,S4T,DQ3,Q4T4,DS3,S3T,DQ3,Q3T4,DB)
+D5LH : LINE=(DB,Q3D5,DQ3,S3D,DS3,Q4D5,DQ3,S4D,DL)
+D5RH : LINE=(DL,S4D,DQ3,Q4D5,DS3,S3D,DQ3,Q3D5,DB)
+T5LH : LINE=(DB,Q3T5,DQ3,S3T,DS3,Q4T5,DQ3,S4T,DQ3,Q5T5,DK)
+T5RH : LINE=(DK,Q5T5,DQ3,S4T,DQ3,Q4T5,DS3,S3T,DQ3,Q3T5,DB)
+D6LH : LINE=(DB,Q3D6,DQ3,S3D,DS3,Q4D6,DQ3,S4D,DS4D6,FEMTOC)
+D6RH : LINE=(S4D,DQ3,Q4D6,DS3,S3D,DQ3,Q3D6,DB)
+T6LH : LINE=(DB,Q3P1T6,DQ3,S3T6LH,DS3,Q4P1T6,DQ3,S4T6LH,DQ3,Q5P1T6,EMIL)
+T6RH : LINE=(Q5P2T6,DQ3,S4T6RH,DQ3,Q4P2T6,DS3,S3T6RH,DQ3,Q3P2T6,DB)
+D7LH : LINE=(DB,Q3D7,DQ3,S3D,DS3,Q4D7,DQ3,S4D,DL)
+D7RH : LINE=(DL,S4D,DQ3,Q4D7,DS3,S3D,DQ3,Q3D7,DB)
+T7LH : LINE=(DB,Q3T7,DQ3,S3T,DS3,Q4T7,DQ3,S4T,DQ3,Q5T7,DK)
+T7RH : LINE=(DK,Q5T7,DQ3,S4T,DQ3,Q4T7,DS3,S3T,DQ3,Q3T7,DB)
+D8LH : LINE=(DB,Q3D8,DQ3,S3D,DS3,Q4D8,DQ3,S4D,DL)
+D8RH : LINE=(DL,S4D,DQ3,Q4D8,DS3,S3D,DQ3,Q3D8,DB)
+T8LH : LINE=(DB,Q3P1T8,DQ3,S3T,DS3,Q4P1T8,DQ3,S4T,DQ3,Q5P1T8,DK)
+T8RH : LINE=(DK,Q5P2T8,DQ3,S4T,DQ3,Q4P2T8,DS3,S3T,DQ3,Q3P2T8,DB)
+
+!#### FULL TRIPLET AND DUBLET SECTIONS ####
+! (each 1/16) of entire storage ring
+! injection point at center of D1
+T1 : LINE=(ACHRH, B, T1LH, T1RH, B, ACHLH)
+D2 : LINE=(ACHRH, B, D2LH, D2RH, BP2D2R, ACHLH)
+T2 : LINE=(ACHRH, B, T2LH, T2RH, B, ACHLH)
+D3 : LINE=(ACHRH, B, D3LH, D3RH, B, ACHLH)
+T3 : LINE=(ACHRH, B, T3LH, T3RH, B, ACHLH)
+D4 : LINE=(ACHRH, B, D4LH, D4RH, B, ACHLH)
+T4 : LINE=(ACHRH, B, T4LH, T4RH, B, ACHLH)
+D5 : LINE=(ACHRH, B, D5LH, D5RH, BP2D5R, ACHLH)
+T5 : LINE=(ACHRH, B, T5LH, T5RH, B, ACHLH)
+D6 : LINE=(ACHRH, B, D6LH, D6RH, B, ACHLH)
+T6 : LINE=(ACHRH, B, T6LH, T6RH, B, ACHLH)
+D7 : LINE=(ACHRH, B, D7LH, D7RH, B, ACHLH)
+T7 : LINE=(ACHRH, B, T7LH, T7RH, B, ACHLH)
+D8 : LINE=(ACHRH, B, D8LH, D8RH, B, ACHLH)
+T8 : LINE=(ACHRH, B, T8LH, T8RH, B, ACHLH)
+T8C: LINE=(ACHRH, B, T8LH, NCC, T8RH, B, ACHLH)
+
+!#### FULL BESSY II STORAGE RING ####
+! without cavity for 4D studies
+BII:       LINE=(D1RH,B,ACHLH,T1,D2,T2,D3,T3,D4,T4,D5,T5,D6,T6,D7,T7,D8,T8,ACHRH,B,D1LH)
+RING:      LINE=(VIRTUAL,RC,WPINJECT,BII)
+FOLD3RING: LINE=(VIRTUAL,RC,WPINJECT,M1,BII,BII,BII,M2)
+! with cavity for 6D studies
+BII_CAV:   LINE=(D1RH,B,ACHLH,T1,D2,T2,D3,T3,D4,T4,D5,T5,D6,T6,D7,T7,D8,T8C,ACHRH,B,D1LH)
+RING_CAV:  LINE=(VIRTUAL,RC,WPINJECT,BII_CAV)
+FOLD3RING_CAV: LINE=(VIRTUAL,RC,WPINJECT,M1,BII_CAV,BII_CAV,BII_CAV,M2)

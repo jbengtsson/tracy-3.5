@@ -1,0 +1,643 @@
+{ X-ray ring lattice, PUE positions modified 10/27/93. }                  
+
+define lattice;
+
+Energy = 2.8;
+
+dP = 1d-8;   COdeps = 1d-10;   dK = 1d-6;
+
+Meth = 4; Nbend = 10; Nquad = 10; Nsext = 10;
+
+pi = 4.0*arctan(1.0);
+
+c0 = 2.99792458e8; Brho = 1e9*Energy/c0; m_e = 0.51099906e6;
+
+h_rf = 30; C = 170.08;
+
+CAV: Cavity, Frequency=c0/C*h_rf, Voltage=1.0d6, harnum=h_rf;
+
+{ James optics, tune adjusted to: (9.83, 5.71) }
+{QB: Quadrupole, L=0.8000, K= 1.3769, N=Nquad, Method=Meth;}
+{QC: Quadrupole, L=0.4500, K=-1.3911, N=Nquad, Method=Meth;}
+{QA: Quadrupole, L=0.4500, K=-1.5302, N=Nquad, Method=Meth;
+QB: Quadrupole, L=0.8000, K= 1.37223, N=Nquad, Method=Meth;
+QC: Quadrupole, L=0.4500, K=-1.37221, N=Nquad, Method=Meth;
+QD: Quadrupole, L=0.4500, K= 1.3769, N=Nquad, Method=Meth;}
+
+{ Injection }
+{QA: Quadrupole, L=0.4500, K= -1.4529, N=Nquad, Method=Meth;
+QB: Quadrupole, L=0.8000, K=  1.3873, N=Nquad, Method=Meth;
+QC: Quadrupole, L=0.4500, K= -1.4431, N=Nquad, Method=Meth;
+QD: Quadrupole, L=0.4500, K=  1.2824, N=Nquad, Method=Meth;}
+
+{ 11/01/04 No Sextupoles }
+{QA: Quadrupole, L=0.4500, K= -1.5338, N=Nquad, Method=Meth;
+QB: Quadrupole, L=0.8000, K=  1.3672, N=Nquad, Method=Meth;
+QC: Quadrupole, L=0.4500, K= -1.3791, N=Nquad, Method=Meth;
+QD: Quadrupole, L=0.4500, K=  1.4254, N=Nquad, Method=Meth;}
+
+{ 03/20/05 Nominal }
+QA: Quadrupole, L=0.4500, K= -1.5418, N=Nquad, Method=Meth;
+{QB: Quadrupole, L=0.8000, K=  1.3729, N=Nquad, Method=Meth;
+QC: Quadrupole, L=0.4500, K= -1.3781, N=Nquad, Method=Meth;}
+QD: Quadrupole, L=0.4500, K=  1.3883, N=Nquad, Method=Meth;
+
+{ with nominal tune: nu_x = 9.83, nu_y = 5.70 }
+QB: Quadrupole, L=0.8000, K=  1.37057, N=Nquad, Method=Meth;
+QC: Quadrupole, L=0.4500, K= -1.38029, N=Nquad, Method=Meth;
+
+{QA: Quadrupole, L=0.4500, K=-1.445, N=Nquad, Method=Meth;
+QB: Quadrupole, L=0.8000, K= 1.372, N=Nquad, Method=Meth;
+QC: Quadrupole, L=0.4500, K=-1.420, N=Nquad, Method=Meth;
+QD: Quadrupole, L=0.4500, K= 1.362, N=Nquad, Method=Meth;}
+
+SF: Sextupole, L=0.20, K= 3.19122/0.20, N=Nsext, Method=Meth;
+SD: Sextupole, L=0.20, K=-5.16785/0.20, N=Nsext, Method=Meth;
+
+{ For chromaticity (5.0, 1.0) }
+SF: Sextupole, L=0.20, K= 17.71539, N=Nsext, Method=Meth;
+SD: Sextupole, L=0.20, K=-27.16939, N=Nsext, Method=Meth;
+
+HBEND: Bending, L=2.70/2, T=22.5/2, T1=22.5/4, T2=22.5/4, K=0.0040,
+        N=Nbend, Method=Meth;
+XBEND: HBEND, HBEND;
+
+{XBEND: Bending, L=2.70, T=22.5, T1=22.5/2, T2=22.5/2, K=0.0033,
+       N=Nbend, Method=Meth;}
+
+{ Skew Quadrupoles (17) }
+X1SQ16: Quadrupole, L=0.0, K=0.0, N=Nquad, Method=Meth;
+X2SQ3:  Quadrupole, L=0.0, K=0.0, N=Nquad, Method=Meth;
+X2SQ8:  Quadrupole, L=0.0, K=0.0, N=Nquad, Method=Meth;
+X2SQ16: Quadrupole, L=0.0, K=0.0, N=Nquad, Method=Meth;
+X3SQ8:  Quadrupole, L=0.0, K=0.0, N=Nquad, Method=Meth;
+X3SQ16: Quadrupole, L=0.0, K=0.0, N=Nquad, Method=Meth;
+X4SQ3:  Quadrupole, L=0.0, K=0.0, N=Nquad, Method=Meth;
+X4SQ16: Quadrupole, L=0.0, K=0.0, N=Nquad, Method=Meth;
+X5SQ3:  Quadrupole, L=0.0, K=0.0, N=Nquad, Method=Meth;
+X5SQ16: Quadrupole, L=0.0, K=0.0, N=Nquad, Method=Meth;
+X6SQ3:  Quadrupole, L=0.0, K=0.0, N=Nquad, Method=Meth;
+X6SQ16: Quadrupole, L=0.0, K=0.0, N=Nquad, Method=Meth;
+X7SQ8:  Quadrupole, L=0.0, K=0.0, N=Nquad, Method=Meth;
+X7SQ16: Quadrupole, L=0.0, K=0.0, N=Nquad, Method=Meth;
+X8SQ3:  Quadrupole, L=0.0, K=0.0, N=Nquad, Method=Meth;
+X8SQ8:  Quadrupole, L=0.0, K=0.0, N=Nquad, Method=Meth;
+X8SQ16: Quadrupole, L=0.0, K=0.0, N=Nquad, Method=Meth;
+
+{ Beam line source points }
+
+X3S:  Drift, L=0.0;
+
+{ Injection hardware }
+
+XISH: Drift, L=0.438;
+XFB1: Drift, L=0.208;
+XFB2: Drift, L=0.396;
+XFB3: Drift, L=0.208;
+
+{DXISH: Drift, L=0.438/2.0;
+DFB1:  Drift, L=0.208/2.0;
+DFB2:  Drift, L=0.396/2.0;
+DFB3:  Drift, L=0.208/2.0;
+KFB1:  Corrector, Horizontal, Method=Meth;
+KFB2:  Corrector, Horizontal, Method=Meth;
+KFB3:  Corrector, Horizontal, Method=Meth;
+XISH:  DXISH, DXISH;
+XFB1:  DFB1, KFB1, DFB1;
+XFB2:  DFB2, KFB2, DFB2;
+XFB3:  DFB3, KFB3, DFB3;}
+
+{ Correctors }
+
+DT23:  Drift, L=0.115;
+DT11:  Drift, L=0.055;
+DT26:  Drift, L=0.129;
+DT24:  Drift, L=0.121;
+
+X1T12: Marker;
+
+X1H2:  Corrector, Horizontal, Method=Meth;
+X1H5:  Corrector, Horizontal, Method=Meth;
+X1H8:  Corrector, Horizontal, Method=Meth;
+X1H14: Corrector, Horizontal, Method=Meth;
+X1H16: Corrector, Horizontal, Method=Meth;
+
+X2H3:  Corrector, Horizontal, Method=Meth;
+X2H5:  Corrector, Horizontal, Method=Meth;
+X2H8:  Corrector, Horizontal, Method=Meth;
+X2H14: Corrector, Horizontal, Method=Meth;
+X2H16: Corrector, Horizontal, Method=Meth;
+X2H17: Corrector, Horizontal, Method=Meth;
+
+X3H2:  Corrector, Horizontal, Method=Meth;
+X3H3:  Corrector, Horizontal, Method=Meth;
+X3H5:  Corrector, Horizontal, Method=Meth;
+X3H8:  Corrector, Horizontal, Method=Meth;
+X3H14: Corrector, Horizontal, Method=Meth;
+X3H16: Corrector, Horizontal, Method=Meth;
+X3H17: Corrector, Horizontal, Method=Meth;
+
+X4H2:  Corrector, Horizontal, Method=Meth;
+X4H3:  Corrector, Horizontal, Method=Meth;
+X4H5:  Corrector, Horizontal, Method=Meth;
+X4H8:  Corrector, Horizontal, Method=Meth;
+X4H14: Corrector, Horizontal, Method=Meth;
+X4H16: Corrector, Horizontal, Method=Meth;
+X4H17: Corrector, Horizontal, Method=Meth;
+
+X5H2:  Corrector, Horizontal, Method=Meth;
+X5H3:  Corrector, Horizontal, Method=Meth;
+X5H5:  Corrector, Horizontal, Method=Meth;
+X5H8:  Corrector, Horizontal, Method=Meth;
+X5H14: Corrector, Horizontal, Method=Meth;
+X5H16: Corrector, Horizontal, Method=Meth;
+X5H17: Corrector, Horizontal, Method=Meth;
+
+X6H2:  Corrector, Horizontal, Method=Meth;
+X6H3:  Corrector, Horizontal, Method=Meth;
+X6H5:  Corrector, Horizontal, Method=Meth;
+X6H8:  Corrector, Horizontal, Method=Meth;
+X6H14: Corrector, Horizontal, Method=Meth;
+X6H16: Corrector, Horizontal, Method=Meth;
+
+X7H3:  Corrector, Horizontal, Method=Meth;
+X7H5:  Corrector, Horizontal, Method=Meth;
+X7H8:  Corrector, Horizontal, Method=Meth;
+X7H14: Corrector, Horizontal, Method=Meth;
+X7H16: Corrector, Horizontal, Method=Meth;
+X7H17: Corrector, Horizontal, Method=Meth;
+
+X8H2:  Corrector, Horizontal, Method=Meth;
+X8H3:  Corrector, Horizontal, Method=Meth;
+X8H5:  Corrector, Horizontal, Method=Meth;
+X8H8:  Corrector, Horizontal, Method=Meth;
+X8H14: Corrector, Horizontal, Method=Meth;
+X8H16: Corrector, Horizontal, Method=Meth;
+X8H17: Corrector, Horizontal, Method=Meth;
+
+X1V2:  Corrector, Vertical, Method=Meth;
+X1V5:  Corrector, Vertical, Method=Meth;
+X1V8:  Corrector, Vertical, Method=Meth;
+X1V14: Corrector, Vertical, Method=Meth;
+X1V16: Corrector, Vertical, Method=Meth;
+
+X2V3:  Corrector, Vertical, Method=Meth;
+X2V5:  Corrector, Vertical, Method=Meth;
+X2V8:  Corrector, Vertical, Method=Meth;
+X2V14: Corrector, Vertical, Method=Meth;
+X2V16: Corrector, Vertical, Method=Meth;
+X2V17: Corrector, Vertical, Method=Meth;
+
+X3V2:  Corrector, Vertical, Method=Meth;
+X3V3:  Corrector, Vertical, Method=Meth;
+X3V5:  Corrector, Vertical, Method=Meth;
+X3V8:  Corrector, Vertical, Method=Meth;
+X3V14: Corrector, Vertical, Method=Meth;
+X3V16: Corrector, Vertical, Method=Meth;
+X3V17: Corrector, Vertical, Method=Meth;
+
+X4V2:  Corrector, Vertical, Method=Meth;
+X4V3:  Corrector, Vertical, Method=Meth;
+X4V5:  Corrector, Vertical, Method=Meth;
+X4V8:  Corrector, Vertical, Method=Meth;
+X4V14: Corrector, Vertical, Method=Meth;
+X4V16: Corrector, Vertical, Method=Meth;
+X4V17: Corrector, Vertical, Method=Meth;
+
+X5V2:  Corrector, Vertical, Method=Meth;
+X5V3:  Corrector, Vertical, Method=Meth;
+X5V5:  Corrector, Vertical, Method=Meth;
+X5V8:  Corrector, Vertical, Method=Meth;
+X5V14: Corrector, Vertical, Method=Meth;
+X5V16: Corrector, Vertical, Method=Meth;
+X5V17: Corrector, Vertical, Method=Meth;
+
+X6V2:  Corrector, Vertical, Method=Meth;
+X6V3:  Corrector, Vertical, Method=Meth;
+X6V5:  Corrector, Vertical, Method=Meth;
+X6V8:  Corrector, Vertical, Method=Meth;
+X6V14: Corrector, Vertical, Method=Meth;
+X6V16: Corrector, Vertical, Method=Meth;
+
+X7V3:  Corrector, Vertical, Method=Meth;
+X7V5:  Corrector, Vertical, Method=Meth;
+X7V8:  Corrector, Vertical, Method=Meth;
+X7V14: Corrector, Vertical, Method=Meth;
+X7V16: Corrector, Vertical, Method=Meth;
+X7V17: Corrector, Vertical, Method=Meth;
+
+X8V2:  Corrector, Vertical, Method=Meth;
+X8V3:  Corrector, Vertical, Method=Meth;
+X8V5:  Corrector, Vertical, Method=Meth;
+X8V8:  Corrector, Vertical, Method=Meth;
+X8V14: Corrector, Vertical, Method=Meth;
+X8V16: Corrector, Vertical, Method=Meth;
+X8V17: Corrector, Vertical, Method=Meth;
+
+{ Drift }
+
+X1D1:   Drift, L=0.651;
+X1D2:   Drift, L=0.568;
+X1D2A:  Drift, L=0.172;
+X1D3:   Drift, L=0.205;
+X1D4:   Drift, L=0.0995;
+X1D5:   Drift, L=0.1475;
+X1D6:   Drift, L=0.035;
+X1D7:   Drift, L=0.295;
+X1D8:   Drift, L=0.159;
+X1D9:   Drift, L=0.301;
+X1D10:  Drift, L=0.800;
+X1D11:  Drift, L=0.367;
+X1D12:  Drift, L=0.223;
+X1D13:  Drift, L=0.116;
+X1D14:  Drift, L=0.034;
+X1D15:  Drift, L=0.150;
+X1D16:  Drift, L=0.173;
+X1D16A: Drift, L=0.319;
+X1D17:  Drift, L=0.044;
+X1D18:  Drift, L=0.756;
+X1D18A: Drift, L=0.0;
+X1D19:  Drift, L=0.311;
+X1D20:  Drift, L=0.149;
+X1D21:  Drift, L=0.297;
+X1D22:  Drift, L=0.033;
+X1D23:  Drift, L=0.158;
+X1D24:  Drift, L=0.297;
+X1D25:  Drift, L=0.040;
+X1D26:  Drift, L=0.720;
+X1D27:  Drift, L=1.490;
+
+X2D1:   Drift, L=1.490;
+X2D2:   Drift, L=0.737;
+X2D3:   Drift, L=0.023;
+X2D4:   Drift, L=0.328;
+X2D5:   Drift, L=0.127;
+X2D6:   Drift, L=0.050;
+X2D7:   Drift, L=0.280;
+X2D8:   Drift, L=0.163;
+X2D9:   Drift, L=0.297;
+X2D10:  Drift, L=0.800;
+X2D11:  Drift, L=0.350;
+X2D12:  Drift, L=0.240;
+X2D13:  Drift, L=0.120;
+X2D14:  Drift, L=0.030;
+X2D14A: Drift, L=0.150;
+X2D15:  Drift, L=0.700;
+X2D16:  Drift, L=0.056;
+X2D17:  Drift, L=0.744;
+X2D18:  Drift, L=0.301;
+X2D19:  Drift, L=0.159;
+X2D20:  Drift, L=0.297;
+X2D21:  Drift, L=0.033;
+X2D22:  Drift, L=0.129;
+X2D23:  Drift, L=0.326;
+X2D24:  Drift, L=0.040;
+X2D25:  Drift, L=0.323;
+X2D26:  Drift, L=1.657;
+
+X3D1:   Drift, L=1.684;
+X3D2:   Drift, L=0.314;
+X3D3:   Drift, L=0.022;
+X3D4:   Drift, L=0.333;
+X3D5:   Drift, L=0.122;
+X3D6:   Drift, L=0.050;
+X3D7:   Drift, L=0.280;
+X3D8:   Drift, L=0.157;
+X3D9:   Drift, L=0.303;
+X3D10:  Drift, L=0.800;
+X3D11:  Drift, L=0.357;
+X3D12:  Drift, L=0.233;
+X3D13:  Drift, L=0.117;
+X3D14:  Drift, L=0.033;
+X3D14A: Drift, L=0.150;
+X3D15:  Drift, L=0.700;
+X3D16:  Drift, L=0.052;
+X3D17:  Drift, L=0.748;
+X3D18:  Drift, L=0.301;
+X3D19:  Drift, L=0.159;
+X3D20:  Drift, L=0.292;
+X3D21:  Drift, L=0.038;
+X3D22:  Drift, L=0.164;
+X3D23:  Drift, L=0.291;
+X3D24:  Drift, L=0.036;
+X3D25:  Drift, L=0.354;
+X3D26:  Drift, L=1.630;
+
+X4D1:   Drift, L=1.917;
+X4D2:   Drift, L=0.065;
+X4D3:   Drift, L=0.038;
+X4D4:   Drift, L=0.275;
+X4D5:   Drift, L=0.180;
+X4D6:   Drift, L=0.038;
+X4D7:   Drift, L=0.292;
+X4D8:   Drift, L=0.155;
+X4D9:   Drift, L=0.305;
+X4D10:  Drift, L=0.800;
+X4D11:  Drift, L=0.367;
+X4D12:  Drift, L=0.223;
+X4D13:  Drift, L=0.115;
+X4D14:  Drift, L=0.035;
+X4D14A: Drift, L=0.150;
+X4D15:  Drift, L=0.700;
+X4D16:  Drift, L=0.045;
+X4D17:  Drift, L=0.755;
+X4D18:  Drift, L=0.308;
+X4D19:  Drift, L=0.152;
+X4D20:  Drift, L=0.296;
+X4D21:  Drift, L=0.034;
+X4D22:  Drift, L=0.145;
+X4D23:  Drift, L=0.310;
+X4D24:  Drift, L=0.041;
+X4D25:  Drift, L=0.516;
+X4D26:  Drift, L=1.463;
+
+X5D1:   Drift, L=1.464;
+X5D2:   Drift, L=0.527;
+X5D3:   Drift, L=0.029;
+X5D4:   Drift, L=0.249;
+X5D5:   Drift, L=0.206;
+X5D6:   Drift, L=0.044;
+X5D7:   Drift, L=0.286;
+X5D8:   Drift, L=0.163;
+X5D9:   Drift, L=0.297;
+X5D10:  Drift, L=0.800;
+X5D11:  Drift, L=0.363;
+X5D12:  Drift, L=0.227;
+X5D13:  Drift, L=0.113;
+X5D14:  Drift, L=0.037;
+X5D14A: Drift, L=0.150;
+X5D15:  Drift, L=0.700;
+X5D16:  Drift, L=0.045;
+X5D17:  Drift, L=0.755;
+X5D18:  Drift, L=0.302;
+X5D19:  Drift, L=0.158;
+X5D20:  Drift, L=0.294;
+X5D21:  Drift, L=0.036;
+X5D22:  Drift, L=0.152;
+X5D23:  Drift, L=0.303;
+X5D24:  Drift, L=0.041;
+X5D25:  Drift, L=0.509;
+X5D26:  Drift, L=1.470;
+
+X6D1:   Drift, L=1.461;
+X6D2:   Drift, L=0.530;
+X6D3:   Drift, L=0.029;
+X6D4:   Drift, L=0.257;
+X6D5:   Drift, L=0.198;
+X6D6:   Drift, L=0.041;
+X6D7:   Drift, L=0.289;
+X6D8:   Drift, L=0.162;
+X6D9:   Drift, L=0.298;
+X6D10:  Drift, L=0.800;
+X6D11:  Drift, L=0.368;
+X6D12:  Drift, L=0.222;
+X6D13:  Drift, L=0.117;
+X6D14:  Drift, L=0.033;
+X6D14A: Drift, L=0.150;
+X6D15:  Drift, L=0.700;
+X6D16:  Drift, L=0.047;
+X6D17:  Drift, L=0.753;
+X6D18:  Drift, L=0.305;
+X6D19:  Drift, L=0.155;
+X6D20:  Drift, L=0.293;
+X6D21:  Drift, L=0.037;
+X6D22:  Drift, L=0.138;
+X6D23:  Drift, L=0.317;
+X6D24:  Drift, L=0.038;
+X6D25:  Drift, L=0.0;
+X6D26:  Drift, L=2.212;
+
+X7D1:   Drift, L=2.220;
+X7D2:   Drift, L=0.0;
+X7D3:   Drift, L=0.030;
+X7D4:   Drift, L=0.321;
+X7D5:   Drift, L=0.134;
+X7D6:   Drift, L=0.046;
+X7D7:   Drift, L=0.284;
+X7D8:   Drift, L=0.156;
+X7D9:   Drift, L=0.304;
+X7D10:  Drift, L=0.800;
+X7D11:  Drift, L=0.356;
+X7D12:  Drift, L=0.234;
+X7D13:  Drift, L=0.114;
+X7D14:  Drift, L=0.036;
+X7D14A: Drift, L=0.150;
+X7D15:  Drift, L=0.700;
+X7D16:  Drift, L=0.050;
+X7D17:  Drift, L=0.750;
+X7D18:  Drift, L=0.310;
+X7D19:  Drift, L=0.150;
+X7D20:  Drift, L=0.291;
+X7D21:  Drift, L=0.039;
+X7D22:  Drift, L=0.162;
+X7D23:  Drift, L=0.293;
+X7D24:  Drift, L=0.036;
+X7D25:  Drift, L=0.315;
+X7D26:  Drift, L=1.669;
+
+X8D1:   Drift, L=1.653;
+X8D2:   Drift, L=0.335;
+X8D3:   Drift, L=0.032;
+X8D4:   Drift, L=0.250;
+X8D5:   Drift, L=0.205;
+X8D6:   Drift, L=0.042;
+X8D7:   Drift, L=0.288;
+X8D8:   Drift, L=0.160;
+X8D9:   Drift, L=0.300;
+X8D10:  Drift, L=0.800;
+X8D11:  Drift, L=0.351;
+X8D12:  Drift, L=0.239;
+X8D13:  Drift, L=0.117;
+X8D14:  Drift, L=0.033;
+X8D15:  Drift, L=0.150;
+X8D16:  Drift, L=0.173;
+X8D16A: Drift, L=0.319;
+X8D17:  Drift, L=0.056;
+X8D18:  Drift, L=0.744;
+X8D18A: Drift, L=0.306;
+X8D19:  Drift, L=0.154;
+X8D20:  Drift, L=0.296;
+X8D21:  Drift, L=0.034;
+X8D22:  Drift, L=0.150;
+X8D23:  Drift, L=0.305;
+X8D24:  Drift, L=0.037;
+X8D25:  Drift, L=0.114;
+X8D26:  Drift, L=1.857;
+
+{ Markers and Pick-ups }
+
+CS1:  Marker;
+CS2:  Marker;
+CS3:  Marker;
+CS4:  Marker;
+CS5:  Marker;
+CS6:  Marker;
+CS7:  Marker;
+CS8:  Marker;
+
+BPM:  Beam Position Monitor;
+
+{ Note, K_max for X17 is 81.26 }
+lambda_X17 = 17.4e-2; K_X17 = 0*68.26; n_X17 = 3;
+L_X17 = n_X17*lambda_X17; B_X17 = 2.0*pi*m_e*K_X17/(c0*lambda_X17);
+
+X4D26_X17: Drift, L=1.463-0*L_X17/2.0;
+X5D1_X17:  Drift, L=1.464-0*L_X17/2.0;
+
+X17: Wiggler, L = L_X17, lambda = lambda_X17, kxV = 0.0,
+     BoBrhoV = 0*B_X17/Brho, N = n_X17*4, Method = 1;
+
+{ 6T wiggler }
+{lambda_6T = 6e-2; n_6T = 14; L_6T = n_6T*lambda_6T; B_6T = -6.2962;
+
+W6T1: Wiggler, L = L_6T, lambda = lambda_6T, kxV = -1.2810, 
+      BoBrhoV = 0*B_6T/Brho, N = n_6T*10, Method = 2,
+      harm = (3, 0.9521, -0.2239/Brho, 0, 0, 0,
+              5, 0.0000,  0.0097/Brho, 0, 0, 0);}
+
+L_6T = 1.0;
+W6T1: insertion, scaling = 0.0, N = 50,
+      file2 = "/Users/johan/git/tracy-3.5/projects/in/lattice/NSLS-II/scw100_7m_5th_10per.txt";
+
+D_6T: Drift, L = -L_6T/2.0;
+W6T:  D_6T, W6T1, D_6T;
+
+L_U55 = 0.99;
+
+U55: insertion, scaling = 0.0, N = 50,
+     file2 = "/Users/johan/git/tracy-3.5/projects/in/lattice/NSLS-II/u55new_gap19mmphase19_3mm5th_1m.txt";
+
+{L_U55 = 1.98;
+
+U55: insertion, scaling = 0.0, N = 50,
+     file2 = "/Users/johan/git/tracy-3.5/projects/in/lattice/NSLS-II/u55new_gap19mmphase19_3mm5th.txt";}
+
+D_U55:  Drift, L = -L_U55/2.0;
+ID_U55: D_U55, U55, D_U55;
+
+{ Lattice description }
+
+{ superperiod #1: }
+
+OCT1: CS1, X1D1, BPM, X1D2, XFB2, X1D2A, DT26, X1H2, X1V2, DT26, X1D3,
+      QA, X1D4, XISH, X1D5,
+      QB, X1D6, BPM, X1D7,
+      QC, X1D8, DT23, X1H5, X1V5, DT23, X1D9,
+      XBEND, X1D10, SD, X1D11, DT11, X1H8, X1V8, DT11, X1D12,
+      SF, X1D13, BPM, X1D14, QD, X1D15, SF,
+      X1D16, XFB3, X1D16A, SD, X1D17, BPM,
+      X1D18, X1T12, X1D18A, XBEND,
+      X1D19, DT23, X1H14, X1V14, DT23, X1D20, QC,
+      X1D21, BPM, X1D22, QB,
+      X1D23, DT23, X1H16, X1SQ16, X1V16, DT23, X1D24, QA,
+      X1D25, BPM, X1D26, X1D27, ID_U55;
+
+{ superperiod #2: }
+
+OCT2: CS2, X2D1, X2D2, BPM, X2D3,
+      QA, X2D4, DT23, X2H3, X2SQ3, X2V3, DT23, X2D5,
+      QB, X2D6, BPM, X2D7,
+      QC, X2D8, DT23, X2H5, X2V5, DT23, X2D9,
+      XBEND, X2D10, SD, X2D11, DT11, X2H8, X2SQ8, X2V8, DT11, X2D12,
+      SF, X2D13, BPM, X2D14, QD, X2D14A, SF,
+      X2D15, SD, X2D16, BPM, X2D17, XBEND,
+      X2D18, DT23, X2H14, X2V14, DT23, X2D19, QC,
+      X2D20, BPM, X2D21, QB,
+      X2D22, DT23, X2H16, X2SQ16, X2V16, DT23, X2D23, QA,
+      X2D24, BPM, X2D25, DT23, X2H17, X2V17, DT23, X2D26;
+
+{ superperiod #3: }
+
+OCT3: CS3, X3D1, DT23, X3H2, X3V2, DT23, X3D2, BPM, X3D3,
+      QA, X3D4, DT23, X3H3, X3V3, DT23, X3D5,
+      QB, X3D6, BPM, X3D7,
+      QC, X3D8, DT23, X3H5, X3V5, DT23, X3D9,
+      XBEND, X3D10, SD, X3D11, DT11, X3H8, X3SQ8, X3V8, DT11, X3D12,
+      SF, X3D13, BPM, X3D14, QD, X3D14A, SF,
+      X3D15, SD, X3D16, BPM, X3D17, XBEND,
+      X3D18, DT23, X3H14, X3V14, DT23, X3D19, QC,
+      X3D20, BPM, X3D21, QB,
+      X3D22, DT23, X3H16, X3SQ16, X3V16, DT23, X3D23, QA,
+      X3D24, BPM, X3D25, DT23, X3H17, X3V17, DT23, X3D26;
+
+{ superperiod #4: }
+
+OCT4: CS4, X4D1, DT23, X4H2, X4V2, DT23, X4D2, BPM, X4D3,
+      QA, X4D4, DT23, X4H3, X4SQ3, X4V3, DT23, X4D5,
+      QB, X4D6, BPM, X4D7,
+      QC, X4D8, DT23, X4H5, X4V5, DT23, X4D9,
+      XBEND, X4D10, SD, X4D11, DT11, X4H8, X4V8, DT11, X4D12,
+      SF, X4D13, BPM, X4D14, QD, X4D14A, SF,
+      X4D15, SD, X4D16, BPM, X4D17, XBEND,
+      X4D18, DT23, X4H14, X4V14, DT23, X4D19, QC,
+      X4D20, BPM, X4D21, QB,
+      X4D22, DT23, X4H16, X4SQ16, X4V16, DT23, X4D23, QA,
+      X4D24, BPM, X4D25, DT23, X4H17, X4V17, DT23, X4D26_X17{,
+      W6T}, X17;
+
+{ superperiod #5: }
+
+OCT5: CS5, X5D1_X17, DT23, X5H2, X5V2, DT23, X5D2, BPM, X5D3,
+      QA, X5D4, DT23, X5H3, X5SQ3, X5V3, DT23, X5D5,
+      QB, X5D6, BPM, X5D7,
+      QC, X5D8, DT23, X5H5, X5V5, DT23, X5D9,
+      XBEND, X5D10, SD, X5D11, DT11, X5H8, X5V8, DT11, X5D12,
+      SF, X5D13, BPM, X5D14, QD, X5D14A, SF,
+      X5D15, SD, X5D16, BPM, X5D17, XBEND,
+      X5D18, DT23, X5H14, X5V14, DT23, X5D19, QC,
+      X5D20, BPM, X5D21, QB,
+      X5D22, DT23, X5H16, X5SQ16, X5V16, DT23, X5D23, QA,
+      X5D24, BPM, X5D25, DT23, X5H17, X5V17, DT23, X5D26;
+
+{ superperiod #6: }
+
+OCT6: CS6, X6D1, DT23, X6H2, X6V2, DT23, X6D2, BPM, X6D3,
+      QA, X6D4, DT23, X6H3, X6SQ3, X6V3, DT23, X6D5,
+      QB, X6D6, BPM, X6D7,
+      QC, X6D8, DT23, X6H5, X6V5, DT23, X6D9,
+      XBEND, X6D10, SD, X6D11, DT11, X6H8, X6V8, DT11, X6D12,
+      SF, X6D13, BPM, X6D14, QD, X6D14A, SF,
+      X6D15, SD, X6D16, BPM, X6D17, XBEND,
+      X6D18, DT23, X6H14, X6V14, DT23, X6D19, QC,
+      X6D20, BPM, X6D21, QB,
+      X6D22, DT23, X6H16, X6SQ16, X6V16, DT23, X6D23, QA,
+      X6D24, BPM, X6D25, X6D26;
+
+{ superperiod #7: }
+
+OCT7: CS7, X7D1, X7D2, BPM, X7D3,
+      QA, X7D4, DT23, X7H3, X7V3, DT23, X7D5,
+      QB, X7D6, BPM, X7D7,
+      QC, X7D8, DT23, X7H5, X7V5, DT23, X7D9,
+      XBEND, X7D10, SD, X7D11, DT11, X7H8, X7SQ8, X7V8, DT11, X7D12,
+      SF, X7D13, BPM, X7D14, QD, X7D14A, SF,
+      X7D15, SD, X7D16, BPM, X7D17, XBEND,
+      X7D18, DT23, X7H14, X7V14, DT23, X7D19, QC,
+      X7D20, BPM, X7D21, QB,
+      X7D22, DT23, X7H16, X7SQ16, X7V16, DT23, X7D23, QA,
+      X7D24, BPM, X7D25, DT23, X7H17, X7V17, DT23, X7D26;
+
+{ superperiod #8 }
+
+OCT8: CS8, X8D1, DT23, X8H2, X8V2, DT23, X8D2, BPM, X8D3,
+      QA, X8D4, DT23, X8H3, X8SQ3, X8V3, DT23, X8D5,
+      QB, X8D6, BPM, X8D7,
+      QC, X8D8, DT23, X8H5, X8V5, DT23, X8D9,
+      XBEND, X8D10, SD, X8D11, DT11, X8H8, X8SQ8, X8V8, DT11, X8D12,
+      SF, X8D13, BPM, X8D14, QD, X8D15, SF,
+      X8D16, XFB1, X8D16A, SD, X8D17, BPM, X8D18, XBEND,
+      X8D18A, DT23, X8H14, X8V14, DT23, X8D19, QC,
+      X8D20, BPM, X8D21, QB,
+      X8D22, DT23, X8H16, X8SQ16, X8V16, DT23, X8D23, QA,
+      X8D24, BPM, X8D25, DT24, X8H17, X8V17, DT24, X8D26;
+
+
+{RING: OCT1, CAV;}
+
+{RING: OCT8, OCT1, OCT2, OCT3, OCT4, OCT5, OCT6, OCT7;}
+
+RING: OCT1, OCT2, OCT3, OCT4, OCT5, OCT6, OCT7, OCT8, CAV;
+
+CELL: RING, SYMMETRY=1;
+
+END;

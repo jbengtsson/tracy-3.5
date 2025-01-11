@@ -1,0 +1,186 @@
+{z:\git\tracy-3.5\projects\in\lattice\mls\mlssu.opa}
+
+{opa to tracy-2 export}
+
+define lattice;
+energy = 0.629000;
+dp = 1.0d-10;  codeps = 1.0d-6;  dk = 1.0d-6;
+meth = 4; nbend = 10; nquad = 10;
+
+{----- variables ----------------------------------------------------}
+
+orbitdpp  = 0;
+
+{----- table of elements ----------------------------------------------------}
+
+d3101  : drift, l = 0.300000;
+d4     : drift, l = 0.425000;
+d2201  : drift, l = 0.300000;
+d401   : drift, l = 0.300000;
+d2202  : drift, l = 0.150000;
+d3102  : drift, l = 0.150000;
+d51    : drift, l = 0.125000;
+d231   : drift, l = 0.125000;
+d24    : drift, l = 0.150000;
+d322   : drift, l = 0.125000;
+d601   : drift, l = 0.300000;
+d232   : drift, l = 0.125000;
+d321   : drift, l = 0.125000;
+d402   : drift, l = 0.150000;
+d3302  : drift, l = 0.425000;
+d3301  : drift, l = 0.300000;
+d33    : drift, l = 0.150000;
+d2401  : drift, l = 0.300000;
+d52    : drift, l = 0.125000;
+d8     : drift, l = 0.150000;
+d25    : drift, l = 0.425000;
+d6     : drift, l = 0.150000;
+d2402  : drift, l = 0.425000;
+d36    : drift, l = 0.150000;
+d602   : drift, l = 0.425000;
+d26    : drift, l = 0.150000;
+d34    : drift, l = 0.425000;
+d9     : drift, l = 0.150000;
+d31    : drift, l = 0.425000;
+d7     : drift, l = 0.425000;
+d29    : drift, l = 0.150000;
+d35    : drift, l = 0.150000;
+d27    : drift, l = 0.150000;
+d101   : drift, l = 0.150000;
+d12    : drift, l = 0.425000;
+d2801  : drift, l = 0.150000;
+d3601  : drift, l = 1.250000;
+d2701  : drift, l = 3.000000;
+d10    : drift, l = 3.000000;
+d28    : drift, l = 3.000000;
+d1     : drift, l = 1.250000;
+d1001  : drift, l = 0.150000;
+d901   : drift, l = 3.000000;
+d2     : drift, l = 0.150000;
+d11    : drift, l = 0.150000;
+d30    : drift, l = 0.425000;
+d3     : drift, l = 0.425000;
+d13    : drift, l = 0.425000;
+d1301  : drift, l = 0.300000;
+d1302  : drift, l = 0.150000;
+d141   : drift, l = 0.125000;
+d15    : drift, l = 0.150000;
+d1501  : drift, l = 0.300000;
+d142   : drift, l = 0.125000;
+d16    : drift, l = 0.425000;
+d1502  : drift, l = 0.425000;
+d19    : drift, l = 1.250000;
+d1801  : drift, l = 1.250000;
+d17    : drift, l = 0.150000;
+d18    : drift, l = 0.150000;
+d1901  : drift, l = 0.150000;
+d21    : drift, l = 0.425000;
+d20    : drift, l = 0.150000;
+d22    : drift, l = 0.425000;
+lo     : drift, l = 0.050000;
+
+q1p2k3 : quadrupole, l = 0.200000, k = 2.962400, n=nquad, method=meth;
+q1p1k1 : quadrupole, l = 0.200000, k = 2.474600, n=nquad, method=meth;
+q1p2k1 : quadrupole, l = 0.200000, k = 2.474600, n=nquad, method=meth;
+q1p2l4 : quadrupole, l = 0.200000, k = 2.962400, n=nquad, method=meth;
+q1p1l2 : quadrupole, l = 0.200000, k = 2.962400, n=nquad, method=meth;
+q1p1l4 : quadrupole, l = 0.200000, k = 2.962400, n=nquad, method=meth;
+q2p1l4 : quadrupole, l = 0.200000, k = -4.174990, n=nquad, method=meth;
+q2p1k1 : quadrupole, l = 0.200000, k = -4.506670, n=nquad, method=meth;
+q3p1k1 : quadrupole, l = 0.200000, k = 5.005740, n=nquad, method=meth;
+q2p1l2 : quadrupole, l = 0.200000, k = -4.174990, n=nquad, method=meth;
+q3p1l2 : quadrupole, l = 0.200000, k = 5.191920, n=nquad, method=meth;
+q2p2l4 : quadrupole, l = 0.200000, k = -4.174990, n=nquad, method=meth;
+q3p1l4 : quadrupole, l = 0.200000, k = 5.191920, n=nquad, method=meth;
+q3p2k1 : quadrupole, l = 0.200000, k = 5.005740, n=nquad, method=meth;
+q3p2l4 : quadrupole, l = 0.200000, k = 5.191920, n=nquad, method=meth;
+q2p2l2 : quadrupole, l = 0.200000, k = -4.174990, n=nquad, method=meth;
+q3p2l2 : quadrupole, l = 0.200000, k = 5.191920, n=nquad, method=meth;
+q2p2k1 : quadrupole, l = 0.200000, k = -4.506670, n=nquad, method=meth;
+q1p2l2 : quadrupole, l = 0.200000, k = 2.962400, n=nquad, method=meth;
+q1p1k3 : quadrupole, l = 0.200000, k = 2.962400, n=nquad, method=meth;
+q2p1k3 : quadrupole, l = 0.200000, k = -4.506670, n=nquad, method=meth;
+q3p1k3 : quadrupole, l = 0.200000, k = 5.005740, n=nquad, method=meth;
+q2p2k3 : quadrupole, l = 0.200000, k = -4.506670, n=nquad, method=meth;
+q3p2k3 : quadrupole, l = 0.200000, k = 5.005740, n=nquad, method=meth;
+
+bend1  : bending, l = 1.200000, t = 45.000000, k = 0.000000,
+         t1 = 22.500000, t2 = 22.500000, gap = 0.0500, n=nbend, method=meth;
+{fringe field parameter not included: k1=0.5000}
+bend2  : bending, l = 1.200000, t = 45.000000, k = 0.000000,
+         t1 = 22.500000, t2 = 22.500000, gap = 0.0500, n=nbend, method=meth;
+{fringe field parameter not included: k1=0.5000}
+bend3  : bending, l = 1.200000, t = 45.000000, k = 0.000000,
+         t1 = 22.500000, t2 = 22.500000, gap = 0.0500, n=nbend, method=meth;
+{fringe field parameter not included: k1=0.5000}
+bend4  : bending, l = 1.200000, t = 45.000000, k = 0.000000,
+         t1 = 22.500000, t2 = 22.500000, gap = 0.0500, n=nbend, method=meth;
+{fringe field parameter not included: k1=0.5000}
+bend5  : bending, l = 1.200000, t = 45.000000, k = 0.000000,
+         t1 = 22.500000, t2 = 22.500000, gap = 0.0500, n=nbend, method=meth;
+{fringe field parameter not included: k1=0.5000}
+bend6  : bending, l = 1.200000, t = 45.000000, k = 0.000000,
+         t1 = 22.500000, t2 = 22.500000, gap = 0.0500, n=nbend, method=meth;
+{fringe field parameter not included: k1=0.5000}
+bend7  : bending, l = 1.200000, t = 45.000000, k = 0.000000,
+         t1 = 22.500000, t2 = 22.500000, gap = 0.0500, n=nbend, method=meth;
+{fringe field parameter not included: k1=0.5000}
+bend8  : bending, l = 1.200000, t = 45.000000, k = 0.000000,
+         t1 = 22.500000, t2 = 22.500000, gap = 0.0500, n=nbend, method=meth;
+{fringe field parameter not included: k1=0.5000}
+
+s2p2k1 : sextupole, l = 0.100000, k = -1.000000, n = 1, method=meth;
+s1p2k3 : sextupole, l = 0.100000, k = 1.000000, n = 1, method=meth;
+s1p2l4 : sextupole, l = 0.100000, k = 1.000000, n = 1, method=meth;
+s1p2k1 : sextupole, l = 0.100000, k = 1.000000, n = 1, method=meth;
+s1p1l4 : sextupole, l = 0.100000, k = 1.000000, n = 1, method=meth;
+s2p1k1 : sextupole, l = 0.100000, k = -1.000000, n = 1, method=meth;
+s1p1k1 : sextupole, l = 0.100000, k = 1.000000, n = 1, method=meth;
+s1p1l2 : sextupole, l = 0.100000, k = 1.000000, n = 1, method=meth;
+s2p1l4 : sextupole, l = 0.100000, k = -1.000000, n = 1, method=meth;
+s3p1k1 : sextupole, l = 0.100000, k = 1.000000, n = 1, method=meth;
+s2p1l2 : sextupole, l = 0.100000, k = -1.000000, n = 1, method=meth;
+s2p2k3 : sextupole, l = 0.100000, k = -1.000000, n = 1, method=meth;
+s3p1l4 : sextupole, l = 0.100000, k = 1.000000, n = 1, method=meth;
+s3p2l2 : sextupole, l = 0.100000, k = 1.000000, n = 1, method=meth;
+s3p1l2 : sextupole, l = 0.100000, k = 1.000000, n = 1, method=meth;
+s3p2l4 : sextupole, l = 0.100000, k = 1.000000, n = 1, method=meth;
+s3p2k1 : sextupole, l = 0.100000, k = 1.000000, n = 1, method=meth;
+s2p2l4 : sextupole, l = 0.100000, k = -1.000000, n = 1, method=meth;
+s1m2l2 : sextupole, l = 0.100000, k = 1.000000, n = 1, method=meth;
+s1p1k3 : sextupole, l = 0.100000, k = 1.000000, n = 1, method=meth;
+s2p2l2 : sextupole, l = 0.100000, k = -1.000000, n = 1, method=meth;
+s2p1k3 : sextupole, l = 0.100000, k = -1.000000, n = 1, method=meth;
+s3p1k3 : sextupole, l = 0.100000, k = 1.000000, n = 1, method=meth;
+s3p2k3 : sextupole, l = 0.100000, k = 1.000000, n = 1, method=meth;
+
+o1     : multipole, l = 0.0, hom = (4,0.0000,0), n = 1, method=meth;
+o2     : multipole, l = 0.0, hom = (4,0.0000,0), n = 1, method=meth;
+o3     : multipole, l = 0.0, hom = (4,0.0000,0), n = 1, method=meth;
+o4     : multipole, l = 0.0, hom = (4,0.0000,0), n = 1, method=meth;
+
+
+{----- table of segments ----------------------------------------------------}
+
+oct1 : lo, o1, lo;
+oct2 : lo, o2, lo;
+oct3 : lo, o3, lo;
+oct4 : lo, o4, lo;
+ring : d1, s3p2k1, d101, q3p2k1, d2, q2p2k1, d3, bend1, d4, s2p2k1, d401,
+       s1p2k1, d402, q1p2k1, d51, oct1, d52, q1p1l2, d6, s1p1l2, d601, s2p1l2,
+       d602, bend2, d7, q2p1l2, d8, q3p1l2, d9, s3p1l2, d901, d10, s3p2l2,
+       d1001, q3p2l2, d11, q2p2l2, d12, bend1, d13, s2p2l2, d1301, s1m2l2,
+       d1302, q1p2l2, d141, oct2, d142, q1p1k3, d15, s1p1k3, d1501, s2p1k3,
+       d1502, bend1, d16, q2p1k3, d17, q3p1k3, d18, s3p1k3, d1801, d19, s3p2k3,
+       d1901, q3p2k3, d20, q2p2k3, d21, bend6, d22, s2p2k3, d2201, s1p2k3,
+       d2202, q1p2k3, d231, oct3, d232, q1p1l4, d24, s1p1l4, d2401, s2p1l4,
+       d2402, bend6, d25, q2p1l4, d26, q3p1l4, d27, s3p1l4, d2701, d28, s3p2l4,
+       d2801, q3p2l4, d29, q2p2l4, d30, bend7, d31, s2p2l4, d3101, s1p2l4,
+       d3102, q1p2l4, d321, oct4, d322, q1p1k1, d33, s1p1k1, d3301, s2p1k1,
+       d3302, bend8, d34, q2p1k1, d35, q3p1k1, d36, s3p1k1, d3601;
+
+cell: ring, symmetry=1;
+
+end;
+
+{z:\git\tracy-3.5\projects\in\lattice\mls\mlssu.opa}

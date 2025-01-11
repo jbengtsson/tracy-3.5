@@ -1,0 +1,204 @@
+{*******************************}
+{*                             *}
+{*  SOLEIL Storage Ring        *}
+{*  The IDEAL LATTICE updated  *}
+{*                             *}
+{*                             *}
+{* 26/09/02 Laurent Nadolski   *}
+{* maille BETA amor_test4.str  *}
+{*                             *}
+{* QUAD coupes en 2            *}
+{* SEPTUM sur 70 cm coupe en 4 *}
+{* SD moyenne coupee en        *}
+{* troncons de 20 cm           *}
+{*                             *}
+{* AJOUT +/- 2.5mm in vaccuum  *}
+{*         undulator           *}
+{*******************************}
+
+define lattice;
+
+intmeth= 4;
+
+{***** System parameters *****}
+Energy= 2.75;    { GeV }
+dP    = 1.0d-10;
+CODeps= 1.0d-15;
+
+{***** drift space *****}
+
+ SD1  : drift, L= 6.000000;
+ SD1a : drift, L= 0.900000;
+ SD1b : drift, L= 4.300000;
+ SD1c : drift, L= 3.700000;
+ SD1d : drift, L= 0.800000;
+ SEP  : drift, L= 0.200000;
+ SD2  : drift, L= 0.390000;
+ SD3  : drift, L= 0.200000;
+ SD4  : drift, L= 0.390000;
+ SD5  : drift, L= 0.200000;
+ SD6  : drift, L= 0.790000;
+ SD7  : drift, L= 0.440000;
+ SD8  : drift, L= 0.200000;
+ SD9  : drift, L= 0.476340;
+ SD10 : drift, L= 0.470000;
+ SD12 : drift, L= 0.470000;
+ SD13 : drift, L= 3.48255;
+ SD13a: drift, L= 0.200000;
+ SD13b: drift, L= 0.150000;
+ SD13c: drift, L= 0.732550;
+ SD14 : drift, L= 0.590000;
+ SDAC : drift, L= 1.904680;
+ SDAC1: drift, L= 1.004680;
+ SDAC2: drift, L= 0.200000;
+ SDACm: drift, L= 1.904680-1.80/2;
+ 
+{** Quadrupole **}
+Nq=8/2; {Number of slices}
+dgsurg=1.00;
+dgsurgL=1.00;
+
+ QP1 : quadrupole, L=0.32/2,K= -1.193917*dgsurg, method=intmeth,N=Nq;
+ QP2 : quadrupole, L=0.46/2,K=  1.712124*dgsurgL, method=intmeth,N=Nq;
+ QP3 : quadrupole, L=0.32/2,K= -0.7195554*dgsurg, method=intmeth,N=Nq;
+ QP4 : quadrupole, L=0.32/2,K= -1.404293*dgsurg, method=intmeth,N=Nq;
+ QP5 : quadrupole, L=0.32/2,K=  1.895744*dgsurg, method=intmeth,N=Nq;
+ QP6 : quadrupole, L=0.32/2,K= -1.117271*dgsurg, method=intmeth,N=Nq;
+ QP7 : quadrupole, L=0.46/2,K=  2.223070*dgsurgL, method=intmeth,N=Nq;
+ QP8 : quadrupole, L=0.32/2,K= -1.724227*dgsurg, method=intmeth,N=Nq;
+ QP9 : quadrupole, L=0.32/2,K= -1.689030*dgsurg, method=intmeth,N=Nq;
+ QP10: quadrupole, L=0.32/2,K=  1.963458*dgsurg, method=intmeth,N=Nq;
+
+
+{** quad split into two parts **}
+Q1 : QP1,QP1;
+Q2 : QP2,QP2;
+Q3 : QP3,QP3;
+Q4 : QP4,QP4;
+Q5 : QP5,QP5;
+Q6 : QP6,QP6;
+Q7 : QP7,QP7;
+Q8 : QP8,QP8;
+Q9 : QP9,QP9;
+Q10: QP10,QP10;
+
+
+{** bending **}
+beta_gap=37e-3;
+tracy_gap=beta_gap*2*0.724;
+
+ BEND1 : bending, L= 1.05243, T= 11.25, T1=5.5906, T2=5.67658, K=0.00204, N=4,
+	method=intmeth,gap=tracy_gap;
+	
+ BEND2 : bending, L= 1.052436/6, T= 11.25/6, T1=5.5906, T2=0.000, K=0.00204, N=4,
+	method=intmeth,gap=tracy_gap;
+ BEND3 : bending, L= 1.052436/6, T= 11.25/6, T1=0.000, T2=0.000, K=0.00204, N=4,
+	method=intmeth;
+ BEND4 : bending, L= 1.052436/6, T= 11.25/6, T1=0.000, T2=5.67658, K=0.00204, N=4,
+	method=intmeth,gap=tracy_gap;
+
+{ BEND:  BEND2,BEND3,BEND3,BEND3,BEND3,BEND4;}
+
+
+ BEND:  BEND1;
+
+ 
+NqSx=1; {Number of slices}
+ 
+{** Sextupole **} 
+coef=1.0;
+SX1 : sextupole, K =  1.719190e-00*coef, method=intmeth, N = NqSx;
+SX2 : sextupole, K = -4.104560e-00*coef, method=intmeth, N = NqSx;
+SX3 : sextupole, K = -2.169380e-00*coef, method=intmeth, N = NqSx;
+SX4 : sextupole, K =  3.604650e-00*coef, method=intmeth, N = NqSx;
+SX5 : sextupole, K = -3.698210e-00*coef, method=intmeth, N = NqSx;
+SX6 : sextupole, K =  3.246670e-00*coef, method=intmeth, N = NqSx;
+SX7 : sextupole, K = -5.003520e-00*coef, method=intmeth, N = NqSx;
+SX8 : sextupole, K =  4.193720e-00*coef, method=intmeth, N = NqSx;
+SX9 : sextupole, K = -3.152295e-00*coef, method=intmeth, N = NqSx;
+SX10: sextupole, K =  1.936432e-00*coef, method=intmeth, N = NqSx;
+
+{** Cavities **}
+CAV: Cavity, Frequency=352.202d6, Voltage=2.0d6;
+
+{** Marker **}
+ SECT1:marker;
+ SECT2:marker;
+ SECT3:marker;
+ SECT4:marker;
+ SECT5:marker;
+ SECT6:marker;
+ SECT7:marker;
+ SECT8:marker;
+ SECT9:marker;
+ SECT10: marker;
+ SECT11: marker;
+ SECT12: marker;
+ BL31: marker;
+ FIN : marker;
+ DEBUT : marker;
+ ssep  : marker;
+ esep  : marker;
+ eesep : marker;
+ sSDM  : marker;
+ eSDM  : marker;
+ eeSDM : marker;
+ sSDAC : marker;
+ eSDAC : marker;
+ eHU600: marker;
+ 
+{**Superperiods**}
+SINJ: SD1a,ssep,SEP,SEP,SEP,esep,SD1c,eHU600,SD1d;
+
+SD13L: SD13c,sSDM,SD13a,SD13a,SD13a,SD13a,SD13a,SD13a,SD13a,SD13a,
+       SD13a,SD13a,SD13a,SD13a,SD13a,SD13b,SD13b,SD13a,SD13a,SD13a,
+       SD13a,SD13a,SD13a,SD13a,SD13a,SD13a,SD13a,SD13a,SD13a,SD13a,
+       eSDM,eeSDM,SD13c;
+SDACL: SDAC1,sSDAC, SDAC2,SDAC2,SDAC2,SDAC2,SDAC2,SDAC2,SDAC2,SDAC2,SDAC2,
+       eSDAC,SDAC1;
+
+
+SUPM:  SINJ, Q1, SD2, SX1, SD3, Q2, SD14, Q3, SD5,
+ SX2,  SD6, BEND, SD7, Q4, SD8, SX3, SD9, Q5, SD12,
+ SX4,  SD10, Q5, SD9, SX3, SD8, Q4, SD7, BEND,
+ SD7,  Q6, SD5, SX5, SD4, Q7, SD3, SX6, SD2, Q8, 
+ SD13L,Q8, SD2 ,SX8, SD3, Q7, SD4, SX7, SD5, Q6, SD7, 
+ BEND, SD7 ,Q9, SD8, SX9, SD9, Q10, SD8, SX10,
+ SDACL, SX10, SD8, Q10, SD9, SX9, SD8, Q9, SD7,
+ BEND,  SD7, Q6, SD5, SX7, SD4, Q7, SD3, SX8, SD2,
+ Q8,  SD13, SD13, Q8, SD2, SX8, SD3 ,Q7, SD4, SX7,
+ SD5, Q6, SD7, BEND, SD7, Q9, SD8, SX9 , SD9, Q10,
+ SD8, SX10, SDAC, SDAC, SX10, SD8, Q10, SD9, SX9, SD8,
+ Q9, SD7, BEND, SD7, Q6, SD5, SX7, SD4, Q7, SD3, 
+ SX8, SD2, Q8,  SD13, SD13, Q8, SD2, SX6, SD3, Q7,
+ SD4, SX5, SD5, Q6, SD7, BEND, SD7, Q4, SD8, SX3,
+ SD9, Q5, SD10,SX4, SD12, Q5, SD9, SX3, SD8, Q4,
+ SD7, BEND, SD6, SX2, SD5, Q3, SD14, Q2, SD3, SX1,
+ SD2, Q1, SD1;
+
+SUP: SD1, Q1, SD2, SX1, SD3, Q2, SD14, Q3, SD5,
+ SX2, SD6, BEND, SD7, Q4, SD8, SX3, SD9, Q5, SD12,
+ SX4, SD10, Q5, SD9, SX3, SD8, Q4, SD7,  BEND,
+ SD7, Q6, SD5, SX5, SD4, Q7, SD3, SX6, SD2, Q8, 
+ SD13,SD13, Q8, SD2 ,SX8, SD3, Q7, SD4, SX7, SD5, Q6,
+ SD7, BEND, SD7 ,Q9, SD8, SX9, SD9, Q10, SD8, SX10,
+ SDAC, SDAC, SX10, SD8, Q10, SD9, SX9, SD8, Q9, SD7,
+ BEND, SD7, Q6, SD5, SX7, SD4, Q7, SD3, SX8, SD2,
+ Q8, SD13,SD13, Q8, SD2, SX8, SD3 ,Q7, SD4, SX7,
+ SD5, Q6, SD7,  BEND, SD7, Q9, SD8, SX9 , SD9, Q10,
+ SD8, SX10, SDAC, SDAC, SX10, SD8, Q10, SD9, SX9, SD8,
+ Q9, SD7, BEND, SD7, Q6, SD5, SX7, SD4, Q7, SD3, 
+ SX8, SD2, Q8, SD13,SD13, Q8, SD2, SX6, SD3, Q7, 
+ SD4, SX5, SD5, Q6, SD7, BEND, SD7, Q4, SD8, SX3,
+ SD9, Q5, SD10, SX4, SD12, Q5, SD9, SX3, SD8, Q4,
+ SD7, BEND, SD6, SX2, SD5, Q3, SD14, Q2, SD3, SX1,
+ SD2, Q1, SD1;
+
+RING: DEBUT,SUPM,CAV,FIN;
+
+{RING: DEBUT,SUPM,SUP,SUP,SUP,CAV,FIN;}
+
+{***** Define CELL structure ****}
+ CELL:	RING, symmetry = 1;
+
+end;

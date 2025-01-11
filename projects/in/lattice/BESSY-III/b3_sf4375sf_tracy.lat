@@ -1,0 +1,78 @@
+{d:\lattices\b3_lat\b3_sf4375sf.opa}
+
+{opa to tracy-2 export}
+
+define lattice;
+energy = 2.500000;
+dp = 1e-10; codeps = 1e-6; dk = 1e-6;
+meth = 4; nbend = 10; nquad = 10;
+
+{----- variables ---------------------------------------------------}
+
+brv   = -0.34;
+bbv   = 4.375-2.0*brv;
+mbrv  = -0.0852053644577534;
+mbbv  = 2.5-mbrv;
+
+{----- table of elements ---------------------------------------------}
+
+c0 = 2.99792458e8; gamma = 2.5e9/c0;
+Brho = 1e9*Energy/c0;
+
+h_rf = 538; C = 16*20.2;
+
+cav: Cavity, L = 0.0, Frequency = c0/C*h_rf, Voltage = 1.5e6, harnum = h_rf,
+     phi = 0.0;
+
+l1     : Drift, L = 0.100000;
+ml1    : Drift, L = 0.100000;
+ml1a   : Drift, L = 0.100000;
+ml1b   : Drift, L = 0.100000;
+ml1c   : Drift, L = 0.100000;
+ul1    : Drift, L = 0.120000;
+ul2    : Drift, L = 0.250000;
+ul3    : Drift, L = 0.100000;
+ul4    : Drift, L = 2.800000;
+
+
+bb     : Bending, L = 1.100000, T = bbv, K = 0.000000, T1 = bbv/2.0,
+         T2 = bbv/2.0, N=nbend, method=meth;
+mbb    : Bending, L = 0.850000, T = mbbv, K = 0.000000, T1 = mbbv/2.0,
+         T2 = mbbv/2.0, N=nbend, method=meth;
+
+br     : Bending, L = 0.170000, T = brv, K = 8.660561, T1 = brv/2.0,
+         T2 = brv/2.0, N=nbend, method=meth;
+mbr    : Bending, L = 0.180000, T = mbrv, K = 8.862581, T1 = mbrv/2.0,
+         T2 = mbrv/2.0, N=nbend, method=meth;
+         
+qd     : Quadrupole, L = 0.125000, K = -9.573181, N=nquad, method=meth;
+mqd    : Quadrupole, L = 0.130000, K = -9.753806, N=nquad, method=meth;
+uq1    : Quadrupole, L = 0.150000, K = 9.025159, N=nquad, method=meth;
+uq2    : Quadrupole, L = 0.250000, K = -9.108800, N=nquad, method=meth;
+uq3    : Quadrupole, L = 0.180000, K = 9.434980, N=nquad, method=meth;
+
+sd     : Sextupole, L = 0.110000, K = -232.753589, N = 1, method=meth;
+sf     : Sextupole, L = 0.050000, K = 240.259413, N = 1, method=meth;
+
+om_sf  : Marker;
+om_mbb : Marker;
+om_c   : Marker;
+
+
+{----- table of segments ---------------------------------------------}
+
+ucell:      om_sf, sf, l1, br, l1, qd, l1, sd, l1, bb, l1, sd, l1, qd, l1, br, l1, sf, om_sf;
+dcell:      om_sf, sf, ml1, mbr, ml1c, mqd, ml1b, sd, ml1a, mbb, om_mbb;
+dcell_inv:  om_mbb, mbb, ml1a, sd, ml1b, mqd, ml1c, mbr, ml1, sf, om_sf;
+arc:        dcell_inv, ucell, ucell, om_c, ucell, ucell, dcell;
+mund:       om_mbb, ul1, uq1, ul2, uq2, ul3, uq3, ul4;
+mund_inv:   ul4, uq3, ul3, uq2, ul2, uq1, ul1, om_mbb;
+sec:        mund_inv, arc, mund;
+
+ring:       sec, cav;
+
+cell: ring, symmetry=1;
+
+end;
+
+{d:\lattices\b3_lat\b3_sf4375sf.opa}

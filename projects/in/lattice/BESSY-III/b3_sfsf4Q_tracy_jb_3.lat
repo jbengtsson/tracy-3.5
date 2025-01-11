@@ -1,0 +1,111 @@
+{d:\lattices\b3_lat\b3_sfsf4q.opa}
+
+{opa to tracy-2 export}
+
+define lattice;
+Energy = 2.500000;
+dp = 1.0e-10; codeps = 1.0e-6; dk = 1.0e-6;
+meth = 4; nbend = 10; nquad = 10; nsext = 2;
+
+{----- variables ---------------------------------------------------}
+
+
+{----- table of elements ---------------------------------------------}
+
+c0 = 2.99792458e8; gamma = 3.5e9/c0; Brho = 1e9*Energy/c0;
+
+h_rf = 538; C = 16*20.2;
+
+cav: Cavity, L = 0.0, Frequency = c0/C*h_rf, Voltage = 1.5e6,
+     harnum = h_rf, phi = 0.0;
+
+l1     : Drift, L = 0.100000;
+ml1    : Drift, L = 0.100000;
+ml1a   : Drift, L = 0.100000;
+ml1b   : Drift, L = 0.100000;
+ml1c   : Drift, L = 0.100000;
+ul1    : Drift, L = 0.1271666;
+ul2    : Drift, L = 0.32206614;
+ul3    : Drift, L = 0.15003795;
+ul4    : Drift, L = 0.1038651;
+ul5    : Drift, L = 2.800000;
+
+qd     : Quadrupole, L = 0.125000, K = -9.64003644, N=nquad, method=meth;
+mqd    : Quadrupole, L = 0.130000, K = -9.78369571, N=nquad, method=meth;
+uq1    : Quadrupole, L = 0.100000, K =  6.13837144, N=nquad, method=meth;
+uq2    : Quadrupole, L = 0.170000, K = -9.40913879, N=nquad, method=meth;
+uq3    : Quadrupole, L = 0.250000, K =  9.15894257, N=nquad, method=meth;
+uq4    : Quadrupole, L = 0.100000, K = -9.00780768, N=nquad, method=meth;
+
+n_bb = 6;
+
+bbv1 = 0.56157;
+bbv2 = 0.79672;
+bbv3 = 1.30831;
+
+bb_h1  : Bending, L = 1.100000/n_bb, T = bbv1, K = 0.000000,
+         T1 = bbv1/2.0, T2 = bbv1/2.0, N=nbend, method=meth;
+bb_h2  : Bending, L = 1.100000/n_bb, T = bbv2, K = 0.000000,
+         T1 = bbv2/2.0, T2 = bbv2/2.0, N=nbend, method=meth;
+bb_h3  : Bending, L = 1.100000/n_bb, T = bbv3, K = 0.000000,
+         T1 = bbv3/2.0, T2 = bbv3/2.0, N=nbend, method=meth;
+
+bb_h     : bb_h1, bb_h2, bb_h3;
+bb_h_inv : bb_h3, bb_h2, bb_h1;
+
+n_mbb = 4;
+
+mbbv1 = 0.66727;
+mbbv2 = 0.66488;
+mbbv3 = 0.64406;
+mbbv4 = 0.59826;
+
+mbb1   : Bending, L = 0.850000/n_mbb, T = mbbv1, K = 0.000000,
+         T1 = mbbv1/2.0, T2 = mbbv1/2.0, N=nbend, method=meth;
+mbb2   : Bending, L = 0.850000/n_mbb, T = mbbv2, K = 0.000000,
+         T1 = mbbv2/2.0, T2 = mbbv2/2.0, N=nbend, method=meth;
+mbb3   : Bending, L = 0.850000/n_mbb, T = mbbv3, K = 0.000000,
+         T1 = mbbv3/2.0, T2 = mbbv3/2.0, N=nbend, method=meth;
+mbb4   : Bending, L = 0.850000/n_mbb, T = mbbv4, K = 0.000000,
+         T1 = mbbv4/2.0, T2 = mbbv4/2.0, N=nbend, method=meth;
+
+mbb     : mbb1, mbb2, mbb3, mbb4;
+mbb_inv : mbb4, mbb3, mbb2, mbb1;
+
+sd     : Sextupole, L = 0.050000, K = -231.702860, N=nsext, method=meth;
+sf     : Sextupole, L = 0.055000, K =  231.266556, N=nsext, method=meth;
+
+begin  : Marker;
+om_sd  : Marker;
+om_sf  : Marker;
+om_mbb : Marker;
+om_c   : Marker;
+
+brv  = -0.46443;
+mbrv = -0.12497;
+
+br     : Bending, L = 0.170000, T = brv, K = 8.74260398, T1 = brv/2.0,
+         T2 = brv/2.0, N=nbend, method=meth;
+mbr    : Bending, L = 0.180000, T = mbrv, K = 8.8577326, T1 = mbrv/2.0,
+         T2 = mbrv/2.0, N=nbend, method=meth;
+
+
+{----- table of segments ---------------------------------------------}
+
+ucell     :
+  om_sf, sf, l1, br, l1, qd, l1, sd, om_sd, sd, l1, bb_h, bb_h_inv, l1, sd,
+  om_sd, sd, l1, qd, l1, br, l1, sf, om_sf;
+dcell     : 
+  om_sf, sf, ml1, mbr, ml1c, mqd, ml1b, sd, om_sd, sd, ml1a, mbb, om_mbb;
+dcell_inv : 
+   om_mbb, mbb_inv, ml1a, sd, om_sd, sd, ml1b, mqd, ml1c, mbr, ml1, sf, om_sf;
+arc       : dcell_inv, 2*ucell, om_c, 2*ucell, dcell;
+mund      : om_mbb, ul1, uq1, ul2, uq2, ul3, uq3, ul4, uq4, ul5;
+mund_inv  : ul5, uq4, ul4, uq3, ul3, uq2, ul2, uq1, ul1, om_mbb;
+sec       : mund_inv, arc, mund;
+ring      : begin, 1*sec, cav;
+
+cell: ring, symmetry=1;
+
+end;
+{d:\lattices\b3_lat\b3_sfsf4q.opa}

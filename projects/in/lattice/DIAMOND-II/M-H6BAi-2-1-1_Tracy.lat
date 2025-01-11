@@ -1,0 +1,492 @@
+{.. (3)_ele\dtba-n-1-2-6-8-6-6-n-11-sext-5_1 - copy-14_6_5 - copy (3).opa}
+
+{opa to tracy-2 export}
+
+define lattice;
+energy = 3.5;
+dp = 1.0d-10;  codeps = 1.0d-6;  dk = 1.0d-6;
+meth = 4; nbend = 10; nquad = 10;
+
+{----- table of elements ----------------------------------------------------}
+
+cav: Cavity, L = 0.0, Frequency = 499654096.667, Voltage = 2200000, phi = 0.0;
+
+dc_1_01      : drift, l = 2.550000;
+dc_1_02      : drift, l = 0.075000;
+dc_1_03      : drift, l = 0.100000;
+dc_1_04      : drift, l = 0.075000;
+dc_1_05      : drift, l = 0.075000;
+dc_1_06      : drift, l = 0.075000;
+dc_1_07      : drift, l = 0.130000;
+dc_1_08      : drift, l = 0.470000;
+dc_1_09      : drift, l = 0.075000;
+dc_1_10      : drift, l = 0.075000;
+dc_1_11      : drift, l = 0.075000;
+dc_1_12      : drift, l = 0.360000;
+dc_1_13      : drift, l = 0.075000;
+dc_1_14      : drift, l = 0.075000;
+dc_1_15      : drift, l = 0.075000;
+dc_1_16      : drift, l = 0.090000;
+dc_1_17      : drift, l = 0.090000;
+dc_1_18      : drift, l = 0.090000;
+dc_1_19      : drift, l = 0.090000;
+dc_1_20      : drift, l = 0.075000;
+dc_1_21      : drift, l = 1.450000;
+dc_1_22      : drift, l = 0.125000;
+dc_1_23      : drift, l = 0.075000;
+dc_1_add     : drift, l = 0.075000;
+dc_1_24_c1   : drift, l = 3.900000;
+dc_2_01      : drift, l = 2.550000;
+dc_2_02      : drift, l = 0.075000;
+dc_2_03      : drift, l = 0.100000;
+dc_2_04      : drift, l = 0.075000;
+dc_2_05      : drift, l = 0.075000;
+dc_2_06      : drift, l = 0.075000;
+dc_2_07      : drift, l = 0.130000;
+dc_2_08      : drift, l = 0.470000;
+dc_2_09      : drift, l = 0.075000;
+dc_2_10      : drift, l = 0.075000;
+dc_2_11      : drift, l = 0.075000;
+dc_2_12      : drift, l = 0.360000;
+dc_2_13      : drift, l = 0.075000;
+dc_2_14      : drift, l = 0.075000;
+dc_2_15      : drift, l = 0.075000;
+dc_2_16      : drift, l = 0.090000;
+dc_2_17      : drift, l = 0.090000;
+dc_2_18      : drift, l = 0.090000;
+dc_2_19      : drift, l = 0.090000;
+dc_2_20      : drift, l = 0.075000;
+dc_2_21      : drift, l = 1.450000;
+dc_inj_01    : drift, l = 2.550000;
+dc_inj_02    : drift, l = 0.075000;
+dc_inj_03    : drift, l = 0.100000;
+dc_inj_04    : drift, l = 0.075000;
+dc_inj_05    : drift, l = 0.075000;
+dc_inj_06    : drift, l = 0.075000;
+dc_inj_07    : drift, l = 0.130000;
+dc_inj_08    : drift, l = 0.470000;
+dc_inj_09    : drift, l = 0.075000;
+dc_inj_10    : drift, l = 0.075000;
+dc_inj_11    : drift, l = 0.075000;
+dc_inj_12    : drift, l = 0.360000;
+dc_inj_13    : drift, l = 0.075000;
+dc_inj_14    : drift, l = 0.075000;
+dc_inj_15    : drift, l = 0.075000;
+dc_inj_16    : drift, l = 0.090000;
+dc_inj_17    : drift, l = 0.090000;
+dc_inj_18    : drift, l = 0.090000;
+dc_inj_19    : drift, l = 0.090000;
+dc_inj_20    : drift, l = 0.075000;
+dc_inj_21    : drift, l = 1.450000;
+dc_inj_33    : drift, l = 0.163500;
+dc_inj_34    : drift, l = 0.252579;
+dc_inj_35    : drift, l = 0.075000;
+dc_inj_36    : drift, l = 0.075000;
+dc_inj_37    : drift, l = 0.075000;
+dc_inj_13ic1 : drift, l = 0.075000;
+dc_inj_12ic1 : drift, l = 0.075000;
+dc_inj_10ic1 : drift, l = 0.075000;
+dc_inj_09ic1 : drift, l = 0.075000;
+dc_inj_08ic1 : drift, l = 0.075000;
+dc_inj_07ic1 : drift, l = 0.127000;
+dc_inj_06ic1 : drift, l = 0.075000;
+dc_inj_05ic1 : drift, l = 0.119000;
+dc_inj_03ic1 : drift, l = 2.249500;
+dc_inj_01ic1 : drift, l = 1.598000;
+dmult1       : drift, l = 0.185500;
+dmult2       : drift, l = 0.110000;
+doct         : drift, l = 0.045000;
+
+cellcenter   : marker;
+sf1_ctr     : marker;
+idmarker     : marker;
+idmarker_end : marker;
+
+qd2          : quadrupole, l = 0.125000, k = -7.368307, n=nquad, method=meth;
+qd2_c1       : quadrupole, l = 0.125000, k = -3.277013, n=nquad, method=meth;
+qd3_c1       : quadrupole, l = 0.125000, k = -3.054898, n=nquad, method=meth;
+qf4ic1       : quadrupole, l = 0.142000, k = 4.216206, n=nquad, method=meth;
+qf2ic1       : quadrupole, l = 0.175000, k = 6.407799, n=nquad, method=meth;
+qf1ic1       : quadrupole, l = 0.125000, k = 2.416780, n=nquad, method=meth;
+qd3ic1       : quadrupole, l = 0.175000, k = -6.162881, n=nquad, method=meth;
+qd2ic1       : quadrupole, l = 0.125000, k = -4.317390, n=nquad, method=meth;
+qf1_c1       : quadrupole, l = 0.142000, k = -4.535267, n=nquad, method=meth;
+qf4_c1       : quadrupole, l = 0.142000, k = 5.173864, n=nquad, method=meth;
+quad_add     : quadrupole, l = 0.162000, k = 7.103718, n=nquad, method=meth;
+qd3          : quadrupole, l = 0.125000, k = -4.469731, n=nquad, method=meth;
+qd5          : quadrupole, l = 0.125000, k = -4.257372, n=nquad, method=meth;
+qd5l         : quadrupole, l = 0.125000, k = -4.437699, n=nquad, method=meth;
+qf1          : quadrupole, l = 0.175000, k = 6.950142, n=nquad, method=meth;
+qf4          : quadrupole, l = 0.142000, k = 3.771221, n=nquad, method=meth;
+qf4inj       : quadrupole, l = 0.142000, k = 4.942287, n=nquad, method=meth;
+qf4l         : quadrupole, l = 0.142000, k = 6.517044, n=nquad, method=meth;
+qf4r         : quadrupole, l = 0.142000, k = 2.435161, n=nquad, method=meth;
+qf6          : quadrupole, l = 0.350000, k = 6.724348, n=nquad, method=meth;
+qf8          : quadrupole, l = 0.250000, k = 7.031027, n=nquad, method=meth;
+qd_triplet_1 : quadrupole, l = 0.162000, k = -4.124298, n=nquad, method=meth;
+qf_triplet_2 : quadrupole, l = 0.162000, k = 4.212967, n=nquad, method=meth;
+
+jl1e_1       : bending, l = 0.203700, t = 0.453213, k = 0.000000,
+               t1 = 0.181699, t2 = 0.181699, n=nbend, method=meth;
+jl1e_2       : bending, l = 0.203700, t = 0.453213, k = 0.000000,
+               t1 = 0.726794, t2 = -0.363397, n=nbend, method=meth;
+i_jl1e_2       : bending, l = 0.203700, t = 0.453213,
+               k = 0.000000, t1 = -0.363397, t2 = 0.726794, n=nbend,
+               method=meth;
+jl1e_3       : bending, l = 0.203700, t = 0.453213, k = 0.000000,
+               t1 = 0.363397, t2 = 0.000000, n=nbend, method=meth;
+i_jl1e_3       : bending, l = 0.203700, t = 0.453213,
+               k = 0.000000, t1 = 0.000000, t2 = 0.363397, n=nbend,
+               method=meth;
+jl1e_4       : bending, l = 0.203700, t = 0.453213, k = 0.000000,
+               t1 = 0.000000, t2 = 0.000000, n=nbend, method=meth;
+jl1e_5       : bending, l = 0.203700, t = 0.453213, k = 0.000000,
+               t1 = -0.363397, t2 = 0.726794, n=nbend, method=meth;
+i_jl1e_5       : bending, l = 0.203700, t = 0.453213,
+               k = 0.000000, t1 = 0.726794, t2 = -0.363397, n=nbend,
+               method=meth;
+dl1a_1       : bending, l = 0.201000, t = 0.293829, k = 0.000000,
+               t1 = -0.730876, t2 = 0.908493, n=nbend, method=meth;
+i_dl1a_1       : bending, l = 0.201000, t = 0.293829,
+               k = 0.000000, t1 = 0.908493, t2 = -0.730876, n=nbend,
+               method=meth;
+dl1a_2       : bending, l = 0.201000, t = 0.338225, k = 0.000000,
+               t1 = -0.490234, t2 = 0.730876, n=nbend, method=meth;
+i_dl1a_2       : bending, l = 0.201000, t = 0.338225,
+               k = 0.000000, t1 = 0.730876, t2 = -0.490234, n=nbend,
+               method=meth;
+dl1a_3       : bending, l = 0.201000, t = 0.395966, k = 0.000000,
+               t1 = -0.183701, t2 = 0.490234, n=nbend, method=meth;
+i_dl1a_3       : bending, l = 0.201000, t = 0.395966,
+               k = 0.000000, t1 = 0.490234, t2 = -0.183701, n=nbend,
+               method=meth;
+dl1a_4       : bending, l = 0.201000, t = 0.489532, k = 0.000000,
+               t1 = 0.220234, t2 = 0.183701, n=nbend, method=meth;
+i_dl1a_4       : bending, l = 0.201000, t = 0.489532,
+               k = 0.000000, t1 = 0.183701, t2 = 0.220234, n=nbend,
+               method=meth;
+dl1a_5       : bending, l = 0.201000, t = 0.748514, k = 0.000000,
+               t1 = 0.908493, t2 = -0.220234, n=nbend, method=meth;
+i_dl1a_5       : bending, l = 0.201000, t = 0.748514,
+               k = 0.000000, t1 = -0.220234, t2 = 0.908493, n=nbend,
+               method=meth;
+dl1e_1       : bending, l = 0.201000, t = 0.293829, k = 0.000000,
+               t1 = 0.908493, t2 = -0.730876, n=nbend, method=meth;
+i_dl1e_1       : bending, l = 0.201000, t = 0.293829,
+               k = 0.000000, t1 = -0.730876, t2 = 0.908493, n=nbend,
+               method=meth;
+dl1e_2       : bending, l = 0.201000, t = 0.338225, k = 0.000000,
+               t1 = 0.730876, t2 = -0.490234, n=nbend, method=meth;
+i_dl1e_2       : bending, l = 0.201000, t = 0.338225,
+               k = 0.000000, t1 = -0.490234, t2 = 0.730876, n=nbend,
+               method=meth;
+dl1e_3       : bending, l = 0.201000, t = 0.395966, k = 0.000000,
+               t1 = 0.490234, t2 = -0.183701, n=nbend, method=meth;
+i_dl1e_3       : bending, l = 0.201000, t = 0.395966,
+               k = 0.000000, t1 = -0.183701, t2 = 0.490234, n=nbend,
+               method=meth;
+dl1e_4       : bending, l = 0.201000, t = 0.489532, k = 0.000000,
+               t1 = 0.183701, t2 = 0.220234, n=nbend, method=meth;
+i_dl1e_4       : bending, l = 0.201000, t = 0.489532,
+               k = 0.000000, t1 = 0.220234, t2 = 0.183701, n=nbend,
+               method=meth;
+dl1e_5       : bending, l = 0.201000, t = 0.748514, k = 0.000000,
+               t1 = -0.220234, t2 = 0.908493, n=nbend, method=meth;
+i_dl1e_5       : bending, l = 0.201000, t = 0.748514,
+               k = 0.000000, t1 = 0.908493, t2 = -0.220234, n=nbend,
+               method=meth;
+dl2b_1       : bending, l = 0.201000, t = 0.293829, k = 0.000000,
+               t1 = 0.842603, t2 = -0.664986, n=nbend, method=meth;
+i_dl2b_1       : bending, l = 0.201000, t = 0.293829,
+               k = 0.000000, t1 = -0.664986, t2 = 0.842603, n=nbend,
+               method=meth;
+dl2b_2       : bending, l = 0.201000, t = 0.338225, k = 0.000000,
+               t1 = 0.664986, t2 = -0.424343, n=nbend, method=meth;
+i_dl2b_2       : bending, l = 0.201000, t = 0.338225,
+               k = 0.000000, t1 = -0.424343, t2 = 0.664986, n=nbend,
+               method=meth;
+dl2b_3       : bending, l = 0.201000, t = 0.395966, k = 0.000000,
+               t1 = 0.424343, t2 = -0.117811, n=nbend, method=meth;
+i_dl2b_3       : bending, l = 0.201000, t = 0.395966,
+               k = 0.000000, t1 = -0.117811, t2 = 0.424343, n=nbend,
+               method=meth;
+dl2b_4       : bending, l = 0.201000, t = 0.489532, k = 0.000000,
+               t1 = 0.117811, t2 = 0.286124, n=nbend, method=meth;
+i_dl2b_4       : bending, l = 0.201000, t = 0.489532,
+               k = 0.000000, t1 = 0.286124, t2 = 0.117811, n=nbend,
+               method=meth;
+dl2b_5       : bending, l = 0.201000, t = 0.748514, k = 0.000000,
+               t1 = -0.286124, t2 = 0.842603, n=nbend, method=meth;
+i_dl2b_5       : bending, l = 0.201000, t = 0.748514,
+               k = 0.000000, t1 = 0.842603, t2 = -0.286124, n=nbend,
+               method=meth;
+dl2d_1       : bending, l = 0.201000, t = 0.293829, k = 0.000000,
+               t1 = -0.664986, t2 = 0.842603, n=nbend, method=meth;
+i_dl2d_1       : bending, l = 0.201000, t = 0.293829,
+               k = 0.000000, t1 = 0.842603, t2 = -0.664986, n=nbend,
+               method=meth;
+dl2d_2       : bending, l = 0.201000, t = 0.338225, k = 0.000000,
+               t1 = -0.424343, t2 = 0.664986, n=nbend, method=meth;
+i_dl2d_2       : bending, l = 0.201000, t = 0.338225,
+               k = 0.000000, t1 = 0.664986, t2 = -0.424343, n=nbend,
+               method=meth;
+dl2d_3       : bending, l = 0.201000, t = 0.395966, k = 0.000000,
+               t1 = -0.117811, t2 = 0.424343, n=nbend, method=meth;
+i_dl2d_3       : bending, l = 0.201000, t = 0.395966,
+               k = 0.000000, t1 = 0.424343, t2 = -0.117811, n=nbend,
+               method=meth;
+dl2d_4       : bending, l = 0.201000, t = 0.489532, k = 0.000000,
+               t1 = 0.286124, t2 = 0.117811, n=nbend, method=meth;
+i_dl2d_4       : bending, l = 0.201000, t = 0.489532,
+               k = 0.000000, t1 = 0.117811, t2 = 0.286124, n=nbend,
+               method=meth;
+dl2d_5       : bending, l = 0.201000, t = 0.748514, k = 0.000000,
+               t1 = 0.842603, t2 = -0.286124, n=nbend, method=meth;
+i_dl2d_5       : bending, l = 0.201000, t = 0.748514,
+               k = 0.000000, t1 = -0.286124, t2 = 0.842603, n=nbend,
+               method=meth;
+
+sd1          : sextupole, l = 0.140000, k = -208.017823, n = 3, method=meth;
+sd2          : sextupole, l = 0.140000, k = -279.479280, n = 3, method=meth;
+sf1          : sextupole, l = 0.070000, k = 297.721133, n = 3, method=meth;
+sd1inj       : sextupole, l = 0.140000, k = -181.629378, n = 3, method=meth;
+sd2inj       : sextupole, l = 0.140000, k = -198.927797, n = 3, method=meth;
+sf1inj       : sextupole, l = 0.070000, k = 209.785187, n = 3, method=meth;
+sh1inj      : sextupole, l = 0.100000, k = 0.000000, n = 3, method=meth;
+sh2inj      : sextupole, l = 0.100000, k = 7.673934, n = 3, method=meth;
+sh1         : sextupole, l = 0.100000, k = 0.000000, n = 3, method=meth;
+sh2         : sextupole, l = 0.100000, k = 0.000000, n = 3, method=meth;
+
+dq1          : bending, l = 0.866800, t = 2.967868,
+               k = -2.790450, t1 = 0.836518, t2 = 0.836518, n=nbend,
+               method=meth;
+
+dr_k1s       : multipole, l = 0.0, hom = (4,0.0000,0);
+dr_k2s       : multipole, l = 0.0, hom = (4,0.0000,0);
+ocf6         : multipole, l = 0.0, hom = (4,0.0000,0);
+of1s         : multipole, l = 0.0, hom = (4,-2000.0000,0);
+
+bpm_01       : beam position monitor;
+bpm_02       : beam position monitor;
+bpm_03       : beam position monitor;
+bpm_04       : beam position monitor;
+bpm_05       : beam position monitor;
+bpm_06       : beam position monitor;
+bpm_07       : beam position monitor;
+bpm_08       : beam position monitor;
+bpm_09       : beam position monitor;
+bpm_10       : beam position monitor;
+
+
+{----- table of segments ----------------------------------------------------}
+
+dr_k1     : dmult1, dr_k1s, dmult1;
+dr_k2     : dmult2, dr_k2s, dmult2;
+of1       : doct, of1s, doct;
+dla       : dl1a_5, dl1a_4, dl1a_3, dl1a_2, dl1a_1;
+i_dla     : i_dl1a_1, i_dl1a_2, i_dl1a_3, i_dl1a_4, i_dl1a_5;
+dlb       : dl2b_1, dl2b_2, dl2b_3, dl2b_4, dl2b_5;
+i_dlb     : i_dl2b_5, i_dl2b_4, i_dl2b_3, i_dl2b_2, i_dl2b_1;
+arca_c1   : dc_1_01, bpm_01, qf1, dc_1_02, sh1, dc_1_03, qd2,
+            dc_1_04, dla, dc_1_05, qd3, dc_1_06, sd1, dc_1_07, bpm_02, dc_1_08,
+            qf4l, dc_1_09, sf1, sf1_ctr, sf1, dc_1_10, qf4r, dc_1_11, of1,
+            dc_1_12, bpm_03, dc_1_13, sd2, dc_1_14, qd5, dc_1_15, dl2b_1,
+            dl2b_2, dl2b_3, dl2b_4, dl2b_5, dc_1_16, bpm_04, dc_1_17, qf6,
+            dc_1_18, dq1, dc_1_19, qf8, dc_1_20, sh2, bpm_05, dc_1_21,
+            cellcenter, dc_1_21, bpm_06, sh2, dc_1_20, qf8, dc_1_19, dq1,
+            dc_1_18, qf6, dc_1_17, bpm_07, dc_1_16, dl2d_5, dl2d_4, dl2d_3,
+            dl2d_2, dl2d_1, dc_1_15, qd5l, dc_1_14, sd2, dc_1_13, bpm_08,
+            dc_1_12, of1, dc_1_11, qf4, dc_1_10, sf1, sf1_ctr, sf1, dc_1_09,
+            qf4_c1, dc_1_08, bpm_09, dc_1_07, sd1, dc_1_06, qd3_c1, dc_1_05,
+            i_dla, dc_1_04, qd2_c1, dc_1_22, sh1, dc_1_02, qf1_c1, dc_1_23,
+            bpm_10, dc_1_add, quad_add, dc_1_24_c1, idmarker, idmarker_end;
+i_arca_c1 : idmarker_end, idmarker, dc_1_24_c1, quad_add, dc_1_add,
+            bpm_10, dc_1_23, qf1_c1, dc_1_02, sh1, dc_1_22, qd2_c1, dc_1_04,
+            dla, dc_1_05, qd3_c1, dc_1_06, sd1, dc_1_07, bpm_09, dc_1_08,
+            qf4_c1, dc_1_09, sf1, sf1_ctr, sf1, dc_1_10, qf4, dc_1_11,
+            inv(of1), dc_1_12, bpm_08, dc_1_13, sd2, dc_1_14, qd5l, dc_1_15,
+            i_dl2d_1, i_dl2d_2, i_dl2d_3, i_dl2d_4, i_dl2d_5, dc_1_16, bpm_07,
+            dc_1_17, qf6, dc_1_18, dq1, dc_1_19, qf8, dc_1_20, sh2, bpm_06,
+            dc_1_21, cellcenter, dc_1_21, bpm_05, sh2, dc_1_20, qf8, dc_1_19,
+            dq1, dc_1_18, qf6, dc_1_17, bpm_04, dc_1_16, i_dl2b_5, i_dl2b_4,
+            i_dl2b_3, i_dl2b_2, i_dl2b_1, dc_1_15, qd5, dc_1_14, sd2, dc_1_13,
+            bpm_03, dc_1_12, inv(of1), dc_1_11, qf4r, dc_1_10, sf1, sf1_ctr,
+            sf1, dc_1_09, qf4l, dc_1_08, bpm_02, dc_1_07, sd1, dc_1_06, qd3,
+            dc_1_05, i_dla, dc_1_04, qd2, dc_1_03, sh1, dc_1_02, qf1, bpm_01,
+            dc_1_01;
+arca_c1l  : dc_1_01, bpm_01, qf1, dc_1_02, sh1, dc_1_03, qd2,
+            dc_1_04, dl1a_5, dl1a_4, dl1a_3, dl1a_2, dl1a_1, dc_1_05, qd3,
+            dc_1_06, sd1, dc_1_07, bpm_02, dc_1_08, qf4l, dc_1_09, sf1,
+            sf1_ctr, sf1, dc_1_10, qf4r, dc_1_11, of1, dc_1_12, bpm_03,
+            dc_1_13, sd2, dc_1_14, qd5, dc_1_15, dl2b_1, dl2b_2, dl2b_3,
+            dl2b_4, dl2b_5, dc_1_16, bpm_04, dc_1_17, qf6, dc_1_18, dq1,
+            dc_1_19, qf8, dc_1_20, sh2, bpm_05, dc_1_21;
+i_arca_c1l: dc_1_21, bpm_05, sh2, dc_1_20, qf8, dc_1_19, dq1,
+            dc_1_18, qf6, dc_1_17, bpm_04, dc_1_16, i_dl2b_5, i_dl2b_4,
+            i_dl2b_3, i_dl2b_2, i_dl2b_1, dc_1_15, qd5, dc_1_14, sd2, dc_1_13,
+            bpm_03, dc_1_12, inv(of1), dc_1_11, qf4r, dc_1_10, sf1, sf1_ctr,
+            sf1, dc_1_09, qf4l, dc_1_08, bpm_02, dc_1_07, sd1, dc_1_06, qd3,
+            dc_1_05, i_dl1a_1, i_dl1a_2, i_dl1a_3, i_dl1a_4, i_dl1a_5, dc_1_04,
+            qd2, dc_1_03, sh1, dc_1_02, qf1, bpm_01, dc_1_01;
+arca_c1r  : dc_1_21, bpm_06, sh2, dc_1_20, qf8, dc_1_19, dq1,
+            dc_1_18, qf6, dc_1_17, bpm_07, dc_1_16, dl2d_5, dl2d_4, dl2d_3,
+            dl2d_2, dl2d_1, dc_1_15, qd5l, dc_1_14, sd2, dc_1_13, bpm_08,
+            dc_1_12, of1, dc_1_11, qf4, dc_1_10, sf1, sf1_ctr, sf1, dc_1_09,
+            qf4_c1, dc_1_08, bpm_09, dc_1_07, sd1, dc_1_06, qd3_c1, dc_1_05,
+            dl1e_1, dl1e_2, dl1e_3, dl1e_4, dl1e_5, dc_1_04, qd2_c1, dc_1_22,
+            sh1, dc_1_02, qf1_c1, dc_1_23, bpm_10, dc_1_add, quad_add,
+            dc_1_24_c1, idmarker, idmarker_end;
+i_arca_c1r: idmarker_end, idmarker, dc_1_24_c1, quad_add, dc_1_add,
+            bpm_10, dc_1_23, qf1_c1, dc_1_02, sh1, dc_1_22, qd2_c1, dc_1_04,
+            i_dl1e_5, i_dl1e_4, i_dl1e_3, i_dl1e_2, i_dl1e_1, dc_1_05, qd3_c1,
+            dc_1_06, sd1, dc_1_07, bpm_09, dc_1_08, qf4_c1, dc_1_09, sf1,
+            sf1_ctr, sf1, dc_1_10, qf4, dc_1_11, inv(of1), dc_1_12, bpm_08,
+            dc_1_13, sd2, dc_1_14, qd5l, dc_1_15, i_dl2d_1, i_dl2d_2, i_dl2d_3,
+            i_dl2d_4, i_dl2d_5, dc_1_16, bpm_07, dc_1_17, qf6, dc_1_18, dq1,
+            dc_1_19, qf8, dc_1_20, sh2, bpm_06, dc_1_21;
+arca_c2   : dc_2_01, bpm_01, qf1, dc_2_02, sh1, dc_2_03, qd2,
+            dc_2_04, dl1a_5, dl1a_4, dl1a_3, dl1a_2, dl1a_1, dc_2_05, qd3,
+            dc_2_06, sd1, dc_2_07, bpm_02, dc_2_08, qf4l, dc_2_09, sf1,
+            sf1_ctr, sf1, dc_2_10, qf4r, dc_2_11, of1, dc_2_12, bpm_03,
+            dc_2_13, sd2, dc_2_14, qd5, dc_2_15, dlb, dc_2_16, bpm_04, dc_2_17,
+            qf6, dc_2_18, dq1, dc_2_19, qf8, dc_2_20, sh2, bpm_05, dc_2_21,
+            cellcenter, dc_2_21, bpm_06, sh2, dc_2_20, qf8, dc_2_19, dq1,
+            dc_2_18, qf6, dc_2_17, bpm_07, dc_2_16, i_dlb, dc_2_15, qd5,
+            dc_2_14, sd2, dc_2_13, bpm_08, dc_2_12, of1, dc_2_11, qf4r,
+            dc_2_10, sf1, sf1_ctr, sf1, dc_2_09, qf4l, dc_2_08, bpm_09,
+            dc_2_07, sd1, dc_2_06, qd3, dc_2_05, dl1e_1, dl1e_2, dl1e_3, dl1e_4,
+            dl1e_5, dc_2_04, qd2, dc_2_03, sh1, dc_2_02, qf1, bpm_10, dc_2_01,
+            idmarker, idmarker_end;
+i_arca_c2 : idmarker_end, idmarker, dc_2_01, bpm_10, qf1, dc_2_02,
+            sh1, dc_2_03, qd2, dc_2_04, i_dl1e_5, i_dl1e_4, i_dl1e_3,
+            i_dl1e_2, i_dl1e_1, dc_2_05, qd3, dc_2_06, sd1, dc_2_07, bpm_09,
+            dc_2_08, qf4l, dc_2_09, sf1, sf1_ctr, sf1, dc_2_10, qf4r, dc_2_11,
+            inv(of1), dc_2_12, bpm_08, dc_2_13, sd2, dc_2_14, qd5, dc_2_15,
+            dlb, dc_2_16, bpm_07, dc_2_17, qf6, dc_2_18, dq1, dc_2_19, qf8,
+            dc_2_20, sh2, bpm_06, dc_2_21, cellcenter, dc_2_21, bpm_05, sh2,
+            dc_2_20, qf8, dc_2_19, dq1, dc_2_18, qf6, dc_2_17, bpm_04, dc_2_16,
+            i_dlb, dc_2_15, qd5, dc_2_14, sd2, dc_2_13, bpm_03, dc_2_12,
+            inv(of1), dc_2_11, qf4r, dc_2_10, sf1, sf1_ctr, sf1, dc_2_09,
+            qf4l, dc_2_08, bpm_02, dc_2_07, sd1, dc_2_06, qd3, dc_2_05,
+            i_dl1a_1, i_dl1a_2, i_dl1a_3, i_dl1a_4, i_dl1a_5, dc_2_04, qd2,
+            dc_2_03, sh1, dc_2_02, qf1, bpm_01, dc_2_01;
+arca_c2l  : dc_2_01, bpm_01, qf1, dc_2_02, sh1, dc_2_03, qd2,
+            dc_2_04, dl1a_5, dl1a_4, dl1a_3, dl1a_2, dl1a_1, dc_2_05, qd3,
+            dc_2_06, sd1, dc_2_07, bpm_02, dc_2_08, qf4l, dc_2_09, sf1,
+            sf1_ctr, sf1, dc_2_10, qf4r, dc_2_11, of1, dc_2_12, bpm_03,
+            dc_2_13, sd2, dc_2_14, qd5, dc_2_15, dl2b_1, dl2b_2, dl2b_3,
+            dl2b_4, dl2b_5, dc_2_16, bpm_04, dc_2_17, qf6, dc_2_18, dq1,
+            dc_2_19, qf8, dc_2_20, sh2, bpm_05, dc_2_21;
+i_arca_c2l: dc_2_21, bpm_05, sh2, dc_2_20, qf8, dc_2_19, dq1,
+            dc_2_18, qf6, dc_2_17, bpm_04, dc_2_16, i_dl2b_5, i_dl2b_4,
+            i_dl2b_3, i_dl2b_2, i_dl2b_1, dc_2_15, qd5, dc_2_14, sd2, dc_2_13,
+            bpm_03, dc_2_12, inv(of1), dc_2_11, qf4r, dc_2_10, sf1, sf1_ctr,
+            sf1, dc_2_09, qf4l, dc_2_08, bpm_02, dc_2_07, sd1, dc_2_06, qd3,
+            dc_2_05, i_dl1a_1, i_dl1a_2, i_dl1a_3, i_dl1a_4, i_dl1a_5, dc_2_04,
+            qd2, dc_2_03, sh1, dc_2_02, qf1, bpm_01, dc_2_01;
+arca_c2r  : dc_2_21, bpm_06, sh2, dc_2_20, qf8, dc_2_19, dq1,
+            dc_2_18, qf6, dc_2_17, bpm_07, dc_2_16, dl2d_5, dl2d_4, dl2d_3,
+            dl2d_2, dl2d_1, dc_2_15, qd5, dc_2_14, sd2, dc_2_13, bpm_08,
+            dc_2_12, of1, dc_2_11, qf4r, dc_2_10, sf1, sf1_ctr, sf1, dc_2_09,
+            qf4l, dc_2_08, bpm_09, dc_2_07, sd1, dc_2_06, qd3, dc_2_05, dl1e_1,
+            dl1e_2, dl1e_3, dl1e_4, dl1e_5, dc_2_04, qd2, dc_2_03, sh1,
+            dc_2_02, qf1, bpm_10, dc_2_01, idmarker, idmarker_end;
+i_arca_c2r: idmarker_end, idmarker, dc_2_01, bpm_10, qf1, dc_2_02,
+            sh1, dc_2_03, qd2, dc_2_04, i_dl1e_5, i_dl1e_4, i_dl1e_3,
+            i_dl1e_2, i_dl1e_1, dc_2_05, qd3, dc_2_06, sd1, dc_2_07, bpm_09,
+            dc_2_08, qf4l, dc_2_09, sf1, sf1_ctr, sf1, dc_2_10, qf4r, dc_2_11,
+            inv(of1), dc_2_12, bpm_08, dc_2_13, sd2, dc_2_14, qd5, dc_2_15,
+            i_dl2d_1, i_dl2d_2, i_dl2d_3, i_dl2d_4, i_dl2d_5, dc_2_16, bpm_07,
+            dc_2_17, qf6, dc_2_18, dq1, dc_2_19, qf8, dc_2_20, sh2, bpm_06,
+            dc_2_21;
+arca_inj  : dc_inj_01, bpm_01, qf1, dc_inj_02, sh1inj, dc_inj_03,
+            qd2, dc_inj_04, dl1a_5, dl1a_4, dl1a_3, dl1a_2, dl1a_1, dc_inj_05,
+            qd3, dc_inj_06, sd1inj, dc_inj_07, bpm_02, dc_inj_08, qf4l,
+            dc_inj_09, sf1inj, sf1_ctr, sf1inj, dc_inj_10, qf4r, dc_inj_11,
+            of1, dc_inj_12, bpm_03, dc_inj_13, sd2inj, dc_inj_14, qd5,
+            dc_inj_15, dl2b_1, dl2b_2, dl2b_3, dl2b_4, dl2b_5, dc_inj_16,
+            bpm_04, dc_inj_17, qf6, dc_inj_18, dq1, dc_inj_19, qf8, dc_inj_20,
+            sh2, bpm_05, dc_inj_21, cellcenter, dc_inj_21, bpm_06, sh2,
+            dc_inj_20, qf8, dc_inj_19, dq1, dc_inj_18, qf6, dc_inj_17, bpm_07,
+            dc_inj_16, dl2d_5, dl2d_4, dl2d_3, dl2d_2, dl2d_1, dc_inj_15, qd5,
+            dc_inj_14, sd2inj, dc_inj_33, bpm_08, dc_inj_34, of1, dc_inj_35,
+            qf4inj, dc_inj_36, sf1inj, sf1_ctr, sf1inj, dc_inj_37, qf4ic1,
+            dc_inj_13ic1, bpm_09, dc_inj_12ic1, dr_k1, sd1inj, dc_inj_10ic1,
+            qd3ic1, dc_inj_09ic1, jl1e_1, dc_inj_08ic1, qf2ic1, dc_inj_07ic1,
+            jl1e_2, jl1e_3, jl1e_4, jl1e_5, dc_inj_06ic1, qd2ic1, dc_inj_05ic1,
+            dr_k2, dc_inj_03ic1, qf1ic1, dc_inj_01ic1, idmarker, idmarker_end;
+i_arca_inj: idmarker_end, idmarker, dc_inj_01ic1, qf1ic1,
+            dc_inj_03ic1, inv(dr_k2), dc_inj_05ic1, qd2ic1, dc_inj_06ic1,
+            i_jl1e_5, jl1e_4, i_jl1e_3, i_jl1e_2, dc_inj_07ic1, qf2ic1,
+            dc_inj_08ic1, jl1e_1, dc_inj_09ic1, qd3ic1, dc_inj_10ic1, sd1inj,
+            inv(dr_k1), dc_inj_12ic1, bpm_09, dc_inj_13ic1, qf4ic1, dc_inj_37,
+            sf1inj, sf1_ctr, sf1inj, dc_inj_36, qf4inj, dc_inj_35, inv(of1),
+            dc_inj_34, bpm_08, dc_inj_33, sd2inj, dc_inj_14, qd5, dc_inj_15,
+            i_dl2d_1, i_dl2d_2, i_dl2d_3, i_dl2d_4, i_dl2d_5, dc_inj_16,
+            bpm_07, dc_inj_17, qf6, dc_inj_18, dq1, dc_inj_19, qf8, dc_inj_20,
+            sh2, bpm_06, dc_inj_21, cellcenter, dc_inj_21, bpm_05, sh2,
+            dc_inj_20, qf8, dc_inj_19, dq1, dc_inj_18, qf6, dc_inj_17, bpm_04,
+            dc_inj_16, i_dl2b_5, i_dl2b_4, i_dl2b_3, i_dl2b_2, i_dl2b_1,
+            dc_inj_15, qd5, dc_inj_14, sd2inj, dc_inj_13, bpm_03, dc_inj_12,
+            inv(of1), dc_inj_11, qf4r, dc_inj_10, sf1inj, sf1_ctr, sf1inj,
+            dc_inj_09, qf4l, dc_inj_08, bpm_02, dc_inj_07, sd1inj, dc_inj_06,
+            qd3, dc_inj_05, i_dl1a_1, i_dl1a_2, i_dl1a_3, i_dl1a_4, i_dl1a_5,
+            dc_inj_04, qd2, dc_inj_03, sh1inj, dc_inj_02, qf1, bpm_01,
+            dc_inj_01;
+arca_injl : dc_inj_21, bpm_06, sh2, dc_inj_20, qf8, dc_inj_19, dq1,
+            dc_inj_18, qf6, dc_inj_17, bpm_07, dc_inj_16, dl2d_5, dl2d_4,
+            dl2d_3, dl2d_2, dl2d_1, dc_inj_15, qd5, dc_inj_14, sd2, dc_inj_33,
+            bpm_08, dc_inj_34, of1, dc_inj_35, qf4inj, dc_inj_36, sf1,
+            sf1_ctr, sf1, dc_inj_37, qf4ic1, dc_inj_13ic1, bpm_09,
+            dc_inj_12ic1, dr_k1, sd1, dc_inj_10ic1, qd3ic1, dc_inj_09ic1,
+            jl1e_1, dc_inj_08ic1, qf2ic1, dc_inj_07ic1, jl1e_2, jl1e_3, jl1e_4,
+            jl1e_5, dc_inj_06ic1, qd2ic1, dc_inj_05ic1, dr_k2, dc_inj_03ic1,
+            qf1ic1, dc_inj_01ic1, idmarker, idmarker_end;
+i_arca_injl: idmarker_end, idmarker, dc_inj_01ic1, qf1ic1,
+            dc_inj_03ic1, inv(dr_k2), dc_inj_05ic1, qd2ic1, dc_inj_06ic1,
+            i_jl1e_5, jl1e_4, i_jl1e_3, i_jl1e_2, dc_inj_07ic1, qf2ic1,
+            dc_inj_08ic1, jl1e_1, dc_inj_09ic1, qd3ic1, dc_inj_10ic1, sd1,
+            inv(dr_k1), dc_inj_12ic1, bpm_09, dc_inj_13ic1, qf4ic1, dc_inj_37,
+            sf1, sf1_ctr, sf1, dc_inj_36, qf4inj, dc_inj_35, inv(of1),
+            dc_inj_34, bpm_08, dc_inj_33, sd2, dc_inj_14, qd5, dc_inj_15,
+            i_dl2d_1, i_dl2d_2, i_dl2d_3, i_dl2d_4, i_dl2d_5, dc_inj_16,
+            bpm_07, dc_inj_17, qf6, dc_inj_18, dq1, dc_inj_19, qf8, dc_inj_20,
+            sh2, bpm_06, dc_inj_21;
+arca_injr : dc_inj_01, bpm_01, qf1, dc_inj_02, sh1, dc_inj_03, qd2,
+            dc_inj_04, dl1a_5, dl1a_4, dl1a_3, dl1a_2, dl1a_1, dc_inj_05, qd3,
+            dc_inj_06, sd1, dc_inj_07, bpm_02, dc_inj_08, qf4l, dc_inj_09, sf1,
+            sf1_ctr, sf1, dc_inj_10, qf4r, dc_inj_11, of1, dc_inj_12, bpm_03,
+            dc_inj_13, sd2, dc_inj_14, qd5, dc_inj_15, dl2b_1, dl2b_2, dl2b_3,
+            dl2b_4, dl2b_5, dc_inj_16, bpm_04, dc_inj_17, qf6, dc_inj_18, dq1,
+            dc_inj_19, qf8, dc_inj_20, sh2, bpm_05, dc_inj_21;
+i_arca_injr: dc_inj_21, bpm_05, sh2, dc_inj_20, qf8, dc_inj_19,
+            dq1, dc_inj_18, qf6, dc_inj_17, bpm_04, dc_inj_16, i_dl2b_5,
+            i_dl2b_4, i_dl2b_3, i_dl2b_2, i_dl2b_1, dc_inj_15, qd5, dc_inj_14,
+            sd2, dc_inj_13, bpm_03, dc_inj_12, inv(of1), dc_inj_11, qf4r,
+            dc_inj_10, sf1, sf1_ctr, sf1, dc_inj_09, qf4l, dc_inj_08, bpm_02,
+            dc_inj_07, sd1, dc_inj_06, qd3, dc_inj_05, i_dl1a_1, i_dl1a_2,
+            i_dl1a_3, i_dl1a_4, i_dl1a_5, dc_inj_04, qd2, dc_inj_03, sh1,
+            dc_inj_02, qf1, bpm_01, dc_inj_01;
+sp_arcac2 : i_arca_c2, arca_c2;
+i_sp_arcac2: i_arca_c2, arca_c2;
+sp_arcac1 : arca_c1, i_arca_c1;
+i_sp_arcac1: arca_c1, i_arca_c1;
+sp        : arca_c2, arca_c2, arca_c1, i_arca_c1;
+i_sp      : arca_c1, i_arca_c1, i_arca_c2, i_arca_c2;
+ringrf    : i_arca_inj, 5*sp, arca_c2, arca_c2, arca_inj;
+i_ringrf  : i_arca_inj, i_arca_c2, i_arca_c2, 5*i_sp, arca_inj;
+super     : i_arca_inj, arca_c2, arca_c2, arca_c1;
+i_super   : i_arca_c1, i_arca_c2, i_arca_c2, arca_inj;
+tsuper    : super, i_super;
+i_tsuper  : super, i_super;
+
+{line: sp, cav;}
+{line: arca_c2, cav;}
+{line: 1*(4*arca_c2), cav;}
+line: 1*(i_arca_c1, arca_c2, arca_c2, arca_c1), cav;
+
+cell: line, symmetry=1;
+
+end;
+
+{.. (3)_ele\dtba-n-1-2-6-8-6-6-n-11-sext-5_1 - copy-14_6_5 - copy (3).opa}

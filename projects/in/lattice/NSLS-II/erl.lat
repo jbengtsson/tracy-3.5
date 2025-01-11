@@ -1,0 +1,159 @@
+{ New DBA30HLC16Es2rng7x7s.opa H(8m) L(5m)Rho = 25m }
+
+define lattice; ringtype = 1;
+
+Energy = 30e-3;
+
+dP = 1e-7; CODeps = 1e-14;  
+  
+Meth = 0; Nbend = 4; Nquad = 4;  
+  
+pi = 4.0*arctan(1.0);  
+
+c0 = 2.99792458e8; Brho = 1e9*Energy/c0;
+  
+{===========parameters=}
+KQ1 =  2.7e+01;
+KQ2 = -2.024544E+01; 
+KQ3 =  2.170359E+01; 
+
+KQM3 = -7.687403E+00;
+KQM2 =  1.077235E+01;   
+KQM1 = -7.561273E+00;   
+KQM4 =  9.953484E+00;
+
+KQM5 = KQM4;
+KQM6 = KQM3;
+KQM7 = KQM2;
+KQM8 = KQM1;
+
+KQ11 =  1.918820E+01; 
+KQ12 = -1.437320E+01;    
+KQ13 =  8.747422E+00;   
+KQ15 =  1.248077E+01;
+KQ14 = -7.981809E+00;
+KQ16 =  0.0;
+
+ax0 = 0;
+ay0 = 0;
+BY0 = 1.913076E+00;
+BX0 = 3.715187E-01;
+
+{========== Dipoles  ============================}
+R1     = 0.2;
+alpha2 = 60.0;                     {Angle in bending magnet (deg)}
+
+BM2s: BENDING, L=R1*alpha2*pi/180.0/4, T=alpha2/4, T1=alpha2/4, T2=0;
+BM20: BENDING, L=R1*alpha2*pi/180.0/4, T=alpha2/4, T1=0, T2=0;
+BM2e: BENDING, L=R1*alpha2*pi/180.0/4, T=alpha2/4, T1=0, T2=alpha2/4;
+
+BM15: BENDING, L=R1*alpha2*pi/180.0/4, T=alpha2/4, T1=0, T2=0;
+BM30: BENDING, L=R1*alpha2*pi/180.0, T=alpha2, T1=alpha2/4, T2=alpha2/4;
+
+entbm30: marker;
+exibm30: marker;
+
+BM2: entbm30,BM30,exibm30;
+
+{==========  Quadrupoles   ====================}
+L_Q =  0.15; 
+
+Q10: QUADRUPOLE, L=L_Q/1, K=KQ1, N = 1, Method = Meth;
+Q20: QUADRUPOLE, L=L_Q/1, K=KQ2, N = 1, Method = Meth;
+Q30: QUADRUPOLE, L=L_Q/1, K=KQ3, N = 1, Method = Meth;
+q1: Q10;
+q2: Q20;
+q3: Q30;
+
+Q110: QUADRUPOLE, L=L_Q/1, K=KQ11, N = 1, Method = Meth;
+Q120: QUADRUPOLE, L=L_Q/1, K=KQ12, N = 1, Method = Meth;
+Q130: QUADRUPOLE, L=L_Q/1, K=KQ13, N = 1, Method = Meth;
+Q140: QUADRUPOLE, L=L_Q/1, K=KQ14, N = 1, Method = Meth;
+Q150: QUADRUPOLE, L=L_Q/2, K=KQ15, N = 1, Method = Meth;
+Q160: QUADRUPOLE, L=L_Q/2, K=KQ16, N = 1, Method = Meth;
+
+q11: Q110;
+q12: Q120;
+q13: Q130;
+q14: Q140;
+q15: Q150;
+q16: Q160;
+
+Qm10: QUADRUPOLE, L=L_Q/1, K=KQm1, N = 1, Method = Meth;
+Qm20: QUADRUPOLE, L=L_Q/1, K=KQm2, N = 1, Method = Meth;
+Qm30: QUADRUPOLE, L=L_Q/1, K=KQm3, N = 1, Method = Meth;
+Qm40: QUADRUPOLE, L=L_Q/1, K=KQm4, N = 1, Method = Meth;
+qm1: Qm10;
+qm2: Qm20;
+qm3: Qm30;
+qm4: Qm40;
+
+Qm50: QUADRUPOLE, L=L_Q/1, K=KQm5, N = 1, Method = Meth;
+Qm60: QUADRUPOLE, L=L_Q/1, K=KQm6, N = 1, Method = Meth;
+Qm70: QUADRUPOLE, L=L_Q/1, K=KQm7, N = 1, Method = Meth;
+Qm80: QUADRUPOLE, L=L_Q/1, K=KQm8, N = 1, Method = Meth;
+qm5: Qm50;
+qm6: Qm60;
+qm7: Qm70;
+qm8: Qm80;
+
+
+{============  Drifts     =====================}
+Dstr=0.1*40+0.008;
+D0: DRIFT, L=0.5;
+D1: DRIFT, L=0.1;
+D2: DRIFT, L=Dstr/40;
+
+Dm0: DRIFT, L=0.5;
+Dm1: DRIFT, L=0.1;
+Dm2: DRIFT, L=0.15-0.1;
+Dm3: DRIFT, L=0.30-0.00;
+Dm4: DRIFT, L=0.289+0.15+0.1;
+Dm5: DRIFT, L=0.322;
+Dm6: DRIFT, L=1.803; {1.111}
+DM7: Drift, L=1.80;  {1.1575}
+
+Dstr1: DRIFT, L=0.1;
+Dstr2: DRIFT, L=4.35-4.5*L_Q-16*0.1;
+{=========================Solenoids===================}
+KS1=1;
+S1: solenoid, L=0.2,  BoBrho = 0.1/Brho, N = 100;
+S2: solenoid, L=0.2,  BoBrho = 0.1/Brho, N = 100;
+S3: solenoid, L=0.2,  BoBrho = 0.1/Brho, N = 100;
+S4: solenoid, L=0.2,  BoBrho = 0.1/Brho, N = 100;
+dS: solenoid, L=0.05, BoBrho = 0.1/Brho, N = 100;
+
+s5: solenoid, L=0.15, BoBrho=KS1,  N = 100;
+s6: solenoid, L=0.15, BoBrho=-KS1, N = 100;
+
+{=========================RF Cavity==========================}
+Dcav:  Drift, L=1.48;
+Linac: Dcav;
+
+CAV: Cavity, Frequency = 703e6, Voltage = 25e6, Harnum = 1;  
+
+Arc:     BM2,3*(D1),Q1,2*(D1),Q2,2*(D1),Q3,3*(D1),BM2,3*(D1),
+         Q3,2*(D1),Q2,2*(D1),Q1,3*(D1),BM2;
+Line0:   4*(D2),Q11,4*(D1),Q12,4*(D1),Q13,16*(D2),Q14,4*(D1),Q15;
+HLine2:  BM2,3*(D1),Q1,2*(D1),Q2,2*(D1),Q3,3*(D1),BM2s,BM20;
+HRline2: BM20,BM2e,3*(D1),Q3,2*(D1),Q2,2*(D1),Q1,3*(D1),BM2;
+
+match:  Ds,S1,Ds,S2,Dm1,s3,dS,s4,Dm2,Qm1,Dm3,Qm2,Dm3,Qm3,Dm3,Qm4,Dm4;
+match2: Ds,S1,Ds,S2,Dm1,s3,dS,s4,Dm2,Qm8,Dm3,Qm7,Dm3,Qm6,Dm3,Qm5,Dm4;
+
+unit:     Q16,4*(D1),Q13,15*(D1),Q14,5*(D1),Q15;
+pass:     match,Arc,Line0,inv(Line0),Arc,inv(match2),linac;
+pass1:    match,Arc,Line0;
+TestLine: match;
+
+loop1: s1;
+
+{loop1: match,Arc,Line0,inv(Line0),Arc,inv(match2);}
+
+CELL: loop1, SYMMETRY = 1;
+
+{CELL: HRline2, SYMMETRY = 1;}
+
+{CELL: Arc, SYMMETRY = 1;}
+
+end;

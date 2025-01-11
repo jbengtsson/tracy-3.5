@@ -1,0 +1,73 @@
+{ TITLE "ring20n" }
+
+define lattice; ringtype = 1;
+
+Energy = 3.0;
+
+dP = 1e-8; CODeps = 1e-14;
+
+Meth = 4; Nbend = 10; Nquad = 10; Nsext = 10; 
+
+pi = 4.0*arctan(1.0);
+
+SS05M:   DRIFT, L= 5.0000000000E-01;
+SS1M:     DRIFT, L= 1.0000000000E+00;
+SS03:    DRIFT, L= 3.0000000000E-01;
+SSMATCH1: DRIFT, L= 4.8280000000E-01;
+SSMATCH2: DRIFT, L= 1.4750000000E+00;
+SHORTSTR: DRIFT, L= 5.0000000000E-01;
+SS100:    DRIFT, L= 1.0000000000E-01;
+
+QFEND: QUADRUPOLE, L= 2.0000000000E-01, K= 3.8935499903E+00,
+       N = Nquad, Method = Meth;
+
+QDEND: QUADRUPOLE, L= 2.0000000000E-01, K=-2.4359039125E+00,
+       N = Nquad, Method = Meth;
+
+SOFTENDMATCH: BENDING, L= 1.5000000000E-01, T= 4.2000000000E-03*180.0/pi,
+              K=-4.1500000000E-01, T1= 0.0, T2= 0.0,
+              N = Nbend, Method = Meth;
+
+DIPMATCH: BENDING, L= 4.0000000000E-01, T= 2.1979900000E-02*180.0/pi,
+          K=-8.3000000000E-01, T1= 0.0, T2= 0.0,
+          N = Nbend, Method = Meth;
+
+DS: SEXTUPOLE, L= 1.0000000000E-01, K=-2.2069684663E+02/2.0,
+    N = Nsext, Method = Meth;
+
+QFMATCH: BENDING, L= 1.2700333334E-01, K= 4.0767849591E+00,
+         HOM = (3, 1.1000000000E+02/2.0, 0.0),
+         N = Nbend, Method = Meth;
+
+SOFTEND: BENDING, L= 1.5000000000E-01, T= 4.2000000000E-03*180.0/pi,
+          K=-4.1500000000E-01, T1= 0.0, T2= 0.0,
+          N = Nbend, Method = Meth;
+
+DIP: BENDING, L= 4.0000000000E-01, T= 2.1979900000E-02*180.0/pi,
+     K=-8.3307966641E-01, T1= 0.0, T2= 0.0,
+     N = Nbend, Method = Meth;
+
+QF: BENDING, L= 1.5000000000E-01, K= 3.7714012950E+00,
+    HOM = (3, 1.1604047528E+02/2.0, 0.0),
+    N = Nbend, Method = Meth;
+
+BM: SOFTENDMATCH, DIPMATCH;
+
+MS: SS05M, SS1M, SS1M, QFEND, SS03, QDEND, SS03, BM,
+    SSMATCH1, DS, SSMATCH2,
+    QFMATCH, QFMATCH;
+
+B: SOFTEND, 2*DIP, SOFTEND;
+
+BS: SHORTSTR, DS, SS100, B, SS100, DS, SHORTSTR;
+
+UC: QF, BS, QF;
+
+c0 = 2.99792458e8; h_rf = 1000; C = 200.0;
+CAV: Cavity, Frequency = c0/C*h_rf, Voltage = 5.00e6, Harnum = h_rf;
+
+RING: MS, BS, QF, 3*UC, QF, BS, INV(MS), CAV;
+
+CELL: RING, SYMMETRY = 1;
+
+END;

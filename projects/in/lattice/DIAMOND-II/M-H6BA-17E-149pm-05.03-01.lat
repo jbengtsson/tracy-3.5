@@ -1,0 +1,227 @@
+{c:\users\bs36\desktop\jb-04-30-05\m-h6ba-17e-79pm-01-02-01.opa}
+
+{opa to tracy-2 export}
+
+define lattice;
+energy = 3.500000;
+dp = 1.0d-10;  codeps = 1.0d-6;  dk = 1.0d-6;
+meth = 4; nbend = 10; nquad = 10;
+
+{----- variables ----------------------------------------------------}
+
+nsext  = 2;
+aban1  = 0.20585295;
+aban3  = -0*0.39725902;
+aban4  = 0.33585493;
+rk1    = 5.26028347;
+rk2    = -3.62182625;
+rk3    = 6.12183082;
+rk4    = 6.22723242;
+
+{----- table of elements ----------------------------------------------------}
+
+cav: Cavity, L = 0.0, Frequency = 499.654096667e6, Voltage = 2.2e6, phi = 0.0;
+
+dmult    : drift, l = 0.045000;
+dcor     : drift, l = 0.000000;
+dcor1    : drift, l = 0.040000;
+dr_01    : drift, l = 2.521350;
+dr_02    : drift, l = 0.075000;
+dr_03    : drift, l = 0.075000;
+dr_04    : drift, l = 0.150000;
+dr_05    : drift, l = 0.075000;
+dr_06    : drift, l = 0.075000;
+dr_07    : drift, l = 0.075000;
+dr_08    : drift, l = 0.075000;
+dr_091   : drift, l = 0.120000;
+dr_092   : drift, l = 0.210500;
+dr_10    : drift, l = 0.075000;
+dr_11    : drift, l = 0.075000;
+dr_12    : drift, l = 0.075000;
+dr_13    : drift, l = 0.165500;
+dr_14    : drift, l = 0.075000;
+dr_15    : drift, l = 0.075000;
+dr_16    : drift, l = 0.075000;
+dr_17    : drift, l = 0.100000;
+dr_18    : drift, l = 0.080000;
+dr_19    : drift, l = 0.197000;
+dr_20    : drift, l = 0.090000;
+dr_21    : drift, l = 0.090000;
+dr_22    : drift, l = 0.075000;
+dr_23    : drift, l = 0.075000;
+dr_24    : drift, l = 1.384200;
+dl_27    : drift, l = 3.696350;
+dl_26    : drift, l = 0.075000;
+dl_25    : drift, l = 0.035000;
+dl_24    : drift, l = 0.035000;
+dl_23    : drift, l = 0.075000;
+dl_22    : drift, l = 0.075000;
+dl_21    : drift, l = 0.075000;
+dl_20    : drift, l = 0.075000;
+dl_19    : drift, l = 0.075000;
+dl_18    : drift, l = 0.075000;
+dl_17    : drift, l = 0.075000;
+dl_161   : drift, l = 0.120000;
+dl_162   : drift, l = 0.210500;
+dl_15    : drift, l = 0.075000;
+dl_14    : drift, l = 0.075000;
+dl_13    : drift, l = 0.075000;
+dl_12    : drift, l = 0.165500;
+dl_11    : drift, l = 0.075000;
+dl_10    : drift, l = 0.075000;
+dl_09    : drift, l = 0.075000;
+dl_08    : drift, l = 0.100000;
+dl_07    : drift, l = 0.080000;
+dl_06    : drift, l = 0.197000;
+dl_05    : drift, l = 0.090000;
+dl_04    : drift, l = 0.090000;
+dl_03    : drift, l = 0.075000;
+dl_02    : drift, l = 0.075000;
+dl_01    : drift, l = 1.384200;
+
+ms       : marker;
+ss       : marker;
+ls       : marker;
+
+dl1a_1:   bending, l =  0.20000000,
+    t =  0.33998102, t1 =  0.00000000, t2 =  0.33998102, k = -0.56460613,
+    n = nbend, method = 4;
+dl1a_2:   bending, l =  0.20000000,
+    t =  0.39134853, t1 = -0.33998102, t2 =  0.73132956, k = -0.56460613,
+    n = nbend, method = 4;
+dl1a_3:   bending, l =  0.20000000,
+    t =  0.45815960, t1 = -0.39134853, t2 =  1.18948915, k = -0.56460613,
+    n = nbend, method = 4;
+dl1a_4:   bending, l =  0.20000000,
+    t =  0.56642178, t1 = -0.45815960, t2 =  1.75591094, k = -0.56460613,
+    n = nbend, method = 4;
+dl1a_5:   bending, l =  0.20000000,
+    t =  0.86608176, t1 = -0.56642178, t2 =  2.62199270, k = -0.56460613,
+    n = nbend, method = 4;
+dl2a_1:   bending, l =  0.16667000,
+    t =  0.36436253, t1 =  0.00000000, t2 =  0.36436253, k = -0.10153166,
+    n = nbend, method = 4;
+dl2a_2:   bending, l =  0.16667000,
+    t =  0.41941382, t1 = -0.36436253, t2 =  0.78377635, k = -0.10153166,
+    n = nbend, method = 4;
+dl2a_3:   bending, l =  0.33334000,
+    t =  0.49101620, t1 = -0.41941382, t2 =  1.27479255, k = -0.10153166,
+    n = nbend, method = 4;
+dl2a_4:   bending, l =  0.16667000,
+    t =  0.60704233, t1 = -0.49101620, t2 =  1.88183488, k = -0.10153166,
+    n = nbend, method = 4;
+dl2a_5:   bending, l =  0.16667000,
+    t =  0.92819222, t1 = -0.60704233, t2 =  2.81002710, k = -0.10153166,
+    n = nbend, method = 4;
+
+qf4:      bending, l =  0.15000000,
+    t = -0.15766913, t1 = -0.07883456, t2 = -0.07883456, k =  4.71585416,
+    n = nbend, method = 4;
+qf6:      bending, l =  0.36000000,
+    t = -0.57262562, t1 = -0.28631281, t2 = -0.28631281, k =  6.46047468,
+    n = nbend, method = 4;
+qf8:      bending, l =  0.25000000,
+    t = -0.49616435, t1 = -0.24808218, t2 = -0.24808218, k =  6.99937505,
+    n = nbend, method = 4;
+
+dq1:      bending, l =  0.87000000,
+    t =  3.45210842, t1 =  1.72605421, t2 =  1.72605421, k = -2.79056935,
+    n = nbend, method = 4;
+
+qf1:      quadrupole, l =  0.15000000, k =  6.95625854, n = nquad, method = 4;
+qd2:      quadrupole, l =  0.15000000, k = -4.68841760, n = nquad, method = 4;
+qd3:      quadrupole, l =  0.15000000, k = -0.10000014, n = nquad, method = 4;
+qd5:      quadrupole, l =  0.10500000, k = -4.42548950, n = nquad, method = 4;
+
+qd3_c1:   quadrupole, l =  0.15000000, k = -2.25788564, n = nquad, method = 4;
+qd2_c1:   quadrupole, l =  0.10500000, k =  4.83167988, n = nquad, method = 4;
+qf1_c1:   quadrupole, l =  0.18500000, k = -6.12150426, n = nquad, method = 4;
+quad_add: quadrupole, l =  0.18500000, k =  6.50391125, n = nquad, method = 4;
+
+sd1:      sextupole, l =  0.14000000, k = -436.08026249, n = nsext, method = 4;
+sf1:      sextupole, l =  0.14000000, k =  394.92409892, n = nsext, method = 4;
+sd2:      sextupole, l =  0.14000000, k = -118.48119660, n = nsext, method = 4;
+
+s        : sextupole, l = 0.100000, k = 0.000000, n = 1, method=meth;
+sh1      : sextupole, l = 0.100000, k = 0.000000, n = 1, method=meth;
+sh2      : sextupole, l = 0.100000, k = 0.000000, n = 1, method=meth;
+
+of1      : multipole, l = 0.0, hom = (4,0.0000,0);
+
+bpm_01   : beam position monitor;
+bpm_02   : beam position monitor;
+bpm_03   : beam position monitor;
+bpm_04   : beam position monitor;
+bpm_05   : beam position monitor;
+bpm_06   : beam position monitor;
+bpm_07   : beam position monitor;
+bpm_08   : beam position monitor;
+bpm_09   : beam position monitor;
+bpm_10   : beam position monitor;
+bpm_11   : beam position monitor;
+
+ch_01    : corrector, horizontal;
+ch_02    : corrector, horizontal;
+ch_03    : corrector, horizontal;
+ch_04    : corrector, horizontal;
+ch_05    : corrector, horizontal;
+ch_06    : corrector, horizontal;
+ch_07    : corrector, horizontal;
+ch_08    : corrector, horizontal;
+ch_09    : corrector, horizontal;
+ch_10    : corrector, horizontal;
+ch_11    : corrector, horizontal;
+
+cv_01    : corrector, vertical;
+cv_02    : corrector, vertical;
+cv_03    : corrector, vertical;
+cv_04    : corrector, vertical;
+cv_05    : corrector, vertical;
+cv_06    : corrector, vertical;
+cv_07    : corrector, vertical;
+cv_08    : corrector, vertical;
+cv_09    : corrector, vertical;
+cv_10    : corrector, vertical;
+cv_11    : corrector, vertical;
+
+ps_rot: map;
+
+{----- table of segments ----------------------------------------------------}
+
+dl1a     : dl1a_5, dl1a_4, dl1a_3, dl1a_2, dl1a_1;
+dl2a     : dl2a_5, dl2a_4, dl2a_3, dl2a_2, dl2a_1;
+of1s     : dmult, of1, dmult;
+arca_c2r : dr_24, bpm_05, dr_23, ch_05, cv_05, sh2, dr_22, qf8,
+           dr_21, dq1, dr_20, qf6, dr_19, bpm_04, dr_18, dcor, s, ch_04, cv_04,
+           dcor, dr_17, dl2a, dr_16, qd5, dr_15, sd2, ch_03, cv_03, dr_14,
+           bpm_03, dr_13, of1s, dr_12, qf4, dr_11, sf1, dr_10, qf4, dr_091,
+	   of1, dr_092, bpm_02, dr_08, ch_02, cv_02, sd1, dr_07, qd3, dr_06,
+	   inv(dl1a), dr_05, qd2, dr_04, ch_01, cv_01, sh1, dr_03, qf1, dr_02,
+	   bpm_01, dr_01;
+arca_c1r : dl_01, bpm_06, dl_02, ch_06, cv_06, sh2, dl_03, qf8,
+           dl_04, dq1, dl_05, qf6, dl_06, bpm_07, dl_07, dcor, s, ch_07, cv_07,
+           dcor, dl_08, dl2a, dl_09, qd5, dl_10, sd2, ch_08, cv_08, dl_11,
+           bpm_08, dl_12, of1s, dl_13, qf4, dl_14, sf1, dl_15, qf4, dl_161,
+	   of1, dl_162, bpm_09, dl_17, ch_09, cv_09, sd1, dl_18, qd3_c1, dl_19,
+           inv(dl1a), dl_20, qd2_c1, dl_21, bpm_10, dl_22, ch_10, cv_10, sh1,
+           dl_23, qf1_c1, dl_24, dcor1, ch_11, cv_11, dcor1, dl_25, quad_add,
+           dl_26, bpm_11, dl_27;
+arca_c2  : ms, arca_c2r, ss, inv(arca_c2r);
+arca_c1  : arca_c2r, ms, inv(arca_c1r);
+sp_short : ls, inv(arca_c1r), 2*arca_c2, ms, arca_c1r, ls;
+sp       : ls, inv(arca_c1r), 3*arca_c2, ms, arca_c1r, ls;
+
+line:  ss, inv(arca_c2r), ms, arca_c2r, ss;
+{line: ms, arca_c1r, ls;}
+{line: ms, arca_c1r, ls, inv(arca_c1r), ms;}
+{line: ss, inv(arca_c1), arca_c1, ss;}
+{line: sp_short;}
+{line: sp;}
+
+ring: 1*line, ps_rot, cav;
+
+cell: ring, symmetry=1;
+
+end;
+
+{c:\users\bs36\desktop\jb-04-30-05\m-h6ba-17e-79pm-01-02-01.opa}

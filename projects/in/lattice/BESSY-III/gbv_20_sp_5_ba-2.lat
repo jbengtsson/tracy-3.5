@@ -1,0 +1,86 @@
+{z:\git\tracy-3}
+
+{opa to tracy-2 export}
+
+define lattice;
+energy = 2.500000;
+dp = 1.0d-10;  codeps = 1.0d-6;  dk = 1.0d-6;
+meth   = 4; nbend = 10; nquad = 10; nsext = 10;
+
+{----- variables ----------------------------------------------------}
+
+
+{----- table of elements ----------------------------------------------------}
+
+c0 = 2.99792458e8; gamma = 3.5e9/c0; Brho = 1e9*Energy/c0;
+
+h_rf = 535; C = 20*16.0600000;
+
+cav: Cavity, L = 0.0, Frequency = c0/C*h_rf, Voltage = 1.5e6, harnum = h_rf,
+     phi = 0.0;
+
+l1   : drift, l = 0.100000;
+l2   : drift, l = 0.100000;
+l3   : drift, l = 0.100000;
+l4   : drift, l = 0.100000;
+l5   : drift, l = 0.100000;
+l6   : drift, l = 0.100000;
+l7   : drift, l = 0.100000;
+l8   : drift, l = 0.100000;
+l9   : drift, l = 2.500000;
+
+{b1c  : bending, l = 0.400000, t = 2.514812, k = -2.233492, t1 = 0.000000,
+       t2 = 2.514812, n=nbend, method=meth;
+b1e  : bending, l = 0.665392, t = 2.764584, k = -1.309446, t1 = 1.382292,
+       t2 = 1.382292, n=nbend, method=meth;
+b2   : bending, l = 0.130000, t = -0.327255, k = 10.689206,
+       t1 = -0.163627, t2 = -0.163627, n=nbend, method=meth;
+
+q1   : quadrupole, l = 0.160000, k = -7.813983, n=nquad, method=meth;
+q2   : quadrupole, l = 0.260000, k = 8.955781, n=nquad, method=meth;
+q3   : quadrupole, l = 0.100000, k = -6.673491, n=nquad, method=meth;
+
+s1   : sextupole, l = 0.060000, k = 850.992699, n = 1, method=meth;
+s2   : sextupole, l = 0.080000, k = -805.517729, n = 1, method=meth;}
+
+b1e:      bending, l =  0.67225892,
+    t =  2.87735192, t1 =  1.43867596, t2 =  1.43867596, k = -0.97212939,
+    n = nbend, method = 4;
+b1c:      bending, l =  0.40000000,
+    t =  2.51435190, t1 =  1.25717595, t2 =  1.25717595, k = -2.22288721,
+    n = nbend, method = 4;
+b2:       bending, l =  0.13000000,
+    t = -0.35510190, t1 = -0.17755095, t2 = -0.17755095, k = 10.49496509,
+    n = nbend, method = 4;
+
+q1:       quadrupole, l = 0.16000000, k =   -9.35015337, n = nquad, method = 4;
+q2:       quadrupole, l = 0.26000000, k =    8.94952975, n = nquad, method = 4;
+q3:       quadrupole, l = 0.10000000, k =   -5.95016686, n = nquad, method = 4;
+
+s1:       sextupole,  l = 0.06000000, k =  887.93030724, n = nsext, method = 4;
+s2:       sextupole,  l = 0.08000000, k = -855.22192820, n = nsext, method = 4;
+
+s3   : sextupole, l = 0.080000, k = 0.000000, n = 1, method=meth;
+s4   : sextupole, l = 0.080000, k = 0.000000, n = 1, method=meth;
+
+mbac : marker;
+s1c  : marker;
+
+
+{----- table of segments ----------------------------------------------------}
+
+cell_hc : mbac, b1c, l1, s2, l2, b2, l3, s1, s1c;
+cell_u  : inv(cell_hc), cell_hc;
+cell_he : s1c, s1, l3, b2, l2, s2, l1, b1e;
+cell_m  : l4, s3, l5, q1, l6, q2, l7, s4, l8, q3, l9;
+match   : cell_he, cell_m;
+line    : inv(match), 3*cell_u, match;
+achr    : line;
+
+ring: 2*achr, cav;
+
+cell: ring, symmetry=1;
+
+end;
+
+{z:\git\tracy-3}

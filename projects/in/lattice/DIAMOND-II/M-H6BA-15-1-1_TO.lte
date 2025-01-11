@@ -1,0 +1,173 @@
+!*****************************************************
+!**************** M-H6BA-15-1-1 **********************
+!**************** 16 Jan. 2019 ***********************
+!*****************************************************
+
+dr_01      : EDRIFT, l = 2.495491
+dr_02      : EDRIFT, l = 0.100000
+dr_03      : EDRIFT, l = 0.075000
+dr_04      : EDRIFT, l = 0.150000
+dr_05      : EDRIFT, l = 0.075000
+dr_06      : EDRIFT, l = 0.075000
+dr_07      : EDRIFT, l = 0.075000
+dr_08      : EDRIFT, l = 0.075000
+dr_09      : EDRIFT, l = 0.330500
+dr_10      : EDRIFT, l = 0.075000
+dr_11      : EDRIFT, l = 0.075000
+dr_12      : EDRIFT, l = 0.075000
+dr_13      : EDRIFT, l = 0.165500
+dr_14      : EDRIFT, l = 0.075000
+dr_15      : EDRIFT, l = 0.075000
+dr_16      : EDRIFT, l = 0.075000
+dr_17      : EDRIFT, l = 0.100000
+dr_18      : EDRIFT, l = 0.080000
+dr_19      : EDRIFT, l = 0.197000
+dr_20      : EDRIFT, l = 0.090000
+dr_21      : EDRIFT, l = 0.090000
+dr_22      : EDRIFT, l = 0.075000
+dr_23      : EDRIFT, l = 0.100000
+dr_24      : EDRIFT, l = 1.360131
+dl_27      : EDRIFT, l = 3.670491
+dl_26      : EDRIFT, l = 0.100000
+dl_25      : EDRIFT, l = 0.035000
+dl_24      : EDRIFT, l = 0.035000
+dl_23      : EDRIFT, l = 0.075000
+dl_22      : EDRIFT, l = 0.075000
+dl_21      : EDRIFT, l = 0.075000
+dl_20      : EDRIFT, l = 0.075000
+dl_19      : EDRIFT, l = 0.075000
+dl_18      : EDRIFT, l = 0.075000
+dl_17      : EDRIFT, l = 0.075000
+dl_16      : EDRIFT, l = 0.330500
+dl_15      : EDRIFT, l = 0.075000
+dl_14      : EDRIFT, l = 0.075000
+dl_13      : EDRIFT, l = 0.075000
+dl_12      : EDRIFT, l = 0.165500
+dl_11      : EDRIFT, l = 0.075000
+dl_10      : EDRIFT, l = 0.075000
+dl_09      : EDRIFT, l = 0.075000
+dl_08      : EDRIFT, l = 0.100000
+dl_07      : EDRIFT, l = 0.080000
+dl_06      : EDRIFT, l = 0.197000
+dl_05      : EDRIFT, l = 0.090000
+dl_04      : EDRIFT, l = 0.090000
+dl_03      : EDRIFT, l = 0.075000
+dl_02      : EDRIFT, l = 0.100000
+dl_01      : EDRIFT, l = 1.360131
+
+qf1        : KQUAD, l = 0.150000, k1 = 7.125230, N_KICKS=40, SYNCH_RAD=0
+qd2        : KQUAD, l = 0.150000, k1 = -5.914638, N_KICKS=40, SYNCH_RAD=0
+qd3        : KQUAD, l = 0.150000, k1 = -3.457434, N_KICKS=40, SYNCH_RAD=0
+qf4        : KQUAD, l = 0.150000, k1 = 5.099144, N_KICKS=40, SYNCH_RAD=0
+qf4l       : KQUAD, l = 0.150000, k1 = 5.364405, N_KICKS=40, SYNCH_RAD=0
+qd5        : KQUAD, l = 0.105000, k1 = -6.516092, N_KICKS=40, SYNCH_RAD=0
+qf6        : KQUAD, l = 0.360000, k1 = 6.262225, N_KICKS=40, SYNCH_RAD=0
+qf8        : KQUAD, l = 0.250000, k1 = 7.259360, N_KICKS=40, SYNCH_RAD=0
+qf4_c1     : KQUAD, l = 0.150000, k1 = 4.761672, N_KICKS=40, SYNCH_RAD=0
+qd3_c1     : KQUAD, l = 0.150000, k1 = -3.102686, N_KICKS=40, SYNCH_RAD=0
+qd2_c1     : KQUAD, l = 0.105000, k1 = -1.227677, N_KICKS=40, SYNCH_RAD=0
+qf1_c1     : KQUAD, l = 0.185000, k1 = -4.785793, N_KICKS=40, SYNCH_RAD=0
+quad_add   : KQUAD, l = 0.185000, k1 = 6.156117, N_KICKS=40, SYNCH_RAD=0
+
+dl1a_5     : csbend, l = 0.200000, angle = 0.013064, k1 = 0.000000,&
+             e1 = 0.019775, e2 = -0.006711, N_KICKS=40, SYNCH_RAD=0
+dl1a_4     : csbend, l = 0.200000, angle = 0.008544, k1 = 0.000000,&
+             e1 = 0.006711, e2 = 0.001833, N_KICKS=40, SYNCH_RAD=0
+dl1a_3     : csbend, l = 0.200000, angle = 0.006911, k1 = 0.000000,&
+             e1 = -0.001833, e2 = 0.008744, N_KICKS=40, SYNCH_RAD=0
+dl1a_2     : csbend, l = 0.200000, angle = 0.005903, k1 = 0.000000,&
+             e1 = -0.008744, e2 = 0.014647, N_KICKS=40, SYNCH_RAD=0
+dl1a_1     : csbend, l = 0.200000, angle = 0.005128, k1 = 0.000000,&
+             e1 = -0.014647, e2 = 0.019775, N_KICKS=40, SYNCH_RAD=0
+
+sd1        : ksext, l = 0.140000, k2 = -527.753236, N_KICKS=40, SYNCH_RAD=0
+sd2        : ksext, l = 0.140000, k2 = -492.809928, N_KICKS=40, SYNCH_RAD=0
+sf1        : ksext, l = 0.140000, k2 = 659.279806, N_KICKS=40, SYNCH_RAD=0
+sh1        : ksext, l = 0.100000, k2 = 72.000000, N_KICKS=40, SYNCH_RAD=0
+sh2        : ksext, l = 0.100000, k2 = -40.000000, N_KICKS=40, SYNCH_RAD=0
+s          : ksext, l = 0.100000, k2 = 126.088000, N_KICKS=40, SYNCH_RAD=0
+
+dq1        : csbend, l = 0.870000, angle = 0.051799,&
+             k1 = -2.790450, e1 = 0.025900, e2 = 0.025900, N_KICKS=40, SYNCH_RAD=0
+
+of1s       : KOCT, l = 0.09, k3 = -56666.6666667, N_KICKS=40, SYNCH_RAD=0
+
+bpm_01     : moni
+bpm_02     : moni
+bpm_03     : moni
+bpm_04     : moni
+bpm_05     : moni
+bpm_06     : moni
+bpm_07     : moni
+bpm_08     : moni
+bpm_09     : moni
+bpm_10     : moni
+bpm_11     : moni
+
+hcor01       : DRIFT,L=0.00
+hcor02       : DRIFT,L=0.00
+hcor03       : DRIFT,L=0.00
+hcor04       : DRIFT,L=0.00
+hcor05       : DRIFT,L=0.00
+hcor06       : DRIFT,L=0.00
+hcor07       : DRIFT,L=0.00
+hcor08       : DRIFT,L=0.00
+hcor09       : DRIFT,L=0.00
+hcor10       : DRIFT,L=0.00
+hcor11       : DRIFT,L=0.04
+
+vcor01       : DRIFT,L=0.00
+vcor02       : DRIFT,L=0.00
+vcor03       : DRIFT,L=0.00
+vcor04       : DRIFT,L=0.00
+vcor05       : DRIFT,L=0.00
+vcor06       : DRIFT,L=0.00
+vcor07       : DRIFT,L=0.00
+vcor08       : DRIFT,L=0.00
+vcor09       : DRIFT,L=0.00
+vcor10       : DRIFT,L=0.00
+vcor11       : DRIFT,L=0.04
+
+HVCOR01: LINE=(HCOR01,VCOR01)
+HVCOR02: LINE=(HCOR02,VCOR02)
+HVCOR03: LINE=(HCOR03,VCOR03)
+HVCOR04: LINE=(HCOR04,VCOR04)
+HVCOR05: LINE=(HCOR05,VCOR05)
+HVCOR06: LINE=(HCOR06,VCOR06)
+HVCOR07: LINE=(HCOR07,VCOR07)
+HVCOR08: LINE=(HCOR08,VCOR08)
+HVCOR09: LINE=(HCOR09,VCOR09)
+HVCOR10: LINE=(HCOR10,VCOR10)
+HVCOR11: LINE=(HCOR11,VCOR11)
+
+RFC : RFCA,VOLT=1660000,PHASE=156.18367191588860567021474952334,FREQ=499499134.27999753167225836518498,CHANGE_T=1
+MAL : MALIGN,ON_PASS=0
+W1  : WATCH,FILENAME="%s.w1",MODE="centroid"
+W2  : WATCH,FILENAME="%s.w2",MODE="parameter"
+W3  : WATCH,FILENAME="%s.w3",MODE="coordinate"
+RAD : SREFFECTS,DAMPING=0,QEXCITATION=0
+
+!----- table of segments ----------------------------------------------------
+
+dl1a     : line=(dl1a_5, dl1a_4, dl1a_3, dl1a_2, dl1a_1)
+arca_c2r : line=(dr_24, bpm_05, dr_23, HVCOR05, sh2, dr_22, qf8,&
+           dr_21, dq1, dr_20, qf6, dr_19, bpm_04, dr_18, s, HVCOR04, &
+           dr_17, dl1a, dr_16, qd5, dr_15, sd2, HVCOR03, dr_14, bpm_03,&
+           dr_13, of1s, dr_12, qf4, dr_11, sf1, dr_10, qf4,&
+           dr_09, bpm_02, dr_08, HVCOR02, sd1, dr_07, qd3, dr_06, -dl1a,&
+           dr_05, qd2, dr_04, HVCOR01, sh1, dr_03, qf1, dr_02, bpm_01,&
+           dr_01)
+arca_c1r : line=(dl_01, bpm_06, dl_02, HVCOR06, sh2, dl_03, qf8,&
+           dl_04, dq1, dl_05, qf6, dl_06, bpm_07, dl_07, s, HVCOR07, &
+           dl_08, dl1a, dl_09, qd5, dl_10, sd2, HVCOR08, dl_11, bpm_08,&
+           dl_12, of1s, dl_13, qf4l, dl_14, sf1, dl_15, qf4_c1,&
+           dl_16, bpm_09, dl_17, HVCOR09, sd1, dl_18, qd3_c1, dl_19,&
+           -dl1a, dl_20, qd2_c1, dl_21, bpm_10, dl_22, HVCOR10, sh1, dl_23,&
+           qf1_c1, dl_24, HVCOR11, dl_25, quad_add, dl_26,&
+           bpm_11, dl_27)
+arca_c2  : line=(-arca_c2r, arca_c2r)
+arca_c1  : line=(-arca_c2r, arca_c1r)
+sp       : line=(-arca_c1, arca_c2, arca_c2, arca_c1)
+ring     : line=(W1, 6*sp)
+ringCAV   : line=(RFC, 6*sp, W1)
+ringRF   : line=(W1, RAD, RFC, 6*sp)

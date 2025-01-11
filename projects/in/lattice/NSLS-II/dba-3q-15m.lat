@@ -1,0 +1,112 @@
+{ New DBA30HLC16Es2rng7x7s.opa H(8m) L(5m)Rho=25m }
+
+define lattice; ringtype = 1;
+
+Energy = 3.0;
+
+dP = 1e-8; CODeps = 1e-14;
+
+Meth = 4; Nbend = 4; Nquad = 4;
+
+pi = 4.0*arctan(1.0);
+
+
+D0: 	Drift,	L=4.650975081534423;
+D00: 	Drift,	L=2.5;
+D1: 	Drift,	L=0.677767831641183;
+D1H:  	Drift, L = D1.L/2.0;
+D11: 	Drift,	L=1.05;
+D11B: 	Drift,	L=0.4499750570778564;
+D2: 	Drift,	L=0.5;
+D2H:  	Drift, L = D2.L/2.0;
+D22: 	Drift,	L=0.7464816974747237;
+D22H: 	Drift, L = D22.L/2.0;
+D3: 	Drift,	L=0.59;
+D3H:  	Drift, L = D3.L/2.0;
+D33: 	Drift,	L=0.55;
+D33H: 	Drift, L = D33.L/2.0;
+D4: 	Drift,	L=0.6;
+D4H:  	Drift, L = D4.L/2.0;
+D44: 	Drift,	L=0.6000000086179651;
+D44H: 	Drift, L = D44.L/2.0;
+D5: 	Drift,	L=1.199879438388893;
+D5H:  	Drift, L = D5.L/2.0;
+D6: 	Drift,	L=0.55;
+D6A:  	Drift, L = D6.L/2.0;
+D6B:  	Drift, L = D6.L/2.0;
+D7: 	Drift,	L=0.8;
+
+
+Q1: 	Quadrupole,L=0.3,K=-0.911190469604265,N=Nquad, Method=Meth;
+Q11: 	Quadrupole,L=0.3,K=-1.108371,N=Nquad, Method=Meth;
+Q2: 	Quadrupole,L=0.3,K=1.147137992740034,N=Nquad, Method=Meth;
+Q22: 	Quadrupole,L=0.3,K=-1.983896339183146,N=Nquad, Method=Meth;
+Q3: 	Quadrupole,L=0.3,K=1.280481439257991,N=Nquad, Method=Meth;
+Q33: 	Quadrupole,L=0.4,K=2.569402959724135,N=Nquad, Method=Meth;
+Q4: 	Quadrupole,L=0.3,K=-1.477236042804519,N=Nquad, Method=Meth;
+Q44: 	Quadrupole,L=0.3,K=-1.729770669634962,N=Nquad, Method=Meth;
+QD3: 	Quadrupole,L=0.3,K=-0.9897225625731488,N=Nquad, Method=Meth;
+QF2: 	Quadrupole,L=0.3,K=1.4651007360178,N=Nquad, Method=Meth;
+
+DUQ1: Drift, L = 0.0;
+DDQ1: Drift, L = 0.0;
+QQ1:  DUQ1, Q1, DDQ1;
+DUQ2: Drift, L = 0.0;
+DDQ2: Drift, L = 0.0;
+QQ2:  DUQ2, Q2, DDQ2;
+DUQ3: Drift, L = 0.0;
+DDQ3: Drift, L = 0.0;
+QQ3:  DUQ3, Q3, DDQ3;
+DUQ4: Drift, L = 0.0;
+DDQ4: Drift, L = 0.0;
+QQ4:  DUQ4, Q4, DDQ4;
+
+DUQ22: Drift, L = 0.0;
+DDQ22: Drift, L = 0.0;
+QQ22:  DUQ22, Q22, DDQ22;
+DUQ33: Drift, L = 0.0;
+DDQ33: Drift, L = 0.0;
+QQ33:  DUQ33, Q33, DDQ33;
+DUQ44: Drift, L = 0.0;
+DDQ44: Drift, L = 0.0;
+QQ44:  DUQ44, Q44, DDQ44;
+
+B1: Bending, L = 2.62, T = 6.0, T1 = 3.0, T2 = 3.0, N = Nbend, Method = Meth;
+
+S1:  Sextupole, K = 1e-10, N = 1, Method = Meth;
+S2:  Sextupole, K = 1e-10, N = 1, Method = Meth;
+S3:  Sextupole, K = 1e-10, N = 1, Method = Meth;
+S4:  Sextupole, K = 1e-10, N = 1, Method = Meth;
+SD1: Sextupole, K = 1e-10, N = 1, Method = Meth;
+SF1: Sextupole, K = 1e-10, N = 1, Method = Meth;
+SF2: Sextupole, K = 1e-10, N = 1, Method = Meth;
+SL1: Sextupole, K = 1e-10, N = 1, Method = Meth;
+SL2: Sextupole, K = 1e-10, N = 1, Method = Meth;
+SL3: Sextupole, K = 1e-10, N = 1, Method = Meth;
+SL4: Sextupole, K = 1e-10, N = 1, Method = Meth;
+
+SS: Marker;
+LS: Marker;
+MP: Marker;
+
+c0 = 2.99792458e8; h_rf = 1300; C = 768.1488;
+
+CAV: Cavity, Frequency = c0/C*h_rf, Voltage = 5.00e6, Harnum = h_rf;
+
+LB: D00, D11B, QQ22, D22H, S2, D22H, QQ33, D33H, S3, D33H, QQ44, D44H,
+    S4, D44H;
+
+HB: D0, QQ1, D1H, SL1, D1H, QQ2, D2H, SL2, D2H, QQ3, D3H, SL3, D3H, QQ4,
+    D4H, SL4, D4H;
+
+DISP: B1, D5H, SD1, D5H, QD3, D6A, SF1, D6B, QF2;
+
+DBA: DISP, D7, SF2, MP, D7, INV(DISP);
+
+ONEP: HB, DBA, INV(LB), SS, LB, DBA, INV(HB), LS;
+
+RING: 1*ONEP, CAV;
+
+CELL: RING, SYMMETRY = 1;
+
+END;

@@ -1,0 +1,245 @@
+{ TITLE "m4-ring" }
+
+define lattice; ringtype = 1;
+
+Energy = 3.0;
+
+{making dP smaller speeds up runtime}
+dP = 1e-6; CODeps = 1e-14;
+
+{Meth = 4; Nbend = 4; Nquad = 4; Nsext = 4; Ncorr = 1;}
+Meth = 4; Nbend = 10; Nquad = 10; Nsext = 10; Ncorr = 1;
+
+pi = 4.0*arctan(1.0);
+c0 = 2.99792458e8;
+
+
+STR0500:   DRIFT, L= 5.0000000000E-01;
+STRa500:   DRIFT, L= 5.0000000000E-01;
+STR0420:   DRIFT, L= 4.2000000000E-01;
+STRx403:   DRIFT, L= 4.0311000000E-01;
+STR0377:   DRIFT, L= 3.7700000000E-01;
+STR0355:   DRIFT, L= 3.5500000000E-01;
+STR0321:   DRIFT, L= 3.2100000000E-01;
+STR0302:   DRIFT, L= 3.0200000000E-01;
+STR0280:   DRIFT, L= 2.8000000000E-01;
+STR0270:   DRIFT, L= 2.7000000000E-01;
+STR0269:   DRIFT, L= 2.6900000000E-01;
+STR0252:   DRIFT, L= 2.5200000000E-01;
+STRx203:   DRIFT, L= 2.0311000000E-01;
+STR0150:   DRIFT, L= 1.5000000000E-01;
+STR0100:   DRIFT, L= 1.0000000000E-01;
+STR0098:   DRIFT, L= 9.8000000000E-02;
+STRx093:   DRIFT, L= 9.2680000000E-02;
+STR0075:   DRIFT, L= 7.5000000000E-02;
+STR0058:   DRIFT, L= 5.8000000000E-02;
+STR0050:   DRIFT, L= 5.0000000000E-02;
+STR0025:   DRIFT, L= 2.5000000000E-02;
+STRa025:   DRIFT, L= 2.5000000000E-02;
+STR0021:   DRIFT, L= 2.1000000000E-02;
+STR0020:   DRIFT, L= 2.0000000000E-02;
+STRx013:   DRIFT, L= 1.2500000000E-02;
+STR0010:   DRIFT, L= 1.0000000000E-02;
+STRx006:   DRIFT, L= 6.0800000000E-03;
+
+
+{ Girder Markers }
+GS: Multipole, N = 1, Method = Meth;
+GE: Multipole, N = 1, Method = Meth;
+
+
+{ Beam Position Monitors }
+BPM_D: Drift, L = 5.0e-2/2.0;
+BPM_M: Beam Position Monitor;
+BPM:   BPM_D, BPM_M, BPM_D;
+
+{ Horizontal and vertical corrector }
+CORR_D:  Drift, L = 10.0e-2/4.0;
+CORR_H:  Corrector, Horizontal, Method= Meth;
+CORR_V:  Corrector, Vertical, Method= Meth;
+CORR:    CORR_D, CORR_V, 2*CORR_D, CORR_H, CORR_D;
+CORRs:   CORR_D, CORR_H, 3*CORR_D;
+
+
+D0:    BENDING, L= 3.6189000000E-01, T= 1.094181,
+       K=-0.864858, T1= 0.0, T2= 0.0,
+       N = Nbend, Method = Meth;
+
+Df1:   BENDING, L= 5.0000000000E-02, T= 0.151199,
+       K=-0.864908, T1= 0.0, T2= 0.0,
+       N = Nbend, Method = Meth;
+
+Df2:   BENDING, L= 5.0000000000E-02, T= 0.151101,
+       K=-0.866059, T1= 0.0, T2= 0.0,
+       N = Nbend, Method = Meth;
+
+Df3:   BENDING, L= 5.0000000000E-02, T= 0.101861,
+       K=-0.551829, T1= 0.0, T2= 0.0,
+       N = Nbend, Method = Meth;
+
+Df4:   BENDING, L= 5.0000000000E-02, T= 0.001569,
+       K=+0.011759, T1= 0.0, T2= 0.0,
+       N = Nbend, Method = Meth;
+
+Df5:   BENDING, L= 5.0000000000E-02, T= 0.000089,
+       K=-0.000128, T1= 0.0, T2= 0.0,
+       N = Nbend, Method = Meth;
+
+Ds6:   BENDING, L= 5.0000000000E-02, T= 0.001070,
+       K=+0.006608, T1= 0.0, T2= 0.0,
+       N = Nbend, Method = Meth;
+
+Ds5:   BENDING, L= 5.0000000000E-02, T= 0.050729,
+       K=-0.271428, T1= 0.0, T2= 0.0,
+       N = Nbend, Method = Meth;
+
+Ds4:   BENDING, L= 5.0000000000E-02, T= 0.074672,
+       K=-0.425119, T1= 0.0, T2= 0.0,
+       N = Nbend, Method = Meth;
+
+Ds3:   BENDING, L= 5.0000000000E-02, T= 0.076248,
+       K=-0.426048, T1= 0.0, T2= 0.0,
+       N = Nbend, Method = Meth;
+
+Ds2:   BENDING, L= 5.0000000000E-02, T= 0.114983,
+       K=-0.584884, T1= 0.0, T2= 0.0,
+       N = Nbend, Method = Meth;
+
+Ds1:   BENDING, L= 5.0000000000E-02, T= 0.152049,
+       K=-0.870351, T1= 0.0, T2= 0.0,
+       N = Nbend, Method = Meth;
+
+Ds0:   BENDING, L= 2.0424000000E-01, T= 0.621695,
+       K=-0.870701, T1= 0.0, T2= 0.0,
+       N = Nbend, Method = Meth;
+
+Dm1:   BENDING, L= 5.0000000000E-02, T= 0.152220,
+       K=-0.870751, T1= 0.0, T2= 0.0,
+       N = Nbend, Method = Meth;
+
+Dm2:   BENDING, L= 5.0000000000E-02, T= 0.152122,
+       K=-0.871910, T1= 0.0, T2= 0.0,
+       N = Nbend, Method = Meth;
+
+Dm3:   BENDING, L= 5.0000000000E-02, T= 0.102549,
+       K=-0.555557, T1= 0.0, T2= 0.0,
+       N = Nbend, Method = Meth;
+
+Dm4:   BENDING, L= 5.0000000000E-02, T= 0.001579,
+       K=+0.011839, T1= 0.0, T2= 0.0,
+       N = Nbend, Method = Meth;
+
+Dm5:   BENDING, L= 5.0000000000E-02, T= 0.000090,
+       K=-0.000129, T1= 0.0, T2= 0.0,
+       N = Nbend, Method = Meth;
+
+
+DIP:   Df5, Df4, Df3, Df2, Df1, D0;
+DIPm:  Ds6, Ds5, Ds4, Ds3, Ds2, Ds1, Ds0, Dm1, Dm2, Dm3, Dm4, Dm5;
+
+
+QF:     QUADRUPOLE, L= 1.5000000000E-01, K= 4.030076,
+        N = Nquad, Method = Meth;
+
+QFm:    QUADRUPOLE, L= 1.5000000000E-01, K= 3.773995,
+        N = Nquad, Method = Meth;
+
+QFend:  QUADRUPOLE, L= 2.5000000000E-01, K= 3.653849,
+        N = Nquad, Method = Meth;
+
+QDend:  QUADRUPOLE, L= 2.5000000000E-01, K=-2.503663,
+        N = Nquad, Method = Meth;
+
+
+SD:     SEXTUPOLE, L= 1.0000000000E-01, K=-116.625229,
+        N = Nsext, Method = Meth;
+
+SDend:  SEXTUPOLE, L= 1.0000000000E-01, K=-170.000000,
+        N = Nsext, Method = Meth;
+
+SFm:    SEXTUPOLE, L= 1.0000000000E-01, K=170.000000,
+        N = Nsext, Method = Meth;
+
+SFo:    SEXTUPOLE, L= 1.0000000000E-01, K=174.000000,
+        N = Nsext, Method = Meth;
+
+SFi:    SEXTUPOLE, L= 1.0000000000E-01, K=207.412038,
+        N = Nsext, Method = Meth;
+
+
+SQFm:   QFm, STR0075, SFm, STRx013, BPM, STRx013, QFm, STR0100, CORR;
+SQFo:   QF,  STR0075, SFo, STRx013, BPM, STRx013, QF,  STR0100, CORR;
+SQFi:   QF,  STR0075, SFi, STRx013, BPM, STRx013, QF,  STR0100, CORR;
+
+
+OXX:   MULTIPOLE, L = 1.0e-1, HOM=(4,-164.858/1.0e-1,0),
+       N = Nsext, Method = Meth;
+
+OXY:   MULTIPOLE, L = 1.0e-1, HOM=(4,327.014/1.0e-1,0),
+       N = Nsext, Method = Meth;
+
+OYY:   MULTIPOLE, L = 1.0e-1, HOM=(4,-142.022/1.0e-1,0),
+       N = Nsext, Method = Meth;
+
+
+{CAV is not actual cavity position; only used to calculate phi_s, delta_rf, etc.}
+h_rf = 176; C =  528.0;
+CAV: Cavity, Frequency = c0/C*h_rf, Voltage = 1.8e6, Harnum = h_rf;
+
+
+IP:   MARKER;
+PSMc: SEXTUPOLE, L= 0.0, K=0*53.6250314478,
+      N = Nsext, Method = Meth;
+KIc:  MARKER;
+PVc:  MARKER;
+
+PSM:  STR0150, PSMc, STR0150;
+KI:   STR0150, KIc, STR0150;
+PV:   STR0075, PVc, STR0075;
+SEPT: 2*STRa500, STRa025;
+
+
+LS:    4*STR0500, STR0321;
+LS1a:  1*STR0500, STR0377, SEPT, IP, STR0098, STR0321;
+LS2a:  3*STR0500, STR0252, PSM, STR0269;
+SS:    2*STR0500, STR0302;
+SS1a:  STR0270, KI, STR0150, STR0280, STR0302;
+SS10b: STR0420, STR0075, PV, STR0355, STR0302;
+DIPuc: SD, STR0010, DIP, INV(DIP), STR0010, SD;
+UC1:   GS, SQFm, STRx203, DIPuc, GE, STRx403;
+UC2:   GS, SQFo, STRx203, DIPuc, GE, STRx403;
+UC3:   GS, SQFi, STRx203, DIPuc, STRx203, INV(SQFi), GE;
+UC4:   STRx403, GS, DIPuc, STRx203, INV(SQFo), GE;
+UC5:   STRx403, GS, DIPuc, STRx203, INV(SQFm), GE;
+MC1:   BPM, STR0058, INV(CORR), STR0021, OXX, STR0025, QFend, STR0025, OXY, STR0100, QDend,
+       STRx006, DIPm, OYY, STRx093, CORRs, BPM, STR0020, SDend;
+MC2:   BPM, STR0058, INV(CORR), STR0021, OXX, STR0025, QFend, STR0025, OXY, STR0100, QDend,
+       STRx006, DIPm, OYY, STRx093, CORR, BPM, STR0020, SDend;
+ACHR:  LS, GS, MC1, GE, SS, UC1, UC2, UC3, UC4, UC5, INV(SS), GS, INV(MC2), GE, INV(LS);
+ACHR1: LS1a, GS, MC1, GE, SS1a, UC1, UC2, UC3, UC4, UC5, INV(SS), GS, INV(MC2), GE, INV(LS);
+ACHR2: LS2a, GS, MC1, GE, SS, UC1, UC2, UC3, UC4, UC5, INV(SS), GS, INV(MC2), GE, INV(LS);
+ACHR10:LS, GS, MC1, GE, SS, UC1, UC2, UC3, UC4, UC5, INV(SS10b), GS, INV(MC2), GE, INV(LS);
+
+
+{for injection studies}
+{starts at IP}
+{RING: IP, STR0098, STR0321, GS, MC1, GE, SS1a, UC1, UC2, UC3, UC4, UC5, INV(SS), GS,
+      INV(MC2), GE, INV(LS), ACHR2, 7*ACHR, ACHR10, CAV, 10*ACHR, 1*STR0500, STR0377, SEPT;}
+{starts at KI}
+{RING: KIc, STR0150, STR0150, STR0280, STR0302, UC1, UC2, UC3, UC4, UC5, INV(SS), GS, INV(MC2), GE,
+      INV(LS), ACHR2, 7*ACHR, ACHR10, CAV, 10*ACHR, LS1a, GS, MC1, GE, STR0270, STR0150;}
+{starts at PSM}
+{RING: PSMc, STR0150, STR0269, GS, MC1, GE, SS, UC1, UC2, UC3, UC4, UC5, INV(SS), GS, INV(MC2),
+      GE, INV(LS), 7*ACHR, ACHR10, CAV, 10*ACHR, ACHR1, 3*STR0500, STR0252, STR0150;}
+{starts at PV}
+{RING: PVc, 2*STR0075, STR0420, GS, INV(MC2), GE, INV(LS), CAV, 10*ACHR, ACHR1, ACHR2, 7*ACHR,
+      LS, GS, MC1, GE, SS, UC1, UC2, UC3, UC4, UC5, STR0302, STR0355, STR0075;}
+
+
+{RING: ACHR, CAV;}
+{RING: 20*ACHR, CAV;}
+RING: ACHR1, ACHR2, 7*ACHR, ACHR10, CAV, 10*ACHR;
+
+CELL: RING, SYMMETRY = 1;
+
+END;

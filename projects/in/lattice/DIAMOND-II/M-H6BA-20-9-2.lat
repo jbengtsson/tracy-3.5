@@ -1,0 +1,175 @@
+define lattice; ringtype = 1;
+
+Energy = 3.5; { Beam momentum [GeV]. }
+
+dP = 1e-8; CODeps = 1e-14;
+
+Meth = 4; Nbend = 10; Nquad = 10; Nsext = 2;
+
+pi = 4.0*arctan(1.0); c0 = 2.99792458e8;
+
+{  ------------------------------------------------------- }
+{  MH6BA 20-9-2 with DLA faces checked [no mdoif wrt file used in simul.] }
+{  emi = 92.3pm // nu =65.1193 / 21.2091  // xi = 1.816 / 0.742 }
+{  [usually tuned to 65.12 / 21.21 // 1.75 / 0.75 }
+{  M. Apollonio 5/6/2020 }
+{  find the original file in the ArXive sub-dir }
+{  ------------------------------------------------------ }
+
+
+dr_01: Drift, L = 2.52135;
+dr_02: Drift, L = 0.075;
+dr_03: Drift, L = 0.075;
+dr_04: Drift, L = 0.15;
+dr_05: Drift, L = 0.075;
+dr_06: Drift, L = 0.075;
+dr_07: Drift, L = 0.075;
+dr_08: Drift, L = 0.075;
+dr_09: Drift, L = 0.3305;
+dr_091: Drift, L = 0.075;
+dr_092: Drift, L = 0.1655;
+dr_10: Drift, L = 0.075;
+dr_11: Drift, L = 0.075;
+dr_12: Drift, L = 0.075;
+dr_13: Drift, L = 0.1655;
+dr_14: Drift, L = 0.075;
+dr_15: Drift, L = 0.075;
+dr_16: Drift, L = 0.075;
+dr_17: Drift, L = 0.1;
+dr_18: Drift, L = 0.08;
+dr_19: Drift, L = 0.197;
+dr_20: Drift, L = 0.09;
+dr_21: Drift, L = 0.09;
+dr_22: Drift, L = 0.075;
+dr_23: Drift, L = 0.075;
+dr_24: Drift, L = 1.3842;
+dl_27: Drift, L = 3.69635;
+dl_26: Drift, L = 0.075;
+dl_25: Drift, L = 0.035;
+dl_24: Drift, L = 0.035;
+dl_23: Drift, L = 0.075;
+dl_22: Drift, L = 0.075;
+dl_21: Drift, L = 0.075;
+dl_20: Drift, L = 0.075;
+dl_19: Drift, L = 0.075;
+dl_18: Drift, L = 0.075;
+dl_17: Drift, L = 0.075;
+dl_16: Drift, L = 0.3305;
+dl_161: Drift, L = 0.075;
+dl_162: Drift, L = 0.1655;
+dl_15: Drift, L = 0.075;
+dl_14: Drift, L = 0.075;
+dl_13: Drift, L = 0.075;
+dl_12: Drift, L = 0.1655;
+dl_11: Drift, L = 0.075;
+dl_10: Drift, L = 0.075;
+dl_09: Drift, L = 0.075;
+dl_08: Drift, L = 0.1;
+dl_07: Drift, L = 0.08;
+dl_06: Drift, L = 0.197;
+dl_05: Drift, L = 0.09;
+dl_04: Drift, L = 0.09;
+dl_03: Drift, L = 0.075;
+dl_02: Drift, L = 0.075;
+dl_01: Drift, L = 1.3842;
+qf1: Quadrupole, L = 0.15, K = 10.80255119641052, N = Nquad, Method = 4;
+qd2: Quadrupole, L = 0.15, K = -7.3141625735233, N = Nquad, Method = 4;
+qd3: Quadrupole, L = 0.15, K = -2.381800648430195, N = Nquad, Method = 4;
+qd5: Quadrupole, L = 0.105, K = -3.424951321070473, N = Nquad, Method = 4;
+qd3_c1: Quadrupole, L = 0.15, K = -2.143610898697497, N = Nquad, Method = 4;
+qd2_c1: Quadrupole, L = 0.105, K = -3.146977068186981, N = Nquad, Method = 4;
+qf1_c1: Quadrupole, L = 0.185, K = -3.706162865469405, N = Nquad, Method = 4;
+quad_add: Quadrupole, L = 0.185, K = 6.399437478445885, N = Nquad, Method = 4;
+fpls: Marker;
+fpss: Marker;
+fpms: Marker;
+fpbump: Marker;
+
+dl1a_5: Bending, L = 0.2, T = (0.01511916)*180.0/pi, T1 = (0.02173267)*180.0/pi, T2 = (-0.00661351)*180.0/pi, K = -0.1051747204509099, N = Nbend, Method = 4;
+dl1a_4: Bending, L = 0.2, T = (0.009483399999999999)*180.0/pi, T1 = (0.00661351)*180.0/pi, T2 = (0.0028699)*180.0/pi, K = -0.1064475846764183, N = Nbend, Method = 4;
+dl1a_3: Bending, L = 0.2, T = (0.0074473)*180.0/pi, T1 = (-0.0028699)*180.0/pi, T2 = (0.0103172)*180.0/pi, K = -0.1099971268731408, N = Nbend, Method = 4;
+dl1a_2: Bending, L = 0.2, T = (0.00619077)*180.0/pi, T1 = (-0.0103172)*180.0/pi, T2 = (0.01650797)*180.0/pi, K = -0.1073976940868841, N = Nbend, Method = 4;
+dl1a_1: Bending, L = 0.2, T = (0.0052247)*180.0/pi, T1 = (-0.01650797)*180.0/pi, T2 = (0.02173267)*180.0/pi, K = -0.1087415728338453, N = Nbend, Method = 4;
+
+dl2a_5: Bending, L = 0.16667, T = (0.01412523)*180.0/pi, T1 = (0.020813445)*180.0/pi, T2 = (-0.006688215)*180.0/pi, K = -0.5762901848894757, N = Nbend, Method = 4;
+dl2a_4: Bending, L = 0.16667, T = (0.00903869)*180.0/pi, T1 = (0.006688215)*180.0/pi, T2 = (0.002350475)*180.0/pi, K = -0.5731456208654467, N = Nbend, Method = 4;
+dl2a_3: Bending, L = 0.33334, T = (0.00720102)*180.0/pi, T1 = (-0.002350475)*180.0/pi, T2 = (0.009551495)*180.0/pi, K = -0.5744836641064297, N = Nbend, Method = 4;
+dl2a_2: Bending, L = 0.16667, T = (0.00606694)*180.0/pi, T1 = (-0.009551495)*180.0/pi, T2 = (0.015618435)*180.0/pi, K = -0.5812561650719618, N = Nbend, Method = 4;
+dl2a_1: Bending, L = 0.16667, T = (0.00519501)*180.0/pi, T1 = (-0.015618435)*180.0/pi, T2 = (0.020813445)*180.0/pi, K = -0.5755291707461575, N = Nbend, Method = 4;
+
+sd1: Sextupole, L = 0.14, K = -443.4396630915955/2.0, N = Nsext, Method = 4;
+sd2: Sextupole, L = 0.14, K = -283.552278/2.0, N = Nsext, Method = 4;
+sf1: Sextupole, L = 0.14/2.0, K = 381.0829908586247/2.0, N = Nsext, Method = 4;
+sh1: Sextupole, L = 0.1, K = 128.17998/2.0, N = Nsext, Method = 4;
+sh2: Sextupole, L = 0.1, K = 53.089928/2.0, N = Nsext, Method = 4;
+s: Sextupole, L = 0.1, K = -3.780536/2.0, N = Nsext, Method = 4;
+qf4: Bending, L = 0.15, T = (-0.002545563)*180.0/pi, T1 = (-0.0012728)*180.0/pi, T2 = (-0.0012728)*180.0/pi, K = 4.70658995061533, N = Nbend, Method = 4;
+qf4l: Bending, L = 0.15, T = (-0.002545563)*180.0/pi, T1 = (-0.0012728)*180.0/pi, T2 = (-0.0012728)*180.0/pi, K = 4.711791984558246, N = Nbend, Method = 4;
+qf4_c1: Bending, L = 0.15, T = (-0.002545563)*180.0/pi, T1 = (-0.0012728)*180.0/pi, T2 = (-0.0012728)*180.0/pi, K = 4.645210494739365, N = Nbend, Method = 4;
+qf6: Bending, L = 0.36, T = (0.00681202)*180.0/pi, T1 = (0.00340601)*180.0/pi, T2 = (0.00340601)*180.0/pi, K = 8.27718497904436, N = Nbend, Method = 4;
+qf8: Bending, L = 0.25, T = (-0.00710174473)*180.0/pi, T1 = (-0.0035509)*180.0/pi, T2 = (-0.0035509)*180.0/pi, K = 6.273853095861625, N = Nbend, Method = 4;
+dq1: Bending, L = 0.87, T = (0.051187191)*180.0/pi, T1 = (0.0255936)*180.0/pi, T2 = (0.0255936)*180.0/pi, K = -2.814485, N = Nbend, Method = 4;
+of1: Multipole, L = 0.09, HOM = (4, 6333.333333, 0.0), N = Nsext, Method = 4;
+bpm_01: Beam Position Monitor;
+bpm_02: Beam Position Monitor;
+bpm_03: Beam Position Monitor;
+bpm_04: Beam Position Monitor;
+bpm_05: Beam Position Monitor;
+bpm_06: Beam Position Monitor;
+bpm_07: Beam Position Monitor;
+bpm_08: Beam Position Monitor;
+bpm_09: Beam Position Monitor;
+bpm_10: Beam Position Monitor;
+bpm_11: Beam Position Monitor;
+cor_01: Drift, L = 0;
+cor_02: Drift, L = 0;
+cor_03: Drift, L = 0;
+cor_04: Drift, L = 0;
+cor_05: Drift, L = 0;
+cor_06: Drift, L = 0;
+cor_07: Drift, L = 0;
+cor_08: Drift, L = 0;
+cor_09: Drift, L = 0;
+cor_10: Drift, L = 0;
+cor_11: Drift, L = 0.08;
+rfc: Cavity, L = 0, Frequency = 499501358.3498094, Voltage = 1488533, phi = 0*147.65771247, n = 1;
+mal: Marker; { malign }
+w1: Marker; { watch }
+w2: Marker; { watch }
+w3: Marker; { watch }
+
+ss: marker;
+ms: marker;
+ls: marker;
+
+{ RAD: SREFFECTS }
+dl1a: dl1a_5, dl1a_4, dl1a_3, dl1a_2, dl1a_1;
+dl2a: dl2a_5, dl2a_4, dl2a_3, dl2a_2, dl2a_1;
+arca_c2r: 
+  dr_24, bpm_05, dr_23, cor_05, sh2, dr_22, qf8, dr_21, dq1, dr_20, 
+  qf6, dr_19, bpm_04, dr_18, s, cor_04, dr_17, dl2a, dr_16, qd5, dr_15, 
+  sd2, cor_03, dr_14, bpm_03, dr_13, of1, dr_12, qf4, dr_11, sf1, sf1, fpbump, 
+  dr_10, qf4, dr_091, of1, dr_092, bpm_02, dr_08, cor_02, sd1, dr_07, qd3, 
+  dr_06, inv(dl1a), dr_05, qd2, dr_04, cor_01, sh1, dr_03, qf1, dr_02, bpm_01, 
+  dr_01;
+arca_c1r: 
+  dl_01, bpm_06, dl_02, cor_06, sh2, dl_03, qf8, dl_04, dq1, dl_05, 
+  qf6, dl_06, bpm_07, dl_07, s, cor_07, dl_08, dl2a, dl_09, qd5, dl_10, 
+  sd2, cor_08, dl_11, bpm_08, dl_12, of1, dl_13, qf4l, dl_14, fpbump, sf1, sf1, 
+  dl_15, qf4_c1, dl_161, of1, dl_162, bpm_09, dl_17, cor_09, sd1, dl_18, qd3_c1, 
+  dl_19, inv(dl1a), dl_20, qd2_c1, dl_21, bpm_10, dl_22, cor_10, sh1, dl_23, qf1_c1, 
+  dl_24, cor_11, dl_25, quad_add, dl_26, bpm_11, dl_27;
+arca_c2: ms, arca_c2r, ss, inv(arca_c2r);
+arca_c1: arca_c2r, ms, inv(arca_c1r);
+arca_c11: inv(arca_c1r), arca_c1r;
+sp: 
+  ls, fpls, inv(arca_c1r), ms, fpms, arca_c2r, ss, fpss, inv(arca_c2r),
+  arca_c2r, inv(arca_c2r), arca_c2r, inv(arca_c2r), ms, arca_c1r, ls;
+
+ring: 1*sp, rfc;
+
+line: ring;
+
+cell: line, symmetry = 1;
+
+end;

@@ -1,0 +1,343 @@
+{c:\users\streun\opadat\sls-2\split_lowap5a.opa}
+{split, cell back at 3/7,1/7, good da, good emit, betas 3.5/2 m in s-
+str, 8 m in l-str, but rather large peak beta}
+
+{opa to tracy-3 export}
+
+define lattice;
+energy = 2.400000;
+dp = 1.0d-10;  codeps = 1.0d-6;  dk = 1.0d-6;
+meth   = 0; nbend = 1; nquad = 1;
+
+{----- variables ----------------------------------------------------}
+
+ddsl    = 0;
+kqp6l   = -7.60925605421603;
+gdsl    = 0;
+lvb     = 0.18;
+aba     = 0.591241290225688;
+kab     = 6.71667948552388;
+vba     = 0.37+aba;
+atam    = 0.933609495820691;
+atas6   = 0.998414906341714;
+atas4   = 0.99791610409982;
+vbas4   = vba+aba*(atas4-1);
+vbas6   = vba+aba*(atas6-1);
+tbe     = 2.03;
+tbev    = 0.37+aba*atam;
+tbes    = 0.1;
+finger  = 0.01;
+bspac   = 0.02;
+
+{----- table of elements ----------------------------------------------------}
+
+dabs            : drift, l = 0.160000;
+dbe             : drift, l = 0.160000;
+dsmid           : drift, l = 0.250000;
+dstr            : drift, l = 0.340000;
+dmon            : drift, l = 0.015000;
+dbpm            : drift, l = 0.010000;
+dqua            : drift, l = 0.040000;
+dbs6            : drift, l = 0.046280;
+dbs4            : drift, l = 0.025809;
+doc             : drift, l = 0.015000;
+dsx             : drift, l = 0.025000;
+dcc             : drift, l = 0.030000;
+dchv            : drift, l = 0.050000;
+dmat            : drift, l = 0.040000;
+dqq             : drift, l = 0.050000;
+dbspac          : drift, l = bspac;
+fing            : drift, l = finger;
+dss             : drift, l = 0.950000;
+dql1            : drift, l = 0.170000-2*ddsl;
+dql2            : drift, l = 0.130000;
+dsl             : drift, l = 2.60775+ddsl+gdsl;
+dsm0            : drift, l = 0.7-2*gdsl/3;
+minigap         : drift, l = 2.035000;
+
+center          : marker;
+csxx            : marker;
+csxm            : marker;
+csym            : marker;
+csyy            : marker;
+
+qp4m            : quadrupole, l = 0.120000, k = -9.193067,
+                  n=nquad, method=meth;
+qp2             : quadrupole, l = 0.120000, k = 9.177085,
+                  n=nquad, method=meth;
+qp3m            : quadrupole, l = 0.120000, k = 9.314487,
+                  n=nquad, method=meth;
+qp1             : quadrupole, l = 0.120000, k = -9.021887,
+                  n=nquad, method=meth;
+qp4l            : quadrupole, l = 0.120000, k = -5.618067,
+                  n=nquad, method=meth;
+qp5l            : quadrupole, l = 0.080000, k = 5.650070,
+                  n=nquad, method=meth;
+qp3l            : quadrupole, l = 0.120000, k = 6.379471,
+                  n=nquad, method=meth;
+qp6lh           : quadrupole, l = 0.060000, k = kqp6l, n=nquad, method=meth;
+qp6l            : quadrupole, l = 0.120000, k = kqp6l, n=nquad, method=meth;
+qa              : quadrupole, l = 0.022500, k = 0.000000,
+                  n=nquad, method=meth;
+
+beh             : bending, l = 0.207500, t = tbe,
+                  k = 0.000000, t1 = 0.000000, t2 = 0.000000, n=nbend,
+                  method=meth;
+bes             : bending, l = 0.050000, t = tbes,
+                  k = 0.000000, t1 = 0.000000, t2 = 0.000000, n=nbend,
+                  method=meth;
+bsc600          : bending, l = 0.003402, t = 0.144100,
+                  k = 0.000000, t1 = 0.000000, t2 = 0.144100, n=nbend,
+                  method=meth;
+bsc601          : bending, l = 0.003410, t = 0.141500,
+                  k = 0.000000, t1 = -0.144100, t2 = 0.285500, n=nbend,
+                  method=meth;
+bsc602          : bending, l = 0.003410, t = 0.138200,
+                  k = 0.000000, t1 = -0.285500, t2 = 0.423700, n=nbend,
+                  method=meth;
+bsc603          : bending, l = 0.003410, t = 0.133300,
+                  k = 0.000000, t1 = -0.423700, t2 = 0.557000, n=nbend,
+                  method=meth;
+bsc604          : bending, l = 0.003410, t = 0.127300,
+                  k = 0.000000, t1 = -0.557000, t2 = 0.684200, n=nbend,
+                  method=meth;
+bsc605          : bending, l = 0.003410, t = 0.119700,
+                  k = 0.000000, t1 = -0.684200, t2 = 0.804000, n=nbend,
+                  method=meth;
+bsc606          : bending, l = 0.006820, t = 0.212000,
+                  k = 0.000000, t1 = -0.804000, t2 = 1.016000, n=nbend,
+                  method=meth;
+bsc607          : bending, l = 0.006820, t = 0.173300,
+                  k = 0.000000, t1 = -1.016000, t2 = 1.189300, n=nbend,
+                  method=meth;
+bsc608          : bending, l = 0.010230, t = 0.195600,
+                  k = 0.000000, t1 = -1.189300, t2 = 1.384900, n=nbend,
+                  method=meth;
+bsc609          : bending, l = 0.017050, t = 0.205800,
+                  k = 0.000000, t1 = -1.384900, t2 = 1.590700, n=nbend,
+                  method=meth;
+bsc610          : bending, l = 0.034090, t = 0.210600,
+                  k = 0.000000, t1 = -1.590700, t2 = 1.801300, n=nbend,
+                  method=meth;
+bsc611          : bending, l = 0.073300, t = 0.128600,
+                  k = 0.000000, t1 = -1.801300, t2 = 1.930000, n=nbend,
+                  method=meth;
+bsc400          : bending, l = 0.006820, t = 0.186600,
+                  k = 0.000000, t1 = 0.000000, t2 = 0.186600, n=nbend,
+                  method=meth;
+bsc401          : bending, l = 0.006820, t = 0.180000,
+                  k = 0.000000, t1 = -0.186600, t2 = 0.366600, n=nbend,
+                  method=meth;
+bsc402          : bending, l = 0.006820, t = 0.168800,
+                  k = 0.000000, t1 = -0.366600, t2 = 0.535300, n=nbend,
+                  method=meth;
+bsc403          : bending, l = 0.006820, t = 0.153100,
+                  k = 0.000000, t1 = -0.535300, t2 = 0.688400, n=nbend,
+                  method=meth;
+bsc404          : bending, l = 0.010230, t = 0.198000,
+                  k = 0.000000, t1 = -0.688400, t2 = 0.886400, n=nbend,
+                  method=meth;
+bsc405          : bending, l = 0.010230, t = 0.166200,
+                  k = 0.000000, t1 = -0.886400, t2 = 1.052700, n=nbend,
+                  method=meth;
+bsc406          : bending, l = 0.013640, t = 0.186500,
+                  k = 0.000000, t1 = -1.052700, t2 = 1.239200, n=nbend,
+                  method=meth;
+bsc407          : bending, l = 0.017050, t = 0.196500,
+                  k = 0.000000, t1 = -1.239200, t2 = 1.435700, n=nbend,
+                  method=meth;
+bsc408          : bending, l = 0.020450, t = 0.195700,
+                  k = 0.000000, t1 = -1.435700, t2 = 1.631400, n=nbend,
+                  method=meth;
+bsc409          : bending, l = 0.030690, t = 0.200400,
+                  k = 0.000000, t1 = -1.631400, t2 = 1.831900, n=nbend,
+                  method=meth;
+bsc410          : bending, l = 0.059650, t = 0.098200,
+                  k = 0.000000, t1 = -1.831900, t2 = 1.930000, n=nbend,
+                  method=meth;
+bnn00           : bending, l = 0.055000, t = 0.643333,
+                  k = 0.000000, t1 = 0.000000, t2 = 0.643333, n=nbend,
+                  method=meth;
+bnn01           : bending, l = 0.060000, t = 0.643333,
+                  k = 0.000000, t1 = -0.643333, t2 = 1.286667, n=nbend,
+                  method=meth;
+bnn02           : bending, l = 0.092500, t = 0.843333,
+                  k = 0.000000, t1 = -1.286667, t2 = 2.130000, n=nbend,
+                  method=meth;
+
+sxx             : sextupole, l = 0.090000, k = 309.095075,
+                  n = 5, method=meth;
+sxy             : sextupole, l = 0.090000, k = -655.021690,
+                  n = 5, method=meth;
+syy             : sextupole, l = 0.090000, k = 274.078799,
+                  n = 5, method=meth;
+sdm             : sextupole, l = 0.090000, k = -655.516471,
+                  n = 5, method=meth;
+sfm             : sextupole, l = 0.090000, k = 592.956428,
+                  n = 5, method=meth;
+sd              : sextupole, l = 0.090000, k = -422.514862,
+                  n = 5, method=meth;
+sf              : sextupole, l = 0.090000, k = 399.379634,
+                  n = 5, method=meth;
+
+oss             : marker;
+oqm3            : marker;
+bsom            : marker;
+bsc6om          : marker;
+bsc4om          : marker;
+bnnom           : marker;
+obe             : marker;
+
+bev             : bending, l = lvb, t = tbev, k = -2.460906,
+                  t1 = 0.000000, t2 = 0.000000, n=nbend, method=meth;
+vbs4            : bending, l = lvb, t = vbas4, k = -3.206945,
+                  t1 = vbas4-vba+vba/2, t2 = vbas4/2, n=nbend, method=meth;
+vbs6            : bending, l = lvb, t = vbas6, k = -3.182960,
+                  t1 = vbas6-vba+vba/2, t2 = vbas6/2, n=nbend, method=meth;
+vb              : bending, l = lvb, t = vba, k = -4.631953,
+                  t1 = -2.130000, t2 = 0.000000, n=nbend, method=meth;
+an              : bending, l = 0.180000, t = -aba, k = kab,
+                  t1 = -aba/2, t2 = -aba/2, n=nbend, method=meth;
+ans6            : bending, l = 0.175000, t = -aba*atas6,
+                  k = kab*atas6, t1 = -aba*atas6/2, t2 = -aba*atas6/2, n=nbend,
+                  method=meth;
+ans4            : bending, l = 0.175000, t = -aba*atas4,
+                  k = kab*atas4, t1 = -aba*atas4/2, t2 = -aba*atas4/2, n=nbend,
+                  method=meth;
+anm             : bending, l = 0.180000, t = -atam*aba,
+                  k = atam*kab, t1 = -atam*aba/2, t2 = -atam*aba/2, n=nbend,
+                  method=meth;
+
+source_midarc   : marker;
+source_superb   : marker;
+source_other    : marker;
+source_straight : marker;
+source_endb     : marker;
+
+lgbn            : marker;
+lgbe            : marker;
+lgbs            : marker;
+g1              : marker;
+g0              : marker;
+soqxx           : marker;
+soqxy           : marker;
+soqyy           : marker;
+soqcxn          : marker;
+soqcxe          : marker;
+soqcyn          : marker;
+soqcye          : marker;
+chv             : marker;
+
+oxx             : multipole, l = 0.0, hom = (4,350.0000,0);
+oxy             : multipole, l = 0.0, hom = (4,-148.4545,0);
+oyy             : multipole, l = 0.0, hom = (4,350.0000,0);
+oyyl            : multipole, l = 0.0, hom = (4,0.0000,0);
+ocxm            : multipole, l = 0.0, hom = (4,207.7801,0);
+ocx1            : multipole, l = 0.0, hom = (4,216.7304,0);
+ocx2            : multipole, l = 0.0, hom = (4,230.7092,0);
+ocym            : multipole, l = 0.0, hom = (4,-158.9696,0);
+ocy1            : multipole, l = 0.0, hom = (4,-301.7601,0);
+ocy2            : multipole, l = 0.0, hom = (4,-350.0000,0);
+
+mon             : beam position monitor;
+
+ch              : corrector, horizontal;
+
+cv              : corrector, vertical;
+
+
+{----- table of segments ----------------------------------------------------}
+
+dql    : dql1, dql2;
+dsm    : dsm0, minigap;
+bnn    : bnnom, bnn00, bnn01, bnn02;
+bsc4   : bsc4om, bsc400, bsc401, bsc402, bsc403, bsc404, bsc405,
+         bsc406, bsc407, bsc408, bsc409, bsc410;
+bsc6   : bsc6om, bsc600, bsc601, bsc602, bsc603, bsc604, bsc605,
+         bsc606, bsc607, bsc608, bsc609, bsc610, bsc611;
+bsl6   : bsc6, lgbs, dbs6, vbs6, dbspac, g1;
+bsl4   : bsc4, lgbs, dbs4, vbs4, dbspac, g1;
+be     : lgbe, inv(bes), inv(beh), source_endb, inv(bev), lgbe;
+d2m    : dabs, dmat;
+bn     : bnn, vb, lgbn, dbspac;
+mcy1   : fing, soqcyn, doc, qa, ocy1, qa, doc, dsx, sd, dsx, soqcyn, fing;
+mcy1s  : fing, soqcyn, doc, qa, ocy1, qa, doc, dsx, sd, dsx, soqcyn, fing;
+mcy2   : fing, soqcyn, doc, qa, ocy2, qa, doc, dsx, sd, dsx, soqcyn, fing;
+mcye   : fing, soqcye, doc, qa, ocym, csym, qa, doc, dsx, sdm, dsx,
+         soqcye, fing;
+mqs1   : dsx, sf, dsx, doc, qa, ocx1;
+mqs1s  : dsx, sf, dsx, doc, qa, ocx1;
+mqs2   : dsx, sf, dsx, doc, qa, ocx2;
+mqsm   : dsx, sfm, dsx, doc, qa, csxm, ocxm;
+mqof   : doc, qa;
+mqofs  : doc, qa;
+mqofm  : doc, qa;
+mcx1   : fing, soqcxn, mqof, inv(mqs1), soqcxn, fing;
+mcx1s  : fing, soqcxn, mqofs, inv(mqs1s), soqcxn, fing;
+mcx2   : fing, soqcxn, mqof, inv(mqs2), soqcxn, fing;
+mcxe   : fing, soqcxe, mqofm, inv(mqsm), soqcxe, fing;
+cc     : chv, dcc, ch, dchv, cv, dcc, chv;
+bpm    : dmon, dbpm, mon, dbpm, dmon;
+mxy    : fing, soqxy, doc, qa, oxy, qa, doc, dsx, sxy, dsx, soqxy, fing;
+mxx    : fing, soqxx, doc, qa, oxx, csxx, qa, doc, dsx, sxx, dsx,
+         soqxx, fing;
+myy    : fing, soqyy, doc, qa, oyy, csyy, qa, doc, dsx, syy, dsx,
+         soqyy, fing;
+bnl    : bn, g1;
+bnlg   : bn;
+hnca1  : bnl, inv(mcy1), dabs, an;
+hncc1  : bnl, inv(mcy1), cc, bpm, an;
+hnca1g : bnlg, inv(mcy1), dabs, an;
+hncc1g : bnlg, inv(mcy1), cc, bpm, an;
+hnca2  : bnl, inv(mcy2), dabs, an;
+hncc2  : bnl, inv(mcy2), cc, bpm, an;
+hnca2g : bnlg, inv(mcy2), dabs, an;
+hncc2g : bnlg, inv(mcy2), cc, bpm, an;
+hsca6  : bsl6, inv(mcy1s), dabs, ans6;
+hscc6  : bsl6, inv(mcy1s), cc, bpm, ans6;
+hsca4  : bsl4, inv(mcy1s), dabs, ans4;
+hscc4  : bsl4, inv(mcy1s), cc, bpm, ans4;
+ncell  : hnca1, mcx1, inv(hncc1);
+scell6 : hsca6, mcx1, inv(hscc6);
+scell4 : hsca4, mcx1, inv(hscc4);
+hcori  : source_midarc, hncc1, mcx1, inv(hnca1g), source_other, hncc2g,
+         mcx2, inv(hnca2), source_other;
+hcoro  : source_midarc, hnca1, mcx1, inv(hncc1g), source_other, hnca2g,
+         mcx2, inv(hncc2), source_other;
+scoro6 : source_superb, hsca6, mcx1s, inv(hncc1g), source_other,
+         hnca2g, mcx2, inv(hncc2), source_other;
+scori6 : source_midarc, hscc6, mcx1s, inv(hnca1g), source_other,
+         hncc2g, mcx2, inv(hnca2), source_other;
+scoro4 : source_superb, hsca4, mcx1s, inv(hncc1g), source_other,
+         hnca2g, mcx2, inv(hncc2), source_other;
+scori4 : source_midarc, hscc4, mcx1s, inv(hnca1g), source_other,
+         hncc2g, mcx2, inv(hnca2), source_other;
+dsupi  : hncc2, mcxe, anm, d2m, mcye, dbspac, inv(be), obe;
+dsupo  : hnca2, mcxe, anm, bpm, cc, dmat, mcye, dbspac, inv(be), obe;
+matco  : dbe, myy, dqua, qp1, dqua, inv(mxy), dqua, qp2, dqua, inv(mxx);
+matl00 : matco, dqua, qp3l, dqua, cc, dqua, qp4l, dqua, bpm, g0, dsl, oss;
+matl0  : matl00, dsl, dqua, qp5l, dql, dqua;
+matl   : matl0, oyyl, qp6lh;
+matm   : matco, dqua, qp3m, dqua, cc, dqua, qp4m, dqua, bpm, g0, dsm;
+hmil   : hcori, dsupi, matl;
+hmim   : hcori, dsupi, matm;
+hmol   : hcoro, dsupo, matl;
+hmom   : hcoro, dsupo, matm;
+arcl   : inv(hmil), hmol;
+arcm   : inv(hmim), hmom;
+perm   : arcm, inv(hmim), hcoro, dsupo, matl0, oyyl, qp6l, oyyl,
+         inv(matl0), inv(dsupi), inv(hcori), hmom, arcm, center;
+perl   : inv(hmil), hmom, 2*arcm, inv(hmim), hmol, center;
+perlq  : inv(matl00), inv(dsupi), inv(hcori), hmom, 2*arcm, inv(hmim),
+         hcoro, dsupo, matl00, dsl, dqua, qp5l, dqua, dql, dqua, center, qp6l,
+         dqua, dql, dqua, qp5l, dqua, dsl;
+ringq  : 3*perlq;
+perli  : dsl, dqua, qp5l, dqua, dql, qp6lh, inv(hmil), hmom, 2*arcm,
+         inv(hmim), hcoro, dsupo, matl00;
+ring   : 3*perl;
+
+cell: ring, symmetry=1;
+
+end;
+
+{c:\users\streun\opadat\sls-2\split_lowap5a.opa}

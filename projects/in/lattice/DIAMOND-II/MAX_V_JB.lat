@@ -1,0 +1,129 @@
+{ MAX-V prototype lattice. }
+
+define lattice;
+energy = 3.0;
+dp = 1.0d-8; codeps = 1.0d-10; dk = 1.0d-5;
+meth = 4; nbend = 10; nquad = 10; nsext = 3;
+
+
+{----- variables ----------------------------------------------------}
+
+aban = 0.85*84.0/192;
+
+c0 = 2.99792458e8; h_rf = 484; C = 12*24.2; Brho = 1e9*Energy/c0;
+
+{cav: Cavity, Frequency = c0/C*h_rf, Voltage = 1.8e6, Harnum = h_rf,
+     phi = 180.0;}
+{ Optimized for alpha-buchets. }
+cav: Cavity, Frequency = c0/C*h_rf, Voltage = 1.4e6, Harnum = h_rf,
+     phi = 180.0;
+
+{----- table of elements ----------------------------------------------------}
+
+dmon: drift, l = 0.050000;
+dnvb: drift, l = 0.010000;
+dsvb: drift, l = 0.084000;
+dnm:  drift, l = 0.300000;
+dnm1: drift, l = 0.050000;
+dnm2: drift, l = 0.150000;
+dmp:  drift, l = 0.150000;
+dxm:  drift, l = 0.200000;
+dsx:  drift, l = 0.100000;
+dme:  drift, l = 0.250000;
+mgp:  drift, l = 1.000000;
+dm1:  drift, l = 0.100000;
+dm2:  drift, l = 0.150000;
+dms:  drift, l = 1.760000;
+dxd:  drift, l = 0.050000;
+doc:  drift, l = 0.050000;
+dbs:  drift, l = 0.073930;
+
+center: marker;
+
+qm3:  quadrupole, l = 0.15, k = -7.051552, n=nquad, method=meth;
+qm2a: quadrupole, l = 0.15, k =  7.494419, n=nquad, method=meth;
+qm2b: quadrupole, l = 0.15, k =  7.126250, n=nquad, method=meth;
+qm1:  quadrupole, l = 0.15, k = -7.490407, n=nquad, method=meth;
+
+bn00: bending, l = 0.078256, t = 0.482143, k = 0.0,
+      t1 = 0.0, t2 = 0.482143, n=nbend, method=meth;
+bn03: bending, l = 0.039128, t = 0.160714, k = 0.0,
+      t1 = -0.482143, t2 = 0.642857, n=nbend, method=meth;
+bn06: bending, l = 0.156513, t = 0.482143, k = 0.0,
+      t1 = -0.642857, t2 = 1.125, n=nbend, method=meth;
+
+
+bn:   bn00, bn03, bn06;
+
+an:    bending, l = 0.3, t = -aban, k = 4.083440, t1 = -aban,
+       t2 = 0.0, n=nbend, method=meth;
+
+anm:   bending, l = 0.3, t = -aban, k = 3.649531, t1 = -aban,
+       t2 = 0.0, n=nbend, method=meth;
+
+vbm:   bending, l = 0.206103, t = 0.160714+aban, k = -1.969615,
+       t1 = -1.125, t2 = 2.5+aban, n=nbend, method=meth;
+
+vb: bending, l = 0.206103, t = 0.160714+aban, k = -4.195840,
+    t1 = -1.125, t2 = 2.5+aban, n=nbend, method=meth;
+
+sfh:  sextupole, l = 0.050000, k =  1.23494e+03, n = nsext, method=meth;
+sdh:  sextupole, l = 0.050000, k = -1.05002e+03, n = nsext, method=meth;
+sfmh: sextupole, l = 0.050000, k =  6.34548e+02, n = nsext, method=meth;
+sdmh: sextupole, l = 0.050000, k = -1.82233e+02, n = nsext, method=meth;
+
+sxxh: sextupole, l = 0.050000, k = 0.0, n = nsext, method=meth;
+sxyh: sextupole, l = 0.050000, k = 0.0, n = nsext, method=meth;
+syyh: sextupole, l = 0.050000, k = 0.0, n = nsext, method=meth;
+
+ocx:  multipole, l = 0.0, hom = (4, 0.0, 0);
+ocxm: multipole, l = 0.0, hom = (4, 0.0, 0);
+ocy:  multipole, l = 0.0, hom = (4, 0.0, 0);
+ocym: multipole, l = 0.0, hom = (4, 0.0, 0);
+
+oxx:  multipole, l = 0.0, hom = (4, 0.0, 0);
+oxy:  multipole, l = 0.0, hom = (4, 0.0, 0);
+oyy:  multipole, l = 0.0, hom = (4, 0.0, 0);
+
+mon: beam position monitor;
+ch:  corrector, horizontal;
+cv:  corrector, vertical;
+chv: ch, cv;
+
+
+{----- table of segments ----------------------------------------------------}
+
+sd:  sdh, ocy, sdh;
+sdm: sdmh, ocym, sdmh;
+
+sxx: sxxh, chv, sxxh;
+sxy: sxyh, chv, sxyh;
+syy: syyh, chv, syyh;
+
+hnc:   bn, dnvb, vb, dnm1, sd, dnm2, an;
+
+mpfho: doc, ocx, doc, sfh;
+mpfh_: doc, mon, doc, sfh;
+mpf:   mpfh_, chv, inv(mpfho);
+
+ncellr:   hnc, mpfh_, inv(mpfho), inv(hnc);
+
+mpfm: doc, mon, doc, sfmh, chv, sfmh, doc, ocxm, doc;
+
+moxy: doc, oxy, doc, sxy, doc;
+moxx: doc, oxx, doc, sxx, doc;
+moyy: doc, oyy, doc, syy, doc;
+
+dsup:   hnc, mpfm, anm, dxm, sdm, dnm1, inv(vbm), dnvb, inv(bn);
+
+mat: dme, mon, inv(moyy), qm1, dmon, mon, inv(moxy), qm2a, dmon,
+     mon, inv(moxx), qm2b, dm2, qm3, dms, mgp;
+
+tm:   dsup, mat;
+
+super_period: inv(tm), 5*ncellr, tm;
+line:         1*super_period, cav;
+
+cell: line, symmetry=1;
+
+end;

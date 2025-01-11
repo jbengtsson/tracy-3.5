@@ -1,0 +1,95 @@
+
+define lattice;
+
+energy = 3.5;
+
+dp = 1.0d-10; codeps = 1.0d-6;  dk = 1.0d-6;
+
+meth = 4; nbend = 10; nquad = 10; nsext = 2;
+
+shift  = 0;
+
+cav: Cavity, L = 0.0, Frequency = 499654096.667, Voltage = 2200000, phi = 0.0;
+
+dr1:   drift, l = 0.631221562204-0.175-shift;
+drs:   drift, l = 0.075+shift;
+dr2:   drift, l = 0.075000;
+dr1d:  drift, l = 0.4336066-0.175;
+d2:    drift, l = 0.110316;
+dr4d:  drift, l = 0.163993;
+dr6d:  drift, l = 1.500000;
+d45:   drift, l = 0.179182;
+{d25:   drift, l = 0.482631;}
+d25:   drift, l = 0.35587985;
+dr4d5: drift, l = 0.078006;
+dr6d5: drift, l = 2.500000;
+d48:   drift, l = 0.900000;
+d28:   drift, l = 0.984793;
+dr4d8: drift, l = 0.075000;
+dr6d8: drift, l = 4.000000;
+
+{b1: bending, l =  0.53122669,
+    t =  1.75659689, t1 =  0.87829844, t2 =  0.87829844, k = -3.02205987,
+    n = nbend, method = 4;
+b2: bending, l =  0.18839557,
+    t =  1.99340311, t1 =  0.99670156, t2 =  0.99670156, k = -4.01423438,
+    n = nbend, method = 4;}
+
+b1: bending, l =  0.53742542,
+    t =  1.69582663, t1 =  0.84791331, t2 =  0.84791331, k = -2.79925995,
+    n = nbend, method = 4;
+b2: bending, l =  0.17452229,
+    t =  2.05417337, t1 =  1.02708669, t2 =  1.02708669, k = -3.76229759,
+    n = nbend, method = 4;
+
+{qf1: quadrupole, l =  0.15000000, k =  7.22160469, n = nquad, method = 4;
+qd2: quadrupole, l =  0.20000000, k = -8.40325416, n = nquad, method = 4;
+qf3: quadrupole, l =  0.30000000, k =  7.71198778, n = nquad, method = 4;
+qf4: quadrupole, l =  0.15000000, k =  7.62732426, n = nquad, method = 4;}
+
+qf1: quadrupole, l =  0.15000000, k =  7.30644655, n = nquad, method = 4;
+qd2: quadrupole, l =  0.20000000, k = -8.40307580, n = nquad, method = 4;
+qf3: quadrupole, l =  0.30000000, k =  7.37548916, n = nquad, method = 4;
+qf4: quadrupole, l =  0.15000000, k =  7.68425144, n = nquad, method = 4;
+
+{qf5: quadrupole, l = 0.400000, k =  6.928847, n = nquad, method = meth;
+qd6: quadrupole, l = 0.150000, k = -4.775607, n = nquad, method = meth;}
+
+qf5: quadrupole, l =  0.20000000, k =  6.99380431, n = nquad, method = 4;
+qd6: quadrupole, l =  0.15000000, k = -5.86418731, n = nquad, method = 4;
+
+q48:  quadrupole, l = 0.150000, k =  3.568383, n = nquad, method = meth;
+q28:  quadrupole, l = 0.150000, k = -5.723301, n = nquad, method = meth;
+q3d8: quadrupole, l = 0.150000, k = 17.088120, n = nquad, method = meth;
+
+sfh: sextupole, l =  0.05000000, k =  588.20938830, n = nsext, method = 4;
+sd:  sextupole, l =  0.10000000, k = -777.56204825, n = nsext, method = 4;
+
+ps_rot: map;
+
+tba_1: drs, sd, dr1, qf4, dr2, sfh;
+
+tba_hcell: b1, tba_1, inv(tba_1), b2;
+
+mid_mcell: dr4d, qf5, d2, qd6, dr6d;
+
+std_mcell: dr6d5, qf1, d45, qd2, d25, qf3, dr4d5;
+
+long_mcell: dr6d8, q48, d48, q28, d28, q3d8, dr4d8;
+
+tba_cell: tba_hcell, inv(tba_hcell);
+
+std_hcell: std_mcell, tba_cell, mid_mcell;
+std_cell:  std_hcell, inv(std_hcell);
+
+long_hcell: long_mcell, inv(tba_cell), tba_cell, mid_mcell;
+
+line: std_mcell, tba_hcell, inv(std_mcell, tba_hcell), ps_rot, cav;
+{line: std_hcell, cav;}
+{line: std_cell, cav;}
+{line: long_hcell, inv(long_hcell), cav;}
+{line: long_hcell, inv(std_hcell), 2*std_cell, std_hcell, inv(long_hcell), cav;}
+
+cell: line, symmetry=1;
+
+end;

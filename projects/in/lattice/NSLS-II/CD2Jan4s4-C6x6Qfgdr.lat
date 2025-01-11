@@ -1,0 +1,243 @@
+{ CD2-Jan4s4-C6x6Qfgdr EX_2.06 TPW H(9.3) L(6.6M) PMTPW(0.40M)}
+define lattice; ringtype = 1;
+
+Energy = 3.0;
+
+dP = 1e-8; CODeps = 1e-10;
+
+Meth = 4; Nbend = 10; Nquad = 4;
+
+pi = 4.0*arctan(1.0);
+
+BPM: Beam Position Monitor;
+HCM: Corrector, Horizontal, Method= Meth;
+VCM: Corrector, Vertical, Method= Meth;
+
+DH0 : Drift, L = 4.650000;
+DH1A: Drift, L = 0.175000;
+DH2A: Drift, L = 0.157500;
+DCH1: Drift, L = 0.200000;
+DHV1: Drift, L = 0.100000;
+DH2B: Drift, L = 0.157500;
+DH2C: Drift, L = 0.150000;
+DH3A: Drift, L = 0.190000;
+DH3B: Drift, L = 0.195000;
+DH4A: Drift, L = 0.175000;
+DH4B: Drift, L = 0.100000;
+DCH2: Drift, L = 0.300000;
+DH4C: Drift, L = 0.180000;
+DM1A: Drift, L = 0.365000;
+DCM1: Drift, L = 0.300000;
+DHV2: Drift, L = 0.150000;
+DM1B: Drift, L = 0.310000;
+DM2A: Drift, L = 0.200000;
+DM2B: Drift, L = 0.670000;
+DM2C: Drift, L = 0.200000;
+DM1E: Drift, L = 0.100000;
+DCM2: Drift, L = 0.300000;
+DM1D: Drift, L = 0.175000;
+DM1C: Drift, L = 0.200000;
+DPW:  Drift, L = 0.200000;
+DPW2: Drift, L = 0.100000;
+DL4B: Drift, L = 0.150000;
+DCL2: Drift, L = 0.300000;
+DL4A: Drift, L = 0.150000;
+DL3B: Drift, L = 0.150000;
+DL3A: Drift, L = 0.638600;
+DL2C: Drift, L = 0.250000;
+DCL1: Drift, L = 0.200000;
+DL2B: Drift, L = 0.137500;
+DL2A: Drift, L = 0.137500;
+DL1A: Drift, L = 0.175000;
+DL0:  Drift, L = 3.300000;
+
+DSX:  Drift, L = 0*0.100000;
+DSD:  Drift, L = 0*0.125000;
+
+QH1: Quadrupole, L = 0.250000, K = -0.688256, N = Nquad, Method = Meth;
+QH2: Quadrupole, L = 0.400000, K =  1.655215, N = Nquad, Method = Meth;
+QH3: Quadrupole, L = 0.250000, K = -1.873904, N = Nquad, Method = Meth;
+QL1: Quadrupole, L = 0.250000, K = -1.782994, N = Nquad, Method = Meth;
+QL2: Quadrupole, L = 0.400000, K =  2.011755, N = Nquad, Method = Meth;
+QL3: Quadrupole, L = 0.250000, K = -1.557679, N = Nquad, Method = Meth;
+
+QM1: Quadrupole, L = 0.250000, K = -0.824645, N = Nquad, Method = Meth;
+QM2: Quadrupole, L = 0.250000, K =  1.387710, N = Nquad, Method = Meth;
+
+{QL1: Quadrupole, L = 0.250000, K = -1.991672, N = Nquad, Method = Meth;
+QL2: Quadrupole, L = 0.400000, K =  2.043332, N = Nquad, Method = Meth;
+QL3: Quadrupole, L = 0.250000, K = -1.543780, N = Nquad, Method = Meth;
+QH1: Quadrupole, L = 0.250000, K = -0.852252, N = Nquad, Method = Meth;
+QH2: Quadrupole, L = 0.400000, K =  1.740888, N = Nquad, Method = Meth;
+QH3: Quadrupole, L = 0.250000, K = -1.911339, N = Nquad, Method = Meth;
+
+QM1: Quadrupole, L = 0.250000, K = -0.82487, N = Nquad, Method = Meth;
+QM2: Quadrupole, L = 0.250000, K =  1.38774, N = Nquad, Method = Meth;}
+
+{n_qm = 2;
+QM1H: Quadrupole, L = 0.25/n_qm, K = -0.824869, N = Nquad, Method = Meth;
+QM2H: Quadrupole, L = 0.25/n_qm, K =  1.387710, N = Nquad, Method = Meth;
+
+QM1: n_qm*QM1H;
+QM2: n_qm*QM2H;}
+
+B1: Bending, L = 2.62, T =  6.0000,
+    T1 =  3.000, T2 =  3.0000, N = Nbend, Method = Meth;
+B2: Bending, L = 2.62, T =  6.0000,
+    T1 =  3.000, T2 =  3.0000, N = Nbend, Method = Meth;
+
+{ Oct12s4.opa}
+L1 = 0.2; L2 = 0.25;
+SL1: Sextupole, L = L1, K = -0.409410/L1, N = 1, Method = Meth;
+SL2: Sextupole, L = L1, K =  2.730370/L1, N = 1, Method = Meth;
+SL3: Sextupole, L = L1, K = -2.790977/L1, N = 1, Method = Meth;
+SM1: Sextupole, L = L1, K = -2.260337/L1, N = 1, Method = Meth;
+SM2: Sextupole, L = L2, K =  3.194935/L2, N = 1, Method = Meth;
+SH1: Sextupole, L = L1, K = -0.208117/L1, N = 1, Method = Meth;
+SH2: Sextupole, L = L1, K =  2.593428/L1, N = 1, Method = Meth;
+SH3: Sextupole, L = L1, K = -2.512458/L1, N = 1, Method = Meth;
+SH4: Sextupole, L = L1, K = -0.188233/L1, N = 1, Method = Meth;
+
+{SL1: Sextupole, L = 0.200000, K = -11.623281, N = 1, Method = Meth;
+SL2: Sextupole, L = 0.200000, K = 18.576983,  N = 1, Method = Meth;
+SL3: Sextupole, L = 0.200000, K = -16.645172, N = 1, Method = Meth;
+SM1: Sextupole, L = 0.200000, K = -13.271583, N = 1, Method = Meth;
+SM2: Sextupole, L = 0.250000, K = 13.818626,  N = 1, Method = Meth;
+SH1: Sextupole, L = 0.200000, K =  0.0,       N = 1, Method = Meth;
+SH2: Sextupole, L = 0.200000, K = 12.719889,  N = 1, Method = Meth;
+SH3: Sextupole, L = 0.200000, K = -13.100359, N = 1, Method = Meth;
+SH4: Sextupole, L = 0.200000, K =  1.736189,  N = 1, Method = Meth;}
+
+SQ: Multipole, N = 1, Method = Meth;
+
+OM1: Multipole, L = 0.0, N = 1, Method = Meth,
+     HOM = (5, 0.0, 0.0);
+OM2: Multipole, L = 0.0, N = 1, Method = Meth,
+     HOM = (5, 0.0, 0.0);
+
+SQ: Multipole, N = 1, Method = Meth;
+
+MP: Marker;
+SS: Marker;
+LS: Marker;
+
+GS: Multipole, N = 1, Method = Meth;
+GE: Multipole, N = 1, Method = Meth;
+
+DU_QH1: Drift, L = 0.0;
+DL_QH1: Drift, L = 0.0;
+DU_QH2: Drift, L = 0.0;
+DL_QH2: Drift, L = 0.0;
+DU_QH3: Drift, L = 0.0;
+DL_QH3: Drift, L = 0.0;
+DU_QL1: Drift, L = 0.0;
+DL_QL1: Drift, L = 0.0;
+DU_QL2: Drift, L = 0.0;
+DL_QL2: Drift, L = 0.0;
+DU_QL3: Drift, L = 0.0;
+DL_QL3: Drift, L = 0.0;
+DU_QM1: Drift, L = 0.0;
+DL_QM1: Drift, L = 0.0;
+DU_QM2: Drift, L = 0.0;
+DL_QM2: Drift, L = 0.0;
+
+DU_B1: Drift, L = 0.0;
+DL_B1: Drift, L = 0.0;
+
+c0 = 2.99792458e8; h_rf = 1320; C = 791.958; Brho = 1e9*Energy/c0;
+
+CAV: Cavity, Frequency = c0/C*h_rf, Voltage = 5.00e6, Harnum = h_rf;
+
+{lambda_DW = 8e-2; n_DW = 88; L_DW = n_DW*lambda_DW; B_DW = 1.81;
+DW_80: Wiggler, L = L_DW, lambda = lambda_DW, kxV = 0.072*2.0*pi/lambda_DW,
+       BoBrhoV = B_DW/Brho, N = n_DW*8, Method = 2,
+       harm = (3,  0.025*pi/lambda_DW,  0.0447/Brho, 0, 0, 0,
+               5,  0.000*pi/lambda_DW, -0.0609/Brho, 0, 0, 0,
+               7,  0.000*pi/lambda_DW, -0.0071/Brho, 0, 0, 0,
+               9,  0.000*pi/lambda_DW,  0.0041/Brho, 0, 0, 0);
+
+D_DW: Drift, L = -L_DW/2.0;
+DW:   D_DW, DW_80, D_DW;}
+
+{lambda_DW = 0.09; n_DW = 78; L_DW = n_DW*lambda_DW; B_DW = 1.8;
+DW_90: Wiggler, L = L_DW/2.0, lambda = lambda_DW, kxV = 0.0,
+       BoBrhoV = B_DW/Brho, N = n_DW*8, Method = 2;}
+
+L_DW = 7.02;
+DW_90: insertion, scaling = 1.0, N = 50, Method = 2,
+       file2 = "/home/bengtsson/projects/in/lattice/w90v5_7m_5th.txt";
+
+D_DW: Drift, L = -L_DW/2.0;
+DW:   D_DW, DW_90, D_DW;
+
+{ IVU, B = k/(0.934*1e2*lambda [cm]) }
+lambda_IVU = 20e-3; n_IVU = 150; B_IVU = 1.1; L_IVU = n_IVU*lambda_IVU;
+
+IVU1: Wiggler, L = L_IVU, lambda = lambda_IVU, kxV = 0.0,
+      BoBrhoV = B_IVU/Brho, N = n_IVU*4, Method = 1;
+
+D_IVU: Drift, L = -L_IVU/2.0;
+IVU: D_IVU, IVU1, D_IVU;
+
+LID: DSX, SL1, DSX, DL1A, BPM, DU_QL1, QL1, DL_QL1, DL2A, DHV1, HCM, VCM, DHV1,
+     DL2B, DSX, SL2, DSX, DL2C, DU_QL2, QL2, DL_QL2, DL3A, DSX, SL3, DSX, DL3B,
+     DU_QL3, QL3, DL_QL3, BPM,
+     DL4A, DHV2, HCM, VCM, DHV2;
+
+HID:    DSX, SH1, DSX, DH1A, BPM, DU_QH1, QH1, DL_QH1, DH2A, DHV1, HCM, VCM,
+        DHV1, DH2B, DSX, SH2, DSX, 
+        DH2C, DU_QH2, QH2, DL_QH2, DH3A, DSX, SH3, DSX, DH3B,
+        DU_QH3, QH3, DL_QH3,
+        BPM, DH4A, DSX, SH4, DSX,  DH4B, DHV2, HCM, VCM, DHV2;
+
+HID_SQ: DSX, SH1, DSX, DH1A, BPM, DU_QH1, QH1, DL_QH1, DH2A, DHV1, HCM, VCM, SQ,
+        DHV1, DH2B, DSX, SH2, DSX,
+        DH2C, DU_QH2, QH2, DL_QH2, DH3A, DSX, SH3, DSX, DH3B,
+        DU_QH3, QH3, DL_QH3,
+        BPM, DH4A, DSX, SH4, DSX, DH4B, DHV2, HCM, VCM, DHV2;
+
+{ BPM P3 moved to QM2 }
+DISP:    DM1B, DU_QM1, QM1, DL_QM1, DM2A, DSX, SM1, DSX, OM2,
+         DM2B, BPM, DU_QM2, QM2, DL_QM2, DM2C, DSD, SM2, MP,
+         DSD, DM2C, DL_QM2, QM2, DU_QM2, DM2B, OM2,
+         DSX, SM1, DSX, DM2A, DL_QM1, QM1, OM1, DU_QM1,
+         BPM, DM1E, DHV2, VCM, HCM, DHV2;
+
+DISP_SQ: DM1B, DU_QM1, OM1, QM1, DL_QM1, DM2A, DSX, SM1, DSX, OM2,
+         DM2B, BPM, DU_QM2, QM2, DL_QM2, DM2C, DSD, SM2, MP,
+         DSD, DM2C, DL_QM2, QM2, DU_QM2, DM2B, OM2,
+         DSX, SM1, DSX, DM2A, DL_QM1, QM1, DU_QM1, 
+         BPM, DM1E, DHV2, VCM, HCM, DHV2;
+
+DBA:    DU_B1, B1, DL_B1, DM1A, DHV2, VCM, HCM, DHV2, GS, DISP, GE,
+        DM1D, DPW2, DPW2, DM1C, DL_B1, B2, DU_B1;
+
+DBA_SQ: DU_B1, B2, DL_B1, DM1A, DHV2, VCM, HCM, SQ, DHV2, GS, DISP_SQ, GE,
+        DM1D, DPW2, DPW2, DM1C, DL_B1, B1, DU_B1;
+
+LINE: DH0, GS, HID_SQ, GE, DH4C, DBA, DL4B, GS, INV(LID), GE, DL0, SS,
+      DL0, GS, LID, GE, DL4B, DBA_SQ, DH4C, GS, INV(HID), GE, DH0, LS;
+
+LINE_IVU: DH0, GS, HID_SQ, GE, DH4C, DBA, DL4B, GS, INV(LID), GE, DL0, SS, IVU,
+          DL0, GS, LID, GE, DL4B, DBA_SQ, DH4C, GS, INV(HID), GE, DH0, LS;
+
+
+{M_SS: DL0, LID, DL4B;
+
+LINE_SS: M_SS, DBA, INV(M_SS), SS;
+
+RING: LINE_SS, CAV;}
+
+{RING: 1*LINE, CAV;}
+
+{RING: 1*LINE, Q_DW, CAV;}
+
+{ 1 IVU }
+{RING: LINE_IVU, CAV;}
+
+{ 3 DWs }
+RING: 1*(LINE, DW, 4*LINE), CAV;
+
+CELL: RING, SYMMETRY  = 1;
+
+END;

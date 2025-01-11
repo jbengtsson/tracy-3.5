@@ -1,0 +1,298 @@
+{*******************************}
+{*                             *}
+{*  DIAMOND Storage Ring       *}
+{*                             *}
+{* 24/03/2004   RB             *}
+{*                             *}
+{*******************************}
+
+define lattice;
+
+intmeth= 4;
+
+{***** System parameters *****}
+Energy= 3.00;    { GeV }
+dP    = 1.0d-10;
+CODeps= 1.0d-14;
+
+{***** drift space *****}
+ dD1D2 :      drift, L=4.3775/5;
+ dD1BCentre : drift, L=1.0000/5;
+ dD1BEnd2 :   drift, L=1.8775/5;
+ KD1 :       drift, L=0.8930;
+ KD2 :       drift, L=0.3978;
+ D2B :       drift, L=0.1468;
+ D3B :       drift, L=0.23185;
+ D4B :       drift, L=0.45835;
+ D4Ba :      drift, L=0.1730;
+ D4Bb :      drift, L=0.28535;
+ D5B :       drift, L=0.1965;
+ D6B :       drift, L=0.6690;
+ D6Ba :      drift, L=0.1850;
+ D6Bb :      drift, L=0.4840;
+ D1A :       drift, L=0.2347;
+ D1Aa :      drift, L=0.1187;
+ D1Ab :      drift, L=0.1160;
+ D2A :       drift, L=0.1952;
+ D3A :       drift, L=0.4218;
+ D3Aa :      drift, L=0.1583;
+ D3Ab :      drift, L=0.2635;
+ D4A :       drift, L=0.5858;
+ D4Aa :      drift, L=0.1018;
+ D4Ab :      drift, L=0.4840;
+
+ D1D2 : dD1D2, dD1D2, dD1D2, dD1D2,  dD1D2;
+ D1BCentre : dD1BCentre, dD1BCentre, dD1BCentre, dD1BCentre, dD1BCentre;
+ D1BEnd2 : dD1BEnd2, dD1BEnd2, dD1BEnd2, dD1BEnd2, dD1BEnd2;
+
+{** Quadrupole **}
+ Nq=32/2; {Number of slices}
+
+{*
+
+Q1Dh :  quadrupole, L=0.4064/2, K=-0.7035492, method=intmeth,N=Nq;
+Q2Dh :  quadrupole, L=0.6063/2, K= 1.2621846, method=intmeth,N=Nq;
+Q3Dh :  quadrupole, L=0.3070/2, K=-0.9868547, method=intmeth,N=Nq;
+Q2ADh : quadrupole, L=0.4064/2, K=-0.9787708, method=intmeth,N=Nq;
+Q1ADh : quadrupole, L=0.4076/2, K= 1.2417736, method=intmeth,N=Nq;
+Q1ABh : quadrupole, L=0.4076/2, K= 1.2639501, method=intmeth,N=Nq;
+Q2ABh : quadrupole, L=0.4064/2, K=-1.0331410, method=intmeth,N=Nq;
+Q3Bh :  quadrupole, L=0.3070/2, K=-0.8675446, method=intmeth,N=Nq;
+Q2Bh :  quadrupole, L=0.6063/2, K= 1.4630243, method=intmeth,N=Nq;
+Q1Bh :  quadrupole, L=0.4064/2, K=-1.2289552, method=intmeth,N=Nq; 
+
+ Q1D : Q1Dh, Q1Dh;
+ Q2D : Q2Dh, Q2Dh;
+ Q3D : Q3Dh, Q3Dh;
+ Q2AD : Q2ADh, Q2ADh;
+ Q1AD : Q1ADh, Q1ADh;
+ Q1AB : Q1ABh, Q1ABh;
+ Q2AB : Q2ABh, Q2ABh;
+ Q3B : Q3Bh, Q3Bh;
+ Q2B : Q2Bh, Q2Bh;
+ Q1B : Q1Bh, Q1Bh;
+
+*}
+
+{ [27.22, 12.36] }
+Q2AB : quadrupole, L=0.4064, K=-1.0331410, method=intmeth,N=Nq;
+Q1D :  quadrupole, L=0.4064, K=-0.7035492, method=intmeth,N=Nq;
+Q2B :  quadrupole, L=0.6063, K= 1.4630243, method=intmeth,N=Nq;
+Q2D :  quadrupole, L=0.6063, K= 1.2621846, method=intmeth,N=Nq;
+Q2AD : quadrupole, L=0.4064, K=-0.9787708, method=intmeth,N=Nq;
+Q3D :  quadrupole, L=0.3070, K=-0.9868547, method=intmeth,N=Nq;
+Q1B :  quadrupole, L=0.4064, K=-1.2289552, method=intmeth,N=Nq; 
+Q1AD : quadrupole, L=0.4076, K= 1.2417736, method=intmeth,N=Nq;
+Q1AB : quadrupole, L=0.4076, K= 1.2639501, method=intmeth,N=Nq;
+Q3B :  quadrupole, L=0.3070, K=-0.8675446, method=intmeth,N=Nq;
+
+{ [27.22, 12.36], gap = 0 }
+{Q2AB : quadrupole, L=0.406400, K=-1.02960848, method=intmeth, N=Nq;
+Q1D : quadrupole, L=0.406400, K=-0.70327907, method=intmeth, N=Nq;
+Q2B : quadrupole, L=0.606300, K=1.46203995, method=intmeth, N=Nq;
+Q2D : quadrupole, L=0.606300, K=1.26195975, method=intmeth, N=Nq;
+Q2AD : quadrupole, L=0.406400, K=-0.97752414, method=intmeth, N=Nq;
+Q3D : quadrupole, L=0.307000, K=-0.98636599, method=intmeth, N=Nq;
+Q1B : quadrupole, L=0.406400, K=-1.22771185, method=intmeth, N=Nq;
+Q1AB : quadrupole, L=0.407600, K=1.26393658, method=intmeth, N=Nq;
+Q1AD : quadrupole, L=0.407600, K=1.24179341, method=intmeth, N=Nq;
+Q3B : quadrupole, L=0.307000, K=-0.86649632, method=intmeth, N=Nq;}
+
+{** bending **}
+gap_JR = 0.0466; gap_JB = 0.89/0.5*gap_JR;
+ BB2 : bending, L= 0.933/4, T= 7.5, T1=3.75, T2=0.000, K=0.0, N=4,
+	gap=gap_JB, method=intmeth;	
+ BB3 : bending, L= 0.933/4, T= 7.5/4, T1=0.000, T2=0.000, K=0.0, N=4,
+	gap=gap_JB, method=intmeth;
+ BB4 : bending, L= 0.933/4, T= 7.5/4, T1=0.000, T2=3.75, K=0.0, N=4,
+	gap=gap_JB, method=intmeth;
+ BB  : BB2, BB3, BB3, BB4;
+
+{BB : bending, L= 0.933, T= 7.5, T1=3.75, T2=3.75, K=0.0, N=4,
+     method=intmeth;}
+{BB: Fieldmap, scaling = 1.0, L = 0.933, T = 7.5, N = 1,
+    file1 = "dip.int.lis";}
+
+{ NSLS-II }
+{BB: Bending, L = 2.62, T = 6.0, T1 = 3.0, T2 = 3.0, N = 4, Method = intmeth;}
+{BB: Fieldmap, scaling = -1.0, L = 2.62, T = -6.0, N = 1,
+    file1 = "d35_ref_finer_grid.table";}
+
+NqSx=1; {Number of slices}
+ 
+{** Sextupoles from dls715, scaled for 29cm/19cm sextupoles **} 
+DS:    drift, L=0.005;
+{*
+SS1A : sextupole, L=0.29, K =  5.449444/0.29, method=intmeth, N = NqSx;
+SS2A : sextupole, L=0.19, K = -3.349528/0.19, method=intmeth, N = NqSx;
+SS1B : sextupole, L=0.29, K =  3.148519/0.29, method=intmeth, N = NqSx;
+SS2B : sextupole, L=0.29, K = -4.993216/0.29, method=intmeth, N = NqSx;
+SS1C : sextupole, L=0.29, K =  2.546022/0.29, method=intmeth, N = NqSx;
+SS2C : sextupole, L=0.29, K = -3.263168/0.29, method=intmeth, N = NqSx;
+SS1D : sextupole, L=0.29, K =  2.069871/0.29, method=intmeth, N = NqSx;
+SS2D : sextupole, L=0.29, K = -5.028928/0.29, method=intmeth, N = NqSx;
+*}
+
+{** these are the sextupole strengths as applied to the machine 27/08/2008 **}
+{*
+SS1A : sextupole, L=0.29, K =  5.449444/0.28222, method=intmeth, N = NqSx;
+SS2A : sextupole, L=0.19, K = -3.349528/0.18519, method=intmeth, N = NqSx;
+SS1B : sextupole, L=0.29, K =  3.148519/0.3, method=intmeth, N = NqSx;
+SS2B : sextupole, L=0.29, K = -4.993216/0.3, method=intmeth, N = NqSx;
+SS1C : sextupole, L=0.29, K =  2.546022/0.3, method=intmeth, N = NqSx;
+SS2C : sextupole, L=0.29, K = -3.263168/0.3, method=intmeth, N = NqSx;
+SS1D : sextupole, L=0.29, K =  2.069871/0.3, method=intmeth, N = NqSx;
+SS2D : sextupole, L=0.29, K = -5.028928/0.3, method=intmeth, N = NqSx;
+*}
+
+{** these are the sextupole strengths as applied to the machine 29/09/2009 **}
+{SS1A : sextupole, L=0.29, K =  5.449444/0.281657, method=intmeth, N = NqSx;
+SS2A : sextupole, L=0.19, K = -3.349528/0.185562, method=intmeth, N = NqSx;
+SS1B : sextupole, L=0.29, K =  3.148519/0.300963, method=intmeth, N = NqSx;
+SS2B : sextupole, L=0.29, K = -4.993216/0.300894, method=intmeth, N = NqSx;
+SS1C : sextupole, L=0.29, K =  2.546022/0.300939, method=intmeth, N = NqSx;
+SS2C : sextupole, L=0.29, K = -3.263168/0.299850, method=intmeth, N = NqSx;
+SS1D : sextupole, L=0.29, K =  2.069871/0.300692, method=intmeth, N = NqSx;
+SS2D : sextupole, L=0.29, K = -5.028928/0.299841, method=intmeth, N = NqSx;}
+
+SS1A_L : sextupole, L=0.29, K =  37.74477976578854/2.0, method=intmeth,
+	 N = NqSx;
+SS2A_L : sextupole, L=0.19, K = -34.91289149315172/2.0, method=intmeth,
+	 N = NqSx;
+SS1B_L : sextupole, L=0.29, K =  21.46822091126269/2.0, method=intmeth,
+	 N = NqSx;
+SS2B_L : sextupole, L=0.29, K = -35.16533533682035/2.0, method=intmeth,
+	 N = NqSx;
+SS1C_L : sextupole, L=0.29, K =  15.62325095409702/2.0, method=intmeth,
+	 N = NqSx;
+SS2C_L : sextupole, L=0.29, K = -21.13525145684278/2.0, method=intmeth,
+	 N = NqSx;
+SS1D_L : sextupole, L=0.29, K =  13.19790724734977/2.0, method=intmeth,
+	 N = NqSx;
+SS2D_L : sextupole, L=0.29, K = -37.12726246877885/2.0, method=intmeth,
+	 N = NqSx;
+
+SS1A_R : sextupole, L=0.29, K =  37.74477976578854/2.0, method=intmeth,
+	 N = NqSx;
+SS2A_R : sextupole, L=0.19, K = -34.91289149315172/2.0, method=intmeth,
+	 N = NqSx;
+SS1B_R : sextupole, L=0.29, K =  21.46822091126269/2.0, method=intmeth,
+	 N = NqSx;
+SS2B_R : sextupole, L=0.29, K = -35.16533533682035/2.0, method=intmeth,
+	 N = NqSx;
+SS1C_R : sextupole, L=0.29, K =  15.62325095409702/2.0, method=intmeth,
+	 N = NqSx;
+SS2C_R : sextupole, L=0.29, K = -21.13525145684278/2.0, method=intmeth,
+	 N = NqSx;
+SS1D_R : sextupole, L=0.29, K =  13.19790724734977/2.0, method=intmeth,
+	 N = NqSx;
+SS2D_R : sextupole, L=0.29, K = -37.12726246877885/2.0, method=intmeth,
+	 N = NqSx;
+
+{** Marker **}
+ FIN : marker;
+ DEBUT : marker;
+ K1 : marker;
+ K2 : marker;
+
+{**BPMs**}
+ MBPM: marker;
+
+{**Correctors**}
+ hstr : corrector, horizontal,method=intmeth;
+ vstr : corrector, vertical,method=intmeth;
+
+BEGIN_S: marker;
+END_S: marker;
+
+{**Superperiods**}
+S1A_L: BEGIN_S, DS, SS1A_L, hstr, vstr, DS, END_S;
+S2A_L: BEGIN_S, DS, SS2A_L, hstr, vstr, DS, END_S;
+S1B_L: BEGIN_S, DS, SS1B_L, hstr, vstr, DS, END_S;
+S2B_L: BEGIN_S, DS, SS2B_L, hstr, vstr, DS, END_S;
+S1C_L: BEGIN_S, DS, SS1C_L, hstr, vstr, DS, END_S;
+S2C_L: BEGIN_S, DS, SS2C_L, hstr, vstr, DS, END_S;
+S1D_L: BEGIN_S, DS, SS1D_L, hstr, vstr, DS, END_S;
+S2D_L: BEGIN_S, DS, SS2D_L, hstr, vstr, DS, END_S;
+
+S1A_R: BEGIN_S, DS, SS1A_R, hstr, vstr, DS, END_S;
+S2A_R: BEGIN_S, DS, SS2A_R, hstr, vstr, DS, END_S;
+S1B_R: BEGIN_S, DS, SS1B_R, hstr, vstr, DS, END_S;
+S2B_R: BEGIN_S, DS, SS2B_R, hstr, vstr, DS, END_S;
+S1C_R: BEGIN_S, DS, SS1C_R, hstr, vstr, DS, END_S;
+S2C_R: BEGIN_S, DS, SS2C_R, hstr, vstr, DS, END_S;
+S1D_R: BEGIN_S, DS, SS1D_R, hstr, vstr, DS, END_S;
+S2D_R: BEGIN_S, DS, SS2D_R, hstr, vstr, DS, END_S;
+
+PERIOD_L: DEBUT,D1D2,MBPM,K1,KD1,K1,KD2,Q1D,
+	  D2B,S1D_L,D3B,Q2D,D4B,Q3D,D5B,S2D_L,D6Ba,MBPM,D6Bb,
+	  BB,D4A,Q2AD,D3Aa,MBPM,D3Ab,S2A_L,D2A,Q1AD,D1Aa,MBPM,
+	  D1Ab,S1A_L,D1A,Q1AB,D2A,S2A_L,D3A,Q2AB,D4Aa,MBPM,D4ab,
+	  BB,D6B,S2C_L,D5B,Q3B,D4Ba,MBPM,D4Bb,Q2B,D3B,S1C_L,D2B,
+	  Q1B,KD2,K1,KD1,K1,MBPM,D1BEnd2,
+	  D1BCentre,
+	  D1BCentre,
+	  D1BEnd2,MBPM,K1,KD1,K1,KD2,Q1B,
+	  D2B,S1B_L,D3B,Q2B,D4B,Q3B,D5B,S2B_L,D6Ba,MBPM,D6Bb,
+	  BB,D4A,Q2AB,D3Aa,MBPM,D3Ab,S2A_L,D2A,Q1AB,D1Aa,MBPM,
+	  D1Ab,S1A_L,D1A,Q1AB,D2A,S2A_L,D3A,Q2AB,D4Aa,MBPM,D4Ab,
+	  BB,D6B,S2B_L,D5B,Q3B,D4Ba,MBPM,D4Bb,Q2B,D3B,S1B_L,D2B,
+	  Q1B,KD2,K1,KD1,K1,MBPM,D1BEnd2,
+	  D1BCentre,
+	  D1BCentre,
+	  D1BEnd2,MBPM,K1,KD1,K1,KD2,Q1B,
+	  D2B,S1B_L,D3B,Q2B,D4B,Q3B,D5B,S2B_L,D6Ba,MBPM,D6Bb,
+	  BB,D4A,Q2AB,D3Aa,MBPM,D3Ab,S2A_L,D2A,Q1AB,D1Aa,MBPM,
+	  D1Ab,S1A_L,D1A,Q1AB,D2A,S2A_L,D3A,Q2AB,D4Aa,MBPM,D4Ab,
+	  BB,D6B,S2B_L,D5B,Q3B,D4Ba,MBPM,D4Bb,Q2B,D3B,S1B_L,D2B,
+	  Q1B,KD2,K1,KD1,K1,MBPM,D1BEnd2,
+	  D1BCentre,
+	  D1BCentre,
+	  D1BEnd2,MBPM,K1,KD1,K1,KD2,Q1B,
+	  D2B,S1C_L,D3B,Q2B,D4B,Q3B,D5B,S2C_L,D6Ba,MBPM,D6Bb,
+	  BB,D4A,Q2AB,D3Aa,MBPM,D3Ab,S2A_L,D2A,Q1AB,D1Aa,MBPM,
+	  D1Ab,S1A_L,D1A,Q1AD,D2A,S2A_L,D3A,Q2AD,D4Aa,MBPM,D4Ab,
+	  BB,D6B,S2D_L,D5B,Q3D,D4Ba,MBPM,D4Bb,Q2D,D3B,S1D_L,D2B,
+	  Q1D,KD2,K1,KD1,K1,MBPM,D1D2;
+
+
+PERIOD_R: DEBUT,D1D2,MBPM,K1,KD1,K1,KD2,Q1D,
+	  D2B,S1D_R,D3B,Q2D,D4B,Q3D,D5B,S2D_R,D6Ba,MBPM,D6Bb,
+	  BB,D4A,Q2AD,D3Aa,MBPM,D3Ab,S2A_R,D2A,Q1AD,D1Aa,MBPM,
+	  D1Ab,S1A_R,D1A,Q1AB,D2A,S2A_R,D3A,Q2AB,D4Aa,MBPM,D4ab,
+	  BB,D6B,S2C_R,D5B,Q3B,D4Ba,MBPM,D4Bb,Q2B,D3B,S1C_R,D2B,
+	  Q1B,KD2,K1,KD1,K1,MBPM,D1BEnd2,
+	  D1BCentre,
+	  D1BCentre,
+	  D1BEnd2,MBPM,K1,KD1,K1,KD2,Q1B,
+	  D2B,S1B_R,D3B,Q2B,D4B,Q3B,D5B,S2B_R,D6Ba,MBPM,D6Bb,
+	  BB,D4A,Q2AB,D3Aa,MBPM,D3Ab,S2A_R,D2A,Q1AB,D1Aa,MBPM,
+	  D1Ab,S1A_R,D1A,Q1AB,D2A,S2A_R,D3A,Q2AB,D4Aa,MBPM,D4Ab,
+	  BB,D6B,S2B_R,D5B,Q3B,D4Ba,MBPM,D4Bb,Q2B,D3B,S1B_R,D2B,
+	  Q1B,KD2,K1,KD1,K1,MBPM,D1BEnd2,
+	  D1BCentre,
+	  D1BCentre,
+	  D1BEnd2,MBPM,K1,KD1,K1,KD2,Q1B,
+	  D2B,S1B_R,D3B,Q2B,D4B,Q3B,D5B,S2B_R,D6Ba,MBPM,D6Bb,
+	  BB,D4A,Q2AB,D3Aa,MBPM,D3Ab,S2A_R,D2A,Q1AB,D1Aa,MBPM,
+	  D1Ab,S1A_R,D1A,Q1AB,D2A,S2A_R,D3A,Q2AB,D4Aa,MBPM,D4Ab,
+	  BB,D6B,S2B_R,D5B,Q3B,D4Ba,MBPM,D4Bb,Q2B,D3B,S1B_R,D2B,
+	  Q1B,KD2,K1,KD1,K1,MBPM,D1BEnd2,
+	  D1BCentre,
+	  D1BCentre,
+	  D1BEnd2,MBPM,K1,KD1,K1,KD2,Q1B,
+	  D2B,S1C_R,D3B,Q2B,D4B,Q3B,D5B,S2C_R,D6Ba,MBPM,D6Bb,
+	  BB,D4A,Q2AB,D3Aa,MBPM,D3Ab,S2A_R,D2A,Q1AB,D1Aa,MBPM,
+	  D1Ab,S1A_R,D1A,Q1AD,D2A,S2A_R,D3A,Q2AD,D4Aa,MBPM,D4Ab,
+	  BB,D6B,S2D_R,D5B,Q3D,D4Ba,MBPM,D4Bb,Q2D,D3B,S1D_R,D2B,
+	  Q1D,KD2,K1,KD1,K1,MBPM,D1D2;
+
+
+CAV: Cavity, Frequency=499.66d6,Harnum=936, Voltage=3.3d6;
+
+RING: 3*PERIOD_R, 3*PERIOD_R, CAV;
+
+{***** Define CELL structure ****}
+ CELL:	RING, symmetry = 1;
+
+end;

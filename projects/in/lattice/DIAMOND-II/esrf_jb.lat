@@ -1,0 +1,185 @@
+define lattice; ringtype = 1;
+
+Energy = 3.5; { Beam momentum [GeV]. }
+
+dP = 1e-8; CODeps = 1e-14;
+
+Meth = 4; Nbend = 10; Nquad = 10; Nsext = 2;
+
+pi = 4.0*arctan(1.0); c0 = 2.99792458e8;
+
+scl = 32.0/24.0;
+
+bpm_01: Beam Position Monitor;
+bpm_02: Beam Position Monitor;
+bpm_03: Beam Position Monitor;
+bpm_04: Beam Position Monitor;
+bpm_05: Beam Position Monitor;
+bpm_06: Beam Position Monitor;
+bpm_07: Beam Position Monitor;
+bpm_08: Beam Position Monitor;
+bpm_09: Beam Position Monitor;
+bpm_10: Beam Position Monitor;
+
+mstds: Marker;
+mmids: Marker;
+msf:   Marker;
+
+d_01: Drift, L = 2.651400;
+d_02: Drift, L = 0.042552;
+d_03: Drift, L = 0.101552;
+d_04: Drift, L = 0.222157;
+d_05: Drift, L = 0.021537;
+d_06: Drift, L = 0.018784;
+d_07: Drift, L = 0.059745;
+d_08: Drift, L = 0.537908;
+d_09: Drift, L = 0.048156;
+d_10: Drift, L = 0.060212;
+d_11: Drift, L = 0.060212;
+d_12: Drift, L = 0.048313;
+d_13: Drift, L = 0.052156;
+d_14: Drift, L = 0.387908;
+d_15: Drift, L = 0.060212;
+d_16: Drift, L = 0.019749;
+d_17: Drift, L = 0.075579;
+d_18: Drift, L = 0.050672;
+d_19: Drift, L = 0.065189;
+d_20: Drift, L = 0.066199;
+d_21: Drift, L = 0.161682;
+d_22: Drift, L = 0.037000;
+d_23: Drift, L = 0.035851;
+
+{b1_1: Bending, L = 0.372210, T = (0.003112)*scl*180.0/pi,
+      T1 = (-0.000314)*scl*180.0/pi, T2 = (0.001659)*scl*180.0/pi, K = 0.0,
+      N = Nbend, Method = 4;
+b1_2: Bending, L = 0.365037, T = (0.004134)*scl*180.0/pi, 
+      T1 = (-0.000303)*scl*180.0/pi, T2 = (0.000314)*scl*180.0/pi, K = 0.0,
+      N = Nbend, Method = 4;
+b1_3: Bending, L = 0.357397, T = (0.005388)*scl*180.0/pi, 
+      T1 = (-0.000450)*scl*180.0/pi, T2 = (0.000303)*scl*180.0/pi, K = 0.0,
+      N = Nbend, Method = 4;
+b1_4: Bending, L = 0.350447, T = (0.007202)*scl*180.0/pi, 
+      T1 = (-0.001080)*scl*180.0/pi, T2 = (0.000450)*scl*180.0/pi, K = 0.0,
+      N = Nbend, Method = 4;
+b1_5: Bending, L = 0.380438, T = (0.011877)*scl*180.0/pi, 
+      T1 = (0.006143)*scl*180.0/pi, T2 = (0.001080)*scl*180.0/pi, K = 0.0,
+      N = Nbend, Method = 4;
+
+b1: b1_5, b1_4, b1_3, b1_2, b1_1;}
+
+{phib = 2.4226947409;
+b1: Bending, L = 1.825529, T = phib, T1 = phib/2, T2 = phib/2, K = 0.0,
+    N = Nbend, Method = 4;}
+b1: bending, l =  1.82552900, t =  2.42212431,
+    t1 =  1.21134737, t2 =  1.21134737,  k =  0.02119109, n = nbend, method = 4;
+
+{b2_1: Bending, L = 0.371770, T = (0.003254)*scl*180.0/pi, 
+      T1 = (0.001737)*scl*180.0/pi, T2 = (-0.000288)*scl*180.0/pi, K = 0.0,
+      N = Nbend, Method = 4;
+b2_2: Bending, L = 0.365930, T = (0.004156)*scl*180.0/pi, 
+      T1 = (0.000288)*scl*180.0/pi, T2 = (-0.000278)*scl*180.0/pi, K = 0.0,
+      N = Nbend, Method = 4;
+b2_3: Bending, L = 0.356152, T = (0.005302)*scl*180.0/pi, 
+      T1 = (0.000278)*scl*180.0/pi, T2 = (-0.000355)*scl*180.0/pi, K = 0.0,
+      N = Nbend, Method = 4;
+b2_4: Bending, L = 0.348205, T = (0.006666)*scl*180.0/pi, 
+      T1 = (0.000355)*scl*180.0/pi, T2 = (-0.000805)*scl*180.0/pi, K = 0.0,
+      N = Nbend, Method = 4;
+b2_5: Bending, L = 0.383772, T = (0.010034)*scl*180.0/pi, 
+      T1 = (0.000805)*scl*180.0/pi, T2 = (0.005153)*scl*180.0/pi, K = 0.0,
+      N = Nbend, Method = 4;
+
+b2: b2_1, b2_2, b2_3, b2_4, b2_5;}
+
+{phib = 2.2469112894;
+b2: Bending, L = 1.825829, T = phib, T1 = phib/2, T2 = phib/2, K = 0.0,
+    N = Nbend, Method = 4;}
+b2: bending, l =  1.82582900, t =  2.24801530,
+    t1 =  1.12345564, t2 =  1.12345564,  k = -0.02002275, n = nbend, method = 4;
+
+{b3_1: Bending, L = 0.008506, T = (0.000233)*scl*180.0/pi,
+      T1 = (0.014600)*scl*180.0/pi, T2 = 0.0, K = 0.0,
+      N = Nbend, Method = 4;
+b3_2: Bending, L = 1.049988, T = (0.028734)*scl*180.0/pi, 
+      T1 = 0.0, T2 = 0.0, K = -1.829095,
+      N = Nbend, Method = 4;
+
+b3: b3_1, b3_2, inv(b3_1);}
+
+{phib = 2.2307156824;
+b3: Bending, L = 1.067000, T = phib, T1 = phib/2, T2 = phib/2,
+    K = -1.829095*1.049988/1.067000, N = Nbend, Method = 4;}
+b3: bending, l =  1.06700000, t =  2.23071568,
+    t1 =  1.11535784, t2 =  1.11535784,  k = -1.90998274, n = nbend, method = 4;
+
+b4_1: Bending, L = 0.008473, T = (0.000158)*scl*180.0/pi,
+      T1 = (0.007850)*scl*180.0/pi, T2 = 0.0, K = 0.0,
+      N = Nbend, Method = 4;
+b4_2: Bending, L = 0.411676, T = (0.007692)*scl*180.0/pi, 
+      T1 = 0.0, T2 = 0.0, K = -1.532351,
+      N = Nbend, Method = 4;
+
+b4: b4_1, b4_2;
+
+{phib = 0.449772;
+b4: Bending, L = 0.420149, T = phib, T1 = phib/2, T2 = 0.0,
+    K = -1.532351, N = Nbend, Method = 4;}
+
+{b4: Drift, L =  0.420149;}
+
+of1: Multipole, L = 0.097688, HOM = (4, -8700.0, 0.0),
+     N = Nsext, Method = 4;
+
+{qf1: Quadrupole, L = 0.311896, K =  2.539460, N = Nquad, Method = 4;
+qd2: Quadrupole, L = 0.227687, K = -2.672025, N = Nquad, Method = 4;
+qd3: Quadrupole, L = 0.178619, K = -2.404266, N = Nquad, Method = 4;
+qf4: Quadrupole, L = 0.227687, K =  2.429986, N = Nquad, Method = 4;
+qd5: Quadrupole, L = 0.227687, K = -2.704501, N = Nquad, Method = 4;
+qf6: Quadrupole, L = 0.398656, K =  4.464541, N = Nquad, Method = 4;}
+qf7: Quadrupole, L = 0.492637, K =  4.425467, N = Nquad, Method = 4;
+
+qf1: quadrupole, l =  0.31189600, k =  2.34767691, n = nquad, method = 4;
+qd2: quadrupole, l =  0.22768700, k = -2.75594138, n = nquad, method = 4;
+qd3: quadrupole, l =  0.17861900, k = -2.39809626, n = nquad, method = 4;
+qf4: quadrupole, l =  0.22768700, k =  2.58700439, n = nquad, method = 4;
+qd5: quadrupole, l =  0.22768700, k = -2.70450100, n = nquad, method = 4;
+qf6: quadrupole, l =  0.39865600, k =  4.46454100, n = nquad, method = 4;
+
+{sfh: Sextupole, L = 0.106945, K =  154.074489/2.0, N = Nsext, Method = 4;
+sda: Sextupole, L = 0.179890, K = -157.910712/2.0, N = Nsext, Method = 4;
+sdb: Sextupole, L = 0.179890, K = -148.379051/2.0, N = Nsext, Method = 4;}
+
+sfh: Sextupole, L = 0.106945, K =  68.99067, N = Nsext, Method = 4;
+sda: Sextupole, L = 0.179890, K = -94.16213, N = Nsext, Method = 4;
+sdb: Sextupole, L = 0.179890, K = -38.79260, N = Nsext, Method = 4;
+
+sf: sfh, msf, sfh;
+
+sh1: Drift, L = 0.100000;
+sh2: Drift, L = 0.100000;
+
+cav: Cavity, Frequency = 500e6, Voltage = 3e6, Harnum = 500, phi = 0.0;
+
+std_mcell:
+  d_01, bpm_01, d_02, qf1, d_03, sh1, d_04, qd2, d_05;
+
+dip_hcell:
+  b1,
+  d_06, qd3, d_07, sda, d_08, bpm_02, d_09, qf4, d_10, sf, d_11, qf4,
+  d_12, of1, d_13, bpm_03, d_14, sdb, d_15, qd5, d_16,
+  b2,
+  d_17, bpm_04, d_18, qf6, d_19,
+  b3,
+  d_20, qf7, d_21, sh2, d_22, bpm_05, d_23,
+  b4;
+
+std_hcell: std_mcell, dip_hcell;
+
+std_cell: std_hcell, mmids, inv(std_hcell), mstds;
+
+line: std_cell, cav;
+{line: std_cell, cav;}
+
+cell: line, symmetry = 1;
+
+end;

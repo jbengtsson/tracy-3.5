@@ -1,0 +1,54 @@
+define lattice; ringtype = 1;
+
+Energy = 3.0;
+
+dP = 1e-8; CODeps = 1e-14;  
+
+Meth = 4; Nbend = 10; Nquad = 10; Nsext = 1;
+
+BRHO = 3.33564051648;
+
+NCEL  = 40.0;
+NDIP  = 7.0*NCEL;
+
+{ Set energy in machine file. }
+CAV: Cavity, Frequency = 0.0, Voltage = 0.0, Harnum = 0;
+
+
+O:   DRIFT, L = 0.075;
+OFW: DRIFT, L = 0.29628165;
+O1F: DRIFT, L = 0.37222354;
+O2F: DRIFT, L = 0.35144131;
+
+B2:  BENDING, L = 1.2, T = 360.0/NDIP, N = Nbend, Method = Meth;
+B2H: BENDING, L = 0.6, T = 180.0/NDIP, N = Nbend, Method = Meth;
+
+QF2: Quadrupole, L = 0.05, K =  8.0953536875706167, N = Nquad, Method = Meth;
+QD2: Quadrupole, L = 0.05, K = -5.9861936919819199, N = Nquad, Method = Meth;
+QF3: Quadrupole, L = 0.1,  K =  5.5858664451858324, N = Nquad, Method = Meth;
+QD3: Quadrupole, L = 0.07, K = -4.4627705490231833, N = Nquad, Method = Meth;
+
+S1: Sextupole, L = 0.0, K = -11.9682981252670295, N = Nsext, Method = Meth;
+S2: Sextupole, L = 0.0, K =  15.5047494664788204, N = Nsext, Method = Meth;
+S3: Sextupole, L = 0.0, K =  -7.8246324002742789, N = Nsext, Method = Meth;
+S4: Multipole, L = 0.0, N = 1, Method = Meth,
+    HOM = (3,   13.4237321898341158, 0.0),
+    HOM = (4, -707.5582384109497980, 0.0),
+    HOM = (5, 118729.9538574218750000, 0.0);
+S5: Multipole, L = 0.0, N = 1, Method = Meth,
+    HOM = (3,  -15.3919928804039934, 0.0),
+    HOM = (4, 2289.6279129028321222, 0.0),
+    HOM = (5, -535917.2119140625000000, 0.0);
+
+FODOH: QD2, O, B2, O, QF2;
+FODO:  S1, FODOH, S2, INV(FODOH), S3;
+
+NC0: FODO, QD2, O, B2;
+
+HCELL: OFW, QF3, S4, QF3, O1F, QD3, S5, QD3, O2F, B2H;
+
+OFFELO:  1*(NC0, HCELL, INV(NC0, HCELL)), CAV;
+
+CELL: OFFELO, SYMMETRY = 1;  
+
+END;

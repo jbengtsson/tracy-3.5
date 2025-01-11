@@ -1,0 +1,149 @@
+!..-ii\opa\1\diamond-ii-new-4-20-15-4-3-5-1+inj-25-drfit-11-25-n-11-2.opa
+
+!opa to elegant export
+
+!----- variables ----------------------------------------------------
+
+!10.opaenergy  = 3
+!dtor          = 0.01745329
+
+!----- table of elements ----------------------------------------------------
+
+dm1    : drift, l = 3.850000
+dm2    : drift, l = 0.075000
+dm3    : drift, l = 0.275000
+dm4    : drift, l = 0.080000
+dm5    : drift, l = 0.075000
+dm6    : drift, l = 0.075000
+dm7    : drift, l = 0.075000
+dm8    : drift, l = 0.361373
+dm9    : drift, l = 0.085000
+dm10   : drift, l = 0.085000
+dm11   : drift, l = 0.590874
+dm12   : drift, l = 0.075000
+dm13   : drift, l = 0.075000
+dm14   : drift, l = 0.150000
+dm15   : drift, l = 0.090000
+dm16   : drift, l = 0.075000
+dm17   : drift, l = 1.500000
+du1    : drift, l = 2.700000
+du2    : drift, l = 0.055000
+du3    : drift, l = 0.075000
+du4    : drift, l = 0.075000
+du5    : drift, l = 0.075000
+du6    : drift, l = 0.075000
+du7    : drift, l = 0.075000
+du8    : drift, l = 0.590874
+du9    : drift, l = 0.085000
+du10   : drift, l = 0.085000
+du11   : drift, l = 0.497900
+du12   : drift, l = 0.075000
+du13   : drift, l = 0.075000
+du14   : drift, l = 0.150000
+du15   : drift, l = 0.090000
+du16   : drift, l = 0.055000
+du17   : drift, l = 1.500000
+
+qu1    : kquad, l = 0.120000, k1 = 8.469412,N_KICKS=24
+qu2    : kquad, l = 0.102000, k1 = -8.343940,N_KICKS=24
+qu3    : kquad, l = 0.100000, k1 = -3.322034,N_KICKS=24
+qu4    : kquad, l = 0.142000, k1 = 8.870700,N_KICKS=24
+qu5    : kquad, l = 0.142000, k1 = -1.532892,N_KICKS=24
+qu6    : kquad, l = 0.136000, k1 = -1.764630,N_KICKS=24
+qu7    : kquad, l = 0.362000, k1 = 6.142107,N_KICKS=24
+qu8    : kquad, l = 0.278000, k1 = 6.724618,N_KICKS=24
+qm1    : kquad, l = 0.155000, k1 = 6.280271,N_KICKS=24
+qm2    : kquad, l = 0.102000, k1 = -4.065356,N_KICKS=24
+qm3    : kquad, l = 0.100000, k1 = -5.149026,N_KICKS=24
+qm4    : kquad, l = 0.142000, k1 = 6.966799,N_KICKS=24
+qm5    : kquad, l = 0.142000, k1 = 2.301417,N_KICKS=24
+qm6    : kquad, l = 0.136000, k1 = -1.158722,N_KICKS=24
+qm7    : kquad, l = 0.280000, k1 = 7.143116,N_KICKS=24
+qm8    : kquad, l = 0.240000, k1 = 7.925746,N_KICKS=24
+
+dl1a_1 : csbend, l = 0.200983, angle = 0.005128, k1 = 0.000000,&
+         e1 = -0.014647, e2 = 0.019775,N_KICKS=50,EDGE_ORDER=1
+dl1a_2 : csbend, l = 0.200983, angle = 0.005903, k1 = 0.000000,&
+         e1 = -0.008744, e2 = 0.014647,N_KICKS=50,EDGE_ORDER=1
+dl1a_3 : csbend, l = 0.200983, angle = 0.006911, k1 = 0.000000,&
+         e1 = -0.001833, e2 = 0.008744,N_KICKS=50,EDGE_ORDER=1
+dl1a_4 : csbend, l = 0.200983, angle = 0.008544, k1 = 0.000000,&
+         e1 = 0.006711, e2 = 0.001833,N_KICKS=50,EDGE_ORDER=1
+dl1a_5 : csbend, l = 0.200983, angle = 0.013064, k1 = 0.000000,&
+         e1 = 0.019775, e2 = -0.006711,N_KICKS=50,EDGE_ORDER=1
+dl1e_1 : csbend, l = 0.200983, angle = 0.005128, k1 = 0.000000,&
+         e1 = 0.019775, e2 = -0.014647,N_KICKS=50,EDGE_ORDER=1
+dl1e_2 : csbend, l = 0.200983, angle = 0.005903, k1 = 0.000000,&
+         e1 = 0.014647, e2 = -0.008744,N_KICKS=50,EDGE_ORDER=1
+dl1e_3 : csbend, l = 0.200983, angle = 0.006911, k1 = 0.000000,&
+         e1 = 0.008744, e2 = -0.001833,N_KICKS=50,EDGE_ORDER=1
+dl1e_4 : csbend, l = 0.200983, angle = 0.008544, k1 = 0.000000,&
+         e1 = 0.001833, e2 = 0.006711,N_KICKS=50,EDGE_ORDER=1
+dl1e_5 : csbend, l = 0.200983, angle = 0.013064, k1 = 0.000000,&
+         e1 = -0.006711, e2 = 0.019775,N_KICKS=50,EDGE_ORDER=1
+dl2b_1 : csbend, l = 0.200983, angle = 0.005128, k1 = 0.000000,&
+         e1 = 0.019775, e2 = -0.014647,N_KICKS=50,EDGE_ORDER=1
+dl2b_2 : csbend, l = 0.200983, angle = 0.005903, k1 = 0.000000,&
+         e1 = 0.014647, e2 = -0.008744,N_KICKS=50,EDGE_ORDER=1
+dl2b_3 : csbend, l = 0.200983, angle = 0.006911, k1 = 0.000000,&
+         e1 = 0.008744, e2 = -0.001833,N_KICKS=50,EDGE_ORDER=1
+dl2b_4 : csbend, l = 0.200983, angle = 0.008544, k1 = 0.000000,&
+         e1 = 0.001833, e2 = 0.006711,N_KICKS=50,EDGE_ORDER=1
+dl2b_5 : csbend, l = 0.200983, angle = 0.013064, k1 = 0.000000,&
+         e1 = -0.006711, e2 = 0.019775,N_KICKS=50,EDGE_ORDER=1
+dl2d_1 : csbend, l = 0.200983, angle = 0.005128, k1 = 0.000000,&
+         e1 = -0.014647, e2 = 0.019775,N_KICKS=50,EDGE_ORDER=1
+dl2d_2 : csbend, l = 0.200983, angle = 0.005903, k1 = 0.000000,&
+         e1 = -0.008744, e2 = 0.014647,N_KICKS=50,EDGE_ORDER=1
+dl2d_3 : csbend, l = 0.200983, angle = 0.006911, k1 = 0.000000,&
+         e1 = -0.001833, e2 = 0.008744,N_KICKS=50,EDGE_ORDER=1
+dl2d_4 : csbend, l = 0.200983, angle = 0.008544, k1 = 0.000000,&
+         e1 = 0.006711, e2 = 0.001833,N_KICKS=50,EDGE_ORDER=1
+dl2d_5 : csbend, l = 0.200983, angle = 0.013064, k1 = 0.000000,&
+         e1 = 0.019775, e2 = -0.006711,N_KICKS=50,EDGE_ORDER=1
+
+su1    : ksext, l = 0.100000, k2 = -93.351610,N_KICKS=24
+su2    : ksext, l = 0.140000, k2 = -371.332036,N_KICKS=24
+su3    : ksext, l = 0.070000, k2 = 414.611462,N_KICKS=24
+su4    : ksext, l = 0.140000, k2 = -531.263794,N_KICKS=24
+sm1    : ksext, l = 0.140000, k2 = 68.390536,N_KICKS=24
+sm2    : ksext, l = 0.140000, k2 = -706.044560,N_KICKS=24
+sm3    : ksext, l = 0.070000, k2 = 928.906962,N_KICKS=24
+sm4    : ksext, l = 0.140000, k2 = -807.923148,N_KICKS=24
+
+dq1    : csbend, l = 0.866900, angle = 0.046563, k1 = -2.940447,&
+         e1 = 0.023282, e2 = 0.023282,N_KICKS=50,EDGE_ORDER=1
+dq2u   : csbend, l = 0.300000, angle = 0.005236, k1 = 0.000000,&
+         e1 = 0.002618, e2 = 0.002618,N_KICKS=50,EDGE_ORDER=1
+dq2m   : csbend, l = 0.300000, angle = 0.005236, k1 = -1.795000,&
+         e1 = 0.002618, e2 = 0.002618,N_KICKS=50,EDGE_ORDER=1
+
+MAL: MALIGN,ON_PASS=1,FORCE_MODIFY_MATRIX=1
+
+BPM: MONI 
+HCOR: DRIFT,L=0.0
+VCOR: DRIFT,L=0.0
+BHVCOR: LINE=(BPM,HCOR,VCOR)
+!----- table of segments ----------------------------------------------------
+
+minj      : line=(dm17, BHVCOR, qm8, dm16, dq1, dm15, qm7, BHVCOR, dm14, dl2d_5,&
+            dl2d_4, dl2d_3, dl2d_2, dl2d_1, dm13, qm6, dm12, sm4, dm11, qm5,&
+            dm10, sm3, BHVCOR, sm3, dm9, qm4, dm8, sm2, dm7, BHVCOR, qm3, dm6, dl1e_1, dl1e_2,&
+            dl1e_3, dl1e_4, dl1e_5, dm5, BHVCOR, qm2, dm4, sm1, dm3, dq2m, dm2, qm1, BHVCOR,&
+            dm1)
+u         : line=(du1, BHVCOR, qu1, du2, su1, du3, dq2u, du4, qu2, du5, BHVCOR,&
+            dl1a_5, dl1a_4, dl1a_3, dl1a_2, dl1a_1, du6, qu3, du7, su2, du8, BHVCOR,&
+            qu4, du9, su3, su3, du10, qu5, du11, su4, du12, BHVCOR, qu6, du13, dl2b_1,&
+            dl2b_2, dl2b_3, dl2b_4, dl2b_5, du14, BHVCOR, qu7, du15, dq1, du16, qu8,BHVCOR,&
+            du17)
+
+unit      : line=(-u, u)
+nminj     : line=(-minj)
+mp        : line=(-minj, minj)
+nu        : line=(-u)
+periodinj : line=(-minj, 3*unit, minj)
+2perinj   : line=(2*periodinj)
+ring      : line=(mal,periodinj,periodinj,periodinj,periodinj,periodinj,periodinj)
+ringn     : line=(periodinj)
+
+!..-ii\opa\1\diamond-ii-new-4-20-15-4-3-5-1+inj-25-drfit-11-25-n-11-2.opa

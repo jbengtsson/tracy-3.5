@@ -1,0 +1,39 @@
+{ J.B. 09/10/14
+
+  Scale invariant minimum emittance cell with minimized vertical chromaticity:
+
+  eps_r = 1
+  nu    = [ 0.781,  0.220]
+  ksi   = [-1.196, -1.718]
+}
+
+define lattice; ringtype = 1;
+
+dP = 1e-8; CODeps = 1e-14;
+
+Meth = 4; Nbend = 10; Nquad = 1;
+
+CAV: Cavity, Frequency = 1e6, Voltage = 1.00e6, Harnum = 1;
+
+{ Input parameters. }
+Energy = 3.0; Lb = 0.1*1.0; phib = 3.0;
+
+{ Output lattice. }
+
+D1: Drift, L = 0.881213*Lb;
+
+BH: Bending, L = Lb/2.0, K = 0.0, T = phib/2.0, T1 = 0.0, T2 = 0.0,
+    N = Nbend, Method = Meth;
+
+QF: Quadrupole, L = 0.0, K =  2.86572/Lb, N = Nquad, Method = Meth;
+QD: Quadrupole, L = 0.0, K = -1.24088/Lb, N = Nquad, Method = Meth;
+
+HCELL: QD, BH, QF, D1;
+
+FCELL: INV(HCELL), HCELL;
+
+LINE: FCELL, CAV;
+
+CELL: LINE, SYMMETRY = 1;
+
+END;

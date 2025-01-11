@@ -1,0 +1,153 @@
+define lattice;
+{ New W3E4LS3S5-C6x6Qfgdr EX_2.0 TPW H(8.6) L(6.6M)PMTPW(0.40M) }
+Energy = 3.0;
+
+dP = 1e-10; CODeps = 1e-14;
+
+Meth = 4; Nbend = 4; Nquad = 4;
+
+pi = 4.0*arctan(1.0);
+
+BPM: Beam Position Monitor ;
+HCM: Corrector, Horizontal, Method= Meth;
+VCM: Corrector, Vertical, Method= Meth;
+BHV: BPM, HCM, VCM ; 
+
+D0:   Drift, L = 4.1500;
+D1A:  Drift, L = 0.15000;
+D1B:  Drift, L = 0.4000;
+D1B2:  Drift, L = 0.200 ;
+D2A:  Drift, L = 0.1500 ;
+D3A:  Drift, L = 0.1500;
+D3B:  Drift, L = 0.19000;
+D4A:  Drift, L = 0.15000;
+D4B:  Drift, L = 0.69000;
+D4B1: Drift, L = 0.300;
+D4B2: Drift, L = 0.390;
+D5HC:  Drift, L = 0.3000;
+D5W:  Drift, L = 0.2000;
+DPW:  Drift, L = 0.2000;
+D5C:  Drift, L = 0.2500;
+D5A:  Drift, L = 0.15000;
+D6A:  Drift, L = 0.16000;
+D6B:  Drift, L = 0.150000;
+D7:   Drift, L = 0.35;
+D7H:  Drift, L = 0.175;
+DCH:  Drift, L = 0.15;
+D44A:  Drift, L = 0.2000;
+DHVC:  Drift, L = 0.15;
+D44B:  Drift, L = 0.2700;
+D4L1:  Drift, L = 0.13500;
+D4L2:  Drift, L = 0.13500;
+D33A: Drift, L = 0.1500;
+D33B: Drift, L = 0.15000;
+D22A: Drift, L = 0.40000;
+D22AH: Drift, L = 0.2000;
+D22B: Drift, L = 0.1500 ;  
+D11A: Drift, L = 0.3000;
+D11B: Drift, L = 0.15000;
+D00:  Drift, L = 3.00000;
+DSX: Drift,  L = 0.1000;
+DSD: Drift,  L = 0.125;
+DSL: Drift,  L = 0.15;
+
+{ W3E4LSPER EX_2.0 H(8.6) L(6.6M) 5-TPW(0.2M-2MRAD }                     
+Q1       : Quadrupole, L = 0.300000, K = 0.000000,  N = Nquad, Method = Meth;
+Q2       : Quadrupole, L = 0.300000, K =  -0.965183,  N = Nquad, Method = Meth;
+Q3       : Quadrupole, L = 0.400000, K =  1.839865,  N = Nquad, Method = Meth;
+Q4       : Quadrupole, L = 0.300000, K = -1.439157,  N = Nquad, Method = Meth;
+QF1      : Quadrupole, L = 0.300000, K =  1.651384,  N = Nquad, Method = Meth;
+QD1      : Quadrupole, L = 0.300000, K = -1.160051,  N = Nquad, Method = Meth;
+QCH      : Quadrupole, L = 0.100000, K = -0.439999,  N = Nquad, Method = Meth;
+Q44      : Quadrupole, L = 0.300000, K = -1.624906,  N = Nquad, Method = Meth;
+Q33      : Quadrupole, L = 0.500000, K =  1.880134,  N = Nquad, Method = Meth;
+Q22      : Quadrupole, L = 0.300000, K = -1.372675,  N = Nquad, Method = Meth;
+
+B1: Bending, L = 2.62, T =  6.0000,
+    T1 =  3.000, T2 =  3.0000, N = Nbend, Method = Meth;
+{ W3E4LS36.OPA } 
+S1       : Sextupole, K =  0.000000, N = 1, Method = Meth;
+S2       : Sextupole, K =  1.999987, N = 1, Method = Meth;
+S3       : Sextupole, K = -1.683879, N = 1, Method = Meth;
+S4       : Sextupole, K =  0.000000, N = 1, Method = Meth;
+SD1      : Sextupole, K = -0.608855, N = 1, Method = Meth;
+SF1      : Sextupole, K = -1.811952, N = 1, Method = Meth;
+SF2      : Sextupole, K =  1.944505, N = 1, Method = Meth;
+SL1      : Sextupole, K =  0.000000, N = 1, Method = Meth;
+SL2      : Sextupole, K =  1.999997, N = 1, Method = Meth;
+SL3      : Sextupole, K = -0.464359, N = 1, Method = Meth;
+SL4      : Sextupole, K = -1.999795, N = 1, Method = Meth;
+
+SQ: Multipole, N = 1, Method = Meth;
+
+MP : Marker;
+GS: Multipole, N = 1, Method = Meth;
+GE: Multipole, N = 1, Method = Meth;
+
+TPW: Multipole, N = 1, Method = Meth;
+
+c0 = 2.99792458e8; h_rf = 1320; C = 783.3;
+
+Brho = 1e9*Energy/c0;
+
+CAV: Cavity, Frequency = c0/C*h_rf, Voltage = 5.00e6, Harnum = h_rf;
+
+{ Mini Gap Undulator }
+lambda_CPMU = 19e-3; n_CPMU = 158/2; B_CPMU = 2.2/(0.934*1e2*lambda_CPMU);
+L_CPMU = n_CPMU*lambda_CPMU;
+
+D_CPMU: Drift, L = -L_CPMU/2.0;
+
+CPMU1: Wiggler, L = L_CPMU/2.0, lambda = lambda_CPMU,
+       kxV = 0.0, BoBrhoV = B_CPMU/Brho, N = n_CPMU*4, Method = 1;
+
+CPMU: D_CPMU, CPMU1;
+
+LB: D11A,DSX,S1,DSX, D11B, BPM,Q22, D22AH,HCM,VCM,D22AH, 
+    DSX, S2, DSX, D22B, Q33, D33A, 
+    DSX, S3, DSX, D33B, Q44, BPM, D44A, 
+    D4L1, DHVC, HCM, VCM;
+
+HB: SL1, D1A,Q2,BPM, D2A, DSX,SL2,DSX, 
+    D1B2, HCM, VCM, D1B2, Q3, D3A, 
+    DSX, SL3, DSX, D3B, Q4, BPM, D4A, 
+    DSX, SL4, DSX , D4B1, HCM, VCM;
+
+HB_SQ: SL1, D1A,Q2,BPM, D2A, DSX,SL2,DSX, 
+    D1B2, SQ, HCM,VCM, D1B2,Q3, D3A, 
+    DSX, SL3, DSX, D3B, Q4, BPM, D4A, 
+    DSX, SL4, DSX , D4B1, HCM, VCM;
+
+DISP:  D5C, VCM, HCM,  D5HC, DSD, SD1, DSD, 
+      D5A,BPM, QD1, D6A, DSD, SF1, DSD, D6B, QF1,D7,
+      DSX, SF2, DSX ; 
+
+DISP_SQ: D5C,VCM, HCM,SQ,D5HC, DSD, SD1, DSD, 
+      D5A,BPM, QD1, D6A, DSD, SF1, DSD, D6B, QF1,D7,
+      DSX, SF2, DSX ; 
+
+DBA: B1, D5W,DPW,  
+     GS, DISP,DCH, QCH, MP, QCH, DCH, INV(DISP), GE, 
+     DPW,D5W, B1;
+
+DBA_SQ: B1, D5W, TPW, DPW, 
+      GS, DISP_SQ,DCH, QCH, MP, QCH, DCH, INV(DISP), GE, 
+      DPW,D5W, B1;
+
+LINE: D0, GS, HB_SQ, GE, D4B2, DBA_SQ, D4L2, GS, INV(LB), GE, D00, 
+      D00, GS, LB, GE, D4L2, DBA, D4B2, GS, INV(HB), GE, D0;
+
+LINE_CPMU: D0, GS, HB_SQ, GE, D4B2, DBA_SQ, D4L2, GS, INV(LB), GE, D00,
+           CPMU, INV(CPMU), 
+           D00, GS, LB, GE, D4L2, DBA, D4B2, GS, INV(HB), GE, D0;
+
+N_CPMU = 5; N_LINE = 15 - N_CPMU;
+{RING: N_LINE*LINE N_CPMU*LINE_CPMU, CAV;}
+
+{RING: 15*LINE, CAV;}
+
+RING: LINE, CAV;
+
+CELL: RING, SYMMETRY  = 1;
+
+END;

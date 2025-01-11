@@ -1,0 +1,148 @@
+define lattice;
+
+Energy = 1.7;
+
+dp = 1.0d-10;  codeps = 1.0d-6;  dk = 1.0d-6;
+
+c0     = 2.99792458e8;
+Brho   = Energy/c0;
+pi     = 3.14159;
+n_step = 10;
+
+coeff_1 = 45.0 / 192.5 / Brho;
+coeff_2 = 45.0 / 193.9 / Brho;
+
+iQ1PT  = 41.31  * coeff_1;
+iQ3PT  = 37.423 * coeff_1;
+iQ4PT  = 23.427 * coeff_1;
+iQ5PT  = 30.368 * coeff_1;
+iQ8PT  = 67.938 * coeff_1;
+iQ9PT  = 55.465 * coeff_1;
+iQ10PT = 43.048 * coeff_2;
+iQ12PT = 56.0   * coeff_2;
+
+{*******************************************************************************
+ * define elements
+ *****************************************************************************/}
+
+{ Vertically focusing. }
+Q1MT:  Quadrupole, L = 0.2635, K = -iQ1PT,  N = n_step, Method = 4;
+Q3MT:  Quadrupole, L = 0.2635, K =  iQ3PT,  N = n_step, Method = 4;
+Q4MT:  Quadrupole, L = 0.2635, K =  iQ4PT,  N = n_step, Method = 4;
+{ Vertically focusing. }
+Q5MT:  Quadrupole, L = 0.2635, K = -iQ5PT,  N = n_step, Method = 4;
+Q8MT:  Quadrupole, L = 0.2635, K =  iQ8PT,  N = n_step, Method = 4;
+{ Vertically focusing. }
+Q9MT:  Quadrupole, L = 0.2635, K = -iQ9PT,  N = n_step, Method = 4;
+{ Vertically focusing. }
+Q10MT: Quadrupole, L = 0.2135, K = -iQ10PT, N = n_step, Method = 4;
+Q12MT: Quadrupole, L = 0.2135, K =  iQ12PT, N = n_step, Method = 4;
+
+phi_1 = -5.55769;
+SEK1S12B: Bending, L=  0.7, T = phi_1, T1 = phi_1/2.0, T2 = phi_1/2, K = 0.0,
+	  N = n_step, Method = 4;
+SEK2S12B: Bending, L=  0.7, T = phi_1, T1 = phi_1/2.0, T2 = phi_1/2, K = 0.0,
+	  N = n_step, Method = 4;
+
+B1M1T:    Bending, L = 1.778, T =  22.0, K = 0.0, N = n_step, Method = 4;
+{ J.B. 03/04/23: Sign error? }
+B1M2T:    Bending, L = 1.778, T = -22.0, K = 0.0, N = n_step, Method = 4;
+phi_2 = 7.74639;
+B2MT:     Bending, L = 1.02,  T =  phi_2, T1 = phi_2/2.0, T2 = phi_2/2.0,
+	  K = 0.0, N = n_step, Method = 4;
+
+FOMZ1T: Marker;
+FOMZ2T: Marker;
+FOMZ3T: Marker;
+FOMZ4T: Marker;
+FOMZ5T: Marker;
+FOMZ6T: Marker;
+FOMZ7T: Marker;
+FOMZ8T: Marker;
+
+BPMZ1T: Marker;
+BPMZ2T: Marker;
+BPMZ3T: Marker;
+BPMZ4T: Marker;
+BPMZ5T: Marker;
+BPMZ6T: Marker;
+
+{ Orbit trims. }
+H1MT: Bending, L = 0.1, T = 0.0, K = 0.0, N = n_step, Method = 4;
+V1MT: Bending, L = 0.1, T = 0.0, K = 0.0, N = n_step, Method = 4;
+H2MT: Bending, L = 0.1, T = 0.0, K = 0.0, N = n_step, Method = 4;
+V2MT: Bending, L = 0.1, T = 0.0, K = 0.0, N = n_step, Method = 4;
+H3MT: Bending, L = 0.1, T = 0.0, K = 0.0, N = n_step, Method = 4;
+V3MT: Bending, L = 0.1, T = 0.0, K = 0.0, N = n_step, Method = 4;
+H4MT: Bending, L = 0.1, T = 0.0, K = 0.0, N = n_step, Method = 4;
+V4MT: Bending, L = 0.1, T = 0.0, K = 0.0, N = n_step, Method = 4;
+H5MT: Bending, L = 0.1, T = 0.0, K = 0.0, N = n_step, Method = 4;
+V5MT: Bending, L = 0.1, T = 0.0, K = 0.0, N = n_step, Method = 4;
+H6MT: Bending, L = 0.1, T = 0.0, K = 0.0, N = n_step, Method = 4;
+V6MT: Bending, L = 0.1, T = 0.0, K = 0.0, N = n_step, Method = 4;
+H7MT: Bending, L = 0.1, T = 0.0, K = 0.0, N = n_step, Method = 4;
+V7MT: Bending, L = 0.1, T = 0.0, K = 0.0, N = n_step, Method = 4;
+V8MT: Bending, L = 0.1, T = 0.0, K = 0.0, N = n_step, Method = 4;
+
+
+DRIFT_0:  Drift, L = 0.07500000;
+DRIFT_1:  Drift, L = 0.07500000;
+DRIFT_2:  Drift, L = 0.25800000;
+DRIFT_3:  Drift, L = 0.06500000;
+DRIFT_4:  Drift, L = 0.96500000;
+DRIFT_5:  Drift, L = 0.31325000;
+DRIFT_6:  Drift, L = 0.83650000;
+DRIFT_7:  Drift, L = 0.19825000;
+DRIFT_8:  Drift, L = 0.09000000;
+DRIFT_9:  Drift, L = 0.07500000;
+DRIFT_10: Drift, L = 0.23500000;
+DRIFT_11: Drift, L = 0.28800000;
+DRIFT_12: Drift, L = 0.06500000;
+DRIFT_13: Drift, L = 0.14025000;
+DRIFT_14: Drift, L = 0.04225000;
+DRIFT_15: Drift, L = 0.04425000;
+DRIFT_16: Drift, L = 3.09625000;
+DRIFT_17: Drift, L = 1.60100000;
+DRIFT_18: Drift, L = 0.17100000;
+DRIFT_19: Drift, L = 0.06500000;
+DRIFT_20: Drift, L = 0.67825000;
+DRIFT_21: Drift, L = 0.28650000;
+DRIFT_22: Drift, L = 0.58425000;
+DRIFT_23: Drift, L = 0.22000000;
+DRIFT_24: Drift, L = 0.06500000;
+DRIFT_25: Drift, L = 0.22400000;
+DRIFT_26: Drift, L = 0.24325000;
+DRIFT_27: Drift, L = 0.02725000;
+DRIFT_28: Drift, L = 0.30000000;
+DRIFT_29: Drift, L = 0.05925000;
+DRIFT_30: Drift, L = 0.14225000;
+DRIFT_31: Drift, L = 0.05300000;
+DRIFT_32: Drift, L = 0.11400000;
+DRIFT_33: Drift, L = 0.23100000;
+DRIFT_34: Drift, L = 0.95000000;
+DRIFT_35: Drift, L = 0.13900000;
+
+START: Marker;
+
+TL:
+  START,
+  SEK1S12B,
+  DRIFT_0, FOMZ1T, DRIFT_1,
+  SEK2S12B,
+  DRIFT_2, FOMZ2T, DRIFT_3, BPMZ1T, DRIFT_4, H1MT, V1MT, DRIFT_5, Q1MT,
+  DRIFT_6, Q3MT, DRIFT_7, FOMZ3T, DRIFT_8, BPMZ2T, DRIFT_9, H2MT, V2MT,
+  DRIFT_10,
+  { Start chicane. }
+  B1M1T, DRIFT_11, FOMZ4T, DRIFT_12, BPMZ3T, DRIFT_13, Q4MT, DRIFT_14, H3MT,
+  V3MT, DRIFT_15, Q5MT, DRIFT_16, H4MT, V4MT, DRIFT_17, H5MT, V5MT, DRIFT_18,
+  FOMZ5T, DRIFT_19, BPMZ4T, DRIFT_20, Q8MT, DRIFT_21, Q9MT, DRIFT_22, H6MT,
+  V6MT, DRIFT_23, FOMZ6T, DRIFT_24, BPMZ5T, DRIFT_25, B1M2T,
+  { End chicane. }
+  DRIFT_26, Q10MT, DRIFT_27, H7MT, DRIFT_28, V7MT, DRIFT_29, Q12MT, DRIFT_30,
+  FOMZ7T, DRIFT_31, BPMZ6T, DRIFT_32, B2MT,
+  DRIFT_33, V8MT, DRIFT_34, FOMZ8T,
+  DRIFT_35;
+
+cell: TL, symmetry = 1;
+
+end;

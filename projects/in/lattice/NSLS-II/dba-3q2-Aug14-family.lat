@@ -1,0 +1,164 @@
+{ New DBA30HLC16Es2rng7x7s.opa H(8m) L(5m)Rho = 25m }
+
+define lattice; ringtype = 1;
+
+Energy = 3.0;
+
+dP = 1e-8; CODeps = 1e-14;  
+  
+Meth = 4; Nbend = 4; Nquad = 4;  
+  
+pi = 4.0*arctan(1.0);  
+  
+BPM: Beam Position Monitor ;  
+HCM: Corrector, Horizontal, Method =  Meth;  
+VCM: Corrector, Vertical, Method =  Meth;  
+ 
+
+AS1D1A : Drift, L=4.647635;
+AS1D1B : Drift, L=4.647635;
+AS2D1 : Drift, L=0.15;
+AS2D2A : Drift, L=0.15;
+AS2D2B : Drift, L=0.2;
+AS2D2C : Drift, L=0.2;
+AS2D3A : Drift, L=0.191;
+AS2D3B : Drift, L=0.22;
+AS2D4A : Drift, L=0.15;
+AS2D4B : Drift, L=0.3;
+AS3D1 : Drift, L=0.39;
+AS3D2 : Drift, L=0.2;
+AS3DPW : Drift, L=0.2;
+AS4D1A : Drift, L=0.25;
+AS4D1B : Drift, L=0.3;
+AS4D1C : Drift, L=0.15;
+AS4D2A : Drift, L=0.235;
+AS4D2B : Drift, L=0.4;
+AS4D3 : Drift, L=0.25;
+AS5D1 : Drift, L=0.39;
+AS5D2 : Drift, L=0.2;
+AS5DPW : Drift, L=0.2;
+AS6D1 : Drift, L=0.15;
+AS6D2A : Drift, L=0.15;
+AS6D2B : Drift, L=0.2;
+AS6D2C : Drift, L=0.2;
+AS6D3A : Drift, L=0.191;
+AS6D3B : Drift, L=0.22;
+AS6D4A : Drift, L=0.15;
+AS6D4B : Drift, L=0.3;
+BS1D1A : Drift, L=3.3;
+BS1D1B : Drift, L=3.3;
+BS2D2A : Drift, L=0.2;
+BS2D2B : Drift, L=0.2;
+BS2D2C : Drift, L=0.15;
+BS2D3A : Drift, L=0.32;
+BS2D3B : Drift, L=0.15;
+BS2D4A : Drift, L=0.15;
+BS2D4B : Drift, L=0.2;
+BS2D4C : Drift, L=0.135;
+BS2D4D : Drift, L=0.15;
+BS3D1 : Drift, L=0.135;
+BS3D2 : Drift, L=0.2;
+BS3DPW : Drift, L=0.2;
+BS4D1A : Drift, L=0.25;
+BS4D1B : Drift, L=0.3;
+BS4D1C : Drift, L=0.15;
+BS4D2A : Drift, L=0.235;
+BS4D2B : Drift, L=0.4;
+BS4D3 : Drift, L=0.25;
+BS5D1 : Drift, L=0.135;
+BS5D2 : Drift, L=0.2;
+BS5DPW : Drift, L=0.2;
+BS6D2A : Drift, L=0.2;
+BS6D2B : Drift, L=0.2;
+BS6D2C : Drift, L=0.15;
+BS6D3A : Drift, L=0.32;
+BS6D3B : Drift, L=0.15;
+BS6D4A : Drift, L=0.15;
+BS6D4B : Drift, L=0.2;
+BS6D4C : Drift, L=0.135;
+BS6D4D : Drift, L=0.15;
+DSC : Drift, L=0.075;
+DSD : Drift, L=0.125;
+DSX : Drift, L=0.1; 
+
+AS3B1: Bending, L = 2.62, T = 6, T1 = 3, T2 = 3, N = Nbend, Method = Meth;  
+AS5B1: Bending, L = 2.62, T = 6, T1 = 3, T2 = 3, N = Nbend, Method = Meth;  
+BS3B1: Bending, L = 2.62, T = 6, T1 = 3, T2 = 3, N = Nbend, Method = Meth;  
+BS5B1: Bending, L = 2.62, T = 6, T1 = 3, T2 = 3, N = Nbend, Method = Meth;   
+
+AQ1: Quadrupole,L = 0.3, K=-0.789591570875349, N = Nquad, Method = Meth;  
+AQ2: Quadrupole,L = 0.4, K=1.6802885160293, N = Nquad, Method = Meth;  
+AQ3: Quadrupole,L = 0.3, K=-1.33993488024279, N = Nquad, Method = Meth;  
+
+BQ1: Quadrupole,L = 0.3, K=-1.73209175314453, N = Nquad, Method = Meth;  
+BQ2: Quadrupole,L = 0.5, K=1.81032768544728, N = Nquad, Method = Meth;  
+BQ3: Quadrupole,L = 0.3, K=-1.35879466678802, N = Nquad, Method = Meth;  
+
+S4Q1: Quadrupole,L = 0.3, K=-1.05912117990908, N = Nquad, Method = Meth;  
+S4Q2: Quadrupole,L = 0.3, K=1.4141017765574, N = Nquad, Method = Meth;  
+
+
+AS1: Sextupole, L = 0.0, K = 0, N = 1, Method = Meth; 
+AS2: Sextupole, L = 0.0, K = 0, N = 1, Method = Meth; 
+AS3: Sextupole, L = 0.0, K = 0, N = 1, Method = Meth; 
+AS4: Sextupole, L = 0.0, K = 0, N = 1, Method = Meth; 
+
+S4S1: Sextupole, L = 0.0, K = 0, N = 1, Method = Meth; 
+S4S2: Sextupole, L = 0.0, K = 0, N = 1, Method = Meth; 
+S4S3: Sextupole, L = 0.0, K = 0, N = 1, Method = Meth; 
+
+BS1: Sextupole, L = 0.0, K = 0, N = 1, Method = Meth; 
+BS2: Sextupole, L = 0.0, K = 0, N = 1, Method = Meth; 
+BS3: Sextupole, L = 0.0, K = 0, N = 1, Method = Meth; 
+
+O1: Multipole, L = 0.0, Method = Meth;
+O2: Multipole, L = 0.0, Method = Meth;
+
+SS: Marker;  
+LS: Marker;  
+MP: Marker;  
+GS: Multipole, N = 1, Method = Meth;  
+GE: Multipole, N = 1, Method = Meth;  
+  
+
+c0 = 2.99792458e8; h_rf = 1320; C = 791.95905006599969;  
+  
+CAV: Cavity, Frequency = c0/C*h_rf, Voltage = 5.00e6, Harnum = h_rf;  
+
+
+HBS2: DSX,AS1,DSX,AS2D1,AQ1,BPM,AS2D2A,DSX,AS2,DSX,AS2D2B,HCM,VCM,AS2D2C,AQ2,
+      AS2D3A,DSX,AS3,DSX,AS2D3B,AQ3,BPM,AS2D4A,DSX,AS4,DSX,AS2D4B,HCM,VCM;
+
+HBS6: DSX,AS1,DSX,AS6D1,AQ1,BPM,AS6D2A,DSX,AS2,DSX,AS6D2B,HCM,VCM,AS6D2C,AQ2,
+      AS6D3A,DSX,AS3,DSX,AS6D3B,AQ3,BPM,AS6D4A,DSX,AS4,DSX,AS6D4B,HCM,VCM;
+
+LBS2: BPM,BQ1,BS2D2A,HCM,VCM,BS2D2B,DSX,BS1,DSX,BS2D2C,BQ2,BS2D3A,DSX,BS2,DSX,
+      BS2D3B,BQ3,BS2D4A,DSX,BS3,DSX,BPM,BS2D4B,BS2D4C,BS2D4D,HCM,VCM;
+
+LBS6: BPM,BQ1,BS6D2A,HCM,VCM,BS6D2B,DSX,BS1,DSX,BS6D2C,BQ2,BS6D3A,DSX,BS2,DSX,
+      BS6D3B,BQ3,BS6D4A,DSX,BS3,DSX,BPM,BS6D4B,BS6D4C,BS6D4D,HCM,VCM;
+
+
+DISPA: AS4D1A,VCM,HCM,AS4D1B,DSD,S4S1,DSD,AS4D1C,BPM,S4Q1,AS4D2A,S4S3,AS4D2B,
+       S4Q2,AS4D3,DSC,S4S2,DSC;
+
+DISPA_O: AS4D1A,VCM,HCM,AS4D1B,DSD,S4S1,DSD,AS4D1C,BPM,S4Q1,AS4D2A, O1, AS4D2B,
+         S4Q2,AS4D3,DSC,S4S2,DSC;
+
+DISPB: BS4D1A,VCM,HCM,BS4D1B,DSD,S4S1,DSD,BS4D1C,BPM,S4Q1,BS4D2A,S4S3,BS4D2B,
+       S4Q2,BS4D3,DSC,S4S2,DSC;
+
+DBA1: AS3D1,AS3B1,AS3D2,AS3DPW, O2,GS,DISPA,MP,INV(DISPB),GE,BS5DPW,BS5D2,
+      BS5B1,BS5D1;
+
+DBA2: BS3D1,BS3B1,BS3D2,BS3DPW, O2,GS,DISPB,MP,INV(DISPA),GE,AS5DPW,AS5D2,
+      AS5B1,AS5D1;
+
+ONESP: AS1D1B,GS,HBS2,GE,DBA1,GS,INV(LBS6),GE,BS1D1A, SS, BS1D1B,GS,LBS2,GE,
+       DBA2,GS,INV(HBS6),GE,AS1D1A, LS;
+
+RING: 1*ONESP, CAV;
+
+CELL: RING, SYMMETRY = 1;  
+
+END;

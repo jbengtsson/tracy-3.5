@@ -1,0 +1,366 @@
+define lattice;
+energy = 3.500000;
+dp = 1d-6;  codeps = 1d-6;  dk = 1d-6;
+meth = 4; nbend = 10; nquad = 10; nsext = 2;
+
+pi = 4.0*arctan(1.0);
+c0 = 2.99792458e8; gamma = 3.5e9/c0; Brho = 1e9*Energy/c0;
+h_rf = 934; C = 6*93.4362400;
+
+{----- table of elements ----------------------------------------------------}
+
+{ CDR: Bare Lattice 1.66 MV, with IDs 2.69.
+       V_RF = 1.5 MV => delta^ = 4.0%, sigma_s = 3.0 mm. }
+cav: Cavity, L = 0.0, Frequency = c0/C*h_rf, Voltage = 2.69e6, harnum = h_rf,
+     phi = 0.0;
+
+dcor:     drift, l = 0.000000;
+dcor1:    drift, l = 0.040000;
+
+dr_01_id: drift, l = 1.000000;
+dr_01:    drift, l = 1.457490;
+dr_02:    drift, l = 0.075000;
+dr_03:    drift, l = 0.075000;
+dr_04:    drift, l = 0.080000;
+dr_05:    drift, l = 0.075000;
+dr_02_id: drift, l = 0.750000;
+
+d_16:     drift, L = 0.330500-0.075-0.09;
+d_14:     drift, l = 0.075000;
+d_13:     drift, l = 0.075000;
+d_12:     drift, L = 0.155500;
+d_11:     drift, l = 0.075000;
+d_10:     drift, l = 0.075000;
+d_09:     drift, l = 0.075000;
+d_08:     drift, l = 0.100000;
+d_07:     drift, l = 0.080000;
+d_06:     drift, l = 0.197000;
+d_05:     drift, l = 0.090000;
+d_04:     drift, l = 0.090000;
+d_03:     drift, l = 0.075000;
+d_02:     drift, l = 0.075000;
+d_01:     drift, L = 0.634040;
+d_01_id:  drift, L = 0.750000;
+
+dl_27:    drift, l = 3.69749;
+dl_26:    drift, l = 0.075000;
+dl_25:    drift, l = 0.045000;
+dl_24:    drift, l = 0.045000;
+dl_23:    drift, l = 0.075000;
+dl_22:    drift, l = 0.060000;
+dl_21:    drift, l = 0.060000;
+dl_20:    drift, l = 0.075000;
+
+b_t: marker;
+ms:  marker;
+ss:  marker;
+ls:  marker;
+
+dl1a_1:   bending, l =  0.20000000,
+    t =  0.35831236, t1 =  0.00000000, t2 =  0.35831236, k = -0.69803064,
+    n = nbend, method = 4;
+dl1a_2:   bending, l =  0.20000000,
+    t =  0.41244954, t1 = -0.35831236, t2 =  0.77076191, k = -0.69803064,
+    n = nbend, method = 4;
+dl1a_3:   bending, l =  0.20000000,
+    t =  0.48286297, t1 = -0.41244954, t2 =  1.25362488, k = -0.69803064,
+    n = nbend, method = 4;
+dl1a_4:   bending, l =  0.20000000,
+    t =  0.59696252, t1 = -0.48286297, t2 =  1.85058739, k = -0.69803064,
+    n = nbend, method = 4;
+dl1a_5:   bending, l =  0.20000000,
+    t =  0.91277978, t1 = -0.59696252, t2 =  2.76336717, k = -0.69803064,
+    n = nbend, method = 4;
+dl2a_1:   bending, l =  0.20000000,
+    t =  0.37434306, t1 =  0.00000000, t2 =  0.37434306, k = -0.27445164,
+    n = nbend, method = 4;
+dl2a_2:   bending, l =  0.20000000,
+    t =  0.43090230, t1 = -0.37434306, t2 =  0.80524536, k = -0.27445164,
+    n = nbend, method = 4;
+dl2a_3:   bending, l =  0.20000000,
+    t =  0.50446599, t1 = -0.43090230, t2 =  1.30971135, k = -0.27445164,
+    n = nbend, method = 4;
+dl2a_4:   bending, l =  0.20000000,
+    t =  0.62367028, t1 = -0.50446599, t2 =  1.93338164, k = -0.27445164,
+    n = nbend, method = 4;
+dl2a_5:   bending, l =  0.20000000,
+    t =  0.95361703, t1 = -0.62367028, t2 =  2.88699867, k = -0.27445164,
+    n = nbend, method = 4;
+
+qf4:      bending, l =  0.15000000,
+    t = -0.16526967, t1 = -0.08263483, t2 = -0.08263483, k =  4.75362695,
+    n = nbend, method = 4;
+qf8:      bending, l =  0.25000000,
+    t = -0.19536573, t1 = -0.09768286, t2 = -0.09768286, k =  6.49852987,
+    n = nbend, method = 4;
+dq1:      bending, l =  0.87000000,
+    t =  2.37553922, t1 =  1.18776961, t2 =  1.18776961, k = -2.77444480,
+    n = nbend, method = 4;
+
+qd3:      quadrupole, l = 0.15000000, k =   -0.21593077, n = nquad, method = 4;
+qd5:      quadrupole, l = 0.11500000, k =   -5.47220072, n = nquad, method = 4;
+qd2:      quadrupole, l = 0.18500000, k =   -5.40053824, n = nquad, method = 4;
+qf1:      quadrupole, l = 0.25000000, k =    7.29996843, n = nquad, method = 4;
+qf6:      quadrupole, l = 0.36000000, k =    7.30000000, n = nquad, method = 4;
+
+qd2_c1:   quadrupole, l = 0.11500000, k =    4.56497412, n = nquad, method = 4;
+qf1_c1:   quadrupole, l = 0.18500000, k =   -5.82337765, n = nquad, method = 4;
+quad_add: quadrupole, l = 0.18500000, k =    6.23068804, n = nquad, method = 4;
+
+sf1:      sextupole,  l = 0.07000000, k =  197.26552373, n = nsext, method = 4;
+sd1:      sextupole,  l = 0.14000000, k = -222.86753326, n = nsext, method = 4;
+sd2:      sextupole,  l = 0.14000000, k = -118.91517696, n = nsext, method = 4;
+
+sh1:      sextupole,  l = 0.10000000, k =    4.97640944, n = nsext, method = 4;
+sh2:      sextupole,  l = 0.10000000, k =  -76.14377030, n = nsext, method = 4;
+s:        sextupole,  l = 0.10000000, k =    3.77848049, n = nsext, method = 4;
+
+of1:      multipole,  l = 0.09000000,
+          hom = (4, 1.63194419e+02, 0.0),
+          n = nsext, method = 4;
+
+of2: multipole, l = 0.09000, hom = (4, 0.0, 0.0), n = nsext, Method = Meth;
+
+bpm: beam position monitor;
+ch:  corrector, horizontal, method = meth;
+cv:  corrector, vertical, method = meth;
+chv: ch, cv;
+
+
+I_on = 1; K_on = 1; I12_15_on = 1; TPW_on = 1;
+
+lambda_I02   =  17.6e-3;  BoBrho_I02   =      I_on*1.36/Brho; n_I02   = 113;
+lambda_K02   =  17.6e-3;  BoBrho_K02   =      K_on*1.36/Brho; n_K02   =  85;
+lambda_I03   =  17.6e-3;  BoBrho_I03   =      I_on*1.36/Brho; n_I03   = 113;
+lambda_I04   =  17.6e-3;  BoBrho_I04   =      I_on*1.32/Brho; n_I04   = 113;
+lambda_K04   =  19.7e-3;  BoBrho_K04   =      K_on*1.22/Brho; n_K04   =  76;
+lambda_I05   = 192.0e-3;  BoBrho_I05   =      I_on*0.45/Brho; n_I05   =  26;
+lambda_I06   =  56.0e-3;  BoBrho_I06   =      I_on*0.73/Brho; n_I06   =  62;
+lambda_I07   =  17.7e-3;  BoBrho_I07   =      I_on*1.04/Brho; n_I07   = 113;
+{lambda_K07   = e-3;       BoBrho_K07   =      K_on*/Brho; n_K07   = ;}
+lambda_I08   =  56.0e-3;  BoBrho_I08   =      I_on*0.73/Brho; n_I08   =  62;
+{lambda_K08   = e-3;       BoBrho_K08   =      K_on*/Brho; n_K08   = ;}
+lambda_I09_1 =  25.3e-3;  BoBrho_I09_1 =      I_on*1.06/Brho; n_I09_1 =  79;
+lambda_I09_2 =  60.0e-3;  BoBrho_I09_2 =      I_on*1.08/Brho; n_I09_2 =  40;
+lambda_I10   =  48.0e-3;  BoBrho_I10   =      I_on*0.93/Brho; n_I10   =  73;
+lambda_I11   =  15.6e-3;  BoBrho_I11   =      I_on*1.20/Brho; n_I11   = 128;
+lambda_K11   =  16.5e-3;  BoBrho_K11   =      K_on*1.30/Brho; n_K11   =  90;
+lambda_I12   =  48.0e-3;  BoBrho_I12   = I12_15_on*4.20/Brho; n_I12   =  23;
+lambda_I13_1 =  22.6e-3;  BoBrho_I13_1 =      I_on*0.97/Brho; n_I13_1 = 119;
+lambda_I13_2 =  20.0e-3;  BoBrho_I13_2 =      I_on*1.04/Brho; n_I13_2 = 100;
+lambda_I14   =  17.6e-3;  BoBrho_I14   =      I_on*1.36/Brho; n_I14   = 113;
+lambda_K14   =  83.0e-3;  BoBrho_K14   =      K_on*1.30/Brho; n_K14   =   9;
+lambda_I15   =  60.0e-3;  BoBrho_I15   = I12_15_on*3.50/Brho; n_I15   =  23;
+lambda_I16   =  27.0e-3;  BoBrho_I16   =      I_on*1.00/Brho; n_I16   =  72;
+lambda_K16   =  17.3e-3;  BoBrho_K16   =      K_on*1.35/Brho; n_K16   =  86;
+lambda_I18   =  19.5e-3;  BoBrho_I18   =      I_on*1.21/Brho; n_I18   = 102;
+lambda_I19   =  18.7e-3;  BoBrho_I19   =      I_on*1.17/Brho; n_I19   = 106;
+lambda_I20_1 =  83.0e-3;  BoBrho_I20_1 =      I_on*1.92/Brho; n_I20_1 =  24;
+lambda_I21   =  56.0e-3;  BoBrho_I21   =      I_on*0.70/Brho; n_I21   =  89;
+lambda_K21   =  18.7e-3;  BoBrho_K21   =      K_on*1.17/Brho; n_K21   =  80;
+lambda_I22   =  18.7e-3;  BoBrho_I22   =      I_on*1.17/Brho; n_I22   = 106;
+lambda_I23   =  27.0e-3;  BoBrho_I23   =      I_on*1.00/Brho; n_I23   =  74;
+lambda_I24   =  17.6e-3;  BoBrho_I24   =      I_on*1.36/Brho; n_I24   = 113;
+
+I02:   wiggler, l = n_I02*lambda_I02, BoBrhoV = BoBrho_I02, lambda = lambda_I02,
+       n = 8*n_I02, method = 2;
+I02_d: drift, l = -I02.l/2.0;
+id_I02: I02_d, I02, I02_d;
+K02:   wiggler, l = n_K02*lambda_K02, BoBrhoV = BoBrho_K02, lambda = lambda_K02,
+       n = 8*n_K02, method = 2;
+K02_d: drift, l = -K02.l/2.0;
+id_K02: K02_d, K02, K02_d;
+I03:   wiggler, l = n_I03*lambda_I03, BoBrhoV = BoBrho_I03, lambda = lambda_I03,
+       n = 8*n_I03, method = 2;
+I03_d: drift, l = -I03.l/2.0;
+id_I03: I03_d, I03, I03_d;
+I04:   wiggler, l = n_I04*lambda_I04, BoBrhoV = BoBrho_I04, lambda = lambda_I04,
+       n = 8*n_I04, method = 2;
+I04_d: drift, l = -I04.l/2.0;
+id_I04: I04_d, I04, I04_d;
+K04:   wiggler, l = n_K04*lambda_K04, BoBrhoV = BoBrho_K04, lambda = lambda_K04,
+       n = 8*n_K04, method = 2;
+K04_d: drift, l = -K04.l/2.0;
+id_K04: K04_d, K04, K04_d;
+I05:   wiggler, l = n_I05*lambda_I05, BoBrhoV = BoBrho_I05, lambda = lambda_I05,
+       n = 8*n_I05, method = 2;
+I05_d: drift, l = -I05.l/2.0;
+id_I05: I05_d, I05, I05_d;
+I06:   wiggler, l = n_I06*lambda_I06, BoBrhoV = BoBrho_I06, lambda = lambda_I06,
+       n = 8*n_I06, method = 2;
+I06_d: drift, l = -I06.l/2.0;
+id_I06: I06_d, I06, I06_d;
+I07:   wiggler, l = n_I07*lambda_I07, BoBrhoV = BoBrho_I07, lambda = lambda_I07,
+       n = 8*n_I07, method = 2;
+I07_d: drift, l = -I07.l/2.0;
+id_I07: I07_d, I07, I07_d;
+I08:   wiggler, l = n_I08*lambda_I08, BoBrhoV = BoBrho_I08, lambda = lambda_I08,
+       n = 8*n_I08, method = 2;
+I08_d: drift, l = -I08.l/2.0;
+id_I08: I08_d, I08, I08_d;
+I09_1: wiggler, l = n_I09_1*lambda_I09_1, BoBrhoV = BoBrho_I09_1,
+       lambda = lambda_I09_1, n = 8*n_I09_1, method = 2;
+I09_2: wiggler, l = n_I09_2*lambda_I09_2, BoBrhoV = BoBrho_I09_2,
+       lambda = lambda_I09_2, n = 8*n_I09_2, method = 2;
+I09_d: drift, l = -(I09_1.l+I09_2.l)/2.0;
+id_I09: I09_d, I09_1, I09_2, I09_d;
+I10:   wiggler, l = n_I10*lambda_I10, BoBrhoV = BoBrho_I10, lambda = lambda_I10,
+       n = 8*n_I10, method = 2;
+I10_d: drift, l = -I10.l/2.0;
+id_I10: I10_d, I10, I10_d;
+I11:   wiggler, l = n_I11*lambda_I11, BoBrhoV = BoBrho_I11, lambda = lambda_I11,
+       n = 8*n_I11, method = 2;
+I11_d: drift, l = -I11.l/2.0;
+id_I11: I11_d, I11, I11_d;
+K11:   wiggler, l = n_K11*lambda_K11, BoBrhoV = BoBrho_K11, lambda = lambda_K11,
+       n = 8*n_K11, method = 2;
+K11_d: drift, l = -K11.l/2.0;
+id_K11: K11_d, K11, K11_d;
+I12:   wiggler, l = n_I12*lambda_I12, BoBrhoV = BoBrho_I12, lambda = lambda_I12,
+       n = 8*n_I12, method = 2;
+I12_d: drift, l = -I12.l/2.0;
+id_I12: I12_d, I12, I12_d;
+I13_1: wiggler, l = n_I13_1*lambda_I13_1, BoBrhoV = BoBrho_I13_1,
+       lambda = lambda_I13_1, n = 8*n_I13_1, method = 2;
+I13_2: wiggler, l = n_I13_2*lambda_I13_2, BoBrhoV = BoBrho_I13_2,
+       lambda = lambda_I13_2, n = 8*n_I13_2, method = 2;
+I13_d: drift, l = -(I13_1.l+I13_2.l)/2.0;
+id_I13: I13_d, I13_1, I13_2, I13_d;
+I14:   wiggler, l = n_I14*lambda_I14, BoBrhoV = BoBrho_I14, lambda = lambda_I14,
+       n = 8*n_I14, method = 2;
+I14_d: drift, l = -I14.l/2.0;
+id_I14: I14_d, I14, I14_d;
+K14:   wiggler, l = n_K14*lambda_K14, BoBrhoV = BoBrho_K14, lambda = lambda_K14,
+       n = 8*n_K14, method = 2;
+K14_d: drift, l = -K14.l/2.0;
+id_K14: K14_d, K14, K14_d;
+I15:   wiggler, l = n_I15*lambda_I15, BoBrhoV = BoBrho_I15, lambda = lambda_I15,
+       n = 8*n_I15, method = 2;
+I15_d: drift, l = -I15.l/2.0;
+id_I15: I15_d, I15, I15_d;
+I16:   wiggler, l = n_I16*lambda_I16, BoBrhoV = BoBrho_I16, lambda = lambda_I16,
+       n = 8*n_I16, method = 2;
+I16_d: drift, l = -I16.l/2.0;
+id_I16: I16_d, I16, I16_d;
+K16:   wiggler, l = n_K16*lambda_K16, BoBrhoV = BoBrho_K16, lambda = lambda_K16,
+       n = 8*n_K16, method = 2;
+K16_d: drift, l = -K16.l/2.0;
+id_K16: K16_d, K16, K16_d;
+I18:   wiggler, l = n_I18*lambda_I18, BoBrhoV = BoBrho_I18, lambda = lambda_I18,
+       n = 8*n_I18, method = 2;
+I18_d: drift, l = -I18.l/2.0;
+id_I18: I18_d, I18, I18_d;
+I19:   wiggler, l = n_I19*lambda_I19, BoBrhoV = BoBrho_I19, lambda = lambda_I19,
+       n = 8*n_I19, method = 2;
+I19_d: drift, l = -I19.l/2.0;
+id_I19: I19_d, I19, I19_d;
+I20_1: wiggler, l = n_I20_1*lambda_I20_1, BoBrhoV = BoBrho_I20_1,
+       lambda = lambda_I20_1, n = 8*n_I20_1, method = 2;
+I20_1_d: drift, l = -I20_1.l/2.0;
+id_I20_1: I20_1_d, I20_1, I20_1_d;
+I21:   wiggler, l = n_I21*lambda_I21, BoBrhoV = BoBrho_I21, lambda = lambda_I21,
+       n = 8*n_I21, method = 2;
+I21_d: drift, l = -I21.l/2.0;
+id_I21: I21_d, I21, I21_d;
+K21:   wiggler, l = n_K21*lambda_K21, BoBrhoV = BoBrho_K21, lambda = lambda_K21,
+       n = 8*n_K21, method = 2;
+K21_d: drift, l = -K21.l/2.0;
+id_K21: K21_d, K21, K21_d;
+I22:   wiggler, l = n_I22*lambda_I22, BoBrhoV = BoBrho_I22, lambda = lambda_I22,
+       n = 8*n_I22, method = 2;
+I22_d: drift, l = -I22.l/2.0;
+id_I22: I22_d, I22, I22_d;
+I23:   wiggler, l = n_I23*lambda_I23, BoBrhoV = BoBrho_I23, lambda = lambda_I23,
+       n = 8*n_I23, method = 2;
+I23_d: drift, l = -I23.l/2.0;
+id_I23: I23_d, I23, I23_d;
+I24:   wiggler, l = n_I24*lambda_I24, BoBrhoV = BoBrho_I24, lambda = lambda_I24,
+       n = 8*n_I24, method = 2;
+I24_d: drift, l = -I24.l/2.0;
+id_I24: I24_d, I24, I24_d;
+
+{ TPWs: }
+phi_b = -TPW_on*0.15298;
+K18_bs: bending, l = 0.780000, t = phi_b, t1 = phi_b/2.0, t2 = phi_b/2.0,
+	n = nbend, method = 4;
+K18_br: bending, l = 0.043000, t = -2.0*phi_b, t1 = -phi_b, t2 = -phi_b,
+	n = nbend, method = 4;
+K18_d1: drift, l = 0.448500;
+K18_d: drift, l = -(2.0*K18_bs.l+K18_br.l+2.0*K18_d1.l)/2.0;
+id_K18: K18_d, K18_bs, K18_d1, K18_br, K18_d1, K18_bs, K18_d;
+
+phi_b = -TPW_on*1.414633;
+K22_bs: bending, l = 0.400000, t = phi_b, t1 = phi_b/2.0, t2 = phi_b/2.0,
+	n = nbend, method = 4;
+K22_br: bending, l = 1.630000, t = -2.0*phi_b, t1 = -phi_b, t2 = -phi_b,
+	n = nbend, method = 4;
+K22_d1: drift, l = 0.035000;
+K22_d: drift, l = -(2.0*K22_bs.l+K22_br.l+2.0*K22_d1.l)/2.0;
+id_K22: K22_d, K22_bs, K22_d1, K22_br, K22_d1, K22_bs, K22_d;
+
+phi_b = -TPW_on*0.152980;
+K23_bs: bending, l = 0.700000, t = phi_b, t1 = phi_b/2.0, t2 = phi_b/2.0,
+	n = nbend, method = 4;
+K23_br: bending, l = 0.350000, t = -2.0*phi_b, t1 = -phi_b, t2 = -phi_b,
+	n = nbend, method = 4;
+K23_d1: drift, l = 0.375000;
+K23_d: drift, l = -(2.0*K22_bs.l+K22_br.l+2.0*K22_d1.l)/2.0;
+id_K23: K23_d, K23_bs, K23_d1, K23_br, K23_d1, K23_bs, K23_d;
+
+{----- table of segments ----------------------------------------------------}
+
+dl1a: inv(dl1a_5, dl1a_4, dl1a_3, dl1a_2, dl1a_1);
+dl2a: dl2a_5, dl2a_4, dl2a_3, dl2a_2, dl2a_1;
+
+match_ss: dr_05, sh1, dr_03, chv, qd2, dr_04, qf1, dr_02, bpm, dr_01, dr_01_id;
+
+match_ms: d_01_id, d_01, bpm, d_02, chv, sh2, d_03, qf8, d_04;
+
+match_ls: dl_20, sh1, dl_21, bpm, dl_22, chv, qd2_c1, dl_23, qf1_c1, dl_24,
+	  dcor1, chv, dcor1, dl_25, quad_add, dl_26, bpm, dl_27;
+
+dip_cell: dq1, d_05, qf6, d_06, bpm, d_07, dcor, s, chv, dcor, d_08, dl2a,
+	  d_09, qd5, d_10, sd2, chv, d_11, bpm, d_12, of1, d_13, qf4, d_14,
+	  sf1, sf1, d_14, qf4, d_13, of2, d_16, bpm, d_11, chv, sd1, d_10,
+	  qd3, d_09, dl1a;
+
+ms_to_ss : match_ms, dip_cell, match_ss;
+
+ms_to_ls : match_ms, dip_cell, match_ls;
+
+sp1: ls, b_t, inv(ms_to_ls),
+     ms, ms_to_ss, ss, id_I02, b_t, inv(ms_to_ss),
+     ms, id_K02, ms_to_ss, ss, id_I03, b_t, inv(ms_to_ss),
+     ms, id_K02, ms_to_ss, ss, id_I04, b_t, inv(ms_to_ss),
+     ms, id_K04, ms_to_ls, ls, id_I05;
+sp2: ls, b_t, inv(ms_to_ls),
+     ms, ms_to_ss, ss, id_I06, b_t, inv(ms_to_ss),
+     ms, ms_to_ss, ss, id_I07, b_t, inv(ms_to_ss),
+     ms, id_K02, ms_to_ss, ss, id_I08, b_t, inv(ms_to_ss),
+     ms, id_K02, ms_to_ls, ls, id_I09;
+sp3: ls, b_t, inv(ms_to_ls),
+     ms, ms_to_ss, ss, id_I10, b_t, inv(ms_to_ss),
+     ms, id_K02, ms_to_ss, ss, id_I11, b_t, inv(ms_to_ss),
+     ms, id_K11, ms_to_ss, ss, id_I12, b_t, inv(ms_to_ss),
+     ms, id_K02, ms_to_ls, ls, id_I13;
+sp4: ls, b_t, inv(ms_to_ls),
+     ms, id_K02, ms_to_ss, ss, id_I14, b_t, inv(ms_to_ss),
+     ms, id_K14, ms_to_ss, ss, id_I15, b_t, inv(ms_to_ss),
+     ms, ms_to_ss, ss, id_I16, b_t, inv(ms_to_ss),
+     ms, id_K16, ms_to_ls, ls;
+sp5: ls, b_t, inv(ms_to_ls),
+     ms, ms_to_ss, ss, id_I18, b_t, inv(ms_to_ss),
+     ms, id_K18, ms_to_ss, ss, id_I19, b_t, inv(ms_to_ss),
+     ms, id_K02, ms_to_ss, ss, id_I20_1, b_t, inv(ms_to_ss),
+     ms, ms_to_ls, ls, id_I21;
+sp6: ls, b_t, inv(ms_to_ls),
+     ms, id_K21, ms_to_ss, ss, id_I22, b_t, inv(ms_to_ss),
+     ms, id_K22, ms_to_ss, ss, id_I23, b_t, inv(ms_to_ss),
+     ms, id_K23, ms_to_ss, ss, id_I24, b_t, inv(ms_to_ss),
+     ms, ms_to_ls, ls;
+
+ring: sp1, sp2, sp3, sp4, sp5, sp6, b_t, cav;
+
+cell: ring, symmetry=1;
+
+end;

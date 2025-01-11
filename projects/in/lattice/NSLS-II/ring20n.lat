@@ -1,0 +1,126 @@
+{ TITLE "ring20n" }
+
+define lattice; ringtype = 1;
+
+Energy = 3.0;
+
+dP = 1e-6; CODeps = 1e-14;
+
+Meth = 4;
+
+Nbend = 4; Nquad = 4; Nsext = 4; Ncorr = 1;
+{Nbend = 10; Nquad = 10; Nsext = 10; Ncorr = 1;}
+
+pi = 4.0*arctan(1.0);
+
+SS05M:    DRIFT, L = 5.0000000000E-01;
+SS900:    DRIFT, L = 2*9.0000000000E-01;
+SS300:    DRIFT, L = 3.0000000000E-01;
+SSMATCH1: DRIFT, L = 2.8280000000E-01;
+SSMATCH2: DRIFT, L = 1.4750000000E+00;
+SHORTSTR: DRIFT, L = 5.0000000000E-01;
+SS100:    DRIFT, L = 1.0000000000E-01;
+
+HVPU_DH : Drift, L = 5.0e-2/2.0;
+BPM: Beam Position Monitor;
+HVPU: HVPU_DH, BPM, HVPU_DH;
+
+{ Horizontal and vertical corrector }
+HVCORR_DH: Drift, L = 5.0e-2/2.0;
+CORR: Corrector, Horizontal, Method = Meth;
+HVCORR: HVCORR_DH, CORR, HVCORR_DH;
+
+
+SOFTENDMATCH: BENDING, L = 1.5000000000E-01, T = 4.2000000000E-03*180.0/pi,
+              K = -4.1500000000E-01, T1 = 0.0, T2 = 0.0,
+              N = Nbend, Method = Meth;
+
+DIPMATCH: BENDING, L = 4.0000000000E-01, T = 2.1979900000E-02*180.0/pi,
+          K = -8.3000000000E-01, T1 = 0.0, T2 = 0.0,
+          N = Nbend, Method = Meth;
+
+QFMATCH: BENDING, L = 2*1.2700333334E-01, K = 4.0767849591E+00,
+         HOM = (3, 1.1000000000E+02/2.0, 0.0),
+         N = Nbend, Method = Meth;
+
+SOFTEND: BENDING, L = 1.5000000000E-01, T = 4.2000000000E-03*180.0/pi,
+          K = -4.1500000000E-01, T1 = 0.0, T2 = 0.0,
+          N = Nbend, Method = Meth;
+
+DIP: BENDING, L = 2*4.0000000000E-01, T = 2*2.1979900000E-02*180.0/pi,
+     K = -8.3307966641E-01, T1 = 0.0, T2 = 0.0,
+     N = Nbend, Method = Meth;
+
+QF: BENDING, L = 2*1.5000000000E-01, K = 3.7714012950E+00,
+    HOM = (3, 1.1604047528E+02/2.0, 0.0),
+    N = Nbend, Method = Meth;
+
+QFEND: QUADRUPOLE, L = 0.2, K =  3.8935499903E+00, N = Nquad, Method = Meth;
+QDEND: QUADRUPOLE, L = 0.2, K = -2.4359039125E+00, N = Nquad, Method = Meth;
+
+{QFEND: QUADRUPOLE, L = 0.2, K =  3.84752, N = Nquad, Method = Meth;
+QDEND: QUADRUPOLE, L = 0.2, K = -2.35384, N = Nquad, Method = Meth;}
+
+DS: SEXTUPOLE, L = 0.1, K = -2.2069684663E+02/2.0, N = Nsext, Method = Meth;
+
+
+BM: SOFTENDMATCH, DIPMATCH;
+
+MS: SS05M, SS900, HVPU, HVCORR,
+    SS100, QFEND, SS300, QDEND, SS300,
+    BM,
+    SS100, HVCORR, HVPU, SSMATCH1, DS, SSMATCH2, QFMATCH;
+
+B: SOFTEND, DIP, SOFTEND;
+
+BS: SS100, HVPU, HVCORR, SS300, DS, SS100,
+    B,
+    SS100, DS, SHORTSTR;
+
+BS1: SS100, HVPU, HVCORR, SS300, DS, SS100,
+     B,
+     SS100, DS, SS100, HVPU, HVCORR, SS300;
+
+
+c0 = 2.99792458e8; h_rf = 1000; C =  528.4722667; Brho = 1e9*Energy/c0;
+
+CAV: Cavity, Frequency = c0/C*h_rf, Voltage = 5.00e6, Harnum = h_rf;
+
+
+lambda_SCW = 0.061; n_SCW = 25; B_SCW = 3.54; L_SCW = n_SCW*lambda_SCW;
+SCW1: Wiggler, L = L_SCW, lambda = lambda_SCW, kxV = 0.0, 
+      BoBrhoV = B_SCW/Brho, N = n_SCW*4, Method = 2;
+
+{L_SCW = 1.4945;
+SCW1: insertion, scaling = 1.0, N = 50,
+      file2 = "/home/johan/projects/in/lattice/scwkick.dat";}
+
+D_SCW: Drift, L = -L_SCW/2.0;
+SCW:   D_SCW, SCW1, D_SCW;
+
+
+lambda_EPU = 46.6e-3; n_EPU = 45; B_EPU = 1.92/(0.934*1e2*lambda_EPU);
+L_EPU = n_EPU*lambda_EPU;
+EPU1: Wiggler, L = L_EPU, lambda = lambda_EPU, kxH = 0.0, kxV = 0.0,
+      roll = 90.0,
+      BoBrhoH = B_EPU/Brho, BoBrhoV = B_EPU/Brho, phi = 0*pi/2.0,
+      N = n_EPU*10, Method = 1;
+
+{L_EPU = 2.097;
+EPU1: insertion, scaling = 1.0, N = 50,
+      file2 = "/home/johan/projects/in/lattice/epum2kick.dat";}
+
+D_EPU: Drift, L = -L_EPU/2.0;
+EPU:   D_EPU, EPU1, D_EPU;
+
+
+LINE: MS, BS, 3*(QF, BS), QF, BS1, INV(MS);
+
+RING: 1*LINE, CAV;
+{RING: LINE, SCW, 19*LINE, CAV;}
+{RING: LINE, EPU, CAV;}
+{RING: LINE, EPU, 19*LINE, CAV;}
+
+CELL: RING, SYMMETRY = 1;
+
+END;

@@ -1,0 +1,154 @@
+!..lattice_design\lattices\bessy-iii\2022_05_pg\b3_sf_high_beta_novar.opa
+
+!opa to elegant export
+
+!----- table of elements ---------------------------------------------
+
+BPM: monitor, L=0.000
+
+SFK: VKick, l = 0.0
+SDK: HKick, l = 0.0
+
+
+!l1     : drift, l = 0.100000
+l1h    : drift, l = 0.050000
+
+ml1    : drift, l = 0.100000
+!ml1a   : drift, l = 0.100000
+ml1ah   : drift, l = 0.05000
+ml1b   : drift, l = 0.100000
+
+ul1    : drift, l = 0.200000
+ul2    : drift, l = 0.282003
+ul2h   : drift, l = "0.282003 2 /"
+
+ul2k: line=(ul2h, SFK, SDK, ul2h)
+ul3    : drift, l = 0.200000
+!ul4d   : drift, l = 2.800000
+ul4dr  : drift, l = 2.750000
+ul4    : Line=(l1h, BPM, ul4dr)
+
+ul1inj : drift, l = 0.603785
+ul2inj : drift, l = 0.069323
+ul3inj : drift, l = 0.083775
+
+!ul4inj : drift, l = 2.656000
+ul4injr : drift, l = 2.606000
+ul4inj  : Line=(l1h, BPM, ul4injr)
+
+qd     : kquad, l = 0.130000, k1 = -9.376548
+mqd    : kquad, l = 0.130000, k1 = -5.000000
+uq1    : kquad, l = 0.175000, k1 = -2.557067
+uq2    : kquad, l = 0.240000, k1 = 7.899384
+uq3    : kquad, l = 0.120000, k1 = -6.751186
+uq1inj : kquad, l = 0.175000, k1 = -3.006363
+uq2inj : kquad, l = 0.240000, k1 = 8.369774
+uq3inj : kquad, l = 0.120000, k1 = -7.746744
+
+
+!bb     : csbend, l = 1.000000, angle = 0.077842, k1 = 0.000000, e1 = 0.038921, e2 = 0.038921
+bbh1     : csbend, l = "1.000000 2 /", angle = "0.077842 2 /", k1 = 0.000000, e1 = 0.038921,&
+         e2 = 0.0
+bbh2     : csbend, l = "1.000000 2 /", angle = "0.077842 2 /", k1 = 0.000000, e1 = 0.0,&
+         e2 = 0.038921
+bb: Line=(bbh1, SDK, bbh2)
+
+br     : csbend, l = 0.160000, angle = -0.004014, k1 = 9.395465,&
+         e1 = -0.002007, e2 = -0.002007
+mbb    : csbend, l = 0.650000, angle = 0.060446, k1 = -1.600000, e1 = 0.030223,&
+         e2 = 0.030223
+mbr    : csbend, l = 0.160000, angle = -0.003723, k1 = 7.752612,&
+         e1 = -0.001861, e2 = -0.001861
+
+!sd     : ksext, l = 0.120000, k2 = -463.097086
+!sf     : ksext, l = 0.060000, k2 = 485.3221220
+sdh     : ksext, l = 0.120000, k2 = -463.097086
+sfh     : ksext, l = 0.060000, k2 = 485.3221220
+
+sd: Line=(sdh, sdh)
+sf: Line=(sfh, sfh)
+
+
+sd1    : ksext, l = 0.120000, k2 = -363.465084
+sd2h   : ksext, l = "0.120000 2 /", k2 = -377.699182
+sd2    : Line=(sd2h, sd2h)
+sd3    : ksext, l = 0.120000, k2 = -463.097086
+sd3a   : ksext, l = 0.120000, k2 = -471.333334
+sd3b   : ksext, l = 0.200000, k2 = -400.584914
+sd3bh  : ksext, l = "0.200000 2 /", k2 = -400.584914
+
+sf1    : ksext, l = 0.060000, k2 = 363.4655500
+sf2    : ksext, l = 0.060000, k2 = 394.9307920
+sf3    : ksext, l = 0.060000, k2 = 506.6666660
+sf3a   : ksext, l = 0.140000, k2 = 509.6878860
+
+om_sf  : marker
+om_mbb : marker
+om_c   : marker
+
+
+!oxx    : mult, l = 0.0, knl = 0.0000, order=3
+!oxy    : mult, l = 0.0, knl = 0.0000, order=3
+!oyy    : mult, l = 0.0, knl = 0.0000, order=3
+oxx    : drif, l = 0.0
+oxy    : drif, l = 0.0
+oyy    : drif, l = 0.0
+
+
+!----- table of segments ---------------------------------------------
+
+l1: line=(l1h, l1h)
+l1BPM: line=(l1h, BPM, l1h)
+
+ml1a: line=(ml1ah, ml1ah)
+ml1aBPM: line=(ml1ah, BPM, ml1ah)
+
+ucell  : line=(om_sf, sf, l1, br, l1, qd, l1, sd, l1BPM, bb, l1BPM, sd, l1, qd, l1,&
+         br, l1, sf, om_sf)
+	 
+sd2k: Line=(sd2h, SFK, sd2h)
+
+ucs21  : line=(om_sf, SDK, sf2, l1, br, l1, qd, l1, sd2k, l1BPM, bb, l1BPM, sd1, l1, qd,&
+         l1, br, l1, sf1, om_sf)
+ucs32  : line=(om_sf, SDK, sf3, l1, br, l1, qd, l1, sd3a, l1BPM, bb, l1BPM, sd2, l1, qd,&
+         l1, br, l1, sf2, om_sf)
+
+sd3bk: Line=(sd3bh, SFK, sd3bh)
+
+dcell  : line=(om_sf, sf3a, ml1, mbr, ml1b, sd3b, ml1aBPM, mbb, oyy, om_mbb)
+
+arc    : line=(-dcell, ucs32, ucs21, om_c, -ucs21, -ucs32, dcell)
+
+mund   : line=(om_mbb, ul1, uq1, ul2k, uq2, oxx, ul3, oxy, uq3, ul4)
+minj   : line=(om_mbb, ul1inj, uq1inj, ul2inj, uq2inj, oxx, ul3inj, oxy,&
+         uq3inj, ul4inj)
+
+sec    : line=(-mund, arc, mund)
+secinj : line=(-mund, arc, minj)
+
+twosec : line=(-secinj, secinj)
+
+trisec : line=(-secinj, sec, secinj)
+
+foursec: line=(-secinj, sec, sec, secinj)
+
+eightsec: line=(-secinj, 6*sec, secinj)
+
+
+sech   : line=(om_c, 2*ucell, dcell, mund)
+sec16  : line=(-mund, arc, mund)
+
+ring   : line=(16*sec)
+
+NLK: hkick, L=0.0, kick=-0.0009
+
+ring8  : line=(8*twosec)
+!,NLK,4*twosec)
+
+ring4  : line=(4*foursec)
+!,NLK,4*twosec)
+
+ring2  : line=(2*eightsec)
+
+
+!..lattice_design\lattices\bessy-iii\2022_05_pg\b3_sf_high_beta_novar.opa

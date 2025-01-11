@@ -1,0 +1,305 @@
+define lattice; ringtype = 1;
+
+Energy = 3.5; { Beam momentum [GeV]. }
+
+dP = 1e-8; CODeps = 1e-14;
+
+Meth = 4; Nbend = 10; Nquad = 10; Nsext = 2;
+
+pi = 4.0*arctan(1.0); c0 = 2.99792458e8;
+
+{ ##### AMOUNT OF CANONCICAL KICKS ##### }
+bkicks = 24;
+qkicks = 146;
+skicks = 32;
+
+{ ##### DIAGNOSTICS ##### }
+wpinject: Marker; { watch }
+wpsliced: Marker; { watch }
+pinh3fd2l: Marker; { watch }
+pinh9fd5l: Marker; { watch }
+ibsm1fd2l: Marker; { watch }
+filpatapd: Marker; { watch }
+m1: Marker; { malign }
+m2: Marker; { malign }
+rc: Marker;
+
+{ #### VIRTUAL ELEMENTS #### }
+{  no effect on beam since L=0 (even if K != 0) }
+{  used for tune- & chromaticity optimization by linking to real elements }
+{  outside achromat quads & chromatic (zero-dispersion) sexts }
+vqf: Quadrupole, L = 0, K = 0, N = Nquad, Method = 4;
+vqd: Quadrupole, L = 0, K = 0, N = Nquad, Method = 4;
+vcsf: Sextupole, L = 0, K = 0/2.0, N = Nsext, Method = 4;
+vcsd: Sextupole, L = 0, K = 0/2.0, N = Nsext, Method = 4;
+vhsf: Sextupole, L = 0, K = 0/2.0, N = Nsext, Method = 4;
+vhsd: Sextupole, L = 0, K = 0/2.0, N = Nsext, Method = 4;
+
+{ ##### DRIFTS ##### }
+{  naming convention: D + previous element at first appearence }
+dq1: Drift, L = 0.288;
+ds1: Drift, L = 0.16;
+dq2: Drift, L = 0.42;
+ds2: Drift, L = 0.307;
+db: Drift, L = 0.42;
+ds3: Drift, L = 0.153;
+dq3: Drift, L = 0.153;
+dl: Drift, L = 2.80600;
+dk: Drift, L = 2.45300;
+ds4d6: Drift, L = 0.164000;
+db1id: Drift, L = 2.020140;
+db2id: Drift, L = 2.216250;
+db3id: Drift, L = 0.100000;
+{  EMIL quadrupole position estimated }
+dq5t6: Drift, L = 2.2976;
+dqit6: Drift, L = 2.3644;
+
+{ ##### DIPOLES ##### }
+{  edge_order=2 gives relevant change for dnuy/dp }
+{  and consistent results with mad-x and ptc exact }
+{  -> important for nonlinear dynamics }
+len = 0.855;
+angle = pi / 16;
+rho = len / angle;
+hangle = angle / 2;
+{  standard BESSY II Dipole }
+b: Bending, L = len, T = (angle)*180.0/pi, T1 = (hangle)*180.0/pi, T2 = (hangle)*180.0/pi, GAP = 4*0.0000001*0.7, N = Nbend, Method = 4;
+
+{  split dipoles for diagnostic beamlines }
+bp2d2r1: Bending, L = 0.2812, T = (0.2812 / rho)*180.0/pi, T1 = (hangle)*180.0/pi, GAP = 4*0.0000001*0.7, N = Nbend, Method = 4;
+
+bp2d2r2: Bending, L = 0.0304, T = (0.0304 / rho)*180.0/pi, GAP = 4*1e-07*0.0, N = Nbend, Method = 4;
+bp2d2r3: Bending, L = 0.0152, T = (0.0152 / rho)*180.0/pi, GAP = 4*1e-07*0.0, N = Nbend, Method = 4;
+bp2d2r4: Bending, L = 0.5282, T = (0.5282 / rho)*180.0/pi, T2 = (hangle)*180.0/pi, GAP = 4*0.0000001*0.7, N = Nbend, Method = 4;
+
+bp2d5r1: Bending, L = 0.278008, T = (0.278008 / rho)*180.0/pi, T1 = (hangle)*180.0/pi, GAP = 4*0.0000001*0.7, N = Nbend, Method = 4;
+
+bp2d5r2: Bending, L = 0.576992, T = (0.576992 / rho)*180.0/pi, T2 = (hangle)*180.0/pi, GAP = 4*0.0000001*0.7, N = Nbend, Method = 4;
+
+{  dipoles for chicane in femto slicing straight }
+b1id: Bending, L = 0.28, T = (0.0578788879)*180.0/pi, T1 = (0)*180.0/pi, T2 = (0.0578788879)*180.0/pi, GAP = 4*0.0000001*0.7, N = Nbend, Method = 4;
+
+b2id: Bending, L = 0.56, T = (-0.1117010721)*180.0/pi, T1 = (-0.0578788879)*180.0/pi, T2 = (-0.0538221842)*180.0/pi, GAP = 4*0.0000001*0.7, N = Nbend, Method = 4;
+
+b3id: Bending, L = 0.28, T = (0.0538221842)*180.0/pi, T1 = (0.0538221842)*180.0/pi, T2 = (0)*180.0/pi, GAP = 4*0.0000001*0.7, N = Nbend, Method = 4;
+
+
+{ #### CAVITY #### }
+nccvolt = 1.5e6;
+nccfreq = 4.996366081528583e+08;
+nccphase = 1.729810237412622e+02;
+ncc: Cavity, L = 0.0, Frequency = nccfreq, Voltage = nccvolt, phi = 0*nccphase, n = 1;
+
+{ ##### QUADS ##### }
+{  VALUES FROM LOCO "20170328_232127.loco" }
+qit6: Quadrupole, L = 0.122, K = -1.00000000, N = Nquad, Method = 4;
+q1: Quadrupole, L = 0.25, K = 2.44079848, N = Nquad, Method = 4;
+q2: Quadrupole, L = 0.2, K = -1.85645474, N = Nquad, Method = 4;
+q3p1t1: Quadrupole, L = 0.25, K = -2.53244679, N = Nquad, Method = 4;
+q3p1t6: Quadrupole, L = 0.25, K = -2.67932726, N = Nquad, Method = 4;
+q3p1t8: Quadrupole, L = 0.25, K = -2.42694672, N = Nquad, Method = 4;
+q3p2t1: Quadrupole, L = 0.25, K = -2.41797240, N = Nquad, Method = 4;
+q3p2t6: Quadrupole, L = 0.25, K = -2.29702646, N = Nquad, Method = 4;
+q3p2t8: Quadrupole, L = 0.25, K = -2.53721496, N = Nquad, Method = 4;
+q3d1: Quadrupole, L = 0.25, K = -2.01021297, N = Nquad, Method = 4;
+q3d2: Quadrupole, L = 0.25, K = -2.12322497, N = Nquad, Method = 4;
+q3d3: Quadrupole, L = 0.25, K = -2.11687203, N = Nquad, Method = 4;
+q3d4: Quadrupole, L = 0.25, K = -2.12625066, N = Nquad, Method = 4;
+q3d5: Quadrupole, L = 0.25, K = -2.11327275, N = Nquad, Method = 4;
+q3d6: Quadrupole, L = 0.25, K = -2.09601963, N = Nquad, Method = 4;
+q3d7: Quadrupole, L = 0.25, K = -2.10848505, N = Nquad, Method = 4;
+q3d8: Quadrupole, L = 0.25, K = -2.12959092, N = Nquad, Method = 4;
+q3t2: Quadrupole, L = 0.25, K = -2.44518658, N = Nquad, Method = 4;
+q3t3: Quadrupole, L = 0.25, K = -2.42225754, N = Nquad, Method = 4;
+q3t4: Quadrupole, L = 0.25, K = -2.42652600, N = Nquad, Method = 4;
+q3t5: Quadrupole, L = 0.25, K = -2.43989449, N = Nquad, Method = 4;
+q3t7: Quadrupole, L = 0.25, K = -2.41713938, N = Nquad, Method = 4;
+q4p1t1: Quadrupole, L = 0.5, K = 2.59978755, N = Nquad, Method = 4;
+q4p1t6: Quadrupole, L = 0.5, K = 2.27294486, N = Nquad, Method = 4;
+q4p1t8: Quadrupole, L = 0.5, K = 2.57275874, N = Nquad, Method = 4;
+q4p2t1: Quadrupole, L = 0.5, K = 2.57520022, N = Nquad, Method = 4;
+q4p2t6: Quadrupole, L = 0.5, K = 2.56892780, N = Nquad, Method = 4;
+q4p2t8: Quadrupole, L = 0.5, K = 2.61410058, N = Nquad, Method = 4;
+q4d1: Quadrupole, L = 0.5, K = 1.39127671, N = Nquad, Method = 4;
+q4d2: Quadrupole, L = 0.5, K = 1.47338287, N = Nquad, Method = 4;
+q4d3: Quadrupole, L = 0.5, K = 1.47375437, N = Nquad, Method = 4;
+q4d4: Quadrupole, L = 0.5, K = 1.48376734, N = Nquad, Method = 4;
+q4d5: Quadrupole, L = 0.5, K = 1.47000821, N = Nquad, Method = 4;
+q4d6: Quadrupole, L = 0.5, K = 1.46820382, N = Nquad, Method = 4;
+q4d7: Quadrupole, L = 0.5, K = 1.46474319, N = Nquad, Method = 4;
+q4d8: Quadrupole, L = 0.5, K = 1.48226424, N = Nquad, Method = 4;
+q4t2: Quadrupole, L = 0.5, K = 2.55457808, N = Nquad, Method = 4;
+q4t3: Quadrupole, L = 0.5, K = 2.56763453, N = Nquad, Method = 4;
+q4t4: Quadrupole, L = 0.5, K = 2.57036341, N = Nquad, Method = 4;
+q4t5: Quadrupole, L = 0.5, K = 2.57075719, N = Nquad, Method = 4;
+q4t7: Quadrupole, L = 0.5, K = 2.57523174, N = Nquad, Method = 4;
+q5p1t1: Quadrupole, L = 0.2, K = -2.40085853, N = Nquad, Method = 4;
+q5p1t6: Quadrupole, L = 0.2, K = -1.17302059, N = Nquad, Method = 4;
+q5p1t8: Quadrupole, L = 0.2, K = -2.61930541, N = Nquad, Method = 4;
+q5p2t1: Quadrupole, L = 0.2, K = -2.62772469, N = Nquad, Method = 4;
+q5p2t6: Quadrupole, L = 0.2, K = -2.60298545, N = Nquad, Method = 4;
+q5p2t8: Quadrupole, L = 0.2, K = -2.39936189, N = Nquad, Method = 4;
+q5t2: Quadrupole, L = 0.2, K = -2.57238544, N = Nquad, Method = 4;
+q5t3: Quadrupole, L = 0.2, K = -2.62712000, N = Nquad, Method = 4;
+q5t4: Quadrupole, L = 0.2, K = -2.60499276, N = Nquad, Method = 4;
+q5t5: Quadrupole, L = 0.2, K = -2.59307704, N = Nquad, Method = 4;
+q5t7: Quadrupole, L = 0.2, K = -2.62346918, N = Nquad, Method = 4;
+
+{ ##### SEXTUPOLES ##### }
+{  K2 values calculated from mml Setpoints and HW2PhysicsParams }
+{  K2 = Setpoint(Ampere) * HW2PhysicsParams / L * 2 }
+{  Attention: Length of S1 L = 0.21 has to be used for calculating K2 }
+{  In elegant S1 has the length L = 0.105 because it is splitted }
+{  VALUES FROM LOCO "20170328_232127.loco" }
+s1: Sextupole, L = 0.105, K = 53.55252586/2.0, N = Nsext, Method = 4;
+s2: Sextupole, L = 0.16, K = -46.38738644/2.0, N = Nsext, Method = 4;
+s3t6lh: Sextupole, L = 0.16, K = -42.58205529/2.0, N = Nsext, Method = 4;
+s3t6rh: Sextupole, L = 0.16, K = -42.58205529/2.0, N = Nsext, Method = 4;
+s3d1: Sextupole, L = 0.16, K = -46.89556219/2.0, N = Nsext, Method = 4;
+s3d: Sextupole, L = 0.16, K = -49.21821975/2.0, N = Nsext, Method = 4;
+s3t: Sextupole, L = 0.16, K = -76.86890500/2.0, N = Nsext, Method = 4;
+s4t6lh: Sextupole, L = 0.16, K = 39.91575633/2.0, N = Nsext, Method = 4;
+s4t6rh: Sextupole, L = 0.16, K = 74.28765761/2.0, N = Nsext, Method = 4;
+s4d1: Sextupole, L = 0.16, K = 21.62103468/2.0, N = Nsext, Method = 4;
+s4d: Sextupole, L = 0.16, K = 35.48067229/2.0, N = Nsext, Method = 4;
+s4t: Sextupole, L = 0.16, K = 88.70168073/2.0, N = Nsext, Method = 4;
+
+{ #### SPECIAL SECTIONS #### }
+{  virtual elements for tune- & chromaticity optimization by linking }
+virtual: vqf, vqd, vcsf, vcsd, vhsf, vhsd;
+{  dipoles with diagnostic beamlines }
+bp2d2r: bp2d2r1, pinh3fd2l, bp2d2r2, ibsm1fd2l, bp2d2r3, filpatapd, bp2d2r4;
+bp2d5r: bp2d5r1, pinh9fd5l, bp2d5r2;
+{  T6 - EMIL quadrupole (position unclear) }
+emil: dq5t6, qit6, qit6, dqit6;
+{  D6 - chicane for femto slicing straight }
+femtoc: b1id, db1id, b2id, db2id, b3id, db3id;
+
+{ #### ACHROMAT LEFT AND RIGHT HALF #### }
+achlh: 
+  dq2, q2, ds2, s2, dq1, q1, ds1, s1;
+achrh: 
+  s1, ds1, q1, dq1, s2, ds2, q2, dq2;
+
+{ #### DUPLETS AND TRIPLETS LEFT AND RIGHT HALFS #### }
+d1lh: 
+  db, q3d1, dq3, s3d1, ds3, q4d1, dq3, s4d1, dl;
+d1rh: 
+  dl, s4d1, dq3, q4d1, ds3, s3d1, dq3, q3d1, db;
+t1lh: 
+  db, q3p1t1, dq3, s3t, ds3, q4p1t1, dq3, s4t, dq3, q5p1t1, 
+  dk;
+t1rh: 
+  dk, q5p2t1, dq3, s4t, dq3, q4p2t1, ds3, s3t, dq3, q3p2t1, 
+  db;
+d2lh: 
+  db, q3d2, dq3, s3d, ds3, q4d2, dq3, s4d, dl;
+d2rh: 
+  dl, s4d, dq3, q4d2, ds3, s3d, dq3, q3d2, db;
+t2lh: 
+  db, q3t2, dq3, s3t, ds3, q4t2, dq3, s4t, dq3, q5t2, 
+  dk;
+t2rh: 
+  dk, q5t2, dq3, s4t, dq3, q4t2, ds3, s3t, dq3, q3t2, 
+  db;
+d3lh: 
+  db, q3d3, dq3, s3d, ds3, q4d3, dq3, s4d, dl;
+d3rh: 
+  dl, s4d, dq3, q4d3, ds3, s3d, dq3, q3d3, db;
+t3lh: 
+  db, q3t3, dq3, s3t, ds3, q4t3, dq3, s4t, dq3, q5t3, 
+  dk;
+t3rh: 
+  dk, q5t3, dq3, s4t, dq3, q4t3, ds3, s3t, dq3, q3t3, 
+  db;
+d4lh: 
+  db, q3d4, dq3, s3d, ds3, q4d4, dq3, s4d, dl;
+d4rh: 
+  dl, s4d, dq3, q4d4, ds3, s3d, dq3, q3d4, db;
+t4lh: 
+  db, q3t4, dq3, s3t, ds3, q4t4, dq3, s4t, dq3, q5t4, 
+  dk;
+t4rh: 
+  dk, q5t4, dq3, s4t, dq3, q4t4, ds3, s3t, dq3, q3t4, 
+  db;
+d5lh: 
+  db, q3d5, dq3, s3d, ds3, q4d5, dq3, s4d, dl;
+d5rh: 
+  dl, s4d, dq3, q4d5, ds3, s3d, dq3, q3d5, db;
+t5lh: 
+  db, q3t5, dq3, s3t, ds3, q4t5, dq3, s4t, dq3, q5t5, 
+  dk;
+t5rh: 
+  dk, q5t5, dq3, s4t, dq3, q4t5, ds3, s3t, dq3, q3t5, 
+  db;
+d6lh: 
+  db, q3d6, dq3, s3d, ds3, q4d6, dq3, s4d, ds4d6, femtoc;
+d6rh: 
+  s4d, dq3, q4d6, ds3, s3d, dq3, q3d6, db;
+t6lh: 
+  db, q3p1t6, dq3, s3t6lh, ds3, q4p1t6, dq3, s4t6lh, dq3, q5p1t6, 
+  emil;
+t6rh: 
+  q5p2t6, dq3, s4t6rh, dq3, q4p2t6, ds3, s3t6rh, dq3, q3p2t6, db;
+d7lh: 
+  db, q3d7, dq3, s3d, ds3, q4d7, dq3, s4d, dl;
+d7rh: 
+  dl, s4d, dq3, q4d7, ds3, s3d, dq3, q3d7, db;
+t7lh: 
+  db, q3t7, dq3, s3t, ds3, q4t7, dq3, s4t, dq3, q5t7, 
+  dk;
+t7rh: 
+  dk, q5t7, dq3, s4t, dq3, q4t7, ds3, s3t, dq3, q3t7, 
+  db;
+d8lh: 
+  db, q3d8, dq3, s3d, ds3, q4d8, dq3, s4d, dl;
+d8rh: 
+  dl, s4d, dq3, q4d8, ds3, s3d, dq3, q3d8, db;
+t8lh: 
+  db, q3p1t8, dq3, s3t, ds3, q4p1t8, dq3, s4t, dq3, q5p1t8, 
+  dk;
+t8rh: 
+  dk, q5p2t8, dq3, s4t, dq3, q4p2t8, ds3, s3t, dq3, q3p2t8, 
+  db;
+
+{ #### FULL TRIPLET AND DUBLET SECTIONS #### }
+{  (each 1/16) of entire storage ring }
+{  injection point at center of D1 }
+t11: achrh, b, t1lh, t1rh, b, achlh;
+d2: achrh, b, d2lh, d2rh, bp2d2r, achlh;
+t22: achrh, b, t2lh, t2rh, b, achlh;
+d3: achrh, b, d3lh, d3rh, b, achlh;
+t3: achrh, b, t3lh, t3rh, b, achlh;
+d4: achrh, b, d4lh, d4rh, b, achlh;
+t4: achrh, b, t4lh, t4rh, b, achlh;
+d5: achrh, b, d5lh, d5rh, bp2d5r, achlh;
+t5: achrh, b, t5lh, t5rh, b, achlh;
+d6: achrh, b, d6lh, d6rh, b, achlh;
+t6: achrh, b, t6lh, t6rh, b, achlh;
+d7: achrh, b, d7lh, d7rh, b, achlh;
+t7: achrh, b, t7lh, t7rh, b, achlh;
+d8: achrh, b, d8lh, d8rh, b, achlh;
+t8: achrh, b, t8lh, t8rh, b, achlh;
+t8c: achrh, b, t8lh, ncc, t8rh, b, achlh;
+
+{ #### FULL BESSY II STORAGE RING #### }
+{  without cavity for 4D studies }
+bii: 
+  d1rh, b, achlh, t11, d2, t22, d3, t3, d4, t4, 
+  d5, t5, d6, t6, d7, t7, d8, t8, achrh, b, d1lh;
+ring: virtual, rc, wpinject, bii;
+fold3ring: 
+  virtual, rc, wpinject, m1, bii, bii, bii, m2;
+{  with cavity for 6D studies }
+bii_cav: 
+  d1rh, b, achlh, t11, d2, t22, d3, t3, d4, t4, 
+  d5, t5, d6, t6, d7, t7, d8, t8c, achrh, b, d1lh;
+ring_cav: virtual, rc, wpinject, bii_cav;
+fold3ring_cav: 
+  virtual, rc, wpinject, m1, bii_cav, bii_cav, bii_cav, m2;
+
+ring: ring_cav;
+
+cell: ring, symmetry = 1;
+
+end;

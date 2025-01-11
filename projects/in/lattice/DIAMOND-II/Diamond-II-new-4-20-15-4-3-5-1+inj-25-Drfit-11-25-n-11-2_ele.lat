@@ -1,0 +1,150 @@
+define lattice; ringtype = 1;
+
+Energy = 3.5; { Beam momentum [GeV]. }
+
+dP = 1e-8; CODeps = 1e-14;
+
+Meth = 4; Nbend = 10; Nquad = 10; Nsext = 2;
+
+pi = 4.0*arctan(1.0); c0 = 2.99792458e8;
+
+{ ..-ii\opa\1\diamond-ii-new-4-20-15-4-3-5-1+inj-25-drfit-11-25-n-11-2.opa }
+
+{ opa to elegant export }
+
+{ ----- variables ---------------------------------------------------- }
+
+{ 10.opaenergy  = 3 }
+{ dtor          = 0.01745329 }
+
+{ ----- table of elements ---------------------------------------------------- }
+
+dm1: Drift, L = 3.850000;
+dm2: Drift, L = 0.075000;
+dm3: Drift, L = 0.275000;
+dm4: Drift, L = 0.080000;
+dm5: Drift, L = 0.075000;
+dm6: Drift, L = 0.075000;
+dm7: Drift, L = 0.075000;
+dm8: Drift, L = 0.361373;
+dm9: Drift, L = 0.085000;
+dm10: Drift, L = 0.085000;
+dm11: Drift, L = 0.590874;
+dm12: Drift, L = 0.075000;
+dm13: Drift, L = 0.075000;
+dm14: Drift, L = 0.150000;
+dm15: Drift, L = 0.090000;
+dm16: Drift, L = 0.075000;
+dm17: Drift, L = 1.500000;
+du1: Drift, L = 2.700000;
+du2: Drift, L = 0.055000;
+du3: Drift, L = 0.075000;
+du4: Drift, L = 0.075000;
+du5: Drift, L = 0.075000;
+du6: Drift, L = 0.075000;
+du7: Drift, L = 0.075000;
+du8: Drift, L = 0.590874;
+du9: Drift, L = 0.085000;
+du10: Drift, L = 0.085000;
+du11: Drift, L = 0.497900;
+du12: Drift, L = 0.075000;
+du13: Drift, L = 0.075000;
+du14: Drift, L = 0.150000;
+du15: Drift, L = 0.090000;
+du16: Drift, L = 0.055000;
+du17: Drift, L = 1.500000;
+
+qu1: Quadrupole, L = 0.120000, K = 8.469412, N = Nquad, Method = 4;
+qu2: Quadrupole, L = 0.102000, K = -8.343940, N = Nquad, Method = 4;
+qu3: Quadrupole, L = 0.100000, K = -3.322034, N = Nquad, Method = 4;
+qu4: Quadrupole, L = 0.142000, K = 8.870700, N = Nquad, Method = 4;
+qu5: Quadrupole, L = 0.142000, K = -1.532892, N = Nquad, Method = 4;
+qu6: Quadrupole, L = 0.136000, K = -1.764630, N = Nquad, Method = 4;
+qu7: Quadrupole, L = 0.362000, K = 6.142107, N = Nquad, Method = 4;
+qu8: Quadrupole, L = 0.278000, K = 6.724618, N = Nquad, Method = 4;
+qm1: Quadrupole, L = 0.155000, K = 6.280271, N = Nquad, Method = 4;
+qm2: Quadrupole, L = 0.102000, K = -4.065356, N = Nquad, Method = 4;
+qm3: Quadrupole, L = 0.100000, K = -5.149026, N = Nquad, Method = 4;
+qm4: Quadrupole, L = 0.142000, K = 6.966799, N = Nquad, Method = 4;
+qm5: Quadrupole, L = 0.142000, K = 2.301417, N = Nquad, Method = 4;
+qm6: Quadrupole, L = 0.136000, K = -1.158722, N = Nquad, Method = 4;
+qm7: Quadrupole, L = 0.280000, K = 7.143116, N = Nquad, Method = 4;
+qm8: Quadrupole, L = 0.240000, K = 7.925746, N = Nquad, Method = 4;
+
+dl1a_1: Bending, L = 0.200983, T = 0.293812757343086, T1 = -0.839211282528117, T2 = 1.133024039871203, K = 0.000000, N = Nbend, Method = 4;
+dl1a_2: Bending, L = 0.200983, T = 0.338216986465725, T1 = -0.500994296062392, T2 = 0.839211282528117, K = 0.000000, N = Nbend, Method = 4;
+dl1a_3: Bending, L = 0.200983, T = 0.395971132214912, T1 = -0.105023163847480, T2 = 0.500994296062392, K = 0.000000, N = Nbend, Method = 4;
+dl1a_4: Bending, L = 0.200983, T = 0.489535140159775, T1 = 0.384511976312296, T2 = 0.105023163847480, K = 0.000000, N = Nbend, Method = 4;
+dl1a_5: Bending, L = 0.200983, T = 0.748512063558907, T1 = 1.133024039871203, T2 = -0.384511976312296, K = 0.000000, N = Nbend, Method = 4;
+dl1e_1: Bending, L = 0.200983, T = 0.293812757343086, T1 = 1.133024039871203, T2 = -0.839211282528117, K = 0.000000, N = Nbend, Method = 4;
+dl1e_2: Bending, L = 0.200983, T = 0.338216986465725, T1 = 0.839211282528117, T2 = -0.500994296062392, K = 0.000000, N = Nbend, Method = 4;
+dl1e_3: Bending, L = 0.200983, T = 0.395971132214912, T1 = 0.500994296062392, T2 = -0.105023163847480, K = 0.000000, N = Nbend, Method = 4;
+dl1e_4: Bending, L = 0.200983, T = 0.489535140159775, T1 = 0.105023163847480, T2 = 0.384511976312296, K = 0.000000, N = Nbend, Method = 4;
+dl1e_5: Bending, L = 0.200983, T = 0.748512063558907, T1 = -0.384511976312296, T2 = 1.133024039871203, K = 0.000000, N = Nbend, Method = 4;
+dl2b_1: Bending, L = 0.200983, T = 0.293812757343086, T1 = 1.133024039871203, T2 = -0.839211282528117, K = 0.000000, N = Nbend, Method = 4;
+dl2b_2: Bending, L = 0.200983, T = 0.338216986465725, T1 = 0.839211282528117, T2 = -0.500994296062392, K = 0.000000, N = Nbend, Method = 4;
+dl2b_3: Bending, L = 0.200983, T = 0.395971132214912, T1 = 0.500994296062392, T2 = -0.105023163847480, K = 0.000000, N = Nbend, Method = 4;
+dl2b_4: Bending, L = 0.200983, T = 0.489535140159775, T1 = 0.105023163847480, T2 = 0.384511976312296, K = 0.000000, N = Nbend, Method = 4;
+dl2b_5: Bending, L = 0.200983, T = 0.748512063558907, T1 = -0.384511976312296, T2 = 1.133024039871203, K = 0.000000, N = Nbend, Method = 4;
+dl2d_1: Bending, L = 0.200983, T = 0.293812757343086, T1 = -0.839211282528117, T2 = 1.133024039871203, K = 0.000000, N = Nbend, Method = 4;
+dl2d_2: Bending, L = 0.200983, T = 0.338216986465725, T1 = -0.500994296062392, T2 = 0.839211282528117, K = 0.000000, N = Nbend, Method = 4;
+dl2d_3: Bending, L = 0.200983, T = 0.395971132214912, T1 = -0.105023163847480, T2 = 0.500994296062392, K = 0.000000, N = Nbend, Method = 4;
+dl2d_4: Bending, L = 0.200983, T = 0.489535140159775, T1 = 0.384511976312296, T2 = 0.105023163847480, K = 0.000000, N = Nbend, Method = 4;
+dl2d_5: Bending, L = 0.200983, T = 0.748512063558907, T1 = 1.133024039871203, T2 = -0.384511976312296, K = 0.000000, N = Nbend, Method = 4;
+
+su1: Sextupole, L = 0.100000, K = -93.351610/2.0, N = Nsext, Method = 4;
+su2: Sextupole, L = 0.140000, K = -371.332036/2.0, N = Nsext, Method = 4;
+su3: Sextupole, L = 0.070000, K = 414.611462/2.0, N = Nsext, Method = 4;
+su4: Sextupole, L = 0.140000, K = -531.263794/2.0, N = Nsext, Method = 4;
+sm1: Sextupole, L = 0.140000, K = 68.390536/2.0, N = Nsext, Method = 4;
+sm2: Sextupole, L = 0.140000, K = -706.044560/2.0, N = Nsext, Method = 4;
+sm3: Sextupole, L = 0.070000, K = 928.906962/2.0, N = Nsext, Method = 4;
+sm4: Sextupole, L = 0.140000, K = -807.923148/2.0, N = Nsext, Method = 4;
+
+dq1: Bending, L = 0.866900, T = 2.667863381467652, T1 = 1.333960338623583, T2 = 1.333960338623583, K = -2.940447, N = Nbend, Method = 4;
+dq2u: Bending, L = 0.300000, T = 0.300000701530499, T1 = 0.150000350765250, T2 = 0.150000350765250, K = 0.000000, N = Nbend, Method = 4;
+dq2m: Bending, L = 0.300000, T = 0.300000701530499, T1 = 0.150000350765250, T2 = 0.150000350765250, K = -1.795000, N = Nbend, Method = 4;
+
+mal: Marker; { malign }
+b_t: marker;
+
+bpm: Beam Position Monitor;
+ch: corrector, horizontal;
+cv: corrector, vertical;
+bhcv: bpm, ch, cv;
+{ ----- table of segments ---------------------------------------------------- }
+
+minj: 
+  dm17, bhcv, qm8, dm16, dq1, dm15, qm7, bhcv, dm14, dl2d_5, 
+  dl2d_4, dl2d_3, dl2d_2, dl2d_1, dm13, qm6, dm12, sm4, dm11, qm5, dm10, 
+  sm3, bhcv, sm3, dm9, qm4, dm8, sm2, dm7, bhcv, qm3, dm6, 
+  dl1e_1, dl1e_2, dl1e_3, dl1e_4, dl1e_5, dm5, bhcv, qm2, dm4, sm1, dm3, 
+  dq2m, dm2, qm1, bhcv, dm1;
+u: 
+  du1, bhcv, qu1, du2, su1, du3, dq2u, du4, qu2, du5, 
+  bhcv, dl1a_5, dl1a_4, dl1a_3, dl1a_2, dl1a_1, du6, qu3, du7, su2, du8, 
+  bhcv, qu4, du9, su3, su3, du10, qu5, du11, su4, du12, bhcv, 
+  qu6, du13, dl2b_1, dl2b_2, dl2b_3, dl2b_4, dl2b_5, du14, bhcv, qu7, du15, 
+  dq1, du16, qu8, bhcv, du17;
+
+cav: Cavity, L = 0.0, Frequency = 499.691e6, Voltage = 2.2e6, phi = 0.0;
+
+unit: inv(u), u;
+nminj: inv(minj);
+mp: inv(minj), minj;
+nu: inv(u);
+
+periodinj: inv(minj), unit, b_t, 2*unit, minj;
+
+{ Unit Cell. }
+{ring: u, inv(u), cav;}
+{ Matching Cell. }
+{ring: inv(minj), minj, cav;}
+
+ring: 1*periodinj, b_t, cav;
+
+cell: ring, symmetry=1;
+
+end;
+
+{ ..-ii\opa\1\diamond-ii-new-4-20-15-4-3-5-1+inj-25-drfit-11-25-n-11-2.opa }

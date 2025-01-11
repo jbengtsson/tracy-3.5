@@ -1,0 +1,547 @@
+MSEC1: Marker;
+MSTART: Marker;
+D1: Drift, L = 2.806;
+S4D1: Sextupole, L = 0.160000, K = 27.0435/2.0, N = Nsext, Method = 4;, N = Nsext, Method = 4;
+D2: Drift, L = 0.153;
+Q4D1: Quadrupole, L = 0.500000, K = 1.400463, N = Nquad, Method = 4;, N = Nquad, Method = 4;
+D3: Drift, L = 0.153;
+S3D1: Sextupole, L = 0.160000, K = -39.96/2.0, N = Nsext, Method = 4;, N = Nsext, Method = 4;
+D4: Drift, L = 0.153;
+Q3D1: Quadrupole, L = 0.250000, K = -2.023223, N = Nquad, Method = 4;, N = Nquad, Method = 4;
+D5: Drift, L = 0.42;
+BM2D1R: Bending, L = 0.855000, T = 11.249999997171761, T1 = 5.624999999731797, T2 = 5.624999999731797, Method = 4;, N = Nbend, Method = 4;
+D6: Drift, L = 0.42;
+Q2: Quadrupole, L = 0.200000, K = -1.853675, N = Nquad, Method = 4;, N = Nquad, Method = 4;
+D7: Drift, L = 0.307;
+S2: Sextupole, L = 0.160000, K = -44.96887307/2.0, N = Nsext, Method = 4;, N = Nsext, Method = 4;
+D8: Drift, L = 0.288;
+Q1: Quadrupole, L = 0.250000, K = 2.440456, N = Nquad, Method = 4;, N = Nquad, Method = 4;
+D9: Drift, L = 0.16;
+S1: Sextupole, L = 0.105000, K = 53.71159807/2.0, N = Nsext, Method = 4;, N = Nsext, Method = 4;
+MSEC_D1_END: Marker;
+MSEC_T1_START: Marker;
+D12: Drift, L = 0.16;
+D13: Drift, L = 0.288;
+D14: Drift, L = 0.307;
+D15: Drift, L = 0.42;
+BM1T1R: Bending, L = 0.855000, T = 11.249999997171761, T1 = 5.624999999731797, T2 = 5.624999999731797, Method = 4;, N = Nbend, Method = 4;
+D16: Drift, L = 0.42;
+Q3P1T1: Quadrupole, L = 0.250000, K = -2.507644, N = Nquad, Method = 4;, N = Nquad, Method = 4;
+D17: Drift, L = 0.153;
+S3T: Sextupole, L = 0.160000, K = -43.8795/2.0, N = Nsext, Method = 4;, N = Nsext, Method = 4;
+D18: Drift, L = 0.153;
+Q4P1T1: Quadrupole, L = 0.500000, K = 2.632053, N = Nquad, Method = 4;, N = Nquad, Method = 4;
+D19: Drift, L = 0.153;
+S4T: Sextupole, L = 0.160000, K = 55.0/2.0, N = Nsext, Method = 4;, N = Nsext, Method = 4;
+D20: Drift, L = 0.153;
+Q5P1T1: Quadrupole, L = 0.200000, K = -2.521541, N = Nquad, Method = 4;, N = Nquad, Method = 4;
+D21: Drift, L = 2.453;
+MSEC2: Marker;
+MBAMWLS1: Marker;
+D22: Drift, L = 2.453;
+Q5P2T1: Quadrupole, L = 0.200000, K = -2.510582, N = Nquad, Method = 4;, N = Nquad, Method = 4;
+D23: Drift, L = 0.153;
+D24: Drift, L = 0.153;
+Q4P2T1: Quadrupole, L = 0.500000, K = 2.565060, N = Nquad, Method = 4;, N = Nquad, Method = 4;
+D25: Drift, L = 0.153;
+D26: Drift, L = 0.153;
+Q3P2T1: Quadrupole, L = 0.250000, K = -2.466826, N = Nquad, Method = 4;, N = Nquad, Method = 4;
+D27: Drift, L = 0.42;
+BM2T1R: Bending, L = 0.855000, T = 11.249999997171761, T1 = 5.624999999731797, T2 = 5.624999999731797, Method = 4;, N = Nbend, Method = 4;
+D28: Drift, L = 0.42;
+D29: Drift, L = 0.307;
+D30: Drift, L = 0.288;
+D31: Drift, L = 0.16;
+MSEC_D2_START: Marker;
+MSEC_T1_END: Marker;
+D34: Drift, L = 0.16;
+D35: Drift, L = 0.288;
+D36: Drift, L = 0.307;
+D37: Drift, L = 0.42;
+BM1D2R: Bending, L = 0.855000, T = 11.249999997171761, T1 = 5.624999999731797, T2 = 5.624999999731797, Method = 4;, N = Nbend, Method = 4;
+D38: Drift, L = 0.42;
+Q3D2: Quadrupole, L = 0.250000, K = -2.124413, N = Nquad, Method = 4;, N = Nquad, Method = 4;
+D39: Drift, L = 0.153;
+S3D: Sextupole, L = 0.160000, K = -42.735/2.0, N = Nsext, Method = 4;, N = Nsext, Method = 4;
+D40: Drift, L = 0.153;
+Q4D2: Quadrupole, L = 0.500000, K = 1.480220, N = Nquad, Method = 4;, N = Nquad, Method = 4;
+D41: Drift, L = 0.153;
+S4D: Sextupole, L = 0.160000, K = 38.2185/2.0, N = Nsext, Method = 4;, N = Nsext, Method = 4;
+D42: Drift, L = 2.806;
+MU125_2: Marker;
+MSEC3: Marker;
+D43: Drift, L = 2.806;
+D44: Drift, L = 0.153;
+D45: Drift, L = 0.153;
+D46: Drift, L = 0.153;
+D47: Drift, L = 0.42;
+BM2D2R: Bending, L = 0.855000, T = 11.249999997171761, T1 = 5.624999999731797, T2 = 5.624999999731797, Method = 4;, N = Nbend, Method = 4;
+D48: Drift, L = 0.42;
+D49: Drift, L = 0.307;
+D50: Drift, L = 0.288;
+D51: Drift, L = 0.16;
+MSEC_T2_START: Marker;
+MSEC_D2_END: Marker;
+D54: Drift, L = 0.16;
+D55: Drift, L = 0.288;
+D56: Drift, L = 0.307;
+D57: Drift, L = 0.42;
+BM1T2R: Bending, L = 0.855000, T = 11.249999997171761, T1 = 5.624999999731797, T2 = 5.624999999731797, Method = 4;, N = Nbend, Method = 4;
+D58: Drift, L = 0.42;
+Q3T2: Quadrupole, L = 0.250000, K = -2.455260, N = Nquad, Method = 4;, N = Nquad, Method = 4;
+D59: Drift, L = 0.153;
+D60: Drift, L = 0.153;
+Q4T2: Quadrupole, L = 0.500000, K = 2.577230, N = Nquad, Method = 4;, N = Nquad, Method = 4;
+D61: Drift, L = 0.153;
+D62: Drift, L = 0.153;
+Q5T2: Quadrupole, L = 0.200000, K = -2.583105, N = Nquad, Method = 4;, N = Nquad, Method = 4;
+D63: Drift, L = 2.453;
+MSEC4: Marker;
+M7TMPW: Marker;
+D64: Drift, L = 2.453;
+D65: Drift, L = 0.153;
+D66: Drift, L = 0.153;
+D67: Drift, L = 0.153;
+D68: Drift, L = 0.153;
+D69: Drift, L = 0.42;
+BM2T2R: Bending, L = 0.855000, T = 11.249999997171761, T1 = 5.624999999731797, T2 = 5.624999999731797, Method = 4;, N = Nbend, Method = 4;
+D70: Drift, L = 0.42;
+D71: Drift, L = 0.307;
+D72: Drift, L = 0.288;
+D73: Drift, L = 0.16;
+MSEC_D3_START: Marker;
+MSEC_T2_END: Marker;
+D76: Drift, L = 0.16;
+D77: Drift, L = 0.288;
+D78: Drift, L = 0.307;
+D79: Drift, L = 0.42;
+BM1D3R: Bending, L = 0.855000, T = 11.249999997171761, T1 = 5.624999999731797, T2 = 5.624999999731797, Method = 4;, N = Nbend, Method = 4;
+D80: Drift, L = 0.42;
+Q3D3: Quadrupole, L = 0.250000, K = -2.126081, N = Nquad, Method = 4;, N = Nquad, Method = 4;
+D81: Drift, L = 0.153;
+D82: Drift, L = 0.153;
+Q4D3: Quadrupole, L = 0.500000, K = 1.486930, N = Nquad, Method = 4;, N = Nquad, Method = 4;
+D83: Drift, L = 0.153;
+D84: Drift, L = 1.435;
+MUE56_2L: Marker;
+D85: Drift, L = 1.371;
+MSEC5: Marker;
+D86: Drift, L = 1.371;
+MUE56_2R: Marker;
+D87: Drift, L = 1.435;
+D88: Drift, L = 0.153;
+D89: Drift, L = 0.153;
+D90: Drift, L = 0.153;
+D91: Drift, L = 0.42;
+BM2D3R: Bending, L = 0.855000, T = 11.249999997171761, T1 = 5.624999999731797, T2 = 5.624999999731797, Method = 4;, N = Nbend, Method = 4;
+D92: Drift, L = 0.42;
+D93: Drift, L = 0.307;
+D94: Drift, L = 0.288;
+D95: Drift, L = 0.16;
+MSEC_D3_END: Marker;
+MSEC_T3_START: Marker;
+D98: Drift, L = 0.16;
+D99: Drift, L = 0.288;
+D100: Drift, L = 0.307;
+D101: Drift, L = 0.42;
+BM1T3R: Bending, L = 0.855000, T = 11.249999997171761, T1 = 5.624999999731797, T2 = 5.624999999731797, Method = 4;, N = Nbend, Method = 4;
+D102: Drift, L = 0.42;
+Q3T3: Quadrupole, L = 0.250000, K = -2.431192, N = Nquad, Method = 4;, N = Nquad, Method = 4;
+D103: Drift, L = 0.153;
+D104: Drift, L = 0.153;
+Q4T3: Quadrupole, L = 0.500000, K = 2.579174, N = Nquad, Method = 4;, N = Nquad, Method = 4;
+D105: Drift, L = 0.153;
+D106: Drift, L = 0.153;
+Q5T3: Quadrupole, L = 0.200000, K = -2.620445, N = Nquad, Method = 4;, N = Nquad, Method = 4;
+D107: Drift, L = 2.453;
+MWLS: Marker;
+MSEC6: Marker;
+D108: Drift, L = 2.453;
+D109: Drift, L = 0.153;
+D110: Drift, L = 0.153;
+D111: Drift, L = 0.153;
+D112: Drift, L = 0.153;
+D113: Drift, L = 0.42;
+BM2T3R: Bending, L = 0.855000, T = 11.249999997171761, T1 = 5.624999999731797, T2 = 5.624999999731797, Method = 4;, N = Nbend, Method = 4;
+D114: Drift, L = 0.42;
+D115: Drift, L = 0.307;
+D116: Drift, L = 0.288;
+D117: Drift, L = 0.16;
+MSEC_D4_START: Marker;
+MSEC_T3_END: Marker;
+D120: Drift, L = 0.16;
+D121: Drift, L = 0.288;
+D122: Drift, L = 0.307;
+D123: Drift, L = 0.42;
+BM1D4R: Bending, L = 0.855000, T = 11.249999997171761, T1 = 5.624999999731797, T2 = 5.624999999731797, Method = 4;, N = Nbend, Method = 4;
+D124: Drift, L = 0.42;
+Q3D4: Quadrupole, L = 0.250000, K = -2.128279, N = Nquad, Method = 4;, N = Nquad, Method = 4;
+D125: Drift, L = 0.153;
+D126: Drift, L = 0.153;
+Q4D4: Quadrupole, L = 0.500000, K = 1.488363, N = Nquad, Method = 4;, N = Nquad, Method = 4;
+D127: Drift, L = 0.153;
+D128: Drift, L = 2.806;
+MU49_2: Marker;
+MSEC7: Marker;
+D129: Drift, L = 2.806;
+D130: Drift, L = 0.153;
+D131: Drift, L = 0.153;
+D132: Drift, L = 0.153;
+D133: Drift, L = 0.42;
+BM2D4R: Bending, L = 0.855000, T = 11.249999997171761, T1 = 5.624999999731797, T2 = 5.624999999731797, Method = 4;, N = Nbend, Method = 4;
+D134: Drift, L = 0.42;
+D135: Drift, L = 0.307;
+D136: Drift, L = 0.288;
+D137: Drift, L = 0.16;
+MSEC_D4_END: Marker;
+MSEC_T4_START: Marker;
+D140: Drift, L = 0.16;
+D141: Drift, L = 0.288;
+D142: Drift, L = 0.307;
+D143: Drift, L = 0.42;
+BM1T4R: Bending, L = 0.855000, T = 11.249999997171761, T1 = 5.624999999731797, T2 = 5.624999999731797, Method = 4;, N = Nbend, Method = 4;
+D144: Drift, L = 0.42;
+Q3T4: Quadrupole, L = 0.250000, K = -2.440374, N = Nquad, Method = 4;, N = Nquad, Method = 4;
+D145: Drift, L = 0.153;
+D146: Drift, L = 0.153;
+Q4T4: Quadrupole, L = 0.500000, K = 2.580390, N = Nquad, Method = 4;, N = Nquad, Method = 4;
+D147: Drift, L = 0.153;
+D148: Drift, L = 0.153;
+Q5T4: Quadrupole, L = 0.200000, K = -2.595468, N = Nquad, Method = 4;, N = Nquad, Method = 4;
+D149: Drift, L = 2.178;
+MUE49: Marker;
+MSEC8: Marker;
+D150: Drift, L = 2.728;
+D151: Drift, L = 0.153;
+D152: Drift, L = 0.153;
+D153: Drift, L = 0.153;
+D154: Drift, L = 0.153;
+D155: Drift, L = 0.42;
+BM2T4R: Bending, L = 0.855000, T = 11.249999997171761, T1 = 5.624999999731797, T2 = 5.624999999731797, Method = 4;, N = Nbend, Method = 4;
+D156: Drift, L = 0.42;
+D157: Drift, L = 0.307;
+D158: Drift, L = 0.288;
+D159: Drift, L = 0.16;
+MSEC_D5_START: Marker;
+MSEC_T4_END: Marker;
+D162: Drift, L = 0.16;
+D163: Drift, L = 0.288;
+D164: Drift, L = 0.307;
+D165: Drift, L = 0.42;
+BM1D5R: Bending, L = 0.855000, T = 11.249999997171761, T1 = 5.624999999731797, T2 = 5.624999999731797, Method = 4;, N = Nbend, Method = 4;
+D166: Drift, L = 0.42;
+Q3D5: Quadrupole, L = 0.250000, K = -2.121144, N = Nquad, Method = 4;, N = Nquad, Method = 4;
+D167: Drift, L = 0.153;
+D168: Drift, L = 0.153;
+Q4D5: Quadrupole, L = 0.500000, K = 1.480107, N = Nquad, Method = 4;, N = Nquad, Method = 4;
+D169: Drift, L = 0.153;
+D170: Drift, L = 2.806;
+MSEC9: Marker;
+MUE52: Marker;
+D171: Drift, L = 2.806;
+D172: Drift, L = 0.153;
+D173: Drift, L = 0.153;
+D174: Drift, L = 0.153;
+D175: Drift, L = 0.42;
+BM2D5R: Bending, L = 0.855000, T = 11.249999997171761, T1 = 5.624999999731797, T2 = 5.624999999731797, Method = 4;, N = Nbend, Method = 4;
+D176: Drift, L = 0.42;
+D177: Drift, L = 0.307;
+D178: Drift, L = 0.288;
+D179: Drift, L = 0.16;
+MSEC_T5_START: Marker;
+MSEC_D5_END: Marker;
+D182: Drift, L = 0.16;
+D183: Drift, L = 0.288;
+D184: Drift, L = 0.307;
+D185: Drift, L = 0.42;
+BM1T5R: Bending, L = 0.855000, T = 11.249999997171761, T1 = 5.624999999731797, T2 = 5.624999999731797, Method = 4;, N = Nbend, Method = 4;
+D186: Drift, L = 0.42;
+Q3T5: Quadrupole, L = 0.250000, K = -2.448187, N = Nquad, Method = 4;, N = Nquad, Method = 4;
+D187: Drift, L = 0.153;
+D188: Drift, L = 0.153;
+Q4T5: Quadrupole, L = 0.500000, K = 2.577684, N = Nquad, Method = 4;, N = Nquad, Method = 4;
+D189: Drift, L = 0.153;
+D190: Drift, L = 0.153;
+Q5T5: Quadrupole, L = 0.200000, K = -2.584395, N = Nquad, Method = 4;, N = Nquad, Method = 4;
+D191: Drift, L = 2.453;
+MUE46: Marker;
+MSEC10: Marker;
+D192: Drift, L = 2.453;
+D193: Drift, L = 0.153;
+D194: Drift, L = 0.153;
+D195: Drift, L = 0.153;
+D196: Drift, L = 0.153;
+D197: Drift, L = 0.42;
+BM2T5R: Bending, L = 0.855000, T = 11.249999997171761, T1 = 5.624999999731797, T2 = 5.624999999731797, Method = 4;, N = Nbend, Method = 4;
+D198: Drift, L = 0.42;
+D199: Drift, L = 0.307;
+D200: Drift, L = 0.288;
+D201: Drift, L = 0.16;
+MSEC_T5_END: Marker;
+MSEC_D6_START: Marker;
+D204: Drift, L = 0.16;
+D205: Drift, L = 0.288;
+D206: Drift, L = 0.307;
+D207: Drift, L = 0.42;
+BM1D6R: Bending, L = 0.855000, T = 11.249999997171761, T1 = 5.624999999731797, T2 = 5.624999999731797, Method = 4;, N = Nbend, Method = 4;
+D208: Drift, L = 0.42;
+Q3D6: Quadrupole, L = 0.250000, K = -2.112234, N = Nquad, Method = 4;, N = Nquad, Method = 4;
+D209: Drift, L = 0.153;
+D210: Drift, L = 0.153;
+Q4D6: Quadrupole, L = 0.500000, K = 1.485456, N = Nquad, Method = 4;, N = Nquad, Method = 4;
+D211: Drift, L = 0.153;
+D212: Drift, L = 0.164;
+B1IDSB: Bending, L = 0.280000, T = 3.316215999580808, T2 = 3.316215999580808, Method = 4;, N = Nbend, Method = 4;
+D213: Drift, L = 1.01682;
+MU139: Marker;
+D214: Drift, L = 1.00332;
+B2IDSB: Bending, L = 0.560000, T = -6.399999998416511, T1 = -3.316215999580808, T2 = -3.083783998835703, Method = 4;, N = Nbend, Method = 4;
+MSEC11: Marker;
+D216: Drift, L = 1.093175;
+MUE56_1: Marker;
+D217: Drift, L = 1.123075;
+B3IDSB: Bending, L = 0.280000, T = 3.083783998835703, T1 = 3.083783998835703, Method = 4;, N = Nbend, Method = 4;
+D218: Drift, L = 0.1;
+D219: Drift, L = 0.153;
+D220: Drift, L = 0.153;
+D221: Drift, L = 0.153;
+D222: Drift, L = 0.42;
+BM2D6R: Bending, L = 0.855000, T = 11.249999997171761, T1 = 5.624999999731797, T2 = 5.624999999731797, Method = 4;, N = Nbend, Method = 4;
+D223: Drift, L = 0.42;
+D224: Drift, L = 0.307;
+D225: Drift, L = 0.288;
+D226: Drift, L = 0.16;
+MSEC_D6_END: Marker;
+MSEC_T6_START: Marker;
+D229: Drift, L = 0.16;
+D230: Drift, L = 0.288;
+D231: Drift, L = 0.307;
+D232: Drift, L = 0.42;
+BM1T6R: Bending, L = 0.855000, T = 11.249999997171761, T1 = 5.624999999731797, T2 = 5.624999999731797, Method = 4;, N = Nbend, Method = 4;
+D233: Drift, L = 0.42;
+Q3P1T6: Quadrupole, L = 0.250000, K = -2.693869, N = Nquad, Method = 4;, N = Nquad, Method = 4;
+D234: Drift, L = 0.153;
+S3P1T6: Sextupole, L = 0.160000, K = -43.8795/2.0, N = Nsext, Method = 4;, N = Nsext, Method = 4;
+D235: Drift, L = 0.153;
+Q4P1T6: Quadrupole, L = 0.500000, K = 2.258378, N = Nquad, Method = 4;, N = Nquad, Method = 4;
+D236: Drift, L = 0.153;
+S4P1T6: Sextupole, L = 0.160000, K = 41.25/2.0, N = Nsext, Method = 4;, N = Nsext, Method = 4;
+D237: Drift, L = 0.153;
+Q5P1T6: Quadrupole, L = 0.200000, K = -1.090783, N = Nquad, Method = 4;, N = Nquad, Method = 4;
+D238: Drift, L = 2.2976;
+QIT6: Quadrupole, L = 0.122000, K = -1.080825, N = Nquad, Method = 4;, N = Nquad, Method = 4;
+MSEC12: Marker;
+D241: Drift, L = 2.3644;
+Q5P2T6: Quadrupole, L = 0.200000, K = -2.425219, N = Nquad, Method = 4;, N = Nquad, Method = 4;
+D242: Drift, L = 0.153;
+S4P2T6: Sextupole, L = 0.160000, K = 41.25/2.0, N = Nsext, Method = 4;, N = Nsext, Method = 4;
+D243: Drift, L = 0.153;
+Q4P2T6: Quadrupole, L = 0.500000, K = 2.558737, N = Nquad, Method = 4;, N = Nquad, Method = 4;
+D244: Drift, L = 0.153;
+S3P2T6: Sextupole, L = 0.160000, K = -43.8795/2.0, N = Nsext, Method = 4;, N = Nsext, Method = 4;
+D245: Drift, L = 0.153;
+Q3P2T6: Quadrupole, L = 0.250000, K = -2.327895, N = Nquad, Method = 4;, N = Nquad, Method = 4;
+D246: Drift, L = 0.42;
+BM2T6R: Bending, L = 0.855000, T = 11.249999997171761, T1 = 5.624999999731797, T2 = 5.624999999731797, Method = 4;, N = Nbend, Method = 4;
+D247: Drift, L = 0.42;
+D248: Drift, L = 0.307;
+D249: Drift, L = 0.288;
+D250: Drift, L = 0.16;
+MSEC_T6_END: Marker;
+MSEC_D7_START: Marker;
+D253: Drift, L = 0.16;
+D254: Drift, L = 0.288;
+D255: Drift, L = 0.307;
+D256: Drift, L = 0.42;
+BM1D7R: Bending, L = 0.855000, T = 11.249999997171761, T1 = 5.624999999731797, T2 = 5.624999999731797, Method = 4;, N = Nbend, Method = 4;
+D257: Drift, L = 0.42;
+Q3D7: Quadrupole, L = 0.250000, K = -2.118840, N = Nquad, Method = 4;, N = Nquad, Method = 4;
+D258: Drift, L = 0.153;
+D259: Drift, L = 0.153;
+Q4D7: Quadrupole, L = 0.500000, K = 1.476436, N = Nquad, Method = 4;, N = Nquad, Method = 4;
+D260: Drift, L = 0.153;
+D261: Drift, L = 2.806;
+MSEC13: Marker;
+MUE112: Marker;
+D262: Drift, L = 2.806;
+D263: Drift, L = 0.153;
+D264: Drift, L = 0.153;
+D265: Drift, L = 0.153;
+D266: Drift, L = 0.42;
+BM2D7R: Bending, L = 0.855000, T = 11.249999997171761, T1 = 5.624999999731797, T2 = 5.624999999731797, Method = 4;, N = Nbend, Method = 4;
+D267: Drift, L = 0.42;
+D268: Drift, L = 0.307;
+D269: Drift, L = 0.288;
+D270: Drift, L = 0.16;
+MSEC_D7_END: Marker;
+MSEC_T7_START: Marker;
+D273: Drift, L = 0.16;
+D274: Drift, L = 0.288;
+D275: Drift, L = 0.307;
+D276: Drift, L = 0.42;
+BM1T7R: Bending, L = 0.855000, T = 11.249999997171761, T1 = 5.624999999731797, T2 = 5.624999999731797, Method = 4;, N = Nbend, Method = 4;
+D277: Drift, L = 0.42;
+Q3T7: Quadrupole, L = 0.250000, K = -2.435916, N = Nquad, Method = 4;, N = Nquad, Method = 4;
+D278: Drift, L = 0.153;
+D279: Drift, L = 0.153;
+Q4T7: Quadrupole, L = 0.500000, K = 2.580203, N = Nquad, Method = 4;, N = Nquad, Method = 4;
+D280: Drift, L = 0.153;
+D281: Drift, L = 0.153;
+Q5T7: Quadrupole, L = 0.200000, K = -2.604260, N = Nquad, Method = 4;, N = Nquad, Method = 4;
+D282: Drift, L = 2.453;
+MSEC14: Marker;
+MBAMWLS2: Marker;
+D283: Drift, L = 2.453;
+D284: Drift, L = 0.153;
+D285: Drift, L = 0.153;
+D286: Drift, L = 0.153;
+D287: Drift, L = 0.153;
+D288: Drift, L = 0.42;
+BM2T7R: Bending, L = 0.855000, T = 11.249999997171761, T1 = 5.624999999731797, T2 = 5.624999999731797, Method = 4;, N = Nbend, Method = 4;
+D289: Drift, L = 0.42;
+D290: Drift, L = 0.307;
+D291: Drift, L = 0.288;
+D292: Drift, L = 0.16;
+MSEC_D8_START: Marker;
+MSEC_T7_END: Marker;
+D295: Drift, L = 0.16;
+D296: Drift, L = 0.288;
+D297: Drift, L = 0.307;
+D298: Drift, L = 0.42;
+BM1D8R: Bending, L = 0.855000, T = 11.249999997171761, T1 = 5.624999999731797, T2 = 5.624999999731797, Method = 4;, N = Nbend, Method = 4;
+D299: Drift, L = 0.42;
+Q3D8: Quadrupole, L = 0.250000, K = -2.134047, N = Nquad, Method = 4;, N = Nquad, Method = 4;
+D300: Drift, L = 0.153;
+D301: Drift, L = 0.153;
+Q4D8: Quadrupole, L = 0.500000, K = 1.490557, N = Nquad, Method = 4;, N = Nquad, Method = 4;
+D302: Drift, L = 0.153;
+D303: Drift, L = 2.806;
+MUE49_2: Marker;
+MSEC15: Marker;
+D304: Drift, L = 2.806;
+D305: Drift, L = 0.153;
+D306: Drift, L = 0.153;
+D307: Drift, L = 0.153;
+D308: Drift, L = 0.42;
+BM2D8R: Bending, L = 0.855000, T = 11.249999997171761, T1 = 5.624999999731797, T2 = 5.624999999731797, Method = 4;, N = Nbend, Method = 4;
+D309: Drift, L = 0.42;
+D310: Drift, L = 0.307;
+D311: Drift, L = 0.288;
+D312: Drift, L = 0.16;
+MSEC_T8_START: Marker;
+MSEC_D8_END: Marker;
+D315: Drift, L = 0.16;
+D316: Drift, L = 0.288;
+D317: Drift, L = 0.307;
+D318: Drift, L = 0.42;
+BM1T8R: Bending, L = 0.855000, T = 11.249999997171761, T1 = 5.624999999731797, T2 = 5.624999999731797, Method = 4;, N = Nbend, Method = 4;
+D319: Drift, L = 0.42;
+Q3P1T8: Quadrupole, L = 0.250000, K = -2.471324, N = Nquad, Method = 4;, N = Nquad, Method = 4;
+D320: Drift, L = 0.153;
+D321: Drift, L = 0.153;
+Q4P1T8: Quadrupole, L = 0.500000, K = 2.563849, N = Nquad, Method = 4;, N = Nquad, Method = 4;
+D322: Drift, L = 0.153;
+D323: Drift, L = 0.153;
+Q5P1T8: Quadrupole, L = 0.200000, K = -2.508072, N = Nquad, Method = 4;, N = Nquad, Method = 4;
+D324: Drift, L = 2.453;
+MSEC16: Marker;
+NCC: Cavity, L = 0.000000, Frequency = 0.000000000000000, Voltage = 0.000000000000000, phi = 0.000000000000000;
+D325: Drift, L = 2.453;
+Q5P2T8: Quadrupole, L = 0.200000, K = -2.514856, N = Nquad, Method = 4;, N = Nquad, Method = 4;
+D326: Drift, L = 0.153;
+D327: Drift, L = 0.153;
+Q4P2T8: Quadrupole, L = 0.500000, K = 2.640794, N = Nquad, Method = 4;, N = Nquad, Method = 4;
+D328: Drift, L = 0.153;
+D329: Drift, L = 0.153;
+Q3P2T8: Quadrupole, L = 0.250000, K = -2.512283, N = Nquad, Method = 4;, N = Nquad, Method = 4;
+D330: Drift, L = 0.42;
+BM2T8R: Bending, L = 0.855000, T = 11.249999997171761, T1 = 5.624999999731797, T2 = 5.624999999731797, Method = 4;, N = Nbend, Method = 4;
+D331: Drift, L = 0.42;
+D332: Drift, L = 0.307;
+D333: Drift, L = 0.288;
+D334: Drift, L = 0.16;
+MSEC_T8_END: Marker;
+MSEC_D1_START: Marker;
+D337: Drift, L = 0.16;
+D338: Drift, L = 0.288;
+D339: Drift, L = 0.307;
+D340: Drift, L = 0.42;
+BM1D1R: Bending, L = 0.855000, T = 11.249999997171761, T1 = 5.624999999731797, T2 = 5.624999999731797, Method = 4;, N = Nbend, Method = 4;
+D341: Drift, L = 0.42;
+D342: Drift, L = 0.153;
+D343: Drift, L = 0.153;
+D344: Drift, L = 0.153;
+D345: Drift, L = 2.806;
+MEND: Marker;
+
+
+ring: 
+ MSEC1, MSTART, D1, S4D1, D2, Q4D1, D3, S3D1, D4, Q3D1, 
+ D5, BM2D1R, D6, Q2, D7, S2, D8, Q1, D9, S1, MSEC_D1_END, 
+ MSEC_T1_START, S1, D12, Q1, D13, S2, D14, Q2, D15, BM1T1R, D16, 
+ Q3P1T1, D17, S3T, D18, Q4P1T1, D19, S4T, D20, Q5P1T1, D21, MSEC2, 
+ MBAMWLS1, D22, Q5P2T1, D23, S4T, D24, Q4P2T1, D25, S3T, D26, Q3P2T1, 
+ D27, BM2T1R, D28, Q2, D29, S2, D30, Q1, D31, S1, MSEC_D2_START, 
+ MSEC_T1_END, S1, D34, Q1, D35, S2, D36, Q2, D37, BM1D2R, D38, 
+ Q3D2, D39, S3D, D40, Q4D2, D41, S4D, D42, MU125_2, MSEC3, D43, 
+ S4D, D44, Q4D2, D45, S3D, D46, Q3D2, D47, BM2D2R, D48, Q2, 
+ D49, S2, D50, Q1, D51, S1, MSEC_T2_START, MSEC_D2_END, S1, D54, Q1, 
+ D55, S2, D56, Q2, D57, BM1T2R, D58, Q3T2, D59, S3T, D60, 
+ Q4T2, D61, S4T, D62, Q5T2, D63, MSEC4, M7TMPW, D64, Q5T2, D65, 
+ S4T, D66, Q4T2, D67, S3T, D68, Q3T2, D69, BM2T2R, D70, Q2, 
+ D71, S2, D72, Q1, D73, S1, MSEC_D3_START, MSEC_T2_END, S1, D76, Q1, 
+ D77, S2, D78, Q2, D79, BM1D3R, D80, Q3D3, D81, S3D, D82, 
+ Q4D3, D83, S4D, D84, MUE56_2L, D85, MSEC5, D86, MUE56_2R, D87, S4D, 
+ D88, Q4D3, D89, S3D, D90, Q3D3, D91, BM2D3R, D92, Q2, D93, 
+ S2, D94, Q1, D95, S1, MSEC_D3_END, MSEC_T3_START, S1, D98, Q1, D99, 
+ S2, D100, Q2, D101, BM1T3R, D102, Q3T3, D103, S3T, D104, Q4T3, 
+ D105, S4T, D106, Q5T3, D107, MWLS, MSEC6, D108, Q5T3, D109, S4T, 
+ D110, Q4T3, D111, S3T, D112, Q3T3, D113, BM2T3R, D114, Q2, D115, 
+ S2, D116, Q1, D117, S1, MSEC_D4_START, MSEC_T3_END, S1, D120, Q1, D121, 
+ S2, D122, Q2, D123, BM1D4R, D124, Q3D4, D125, S3D, D126, Q4D4, 
+ D127, S4D, D128, MU49_2, MSEC7, D129, S4D, D130, Q4D4, D131, S3D, 
+ D132, Q3D4, D133, BM2D4R, D134, Q2, D135, S2, D136, Q1, D137, 
+ S1, MSEC_D4_END, MSEC_T4_START, S1, D140, Q1, D141, S2, D142, Q2, D143, 
+ BM1T4R, D144, Q3T4, D145, S3T, D146, Q4T4, D147, S4T, D148, Q5T4, 
+ D149, MUE49, MSEC8, D150, Q5T4, D151, S4T, D152, Q4T4, D153, S3T, 
+ D154, Q3T4, D155, BM2T4R, D156, Q2, D157, S2, D158, Q1, D159, 
+ S1, MSEC_D5_START, MSEC_T4_END, S1, D162, Q1, D163, S2, D164, Q2, D165, 
+ BM1D5R, D166, Q3D5, D167, S3D, D168, Q4D5, D169, S4D, D170, MSEC9, 
+ MUE52, D171, S4D, D172, Q4D5, D173, S3D, D174, Q3D5, D175, BM2D5R, 
+ D176, Q2, D177, S2, D178, Q1, D179, S1, MSEC_T5_START, MSEC_D5_END, S1, 
+ D182, Q1, D183, S2, D184, Q2, D185, BM1T5R, D186, Q3T5, D187, 
+ S3T, D188, Q4T5, D189, S4T, D190, Q5T5, D191, MUE46, MSEC10, D192, 
+ Q5T5, D193, S4T, D194, Q4T5, D195, S3T, D196, Q3T5, D197, BM2T5R, 
+ D198, Q2, D199, S2, D200, Q1, D201, S1, MSEC_T5_END, MSEC_D6_START, S1, 
+ D204, Q1, D205, S2, D206, Q2, D207, BM1D6R, D208, Q3D6, D209, 
+ S3D, D210, Q4D6, D211, S4D, D212, B1IDSB, D213, MU139, D214, B2IDSB, 
+ MSEC11, D216, MUE56_1, D217, B3IDSB, D218, S4D, D219, Q4D6, D220, S3D, 
+ D221, Q3D6, D222, BM2D6R, D223, Q2, D224, S2, D225, Q1, D226, 
+ S1, MSEC_D6_END, MSEC_T6_START, S1, D229, Q1, D230, S2, D231, Q2, D232, 
+ BM1T6R, D233, Q3P1T6, D234, S3P1T6, D235, Q4P1T6, D236, S4P1T6, D237, Q5P1T6, 
+ D238, QIT6, MSEC12, QIT6, D241, Q5P2T6, D242, S4P2T6, D243, Q4P2T6, D244, 
+ S3P2T6, D245, Q3P2T6, D246, BM2T6R, D247, Q2, D248, S2, D249, Q1, 
+ D250, S1, MSEC_T6_END, MSEC_D7_START, S1, D253, Q1, D254, S2, D255, Q2, 
+ D256, BM1D7R, D257, Q3D7, D258, S3D, D259, Q4D7, D260, S4D, D261, 
+ MSEC13, MUE112, D262, S4D, D263, Q4D7, D264, S3D, D265, Q3D7, D266, 
+ BM2D7R, D267, Q2, D268, S2, D269, Q1, D270, S1, MSEC_D7_END, MSEC_T7_START, 
+ S1, D273, Q1, D274, S2, D275, Q2, D276, BM1T7R, D277, Q3T7, 
+ D278, S3T, D279, Q4T7, D280, S4T, D281, Q5T7, D282, MSEC14, MBAMWLS2, 
+ D283, Q5T7, D284, S4T, D285, Q4T7, D286, S3T, D287, Q3T7, D288, 
+ BM2T7R, D289, Q2, D290, S2, D291, Q1, D292, S1, MSEC_D8_START, MSEC_T7_END, 
+ S1, D295, Q1, D296, S2, D297, Q2, D298, BM1D8R, D299, Q3D8, 
+ D300, S3D, D301, Q4D8, D302, S4D, D303, MUE49_2, MSEC15, D304, S4D, 
+ D305, Q4D8, D306, S3D, D307, Q3D8, D308, BM2D8R, D309, Q2, D310, 
+ S2, D311, Q1, D312, S1, MSEC_T8_START, MSEC_D8_END, S1, D315, Q1, D316, 
+ S2, D317, Q2, D318, BM1T8R, D319, Q3P1T8, D320, S3T, D321, Q4P1T8, 
+ D322, S4T, D323, Q5P1T8, D324, MSEC16, NCC, D325, Q5P2T8, D326, S4T, 
+ D327, Q4P2T8, D328, S3T, D329, Q3P2T8, D330, BM2T8R, D331, Q2, D332, 
+ S2, D333, Q1, D334, S1, MSEC_T8_END, MSEC_D1_START, S1, D337, Q1, D338, 
+ S2, D339, Q2, D340, BM1D1R, D341, Q3D1, D342, S3D1, D343, Q4D1, 
+ D344, S4D1, D345, MEND;
+
+ring: ring;
+
+cell: ring, symmetry = 1;
+
+end;

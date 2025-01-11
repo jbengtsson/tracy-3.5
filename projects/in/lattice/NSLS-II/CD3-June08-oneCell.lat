@@ -1,0 +1,270 @@
+
+{ New DBA30HLC16Es2rng7x7s.opa H(8m) L(5m)Rho = 25m }
+
+define lattice; ringtype = 1;
+
+Energy = 3.0;
+
+dP = 1e-8; CODeps = 1e-14;  
+  
+Meth = 4; Nbend = 4; Nquad = 4;  
+  
+pi = 4.0*arctan(1.0);  
+
+phi1 = 0*2e-3*180.0/pi; L_P = 2e-2;  
+DB1: Bending, L = L_P/2.0, T = -phi1/2.0, T1 = -0*phi1/4.0,  
+      N = 1, Method = Meth;  
+DB:  Bending, L = L_P, T = phi1, N = 1, Method = Meth;  
+DB2: Bending, L = L_P/2.0, T = -phi1/2.0, T2 = -0*phi1/4.0,  
+      N = 1, Method = Meth;  
+  
+D_TPW: Drift, L = -L_P;  
+  
+TPW: D_TPW, DB1, DB, DB2, D_TPW;  
+
+c0 = 2.99792458e8; h_rf = 1320; C = 791.958;  
+  
+CAV: Cavity, Frequency = c0/C*h_rf, Voltage = 5.00e6, Harnum = h_rf;  
+
+ 
+
+CH1XG2C01A: Corrector, Horizontal, Method= Meth;
+CH1XG6C01A: Corrector, Horizontal, Method= Meth;
+CH1YG2C01A: Corrector, Vertical, Method= Meth;
+CH1YG6C01A: Corrector, Vertical, Method= Meth;
+CH2XG2C01A: Corrector, Horizontal, Method= Meth;
+CH2XG6C01A: Corrector, Horizontal, Method= Meth;
+CH2YG2C01A: Corrector, Vertical, Method= Meth;
+CH2YG6C01A: Corrector, Vertical, Method= Meth;
+CL1XG2C01B: Corrector, Horizontal, Method= Meth;
+CL1XG6C01B: Corrector, Horizontal, Method= Meth;
+CL1YG2C01B: Corrector, Vertical, Method= Meth;
+CL1YG6C01B: Corrector, Vertical, Method= Meth;
+CL2XG2C01B: Corrector, Horizontal, Method= Meth;
+CL2XG6C01B: Corrector, Horizontal, Method= Meth;
+CL2YG2C01B: Corrector, Vertical, Method= Meth;
+CL2YG6C01B: Corrector, Vertical, Method= Meth;
+CM1XG3C01A: Corrector, Horizontal, Method= Meth;
+CM1XG3C01B: Corrector, Horizontal, Method= Meth;
+CM1XG4C01A: Corrector, Horizontal, Method= Meth;
+CM1XG4C01B: Corrector, Horizontal, Method= Meth;
+CM1YG3C01A: Corrector, Vertical, Method= Meth;
+CM1YG3C01B: Corrector, Vertical, Method= Meth;
+CM1YG4C01A: Corrector, Vertical, Method= Meth;
+CM1YG4C01B: Corrector, Vertical, Method= Meth; 
+
+P1G2C01A: Beam Position Monitor ;
+P1G6C01A: Beam Position Monitor ;
+P2G2C01A: Beam Position Monitor ;
+P2G6C01A: Beam Position Monitor ;
+P3G4C01A: Beam Position Monitor ;
+P3G4C01B: Beam Position Monitor ;
+P4G4C01A: Beam Position Monitor ;
+P4G4C01B: Beam Position Monitor ;
+P5G2C01B: Beam Position Monitor ;
+P5G6C01B: Beam Position Monitor ;
+P6G2C01B: Beam Position Monitor ;
+P6G6C01B: Beam Position Monitor ; 
+
+MK1G3C01A: Marker;
+MK1G3C01B: Marker;
+MK2G5C01A: Marker;
+MK2G5C01B: Marker;
+MK3G4C01A: Marker;
+MK3G4C01B: Marker;
+MK4G1C01A: Marker;
+MK5G1C01B: Marker; 
+
+GEG1C01A: Multipole, N = 1, Method = Meth;
+GEG1C01B: Multipole, N = 1, Method = Meth;
+GEG2C01A: Multipole, N = 1, Method = Meth;
+GEG2C01B: Multipole, N = 1, Method = Meth;
+GEG3C01A: Multipole, N = 1, Method = Meth;
+GEG3C01B: Multipole, N = 1, Method = Meth;
+GEG4C01A: Multipole, N = 1, Method = Meth;
+GEG4C01B: Multipole, N = 1, Method = Meth;
+GEG5C01A: Multipole, N = 1, Method = Meth;
+GEG5C01B: Multipole, N = 1, Method = Meth;
+GEG6C01A: Multipole, N = 1, Method = Meth;
+GEG6C01B: Multipole, N = 1, Method = Meth;
+GSG1C01A: Multipole, N = 1, Method = Meth;
+GSG1C01B: Multipole, N = 1, Method = Meth;
+GSG2C01A: Multipole, N = 1, Method = Meth;
+GSG2C01B: Multipole, N = 1, Method = Meth;
+GSG3C01A: Multipole, N = 1, Method = Meth;
+GSG3C01B: Multipole, N = 1, Method = Meth;
+GSG4C01A: Multipole, N = 1, Method = Meth;
+GSG4C01B: Multipole, N = 1, Method = Meth;
+GSG5C01A: Multipole, N = 1, Method = Meth;
+GSG5C01B: Multipole, N = 1, Method = Meth;
+GSG6C01A: Multipole, N = 1, Method = Meth;
+GSG6C01B: Multipole, N = 1, Method = Meth; 
+
+DBPM : Drift, L=0.0875;
+DFCHG2A : Drift, L=0.15;
+DFCHG2B : Drift, L=0.15;
+DFCHG3A : Drift, L=0.15;
+DFCHG4A : Drift, L=0.15;
+DFCHG4B : Drift, L=0.15;
+DFCHG6A : Drift, L=0.15;
+DFCHG6B : Drift, L=0.15;
+DH0G1A : Drift, L=4.65;
+DH1AG2A : Drift, L=0.0875;
+DH1AG6A : Drift, L=0.0875;
+DH2AG2A : Drift, L=0.1575;
+DH2AG6A : Drift, L=0.1325;
+DH2BG2A : Drift, L=0.1575;
+DH2BG6A : Drift, L=0.1825;
+DH2CG2A : Drift, L=0.15;
+DH2CG6A : Drift, L=0.15;
+DH3AG2A : Drift, L=0.19;
+DH3AG6A : Drift, L=0.19;
+DH3BG2A : Drift, L=0.195;
+DH3BG6A : Drift, L=0.195;
+DH4AG2A : Drift, L=0.0875;
+DH4AG6A : Drift, L=0.0875;
+DH4BG2A : Drift, L=0.2485;
+DH4BG6A : Drift, L=0.07714;
+DH4CG3A : Drift, L=0.0315;
+DH4CG6A : Drift, L=0.20286;
+DL0G1B : Drift, L=3.3;
+DL1AG2B : Drift, L=0.0875;
+DL1AG6B : Drift, L=0.0875;
+DL2AG2B : Drift, L=0.1375;
+DL2AG6B : Drift, L=0.1375;
+DL2BG2B : Drift, L=0.1375;
+DL2BG6B : Drift, L=0.1375;
+DL2CG2B : Drift, L=0.25;
+DL2CG6B : Drift, L=0.25;
+DL3AG2B : Drift, L=0.6136;
+DL3AG6B : Drift, L=0.6136;
+DL3BG2B : Drift, L=0.0875;
+DL3BG6B : Drift, L=0.0875;
+DL4AG2B : Drift, L=0.2817;
+DL4AG6B : Drift, L=0.1122;
+DL4BG3B : Drift, L=0.0183;
+DL4BG6B : Drift, L=0.1878;
+DM1AG3A : Drift, L=0.365;
+DM1AG3B : Drift, L=0.365;
+DM1BG3A : Drift, L=0.31;
+DM1BG3B : Drift, L=0.31;
+DM1CG5A : Drift, L=0.2;
+DM1CG5B : Drift, L=0.2;
+DM1DG5A : Drift, L=0.0554;
+DM1DG5B : Drift, L=0.0554;
+DM1EG4A : Drift, L=0.2196;
+DM1EG4B : Drift, L=0.2196;
+DM2A2G4A : Drift, L=0.2;
+DM2A2G4B : Drift, L=0.2;
+DM2AG4A : Drift, L=0.1125;
+DM2AG4B : Drift, L=0.1125;
+DM2B2G4A : Drift, L=0.67;
+DM2B2G4B : Drift, L=0.67;
+DM2BG4A : Drift, L=0.5825;
+DM2BG4B : Drift, L=0.5825;
+DM2CG4A : Drift, L=0.2;
+DM2CG4B : Drift, L=0.2;
+DPWG5A : Drift, L=0.2;
+DPWG5B : Drift, L=0.2;
+DSCHG2B : Drift, L=0.1;
+DSCHG6A : Drift, L=0.1;
+DSCHG6B : Drift, L=0.1; 
+
+B1G3C01A: Bending, L = 2.62, T = 6, T1 = 3, T2 = 3, N = Nbend, Method = Meth;  
+B1G3C01B: Bending, L = 2.62, T = 6, T1 = 3, T2 = 3, N = Nbend, Method = Meth;  
+B1G5C01A: Bending, L = 2.62, T = 6, T1 = 3, T2 = 3, N = Nbend, Method = Meth;  
+B1G5C01B: Bending, L = 2.62, T = 6, T1 = 3, T2 = 3, N = Nbend, Method = Meth;   
+
+QH1G2C01A: Quadrupole,L = 0.25, K=-0.688256, N = Nquad, Method = Meth;  
+QH1G6C01A: Quadrupole,L = 0.25, K=-0.688256, N = Nquad, Method = Meth;  
+QH2G2C01A: Quadrupole,L = 0.4, K=1.65522, N = Nquad, Method = Meth;  
+QH2G6C01A: Quadrupole,L = 0.4, K=1.65522, N = Nquad, Method = Meth;  
+QH3G2C01A: Quadrupole,L = 0.25, K=-1.8739, N = Nquad, Method = Meth;  
+QH3G6C01A: Quadrupole,L = 0.25, K=-1.8739, N = Nquad, Method = Meth;  
+QL1G2C01B: Quadrupole,L = 0.25, K=-1.78299, N = Nquad, Method = Meth;  
+QL1G6C01B: Quadrupole,L = 0.25, K=-1.78299, N = Nquad, Method = Meth;  
+QL2G2C01B: Quadrupole,L = 0.4, K=2.01175, N = Nquad, Method = Meth;  
+QL2G6C01B: Quadrupole,L = 0.4, K=2.01175, N = Nquad, Method = Meth;  
+QL3G2C01B: Quadrupole,L = 0.25, K=-1.55768, N = Nquad, Method = Meth;  
+QL3G6C01B: Quadrupole,L = 0.25, K=-1.55768, N = Nquad, Method = Meth;  
+QM1G4C01A: Quadrupole,L = 0.25, K=-0.824645, N = Nquad, Method = Meth;  
+QM1G4C01B: Quadrupole,L = 0.25, K=-0.824645, N = Nquad, Method = Meth;  
+QM2G4C01A: Quadrupole,L = 0.25, K=1.38771, N = Nquad, Method = Meth;  
+QM2G4C01B: Quadrupole,L = 0.25, K=1.38771, N = Nquad, Method = Meth;  
+SQ1HG2C01A: Quadrupole,L = 0.1, K=0, N = Nquad, Method = Meth;  
+SQ2HG3C01B: Quadrupole,L = 0.15, K=0, N = Nquad, Method = Meth;   
+
+SH1G2C01A: Sextupole, L = 0.2, K = 9.9954, N = 1, Method = Meth; 
+SH1G6C01A: Sextupole, L = 0.2, K = 9.9954, N = 1, Method = Meth; 
+SH2G2C01A: Sextupole, L = 0.2, K = 4.53303, N = 1, Method = Meth; 
+SH2G6C01A: Sextupole, L = 0.2, K = 4.53303, N = 1, Method = Meth; 
+SH3G2C01A: Sextupole, L = 0.2, K = -8.8697, N = 1, Method = Meth; 
+SH3G6C01A: Sextupole, L = 0.2, K = -8.8697, N = 1, Method = Meth; 
+SH4G2C01A: Sextupole, L = 0.2, K = -5.63785, N = 1, Method = Meth; 
+SH4G6C01A: Sextupole, L = 0.2, K = -5.63785, N = 1, Method = Meth; 
+SL1G2C01B: Sextupole, L = 0.2, K = 3.05508, N = 1, Method = Meth; 
+SL1G6C01B: Sextupole, L = 0.2, K = 3.05508, N = 1, Method = Meth; 
+SL2G2C01B: Sextupole, L = 0.2, K = 8.66135, N = 1, Method = Meth; 
+SL2G6C01B: Sextupole, L = 0.2, K = 8.66135, N = 1, Method = Meth; 
+SL3G2C01B: Sextupole, L = 0.2, K = -9.99995, N = 1, Method = Meth; 
+SL3G6C01B: Sextupole, L = 0.2, K = -9.99995, N = 1, Method = Meth; 
+SM1G4C01A: Sextupole, L = 0.2, K = -11.30165, N = 1, Method = Meth; 
+SM1G4C01B: Sextupole, L = 0.2, K = -11.30165, N = 1, Method = Meth; 
+SM2HG4C01A: Sextupole, L = 0.125, K = 12.7797, N = 1, Method = Meth; 
+SM2HG4C01B: Sextupole, L = 0.125, K = 12.7797, N = 1, Method = Meth; 
+
+Girder1C01: MK4G1C01A,DH0G1A,GEG1C01A,GSG2C01A;
+
+Girder2C01: SH1G2C01A,DH1AG2A,P1G2C01A,DBPM,QH1G2C01A,DH2AG2A,SQ1HG2C01A,CH1XG2C01A,
+CH1YG2C01A,SQ1HG2C01A,DH2BG2A,SH2G2C01A,DH2CG2A,QH2G2C01A,DH3AG2A,SH3G2C01A,
+DH3BG2A,QH3G2C01A,DH4AG2A,P2G2C01A,DBPM,SH4G2C01A,DH4BG2A,DFCHG2A,
+CH2XG2C01A,CH2YG2C01A,DFCHG2A,GEG2C01A,DH4CG3A,GSG3C01A;
+
+Girder3C01: MK1G3C01A,B1G3C01A,DM1AG3A,DFCHG3A,CM1XG3C01A,CM1YG3C01A,DFCHG3A,DM1BG3A,
+GEG3C01A,GSG4C01A;
+
+Girder4C01: QM1G4C01A,DM2A2G4A,SM1G4C01A,DM2BG4A,P3G4C01A,DBPM,QM2G4C01A,DM2CG4A,
+SM2HG4C01B,MK3G4C01B,SM2HG4C01B,DM2CG4B,QM2G4C01B,DM2B2G4B,SM1G4C01B,DM2AG4B,
+P4G4C01B,DBPM,QM1G4C01B,DM1EG4B,DFCHG4B,CM1YG4C01B,CM1XG4C01B,DFCHG4B,
+GEG4C01B,GSG5C01B;
+
+Girder5C01: DM1DG5B,DPWG5B,DM1CG5B,B1G5C01B,MK2G5C01B,GEG5C01B,DL4BG6B,GSG6C01B;
+
+Girder6C01: DFCHG6B,CL2YG6C01B,CL2XG6C01B,DFCHG6B,DL4AG6B,QL3G6C01B,DBPM,P5G6C01B,
+DL3BG6B,SL3G6C01B,DL3AG6B,QL2G6C01B,DL2CG6B,SL2G6C01B,DL2BG6B,DSCHG6B,
+CL1YG6C01B,CL1XG6C01B,DSCHG6B,DL2AG6B,QL1G6C01B,DL1AG6B,P6G6C01B,DBPM,
+SL1G6C01B,GEG6C01B,GSG1C01B;
+
+Girder1C02: DL0G1B,MK5G1C01B,DL0G1B,GEG1C01B,GSG2C01B;
+
+Girder2C02: SL1G2C01B,DL1AG2B,P6G2C01B,DBPM,QL1G2C01B,DL2AG2B,DSCHG2B,CL1XG2C01B,
+CL1YG2C01B,DSCHG2B,DL2BG2B,SL2G2C01B,DL2CG2B,QL2G2C01B,DL3AG2B,SL3G2C01B,
+DL3BG2B,P5G2C01B,DBPM,QL3G2C01B,DL4AG2B,DFCHG2B,CL2XG2C01B,CL2YG2C01B,
+DFCHG2B,GEG2C01B,DL4BG3B,GSG3C01B;
+
+Girder3C02: MK1G3C01B,B1G3C01B,DM1AG3B,SQ2HG3C01B,CM1XG3C01B,CM1YG3C01B,SQ2HG3C01B,DM1BG3B,
+GEG3C01B,GSG4C01B;
+
+Girder4C02: QM1G4C01B,DM2A2G4B,SM1G4C01B,DM2BG4B,P3G4C01B,DBPM,QM2G4C01B,DM2CG4B,
+SM2HG4C01A,MK3G4C01A,SM2HG4C01A,DM2CG4A,QM2G4C01A,DM2B2G4A,SM1G4C01A,DM2AG4A,
+P4G4C01A,DBPM,QM1G4C01A,DM1EG4A,DFCHG4A,CM1YG4C01A,CM1XG4C01A,DFCHG4A,
+GEG4C01A,GSG5C01A;
+
+Girder5C02: DM1DG5A,DPWG5A,DM1CG5A,B1G5C01A,MK2G5C01A,GEG5C01A,DH4CG6A,GSG6C01A;
+
+Girder6C02: DFCHG6A,CH2YG6C01A,CH2XG6C01A,DFCHG6A,DH4BG6A,SH4G6C01A,DH4AG6A,P2G6C01A,
+DBPM,QH3G6C01A,DH3BG6A,SH3G6C01A,DH3AG6A,QH2G6C01A,DH2CG6A,SH2G6C01A,
+DH2BG6A,DSCHG6A,CH1YG6C01A,CH1XG6C01A,DSCHG6A,DH2AG6A,QH1G6C01A,DH1AG6A,
+P1G6C01A,DBPM,SH1G6C01A,GEG6C01A,GSG1C01A;
+
+Girder1C03H: DH0G1A;
+
+
+
+SPC01C02: Girder1C01,Girder2C01,Girder3C01,Girder4C01,Girder5C01,Girder6C01,Girder1C02,
+Girder2C02,Girder3C02,Girder4C02,Girder5C02,Girder6C02,Girder1C03H;
+
+CELL: SPC01C02, SYMMETRY = 1;  
+
+END;
+

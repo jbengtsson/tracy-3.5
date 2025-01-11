@@ -1,0 +1,141 @@
+{c:\users\sxk24356\desktop\test3.opa}
+
+{opa to tracy-2 export}
+
+define lattice;
+energy = 2.000000;
+dp = 1.0d-10;  codeps = 1.0d-6;  dk = 1.0d-6;
+meth = 4; nbend = 10; nquad = 10; nsext = 2;
+
+{----- variables ----------------------------------------------------}
+
+orbitdpp  = 0;
+rbang     = 0.635;
+klgb      = -8.55082769578795;
+bendcorr  = (rbang-0.8069906)/2;
+mcdrft    = 0.0563638579595261;
+
+{----- table of elements ----------------------------------------------------}
+
+c0 = 2.99792458e8; h_rf = 327; C =  195.936;
+CAV: Cavity, Frequency = c0/C*h_rf, Voltage = 0.726e6, Harnum = h_rf,
+     phi = 180.0;
+
+dx     : drift, l = 0.048000;
+ssh    : drift, l = 2.720000;
+md33   : drift, l = mcdrft;
+ssxtra : drift, l = 0.084-mcdrft;
+
+q1     : quadrupole, l = 0.200000, k = -7.731770, n=nquad, method=meth;
+q2     : quadrupole, l = 0.200000, k = 17.778147, n=nquad, method=meth;
+q3     : quadrupole, l = 0.200000, k = -7.893081, n=nquad, method=meth;
+q4     : quadrupole, l = 0.200000, k = -3.162315, n=nquad, method=meth;
+
+b3h    : bending, l = 0.250000, t = 2.5+rbang, k = -5.032084,
+         t1 = 0.000000, t2 = 0.000000, n=nbend, method=meth;
+mb3h   : bending, l = 0.250000, t = 2.5+rbang, k = -0.677751,
+         t1 = 0.000000, t2 = 0.000000, n=nbend, method=meth;
+lgb00  : bending, l = 0.032088, t = 0.551167, k = 0.000000,
+         t1 = 0.000000, t2 = 0.551167, n=nbend, method=meth;
+i_lgb00  : bending, l = 0.032088, t = 0.551167, k = 0.000000,
+         t1 = 0.551167, t2 = 0.000000, n=nbend, method=meth;
+lgb01  : bending, l = 0.032088, t = 0.551167, k = 0.000000,
+         t1 = -0.551167, t2 = 1.102333, n=nbend, method=meth;
+i_lgb01  : bending, l = 0.032088, t = 0.551167, k = 0.000000,
+         t1 = 1.102333, t2 = -0.551167, n=nbend, method=meth;
+lgb02  : bending, l = 0.032088, t = 0.551167, k = 0.000000,
+         t1 = -1.102333, t2 = 1.653500, n=nbend, method=meth;
+i_lgb02  : bending, l = 0.032088, t = 0.551167, k = 0.000000,
+         t1 = 1.653500, t2 = -1.102333, n=nbend, method=meth;
+lgb03  : bending, l = 0.040000, t = 0.551172, k = klgb, t1 = -1.653500,
+         t2 = 2.204672, n=nbend, method=meth;
+i_lgb03  : bending, l = 0.040000, t = 0.551172, k = klgb,
+         t1 = 2.204672, t2 = -1.653500, n=nbend, method=meth;
+lgb04  : bending, l = 0.049897, t = 0.543650+bendcorr, k = klgb,
+         t1 = -2.204672, t2 = 2.748322+bendcorr, n=nbend, method=meth;
+i_lgb04  : bending, l = 0.049897, t = 0.543650+bendcorr, k = klgb,
+         t1 = 2.748322+bendcorr, t2 = -2.204672, n=nbend, method=meth;
+lgb05  : bending, l = 0.063885, t = 0.558678+bendcorr, k = klgb,
+         t1 = -2.748322-bendcorr, t2 = 3.307000+2*bendcorr, n=nbend,
+         method=meth;
+i_lgb05  : bending, l = 0.063885, t = 0.558678+bendcorr, k = klgb,
+         t1 = 3.307000+2*bendcorr, t2 = -2.748322-bendcorr, n=nbend,
+         method=meth;
+
+{sf1    : sextupole, l = 0.050000, k = 2045.644170, n = 4, method=meth;
+sf2    : sextupole, l = 0.050000, k = 1214.777110, n = 4, method=meth;
+sd1    : sextupole, l = 0.100000, k = -1389.351030, n = 4, method=meth;
+sd2    : sextupole, l = 0.100000, k = -1092.972460, n = 4, method=meth;
+sfh    : sextupole, l = 0.000000, k = -26.754283, n = 1, method=meth;
+sdh    : sextupole, l = 0.000000, k = -63.918603, n = 1, method=meth;
+sxh    : sextupole, l = 0.000000, k = 53.857425, n = 1, method=meth;}
+
+{ J.B. tune_conf/ALS-U/0/dnu. }
+{sf1     : sextupole, l = 0.05000, k =  1.63943e+03, n = nsext, Method = Meth;
+sf2     : sextupole, l = 0.05000, k =  1.30290e+03, n = nsext, Method = Meth;
+sd1     : sextupole, l = 0.10000, k = -1.27234e+03, n = nsext, Method = Meth;
+sd2     : sextupole, l = 0.10000, k = -1.12195e+03, n = nsext, Method = Meth;
+sfh     : sextupole, l = 0.00000, k =  7.88847e+01, n = nsext, Method = Meth;
+sdh     : sextupole, l = 0.00000, k = -4.32264e+01, n = nsext, Method = Meth;
+sxh     : sextupole, l = 0.00000, k = -5.00741e+01, n = nsext, Method = Meth;}
+
+{ J.B. tune_conf/ALS-U/1/dnu. }
+sf1     : sextupole, l = 0.05000, k =  1.57102e+03, n = nsext, Method = Meth;
+sf2     : sextupole, l = 0.05000, k =  1.31383e+03, n = nsext, Method = Meth;
+sd1     : sextupole, l = 0.10000, k = -1.47390e+03, n = nsext, Method = Meth;
+sd2     : sextupole, l = 0.10000, k = -1.08517e+03, n = nsext, Method = Meth;
+sfh     : sextupole, l = 0.00000, k = -1.97239e+01, n = nsext, Method = Meth;
+sdh     : sextupole, l = 0.00000, k = -5.75188e+01, n = nsext, Method = Meth;
+sxh     : sextupole, l = 0.00000, k =  4.46651e+01, n = nsext, Method = Meth;
+
+lgbom  : marker;
+
+qfh    : bending, l = 0.120000, t = -rbang, k = 16.140218,
+         t1 = 0.000000, t2 = 0.000000, n=nbend, method=meth;
+mqfh   : bending, l = 0.120000, t = -rbang, k = 14.290512,
+         t1 = 0.000000, t2 = 0.000000, n=nbend, method=meth;
+
+oxx    : multipole, l = 0.0, hom = (4,0*453.8134,0);
+oxy    : multipole, l = 0.0, hom = (4,-0*700.1775,0);
+oyy    : multipole, l = 0.0, hom = (4,0*2000.0000,0);
+oc1    : multipole, l = 0.0, hom = (4,0*35.6322,0);
+oc2    : multipole, l = 0.0, hom = (4,-0*129.4600,0);
+oc3    : multipole, l = 0.0, hom = (4,0*58.6448,0);
+
+
+{----- table of segments ----------------------------------------------------}
+
+lgb    : lgbom, lgb00, lgb01, lgb02, lgb03, lgb04, lgb05;
+i_lgb  : i_lgb05, i_lgb04, i_lgb03, i_lgb02, i_lgb01, i_lgb00, lgbom;
+hcell1 : lgb, dx, sd2, dx, dx, qfh, dx, oc1, sf2;
+i_hcell1: sf2, oc1, dx, qfh, dx, dx, sd2, dx, i_lgb;
+hcell2 : lgb, dx, sd2, dx, dx, qfh, dx, oc2, sf2;
+i_hcell2: sf2, oc2, dx, qfh, dx, dx, sd2, dx, i_lgb;
+hcell3 : lgb, dx, sd2, dx, dx, qfh, dx, oc2, sf2;
+i_hcell3: sf2, oc2, dx, qfh, dx, dx, sd2, dx, i_lgb;
+hcell4 : lgb, dx, sd2, dx, dx, qfh, dx, oc3, sf2;
+i_hcell4: sf2, oc3, dx, qfh, dx, dx, sd2, dx, i_lgb;
+hcell5 : lgb, dx, sd2, dx, dx, qfh, dx, oc3, sf2;
+i_hcell5: sf2, oc3, dx, qfh, dx, dx, sd2, dx, i_lgb;
+cell1  : i_hcell3, hcell4;
+i_cell1: i_hcell4, hcell3;
+llce   : hcell2, i_hcell3;
+i_llce : hcell3, i_hcell2;
+ds     : mb3h, dx, sd1, md33, dx, dx, mqfh, dx, sf1, i_hcell1;
+i_ds   : hcell1, sf1, dx, mqfh, dx, dx, md33, sd1, dx, mb3h;
+mc     : oxy, q1, sxh, dx, oxx, q2, sfh, dx, q3, sdh, dx, q4, oyy, dx,
+         dx, dx;
+mcds   : ssh, ssxtra, mc, ds;
+i_mcds : i_ds, inv(mc), ssxtra, ssh;
+half   : mcds, hcell2, cell1, i_hcell5;
+i_half : hcell5, i_cell1, i_hcell2, i_mcds;
+achr   : half, i_half;
+i_achr : half, i_half;
+
+ring   : 1*achr, cav;
+
+cell: ring, symmetry=1;
+
+end;
+
+{c:\users\sxk24356\desktop\test3.opa}

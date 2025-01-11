@@ -1,0 +1,2762 @@
+{
+    This lattice is generated from a flat lattice file (CD3-Oct3-12-30Cell-addID-par.txt)
+    Date: Mon, 15 Oct 2012, 15:42:04 EDT
+    By:   Guobao Shen
+          National Synchrotron Light Source II
+          Brookhaven National Laboratory
+          Upton, NY, 11973
+}
+define lattice; ringtype = 1;
+Energy = 3.0;
+dP = 1e-08; CODeps = 1e-14;
+Meth = 4; Nbend = 4; Nquad = 4; Nsext = 4;
+pi = 4.0*arctan(1.0);
+c0 = 2.99792458e8; Brho = 1e9*Energy/c0;
+h_rf = 1320; C = 791.958;
+
+CAV: Cavity, Frequency = c0/C*h_rf, Voltage = 5.00e6, Harnum = h_rf;
+ 
+
+{***** Marker *****}
+GEG1C30A: Marker;
+GSG2C30A: Marker;
+GEG2C30A: Marker;
+GSG3C30A: Marker;
+GEG3C30A: Marker;
+GSG4C30A: Marker;
+GEG4C30B: Marker;
+GSG5C30B: Marker;
+GEG5C30B: Marker;
+GSG6C30B: Marker;
+GEG6C30B: Marker;
+GSG1C01A: Marker;
+GEG1C01A: Marker;
+GSG2C01A: Marker;
+GEG2C01A: Marker;
+GSG3C01A: Marker;
+GEG3C01A: Marker;
+GSG4C01A: Marker;
+GEG4C01B: Marker;
+GSG5C01B: Marker;
+GEG5C01B: Marker;
+GSG6C01B: Marker;
+GEG6C01B: Marker;
+GSG1C02A: Marker;
+GEG1C02A: Marker;
+GSG2C02A: Marker;
+GEG2C02A: Marker;
+GSG3C02A: Marker;
+GEG3C02A: Marker;
+GSG4C02A: Marker;
+GEG4C02B: Marker;
+GSG5C02B: Marker;
+GEG5C02B: Marker;
+GSG6C02B: Marker;
+GEG6C02B: Marker;
+GSG1C03A: Marker;
+GEG1C03A: Marker;
+GSG2C03A: Marker;
+GEG2C03A: Marker;
+GSG3C03A: Marker;
+GEG3C03A: Marker;
+GSG4C03A: Marker;
+GEG4C03B: Marker;
+GSG5C03B: Marker;
+GEG5C03B: Marker;
+GSG6C03B: Marker;
+GEG6C03B: Marker;
+GSG1C04A: Marker;
+GEG1C04A: Marker;
+GSG2C04A: Marker;
+GEG2C04A: Marker;
+GSG3C04A: Marker;
+GEG3C04A: Marker;
+GSG4C04A: Marker;
+GEG4C04B: Marker;
+GSG5C04B: Marker;
+GEG5C04B: Marker;
+GSG6C04B: Marker;
+GEG6C04B: Marker;
+GSG1C05A: Marker;
+GEG1C05A: Marker;
+GSG2C05A: Marker;
+GEG2C05A: Marker;
+GSG3C05A: Marker;
+GEG3C05A: Marker;
+GSG4C05A: Marker;
+GEG4C05B: Marker;
+GSG5C05B: Marker;
+GEG5C05B: Marker;
+GSG6C05B: Marker;
+GEG6C05B: Marker;
+GSG1C06A: Marker;
+GEG1C06A: Marker;
+GSG2C06A: Marker;
+GEG2C06A: Marker;
+GSG3C06A: Marker;
+GEG3C06A: Marker;
+GSG4C06A: Marker;
+GEG4C06B: Marker;
+GSG5C06B: Marker;
+GEG5C06B: Marker;
+GSG6C06B: Marker;
+GEG6C06B: Marker;
+GSG1C07A: Marker;
+GEG1C07A: Marker;
+GSG2C07A: Marker;
+GEG2C07A: Marker;
+GSG3C07A: Marker;
+GEG3C07A: Marker;
+GSG4C07A: Marker;
+GEG4C07B: Marker;
+GSG5C07B: Marker;
+GEG5C07B: Marker;
+GSG6C07B: Marker;
+GEG6C07B: Marker;
+GSG1C08A: Marker;
+GEG1C08A: Marker;
+GSG2C08A: Marker;
+GEG2C08A: Marker;
+GSG3C08A: Marker;
+GEG3C08A: Marker;
+GSG4C08A: Marker;
+GEG4C08B: Marker;
+GSG5C08B: Marker;
+GEG5C08B: Marker;
+GSG6C08B: Marker;
+GEG6C08B: Marker;
+GSG1C09A: Marker;
+GEG1C09A: Marker;
+GSG2C09A: Marker;
+GEG2C09A: Marker;
+GSG3C09A: Marker;
+GEG3C09A: Marker;
+GSG4C09A: Marker;
+GEG4C09B: Marker;
+GSG5C09B: Marker;
+GEG5C09B: Marker;
+GSG6C09B: Marker;
+GEG6C09B: Marker;
+GSG1C10A: Marker;
+GEG1C10A: Marker;
+GSG2C10A: Marker;
+GEG2C10A: Marker;
+GSG3C10A: Marker;
+GEG3C10A: Marker;
+GSG4C10A: Marker;
+GEG4C10B: Marker;
+GSG5C10B: Marker;
+GEG5C10B: Marker;
+GSG6C10B: Marker;
+GEG6C10B: Marker;
+GSG1C11A: Marker;
+GEG1C11A: Marker;
+GSG2C11A: Marker;
+GEG2C11A: Marker;
+GSG3C11A: Marker;
+GEG3C11A: Marker;
+GSG4C11A: Marker;
+GEG4C11B: Marker;
+GSG5C11B: Marker;
+GEG5C11B: Marker;
+GSG6C11B: Marker;
+GEG6C11B: Marker;
+GSG1C12A: Marker;
+GEG1C12A: Marker;
+GSG2C12A: Marker;
+GEG2C12A: Marker;
+GSG3C12A: Marker;
+GEG3C12A: Marker;
+GSG4C12A: Marker;
+GEG4C12B: Marker;
+GSG5C12B: Marker;
+GEG5C12B: Marker;
+GSG6C12B: Marker;
+GEG6C12B: Marker;
+GSG1C13A: Marker;
+GEG1C13A: Marker;
+GSG2C13A: Marker;
+GEG2C13A: Marker;
+GSG3C13A: Marker;
+GEG3C13A: Marker;
+GSG4C13A: Marker;
+GEG4C13B: Marker;
+GSG5C13B: Marker;
+GEG5C13B: Marker;
+GSG6C13B: Marker;
+GEG6C13B: Marker;
+GSG1C14A: Marker;
+GEG1C14A: Marker;
+GSG2C14A: Marker;
+GEG2C14A: Marker;
+GSG3C14A: Marker;
+GEG3C14A: Marker;
+GSG4C14A: Marker;
+GEG4C14B: Marker;
+GSG5C14B: Marker;
+GEG5C14B: Marker;
+GSG6C14B: Marker;
+GEG6C14B: Marker;
+GSG1C15A: Marker;
+GEG1C15A: Marker;
+GSG2C15A: Marker;
+GEG2C15A: Marker;
+GSG3C15A: Marker;
+GEG3C15A: Marker;
+GSG4C15A: Marker;
+GEG4C15B: Marker;
+GSG5C15B: Marker;
+GEG5C15B: Marker;
+GSG6C15B: Marker;
+GEG6C15B: Marker;
+GSG1C16A: Marker;
+GEG1C16A: Marker;
+GSG2C16A: Marker;
+GEG2C16A: Marker;
+GSG3C16A: Marker;
+GEG3C16A: Marker;
+GSG4C16A: Marker;
+GEG4C16B: Marker;
+GSG5C16B: Marker;
+GEG5C16B: Marker;
+GSG6C16B: Marker;
+GEG6C16B: Marker;
+GSG1C17A: Marker;
+GEG1C17A: Marker;
+GSG2C17A: Marker;
+GEG2C17A: Marker;
+GSG3C17A: Marker;
+GEG3C17A: Marker;
+GSG4C17A: Marker;
+GEG4C17B: Marker;
+GSG5C17B: Marker;
+GEG5C17B: Marker;
+GSG6C17B: Marker;
+GEG6C17B: Marker;
+GSG1C18A: Marker;
+GEG1C18A: Marker;
+GSG2C18A: Marker;
+GEG2C18A: Marker;
+GSG3C18A: Marker;
+GEG3C18A: Marker;
+GSG4C18A: Marker;
+GEG4C18B: Marker;
+GSG5C18B: Marker;
+GEG5C18B: Marker;
+GSG6C18B: Marker;
+GEG6C18B: Marker;
+GSG1C19A: Marker;
+GEG1C19A: Marker;
+GSG2C19A: Marker;
+GEG2C19A: Marker;
+GSG3C19A: Marker;
+GEG3C19A: Marker;
+GSG4C19A: Marker;
+GEG4C19B: Marker;
+GSG5C19B: Marker;
+GEG5C19B: Marker;
+GSG6C19B: Marker;
+GEG6C19B: Marker;
+GSG1C20A: Marker;
+GEG1C20A: Marker;
+GSG2C20A: Marker;
+GEG2C20A: Marker;
+GSG3C20A: Marker;
+GEG3C20A: Marker;
+GSG4C20A: Marker;
+GEG4C20B: Marker;
+GSG5C20B: Marker;
+GEG5C20B: Marker;
+GSG6C20B: Marker;
+GEG6C20B: Marker;
+GSG1C21A: Marker;
+GEG1C21A: Marker;
+GSG2C21A: Marker;
+GEG2C21A: Marker;
+GSG3C21A: Marker;
+GEG3C21A: Marker;
+GSG4C21A: Marker;
+GEG4C21B: Marker;
+GSG5C21B: Marker;
+GEG5C21B: Marker;
+GSG6C21B: Marker;
+GEG6C21B: Marker;
+GSG1C22A: Marker;
+GEG1C22A: Marker;
+GSG2C22A: Marker;
+GEG2C22A: Marker;
+GSG3C22A: Marker;
+GEG3C22A: Marker;
+GSG4C22A: Marker;
+GEG4C22B: Marker;
+GSG5C22B: Marker;
+GEG5C22B: Marker;
+GSG6C22B: Marker;
+GEG6C22B: Marker;
+GSG1C23A: Marker;
+GEG1C23A: Marker;
+GSG2C23A: Marker;
+GEG2C23A: Marker;
+GSG3C23A: Marker;
+GEG3C23A: Marker;
+GSG4C23A: Marker;
+GEG4C23B: Marker;
+GSG5C23B: Marker;
+GEG5C23B: Marker;
+GSG6C23B: Marker;
+GEG6C23B: Marker;
+GSG1C24A: Marker;
+GEG1C24A: Marker;
+GSG2C24A: Marker;
+GEG2C24A: Marker;
+GSG3C24A: Marker;
+GEG3C24A: Marker;
+GSG4C24A: Marker;
+GEG4C24B: Marker;
+GSG5C24B: Marker;
+GEG5C24B: Marker;
+GSG6C24B: Marker;
+GEG6C24B: Marker;
+GSG1C25A: Marker;
+GEG1C25A: Marker;
+GSG2C25A: Marker;
+GEG2C25A: Marker;
+GSG3C25A: Marker;
+GEG3C25A: Marker;
+GSG4C25A: Marker;
+GEG4C25B: Marker;
+GSG5C25B: Marker;
+GEG5C25B: Marker;
+GSG6C25B: Marker;
+GEG6C25B: Marker;
+GSG1C26A: Marker;
+GEG1C26A: Marker;
+GSG2C26A: Marker;
+GEG2C26A: Marker;
+GSG3C26A: Marker;
+GEG3C26A: Marker;
+GSG4C26A: Marker;
+GEG4C26B: Marker;
+GSG5C26B: Marker;
+GEG5C26B: Marker;
+GSG6C26B: Marker;
+GEG6C26B: Marker;
+GSG1C27A: Marker;
+GEG1C27A: Marker;
+GSG2C27A: Marker;
+GEG2C27A: Marker;
+GSG3C27A: Marker;
+GEG3C27A: Marker;
+GSG4C27A: Marker;
+GEG4C27B: Marker;
+GSG5C27B: Marker;
+GEG5C27B: Marker;
+GSG6C27B: Marker;
+GEG6C27B: Marker;
+GSG1C28A: Marker;
+GEG1C28A: Marker;
+GSG2C28A: Marker;
+GEG2C28A: Marker;
+GSG3C28A: Marker;
+GEG3C28A: Marker;
+GSG4C28A: Marker;
+GEG4C28B: Marker;
+GSG5C28B: Marker;
+GEG5C28B: Marker;
+GSG6C28B: Marker;
+GEG6C28B: Marker;
+GSG1C29A: Marker;
+GEG1C29A: Marker;
+GSG2C29A: Marker;
+GEG2C29A: Marker;
+GSG3C29A: Marker;
+GEG3C29A: Marker;
+GSG4C29A: Marker;
+GEG4C29B: Marker;
+GSG5C29B: Marker;
+GEG5C29B: Marker;
+GSG6C29B: Marker;
+GEG6C29B: Marker;
+GSG1C30A: Marker;
+
+{***** BPM *****}
+PH1G2C30A: Beam Position Monitor;
+PH2G2C30A: Beam Position Monitor;
+PM1G4C30A: Beam Position Monitor;
+PM1G4C30B: Beam Position Monitor;
+PL2G6C30B: Beam Position Monitor;
+PL1G6C30B: Beam Position Monitor;
+PL1G2C01A: Beam Position Monitor;
+PL2G2C01A: Beam Position Monitor;
+PM1G4C01A: Beam Position Monitor;
+PM1G4C01B: Beam Position Monitor;
+PH2G6C01B: Beam Position Monitor;
+PH1G6C01B: Beam Position Monitor;
+PH1G2C02A: Beam Position Monitor;
+PH2G2C02A: Beam Position Monitor;
+PM1G4C02A: Beam Position Monitor;
+PM1G4C02B: Beam Position Monitor;
+PL2G6C02B: Beam Position Monitor;
+PL1G6C02B: Beam Position Monitor;
+PU1G1C03A: Beam Position Monitor;
+PU4G1C03A: Beam Position Monitor;
+PL1G2C03A: Beam Position Monitor;
+PL2G2C03A: Beam Position Monitor;
+PM1G4C03A: Beam Position Monitor;
+PM1G4C03B: Beam Position Monitor;
+PH2G6C03B: Beam Position Monitor;
+PH1G6C03B: Beam Position Monitor;
+PH1G2C04A: Beam Position Monitor;
+PH2G2C04A: Beam Position Monitor;
+PM1G4C04A: Beam Position Monitor;
+PM1G4C04B: Beam Position Monitor;
+PL2G6C04B: Beam Position Monitor;
+PL1G6C04B: Beam Position Monitor;
+PU1G1C05A: Beam Position Monitor;
+PU2G1C05A: Beam Position Monitor;
+PU4G1C05A: Beam Position Monitor;
+PL1G2C05A: Beam Position Monitor;
+PL2G2C05A: Beam Position Monitor;
+PM1G4C05A: Beam Position Monitor;
+PM1G4C05B: Beam Position Monitor;
+PH2G6C05B: Beam Position Monitor;
+PH1G6C05B: Beam Position Monitor;
+PH1G2C06A: Beam Position Monitor;
+PH2G2C06A: Beam Position Monitor;
+PM1G4C06A: Beam Position Monitor;
+PM1G4C06B: Beam Position Monitor;
+PL2G6C06B: Beam Position Monitor;
+PL1G6C06B: Beam Position Monitor;
+PL1G2C07A: Beam Position Monitor;
+PL2G2C07A: Beam Position Monitor;
+PM1G4C07A: Beam Position Monitor;
+PM1G4C07B: Beam Position Monitor;
+PH2G6C07B: Beam Position Monitor;
+PH1G6C07B: Beam Position Monitor;
+PU1G1C08A: Beam Position Monitor;
+PU4G1C08A: Beam Position Monitor;
+PH1G2C08A: Beam Position Monitor;
+PH2G2C08A: Beam Position Monitor;
+PM1G4C08A: Beam Position Monitor;
+PM1G4C08B: Beam Position Monitor;
+PL2G6C08B: Beam Position Monitor;
+PL1G6C08B: Beam Position Monitor;
+PL1G2C09A: Beam Position Monitor;
+PL2G2C09A: Beam Position Monitor;
+PM1G4C09A: Beam Position Monitor;
+PM1G4C09B: Beam Position Monitor;
+PH2G6C09B: Beam Position Monitor;
+PH1G6C09B: Beam Position Monitor;
+PU1G1C10A: Beam Position Monitor;
+PU4G1C10A: Beam Position Monitor;
+PH1G2C10A: Beam Position Monitor;
+PH2G2C10A: Beam Position Monitor;
+PM1G4C10A: Beam Position Monitor;
+PM1G4C10B: Beam Position Monitor;
+PL2G6C10B: Beam Position Monitor;
+PL1G6C10B: Beam Position Monitor;
+PU1G1C11A: Beam Position Monitor;
+PU4G1C11A: Beam Position Monitor;
+PL1G2C11A: Beam Position Monitor;
+PL2G2C11A: Beam Position Monitor;
+PM1G4C11A: Beam Position Monitor;
+PM1G4C11B: Beam Position Monitor;
+PH2G6C11B: Beam Position Monitor;
+PH1G6C11B: Beam Position Monitor;
+PH1G2C12A: Beam Position Monitor;
+PH2G2C12A: Beam Position Monitor;
+PM1G4C12A: Beam Position Monitor;
+PM1G4C12B: Beam Position Monitor;
+PL2G6C12B: Beam Position Monitor;
+PL1G6C12B: Beam Position Monitor;
+PL1G2C13A: Beam Position Monitor;
+PL2G2C13A: Beam Position Monitor;
+PM1G4C13A: Beam Position Monitor;
+PM1G4C13B: Beam Position Monitor;
+PH2G6C13B: Beam Position Monitor;
+PH1G6C13B: Beam Position Monitor;
+PH1G2C14A: Beam Position Monitor;
+PH2G2C14A: Beam Position Monitor;
+PM1G4C14A: Beam Position Monitor;
+PM1G4C14B: Beam Position Monitor;
+PL2G6C14B: Beam Position Monitor;
+PL1G6C14B: Beam Position Monitor;
+PL1G2C15A: Beam Position Monitor;
+PL2G2C15A: Beam Position Monitor;
+PM1G4C15A: Beam Position Monitor;
+PM1G4C15B: Beam Position Monitor;
+PH2G6C15B: Beam Position Monitor;
+PH1G6C15B: Beam Position Monitor;
+PH1G2C16A: Beam Position Monitor;
+PH2G2C16A: Beam Position Monitor;
+PM1G4C16A: Beam Position Monitor;
+PM1G4C16B: Beam Position Monitor;
+PL2G6C16B: Beam Position Monitor;
+PL1G6C16B: Beam Position Monitor;
+PL1G2C17A: Beam Position Monitor;
+PL2G2C17A: Beam Position Monitor;
+PM1G4C17A: Beam Position Monitor;
+PM1G4C17B: Beam Position Monitor;
+PH2G6C17B: Beam Position Monitor;
+PH1G6C17B: Beam Position Monitor;
+PU1G1C18A: Beam Position Monitor;
+PU4G1C18A: Beam Position Monitor;
+PH1G2C18A: Beam Position Monitor;
+PH2G2C18A: Beam Position Monitor;
+PM1G4C18A: Beam Position Monitor;
+PM1G4C18B: Beam Position Monitor;
+PL2G6C18B: Beam Position Monitor;
+PL1G6C18B: Beam Position Monitor;
+PL1G2C19A: Beam Position Monitor;
+PL2G2C19A: Beam Position Monitor;
+PM1G4C19A: Beam Position Monitor;
+PM1G4C19B: Beam Position Monitor;
+PH2G6C19B: Beam Position Monitor;
+PH1G6C19B: Beam Position Monitor;
+PH1G2C20A: Beam Position Monitor;
+PH2G2C20A: Beam Position Monitor;
+PM1G4C20A: Beam Position Monitor;
+PM1G4C20B: Beam Position Monitor;
+PL2G6C20B: Beam Position Monitor;
+PL1G6C20B: Beam Position Monitor;
+PL1G2C21A: Beam Position Monitor;
+PL2G2C21A: Beam Position Monitor;
+PM1G4C21A: Beam Position Monitor;
+PM1G4C21B: Beam Position Monitor;
+PH2G6C21B: Beam Position Monitor;
+PH1G6C21B: Beam Position Monitor;
+PH1G2C22A: Beam Position Monitor;
+PH2G2C22A: Beam Position Monitor;
+PM1G4C22A: Beam Position Monitor;
+PM1G4C22B: Beam Position Monitor;
+PL2G6C22B: Beam Position Monitor;
+PL1G6C22B: Beam Position Monitor;
+PL1G2C23A: Beam Position Monitor;
+PL2G2C23A: Beam Position Monitor;
+PM1G4C23A: Beam Position Monitor;
+PM1G4C23B: Beam Position Monitor;
+PH2G6C23B: Beam Position Monitor;
+PH1G6C23B: Beam Position Monitor;
+PH1G2C24A: Beam Position Monitor;
+PH2G2C24A: Beam Position Monitor;
+PM1G4C24A: Beam Position Monitor;
+PM1G4C24B: Beam Position Monitor;
+PL2G6C24B: Beam Position Monitor;
+PL1G6C24B: Beam Position Monitor;
+PL1G2C25A: Beam Position Monitor;
+PL2G2C25A: Beam Position Monitor;
+PM1G4C25A: Beam Position Monitor;
+PM1G4C25B: Beam Position Monitor;
+PH2G6C25B: Beam Position Monitor;
+PH1G6C25B: Beam Position Monitor;
+PH1G2C26A: Beam Position Monitor;
+PH2G2C26A: Beam Position Monitor;
+PM1G4C26A: Beam Position Monitor;
+PM1G4C26B: Beam Position Monitor;
+PL2G6C26B: Beam Position Monitor;
+PL1G6C26B: Beam Position Monitor;
+PL1G2C27A: Beam Position Monitor;
+PL2G2C27A: Beam Position Monitor;
+PM1G4C27A: Beam Position Monitor;
+PM1G4C27B: Beam Position Monitor;
+PH2G6C27B: Beam Position Monitor;
+PH1G6C27B: Beam Position Monitor;
+PU1G1C28A: Beam Position Monitor;
+PU4G1C28A: Beam Position Monitor;
+PH1G2C28A: Beam Position Monitor;
+PH2G2C28A: Beam Position Monitor;
+PM1G4C28A: Beam Position Monitor;
+PM1G4C28B: Beam Position Monitor;
+PL2G6C28B: Beam Position Monitor;
+PL1G6C28B: Beam Position Monitor;
+PL1G2C29A: Beam Position Monitor;
+PL2G2C29A: Beam Position Monitor;
+PM1G4C29A: Beam Position Monitor;
+PM1G4C29B: Beam Position Monitor;
+PH2G6C29B: Beam Position Monitor;
+PH1G6C29B: Beam Position Monitor;
+
+{***** Horizontal Corrector *****}
+FXH2G1C30A: Corrector, Horizontal, Method = Meth;
+CXH1G2C30A: Corrector, Horizontal, Method = Meth;
+CXH2G2C30A: Corrector, Horizontal, Method = Meth;
+CXM1G4C30A: Corrector, Horizontal, Method = Meth;
+FXM1G4C30A: Corrector, Horizontal, Method = Meth;
+CXM1G4C30B: Corrector, Horizontal, Method = Meth;
+CXL2G6C30B: Corrector, Horizontal, Method = Meth;
+CXL1G6C30B: Corrector, Horizontal, Method = Meth;
+FXL1G1C01A: Corrector, Horizontal, Method = Meth;
+FXL2G1C01A: Corrector, Horizontal, Method = Meth;
+CXL1G2C01A: Corrector, Horizontal, Method = Meth;
+CXL2G2C01A: Corrector, Horizontal, Method = Meth;
+CXM1G4C01A: Corrector, Horizontal, Method = Meth;
+FXM1G4C01A: Corrector, Horizontal, Method = Meth;
+CXM1G4C01B: Corrector, Horizontal, Method = Meth;
+CXH2G6C01B: Corrector, Horizontal, Method = Meth;
+CXH1G6C01B: Corrector, Horizontal, Method = Meth;
+FXH1G1C02A: Corrector, Horizontal, Method = Meth;
+FXH2G1C02A: Corrector, Horizontal, Method = Meth;
+CXH1G2C02A: Corrector, Horizontal, Method = Meth;
+CXH2G2C02A: Corrector, Horizontal, Method = Meth;
+CXM1G4C02A: Corrector, Horizontal, Method = Meth;
+FXM1G4C02A: Corrector, Horizontal, Method = Meth;
+CXM1G4C02B: Corrector, Horizontal, Method = Meth;
+CXL2G6C02B: Corrector, Horizontal, Method = Meth;
+CXL1G6C02B: Corrector, Horizontal, Method = Meth;
+FXL1G1C03A: Corrector, Horizontal, Method = Meth;
+CU1XG1C03ID1: Corrector, Horizontal, Method = Meth;
+CS1XG1C03ID1: Corrector, Horizontal, Method = Meth;
+CU2XG1C03ID2: Corrector, Horizontal, Method = Meth;
+CS2XG1C03ID2: Corrector, Horizontal, Method = Meth;
+FXL2G1C03A: Corrector, Horizontal, Method = Meth;
+CXL1G2C03A: Corrector, Horizontal, Method = Meth;
+CXL2G2C03A: Corrector, Horizontal, Method = Meth;
+CXM1G4C03A: Corrector, Horizontal, Method = Meth;
+FXM1G4C03A: Corrector, Horizontal, Method = Meth;
+CXM1G4C03B: Corrector, Horizontal, Method = Meth;
+CXH2G6C03B: Corrector, Horizontal, Method = Meth;
+CXH1G6C03B: Corrector, Horizontal, Method = Meth;
+FXH1G1C04A: Corrector, Horizontal, Method = Meth;
+FXH2G1C04A: Corrector, Horizontal, Method = Meth;
+CXH1G2C04A: Corrector, Horizontal, Method = Meth;
+CXH2G2C04A: Corrector, Horizontal, Method = Meth;
+CXM1G4C04A: Corrector, Horizontal, Method = Meth;
+FXM1G4C04A: Corrector, Horizontal, Method = Meth;
+CXM1G4C04B: Corrector, Horizontal, Method = Meth;
+CXL2G6C04B: Corrector, Horizontal, Method = Meth;
+CXL1G6C04B: Corrector, Horizontal, Method = Meth;
+FXL1G1C05A: Corrector, Horizontal, Method = Meth;
+CU1XG1C05ID2: Corrector, Horizontal, Method = Meth;
+CS1XG1C05ID2: Corrector, Horizontal, Method = Meth;
+CU2XG1C05ID2: Corrector, Horizontal, Method = Meth;
+CS2XG1C05ID2: Corrector, Horizontal, Method = Meth;
+FXL2G1C05A: Corrector, Horizontal, Method = Meth;
+CXL1G2C05A: Corrector, Horizontal, Method = Meth;
+CXL2G2C05A: Corrector, Horizontal, Method = Meth;
+CXM1G4C05A: Corrector, Horizontal, Method = Meth;
+FXM1G4C05A: Corrector, Horizontal, Method = Meth;
+CXM1G4C05B: Corrector, Horizontal, Method = Meth;
+CXH2G6C05B: Corrector, Horizontal, Method = Meth;
+CXH1G6C05B: Corrector, Horizontal, Method = Meth;
+FXH1G1C06A: Corrector, Horizontal, Method = Meth;
+FXH2G1C06A: Corrector, Horizontal, Method = Meth;
+CXH1G2C06A: Corrector, Horizontal, Method = Meth;
+CXH2G2C06A: Corrector, Horizontal, Method = Meth;
+CXM1G4C06A: Corrector, Horizontal, Method = Meth;
+FXM1G4C06A: Corrector, Horizontal, Method = Meth;
+CXM1G4C06B: Corrector, Horizontal, Method = Meth;
+CXL2G6C06B: Corrector, Horizontal, Method = Meth;
+CXL1G6C06B: Corrector, Horizontal, Method = Meth;
+FXL1G1C07A: Corrector, Horizontal, Method = Meth;
+FXL2G1C07A: Corrector, Horizontal, Method = Meth;
+CXL1G2C07A: Corrector, Horizontal, Method = Meth;
+CXL2G2C07A: Corrector, Horizontal, Method = Meth;
+CXM1G4C07A: Corrector, Horizontal, Method = Meth;
+FXM1G4C07A: Corrector, Horizontal, Method = Meth;
+CXM1G4C07B: Corrector, Horizontal, Method = Meth;
+CXH2G6C07B: Corrector, Horizontal, Method = Meth;
+CXH1G6C07B: Corrector, Horizontal, Method = Meth;
+FXH1G1C08A: Corrector, Horizontal, Method = Meth;
+CU1XG1C08ID1: Corrector, Horizontal, Method = Meth;
+CS1XG1C08ID1: Corrector, Horizontal, Method = Meth;
+CU2XG1C08ID1: Corrector, Horizontal, Method = Meth;
+CS2XG1C08ID1: Corrector, Horizontal, Method = Meth;
+CU1XG1C08ID2: Corrector, Horizontal, Method = Meth;
+CS1XG1C08ID2: Corrector, Horizontal, Method = Meth;
+CU2XG1C08ID2: Corrector, Horizontal, Method = Meth;
+CS2XG1C08ID2: Corrector, Horizontal, Method = Meth;
+FXH2G1C08A: Corrector, Horizontal, Method = Meth;
+CXH1G2C08A: Corrector, Horizontal, Method = Meth;
+CXH2G2C08A: Corrector, Horizontal, Method = Meth;
+CXM1G4C08A: Corrector, Horizontal, Method = Meth;
+FXM1G4C08A: Corrector, Horizontal, Method = Meth;
+CXM1G4C08B: Corrector, Horizontal, Method = Meth;
+CXL2G6C08B: Corrector, Horizontal, Method = Meth;
+CXL1G6C08B: Corrector, Horizontal, Method = Meth;
+FXL1G1C09A: Corrector, Horizontal, Method = Meth;
+FXL2G1C09A: Corrector, Horizontal, Method = Meth;
+CXL1G2C09A: Corrector, Horizontal, Method = Meth;
+CXL2G2C09A: Corrector, Horizontal, Method = Meth;
+CXM1G4C09A: Corrector, Horizontal, Method = Meth;
+FXM1G4C09A: Corrector, Horizontal, Method = Meth;
+CXM1G4C09B: Corrector, Horizontal, Method = Meth;
+CXH2G6C09B: Corrector, Horizontal, Method = Meth;
+CXH1G6C09B: Corrector, Horizontal, Method = Meth;
+FXH1G1C10A: Corrector, Horizontal, Method = Meth;
+CU1XG1C10ID1: Corrector, Horizontal, Method = Meth;
+CS1XG1C10ID1: Corrector, Horizontal, Method = Meth;
+CU2XG1C10ID2: Corrector, Horizontal, Method = Meth;
+CS2XG1C10ID2: Corrector, Horizontal, Method = Meth;
+FXH2G1C10A: Corrector, Horizontal, Method = Meth;
+CXH1G2C10A: Corrector, Horizontal, Method = Meth;
+CXH2G2C10A: Corrector, Horizontal, Method = Meth;
+CXM1G4C10A: Corrector, Horizontal, Method = Meth;
+FXM1G4C10A: Corrector, Horizontal, Method = Meth;
+CXM1G4C10B: Corrector, Horizontal, Method = Meth;
+CXL2G6C10B: Corrector, Horizontal, Method = Meth;
+CXL1G6C10B: Corrector, Horizontal, Method = Meth;
+FXL1G1C11A: Corrector, Horizontal, Method = Meth;
+CU1XG1C11ID1: Corrector, Horizontal, Method = Meth;
+CS1XG1C11ID1: Corrector, Horizontal, Method = Meth;
+CU2XG1C11ID2: Corrector, Horizontal, Method = Meth;
+CS2XG1C11ID2: Corrector, Horizontal, Method = Meth;
+FXL2G1C11A: Corrector, Horizontal, Method = Meth;
+CXL1G2C11A: Corrector, Horizontal, Method = Meth;
+CXL2G2C11A: Corrector, Horizontal, Method = Meth;
+CXM1G4C11A: Corrector, Horizontal, Method = Meth;
+FXM1G4C11A: Corrector, Horizontal, Method = Meth;
+CXM1G4C11B: Corrector, Horizontal, Method = Meth;
+CXH2G6C11B: Corrector, Horizontal, Method = Meth;
+CXH1G6C11B: Corrector, Horizontal, Method = Meth;
+FXH1G1C12A: Corrector, Horizontal, Method = Meth;
+FXH2G1C12A: Corrector, Horizontal, Method = Meth;
+CXH1G2C12A: Corrector, Horizontal, Method = Meth;
+CXH2G2C12A: Corrector, Horizontal, Method = Meth;
+CXM1G4C12A: Corrector, Horizontal, Method = Meth;
+FXM1G4C12A: Corrector, Horizontal, Method = Meth;
+CXM1G4C12B: Corrector, Horizontal, Method = Meth;
+CXL2G6C12B: Corrector, Horizontal, Method = Meth;
+CXL1G6C12B: Corrector, Horizontal, Method = Meth;
+FXL1G1C13A: Corrector, Horizontal, Method = Meth;
+FXL2G1C13A: Corrector, Horizontal, Method = Meth;
+CXL1G2C13A: Corrector, Horizontal, Method = Meth;
+CXL2G2C13A: Corrector, Horizontal, Method = Meth;
+CXM1G4C13A: Corrector, Horizontal, Method = Meth;
+FXM1G4C13A: Corrector, Horizontal, Method = Meth;
+CXM1G4C13B: Corrector, Horizontal, Method = Meth;
+CXH2G6C13B: Corrector, Horizontal, Method = Meth;
+CXH1G6C13B: Corrector, Horizontal, Method = Meth;
+FXH1G1C14A: Corrector, Horizontal, Method = Meth;
+FXH2G1C14A: Corrector, Horizontal, Method = Meth;
+CXH1G2C14A: Corrector, Horizontal, Method = Meth;
+CXH2G2C14A: Corrector, Horizontal, Method = Meth;
+CXM1G4C14A: Corrector, Horizontal, Method = Meth;
+FXM1G4C14A: Corrector, Horizontal, Method = Meth;
+CXM1G4C14B: Corrector, Horizontal, Method = Meth;
+CXL2G6C14B: Corrector, Horizontal, Method = Meth;
+CXL1G6C14B: Corrector, Horizontal, Method = Meth;
+FXL1G1C15A: Corrector, Horizontal, Method = Meth;
+FXL2G1C15A: Corrector, Horizontal, Method = Meth;
+CXL1G2C15A: Corrector, Horizontal, Method = Meth;
+CXL2G2C15A: Corrector, Horizontal, Method = Meth;
+CXM1G4C15A: Corrector, Horizontal, Method = Meth;
+FXM1G4C15A: Corrector, Horizontal, Method = Meth;
+CXM1G4C15B: Corrector, Horizontal, Method = Meth;
+CXH2G6C15B: Corrector, Horizontal, Method = Meth;
+CXH1G6C15B: Corrector, Horizontal, Method = Meth;
+FXH1G1C16A: Corrector, Horizontal, Method = Meth;
+FXH2G1C16A: Corrector, Horizontal, Method = Meth;
+CXH1G2C16A: Corrector, Horizontal, Method = Meth;
+CXH2G2C16A: Corrector, Horizontal, Method = Meth;
+CXM1G4C16A: Corrector, Horizontal, Method = Meth;
+FXM1G4C16A: Corrector, Horizontal, Method = Meth;
+CXM1G4C16B: Corrector, Horizontal, Method = Meth;
+CXL2G6C16B: Corrector, Horizontal, Method = Meth;
+CXL1G6C16B: Corrector, Horizontal, Method = Meth;
+FXL1G1C17A: Corrector, Horizontal, Method = Meth;
+FXL2G1C17A: Corrector, Horizontal, Method = Meth;
+CXL1G2C17A: Corrector, Horizontal, Method = Meth;
+CXL2G2C17A: Corrector, Horizontal, Method = Meth;
+CXM1G4C17A: Corrector, Horizontal, Method = Meth;
+FXM1G4C17A: Corrector, Horizontal, Method = Meth;
+CXM1G4C17B: Corrector, Horizontal, Method = Meth;
+CXH2G6C17B: Corrector, Horizontal, Method = Meth;
+CXH1G6C17B: Corrector, Horizontal, Method = Meth;
+FXH1G1C18A: Corrector, Horizontal, Method = Meth;
+CU1XG1C18ID1: Corrector, Horizontal, Method = Meth;
+CS1XG1C18ID1: Corrector, Horizontal, Method = Meth;
+CU2XG1C18ID1: Corrector, Horizontal, Method = Meth;
+CS2XG1C18ID1: Corrector, Horizontal, Method = Meth;
+CU1XG1C18ID2: Corrector, Horizontal, Method = Meth;
+CS1XG1C18ID2: Corrector, Horizontal, Method = Meth;
+CU2XG1C18ID2: Corrector, Horizontal, Method = Meth;
+CS2XG1C18ID2: Corrector, Horizontal, Method = Meth;
+FXH2G1C18A: Corrector, Horizontal, Method = Meth;
+CXH1G2C18A: Corrector, Horizontal, Method = Meth;
+CXH2G2C18A: Corrector, Horizontal, Method = Meth;
+CXM1G4C18A: Corrector, Horizontal, Method = Meth;
+FXM1G4C18A: Corrector, Horizontal, Method = Meth;
+CXM1G4C18B: Corrector, Horizontal, Method = Meth;
+CXL2G6C18B: Corrector, Horizontal, Method = Meth;
+CXL1G6C18B: Corrector, Horizontal, Method = Meth;
+FXL1G1C19A: Corrector, Horizontal, Method = Meth;
+FXL2G1C19A: Corrector, Horizontal, Method = Meth;
+CXL1G2C19A: Corrector, Horizontal, Method = Meth;
+CXL2G2C19A: Corrector, Horizontal, Method = Meth;
+CXM1G4C19A: Corrector, Horizontal, Method = Meth;
+FXM1G4C19A: Corrector, Horizontal, Method = Meth;
+CXM1G4C19B: Corrector, Horizontal, Method = Meth;
+CXH2G6C19B: Corrector, Horizontal, Method = Meth;
+CXH1G6C19B: Corrector, Horizontal, Method = Meth;
+FXH1G1C20A: Corrector, Horizontal, Method = Meth;
+FXH2G1C20A: Corrector, Horizontal, Method = Meth;
+CXH1G2C20A: Corrector, Horizontal, Method = Meth;
+CXH2G2C20A: Corrector, Horizontal, Method = Meth;
+CXM1G4C20A: Corrector, Horizontal, Method = Meth;
+FXM1G4C20A: Corrector, Horizontal, Method = Meth;
+CXM1G4C20B: Corrector, Horizontal, Method = Meth;
+CXL2G6C20B: Corrector, Horizontal, Method = Meth;
+CXL1G6C20B: Corrector, Horizontal, Method = Meth;
+FXL1G1C21A: Corrector, Horizontal, Method = Meth;
+FXL2G1C21A: Corrector, Horizontal, Method = Meth;
+CXL1G2C21A: Corrector, Horizontal, Method = Meth;
+CXL2G2C21A: Corrector, Horizontal, Method = Meth;
+CXM1G4C21A: Corrector, Horizontal, Method = Meth;
+FXM1G4C21A: Corrector, Horizontal, Method = Meth;
+CXM1G4C21B: Corrector, Horizontal, Method = Meth;
+CXH2G6C21B: Corrector, Horizontal, Method = Meth;
+CXH1G6C21B: Corrector, Horizontal, Method = Meth;
+FXH1G1C22A: Corrector, Horizontal, Method = Meth;
+FXH2G1C22A: Corrector, Horizontal, Method = Meth;
+CXH1G2C22A: Corrector, Horizontal, Method = Meth;
+CXH2G2C22A: Corrector, Horizontal, Method = Meth;
+CXM1G4C22A: Corrector, Horizontal, Method = Meth;
+FXM1G4C22A: Corrector, Horizontal, Method = Meth;
+CXM1G4C22B: Corrector, Horizontal, Method = Meth;
+CXL2G6C22B: Corrector, Horizontal, Method = Meth;
+CXL1G6C22B: Corrector, Horizontal, Method = Meth;
+FXL1G1C23A: Corrector, Horizontal, Method = Meth;
+CU1XG1C23ID1: Corrector, Horizontal, Method = Meth;
+CS1XG1C23ID1: Corrector, Horizontal, Method = Meth;
+CU2XG1C23ID1: Corrector, Horizontal, Method = Meth;
+CS2XG1C23ID1: Corrector, Horizontal, Method = Meth;
+CU1XG1C23ID2: Corrector, Horizontal, Method = Meth;
+CS1XG1C23ID2: Corrector, Horizontal, Method = Meth;
+CU2XG1C23ID2: Corrector, Horizontal, Method = Meth;
+CS2XG1C23ID2: Corrector, Horizontal, Method = Meth;
+FXL2G1C23A: Corrector, Horizontal, Method = Meth;
+CXL1G2C23A: Corrector, Horizontal, Method = Meth;
+CXL2G2C23A: Corrector, Horizontal, Method = Meth;
+CXM1G4C23A: Corrector, Horizontal, Method = Meth;
+FXM1G4C23A: Corrector, Horizontal, Method = Meth;
+CXM1G4C23B: Corrector, Horizontal, Method = Meth;
+CXH2G6C23B: Corrector, Horizontal, Method = Meth;
+CXH1G6C23B: Corrector, Horizontal, Method = Meth;
+FXH1G1C24A: Corrector, Horizontal, Method = Meth;
+FXH2G1C24A: Corrector, Horizontal, Method = Meth;
+CXH1G2C24A: Corrector, Horizontal, Method = Meth;
+CXH2G2C24A: Corrector, Horizontal, Method = Meth;
+CXM1G4C24A: Corrector, Horizontal, Method = Meth;
+FXM1G4C24A: Corrector, Horizontal, Method = Meth;
+CXM1G4C24B: Corrector, Horizontal, Method = Meth;
+CXL2G6C24B: Corrector, Horizontal, Method = Meth;
+CXL1G6C24B: Corrector, Horizontal, Method = Meth;
+FXL1G1C25A: Corrector, Horizontal, Method = Meth;
+FXL2G1C25A: Corrector, Horizontal, Method = Meth;
+CXL1G2C25A: Corrector, Horizontal, Method = Meth;
+CXL2G2C25A: Corrector, Horizontal, Method = Meth;
+CXM1G4C25A: Corrector, Horizontal, Method = Meth;
+FXM1G4C25A: Corrector, Horizontal, Method = Meth;
+CXM1G4C25B: Corrector, Horizontal, Method = Meth;
+CXH2G6C25B: Corrector, Horizontal, Method = Meth;
+CXH1G6C25B: Corrector, Horizontal, Method = Meth;
+FXH1G1C26A: Corrector, Horizontal, Method = Meth;
+FXH2G1C26A: Corrector, Horizontal, Method = Meth;
+CXH1G2C26A: Corrector, Horizontal, Method = Meth;
+CXH2G2C26A: Corrector, Horizontal, Method = Meth;
+CXM1G4C26A: Corrector, Horizontal, Method = Meth;
+FXM1G4C26A: Corrector, Horizontal, Method = Meth;
+CXM1G4C26B: Corrector, Horizontal, Method = Meth;
+CXL2G6C26B: Corrector, Horizontal, Method = Meth;
+CXL1G6C26B: Corrector, Horizontal, Method = Meth;
+FXL1G1C27A: Corrector, Horizontal, Method = Meth;
+FXL2G1C27A: Corrector, Horizontal, Method = Meth;
+CXL1G2C27A: Corrector, Horizontal, Method = Meth;
+CXL2G2C27A: Corrector, Horizontal, Method = Meth;
+CXM1G4C27A: Corrector, Horizontal, Method = Meth;
+FXM1G4C27A: Corrector, Horizontal, Method = Meth;
+CXM1G4C27B: Corrector, Horizontal, Method = Meth;
+CXH2G6C27B: Corrector, Horizontal, Method = Meth;
+CXH1G6C27B: Corrector, Horizontal, Method = Meth;
+FXH1G1C28A: Corrector, Horizontal, Method = Meth;
+CU1XG1C28ID1: Corrector, Horizontal, Method = Meth;
+CS1XG1C28ID1: Corrector, Horizontal, Method = Meth;
+CU2XG1C28ID1: Corrector, Horizontal, Method = Meth;
+CS2XG1C28ID1: Corrector, Horizontal, Method = Meth;
+CU1XG1C28ID2: Corrector, Horizontal, Method = Meth;
+CS1XG1C28ID2: Corrector, Horizontal, Method = Meth;
+CU2XG1C28ID2: Corrector, Horizontal, Method = Meth;
+CS2XG1C28ID2: Corrector, Horizontal, Method = Meth;
+FXH2G1C28A: Corrector, Horizontal, Method = Meth;
+CXH1G2C28A: Corrector, Horizontal, Method = Meth;
+CXH2G2C28A: Corrector, Horizontal, Method = Meth;
+CXM1G4C28A: Corrector, Horizontal, Method = Meth;
+FXM1G4C28A: Corrector, Horizontal, Method = Meth;
+CXM1G4C28B: Corrector, Horizontal, Method = Meth;
+CXL2G6C28B: Corrector, Horizontal, Method = Meth;
+CXL1G6C28B: Corrector, Horizontal, Method = Meth;
+FXL1G1C29A: Corrector, Horizontal, Method = Meth;
+FXL2G1C29A: Corrector, Horizontal, Method = Meth;
+CXL1G2C29A: Corrector, Horizontal, Method = Meth;
+CXL2G2C29A: Corrector, Horizontal, Method = Meth;
+CXM1G4C29A: Corrector, Horizontal, Method = Meth;
+FXM1G4C29A: Corrector, Horizontal, Method = Meth;
+CXM1G4C29B: Corrector, Horizontal, Method = Meth;
+CXH2G6C29B: Corrector, Horizontal, Method = Meth;
+CXH1G6C29B: Corrector, Horizontal, Method = Meth;
+FXH1G1C30A: Corrector, Horizontal, Method = Meth;
+
+{***** Vertical Corrector *****}
+FYH2G1C30A: Corrector, Vertical, Method = Meth;
+CYH1G2C30A: Corrector, Vertical, Method = Meth;
+CYH2G2C30A: Corrector, Vertical, Method = Meth;
+CYM1G4C30A: Corrector, Vertical, Method = Meth;
+FYM1G4C30A: Corrector, Vertical, Method = Meth;
+CYM1G4C30B: Corrector, Vertical, Method = Meth;
+CYL2G6C30B: Corrector, Vertical, Method = Meth;
+CYL1G6C30B: Corrector, Vertical, Method = Meth;
+FYL1G1C01A: Corrector, Vertical, Method = Meth;
+FYL2G1C01A: Corrector, Vertical, Method = Meth;
+CYL1G2C01A: Corrector, Vertical, Method = Meth;
+CYL2G2C01A: Corrector, Vertical, Method = Meth;
+CYM1G4C01A: Corrector, Vertical, Method = Meth;
+FYM1G4C01A: Corrector, Vertical, Method = Meth;
+CYM1G4C01B: Corrector, Vertical, Method = Meth;
+CYH2G6C01B: Corrector, Vertical, Method = Meth;
+CYH1G6C01B: Corrector, Vertical, Method = Meth;
+FYH1G1C02A: Corrector, Vertical, Method = Meth;
+FYH2G1C02A: Corrector, Vertical, Method = Meth;
+CYH1G2C02A: Corrector, Vertical, Method = Meth;
+CYH2G2C02A: Corrector, Vertical, Method = Meth;
+CYM1G4C02A: Corrector, Vertical, Method = Meth;
+FYM1G4C02A: Corrector, Vertical, Method = Meth;
+CYM1G4C02B: Corrector, Vertical, Method = Meth;
+CYL2G6C02B: Corrector, Vertical, Method = Meth;
+CYL1G6C02B: Corrector, Vertical, Method = Meth;
+FYL1G1C03A: Corrector, Vertical, Method = Meth;
+CU1YG1C03ID1: Corrector, Vertical, Method = Meth;
+CS1YG1C03ID1: Corrector, Vertical, Method = Meth;
+CU2YG1C03ID2: Corrector, Vertical, Method = Meth;
+CS2YG1C03ID2: Corrector, Vertical, Method = Meth;
+FYL2G1C03A: Corrector, Vertical, Method = Meth;
+CYL1G2C03A: Corrector, Vertical, Method = Meth;
+CYL2G2C03A: Corrector, Vertical, Method = Meth;
+CYM1G4C03A: Corrector, Vertical, Method = Meth;
+FYM1G4C03A: Corrector, Vertical, Method = Meth;
+CYM1G4C03B: Corrector, Vertical, Method = Meth;
+CYH2G6C03B: Corrector, Vertical, Method = Meth;
+CYH1G6C03B: Corrector, Vertical, Method = Meth;
+FYH1G1C04A: Corrector, Vertical, Method = Meth;
+FYH2G1C04A: Corrector, Vertical, Method = Meth;
+CYH1G2C04A: Corrector, Vertical, Method = Meth;
+CYH2G2C04A: Corrector, Vertical, Method = Meth;
+CYM1G4C04A: Corrector, Vertical, Method = Meth;
+FYM1G4C04A: Corrector, Vertical, Method = Meth;
+CYM1G4C04B: Corrector, Vertical, Method = Meth;
+CYL2G6C04B: Corrector, Vertical, Method = Meth;
+CYL1G6C04B: Corrector, Vertical, Method = Meth;
+FYL1G1C05A: Corrector, Vertical, Method = Meth;
+CU1YG1C05ID2: Corrector, Vertical, Method = Meth;
+CS1YG1C05ID2: Corrector, Vertical, Method = Meth;
+CU2YG1C05ID2: Corrector, Vertical, Method = Meth;
+CS2YG1C05ID2: Corrector, Vertical, Method = Meth;
+FYL2G1C05A: Corrector, Vertical, Method = Meth;
+CYL1G2C05A: Corrector, Vertical, Method = Meth;
+CYL2G2C05A: Corrector, Vertical, Method = Meth;
+CYM1G4C05A: Corrector, Vertical, Method = Meth;
+FYM1G4C05A: Corrector, Vertical, Method = Meth;
+CYM1G4C05B: Corrector, Vertical, Method = Meth;
+CYH2G6C05B: Corrector, Vertical, Method = Meth;
+CYH1G6C05B: Corrector, Vertical, Method = Meth;
+FYH1G1C06A: Corrector, Vertical, Method = Meth;
+FYH2G1C06A: Corrector, Vertical, Method = Meth;
+CYH1G2C06A: Corrector, Vertical, Method = Meth;
+CYH2G2C06A: Corrector, Vertical, Method = Meth;
+CYM1G4C06A: Corrector, Vertical, Method = Meth;
+FYM1G4C06A: Corrector, Vertical, Method = Meth;
+CYM1G4C06B: Corrector, Vertical, Method = Meth;
+CYL2G6C06B: Corrector, Vertical, Method = Meth;
+CYL1G6C06B: Corrector, Vertical, Method = Meth;
+FYL1G1C07A: Corrector, Vertical, Method = Meth;
+FYL2G1C07A: Corrector, Vertical, Method = Meth;
+CYL1G2C07A: Corrector, Vertical, Method = Meth;
+CYL2G2C07A: Corrector, Vertical, Method = Meth;
+CYM1G4C07A: Corrector, Vertical, Method = Meth;
+FYM1G4C07A: Corrector, Vertical, Method = Meth;
+CYM1G4C07B: Corrector, Vertical, Method = Meth;
+CYH2G6C07B: Corrector, Vertical, Method = Meth;
+CYH1G6C07B: Corrector, Vertical, Method = Meth;
+FYH1G1C08A: Corrector, Vertical, Method = Meth;
+CU1YG1C08ID1: Corrector, Vertical, Method = Meth;
+CS1YG1C08ID1: Corrector, Vertical, Method = Meth;
+CU2YG1C08ID1: Corrector, Vertical, Method = Meth;
+CS2YG1C08ID1: Corrector, Vertical, Method = Meth;
+CU1YG1C08ID2: Corrector, Vertical, Method = Meth;
+CS1YG1C08ID2: Corrector, Vertical, Method = Meth;
+CU2YG1C08ID2: Corrector, Vertical, Method = Meth;
+CS2YG1C08ID2: Corrector, Vertical, Method = Meth;
+FYH2G1C08A: Corrector, Vertical, Method = Meth;
+CYH1G2C08A: Corrector, Vertical, Method = Meth;
+CYH2G2C08A: Corrector, Vertical, Method = Meth;
+CYM1G4C08A: Corrector, Vertical, Method = Meth;
+FYM1G4C08A: Corrector, Vertical, Method = Meth;
+CYM1G4C08B: Corrector, Vertical, Method = Meth;
+CYL2G6C08B: Corrector, Vertical, Method = Meth;
+CYL1G6C08B: Corrector, Vertical, Method = Meth;
+FYL1G1C09A: Corrector, Vertical, Method = Meth;
+FYL2G1C09A: Corrector, Vertical, Method = Meth;
+CYL1G2C09A: Corrector, Vertical, Method = Meth;
+CYL2G2C09A: Corrector, Vertical, Method = Meth;
+CYM1G4C09A: Corrector, Vertical, Method = Meth;
+FYM1G4C09A: Corrector, Vertical, Method = Meth;
+CYM1G4C09B: Corrector, Vertical, Method = Meth;
+CYH2G6C09B: Corrector, Vertical, Method = Meth;
+CYH1G6C09B: Corrector, Vertical, Method = Meth;
+FYH1G1C10A: Corrector, Vertical, Method = Meth;
+CU1YG1C10ID1: Corrector, Vertical, Method = Meth;
+CS1YG1C10ID1: Corrector, Vertical, Method = Meth;
+CU2YG1C10ID2: Corrector, Vertical, Method = Meth;
+CS2YG1C10ID2: Corrector, Vertical, Method = Meth;
+FYH2G1C10A: Corrector, Vertical, Method = Meth;
+CYH1G2C10A: Corrector, Vertical, Method = Meth;
+CYH2G2C10A: Corrector, Vertical, Method = Meth;
+CYM1G4C10A: Corrector, Vertical, Method = Meth;
+FYM1G4C10A: Corrector, Vertical, Method = Meth;
+CYM1G4C10B: Corrector, Vertical, Method = Meth;
+CYL2G6C10B: Corrector, Vertical, Method = Meth;
+CYL1G6C10B: Corrector, Vertical, Method = Meth;
+FYL1G1C11A: Corrector, Vertical, Method = Meth;
+CU1YG1C11ID1: Corrector, Vertical, Method = Meth;
+CS1YG1C11ID1: Corrector, Vertical, Method = Meth;
+CU2YG1C11ID2: Corrector, Vertical, Method = Meth;
+CS2YG1C11ID2: Corrector, Vertical, Method = Meth;
+FYL2G1C11A: Corrector, Vertical, Method = Meth;
+CYL1G2C11A: Corrector, Vertical, Method = Meth;
+CYL2G2C11A: Corrector, Vertical, Method = Meth;
+CYM1G4C11A: Corrector, Vertical, Method = Meth;
+FYM1G4C11A: Corrector, Vertical, Method = Meth;
+CYM1G4C11B: Corrector, Vertical, Method = Meth;
+CYH2G6C11B: Corrector, Vertical, Method = Meth;
+CYH1G6C11B: Corrector, Vertical, Method = Meth;
+FYH1G1C12A: Corrector, Vertical, Method = Meth;
+FYH2G1C12A: Corrector, Vertical, Method = Meth;
+CYH1G2C12A: Corrector, Vertical, Method = Meth;
+CYH2G2C12A: Corrector, Vertical, Method = Meth;
+CYM1G4C12A: Corrector, Vertical, Method = Meth;
+FYM1G4C12A: Corrector, Vertical, Method = Meth;
+CYM1G4C12B: Corrector, Vertical, Method = Meth;
+CYL2G6C12B: Corrector, Vertical, Method = Meth;
+CYL1G6C12B: Corrector, Vertical, Method = Meth;
+FYL1G1C13A: Corrector, Vertical, Method = Meth;
+FYL2G1C13A: Corrector, Vertical, Method = Meth;
+CYL1G2C13A: Corrector, Vertical, Method = Meth;
+CYL2G2C13A: Corrector, Vertical, Method = Meth;
+CYM1G4C13A: Corrector, Vertical, Method = Meth;
+FYM1G4C13A: Corrector, Vertical, Method = Meth;
+CYM1G4C13B: Corrector, Vertical, Method = Meth;
+CYH2G6C13B: Corrector, Vertical, Method = Meth;
+CYH1G6C13B: Corrector, Vertical, Method = Meth;
+FYH1G1C14A: Corrector, Vertical, Method = Meth;
+FYH2G1C14A: Corrector, Vertical, Method = Meth;
+CYH1G2C14A: Corrector, Vertical, Method = Meth;
+CYH2G2C14A: Corrector, Vertical, Method = Meth;
+CYM1G4C14A: Corrector, Vertical, Method = Meth;
+FYM1G4C14A: Corrector, Vertical, Method = Meth;
+CYM1G4C14B: Corrector, Vertical, Method = Meth;
+CYL2G6C14B: Corrector, Vertical, Method = Meth;
+CYL1G6C14B: Corrector, Vertical, Method = Meth;
+FYL1G1C15A: Corrector, Vertical, Method = Meth;
+FYL2G1C15A: Corrector, Vertical, Method = Meth;
+CYL1G2C15A: Corrector, Vertical, Method = Meth;
+CYL2G2C15A: Corrector, Vertical, Method = Meth;
+CYM1G4C15A: Corrector, Vertical, Method = Meth;
+FYM1G4C15A: Corrector, Vertical, Method = Meth;
+CYM1G4C15B: Corrector, Vertical, Method = Meth;
+CYH2G6C15B: Corrector, Vertical, Method = Meth;
+CYH1G6C15B: Corrector, Vertical, Method = Meth;
+FYH1G1C16A: Corrector, Vertical, Method = Meth;
+FYH2G1C16A: Corrector, Vertical, Method = Meth;
+CYH1G2C16A: Corrector, Vertical, Method = Meth;
+CYH2G2C16A: Corrector, Vertical, Method = Meth;
+CYM1G4C16A: Corrector, Vertical, Method = Meth;
+FYM1G4C16A: Corrector, Vertical, Method = Meth;
+CYM1G4C16B: Corrector, Vertical, Method = Meth;
+CYL2G6C16B: Corrector, Vertical, Method = Meth;
+CYL1G6C16B: Corrector, Vertical, Method = Meth;
+FYL1G1C17A: Corrector, Vertical, Method = Meth;
+FYL2G1C17A: Corrector, Vertical, Method = Meth;
+CYL1G2C17A: Corrector, Vertical, Method = Meth;
+CYL2G2C17A: Corrector, Vertical, Method = Meth;
+CYM1G4C17A: Corrector, Vertical, Method = Meth;
+FYM1G4C17A: Corrector, Vertical, Method = Meth;
+CYM1G4C17B: Corrector, Vertical, Method = Meth;
+CYH2G6C17B: Corrector, Vertical, Method = Meth;
+CYH1G6C17B: Corrector, Vertical, Method = Meth;
+FYH1G1C18A: Corrector, Vertical, Method = Meth;
+CU1YG1C18ID1: Corrector, Vertical, Method = Meth;
+CS1YG1C18ID1: Corrector, Vertical, Method = Meth;
+CU2YG1C18ID1: Corrector, Vertical, Method = Meth;
+CS2YG1C18ID1: Corrector, Vertical, Method = Meth;
+CU1YG1C18ID2: Corrector, Vertical, Method = Meth;
+CS1YG1C18ID2: Corrector, Vertical, Method = Meth;
+CU2YG1C18ID2: Corrector, Vertical, Method = Meth;
+CS2YG1C18ID2: Corrector, Vertical, Method = Meth;
+FYH2G1C18A: Corrector, Vertical, Method = Meth;
+CYH1G2C18A: Corrector, Vertical, Method = Meth;
+CYH2G2C18A: Corrector, Vertical, Method = Meth;
+CYM1G4C18A: Corrector, Vertical, Method = Meth;
+FYM1G4C18A: Corrector, Vertical, Method = Meth;
+CYM1G4C18B: Corrector, Vertical, Method = Meth;
+CYL2G6C18B: Corrector, Vertical, Method = Meth;
+CYL1G6C18B: Corrector, Vertical, Method = Meth;
+FYL1G1C19A: Corrector, Vertical, Method = Meth;
+FYL2G1C19A: Corrector, Vertical, Method = Meth;
+CYL1G2C19A: Corrector, Vertical, Method = Meth;
+CYL2G2C19A: Corrector, Vertical, Method = Meth;
+CYM1G4C19A: Corrector, Vertical, Method = Meth;
+FYM1G4C19A: Corrector, Vertical, Method = Meth;
+CYM1G4C19B: Corrector, Vertical, Method = Meth;
+CYH2G6C19B: Corrector, Vertical, Method = Meth;
+CYH1G6C19B: Corrector, Vertical, Method = Meth;
+FYH1G1C20A: Corrector, Vertical, Method = Meth;
+FYH2G1C20A: Corrector, Vertical, Method = Meth;
+CYH1G2C20A: Corrector, Vertical, Method = Meth;
+CYH2G2C20A: Corrector, Vertical, Method = Meth;
+CYM1G4C20A: Corrector, Vertical, Method = Meth;
+FYM1G4C20A: Corrector, Vertical, Method = Meth;
+CYM1G4C20B: Corrector, Vertical, Method = Meth;
+CYL2G6C20B: Corrector, Vertical, Method = Meth;
+CYL1G6C20B: Corrector, Vertical, Method = Meth;
+FYL1G1C21A: Corrector, Vertical, Method = Meth;
+FYL2G1C21A: Corrector, Vertical, Method = Meth;
+CYL1G2C21A: Corrector, Vertical, Method = Meth;
+CYL2G2C21A: Corrector, Vertical, Method = Meth;
+CYM1G4C21A: Corrector, Vertical, Method = Meth;
+FYM1G4C21A: Corrector, Vertical, Method = Meth;
+CYM1G4C21B: Corrector, Vertical, Method = Meth;
+CYH2G6C21B: Corrector, Vertical, Method = Meth;
+CYH1G6C21B: Corrector, Vertical, Method = Meth;
+FYH1G1C22A: Corrector, Vertical, Method = Meth;
+FYH2G1C22A: Corrector, Vertical, Method = Meth;
+CYH1G2C22A: Corrector, Vertical, Method = Meth;
+CYH2G2C22A: Corrector, Vertical, Method = Meth;
+CYM1G4C22A: Corrector, Vertical, Method = Meth;
+FYM1G4C22A: Corrector, Vertical, Method = Meth;
+CYM1G4C22B: Corrector, Vertical, Method = Meth;
+CYL2G6C22B: Corrector, Vertical, Method = Meth;
+CYL1G6C22B: Corrector, Vertical, Method = Meth;
+FYL1G1C23A: Corrector, Vertical, Method = Meth;
+CU1YG1C23ID1: Corrector, Vertical, Method = Meth;
+CS1YG1C23ID1: Corrector, Vertical, Method = Meth;
+CU2YG1C23ID1: Corrector, Vertical, Method = Meth;
+CS2YG1C23ID1: Corrector, Vertical, Method = Meth;
+CU1YG1C23ID2: Corrector, Vertical, Method = Meth;
+CS1YG1C23ID2: Corrector, Vertical, Method = Meth;
+CU2YG1C23ID2: Corrector, Vertical, Method = Meth;
+CS2YG1C23ID2: Corrector, Vertical, Method = Meth;
+FYL2G1C23A: Corrector, Vertical, Method = Meth;
+CYL1G2C23A: Corrector, Vertical, Method = Meth;
+CYL2G2C23A: Corrector, Vertical, Method = Meth;
+CYM1G4C23A: Corrector, Vertical, Method = Meth;
+FYM1G4C23A: Corrector, Vertical, Method = Meth;
+CYM1G4C23B: Corrector, Vertical, Method = Meth;
+CYH2G6C23B: Corrector, Vertical, Method = Meth;
+CYH1G6C23B: Corrector, Vertical, Method = Meth;
+FYH1G1C24A: Corrector, Vertical, Method = Meth;
+FYH2G1C24A: Corrector, Vertical, Method = Meth;
+CYH1G2C24A: Corrector, Vertical, Method = Meth;
+CYH2G2C24A: Corrector, Vertical, Method = Meth;
+CYM1G4C24A: Corrector, Vertical, Method = Meth;
+FYM1G4C24A: Corrector, Vertical, Method = Meth;
+CYM1G4C24B: Corrector, Vertical, Method = Meth;
+CYL2G6C24B: Corrector, Vertical, Method = Meth;
+CYL1G6C24B: Corrector, Vertical, Method = Meth;
+FYL1G1C25A: Corrector, Vertical, Method = Meth;
+FYL2G1C25A: Corrector, Vertical, Method = Meth;
+CYL1G2C25A: Corrector, Vertical, Method = Meth;
+CYL2G2C25A: Corrector, Vertical, Method = Meth;
+CYM1G4C25A: Corrector, Vertical, Method = Meth;
+FYM1G4C25A: Corrector, Vertical, Method = Meth;
+CYM1G4C25B: Corrector, Vertical, Method = Meth;
+CYH2G6C25B: Corrector, Vertical, Method = Meth;
+CYH1G6C25B: Corrector, Vertical, Method = Meth;
+FYH1G1C26A: Corrector, Vertical, Method = Meth;
+FYH2G1C26A: Corrector, Vertical, Method = Meth;
+CYH1G2C26A: Corrector, Vertical, Method = Meth;
+CYH2G2C26A: Corrector, Vertical, Method = Meth;
+CYM1G4C26A: Corrector, Vertical, Method = Meth;
+FYM1G4C26A: Corrector, Vertical, Method = Meth;
+CYM1G4C26B: Corrector, Vertical, Method = Meth;
+CYL2G6C26B: Corrector, Vertical, Method = Meth;
+CYL1G6C26B: Corrector, Vertical, Method = Meth;
+FYL1G1C27A: Corrector, Vertical, Method = Meth;
+FYL2G1C27A: Corrector, Vertical, Method = Meth;
+CYL1G2C27A: Corrector, Vertical, Method = Meth;
+CYL2G2C27A: Corrector, Vertical, Method = Meth;
+CYM1G4C27A: Corrector, Vertical, Method = Meth;
+FYM1G4C27A: Corrector, Vertical, Method = Meth;
+CYM1G4C27B: Corrector, Vertical, Method = Meth;
+CYH2G6C27B: Corrector, Vertical, Method = Meth;
+CYH1G6C27B: Corrector, Vertical, Method = Meth;
+FYH1G1C28A: Corrector, Vertical, Method = Meth;
+CU1YG1C28ID1: Corrector, Vertical, Method = Meth;
+CS1YG1C28ID1: Corrector, Vertical, Method = Meth;
+CU2YG1C28ID1: Corrector, Vertical, Method = Meth;
+CS2YG1C28ID1: Corrector, Vertical, Method = Meth;
+CU1YG1C28ID2: Corrector, Vertical, Method = Meth;
+CS1YG1C28ID2: Corrector, Vertical, Method = Meth;
+CU2YG1C28ID2: Corrector, Vertical, Method = Meth;
+CS2YG1C28ID2: Corrector, Vertical, Method = Meth;
+FYH2G1C28A: Corrector, Vertical, Method = Meth;
+CYH1G2C28A: Corrector, Vertical, Method = Meth;
+CYH2G2C28A: Corrector, Vertical, Method = Meth;
+CYM1G4C28A: Corrector, Vertical, Method = Meth;
+FYM1G4C28A: Corrector, Vertical, Method = Meth;
+CYM1G4C28B: Corrector, Vertical, Method = Meth;
+CYL2G6C28B: Corrector, Vertical, Method = Meth;
+CYL1G6C28B: Corrector, Vertical, Method = Meth;
+FYL1G1C29A: Corrector, Vertical, Method = Meth;
+FYL2G1C29A: Corrector, Vertical, Method = Meth;
+CYL1G2C29A: Corrector, Vertical, Method = Meth;
+CYL2G2C29A: Corrector, Vertical, Method = Meth;
+CYM1G4C29A: Corrector, Vertical, Method = Meth;
+FYM1G4C29A: Corrector, Vertical, Method = Meth;
+CYM1G4C29B: Corrector, Vertical, Method = Meth;
+CYH2G6C29B: Corrector, Vertical, Method = Meth;
+CYH1G6C29B: Corrector, Vertical, Method = Meth;
+FYH1G1C30A: Corrector, Vertical, Method = Meth;
+
+{***** Drift space *****}
+DH05G1C30A: Drift, L=4.29379;
+DFH2G1C30A: Drift, L=0.022;
+DH1G1A: Drift, L=0.31221;
+DH1AG2A: Drift, L=0.085;
+DBPM01: Drift, L=0.0775;
+DH2AG2A: Drift, L=0.145;
+DH2BG2A: Drift, L=0.4595;
+DH3AG2A: Drift, L=0.19;
+DH3BG2A: Drift, L=0.1825;
+DH4AG2A: Drift, L=0.07252;
+DBPM02: Drift, L=0.08998;
+DH4BG2A: Drift, L=0.2485;
+DCH2G2C30A: Drift, L=0.15;
+DH4CG3A: Drift, L=0.0315;
+DM1AG4A: Drift, L=0.501;
+DCM1G4C30A: Drift, L=0.1;
+DM1BG4A: Drift, L=0.274;
+DM2AG4A: Drift, L=0.2;
+DFT1: Drift, L=0.2332;
+DFM1G4C30A: Drift, L=0.022;
+DM2BG4A: Drift, L=0.2924;
+DBPM03: Drift, L=0.0839;
+DM2CG4A: Drift, L=0.1835;
+DM2CG4B: Drift, L=0.1835;
+DM2BG4B: Drift, L=0.5035;
+DM2AG4B: Drift, L=0.26226;
+DBPM04: Drift, L=0.08774;
+DM1EG4B: Drift, L=0.109;
+DCM1G4C30B: Drift, L=0.15;
+DM1DG5B1: Drift, L=0.1;
+DPWG5B: Drift, L=0.2;
+DM1CG5B1: Drift, L=0.266;
+DL4BG6B: Drift, L=0.2178;
+DL4AG6B: Drift, L=0.3697;
+DBPM05: Drift, L=0.07472;
+DL3CG6B: Drift, L=0.08778;
+DL3BG6B: Drift, L=0.1575;
+DCL2G6C30B: Drift, L=0.1;
+DL3AG6B: Drift, L=0.2081;
+DL2CG6B: Drift, L=0.25;
+DL2BG6B: Drift, L=0.13125;
+DCL1G6C30B: Drift, L=0.1;
+DL2AG6B: Drift, L=0.13125;
+DL1AG6B: Drift, L=0.0748;
+DBPM06: Drift, L=0.0877;
+DL0BG1A: Drift, L=0.44652;
+DFL1G1C01A: Drift, L=0.022;
+DFT2: Drift, L=0.051;
+DLDK: Drift, L=0.095;
+DL01G1C01A: Drift, L=2.66348;
+DL05G1C01A: Drift, L=2.79768;
+DFL2G1C01A: Drift, L=0.022;
+DL0AG1A: Drift, L=0.31232;
+DL1AG2A: Drift, L=0.09;
+DBPM07: Drift, L=0.0725;
+DL2AG2A: Drift, L=0.13125;
+DCL1G2C01A: Drift, L=0.1;
+DL2BG2A: Drift, L=0.13125;
+DL2CG2A: Drift, L=0.25;
+DL3AG2A: Drift, L=0.2081;
+DCL2G2C01A: Drift, L=0.1;
+DL3BG2A: Drift, L=0.1575;
+DL3CG2A: Drift, L=0.09008;
+DBPM08: Drift, L=0.07242;
+DL4AG2A: Drift, L=0.5692;
+DL4BG3A: Drift, L=0.0183;
+DM2A2G4A: Drift, L=0.2;
+DFM1G4C01A: Drift, L=0.022;
+DM2B2G4A: Drift, L=0.2924;
+DBPM09: Drift, L=0.0839;
+DM2B2G4B: Drift, L=0.5035;
+DM2A2G4B: Drift, L=0.26226;
+DBPM10: Drift, L=0.08774;
+DCM1G4C01B: Drift, L=0.15;
+DM1DG5B2: Drift, L=0.1;
+DM1CG5B2: Drift, L=0.266;
+DH4CG6B: Drift, L=0.21634;
+DCH2G6C01B: Drift, L=0.15;
+DH4BG6B: Drift, L=0.06366;
+DH4AG6B: Drift, L=0.0896;
+DBPM11: Drift, L=0.0729;
+DH3BG6B: Drift, L=0.1825;
+DH3AG6B: Drift, L=0.19;
+DH2BG6B: Drift, L=0.4845;
+DCH1G6C01B: Drift, L=0.1;
+DH2AG6B: Drift, L=0.12;
+DH1AG6B: Drift, L=0.07709;
+DBPM12: Drift, L=0.08541;
+DH2G1A: Drift, L=0.4409;
+DFH1G1C02A: Drift, L=0.022;
+DH01G1C02A: Drift, L=4.1651;
+DH05G1C02A: Drift, L=4.29379;
+DFH2G1C02A: Drift, L=0.022;
+DCH2G2C02A: Drift, L=0.15;
+DCM1G4C02A: Drift, L=0.1;
+DFM1G4C02A: Drift, L=0.022;
+DCM1G4C02B: Drift, L=0.15;
+DCL2G6C02B: Drift, L=0.1;
+DCL1G6C02B: Drift, L=0.1;
+DFL1G1C03A: Drift, L=0.022;
+DL01G1C03A: Drift, L=0.1207;
+DL02G1C03A: Drift, L=1.04278;
+DL07G1C03A: Drift, L=1.17863;
+DL08G1C03A: Drift, L=0.11905;
+DFL2G1C03A: Drift, L=0.022;
+DCL1G2C03A: Drift, L=0.1;
+DCL2G2C03A: Drift, L=0.1;
+DFM1G4C03A: Drift, L=0.022;
+DCM1G4C03B: Drift, L=0.15;
+DM1DG5B2C03: Drift, L=0.075;
+DM1CG5B2C03: Drift, L=0.291;
+DCH2G6C03B: Drift, L=0.15;
+DCH1G6C03B: Drift, L=0.1;
+DFH1G1C04A: Drift, L=0.022;
+DH01G1C04A: Drift, L=4.1651;
+DH05G1C04A: Drift, L=4.29379;
+DFH2G1C04A: Drift, L=0.022;
+DCH2G2C04A: Drift, L=0.15;
+DCM1G4C04A: Drift, L=0.1;
+DFM1G4C04A: Drift, L=0.022;
+DCM1G4C04B: Drift, L=0.15;
+DCL2G6C04B: Drift, L=0.1;
+DCL1G6C04B: Drift, L=0.1;
+DFL1G1C05A: Drift, L=0.022;
+DL02G1C05A: Drift, L=2.66348;
+DL05G1C05A: Drift, L=0.55551;
+IVU21G1C05D: Drift, L=1.5;
+DL07G1C05A: Drift, L=0.49006;
+DL08G1C05A: Drift, L=0.25211;
+DFL2G1C05A: Drift, L=0.022;
+DCL1G2C05A: Drift, L=0.1;
+DCL2G2C05A: Drift, L=0.1;
+DFM1G4C05A: Drift, L=0.022;
+DCM1G4C05B: Drift, L=0.15;
+DCH2G6C05B: Drift, L=0.15;
+DCH1G6C05B: Drift, L=0.1;
+DFH1G1C06A: Drift, L=0.022;
+DH01G1C06A: Drift, L=4.1651;
+DH05G1C06A: Drift, L=4.29379;
+DFH2G1C06A: Drift, L=0.022;
+DCH2G2C06A: Drift, L=0.15;
+DCM1G4C06A: Drift, L=0.1;
+DFM1G4C06A: Drift, L=0.022;
+DCM1G4C06B: Drift, L=0.15;
+DCL2G6C06B: Drift, L=0.1;
+DCL1G6C06B: Drift, L=0.1;
+DFL1G1C07A: Drift, L=0.022;
+DL01G1C07A: Drift, L=2.66348;
+DL05G1C07A: Drift, L=2.79768;
+DFL2G1C07A: Drift, L=0.022;
+DCL1G2C07A: Drift, L=0.1;
+DCL2G2C07A: Drift, L=0.1;
+DFM1G4C07A: Drift, L=0.022;
+DCM1G4C07B: Drift, L=0.15;
+DCH2G6C07B: Drift, L=0.15;
+DCH1G6C07B: Drift, L=0.1;
+DFH1G1C08A: Drift, L=0.022;
+DH01G1C08A: Drift, L=0.50285;
+DH02G1C08A: Drift, L=0.07175;
+DH04G1C08A: Drift, L=0.1905;
+DH05G1C08A: Drift, L=0.1905;
+DW100G1C08D: Drift, L=3.4;
+DH07G1C08A: Drift, L=0.0872;
+DH08G1C08A: Drift, L=0.61609;
+DFH2G1C08A: Drift, L=0.022;
+DCH2G2C08A: Drift, L=0.15;
+DCM1G4C08A: Drift, L=0.1;
+DFM1G4C08A: Drift, L=0.022;
+DCM1G4C08B: Drift, L=0.15;
+DCL2G6C08B: Drift, L=0.1;
+DCL1G6C08B: Drift, L=0.1;
+DFL1G1C09A: Drift, L=0.022;
+DL01G1C09A: Drift, L=2.66348;
+DL05G1C09A: Drift, L=2.79768;
+DFL2G1C09A: Drift, L=0.022;
+DCL1G2C09A: Drift, L=0.1;
+DCL2G2C09A: Drift, L=0.1;
+DFM1G4C09A: Drift, L=0.022;
+DCM1G4C09B: Drift, L=0.15;
+DCH2G6C09B: Drift, L=0.15;
+DCH1G6C09B: Drift, L=0.1;
+DFH1G1C10A: Drift, L=0.022;
+DH01G1C10A: Drift, L=0.26632;
+DH02G1C10A: Drift, L=2.39878;
+IVU22G1C10C: Drift, L=3.0;
+DH07G1C10A: Drift, L=2.52858;
+DH08G1C10A: Drift, L=0.26521;
+DFH2G1C10A: Drift, L=0.022;
+DCH2G2C10A: Drift, L=0.15;
+DCM1G4C10A: Drift, L=0.1;
+DFM1G4C10A: Drift, L=0.022;
+DCM1G4C10B: Drift, L=0.15;
+DCL2G6C10B: Drift, L=0.1;
+DCL1G6C10B: Drift, L=0.1;
+DFL1G1C11A: Drift, L=0.022;
+DL01G1C11A: Drift, L=0.1207;
+DL02G1C11A: Drift, L=1.04278;
+IVU20G1C11C: Drift, L=3.0;
+DL07G1C11A: Drift, L=1.17863;
+DL08G1C11A: Drift, L=0.11905;
+DFL2G1C11A: Drift, L=0.022;
+DCL1G2C11A: Drift, L=0.1;
+DCL2G2C11A: Drift, L=0.1;
+DFM1G4C11A: Drift, L=0.022;
+DCM1G4C11B: Drift, L=0.15;
+DCH2G6C11B: Drift, L=0.15;
+DCH1G6C11B: Drift, L=0.1;
+DFH1G1C12A: Drift, L=0.022;
+DH01G1C12A: Drift, L=4.1651;
+DH05G1C12A: Drift, L=4.29379;
+DFH2G1C12A: Drift, L=0.022;
+DCH2G2C12A: Drift, L=0.15;
+DCM1G4C12A: Drift, L=0.1;
+DFM1G4C12A: Drift, L=0.022;
+DCM1G4C12B: Drift, L=0.15;
+DCL2G6C12B: Drift, L=0.1;
+DCL1G6C12B: Drift, L=0.1;
+DFL1G1C13A: Drift, L=0.022;
+DL01G1C13A: Drift, L=2.66348;
+DL05G1C13A: Drift, L=2.79768;
+DFL2G1C13A: Drift, L=0.022;
+DCL1G2C13A: Drift, L=0.1;
+DCL2G2C13A: Drift, L=0.1;
+DFM1G4C13A: Drift, L=0.022;
+DCM1G4C13B: Drift, L=0.15;
+DM1DG5B2C13: Drift, L=0.075;
+DM1CG5B2C13: Drift, L=0.291;
+DCH2G6C13B: Drift, L=0.15;
+DCH1G6C13B: Drift, L=0.1;
+DFH1G1C14A: Drift, L=0.022;
+DH01G1C14A: Drift, L=4.1651;
+DH05G1C14A: Drift, L=4.29379;
+DFH2G1C14A: Drift, L=0.022;
+DCH2G2C14A: Drift, L=0.15;
+DCM1G4C14A: Drift, L=0.1;
+DFM1G4C14A: Drift, L=0.022;
+DCM1G4C14B: Drift, L=0.15;
+DCL2G6C14B: Drift, L=0.1;
+DCL1G6C14B: Drift, L=0.1;
+DFL1G1C15A: Drift, L=0.022;
+DL01G1C15A: Drift, L=2.66348;
+DL05G1C15A: Drift, L=2.79768;
+DFL2G1C15A: Drift, L=0.022;
+DCL1G2C15A: Drift, L=0.1;
+DCL2G2C15A: Drift, L=0.1;
+DFM1G4C15A: Drift, L=0.022;
+DCM1G4C15B: Drift, L=0.15;
+DCH2G6C15B: Drift, L=0.15;
+DCH1G6C15B: Drift, L=0.1;
+DFH1G1C16A: Drift, L=0.022;
+DH01G1C16A: Drift, L=4.1651;
+DH05G1C16A: Drift, L=4.29379;
+DFH2G1C16A: Drift, L=0.022;
+DCH2G2C16A: Drift, L=0.15;
+DCM1G4C16A: Drift, L=0.1;
+DFM1G4C16A: Drift, L=0.022;
+DCM1G4C16B: Drift, L=0.15;
+DCL2G6C16B: Drift, L=0.1;
+DCL1G6C16B: Drift, L=0.1;
+DFL1G1C17A: Drift, L=0.022;
+DL01G1C17A: Drift, L=2.66348;
+DL05G1C17A: Drift, L=2.79768;
+DFL2G1C17A: Drift, L=0.022;
+DCL1G2C17A: Drift, L=0.1;
+DCL2G2C17A: Drift, L=0.1;
+DFM1G4C17A: Drift, L=0.022;
+DCM1G4C17B: Drift, L=0.15;
+DCH2G6C17B: Drift, L=0.15;
+DCH1G6C17B: Drift, L=0.1;
+DFH1G1C18A: Drift, L=0.022;
+DH01G1C18A: Drift, L=0.50285;
+DH02G1C18A: Drift, L=0.07175;
+DW100G1C18U: Drift, L=3.4;
+DH04G1C18A: Drift, L=0.1905;
+DH05G1C18A: Drift, L=0.1905;
+DW100G1C18D: Drift, L=3.4;
+DH07G1C18A: Drift, L=0.0872;
+DH08G1C18A: Drift, L=0.61609;
+DFH2G1C18A: Drift, L=0.022;
+DCH2G2C18A: Drift, L=0.15;
+DCM1G4C18A: Drift, L=0.1;
+DFM1G4C18A: Drift, L=0.022;
+DCM1G4C18B: Drift, L=0.15;
+DCL2G6C18B: Drift, L=0.1;
+DCL1G6C18B: Drift, L=0.1;
+DFL1G1C19A: Drift, L=0.022;
+DL01G1C19A: Drift, L=2.66348;
+DL05G1C19A: Drift, L=2.79768;
+DFL2G1C19A: Drift, L=0.022;
+DCL1G2C19A: Drift, L=0.1;
+DCL2G2C19A: Drift, L=0.1;
+DFM1G4C19A: Drift, L=0.022;
+DCM1G4C19B: Drift, L=0.15;
+DCH2G6C19B: Drift, L=0.15;
+DCH1G6C19B: Drift, L=0.1;
+DFH1G1C20A: Drift, L=0.022;
+DH01G1C20A: Drift, L=4.1651;
+DH05G1C20A: Drift, L=4.29379;
+DFH2G1C20A: Drift, L=0.022;
+DCH2G2C20A: Drift, L=0.15;
+DCM1G4C20A: Drift, L=0.1;
+DFM1G4C20A: Drift, L=0.022;
+DCM1G4C20B: Drift, L=0.15;
+DCL2G6C20B: Drift, L=0.1;
+DCL1G6C20B: Drift, L=0.1;
+DFL1G1C21A: Drift, L=0.022;
+DL01G1C21A: Drift, L=2.66348;
+DL05G1C21A: Drift, L=2.79768;
+DFL2G1C21A: Drift, L=0.022;
+DCL1G2C21A: Drift, L=0.1;
+DCL2G2C21A: Drift, L=0.1;
+DFM1G4C21A: Drift, L=0.022;
+DCM1G4C21B: Drift, L=0.15;
+DCH2G6C21B: Drift, L=0.15;
+DCH1G6C21B: Drift, L=0.1;
+DFH1G1C22A: Drift, L=0.022;
+DH01G1C22A: Drift, L=4.1651;
+DH05G1C22A: Drift, L=4.29379;
+DFH2G1C22A: Drift, L=0.022;
+DCH2G2C22A: Drift, L=0.15;
+DCM1G4C22A: Drift, L=0.1;
+DFM1G4C22A: Drift, L=0.022;
+DCM1G4C22B: Drift, L=0.15;
+DCL2G6C22B: Drift, L=0.1;
+DCL1G6C22B: Drift, L=0.1;
+DFL1G1C23A: Drift, L=0.022;
+DL01G1C23A: Drift, L=0.45848;
+DL04G1C23A: Drift, L=0.205;
+DL05G1C23A: Drift, L=0.28;
+EPU49G1C23D: Drift, L=2;
+DL07G1C23A: Drift, L=0.51768;
+DFL2G1C23A: Drift, L=0.022;
+DCL1G2C23A: Drift, L=0.1;
+DCL2G2C23A: Drift, L=0.1;
+DFM1G4C23A: Drift, L=0.022;
+DCM1G4C23B: Drift, L=0.15;
+DM1DG5B2C23: Drift, L=0.075;
+DM1CG5B2C23: Drift, L=0.291;
+DCH2G6C23B: Drift, L=0.15;
+DCH1G6C23B: Drift, L=0.1;
+DFH1G1C24A: Drift, L=0.022;
+DH01G1C24A: Drift, L=4.1651;
+DH05G1C24A: Drift, L=4.29379;
+DFH2G1C24A: Drift, L=0.022;
+DCH2G2C24A: Drift, L=0.15;
+DCM1G4C24A: Drift, L=0.1;
+DFM1G4C24A: Drift, L=0.022;
+DCM1G4C24B: Drift, L=0.15;
+DCL2G6C24B: Drift, L=0.1;
+DCL1G6C24B: Drift, L=0.1;
+DFL1G1C25A: Drift, L=0.022;
+DL01G1C25A: Drift, L=2.66348;
+DL05G1C25A: Drift, L=2.79768;
+DFL2G1C25A: Drift, L=0.022;
+DCL1G2C25A: Drift, L=0.1;
+DCL2G2C25A: Drift, L=0.1;
+DFM1G4C25A: Drift, L=0.022;
+DCM1G4C25B: Drift, L=0.15;
+DCH2G6C25B: Drift, L=0.15;
+DCH1G6C25B: Drift, L=0.1;
+DFH1G1C26A: Drift, L=0.022;
+DH01G1C26A: Drift, L=4.1651;
+DH05G1C26A: Drift, L=4.29379;
+DFH2G1C26A: Drift, L=0.022;
+DCH2G2C26A: Drift, L=0.15;
+DCM1G4C26A: Drift, L=0.1;
+DFM1G4C26A: Drift, L=0.022;
+DCM1G4C26B: Drift, L=0.15;
+DCL2G6C26B: Drift, L=0.1;
+DCL1G6C26B: Drift, L=0.1;
+DFL1G1C27A: Drift, L=0.022;
+DL01G1C27A: Drift, L=2.66348;
+DL05G1C27A: Drift, L=2.79768;
+DFL2G1C27A: Drift, L=0.022;
+DCL1G2C27A: Drift, L=0.1;
+DCL2G2C27A: Drift, L=0.1;
+DFM1G4C27A: Drift, L=0.022;
+DCM1G4C27B: Drift, L=0.15;
+DCH2G6C27B: Drift, L=0.15;
+DCH1G6C27B: Drift, L=0.1;
+DFH1G1C28A: Drift, L=0.022;
+DH01G1C28A: Drift, L=0.50285;
+DH02G1C28A: Drift, L=0.07175;
+DW100G1C28U: Drift, L=3.4;
+DH04G1C28A: Drift, L=0.1905;
+DH05G1C28A: Drift, L=0.1905;
+DW100G1C28D: Drift, L=3.4;
+DH07G1C28A: Drift, L=0.0872;
+DH08G1C28A: Drift, L=0.61609;
+DFH2G1C28A: Drift, L=0.022;
+DCH2G2C28A: Drift, L=0.15;
+DCM1G4C28A: Drift, L=0.1;
+DFM1G4C28A: Drift, L=0.022;
+DCM1G4C28B: Drift, L=0.15;
+DCL2G6C28B: Drift, L=0.1;
+DCL1G6C28B: Drift, L=0.1;
+DFL1G1C29A: Drift, L=0.022;
+DL01G1C29A: Drift, L=2.66348;
+DL05G1C29A: Drift, L=2.79768;
+DFL2G1C29A: Drift, L=0.022;
+DCL1G2C29A: Drift, L=0.1;
+DCL2G2C29A: Drift, L=0.1;
+DFM1G4C29A: Drift, L=0.022;
+DCM1G4C29B: Drift, L=0.15;
+DCH2G6C29B: Drift, L=0.15;
+DCH1G6C29B: Drift, L=0.1;
+DFH1G1C30A: Drift, L=0.022;
+DH01G1C30A: Drift, L=4.1651;
+
+{***** Dipole *****}
+B1G3C30A: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B1G5C30B: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B1G3C01A: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B1G5C01B: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B1G3C02A: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B1G5C02B: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B2G3C03A: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B2G5C03B: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B1G3C04A: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B1G5C04B: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B1G3C05A: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B1G5C05B: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B1G3C06A: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B1G5C06B: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B1G3C07A: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B1G5C07B: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B1G3C08A: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B1G5C08B: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B1G3C09A: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B1G5C09B: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B1G3C10A: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B1G5C10B: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B1G3C11A: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B1G5C11B: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B1G3C12A: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B1G5C12B: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B2G3C13A: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B2G5C13B: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B1G3C14A: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B1G5C14B: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B1G3C15A: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B1G5C15B: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B1G3C16A: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B1G5C16B: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B1G3C17A: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B1G5C17B: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B1G3C18A: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B1G5C18B: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B1G3C19A: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B1G5C19B: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B1G3C20A: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B1G5C20B: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B1G3C21A: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B1G5C21B: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B1G3C22A: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B1G5C22B: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B2G3C23A: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B2G5C23B: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B1G3C24A: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B1G5C24B: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B1G3C25A: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B1G5C25B: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B1G3C26A: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B1G5C26B: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B1G3C27A: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B1G5C27B: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B1G3C28A: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B1G5C28B: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B1G3C29A: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+B1G5C29B: Bending, L = 2.62, T = 6.0000, T1 = 3.0, T2= 3.0, N = Nbend, Method = Meth;
+
+{***** Quadrupole *****}
+QH1G2C30A: Quadrupole, L = 0.275, K = -0.633004, N = Nquad, Method = Meth;
+SQHHG2C30A: Quadrupole, L = 0.1, K = 0, N = Nquad, Method = Meth;
+QH2G2C30A: Quadrupole, L = 0.448, K = 1.47765, N = Nquad, Method = Meth;
+QH3G2C30A: Quadrupole, L = 0.275, K = -1.70755, N = Nquad, Method = Meth;
+QM1G4C30A: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QM2G4C30A: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM2G4C30B: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM1G4C30B: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QL3G6C30B: Quadrupole, L = 0.275, K = -1.48928, N = Nquad, Method = Meth;
+QL2G6C30B: Quadrupole, L = 0.448, K = 1.81307, N = Nquad, Method = Meth;
+QL1G6C30B: Quadrupole, L = 0.275, K = -1.56216, N = Nquad, Method = Meth;
+QL1G2C01A: Quadrupole, L = 0.275, K = -1.56216, N = Nquad, Method = Meth;
+QL2G2C01A: Quadrupole, L = 0.448, K = 1.81307, N = Nquad, Method = Meth;
+QL3G2C01A: Quadrupole, L = 0.275, K = -1.48928, N = Nquad, Method = Meth;
+SQMHG4C01A: Quadrupole, L = 0.1, K = 0, N = Nquad, Method = Meth;
+QM1G4C01A: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QM2G4C01A: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM2G4C01B: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM1G4C01B: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QH3G6C01B: Quadrupole, L = 0.275, K = -1.70755, N = Nquad, Method = Meth;
+QH2G6C01B: Quadrupole, L = 0.448, K = 1.47765, N = Nquad, Method = Meth;
+QH1G6C01B: Quadrupole, L = 0.275, K = -0.633004, N = Nquad, Method = Meth;
+QH1G2C02A: Quadrupole, L = 0.275, K = -0.633004, N = Nquad, Method = Meth;
+SQHHG2C02A: Quadrupole, L = 0.1, K = 0, N = Nquad, Method = Meth;
+QH2G2C02A: Quadrupole, L = 0.448, K = 1.47765, N = Nquad, Method = Meth;
+QH3G2C02A: Quadrupole, L = 0.275, K = -1.70755, N = Nquad, Method = Meth;
+QM1G4C02A: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QM2G4C02A: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM2G4C02B: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM1G4C02B: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QL3G6C02B: Quadrupole, L = 0.275, K = -1.48928, N = Nquad, Method = Meth;
+QL2G6C02B: Quadrupole, L = 0.448, K = 1.81307, N = Nquad, Method = Meth;
+QL1G6C02B: Quadrupole, L = 0.275, K = -1.56216, N = Nquad, Method = Meth;
+QL1G2C03A: Quadrupole, L = 0.275, K = -1.56216, N = Nquad, Method = Meth;
+QL2G2C03A: Quadrupole, L = 0.448, K = 1.81307, N = Nquad, Method = Meth;
+QL3G2C03A: Quadrupole, L = 0.275, K = -1.48928, N = Nquad, Method = Meth;
+SQMHG4C03A: Quadrupole, L = 0.1, K = 0, N = Nquad, Method = Meth;
+QM1G4C03A: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QM2G4C03A: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM2G4C03B: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM1G4C03B: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QH3G6C03B: Quadrupole, L = 0.275, K = -1.70755, N = Nquad, Method = Meth;
+QH2G6C03B: Quadrupole, L = 0.448, K = 1.47765, N = Nquad, Method = Meth;
+QH1G6C03B: Quadrupole, L = 0.275, K = -0.633004, N = Nquad, Method = Meth;
+QH1G2C04A: Quadrupole, L = 0.275, K = -0.633004, N = Nquad, Method = Meth;
+SQHHG2C04A: Quadrupole, L = 0.1, K = 0, N = Nquad, Method = Meth;
+QH2G2C04A: Quadrupole, L = 0.448, K = 1.47765, N = Nquad, Method = Meth;
+QH3G2C04A: Quadrupole, L = 0.275, K = -1.70755, N = Nquad, Method = Meth;
+QM1G4C04A: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QM2G4C04A: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM2G4C04B: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM1G4C04B: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QL3G6C04B: Quadrupole, L = 0.275, K = -1.48928, N = Nquad, Method = Meth;
+QL2G6C04B: Quadrupole, L = 0.448, K = 1.81307, N = Nquad, Method = Meth;
+QL1G6C04B: Quadrupole, L = 0.275, K = -1.56216, N = Nquad, Method = Meth;
+QL1G2C05A: Quadrupole, L = 0.275, K = -1.56216, N = Nquad, Method = Meth;
+QL2G2C05A: Quadrupole, L = 0.448, K = 1.81307, N = Nquad, Method = Meth;
+QL3G2C05A: Quadrupole, L = 0.275, K = -1.48928, N = Nquad, Method = Meth;
+SQMHG4C05A: Quadrupole, L = 0.1, K = 0, N = Nquad, Method = Meth;
+QM1G4C05A: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QM2G4C05A: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM2G4C05B: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM1G4C05B: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QH3G6C05B: Quadrupole, L = 0.275, K = -1.70755, N = Nquad, Method = Meth;
+QH2G6C05B: Quadrupole, L = 0.448, K = 1.47765, N = Nquad, Method = Meth;
+QH1G6C05B: Quadrupole, L = 0.275, K = -0.633004, N = Nquad, Method = Meth;
+QH1G2C06A: Quadrupole, L = 0.275, K = -0.633004, N = Nquad, Method = Meth;
+SQHHG2C06A: Quadrupole, L = 0.1, K = 0, N = Nquad, Method = Meth;
+QH2G2C06A: Quadrupole, L = 0.448, K = 1.47765, N = Nquad, Method = Meth;
+QH3G2C06A: Quadrupole, L = 0.275, K = -1.70755, N = Nquad, Method = Meth;
+QM1G4C06A: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QM2G4C06A: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM2G4C06B: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM1G4C06B: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QL3G6C06B: Quadrupole, L = 0.275, K = -1.48928, N = Nquad, Method = Meth;
+QL2G6C06B: Quadrupole, L = 0.448, K = 1.81307, N = Nquad, Method = Meth;
+QL1G6C06B: Quadrupole, L = 0.275, K = -1.56216, N = Nquad, Method = Meth;
+QL1G2C07A: Quadrupole, L = 0.275, K = -1.56216, N = Nquad, Method = Meth;
+QL2G2C07A: Quadrupole, L = 0.448, K = 1.81307, N = Nquad, Method = Meth;
+QL3G2C07A: Quadrupole, L = 0.275, K = -1.48928, N = Nquad, Method = Meth;
+SQMHG4C07A: Quadrupole, L = 0.1, K = 0, N = Nquad, Method = Meth;
+QM1G4C07A: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QM2G4C07A: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM2G4C07B: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM1G4C07B: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QH3G6C07B: Quadrupole, L = 0.275, K = -1.70755, N = Nquad, Method = Meth;
+QH2G6C07B: Quadrupole, L = 0.448, K = 1.47765, N = Nquad, Method = Meth;
+QH1G6C07B: Quadrupole, L = 0.275, K = -0.633004, N = Nquad, Method = Meth;
+QH1G2C08A: Quadrupole, L = 0.275, K = -0.633004, N = Nquad, Method = Meth;
+SQHHG2C08A: Quadrupole, L = 0.1, K = 0, N = Nquad, Method = Meth;
+QH2G2C08A: Quadrupole, L = 0.448, K = 1.47765, N = Nquad, Method = Meth;
+QH3G2C08A: Quadrupole, L = 0.275, K = -1.70755, N = Nquad, Method = Meth;
+QM1G4C08A: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QM2G4C08A: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM2G4C08B: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM1G4C08B: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QL3G6C08B: Quadrupole, L = 0.275, K = -1.48928, N = Nquad, Method = Meth;
+QL2G6C08B: Quadrupole, L = 0.448, K = 1.81307, N = Nquad, Method = Meth;
+QL1G6C08B: Quadrupole, L = 0.275, K = -1.56216, N = Nquad, Method = Meth;
+QL1G2C09A: Quadrupole, L = 0.275, K = -1.56216, N = Nquad, Method = Meth;
+QL2G2C09A: Quadrupole, L = 0.448, K = 1.81307, N = Nquad, Method = Meth;
+QL3G2C09A: Quadrupole, L = 0.275, K = -1.48928, N = Nquad, Method = Meth;
+SQMHG4C09A: Quadrupole, L = 0.1, K = 0, N = Nquad, Method = Meth;
+QM1G4C09A: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QM2G4C09A: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM2G4C09B: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM1G4C09B: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QH3G6C09B: Quadrupole, L = 0.275, K = -1.70755, N = Nquad, Method = Meth;
+QH2G6C09B: Quadrupole, L = 0.448, K = 1.47765, N = Nquad, Method = Meth;
+QH1G6C09B: Quadrupole, L = 0.275, K = -0.633004, N = Nquad, Method = Meth;
+QH1G2C10A: Quadrupole, L = 0.275, K = -0.633004, N = Nquad, Method = Meth;
+SQHHG2C10A: Quadrupole, L = 0.1, K = 0, N = Nquad, Method = Meth;
+QH2G2C10A: Quadrupole, L = 0.448, K = 1.47765, N = Nquad, Method = Meth;
+QH3G2C10A: Quadrupole, L = 0.275, K = -1.70755, N = Nquad, Method = Meth;
+QM1G4C10A: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QM2G4C10A: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM2G4C10B: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM1G4C10B: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QL3G6C10B: Quadrupole, L = 0.275, K = -1.48928, N = Nquad, Method = Meth;
+QL2G6C10B: Quadrupole, L = 0.448, K = 1.81307, N = Nquad, Method = Meth;
+QL1G6C10B: Quadrupole, L = 0.275, K = -1.56216, N = Nquad, Method = Meth;
+QL1G2C11A: Quadrupole, L = 0.275, K = -1.56216, N = Nquad, Method = Meth;
+QL2G2C11A: Quadrupole, L = 0.448, K = 1.81307, N = Nquad, Method = Meth;
+QL3G2C11A: Quadrupole, L = 0.275, K = -1.48928, N = Nquad, Method = Meth;
+SQMHG4C11A: Quadrupole, L = 0.1, K = 0, N = Nquad, Method = Meth;
+QM1G4C11A: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QM2G4C11A: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM2G4C11B: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM1G4C11B: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QH3G6C11B: Quadrupole, L = 0.275, K = -1.70755, N = Nquad, Method = Meth;
+QH2G6C11B: Quadrupole, L = 0.448, K = 1.47765, N = Nquad, Method = Meth;
+QH1G6C11B: Quadrupole, L = 0.275, K = -0.633004, N = Nquad, Method = Meth;
+QH1G2C12A: Quadrupole, L = 0.275, K = -0.633004, N = Nquad, Method = Meth;
+SQHHG2C12A: Quadrupole, L = 0.1, K = 0, N = Nquad, Method = Meth;
+QH2G2C12A: Quadrupole, L = 0.448, K = 1.47765, N = Nquad, Method = Meth;
+QH3G2C12A: Quadrupole, L = 0.275, K = -1.70755, N = Nquad, Method = Meth;
+QM1G4C12A: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QM2G4C12A: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM2G4C12B: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM1G4C12B: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QL3G6C12B: Quadrupole, L = 0.275, K = -1.48928, N = Nquad, Method = Meth;
+QL2G6C12B: Quadrupole, L = 0.448, K = 1.81307, N = Nquad, Method = Meth;
+QL1G6C12B: Quadrupole, L = 0.275, K = -1.56216, N = Nquad, Method = Meth;
+QL1G2C13A: Quadrupole, L = 0.275, K = -1.56216, N = Nquad, Method = Meth;
+QL2G2C13A: Quadrupole, L = 0.448, K = 1.81307, N = Nquad, Method = Meth;
+QL3G2C13A: Quadrupole, L = 0.275, K = -1.48928, N = Nquad, Method = Meth;
+SQMHG4C13A: Quadrupole, L = 0.1, K = 0, N = Nquad, Method = Meth;
+QM1G4C13A: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QM2G4C13A: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM2G4C13B: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM1G4C13B: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QH3G6C13B: Quadrupole, L = 0.275, K = -1.70755, N = Nquad, Method = Meth;
+QH2G6C13B: Quadrupole, L = 0.448, K = 1.47765, N = Nquad, Method = Meth;
+QH1G6C13B: Quadrupole, L = 0.275, K = -0.633004, N = Nquad, Method = Meth;
+QH1G2C14A: Quadrupole, L = 0.275, K = -0.633004, N = Nquad, Method = Meth;
+SQHHG2C14A: Quadrupole, L = 0.1, K = 0, N = Nquad, Method = Meth;
+QH2G2C14A: Quadrupole, L = 0.448, K = 1.47765, N = Nquad, Method = Meth;
+QH3G2C14A: Quadrupole, L = 0.275, K = -1.70755, N = Nquad, Method = Meth;
+QM1G4C14A: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QM2G4C14A: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM2G4C14B: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM1G4C14B: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QL3G6C14B: Quadrupole, L = 0.275, K = -1.48928, N = Nquad, Method = Meth;
+QL2G6C14B: Quadrupole, L = 0.448, K = 1.81307, N = Nquad, Method = Meth;
+QL1G6C14B: Quadrupole, L = 0.275, K = -1.56216, N = Nquad, Method = Meth;
+QL1G2C15A: Quadrupole, L = 0.275, K = -1.56216, N = Nquad, Method = Meth;
+QL2G2C15A: Quadrupole, L = 0.448, K = 1.81307, N = Nquad, Method = Meth;
+QL3G2C15A: Quadrupole, L = 0.275, K = -1.48928, N = Nquad, Method = Meth;
+SQMHG4C15A: Quadrupole, L = 0.1, K = 0, N = Nquad, Method = Meth;
+QM1G4C15A: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QM2G4C15A: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM2G4C15B: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM1G4C15B: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QH3G6C15B: Quadrupole, L = 0.275, K = -1.70755, N = Nquad, Method = Meth;
+QH2G6C15B: Quadrupole, L = 0.448, K = 1.47765, N = Nquad, Method = Meth;
+QH1G6C15B: Quadrupole, L = 0.275, K = -0.633004, N = Nquad, Method = Meth;
+QH1G2C16A: Quadrupole, L = 0.275, K = -0.633004, N = Nquad, Method = Meth;
+SQHHG2C16A: Quadrupole, L = 0.1, K = 0, N = Nquad, Method = Meth;
+QH2G2C16A: Quadrupole, L = 0.448, K = 1.47765, N = Nquad, Method = Meth;
+QH3G2C16A: Quadrupole, L = 0.275, K = -1.70755, N = Nquad, Method = Meth;
+QM1G4C16A: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QM2G4C16A: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM2G4C16B: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM1G4C16B: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QL3G6C16B: Quadrupole, L = 0.275, K = -1.48928, N = Nquad, Method = Meth;
+QL2G6C16B: Quadrupole, L = 0.448, K = 1.81307, N = Nquad, Method = Meth;
+QL1G6C16B: Quadrupole, L = 0.275, K = -1.56216, N = Nquad, Method = Meth;
+QL1G2C17A: Quadrupole, L = 0.275, K = -1.56216, N = Nquad, Method = Meth;
+QL2G2C17A: Quadrupole, L = 0.448, K = 1.81307, N = Nquad, Method = Meth;
+QL3G2C17A: Quadrupole, L = 0.275, K = -1.48928, N = Nquad, Method = Meth;
+SQMHG4C17A: Quadrupole, L = 0.1, K = 0, N = Nquad, Method = Meth;
+QM1G4C17A: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QM2G4C17A: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM2G4C17B: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM1G4C17B: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QH3G6C17B: Quadrupole, L = 0.275, K = -1.70755, N = Nquad, Method = Meth;
+QH2G6C17B: Quadrupole, L = 0.448, K = 1.47765, N = Nquad, Method = Meth;
+QH1G6C17B: Quadrupole, L = 0.275, K = -0.633004, N = Nquad, Method = Meth;
+QH1G2C18A: Quadrupole, L = 0.275, K = -0.633004, N = Nquad, Method = Meth;
+SQHHG2C18A: Quadrupole, L = 0.1, K = 0, N = Nquad, Method = Meth;
+QH2G2C18A: Quadrupole, L = 0.448, K = 1.47765, N = Nquad, Method = Meth;
+QH3G2C18A: Quadrupole, L = 0.275, K = -1.70755, N = Nquad, Method = Meth;
+QM1G4C18A: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QM2G4C18A: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM2G4C18B: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM1G4C18B: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QL3G6C18B: Quadrupole, L = 0.275, K = -1.48928, N = Nquad, Method = Meth;
+QL2G6C18B: Quadrupole, L = 0.448, K = 1.81307, N = Nquad, Method = Meth;
+QL1G6C18B: Quadrupole, L = 0.275, K = -1.56216, N = Nquad, Method = Meth;
+QL1G2C19A: Quadrupole, L = 0.275, K = -1.56216, N = Nquad, Method = Meth;
+QL2G2C19A: Quadrupole, L = 0.448, K = 1.81307, N = Nquad, Method = Meth;
+QL3G2C19A: Quadrupole, L = 0.275, K = -1.48928, N = Nquad, Method = Meth;
+SQMHG4C19A: Quadrupole, L = 0.1, K = 0, N = Nquad, Method = Meth;
+QM1G4C19A: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QM2G4C19A: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM2G4C19B: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM1G4C19B: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QH3G6C19B: Quadrupole, L = 0.275, K = -1.70755, N = Nquad, Method = Meth;
+QH2G6C19B: Quadrupole, L = 0.448, K = 1.47765, N = Nquad, Method = Meth;
+QH1G6C19B: Quadrupole, L = 0.275, K = -0.633004, N = Nquad, Method = Meth;
+QH1G2C20A: Quadrupole, L = 0.275, K = -0.633004, N = Nquad, Method = Meth;
+SQHHG2C20A: Quadrupole, L = 0.1, K = 0, N = Nquad, Method = Meth;
+QH2G2C20A: Quadrupole, L = 0.448, K = 1.47765, N = Nquad, Method = Meth;
+QH3G2C20A: Quadrupole, L = 0.275, K = -1.70755, N = Nquad, Method = Meth;
+QM1G4C20A: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QM2G4C20A: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM2G4C20B: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM1G4C20B: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QL3G6C20B: Quadrupole, L = 0.275, K = -1.48928, N = Nquad, Method = Meth;
+QL2G6C20B: Quadrupole, L = 0.448, K = 1.81307, N = Nquad, Method = Meth;
+QL1G6C20B: Quadrupole, L = 0.275, K = -1.56216, N = Nquad, Method = Meth;
+QL1G2C21A: Quadrupole, L = 0.275, K = -1.56216, N = Nquad, Method = Meth;
+QL2G2C21A: Quadrupole, L = 0.448, K = 1.81307, N = Nquad, Method = Meth;
+QL3G2C21A: Quadrupole, L = 0.275, K = -1.48928, N = Nquad, Method = Meth;
+SQMHG4C21A: Quadrupole, L = 0.1, K = 0, N = Nquad, Method = Meth;
+QM1G4C21A: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QM2G4C21A: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM2G4C21B: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM1G4C21B: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QH3G6C21B: Quadrupole, L = 0.275, K = -1.70755, N = Nquad, Method = Meth;
+QH2G6C21B: Quadrupole, L = 0.448, K = 1.47765, N = Nquad, Method = Meth;
+QH1G6C21B: Quadrupole, L = 0.275, K = -0.633004, N = Nquad, Method = Meth;
+QH1G2C22A: Quadrupole, L = 0.275, K = -0.633004, N = Nquad, Method = Meth;
+SQHHG2C22A: Quadrupole, L = 0.1, K = 0, N = Nquad, Method = Meth;
+QH2G2C22A: Quadrupole, L = 0.448, K = 1.47765, N = Nquad, Method = Meth;
+QH3G2C22A: Quadrupole, L = 0.275, K = -1.70755, N = Nquad, Method = Meth;
+QM1G4C22A: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QM2G4C22A: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM2G4C22B: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM1G4C22B: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QL3G6C22B: Quadrupole, L = 0.275, K = -1.48928, N = Nquad, Method = Meth;
+QL2G6C22B: Quadrupole, L = 0.448, K = 1.81307, N = Nquad, Method = Meth;
+QL1G6C22B: Quadrupole, L = 0.275, K = -1.56216, N = Nquad, Method = Meth;
+QL1G2C23A: Quadrupole, L = 0.275, K = -1.56216, N = Nquad, Method = Meth;
+QL2G2C23A: Quadrupole, L = 0.448, K = 1.81307, N = Nquad, Method = Meth;
+QL3G2C23A: Quadrupole, L = 0.275, K = -1.48928, N = Nquad, Method = Meth;
+SQMHG4C23A: Quadrupole, L = 0.1, K = 0, N = Nquad, Method = Meth;
+QM1G4C23A: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QM2G4C23A: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM2G4C23B: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM1G4C23B: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QH3G6C23B: Quadrupole, L = 0.275, K = -1.70755, N = Nquad, Method = Meth;
+QH2G6C23B: Quadrupole, L = 0.448, K = 1.47765, N = Nquad, Method = Meth;
+QH1G6C23B: Quadrupole, L = 0.275, K = -0.633004, N = Nquad, Method = Meth;
+QH1G2C24A: Quadrupole, L = 0.275, K = -0.633004, N = Nquad, Method = Meth;
+SQHHG2C24A: Quadrupole, L = 0.1, K = 0, N = Nquad, Method = Meth;
+QH2G2C24A: Quadrupole, L = 0.448, K = 1.47765, N = Nquad, Method = Meth;
+QH3G2C24A: Quadrupole, L = 0.275, K = -1.70755, N = Nquad, Method = Meth;
+QM1G4C24A: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QM2G4C24A: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM2G4C24B: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM1G4C24B: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QL3G6C24B: Quadrupole, L = 0.275, K = -1.48928, N = Nquad, Method = Meth;
+QL2G6C24B: Quadrupole, L = 0.448, K = 1.81307, N = Nquad, Method = Meth;
+QL1G6C24B: Quadrupole, L = 0.275, K = -1.56216, N = Nquad, Method = Meth;
+QL1G2C25A: Quadrupole, L = 0.275, K = -1.56216, N = Nquad, Method = Meth;
+QL2G2C25A: Quadrupole, L = 0.448, K = 1.81307, N = Nquad, Method = Meth;
+QL3G2C25A: Quadrupole, L = 0.275, K = -1.48928, N = Nquad, Method = Meth;
+SQMHG4C25A: Quadrupole, L = 0.1, K = 0, N = Nquad, Method = Meth;
+QM1G4C25A: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QM2G4C25A: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM2G4C25B: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM1G4C25B: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QH3G6C25B: Quadrupole, L = 0.275, K = -1.70755, N = Nquad, Method = Meth;
+QH2G6C25B: Quadrupole, L = 0.448, K = 1.47765, N = Nquad, Method = Meth;
+QH1G6C25B: Quadrupole, L = 0.275, K = -0.633004, N = Nquad, Method = Meth;
+QH1G2C26A: Quadrupole, L = 0.275, K = -0.633004, N = Nquad, Method = Meth;
+SQHHG2C26A: Quadrupole, L = 0.1, K = 0, N = Nquad, Method = Meth;
+QH2G2C26A: Quadrupole, L = 0.448, K = 1.47765, N = Nquad, Method = Meth;
+QH3G2C26A: Quadrupole, L = 0.275, K = -1.70755, N = Nquad, Method = Meth;
+QM1G4C26A: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QM2G4C26A: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM2G4C26B: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM1G4C26B: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QL3G6C26B: Quadrupole, L = 0.275, K = -1.48928, N = Nquad, Method = Meth;
+QL2G6C26B: Quadrupole, L = 0.448, K = 1.81307, N = Nquad, Method = Meth;
+QL1G6C26B: Quadrupole, L = 0.275, K = -1.56216, N = Nquad, Method = Meth;
+QL1G2C27A: Quadrupole, L = 0.275, K = -1.56216, N = Nquad, Method = Meth;
+QL2G2C27A: Quadrupole, L = 0.448, K = 1.81307, N = Nquad, Method = Meth;
+QL3G2C27A: Quadrupole, L = 0.275, K = -1.48928, N = Nquad, Method = Meth;
+SQMHG4C27A: Quadrupole, L = 0.1, K = 0, N = Nquad, Method = Meth;
+QM1G4C27A: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QM2G4C27A: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM2G4C27B: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM1G4C27B: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QH3G6C27B: Quadrupole, L = 0.275, K = -1.70755, N = Nquad, Method = Meth;
+QH2G6C27B: Quadrupole, L = 0.448, K = 1.47765, N = Nquad, Method = Meth;
+QH1G6C27B: Quadrupole, L = 0.275, K = -0.633004, N = Nquad, Method = Meth;
+QH1G2C28A: Quadrupole, L = 0.275, K = -0.633004, N = Nquad, Method = Meth;
+SQHHG2C28A: Quadrupole, L = 0.1, K = 0, N = Nquad, Method = Meth;
+QH2G2C28A: Quadrupole, L = 0.448, K = 1.47765, N = Nquad, Method = Meth;
+QH3G2C28A: Quadrupole, L = 0.275, K = -1.70755, N = Nquad, Method = Meth;
+QM1G4C28A: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QM2G4C28A: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM2G4C28B: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM1G4C28B: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QL3G6C28B: Quadrupole, L = 0.275, K = -1.48928, N = Nquad, Method = Meth;
+QL2G6C28B: Quadrupole, L = 0.448, K = 1.81307, N = Nquad, Method = Meth;
+QL1G6C28B: Quadrupole, L = 0.275, K = -1.56216, N = Nquad, Method = Meth;
+QL1G2C29A: Quadrupole, L = 0.275, K = -1.56216, N = Nquad, Method = Meth;
+QL2G2C29A: Quadrupole, L = 0.448, K = 1.81307, N = Nquad, Method = Meth;
+QL3G2C29A: Quadrupole, L = 0.275, K = -1.48928, N = Nquad, Method = Meth;
+SQMHG4C29A: Quadrupole, L = 0.1, K = 0, N = Nquad, Method = Meth;
+QM1G4C29A: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QM2G4C29A: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM2G4C29B: Quadrupole, L = 0.283, K = 1.2223, N = Nquad, Method = Meth;
+QM1G4C29B: Quadrupole, L = 0.25, K = -0.803148, N = Nquad, Method = Meth;
+QH3G6C29B: Quadrupole, L = 0.275, K = -1.70755, N = Nquad, Method = Meth;
+QH2G6C29B: Quadrupole, L = 0.448, K = 1.47765, N = Nquad, Method = Meth;
+QH1G6C29B: Quadrupole, L = 0.275, K = -0.633004, N = Nquad, Method = Meth;
+
+{***** Sextupole *****}
+SH1G2C30A: Sextupole, L = 0.2, K = 12.098850, N = Nsext, Method = Meth;
+SH3G2C30A: Sextupole, L = 0.2, K = -2.0778500, N = Nsext, Method = Meth;
+SH4G2C30A: Sextupole, L = 0.2, K = -10.243450, N = Nsext, Method = Meth;
+SM1G4C30A: Sextupole, L = 0.2, K = -12.065500, N = Nsext, Method = Meth;
+SM2G4C30B: Sextupole, L = 0.25, K = 14.357850, N = Nsext, Method = Meth;
+SM1G4C30B: Sextupole, L = 0.2, K = -13.047450, N = Nsext, Method = Meth;
+SL3G6C30B: Sextupole, L = 0.2, K = -14.130900, N = Nsext, Method = Meth;
+SL2G6C30B: Sextupole, L = 0.2, K = 12.984100, N = Nsext, Method = Meth;
+SL1G6C30B: Sextupole, L = 0.2, K = -0.97877000, N = Nsext, Method = Meth;
+SL1G2C01A: Sextupole, L = 0.2, K = -0.97877000, N = Nsext, Method = Meth;
+SL2G2C01A: Sextupole, L = 0.2, K = 12.984100, N = Nsext, Method = Meth;
+SL3G2C01A: Sextupole, L = 0.2, K = -14.130900, N = Nsext, Method = Meth;
+SM1G4C01A: Sextupole, L = 0.2, K = -12.065500, N = Nsext, Method = Meth;
+SM2G4C01B: Sextupole, L = 0.25, K = 14.357850, N = Nsext, Method = Meth;
+SM1G4C01B: Sextupole, L = 0.2, K = -13.047450, N = Nsext, Method = Meth;
+SH4G6C01B: Sextupole, L = 0.2, K = -10.243450, N = Nsext, Method = Meth;
+SH3G6C01B: Sextupole, L = 0.2, K = -2.0778500, N = Nsext, Method = Meth;
+SH1G6C01B: Sextupole, L = 0.2, K = 12.098850, N = Nsext, Method = Meth;
+SH1G2C02A: Sextupole, L = 0.2, K = 12.098850, N = Nsext, Method = Meth;
+SH3G2C02A: Sextupole, L = 0.2, K = -2.0778500, N = Nsext, Method = Meth;
+SH4G2C02A: Sextupole, L = 0.2, K = -10.243450, N = Nsext, Method = Meth;
+SM1G4C02A: Sextupole, L = 0.2, K = -12.065500, N = Nsext, Method = Meth;
+SM2G4C02B: Sextupole, L = 0.25, K = 14.357850, N = Nsext, Method = Meth;
+SM1G4C02B: Sextupole, L = 0.2, K = -13.047450, N = Nsext, Method = Meth;
+SL3G6C02B: Sextupole, L = 0.2, K = -14.130900, N = Nsext, Method = Meth;
+SL2G6C02B: Sextupole, L = 0.2, K = 12.984100, N = Nsext, Method = Meth;
+SL1G6C02B: Sextupole, L = 0.2, K = -0.97877000, N = Nsext, Method = Meth;
+SL1G2C03A: Sextupole, L = 0.2, K = -0.97877000, N = Nsext, Method = Meth;
+SL2G2C03A: Sextupole, L = 0.2, K = 12.984100, N = Nsext, Method = Meth;
+SL3G2C03A: Sextupole, L = 0.2, K = -14.130900, N = Nsext, Method = Meth;
+SM1G4C03A: Sextupole, L = 0.2, K = -12.065500, N = Nsext, Method = Meth;
+SM2G4C03B: Sextupole, L = 0.25, K = 14.357850, N = Nsext, Method = Meth;
+SM1G4C03B: Sextupole, L = 0.2, K = -13.047450, N = Nsext, Method = Meth;
+SH4G6C03B: Sextupole, L = 0.2, K = -10.243450, N = Nsext, Method = Meth;
+SH3G6C03B: Sextupole, L = 0.2, K = -2.0778500, N = Nsext, Method = Meth;
+SH1G6C03B: Sextupole, L = 0.2, K = 12.098850, N = Nsext, Method = Meth;
+SH1G2C04A: Sextupole, L = 0.2, K = 12.098850, N = Nsext, Method = Meth;
+SH3G2C04A: Sextupole, L = 0.2, K = -2.0778500, N = Nsext, Method = Meth;
+SH4G2C04A: Sextupole, L = 0.2, K = -10.243450, N = Nsext, Method = Meth;
+SM1G4C04A: Sextupole, L = 0.2, K = -12.065500, N = Nsext, Method = Meth;
+SM2G4C04B: Sextupole, L = 0.25, K = 14.357850, N = Nsext, Method = Meth;
+SM1G4C04B: Sextupole, L = 0.2, K = -13.047450, N = Nsext, Method = Meth;
+SL3G6C04B: Sextupole, L = 0.2, K = -14.130900, N = Nsext, Method = Meth;
+SL2G6C04B: Sextupole, L = 0.2, K = 12.984100, N = Nsext, Method = Meth;
+SL1G6C04B: Sextupole, L = 0.2, K = -0.97877000, N = Nsext, Method = Meth;
+SL1G2C05A: Sextupole, L = 0.2, K = -0.97877000, N = Nsext, Method = Meth;
+SL2G2C05A: Sextupole, L = 0.2, K = 12.984100, N = Nsext, Method = Meth;
+SL3G2C05A: Sextupole, L = 0.2, K = -14.130900, N = Nsext, Method = Meth;
+SM1G4C05A: Sextupole, L = 0.2, K = -12.065500, N = Nsext, Method = Meth;
+SM2G4C05B: Sextupole, L = 0.25, K = 14.357850, N = Nsext, Method = Meth;
+SM1G4C05B: Sextupole, L = 0.2, K = -13.047450, N = Nsext, Method = Meth;
+SH4G6C05B: Sextupole, L = 0.2, K = -10.243450, N = Nsext, Method = Meth;
+SH3G6C05B: Sextupole, L = 0.2, K = -2.0778500, N = Nsext, Method = Meth;
+SH1G6C05B: Sextupole, L = 0.2, K = 12.098850, N = Nsext, Method = Meth;
+SH1G2C06A: Sextupole, L = 0.2, K = 12.098850, N = Nsext, Method = Meth;
+SH3G2C06A: Sextupole, L = 0.2, K = -2.0778500, N = Nsext, Method = Meth;
+SH4G2C06A: Sextupole, L = 0.2, K = -10.243450, N = Nsext, Method = Meth;
+SM1G4C06A: Sextupole, L = 0.2, K = -12.065500, N = Nsext, Method = Meth;
+SM2G4C06B: Sextupole, L = 0.25, K = 14.357850, N = Nsext, Method = Meth;
+SM1G4C06B: Sextupole, L = 0.2, K = -13.047450, N = Nsext, Method = Meth;
+SL3G6C06B: Sextupole, L = 0.2, K = -14.130900, N = Nsext, Method = Meth;
+SL2G6C06B: Sextupole, L = 0.2, K = 12.984100, N = Nsext, Method = Meth;
+SL1G6C06B: Sextupole, L = 0.2, K = -0.97877000, N = Nsext, Method = Meth;
+SL1G2C07A: Sextupole, L = 0.2, K = -0.97877000, N = Nsext, Method = Meth;
+SL2G2C07A: Sextupole, L = 0.2, K = 12.984100, N = Nsext, Method = Meth;
+SL3G2C07A: Sextupole, L = 0.2, K = -14.130900, N = Nsext, Method = Meth;
+SM1G4C07A: Sextupole, L = 0.2, K = -12.065500, N = Nsext, Method = Meth;
+SM2G4C07B: Sextupole, L = 0.25, K = 14.357850, N = Nsext, Method = Meth;
+SM1G4C07B: Sextupole, L = 0.2, K = -13.047450, N = Nsext, Method = Meth;
+SH4G6C07B: Sextupole, L = 0.2, K = -10.243450, N = Nsext, Method = Meth;
+SH3G6C07B: Sextupole, L = 0.2, K = -2.0778500, N = Nsext, Method = Meth;
+SH1G6C07B: Sextupole, L = 0.2, K = 12.098850, N = Nsext, Method = Meth;
+SH1G2C08A: Sextupole, L = 0.2, K = 12.098850, N = Nsext, Method = Meth;
+SH3G2C08A: Sextupole, L = 0.2, K = -2.0778500, N = Nsext, Method = Meth;
+SH4G2C08A: Sextupole, L = 0.2, K = -10.243450, N = Nsext, Method = Meth;
+SM1G4C08A: Sextupole, L = 0.2, K = -12.065500, N = Nsext, Method = Meth;
+SM2G4C08B: Sextupole, L = 0.25, K = 14.357850, N = Nsext, Method = Meth;
+SM1G4C08B: Sextupole, L = 0.2, K = -13.047450, N = Nsext, Method = Meth;
+SL3G6C08B: Sextupole, L = 0.2, K = -14.130900, N = Nsext, Method = Meth;
+SL2G6C08B: Sextupole, L = 0.2, K = 12.984100, N = Nsext, Method = Meth;
+SL1G6C08B: Sextupole, L = 0.2, K = -0.97877000, N = Nsext, Method = Meth;
+SL1G2C09A: Sextupole, L = 0.2, K = -0.97877000, N = Nsext, Method = Meth;
+SL2G2C09A: Sextupole, L = 0.2, K = 12.984100, N = Nsext, Method = Meth;
+SL3G2C09A: Sextupole, L = 0.2, K = -14.130900, N = Nsext, Method = Meth;
+SM1G4C09A: Sextupole, L = 0.2, K = -12.065500, N = Nsext, Method = Meth;
+SM2G4C09B: Sextupole, L = 0.25, K = 14.357850, N = Nsext, Method = Meth;
+SM1G4C09B: Sextupole, L = 0.2, K = -13.047450, N = Nsext, Method = Meth;
+SH4G6C09B: Sextupole, L = 0.2, K = -10.243450, N = Nsext, Method = Meth;
+SH3G6C09B: Sextupole, L = 0.2, K = -2.0778500, N = Nsext, Method = Meth;
+SH1G6C09B: Sextupole, L = 0.2, K = 12.098850, N = Nsext, Method = Meth;
+SH1G2C10A: Sextupole, L = 0.2, K = 12.098850, N = Nsext, Method = Meth;
+SH3G2C10A: Sextupole, L = 0.2, K = -2.0778500, N = Nsext, Method = Meth;
+SH4G2C10A: Sextupole, L = 0.2, K = -10.243450, N = Nsext, Method = Meth;
+SM1G4C10A: Sextupole, L = 0.2, K = -12.065500, N = Nsext, Method = Meth;
+SM2G4C10B: Sextupole, L = 0.25, K = 14.357850, N = Nsext, Method = Meth;
+SM1G4C10B: Sextupole, L = 0.2, K = -13.047450, N = Nsext, Method = Meth;
+SL3G6C10B: Sextupole, L = 0.2, K = -14.130900, N = Nsext, Method = Meth;
+SL2G6C10B: Sextupole, L = 0.2, K = 12.984100, N = Nsext, Method = Meth;
+SL1G6C10B: Sextupole, L = 0.2, K = -0.97877000, N = Nsext, Method = Meth;
+SL1G2C11A: Sextupole, L = 0.2, K = -0.97877000, N = Nsext, Method = Meth;
+SL2G2C11A: Sextupole, L = 0.2, K = 12.984100, N = Nsext, Method = Meth;
+SL3G2C11A: Sextupole, L = 0.2, K = -14.130900, N = Nsext, Method = Meth;
+SM1G4C11A: Sextupole, L = 0.2, K = -12.065500, N = Nsext, Method = Meth;
+SM2G4C11B: Sextupole, L = 0.25, K = 14.357850, N = Nsext, Method = Meth;
+SM1G4C11B: Sextupole, L = 0.2, K = -13.047450, N = Nsext, Method = Meth;
+SH4G6C11B: Sextupole, L = 0.2, K = -10.243450, N = Nsext, Method = Meth;
+SH3G6C11B: Sextupole, L = 0.2, K = -2.0778500, N = Nsext, Method = Meth;
+SH1G6C11B: Sextupole, L = 0.2, K = 12.098850, N = Nsext, Method = Meth;
+SH1G2C12A: Sextupole, L = 0.2, K = 12.098850, N = Nsext, Method = Meth;
+SH3G2C12A: Sextupole, L = 0.2, K = -2.0778500, N = Nsext, Method = Meth;
+SH4G2C12A: Sextupole, L = 0.2, K = -10.243450, N = Nsext, Method = Meth;
+SM1G4C12A: Sextupole, L = 0.2, K = -12.065500, N = Nsext, Method = Meth;
+SM2G4C12B: Sextupole, L = 0.25, K = 14.357850, N = Nsext, Method = Meth;
+SM1G4C12B: Sextupole, L = 0.2, K = -13.047450, N = Nsext, Method = Meth;
+SL3G6C12B: Sextupole, L = 0.2, K = -14.130900, N = Nsext, Method = Meth;
+SL2G6C12B: Sextupole, L = 0.2, K = 12.984100, N = Nsext, Method = Meth;
+SL1G6C12B: Sextupole, L = 0.2, K = -0.97877000, N = Nsext, Method = Meth;
+SL1G2C13A: Sextupole, L = 0.2, K = -0.97877000, N = Nsext, Method = Meth;
+SL2G2C13A: Sextupole, L = 0.2, K = 12.984100, N = Nsext, Method = Meth;
+SL3G2C13A: Sextupole, L = 0.2, K = -14.130900, N = Nsext, Method = Meth;
+SM1G4C13A: Sextupole, L = 0.2, K = -12.065500, N = Nsext, Method = Meth;
+SM2G4C13B: Sextupole, L = 0.25, K = 14.357850, N = Nsext, Method = Meth;
+SM1G4C13B: Sextupole, L = 0.2, K = -13.047450, N = Nsext, Method = Meth;
+SH4G6C13B: Sextupole, L = 0.2, K = -10.243450, N = Nsext, Method = Meth;
+SH3G6C13B: Sextupole, L = 0.2, K = -2.0778500, N = Nsext, Method = Meth;
+SH1G6C13B: Sextupole, L = 0.2, K = 12.098850, N = Nsext, Method = Meth;
+SH1G2C14A: Sextupole, L = 0.2, K = 12.098850, N = Nsext, Method = Meth;
+SH3G2C14A: Sextupole, L = 0.2, K = -2.0778500, N = Nsext, Method = Meth;
+SH4G2C14A: Sextupole, L = 0.2, K = -10.243450, N = Nsext, Method = Meth;
+SM1G4C14A: Sextupole, L = 0.2, K = -12.065500, N = Nsext, Method = Meth;
+SM2G4C14B: Sextupole, L = 0.25, K = 14.357850, N = Nsext, Method = Meth;
+SM1G4C14B: Sextupole, L = 0.2, K = -13.047450, N = Nsext, Method = Meth;
+SL3G6C14B: Sextupole, L = 0.2, K = -14.130900, N = Nsext, Method = Meth;
+SL2G6C14B: Sextupole, L = 0.2, K = 12.984100, N = Nsext, Method = Meth;
+SL1G6C14B: Sextupole, L = 0.2, K = -0.97877000, N = Nsext, Method = Meth;
+SL1G2C15A: Sextupole, L = 0.2, K = -0.97877000, N = Nsext, Method = Meth;
+SL2G2C15A: Sextupole, L = 0.2, K = 12.984100, N = Nsext, Method = Meth;
+SL3G2C15A: Sextupole, L = 0.2, K = -14.130900, N = Nsext, Method = Meth;
+SM1G4C15A: Sextupole, L = 0.2, K = -12.065500, N = Nsext, Method = Meth;
+SM2G4C15B: Sextupole, L = 0.25, K = 14.357850, N = Nsext, Method = Meth;
+SM1G4C15B: Sextupole, L = 0.2, K = -13.047450, N = Nsext, Method = Meth;
+SH4G6C15B: Sextupole, L = 0.2, K = -10.243450, N = Nsext, Method = Meth;
+SH3G6C15B: Sextupole, L = 0.2, K = -2.0778500, N = Nsext, Method = Meth;
+SH1G6C15B: Sextupole, L = 0.2, K = 12.098850, N = Nsext, Method = Meth;
+SH1G2C16A: Sextupole, L = 0.2, K = 12.098850, N = Nsext, Method = Meth;
+SH3G2C16A: Sextupole, L = 0.2, K = -2.0778500, N = Nsext, Method = Meth;
+SH4G2C16A: Sextupole, L = 0.2, K = -10.243450, N = Nsext, Method = Meth;
+SM1G4C16A: Sextupole, L = 0.2, K = -12.065500, N = Nsext, Method = Meth;
+SM2G4C16B: Sextupole, L = 0.25, K = 14.357850, N = Nsext, Method = Meth;
+SM1G4C16B: Sextupole, L = 0.2, K = -13.047450, N = Nsext, Method = Meth;
+SL3G6C16B: Sextupole, L = 0.2, K = -14.130900, N = Nsext, Method = Meth;
+SL2G6C16B: Sextupole, L = 0.2, K = 12.984100, N = Nsext, Method = Meth;
+SL1G6C16B: Sextupole, L = 0.2, K = -0.97877000, N = Nsext, Method = Meth;
+SL1G2C17A: Sextupole, L = 0.2, K = -0.97877000, N = Nsext, Method = Meth;
+SL2G2C17A: Sextupole, L = 0.2, K = 12.984100, N = Nsext, Method = Meth;
+SL3G2C17A: Sextupole, L = 0.2, K = -14.130900, N = Nsext, Method = Meth;
+SM1G4C17A: Sextupole, L = 0.2, K = -12.065500, N = Nsext, Method = Meth;
+SM2G4C17B: Sextupole, L = 0.25, K = 14.357850, N = Nsext, Method = Meth;
+SM1G4C17B: Sextupole, L = 0.2, K = -13.047450, N = Nsext, Method = Meth;
+SH4G6C17B: Sextupole, L = 0.2, K = -10.243450, N = Nsext, Method = Meth;
+SH3G6C17B: Sextupole, L = 0.2, K = -2.0778500, N = Nsext, Method = Meth;
+SH1G6C17B: Sextupole, L = 0.2, K = 12.098850, N = Nsext, Method = Meth;
+SH1G2C18A: Sextupole, L = 0.2, K = 12.098850, N = Nsext, Method = Meth;
+SH3G2C18A: Sextupole, L = 0.2, K = -2.0778500, N = Nsext, Method = Meth;
+SH4G2C18A: Sextupole, L = 0.2, K = -10.243450, N = Nsext, Method = Meth;
+SM1G4C18A: Sextupole, L = 0.2, K = -12.065500, N = Nsext, Method = Meth;
+SM2G4C18B: Sextupole, L = 0.25, K = 14.357850, N = Nsext, Method = Meth;
+SM1G4C18B: Sextupole, L = 0.2, K = -13.047450, N = Nsext, Method = Meth;
+SL3G6C18B: Sextupole, L = 0.2, K = -14.130900, N = Nsext, Method = Meth;
+SL2G6C18B: Sextupole, L = 0.2, K = 12.984100, N = Nsext, Method = Meth;
+SL1G6C18B: Sextupole, L = 0.2, K = -0.97877000, N = Nsext, Method = Meth;
+SL1G2C19A: Sextupole, L = 0.2, K = -0.97877000, N = Nsext, Method = Meth;
+SL2G2C19A: Sextupole, L = 0.2, K = 12.984100, N = Nsext, Method = Meth;
+SL3G2C19A: Sextupole, L = 0.2, K = -14.130900, N = Nsext, Method = Meth;
+SM1G4C19A: Sextupole, L = 0.2, K = -12.065500, N = Nsext, Method = Meth;
+SM2G4C19B: Sextupole, L = 0.25, K = 14.357850, N = Nsext, Method = Meth;
+SM1G4C19B: Sextupole, L = 0.2, K = -13.047450, N = Nsext, Method = Meth;
+SH4G6C19B: Sextupole, L = 0.2, K = -10.243450, N = Nsext, Method = Meth;
+SH3G6C19B: Sextupole, L = 0.2, K = -2.0778500, N = Nsext, Method = Meth;
+SH1G6C19B: Sextupole, L = 0.2, K = 12.098850, N = Nsext, Method = Meth;
+SH1G2C20A: Sextupole, L = 0.2, K = 12.098850, N = Nsext, Method = Meth;
+SH3G2C20A: Sextupole, L = 0.2, K = -2.0778500, N = Nsext, Method = Meth;
+SH4G2C20A: Sextupole, L = 0.2, K = -10.243450, N = Nsext, Method = Meth;
+SM1G4C20A: Sextupole, L = 0.2, K = -12.065500, N = Nsext, Method = Meth;
+SM2G4C20B: Sextupole, L = 0.25, K = 14.357850, N = Nsext, Method = Meth;
+SM1G4C20B: Sextupole, L = 0.2, K = -13.047450, N = Nsext, Method = Meth;
+SL3G6C20B: Sextupole, L = 0.2, K = -14.130900, N = Nsext, Method = Meth;
+SL2G6C20B: Sextupole, L = 0.2, K = 12.984100, N = Nsext, Method = Meth;
+SL1G6C20B: Sextupole, L = 0.2, K = -0.97877000, N = Nsext, Method = Meth;
+SL1G2C21A: Sextupole, L = 0.2, K = -0.97877000, N = Nsext, Method = Meth;
+SL2G2C21A: Sextupole, L = 0.2, K = 12.984100, N = Nsext, Method = Meth;
+SL3G2C21A: Sextupole, L = 0.2, K = -14.130900, N = Nsext, Method = Meth;
+SM1G4C21A: Sextupole, L = 0.2, K = -12.065500, N = Nsext, Method = Meth;
+SM2G4C21B: Sextupole, L = 0.25, K = 14.357850, N = Nsext, Method = Meth;
+SM1G4C21B: Sextupole, L = 0.2, K = -13.047450, N = Nsext, Method = Meth;
+SH4G6C21B: Sextupole, L = 0.2, K = -10.243450, N = Nsext, Method = Meth;
+SH3G6C21B: Sextupole, L = 0.2, K = -2.0778500, N = Nsext, Method = Meth;
+SH1G6C21B: Sextupole, L = 0.2, K = 12.098850, N = Nsext, Method = Meth;
+SH1G2C22A: Sextupole, L = 0.2, K = 12.098850, N = Nsext, Method = Meth;
+SH3G2C22A: Sextupole, L = 0.2, K = -2.0778500, N = Nsext, Method = Meth;
+SH4G2C22A: Sextupole, L = 0.2, K = -10.243450, N = Nsext, Method = Meth;
+SM1G4C22A: Sextupole, L = 0.2, K = -12.065500, N = Nsext, Method = Meth;
+SM2G4C22B: Sextupole, L = 0.25, K = 14.357850, N = Nsext, Method = Meth;
+SM1G4C22B: Sextupole, L = 0.2, K = -13.047450, N = Nsext, Method = Meth;
+SL3G6C22B: Sextupole, L = 0.2, K = -14.130900, N = Nsext, Method = Meth;
+SL2G6C22B: Sextupole, L = 0.2, K = 12.984100, N = Nsext, Method = Meth;
+SL1G6C22B: Sextupole, L = 0.2, K = -0.97877000, N = Nsext, Method = Meth;
+SL1G2C23A: Sextupole, L = 0.2, K = -0.97877000, N = Nsext, Method = Meth;
+SL2G2C23A: Sextupole, L = 0.2, K = 12.984100, N = Nsext, Method = Meth;
+SL3G2C23A: Sextupole, L = 0.2, K = -14.130900, N = Nsext, Method = Meth;
+SM1G4C23A: Sextupole, L = 0.2, K = -12.065500, N = Nsext, Method = Meth;
+SM2G4C23B: Sextupole, L = 0.25, K = 14.357850, N = Nsext, Method = Meth;
+SM1G4C23B: Sextupole, L = 0.2, K = -13.047450, N = Nsext, Method = Meth;
+SH4G6C23B: Sextupole, L = 0.2, K = -10.243450, N = Nsext, Method = Meth;
+SH3G6C23B: Sextupole, L = 0.2, K = -2.0778500, N = Nsext, Method = Meth;
+SH1G6C23B: Sextupole, L = 0.2, K = 12.098850, N = Nsext, Method = Meth;
+SH1G2C24A: Sextupole, L = 0.2, K = 12.098850, N = Nsext, Method = Meth;
+SH3G2C24A: Sextupole, L = 0.2, K = -2.0778500, N = Nsext, Method = Meth;
+SH4G2C24A: Sextupole, L = 0.2, K = -10.243450, N = Nsext, Method = Meth;
+SM1G4C24A: Sextupole, L = 0.2, K = -12.065500, N = Nsext, Method = Meth;
+SM2G4C24B: Sextupole, L = 0.25, K = 14.357850, N = Nsext, Method = Meth;
+SM1G4C24B: Sextupole, L = 0.2, K = -13.047450, N = Nsext, Method = Meth;
+SL3G6C24B: Sextupole, L = 0.2, K = -14.130900, N = Nsext, Method = Meth;
+SL2G6C24B: Sextupole, L = 0.2, K = 12.984100, N = Nsext, Method = Meth;
+SL1G6C24B: Sextupole, L = 0.2, K = -0.97877000, N = Nsext, Method = Meth;
+SL1G2C25A: Sextupole, L = 0.2, K = -0.97877000, N = Nsext, Method = Meth;
+SL2G2C25A: Sextupole, L = 0.2, K = 12.984100, N = Nsext, Method = Meth;
+SL3G2C25A: Sextupole, L = 0.2, K = -14.130900, N = Nsext, Method = Meth;
+SM1G4C25A: Sextupole, L = 0.2, K = -12.065500, N = Nsext, Method = Meth;
+SM2G4C25B: Sextupole, L = 0.25, K = 14.357850, N = Nsext, Method = Meth;
+SM1G4C25B: Sextupole, L = 0.2, K = -13.047450, N = Nsext, Method = Meth;
+SH4G6C25B: Sextupole, L = 0.2, K = -10.243450, N = Nsext, Method = Meth;
+SH3G6C25B: Sextupole, L = 0.2, K = -2.0778500, N = Nsext, Method = Meth;
+SH1G6C25B: Sextupole, L = 0.2, K = 12.098850, N = Nsext, Method = Meth;
+SH1G2C26A: Sextupole, L = 0.2, K = 12.098850, N = Nsext, Method = Meth;
+SH3G2C26A: Sextupole, L = 0.2, K = -2.0778500, N = Nsext, Method = Meth;
+SH4G2C26A: Sextupole, L = 0.2, K = -10.243450, N = Nsext, Method = Meth;
+SM1G4C26A: Sextupole, L = 0.2, K = -12.065500, N = Nsext, Method = Meth;
+SM2G4C26B: Sextupole, L = 0.25, K = 14.357850, N = Nsext, Method = Meth;
+SM1G4C26B: Sextupole, L = 0.2, K = -13.047450, N = Nsext, Method = Meth;
+SL3G6C26B: Sextupole, L = 0.2, K = -14.130900, N = Nsext, Method = Meth;
+SL2G6C26B: Sextupole, L = 0.2, K = 12.984100, N = Nsext, Method = Meth;
+SL1G6C26B: Sextupole, L = 0.2, K = -0.97877000, N = Nsext, Method = Meth;
+SL1G2C27A: Sextupole, L = 0.2, K = -0.97877000, N = Nsext, Method = Meth;
+SL2G2C27A: Sextupole, L = 0.2, K = 12.984100, N = Nsext, Method = Meth;
+SL3G2C27A: Sextupole, L = 0.2, K = -14.130900, N = Nsext, Method = Meth;
+SM1G4C27A: Sextupole, L = 0.2, K = -12.065500, N = Nsext, Method = Meth;
+SM2G4C27B: Sextupole, L = 0.25, K = 14.357850, N = Nsext, Method = Meth;
+SM1G4C27B: Sextupole, L = 0.2, K = -13.047450, N = Nsext, Method = Meth;
+SH4G6C27B: Sextupole, L = 0.2, K = -10.243450, N = Nsext, Method = Meth;
+SH3G6C27B: Sextupole, L = 0.2, K = -2.0778500, N = Nsext, Method = Meth;
+SH1G6C27B: Sextupole, L = 0.2, K = 12.098850, N = Nsext, Method = Meth;
+SH1G2C28A: Sextupole, L = 0.2, K = 12.098850, N = Nsext, Method = Meth;
+SH3G2C28A: Sextupole, L = 0.2, K = -2.0778500, N = Nsext, Method = Meth;
+SH4G2C28A: Sextupole, L = 0.2, K = -10.243450, N = Nsext, Method = Meth;
+SM1G4C28A: Sextupole, L = 0.2, K = -12.065500, N = Nsext, Method = Meth;
+SM2G4C28B: Sextupole, L = 0.25, K = 14.357850, N = Nsext, Method = Meth;
+SM1G4C28B: Sextupole, L = 0.2, K = -13.047450, N = Nsext, Method = Meth;
+SL3G6C28B: Sextupole, L = 0.2, K = -14.130900, N = Nsext, Method = Meth;
+SL2G6C28B: Sextupole, L = 0.2, K = 12.984100, N = Nsext, Method = Meth;
+SL1G6C28B: Sextupole, L = 0.2, K = -0.97877000, N = Nsext, Method = Meth;
+SL1G2C29A: Sextupole, L = 0.2, K = -0.97877000, N = Nsext, Method = Meth;
+SL2G2C29A: Sextupole, L = 0.2, K = 12.984100, N = Nsext, Method = Meth;
+SL3G2C29A: Sextupole, L = 0.2, K = -14.130900, N = Nsext, Method = Meth;
+SM1G4C29A: Sextupole, L = 0.2, K = -12.065500, N = Nsext, Method = Meth;
+SM2G4C29B: Sextupole, L = 0.25, K = 14.357850, N = Nsext, Method = Meth;
+SM1G4C29B: Sextupole, L = 0.2, K = -13.047450, N = Nsext, Method = Meth;
+SH4G6C29B: Sextupole, L = 0.2, K = -10.243450, N = Nsext, Method = Meth;
+SH3G6C29B: Sextupole, L = 0.2, K = -2.0778500, N = Nsext, Method = Meth;
+SH1G6C29B: Sextupole, L = 0.2, K = 12.098850, N = Nsext, Method = Meth;
+
+{***** Insertion device *****}
+{IVU20G1C03C: IVU, L=3.0;}
+IVU20G1C03C: insertion, scaling=1.0, N =50, Method = 1,
+      file2 = "/home/bengtsson/projects/in/lattice/kickmap/U20_3m_FY09.txt";
+{DW100G1C08U: DW, L=3.4;}
+DW100G1C08U: insertion, scaling=1.0, N =50, Method = 1,
+      file2 = "/home/bengtsson/projects/in/lattice/kickmap/W100_pole90mm_40div_7m_060611.txt";
+{EPU49G1C23U: EPU, L=2;}
+EPU49G1C23U: insertion, scaling=1.0, N =50, Method = 1,
+      file2 = "/home/bengtsson/projects/in/lattice/kickmap/EU49_2m_ver.txt";
+
+{***** Sequence *****}
+G1C30:DH05G1C30A,DFH2G1C30A,FXH2G1C30A,FYH2G1C30A,DFH2G1C30A,DH1G1A,GEG1C30A;
+G2C30:GSG2C30A,SH1G2C30A,DH1AG2A,PH1G2C30A,DBPM01,QH1G2C30A,DH2AG2A,SQHHG2C30A,CXH1G2C30A,CYH1G2C30A,
+    SQHHG2C30A,DH2BG2A,QH2G2C30A,DH3AG2A,SH3G2C30A,DH3BG2A,QH3G2C30A,DH4AG2A,PH2G2C30A,DBPM02,SH4G2C30A,
+    DH4BG2A,DCH2G2C30A,CXH2G2C30A,CYH2G2C30A,DCH2G2C30A,GEG2C30A;
+G3C30:DH4CG3A,GSG3C30A,B1G3C30A,GEG3C30A;
+G4C30:GSG4C30A,DM1AG4A,DCM1G4C30A,CXM1G4C30A,CYM1G4C30A,DCM1G4C30A,DM1BG4A,QM1G4C30A,DM2AG4A,SM1G4C30A,
+    DFT1,DFM1G4C30A,FXM1G4C30A,FYM1G4C30A,DFM1G4C30A,DM2BG4A,PM1G4C30A,DBPM03,QM2G4C30A,DM2CG4A,SM2G4C30B,
+    DM2CG4B,QM2G4C30B,DM2BG4B,SM1G4C30B,DM2AG4B,PM1G4C30B,DBPM04,QM1G4C30B,DM1EG4B,DCM1G4C30B,CXM1G4C30B,
+    CYM1G4C30B,DCM1G4C30B,GEG4C30B;
+G5C30:GSG5C30B,DM1DG5B1,DPWG5B,DM1CG5B1,B1G5C30B,GEG5C30B;
+G6C30:DL4BG6B,GSG6C30B,DL4AG6B,QL3G6C30B,DBPM05,PL2G6C30B,DL3CG6B,SL3G6C30B,DL3BG6B,DCL2G6C30B,CXL2G6C30B,
+    CYL2G6C30B,DCL2G6C30B,DL3AG6B,QL2G6C30B,DL2CG6B,SL2G6C30B,DL2BG6B,DCL1G6C30B,CXL1G6C30B,CYL1G6C30B,
+    DCL1G6C30B,DL2AG6B,QL1G6C30B,DL1AG6B,PL1G6C30B,DBPM06,SL1G6C30B,GEG6C30B;
+G1C01:GSG1C01A,DL0BG1A,DFL1G1C01A,FXL1G1C01A,FYL1G1C01A,DFL1G1C01A,DFT2,DLDK,DL01G1C01A,DL05G1C01A,DLDK,
+    DFT2,DFL2G1C01A,FXL2G1C01A,FYL2G1C01A,DFL2G1C01A,DL0AG1A,GEG1C01A;
+G2C01:GSG2C01A,SL1G2C01A,DL1AG2A,PL1G2C01A,DBPM07,QL1G2C01A,DL2AG2A,DCL1G2C01A,CXL1G2C01A,CYL1G2C01A,
+    DCL1G2C01A,DL2BG2A,SL2G2C01A,DL2CG2A,QL2G2C01A,DL3AG2A,DCL2G2C01A,CXL2G2C01A,CYL2G2C01A,DCL2G2C01A,
+    DL3BG2A,SL3G2C01A,DL3CG2A,PL2G2C01A,DBPM08,QL3G2C01A,DL4AG2A,GEG2C01A;
+G3C01:DL4BG3A,GSG3C01A,B1G3C01A,GEG3C01A;
+G4C01:GSG4C01A,DM1AG4A,SQMHG4C01A,CXM1G4C01A,CYM1G4C01A,SQMHG4C01A,DM1BG4A,QM1G4C01A,DM2A2G4A,SM1G4C01A,
+    DFT1,DFM1G4C01A,FXM1G4C01A,FYM1G4C01A,DFM1G4C01A,DM2B2G4A,PM1G4C01A,DBPM09,QM2G4C01A,DM2CG4A,SM2G4C01B,
+    DM2CG4B,QM2G4C01B,DM2B2G4B,SM1G4C01B,DM2A2G4B,PM1G4C01B,DBPM10,QM1G4C01B,DM1EG4B,DCM1G4C01B,CXM1G4C01B,
+    CYM1G4C01B,DCM1G4C01B,GEG4C01B;
+G5C01:GSG5C01B,DM1DG5B2,DPWG5B,DM1CG5B2,B1G5C01B,GEG5C01B;
+G6C01:DH4CG6B,GSG6C01B,DCH2G6C01B,CXH2G6C01B,CYH2G6C01B,DCH2G6C01B,DH4BG6B,SH4G6C01B,DH4AG6B,PH2G6C01B,
+    DBPM11,QH3G6C01B,DH3BG6B,SH3G6C01B,DH3AG6B,QH2G6C01B,DH2BG6B,DCH1G6C01B,CXH1G6C01B,CYH1G6C01B,DCH1G6C01B,
+    DH2AG6B,QH1G6C01B,DH1AG6B,PH1G6C01B,DBPM12,SH1G6C01B,GEG6C01B;
+G1C02:GSG1C02A,DH2G1A,DFH1G1C02A,FXH1G1C02A,FYH1G1C02A,DFH1G1C02A,DH01G1C02A,DH05G1C02A,DFH2G1C02A,FXH2G1C02A,
+    FYH2G1C02A,DFH2G1C02A,DH1G1A,GEG1C02A;
+G2C02:GSG2C02A,SH1G2C02A,DH1AG2A,PH1G2C02A,DBPM01,QH1G2C02A,DH2AG2A,SQHHG2C02A,CXH1G2C02A,CYH1G2C02A,
+    SQHHG2C02A,DH2BG2A,QH2G2C02A,DH3AG2A,SH3G2C02A,DH3BG2A,QH3G2C02A,DH4AG2A,PH2G2C02A,DBPM02,SH4G2C02A,
+    DH4BG2A,DCH2G2C02A,CXH2G2C02A,CYH2G2C02A,DCH2G2C02A,GEG2C02A;
+G3C02:DH4CG3A,GSG3C02A,B1G3C02A,GEG3C02A;
+G4C02:GSG4C02A,DM1AG4A,DCM1G4C02A,CXM1G4C02A,CYM1G4C02A,DCM1G4C02A,DM1BG4A,QM1G4C02A,DM2AG4A,SM1G4C02A,
+    DFT1,DFM1G4C02A,FXM1G4C02A,FYM1G4C02A,DFM1G4C02A,DM2BG4A,PM1G4C02A,DBPM03,QM2G4C02A,DM2CG4A,SM2G4C02B,
+    DM2CG4B,QM2G4C02B,DM2BG4B,SM1G4C02B,DM2AG4B,PM1G4C02B,DBPM04,QM1G4C02B,DM1EG4B,DCM1G4C02B,CXM1G4C02B,
+    CYM1G4C02B,DCM1G4C02B,GEG4C02B;
+G5C02:GSG5C02B,DM1DG5B1,DPWG5B,DM1CG5B1,B1G5C02B,GEG5C02B;
+G6C02:DL4BG6B,GSG6C02B,DL4AG6B,QL3G6C02B,DBPM05,PL2G6C02B,DL3CG6B,SL3G6C02B,DL3BG6B,DCL2G6C02B,CXL2G6C02B,
+    CYL2G6C02B,DCL2G6C02B,DL3AG6B,QL2G6C02B,DL2CG6B,SL2G6C02B,DL2BG6B,DCL1G6C02B,CXL1G6C02B,CYL1G6C02B,
+    DCL1G6C02B,DL2AG6B,QL1G6C02B,DL1AG6B,PL1G6C02B,DBPM06,SL1G6C02B,GEG6C02B;
+G1C03:GSG1C03A,DL0BG1A,DFL1G1C03A,FXL1G1C03A,FYL1G1C03A,DFL1G1C03A,DFT2,DLDK,DL01G1C03A,PU1G1C03A,DL02G1C03A,
+    CU1XG1C03ID1,CU1YG1C03ID1,CS1XG1C03ID1,CS1YG1C03ID1,IVU20G1C03C,CU2XG1C03ID2,CU2YG1C03ID2,CS2XG1C03ID2,
+    CS2YG1C03ID2,DL07G1C03A,PU4G1C03A,DL08G1C03A,DLDK,DFT2,DFL2G1C03A,FXL2G1C03A,FYL2G1C03A,DFL2G1C03A,
+    DL0AG1A,GEG1C03A;
+G2C03:GSG2C03A,SL1G2C03A,DL1AG2A,PL1G2C03A,DBPM07,QL1G2C03A,DL2AG2A,DCL1G2C03A,CXL1G2C03A,CYL1G2C03A,
+    DCL1G2C03A,DL2BG2A,SL2G2C03A,DL2CG2A,QL2G2C03A,DL3AG2A,DCL2G2C03A,CXL2G2C03A,CYL2G2C03A,DCL2G2C03A,
+    DL3BG2A,SL3G2C03A,DL3CG2A,PL2G2C03A,DBPM08,QL3G2C03A,DL4AG2A,GEG2C03A;
+G3C03:DL4BG3A,GSG3C03A,B2G3C03A,GEG3C03A;
+G4C03:GSG4C03A,DM1AG4A,SQMHG4C03A,CXM1G4C03A,CYM1G4C03A,SQMHG4C03A,DM1BG4A,QM1G4C03A,DM2A2G4A,SM1G4C03A,
+    DFT1,DFM1G4C03A,FXM1G4C03A,FYM1G4C03A,DFM1G4C03A,DM2B2G4A,PM1G4C03A,DBPM09,QM2G4C03A,DM2CG4A,SM2G4C03B,
+    DM2CG4B,QM2G4C03B,DM2B2G4B,SM1G4C03B,DM2A2G4B,PM1G4C03B,DBPM10,QM1G4C03B,DM1EG4B,DCM1G4C03B,CXM1G4C03B,
+    CYM1G4C03B,DCM1G4C03B,GEG4C03B;
+G5C03:GSG5C03B,DM1DG5B2C03,DPWG5B,DM1CG5B2C03,B2G5C03B,GEG5C03B;
+G6C03:DH4CG6B,GSG6C03B,DCH2G6C03B,CXH2G6C03B,CYH2G6C03B,DCH2G6C03B,DH4BG6B,SH4G6C03B,DH4AG6B,PH2G6C03B,
+    DBPM11,QH3G6C03B,DH3BG6B,SH3G6C03B,DH3AG6B,QH2G6C03B,DH2BG6B,DCH1G6C03B,CXH1G6C03B,CYH1G6C03B,DCH1G6C03B,
+    DH2AG6B,QH1G6C03B,DH1AG6B,PH1G6C03B,DBPM12,SH1G6C03B,GEG6C03B;
+G1C04:GSG1C04A,DH2G1A,DFH1G1C04A,FXH1G1C04A,FYH1G1C04A,DFH1G1C04A,DH01G1C04A,DH05G1C04A,DFH2G1C04A,FXH2G1C04A,
+    FYH2G1C04A,DFH2G1C04A,DH1G1A,GEG1C04A;
+G2C04:GSG2C04A,SH1G2C04A,DH1AG2A,PH1G2C04A,DBPM01,QH1G2C04A,DH2AG2A,SQHHG2C04A,CXH1G2C04A,CYH1G2C04A,
+    SQHHG2C04A,DH2BG2A,QH2G2C04A,DH3AG2A,SH3G2C04A,DH3BG2A,QH3G2C04A,DH4AG2A,PH2G2C04A,DBPM02,SH4G2C04A,
+    DH4BG2A,DCH2G2C04A,CXH2G2C04A,CYH2G2C04A,DCH2G2C04A,GEG2C04A;
+G3C04:DH4CG3A,GSG3C04A,B1G3C04A,GEG3C04A;
+G4C04:GSG4C04A,DM1AG4A,DCM1G4C04A,CXM1G4C04A,CYM1G4C04A,DCM1G4C04A,DM1BG4A,QM1G4C04A,DM2AG4A,SM1G4C04A,
+    DFT1,DFM1G4C04A,FXM1G4C04A,FYM1G4C04A,DFM1G4C04A,DM2BG4A,PM1G4C04A,DBPM03,QM2G4C04A,DM2CG4A,SM2G4C04B,
+    DM2CG4B,QM2G4C04B,DM2BG4B,SM1G4C04B,DM2AG4B,PM1G4C04B,DBPM04,QM1G4C04B,DM1EG4B,DCM1G4C04B,CXM1G4C04B,
+    CYM1G4C04B,DCM1G4C04B,GEG4C04B;
+G5C04:GSG5C04B,DM1DG5B1,DPWG5B,DM1CG5B1,B1G5C04B,GEG5C04B;
+G6C04:DL4BG6B,GSG6C04B,DL4AG6B,QL3G6C04B,DBPM05,PL2G6C04B,DL3CG6B,SL3G6C04B,DL3BG6B,DCL2G6C04B,CXL2G6C04B,
+    CYL2G6C04B,DCL2G6C04B,DL3AG6B,QL2G6C04B,DL2CG6B,SL2G6C04B,DL2BG6B,DCL1G6C04B,CXL1G6C04B,CYL1G6C04B,
+    DCL1G6C04B,DL2AG6B,QL1G6C04B,DL1AG6B,PL1G6C04B,DBPM06,SL1G6C04B,GEG6C04B;
+G1C05:GSG1C05A,DL0BG1A,DFL1G1C05A,FXL1G1C05A,FYL1G1C05A,DFL1G1C05A,DFT2,DLDK,PU1G1C05A,DL02G1C05A,PU2G1C05A,
+    DL05G1C05A,CU1XG1C05ID2,CU1YG1C05ID2,CS1XG1C05ID2,CS1YG1C05ID2,IVU21G1C05D,CU2XG1C05ID2,CU2YG1C05ID2,
+    CS2XG1C05ID2,CS2YG1C05ID2,DL07G1C05A,PU4G1C05A,DL08G1C05A,DLDK,DFT2,DFL2G1C05A,FXL2G1C05A,FYL2G1C05A,
+    DFL2G1C05A,DL0AG1A,GEG1C05A;
+G2C05:GSG2C05A,SL1G2C05A,DL1AG2A,PL1G2C05A,DBPM07,QL1G2C05A,DL2AG2A,DCL1G2C05A,CXL1G2C05A,CYL1G2C05A,
+    DCL1G2C05A,DL2BG2A,SL2G2C05A,DL2CG2A,QL2G2C05A,DL3AG2A,DCL2G2C05A,CXL2G2C05A,CYL2G2C05A,DCL2G2C05A,
+    DL3BG2A,SL3G2C05A,DL3CG2A,PL2G2C05A,DBPM08,QL3G2C05A,DL4AG2A,GEG2C05A;
+G3C05:DL4BG3A,GSG3C05A,B1G3C05A,GEG3C05A;
+G4C05:GSG4C05A,DM1AG4A,SQMHG4C05A,CXM1G4C05A,CYM1G4C05A,SQMHG4C05A,DM1BG4A,QM1G4C05A,DM2A2G4A,SM1G4C05A,
+    DFT1,DFM1G4C05A,FXM1G4C05A,FYM1G4C05A,DFM1G4C05A,DM2B2G4A,PM1G4C05A,DBPM09,QM2G4C05A,DM2CG4A,SM2G4C05B,
+    DM2CG4B,QM2G4C05B,DM2B2G4B,SM1G4C05B,DM2A2G4B,PM1G4C05B,DBPM10,QM1G4C05B,DM1EG4B,DCM1G4C05B,CXM1G4C05B,
+    CYM1G4C05B,DCM1G4C05B,GEG4C05B;
+G5C05:GSG5C05B,DM1DG5B2,DPWG5B,DM1CG5B2,B1G5C05B,GEG5C05B;
+G6C05:DH4CG6B,GSG6C05B,DCH2G6C05B,CXH2G6C05B,CYH2G6C05B,DCH2G6C05B,DH4BG6B,SH4G6C05B,DH4AG6B,PH2G6C05B,
+    DBPM11,QH3G6C05B,DH3BG6B,SH3G6C05B,DH3AG6B,QH2G6C05B,DH2BG6B,DCH1G6C05B,CXH1G6C05B,CYH1G6C05B,DCH1G6C05B,
+    DH2AG6B,QH1G6C05B,DH1AG6B,PH1G6C05B,DBPM12,SH1G6C05B,GEG6C05B;
+G1C06:GSG1C06A,DH2G1A,DFH1G1C06A,FXH1G1C06A,FYH1G1C06A,DFH1G1C06A,DH01G1C06A,DH05G1C06A,DFH2G1C06A,FXH2G1C06A,
+    FYH2G1C06A,DFH2G1C06A,DH1G1A,GEG1C06A;
+G2C06:GSG2C06A,SH1G2C06A,DH1AG2A,PH1G2C06A,DBPM01,QH1G2C06A,DH2AG2A,SQHHG2C06A,CXH1G2C06A,CYH1G2C06A,
+    SQHHG2C06A,DH2BG2A,QH2G2C06A,DH3AG2A,SH3G2C06A,DH3BG2A,QH3G2C06A,DH4AG2A,PH2G2C06A,DBPM02,SH4G2C06A,
+    DH4BG2A,DCH2G2C06A,CXH2G2C06A,CYH2G2C06A,DCH2G2C06A,GEG2C06A;
+G3C06:DH4CG3A,GSG3C06A,B1G3C06A,GEG3C06A;
+G4C06:GSG4C06A,DM1AG4A,DCM1G4C06A,CXM1G4C06A,CYM1G4C06A,DCM1G4C06A,DM1BG4A,QM1G4C06A,DM2AG4A,SM1G4C06A,
+    DFT1,DFM1G4C06A,FXM1G4C06A,FYM1G4C06A,DFM1G4C06A,DM2BG4A,PM1G4C06A,DBPM03,QM2G4C06A,DM2CG4A,SM2G4C06B,
+    DM2CG4B,QM2G4C06B,DM2BG4B,SM1G4C06B,DM2AG4B,PM1G4C06B,DBPM04,QM1G4C06B,DM1EG4B,DCM1G4C06B,CXM1G4C06B,
+    CYM1G4C06B,DCM1G4C06B,GEG4C06B;
+G5C06:GSG5C06B,DM1DG5B1,DPWG5B,DM1CG5B1,B1G5C06B,GEG5C06B;
+G6C06:DL4BG6B,GSG6C06B,DL4AG6B,QL3G6C06B,DBPM05,PL2G6C06B,DL3CG6B,SL3G6C06B,DL3BG6B,DCL2G6C06B,CXL2G6C06B,
+    CYL2G6C06B,DCL2G6C06B,DL3AG6B,QL2G6C06B,DL2CG6B,SL2G6C06B,DL2BG6B,DCL1G6C06B,CXL1G6C06B,CYL1G6C06B,
+    DCL1G6C06B,DL2AG6B,QL1G6C06B,DL1AG6B,PL1G6C06B,DBPM06,SL1G6C06B,GEG6C06B;
+G1C07:GSG1C07A,DL0BG1A,DFL1G1C07A,FXL1G1C07A,FYL1G1C07A,DFL1G1C07A,DFT2,DLDK,DL01G1C07A,DL05G1C07A,DLDK,
+    DFT2,DFL2G1C07A,FXL2G1C07A,FYL2G1C07A,DFL2G1C07A,DL0AG1A,GEG1C07A;
+G2C07:GSG2C07A,SL1G2C07A,DL1AG2A,PL1G2C07A,DBPM07,QL1G2C07A,DL2AG2A,DCL1G2C07A,CXL1G2C07A,CYL1G2C07A,
+    DCL1G2C07A,DL2BG2A,SL2G2C07A,DL2CG2A,QL2G2C07A,DL3AG2A,DCL2G2C07A,CXL2G2C07A,CYL2G2C07A,DCL2G2C07A,
+    DL3BG2A,SL3G2C07A,DL3CG2A,PL2G2C07A,DBPM08,QL3G2C07A,DL4AG2A,GEG2C07A;
+G3C07:DL4BG3A,GSG3C07A,B1G3C07A,GEG3C07A;
+G4C07:GSG4C07A,DM1AG4A,SQMHG4C07A,CXM1G4C07A,CYM1G4C07A,SQMHG4C07A,DM1BG4A,QM1G4C07A,DM2A2G4A,SM1G4C07A,
+    DFT1,DFM1G4C07A,FXM1G4C07A,FYM1G4C07A,DFM1G4C07A,DM2B2G4A,PM1G4C07A,DBPM09,QM2G4C07A,DM2CG4A,SM2G4C07B,
+    DM2CG4B,QM2G4C07B,DM2B2G4B,SM1G4C07B,DM2A2G4B,PM1G4C07B,DBPM10,QM1G4C07B,DM1EG4B,DCM1G4C07B,CXM1G4C07B,
+    CYM1G4C07B,DCM1G4C07B,GEG4C07B;
+G5C07:GSG5C07B,DM1DG5B2,DPWG5B,DM1CG5B2,B1G5C07B,GEG5C07B;
+G6C07:DH4CG6B,GSG6C07B,DCH2G6C07B,CXH2G6C07B,CYH2G6C07B,DCH2G6C07B,DH4BG6B,SH4G6C07B,DH4AG6B,PH2G6C07B,
+    DBPM11,QH3G6C07B,DH3BG6B,SH3G6C07B,DH3AG6B,QH2G6C07B,DH2BG6B,DCH1G6C07B,CXH1G6C07B,CYH1G6C07B,DCH1G6C07B,
+    DH2AG6B,QH1G6C07B,DH1AG6B,PH1G6C07B,DBPM12,SH1G6C07B,GEG6C07B;
+G1C08:GSG1C08A,DH2G1A,DFH1G1C08A,FXH1G1C08A,FYH1G1C08A,DFH1G1C08A,DH01G1C08A,PU1G1C08A,DH02G1C08A,CU1XG1C08ID1,
+    CU1YG1C08ID1,CS1XG1C08ID1,CS1YG1C08ID1,DW100G1C08U,CU2XG1C08ID1,CU2YG1C08ID1,CS2XG1C08ID1,CS2YG1C08ID1,
+    DH04G1C08A,DH05G1C08A,CU1XG1C08ID2,CU1YG1C08ID2,CS1XG1C08ID2,CS1YG1C08ID2,DW100G1C08D,CU2XG1C08ID2,
+    CU2YG1C08ID2,CS2XG1C08ID2,CS2YG1C08ID2,DH07G1C08A,PU4G1C08A,DH08G1C08A,DFH2G1C08A,FXH2G1C08A,FYH2G1C08A,
+    DFH2G1C08A,DH1G1A,GEG1C08A;
+G2C08:GSG2C08A,SH1G2C08A,DH1AG2A,PH1G2C08A,DBPM01,QH1G2C08A,DH2AG2A,SQHHG2C08A,CXH1G2C08A,CYH1G2C08A,
+    SQHHG2C08A,DH2BG2A,QH2G2C08A,DH3AG2A,SH3G2C08A,DH3BG2A,QH3G2C08A,DH4AG2A,PH2G2C08A,DBPM02,SH4G2C08A,
+    DH4BG2A,DCH2G2C08A,CXH2G2C08A,CYH2G2C08A,DCH2G2C08A,GEG2C08A;
+G3C08:DH4CG3A,GSG3C08A,B1G3C08A,GEG3C08A;
+G4C08:GSG4C08A,DM1AG4A,DCM1G4C08A,CXM1G4C08A,CYM1G4C08A,DCM1G4C08A,DM1BG4A,QM1G4C08A,DM2AG4A,SM1G4C08A,
+    DFT1,DFM1G4C08A,FXM1G4C08A,FYM1G4C08A,DFM1G4C08A,DM2BG4A,PM1G4C08A,DBPM03,QM2G4C08A,DM2CG4A,SM2G4C08B,
+    DM2CG4B,QM2G4C08B,DM2BG4B,SM1G4C08B,DM2AG4B,PM1G4C08B,DBPM04,QM1G4C08B,DM1EG4B,DCM1G4C08B,CXM1G4C08B,
+    CYM1G4C08B,DCM1G4C08B,GEG4C08B;
+G5C08:GSG5C08B,DM1DG5B1,DPWG5B,DM1CG5B1,B1G5C08B,GEG5C08B;
+G6C08:DL4BG6B,GSG6C08B,DL4AG6B,QL3G6C08B,DBPM05,PL2G6C08B,DL3CG6B,SL3G6C08B,DL3BG6B,DCL2G6C08B,CXL2G6C08B,
+    CYL2G6C08B,DCL2G6C08B,DL3AG6B,QL2G6C08B,DL2CG6B,SL2G6C08B,DL2BG6B,DCL1G6C08B,CXL1G6C08B,CYL1G6C08B,
+    DCL1G6C08B,DL2AG6B,QL1G6C08B,DL1AG6B,PL1G6C08B,DBPM06,SL1G6C08B,GEG6C08B;
+G1C09:GSG1C09A,DL0BG1A,DFL1G1C09A,FXL1G1C09A,FYL1G1C09A,DFL1G1C09A,DFT2,DLDK,DL01G1C09A,DL05G1C09A,DLDK,
+    DFT2,DFL2G1C09A,FXL2G1C09A,FYL2G1C09A,DFL2G1C09A,DL0AG1A,GEG1C09A;
+G2C09:GSG2C09A,SL1G2C09A,DL1AG2A,PL1G2C09A,DBPM07,QL1G2C09A,DL2AG2A,DCL1G2C09A,CXL1G2C09A,CYL1G2C09A,
+    DCL1G2C09A,DL2BG2A,SL2G2C09A,DL2CG2A,QL2G2C09A,DL3AG2A,DCL2G2C09A,CXL2G2C09A,CYL2G2C09A,DCL2G2C09A,
+    DL3BG2A,SL3G2C09A,DL3CG2A,PL2G2C09A,DBPM08,QL3G2C09A,DL4AG2A,GEG2C09A;
+G3C09:DL4BG3A,GSG3C09A,B1G3C09A,GEG3C09A;
+G4C09:GSG4C09A,DM1AG4A,SQMHG4C09A,CXM1G4C09A,CYM1G4C09A,SQMHG4C09A,DM1BG4A,QM1G4C09A,DM2A2G4A,SM1G4C09A,
+    DFT1,DFM1G4C09A,FXM1G4C09A,FYM1G4C09A,DFM1G4C09A,DM2B2G4A,PM1G4C09A,DBPM09,QM2G4C09A,DM2CG4A,SM2G4C09B,
+    DM2CG4B,QM2G4C09B,DM2B2G4B,SM1G4C09B,DM2A2G4B,PM1G4C09B,DBPM10,QM1G4C09B,DM1EG4B,DCM1G4C09B,CXM1G4C09B,
+    CYM1G4C09B,DCM1G4C09B,GEG4C09B;
+G5C09:GSG5C09B,DM1DG5B2,DPWG5B,DM1CG5B2,B1G5C09B,GEG5C09B;
+G6C09:DH4CG6B,GSG6C09B,DCH2G6C09B,CXH2G6C09B,CYH2G6C09B,DCH2G6C09B,DH4BG6B,SH4G6C09B,DH4AG6B,PH2G6C09B,
+    DBPM11,QH3G6C09B,DH3BG6B,SH3G6C09B,DH3AG6B,QH2G6C09B,DH2BG6B,DCH1G6C09B,CXH1G6C09B,CYH1G6C09B,DCH1G6C09B,
+    DH2AG6B,QH1G6C09B,DH1AG6B,PH1G6C09B,DBPM12,SH1G6C09B,GEG6C09B;
+G1C10:GSG1C10A,DH2G1A,DFH1G1C10A,FXH1G1C10A,FYH1G1C10A,DFH1G1C10A,DH01G1C10A,PU1G1C10A,DH02G1C10A,CU1XG1C10ID1,
+    CU1YG1C10ID1,CS1XG1C10ID1,CS1YG1C10ID1,IVU22G1C10C,CU2XG1C10ID2,CU2YG1C10ID2,CS2XG1C10ID2,CS2YG1C10ID2,
+    DH07G1C10A,PU4G1C10A,DH08G1C10A,DFH2G1C10A,FXH2G1C10A,FYH2G1C10A,DFH2G1C10A,DH1G1A,GEG1C10A;
+G2C10:GSG2C10A,SH1G2C10A,DH1AG2A,PH1G2C10A,DBPM01,QH1G2C10A,DH2AG2A,SQHHG2C10A,CXH1G2C10A,CYH1G2C10A,
+    SQHHG2C10A,DH2BG2A,QH2G2C10A,DH3AG2A,SH3G2C10A,DH3BG2A,QH3G2C10A,DH4AG2A,PH2G2C10A,DBPM02,SH4G2C10A,
+    DH4BG2A,DCH2G2C10A,CXH2G2C10A,CYH2G2C10A,DCH2G2C10A,GEG2C10A;
+G3C10:DH4CG3A,GSG3C10A,B1G3C10A,GEG3C10A;
+G4C10:GSG4C10A,DM1AG4A,DCM1G4C10A,CXM1G4C10A,CYM1G4C10A,DCM1G4C10A,DM1BG4A,QM1G4C10A,DM2AG4A,SM1G4C10A,
+    DFT1,DFM1G4C10A,FXM1G4C10A,FYM1G4C10A,DFM1G4C10A,DM2BG4A,PM1G4C10A,DBPM03,QM2G4C10A,DM2CG4A,SM2G4C10B,
+    DM2CG4B,QM2G4C10B,DM2BG4B,SM1G4C10B,DM2AG4B,PM1G4C10B,DBPM04,QM1G4C10B,DM1EG4B,DCM1G4C10B,CXM1G4C10B,
+    CYM1G4C10B,DCM1G4C10B,GEG4C10B;
+G5C10:GSG5C10B,DM1DG5B1,DPWG5B,DM1CG5B1,B1G5C10B,GEG5C10B;
+G6C10:DL4BG6B,GSG6C10B,DL4AG6B,QL3G6C10B,DBPM05,PL2G6C10B,DL3CG6B,SL3G6C10B,DL3BG6B,DCL2G6C10B,CXL2G6C10B,
+    CYL2G6C10B,DCL2G6C10B,DL3AG6B,QL2G6C10B,DL2CG6B,SL2G6C10B,DL2BG6B,DCL1G6C10B,CXL1G6C10B,CYL1G6C10B,
+    DCL1G6C10B,DL2AG6B,QL1G6C10B,DL1AG6B,PL1G6C10B,DBPM06,SL1G6C10B,GEG6C10B;
+G1C11:GSG1C11A,DL0BG1A,DFL1G1C11A,FXL1G1C11A,FYL1G1C11A,DFL1G1C11A,DFT2,DLDK,DL01G1C11A,PU1G1C11A,DL02G1C11A,
+    CU1XG1C11ID1,CU1YG1C11ID1,CS1XG1C11ID1,CS1YG1C11ID1,IVU20G1C11C,CU2XG1C11ID2,CU2YG1C11ID2,CS2XG1C11ID2,
+    CS2YG1C11ID2,DL07G1C11A,PU4G1C11A,DL08G1C11A,DLDK,DFT2,DFL2G1C11A,FXL2G1C11A,FYL2G1C11A,DFL2G1C11A,
+    DL0AG1A,GEG1C11A;
+G2C11:GSG2C11A,SL1G2C11A,DL1AG2A,PL1G2C11A,DBPM07,QL1G2C11A,DL2AG2A,DCL1G2C11A,CXL1G2C11A,CYL1G2C11A,
+    DCL1G2C11A,DL2BG2A,SL2G2C11A,DL2CG2A,QL2G2C11A,DL3AG2A,DCL2G2C11A,CXL2G2C11A,CYL2G2C11A,DCL2G2C11A,
+    DL3BG2A,SL3G2C11A,DL3CG2A,PL2G2C11A,DBPM08,QL3G2C11A,DL4AG2A,GEG2C11A;
+G3C11:DL4BG3A,GSG3C11A,B1G3C11A,GEG3C11A;
+G4C11:GSG4C11A,DM1AG4A,SQMHG4C11A,CXM1G4C11A,CYM1G4C11A,SQMHG4C11A,DM1BG4A,QM1G4C11A,DM2A2G4A,SM1G4C11A,
+    DFT1,DFM1G4C11A,FXM1G4C11A,FYM1G4C11A,DFM1G4C11A,DM2B2G4A,PM1G4C11A,DBPM09,QM2G4C11A,DM2CG4A,SM2G4C11B,
+    DM2CG4B,QM2G4C11B,DM2B2G4B,SM1G4C11B,DM2A2G4B,PM1G4C11B,DBPM10,QM1G4C11B,DM1EG4B,DCM1G4C11B,CXM1G4C11B,
+    CYM1G4C11B,DCM1G4C11B,GEG4C11B;
+G5C11:GSG5C11B,DM1DG5B2,DPWG5B,DM1CG5B2,B1G5C11B,GEG5C11B;
+G6C11:DH4CG6B,GSG6C11B,DCH2G6C11B,CXH2G6C11B,CYH2G6C11B,DCH2G6C11B,DH4BG6B,SH4G6C11B,DH4AG6B,PH2G6C11B,
+    DBPM11,QH3G6C11B,DH3BG6B,SH3G6C11B,DH3AG6B,QH2G6C11B,DH2BG6B,DCH1G6C11B,CXH1G6C11B,CYH1G6C11B,DCH1G6C11B,
+    DH2AG6B,QH1G6C11B,DH1AG6B,PH1G6C11B,DBPM12,SH1G6C11B,GEG6C11B;
+G1C12:GSG1C12A,DH2G1A,DFH1G1C12A,FXH1G1C12A,FYH1G1C12A,DFH1G1C12A,DH01G1C12A,DH05G1C12A,DFH2G1C12A,FXH2G1C12A,
+    FYH2G1C12A,DFH2G1C12A,DH1G1A,GEG1C12A;
+G2C12:GSG2C12A,SH1G2C12A,DH1AG2A,PH1G2C12A,DBPM01,QH1G2C12A,DH2AG2A,SQHHG2C12A,CXH1G2C12A,CYH1G2C12A,
+    SQHHG2C12A,DH2BG2A,QH2G2C12A,DH3AG2A,SH3G2C12A,DH3BG2A,QH3G2C12A,DH4AG2A,PH2G2C12A,DBPM02,SH4G2C12A,
+    DH4BG2A,DCH2G2C12A,CXH2G2C12A,CYH2G2C12A,DCH2G2C12A,GEG2C12A;
+G3C12:DH4CG3A,GSG3C12A,B1G3C12A,GEG3C12A;
+G4C12:GSG4C12A,DM1AG4A,DCM1G4C12A,CXM1G4C12A,CYM1G4C12A,DCM1G4C12A,DM1BG4A,QM1G4C12A,DM2AG4A,SM1G4C12A,
+    DFT1,DFM1G4C12A,FXM1G4C12A,FYM1G4C12A,DFM1G4C12A,DM2BG4A,PM1G4C12A,DBPM03,QM2G4C12A,DM2CG4A,SM2G4C12B,
+    DM2CG4B,QM2G4C12B,DM2BG4B,SM1G4C12B,DM2AG4B,PM1G4C12B,DBPM04,QM1G4C12B,DM1EG4B,DCM1G4C12B,CXM1G4C12B,
+    CYM1G4C12B,DCM1G4C12B,GEG4C12B;
+G5C12:GSG5C12B,DM1DG5B1,DPWG5B,DM1CG5B1,B1G5C12B,GEG5C12B;
+G6C12:DL4BG6B,GSG6C12B,DL4AG6B,QL3G6C12B,DBPM05,PL2G6C12B,DL3CG6B,SL3G6C12B,DL3BG6B,DCL2G6C12B,CXL2G6C12B,
+    CYL2G6C12B,DCL2G6C12B,DL3AG6B,QL2G6C12B,DL2CG6B,SL2G6C12B,DL2BG6B,DCL1G6C12B,CXL1G6C12B,CYL1G6C12B,
+    DCL1G6C12B,DL2AG6B,QL1G6C12B,DL1AG6B,PL1G6C12B,DBPM06,SL1G6C12B,GEG6C12B;
+G1C13:GSG1C13A,DL0BG1A,DFL1G1C13A,FXL1G1C13A,FYL1G1C13A,DFL1G1C13A,DFT2,DLDK,DL01G1C13A,DL05G1C13A,DLDK,
+    DFT2,DFL2G1C13A,FXL2G1C13A,FYL2G1C13A,DFL2G1C13A,DL0AG1A,GEG1C13A;
+G2C13:GSG2C13A,SL1G2C13A,DL1AG2A,PL1G2C13A,DBPM07,QL1G2C13A,DL2AG2A,DCL1G2C13A,CXL1G2C13A,CYL1G2C13A,
+    DCL1G2C13A,DL2BG2A,SL2G2C13A,DL2CG2A,QL2G2C13A,DL3AG2A,DCL2G2C13A,CXL2G2C13A,CYL2G2C13A,DCL2G2C13A,
+    DL3BG2A,SL3G2C13A,DL3CG2A,PL2G2C13A,DBPM08,QL3G2C13A,DL4AG2A,GEG2C13A;
+G3C13:DL4BG3A,GSG3C13A,B2G3C13A,GEG3C13A;
+G4C13:GSG4C13A,DM1AG4A,SQMHG4C13A,CXM1G4C13A,CYM1G4C13A,SQMHG4C13A,DM1BG4A,QM1G4C13A,DM2A2G4A,SM1G4C13A,
+    DFT1,DFM1G4C13A,FXM1G4C13A,FYM1G4C13A,DFM1G4C13A,DM2B2G4A,PM1G4C13A,DBPM09,QM2G4C13A,DM2CG4A,SM2G4C13B,
+    DM2CG4B,QM2G4C13B,DM2B2G4B,SM1G4C13B,DM2A2G4B,PM1G4C13B,DBPM10,QM1G4C13B,DM1EG4B,DCM1G4C13B,CXM1G4C13B,
+    CYM1G4C13B,DCM1G4C13B,GEG4C13B;
+G5C13:GSG5C13B,DM1DG5B2C13,DPWG5B,DM1CG5B2C13,B2G5C13B,GEG5C13B;
+G6C13:DH4CG6B,GSG6C13B,DCH2G6C13B,CXH2G6C13B,CYH2G6C13B,DCH2G6C13B,DH4BG6B,SH4G6C13B,DH4AG6B,PH2G6C13B,
+    DBPM11,QH3G6C13B,DH3BG6B,SH3G6C13B,DH3AG6B,QH2G6C13B,DH2BG6B,DCH1G6C13B,CXH1G6C13B,CYH1G6C13B,DCH1G6C13B,
+    DH2AG6B,QH1G6C13B,DH1AG6B,PH1G6C13B,DBPM12,SH1G6C13B,GEG6C13B;
+G1C14:GSG1C14A,DH2G1A,DFH1G1C14A,FXH1G1C14A,FYH1G1C14A,DFH1G1C14A,DH01G1C14A,DH05G1C14A,DFH2G1C14A,FXH2G1C14A,
+    FYH2G1C14A,DFH2G1C14A,DH1G1A,GEG1C14A;
+G2C14:GSG2C14A,SH1G2C14A,DH1AG2A,PH1G2C14A,DBPM01,QH1G2C14A,DH2AG2A,SQHHG2C14A,CXH1G2C14A,CYH1G2C14A,
+    SQHHG2C14A,DH2BG2A,QH2G2C14A,DH3AG2A,SH3G2C14A,DH3BG2A,QH3G2C14A,DH4AG2A,PH2G2C14A,DBPM02,SH4G2C14A,
+    DH4BG2A,DCH2G2C14A,CXH2G2C14A,CYH2G2C14A,DCH2G2C14A,GEG2C14A;
+G3C14:DH4CG3A,GSG3C14A,B1G3C14A,GEG3C14A;
+G4C14:GSG4C14A,DM1AG4A,DCM1G4C14A,CXM1G4C14A,CYM1G4C14A,DCM1G4C14A,DM1BG4A,QM1G4C14A,DM2AG4A,SM1G4C14A,
+    DFT1,DFM1G4C14A,FXM1G4C14A,FYM1G4C14A,DFM1G4C14A,DM2BG4A,PM1G4C14A,DBPM03,QM2G4C14A,DM2CG4A,SM2G4C14B,
+    DM2CG4B,QM2G4C14B,DM2BG4B,SM1G4C14B,DM2AG4B,PM1G4C14B,DBPM04,QM1G4C14B,DM1EG4B,DCM1G4C14B,CXM1G4C14B,
+    CYM1G4C14B,DCM1G4C14B,GEG4C14B;
+G5C14:GSG5C14B,DM1DG5B1,DPWG5B,DM1CG5B1,B1G5C14B,GEG5C14B;
+G6C14:DL4BG6B,GSG6C14B,DL4AG6B,QL3G6C14B,DBPM05,PL2G6C14B,DL3CG6B,SL3G6C14B,DL3BG6B,DCL2G6C14B,CXL2G6C14B,
+    CYL2G6C14B,DCL2G6C14B,DL3AG6B,QL2G6C14B,DL2CG6B,SL2G6C14B,DL2BG6B,DCL1G6C14B,CXL1G6C14B,CYL1G6C14B,
+    DCL1G6C14B,DL2AG6B,QL1G6C14B,DL1AG6B,PL1G6C14B,DBPM06,SL1G6C14B,GEG6C14B;
+G1C15:GSG1C15A,DL0BG1A,DFL1G1C15A,FXL1G1C15A,FYL1G1C15A,DFL1G1C15A,DFT2,DLDK,DL01G1C15A,DL05G1C15A,DLDK,
+    DFT2,DFL2G1C15A,FXL2G1C15A,FYL2G1C15A,DFL2G1C15A,DL0AG1A,GEG1C15A;
+G2C15:GSG2C15A,SL1G2C15A,DL1AG2A,PL1G2C15A,DBPM07,QL1G2C15A,DL2AG2A,DCL1G2C15A,CXL1G2C15A,CYL1G2C15A,
+    DCL1G2C15A,DL2BG2A,SL2G2C15A,DL2CG2A,QL2G2C15A,DL3AG2A,DCL2G2C15A,CXL2G2C15A,CYL2G2C15A,DCL2G2C15A,
+    DL3BG2A,SL3G2C15A,DL3CG2A,PL2G2C15A,DBPM08,QL3G2C15A,DL4AG2A,GEG2C15A;
+G3C15:DL4BG3A,GSG3C15A,B1G3C15A,GEG3C15A;
+G4C15:GSG4C15A,DM1AG4A,SQMHG4C15A,CXM1G4C15A,CYM1G4C15A,SQMHG4C15A,DM1BG4A,QM1G4C15A,DM2A2G4A,SM1G4C15A,
+    DFT1,DFM1G4C15A,FXM1G4C15A,FYM1G4C15A,DFM1G4C15A,DM2B2G4A,PM1G4C15A,DBPM09,QM2G4C15A,DM2CG4A,SM2G4C15B,
+    DM2CG4B,QM2G4C15B,DM2B2G4B,SM1G4C15B,DM2A2G4B,PM1G4C15B,DBPM10,QM1G4C15B,DM1EG4B,DCM1G4C15B,CXM1G4C15B,
+    CYM1G4C15B,DCM1G4C15B,GEG4C15B;
+G5C15:GSG5C15B,DM1DG5B2,DPWG5B,DM1CG5B2,B1G5C15B,GEG5C15B;
+G6C15:DH4CG6B,GSG6C15B,DCH2G6C15B,CXH2G6C15B,CYH2G6C15B,DCH2G6C15B,DH4BG6B,SH4G6C15B,DH4AG6B,PH2G6C15B,
+    DBPM11,QH3G6C15B,DH3BG6B,SH3G6C15B,DH3AG6B,QH2G6C15B,DH2BG6B,DCH1G6C15B,CXH1G6C15B,CYH1G6C15B,DCH1G6C15B,
+    DH2AG6B,QH1G6C15B,DH1AG6B,PH1G6C15B,DBPM12,SH1G6C15B,GEG6C15B;
+G1C16:GSG1C16A,DH2G1A,DFH1G1C16A,FXH1G1C16A,FYH1G1C16A,DFH1G1C16A,DH01G1C16A,DH05G1C16A,DFH2G1C16A,FXH2G1C16A,
+    FYH2G1C16A,DFH2G1C16A,DH1G1A,GEG1C16A;
+G2C16:GSG2C16A,SH1G2C16A,DH1AG2A,PH1G2C16A,DBPM01,QH1G2C16A,DH2AG2A,SQHHG2C16A,CXH1G2C16A,CYH1G2C16A,
+    SQHHG2C16A,DH2BG2A,QH2G2C16A,DH3AG2A,SH3G2C16A,DH3BG2A,QH3G2C16A,DH4AG2A,PH2G2C16A,DBPM02,SH4G2C16A,
+    DH4BG2A,DCH2G2C16A,CXH2G2C16A,CYH2G2C16A,DCH2G2C16A,GEG2C16A;
+G3C16:DH4CG3A,GSG3C16A,B1G3C16A,GEG3C16A;
+G4C16:GSG4C16A,DM1AG4A,DCM1G4C16A,CXM1G4C16A,CYM1G4C16A,DCM1G4C16A,DM1BG4A,QM1G4C16A,DM2AG4A,SM1G4C16A,
+    DFT1,DFM1G4C16A,FXM1G4C16A,FYM1G4C16A,DFM1G4C16A,DM2BG4A,PM1G4C16A,DBPM03,QM2G4C16A,DM2CG4A,SM2G4C16B,
+    DM2CG4B,QM2G4C16B,DM2BG4B,SM1G4C16B,DM2AG4B,PM1G4C16B,DBPM04,QM1G4C16B,DM1EG4B,DCM1G4C16B,CXM1G4C16B,
+    CYM1G4C16B,DCM1G4C16B,GEG4C16B;
+G5C16:GSG5C16B,DM1DG5B1,DPWG5B,DM1CG5B1,B1G5C16B,GEG5C16B;
+G6C16:DL4BG6B,GSG6C16B,DL4AG6B,QL3G6C16B,DBPM05,PL2G6C16B,DL3CG6B,SL3G6C16B,DL3BG6B,DCL2G6C16B,CXL2G6C16B,
+    CYL2G6C16B,DCL2G6C16B,DL3AG6B,QL2G6C16B,DL2CG6B,SL2G6C16B,DL2BG6B,DCL1G6C16B,CXL1G6C16B,CYL1G6C16B,
+    DCL1G6C16B,DL2AG6B,QL1G6C16B,DL1AG6B,PL1G6C16B,DBPM06,SL1G6C16B,GEG6C16B;
+G1C17:GSG1C17A,DL0BG1A,DFL1G1C17A,FXL1G1C17A,FYL1G1C17A,DFL1G1C17A,DFT2,DLDK,DL01G1C17A,DL05G1C17A,DLDK,
+    DFT2,DFL2G1C17A,FXL2G1C17A,FYL2G1C17A,DFL2G1C17A,DL0AG1A,GEG1C17A;
+G2C17:GSG2C17A,SL1G2C17A,DL1AG2A,PL1G2C17A,DBPM07,QL1G2C17A,DL2AG2A,DCL1G2C17A,CXL1G2C17A,CYL1G2C17A,
+    DCL1G2C17A,DL2BG2A,SL2G2C17A,DL2CG2A,QL2G2C17A,DL3AG2A,DCL2G2C17A,CXL2G2C17A,CYL2G2C17A,DCL2G2C17A,
+    DL3BG2A,SL3G2C17A,DL3CG2A,PL2G2C17A,DBPM08,QL3G2C17A,DL4AG2A,GEG2C17A;
+G3C17:DL4BG3A,GSG3C17A,B1G3C17A,GEG3C17A;
+G4C17:GSG4C17A,DM1AG4A,SQMHG4C17A,CXM1G4C17A,CYM1G4C17A,SQMHG4C17A,DM1BG4A,QM1G4C17A,DM2A2G4A,SM1G4C17A,
+    DFT1,DFM1G4C17A,FXM1G4C17A,FYM1G4C17A,DFM1G4C17A,DM2B2G4A,PM1G4C17A,DBPM09,QM2G4C17A,DM2CG4A,SM2G4C17B,
+    DM2CG4B,QM2G4C17B,DM2B2G4B,SM1G4C17B,DM2A2G4B,PM1G4C17B,DBPM10,QM1G4C17B,DM1EG4B,DCM1G4C17B,CXM1G4C17B,
+    CYM1G4C17B,DCM1G4C17B,GEG4C17B;
+G5C17:GSG5C17B,DM1DG5B2,DPWG5B,DM1CG5B2,B1G5C17B,GEG5C17B;
+G6C17:DH4CG6B,GSG6C17B,DCH2G6C17B,CXH2G6C17B,CYH2G6C17B,DCH2G6C17B,DH4BG6B,SH4G6C17B,DH4AG6B,PH2G6C17B,
+    DBPM11,QH3G6C17B,DH3BG6B,SH3G6C17B,DH3AG6B,QH2G6C17B,DH2BG6B,DCH1G6C17B,CXH1G6C17B,CYH1G6C17B,DCH1G6C17B,
+    DH2AG6B,QH1G6C17B,DH1AG6B,PH1G6C17B,DBPM12,SH1G6C17B,GEG6C17B;
+G1C18:GSG1C18A,DH2G1A,DFH1G1C18A,FXH1G1C18A,FYH1G1C18A,DFH1G1C18A,DH01G1C18A,PU1G1C18A,DH02G1C18A,CU1XG1C18ID1,
+    CU1YG1C18ID1,CS1XG1C18ID1,CS1YG1C18ID1,DW100G1C18U,CU2XG1C18ID1,CU2YG1C18ID1,CS2XG1C18ID1,CS2YG1C18ID1,
+    DH04G1C18A,DH05G1C18A,CU1XG1C18ID2,CU1YG1C18ID2,CS1XG1C18ID2,CS1YG1C18ID2,DW100G1C18D,CU2XG1C18ID2,
+    CU2YG1C18ID2,CS2XG1C18ID2,CS2YG1C18ID2,DH07G1C18A,PU4G1C18A,DH08G1C18A,DFH2G1C18A,FXH2G1C18A,FYH2G1C18A,
+    DFH2G1C18A,DH1G1A,GEG1C18A;
+G2C18:GSG2C18A,SH1G2C18A,DH1AG2A,PH1G2C18A,DBPM01,QH1G2C18A,DH2AG2A,SQHHG2C18A,CXH1G2C18A,CYH1G2C18A,
+    SQHHG2C18A,DH2BG2A,QH2G2C18A,DH3AG2A,SH3G2C18A,DH3BG2A,QH3G2C18A,DH4AG2A,PH2G2C18A,DBPM02,SH4G2C18A,
+    DH4BG2A,DCH2G2C18A,CXH2G2C18A,CYH2G2C18A,DCH2G2C18A,GEG2C18A;
+G3C18:DH4CG3A,GSG3C18A,B1G3C18A,GEG3C18A;
+G4C18:GSG4C18A,DM1AG4A,DCM1G4C18A,CXM1G4C18A,CYM1G4C18A,DCM1G4C18A,DM1BG4A,QM1G4C18A,DM2AG4A,SM1G4C18A,
+    DFT1,DFM1G4C18A,FXM1G4C18A,FYM1G4C18A,DFM1G4C18A,DM2BG4A,PM1G4C18A,DBPM03,QM2G4C18A,DM2CG4A,SM2G4C18B,
+    DM2CG4B,QM2G4C18B,DM2BG4B,SM1G4C18B,DM2AG4B,PM1G4C18B,DBPM04,QM1G4C18B,DM1EG4B,DCM1G4C18B,CXM1G4C18B,
+    CYM1G4C18B,DCM1G4C18B,GEG4C18B;
+G5C18:GSG5C18B,DM1DG5B1,DPWG5B,DM1CG5B1,B1G5C18B,GEG5C18B;
+G6C18:DL4BG6B,GSG6C18B,DL4AG6B,QL3G6C18B,DBPM05,PL2G6C18B,DL3CG6B,SL3G6C18B,DL3BG6B,DCL2G6C18B,CXL2G6C18B,
+    CYL2G6C18B,DCL2G6C18B,DL3AG6B,QL2G6C18B,DL2CG6B,SL2G6C18B,DL2BG6B,DCL1G6C18B,CXL1G6C18B,CYL1G6C18B,
+    DCL1G6C18B,DL2AG6B,QL1G6C18B,DL1AG6B,PL1G6C18B,DBPM06,SL1G6C18B,GEG6C18B;
+G1C19:GSG1C19A,DL0BG1A,DFL1G1C19A,FXL1G1C19A,FYL1G1C19A,DFL1G1C19A,DFT2,DLDK,DL01G1C19A,DL05G1C19A,DLDK,
+    DFT2,DFL2G1C19A,FXL2G1C19A,FYL2G1C19A,DFL2G1C19A,DL0AG1A,GEG1C19A;
+G2C19:GSG2C19A,SL1G2C19A,DL1AG2A,PL1G2C19A,DBPM07,QL1G2C19A,DL2AG2A,DCL1G2C19A,CXL1G2C19A,CYL1G2C19A,
+    DCL1G2C19A,DL2BG2A,SL2G2C19A,DL2CG2A,QL2G2C19A,DL3AG2A,DCL2G2C19A,CXL2G2C19A,CYL2G2C19A,DCL2G2C19A,
+    DL3BG2A,SL3G2C19A,DL3CG2A,PL2G2C19A,DBPM08,QL3G2C19A,DL4AG2A,GEG2C19A;
+G3C19:DL4BG3A,GSG3C19A,B1G3C19A,GEG3C19A;
+G4C19:GSG4C19A,DM1AG4A,SQMHG4C19A,CXM1G4C19A,CYM1G4C19A,SQMHG4C19A,DM1BG4A,QM1G4C19A,DM2A2G4A,SM1G4C19A,
+    DFT1,DFM1G4C19A,FXM1G4C19A,FYM1G4C19A,DFM1G4C19A,DM2B2G4A,PM1G4C19A,DBPM09,QM2G4C19A,DM2CG4A,SM2G4C19B,
+    DM2CG4B,QM2G4C19B,DM2B2G4B,SM1G4C19B,DM2A2G4B,PM1G4C19B,DBPM10,QM1G4C19B,DM1EG4B,DCM1G4C19B,CXM1G4C19B,
+    CYM1G4C19B,DCM1G4C19B,GEG4C19B;
+G5C19:GSG5C19B,DM1DG5B2,DPWG5B,DM1CG5B2,B1G5C19B,GEG5C19B;
+G6C19:DH4CG6B,GSG6C19B,DCH2G6C19B,CXH2G6C19B,CYH2G6C19B,DCH2G6C19B,DH4BG6B,SH4G6C19B,DH4AG6B,PH2G6C19B,
+    DBPM11,QH3G6C19B,DH3BG6B,SH3G6C19B,DH3AG6B,QH2G6C19B,DH2BG6B,DCH1G6C19B,CXH1G6C19B,CYH1G6C19B,DCH1G6C19B,
+    DH2AG6B,QH1G6C19B,DH1AG6B,PH1G6C19B,DBPM12,SH1G6C19B,GEG6C19B;
+G1C20:GSG1C20A,DH2G1A,DFH1G1C20A,FXH1G1C20A,FYH1G1C20A,DFH1G1C20A,DH01G1C20A,DH05G1C20A,DFH2G1C20A,FXH2G1C20A,
+    FYH2G1C20A,DFH2G1C20A,DH1G1A,GEG1C20A;
+G2C20:GSG2C20A,SH1G2C20A,DH1AG2A,PH1G2C20A,DBPM01,QH1G2C20A,DH2AG2A,SQHHG2C20A,CXH1G2C20A,CYH1G2C20A,
+    SQHHG2C20A,DH2BG2A,QH2G2C20A,DH3AG2A,SH3G2C20A,DH3BG2A,QH3G2C20A,DH4AG2A,PH2G2C20A,DBPM02,SH4G2C20A,
+    DH4BG2A,DCH2G2C20A,CXH2G2C20A,CYH2G2C20A,DCH2G2C20A,GEG2C20A;
+G3C20:DH4CG3A,GSG3C20A,B1G3C20A,GEG3C20A;
+G4C20:GSG4C20A,DM1AG4A,DCM1G4C20A,CXM1G4C20A,CYM1G4C20A,DCM1G4C20A,DM1BG4A,QM1G4C20A,DM2AG4A,SM1G4C20A,
+    DFT1,DFM1G4C20A,FXM1G4C20A,FYM1G4C20A,DFM1G4C20A,DM2BG4A,PM1G4C20A,DBPM03,QM2G4C20A,DM2CG4A,SM2G4C20B,
+    DM2CG4B,QM2G4C20B,DM2BG4B,SM1G4C20B,DM2AG4B,PM1G4C20B,DBPM04,QM1G4C20B,DM1EG4B,DCM1G4C20B,CXM1G4C20B,
+    CYM1G4C20B,DCM1G4C20B,GEG4C20B;
+G5C20:GSG5C20B,DM1DG5B1,DPWG5B,DM1CG5B1,B1G5C20B,GEG5C20B;
+G6C20:DL4BG6B,GSG6C20B,DL4AG6B,QL3G6C20B,DBPM05,PL2G6C20B,DL3CG6B,SL3G6C20B,DL3BG6B,DCL2G6C20B,CXL2G6C20B,
+    CYL2G6C20B,DCL2G6C20B,DL3AG6B,QL2G6C20B,DL2CG6B,SL2G6C20B,DL2BG6B,DCL1G6C20B,CXL1G6C20B,CYL1G6C20B,
+    DCL1G6C20B,DL2AG6B,QL1G6C20B,DL1AG6B,PL1G6C20B,DBPM06,SL1G6C20B,GEG6C20B;
+G1C21:GSG1C21A,DL0BG1A,DFL1G1C21A,FXL1G1C21A,FYL1G1C21A,DFL1G1C21A,DFT2,DLDK,DL01G1C21A,DL05G1C21A,DLDK,
+    DFT2,DFL2G1C21A,FXL2G1C21A,FYL2G1C21A,DFL2G1C21A,DL0AG1A,GEG1C21A;
+G2C21:GSG2C21A,SL1G2C21A,DL1AG2A,PL1G2C21A,DBPM07,QL1G2C21A,DL2AG2A,DCL1G2C21A,CXL1G2C21A,CYL1G2C21A,
+    DCL1G2C21A,DL2BG2A,SL2G2C21A,DL2CG2A,QL2G2C21A,DL3AG2A,DCL2G2C21A,CXL2G2C21A,CYL2G2C21A,DCL2G2C21A,
+    DL3BG2A,SL3G2C21A,DL3CG2A,PL2G2C21A,DBPM08,QL3G2C21A,DL4AG2A,GEG2C21A;
+G3C21:DL4BG3A,GSG3C21A,B1G3C21A,GEG3C21A;
+G4C21:GSG4C21A,DM1AG4A,SQMHG4C21A,CXM1G4C21A,CYM1G4C21A,SQMHG4C21A,DM1BG4A,QM1G4C21A,DM2A2G4A,SM1G4C21A,
+    DFT1,DFM1G4C21A,FXM1G4C21A,FYM1G4C21A,DFM1G4C21A,DM2B2G4A,PM1G4C21A,DBPM09,QM2G4C21A,DM2CG4A,SM2G4C21B,
+    DM2CG4B,QM2G4C21B,DM2B2G4B,SM1G4C21B,DM2A2G4B,PM1G4C21B,DBPM10,QM1G4C21B,DM1EG4B,DCM1G4C21B,CXM1G4C21B,
+    CYM1G4C21B,DCM1G4C21B,GEG4C21B;
+G5C21:GSG5C21B,DM1DG5B2,DPWG5B,DM1CG5B2,B1G5C21B,GEG5C21B;
+G6C21:DH4CG6B,GSG6C21B,DCH2G6C21B,CXH2G6C21B,CYH2G6C21B,DCH2G6C21B,DH4BG6B,SH4G6C21B,DH4AG6B,PH2G6C21B,
+    DBPM11,QH3G6C21B,DH3BG6B,SH3G6C21B,DH3AG6B,QH2G6C21B,DH2BG6B,DCH1G6C21B,CXH1G6C21B,CYH1G6C21B,DCH1G6C21B,
+    DH2AG6B,QH1G6C21B,DH1AG6B,PH1G6C21B,DBPM12,SH1G6C21B,GEG6C21B;
+G1C22:GSG1C22A,DH2G1A,DFH1G1C22A,FXH1G1C22A,FYH1G1C22A,DFH1G1C22A,DH01G1C22A,DH05G1C22A,DFH2G1C22A,FXH2G1C22A,
+    FYH2G1C22A,DFH2G1C22A,DH1G1A,GEG1C22A;
+G2C22:GSG2C22A,SH1G2C22A,DH1AG2A,PH1G2C22A,DBPM01,QH1G2C22A,DH2AG2A,SQHHG2C22A,CXH1G2C22A,CYH1G2C22A,
+    SQHHG2C22A,DH2BG2A,QH2G2C22A,DH3AG2A,SH3G2C22A,DH3BG2A,QH3G2C22A,DH4AG2A,PH2G2C22A,DBPM02,SH4G2C22A,
+    DH4BG2A,DCH2G2C22A,CXH2G2C22A,CYH2G2C22A,DCH2G2C22A,GEG2C22A;
+G3C22:DH4CG3A,GSG3C22A,B1G3C22A,GEG3C22A;
+G4C22:GSG4C22A,DM1AG4A,DCM1G4C22A,CXM1G4C22A,CYM1G4C22A,DCM1G4C22A,DM1BG4A,QM1G4C22A,DM2AG4A,SM1G4C22A,
+    DFT1,DFM1G4C22A,FXM1G4C22A,FYM1G4C22A,DFM1G4C22A,DM2BG4A,PM1G4C22A,DBPM03,QM2G4C22A,DM2CG4A,SM2G4C22B,
+    DM2CG4B,QM2G4C22B,DM2BG4B,SM1G4C22B,DM2AG4B,PM1G4C22B,DBPM04,QM1G4C22B,DM1EG4B,DCM1G4C22B,CXM1G4C22B,
+    CYM1G4C22B,DCM1G4C22B,GEG4C22B;
+G5C22:GSG5C22B,DM1DG5B1,DPWG5B,DM1CG5B1,B1G5C22B,GEG5C22B;
+G6C22:DL4BG6B,GSG6C22B,DL4AG6B,QL3G6C22B,DBPM05,PL2G6C22B,DL3CG6B,SL3G6C22B,DL3BG6B,DCL2G6C22B,CXL2G6C22B,
+    CYL2G6C22B,DCL2G6C22B,DL3AG6B,QL2G6C22B,DL2CG6B,SL2G6C22B,DL2BG6B,DCL1G6C22B,CXL1G6C22B,CYL1G6C22B,
+    DCL1G6C22B,DL2AG6B,QL1G6C22B,DL1AG6B,PL1G6C22B,DBPM06,SL1G6C22B,GEG6C22B;
+G1C23:GSG1C23A,DL0BG1A,DFL1G1C23A,FXL1G1C23A,FYL1G1C23A,DFL1G1C23A,DFT2,DLDK,DL01G1C23A,CU1XG1C23ID1,
+    CU1YG1C23ID1,CS1XG1C23ID1,CS1YG1C23ID1,EPU49G1C23U,CU2XG1C23ID1,CU2YG1C23ID1,CS2XG1C23ID1,CS2YG1C23ID1,
+    DL04G1C23A,DL05G1C23A,CU1XG1C23ID2,CU1YG1C23ID2,CS1XG1C23ID2,CS1YG1C23ID2,EPU49G1C23D,CU2XG1C23ID2,
+    CU2YG1C23ID2,CS2XG1C23ID2,CS2YG1C23ID2,DL07G1C23A,DLDK,DFT2,DFL2G1C23A,FXL2G1C23A,FYL2G1C23A,DFL2G1C23A,
+    DL0AG1A,GEG1C23A;
+G2C23:GSG2C23A,SL1G2C23A,DL1AG2A,PL1G2C23A,DBPM07,QL1G2C23A,DL2AG2A,DCL1G2C23A,CXL1G2C23A,CYL1G2C23A,
+    DCL1G2C23A,DL2BG2A,SL2G2C23A,DL2CG2A,QL2G2C23A,DL3AG2A,DCL2G2C23A,CXL2G2C23A,CYL2G2C23A,DCL2G2C23A,
+    DL3BG2A,SL3G2C23A,DL3CG2A,PL2G2C23A,DBPM08,QL3G2C23A,DL4AG2A,GEG2C23A;
+G3C23:DL4BG3A,GSG3C23A,B2G3C23A,GEG3C23A;
+G4C23:GSG4C23A,DM1AG4A,SQMHG4C23A,CXM1G4C23A,CYM1G4C23A,SQMHG4C23A,DM1BG4A,QM1G4C23A,DM2A2G4A,SM1G4C23A,
+    DFT1,DFM1G4C23A,FXM1G4C23A,FYM1G4C23A,DFM1G4C23A,DM2B2G4A,PM1G4C23A,DBPM09,QM2G4C23A,DM2CG4A,SM2G4C23B,
+    DM2CG4B,QM2G4C23B,DM2B2G4B,SM1G4C23B,DM2A2G4B,PM1G4C23B,DBPM10,QM1G4C23B,DM1EG4B,DCM1G4C23B,CXM1G4C23B,
+    CYM1G4C23B,DCM1G4C23B,GEG4C23B;
+G5C23:GSG5C23B,DM1DG5B2C23,DPWG5B,DM1CG5B2C23,B2G5C23B,GEG5C23B;
+G6C23:DH4CG6B,GSG6C23B,DCH2G6C23B,CXH2G6C23B,CYH2G6C23B,DCH2G6C23B,DH4BG6B,SH4G6C23B,DH4AG6B,PH2G6C23B,
+    DBPM11,QH3G6C23B,DH3BG6B,SH3G6C23B,DH3AG6B,QH2G6C23B,DH2BG6B,DCH1G6C23B,CXH1G6C23B,CYH1G6C23B,DCH1G6C23B,
+    DH2AG6B,QH1G6C23B,DH1AG6B,PH1G6C23B,DBPM12,SH1G6C23B,GEG6C23B;
+G1C24:GSG1C24A,DH2G1A,DFH1G1C24A,FXH1G1C24A,FYH1G1C24A,DFH1G1C24A,DH01G1C24A,DH05G1C24A,DFH2G1C24A,FXH2G1C24A,
+    FYH2G1C24A,DFH2G1C24A,DH1G1A,GEG1C24A;
+G2C24:GSG2C24A,SH1G2C24A,DH1AG2A,PH1G2C24A,DBPM01,QH1G2C24A,DH2AG2A,SQHHG2C24A,CXH1G2C24A,CYH1G2C24A,
+    SQHHG2C24A,DH2BG2A,QH2G2C24A,DH3AG2A,SH3G2C24A,DH3BG2A,QH3G2C24A,DH4AG2A,PH2G2C24A,DBPM02,SH4G2C24A,
+    DH4BG2A,DCH2G2C24A,CXH2G2C24A,CYH2G2C24A,DCH2G2C24A,GEG2C24A;
+G3C24:DH4CG3A,GSG3C24A,B1G3C24A,GEG3C24A;
+G4C24:GSG4C24A,DM1AG4A,DCM1G4C24A,CXM1G4C24A,CYM1G4C24A,DCM1G4C24A,DM1BG4A,QM1G4C24A,DM2AG4A,SM1G4C24A,
+    DFT1,DFM1G4C24A,FXM1G4C24A,FYM1G4C24A,DFM1G4C24A,DM2BG4A,PM1G4C24A,DBPM03,QM2G4C24A,DM2CG4A,SM2G4C24B,
+    DM2CG4B,QM2G4C24B,DM2BG4B,SM1G4C24B,DM2AG4B,PM1G4C24B,DBPM04,QM1G4C24B,DM1EG4B,DCM1G4C24B,CXM1G4C24B,
+    CYM1G4C24B,DCM1G4C24B,GEG4C24B;
+G5C24:GSG5C24B,DM1DG5B1,DPWG5B,DM1CG5B1,B1G5C24B,GEG5C24B;
+G6C24:DL4BG6B,GSG6C24B,DL4AG6B,QL3G6C24B,DBPM05,PL2G6C24B,DL3CG6B,SL3G6C24B,DL3BG6B,DCL2G6C24B,CXL2G6C24B,
+    CYL2G6C24B,DCL2G6C24B,DL3AG6B,QL2G6C24B,DL2CG6B,SL2G6C24B,DL2BG6B,DCL1G6C24B,CXL1G6C24B,CYL1G6C24B,
+    DCL1G6C24B,DL2AG6B,QL1G6C24B,DL1AG6B,PL1G6C24B,DBPM06,SL1G6C24B,GEG6C24B;
+G1C25:GSG1C25A,DL0BG1A,DFL1G1C25A,FXL1G1C25A,FYL1G1C25A,DFL1G1C25A,DFT2,DLDK,DL01G1C25A,DL05G1C25A,DLDK,
+    DFT2,DFL2G1C25A,FXL2G1C25A,FYL2G1C25A,DFL2G1C25A,DL0AG1A,GEG1C25A;
+G2C25:GSG2C25A,SL1G2C25A,DL1AG2A,PL1G2C25A,DBPM07,QL1G2C25A,DL2AG2A,DCL1G2C25A,CXL1G2C25A,CYL1G2C25A,
+    DCL1G2C25A,DL2BG2A,SL2G2C25A,DL2CG2A,QL2G2C25A,DL3AG2A,DCL2G2C25A,CXL2G2C25A,CYL2G2C25A,DCL2G2C25A,
+    DL3BG2A,SL3G2C25A,DL3CG2A,PL2G2C25A,DBPM08,QL3G2C25A,DL4AG2A,GEG2C25A;
+G3C25:DL4BG3A,GSG3C25A,B1G3C25A,GEG3C25A;
+G4C25:GSG4C25A,DM1AG4A,SQMHG4C25A,CXM1G4C25A,CYM1G4C25A,SQMHG4C25A,DM1BG4A,QM1G4C25A,DM2A2G4A,SM1G4C25A,
+    DFT1,DFM1G4C25A,FXM1G4C25A,FYM1G4C25A,DFM1G4C25A,DM2B2G4A,PM1G4C25A,DBPM09,QM2G4C25A,DM2CG4A,SM2G4C25B,
+    DM2CG4B,QM2G4C25B,DM2B2G4B,SM1G4C25B,DM2A2G4B,PM1G4C25B,DBPM10,QM1G4C25B,DM1EG4B,DCM1G4C25B,CXM1G4C25B,
+    CYM1G4C25B,DCM1G4C25B,GEG4C25B;
+G5C25:GSG5C25B,DM1DG5B2,DPWG5B,DM1CG5B2,B1G5C25B,GEG5C25B;
+G6C25:DH4CG6B,GSG6C25B,DCH2G6C25B,CXH2G6C25B,CYH2G6C25B,DCH2G6C25B,DH4BG6B,SH4G6C25B,DH4AG6B,PH2G6C25B,
+    DBPM11,QH3G6C25B,DH3BG6B,SH3G6C25B,DH3AG6B,QH2G6C25B,DH2BG6B,DCH1G6C25B,CXH1G6C25B,CYH1G6C25B,DCH1G6C25B,
+    DH2AG6B,QH1G6C25B,DH1AG6B,PH1G6C25B,DBPM12,SH1G6C25B,GEG6C25B;
+G1C26:GSG1C26A,DH2G1A,DFH1G1C26A,FXH1G1C26A,FYH1G1C26A,DFH1G1C26A,DH01G1C26A,DH05G1C26A,DFH2G1C26A,FXH2G1C26A,
+    FYH2G1C26A,DFH2G1C26A,DH1G1A,GEG1C26A;
+G2C26:GSG2C26A,SH1G2C26A,DH1AG2A,PH1G2C26A,DBPM01,QH1G2C26A,DH2AG2A,SQHHG2C26A,CXH1G2C26A,CYH1G2C26A,
+    SQHHG2C26A,DH2BG2A,QH2G2C26A,DH3AG2A,SH3G2C26A,DH3BG2A,QH3G2C26A,DH4AG2A,PH2G2C26A,DBPM02,SH4G2C26A,
+    DH4BG2A,DCH2G2C26A,CXH2G2C26A,CYH2G2C26A,DCH2G2C26A,GEG2C26A;
+G3C26:DH4CG3A,GSG3C26A,B1G3C26A,GEG3C26A;
+G4C26:GSG4C26A,DM1AG4A,DCM1G4C26A,CXM1G4C26A,CYM1G4C26A,DCM1G4C26A,DM1BG4A,QM1G4C26A,DM2AG4A,SM1G4C26A,
+    DFT1,DFM1G4C26A,FXM1G4C26A,FYM1G4C26A,DFM1G4C26A,DM2BG4A,PM1G4C26A,DBPM03,QM2G4C26A,DM2CG4A,SM2G4C26B,
+    DM2CG4B,QM2G4C26B,DM2BG4B,SM1G4C26B,DM2AG4B,PM1G4C26B,DBPM04,QM1G4C26B,DM1EG4B,DCM1G4C26B,CXM1G4C26B,
+    CYM1G4C26B,DCM1G4C26B,GEG4C26B;
+G5C26:GSG5C26B,DM1DG5B1,DPWG5B,DM1CG5B1,B1G5C26B,GEG5C26B;
+G6C26:DL4BG6B,GSG6C26B,DL4AG6B,QL3G6C26B,DBPM05,PL2G6C26B,DL3CG6B,SL3G6C26B,DL3BG6B,DCL2G6C26B,CXL2G6C26B,
+    CYL2G6C26B,DCL2G6C26B,DL3AG6B,QL2G6C26B,DL2CG6B,SL2G6C26B,DL2BG6B,DCL1G6C26B,CXL1G6C26B,CYL1G6C26B,
+    DCL1G6C26B,DL2AG6B,QL1G6C26B,DL1AG6B,PL1G6C26B,DBPM06,SL1G6C26B,GEG6C26B;
+G1C27:GSG1C27A,DL0BG1A,DFL1G1C27A,FXL1G1C27A,FYL1G1C27A,DFL1G1C27A,DFT2,DLDK,DL01G1C27A,DL05G1C27A,DLDK,
+    DFT2,DFL2G1C27A,FXL2G1C27A,FYL2G1C27A,DFL2G1C27A,DL0AG1A,GEG1C27A;
+G2C27:GSG2C27A,SL1G2C27A,DL1AG2A,PL1G2C27A,DBPM07,QL1G2C27A,DL2AG2A,DCL1G2C27A,CXL1G2C27A,CYL1G2C27A,
+    DCL1G2C27A,DL2BG2A,SL2G2C27A,DL2CG2A,QL2G2C27A,DL3AG2A,DCL2G2C27A,CXL2G2C27A,CYL2G2C27A,DCL2G2C27A,
+    DL3BG2A,SL3G2C27A,DL3CG2A,PL2G2C27A,DBPM08,QL3G2C27A,DL4AG2A,GEG2C27A;
+G3C27:DL4BG3A,GSG3C27A,B1G3C27A,GEG3C27A;
+G4C27:GSG4C27A,DM1AG4A,SQMHG4C27A,CXM1G4C27A,CYM1G4C27A,SQMHG4C27A,DM1BG4A,QM1G4C27A,DM2A2G4A,SM1G4C27A,
+    DFT1,DFM1G4C27A,FXM1G4C27A,FYM1G4C27A,DFM1G4C27A,DM2B2G4A,PM1G4C27A,DBPM09,QM2G4C27A,DM2CG4A,SM2G4C27B,
+    DM2CG4B,QM2G4C27B,DM2B2G4B,SM1G4C27B,DM2A2G4B,PM1G4C27B,DBPM10,QM1G4C27B,DM1EG4B,DCM1G4C27B,CXM1G4C27B,
+    CYM1G4C27B,DCM1G4C27B,GEG4C27B;
+G5C27:GSG5C27B,DM1DG5B2,DPWG5B,DM1CG5B2,B1G5C27B,GEG5C27B;
+G6C27:DH4CG6B,GSG6C27B,DCH2G6C27B,CXH2G6C27B,CYH2G6C27B,DCH2G6C27B,DH4BG6B,SH4G6C27B,DH4AG6B,PH2G6C27B,
+    DBPM11,QH3G6C27B,DH3BG6B,SH3G6C27B,DH3AG6B,QH2G6C27B,DH2BG6B,DCH1G6C27B,CXH1G6C27B,CYH1G6C27B,DCH1G6C27B,
+    DH2AG6B,QH1G6C27B,DH1AG6B,PH1G6C27B,DBPM12,SH1G6C27B,GEG6C27B;
+G1C28:GSG1C28A,DH2G1A,DFH1G1C28A,FXH1G1C28A,FYH1G1C28A,DFH1G1C28A,DH01G1C28A,PU1G1C28A,DH02G1C28A,CU1XG1C28ID1,
+    CU1YG1C28ID1,CS1XG1C28ID1,CS1YG1C28ID1,DW100G1C28U,CU2XG1C28ID1,CU2YG1C28ID1,CS2XG1C28ID1,CS2YG1C28ID1,
+    DH04G1C28A,DH05G1C28A,CU1XG1C28ID2,CU1YG1C28ID2,CS1XG1C28ID2,CS1YG1C28ID2,DW100G1C28D,CU2XG1C28ID2,
+    CU2YG1C28ID2,CS2XG1C28ID2,CS2YG1C28ID2,DH07G1C28A,PU4G1C28A,DH08G1C28A,DFH2G1C28A,FXH2G1C28A,FYH2G1C28A,
+    DFH2G1C28A,DH1G1A,GEG1C28A;
+G2C28:GSG2C28A,SH1G2C28A,DH1AG2A,PH1G2C28A,DBPM01,QH1G2C28A,DH2AG2A,SQHHG2C28A,CXH1G2C28A,CYH1G2C28A,
+    SQHHG2C28A,DH2BG2A,QH2G2C28A,DH3AG2A,SH3G2C28A,DH3BG2A,QH3G2C28A,DH4AG2A,PH2G2C28A,DBPM02,SH4G2C28A,
+    DH4BG2A,DCH2G2C28A,CXH2G2C28A,CYH2G2C28A,DCH2G2C28A,GEG2C28A;
+G3C28:DH4CG3A,GSG3C28A,B1G3C28A,GEG3C28A;
+G4C28:GSG4C28A,DM1AG4A,DCM1G4C28A,CXM1G4C28A,CYM1G4C28A,DCM1G4C28A,DM1BG4A,QM1G4C28A,DM2AG4A,SM1G4C28A,
+    DFT1,DFM1G4C28A,FXM1G4C28A,FYM1G4C28A,DFM1G4C28A,DM2BG4A,PM1G4C28A,DBPM03,QM2G4C28A,DM2CG4A,SM2G4C28B,
+    DM2CG4B,QM2G4C28B,DM2BG4B,SM1G4C28B,DM2AG4B,PM1G4C28B,DBPM04,QM1G4C28B,DM1EG4B,DCM1G4C28B,CXM1G4C28B,
+    CYM1G4C28B,DCM1G4C28B,GEG4C28B;
+G5C28:GSG5C28B,DM1DG5B1,DPWG5B,DM1CG5B1,B1G5C28B,GEG5C28B;
+G6C28:DL4BG6B,GSG6C28B,DL4AG6B,QL3G6C28B,DBPM05,PL2G6C28B,DL3CG6B,SL3G6C28B,DL3BG6B,DCL2G6C28B,CXL2G6C28B,
+    CYL2G6C28B,DCL2G6C28B,DL3AG6B,QL2G6C28B,DL2CG6B,SL2G6C28B,DL2BG6B,DCL1G6C28B,CXL1G6C28B,CYL1G6C28B,
+    DCL1G6C28B,DL2AG6B,QL1G6C28B,DL1AG6B,PL1G6C28B,DBPM06,SL1G6C28B,GEG6C28B;
+G1C29:GSG1C29A,DL0BG1A,DFL1G1C29A,FXL1G1C29A,FYL1G1C29A,DFL1G1C29A,DFT2,DLDK,DL01G1C29A,DL05G1C29A,DLDK,
+    DFT2,DFL2G1C29A,FXL2G1C29A,FYL2G1C29A,DFL2G1C29A,DL0AG1A,GEG1C29A;
+G2C29:GSG2C29A,SL1G2C29A,DL1AG2A,PL1G2C29A,DBPM07,QL1G2C29A,DL2AG2A,DCL1G2C29A,CXL1G2C29A,CYL1G2C29A,
+    DCL1G2C29A,DL2BG2A,SL2G2C29A,DL2CG2A,QL2G2C29A,DL3AG2A,DCL2G2C29A,CXL2G2C29A,CYL2G2C29A,DCL2G2C29A,
+    DL3BG2A,SL3G2C29A,DL3CG2A,PL2G2C29A,DBPM08,QL3G2C29A,DL4AG2A,GEG2C29A;
+G3C29:DL4BG3A,GSG3C29A,B1G3C29A,GEG3C29A;
+G4C29:GSG4C29A,DM1AG4A,SQMHG4C29A,CXM1G4C29A,CYM1G4C29A,SQMHG4C29A,DM1BG4A,QM1G4C29A,DM2A2G4A,SM1G4C29A,
+    DFT1,DFM1G4C29A,FXM1G4C29A,FYM1G4C29A,DFM1G4C29A,DM2B2G4A,PM1G4C29A,DBPM09,QM2G4C29A,DM2CG4A,SM2G4C29B,
+    DM2CG4B,QM2G4C29B,DM2B2G4B,SM1G4C29B,DM2A2G4B,PM1G4C29B,DBPM10,QM1G4C29B,DM1EG4B,DCM1G4C29B,CXM1G4C29B,
+    CYM1G4C29B,DCM1G4C29B,GEG4C29B;
+G5C29:GSG5C29B,DM1DG5B2,DPWG5B,DM1CG5B2,B1G5C29B,GEG5C29B;
+G6C29:DH4CG6B,GSG6C29B,DCH2G6C29B,CXH2G6C29B,CYH2G6C29B,DCH2G6C29B,DH4BG6B,SH4G6C29B,DH4AG6B,PH2G6C29B,
+    DBPM11,QH3G6C29B,DH3BG6B,SH3G6C29B,DH3AG6B,QH2G6C29B,DH2BG6B,DCH1G6C29B,CXH1G6C29B,CYH1G6C29B,DCH1G6C29B,
+    DH2AG6B,QH1G6C29B,DH1AG6B,PH1G6C29B,DBPM12,SH1G6C29B,GEG6C29B;
+G1C30H2:GSG1C30A,DH2G1A,DFH1G1C30A,FXH1G1C30A,FYH1G1C30A,DFH1G1C30A,DH01G1C30A;
+
+{***** RING *****}
+RING:G1C30,G2C30,G3C30,G4C30,G5C30,G6C30,G1C01,G2C01,G3C01,G4C01,G5C01,G6C01,G1C02,G2C02,G3C02,G4C02,
+    G5C02,G6C02,G1C03,G2C03,G3C03,G4C03,G5C03,G6C03,G1C04,G2C04,G3C04,G4C04,G5C04,G6C04,G1C05,G2C05,
+    G3C05,G4C05,G5C05,G6C05,G1C06,G2C06,G3C06,G4C06,G5C06,G6C06,G1C07,G2C07,G3C07,G4C07,G5C07,G6C07,
+    G1C08,G2C08,G3C08,G4C08,G5C08,G6C08,G1C09,G2C09,G3C09,G4C09,G5C09,G6C09,G1C10,G2C10,G3C10,G4C10,
+    G5C10,G6C10,G1C11,G2C11,G3C11,G4C11,G5C11,G6C11,G1C12,G2C12,G3C12,G4C12,G5C12,G6C12,G1C13,G2C13,
+    G3C13,G4C13,G5C13,G6C13,G1C14,G2C14,G3C14,G4C14,G5C14,G6C14,G1C15,G2C15,G3C15,G4C15,G5C15,G6C15,
+    G1C16,G2C16,G3C16,G4C16,G5C16,G6C16,G1C17,G2C17,G3C17,G4C17,G5C17,G6C17,G1C18,G2C18,G3C18,G4C18,
+    G5C18,G6C18,G1C19,G2C19,G3C19,G4C19,G5C19,G6C19,G1C20,G2C20,G3C20,G4C20,G5C20,G6C20,G1C21,G2C21,
+    G3C21,G4C21,G5C21,G6C21,G1C22,G2C22,G3C22,G4C22,G5C22,G6C22,G1C23,G2C23,G3C23,G4C23,G5C23,G6C23,
+    G1C24,G2C24,G3C24,G4C24,G5C24,G6C24,G1C25,G2C25,G3C25,G4C25,G5C25,G6C25,G1C26,G2C26,G3C26,G4C26,
+    G5C26,G6C26,G1C27,G2C27,G3C27,G4C27,G5C27,G6C27,G1C28,G2C28,G3C28,G4C28,G5C28,G6C28,G1C29,G2C29,
+    G3C29,G4C29,G5C29,G6C29,G1C30H2,CAV;
+
+CELL: RING, SYMMETRY = 1;
+END;

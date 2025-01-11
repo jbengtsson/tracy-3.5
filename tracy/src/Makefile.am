@@ -14,7 +14,7 @@ GNU = /usr/local/opt
 AM_CPPFLAGS = \
 	-I$(GNU)/gcc/include \
 	-I$(GNU)/gsl/include \
-	-I../inc \
+	-I$(TRACY_LIB)/tracy/inc \
 	-I$(NUM_REC)/inc
 
 # FORTRAN 77 flags.

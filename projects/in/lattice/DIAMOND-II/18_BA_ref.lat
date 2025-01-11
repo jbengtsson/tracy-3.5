@@ -1,0 +1,77 @@
+define lattice; ringtype = 1;
+
+Energy = 3.0;
+
+dP = 1e-8; CODeps = 1e-14;
+
+Meth = 4; Nbend = 10; Nquad = 10; Nsext = 2;
+
+pi = 4.0*arctan(1.0);
+
+c0 = 2.99792458e8; h_rf = 187; C = 560.0644; Brho = 1e9*Energy/c0;
+
+cav: Cavity, Frequency = c0/C*h_rf, Voltage = 1.8e6, Harnum = h_rf;
+
+bpm: beam position monitor;
+
+chv: multipole, N=1, Method = Meth;
+
+l1:  drift, l = 0.05385+0.025;
+l2:  drift, l = 0.14557+0.05;
+l3:  drift, l = 0.05;
+
+l4:  drift, l = 2.5;
+l5h: drift, l = 0.05796;
+l6h: drift, l = 0.32236;
+l7:  drift, l = 0.60134;
+l8:  drift, l = 0.07330;
+
+{ Cell tune [4/15, 3/15]. }
+bh:  bending, l =  0.14559, t = 0.5, k = -8.97744, t1 = 0.0, t2 = 0.0,
+     gap = 0.0, N = Nbend, Method = Meth;
+qf:  quadrupole, l = 0.08, k = 19.15357, N = Nquad, Method = Meth;
+
+bm:  bending, l = 0.14559, t = 0.5, k = -10.27854, t1 = 0.0, t2 = 0.0,
+     gap = 0.00, N = Nbend, Method = Meth;
+qm:  quadrupole, l = 0.2,  k =  18.38995, N = Nquad, Method = Meth;
+{qfe: quadrupole, l = 0.1,  k = -11.31430, N = Nquad, Method = Meth;
+qde: quadrupole, l = 0.1,  k =  20.63276, N = Nquad, Method = Meth;}
+{ Tune [102.10, 68.40]. }
+{qfe: quadrupole, l = 0.1, k = -11.44144, N = Nquad, Method = Meth;
+qde: quadrupole, l = 0.1, k =  20.70924, N = Nquad, Method = Meth;}
+{ Tune [102.18, 68.22]. }
+qfe: quadrupole, l = 0.1, k = -11.24113, N = Nquad, Method = Meth;
+qde: quadrupole, l = 0.1, k =  20.62185, N = Nquad, Method = Meth;
+
+sfh: sextupole, l = 0.025, k =  6000.99, N = Nquad, Method = Meth;
+sd:  sextupole, l = 0.05,  k = -4803.03, N = Nquad, Method = Meth;
+
+
+o1: multipole, l = 0.0, N = Nsext, Method = Meth,
+    HOM = (4,  2.67965e+04, 0.0, 6,  4.65831e+09, 0.0);
+o2: multipole, l = 0.0, N = Nsext, Method = Meth,
+    HOM = (4, -8.83540e+04, 0.0, 6, -3.15929e+09, 0.0);
+o3: multipole, l = 0.0, N = Nsext, Method = Meth,
+    HOM = (4,  4.65435e+04, 0.0, 6, -2.69424e+08, 0.0);
+o4: multipole, l = 0.0, N = Nsext, Method = Meth,
+    HOM = (4,  5.88040e+03, 0.0, 6, -1.59446e+08, 0.0);
+
+start: marker;
+
+uc_h: sfh, l1, qf, l2, sd, l3, bh;
+uc:   inv(uc_h), uc_h;
+
+ms: l4, o1, bpm, chv, qfe, l5h, o2, l5h, qde, o3, l6h, l6h, o4, bm, l7, qm,
+    l8, bh;
+
+sc: ms, bpm, chv, 15*(uc, bpm, chv), inv(ms);
+
+{line: 1*uc, cav;}
+
+{line: uc_h, inv(ms), cav;}
+
+line: 1*sc, cav;
+
+cell: line, symmetry = 1;
+
+end;

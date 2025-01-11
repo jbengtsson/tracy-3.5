@@ -1,0 +1,102 @@
+{..dateien\opa\examples\example-cells\lattices talk 3\l1-150-16-6-9sx.opa}
+
+{opa to tracy-3 export}
+
+define lattice;
+energy = 2.500000;
+dp = 1.0d-10;  codeps = 1.0d-6;  dk = 1.0d-6;
+meth = 4; nbend = 10; nquad = 10;
+
+{----- variables ---------------------------------------------------}
+
+orbitdpp  = 0;
+b0a       = 2.3*1.0;
+b1a       = -0.15*1.0;
+mb1a      = -0.0*1.0;
+mb0a      = 2.65-mb1a;
+
+{----- table of elements ---------------------------------------------}
+
+c0 = 2.99792458e8; gamma = 3.5e9/c0; Brho = 1e9*Energy/c0;
+
+h_rf = 538; C = 16*20.2;
+
+cav: Cavity, L = 0.0, Frequency = c0/C*h_rf, Voltage = 1.5e6, harnum = h_rf,
+     phi = 0.0;
+
+l0   : drift, l = 0.100000;
+l1   : drift, l = 0.150000;
+l2   : drift, l = 0.100000;
+l3   : drift, l = 0.100000;
+ml0  : drift, l = 0.050000;
+ml1  : drift, l = 0.050000;
+ml2  : drift, l = 0.160000;
+ml3  : drift, l = 0.100000;
+ul0  : drift, l = 0.170690;
+ul1  : drift, l = 0.190000;
+ul2  : drift, l = 0.122502;
+ul3  : drift, l = 0.100000;
+ul4  : drift, l = 2.800000;
+o1l  : drift, l = 0.040000;
+
+q0   : quadrupole, l = 0.090000, k = -10.424964, n=nquad, method=meth;
+q0a  : quadrupole, l = 0.090000, k = -11.000000, n=nquad, method=meth;
+q1   : quadrupole, l = 0.130000, k = 11.138731, n=nquad, method=meth;
+q1a  : quadrupole, l = 0.090000, k = 4.351168, n=nquad, method=meth;
+mq0  : quadrupole, l = 0.100000, k = 0.000000, n=nquad, method=meth;
+mq1  : quadrupole, l = 0.090000, k = -2.636371, n=nquad, method=meth;
+mq2  : quadrupole, l = 0.140000, k = 7.889990, n=nquad, method=meth;
+uq1  : quadrupole, l = 0.100000, k = -7.493791, n=nquad, method=meth;
+uq2  : quadrupole, l = 0.140000, k = 7.723636, n=nquad, method=meth;
+uq3  : quadrupole, l = 0.045000, k = -7.925957, n=nquad, method=meth;
+
+b0   : bending, l = 0.420000, t = b0a, k = -1.830732, t1 = 0.000000, t2 = b0a,
+       n=nbend, method=meth;
+b1   : bending, l = 0.160000, t = b1a, k = 7.245686, t1 = b1a/2.0, t2 = b1a/2.0,
+       n=nbend, method=meth;
+b1a  : bending, l = 0.180000, t = b1a, k = 7.417009, t1 = b1a/2.0, t2 = b1a/2.0,
+       n=nbend, method=meth;
+mb0  : bending, l = 0.300000, t = mb0a, k = 0.000000, t1 = mb0a/2.0,
+       t2 = mb0a/2.0, n=nbend, method=meth;
+mb1  : bending, l = 0.050000, t = mb1a, k = 0.000000, t1 = mb1a/2.0,
+       t2 = mb1a/2.0, n=nbend, method=meth;
+
+s0   : sextupole, l = 0.060000, k = 65.198019, n = 5, method=meth;
+s0a  : sextupole, l = 0.040000, k = 1025.900448, n = 5, method=meth;
+s0b  : sextupole, l = 0.040000, k = 1425.292861, n = 5, method=meth;
+s1   : sextupole, l = 0.080000, k = -176.364626, n = 5, method=meth;
+s1a  : sextupole, l = 0.080000, k = -756.519806, n = 5, method=meth;
+s1b  : sextupole, l = 0.080000, k = -1024.097529, n = 5, method=meth;
+s1c  : sextupole, l = 0.080000, k = -646.556370, n = 5, method=meth;
+s3   : sextupole, l = 0.080000, k = -104.143946, n = 5, method=meth;
+s4   : sextupole, l = 0.080000, k = 27.659110, n = 5, method=meth;
+
+mbac : marker;
+
+o1   : multipole, l = 0.0, hom = (4,0.0000,0), n = 1, method=meth;
+o2   : multipole, l = 0.0, hom = (4,0.0000,0), n = 1, method=meth;
+o3   : multipole, l = 0.0, hom = (4,0.0000,0), n = 1, method=meth;
+
+ps_rot: map;
+
+{----- table of segments ---------------------------------------------}
+
+cell0    : mbac, b0, l1, s1, l1, b1, l3, s0;
+cell1    : mbac, b0, l1, s1a, l1, b1, l3, s0a;
+cell2    : mbac, b0, l1, s1b, l1, b1a, l3, s0b;
+mbacell0 : cell0, inv(cell0);
+mbacell1 : cell1, inv(cell1);
+mcell    : mb0, ml3, mq1, ml2, s1c, ml2, mq2, ml1, ml0, s0b;
+mbacell2 : cell2, inv(mcell);
+mund     : ul0, s3, ul0, uq1, o1, uq1, ul1, uq2, o2, uq2, ul2, s4, ul2, uq3,
+           o3, uq3, ul4;
+arc      : inv(mund), inv(mbacell2), mbacell1, mbacell0, mbacell1, mbacell2,
+           mund;
+
+line: 1*arc, cav, ps_rot;
+
+cell: line, symmetry=1;
+
+end;
+
+{..dateien\opa\examples\example-cells\lattices talk 3\l1-150-16-6-9sx.opa}

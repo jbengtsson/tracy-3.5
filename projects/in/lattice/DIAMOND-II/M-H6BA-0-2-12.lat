@@ -1,0 +1,156 @@
+{..rs\bs36\desktop\m-h6ba-3-1-1\m-h6ba-0-1-10- antibend _119pm-ver-01.opa}
+
+{opa to tracy-2 export}
+
+define lattice;
+energy = 3.500000;
+dp = 1.0d-10; codeps = 1.0d-6; dk = 1.0d-6;
+meth = 4; nbend = 10; nquad = 10;
+
+{----- variables ----------------------------------------------------}
+
+cav: Cavity, L = 0.0, Frequency = 499.654096667e6, Voltage = 2.2e6, phi = 0.0;
+
+aban1  = 0.0469;
+aban2  = 0;
+aban3  = 0.334;
+aban4  = 0.334;
+rk1    = 5.26028347;
+rk2    = -3.62182625;
+rk3    = 6.12183082;
+rk4    = 6.22723242;
+
+{----- table of elements ----------------------------------------------------}
+
+dr_01      : drift, l = 2.450000;
+dr_02      : drift, l = 0.075000;
+dr_03      : drift, l = 0.260000;
+dr_04      : drift, l = 0.075000;
+dr_05      : drift, l = 0.075000;
+dr_06      : drift, l = 0.075000;
+dr_07      : drift, l = 0.450000;
+dr_08      : drift, l = 0.075000;
+dr_09      : drift, l = 0.075000;
+dr_10      : drift, l = 0.100000;
+dr_11      : drift, l = 0.340000;
+dr_12      : drift, l = 0.075000;
+dr_13      : drift, l = 0.075000;
+dr_14      : drift, l = 0.475000;
+dr_15      : drift, l = 0.090000;
+dr_16      : drift, l = 0.090000;
+dr_17      : drift, l = 0.075000;
+dr_18      : drift, l = 1.450000;
+dl_01      : drift, l = 1.450000;
+dl_02      : drift, l = 0.075000;
+dl_03      : drift, l = 0.090000;
+dl_04      : drift, l = 0.090000;
+dl_05      : drift, l = 0.475000;
+dl_06      : drift, l = 0.075000;
+dl_07      : drift, l = 0.075000;
+dl_08      : drift, l = 0.340000;
+dl_09      : drift, l = 0.100000;
+dl_10      : drift, l = 0.075000;
+dl_11      : drift, l = 0.075000;
+dl_12      : drift, l = 0.450000;
+dl_13      : drift, l = 0.075000;
+dl_14      : drift, l = 0.075000;
+dl_15      : drift, l = 0.075000;
+dl_16      : drift, l = 0.230000;
+dl_17      : drift, l = 0.075000;
+dl_18      : drift, l = 0.156000;
+dl_19      : drift, l = 3.900000;
+
+cellcenter : marker;
+sf1_ctr   : marker;
+ms         : marker;
+ss         : marker;
+ls         : marker;
+
+qf1        : quadrupole, l = 0.155000, k = 7.217057, n=nquad, method=meth;
+qd2        : quadrupole, l = 0.102000, k = -9.628600, n=nquad, method=meth;
+qd5        : quadrupole, l = 0.136000, k = -6.238612, n=nquad, method=meth;
+qd2_c1     : quadrupole, l = 0.162000, k = 0.043759, n=nquad, method=meth;
+qf1_c1     : quadrupole, l = 0.215000, k = -5.342661, n=nquad, method=meth;
+quad_add   : quadrupole, l = 0.162000, k = 7.601447, n=nquad, method=meth;
+
+sf1        : sextupole, l = 0.070000, k = 258.095676, n = 4, method=meth;
+sd1        : sextupole, l = 0.140000, k = -275.239694, n = 4, method=meth;
+sd2        : sextupole, l = 0.140000, k = -198.424583, n = 4, method=meth;
+sh1        : sextupole, l = 0.050000, k = 0.000000, n = 4, method=meth;
+sh2        : sextupole, l = 0.050000, k = 0.000000, n = 4, method=meth;
+
+bnom1      : marker;
+
+qf4        : bending, l = 0.142000, t = -aban1, k = rk1,
+             t1 = -aban1/2.0, t2 = -aban1/2.0, n=nbend, method=meth;
+qd3        : bending, l = 0.100000, t = -aban2, k = rk2,
+             t1 = -aban2/2.0, t2 = -aban2/2.0, n=nbend, method=meth;
+qf8        : bending, l = 0.278000, t = -aban3, k = rk3,
+             t1 = -aban3/2.0, t2 = -aban3/2.0, n=nbend, method=meth;
+qf6        : bending, l = 0.362000, t = -aban4, k = rk4,
+             t1 = -aban4/2.0, t2 = -aban4/2.0, n=nbend, method=meth;
+dq1        : bending, l = 0.869804,
+             t = 2.41117749+2.0*aban1+aban2+aban3+aban4, k = -2.753251,
+             t1 = 1.21416570+aban1+aban2/2.0+aban3/2.0+aban4/2.0,
+             t2 = 1.21416570+aban1+aban2/2.0+aban3/2.0+aban4/2.0, n=nbend,
+             method=meth;
+
+bl1_1      : bending, l = 0.200983, t = 0.334817, k = 0.023468,
+             t1 = 0.000000, t2 = 0.334817, n=nbend, method=meth;
+bl1_2      : bending, l = 0.200983, t = 0.385404, k = 0.023468,
+             t1 = -0.334817, t2 = 0.720220, n=nbend, method=meth;
+bl1_3      : bending, l = 0.200983, t = 0.451200, k = 0.023468,
+             t1 = -0.385404, t2 = 1.171420, n=nbend, method=meth;
+bl1_4      : bending, l = 0.200983, t = 0.557817, k = 0.023468,
+             t1 = -0.451200, t2 = 1.729238, n=nbend, method=meth;
+bl1_5      : bending, l = 0.200983, t = 0.852925, k = 0.023468,
+             t1 = -0.557817, t2 = 2.582163, n=nbend, method=meth;
+
+bl2_1      : bending, l = 0.200983, t = 0.325026, k = 0.221670,
+             t1 = 0.000000, t2 = 0.325026, n=nbend, method=meth;
+bl2_2      : bending, l = 0.200983, t = 0.374134, k = 0.221670,
+             t1 = -0.325026, t2 = 0.699160, n=nbend, method=meth;
+bl2_3      : bending, l = 0.200983, t = 0.438006, k = 0.221670,
+             t1 = -0.374134, t2 = 1.137167, n=nbend, method=meth;
+bl2_4      : bending, l = 0.200983, t = 0.541506, k = 0.221670,
+             t1 = -0.438006, t2 = 1.678673, n=nbend, method=meth;
+bl2_5      : bending, l = 0.200983, t = 0.827985, k = 0.221670,
+             t1 = -0.541506, t2 = 2.506658, n=nbend, method=meth;
+
+of1s       : multipole, l = 0.0, hom = (4,0.0000,0);
+
+bpm        : beam position monitor;
+
+ch         : corrector, horizontal;
+
+cv         : corrector, vertical;
+
+
+ps_rot: map;
+
+{----- table of segments ----------------------------------------------------}
+
+bl1      : bl1_5, bl1_4, bl1_3, bl1_2, bl1_1;
+bl2      : bl2_5, bl2_4, bl2_3, bl2_2, bl2_1;
+
+ss_mcell : dr_01, qf1, dr_02, sh1, dr_03, qd2, dr_04;
+dip_cell : bl1, dr_05, qd3, dr_06, sd1, dr_07, qf4, dr_08, sf1,
+           sf1_ctr, sf1, dr_09, qf4, dr_10, of1s, dr_11, sd2, dr_12, qd5,
+           dr_13, inv(bl2);
+ms_mcell : dr_14, qf6, dr_15, dq1, dr_16, qf8, dr_17, sh2, dr_18;
+ls_mcell : dl_15, qd2_c1, dl_16, sh1, dl_17, qf1_c1, dl_18, quad_add, dl_19;
+std_cell : ms, inv(ms_mcell), inv(dip_cell), inv(ss_mcell), ss,
+           ss_mcell, dip_cell, ms_mcell, ms;
+ls_hcell : inv(ms_mcell), inv(dip_cell), ls_mcell, ls;
+sp_short : ls, inv(ls_hcell), std_cell, ls_hcell, ls;
+sp       : ls, inv(ls_hcell), 3*std_cell, ls_hcell, ls;
+
+line: sp, cav;
+
+ring: line, ps_rot, cav;
+
+cell: ring, symmetry=1;
+
+end;
+
+{..rs\bs36\desktop\m-h6ba-3-1-1\m-h6ba-0-1-10- antibend _119pm-ver-01.opa}

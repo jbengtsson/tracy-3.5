@@ -1,0 +1,445 @@
+{  madX lattice elements: LOW_EMIT_RING_INJ
+   Created: 04-Jun-2015 11:02:49             }
+
+define lattice;
+energy = 6.039000;
+dp = 1.0d-10;  codeps = 1.0d-6;  dk = 1.0d-6;
+meth = 4; nbend = 10; nquad = 10;
+
+{ DEFINITIONS }
+
+PI = 4.0*arctan(1.0);
+
+BMHARD: MARKER;
+BMSOFT: MARKER;
+
+BPM_01: Beam Position Monitor;
+BPM_02: Beam Position Monitor;
+BPM_03: Beam Position Monitor;
+BPM_04: Beam Position Monitor;
+BPM_05: Beam Position Monitor;
+BPM_06: Beam Position Monitor;
+BPM_07: Beam Position Monitor;
+BPM_08: Beam Position Monitor;
+BPM_09: Beam Position Monitor;
+BPM_10: Beam Position Monitor;
+
+CA05: Cavity, L = 0.0, Voltage = 2.1666666667e6,
+      Frequency = 352371967.6749427319;
+CA07: Cavity, L = 0.0, Voltage = 2.1666666667e6,
+      Frequency = 352371967.6749427319;
+CA25: Cavity, L = 0.0, Voltage = 2.1666666667e6,
+      Frequency = 352371967.6749427319;
+
+CAV:  Cavity, L = 0.0, Voltage = 2.1666666667e6,
+      Frequency = 352371967.6749427319;
+
+CELLCENTER: MARKER;
+CellCenter: MARKER;
+
+DL1A_1: Bending,L =0.3576001432, T = 180.0/PI*0.0031000000, K = 0.0000000000,
+	T1 = -180.0/PI*0.0127561926, T2 = 180.0/PI*0.0158561926,
+	n=nbend, method=meth; 
+DL1A_2: Bending,L =0.3576002628, T = 180.0/PI*0.0042000000, K = 0.0000000000,
+	T1 = -180.0/PI*0.0085561926, T2 = 180.0/PI*0.0127561926,
+	n=nbend, method=meth; 
+DL1A_3: Bending,L =0.3576004265, T = 180.0/PI*0.0053500000, K = 0.0000000000,
+	T1 = -180.0/PI*0.0032061926, T2 = 180.0/PI*0.0085561926,
+	n=nbend, method=meth; 
+DL1A_4: Bending,L =0.3576007406, T = 180.0/PI*0.0070500000, K = 0.0000000000,
+	T1 = 180.0/PI*0.0038438074, T2 = 180.0/PI*0.0032061926,
+	n=nbend, method=meth; 
+DL1A_5: Bending,L =0.3576021500, T = 180.0/PI*0.0120123852, K = 0.0000000000,
+	T1 = 180.0/PI*0.0158561926, T2 = -180.0/PI*0.0038438074,
+	n=nbend, method=meth; 
+DL1E_1: Bending,L =0.3576001432, T = 180.0/PI*0.0031000000, K = 0.0000000000,
+	T1 = 180.0/PI*0.0158561926, T2 = -180.0/PI*0.0127561926,
+	n=nbend, method=meth; 
+DL1E_2: Bending,L =0.3576002628, T = 180.0/PI*0.0042000000, K = 0.0000000000,
+	T1 = 180.0/PI*0.0127561926, T2 = -180.0/PI*0.0085561926,
+	n=nbend, method=meth; 
+DL1E_3: Bending,L =0.3576004265, T = 180.0/PI*0.0053500000, K = 0.0000000000,
+	T1 = 180.0/PI*0.0085561926, T2 = -180.0/PI*0.0032061926,
+	n=nbend, method=meth; 
+DL1E_4: Bending,L =0.3576007406, T = 180.0/PI*0.0070500000, K = 0.0000000000,
+	T1 = 180.0/PI*0.0032061926, T2 = 180.0/PI*0.0038438074,
+	n=nbend, method=meth; 
+DL1E_5: Bending,L =0.3576021500, T = 180.0/PI*0.0120123852, K = 0.0000000000,
+	T1 = -180.0/PI*0.0038438074, T2 = 180.0/PI*0.0158561926,
+	n=nbend, method=meth; 
+DL2B_1: Bending,L =0.3576001432, T = 180.0/PI*0.0031000000, K = 0.0000000000,
+	T1 = 180.0/PI*0.0147061926, T2 = -180.0/PI*0.0116061926,
+	n=nbend, method=meth; 
+DL2B_2: Bending,L =0.3576002628, T = 180.0/PI*0.0042000000, K = 0.0000000000,
+	T1 = 180.0/PI*0.0116061926, T2 = -180.0/PI*0.0074061926,
+	n=nbend, method=meth; 
+DL2B_3: Bending,L =0.3576004265, T = 180.0/PI*0.0053500000, K = 0.0000000000,
+	T1 = 180.0/PI*0.0074061926, T2 = -180.0/PI*0.0020561926,
+	n=nbend, method=meth; 
+DL2B_4: Bending,L =0.3576007406, T = 180.0/PI*0.0070500000, K = 0.0000000000,
+	T1 = 180.0/PI*0.0020561926, T2 = 180.0/PI*0.0049938074,
+	n=nbend, method=meth; 
+DL2B_5: Bending,L =0.3576014055, T = 180.0/PI*0.0097123852, K = 0.0000000000,
+	T1 = -180.0/PI*0.0049938074, T2 = 180.0/PI*0.0147061926,
+	n=nbend, method=meth; 
+DL2D_1: Bending,L =0.3576001432, T = 180.0/PI*0.0031000000, K = 0.0000000000,
+	T1 = -180.0/PI*0.0116061926, T2 = 180.0/PI*0.0147061926,
+	n=nbend, method=meth; 
+DL2D_2: Bending,L =0.3576002628, T = 180.0/PI*0.0042000000, K = 0.0000000000,
+	T1 = -180.0/PI*0.0074061926, T2 = 180.0/PI*0.0116061926,
+	n=nbend, method=meth; 
+DL2D_3: Bending,L =0.3576004265, T = 180.0/PI*0.0053500000, K = 0.0000000000,
+	T1 = -180.0/PI*0.0020561926, T2 = 180.0/PI*0.0074061926,
+	n=nbend, method=meth; 
+DL2D_4: Bending,L =0.3576007406, T = 180.0/PI*0.0070500000, K = 0.0000000000,
+	T1 = 180.0/PI*0.0049938074, T2 = 180.0/PI*0.0020561926,
+	n=nbend, method=meth; 
+DL2D_5: Bending,L =0.3576014055, T = 180.0/PI*0.0097123852, K = 0.0000000000,
+	T1 = 180.0/PI*0.0147061926, T2 = -180.0/PI*0.0049938074,
+	n=nbend, method=meth; 
+DQ1B:   Bending,L =1.0280365223, T = 180.0/PI*0.0292000000, K = -1.8417474598,
+	T1 = 180.0/PI*0.0146000000, T2 = 180.0/PI*0.0146000000,
+	n=nbend, method=meth; 
+DQ1D:   Bending,L =1.0280365223, T = 180.0/PI*0.0292000000, K = -1.8417474598,
+	T1 = 180.0/PI*0.0146000000, T2 = 180.0/PI*0.0146000000,
+	n=nbend, method=meth; 
+DQ2C_1: Bending,L =0.4000010270, T = 180.0/PI*0.0078500000, K = -1.5581337747,
+	T1 = 180.0/PI*0.0078500000, T2 = 180.0/PI*0.0000000000,
+	n=nbend, method=meth; 
+DQ2C_2: Bending,L =0.4000010270, T = 180.0/PI*0.0078500000, K = -1.5581337747,
+	T1 = 180.0/PI*0.0000000000, T2 = 180.0/PI*0.0078500000,
+	n=nbend, method=meth; 
+
+DR_01:  DRIFT, L = 2.6514000000;
+DR_01I: DRIFT, L = 1.4000000000;
+DR_01J: DRIFT, L = 1.4000000000;
+DR_02:  DRIFT, L = 0.0510000000;
+DR_02I: DRIFT, L = 0.3774449547;
+DR_02J: DRIFT, L = 0.3774449547;
+DR_03:  DRIFT, L = 0.1100000000;
+DR_03I: DRIFT, L = 0.0510000000;
+DR_03J: DRIFT, L = 0.0510000000;
+DR_04:  DRIFT, L = 0.2300000000;
+DR_04I: DRIFT, L = 0.0310000000;
+DR_04J: DRIFT, L = 0.0310000000;
+DR_05:  DRIFT, L = 0.0470000000;
+DR_05I: DRIFT, L = 0.1490000000;
+DR_05J: DRIFT, L = 0.1490000000;
+DR_06:  DRIFT, L = 0.0470000000;
+DR_06I: DRIFT, L = 0.0470000050;
+DR_06J: DRIFT, L = 0.0470000000;
+DR_07:  DRIFT, L = 0.0750000000;
+DR_07I: DRIFT, L = 0.1270000000;
+DR_07J: DRIFT, L = 0.1270000000;
+DR_08:  DRIFT, L = 0.5448534346;
+DR_08I: DRIFT, L = 0.0470000000;
+DR_08J: DRIFT, L = 0.0470000000;
+DR_09:  DRIFT, L = 0.0560000000;
+DR_09I: DRIFT, L = 0.0470000000;
+DR_09J: DRIFT, L = 0.0470000000;
+DR_10:  DRIFT, L = 0.0750000000;
+DR_10I: DRIFT, L = 0.0750000000;
+DR_10J: DRIFT, L = 0.0750000000;
+DR_11:  DRIFT, L = 0.0750000000;
+DR_11I: DRIFT, L = 0.0798738313;
+DR_11J: DRIFT, L = 0.0798738313;
+DR_12:  DRIFT, L = 0.0600000012;
+DR_12I: DRIFT, L = 0.0250000000;
+DR_12J: DRIFT, L = 0.0250000000;
+DR_13:  DRIFT, L = 0.0560000000;
+DR_14:  DRIFT, L = 0.3948534313;
+DR_15:  DRIFT, L = 0.0750000000;
+DR_16:  DRIFT, L = 0.0470000000;
+DR_17:  DRIFT, L = 0.0940000000;
+DR_18:  DRIFT, L = 0.0560000000;
+DR_19:  DRIFT, L = 0.0900000000;
+DR_20:  DRIFT, L = 0.0900000000;
+DR_21:  DRIFT, L = 0.1660000000;
+DR_22:  DRIFT, L = 0.0370000000;
+DR_23:  DRIFT, L = 0.0560000000;
+DR_24:  DRIFT, L = 0.0560000000;
+DR_25:  DRIFT, L = 0.3030000000;
+DR_26:  DRIFT, L = 0.0900000000;
+DR_27:  DRIFT, L = 0.0900000000;
+DR_28:  DRIFT, L = 0.0560000000;
+DR_29:  DRIFT, L = 0.0940000000;
+DR_30:  DRIFT, L = 0.0470000000;
+DR_31:  DRIFT, L = 0.0750000000;
+DR_32:  DRIFT, L = 0.3948534313;
+DR_33:  DRIFT, L = 0.0560000000;
+DR_34:  DRIFT, L = 0.0600000000;
+DR_35:  DRIFT, L = 0.0750000000;
+DR_36:  DRIFT, L = 0.0750000000;
+DR_37:  DRIFT, L = 0.0560000000;
+DR_38:  DRIFT, L = 0.5448534346;
+DR_39:  DRIFT, L = 0.0750000000;
+DR_40:  DRIFT, L = 0.0470000000;
+DR_41:  DRIFT, L = 0.0470000000;
+DR_42:  DRIFT, L = 0.2300000000;
+DR_43:  DRIFT, L = 0.1100000000;
+DR_44:  DRIFT, L = 0.0510000000;
+DR_45:  DRIFT, L = 2.6514000000;
+DR_K1:  DRIFT, L = 0.2200000000;
+DR_K2:  DRIFT, L = 0.2200000000;
+DR_K3:  DRIFT, L = 0.2200000000;
+DR_K4:  DRIFT, L = 0.2200000000;
+
+DispBumpCenter: MARKER;
+GE:             MARKER;
+GS:             MARKER;
+IDMarker:       MARKER;
+
+JL1A_1: Bending, L =0.3576005994, T = 180.0/PI*0.0063424770, K = 0.0000000000,
+	T1 = 180.0/PI*0.0031712385, T2 = 180.0/PI*0.0031712385,
+	n=nbend, method=meth; 
+JL1A_2: Bending, L =0.3576005994, T = 180.0/PI*0.0063424770, K = 0.0000000000,
+	T1 = -180.0/PI*0.0063424770, T2 = 180.0/PI*0.0126849541,
+	n=nbend, method=meth; 
+JL1A_3: Bending, L =0.3576005994, T = 180.0/PI*0.0063424770, K = 0.0000000000,
+	T1 = 180.0/PI*0.0000000000, T2 = 180.0/PI*0.0063424770,
+	n=nbend, method=meth; 
+JL1A_4: Bending, L =0.3576005994, T = 180.0/PI*0.0063424770, K = 0.0000000000,
+	T1 = 180.0/PI*0.0063424770, T2 = 180.0/PI*0.0000000000,
+	n=nbend, method=meth; 
+JL1A_5: Bending, L =0.3576005994, T = 180.0/PI*0.0063424770, K = 0.0000000000,
+	T1 = 180.0/PI*0.0126849541, T2 = -180.0/PI*0.0063424770,
+	n=nbend, method=meth; 
+JL1E_1: Bending, L =0.3576005994, T = 180.0/PI*0.0063424770, K = 0.0000000000,
+	T1 = 180.0/PI*0.0031712385, T2 = 180.0/PI*0.0031712385,
+	n=nbend, method=meth; 
+JL1E_2: Bending, L =0.3576005994, T = 180.0/PI*0.0063424770, K = 0.0000000000,
+	T1 = 180.0/PI*0.0126849541, T2 = -180.0/PI*0.0063424770,
+	n=nbend, method=meth; 
+JL1E_3: Bending, L =0.3576005994, T = 180.0/PI*0.0063424770, K = 0.0000000000,
+	T1 = 180.0/PI*0.0063424770, T2 = 180.0/PI*0.0000000000,
+	n=nbend, method=meth; 
+JL1E_4: Bending, L =0.3576005994, T = 180.0/PI*0.0063424770, K = 0.0000000000,
+	T1 = 180.0/PI*0.0000000000, T2 = 180.0/PI*0.0063424770,
+	n=nbend, method=meth; 
+JL1E_5: Bending, L =0.3576005994, T = 180.0/PI*0.0063424770, K = 0.0000000000,
+	T1 = -180.0/PI*0.0063424770, T2 = 180.0/PI*0.0126849541,
+	n=nbend, method=meth; 
+
+OF1B: Multipole, L = 0.0900000000, HOM = (4, -10800.0000000000, 0.0),
+      n = 1, Method=Meth;
+OF1D: Multipole, L = 0.0900000000, HOM = (4, -10800.0000000000, 0.0),
+      n = 1, Method=Meth;
+OJ1B: Multipole, L = 0.0900000000, HOM = (4, -11232.0000000000, 0.0),
+      n = 1, Method=Meth;
+OJ1D: Multipole, L = 0.0900000000, HOM = (4, -11232.0000000000, 0.0),
+      n = 1, Method=Meth;
+
+ QD2A: quadrupole, L = 0.2120000000, K = -2.8505747788, n=nquad, method=meth; 
+ QD2E: quadrupole, L = 0.2120000000, K = -2.8505747788, n=nquad, method=meth; 
+ QD2I: quadrupole, L = 0.2120000000, K = -2.1046338354, n=nquad, method=meth; 
+ QD2J: quadrupole, L = 0.2120000000, K = -2.1046338354, n=nquad, method=meth; 
+ QD2L: quadrupole, L = 0.2120000000, K = -2.8505747788, n=nquad, method=meth; 
+ QD3A: quadrupole, L = 0.1620000000, K = -2.6448028453, n=nquad, method=meth; 
+ QD3E: quadrupole, L = 0.1620000000, K = -2.6448028453, n=nquad, method=meth; 
+ QD3I: quadrupole, L = 0.2950000000, K = -2.7138286243, n=nquad, method=meth; 
+ QD3J: quadrupole, L = 0.2950000000, K = -2.7138286243, n=nquad, method=meth; 
+ QD3L: quadrupole, L = 0.1620000000, K = -2.6448028453, n=nquad, method=meth; 
+ QD5B: quadrupole, L = 0.2120000000, K = -2.8897829717, n=nquad, method=meth; 
+ QD5D: quadrupole, L = 0.2120000000, K = -2.8897829717, n=nquad, method=meth; 
+ QF1A: quadrupole, L = 0.2950000000, K =  2.6721879157, n=nquad, method=meth; 
+ QF1E: quadrupole, L = 0.2950000000, K =  2.6721879157, n=nquad, method=meth; 
+ QF1I: quadrupole, L = 0.3700000000, K =  1.2261460504, n=nquad, method=meth; 
+ QF1J: quadrupole, L = 0.3700000000, K =  1.2261460504, n=nquad, method=meth; 
+ QF1L: quadrupole, L = 0.2950000000, K =  2.6721879157, n=nquad, method=meth; 
+ QF2I: quadrupole, L = 0.2120000000, K =  2.6669419626, n=nquad, method=meth; 
+ QF2J: quadrupole, L = 0.2120000000, K =  2.6669419626, n=nquad, method=meth; 
+ QF4A: quadrupole, L = 0.2120000000, K =  2.6026418523, n=nquad, method=meth; 
+ QF4B: quadrupole, L = 0.2120000000, K =  2.6026061578, n=nquad, method=meth; 
+ QF4D: quadrupole, L = 0.2120000000, K =  2.6026061578, n=nquad, method=meth; 
+ QF4E: quadrupole, L = 0.2120000000, K =  2.6026418523, n=nquad, method=meth; 
+ QF4I: quadrupole, L = 0.2120000000, K =  2.6264225585, n=nquad, method=meth; 
+ QF4J: quadrupole, L = 0.2120000000, K =  2.6264225585, n=nquad, method=meth; 
+ QF4L: quadrupole, L = 0.2120000000, K =  2.6026418523, n=nquad, method=meth; 
+ QF6B: quadrupole, L = 0.3880000000, K =  4.5483335373, n=nquad, method=meth; 
+ QF6D: quadrupole, L = 0.3880000000, K =  4.5483335373, n=nquad, method=meth; 
+ QF8B: quadrupole, L = 0.4840000000, K =  4.4659709424, n=nquad, method=meth; 
+ QF8D: quadrupole, L = 0.4840000000, K =  4.4659709424, n=nquad, method=meth; 
+
+S3_Septum: MARKER;
+
+SD1A: SEXTUPOLE, L = 0.0830000000, K = -171.6855093086/2, n = 4, method=meth;
+SD1B: SEXTUPOLE, L = 0.0830000000, K = -161.6000000000/2, n = 4, method=meth;
+SD1D: SEXTUPOLE, L = 0.0830000000, K = -161.6000000000/2, n = 4, method=meth;
+SD1E: SEXTUPOLE, L = 0.0830000000, K = -171.6855093086/2, n = 4, method=meth;
+SF2A: SEXTUPOLE, L = 0.1000000000, K =  165.6230858715/2, n = 4, method=meth;
+SF2E: SEXTUPOLE, L = 0.1000000000, K =  165.6230858715/2, n = 4, method=meth;
+SH1A: SEXTUPOLE, L = 0.0500000000, K =    0.0000000000,   n = 4, method=meth;
+SH2B: SEXTUPOLE, L = 0.0500000000, K =    0.0000000000,   n = 4, method=meth;
+SH3E: SEXTUPOLE, L = 0.0500000000, K =    0.0000000000,   n = 4, method=meth;
+SI1A: SEXTUPOLE, L = 0.0830000000, K = -176.0304000000/2, n = 4, method=meth;
+SI1B: SEXTUPOLE, L = 0.0830000000, K = -165.6000000000/2, n = 4, method=meth;
+SI1D: SEXTUPOLE, L = 0.0830000000, K = -165.6000000000/2, n = 4, method=meth;
+SI1E: SEXTUPOLE, L = 0.0830000000, K = -176.0304000000/2, n = 4, method=meth;
+SI2A: SEXTUPOLE, L = 0.1000000000, K =  174.9406000000/2, n = 4, method=meth;
+SI2E: SEXTUPOLE, L = 0.1000000000, K =  174.9406000000/2, n = 4, method=meth;
+SJ1A: SEXTUPOLE, L = 0.0830000000, K = -176.0304000000/2, n = 4, method=meth;
+SJ1B: SEXTUPOLE, L = 0.0830000000, K = -165.6000000000/2, n = 4, method=meth;
+SJ1D: SEXTUPOLE, L = 0.0830000000, K = -165.6000000000/2, n = 4, method=meth;
+SJ1E: SEXTUPOLE, L = 0.0830000000, K = -176.0304000000/2, n = 4, method=meth;
+SJ2A: SEXTUPOLE, L = 0.1000000000, K =  174.9406000000/2, n = 4, method=meth;
+SJ2E: SEXTUPOLE, L = 0.1000000000, K =  174.9406000000/2, n = 4, method=meth;
+
+SD1A_Hcor: Corrector, Horizontal;
+SD1A_Vcor: Corrector, Vertical;
+SD1B_Hcor: Corrector, Horizontal;
+SD1B_Vcor: Corrector, Vertical;
+SD1D_Hcor: Corrector, Horizontal;
+SD1D_Vcor: Corrector, Vertical;
+SD1E_Hcor: Corrector, Horizontal;
+SD1E_Vcor: Corrector, Vertical;
+SF2A_Hcor: Corrector, Horizontal;
+SF2A_Vcor: Corrector, Vertical;
+SF2E_Hcor: Corrector, Horizontal;
+SF2E_Vcor: Corrector, Vertical;
+SH1A_Hcor: Corrector, Horizontal;
+SH1A_Vcor: Corrector, Vertical;
+SH2B_Hcor: Corrector, Horizontal;
+SH2B_Vcor: Corrector, Vertical;
+SH3E_Hcor: Corrector, Horizontal;
+SH3E_Vcor: Corrector, Vertical;
+SI1A_Hcor: Corrector, Horizontal;
+SI1A_Vcor: Corrector, Vertical;
+SI1B_Hcor: Corrector, Horizontal;
+SI1B_Vcor: Corrector, Vertical;
+SI1D_Hcor: Corrector, Horizontal;
+SI1D_Vcor: Corrector, Vertical;
+SI1E_Hcor: Corrector, Horizontal;
+SI1E_Vcor: Corrector, Vertical;
+SI2A_Hcor: Corrector, Horizontal;
+SI2A_Vcor: Corrector, Vertical;
+SI2E_Hcor: Corrector, Horizontal;
+SI2E_Vcor: Corrector, Vertical;
+SJ1A_Hcor: Corrector, Horizontal;
+SJ1A_Vcor: Corrector, Vertical;
+SJ1B_Hcor: Corrector, Horizontal;
+SJ1B_Vcor: Corrector, Vertical;
+SJ1D_Hcor: Corrector, Horizontal;
+SJ1D_Vcor: Corrector, Vertical;
+SJ1E_Hcor: Corrector, Horizontal;
+SJ1E_Vcor: Corrector, Vertical;
+SJ2A_Hcor: Corrector, Horizontal;
+SJ2A_Vcor: Corrector, Vertical;
+SJ2E_Hcor: Corrector, Horizontal;
+SJ2E_Vcor: Corrector, Vertical;
+
+SD1A_SkwQ: Multipole, HOM=(1, 0.0, 0.0), n = 1, Method=Meth;
+SD1B_SkwQ: Multipole, HOM=(1, 0.0, 0.0), n = 1, Method=Meth;
+SD1D_SkwQ: Multipole, HOM=(1, 0.0, 0.0), n = 1, Method=Meth;
+SD1E_SkwQ: Multipole, HOM=(1, 0.0, 0.0), n = 1, Method=Meth;
+SF2A_SkwQ: Multipole, HOM=(1, 0.0, 0.0), n = 1, Method=Meth;
+SF2E_SkwQ: Multipole, HOM=(1, 0.0, 0.0), n = 1, Method=Meth;
+SH1A_SkwQ: Multipole, HOM=(1, 0.0, 0.0), n = 1, Method=Meth;
+SH2B_SkwQ: Multipole, HOM=(1, 0.0, 0.0), n = 1, Method=Meth;
+SH3E_SkwQ: Multipole, HOM=(1, 0.0, 0.0), n = 1, Method=Meth;
+SI1A_SkwQ: Multipole, HOM=(1, 0.0, 0.0), n = 1, Method=Meth;
+SI1B_SkwQ: Multipole, HOM=(1, 0.0, 0.0), n = 1, Method=Meth;
+SI1D_SkwQ: Multipole, HOM=(1, 0.0, 0.0), n = 1, Method=Meth;
+SI1E_SkwQ: Multipole, HOM=(1, 0.0, 0.0), n = 1, Method=Meth;
+SI2A_SkwQ: Multipole, HOM=(1, 0.0, 0.0), n = 1, Method=Meth;
+SI2E_SkwQ: Multipole, HOM=(1, 0.0, 0.0), n = 1, Method=Meth;
+SJ1A_SkwQ: Multipole, HOM=(1, 0.0, 0.0), n = 1, Method=Meth;
+SJ1B_SkwQ: Multipole, HOM=(1, 0.0, 0.0), n = 1, Method=Meth;
+SJ1D_SkwQ: Multipole, HOM=(1, 0.0, 0.0), n = 1, Method=Meth;
+SJ1E_SkwQ: Multipole, HOM=(1, 0.0, 0.0), n = 1, Method=Meth;
+SJ2A_SkwQ: Multipole, HOM=(1, 0.0, 0.0), n = 1, Method=Meth;
+SJ2E_SkwQ: Multipole, HOM=(1, 0.0, 0.0), n = 1, Method=Meth;
+
+TPWMarker: MARKER;
+
+{ LINE }
+
+ARCA:
+  DR_01, BPM_01, DR_02, GS, QF1A, DR_03, SH1A, SH1A_Hcor, SH1A_Vcor, SH1A_SkwQ,
+  SH1A, DR_04, QD2A, DR_05, DL1A_5, DL1A_4, DL1A_3, DL1A_2, DL1A_1, DR_06, QD3A,
+  DR_07, SD1A, SD1A_Hcor, SD1A_Vcor, SD1A_SkwQ, SD1A, DR_08, BPM_02, DR_09,
+  QF4A, DR_10, DispBumpCenter, SF2A, SF2A_Hcor, SF2A_Vcor, SF2A_SkwQ, SF2A,
+  DR_11, QF4B, DR_12, OF1B, GE, DR_13, BPM_03, DR_14, GS, SD1B, SD1B_Hcor,
+  SD1B_Vcor, SD1B_SkwQ, SD1B, DR_15, QD5B, DR_16, DL2B_1, DL2B_2, DL2B_3,
+  DL2B_4, DL2B_5, DR_17, BPM_04, DR_18, QF6B, DR_19, DQ1B, DR_20, QF8B, DR_21,
+  GE, SH2B, SH2B_Hcor, SH2B_Vcor, SH2B_SkwQ, SH2B, DR_22, BPM_05, DR_23, GS,
+  DQ2C_1, CellCenter, DQ2C_2, DR_24, BPM_06, TPWMarker, DR_25, QF8D, DR_26,
+  DQ1D, DR_27, QF6D, DR_28, BPM_07, DR_29, DL2D_5, DL2D_4, DL2D_3, DL2D_2,
+  DL2D_1, DR_30, QD5D, DR_31, SD1D, SD1D_Hcor, SD1D_Vcor, SD1D_SkwQ, SD1D, GE,
+  DR_32, BPM_08, DR_33, GS, OF1D, DR_34, QF4D, DR_35, DispBumpCenter, SF2E,
+  SF2E_Hcor, SF2E_Vcor, SF2E_SkwQ, SF2E, DR_36, QF4E, DR_37, BPM_09, DR_38,
+  SD1E, SD1E_Hcor, SD1E_Vcor, SD1E_SkwQ, SD1E, DR_39, QD3E, DR_40, DL1E_1,
+  DL1E_2, DL1E_3, DL1E_4, DL1E_5, DR_41, QD2E, DR_42, SH3E, SH3E_Hcor,
+  SH3E_Vcor, SH3E_SkwQ, SH3E, DR_43, QF1E, GE, DR_44, BPM_10, DR_45, IDMarker;
+
+{ LINE }
+
+ARCA_INJ:
+  DR_01J, S3_Septum, S3_Septum, QF1J, DR_02J, BPM_01, DR_03J, GS, SH1A,
+  SH1A_Hcor, SH1A_Vcor, SH1A_SkwQ, SH1A, DR_04J, DR_K3, DR_K3, DR_05J, QD2J,
+  DR_06J, JL1A_5, JL1A_4, JL1A_3, JL1A_2, DR_07J, QF2J, DR_08J, JL1A_1, DR_09J,
+  QD3J, DR_10J, SJ1A, SJ1A_Hcor, SJ1A_Vcor, SJ1A_SkwQ, SJ1A, DR_11J, DR_K4,
+  DR_K4, DR_12J, BPM_02, DR_09, QF4J, DR_10, DispBumpCenter, SJ2A, SJ2A_Hcor,
+  SJ2A_Vcor, SJ2A_SkwQ, SJ2A, DR_11, QF4B, DR_12, OJ1B, GE, DR_13, BPM_03,
+  DR_14, GS, SJ1B, SJ1B_Hcor, SJ1B_Vcor, SJ1B_SkwQ, SJ1B, DR_15, QD5B, DR_16,
+  DL2B_1, DL2B_2, DL2B_3, DL2B_4, DL2B_5, DR_17, BPM_04, DR_18, QF6B, DR_19,
+  DQ1B, DR_20, QF8B, DR_21, GE, SH2B, SH2B_Hcor, SH2B_Vcor, SH2B_SkwQ, SH2B,
+  DR_22, BPM_05, DR_23, GS, DQ2C_1, CELLCENTER, BMSOFT, CellCenter, DQ2C_2,
+  DR_24, BMHARD, BPM_06, DR_25, QF8D, DR_26, DQ1D, DR_27, QF6D, DR_28, BPM_07,
+  DR_29, DL2D_5, DL2D_4, DL2D_3, DL2D_2, DL2D_1, DR_30, QD5D, DR_31, SJ1D,
+  SJ1D_Hcor, SJ1D_Vcor, SJ1D_SkwQ, SJ1D, GE, DR_32, BPM_08, DR_33, GS, OJ1D,
+  DR_34, QF4D, DR_35, DispBumpCenter, SJ2E, SJ2E_Hcor, SJ2E_Vcor, SJ2E_SkwQ,
+  SJ2E, DR_36, QF4L, DR_37, BPM_09, DR_38, SJ1E, SJ1E_Hcor, SJ1E_Vcor,
+  SJ1E_SkwQ, SJ1E, DR_39, QD3L, DR_40, DL1E_1, DL1E_2, DL1E_3, DL1E_4, DL1E_5,
+  DR_41, QD2L, DR_42, SH3E, SH3E_Hcor, SH3E_Vcor, SH3E_SkwQ, SH3E, DR_43, QF1L,
+  GE, DR_44, BPM_10, DR_45, IDMarker;
+
+{ LINE }
+
+ARCB_INJ:
+  DR_01, BPM_01, DR_02, GS, QF1L, DR_03, SH1A, SH1A_Hcor, SH1A_Vcor, SH1A_SkwQ,
+  SH1A, DR_04, QD2L, DR_05, DL1A_5, DL1A_4, DL1A_3, DL1A_2, DL1A_1, DR_06, QD3L,
+  DR_07, SI1A, SI1A_Hcor, SI1A_Vcor, SI1A_SkwQ, SI1A, DR_08, BPM_02, DR_09,
+  QF4L, DR_10, DispBumpCenter, SI2A, SI2A_Hcor, SI2A_Vcor, SI2A_SkwQ, SI2A,
+  DR_11, QF4B, DR_12, OJ1B, GE, DR_13, BPM_03, DR_14, GS, SI1B, SI1B_Hcor,
+  SI1B_Vcor, SI1B_SkwQ, SI1B, DR_15, QD5B, DR_16, DL2B_1, DL2B_2, DL2B_3,
+  DL2B_4, DL2B_5, DR_17, BPM_04, DR_18, QF6B, DR_19, DQ1B, DR_20, QF8B, DR_21,
+  GE, SH2B, SH2B_Hcor, SH2B_Vcor, SH2B_SkwQ, SH2B, DR_22, BPM_05, DR_23, GS,
+  DQ2C_1, CELLCENTER, BMSOFT, CellCenter, DQ2C_2, DR_24, BMHARD, BPM_06, DR_25,
+  QF8D, DR_26, DQ1D, DR_27, QF6D, DR_28, BPM_07, DR_29, DL2D_5, DL2D_4, DL2D_3,
+  DL2D_2, DL2D_1, DR_30, QD5D, DR_31, SI1D, SI1D_Hcor, SI1D_Vcor, SI1D_SkwQ,
+  SI1D, GE, DR_32, BPM_08, DR_33, GS, OJ1D, DR_34, QF4D, DR_35, DispBumpCenter,
+  SI2E, SI2E_Hcor, SI2E_Vcor, SI2E_SkwQ, SI2E, DR_36, QF4I, DR_37, BPM_09,
+  DR_12I, DR_K1, DR_K1, DR_11I, SI1E, SI1E_Hcor, SI1E_Vcor, SI1E_SkwQ, SI1E,
+  DR_10I, QD3I, DR_09I, JL1E_1, DR_08I, QF2I, DR_07I, JL1E_2, JL1E_3, JL1E_4,
+  JL1E_5, DR_06I, QD2I, DR_05I, DR_K2, DR_K2, DR_04I, SH3E, SH3E_Hcor,
+  SH3E_Vcor, SH3E_SkwQ, SH3E, GE, DR_03I, BPM_10, DR_02I, QF1I, DR_01I,
+  IDMarker;
+
+{----------------------------------------------------
+   ring without injection
+ ----------------------------------------------------}
+
+mk_end: marker; 
+
+Low_Emit_Ring:
+  ARCa, CA05, 2*ARCa, CA07, 18*ARCa, CA25, 11*ARCa, mk_end;
+
+ARC_INJ: ARCB_INJ, ARCA_INJ; 
+ 
+{----------------------------------------------------
+  ring with injection
+ ----------------------------------------------------}
+
+Low_Emit_Ring_Inj:
+  ARCa_inj, CA05, 2*ARCa, CA07, 18*ARCa, CA25, 10*ARCa, ARCb_inj, mk_end;
+
+line: 1*arca;
+{line: Arc_Inj;}
+{line:  Low_Emit_Ring;}
+{line:  Low_Emit_Ring_Inj;}
+
+ring: line, cav;
+
+cell: ring, symmetry=1;
+
+end;

@@ -1,0 +1,102 @@
+{c:\users\bs36\desktop\tba-opa-28-08-2018\opa-tba-6x8-1-1-12-ver-02.opa}
+
+{opa to tracy-2 export}
+
+define lattice;
+energy = 3.500000;
+dp = 1.0d-10;  codeps = 1.0d-6;  dk = 1.0d-6;
+meth = 4;
+
+{----- variables ----------------------------------------------------}
+
+dp      = 1e-10;
+codeps  = 1e-6;
+dk      = 1e-6;
+nbend   = 10;
+nquad   = 10;
+nsext   = 2;
+scl     = 0.834;
+
+{----- table of elements ----------------------------------------------------}
+
+cav: Cavity, L = 0.0, Frequency = 499654096.667, Voltage = 2200000, phi = 0.0;
+
+d_ls     : drift, l = 3.900000;
+d5       : drift, l = 0.073642;
+d6       : drift, l = 0.430954;
+d7       : drift, l = 0.105044;
+d8       : drift, l = 0.124654;
+d_ms     : drift, l = 1.400000;
+d_ss     : drift, l = 2.400000;
+d9       : drift, l = 0.119329;
+d10      : drift, l = 0.349999;
+d11      : drift, l = 0.203082;
+d12      : drift, l = 0.075000;
+d4       : drift, l = 0.221596;
+d3       : drift, l = 0.232727;
+d2       : drift, l = 0.325704;
+d1       : drift, l = 0.246363;
+
+ss       : marker;
+ms       : marker;
+ls       : marker;
+
+qf1a_tba : quadrupole, l = 0.187916, k = 5.262000, n=nquad, method=meth;
+qf1b_tba : quadrupole, l = 0.164762, k = 4.759090, n=nquad, method=meth;
+qf1_ms   : quadrupole, l = 0.199993, k = -2.984734, n=nquad, method=meth;
+qd2_ms   : quadrupole, l = 0.167431, k = 8.695597, n=nquad, method=meth;
+qd3_ss   : quadrupole, l = 0.244616, k = -0.100009, n=nquad, method=meth;
+qf2_ss   : quadrupole, l = 0.200001, k = 9.822088, n=nquad, method=meth;
+qd1_ss   : quadrupole, l = 0.100056, k = -11.506742, n=nquad, method=meth;
+qd4_ls   : quadrupole, l = 0.399949, k = -4.846238, n=nquad, method=meth;
+qf3_ls   : quadrupole, l = 0.157628, k = 15.013956, n=nquad, method=meth;
+qd2_ls   : quadrupole, l = 0.165878, k = -16.266988, n=nquad, method=meth;
+qf1_ls   : quadrupole, l = 0.132890, k = 6.185635, n=nquad, method=meth;
+
+sfh      : sextupole, l = 0.050000, k = 317.783773, n = 4, method=meth;
+sd1a     : sextupole, l = 0.100000, k = -230.492757, n = 4, method=meth;
+sd1b     : sextupole, l = 0.100000, k = -302.177026, n = 4, method=meth;
+
+b1       : bending, l = 0.726546*scl, t = 2.504761, k = -1.836500/scl,
+           t1 = 1.252381, t2 = 1.252381, n=nbend, method=meth;
+b2       : bending, l = 0.432069*scl, t = 1.245239, k = -2.200500/scl,
+           t1 = 0.622619, t2 = 0.622619, n=nbend, method=meth;
+
+ps_rot: map;
+
+bpm      : beam position monitor;
+
+ch       : corrector, horizontal;
+
+cv       : corrector, vertical;
+
+
+{----- table of segments ----------------------------------------------------}
+
+tba_1     : d5, sd1a, d6, qf1a_tba, d7, sfh;
+tba_2     : d5, sd1b, d6, qf1b_tba, d7, sfh;
+tba_hcell : b1, tba_1, inv(tba_2), b2;
+tba_cell  : tba_hcell, inv(tba_hcell);
+ms_mcell  : d8, qf1_ms, d9, qd2_ms, d_ms;
+ss_mcell  : d_ss, qd1_ss, d12, qf2_ss, d11, qd3_ss, d10;
+ls_mcell  : d_ls, qf1_ls, d1, qd2_ls, d2, qf3_ls, d3, qd4_ls, d4;
+std_hcell : ss_mcell, tba_cell, ms_mcell, ms;
+std_cell  : inv(std_hcell), ss, std_hcell;
+line2     : ls, ls_mcell, tba_cell, ms_mcell;
+sp1       : line2, std_cell, inv(line2);
+sp        : line2, std_cell, std_cell, std_cell, inv(line2);
+
+{line      : ss, std_hcell, ps_rot, inv(std_hcell), ss;}
+{line      : inv(std_hcell), ss, ps_rot, std_hcell;}
+{line      : ss, std_hcell, inv(line2), ps_rot, line2, inv(std_hcell), ss;}
+{line      : ss, std_hcell, inv(line2);}
+{line      : sp1;}
+line      : sp;
+
+ring: line, cav;
+
+cell: ring, symmetry=1;
+
+end;
+
+{c:\users\bs36\desktop\tba-opa-28-08-2018\opa-tba-6x8-1-1-12-ver-02.opa}

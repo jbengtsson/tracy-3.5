@@ -1,0 +1,105 @@
+{*   ALBA lattice with 88 correctors and BPM *}
+define lattice;
+
+intmeth= 4;
+
+{***** System parameters *****}
+Energy= 3.0;    { GeV }
+dP    = 1.0d-8;
+CODeps= 1.0d-15;
+NSquad=10;
+NSbend=10;
+NSsext=1;
+Angle=11.25;
+
+idsr: marker;
+L_ID     : Drift, L = 3.985000;
+D11      : Drift, L = 0.170000;
+D12      : Drift, L = 0.150000;
+D13      : Drift, L = 0.150000;
+D14      : Drift, L = 0.375000;
+D15      : Drift, L = 0.260000;
+D21      : Drift, L = 0.260000;
+D22      : Drift, L = 0.150000;
+D23      : Drift, L = 0.375000;
+D24      : Drift, L = 0.150000;
+D25      : Drift, L = 0.165000;
+D26      : Drift, L = 0.470000;
+D28      : Drift, L = 0.260000;
+D31      : Drift, L = 0.260000;
+D32      : Drift, L = 0.370000;
+D33      : Drift, L = 0.175000;
+D34      : Drift, L = 0.150000;
+{M_ID     : Drift, L = 2.096767;}
+M_ID: Drift, L=1.15;
+LEXT: Drift, L= 2.096767-1.15;
+D41      : Drift, L = 0.260000;
+D42      : Drift, L = 0.540000;
+D43      : Drift, L = 0.165000;
+S_ID     : Drift, L = 1.300000;
+DSX      : Drift, L = 0.075000;
+DSXA     : Drift, L = 0.110000;
+
+QD1      : Quadrupole, L = 0.230000, K = -1.773389, method=intmeth, N=NSquad;
+QD2      : Quadrupole, L = 0.290000, K = -1.877886, method=intmeth, N=NSquad;
+QD3      : Quadrupole, L = 0.290000, K = -1.849889, method=intmeth, N=NSquad;
+QF1      : Quadrupole, L = 0.290000, K =  1.511189, method=intmeth, N=NSquad;
+QF2      : Quadrupole, L = 0.290000, K =  1.901567, method=intmeth, N=NSquad;
+QF3      : Quadrupole, L = 0.290000, K =  1.549700, method=intmeth, N=NSquad;
+QF4      : Quadrupole, L = 0.230000, K =  1.492441, method=intmeth, N=NSquad;
+QF5      : Quadrupole, L = 0.310000, K =  1.794343, method=intmeth, N=NSquad;
+QF6      : Quadrupole, L = 0.530000, K =  2.078492, method=intmeth, N=NSquad;
+QF7      : Quadrupole, L = 0.530000, K =  2.028150, method=intmeth, N=NSquad;
+QF9      : Quadrupole, L = 0.310000, K =  2.008579, method=intmeth, N=NSquad;
+
+mon: Beam Position Monitor;
+hcm: Corrector, horizontal, method=intmeth;
+vcm: Corrector, vertical, method=intmeth;
+g: marker; {begin/end girder}
+gi: marker; {begin/end girder}
+
+
+B1: Bending, L = 1.383684, T = Angle, K = -0.565618,
+    T1 = Angle/2.0, T2 = Angle/2.0, N = NSbend, method = intmeth;
+
+XD       : Sextupole, K = -0.00, method=intmeth, N =NSsext;
+XD1      : Sextupole, K = -3.792020, method=intmeth, N =NSsext;
+XD2      : Sextupole, K = -4.124170, method=intmeth, N =NSsext;
+XD3      : Sextupole, K = -4.407570, method=intmeth, N =NSsext;
+XD4      : Sextupole, K = -5.905520, method=intmeth, N =NSsext;
+XD5      : Sextupole, K = -4.466600, method=intmeth, N =NSsext;
+XF       : Sextupole, K = -0.00, method=intmeth, N =NSsext;
+XF1      : Sextupole, K =  2.251160, method=intmeth, N =NSsext;
+XF2      : Sextupole, K =  5.909100, method=intmeth, N =NSsext;
+XF3      : Sextupole, K =  5.737840, method=intmeth, N =NSsext;
+XF4      : Sextupole, K =  3.057430, method=intmeth, N =NSsext;
+CAV: Cavity, Frequency=499.654d6, Voltage=3.8d6, harnum=448;
+{----- Table of segments ----------------------------------------------------}
+
+
+SF1       :DSX, XF, hcm, vcm, XF1, DSX;
+SF2       :DSXA, XF, hcm, vcm, XF2, DSXA;
+SF3       :DSXA, XF, hcm, vcm, XF3, DSXA;
+SF4       :DSX, XF, hcm, vcm, XF4, DSX;
+SD1       :DSX, XD, hcm, vcm, XD1, DSX;
+SD2       :DSX, XD, XD2, DSX;
+SD3       :DSX, XD, XD3, DSX;
+SD4       :DSXA, XD, hcm, vcm, XD4, DSXA;
+SD5       :DSX, XD, XD5, DSX;
+BLOCK1    :L_ID, g, mon, QD1, D11, QF1, D12, SF1, D13, QF2, D14, mon, SD1, D15;
+BE        :B1;
+BLOCK2    :D21, SD2, D22, QF3, g, D23, g, QF4, D24, SF2, mon, D25, QF5, D26, SD3, 
+           D28;
+BLOCK31   :D31, SD4, mon, D32, QF6, D33, SF3, D34, QD2, mon, g, LEXT, M_ID;
+BLOCK32   :M_ID, LEXT,  g, mon, QD3, D34, SF3, D33, QF7, mon, D32, SD4, D31;
+BLOCK4    :D41, SD5, D42, QF9, D43, mon, SF4, g, S_ID;
+CELDA     :idsr, BLOCK1, BE, BLOCK2, BE, BLOCK31, idsr, BLOCK32, BE, BLOCK4, idsr, INV(BLOCK4), 
+           BE, INV(BLOCK32), idsr, BLOCK32, BE, BLOCK4, INV(BLOCK4), BE, INV(BLOCK32), idsr, INV(BLOCK31), 
+           BE, INV(BLOCK2), BE, INV(BLOCK1);
+
+{RING:  CELDA, CELDA, CAV, CELDA,CELDA;}
+RING:  CELDA, CAV;
+{***** Define CELL structure ****}
+ CELL:	RING, symmetry = 1;
+end;
+{----- C:\OPA\ALBA\A-25.OPA ----- We 1.6.2005 12:06 -------------------------}

@@ -1,0 +1,97 @@
+
+ BRHO=3.33564051648;
+GammaIn=0.000000261119894;
+
+! dipole lengths:
+BL   = 1.2000;
+QL   = 0.3800;
+        QL0  = 0.3800;
+QLD  = 0.3500;
+QLF  = 0.3800;
+
+NCEL = 20.0;
+NDIP = 7.0*NCEL;
+ANG  = 2.0*PI/NDIP;
+ANGB2  = ANG/2.0;
+BY2  = ANG*BRHO/BL;
+ 
+LBH2 = BL/2.0;
+
+
+QLH  = QLF/2.0;
+QLDH = QLD/2.0;
+QLFH = QLF/2.0;
+BL2  = BL/2.0; 
+
+
+!   quad lengths:
+
+
+KSF0 = 0.0;
+KSD0 = 0.0;
+KSX1 = 0.0;
+KSV2 = 0.0;
+         
+
+SEXH :SEXTUPOLE, l=0.000000001D0,k2=KSF0;
+SEXV :SEXTUPOLE, l=0.000000001D0,k2=KSD0;
+SEX1 :SEXTUPOLE, l=0.000000001D0,k2=KSX1;
+SEV2 :SEXTUPOLE, l=0.000000001D0,k2=KSV2;
+
+GF0  = 6.320084451813;
+        GD0  = -5.134441994528;
+KF0  = GF0/BRHO;
+KD0  = GD0/BRHO;
+
+
+ 
+ ! FODO CELL:
+
+! DRIFTS:
+O   : DRIFT, l=0.075;
+OO  : DRIFT, l=0.075;
+OOO : DRIFT, l=1.000;
+!DIPOLE
+B2   : SBEND, l=BL,angle=ANG;
+B2H  : SBEND, l=BL2,angle=ANGB2;
+!FODO QUADS
+QF  :QUADRUPOLE, l=QL,k1=KF0;
+QF2  :QUADRUPOLE, l=QLFH,k1=KF0;
+QD2  :QUADRUPOLE, l=QLDH,k1=KD0;
+!FODO CELL
+BNHC   : line=(QD2,O,B2,O,QF2);
+ANHC   : line=(QF2,O,B2,O,QD2);
+CEL    : line=(BNHC,ANHC);
+
+! Gradients, drift lengths, and quad lengths for the dispersion switch cell:       
+
+GF3    = 6.0471191;
+GD3    = -4.8124045;
+OFFW   = 0.33878254;
+O1     = 0.20012356;
+O2     = 0.33371989;
+
+QLF3   =  0.2800;
+QLD3   =  0.2000;
+!DRIFTS
+OFW  : DRIFT, l=OFFW;
+O1F  : DRIFT, l=O1;
+O2F  : DRIFT, l=O2;
+
+KF3  = GF3/BRHO;
+KD3  = GD3/BRHO;
+!QUADS
+QF3  :QUADRUPOLE, l=QLF3,k1=KF3;
+QD3  :QUADRUPOLE, l=QLD3,k1=KD3;
+
+
+!  FUNDAMENTAL BLOCK:
+
+
+NC0  : line=(SEXV,QD2,O,B2,O,QF2,SEXH,QF2,O,B2,O,QD2,SEXV,QD2,O,B2);
+NC1  : line=(-NC0);
+SNSA : line=(OFW,QF3,SEX1,QF3,O1F,QD3,QD3,O2F,SEXV, B2H);
+SNSB : line=(SNSA,B2H SEXV,O2F,QD3,QD3,O1F,QF3,SEX1,QF3,OFW);
+
+BLOCK: line=(NC0,SNSB,NC1);
+FEL  : line= (20(BLOCK));

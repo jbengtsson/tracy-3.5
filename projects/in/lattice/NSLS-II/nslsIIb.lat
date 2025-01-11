@@ -1,0 +1,71 @@
+define lattice;
+{ Lattice NSLSIIb Ex=26nm, C=158.4m} 
+Energy = 3.0;
+
+dP = 1e-8; CODeps = 1e-14;
+
+Meth = 4; Nbend = 4; Nquad = 2;
+
+c0 = 2.99792458e8; Brho = 1e9*Energy/c0; m_e = 0.51099906e6;
+h_rf = 264; C = 158.3999;
+CAV: Cavity, Frequency = c0/C*h_rf, Voltage = 1.2e6, Harnum = h_rf;
+
+{BD: BENDING, L = 1.4, T = 8.2497, K = -0.6383129913979755,
+    T1 = 4.1249, T2 = 4.1249, N = Nbend, Method = Meth,
+    HOM = (3, -0*5.65, 0.0);
+
+BF: BENDING, L = 1.35, T = 3.4289, K = 0.8279984161584911,
+    T1 = 1.7144, T2 = 1.7144, N = Nbend, Method = Meth,
+    HOM = (3, 0*4.10, 0.0);}
+
+BD: BENDING, L = 1.4, T = 8.2497, K = -0.6383129913979755,
+    T1 = 4.1249, T2 = 4.1249, N = Nbend, Method = Meth,
+    HOM = (3, -3.38595/1.4, 0.0);
+
+BF: BENDING, L = 1.35, T = 3.4289, K = 0.8279984161584911,
+    T1 = 1.7144, T2 = 1.7144, N = Nbend, Method = Meth,
+    HOM = (3,  2.62513/1.35, 0.0);
+
+D1: DRIFT, L=0.5850000000000000;
+D2: DRIFT, L=0.5850000000000000;
+DA: DRIFT, L=2.5250000000000000;
+DEX: DRIFT,L=1.0;
+DB: DRIFT, L=0.4236231282353377;
+DC: DRIFT, L=0.9000000000000000;
+DD: DRIFT, L=0.2061646817895147;
+DE: DRIFT, L=0.2000004442727535;
+DG: DRIFT, L=0.5452000000000000;
+DS1: DRIFT,L=0.185;
+DS2: DRIFT,L=0.250;
+
+{QD: QUADRUPOLE, L=0.15, K=0.8711900746076784,N = Nquad, Method = Meth;
+QF: QUADRUPOLE, L=0.45, K=1.844223475144369, N = Nquad, Method = Meth;
+QG: QUADRUPOLE, L=0.15, K=-1.30288667062731, N = Nquad, Method = Meth;}
+QD: QUADRUPOLE, L=0.15, K= 0.43811715, N = Nquad, Method = Meth;
+QF: QUADRUPOLE, L=0.45, K= 2.12158536, N = Nquad, Method = Meth;
+QG: QUADRUPOLE, L=0.15, K=-2.07477209, N = Nquad, Method = Meth;
+
+SF: SEXTUPOLE, L=0.15, K=0.0, N = 1, Method = Meth;
+SD: SEXTUPOLE, L=0.15, K=0.0, N = 1, Method = Meth;
+
+MK1: Marker;
+MK2: Marker;
+
+SSF: DS2,SF,DS1;
+
+SSD: DS2,SD,DS1;
+
+CL:  BD,D1,BF,D2;
+
+CQ:  QG,DG;
+
+DS:  DA,DEX,CQ,QF,DB,BD,DC,QD,DD,BF,DE;
+
+PER: MK1,DS,BD,SSF,BF,D2,BD,SSD,BF,D2,CL,BD,D1,BF,
+     SSD,BD,D1,BF,SSF,BD,INV(DS),MK2;
+
+RING: 1*PER, CAV;
+
+CELL: RING, SYMMETRY  = 1;
+
+END;

@@ -1,0 +1,172 @@
+{ TITLE "alsu-7ba-ring" }
+
+define lattice; ringtype = 1;
+
+Energy = 2.0;
+
+{making dP smaller speeds up runtime}
+dP = 1e-6; CODeps = 1e-14;
+
+{Meth = 4; Nbend = 4; Nquad = 4; Nsext = 4; Ncorr = 1;}
+Meth = 4; Nbend = 10; Nquad = 10; Nsext = 10; Ncorr = 1;
+
+pi = 4.0*arctan(1.0);
+c0 = 2.99792458e8;
+
+rbang     = 0.732;
+klgb      = -8.54793456099232;
+bendcorr  = (rbang-0.8069906)/2;
+mcdrft    = 0.0333117627147604;
+
+dx:        DRIFT, L= 4.8000000000E-02;
+ssh2:      DRIFT, L= 2.7200000000/5;
+md33:      DRIFT, L= mcdrft;
+ssxtra:    DRIFT, L= 0.084-mcdrft;
+
+
+{ Girder Markers }
+GS: Multipole, N = 1, Method = Meth;
+GE: Multipole, N = 1, Method = Meth;
+
+
+{ Beam Position Monitors }
+BPM_D: Drift, L = 5.0e-2/2.0;
+BPM_M: Beam Position Monitor;
+{BPM:   BPM_D, BPM_M, BPM_D;}
+BPM:   BPM_M;
+
+{ Horizontal and vertical corrector }
+CORR_D:  Drift, L = 10.0e-2/4.0;
+CORR_H:  Corrector, Horizontal, Method= Meth;
+CORR_V:  Corrector, Vertical, Method= Meth;
+CORR:    CORR_D, CORR_V, 2*CORR_D, CORR_H, CORR_D;
+CORRs:   CORR_D, CORR_H, 3*CORR_D;
+cm:      CORR_V, CORR_H;
+
+
+b3h:   BENDING, L= 2.50000E-01, T= 2.5+rbang,
+       K=-5.032084, T1= 0.0, T2= 0.0,
+       N = Nbend, Method = Meth;
+
+mb3h:  BENDING, L= 2.50000E-01, T= 2.5+rbang,
+       K=-0.677751, T1= 0.0, T2= 0.0,
+       N = Nbend, Method = Meth;
+
+lgb00: BENDING, L= 3.2088E-02, T= 0.551167,
+       K=0.0, T1= 0.0, T2= 0.551167,
+       N = Nbend, Method = Meth;
+
+lgb01: BENDING, L= 3.2088E-02, T= 0.551167,
+       K=0.0, T1= -0.551167, T2= 1.102333,
+       N = Nbend, Method = Meth;
+
+lgb02: BENDING, L= 3.2088E-02, T= 0.551167,
+       K=0.0, T1= -1.102333, T2= 1.653500,
+       N = Nbend, Method = Meth;
+
+lgb03: BENDING, L= 4.0000E-02, T= 0.551172,
+       K=klgb, T1= -1.653500, T2= 2.204672,
+       N = Nbend, Method = Meth;
+
+lgb04: BENDING, L= 4.9897E-02, T= 0.543650+bendcorr,
+       K=klgb, T1= -2.204672, T2= 2.748322+bendcorr,
+       N = Nbend, Method = Meth;
+
+lgb05: BENDING, L= 6.3885E-02, T= 0.558678+bendcorr,
+       K=klgb, T1= -2.748322-bendcorr, T2= 3.307000+2*bendcorr,
+       N = Nbend, Method = Meth;
+
+
+q1:    QUADRUPOLE, L= 2.0000000000E-01, K= -7.768418,
+       N = Nquad, Method = Meth;
+
+q2:    QUADRUPOLE, L= 2.0000000000E-01, K= 17.936597,
+       N = Nquad, Method = Meth;
+
+q3:    QUADRUPOLE, L= 2.0000000000E-01, K= -7.930494,
+       N = Nquad, Method = Meth;
+
+q4:    QUADRUPOLE, L= 2.0000000000E-01, K= -3.323051,
+       N = Nquad, Method = Meth;
+
+
+sf1:   SEXTUPOLE, L= 5.0000000000E-02, K= 1490.749380,
+       N = Nsext, Method = Meth;
+
+{fixed for chroma, OPA had 1530.260070}
+sf2:   SEXTUPOLE, L= 5.0000000000E-02, K= 1540.5668,
+       N = Nsext, Method = Meth;
+
+sf3:   SEXTUPOLE, L= 5.0000000000E-02, K= 1147.649260,
+       N = Nsext, Method = Meth;
+
+sh1:   SEXTUPOLE, K= 11.257203,
+       N = Nsext, Method = Meth;
+
+sh2:   SEXTUPOLE, K= 2.106577,
+       N = Nsext, Method = Meth;
+
+sh3:   SEXTUPOLE, K= -16.229782,
+       N = Nsext, Method = Meth;
+
+sd1:   SEXTUPOLE, L= 1.0000000000E-01, K= -1095.172890,
+       N = Nsext, Method = Meth;
+
+{fixed for chroma, OPA had -1279.736740}
+sd2:   SEXTUPOLE, L= 1.0000000000E-01, K= -1304.4873,
+       N = Nsext, Method = Meth;
+
+sd3:   SEXTUPOLE, L= 1.0000000000E-01, K= -1195.257310,
+       N = Nsext, Method = Meth;
+
+sd4:   SEXTUPOLE, L= 1.0000000000E-01, K= -1053.798130,
+       N = Nsext, Method = Meth;
+
+
+qfh:   BENDING, L= 1.20000E-01, T= -rbang,
+       K= 16.137907, T1= 0.0, T2= 0.0,
+       N = Nquad, Method = Meth;
+
+mqfh:  BENDING, L= 1.20000E-01, T= -rbang,
+       K= 14.584276, T1= 0.0, T2= 0.0,
+       N = Nquad, Method = Meth;
+
+
+oxx:   MULTIPOLE, HOM=(4, 3099.92711504, 0),
+       N = Nsext, Method = Meth;
+
+oxy:   MULTIPOLE, HOM=(4, -4614.37558483, 0),
+       N = Nsext, Method = Meth;
+
+oyy:   MULTIPOLE, HOM=(4, 6982.11277049, 0),
+       N = Nsext, Method = Meth;
+
+
+{CAV is not actual cavity position; only used to calculate phi_s, delta_rf, etc.}
+h_rf = 327; C =  195.936;
+CAV: Cavity, Frequency = c0/C*h_rf, Voltage = 0.833e6, Harnum = h_rf, phi = 180.0;
+
+
+ssh:    5*ssh2;
+lgb:    lgb00, lgb01, lgb02, lgb03, lgb04, lgb05;
+hcell1: lgb, dx, sd2, dx, dx, qfh, dx, sf1;
+hcell2: lgb, dx, sd2, dx, dx, qfh, dx, bpm, cm, sf2;
+hcell3: lgb, dx, sd3, dx, dx, qfh, dx, sf2;
+hcell4: lgb, dx, sd3, dx, dx, qfh, dx, bpm, cm, sf3;
+hcell5: lgb, dx, sd4, dx, dx, qfh, dx, sf3;
+fcell:  INV(hcell3), hcell4;
+ds:     mb3h, dx, sd1, md33, dx, dx, mqfh, dx, bpm, cm, sf1, INV(hcell1);
+mc:     bpm, cm, oxy, q1, oxx, dx, sh1, q2, sh2, dx, q3, sh3, dx, q4, 
+        oyy, bpm, inv(cm), dx, dx, dx;
+mcds:   ssh, ssxtra, mc, ds;
+half:   mcds, hcell2, fcell, INV(hcell5);
+achr:   half, INV(half);
+
+
+
+{RING: ACHR, CAV;}
+RING: 12*ACHR, CAV;
+
+CELL: RING, SYMMETRY = 1;
+
+END;

@@ -1,0 +1,147 @@
+define lattice; ringtype = 1;
+
+Energy = 2.5; { Beam momentum [GeV]. }
+
+dP = 1e-8; CODeps = 1e-14;
+
+Meth = 4; Nbend = 10; Nquad = 10; Nsext = 2;
+
+pi = 4.0*arctan(1.0); c0 = 2.99792458e8;
+
+{ ----- table of elements --------------------------------------------- }
+
+c0 = 2.99792458e8; gamma = 3.5e9/c0; Brho = 1e9*Energy/c0;
+
+h_rf = 538; C = 16*20.2;
+
+cav: Cavity, L = 0.0, Frequency = c0/C*h_rf, Voltage = 1.5e6, harnum = h_rf,
+     phi = 0.0;
+
+bpm: Beam Position Monitor;
+
+sfk: Multipole, L = 0.0, N = Nsext, Method = 4;
+sdk: Multipole, L = 0.0, N = Nsext, Method = 4;
+
+l1h:     Drift, L = 0.050000;
+
+ml1:     Drift, L = 0.100000;
+ml1ah:   Drift, L = 0.05000;
+ml1b:    Drift, L = 0.100000;
+
+ul1:     Drift, L = 0.200000;
+ul2:     Drift, L = 0.282003;
+ul2h:    Drift, L = 0.282003/2;
+
+ul2k: ul2h, sfk, sdk, ul2h;
+
+ul3:     Drift, L = 0.200000;
+ul4dr:   Drift, L = 2.750000;
+
+ul4: l1h, bpm, ul4dr;
+
+ul1inj:  Drift, L = 0.603785;
+ul2inj:  Drift, L = 0.069323;
+ul3inj:  Drift, L = 0.083775;
+
+ul4injr: Drift, L = 2.606000;
+
+ul4inj: l1h, bpm, ul4injr;
+
+qd:     Quadrupole, L = 0.130000, K = -9.376548, N = Nquad, Method = 4;
+mqd:    Quadrupole, L = 0.130000, K = -5.000000, N = Nquad, Method = 4;
+uq1:    Quadrupole, L = 0.175000, K = -2.557067, N = Nquad, Method = 4;
+uq2:    Quadrupole, L = 0.240000, K = 7.899384, N = Nquad, Method = 4;
+uq3:    Quadrupole, L = 0.120000, K = -6.751186, N = Nquad, Method = 4;
+uq1inj: Quadrupole, L = 0.175000, K = -3.006363, N = Nquad, Method = 4;
+uq2inj: Quadrupole, L = 0.240000, K = 8.369774, N = Nquad, Method = 4;
+uq3inj: Quadrupole, L = 0.120000, K = -7.746744, N = Nquad, Method = 4;
+
+
+bbh1: Bending, L = 1.000000/2, T = (0.077842/2)*180.0/pi,
+      T1 = (0.038921)*180.0/pi, T2 = (0.0)*180.0/pi, K = 0.000000, N = Nbend,
+      Method = 4;
+bbh2: Bending, L = 1.000000/2, T = (0.077842/2)*180.0/pi,
+      T1 = (0.0)*180.0/pi, T2 = (0.038921)*180.0/pi, K = 0.000000, N = Nbend,
+      Method = 4;
+
+bb: bbh1, sdk, bbh2;
+
+br: Bending, L = 0.160000, T = -0.004014*180.0/pi,
+    T1 = -0.002007*180.0/pi, T2 = -0.002007*180.0/pi, K = 9.395465,
+    N = Nbend, Method = 4;
+mbb: Bending, L = 0.650000, T = 0.060446*180.0/pi,
+     T1 = 0.030223*180.0/pi, T2 = 0.030223*180.0/pi, K = -1.600000,
+     	N = Nbend, Method = 4;
+mbr: Bending, L = 0.160000, T = -0.003723*180.0/pi,
+     T1 = -0.001861*180.0/pi, T2 = -0.001861*180.0/pi, K = 7.752612,
+     N = Nbend, Method = 4;
+
+sdh: Sextupole, L = 0.120000, K = -463.097086/2.0, N = Nsext, Method = 4;
+sfh: Sextupole, L = 0.060000, K = 485.3221220/2.0, N = Nsext, Method = 4;
+
+sd: sdh, sdh;
+sf: sfh, sfh;
+
+
+sd1:   Sextupole, L = 0.120000,   K = -363.465084/2.0, N = Nsext, Method = 4;
+sd2h:  Sextupole, L = 0.120000/2, K = -377.699182/2.0, N = Nsext, Method = 4;
+sd2:   sd2h, sd2h;
+sd3:   Sextupole, L = 0.120000,   K = -463.097086/2.0, N = Nsext, Method = 4;
+sd3a:  Sextupole, L = 0.120000,   K = -471.333334/2.0, N = Nsext, Method = 4;
+sd3b:  Sextupole, L = 0.200000,   K = -400.584914/2.0, N = Nsext, Method = 4;
+sd3bh: Sextupole, L = 0.200000/2, K = -400.584914/2.0, N = Nsext, Method = 4;
+
+sf1:   Sextupole, L = 0.060000,   K = 363.4655500/2.0, N = Nsext, Method = 4;
+sf2:   Sextupole, L = 0.060000,   K = 394.9307920/2.0, N = Nsext, Method = 4;
+sf3:   Sextupole, L = 0.060000,   K = 506.6666660/2.0, N = Nsext, Method = 4;
+sf3a:  Sextupole, L = 0.140000,   K = 509.6878860/2.0, N = Nsext, Method = 4;
+
+om_sf:  Marker;
+om_mbb: Marker;
+om_c:   Marker;
+
+oxx: Drift, L = 0.0;
+oxy: Drift, L = 0.0;
+oyy: Drift, L = 0.0;
+
+
+{ ----- table of segments --------------------------------------------- }
+
+l1:      l1h, l1h;
+l1bpm:   l1h, bpm, l1h;
+
+ml1a:    ml1ah, ml1ah;
+ml1abpm: ml1ah, bpm, ml1ah;
+
+ucell: 
+  om_sf, sf, l1, br, l1, qd, l1, sd, l1bpm, bb, 
+  l1bpm, sd, l1, qd, l1, br, l1, sf, om_sf;
+
+sd2k: sd2h, sfk, sd2h;
+
+ucs21: 
+  om_sf, sdk, sf2, l1, br, l1, qd, l1, sd2k, l1bpm, 
+  bb, l1bpm, sd1, l1, qd, l1, br, l1, sf1, om_sf;
+ucs32: 
+  om_sf, sdk, sf3, l1, br, l1, qd, l1, sd3a, l1bpm, 
+  bb, l1bpm, sd2, l1, qd, l1, br, l1, sf2, om_sf;
+
+sd3bk: sd3bh, sfk, sd3bh;
+
+dcell: 
+  om_sf, sf3a, ml1, mbr, ml1b, sd3b, ml1abpm, mbb, oyy, om_mbb;
+
+arc: inv(dcell), ucs32, ucs21, om_c, inv(ucs21), inv(ucs32), dcell;
+
+mund: 
+  om_mbb, ul1, uq1, ul2k, uq2, oxx, ul3, oxy, uq3, ul4;
+minj: 
+  om_mbb, ul1inj, uq1inj, ul2inj, uq2inj, oxx, ul3inj, oxy, uq3inj, ul4inj;
+
+sec: inv(mund), arc, mund;
+
+ring: 1*sec, cav;
+
+cell: ring, symmetry = 1;
+
+end;

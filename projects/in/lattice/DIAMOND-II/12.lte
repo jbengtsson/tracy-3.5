@@ -1,0 +1,242 @@
+!c:\users\bs36\desktop\opa-hmba-90pm -13.00.2018\opa-hmba-sol_20_01.opa
+
+!opa to elegant export
+
+!----- variables ----------------------------------------------------
+
+!aban   = 0.3952
+!abans  = aban
+!abanm  = aban
+!dtor   = 0.01745329
+
+!----- table of elements ----------------------------------------------------
+
+d_ls        : drift, l = 1.288000
+d_lsmin     : drift, l = 0.995000
+d_ls01      : drift, l = 0.124000
+d_ls011     : drift, l = 0.080000
+d_ls05      : drift, l = 0.080000
+d_ls051     : drift, l = 0.052000
+d_ls05in    : drift, l = 0.230501
+d_ls05inmin : drift, l = 0.050025
+d_lsadd     : drift, l = 0.196000
+dr_05ls     : drift, l = 0.050000
+dr_minh1    : drift, l = 1.574000
+dr_minh2    : drift, l = 1.630000
+dr_01       : drift, l = 2.550000
+dr_01ls     : drift, l = 2.460000
+dr_01ls1    : drift, l = 2.358000
+dr_02       : drift, l = 0.056000
+dr_03       : drift, l = 0.080000
+dr_04       : drift, l = 0.210000
+dr_05       : drift, l = 0.047000
+dr_06       : drift, l = 0.047000
+dr_07       : drift, l = 0.075000
+dr_08       : drift, l = 0.136000
+dr_09       : drift, l = 0.454874
+dr_10       : drift, l = 0.085000
+dr_11       : drift, l = 0.085000
+dr_12       : drift, l = 0.060000
+dr_13       : drift, l = 0.384874
+dr_14       : drift, l = 0.056000
+dr_15       : drift, l = 0.075000
+dr_16       : drift, l = 0.047000
+dr_17       : drift, l = 0.094000
+dr_18       : drift, l = 0.056000
+dr_19       : drift, l = 0.090000
+dr_20       : drift, l = 0.050088
+dr_21       : drift, l = 0.059912
+dr_22       : drift, l = 0.020000
+dr_23       : drift, l = 1.500000
+dr_24       : drift, l = 1.500000
+dr_25       : drift, l = 0.020000
+dr_26       : drift, l = 0.059912
+dr_27       : drift, l = 0.050088
+dr_28       : drift, l = 0.090000
+dr_29       : drift, l = 0.056000
+dr_291      : drift, l = 0.000000
+dr_30       : drift, l = 0.094000
+dr_31       : drift, l = 0.047000
+dr_32       : drift, l = 0.075000
+dr_33       : drift, l = 0.184000
+dr_34       : drift, l = 0.256874
+dr_35       : drift, l = 0.060000
+dr_36       : drift, l = 0.085000
+dr_37       : drift, l = 0.084000
+dr_38       : drift, l = 0.446874
+dr_381      : drift, l = 0.250373
+dr_381min   : drift, l = 0.430849
+dr_39       : drift, l = 0.144000
+dr_40       : drift, l = 0.075000
+dr_41       : drift, l = 0.047000
+dr_42       : drift, l = 0.047000
+dr_43       : drift, l = 0.210000
+dr_44       : drift, l = 0.080000
+dr_45       : drift, l = 0.056000
+dr_46       : drift, l = 2.550000
+dr_46_c1    : drift, l = 3.576000
+dr_add      : drift, l = 0.100000
+dr_triplet  : drift, l = 0.050000
+shmi        : drift, l = 0.025000
+drof        : drift, l = 0.045000
+
+shmid1      : marker
+ge          : marker
+gs          : marker
+fps         : marker
+fpdisa      : marker
+ls1         : marker
+lsmin       : marker
+minbet      : marker
+minbetphase : marker
+ss1         : marker
+jn1         : marker
+cellcenter  : marker
+
+qd11        : quadrupole, l = 0.155000, k1 = -3.939826
+qd22        : quadrupole, l = 0.102000, k1 = 2.492573
+qd21        : quadrupole, l = 0.102000, k1 = -3.163604
+qd31        : quadrupole, l = 0.100000, k1 = -4.662857
+qf42        : quadrupole, l = 0.142000, k1 = 3.086733
+qf41        : quadrupole, l = 0.142000, k1 = 7.196871
+qd2         : quadrupole, l = 0.102000, k1 = -8.000000
+qd3         : quadrupole, l = 0.100000, k1 = -4.580210
+qd5         : quadrupole, l = 0.136000, k1 = -3.298554
+qd51        : quadrupole, l = 0.155000, k1 = 6.214290
+qf4         : quadrupole, l = 0.142000, k1 = 4.941637
+qf1         : quadrupole, l = 0.155000, k1 = 6.512605
+qf421       : quadrupole, l = 0.142000, k1 = 5.588148
+qf422       : quadrupole, l = 0.142000, k1 = 3.741765
+qf6         : quadrupole, l = 0.362000, k1 = 5.896479
+qf8         : quadrupole, l = 0.278000, k1 = 6.976661
+qfm11       : quadrupole, l = 0.155000, k1 = 2.382061
+qdm11       : quadrupole, l = 0.155000, k1 = -9.299557
+qdm22       : quadrupole, l = 0.102000, k1 = 9.230964
+qdm21       : quadrupole, l = 0.102000, k1 = 2.834311
+qdm31       : quadrupole, l = 0.100000, k1 = -0.623631
+qfm421      : quadrupole, l = 0.142000, k1 = 8.000000
+qfm422      : quadrupole, l = 0.142000, k1 = 0.993380
+qdm5        : quadrupole, l = 0.136000, k1 = -5.909759
+qfm6        : quadrupole, l = 0.362000, k1 = 6.621981
+qfm8        : quadrupole, l = 0.278000, k1 = 6.369337
+qfm42       : quadrupole, l = 0.142000, k1 = 1.675047
+qfm41       : quadrupole, l = 0.142000, k1 = 7.556978
+
+sd1         : ksext, l = 0.140000, k2 = -827.689758
+sd2         : ksext, l = 0.140000, k2 = -786.416524
+sd3         : ksext, l = 0.140000, k2 = -814.954636
+sd4         : ksext, l = 0.140000, k2 = -708.385916
+sd31        : ksext, l = 0.140000, k2 = -1062.768340
+sd32        : ksext, l = 0.140000, k2 = -1057.252440
+sd41        : ksext, l = 0.140000, k2 = -844.687488
+sd42        : ksext, l = 0.140000, k2 = -902.590704
+sf1         : ksext, l = 0.070000, k2 = 771.076184
+sf2         : ksext, l = 0.070000, k2 = 812.158236
+sf21        : ksext, l = 0.070000, k2 = 1016.486440
+sf22        : ksext, l = 0.070000, k2 = 1102.029770
+sh1a        : ksext, l = 0.140000, k2 = 0.000000
+sh2b        : ksext, l = 0.140000, k2 = 0.000000
+sh2d        : ksext, l = 0.140000, k2 = 0.000000
+sh1e        : ksext, l = 0.140000, k2 = 0.000000
+sh1f        : ksext, l = 0.140000, k2 = 0.000000
+
+bnom1       : marker
+bnom2       : marker
+bnom3       : marker
+
+dq1         : csbend, l = 0.866922, angle = 0.051799,&
+              k1 = -2.922000, e1 = 0.025900, e2 = 0.025900
+dl1a5       : csbend, l = 0.200983, angle = 0.013064,&
+              k1 = 0.000000, e1 = 0.019775, e2 = -0.006711
+dl1a4       : csbend, l = 0.200983, angle = 0.008544,&
+              k1 = 0.000000, e1 = 0.006711, e2 = 0.001833
+dl1a3       : csbend, l = 0.200983, angle = 0.006911,&
+              k1 = 0.000000, e1 = -0.001833, e2 = 0.008744
+dl1a2       : csbend, l = 0.200983, angle = 0.005903,&
+              k1 = 0.000000, e1 = -0.008744, e2 = 0.014647
+dl1a1       : csbend, l = 0.200983, angle = 0.005128,&
+              k1 = 0.000000, e1 = -0.014647, e2 = 0.019775
+dl2b1       : csbend, l = 0.200983, angle = 0.005128,&
+              k1 = 0.000000, e1 = 0.019775, e2 = 0.000000
+dl2b2       : csbend, l = 0.200983, angle = 0.005903,&
+              k1 = 0.000000, e1 = 0.014647, e2 = 0.000000
+dl2b3       : csbend, l = 0.200983, angle = 0.006911,&
+              k1 = 0.000000, e1 = 0.008744, e2 = 0.000000
+dl2b4       : csbend, l = 0.200983, angle = 0.008544,&
+              k1 = 0.000000, e1 = 0.001833, e2 = 0.000000
+dl2b5       : csbend, l = 0.200983, angle = 0.013064,&
+              k1 = 0.000000, e1 = -0.006711, e2 = 0.000000
+dl2d5       : csbend, l = 0.200983, angle = 0.013064,&
+              k1 = 0.000000, e1 = 0.019775, e2 = -0.006711
+dl2d4       : csbend, l = 0.200983, angle = 0.008544,&
+              k1 = 0.000000, e1 = 0.006711, e2 = 0.000000
+dl2d3       : csbend, l = 0.200983, angle = 0.006911,&
+              k1 = 0.000000, e1 = -0.001833, e2 = 0.000000
+dl2d2       : csbend, l = 0.200983, angle = 0.005903,&
+              k1 = 0.000000, e1 = -0.008744, e2 = 0.000000
+dl2d1       : csbend, l = 0.200983, angle = 0.005128,&
+              k1 = 0.000000, e1 = -0.014647, e2 = 0.000000
+dl1e1       : csbend, l = 0.200983, angle = 0.005128,&
+              k1 = 0.000000, e1 = 0.000345, e2 = 0.000000
+dl1e2       : csbend, l = 0.200983, angle = 0.005903,&
+              k1 = 0.000000, e1 = 0.000256, e2 = 0.000000
+dl1e3       : csbend, l = 0.200983, angle = 0.006911,&
+              k1 = 0.000000, e1 = 0.000153, e2 = 0.000000
+dl1e4       : csbend, l = 0.200983, angle = 0.008544,&
+              k1 = 0.000000, e1 = 0.000032, e2 = 0.000000
+dl1e5       : csbend, l = 0.200983, angle = 0.013064,&
+              k1 = 0.000000, e1 = -0.000117, e2 = 0.000000
+
+ocf61       : drift, l = 0.0
+of11        : drift, l = 0.0
+of21        : drift, l = 0.0
+of31        : drift, l = 0.0
+of41        : drift, l = 0.0
+
+
+!----- table of segments ----------------------------------------------------
+
+ocf6   : line=(ocf61)
+of1    : line=(drof, of11, drof)
+of2    : line=(drof, of21, drof)
+of3    : line=(drof, of31, drof)
+of4    : line=(drof, of41, drof)
+shmid  : line=(shmi, shmid1, shmi)
+dl1a   : line=(dl1a5, dl1a4, dl1a3, dl1a2, dl1a1)
+dl2b   : line=(dl2b1, dl2b2, dl2b3, dl2b4, dl2b5)
+dl2d   : line=(dl2d5, dl2d4, dl2d3, dl2d2, dl2d1)
+dl1e   : line=(dl1e1, dl1e2, dl1e3, dl1e4, dl1e5)
+
+mc1    : line=(cellcenter, dr_24, dr_25, shmid, dr_26, qfm8, dr_27)
+mc2    : line=(ocf6, dq1, ocf6, dr_28, qfm6, dr_29, dr_30, dl2d, dr_31, qdm5)
+mc3    : line=(dr_32, sd4, ge, dr_33, dr_34, gs, of3, dr_35,&
+         minbetphase, qfm41)
+mc4    : line=(dr_36, sf21, fps, sf21, dr_37, qfm42, dr_381, dr_39,&
+         sd31, dr_40, qdm31)
+mc5    : line=(dr_41, dl1e, fpdisa, dr_05ls, qdm21, d_ls05, sh1e, jn1,&
+         d_ls05in)
+mc6    : line=(qdm11, d_ls01, qfm11, dr_02, qdm22, dr_01ls1, d_lsadd,&
+         d_ls, ls1)
+mc7    : line=(fpdisa, dr_05ls, qdm21, d_ls05, sh1e, jn1, d_ls05in)
+mc8    : line=(mc7, mc6)
+mcc    : line=(mc1, mc2, mc3, mc4)
+mc     : line=(mc1, mc2, mc3, mc4, mc5, mc6)
+nmc    : line=(-mc)
+mck    : line=(-mc5)
+mcs    : line=(nmc, -nmc)
+spm    : line=(-mc, mc)
+spm1   : line=(mc)
+hc1    : line=(dr_01, dr_02, gs, qf1, dr_03, sh1a, dr_04, qd2, dr_05)
+hc2    : line=(dl1a, dr_06, qd3, dr_07, sd3, dr_08, dr_09, qf422, dr_10, sf2)
+hc3    : line=(fps, sf2, dr_11, qf421, dr_12, of2, ge, dr_13, dr_14,&
+         gs, sd41, dr_15)
+hc4    : line=(qd5, dr_16, dl2b, dr_17, dr_18, qf6)
+hc5    : line=(dr_19, ocf6, dq1, ocf6, dr_20, qf8, dr_21, shmid, dr_22,&
+         dr_23, cellcenter)
+hc     : line=(hc1, hc2, hc3, hc4, hc5)
+sp1    : line=(-hc, hc)
+sp3    : line=(sp1, sp1, sp1)
+sp11   : line=(-mc, sp1, mc)
+sp2    : line=(-mc, -hc, hc, -hc, hc, -hc, hc, mc)
+
+!c:\users\bs36\desktop\opa-hmba-90pm -13.00.2018\opa-hmba-sol_20_01.opa
