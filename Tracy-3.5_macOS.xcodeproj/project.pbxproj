@@ -7,13 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0406150F2D31E520008612E2 /* LieLib.o in Frameworks */ = {isa = PBXBuildFile; fileRef = 0406150C2D31E3FD008612E2 /* LieLib.o */; };
-		040615102D31E520008612E2 /* TPSALib.o in Frameworks */ = {isa = PBXBuildFile; fileRef = 0406150B2D31E3FD008612E2 /* TPSALib.o */; };
 		0406151A2D31F314008612E2 /* libtracy_lib.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 045EC22D2D3171E6000C2BD3 /* libtracy_lib.dylib */; };
 		0406151B2D31F370008612E2 /* libnum_rec.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 040615152D31F11E008612E2 /* libnum_rec.a */; };
 		0406151C2D31F3B0008612E2 /* libnum_rec.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 040615152D31F11E008612E2 /* libnum_rec.a */; };
 		040615212D31F7F5008612E2 /* libnum_rec.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 040615152D31F11E008612E2 /* libnum_rec.a */; };
 		0406152E2D31FBA2008612E2 /* libtracy_ptc_lib.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 040614FC2D31DB04008612E2 /* libtracy_ptc_lib.dylib */; };
+		04061CC52D321761008612E2 /* LieLib.o in Frameworks */ = {isa = PBXBuildFile; fileRef = 04061CBF2D32168B008612E2 /* LieLib.o */; };
+		04061CC62D321761008612E2 /* TPSALib.o in Frameworks */ = {isa = PBXBuildFile; fileRef = 04061CC02D32168B008612E2 /* TPSALib.o */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -40,12 +40,10 @@
 /* Begin PBXFileReference section */
 		040614FC2D31DB04008612E2 /* libtracy_ptc_lib.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libtracy_ptc_lib.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		040615032D31DBB7008612E2 /* max_4u */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = max_4u; sourceTree = BUILT_PRODUCTS_DIR; };
-		0406150B2D31E3FD008612E2 /* TPSALib.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; name = TPSALib.o; path = "../../tracy-3.5_dev/TPSA/TPSALib.o"; sourceTree = "<group>"; };
-		0406150C2D31E3FD008612E2 /* LieLib.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; name = LieLib.o; path = "../../tracy-3.5_dev/TPSA/LieLib.o"; sourceTree = "<group>"; };
 		040615152D31F11E008612E2 /* libnum_rec.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libnum_rec.a; path = ../../../num_rec/lib/libnum_rec.a; sourceTree = "<group>"; };
 		040615262D31F7F5008612E2 /* drv_terms */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = drv_terms; sourceTree = BUILT_PRODUCTS_DIR; };
-		0406152A2D31FA72008612E2 /* libLieLib.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libLieLib.a; path = "../../tracy-3.5_dev/TPSA/libLieLib.a"; sourceTree = "<group>"; };
-		0406152B2D31FA72008612E2 /* libTPSALib.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libTPSALib.a; path = "../../tracy-3.5_dev/TPSA/libTPSALib.a"; sourceTree = "<group>"; };
+		04061CBF2D32168B008612E2 /* LieLib.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; name = LieLib.o; path = "../tracy-3.5_dev/TPSA/LieLib.o"; sourceTree = "<group>"; };
+		04061CC02D32168B008612E2 /* TPSALib.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; name = TPSALib.o; path = "../tracy-3.5_dev/TPSA/TPSALib.o"; sourceTree = "<group>"; };
 		045EC22D2D3171E6000C2BD3 /* libtracy_lib.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libtracy_lib.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		045EC2342D317306000C2BD3 /* bootstrap */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = bootstrap; sourceTree = "<group>"; };
 		045EC23B2D317306000C2BD3 /* configure.ac */ = {isa = PBXFileReference; lastKnownFileType = text; path = configure.ac; sourceTree = "<group>"; };
@@ -140,8 +138,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0406150F2D31E520008612E2 /* LieLib.o in Frameworks */,
-				040615102D31E520008612E2 /* TPSALib.o in Frameworks */,
+				04061CC52D321761008612E2 /* LieLib.o in Frameworks */,
+				04061CC62D321761008612E2 /* TPSALib.o in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -177,11 +175,9 @@
 		0406150A2D31E3FD008612E2 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				0406152A2D31FA72008612E2 /* libLieLib.a */,
-				0406152B2D31FA72008612E2 /* libTPSALib.a */,
+				04061CBF2D32168B008612E2 /* LieLib.o */,
+				04061CC02D32168B008612E2 /* TPSALib.o */,
 				040615152D31F11E008612E2 /* libnum_rec.a */,
-				0406150C2D31E3FD008612E2 /* LieLib.o */,
-				0406150B2D31E3FD008612E2 /* TPSALib.o */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
