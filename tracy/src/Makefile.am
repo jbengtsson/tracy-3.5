@@ -1,12 +1,12 @@
 AUTOMAKE_OPTIONS = subdir-objects
 
-lib_LIBRARIES = libtracy.a libtracy_ptc.a
+# lib_LIBRARIES = libtracy.a libtracy_ptc.a
 # Make shared libraries - use glibtoolize to initialise.
-# lib_LTLIBRARIES = libtracy.la libtracy_ptc.la
+lib_LTLIBRARIES = libtracy.la libtracy_ptc.la
 
-libtracy_a_SOURCES = tracy_lib.cc
+libtracy_la_SOURCES = tracy_lib.cc
 
-libtracy_ptc_a_SOURCES = tracy_ptc_lib.cc
+libtracy_ptc_la_SOURCES = tracy_ptc_lib.cc
 
 GNU = /usr/local/opt
 
