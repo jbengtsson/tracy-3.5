@@ -43,27 +43,10 @@ void chk_sympl(void)
 }
 
 
-void prt_lin_map_JB(const int n_DOF, const ss_vect<tps> &map)
-{
-  const int n_dec = (!true)? 6 : 16;
-
-  std::cout << std::scientific << std::setprecision(n_dec)
-	    << "\ncst\n"  << std::setw(8+n_dec) << map.cst() << "\nmap\n";
-  for (auto i = 1; i <= 2*n_DOF; i++) {
-    for (auto j = 1; j <= 2*n_DOF; j++)
-      std::cout << std::scientific << std::setprecision(n_dec)
-		<< std::setw(8+n_dec) << getmat(map, i, j);
-    std::cout << "\n";
-  }
-}
-
-
 void compute_mat(void)
 {
-  const
-    bool incremental = !false;
-  const string
-    file_name = (!incremental)? "for_stephen.txt" : "for_stephen_incr.txt";
+  const bool   incremental = false;
+  const string file_name   = "for_stephen.txt";
 
   long int     lastpos;
   ss_vect<tps> M;
@@ -76,14 +59,11 @@ void compute_mat(void)
     if (!incremental)
       M.identity();
     Cell_Pass(k, k, M, lastpos);
-    printf("\n  %2d %10s  S [m] = %7.3f  L = %8.5f",
-	   k, Cell[k].Elem.PName, Cell[k].S, Cell[k].Elem.PL);
+    printf("\n  %2d %10s S [m] = %7.3f", k, Cell[k].Elem.PName, Cell[k].S);
     if (Cell[k].Elem.Pkind == Mpole)
-      printf("  h [1/m] = %21.16e  phi [deg] = %21.16e  b_2 = %8.5f",
-	     Cell[k].Elem.M->Pirho,
-	     Cell[k].Elem.M->Pirho*Cell[k].Elem.PL*180e0/M_PI,
-	     Cell[k].Elem.M->PBpar[Quad+HOMmax]);
-    prt_lin_map_JB(3, M);
+      printf("  h [1/m] = %21.16e  phi [deg] = %21.16e", Cell[k].Elem.M->Pirho,
+	     Cell[k].Elem.M->Pirho* Cell[k].Elem.PL*180e0/M_PI);
+    prt_lin_map(3, M);
   }
 
   // Restore stdout.
@@ -110,7 +90,7 @@ int main(int argc, char *argv[])
 {
   double I[6], eps_x, sigma_delta, U_0, J[3], tau[3];
 
-  globval.mat_meth = false;
+  globval.mat_meth = !false;
 
   if (true)
     Read_Lattice(argv[1]);
