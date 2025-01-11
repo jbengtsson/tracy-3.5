@@ -11,3 +11,7 @@
 #define NO 10
 
 #include "tracy.cc"
+
+int no_tps = NO;
+
+int ndpt_tps = 5;
