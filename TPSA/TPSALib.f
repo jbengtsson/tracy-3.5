@@ -1126,7 +1126,7 @@
       common /alloc/ allvec
 
       if(idal.le.nomax+2.or.idal.gt.nda) then
-         write(6,*)'ERROR IN ROUTINE DADAL, IDAL,NDA = ',idal,nda
+         write(6,*)'ERROR IN ROUTINE DADAL1, IDAL,NDA = ',idal,nda
          call dadeb(31,'ERR DADAL ',1)
       endif
       if(idal.eq.nda) then
