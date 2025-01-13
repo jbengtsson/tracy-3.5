@@ -21,6 +21,7 @@
 // Depreciated; included in <stdlib.h>
 //#include <malloc.h>
 //#include <execinfo.h>
+#include <assert.h>
 
 
 // C++ standard library

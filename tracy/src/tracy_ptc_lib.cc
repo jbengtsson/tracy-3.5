@@ -8,7 +8,7 @@
 
 */
 
-#define NO 10
+#define NO 5
 
 #include "tracy.cc"
 

@@ -16,8 +16,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "040614F52D31DB04008612E2"
-               BuildableName = "libtracy_ptc_lib.dylib"
-               BlueprintName = "tracy_ptc_lib"
+               BuildableName = "libtracy_ptc.dylib"
+               BlueprintName = "tracy_ptc"
                ReferencedContainer = "container:Tracy-3.5_macOS.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -51,8 +51,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "040614F52D31DB04008612E2"
-            BuildableName = "libtracy_ptc_lib.dylib"
-            BlueprintName = "tracy_ptc_lib"
+            BuildableName = "libtracy_ptc.dylib"
+            BlueprintName = "tracy_ptc"
             ReferencedContainer = "container:Tracy-3.5_macOS.xcodeproj">
          </BuildableReference>
       </MacroExpansion>

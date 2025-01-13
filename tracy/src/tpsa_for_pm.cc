@@ -123,7 +123,8 @@ void TPSA_Ini(void)
 {
 
   std::cout << std::endl;
-  std::cout << std::scientific << "initializing TPSA library: no = " << no_tps
+  std::cout << std::scientific << std::setprecision(0) << "initializing TPSA library: no = "
+       << no_tps
        << ", nv = " << nv_tps << ", nd = " << nd_tps
        << ", ndpt = " << ndpt_tps << ", eps = " << eps_tps << std::endl;
 

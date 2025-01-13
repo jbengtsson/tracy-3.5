@@ -131,6 +131,7 @@ void prt_tab
 {
   tps h_re, h_im, k_re, k_im;
 
+  get_h_local(map_Fl, false);
   CtoR(get_h_local(map_Fl, false)*Id_scl, h_re, h_im);
   CtoR(K*Id_scl, k_re, k_im);
 
@@ -250,11 +251,8 @@ void get_drv_terms(const ss_vect<tps> &Id_scl)
   outf.close();
 
   outf.open(file_name_2.c_str(), ios::out);
-#if 0
-  // Needs to be debugged.
   prt_tab(outf, Id_scl, map_k_Fl, MNF.K);
   outf.close();
-#endif
 }
 
 
