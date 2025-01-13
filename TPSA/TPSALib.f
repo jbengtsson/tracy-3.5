@@ -295,7 +295,6 @@
 !
       write(*, 200) 'daini:    no = ', no, ', nv = ', nv
  200  format(2(a, i0))
-      write(*, *) 'Initialising shared data.'
       call alloc_shared_data()
       if(eps.le.0.d0) eps=1.d-38
 !      if(EPS.le.0.d0) eps=1.d-90
@@ -682,11 +681,9 @@
          endif
 
  !        c = ccc
-         do j=1, 4
+         do j=1, 10
             c(j:j) = ccc(j)
          enddo
-         write(c(5:10),'(I6)') ic
-         c(5:10) = adjustl(c(5:10))
          daname(ind) = c
 
          if (incnda) then
@@ -929,11 +926,9 @@
          endif
 
 !     c = ccc
-         do j=1, 4
+         do j=1, 10
             c(j:j) = ccc(j)
          enddo
-         write(c(5:10),'(I6)') ic
-         c(5:10) = adjustl(c(5:10))
          daname(ind) = c
 
          if (incnda) then
@@ -5499,6 +5494,20 @@
       return
       end subroutine
 
+      subroutine daprid(h,n1,n2,mfile)
+      implicit none
+      integer i,mfile,n1,n2,ndim2,ntt
+!  print a map
+      parameter (ndim2=6)
+      parameter (ntt=40)
+      integer  h(*)
+      if(mfile.le.0) return
+      do i=n1,n2
+        call dapri(h(i),mfile)
+      enddo
+      return
+      end subroutine
+
       subroutine dashift(ina,inc,ishift)
 !-----------------------------------------------------------------------------1
       use shared_data
@@ -5808,6 +5817,26 @@
 !
       if(nomax.ne.1) call dapac(ina)
 !
+      return
+      end subroutine
+
+      subroutine daread(h,nd1,mfile,xipo)
+      implicit none
+      integer i,mfile,nd1,ndim2,ntt
+      double precision rx,xipo
+!  read a map
+      parameter (ndim2=6)
+      parameter (ntt=40)
+      integer h(*),j(ntt)
+      do i=1,ntt
+        j(i)=0
+      enddo
+      do i=1,nd1
+        call darea(h(i),mfile)
+        call dapek(h(i),j,rx)
+        rx=rx*xipo
+        call dapok(h(i),j,rx)
+      enddo
       return
       end subroutine
 

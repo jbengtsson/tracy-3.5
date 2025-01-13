@@ -234,7 +234,7 @@ void get_drv_terms(const ss_vect<tps> &Id_scl)
   printf("\n");
   for (k = 0; k < n_cell*(globval.Cell_nLoc+1); k++) {
     loc = k % (globval.Cell_nLoc+1);
-    printf("%5d (%3ld)\n", k, n_cell*globval.Cell_nLoc);
+    printf("%5d (%ld)\n", k, n_cell*(globval.Cell_nLoc+1)-1);
     danot_(1);
     Elem_Pass(loc, A_k);
     A_k = get_A_CS(2, A_k, dnu);
@@ -249,12 +249,9 @@ void get_drv_terms(const ss_vect<tps> &Id_scl)
 
   outf.close();
 
-#if 0
-  // Needs to be debugged.
   outf.open(file_name_2.c_str(), ios::out);
   prt_tab(outf, Id_scl, map_k_Fl, MNF.K);
   outf.close();
-#endif
 }
 
 

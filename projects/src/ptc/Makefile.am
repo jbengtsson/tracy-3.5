@@ -29,6 +29,8 @@ lie_series_chk_SOURCES  = lie_series_chk.cc
 
 LOCAL = /usr/local/opt
 
+#	$(TRACY_LIB)/tracy/lib/libTPSALib.a $(TRACY_LIB)/tracy/lib/libLieLib.a \
+#	$(THOR_LIB)/thor/lib/libTPSALib.a $(THOR_LIB)/thor/lib/libLieLib.a \
 # Explicit reference to libc++ required for CC front-end vs. C++.
 # Cope with macOS by using static libraries.
 LIBS =	$(TRACY_LIB)/tracy/lib/libtracy_ptc.a \
@@ -44,9 +46,6 @@ LIBS =	$(TRACY_LIB)/tracy/lib/libtracy_ptc.a \
 AM_CPPFLAGS = \
 	-I$(TRACY_LIB)/tracy/inc \
 	-I$(NUM_REC)/inc
-
-# FORTRAN 77 flags (The package maintainer’s variant of FFLAGS).
-AM_FFLAGS = -ggdb -O0 -Wall -fbounds-check
 
 # C++ flags.
 AM_CXXFLAGS = \

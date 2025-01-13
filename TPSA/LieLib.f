@@ -48,8 +48,8 @@
         is(i)=0
       enddo
       idpr=1
-      write(*, 100) 'lieinit:  no = ', no, ', nv = ', nv, ', nd  = ',     &
-     &      nd, ',    nd2 = ', nd2, ', ndpt = ', ndpt, ', idpr = ', idpr
+      write(*, 100) 'lieinit: no = ', no, ', nv = ', nv, ', nd = ',     &
+     &      nd, ', nd2 = ', nd2, ', ndpt = ', ndpt, ', idpr = ', idpr
  100  format(6(a, i0))
       call daini(no,nv,0)
       if(nis.gt.0)call etallnom(is,nis,'$$IS      ')
@@ -486,6 +486,8 @@
       integer nd,nd2,no,nv
       common /ii/no,nv,nd,nd2
 !
+      integer h_buf(1), rh_buf(1)
+
       nt=nv-nd2
       if(nt.gt.0) then
         call etallnom(ie,nt,'IE        ')
@@ -499,7 +501,10 @@
       do i=1,nd2
         iv(i)=y(i)
       enddo
-      call dacct(h,1,iv,nv,rh,1)
+      h_buf(1) = h
+      rh_buf(1) = rh
+      call dacct(h_buf(1),1,iv,nv,rh_buf(1),1)
+      rh = rh_buf(1)
       if(nt.gt.0) then
         call dadal(ie,nt)
       endif
@@ -934,40 +939,6 @@
       enddo
       call dacopd(b,hr)
       call dadal(b,nd2)
-      return
-      end subroutine
-
-      subroutine daread(h,nd1,mfile,xipo)
-      implicit none
-      integer i,mfile,nd1,ndim2,ntt
-      double precision rx,xipo
-!  read a map
-      parameter (ndim2=6)
-      parameter (ntt=40)
-      integer h(*),j(ntt)
-      do i=1,ntt
-        j(i)=0
-      enddo
-      do i=1,nd1
-        call darea(h(i),mfile)
-        call dapek(h(i),j,rx)
-        rx=rx*xipo
-        call dapok(h(i),j,rx)
-      enddo
-      return
-      end subroutine
-
-      subroutine daprid(h,n1,n2,mfile)
-      implicit none
-      integer i,mfile,n1,n2,ndim2,ntt
-!  print a map
-      parameter (ndim2=6)
-      parameter (ntt=40)
-      integer  h(*)
-      if(mfile.le.0) return
-      do i=n1,n2
-        call dapri(h(i),mfile)
-      enddo
       return
       end subroutine
 
