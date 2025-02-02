@@ -309,6 +309,48 @@ void compute_rb_orbit(void)
 }
 
 
+psVector compute_alpha_c(void)
+{
+  // Note, do not extract from M[5][4], i.e. around delta dependent fixed
+  // point.
+
+  const int    n_points = 5;
+  const double d_delta  = 2e-2;
+
+  int      i, j, n;
+  long int lastpos;
+  double   delta[2*n_points+1], alphac[2*n_points+1], sigma;
+  psVector x, b;
+  CellType Cell;
+
+  globval.pathlength = false;
+  getelem(globval.Cell_nLoc, &Cell); n = 0;
+  for (i = -n_points; i <= n_points; i++) {
+    n++; delta[n-1] = i*(double)d_delta/(double)n_points;
+    for (j = 0; j < nv_; j++)
+      x[j] = 0e0;
+    x[delta_] = delta[n-1];
+    Cell_Pass(0, globval.Cell_nLoc, x, lastpos);
+    alphac[n-1] = x[ct_]/Cell.S;
+  }
+  pol_fit(n, delta, alphac, 3, b, sigma, true);
+
+  return b;
+}
+
+
+void compute_alpha_bucket()
+{
+  psVector b;
+
+  b = compute_alpha_c();
+  printf("\n  alphac    = %10.3e %+10.3e*delta %+10.3e*delta^2\n",
+	 b[1], b[2], b[3]);
+  printf("  RF alpha bucket [%%] = [%3.1f, %3.1f]\n",
+	 1e2*b[1]/(2e0*b[2]), -1e2*b[1]/b[2]);
+}
+
+
 void set_state(void)
 {
   globval.H_exact        = false;
@@ -349,6 +391,9 @@ int main(int argc, char *argv[])
 
   Ring_GetTwiss(true, 0e0);
   printglob();
+
+  if (!false)
+    compute_alpha_bucket();
 
   prt_b_n();
 
