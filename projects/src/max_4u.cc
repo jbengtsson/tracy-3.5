@@ -286,14 +286,14 @@ void prt_b_n(void)
 	  "          b_3          b_4\n");
   fprintf(outf, "#                      [m]        [deg]    [1/m^2]"
 	  "      [1/m^3]      [1/m^4]\n");
-  for (int k = 0; k <= globval.Cell_nLoc; k++)
+  for (auto k = 0; k <= globval.Cell_nLoc; k++)
     if (Cell[k].Elem.Pkind != Mpole)
-      fprintf(outf, "%4ld %15s %6.2f %4.1f %6.3f %12.5e %12.5e %12.5e\n",
+      fprintf(outf, "%4d %15s %6.2f %4.1f %6.3f %12.5e %12.5e %12.5e\n",
 	      k, Cell[k].Elem.PName, Cell[k].S, get_code(Cell[k]),
 	      0e0, 0e0, 0e0, 0e0);
     else {
       auto phi = Cell[k].Elem.M->Pirho*Cell[k].Elem.PL*180e0/M_PI;
-      fprintf(outf, "%4ld %15s %6.2f %4.1f %6.3f %12.5e %12.5e %12.5e\n",
+      fprintf(outf, "%4d %15s %6.2f %4.1f %6.3f %12.5e %12.5e %12.5e\n",
 	      k, Cell[k].Elem.PName, Cell[k].S, get_code(Cell[k]),
 	      phi, Cell[k].Elem.M->PBpar[Quad+HOMmax],
 	      Cell[k].Elem.M->PBpar[Sext+HOMmax],
@@ -341,13 +341,78 @@ psVector compute_alpha_c(void)
 
 void compute_alpha_bucket()
 {
-  psVector b;
+  psVector alpha_c;
 
-  b = compute_alpha_c();
+  alpha_c = compute_alpha_c();
   printf("\n  alphac    = %10.3e %+10.3e*delta %+10.3e*delta^2\n",
-	 b[1], b[2], b[3]);
+	 alpha_c[1], alpha_c[2], alpha_c[3]);
   printf("  RF alpha bucket [%%] = [%3.1f, %3.1f]\n",
-	 1e2*b[1]/(2e0*b[2]), -1e2*b[1]/b[2]);
+	 1e2*alpha_c[1]/(2e0*alpha_c[2]), -1e2*alpha_c[1]/alpha_c[2]);
+}
+
+
+double H_long
+(const double phi, const double delta, const int h_rf, const double V_rf,
+ const double phi_0, const psVector &alpha_c)
+{
+  const int
+    n_alpha_c = 3;
+  const double
+    E_0 = 1e9*globval.Energy;
+
+  double H;
+
+  H = V_rf/E_0*(cos(phi+phi_0)+phi*sin(phi_0));
+  for (auto i = 2; i <= n_alpha_c+1; i++)
+    H += 2e0*pi*h_rf*alpha_c[i-1]*pow(delta, (double)i)/i;
+  return H;
+}
+
+
+void prt_H_long
+(const string &cav_name, const int n, const double phi_max,
+ const double delta_max, const bool neg_alpha_c)
+{
+  const string
+    file_name = "H_long.dat";
+  const long int
+    loc = Elem_GetPos(ElemIndex(cav_name.c_str()), 1);
+  const CavityType
+    *C = Cell[loc].Elem.C;
+  const int
+    h_RF  = C->harm_num;
+  const double
+    E_0 = 1e9*globval.Energy,
+    U_0 = globval.U0,
+    V_RF = C->V_RF,
+    phi_0 = -fabs(asin(globval.U0/V_RF));
+
+  double   phi, delta, H, delta_RF;
+  psVector alpha_c;
+  FILE     *outf;
+
+  outf = file_write(file_name.c_str());
+
+  alpha_c = compute_alpha_c();
+
+  delta_RF =
+    sqrt(-V_RF*cos(M_PI+phi_0)*(2e0-(M_PI-2e0*(M_PI+phi_0))*tan(M_PI+phi_0))
+	 /(alpha_c[1]*M_PI*h_RF*E_0));
+  printf("\nU_0 [keV]        = %3.1f\n", 1e-3*U_0);
+  printf("phi_0 [deg]      = 180 %4.2f\n", phi_0*180e0/M_PI);
+  printf("RF bucket height = %4.2f\n", 1e2*delta_RF);
+
+  for (auto i = -n; i <= n ; i++) {
+    for (auto j = -n; j <= n ; j++) {
+      phi = i*phi_max*M_PI/(n*180e0);
+      delta = j*delta_max/n;
+      H = H_long(phi, delta, h_RF, V_RF, M_PI+phi_0, alpha_c);
+      fprintf(outf, "  %8.2f %10.5f, %13.5e\n", phi*180e0/M_PI, 1e2*delta, H);
+    }
+    fprintf(outf, "\n");
+  }
+
+  fclose(outf);
 }
 
 
@@ -450,6 +515,8 @@ int main(int argc, char *argv[])
       GetEmittance(ElemIndex("cav"), false, true);
     else
       get_eps_x(eps_x, sigma_delta, U_0, J, tau, I, true);
+
+    prt_H_long("cav", 25, 180e0, 10e-2, false);
   }
 
   if (false) {
