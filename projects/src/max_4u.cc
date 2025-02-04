@@ -421,8 +421,8 @@ int main(int argc, char *argv[])
       Fnum.push_back(ElemIndex("s4_f1"));
       break;
     case 3:
-      Fnum.push_back(ElemIndex("s3_h1"));
-      Fnum.push_back(ElemIndex("s4_h1"));
+      Fnum.push_back(ElemIndex("s3_h2"));
+      Fnum.push_back(ElemIndex("s4_h2"));
       break;
     }
     fit_xi_jb(Fnum, 0e0, 0e0, 1e0);
