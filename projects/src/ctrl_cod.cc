@@ -79,9 +79,9 @@ void config_cod(param_data_type &prms)
   const int n_bpm_Fam = 1, n_hcorr_Fam = 1, n_vcorr_Fam = 1;
 
   const std::string
-    bpm_names[n_bpm_Fam]     = {"bpm"},
-    hcorr_names[n_hcorr_Fam] = {"sdk"},
-    vcorr_names[n_vcorr_Fam] = {"sfk"};
+    bpm_names[n_bpm_Fam]     = {"mon"},
+    hcorr_names[n_hcorr_Fam] = {"ch"},
+    vcorr_names[n_vcorr_Fam] = {"cv"};
 
   prms.ini_COD_corr(n_bpm_Fam, bpm_names, n_hcorr_Fam, hcorr_names, n_vcorr_Fam,
 		    vcorr_names, true);
@@ -132,5 +132,5 @@ int main(int argc, char *argv[])
 
   GetEmittance(ElemIndex("cav"), false, true);
 
-  chk_cod_corr(100e-6, 100e-6, seed, 100);
+  chk_cod_corr(100e-6, 100e-6, seed, 1000);
 }
