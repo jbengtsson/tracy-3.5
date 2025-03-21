@@ -11,7 +11,9 @@ const bool
   zero_b_4      = false,
   set_b_3       = false,
   ps_rot        = false,
-  chk_mpole_sym = false;
+  chk_mpole_sym = false,
+  chk_dnu       = false, // Requires super period.
+  comp_H_long   = false;
 
 const double
   dnu[] = {0.0, 0.0};
@@ -202,10 +204,14 @@ void chk_optics(const double alpha_x, const double beta_x,
 {
   Vector2 alpha, beta, eta, etap;
 
-  alpha[X_] = alpha_x; alpha[Y_] = alpha_y;
-  beta[X_]  = beta_x;  beta[Y_]  = beta_y;
-  eta[X_]   = eta_x;   eta[Y_]   = eta_y;
-  etap[X_]  = etap_x;  etap[Y_]  = etap_y;
+  alpha[X_] = alpha_x;
+  alpha[Y_] = alpha_y;
+  beta[X_]  = beta_x;
+  beta[Y_]  = beta_y;
+  eta[X_]   = eta_x;
+  eta[Y_]   = eta_y;
+  etap[X_]  = etap_x;
+  etap[Y_]  = etap_y;
 
   ttwiss(alpha, beta, eta, etap, 0e0);
 }
@@ -255,10 +261,11 @@ void chk_mpole(const int lat_case)
 
   switch (lat_case) {
   case 1:
-    Fnum.push_back(ElemIndex("s1_h1"));
-    Fnum.push_back(ElemIndex("s2_h1"));
-    Fnum.push_back(ElemIndex("s3_h1"));
-    Fnum.push_back(ElemIndex("s4_h1"));
+    Fnum.push_back(ElemIndex("s1_h2"));
+    Fnum.push_back(ElemIndex("s2_h2"));
+    Fnum.push_back(ElemIndex("s3_h2"));
+    Fnum.push_back(ElemIndex("s4_h2"));
+    Fnum.push_back(ElemIndex("s5_h2"));
     break;
   default:
     printf("\nchk_mpole: unknown lattice type\n");
@@ -271,6 +278,18 @@ void chk_mpole(const int lat_case)
   printf("\nMultipole Scheme:\n");
   for (k = 0; k < (int)Fnum.size(); k++)
     chk_mpole_Fam(Fnum[k]);
+}
+
+
+void chk_dnu_straight(const string &fam_name)
+{
+  const int loc = Elem_GetPos(ElemIndex(fam_name.c_str()), 1);
+
+  double dnu[2];
+  
+  for (auto k = 0; k < 2; k++)
+    dnu[k] = 2*Cell[loc].Nu[k];
+  printf("\n  dnu = [%7.5f, %7.5f]\n", dnu[X_], dnu[Y_]);
 }
 
 
@@ -416,6 +435,36 @@ void prt_H_long
 }
 
 
+void compute_Deta_x(const double delta)
+{
+  // Evaluate derivative; to avoid effect of tune shift.
+  int            k;
+  vector<double> Deta_x;
+  FILE           *outf;
+
+  const double d_delta = 1e-5;
+
+  const string file_name = "Deta_x.out";
+
+  outf = file_write(file_name.c_str());
+
+  printf("\nOptics for delta = %10.3e\n", d_delta);
+  Ring_GetTwiss(true, d_delta); printglob();
+  for (k = 0; k <= globval.Cell_nLoc; k++)
+    Deta_x.push_back(Cell[k].Eta[X_]);
+  printf("\nOptics for delta = %10.3e\n", -d_delta);
+  Ring_GetTwiss(true, -d_delta); printglob();
+  for (k = 0; k <= globval.Cell_nLoc; k++) {
+    Deta_x[k] -= Cell[k].Eta[X_];
+    Deta_x[k] /= (2e0*d_delta);
+    fprintf(outf, "%4d %10s %8.3f %4.1f %12.5e\n",
+	    k, Cell[k].Elem.PName, Cell[k].S, get_code(Cell[k]), Deta_x[k]);
+  }
+
+  fclose(outf);
+}
+
+
 void set_state(void)
 {
   globval.H_exact        = false;
@@ -433,8 +482,9 @@ void set_state(void)
 
 int main(int argc, char *argv[])
 {
-  int    loc;
-  double I[6], eps_x, sigma_delta, U_0, J[3], tau[3];
+  int              loc;
+  double           I[6], eps_x, sigma_delta, U_0, J[3], tau[3];
+  std::vector<int> bpm;
 
   reverse_elem = !false;
 
@@ -486,8 +536,8 @@ int main(int argc, char *argv[])
       Fnum.push_back(ElemIndex("s4_f1"));
       break;
     case 3:
-      Fnum.push_back(ElemIndex("s3_h2"));
       Fnum.push_back(ElemIndex("s4_h2"));
+      Fnum.push_back(ElemIndex("s5_h2"));
       break;
     }
     fit_xi_jb(Fnum, 0e0, 0e0, 1e0);
@@ -507,8 +557,14 @@ int main(int argc, char *argv[])
   prt_lat("linlat.out", globval.bpm, true, 10);
   prt_chrom_lat("chromlat.out");
 
+  if (!false)
+    compute_Deta_x(2e-2);
+
   if (chk_mpole_sym)
     chk_mpole(1);
+
+  if (false)
+    chk_dnu_straight("lsborder");
 
   if (!false) {
     if (!globval.mat_meth)
@@ -516,7 +572,8 @@ int main(int argc, char *argv[])
     else
       get_eps_x(eps_x, sigma_delta, U_0, J, tau, I, true);
 
-    prt_H_long("cav", 25, 180e0, 10e-2, false);
+    if (comp_H_long)
+      prt_H_long("cav", 25, 180e0, 10e-2, false);
   }
 
   if (false) {
