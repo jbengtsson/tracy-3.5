@@ -1,11 +1,12 @@
 #!/bin/sh
 
 prm1=${1-0}
+prm2=${2-"Deta_x"}
 
 gnuplot << EOP
 
-ps = $prm1;
-
+ps        = $prm1;
+file_name = "$prm2";
 
 f_s = 24; l_w = 2;
 if (ps == 0) \
@@ -29,14 +30,14 @@ set style line 1 lt 1 lw 1 lc rgb "blue";
 set style line 2 lt 1 lw 1 lc rgb "green";
 set style line 3 lt 1 lw 1 lc rgb "red";
 
-if (ps) set output "Ddisp.".(ext);
-set title "Change of Dispersion";
+if (ps) set output file_name.".(ext);
+set title "d{/Symbol h}_x/d{/Symbol d}";
 set xlabel "s [m]";
-set ylabel "{/Symbol h} [m]";
+set ylabel "[m]";
 set y2range [-1.5:20];
 plot "cod.out" using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
      lc rgb "black", \
-     "Ddisp.out" using 3:5 notitle with impulses ls 1;
+     file_name.".out" using 3:5 notitle with lines ls 1;
 if (!ps) pause mouse "click on graph to cont.\n";
 
 EOP
