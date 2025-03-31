@@ -31,7 +31,7 @@ set style line 2 lt 1 lw 1 lc rgb "green";
 set style line 3 lt 1 lw 1 lc rgb "cyan";
 set style line 4 lt 1 lw 1 lc rgb "red";
 
-if (ps) set output file_name.".(ext);
+if (ps) set output file_name.".".(ext);
 set title "Linear Momentum Compaction - Driving Terms;
 set xlabel "s [m]";
 set ylabel "[m]";
