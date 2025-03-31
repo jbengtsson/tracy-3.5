@@ -454,11 +454,14 @@ void compute_Deta_x(const double delta)
     Deta_x.push_back(Cell[k].Eta[X_]);
   printf("\nOptics for delta = %10.3e\n", -d_delta);
   Ring_GetTwiss(true, -d_delta); printglob();
+  fprintf(outf, "#  k     name             s    type    eta_x      eta'_x    Ddeta_x/Ddelta\n"
+	        "#                        [m]            [m]                      [m]\n");
   for (k = 0; k <= globval.Cell_nLoc; k++) {
     Deta_x[k] -= Cell[k].Eta[X_];
     Deta_x[k] /= (2e0*d_delta);
-    fprintf(outf, "%4d %10s %8.3f %4.1f %12.5e\n",
-	    k, Cell[k].Elem.PName, Cell[k].S, get_code(Cell[k]), Deta_x[k]);
+    fprintf(outf, "%4d %10s %8.3f %4.1f %12.5e %12.5e %12.5e\n",
+	    k, Cell[k].Elem.PName, Cell[k].S, get_code(Cell[k]),
+	    Cell[k].Eta[x_], Cell[k].Etap[x_], Deta_x[k]);
   }
 
   fclose(outf);
