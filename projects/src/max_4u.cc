@@ -323,11 +323,6 @@ void prt_b_n(void)
 }
 
 
-void compute_rb_orbit(void)
-{
-}
-
-
 psVector compute_alpha_c(void)
 {
   // Note, do not extract from M[5][4], i.e. around delta dependent fixed
