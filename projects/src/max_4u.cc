@@ -7,8 +7,8 @@ int no_tps = NO;
 
 
 const bool
-  zero_b_3      = false,
-  zero_b_4      = false,
+  zero_b_3      = !false,
+  zero_b_4      = !false,
   set_b_3       = false,
   ps_rot        = false,
   chk_mpole_sym = false,
@@ -433,30 +433,37 @@ void prt_H_long
 void compute_Deta_x(const double delta)
 {
   // Evaluate derivative; to avoid effect of tune shift.
-  int            k;
+  double         h;
   vector<double> Deta_x;
   FILE           *outf;
 
-  const double d_delta = 1e-5;
-
+  const double d_delta   = 1e-5;
   const string file_name = "Deta_x.out";
 
   outf = file_write(file_name.c_str());
 
   printf("\nOptics for delta = %10.3e\n", d_delta);
-  Ring_GetTwiss(true, d_delta); printglob();
-  for (k = 0; k <= globval.Cell_nLoc; k++)
+  Ring_GetTwiss(true, d_delta);
+  printglob();
+  for (auto k = 0; k <= globval.Cell_nLoc; k++)
     Deta_x.push_back(Cell[k].Eta[X_]);
   printf("\nOptics for delta = %10.3e\n", -d_delta);
-  Ring_GetTwiss(true, -d_delta); printglob();
-  fprintf(outf, "#  k     name             s    type    eta_x      eta'_x    Ddeta_x/Ddelta\n"
-	        "#                        [m]            [m]                      [m]\n");
-  for (k = 0; k <= globval.Cell_nLoc; k++) {
+  Ring_GetTwiss(true, -d_delta);
+  printglob();
+  fprintf(outf, "#  k     name             s    type    eta_x      eta'_x"
+	        "    Ddeta_x/Ddelta\n"
+	        "#                        [m]            [m]"
+	        "                      [m]\n");
+  for (auto k = 0; k <= globval.Cell_nLoc; k++) {
+    if (Cell[k].Elem.Pkind == Mpole)
+      h = Cell[k].Elem.M->Pirho;
+    else
+      h = 0e0;
     Deta_x[k] -= Cell[k].Eta[X_];
     Deta_x[k] /= (2e0*d_delta);
     fprintf(outf, "%4d %10s %8.3f %4.1f %12.5e %12.5e %12.5e\n",
 	    k, Cell[k].Elem.PName, Cell[k].S, get_code(Cell[k]),
-	    Cell[k].Eta[x_], Cell[k].Etap[x_], Deta_x[k]);
+	    h*Cell[k].Eta[x_], pow(Cell[k].Etap[x_], 2)/2e0, h*Deta_x[k]);
   }
 
   fclose(outf);
@@ -561,7 +568,7 @@ int main(int argc, char *argv[])
   if (chk_mpole_sym)
     chk_mpole(1);
 
-  if (false)
+  if (chk_dnu)
     chk_dnu_straight("lsborder");
 
   if (!false) {

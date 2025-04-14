@@ -38,10 +38,12 @@ set ylabel "[m]";
 set y2range [-1.5:20];
 plot "cod.out" using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
      lc rgb "black", \
-     file_name.".out" using 3:5 title "{/Symbol h}_x" with lines ls 1, \
-     file_name.".out" using 3:6 title "{/Symbol h}'_x" with lines ls 2, \
-     file_name.".out" using 3:7 title "d{/Symbol h}_x/d{/Symbol d}" with \
-     lines ls 3;
+     file_name.".out" using 3:5 title "{/Symbol h}_x/{/Symbol r}" \
+     with lines ls 1, \
+     file_name.".out" using 3:(\$6**2/2) title "{/Symbol h}'@^2_x/2" with \
+     lines ls 2, \
+     file_name.".out" using 3:7 \
+     title "d_{/Symbol d}{/Symbol h}_x/{/Symbol r}" with lines ls 3;
 if (!ps) pause mouse "click on graph to cont.\n";
 
 EOP
