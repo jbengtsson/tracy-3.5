@@ -39,11 +39,9 @@ if (ps) set output "H_long.".(ext)
 
 set title "Longitudinal Phase Space to O({/Symbol a}_4)"
 # Greek letters doesn't work for terminal.
-if (ps == 0) \
-  set xlabel "phase [deg]" \
-else \
-  # Degree symbol does not work for qt terminal \
-  set xlabel "{/Symbol f} [{/Symbol \260}]"
+set xlabel "phase [deg]" \
+# Degree symbol does not work for qt terminal \
+# set xlabel "{/Symbol f} [{/Symbol \260}]"
 set ylabel "{/Symbol d} [%]"
 splot "H_long.dat" using 1:2:3 notitle with lines lt palette z
 if (!ps) pause mouse "click on graph to cont.\n"
