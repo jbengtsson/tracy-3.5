@@ -2044,7 +2044,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 {
   struct LOC_Lat_DealElement V;
   bool           Result = false;
-  double         t = 0e0, t1, t2, gap, QL = 0.0, QK;
+  double         t = 0e0, t1, t2, gap, QL = 0.0, QK, B_2, B_3;
   double         QKV, QKH, QKxV, QKxH, QPhi, QKS;
   double         dt, Frf, Vrf;
   long           k1, k2, harnum;
@@ -2156,7 +2156,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     getest__(P_expset(SET, 1 << ((long)comma)), "<, > expected", &V);
     GetSym__(&V);
     QL = 0.0;   /* L */
-    QK = 0.0;   /* K */
+    B_2 = 0.0;   /* K */
     k1 = 1;     /* N */
     t  = 0.0;   /* T */
     t1 = 0.0;   /* T1 */
@@ -2188,7 +2188,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 	break;
 
       case b_2_sym:
-	QK = EVAL_(&V);
+	B_2 = EVAL_(&V);
 	break;
 
       case nsym:
@@ -2259,7 +2259,8 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       WITH2->n_design = Dip;
       AssignHOM(globval.Elem_nFam, &V);
       SetDBN(&V);
-      WITH2->PBpar[HOMmax+2] = QK; WITH2->PdTpar = dt;
+      WITH2->PBpar[HOMmax+2] = B_2;
+      WITH2->PdTpar = dt;
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
 	     globval.Elem_nFam, (long)Elem_nFamMax);
@@ -2362,7 +2363,8 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       WITH2->Pmethod = k2; WITH2->PN = k1; WITH2->PdTpar = dt;
       AssignHOM(globval.Elem_nFam, &V);
       SetDBN(&V);
-      WITH2->n_design = Quad; WITH2->PBpar[HOMmax+2] = QK;
+      WITH2->n_design = Quad;
+      WITH2->PBpar[HOMmax+2] = QK;
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
 	     globval.Elem_nFam, (long)Elem_nFamMax);
@@ -2391,7 +2393,8 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 
   case sexsym:          /*4*/
     QL = 0.0;           /* L */
-    QK = 0.0;           /* K */
+    B_2 = 0.0;           /* K */
+    B_3 = 0.0;           /* K */
     k1 = 1;             /* N */
     k2 = Meth_Fourth;   /* method */
     dt = 0.0;
@@ -2401,6 +2404,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     if (*V.sym == comma) {
       GetSym__(&V);
       P_addset(P_expset(mysys, 0), (long)lsym);
+      P_addset(mysys, (long)b_2_sym);
       P_addset(mysys, (long)b_3_sym);
       P_addset(mysys, (long)nsym);
       P_addset(mysys, (long)mthsym);
@@ -2417,8 +2421,12 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 	    QL = EVAL_(&V);
 	    break;
 
+	  case b_2_sym:
+	    B_2 = EVAL_(&V);
+	    break;
+
 	  case b_3_sym:
-	    QK = EVAL_(&V);
+	    B_3 = EVAL_(&V);
 	    break;
 
 	  case nsym:
@@ -2474,10 +2482,12 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 	WITH2->Pthick = pthicktype(thick);
       else
 	WITH2->Pthick = pthicktype(thin);
-      WITH2->PdTpar = dt; WITH2->n_design = Sext;
+      WITH2->PdTpar = dt;
+      WITH2->n_design = Sext;
       AssignHOM(globval.Elem_nFam, &V);
       SetDBN(&V);
-      WITH2->PBpar[HOMmax + 3] = QK;
+      WITH2->PBpar[HOMmax+2] = B_2;
+      WITH2->PBpar[HOMmax+3] = B_3;
     } else {
       printf("Elem_nFamMax exceeded: %ld(%ld)\n",
 	     globval.Elem_nFam, (long)Elem_nFamMax);
