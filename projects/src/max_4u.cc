@@ -7,13 +7,14 @@ int no_tps = NO;
 
 
 const bool
-  zero_b_3      = !false,
-  zero_b_4      = !false,
+  zero_b_3      = false,
+  zero_b_4      = false,
   set_b_3       = false,
   ps_rot        = false,
   chk_mpole_sym = false,
   chk_dnu       = false, // Requires super period.
-  comp_H_long   = false;
+  comp_H_long   = false,
+  Deta_x        = false;
 
 const double
   dnu[] = {0.0, 0.0};
@@ -529,9 +530,13 @@ int main(int argc, char *argv[])
   }
 
   if (set_b_3) {
-    const int lat = 3;
+    const int lat = 0;
     std::vector<int> Fnum;
     switch (lat) {
+    case 0:
+      Fnum.push_back(ElemIndex("sf_h"));
+      Fnum.push_back(ElemIndex("sd1"));
+      break;
     case 1:
       Fnum.push_back(ElemIndex("s3"));
       Fnum.push_back(ElemIndex("s4"));
@@ -562,7 +567,7 @@ int main(int argc, char *argv[])
   prt_lat("linlat.out", globval.bpm, true, 10);
   prt_chrom_lat("chromlat.out");
 
-  if (!false)
+  if (Deta_x)
     compute_Deta_x(2e-2);
 
   if (chk_mpole_sym)
