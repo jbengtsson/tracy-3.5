@@ -239,18 +239,37 @@ void chk_phi()
 
 void chk_mpole_Fam(const int Fnum)
 {
-  int n_Kids, k, loc[2];
+  int n_Kid, k, loc[2];
 
   printf("\n   name        s     beta_x   beta_y   eta_x    dnu_x    dnu_y\n");
-  n_Kids = GetnKid(Fnum);
-  for (k = 1; k <= n_Kids; k++) {
-    loc[0] = (k > 1)? Elem_GetPos(Fnum, k-1) : Elem_GetPos(Fnum, n_Kids);
+  for (k = 1; k <= GetnKid(Fnum); k++) {
+    n_Kid = GetnKid(Fnum);
+    loc[0] = (k > 1)? Elem_GetPos(Fnum, k-1) : Elem_GetPos(Fnum, n_Kid);
     loc[1] = Elem_GetPos(Fnum, k);
+    printf("\n  %.8s %7.3f %8.5f %8.5f %8.5f %8.5f %8.5f\n",
+	   Cell[loc[1]-1].Elem.PName, Cell[loc[1]-1].S,
+	   Cell[loc[1]-1].Beta[X_], Cell[loc[1]-1].Beta[Y_],
+	   Cell[loc[1]-1].Eta[X_],
+	   (k > 1)? Cell[loc[1]-1].Nu[X_]-Cell[loc[0]-1].Nu[X_] : NAN,
+	   (k > 1)?Cell[loc[1]-1].Nu[Y_]-Cell[loc[0]-1].Nu[Y_] : NAN);
     printf("  %.8s %7.3f %8.5f %8.5f %8.5f %8.5f %8.5f\n",
 	   Cell[loc[1]].Elem.PName, Cell[loc[1]].S,
 	   Cell[loc[1]].Beta[X_], Cell[loc[1]].Beta[Y_], Cell[loc[1]].Eta[X_],
 	   (k > 1)? Cell[loc[1]].Nu[X_]-Cell[loc[0]].Nu[X_] : NAN,
 	   (k > 1)?Cell[loc[1]].Nu[Y_]-Cell[loc[0]].Nu[Y_] : NAN);
+  }
+}
+
+
+int get_ElemIndex(string elem_name)
+{
+  const int Fnum = ElemIndex(elem_name.c_str());
+  const int n_Kid = GetnKid(Fnum);
+  if (n_Kid != 0) {
+    return Fnum;
+  } else {
+    printf("\nchk_mpole_Fam: *** no kids for %s\n", elem_name.c_str());
+    exit(1);
   }
 }
 
@@ -262,11 +281,18 @@ void chk_mpole(const int lat_case)
 
   switch (lat_case) {
   case 1:
-    Fnum.push_back(ElemIndex("s1_h2"));
-    Fnum.push_back(ElemIndex("s2_h2"));
-    Fnum.push_back(ElemIndex("s3_h2"));
-    Fnum.push_back(ElemIndex("s4_h2"));
-    Fnum.push_back(ElemIndex("s5_h2"));
+    Fnum.push_back(get_ElemIndex("s1_h2"));
+    Fnum.push_back(get_ElemIndex("s2_h2"));
+    Fnum.push_back(get_ElemIndex("s3_h2"));
+    Fnum.push_back(get_ElemIndex("s4_h2"));
+    Fnum.push_back(get_ElemIndex("s5_h2"));
+    break;
+  case 2:
+    Fnum.push_back(get_ElemIndex("sfm"));
+    Fnum.push_back(get_ElemIndex("sfi"));
+    Fnum.push_back(get_ElemIndex("sdqd"));
+    Fnum.push_back(get_ElemIndex("sdendq"));
+    Fnum.push_back(get_ElemIndex("sfo"));
     break;
   default:
     printf("\nchk_mpole: unknown lattice type\n");
@@ -452,9 +478,9 @@ void compute_Deta_x(const double delta)
   Ring_GetTwiss(true, -d_delta);
   printglob();
   fprintf(outf, "#  k     name             s    type    eta_x      eta'_x"
-	        "    Ddeta_x/Ddelta\n"
+	        "    eta^(2)_x    Ddeta_x/Ddelta\n"
 	        "#                        [m]            [m]"
-	        "                      [m]\n");
+	        "                      [m]            [m]\n");
   for (auto k = 0; k <= globval.Cell_nLoc; k++) {
     if (Cell[k].Elem.Pkind == Mpole)
       h = Cell[k].Elem.M->Pirho;
@@ -464,7 +490,8 @@ void compute_Deta_x(const double delta)
     Deta_x[k] /= (2e0*d_delta);
     fprintf(outf, "%4d %10s %8.3f %4.1f %12.5e %12.5e %12.5e\n",
 	    k, Cell[k].Elem.PName, Cell[k].S, get_code(Cell[k]),
-	    h*Cell[k].Eta[x_], pow(Cell[k].Etap[x_], 2)/2e0, h*Deta_x[k]);
+	    Cell[k].Eta[x_], h*Cell[k].Eta[x_], pow(Cell[k].Etap[x_], 2)/2e0,
+	    h*Deta_x[k]);
   }
 
   fclose(outf);
@@ -571,7 +598,7 @@ int main(int argc, char *argv[])
     compute_Deta_x(2e-2);
 
   if (chk_mpole_sym)
-    chk_mpole(1);
+    chk_mpole(2);
 
   if (chk_dnu)
     chk_dnu_straight("lsborder");
