@@ -7,14 +7,14 @@ int no_tps = NO;
 
 
 const bool
-  zero_b_3      = false,
-  zero_b_4      = false,
+  zero_b_3      = !false,
+  zero_b_4      = !false,
   set_b_3       = false,
   ps_rot        = false,
   chk_mpole_sym = false,
-  chk_dnu       = false, // Requires super period.
+  chk_dnu       = false,  // Requires super period.
   comp_H_long   = false,
-  Deta_x        = false;
+  Deta_x        = !false;
 
 const double
   dnu[] = {0.0, 0.0};
@@ -290,7 +290,11 @@ void chk_mpole(const int lat_case)
   case 2:
     Fnum.push_back(get_ElemIndex("sfm"));
     Fnum.push_back(get_ElemIndex("sfi"));
-    Fnum.push_back(get_ElemIndex("sdqd"));
+    Fnum.push_back(get_ElemIndex("sdqd_1"));
+    Fnum.push_back(get_ElemIndex("sdqd_2"));
+    Fnum.push_back(get_ElemIndex("sdqd_3"));
+    Fnum.push_back(get_ElemIndex("sdqd_4"));
+    Fnum.push_back(get_ElemIndex("sdqd_5"));
     Fnum.push_back(get_ElemIndex("sdendq"));
     Fnum.push_back(get_ElemIndex("sfo"));
     break;
@@ -477,10 +481,11 @@ void compute_Deta_x(const double delta)
   printf("\nOptics for delta = %10.3e\n", -d_delta);
   Ring_GetTwiss(true, -d_delta);
   printglob();
-  fprintf(outf, "#  k     name             s    type    eta_x      eta'_x"
-	        "    eta^(2)_x    Ddeta_x/Ddelta\n"
+  fprintf(outf, "#  k name                 s   type     eta_x        eta'_x"
+	  "   D_delta eta_x  eta_x/rho   eta_x/rho eta^(2)_x"
+	  "  D_delta beta_x/rho\n"
 	        "#                        [m]            [m]"
-	        "                      [m]            [m]\n");
+	  "                       [m]\n");
   for (auto k = 0; k <= globval.Cell_nLoc; k++) {
     if (Cell[k].Elem.Pkind == Mpole)
       h = Cell[k].Elem.M->Pirho;
@@ -488,12 +493,35 @@ void compute_Deta_x(const double delta)
       h = 0e0;
     Deta_x[k] -= Cell[k].Eta[X_];
     Deta_x[k] /= (2e0*d_delta);
-    fprintf(outf, "%4d %10s %8.3f %4.1f %12.5e %12.5e %12.5e\n",
+    fprintf(outf, "%4d %10s %8.3f %4.1f %12.5e %12.5e %12.5e %12.5e"
+	    "     %12.5e         %12.5e\n",
 	    k, Cell[k].Elem.PName, Cell[k].S, get_code(Cell[k]),
-	    Cell[k].Eta[x_], h*Cell[k].Eta[x_], pow(Cell[k].Etap[x_], 2)/2e0,
-	    h*Deta_x[k]);
+	    Cell[k].Eta[x_], Cell[k].Eta[px_], Deta_x[k], h*Cell[k].Eta[x_],
+	    pow(Cell[k].Etap[x_], 2)/2e0, h*Deta_x[k]);
   }
 
+  fclose(outf);
+}
+
+
+void prt_cod_1(const char *file_name)
+{
+  FILE *outf;
+
+  outf = file_write(file_name);
+
+  fprintf(outf, "#    name                 s    code        x_cod"
+	  "                 p_x,cod                y_cod"
+	  "                p_y,cod\n");
+  fprintf(outf, "#                        [m]                [m]"
+	  "                   [rad]                  [m]"
+	  "                  [rad]\n");
+  for (auto i = 0; i <= globval.Cell_nLoc; i++)
+    fprintf(outf,
+	    "%4d %-15s %9.5f %4.1f %21.14e %21.14e %21.14e %21.14e\n",
+	    i, Cell[i].Elem.PName, Cell[i].S, get_code(Cell[i]),
+	    Cell[i].BeamPos[x_], Cell[i].BeamPos[px_], Cell[i].BeamPos[y_],
+	    Cell[i].BeamPos[py_]);
   fclose(outf);
 }
 
@@ -529,6 +557,13 @@ int main(int argc, char *argv[])
     rdmfile(argv[1]);
 
   set_state();
+
+  if (false) {
+    long lastpos;
+    getcod(1e-3, lastpos);
+    prt_cod_1("cod.out");
+    exit(0);
+  }
 
   chk_phi();
 
@@ -598,7 +633,7 @@ int main(int argc, char *argv[])
     compute_Deta_x(2e-2);
 
   if (chk_mpole_sym)
-    chk_mpole(2);
+    chk_mpole(1);
 
   if (chk_dnu)
     chk_dnu_straight("lsborder");
