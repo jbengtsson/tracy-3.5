@@ -14,10 +14,10 @@ const bool
   chk_mpole_sym = false,
   chk_dnu       = false,  // Requires super period.
   comp_H_long   = false,
-  Deta_x        = !false;
+  Deta_x        = false;
 
 const double
-  dnu[] = {0.0, 0.0};
+  dnu[] = {0.0, 0.005};
 
 
 void set_ps_rot(const string &fam_name, const double dnu_x, const double dnu_y)
@@ -526,6 +526,63 @@ void prt_cod_1(const char *file_name)
 }
 
 
+double get_phi(const int Fnum)
+{
+  const auto  loc = Elem_GetPos(Fnum, 1);
+  return Cell[loc].Elem.PL*Cell[loc].Elem.M->Pirho*180e0/M_PI;
+}
+
+
+void compute_phi(const int k)
+{
+  // max_4u_sp_jb_5.
+  const string dip_1[] = {
+    "d1_u6", "d1_u5", "d1_u4", "d1_u3", "d1_u2", "d1_u1", "d1_0", "d1_d1",
+    "d1_d2", "d1_d3", "d1_d4", "d1_d5"};
+  // m4U_250220_h02_09_01_01_tracy-2.
+  const string dip_2[] = {
+    "d1_h2_sl_dm1", "d1_h2_sl_dm2", "d1_h2_sl_dm3", "d1_h2_sl_dm4",
+    "d1_h2_sl_dm5", "d1_h2_sl_ds0", "d1_h2_sl_ds1", "d1_h2_sl_ds2",
+    "d1_h2_sl_ds3", "d1_h2_sl_ds4", "d1_h2_sl_ds5", "d1_h2_sl_ds6"};
+  // m4U_250316_h03_01_01_01_tracy-2.
+  const string dip_3[] = {
+    "d1_h2_sl_dm5", "d1_h2_sl_dm4", "d1_h2_sl_dm3", "d1_h2_sl_dm2",
+    "d1_h2_sl_dm1", "d1_h2_sl_d0", "d1_h2_sl_ds1", "d1_h2_sl_ds2",
+    "d1_h2_sl_ds3", "d1_h2_sl_ds4", "d1_h2_sl_ds5"};
+  // m4U_250505_h02_12_01_01_tracy-2.
+  const string dip_4[] = {
+    "d1_h2_sl_dm1", "d1_h2_sl_dm2", "d1_h2_sl_dm3", "d1_h2_sl_dm4",
+    "d1_h2_sl_dm5", "d1_h2_sl_ds0", "d1_h2_sl_ds1", "d1_h2_sl_ds2",
+    "d1_h2_sl_ds3", "d1_h2_sl_ds4", "d1_h2_sl_ds5", "d1_h2_sl_ds6"};
+ 
+  double              phi = 0e0;
+  std::vector<string> dip_names;
+
+  switch (k) {
+  case 1:
+    dip_names.assign(dip_1, dip_1+12);
+    break;
+  case 2:
+    dip_names.assign(dip_2, dip_2+12);
+    break;
+  case 3:
+    dip_names.assign(dip_3, dip_3+11);
+    break;
+  case 4:
+    dip_names.assign(dip_4, dip_4+12);
+    break;
+  default:
+    printf("\n*** compute_phi: unknown case\n");
+    exit(1);
+    break;
+  }
+
+  for (auto k = 0; k < dip_names.size(); k++)
+    phi += get_phi(ElemIndex(dip_names[k]));
+  printf("\ncompute_phi: phi_d1 = %5.3f\n", phi);
+}
+
+
 void set_state(void)
 {
   globval.H_exact        = false;
@@ -578,7 +635,10 @@ int main(int argc, char *argv[])
   if (!false)
     compute_alpha_bucket();
 
-  prt_b_n();
+  if (false)
+    compute_phi(4);
+
+  if (!false) prt_b_n();
 
   if (false) {
     // A 1/2 ps_rot at the entrance & exit of the super period for a symmetric
