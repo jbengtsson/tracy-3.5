@@ -7,17 +7,19 @@ int no_tps = NO;
 
 
 const bool
-  zero_b_3      = !false,
-  zero_b_4      = !false,
-  set_b_3       = false,
+  zero_b_3      = false,
+  zero_b_4      = false,
+  fit_nu        = !false,
+  fit_chrom     = false,
   ps_rot        = false,
   chk_mpole_sym = false,
   chk_dnu       = false,  // Requires super period.
   comp_H_long   = false,
-  Deta_x        = false;
+  Deta          = false;
 
 const double
-  dnu[] = {0.0, 0.005};
+  dnu[] = {-0.005,  0.005},
+  nu[]  = {57.75/20.0, 20.65/20.0};
 
 
 void set_ps_rot(const string &fam_name, const double dnu_x, const double dnu_y)
@@ -75,63 +77,65 @@ void set_dnu_straight(const string &fam_name, const int loc)
 }
 
 
-void fit_xi_jb
-(const std::vector<int> &Fnum_b3, const double ksi_x, const double ksi_y,
- const double db3L)
+void fit_nu_jb
+(const std::vector<int> &Fnum_b_2, const double dnu_x, const double dnu_y,
+ const double db_2L)
 {
-  int    n_b3, j, k;
-  double **A, **U, **V, *w, *b, *x, b3, a3;
+  int    n_b_2, j, k;
+  double **A, **U, **V, *w, *dnu, *db_2, b_2, a_2;
 
   const bool   prt = !false;
   const int    m   = 2;
   const double
-    ksi0[]  = {ksi_x, ksi_y},
-    svd_cut = 1e-10;
+    dnu_vec[]  = {dnu_x, dnu_y},
+    svd_cut    = 1e-10;
 
-  n_b3 = Fnum_b3.size();
+  n_b_2 = Fnum_b_2.size();
 
-  A = dmatrix(1, m, 1, n_b3); U = dmatrix(1, m, 1, n_b3);
-  V = dmatrix(1, n_b3, 1, n_b3);
-  w = dvector(1, n_b3); b = dvector(1, m); x = dvector(1, n_b3);
+  A = dmatrix(1, m, 1, n_b_2);
+  U = dmatrix(1, m, 1, n_b_2);
+  V = dmatrix(1, n_b_2, 1, n_b_2);
+  w = dvector(1, n_b_2);
+  dnu = dvector(1, m);
+  db_2 = dvector(1, n_b_2);
 
-  // Zero sextupoles to track linear chromaticity.
-  if (false) no_sxt();
-
-  for (k = 1; k <= n_b3; k++) {
-    set_dbnL_design_fam(Fnum_b3[k-1], Sext, db3L, 0e0);
-    Ring_Getchrom(0e0);
+  if (prt)
+    printf("\nfit_nu_jb: nu = [%7.5f, %7.5f]\n", dnu_x, dnu_y);
+  for (k = 1; k <= n_b_2; k++) {
+    set_dbnL_design_fam(Fnum_b_2[k-1], Quad, db_2L, 0e0);
+    Ring_GetTwiss(false, 0e0);
     if (prt)
-      printf("\nfit_xi_jb: ksi1+ = [%9.5f, %9.5f]\n",
-	     globval.Chrom[X_], globval.Chrom[Y_]);
+      printf("\nfit_nu_jb: nu1+ = [%9.5f, %9.5f]\n",
+	     globval.TotalTune[X_], globval.TotalTune[Y_]);
 
     for (j = 1; j <= m; j++)
-      A[j][k] = globval.Chrom[j-1];
-    set_dbnL_design_fam(Fnum_b3[k-1], Sext, -2e0*db3L, 0e0);
-    Ring_Getchrom(0e0);
+      A[j][k] = globval.TotalTune[j-1];
+    set_dbnL_design_fam(Fnum_b_2[k-1], Quad, -2e0*db_2L, 0e0);
+    Ring_GetTwiss(false, 0e0);
     if (prt)
-      printf("fit_xi_jb: ksi1- = [%9.5f, %9.5f]\n",
-	 globval.Chrom[X_], globval.Chrom[Y_]);
-    for (j = 1; j <= 2; j++) {
-      A[j][k] -= globval.Chrom[j-1];
-      A[j][k] /= 2e0*db3L;
+      printf("fit_nu_jb: nu1- = [%9.5f, %9.5f]\n",
+	 globval.TotalTune[X_], globval.TotalTune[Y_]);
+    for (j = 1; j <= m; j++) {
+      A[j][k] -= globval.TotalTune[j-1];
+      A[j][k] /= 2e0*db_2L;
     }
 
-    set_dbnL_design_fam(Fnum_b3[k-1], Sext, db3L, 0e0);
+    set_dbnL_design_fam(Fnum_b_2[k-1], Quad, db_2L, 0e0);
   }
 
-  Ring_Getchrom(0e0);
+  Ring_GetTwiss(false, 0e0);
   if (prt)
-    printf("\nfit_xi_jb: ksi1  = [%9.5f, %9.5f]\n",
-	   globval.Chrom[X_], globval.Chrom[Y_]);
-  for (j = 1; j <= 2; j++)
-    b[j] = -(globval.Chrom[j-1]-ksi0[j-1]);
+    printf("\nfit_nu_jb: nu1  = [%9.5f, %9.5f]\n",
+	   globval.TotalTune[X_], globval.TotalTune[Y_]);
+  for (j = 1; j <= m; j++)
+    dnu[j] = dnu_vec[j-1];
 
-  dmcopy(A, m, n_b3, U);
-  dsvdcmp(U, m, n_b3, w, V);
+  dmcopy(A, m, n_b_2, U);
+  dsvdcmp(U, m, n_b_2, w, V);
 
   if (prt) {
-    printf("\nfit_xi_jb:\n  singular values:\n");
-    for (j = 1; j <= n_b3; j++) {
+    printf("\nfit_nu_jb:\n  singular values:\n");
+    for (j = 1; j <= n_b_2; j++) {
       printf("    %9.3e", w[j]);
       if (w[j] < svd_cut) {
 	w[j] = 0e0;
@@ -141,28 +145,128 @@ void fit_xi_jb
     }
   }
 
-  dsvbksb(U, w, V, m, n_b3, b, x);
+  dsvbksb(U, w, V, m, n_b_2, dnu, db_2);
 
   if (prt) {
     dmdump(stdout, "\nA:", A, 2, 2, "%11.3e");
-    dvdump(stdout, "\nx:", x, 2, "%11.3e");
+    dvdump(stdout, "\ndb_2:", db_2, 2, "%11.3e");
   }
 
-  for (k = 1; k <= n_b3; k++)
-    set_dbnL_design_fam(Fnum_b3[k-1], Sext, x[k], 0e0);
+  for (k = 1; k <= n_b_2; k++)
+    set_dbnL_design_fam(Fnum_b_2[k-1], Quad, db_2[k], 0e0);
 
   if (prt) {
-    printf("\n  b3:\n");
-    for (k = 0; k < n_b3; k++) {
-      get_bn_design_elem(Fnum_b3[k], 1, Sext, b3, a3);
-      printf("    %-8s %10.5f\n", ElemFam[Fnum_b3[k]-1].ElemF.PName, b3);
+    printf("\n  b_2:\n");
+    for (k = 0; k < n_b_2; k++) {
+      get_bn_design_elem(Fnum_b_2[k], 1, Quad, b_2, a_2);
+      printf("    %-8s %10.5f\n", ElemFam[Fnum_b_2[k]-1].ElemF.PName, b_2);
     }
     printf("\n");
   }
 
-  free_dmatrix(A, 1, m, 1, n_b3); free_dmatrix(U, 1, m, 1, n_b3);
-  free_dmatrix(V, 1, n_b3, 1, n_b3);
-  free_dvector(w, 1, n_b3); free_dvector(b, 1, m); free_dvector(x, 1, n_b3);
+  free_dmatrix(A, 1, m, 1, n_b_2);
+  free_dmatrix(U, 1, m, 1, n_b_2);
+  free_dmatrix(V, 1, n_b_2, 1, n_b_2);
+  free_dvector(w, 1, n_b_2);
+  free_dvector(dnu, 1, m);
+  free_dvector(db_2, 1, n_b_2);
+}
+
+
+void fit_xi_jb
+(const std::vector<int> &Fnum_b_3, const double xi_x, const double xi_y,
+ const double db_3L)
+{
+  int    n_b_3, j, k;
+  double **A, **U, **V, *w, *dxi, *db_3, b_3, a_3;
+
+  const bool   prt = !false;
+  const int    m   = 2;
+  const double
+    xi[]  = {xi_x, xi_y},
+    svd_cut = 1e-10;
+
+  n_b_3 = Fnum_b_3.size();
+
+  A = dmatrix(1, m, 1, n_b_3);
+  U = dmatrix(1, m, 1, n_b_3);
+  V = dmatrix(1, n_b_3, 1, n_b_3);
+  w = dvector(1, n_b_3);
+  dxi = dvector(1, m);
+  db_3 = dvector(1, n_b_3);
+
+  // Zero sextupoles to track linear chromaticity.
+  if (false) no_sxt();
+
+  for (k = 1; k <= n_b_3; k++) {
+    set_dbnL_design_fam(Fnum_b_3[k-1], Sext, db_3L, 0e0);
+    Ring_Getchrom(0e0);
+    if (prt)
+      printf("\nfit_xi_jb: xi1+ = [%9.5f, %9.5f]\n",
+	     globval.Chrom[X_], globval.Chrom[Y_]);
+
+    for (j = 1; j <= m; j++)
+      A[j][k] = globval.Chrom[j-1];
+    set_dbnL_design_fam(Fnum_b_3[k-1], Sext, -2e0*db_3L, 0e0);
+    Ring_Getchrom(0e0);
+    if (prt)
+      printf("fit_xi_jb: xi1- = [%9.5f, %9.5f]\n",
+	 globval.Chrom[X_], globval.Chrom[Y_]);
+    for (j = 1; j <= m; j++) {
+      A[j][k] -= globval.Chrom[j-1];
+      A[j][k] /= 2e0*db_3L;
+    }
+
+    set_dbnL_design_fam(Fnum_b_3[k-1], Sext, db_3L, 0e0);
+  }
+
+  Ring_Getchrom(0e0);
+  if (prt)
+    printf("\nfit_xi_jb: xi1  = [%9.5f, %9.5f]\n",
+	   globval.Chrom[X_], globval.Chrom[Y_]);
+  for (j = 1; j <= m; j++)
+    dxi[j] = -(globval.Chrom[j-1]-xi[j-1]);
+
+  dmcopy(A, m, n_b_3, U);
+  dsvdcmp(U, m, n_b_3, w, V);
+
+  if (prt) {
+    printf("\nfit_xi_jb:\n  singular values:\n");
+    for (j = 1; j <= n_b_3; j++) {
+      printf("    %9.3e", w[j]);
+      if (w[j] < svd_cut) {
+	w[j] = 0e0;
+	printf(" (zeroed)");
+      }
+      printf("\n");
+    }
+  }
+
+  dsvbksb(U, w, V, m, n_b_3, dxi, db_3);
+
+  if (prt) {
+    dmdump(stdout, "\nA:", A, 2, 2, "%11.3e");
+    dvdump(stdout, "\ndb_3:", db_3, 2, "%11.3e");
+  }
+
+  for (k = 1; k <= n_b_3; k++)
+    set_dbnL_design_fam(Fnum_b_3[k-1], Sext, db_3[k], 0e0);
+
+  if (prt) {
+    printf("\n  b_3:\n");
+    for (k = 0; k < n_b_3; k++) {
+      get_bn_design_elem(Fnum_b_3[k], 1, Sext, b_3, a_3);
+      printf("    %-8s %10.5f\n", ElemFam[Fnum_b_3[k]-1].ElemF.PName, b_3);
+    }
+    printf("\n");
+  }
+
+  free_dmatrix(A, 1, m, 1, n_b_3);
+  free_dmatrix(U, 1, m, 1, n_b_3);
+  free_dmatrix(V, 1, n_b_3, 1, n_b_3);
+  free_dvector(w, 1, n_b_3);
+  free_dvector(dxi, 1, m);
+  free_dvector(db_3, 1, n_b_3);
 }
 
 
@@ -461,28 +565,30 @@ void prt_H_long
 }
 
 
-void compute_Deta_x(const double delta)
+void compute_Deta(const double delta)
 {
   // Evaluate derivative; to avoid effect of tune shift.
   double         h;
-  vector<double> Deta_x;
+  vector<double> Deta[2];
   FILE           *outf;
 
   const double d_delta   = 1e-5;
-  const string file_name = "Deta_x.out";
+  const string file_name = "Deta.out";
 
   outf = file_write(file_name.c_str());
 
   printf("\nOptics for delta = %10.3e\n", d_delta);
   Ring_GetTwiss(true, d_delta);
   printglob();
-  for (auto k = 0; k <= globval.Cell_nLoc; k++)
-    Deta_x.push_back(Cell[k].Eta[X_]);
+  for (auto k = 0; k <= globval.Cell_nLoc; k++) {
+    Deta[x_].push_back(Cell[k].Eta[X_]);
+    Deta[px_].push_back(Cell[k].Etap[X_]);
+  }
   printf("\nOptics for delta = %10.3e\n", -d_delta);
   Ring_GetTwiss(true, -d_delta);
   printglob();
   fprintf(outf, "#  k name                 s   type     eta_x        eta'_x"
-	  "   D_delta eta_x  eta_x/rho   eta_x/rho eta^(2)_x"
+	  "   D_delta eta_x  D_delta eta'_x   eta_x/rho   eta_x/rho eta^(2)_x"
 	  "  D_delta beta_x/rho\n"
 	        "#                        [m]            [m]"
 	  "                       [m]\n");
@@ -491,13 +597,16 @@ void compute_Deta_x(const double delta)
       h = Cell[k].Elem.M->Pirho;
     else
       h = 0e0;
-    Deta_x[k] -= Cell[k].Eta[X_];
-    Deta_x[k] /= (2e0*d_delta);
-    fprintf(outf, "%4d %10s %8.3f %4.1f %12.5e %12.5e %12.5e %12.5e"
+    Deta[x_][k] -= Cell[k].Eta[X_];
+    Deta[x_][k] /= (2e0*d_delta);
+    Deta[px_][k] -= Cell[k].Etap[X_];
+    Deta[px_][k] /= (2e0*d_delta);
+    fprintf(outf, "%4d %10s %8.3f %4.1f %12.5e %12.5e %12.5e   %12.5e   %12.5e"
 	    "     %12.5e         %12.5e\n",
 	    k, Cell[k].Elem.PName, Cell[k].S, get_code(Cell[k]),
-	    Cell[k].Eta[x_], Cell[k].Eta[px_], Deta_x[k], h*Cell[k].Eta[x_],
-	    pow(Cell[k].Etap[x_], 2)/2e0, h*Deta_x[k]);
+	    Cell[k].Eta[x_], Cell[k].Etap[x_], Deta[x_][k], Deta[px_][k],
+	    h*Cell[k].Eta[x_],
+	    pow(Cell[k].Etap[x_], 2)/2e0, h*Deta[x_][k]);
   }
 
   fclose(outf);
@@ -583,6 +692,87 @@ void compute_phi(const int k)
 }
 
 
+void fit_nu_jb_2(const double nu_x, const double nu_y)
+{
+  const int lat = 0;
+
+  std::vector<int> Fnum;
+
+  switch (lat) {
+  case 0:
+    Fnum.push_back(ElemIndex("q1_h2"));
+    Fnum.push_back(ElemIndex("q2_h2"));
+
+    Fnum.push_back(ElemIndex("r1_h2"));
+    Fnum.push_back(ElemIndex("r2_h2"));
+    Fnum.push_back(ElemIndex("r3_h2"));
+
+    Fnum.push_back(ElemIndex("d1_h2_sl_dm5"));
+    Fnum.push_back(ElemIndex("d1_h2_sl_dm4"));
+    Fnum.push_back(ElemIndex("d1_h2_sl_dm3"));
+    Fnum.push_back(ElemIndex("d1_h2_sl_dm2"));
+    Fnum.push_back(ElemIndex("d1_h2_sl_dm1"));
+    Fnum.push_back(ElemIndex("d1_h2_sl_d0"));
+    Fnum.push_back(ElemIndex("d1_h2_sl_ds1"));
+    Fnum.push_back(ElemIndex("d1_h2_sl_ds2"));
+    Fnum.push_back(ElemIndex("d1_h2_sl_ds3"));
+    Fnum.push_back(ElemIndex("d1_h2_sl_ds4"));
+    Fnum.push_back(ElemIndex("d1_h2_sl_ds5"));
+
+    Fnum.push_back(ElemIndex("d2_h2_sl_df0"));
+    Fnum.push_back(ElemIndex("d2_h2_sl_df1"));
+    Fnum.push_back(ElemIndex("d2_h2_sl_df2"));
+    Fnum.push_back(ElemIndex("d2_h2_sl_df3"));
+    Fnum.push_back(ElemIndex("d2_h2_sl_df4"));
+    Fnum.push_back(ElemIndex("d2_h2_sl_df5"));
+    Fnum.push_back(ElemIndex("d2_h2_sl_df6"));
+
+    Fnum.push_back(ElemIndex("d3_h2_sl_df0"));
+    Fnum.push_back(ElemIndex("d3_h2_sl_df1"));
+    Fnum.push_back(ElemIndex("d3_h2_sl_df2"));
+    Fnum.push_back(ElemIndex("d3_h2_sl_df3"));
+    Fnum.push_back(ElemIndex("d3_h2_sl_df4"));
+    Fnum.push_back(ElemIndex("d3_h2_sl_df5"));
+    Fnum.push_back(ElemIndex("d3_h2_sl_df6"));
+
+  }
+
+  fit_nu_jb(Fnum, nu_x, nu_y, 1e-3);
+  Ring_GetTwiss(true, 0e0);
+  printglob();
+}
+
+
+void fit_xi_jb_2(const double xi_x, const double xi_y)
+{
+  const int lat = 0;
+
+  std::vector<int> Fnum;
+
+  switch (lat) {
+  case 0:
+    Fnum.push_back(ElemIndex("sf_h"));
+    Fnum.push_back(ElemIndex("sd1"));
+    break;
+  case 1:
+    Fnum.push_back(ElemIndex("s3"));
+    Fnum.push_back(ElemIndex("s4"));
+    break;
+  case 2:
+    Fnum.push_back(ElemIndex("s3_f1"));
+    Fnum.push_back(ElemIndex("s4_f1"));
+    break;
+  case 3:
+    Fnum.push_back(ElemIndex("s4_h2"));
+    Fnum.push_back(ElemIndex("s5_h2"));
+    break;
+  }
+  fit_xi_jb(Fnum, 0e0, 0e0, 1e0);
+  Ring_GetTwiss(true, 0e0);
+  printglob();
+}
+
+
 void set_state(void)
 {
   globval.H_exact        = false;
@@ -651,32 +841,11 @@ int main(int argc, char *argv[])
     printglob();
   }
 
-  if (set_b_3) {
-    const int lat = 0;
-    std::vector<int> Fnum;
-    switch (lat) {
-    case 0:
-      Fnum.push_back(ElemIndex("sf_h"));
-      Fnum.push_back(ElemIndex("sd1"));
-      break;
-    case 1:
-      Fnum.push_back(ElemIndex("s3"));
-      Fnum.push_back(ElemIndex("s4"));
-      break;
-    case 2:
-      Fnum.push_back(ElemIndex("s3_f1"));
-      Fnum.push_back(ElemIndex("s4_f1"));
-      break;
-    case 3:
-      Fnum.push_back(ElemIndex("s4_h2"));
-      Fnum.push_back(ElemIndex("s5_h2"));
-      break;
-    }
-    fit_xi_jb(Fnum, 0e0, 0e0, 1e0);
+  if (fit_nu)
+    fit_nu_jb_2(nu[X_]-globval.TotalTune[X_],
+		nu[Y_]-globval.TotalTune[Y_]);
 
-    Ring_GetTwiss(true, 0e0);
-    printglob();
-  }
+  if (fit_chrom) fit_xi_jb_2(0e0, 0e0);
 
   if (ps_rot) {
     // A 1/2 ps_rot at the entrance & exit of the super period for a symmetric
@@ -689,8 +858,8 @@ int main(int argc, char *argv[])
   prt_lat("linlat.out", globval.bpm, true, 10);
   prt_chrom_lat("chromlat.out");
 
-  if (Deta_x)
-    compute_Deta_x(2e-2);
+  if (Deta)
+    compute_Deta(2e-2);
 
   if (chk_mpole_sym)
     chk_mpole(1);
