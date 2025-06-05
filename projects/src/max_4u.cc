@@ -9,17 +9,22 @@ int no_tps = NO;
 const bool
   zero_b_3      = false,
   zero_b_4      = false,
-  fit_nu        = !false,
+  fit_nu        = false,
   fit_chrom     = false,
   ps_rot        = false,
   chk_mpole_sym = false,
   chk_dnu       = false,  // Requires super period.
   comp_H_long   = false,
-  Deta          = false;
+  Deta          = false,
+  get_tol       = !false;
+
+const int
+  n_aper  = 25,
+  n_track = 1000;
 
 const double
-  dnu[] = {-0.005,  0.005},
-  nu[]  = {57.75/20.0, 20.65/20.0};
+  dnu[] = {-0.005, 0.005},
+  nu[]  = {57.202/20.0+0.5/20.0, 20.7435/20.0-0.5/20.0};
 
 
 void set_ps_rot(const string &fam_name, const double dnu_x, const double dnu_y)
@@ -100,7 +105,7 @@ void fit_nu_jb
   db_2 = dvector(1, n_b_2);
 
   if (prt)
-    printf("\nfit_nu_jb: nu = [%7.5f, %7.5f]\n", dnu_x, dnu_y);
+    printf("\nfit_nu_jb: dnu_sp = [%7.5f, %7.5f]\n", dnu_x, dnu_y);
   for (k = 1; k <= n_b_2; k++) {
     set_dbnL_design_fam(Fnum_b_2[k-1], Quad, db_2L, 0e0);
     Ring_GetTwiss(false, 0e0);
@@ -773,6 +778,82 @@ void fit_xi_jb_2(const double xi_x, const double xi_y)
 }
 
 
+void compute_beta_beat(const std::vector<std::vector<double>> &beta_ref)
+{
+  int    n = 0;
+  double sum[2] = {0e0, 0e0}, sum_2[2] = {0e0, 0e0}, mean[2], sigma[2];
+
+  Ring_GetTwiss(true, 0e0);
+
+  for (auto j = 0; j <= globval.Cell_nLoc; j++) {
+    n++;
+    for (auto k = 0; k < 2; k++) {
+      sum[k] += Cell[j].Beta[k] - beta_ref[j][k];
+      sum_2[k] += sqr((Cell[j].Beta[k] - beta_ref[j][k])/Cell[j].Beta[k]);
+    }
+  }
+  for (auto k = 0; k < 2; k++) {
+    mean[k] = sum[k]/n;
+    if (n*sum_2[k]-sqr(sum[k]) >= 0e0)
+      sigma[k] = sqrt((n*sum_2[k]-sqr(sum[k]))/(n*(n-1e0)));
+    else
+      sigma[k] = 0e0;
+  }
+
+  printf("beta-beat: mean = [%10.3e, %10.3e] sigma = [%9.3e, %9.3e]\n",
+	 mean[X_], mean[Y_], sigma[X_], sigma[Y_]);
+}
+
+
+void get_b_2_tol(const double db_2_rms, const int n_aper, const int n_track)
+{
+  const string
+    file_name_1 = "dynap",
+    file_name_2 = "dynap";
+  const bool
+    Floq_space = false,
+    cod        = true,
+    prt        = false;
+  const double
+    r_0   = 5e-3,
+    dr    = 0.1e-3,
+    delta = 0e0;
+
+  stringstream                     str;
+  double                           x_aper[n_aper], y_aper[n_aper], DA;
+  std::vector<double>              beta = {0e0, 0e0};
+  std::vector<std::vector<double>> beta_ref;
+  FILE                             *fp;
+
+  globval.Cavity_on = false;
+  Ring_GetTwiss(true, 0e0);
+  for (auto j = 0; j <= globval.Cell_nLoc; j++) {
+    beta.assign({Cell[j].Beta[X_], Cell[j].Beta[Y_]});
+    beta_ref.push_back(beta);
+  }
+
+  globval.Cavity_on = true;
+
+  str << scientific << setprecision(2) << file_name_1 << "_"
+      << setw(8) << db_2_rms << ".out";
+  fp = file_write(str.str().c_str());
+
+  set_bnr_rms_type(Dip,  Quad, db_2_rms, 0e0, true);
+  set_bnr_rms_type(Quad, Quad, db_2_rms, 0e0, true);
+
+  str << scientific << setprecision(2) << file_name_2 << "_"
+      << setw(8) << db_2_rms << ".dat";
+  prtmfile(str.str().c_str());
+
+  dynap(fp, r_0, delta, dr, n_aper, n_track, x_aper, y_aper, Floq_space, cod,
+	prt);
+  fclose(fp);
+  DA = get_aper(n_aper, x_aper, y_aper);
+  printf("db_2_rms = %8.2e DA = %9.3e [mm^2] ", db_2_rms, 1e6*DA);
+  compute_beta_beat(beta_ref);
+}
+
+
 void set_state(void)
 {
   globval.H_exact        = false;
@@ -790,9 +871,14 @@ void set_state(void)
 
 int main(int argc, char *argv[])
 {
+  const long seed = 1121;
+
   int              loc;
   double           I[6], eps_x, sigma_delta, U_0, J[3], tau[3];
   std::vector<int> bpm;
+
+  iniranf(seed);
+  setrancut(1.0);
 
   reverse_elem = !false;
 
@@ -893,5 +979,14 @@ int main(int argc, char *argv[])
   if (false) {
     globval.Cavity_on = false;
     track(100, -6e-3, 0e0);
+  }
+
+  if (get_tol) {
+    printf("\n");
+    get_b_2_tol(0.00e-3, n_aper, n_track);
+    get_b_2_tol(0.25e-3, n_aper, n_track);
+    get_b_2_tol(0.50e-3, n_aper, n_track);
+    get_b_2_tol(1.00e-3, n_aper, n_track);
+    get_b_2_tol(2.50e-3, n_aper, n_track);
   }
 }
