@@ -16,7 +16,7 @@ const bool
   chk_dnu       = false,  // Requires super period.
   comp_H_long   = false,
   Deta          = false,
-  get_tol       = !false;
+  get_tol       = false;
 
 const int
   n_aper  = 25,
@@ -851,6 +851,8 @@ void get_b_2_tol(const double db_2_rms, const int n_aper, const int n_track)
   DA = get_aper(n_aper, x_aper, y_aper);
   printf("db_2_rms = %8.2e DA = %9.3e [mm^2] ", db_2_rms, 1e6*DA);
   compute_beta_beat(beta_ref);
+
+  globval.Cavity_on = false;
 }
 
 
@@ -982,11 +984,19 @@ int main(int argc, char *argv[])
   }
 
   if (get_tol) {
-    printf("\n");
-    get_b_2_tol(0.00e-3, n_aper, n_track);
-    get_b_2_tol(0.25e-3, n_aper, n_track);
-    get_b_2_tol(0.50e-3, n_aper, n_track);
-    get_b_2_tol(1.00e-3, n_aper, n_track);
-    get_b_2_tol(2.50e-3, n_aper, n_track);
+    if (true) {
+      printf("\n");
+      get_b_2_tol(0.00e-3, n_aper, n_track);
+      get_b_2_tol(0.25e-3, n_aper, n_track);
+      get_b_2_tol(0.50e-3, n_aper, n_track);
+      get_b_2_tol(1.00e-3, n_aper, n_track);
+      get_b_2_tol(2.50e-3, n_aper, n_track);
+    }
+
+    set_bnr_rms_type(Dip,  Quad, 2.50e-3, 0e0, true);
+    set_bnr_rms_type(Quad, Quad, 2.50e-3, 0e0, true);
+    Ring_GetTwiss(true, 0e0);
+    prt_lat("linlat1.out", globval.bpm, true);
+    prt_lat("linlat.out", globval.bpm, true, 10);
   }
 }
