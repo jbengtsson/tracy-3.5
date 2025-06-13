@@ -8,7 +8,7 @@ int no_tps   = NO,
 
 const double
   beta_inj[] = {9.8, 1.4},
-  A_max[]    = {6e-3, 2e-3},
+  A_max[]    = {5e-3, 2e-3},
   delta_max  = 4e-2,
   twoJ[]     = {sqr(A_max[X_])/beta_inj[X_], sqr(A_max[Y_])/beta_inj[Y_]};
 
