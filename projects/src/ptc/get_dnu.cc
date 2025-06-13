@@ -1,4 +1,4 @@
-#define NO 8
+#define NO 10
 
 #include "tracy_lib.h"
 
@@ -7,9 +7,9 @@ int no_tps   = NO,
 
 
 const double
-  beta_inj[] = {2.8, 2.8},
-  A_max[]    = {3e-3, 2.5e-3},
-  delta_max  = 5e-2,
+  beta_inj[] = {9.8, 1.4},
+  A_max[]    = {6e-3, 2e-3},
+  delta_max  = 4e-2,
   twoJ[]     = {sqr(A_max[X_])/beta_inj[X_], sqr(A_max[Y_])/beta_inj[Y_]};
 
 const char home_dir[] = "/home/bengtsson";
