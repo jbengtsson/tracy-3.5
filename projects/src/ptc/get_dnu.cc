@@ -1,4 +1,4 @@
-#define NO 10
+#define NO 8
 
 #include "tracy_lib.h"
 
