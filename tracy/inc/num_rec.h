@@ -105,9 +105,11 @@ extern "C" {
   void dmtranspose( double **a, int a_rows, int a_cols, double **y);
   void dmfillUT( double **a, int a_rows, int a_cols);
 
-  void dmdump( FILE *outf, const char *text, double **a, int a_rows, int a_cols,
-	       const char *format);
-  void dvdump( FILE *outf, char *text, double *a, int a_els, char *format);
+  void dmdump
+  (FILE *outf, const char *text, double **a, int a_rows, int a_cols,
+   const char *format);
+  void dvdump
+  (FILE *outf, const char *text, double *a, int a_els, const char *format);
   void dvadd( double *a, int a_els, double *b, double *y);
   void dvsub( double *a, int a_els, double *b, double *y);
   double dvdot( double *a, int a_els, double *b);
