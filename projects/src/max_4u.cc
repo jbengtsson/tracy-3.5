@@ -12,7 +12,7 @@ const bool
   fit_nu        = false,
   fit_chrom     = false,
   ps_rot        = false,
-  chk_mpole_sym = false,
+  chk_mpole_sym = false,  // Requires super period.
   chk_dnu       = false,  // Requires super period.
   comp_H_long   = false,
   Deta          = false,
@@ -348,24 +348,26 @@ void chk_phi()
 
 void chk_mpole_Fam(const int Fnum)
 {
-  int n_Kid, k, loc[2];
+  // Assumes that the multipoles are split in halfs - i.e., to obtain the
+  // linear optics at the centre.
+  int    n_Kid, loc;
+  double dnu[2], dnu_0[2];
 
-  printf("\n   name        s     beta_x   beta_y   eta_x    dnu_x    dnu_y\n");
-  for (k = 1; k <= GetnKid(Fnum); k++) {
-    n_Kid = GetnKid(Fnum);
-    loc[0] = (k > 1)? Elem_GetPos(Fnum, k-1) : Elem_GetPos(Fnum, n_Kid);
-    loc[1] = Elem_GetPos(Fnum, k);
-    printf("\n  %.8s %7.3f %8.5f %8.5f %8.5f %8.5f %8.5f\n",
-	   Cell[loc[1]-1].Elem.PName, Cell[loc[1]-1].S,
-	   Cell[loc[1]-1].Beta[X_], Cell[loc[1]-1].Beta[Y_],
-	   Cell[loc[1]-1].Eta[X_],
-	   (k > 1)? Cell[loc[1]-1].Nu[X_]-Cell[loc[0]-1].Nu[X_] : NAN,
-	   (k > 1)?Cell[loc[1]-1].Nu[Y_]-Cell[loc[0]-1].Nu[Y_] : NAN);
-    printf("  %.8s %7.3f %8.5f %8.5f %8.5f %8.5f %8.5f\n",
-	   Cell[loc[1]].Elem.PName, Cell[loc[1]].S,
-	   Cell[loc[1]].Beta[X_], Cell[loc[1]].Beta[Y_], Cell[loc[1]].Eta[X_],
-	   (k > 1)? Cell[loc[1]].Nu[X_]-Cell[loc[0]].Nu[X_] : NAN,
-	   (k > 1)?Cell[loc[1]].Nu[Y_]-Cell[loc[0]].Nu[Y_] : NAN);
+  printf("\n   name        s    beta_x*eta_x  beta_y* eta_x"
+	 "   dnu_x    dnu_y\n");
+  for (auto k = 0; k < 2; k++)
+    dnu_0[k] = NAN;
+  for (auto j = 1; j <= GetnKid(Fnum); j += 2) {
+    loc = Elem_GetPos(Fnum, j);
+    for (auto k = 0; k < 2; k++) {
+      dnu[k] = Cell[loc].Nu[k] - dnu_0[k];
+      dnu_0[k] = Cell[loc].Nu[k];
+    }
+
+    printf("  %.8s %7.3f   %8.5f       %8.5f    %8.5f %8.5f\n",
+	   Cell[loc].Elem.PName, Cell[loc].S,
+	   Cell[loc].Beta[X_]*Cell[loc].Eta[X_],
+	   Cell[loc].Beta[Y_]*Cell[loc].Eta[X_], dnu[X_], dnu[Y_]);
   }
 }
 
@@ -394,7 +396,6 @@ void chk_mpole(const int lat_case)
     Fnum.push_back(get_ElemIndex("s2_h2"));
     Fnum.push_back(get_ElemIndex("s3_h2"));
     Fnum.push_back(get_ElemIndex("s4_h2"));
-    Fnum.push_back(get_ElemIndex("s5_h2"));
     break;
   case 2:
     Fnum.push_back(get_ElemIndex("sfm"));
@@ -750,7 +751,7 @@ void fit_nu_jb_2(const double nu_x, const double nu_y)
 
 void fit_xi_jb_2(const double xi_x, const double xi_y)
 {
-  const int lat = 0;
+  const int lat = 3;
 
   std::vector<int> Fnum;
 
@@ -768,8 +769,10 @@ void fit_xi_jb_2(const double xi_x, const double xi_y)
     Fnum.push_back(ElemIndex("s4_f1"));
     break;
   case 3:
+    Fnum.push_back(ElemIndex("s1_h2"));
+    Fnum.push_back(ElemIndex("s2_h2"));
+    Fnum.push_back(ElemIndex("s3_h2"));
     Fnum.push_back(ElemIndex("s4_h2"));
-    Fnum.push_back(ElemIndex("s5_h2"));
     break;
   }
   fit_xi_jb(Fnum, 0e0, 0e0, 1e0);
