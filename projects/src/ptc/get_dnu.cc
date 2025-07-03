@@ -1,4 +1,4 @@
-#define NO 8
+#define NO 9
 
 #include "tracy_lib.h"
 
@@ -7,9 +7,9 @@ int no_tps   = NO,
 
 
 const double
-  beta_inj[] = {9.8, 1.4},
-  A_max[]    = {5e-3, 2e-3},
-  delta_max  = 4e-2,
+  beta_inj[] = {3.7, 3.9},
+  A_max[]    = {3e-3, 1e-3},
+  delta_max  = 6e-2,
   twoJ[]     = {sqr(A_max[X_])/beta_inj[X_], sqr(A_max[Y_])/beta_inj[Y_]};
 
 const char home_dir[] = "/home/bengtsson";
@@ -106,7 +106,9 @@ tps get_H(void)
   if (false) {
     // Normalize map (=> Map_res)
     for (i = 3; i <= no_tps; i++) {
-      gn = Take(MNF.g, i); Mn = LieExp(gn, Id); map = Inv(Mn)*map*Mn;
+      gn = Take(MNF.g, i);
+      Mn = LieExp(gn, Id);
+      map = Inv(Mn)*map*Mn;
     }
   }
 
@@ -123,7 +125,8 @@ void get_A(void)
 
   Id.identity(); A = MNF.A1;
   for (j = no_tps; j >= 3; j--) {
-    gn = Take(MNF.g, j); A = A*LieExp(gn, Id);
+    gn = Take(MNF.g, j);
+    A = A*LieExp(gn, Id);
   }
 
   for (j = 0; j < nv_tps; j++)
