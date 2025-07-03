@@ -58,9 +58,6 @@ nu_x_max = 54.5
 nu_y_min = 11.0
 nu_y_max = 11.5
 
-# left adjusted labels
-set key Left
-
 set grid
 
 set style line 1 lt 1 lw l_w lc rgb "blue"
@@ -69,7 +66,8 @@ set style line 3 lt 1 lw l_w lc rgb "red"
 set style line 4 lt 1 lw l_w lc rgb "dark-orange"
 
 set cntrlabel format "%5.2f"
-set key left
+# Label placement.
+set key right
 
 set palette rgbformulae 22, 13, -31 negative
 
@@ -118,7 +116,7 @@ set xlabel "{/Symbol d} [%]"
 set ylabel "{/Symbol n}_x"
 set y2label "{/Symbol n}_y"
 set ytics nomirror
- set y2tics
+set y2tics
 if (!pert) \
   plot file3 using 1:(N*\$2) title "{/Symbol n}_x" with lines ls 1, \
        file3 using 1:(N*\$3) axis x1y2 title "{/Symbol n}_y" with lines ls 3; \
@@ -127,7 +125,7 @@ else \
        file3 using 1:(N*\$3) axis x1y2 title "{/Symbol n}_y" with lines ls 3, \
        file32 using 1:(N*(N_x+\$2)) title "{/Symbol n}_x (pert)" \
        with lines ls 2, \
-       file32 using 1:(N*(N_y+\$3)) axis x1y2 title "{/Symbol n}_y" \
+       file32 using 1:(N*(N_y+\$3)) axis x1y2 title "{/Symbol n}_y (pert)" \
        with lines ls 4;
 if (!ps) pause mouse "click on graph to cont.\n"
 
