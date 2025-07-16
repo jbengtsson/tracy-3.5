@@ -2,16 +2,16 @@
 
 prm1=${1-""}
 prm2=${2-1}
-prm3=${3-0}
-prm4=${4-1}
+prm3=${3-1}
+prm4=${4-0}
 prm5=${5-0}
 
 gnuplot << EOP
 
 home_dir = "$prm1"
 N        = $prm2
-ps       = $prm3
-case     = $prm4
+case     = $prm3
+ps       = $prm4
 pert     = $prm5
 
 # BESSY-III  1,
