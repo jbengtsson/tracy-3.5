@@ -10,7 +10,7 @@ const bool
   zero_b_3      = false,
   zero_b_4      = false,
   fit_nu        = false,
-  fit_chrom     = false,
+  fit_xi        = false,
   ps_rot        = false,
   chk_mpole_sym = false,  // Requires super period.
   chk_dnu       = false,  // Requires super period.
@@ -393,7 +393,7 @@ void chk_mpole(const int lat_case)
   switch (lat_case) {
   case 1:
     Fnum.push_back(get_ElemIndex("s1_h2"));
-    Fnum.push_back(get_ElemIndex("s2_h2"));
+    // Fnum.push_back(get_ElemIndex("s2_h2"));
     Fnum.push_back(get_ElemIndex("s3_h2"));
     Fnum.push_back(get_ElemIndex("s4_h2"));
     break;
@@ -769,8 +769,8 @@ void fit_xi_jb_2(const double xi_x, const double xi_y)
     Fnum.push_back(ElemIndex("s4_f1"));
     break;
   case 3:
-    Fnum.push_back(ElemIndex("s1_h2"));
-    Fnum.push_back(ElemIndex("s2_h2"));
+    // Fnum.push_back(ElemIndex("s1_h2"));
+    // Fnum.push_back(ElemIndex("s2_h2"));
     Fnum.push_back(ElemIndex("s3_h2"));
     Fnum.push_back(ElemIndex("s4_h2"));
     break;
@@ -936,7 +936,7 @@ int main(int argc, char *argv[])
     fit_nu_jb_2(nu[X_]-globval.TotalTune[X_],
 		nu[Y_]-globval.TotalTune[Y_]);
 
-  if (fit_chrom) fit_xi_jb_2(0e0, 0e0);
+  if (fit_xi) fit_xi_jb_2(0e0, 0e0);
 
   if (ps_rot) {
     // A 1/2 ps_rot at the entrance & exit of the super period for a symmetric
