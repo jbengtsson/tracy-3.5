@@ -67,8 +67,8 @@ prt_kick_map_SOURCES      = prt_kick_map.cc
 LOCAL = /usr/local/opt
 
 # Explicit reference to libc++ required for CC front-end vs. C++.
-LIBS =	-L$(NUM_REC)/lib -lnum_rec \
-	-L$(TRACY_LIB)/tracy/lib -ltracy \
+LIBS =	-L$(TRACY_LIB)/tracy/lib -ltracy \
+	-L$(NUM_REC)/lib -lnum_rec \
 	-L$(LOCAL)/gsl/lib -lgsl
 
 # Enduser flags.
