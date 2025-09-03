@@ -89,4 +89,4 @@ AM_CXXFLAGS = \
 	-D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC -fPIC
 #CXXFLAGS = -pg -O0 -Wall -Wno-non-template-friend
 
-AM_LDFLAGS = -F/System/Library/Frameworks -framework CoreServices
+#AM_LDFLAGS = -F/System/Library/Frameworks -framework CoreServices

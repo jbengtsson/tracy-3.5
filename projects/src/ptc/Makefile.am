@@ -33,9 +33,9 @@ LOCAL = /usr/local/opt
 #	$(THOR_LIB)/thor/lib/libTPSALib.a $(THOR_LIB)/thor/lib/libLieLib.a \
 # Explicit reference to libc++ required for CC front-end vs. C++.
 # Cope with macOS by using static libraries.
-LIBS =	-L$(NUM_REC)/lib -lnum_rec \
-	$(TRACY_LIB)/tracy/lib/libtracy_ptc.a \
+LIBS =	$(TRACY_LIB)/tracy/lib/libtracy_ptc.a \
 	$(THOR_LIB)/thor/lib/libTPSALib.a $(THOR_LIB)/thor/lib/libLieLib.a \
+	-L$(NUM_REC)/lib -lnum_rec \
 	-L$(LOCAL)/gsl/lib -lgsl \
 	-L$(LOCAL)/gfortran/lib/gcc/current -lgfortran
 
