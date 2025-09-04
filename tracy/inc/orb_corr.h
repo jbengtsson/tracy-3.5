@@ -3,11 +3,10 @@
 
 class orb_corr_type {
 private:
-  double **A, **Ai, *w, **U, **V, *b, *bb, *x, *xx, eps, hcut, vcut;
+  double **A, *w, **U, **V, *b, *bb, *x, *xx, eps, hcut, vcut;
 
 public:
   bool                  hor, periodic;
-  int                   m, n;
   std::vector<long int> bpms, corrs;
 
   void alloc(const long int i0, const long int i1, const long int i2,

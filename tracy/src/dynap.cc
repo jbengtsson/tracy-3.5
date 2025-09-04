@@ -270,7 +270,8 @@ void DA_data_type::get_DA_real(param_data_type &params,
     if (params.fe_file != "") params.LoadFieldErr(false, 1e0, true);
     if (params.ae_file != "") {
       // Load misalignments; set seed, no scaling of rms errors.
-      if (trace) printf("get_DA_real: n_meth = %d", params.n_meth);
+      if (trace)
+	printf("\nget_DA_real: n_meth = %d", params.n_meth);
       if (params.n_meth == 0) {
         printf("entering LoadAlignTol\n");
         params.LoadAlignTol(false, 1e0, true, j);
@@ -315,9 +316,12 @@ void DA_data_type::get_DA_real(param_data_type &params,
     if (cod) {
       printf("err_and_corr: orbit correction completed\n");
 
-      sprintf(fname,"linlat_%d.out",j); prt_lat(fname, globval.bpm, true);
-      sprintf(fname,"cod_%d.out",j);    prt_cod(fname, globval.bpm, true);
-      sprintf(fname,"cod_%d.dat",j);    printcod(fname);
+      sprintf(fname, "linlat_%d.out", j);
+      prt_lat(fname, globval.bpm, true);
+      sprintf(fname, "cod_%d.out", j);
+      prt_cod(fname, globval.bpm, true);
+      sprintf(fname, "cod_%d.dat", j);
+      printcod(fname);
       if (trace && (j == 1)) {
 	orb_corr[X_].prt_svdmat();
 	orb_corr[Y_].prt_svdmat();

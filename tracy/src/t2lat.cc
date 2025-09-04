@@ -4383,10 +4383,10 @@ long ElemIndex(const std::string &name)
 
   if (prt) {
     std::cout << std::endl;
-    std::cout << "ElemIndex: " << name << " (";
+    std::cout << "ElemIndex: \"" << name << "\" (";
     for (i = 0; i < (signed)name1.length(); i++)
       std::cout << std::setw(4) << (int)name1[i];
-    std::cout << std::setw(4) << (int)name1[name1.length()] << " )"
+    std::cout << std::setw(4) << (int)name1[name1.length()] << ")"
 	      << std::endl;
     std::cout << std::endl;
   }
@@ -4404,7 +4404,7 @@ long ElemIndex(const std::string &name)
 	   << " " << name1 << " " << ElemFam[i-1].ElemF.PName << " (";
       for (j = 0; j < SymbolLength; j++)
 	std::cout << std::setw(4) << (int)ElemFam[i-1].ElemF.PName[j];
-      std::cout  << " )" << std::endl;
+      std::cout  << ")" << std::endl;
     }
 
     if (name1 == ElemFam[i-1].ElemF.PName) break;
@@ -4413,7 +4413,8 @@ long ElemIndex(const std::string &name)
   }
 
   if (name1 != ElemFam[i-1].ElemF.PName) {
-    std::cout << "ElemIndex: undefined element " << name << std::endl;
+    std::cout << "ElemIndex: undefined element " << "\"" << name << "\""
+	      << std::endl;
     exit_(1);
   }
 

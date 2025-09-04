@@ -2471,6 +2471,9 @@ bool param_data_type::cod_corr(const int n_cell, const double scl,
 
   if (!false || !cod) {
     printf("\ncould not find closed orbit; threading beam\n");
+    if (trace)
+      printf("param_data_type::cod_corr: n_cell = %d loc_Fam_name = \"%s\"\n",
+	     n_cell, loc_Fam_name.c_str());
 
     orb_corr[X_].clr_trims(); orb_corr[Y_].clr_trims();
     thread_beam(n_cell, loc_Fam_name, bpm_Fam_names, corr_Fam_names, n_thread,
