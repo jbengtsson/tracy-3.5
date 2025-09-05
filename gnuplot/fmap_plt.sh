@@ -1,10 +1,10 @@
 #!/bin/sh
 
-prm1=${1-""}
-prm2=${2-6}
-prm3=${3-0}
-prm4=${4-1}
-prm5=${5-1}
+prm1=${1:-""}
+prm2=${2:-20}
+prm3=${3:-0}
+prm4=${4:-1}
+prm5=${5:-1}
 
 gnuplot << EOP
 
@@ -24,36 +24,39 @@ file2 = (home_dir)."fmapdp.out"
 
 f_s = 36
 l_w = 2
-if (ps == 0) \
-  set terminal qt 0 font "Sans, 9"; \
-else if (ps == 1) \
-  set terminal postscript enhanced color solid lw l_w "Times-Roman" f_s; \
-  ext = "ps"; \
-else if (ps == 2) \
-  set terminal postscript eps enhanced color solid lw l_w "Times-Roman" f_s; \
-  ext = "eps"; \
-else if (ps == 3) \
-  set terminal pdf enhanced color solid lw l_w font "Times-Roman f_s"; \
-  ext = "pdf"; \
-else if (ps == 4) \
-  set term pngcairo enhanced color solid lw l_w font "Times-Roman f_s"; \
+# Enhanced is needed for Greek characters.
+if (ps == 0) {
+  set terminal qt 0 enhanced font "Sans, 9"
+} else if (ps == 1) {
+  set terminal postscript enhanced color solid lw l_w "Times-Roman" f_s
+  ext = "ps"
+} else if (ps == 2) {
+  set terminal postscript eps enhanced color solid lw l_w "Times-Roman" f_s
+  ext = "eps"
+} else if (ps == 3) {
+  set terminal pdf enhanced color solid lw l_w font "Times-Roman f_s"
+  ext = "pdf"
+} else if (ps == 4) {
+  set term pngcairo enhanced color solid lw l_w font "Times-Roman f_s"
   ext = "png"
+}
 
 # sgn:
 #    frac(nu):
 #       [0,   0.5]   1
 #       [0.5, 1.0]  -1, int(nu) = nu + 1.
 
-sgn_x = -1
-sgn_y = -1
-if ((N == 1) && (case == 1)) \
-  N_x = 58; \
-  N_y = 18; \
-else if ((N == 20) && (case == 1)) \
-  N_x = 3; \
+sgn_x = 1
+sgn_y = 1
+if ((N == 1) && (case == 1)) {
+  N_x = 58
+  N_y = 17
+} else if ((N == 20) && (case == 1)) {
+  N_x = 3
   N_y = 1
+}
 
-nu_x_min = 57.0
+nu_x_min = 58.0
 nu_x_max = 58.5
 nu_y_min = 17.0
 nu_y_max = 17.5
@@ -263,6 +266,7 @@ splot "fmap.out" using \
 
 #      u,     (6.0*u-i6m4)/4.0,   1.0 notitle with lines ls 5
 
+
 set pm3d at b map
 #set contour
 #unset colorbox
@@ -375,9 +379,10 @@ set origin 0.0, 0.0
 set title "Diffusion Map"
 set xlabel "{/Symbol d} [%]"
 set ylabel "x [mm]"
-if (scale) set xrange \
-  [-delta_max:delta_max]; \
+if (scale) {
+  set xrange [-delta_max:delta_max]
   set yrange [-x_max:x_max]
+}
 splot file2 using 1:2:((\$7 != nan)? \$7 : NaN) notitle lt palette z
 
 if (!ps) pause mouse "click on graph to cont.\n"
