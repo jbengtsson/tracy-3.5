@@ -16,28 +16,30 @@ scale    = $prm5
 
 nan = -2.0
 
-file1 = (home_dir)."fmap.out"
-file2 = (home_dir)."fmapdp.out"
+file1 = home_dir."fmap.out"
+file2 = home_dir."fmapdp.out"
 
 # Only works for postscript terminal.
 #set fontpath "/usr/share/fonts/msttcore"
 
 f_s = 36
 l_w = 2
+
 # Enhanced is needed for Greek characters.
 if (ps == 0) {
-  set terminal qt 0 enhanced font "Sans, 9"
+  set terminal qt enhanced font "DejaVu Sans,12"
 } else if (ps == 1) {
-  set terminal postscript enhanced color solid lw l_w "Times-Roman" f_s
+  set terminal postscript enhanced color solid lw l_w font "Times-Roman,".f_s
   ext = "ps"
 } else if (ps == 2) {
-  set terminal postscript eps enhanced color solid lw l_w "Times-Roman" f_s
+  set terminal postscript eps enhanced color solid lw l_w font \
+ "Times-Roman,".f_s
   ext = "eps"
 } else if (ps == 3) {
-  set terminal pdf enhanced color solid lw l_w font "Times-Roman f_s"
+  set terminal pdfcairo enhanced color solid lw l_w font "Times-Roman,".f_s
   ext = "pdf"
 } else if (ps == 4) {
-  set term pngcairo enhanced color solid lw l_w font "Times-Roman f_s"
+  set terminal pngcairo enhanced color solid lw l_w font "Times-Roman,".f_s
   ext = "png"
 }
 
@@ -177,7 +179,7 @@ i33    = floor(3.0*nu_x_min+3.0*nu_y_max) + 1
 set urange [nu_x_min:nu_x_max]
 set vrange [nu_y_min:nu_y_max]
 
-if (ps) set output "fmap_1.".(ext)
+if (ps) set output "fmap_1.".ext
 
 set multiplot
 
@@ -283,7 +285,7 @@ unset multiplot
 
 if (!ps) pause mouse "click on graph to cont.\n"
 
-if (ps) set output (home_dir)."fmap_2.".(ext)
+if (ps) set output (home_dir)."fmap_2.".ext
 
 set multiplot
 

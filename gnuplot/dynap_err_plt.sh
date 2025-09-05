@@ -15,21 +15,24 @@ file3 = home_dir."DA_bare.out"
 file4 = home_dir."DA_real.out"
 
 f_s = 36
- l_w = 2
+l_w = 2
+
+# Enhanced is needed for Greek characters.
 if (ps == 0) {
-  set terminal qt
+  set terminal qt enhanced font "DejaVu Sans,12""
 } else if (ps == 1) {
-  set terminal postscript enhanced color solid lw l_w font "Times-Roman f_s"
+  set terminal postscript enhanced color solid lw l_w font "Times-Roman,".f_s
   ext = "ps"
 } else if (ps == 2) {
-  set terminal postscript eps enhanced color solid lw font l_w "Times-Roman f_s"
+  set terminal postscript eps enhanced color solid lw l_w font \
+ "Times-Roman,".f_s
   ext = "eps"
 } else if (ps == 3) {
-  set terminal pdfcairo enhanced color solid lw l_w font "Times-Roman f_s"
+  set terminal pdfcairo enhanced color solid lw l_w font "Times-Roman,".f_s
   ext = "pdf"
 } else if (ps == 4) {
-  set term pngcairo enhanced color solid lw l_w font "Times-Roman f_s"
-  ext = "png";
+  set terminal pngcairo enhanced color solid lw l_w font "Times-Roman,".f_s
+  ext = "png"
 }
 
 set grid
@@ -96,7 +99,7 @@ if (ps) set output "dynap_err_4.".ext
 
 set title "Horizontal Momentum Acceptance\n"
 set xlabel "{/Symbol d} [%]"
-set ylabel "A_x [mm x mrad]"
+set ylabel "A_x [mm×mrad]"
 set yrange [0:]
 plot file3 using 1:3 title "bare" with linespoints ls 2, \
      file4 using 1:5:7 title "w errors" with errorbars ls 1, \
@@ -107,7 +110,7 @@ if (ps) set output "dynap_err_5.".ext
 
 set title "Vertical Momentum Acceptance\n"
 set xlabel "{/Symbol d} [%]"
- set ylabel "A_y [mm x mrad]"
+ set ylabel "A_y [mm×mrad]"
 set yrange [0:]
 plot file3 using 1:4 title "bare" with linespoints ls 2, \
      file4 using 1:8:10 title "w errors" with errorbars ls 3, \
