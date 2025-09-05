@@ -18,9 +18,13 @@ AM_CPPFLAGS = \
 	-I$(NUM_REC)/inc
 
 # FORTRAN 77 flags.
-FFLAGS = \
-	-g -O2 -Wall -fbounds-check -fdefault-integer-8 -mcmodel=medium \
-	-w -fallow-argument-mismatch
+#FFLAGS = \
+#	-g -O2 -Wall -fbounds-check -fdefault-integer-8 -mcmodel=medium \
+#	-w -fallow-argument-mismatch
 
 # C++ flags.
-AM_CXXFLAGS = -g -O0 -Wall -Wno-error=all
+#AM_CXXFLAGS = -g -O0 -Wall -Wno-error=all
+
+AM_FFLAGS = -ggdb -O -fbacktrace -Wall -fbounds-check -fPIC \
+            -std=gnu -fdefault-integer-8 -mcmodel=medium
+

@@ -1,9 +1,10 @@
 # Process this file with autoconf to produce a configure script.
 AC_CONFIG_SRCDIR([tracy/src/t2elem.cc])
 AC_INIT([Tracy],[2.0])
+AC_CONFIG_MACRO_DIRS([m4])
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_SRCDIR(tracy/src/t2elem.cc)
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE([foreign])
 AC_CONFIG_HEADERS([config.h])
 # Checks for programs.
 AC_PROG_AWK
@@ -17,7 +18,7 @@ LT_INIT
 # Use GNU vs. Clang/LLVM compilers.
 #AC_PROG_CXX(g++-14)
 AC_PROG_CXX(c++)
-AC_PROG_F77(gfortran-14)
+AC_PROG_F77(gfortran)
 #AC_PROG_MAKE_SET(gmake)
 
 # Checks for libraries.

@@ -9,6 +9,9 @@ rm -rf tracy/lib/*
 make distclean
 
 # Configure libtool (for shared libraries).
+# Linux.
+# libtoolize
+# Macbook.
 glibtoolize
 
 ./bootstrap

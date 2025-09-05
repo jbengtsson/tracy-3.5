@@ -1,8 +1,9 @@
 # Process this file with autoconf to produce a configure script.
 AC_INIT([Tracy],[2.0])
+AC_CONFIG_MACRO_DIRS([m4])
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_SRCDIR(src/main.cc)
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE([foreign])
 AC_CONFIG_HEADERS(config.h)
 # Checks for programs.
 AC_PROG_AWK

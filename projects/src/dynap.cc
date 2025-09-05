@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
 
   globval.mat_meth = false;
 
-  trace = !false;
+  trace = false;
 
   if (argc == 2)
     err_and_corr(argv[1]);
