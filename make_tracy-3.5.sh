@@ -14,6 +14,9 @@ make distclean
 # Macbook.
 glibtoolize
 
+# Create config dir – if it doesn't exist.
+mkdir -p config
+
 ./bootstrap
 ./configure --prefix=$dir/tracy
 
