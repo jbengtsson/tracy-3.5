@@ -4,7 +4,7 @@ SUBDIRS = ptc
 
 bin_PROGRAMS = \
 	optics dynap leac dnu touschek ibs vlad tbt tbt_ref max_iv_1 max_iv_2 \
-	ibs_for_les delta bare_da match carbon_map dls 6BA track_fft m4 m4_mod \
+	ibs_for_les delta bare_da match carbon_map dls 6BA track_fft m4_0 m4_mod \
 	dls_ii track opt_des_1 opt_des_2 id_model sigma tech_note dx_dj \
 	tune_scan sxt chk_drv_terms fit_nu opt_des_bessy_iii for_pierre tst_it \
 	ctrl_cod wakefield compute_maps lin_opt map_diag_3D bessy_ii \
@@ -32,7 +32,7 @@ carbon_map_SOURCES        = carbon_map.cc
 dls_SOURCES               = dls.cc
 6BA_SOURCES               = 6BA.cc
 track_fft_SOURCES         = track_fft.cc
-m4_SOURCES                = m4.cc
+m4_0_SOURCES              = m4_0.cc
 m4_mod_SOURCES            = m4_mod.cc
 dls_ii_SOURCES            = dls_ii.cc
 track_SOURCES             = track.cc
@@ -90,4 +90,4 @@ AM_CXXFLAGS = \
 #CXXFLAGS = -pg -O0 -Wall -Wno-non-template-friend
 
 # For Macbook.
-AM_LDFLAGS = -F/System/Library/Frameworks -framework CoreServices
+AM_LDFLAGS = @MAC_LDFLAGS@

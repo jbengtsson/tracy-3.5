@@ -22,6 +22,19 @@ AC_PROG_CXX(c++)
 AC_PROG_F77(gfortran-14)
 #AC_PROG_MAKE_SET(make)
 
+# For macOS.
+AC_CANONICAL_HOST
+case "$host_os" in
+  darwin*)
+    MAC_LDFLAGS="-F/System/Library/Frameworks -framework CoreServices"
+    ;;
+  *)
+    MAC_LDFLAGS=""
+    ;;
+esac
+AC_SUBST(MAC_LDFLAGS)
+
+
 # Checks for libraries.
 
 # Checks for header files.
