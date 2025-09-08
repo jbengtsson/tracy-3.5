@@ -22,7 +22,7 @@ file2 = home_dir."fmapdp.out"
 # Only works for postscript terminal.
 #set fontpath "/usr/share/fonts/msttcore"
 
-f_s = 36
+f_s = 14
 l_w = 2
 
 # Enhanced is needed for Greek characters.

@@ -14,7 +14,7 @@ file2 = home_dir."DA_real_0.00.out"
 file3 = home_dir."DA_bare.out"
 file4 = home_dir."DA_real.out"
 
-f_s = 36
+f_s = 14
 l_w = 2
 
 # Enhanced is needed for Greek characters.
