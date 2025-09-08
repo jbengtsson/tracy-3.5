@@ -2476,13 +2476,15 @@ long Elem_GetPos(const int Fnum1, const int Knum1)
       loc = -1;
       printf("Elem_GetPos: Elem_nFam exceeded %s %d (%d)\n",
 	     ElemFam[Fnum1-1].ElemF.PName, Fnum1, globval.Elem_nFam >= Fnum1);
-      exit_(0);
+      exit_(1);
+      return loc;
     }
   } else {
     loc = -1;
     printf("Elem_GetPos: nKid exceeded %s %d (%d)\n",
 	   ElemFam[Fnum1-1].ElemF.PName, Knum1, ElemFam[Fnum1-1].nKid);
-    exit_(0);
+    exit_(1);
+    return loc;
   }
 }
 

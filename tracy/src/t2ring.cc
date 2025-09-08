@@ -130,7 +130,7 @@ void Cell_Geteta(long i0, long i1, bool ring, double dP)
   const int n = 4;
 
   if (trace)
-    printf("\nCell_Geteta(%d, %d, %s, %10.3e)\n",
+    printf("\nCell_Geteta(%ld, %ld, %s, %10.3e)\n",
 	   i0, i1, (ring)? "true":"false", dP);
   if (ring)
     GetCOD(globval.CODimax, globval.CODeps, dP-globval.dPcommon/2e0, lastpos);
