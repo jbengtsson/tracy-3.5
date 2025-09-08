@@ -516,7 +516,7 @@ void param_data_type::SetCorMis(double gxrms, double gyrms, double gtrms,
 
   if (plotflag) {
 
-    sprintf(fname,"cormis_%ld.plt",iseed);
+    snprintf(fname, sizeof(fname), "cormis_%ld.plt",iseed);
     outf = fopen(fname,"w" );
 
     if (NGirderLevel[2] > 0) {
@@ -1206,7 +1206,7 @@ void param_data_type::SkewStat(double VertCouple[], const int cnt)
   double max, mean, rms, sk;
 
   if (cnt>=0) {
-    sprintf(fname,"%s_%d.out",skew_FileName,cnt);
+    snprintf(fname, sizeof(fname), "%s_%d.out",skew_FileName,cnt);
     outf = file_write(fname);
     fprintf(outf, "# qt s [m] etax [m] name kl [1/m]\n");
   }
@@ -1375,7 +1375,7 @@ void param_data_type::corr_eps_y(const int cnt)
       
   SkewStat(VertCouple, cnt);
 
-  sprintf(fname,"%s_%d.out",eta_y_FileName,cnt);
+  snprintf(fname, sizeof(fname), "%s_%d.out",eta_y_FileName,cnt);
   outf = file_write(fname);
 
   fprintf(outf, "# nr s [m] name nuy etay [mm] etapy [mrad]\n");
@@ -1869,7 +1869,7 @@ bool param_data_type::ID_corr(const int N_calls, const int N_steps,
   printf("ID matching begins!\n");
 
 
-  sprintf(fname,"ID_corr_%d.out",cnt);
+  snprintf(fname, sizeof(fname), "ID_corr_%d.out",cnt);
   outf = file_write(fname);
   
   for (i = 1; i <= N_steps; i++) { //This brings ID strength in steps
@@ -1920,7 +1920,7 @@ bool param_data_type::ID_corr(const int N_calls, const int N_steps,
   }
   fclose(outf);
 
-  sprintf(fname,"ID_corr_res_%d.out",cnt);
+  snprintf(fname, sizeof(fname), "ID_corr_res_%d.out",cnt);
   outf = file_write(fname);
 
   fprintf(outf, "# dbeta_x/beta_x  dbeta_y/beta_y  dnu_x  dnu_y\n");
@@ -2720,7 +2720,7 @@ void get_bn2(const string file_name1, const string file_name2, int n,
     printf("\n");
   }
 
-  sprintf(str, "n = %d", n);
+  snprintf(str, sizeof(str), "n = %d", n);
   do
     fgets(line, max_str, inf);
   while (strstr(line, str) == NULL);

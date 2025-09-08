@@ -172,7 +172,7 @@ bool Cell_getCOD(long imax, double eps, double dP, long &lastpos)
   ss_vect<tps>    I, dx0, map;
 
   if (trace)
-    printf("\nCell_getCOD(%d, %9.3e, %9.3e):\n", imax, eps, dP);
+    printf("\nCell_getCOD(%ld, %9.3e, %9.3e):\n", imax, eps, dP);
 
   no = no_tps; danot_(1);
   

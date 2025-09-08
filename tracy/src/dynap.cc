@@ -175,7 +175,8 @@ void DA_data_type::get_DA_bare(param_data_type &params)
     d = (params.n_delta_DA > 0)?
       (double)j/(double)params.n_delta_DA*params.delta_DA : 0.0;
 
-    sprintf(str, "DA_bare_%4.2f.out", 1e2*d); fp = file_write(str);
+    snprintf(str, sizeof(str), "DA_bare_%4.2f.out", 1e2*d);
+    fp = file_write(str);
 
     DA = get_dynap(params, fp, 10e-3, d, 0.1e-3, x_min, x_max); 
 
@@ -238,7 +239,7 @@ void DA_data_type::get_DA_real(param_data_type &params,
   for (j = 0; j <= params.n_delta_DA; j++) {
     d[j] = (params.n_delta_DA > 0)?
       (double)j/(double)params.n_delta_DA*params.delta_DA : 0.0;
-    sprintf(str, "DA_real_%4.2f.out", 1e2*d[j]); fp[j] = file_write(str);
+    snprintf(str, sizeof(str), "DA_real_%4.2f.out", 1e2*d[j]); fp[j] = file_write(str);
 
     DA_m[j] = 0e0; DA_s[j] = 0e0;
 
@@ -316,11 +317,11 @@ void DA_data_type::get_DA_real(param_data_type &params,
     if (cod) {
       printf("err_and_corr: orbit correction completed\n");
 
-      sprintf(fname, "linlat_%d.out", j);
+      snprintf(fname, sizeof(fname), "linlat_%d.out", j);
       prt_lat(fname, globval.bpm, true);
-      sprintf(fname, "cod_%d.out", j);
+      snprintf(fname, sizeof(fname), "cod_%d.out", j);
       prt_cod(fname, globval.bpm, true);
-      sprintf(fname, "cod_%d.dat", j);
+      snprintf(fname, sizeof(fname), "cod_%d.dat", j);
       printcod(fname);
       if (trace && (j == 1)) {
 	orb_corr[X_].prt_svdmat();

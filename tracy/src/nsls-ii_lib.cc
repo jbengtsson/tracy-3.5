@@ -2221,7 +2221,7 @@ void prt_beamsizes(const int cnt)
   FILE  *fp;
   char fname [30];
 
-  sprintf(fname,"%s_%d.out",beam_envelope_file, cnt);
+  snprintf(fname, sizeof(fname), "%s_%d.out",beam_envelope_file, cnt);
   fp = file_write(fname);
 
   fprintf(fp,"# k    name    s    s_xx    s_pxpx    s_xpx    s_yy    s_pypy    s_ypy    theta_xy    s_xy\n");
@@ -2238,7 +2238,7 @@ void prt_beamsizes(const int cnt)
 
   fclose(fp);
 
-  sprintf(fname,"%s_%d.out","misalignments", cnt);
+  snprintf(fname, sizeof(fname), "%s_%d.out","misalignments", cnt);
   write_misalignments(fname);
 }
 
@@ -3104,7 +3104,7 @@ void get_bn(const char file_name[], int n, const bool prt)
     printf("\n");
   }
 
-  sprintf(str, "n = %d", n);
+  snprintf(str, sizeof(str), "n = %d", n);
   do
     fgets(line, max_str, inf);
   while (strstr(line, str) == NULL);
@@ -3180,7 +3180,7 @@ double get_dynap(const double delta, const int n_aper, const int n_track,
   DA = get_aper(n_aper, x_aper, y_aper);
 
   if (true) {
-    sprintf(str, "dynap_dp%3.1f.out", 1e2*delta);
+    snprintf(str, sizeof(str), "dynap_dp%3.1f.out", 1e2*delta);
     fp = file_write(str);
     dynap(fp, 5e-3, delta, 0.1e-3, n_aper, n_track,
       x_aper, y_aper, false, cod, prt);
@@ -3189,7 +3189,7 @@ double get_dynap(const double delta, const int n_aper, const int n_track,
 
     for (i = 0; i < nv_; i++)
       globval.CODvect[i] = 0.0;
-    sprintf(str, "dynap_dp%3.1f.out", -1e2*delta);
+    snprintf(str, sizeof(str), "dynap_dp%3.1f.out", -1e2*delta);
     fp = file_write(str);
     dynap(fp, 5e-3, -delta, 0.1e-3, n_aper,
       n_track, x_aper, y_aper, false, cod, prt);

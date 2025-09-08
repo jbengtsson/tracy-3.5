@@ -89,7 +89,7 @@ tps::tps(void) {
 
   if (!ini_tps) TPSA_Ini();
   seq_tps++;
-  // sprintf(name, "tps-%-5hu", seq_tps);
+  // snprintf(name, sizeof(name), "tps-%-5hu", seq_tps);
   daall_(ltps, 1, name, no_tps, nv_tps); dacon_(ltps, 0.0);
 }
 
@@ -101,7 +101,7 @@ tps::tps(const double r)
   if (!ini_tps) TPSA_Ini();
   seq_tps++;
   // Avoid unnecessary overhead.
-  // sprintf(name, "tps-%-5hu", seq_tps);
+  // snprintf(name, sizeof(name), "tps-%-5hu", seq_tps);
   daall_(ltps, 1, name, no_tps, nv_tps); dacon_(ltps, r);
 }
 
@@ -113,7 +113,7 @@ tps::tps(const double r, const int i)
   if (!ini_tps) TPSA_Ini();
   seq_tps++;
   // Avoid unnecessary overhead.
-  // sprintf(name, "tps-%-5hu", seq_tps);
+  // snprintf(name, sizeof(name), "tps-%-5hu", seq_tps);
   daall_(ltps, 1, name, no_tps, nv_tps);
   if (i == 0)
     dacon_(ltps, r);
@@ -128,7 +128,7 @@ tps::tps(const tps &x) {
   if (!ini_tps) TPSA_Ini();
   seq_tps++;
   // Avoid unnecessary overhead.
-  // sprintf(name, "tps-%-5hu", seq_tps);
+  // snprintf(name, sizeof(name), "tps-%-5hu", seq_tps);
   daall_(ltps, 1, name, no_tps, nv_tps);
   dacop_(x.ltps, ltps);
 }

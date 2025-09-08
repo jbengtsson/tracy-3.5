@@ -161,13 +161,13 @@ void get_dnu(const double Ax_max, const double Ay_max, const double delta_max)
   const double A_min = 1e-6;
 
   if (false) {
-    sprintf(str, "%s%s", home_dir, "/Thor-2.0/thor/wrk");
+    snprintf(str, sizeof(str), "%s%s", home_dir, "/Thor-2.0/thor/wrk");
     file_rd(inf, strcat(str, "/nus.dat"));
     inf >> nus[3] >> nus[4];
     inf.close();
   }
 
-//  sprintf(str, "%s%s", home_dir, "/projects/src/");
+//  snprintf(str, sizeof(str), "%s%s", home_dir, "/projects/src/");
 //  file_wr(outf, strcat(str, "dnu_dAx_pert.out"));
   file_wr(outf, "dnu_dAx_pert.out");
   Id_scl.zero(); ps.zero();
@@ -187,7 +187,7 @@ void get_dnu(const double Ax_max, const double Ay_max, const double delta_max)
   }
   outf.close();
 
-//  sprintf(str, "%s%s", home_dir, "/projects/src/");
+//  snprintf(str, sizeof(str), "%s%s", home_dir, "/projects/src/");
 //  file_wr(outf, strcat(str, "dnu_dAy_pert.out"));
   file_wr(outf, "dnu_dAy_pert.out");
   Id_scl.zero(); ps.zero();
@@ -208,7 +208,7 @@ void get_dnu(const double Ax_max, const double Ay_max, const double delta_max)
   }
   outf.close();
 
-//  sprintf(str, "%s%s", home_dir, "/projects/src/");
+//  snprintf(str, sizeof(str), "%s%s", home_dir, "/projects/src/");
 //  file_wr(outf, strcat(str, "chrom2_pert.out"));
   file_wr(outf, "chrom2_pert.out");
   Id_scl.zero(); ps.zero();
@@ -239,7 +239,7 @@ void get_dnu2(const double Ax_max, const double Ay_max, const double delta)
   const int n_ampl = 10;
 
   if (false) {
-    sprintf(str, "%s%s", home_dir, "/Thor-2.0/thor/wrk");
+    snprintf(str, sizeof(str), "%s%s", home_dir, "/Thor-2.0/thor/wrk");
     file_rd(inf, strcat(str, "/nus.dat"));
     inf >> nus[3] >> nus[4];
     inf.close();

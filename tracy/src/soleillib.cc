@@ -2853,25 +2853,25 @@ void fmapfull(long Nbx, long Nbz, long Nbtour, double xmax, double zmax,
  fprintf(outf,"#    x[m]          z[m]          ");
 
  for (k = 0; k < NTERM; k++){
-   sprintf(name,"f%2dx           ",k);
-   fprintf(outf,"%s",name);
+   snprintf(name, sizeof(name), "f%2dx           ",k);
+   fprintf(outf, "%s", name);
  }
  for (k = 0; k < NTERM; k++){
-   sprintf(name,"f%2dz           ",k);
-   fprintf(outf,"%s",name);
+   snprintf(name, sizeof(name), "f%2dz           ",k);
+   fprintf(outf, "%s", name);
  }
 
  if (!diffusion){
-   fprintf(outf,"\n");
+   fprintf(outf, "\n");
  }
  else{
    for (k = 0; k < NTERM; k++){
-     sprintf(name,"df%2dx          ",k);
-     fprintf(outf,"%s",name);
+     snprintf(name, sizeof(name), "df%2dx          ",k);
+     fprintf(outf, "%s",name);
    }
    for (k = 0; k < NTERM; k++){
-     sprintf(name,"df%2dz          ",k);
-     fprintf(outf,"%s",name);
+     snprintf(name, sizeof(name), "df%2dz          ",k);
+     fprintf(outf, "%s",name);
    }
    fprintf(outf,"\n");
  }
