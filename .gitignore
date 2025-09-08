@@ -30,6 +30,7 @@ config.status
 config.log
 aclocal.m4
 config/
+/config/
 *.Po
 *.*~
 *.lo
