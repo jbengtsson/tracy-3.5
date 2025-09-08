@@ -14,16 +14,16 @@ void err_and_corr(const string &param_file)
   orb_corr_type   orb_corr[2];
   FILE            *fp;
 
-  // BESSY-III: I_b = 300 mA, h = 538.
+  // BESSY-III: I_b = 500 mA, h = 176.
   const int 
-    Nb          = 538;
+    Nb          = 176;
   const double
-    C           = 350.3,
-    Ib          = 300e-3,
-    eps[]       = {101e-12, 8e-12},
-    sigma_s     = 2.3e-3,
-    sigma_delta = 0.90e-3,
-    delta_RF    = 5e-2,
+    C           = 528.0,
+    Ib          = 500e-3,
+    eps[]       = {65e-12, 8e-12},
+    sigma_s     = 5.7e-3,
+    sigma_delta = 0.85e-3,
+    delta_RF    = 9.12e-2,
     T0          = C/c0,
     Qb          = Ib*T0/Nb;
 
