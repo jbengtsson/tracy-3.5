@@ -66,13 +66,24 @@ void err_and_corr(const string &param_file, const int mode)
 }
 
 
+void set_state(void)
+{
+  globval.H_exact        = false;
+  globval.quad_fringe    = false;
+  globval.Cavity_on      = false;
+  globval.radiation      = false;
+  globval.emittance      = false;
+  globval.IBS            = false;
+  globval.pathlength     = false;
+  globval.Aperture_on    = false;
+  globval.Cart_Bend      = false;
+  globval.dip_edge_fudge = true;
+}
+
+
 int main(int argc, char *argv[])
 {
-  globval.H_exact    = false; globval.quad_fringe    = false;
-  globval.Cavity_on  = false; globval.radiation      = false;
-  globval.emittance  = false; globval.IBS            = false;
-  globval.pathlength = false; globval.Aperture_on    = false;
-  globval.Cart_Bend  = false; globval.dip_edge_fudge = true;
+  set_state();
 
   globval.mat_meth = false;
 
