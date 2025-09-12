@@ -35,8 +35,8 @@ double param_data_type::VDweight    = 1e3,
        param_data_type::disp_wave_o = 0e0;
 int    param_data_type::qt_from_file = 0;
 
-double param_data_type::TuneX       = 0.,
-       param_data_type::TuneY       = 0.,
+double param_data_type::TuneX       = 0e0,
+       param_data_type::TuneY       = 0e0,
        param_data_type::ChromX      = 1e6,
        param_data_type::ChromY      = 1e6;
 
@@ -833,7 +833,8 @@ void param_data_type::get_bare(void)
     }
   }
 
-  nu0_[X_] = globval.TotalTune[X_]; nu0_[Y_] = globval.TotalTune[Y_];
+  nu0_[X_] = globval.TotalTune[X_];
+  nu0_[Y_] = globval.TotalTune[Y_];
 }
 
 
@@ -2356,27 +2357,33 @@ void param_data_type::Align_BPMs(const int n, const double bdxrms,
 
 void param_data_type::zero_mult(void)
 {
+  double b_n;
+
   bn_an[Sext].clear();
-  bn_an[Oct].clear();
   for (auto k = 0; k <= globval.Cell_nLoc; k++) {
     if (Cell[k].Elem.Pkind == Mpole) {
-      bn_an[Sext].push_back(Cell[k].Elem.M->PB[Sext]);
-      bn_an[Oct].push_back(Cell[k].Elem.M->PB[Oct]);
+      bn_an[HOMmax+Sext].push_back(Cell[k].Elem.M->PB[HOMmax+Sext]);
+      Cell[k].Elem.M->PB[HOMmax+Sext] = 0e0;
     }
   }
+  printf("\nparam_data_type::zero_mult: zeroed %d sextupoles.\n",
+	 (int)bn_an[HOMmax+Sext].size());
 }
 
 
 void param_data_type::restore_mult(void)
 {
-  auto k = 0;
+  double b_n;
 
+  auto k = 0;
   for (auto j = 0; j <= globval.Cell_nLoc; j++) {
     if (Cell[j].Elem.Pkind == Mpole) {
-      Cell[j].Elem.M->PB[Sext] = bn_an[k][Sext];
-      Cell[j].Elem.M->PB[Oct] = bn_an[k][Oct];
+      Cell[j].Elem.M->PB[HOMmax+Sext] = bn_an[HOMmax+Sext][k];
+      k++;
     }
   }
+  printf("\nparam_data_type::restore_mult:restored %d sextupoles.\n",
+	 (int)bn_an[HOMmax+Sext].size());
 }
 
 
@@ -2427,13 +2434,10 @@ bool param_data_type::CorrectCOD_N(const int n_orbit, const int k)
 }
 
 
-void param_data_type::ini_COD_corr(const int n_bpm_Fam,
-				   const std::string bpm_names[],
-				   const int n_hcorr_Fam,
-				   const std::string hcorr_names[],
-				   const int n_vcorr_Fam,
-				   const std::string vcorr_names[],
-				   const bool svd)
+void param_data_type::ini_COD_corr
+(const int n_bpm_Fam, const std::string bpm_names[],const int n_hcorr_Fam,
+ const std::string hcorr_names[], const int n_vcorr_Fam,
+ const std::string vcorr_names[], const bool svd)
 {
   int i, j, Fnum, n_bpm, n_hcorr, n_vcorr;
 
@@ -2486,24 +2490,26 @@ void param_data_type::ini_COD_corr(const int n_bpm_Fam,
 }
 
 
-bool param_data_type::cod_corr(const int n_cell, const double scl,
-			       const double h_maxkick, const double v_maxkick,
-			       orb_corr_type orb_corr[])
+bool param_data_type::cod_corr
+(const int n_cell, const double scl, const double h_maxkick,
+ const double v_maxkick, orb_corr_type orb_corr[])
 {
   bool            cod = false;
   long int        lastpos;
   double          m_dbeta[2], s_dbeta[2], m_dnu[2], s_dnu[2];
   ss_vect<double> ps;
 
-  orb_corr[X_].clr_trims(); orb_corr[Y_].clr_trims();
+  orb_corr[X_].clr_trims();
+  orb_corr[Y_].clr_trims();
+
+  zero_mult();
 
   cod = getcod(0e0, lastpos);
-  if (trace) printf("\ncod_corr: %d\n", cod);
+  printf("\nparam_data_type::cod_corr: %d\n", cod);
 
-  if (!false || !cod) {
-    printf("\ncould not find closed orbit; threading beam\n");
-    if (trace)
-      printf("param_data_type::cod_corr: n_cell = %d loc_Fam_name = \"%s\"\n",
+  if (!cod) {
+    printf("  could not find closed orbit; threading beam\n");
+      printf("  param_data_type::cod_corr: n_cell = %d loc_Fam_name = \"%s\"\n",
 	     n_cell, loc_Fam_name.c_str());
 
     orb_corr[X_].clr_trims(); orb_corr[Y_].clr_trims();
@@ -2514,6 +2520,8 @@ bool param_data_type::cod_corr(const int n_cell, const double scl,
 
   cod = cod_correct(n_orbit, scl, orb_corr);
   
+  restore_mult();
+
   get_dbeta_dnu(m_dbeta, s_dbeta, m_dnu, s_dnu);
   printf("\ncod_corr: rms dbeta_x/beta_x = %4.2f%%"
 	 ",   dbeta_y/beta_y = %4.2f%%\n",
@@ -2637,15 +2645,18 @@ void param_data_type::err_and_corr_init(const string &param_file,
 
   long i;
   
-  globval.Cavity_on   = false; globval.radiation = false;
+  globval.Cavity_on   = false;
+  globval.radiation   = false;
   globval.Aperture_on = false;
 
   get_param(param_file);
 
-  Ring_GetTwiss(true, 0.0); printglob();
+  Ring_GetTwiss(true, 0.0);
+  printglob();
 
   // Fit tunes to TuneX and TuneY
   if (TuneX*TuneY > 0) {
+    printf("\nparam_data_type::err_and_corr_init: fitting nu.\n");
     dk=1e-3;
     nq[0]=nq[1]=0;
     nu[0]=TuneX;
@@ -2676,6 +2687,7 @@ void param_data_type::err_and_corr_init(const string &param_file,
 
   // Fit chromaticities to ChromX and ChromY
   if (ChromX*ChromY < 1e6) {
+    printf("\nparam_data_type::err_and_corr_init: fitting chi^(1)\n");
     dks=1e-3;
     ns[0]=ns[1]=0;
     si[0]=ChromX;

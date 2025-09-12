@@ -14,7 +14,7 @@ const char skew_FileName[]      = "skew";
 const char eta_y_FileName[]     = "eta_y";
 const char deta_y_FileName[]    = "deta_y.out";
 
-const int n_b2_max    = 1500;  // max no of quad corrector families
+const int n_b2_max    = 1500; // max no of quad corrector families
 const int n_b3_max    = 1500; // max no of sextupoles
 const int max_ID_Fams = 25;   // max no of ID families
 
@@ -38,25 +38,25 @@ class param_data_type {
              HCM_per_scell,
              VCM_per_scell;
 
-  static double kick;   // 0.01 mrad kick for trims
+  static double kick;      // 0.01 mrad kick for trims
   static double h_maxkick; // Default 1 mrad
   static double v_maxkick; // Default 1 mrad
-  static double h_cut;  // weigthing factor cut (Default 1.0e-4)
-  static double v_cut;  // weigthing factor cut (Default 1.0e-4)
-  static int    n_stat; // number of statistics
-  static int    n_meth; // machine errors (0=standard,1=cormisal)
+  static double h_cut;     // weigthing factor cut (Default 1.0e-4)
+  static double v_cut;     // weigthing factor cut (Default 1.0e-4)
+  static int    n_stat;    // number of statistics
+  static int    n_meth;    // machine errors (0=standard,1=cormisal)
   
   int h_corr[max_corr], v_corr[max_corr], bpm_loc[max_bpm];
 
-  std::vector<double> bn_an[HOMmax+HOMmax+1];
+  std::vector<double> bn_an[2*HOMmax+1];
 
-  static double VDweight, // weight for vertical dispersion
-                HVweight, // weight for coupling Htrim vertical BPM
-                VHweight; // weight for coupling Vtrim horizontal BPM
+  static double VDweight,  // weight for vertical dispersion
+                HVweight,  // weight for coupling Htrim vertical BPM
+                VHweight;  // weight for coupling Vtrim horizontal BPM
   static double disp_wave_y, disp_wave_o, qt_s_cut;
   static int    qt_from_file;
 
-  static double TuneX, // target tunes and chromaticities
+  static double TuneX,     // target tunes and chromaticities
                 TuneY,
                 ChromX,
                 ChromY;

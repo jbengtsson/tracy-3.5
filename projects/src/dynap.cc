@@ -15,7 +15,8 @@ void err_and_corr(const string &param_file)
 
   globval.dPcommon = 1e-10;
 
-  Ring_GetTwiss(true, 0e0); printglob();
+  Ring_GetTwiss(true, 0e0);
+  printglob();
 
   params.err_and_corr_init(param_file, orb_corr);
 
