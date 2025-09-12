@@ -63,9 +63,9 @@ nu_x_max = 58.5
 nu_y_min = 17.0
 nu_y_max = 17.5
 
-x_max = 5.0
-y_max = 5.0
-delta_max = 4.0
+x_max = 6.0
+y_max = 3.0
+delta_max = 6.0
 
 set grid
 
