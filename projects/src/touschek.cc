@@ -46,7 +46,7 @@ void err_and_corr(const string &param_file)
     if (params.bba) params.Align_BPMs(Quad, -1e0, -1e0, -1e0);
 
     cod = params.cod_corr(params.n_cell, 1e0, params.h_maxkick,
-			  params.v_maxkick, params.n_bits, orb_corr);
+			  params.v_maxkick, orb_corr);
   } else
     cod = getcod(0e0, lastpos);
 

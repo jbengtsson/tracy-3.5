@@ -45,9 +45,10 @@ class param_data_type {
   static double v_cut;  // weigthing factor cut (Default 1.0e-4)
   static int    n_stat; // number of statistics
   static int    n_meth; // machine errors (0=standard,1=cormisal)
-  static int    n_bits; // PS resolution in amplitude in number of bits. 
   
   int h_corr[max_corr], v_corr[max_corr], bpm_loc[max_bpm];
+
+  std::vector<double> bn_an[HOMmax+HOMmax+1];
 
   static double VDweight, // weight for vertical dispersion
                 HVweight, // weight for coupling Htrim vertical BPM
@@ -173,7 +174,8 @@ class param_data_type {
   void LoadFieldErr(const bool Scale_it, const double Scale,
 		    const bool new_rnd) const;
   void LoadApers(const double scl_x, const double scl_y) const;
-
+  void zero_mult(void);
+  void restore_mult(void);
   void Align_BPMs(const int n, const double bdxrms, const double bdzrms,
 		  const double bdarms) const;
   bool CorrectCOD_N(const int n_orbit, const int k);
@@ -183,8 +185,7 @@ class param_data_type {
 		    const bool svd);
 
   bool cod_corr(const int n_cell, const double scl, const double h_maxkick,
-		const double v_maxkick, const long n_bits,
-		orb_corr_type orb_corr[]);
+		const double v_maxkick, orb_corr_type orb_corr[]);
 
   void Orb_and_Trim_Stat(orb_corr_type orb_corr[]);
 

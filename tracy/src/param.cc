@@ -1,4 +1,6 @@
 
+// Define static variables.
+
 bool        param_data_type::DA_bare      = false;
 bool        param_data_type::freq_map     = false;
 int         param_data_type::n_orbit      = 5;
@@ -20,7 +22,8 @@ double param_data_type::h_cut      = 1.0e-4;
 double param_data_type::v_cut      = 1.0e-4;
 int    param_data_type::n_stat     = 1;
 int    param_data_type::n_meth     = 0;
-int    param_data_type::n_bits     = 20;
+
+std::vector<double> bn_an[HOMmax+HOMmax+1];
 
 double param_data_type::ID_s_cut    = 1e1;
   
@@ -694,8 +697,6 @@ void param_data_type::get_param(const string &param_file)
 	sscanf(line, "%*s %d", &n_stat);
         else if (strcmp("n_meth", name) == 0)
 	sscanf(line, "%*s %d", &n_meth);
-        else if (strcmp("n_bits", name) == 0)
-	sscanf(line, "%*s %d", &n_bits);
         else if (strcmp("h_maxkick", name) == 0)
 	sscanf(line, "%*s %lf", &h_maxkick);
         else if (strcmp("v_maxkick", name) == 0)
@@ -2353,6 +2354,32 @@ void param_data_type::Align_BPMs(const int n, const double bdxrms,
 }
 
 
+void param_data_type::zero_mult(void)
+{
+  bn_an[Sext].clear();
+  bn_an[Oct].clear();
+  for (auto k = 0; k <= globval.Cell_nLoc; k++) {
+    if (Cell[k].Elem.Pkind == Mpole) {
+      bn_an[Sext].push_back(Cell[k].Elem.M->PB[Sext]);
+      bn_an[Oct].push_back(Cell[k].Elem.M->PB[Oct]);
+    }
+  }
+}
+
+
+void param_data_type::restore_mult(void)
+{
+  auto k = 0;
+
+  for (auto j = 0; j <= globval.Cell_nLoc; j++) {
+    if (Cell[j].Elem.Pkind == Mpole) {
+      Cell[j].Elem.M->PB[Sext] = bn_an[k][Sext];
+      Cell[j].Elem.M->PB[Oct] = bn_an[k][Oct];
+    }
+  }
+}
+
+
 bool param_data_type::CorrectCOD_N(const int n_orbit, const int k)
 {
   bool     cod = false;
@@ -2380,7 +2407,11 @@ bool param_data_type::CorrectCOD_N(const int n_orbit, const int k)
 
     // get_traject();
     
+    zero_mult();
+
     cod = CorrectCOD(n_orbit, 1e0);
+
+    restore_mult();
 
     if (!cod) break;
 
@@ -2457,7 +2488,7 @@ void param_data_type::ini_COD_corr(const int n_bpm_Fam,
 
 bool param_data_type::cod_corr(const int n_cell, const double scl,
 			       const double h_maxkick, const double v_maxkick,
-			       const long n_bits, orb_corr_type orb_corr[])
+			       orb_corr_type orb_corr[])
 {
   bool            cod = false;
   long int        lastpos;

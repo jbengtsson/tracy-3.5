@@ -299,7 +299,7 @@ void DA_data_type::get_DA_real(param_data_type &params,
         params.Align_BPMs(Sext, bdxrms, bdzrms, bdarms);
       }
       cod = params.cod_corr(n_cell, 1e0, params.h_maxkick, params.v_maxkick,
-			    params.n_bits, orb_corr);
+			    orb_corr);
     } else
       cod = getcod(0e0, lastpos);
 
@@ -308,7 +308,7 @@ void DA_data_type::get_DA_real(param_data_type &params,
     if (params.N_calls > 0) {
       params.ID_corr(params.N_calls, params.N_steps, false, j);
       cod = params.cod_corr(n_cell, 1e0, params.h_maxkick, params.v_maxkick,
-			    params.n_bits, orb_corr);
+			    orb_corr);
     }
 
     params.Orb_and_Trim_Stat(orb_corr);
@@ -337,7 +337,7 @@ void DA_data_type::get_DA_real(param_data_type &params,
 	if (params.N_calls > 0) {
 	  params.ID_corr(params.N_calls, params.N_steps, false, j);
 	  params.cod_corr(n_cell, 1e0, params.h_maxkick, params.v_maxkick,
-			  params.n_bits, orb_corr);
+			  orb_corr);
 	}
  	Ring_GetTwiss(true, 0.0); printglob();
 	GetEmittance(ElemIndex("cav"), false, true);
