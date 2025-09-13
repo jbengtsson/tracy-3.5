@@ -804,6 +804,11 @@ void param_data_type::get_param(const string &param_file)
 	    exit(1);
 	  }
 	}
+	if (trace) {
+	  printf("\nID_quads:\n");
+	  for (auto k = 0; k < N_Fam; k++)
+	    printf("  %10d\n", Q_Fam[k]);
+	}
       } else if (strcmp("ID_s_cut", name) == 0)
 	sscanf(line, "%*s %le", &ID_s_cut);
       else {
@@ -1814,7 +1819,8 @@ void param_data_type::ini_ID_corr(const bool IDs)
 
   // shift zero point to center of ID
 //  nu_0[X_] = Cell[id_loc].Nu[X_]; nu_0[Y_] = Cell[id_loc].Nu[Y_];
-  nu_0[X_] = 0.0; nu_0[Y_] = 0.0;
+  nu_0[X_] = 0.0;
+  nu_0[Y_] = 0.0;
 
   // Defining undisturbed tunes
   Nu_X0 = globval.TotalTune[X_]; Nu_Y0 = globval.TotalTune[Y_];
@@ -2366,7 +2372,7 @@ void param_data_type::zero_mult(void)
       Cell[k].Elem.M->PB[HOMmax+Sext] = 0e0;
     }
   }
-  printf("\nparam_data_type::zero_mult: zeroed %d sextupoles.\n",
+  printf("\nparam_data_type::zero_mult: zeroed b_3 for %d multipoles.\n",
 	 (int)bn_an[HOMmax+Sext].size());
 }
 
@@ -2382,7 +2388,7 @@ void param_data_type::restore_mult(void)
       k++;
     }
   }
-  printf("\nparam_data_type::restore_mult:restored %d sextupoles.\n",
+  printf("\nparam_data_type::restore_mult:restored b_3 for %d multiupoles.\n",
 	 (int)bn_an[HOMmax+Sext].size());
 }
 
