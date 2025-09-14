@@ -1734,13 +1734,13 @@ void param_data_type::A_matrix(void)
 
   if (trace) {
     outf = file_write(file_name.c_str());
-    printf("\n");
-    printf("AA:\n");
-    printf("\n");
+    fprintf(outf, "\n");
+    fprintf(outf, "AA:\n");
+    fprintf(outf, "\n");
     for (k = 1; k <= Nconstr; k++) {
       for (j = 1; j <= Nquad; j++)
-	printf(" %10.3e", A1[k][j]);
-      printf("\n");
+	fprintf(outf, " %10.3e", A1[k][j]);
+      fprintf(outf, "\n");
     }
     fclose(outf);
   }
