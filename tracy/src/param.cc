@@ -1696,8 +1696,11 @@ double param_data_type::Nus(double bq, double nus, double nuq, double NuQ)
 
 void param_data_type::A_matrix(void)
 {
+  const string file_name = "AA.dat";
+
   int    k, j;
   double BtX, BtY, NuX, NuY;
+  FILE   *outf;
 
   // Defining Twiss in undisturbed quads
   for (k = 0; k < Nquad; k++)
@@ -1730,6 +1733,7 @@ void param_data_type::A_matrix(void)
   }
 
   if (trace) {
+    outf = file_write(file_name.c_str());
     printf("\n");
     printf("AA:\n");
     printf("\n");
@@ -1738,6 +1742,7 @@ void param_data_type::A_matrix(void)
 	printf(" %10.3e", A1[k][j]);
       printf("\n");
     }
+    fclose(outf);
   }
 }
 
