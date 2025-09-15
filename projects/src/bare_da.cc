@@ -5,7 +5,7 @@
 int no_tps = NO;
 
 const int    n_turn    = 2064;
-const double delta_max = 2e-2;
+const double delta_max = 4e-2;
 
 
 int main(int argc, char *argv[])
