@@ -1,16 +1,16 @@
 #!/bin/sh
 
 prm1=${1:-""}
-prm2=${2:-20}
-prm3=${3:-0}
+prm2=${2:-0}
+prm3=${3:-20}
 prm4=${4:-1}
 prm5=${5:-1}
 
 gnuplot << EOP
 
 home_dir = "$prm1"
-N        = $prm2
-ps       = $prm3
+ps       = $prm2
+N        = $prm3
 case     = $prm4
 scale    = $prm5
 
@@ -48,14 +48,16 @@ if (ps == 0) {
 #       [0,   0.5]   1
 #       [0.5, 1.0]  -1, int(nu) = nu + 1.
 
-sgn_x = 1
-sgn_y = 1
 if ((N == 1) && (case == 1)) {
   N_x = 58
   N_y = 17
+  sgn_x = 1
+  sgn_y = 1
 } else if ((N == 20) && (case == 1)) {
   N_x = 3
   N_y = 1
+  sgn_x = -1
+  sgn_y = -1
 }
 
 nu_x_min = 58.0
