@@ -751,31 +751,14 @@ void fit_nu_jb_2(const double nu_x, const double nu_y)
 
 void fit_xi_jb_2(const double xi_x, const double xi_y)
 {
-  const int lat = 3;
-
   std::vector<int> Fnum;
 
-  switch (lat) {
-  case 0:
-    Fnum.push_back(ElemIndex("sf_h"));
-    Fnum.push_back(ElemIndex("sd1"));
-    break;
-  case 1:
-    Fnum.push_back(ElemIndex("s3"));
-    Fnum.push_back(ElemIndex("s4"));
-    break;
-  case 2:
-    Fnum.push_back(ElemIndex("s3_f1"));
-    Fnum.push_back(ElemIndex("s4_f1"));
-    break;
-  case 3:
-    // Fnum.push_back(ElemIndex("s1_h2"));
-    // Fnum.push_back(ElemIndex("s2_h2"));
-    Fnum.push_back(ElemIndex("s3_h2"));
-    Fnum.push_back(ElemIndex("s4_h2"));
-    break;
-  }
-  fit_xi_jb(Fnum, 0e0, 0e0, 1e0);
+  // Fnum.push_back(ElemIndex("s1_h2"));
+  // Fnum.push_back(ElemIndex("s2_h2"));
+  Fnum.push_back(ElemIndex("s3_h2"));
+  Fnum.push_back(ElemIndex("s4_h2"));
+
+  fit_xi_jb(Fnum, xi_x, xi_y, 1e0);
   Ring_GetTwiss(true, 0e0);
   printglob();
 }
@@ -844,6 +827,7 @@ void get_b_2_tol(const double db_2_rms, const int n_aper, const int n_track)
   set_bnr_rms_type(Dip,  Quad, db_2_rms, 0e0, true);
   set_bnr_rms_type(Quad, Quad, db_2_rms, 0e0, true);
 
+  str.clear();
   str << scientific << setprecision(2) << file_name_2 << "_"
       << setw(8) << db_2_rms << ".dat";
   prtmfile(str.str().c_str());
@@ -936,7 +920,12 @@ int main(int argc, char *argv[])
     fit_nu_jb_2(nu[X_]-globval.TotalTune[X_],
 		nu[Y_]-globval.TotalTune[Y_]);
 
-  if (fit_xi) fit_xi_jb_2(0e0, 0e0);
+  if (fit_xi) {
+    if (!true)
+      fit_xi_jb_2(0e0, 0e0);
+    else
+      fit_xi_jb_2(2e0/20e0, 2e0/20e0);
+  }
 
   if (ps_rot) {
     // A 1/2 ps_rot at the entrance & exit of the super period for a symmetric
