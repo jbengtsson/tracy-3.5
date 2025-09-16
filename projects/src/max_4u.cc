@@ -827,10 +827,13 @@ void get_b_2_tol(const double db_2_rms, const int n_aper, const int n_track)
   set_bnr_rms_type(Dip,  Quad, db_2_rms, 0e0, true);
   set_bnr_rms_type(Quad, Quad, db_2_rms, 0e0, true);
 
-  str.clear();
-  str << scientific << setprecision(2) << file_name_2 << "_"
-      << setw(8) << db_2_rms << ".dat";
-  prtmfile(str.str().c_str());
+  if (false) {
+    str.str("");
+    str.clear();
+    str << scientific << setprecision(2) << file_name_2 << "_"
+	<< setw(8) << db_2_rms << ".dat";
+    prtmfile(str.str().c_str());
+  }
 
   dynap(fp, r_0, delta, dr, n_aper, n_track, x_aper, y_aper, Floq_space, cod,
 	prt);
