@@ -1,12 +1,14 @@
 #!/bin/sh
 
-prm1=${1:-0}
-prm2=${2:-"linlat"}
+prm1=${1:-""}
+prm2=${2:-0}
 
 gnuplot << EOP
 
-ps        = $prm1
-file_name = "$prm2"
+home_dir = "$prm1"
+ps       = $prm2
+
+file_name = home_dir."linlat"
 
 f_s = 14
 l_w = 2

@@ -8,8 +8,8 @@ gnuplot << EOP
 home_dir = "$prm1"
 ps       = $prm2
 
-file_name = home_dir."mom_aper.out"
-# file_name = home_dir."touschek.out"
+# file_name = home_dir."mom_aper.out"
+file_name = home_dir."touschek.out"
 
 f_s = 14
 l_w = 2
