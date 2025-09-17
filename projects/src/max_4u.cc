@@ -16,7 +16,7 @@ const bool
   chk_dnu       = false,  // Requires super period.
   comp_H_long   = false,
   Deta          = false,
-  get_tol       = false;
+  get_tol       = !false;
 
 const int
   n_aper  = 25,
@@ -350,7 +350,7 @@ void chk_mpole_Fam(const int Fnum)
 {
   // Assumes that the multipoles are split in halfs - i.e., to obtain the
   // linear optics at the centre.
-  int    n_Kid, loc;
+  int    loc;
   double dnu[2], dnu_0[2];
 
   printf("\n   name        s    beta_x*eta_x  beta_y* eta_x"
@@ -780,22 +780,19 @@ void compute_beta_beat(const std::vector<std::vector<double>> &beta_ref)
   }
   for (auto k = 0; k < 2; k++) {
     mean[k] = sum[k]/n;
-    if (n*sum_2[k]-sqr(sum[k]) >= 0e0)
-      sigma[k] = sqrt((n*sum_2[k]-sqr(sum[k]))/(n*(n-1e0)));
-    else
-      sigma[k] = 0e0;
+    sigma[k] = (n*sum_2[k]-sqr(sum[k]) >= 0e0)?
+      sqrt((n*sum_2[k]-sqr(sum[k]))/(n*(n-1e0))) : 0e0;
   }
 
-  printf("beta-beat: mean = [%10.3e, %10.3e] sigma = [%9.3e, %9.3e]\n",
-	 mean[X_], mean[Y_], sigma[X_], sigma[Y_]);
+  printf("beta-beat [%%] = [%6.3f +/- %5.3f, %6.3f +/- %5.3f]\n",
+	 1e2*mean[X_], 1e2*sigma[X_], 1e2*mean[Y_], 1e2*sigma[Y_]);
 }
 
 
 void get_b_2_tol(const double db_2_rms, const int n_aper, const int n_track)
 {
   const string
-    file_name_1 = "dynap",
-    file_name_2 = "dynap";
+    file_name  = "dynap";
   const bool
     Floq_space = false,
     cod        = true,
@@ -820,7 +817,7 @@ void get_b_2_tol(const double db_2_rms, const int n_aper, const int n_track)
 
   globval.Cavity_on = true;
 
-  str << scientific << setprecision(2) << file_name_1 << "_"
+  str << scientific << setprecision(2) << file_name << "_"
       << setw(8) << db_2_rms << ".out";
   fp = file_write(str.str().c_str());
 
@@ -830,7 +827,7 @@ void get_b_2_tol(const double db_2_rms, const int n_aper, const int n_track)
   if (false) {
     str.str("");
     str.clear();
-    str << scientific << setprecision(2) << file_name_2 << "_"
+    str << scientific << setprecision(2) << file_name << "_"
 	<< setw(8) << db_2_rms << ".dat";
     prtmfile(str.str().c_str());
   }
@@ -839,7 +836,7 @@ void get_b_2_tol(const double db_2_rms, const int n_aper, const int n_track)
 	prt);
   fclose(fp);
   DA = get_aper(n_aper, x_aper, y_aper);
-  printf("db_2_rms = %8.2e DA = %9.3e [mm^2] ", db_2_rms, 1e6*DA);
+  printf("db_2_rms = %8.2e DA [mm^2] = %8.2e ", db_2_rms, 1e6*DA);
   compute_beta_beat(beta_ref);
 
   globval.Cavity_on = false;
@@ -988,8 +985,6 @@ int main(int argc, char *argv[])
       get_b_2_tol(2.50e-3, n_aper, n_track);
     }
 
-    set_bnr_rms_type(Dip,  Quad, 2.50e-3, 0e0, true);
-    set_bnr_rms_type(Quad, Quad, 2.50e-3, 0e0, true);
     Ring_GetTwiss(true, 0e0);
     prt_lat("linlat1.out", globval.bpm, true);
     prt_lat("linlat.out", globval.bpm, true, 10);
