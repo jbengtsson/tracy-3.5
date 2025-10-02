@@ -14,9 +14,9 @@ const bool
   ps_rot        = false,
   chk_mpole_sym = false,  // Requires super period.
   chk_dnu       = false,  // Requires super period.
-  comp_H_long   = false,
+  comp_H_long   = !false,
   Deta          = false,
-  get_tol       = !false;
+  get_tol       = false;
 
 const int
   n_aper  = 25,
@@ -501,17 +501,23 @@ void compute_alpha_bucket()
   alpha_c = compute_alpha_c();
   printf("\n  alphac    = %10.3e %+10.3e*delta %+10.3e*delta^2\n",
 	 alpha_c[1], alpha_c[2], alpha_c[3]);
-  printf("  RF alpha bucket [%%] = [%3.1f, %3.1f]\n",
-	 1e2*alpha_c[1]/(2e0*alpha_c[2]), -1e2*alpha_c[1]/alpha_c[2]);
+  printf("  RF alpha bucket to 2nd order [%%]      = [%5.1f, %5.1f]\n",
+	 -1e2*alpha_c[1]/alpha_c[2], 1e2*alpha_c[1]/(2e0*alpha_c[2]));
+
+  printf("  Unstable fixet point to 3rd order [%%] =  %5.1f\n",
+	 -1e2*alpha_c[2]/(2e0*alpha_c[3])*
+	 (1e0-sqrt(1e0-4e0*alpha_c[1]*alpha_c[3]/sqr(alpha_c[2]))));
+
+  printf("  Shift due to alpha^(3)_c [%%] = [%5.1f, %5.1f]\n",
+	 1e2*cube(alpha_c[1]/alpha_c[2])*alpha_c[3],
+	 -1e2*sqr(alpha_c[1])*alpha_c[3]/(48e0*cube(alpha_c[2])));
 }
 
 
 double H_long
 (const double phi, const double delta, const int h_rf, const double V_rf,
- const double phi_0, const psVector &alpha_c)
+ const double phi_0, const psVector &alpha_c, const int n_alpha_c)
 {
-  const int
-    n_alpha_c = 3;
   const double
     E_0 = 1e9*globval.Energy;
 
@@ -526,7 +532,7 @@ double H_long
 
 void prt_H_long
 (const string &cav_name, const int n, const double phi_max,
- const double delta_max, const bool neg_alpha_c)
+ const double delta_max, const int n_alpha_c, const bool neg_alpha_c)
 {
   const string
     file_name = "H_long.dat";
@@ -561,7 +567,7 @@ void prt_H_long
     for (auto j = -n; j <= n ; j++) {
       phi = i*phi_max*M_PI/(n*180e0);
       delta = j*delta_max/n;
-      H = H_long(phi, delta, h_RF, V_RF, M_PI+phi_0, alpha_c);
+      H = H_long(phi, delta, h_RF, V_RF, M_PI+phi_0, alpha_c, n_alpha_c);
       fprintf(outf, "  %8.2f %10.5f, %13.5e\n", phi*180e0/M_PI, 1e2*delta, H);
     }
     fprintf(outf, "\n");
@@ -869,7 +875,7 @@ int main(int argc, char *argv[])
   iniranf(seed);
   setrancut(1.0);
 
-  reverse_elem = !false;
+  reverse_elem = false;
 
   globval.mat_meth = false;
 
@@ -954,7 +960,7 @@ int main(int argc, char *argv[])
       get_eps_x(eps_x, sigma_delta, U_0, J, tau, I, true);
 
     if (comp_H_long)
-      prt_H_long("cav", 25, 180e0, 10e-2, false);
+      prt_H_long("cav", 25, 180e0, 15e-2, 3, false);
   }
 
   if (false) {
