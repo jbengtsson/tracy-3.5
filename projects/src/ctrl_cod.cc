@@ -79,9 +79,9 @@ void config_cod(param_data_type &prms)
   const int n_bpm_Fam = 1, n_hcorr_Fam = 1, n_vcorr_Fam = 1;
 
   const std::string
-    bpm_names[n_bpm_Fam]     = {"mon"},
-    hcorr_names[n_hcorr_Fam] = {"ch"},
-    vcorr_names[n_vcorr_Fam] = {"cv"};
+    bpm_names[n_bpm_Fam]     = {"bpm"},
+    hcorr_names[n_hcorr_Fam] = {"corrh"},
+    vcorr_names[n_vcorr_Fam] = {"corrv"};
 
   prms.ini_COD_corr(n_bpm_Fam, bpm_names, n_hcorr_Fam, hcorr_names, n_vcorr_Fam,
 		    vcorr_names, true);
@@ -93,9 +93,9 @@ void config_cod(param_data_type &prms)
 void chk_cod_corr(const double dx_rms, const double dy_rms, const int seed,
 		  const int n_seed)
 {
-  param_data_type prms;
-
   const double dxy_rms[] = {dx_rms, dy_rms};
+
+  param_data_type prms;
 
   iniranf(seed);
   setrancut(1e0);
