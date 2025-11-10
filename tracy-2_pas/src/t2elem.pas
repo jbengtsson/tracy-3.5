@@ -1056,84 +1056,84 @@
       GtoL(x, dS, dT, Pc0, Pc1, Ps1);
       case Pmethod of
         Meth_Linear, Meth_First:
-	  begin { Tracy integrator }
-	    if Pthick = thick then
-	    begin
+          begin { Tracy integrator }
+            if Pthick = thick then
+            begin
               { thick element }
               { First Linear  }
-	      LinTrans(5, AU55, x);
-	      k := PB[quad]; PB[quad] := 0;
-	      { Kick }
-	      thinkick(Porder, PB, PL, 0, pthick, x);
-	      PB[quad] := k;
+              LinTrans(5, AU55, x);
+              k := PB[quad]; PB[quad] := 0;
+              { Kick }
+              thinkick(Porder, PB, PL, 0, pthick, x);
+              PB[quad] := k;
               { Second Linear }
-	      LinTrans(5, AD55, x);
+              LinTrans(5, AD55, x);
             end
-	    else
-	    begin
+            else
+            begin
               { thin kick }
               { Kick }
-	      thinkick(Porder, PB, 1, 0, pthick, x);
+              thinkick(Porder, PB, 1, 0, pthick, x);
             end;
             { Save Beam Pos }
             CopyVec(5, x, BeamPos);
           end;
         Meth_Second:
-	  begin { second order integrator }
+          begin { second order integrator }
             if Pthick = thick then
-	    begin
+            begin
               { thick element }
               if (PTx1 <> 0.0) or (Pgap <> 0.0) then
-		EdgeFocus(Pirho, PTx1, Pgap, x);
+                EdgeFocus(Pirho, PTx1, Pgap, x);
               L := PL/PN; L1 := 0.5*L; D1 := 0.5*L/(1+x[5]);
               for seg := 1 to PN do
               begin 
                 Drft(L1, D1, x);
                 thinkick(Porder, PB, L, Pirho, pthick, x);
-		if globval.radiation then D1 := 0.5*L/(1+x[5]);
+                if globval.radiation then D1 := 0.5*L/(1+x[5]);
                 Drft(L1, D1, x);
               end;
               if (PTx2 <> 0.0) or (Pgap <> 0.0) then
-		EdgeFocus(Pirho, PTx2, Pgap, x);
+                EdgeFocus(Pirho, PTx2, Pgap, x);
             end
-	    else
-	    begin
+            else
+            begin
               { thin kick }
-	      thinkick(Porder, PB, 1, 0, pthick, x);
+              thinkick(Porder, PB, 1, 0, pthick, x);
             end;
             { Save Beam Pos }
             CopyVec(6, x, BeamPos);
           end;
         Meth_Fourth:
-	  begin { 4-th order integrator }
+          begin { 4-th order integrator }
             if Pthick = thick then
-	    begin
+            begin
               { thick element }
               if (PTx1 <> 0.0) or (Pgap <> 0.0) then
-		EdgeFocus(Pirho, PTx1, Pgap, x);
+                EdgeFocus(Pirho, PTx1, Pgap, x);
               L  := PL/PN; L1 := Fdrift1*L; L2 := Fdrift2*L;
               D1 := Fdrift1*L/(1+x[5]); D2 := Fdrift2*L/(1+x[5]);
-	      K1 := Fkick1*L; K2 := Fkick2*L;
+              K1 := Fkick1*L; K2 := Fkick2*L;
               for seg := 1 to PN do
               begin 
                 Drft(L1, D1, x);
                 thinkick(Porder, PB, K1, Pirho, pthick, x);
-		if globval.radiation then D2 := fdrift2*L/(1+x[5]);
+                if globval.radiation then D2 := fdrift2*L/(1+x[5]);
                 Drft(L2, D2, x);
                 thinkick(Porder, PB, K2, Pirho, pthick, x);
-		if globval.radiation then D2 := fdrift2*L/(1+x[5]);
+                if globval.radiation then D2 := fdrift2*L/(1+x[5]);
                 Drft(L2, D2, x);
                 thinkick(Porder, PB, K1, Pirho, pthick, x);
-		if globval.radiation then D1 := fdrift1*L/(1+x[5]);
+                if globval.radiation then D1 := fdrift1*L/(1+x[5]);
                 Drft(L1, D1, x);
               end;
               if (PTx2 <> 0.0) or (Pgap <> 0.0) then
-		EdgeFocus(Pirho, PTx2, Pgap, x);
+                EdgeFocus(Pirho, PTx2, Pgap, x);
             end
-	    else
-	    begin
+            else
+            begin
               { thin kick }
-	      thinkick(Porder, PB, 1, 0, pthick, x);
+              thinkick(Porder, PB, 1, 0, pthick, x);
             end;
             { Save Beam Pos }
             CopyVec(6, x, BeamPos);
