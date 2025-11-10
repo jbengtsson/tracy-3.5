@@ -100,11 +100,11 @@ c     first order symplectic integrator for wiggler using expanded Hamiltonian
 
         if (radia .eq. 1) then
           xp = x(2)/dp
-	  yp = x(4)/dp
-	  B(1) = -AyoBrho(3)
-	  B(2) =  AxoBrho(3)
-	  B(3) = AyoBrho(1)-AxoBrho(2)
-	  B2 = B2perp(0d0, B, x, xp, yp)
+          yp = x(4)/dp
+          B(1) = -AyoBrho(3)
+          B(2) =  AxoBrho(3)
+          B(3) = AyoBrho(1)-AxoBrho(2)
+          B2 = B2perp(0d0, B, x, xp, yp)
 
           xf(5) = - crad*dp**2*B2*(1d0+(xp**2+yp**2)/2d0)
 
