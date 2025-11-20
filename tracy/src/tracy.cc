@@ -38,6 +38,7 @@
 
 #include "prtmfile.cc"
 #include "rdmfile.cc"
+#include "rdmfile_new.cc"
 
 #include "fft.cc"
 
