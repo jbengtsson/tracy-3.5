@@ -14,9 +14,6 @@ case     = $prm3
 ps       = $prm4
 pert     = $prm5
 
-# BESSY-III  1,
-# BESSY-II   2.
-
 file1  = (home_dir)."dnu_dAx.out"
 file12 = (home_dir)."dnu_dAx_pert.out"
 file2  = (home_dir)."dnu_dAy.out"
@@ -43,9 +40,13 @@ else if (ps == 4) \
 
 if ((N == 1) && (case == 1)) \
   N_x = 51; N_y = 22; \
+else if ((N == 1) && (case == 2)) \
+  N_x = 28; N_y = 3; \
 else if ((N == 20) && (case == 1)) \
   N_x = 2; N_y = 0; \
 else if ((N == 20) && (case == 2)) \
+  N_x = 2; N_y = 0; \
+else if ((N == 13) && (case == 1)) \
   N_x = 2; N_y = 0; \
 else if ((N == 2) && (case == 1)) \
   N_x = 6; N_y = 2; \
