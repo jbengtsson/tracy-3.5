@@ -8,7 +8,6 @@
 
    Element propagators.                                                      */
 
-bool          first_FM = true;
 double        C_u, C_gamma, C_q, cl_rad, q_fluct, I[6];
 double        c_1, d_1, c_2, d_2;
 double        s_FM;
@@ -17,7 +16,7 @@ CellType      Cell[Cell_nLocMax+1];
 std::ofstream outf_;
 
 // for FieldMap
-bool  sympl             = true;
+bool  sympl             = !true;
 int   FieldMap_filetype = 2;
 
 
@@ -1791,7 +1790,7 @@ void FieldMap_pass_RK(CellType &Cell, ss_vect<T> &ps)
   switch (FieldMap_filetype) {
   case 1:
     break;
-  case 2 ... 5:
+  case 2 ... 6:
     // Transform to right handed system
     ps[x_] = -ps[x_]; ps[px_] = -ps[px_];
     break;
@@ -1810,7 +1809,7 @@ void FieldMap_pass_RK(CellType &Cell, ss_vect<T> &ps)
     outf_ << std::scientific << std::setprecision(3)
 	  << std::setw(5) << 0 << std::setw(11) << s_FM
 	  << std::setw(11) << is_double< ss_vect<T> >::cst(ps) << "\n";
-  for(i = 1+FM->cut; i < FM->n[Z_]-FM->cut; i += n_step) {
+  for (i = 1+FM->cut; i < FM->n[Z_]-FM->cut; i += n_step) {
     if (i <= FM->n[Z_]-FM->cut-2) {
       f_FM(Cell, z, ps, Dps);
 
@@ -1837,11 +1836,6 @@ void FieldMap_pass_RK(CellType &Cell, ss_vect<T> &ps)
 
       z += h/2e0; FM->Lr += h/2e0; s_FM += h/2e0;
     }
-
-    if (trace)
-      outf_ << std::scientific << std::setprecision(3)
-	    << std::setw(5) << i << std::setw(11) << s_FM
-	    << std::setw(11) << is_double< ss_vect<T> >::cst(ps) << "\n";
   }
 
   // [x, x', y, y', -ct, delta] -> [x, px, y, py, -ct, delta], A_x,y,z = 0.
@@ -1850,7 +1844,7 @@ void FieldMap_pass_RK(CellType &Cell, ss_vect<T> &ps)
   switch (FieldMap_filetype) {
   case 1:
     break;
-  case 2 ... 5:
+  case 2 ... 6:
     // Transform back to left handed system.
     ps[x_] = -ps[x_]; ps[px_] = -ps[px_];
     break;
@@ -1878,13 +1872,12 @@ void FieldMap_pass_SI(CellType &Cell, ss_vect<T> &ps)
   const int    n_step = 2;
   const double d_diff = 1e0;
 
-
   FM = Cell.Elem.FM;
 
   switch (FieldMap_filetype) {
   case 1:
     break;
-  case 2 ... 5:
+  case 2 ... 6:
     // Transform to right handed system
     ps[x_] = -ps[x_]; ps[px_] = -ps[px_];
     break;
@@ -2008,7 +2001,7 @@ void FieldMap_pass_SI(CellType &Cell, ss_vect<T> &ps)
 
     ps1[px_] += AoBrho[1] - AoBrho[0];
 
-    splin2_(FM->x[X_], FM->x[Y_], FM->AoBrho[X_][j], FM->AoBrho2[X_][j],
+   splin2_(FM->x[X_], FM->x[Y_], FM->AoBrho[X_][j], FM->AoBrho2[X_][j],
 	    FM->n[X_], FM->n[Y_], ps[x_], ps[y_]+d_diff*FM->dx[Y_],
 	    dAoBrho[1]);
 
@@ -2154,6 +2147,8 @@ void FieldMap_pass_SI(CellType &Cell, ss_vect<T> &ps)
   }
 
   // Change of gauge
+  if (trace)
+    printf("  19th splin2_\n");
   splin2_(FM->x[X_], FM->x[Y_], FM->AoBrho[X_][j], FM->AoBrho2[X_][j],
 	  FM->n[X_], FM->n[Y_], ps[x_], ps[y_], AoBrho[0]);
 
@@ -2165,6 +2160,8 @@ void FieldMap_pass_SI(CellType &Cell, ss_vect<T> &ps)
 
   ps[px_] -= AoBrho[0];
 
+  if (trace)
+    printf("  20th splin2_\n");
   splin2_(FM->x[X_], FM->x[Y_], FM->AoBrho[Y_][j], FM->AoBrho2[Y_][j],
 	  FM->n[X_], FM->n[Y_], ps[x_], ps[y_], AoBrho[0]);
 
@@ -2179,7 +2176,7 @@ void FieldMap_pass_SI(CellType &Cell, ss_vect<T> &ps)
   switch (FieldMap_filetype) {
   case 1:
     break;
-  case 2 ... 5:
+  case 2 ... 6:
     // Transform back to left handed system.
     ps[x_] = -ps[x_]; ps[px_] = -ps[px_];
     break;
@@ -2220,22 +2217,15 @@ void FieldMap_Pass(CellType &Cell, ss_vect<T> &ps)
   double       Ld;
   FieldMapType *FM;
 
-  if (trace & first_FM) {
-    file_wr(outf_, "FieldMap_pass.dat");
-    s_FM = 0e0;
-    first_FM = false;
-  }
-
   FM = Cell.Elem.FM;
 
 //  GtoL(ps, Cell.dS, Cell.dT, 0e0, 0e0, 0e0);
 
   Ld = (FM->Lr-Cell.Elem.PL)/2e0;
   p_rot(FM->phi/2e0*180e0/M_PI, ps);
-  printf("\nFieldMap_Pass:\n");
-  printf("  phi = %12.5e\n  cut = %12d\n", FM->phi, FM->cut);
-  printf("  entrance negative drift [m] %12.5e\n", -Ld);
-  Drift(-Ld, ps);
+  // printf("  entrance negative drift [m] %12.5e\n", -Ld);
+  // Adjust for L in lattice filed vs. length of field map.
+  // Drift(-Ld, ps);
 
   // n_step: number of Field Map repetitions.
   for (k = 1; k <= FM->n_step; k++) {
@@ -2245,8 +2235,8 @@ void FieldMap_Pass(CellType &Cell, ss_vect<T> &ps)
       FieldMap_pass_RK(Cell, ps);
   }
 
-  printf("  exit negative drift [m]     %12.5e\n", -Ld);
-  Drift(-Ld, ps);
+  // printf("  exit negative drift [m]     %12.5e\n", -Ld);
+  // Drift(-Ld, ps);
   p_rot(FM->phi/2e0*180e0/M_PI, ps);
 
 //  LtoG(ps, Cell.dS, Cell.dT, 0e0, 0e0, 0e0);
@@ -3360,9 +3350,9 @@ void get_B_NSLS_II(const char *filename, FieldMapType *FM)
 	// convert from cm to m
 	FM->x[X_][i] *= 1e-2; FM->x[Y_][j] *= 1e-2; FM->x[Z_][n] *= 1e-2;
 
-	FM->BoBrho[X_][n][i][j] = Brho;
-	FM->BoBrho[Y_][n][i][j] = Brho;
-	FM->BoBrho[Z_][n][i][j] = Brho;
+	FM->BoBrho[X_][n][i][j] /= Brho;
+	FM->BoBrho[Y_][n][i][j] /= Brho;
+	FM->BoBrho[Z_][n][i][j] /= Brho;
 
 	// Compute vector potential (axial gauge) by extended trapezodial rule
  	if (n == 1) {
@@ -3833,6 +3823,154 @@ void get_B_SRW(const char *filename, FieldMapType *FM)
 }
 
 
+void get_B_MAX_IV(const char *filename, FieldMapType *FM)
+{
+  char          line[max_str];
+  int           n;
+  std::ifstream inf;
+
+  const double  Brho = globval.Energy*1e9/c0;
+
+  std::cout << std::endl;
+  std::cout << "get_B_MAX_IV: loading field map: " << filename << std::endl;
+
+  file_rd(inf, filename);
+
+  // Skip 1st line.
+  inf.getline(line, max_str);
+  inf.getline(line, max_str);
+  sscanf(line, "# n_z = %d d_z [mm] = %lf", &FM->n[Z_], &FM->dx[Z_]);
+  FM->dx[Z_] *= 1e-3;
+
+  // Extend field map with constant field for x != 0, y != 0.
+  FM->n[X_]  = 3;
+  FM->n[Y_]  = 3;
+  FM->dx[X_] = 10e-3;
+  FM->dx[Y_] = 5e-3;
+
+  printf("  n_z = %d d_z = %9.3e\n", FM->n[Z_], FM->dx[Z_]);
+
+  FM->x[X_] = dvector(1, FM->n[X_]);
+  FM->x[Y_] = dvector(1, FM->n[Y_]);
+  FM->x[Z_] = dvector(1, FM->n[Z_]);
+
+  FM->x[X_][1] = -FM->dx[X_];
+  FM->x[X_][2] =  0e0;
+  FM->x[X_][3] =  FM->dx[X_];
+  FM->x[Y_][1] = -FM->dx[Y_];
+  FM->x[Y_][2] =  0e0;
+  FM->x[Y_][3] =  FM->dx[Y_];
+
+  FM->BoBrho[X_]  = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+  FM->BoBrho[Y_]  = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+  FM->BoBrho[Z_]  = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+  FM->BoBrho2[X_] = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+  FM->BoBrho2[Y_] = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+  FM->BoBrho2[Z_] = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+
+  FM->AoBrho[X_]  = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+  FM->AoBrho[Y_]  = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+  FM->AoBrho2[X_] = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+  FM->AoBrho2[Y_] = df3tensor(1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+
+  for (auto n = 1; n <= FM->n[Z_]; n++) {
+    inf.getline(line, max_str);
+    sscanf(line, "%lf %lf %lf",
+	   &FM->x[Z_][n], &FM->BoBrho[X_][n][1][1],
+	   &FM->BoBrho[Y_][n][1][1]);
+    // convert from mm to m
+    FM->x[Z_][n] *= 1e-3;
+
+    FM->BoBrho[X_][n][1][1] *= FM->scl/Brho;
+    FM->BoBrho[Y_][n][1][1] *= FM->scl/Brho;
+    FM->BoBrho[Z_][n][1][1]  = 0e0;
+
+    // Planar field extension for x != 0, y != 0.
+    for (auto j = 1; j <= FM->n[X_]; j++) {
+      for (auto k = 1; k <= FM->n[Y_]; k++) {
+	if ((j != 1) || (k != 1)) {
+	  FM->BoBrho[X_][n][j][k] = FM->BoBrho[X_][n][1][1];
+	  FM->BoBrho[Y_][n][j][k] = FM->BoBrho[Y_][n][1][1];
+	}
+      }
+    }
+
+    for (auto j = 1; j <= FM->n[x_]; j++) {
+      for (auto k = 1; k <= FM->n[y_]; k++) {
+	// Compute vector potential (axial gauge) by extended trapezodial rule.
+	if (n == 1) {
+	  FM->AoBrho[X_][n][j][k] = -FM->BoBrho[Y_][n][1][1]*FM->dx[Z_]/2e0;
+	  FM->AoBrho[Y_][n][j][k] =  FM->BoBrho[X_][n][1][1]*FM->dx[Z_]/2e0;
+	} else if (n == FM->n[Z_]) {
+	  FM->AoBrho[X_][n][j][k] =
+	    FM->AoBrho[X_][n-1][1][1] - FM->BoBrho[Y_][n][1][1]*FM->dx[Z_]/2e0;
+	  FM->AoBrho[Y_][n][j][k] =
+	    FM->AoBrho[Y_][n-1][1][1] + FM->BoBrho[X_][n][1][1]*FM->dx[Z_]/2e0;
+	} else {
+	  FM->AoBrho[X_][n][j][k] =
+	    FM->AoBrho[X_][n-1][1][1] - FM->BoBrho[Y_][n][1][1]*FM->dx[Z_];
+	  FM->AoBrho[Y_][n][j][k] =
+	    FM->AoBrho[Y_][n-1][1][1] + FM->BoBrho[X_][n][1][1]*FM->dx[Z_];
+	}
+      }
+    }
+  }
+
+  inf.close();
+
+  FM->Lr = FM->dx[Z_]*(FM->n[Z_]-1);
+
+  std::cout << std::fixed << std::setprecision(5)
+	    << std::setw(10) << FM->Lr
+	    << std::setw(10) << FM->dx[X_]
+	    << std::setw(10) << FM->dx[Y_]
+	    << std::setw(10) << FM->dx[Z_] << std::endl;
+  std::cout << std::setw(10) << FM->n[X_] << std::setw(10) << FM->n[Y_]
+	    << std::setw(10) << FM->n[Z_] << std::endl;
+  std::cout << std::fixed << std::setprecision(3)
+	    << std::setw(10) << FM->x[X_][1]
+	    << std::setw(10) << FM->x[X_][FM->n[X_]]
+	    << std::setw(10) << FM->x[Y_][1]
+	    << std::setw(10) << FM->x[Y_][FM->n[Y_]]
+	    << std::setw(10) << FM->x[Z_][1]
+	    << std::setw(10) << FM->x[Z_][FM->n[Z_]] << std::endl;
+  std::cout << std::fixed << std::setprecision(5)
+	    << "Magnet length [m]:" << std::setw(10) << FM->Lr << std::endl;
+
+  for (n = 1; n <= FM->n[Z_]; n++) {
+    splie2_(FM->x[X_], FM->x[Y_], FM->BoBrho[X_][n],
+	    FM->n[X_], FM->n[Y_], FM->BoBrho2[X_][n]);
+    splie2_(FM->x[X_], FM->x[Y_], FM->BoBrho[Y_][n],
+	    FM->n[X_], FM->n[Y_], FM->BoBrho2[Y_][n]);
+    splie2_(FM->x[X_], FM->x[Y_], FM->BoBrho[Z_][n],
+	    FM->n[X_], FM->n[Y_], FM->BoBrho2[Z_][n]);
+
+    splie2_(FM->x[X_], FM->x[Y_], FM->AoBrho[X_][n],
+	    FM->n[X_], FM->n[Y_], FM->AoBrho2[X_][n]);
+    splie2_(FM->x[X_], FM->x[Y_], FM->AoBrho[Y_][n],
+	    FM->n[X_], FM->n[Y_], FM->AoBrho2[Y_][n]);
+  }
+
+  std::cout << "field map loaded: " << filename << std::endl;
+
+/*  free_dvector(FM->x[X_], 1, FM->n[X_]);
+  free_dvector(FM->x[Y_], 1, FM->n[Y_]);
+  free_dvector(FM->x[Z_], 1, FM->n[Z_]);
+
+  free_df3tensor(FM->BoBrho[X_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+  free_df3tensor(FM->BoBrho[Y_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+  free_df3tensor(FM->BoBrho[Z_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+  free_df3tensor(FM->BoBrho2[X_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+  free_df3tensor(FM->BoBrho2[Y_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+  free_df3tensor(FM->BoBrho2[Z_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+
+  free_df3tensor(FM->AoBrho[X_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+  free_df3tensor(FM->AoBrho[Y_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+  free_df3tensor(FM->AoBrho2[X_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+  free_df3tensor(FM->AoBrho2[Y_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);*/
+}
+
+
 void get_B(const char *filename, FieldMapType *FM)
 {
   // Do not scale fieldmaps only Hamiltonians, i.e., the kick.  Note that RADIA
@@ -3853,6 +3991,9 @@ void get_B(const char *filename, FieldMapType *FM)
     break;
   case 5:
     get_B_SRW(filename, FM);
+    break;
+  case 6:
+    get_B_MAX_IV(filename, FM);
     break;
   default:
     printf("\nget_B: unknown FieldMap type %d", FieldMap_filetype);
@@ -3922,6 +4063,7 @@ void Insertion_Init(int Fnum1)
   elemtype    *elemp;
 
   elemfamp = &ElemFam[Fnum1-1];
+  printf("\nInsertion_Init: %s\n", elemfamp->ElemF.PName);
 //  elemfamp->ElemF.ID->Porder = order;
 //  x = elemfamp->ElemF.ID->PBW[Quad + HOMmax];
   for (i = 1; i <= elemfamp->nKid; i++) {
