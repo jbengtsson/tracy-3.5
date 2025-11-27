@@ -3262,12 +3262,13 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
              scaling = <scale factor>
              L       = <length [m]>,
              T       = <bending angle>, ( [degree] )
-             N       = <no of periods>,
+             N       = <no of repetitions>,
              file1   = <file name (lower case)>
 
     Example
 
-      FM: Fieldmap, L = 1.0, T=5.0, N = 20, file1 = "U19_Bxyz.dat";
+      FM: Fieldmap, L = 1.0, T = 5.0, scaling = 1.0, N = 1,
+          file1 = "U19_Bxyz.dat";
 
     **************************************************************************/
 
@@ -3407,7 +3408,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 	for (i = 1; i < (signed)strlen(id_); i++) {
 	  if (id_[i] == '"')
 	    break;
-	  strncat(str1,&id_[i],1);
+	  strncat(str1, &id_[i], 1);
 	}
 	GetSym__(&V);
 	break;
@@ -3419,7 +3420,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 	for (i = 1; i < (signed)strlen(id_); i++) {
 	  if (id_[i] == '"')
 	    break;
-	  strncat(str2,&id_[i],1);
+	  strncat(str2, &id_[i], 1);
 	}
 	GetSym__(&V);
 	break;
@@ -3436,8 +3437,16 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     GetSym__(&V);
     globval.Elem_nFam++;
 
+    printf("\nidsym - Elem_nFamMax exceeded: %ld(%d)\n",
+	   globval.Elem_nFam, Elem_nFamMax);
+    printf("  %s\n", ElemFam[globval.Elem_nFam-3].ElemF.PName);
+    printf("  %s\n", ElemFam[globval.Elem_nFam-2].ElemF.PName);
+
     /* Fills up the ID */
     if (globval.Elem_nFam <= Elem_nFamMax) {
+      printf("\nSo far, so good!\n");
+      printf("idsym - Elem_nFamMax exceeded\n");
+      printf("Hello World!");
       WITH  = &ElemFam[globval.Elem_nFam-1];
       WITH1 = &WITH->ElemF;
       memcpy(WITH1->PName, ElementName, sizeof(partsName));
@@ -3449,7 +3458,9 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       WITH5->PN = k1;
       WITH5->scaling = scaling;
 
-     if (CheckUDItable("energy         ", LINK) != 0) {
+      printf("  %s\n", ElemFam[globval.Elem_nFam-1].ElemF.PName);
+
+      if (CheckUDItable("energy         ", LINK) != 0) {
 	RefUDItable("energy         ", &globval.Energy, LINK);
 // 	if (strcmp(str1, "") != 0) get_B(str1, WITH6);
       } else {
@@ -3475,7 +3486,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 	  }
 	}
       } else {
-	strcpy(WITH5->fname1,"/*No_Filename1_Given*/");
+	strcpy(WITH5->fname1, "/*No_Filename1_Given*/");
       }
 
       // Check if filename given for Second order kicks
@@ -3526,7 +3537,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       //      free_matrix(f2z,1,nz,1,nx);
 
     } else {
-      printf("Elem_nFamMax exceeded: %ld(%ld)\n",
+      printf("idsym - Elem_nFamMax exceeded: %ld(%ld)\n",
 	     globval.Elem_nFam, (long)Elem_nFamMax);
       exit_(1);
     }
