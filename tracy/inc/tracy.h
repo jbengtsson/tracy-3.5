@@ -33,7 +33,7 @@
 #define Cell_nLocMax    20000
 
 // maximum number of families for Elem_NFam
-#define Elem_nFamMax    3000
+#define Elem_nFamMax    8000
 
 // maximum number of kids */
 #define nKidMax         5000
@@ -41,7 +41,7 @@
 #define DBNameLen       39
 
 #define NameLength      150  // maximum length of identifiers (e.g. file names)
-#define SymbolLength    15   // maximum length of element name
+#define SymbolLength    15   // maximum length of symbols (e.g. element name)
 
 #define blankname       "               "
 
