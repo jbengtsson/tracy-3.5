@@ -7,23 +7,25 @@ int no_tps = NO;
 
 
 const bool
-  zero_b_3      = false,
+  mat_meth      = !false,
+  zero_b_3      = !false,
   zero_b_4      = false,
   fit_nu        = false,
   fit_xi        = false,
   ps_rot        = false,
   chk_mpole_sym = false,  // Requires super period.
   chk_dnu       = false,  // Requires super period.
-  comp_H_long   = !false,
+  comp_H_long   = false,
   Deta          = false,
-  get_tol       = false;
+  get_tol       = false,
+  phiob_2xL     = false;  
 
 const int
   n_aper  = 25,
   n_track = 1000;
 
 const double
-  dnu[] = {-0.005, 0.005},
+  dnu[] = {0.2, 0.0},
   nu[]  = {57.202/20.0+0.5/20.0, 20.7435/20.0-0.5/20.0};
 
 
@@ -343,6 +345,29 @@ void chk_phi()
     }
   }
   printf("\nphi = %8.6f phi- = %8.6f phi+ = %8.6f\n", phi, mphi, phi-mphi);
+}
+
+
+void get_phiob_2xL_ratios(void)
+{
+  // Get 1/(rho*b_2) ratios.
+  double b_2, a_2;
+  
+  printf("\n");
+  for (int k = 0; k <= globval.Cell_nLoc; k++) {
+    if (Cell[k].Elem.Pkind == Mpole) {
+      get_bn_design_elem(Cell[k].Fnum, 1, Quad, b_2, a_2);
+      if ((Cell[k].Elem.M->Pirho != 0e0) && (b_2 != 0e0)) {
+	auto L = Cell[k].Elem.PL;
+	auto irho = Cell[k].Elem.M->Pirho;
+	auto phi = L*irho*180e0/M_PI;
+	auto phiob_2xL = irho/b_2;
+	printf("  %8s L = %7.5f phi = %8.5f b_2xL = %8.5f"
+	       " phi/(b_2*L) = %12.5e\n",
+	       Cell[k].Elem.PName, L, phi, b_2*L, phiob_2xL);
+      }
+    }
+  }
 }
 
 
@@ -761,8 +786,10 @@ void fit_xi_jb_2(const double xi_x, const double xi_y)
 
   // Fnum.push_back(ElemIndex("s1_h2"));
   // Fnum.push_back(ElemIndex("s2_h2"));
-  Fnum.push_back(ElemIndex("s3_h2"));
-  Fnum.push_back(ElemIndex("s4_h2"));
+  // Fnum.push_back(ElemIndex("s3_h2"));
+  // Fnum.push_back(ElemIndex("s4_h2"));
+  Fnum.push_back(ElemIndex("sf_f"));
+  Fnum.push_back(ElemIndex("sd_d"));
 
   fit_xi_jb(Fnum, xi_x, xi_y, 1e0);
   Ring_GetTwiss(true, 0e0);
@@ -877,12 +904,30 @@ int main(int argc, char *argv[])
 
   reverse_elem = false;
 
-  globval.mat_meth = false;
+  globval.mat_meth = mat_meth;
 
-  if (true)
+  trace = false;
+
+  FieldMap_filetype      = 6;
+
+  if (!true)
     Read_Lattice(argv[1]);
   else
+#if 0
     rdmfile(argv[1]);
+#else
+    rdmfile_new(argv[1]);
+#endif
+
+  prtmfile("flat_file.dat");
+
+  assert(false);
+
+  for (int k = 0; k <= globval.Cell_nLoc; k++)
+    if (Cell[k].Elem.Pkind == Mpole)
+      prt_lin_map(3, Cell[k].Elem.M->M_lin);
+
+  assert(false);
 
   set_state();
 
@@ -894,6 +939,8 @@ int main(int argc, char *argv[])
   }
 
   chk_phi();
+
+  if (phiob_2xL) get_phiob_2xL_ratios();
 
   if (zero_b_3)
     no_mult(Sext);
