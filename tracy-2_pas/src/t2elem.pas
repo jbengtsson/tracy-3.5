@@ -570,16 +570,16 @@
   end;
 
   procedure thinkick{Order : integer; var MB : mpolarray; L, irho : double;
-            	     pthick : pthicktype; var x : vector};
+                     pthick : pthicktype; var x : vector};
   { Calculate multipole kick. The kick is given by
 
                    e L      L delta      L x
-	theta  = - --- B  + -------  -  -----  , 
+        theta  = - --- B  + -------  -  -----  , 
              x     p    y     rho           2
                     0                    rho
 
                  e L
-	theta  = --- B
+        theta  = --- B
              y   p    x
                   0
 
@@ -587,21 +587,21 @@
 
                            ====
                            \                       n-1
-	(B + iB  ) = B rho  >   (ia  + b ) (x + iy)
-	  y    x           /       n    n
-	                   ====
+        (B + iB  ) = B rho  >   (ia  + b ) (x + iy)
+          y    x           /       n    n
+                           ====
 
     where
 
-			e      1
-			-- = -----
-			p    B rho
-			 0
+                        e      1
+                        -- = -----
+                        p    B rho
+                         0
   }
-  var	j					: integer;
-	BxoBrho, ByoBrho, ByoBrho1, x1, x3, x5	: double;
-	B2, xp, yp, psi, psf			: double;
-	B					: vector3;
+  var        j                                        : integer;
+        BxoBrho, ByoBrho, ByoBrho1, x1, x3, x5        : double;
+        B2, xp, yp, psi, psf                        : double;
+        B                                        : vector3;
   begin
     x1 := x[1]; x3 := x[3]; x5 := x[5];
     if (1 <= Order) and (Order <= HOMmax) then
@@ -615,11 +615,11 @@
       end;
       if globval.radiation and (pthick = thick) then  
       begin 
-	psi := 1d0 + x5; xp := x[2]/psi; yp := x[4]/psi;
-	B[1] := BxoBrho; B[2] := ByoBrho + irho; B[3] := 0d0; 
+        psi := 1d0 + x5; xp := x[2]/psi; yp := x[4]/psi;
+        B[1] := BxoBrho; B[2] := ByoBrho + irho; B[3] := 0d0; 
         B2 := B2perp(irho, B, x1, xp, yp);
         x[5] := x[5] - crad*sqr(psi)*B2*(1d0+x1*irho+(sqr(xp)+sqr(yp))/2d0)*L;
-	psf := 1d0 + x[5]; x[2] := xp*psf; x[4] := yp*psf;
+        psf := 1d0 + x[5]; x[2] := xp*psf; x[4] := yp*psf;
       end;
       x[2] := x[2] - L*(ByoBrho-(x5-x1*irho)*irho); x[4] := x[4] + L*BxoBrho;
       x[6] := x[6] + L*irho*x1;
