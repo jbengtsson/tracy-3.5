@@ -7,8 +7,8 @@ int no_tps = NO;
 
 
 const bool
-  mat_meth      = !false,
-  zero_b_3      = !false,
+  mat_meth      = false,
+  zero_b_3      = false,
   zero_b_4      = false,
   fit_nu        = false,
   fit_xi        = false,
@@ -418,11 +418,20 @@ void chk_mpole(const int lat_case)
   switch (lat_case) {
   case 1:
     Fnum.push_back(get_ElemIndex("s1_h2"));
-    // Fnum.push_back(get_ElemIndex("s2_h2"));
+    Fnum.push_back(get_ElemIndex("s2_h2"));
     Fnum.push_back(get_ElemIndex("s3_h2"));
     Fnum.push_back(get_ElemIndex("s4_h2"));
     break;
   case 2:
+    Fnum.push_back(get_ElemIndex("s1_n1"));
+    Fnum.push_back(get_ElemIndex("s2_n1"));
+    Fnum.push_back(get_ElemIndex("s3a_n1"));
+    Fnum.push_back(get_ElemIndex("s3b_n1"));
+    Fnum.push_back(get_ElemIndex("s3c_n1"));
+    Fnum.push_back(get_ElemIndex("s4a_n1"));
+    Fnum.push_back(get_ElemIndex("s4b_n1"));
+    break;
+  case 3:
     Fnum.push_back(get_ElemIndex("sfm"));
     Fnum.push_back(get_ElemIndex("sfi"));
     Fnum.push_back(get_ElemIndex("sdqd_1"));
@@ -784,12 +793,10 @@ void fit_xi_jb_2(const double xi_x, const double xi_y)
 {
   std::vector<int> Fnum;
 
-  // Fnum.push_back(ElemIndex("s1_h2"));
-  // Fnum.push_back(ElemIndex("s2_h2"));
-  // Fnum.push_back(ElemIndex("s3_h2"));
-  // Fnum.push_back(ElemIndex("s4_h2"));
-  Fnum.push_back(ElemIndex("sf_f"));
-  Fnum.push_back(ElemIndex("sd_d"));
+  Fnum.push_back(ElemIndex("s1_h2"));
+  Fnum.push_back(ElemIndex("s2_h2"));
+  Fnum.push_back(ElemIndex("s3_h2"));
+  Fnum.push_back(ElemIndex("s4_h2"));
 
   fit_xi_jb(Fnum, xi_x, xi_y, 1e0);
   Ring_GetTwiss(true, 0e0);
@@ -908,28 +915,54 @@ int main(int argc, char *argv[])
 
   trace = false;
 
-  FieldMap_filetype      = 6;
+  FieldMap_filetype = 6;
 
-  if (!true)
+  if (true)
     Read_Lattice(argv[1]);
-  else
-#if 0
+  else {
+#if 1
     rdmfile(argv[1]);
 #else
     rdmfile_new(argv[1]);
+    prtmfile("flat_file.dat");
+    assert(false);
+
+    for (int k = 0; k <= globval.Cell_nLoc; k++)
+      if (Cell[k].Elem.Pkind == Mpole)
+	prt_lin_map(3, Cell[k].Elem.M->M_lin);
+
+    assert(false);
 #endif
-
-  prtmfile("flat_file.dat");
-
-  assert(false);
-
-  for (int k = 0; k <= globval.Cell_nLoc; k++)
-    if (Cell[k].Elem.Pkind == Mpole)
-      prt_lin_map(3, Cell[k].Elem.M->M_lin);
-
-  assert(false);
+  }
 
   set_state();
+
+#if 0
+  long int        lastpos;
+  ss_vect<double> ps;
+  ss_vect<tps>    M;
+
+  globval.radiation = true;
+
+  ps[x_]     =  1e-6;
+  ps[px_]    = -2e-6;
+  ps[y_]     =  3e-6;
+  ps[py_]    = -4e-6;
+  ps[delta_] =  5e-6;
+  ps[ct_]    = -6e-6;
+  printf("\nx_0:\n");
+  cout << scientific << setprecision(5) << setw(13) << ps << "\n";
+  Cell_Pass(0, globval.Cell_nLoc, ps, lastpos);
+  printf("\nx_1:\n");
+  cout << scientific << setprecision(5) << setw(13) << ps << "\n";
+
+  M.identity();
+  printf("\nM:\n");
+  prt_lin_map(3, M);
+  Cell_Pass(0, globval.Cell_nLoc, M, lastpos);
+  printf("\nM:\n");
+  prt_lin_map(3, M);
+  assert(false);
 
   if (false) {
     long lastpos;
@@ -937,6 +970,7 @@ int main(int argc, char *argv[])
     prt_cod_1("cod.out");
     exit(0);
   }
+#endif
 
   chk_phi();
 
@@ -974,7 +1008,7 @@ int main(int argc, char *argv[])
 		nu[Y_]-globval.TotalTune[Y_]);
 
   if (fit_xi) {
-    if (!true)
+    if (true)
       fit_xi_jb_2(0e0, 0e0);
     else
       fit_xi_jb_2(2e0/20e0, 2e0/20e0);
@@ -995,7 +1029,7 @@ int main(int argc, char *argv[])
     compute_Deta(2e-2);
 
   if (chk_mpole_sym)
-    chk_mpole(1);
+    chk_mpole(2);
 
   if (chk_dnu)
     chk_dnu_straight("lsborder");
