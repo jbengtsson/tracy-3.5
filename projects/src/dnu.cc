@@ -12,7 +12,7 @@ const double
   // A_max[]   = {6e-3, 3e-3},
   // delta_max = 6e-2;
   A_max[]   = {6e-3, 3e-3},
-  delta_max = 3.5e-2;
+  delta_max = 6e-2;
 
 
 int main(int argc, char *argv[])
