@@ -3,7 +3,7 @@ AUTOMAKE_OPTIONS = subdir-objects
 bin_PROGRAMS = \
   fmap get_dnu vlad tracy_2_3 carbon_map drv_terms get_nl_optics opt_des_1_ptc \
   opt_des_2_ptc poincare_map wakefield lielib map_norm_jb \
-  stat_mom tune_conf bessy_ii max_4u lie_series_chk
+  stat_mom tune_conf bessy_ii max_4u lie_series_chk get_map_norm
 
 fmap_SOURCES            = fmap.cc
 get_dnu_SOURCES         = get_dnu.cc
@@ -26,6 +26,7 @@ bessy_ii_SOURCES        = bessy_ii.cc
 max_4u_SOURCES          = max_4u.cc
 # max_4u_scan_dnu_SOURCES = max_4u_scan_dnu.cc
 lie_series_chk_SOURCES  = lie_series_chk.cc
+get_map_norm_SOURCES    = get_map_norm.cc
 
 LOCAL = /usr/local/opt
 

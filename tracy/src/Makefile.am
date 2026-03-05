@@ -24,6 +24,9 @@ AM_CPPFLAGS = \
 
 # C++ flags.
 #AM_CXXFLAGS = -g -O0 -Wall -Wno-error=all
+AM_CXXFLAGS = \
+	-g -O0 -pedantic -Wall -std=c++11 \
+	-D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC -fPIC
 
 AM_FFLAGS = -ggdb -O -fbacktrace -Wall -fbounds-check -fPIC \
             -std=gnu -fdefault-integer-8 -mcmodel=medium
