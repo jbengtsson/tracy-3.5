@@ -105,4 +105,4 @@ extern CellType Cell[];
 
 extern globvalrec globval;
 
-#endif
+#endif // TRACY_LIB_H
