@@ -375,5 +375,5 @@ void rdmfile_at(const std::string& file_name) {
 
   SI_init();
 
-  globval.mat_meth = !false;
+  globval.mat_meth = false;
 }
