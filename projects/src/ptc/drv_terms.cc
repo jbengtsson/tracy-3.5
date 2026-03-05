@@ -9,15 +9,9 @@ int no_tps   = NO,
 const int
   n_cell     = 2;
 const double
-#if 0
-  beta_inj[] = {2.8, 2.8},
-  A_max[]    = {3e-3, 1.5e-3},
-  delta_max  = 2e-2,
-#else
-  beta_inj[] = {11.5, 1.7},
-  A_max[]    = {5e-3, 3e-3},
-  delta_max  = 3e-2,
-#endif
+  beta_inj[] = {6.0, 3.0},
+  A_max[]    = {6e-3, 3e-3},
+  delta_max  = 6e-2,
   twoJ[]     = {sqr(A_max[X_])/beta_inj[X_], sqr(A_max[Y_])/beta_inj[Y_]};
 
 
