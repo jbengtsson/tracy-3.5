@@ -2,6 +2,7 @@
 
 #include "tracy_lib.h"
 
+#include "rdmfile_at.cc"
 
 int no_tps = NO;
 
@@ -424,6 +425,12 @@ void chk_mpole(const int lat_case)
     break;
   case 2:
     Fnum.push_back(get_ElemIndex("s1_n1"));
+    // Fnum.push_back(get_ElemIndex("s2_n1"));
+    Fnum.push_back(get_ElemIndex("s3_n1"));
+    Fnum.push_back(get_ElemIndex("s4_n1"));
+    break;
+  case 3:
+    Fnum.push_back(get_ElemIndex("s1_n1"));
     Fnum.push_back(get_ElemIndex("s2_n1"));
     Fnum.push_back(get_ElemIndex("s3a_n1"));
     Fnum.push_back(get_ElemIndex("s3b_n1"));
@@ -431,7 +438,7 @@ void chk_mpole(const int lat_case)
     Fnum.push_back(get_ElemIndex("s4a_n1"));
     Fnum.push_back(get_ElemIndex("s4b_n1"));
     break;
-  case 3:
+  case 4:
     Fnum.push_back(get_ElemIndex("sfm"));
     Fnum.push_back(get_ElemIndex("sfi"));
     Fnum.push_back(get_ElemIndex("sdqd_1"));
@@ -793,10 +800,15 @@ void fit_xi_jb_2(const double xi_x, const double xi_y)
 {
   std::vector<int> Fnum;
 
+#if 0
   Fnum.push_back(ElemIndex("s1_h2"));
   Fnum.push_back(ElemIndex("s2_h2"));
   Fnum.push_back(ElemIndex("s3_h2"));
   Fnum.push_back(ElemIndex("s4_h2"));
+#else
+  Fnum.push_back(ElemIndex("sf_f"));
+  Fnum.push_back(ElemIndex("sd_d"));
+#endif  
 
   fit_xi_jb(Fnum, xi_x, xi_y, 1e0);
   Ring_GetTwiss(true, 0e0);
@@ -917,17 +929,21 @@ int main(int argc, char *argv[])
 
   FieldMap_filetype = 6;
 
-  if (true)
+  if (!true)
     Read_Lattice(argv[1]);
   else {
-#if 1
+#if 0
     rdmfile(argv[1]);
 #else
-    rdmfile_new(argv[1]);
+    rdmfile_at(argv[1]);
     prtmfile("flat_file.dat");
+ 
+    Ring_GetTwiss(true, 0e0);
+    printglob();
+
     assert(false);
 
-    for (int k = 0; k <= globval.Cell_nLoc; k++)
+    for (auto k = 0; k <= globval.Cell_nLoc; k++)
       if (Cell[k].Elem.Pkind == Mpole)
 	prt_lin_map(3, Cell[k].Elem.M->M_lin);
 
