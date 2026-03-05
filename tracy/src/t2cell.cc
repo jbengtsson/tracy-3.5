@@ -78,7 +78,8 @@ void Elem_Pass(const long i, ss_vect<T> &x)
       Map_Pass(Cell[i], x);
       break;
     default:
-      printf("Elem_Pass ** undefined type\n");
+      printf("Elem_Pass: *** undefined type - i = %ld type = %d\n",
+	     i, Cell[i].Elem.Pkind);
       exit(1);
       break;
   }

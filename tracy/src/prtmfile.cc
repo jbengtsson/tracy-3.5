@@ -187,7 +187,8 @@ void prtmfile(const char mfile_dat[])
       }
       break;
     default:
-      printf("prtmfile: unknown type %d\n", Cell[i].Elem.Pkind);
+      printf("prtmfile: unknown type %d |%s| %u\n",
+	     i, Cell[i].Elem.PName, Cell[i].Elem.Pkind);
       exit(1);
       break;
     }

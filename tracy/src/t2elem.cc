@@ -430,8 +430,19 @@ void radiate_ID
   T          p_s0, p_s1, ds;
   ss_vect<T> cs;
 
+  if (trace)
+    cout << scientific << setprecision(5)
+	 << "\nradiate_ID:\n"
+	 << setw(13) << L << "\n"
+	 << setw(13) << cl_rad << "\n"
+	 << setw(13) << B2_perp << "\n"
+	 << setw(13) << ps  << "\n";
+
   // Large ring: x' and y' unchanged.
-  cs = ps; p_s0 = get_p_s(ps); cs[px_] /= p_s0; cs[py_] /= p_s0;
+  cs = ps;
+  p_s0 = get_p_s(ps);
+  cs[px_] /= p_s0;
+  cs[py_] /= p_s0;
 
   // H = -p_s => ds = H*L.
   ds = (1e0+(sqr(cs[px_])+sqr(cs[py_]))/2e0)*L;
@@ -443,6 +454,9 @@ void radiate_ID
 
   if (globval.emittance)
     is_tps<T>::emittance(Cell, B2_perp, ds, p_s0, cs);
+
+  if (trace)
+    cout << scientific << setprecision(5) << "\n" << setw(13) << ps << "\n";
 }
 
 
