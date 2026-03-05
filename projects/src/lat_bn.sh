@@ -40,7 +40,7 @@ set ylabel "[deg]"
 set y2range [-2.0:20]
 plot file_name.".out" using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
      lc rgb "black", \
-     file_name.".out" using 3:5 notitle with lines ls 1
+     file_name.".out" using 3:5 notitle with fsteps ls 1
 if (!ps) pause mouse "click on graph to cont.\n"
 
 if (ps) set output file_name."_2.".(ext)
@@ -50,7 +50,7 @@ set ylabel "[1/m^2]"
 set y2range [-2.0:20]
 plot file_name.".out" using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
      lc rgb "black", \
-     file_name.".out" using 3:6 notitle with lines ls 2
+     file_name.".out" using 3:6 notitle with fsteps ls 2
 if (!ps) pause mouse "click on graph to cont.\n"
 
 if (ps) set output file_name."_3.".(ext)
@@ -60,7 +60,7 @@ set ylabel "[1/m^3]"
 set y2range [-2.0:20]
 plot file_name.".out" using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
      lc rgb "black", \
-     file_name.".out" using 3:7 notitle with lines ls 3
+     file_name.".out" using 3:7 notitle with fsteps ls 3
 if (!ps) pause mouse "click on graph to cont.\n"
 
 if (ps) set output file_name."_4.".(ext)
@@ -70,7 +70,7 @@ set ylabel "[1/m^4]"
 set y2range [-2.0:20]
 plot file_name.".out" using 3:4 axis x1y2 notitle with fsteps lt 1 lw 1 \
      lc rgb "black", \
-     file_name.".out" using 3:8 notitle with lines ls 4
+     file_name.".out" using 3:8 notitle with fsteps ls 4
 if (!ps) pause mouse "click on graph to cont.\n"
 
 EOP
