@@ -230,6 +230,13 @@ static void create_elem(Element &curr_elem)
       elem->M->Pthick = pthicktype(thin);
     else
       elem->M->Pthick = pthicktype(thick);
+    if ((curr_elem.passMethod == "BndMPoleSymplectic4RadPass")
+	&& (elem->M->Pthick == thick)){
+          auto phi = curr_elem.props.find("BendingAngle")->second.at(0).number;
+	  elem->M->Pirho = phi/elem->PL;
+	  if (dbg)
+	    printf("  phi        = %10.3e\n", phi*180e0/M_PI);
+    }
     auto n_int =
       (int)std::round(curr_elem.props.find("NumIntSteps")->second.at(0).number);
     auto max_order =
