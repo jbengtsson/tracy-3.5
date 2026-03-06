@@ -936,21 +936,6 @@ int main(int argc, char *argv[])
     rdmfile(argv[1]);
 #else
     rdmfile_at(argv[1]);
-    prtmfile("flat_file.dat");
- 
-    Ring_GetTwiss(true, 0e0);
-    printglob();
-
-    prt_lat("linlat1.out", globval.bpm, true);
-    prt_lat("linlat.out", globval.bpm, true, 10);
-
-    assert(false);
-
-    for (auto k = 0; k <= globval.Cell_nLoc; k++)
-      if (Cell[k].Elem.Pkind == Mpole)
-	prt_lin_map(3, Cell[k].Elem.M->M_lin);
-
-    assert(false);
 #endif
   }
 

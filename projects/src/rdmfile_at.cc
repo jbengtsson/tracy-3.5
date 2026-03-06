@@ -156,37 +156,37 @@ static void print_elem(Element &elem) {
 
 static void create_elem(Element &curr_elem)
 {
-  CellType *cell = &Cell[globval.Cell_nLoc];
-  elemtype *elem = &cell->Elem;
+  CellType &cell = Cell[globval.Cell_nLoc];
+  elemtype &elem = cell.Elem;
 
   // While PName is fixed size array - i.e., Pascal legacy - to keep it tidy. 
-  elem->PName[0] = '\0';
+  elem.PName[0] = '\0';
 
-  cell->Fnum = 0;
-  cell->Knum = 0;
+  cell.Fnum = 0;
+  cell.Knum = 0;
 
-  cell->dS[X_] = 0e0;
-  cell->dS[Y_] = 0e0;
-  cell->dT[X_] = 1e0;
-  cell->dT[Y_] = 0e0;
+  cell.dS[X_] = 0e0;
+  cell.dS[Y_] = 0e0;
+  cell.dT[X_] = 1e0;
+  cell.dT[Y_] = 0e0;
 
-  string_to_c_str(curr_elem.name, elem->PName);
+  string_to_c_str(curr_elem.name, elem.PName);
 
   if ((curr_elem.passMethod == "IdentityPass")
       || (curr_elem.passMethod == "AperturePass")) {
-    elem->PL = 0e0;
-    elem->Pkind = PartsKind(marker);
+    elem.PL = 0e0;
+    elem.Pkind = PartsKind(marker);
   } else if (curr_elem.passMethod == "DriftPass") {
-    elem->Pkind = PartsKind(drift);
-    Drift_Alloc(elem);
+    elem.Pkind = PartsKind(drift);
+    Drift_Alloc(&elem);
   } else if ((curr_elem.passMethod == "CorrectorPass")
 	     || (curr_elem.passMethod == "StrMPoleSymplectic4Pass")
 	     || (curr_elem.passMethod == "BndMPoleSymplectic4RadPass")) {
-    elem->Pkind = PartsKind(Mpole);
-    Mpole_Alloc(elem);
+    elem.Pkind = PartsKind(Mpole);
+    Mpole_Alloc(&elem);
  } else if (curr_elem.passMethod == "RFCavityPass") {
-    elem->Pkind = PartsKind(Cavity);
-    Cav_Alloc(elem);
+    elem.Pkind = PartsKind(Cavity);
+    Cav_Alloc(&elem);
   } else {
     std::cout << "create_elem: *** undef. passMethod - "
 	      << curr_elem.passMethod << "\n";
@@ -194,13 +194,13 @@ static void create_elem(Element &curr_elem)
   }
 
   if (dbg) {
-    printf("\ncreate_elem: %4ld %2d\n", globval.Cell_nLoc, elem->Pkind);
-    printf("  %s\n", elem->PName);
+    printf("\ncreate_elem: %4ld %2d\n", globval.Cell_nLoc, elem.Pkind);
+    printf("  %s\n", elem.PName);
   }
-  if (elem->Pkind != marker) {
+  if (elem.Pkind != marker) {
     auto L = curr_elem.props.find("Length")->second.at(0).number;
-    elem->PL = L;
-    if (dbg) printf("  L          = %9.3e\n", elem->PL);
+    elem.PL = L;
+    if (dbg) printf("  L          = %9.3e\n", elem.PL);
   }
   if ((curr_elem.passMethod != "IdentityPass")
       && (curr_elem.passMethod != "CorrectorPass")) {
@@ -226,14 +226,14 @@ static void create_elem(Element &curr_elem)
   }
   if ((curr_elem.passMethod == "StrMPoleSymplectic4Pass")
       || (curr_elem.passMethod == "BndMPoleSymplectic4RadPass")) {
-    if (elem->PL == 0e0)
-      elem->M->Pthick = pthicktype(thin);
+    if (elem.PL == 0e0)
+      elem.M->Pthick = pthicktype(thin);
     else
-      elem->M->Pthick = pthicktype(thick);
+      elem.M->Pthick = pthicktype(thick);
     if ((curr_elem.passMethod == "BndMPoleSymplectic4RadPass")
-	&& (elem->M->Pthick == thick)){
+	&& (elem.M->Pthick == thick)){
           auto phi = curr_elem.props.find("BendingAngle")->second.at(0).number;
-	  elem->M->Pirho = phi/elem->PL;
+	  elem.M->Pirho = phi/elem.PL;
 	  if (dbg)
 	    printf("  phi        = %10.3e\n", phi*180e0/M_PI);
     }
@@ -241,23 +241,23 @@ static void create_elem(Element &curr_elem)
       (int)std::round(curr_elem.props.find("NumIntSteps")->second.at(0).number);
     auto max_order =
       (int)std::round(curr_elem.props.find("MaxOrder")->second.at(0).number);
-    elem->M->PN = n_int;
-    elem->M->Porder = max_order + 1;
+    elem.M->PN = n_int;
+    elem.M->Porder = max_order + 1;
     if (dbg) {
-      printf("  n_int      = %d\n", elem->M->PN);
-      printf("  max_order  = %d\n", elem->M->Porder);
+      printf("  n_int      = %d\n", elem.M->PN);
+      printf("  max_order  = %d\n", elem.M->Porder);
     }
     auto it_an = curr_elem.props.find("PolynomA");
     auto it_bn = curr_elem.props.find("PolynomB");
     if (dbg) printf("   n       b_n         a_n\n");
-    for (auto n = 1; n <= elem->M->Porder; n++) {
-      elem->M->PB[HOMmax+n] = it_bn->second.at(n-1).number;
-      elem->M->PB[HOMmax-n] = it_an->second.at(n-1).number;
-      elem->M->PBpar[HOMmax+n] = elem->M->PB[HOMmax+n];
-      elem->M->PBpar[HOMmax-n] = elem->M->PB[HOMmax-n];
+    for (auto n = 1; n <= elem.M->Porder; n++) {
+      elem.M->PB[HOMmax+n] = it_bn->second.at(n-1).number;
+      elem.M->PB[HOMmax-n] = it_an->second.at(n-1).number;
+      elem.M->PBpar[HOMmax+n] = elem.M->PB[HOMmax+n];
+      elem.M->PBpar[HOMmax-n] = elem.M->PB[HOMmax-n];
       if (dbg)
 	printf("  %2d   %10.3e  %10.3e]\n",
-	       n, elem->M->PB[HOMmax+n], elem->M->PB[HOMmax-n]);
+	       n, elem.M->PB[HOMmax+n], elem.M->PB[HOMmax-n]);
     }
   }
   if (curr_elem.passMethod == "RFCavityPass") {
@@ -275,9 +275,9 @@ static void create_elem(Element &curr_elem)
   }
 
   if (globval.Cell_nLoc == 0)
-      cell->S = 0e0;
+      cell.S = 0e0;
     else
-      cell->S = cell->S + elem->PL;
+      cell.S = Cell[globval.Cell_nLoc-1].S + elem.PL;
 }
 
 void rdmfile_at(const std::string& file_name) {
@@ -376,6 +376,8 @@ void rdmfile_at(const std::string& file_name) {
   // Flush the last element at EOF.
   flush_cur();
 
+  in.close();
+
   globval.dPcommon = 1e-8;
   globval.CODeps = 1e-14;
   globval.CODimax = 40;
@@ -383,4 +385,7 @@ void rdmfile_at(const std::string& file_name) {
   SI_init();
 
   globval.mat_meth = false;
+
+  printf("\nrdmfile_at: read %ld elements, C = %7.5f\n",
+	 globval.Cell_nLoc+1, Cell[globval.Cell_nLoc].S);
 }

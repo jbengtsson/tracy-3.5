@@ -379,7 +379,7 @@ void rdmfile(const char *mfile_dat)
 
   std::cout << std::endl;
   std::cout  << std::fixed << std::setprecision(5)
-	<< "rdmfile: read " << globval.Cell_nLoc << " elements, C = "
+	<< "rdmfile: read " << globval.Cell_nLoc+1 << " elements, C = "
 	<< Cell[globval.Cell_nLoc].S << std::endl;
 
   inf.close();
