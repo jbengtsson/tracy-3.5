@@ -15,13 +15,13 @@ Numpy:
 '''
 
 # Global constants.
-X_ = 0;
-Y_ = 1;
-Z_ = 2
+X_  = 0;
+Y_  = 1;
+Z_  = 2
 
-x_ = 0;
+x_  = 0;
 px_ = 1;
-y_ = 2;
+y_  = 2;
 py_ = 3
 
 
@@ -245,15 +245,6 @@ class est_lin_opt_type (object):
                     self.dnu_mean[Y_, j], self.dnu_sigma[Y_, j],
                     lin_opt.beta[X_, loc], lin_opt.beta[Y_, loc])
         outf.close()
-
-
-# Not used - i.e., O(N^2) algorithm).
-def DFT(x, sgn):
-    n = len(x); I = complex(0e0, 1e0); X = np.zeros(n/2+1, dtype=complex)
-    for j in range(n/2+1):
-        for k in range(0, n):
-            X[j] += x[k]*cmath.exp(sgn*I*2e0*np.pi*float(k*j)/float(n))
-    return X
 
 
 def FFT1(x, window):
