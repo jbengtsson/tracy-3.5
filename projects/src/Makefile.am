@@ -3,8 +3,11 @@ AUTOMAKE_OPTIONS = subdir-objects
 SUBDIRS = ptc
 
 bin_PROGRAMS = \
-	optics dynap leac dnu touschek ibs vlad tbt tbt_ref max_iv_1 max_iv_2 \
-	ibs_for_les delta bare_da match carbon_map dls 6BA track_fft m4_0 m4_mod \
+	optics dynap leac dnu touschek ibs vlad \
+	tbt_ref tbt_0 tbt_1 tbt_2 tbt_optics \
+	max_iv_1 max_iv_2 \
+	ibs_for_les delta bare_da match carbon_map dls 6BA track_fft m4_0 \
+	m4_mod \
 	dls_ii track opt_des_1 opt_des_2 id_model sigma tech_note dx_dj \
 	tune_scan sxt chk_drv_terms fit_nu opt_des_bessy_iii for_pierre tst_it \
 	ctrl_cod wakefield compute_maps lin_opt map_diag_3D bessy_ii \
@@ -20,8 +23,11 @@ leac_SOURCES              = leac.cc
 touschek_SOURCES          = touschek.cc
 ibs_SOURCES               = ibs.cc
 vlad_SOURCES              = vlad.cc
-tbt_SOURCES               = tbt.cc
 tbt_ref_SOURCES           = tbt_ref.cc
+tbt_0_SOURCES             = tbt_0.cc
+tbt_1_SOURCES             = tbt_1.cc
+tbt_2_SOURCES             = tbt_2.cc
+tbt_optics_SOURCES        = tbt_optics.cc
 max_iv_1_SOURCES          = max_iv_1.cc
 max_iv_2_SOURCES          = max_iv_2.cc
 ibs_for_les_SOURCES       = ibs_for_les.cc
