@@ -2,7 +2,7 @@
 
    J. Bengtsson  NSLS-II, BNL  2004 -
 
-   T. Shaftan, I. Pinayev, Y. Luo, C. Montag, B. Nash
+   T. Shaftan, I. Pinayev, Y. Luo, C. Montag, B. Nash, G. Perez Segurana
 
 */
 
