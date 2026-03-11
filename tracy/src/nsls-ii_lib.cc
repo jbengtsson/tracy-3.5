@@ -3393,7 +3393,7 @@ void dnu_dA(const double Ax_max, const double Ay_max, const double delta,
   fprintf(fp, "%10.3e %10.3e %10.3e %10.3e %8.6f %8.6f\n",
     0e0, 0e0, 0e0, 0e0, fract(nu_x), fract(nu_y));
   fprintf(fcsv, "%10.6e,%10.6e,%10.6e,%10.6e,%8.6f,%8.6f\n",
-    0e0, 0e0, 0e0, 0e0, fract(nu_x), fract(nu_y));
+    0e0, 0e0, 0e0, 0e0, globval.TotalTune[X_], globval.TotalTune[Y_]);
 
   Ay = A_min;
   for (i = 1; i <= n_ampl; i++) {
@@ -3424,7 +3424,7 @@ void dnu_dA(const double Ax_max, const double Ay_max, const double delta,
   /* CSV counterpart*/
   fprintf(fcsv, "\n");
   fprintf(fcsv, "%10.6e,%10.6e,%10.6e,%10.6e,%8.6f,%8.6f\n",
-    0e0, 0e0, 0e0, 0e0, fract(nu_x), fract(nu_y));
+    0e0, 0e0, 0e0, 0e0, globval.TotalTune[X_], globval.TotalTune[Y_]);
 
   Ay = A_min;
   for (i = 0; i <= n_ampl; i++) {
@@ -3460,7 +3460,7 @@ void dnu_dA(const double Ax_max, const double Ay_max, const double delta,
   fcsv = file_write("dnu_dAy.csv");
   fprintf(fcsv, "Ax_mm,Ay_mm,Jx_u,Jy_u,nu_x,nu_y\n");
   fprintf(fcsv, "%10.6e,%10.6e,%10.6e,%10.6e,%8.6f,%8.6f\n",
-    0e0, 0e0, 0e0, 0e0, fract(nu_x), fract(nu_y));
+    0e0, 0e0, 0e0, 0e0, globval.TotalTune[X_], globval.TotalTune[Y_]);
 
   Ax = A_min;
   for (i = 1; i <= n_ampl; i++) {
@@ -3487,6 +3487,9 @@ void dnu_dA(const double Ax_max, const double Ay_max, const double delta,
   fprintf(fp, "\n");
   fprintf(fp, "%10.3e %10.3e %10.3e %10.3e %8.6f %8.6f\n",
 	  0e0, 0e0, 0e0, 0e0, fract(nu_x), fract(nu_y));
+  fprintf(fcsv, "\n");
+  fprintf(fcsv, "%10.6e,%10.6e,%10.6e,%10.6e,%8.6f,%8.6f\n",
+    0e0, 0e0, 0e0, 0e0, globval.TotalTune[X_], globval.TotalTune[Y_]);
 
   Ax = A_min;
   for (i = 0; i <= n_ampl; i++) {
@@ -3496,9 +3499,14 @@ void dnu_dA(const double Ax_max, const double Ay_max, const double delta,
     ok = get_nu(Ax, Ay, delta, eps, nu_x, nu_y);
     if (ok)
       fprintf(fp, "%10.3e %10.3e %10.3e %10.3e %8.6f %8.6f\n",
-	      1e3*Ax, 1e3*Ay, 1e6*Jx, 1e6*Jy, fract(nu_x), fract(nu_y));
+        1e3*Ax, 1e3*Ay, 1e6*Jx, 1e6*Jy, fract(nu_x), fract(nu_y));
     else
       fprintf(fp, "# %10.3e %10.3e particle lost\n", 1e3*Ax, 1e3*Ay);
+    if (ok) /* CSV counterpart*/
+      fprintf(fcsv, "%10.6e,%10.6e,%10.6e,%10.6e,%8.6f,%8.6f\n",
+        1e3*Ax, 1e3*Ay, 1e6*Jx, 1e6*Jy, fract(nu_x), fract(nu_y));
+    else
+      fprintf(fcsv, "%10.6e,%10.6e,NaN,NaN,NaN,NaN\n", 1e3*Ax, 1e3*Ay);
   }
 
   fclose(fp);
