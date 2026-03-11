@@ -6,17 +6,18 @@ int no_tps = NO;
 
 const int  n_bpm_max = 100;
 
-char    bpm_names[n_bpm_max][max_str];
-int     n_bpm, n_turn_, n_stats, jj[ss_dim];
-double  data[n_bpm_max][2][2048];
-double  alpha_mean[2], alpha_sigma[2];
-double  betas_sum[n_bpm_max][2], betas_sum2[n_bpm_max][2];
-double  betas_mean[n_bpm_max][2], betas_sigma[n_bpm_max][2];
-double  dnus_sum[n_bpm_max][2], dnus_sum2[n_bpm_max][2];
-double  dnus_mean[n_bpm_max][2], dnus_sigma[n_bpm_max][2];
-double  twoJ[n_bpm_max][2][2048], phi[n_bpm_max][2][2048];
-double  phi0[n_bpm_max][2][2048];
-double  tune_mean[2], tune_sigma[2];
+char     bpm_names[n_bpm_max][max_str];
+long int jj[ss_dim];
+int      n_bpm, n_turn_, n_stats;
+double   data[n_bpm_max][2][2048];
+double   alpha_mean[2], alpha_sigma[2];
+double   betas_sum[n_bpm_max][2], betas_sum2[n_bpm_max][2];
+double   betas_mean[n_bpm_max][2], betas_sigma[n_bpm_max][2];
+double   dnus_sum[n_bpm_max][2], dnus_sum2[n_bpm_max][2];
+double   dnus_mean[n_bpm_max][2], dnus_sigma[n_bpm_max][2];
+double   twoJ[n_bpm_max][2][2048], phi[n_bpm_max][2][2048];
+double   phi0[n_bpm_max][2][2048];
+double   tune_mean[2], tune_sigma[2];
 
 // Kalman filter.
 ss_vect<tps>  Id, A, A_tp, H, H_tp, R, Q, P, K_;
@@ -712,8 +713,10 @@ void ss_est(const int n_bpm, const int cut, const int n)
     for (k = 0; k < 2; k++)
       rm_mean(n, data[j][k]);
 
-  map.identity(); putlinmat(2*n_DOF, globval.OneTurnMat, map);
-  Ascr.identity(); putlinmat(2*n_DOF, globval.Ascr, Ascr);
+  map.identity();
+  map = putlinmat(2*n_DOF, globval.OneTurnMat);
+  Ascr.identity();
+  Ascr = putlinmat(2*n_DOF, globval.Ascr);
   A = PInv(Ascr, jj)*map*Ascr;
 
   cout << endl;
