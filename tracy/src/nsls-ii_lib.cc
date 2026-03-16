@@ -2,7 +2,7 @@
 
    J. Bengtsson  NSLS-II, BNL  2004 -
 
-   T. Shaftan, I. Pinayev, Y. Luo, C. Montag, B. Nash
+   T. Shaftan, I. Pinayev, Y. Luo, C. Montag, B. Nash, G. Perez Segurana
 
 */
 
@@ -3264,15 +3264,19 @@ void get_ksi2(const double d_delta, const int n_step)
   double   delta[2*n_step+1], nu[2][2*n_step+1], sigma;
   psVector b;
   FILE     *fp;
+  FILE     *fcsv;
 
   fp = file_write("chrom2.out");
+  fcsv = file_write("chrom2.csv");
+  fprintf(fcsv, "delta_pct,nu_x,nu_y\n");
   n = 0;
   for (i = -n_step; i <= n_step; i++) {
     n++; delta[n-1] = i*(double)d_delta/(double)n_step;
     Ring_GetTwiss(false, delta[n-1]);
     nu[0][n-1] = globval.TotalTune[X_]; nu[1][n-1] = globval.TotalTune[Y_];
     fprintf(fp, "%8.5f %11.8f %11.8f\n",
-	    1e2*delta[n-1], nu[0][n-1], nu[1][n-1]);
+      1e2*delta[n-1], nu[0][n-1], nu[1][n-1]);
+    fprintf(fcsv, "%10.6f,%12.8f,%12.8f\n", 1e2*delta[n-1], nu[0][n-1], nu[1][n-1]);
   }
   printf("\n");
   printf("Horizontal chromaticity:\n");
@@ -3282,6 +3286,7 @@ void get_ksi2(const double d_delta, const int n_step)
   pol_fit(n, delta, nu[1], order, b, sigma, true);
   printf("\n");
   fclose(fp);
+  fclose(fcsv);
 }
 
 
@@ -3365,6 +3370,7 @@ void dnu_dA(const double Ax_max, const double Ay_max, const double delta,
   double   nu_x, nu_y, Ax, Ay, Jx, Jy;
   psVector ps;
   FILE     *fp;
+  FILE     *fcsv;
 
   const double A_min  = 0.1e-3;
 //  const double  eps0   = 0.04, eps   = 0.02;
@@ -3379,10 +3385,15 @@ void dnu_dA(const double Ax_max, const double Ay_max, const double delta,
   nu_x = fract(globval.TotalTune[X_]); nu_y = fract(globval.TotalTune[Y_]);
 
   fp = file_write("dnu_dAx.out");
+  fcsv = file_write("dnu_dAx.csv");
+  fprintf(fcsv, "Ax_mm,Ay_mm,Jx_u,Jy_u,nu_x,nu_y\n");
+
   fprintf(fp, "#   A_x        A_y        J_x        J_y      nu_x    nu_y\n");
   fprintf(fp, "#\n");
   fprintf(fp, "%10.3e %10.3e %10.3e %10.3e %8.6f %8.6f\n",
-	  0e0, 0e0, 0e0, 0e0, fract(nu_x), fract(nu_y));
+    0e0, 0e0, 0e0, 0e0, fract(nu_x), fract(nu_y));
+  fprintf(fcsv, "%10.6e,%10.6e,%10.6e,%10.6e,%8.6f,%8.6f\n",
+    0e0, 0e0, 0e0, 0e0, globval.TotalTune[X_], globval.TotalTune[Y_]);
 
   Ay = A_min;
   for (i = 1; i <= n_ampl; i++) {
@@ -3395,6 +3406,12 @@ void dnu_dA(const double Ax_max, const double Ay_max, const double delta,
 	      1e3*Ax, 1e3*Ay, 1e6*Jx, 1e6*Jy, fract(nu_x), fract(nu_y));
     else
       fprintf(fp, "# %10.3e %10.3e particle lost\n", 1e3*Ax, 1e3*Ay);
+    /* CSV counterpart*/
+    if (ok)
+      fprintf(fcsv, "%10.6e,%10.6e,%10.6e,%10.6e,%8.6f,%8.6f\n",
+        1e3*Ax, 1e3*Ay, 1e6*Jx, 1e6*Jy, fract(nu_x), fract(nu_y));
+    else
+      fprintf(fcsv, "%10.6e,%10.6e,NaN,NaN,NaN,NaN\n", 1e3*Ax, 1e3*Ay);
   }
 
   if (trace) printf("\n");
@@ -3404,6 +3421,10 @@ void dnu_dA(const double Ax_max, const double Ay_max, const double delta,
   fprintf(fp, "\n");
   fprintf(fp, "%10.3e %10.3e %10.3e %10.3e %8.6f %8.6f\n",
 	  0e0, 0e0, 0e0, 0e0, fract(nu_x), fract(nu_y));
+  /* CSV counterpart*/
+  fprintf(fcsv, "\n");
+  fprintf(fcsv, "%10.6e,%10.6e,%10.6e,%10.6e,%8.6f,%8.6f\n",
+    0e0, 0e0, 0e0, 0e0, globval.TotalTune[X_], globval.TotalTune[Y_]);
 
   Ay = A_min;
   for (i = 0; i <= n_ampl; i++) {
@@ -3416,8 +3437,14 @@ void dnu_dA(const double Ax_max, const double Ay_max, const double delta,
 	      1e3*Ax, 1e3*Ay, 1e6*Jx, 1e6*Jy, fract(nu_x), fract(nu_y));
     else
       fprintf(fp, "# %10.3e %10.3e particle lost\n", 1e3*Ax, 1e3*Ay);
+    if (ok)  /* CSV counterpart*/
+      fprintf(fcsv, "%10.6e,%10.6e,%10.6e,%10.6e,%8.6f,%8.6f\n",
+        1e3*Ax, 1e3*Ay, 1e6*Jx, 1e6*Jy, fract(nu_x), fract(nu_y));
+    else
+      fprintf(fcsv, "%10.6e,%10.6e,NaN,NaN,NaN,NaN\n", 1e3*Ax, 1e3*Ay);
   }
 
+  fclose(fcsv);
   fclose(fp);
 
   if (trace) printf("dnu_dAy\n");
@@ -3429,6 +3456,11 @@ void dnu_dA(const double Ax_max, const double Ay_max, const double delta,
   fprintf(fp, "#\n");
   fprintf(fp, "%10.3e %10.3e %10.3e %10.3e %8.6f %8.6f\n",
 	  0e0, 0e0, 0e0, 0e0, fract(nu_x), fract(nu_y));
+  /* CSV counterpart*/
+  fcsv = file_write("dnu_dAy.csv");
+  fprintf(fcsv, "Ax_mm,Ay_mm,Jx_u,Jy_u,nu_x,nu_y\n");
+  fprintf(fcsv, "%10.6e,%10.6e,%10.6e,%10.6e,%8.6f,%8.6f\n",
+    0e0, 0e0, 0e0, 0e0, globval.TotalTune[X_], globval.TotalTune[Y_]);
 
   Ax = A_min;
   for (i = 1; i <= n_ampl; i++) {
@@ -3441,6 +3473,11 @@ void dnu_dA(const double Ax_max, const double Ay_max, const double delta,
 	      1e3*Ax, 1e3*Ay, 1e6*Jx, 1e6*Jy, fract(nu_x), fract(nu_y));
     else
       fprintf(fp, "# %10.3e %10.3e particle lost\n", 1e3*Ax, 1e3*Ay);
+    if (ok)/* CSV counterpart*/
+      fprintf(fcsv, "%10.6e,%10.6e,%10.6e,%10.6e,%8.6f,%8.6f\n",
+        1e3*Ax, 1e3*Ay, 1e6*Jx, 1e6*Jy, fract(nu_x), fract(nu_y));
+    else
+      fprintf(fcsv, "%10.6e,%10.6e,NaN,NaN,NaN,NaN\n", 1e3*Ax, 1e3*Ay);
   }
 
   if (trace) printf("\n");
@@ -3450,6 +3487,9 @@ void dnu_dA(const double Ax_max, const double Ay_max, const double delta,
   fprintf(fp, "\n");
   fprintf(fp, "%10.3e %10.3e %10.3e %10.3e %8.6f %8.6f\n",
 	  0e0, 0e0, 0e0, 0e0, fract(nu_x), fract(nu_y));
+  fprintf(fcsv, "\n");
+  fprintf(fcsv, "%10.6e,%10.6e,%10.6e,%10.6e,%8.6f,%8.6f\n",
+    0e0, 0e0, 0e0, 0e0, globval.TotalTune[X_], globval.TotalTune[Y_]);
 
   Ax = A_min;
   for (i = 0; i <= n_ampl; i++) {
@@ -3459,12 +3499,18 @@ void dnu_dA(const double Ax_max, const double Ay_max, const double delta,
     ok = get_nu(Ax, Ay, delta, eps, nu_x, nu_y);
     if (ok)
       fprintf(fp, "%10.3e %10.3e %10.3e %10.3e %8.6f %8.6f\n",
-	      1e3*Ax, 1e3*Ay, 1e6*Jx, 1e6*Jy, fract(nu_x), fract(nu_y));
+        1e3*Ax, 1e3*Ay, 1e6*Jx, 1e6*Jy, fract(nu_x), fract(nu_y));
     else
       fprintf(fp, "# %10.3e %10.3e particle lost\n", 1e3*Ax, 1e3*Ay);
+    if (ok) /* CSV counterpart*/
+      fprintf(fcsv, "%10.6e,%10.6e,%10.6e,%10.6e,%8.6f,%8.6f\n",
+        1e3*Ax, 1e3*Ay, 1e6*Jx, 1e6*Jy, fract(nu_x), fract(nu_y));
+    else
+      fprintf(fcsv, "%10.6e,%10.6e,NaN,NaN,NaN,NaN\n", 1e3*Ax, 1e3*Ay);
   }
 
   fclose(fp);
+  fclose(fcsv);
 }
 
 
