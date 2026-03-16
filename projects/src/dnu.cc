@@ -35,6 +35,8 @@ int main(int argc, char *argv[])
 
   if (!false) {
     Ring_GetTwiss(true, 0e0); printglob();
+    prt_lat("linlat1.out", globval.bpm, true);
+    prt_lat("linlat.out", globval.bpm, true, 10);
   }
 
   dnu_dA(A_max[X_], A_max[Y_], 0e0, n_step);
