@@ -43,7 +43,7 @@ if ((N == 1) && (case == 1)) \
 else if ((N == 1) && (case == 2)) \
   N_x = 26; N_y = 5; \
 else if ((N == 1) && (case == 3)) \
-  N_x = 19; N_y = 9; \
+  N_x = 20; N_y = 10; \
 else if ((N == 20) && (case == 1)) \
   N_x = 2; N_y = 0; \
 else if ((N == 20) && (case == 2)) \
