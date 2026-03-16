@@ -2,8 +2,6 @@
 
 #include "tracy_lib.h"
 
-#include "rdmfile_at.cc"
-
 int no_tps = NO;
 
 
@@ -26,7 +24,7 @@ const int
   n_track = 1000;
 
 const double
-  dnu[] = {0.2, 0.0},
+  dnu[] = {0.03, 0.0},
   nu[]  = {57.202/20.0+0.5/20.0, 20.7435/20.0-0.5/20.0};
 
 
@@ -572,13 +570,13 @@ double H_long
 
 
 void prt_H_long
-(const string &cav_name, const int n, const double phi_max,
+(const int Fnum_cav, const int n, const double phi_max,
  const double delta_max, const int n_alpha_c, const bool neg_alpha_c)
 {
   const string
     file_name = "H_long.dat";
   const long int
-    loc = Elem_GetPos(ElemIndex(cav_name.c_str()), 1);
+    loc = Elem_GetPos(Fnum_cav, 1);
   const CavityType
     *C = Cell[loc].Elem.C;
   const int
@@ -929,7 +927,7 @@ int main(int argc, char *argv[])
 
   FieldMap_filetype = 6;
 
-  if (!true)
+  if (true)
     Read_Lattice(argv[1]);
   else {
 #if 0
@@ -1045,7 +1043,7 @@ int main(int argc, char *argv[])
       get_eps_x(eps_x, sigma_delta, U_0, J, tau, I, true);
 
     if (comp_H_long)
-      prt_H_long("cav", 25, 180e0, 15e-2, 3, false);
+      prt_H_long(ElemIndex("cav"), 25, 180e0, 15e-2, 3, false);
   }
 
   if (false) {

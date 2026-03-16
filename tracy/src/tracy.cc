@@ -38,7 +38,7 @@
 
 #include "prtmfile.cc"
 #include "rdmfile.cc"
-// #include "rdmfile_at.cc"
+#include "rdmfile_at.cc"
 
 #include "fft.cc"
 

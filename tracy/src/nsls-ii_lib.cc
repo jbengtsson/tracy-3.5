@@ -499,7 +499,7 @@ void get_eps_x(double &eps_x, double &sigma_delta, double &U_0, double J[],
 }
 
 
-void GetEmittance(const int Fnum, const bool path_length, const bool prt)
+void GetEmittance(const int Fnum_cav, const bool path_length, const bool prt)
 {
   // A. Chao "Evaluation of Beam Distribution Parameters in an Electron
   // Storage Ring" J. Appl. Phys 50 (2), 595-598.
@@ -539,8 +539,8 @@ void GetEmittance(const int Fnum, const bool path_length, const bool prt)
   // radiation loss is computed in Cav_Pass
 
   globval.U0 = globval.dE*1e9*globval.Energy;
-  V_RF = Cell[Elem_GetPos(Fnum, 1)].Elem.C->V_RF;
-  h_RF = Cell[Elem_GetPos(Fnum, 1)].Elem.C->harm_num;
+  V_RF = Cell[Elem_GetPos(Fnum_cav, 1)].Elem.C->V_RF;
+  h_RF = Cell[Elem_GetPos(Fnum_cav, 1)].Elem.C->harm_num;
   phi0 = fabs(asin(globval.U0/V_RF));
   globval.delta_RF =
     sqrt(-V_RF*cos(M_PI-phi0)*(2.0-(M_PI-2.0*(M_PI-phi0))
