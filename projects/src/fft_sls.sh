@@ -8,9 +8,9 @@ gnuplot << EOP
 home_dir = "$prm1"
 ps       = $prm2
 
-file_name_1 = home_dir."tbt.out"
-file_name_2 = home_dir."sls.out"
-file_name_3 = home_dir."sls_fft.out"
+file_name_1 = home_dir."lin_opt.out"
+file_name_2 = home_dir."tbt_data.out"
+file_name_3 = home_dir."tbt_fft.out"
 file_name_4 = home_dir."tbt_phase_space.out"
 
 f_s = 14
