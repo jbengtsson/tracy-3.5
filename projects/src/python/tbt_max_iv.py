@@ -57,14 +57,20 @@ class LinOpt:
     loc: list[int] = field(default_factory=list)
     name: list[str] = field(default_factory=list)
     s: PlaneArray = field(default_factory=lambda: np.zeros(0, dtype=float))
-    alpha: PlaneArray = field(default_factory=lambda: np.zeros((2, 0), dtype=float))
-    beta: PlaneArray = field(default_factory=lambda: np.zeros((2, 0), dtype=float))
-    nu: PlaneArray = field(default_factory=lambda: np.zeros((2, 0), dtype=float))
-    eta: PlaneArray = field(default_factory=lambda: np.zeros((2, 0), dtype=float))
-    etap: PlaneArray = field(default_factory=lambda: np.zeros((2, 0), dtype=float))
+    alpha: PlaneArray = \
+        field(default_factory=lambda: np.zeros((2, 0), dtype=float))
+    beta: PlaneArray = \
+        field(default_factory=lambda: np.zeros((2, 0), dtype=float))
+    nu: PlaneArray = \
+        field(default_factory=lambda: np.zeros((2, 0), dtype=float))
+    eta: PlaneArray = \
+        field(default_factory=lambda: np.zeros((2, 0), dtype=float))
+    etap: PlaneArray = \
+        field(default_factory=lambda: np.zeros((2, 0), dtype=float))
 
     def read(self, file_name: str | Path, verbose: bool = False) -> None:
-        rows: list[tuple[int, str, float, PlaneArray, PlaneArray, PlaneArray, PlaneArray, PlaneArray]] = []
+        rows: list[tuple[int, str, float, PlaneArray, PlaneArray, PlaneArray,
+                         PlaneArray, PlaneArray]] = []
 
         with open(file_name, "r", encoding="utf-8") as inf:
             for raw_line in inf:
@@ -79,16 +85,22 @@ class LinOpt:
                 name = tokens[1].strip()
                 s = float(tokens[2])
 
-                alpha = np.array([float(tokens[4]), float(tokens[9])], dtype=float)
-                beta = np.array([float(tokens[5]), float(tokens[10])], dtype=float)
-                nu = np.array([float(tokens[6]), float(tokens[11])], dtype=float)
-                eta = np.array([float(tokens[7]), float(tokens[12])], dtype=float)
-                etap = np.array([float(tokens[8]), float(tokens[13])], dtype=float)
+                alpha = \
+                    np.array([float(tokens[4]), float(tokens[9])], dtype=float)
+                beta = \
+                    np.array([float(tokens[5]), float(tokens[10])], dtype=float)
+                nu = \
+                    np.array([float(tokens[6]), float(tokens[11])], dtype=float)
+                eta = \
+                    np.array([float(tokens[7]), float(tokens[12])], dtype=float)
+                etap = \
+                    np.array([float(tokens[8]), float(tokens[13])], dtype=float)
                 rows.append((n, name, s, alpha, beta, nu, eta, etap))
 
                 if verbose:
                     print_write(
-                        "%4d, %-15s, %9.5f, %9.5f, %8.5f, %8.5f, %8.5f, %8.5f, %9.5f, %8.5f, %8.5f, %8.5f, %8.5f\n",
+                        "%4d, %-15s, %9.5f, %9.5f, %8.5f, %8.5f, %8.5f, %8.5f"
+                        ", %9.5f, %8.5f, %8.5f, %8.5f, %8.5f\n",
                         n,
                         name,
                         s,
@@ -107,11 +119,21 @@ class LinOpt:
         self.loc = [row[0] for row in rows]
         self.name = [row[1] for row in rows]
         self.s = np.array([row[2] for row in rows], dtype=float)
-        self.alpha = np.column_stack([row[3] for row in rows]) if rows else np.zeros((2, 0), dtype=float)
-        self.beta = np.column_stack([row[4] for row in rows]) if rows else np.zeros((2, 0), dtype=float)
-        self.nu = np.column_stack([row[5] for row in rows]) if rows else np.zeros((2, 0), dtype=float)
-        self.eta = np.column_stack([row[6] for row in rows]) if rows else np.zeros((2, 0), dtype=float)
-        self.etap = np.column_stack([row[7] for row in rows]) if rows else np.zeros((2, 0), dtype=float)
+        self.alpha = \
+            np.column_stack([row[3] for row in rows]) \
+            if rows else np.zeros((2, 0), dtype=float)
+        self.beta = \
+            np.column_stack([row[4] for row in rows]) \
+            if rows else np.zeros((2, 0), dtype=float)
+        self.nu = \
+            np.column_stack([row[5] for row in rows]) \
+            if rows else np.zeros((2, 0), dtype=float)
+        self.eta = \
+            np.column_stack([row[6] for row in rows]) \
+            if rows else np.zeros((2, 0), dtype=float)
+        self.etap = \
+            np.column_stack([row[7] for row in rows]) \
+            if rows else np.zeros((2, 0), dtype=float)
 
 
 @dataclass
@@ -120,7 +142,8 @@ class BPMData:
     n_turn: int = 0
     name: list[str] = field(default_factory=list)
     loc: list[int] = field(default_factory=list)
-    data: PlaneArray = field(default_factory=lambda: np.zeros((2, 0, 0), dtype=float))
+    data: PlaneArray = \
+        field(default_factory=lambda: np.zeros((2, 0, 0), dtype=float))
 
     @staticmethod
     def normalize_bpm_name(name: str) -> str:
@@ -130,17 +153,21 @@ class BPMData:
         try:
             return lin_opt.name.index(name)
         except ValueError as exc:
-            raise ValueError(f"BPM '{name}' not found in linear optics table") from exc
+            raise ValueError(f"BPM '{name}' not found in linear optics table") \
+                from exc
 
-    def read_bpm_names(self, inf: TextIO, lin_opt: LinOpt, verbose: bool = False) -> None:
+    def read_bpm_names(
+            self, inf: TextIO, lin_opt: LinOpt, verbose: bool = False) -> None:
         n_print = 8
         inf.readline()
         header = inf.readline().strip().split()
         if len(header) < 2:
-            raise ValueError("Malformed BPM header: expected number of BPMs and turns")
+            raise ValueError(
+                "Malformed BPM header: expected number of BPMs and turns")
         self.n_bpm, self.n_turn = map(int, header[:2])
         inf.readline()
-        print_write("\nno of BPMs = %d, no of turns = %d \n", self.n_bpm, self.n_turn)
+        print_write(
+            "\nno of BPMs = %d, no of turns = %d \n", self.n_bpm, self.n_turn)
 
         self.data = np.zeros((2, self.n_bpm, self.n_turn), dtype=float)
         self.name.clear()
@@ -164,7 +191,8 @@ class BPMData:
         if verbose and (self.n_bpm % n_print != 0):
             print_write("\n")
 
-    def read_bpm_data(self, plane: int, inf: TextIO, verbose: bool = False) -> None:
+    def read_bpm_data(
+            self, plane: int, inf: TextIO, verbose: bool = False) -> None:
         n_print = 8
         if verbose:
             print_write("\n")
@@ -192,30 +220,45 @@ class BPMData:
     def read_tbt(self, file_name: str | Path, lin_opt: LinOpt) -> None:
         with open(file_name, "r", encoding="utf-8") as inf:
             self.read_bpm_names(inf, lin_opt)
+            # assert False
             self.read_bpm_data(X_, inf)
             self.read_bpm_data(Y_, inf)
 
 
 @dataclass
 class EstimatedLinOpt:
-    beta_pinger: PlaneArray = field(default_factory=lambda: np.zeros(2, dtype=float))
-    alpha_mean: PlaneArray = field(default_factory=lambda: np.zeros(2, dtype=float))
-    alpha_sigma: PlaneArray = field(default_factory=lambda: np.zeros(2, dtype=float))
-    tune_mean: PlaneArray = field(default_factory=lambda: np.zeros(2, dtype=float))
-    tune_sigma: PlaneArray = field(default_factory=lambda: np.zeros(2, dtype=float))
-    beta: PlaneArray = field(default_factory=lambda: np.zeros((2, 0), dtype=float))
+    beta_pinger: PlaneArray = \
+        field(default_factory=lambda: np.zeros(2, dtype=float))
+    alpha_mean: PlaneArray = \
+        field(default_factory=lambda: np.zeros(2, dtype=float))
+    alpha_sigma: PlaneArray = \
+        field(default_factory=lambda: np.zeros(2, dtype=float))
+    tune_mean: PlaneArray = \
+        field(default_factory=lambda: np.zeros(2, dtype=float))
+    tune_sigma: PlaneArray = \
+        field(default_factory=lambda: np.zeros(2, dtype=float))
+    beta: PlaneArray = \
+        field(default_factory=lambda: np.zeros((2, 0), dtype=float))
 
-    beta_mean: PlaneArray = field(default_factory=lambda: np.zeros((2, 0), dtype=float))
-    beta_sigma: PlaneArray = field(default_factory=lambda: np.zeros((2, 0), dtype=float))
-    nu: PlaneArray = field(default_factory=lambda: np.zeros((2, 0), dtype=float))
+    beta_mean: PlaneArray = \
+        field(default_factory=lambda: np.zeros((2, 0), dtype=float))
+    beta_sigma: PlaneArray = \
+        field(default_factory=lambda: np.zeros((2, 0), dtype=float))
+    nu: PlaneArray = \
+        field(default_factory=lambda: np.zeros((2, 0), dtype=float))
 
-    dnu_mean: PlaneArray = field(default_factory=lambda: np.zeros((2, 0), dtype=float))
-    dnu_sigma: PlaneArray = field(default_factory=lambda: np.zeros((2, 0), dtype=float))
+    dnu_mean: PlaneArray = \
+        field(default_factory=lambda: np.zeros((2, 0), dtype=float))
+    dnu_sigma: PlaneArray = \
+        field(default_factory=lambda: np.zeros((2, 0), dtype=float))
     beta_samples: list[PlaneArray] = field(default_factory=list)
     dnu_samples: list[PlaneArray] = field(default_factory=list)
-    twoJ: PlaneArray = field(default_factory=lambda: np.zeros((2, 0), dtype=float))
-    phi: PlaneArray = field(default_factory=lambda: np.zeros((2, 0), dtype=float))
-    phi0: PlaneArray = field(default_factory=lambda: np.zeros((2, 0), dtype=float))
+    twoJ: PlaneArray = \
+        field(default_factory=lambda: np.zeros((2, 0), dtype=float))
+    phi: PlaneArray = \
+        field(default_factory=lambda: np.zeros((2, 0), dtype=float))
+    phi0: PlaneArray = \
+        field(default_factory=lambda: np.zeros((2, 0), dtype=float))
 
     def zero(self, n: int) -> None:
         shape = (2, n)
@@ -228,7 +271,9 @@ class EstimatedLinOpt:
         self.beta_samples = []
         self.dnu_samples = []
 
-    def get_stats(self, bpm_data: BPMData, lin_opt: LinOpt, out_file: str | Path = "tbt.out") -> None:
+    def get_stats(
+            self, bpm_data: BPMData, lin_opt: LinOpt,
+            out_file: str | Path = "lin_opt.out") -> None:
         dbeta_max = 5.0
         dnu_max = 0.05
 
@@ -255,7 +300,9 @@ class EstimatedLinOpt:
         with open(out_file, "w", encoding="utf-8") as outf:
             dbeta = np.zeros(2, dtype=float)
             dnu = np.zeros(2, dtype=float)
-            file_write(outf, "\n# bpm  s [m]                 beta [m]                           nu\n")
+            file_write(
+                outf, "\n# bpm  s [m]                 beta [m]"
+                "                           nu\n")
             for j in range(bpm_data.n_bpm):
                 loc = bpm_data.loc[j]
                 for k in range(2):
@@ -264,7 +311,9 @@ class EstimatedLinOpt:
                         dbeta[k] = 0.0
                         self.beta_sigma[k, j] = 0.0
 
-                    dnu[k] = self.dnu_mean[k, j] - (lin_opt.nu[k, loc] - int(lin_opt.nu[k, loc]))
+                    dnu[k] = \
+                        self.dnu_mean[k, j] \
+                        - (lin_opt.nu[k, loc] - int(lin_opt.nu[k, loc]))
                     if self.dnu_sigma[k, j] > dnu_max:
                         print_write("\nBPM # %d excluded, plane = %d\n", j, k)
                         dnu[k] = 0.0
@@ -272,7 +321,8 @@ class EstimatedLinOpt:
 
                 file_write(
                     outf,
-                    "%4d %8.3f %7.3f +/- %5.3f %7.3f +/- %5.3f%7.3f +/- %5.3f %7.3f +/- %5.3f %8.3f %8.3f\n",
+                    "%4d %8.3f %7.3f +/- %5.3f %7.3f +/- %5.3f%7.3f +/- %5.3f"
+                    " %7.3f +/- %5.3f %8.3f %8.3f\n",
                     j + 1,
                     lin_opt.s[loc],
                     dbeta[X_],
@@ -358,7 +408,9 @@ def get_A(n: int, A: PlaneArray, nu: float, k: int, window: int) -> float:
     if window == 1:
         corr = sinc(np.pi * (k - nu * n))
     elif window == 2:
-        corr = (sinc(np.pi * (k + 0.5 - nu * n)) + sinc(np.pi * (k - 0.5 - nu * n))) / 2.0
+        corr = \
+            (sinc(np.pi * (k + 0.5 - nu * n)) \
+             + sinc(np.pi * (k - 0.5 - nu * n))) / 2.0
     elif window == 3:
         raise NotImplementedError("get_A is not implemented for window=3")
     else:
@@ -368,7 +420,9 @@ def get_A(n: int, A: PlaneArray, nu: float, k: int, window: int) -> float:
     return A[k] / corr
 
 
-def get_alpha(n: int, X: NDArray[np.complex128], nu: float, k: int) -> tuple[float, float]:
+def get_alpha(
+        n: int, X: NDArray[np.complex128],
+        nu: float, k: int) -> tuple[float, float]:
     """Estimate the local spectral phase shift and damping parameter."""
     I = complex(0.0, 1.0)
     ind1, ind3 = get_ind(n, k)
@@ -376,7 +430,9 @@ def get_alpha(n: int, X: NDArray[np.complex128], nu: float, k: int) -> tuple[flo
         d, rho = 1, X[ind3] / X[k]
     else:
         d, rho = -1, X[ind1] / X[k]
-    z = (1.0 - rho) / (1.0 - rho * np.exp(-I * 2.0 * np.pi * float(d) / float(n)))
+    z = \
+        (1.0 - rho) \
+        / (1.0 - rho * np.exp(-I * 2.0 * np.pi * float(d) / float(n)))
     delta = n * np.angle(z) / (2.0 * np.pi)
     alpha = n * math.log(abs(z)) / (2.0 * np.pi)
     return delta, alpha
@@ -404,8 +460,11 @@ def get_phi(n: int, k: int, nu: float, phi: PlaneArray) -> float:
     return phi_nu
 
 
-def get_nu2(n: int, x: PlaneArray, window: int) -> tuple[float, float, float, float, float]:
-    """Estimate tune, amplitude, phase, phase shift, and damping from TbT data."""
+def get_nu2(
+        n: int, x: PlaneArray,
+        window: int) -> tuple[float, float, float, float, float]:
+    """Estimate tune, amplitude, phase, phase shift"
+    ", and damping from TbT data."""
     A, phi = FFT1(x, window)
     x_fft = FFT2(x, 1)
     return get_nu2_from_spectra(n, A, phi, x_fft, window)
@@ -461,7 +520,8 @@ def get_nus(
 
     spectra_amp = np.zeros((2, bpm_data.n_bpm, n // 2 + 1), dtype=float)
     spectra_phi = np.zeros((2, bpm_data.n_bpm, n // 2 + 1), dtype=float)
-    spectra_rect = np.zeros((2, bpm_data.n_bpm, n // 2 + 1), dtype=np.complex128)
+    spectra_rect = \
+        np.zeros((2, bpm_data.n_bpm, n // 2 + 1), dtype=np.complex128)
 
     for j in range(2):
         fft_windowed = np.fft.rfft(apply_window(segment[j], window), axis=1)
@@ -475,7 +535,8 @@ def get_nus(
     for i in range(bpm_data.n_bpm):
         loc = bpm_data.loc[i]
         for j in range(2):
-            tunes[i, j], As[i, j], phis[i, j], delta[j], alpha[j] = get_nu2_from_spectra(
+            tunes[i, j], As[i, j], phis[i, j], delta[j], alpha[j] = \
+                get_nu2_from_spectra(
                 n,
                 spectra_amp[j, i],
                 spectra_phi[j, i],
@@ -505,13 +566,17 @@ def get_nus(
             phi0_sum2[j] += sqr(phi0[j])
 
     twoJ_mean = twoJ_sum / bpm_data.n_bpm
-    twoJ_sigma = np.sqrt((bpm_data.n_bpm * twoJ_sum2 - sqr(twoJ_sum)) / (bpm_data.n_bpm * (bpm_data.n_bpm - 1.0)))
+    twoJ_sigma = \
+        np.sqrt((bpm_data.n_bpm * twoJ_sum2 - sqr(twoJ_sum)) / (bpm_data.n_bpm * (bpm_data.n_bpm - 1.0)))
 
     phi0_mean = phi0_sum / bpm_data.n_bpm
-    phi0_sigma = np.sqrt((bpm_data.n_bpm * phi0_sum2 - np.square(phi0_sum)) / (bpm_data.n_bpm * (bpm_data.n_bpm - 1.0)))
+    phi0_sigma = \
+        np.sqrt((bpm_data.n_bpm * phi0_sum2 - np.square(phi0_sum)) \
+                / (bpm_data.n_bpm * (bpm_data.n_bpm - 1.0)))
 
     print_write(
-        "\ntwoJ  = [%9.3e+/-%9.3e, %9.3e+/-%9.3e], phi0 = [%5.3f+/-%5.3f, %5.3f+/-%5.3f]\n",
+        "\ntwoJ  = [%9.3e+/-%9.3e, %9.3e+/-%9.3e]"
+        ", phi0 = [%5.3f+/-%5.3f, %5.3f+/-%5.3f]\n",
         twoJ_mean[X_],
         twoJ_sigma[X_],
         twoJ_mean[Y_],
@@ -547,7 +612,9 @@ def get_nus(
             beta_run[j, i] = beta
             dnu_run[j, i] = dnu[j]
 
-        file_write(outf, "%4d %7.3f %8.3f %8.3f\n", i + 1, lin_opt.s[loc], dnu[X_], dnu[Y_])
+        file_write(
+            outf,
+            "%4d %7.3f %8.3f %8.3f\n", i + 1, lin_opt.s[loc], dnu[X_], dnu[Y_])
 
     est_lin_opt.beta_samples.append(beta_run)
     est_lin_opt.dnu_samples.append(dnu_run)
@@ -557,12 +624,14 @@ def get_nus(
         if sgn[j] < 0:
             est_lin_opt.tune_mean[j] = 1.0 - est_lin_opt.tune_mean[j]
         est_lin_opt.tune_sigma[j] = math.sqrt(
-            (bpm_data.n_bpm * tune_sum2[j] - sqr(tune_sum[j])) / (bpm_data.n_bpm * (bpm_data.n_bpm - 1.0))
+            (bpm_data.n_bpm * tune_sum2[j] - sqr(tune_sum[j])) \
+            / (bpm_data.n_bpm * (bpm_data.n_bpm - 1.0))
         )
 
         est_lin_opt.alpha_mean[j] = alpha_sum[j] / bpm_data.n_bpm
         est_lin_opt.alpha_sigma[j] = math.sqrt(
-            (bpm_data.n_bpm * alpha_sum2[j] - sqr(alpha_sum[j])) / (bpm_data.n_bpm * (bpm_data.n_bpm - 1.0))
+            (bpm_data.n_bpm * alpha_sum2[j] - sqr(alpha_sum[j])) \
+            / (bpm_data.n_bpm * (bpm_data.n_bpm - 1.0))
         )
 
     print_write(
@@ -579,12 +648,13 @@ def get_nus(
         est_lin_opt.alpha_mean[Y_],
         est_lin_opt.alpha_sigma[Y_],
     )
-    print_write("%8.5f %8.5f\n", nus[6, X_] - nus[5, X_], nus[6, Y_] - nus[5, Y_])
+    print_write(
+        "%8.5f %8.5f\n", nus[6, X_] - nus[5, X_], nus[6, Y_] - nus[5, Y_])
 
 
 def prt_FFT(cut: int, xy: PlaneArray, window: int) -> None:
     n = len(xy[X_])
-    with open("sls.out", "w", encoding="utf-8") as outf:
+    with open("tbt_data.out", "w", encoding="utf-8") as outf:
         for j in range(cut, n + cut):
             file_write(outf, "%5d %11.3e %11.3e\n", j + 1, xy[X_, j], xy[Y_, j])
 
@@ -594,12 +664,16 @@ def prt_FFT(cut: int, xy: PlaneArray, window: int) -> None:
     for k in range(2):
         A[k], phi[k] = FFT1(x1[k], window)
 
-    with open("sls_fft.out", "w", encoding="utf-8") as outf:
+    with open("tbt_fft.out", "w", encoding="utf-8") as outf:
         for k in range(n // 2 + 1):
-            file_write(outf, "%5d %9.3e %9.3e %9.3e\n", k + 1, float(k) / float(n), A[X_, k], A[Y_, k])
+            file_write(
+                outf, "%5d %9.3e %9.3e %9.3e\n",
+                k + 1, float(k) / float(n), A[X_, k], A[Y_, k])
 
 
-def get_b1ob2_dnu(n: int, ps1: PlaneArray, ps2: PlaneArray) -> tuple[PlaneArray, PlaneArray]:
+def get_b1ob2_dnu(
+        n: int, ps1: PlaneArray,
+        ps2: PlaneArray) -> tuple[PlaneArray, PlaneArray]:
     """Estimate beta ratio and phase advance from two phase-space traces."""
     print_write("\n")
     b1ob2 = np.zeros(2, dtype=float)
@@ -614,7 +688,9 @@ def get_b1ob2_dnu(n: int, ps1: PlaneArray, ps2: PlaneArray) -> tuple[PlaneArray,
     return b1ob2, dnu
 
 
-def ss_est(cut: int, n: int, bpm1: int, bpm2: int, bpm_data: BPMData, lin_opt: LinOpt) -> None:
+def ss_est(
+        cut: int, n: int, bpm1: int, bpm2: int,
+        bpm_data: BPMData, lin_opt: LinOpt) -> None:
     ps1 = bpm_data.data[:, bpm1 - 1, cut : n + cut].copy()
     ps2 = bpm_data.data[:, bpm2 - 1, cut : n + cut].copy()
 
@@ -636,7 +712,8 @@ def ss_est(cut: int, n: int, bpm1: int, bpm2: int, bpm_data: BPMData, lin_opt: L
             for k in range(2):
                 ps[2 * k] = ps1[k, j] / math.sqrt(beta1[k])
                 ps[2 * k + 1] = (
-                    math.sqrt(b1ob2[k]) * ps2[k, j] - ps1[k, j] * math.cos(2.0 * math.pi * dnu[k])
+                    math.sqrt(b1ob2[k]) * ps2[k, j] - ps1[k, j] \
+                    * math.cos(2.0 * math.pi * dnu[k])
                 ) / (math.sqrt(beta1[k]) * math.sin(2.0 * math.pi * dnu[k]))
                 twoJ[k] = sqr(ps[2 * k]) + sqr(ps[2 * k + 1])
             file_write(
@@ -693,6 +770,8 @@ def run(home_dir: str | Path) -> None:
 
     est_lin_opt.get_stats(bpm_data, lin_opt)
 
+    assert False
+
     cut = 10
     n_turn = 1024
     bpm1 = 5
@@ -703,8 +782,11 @@ def run(home_dir: str | Path) -> None:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Refactored turn-by-turn optics analysis")
-    parser.add_argument("home_dir", help="Directory containing linlat.out and TBT log files")
+    parser = \
+        argparse.ArgumentParser(
+            description="Refactored turn-by-turn optics analysis")
+    parser.add_argument(
+        "home_dir", help="Directory containing linlat.out and TBT log files")
     return parser
 
 
