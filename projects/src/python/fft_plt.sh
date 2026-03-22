@@ -8,9 +8,9 @@ gnuplot << EOP
 home_dir = "$prm1"
 ps       = $prm2
 
-file_name_1 = home_dir."lin_opt.out"
-file_name_2 = home_dir."tbt_data.out"
-file_name_3 = home_dir."tbt_fft.out"
+file_name_1 = home_dir."tbt_data.out"
+file_name_2 = home_dir."tbt_fft.out"
+file_name_3 = home_dir."lin_opt.out"
 file_name_4 = home_dir."tbt_phase_space.out"
 
 f_s = 14
@@ -46,17 +46,25 @@ if (ps) set output "fft_sls_1.".ext;
 
 set multiplot;
 
-set size 1.0, 0.5; set origin 0.0, 0.5;
-set title "{/Symbol b}_x";
-set xlabel "s [m]"; set ylabel "[m]";
-plot file_name_1 using 2:3:5 notitle with errorbars ls 1, \
-     file_name_1 using 2:15 notitle with lines ls 1;
+set size 0.5, 0.5; set origin 0.0, 0.5;
+set title "Horizontal Position";
+set xlabel "n"; set ylabel "[mm]";
+plot file_name_1 using 1:(1e3*\$2) notitle with impulses ls 1;
+
+set origin 0.5, 0.5;
+set title "Vertical Position";
+set xlabel "n"; set ylabel "[mm]";
+plot file_name_1 using 1:(1e3*\$3) notitle with impulses ls 3;
 
 set origin 0.0, 0.0;
-set title "{/Symbol b}_y";
-set xlabel "s [m]"; set ylabel "[m]";
-plot file_name_1 using 2:6:8 notitle with errorbars ls 3, \
-     file_name_1 using 2:16 notitle with lines ls 3;
+set title "FFT of Horizontal Position";
+set xlabel "{/Symbol n}"; set ylabel "";
+plot file_name_2 using 2:(1e3*\$3) notitle with impulses ls 1;
+
+set origin 0.5, 0.0;
+set title "FFT of Vertical Position";
+set xlabel "{/Symbol n}"; set ylabel "";
+plot file_name_2 using 2:(1e3*\$4) notitle with impulses ls 3;
 
 unset multiplot;
 if (!ps) pause mouse "click on graph to cont.\n"
@@ -66,14 +74,16 @@ if (ps) set output "fft_sls_2.".ext;
 set multiplot;
 
 set size 1.0, 0.5; set origin 0.0, 0.5;
-set title "{/Symbol Dm}_x/2{/Symbol p}";
-set xlabel "s [m]"; set ylabel "";
-plot file_name_1 using 2:9:11 notitle with errorbars ls 1;
+set title "{/Symbol b}_x";
+set xlabel "s [m]"; set ylabel "[m]";
+plot file_name_3 using 2:3:5 notitle with errorbars ls 1, \
+     file_name_3 using 2:15 notitle with lines ls 1;
 
 set origin 0.0, 0.0;
-set title "{/Symbol Dm}_y/2{/Symbol p}";
-set xlabel "s [m]"; set ylabel "";
-plot file_name_1 using 2:12:14 notitle with errorbars ls 3;
+set title "{/Symbol b}_y";
+set xlabel "s [m]"; set ylabel "[m]";
+plot file_name_3 using 2:6:8 notitle with errorbars ls 3, \
+     file_name_3 using 2:16 notitle with lines ls 3;
 
 unset multiplot;
 if (!ps) pause mouse "click on graph to cont.\n"
@@ -82,25 +92,15 @@ if (ps) set output "fft_sls_3.".ext;
 
 set multiplot;
 
-set size 0.5, 0.5; set origin 0.0, 0.5;
-set title "Horizontal Position";
-set xlabel "n"; set ylabel "[mm]";
-plot file_name_2 using 1:(1e3*\$2) notitle with impulses ls 1;
-
-set origin 0.5, 0.5;
-set title "Vertical Position";
-set xlabel "n"; set ylabel "[mm]";
-plot file_name_2 using 1:(1e3*\$3) notitle with impulses ls 3;
+set size 1.0, 0.5; set origin 0.0, 0.5;
+set title "{/Symbol Dm}_x/2{/Symbol p}";
+set xlabel "s [m]"; set ylabel "";
+plot file_name_3 using 2:9:11 notitle with errorbars ls 1;
 
 set origin 0.0, 0.0;
-set title "FFT of Horizontal Position";
-set xlabel "{/Symbol n}"; set ylabel "";
-plot file_name_3 using 2:(1e3*\$3) notitle with impulses ls 1;
-
-set origin 0.5, 0.0;
-set title "FFT of Vertical Position";
-set xlabel "{/Symbol n}"; set ylabel "";
-plot file_name_3 using 2:(1e3*\$4) notitle with impulses ls 3;
+set title "{/Symbol Dm}_y/2{/Symbol p}";
+set xlabel "s [m]"; set ylabel "";
+plot file_name_3 using 2:12:14 notitle with errorbars ls 3;
 
 unset multiplot;
 if (!ps) pause mouse "click on graph to cont.\n"
