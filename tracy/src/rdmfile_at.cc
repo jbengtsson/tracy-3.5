@@ -1,15 +1,27 @@
 
 // Requires C++11 but no later.
 
-#if 1
-#include <cerrno>
-#include <stdexcept>
-#include <string_view>
-#include <unordered_map>
-#include <utility>
+/*
+  Passmethods used at MAX IV:
+  ('*' implemented)
 
-#include "tracy_lib.h"
-#endif
+    * AperturePass
+    BendLinearPass
+    BndMPoleSymplectic4Pass
+    * BndMPoleSymplectic4RadPass
+    CavityPass
+    * CorrectorPass
+    * DriftPass
+    * EAperturePass
+    IdTablePass
+    * IdentityPass
+    * RFCavityPass
+    * StrMPoleSymplectic4Pass
+    * StrMPoleSymplectic4RadPass
+    ThinMPolePass
+    QuadLinearPass
+                                                                              */
+
 
 static const bool dbg = false;
 
@@ -17,7 +29,7 @@ void string_to_c_str(const std::string &str, partsName &c_str) {
   // Tracy-2 element names are not "\0" terminated C strings (Pascal legacy).
   if (str.size() > NameLength)
     throw std::runtime_error("ElemName too long for fixed buffer");
-  std::memcpy(c_str, str.data(), str.size());
+  memcpy(c_str, str.data(), str.size());
 }
 
 struct Value {
@@ -35,6 +47,7 @@ struct Element {
   std::string name;
   int number = -1;
   std::string passMethod;
+  // Element properties dictionary.
   std::unordered_map<std::string, std::vector<Value>> props;
 };
 
@@ -172,27 +185,41 @@ static void create_elem(Element &curr_elem)
 
   string_to_c_str(curr_elem.name, elem.PName);
 
+  // Allocate element.
   if ((curr_elem.passMethod == "IdentityPass")
       || (curr_elem.passMethod == "AperturePass")) {
+    // Marker.
     elem.PL = 0e0;
     elem.Pkind = PartsKind(marker);
   } else if (curr_elem.passMethod == "DriftPass") {
+    // Drift.
     elem.Pkind = PartsKind(drift);
     Drift_Alloc(&elem);
-  } else if ((curr_elem.passMethod == "CorrectorPass")
-	     || (curr_elem.passMethod == "StrMPoleSymplectic4Pass")
-	     || (curr_elem.passMethod == "BndMPoleSymplectic4RadPass")) {
+  } else if ((curr_elem.passMethod == "CorrectorPass") ||
+	     (curr_elem.passMethod == "StrMPoleSymplectic4Pass") ||
+	     (curr_elem.passMethod == "BndMPoleSymplectic4RadPass")) {
     elem.Pkind = PartsKind(Mpole);
+    // Multipole.
     Mpole_Alloc(&elem);
- } else if (curr_elem.passMethod == "RFCavityPass") {
+  } else if (curr_elem.passMethod == "RFCavityPass") {
+    // RF Cavity.
     elem.Pkind = PartsKind(Cavity);
     Cav_Alloc(&elem);
+  } else if (curr_elem.passMethod == "GWigSymplecticPass") {
+    // GWigSymplecticPass    - analytic,
+    // GWigSymplecticRadPass - analytic,
+    // IdTablePass           - kick map.
+    std::cout << "create_elem: *** undef. passMethod not implemented - "
+	      << curr_elem.passMethod << "\n";
+    exit(1);
   } else {
     std::cout << "create_elem: *** undef. passMethod - "
 	      << curr_elem.passMethod << "\n";
     exit(1);
   }
 
+
+  // Set element properties.
   if (dbg) {
     printf("\ncreate_elem: %4ld %2d\n", globval.Cell_nLoc, elem.Pkind);
     printf("  %s\n", elem.PName);
@@ -202,8 +229,8 @@ static void create_elem(Element &curr_elem)
     elem.PL = L;
     if (dbg) printf("  L          = %9.3e\n", elem.PL);
   }
-  if ((curr_elem.passMethod != "IdentityPass")
-      && (curr_elem.passMethod != "CorrectorPass")) {
+  if ((curr_elem.passMethod != "IdentityPass") &&
+      (curr_elem.passMethod != "CorrectorPass")) {
     auto it = curr_elem.props.find("EApertures");
     if (it != curr_elem.props.end() && !it->second.empty()) {
       auto X_max = it->second.at(0).number;
@@ -224,8 +251,8 @@ static void create_elem(Element &curr_elem)
 	       limits[0][0], limits[0][1], limits[1][0], limits[1][1]);
     }
   }
-  if ((curr_elem.passMethod == "StrMPoleSymplectic4Pass")
-      || (curr_elem.passMethod == "BndMPoleSymplectic4RadPass")) {
+  if ((curr_elem.passMethod == "StrMPoleSymplectic4Pass") ||
+      (curr_elem.passMethod == "BndMPoleSymplectic4RadPass")) {
     if (elem.PL == 0e0)
       elem.M->Pthick = pthicktype(thin);
     else
@@ -236,6 +263,15 @@ static void create_elem(Element &curr_elem)
 	  elem.M->Pirho = phi/elem.PL;
 	  if (dbg)
 	    printf("  phi        = %10.3e\n", phi*180e0/M_PI);
+          auto phi_1 =
+	    curr_elem.props.find("EntranceAngle")->second.at(0).number;
+	  elem.M->PTx1 = phi_1;
+	  if (dbg)
+	    printf("  phi_1      = %10.3e\n", phi_1*180e0/M_PI);
+          auto phi_2 = curr_elem.props.find("ExitAngle")->second.at(0).number;
+	  elem.M->PTx2 = phi_2;
+	  if (dbg)
+	    printf("  phi_2      = %10.3e\n", phi_2*180e0/M_PI);
     }
     auto n_int =
       (int)std::round(curr_elem.props.find("NumIntSteps")->second.at(0).number);
@@ -261,6 +297,7 @@ static void create_elem(Element &curr_elem)
     }
   }
   if (curr_elem.passMethod == "RFCavityPass") {
+    // RF Cavity.
     auto V_RF = curr_elem.props.find("Voltage")->second.at(0).number;
     auto f_RF = curr_elem.props.find("Frequency")->second.at(0).number;
     auto E_0 = curr_elem.props.find("Energy")->second.at(0).number;
@@ -272,6 +309,12 @@ static void create_elem(Element &curr_elem)
       printf("  f_RF       = %9.3e\n", f_RF);
       printf("  E_0        = %9.3e\n", E_0);
     }
+  }
+  if ((curr_elem.passMethod == "DriftPass")
+      || (curr_elem.passMethod == "CorrectorPass")
+      || (curr_elem.passMethod == "StrMPoleSymplectic4Pass")
+      || (curr_elem.passMethod == "BndMPoleSymplectic4RadPass")) {
+    // Misalignment.
   }
 
   if (globval.Cell_nLoc == 0)
