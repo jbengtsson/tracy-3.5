@@ -30,7 +30,7 @@ set style line 1 lt 1 lw 1 lc rgb "blue";
 set style line 2 lt 1 lw 1 lc rgb "green";
 set style line 3 lt 1 lw 1 lc rgb "red";
 
-if (ps) set output "cod_rms_1.".(ext)
+if (ps) set output "cod_rms_1.".ext
 set title "Horizontal RMS Orbit \n \
 ({/Symbol D}x_{rms}=100 {/Symbol m}m, {/Symbol D}y_{rms}=100 {/Symbol m}m)";
 set xlabel "s [m]"; set ylabel "[mm]";
@@ -41,7 +41,7 @@ plot file_name using 1:2 axis x1y2 notitle with fsteps lt 1 lw 1 \
      file_name using 1:3:3:5 notitle with errorbars ls 1;
 if (!ps) pause mouse "click on graph to cont.\n";
 
-if (ps) set output "cod_rms_2.".(ext)
+if (ps) set output "cod_rms_2.".ext
 set title "Vertical RMS Orbit \n \
 ({/Symbol D}x_{rms}=100 {/Symbol m}m, {/Symbol D}y_{rms}=100 {/Symbol m}m)";
 set xlabel "s [m]"; set ylabel "[mm]";

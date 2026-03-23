@@ -8,7 +8,11 @@ gnuplot << EOP
 home_dir = "$prm§"
 ps       = $prm2
 
-file_name = home_dir."linlat"
+file_name_1 = "dynap_0.00e+00.out"
+file_name_2 = "dynap_2.50e-04.out"
+file_name_3 = "dynap_5.00e-04.out"
+file_name_4 = "dynap_1.00e-03.out"
+file_name_5 = "dynap_2.50e-03.out"
 
 f_s = 14
 l_w = 2
@@ -39,20 +43,20 @@ set style line 3 lt 1 lw 1 lc rgb "cyan"
 set style line 4 lt 1 lw 1 lc rgb "purple"
 set style line 5 lt 1 lw 1 lc rgb "red"
 
-if (ps) set output "dynap_db_2.ps"
+if (ps) set output "dynap_db_2.".ext
 
 set title "Dynamic Aperture vs. {/Symbol D}b_2/b_2"
 set xlabel "x [mm]"
 set ylabel "y [mm]"
-plot "dynap_0.00e+00.out" using 1:2 title "Bare Lattice" \
+plot file_name_1 using 1:2 title "Bare Lattice" \
      with linespoints ls 1, \
-     "dynap_2.50e-04.out" using 1:2 title "{/Symbol D}b_2/b_2=2.5e-4" \
+     file_name_2 using 1:2 title "{/Symbol D}b_2/b_2=2.5e-4" \
      with linespoints ls 2, \
-     "dynap_5.00e-04.out" using 1:2 title "{/Symbol D}b_2/b_2=5.0e-4" \
+     file_name_3 using 1:2 title "{/Symbol D}b_2/b_2=5.0e-4" \
      with linespoints ls 3, \
-     "dynap_1.00e-03.out" using 1:2 title "{/Symbol D}b_2/b_2=1.0e-3" \
+     file_name_4 using 1:2 title "{/Symbol D}b_2/b_2=1.0e-3" \
      with linespoints ls 4, \
-     "dynap_2.50e-03.out" using 1:2 title "{/Symbol D}b_2/b_2=2.5e-3" \
+     file_name_5 using 1:2 title "{/Symbol D}b_2/b_2=2.5e-3" \
      with linespoints ls 5
 
 if (!ps) pause mouse "click on graph to cont.\n"
