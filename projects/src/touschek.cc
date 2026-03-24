@@ -63,7 +63,8 @@ void err_and_corr(const string &param_file)
     printf("\nerr_and_corr: orbit correction completed\n");
     prt_cod("cod.out", globval.bpm, true);
  
-    globval.delta_RF = delta_RF; globval.Cavity_on = true;
+    globval.delta_RF = delta_RF;
+    globval.Cavity_on = true;
 
     Touschek(Qb, globval.delta_RF, eps[X_], eps[Y_], sigma_delta, sigma_s);
       
