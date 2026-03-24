@@ -2410,11 +2410,11 @@ void mom_aper(double &delta, double delta_RF, const long int k,
 }
 
 
-double Touschek(const double Qb, const double delta_RF, const bool consistent,
-		const double eps_x, const double eps_y,
-		const double sigma_delta, double sigma_s,
-		const int n_turn, const bool aper_on,
-		double sum_delta[][2], double sum2_delta[][2])
+double Touschek
+(const double Qb, const double delta_RF, const bool consistent,
+ const double eps_x, const double eps_y, const double sigma_delta,
+ double sigma_s, const int n_turn, const bool aper_on, double sum_delta[][2],
+ double sum2_delta[][2])
 {
   bool     cav, aper;
   long int k;
@@ -2429,11 +2429,13 @@ double Touschek(const double Qb, const double delta_RF, const bool consistent,
     gamma = 1e9*globval.Energy/m_e,
     N_e   = Qb/q_e;
 
-  cav = globval.Cavity_on; aper = globval.Aperture_on;
+  cav = globval.Cavity_on;
+  aper = globval.Aperture_on;
 
   globval.Cavity_on = true;
 
   Ring_GetTwiss(true, 0.0);
+  printglob();
 
   globval.Aperture_on = aper_on;
 
@@ -2445,11 +2447,16 @@ double Touschek(const double Qb, const double delta_RF, const bool consistent,
 
   printf("\nMomentum aperture:\n");
 
-  delta_p = delta_RF; mom_aper(delta_p, delta_RF, 0, n_turn, true);
-  delta_m = -delta_RF; mom_aper(delta_m, delta_RF, 0, n_turn, false);
-  delta_p = min(delta_RF, delta_p); delta_m = max(-delta_RF, delta_m);
-  sum_delta[0][0] += delta_p; sum_delta[0][1] += delta_m;
-  sum2_delta[0][0] += sqr(delta_p); sum2_delta[0][1] += sqr(delta_m);
+  delta_p = delta_RF;
+  mom_aper(delta_p, delta_RF, 0, n_turn, true);
+  delta_m = -delta_RF;
+  mom_aper(delta_m, delta_RF, 0, n_turn, false);
+  delta_p = min(delta_RF, delta_p);
+  delta_m = max(-delta_RF, delta_m);
+  sum_delta[0][0] += delta_p;
+  sum_delta[0][1] += delta_m;
+  sum2_delta[0][0] += sqr(delta_p);
+  sum2_delta[0][1] += sqr(delta_m);
 
   outf = file_write(file_name.c_str());
 
@@ -2462,8 +2469,10 @@ double Touschek(const double Qb, const double delta_RF, const bool consistent,
 
     if (fabs(curly_H0-curly_H1) > eps) {
       mom_aper(delta_p, delta_RF, k, n_turn, true);
-      delta_m = -delta_p; mom_aper(delta_m, delta_RF, k, n_turn, false);
-      delta_p = min(delta_RF, delta_p); delta_m = max(-delta_RF, delta_m);
+      delta_m = -delta_p;
+      mom_aper(delta_m, delta_RF, k, n_turn, false);
+      delta_p = min(delta_RF, delta_p);
+      delta_m = max(-delta_RF, delta_m);
       printf("%4ld %6.2f %3.2lf%% %3.2lf%%\n",
 	     k, Cell[k].S, 1e2*delta_p, 1e2*delta_m);
       curly_H0 = curly_H1;
