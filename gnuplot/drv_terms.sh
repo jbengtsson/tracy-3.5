@@ -1,14 +1,17 @@
 #!/bin/sh
 
-prm1=${1-0}
+prm1=${1:-""}
+prm2=${2:-0}
 
 gnuplot << EOP
 
-ps = $prm1;
+home_dir = "$prm1"
+ps       = $prm2
 
-file_name = "drv_terms.out";
+file_name = home_dir."drv_terms.out";
 
-f_s = 24; l_w = 2;
+f_s = 24;
+l_w = 2;
 if (ps == 0) \
   set terminal qt 0 font "Sans, 9"; \
 else if (ps == 1) \
