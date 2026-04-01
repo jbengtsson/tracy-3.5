@@ -108,7 +108,7 @@ plot file_name using 2:3 axis x1y2 notitle with fsteps lt 1 lw 1 \
      file_name using 2:26 title "h_{41000}" with steps ls 2, \
      file_name using 2:27 title "h_{32000}" with steps ls 3, \
      file_name using 2:28 title "h_{30200}" with steps ls 4, \
-     file_name using 2:27 title "h_{21200}" with steps ls 5, \
+     file_name using 2:29 title "h_{21200}" with steps ls 5, \
      file_name using 2:30 title "h_{10400}" with steps ls 6, \
      file_name using 2:31 title "h_{30110}" with steps ls 7, \
      file_name using 2:32 title "h_{21110}" with steps ls 8, \
