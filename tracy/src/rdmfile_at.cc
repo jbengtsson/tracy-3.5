@@ -361,6 +361,8 @@ static void create_elem(Element &curr_elem)
     auto E_0 = curr_elem.props.find("Energy")->second.at(0).number;
 
     globval.Energy = 1e-9*E_0;
+    elem.C->V_RF   = V_RF;   // [V]
+    elem.C->f_RF   = f_RF;   // [Hz]
 
     if (dbg) {
       printf("  V_RF       = %9.3e\n", V_RF);
