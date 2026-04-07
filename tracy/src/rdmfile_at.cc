@@ -28,9 +28,16 @@ static const bool dbg = false;
 
 void string_to_c_str(const std::string &str, partsName &c_str) {
   // Tracy-2 element names are not "\0" terminated C strings (Pascal legacy).
+  // Keep symbol names in the same canonical format used by ElemIndex:
+  // lowercase pad with spaces up to SymbolLength.
   if (str.size() > NameLength)
     throw std::runtime_error("ElemName too long for fixed buffer");
-  memcpy(c_str, str.data(), str.size());
+
+  memset(c_str, 0, sizeof(partsName));
+  for (size_t i = 0; i < str.size(); i++)
+    c_str[i] = (char)std::tolower((unsigned char)str[i]);
+  for (size_t i = str.size(); i < SymbolLength; i++)
+    c_str[i] = ' ';
 }
 
 struct Value {
@@ -218,6 +225,42 @@ static void print_elem(Element &elem) {
       print_value(kv.second[i]);
     }
     std::cout << "\n";
+  }
+}
+
+// Post-processing pass: assign Fnum/Knum/ElemFam from element names, matching
+// Elements sharing the same PName belong to the same family.
+static void assign_elem_families()
+{
+  std::unordered_map<std::string, int> name_to_fnum;
+  globval.Elem_nFam = 0;
+
+  for (long i = 0; i <= globval.Cell_nLoc; i++) {
+    CellType &cell = Cell[i];
+    std::string name(cell.Elem.PName);
+
+    auto result = name_to_fnum.emplace(name, (int)globval.Elem_nFam + 1);
+    const bool inserted = result.second;
+    const int  fnum     = result.first->second;
+
+    if (inserted) {
+      // First kid of this family: initialise the family prototype.
+      globval.Elem_nFam++;
+      memset(ElemFam[fnum-1].ElemF.PName, 0, sizeof(partsName));
+      memcpy(ElemFam[fnum-1].ElemF.PName, cell.Elem.PName,
+             sizeof(partsName));
+      ElemFam[fnum-1].nKid = 0;
+    }
+
+    cell.Fnum = fnum;
+    ElemFam[fnum-1].nKid++;
+    cell.Knum = ElemFam[fnum-1].nKid;
+
+    // KidList and ElemF.Pkind are only populated for i > 0, exclude ring-origin marker.
+    if (i > 0) {
+      ElemFam[fnum-1].KidList[cell.Knum - 1] = i;
+      ElemFam[fnum-1].ElemF.Pkind = cell.Elem.Pkind;
+    }
   }
 }
 
@@ -585,4 +628,14 @@ void rdmfile_at(const std::string& file_name) {
 
   printf("\nrdmfile_at: read %ld elements, C = %7.5f\n",
 	 globval.Cell_nLoc+1, Cell[globval.Cell_nLoc].S);
+
+  assign_elem_families();
+
+  // Compute harmonic number for all cavity elements now that C is known.
+  const double C_ring = Cell[globval.Cell_nLoc].S;
+  for (long i = 0; i <= globval.Cell_nLoc; i++) {
+    if (Cell[i].Elem.Pkind == PartsKind(Cavity) && Cell[i].Elem.C->f_RF != 0.0)
+      Cell[i].Elem.C->harm_num =
+        (int)std::round(Cell[i].Elem.C->f_RF * C_ring / c0);
+  }
 }
