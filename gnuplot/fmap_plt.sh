@@ -49,10 +49,17 @@ if (ps == 0) {
 #       [0.5, 1.0]  -1, int(nu) = nu + 1.
 
 if ((N == 1) && (case == 1)) {
+  print("A")
   N_x = 58
   N_y = 17
   sgn_x = 1
   sgn_y = 1
+} else if ((N == 1) && (case == 2)) {
+  print("A")
+  N_x = 21
+  N_y = 10
+  sgn_x = -1
+  sgn_y =  1
 } else if ((N == 20) && (case == 1)) {
   N_x = 3
   N_y = 1
@@ -60,10 +67,20 @@ if ((N == 1) && (case == 1)) {
   sgn_y = -1
 }
 
-nu_x_min = 58.0
-nu_x_max = 58.5
-nu_y_min = 17.0
-nu_y_max = 17.5
+if (sgn_x == 1) {
+   nu_x_min = N_x
+   nu_x_max = N_x + 0.5
+} else {
+   nu_x_min = N_x - 0.5
+   nu_x_max = N_x
+}
+if (sgn_y == 1) {
+   nu_y_min = N_y
+   nu_y_max = N_y + 0.5
+} else {
+   nu_y_min = N_y - 0.5
+   nu_y_max = N_y
+}
 
 x_max = 6.0
 y_max = 3.0
