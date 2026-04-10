@@ -539,12 +539,28 @@ void GetEmittance(const int Fnum_cav, const bool path_length, const bool prt)
   // radiation loss is computed in Cav_Pass
 
   globval.U0 = globval.dE*1e9*globval.Energy;
-  V_RF = Cell[Elem_GetPos(Fnum_cav, 1)].Elem.C->V_RF;
+
+  // For lattices with multiple RF cavities, use the
+  // total RF voltage seen per turn for synchronous phase / bucket height.
+  V_RF = 0e0;
   h_RF = Cell[Elem_GetPos(Fnum_cav, 1)].Elem.C->harm_num;
-  phi0 = fabs(asin(globval.U0/V_RF));
-  globval.delta_RF =
-    sqrt(-V_RF*cos(M_PI-phi0)*(2.0-(M_PI-2.0*(M_PI-phi0))
-    *tan(M_PI-phi0))/(fabs(globval.Alphac)*M_PI*h_RF*1e9*globval.Energy));
+  for (j = 1; j <= ElemFam[Fnum_cav-1].nKid; j++)
+    V_RF += Cell[Elem_GetPos(Fnum_cav, j)].Elem.C->V_RF;
+
+  {
+    const double arg = globval.U0/V_RF;
+    if (fabs(arg) <= 1e0) {
+      phi0 = fabs(asin(arg));
+      globval.delta_RF =
+        sqrt(-V_RF*cos(M_PI-phi0)*(2.0-(M_PI-2.0*(M_PI-phi0))
+        *tan(M_PI-phi0))/(fabs(globval.Alphac)*M_PI*h_RF*1e9*globval.Energy));
+    } else { // Print error if RF voltage is insufficient to compensate for radiation loss.
+      printf("GetEmittance: insufficient RF voltage: |U0/V_RF| = %.6f > 1 with V_RF = %.6f, U0 = %.6f\n",
+             fabs(arg), V_RF, globval.U0);
+      phi0 = NAN;
+      globval.delta_RF = NAN;
+    }
+  }
 
   // Compute diffusion coeffs. for eigenvectors [sigma_xx, sigma_yy, sigma_zz]
   Ascr_map = putlinmat(6, globval.Ascr);

@@ -685,6 +685,11 @@ void param_data_type::get_param(const string &param_file)
         sstr.clear(); sstr.str("");
 	sstr << in_dir << str; lat_FileName = sstr.str();
         Read_Lattice(lat_FileName.c_str());
+      } else if (strcmp("at_flat_file", name) == 0) {
+	sscanf(line, "%*s %s", str);
+	sstr.clear(); sstr.str("");
+	sstr << str << "flat_file.dat"; flat_file = sstr.str();
+	rdmfile_at(flat_file.c_str());
       } else if (strcmp("flat_file", name) == 0) {
 	sscanf(line, "%*s %s", str);
 	sstr.clear(); sstr.str("");
