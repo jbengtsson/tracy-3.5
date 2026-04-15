@@ -334,11 +334,13 @@ static void create_elem(Element &curr_elem)
     printf("\ncreate_elem: %4ld %2d\n", globval.Cell_nLoc, elem.Pkind);
     printf("  %s\n", elem.PName);
   }
+  
   if (elem.Pkind != marker) {
     auto L = curr_elem.props.find("Length")->second.at(0).number;
     elem.PL = L;
     if (dbg) printf("  L          = %9.3e\n", elem.PL);
   }
+
   if ((curr_elem.passMethod != "IdentityPass") &&
       (curr_elem.passMethod != "CorrectorPass")) {
     auto it = curr_elem.props.find("EApertures");
@@ -348,6 +350,7 @@ static void create_elem(Element &curr_elem)
       if (dbg) printf("  EApertures = [%9.3e, %9.3e]\n", X_max, Y_max);
     }
   }
+
   if (curr_elem.passMethod != "AperturePass") {
     auto it = curr_elem.props.find("Limits");
     double limits[2][2];
@@ -361,12 +364,15 @@ static void create_elem(Element &curr_elem)
 	       limits[0][0], limits[0][1], limits[1][0], limits[1][1]);
     }
   }
-  if ((curr_elem.passMethod == "StrMPoleSymplectic4Pass") ||
+
+  if ((curr_elem.passMethod == "CorrectorPass") ||
+      (curr_elem.passMethod == "StrMPoleSymplectic4Pass") ||
       (curr_elem.passMethod == "BndMPoleSymplectic4RadPass")) {
     if (elem.PL == 0e0)
       elem.M->Pthick = pthicktype(thin);
     else
       elem.M->Pthick = pthicktype(thick);
+    // For bending multipoles also set bending angle and entrance/exit angles.
     if ((curr_elem.passMethod == "BndMPoleSymplectic4RadPass")
 	&& (elem.M->Pthick == thick)){
       auto phi = curr_elem.props.find("BendingAngle")->second.at(0).number;
@@ -420,8 +426,8 @@ static void create_elem(Element &curr_elem)
       default:
         elem.M->n_design = 0; break;
     }
-
   }
+
   if (curr_elem.passMethod == "RFCavityPass") {
     // RF Cavity.
     auto V_RF = curr_elem.props.find("Voltage")->second.at(0).number;
