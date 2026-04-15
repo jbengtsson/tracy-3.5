@@ -234,34 +234,43 @@ static void assign_elem_families()
 {
   std::unordered_map<std::string, int> name_to_fnum;
   globval.Elem_nFam = 0;
+  bool dbg = !false;
 
   for (long i = 0; i <= globval.Cell_nLoc; i++) {
-    CellType &cell = Cell[i];
-    std::string name(cell.Elem.PName);
+
+    std::string name(Cell[i].Elem.PName);
 
     auto result = name_to_fnum.emplace(name, (int)globval.Elem_nFam + 1);
     const bool inserted = result.second;
     const int  fnum     = result.first->second;
 
     if (inserted) {
-      // First kid of this family: initialise the family prototype.
+      // New family discovered by name.
       globval.Elem_nFam++;
-      memset(ElemFam[fnum-1].ElemF.PName, 0, sizeof(partsName));
-      memcpy(ElemFam[fnum-1].ElemF.PName, cell.Elem.PName,
-             sizeof(partsName));
       ElemFam[fnum-1].nKid = 0;
+      // Keep baseline behavior: set family name immediately.
+      strcpy(ElemFam[fnum-1].ElemF.PName, Cell[i].Elem.PName);
     }
 
-    cell.Fnum = fnum;
+    Cell[i].Fnum = fnum;
+
+    // Beware of 0th element "begin" marker inserted by t2cell.cc.
+      Cell[i].Knum = 0;
+    
     ElemFam[fnum-1].nKid++;
-    cell.Knum = ElemFam[fnum-1].nKid;
-
-    // KidList and ElemF.Pkind are only populated for i > 0, exclude ring-origin marker.
-    if (i > 0) {
-      ElemFam[fnum-1].KidList[cell.Knum - 1] = i;
-      ElemFam[fnum-1].ElemF.Pkind = cell.Elem.Pkind;
+    Cell[i].Knum = ElemFam[fnum-1].nKid;
+    ElemFam[fnum-1].KidList[Cell[i].Knum - 1] = i;
+    if (dbg) {
+      printf("  ElemName = '%s'\n", Cell[i].Elem.PName);
+      printf("  Fnum     = %4d\n", Cell[i].Fnum);
+      printf("  Knum     = %4d\n", Cell[i].Knum);
+      printf("  nKid     = %4d\n", ElemFam[fnum-1].nKid);
     }
+    // First physical kid defines the family prototype element.
+    if (Cell[i].Knum == 1)
+      ElemFam[fnum-1].ElemF = Cell[i].Elem;
   }
+  if (dbg) printf("\nRead in %d elements with %d families.\n", globval.Cell_nLoc, globval.Elem_nFam);
 }
 
 static void create_elem(Element &curr_elem)
@@ -325,11 +334,13 @@ static void create_elem(Element &curr_elem)
     printf("\ncreate_elem: %4ld %2d\n", globval.Cell_nLoc, elem.Pkind);
     printf("  %s\n", elem.PName);
   }
+  
   if (elem.Pkind != marker) {
     auto L = curr_elem.props.find("Length")->second.at(0).number;
     elem.PL = L;
     if (dbg) printf("  L          = %9.3e\n", elem.PL);
   }
+
   if ((curr_elem.passMethod != "IdentityPass") &&
       (curr_elem.passMethod != "CorrectorPass")) {
     auto it = curr_elem.props.find("EApertures");
@@ -339,6 +350,7 @@ static void create_elem(Element &curr_elem)
       if (dbg) printf("  EApertures = [%9.3e, %9.3e]\n", X_max, Y_max);
     }
   }
+
   if (curr_elem.passMethod != "AperturePass") {
     auto it = curr_elem.props.find("Limits");
     double limits[2][2];
@@ -352,12 +364,15 @@ static void create_elem(Element &curr_elem)
 	       limits[0][0], limits[0][1], limits[1][0], limits[1][1]);
     }
   }
-  if ((curr_elem.passMethod == "StrMPoleSymplectic4Pass") ||
+
+  if ((curr_elem.passMethod == "CorrectorPass") ||
+      (curr_elem.passMethod == "StrMPoleSymplectic4Pass") ||
       (curr_elem.passMethod == "BndMPoleSymplectic4RadPass")) {
     if (elem.PL == 0e0)
       elem.M->Pthick = pthicktype(thin);
     else
       elem.M->Pthick = pthicktype(thick);
+    // For bending multipoles also set bending angle and entrance/exit angles.
     if ((curr_elem.passMethod == "BndMPoleSymplectic4RadPass")
 	&& (elem.M->Pthick == thick)){
       auto phi = curr_elem.props.find("BendingAngle")->second.at(0).number;
@@ -396,12 +411,31 @@ static void create_elem(Element &curr_elem)
 	printf("  %2d   %10.3e  %10.3e]\n",
 	       n, elem.M->PB[HOMmax+n], elem.M->PB[HOMmax-n]);
     }
+    // TODO: Idealy this should depend on Porder. It may not be reliable as PolynomB length gets padded with zeroes.
+    switch (curr_elem.name[0]) {
+      case 'D':
+        elem.M->n_design = 1; break;
+      case 'R':
+        elem.M->n_design = 1; break;
+      case 'Q':
+        elem.M->n_design = 2; break;
+      case 'S':
+        elem.M->n_design = 3; break;
+      case 'O':
+        elem.M->n_design = 4; break;
+      default:
+        elem.M->n_design = 0; break;
+    }
   }
+
   if (curr_elem.passMethod == "RFCavityPass") {
     // RF Cavity.
     auto V_RF = curr_elem.props.find("Voltage")->second.at(0).number;
     auto f_RF = curr_elem.props.find("Frequency")->second.at(0).number;
     auto E_0 = curr_elem.props.find("Energy")->second.at(0).number;
+    auto Length = curr_elem.props.find("Length")->second.at(0).number;
+    // TODO: TimeLag needs to be transated to RF phase.
+    auto TimeLag = curr_elem.props.find("TimeLag")->second.at(0).number;
 
     globval.Energy = 1e-9*E_0;
     elem.C->V_RF   = V_RF;   // [V]
@@ -411,6 +445,8 @@ static void create_elem(Element &curr_elem)
       printf("  V_RF       = %9.3e\n", V_RF);
       printf("  f_RF       = %9.3e\n", f_RF);
       printf("  E_0        = %9.3e\n", E_0);
+      printf("  TimeLag    = %9.3e\n", TimeLag);
+      printf("  Length     = %9.3e\n", Length);
     }
   }
 
@@ -630,12 +666,26 @@ void rdmfile_at(const std::string& file_name) {
 	 globval.Cell_nLoc+1, Cell[globval.Cell_nLoc].S);
 
   assign_elem_families();
-
+  if (dbg) printf("Completed assign_elem_families.\n");
+  
   // Compute harmonic number for all cavity elements now that C is known.
-  const double C_ring = Cell[globval.Cell_nLoc].S;
-  for (long i = 0; i <= globval.Cell_nLoc; i++) {
-    if (Cell[i].Elem.Pkind == PartsKind(Cavity) && Cell[i].Elem.C->f_RF != 0.0)
-      Cell[i].Elem.C->harm_num =
-        (int)std::round(Cell[i].Elem.C->f_RF * C_ring / c0);
+  {
+    const double C_ring = Cell[globval.Cell_nLoc].S;
+    for (long i = 0; i <= globval.Cell_nLoc; ++i) {
+      if (Cell[i].Elem.Pkind == PartsKind(Cavity)){
+        Cell[i].Elem.C->harm_num = (int)std::round(Cell[i].Elem.C->f_RF * C_ring / c0);
+
+        if (dbg){
+          printf("  Found cavity element, computing harmonic number...\n");
+          printf("assignning harmonic numbers. Elemennt %ld/%ld\n", i, globval.Cell_nLoc);
+          printf("  ElemName = '%s'\n", Cell[i].Elem.PName);
+          printf("  Pkind    = %d\n", Cell[i].Elem.Pkind);
+          printf("  f_RF     = %9.3e\n", Cell[i].Elem.C->f_RF);
+          printf("  C_ring   = %9.5f\n", C_ring);
+          printf("rdmfile_at: computed cavity harmonic number for element %ld: %d\n",
+                 i, Cell[i].Elem.C->harm_num);
+        }
+      }
+    }
   }
 }

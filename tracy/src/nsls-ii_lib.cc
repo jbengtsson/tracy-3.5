@@ -542,10 +542,14 @@ void GetEmittance(const int Fnum_cav, const bool path_length, const bool prt)
 
   // For lattices with multiple RF cavities, use the
   // total RF voltage seen per turn for synchronous phase / bucket height.
+  // TODO: Refactor to handle multiple RF cavity families
   V_RF = 0e0;
   h_RF = Cell[Elem_GetPos(Fnum_cav, 1)].Elem.C->harm_num;
-  for (j = 1; j <= ElemFam[Fnum_cav-1].nKid; j++)
+  for (j = 1; j <= ElemFam[Fnum_cav-1].nKid; j++) {
+    if (debug_prt) printf("GetEmittance: Found cavity in Cell %ld PName = %s with voltage V_RF = %.6f\n",
+      Elem_GetPos(Fnum_cav, j), Cell[Elem_GetPos(Fnum_cav, j)].Elem.PName,  Cell[Elem_GetPos(Fnum_cav, j)].Elem.C->V_RF);
     V_RF += Cell[Elem_GetPos(Fnum_cav, j)].Elem.C->V_RF;
+  }
 
   {
     const double arg = globval.U0/V_RF;
