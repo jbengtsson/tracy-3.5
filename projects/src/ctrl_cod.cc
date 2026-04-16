@@ -10,6 +10,7 @@ void get_cod_rms(const double dxy_rms[], const int n_seed, const bool all)
   bool                cod;
   int                 i, j, k, n, n_cod;
   std::vector<double> x1[6], x2[6], x_mean[6], x_sigma[6];
+  param_data_type     params;
   FILE                *fp;
 
   const int n_cod_corr = 5;
@@ -30,7 +31,9 @@ void get_cod_rms(const double dxy_rms[], const int n_seed, const bool all)
     misalign_rms_type(Dip,  dxy_rms[X_], dxy_rms[Y_], 0e0, true);
     misalign_rms_type(Quad, dxy_rms[X_], dxy_rms[Y_], 0e0, true);
     
+    params.zero_mult();
     cod = orb_corr(n_cod_corr);
+    params.restore_mult();
 
     if (cod) {
       n_cod++;
@@ -80,13 +83,14 @@ void config_cod(param_data_type &prms)
 
   const std::string
     bpm_names[n_bpm_Fam]     = {"bpm"},
-    hcorr_names[n_hcorr_Fam] = {"corrh"},
-    vcorr_names[n_vcorr_Fam] = {"corrv"};
+    hcorr_names[n_hcorr_Fam] = {"chv"},
+    vcorr_names[n_vcorr_Fam] = {"chv"};
 
   prms.ini_COD_corr(n_bpm_Fam, bpm_names, n_hcorr_Fam, hcorr_names, n_vcorr_Fam,
 		    vcorr_names, true);
 
-  prt_gcmat(1); prt_gcmat(2);
+  prt_gcmat(1);
+  prt_gcmat(2);
 }
 
 
@@ -98,7 +102,7 @@ void chk_cod_corr(const double dx_rms, const double dy_rms, const int seed,
   param_data_type prms;
 
   iniranf(seed);
-  setrancut(1e0);
+  setrancut(2e0);
 
   config_cod(prms);
 
