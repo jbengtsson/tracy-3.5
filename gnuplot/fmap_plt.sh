@@ -49,13 +49,11 @@ if (ps == 0) {
 #       [0.5, 1.0]  -1, int(nu) = nu + 1.
 
 if ((N == 1) && (case == 1)) {
-  print("A")
   N_x = 58
   N_y = 17
   sgn_x = 1
   sgn_y = 1
 } else if ((N == 1) && (case == 2)) {
-  print("A")
   N_x = 21
   N_y = 10
   sgn_x = -1
