@@ -24,7 +24,7 @@ const int
   n_track = 1000;
 
 const double
-  dnu[] = {0.03, 0.0},
+  dnu[] = {0.0, 0.0},
   nu[]  = {57.202/20.0+0.5/20.0, 20.7435/20.0-0.5/20.0};
 
 
@@ -423,7 +423,7 @@ void chk_mpole(const int lat_case)
     break;
   case 2:
     Fnum.push_back(get_ElemIndex("s1_n1"));
-    // Fnum.push_back(get_ElemIndex("s2_n1"));
+    Fnum.push_back(get_ElemIndex("s2_n1"));
     Fnum.push_back(get_ElemIndex("s3_n1"));
     Fnum.push_back(get_ElemIndex("s4_n1"));
     break;
@@ -927,7 +927,7 @@ int main(int argc, char *argv[])
 
   FieldMap_filetype = 6;
 
-  if (true)
+  if (!true)
     Read_Lattice(argv[1]);
   else {
 #if 0
