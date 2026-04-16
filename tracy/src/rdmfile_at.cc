@@ -13,8 +13,7 @@
     * CorrectorPass
     * DriftPass
     * EAperturePass
-    * IdTablePass
-    * IdTableRadPass
+    IdTablePass
     * IdentityPass
     * RFCavityPass
     * StrMPoleSymplectic4Pass
@@ -24,20 +23,18 @@
                                                                               */
 
 
+#include <array>
+#include <sstream>
+#include <algorithm>
+
 static const bool dbg = false;
 
 void string_to_c_str(const std::string &str, partsName &c_str) {
   // Tracy-2 element names are not "\0" terminated C strings (Pascal legacy).
-  // Keep symbol names in the same canonical format used by ElemIndex:
-  // lowercase pad with spaces up to SymbolLength.
   if (str.size() > NameLength)
     throw std::runtime_error("ElemName too long for fixed buffer");
-
-  memset(c_str, 0, sizeof(partsName));
-  for (size_t i = 0; i < str.size(); i++)
-    c_str[i] = (char)std::tolower((unsigned char)str[i]);
-  for (size_t i = str.size(); i < SymbolLength; i++)
-    c_str[i] = ' ';
+  std::memset(c_str, 0, sizeof(c_str));
+  std::memcpy(c_str, str.data(), str.size());
 }
 
 struct Value {
@@ -57,6 +54,14 @@ struct Element {
   std::string passMethod;
   // Element properties dictionary.
   std::unordered_map<std::string, std::vector<Value>> props;
+  bool hasT1 = false;
+  bool hasT2 = false;
+  bool hasR1 = false;
+  bool hasR2 = false;
+  std::array<double, 6> T1;
+  std::array<double, 6> T2;
+  std::array<std::array<double, 6>, 6> R1;
+  std::array<std::array<double, 6>, 6> R2;
 };
 
 bool try_get_length(const Element& e, double& outLength)
@@ -99,6 +104,18 @@ starts_with(const std::string& s, const std::string& prefix) {
   return s.size() >= prefix.size() && s.compare(0, prefix.size(), prefix) == 0;
 }
 
+static std::vector<std::string>
+split_and_trim(const std::string& s, char delim) {
+  std::vector<std::string> out;
+  std::string cur;
+  for (char c : s) {
+    if (c == delim) { out.push_back(trim(cur)); cur.clear(); }
+    else cur.push_back(c);
+  }
+  out.push_back(trim(cur));
+  return out;
+}
+
 static std::vector<std::string> split_csv_like(const std::string& s) {
   std::vector<std::string> out;
   std::string cur;
@@ -122,13 +139,116 @@ static bool try_parse_double(const std::string& token, double& out) {
   if (begin == end) return false;
   while (end && *end && std::isspace(static_cast<unsigned char>(*end))) ++end;
   if (end && *end != '\0') return false;
+  if (errno == ERANGE) return false;
 
   out = val;
   return true;
 }
 
+static double parse_strict_double(const std::string& token) {
+  double out = 0.0;
+  if (!try_parse_double(token, out))
+    throw std::runtime_error("Invalid numeric token: '" + trim(token) + "'");
+  return out;
+}
+
+static std::vector<double> parse_number_list(const std::string& rhs) {
+  std::vector<double> vals;
+  for (const auto& tok : split_csv_like(rhs)) {
+    if (!tok.empty())
+      vals.push_back(parse_strict_double(tok));
+  }
+  return vals;
+}
+
+static std::array<double, 6> parse_vec6(const std::string& rhs,
+                                        const std::string& key) {
+  const auto vals = parse_number_list(rhs);
+  if (vals.size() != 6)
+    throw std::runtime_error(key + " expects 6 values, got "
+                             + std::to_string(vals.size()));
+
+  std::array<double, 6> out{};
+  std::copy(vals.begin(), vals.end(), out.begin());
+  return out;
+}
+
+static std::array<std::array<double, 6>, 6>
+parse_mat6x6(const std::string& rhs, const std::string& key) {
+  const auto rows = split_and_trim(rhs, ';');
+
+  std::vector<std::string> nonempty_rows;
+  for (const auto& row : rows) {
+    if (!row.empty())
+      nonempty_rows.push_back(row);
+  }
+
+  if (nonempty_rows.size() != 6)
+    throw std::runtime_error(key + " expects 6 rows, got "
+                             + std::to_string(nonempty_rows.size()));
+
+  std::array<std::array<double, 6>, 6> out{};
+  for (size_t i = 0; i < 6; ++i) {
+    const auto cols = split_csv_like(nonempty_rows[i]);
+    if (cols.size() != 6)
+      throw std::runtime_error(key + " row " + std::to_string(i+1)
+                               + " expects 6 values, got "
+                               + std::to_string(cols.size()));
+    for (size_t j = 0; j < 6; ++j)
+      out[i][j] = parse_strict_double(cols[j]);
+  }
+  return out;
+}
+
+static std::string statement_key(const std::string& stmt) {
+  const std::string trimmed = trim(stmt);
+  if (trimmed.empty() || trimmed.back() != ';')
+    throw std::runtime_error("Malformed statement: " + stmt);
+  const std::string body = trim(trimmed.substr(0, trimmed.size()-1));
+  const auto comma = body.find(',');
+  if (comma == std::string::npos)
+    throw std::runtime_error("Statement missing ',' in: " + stmt);
+  const std::string key = trim(body.substr(0, comma));
+  if (key.empty())
+    throw std::runtime_error("Statement missing key in: " + stmt);
+  return key;
+}
+
+
+static std::string statement_rhs(const std::string& stmt) {
+  const std::string trimmed = trim(stmt);
+  if (trimmed.empty() || trimmed.back() != ';')
+    throw std::runtime_error("Malformed statement: " + stmt);
+  const std::string body = trim(trimmed.substr(0, trimmed.size()-1));
+  const auto comma = body.find(',');
+  if (comma == std::string::npos)
+    throw std::runtime_error("Statement missing ',' in: " + stmt);
+  return trim(body.substr(comma + 1));
+}
+
+static void assign_special_property(Element& cur, const std::string& key,
+                                    const std::string& rhs) {
+  if (dbg)
+    printf("\nassign_special_property: %s\n", cur.name.c_str());
+  if (key == "T1") {
+    cur.T1 = parse_vec6(rhs, key);
+    cur.hasT1 = true;
+  } else if (key == "T2") {
+    cur.T2 = parse_vec6(rhs, key);
+    cur.hasT2 = true;
+  } else if (key == "R1") {
+    cur.R1 = parse_mat6x6(rhs, key);
+    cur.hasR1 = true;
+  } else if (key == "R2") {
+    cur.R2 = parse_mat6x6(rhs, key);
+    cur.hasR2 = true;
+  } else {
+    throw std::runtime_error("Unknown special property '" + key + "'");
+  }
+}
+
 static std::pair<std::string, std::vector<Value>>
-parse_property_line(std::string line) {
+parse_property_statement(std::string line) {
   line = trim(line);
   if (line.empty()) throw std::runtime_error("Empty property line");
   if (line.back() != ';')
@@ -153,65 +273,13 @@ parse_property_line(std::string line) {
   return {key, std::move(values)};
 }
 
-// Parse property lines that represent tables where ';' is a value/row separator.
-// Handles: xtable/ytable (1D) and xkick/ykick/xkick1/ykick1/B2 (2D, rows by ';', cols by ',').
-// Values are flattened into a single vector.
-static std::pair<std::string, std::vector<Value>>
-parse_table_line(std::string line) {
-  line = trim(line);
-  if (line.empty())
-    throw std::runtime_error("Empty property line");
 
-  // Strip trailing ';' if present.
-  if (line.back() == ';') {
-    line.pop_back();
-    line = trim(line);
-  }
-
-  // Key is everything before the first ','.
-  auto comma_pos = line.find(',');
-  if (comma_pos == std::string::npos)
-    throw std::runtime_error("Property line missing key separator: " + line);
-
-  std::string key = trim(line.substr(0, comma_pos));
-  std::string rest = line.substr(comma_pos + 1);
-
-  // Split by ';' into segments, then each segment by ',' into values.
-  std::vector<Value> values;
-  std::vector<std::string> segments;
-  std::string cur;
-  for (char c : rest) {
-    if (c == ';') {
-      segments.push_back(cur);
-      cur.clear();
-    } else
-      cur.push_back(c);
-  }
-  if (!trim(cur).empty())
-    segments.push_back(cur);
-
-  for (const auto &seg : segments) {
-    auto tokens = split_csv_like(seg);
-    for (const auto &tok : tokens) {
-      std::string t = trim(tok);
-      if (t.empty())
-        continue;
-      double d = 0.0;
-      if (!try_parse_double(t, d))
-        throw std::runtime_error("Non-numeric value in " + key + ": " + t);
-      values.push_back(Value::Num(d));
-    }
-  }
-
-  return {key, std::move(values)};
-}
-
-static void print_value(const Value &v) {
+static void print_value(const Value& v) {
   if (v.isNumber) std::cout << v.number;
   else std::cout << v.text;
 }
 
-static void print_elem(Element &elem) {
+static void print_elem(const Element &elem) {
   std::cout << "\nelement number " << globval.Cell_nLoc << "\n";
   std::cout << "  ElemName:   " << elem.name << "\n";
   std::cout << "  ElemNbr:    " << elem.number << "\n";
@@ -228,58 +296,33 @@ static void print_elem(Element &elem) {
   }
 }
 
-// Post-processing pass: assign Fnum/Knum/ElemFam from element names, matching
-// Elements sharing the same PName belong to the same family.
-static void assign_elem_families()
-{
-  std::unordered_map<std::string, int> name_to_fnum;
-  globval.Elem_nFam = 0;
-  bool dbg = !false;
 
-  for (long i = 0; i <= globval.Cell_nLoc; i++) {
-
-    std::string name(Cell[i].Elem.PName);
-
-    auto result = name_to_fnum.emplace(name, (int)globval.Elem_nFam + 1);
-    const bool inserted = result.second;
-    const int  fnum     = result.first->second;
-
-    if (inserted) {
-      // New family discovered by name.
-      globval.Elem_nFam++;
-      ElemFam[fnum-1].nKid = 0;
-      // Keep baseline behavior: set family name immediately.
-      strcpy(ElemFam[fnum-1].ElemF.PName, Cell[i].Elem.PName);
-    }
-
-    Cell[i].Fnum = fnum;
-
-    // Beware of 0th element "begin" marker inserted by t2cell.cc.
-      Cell[i].Knum = 0;
-    
-    ElemFam[fnum-1].nKid++;
-    Cell[i].Knum = ElemFam[fnum-1].nKid;
-    ElemFam[fnum-1].KidList[Cell[i].Knum - 1] = i;
-    if (dbg) {
-      printf("  ElemName = '%s'\n", Cell[i].Elem.PName);
-      printf("  Fnum     = %4d\n", Cell[i].Fnum);
-      printf("  Knum     = %4d\n", Cell[i].Knum);
-      printf("  nKid     = %4d\n", ElemFam[fnum-1].nKid);
-    }
-    // First physical kid defines the family prototype element.
-    if (Cell[i].Knum == 1)
-      ElemFam[fnum-1].ElemF = Cell[i].Elem;
-  }
-  if (dbg) printf("\nRead in %d elements with %d families.\n", globval.Cell_nLoc, globval.Elem_nFam);
+static const std::vector<Value>& require_prop(const Element& e,
+                                              const std::string& key) {
+  auto it = e.props.find(key);
+  if (it == e.props.end())
+    throw std::runtime_error
+      ("Element '" + e.name + "' missing property '" + key + "'");
+  return it->second;
 }
 
-static void create_elem(Element &curr_elem)
+static double require_number(const Element& e, const std::string& key,
+                             size_t idx = 0) {
+  const auto& prop = require_prop(e, key);
+  if (idx >= prop.size())
+    throw std::runtime_error("Element '" + e.name + "' property '" + key
+                             + "' too short");
+  const Value& v = prop[idx];
+  if (!v.isNumber)
+    throw std::runtime_error("Element '" + e.name + "' property '" + key
+                             + "' must be numeric");
+  return v.number;
+}
+
+static void create_elem(const Element &curr_elem)
 {
   CellType &cell = Cell[globval.Cell_nLoc];
   elemtype &elem = cell.Elem;
-
-  // While PName is fixed size array - i.e., Pascal legacy - to keep it tidy. 
-  elem.PName[0] = '\0';
 
   cell.Fnum = 0;
   cell.Knum = 0;
@@ -302,8 +345,8 @@ static void create_elem(Element &curr_elem)
     elem.Pkind = PartsKind(drift);
     Drift_Alloc(&elem);
   } else if ((curr_elem.passMethod == "CorrectorPass") ||
-             (curr_elem.passMethod == "StrMPoleSymplectic4Pass") ||
-             (curr_elem.passMethod == "BndMPoleSymplectic4RadPass")) {
+	     (curr_elem.passMethod == "StrMPoleSymplectic4Pass") ||
+	     (curr_elem.passMethod == "BndMPoleSymplectic4RadPass")) {
     elem.Pkind = PartsKind(Mpole);
     // Multipole.
     Mpole_Alloc(&elem);
@@ -311,21 +354,15 @@ static void create_elem(Element &curr_elem)
     // RF Cavity.
     elem.Pkind = PartsKind(Cavity);
     Cav_Alloc(&elem);
-  } else if (curr_elem.passMethod == "IdTablePass" ||
-             curr_elem.passMethod == "IdTableRadPass") {
-    // Insertion Device (kick map).
-    elem.Pkind = PartsKind(Insertion);
-    Insertion_Alloc(&elem);
   } else if (curr_elem.passMethod == "GWigSymplecticPass") {
     // GWigSymplecticPass    - analytic,
-    // GWigSymplecticRadPass - analytic.
-    std::cout << "create_elem: *** undef. passMethod not implemented - "
-              << curr_elem.passMethod << "\n";
-    exit(1);
+    // GWigSymplecticRadPass - analytic,
+    // IdTablePass           - kick map.
+    throw std::runtime_error("create_elem: unsupported PassMethod '" +
+                             curr_elem.passMethod + "'");
   } else {
-    std::cout << "create_elem: *** undef. passMethod - "
-	      << curr_elem.passMethod << "\n";
-    exit(1);
+    throw std::runtime_error("create_elem: unsupported PassMethod '" +
+                             curr_elem.passMethod + "'");
   }
 
 
@@ -334,65 +371,61 @@ static void create_elem(Element &curr_elem)
     printf("\ncreate_elem: %4ld %2d\n", globval.Cell_nLoc, elem.Pkind);
     printf("  %s\n", elem.PName);
   }
-  
   if (elem.Pkind != marker) {
-    auto L = curr_elem.props.find("Length")->second.at(0).number;
-    elem.PL = L;
+    elem.PL = require_number(curr_elem, "Length");
     if (dbg) printf("  L          = %9.3e\n", elem.PL);
   }
-
   if ((curr_elem.passMethod != "IdentityPass") &&
       (curr_elem.passMethod != "CorrectorPass")) {
     auto it = curr_elem.props.find("EApertures");
     if (it != curr_elem.props.end() && !it->second.empty()) {
-      auto X_max = it->second.at(0).number;
-      auto Y_max = it->second.at(1).number;
+      if (it->second.size() < 2)
+        throw std::runtime_error
+	  ("Element '" + curr_elem.name + "' property 'EApertures' too short");
+      auto X_max = require_number(curr_elem, "EApertures", 0);
+      auto Y_max = require_number(curr_elem, "EApertures", 1);
       if (dbg) printf("  EApertures = [%9.3e, %9.3e]\n", X_max, Y_max);
     }
   }
-
   if (curr_elem.passMethod != "AperturePass") {
     auto it = curr_elem.props.find("Limits");
     double limits[2][2];
     if (it != curr_elem.props.end() && !it->second.empty()) {
-      limits[0][0] = it->second.at(0).number;
-      limits[0][1] = it->second.at(1).number;
-      limits[1][0] = it->second.at(2).number;
-      limits[1][1] = it->second.at(3).number;
+      if (it->second.size() < 4)
+        throw std::runtime_error
+	  ("Element '" + curr_elem.name + "' property 'Limits' too short");
+      limits[0][0] = require_number(curr_elem, "Limits", 0);
+      limits[0][1] = require_number(curr_elem, "Limits", 1);
+      limits[1][0] = require_number(curr_elem, "Limits", 2);
+      limits[1][1] = require_number(curr_elem, "Limits", 3);
       if (dbg)
 	printf("  Limits = %9.3e %9.3e %9.3e %9.3e\n",
 	       limits[0][0], limits[0][1], limits[1][0], limits[1][1]);
     }
   }
-
-  if ((curr_elem.passMethod == "CorrectorPass") ||
-      (curr_elem.passMethod == "StrMPoleSymplectic4Pass") ||
+  if ((curr_elem.passMethod == "StrMPoleSymplectic4Pass") ||
       (curr_elem.passMethod == "BndMPoleSymplectic4RadPass")) {
     if (elem.PL == 0e0)
       elem.M->Pthick = pthicktype(thin);
     else
       elem.M->Pthick = pthicktype(thick);
-    // For bending multipoles also set bending angle and entrance/exit angles.
     if ((curr_elem.passMethod == "BndMPoleSymplectic4RadPass")
 	&& (elem.M->Pthick == thick)){
-      auto phi = curr_elem.props.find("BendingAngle")->second.at(0).number;
+          auto phi = require_number(curr_elem, "BendingAngle");
 	  elem.M->Pirho = phi/elem.PL;
-      if (dbg)
+	  if (dbg)
 	    printf("  phi        = %10.3e\n", phi*180e0/M_PI);
-          auto phi_1 =
-	    curr_elem.props.find("EntranceAngle")->second.at(0).number;
-      elem.M->PTx1 = phi_1;
-      if (dbg)
+          auto phi_1 = require_number(curr_elem, "EntranceAngle");
+	  elem.M->PTx1 = phi_1;
+	  if (dbg)
 	    printf("  phi_1      = %10.3e\n", phi_1*180e0/M_PI);
-      auto phi_2 = curr_elem.props.find("ExitAngle")->second.at(0).number;
-      elem.M->PTx2 = phi_2;
-      if (dbg)
+          auto phi_2 = require_number(curr_elem, "ExitAngle");
+	  elem.M->PTx2 = phi_2;
+	  if (dbg)
 	    printf("  phi_2      = %10.3e\n", phi_2*180e0/M_PI);
     }
-    auto n_int =
-      (int)std::round(curr_elem.props.find("NumIntSteps")->second.at(0).number);
-    auto max_order =
-        (int)std::round(curr_elem.props.find("MaxOrder")->second.at(0).number);
+    auto n_int = (int)std::round(require_number(curr_elem, "NumIntSteps"));
+    auto max_order = (int)std::round(require_number(curr_elem, "MaxOrder"));
     elem.M->PN = n_int;
     elem.M->Porder = max_order + 1;
     if (dbg) {
@@ -403,148 +436,44 @@ static void create_elem(Element &curr_elem)
     auto it_bn = curr_elem.props.find("PolynomB");
     if (dbg) printf("   n       b_n         a_n\n");
     for (auto n = 1; n <= elem.M->Porder; n++) {
-      elem.M->PB[HOMmax+n] = it_bn->second.at(n-1).number;
-      elem.M->PB[HOMmax-n] = it_an->second.at(n-1).number;
+      elem.M->PB[HOMmax+n] = require_number(curr_elem, "PolynomB", n-1);
+      elem.M->PB[HOMmax-n] = require_number(curr_elem, "PolynomA", n-1);
       elem.M->PBpar[HOMmax+n] = elem.M->PB[HOMmax+n];
       elem.M->PBpar[HOMmax-n] = elem.M->PB[HOMmax-n];
       if (dbg)
 	printf("  %2d   %10.3e  %10.3e]\n",
 	       n, elem.M->PB[HOMmax+n], elem.M->PB[HOMmax-n]);
     }
-    // TODO: Idealy this should depend on Porder. It may not be reliable as PolynomB length gets padded with zeroes.
-    switch (curr_elem.name[0]) {
-      case 'D':
-        elem.M->n_design = 1; break;
-      case 'R':
-        elem.M->n_design = 1; break;
-      case 'Q':
-        elem.M->n_design = 2; break;
-      case 'S':
-        elem.M->n_design = 3; break;
-      case 'O':
-        elem.M->n_design = 4; break;
-      default:
-        elem.M->n_design = 0; break;
-    }
   }
-
   if (curr_elem.passMethod == "RFCavityPass") {
     // RF Cavity.
-    auto V_RF = curr_elem.props.find("Voltage")->second.at(0).number;
-    auto f_RF = curr_elem.props.find("Frequency")->second.at(0).number;
-    auto E_0 = curr_elem.props.find("Energy")->second.at(0).number;
-    auto Length = curr_elem.props.find("Length")->second.at(0).number;
-    // TODO: TimeLag needs to be transated to RF phase.
-    auto TimeLag = curr_elem.props.find("TimeLag")->second.at(0).number;
-
+    auto V_RF = require_number(curr_elem, "Voltage");
+    auto f_RF = require_number(curr_elem, "Frequency");
+    auto E_0 = require_number(curr_elem, "Energy");
+    
     globval.Energy = 1e-9*E_0;
-    elem.C->V_RF   = V_RF;   // [V]
-    elem.C->f_RF   = f_RF;   // [Hz]
 
     if (dbg) {
       printf("  V_RF       = %9.3e\n", V_RF);
       printf("  f_RF       = %9.3e\n", f_RF);
       printf("  E_0        = %9.3e\n", E_0);
-      printf("  TimeLag    = %9.3e\n", TimeLag);
-      printf("  Length     = %9.3e\n", Length);
     }
   }
-
-  if (curr_elem.passMethod == "IdTablePass" ||
-      curr_elem.passMethod == "IdTableRadPass") {
-    InsertionType *ID = elem.ID;
-
-    const auto &xtab = curr_elem.props.find("xtable")->second;
-    const auto &ytab = curr_elem.props.find("ytable")->second;
-    const int nx = (int)xtab.size();
-    const int nz = (int)ytab.size();
-
-    if (nx > IDXMAX || nz > IDZMAX) {
-      printf("create_elem: ID table too large:"
-             " nx=%d (max %d), nz=%d (max %d)\n",
-             nx, IDXMAX, nz, IDZMAX);
-      exit(1);
-    }
-
-    ID->nx = nx;
-    ID->nz = nz;
-    for (int j = 0; j < nx; j++)
-      ID->tabx[j] = xtab[j].number;
-    // LinearInterpolation2 expects tabz in decreasing order; AT ytable is
-    // increasing, so reverse it.
-    for (int i = 0; i < nz; i++)
-      ID->tabz[i] = ytab[nz - 1 - i].number;
-
-    // Energy must be set before kick/B2 normalization.
-    auto it_e = curr_elem.props.find("Energy");
-    if (it_e != curr_elem.props.end())
-      globval.Energy = 1e-9 * it_e->second.at(0).number;
-    const double Brho = globval.Energy * 1e9 / c0;
-
-    // Second order kick maps (always present).
-    // The AT flat file stores kicks already divided by Brho^2, but Tracy's
-    // Insertion_Pass applies its own 1/Brho^2 scaling at tracking time.
-    // Multiply by Brho^2 here to recover the raw (T^2 m^2) values.
-    const double Brho2 = Brho * Brho;
-    const auto &xk = curr_elem.props.find("xkick")->second;
-    const auto &yk = curr_elem.props.find("ykick")->second;
-    for (int i = 0; i < nz; i++)
-      for (int j = 0; j < nx; j++) {
-        ID->thetax[i][j] = xk[(nz - 1 - i) * nx + j].number * Brho2;
-        ID->thetaz[i][j] = yk[(nz - 1 - i) * nx + j].number * Brho2;
-      }
-    ID->secondorder = true;
-
-    // First order kick maps (optional).
-    auto it_xk1 = curr_elem.props.find("xkick1");
-    auto it_yk1 = curr_elem.props.find("ykick1");
-    if (it_xk1 != curr_elem.props.end() && it_yk1 != curr_elem.props.end() &&
-        !it_xk1->second.empty() && !it_yk1->second.empty()) {
-      const auto &xk1 = it_xk1->second;
-      const auto &yk1 = it_yk1->second;
-      for (int i = 0; i < nz; i++)
-        for (int j = 0; j < nx; j++) {
-          ID->thetax1[i][j] = xk1[(nz - 1 - i) * nx + j].number;
-          ID->thetaz1[i][j] = yk1[(nz - 1 - i) * nx + j].number;
-        }
-      ID->firstorder = true;
-    } else
-      ID->firstorder = false;
-
-    ID->Pmethod = Meth_First;
-    ID->PN = curr_elem.props.find("Nslice")->second.at(0).number;
-    ID->linear = true;
-    ID->scaling = 1.0;
-
-    // B2 field map (optional, for radiation via IdTableRadPass).
-    // Expected in the same units as Tracy's radiate_ID, i.e. already
-    // normalized by L*Brho^2.  Store as-is.
-    auto it_b2 = curr_elem.props.find("B2");
-    if (it_b2 != curr_elem.props.end() && !it_b2->second.empty()) {
-      const auto &b2 = it_b2->second;
-      for (int i = 0; i < nz; i++)
-        for (int j = 0; j < nx; j++) {
-          ID->B2[i][j] = b2[(nz - 1 - i) * nx + j].number;
-        }
-      ID->long_comp = true;
-    } else
-      ID->long_comp = false;
-
-    if (dbg)
-      printf("  ID: nx=%d, nz=%d, 1st=%d, 2nd=%d\n", nx, nz, ID->firstorder,
-             ID->secondorder);
-  }
-
   if ((curr_elem.passMethod == "DriftPass")
-  || (curr_elem.passMethod == "CorrectorPass")
-  || (curr_elem.passMethod == "StrMPoleSymplectic4Pass")
-  || (curr_elem.passMethod == "BndMPoleSymplectic4RadPass")) {
-    // Misalignment.
+      || (curr_elem.passMethod == "CorrectorPass")
+      || (curr_elem.passMethod == "StrMPoleSymplectic4Pass")
+      || (curr_elem.passMethod == "BndMPoleSymplectic4RadPass")) {
+    // Misalignment / entrance-exit transforms are parsed and validated;
+    // wire them into Tracy-specific fields here if needed by the local API.
+    (void)curr_elem.hasT1;
+    (void)curr_elem.hasT2;
+    (void)curr_elem.hasR1;
+    (void)curr_elem.hasR2;
   }
 
   if (globval.Cell_nLoc == 0)
-    cell.S = 0e0;
-  else
+      cell.S = 0e0;
+    else
       cell.S = Cell[globval.Cell_nLoc-1].S + elem.PL;
 }
 
@@ -567,12 +496,8 @@ void rdmfile_at(const std::string& file_name) {
     hasCur = true;
     cur = Element{};
     cur.name = std::move(name);
-    // If Element::number defaults to 0 in your struct, you may want to
-    // explicitly mark it unset instead:
-    // cur.number = -1;
   };
 
-  // Finalize + emit + clear the current element.
   auto flush_cur = [&]() {
     if (!hasCur) return;
 
@@ -580,10 +505,10 @@ void rdmfile_at(const std::string& file_name) {
       throw std::runtime_error("Element missing ElemName");
     if (cur.number < 0)
       throw std::runtime_error
-	("Element '" + cur.name + "' missing/invalid ElemNbr");
+        ("Element '" + cur.name + "' missing/invalid ElemNbr");
     if (cur.passMethod.empty())
       throw std::runtime_error
-	("Element '" + cur.name + "' missing PassMethod");
+        ("Element '" + cur.name + "' missing PassMethod");
 
     globval.Cell_nLoc++;
     if (false && dbg) print_elem(cur);
@@ -593,14 +518,53 @@ void rdmfile_at(const std::string& file_name) {
     hasCur = false;
   };
 
-  // Helper: parse lines like "Key: value".
-  auto parse_colon_field = [&](const std::string& t, const std::string& key)
-    -> std::string {
-    return trim(t.substr(key.size()));
+  auto handle_statement =
+    [&](const std::string& stmt, std::size_t lineNo) -> void {
+    const std::string key = statement_key(stmt);
+
+    if (key == "T1" || key == "T2" || key == "R1" || key == "R2") {
+      require_cur(key.c_str(), lineNo);
+      assign_special_property(cur, key, statement_rhs(stmt));
+      return;
+    }
+
+    auto kv = parse_property_statement(stmt);
+    const auto& vals = kv.second;
+
+    if (key == "ElemName") {
+      if (vals.size() != 1 || vals[0].isNumber)
+        fail("ElemName expects one text value", lineNo);
+      flush_cur();
+      start_element(vals[0].text);
+      return;
+    }
+
+    if (key == "ElemNbr") {
+      require_cur("ElemNbr", lineNo);
+      if (vals.size() != 1 || !vals[0].isNumber)
+        fail("ElemNbr expects one numeric value", lineNo);
+      cur.number = (int)std::lround(vals[0].number);
+      return;
+    }
+
+    if (key == "PassMethod") {
+      require_cur("PassMethod", lineNo);
+      if (vals.size() != 1 || vals[0].isNumber)
+        fail("PassMethod expects one text value", lineNo);
+      cur.passMethod = vals[0].text;
+      return;
+    }
+
+    require_cur("Property", lineNo);
+
+    auto& dst = cur.props[key];
+    dst.insert(dst.end(), vals.begin(), vals.end());
   };
 
   std::string line;
   std::size_t lineNo = 0;
+  std::string stmt;
+  std::size_t stmtStartLine = 0;
 
   globval.Cell_nLoc = -1;
 
@@ -610,49 +574,25 @@ void rdmfile_at(const std::string& file_name) {
     const std::string t = trim(line);
     if (t.empty()) continue;
 
-    if (starts_with(t, "ElemName:")) {
-      flush_cur();
-      start_element(parse_colon_field(t, "ElemName:"));
-      continue;
-    }
-
-    if (starts_with(t, "ElemNbr:")) {
-      require_cur("ElemNbr", lineNo);
-      const std::string rhs = parse_colon_field(t, "ElemNbr:");
-      try {
-        cur.number = std::stoi(rhs);
-      } catch (const std::exception&) {
-        fail("Invalid ElemNbr ('" + rhs + "')", lineNo);
-      }
-      continue;
-    }
-
-    if (starts_with(t, "PassMethod:")) {
-      require_cur("PassMethod", lineNo);
-      cur.passMethod = parse_colon_field(t, "PassMethod:");
-      continue;
-    }
-
-    // Otherwise it must be a property line.
-    require_cur("Property", lineNo);
-
-    // Catch parameter lines comming from 2d properites in AT
-    std::pair<std::string, std::vector<Value>> kv;
-    if (starts_with(t, "xtable,") || starts_with(t, "ytable,") ||
-        starts_with(t, "xkick,") || starts_with(t, "ykick,") ||
-        starts_with(t, "xkick1,") || starts_with(t, "ykick1,") ||
-        starts_with(t, "B2,"))
-      kv = parse_table_line(t);
+    if (stmt.empty())
+      stmtStartLine = lineNo;
     else
-      kv = parse_property_line(t);
-    auto& dst = cur.props[kv.first];
-    dst.insert(dst.end(), kv.second.begin(), kv.second.end());
+      stmt += ' ';
+    stmt += t;
+
+    if (stmt.find(';') == std::string::npos)
+      continue;
+
+    handle_statement(stmt, stmtStartLine);
+    stmt.clear();
+    stmtStartLine = 0;
   }
 
-  // Flush the last element at EOF.
+  if (!stmt.empty())
+    fail("Unterminated statement", stmtStartLine);
+
   flush_cur();
 
-  in.close();
 
   globval.dPcommon = 1e-8;
   globval.CODeps = 1e-14;
@@ -663,29 +603,6 @@ void rdmfile_at(const std::string& file_name) {
   globval.mat_meth = false;
 
   printf("\nrdmfile_at: read %ld elements, C = %7.5f\n",
-	 globval.Cell_nLoc+1, Cell[globval.Cell_nLoc].S);
-
-  assign_elem_families();
-  if (dbg) printf("Completed assign_elem_families.\n");
-  
-  // Compute harmonic number for all cavity elements now that C is known.
-  {
-    const double C_ring = Cell[globval.Cell_nLoc].S;
-    for (long i = 0; i <= globval.Cell_nLoc; ++i) {
-      if (Cell[i].Elem.Pkind == PartsKind(Cavity)){
-        Cell[i].Elem.C->harm_num = (int)std::round(Cell[i].Elem.C->f_RF * C_ring / c0);
-
-        if (dbg){
-          printf("  Found cavity element, computing harmonic number...\n");
-          printf("assignning harmonic numbers. Elemennt %ld/%ld\n", i, globval.Cell_nLoc);
-          printf("  ElemName = '%s'\n", Cell[i].Elem.PName);
-          printf("  Pkind    = %d\n", Cell[i].Elem.Pkind);
-          printf("  f_RF     = %9.3e\n", Cell[i].Elem.C->f_RF);
-          printf("  C_ring   = %9.5f\n", C_ring);
-          printf("rdmfile_at: computed cavity harmonic number for element %ld: %d\n",
-                 i, Cell[i].Elem.C->harm_num);
-        }
-      }
-    }
-  }
+         globval.Cell_nLoc+1, Cell[globval.Cell_nLoc].S);
 }
+
