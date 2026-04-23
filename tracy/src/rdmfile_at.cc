@@ -13,7 +13,8 @@
     * CorrectorPass
     * DriftPass
     * EAperturePass
-    IdTablePass
+    * IdTablePass
+    * IdTableRadPass
     * IdentityPass
     * RFCavityPass
     * StrMPoleSymplectic4Pass
@@ -31,10 +32,16 @@ static const bool dbg = false;
 
 void string_to_c_str(const std::string &str, partsName &c_str) {
   // Tracy-2 element names are not "\0" terminated C strings (Pascal legacy).
+  // Keep symbol names in the same canonical format used by ElemIndex:
+  // lowercase pad with spaces up to SymbolLength.
   if (str.size() > NameLength)
     throw std::runtime_error("ElemName too long for fixed buffer");
-  std::memset(c_str, 0, sizeof(c_str));
-  std::memcpy(c_str, str.data(), str.size());
+
+  memset(c_str, 0, sizeof(partsName));
+  for (size_t i = 0; i < str.size(); i++)
+    c_str[i] = (char)std::tolower((unsigned char)str[i]);
+  for (size_t i = str.size(); i < SymbolLength; i++)
+    c_str[i] = ' ';
 }
 
 struct Value {
@@ -319,6 +326,48 @@ static double require_number(const Element& e, const std::string& key,
   return v.number;
 }
 
+// Post-processing pass: assign Fnum/Knum/ElemFam from element names.
+// Elements sharing the same PName belong to the same family.
+static void assign_elem_families()
+{
+  std::unordered_map<std::string, int> name_to_fnum;
+  globval.Elem_nFam = 0;
+  bool dbg = true;
+
+  for (long i = 0; i <= globval.Cell_nLoc; i++)
+  {
+    std::string name(Cell[i].Elem.PName);
+    auto result = name_to_fnum.emplace(name, (int)globval.Elem_nFam + 1);
+    const bool inserted = result.second;
+    const int fnum = result.first->second;
+
+    if (inserted)
+    {
+      globval.Elem_nFam++;
+      ElemFam[fnum - 1].nKid = 0;
+      strcpy(ElemFam[fnum - 1].ElemF.PName, Cell[i].Elem.PName);
+    }
+
+    Cell[i].Fnum = fnum;
+    Cell[i].Knum = 0;
+    ElemFam[fnum - 1].nKid++;
+    Cell[i].Knum = ElemFam[fnum - 1].nKid;
+    ElemFam[fnum - 1].KidList[Cell[i].Knum - 1] = i;
+    if (dbg)
+    {
+      printf("  ElemName = '%s'\n", Cell[i].Elem.PName);
+      printf("  Fnum     = %4d\n", Cell[i].Fnum);
+      printf("  Knum     = %4d\n", Cell[i].Knum);
+      printf("  nKid     = %4d\n", ElemFam[fnum - 1].nKid);
+    }
+    if (Cell[i].Knum == 1)
+      ElemFam[fnum - 1].ElemF = Cell[i].Elem;
+  }
+  if (dbg)
+    printf("\nRead in %d elements with %d families.\n",
+           globval.Cell_nLoc, globval.Elem_nFam);
+}
+
 static void create_elem(const Element &curr_elem)
 {
   CellType &cell = Cell[globval.Cell_nLoc];
@@ -354,10 +403,18 @@ static void create_elem(const Element &curr_elem)
     // RF Cavity.
     elem.Pkind = PartsKind(Cavity);
     Cav_Alloc(&elem);
-  } else if (curr_elem.passMethod == "GWigSymplecticPass") {
+  }
+  else if (curr_elem.passMethod == "IdTablePass" ||
+           curr_elem.passMethod == "IdTableRadPass")
+  {
+    // Insertion Device (kick map).
+    elem.Pkind = PartsKind(Insertion);
+    Insertion_Alloc(&elem);
+  }
+  else if (curr_elem.passMethod == "GWigSymplecticPass")
+  {
     // GWigSymplecticPass    - analytic,
-    // GWigSymplecticRadPass - analytic,
-    // IdTablePass           - kick map.
+    // GWigSymplecticRadPass - analytic.
     throw std::runtime_error("create_elem: unsupported PassMethod '" +
                              curr_elem.passMethod + "'");
   } else {
@@ -403,6 +460,12 @@ static void create_elem(const Element &curr_elem)
 	       limits[0][0], limits[0][1], limits[1][0], limits[1][1]);
     }
   }
+  if (curr_elem.passMethod == "CorrectorPass") {
+    if (elem.PL == 0e0)
+      elem.M->Pthick = pthicktype(thin);
+    else
+      elem.M->Pthick = pthicktype(thick);
+  }
   if ((curr_elem.passMethod == "StrMPoleSymplectic4Pass") ||
       (curr_elem.passMethod == "BndMPoleSymplectic4RadPass")) {
     if (elem.PL == 0e0)
@@ -444,25 +507,138 @@ static void create_elem(const Element &curr_elem)
 	printf("  %2d   %10.3e  %10.3e]\n",
 	       n, elem.M->PB[HOMmax+n], elem.M->PB[HOMmax-n]);
     }
+    // Set n_design based on element name prefix.
+    // TODO: Idealy this should depend on Porder.
+    //It may not be reliable as PolynomB length gets padded with zeroes.
+    switch (curr_elem.name[0])
+    {
+    case 'D':
+    case 'R':
+      elem.M->n_design = 1;
+      break;
+    case 'Q':
+      elem.M->n_design = 2;
+      break;
+    case 'S':
+      elem.M->n_design = 3;
+      break;
+    case 'O':
+      elem.M->n_design = 4;
+      break;
+    default:
+      elem.M->n_design = 0;
+      break;
+    }
   }
   if (curr_elem.passMethod == "RFCavityPass") {
     // RF Cavity.
     auto V_RF = require_number(curr_elem, "Voltage");
     auto f_RF = require_number(curr_elem, "Frequency");
     auto E_0 = require_number(curr_elem, "Energy");
-    
-    globval.Energy = 1e-9*E_0;
+    // TODO: TimeLag needs to be translated to RF phase.
+    auto TimeLag = require_number(curr_elem, "TimeLag");
+
+    globval.Energy = 1e-9 * E_0;
+    elem.C->V_RF = V_RF; // [V]
+    elem.C->f_RF = f_RF; // [Hz]
 
     if (dbg) {
       printf("  V_RF       = %9.3e\n", V_RF);
       printf("  f_RF       = %9.3e\n", f_RF);
       printf("  E_0        = %9.3e\n", E_0);
+      printf("  TimeLag    = %9.3e\n", TimeLag);
     }
   }
-  if ((curr_elem.passMethod == "DriftPass")
-      || (curr_elem.passMethod == "CorrectorPass")
-      || (curr_elem.passMethod == "StrMPoleSymplectic4Pass")
-      || (curr_elem.passMethod == "BndMPoleSymplectic4RadPass")) {
+  if (curr_elem.passMethod == "IdTablePass" ||
+      curr_elem.passMethod == "IdTableRadPass")
+  {
+    InsertionType *ID = elem.ID;
+
+    const auto &xtab = curr_elem.props.find("xtable")->second;
+    const auto &ytab = curr_elem.props.find("ytable")->second;
+    const int nx = (int)xtab.size();
+    const int nz = (int)ytab.size();
+
+    if (nx > IDXMAX || nz > IDZMAX)
+    {
+      printf("create_elem: ID table too large:"
+             " nx=%d (max %d), nz=%d (max %d)\n",
+             nx, IDXMAX, nz, IDZMAX);
+      exit(1);
+    }
+
+    ID->nx = nx;
+    ID->nz = nz;
+    for (int j = 0; j < nx; j++)
+      ID->tabx[j] = xtab[j].number;
+    // LinearInterpolation2 expects tabz in decreasing order; AT ytable is
+    // increasing, so reverse it.
+    for (int i = 0; i < nz; i++)
+      ID->tabz[i] = ytab[nz - 1 - i].number;
+
+    // Energy must be set before kick/B2 normalization.
+    auto it_e = curr_elem.props.find("Energy");
+    if (it_e != curr_elem.props.end())
+      globval.Energy = 1e-9 * it_e->second.at(0).number;
+    const double Brho = globval.Energy * 1e9 / c0;
+    const double Brho2 = Brho * Brho;
+
+    // Second order kick maps (always present).
+    // AT stores kicks divided by Brho^2; Tracy's Insertion_Pass rescales by
+    // 1/Brho^2 at tracking time, so multiply back here.
+    const auto &xk = curr_elem.props.find("xkick")->second;
+    const auto &yk = curr_elem.props.find("ykick")->second;
+    for (int i = 0; i < nz; i++)
+      for (int j = 0; j < nx; j++)
+      {
+        ID->thetax[i][j] = xk[(nz - 1 - i) * nx + j].number * Brho2;
+        ID->thetaz[i][j] = yk[(nz - 1 - i) * nx + j].number * Brho2;
+      }
+    ID->secondorder = true;
+
+    // First order kick maps (optional).
+    auto it_xk1 = curr_elem.props.find("xkick1");
+    auto it_yk1 = curr_elem.props.find("ykick1");
+    if (it_xk1 != curr_elem.props.end() && it_yk1 != curr_elem.props.end() &&
+        !it_xk1->second.empty() && !it_yk1->second.empty())
+    {
+      const auto &xk1 = it_xk1->second;
+      const auto &yk1 = it_yk1->second;
+      for (int i = 0; i < nz; i++)
+        for (int j = 0; j < nx; j++)
+        {
+          ID->thetax1[i][j] = xk1[(nz - 1 - i) * nx + j].number;
+          ID->thetaz1[i][j] = yk1[(nz - 1 - i) * nx + j].number;
+        }
+      ID->firstorder = true;
+    }
+    else
+      ID->firstorder = false;
+
+    ID->Pmethod = Meth_First;
+    ID->PN = curr_elem.props.find("Nslice")->second.at(0).number;
+    ID->linear = true;
+    ID->scaling = 1.0;
+
+    // B2 field map (optional, for radiation via IdTableRadPass).
+    auto it_b2 = curr_elem.props.find("B2");
+    if (it_b2 != curr_elem.props.end() && !it_b2->second.empty())
+    {
+      const auto &b2 = it_b2->second;
+      for (int i = 0; i < nz; i++)
+        for (int j = 0; j < nx; j++)
+          ID->B2[i][j] = b2[(nz - 1 - i) * nx + j].number;
+      ID->long_comp = true;
+    }
+    else
+      ID->long_comp = false;
+
+    if (dbg)
+      printf("  ID: nx=%d, nz=%d, 1st=%d, 2nd=%d\n",
+             nx, nz, ID->firstorder, ID->secondorder);
+  }
+  if ((curr_elem.passMethod == "DriftPass") || (curr_elem.passMethod == "CorrectorPass") || (curr_elem.passMethod == "StrMPoleSymplectic4Pass") || (curr_elem.passMethod == "BndMPoleSymplectic4RadPass"))
+  {
     // Misalignment / entrance-exit transforms are parsed and validated;
     // wire them into Tracy-specific fields here if needed by the local API.
     (void)curr_elem.hasT1;
@@ -604,5 +780,22 @@ void rdmfile_at(const std::string& file_name) {
 
   printf("\nrdmfile_at: read %ld elements, C = %7.5f\n",
          globval.Cell_nLoc+1, Cell[globval.Cell_nLoc].S);
-}
 
+  assign_elem_families();
+
+  // Compute harmonic number for all cavity elements now that C is known.
+  {
+    const double C_ring = Cell[globval.Cell_nLoc].S;
+    for (long i = 0; i <= globval.Cell_nLoc; ++i)
+    {
+      if (Cell[i].Elem.Pkind == PartsKind(Cavity))
+      {
+        Cell[i].Elem.C->harm_num =
+            (int)std::round(Cell[i].Elem.C->f_RF * C_ring / c0);
+        if (dbg)
+          printf("rdmfile_at: cavity element %ld harm_num=%d\n",
+                 i, Cell[i].Elem.C->harm_num);
+      }
+    }
+  }
+}
