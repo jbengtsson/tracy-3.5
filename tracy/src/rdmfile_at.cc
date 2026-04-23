@@ -281,6 +281,45 @@ parse_property_statement(std::string line) {
 }
 
 
+// Parse 2D table properties where ';' is a row separator within the value data
+// (xtable, ytable, xkick, ykick, xkick1, ykick1, B2). Values are flattened.
+static std::pair<std::string, std::vector<Value>>
+parse_table_statement(std::string line) {
+  line = trim(line);
+  if (line.empty())
+    throw std::runtime_error("Empty table property line");
+  // Strip trailing ';' if present.
+  if (line.back() == ';') {
+    line.pop_back();
+    line = trim(line);
+  }
+  // Key is everything before the first ','.
+  auto comma_pos = line.find(',');
+  if (comma_pos == std::string::npos)
+    throw std::runtime_error("Table property missing ',' separator: " + line);
+  std::string key = trim(line.substr(0, comma_pos));
+  std::string rest = line.substr(comma_pos + 1);
+  // Split by ';' into row segments, then each segment by ',' into values.
+  std::vector<Value> values;
+  std::string seg;
+  auto flush_seg = [&](std::string s) {
+    for (const auto& tok : split_csv_like(s)) {
+      std::string t = trim(tok);
+      if (t.empty()) continue;
+      double d = 0.0;
+      if (!try_parse_double(t, d))
+        throw std::runtime_error("Non-numeric value in " + key + ": " + t);
+      values.push_back(Value::Num(d));
+    }
+  };
+  for (char c : rest) {
+    if (c == ';') { flush_seg(seg); seg.clear(); }
+    else seg.push_back(c);
+  }
+  if (!trim(seg).empty()) flush_seg(seg);
+  return {key, std::move(values)};
+}
+
 static void print_value(const Value& v) {
   if (v.isNumber) std::cout << v.number;
   else std::cout << v.text;
@@ -575,6 +614,9 @@ static void create_elem(const Element &curr_elem)
     // increasing, so reverse it.
     for (int i = 0; i < nz; i++)
       ID->tabz[i] = ytab[nz - 1 - i].number;
+    if (dbg)
+      printf("  tabx: [%9.3e, %9.3e], tabz: [%9.3e, %9.3e]\n",
+             ID->tabx[0], ID->tabx[nx-1], ID->tabz[nz-1], ID->tabz[0]);
 
     // Energy must be set before kick/B2 normalization.
     auto it_e = curr_elem.props.find("Energy");
@@ -582,6 +624,10 @@ static void create_elem(const Element &curr_elem)
       globval.Energy = 1e-9 * it_e->second.at(0).number;
     const double Brho = globval.Energy * 1e9 / c0;
     const double Brho2 = Brho * Brho;
+    if (dbg) {
+      printf("  Energy     = %9.3e [GeV]\n", globval.Energy);
+      printf("  Brho       = %9.3e [T.m]\n", Brho);
+    }
 
     // Second order kick maps (always present).
     // AT stores kicks divided by Brho^2; Tracy's Insertion_Pass rescales by
@@ -595,6 +641,19 @@ static void create_elem(const Element &curr_elem)
         ID->thetaz[i][j] = yk[(nz - 1 - i) * nx + j].number * Brho2;
       }
     ID->secondorder = true;
+    if (dbg) {
+      double xk_min = ID->thetax[0][0], xk_max = ID->thetax[0][0];
+      double yk_min = ID->thetaz[0][0], yk_max = ID->thetaz[0][0];
+      for (int i = 0; i < nz; i++)
+        for (int j = 0; j < nx; j++) {
+          xk_min = std::min(xk_min, ID->thetax[i][j]);
+          xk_max = std::max(xk_max, ID->thetax[i][j]);
+          yk_min = std::min(yk_min, ID->thetaz[i][j]);
+          yk_max = std::max(yk_max, ID->thetaz[i][j]);
+        }
+      printf("  xkick2:    [%9.3e, %9.3e] [T.m]\n", xk_min, xk_max);
+      printf("  ykick2:    [%9.3e, %9.3e] [T.m]\n", yk_min, yk_max);
+    }
 
     // First order kick maps (optional).
     auto it_xk1 = curr_elem.props.find("xkick1");
@@ -611,6 +670,19 @@ static void create_elem(const Element &curr_elem)
           ID->thetaz1[i][j] = yk1[(nz - 1 - i) * nx + j].number;
         }
       ID->firstorder = true;
+      if (dbg) {
+        double xk1_min = ID->thetax1[0][0], xk1_max = ID->thetax1[0][0];
+        double yk1_min = ID->thetaz1[0][0], yk1_max = ID->thetaz1[0][0];
+        for (int i = 0; i < nz; i++)
+          for (int j = 0; j < nx; j++) {
+            xk1_min = std::min(xk1_min, ID->thetax1[i][j]);
+            xk1_max = std::max(xk1_max, ID->thetax1[i][j]);
+            yk1_min = std::min(yk1_min, ID->thetaz1[i][j]);
+            yk1_max = std::max(yk1_max, ID->thetaz1[i][j]);
+          }
+        printf("  xkick1:    [%9.3e, %9.3e] [rad]\n", xk1_min, xk1_max);
+        printf("  ykick1:    [%9.3e, %9.3e] [rad]\n", yk1_min, yk1_max);
+      }
     }
     else
       ID->firstorder = false;
@@ -619,6 +691,8 @@ static void create_elem(const Element &curr_elem)
     ID->PN = curr_elem.props.find("Nslice")->second.at(0).number;
     ID->linear = true;
     ID->scaling = 1.0;
+    if (dbg)
+      printf("  Nslice     = %d\n", ID->PN);
 
     // B2 field map (optional, for radiation via IdTableRadPass).
     auto it_b2 = curr_elem.props.find("B2");
@@ -634,8 +708,8 @@ static void create_elem(const Element &curr_elem)
       ID->long_comp = false;
 
     if (dbg)
-      printf("  ID: nx=%d, nz=%d, 1st=%d, 2nd=%d\n",
-             nx, nz, ID->firstorder, ID->secondorder);
+      printf("  ID: nx=%d, nz=%d, 1st=%d, 2nd=%d, B2=%d\n",
+             nx, nz, ID->firstorder, ID->secondorder, ID->long_comp);
   }
   if ((curr_elem.passMethod == "DriftPass") || (curr_elem.passMethod == "CorrectorPass") || (curr_elem.passMethod == "StrMPoleSymplectic4Pass") || (curr_elem.passMethod == "BndMPoleSymplectic4RadPass"))
   {
@@ -704,7 +778,12 @@ void rdmfile_at(const std::string& file_name) {
       return;
     }
 
-    auto kv = parse_property_statement(stmt);
+    const bool is_table_key =
+      (key == "xtable" || key == "ytable" ||
+       key == "xkick"  || key == "ykick"  ||
+       key == "xkick1" || key == "ykick1" || key == "B2");
+    auto kv = is_table_key ? parse_table_statement(stmt)
+                           : parse_property_statement(stmt);
     const auto& vals = kv.second;
 
     if (key == "ElemName") {
@@ -755,6 +834,17 @@ void rdmfile_at(const std::string& file_name) {
     else
       stmt += ' ';
     stmt += t;
+
+    // Some AT flat files may emit empty optional kick-map lines without a
+    // trailing ';' (e.g. "xkick1," / "ykick1,"). Treat these as complete
+    // one-line statements so they don't swallow the next property key.
+    if (stmt.find(';') == std::string::npos &&
+        (starts_with(stmt, "xkick1,") || starts_with(stmt, "ykick1,"))) {
+      handle_statement(stmt + ";", stmtStartLine);
+      stmt.clear();
+      stmtStartLine = 0;
+      continue;
+    }
 
     if (stmt.find(';') == std::string::npos)
       continue;
