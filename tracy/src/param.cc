@@ -1,3 +1,4 @@
+// TODO: naming conventions and refactor - functionally, to set engeniring tolerances and correct including coping with IDs (id_corr is LOCO)
 
 // Define static variables.
 
@@ -948,6 +949,7 @@ void param_data_type::ReadEta(const char *TolFileName)
   printf("\n");
 }
 
+// "LOCO" for off-diagonal.
 void param_data_type::FindMatrix(double **SkewRespMat, const double deta_y_max,
 				 const double deta_y_offset)
 {
@@ -1088,6 +1090,7 @@ void param_data_type::FindMatrix(double **SkewRespMat, const double deta_y_max,
 void param_data_type::ini_skew_cor(const double deta_y_max,
 				   const double deta_y_offset)
 {
+  // Collect skew trims from param file "qt"
   int k;
 
   // No of skew quads, BPMs, and correctors
@@ -1538,6 +1541,8 @@ void param_data_type::SVD(const int m, const int n, double **M,
 
 
 void param_data_type::quad_config()
+// Collect quadrupole trims. For the block diagonal. Linear optics response matrix (b_2).
+// Quadrupole families get picked up from "ID_quads" in the parameter file.
 {
   int    i, j;
   double an;
@@ -1753,6 +1758,7 @@ void param_data_type::A_matrix(void)
 
 
 void param_data_type::X_vector(const bool first)
+// Linear optics distortion vector [\delta\beta,\delta\mu,\delta\nu]
 {
   int k;
 
@@ -1798,7 +1804,7 @@ void param_data_type::X_vector(const bool first)
   }
 }
 
-
+// Initializing ID correction (NOT LOCO)
 void param_data_type::ini_ID_corr(const bool IDs)
 {
   int k;
