@@ -7,7 +7,7 @@
    J. Bengtsson  NSLS-II, BNL  2004 -        
 
 */
-
+// Least Squares Orbit Correction (LSOC)
 
 static bool              first_h[] = {true, true}, first_v[] = {true, true};
        int               n_bpm_[2], n_corr_[2];

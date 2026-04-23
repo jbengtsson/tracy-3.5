@@ -1547,7 +1547,7 @@ void set_dL(const int Fnum, const double dL)
     set_dL(Fnum, k, dL);
 }
 
-
+// -- TOLERANCES --
 // Multipole Components.
 
 void get_bn_design_elem(const int Fnum, const int Knum,
@@ -2162,7 +2162,7 @@ void SetFieldErrors(const char *name, const bool rms, const double r0,
   }
 }
 
-
+// -- CLOSED ORBIT CORRECTION --
 // closed orbit correction by n_orbit iterations
 bool CorrectCOD(const int n_orbit, const double scl)
 {
@@ -2212,7 +2212,7 @@ bool CorrectCOD(const int n_orbit, const double scl)
 
   return cod;
 }
-
+// -- END CLOSED ORBIT CORRECTION --
 
 void write_misalignments(const char* filename) {
   FILE* fp = fopen(filename, "w");
