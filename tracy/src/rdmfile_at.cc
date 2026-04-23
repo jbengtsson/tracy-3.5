@@ -332,7 +332,7 @@ static void assign_elem_families()
 {
   std::unordered_map<std::string, int> name_to_fnum;
   globval.Elem_nFam = 0;
-  bool dbg = true;
+  bool dbg = false;
 
   for (long i = 0; i <= globval.Cell_nLoc; i++)
   {
