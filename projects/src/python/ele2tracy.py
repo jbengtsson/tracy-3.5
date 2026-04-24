@@ -159,7 +159,7 @@ def cavity(line, tokens, decls):
           (tokens[0], get_arg(tokens[loc_l+1], decls),
            get_arg(tokens[loc_f+1], decls),
            get_arg(tokens[loc_v+1], decls))
-    if loc_phi: str += ', phi = 0*%s' % \
+    if loc_phi: str += ', phase = 0*%s' % \
        (get_arg(tokens[loc_phi+1], decls))
     # if loc_entryf: str += ', rf_focus1 = %s' % \
     #    (get_arg(tokens[loc_entryf+1], decls))
@@ -213,6 +213,7 @@ ele2tracy = {
     'csben'     : bend,
     'csbend'    : bend,
     'csrcsbend' : bend,
+    'sben'      : bend,
     'quad'      : quad,
     'kquad'     : quad,
     'sext'      : sext,
@@ -303,11 +304,11 @@ def parse_line(line_no, line, outf, decls):
             exit(1)
 
 def prt_decl(outf):
-    outf.write('define lattice; ringtype = 1;\n')
+    outf.write('define lattice;\nringtype = 1;\n')
     outf.write('\nEnergy = 3.5; { Beam momentum [GeV]. }\n')
-    outf.write('\ndP = 1e-8; CODeps = 1e-14;\n')
-    outf.write('\nMeth = 4; Nbend = 10; Nquad = 10; Nsext = 2;\n')
-    outf.write('\npi = 4.0*arctan(1.0); c0 = 2.99792458e8;\n\n')
+    outf.write('\ndP     = 1e-8;\nCODeps = 1e-14;\n')
+    outf.write('\nNbend = 10;\nNquad = 10;\nNsext = 2;\n')
+    outf.write('\npi = 4.0*arctan(1.0);\nc0 = 2.99792458e8;\n\n')
 
 
 def transl_file(file_name, decls):
