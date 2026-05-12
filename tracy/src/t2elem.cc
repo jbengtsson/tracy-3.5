@@ -1,7 +1,7 @@
 /* Tracy-2
 
    J. Bengtsson, CBP, LBL      1990 - 1994   Pascal version
-                 SLS, PSI      1995 - 1997
+   SLS, PSI      1995 - 1997
    M. Boege      SLS, PSI      1998          C translation
    L. Nadolski   SOLEIL        2002          Link to NAFF, Radia field maps
    J. Bengtsson  NSLS-II, BNL  2004 -
@@ -104,9 +104,9 @@ void splin2_(const double x1a[], const double x2a[], double **ya, double **y2a,
 
   if ((x1 < x1a[1]) || (x1 > x1a[m])) {
     std::cout << std::fixed << std::setprecision(8)
-	 << "splin2_: x undefined ["
-	 << is_double<T>::cst(x1) << ", " << is_double<T>::cst(x2) << "] (["
-	 << x1a[1] << ", " << x1a[m] << "])" << std::endl;
+	      << "splin2_: x undefined ["
+	      << is_double<T>::cst(x1) << ", " << is_double<T>::cst(x2)
+	      << "] ([" << x1a[1] << ", " << x1a[m] << "])" << std::endl;
 
     y = NAN;
 
@@ -115,9 +115,9 @@ void splin2_(const double x1a[], const double x2a[], double **ya, double **y2a,
 
   if ((x2 < x2a[1]) || (x2 > x2a[n])) {
     std::cout << std::fixed << std::setprecision(8)
-	 << "splin2_: y undefined ["
-	 << is_double<T>::cst(x1) << ", " << is_double<T>::cst(x2) << "] (["
-	 << x2a[1] << ", " << x2a[n] << "])" << std::endl;
+	      << "splin2_: y undefined ["
+	      << is_double<T>::cst(x1) << ", " << is_double<T>::cst(x2)
+	      << "] ([" << x2a[1] << ", " << x2a[n] << "])" << std::endl;
 
     y = NAN;
 
@@ -192,7 +192,7 @@ inline T get_p_s(const ss_vect<T> &ps)
     if (p_s2 >= 0e0)
       p_s = sqrt(p_s2);
     else {
-//      printf("get_p_s: *** Speed of light exceeded!\n");
+      //      printf("get_p_s: *** Speed of light exceeded!\n");
       p_s = NAN;
     }
   }
@@ -258,25 +258,25 @@ class is_tps { };
 // partial specialization
 template<>
 class is_tps<double> {
- public:
+public:
   static inline void get_ps(const ss_vect<double> &x, CellType &Cell)
   { Cell.BeamPos = x; }
 
   static inline double set_prm(const int k) { return 1e0; }
 
   static inline double get_curly_H(const ss_vect<tps> &x)
-    {
-      std::cout << "get_curly_H: operation not defined for double" << std::endl;
-      exit_(1);
-      return 0e0;
-    }
+  {
+    std::cout << "get_curly_H: operation not defined for double" << std::endl;
+    exit_(1);
+    return 0e0;
+  }
 
   static inline double get_dI_eta(const ss_vect<tps> &A)
-    {
-      std::cout << "get_dI_eta: operation not defined for double" << std::endl;
-      exit_(1);
-      return 0e0;
-    }
+  {
+    std::cout << "get_dI_eta: operation not defined for double" << std::endl;
+    exit_(1);
+    return 0e0;
+  }
 
   static inline void emittance
   (CellType &Cell, const double B2, const double u, const double ps0,
@@ -292,7 +292,7 @@ class is_tps<double> {
 // partial specialization
 template<>
 class is_tps<tps> {
- public:
+public:
   static inline void get_ps(const ss_vect<tps> &x, CellType &Cell)
   {
     Cell.BeamPos = x.cst(); getlinmat(6, x, Cell.A);
@@ -494,28 +494,28 @@ static double get_psi(double irho, double phi, double gap)
 {
   /* References:
      1. H. Enge 𝐸𝑓𝑓𝑒𝑐𝑡 𝑜𝑓 𝐸𝑥𝑡𝑒𝑛𝑑𝑒𝑑 𝐹𝑟𝑖𝑛𝑔𝑖𝑛𝑔 𝐹𝑖𝑒𝑙𝑑𝑠 𝑜𝑛 𝐼𝑜𝑛-𝐹𝑜𝑐𝑢𝑠𝑖𝑛𝑔 𝑃𝑟𝑜𝑝𝑒𝑟𝑡𝑖𝑒𝑠 𝑜𝑓 𝐷𝑒𝑓𝑙𝑒𝑐𝑡𝑖𝑛𝑔
-        𝑀𝑎𝑔𝑛𝑒𝑡𝑠 Rev. Sci. Instr. 35, 278-287 (1964).
+     𝑀𝑎𝑔𝑛𝑒𝑡𝑠 Rev. Sci. Instr. 35, 278-287 (1964).
 
-        https://doi.org/10.1063/1.1718806
+     https://doi.org/10.1063/1.1718806
 
      2. H. Enge 𝐸𝑓𝑓𝑒𝑐𝑡𝑠 𝑜𝑓 𝐸𝑥𝑡𝑒𝑛𝑑𝑒𝑑 𝐹𝑟𝑖𝑛𝑔𝑖𝑛𝑔 𝐹𝑖𝑒𝑙𝑑𝑠 𝐹𝑜𝑐𝑢𝑠𝑖𝑛𝑔 𝑜𝑓 𝐶ℎ𝑎𝑟𝑔𝑒𝑑 𝑃𝑎𝑟𝑡𝑖𝑐𝑙𝑒𝑠, 𝑉𝑜𝑙. 𝐼𝐼,
-        239-248, Ed. A. Septier (Academic Press, New York, 1967).
+     239-248, Ed. A. Septier (Academic Press, New York, 1967).
 
-	https://archive.org/details/in.ernet.dli.2015.141778/page/n241/mode/2up
+     https://archive.org/details/in.ernet.dli.2015.141778/page/n241/mode/2up
 
      Magnet gap correction (longitudinal fringe field)
 
-       irho h = 1/rho [1/m]
-       phi  edge angle
-       gap  full gap between poles
+     irho h = 1/rho [1/m]
+     phi  edge angle
+     gap  full gap between poles
 
-                                     2
-                   k_1*gap*h*(1 + sin (phi))
-            psi = ----------------------- * (1 - k_2*k_1*gap*h*tan(phi))
-                        cos phi
+     2
+     k_1*gap*h*(1 + sin (phi))
+     psi = ----------------------- * (1 - k_2*k_1*gap*h*tan(phi))
+     cos phi
 
-            k_1 is usually 1/2
-            k_2 is zero here                                                  */
+     k_1 is usually 1/2
+     k_2 is zero here                                                  */
 
   double psi;
 
@@ -525,7 +525,7 @@ static double get_psi(double irho, double phi, double gap)
     psi = 0e0;
   else
     psi = k1*gap*irho*(1e0+sqr(sin(dtor(phi))))/cos(dtor(phi))
-          *(1e0 - k2*gap*irho*tan(dtor(phi)));
+      *(1e0 - k2*gap*irho*tan(dtor(phi)));
 
   return psi;
 }
@@ -555,13 +555,13 @@ void thin_kick
       ByoBrho  = ByoBrho1;
     }
 
-  if (prt_debug)
-    cout << scientific << setprecision(5)
-	 << "\nthin_kick ->:\n" << "  h_bend = " << h_bend << " h_ref = "
-	 << h_ref << "\n  BxoBrho = " << setw(13) << BxoBrho << " ByoBrho = "
-	 << setw(13) << ByoBrho << "\n  ps = " << setw(13) << ps << "\n";
+    if (prt_debug)
+      cout << scientific << setprecision(5)
+	   << "\nthin_kick ->:\n" << "  h_bend = " << h_bend << " h_ref = "
+	   << h_ref << "\n  BxoBrho = " << setw(13) << BxoBrho << " ByoBrho = "
+	   << setw(13) << ByoBrho << "\n  ps = " << setw(13) << ps << "\n";
 
-  if (globval.radiation || globval.emittance) {
+    if (globval.radiation || globval.emittance) {
       B[X_] = BxoBrho; B[Y_] = ByoBrho + h_bend; B[Z_] = 0e0;
       radiate(Cell, ps, L, h_ref, B);
     }
@@ -570,7 +570,7 @@ void thin_kick
       // Sector bend.
       if (true) {
 	ps[px_] -= L*(ByoBrho+(h_bend-h_ref)/2e0+h_ref*h_bend*ps0[x_]
-		     -h_ref*ps0[delta_]);
+		      -h_ref*ps0[delta_]);
 	ps[ct_] += L*h_ref*ps0[x_];
       } else {
 	// The Hamiltonian is split into: H_d + H_k; with [H_d, H_d] = 0.
@@ -598,7 +598,7 @@ void thin_kick
 
 template<typename T>
 void EdgeFocus(const double irho, const double phi, const double gap,
-		      ss_vect<T> &ps)
+	       ss_vect<T> &ps)
 {
   ps[px_] += irho*tan(dtor(phi))*ps[x_];
   if (!globval.dip_edge_fudge) {
@@ -622,7 +622,7 @@ void p_rot(double phi, ss_vect<T> &ps)
   c = cos(dtor(phi)); s = sin(dtor(phi)); t = tan(dtor(phi)); pz = get_p_s(ps);
 
   if (!globval.H_exact && !globval.Cart_Bend) {
-     ps[px_] = s*pz + c*ps[px_];
+    ps[px_] = s*pz + c*ps[px_];
   } else {
     // ps1 = ps; p = c*pz - s*ps1[px_];
     // px[x_]   = ps1[x_]*pz/p; px[px_] = s*pz + c*ps1[px_];
@@ -890,7 +890,7 @@ void Marker_Pass(CellType &Cell, ss_vect<T> &ps)
 
 template<typename T, typename U>
 void Cav_Focus(const double L, const T delta, const bool entrance,
-           ss_vect<U> &ps)
+	       ss_vect<U> &ps)
 {
   double sgn;
  
@@ -914,7 +914,7 @@ void Cav_Pass(const CellType &Cell, ss_vect<T> &ps)
   Drift(L/2e0, ps);
   if (globval.Cavity_on && C->V_RF != 0e0) {
     delta = -C->V_RF/(globval.Energy*1e9)
-            *sin(2e0*M_PI*C->f_RF/c0*ps[ct_]-C->phi_RF);
+      *sin(2e0*M_PI*C->f_RF/c0*ps[ct_]-C->phi_RF);
     ps[delta_] += delta;
 
     if (globval.radiation) globval.dE -= is_double<T>::cst(delta);
@@ -1047,7 +1047,7 @@ void Cav_Pass(const CellType &Cell, ss_vect<T> &ps)
       -dgammaMax/(2e0*sqrt(2e0)*L*gamma1)*sin(alpha)*(1e0+ps0[delta_])*ps0[y_]
       + gamma/gamma1*cos(alpha)*ps0[py_];
 
-   // globval.Energy contains p_0 [GeV].
+    // globval.Energy contains p_0 [GeV].
     ps[delta_] =
       2e0*M_PI*C->Pfreq*dgammaMax*cos(phi)/(c0*gamma1)*ps0[ct_]
       + 1e0/(1e0+dp/p0)*ps0[delta_];
@@ -1138,13 +1138,18 @@ inline void get_Axy(const WigglerType *W, const double z,
   T       cx, cz, sx, sz, chy, shy;
 
   for (i = 0; i <= 3; ++i) {
-    AxoBrho[i] = 0e0; AyoBrho[i] = 0e0;
+    AxoBrho[i] = 0e0;
+    AyoBrho[i] = 0e0;
   }
 
   for (i = 0; i < W->n_harm; i ++) {
-    kz_n = W->harm[i]*2e0*M_PI/W->Lambda; ky = sqrt(sqr(W->kxV[i])+sqr(kz_n));
-    cx = cos(W->kxV[i]*x[x_]); sx = sin(W->kxV[i]*x[x_]);
-    chy = cosh(ky*x[y_]); shy = sinh(ky*x[y_]); sz = sin(kz_n*z);
+    kz_n = W->harm[i]*2e0*M_PI/W->Lambda;
+    ky = sqrt(sqr(W->kxV[i])+sqr(kz_n));
+    cx = cos(W->kxV[i]*x[x_]);
+    sx = sin(W->kxV[i]*x[x_]);
+    chy = cosh(ky*x[y_]);
+    shy = sinh(ky*x[y_]);
+    sz = sin(kz_n*z);
 
     AxoBrho[0] += W->BoBrhoV[i]/kz_n*cx*chy*sz;
     AyoBrho[0] += W->BoBrhoV[i]*W->kxV[i]/(ky*kz_n)*sx*shy*sz;
@@ -1167,10 +1172,10 @@ inline void get_Axy(const WigglerType *W, const double z,
 }
 
 /*
-template<typename T>
-inline void get_Axy_map(const FieldMapType *FM, const double z,
-			const ss_vect<T> &x, T AxoBrho[], T AyoBrho[])
-{
+  template<typename T>
+  inline void get_Axy_map(const FieldMapType *FM, const double z,
+  const ss_vect<T> &x, T AxoBrho[], T AyoBrho[])
+  {
   float  y, ax0, ax1, ax2, ay0, ay1, ay2;
 
   const  float dy = 1e-3, dz = 1e-3;
@@ -1178,23 +1183,23 @@ inline void get_Axy_map(const FieldMapType *FM, const double z,
   y = is_double<T>::cst(x[y_]);
 
   if ((z < FM->s_pos[1]) || (z > FM->s_pos[FM->n_s])) {
-    std::cout << std::scientific << std::setprecision(3)
-	 << "get_Axy_map: s out of range " << z << std::endl;
-    exit_(1);
+  std::cout << std::scientific << std::setprecision(3)
+  << "get_Axy_map: s out of range " << z << std::endl;
+  exit_(1);
   }
 
   if ((y < FM->y_pos[1]) || (y > FM->y_pos[FM->m_y])) {
-    std::cout << std::scientific << std::setprecision(3)
-	 << "get_Axy_map: y out of range " << y << std::endl;
-    exit_(1);
+  std::cout << std::scientific << std::setprecision(3)
+  << "get_Axy_map: y out of range " << y << std::endl;
+  exit_(1);
   }
 
   splin2(FM->y_pos, FM->s_pos, FM->AxoBrho, FM->AxoBrho2, FM->m_y, FM->n_s,
-	 y, z, &ax1);
+  y, z, &ax1);
   AxoBrho[0] = FM->scl*ax1;
 
   splin2(FM->y_pos, FM->s_pos, FM->AyoBrho, FM->AyoBrho2, FM->m_y, FM->n_s,
-	 y, z, &ay1);
+  y, z, &ay1);
   AyoBrho[0] = FM->scl*ay1;
 
   // derivatives with respect to x
@@ -1202,44 +1207,44 @@ inline void get_Axy_map(const FieldMapType *FM, const double z,
 
   // derivatives with respect to y
   splin2(FM->y_pos, FM->s_pos, FM->AxoBrho, FM->AxoBrho2, FM->m_y, FM->n_s,
-	 y+dy, z, &ax2);
+  y+dy, z, &ax2);
   splin2(FM->y_pos, FM->s_pos, FM->AxoBrho, FM->AxoBrho2, FM->m_y, FM->n_s,
-	 y-dy, z, &ax1);
+  y-dy, z, &ax1);
   splin2(FM->y_pos, FM->s_pos, FM->AxoBrho, FM->AxoBrho2, FM->m_y, FM->n_s,
-	 y, z, &ax0);
+  y, z, &ax0);
   AxoBrho[2] =
-    (ax2-ax1)/(2e0*dy) + (ax2+ax1-2e0*ax0)/sqr(dy)*is_tps<T>::set_prm(y_+1);
+  (ax2-ax1)/(2e0*dy) + (ax2+ax1-2e0*ax0)/sqr(dy)*is_tps<T>::set_prm(y_+1);
   AxoBrho[2] *= FM->scl;
 
   splin2(FM->y_pos, FM->s_pos, FM->AyoBrho, FM->AyoBrho2, FM->m_y, FM->n_s,
-	 y+dy, z, &ay2);
+  y+dy, z, &ay2);
   splin2(FM->y_pos, FM->s_pos, FM->AyoBrho, FM->AyoBrho2, FM->m_y, FM->n_s,
-	 y-dy, z, &ay1);
+  y-dy, z, &ay1);
   splin2(FM->y_pos, FM->s_pos, FM->AyoBrho, FM->AyoBrho2, FM->m_y, FM->n_s,
-	 y, z, &ay0);
+  y, z, &ay0);
   AyoBrho[2] =
-    (ay2-ay1)/(2e0*dy) + (ay2+ay1-2e0*ay0)/sqr(dy)*is_tps<T>::set_prm(y_+1);
+  (ay2-ay1)/(2e0*dy) + (ay2+ay1-2e0*ay0)/sqr(dy)*is_tps<T>::set_prm(y_+1);
   AyoBrho[2] *= FM->scl;
 
   if (globval.radiation) {
-    // derivatives with respect to z
-    splin2(FM->y_pos, FM->s_pos, FM->AxoBrho, FM->AxoBrho2, FM->m_y, FM->n_s,
-	   y, z+dz, &ax2);
-    splin2(FM->y_pos, FM->s_pos, FM->AxoBrho, FM->AxoBrho2, FM->m_y, FM->n_s,
-	   y, z-dz, &ax1);
-    AxoBrho[3] = (ax2-ax1)/(2e0*dz); AxoBrho[3] *= FM->scl;
+  // derivatives with respect to z
+  splin2(FM->y_pos, FM->s_pos, FM->AxoBrho, FM->AxoBrho2, FM->m_y, FM->n_s,
+  y, z+dz, &ax2);
+  splin2(FM->y_pos, FM->s_pos, FM->AxoBrho, FM->AxoBrho2, FM->m_y, FM->n_s,
+  y, z-dz, &ax1);
+  AxoBrho[3] = (ax2-ax1)/(2e0*dz); AxoBrho[3] *= FM->scl;
 
-    splin2(FM->y_pos, FM->s_pos, FM->AyoBrho, FM->AyoBrho2, FM->m_y, FM->n_s,
-	   y, z+dz, &ay2);
-    splin2(FM->y_pos, FM->s_pos, FM->AyoBrho, FM->AyoBrho2, FM->m_y, FM->n_s,
-	   y, z-dz, &ay1);
-    AyoBrho[3] = (ay2-ay1)/(2e0*dz); AyoBrho[3] *= FM->scl;
-    if (false)
-      std::cout << std::fixed << std::setprecision(5)
-	   << std::setw(8) << z << std::setw(9)
-	   << is_double<T>::cst(AxoBrho[3]) << std::endl;
+  splin2(FM->y_pos, FM->s_pos, FM->AyoBrho, FM->AyoBrho2, FM->m_y, FM->n_s,
+  y, z+dz, &ay2);
+  splin2(FM->y_pos, FM->s_pos, FM->AyoBrho, FM->AyoBrho2, FM->m_y, FM->n_s,
+  y, z-dz, &ay1);
+  AyoBrho[3] = (ay2-ay1)/(2e0*dz); AyoBrho[3] *= FM->scl;
+  if (false)
+  std::cout << std::fixed << std::setprecision(5)
+  << std::setw(8) << z << std::setw(9)
+  << is_double<T>::cst(AxoBrho[3]) << std::endl;
   }
-}
+  }
 */
 
 template<typename T>
@@ -1280,7 +1285,7 @@ void Wiggler_pass_EF(CellType &Cell, ss_vect<T> &ps)
       get_Axy(elemp->W, z, ps, AxoBrho, AyoBrho);
       break;
     case FieldMap:
-//      get_Axy_map(elemp->FM, z, ps, AxoBrho, AyoBrho);
+      //      get_Axy_map(elemp->FM, z, ps, AxoBrho, AyoBrho);
       break;
     default:
       std::cout << "Wiggler_pass_EF: unknown element type" << std::endl;
@@ -1288,32 +1293,41 @@ void Wiggler_pass_EF(CellType &Cell, ss_vect<T> &ps)
       break;
     }
 
-    psi = 1e0 + ps[delta_]; hodp = h/psi;
-    a11 = hodp*AxoBrho[1]; a12 = hodp*AyoBrho[1];
-    a21 = hodp*AxoBrho[2]; a22 = hodp*AyoBrho[2];
-    det = 1e0 - a11 - a22 + a11*a22 - a12*a21;
-    d1 = hodp*AxoBrho[0]*AxoBrho[1]; d2 = hodp*AxoBrho[0]*AxoBrho[2];
-    c11 = (1e0-a22)/det; c12 = a12/det; c21 = a21/det; c22 = (1e0-a11)/det;
-    x2 = c11*(ps[px_]-d1) + c12*(ps[py_]-d2);
+    psi  = 1e0 + ps[delta_];
+    hodp = h/psi;
+    a11  = hodp*AxoBrho[1];
+    a12  = hodp*AyoBrho[1];
+    a21  = hodp*AxoBrho[2];
+    a22  = hodp*AyoBrho[2];
+    det  = 1e0 - a11 - a22 + a11*a22 - a12*a21;
+    d1   = hodp*AxoBrho[0]*AxoBrho[1];
+    d2   = hodp*AxoBrho[0]*AxoBrho[2];
+    c11  = (1e0-a22)/det; c12 = a12/det;
+    c21  = a21/det; c22 = (1e0-a11)/det;
+    x2   = c11*(ps[px_]-d1) + c12*(ps[py_]-d2);
 
-    ps[py_] = c21*(ps[px_]-d1) + c22*(ps[py_]-d2); ps[px_] = x2;
-    ps[x_] += hodp*(ps[px_]-AxoBrho[0]); ps[y_] += hodp*ps[py_];
+    ps[py_]  = c21*(ps[px_]-d1) + c22*(ps[py_]-d2);
+    ps[px_]  = x2;
+    ps[x_]  += hodp*(ps[px_]-AxoBrho[0]);
+    ps[y_]  += hodp*ps[py_];
     ps[ct_] += h*(sqr((ps[px_]-AxoBrho[0])/psi)
-	      + sqr((ps[py_]-AyoBrho[0])/psi))/2e0;
+		  + sqr((ps[py_]-AyoBrho[0])/psi))/2e0;
 
     if (false)
       std::cout << std::scientific << std::setprecision(3)
-	   << std::setw(8) << z
-	   << std::setw(11) << is_double<T>::cst(ps[x_])
-	   << std::setw(11) << is_double<T>::cst(ps[px_])
-	   << std::setw(11) << is_double<T>::cst(ps[y_])
-	   << std::setw(11) << is_double<T>::cst(ps[py_])
-	   << std::endl;
+		<< std::setw(8) << z
+		<< std::setw(11) << is_double<T>::cst(ps[x_])
+		<< std::setw(11) << is_double<T>::cst(ps[px_])
+		<< std::setw(11) << is_double<T>::cst(ps[y_])
+		<< std::setw(11) << is_double<T>::cst(ps[py_])
+		<< std::endl;
 
     if (globval.pathlength) ps[ct_] += h;
 
     if (globval.radiation || globval.emittance) {
-      B[X_] = -AyoBrho[3]; B[Y_] = AxoBrho[3]; B[Z_] = AyoBrho[1] - AxoBrho[2];
+      B[X_] = -AyoBrho[3];
+      B[Y_] = AxoBrho[3];
+      B[Z_] = AyoBrho[1] - AxoBrho[2];
       radiate(Cell, ps, h, 0e0, B);
     }
 
@@ -1332,15 +1346,22 @@ inline void get_Axy2
   T   cx, sx, cz1, cz2, sz1, sz2, chy, shy, kyH, kyV, chx, shx, cy, sy;
 
   for (i = 0; i <= 3; ++i) {
-    AxoBrho[i] = 0e0; AyoBrho[i] = 0e0;
+    AxoBrho[i] = 0e0;
+    AyoBrho[i] = 0e0;
   }
 
-  kyV = sqrt(sqr(kz)+sqr(kxV)); kyH = sqrt(sqr(kz)+sqr(kxH));
-  cx = cos(kxV*x[x_]); sx = sin(kxV*x[x_]);
-  cy = cos(kxH*x[y_]); sy = sin(kxH*x[y_]);
-  chx = cosh(kyH*x[x_]); shx = sinh(kyH*x[x_]);
-  chy = cosh(kyV*x[y_]); shy = sinh(kyV*x[y_]);
-  sz1 = sin(kz*z); sz2 = sin(kz*z+phi);
+  kyV = sqrt(sqr(kz)+sqr(kxV));
+  kyH = sqrt(sqr(kz)+sqr(kxH));
+  cx =  cos(kxV*x[x_]);
+  sx =  sin(kxV*x[x_]);
+  cy =  cos(kxH*x[y_]);
+  sy =  sin(kxH*x[y_]);
+  chx = cosh(kyH*x[x_]);
+  shx = sinh(kyH*x[x_]);
+  chy = cosh(kyV*x[y_]);
+  shy = sinh(kyV*x[y_]);
+  sz1 = sin(kz*z);
+  sz2 = sin(kz*z+phi);
 
   AxoBrho[0] += BoBrhoV/kz*cx*chy*sz1;
   AxoBrho[0] -= BoBrhoH*kxH/(kyH*kz)*shx*sy*sz2;
@@ -1389,16 +1410,16 @@ void Wiggler_pass_EF2
     psi = 1e0 + x[delta_]; hodp = h/psi;
 
     px1 = (x[px_]-(AxoBrho[0]*AxoBrho[1]+AyoBrho[0]*AyoBrho[1])*hodp)
-          *(1-AyoBrho[2]*hodp);
+      *(1-AyoBrho[2]*hodp);
     px2 = (x[py_]-(AxoBrho[0]*AxoBrho[2]+AyoBrho[0]*AyoBrho[2])*hodp)
-          *AyoBrho[1]*hodp;
+      *AyoBrho[1]*hodp;
     px3 = (1-AxoBrho[1]*hodp)*(1-AyoBrho[2]*hodp)
-          - AxoBrho[2]*AyoBrho[1]*hodp*hodp;
+      - AxoBrho[2]*AyoBrho[1]*hodp*hodp;
 
     py1 = (x[py_]-(AxoBrho[0]*AxoBrho[2]+AyoBrho[0]*AyoBrho[2])*hodp)
-          *(1-AxoBrho[1]*hodp);
+      *(1-AxoBrho[1]*hodp);
     py2 = (x[px_]-(AxoBrho[0]*AxoBrho[1]+AyoBrho[0]*AyoBrho[1])*hodp)
-          *AxoBrho[2]*hodp;
+      *AxoBrho[2]*hodp;
 
     py = (py1+py2)/px3; px = (px1+px2)/px3;
     x[x_] += hodp*(px-AxoBrho[0]); x[y_] += hodp*(py-AyoBrho[0]);
@@ -1478,8 +1499,8 @@ void Wiggler_pass_EF3(CellType &Cell, ss_vect<T> &ps)
 {
   /* Symplectic integrator (2nd order) for Insertion Devices based on:
 
-       E. Forest, et al "Explicit Symplectic Integrator for s-dependent
-       Static Magnetic Field" Phys. Rev. E 68,  046502 (2003)                 */
+     E. Forest, et al "Explicit Symplectic Integrator for s-dependent
+     Static Magnetic Field" Phys. Rev. E 68,  046502 (2003)                 */
 
   int         i;
   double      h, z, irho, curly_dH_x;
@@ -1605,8 +1626,8 @@ void Wiggler_Pass(CellType &Cell, ss_vect<T> &ps)
 	Wiggler_pass_EF(Cell, ps);
       else {
 	Wiggler_pass_EF2(Cell, W->PN, elemp->PL, W->kxV[0], W->kxH[0],
-		2e0*M_PI/W->Lambda, W->BoBrhoV[0], W->BoBrhoH[0],
-		W->phi[0], ps);
+			 2e0*M_PI/W->Lambda, W->BoBrhoV[0], W->BoBrhoH[0],
+			 W->phi[0], ps);
       }
     } else
       // drift if field = 0
@@ -1710,11 +1731,11 @@ bool get_BoBrho(const FieldMapType *FM, const double z, const ss_vect<T> &cs,
   if (BoBrho[X_] == NAN) return false;
 
   splin2_(FM->x[X_], FM->x[Y_], FM->BoBrho[Y_][kz], FM->BoBrho2[Y_][kz],
-	   FM->n[X_], FM->n[Y_], cs[x_], cs[y_], BoBrho[Y_]);
+	  FM->n[X_], FM->n[Y_], cs[x_], cs[y_], BoBrho[Y_]);
   if (BoBrho[Y_] == NAN) return false;
 
   splin2_(FM->x[X_], FM->x[Y_], FM->BoBrho[Z_][kz], FM->BoBrho2[Z_][kz],
-	   FM->n[X_], FM->n[Y_], cs[x_], cs[y_], BoBrho[Z_]);
+	  FM->n[X_], FM->n[Y_], cs[x_], cs[y_], BoBrho[Z_]);
   if (BoBrho[Z_] == NAN) return false;
 
   for (j = 0; j < 3; j++)
@@ -1775,12 +1796,12 @@ void f_FM(const CellType &Cell, const double z, const ss_vect<T> &cs,
   Dcs[x_]  = cs[px_];
 
   Dcs[px_] = -(cs[px_]*cs[py_]*BoBrho[X_]-(1e0+sqr(cs[px_]))*BoBrho[Y_]
-             + cs[py_]*BoBrho[Z_])/p_s;
+	       + cs[py_]*BoBrho[Z_])/p_s;
 
   Dcs[y_]  = cs[py_];
 
   Dcs[py_] = -((1e0+sqr(cs[py_]))*BoBrho[X_]-cs[px_]*cs[py_]*BoBrho[Y_]
-             - cs[px_]*BoBrho[Z_])/p_s;
+	       - cs[px_]*BoBrho[Z_])/p_s;
 
   Dcs[ct_] = (1e0+cs[delta_])/p_s - ((!globval.pathlength)? 1e0 : 0e0);
 
@@ -2015,7 +2036,7 @@ void FieldMap_pass_SI(CellType &Cell, ss_vect<T> &ps)
 
     ps1[px_] += AoBrho[1] - AoBrho[0];
 
-   splin2_(FM->x[X_], FM->x[Y_], FM->AoBrho[X_][j], FM->AoBrho2[X_][j],
+    splin2_(FM->x[X_], FM->x[Y_], FM->AoBrho[X_][j], FM->AoBrho2[X_][j],
 	    FM->n[X_], FM->n[Y_], ps[x_], ps[y_]+d_diff*FM->dx[Y_],
 	    dAoBrho[1]);
 
@@ -2149,9 +2170,9 @@ void FieldMap_pass_SI(CellType &Cell, ss_vect<T> &ps)
     FM->Lr += h;
 
     if (globval.radiation || globval.emittance) {
-//      B[X_] = -AoBrhoy[3]; B[Y_] = AoBrho[X_][3];
-//      B[Z_] = AoBrhoy[1] - AoBrho[X_][2];
-//      radiate(Cell, ps, h, 0e0, B);
+      //      B[X_] = -AoBrhoy[3]; B[Y_] = AoBrho[X_][3];
+      //      B[Z_] = AoBrhoy[1] - AoBrho[X_][2];
+      //      radiate(Cell, ps, h, 0e0, B);
     }
 
     if (trace)
@@ -2233,7 +2254,7 @@ void FieldMap_Pass(CellType &Cell, ss_vect<T> &ps)
 
   FM = Cell.Elem.FM;
 
-//  GtoL(ps, Cell.dS, Cell.dT, 0e0, 0e0, 0e0);
+  //  GtoL(ps, Cell.dS, Cell.dT, 0e0, 0e0, 0e0);
 
   Ld = (FM->Lr-Cell.Elem.PL)/2e0;
   p_rot(FM->phi/2e0*180e0/M_PI, ps);
@@ -2253,9 +2274,9 @@ void FieldMap_Pass(CellType &Cell, ss_vect<T> &ps)
   // Drift(-Ld, ps);
   p_rot(FM->phi/2e0*180e0/M_PI, ps);
 
-//  LtoG(ps, Cell.dS, Cell.dT, 0e0, 0e0, 0e0);
+  //  LtoG(ps, Cell.dS, Cell.dT, 0e0, 0e0, 0e0);
 
-//  outf_.close();
+  //  outf_.close();
 }
 
 
@@ -2263,31 +2284,31 @@ template<typename T>
 void Insertion_Pass(CellType &Cell, ss_vect<T> &x)
 {
   /* Purpose:
-       Track vector x through a insertion
-       If radiation or cavity on insertion is like a drift
+     Track vector x through a insertion
+     If radiation or cavity on insertion is like a drift
 
-   Input:
-       Cell element to track through
-       x initial coordinates vector
+     Input:
+     Cell element to track through
+     x initial coordinates vector
 
-   Output:
-       x final coordinates vector
+     Output:
+     x final coordinates vector
 
-   Return:
-       none
+     Return:
+     none
 
-   Global variables:
-       none
+     Global variables:
+     none
 
-   Specific functions:
-       LinearInterpolation2
-       Drft
-       CopyVec
+     Specific functions:
+     LinearInterpolation2
+     Drft
+     CopyVec
 
-   Comments:
-       Outside of interpolation table simulated by putting 1 in x[4]
-       01/07/03 6D tracking activated
-       10/01/05 First order kick part added                                  */
+     Comments:
+     Outside of interpolation table simulated by putting 1 in x[4]
+     01/07/03 6D tracking activated
+     10/01/05 First order kick part added                                  */
 
   elemtype *elemp;
   double   LN = 0e0;
@@ -2308,8 +2329,8 @@ void Insertion_Pass(CellType &Cell, ss_vect<T> &x)
   } else
     alpha02 = 1e-6*elemp->ID->scaling;
 
-//  /* Global -> Local */
-//  GtoL(X, Cell->dS, Cell->dT, 0e0, 0e0, 0e0);
+  //  /* Global -> Local */
+  //  GtoL(X, Cell->dS, Cell->dT, 0e0, 0e0, 0e0);
 
   p_rot(elemp->ID->phi/2e0*180e0/M_PI, x);
 
@@ -2331,13 +2352,13 @@ void Insertion_Pass(CellType &Cell, ss_vect<T> &x)
       // if (!elemp->ID->linear)
       //   SplineInterpolation2(x[x_], x[y_], tx2, tz2, Cell, outoftable);
       // else {
-        LinearInterpolation2(x[x_], x[y_], tx2, tz2, B2_perp, Cell,
-			     outoftable, 2);
+      LinearInterpolation2(x[x_], x[y_], tx2, tz2, B2_perp, Cell,
+			   outoftable, 2);
 
-	// Scale locally with (Brho) (as above) instead of when the file
-	// is read; since the beam energy might not be known at that time.
-	if (globval.radiation || globval.emittance)
-	  radiate_ID(Cell, x, LN, elemp->ID->scaling*B2_perp);
+      // Scale locally with (Brho) (as above) instead of when the file
+      // is read; since the beam energy might not be known at that time.
+      if (globval.radiation || globval.emittance)
+	radiate_ID(Cell, x, LN, elemp->ID->scaling*B2_perp);
       // }
 
       if (outoftable) {
@@ -2354,10 +2375,10 @@ void Insertion_Pass(CellType &Cell, ss_vect<T> &x)
 
   p_rot(elemp->ID->phi/2e0*180e0/M_PI, x);
 
-//  CopyVec(6L, x, Cell->BeamPos);
+  //  CopyVec(6L, x, Cell->BeamPos);
 
-//  /* Local -> Global */
-//  LtoG(X, Cell->dS, Cell->dT, 0e0, 0e0, 0e0);
+  //  /* Local -> Global */
+  //  LtoG(X, Cell->dS, Cell->dT, 0e0, 0e0, 0e0);
 }
 
 
@@ -2381,20 +2402,20 @@ void sol_pass(CellType &Cell, ss_vect<T> &x)
 
     // 2: half drift in y
     AyoBrho = elem->Sol->BoBrho*x[x_]/2e0; dpx = elem->Sol->BoBrho*x[y_]/2e0;
-//    get_Axy_EF3(elem->W, z, x, AyoBrho, dAyoBrho, dpx, false);
+    //    get_Axy_EF3(elem->W, z, x, AyoBrho, dAyoBrho, dpx, false);
 
     x[px_] -= dpx; x[py_] -= AyoBrho;
     x[y_] += 0.5*hd*x[py_];
     x[ct_] += sqr(0.5)*hd*sqr(x[py_])/(1e0+x[delta_]);
 
     AyoBrho = elem->Sol->BoBrho*x[x_]/2e0; dpx = elem->Sol->BoBrho*x[y_]/2e0;
-//    get_Axy_EF3(elem->W, z, x, AyoBrho, dAyoBrho, dpx, false);
+    //    get_Axy_EF3(elem->W, z, x, AyoBrho, dAyoBrho, dpx, false);
 
     x[px_] += dpx; x[py_] += AyoBrho;
 
     // 3: full drift in x
     AxoBrho = -elem->Sol->BoBrho*x[y_]/2e0; dpy = -elem->Sol->BoBrho*x[x_]/2e0;
-//    get_Axy_EF3(elem->W, z, x, AxoBrho, dAxoBrho, dpy, true);
+    //    get_Axy_EF3(elem->W, z, x, AxoBrho, dAxoBrho, dpy, true);
 
     x[px_] -= AxoBrho; x[py_] -= dpy; x[x_] += hd*x[px_];
     x[ct_] += 0.5*hd*sqr(x[px_])/(1e0+x[delta_]);
@@ -2402,20 +2423,20 @@ void sol_pass(CellType &Cell, ss_vect<T> &x)
     if (globval.pathlength) x[ct_] += h;
 
     AxoBrho = -elem->Sol->BoBrho*x[y_]/2e0; dpy = -elem->Sol->BoBrho*x[x_]/2e0;
-//    get_Axy_EF3(elem->W, z, x, AxoBrho, dAxoBrho, dpy, true);
+    //    get_Axy_EF3(elem->W, z, x, AxoBrho, dAxoBrho, dpy, true);
 
     x[px_] += AxoBrho; x[py_] += dpy;
 
     // 4: a half drift in y
     AyoBrho = elem->Sol->BoBrho*x[x_]/2e0; dpx = elem->Sol->BoBrho*x[y_]/2e0;
-//    get_Axy_EF3(elem->W, z, x, AyoBrho, dAyoBrho, dpx, false);
+    //    get_Axy_EF3(elem->W, z, x, AyoBrho, dAyoBrho, dpx, false);
 
     x[px_] -= dpx; x[py_] -= AyoBrho;
     x[y_] += 0.5*hd*x[py_];
     x[ct_] += sqr(0.5)*hd*sqr(x[py_])/(1e0+x[delta_]);
 
     AyoBrho = elem->Sol->BoBrho*x[x_]/2e0; dpx = elem->Sol->BoBrho*x[y_]/2e0;
-//    get_Axy_EF3(elem->W, z, x, AyoBrho, dAyoBrho, dpx, false);
+    //    get_Axy_EF3(elem->W, z, x, AyoBrho, dAyoBrho, dpx, false);
 
     x[px_] += dpx; x[py_] += AyoBrho;
 
@@ -2429,8 +2450,8 @@ void sol_pass(CellType &Cell, ss_vect<T> &x)
       dAyoBrho[X_] = elem->Sol->BoBrho/2e0;
       dAyoBrho[Y_] = 0e0;
       dAyoBrho[Z_] = 0e0;
-//      get_Axy_EF3(elem->W, z, x, AyoBrho, dAyoBrho, dpx, false);
-//      get_Axy_EF3(elem->W, z, x, AxoBrho, dAxoBrho, dpy, true);
+      //      get_Axy_EF3(elem->W, z, x, AyoBrho, dAyoBrho, dpx, false);
+      //      get_Axy_EF3(elem->W, z, x, AxoBrho, dAxoBrho, dpy, true);
       B[X_] = -dAyoBrho[Z_]; B[Y_] = dAxoBrho[Z_];
       B[Z_] = dAyoBrho[X_] - dAxoBrho[Y_];
       radiate(Cell, x, h, 0e0, B);
@@ -2526,7 +2547,7 @@ void SI_init(void)
   cl_rad = C_gamma*cube(globval.Energy)/(2e0*M_PI);
 
   // eletron rest mass [GeV]: slightly off???
-//  m_e_ = 0.5110034e-03;
+  //  m_e_ = 0.5110034e-03;
   // quantum fluctuations
   C_q = 3e0*C_u*h_bar*c0/(4e0*m_e);
   q_fluct = C_q*C_gamma/(M_PI*sqr(1e-9*m_e))*pow(globval.Energy, 5e0);
@@ -2655,7 +2676,7 @@ double Elem_GetKval(int Fnum1, int Knum1, int Order)
     case Wigl:
       Result =
 	elemp->PL*sqrt(2e0
-	*Cell[ElemFam[Fnum1-1].KidList[Knum1-1]].Elem.W->PBW[Order+HOMmax]);
+		       *Cell[ElemFam[Fnum1-1].KidList[Knum1-1]].Elem.W->PBW[Order+HOMmax]);
       break;
     case FieldMap:
       Result = 0e0;
@@ -2796,7 +2817,7 @@ void Insertion_Alloc(elemtype *Elem)
   if (ID->secondorder) {
     for (i = 0; i < IDZMAX; i++) {
       for (j = 0; j < IDXMAX; j++) {
-          ID->thetax[i][j] = 0e0; ID->thetaz[i][j] = 0e0; ID->B2[i][j] = 0e0;
+	ID->thetax[i][j] = 0e0; ID->thetaz[i][j] = 0e0; ID->B2[i][j] = 0e0;
       }
     }
   }
@@ -2811,13 +2832,13 @@ void Insertion_Alloc(elemtype *Elem)
   // filenames
   strcpy(ID->fname1,""); strcpy(ID->fname2,"");
 
-//  ID->kx = 0e0;
+  //  ID->kx = 0e0;
   for (j = 0; j <= 1; j++) {
     ID->PdSsys[j] = 0e0; ID->PdSrnd[j] = 0e0;
   }
   ID->PdTpar = 0e0; ID->PdTsys = 0e0; ID->PdTrnd = 0e0;
-//  for (j = 0; j <= HOMmax; j++)
-//    ID->PBW[j+HOMmax] = 0e0;
+  //  for (j = 0; j <= HOMmax; j++)
+  //    ID->PBW[j+HOMmax] = 0e0;
   ID->Porder = 0;
 }
 
@@ -3104,13 +3125,13 @@ void Wiggler_Init(int Fnum1)
     *elemp->W = *elemfamp->ElemF.W;
 
     // 2/21/12 JB & JC
-//     cellp->dT[0] = cos(dtor(elemp->M->PdTpar));
-//     cellp->dT[1] = sin(dtor(elemp->M->PdTpar));
+    //     cellp->dT[0] = cos(dtor(elemp->M->PdTpar));
+    //     cellp->dT[1] = sin(dtor(elemp->M->PdTpar));
     cellp->dT[0] = cos(dtor(elemp->W->PdTpar));
     cellp->dT[1] = sin(dtor(elemp->W->PdTpar));
 
     cellp->dS[0] = 0e0; cellp->dS[1] = 0e0;
- }
+  }
 }
 #undef order
 
@@ -3291,20 +3312,20 @@ void get_B_DIAMOND(const char *filename, FieldMapType *FM)
 
   std::cout << "field map loaded: " << filename << std::endl;
 
-/*  free_dvector(FM->x[X_], 1, FM->n[X_]); free_dvector(FM->x[Y_], 1, FM->n[Y_]);
-  free_dvector(FM->x[Z_], 1, FM->n[Z_]);
+  /*  free_dvector(FM->x[X_], 1, FM->n[X_]); free_dvector(FM->x[Y_], 1, FM->n[Y_]);
+      free_dvector(FM->x[Z_], 1, FM->n[Z_]);
 
-  free_df3tensor(FM->BoBrho[X_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->BoBrho[Y_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->BoBrho[Z_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->BoBrho2[X_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->BoBrho2[Y_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->BoBrho2[Z_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+      free_df3tensor(FM->BoBrho[X_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+      free_df3tensor(FM->BoBrho[Y_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+      free_df3tensor(FM->BoBrho[Z_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+      free_df3tensor(FM->BoBrho2[X_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+      free_df3tensor(FM->BoBrho2[Y_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+      free_df3tensor(FM->BoBrho2[Z_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
 
-  free_df3tensor(FM->AoBrho[X_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->AoBrho[Y_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->AoBrho2[X_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->AoBrho2[Y_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);*/
+      free_df3tensor(FM->AoBrho[X_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+      free_df3tensor(FM->AoBrho[Y_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+      free_df3tensor(FM->AoBrho2[X_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+      free_df3tensor(FM->AoBrho2[Y_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);*/
 }
 
 
@@ -3383,7 +3404,7 @@ void get_B_NSLS_II(const char *filename, FieldMapType *FM)
 	  FM->AoBrho[Y_][n][i][j] =
 	    FM->AoBrho[Y_][n-1][i][j] + FM->BoBrho[X_][n][i][j]*FM->dx[Z_];
 	}
-     }
+      }
 
   inf.close();
 
@@ -3421,21 +3442,21 @@ void get_B_NSLS_II(const char *filename, FieldMapType *FM)
 
   std::cout << "field map loaded: " << filename << std::endl;
 
-/*  free_dvector(FM->x[X_], 1, FM->n[X_]);
-  free_dvector(FM->x[Y_], 1, FM->n[Y_]);
-  free_dvector(FM->x[Z_], 1, FM->n[Z_]);
+  /*  free_dvector(FM->x[X_], 1, FM->n[X_]);
+      free_dvector(FM->x[Y_], 1, FM->n[Y_]);
+      free_dvector(FM->x[Z_], 1, FM->n[Z_]);
 
-  free_df3tensor(FM->BoBrho[X_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->BoBrho[Y_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->BoBrho[Z_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->BoBrho2[X_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->BoBrho2[Y_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->BoBrho2[Z_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+      free_df3tensor(FM->BoBrho[X_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+      free_df3tensor(FM->BoBrho[Y_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+      free_df3tensor(FM->BoBrho[Z_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+      free_df3tensor(FM->BoBrho2[X_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+      free_df3tensor(FM->BoBrho2[Y_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+      free_df3tensor(FM->BoBrho2[Z_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
 
-  free_df3tensor(FM->AoBrho[X_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->AoBrho[Y_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->AoBrho2[X_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->AoBrho2[Y_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);*/
+      free_df3tensor(FM->AoBrho[X_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+      free_df3tensor(FM->AoBrho[Y_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+      free_df3tensor(FM->AoBrho2[X_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+      free_df3tensor(FM->AoBrho2[Y_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);*/
 }
 
 
@@ -3514,7 +3535,7 @@ void get_B_Oleg1(const char *filename, FieldMapType *FM)
 	  FM->AoBrho[Y_][n][i][j] =
 	    FM->AoBrho[Y_][n-1][i][j] + FM->BoBrho[X_][n][i][j]*FM->dx[Z_];
 	}
-     }
+      }
 
   inf.close();
 
@@ -3552,21 +3573,21 @@ void get_B_Oleg1(const char *filename, FieldMapType *FM)
 
   std::cout << "field map loaded: " << filename << std::endl;
 
-/*  free_dvector(FM->x[X_], 1, FM->n[X_]);
-  free_dvector(FM->x[Y_], 1, FM->n[Y_]);
-  free_dvector(FM->x[Z_], 1, FM->n[Z_]);
+  /*  free_dvector(FM->x[X_], 1, FM->n[X_]);
+      free_dvector(FM->x[Y_], 1, FM->n[Y_]);
+      free_dvector(FM->x[Z_], 1, FM->n[Z_]);
 
-  free_df3tensor(FM->BoBrho[X_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->BoBrho[Y_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->BoBrho[Z_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->BoBrho2[X_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->BoBrho2[Y_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->BoBrho2[Z_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+      free_df3tensor(FM->BoBrho[X_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+      free_df3tensor(FM->BoBrho[Y_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+      free_df3tensor(FM->BoBrho[Z_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+      free_df3tensor(FM->BoBrho2[X_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+      free_df3tensor(FM->BoBrho2[Y_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+      free_df3tensor(FM->BoBrho2[Z_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
 
-  free_df3tensor(FM->AoBrho[X_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->AoBrho[Y_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->AoBrho2[X_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->AoBrho2[Y_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);*/
+      free_df3tensor(FM->AoBrho[X_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+      free_df3tensor(FM->AoBrho[Y_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+      free_df3tensor(FM->AoBrho2[X_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+      free_df3tensor(FM->AoBrho2[Y_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);*/
 }
 
 
@@ -3691,21 +3712,21 @@ void get_B_Oleg2(const char *filename, FieldMapType *FM)
 
   std::cout << "field map loaded: " << filename << std::endl;
 
-/*  free_dvector(FM->x[X_], 1, FM->n[X_]);
-  free_dvector(FM->x[Y_], 1, FM->n[Y_]);
-  free_dvector(FM->x[Z_], 1, FM->n[Z_]);
+  /*  free_dvector(FM->x[X_], 1, FM->n[X_]);
+      free_dvector(FM->x[Y_], 1, FM->n[Y_]);
+      free_dvector(FM->x[Z_], 1, FM->n[Z_]);
 
-  free_df3tensor(FM->BoBrho[X_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->BoBrho[Y_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->BoBrho[Z_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->BoBrho2[X_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->BoBrho2[Y_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->BoBrho2[Z_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+      free_df3tensor(FM->BoBrho[X_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+      free_df3tensor(FM->BoBrho[Y_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+      free_df3tensor(FM->BoBrho[Z_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+      free_df3tensor(FM->BoBrho2[X_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+      free_df3tensor(FM->BoBrho2[Y_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+      free_df3tensor(FM->BoBrho2[Z_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
 
-  free_df3tensor(FM->AoBrho[X_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->AoBrho[Y_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->AoBrho2[X_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->AoBrho2[Y_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);*/
+      free_df3tensor(FM->AoBrho[X_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+      free_df3tensor(FM->AoBrho[Y_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+      free_df3tensor(FM->AoBrho2[X_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+      free_df3tensor(FM->AoBrho2[Y_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);*/
 }
 
 
@@ -3819,21 +3840,21 @@ void get_B_SRW(const char *filename, FieldMapType *FM)
 
   printf("\n  Field map loaded: %s\n", filename);
 
-/*  free_dvector(FM->x[X_], 1, FM->n[X_]);
-  free_dvector(FM->x[Y_], 1, FM->n[Y_]);
-  free_dvector(FM->x[Z_], 1, FM->n[Z_]);
+  /*  free_dvector(FM->x[X_], 1, FM->n[X_]);
+      free_dvector(FM->x[Y_], 1, FM->n[Y_]);
+      free_dvector(FM->x[Z_], 1, FM->n[Z_]);
 
-  free_df3tensor(FM->BoBrho[X_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->BoBrho[Y_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->BoBrho[Z_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->BoBrho2[X_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->BoBrho2[Y_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->BoBrho2[Z_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+      free_df3tensor(FM->BoBrho[X_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+      free_df3tensor(FM->BoBrho[Y_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+      free_df3tensor(FM->BoBrho[Z_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+      free_df3tensor(FM->BoBrho2[X_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+      free_df3tensor(FM->BoBrho2[Y_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+      free_df3tensor(FM->BoBrho2[Z_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
 
-  free_df3tensor(FM->AoBrho[X_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->AoBrho[Y_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->AoBrho2[X_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->AoBrho2[Y_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);*/
+      free_df3tensor(FM->AoBrho[X_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+      free_df3tensor(FM->AoBrho[Y_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+      free_df3tensor(FM->AoBrho2[X_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+      free_df3tensor(FM->AoBrho2[Y_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);*/
 }
 
 
@@ -3967,21 +3988,21 @@ void get_B_MAX_IV(const char *filename, FieldMapType *FM)
 
   std::cout << "field map loaded: " << filename << std::endl;
 
-/*  free_dvector(FM->x[X_], 1, FM->n[X_]);
-  free_dvector(FM->x[Y_], 1, FM->n[Y_]);
-  free_dvector(FM->x[Z_], 1, FM->n[Z_]);
+  /*  free_dvector(FM->x[X_], 1, FM->n[X_]);
+      free_dvector(FM->x[Y_], 1, FM->n[Y_]);
+      free_dvector(FM->x[Z_], 1, FM->n[Z_]);
 
-  free_df3tensor(FM->BoBrho[X_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->BoBrho[Y_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->BoBrho[Z_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->BoBrho2[X_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->BoBrho2[Y_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->BoBrho2[Z_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+      free_df3tensor(FM->BoBrho[X_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+      free_df3tensor(FM->BoBrho[Y_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+      free_df3tensor(FM->BoBrho[Z_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+      free_df3tensor(FM->BoBrho2[X_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+      free_df3tensor(FM->BoBrho2[Y_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+      free_df3tensor(FM->BoBrho2[Z_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
 
-  free_df3tensor(FM->AoBrho[X_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->AoBrho[Y_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->AoBrho2[X_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
-  free_df3tensor(FM->AoBrho2[Y_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);*/
+      free_df3tensor(FM->AoBrho[X_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+      free_df3tensor(FM->AoBrho[Y_],  1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+      free_df3tensor(FM->AoBrho2[X_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);
+      free_df3tensor(FM->AoBrho2[Y_], 1, FM->n[Z_], 1, FM->n[X_], 1, FM->n[Y_]);*/
 }
 
 
@@ -4078,8 +4099,8 @@ void Insertion_Init(int Fnum1)
 
   elemfamp = &ElemFam[Fnum1-1];
   printf("\nInsertion_Init: %s\n", elemfamp->ElemF.PName);
-//  elemfamp->ElemF.ID->Porder = order;
-//  x = elemfamp->ElemF.ID->PBW[Quad + HOMmax];
+  //  elemfamp->ElemF.ID->Porder = order;
+  //  x = elemfamp->ElemF.ID->PBW[Quad + HOMmax];
   for (i = 1; i <= elemfamp->nKid; i++) {
     cellp = &Cell[elemfamp->KidList[i-1]]; elemp = &cellp->Elem;
     Insertion_Alloc(elemp);
@@ -4232,8 +4253,8 @@ double Mpole_GetPB(int Fnum1, int Knum1, int Order)
 {
   /*  Return multipole strength (of order Order) for Knum1 element of
       family Fnum1
-       Order =  2 for normal quadrupole
-             = -2 for skew quadrupole                                        */
+      Order =  2 for normal quadrupole
+      = -2 for skew quadrupole                                        */
 
   MpoleType *M; /* Pointer on the multipole */
 
@@ -4289,7 +4310,7 @@ void Mpole_SetdT(int Fnum1, int Knum1)
   cellp->dT[0] =
     cos(dtor(M->PdTpar + M->PdTsys + M->PdTrms*M->PdTrnd));
   cellp->dT[1] = sin(
-      dtor(M->PdTpar + M->PdTsys + M->PdTrms*M->PdTrnd));
+		     dtor(M->PdTpar + M->PdTsys + M->PdTrms*M->PdTrnd));
   /* Calculate simplified p_rots */
   M->Pc0 = sin(elemp->PL*M->Pirho/2e0);
   M->Pc1 = cos(dtor(M->PdTpar))*M->Pc0;
