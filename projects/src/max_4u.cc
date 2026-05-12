@@ -17,7 +17,8 @@ const bool
   comp_H_long   = false,
   Deta          = false,
   get_tol       = false,
-  phiob_2xL     = false;  
+  phiob_2xL     = false,
+  get_DA        = !false;
 
 const int
   n_aper  = 25,
@@ -25,7 +26,9 @@ const int
 
 const double
   dnu[] = {0.0, 0.0},
-  nu[]  = {57.202/20.0+0.5/20.0, 20.7435/20.0-0.5/20.0};
+  nu[]  = {57.202/20.0+0.5/20.0,
+	   20.7435/20.0-0.5/20.0},
+  delta = 0.5e-2;                    // delta for off-momentum aperture
 
 
 void set_ps_rot(const string &fam_name, const double dnu_x, const double dnu_y)
@@ -804,8 +807,8 @@ void fit_xi_jb_2(const double xi_x, const double xi_y)
   Fnum.push_back(ElemIndex("s3_h2"));
   Fnum.push_back(ElemIndex("s4_h2"));
 #else
-  Fnum.push_back(ElemIndex("sf_f"));
-  Fnum.push_back(ElemIndex("sd_d"));
+  Fnum.push_back(ElemIndex("sf"));
+  Fnum.push_back(ElemIndex("sd"));
 #endif  
 
   fit_xi_jb(Fnum, xi_x, xi_y, 1e0);
@@ -893,6 +896,36 @@ void get_b_2_tol(const double db_2_rms, const int n_aper, const int n_track)
 }
 
 
+void compute_mat(void)
+{
+  const bool   incremental = false;
+  const string file_name   = "mat.txt";
+
+  long int     lastpos;
+  ss_vect<tps> M;
+
+  // Redirect stdout to text file - since prt_lin_map prints to stdout.
+  freopen(file_name.c_str(), "w", stdout); 
+
+  getcod(0.0, lastpos);
+  M.identity();
+  for (auto k = 0; k <= globval.Cell_nLoc; k++) {
+    if (!incremental)
+      M.identity();
+    M += globval.CODvect;
+    Cell_Pass(k, k, M, lastpos);
+    printf("\n  %2d %10s S [m] = %7.3f", k, Cell[k].Elem.PName, Cell[k].S);
+    if (Cell[k].Elem.Pkind == Mpole)
+      printf("  h [1/m] = %21.16e  phi [deg] = %21.16e", Cell[k].Elem.M->Pirho,
+	     Cell[k].Elem.M->Pirho* Cell[k].Elem.PL*180e0/M_PI);
+    prt_lin_map(3, M);
+  }
+
+  // Restore stdout.
+  freopen("/dev/tty", "w", stdout);
+}
+
+
 void set_state(void)
 {
   globval.H_exact        = false;
@@ -927,7 +960,7 @@ int main(int argc, char *argv[])
 
   FieldMap_filetype = 6;
 
-  if (!true)
+  if (true)
     Read_Lattice(argv[1]);
   else {
 #if 0
@@ -1027,6 +1060,9 @@ int main(int argc, char *argv[])
   prt_lat("linlat.out", globval.bpm, true, 10);
   prt_chrom_lat("chromlat.out");
 
+  if (false)
+    compute_mat();
+
   if (Deta)
     compute_Deta(2e-2);
 
@@ -1077,5 +1113,10 @@ int main(int argc, char *argv[])
     Ring_GetTwiss(true, 0e0);
     prt_lat("linlat1.out", globval.bpm, true);
     prt_lat("linlat.out", globval.bpm, true, 10);
+  }
+
+  if (get_DA) {
+    globval.Cavity_on = true;
+    get_dynap(delta, n_aper, n_track, false);
   }
 }
