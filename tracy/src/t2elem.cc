@@ -1367,8 +1367,11 @@ void Wiggler_pass_EF(CellType &Cell, ss_vect<T> &ps)
     a21  = hodp*AxoBrho[2];
     a22  = hodp*AyoBrho[2];
     det  = 1e0 - a11 - a22 + a11*a22 - a12*a21;
+
+    // Remark: equations of motions assumes planar wiggler -> A_y = 0. 
     d1   = hodp*AxoBrho[0]*AxoBrho[1];
     d2   = hodp*AxoBrho[0]*AxoBrho[2];
+
     c11  = (1e0-a22)/det;
     c12 = a12/det;
     c21  = a21/det;
@@ -1411,6 +1414,7 @@ inline void get_Axy2
  const double BoBrhoV, const double BoBrhoH, const double phi,
  ss_vect<T> &x, T AxoBrho[], T AyoBrho[])
 {
+  // Vector potential for helical undulator.
   int i;
   T   cx, sx, cz1, cz2, sz1, sz2, chy, shy, kyH, kyV, chx, shx, cy, sy;
 
@@ -1471,7 +1475,6 @@ void Wiggler_pass_EF2
   int    i;
   double h, z;
   T      hodp, B[3], px1, px2, px3, py1, py2, AxoBrho[4], AyoBrho[4], psi;
-  T      px = 0e0, py = 0e0;
 
   h = L/nstep;
   z = 0e0;
@@ -1498,11 +1501,13 @@ void Wiggler_pass_EF2
       (x[px_]-(AxoBrho[0]*AxoBrho[1]+AyoBrho[0]*AyoBrho[1])*hodp)
       *AxoBrho[2]*hodp;
 
-    py = (py1+py2)/px3;
-    px = (px1+px2)/px3;
-    x[x_] += hodp*(px-AxoBrho[0]);
-    x[y_] += hodp*(py-AyoBrho[0]);
-    x[ct_] += h*(sqr((px-AxoBrho[0])/psi) + sqr((py-AyoBrho[0])/psi))/2e0;
+    x[px_] = (px1+px2)/px3;
+    x[py_] = (py1+py2)/px3;
+
+    x[x_] += hodp*(x[px_]-AxoBrho[0]);
+    x[y_] += hodp*(x[py_]-AyoBrho[0]);
+    x[ct_] +=
+      h*(sqr((x[px_]-AxoBrho[0])/psi) + sqr((x[py_]-AyoBrho[0])/psi))/2e0;
 
     if (globval.pathlength) x[ct_] += h;
 
@@ -1515,9 +1520,6 @@ void Wiggler_pass_EF2
 
     z += h;
   }
-
-  x[px_] = px;
-  x[py_] = py;
 }
 
 
@@ -1541,10 +1543,10 @@ inline void get_Axy_EF3
     ky = sqrt(sqr(W->kxV[i])+sqr(kz_n));
 
     cx  = cos(W->kxV[i]*ps[x_]);
-    sx = sin(W->kxV[i]*ps[x_]);
+    sx  = sin(W->kxV[i]*ps[x_]);
     chy = cosh(ky*ps[y_]);
     shy = sinh(ky*ps[y_]);
-    sz = sin(kz_n*z);
+    sz  = sin(kz_n*z);
 
     if (hor) {
       // A_x/Brho
