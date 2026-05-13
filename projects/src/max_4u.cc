@@ -18,7 +18,7 @@ const bool
   Deta          = false,
   get_tol       = false,
   phiob_2xL     = false,
-  get_DA        = !false;
+  get_DA        = false;
 
 const int
   n_aper  = 25,
@@ -938,6 +938,7 @@ void set_state(void)
   globval.Aperture_on    = false;
   globval.Cart_Bend      = false;
   globval.dip_edge_fudge = true;
+  globval.EPU            = false;
 }
 
 
