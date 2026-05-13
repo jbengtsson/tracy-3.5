@@ -5,17 +5,6 @@
 int no_tps = NO;
 
 
-void compute_map(void)
-{
-  long int lastpos;
-  ss_vect<tps> map;
-
-  map.identity();
-  Cell_Pass(0, globval.Cell_nLoc, map, lastpos);
-  prt_lin_map(3, map);
-}
-
-
 void set_state(void)
 {
   globval.H_exact        = false;
@@ -28,7 +17,7 @@ void set_state(void)
   globval.Aperture_on    = false;
   globval.Cart_Bend      = false;
   globval.dip_edge_fudge = true;
-  globval.EPU            = !true;
+  globval.EPU            = true;
 }
 
 
@@ -46,16 +35,12 @@ int main(int argc, char *argv[])
 
   set_state();
 
-  if (false) {
-    compute_map();
-    assert(false);
-  }
-  
-
   Ring_GetTwiss(true, 0e0);
   printglob();
 
   prtmfile("flat_file.dat");
   prt_lat("linlat1.out", globval.bpm, true);
   prt_lat("linlat.out", globval.bpm, true, 10);
+
+  GetEmittance(ElemIndex("cav"), false, true);
 }
