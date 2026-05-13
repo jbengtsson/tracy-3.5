@@ -508,7 +508,7 @@ int main(int argc, char *argv[])
 
   set_state();
 
-  // disable from TPSALib and LieLib log messages
+  // Disable from TPSALib and LieLib log messages.
   idprset(-1);
 
   std::string home_dir = "";
