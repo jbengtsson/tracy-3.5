@@ -36,6 +36,7 @@
 #include <fstream>
 #include <string>
 #include <algorithm>
+#include <unordered_map>
 
 //#undef max
 #include <vector>
