@@ -310,7 +310,7 @@ void set_state(void)
   globval.Aperture_on    = false;
   globval.Cart_Bend      = false;
   globval.dip_edge_fudge = true;
-  globval.EPU            = !false;
+  globval.EPU            = false;
 }
 
 
