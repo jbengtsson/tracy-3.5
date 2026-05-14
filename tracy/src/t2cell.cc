@@ -272,19 +272,19 @@ void Cell_Init(void)
 
   char first_name[] = "begin          ";
 
-  if (debug)
-    printf("**  Cell_Init\n");
+  if (trace)
+    printf("Cell_Init:\n");
 
   SI_init();  /* Initializes the constants for symplectic integrator */
 
   memcpy(Cell[0].Elem.PName, first_name, sizeof(first_name));
 
   for (i = 1; i <= globval.Elem_nFam; i++) {
-    elemfamp  = &ElemFam[i-1]; /* Get 1 of all elements stored in ElemFam
+    elemfamp = &ElemFam[i-1]; /* Get 1 of all elements stored in ElemFam
 				  array */
     elemp = &elemfamp->ElemF; // For switch structure: choice on element type
-    if (debug)
-      printf("Cell_Init, i:=%3ld: %*s\n", i, SymbolLength, elemp->PName);
+    if (trace)
+      printf("  i= %3ld %*s\n", i, SymbolLength, elemp->PName);
 
     switch (elemp->Pkind) {
     case drift:
