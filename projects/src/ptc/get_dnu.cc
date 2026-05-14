@@ -1,4 +1,4 @@
-#define NO 9
+#define NO 6
 
 #include "tracy_lib.h"
 
@@ -7,9 +7,9 @@ int no_tps   = NO,
 
 
 const double
-  A_max[]    = {3e-3, 1e-3},
+  A_max[]    = {4e-3, 4e-3},
   delta_max  = 6e-2,
-  beta_inj[] = {3.7, 3.9},
+  beta_inj[] = {5.879, 3.175},
   twoJ[]     = {sqr(A_max[X_])/beta_inj[X_], sqr(A_max[Y_])/beta_inj[Y_]};
 
 const char home_dir[] = "/home/bengtsson";
@@ -298,19 +298,28 @@ void wtf()
 }
 
 
+void set_state(void)
+{
+  globval.H_exact        = false;
+  globval.quad_fringe    = false;
+  globval.Cavity_on      = false;
+  globval.radiation      = false;
+  globval.emittance      = false;
+  globval.IBS            = false;
+  globval.pathlength     = false;
+  globval.Aperture_on    = false;
+  globval.Cart_Bend      = false;
+  globval.dip_edge_fudge = true;
+  globval.EPU            = !false;
+}
+
+
 int main(int argc, char *argv[])
 {
   int          k;
   tps          H, H_re, H_im, g_re, g_im, K_re, K_im;
   ss_vect<tps> Id_scl;
   ofstream     outf;
-
-  globval.H_exact    = false; globval.quad_fringe    = false;
-  globval.Cavity_on  = false; globval.radiation      = false;
-  globval.emittance  = false; globval.IBS            = false;
-  globval.pathlength = false; globval.bpm            = 0;
-  globval.Cart_Bend  = false; globval.dip_edge_fudge = true;
-  globval.mat_meth   = false;
 
   // disable from TPSALib- and LieLib log messages
   idprset_(-1);
@@ -320,6 +329,8 @@ int main(int argc, char *argv[])
   else {
     rdmfile(argv[1]);
   }
+
+  set_state();
 
   globval.EPU = true;
 
