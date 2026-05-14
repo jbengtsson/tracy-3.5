@@ -1425,6 +1425,14 @@ inline void get_Axy2
 
   kyV = sqrt(sqr(kz)+sqr(kxV));
   kyH = sqrt(sqr(kz)+sqr(kxH));
+  if (trace) {
+    printf("\nget_Axy2:\n");
+    printf("  kz = %10.3e kxH = %10.3e kxV = %10.3e\n",
+	   is_double<T>::cst(kz), is_double<T>::cst(kxH),
+	   is_double<T>::cst(kxV));
+    printf("                  kyH = %10.3e kyV = %10.3e\n",
+	   is_double<T>::cst(kyH), is_double<T>::cst(kyV));
+  }
   cx =  cos(kxV*x[x_]);
   sx =  sin(kxV*x[x_]);
   cy =  cos(kxH*x[y_]);
