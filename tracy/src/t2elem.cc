@@ -3251,6 +3251,57 @@ void get_lin_maps(const double delta)
 }
 
 
+void cpy_Vector2(const Vector2 &v1, Vector2 &v2)
+{
+  for (auto k = 0; k < 2; k++)
+    v2[k] = v1[k];
+}
+
+
+void cpy_mpoleArray(const mpolArray &mp1, mpolArray &mp2)
+{
+  for (auto k = -HOMmax; k <= HOMmax; k++)
+    mp2[k+HOMmax] = mp1[k+HOMmax];
+}
+
+
+void cpy_mpole(const MpoleType &M_in, MpoleType &M_out)
+{
+  // Copy function - since M_lin is an ss_vect<tps>.
+
+  M_out.Pmethod = M_in.Pmethod;
+  M_out.PN      = M_in.PN;
+
+  cpy_Vector2(M_in.PdSsys, M_out.PdSsys);
+  cpy_Vector2(M_in.PdSrms, M_out.PdSrms);
+  cpy_Vector2(M_in.PdSrnd, M_out.PdSrnd);
+
+  M_out.PdTpar  = M_in.PdTpar;
+  M_out.PdTsys  = M_in.PdTsys;
+  M_out.PdTrms  = M_in.PdTrms;
+  M_out.PdTrnd  = M_in.PdTrnd;
+
+  cpy_mpoleArray(M_in.PBpar, M_out.PBpar);
+  cpy_mpoleArray(M_in.PBsys, M_out.PBsys);
+  cpy_mpoleArray(M_in.PBrms, M_out.PBrms);
+  cpy_mpoleArray(M_in.PBrnd, M_out.PBrnd);
+  cpy_mpoleArray(M_in.PB,    M_out.PB);
+
+  M_out.Porder   = M_in.Porder;
+  M_out.n_design = M_in.n_design;
+  M_out.Pthick   = M_in.Pthick;
+  M_out.PTx1     = M_in.PTx1;
+  M_out.PTx2     = M_in.PTx2;
+  M_out.Pgap     = M_in.Pgap;
+  M_out.Pirho    = M_in.Pirho;
+  M_out.Pc0      = M_in.Pc0;
+  M_out.Pc1      = M_in.Pc1;
+  M_out.Ps1      = M_in.Ps1;
+
+  // M_lin gets allocated after;
+}
+
+
 void Mpole_Init(int Fnum1)
 {
   static bool first = true;
@@ -3260,6 +3311,9 @@ void Mpole_Init(int Fnum1)
   CellType     *cellp;
   elemtype     *elemp;
 
+  if (trace)
+    printf("Mpole_Init:\n  Fnum1 = %d\n", Fnum1);
+
   /* Pointer on element */
   elemfamp = &ElemFam[Fnum1-1];
   memcpy(elemfamp->ElemF.M->PB, elemfamp->ElemF.M->PBpar, sizeof(mpolArray));
@@ -3267,6 +3321,10 @@ void Mpole_Init(int Fnum1)
   elemfamp->ElemF.M->Porder = UpdatePorder(elemfamp->ElemF);
 
   for (i = 1; i <= elemfamp->nKid; i++) {
+    if (trace) {
+      printf("  i = %d\n", i);
+      fflush(stdout);
+    }
     cellp = &Cell[elemfamp->KidList[i-1]];
     elemp = &cellp->Elem;
     /* Memory allocation and set everything to zero */
@@ -3276,7 +3334,13 @@ void Mpole_Init(int Fnum1)
     elemp->PL = elemfamp->ElemF.PL;
     /* set element kind (Mpole) */
     elemp->Pkind = elemfamp->ElemF.Pkind;
+#if 1
+    // Remark: M_lin is an ss_vect<tps> - i.e., will crash when linking to the
+    // F77 TPSA lib.
     *elemp->M = *elemfamp->ElemF.M;
+#else
+    cpy_mpole(*elemfamp->ElemF.M, *elemp->M);
+#endif
 
     if (reverse_elem && (elemp->Reverse == true)) {
       // Swap entrance and exit angles.
