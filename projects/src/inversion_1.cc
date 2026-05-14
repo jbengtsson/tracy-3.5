@@ -42,5 +42,6 @@ int main(int argc, char *argv[])
   prt_lat("linlat1.out", globval.bpm, true);
   prt_lat("linlat.out", globval.bpm, true, 10);
 
-  GetEmittance(ElemIndex("cav"), false, true);
+  if (!true)
+    GetEmittance(ElemIndex("cav"), false, true);
 }

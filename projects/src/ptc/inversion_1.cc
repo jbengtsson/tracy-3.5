@@ -63,7 +63,7 @@ void set_state(void)
   globval.Aperture_on    = false;
   globval.Cart_Bend      = false;
   globval.dip_edge_fudge = true;
-  globval.EPU            = !true;
+  globval.EPU            = true;
 }
 
 
@@ -71,19 +71,24 @@ int main(int argc, char *argv[])
 {
   ss_vect<tps> map;
   
+  trace = false;
+
   globval.mat_meth = false;
 
-  if (true)
+  if (!true)
     Read_Lattice(argv[1]);
   else
     rdmfile(argv[1]);
 
   set_state();
 
-  no_sxt();
+  if (!false)
+    no_sxt();
 
   // Disable from TPSALib and LieLib log messages.
   idprset(-1);
+
+  daeps_(1e-30);
 
   if (true) {
     Ring_GetTwiss(true, 0e0);
@@ -96,13 +101,10 @@ int main(int argc, char *argv[])
     map = compute_map();
     prt_lin_map(3, map);
     chk_sympl(map);
-    assert(false);
   }
   
   if (!false) {
     map = compute_map();
     analyse_nl_dyn(map);
-    assert(false);
   }
-  
 }
