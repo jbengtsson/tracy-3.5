@@ -3437,16 +3437,8 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
     GetSym__(&V);
     globval.Elem_nFam++;
 
-    printf("\nidsym - Elem_nFamMax exceeded: %ld(%d)\n",
-	   globval.Elem_nFam, Elem_nFamMax);
-    printf("  %s\n", ElemFam[globval.Elem_nFam-3].ElemF.PName);
-    printf("  %s\n", ElemFam[globval.Elem_nFam-2].ElemF.PName);
-
     /* Fills up the ID */
     if (globval.Elem_nFam <= Elem_nFamMax) {
-      printf("\nSo far, so good!\n");
-      printf("idsym - Elem_nFamMax exceeded\n");
-      printf("Hello World!");
       WITH  = &ElemFam[globval.Elem_nFam-1];
       WITH1 = &WITH->ElemF;
       memcpy(WITH1->PName, ElementName, sizeof(partsName));
@@ -3458,11 +3450,9 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       WITH5->PN = k1;
       WITH5->scaling = scaling;
 
-      printf("  %s\n", ElemFam[globval.Elem_nFam-1].ElemF.PName);
-
       if (CheckUDItable("energy         ", LINK) != 0) {
 	RefUDItable("energy         ", &globval.Energy, LINK);
-// 	if (strcmp(str1, "") != 0) get_B(str1, WITH6);
+	// 	if (strcmp(str1, "") != 0) get_B(str1, WITH6);
       } else {
 	std::cout << "Insertion_Alloc: energy not defined" << std::endl;
 	exit_(1);
@@ -3537,7 +3527,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       //      free_matrix(f2z,1,nz,1,nx);
 
     } else {
-      printf("idsym - Elem_nFamMax exceeded: %ld(%ld)\n",
+      printf("insertion: idsym - Elem_nFamMax exceeded: %ld (%ld)\n",
 	     globval.Elem_nFam, (long)Elem_nFamMax);
       exit_(1);
     }
