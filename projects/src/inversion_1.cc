@@ -209,14 +209,17 @@ int main(int argc, char *argv[])
 
   no_sxt();
 
-  Ring_GetTwiss(true, 0e0);
-  printglob();
-
   prtmfile("flat_file.dat");
-  prt_lat("linlat1.out", globval.bpm, true);
-  prt_lat("linlat.out", globval.bpm, true, 10);
 
-  if (!true)
+  if (false) {
+    Ring_GetTwiss(true, 0e0);
+    printglob();
+
+    prt_lat("linlat1.out", globval.bpm, true);
+    prt_lat("linlat.out", globval.bpm, true, 10);
+  }
+
+  if (false)
     GetEmittance(ElemIndex("cav"), false, true);
 
   if (false)
@@ -225,7 +228,7 @@ int main(int argc, char *argv[])
   if (!false) {
     const int
       n[] = {51, 51}, 
-      i_0 = 18;
+      i_0 = 19;
     const double
       A[] = {20e-3, 4e-3};
 
