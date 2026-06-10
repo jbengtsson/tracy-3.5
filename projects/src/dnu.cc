@@ -10,8 +10,8 @@ const int
 
 const double
 #if 1
-  A_max[]   = {4e-3, 4e-3},
-  delta_max = 6e-2;
+  A_max[]   = {6e-3, 6e-3},
+  delta_max = 3e-2;
 #else
   A_max[]   = {6e-3, 2.5e-3},
   delta_max = 3.5e-2;
@@ -30,7 +30,7 @@ void set_state(void)
   globval.Aperture_on    = false;
   globval.Cart_Bend      = false;
   globval.dip_edge_fudge = true;
-  globval.EPU            = false;
+  globval.EPU            = !false;
 }
 
 
