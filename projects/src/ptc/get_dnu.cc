@@ -7,7 +7,7 @@ int no_tps   = NO,
 
 
 const double
-  A_max[]    = {4e-3, 4e-3},
+  A_max[]    = {2e-3, 2e-3},
   delta_max  = 6e-2,
   beta_inj[] = {5.879, 3.175},
   twoJ[]     = {sqr(A_max[X_])/beta_inj[X_], sqr(A_max[Y_])/beta_inj[Y_]};
@@ -310,7 +310,7 @@ void set_state(void)
   globval.Aperture_on    = false;
   globval.Cart_Bend      = false;
   globval.dip_edge_fudge = true;
-  globval.EPU            = false;
+  globval.EPU            = !false;
 }
 
 
