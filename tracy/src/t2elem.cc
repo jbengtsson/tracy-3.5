@@ -2998,7 +2998,9 @@ void Insertion_Alloc(elemtype *Elem)
   int           i = 0, j = 0;
   InsertionType *ID;
 
+  printf("\nInsertion_Alloc 1\n");
   Elem->ID = (InsertionType *)malloc(sizeof(InsertionType));
+  printf("\nInsertion_Alloc 2\n");
   ID = Elem->ID;
 
   ID->Pmethod = Meth_Linear;
@@ -3093,8 +3095,10 @@ void Solenoid_Alloc(elemtype *Elem)
 
 void Map_Alloc(elemtype *Elem)
 {
+  // Refactoring:
   // Elem->Map = (MapType *)malloc(sizeof(MapType));
-  // Use new; to allocate TPSA vector.
+  // i.e., use new - to allocate TPSA vector;
+  // or implement a proper C++ constructor.
   Elem->Map = new MapType();
 }
 
