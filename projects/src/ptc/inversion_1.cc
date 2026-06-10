@@ -90,7 +90,7 @@ int main(int argc, char *argv[])
 
   daeps_(1e-30);
 
-  if (true) {
+  if (!true) {
     Ring_GetTwiss(true, 0e0);
     printglob();
   }
