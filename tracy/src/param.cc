@@ -58,13 +58,15 @@ double param_data_type::x_max_FMA  = 20e-3,
 bool   param_data_type::bba        = false;
 
 //>>>> string copy functions
-void TracyStrcpy (char *elem, char *pname) {
+void TracyStrcpy(char *elem, char *pname) {
   long i;
-  strncpy(elem, pname, NameLength); elem[NameLength]='\0';
-  i = NameLength-1; // remove trailing spaces
-  while ( elem[i] == ' ' ) {
-     elem[i] = '\0';
-     i--;
+  strncpy(elem, pname, SymbolLength);
+  elem[SymbolLength] = '\0';
+
+  i = SymbolLength - 1; // remove trailing spaces
+  while (i >= 0 && elem[i] == ' ') {
+    elem[i] = '\0';
+    i--;
   }
 }
 
@@ -86,7 +88,7 @@ void param_data_type::GirderSetup() {
   double   s0, s1, s2, circ;
   long     ngir, i0, ic, i, countmag;
   CellType cell;
-  char     elem[NameLength+1];
+  char     elem[SymbolLength+1];
   FILE     *outf;
   char     fname[30];
 
@@ -321,7 +323,7 @@ void param_data_type::SetCorMis(double gxrms, double gyrms, double gtrms,
   double   dt, s1, s2;
   long     i, isup;
   CellType cell;
-  char     elem[NameLength+1];
+  char     elem[SymbolLength+1];
   FILE     *outf;
   char     fname[30];
 

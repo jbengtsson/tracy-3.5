@@ -2759,7 +2759,7 @@ static void Wiggler_Print(FILE *f, int Fnum1)
   elemp = &ElemFam[Fnum1-1].ElemF;
   fprintf(f, "Element[%3d ] \n", Fnum1);
   fprintf(f, "   Name: %.*s,  Kind:   wiggler,  L=% .8E\n\n",
-          NameLength, elemp->PName, elemp->PL);
+          SymbolLength, elemp->PName, elemp->PL);
 }
 
 
@@ -2995,12 +2995,15 @@ void FieldMap_Alloc(elemtype *Elem)
 
 void Insertion_Alloc(elemtype *Elem)
 {
-  int           i = 0, j = 0;
   InsertionType *ID;
 
-  printf("\nInsertion_Alloc 1\n");
   Elem->ID = (InsertionType *)malloc(sizeof(InsertionType));
-  printf("\nInsertion_Alloc 2\n");
+
+  if (Elem->ID == NULL) {
+    printf("Insertion_Alloc: malloc failed\n");
+    exit_(1);
+  }
+
   ID = Elem->ID;
 
   ID->Pmethod = Meth_Linear;
@@ -3008,51 +3011,54 @@ void Insertion_Alloc(elemtype *Elem)
   ID->nx = 0;
   ID->nz = 0;
 
-  /* Initialisation thetax and thetaz to 0*/
+  ID->scaling = 1.0;
+  ID->linear = true;
+  ID->firstorder = false;
+  ID->secondorder = false;
+  ID->long_comp = false;
+  ID->phi = 0e0;
 
-  // first order kick map
-  if (ID->firstorder){
-    for (i = 0; i < IDZMAX; i++){
-      for (j = 0; j < IDXMAX; j++) {
-	ID->thetax1[i][j] = 0e0;
-	ID->thetaz1[i][j] = 0e0;
-	ID->B2[i][j] = 0e0;
-      }
+  for (auto i = 0; i < IDZMAX; i++) {
+    for (auto j = 0; j < IDXMAX; j++) {
+      ID->thetax[i][j]  = 0e0;
+      ID->thetaz[i][j]  = 0e0;
+      ID->thetax1[i][j] = 0e0;
+      ID->thetaz1[i][j] = 0e0;
+      ID->B2[i][j]      = 0e0;
     }
   }
 
-  // second order kick map
-  if (ID->secondorder) {
-    for (i = 0; i < IDZMAX; i++) {
-      for (j = 0; j < IDXMAX; j++) {
-	ID->thetax[i][j] = 0e0;
-	ID->thetaz[i][j] = 0e0;
-	ID->B2[i][j] = 0e0;
-      }
-    }
-  }
-
-  // stuffs for interpolation
-  for (j = 0; j < IDXMAX; j++)
+  for (auto j = 0; j < IDXMAX; j++)
     ID->tabx[j] = 0e0;
 
-  for (j = 0; j < IDZMAX; j++)
+  for (auto j = 0; j < IDZMAX; j++)
     ID->tabz[j] = 0e0;
 
-  // filenames
-  strcpy(ID->fname1,"");
-  strcpy(ID->fname2,"");
+  std::fill_n(ID->fname1, sizeof(ID->fname1), '\0');
+  std::fill_n(ID->fname2, sizeof(ID->fname2), '\0');
 
-  //  ID->kx = 0e0;
-  for (j = 0; j <= 1; j++) {
+  ID->tx = NULL;
+  ID->tz = NULL;
+  ID->f2x = NULL;
+  ID->f2z = NULL;
+  ID->tx1 = NULL;
+  ID->tz1 = NULL;
+  ID->f2x1 = NULL;
+  ID->f2z1 = NULL;
+  ID->tab1 = NULL;
+  ID->tab2 = NULL;
+
+  for (auto j = 0; j <= 1; j++) {
     ID->PdSsys[j] = 0e0;
+    ID->PdSrms[j] = 0e0;
     ID->PdSrnd[j] = 0e0;
   }
+
   ID->PdTpar = 0e0;
   ID->PdTsys = 0e0;
+  ID->PdTrms = 0e0;
   ID->PdTrnd = 0e0;
-  //  for (j = 0; j <= HOMmax; j++)
-  //    ID->PBW[j+HOMmax] = 0e0;
+
   ID->Porder = 0;
 }
 

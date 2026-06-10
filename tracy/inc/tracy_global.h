@@ -175,9 +175,9 @@ struct InsertionType {
   int
     Pmethod,                 // Integration Method.
     PN;                      // number of integration steps.
-  char
-    fname1[100],             // Filename for insertion description: 1st order.
-    fname2[100];             // Filename for insertion description: 2nd order.
+  fileName
+    fname1,                  // Filename for insertion description: 1st order.
+    fname2;                  // Filename for insertion description: 2nd order.
   int
     nx,                      // Horizontal point number.
     nz;                      // Vertical point number.

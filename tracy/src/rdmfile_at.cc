@@ -34,14 +34,13 @@ void string_to_c_str(const std::string &str, partsName &c_str) {
   // Tracy-2 element names are not "\0" terminated C strings (Pascal legacy).
   // Keep symbol names in the same canonical format used by ElemIndex:
   // lowercase pad with spaces up to SymbolLength.
-  if (str.size() > NameLength)
+  if (str.size() > SymbolLength)
     throw std::runtime_error("ElemName too long for fixed buffer");
 
-  memset(c_str, 0, sizeof(partsName));
+  std::fill_n(c_str, SymbolLength, ' ');
+
   for (size_t i = 0; i < str.size(); i++)
     c_str[i] = (char)std::tolower((unsigned char)str[i]);
-  for (size_t i = str.size(); i < SymbolLength; i++)
-    c_str[i] = ' ';
 }
 
 struct Value {
@@ -375,7 +374,7 @@ static void assign_elem_families()
 
   for (long i = 0; i <= globval.Cell_nLoc; i++)
   {
-    std::string name(Cell[i].Elem.PName);
+    std::string name(Cell[i].Elem.PName, SymbolLength);
     auto result = name_to_fnum.emplace(name, (int)globval.Elem_nFam + 1);
     const bool inserted = result.second;
     const int fnum = result.first->second;
@@ -384,7 +383,8 @@ static void assign_elem_families()
     {
       globval.Elem_nFam++;
       ElemFam[fnum - 1].nKid = 0;
-      strcpy(ElemFam[fnum - 1].ElemF.PName, Cell[i].Elem.PName);
+      memcpy(ElemFam[fnum - 1].ElemF.PName, Cell[i].Elem.PName,
+	     sizeof(partsName));
     }
 
     Cell[i].Fnum = fnum;
@@ -394,7 +394,7 @@ static void assign_elem_families()
     ElemFam[fnum - 1].KidList[Cell[i].Knum - 1] = i;
     if (dbg)
     {
-      printf("  ElemName = '%s'\n", Cell[i].Elem.PName);
+      printf("  ElemName = '%.*s'\n", SymbolLength, Cell[i].Elem.PName);
       printf("  Fnum     = %4d\n", Cell[i].Fnum);
       printf("  Knum     = %4d\n", Cell[i].Knum);
       printf("  nKid     = %4d\n", ElemFam[fnum - 1].nKid);
@@ -403,7 +403,7 @@ static void assign_elem_families()
       ElemFam[fnum - 1].ElemF = Cell[i].Elem;
   }
   if (dbg)
-    printf("\nRead in %d elements with %d families.\n",
+    printf("\nRead in %ld elements with %ld families.\n",
            globval.Cell_nLoc, globval.Elem_nFam);
 }
 
@@ -465,7 +465,7 @@ static void create_elem(const Element &curr_elem)
   // Set element properties.
   if (dbg) {
     printf("\ncreate_elem: %4ld %2d\n", globval.Cell_nLoc, elem.Pkind);
-    printf("  %s\n", elem.PName);
+    printf("  %.*s\n", SymbolLength, elem.PName);
   }
   if (elem.Pkind != marker) {
     elem.PL = require_number(curr_elem, "Length");

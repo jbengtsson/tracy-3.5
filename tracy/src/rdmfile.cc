@@ -66,6 +66,10 @@
 */
 
 
+#define STR_HELPER(x) #x
+#define STR(x) STR_HELPER(x)
+
+
 // numerical type codes
 #define marker_   -1
 #define drift_     0
@@ -80,6 +84,21 @@
 std::ifstream  inf;
 
 const int line_max = 200;
+
+
+static void copy_file_name
+(fileName &dst, const std::string &src, const char *what)
+{
+  if (src.size() >= FileNameLength) {
+    std::cerr << what << " too long: " << src
+              << " ; max is " << FileNameLength - 1 << " characters\n";
+    exit_(1);
+  }
+
+  std::fill_n(dst, FileNameLength, '\0');
+  std::copy(src.begin(), src.end(), dst);
+}
+
 
 void get_kind(const int kind, elemtype &Elem)
 {
@@ -119,7 +138,8 @@ void get_kind(const int kind, elemtype &Elem)
     Map_Alloc(&Elem);
     break;
   default:
-    std::cout << "get_kind: unknown type " << kind << " " << Elem.PName
+    std::cout << "get_kind: unknown type " << kind << " "
+	      << std::string(Elem.PName, SymbolLength)
 	      << std::endl;
     exit_(1);
     break;
@@ -131,7 +151,7 @@ void rdmfile(const char *mfile_dat)
 {
   const int  n_ps = 6;
 
-  char         line[line_max], file_name[line_max];
+  char         line[line_max], pname[SymbolLength+1];
   int          j, k, nmpole, kind, method, n, reverse;
   long int     i;
   double       dTerror, val[n_ps];
@@ -151,17 +171,16 @@ void rdmfile(const char *mfile_dat)
     Cell[i].dS[X_] = 0.0; Cell[i].dS[Y_] = 0.0;
     Cell[i].dT[X_] = 1.0; Cell[i].dT[Y_] = 0.0;
 
-    sscanf(line, "%s %d %d", Cell[i].Elem.PName, &Cell[i].Fnum, &Cell[i].Knum);
+    sscanf(line, "%" STR(SymbolLength) "s %d %d",
+	   pname, &Cell[i].Fnum, &Cell[i].Knum);
 
-    // For compability with lattice parser.
-    k = 0;
-    while (Cell[i].Elem.PName[k] != '\0')
-      k++;
-    for (j = k; j < SymbolLength; j++)
-      Cell[i].Elem.PName[j] = ' ';
+    std::fill_n(Cell[i].Elem.PName, SymbolLength, ' ');
+    std::memcpy(Cell[i].Elem.PName, pname,
+		std::min(std::strlen(pname), (size_t)SymbolLength));
 
     if (Cell[i].Knum == 1) {
-      strcpy(ElemFam[Cell[i].Fnum-1].ElemF.PName, Cell[i].Elem.PName);
+      std::memcpy(ElemFam[Cell[i].Fnum-1].ElemF.PName, Cell[i].Elem.PName,
+	     sizeof(partsName));
       globval.Elem_nFam = max((long)Cell[i].Fnum, globval.Elem_nFam);
     }
 
@@ -289,35 +308,46 @@ void rdmfile(const char *mfile_dat)
 	  = Cell[i].Elem.W->BoBrhoH[j];
       }
       break;
-    case Insertion:
-      Cell[i].Elem.ID->Pmethod = method; Cell[i].Elem.ID->PN = n;
+    case Insertion: {
+      Cell[i].Elem.ID->Pmethod = method;
+      Cell[i].Elem.ID->PN = n;
 
       inf.getline(line, line_max);
       if (prt) printf("%s\n", line);
-      sscanf(line, "%lf %d %s", &Cell[i].Elem.ID->scaling, &n, file_name);
 
-      if (n == 1) {
+      int                order;
+      std::string        fname;
+      std::istringstream is(line);
+
+      if (!(is >> Cell[i].Elem.ID->scaling >> order >> fname)) {
+	std::cerr << "rdmfile: bad insertion line: " << line << std::endl;
+	exit_(1);
+      }
+
+      if (order == 1) {
 	Cell[i].Elem.ID->firstorder = true;
 	Cell[i].Elem.ID->secondorder = false;
 
-	strcpy(Cell[i].Elem.ID->fname1, file_name);
+	copy_file_name(Cell[i].Elem.ID->fname1, fname, "fname1");
+
 	Read_IDfile(Cell[i].Elem.ID->fname1, Cell[i].Elem.PL,
 		    Cell[i].Elem.ID->nx, Cell[i].Elem.ID->nz,
 		    Cell[i].Elem.ID->tabx, Cell[i].Elem.ID->tabz,
 		    Cell[i].Elem.ID->thetax1, Cell[i].Elem.ID->thetaz1,
 		    Cell[i].Elem.ID->long_comp, Cell[i].Elem.ID->B2);
-      } else if (n == 2) {
+      } else if (order == 2) {
 	Cell[i].Elem.ID->firstorder = false;
 	Cell[i].Elem.ID->secondorder = true;
 
-	strcpy(Cell[i].Elem.ID->fname2, file_name);
+	copy_file_name(Cell[i].Elem.ID->fname2, fname, "fname2");
+
 	Read_IDfile(Cell[i].Elem.ID->fname2, Cell[i].Elem.PL,
 		    Cell[i].Elem.ID->nx, Cell[i].Elem.ID->nz,
 		    Cell[i].Elem.ID->tabx, Cell[i].Elem.ID->tabz,
 		    Cell[i].Elem.ID->thetax, Cell[i].Elem.ID->thetaz,
 		    Cell[i].Elem.ID->long_comp, Cell[i].Elem.ID->B2);
       } else {
-	std::cout << "rdmfile: undef order " << n << std::endl;
+	std::cout << "rdmfile: undef order " << order << std::endl;
 	exit_(1);
       }
 
@@ -346,6 +376,7 @@ void rdmfile(const char *mfile_dat)
       free(tab1); free(tab2);
       free_matrix(f2x, 1, nz, 1, nx); free_matrix(f2z, 1, nz, 1, nx); */
       break;
+    }
     case FieldMap:
       break;
     case Map:

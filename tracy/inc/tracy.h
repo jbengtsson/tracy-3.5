@@ -40,8 +40,8 @@
 
 #define DBNameLen       39
 
-#define NameLength      150  // maximum length of identifiers (e.g. file names)
-#define SymbolLength    15   // maximum length of symbols (e.g. element name)
+#define SymbolLength    15   // Max length for symbols (e.g. element name).
+#define FileNameLength  150  // Filename buffer size, including trailing '\0'.
 
 #define blankname       "               "
 
@@ -77,7 +77,9 @@ enum { Meth_Linear = 0, Meth_First = 1, Meth_Second = 2, Meth_Fourth = 4 };
 
 typedef char str80[80];
 
-typedef char alfa_[NameLength];
+typedef char alfa_[SymbolLength];
+typedef char partsName[SymbolLength];
+typedef char fileName[FileNameLength];
 
 typedef long   iVector2[2];
 typedef double Vector2[2];
@@ -85,8 +87,6 @@ typedef double Vector3[3];
 
 #define fitvectmax      200
 typedef long   fitvect[fitvectmax];
-
-typedef char partsName[NameLength];
 
 typedef char DBNameType[DBNameLen];
 

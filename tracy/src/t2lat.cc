@@ -314,7 +314,7 @@ static void RefUDItable(const char *name, double *X, struct LOC_Lattice_Read *LI
 //  long i;
 //  char ch;
 //
-//  for (i = 0; i < NameLength; i++) {
+//  for (i = 0; i < SymbolLength; i++) {
 //    ch = name[i];
 //    if ('a' <= ch && ch <= 'z')
 //      ch = _toupper(ch);
@@ -331,7 +331,7 @@ static void RefUDItable(const char *name, double *X, struct LOC_Lattice_Read *LI
 //  char ch;
 //
 //  *pos = 0;
-//  for (i = 0; i < NameLength; i++) {  /*2*/
+//  for (i = 0; i < SymbolLength; i++) {  /*2*/
 //    ch = name[i];
 //    if ('a' <= ch && ch <= 'z')
 //      ch = _toupper(ch);
@@ -348,7 +348,7 @@ static void RefUDItable(const char *name, double *X, struct LOC_Lattice_Read *LI
 //  long i;
 //  char ch;
 //
-//  for (i = 0; i < NameLength; i++) {
+//  for (i = 0; i < SymbolLength; i++) {
 //    ch = name[i];
 //    if ('a' <= ch && ch <= 'z')
 //      ch = _toupper(ch);
@@ -1756,7 +1756,8 @@ static bool Lat_CheckWiggler(FILE **fo, long i, struct LOC_Lattice_Read *LINK)
   diff = fabs((L-NN*Lambda)/L);
   if (diff < 1e-5) return true;
   printf("\n");
-  printf(">>> Incorrect definition of %.*s\n\n", NameLength, WITH1->PName);
+  printf(">>> Incorrect definition of %.*s\n\n",
+	 (int)sizeof(WITH1->PName), WITH1->PName);
   printf("    L      ( total length ) =%20.12f [m]\n", L);
   printf("    Lambda ( wave  length ) =%20.12f [m]\n", Lambda);
   printf("    # of Period = L/Lambda  =%20.12f ?????\n\n", L / Lambda);
@@ -1805,6 +1806,89 @@ static void GetSym__(struct LOC_Lat_DealElement *LINK)
 	     LINK->rsvwd, LINK->line, LINK->sym, LINK->key, LINK->ksy,
 	     LINK->sps, LINK->LINK);
 }
+
+// Refactored: parse as file name.
+
+static void NextCh__(struct LOC_Lat_DealElement *L)
+{
+  Lat_Nextch(L->fi, L->fo, L->cc, L->ll, L->errpos,
+             L->lc, L->chin, L->skipflag, L->line, L->LINK);
+}
+
+
+static char OriginalCh__(struct LOC_Lat_DealElement *L)
+{
+  // Lat_Nextch() lower-cases *chin, but L->line still contains
+  // the original character from the lattice file. Use that for
+  // file names so case-sensitive paths are preserved.
+  if (*L->cc >= 1 && *L->cc <= *L->ll) {
+    const char ch = L->line[*L->cc - 1];
+    return (ch == '\t') ? ' ' : ch;
+  }
+
+  return *L->chin;
+}
+
+
+static std::string ReadFileName(struct LOC_Lat_DealElement *L)
+{
+  std::string s;
+
+  while (*L->chin == ' ')
+    NextCh__(L);
+
+  if (*L->chin == '"') {
+    NextCh__(L);  // skip opening quote
+
+    while (*L->chin != '"') {
+      if (s.size() >= FileNameLength - 1)
+        errorm__("filename too long", L);
+
+      s += OriginalCh__(L);
+      NextCh__(L);
+    }
+
+    NextCh__(L);  // skip closing quote
+  } else {
+    // Optional backwards compatibility:
+    // allow old-style file1=hu80_lh_bdl without quotes.
+    while (*L->chin != ',' && *L->chin != ';' &&
+           *L->chin != ' ' && *L->chin != '\t') {
+      if (s.size() >= FileNameLength - 1)
+        errorm__("filename too long", L);
+
+      s += OriginalCh__(L);
+      NextCh__(L);
+    }
+  }
+
+  if (s.empty())
+    errorm__("empty filename", L);
+
+  GetSym__(L);  // load the next parser symbol: comma or semicolon
+
+  return s;
+}
+
+
+template <size_t N>
+static void copy_filename(char (&dst)[N],
+                          const std::string &src,
+                          const char *what)
+{
+  static_assert(N >= FileNameLength,
+                "filename destination buffer is smaller than FileNameLength");
+
+  if (src.size() >= N) {
+    std::cerr << what << " too long: " << src
+              << " ; max is " << (N - 1) << " characters\n";
+    exit_(1);
+  }
+
+  std::fill_n(dst, N, '\0');
+  std::copy(src.begin(), src.end(), dst);
+}
+
 
 static void test__(long *s1, const char *cmnt, struct LOC_Lat_DealElement *LINK)
 {
@@ -2064,8 +2148,8 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
   InsertionType  *WITH5;
   SolenoidType   *WITH7;
   MapType        *WITH8;
-  char str1[100] = "";
-  char str2[100] = "";
+  string         str1,
+                 str2;
   bool firstflag  = false; // flag for first kick input
   bool secondflag = false; // flag for second kick input
   long           i;
@@ -2733,7 +2817,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 
     <name>: Corrector, <direction>, L=<length>, ;
 
-    <name> :== Alphanumeric string. Up to NameLength character length.
+    <name> :== Alphanumeric string. Up to SymbolLength character length.
               BEGIN with an alphabet.
     <direction> :== 'horizontal'|'vertical'
 
@@ -2843,7 +2927,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 
     <name>: Beam Position Monitor;
 
-    <name>:== Alphanumeric string. Up to NameLength character length.
+    <name>:== Alphanumeric string. Up to SymbolLength character length.
               BEGIN with an alphabet.
 
     Example
@@ -2893,7 +2977,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 
     <name>: Marker;
 
-    <name>:== Alphanumeric string. Up to NameLength character length.
+    <name>:== Alphanumeric string. Up to SymbolLength character length.
               BEGIN with an alphabet.
 
     Example
@@ -2938,7 +3022,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 
      <name>: Ghost;
 
-     <name>:== Alphanumeric string. Up to NameLength character length.
+     <name>:== Alphanumeric string. Up to SymbolLength character length.
                BEGIN with an alphabet.
 
      Example
@@ -3275,14 +3359,15 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
   case fmsym:
     getest__(P_expset(SET, 1 << ((long)comma)), "<, > expected", &V);
     GetSym__(&V);
-    QL = 0.0; k1 = 0; t  = 0.0; strcpy(str1, ""); strcpy(str2, "");
+    QL = 0.0; k1 = 0; t  = 0.0;
+    str1.clear();
+    str2.clear();
     scaling = 1.0; // scaling factor
     P_addset(P_expset(mysys, 0), (long)lsym);
     P_addset(mysys, (long)phi_b_sym);
     P_addset(mysys, (long)nsym);
     P_addset(mysys, (long)scalingsym);
     P_addset(mysys, (long)fnamesym1);
-    P_addset(mysys, (long)fnamesym2);
     do {
       test__(mysys, "illegal parameter", &V);
       sym1 = *V.sym;
@@ -3306,12 +3391,14 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 	break;
 
       case fnamesym1:
-	GetSym__(&V);
-	for (i = 1; i < (signed)strlen(id_); i++) {
-	  if (id_[i] == '"') break;
-	  strncat(str1, &id_[i], 1);
-	}
-	GetSym__(&V);
+	// Refactored: parse as filename.
+	// GetSym__(&V);
+	// for (i = 1; i < (signed)strlen(id_); i++) {
+	//   if (id_[i] == '"') break;
+	//   strncat(str1, &id_[i], 1);
+	// }
+	// GetSym__(&V);
+	str1 = ReadFileName(&V);
 	break;
 
       default:
@@ -3334,7 +3421,10 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
       WITH6->phi = t*M_PI/180.0; WITH6->n_step = k1; WITH6->scl = scaling;
       if (CheckUDItable("energy         ", LINK) != 0) {
 	RefUDItable("energy         ", &globval.Energy, LINK);
-	if (strcmp(str1, "") != 0) get_B(str1, WITH6);
+	// Refactored: parse as file name.
+	// if (strcmp(str1, "") != 0)
+	if (!str1.empty())
+	  get_B(str1.c_str(), WITH6);
       } else {
 	std::cout << "Fieldmap: energy not defined" << std::endl;
 	exit_(1);
@@ -3404,25 +3494,29 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 
       case fnamesym1: /* Read filename for insertion device first order kicks*/
 	firstflag = true;
-	GetSym__(&V);
-	for (i = 1; i < (signed)strlen(id_); i++) {
-	  if (id_[i] == '"')
-	    break;
-	  strncat(str1, &id_[i], 1);
-	}
-	GetSym__(&V);
+	// Refactored: parse as filename.
+	// GetSym__(&V);
+	// for (i = 1; i < (signed)strlen(id_); i++) {
+	//   if (id_[i] == '"')
+	//     break;
+	//   strncat(str1, &id_[i], 1);
+	// }
+	// GetSym__(&V);
+	str1 = ReadFileName(&V);
 	break;
 
       case fnamesym2: /* Read filename for insertion
 			 device second order kicks */
 	secondflag = true;
-	GetSym__(&V);
-	for (i = 1; i < (signed)strlen(id_); i++) {
-	  if (id_[i] == '"')
-	    break;
-	  strncat(str2, &id_[i], 1);
-	}
-	GetSym__(&V);
+	// Refactored: parse as filename.
+	// GetSym__(&V);
+	// for (i = 1; i < (signed)strlen(id_); i++) {
+	//   if (id_[i] == '"')
+	//     break;
+	//   strncat(str2, &id_[i], 1);
+	// }
+	// GetSym__(&V);
+	str2 = ReadFileName(&V);
 	break;
 
       case mthsym: // method for interpolation: 1 means linear 2 spline
@@ -3452,7 +3546,7 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 
       if (CheckUDItable("energy         ", LINK) != 0) {
 	RefUDItable("energy         ", &globval.Energy, LINK);
-	// 	if (strcmp(str1, "") != 0) get_B(str1, WITH6);
+	// 	if (strcmp(str1, "") != 0) get_B(str1.c_str(), WITH6);
       } else {
 	std::cout << "Insertion_Alloc: energy not defined" << std::endl;
 	exit_(1);
@@ -3460,11 +3554,14 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 
       // Check if filename given for first order kicks
       if (firstflag) {
-	if (strcmp(str1,"") == 0)
-	  strcpy(WITH5->fname1,"/*No_Filename1_Given*/");
-	strcpy(WITH5->fname1,str1);
-	// Read Id file for first order kicks
+	// Refactored: parse as filename.
+	// if (strcmp(str1,"") == 0)
+	//   strcpy(WITH5->fname1,"/*No_Filename1_Given*/");
+	// strcpy(WITH5->fname1,str1);
+
+	copy_filename(WITH5->fname1, str1, "file1");
 	WITH5->firstorder = true;
+	// Read Id file for first order kicks
 	Read_IDfile(WITH5->fname1, WITH1->PL, WITH5->nx, WITH5->nz,
 		    WITH5->tabx, WITH5->tabz, WITH5->thetax1, WITH5->thetaz1,
 		    WITH5->long_comp, WITH5->B2);
@@ -3476,21 +3573,28 @@ static bool Lat_DealElement(FILE **fi_, FILE **fo_, long *cc_, long *ll_,
 	  }
 	}
       } else {
-	strcpy(WITH5->fname1, "/*No_Filename1_Given*/");
+	// strcpy(WITH5->fname1, "/*No_Filename1_Given*/");
+	copy_filename(WITH5->fname1, str1, "file1");
+	WITH5->firstorder = false;
       }
 
       // Check if filename given for Second order kicks
       if (secondflag) {
-	if (strcmp(str2,"") != 0)
-	  strcpy(WITH5->fname2,"/*No_Filename2_Given*/");
-	strcpy(WITH5->fname2,str2);
-	WITH5->secondorder = secondflag;
+	// Refactored: parse as filename.
+	// if (strcmp(str2,"") != 0)
+	//   strcpy(WITH5->fname2,"/*No_Filename2_Given*/");
+	// strcpy(WITH5->fname2,str2);
+
+	copy_filename(WITH5->fname2, str2, "file2");
+	WITH5->secondorder = true;
 	// Read Id file for second order kicks
 	Read_IDfile(WITH5->fname2, WITH1->PL, WITH5->nx, WITH5->nz,
 		    WITH5->tabx, WITH5->tabz, WITH5->thetax, WITH5->thetaz,
 		    WITH5->long_comp, WITH5->B2);
       } else {
-	strcpy(WITH5->fname2,"/*No_Filename2_Given*/");
+	// strcpy(WITH5->fname2,"/*No_Filename2_Given*/");
+	copy_filename(WITH5->fname2, str2, "file2");
+	WITH5->secondorder = false;
       }
 
       // check whether no Radia filename read: something is wrong
