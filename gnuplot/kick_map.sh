@@ -6,7 +6,7 @@ prm2=${2-0}
 gnuplot << EOP
 
 file_name = "$prm1";
-ps = $prm2;
+ps        = $prm2;
 
 f_s = 24;
 l_w = 2;
@@ -38,21 +38,24 @@ set cntrlabel format "%3.1f";
 set key left;
 set zlabel "";
 #set cntrparam level 25;
-#set contour base; set noztics; set key off; unset colorbox;
+#set contour base;
+#set noztics;
+#set key off;
+#unset colorbox;
 
 if (ps) set output "kick_map_1.".(ext)
 set title "Kick Map: {/Symbol q}_x [mrad]";
 set xlabel "x [mm]";
- set ylabel "y [mm]";
-splot file_name using (1e3*\$1):(1e3*\$2):(1e3*\$3):2 notitle \
+set ylabel "y [mm]";
+splot file_name using (1e3*\$1):(1e3*\$2):(1e3*\$3):(1e3*\$3) notitle \
       w lines lt palette z;
 if (!ps) pause mouse "click on graph to cont.\n";
 
 if (ps) set output "kick_map_2.".(ext)
 set title "Kick Map: {/Symbol q}_y [mrad]";
 set xlabel "x [mm]";
- set ylabel "y [mm]";
-splot file_name using (1e3*\$1):(1e3*\$2):(1e3*\$4):2 notitle \
+set ylabel "y [mm]";
+splot file_name using (1e3*\$1):(1e3*\$2):(1e3*\$4):(1e3*\$4) notitle \
       w lines lt palette z;
 if (!ps) pause mouse "click on graph to cont.\n";
 
