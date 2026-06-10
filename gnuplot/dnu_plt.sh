@@ -39,7 +39,7 @@ else if (ps == 4) \
   ext = "png";
 
 if ((N == 1) && (case == 1)) \
-  N_x = 51; N_y = 22; \
+  N_x = 1; N_y = 1; \
 else if ((N == 1) && (case == 2)) \
   N_x = 26; N_y = 5; \
 else if ((N == 1) && (case == 3)) \
