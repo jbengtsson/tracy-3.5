@@ -32,7 +32,7 @@ set style line 1 lt 1 lw 1 lc rgb "blue";
 set style line 2 lt 1 lw 1 lc rgb "green";
 set style line 3 lt 1 lw 1 lc rgb "red";
 
-set view 52, 348, 1, 1;
+set view 50, 348, 1, 1;
 set palette rgbformulae 22, 13, -31;
 set cntrlabel format "%3.1f";
 set key left;
