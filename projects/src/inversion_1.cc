@@ -228,13 +228,15 @@ int main(int argc, char *argv[])
   if (!false) {
     const int
       n[] = {51, 51}, 
-      i_0 = 19;
-    const double
-      A[] = {20e-3, 4e-3};
+      i_0 = 18;
+    std::vector<double> A;
 
+    // epu57v2lvg16kickmap2pure.dat
+    A = {28e-3, 5e-3};
     get_kick_map
-      ("helical_und.dat", n[X_], n[Y_], i_0, i_0, A[X_], A[Y_]);
+      ("helical_und_km.dat", n[X_], n[Y_], i_0, i_0, A[X_], A[Y_]);
 
+    A = {20e-3, 4e-3};
     get_map_2D
       ("helical_und_2D.dat", n[X_], n[Y_], i_0, i_0, A[X_], A[Y_]);
   }
