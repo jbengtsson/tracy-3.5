@@ -1414,7 +1414,8 @@ inline void get_Axy2
  const double BoBrhoV, const double BoBrhoH, const double phi,
  ss_vect<T> &x, T AxoBrho[], T AyoBrho[])
 {
-  // Vector potential for helical undulator.
+  // Vector potential for the generalized 3D/elliptical separated-variable
+  // model.
   int i;
   T   cx, sx, cz1, cz2, sz1, sz2, chy, shy, kyH, kyV, chx, shx, cy, sy;
 
@@ -1444,31 +1445,39 @@ inline void get_Axy2
   sz1 = sin(kz*z);
   sz2 = sin(kz*z+phi);
 
-  AxoBrho[0] += BoBrhoV/kz*cx*chy*sz1;
-  AxoBrho[0] -= BoBrhoH*kxH/(kyH*kz)*shx*sy*sz2;
-  AyoBrho[0] += BoBrhoV*kxV/(kyV*kz)*sx*shy*sz1;
-  AyoBrho[0] -= BoBrhoH/kz*chx*cy*sz2;
+  // Left-handed local frame: ex × ey = -ez.
+  // AxoBrho and AyoBrho contain q*A/p0 = A/(B rho)_0.
+
+  // Vector potential.
+  AxoBrho[0] += BoBrhoH*kxH/(kyH*kz)*shx*sy*sz2;
+  AxoBrho[0] -= BoBrhoV/kz*cx*chy*sz1;
+
+  AyoBrho[0] += BoBrhoH/kz*chx*cy*sz2;
+  AyoBrho[0] -= BoBrhoV*kxV/(kyV*kz)*sx*shy*sz1;
 
   /* derivatives with respect to x */
-  AxoBrho[1] -= BoBrhoV*kxV/kz*sx*chy*sz1;
-  AxoBrho[1] -= BoBrhoH*kxH/kz*chx*sy*sz2;
-  AyoBrho[1] += BoBrhoV*sqr(kxV)/(kyV*kz)*cx*shy*sz1;
-  AyoBrho[1] -= BoBrhoH*kyH/kz*shx*cy*sz2;
+  AxoBrho[1] += BoBrhoH*kxH/kz*chx*sy*sz2;
+  AxoBrho[1] += BoBrhoV*kxV/kz*sx*chy*sz1;
+
+  AyoBrho[1] += BoBrhoH*kyH/kz*shx*cy*sz2;
+  AyoBrho[1] -= BoBrhoV*sqr(kxV)/(kyV*kz)*cx*shy*sz1;
 
   /* derivatives with respect to y */
-  AxoBrho[2] += BoBrhoV*kyV/kz*cx*shy*sz1;
-  AxoBrho[2] -= BoBrhoH*sqr(kxH)/(kyH*kz)*shx*cy*sz2;
-  AyoBrho[2] += BoBrhoV*kxV/kz*sx*chy*sz1;
-  AyoBrho[2] += BoBrhoH*kxH/kz*chx*sy*sz2;
+  AxoBrho[2] += BoBrhoH*sqr(kxH)/(kyH*kz)*shx*cy*sz2;
+  AxoBrho[2] -= BoBrhoV*kyV/kz*cx*shy*sz1;
 
-  if (globval.radiation) {
+  AyoBrho[2] -= BoBrhoH*kxH/kz*chx*sy*sz2;
+  AyoBrho[2] -= BoBrhoV*kxV/kz*sx*chy*sz1;
+
+  if (globval.radiation || globval.emittance) {
     cz1 = cos(kz*z);
     cz2=cos(kz*z+phi);
     /* derivatives with respect to z */
-    AxoBrho[3] += BoBrhoV*cx*chy*cz1;
-    AxoBrho[3] -= BoBrhoH*kxH/kyH*shx*sy*cz2;
-    AyoBrho[3] += BoBrhoV*kxV/kyV*sx*shy*cz1;
-    AyoBrho[3] -= BoBrhoH*chx*cy*cz2;
+    AxoBrho[3] += BoBrhoH*kxH/kyH*shx*sy*cz2;
+    AxoBrho[3] -= BoBrhoV*cx*chy*cz1;
+
+    AyoBrho[3] += BoBrhoH*chx*cy*cz2;
+    AyoBrho[3] -= BoBrhoV*kxV/kyV*sx*shy*cz1;
   }
 }
 
@@ -1520,9 +1529,9 @@ void Wiggler_pass_EF2
     if (globval.pathlength) x[ct_] += h;
 
     if (globval.radiation || globval.emittance) {
-      B[X_] = -AyoBrho[3];
-      B[Y_] = AxoBrho[3];
-      B[Z_] = AyoBrho[1] - AxoBrho[2];
+      B[X_] =  AyoBrho[3];
+      B[Y_] = -AxoBrho[3];
+      B[Z_] =  AxoBrho[2] - AyoBrho[1];
       radiate(Cell, x, h, 0e0, B);
     }
 
