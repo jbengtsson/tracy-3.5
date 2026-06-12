@@ -265,7 +265,7 @@ void LinearInterpolation2(T &X, T &Z, T &TX, T &TZ, T &B2,
   if (traceID) printf("xstep = % f zstep = % f\n", xstep, zstep);
   
   /* test wether X and Z within the transverse map area */
-  if (X <= WITH->tabx[0] || X >= WITH->tabx[nx-1]) {
+  if (X < WITH->tabx[0] || X > WITH->tabx[nx-1]) {
     printf("LinearInterpolation2: X out of borders \n");
     printf("X = % lf but tabx[0] = % lf and tabx[nx-1] = % lf\n",
 	   is_double<T>::cst(X), WITH->tabx[0], WITH->tabx[nx-1]);
@@ -273,7 +273,7 @@ void LinearInterpolation2(T &X, T &Z, T &TX, T &TZ, T &B2,
     return;
   }
   
-  if (Z >= WITH->tabz[0] || Z <= WITH->tabz[nz-1]) {
+  if (Z > WITH->tabz[0] || Z < WITH->tabz[nz-1]) {
     printf("LinearInterpolation2: Z out of borders \n");
     printf("Z = % lf but tabz[0] = % lf and tabz[nz-1] = % lf\n",
 	   is_double<T>::cst(Z),  WITH->tabz[0], WITH->tabz[nz-1]);
