@@ -2482,9 +2482,15 @@ void Insertion_Pass(CellType &Cell, ss_vect<T> &x)
   Nslice = elemp->ID->PN;
 
   if (elemp->ID->linear) {
+    // Units for 1st order kick are [Tm] - scale by (Brho).
     alpha0 = c0/globval.Energy*1E-9*elemp->ID->scaling;
     alpha02 = sgn(elemp->ID->scaling)*alpha0*alpha0;
   } else
+    // Units for Radia was changed from engineering units, [T^2 m^2], to physics
+    // units, [micro-rad] - for the NSLS-II engineering design.
+    // I.e., enabling one to include the local current-strip corrections by
+    // linear superposition.
+    // Since the engineering units for the latter are [Tm].
     alpha02 = 1e-6*elemp->ID->scaling;
 
   //  /* Global -> Local */
