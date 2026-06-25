@@ -2482,7 +2482,8 @@ void Insertion_Pass(CellType &Cell, ss_vect<T> &x)
   Nslice = elemp->ID->PN;
 
   if (elemp->ID->linear) {
-    // Units for 1st order kick are [Tm] - scale by (Brho).
+    // Units for 1st order kick are engineering units, [Tm].
+    // Hence, scale by (Brho).
     alpha0 = c0/globval.Energy*1E-9*elemp->ID->scaling;
     alpha02 = sgn(elemp->ID->scaling)*alpha0*alpha0;
   } else
