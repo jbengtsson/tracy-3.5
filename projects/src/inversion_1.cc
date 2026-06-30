@@ -757,11 +757,11 @@ int main(int argc, char *argv[])
 
     // epu57v2lvg16kickmap2pure.dat
     // A = {28e-3, 5e-3};
-    A = {9.9e-3, 9.9e-3};
+    A = {10e-3, 10e-3};
     get_kick_map
       ("helical_und_km.dat", n[X_], n[Y_], i_0, i_0, A[X_], A[Y_]);
 
-    // A = {20e-3, 4e-3};
+    A = {3e-3, 3e-3};
     get_map_2D
       ("helical_und_2D.dat", n[X_], n[Y_], i_0, i_0, A[X_], A[Y_]);
   }
