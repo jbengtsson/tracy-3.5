@@ -147,6 +147,7 @@ void get_map_2D
   dps_map[x_] = 2e0*Ax/(nx-1e0);
   dps_map[y_] = 2e0*Ay/(ny-1e0);
 
+  outf << "# Units are [rad].\n";
   outf << scientific << setprecision(5)
        << "# nx = " << nx << "     Ax = " << Ax
        << "     dx = " << dps_map[x_] << "\n";
@@ -735,7 +736,7 @@ int main(int argc, char *argv[])
 
   prtmfile("flat_file.dat");
 
-  if (false) {
+  if (!false) {
     Ring_GetTwiss(true, 0e0);
     printglob();
 
@@ -751,17 +752,18 @@ int main(int argc, char *argv[])
 
   if (!false) {
     const int
-      n[] = {51, 51}, 
-      i_0 = 19;
+      n[] = {73, 73}, 
+      // i_0 = 19;
+      i_0 = 107;
     std::vector<double> A;
 
     // epu57v2lvg16kickmap2pure.dat
     // A = {28e-3, 5e-3};
-    A = {10e-3, 10e-3};
+    A = {9e-3, 9e-3};
     get_kick_map
       ("helical_und_km.dat", n[X_], n[Y_], i_0, i_0, A[X_], A[Y_]);
 
-    A = {3e-3, 3e-3};
+    // A = {3e-3, 3e-3};
     get_map_2D
       ("helical_und_2D.dat", n[X_], n[Y_], i_0, i_0, A[X_], A[Y_]);
   }
