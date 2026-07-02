@@ -341,7 +341,8 @@ void LinearInterpolation2(T &X, T &Z, T &TX, T &TZ, T &B2,
   }
   
   if (order == 2) { // second order kick map interpolation
-    if (traceID) printf("second order kick map interpolation\n");
+    if (traceID)
+      printf("second order kick map interpolation - LinearInterpolation2\n");
     if (ix >= 0 && iz >= 0) {
       THX =
 	(1.0-U)*(1.0-T1)*WITH->thetax[iz][ix]
@@ -440,6 +441,8 @@ void SplineInterpolation2(T &X, T &Z, T &thetax, T &thetaz,
     }
 
     out = false;
+    if (traceID)
+      printf("second order kick map interpolation - SplineInterpolation2\n");
     splin2(WITH->tab2-1, WITH->tab1-1, WITH->tx, WITH->f2x, nz, nx,
 	   Z, X, thetax);
 /*    if (fabs(temp) > ZERO_RADIA)

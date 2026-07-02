@@ -2481,7 +2481,7 @@ void Insertion_Pass(CellType &Cell, ss_vect<T> &x)
   elemp  = &Cell.Elem;
   Nslice = elemp->ID->PN;
 
-  if (elemp->ID->linear) {
+  if (elemp->ID->firstorder) {
     // Units for 1st order kick are engineering units, [Tm].
     // Hence, scale by (Brho).
     alpha0 = c0/globval.Energy*1E-9*elemp->ID->scaling;
@@ -2514,17 +2514,17 @@ void Insertion_Pass(CellType &Cell, ss_vect<T> &x)
     // 	   is_double<T>::cst(x[delta_]), is_double<T>::cst(x[ct_]));
     // Second order kick
     if (elemp->ID->secondorder){
-      // if (!elemp->ID->linear)
-      //   SplineInterpolation2(x[x_], x[y_], tx2, tz2, Cell, outoftable);
-      // else {
-      LinearInterpolation2(x[x_], x[y_], tx2, tz2, B2_perp, Cell,
-			   outoftable, 2);
+      if (!elemp->ID->linear)
+        SplineInterpolation2(x[x_], x[y_], tx2, tz2, Cell, outoftable);
+      else {
+	LinearInterpolation2
+	  (x[x_], x[y_], tx2, tz2, B2_perp, Cell, outoftable, 2);
+      }
 
       // Scale locally with (Brho) (as above) instead of when the file
       // is read; since the beam energy might not be known at that time.
       if (globval.radiation || globval.emittance)
 	radiate_ID(Cell, x, LN, elemp->ID->scaling*B2_perp);
-      // }
 
       if (outoftable) {
 	x[x_] = NAN;
