@@ -137,38 +137,14 @@ void id_corr::SVD(const int m, const int n, double **M,
 		  double beta_nu[], double b2Ls_[], const bool first,
 		  const double ID_s_cut)
 {
-  int i, j;
-
   if (trace) {
     printf("\n");
     printf("SVD: first = %1d, m = %1d n = %1d\n", first, m, n);
   }
 
-  if (first) {
-    for (i = 1; i <= m; i++)
-      for (j = 1; j <= n; j++)
-	U1[i][j] = M[i][j];
+  if (first) corr::svd_decomp_cut(M, m, n, U1, w1, V1, ID_s_cut, true);
 
-    dsvdcmp(U1, m, n, w1, V1);
-
-    if (first) {
-      printf("\n");
-      printf("singular values: s_cut = %10.3e\n", ID_s_cut);
-      printf("\n");
-    }
-
-    for (i = 1; i <= n; i++) {
-      if (first) printf("%11.3e", w1[i]);
-      if (w1[i] < ID_s_cut) {
-	w1[i] = 0e0;
-	if (first) printf(" (zeroed)");
-      }
-      if (first) if (i % 8 == 0) printf("\n");
-    }
-    if (first) if (n % 8 != 0) printf("\n");
-  }
-
-  dsvbksb(U1, w1, V1, m, n, beta_nu, b2Ls_);
+  corr::svd_backsub(U1, w1, V1, m, n, beta_nu, b2Ls_);
 }
 
 

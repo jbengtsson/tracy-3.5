@@ -1,24 +1,15 @@
 #ifndef PARAM_H
 #define PARAM_H
 
-// N_Fam_max moved to correction/id_corr.h (included before this header).
-// max_bpm/max_corr cap the coupling/skew corrector's BPM & corrector-position
-// arrays (bpm_loc/h_corr/v_corr) — used ONLY on the n_lin>0 path, so they don't
-// affect the n_meth=0/1 goldens. max_bpm was 150; bumped to 800 so the coupling
-// corrector can run on the m4U lattice (400-BPM 'bpm' family). The legacy 150
-// cap is arbitrary; when coupling_corr is extracted this should become dynamic.
-const int max_corr = 800, max_bpm = 800;
+// N_Fam_max lives in correction/id_corr.h; max_bpm/max_corr and the skew/eta_y
+// output file names in correction/loco/coupling_corr.h. Both are included
+// before this header.
 
 // Computation result files
 const char beam_envelope_file[] = "beam_envelope";
 
 // Lattice error and correction files
 const char CodCorLatFileName[]  = "codcorlat.out";
-
-const char SkewMatFileName[]    = "skewmat.out";
-const char skew_FileName[]      = "skew";
-const char eta_y_FileName[]     = "eta_y";
-const char deta_y_FileName[]    = "deta_y.out";
 
 // N_Fam_max, n_b2_max, n_b3_max, max_ID_Fams and the ID-correction weights
 // (scl_nu/scl_dbeta/scl_dnu/ID_step) moved to correction/id_corr.h (included
@@ -49,8 +40,6 @@ class param_data_type {
   static int    n_stat;    // number of statistics
   static int    n_meth;    // machine errors (0=standard,1=cormisal)
   
-  int h_corr[max_corr], v_corr[max_corr], bpm_loc[max_bpm];
-
   std::vector<double> bn_an[2*HOMmax+1];
 
   static double VDweight,  // weight for vertical dispersion
@@ -75,7 +64,6 @@ class param_data_type {
    static int    n_x, n_y, n_dp, n_tr;
    static double x_max_FMA, y_max_FMA, delta_FMA;
 
-  int                      N_BPM, N_HCOR, N_VCOR, N_SKEW, N_COUPLE;
   // Orbit control.
   static std::string       loc_Fam_name;
   static int               n_cell, n_thread;
@@ -87,9 +75,6 @@ class param_data_type {
   int                      n_sext, sexts[max_elem];
   double                   betas0_[max_elem][2], nus0_[max_elem][2], nu0_[2];
   static double            ID_s_cut;
-  double                   **SkewRespMat, *VertCouple, *SkewStrengthCorr;
-  double                   *eta_y;
-  double                   *b, *w, **V, **U;
 
   // ID (insertion-device) linear-optics correction. The working state (response
   // matrix, distortion vector, SVD scratch, per-sext/-quad Twiss, per-family b2)
@@ -120,16 +105,14 @@ class param_data_type {
   void get_dbeta_dnu(double m_dbeta[], double s_dbeta[], double m_dnu[],
 		     double s_dnu[]);
   
-// Control of vertical beam size.
-  void FindSQ_SVDmat(double **SkewRespMat, double **U, double **V, double *w,
-		     int N_COUPLE, int N_SKEW);
-  void FindMatrix(double **SkewRespMat, const double deta_y_max,
-		  const double deta_y_offset);
+// Control of vertical beam size. The knobs (n_lin, the three weights, qt_s_cut,
+// kick, SQ_per_scell, qt_from_file) stay here as config; coupling_config()
+// packs them for the corrector.
+  corr::coupling_corr skew;
+
+  corr::coupling_cfg coupling_config(void) const;
   void ini_skew_cor(const double deta_y_max, const double deta_y_offset);
-  void FindCoupVector(double *VertCouple);
-  void SkewStat(double VertCouple[], const int cnt);
   void corr_eps_y(const int cnt);
-  void ReadEta(const char *TolFileName);
 
   // Control of IDs — thin façades delegating to the corr::id_corr member
   // above (still called by dynap/leac/touschek and err_and_corr_init). The
