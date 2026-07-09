@@ -1,7 +1,8 @@
 #ifndef PARAM_H
 #define PARAM_H
 
-const int N_Fam_max = 25, max_corr = 150, max_bpm = 150;
+// N_Fam_max moved to correction/id_corr.h (included before this header).
+const int max_corr = 150, max_bpm = 150;
 
 // Computation result files
 const char beam_envelope_file[] = "beam_envelope";
@@ -14,12 +15,9 @@ const char skew_FileName[]      = "skew";
 const char eta_y_FileName[]     = "eta_y";
 const char deta_y_FileName[]    = "deta_y.out";
 
-const int n_b2_max    = 1500; // max no of quad corrector families
-const int n_b3_max    = 1500; // max no of sextupoles
-const int max_ID_Fams = 25;   // max no of ID families
-
-// Weights for ID correction
-const double scl_nu = 1e2, scl_dbeta = 1.0, scl_dnu = 0.1, ID_step = 0.5;
+// N_Fam_max, n_b2_max, n_b3_max, max_ID_Fams and the ID-correction weights
+// (scl_nu/scl_dbeta/scl_dnu/ID_step) moved to correction/id_corr.h (included
+// before this header), where the corr::id_corr working state now lives.
 
 class param_data_type {
  private:
@@ -83,47 +81,24 @@ class param_data_type {
   int                      N_calls, N_steps, N_Fam, Q_Fam[N_Fam_max];
   int                      n_sext, sexts[max_elem];
   double                   betas0_[max_elem][2], nus0_[max_elem][2], nu0_[2];
-  double                   b2[N_Fam_max];
   static double            ID_s_cut;
   double                   **SkewRespMat, *VertCouple, *SkewStrengthCorr;
   double                   *eta_y;
   double                   *b, *w, **V, **U;
 
-  // ID_corr global variables
-  long int S_locs[n_b3_max];
-  int      Nsext, Nquad, Nconstr, NconstrO, quad_prms[n_b2_max], id_loc;
-  int      n_ID_Fams, ID_Fams[max_ID_Fams];
-  double   Ss[n_b3_max], Sq[n_b2_max], sb[2][n_b3_max], sNu[2][n_b3_max];
-  double   qb[2][n_b2_max], qb0[2][n_b2_max], sNu0[2][n_b3_max];
-  double   qNu0[2][n_b2_max], qNu[2][n_b2_max], IDb[2], IDNu[2];
-  double   Nu_X, Nu_Y, Nu_X0, Nu_Y0;
-  double   **A1, *Xsext, *Xsext0, *b2Ls_, *w1, **U1, **V1;
-  double   *Xoct, *b4s, **Aoct;
-  Vector2  dnu0, nu_0;
+  // ID (insertion-device) linear-optics correction. The working state (response
+  // matrix, distortion vector, SVD scratch, per-sext/-quad Twiss, per-family b2)
+  // moved to correction/id_corr. N_calls/N_steps/N_Fam/Q_Fam above and the
+  // static ID_s_cut stay here as config (extracted later) and are passed in.
+  corr::id_corr id;
 
 //-------------------------------------------------------------------
-// types and variables used by GirderSetup and SetCorMis
+// Cormisal (girder) error model (n_meth == 1). The girder-tree state and the
+// GirderSetup/SetCorMis algorithms were extracted to correction/girder_model
+// (types, Girder[]/Lattice[]/NGirderLevel, and the igrmax/ilatmax/iseednrmax
+// limits now live there). The methods below remain as façade delegators.
 
-#define reportflag      true
-#define plotflag        true
-#define igrmax          2000
-#define ilatmax        10000
-#define iseednrmax        20
- 
-  typedef struct girdertype {
-    double gsp[2], gdx[2], gdy[2], gdt;
-    long ilat[2], igir[2], gco[2], level;
-   } girdertype;
-  girdertype Girder[igrmax];
-
-  long NGirderLevel [3];
-
-  typedef struct latticetype {
-    long igir;
-    double smid;
-  } latticetype;
-
-  latticetype Lattice[ilatmax];
+  corr::girder_model girders;
 
   void GirderSetup();
   void SetCorMis(double gxrms, double gyrms, double gtrms, double jxrms,
@@ -151,20 +126,13 @@ class param_data_type {
   void corr_eps_y(const int cnt);
   void ReadEta(const char *TolFileName);
 
-  // Control of IDs.
-  void get_IDs(void);
-  void set_IDs(const double scl);
+  // Control of IDs — thin façades delegating to the corr::id_corr member
+  // above (still called by dynap/leac/touschek and err_and_corr_init). The
+  // remaining ID methods (get_IDs/set_IDs/SVD/quad_config/get_SQ/Bet/Nus/
+  // A_matrix/X_vector/W_diag) had no external callers and now live only on the
+  // corr::id_corr struct.
   void reset_quads(void);
-  void SVD(const int m, const int n, double **M, double beta_nu[],
-	   double b2Ls_[], const bool first);
-  void quad_config();
-  bool get_SQ(void);
-  double Bet(double bq, double nus, double nuq, double NuQ);
-  double Nus(double bq, double nus, double nuq, double NuQ);
-  void A_matrix(void);
-  void X_vector(const bool first);
   void ini_ID_corr(const bool IDs);
-  void W_diag(void);
   bool ID_corr(const int N_calls, const int N_steps, const bool IDs,
 	       const int cnt);
   void ReadCorMis(const bool Scale_it, const double Scale) const;

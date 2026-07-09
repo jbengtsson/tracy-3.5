@@ -52,7 +52,12 @@
 
 #include "nsls-ii_lib.cc"
 #include "orb_corr.cc"
+#include "correction/corr_utils.cc"
+#include "correction/error_model.cc"
+#include "correction/id_corr.cc"
 #include "param.cc"
+#include "correction/orbit_corr.cc"
+#include "correction/girder_model.cc"
 #include "dynap.cc"
 
 
