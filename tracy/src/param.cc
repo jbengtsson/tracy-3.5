@@ -467,7 +467,11 @@ void param_data_type::FindMatrix(double **SkewRespMat, const double deta_y_max,
 	cos(twopi*fabs(nuSQ[i][Xi]-nuHC[k][Xi])-pi*nuX)/sin(pi*nuX);
       // find vertical orbit due to the kick
       for (j = 1; j <= N_BPM; j++)
-	SkewRespMat[N_BPM+(k-1)*N_HCOR+j][i] =
+	// Block stride is N_BPM (one orbit reading per BPM), not N_HCOR:
+	// each h-trim contributes a full N_BPM-long orbit vector. The old
+	// N_HCOR stride left most of SkewRespMat uninitialized (fed to the
+	// SVD) and disagreed with SkewStat's readers. (2026-07-08)
+	SkewRespMat[N_BPM+(k-1)*N_BPM+j][i] =
           HVweight*0.5*alpha*sqrt(betaSQ[i][Yi]*betaBPM[j][Yi])*
 	  cos(twopi*fabs(nuSQ[i][Yi]-nuBPM[j][Yi])-pi*nuY)/sin(pi*nuY);
     } //for (k=1; k<=N_HCOR; k++)
@@ -479,7 +483,8 @@ void param_data_type::FindMatrix(double **SkewRespMat, const double deta_y_max,
 	cos(twopi*fabs(nuSQ[i][Yi]-nuVC[k][Yi])-pi*nuY)/sin(pi*nuY);
       // find horizontal orbit due to the kick
       for (j = 1; j <= N_BPM; j++)
-	SkewRespMat[N_BPM+N_BPM*N_HCOR+(k-1)*N_VCOR+j][i] =
+	// Block stride is N_BPM, not N_VCOR (see the h-trim block above).
+	SkewRespMat[N_BPM+N_BPM*N_HCOR+(k-1)*N_BPM+j][i] =
           VHweight*0.5*alpha*sqrt(betaSQ[i][Xi]*betaBPM[j][Xi])*
 	  cos(twopi*fabs(nuSQ[i][Xi]-nuBPM[j][Xi])-pi*nuX)/sin(pi*nuX);
     } //for (k=1; k<=N_VCOR; k++)
@@ -629,7 +634,8 @@ void param_data_type::FindCoupVector(double *VertCouple)
     SetdKLpar(Cell[h_corr[j-1]].Fnum, Cell[h_corr[j-1]].Knum, +Dip, kick);
 
     for (i = 1; i <= N_BPM; i++)
-      VertCouple[N_BPM+(j-1)*N_HCOR+i] =
+      // Stride N_BPM to match FindMatrix's SkewRespMat layout (was N_HCOR).
+      VertCouple[N_BPM+(j-1)*N_BPM+i] =
 	HVweight*(orbitN[i]-orbitP[i])*0.5/kick; // sign reversal
   } // hcorr cycle
 
@@ -652,7 +658,8 @@ void param_data_type::FindCoupVector(double *VertCouple)
     SetdKLpar(Cell[v_corr[j-1]].Fnum, Cell[v_corr[j-1]].Knum, -Dip, kick);
 
     for (i = 1; i <= N_BPM; i++)
-      VertCouple[N_BPM+N_BPM*N_HCOR+(j-1)*N_VCOR+i] =
+      // Stride N_BPM to match FindMatrix's SkewRespMat layout (was N_VCOR).
+      VertCouple[N_BPM+N_BPM*N_HCOR+(j-1)*N_BPM+i] =
 	VHweight*(orbitP[i]-orbitN[i])*0.5/kick;
   } // vcorr cycle
 

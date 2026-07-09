@@ -2,7 +2,12 @@
 #define PARAM_H
 
 // N_Fam_max moved to correction/id_corr.h (included before this header).
-const int max_corr = 150, max_bpm = 150;
+// max_bpm/max_corr cap the coupling/skew corrector's BPM & corrector-position
+// arrays (bpm_loc/h_corr/v_corr) — used ONLY on the n_lin>0 path, so they don't
+// affect the n_meth=0/1 goldens. max_bpm was 150; bumped to 800 so the coupling
+// corrector can run on the m4U lattice (400-BPM 'bpm' family). The legacy 150
+// cap is arbitrary; when coupling_corr is extracted this should become dynamic.
+const int max_corr = 800, max_bpm = 800;
 
 // Computation result files
 const char beam_envelope_file[] = "beam_envelope";
