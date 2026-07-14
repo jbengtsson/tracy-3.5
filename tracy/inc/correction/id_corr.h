@@ -16,9 +16,9 @@
 // explicit arguments — the file/config is an input, not hidden member state.
 
 // Sizing limits and ID-correction weights (were in param.h; kept at global
-// scope because sxt.cc/dnu_dJ.cc reference n_b3_max unqualified, and id_corr.h
-// is included before param.h so param.h still sees N_Fam_max for Q_Fam).
-const int N_Fam_max = 25;     // max no of quad corrector families
+// scope because sxt.cc/dnu_dJ.cc reference n_b3_max unqualified).
+// N_Fam_max sizes a param.dat knob (config_data::Q_Fam) as well as b2 below, so
+// it lives in correction/corr_config.h, which is included before this header.
 const int n_b2_max  = 1500;   // max no of quad correctors
 const int n_b3_max  = 1500;   // max no of sextupoles
 const int max_ID_Fams = 25;   // max no of ID families
