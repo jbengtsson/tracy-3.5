@@ -300,22 +300,8 @@ void param_data_type::get_param(const string &param_file)
 
 void param_data_type::get_bare(void)
 {
-  // Store optics function values at the sextupoles.
-  long int j, k;
-
-  n_sext = 0;
-  for (j = 0; j <= globval.Cell_nLoc; j++) {
-    if ((Cell[j].Elem.Pkind == Mpole) && (Cell[j].Elem.M->n_design >= Sext)) {
-      n_sext++; sexts[n_sext-1] = j;
-      for (k = 0; k < 2; k++) {
-	betas0_[n_sext-1][k] = Cell[j].Beta[k];
-	nus0_[n_sext-1][k] = Cell[j].Nu[k];
-      }
-    }
-  }
-
-  nu0_[X_] = globval.TotalTune[X_];
-  nu0_[Y_] = globval.TotalTune[Y_];
+  // Extracted to correction/config; kept as a delegator during the refactor.
+  bare.capture();
 }
 
 
@@ -323,8 +309,24 @@ void param_data_type::get_dbeta_dnu(double m_dbeta[], double s_dbeta[],
 				    double m_dnu[], double s_dnu[])
 {
   // Extracted to correction/corr_utils; kept as a delegator during the refactor.
-  corr::get_dbeta_dnu(m_dbeta, s_dbeta, m_dnu, s_dnu, n_sext, sexts, betas0_,
-		      nus0_);
+  corr::get_dbeta_dnu(m_dbeta, s_dbeta, m_dnu, s_dnu, bare);
+}
+
+
+// Delegates to correction/orbit_corr.
+
+corr::orbit_cfg param_data_type::orbit_config(void) const
+{
+  corr::orbit_cfg cfg;
+
+  cfg.loc_Fam_name     = loc_Fam_name;
+  cfg.bpm_Fam_names    = bpm_Fam_names;
+  cfg.corr_Fam_names[X_] = corr_Fam_names[X_];
+  cfg.corr_Fam_names[Y_] = corr_Fam_names[Y_];
+  cfg.n_thread         = n_thread;
+  cfg.n_orbit          = n_orbit;
+
+  return cfg;
 }
 
 
@@ -576,7 +578,8 @@ bool param_data_type::cod_corr
  orb_corr_type orb_corr[])
 {
   // Extracted to correction/orbit_corr; kept as a delegator during the refactor.
-  return corr::cod_corr(*this, n_cell, scl, h_maxkick, v_maxkick, orb_corr);
+  return corr::cod_corr(orbit_config(), bare, n_cell, scl, h_maxkick, v_maxkick,
+			orb_corr);
 }
 
 

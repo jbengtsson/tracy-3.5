@@ -31,12 +31,13 @@ void restore_mult(std::vector<double> bn_an[])
 
 
 void get_dbeta_dnu(double m_dbeta[], double s_dbeta[], double m_dnu[],
-		   double s_dnu[], const int n_sext, const int sexts[],
-		   const double betas0_[][2], const double nus0_[][2])
+		   double s_dnu[], const bare_optics &bare)
 {
   int       k;
   long int  j, ind;
   double    dbeta, dnu;
+
+  const int n_sext = bare.n_sext;
 
   Ring_GetTwiss(false, 0.0);
 
@@ -45,11 +46,11 @@ void get_dbeta_dnu(double m_dbeta[], double s_dbeta[], double m_dnu[],
   }
 
   for (j = 0; j < n_sext; j++) {
-    ind = sexts[j];
+    ind = bare.sexts[j];
     for (k = 0; k <= 1; k++) {
-      dbeta = (Cell[ind].Beta[k]-betas0_[j][k])/betas0_[j][k];
+      dbeta = (Cell[ind].Beta[k]-bare.betas0_[j][k])/bare.betas0_[j][k];
       m_dbeta[k] += dbeta; s_dbeta[k] += sqr(dbeta);
-      dnu = Cell[ind].Nu[k] - nus0_[j][k];
+      dnu = Cell[ind].Nu[k] - bare.nus0_[j][k];
       m_dnu[k] += dnu; s_dnu[k] += sqr(dnu);
     }
   }

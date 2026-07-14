@@ -17,11 +17,10 @@ namespace corr {
 void zero_mult(std::vector<double> bn_an[]);
 void restore_mult(std::vector<double> bn_an[]);
 
-// RMS beta-beat and tune shift at the sextupoles relative to the bare lattice
-// reference (n_sext / sexts / betas0_ / nus0_, captured by get_bare()).
+// RMS beta-beat and tune shift at the sextupoles, relative to the bare-lattice
+// reference captured by bare_optics::capture().
 void get_dbeta_dnu(double m_dbeta[], double s_dbeta[], double m_dnu[],
-		   double s_dnu[], const int n_sext, const int sexts[],
-		   const double betas0_[][2], const double nus0_[][2]);
+		   double s_dnu[], const bare_optics &bare);
 
 }  // namespace corr
 

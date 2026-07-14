@@ -52,6 +52,7 @@
 
 #include "nsls-ii_lib.cc"
 #include "orb_corr.cc"
+#include "correction/corr_config.cc"
 #include "correction/corr_linalg.cc"
 #include "correction/corr_utils.cc"
 #include "correction/error_model.cc"

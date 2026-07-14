@@ -79,6 +79,7 @@ using namespace std;
 #include "physlib.h"
 #include "nsls-ii_lib.h"
 #include "orb_corr.h"
+#include "correction/corr_config.h"
 #include "correction/corr_linalg.h"
 #include "correction/corr_utils.h"
 #include "correction/girder_model.h"
@@ -86,8 +87,8 @@ using namespace std;
 #include "correction/id_corr.h"
 #include "correction/loco/orm.h"
 #include "correction/loco/coupling_corr.h"
-#include "param.h"
 #include "correction/orbit_corr.h"
+#include "param.h"
 #include "dynap.h"
 
 #include "lsoc.h"

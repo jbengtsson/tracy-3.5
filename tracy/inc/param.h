@@ -72,9 +72,13 @@ class param_data_type {
 
   // ID control.
   int                      N_calls, N_steps, N_Fam, Q_Fam[N_Fam_max];
-  int                      n_sext, sexts[max_elem];
-  double                   betas0_[max_elem][2], nus0_[max_elem][2], nu0_[2];
   static double            ID_s_cut;
+
+  // Bare-lattice reference optics at the sextupoles (n_sext/sexts/betas0_/nus0_
+  // moved into correction/config as corr::bare_optics, which get_bare() now
+  // fills). Dropped with the move: nu0_, which get_bare() wrote and nothing ever
+  // read.
+  corr::bare_optics bare;
 
   // ID (insertion-device) linear-optics correction. The working state (response
   // matrix, distortion vector, SVD scratch, per-sext/-quad Twiss, per-family b2)
@@ -104,6 +108,11 @@ class param_data_type {
   void get_bare(void);
   void get_dbeta_dnu(double m_dbeta[], double s_dbeta[], double m_dnu[],
 		     double s_dnu[]);
+
+// Orbit-correction knobs (loc_Fam_name, n_thread, n_orbit + the BPM/corrector
+// family names) stay here as config; orbit_config() packs them for the
+// corrector, as coupling_config() does for the skew corrector.
+  corr::orbit_cfg orbit_config(void) const;
   
 // Control of vertical beam size. The knobs (n_lin, the three weights, qt_s_cut,
 // kick, SQ_per_scell, qt_from_file) stay here as config; coupling_config()

@@ -58,8 +58,8 @@ void ini_COD_corr(const int n_bpm_Fam, const std::string bpm_names[],
 }
 
 
-bool cod_corr(param_data_type &p, const int n_cell, const double scl,
-              const double h_maxkick, const double v_maxkick,
+bool cod_corr(const orbit_cfg &cfg, const bare_optics &bare, const int n_cell,
+              const double scl, const double h_maxkick, const double v_maxkick,
               orb_corr_type orb_corr[])
 {
   bool                cod = false;
@@ -79,20 +79,19 @@ bool cod_corr(param_data_type &p, const int n_cell, const double scl,
   if (!cod) {
     printf("  could not find closed orbit; threading beam\n");
       printf("  param_data_type::cod_corr: n_cell = %d loc_Fam_name = \"%s\"\n",
-	     n_cell, p.loc_Fam_name.c_str());
+	     n_cell, cfg.loc_Fam_name.c_str());
 
     orb_corr[X_].clr_trims(); orb_corr[Y_].clr_trims();
-    thread_beam(n_cell, p.loc_Fam_name, p.bpm_Fam_names, p.corr_Fam_names,
-		p.n_thread, scl);
+    thread_beam(n_cell, cfg.loc_Fam_name, cfg.bpm_Fam_names, cfg.corr_Fam_names,
+		cfg.n_thread, scl);
     //prt_cod("codt.out", globval.bpm, true);
   }
 
-  cod = cod_correct(p.n_orbit, scl, orb_corr);
+  cod = cod_correct(cfg.n_orbit, scl, orb_corr);
 
   restore_mult(bn_an);
 
-  get_dbeta_dnu(m_dbeta, s_dbeta, m_dnu, s_dnu, p.n_sext, p.sexts, p.betas0_,
-		p.nus0_);
+  get_dbeta_dnu(m_dbeta, s_dbeta, m_dnu, s_dnu, bare);
   printf("\ncod_corr: rms dbeta_x/beta_x = %4.2f%%"
 	 ",   dbeta_y/beta_y = %4.2f%%\n",
 	 1e2*s_dbeta[X_], 1e2*s_dbeta[Y_]);
