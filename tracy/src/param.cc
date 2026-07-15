@@ -519,6 +519,15 @@ void param_data_type::get_param(const std::string &param_file)
 	sscanf(line, "%*s %le", &ChromX);
       else if (strcmp("siy", name) == 0)
 	sscanf(line, "%*s %le", &ChromY);
+      else if (strcmp("tune_fams", name) == 0) {
+	strtok_r(line, " \r", &p);
+	s = strtok_r(NULL, " \r", &p); if (s) tune_fam[0] = s;
+	s = strtok_r(NULL, " \r", &p); if (s) tune_fam[1] = s;
+      } else if (strcmp("chrom_fams", name) == 0) {
+	strtok_r(line, " \r", &p);
+	s = strtok_r(NULL, " \r", &p); if (s) chrom_fam[0] = s;
+	s = strtok_r(NULL, " \r", &p); if (s) chrom_fam[1] = s;
+      }
       else if (strcmp("qt_s_cut", name) == 0)
 	sscanf(line, "%*s %le", &qt_s_cut);
       else if (strcmp("disp_wave_y", name) == 0)
@@ -580,16 +589,16 @@ void param_data_type::err_and_corr_init(const string &param_file,
   Ring_GetTwiss(true, 0.0);
   printglob();
 
-  // Fit tunes to TuneX and TuneY. Family names hardcoded here as before (the old
-  // qax/qay were SLS-2 names that never matched m4U; q1_n1/q2_n1 are its tune
-  // quads). Promoting them to param.dat knobs is the later config step.
+  // Fit tunes to TuneX and TuneY with the tune-quad families (tune_fams keyword,
+  // defaulting to the historical SLS-2 qax/qay).
   if (TuneX*TuneY > 0)
-    corr::fit_tune("q1_n1", "q2_n1", TuneX, TuneY);
+    corr::fit_tune(tune_fam[0], tune_fam[1], TuneX, TuneY);
 
-  // Fit chromaticities to ChromX and ChromY. s2_n1/s4_n1 are m4U chroma
-  // sextupoles (s3_n1 overflows fitvect[200] — see the parked fit bugs).
+  // Fit chromaticities to ChromX and ChromY with the chroma-sextupole families
+  // (chrom_fams keyword, defaulting to the historical SLS-2 sf/sd; on m4U set it
+  // to s2_n1/s4_n1 — note s3_n1 overflows fitvect[200], see the parked fit bugs).
   if (ChromX*ChromY < 1e6)
-    corr::fit_chrom("s2_n1", "s4_n1", ChromX, ChromY);
+    corr::fit_chrom(chrom_fam[0], chrom_fam[1], ChromX, ChromY);
 
   get_bare();
 

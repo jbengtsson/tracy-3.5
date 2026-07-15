@@ -68,6 +68,13 @@ public:
   double TuneX = 0e0, TuneY = 0e0;
   double ChromX = 1e6, ChromY = 1e6;
 
+  // Fit-knob families (matched by element-name prefix). Default to the historical
+  // SLS-2 tune quads / chroma sextupoles so pre-keyword param files are a drop-in
+  // (they behave exactly as before); newer lattices (e.g. m4U: q1_n1/q2_n1,
+  // s2_n1/s4_n1) name their families via the tune_fams / chrom_fams keywords.
+  std::string tune_fam[2]  = {"qax", "qay"};
+  std::string chrom_fam[2] = {"sf", "sd"};
+
   // Dynamic aperture.
   int n_track_DA = 512, n_aper_DA = 15, n_delta_DA = 12;
   double delta_DA = 3e-2;
