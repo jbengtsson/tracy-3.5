@@ -7,7 +7,6 @@
 // only coupling to the god-class was the config file paths (ae/fe/ap_file),
 // now explicit arguments; the rest is globals (Cell/globval, lsoc bpms_) and
 // free functions. State-free, so any app/corrector can load errors directly.
-// See error_models.md and correction_refactor.md.
 //
 // The girder "cormisal" model (GirderSetup/SetCorMis/CorMis_in) and Align_BPMs
 // still live on param_data_type; they own the Girder/Lattice arrays and are a

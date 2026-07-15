@@ -7,7 +7,6 @@
 // already-modular orb_corr_type (orb_corr.h) and the lsoc response-matrix
 // primitives (gcmat/gtcmat): build the corrector->BPM response matrices, then
 // per seed find/thread the closed orbit and SVD-correct it.
-// See correction_refactor.md.
 
 namespace corr {
 

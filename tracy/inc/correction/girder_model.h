@@ -6,7 +6,7 @@
 // n_meth == 0). GirderSetup builds a 3-level girder tree from the lattice;
 // SetCorMis draws correlated random misalignments per girder and translates
 // them to the elements on each girder; CorMis_in reads the rms amplitudes from
-// "cormis.dat". See error_models.md and correction_refactor.md.
+// "cormis.dat".
 //
 // WARNING (pre-existing bug, not introduced by the refactor): SetCorMis's
 // girder-support interpolation divides by a girder's span (gsp[1]-gsp[0]); a

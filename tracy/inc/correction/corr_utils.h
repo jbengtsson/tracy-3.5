@@ -7,7 +7,7 @@
 // reused by a future LOCO module: LOCO fits *linear* optics, so it needs the
 // sextupoles off (zero_mult/restore_mult) and reports residual beta-beat / tune
 // shift (get_dbeta_dnu). Kept state-free (buffers/references passed in) so any
-// caller can use them. See correction_refactor.md.
+// caller can use them.
 
 namespace corr {
 

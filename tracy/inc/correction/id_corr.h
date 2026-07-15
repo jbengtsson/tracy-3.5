@@ -6,7 +6,7 @@
 // Extracted from param_data_type. As an ID is ramped on, its focusing perturbs
 // the linear optics; this corrector zeroes the beta-beat and tune shift at the
 // sextupoles by fitting thin quadrupole trims (b_2) via SVD of an analytic
-// response matrix (Bet/Nus). See id_correction.md and correction_refactor.md.
+// response matrix (Bet/Nus).
 //
 // The struct owns the ID-correction working state (the response matrix A1, the
 // distortion vector Xsext, the SVD scratch U1/w1/V1, and the per-sext/-quad
@@ -17,8 +17,8 @@
 
 // Sizing limits and ID-correction weights (were in param.h; kept at global
 // scope because sxt.cc/dnu_dJ.cc reference n_b3_max unqualified).
-// N_Fam_max sizes a param.dat knob (config_data::Q_Fam) as well as b2 below, so
-// it lives in correction/corr_config.h, which is included before this header.
+// N_Fam_max sizes a param.dat knob (param_data_type::Q_Fam) as well as b2 below,
+// so it lives in correction/corr_config.h, which is included before this header.
 const int n_b2_max  = 1500;   // max no of quad correctors
 const int n_b3_max  = 1500;   // max no of sextupoles
 const int max_ID_Fams = 25;   // max no of ID families
