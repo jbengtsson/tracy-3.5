@@ -82,6 +82,7 @@ using namespace std;
 #include "correction/corr_config.h"
 #include "correction/corr_linalg.h"
 #include "correction/corr_utils.h"
+#include "correction/fit_lat.h"
 #include "correction/girder_model.h"
 #include "correction/error_model.h"
 #include "correction/id_corr.h"

@@ -571,20 +571,6 @@ void param_data_type::get_param(const std::string &param_file)
 void param_data_type::err_and_corr_init(const string &param_file,
 					orb_corr_type orb_corr[])
 {
-  double TotalTuneX,TotalTuneY;
-  double dk;
-  iVector2 nq;
-  Vector2 nu;
-  fitvect qfbuf, qdbuf;
-
-  double ChromaX,ChromaY;
-  double dks;
-  iVector2 ns;
-  Vector2 si;
-  fitvect  sfbuf, sdbuf;
-
-  long i;
-  
   globval.Cavity_on   = false;
   globval.radiation   = false;
   globval.Aperture_on = false;
@@ -594,67 +580,16 @@ void param_data_type::err_and_corr_init(const string &param_file,
   Ring_GetTwiss(true, 0.0);
   printglob();
 
-  // Fit tunes to TuneX and TuneY
-  if (TuneX*TuneY > 0) {
-    printf("\nparam_data_type::err_and_corr_init: fitting nu.\n");
-    dk=1e-3;
-    nq[0]=nq[1]=0;
-    nu[0]=TuneX;
-    nu[1]=TuneY;
-    for (i = 0; i <= globval.Cell_nLoc; i++) {
-      if ( Cell[i].Elem.Pkind == Mpole ) {
-	if (strncmp(Cell[i].Elem.PName,"qax",3) == 0){
-	  qfbuf[nq[0]]=i;
-	  nq[0]++;
-	}
-	if (strncmp(Cell[i].Elem.PName,"qay",3) == 0){
-	  qdbuf[nq[1]]=i;
-	  nq[1]++;
-	}
-      }
-    }
+  // Fit tunes to TuneX and TuneY. Family names hardcoded here as before (the old
+  // qax/qay were SLS-2 names that never matched m4U; q1_n1/q2_n1 are its tune
+  // quads). Promoting them to param.dat knobs is the later config step.
+  if (TuneX*TuneY > 0)
+    corr::fit_tune("q1_n1", "q2_n1", TuneX, TuneY);
 
-    printf("Fittune: nq[0]=%ld nq[1]=%ld\n",nq[0],nq[1]);
-    TotalTuneX=globval.TotalTune[0];
-    TotalTuneY=globval.TotalTune[1];
-    Ring_Fittune(nu, (double)1e-4, nq, qfbuf, qdbuf, dk, 50L);
-    printf("Fittune: nux= %f dnux= %f nuy= %f dnuy= %f\n",
-	   globval.TotalTune[0], globval.TotalTune[0]-TotalTuneX,
-	   globval.TotalTune[1], globval.TotalTune[1]-TotalTuneY);
-
-    Ring_GetTwiss(true, 0.0); printglob();
-  }
-
-  // Fit chromaticities to ChromX and ChromY
-  if (ChromX*ChromY < 1e6) {
-    printf("\nparam_data_type::err_and_corr_init: fitting chi^(1)\n");
-    dks=1e-3;
-    ns[0]=ns[1]=0;
-    si[0]=ChromX;
-    si[1]=ChromY;
-    for (i = 0; i <= globval.Cell_nLoc; i++) {
-      if ( Cell[i].Elem.Pkind == Mpole ) {
-	if (strncmp(Cell[i].Elem.PName,"sf",2) == 0){
-	  sfbuf[ns[0]]=i;
-	  ns[0]++;
-	}
-	if (strncmp(Cell[i].Elem.PName,"sd",2) == 0){
-	  sdbuf[ns[1]]=i;
-	  ns[1]++;
-	}
-      }
-    }
-
-    printf("Fitchrom: ns[0]=%ld ns[1]=%ld\n",ns[0],ns[1]);
-    ChromaX=globval.Chrom[0];
-    ChromaY=globval.Chrom[1];
-    Ring_Fitchrom(si, 1e-4, ns, sfbuf, sdbuf, dks, 50L);
-    printf("Fitchrom: six= %f dsix= %f siy= %f dsiy= %f\n",
-	   globval.Chrom[0], globval.Chrom[0]-ChromaX, globval.Chrom[1],
-	   globval.Chrom[1]-ChromaY);
-
-    Ring_GetTwiss(true, 0.0); printglob();
-  }
+  // Fit chromaticities to ChromX and ChromY. s2_n1/s4_n1 are m4U chroma
+  // sextupoles (s3_n1 overflows fitvect[200] — see the parked fit bugs).
+  if (ChromX*ChromY < 1e6)
+    corr::fit_chrom("s2_n1", "s4_n1", ChromX, ChromY);
 
   get_bare();
 
