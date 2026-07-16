@@ -4,7 +4,10 @@ namespace corr {
 
 void zero_mult(std::vector<double> bn_an[])
 {
-  bn_an[Sext].clear();
+  // Must clear the same slot the loop fills. Any other index leaves this one
+  // growing across calls, and restore_mult then replays the first call's b_3
+  // onto every later seed.
+  bn_an[HOMmax+Sext].clear();
   for (auto k = 0; k <= globval.Cell_nLoc; k++) {
     if (Cell[k].Elem.Pkind == Mpole) {
       bn_an[HOMmax+Sext].push_back(Cell[k].Elem.M->PB[HOMmax+Sext]);
