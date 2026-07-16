@@ -37,22 +37,25 @@ void err_and_corr(const string &param_file)
 
   params.err_and_corr_init(param_file);
 
-  if (params.fe_file != "") params.LoadFieldErr(false, 1e0, true);
+  if (params.fe_file != "")
+    corr::LoadFieldErr(params.fe_file, false, 1e0, true);
   if (params.ae_file != "") {
     // Load misalignments; set seed, no scaling of rms errors.
-    params.LoadAlignTol(false, 1e0, true, 1);
+    corr::LoadAlignTol(params.ae_file, false, 1e0, true, 1);
     // Beam based alignment.
     if (params.bba) params.Align_BPMs(Quad, -1e0, -1e0, -1e0);
 
-    cod = params.cod_corr(params.n_cell, 1e0, params.h_maxkick,
-			  params.v_maxkick);
+    cod = params.orbits.cod_corr(params.orbit_config(), params.bare,
+				 params.n_cell, 1e0, params.h_maxkick,
+				 params.v_maxkick);
   } else
     cod = getcod(0e0, lastpos);
 
-  params.Orb_and_Trim_Stat();
+  params.orbits.Orb_and_Trim_Stat();
 
   if (params.N_calls > 0) {
-    params.ID_corr(params.N_calls, params.N_steps, false, 1);
+    params.id.ID_corr(params.N_calls, params.N_steps, false, 1, params.N_Fam,
+		      params.Q_Fam, params.ID_s_cut);
     // cod = params.cod_corr(params.n_cell, 1e0);
   }
 
