@@ -58,9 +58,32 @@ void ini_COD_corr(const int n_bpm_Fam, const std::string bpm_names[],
 }
 
 
-bool cod_corr(const orbit_cfg &cfg, const bare_optics &bare, const int n_cell,
-              const double scl, const double h_maxkick, const double v_maxkick,
-              orb_corr_type orb_corr[])
+void orbit_corr::alloc(const std::vector<string> &bpm_Fam_names,
+                       const std::vector<string> corr_Fam_names[])
+{
+  ::cod_ini(bpm_Fam_names, corr_Fam_names, orb_corr);
+}
+
+
+void orbit_corr::dealloc(void)
+{
+  int j;
+
+  for (j = 0; j < 2; j++)
+    orb_corr[j].dealloc();
+}
+
+
+void orbit_corr::prt_svdmat(void)
+{
+  orb_corr[X_].prt_svdmat();
+  orb_corr[Y_].prt_svdmat();
+}
+
+
+bool orbit_corr::cod_corr(const orbit_cfg &cfg, const bare_optics &bare,
+                          const int n_cell, const double scl,
+                          const double h_maxkick, const double v_maxkick)
 {
   bool                cod = false;
   long int            lastpos;
@@ -87,7 +110,7 @@ bool cod_corr(const orbit_cfg &cfg, const bare_optics &bare, const int n_cell,
     //prt_cod("codt.out", globval.bpm, true);
   }
 
-  cod = cod_correct(cfg.n_orbit, scl, orb_corr);
+  cod = ::cod_correct(cfg.n_orbit, scl, orb_corr);
 
   restore_mult(bn_an);
 
@@ -104,7 +127,7 @@ bool cod_corr(const orbit_cfg &cfg, const bare_optics &bare, const int n_cell,
 }
 
 
-void Orb_and_Trim_Stat(orb_corr_type orb_corr[])
+void orbit_corr::Orb_and_Trim_Stat(void)
 {
   int     i, j;
   int     SextCounter = 0;

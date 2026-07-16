@@ -8,7 +8,6 @@ int no_tps = NO;
 void err_and_corr(const string &param_file)
 {
   param_data_type params;
-  orb_corr_type   orb_corr[2];
   DA_data_type    DA;
 
   params.get_param(param_file);
@@ -18,7 +17,7 @@ void err_and_corr(const string &param_file)
   Ring_GetTwiss(true, 0e0);
   printglob();
 
-  params.err_and_corr_init(param_file, orb_corr);
+  params.err_and_corr_init(param_file);
 
   globval.CODeps = 1e-10;
 
@@ -26,9 +25,9 @@ void err_and_corr(const string &param_file)
 
   if (params.DA_bare) DA.get_DA_bare(params);
 
-  DA.get_DA_real(params, orb_corr);
+  DA.get_DA_real(params);
 
-  params.err_and_corr_exit(orb_corr);
+  params.err_and_corr_exit();
 }
 
 

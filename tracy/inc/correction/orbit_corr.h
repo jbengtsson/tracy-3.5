@@ -11,22 +11,49 @@
 namespace corr {
 
 // Build the horizontal/vertical orbit response matrices (and their transposes)
-// from the BPM and corrector families. Self-contained (globals only).
+// from the BPM and corrector families. Self-contained: it configures the lsoc
+// globals, not the orbit_corr state below.
 void ini_COD_corr(const int n_bpm_Fam, const std::string bpm_names[],
                   const int n_hcorr_Fam, const std::string hcorr_names[],
                   const int n_vcorr_Fam, const std::string vcorr_names[],
                   const bool svd);
 
-// Correct the closed orbit for the current machine state: clear trims, find the
-// COD (threading the beam if none exists), then SVD-correct via orb_corr[].
-// Takes only its config (cfg) and the bare-lattice reference it reports the
-// residual beta-beat against (bare) — no god-class dependency.
-bool cod_corr(const orbit_cfg &cfg, const bare_optics &bare, const int n_cell,
-              const double scl, const double h_maxkick, const double v_maxkick,
-              orb_corr_type orb_corr[]);
+// The horizontal/vertical orbit correctors, owning the orb_corr_type pair that
+// each application used to declare in main() and thread by hand through
+// param_data_type and get_DA_real. Keeping the pair here is what lets
+// orb_corr_type drop out of param.h and dynap.h.
+//
+// Lifetime is explicit rather than RAII: alloc() builds the response matrices,
+// dealloc() frees them, and callers pair them exactly as they paired cod_ini()
+// with orb_corr_type::dealloc() before.
+class orbit_corr {
+private:
+  orb_corr_type orb_corr[2];
 
-// Report orbit-at-sextupole and trim-strength statistics. Self-contained.
-void Orb_and_Trim_Stat(orb_corr_type orb_corr[]);
+public:
+  orbit_corr(void) {}
+  orbit_corr(const orbit_corr &) = delete;
+  orbit_corr &operator=(const orbit_corr &) = delete;
+
+  // Build both planes' response matrices from the BPM/corrector families.
+  void alloc(const std::vector<string> &bpm_Fam_names,
+             const std::vector<string> corr_Fam_names[]);
+  void dealloc(void);
+
+  // Correct the closed orbit for the current machine state: clear trims, find
+  // the COD (threading the beam if none exists), then SVD-correct. Takes only
+  // its config (cfg) and the bare-lattice reference it reports the residual
+  // beta-beat against (bare) — no god-class dependency.
+  bool cod_corr(const orbit_cfg &cfg, const bare_optics &bare, const int n_cell,
+                const double scl, const double h_maxkick,
+                const double v_maxkick);
+
+  // Report orbit-at-sextupole and trim-strength statistics.
+  void Orb_and_Trim_Stat(void);
+
+  // Dump both planes' SVD matrices (diagnostic, trace only).
+  void prt_svdmat(void);
+};
 
 }  // namespace corr
 

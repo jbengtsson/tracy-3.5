@@ -297,19 +297,18 @@ void param_data_type::ini_COD_corr
 
 bool param_data_type::cod_corr
 (const int n_cell, const double scl,
- const double h_maxkick, const double v_maxkick,
- orb_corr_type orb_corr[])
+ const double h_maxkick, const double v_maxkick)
 {
   // Extracted to correction/orbit_corr; kept as a delegator during the refactor.
-  return corr::cod_corr(orbit_config(), bare, n_cell, scl, h_maxkick, v_maxkick,
-			orb_corr);
+  return orbits.cod_corr(orbit_config(), bare, n_cell, scl, h_maxkick,
+			 v_maxkick);
 }
 
 
-void param_data_type::Orb_and_Trim_Stat(orb_corr_type orb_corr[])
+void param_data_type::Orb_and_Trim_Stat(void)
 {
   // Extracted to correction/orbit_corr; kept as a delegator during the refactor.
-  corr::Orb_and_Trim_Stat(orb_corr);
+  orbits.Orb_and_Trim_Stat();
 }
 
 
@@ -577,8 +576,7 @@ void param_data_type::get_param(const std::string &param_file)
 }
 
 
-void param_data_type::err_and_corr_init(const string &param_file,
-					orb_corr_type orb_corr[])
+void param_data_type::err_and_corr_init(const string &param_file)
 {
   globval.Cavity_on   = false;
   globval.radiation   = false;
@@ -602,7 +600,7 @@ void param_data_type::err_and_corr_init(const string &param_file,
 
   get_bare();
 
-  cod_ini(bpm_Fam_names, corr_Fam_names, orb_corr);
+  orbits.alloc(bpm_Fam_names, corr_Fam_names);
 
   if ((ae_file != "") && bba) Align_BPMs(Sext,-1.,-1.,-1.);
 
@@ -612,14 +610,12 @@ void param_data_type::err_and_corr_init(const string &param_file,
 }
 
 
-void param_data_type::err_and_corr_exit(orb_corr_type orb_corr[])
+void param_data_type::err_and_corr_exit(void)
 {
-  int j;
-
-  if (ae_file != "") {
-    for (j = 0; j < 2; j++)
-      orb_corr[j].dealloc();
-  }
+  // The ae_file guard is inherited: with no alignment errors the correctors are
+  // still allocated by err_and_corr_init, just never freed. Kept as-is — this
+  // step only moves ownership.
+  if (ae_file != "") orbits.dealloc();
 }
 
 

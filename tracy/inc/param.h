@@ -112,6 +112,7 @@ public:
   corr::id_corr id;           // ID (insertion-device) optics correction
   corr::girder_model girders; // cormisal girder error model (n_meth == 1)
   corr::coupling_corr skew;   // coupling / vertical dispersion (LOCO off-diag)
+  corr::orbit_corr orbits;    // closed-orbit correction (both planes)
 
   //-------------------------------------------------------------------
   // Delegators. Each forwards to the correction/ module named in its body; they
@@ -164,16 +165,16 @@ public:
                     const bool svd);
 
   bool cod_corr(const int n_cell, const double scl, const double h_maxkick,
-                const double v_maxkick, orb_corr_type orb_corr[]);
+                const double v_maxkick);
 
-  void Orb_and_Trim_Stat(orb_corr_type orb_corr[]);
+  void Orb_and_Trim_Stat(void);
 
   void prt_cod_corr_lat(void);
 
   // Driver.
-  void err_and_corr_init(const string &param_file, orb_corr_type orb_corr[]);
+  void err_and_corr_init(const string &param_file);
 
-  void err_and_corr_exit(orb_corr_type orb_corr[]);
+  void err_and_corr_exit(void);
 };
 
 void get_bn2(const string file_name1, const string file_name2, int n,

@@ -197,8 +197,7 @@ void DA_data_type::get_DA_bare(param_data_type &params)
 }
 
 
-void DA_data_type::get_DA_real(param_data_type &params,
-			       orb_corr_type orb_corr[])
+void DA_data_type::get_DA_real(param_data_type &params)
 {
   bool     cod = false;
   char     str[max_str];
@@ -298,20 +297,18 @@ void DA_data_type::get_DA_real(param_data_type &params,
       if (params.bba) {
         params.Align_BPMs(Sext, bdxrms, bdzrms, bdarms);
       }
-      cod = params.cod_corr(n_cell, 1e0, params.h_maxkick, params.v_maxkick,
-			    orb_corr);
+      cod = params.cod_corr(n_cell, 1e0, params.h_maxkick, params.v_maxkick);
     } else
       cod = getcod(0e0, lastpos);
 
-    params.Orb_and_Trim_Stat(orb_corr);
+    params.Orb_and_Trim_Stat();
 
     if (params.N_calls > 0) {
       params.ID_corr(params.N_calls, params.N_steps, false, j);
-      cod = params.cod_corr(n_cell, 1e0, params.h_maxkick, params.v_maxkick,
-			    orb_corr);
+      cod = params.cod_corr(n_cell, 1e0, params.h_maxkick, params.v_maxkick);
     }
 
-    params.Orb_and_Trim_Stat(orb_corr);
+    params.Orb_and_Trim_Stat();
 
     printf("\n");
     if (cod) {
@@ -324,8 +321,7 @@ void DA_data_type::get_DA_real(param_data_type &params,
       snprintf(fname, sizeof(fname), "cod_%d.dat", j);
       printcod(fname);
       if (trace && (j == 1)) {
-	orb_corr[X_].prt_svdmat();
-	orb_corr[Y_].prt_svdmat();
+	params.orbits.prt_svdmat();
       }
  
       Ring_GetTwiss(true, 0.0); printglob();
@@ -336,8 +332,7 @@ void DA_data_type::get_DA_real(param_data_type &params,
 	params.corr_eps_y(j);
 	if (params.N_calls > 0) {
 	  params.ID_corr(params.N_calls, params.N_steps, false, j);
-	  params.cod_corr(n_cell, 1e0, params.h_maxkick, params.v_maxkick,
-			  orb_corr);
+	  params.cod_corr(n_cell, 1e0, params.h_maxkick, params.v_maxkick);
 	}
  	Ring_GetTwiss(true, 0.0); printglob();
 	GetEmittance(ElemIndex("cav"), false, true);
