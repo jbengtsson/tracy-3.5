@@ -99,13 +99,13 @@ public:
 
   // ------------------------------------------------------------------
 
-  // Sextupole b_3 save buffer, shared by the paired zero_mult/restore_mult
-  // façades (ctrl_cod.cc calls them as a pair on the same instance).
+  // Sextupole b_3 save buffer for a corr::zero_mult/restore_mult pair. Held here
+  // so ctrl_cod.cc can hand the same buffer to both halves of the pair.
   std::vector<double> bn_an[2 * HOMmax + 1];
 
   // Bare-lattice reference optics at the sextupoles — measured, not a parsed
   // knob, so it is a corr:: slice rather than a get_param field. Filled by
-  // get_bare().
+  // bare.capture().
   corr::bare_optics bare;
 
   // The correctors. Each owns its own working state.
@@ -115,60 +115,14 @@ public:
   corr::orbit_corr orbits;    // closed-orbit correction (both planes)
 
   //-------------------------------------------------------------------
-  // Delegators. Each forwards to the correction/ module named in its body; they
-  // exist only so the callers above do not have to move yet.
-
-  // Girder error model.
-  void GirderSetup();
-  void SetCorMis(double gxrms, double gyrms, double gtrms, double jxrms,
-                 double jyrms, double exrms, double eyrms, double etrms,
-                 double rancutx, double rancuty, double rancutt, long iseed);
-  void CorMis_in(double *gdxrms, double *gdzrms, double *gdarms,
-                 double *jdxrms, double *jdzrms, double *edxrms,
-                 double *edzrms, double *edarms, double *bdxrms,
-                 double *bdzrms, double *bdarms, double *rancutx,
-                 double *rancuty, double *rancutt, long *iseed, long *iseednr);
-
-  // Bare-lattice reference.
-  void get_bare(void);
-  void get_dbeta_dnu(double m_dbeta[], double s_dbeta[], double m_dnu[],
-                     double s_dnu[]);
-
-  // Coupling / vertical beam size.
-  void ini_skew_cor(const double deta_y_max, const double deta_y_offset);
-  void corr_eps_y(const int cnt);
-
-  // ID correction.
-  void reset_quads(void);
-  void ini_ID_corr(const bool IDs);
-  bool ID_corr(const int N_calls, const int N_steps, const bool IDs,
-               const int cnt);
-
-  // Error model.
-  void ReadCorMis(const bool Scale_it, const double Scale) const;
-  void LoadAlignTol(const bool Scale_it, const double Scale,
-                    const bool new_rnd,
-                    const int seed) const;
-  void LoadFieldErr(const bool Scale_it, const double Scale,
-                    const bool new_rnd) const;
-  void LoadApers(const double scl_x, const double scl_y) const;
-  void zero_mult(void);
-  void restore_mult(void);
+  // Beam-based alignment. The last error-model body still living here; moving it
+  // to correction/error_model needs a decision on how to verify it (no param.dat
+  // keyword sets bba, so no golden reaches it).
   void Align_BPMs(const int n, const double bdxrms, const double bdzrms,
                   const double bdarms) const;
 
-  // Orbit correction.
+  // No callers. Kept pending the code owner's decision on removal.
   bool CorrectCOD_N(const int n_orbit, const int k);
-  void ini_COD_corr(const int n_bpm_Fam, const std::string bpm_names[],
-                    const int n_hcorr_Fam, const std::string hcorr_names[],
-                    const int n_vcorr_Fam, const std::string vcorr_names[],
-                    const bool svd);
-
-  bool cod_corr(const int n_cell, const double scl, const double h_maxkick,
-                const double v_maxkick);
-
-  void Orb_and_Trim_Stat(void);
-
   void prt_cod_corr_lat(void);
 
   // Driver.

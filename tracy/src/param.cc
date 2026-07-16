@@ -31,112 +31,6 @@ void MyStrcpy (char *elem, char *pname, long leng) {
 
 #define seps 1E-6
 
-void param_data_type::GirderSetup() {
-  // Extracted to correction/girder_model; kept as a delegator during the refactor.
-  girders.GirderSetup();
-}
-
-void param_data_type::SetCorMis(double gxrms, double gyrms, double gtrms,
-				double jxrms, double jyrms, double exrms,
-				double eyrms, double etrms, double rancutx,
-				double rancuty, double rancutt, long iseed)
-{
-  // Extracted to correction/girder_model; kept as a delegator during the refactor.
-  girders.SetCorMis(gxrms, gyrms, gtrms, jxrms, jyrms, exrms, eyrms, etrms,
-		    rancutx, rancuty, rancutt, iseed);
-}
-
-void param_data_type::CorMis_in(double *gdxrms, double *gdzrms, double *gdarms, double *jdxrms, double *jdzrms, double *edxrms, double *edzrms, double *edarms, double *bdxrms, double *bdzrms, double *bdarms, double *rancutx, double *rancuty, double *rancutt, long *iseed, long *iseednr)
-{
-  // Extracted to correction/girder_model; kept as a delegator during the refactor.
-  corr::CorMis_in(gdxrms, gdzrms, gdarms, jdxrms, jdzrms, edxrms, edzrms, edarms,
-		  bdxrms, bdzrms, bdarms, rancutx, rancuty, rancutt, iseed,
-		  iseednr);
-}
-
-void param_data_type::get_bare(void)
-{
-  // Extracted to correction/config; kept as a delegator during the refactor.
-  bare.capture();
-}
-
-
-void param_data_type::get_dbeta_dnu(double m_dbeta[], double s_dbeta[],
-				    double m_dnu[], double s_dnu[])
-{
-  // Extracted to correction/corr_utils; kept as a delegator during the refactor.
-  corr::get_dbeta_dnu(m_dbeta, s_dbeta, m_dnu, s_dnu, bare);
-}
-
-
-// Delegates to correction/orbit_corr.
-
-
-void param_data_type::ini_skew_cor(const double deta_y_max,
-				   const double deta_y_offset)
-{
-  skew.ini_skew_cor(coupling_config(), deta_y_max, deta_y_offset);
-}
-
-
-void param_data_type::corr_eps_y(const int cnt)
-{
-  skew.corr_eps_y(coupling_config(), cnt);
-}
-
-
-void param_data_type::reset_quads(void)
-{
-  // Extracted to correction/id_corr; kept as a delegator during the refactor.
-  id.reset_quads(N_Fam, Q_Fam);
-}
-
-
-// Initializing ID correction (NOT LOCO).
-void param_data_type::ini_ID_corr(const bool IDs)
-{
-  // Extracted to correction/id_corr; kept as a delegator during the refactor.
-  id.ini_ID_corr(IDs, N_Fam, Q_Fam);
-}
-
-
-bool param_data_type::ID_corr(const int N_calls, const int N_steps,
-			      const bool IDs, const int cnt)
-{
-  // Extracted to correction/id_corr; kept as a delegator during the refactor.
-  return id.ID_corr(N_calls, N_steps, IDs, cnt, N_Fam, Q_Fam, ID_s_cut);
-}
-
-
-void param_data_type::ReadCorMis(const bool Scale_it, const double Scale) const
-{
-  // Extracted to correction/error_model; kept as a delegator during the refactor.
-  corr::ReadCorMis(Scale_it, Scale);
-}
-
-void param_data_type::LoadAlignTol(const bool Scale_it, const double Scale,
-				   const bool new_rnd, const int seed) const
-{
-  // Extracted to correction/error_model; kept as a delegator during the refactor.
-  corr::LoadAlignTol(ae_file, Scale_it, Scale, new_rnd, seed);
-}
-
-
-void param_data_type::LoadFieldErr(const bool Scale_it, const double Scale,
-				   const bool new_rnd) const
-{
-  // Extracted to correction/error_model; kept as a delegator during the refactor.
-  corr::LoadFieldErr(fe_file, Scale_it, Scale, new_rnd);
-}
-
-
-void param_data_type::LoadApers(const double scl_x, const double scl_y) const
-{
-  // Extracted to correction/error_model; kept as a delegator during the refactor.
-  corr::LoadApers(ap_file, scl_x, scl_y);
-}
-
-
 void param_data_type::Align_BPMs(const int n, const double bdxrms,
 				 const double bdzrms, const double bdarms) const
 {
@@ -223,20 +117,6 @@ void param_data_type::Align_BPMs(const int n, const double bdxrms,
 }
 
 
-void param_data_type::zero_mult(void)
-{
-  // Extracted to correction/corr_utils; kept as a delegator during the refactor.
-  corr::zero_mult(bn_an);
-}
-
-
-void param_data_type::restore_mult(void)
-{
-  // Extracted to correction/corr_utils; kept as a delegator during the refactor.
-  corr::restore_mult(bn_an);
-}
-
-
 bool param_data_type::CorrectCOD_N(const int n_orbit, const int k)
 {
   bool     cod = false;
@@ -252,10 +132,10 @@ bool param_data_type::CorrectCOD_N(const int n_orbit, const int k)
     }
 
   // load misalignments
-  LoadAlignTol(true, 1.0, true, k);
+  corr::LoadAlignTol(ae_file, true, 1.0, true, k);
   for (i = 1; i <= n_scale; i++) {
     // Scale the rms values
-    LoadAlignTol(true, (double)i/(double)n_scale, false, k);
+    corr::LoadAlignTol(ae_file, true, (double)i/(double)n_scale, false, k);
 
     if (bba) {
       // Beam based alignment
@@ -264,15 +144,15 @@ bool param_data_type::CorrectCOD_N(const int n_orbit, const int k)
 
     // get_traject();
     
-    zero_mult();
+    corr::zero_mult(bn_an);
 
     cod = CorrectCOD(n_orbit, 1e0);
 
-    restore_mult();
+    corr::restore_mult(bn_an);
 
     if (!cod) break;
 
-    get_dbeta_dnu(m_dbeta, s_dbeta, m_dnu, s_dnu);
+    corr::get_dbeta_dnu(m_dbeta, s_dbeta, m_dnu, s_dnu, bare);
     printf("\n");
     printf("RMS dbeta_x/beta_x = %4.2f%%,   dbeta_y/beta_y = %4.2f%%\n",
 	   1e2*s_dbeta[X_], 1e2*s_dbeta[Y_]);
@@ -281,34 +161,6 @@ bool param_data_type::CorrectCOD_N(const int n_orbit, const int k)
   }
 
   return cod;
-}
-
-
-void param_data_type::ini_COD_corr
-(const int n_bpm_Fam, const std::string bpm_names[],const int n_hcorr_Fam,
- const std::string hcorr_names[], const int n_vcorr_Fam,
- const std::string vcorr_names[], const bool svd)
-{
-  // Extracted to correction/orbit_corr; kept as a delegator during the refactor.
-  corr::ini_COD_corr(n_bpm_Fam, bpm_names, n_hcorr_Fam, hcorr_names,
-		     n_vcorr_Fam, vcorr_names, svd);
-}
-
-
-bool param_data_type::cod_corr
-(const int n_cell, const double scl,
- const double h_maxkick, const double v_maxkick)
-{
-  // Extracted to correction/orbit_corr; kept as a delegator during the refactor.
-  return orbits.cod_corr(orbit_config(), bare, n_cell, scl, h_maxkick,
-			 v_maxkick);
-}
-
-
-void param_data_type::Orb_and_Trim_Stat(void)
-{
-  // Extracted to correction/orbit_corr; kept as a delegator during the refactor.
-  orbits.Orb_and_Trim_Stat();
 }
 
 
@@ -598,15 +450,16 @@ void param_data_type::err_and_corr_init(const string &param_file)
   if (ChromX*ChromY < 1e6)
     corr::fit_chrom(chrom_fam[0], chrom_fam[1], ChromX, ChromY);
 
-  get_bare();
+  bare.capture();
 
   orbits.alloc(bpm_Fam_names, corr_Fam_names);
 
   if ((ae_file != "") && bba) Align_BPMs(Sext,-1.,-1.,-1.);
 
-  if (N_calls > 0) ini_ID_corr(false);
+  if (N_calls > 0) id.ini_ID_corr(false, N_Fam, Q_Fam);
 
-  if (n_lin > 0) ini_skew_cor(disp_wave_y, disp_wave_o);
+  if (n_lin > 0)
+    skew.ini_skew_cor(coupling_config(), disp_wave_y, disp_wave_o);
 }
 
 

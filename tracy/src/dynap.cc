@@ -279,7 +279,7 @@ void DA_data_type::get_DA_real(param_data_type &params)
 	bdxrms = bdzrms = bdarms = -1e0;
       } else if (params.n_meth == 1) {
 	// printf("entering ReadCormis\n");
-	// params.ReadCorMis(false,1e0);
+	// corr::ReadCorMis(false, 1e0);
 	printf("Entering CorMis_in\n");
 	corr::CorMis_in(&gdxrms, &gdzrms, &gdarms, &jdxrms, &jdzrms, &edxrms,
 			&edzrms, &edarms, &bdxrms, &bdzrms, &bdarms, &rancutx,
