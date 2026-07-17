@@ -1,6 +1,6 @@
 // Insertion-device linear-optics correction — see correction/id_corr.h.
 
-// Defined in nsls-ii_lib; forward-declared here as in the original param.cc.
+// Defined in nsls-ii_lib, which is not included here.
 void set_ID_scl(const int Fnum, const double scl);
 
 namespace corr {
@@ -26,9 +26,9 @@ double Nus(double bq, double nus, double nuq, double NuQ)
 
 id_corr::~id_corr()
 {
-  // Allocation is done once in ini_ID_corr (A1 non-null marks it). The original
-  // code left these leaked (the free block in ID_corr was guarded by if(false)
-  // to allow repeated calls); free them here at teardown instead.
+  // Allocation happens once in ini_ID_corr; a non-null A1 marks it. Freeing at
+  // teardown rather than at the end of ID_corr is what allows ID_corr to be
+  // called repeatedly against one allocation.
   if (A1 != 0) {
     free_dvector(Xsext, 1, Nconstr); free_dvector(Xsext0, 1, Nconstr);
     free_dvector(b2Ls_, 1, Nquad); free_dmatrix(A1, 1, Nconstr, 1, Nquad);
@@ -107,6 +107,8 @@ void id_corr::set_IDs(const double scl)
 }
 
 
+// Restore each quad family's b_2 to the design snapshot quad_config captured.
+// TODO: rename — this is not a general quad reset, and the name reads like one.
 void id_corr::reset_quads(const int N_Fam, const int Q_Fam[])
 {
   int k;
@@ -409,9 +411,9 @@ void id_corr::ini_ID_corr(const bool IDs, const int N_Fam, const int Q_Fam[])
   // Configuring quads (1 --> C means thin quads located in the middle of 1s)
   quad_config(N_Fam, Q_Fam);
 
-  // Configuring quads (1 --> C means thin quads located in the middle of 1s)
   // Read Betas and Nus
-  get_SQ(); Nconstr = 4*Nsext + 2;
+  get_SQ();
+  Nconstr = 4*Nsext + 2;
 
   // Note, allocated vectors and matrices are deallocated in the destructor.
   Xsext = dvector(1, Nconstr); Xsext0 = dvector(1, Nconstr);
@@ -423,7 +425,7 @@ void id_corr::ini_ID_corr(const bool IDs, const int N_Fam, const int Q_Fam[])
     b2Ls_[k] = 0.0;
 
   // shift zero point to center of ID
-//  nu_0[X_] = Cell[id_loc].Nu[X_]; nu_0[Y_] = Cell[id_loc].Nu[Y_];
+  //  nu_0[X_] = Cell[id_loc].Nu[X_]; nu_0[Y_] = Cell[id_loc].Nu[Y_];
   nu_0[X_] = 0.0;
   nu_0[Y_] = 0.0;
 

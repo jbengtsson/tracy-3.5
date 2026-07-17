@@ -3,9 +3,9 @@
 namespace corr {
 
 void ini_COD_corr(const int n_bpm_Fam, const std::string bpm_names[],
-                  const int n_hcorr_Fam, const std::string hcorr_names[],
-                  const int n_vcorr_Fam, const std::string vcorr_names[],
-                  const bool svd)
+		  const int n_hcorr_Fam, const std::string hcorr_names[],
+		  const int n_vcorr_Fam, const std::string vcorr_names[],
+		  const bool svd)
 {
   int i, j, Fnum, n_bpm, n_hcorr, n_vcorr;
 
@@ -59,7 +59,7 @@ void ini_COD_corr(const int n_bpm_Fam, const std::string bpm_names[],
 
 
 void orbit_corr::alloc(const std::vector<string> &bpm_Fam_names,
-                       const std::vector<string> corr_Fam_names[])
+		       const std::vector<string> corr_Fam_names[])
 {
   ::cod_ini(bpm_Fam_names, corr_Fam_names, orb_corr);
 }
@@ -82,8 +82,8 @@ void orbit_corr::prt_svdmat(void)
 
 
 bool orbit_corr::cod_corr(const orbit_cfg &cfg, const bare_optics &bare,
-                          const int n_cell, const double scl,
-                          const double h_maxkick, const double v_maxkick)
+			  const int n_cell, const double scl,
+			  const double h_maxkick, const double v_maxkick)
 {
   bool                cod = false;
   long int            lastpos;
@@ -97,12 +97,12 @@ bool orbit_corr::cod_corr(const orbit_cfg &cfg, const bare_optics &bare,
   zero_mult(bn_an);
 
   cod = getcod(0e0, lastpos);
-  printf("\nparam_data_type::cod_corr: %d\n", cod);
+  printf("\ncorr::cod_corr: %d\n", cod);
 
   if (!cod) {
     printf("  could not find closed orbit; threading beam\n");
-      printf("  param_data_type::cod_corr: n_cell = %d loc_Fam_name = \"%s\"\n",
-	     n_cell, cfg.loc_Fam_name.c_str());
+    printf("  corr::cod_corr: n_cell = %d loc_Fam_name = \"%s\"\n",
+	   n_cell, cfg.loc_Fam_name.c_str());
 
     orb_corr[X_].clr_trims(); orb_corr[Y_].clr_trims();
     thread_beam(n_cell, cfg.loc_Fam_name, cfg.bpm_Fam_names, cfg.corr_Fam_names,
@@ -172,7 +172,7 @@ void orbit_corr::Orb_and_Trim_Stat(void)
     Sext_sigma[j] = sqrt(Sext_sigma[j]/SextCounter);
   printf("In sextupoles maximal horizontal orbit is:"
 	 " %5.3f mm with sigma %5.3f mm\n",
-          1e3*Sext_max[X_], 1e3*Sext_sigma[X_]);
+	  1e3*Sext_max[X_], 1e3*Sext_sigma[X_]);
   printf("and maximal vertical orbit is:            "
 	 " %5.3f mm with sigma %5.3f mm.\n",
 	 1e3*Sext_max[Y_], 1e3*Sext_sigma[Y_]);

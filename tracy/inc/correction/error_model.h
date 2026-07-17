@@ -3,14 +3,13 @@
 
 // Machine error model — loading engineering tolerances into the lattice.
 //
-// The standard file-based error loaders, extracted from param_data_type. Their
-// only coupling to the god-class was the config file paths (ae/fe/ap_file),
-// now explicit arguments; the rest is globals (Cell/globval, lsoc bpms_) and
-// free functions. State-free, so any app/corrector can load errors directly.
+// The standard file-based error loaders, selected by n_meth == 0. They take
+// their file paths as explicit arguments and otherwise work on globals
+// (Cell/globval, lsoc bpms_), so they hold no state of their own and any
+// app or corrector can load errors directly.
 //
-// The girder "cormisal" model (GirderSetup/SetCorMis/CorMis_in) and Align_BPMs
-// still live on param_data_type; they own the Girder/Lattice arrays and are a
-// later slice.
+// The alternative girder-based model (n_meth == 1) needs a girder tree to hang
+// its state on and lives in correction/girder_model.h.
 
 namespace corr {
 
@@ -27,7 +26,7 @@ void LoadFieldErr(const std::string &fe_file, const bool Scale_it,
 void LoadApers(const std::string &ap_file, const double scl_x,
 	       const double scl_y);
 
-// Read per-multipole misalignments from the fixed file "cormis.txt".
+// Read per-multipole misalignments from the file "cormis.txt".
 void ReadCorMis(const bool Scale_it, const double Scale);
 
 }  // namespace corr

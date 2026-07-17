@@ -1,7 +1,7 @@
 // Cormisal (girder-based) alignment error model -- see
-// correction/girder_model.h. Bodies extracted verbatim from param_data_type.
+// correction/girder_model.h.
 
-// GirderSetup/SetCorMis reporting + plot dumps (were #defines in param.h).
+// GirderSetup/SetCorMis reporting + plot dumps.
 static const bool reportflag = true, plotflag = true;
 
 namespace corr {
@@ -128,8 +128,11 @@ void girder_model::GirderSetup() {
       Lattice[ic].igir=i;
   NGirderLevel[1]=ngir;
 
-  // make a compound element if we have a series of magnets with no gap between,
-  // i.e. sext|ch|cv|sext
+  // Merge a run of adjacent magnets into one level-3 girder. The run continues
+  // through magnets and through zero-length elements, and breaks at the first
+  // element with length; it becomes a girder only if it holds >1 magnet. So a
+  // sextupole followed by zero-length h/v correctors and a second sextupole
+  // merges into a single girder.
   s0=0; s1=0; s2=0; i0=0;
   giropen=false; countmag=0;
   for (i = 0; i <= globval.Cell_nLoc; i++) {
@@ -261,8 +264,7 @@ void girder_model::SetCorMis(double gxrms, double gyrms, double gtrms,
   // GirderSetup can produce zero-span level-3 girders from runs of consecutive
   // zero-length magnets (e.g. adjacent zero-length correctors). Guard the span
   // (skip support / treat as free end when span <= seps) as part of the owed
-  // physics validation of the girder->element translation. Not fixed here to
-  // keep this a behavior-preserving extraction.
+  // physics validation of the girder->element translation.
 
   /*
      set misalignments to girder ends:

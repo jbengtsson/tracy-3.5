@@ -1,13 +1,12 @@
 #ifndef CORRECTION_FIT_LAT_H
 #define CORRECTION_FIT_LAT_H
 
-// Fit the linear lattice to design tunes / chromaticities.
+// Fit the lattice to design tunes / chromaticities.
 //
-// The tune- and chromaticity-fit steps, extracted from err_and_corr_init. The
-// fit-knob family names (the tune quadrupoles and the chroma sextupoles) are
-// explicit arguments; err_and_corr_init passes the param_data_type tune_fam /
-// chrom_fam fields (the tune_fams / chrom_fams param.dat keywords). Families are
-// matched by element-name prefix over the global Cell[] lattice.
+// The fit-knob family names — the tune quadrupoles and the chroma sextupoles —
+// are explicit arguments through the tune_fams / chrom_fams param.dat keywords.
+// Families are matched by element-name PREFIX over the global Cell[] lattice,
+// so a family name also matches any longer name starting with it.
 //
 // State-free (globals + args only), so any app/corrector can fit the lattice.
 

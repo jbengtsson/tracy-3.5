@@ -14,7 +14,7 @@ void zero_mult(std::vector<double> bn_an[])
       Cell[k].Elem.M->PB[HOMmax+Sext] = 0e0;
     }
   }
-  printf("\nparam_data_type::zero_mult: zeroed b_3 for %d multipoles.\n",
+  printf("\ncorr::zero_mult: zeroed b_3 for %d multipoles.\n",
 	 (int)bn_an[HOMmax+Sext].size());
 }
 
@@ -28,7 +28,7 @@ void restore_mult(std::vector<double> bn_an[])
       k++;
     }
   }
-  printf("\nparam_data_type::restore_mult:restored b_3 for %d multiupoles.\n",
+  printf("\ncorr::restore_mult: restored b_3 for %d multipoles.\n",
 	 (int)bn_an[HOMmax+Sext].size());
 }
 

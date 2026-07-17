@@ -1,5 +1,3 @@
-// TODO: naming conventions and refactor - functionally, to set engeniring tolerances and correct including coping with IDs (id_corr is NOT LOCO)
-
 // param_data_type owns get_param and every param.dat knob (declared in param.h):
 // reading the full-machine study config is a param-module job, not a correction
 // one. The per-corrector slices it projects (corr::orbit_cfg / corr::coupling_cfg
@@ -465,9 +463,8 @@ void param_data_type::err_and_corr_init(const string &param_file)
 
 void param_data_type::err_and_corr_exit(void)
 {
-  // The ae_file guard is inherited: with no alignment errors the correctors are
-  // still allocated by err_and_corr_init, just never freed. Kept as-is — this
-  // step only moves ownership.
+  // Note the guard does not match err_and_corr_init, which allocates the
+  // correctors unconditionally: a study with no alignment errors leaks them.
   if (ae_file != "") orbits.dealloc();
 }
 

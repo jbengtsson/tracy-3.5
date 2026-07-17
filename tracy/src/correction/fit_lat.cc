@@ -1,3 +1,5 @@
+// Linear-lattice tune / chromaticity fits — see correction/fit_lat.h.
+
 
 void corr::fit_tune(const std::string &fam_h, const std::string &fam_v,
 		    const double nu_x, const double nu_y)
@@ -34,7 +36,8 @@ void corr::fit_tune(const std::string &fam_h, const std::string &fam_v,
 	 globval.TotalTune[0], globval.TotalTune[0] - TotalTuneX,
 	 globval.TotalTune[1], globval.TotalTune[1] - TotalTuneY);
 
-  Ring_GetTwiss(true, 0.0); printglob();
+  Ring_GetTwiss(true, 0.0);
+  printglob();
 }
 
 
@@ -73,5 +76,6 @@ void corr::fit_chrom(const std::string &fam_h, const std::string &fam_v,
 	 globval.Chrom[0], globval.Chrom[0] - ChromaX, globval.Chrom[1],
 	 globval.Chrom[1] - ChromaY);
 
-  Ring_GetTwiss(true, 0.0); printglob();
+  Ring_GetTwiss(true, 0.0);
+  printglob();
 }

@@ -16,8 +16,8 @@
 // vectors; the element-location arrays (bpm_loc/h_corr/v_corr) are 0-based.
 
 // Sizing caps for the BPM / corrector position arrays. Used only on the n_lin>0
-// (coupling) path. The legacy value was 150.
-// TODO: BPM/corrector possition arrays should become dynamic.
+// (coupling) path.
+// TODO: BPM/corrector position arrays should become dynamic.
 const int max_corr = 800, max_bpm = 800;
 
 // Files written by the coupling corrector.
@@ -53,20 +53,31 @@ struct coupling_corr {
   // Owns raw dvector/dmatrix allocations, freed in the dtor.
   coupling_corr(const coupling_corr &) = delete;
   coupling_corr &operator=(const coupling_corr &) = delete;
-
-  // Target vertical dispersion, read into eta_y (mm -> m).
+  // Read the target vertical dispersion from TolFileName into eta_y (mm -> m).
   void read_eta(const char *TolFileName);
-  // Step 1. Also builds the eta_y target wave.
+
+  // Build the model response of each skew quad on the vertical dispersion at
+  // the BPMs and on the two off-diagonal trim->orbit blocks. Also builds the
+  // eta_y target wave from deta_y_max / deta_y_offset.
   void find_model_matrix(const coupling_cfg &cfg, const double deta_y_max,
 			 const double deta_y_offset);
-  // Steps 1+2, after locating the skew quads, BPMs and trims.
+
+  // Locate the skew quads, BPMs and trims, allocate the response matrix, build
+  // it, and SVD-decompose it with a singular-value cut. Call once before
+  // corr_eps_y.
   void ini_skew_cor(const coupling_cfg &cfg, const double deta_y_max,
 		    const double deta_y_offset);
-  // Step 3.
+
+  // Measure the same three blocks on the real machine: kick each trim and
+  // finite-difference the resulting closed orbit at the BPMs. Fills VertCouple.
   void find_coup_vector(const coupling_cfg &cfg, double *VertCouple);
-  // cnt < 0 prints to stdout, else writes skew_<cnt>.out.
+
+  // Report the residual coupling in VertCouple. cnt < 0 prints to stdout, else
+  // writes skew_<cnt>.out.
   void skew_stat(const coupling_cfg &cfg, double VertCouple[], const int cnt);
-  // Step 4.
+
+  // Solve for the skew-quad strengths and apply them, re-measuring and
+  // iterating cfg.n_lin times. Needs ini_skew_cor first.
   void corr_eps_y(const coupling_cfg &cfg, const int cnt);
 };
 

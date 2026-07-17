@@ -1,24 +1,25 @@
 #ifndef CORRECTION_ID_CORR_H
 #define CORRECTION_ID_CORR_H
 
-// Insertion-device linear-optics correction (NOT LOCO).
+// Insertion-device linear-optics correction.
 //
-// Extracted from param_data_type. As an ID is ramped on, its focusing perturbs
-// the linear optics; this corrector zeroes the beta-beat and tune shift at the
-// sextupoles by fitting thin quadrupole trims (b_2) via SVD of an analytic
-// response matrix (Bet/Nus).
+// As an ID is ramped on, its focusing perturbs the linear optics; this
+// corrector zeroes the beta-beat and tune shift at the sextupoles by fitting
+// thin quadrupole trims (b_2) via SVD of an analytic response matrix (Bet/Nus).
 //
-// The struct owns the ID-correction working state (the response matrix A1, the
+// It corrects those symptoms directly rather than fitting the lattice model, so
+// despite the SVD-of-a-response-matrix shape it is NOT LOCO.
+//
+// The struct owns only the working state (the response matrix A1, the
 // distortion vector Xsext, the SVD scratch U1/w1/V1, and the per-sext/-quad
-// Twiss samples). The quad-family configuration (N_Fam/Q_Fam) and the number
-// of iterations (N_calls/N_steps) and the SVD cut (ID_s_cut) still live in the
-// param_data_type façade (config, extracted later) and are passed in as
-// explicit arguments — the file/config is an input, not hidden member state.
+// Twiss samples). Configuration — the quad families (N_Fam/Q_Fam), the
+// iteration counts (N_calls/N_steps) and the SVD cut (ID_s_cut) — is passed in
+// per call as an explicit input, never cached as member state.
 
-// Sizing limits and ID-correction weights (were in param.h; kept at global
-// scope because sxt.cc/dnu_dJ.cc reference n_b3_max unqualified).
-// N_Fam_max sizes a param.dat knob (param_data_type::Q_Fam) as well as b2 below,
-// so it lives in correction/corr_config.h, which is included before this header.
+// Sizing limits and ID-correction weights. Global scope, not namespaced,
+// because sxt.cc/dnu_dJ.cc reference n_b3_max unqualified. N_Fam_max sizes a
+// param.dat knob as well as b2 below, so it lives in correction/corr_config.h,
+// which is included before this header.
 const int n_b2_max  = 1500;   // max no of quad correctors
 const int n_b3_max  = 1500;   // max no of sextupoles
 const int max_ID_Fams = 25;   // max no of ID families
@@ -28,9 +29,12 @@ const double scl_nu = 1e2, scl_dbeta = 1.0, scl_dnu = 0.1, ID_step = 0.5;
 
 namespace corr {
 
-// Beta response Bet and tune response Nus at phase nus to a kick at phase nuq,
-// for a ring tune NuQ; bq is the beta at the kicked element.
+// Beta response at phase nus to a thin-quad kick at phase nuq, for a ring tune
+// NuQ. bq is the beta at the kicked element.
 double Bet(double bq, double nus, double nuq, double NuQ);
+
+// Tune response at phase nus to a thin-quad kick at phase nuq, for a ring tune
+// NuQ. bq is the beta at the kicked element.
 double Nus(double bq, double nus, double nuq, double NuQ);
 
 // Owns the ID-correction working state (see file header).

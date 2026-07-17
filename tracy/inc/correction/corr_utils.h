@@ -1,13 +1,11 @@
 #ifndef CORRECTION_CORR_UTILS_H
 #define CORRECTION_CORR_UTILS_H
 
-// Shared correction primitives — no param_data_type / god-class state.
+// Shared correction primitives, used across correctors (orbit, coupling, ID)
+// and by a LOCO module (not yet implemented).
 //
-// These are used across correctors (orbit, coupling, ID) and are expected to be
-// reused by a future LOCO module: LOCO fits *linear* optics, so it needs the
-// sextupoles off (zero_mult/restore_mult) and reports residual beta-beat / tune
-// shift (get_dbeta_dnu). Kept state-free (buffers/references passed in) so any
-// caller can use them.
+// State-free — buffers and references are passed in — so any caller can use
+// them without owning a corrector.
 
 namespace corr {
 

@@ -1,23 +1,21 @@
 #ifndef CORRECTION_GIRDER_MODEL_H
 #define CORRECTION_GIRDER_MODEL_H
 
-// Cormisal (girder-based) alignment error model, extracted from
-// param_data_type. Selected by n_meth == 1 (vs the file-based LoadAlignTol at
-// n_meth == 0). GirderSetup builds a 3-level girder tree from the lattice;
-// SetCorMis draws correlated random misalignments per girder and translates
-// them to the elements on each girder; CorMis_in reads the rms amplitudes from
-// "cormis.dat".
+// Cormisal (girder-based) alignment error model, selected by n_meth == 1 (vs
+// the file-based LoadAlignTol at n_meth == 0). GirderSetup builds a 3-level
+// girder tree from the lattice; SetCorMis draws correlated random
+// misalignments per girder and translates them to the elements on each girder;
+// CorMis_in reads the rms amplitudes from "cormis.dat".
 //
-// WARNING (pre-existing bug, not introduced by the refactor): SetCorMis's
-// girder-support interpolation divides by a girder's span (gsp[1]-gsp[0]); a
-// zero-span girder -> division by zero -> NaN misalignments -> lost beam, even
-// at zero error amplitude. GirderSetup can create zero-span level-3 girders
-// from runs of consecutive zero-length magnets (e.g. adjacent zero-length
-// correctors). A proper physics validation of the girder->element translation,
-// and a guard for this, are owed. See the inline TODO at the interpolation.
+// WARNING — known bug: SetCorMis's girder-support interpolation divides by a
+// girder's span (gsp[1]-gsp[0]); a zero-span girder -> division by zero -> NaN
+// misalignments -> lost beam, even at zero error amplitude. GirderSetup can
+// create zero-span level-3 girders from runs of consecutive zero-length magnets
+// (e.g. adjacent zero-length correctors). See the inline TODO at the
+// interpolation. The girder->element translation is also not physics-validated.
 
-// Sizing limits (were #defines inside param_data_type; kept at global scope
-// because dynap.cc references iseednrmax unqualified).
+// Sizing limits. Global scope, not namespaced, because dynap.cc references
+// iseednrmax unqualified.
 const int igrmax = 2000, ilatmax = 10000, iseednrmax = 20;
 
 namespace corr {
