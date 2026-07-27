@@ -213,20 +213,6 @@ void DA_data_type::get_DA_real(param_data_type &params)
   long     iseednr, iseed[iseednrmax]={0L};
   char     fname[30];
 
-  fitvect  qfbuf, qdbuf;
-  iVector2 nq;
-  Vector2  nu;
-  double   dk;
-  double   TotalTuneX,TotalTuneY;
-
-  fitvect  sfbuf, sdbuf;
-  iVector2 ns;
-  Vector2  si;
-  double   dks;
-  double   ChromaX,ChromaY;
-
-  CellType *WITH;
-
   const int    n_cell = 20;
 
   gdxrms = gdzrms = gdarms = jdxrms = jdzrms = edxrms = edzrms = edarms
@@ -346,72 +332,24 @@ void DA_data_type::get_DA_real(param_data_type &params)
       }
 
       ///////////////////////////////
-      // Fit tunes to TuneX and TuneY
-      
+      // Re-fit the tunes and chromaticities on this seed's corrected lattice,
+      // with the same corr:: routines err_and_corr_init uses on the ideal one.
+      // A failed fit restores its own knobs and the seed carries on unfitted.
+
       if (params.TuneX*params.TuneY > 0) {
-	dk=1e-3;
-	nq[0]=nq[1]=0;
-	nu[0]=params.TuneX;
-	nu[1]=params.TuneY;
-	for (i = 0; i <= globval.Cell_nLoc; i++) {
-	  WITH = &Cell[i];
-	  if ( WITH->Elem.Pkind == Mpole ) {
-	    if (strncmp(Cell[i].Elem.PName,"qax",3) == 0){
-	      qfbuf[nq[0]]=i;
-	      nq[0]++;
-	    }
-	    if (strncmp(Cell[i].Elem.PName,"qay",3) == 0){
-	      qdbuf[nq[1]]=i;
-	      nq[1]++;
-	    }
-	  }
-	}
-
-	printf("Fittune: nq[0]=%ld nq[1]=%ld\n",nq[0],nq[1]);
-	TotalTuneX=globval.TotalTune[0];
-	TotalTuneY=globval.TotalTune[1];
-	Ring_Fittune(nu, (double)1e-4, nq, qfbuf, qdbuf, dk, 50L);
-	printf("Fittune: nux= %f dnux= %f nuy= %f dnuy= %f\n",
-	       globval.TotalTune[0], globval.TotalTune[0]-TotalTuneX,
-	       globval.TotalTune[1], globval.TotalTune[1]-TotalTuneY);
-
+	corr::fit_tune(params.tune_fam, params.TuneX, params.TuneY,
+		       params.tune_dbnL);
 	Ring_GetTwiss(true, 0.0); printglob();
 	GetEmittance(ElemIndex("cav"), false, true);
       }
-
-      // Fit chromaticities to ChromX and ChromY
 
       if (params.ChromX*params.ChromY < 1e6) {
-	dks=1e-3;
-	ns[0]=ns[1]=0;
-	si[0]=params.ChromX;
-	si[1]=params.ChromY;
-	for (i = 0; i <= globval.Cell_nLoc; i++) {
-	  WITH = &Cell[i];
-	  if ( WITH->Elem.Pkind == Mpole ) {
-	    if (strncmp(Cell[i].Elem.PName,"sf",2) == 0){
-	      sfbuf[ns[0]]=i;
-	      ns[0]++;
-	    }
-	    if (strncmp(Cell[i].Elem.PName,"sd",2) == 0){
-	      sdbuf[ns[1]]=i;
-	      ns[1]++;
-	    }
-	  }
-	}
-
-	printf("Fitchrom: ns[0]=%ld ns[1]=%ld\n",ns[0],ns[1]);
-	ChromaX=globval.Chrom[0];
-	ChromaY=globval.Chrom[1];
-	Ring_Fitchrom(si, (double)1e-4, ns, sfbuf, sdbuf, dks, 50L);
-	printf("Fitchrom: six= %f dsix= %f siy= %f dsiy= %f\n",
-	       globval.Chrom[0], globval.Chrom[0]-ChromaX, globval.Chrom[1],
-	       globval.Chrom[1]-ChromaY);
-
+	corr::fit_chrom(params.chrom_fam, params.ChromX, params.ChromY,
+			params.chrom_dbnL);
 	Ring_GetTwiss(true, 0.0); printglob();
 	GetEmittance(ElemIndex("cav"), false, true);
       }
-      
+
       // End of tune and chromaticity fit
       ///////////////////////////////////
       
