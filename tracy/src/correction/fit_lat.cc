@@ -2,10 +2,12 @@
 
 namespace corr {
 
-// Exact, case-insensitive element-family lookup. ElemIndex does the same, but
-// exit_()s on a miss with no context; returning 0 lets the caller name both the
-// offending family and the keyword that set it. ElemF.PName is a partsName,
-// i.e. a space-padded char[SymbolLength] that need not be NUL-terminated.
+// Drop knob directions whose singular value falls below this.
+static const double fit_s_cut = 1e-10;
+
+
+// Exact, case-insensitive family lookup; 0 on a miss, so the caller can name
+// the offender. ElemF.PName is space-padded and need not be NUL-terminated.
 static long fam_index(const std::string &name)
 {
   std::string key = name;
@@ -32,14 +34,14 @@ static bool resolve_fams(const char *keyword,
 {
   Fnum.clear();
   if (fams.empty()) {
-    printf("corr: no fit families — set %s\n", keyword);
+    printf("\ncorr: no fit families, set %s\n", keyword);
     return false;
   }
   for (const auto &fam : fams) {
     const long k = fam_index(fam);
 
     if (k == 0) {
-      printf("corr: fit family '%s' not found — set %s\n", fam.c_str(),
+      printf("\ncorr: fit family '%s' not found, set %s\n", fam.c_str(),
 	     keyword);
       return false;
     }
@@ -49,104 +51,208 @@ static bool resolve_fams(const char *keyword,
 }
 
 
-// Cell positions of a family's members, for the legacy fitters below.
-// TRANSITIONAL: fitvect is a fixed long[fitvectmax] the fitters write into
-// without a bound check, so a large family smashes the stack — hence the guard.
-// Both go away with Ring_Fittune / Ring_Fitchrom in the next commit.
-static bool fam_positions(const long Fnum, long buf[], long &n_mem)
+enum fit_obs { fit_nu, fit_xi };
+
+
+// Re-evaluate the observable. Returns false if the closed-orbit finder failed
+// or the ring went unstable, which leaves val meaningless.
+static bool get_obs(const fit_obs obs, double val[])
 {
-  n_mem = GetnKid(Fnum);
-  if (n_mem > fitvectmax) {
-    printf("corr: fit family '%s' has %ld members, fitvect holds %d\n",
-	   ElemFam[Fnum-1].ElemF.PName, n_mem, fitvectmax);
+  if (obs == fit_nu)
+    Ring_GetTwiss(false, 0e0);
+  else
+    Ring_Getchrom(0e0);
+
+  if (!status.codflag || !globval.stable)
     return false;
-  }
-  for (long k = 1; k <= n_mem; k++)
-    buf[k-1] = Elem_GetPos(Fnum, k);
+
+  for (int k = 0; k < 2; k++)
+    val[k] = (obs == fit_nu)? globval.TotalTune[k] : globval.Chrom[k];
   return true;
 }
 
 
-// TRANSITIONAL: Ring_Fittune / Ring_Fitchrom take exactly two families, so only
-// the first two are used until the N-knob SVD solver lands.
-static bool two_fams(const std::vector<long> &Fnum, iVector2 &n_mem,
-		     long buf_h[], long buf_v[])
+// Spread db_nL over the family's n_kid members — so db_nL is a whole-family
+// step — and accumulate it in db_net, so a failure can undo what was applied.
+static void apply_dbnL(const long Fnum, const int n, const double db_nL,
+		       double &db_net)
 {
-  if (Fnum.size() != 2) {
-    printf("corr: %zu fit families given, the fitter takes exactly 2\n",
-	   Fnum.size());
-    return false;
+  set_dbnL_design_fam(Fnum, n, db_nL/GetnKid(Fnum), 0e0);
+  db_net += db_nL;
+}
+
+
+// Fit a 2-vector observable to target[] using the knob families in Fnum, whose
+// order-n integrated strengths are the free parameters.
+//
+// The Jacobian A[j][k] = d(obs_j)/d(db_nL of family k) is built ONCE, by CENTRAL
+// differencing, and re-used every iteration (chord iteration): 2*n_knob optics
+// evaluations up front, then one per iteration. Re-differentiating every
+// iteration (full Newton) would cost 2*n_knob per iteration, which defeats the
+// point of supporting many knobs.
+//
+// A is 2 x n_knob and solved by SVD pseudo-inverse, so any number of knobs
+// works and a degenerate (near-colinear) knob set costs a dropped direction
+// rather than a failed solve.
+//
+// On any failure — instability, closed-orbit failure, or not reaching eps
+// within imax steps — the knobs are restored to their entry values and false is
+// returned. get_DA_real runs this per seed, so one bad seed must neither abort a
+// multi-hour DA run nor leave half-fitted optics behind.
+static bool fit_lat(const char *what, const fit_obs obs,
+		    const std::vector<long> &Fnum, const int n,
+		    const double target[], const double db_nL,
+		    const double eps, const int imax)
+{
+  bool     ok;
+  int      i, j, k;
+  double   val[2] = {0e0, 0e0}, val_0[2] = {0e0, 0e0};
+  double   val_p[2], val_m[2], res, b_n, a_n;
+  double   **A, **U, **V, *w, *dval, *db;
+
+  const int m = 2, n_knob = Fnum.size();
+
+  std::vector<double> db_net(n_knob, 0e0);
+
+  A    = dmatrix(1, m, 1, n_knob);
+  U    = dmatrix(1, m, 1, n_knob);
+  V    = dmatrix(1, n_knob, 1, n_knob);
+  w    = dvector(1, n_knob);
+  dval = dvector(1, m);
+  db   = dvector(1, n_knob);
+
+  printf("\n%s: target [%9.5f, %9.5f], %d knob(s), db_%dL = %9.3e\n",
+	 what, target[0], target[1], n_knob, n, db_nL);
+
+  ok = get_obs(obs, val_0);
+
+  // Jacobian by central differencing, once.
+  for (k = 1; ok && (k <= n_knob); k++) {
+    apply_dbnL(Fnum[k-1], n, db_nL, db_net[k-1]);
+    if (!(ok = get_obs(obs, val_p))) break;
+    apply_dbnL(Fnum[k-1], n, -2e0*db_nL, db_net[k-1]);
+    if (!(ok = get_obs(obs, val_m))) break;
+    apply_dbnL(Fnum[k-1], n, db_nL, db_net[k-1]);
+
+    for (j = 1; j <= m; j++)
+      A[j][k] = (val_p[j-1]-val_m[j-1])/(2e0*db_nL);
+    if (trace)
+      printf("  %-*.*s probe + [%9.5f, %9.5f], - [%9.5f, %9.5f]\n",
+	     SymbolLength, SymbolLength, ElemFam[Fnum[k-1]-1].ElemF.PName,
+	     val_p[0], val_p[1], val_m[0], val_m[1]);
   }
-  return (fam_positions(Fnum[0], buf_h, n_mem[0])
-	  && fam_positions(Fnum[1], buf_v, n_mem[1]));
+
+  if (ok) {
+    corr::svd_decomp_cut(A, m, n_knob, U, w, V, fit_s_cut, trace);
+    if (trace) dmdump(stdout, "\n  A:", A, m, n_knob, "%11.3e");
+  }
+
+  // Chord iteration: re-evaluate, solve A*db = target - current, apply.
+  for (i = 0; ok; i++) {
+    if (!(ok = get_obs(obs, val))) break;
+
+    res = sqrt(sqr(target[0]-val[0])+sqr(target[1]-val[1]));
+    if (trace)
+      printf("  it %2d: [%9.5f, %9.5f], residual %9.3e\n", i, val[0], val[1],
+	     res);
+    if (res < eps) break;
+    if (i == imax) {
+      printf("  %s: not converged in %d step(s), residual %9.3e\n", what, imax,
+	     res);
+      ok = false;
+      break;
+    }
+
+    for (j = 1; j <= m; j++)
+      dval[j] = target[j-1]-val[j-1];
+    corr::svd_backsub(U, w, V, m, n_knob, dval, db);
+    if (trace) dvdump(stdout, "\n  db_n:", db, n_knob, "%11.3e");
+
+    for (k = 1; k <= n_knob; k++)
+      apply_dbnL(Fnum[k-1], n, db[k], db_net[k-1]);
+  }
+
+  if (ok)
+    printf("%s: [%9.5f, %9.5f] -> [%9.5f, %9.5f]\n", what, val_0[0], val_0[1],
+	   val[0], val[1]);
+  else {
+    // Undo the net applied strength; adding -db_net zeroes db_net in passing.
+    for (k = 0; k < n_knob; k++)
+      apply_dbnL(Fnum[k], n, -db_net[k], db_net[k]);
+    printf("%s: FAILED — knobs restored, back at [%9.5f, %9.5f]\n", what,
+	   val_0[0], val_0[1]);
+  }
+
+  if (trace && ok) {
+    printf("\n  b_%d of member 1 of each family:\n", n);
+    for (k = 0; k < n_knob; k++) {
+      get_bn_design_elem(Fnum[k], 1, n, b_n, a_n);
+      printf("    %-*.*s %10.5f\n", SymbolLength, SymbolLength,
+	     ElemFam[Fnum[k]-1].ElemF.PName, b_n);
+    }
+  }
+
+  free_dmatrix(A, 1, m, 1, n_knob);
+  free_dmatrix(U, 1, m, 1, n_knob);
+  free_dmatrix(V, 1, n_knob, 1, n_knob);
+  free_dvector(w, 1, n_knob);
+  free_dvector(dval, 1, m);
+  free_dvector(db, 1, n_knob);
+
+  return ok;
 }
 
 
 bool fit_tune(const std::vector<std::string> &fams, const double nu_x,
-	      const double nu_y)
+	      const double nu_y, const double db_2L, const double eps,
+	      const int imax)
 {
-  double            TotalTuneX, TotalTuneY;
-  iVector2          nq;
-  Vector2           nu;
-  fitvect           qfbuf, qdbuf;
+  bool              ok;
   std::vector<long> Fnum;
 
-  const double dk = 1e-3;
+  // Absolute, against the raw globval.TotalTune — not wrapped mod 1.
+  const double target[] = {nu_x, nu_y};
 
-  printf("\ncorr::fit_tune: fitting nu.\n");
-  if (!resolve_fams("tune_fams", fams, Fnum)
-      || !two_fams(Fnum, nq, qfbuf, qdbuf))
+  if (!resolve_fams("tune_fams", fams, Fnum))
     return false;
 
-  nu[0] = nu_x;
-  nu[1] = nu_y;
+  ok = fit_lat("corr::fit_tune", fit_nu, Fnum, Quad, target, db_2L, eps, imax);
 
-  printf("Fittune: nq[0]=%ld nq[1]=%ld\n", nq[0], nq[1]);
-  TotalTuneX = globval.TotalTune[0];
-  TotalTuneY = globval.TotalTune[1];
-  Ring_Fittune(nu, (double)1e-4, nq, qfbuf, qdbuf, dk, 50L);
-  printf("Fittune: nux= %f dnux= %f nuy= %f dnuy= %f\n",
-	 globval.TotalTune[0], globval.TotalTune[0] - TotalTuneX,
-	 globval.TotalTune[1], globval.TotalTune[1] - TotalTuneY);
-
-  Ring_GetTwiss(true, 0.0);
+  Ring_GetTwiss(true, 0e0);
   printglob();
 
-  return true;
+  return ok;
 }
 
 
 bool fit_chrom(const std::vector<std::string> &fams, const double chrom_x,
-	       const double chrom_y)
+	       const double chrom_y, const double db_3L, const double eps,
+	       const int imax)
 {
-  double            ChromaX, ChromaY;
-  iVector2          ns;
-  Vector2           si;
-  fitvect           sfbuf, sdbuf;
+  bool              ok, rad, cav;
   std::vector<long> Fnum;
 
-  const double dks = 1e-3;
+  const double target[] = {chrom_x, chrom_y};
 
-  printf("\ncorr::fit_chrom: fitting chi^(1)\n");
-  if (!resolve_fams("chrom_fams", fams, Fnum)
-      || !two_fams(Fnum, ns, sfbuf, sdbuf))
+  if (!resolve_fams("chrom_fams", fams, Fnum))
     return false;
 
-  si[0] = chrom_x;
-  si[1] = chrom_y;
+  // Ring_Getchrom is a linear-optics measurement, and get_DA_real calls this
+  // right after GetEmittance turns radiation and the cavity on.
+  rad = globval.radiation;
+  cav = globval.Cavity_on;
+  globval.radiation = false;
+  globval.Cavity_on = false;
 
-  printf("Fitchrom: ns[0]=%ld ns[1]=%ld\n", ns[0], ns[1]);
-  ChromaX = globval.Chrom[0];
-  ChromaY = globval.Chrom[1];
-  Ring_Fitchrom(si, 1e-4, ns, sfbuf, sdbuf, dks, 50L);
-  printf("Fitchrom: six= %f dsix= %f siy= %f dsiy= %f\n",
-	 globval.Chrom[0], globval.Chrom[0] - ChromaX, globval.Chrom[1],
-	 globval.Chrom[1] - ChromaY);
+  ok = fit_lat("corr::fit_chrom", fit_xi, Fnum, Sext, target, db_3L, eps, imax);
 
-  Ring_GetTwiss(true, 0.0);
+  globval.radiation = rad;
+  globval.Cavity_on = cav;
+
+  Ring_GetTwiss(true, 0e0);
   printglob();
 
-  return true;
+  return ok;
 }
 
 }  // namespace corr

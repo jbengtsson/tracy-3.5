@@ -64,6 +64,10 @@ public:
   std::vector<std::string> tune_fam = {"qax", "qay"};
   std::vector<std::string> chrom_fam = {"sf", "sd"};
 
+  // Probe step for the fit Jacobian (tune_dbnL / chrom_dbnL keywords), as a
+  // whole-family integrated strength — see correction/fit_lat.h.
+  double tune_dbnL = 1e-3, chrom_dbnL = 1e0;
+
   // Dynamic aperture.
   int n_track_DA = 512, n_aper_DA = 15, n_delta_DA = 12;
   double delta_DA = 3e-2;

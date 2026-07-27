@@ -387,6 +387,10 @@ void param_data_type::get_param(const std::string &param_file)
 	get_fams(line, &p, tune_fam);
       else if (strcmp("chrom_fams", name) == 0)
 	get_fams(line, &p, chrom_fam);
+      else if (strcmp("tune_dbnL", name) == 0)
+	sscanf(line, "%*s %le", &tune_dbnL);
+      else if (strcmp("chrom_dbnL", name) == 0)
+	sscanf(line, "%*s %le", &chrom_dbnL);
       else if (strcmp("qt_s_cut", name) == 0)
 	sscanf(line, "%*s %le", &qt_s_cut);
       else if (strcmp("disp_wave_y", name) == 0)
@@ -447,16 +451,13 @@ void param_data_type::err_and_corr_init(const string &param_file)
   Ring_GetTwiss(true, 0.0);
   printglob();
 
-  // Fit tunes to TuneX and TuneY with the tune-quad families (tune_fams keyword,
-  // defaulting to the historical SLS-2 qax/qay).
+  // Fit tunes to TuneX and TuneY with the tune_fams families.
   if (TuneX*TuneY > 0)
-    corr::fit_tune(tune_fam, TuneX, TuneY);
+    corr::fit_tune(tune_fam, TuneX, TuneY, tune_dbnL);
 
-  // Fit chromaticities to ChromX and ChromY with the chroma-sextupole families
-  // (chrom_fams keyword, defaulting to the historical SLS-2 sf/sd; on m4U set it
-  // to s2_n1/s4_n1 — note s3_n1 overflows fitvect[200], see the parked fit bugs).
+  // Fit chromaticities to ChromX and ChromY with the chrom_fams families.
   if (ChromX*ChromY < 1e6)
-    corr::fit_chrom(chrom_fam, ChromX, ChromY);
+    corr::fit_chrom(chrom_fam, ChromX, ChromY, chrom_dbnL);
 
   bare.capture();
 
