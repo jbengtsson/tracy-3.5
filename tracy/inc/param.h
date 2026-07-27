@@ -59,10 +59,10 @@ public:
   double TuneX = 0e0, TuneY = 0e0;
   double ChromX = 1e6, ChromY = 1e6;
 
-  // Fit-knob families, matched by element-name PREFIX (so "sf" also matches any
-  // sf*).
-  std::string tune_fam[2] = {"qax", "qay"};
-  std::string chrom_fam[2] = {"sf", "sd"};
+  // Fit-knob families, resolved by exact element-family name. Any number may be
+  // given.
+  std::vector<std::string> tune_fam = {"qax", "qay"};
+  std::vector<std::string> chrom_fam = {"sf", "sd"};
 
   // Dynamic aperture.
   int n_track_DA = 512, n_aper_DA = 15, n_delta_DA = 12;
