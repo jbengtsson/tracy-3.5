@@ -82,37 +82,30 @@ static void apply_dbnL(const long Fnum, const int n, const double db_nL,
 }
 
 
-// Fit a 2-vector observable to target[] using the knob families in Fnum, whose
+// Fit a 2-vector observable to target[] with the knob families in Fnum, whose
 // order-n integrated strengths are the free parameters.
 //
-// The Jacobian A[j][k] = d(obs_j)/d(db_nL of family k) is built ONCE, by CENTRAL
-// differencing, and re-used every iteration (chord iteration): 2*n_knob optics
-// evaluations up front, then one per iteration. Re-differentiating every
-// iteration (full Newton) would cost 2*n_knob per iteration, which defeats the
-// point of supporting many knobs.
+// The Jacobian A[j][k] = d(obs_j)/d(db_nL of family k) is built once by central
+// differencing and re-used every iteration (chord iteration). It is 2 x n_knob
+// and solved by SVD, so any knob count works.
 //
-// A is 2 x n_knob and solved by SVD pseudo-inverse, so any number of knobs
-// works and a degenerate (near-colinear) knob set costs a dropped direction
-// rather than a failed solve.
-//
-// On any failure — instability, closed-orbit failure, or not reaching eps
-// within imax steps — the knobs are restored to their entry values and false is
-// returned. get_DA_real runs this per seed, so one bad seed must neither abort a
-// multi-hour DA run nor leave half-fitted optics behind.
+// On instability or a lost closed orbit the knobs are rolled back to their entry
+// values; on running out of steps the best iterate is kept. False either way.
 static bool fit_lat(const char *what, const fit_obs obs,
 		    const std::vector<long> &Fnum, const int n,
 		    const double target[], const double db_nL,
 		    const double eps, const int imax)
 {
-  bool     ok;
+  bool     valid, converged = false;
   int      i, j, k;
   double   val[2] = {0e0, 0e0}, val_0[2] = {0e0, 0e0};
+  double   val_best[2] = {0e0, 0e0}, res_best = 0e0;
   double   val_p[2], val_m[2], res, b_n, a_n;
   double   **A, **U, **V, *w, *dval, *db;
 
   const int m = 2, n_knob = Fnum.size();
 
-  std::vector<double> db_net(n_knob, 0e0);
+  std::vector<double> db_net(n_knob, 0e0), db_best(n_knob, 0e0);
 
   A    = dmatrix(1, m, 1, n_knob);
   U    = dmatrix(1, m, 1, n_knob);
@@ -124,14 +117,14 @@ static bool fit_lat(const char *what, const fit_obs obs,
   printf("\n%s: target [%9.5f, %9.5f], %d knob(s), db_%dL = %9.3e\n",
 	 what, target[0], target[1], n_knob, n, db_nL);
 
-  ok = get_obs(obs, val_0);
+  valid = get_obs(obs, val_0);
 
   // Jacobian by central differencing, once.
-  for (k = 1; ok && (k <= n_knob); k++) {
+  for (k = 1; valid && (k <= n_knob); k++) {
     apply_dbnL(Fnum[k-1], n, db_nL, db_net[k-1]);
-    if (!(ok = get_obs(obs, val_p))) break;
+    if (!(valid = get_obs(obs, val_p))) break;
     apply_dbnL(Fnum[k-1], n, -2e0*db_nL, db_net[k-1]);
-    if (!(ok = get_obs(obs, val_m))) break;
+    if (!(valid = get_obs(obs, val_m))) break;
     apply_dbnL(Fnum[k-1], n, db_nL, db_net[k-1]);
 
     for (j = 1; j <= m; j++)
@@ -142,26 +135,29 @@ static bool fit_lat(const char *what, const fit_obs obs,
 	     val_p[0], val_p[1], val_m[0], val_m[1]);
   }
 
-  if (ok) {
+  if (valid) {
     corr::svd_decomp_cut(A, m, n_knob, U, w, V, fit_s_cut, trace);
     if (trace) dmdump(stdout, "\n  A:", A, m, n_knob, "%11.3e");
   }
 
   // Chord iteration: re-evaluate, solve A*db = target - current, apply.
-  for (i = 0; ok; i++) {
-    if (!(ok = get_obs(obs, val))) break;
+  for (i = 0; valid; i++) {
+    if (!(valid = get_obs(obs, val))) break;
 
     res = sqrt(sqr(target[0]-val[0])+sqr(target[1]-val[1]));
+    if ((i == 0) || (res < res_best)) {
+      res_best = res;
+      db_best  = db_net;
+      memcpy(val_best, val, sizeof(val_best));
+    }
     if (trace)
       printf("  it %2d: [%9.5f, %9.5f], residual %9.3e\n", i, val[0], val[1],
 	     res);
-    if (res < eps) break;
-    if (i == imax) {
-      printf("  %s: not converged in %d step(s), residual %9.3e\n", what, imax,
-	     res);
-      ok = false;
+    if (res < eps) {
+      converged = true;
       break;
     }
+    if (i == imax) break;
 
     for (j = 1; j <= m; j++)
       dval[j] = target[j-1]-val[j-1];
@@ -172,18 +168,24 @@ static bool fit_lat(const char *what, const fit_obs obs,
       apply_dbnL(Fnum[k-1], n, db[k], db_net[k-1]);
   }
 
-  if (ok)
+  if (converged)
     printf("%s: [%9.5f, %9.5f] -> [%9.5f, %9.5f]\n", what, val_0[0], val_0[1],
 	   val[0], val[1]);
-  else {
-    // Undo the net applied strength; adding -db_net zeroes db_net in passing.
+  else if (!valid) {
+    // Undo everything; adding -db_net zeroes db_net in passing.
     for (k = 0; k < n_knob; k++)
       apply_dbnL(Fnum[k], n, -db_net[k], db_net[k]);
-    printf("%s: FAILED — knobs restored, back at [%9.5f, %9.5f]\n", what,
-	   val_0[0], val_0[1]);
+    printf("%s: FAILED, unstable or no closed orbit; knobs fully restored,"
+	   " back at [%9.5f, %9.5f]\n", what, val_0[0], val_0[1]);
+  } else {
+    for (k = 0; k < n_knob; k++)
+      apply_dbnL(Fnum[k], n, db_best[k]-db_net[k], db_net[k]);
+    printf("%s: not converged in %d step(s), keeping the best iterate:"
+	   " [%9.5f, %9.5f] -> [%9.5f, %9.5f], residual %9.3e\n", what, imax,
+	   val_0[0], val_0[1], val_best[0], val_best[1], res_best);
   }
 
-  if (trace && ok) {
+  if (trace && valid) {
     printf("\n  b_%d of member 1 of each family:\n", n);
     for (k = 0; k < n_knob; k++) {
       get_bn_design_elem(Fnum[k], 1, n, b_n, a_n);
@@ -199,7 +201,7 @@ static bool fit_lat(const char *what, const fit_obs obs,
   free_dvector(dval, 1, m);
   free_dvector(db, 1, n_knob);
 
-  return ok;
+  return converged;
 }
 
 
