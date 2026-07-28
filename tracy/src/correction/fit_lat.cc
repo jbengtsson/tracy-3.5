@@ -96,7 +96,7 @@ static bool fit_lat(const char *what, const fit_obs obs,
 		    const double target[], const double db_nL,
 		    const double eps, const int imax)
 {
-  bool     valid, converged = false;
+  bool     valid, entry_known, converged = false;
   int      i, j, k;
   double   val[2] = {0e0, 0e0}, val_0[2] = {0e0, 0e0};
   double   val_best[2] = {0e0, 0e0}, res_best = 0e0;
@@ -117,7 +117,9 @@ static bool fit_lat(const char *what, const fit_obs obs,
   printf("\n%s: target [%9.5f, %9.5f], %d knob(s), db_%dL = %9.3e\n",
 	 what, target[0], target[1], n_knob, n, db_nL);
 
-  valid = get_obs(obs, val_0);
+  // entry_known guards val_0: a first get_obs failure leaves it unset, so the
+  // entry state must not be quoted back.
+  valid = entry_known = get_obs(obs, val_0);
 
   // Jacobian by central differencing, once.
   for (k = 1; valid && (k <= n_knob); k++) {
@@ -175,8 +177,12 @@ static bool fit_lat(const char *what, const fit_obs obs,
     // Undo everything; adding -db_net zeroes db_net in passing.
     for (k = 0; k < n_knob; k++)
       apply_dbnL(Fnum[k], n, -db_net[k], db_net[k]);
-    printf("%s: FAILED, unstable or no closed orbit; knobs fully restored,"
-	   " back at [%9.5f, %9.5f]\n", what, val_0[0], val_0[1]);
+    if (entry_known)
+      printf("%s: FAILED, unstable or no closed orbit; knobs fully restored,"
+	     " back at [%9.5f, %9.5f]\n", what, val_0[0], val_0[1]);
+    else
+      printf("%s: FAILED, unstable or no closed orbit on entry; knobs"
+	     " untouched\n", what);
   } else {
     for (k = 0; k < n_knob; k++)
       apply_dbnL(Fnum[k], n, db_best[k]-db_net[k], db_net[k]);
