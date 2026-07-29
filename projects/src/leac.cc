@@ -11,7 +11,6 @@ void err_and_corr(const string &param_file, const int mode)
   long int        lastpos;
   double          m_dbeta[2], s_dbeta[2], m_dnu[2], s_dnu[2];
   param_data_type params;
-  orb_corr_type   orb_corr[2];
 
   params.get_param(param_file);
 
@@ -20,26 +19,29 @@ void err_and_corr(const string &param_file, const int mode)
 
   Ring_GetTwiss(true, 0e0); printglob();
 
-  params.err_and_corr_init(param_file, orb_corr);
+  params.err_and_corr_init(param_file);
 
-  if (params.fe_file != "") params.LoadFieldErr(false, 1e0, true);
+  if (params.fe_file != "")
+    corr::LoadFieldErr(params.fe_file, false, 1e0, true);
   if (params.ae_file != "") {
     // Load misalignments; set seed, no scaling of rms errors.
-    params.LoadAlignTol(false, 1e0, true, 1);
+    corr::LoadAlignTol(params.ae_file, false, 1e0, true, 1);
     // Beam based alignment.
     if (params.bba) params.Align_BPMs(Quad, -1e0, -1e0, -1e0);
 
     trace = false;
-    cod = params.cod_corr(params.n_cell, 1e0, params.h_maxkick,
-			  params.v_maxkick, orb_corr);
+    cod = params.orbits.cod_corr(params.orbit_config(), params.bare,
+				 params.n_cell, 1e0, params.h_maxkick,
+				 params.v_maxkick);
   } else
     cod = getcod(0e0, lastpos);
 
-  params.Orb_and_Trim_Stat(orb_corr);
+  params.orbits.Orb_and_Trim_Stat();
 
   if (params.N_calls > 0) {
-    params.ID_corr(params.N_calls, params.N_steps, false, 1);
-    // cod = params.cod_corr(params.n_cell, 1e0, orb_corr);
+    params.id.ID_corr(params.N_calls, params.N_steps, false, 1, params.N_Fam,
+		      params.Q_Fam, params.ID_s_cut);
+    // cod = params.cod_corr(params.n_cell, 1e0);
   }
 
   prtmfile("flat_file.dat");
@@ -62,7 +64,7 @@ void err_and_corr(const string &param_file, const int mode)
     exit(1);
   }
 
-  params.err_and_corr_exit(orb_corr);
+  params.err_and_corr_exit();
 }
 
 
