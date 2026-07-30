@@ -1,202 +1,129 @@
 #ifndef PARAM_H
 #define PARAM_H
 
-const int N_Fam_max = 25, max_corr = 150, max_bpm = 150;
+// N_Fam_max lives in correction/corr_config.h
+// n_b2_max/n_b3_max/max_ID_Fams and the ID-correction weights in
+// correction/id_corr.h
+// max_bpm/max_corr and the skew/eta_y output file names
+// in correction/loco/coupling_corr.h.
 
 // Computation result files
 const char beam_envelope_file[] = "beam_envelope";
 
 // Lattice error and correction files
-const char CodCorLatFileName[]  = "codcorlat.out";
+const char CodCorLatFileName[] = "codcorlat.out";
 
-const char SkewMatFileName[]    = "skewmat.out";
-const char skew_FileName[]      = "skew";
-const char eta_y_FileName[]     = "eta_y";
-const char deta_y_FileName[]    = "deta_y.out";
+// The param.dat reader for a full-machine study, and the owner of the
+// correctors that study drives.
 
-const int n_b2_max    = 1500; // max no of quad corrector families
-const int n_b3_max    = 1500; // max no of sextupoles
-const int max_ID_Fams = 25;   // max no of ID families
+class param_data_type
+{
+private:
+public:
+  // ------------------------------------------------------------------
+  // param.dat knobs. get_param overwrites only the keywords the file actually
+  // names, so the defaults below are load-bearing: a param.dat that omits a
+  // keyword runs with the value set here.
 
-// Weights for ID correction
-const double scl_nu = 1e2, scl_dbeta = 1.0, scl_dnu = 0.1, ID_step = 0.5;
+  // Input files.
+  std::string in_dir, ae_file, fe_file, ap_file, lat_FileName;
 
-class param_data_type {
- private:
+  // Error model / seeding.
+  int n_stat = 1;   // no of seeds
+  int n_meth = 0;   // error model: 0 = standard, 1 = cormisal (girder)
+  int n_scale = 1;  // no of steps the rms errors are ramped over
+  bool bba = false; // beam-based alignment (code-only, no keyword)
 
- public:
-  string ae_file, fe_file, ap_file, in_dir, lat_FileName;
-
-  static bool DA_bare,
-              freq_map;
-  static int  n_orbit,
-              n_scale;
-
-  static int n_lin,
-             SQ_per_scell,
-             BPM_per_scell,
-             HCM_per_scell,
-             VCM_per_scell;
-
-  static double kick;      // 0.01 mrad kick for trims
-  static double h_maxkick; // Default 1 mrad
-  static double v_maxkick; // Default 1 mrad
-  static double h_cut;     // weigthing factor cut (Default 1.0e-4)
-  static double v_cut;     // weigthing factor cut (Default 1.0e-4)
-  static int    n_stat;    // number of statistics
-  static int    n_meth;    // machine errors (0=standard,1=cormisal)
-  
-  int h_corr[max_corr], v_corr[max_corr], bpm_loc[max_bpm];
-
-  std::vector<double> bn_an[2*HOMmax+1];
-
-  static double VDweight,  // weight for vertical dispersion
-                HVweight,  // weight for coupling Htrim vertical BPM
-                VHweight;  // weight for coupling Vtrim horizontal BPM
-  static double disp_wave_y, disp_wave_o, qt_s_cut;
-  static int    qt_from_file;
-
-  static double TuneX,     // target tunes and chromaticities
-                TuneY,
-                ChromX,
-                ChromY;
-
-  // Parameters for dynamic aperture
-  static int    n_track_DA,
-                n_aper_DA,
-                n_delta_DA;
-  static double delta_DA;
-
-  // Parameters for frequency map
-  // Note NTURN is set to 10000 (2*NTURN for diffusion)) in "naffutils.h".
-   static int    n_x, n_y, n_dp, n_tr;
-   static double x_max_FMA, y_max_FMA, delta_FMA;
-
-  int                      N_BPM, N_HCOR, N_VCOR, N_SKEW, N_COUPLE;
-  // Orbit control.
-  static std::string       loc_Fam_name;
-  static int               n_cell, n_thread;
+  // Orbit correction.
+  std::string loc_Fam_name = "";
+  int n_cell = -1, n_thread = -1, n_orbit = 5;
+  double h_maxkick = 1.0e-3, v_maxkick = 1.0e-3;
+  double h_cut = 1.0e-4, v_cut = 1.0e-4;
   std::vector<std::string> bpm_Fam_names, corr_Fam_names[2];
-  static bool              bba;
 
-  // ID control.
-  int                      N_calls, N_steps, N_Fam, Q_Fam[N_Fam_max];
-  int                      n_sext, sexts[max_elem];
-  double                   betas0_[max_elem][2], nus0_[max_elem][2], nu0_[2];
-  double                   b2[N_Fam_max];
-  static double            ID_s_cut;
-  double                   **SkewRespMat, *VertCouple, *SkewStrengthCorr;
-  double                   *eta_y;
-  double                   *b, *w, **V, **U;
+  // Coupling / vertical-dispersion correction (the LOCO off-diagonal block).
+  int n_lin = 3; // number of iterations of coupling correction
+  int SQ_per_scell = 1, BPM_per_scell = 10;
+  int HCM_per_scell = 10, VCM_per_scell = 10;
+  double kick = 0.01e-3; // trim kick used to measure the response matrix
+  double VDweight = 1e3, HVweight = 1e0, VHweight = 1e0;
+  double disp_wave_y = 0e0, disp_wave_o = 0e0, qt_s_cut = 1e0;
+  int qt_from_file = 0;
 
-  // ID_corr global variables
-  long int S_locs[n_b3_max];
-  int      Nsext, Nquad, Nconstr, NconstrO, quad_prms[n_b2_max], id_loc;
-  int      n_ID_Fams, ID_Fams[max_ID_Fams];
-  double   Ss[n_b3_max], Sq[n_b2_max], sb[2][n_b3_max], sNu[2][n_b3_max];
-  double   qb[2][n_b2_max], qb0[2][n_b2_max], sNu0[2][n_b3_max];
-  double   qNu0[2][n_b2_max], qNu[2][n_b2_max], IDb[2], IDNu[2];
-  double   Nu_X, Nu_Y, Nu_X0, Nu_Y0;
-  double   **A1, *Xsext, *Xsext0, *b2Ls_, *w1, **U1, **V1;
-  double   *Xoct, *b4s, **Aoct;
-  Vector2  dnu0, nu_0;
+  // ID correction.
+  int N_calls = 0, N_steps = 0;
+  int N_Fam = 0, Q_Fam[N_Fam_max];
+  double ID_s_cut = 1e1;
 
-//-------------------------------------------------------------------
-// types and variables used by GirderSetup and SetCorMis
+  // Target tunes / chromaticities (fitted in err_and_corr_init when set).
+  double TuneX = 0e0, TuneY = 0e0;
+  double ChromX = 1e6, ChromY = 1e6;
 
-#define reportflag      true
-#define plotflag        true
-#define igrmax          2000
-#define ilatmax        10000
-#define iseednrmax        20
- 
-  typedef struct girdertype {
-    double gsp[2], gdx[2], gdy[2], gdt;
-    long ilat[2], igir[2], gco[2], level;
-   } girdertype;
-  girdertype Girder[igrmax];
+  // Fit-knob families, resolved by exact element-family name. Any number may be
+  // given.
+  std::vector<std::string> tune_fam = {"qax", "qay"};
+  std::vector<std::string> chrom_fam = {"sf", "sd"};
 
-  long NGirderLevel [3];
+  // Probe step for the fit Jacobian (tune_dbnL / chrom_dbnL keywords), as a
+  // whole-family integrated strength — see correction/fit_lat.h.
+  double tune_dbnL = 1e-3, chrom_dbnL = 1e0;
 
-  typedef struct latticetype {
-    long igir;
-    double smid;
-  } latticetype;
+  // Dynamic aperture.
+  int n_track_DA = 512, n_aper_DA = 15, n_delta_DA = 12;
+  double delta_DA = 3e-2;
+  bool DA_bare = false;
 
-  latticetype Lattice[ilatmax];
+  // Frequency map. NTURN is set to 10000 (2*NTURN for diffusion) in naffutils.h.
+  bool freq_map = false;
+  int n_x = 50, n_y = 30, n_dp = 25, n_tr = 2064;
+  double x_max_FMA = 20e-3, y_max_FMA = 6e-3, delta_FMA = 3e-2;
 
-  void GirderSetup();
-  void SetCorMis(double gxrms, double gyrms, double gtrms, double jxrms,
-		 double jyrms, double exrms, double eyrms, double etrms,
-		 double rancutx, double rancuty, double rancutt, long iseed);
-  void CorMis_in(double *gdxrms, double *gdzrms, double *gdarms,
-		 double *jdxrms, double *jdzrms, double *edxrms,
-		 double *edzrms, double *edarms, double *bdxrms,
-		 double *bdzrms, double *bdarms, double *rancutx,
-		 double *rancuty, double *rancutt, long *iseed, long *iseednr);
-  
-  void get_param(const string &param_file);
-  void get_bare(void);
-  void get_dbeta_dnu(double m_dbeta[], double s_dbeta[], double m_dnu[],
-		     double s_dnu[]);
-  
-// Control of vertical beam size.
-  void FindSQ_SVDmat(double **SkewRespMat, double **U, double **V, double *w,
-		     int N_COUPLE, int N_SKEW);
-  void FindMatrix(double **SkewRespMat, const double deta_y_max,
-		  const double deta_y_offset);
-  void ini_skew_cor(const double deta_y_max, const double deta_y_offset);
-  void FindCoupVector(double *VertCouple);
-  void SkewStat(double VertCouple[], const int cnt);
-  void corr_eps_y(const int cnt);
-  void ReadEta(const char *TolFileName);
+  // Parse param.dat. NOT a pure parser — mid-parse it also loads the lattice
+  // (Read_Lattice / rdmfile / rdmfile_at), seeds the RNG cut (setrancut), and
+  // resolves family names to indices in globval (gs/ge/bpm/hcorr/vcorr/qt). So
+  // calling it mutates the machine, and the order of keywords in the file can
+  // matter.
+  void get_param(const std::string &param_file);
 
-  // Control of IDs.
-  void get_IDs(void);
-  void set_IDs(const double scl);
-  void reset_quads(void);
-  void SVD(const int m, const int n, double **M, double beta_nu[],
-	   double b2Ls_[], const bool first);
-  void quad_config();
-  bool get_SQ(void);
-  double Bet(double bq, double nus, double nuq, double NuQ);
-  double Nus(double bq, double nus, double nuq, double NuQ);
-  void A_matrix(void);
-  void X_vector(const bool first);
-  void ini_ID_corr(const bool IDs);
-  void W_diag(void);
-  bool ID_corr(const int N_calls, const int N_steps, const bool IDs,
-	       const int cnt);
-  void ReadCorMis(const bool Scale_it, const double Scale) const;
-  void LoadAlignTol(const bool Scale_it, const double Scale,
-		    const bool new_rnd,
-		    const int seed) const;
-  void LoadFieldErr(const bool Scale_it, const double Scale,
-		    const bool new_rnd) const;
-  void LoadApers(const double scl_x, const double scl_y) const;
-  void zero_mult(void);
-  void restore_mult(void);
+  // Project the knobs each corrector needs. Same shape for both: the corrector
+  // takes its config by value and never sees the rest of the bag.
+  corr::orbit_cfg orbit_config(void) const;
+  corr::coupling_cfg coupling_config(void) const;
+
+  // ------------------------------------------------------------------
+
+  // Sextupole b_3 save buffer for a corr::zero_mult/restore_mult pair. Held here
+  // so ctrl_cod.cc can hand the same buffer to both halves of the pair.
+  std::vector<double> bn_an[2 * HOMmax + 1];
+
+  // Bare-lattice reference optics at the sextupoles. Measured from the
+  // error-free machine by bare.capture().
+  corr::bare_optics bare;
+
+  // The correctors. Each owns its own working state.
+  corr::id_corr id;           // ID (insertion-device) optics correction
+  corr::girder_model girders; // cormisal girder error model (n_meth == 1)
+  corr::coupling_corr skew;   // coupling / vertical dispersion (LOCO off-diag)
+  corr::orbit_corr orbits;    // closed-orbit correction (both planes)
+
+  //-------------------------------------------------------------------
+  // Beam-based alignment: align the BPMs to the neighbouring quadrupole centres.
+  // Reached only through the bba flag, which no param.dat keyword sets — so it
+  // is unexercised by any study driven from a param file.
   void Align_BPMs(const int n, const double bdxrms, const double bdzrms,
-		  const double bdarms) const;
+                  const double bdarms) const;
+
+  // No callers.
   bool CorrectCOD_N(const int n_orbit, const int k);
-  void ini_COD_corr(const int n_bpm_Fam, const std::string bpm_names[],
-		    const int n_hcorr_Fam, const std::string hcorr_names[],
-		    const int n_vcorr_Fam, const std::string vcorr_names[],
-		    const bool svd);
-
-  bool cod_corr(const int n_cell, const double scl, const double h_maxkick,
-		const double v_maxkick, orb_corr_type orb_corr[]);
-
-  void Orb_and_Trim_Stat(orb_corr_type orb_corr[]);
-
   void prt_cod_corr_lat(void);
 
-  void err_and_corr_init(const string &param_file, orb_corr_type orb_corr[]);
+  // Driver.
+  void err_and_corr_init(const string &param_file);
 
-  void err_and_corr_exit(orb_corr_type orb_corr[]);
+  void err_and_corr_exit(void);
 };
 
 void get_bn2(const string file_name1, const string file_name2, int n,
-	     const bool prt);
+             const bool prt);
 
 #endif

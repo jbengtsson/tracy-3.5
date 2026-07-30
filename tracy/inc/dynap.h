@@ -15,7 +15,7 @@ class DA_data_type {
 		   FILE *fp, const double r, const double delta,
 		   const double eps, double x_min[], double x_max[]);
   void get_DA_bare(param_data_type &params);
-  void get_DA_real(param_data_type &params, orb_corr_type orb_corr[]);
+  void get_DA_real(param_data_type &params);
   void get_mean_sigma(const int n, double &m, double &s);
 };
 

@@ -31,9 +31,9 @@ void get_cod_rms(const double dxy_rms[], const int n_seed, const bool all)
     misalign_rms_type(Dip,  dxy_rms[X_], dxy_rms[Y_], 0e0, true);
     misalign_rms_type(Quad, dxy_rms[X_], dxy_rms[Y_], 0e0, true);
     
-    params.zero_mult();
+    corr::zero_mult(params.bn_an);
     cod = orb_corr(n_cod_corr);
-    params.restore_mult();
+    corr::restore_mult(params.bn_an);
 
     if (cod) {
       n_cod++;
@@ -77,7 +77,7 @@ void get_cod_rms(const double dxy_rms[], const int n_seed, const bool all)
 }
 
 
-void config_cod(param_data_type &prms)
+void config_cod(void)
 {
   const int n_bpm_Fam = 1, n_hcorr_Fam = 1, n_vcorr_Fam = 1;
 
@@ -86,8 +86,8 @@ void config_cod(param_data_type &prms)
     hcorr_names[n_hcorr_Fam] = {"chv"},
     vcorr_names[n_vcorr_Fam] = {"chv"};
 
-  prms.ini_COD_corr(n_bpm_Fam, bpm_names, n_hcorr_Fam, hcorr_names, n_vcorr_Fam,
-		    vcorr_names, true);
+  corr::ini_COD_corr(n_bpm_Fam, bpm_names, n_hcorr_Fam, hcorr_names,
+		     n_vcorr_Fam, vcorr_names, true);
 
   prt_gcmat(1);
   prt_gcmat(2);
@@ -99,12 +99,10 @@ void chk_cod_corr(const double dx_rms, const double dy_rms, const int seed,
 {
   const double dxy_rms[] = {dx_rms, dy_rms};
 
-  param_data_type prms;
-
   iniranf(seed);
   setrancut(2e0);
 
-  config_cod(prms);
+  config_cod();
 
   get_cod_rms(dxy_rms, n_seed, !true);
 }

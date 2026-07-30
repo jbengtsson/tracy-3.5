@@ -197,8 +197,7 @@ void DA_data_type::get_DA_bare(param_data_type &params)
 }
 
 
-void DA_data_type::get_DA_real(param_data_type &params,
-			       orb_corr_type orb_corr[])
+void DA_data_type::get_DA_real(param_data_type &params)
 {
   bool     cod = false;
   char     str[max_str];
@@ -213,20 +212,6 @@ void DA_data_type::get_DA_real(param_data_type &params,
   double   rancutx, rancuty, rancutt;
   long     iseednr, iseed[iseednrmax]={0L};
   char     fname[30];
-
-  fitvect  qfbuf, qdbuf;
-  iVector2 nq;
-  Vector2  nu;
-  double   dk;
-  double   TotalTuneX,TotalTuneY;
-
-  fitvect  sfbuf, sdbuf;
-  iVector2 ns;
-  Vector2  si;
-  double   dks;
-  double   ChromaX,ChromaY;
-
-  CellType *WITH;
 
   const int    n_cell = 20;
 
@@ -262,35 +247,37 @@ void DA_data_type::get_DA_real(param_data_type &params,
 
   if (params.n_meth == 1) {
     printf("Entering GirderSetup\n");
-    params.GirderSetup();
+    params.girders.GirderSetup();
   }
 
   for (j = 1; j <= params.n_stat; j++) {
     globval.Cavity_on = false;
 
-    if (params.fe_file != "") params.LoadFieldErr(false, 1e0, true);
+    if (params.fe_file != "")
+      corr::LoadFieldErr(params.fe_file, false, 1e0, true);
     if (params.ae_file != "") {
       // Load misalignments; set seed, no scaling of rms errors.
       if (trace)
 	printf("\nget_DA_real: n_meth = %d", params.n_meth);
       if (params.n_meth == 0) {
         printf("entering LoadAlignTol\n");
-        params.LoadAlignTol(false, 1e0, true, j);
+        corr::LoadAlignTol(params.ae_file, false, 1e0, true, j);
 	bdxrms = bdzrms = bdarms = -1e0;
       } else if (params.n_meth == 1) {
 	// printf("entering ReadCormis\n");
-	// params.ReadCorMis(false,1e0);
+	// corr::ReadCorMis(false, 1e0);
 	printf("Entering CorMis_in\n");
-	params.CorMis_in(&gdxrms, &gdzrms, &gdarms, &jdxrms, &jdzrms, &edxrms,
-			 &edzrms, &edarms, &bdxrms, &bdzrms, &bdarms, &rancutx,
-			 &rancuty, &rancutt, iseed, &iseednr);
+	corr::CorMis_in(&gdxrms, &gdzrms, &gdarms, &jdxrms, &jdzrms, &edxrms,
+			&edzrms, &edarms, &bdxrms, &bdzrms, &bdarms, &rancutx,
+			&rancuty, &rancutt, iseed, &iseednr);
 	if (params.n_stat > iseednr) {
 	  printf("n_stat %d exceeds iseednr %ld\n", params.n_stat, iseednr);
 	  exit(1);
 	}
 	printf("Entering SetCorMis\n");
-	params.SetCorMis(gdxrms, gdzrms, gdarms, jdxrms, jdzrms, edxrms,
-			 edzrms, edarms, rancutx, rancuty, rancutt, iseed[j-1]);
+	params.girders.SetCorMis(gdxrms, gdzrms, gdarms, jdxrms, jdzrms, edxrms,
+				 edzrms, edarms, rancutx, rancuty, rancutt,
+				 iseed[j-1]);
       }
 
       // Beam based alignment with respect to sextupoles with errors bdxrms,
@@ -298,20 +285,21 @@ void DA_data_type::get_DA_real(param_data_type &params,
       if (params.bba) {
         params.Align_BPMs(Sext, bdxrms, bdzrms, bdarms);
       }
-      cod = params.cod_corr(n_cell, 1e0, params.h_maxkick, params.v_maxkick,
-			    orb_corr);
+      cod = params.orbits.cod_corr(params.orbit_config(), params.bare, n_cell, 1e0,
+			     params.h_maxkick, params.v_maxkick);
     } else
       cod = getcod(0e0, lastpos);
 
-    params.Orb_and_Trim_Stat(orb_corr);
+    params.orbits.Orb_and_Trim_Stat();
 
     if (params.N_calls > 0) {
-      params.ID_corr(params.N_calls, params.N_steps, false, j);
-      cod = params.cod_corr(n_cell, 1e0, params.h_maxkick, params.v_maxkick,
-			    orb_corr);
+      params.id.ID_corr(params.N_calls, params.N_steps, false, j, params.N_Fam,
+			params.Q_Fam, params.ID_s_cut);
+      cod = params.orbits.cod_corr(params.orbit_config(), params.bare, n_cell, 1e0,
+			     params.h_maxkick, params.v_maxkick);
     }
 
-    params.Orb_and_Trim_Stat(orb_corr);
+    params.orbits.Orb_and_Trim_Stat();
 
     printf("\n");
     if (cod) {
@@ -324,8 +312,7 @@ void DA_data_type::get_DA_real(param_data_type &params,
       snprintf(fname, sizeof(fname), "cod_%d.dat", j);
       printcod(fname);
       if (trace && (j == 1)) {
-	orb_corr[X_].prt_svdmat();
-	orb_corr[Y_].prt_svdmat();
+	params.orbits.prt_svdmat();
       }
  
       Ring_GetTwiss(true, 0.0); printglob();
@@ -333,89 +320,42 @@ void DA_data_type::get_DA_real(param_data_type &params,
       GetEmittance(ElemIndex("cav"), false, true);
 
       if (params.n_lin > 0) {
-	params.corr_eps_y(j);
+	params.skew.corr_eps_y(params.coupling_config(), j);
 	if (params.N_calls > 0) {
-	  params.ID_corr(params.N_calls, params.N_steps, false, j);
-	  params.cod_corr(n_cell, 1e0, params.h_maxkick, params.v_maxkick,
-			  orb_corr);
+	  params.id.ID_corr(params.N_calls, params.N_steps, false, j, params.N_Fam,
+			params.Q_Fam, params.ID_s_cut);
+	  params.orbits.cod_corr(params.orbit_config(), params.bare, n_cell, 1e0,
+			     params.h_maxkick, params.v_maxkick);
 	}
  	Ring_GetTwiss(true, 0.0); printglob();
 	GetEmittance(ElemIndex("cav"), false, true);
       }
 
       ///////////////////////////////
-      // Fit tunes to TuneX and TuneY
-      
+      // Re-fit the tunes and chromaticities on this seed's corrected lattice,
+      // with the same corr:: routines err_and_corr_init uses on the ideal one.
+      // A failed fit restores its own knobs and the seed carries on unfitted.
+
       if (params.TuneX*params.TuneY > 0) {
-	dk=1e-3;
-	nq[0]=nq[1]=0;
-	nu[0]=params.TuneX;
-	nu[1]=params.TuneY;
-	for (i = 0; i <= globval.Cell_nLoc; i++) {
-	  WITH = &Cell[i];
-	  if ( WITH->Elem.Pkind == Mpole ) {
-	    if (strncmp(Cell[i].Elem.PName,"qax",3) == 0){
-	      qfbuf[nq[0]]=i;
-	      nq[0]++;
-	    }
-	    if (strncmp(Cell[i].Elem.PName,"qay",3) == 0){
-	      qdbuf[nq[1]]=i;
-	      nq[1]++;
-	    }
-	  }
-	}
-
-	printf("Fittune: nq[0]=%ld nq[1]=%ld\n",nq[0],nq[1]);
-	TotalTuneX=globval.TotalTune[0];
-	TotalTuneY=globval.TotalTune[1];
-	Ring_Fittune(nu, (double)1e-4, nq, qfbuf, qdbuf, dk, 50L);
-	printf("Fittune: nux= %f dnux= %f nuy= %f dnuy= %f\n",
-	       globval.TotalTune[0], globval.TotalTune[0]-TotalTuneX,
-	       globval.TotalTune[1], globval.TotalTune[1]-TotalTuneY);
-
+	corr::fit_tune(params.tune_fam, params.TuneX, params.TuneY,
+		       params.tune_dbnL);
 	Ring_GetTwiss(true, 0.0); printglob();
 	GetEmittance(ElemIndex("cav"), false, true);
       }
-
-      // Fit chromaticities to ChromX and ChromY
 
       if (params.ChromX*params.ChromY < 1e6) {
-	dks=1e-3;
-	ns[0]=ns[1]=0;
-	si[0]=params.ChromX;
-	si[1]=params.ChromY;
-	for (i = 0; i <= globval.Cell_nLoc; i++) {
-	  WITH = &Cell[i];
-	  if ( WITH->Elem.Pkind == Mpole ) {
-	    if (strncmp(Cell[i].Elem.PName,"sf",2) == 0){
-	      sfbuf[ns[0]]=i;
-	      ns[0]++;
-	    }
-	    if (strncmp(Cell[i].Elem.PName,"sd",2) == 0){
-	      sdbuf[ns[1]]=i;
-	      ns[1]++;
-	    }
-	  }
-	}
-
-	printf("Fitchrom: ns[0]=%ld ns[1]=%ld\n",ns[0],ns[1]);
-	ChromaX=globval.Chrom[0];
-	ChromaY=globval.Chrom[1];
-	Ring_Fitchrom(si, (double)1e-4, ns, sfbuf, sdbuf, dks, 50L);
-	printf("Fitchrom: six= %f dsix= %f siy= %f dsiy= %f\n",
-	       globval.Chrom[0], globval.Chrom[0]-ChromaX, globval.Chrom[1],
-	       globval.Chrom[1]-ChromaY);
-
+	corr::fit_chrom(params.chrom_fam, params.ChromX, params.ChromY,
+			params.chrom_dbnL);
 	Ring_GetTwiss(true, 0.0); printglob();
 	GetEmittance(ElemIndex("cav"), false, true);
       }
-      
+
       // End of tune and chromaticity fit
       ///////////////////////////////////
       
       prt_beamsizes(j);
 
-      if (params.ap_file != "") params.LoadApers(1.0, 1.0);
+      if (params.ap_file != "") corr::LoadApers(params.ap_file, 1.0, 1.0);
 
       globval.Cavity_on = true;
 
@@ -444,7 +384,7 @@ void DA_data_type::get_DA_real(param_data_type &params,
 	       Cell[Elem_GetPos(globval.qt,1)].Elem.PName);
         set_bnL_design_fam(globval.qt, Quad, 0.0, 0.0);
       }
-      if (params.N_calls > 0) params.reset_quads();  
+      if (params.N_calls > 0) params.id.reset_quads(params.N_Fam, params.Q_Fam);
     } else
       chk_cod(cod, "err_and_corr");
   }

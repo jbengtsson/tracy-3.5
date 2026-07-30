@@ -29,6 +29,7 @@
 #include <cfloat>
 #include <cctype>
 #include <cmath>
+#include <cstring>
 #include <complex>
 #include <iostream>
 #include <sstream>
@@ -79,6 +80,16 @@ using namespace std;
 #include "physlib.h"
 #include "nsls-ii_lib.h"
 #include "orb_corr.h"
+#include "correction/corr_config.h"
+#include "correction/corr_linalg.h"
+#include "correction/corr_utils.h"
+#include "correction/fit_lat.h"
+#include "correction/girder_model.h"
+#include "correction/error_model.h"
+#include "correction/id_corr.h"
+#include "correction/loco/orm.h"
+#include "correction/loco/coupling_corr.h"
+#include "correction/orbit_corr.h"
 #include "param.h"
 #include "dynap.h"
 
