@@ -506,7 +506,7 @@ void get_sigma(void)
 
   get_emit(M_M_tp, D_vec);
 
-  exit(0);
+  // exit(0);
 
   A.identity();
   A = putlinmat(4, globval.Ascr);

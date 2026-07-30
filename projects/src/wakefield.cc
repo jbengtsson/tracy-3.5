@@ -460,11 +460,11 @@ void track(const int n, const double eps[], const double sigma_s,
 
   map.set_params(n_dof, Cell[globval.Cell_nLoc].S);
   map.compute_maps();
-  map.set_rf_cav_hom("cav", 800e6, 1e6, 4.8e4);
+  // map.set_rf_cav_hom("cav", 800e6, 1e6, 4.8e4);
 
   beam.set_file_name(file_name);
 
-  beam.init_sigma(eps[X_], eps[Y_], sigma_s, sigma_delta, map);
+  beam.init_sigma(1e1*eps[X_], 1e1*eps[Y_], 1e1*sigma_s, 1e1*sigma_delta, map);
 
   map.propagate(n, beam);
 
