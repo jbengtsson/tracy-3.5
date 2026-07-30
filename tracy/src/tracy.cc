@@ -28,7 +28,9 @@
 
 #include "t2lat.cc"
 #include "t2elem.cc"
+#include "t2elem_mom.cc"
 #include "t2cell.cc"
+#include "t2cell_mom.cc"
 #include "t2ring.cc"
 #include "sigma_track.cc"
 
@@ -72,28 +74,32 @@ template class ss_vect<double>;
 template class ss_vect<tps>;
 
 
-template void GtoL(ss_vect<double> &, Vector2 &, Vector2 &,
-		   const double, const double, const double);
+template void GtoL
+(ss_vect<double> &, const Vector2 &, const Vector2 &, const double,
+ const double, const double);
 
-template void GtoL(ss_vect<tps> &, Vector2 &, Vector2 &,
-		   const double, const double, const double);
+template void GtoL
+(ss_vect<tps> &, const Vector2 &, const Vector2 &, const double, const double,
+ const double);
 
-template void LtoG(ss_vect<tps> &, Vector2 &, Vector2 &,
-		   double, double, double);
+template void LtoG
+(ss_vect<tps> &, const Vector2 &, const Vector2 &, const double, const double,
+ const double);
 
-template void LtoG(ss_vect<double> &, Vector2 &, Vector2 &,
-		   double, double, double);
+template void LtoG
+(ss_vect<double> &, const Vector2 &, const Vector2 &, const double,
+ const double, const double);
 
-template void p_rot(double, ss_vect<double> &);
+template void p_rot(const double, ss_vect<double> &);
 
-template void p_rot(double, ss_vect<tps> &);
+template void p_rot(const double, ss_vect<tps> &);
 
 
-template void get_B2(const double, const double [], const ss_vect<double> &,
-		     double &, double &);
+template void get_B2
+(const double, const double [], const ss_vect<double> &, double &, double &);
 
-template void get_B2(const double, const tps [], const ss_vect<tps> &,
-		     tps &, tps &);
+template void get_B2
+(const double, const tps [], const ss_vect<tps> &, tps &, tps &);
 
 template void radiate
 (CellType &Cell, ss_vect<double> &, const double, const double,
@@ -116,11 +122,11 @@ template void bend_fringe(const double, ss_vect<double> &);
 
 template void bend_fringe(const double, ss_vect<tps> &);
 
-template void EdgeFocus(const double, const double, const double,
-			ss_vect<double> &);
+template void EdgeFocus
+(const double, const double, const double, ss_vect<double> &);
 
-template void EdgeFocus(const double, const double, const double,
-			ss_vect<tps> &);
+template void EdgeFocus
+(const double, const double, const double, ss_vect<tps> &);
 
 template void quad_fringe(const double, ss_vect<double> &);
 

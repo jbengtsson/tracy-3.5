@@ -135,8 +135,9 @@ void splin2_(const double x1a[], const double x2a[], double **ya, double **y2a,
 
 
 template<typename T>
-void GtoL(ss_vect<T> &ps, Vector2 &S, Vector2 &R,
-	  const double c0, const double c1, const double s1)
+void GtoL
+(ss_vect<T> &ps, const Vector2 &S, const Vector2 &R, const double c0,
+ const double c1, const double s1)
 {
   ss_vect<T> ps1;
 
@@ -160,8 +161,9 @@ void GtoL(ss_vect<T> &ps, Vector2 &S, Vector2 &R,
 
 
 template<typename T>
-void LtoG(ss_vect<T> &ps, Vector2 &S, Vector2 &R,
-	  double c0, double c1, double s1)
+void LtoG
+(ss_vect<T> &ps, const Vector2 &S, const Vector2 &R, const double c0,
+ const double c1, const double s1)
 {
   ss_vect<T> ps1;
 
@@ -638,7 +640,7 @@ void EdgeFocus(const double irho, const double phi, const double gap,
 
 
 template<typename T>
-void p_rot(double phi, ss_vect<T> &ps)
+void p_rot(const double phi, ss_vect<T> &ps)
 {
   T          c, s, t, pz, p, val;
   ss_vect<T> ps1;

@@ -1,24 +1,12 @@
-/* Tracy-3
+/* Tracy-5
 
-   J. Bengtsson, BNL 2007
+   J. Bengtsson, 2026.
 
 */
 
-#ifndef T2CELL_H
-#define T2CELL_H
-
-extern tps  sigma_;
-
-bool GetCOD(long imax, double eps, double dP, long &lastpos);
-
-template<typename T>
-void Elem_Pass(const long i, ss_vect<T> &x);
-
-template<typename T>
-void Cell_Pass(const long i0, const long i1, ss_vect<T> &x, long &lastpos);
+#ifndef T2CELL_MOM_H
+#define T2CELL_MOM_H
 
 void Cell_Pass(const long i0, const long i1, tps &sigma, long &lastpos);
-
-void Cell_Init(void);
 
 #endif

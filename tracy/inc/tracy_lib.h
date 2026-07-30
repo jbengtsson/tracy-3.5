@@ -68,6 +68,7 @@ using namespace std;
 #include "pascalio.h"
 
 #include "t2elem.h"
+#include "t2elem_mom.h"
 #include "t2cell.h"
 #include "t2lat.h"
 #include "t2ring.h"

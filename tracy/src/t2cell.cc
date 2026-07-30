@@ -111,57 +111,6 @@ void Cell_Pass(const long i0, const long i1, ss_vect<T> &x, long &lastpos)
 }
 
 
-void Cell_Pass(const long i0, const long i1, tps &sigma, long &lastpos)
-{
-  // Note: Sigma_k+1 = M_k Sigma_k M_k^T = (M_k (M_k Sigma_k)^T)^T
-  const int  n = 9;
-
-  int           i, j;
-  long int      jj[n][nv_tps];
-  ss_vect<tps>  Id, A;
-
-  const double  deps = 1e-20;
-
-  Id.identity();
-
-  map = Id + globval.CODvect; Cell_Pass(0, i0, map, lastpos);
-
-  if (lastpos == i0) {
-    map = Id + map.cst(); Cell_Pass(i0, i1, map, lastpos);
-
-    if (lastpos == i1) {
-      // x_1 = zeta(x_0) => f_1(x) = f_0(zeta^-1(x))
-
-      // deterministic part
-      sigma = sigma*Inv(map-map.cst());
-
-      if (globval.emittance) {
-	// stochastic part
-
-	for (i = 0; i < n; i++)
-	  for (j = 0; j < nv_tps; j++)
-	    jj[i][j] = 0;
-
-	jj[0][x_]  = 2; jj[1][x_]  = 1; jj[1][px_]    = 1; jj[2][px_]    = 2;
-	jj[3][y_]  = 2; jj[4][y_]  = 1; jj[4][py_]    = 1; jj[5][py_]    = 2;
-	jj[6][ct_] = 2; jj[7][ct_] = 1; jj[7][delta_] = 1; jj[8][delta_] = 2;
-
-	A = putlinmat(6, globval.Ascr); sigma = sigma*A;
-
-	for (i = 0; i < 3; i++) {
-	  if (globval.eps[i] > deps) {
-	    sigma.pook(jj[3*i], sigma[jj[3*i]]-globval.D_rad[i]/2.0);
-	    sigma.pook(jj[3*i+2], sigma[jj[3*i+2]]-globval.D_rad[i]/2.0);
-	  }
-	}
-
-	sigma = sigma*Inv(A);
-      }
-    }
-  }
-}
-
-
 bool Cell_getCOD(long imax, double eps, double dP, long &lastpos)
 {
   static bool     first = true;
