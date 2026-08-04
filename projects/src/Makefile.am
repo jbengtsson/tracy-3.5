@@ -72,12 +72,11 @@ for_stephen_SOURCES       = for_stephen.cc
 prt_kick_map_SOURCES      = prt_kick_map.cc
 inversion_1_SOURCES       = inversion_1.cc
 
-LOCAL = /usr/local/opt
-
 # Explicit reference to libc++ required for CC front-end vs. C++.
+# GSL_LIBS is resolved by configure via gsl-config.
 LIBS =	-L$(TRACY_LIB)/tracy/lib -ltracy \
 	-L$(NUM_REC)/lib -lnum_rec \
-	-L$(LOCAL)/gsl/lib -lgsl
+	$(GSL_LIBS)
 
 # Enduser flags.
 
@@ -88,8 +87,9 @@ LIBS =	-L$(TRACY_LIB)/tracy/lib -ltracy \
 
 # C Preprocessor flags.
 AM_CPPFLAGS = \
+	$(GSL_CFLAGS) \
 	-I$(TRACY_LIB)/tracy/inc \
-	-I$(NUM_REC)/inc 
+	-I$(NUM_REC)/inc
 
 # C++ flags.
 AM_CXXFLAGS = \
