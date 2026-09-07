@@ -41,6 +41,6 @@ case "$(uname -s)" in
 esac
 
 ./bootstrap
-./configure --prefix=$dir/projects "$@"
+./configure --prefix="$dir/projects" "$@"
 
 make

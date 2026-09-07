@@ -40,6 +40,6 @@ case "$(uname -s)" in
 esac
 
 ./bootstrap
-./configure --prefix=$dir/tracy "$@"
+./configure --prefix="$dir/tracy" "$@"
 
 make install
