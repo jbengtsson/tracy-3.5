@@ -43,6 +43,7 @@ AC_SUBST(MAC_LDFLAGS)
 
 # GSL. gsl-config ships with GSL and reports its own include and library
 # paths, which differ across Linux, Intel macOS and Apple Silicon.
+# NOTE: kept in sync with the identical block in the top-level configure.ac.
 AC_ARG_WITH([gsl],
   [AS_HELP_STRING([--with-gsl=DIR],
                   [prefix of a GSL install, if gsl-config is not on PATH])])
