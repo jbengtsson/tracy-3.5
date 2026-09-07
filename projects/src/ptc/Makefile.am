@@ -29,23 +29,24 @@ lie_series_chk_SOURCES  = lie_series_chk.cc
 get_map_norm_SOURCES    = get_map_norm.cc
 inversion_1_SOURCES     = inversion_1.cc
 
-LOCAL = /usr/local/opt
-
 #	$(TRACY_LIB)/tracy/lib/libTPSALib.a $(TRACY_LIB)/tracy/lib/libLieLib.a \
 #	$(THOR_LIB)/thor/lib/libTPSALib.a $(THOR_LIB)/thor/lib/libLieLib.a \
 # Explicit reference to libc++ required for CC front-end vs. C++.
 # Cope with macOS by using static libraries.
+# GSL_LIBS comes from gsl-config; FLIBS is the FORTRAN runtime, both resolved
+# by configure.
 LIBS =	$(TRACY_LIB)/tracy/lib/libtracy_ptc.a \
 	$(THOR_LIB)/thor/lib/libTPSALib.a $(THOR_LIB)/thor/lib/libLieLib.a \
 	-L$(NUM_REC)/lib -lnum_rec \
-	-L$(LOCAL)/gsl/lib -lgsl \
-	-L$(LOCAL)/gfortran/lib/gcc/current -lgfortran
+	$(GSL_LIBS) \
+	$(FLIBS)
 
 # Load flags.
 # LDFLAGS = $(THOR_LIB)/TPSA/TPSALib.o $(THOR_LIB)/TPSA/LieLib.o
 
 # C Preprocessor flags.
 AM_CPPFLAGS = \
+	$(GSL_CFLAGS) \
 	-I$(TRACY_LIB)/tracy/inc \
 	-I$(NUM_REC)/inc
 
