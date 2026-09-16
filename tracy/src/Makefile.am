@@ -8,12 +8,10 @@ libtracy_la_SOURCES = tracy_lib.cc
 
 libtracy_ptc_la_SOURCES = tracy_ptc_lib.cc
 
-GNU = /usr/local/opt
-
 # C Preprocessor flags.
+# GSL_CFLAGS is resolved by configure via gsl-config.
 AM_CPPFLAGS = \
-	-I$(GNU)/gcc/include \
-	-I$(GNU)/gsl/include \
+	$(GSL_CFLAGS) \
 	-I../inc \
 	-I$(NUM_REC)/inc
 
@@ -29,5 +27,5 @@ AM_CXXFLAGS = \
 	-D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC -fPIC
 
 AM_FFLAGS = -ggdb -O -fbacktrace -Wall -fbounds-check -fPIC \
-            -std=gnu -fdefault-integer-8 -mcmodel=medium
+            -std=gnu -fdefault-integer-8 $(MCMODEL_FFLAGS)
 

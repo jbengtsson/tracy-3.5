@@ -280,7 +280,7 @@ void prt_cmplx_vec(const string &str, const int n, const ss_vect<double> &a_re,
   cout << str;
   for (k = 0; k < n; k++)
     cout << scientific << setprecision(3)
-	 << setw(12) << a_re[k] << (sgn(a_im[k] > 0)? " + " : " - ")
+	 << setw(12) << a_re[k] << ((a_im[k] > 0)? " + " : " - ")
 	 << setw(9) << fabs(a_im[k]) << "i";
   cout << "\n";
 }

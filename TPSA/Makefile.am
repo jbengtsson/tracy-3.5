@@ -16,4 +16,4 @@ libLieLib_a_SOURCES  = LieLib.f
 
 # FORTRAN 77 flags (The package maintainer’s variant of FFLAGS).
 AM_FFLAGS = -ggdb -O -fbacktrace -Wall -fbounds-check -fPIC \
-            -std=gnu -fdefault-integer-8 -mcmodel=medium
+            -std=gnu -fdefault-integer-8 $(MCMODEL_FFLAGS)

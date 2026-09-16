@@ -1,6 +1,11 @@
 #!/bin/sh
+# Regenerate the autotools build system. Normally invoked by
+# make_projects.sh rather than run directly.
+set -e
 set -x
-aclocal -I config
+# -I m4 to match AC_CONFIG_MACRO_DIRS([m4]) in configure.ac; the libtool
+# macros are generated into m4/ by (g)libtoolize.
+aclocal -I m4
 autoheader
 autoconf
 automake --add-missing --foreign --copy
