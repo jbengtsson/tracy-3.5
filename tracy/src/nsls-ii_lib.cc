@@ -487,7 +487,7 @@ void get_eps_x(double &eps_x, double &sigma_delta, double &U_0, double J[],
       printf(" %10.3e", I[k]);
     printf("\n");
 
-    printf("\n  U_0   [keV]    = %5.1f\n", 1e-3*U_0);
+    printf("\n  U_0   [keV]    = %7.3f\n", 1e-3*U_0);
     printf("  eps_x [nm.rad] = %6.4f\n", 1e9*eps_x);
     printf("  sigma_delta    = %9.3e\n", sigma_delta);
     printf("  J              = [%5.3f, %5.3f, %5.3f]\n", J[X_], J[Y_], J[Z_]);
@@ -658,7 +658,7 @@ void GetEmittance(const int Fnum_cav, const bool path_length, const bool prt)
     printf("\nBeam energy [GeV]:              "
 	   "Eb          = %4.2f\n", globval.Energy);
     printf("Energy loss per turn [keV]:     "
-	   "U0          = %3.1f\n",
+	   "U0          = %5.3f\n",
 	   1e-3*globval.U0);
     printf("Synchronous phase [deg]:        "
 	   "phi0        = 180 - %4.2f\n",
