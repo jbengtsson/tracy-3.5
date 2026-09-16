@@ -63,8 +63,8 @@ public:
   void compute_stochastic_part(ss_vect<double> &X, ss_vect<tps> &X_map);
   void propagate(const int n, BeamType &beam);
 
-  void set_rf_cav_hom(const string &fam_name, const double f, const double Z,
-		      const double Q);
+  void set_rf_cav_hom
+  (const string &fam_name, const double f, const double Z, const double Q);
   void propagate_rf_cav_hom(BeamType &beam);
 };
 
@@ -460,7 +460,7 @@ void track(const int n, const double eps[], const double sigma_s,
 
   map.set_params(n_dof, Cell[globval.Cell_nLoc].S);
   map.compute_maps();
-  // map.set_rf_cav_hom("cav", 800e6, 1e6, 4.8e4);
+  map.set_rf_cav_hom("cav", 800e6, 1e6, 4.8e4);
 
   beam.set_file_name(file_name);
 
