@@ -807,8 +807,8 @@ void fit_xi_jb_2(const double xi_x, const double xi_y)
   Fnum.push_back(ElemIndex("s3_h2"));
   Fnum.push_back(ElemIndex("s4_h2"));
 #else
-  Fnum.push_back(ElemIndex("sf"));
-  Fnum.push_back(ElemIndex("sd"));
+  Fnum.push_back(ElemIndex("b45_sf"));
+  Fnum.push_back(ElemIndex("b45_sd"));
 #endif  
 
   fit_xi_jb(Fnum, xi_x, xi_y, 1e0);
@@ -928,7 +928,7 @@ void compute_mat(void)
 
 void set_state(void)
 {
-  globval.H_exact        = false;
+  globval.H_exact        = !false;
   globval.quad_fringe    = false;
   globval.Cavity_on      = false;
   globval.radiation      = false;
@@ -937,7 +937,7 @@ void set_state(void)
   globval.pathlength     = false;
   globval.Aperture_on    = false;
   globval.Cart_Bend      = false;
-  globval.dip_edge_fudge = true;
+  globval.dip_edge_fudge = !true;
   globval.EPU            = false;
 }
 
