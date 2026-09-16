@@ -752,7 +752,7 @@ void test_case(const string &cav_name)
   const int
     n_turn           = 3000;
   const double
-    // Observation piont: long straight.
+    // Observation point: long straight.
     fp_rad[] =
     {2.448e-09, 1.372e-07, 0.000e+00, 0.000e+00, -1.036e-04, -3.211e-16},
     eps[]            = {161.7e-12, 8e-12},
