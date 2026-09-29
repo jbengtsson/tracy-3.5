@@ -67,7 +67,8 @@ AC_TYPE_SIZE_T
 # Checks for library functions.
 AC_CONFIG_FILES([Makefile
           TPSA/Makefile
-	  tracy/Makefile tracy/src/Makefile])
+	  tracy/Makefile tracy/src/Makefile
+	  test/Makefile])
 AC_OUTPUT
 
 # Report what was actually found, so build reports from different machines
