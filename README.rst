@@ -7,14 +7,14 @@ Hence, the code was also benchmarked & calibrated as part of the ALS commissioni
 
   J\. Bengtsson, M. Meddahi *Modeling of Beam Dynamics and Comparison with Measurements for the Advanced Light Source (ALS)* `EPAC 1994.`_
 
-  .. _`EPAC 1994.`: https://accelconf.web.cern.ch/e94/PDF/EPAC1994_1021.PDF
+  .. _`EPAC 1994.`: https://proceedings.jacow.org/e94/PDF/EPAC1994_1021.PDF
 
 
 Remark: Although the entire *beam dynamics model* had to be replaced & the model/code/"approach" re-architectured & structured – for a reusable approach – as a *Pascal beam dynamics libary* (standard practise in software engineering), the code was named *Tracy-2*, i.e., inspired by the, somewhat archaic demo/prototype/concept *Tracy*:
 
   H\. Nishimura *TRACY, A Tool for Accelerator Design and Analysis* `EPAC 1988`_
 
-  .. _`EPAC 1988`: https://accelconf.web.cern.ch/e88/PDF/EPAC1988_0803.PDF
+  .. _`EPAC 1988`: https://proceedings.jacow.org/e88/PDF/EPAC1988_0803.PDF
 
 for which the *beam dynamics model* was based on the *linearized quadratic Hamiltonian*:
 
@@ -26,7 +26,7 @@ E.g. by not having figured out/mastered how to pass records (structures in C) as
 
   E\. Forest *A Hamiltonian-Free Description of Single Particle Dynamics for Hopelessly Complex Periodic Systems* `J. Math. Phys. 31 (1990).`_
 
-  .. _`J. Math. Phys. 31 (1990).`: http://dx.doi.org/10.1063/1.528795%7D
+  .. _`J. Math. Phys. 31 (1990).`: https://doi.org/10.1063/1.528795
 
 Hence, the one thing we did find useful for a realistic on-line model – having already implemented an on-line model as a sci fellow for LEAR, CERN, in the late 1980s and before that having worked as a teaching assistent at the *dept. of Software Engineering, Lund Inst. of Tech, Sweden* (next to *MAX Lab*) while pursuing a MsSci EE – and adopted for ALS. Was the implementation of the beam dynamics model as an *extension of the standard procedures & functions* for the *Pascal-S compiler/interpreter* by N. Wirth (implemented/coded in it's native grammar); architected as a Pascal software library/module:
 
@@ -42,7 +42,7 @@ Hence, the one thing we did find useful for a realistic on-line model – having
 
   .. _`Institut für Informatik, ETH, Zürich (1975).`: http://pascal.hansotten.com/uploads/pascals/PASCAL-S%20A%20subset%20and%20its%20Implementation%20012.pdf
 
-  *Pascal-P6* https://sourceforge.net/projects/pascal-p6.
+  *Pascal-P6* https://sourceforge.net/projects/pascal-p6/.
 
 
 Contributions
@@ -51,7 +51,7 @@ Contributions
 
     P\. Elleaume *A New Approach to the Electron Beam Dynamics in Undulators and Wigglers* `EPAC 1992.`_
 
-    .. _`EPAC 1992.`: https://accelconf.web.cern.ch/e92/PDF/EPAC1992_0661.PDF
+    .. _`EPAC 1992.`: https://proceedings.jacow.org/e92/PDF/EPAC1992_0661.PDF
 
   was implemented by Laurent Nadolski, SOLEIL, 2002.
 
@@ -59,27 +59,27 @@ Contributions
 
     M\. Böge *Update on TRACY-2 Documentation* `SLS Tech Note SLS-TME-TA-1999-0002 (1999).`_
 
-    .. _`SLS Tech Note SLS-TME-TA-1999-0002 (1999).`: http://ados.web.psi.ch/slsnotes/tmeta9902.pdf
+    .. _`SLS Tech Note SLS-TME-TA-1999-0002 (1999).`: https://web.archive.org/web/20220718112347/http://ados.web.psi.ch/slsnotes/tmeta9902.pdf
 
     M\. Böge, J. Chrin *A CORBA Based Client-Server Model for Beam Dynamics Applications* `ICALEPCS 1999.`_
 
-    .. _`ICALEPCS 1999.`: https://accelconf.web.cern.ch/ica99/papers/mc1p61.pdf
+    .. _`ICALEPCS 1999.`: https://proceedings.jacow.org/ica99/papers/mc1p61.pdf
 
   with `p2c.`_
 
-    .. _`p2c.`: http://users.fred.net/tds/lab/p2c/historic/daves.index-2012Jul25-20-44-55.html
+    .. _`p2c.`: http://users.fred.net/tds/lab/p2c/archive/daves.index-2012Jul25-20-44-55.html
 
 * Similarly, James Rowland re-used the C version to implement a *Virtual Accelerator* interfaced to EPICS as a *Virtual Input Output Controller* (VIOC):
 
     M\. Heron, J. Rowland, et al *Progress on the Implementation of the DIAMOND Control System* `ICALEPCS 2005.`_
 
-    .. _`ICALEPCS 2005.`: https://accelconf.web.cern.ch/ica05/proceed-ings/pdf/P1_018.pdf
+    .. _`ICALEPCS 2005.`: https://proceedings.jacow.org/ica05/Proceedings/pdf/P1_018.pdf
 
 * Besides, a subset of the internal *numerical engine* was manually translated to C and re-used for:
 
     A\. Terebilo *Accelerator Toolbox for MATLAB* `SLAC-PUB-8732 (2001).`_
 
-    .. _`SLAC-PUB-8732 (2001).`: http://www-public.slac.stanford.edu/sciDoc/docMeta.aspx?slacPubNumber=SLAC-PUB-8732
+    .. _`SLAC-PUB-8732 (2001).`: https://www.osti.gov/biblio/784910
 
 
 However, unfortunately, the effort required to understand how the linear optics is obtained from the symplectic integrater, by utilising Power Series Algebra (TPSA),
