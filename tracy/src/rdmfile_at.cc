@@ -434,6 +434,7 @@ static void create_elem(const Element &curr_elem)
     Drift_Alloc(&elem);
   } else if ((curr_elem.passMethod == "CorrectorPass") ||
 	     (curr_elem.passMethod == "StrMPoleSymplectic4Pass") ||
+	     (curr_elem.passMethod == "StrMPoleSymplectic4RadPass") ||
 	     (curr_elem.passMethod == "BndMPoleSymplectic4RadPass")) {
     elem.Pkind = PartsKind(Mpole);
     // Multipole.
@@ -504,8 +505,26 @@ static void create_elem(const Element &curr_elem)
       elem.M->Pthick = pthicktype(thin);
     else
       elem.M->Pthick = pthicktype(thick);
+
+    /* AT's CorrectorPass adds KickAngle to the transverse momenta,
+         px += xkick,  py += ykick,
+       independent of delta. Tracy's dipole components kick by
+         px -= L*b_1,  py += L*a_1,
+       with L = 1 for a thin element and the length otherwise.               */
+    const double xkick = require_number(curr_elem, "KickAngle", 0),
+                 ykick = require_number(curr_elem, "KickAngle", 1),
+                 L     = (elem.PL != 0e0)? elem.PL : 1e0;
+
+    elem.M->PB[HOMmax+Dip] = -xkick/L;
+    elem.M->PB[HOMmax-Dip] = ykick/L;
+    elem.M->PBpar[HOMmax+Dip] = elem.M->PB[HOMmax+Dip];
+    elem.M->PBpar[HOMmax-Dip] = elem.M->PB[HOMmax-Dip];
+    elem.M->Porder = std::max(elem.M->Porder, (int)Dip);
+    if (dbg)
+      printf("  kick       = %10.3e %10.3e\n", xkick, ykick);
   }
   if ((curr_elem.passMethod == "StrMPoleSymplectic4Pass") ||
+      (curr_elem.passMethod == "StrMPoleSymplectic4RadPass") ||
       (curr_elem.passMethod == "BndMPoleSymplectic4RadPass")) {
     if (elem.PL == 0e0)
       elem.M->Pthick = pthicktype(thin);
@@ -545,6 +564,19 @@ static void create_elem(const Element &curr_elem)
       if (dbg)
 	printf("  %2d   %10.3e  %10.3e]\n",
 	       n, elem.M->PB[HOMmax+n], elem.M->PB[HOMmax-n]);
+    }
+    /* AT's thick multipole passes add a corrector KickAngle to the dipole
+       components as sin(kick)/L.                                            */
+    if ((elem.PL != 0e0)
+	&& (curr_elem.props.find("KickAngle") != curr_elem.props.end())) {
+      const double xkick = require_number(curr_elem, "KickAngle", 0),
+                   ykick = require_number(curr_elem, "KickAngle", 1);
+
+      elem.M->PB[HOMmax+Dip] -= sin(xkick)/elem.PL;
+      elem.M->PB[HOMmax-Dip] += sin(ykick)/elem.PL;
+      elem.M->PBpar[HOMmax+Dip] = elem.M->PB[HOMmax+Dip];
+      elem.M->PBpar[HOMmax-Dip] = elem.M->PB[HOMmax-Dip];
+      elem.M->Porder = std::max(elem.M->Porder, (int)Dip);
     }
     // Set n_design based on element name prefix.
     // TODO: Idealy this should depend on Porder.
