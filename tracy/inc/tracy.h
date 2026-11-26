@@ -53,12 +53,12 @@
 
 
 const double  c0    = 2.99792458e8;             // speed of light in vacuum
-const double  q_e   = 1.602e-19;                // electron charge
-const double  m_e   = 0.51099906e6;             // electron rest mass [eV/c^2]
-const double  mu_0  = 4.0*M_PI*1e-7;            // permittivity of free space
-const double  eps_0 = 1.0/(sqr(c0)*mu_0);       // permeability of free space
+const double  q_e   = 1.602176634e-19;          // electron charge [C]
+const double  m_e   = 0.51099895069e6;          // electron rest mass [eV/c^2]
+const double  mu_0  = 1.25663706127e-6;         // permeability of free space [N/A^2]
+const double  eps_0 = 1.0/(sqr(c0)*mu_0);       // permittivity of free space
 const double  r_e   = q_e/(4.0*M_PI*eps_0*m_e); // classical electron radius
-const double  h_bar = 6.58211899e-16;           // reduced Planck constant [eV s]
+const double  h_bar = 6.582119569e-16;          // reduced Planck constant [eV s]
 
 const double  max_ampl = 10.0; // [m]
 
